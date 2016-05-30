@@ -726,7 +726,7 @@ void LMOptAlgorithm::calculateFunctionValue( Eigen::VectorXd & fvec )
       const Observable          * obs      = m_optimObs[i]; 
       const std::vector<double> & refVal   = obs->referenceValue()->asDoubleArray();
       const std::vector<double> & obv      = rc->obsValue( m_permObs[i] )->asDoubleArray();
-      double                      sigma    = obs->stdDeviationForRefValue();
+      const std::vector<double> & sigma    = obs->stdDeviationForRefValue( )->asDoubleArray( );
       double                      uaWeight = obs->uaWeight();
 
       assert( refVal.size() == obv.size() );
@@ -735,10 +735,16 @@ void LMOptAlgorithm::calculateFunctionValue( Eigen::VectorXd & fvec )
       {
          if ( obv[k] == DataAccess::Interface::DefaultUndefinedScalarValue || obv[k] == DataAccess::Interface::DefaultUndefinedMapValue )
          {
-            LogHandler( LogHandler::ERROR_SEVERITY ) << "Invalid observation value: " << obv[k] <<" stopping...";
+            LogHandler( LogHandler::ERROR_SEVERITY ) << "Invalid observation value: " << obs->name( )[k] << " with simulated value " << obv[k] << ". Stopping...";
             throw ErrorHandler::Exception( ErrorHandler::UnknownError ) << "Invalid observation value, stopping...";
          }
-         double dif = sqrt( uaWeight ) * std::abs( obv[k] - refVal[k] ) / sigma;
+
+         if ( sigma[k] <= 0 )
+         {
+            LogHandler( LogHandler::ERROR_SEVERITY ) << "Invalid standard deviation value: " << obs->name( )[k] << " with standard deviation " << sigma[k] << ". Stopping...";
+         }
+
+         double dif = sqrt( uaWeight ) * std::abs( obv[k] - refVal[k] ) / sigma[k];
 
 #ifndef ACCUMULATE_MIN_FUNCTION
          fvec[mi] = dif; 

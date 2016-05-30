@@ -88,13 +88,13 @@ public:
       double age = atof( prms[pos++].c_str() ); // age for the observable
 
       casa::Observable * obsVal = casa::ObsGridPropertyXYZ::createNewInstance( x, y, z, prms[1].c_str(), age, name );
-
+     
       if ( prms.size() == 10 )
       {
          double refVal = atof( prms[pos++].c_str() ); // observable reference value
          double stdDev = atof( prms[pos++].c_str() ); // std deviation value
 
-         obsVal->setReferenceValue( new casa::ObsValueDoubleScalar( obsVal, refVal ), stdDev );
+         obsVal->setReferenceValue( new casa::ObsValueDoubleScalar( obsVal, refVal ), new casa::ObsValueDoubleScalar( obsVal, stdDev ) );
       }
 
       if ( prms.size() > 7 )
@@ -170,12 +170,18 @@ public:
       std::replace( prms[1].begin( ), prms[1].end( ), '\\', '/' );
 #endif
       // read trajectory file
-      std::vector<double> x, y, z, r;
-      CfgFileParser::readTrajectoryFile( trajFileName, x, y, z, r );
+      std::vector<double> x, y, z, r, sdev;
+      CfgFileParser::readTrajectoryFile( trajFileName, x, y, z, r, sdev );
+
+      // If no sdev was specified in the trajFileName, fill sdev vector with stdDev (unique value for all measurements)
+      if ( sdev.empty() )
+         for ( size_t i = 0; i != r.size( ); ++i ) sdev.push_back( stdDev );
       
+
       // create observable
       casa::Observable * obsVal = casa::ObsGridPropertyWell::createNewInstance( x, y, z, propName.c_str(), age, name );
-      obsVal->setReferenceValue( new casa::ObsValueDoubleArray( obsVal, r ), stdDev );
+      new casa::ObsValueDoubleArray( obsVal, sdev );
+      obsVal->setReferenceValue( new casa::ObsValueDoubleArray( obsVal, r ), new casa::ObsValueDoubleArray( obsVal, sdev ) );
 
       obsVal->setSAWeight( wgtSA );
       obsVal->setUAWeight( wgtUA );
@@ -240,7 +246,7 @@ public:
          double refVal                 = atof( prms[pos++].c_str() ); // observable reference value
          double stdDev                 = atof( prms[pos++].c_str() ); // std deviation value
          
-         obsVal->setReferenceValue( new casa::ObsValueDoubleScalar( obsVal, refVal ), stdDev );
+         obsVal->setReferenceValue( new casa::ObsValueDoubleScalar( obsVal, refVal ), new casa::ObsValueDoubleScalar( obsVal, stdDev ) );
       }
       if ( prms.size() > 6 )
       {
@@ -308,7 +314,7 @@ public:
          double refVal                 = atof( prms[pos++].c_str() ); // observable reference value
          double stdDev                 = atof( prms[pos++].c_str() ); // std deviation value
          
-         obsVal->setReferenceValue( new casa::ObsValueDoubleScalar( obsVal, refVal ), stdDev );
+         obsVal->setReferenceValue( new casa::ObsValueDoubleScalar( obsVal, refVal ), new casa::ObsValueDoubleScalar( obsVal, stdDev ) );
       }
       if ( prms.size() > 6 )
       {

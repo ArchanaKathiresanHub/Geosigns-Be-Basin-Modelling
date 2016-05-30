@@ -90,12 +90,12 @@ namespace casa
 
       /// @brief Get standard deviations for the reference value
       /// @return a standard deviation for reference value
-      virtual double stdDeviationForRefValue() const = 0;
+      virtual const ObsValue * stdDeviationForRefValue( ) const = 0;
 
       /// @brief Set reference value
       /// @param refVal reference value itself
       /// @param stdDevVal standard deviation value for the reference value
-      virtual void setReferenceValue( ObsValue * refVal, double stdDevVal ) = 0;
+      virtual void setReferenceValue( ObsValue * refVal, ObsValue * stdDevVal ) = 0;
 
       /// @brief Get weighting coefficient for sensitivity analysis
       /// return weighting coefficient. This coefficient should be used in Pareto diagram calculation

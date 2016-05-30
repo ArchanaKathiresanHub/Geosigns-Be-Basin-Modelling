@@ -85,16 +85,20 @@ SUMlib::McmcBase * MonteCarloSolverImpl::createMcmc( const SUMlib::CompoundProxy
    for ( size_t i = 0; i < obs.size(); ++i )
    {
       const Observable * obv = obs.observable( i );
+
       if ( obv->hasReferenceValue() )
       {
          const ObsValue * obrv = obv->referenceValue();
+         const ObsValue * stdrv = obv->stdDeviationForRefValue( );
+
          if ( obrv->isDouble() )
          {
             const std::vector<double> & vals = obrv->asDoubleArray();
+            const std::vector<double> & vstd = stdrv->asDoubleArray( );
 
             for ( size_t k = 0; k < vals.size(); ++k )
             {
-               m_input.push_back( new SUMlib::ReferenceProxy( *proxies[numObsVals], vals[k], obv->stdDeviationForRefValue() ) );
+               m_input.push_back( new SUMlib::ReferenceProxy( *proxies[numObsVals], vals[k], vstd[k] ) );
                ++numObsVals;
             }
          }

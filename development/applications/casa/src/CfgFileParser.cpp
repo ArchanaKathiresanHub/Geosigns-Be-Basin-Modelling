@@ -188,7 +188,8 @@ void CfgFileParser::readTrajectoryFile( const std::string & fileName,
                                         std::vector<double> & x,
                                         std::vector<double> & y,
                                         std::vector<double> & z,
-                                        std::vector<double> & ref )
+                                        std::vector<double> & ref,
+                                        std::vector<double> & sdev )
 {
    std::ifstream ifs( fileName.c_str() );
 
@@ -198,6 +199,7 @@ void CfgFileParser::readTrajectoryFile( const std::string & fileName,
    y.clear();
    z.clear();
    ref.clear();
+   sdev.clear();
 
    std::string line;
    
@@ -213,7 +215,7 @@ void CfgFileParser::readTrajectoryFile( const std::string & fileName,
       int tokNum = 0;
       std::string opt;
 
-      double xc, yc, zc, rv;
+      double xc, yc, zc, rv, sd;
 
       while( std::getline( iss, result, ' ') ) 
       {
@@ -221,20 +223,14 @@ void CfgFileParser::readTrajectoryFile( const std::string & fileName,
 
          switch( tokNum )
          {
-            case 0: xc = atof( result.c_str() ); break;
-            case 1: yc = atof( result.c_str() ); break;
-            case 2: zc = atof( result.c_str() ); break;
-            case 3: rv = atof( result.c_str() ); break;
+            case 0: xc = atof( result.c_str( ) ); x.push_back( xc ); break;
+            case 1: yc = atof( result.c_str( ) ); y.push_back( yc ); break;
+            case 2: zc = atof( result.c_str( ) ); z.push_back( zc ); break;
+            case 3: rv = atof( result.c_str( ) ); ref.push_back( rv ); break;
+            case 4: sd = atof( result.c_str( ) ); sdev.push_back( sd ); break;
             default: throw std::runtime_error( std::string( "Wrong format of Well trajectory file: " ) + fileName );
          }
          ++tokNum;
-      }
-      if ( 4 == tokNum )
-      {
-         x.push_back( xc );
-         y.push_back( yc );
-         z.push_back( zc );
-         ref.push_back( rv );
       }
    }
 

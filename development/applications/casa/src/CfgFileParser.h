@@ -36,7 +36,8 @@ public:
                                    std::vector<double> & x,
                                    std::vector<double> & y,
                                    std::vector<double> & z,
-                                   std::vector<double> & ref );
+                                   std::vector<double> & ref,
+                                   std::vector<double> & sdev );
 
    // read parameters value from plain data file
    static void readParametersValueFile( const std::string & fileName, std::vector< std::vector<double> > & dataVals );

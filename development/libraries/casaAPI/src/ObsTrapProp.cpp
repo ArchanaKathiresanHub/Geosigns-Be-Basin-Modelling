@@ -42,7 +42,6 @@ ObsTrapProp::ObsTrapProp( double x
                         , m_propName( propName )
                         , m_simTime( simTime )
                         , m_posDataMiningTbl( -1 )
-                        , m_devValue( 0.0 )
                         , m_saWeight( 1.0 )
                         , m_uaWeight( 1.0 )
 
@@ -67,14 +66,16 @@ ObsTrapProp::~ObsTrapProp() {;}
 std::vector<std::string> ObsTrapProp::name() const { return m_name; }
         
 // Get standard deviations for the reference value
-void ObsTrapProp::setReferenceValue( ObsValue * obsVal, double devVal )
+void ObsTrapProp::setReferenceValue( ObsValue * obsVal, ObsValue * devVal )
 {
    assert( obsVal != NULL );
    assert( dynamic_cast<ObsValueDoubleScalar*>( obsVal ) != NULL );
-   assert( devVal >= 0.0 );
+
+   assert( devVal != NULL );
+   assert( dynamic_cast<ObsValueDoubleScalar*>( devVal ) != NULL );
 
    m_refValue.reset( obsVal );
-   m_devValue = devVal;
+   m_devValue.reset( devVal );
 }
  
 // Update Model to be sure that requested property will be saved at the requested time
@@ -208,7 +209,9 @@ bool ObsTrapProp::save( CasaSerializer & sz, unsigned int /* version */) const
    ok = ok ? sz.save( hasRefVal, "HasRefValue" ) : ok;
    if ( hasRefVal ) { ok = ok ? sz.save( *(m_refValue.get()), "refValue" ) : ok; }
    
-   ok = ok ? sz.save( m_devValue, "devValue" ) : ok;
+   bool hasDevVal = m_devValue.get( ) ? true : false;
+   ok = ok ? sz.save( hasDevVal, "HasDevVal" ) : ok;
+   if ( hasDevVal ) { ok = ok ? sz.save( *( m_devValue.get( ) ), "devValue" ) : ok; }
 
    ok = ok ? sz.save( m_saWeight, "saWeight" ) : ok;
    ok = ok ? sz.save( m_uaWeight, "uaWeight" ) : ok;
@@ -246,7 +249,13 @@ ObsTrapProp::ObsTrapProp( CasaDeserializer & dz, unsigned int objVer )
 
    if ( hasRefVal ) { m_refValue.reset( ObsValue::load( dz, "refValue" ) ); }
 
-   ok = ok ? dz.load( m_devValue, "devValue" ) : ok;
+   if ( version( ) > 0 )
+   {
+      bool hasDevVal;
+      ok = ok ? dz.load( hasDevVal, "HasDevVal" ) : ok;
+      if ( hasDevVal ) { m_devValue.reset( ObsValue::load( dz, "devValue" ) ); }
+   }
+
    ok = ok ? dz.load( m_saWeight, "saWeight" ) : ok;
    ok = ok ? dz.load( m_uaWeight, "uaWeight" ) : ok;
    

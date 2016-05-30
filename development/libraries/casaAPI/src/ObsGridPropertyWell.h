@@ -75,13 +75,13 @@ namespace casa
       virtual const ObsValue * referenceValue() const { return m_refValue.get(); }
 
       /// @brief Get standard deviations for the reference value
-      /// @return a standard deviation for reference value
-      virtual double stdDeviationForRefValue() const { return m_devValue; }
+      /// @return standard deviation for reference value
+      virtual const ObsValue * stdDeviationForRefValue( ) const { return m_devValue.get(); }
 
       /// @brief Set reference value
       /// @param refVal reference value itself
       /// @param stdDevVal standard deviation value for the reference value
-      virtual void setReferenceValue( ObsValue * refVal, double stdDevVal );
+      virtual void setReferenceValue( ObsValue * refVal, ObsValue * stdDevVal );
 
       /// @brief Get weighting coefficient for sensitivity analysis
       /// return weighting coefficient. This coefficient should be used in Pareto diagram calculation
@@ -134,7 +134,7 @@ namespace casa
       /// @{
       /// @brief Defines version of serialized object representation. Must be updated on each change in save()
       /// @return Actual version of serialized object representation
-      virtual unsigned int version() const { return 0; }
+      virtual unsigned int version() const { return 1; }
 
       /// @brief Get type name of the serialaizable object, used in deserialization to create object with correct type
       /// @return object class name
@@ -166,7 +166,7 @@ namespace casa
       std::vector<int>          m_posDataMiningTbl; ///< row number in DataMiningIoTbl which corresponds this observable
 
       std::unique_ptr<ObsValue>   m_refValue;         ///< reference value
-      double                    m_devValue;         ///< standard deviation for reference value
+      std::unique_ptr<ObsValue>   m_devValue;         ///< standard deviation for reference value
 
       double                    m_saWeight;         ///< Observable weight for sensitivity analysis
       double                    m_uaWeight;         ///< Observable weight for uncertainty analysis
