@@ -77,6 +77,11 @@ struct submitReply
    int dummy;
 };
 
+struct jobInfoEnt 
+{
+   int dummy;
+};
+
 #define  SUB_JOB_NAME       0x01
 #define  SUB_OUT_FILE       0x10
 #define  SUB_ERR_FILE       0x20
