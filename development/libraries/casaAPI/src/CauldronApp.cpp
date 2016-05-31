@@ -13,6 +13,7 @@
 
 // CASA API
 #include "FilePath.h"
+#include "FolderPath.h"
 #include "CauldronApp.h"
 #include "CauldronEnvConfig.h"
 
@@ -389,8 +390,8 @@ namespace casa
    // print the defined set of environment variables to stream
    void CauldronApp::dumpEnv( std::ostream & oss )
    {
-      ibs::Path appPath( m_version );  // version could be set as a full path to the application executable
-      ibs::Path miscPath( appPath );
+      ibs::FilePath appPath( m_version );  // version could be set as a full path to the application executable
+      ibs::FolderPath miscPath( appPath.path() );
 #ifdef _WIN32
       std::string osAppName = m_appName + ".exe";
 #else
@@ -422,13 +423,13 @@ namespace casa
             miscPath << ".." << "misc";
             if ( !miscPath.exists() )
             {
-               miscPath = appPath;
-               miscPath.cutLast(); // cut application name
+               miscPath = appPath.filePath();
                miscPath << ".." << ".." << "misc";
 
             }
             oss << "CAULDRON_MISC_PATH=" << miscPath.fullPath().path() << "\n";
             oss << "APP=" << appPath.path() << '\n';
+            oss << "APP_BIN_PATH=\"" << appPath.filePath() << "\"\n";
          }
 
          oss << "if [ ! -e $APP ]; then\n"
@@ -452,7 +453,7 @@ namespace casa
             miscPath << ".." << "misc";
             if ( !miscPath.exists() )
             {
-               miscPath = appPath;
+               miscPath = appPath.filePath();
                miscPath << ".." << ".." << "misc";
             }
             oss << "set CAULDRON_MISC_PATH=" << miscPath.path() << "\n";
