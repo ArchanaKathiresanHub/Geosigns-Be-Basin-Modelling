@@ -68,11 +68,11 @@ namespace Shell.BasinModeling.Cauldron.Test
 
          // add 2 observables for T & VRE
          Observable ob = ObsGridPropertyXYZ.createNewInstance(460001.0, 6750001.0, 2751.0, "Temperature", 0.0);
-         ob.setReferenceValue(ObsValueDoubleScalar.createNewInstance(ob, 108.6), 2.0);
+         ob.setReferenceValue(ObsValueDoubleScalar.createNewInstance(ob, 108.6), ObsValueDoubleScalar.createNewInstance(ob, 2.0));
          Assert.AreEqual(ErrorHandler.ReturnCode.NoError, obs.addObservable(ob));
 
          ob = ObsGridPropertyXYZ.createNewInstance(460001.0, 6750001.0, 2730.0, "Vr", 0.0);
-         ob.setReferenceValue(ObsValueDoubleScalar.createNewInstance(ob, 1.1), 0.1);
+         ob.setReferenceValue(ObsValueDoubleScalar.createNewInstance(ob, 1.1), ObsValueDoubleScalar.createNewInstance(ob, 0.1));
          Assert.AreEqual(ErrorHandler.ReturnCode.NoError, obs.addObservable(ob));
 
          // set Tornado as DoE
