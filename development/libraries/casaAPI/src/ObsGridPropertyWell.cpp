@@ -12,6 +12,7 @@
 
 // CASA API
 #include "ObsValueDoubleArray.h"
+#include "ObsValueDoubleScalar.h"
 #include "ObsGridPropertyWell.h"
 
 // CMB API
@@ -271,12 +272,19 @@ ObsGridPropertyWell::ObsGridPropertyWell( CasaDeserializer & dz, unsigned int ob
 
    if ( hasRefVal ) { m_refValue.reset( ObsValue::load( dz, "refValue" ) ); }
 
-   if ( version( ) > 0 ) 
+   if ( objVer == 0 )
    { 
+      double val;
+      ok = ok ? dz.load( val, "devValue" ) : ok;
+      if ( ok ) { m_devValue.reset( new  ObsValueDoubleScalar( this, val ) ); }
+   }
+   else
+   {
       bool hasDevVal;
       ok = ok ? dz.load( hasDevVal, "HasDevVal" ) : ok;
       if ( hasDevVal ) { m_devValue.reset( ObsValue::load( dz, "devValue" ) ); }
    }
+
    ok = ok ? dz.load( m_saWeight, "saWeight" ) : ok;
    ok = ok ? dz.load( m_uaWeight, "uaWeight" ) : ok;
 

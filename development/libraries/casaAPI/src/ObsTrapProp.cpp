@@ -249,7 +249,13 @@ ObsTrapProp::ObsTrapProp( CasaDeserializer & dz, unsigned int objVer )
 
    if ( hasRefVal ) { m_refValue.reset( ObsValue::load( dz, "refValue" ) ); }
 
-   if ( version( ) > 0 )
+   if ( objVer == 0 )
+   {
+      double val;
+      ok = ok ? dz.load( val, "devValue" ) : ok;
+      if ( ok ) { m_devValue.reset( new  ObsValueDoubleScalar( this, val ) ); }
+   }
+   else
    {
       bool hasDevVal;
       ok = ok ? dz.load( hasDevVal, "HasDevVal" ) : ok;

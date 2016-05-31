@@ -210,7 +210,7 @@ bool ObsSourceRockMapProp::save( CasaSerializer & sz, unsigned int /* version */
    bool hasDevVal = m_devValue.get( ) ? true : false;
    ok = ok ? sz.save( hasDevVal, "HasDevVal" ) : ok;
    if ( hasDevVal ) { ok = ok ? sz.save( *( m_devValue.get( ) ), "devValue" ) : ok; }
-
+   
    ok = ok ? sz.save( m_saWeight, "saWeight" ) : ok;
    ok = ok ? sz.save( m_uaWeight, "uaWeight" ) : ok;
 
@@ -248,7 +248,13 @@ ObsSourceRockMapProp::ObsSourceRockMapProp( CasaDeserializer & dz, unsigned int 
 
    if ( hasRefVal ) { m_refValue.reset( ObsValue::load( dz, "refValue" ) ); }
 
-   if ( version( ) > 0 )
+   if ( objVer == 0 )
+   {
+      double val;
+      ok = ok ? dz.load( val, "devValue" ) : ok;
+      if ( ok ) { m_devValue.reset( new  ObsValueDoubleScalar( this, val ) ); }  
+   }
+   else
    {
       bool hasDevVal;
       ok = ok ? dz.load( hasDevVal, "HasDevVal" ) : ok;

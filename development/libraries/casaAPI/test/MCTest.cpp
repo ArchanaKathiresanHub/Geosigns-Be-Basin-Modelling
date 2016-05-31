@@ -47,11 +47,11 @@ public:
       ASSERT_EQ( ErrorHandler::NoError, vrs.addParameter( new VarPrmTopCrustHeatProduction( dblRng, vector<string>(), VarPrmContinuous::Block ) ) );
 
       Observable * ob = ObsGridPropertyXYZ::createNewInstance( 460001.0, 6750001.0, 2751.0, "Temperature", 0.0 );
-      ob->setReferenceValue( new ObsValueDoubleScalar( ob, 108.6 ), 2.0 ); 
+      ob->setReferenceValue( new ObsValueDoubleScalar( ob, 108.6 ), new ObsValueDoubleScalar( ob, 2.0 ) ); 
       ASSERT_EQ( ErrorHandler::NoError, obs.addObservable( ob ) );
 
       ob = ObsGridPropertyXYZ::createNewInstance( 460001.0, 6750001.0, 2730.0, "Vr", 0.0 );
-      ob->setReferenceValue( new ObsValueDoubleScalar( ob, 1.1 ), 0.1 );
+      ob->setReferenceValue( new ObsValueDoubleScalar( ob, 1.1 ), new ObsValueDoubleScalar( ob, 0.1 ) );
       ASSERT_EQ( ErrorHandler::NoError, obs.addObservable( ob ) );
 
       ASSERT_EQ( ErrorHandler::NoError, sc.setDoEAlgorithm( DoEGenerator::Tornado ) );
