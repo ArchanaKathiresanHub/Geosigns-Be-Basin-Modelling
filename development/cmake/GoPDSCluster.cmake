@@ -10,6 +10,21 @@
 #                                                                       #
 #########################################################################
 
+execute_process(
+      COMMAND "uname" "-io"
+      COMMAND "sed" "s,\/,_,g"
+      COMMAND "sed" "s,\ ,_,g"
+      RESULT_VARIABLE PDS_PLATFORM_IS_NOT_OK
+      OUTPUT_VARIABLE PDS_PLATFORM
+      OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
+if (NOT PDS_PLATFORM_IS_NOT_OK)
+   set( BM_PLATFORM_ID "${PDS_PLATFORM}" CACHE STRING "An identifier for the platform (OS, etc...) for this is build" )
+else()
+   message( SEND_ERROR "Platform version retrieve failed!" )
+endif()
+
 set(CBM_HOME "/glb/data/cauldron" CACHE PATH "The path the shared drive of the development team")
 
 option( BM_BUILD_QT3_APPS "Build programs that need QT3" OFF)
