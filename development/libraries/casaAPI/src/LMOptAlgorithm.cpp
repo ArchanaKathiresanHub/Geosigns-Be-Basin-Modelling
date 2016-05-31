@@ -189,15 +189,17 @@ namespace casa
          {
             for ( int i = 0; i != x.size(); ++i )
             {
-               if ( x( i ) + m_wa1( i ) < m_xMin( i ) )
+               double maxVal = m_xMax( i ) - numeric_limits<double>::epsilon();
+               double minVal = m_xMin( i ) + numeric_limits<double>::epsilon();
+               if ( x( i ) + m_wa1( i ) < minVal )
                {
-                  LogHandler( LogHandler::DEBUG_SEVERITY ) << " Parameter " << i << " out of lower bound, fixed at the boundary";
-                  m_wa1( i ) = m_xMin( i ) - x( i );
+                  LogHandler( LogHandler::DEBUG_SEVERITY ) << " Parameter " << i << " out of lower bound, fixed at the boundary ";
+                  m_wa1( i ) = minVal - x( i );
                }
-               else if ( x( i ) + m_wa1( i )  > m_xMax( i ) )
+               else if ( x( i ) + m_wa1( i )  > maxVal )
                {
-                  LogHandler( LogHandler::DEBUG_SEVERITY ) << " Parameter " << i << " out of upper bound, fixed at the boundary";
-                  m_wa1( i ) = m_xMax( i ) - x( i );
+                  LogHandler( LogHandler::DEBUG_SEVERITY ) << " Parameter " << i << " out of upper bound, fixed at the boundary with value ";
+                  m_wa1( i ) = maxVal - x( i );
                }
             }
          }
@@ -615,13 +617,13 @@ void LMOptAlgorithm::updateParametersAndRunCase( const Eigen::VectorXd & x )
       {
          prmVal = pow( 10.0, prmVal);
       }
-      if ( minPrms[m_permPrms[i]] > prmVal + numeric_limits<double>::epsilon( ) )
+      if ( minPrms[m_permPrms[i]] > prmVal  )
       {
          cntPrms[m_permPrms[i]] = minPrms[m_permPrms[i]];
          LogHandler( LogHandler::DEBUG_SEVERITY ) << " parameter " << i << " = " << prmVal << " < min range value: " << minPrms[m_permPrms[i]];
         // x( i ) = minPrms[m_permPrms[i]];
       }
-      else if ( maxPrms[m_permPrms[i]] < prmVal - numeric_limits<double>::epsilon( ) )
+      else if ( maxPrms[m_permPrms[i]] < prmVal  )
       {
          cntPrms[m_permPrms[i]] = maxPrms[m_permPrms[i]];
          LogHandler( LogHandler::DEBUG_SEVERITY ) << " parameter " << i << " = " << prmVal << " > max range value: " << maxPrms[m_permPrms[i]];
@@ -735,13 +737,13 @@ void LMOptAlgorithm::calculateFunctionValue( Eigen::VectorXd & fvec )
       {
          if ( obv[k] == DataAccess::Interface::DefaultUndefinedScalarValue || obv[k] == DataAccess::Interface::DefaultUndefinedMapValue )
          {
-            LogHandler( LogHandler::ERROR_SEVERITY ) << "Invalid observation value: " << obs->name( )[k] << " with simulated value " << obv[k] << ". Stopping...";
+            LogHandler( LogHandler::ERROR_SEVERITY ) << "Invalid observation value: " << obs->name( )[k] << " with simulated value " << obv[k] << ", stopping...";
             throw ErrorHandler::Exception( ErrorHandler::UnknownError ) << "Invalid observation value, stopping...";
          }
 
          if ( sigma[k] <= 0 )
          {
-            LogHandler( LogHandler::ERROR_SEVERITY ) << "Invalid standard deviation value: " << obs->name( )[k] << " with standard deviation " << sigma[k] << ". Stopping...";
+            LogHandler( LogHandler::ERROR_SEVERITY ) << "Invalid standard deviation value: " << obs->name( )[k] << " with standard deviation " << sigma[k] << ", stopping...";
          }
 
          double dif = sqrt( uaWeight ) * std::abs( obv[k] - refVal[k] ) / sigma[k];
@@ -803,12 +805,12 @@ void LMOptAlgorithm::calculateFunctionValue( Eigen::VectorXd & fvec )
             break;
       }
       // add penalty on goin out of the range
-      if ( pval < minV - numeric_limits<double>::epsilon( ) )
+      if ( pval < minV )
       { 
          LogHandler( LogHandler::DEBUG_SEVERITY ) << "pval less than minV : "<< pval <<" "<< minV;
          fpen = 50 * (minV - pval); 
       }  // penalty if v < [min:max]
-      else if ( pval > maxV + numeric_limits<double>::epsilon( ) )
+      else if ( pval > maxV )
       { 
          LogHandler( LogHandler::DEBUG_SEVERITY ) << "pval larger than maxV : " << pval << " " << minV;
          fpen  = 50 * (pval - maxV); 
