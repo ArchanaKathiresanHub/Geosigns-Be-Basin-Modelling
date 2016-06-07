@@ -75,14 +75,14 @@ void CmdGenerateMultiOneD::generateScenarioScripts( std::unique_ptr<casa::Scenar
       oss << m_commander.toString( cmdQueue[i].get() ) << "\n";
    }
    oss << "\ncalibrateProject \"" << sa->baseCaseProjectFileName( ) << "\" \"LM\" \"" << m_cldVer << "\" \"" << m_transformation << "\"" << ( m_keepHist ? " \"KeepHistory\"" : "" ) << "\n";
-   oss << "\nsavestate \"casa_state.txt\" \"txt\"\n";
+   oss << "\nsavestate \"casa_state.bin\" \"bin\"\n";
 
    // Go over all cases and save scenario file
    // write a casa command file for multi1D cases only if 1d RunCases exist
    sa->doeCaseSet().filterByExperimentName( "OneDProjects" );
    for ( size_t i = 0; i < sa->doeCaseSet().size(); ++i )
    {
-      const casa::RunCase * cs = sa->doeCaseSet()[i];
+      const casa::RunCase * cs = sa->doeCaseSet()[i].get();
       ibs::FilePath scFile( cs->projectPath() );
       scFile.cutLast(); // remove project file name from the path
       scFile << "scenario1d.casa";

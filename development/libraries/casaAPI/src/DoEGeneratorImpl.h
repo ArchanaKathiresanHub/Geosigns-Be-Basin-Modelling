@@ -22,6 +22,9 @@
 // SUMLib includes
 #include <BaseTypes.h>
 
+// STL
+#include <memory>
+
 namespace SUMlib
 {
    class Case;
@@ -83,7 +86,7 @@ namespace casa
       // [in] varSp as a parameters factory
       // [out] expSet list of CASA cases which will be extended for the new one
       // [in]  cs SUMLib generated case
-      void addCase( const VarSpace & varSp, std::vector<RunCase*> & expSet, const SUMlib::Case & cs );
+      void addCase( const VarSpace & varSp, std::vector<std::shared_ptr<RunCase>> & expSet, const SUMlib::Case & cs );
    };
 }
 #endif // CASA_API_DOE_GENERATOR_H

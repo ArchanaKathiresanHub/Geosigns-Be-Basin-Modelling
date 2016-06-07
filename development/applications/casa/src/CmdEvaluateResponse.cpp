@@ -59,7 +59,7 @@ void CmdEvaluateResponse::createRunCasesSet( std::unique_ptr<casa::ScenarioAnaly
       {
          for ( size_t j = 0; j < sa->doeCaseSet().size(); ++j )
          {
-            const casa::RunCase * rc = sa->doeCaseSet()[j];
+            const casa::RunCase * rc = sa->doeCaseSet()[j].get();
             // create new RunCase and make a shallow copy of parameters using shared pointers
             std::unique_ptr<casa::RunCase> nrc( new casa::RunCaseImpl() );
             for ( size_t k = 0; k < rc->parametersNumber(); ++k ) nrc->addParameter( rc->parameter( k ) );

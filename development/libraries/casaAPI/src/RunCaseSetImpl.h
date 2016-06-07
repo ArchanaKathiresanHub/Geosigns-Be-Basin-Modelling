@@ -40,7 +40,7 @@ namespace casa
       // Access to i-th element
       // i position element in the collection
       // return pointer to RunCase object which should not be deleted by the user on success
-      virtual RunCase * operator[] ( size_t i ) const;
+      virtual std::shared_ptr<RunCase> operator[] ( size_t i ) const;
 
       // Set filter for experiments by experiment name
       virtual void filterByExperimentName( const std::string & expName );
@@ -57,7 +57,7 @@ namespace casa
       virtual bool empty() const { return size() == 0 ? true : false; }
 
       // Move a new Cases to the collection and clear array 
-      void addNewCases( std::vector<RunCase*> & newCases, const std::string & expName );
+      void addNewCases( std::vector<std::shared_ptr<RunCase>> & newCases, const std::string & expLabel );
 
       // collect completed cases for given DoEs name list
       virtual std::vector<const RunCase*> collectCompletedCases( const std::vector<std::string> & doeList );
@@ -77,11 +77,11 @@ namespace casa
       RunCaseSetImpl( CasaDeserializer & inStream, const char * objName );
 
    protected:
-      std::vector< RunCase* > m_caseSet;    // keeps all RunCases
+      std::vector<std::shared_ptr<RunCase>>   m_caseSet;    // keeps all RunCases
       
-      ListOfDoEIndexesSet     m_expSet;     // keeps set of indexes for each experiment
-      std::string             m_filter;     // keeps filter value
-      std::vector<size_t>     m_expIndSet;  // keeps index set for given filter
+      ListOfDoEIndexesSet                     m_expSet;     // keeps set of indexes for each experiment
+      std::string                             m_filter;     // keeps filter value
+      std::vector<size_t>                     m_expIndSet;  // keeps index set for given filter
    };
 }
 

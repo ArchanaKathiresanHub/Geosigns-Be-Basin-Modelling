@@ -25,6 +25,7 @@
 #include "VarPrmPermeabilityModel.h"
 #include "VarPrmLithoSTPThermalCond.h"
 #include "VarPrmLithoFraction.h"
+#include "VarPrmCompactionCoefficient.h"
 
 
 #include "VarPrmCategorical.h"
@@ -127,6 +128,7 @@ namespace casa
       else if ( ot == "VarPrmPermeabilityModel"            ) { return new VarPrmPermeabilityModel(            dz, vr ); }
       else if ( ot == "VarPrmLithoSTPThermalCond"          ) { return new VarPrmLithoSTPThermalCond(          dz, vr ); }
       else if ( ot == "VarPrmLithoFraction"                ) { return new VarPrmLithoFraction(                dz, vr ); }
+      else if ( ot == "VarPrmCompactionCoefficient"        ) { return new VarPrmCompactionCoefficient(        dz, vr ); }
       else
       {
          throw ErrorHandler::Exception( ErrorHandler::DeserializationError )

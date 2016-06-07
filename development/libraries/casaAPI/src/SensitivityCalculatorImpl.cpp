@@ -308,7 +308,7 @@ namespace casa
       for ( size_t e = 0; e < expNames.size(); ++e )
       {
          cs.filterByExperimentName( expNames[e] );
-         for ( size_t j = 0; j < cs.size(); ++j ) { caseSet.push_back( cs[j] ); }
+         for ( size_t j = 0; j < cs.size(); ++j ) { caseSet.push_back( cs[j].get() ); }
       }
 
       // After all preparation and RunCases collecting, here we will calculate proxy

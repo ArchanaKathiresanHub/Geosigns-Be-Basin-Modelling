@@ -28,7 +28,7 @@ static void PrintObsValues( casa::ScenarioAnalysis & sc )
    for ( size_t rc = 0; rc < rcSet.size(); ++rc )
    {
       // go through all run cases
-      const casa::RunCase * cs = rcSet[rc];
+      const casa::RunCase * cs = rcSet[rc].get();
 
       if ( !cs ) continue;
 

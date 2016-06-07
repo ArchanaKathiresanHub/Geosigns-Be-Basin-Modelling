@@ -198,7 +198,7 @@ namespace casa
                }
                else if ( x( i ) + m_wa1( i )  > maxVal )
                {
-                  LogHandler( LogHandler::DEBUG_SEVERITY ) << " Parameter " << i << " out of upper bound, fixed at the boundary with value ";
+                  LogHandler( LogHandler::DEBUG_SEVERITY ) << " Parameter " << i << " out of upper bound, fixed at the boundary ";
                   m_wa1( i ) = maxVal - x( i );
                }
             }
@@ -589,23 +589,23 @@ void LMOptAlgorithm::updateParametersAndRunCase( const Eigen::VectorXd & x )
          case VarParameter::Continuous:
             {
                const VarPrmContinuous * vprm = dynamic_cast<const VarPrmContinuous*>( m_sa->varSpace().parameter( i ) );
-           
-               const std::vector<double> & pva = vprm->baseValue()->asDoubleArray();  
+
+               const std::vector<double> & pva = vprm->baseValue()->asDoubleArray();
                cntPrms.insert( cntPrms.end(), pva.begin(), pva.end() );
-            
+
                const std::vector<double> pminva = vprm->minValue()->asDoubleArray();
                minPrms.insert( minPrms.end(), pminva.begin(), pminva.end() );
-            
+
                const std::vector<double> pmaxva = vprm->maxValue()->asDoubleArray();
                maxPrms.insert( maxPrms.end(), pmaxva.begin(), pmaxva.end() );
-            }
-            break;
+      }
+         break;
 
-         case VarParameter::Categorical:
-            catPrms.push_back( dynamic_cast<const VarPrmCategorical*>( m_sa->varSpace().parameter( i ) )->baseValue()->asInteger() );
-            break;
+      case VarParameter::Categorical:
+         catPrms.push_back( dynamic_cast<const VarPrmCategorical*>( m_sa->varSpace().parameter( i ) )->baseValue()->asInteger() );
+         break;
 
-         default: assert( 0 ); break;
+      default: assert( 0 ); break;
       }
    }
 
@@ -613,7 +613,7 @@ void LMOptAlgorithm::updateParametersAndRunCase( const Eigen::VectorXd & x )
    for ( size_t i = 0; i < m_permPrms.size(); ++i )
    {
       double prmVal = x( i );
-      if ( m_parameterTransformation == "log10" ) 
+      if ( m_parameterTransformation == "log10" )
       {
          prmVal = pow( 10.0, prmVal);
       }
@@ -621,7 +621,7 @@ void LMOptAlgorithm::updateParametersAndRunCase( const Eigen::VectorXd & x )
       {
          cntPrms[m_permPrms[i]] = minPrms[m_permPrms[i]];
          LogHandler( LogHandler::DEBUG_SEVERITY ) << " parameter " << i << " = " << prmVal << " < min range value: " << minPrms[m_permPrms[i]];
-        // x( i ) = minPrms[m_permPrms[i]];
+         // x( i ) = minPrms[m_permPrms[i]];
       }
       else if ( maxPrms[m_permPrms[i]] < prmVal  )
       {
@@ -639,11 +639,11 @@ void LMOptAlgorithm::updateParametersAndRunCase( const Eigen::VectorXd & x )
 
    // create new case with the new parameters values
    SUMlib::Case slCase( cntPrms, std::vector<int>(), catPrms );
-   std::unique_ptr<RunCaseImpl> rc( new RunCaseImpl() );
+   std::shared_ptr<RunCase> rc( new RunCaseImpl() );
 
    // convert array of parameters values to case parametrers
    sumext::convertCase( slCase, m_sa->varSpace(), *(rc.get()) );
-  
+
    if ( !m_casesSet.empty() && ( *(rc.get()) == *(m_casesSet.back()) ) )
    {
       ++m_stepNum;
@@ -651,7 +651,7 @@ void LMOptAlgorithm::updateParametersAndRunCase( const Eigen::VectorXd & x )
    }
    // add this case as a new experiment
    std::string expName = m_keepHistory ? ("LMStep_" + std::to_string( m_stepNum )) : "LMStep";
-  
+
    // construct case project path: pathToScenario/Case_XX/ProjectName.project3d
    ibs::FolderPath casePath( "." );
    casePath << expName;
@@ -660,10 +660,10 @@ void LMOptAlgorithm::updateParametersAndRunCase( const Eigen::VectorXd & x )
    {
       if ( m_keepHistory )
       {
-         LogHandler( LogHandler::WARNING_SEVERITY ) << "Folder for LM step: " << m_stepNum << " is already exist. " << 
-                                                       casePath.fullPath().path() << " will be deleted";
+         LogHandler( LogHandler::WARNING_SEVERITY ) << "Folder for LM step: " << m_stepNum << " is already exist. " <<
+            casePath.fullPath().path() << " will be deleted";
       }
-      casePath.remove(); 
+      casePath.remove();
    }
    casePath.create();
    casePath << (std::string( m_sa->baseCaseProjectFileName() ).empty() ? m_sa->baseCaseProjectFileName() : "Project.project3d");
@@ -671,18 +671,18 @@ void LMOptAlgorithm::updateParametersAndRunCase( const Eigen::VectorXd & x )
    // do mutation
    rc->mutateCaseTo( m_sa->baseCase(), casePath.fullPath().cpath() );
    std::string msg = rc->validateCase();
-   
+
    if ( !msg.empty() )
    {
-      throw ErrorHandler::Exception( ErrorHandler::ValidationError ) << "LM step " << m_stepNum << " generated invalid project: " 
-                                                                     << casePath.path();
+      throw ErrorHandler::Exception( ErrorHandler::ValidationError ) << "LM step " << m_stepNum << " generated invalid project: "
+         << casePath.path();
    }
 
    // submit new job
    casa::RunManager & rm = m_sa->runManager();
 
    if ( !m_keepHistory ) { m_sa->resetRunManager( false ); } // if we do not keep history we need to clean runManager jobs queue, 
-                                                             // otherwise it could try to use completed case pipeline in the new run
+   // otherwise it could try to use completed case pipeline in the new run
 
    if ( ErrorHandler::NoError != rm.scheduleCase(*(rc.get()), m_sa->scenarioID()) )
    {
@@ -699,12 +699,13 @@ void LMOptAlgorithm::updateParametersAndRunCase( const Eigen::VectorXd & x )
 
    if ( m_keepHistory || m_casesSet.empty() )
    {
-      m_casesSet.push_back( rc.release() );
+      m_bestMatchedCase = rc;
+      m_baseCase = rc;
+      m_casesSet.push_back( rc );
    }
-   else 
+   else
    {
-      delete m_casesSet[0];
-      m_casesSet[0] = rc.release();
+      m_casesSet[0] = rc;
    }
    ++m_stepNum;
 }
@@ -718,7 +719,7 @@ void LMOptAlgorithm::calculateFunctionValue( Eigen::VectorXd & fvec )
    // initialze minimization function with all zeros
    for ( size_t i = 0; i < fvec.rows() * fvec.cols(); ++i ) { fvec( i ) = 0.0; }
    
-   RunCase * rc = m_casesSet.back();
+   std::shared_ptr<RunCase>  rc (m_casesSet.back());
 
    size_t mi = 0;
 
@@ -847,6 +848,8 @@ void LMOptAlgorithm::calculateFunctionValue( Eigen::VectorXd & fvec )
       clbPath << m_projectName;
 
       rc->caseModel()->saveModelToProjectFile( clbPath.fullPath().cpath(), true );
+
+      m_bestMatchedCase = rc ;
    }
 
    LogHandler( LogHandler::DEBUG_SEVERITY ) << "Qmin targets : " << trgtQ << ", "
@@ -891,14 +894,9 @@ void LMOptAlgorithm::runOptimization( ScenarioAnalysis & sa )
    casa::LevenbergMarquardtConstrained< ProjectFunctor > lm( functor, minPrmEig, maxPrmEig );
 
    // 20 evaluations for each parameter should be sufficent
-   lm.setMaxfev( 20 * guess.size( ) );  
+   lm.setMaxfev( 20 * guess.size( ) );
       
    int ret = lm.minimize( initialGuess );
-
-   // store step in doeCaseSet under separate label with LM step number
-   RunCaseSetImpl & rcs = dynamic_cast<RunCaseSetImpl&>( m_sa->doeCaseSet() );
-   rcs.addNewCases( m_casesSet, "LMSteps" );
-
 
    // if we should not keep history - delete the last step
    if ( !m_keepHistory )
@@ -907,7 +905,25 @@ void LMOptAlgorithm::runOptimization( ScenarioAnalysis & sa )
       casePath << "LMStep";
 
       if ( casePath.exists() ) { casePath.remove(); }
+
+      m_sa->resetRunManager( false );
    }
+  
+   // store step in doeCaseSet under separate label with LM step number
+   RunCaseSetImpl & rcs = dynamic_cast<RunCaseSetImpl&>( m_sa->doeCaseSet() );
+
+   // save the base case (parameters and targets)
+   std::vector<std::shared_ptr<RunCase>> baseCase;
+   baseCase.push_back( m_baseCase );
+   rcs.addNewCases( baseCase, "BaseCase" );
+
+   // save the best matched (parameters and targets)
+   std::vector<std::shared_ptr<RunCase>> bestMatchedCase;
+   bestMatchedCase.push_back( m_bestMatchedCase );
+   rcs.addNewCases( bestMatchedCase, "BestMatchedCase" );
+
+   //save the LM steps (parameters and targets)
+   rcs.addNewCases( m_casesSet, "LMSteps" );
 
    if ( m_parameterTransformation == "log10" )
    {

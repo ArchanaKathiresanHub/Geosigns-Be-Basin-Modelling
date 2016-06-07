@@ -65,7 +65,7 @@ public:
       RunCaseSetImpl & rcs = dynamic_cast<RunCaseSetImpl&>( sc.doeCaseSet() );
       for ( size_t i = 0; i < rcs.size(); ++i ) 
       {
-         RunCaseImpl * rc = dynamic_cast<RunCaseImpl*>( rcs[ i ] );
+         RunCaseImpl * rc = dynamic_cast<RunCaseImpl*>( rcs[ i ].get() );
 
          proxyRC.push_back( rc ); // collect run cases for proxy calculation
 

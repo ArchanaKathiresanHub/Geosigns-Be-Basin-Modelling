@@ -22,8 +22,7 @@ namespace casa
    // Destructor
    RunCaseSetImpl::~RunCaseSetImpl()
    {
-      for ( size_t i = 0; i < m_caseSet.size(); ++i ) delete m_caseSet[i];
-      m_caseSet.clear();
+      m_caseSet.clear( );
    }
 
    // Get number of cases
@@ -34,7 +33,7 @@ namespace casa
 
 
    // Read only access to i-th element
-   RunCase * RunCaseSetImpl::operator[] ( size_t i ) const
+   std::shared_ptr<RunCase> RunCaseSetImpl::operator[] ( size_t i ) const
    {
       if ( !m_filter.empty() )
       {
@@ -77,14 +76,14 @@ namespace casa
    }
 
    // Move a new Cases to the collection and clear array 
-   void RunCaseSetImpl::addNewCases( std::vector<RunCase*> & newCases, const std::string & expLabel )
+   void RunCaseSetImpl::addNewCases( std::vector<std::shared_ptr<RunCase>> & newCases, const std::string & expLabel )
    {
       // assign new ids to
       size_t startID = m_caseSet.empty() ? 0 : (m_caseSet.back()->id() + 1);
 
       for ( size_t i = 0; i < newCases.size(); ++i )
       {
-         RunCaseImpl * rc = dynamic_cast<RunCaseImpl*>( newCases[i] );
+         RunCaseImpl * rc = dynamic_cast<RunCaseImpl*>( newCases[i].get() );
          if ( rc ) { rc->setID( startID + i ); }
       }
 
@@ -102,16 +101,15 @@ namespace casa
          {
             // add cases with unique parameters set only
             for ( size_t i = 0; i < newCases.size(); ++i ) // go over all new cases
-            {
+            {  
                bool found = false;
-               for ( size_t j = 0; j < pos && !found; ++j ) // check only cases which were in set before
-               {
-                  if ( *(m_caseSet[j]) == *(newCases[i]) ) // duplicated case
-                  {
-                     newIndSet[i] = j;   // copy only index of the case
-                     delete newCases[i]; // and delete duplicated case itself
-                     found = true;
-                  }
+                for ( size_t j = 0; j < pos && !found; ++j ) // check only cases which were in set before
+                {
+                 if ( *(m_caseSet[j].get()) == *(newCases[i].get()) ) // duplicated case
+                   {
+                      newIndSet[i] = j;   // copy only index of the case
+                      found = true;
+                   }
                }
                if ( !found ) // normal case, add it to the list
                {
@@ -153,7 +151,7 @@ namespace casa
          {
             if ( !rcs[ doeIndSet[j] ] ) //use RunCase pointer as a mask value to avoid duplicated cases
             {
-               rcs[doeIndSet[j]] = m_caseSet[doeIndSet[j]];
+               rcs[doeIndSet[j]] = m_caseSet[doeIndSet[j]].get();
                rcsIndSet.push_back( doeIndSet[j] );
             }
          }
@@ -165,7 +163,7 @@ namespace casa
       {
          if ( m_caseSet[rcsIndSet[i]]->runStatus() == RunCase::Completed )
          {
-            rcs.push_back( m_caseSet[rcsIndSet[i]] );
+            rcs.push_back( m_caseSet[rcsIndSet[i]].get());
          }
       } 
       return rcs;
@@ -210,8 +208,8 @@ namespace casa
 
       for ( size_t i = 0; i < setSize && ok; ++i )
       {
-         RunCaseImpl * rc = new RunCaseImpl( dz, "RunCase" );
-         assert( rc );
+         std::shared_ptr<RunCase>  rc( new RunCaseImpl( dz, "RunCase" ) );
+         assert( rc.get() );
 
          m_caseSet.push_back( rc );
       }

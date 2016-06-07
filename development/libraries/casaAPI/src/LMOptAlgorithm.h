@@ -15,6 +15,7 @@
 
 #include <eigen3/Eigen/Dense>
 #include <vector>
+#include <memory>
 
 namespace casa
 {
@@ -60,10 +61,12 @@ namespace casa
       std::vector< const Observable*>                            m_optimObs;  // set of observables shoosed for optimization
       std::vector< size_t >                                      m_permObs;   // permutation array - optimization obs -> all obs
       
-      std::vector< RunCase* >                                    m_casesSet;  // set of run cases for each step of LM
-      std::vector<double>                                        m_xi;        // parameters value proposed by LM
-      double                                                     m_Qmin;      // minimal value of Qtrgt for LM iterations
-      bool                                                       m_keepHistory; // keep all intermediate steps of LM
+      std::vector< std::shared_ptr<RunCase> >                    m_casesSet;         // set of run cases for each step of LM
+      std::shared_ptr<RunCase>                                   m_baseCase;         // the base case 
+      std::shared_ptr<RunCase>                                   m_bestMatchedCase;  // the best matched case 
+      std::vector<double>                                        m_xi;               // parameters value proposed by LM
+      double                                                     m_Qmin;             // minimal value of Qtrgt for LM iterations
+      bool                                                       m_keepHistory;      // keep all intermediate steps of LM
       std::string                                                m_parameterTransformation; //the type of parameter transformation that is applied
    };
 
