@@ -181,7 +181,6 @@ public:
 
       // create observable
       casa::Observable * obsVal = casa::ObsGridPropertyWell::createNewInstance( x, y, z, propName.c_str(), age, name );
-      new casa::ObsValueDoubleArray( obsVal, sdev );
       obsVal->setReferenceValue( new casa::ObsValueDoubleArray( obsVal, r ), new casa::ObsValueDoubleArray( obsVal, sdev ) );
 
       obsVal->setSAWeight( wgtSA );

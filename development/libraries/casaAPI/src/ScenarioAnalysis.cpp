@@ -894,8 +894,6 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::importOneDResults( const std::strin
 
       std::string stFile( prjPath.substr( 0, sl + 1 ) + "casa_state.bin" );
 
-      cout << " for case " << c << " the path is " << stFile << endl;
-
       // load scenario from file (deserialization)
       m_oneDscenarios[c].reset( casa::ScenarioAnalysis::loadScenario( stFile.c_str( ), "bin" ) );
  

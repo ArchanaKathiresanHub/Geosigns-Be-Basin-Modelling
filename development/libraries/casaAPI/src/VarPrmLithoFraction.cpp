@@ -83,8 +83,8 @@ namespace casa
 
       for ( size_t i = 0; i != prmVec.size(); ++i )
       {
-         const std::vector<double> lithoFractions = prmVec[i].get()->asDoubleArray();
-         const std::vector<double> lithoPercentages = PrmLithoFraction::createLithoPercentages( lithoFractions, m_lithoFractionsInds );
+         const std::vector<double> & lithoFractions = prmVec[i].get()->asDoubleArray();
+         const std::vector<double> & lithoPercentages = PrmLithoFraction::createLithoPercentages( lithoFractions, m_lithoFractionsInds );
          if ( lithoPercentages.size() != 3 )
          {
             throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "The number of lithopercentages is incorrect: " << lithoPercentages.size();
@@ -129,10 +129,8 @@ namespace casa
       }
 
       // generate the maps
-      ostringstream layerNumber;  
-      layerNumber << lid;
-      std::string  mapNameFirstLithoPercentage = layerNumber.str() + "_percent_1";
-      std::string  mapNameSecondLithoPercentage = layerNumber.str( ) + "_percent_2";
+      std::string  mapNameFirstLithoPercentage = std::to_string(lid) + "_percent_1";
+      std::string  mapNameSecondLithoPercentage = std::to_string(lid) + "_percent_2";
 
       mbapi::MapsManager::MapID id = mapsMgr.generateMap( strMgr.referenceID(), mapNameFirstLithoPercentage, lf1CorrInt );
       if ( UndefinedIDValue == id )

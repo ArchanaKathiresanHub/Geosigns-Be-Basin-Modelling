@@ -109,7 +109,7 @@ namespace mbapi
          std::vector<double>& yout,
          std::vector<double>& vout ) = 0;
 
-      /// @brief Generate a new lithofraction map in the GridMapIoTbl
+      /// @brief Generate a new map in the GridMapIoTbl
       /// @param[in] the name of the map
       /// @return ErrorHandler::NoError on succes, or error code otherwise
       virtual MapID generateMap( const std::string & refferedTable, const std::string mapName, const std::vector<double>& values ) = 0;

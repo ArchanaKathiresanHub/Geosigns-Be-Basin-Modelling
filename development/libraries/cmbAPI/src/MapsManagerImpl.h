@@ -86,7 +86,7 @@ namespace mbapi
          std::vector<double>& yout,
          std::vector<double>& vout );
 
-      // Generate a new lithofraction map in the GridMapIoTbl
+      // Generate a new map in the GridMapIoTbl
       virtual MapID generateMap( const std::string & refferedTable, const std::string mapName, const std::vector<double>& values );
       
       // Set of interfaces for interacting with a Cauldron model

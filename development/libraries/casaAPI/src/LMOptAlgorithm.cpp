@@ -115,7 +115,7 @@ namespace casa
             }
             m_oldFnorm = m_fnorm;
             ++outerIter;
-         } while ( status == LevenbergMarquardtSpace::Running && relativeReductionOk && m_fnorm > 0. ); //In PEST we do not go over 10 outerIter
+         } while ( status == LevenbergMarquardtSpace::Running && relativeReductionOk && m_fnorm > 0. && outerIter < 10 ); //In PEST we do not go over 10 outerIter
          m_isInitialized = true;
          return status;
       }
