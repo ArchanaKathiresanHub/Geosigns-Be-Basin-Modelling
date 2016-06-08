@@ -85,7 +85,7 @@ namespace casa
    {
    public:
       typedef std::map< std::vector< unsigned int >, std::pair<double,double> > CoefficientsMap;
-      typedef std::vector< CoefficientsMap >                  CoefficientsMapList;
+      typedef std::vector< CoefficientsMap >                                    CoefficientsMapList;
 
       /// @brief Types of Kriging interpolation which can be used in proxy
       enum RSKrigingType

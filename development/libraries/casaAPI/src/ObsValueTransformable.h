@@ -1,5 +1,5 @@
-//                                                                      
-// Copyright (C) 2012-2014 Shell International Exploration & Production.
+//                                                                     
+// Copyright (C) 2012-2016 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -8,52 +8,64 @@
 // Do not distribute without written permission from Shell.
 // 
 
-/// @file ObsValueDoubleArray.h
-/// @brief This file keeps definition of the interface class for handling array of observable values which could be represented
-/// as float point array
+/// @file ObsValuTransformable.h
+/// @brief This file keeps definition of the interface class for handling array of float point observable values which 
+///        calculated from another array of float point observable values using transformation algorithm from parent Observable object
 
-#ifndef CASA_API_OBS_VALUE_DOUBLE_ARRAY_H
-#define CASA_API_OBS_VALUE_DOUBLE_ARRAY_H
+#ifndef CASA_API_OBS_VALUE_TRANSFORMABLE_H
+#define CASA_API_OBS_VALUE_TRANSFORMABLE_H
 
-#include "ObsValue.h"
+#include "ObsValueDoubleArray.h"
+#include "Observable.h"
 
 namespace casa
 {
    /// @brief Class for keeping observable value as an array of float point values
-   class ObsValueDoubleArray : public ObsValue
+   class ObsValueTransformable : public ObsValue
    {
    public:
-      /// @brief Create a new ObsValueDoubleArray object. 
+      /// @brief Create a new ObsValueTransformable object. 
       /// @param parent Observable object which contains full description of observable
       /// @param val value of observable
-      static ObsValueDoubleArray * createNewInstance( const Observable * parent, 
-                                                      const std::vector<double> & val ) { return new ObsValueDoubleArray( parent, val ); }
+      static ObsValueTransformable * createNewInstance( const Observable          * parent
+                                                      , const std::vector<double> & val 
+                                                      )
+      { return new ObsValueTransformable( parent, val ); }
 
       /// @brief Constructor
       /// @param parent Observable object which contains full description of observable
       /// @param val value of observable
-      ObsValueDoubleArray( const Observable * parent, const std::vector<double> & val )
+      ObsValueTransformable( const Observable * parent, const std::vector<double> & val )
          : m_value( val.begin(), val.end() )
-         , m_parent( parent ) { ; }
+         , m_parent( parent ) 
+      { 
+         ObsValueDoubleArray inpVal( parent, val );
+         // transform observable value
+         ObsValue * trObsVal = parent->transform( &inpVal );
+         m_transfVals = trObsVal->asDoubleArray();
+         delete trObsVal;
+      }
 
       /// @brief Copy constructor
       /// @param ov another observable value to be copying
-      ObsValueDoubleArray( const ObsValueDoubleArray & ov )
+      ObsValueTransformable( const ObsValueTransformable & ov )
       {
-         m_value  = ov.m_value;
-         m_parent = ov.m_parent;
+         m_value      = ov.m_value;
+         m_transfVals = ov.m_transfVals;
+         m_parent     = ov.m_parent;
       }
 
       /// @brief Destructor
-      virtual ~ObsValueDoubleArray() { ; }
+      virtual ~ObsValueTransformable() { ; }
 
       /// @brief Copy operator
       /// @param otherObs another observable value to be copying
       /// @return reference to the object itself
-      ObsValueDoubleArray & operator = ( const ObsValueDoubleArray & otherObs )
+      ObsValueTransformable & operator = ( const ObsValueTransformable & otherObs )
       {
          m_parent = otherObs.m_parent;
          m_value  = otherObs.m_value;
+         m_transfVals = otherObs.m_transfVals;
          return *this;
       }
 
@@ -66,7 +78,7 @@ namespace casa
      
       // The following methods are used for testing  
       virtual bool isDouble() const { return true; }
-      virtual std::vector<double> asDoubleArray( bool transformed = true ) const { return transformed ? m_value : m_value; }
+      virtual std::vector<double> asDoubleArray( bool transformed ) const { return transformed ? m_transfVals : m_value; }
 
       /// @{
       /// @brief Defines version of serialized object representation. Must be updated on each change in save()
@@ -75,7 +87,7 @@ namespace casa
 
       /// @brief Get type name of the serialaizable object, used in deserialization to create object with correct type
       /// @return object class name
-      virtual const char * typeName() const { return "ObsValueDoubleArray"; }
+      virtual const char * typeName() const { return "ObsValueTransformable"; }
 
       /// @brief Save all object data to the given stream, that object could be later reconstructed from saved data
       /// @param sz Serializer stream
@@ -87,13 +99,14 @@ namespace casa
       /// @param dz input stream
       /// @param objVer version of object representation in stream
       /// @return new ObsValueDoubleScalar instance on susccess, or throw and exception in case of any error
-      ObsValueDoubleArray( CasaDeserializer & dz, unsigned int objVer );
+      ObsValueTransformable( CasaDeserializer & dz, unsigned int objVer );
       /// @}
 
    protected:
 
-      std::vector<double>  m_value;    // value itself
-      const Observable   * m_parent;   // pointer to the observable description object
+      std::vector<double>  m_value;      // value itself
+      std::vector<double>  m_transfVals; // transformed values
+      const Observable   * m_parent;     // pointer to the observable description object
    };
 }
 

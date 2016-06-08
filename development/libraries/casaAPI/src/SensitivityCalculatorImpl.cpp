@@ -14,6 +14,7 @@
 // CASA
 #include "SensitivityCalculatorImpl.h"
 #include "ObsSpace.h"
+#include "ObsValueTransformable.h"
 #include "RSProxyImpl.h"
 #include "RunCaseImpl.h"
 #include "RunCaseSet.h"
@@ -28,6 +29,7 @@
 
 // SUMlib
 #include "BaseTypes.h"
+#include "NumericUtils.h"
 #include "Pareto.h"
 #include "ParameterPdf.h"
 #include "Exception.h"
@@ -340,27 +342,84 @@ namespace casa
          }
       }
 
-      std::vector< std::pair<const Observable *, int> > obsList;
-      for ( size_t i = 0; i < m_obsSpace->size(); ++i )
+      for ( size_t i = 0, o = 0; i < m_obsSpace->size(); ++i )
       {
          const Observable * obs = m_obsSpace->observable( i );
-         for ( size_t j = 0; j < obs->dimension(); ++j )
+
+         std::vector<TornadoSensitivityInfo> obsSensitivity;
+         std::vector<double> refObsValArr( obs->dimensionUntransformed(), 0 );
+
+         // collect observable sensitivity for all it subdimension
+         for ( size_t j = 0; j < obs->dimensionUntransformed(); ++j, ++o )
          {
-            obsList.push_back( std::pair<const Observable *, int>( obs, static_cast<int>( j ) ) );
+            SUMlib::TornadoSensitivities tornado;
+            double refObsValue;
+            std::vector< std::vector< double > > sensitivities, relSensitivities;
+      
+            tornado.getSensitivities( tornadoProxiesLst[o], priorPar, refObsValue, sensitivities, relSensitivities );
+            obsSensitivity.push_back( TornadoSensitivityInfo( obs, j, refObsValue, varPrmList, sensitivities, relSensitivities ) );
+         
+            refObsValArr[j] = refObsValue;
+         }
+         
+         // check Observable transformation
+         std::vector<double>::const_iterator it = refObsValArr.begin();
+         std::unique_ptr<ObsValue> obvTr( obs->createNewObsValueFromDouble( it ) );
+
+         if ( dynamic_cast<ObsValueTransformable*>( obvTr.get() ) ) // if it is transformable recalculate observable value for transformed form
+         {
+            std::vector<std::vector<std::vector<double > > > sensitivities(    obs->dimension(), 
+                                                      std::vector< std::vector<double> >( varPrmList.size(), std::vector<double>(2, 0.0)));
+            std::vector<std::vector<std::vector<double > > > relSensitivities( obs->dimension(),
+                                                      std::vector< std::vector<double> >( varPrmList.size(), std::vector<double>(2, 0.0)));
+            std::vector<double> sumOfAbsSensitivities( obs->dimension(), 0.0 );
+
+            for ( size_t p = 0; p < varPrmList.size(); ++ p)
+            {
+               std::vector<double> minObsVal( obs->dimensionUntransformed(), 0 );
+               std::vector<double> maxObsVal( obs->dimensionUntransformed(), 0 );
+
+               for ( size_t j = 0; j < obs->dimensionUntransformed(); ++j )
+               {
+                  minObsVal[j] = obsSensitivity[j].minAbsSensitivityValue( p );
+                  maxObsVal[j] = obsSensitivity[j].maxAbsSensitivityValue( p );
+               }
+               
+
+               std::unique_ptr<ObsValue> obvMinTr( obs->createNewObsValueFromDouble( (it = minObsVal.begin()) ) );
+               std::unique_ptr<ObsValue> obvMaxTr( obs->createNewObsValueFromDouble( (it = maxObsVal.begin()) ) );
+      
+               for ( size_t j = 0; j < obs->dimension(); ++j )
+               {
+                  sensitivities[j][p][0] = obvMinTr->asDoubleArray( true )[j] - obvTr->asDoubleArray( true )[j];
+                  sensitivities[j][p][1] = obvMaxTr->asDoubleArray( true )[j] - obvTr->asDoubleArray( true )[j];
+
+                  sumOfAbsSensitivities[j] += sensitivities[j][p][0] * sensitivities[j][p][1] < 0.0
+                                            ? (         fabs( sensitivities[j][p][0] ) + fabs( sensitivities[j][p][1] ) )
+                                            : std::max( fabs( sensitivities[j][p][0] ),  fabs( sensitivities[j][p][1] ) );
+               }
+            }
+ 
+            // Calculate the relative sensitivities (in %) and createe TornadoSensitivityInfo object
+            for ( size_t j = 0; j < obs->dimension(); ++j )
+            {
+               if ( sumOfAbsSensitivities[j] > SUMlib::MachineEpsilon() )
+               {
+                  for ( size_t p = 0; p < varPrmList.size(); ++p )
+                  {
+                     relSensitivities[j][p][0] = 100.0 * sensitivities[j][p][0] / sumOfAbsSensitivities[j];
+                     relSensitivities[j][p][1] = 100.0 * sensitivities[j][p][1] / sumOfAbsSensitivities[j];
+                  }
+               }
+               returnValue.push_back( TornadoSensitivityInfo( obs, j, obvTr->asDoubleArray( true )[j], varPrmList, sensitivities[j], 
+                                                              relSensitivities[j] ) );
+            }
+         }
+         else // else just copy sensitivities to return container
+         {
+            returnValue.insert( returnValue.end(), obsSensitivity.begin(), obsSensitivity.end() );
          }
       }
-
-      // Get sensitivities for all observables
-      for ( size_t o = 0; o < tornadoProxiesLst.size(); ++o )
-      {
-         SUMlib::TornadoSensitivities tornado;
-         double refObsValue;
-         std::vector< std::vector< double > > sensitivities, relSensitivities;
-      
-         tornado.getSensitivities( tornadoProxiesLst[o], priorPar, refObsValue, sensitivities, relSensitivities );
-         returnValue.push_back( TornadoSensitivityInfo( obsList[o].first, obsList[o].second, refObsValue, varPrmList, sensitivities, relSensitivities ) ); 
-      }
-
       return returnValue;
    }
 

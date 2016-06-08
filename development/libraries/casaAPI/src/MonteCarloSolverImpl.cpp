@@ -93,8 +93,8 @@ SUMlib::McmcBase * MonteCarloSolverImpl::createMcmc( const SUMlib::CompoundProxy
 
          if ( obrv->isDouble() )
          {
-            const std::vector<double> & vals = obrv->asDoubleArray();
-            const std::vector<double> & vstd = stdrv->asDoubleArray( );
+            const std::vector<double> & vals = obrv->asDoubleArray( false );
+            const std::vector<double> & vstd = stdrv->asDoubleArray( false );
 
             for ( size_t k = 0; k < vals.size(); ++k )
             {
@@ -105,7 +105,7 @@ SUMlib::McmcBase * MonteCarloSolverImpl::createMcmc( const SUMlib::CompoundProxy
       }
       else
       {
-         for ( size_t k = 0; k < obv->dimension(); ++k )
+         for ( size_t k = 0; k < obv->dimensionUntransformed(); ++k )
          {
             m_input.push_back( new SUMlib::ReferenceProxy( *proxies[ numObsVals ] ) );
             ++numObsVals;
@@ -250,6 +250,57 @@ ErrorHandler::ReturnCode MonteCarloSolverImpl::configureSolver( const RSProxy & 
    return NoError;
 }
 
+// split samples by sorted observable value into 10 equal sized bins and store the biggest observable value for each bin
+void MonteCarloSolverImpl::calculateP10toP90()
+{
+   struct ObsCaseSorterHelper
+   {
+      ObsCaseSorterHelper( size_t obsNum, size_t subObsNum ) : m_obsNum( obsNum ), m_subObsNum( subObsNum ) {;}
+
+      bool operator() ( const RunCase * c1, const RunCase * c2 ) 
+      {
+         const std::vector<double> & c1vals = c1->obsValue( m_obsNum )->asDoubleArray();
+         const std::vector<double> & c2vals = c2->obsValue( m_obsNum )->asDoubleArray();
+         assert( c1vals.size() == c2vals.size() );
+         return c1vals[m_subObsNum] < c2vals[m_subObsNum];
+      }
+      size_t m_obsNum;
+      size_t m_subObsNum;
+   };
+
+   if ( m_results.empty() ) return; // do nothing if there are no samplings 
+
+   std::vector<const RunCase*> samples( m_results.size(), 0 );
+   // copy sampled cases to the working array
+   for ( size_t i = 0; i < m_results.size(); ++i ) { samples[i] = m_results[i].second; }
+
+   const RunCase * anyOne = samples.front();
+   
+   m_cdf.clear();
+
+   for ( size_t o = 0; o < anyOne->observablesNumber(); ++o )
+   {
+      const Observable * obs = anyOne->obsValue( o )->parent();
+
+      for ( size_t oo = 0; oo < obs->dimension(); ++oo )
+      {
+         std::sort( samples.begin(), samples.end(), ObsCaseSorterHelper( o, oo ) );
+
+         m_cdf.push_back( std::vector<double>() );
+
+         std::vector<double> & value = m_cdf.back();
+         value.resize(9); // 9 bins
+
+         for (size_t j = 0; j < 9; j++)
+         {
+            size_t key = std::min( samples.size(), static_cast<size_t>( ( j + 1) * samples.size() / 10.0 ) );
+
+            value[j] = samples[key]->obsValue( o )->asDoubleArray()[oo];
+         }
+      }
+   }
+}
+
 
 // Get the goodness of fit (GOF) to be displayed (in %). Preferably, the GOF should be larger than about 50%.
 double MonteCarloSolverImpl::GOF() const
@@ -363,8 +414,7 @@ ErrorHandler::ReturnCode MonteCarloSolverImpl::collectMCResults( const VarSpace 
    m_GOF = m_statistics.getGoodnessOfFitReduced();
 
    // collect P10-P90 CDF
-   SUMlib::McmcBase::P10ToP90Parameters cases;
-   m_mcmc->getP10toP90( m_cdf, cases );
+   calculateP10toP90();
 
    return NoError;
 }

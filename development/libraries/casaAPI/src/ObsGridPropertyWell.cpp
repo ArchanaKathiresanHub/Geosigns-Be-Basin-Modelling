@@ -74,6 +74,7 @@ std::vector< std::string > ObsGridPropertyWell::name() const
    return m_name;
 }
 
+
 // Get standard deviations for the reference value
 void ObsGridPropertyWell::setReferenceValue( ObsValue * obsVal, ObsValue * devVal )
 {

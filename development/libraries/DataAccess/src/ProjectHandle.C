@@ -1146,7 +1146,6 @@ bool ProjectHandle::loadProperties( void )
          theComponentManager.GetSpeciesName( i ) + "AdsorpedFree",
                                                              "scf/ton", FORMATIONPROPERTY,
                                                              DataModel::FORMATION_2D_PROPERTY ) );
-
    }
 
 
@@ -1247,6 +1246,16 @@ bool ProjectHandle::loadProperties( void )
    m_properties.push_back( getFactory()->produceProperty( this, 0, "OWC",                "OWC",                "m",         TRAPPROPERTY, DataModel::TRAP_PROPERTY )); // Depth of Liquid-Water contact
    m_properties.push_back( getFactory()->produceProperty( this, 0, "SpillDepth",         "SpillDepth",         "m",         TRAPPROPERTY, DataModel::TRAP_PROPERTY )); // Spill depth
    m_properties.push_back( getFactory()->produceProperty( this, 0, "SealPermeability",   "SealPermeability",   "mD",        TRAPPROPERTY, DataModel::TRAP_PROPERTY )); //
+
+   // amount of trapped HC per spice 
+   for ( i = 0; i < ComponentManager::NumberOfOutputSpecies; ++i )
+   {
+      m_properties.push_back( getFactory()->produceProperty( this, 0
+                                                           , theComponentManager.GetSpeciesName( i ) + "TrappedAmount"
+                                                           , theComponentManager.GetSpeciesName( i ) + "TrappedAmount"
+                                                           , "kg", TRAPPROPERTY, DataModel::TRAP_PROPERTY ) );
+   }
+
 
    // Crustal Thickness Calculator output property
    for ( i = 0; i < CrustalThicknessInterface::numberOfOutputMaps; ++i )

@@ -62,7 +62,7 @@ namespace CBMGenerics
 
       int GetSpeciedIdByEnum ( const SpeciesNamesId id ) const;
 
-      const std::string GetSpeciesName( int speciesIndex ) const;
+      static std::string GetSpeciesName( int speciesIndex );
       const std::string GetPhaseName( int phaseIndex ) const;
 
       /// \brief Return the name of the species.

@@ -223,6 +223,7 @@ void MatlabExporter::exportObservablesInfo( ScenarioAnalysis & sc )
    m_ofs << "ObservablesName = {\n";
    for ( size_t j = 0; j < sc.obsSpace().size(); ++j )
    {
+      // export untransformed observable name first
       const std::vector<std::string> & obsNames = sc.obsSpace().observable( j )->name();
       for ( size_t k = 0; k < obsNames.size(); ++k )
       {
@@ -299,7 +300,6 @@ void MatlabExporter::exportObservablesInfo( ScenarioAnalysis & sc )
             for ( size_t k = 0; k < vals.size(); ++k ) m_ofs << "\t" << vals[k];
          }
       }
-
       m_ofs << std::endl;
    }
    m_ofs << "];\n\n";
@@ -324,7 +324,6 @@ void MatlabExporter::exportObservablesInfo( ScenarioAnalysis & sc )
       m_ofs << std::endl;
    }
    m_ofs << "];\n\n";
-
 }
 
 void MatlabExporter::exportRSAProxies( ScenarioAnalysis & sc )

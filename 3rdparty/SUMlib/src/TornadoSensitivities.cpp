@@ -33,45 +33,45 @@ TornadoSensitivities::~TornadoSensitivities()
 }
 
 void TornadoSensitivities::getSensitivities( const Proxy* proxy, const ParameterPdf& priorPar,
-     double& refObsValue, vector<vector<double> >& sensitivity, vector<vector<double> >& relSensitivity ) const
+  double& refObsValue, vector<vector<double> >& sensitivity, vector<vector<double> >& relSensitivity ) const
 {
-   // Initialise sensitivities
-   Case parInfo = priorPar.maxParValues();
-   const unsigned int totNbOrdPar = parInfo.sizeOrd(); //total number of ordinal parameters
-   const unsigned int totNbPar = parInfo.size(); // total number of parameters
-   unsigned int temp = 0;
-   for ( unsigned int i = 0; i < parInfo.sizeCat(); ++i )
-   {
-      temp += ( parInfo.categoricalPar( i ) + 1 );
-   }
-   const unsigned int totNbCatStates = temp;
-   const unsigned int totNbSensPar = totNbOrdPar + totNbCatStates;
-   sensitivity.clear();
-   sensitivity.resize( totNbSensPar );
-   for ( unsigned int i = 0; i < totNbOrdPar; ++i )
-   {
-      sensitivity[i].assign( 2, 0.0 );
-   }
-   for ( unsigned int i = totNbOrdPar; i < totNbSensPar; ++i )
-   {
-      sensitivity[i].assign( 1, 0.0 );
-   }
-   relSensitivity = sensitivity;
-   vector<unsigned int> unfrozenParIdx = priorPar.varParIdx();
-   double sumOfAbsSensitivities = 0.0;
+// Initialise sensitivities
+Case parInfo = priorPar.maxParValues();
+const unsigned int totNbOrdPar = parInfo.sizeOrd(); //total number of ordinal parameters
+const unsigned int totNbPar = parInfo.size(); // total number of parameters
+unsigned int temp = 0;
+for ( unsigned int i = 0; i < parInfo.sizeCat(); ++i )
+{
+   temp += ( parInfo.categoricalPar( i ) + 1 );
+}
+const unsigned int totNbCatStates = temp;
+const unsigned int totNbSensPar = totNbOrdPar + totNbCatStates;
+sensitivity.clear();
+sensitivity.resize( totNbSensPar );
+for ( unsigned int i = 0; i < totNbOrdPar; ++i )
+{
+   sensitivity[i].assign( 2, 0.0 );
+}
+for ( unsigned int i = totNbOrdPar; i < totNbSensPar; ++i )
+{
+   sensitivity[i].assign( 1, 0.0 );
+}
+relSensitivity = sensitivity;
+vector<unsigned int> unfrozenParIdx = priorPar.varParIdx();
+double sumOfAbsSensitivities = 0.0;
 
-   // Calculate the reference observable value
-   const unsigned int nbOrdPar = priorPar.sizeOrd(); //number of non-frozen ordinal parameters
-   const unsigned int nbCatPar = priorPar.sizeCat(); //number of non-frozen categorical parameters
-   vector<unsigned int> catCase = priorPar.categoricalBase(); //get categorical base case
-   const vector<double> cp = priorPar.scaledOrdinalBase();
-   assert( cp.size() == nbOrdPar );
-   vector<double> proxyCase = cp;
-   priorPar.extendToProxyCase( catCase, proxyCase );
-   refObsValue = proxy->getProxyValue( proxyCase );
+// Calculate the reference observable value
+const unsigned int nbOrdPar = priorPar.sizeOrd(); //number of non-frozen ordinal parameters
+const unsigned int nbCatPar = priorPar.sizeCat(); //number of non-frozen categorical parameters
+vector<unsigned int> catCase = priorPar.categoricalBase(); //get categorical base case
+const vector<double> cp = priorPar.scaledOrdinalBase();
+assert( cp.size() == nbOrdPar );
+vector<double> proxyCase = cp;
+priorPar.extendToProxyCase( catCase, proxyCase );
+refObsValue = proxy->getProxyValue( proxyCase );
 
-   // Calculate sensitivities for the ordinal parameters
-   unsigned int j;
+// Calculate sensitivities for the ordinal parameters
+unsigned int j;
    for ( j = 0; ( j < unfrozenParIdx.size() ) && ( unfrozenParIdx[j] < totNbOrdPar ); ++j ) //loop over ordinals
    {
       unsigned int i = unfrozenParIdx[j];

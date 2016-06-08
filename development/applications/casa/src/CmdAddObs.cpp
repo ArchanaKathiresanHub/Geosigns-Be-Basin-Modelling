@@ -20,6 +20,7 @@
 #include "ObsGridPropertyWell.h"
 #include "ObsGridPropertyXYZ.h"
 #include "ObsTrapProp.h"
+#include "ObsTrapDerivedProp.h"
 #include "ObsValueDoubleScalar.h"
 #include "ObsValueDoubleArray.h"
 
@@ -306,7 +307,17 @@ public:
       const std::string & resName  =       prms[pos++];           // reservoir name
       double age                   = atof( prms[pos++].c_str() ); // age for the observable
 
-      casa::Observable * obsVal = casa::ObsTrapProp::createNewInstance( x, y, resName.c_str(), propName.c_str(), age, name );
+      casa::Observable * obsVal = 0;
+      if ( propName == "GOR"    || propName == "CGR" ||
+           propName == "OilAPI" || propName == "CondensateAPI"
+         )
+      {
+         obsVal = casa::ObsTrapDerivedProp::createNewInstance( x, y, resName.c_str(), propName.c_str(), age, name );
+      }
+      else
+      {
+         obsVal = casa::ObsTrapProp::createNewInstance( x, y, resName.c_str(), propName.c_str(), age, name );
+      }
 
       // optional parameters
       if ( prms.size() == 10 )

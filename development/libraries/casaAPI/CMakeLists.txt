@@ -36,6 +36,7 @@ bm_include_libraries(
    utilities
    DataModel
    DataAccess
+   EosPack
 )
 
 include_directories(
@@ -52,6 +53,7 @@ target_link_libraries(casaapi
    FileSystem
    utilities
    DataAccess
+   EosPack
    SUMlib
    NNlib
    ${Boost_LIBRARIES}

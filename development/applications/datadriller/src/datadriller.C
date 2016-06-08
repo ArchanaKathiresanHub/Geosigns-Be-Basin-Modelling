@@ -586,7 +586,8 @@ double ComputeTrapPropertyValue( Mining::ProjectHandle      * projectHandle,
       const Interface::Property * reservoirProperty = projectHandle->findProperty( "ResRockPorosity" );
       if ( property )
       {
-         DerivedProperties::ReservoirPropertyPtr reservoirPropertyGridMap = GetPropertyGridMap( projectHandle, propertyManager, reservoirProperty, snapshot, reservoir );
+         DerivedProperties::ReservoirPropertyPtr reservoirPropertyGridMap = 
+            GetPropertyGridMap( projectHandle, propertyManager, reservoirProperty, snapshot, reservoir );
          // const Interface::GridMap * reservoirPropertyGridMap = GetPropertyGridMap( projectHandle, reservoirProperty, snapshot, reservoir );
 
          if ( reservoirPropertyGridMap ) {
@@ -596,6 +597,19 @@ double ComputeTrapPropertyValue( Mining::ProjectHandle      * projectHandle,
          // reservoirPropertyGridMap->release ();
       }
    }
+   else if ( propertyName.rfind( "TrappedAmount" ) != std::string::npos )
+   {
+      bool found = false;
+      for ( int i = 0; i < ComponentManager::NumberOfOutputSpecies && !found; ++i )
+      {
+         if ( !propertyName.compare( 0, propertyName.length() - 13, ComponentManager::GetSpeciesName( i ) ) )
+         {
+            value = masses[i];
+            found = true;
+         }
+      }
+      if ( !found ) { throw RecordException ("PropertyName % not yet implemented:", propertyName); }
+   }
    else
    {
       throw RecordException ("PropertyName % not yet implemented:", propertyName);
@@ -604,11 +618,12 @@ double ComputeTrapPropertyValue( Mining::ProjectHandle      * projectHandle,
    return value;
 }
 
-static DerivedProperties::ReservoirPropertyPtr GetPropertyGridMap ( Mining::ProjectHandle*                     projectHandle,
-                                                                    DerivedProperties::DerivedPropertyManager& propertyManager,
-                                                                    const Interface::Property*                 property,
-                                                                    const Interface::Snapshot*                 snapshot,
-                                                                       const Interface::Reservoir*                reservoir ) {
+static DerivedProperties::ReservoirPropertyPtr GetPropertyGridMap ( Mining::ProjectHandle*                     projectHandle
+                                                                  , DerivedProperties::DerivedPropertyManager& propertyManager
+                                                                  , const Interface::Property*                 property
+                                                                  , const Interface::Snapshot*                 snapshot
+                                                                  , const Interface::Reservoir*                reservoir
+                                                                  ) {
 
    DerivedProperties::ReservoirPropertyPtr result;
 

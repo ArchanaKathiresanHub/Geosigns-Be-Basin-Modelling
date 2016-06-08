@@ -8,11 +8,11 @@
 // Do not distribute without written permission from Shell.
 // 
 
-/// @file ObsTrapProp.h
+/// @file ObsTrapDerivedProp.h
 /// @brief This file keeps declaration of the class for trap property
 
-#ifndef CASA_API_OBS_TRAP_PROPERTY_XY_H
-#define CASA_API_OBS_TRAP_PROPERTY_XY_H
+#ifndef CASA_API_OBS_TRAP_DERIVED_PROPERTY_XY_H
+#define CASA_API_OBS_TRAP_DERIVED_PROPERTY_XY_H
 
 #include "Observable.h"
 #include "ObsValue.h"
@@ -20,7 +20,7 @@
 // STL
 #include <memory>
 
-/// @page CASA_ObservableTrapPropPage Any trap property which could be extracted by datadriller after migration calculation.
+/// @page CASA_ObservableTrapDerivedPropPage Any trap property which could be extracted by datadriller after migration calculation.
 /// Example of properties: GOR,.... Trap is defined by specifying XY point coordinate and reservoir name
 
 namespace mbapi
@@ -30,31 +30,30 @@ namespace mbapi
 
 namespace casa
 {
-   /// @brief Base class for keeping some value from Cauldron simulation results
-   class ObsTrapProp : public Observable
+   /// @brief Class for calculating trap property value from composition
+   class ObsTrapDerivedProp : public Observable
    {
    public:
-
       /// @brief Create new observable object for the given grid property for specified grid position
-      static ObsTrapProp * createNewInstance( double              x             ///< X-th grid coordinate [m]
-                                            , double              y             ///< Y-th grid coordinate [m]
-                                            , const char        * resName       ///< reservoir name
-                                            , const char        * propName      ///< name of the trap property
-                                            , double              simTime = 0.0 ///< simulation time [Ma]
-                                            , const std::string & name = ""     ///< user specified name for observable
-                                            ) { return new ObsTrapProp( x, y, resName, propName, simTime, name ); }
+      static ObsTrapDerivedProp * createNewInstance( double              x             ///< X-th grid coordinate [m]
+                                                   , double              y             ///< Y-th grid coordinate [m]
+                                                   , const char        * resName       ///< reservoir name
+                                                   , const char        * propName      ///< name of the trap property
+                                                   , double              simTime = 0.0 ///< simulation time [Ma]
+                                                   , const std::string & name = ""     ///< user specified name for observable
+                                                   ) { return new ObsTrapDerivedProp( x, y, resName, propName, simTime, name ); }
 
       /// @brief Create observable for the given grid property for specified grid position
-      ObsTrapProp( double              x         ///< X-th grid coordinate [m]
-                 , double              y         ///< Y-th grid coordinate [m]
-                 , const char        * resName   ///< reservoir name
-                 , const char        * propName  ///< name of the property
-                 , double              simTime   ///< simulation time [Ma]
-                 , const std::string & name = "" ///< user specified name for observable
-                 );
+      ObsTrapDerivedProp( double              x         ///< X-th grid coordinate [m]
+                        , double              y         ///< Y-th grid coordinate [m]
+                        , const char        * resName   ///< reservoir name
+                        , const char        * propName  ///< name of the property
+                        , double              simTime   ///< simulation time [Ma]
+                        , const std::string & name = "" ///< user specified name for observable
+                        );
 
       /// @brief Destructor
-      virtual ~ObsTrapProp( );
+      virtual ~ObsTrapDerivedProp( );
 
       /// @brief Get name of the observable. If dimension of observable is more than 1
       ///        it return name for each dimension
@@ -64,6 +63,10 @@ namespace casa
       /// @brief Get observable dimension
       /// @return dimension of observable
       virtual size_t dimension() const { return 1; }
+
+      /// @brief If observable has transformation, it could has different dimension
+      /// @return untransformed observable dimension
+      virtual size_t dimensionUntransformed() const; 
 
       /// @brief Does observable has a reference value (measurement)
       /// @return true if reference value was set, false otherwise
@@ -75,7 +78,7 @@ namespace casa
 
       /// @brief Make observable transformation to present trap property value to the user. This observable should be treated differently 
       ///        when it is aproximated by a response surface and when it is presented to the user.
-      /// @param val Original observable value comes from a run case or from MonteCarlo
+      /// @param val Original observable value from the run case or from MonteCarlo
       /// @return The new Observable value object which will keep the transformed observable value. This object must be destroyed
       ///         by calling function.
       virtual ObsValue * transform( const ObsValue * val ) const;
@@ -128,7 +131,7 @@ namespace casa
       /// @{
       /// @brief Defines version of serialized object representation. Must be updated on each change in save()
       /// @return Actual version of serialized object representation
-      virtual unsigned int version() const { return 1; }
+      virtual unsigned int version() const { return 0; }
 
       /// @brief Save all object data to the given stream, that object could be later reconstructed from saved data
       /// @param sz Serializer stream
@@ -138,40 +141,40 @@ namespace casa
 
       /// @brief Get type name of the serialaizable object, used in deserialization to create object with correct type
       /// @return object class name
-      virtual const char * typeName() const { return "ObsTrapProp"; }
+      virtual const char * typeName() const { return "ObsTrapDerivedProp"; }
 
       /// @brief Create a new observable instance and deserialize it from the given stream
       /// @param dz input stream
       /// @param objVer version of object representation in stream
       /// @return new observable instance on susccess, or throw and exception in case of any error
-      ObsTrapProp( CasaDeserializer & dz, unsigned int objVer );
+      ObsTrapDerivedProp( CasaDeserializer & dz, unsigned int objVer );
       /// @}
 
    protected:
-      double                   m_x;                ///< X-th coordinate
-      double                   m_y;                ///< Y-th coordinate
+      double                     m_x;                ///< X-th coordinate
+      double                     m_y;                ///< Y-th coordinate
 
-      std::string              m_resName;          ///< reservoir name
-      std::string              m_propName;         ///< Property name
-      double                   m_simTime;          ///< simulator time
+      std::string                m_resName;          ///< reservoir name
+      std::string                m_propName;         ///< Property name
+      double                     m_simTime;          ///< simulator time
 
-      std::vector<std::string> m_name;             ///< name of the observable
+      std::vector<std::string>   m_name;             ///< name of the observable
 
-      int                      m_posDataMiningTbl; ///< row number in DataMiningIoTbl which corresponds this observable
+      std::vector<int>           m_posDataMiningTbl; ///< rows number in DataMiningIoTbl which corresponds composition of this observable
 
-      std::unique_ptr<ObsValue> m_refValue;        ///< reference value
-      std::unique_ptr<ObsValue> m_devValue;        ///< standard deviation for reference value
+      std::unique_ptr<ObsValue>  m_refValue;         ///< reference value
+      std::unique_ptr<ObsValue>  m_devValue;         ///< standard deviation for reference value
 
-      double                   m_saWeight;         ///< Observable weight for sensitivity analysis
-      double                   m_uaWeight;         ///< Observable weight for uncertainty analysis
-
-      bool                     m_logTransf;        ///< do logarithmic transformation (needed for for Volumes/Mass)
+      double                     m_saWeight;         ///< Observable weight for sensitivity analysis
+      double                     m_uaWeight;         ///< Observable weight for uncertainty analysis
 
    private:
 
-      ObsTrapProp( const ObsTrapProp & );
-      ObsTrapProp & operator = ( const ObsTrapProp & );
+      double calculateDerivedTrapProp( const std::vector<double> & vals ) const; ///< Calculate property value from the composition
+
+      ObsTrapDerivedProp( const ObsTrapDerivedProp & );
+      ObsTrapDerivedProp & operator = ( const ObsTrapDerivedProp & );
    };
 }
 
-#endif // CASA_API_OBS_TRAP_PROPERTY_XY_H
+#endif // CASA_API_OBS_TRAP_DERIVED_PROPERTY_XY_H

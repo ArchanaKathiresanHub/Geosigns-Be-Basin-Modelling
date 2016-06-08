@@ -67,7 +67,7 @@ int CBMGenerics::ComponentManager::GetPhaseIdByName( const std::string& name ) c
    return it != m_phaseIdByName.end() ? it->second : -1;
 }
 
-const std::string CBMGenerics::ComponentManager::GetSpeciesName( int speciesIndex ) const
+std::string CBMGenerics::ComponentManager::GetSpeciesName( int speciesIndex )
 {
    static std::string def = "";
    return speciesIndex >= 0 && speciesIndex < NumberOfOutputSpecies ? s_SpeciesNames[speciesIndex] : def;

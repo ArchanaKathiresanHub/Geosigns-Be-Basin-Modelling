@@ -65,7 +65,6 @@ namespace casa
       /// @return dimension of observable
       virtual size_t dimension() const { return m_x.size(); }
 
-
       /// @brief Does observable has a reference value (measurement)
       /// @return true if reference value was set, false otherwise
       virtual bool hasReferenceValue() const { return m_refValue.get() == NULL ? false : true; }

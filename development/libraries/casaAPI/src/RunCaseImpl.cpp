@@ -75,10 +75,10 @@ namespace casa
       // doe check if we already have such type ObsValue
       for ( size_t i = 0; i < m_results.size(); ++i )
       {
-         if ( m_results[i]->observable() == obs->observable() )
+         if ( m_results[i]->parent() == obs->parent() )
          {
             throw ErrorHandler::Exception( ErrorHandler::AlreadyDefined ) << "Observable value for obzervable: " <<
-               obs->observable()->name() << ", already exsit in RunCase";
+               obs->parent()->name() << ", already exsit in RunCase";
          }
       }
       m_results.push_back( obs );

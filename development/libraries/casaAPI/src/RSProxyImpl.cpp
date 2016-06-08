@@ -34,20 +34,21 @@ namespace casa
 {
 
 RSProxyImpl::RSProxyImpl( const std::string & rspName
-                        , const VarSpace & varSp
-                        , const ObsSpace & obsSp
-                        , size_t rsOrder
-                        , RSKrigingType rsKrig
-                        , bool autoSearch
-                        , double targedR2
-                        , double confLevel ) :
-        m_name( rspName )
-      , m_varSpace( &varSp )
-      , m_obsSpace( &obsSp )
-      , m_kriging(    rsKrig )
-      , m_autosearch( autoSearch )
-      , m_targedR2(   targedR2 )
-      , m_confLevel(  confLevel )
+                        , const VarSpace    & varSp
+                        , const ObsSpace    & obsSp
+                        , size_t              rsOrder
+                        , RSKrigingType       rsKrig
+                        , bool                autoSearch
+                        , double              targedR2
+                        , double              confLevel 
+                        )
+                        : m_name(       rspName    )
+                        , m_varSpace(  &varSp      )
+                        , m_obsSpace(  &obsSp      )
+                        , m_kriging(    rsKrig     )
+                        , m_autosearch( autoSearch )
+                        , m_targedR2(   targedR2   )
+                        , m_confLevel(  confLevel  )
 {
    m_rsOrder = rsOrder;
    assert( m_rsOrder <= 3 );

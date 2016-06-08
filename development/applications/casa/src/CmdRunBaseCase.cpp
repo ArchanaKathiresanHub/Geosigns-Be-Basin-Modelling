@@ -29,10 +29,10 @@ static void PrintObsValues( const casa::RunCase * cs )
    for ( size_t i = 0; i < cs->observablesNumber(); ++i )
    {
       casa::ObsValue * ov = cs->obsValue( i );
-      if ( ov && ov->observable() && ov->isDouble() )
+      if ( ov && ov->parent() && ov->isDouble() )
       {
          const std::vector<double>      & vals  = ov->asDoubleArray();
-         const std::vector<std::string> & names = ov->observable()->name();
+         const std::vector<std::string> & names = ov->parent()->name();
          for ( size_t i = 0; i < vals.size(); ++i )
          {
             LogHandler( LogHandler::DEBUG_SEVERITY ) << "      " << names[i] << " = " << vals[i];

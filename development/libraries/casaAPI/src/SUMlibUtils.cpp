@@ -142,7 +142,7 @@ void sumext::convertObservablesValue( const std::vector<const casa::RunCase*> & 
       assert( obv );
       if ( obv->isDouble() )
       {
-         obsNum += obv->asDoubleArray().size();
+         obsNum += obv->asDoubleArray( false ).size();
       }
    }
    
@@ -177,12 +177,12 @@ void sumext::convertObservablesValue( const std::vector<const casa::RunCase*> & 
          // get observable value and check is it double? 
          const casa::ObsValue * obv = rc->obsValue( j );
          assert( obv );
-         assert( obv->observable() );
+         assert( obv->parent() );
    
          if ( obv->isDouble() )
          {
             // push values of observable to array of targets
-            const std::vector<double> & vals = obv->asDoubleArray();
+            const std::vector<double> & vals = obv->asDoubleArray( false );
 
             for ( size_t k = 0; k < vals.size(); ++k )
             {
