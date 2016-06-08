@@ -149,6 +149,22 @@ namespace
 
     return result;
   }
+
+  jsonxx::Array toJSON(const std::vector<SceneGraphManager::FenceParams>& fences)
+  {
+	jsonxx::Array result;
+
+	for (auto const& f : fences)
+	{
+	  jsonxx::Object obj;
+	  obj << "id" << f.id;
+	  obj << "visible" << f.visible;
+
+	  result << obj;
+	}
+
+	return result;
+  }
 }
 
 void BpaRenderAreaListener::sendViewState(Connection* connection)
@@ -196,6 +212,9 @@ void BpaRenderAreaListener::sendViewState(Connection* connection)
 	<< "slicePosition" << toJSON(state.slicePosition, 3)
 	<< "sliceEnabled" << toJSON(state.sliceEnabled, 3)
 
+	// fences
+	<< "fences" << toJSON(state.fences)
+
 	// cell filter
 	<< "cellFilterEnabled" << state.cellFilterEnabled
 	<< "cellFilterMinValue" << state.cellFilterMinValue
@@ -217,7 +236,9 @@ void BpaRenderAreaListener::sendViewState(Connection* connection)
 	<< "seismicCrosslineSliceEnabled" << seismicState.crosslineSliceEnabled
 	<< "seismicCrosslineSlicePosition" << seismicState.crosslineSlicePosition
 	<< "seismicInterpolatedSurfaceEnabled" << seismicState.interpolatedSurfaceEnabled
-	<< "seismicInterpolatedSurfacePosition" << seismicState.interpolatedSurfacePosition;
+	<< "seismicInterpolatedSurfacePosition" << seismicState.interpolatedSurfacePosition
+	<< "seismicDataRangeMinValue" << seismicState.dataRangeMinValue
+	<< "seismicDataRangeMaxValue" << seismicState.dataRangeMaxValue;
 
   jsonxx::Object msg;
   msg << "viewstate" << vs;

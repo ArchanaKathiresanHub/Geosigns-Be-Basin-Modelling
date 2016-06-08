@@ -100,11 +100,13 @@ SnapshotInfo::SnapshotInfo()
   , reservoirsGroup(0)
   , faultsGroup(0)
   , slicesGroup(0)
+  , fencesGroup(0)
   , formationsTimeStamp(MxTimeStamp::getTimeStamp())
   , surfacesTimeStamp(MxTimeStamp::getTimeStamp())
   , reservoirsTimeStamp(MxTimeStamp::getTimeStamp())
   , faultsTimeStamp(MxTimeStamp::getTimeStamp())
   , flowLinesTimeStamp(MxTimeStamp::getTimeStamp())
+  , fencesTimeStamp(MxTimeStamp::getTimeStamp())
   , seismicPlaneSliceTimeStamp(MxTimeStamp::getTimeStamp())
 {
   for (int i = 0; i < 3; ++i)
@@ -264,7 +266,7 @@ void SceneGraphManager::updateSnapshotMesh()
   // Check if fences need mesh
   if (!needMesh)
   {
-    for (auto const& fence : m_fences)
+    for (auto const& fence : m_viewState.fences)
     {
       if (fence.visible)
         needMesh = true;
@@ -810,6 +812,50 @@ void SceneGraphManager::updateSnapshotCellFilter()
   snapshot.propertyValueCellFilter->setRange(m_viewState.cellFilterMinValue, m_viewState.cellFilterMaxValue);
 }
 
+void SceneGraphManager::updateSnapshotFences()
+{
+  assert(!m_snapshotInfoCache.empty());
+
+  SnapshotInfo& snapshot = *m_snapshotInfoCache.begin();
+  if (snapshot.fencesTimeStamp == m_fencesTimeStamp)
+	return;
+
+  for (auto const& fence : m_viewState.fences)
+  {
+	auto iter = std::find_if(
+	  snapshot.fences.begin(), 
+	  snapshot.fences.end(), 
+	  [fence](const SnapshotInfo::Fence& f) { return f.id == fence.id; });
+
+	if (iter == snapshot.fences.end())
+	{
+	  SnapshotInfo::Fence f;
+	  f.id = fence.id;
+	  f.timestamp = MxTimeStamp::getTimeStamp();
+	  f.slice = new MoMeshFenceSlice;
+	  f.slice->direction.setValue(0.f, 0.f, -1.f);
+	  f.root = new SoSwitch;
+	  f.root->addChild(f.slice);
+
+	  snapshot.fences.push_back(f);
+	  snapshot.fencesGroup->addChild(f.root);
+
+	  iter = snapshot.fences.end();
+	  iter--;
+	}
+
+	if (iter->timestamp != fence.timestamp)
+	{
+	  iter->slice->polyline.setValues(0, (int)fence.points.size(), fence.points.data());
+	  iter->timestamp = fence.timestamp;
+	}
+
+	iter->root->whichChild = fence.visible 
+	  ? SO_SWITCH_ALL 
+	  : SO_SWITCH_NONE;
+  }
+}
+
 void SceneGraphManager::updateColorMap()
 {
   if (m_viewState.currentPropertyId < 0)
@@ -918,6 +964,7 @@ void SceneGraphManager::updateSnapshot()
   updateSnapshotProperties();
   updateSnapshotSlices();
   updateSnapshotFlowLines();
+  updateSnapshotFences();
   updateSnapshotCellFilter();
 
   updateColorMap();
@@ -1200,13 +1247,15 @@ SnapshotInfo SceneGraphManager::createSnapshotNode(size_t index)
   info.faultsGroup->setName("faults");
   info.slicesGroup = new SoGroup;
   info.slicesGroup->setName("slices");
+  info.fencesGroup = new SoGroup;
+  info.fencesGroup->setName("fences");
 
   info.formationsRoot->addChild(info.mesh);
   info.formationsRoot->addChild(info.flowLinesGroup);
   info.formationsRoot->addChild(info.scalarSet);
   info.formationsRoot->addChild(info.slicesGroup);
   info.formationsRoot->addChild(m_surfaceShapeHints);
-  info.formationsRoot->addChild(m_fencesGroup.ptr());
+  info.formationsRoot->addChild(info.fencesGroup);
   info.formationsRoot->addChild(info.cellFilterSwitch);
   info.formationsRoot->addChild(info.chunksGroup);
 
@@ -1291,7 +1340,11 @@ void SceneGraphManager::setupSceneGraph()
   colorMap->setColorMapping(m_colors.get());
   m_colorMap = colorMap;
 
-  m_trapIdColorMap = createTrapsColorMap(m_project->getMaxPersistentTrapId());
+  unsigned int maxTrapId = m_project->getMaxPersistentTrapId();
+  // if there is no trap info in the project file, maxId will be 0
+  if (maxTrapId == 0)
+	maxTrapId = 100;
+  m_trapIdColorMap = createTrapsColorMap(maxTrapId);
   m_fluidContactsColorMap = createFluidContactsColorMap();
   m_colorMapSwitch = new SoSwitch;
   m_colorMapSwitch->addChild(m_colorMap);
@@ -1390,9 +1443,6 @@ void SceneGraphManager::setupSceneGraph()
   m_snapshotsSwitch->setName("snapshots");
   m_snapshotsSwitch->whichChild = SO_SWITCH_ALL;
 
-  m_fencesGroup = new SoGroup;
-  m_fencesGroup->setName("fences");
-
   m_root = new SoGroup;
   m_root->setName("root");
   m_root->addChild(m_formationShapeHints);
@@ -1464,7 +1514,12 @@ std::shared_ptr<MiDataSetIjk<double> > SceneGraphManager::createReservoirPropert
     else
       trapIdPropertyData = m_project->createReservoirProperty(snapshot.index, res.id, trapIdPropertyId);
 
+	if (!trapIdPropertyData)
+	  return nullptr;
+
     auto traps = m_project->getTraps(snapshot.index, res.id);
+	if (traps.empty())
+	  return nullptr;
 
     result = createFluidContactsProperty(traps, *trapIdPropertyData, *res.meshData);
   }
@@ -1479,6 +1534,7 @@ SceneGraphManager::SceneGraphManager()
   , m_reservoirsTimeStamp(MxTimeStamp::getTimeStamp())
   , m_faultsTimeStamp(MxTimeStamp::getTimeStamp())
   , m_flowLinesTimeStamp(MxTimeStamp::getTimeStamp())
+  , m_fencesTimeStamp(MxTimeStamp::getTimeStamp())
   , m_root(0)
   , m_formationShapeHints(0)
   , m_surfaceShapeHints(0)
@@ -1862,41 +1918,43 @@ void SceneGraphManager::setSlicePosition(int slice, int position)
 int SceneGraphManager::addFence(const std::vector<SbVec3f>& polyline)
 {
   int maxId = 0;
-  for (auto const& f : m_fences)
+  for (auto const& f : m_viewState.fences)
   {
     if (f.id > maxId)
       maxId = f.id;
   }
 
-  FenceSlice fence;
+  FenceParams fence;
   fence.id = maxId + 1;
   fence.visible = true;
+  fence.timestamp = MxTimeStamp::getTimeStamp();
   fence.points = polyline;
 
-  fence.fence = new MoMeshFenceSlice;
-  int i = 0;
-  fence.fence->polyline.setValues(0, (int)polyline.size(), polyline.data());
-  fence.fence->direction.setValue(0.f, 0.f, -1.f);
+  m_viewState.fences.push_back(fence);
+  m_fencesTimeStamp = MxTimeStamp::getTimeStamp();
 
-  fence.fenceSwitch = new SoSwitch;
-  fence.fenceSwitch->addChild(fence.fence);
-  fence.fenceSwitch->whichChild = SO_SWITCH_ALL;
-
-  m_fencesGroup->addChild(fence.fenceSwitch);
-
-  m_fences.push_back(fence);
+  updateSnapshotFences();
 
   return fence.id;
 }
 
 void SceneGraphManager::updateFence(int id, const std::vector<SbVec3f>& polyline)
 {
-  auto iter = std::find_if(m_fences.begin(), m_fences.end(), [id](const FenceSlice& f) { return f.id == id; });
-  if (iter == m_fences.end())
+  auto iter = std::find_if(
+	m_viewState.fences.begin(), 
+	m_viewState.fences.end(), 
+	[id](const FenceParams& f) 
+  { 
+	return f.id == id; 
+  });
+
+  if (iter == m_viewState.fences.end())
     return;
 
   iter->points = polyline;
-  iter->fence->polyline.setValues(0, (int)polyline.size(), polyline.data());
+  iter->timestamp = MxTimeStamp::getTimeStamp();
+
+  updateSnapshotFences();
 }
 
 void SceneGraphManager::removeFence(int id)
@@ -1906,11 +1964,20 @@ void SceneGraphManager::removeFence(int id)
 
 void SceneGraphManager::enableFence(int id, bool enabled)
 {
-  auto iter = std::find_if(m_fences.begin(), m_fences.end(), [id](const FenceSlice& f) { return f.id == id; });
-  if (iter == m_fences.end())
+  auto iter = std::find_if(
+	m_viewState.fences.begin(), 
+	m_viewState.fences.end(), 
+	[id](const FenceParams& f) 
+  { 
+	return f.id == id; 
+  });
+
+  if (iter == m_viewState.fences.end() || iter->visible == enabled)
     return;
 
-  iter->fenceSwitch->whichChild = enabled ? SO_SWITCH_ALL : SO_SWITCH_NONE;
+  iter->visible = enabled;
+  m_fencesTimeStamp = MxTimeStamp::getTimeStamp();
+  updateSnapshotFences();
 }
 
 void SceneGraphManager::setColorScaleParams(const SceneGraphManager::ColorScaleParams& params)

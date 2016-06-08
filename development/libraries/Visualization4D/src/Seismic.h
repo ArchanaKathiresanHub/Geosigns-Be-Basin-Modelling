@@ -68,6 +68,9 @@ public:
 
 	bool interpolatedSurfaceEnabled = false;
 	float interpolatedSurfacePosition = 0.f;
+
+	float dataRangeMinValue = -20e3f;
+	float dataRangeMaxValue =  20e3f;
   };
 
 private:

@@ -172,6 +172,8 @@ void CommandHandler::onEnableFormation(
 
   m_sceneGraphManager->enableFormation(formationId, enabled);
   adjustClippingPlanes(renderArea);
+
+  sendEvent(renderArea, "formationEnabled", params);
 }
 
 void CommandHandler::onEnableAllFormations(
@@ -183,6 +185,8 @@ void CommandHandler::onEnableAllFormations(
 
   m_sceneGraphManager->enableAllFormations(enabled);
   adjustClippingPlanes(renderArea);
+
+  sendEvent(renderArea, "allFormationsEnabled", params);
 }
 
 void CommandHandler::onEnableSurface(
@@ -195,6 +199,8 @@ void CommandHandler::onEnableSurface(
 
   m_sceneGraphManager->enableSurface(surfaceId, enabled);
   adjustClippingPlanes(renderArea);
+
+  sendEvent(renderArea, "surfaceEnabled", params);
 }
 
 void CommandHandler::onEnableAllSurfaces(
@@ -206,6 +212,8 @@ void CommandHandler::onEnableAllSurfaces(
 
   m_sceneGraphManager->enableAllSurfaces(enabled);
   adjustClippingPlanes(renderArea);
+
+  sendEvent(renderArea, "allSurfacesEnabled", params);
 }
 
 void CommandHandler::onEnableReservoir(
@@ -218,6 +226,8 @@ void CommandHandler::onEnableReservoir(
 
   m_sceneGraphManager->enableReservoir(reservoirId, enabled);
   adjustClippingPlanes(renderArea);
+
+  sendEvent(renderArea, "reservoirEnabled", params);
 }
 
 void CommandHandler::onEnableAllReservoirs(
@@ -229,6 +239,8 @@ void CommandHandler::onEnableAllReservoirs(
 
   m_sceneGraphManager->enableAllReservoirs(enabled);
   adjustClippingPlanes(renderArea);
+
+  sendEvent(renderArea, "allReservoirsEnabled", params);
 }
 
 void CommandHandler::onEnableSlice(
@@ -241,6 +253,8 @@ void CommandHandler::onEnableSlice(
 
   m_sceneGraphManager->enableSlice((int)slice, enabled);
   adjustClippingPlanes(renderArea);
+
+  sendEvent(renderArea, "sliceEnabled", params);
 }
 
 void CommandHandler::onSetSlicePosition(
@@ -253,6 +267,8 @@ void CommandHandler::onSetSlicePosition(
 
   m_sceneGraphManager->setSlicePosition((int)slice, (int)position);
   adjustClippingPlanes(renderArea);
+
+  sendEvent(renderArea, "slicePositionChanged", params);
 }
 
 void CommandHandler::onEnableFault(
@@ -265,6 +281,8 @@ void CommandHandler::onEnableFault(
 
   m_sceneGraphManager->enableFault((int)faultId, enabled);
   adjustClippingPlanes(renderArea);
+
+  sendEvent(renderArea, "faultEnabled", params);
 }
 
 void CommandHandler::onEnableAllFaults(
@@ -276,6 +294,8 @@ void CommandHandler::onEnableAllFaults(
 
   m_sceneGraphManager->enableAllFaults(enabled);
   adjustClippingPlanes(renderArea);
+
+  sendEvent(renderArea, "allFaultsEnabled", params);
 }
 
 void CommandHandler::onEnableFlowLines(
@@ -288,6 +308,8 @@ void CommandHandler::onEnableFlowLines(
 
   m_sceneGraphManager->enableFlowLines(flowLinesId, enabled);
   adjustClippingPlanes(renderArea);
+
+  sendEvent(renderArea, "flowLinesEnabled", params);
 }
 
 void CommandHandler::onEnableAllFlowLines(
@@ -299,6 +321,8 @@ void CommandHandler::onEnableAllFlowLines(
 
   m_sceneGraphManager->enableAllFlowLines(enabled);
   adjustClippingPlanes(renderArea);
+
+  sendEvent(renderArea, "allFlowLinesEnabled", params);
 }
 
 void CommandHandler::onEnableFence(
@@ -311,16 +335,20 @@ void CommandHandler::onEnableFence(
 
   m_sceneGraphManager->enableFence(fenceId, enabled);
   adjustClippingPlanes(renderArea);
+
+  sendEvent(renderArea, "fenceEnabled", params);
 }
 
 void CommandHandler::onSetProperty(
   const jsonxx::Object& params,
-  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::RenderArea* renderArea,
   RemoteViz::Rendering::Connection* /*connection*/)
 {
   auto propertyId = (int)params.get<jsonxx::Number>("propertyId");
 
   m_sceneGraphManager->setProperty(propertyId);
+
+  sendEvent(renderArea, "currentPropertyChanged", params);
 }
 
 void CommandHandler::onSetVerticalScale(
@@ -332,27 +360,33 @@ void CommandHandler::onSetVerticalScale(
 
   m_sceneGraphManager->setVerticalScale((float)scale);
   adjustClippingPlanes(renderArea);
+
+  sendEvent(renderArea, "verticalScaleChanged", params);
 }
 
 void CommandHandler::onSetTransparency(
   const jsonxx::Object& params,
-  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::RenderArea* renderArea,
   RemoteViz::Rendering::Connection* /*connection*/)
 {
   auto transparency = params.get<jsonxx::Number>("transparency");
 
   m_sceneGraphManager->setTransparency((float)transparency);
+
+  sendEvent(renderArea, "transparencyChanged", params);
 }
 
 void CommandHandler::onSetRenderStyle(
   const jsonxx::Object& params,
-  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::RenderArea* renderArea,
   RemoteViz::Rendering::Connection* /*connection*/)
 {
   auto drawFaces = params.get<bool>("drawFaces");
   auto drawEdges = params.get<bool>("drawEdges");
 
   m_sceneGraphManager->setRenderStyle(drawFaces, drawEdges);
+
+  sendEvent(renderArea, "renderStyleChanged", params);
 }
 
 void CommandHandler::onShowCoordinateGrid(
@@ -364,26 +398,32 @@ void CommandHandler::onShowCoordinateGrid(
 
   m_sceneGraphManager->showCoordinateGrid(showGrid);
   adjustClippingPlanes(renderArea);
+
+  sendEvent(renderArea, "coordinateGridEnabled", params);
 }
  
 void CommandHandler::onShowCompass(
   const jsonxx::Object& params,
-  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::RenderArea* renderArea,
   RemoteViz::Rendering::Connection* /*connection*/)
 {
   auto showCompass = params.get<bool>("show");
 
   m_sceneGraphManager->showCompass(showCompass);
+
+  sendEvent(renderArea, "compassEnabled", params);
 }
 
 void CommandHandler::onShowText(
   const jsonxx::Object& params,
-  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::RenderArea* renderArea,
   RemoteViz::Rendering::Connection* /*connection*/)
 {
   auto showText = params.get<bool>("show");
 
   m_sceneGraphManager->showText(showText);
+
+  sendEvent(renderArea, "textEnabled", params);
 }
 
 void CommandHandler::onShowTraps(
@@ -395,21 +435,25 @@ void CommandHandler::onShowTraps(
 
   m_sceneGraphManager->showTraps(showTraps);
   adjustClippingPlanes(renderArea);
+
+  sendEvent(renderArea, "trapsEnabled", params);
 }
 
 void CommandHandler::onShowTrapOutlines(
   const jsonxx::Object& params,
-  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::RenderArea* renderArea,
   RemoteViz::Rendering::Connection* /*connection*/)
 {
   auto showOutlines = params.get<bool>("show");
 
   m_sceneGraphManager->showTrapOutlines(showOutlines);
+
+  sendEvent(renderArea, "trapOutlinesEnabled", params);
 }
 
 void CommandHandler::onSetFlowLinesStep(
   const jsonxx::Object& params,
-  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::RenderArea* renderArea,
   RemoteViz::Rendering::Connection* /*connection*/)
 {
   auto typeStr = params.get<std::string>("type");
@@ -420,11 +464,13 @@ void CommandHandler::onSetFlowLinesStep(
   auto step = (int)params.get<jsonxx::Number>("step");
 
   m_sceneGraphManager->setFlowLinesStep(type, step);
+
+  sendEvent(renderArea, "flowLinesStepChanged", params);
 }
 
 void CommandHandler::onSetFlowLinesThreshold(
   const jsonxx::Object& params,
-  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::RenderArea* renderArea,
   RemoteViz::Rendering::Connection* /*connection*/)
 {
   auto typeStr = params.get<std::string>("type");
@@ -435,11 +481,13 @@ void CommandHandler::onSetFlowLinesThreshold(
   auto threshold = (double)params.get<jsonxx::Number>("threshold");
 
   m_sceneGraphManager->setFlowLinesThreshold(type, threshold);
+
+  sendEvent(renderArea, "flowLinesThresholdChanged", params);
 }
 
 void CommandHandler::onShowDrainageAreaOutlines(
   const jsonxx::Object& params,
-  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::RenderArea* renderArea,
   RemoteViz::Rendering::Connection* /*connection*/)
 {
   auto typeStr = params.get<std::string>("type");
@@ -452,11 +500,13 @@ void CommandHandler::onShowDrainageAreaOutlines(
     type = SceneGraphManager::DrainageAreaGas;
 
   m_sceneGraphManager->showDrainageAreaOutlines(type);
+
+  sendEvent(renderArea, "drainageAreaOutlinesEnabled", params);
 }
 
 void CommandHandler::onSetProjection(
   const jsonxx::Object& params,
-  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::RenderArea* renderArea,
   RemoteViz::Rendering::Connection* /*connection*/)
 {
   auto typeStr = params.get<std::string>("type");
@@ -465,16 +515,20 @@ void CommandHandler::onSetProjection(
     : SceneInteractor::ORTHOGRAPHIC;
 
   m_examiner->setCameraMode(mode);
+
+  sendEvent(renderArea, "projectionChanged", params);
 }
 
 void CommandHandler::onSetCurrentSnapshot(
   const jsonxx::Object& params,
-  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::RenderArea* renderArea,
   RemoteViz::Rendering::Connection* /*connection*/)
 {
   auto index = params.get<jsonxx::Number>("index");
 
   m_sceneGraphManager->setCurrentSnapshot((int)index);
+
+  sendEvent(renderArea, "currentSnapshotChanged", params);
 }
 
 void CommandHandler::onViewAll(
@@ -517,7 +571,7 @@ void CommandHandler::onSetViewPreset(
 
 void CommandHandler::onSetColorScaleParams(
   const jsonxx::Object& params,
-  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::RenderArea* renderArea,
   RemoteViz::Rendering::Connection* /*connection*/)
 {
   auto mappingStr = params.get<std::string>("mapping");
@@ -536,6 +590,8 @@ void CommandHandler::onSetColorScaleParams(
   colorScaleParams.maxValue = (double)params.get<jsonxx::Number>("maxval");
 
   m_sceneGraphManager->setColorScaleParams(colorScaleParams);
+
+  sendEvent(renderArea, "colorScaleParamsChanged", params);
 }
 
 void CommandHandler::onEnableCellFilter(
@@ -547,6 +603,8 @@ void CommandHandler::onEnableCellFilter(
 
   m_sceneGraphManager->enableCellFilter(enabled);
   adjustClippingPlanes(renderArea);
+
+  sendEvent(renderArea, "cellFilterEnabled", params);
 }
 
 void CommandHandler::onSetCellFilterRange(
@@ -559,6 +617,8 @@ void CommandHandler::onSetCellFilterRange(
 
   m_sceneGraphManager->setCellFilterRange(minValue, maxValue);
   adjustClippingPlanes(renderArea);
+
+  sendEvent(renderArea, "cellFilterRangeChanged", params);
 }
 
 void CommandHandler::onEnableSeismicSlice(
@@ -579,6 +639,8 @@ void CommandHandler::onEnableSeismicSlice(
 
     m_seismicScene->enableSlice(type[index], enabled);
     adjustClippingPlanes(renderArea);
+
+	sendEvent(renderArea, "seismicSliceEnabled", params);
   }
 }
 
@@ -600,6 +662,8 @@ void CommandHandler::onSetSeismicSlicePosition(
 
     m_seismicScene->setSlicePosition(type[index], position);
     adjustClippingPlanes(renderArea);
+
+	sendEvent(renderArea, "seismicSlicePositionChanged", params);
   }
 }
 
@@ -614,6 +678,8 @@ void CommandHandler::onEnableInterpolatedSurface(
   bool enabled = params.get<bool>("enabled");
   m_seismicScene->enableInterpolatedSurface(enabled);
   adjustClippingPlanes(renderArea);
+
+  sendEvent(renderArea, "interpolatedSurfaceEnabled", params);
 }
 
 void CommandHandler::onSetInterpolatedSurfacePosition(
@@ -627,11 +693,13 @@ void CommandHandler::onSetInterpolatedSurfacePosition(
   float position = (float)params.get<jsonxx::Number>("position");
   m_seismicScene->setInterpolatedSurfacePosition(position);
   adjustClippingPlanes(renderArea);
+
+  sendEvent(renderArea, "interpolatedSurfacePositionChanged", params);
 }
 
 void CommandHandler::onSetSeismicDataRange(
   const jsonxx::Object& params,
-  RemoteViz::Rendering::RenderArea* /*renderArea*/,
+  RemoteViz::Rendering::RenderArea* renderArea,
   RemoteViz::Rendering::Connection* /*connection*/)
 {
   if (!m_seismicScene)
@@ -641,6 +709,8 @@ void CommandHandler::onSetSeismicDataRange(
   float maxValue = (float)params.get<jsonxx::Number>("maxValue");
 
   m_seismicScene->setDataRange(minValue, maxValue);
+
+  sendEvent(renderArea, "seismicDataRangeChanged", params);
 }
 
 void CommandHandler::onSetStillQuality(
@@ -651,6 +721,8 @@ void CommandHandler::onSetStillQuality(
   auto quality = params.get<jsonxx::Number>("quality");
 
   renderArea->getSettings()->setStillCompressionQuality((float)quality);
+
+  sendEvent(renderArea, "stillQualityChanged", params);
 }
 
 void CommandHandler::onSetInteractiveQuality(
@@ -661,6 +733,8 @@ void CommandHandler::onSetInteractiveQuality(
   auto quality = params.get<jsonxx::Number>("quality");
 
   renderArea->getSettings()->setInteractiveCompressionQuality((float)quality);
+
+  sendEvent(renderArea, "interactiveQualityChanged", params);
 }
 
 void CommandHandler::onSetBandwidth(
@@ -763,6 +837,18 @@ void CommandHandler::adjustClippingPlanes(RemoteViz::Rendering::RenderArea* rend
   m_examiner->getCameraInteractor()->adjustClippingPlanes(m_examiner, vpregion);
 }
 
+void CommandHandler::sendEvent(RemoteViz::Rendering::RenderArea* renderArea, const std::string& type, const jsonxx::Object& params)
+{
+  jsonxx::Object event;
+  event << "type" << type;
+  event << "params" << params;
+
+  jsonxx::Object msg;
+  msg << "event" << event;
+
+  renderArea->sendMessage(msg.write(jsonxx::JSON));
+}
+
 CommandHandler::CommandHandler()
   : m_sceneGraphManager(nullptr)
   , m_examiner(nullptr)
@@ -824,14 +910,7 @@ void CommandHandler::sendFenceAddedEvent(
   jsonxx::Object params;
   params << "fenceId" << fenceId;
 
-  jsonxx::Object event;
-  event << "type" << "fenceAdded";
-  event << "params" << params;
-
-  jsonxx::Object msg;
-  msg << "event" << event;
-
-  renderArea->sendMessage(msg.write(jsonxx::JSON));
+  sendEvent(renderArea, "fenceAdded", params);
 }
 
 void CommandHandler::onReceivedMessage(

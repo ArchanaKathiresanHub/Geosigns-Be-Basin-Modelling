@@ -700,8 +700,6 @@ SeismicScene::SeismicScene(const char* filename, const Project::Dimensions& dim)
 , m_transferFunction(new SoTransferFunction)
 , m_range(new SoDataRange)
 {
-  double rangeMin = -2e4, rangeMax = 2e4;
-
   auto reader = SoVolumeReader::getAppropriateReader(filename);
   m_data->setReader(*reader, true);
   m_data->dataSetId = 1;
@@ -716,9 +714,8 @@ SeismicScene::SeismicScene(const char* filename, const Project::Dimensions& dim)
   m_transferFunction->colorMap.setValues(0, 1024, defaultColorMap);
   m_transferFunction->predefColorMap = SoTransferFunction::NONE;
   
-  m_range->min = rangeMin;
-  m_range->max = rangeMax;
-  std::cout << "range = { " << rangeMin << " : " << rangeMax << " }" << std::endl;
+  m_range->min = m_viewState.dataRangeMinValue;
+  m_range->max = m_viewState.dataRangeMaxValue;
 
   // Build scene graph
   m_transformSeparator->addChild(m_matrixTransform);
@@ -849,6 +846,9 @@ void SeismicScene::setInterpolatedSurfacePosition(float position)
 
 void SeismicScene::setDataRange(double rangeMin, double rangeMax)
 {
+  m_viewState.dataRangeMinValue = (float)rangeMin;
+  m_viewState.dataRangeMaxValue = (float)rangeMax;
+
   m_range->min = rangeMin;
   m_range->max = rangeMax;
 }

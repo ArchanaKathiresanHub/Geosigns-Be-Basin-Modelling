@@ -84,7 +84,8 @@ void MainWindow::loadProject(const QString& filename)
     QDir::setCurrent(fileInfo.absoluteDir().absolutePath());
   }
 
-  m_project = Project::load(filename.toStdString());
+  std::string file(filename.toStdString());
+  m_project = Project::load(file);
 
   setWindowFilePath(filename);
 
@@ -566,6 +567,7 @@ void MainWindow::onActionRenderAllSnapshotsTriggered()
     m_sceneGraphManager->setCurrentSnapshot(i);
     int t1 = snapshotTime.restart();
     m_ui.renderWidget->updateGL();
+	//m_ui.renderWidget->saveSnapshot(QString("snapshot%1.jpg").arg(i, 3, 10, QChar('0')));
     int t2 = snapshotTime.elapsed();
 
     int t = t1 + t2;
@@ -934,9 +936,8 @@ void MainWindow::onItemDoubleClicked(QTreeWidgetItem* item, int column)
 
 void MainWindow::onShowGLInfo()
 {
-  //exportData(m_projectHandle.get());
+  m_ui.renderWidget->saveSnapshot("snapshot.jpg");
 
-  static_cast<DataAccessProject*>(m_project.get())->testIO();
   GLInfoDialog dlg(this);
   dlg.exec();
 }

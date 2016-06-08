@@ -45,6 +45,8 @@ class OIVWidget : public QGLWidget
 
   OIVWidget(QWidget* parent=0, Qt::WindowFlags f=0);
 
+  void saveSnapshot(const QString& filename);
+
   void setSceneGraph(SoNode* root);
 };
 

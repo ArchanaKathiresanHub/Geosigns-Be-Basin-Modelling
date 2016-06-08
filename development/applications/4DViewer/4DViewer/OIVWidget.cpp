@@ -12,6 +12,7 @@
 #include <QtGui/QMouseEvent>
 
 #include <Inventor/SoSceneManager.h>
+#include <Inventor/SoOffscreenRenderer.h>
 #include <Inventor/ViewerComponents/SoRenderAreaCore.h>
 #include <Inventor/devices/SoGLContext.h>
 #include <Inventor/events/SoMouseButtonEvent.h>
@@ -181,6 +182,23 @@ OIVWidget::OIVWidget(QWidget* parent, Qt::WindowFlags flags)
   : QGLWidget(parent, nullptr, flags)
 {
   setFocusPolicy(Qt::StrongFocus);
+}
+
+void OIVWidget::saveSnapshot(const QString& filename)
+{
+  SbViewportRegion vpregion(width(), height());
+  vpregion.setPixelsPerInch(72.f);
+
+  SoOffscreenRenderer renderer(vpregion);
+  renderer.setBackgroundColor(SbColor(0.f, 0.f, 0.f));
+
+  SoNode* root = m_renderArea->getSceneGraph();
+  if (renderer.render(root))
+  {
+	SbString file(filename.toStdString());
+	const float quality = 0.75f;
+	renderer.writeToJPEG(file, quality);
+  }
 }
 
 void OIVWidget::setSceneGraph(SoNode* root)

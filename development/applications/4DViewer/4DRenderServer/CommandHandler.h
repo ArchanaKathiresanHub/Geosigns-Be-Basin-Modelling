@@ -274,6 +274,11 @@ class CommandHandler
 
   void adjustClippingPlanes(RemoteViz::Rendering::RenderArea* renderArea);
 
+  void sendEvent(
+	RemoteViz::Rendering::RenderArea* renderArea,
+	const std::string& type, 
+	const jsonxx::Object& params);
+
 public:
 
   CommandHandler();

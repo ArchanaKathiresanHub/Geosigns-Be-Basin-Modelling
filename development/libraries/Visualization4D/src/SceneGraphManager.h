@@ -209,6 +209,15 @@ struct SnapshotInfo
     }
   };
 
+  struct Fence
+  {
+	int id = 0;
+	size_t timestamp = 0;
+
+	SoSwitch* root = nullptr;
+	MoMeshFenceSlice* slice = nullptr;
+  };
+
   size_t index; // index in snapshot list
   double time;
 
@@ -243,6 +252,7 @@ struct SnapshotInfo
   SoGroup* reservoirsGroup;
   SoGroup* faultsGroup;
   SoGroup* slicesGroup;
+  SoGroup* fencesGroup;
 
   std::vector<Project::SnapshotFormation> formations; 
 
@@ -251,12 +261,14 @@ struct SnapshotInfo
   std::vector<Reservoir> reservoirs;
   std::vector<Fault> faults;
   std::vector<FlowLines> flowlines;
-  
+  std::vector<Fence> fences;
+
   size_t formationsTimeStamp;
   size_t surfacesTimeStamp;
   size_t reservoirsTimeStamp;
   size_t faultsTimeStamp;
   size_t flowLinesTimeStamp;
+  size_t fencesTimeStamp;
   size_t seismicPlaneSliceTimeStamp;
 
   SnapshotInfo();
@@ -327,6 +339,14 @@ public:
     double maxValue = 1.0;
   };
 
+  struct FenceParams
+  {
+	int id;
+	bool visible;
+	size_t timestamp;
+	std::vector<SbVec3f> points;
+  };
+
   struct ViewState
   {
 	int currentSnapshotIndex = 0;
@@ -354,6 +374,7 @@ public:
     std::vector<bool> reservoirVisibility;
     std::vector<bool> faultVisibility;
     std::vector<bool> flowLinesVisibility;
+	std::vector<FenceParams> fences;
 
     size_t slicePosition[3];
     bool   sliceEnabled[3];
@@ -389,6 +410,7 @@ private:
   size_t m_reservoirsTimeStamp;
   size_t m_faultsTimeStamp;
   size_t m_flowLinesTimeStamp;
+  size_t m_fencesTimeStamp;
 
   SoGroup*        m_root;
   SoShapeHints*   m_formationShapeHints;
@@ -427,19 +449,6 @@ private:
   SoSwitch*       m_seismicSwitch;
   SoSwitch*       m_snapshotsSwitch;
 
-  struct FenceSlice
-  {
-    int id;
-    bool visible;
-    std::vector<SbVec3f> points;
-
-    SoSwitch* fenceSwitch;
-    MoMeshFenceSlice* fence;
-  };
-
-  std::vector<FenceSlice> m_fences;
-  SoRef<SoGroup>  m_fencesGroup;
-
   std::shared_ptr<SeismicScene> m_seismicScene;
 
   static void mousePressedCallback(void* userData, SoEventCallback* node);
@@ -463,6 +472,7 @@ private:
   void updateSnapshotSlices();
   void updateSnapshotFlowLines();
   void updateSnapshotCellFilter();
+  void updateSnapshotFences();
   void updateColorMap();
   void updateText();
   void updateSnapshot();
