@@ -697,10 +697,14 @@ void LMOptAlgorithm::updateParametersAndRunCase( const Eigen::VectorXd & x )
       throw ErrorHandler::Exception( m_sa->dataDigger().errorCode() ) << m_sa->dataDigger().errorMessage();
    }
 
-   if ( m_keepHistory || m_casesSet.empty() )
+   if ( m_casesSet.empty() )
    {
       m_bestMatchedCase = rc;
       m_baseCase = rc;
+   }
+      
+   if ( m_keepHistory || m_casesSet.empty() )
+   {
       m_casesSet.push_back( rc );
    }
    else
