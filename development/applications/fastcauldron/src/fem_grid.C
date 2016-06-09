@@ -2033,16 +2033,18 @@ void Basin_Modelling::FEM_Grid::integrateChemicalCompaction( const double Previo
    //The chemical compaction is computed only if the global boolean is true
    if ( basinModel -> Do_Chemical_Compaction ) {
       //Get the data from the fem_grid objects
-      m_chemicalCompactionGrid->addLayers ( basinModel->mapDA,
+      bool runCC = m_chemicalCompactionGrid->addLayers ( basinModel->mapDA,
                                             basinModel->layers,
                                             basinModel->getValidNeedles(),
                                             PreviousTime,
                                             CurrentTime );
+		if (runCC){
 
-      m_chemicalCompactionCalculator->computeOnTimeStep( *m_chemicalCompactionGrid );
+			m_chemicalCompactionCalculator->computeOnTimeStep(*m_chemicalCompactionGrid);
 
-      m_chemicalCompactionGrid->exportToModel ( basinModel->layers,
-                                                basinModel->getValidNeedles());
+			m_chemicalCompactionGrid->exportToModel(basinModel->layers,
+				basinModel->getValidNeedles());
+		}
    }
 
 }

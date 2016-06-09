@@ -124,14 +124,14 @@ void ChemicalCompactionGrid :: getLithologyMap( std::vector<int>& lithoMap ) con
 }
 
 
-void ChemicalCompactionGrid :: addLayers( 
+bool ChemicalCompactionGrid :: addLayers( 
 		DM* mapViewOfDomain,
 		const LayerList & layerList,
 		const Boolean2DArray & isValidNeedle,
 		double previousTime,
 		double currentTime)
 {
-
+	bool runChemicalCompaction = false;
 	if( m_size == 0 )
 	{
 		m_size = getNumberOfNodes( mapViewOfDomain, layerList );
@@ -194,6 +194,7 @@ void ChemicalCompactionGrid :: addLayers(
 					// if node is inactive, it should be ignored
 					if (isValidNeedle(i, j))
 					{
+						bool runChemicalCompaction = true;
 						changeLithoMap(layer, i, j, zs, zm, gridOffset, ym, xm, ys, xs);
 
 						for (int k = zs; k < zs + zm; k++)
@@ -242,6 +243,7 @@ void ChemicalCompactionGrid :: addLayers(
 		// Go to next layer
 		layers++;
 	}
+	return runChemicalCompaction;
 }
 
 void ChemicalCompactionGrid :: changeLithoMap( const LayerProps& layer, int i, int j, int zs, int zm, int gridOffset, int ym, int xm, int ys, int xs)

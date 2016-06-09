@@ -182,7 +182,7 @@ public:
 	 * \param isValisNeedle: Boolean2DArray& the array giving if a node is active or not
 	 * \param areLithologiesChanged: bool By default is false, if the lithology map change, is true
 	 */
-	void addLayers( DM* mapViewOfDomain,
+	bool addLayers( DM* mapViewOfDomain,
 			const LayerList & layerList,
 			const Boolean2DArray & isValidNeedle,
 			double previousTime,
