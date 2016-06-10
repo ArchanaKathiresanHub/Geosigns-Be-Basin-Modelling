@@ -194,7 +194,7 @@ bool ChemicalCompactionGrid :: addLayers(
 					// if node is inactive, it should be ignored
 					if (isValidNeedle(i, j))
 					{
-						bool runChemicalCompaction = true;
+						runChemicalCompaction = true;
 						changeLithoMap(layer, i, j, zs, zm, gridOffset, ym, xm, ys, xs);
 
 						for (int k = zs; k < zs + zm; k++)
