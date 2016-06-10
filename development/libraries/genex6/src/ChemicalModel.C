@@ -118,8 +118,8 @@ const Species** ChemicalModel::GetSpecies() const
 }
 void ChemicalModel::AddElement(Element *theElement)
 {
-   std::vector<Element*>::size_type index = m_theElements.size();
-   
+   int index = m_theElements.size();
+
    if(index > m_speciesManager.getNumberOfElements ()) {
       cout << "Warning!! Too big number of elements." << endl;
    }
@@ -757,12 +757,12 @@ void ChemicalModel::SetTheOutputSpecies()
 }
 void ChemicalModel::PrintConfigurationFileEntities(ofstream &outfile)
 {
-   unsigned int id;
    outfile << "Table:[Elements]" << endl;
    outfile << "ElementName,AtomWeight" << endl;
 
    std::vector<Element*>::size_type sz = m_theElements.size();
-   for(id = 0; id < sz; ++ id) {
+
+   for( unsigned int id = 0; id < sz; ++ id ) {
       m_theElements[id]->OutputOnFile(outfile);
    }
    outfile << "[EndOfTable]" << endl;
@@ -771,7 +771,7 @@ void ChemicalModel::PrintConfigurationFileEntities(ofstream &outfile)
    outfile << "Table:[Species]" << endl;
    outfile << "SpeciesId,SpeciesName" << endl;
 
-   for(id = 0; id < m_speciesManager.getNumberOfSpecies (); ++ id) {
+   for(int id = 0; id < m_speciesManager.getNumberOfSpecies (); ++ id) {
       if(m_theSpecies[id] != NULL) {
          outfile << id + 1 << "," << m_theSpecies[id]->GetName() << endl;
       }
@@ -781,7 +781,7 @@ void ChemicalModel::PrintConfigurationFileEntities(ofstream &outfile)
    outfile << endl;
    outfile << "Table:[SpeciesCompositionByName]" << endl;
    outfile << "SpeciesName,CompositionCode,CompositionFactorC, CompositionFactorH, CompositionFactorO, CompositionFactorN, CompositionFactorS" << endl;
-   for(id = 0; id < m_speciesManager.getNumberOfSpecies (); ++ id) {
+   for(int id = 0; id < m_speciesManager.getNumberOfSpecies (); ++ id) {
       if(m_theSpecies[id] != NULL) {
          m_theSpecies[id]->OutputCompositionOnFile(outfile);
       }
@@ -791,7 +791,7 @@ void ChemicalModel::PrintConfigurationFileEntities(ofstream &outfile)
    outfile << endl;
    outfile << "Table:[SpeciesPropertiesByName]" << endl;
    outfile << "SpeciesName,Weight,Density,activationEnergy1,activationEnergy2,entropy,volume,reactionOrder,diffusionEnergy1,diffusionEnergy2,jumpLength, B0,aromaticity" << endl;
-   for(id = 0; id < m_speciesManager.getNumberOfSpecies (); ++ id) {
+   for(int id = 0; id < m_speciesManager.getNumberOfSpecies (); ++ id) {
       if(m_theSpecies[id] != NULL) {
          m_theSpecies[id]->OutputPropertiesOnFile(outfile);
       }
@@ -996,17 +996,18 @@ void ChemicalModel::LoadSpeciesComposition(ifstream &ConfigurationFile)
 #endif
    ParseLine(line, delim, theTokens);
    
-   unsigned int i, j;
+   int i, j;
    int theElements[m_speciesManager.numberOfElements];
 
+   int tokenSize = theTokens.size();
    for(i = 0; i < m_speciesManager.getNumberOfElements (); ++ i) {
       theElements[i] = -1;
    }
-   if(theTokens.size() - 2 > m_speciesManager.getNumberOfElements ()) {
+   if(tokenSize - 2 > m_speciesManager.getNumberOfElements ()) {
       cout << "Warning!! Wrong number of elements in Species composition." << endl;
    }
    //Process header
-   for(i = 2, j = 0; i < theTokens.size(); ++ i, ++ j) {
+   for(i = 2, j = 0; i < tokenSize; ++ i, ++ j) {
       //CompositionFactorC -->extract "C" into Element
       char elementFromHeader = theTokens[i][theTokens[i].size()-1];
       std::string Element(1,elementFromHeader);
@@ -1033,12 +1034,12 @@ void ChemicalModel::LoadSpeciesComposition(ifstream &ConfigurationFile)
       
       ParseLine(line, delim, theTokens);
       
-      if(theTokens.size() - 2 > m_speciesManager.getNumberOfElements ()) {
+      if(tokenSize - 2 > m_speciesManager.getNumberOfElements ()) {
          cout << "Warning!! Wrong number of elements in Species composition." << endl;
       }
       
       Species *theSpecies = this->GetByNameSpecies(theTokens[0]);
-      for(i = 2, j = 0; i < theTokens.size(); ++ i, ++ j) {
+      for(i = 2, j = 0; i < tokenSize; ++ i, ++ j) {
          double compositionCode = atof(theTokens[i].c_str());
          if(compositionCode > Genex6::Constants::ZERO) {
             if(theElements[j] < 0) continue;

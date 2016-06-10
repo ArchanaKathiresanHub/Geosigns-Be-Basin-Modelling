@@ -77,10 +77,10 @@ namespace Genex6 {
 
       double **m_A;
       double **m_B;
-      int m_firstI;
-      int m_lastI;
-      int m_firstJ;
-      int m_lastJ;
+      unsigned int m_firstI;
+      unsigned int m_lastI;
+      unsigned int m_firstJ;
+      unsigned int m_lastJ;
       int m_rows;
       int m_columns;
 

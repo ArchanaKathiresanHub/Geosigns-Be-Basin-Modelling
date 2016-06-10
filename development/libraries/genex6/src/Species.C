@@ -273,42 +273,8 @@ void Species::OutputCompositionOnScreen()
 }
 void Species::OutputCompositionOnFile(ofstream &outfile)
 {
-    std::string::size_type i = 0;
-
-    std::string newCompositionCode;
-    std::string key_element;
-
-    /*
-    while(i != m_compositionCode.size()) {
-      switch(i) {
-      case 0:
-         key_element="C";
-         break;
-      case 1:
-         key_element="H";
-         break;
-      case 2:
-         key_element="O";
-         break;
-      case 3:
-         key_element="N";
-         break;
-      case 4:
-         key_element="S";
-         break;
-      default:
-         key_element="C";
-         break;
-      }
-      pos = m_compositionCode.find(key_element);
-      if(pos != std::string::npos) {
-         newCompositionCode += key_element;
-      }
-      ++ i;
-    }
-    */
    //name, composition,composition factors,properties
-   // outfile << m_name << "," << newCompositionCode;
+
    outfile << m_name << "," << m_compositionCode;
 
    const int elements_ids[] = { m_theChemicalModel->getSpeciesManager ().getCarbonId (),
@@ -318,7 +284,7 @@ void Species::OutputCompositionOnFile(ofstream &outfile)
                                 m_theChemicalModel->getSpeciesManager ().getSulphurId ()};
 
    double zero = 0.0;
-   for(i = 0; i < m_theChemicalModel->getSpeciesManager ().getNumberOfElements (); ++ i) {
+   for(int i = 0; i < m_theChemicalModel->getSpeciesManager ().getNumberOfElements (); ++ i) {
       if(elements_ids[i] >= 0 && m_compositionByElement[elements_ids[i]] > 0) {
          outfile << "," << m_compositionByElement[elements_ids[i]];
       } else {

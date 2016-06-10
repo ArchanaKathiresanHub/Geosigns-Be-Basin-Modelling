@@ -122,8 +122,6 @@ void SimulatorState::SetSpeciesTimeStepVariablesToZero()
    s_SaturatesExpelledVolumeInst = 0.0;
 
    using namespace CBMGenerics;
-   GenexResultManager & theResultManager = GenexResultManager::getInstance();
-   
    int i, j;
 
    for(i = FIRST_RESULT_ID, j = 0; i < LAST_RESULT_ID; ++i, ++j) {
@@ -905,14 +903,14 @@ void SimulatorState::PostProcessTimeStep(Species& theSpecies,  const double in_d
       AddGroupResult(GenexResultManager::OilGeneratedCum, value);
       AddGroupResult(GenexResultManager::OilGeneratedRate, generatedRate);
       AddGroupResult(GenexResultManager::OilExpelledCum, expelledMass);
-      AddGroupResult(GenexResultManager::OilExpelledRate, flux); 
+      AddGroupResult(GenexResultManager::OilExpelledRate, flux );//* in_dT); 
 
       ComponentManager & theComponentManager = ComponentManager::getInstance();
       if(theComponentManager.isSbearingHCsComponent(speciesManager.mapIdToComponentManagerSpecies (speciesId))) {
          AddGroupResult(GenexResultManager::SbearingHCsGeneratedCum,  value);
          AddGroupResult(GenexResultManager::SbearingHCsGeneratedRate, generatedRate);
          AddGroupResult(GenexResultManager::SbearingHCsExpelledCum,   expelledMass);
-         AddGroupResult(GenexResultManager::SbearingHCsExpelledRate,  flux);
+         AddGroupResult(GenexResultManager::SbearingHCsExpelledRate,  flux );
       }
 
       //should use a criterio here, tbd IsC614SaturatesAndAromatics, IsAromatics, IsSaturates
@@ -973,13 +971,12 @@ void SimulatorState::PostProcessTimeStep(Species& theSpecies,  const double in_d
    }
 }
 
-void SimulatorState::postProcessShaleGasTimeStep ( ChemicalModel *chemicalModel, const double deltaT, const bool printIt  ) {
+void SimulatorState::postProcessShaleGasTimeStep ( ChemicalModel *chemicalModel, const double deltaT ) {
 
    // The methods for computing some of the various values in this function can be 
    // found in the function called PostProcessTimeStepComputation in this class.
 
    const SpeciesManager& speciesManager = chemicalModel->getSpeciesManager ();
-   const Species** theSpecies = chemicalModel->GetSpecies();
    ComponentManager & theComponentManager = ComponentManager::getInstance();
 
    double expelledGasVolume = 0.0;

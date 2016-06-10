@@ -30,7 +30,7 @@ SimulatorState::SimulatorState(const double inReferenceTime,
 
    std::map<string, double>::const_iterator itConcsEnd = initSpeciesConcs.end();
 
-   for(int i = 0; i < Genex6::SpeciesManager::numberOfSpecies; ++ i) {
+   for(unsigned int i = 0; i < Genex6::SpeciesManager::numberOfSpecies; ++ i) {
 
       if(SpeciesInChemicalModel[i] != NULL) {
          const string speciesName = SpeciesInChemicalModel[i]->GetName();
@@ -79,10 +79,7 @@ SimulatorState::SimulatorState(const double inReferenceTime,
 
 void SimulatorState::initSpeciesUltimateMass( const SpeciesManager& speciesManager )
 {
-
-   unsigned int i;
-
-   for ( i = 1; i <= speciesManager.getNumberOfSpecies (); ++i ) {
+   for ( int i = 1; i <= speciesManager.getNumberOfSpecies (); ++i ) {
       m_UltimateMassesBySpeciesName[ i - 1 ] = GetSpeciesConcentrationByName( i );  
    }
 

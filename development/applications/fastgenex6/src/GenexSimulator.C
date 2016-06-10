@@ -105,10 +105,10 @@ bool GenexSimulator::run()
    PetscLogDouble run_Start_Time;
    PetscTime(&run_Start_Time);
 
+#if 0
    std::vector<Interface::SourceRock*>::iterator sourceRockIter;
    Interface::Formation * theFormation;
 
-#if 0
    for (sourceRockIter = m_sourceRocks.begin(); sourceRockIter != m_sourceRocks.end(); ++ sourceRockIter) { 
       SourceRock * sr = dynamic_cast<Genex6::SourceRock *>( *sourceRockIter );
       
@@ -261,8 +261,8 @@ void GenexSimulator::setRequestedOutputProperties()
             }
          }
 
-      } else if (( propertyName == theResultManager.GetResultName(GenexResultManager::HcGasExpelledCum)) ||
-                 ( propertyName == theResultManager.GetResultName(GenexResultManager::OilExpelledCum)) &&
+      } else if ((( propertyName == theResultManager.GetResultName(GenexResultManager::HcGasExpelledCum)) or
+                  ( propertyName == theResultManager.GetResultName(GenexResultManager::OilExpelledCum))) and
                  modellingMode == theModellingMode) {
 
          if( isPropertyRegistered(propertyName)) {

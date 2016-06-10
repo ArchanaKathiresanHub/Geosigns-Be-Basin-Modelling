@@ -24,9 +24,9 @@ SourceRockNode::SourceRockNode(const double in_thickness, const double in_TOC,
    m_InorganicDensity(in_InorganicDensity),
    m_I(in_I),
    m_J(in_J),
-   m_currentState(0),
    m_f1 (in_f1),
-   m_f2 (in_f2)
+   m_f2 (in_f2),
+   m_currentState(0)
 {
    m_mixedSimulatorState = 0;
 }
@@ -118,10 +118,8 @@ const Input *SourceRockNode::getLastInput() const
 
 bool SourceRockNode::RequestComputation ( int numberOfSourceRock, Simulator & theSimulator )
 {
-   SimulatorState * theState = ( numberOfSourceRock < m_theSimulatorStates.size() ?  m_theSimulatorStates[numberOfSourceRock] : 0 );
+   SimulatorState * theState = ( numberOfSourceRock < ( static_cast<int>( m_theSimulatorStates.size() )) ?  m_theSimulatorStates[numberOfSourceRock] : 0 );
       
-   const SpeciesManager& speciesManager = theSimulator.getSpeciesManager ();
-
    std::vector<Input*>::iterator itInput;
    bool isInitialTimeStep = true;
 
@@ -151,8 +149,7 @@ bool SourceRockNode::RequestComputation ( int numberOfSourceRock, Simulator & th
 }
 
 
-void SourceRockNode::updateAdsorptionOutput ( const Simulator&           genexSimulator,
-                                              const AdsorptionSimulator& adsorptionSimulator ) {
+void SourceRockNode::updateAdsorptionOutput ( const AdsorptionSimulator& adsorptionSimulator ) {
    /*
    const SpeciesManager& speciesManager = genexSimulator.getSpeciesManager ();
 
@@ -214,7 +211,7 @@ int SourceRockNode::CreateSimulatorState(int numberOfSourceRock, const double cu
 
    assert( theState != 0 );
    
-   if( m_theSimulatorStates.size() != numberOfSourceRock ) {
+   if(( static_cast<int>( m_theSimulatorStates.size() )) != numberOfSourceRock ) {
       cout<<"Number of Source Rock is wrong in CreateSimulatorState...Aborting...";
       return FAIL;
    }
@@ -260,8 +257,6 @@ void SourceRockNode::RequestComputationUnitTest(Simulator & theSimulator)
 {
    // SR rock mixing is not supported
 
-   const SpeciesManager& speciesManager = theSimulator.getChemicalModel ().getSpeciesManager ();
-
    std::vector<Input*>::iterator itInput; 
 
    for(itInput = m_theInput.begin(); itInput != m_theInput.end(); ++ itInput) {
@@ -296,11 +291,9 @@ int SourceRockNode::RequestComputation1D(int numberOfSourceRock, Simulator *theS
                                          const int numberOfSnapshots, const double depositionAge)
 {
 
-   SimulatorState * theState = ( numberOfSourceRock < m_theSimulatorStates.size() ?  m_theSimulatorStates[numberOfSourceRock] : 0 );
+   SimulatorState * theState = ( numberOfSourceRock < static_cast<int>( m_theSimulatorStates.size() ) ?  m_theSimulatorStates[numberOfSourceRock] : 0 );
   
-   const SpeciesManager& speciesManager = theSimulator->getChemicalModel ().getSpeciesManager ();
-
-	cout<<"1D MODE-GENEX5KERNEL"<<endl;
+   cout<<"1D MODE-GENEX5KERNEL"<<endl;
    if(m_theInput.size() > static_cast<unsigned int>(numberOfSnapshots)) {
       cout<<"Input sizes are incompatible...Aborting...";
       return FAIL;

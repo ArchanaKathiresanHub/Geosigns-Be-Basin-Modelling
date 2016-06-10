@@ -136,7 +136,7 @@ public:
    /// \brief Update state after a shale-gas time-step.
    ///
    /// Computes the compound results.
-   void postProcessShaleGasTimeStep ( ChemicalModel *chemicalMode, const double in_dT, const bool printIt );
+   void postProcessShaleGasTimeStep ( ChemicalModel *chemicalMode, const double in_dT );
 
    void ComputeFirstTimeInstance(ChemicalModel *theChmod);
 

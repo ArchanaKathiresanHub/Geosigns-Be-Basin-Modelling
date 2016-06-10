@@ -16,7 +16,7 @@ namespace Genex6 {
       ~ConstantGridInterpolator ();
    
 
-      double evaluateProperty ( const int &I, const int &J, const double &in_timeInstance) const;
+      double evaluateProperty ( const int &I, const int &J ) const;
 
 
    private :

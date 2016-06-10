@@ -41,7 +41,7 @@ static char help[] = "Parallel Generation Expulsion\n\n";
 #undef __FUNCT__
 #define __FUNCT__ "main"
 
-void printUsage (char * argv0);
+void printUsage ();
 
 
 int main (int argc, char ** argv)
@@ -59,7 +59,7 @@ int main (int argc, char ** argv)
 
    PetscOptionsGetString (PETSC_NULL, "-project", inputFileName, 128, &inputFileSet);
    if (!inputFileSet)  {
-      printUsage (argv0);
+      printUsage ();
       PetscFinalize ();
       return -1;
    }
@@ -229,7 +229,7 @@ int main (int argc, char ** argv)
    return status ? 0 : -1;
 }
 
-void printUsage (char * argv0)
+void printUsage ()
 {
       PetscPrintf (PETSC_COMM_WORLD, "usage: %s -project fileName [-save fileName]\n");
 }

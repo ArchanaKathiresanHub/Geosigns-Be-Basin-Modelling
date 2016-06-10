@@ -35,17 +35,17 @@ public:
    virtual ~SimulatorState(){};
 
    void SetSpeciesTimeStepVariablesToZero(){};
-   void PostProcessTimeStep(Species &theSpecies, const double in_dT){};
+   void PostProcessTimeStep(Species & /*theSpecies */, const double /* in_dT */){};
  
-   void ComputeFirstTimeInstance(ChemicalModel *theChmod = NULL){};
+   void ComputeFirstTimeInstance(ChemicalModel * /* theChmod */){};
 
    double ComputeWaso() {return 0.0;}
    double ComputeWbo()  {return 0.0;}
 
    void SetLumpedConcentrationsToZero(){};
    void SetResultsToZero(){ };
-   double ComputeKerogenTransformatioRatio( const SpeciesManager& speciesManager,int aSimulationType ){ return 0.0; }; 
-   double ComputeDiffusionConcDependence(const double in_Waso){ return 0.0; }; 
+   double ComputeKerogenTransformatioRatio( const SpeciesManager& /* speciesManager */,int /* aSimulationType */ ){ return 0.0; }; 
+   double ComputeDiffusionConcDependence(const double /* in_Waso */ ){ return 0.0; }; 
 
    double getTotalOilForTSR () const;
    void incTotalOilForTSR ( double curentConc );

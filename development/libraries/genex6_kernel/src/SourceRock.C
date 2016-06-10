@@ -1894,7 +1894,7 @@ void SourceRock::createSnapShotOutputMaps(const Snapshot *theSnapshot)
 
 }
 
-void SourceRock::saveSnapShotOutputMaps(const Snapshot *theSnapshot)
+void SourceRock::saveSnapShotOutputMaps()
 {
    std::map<std::string, GridMap*>::iterator it;
    std::map < CBMGenerics::ComponentManager::SpeciesNamesId, Interface::GridMap* >::iterator adsorpedIt;
@@ -2052,8 +2052,6 @@ void SourceRock::updateSnapShotOutputMaps(Genex6::SourceRockNode *theNode)
    std::map<std::string, GridMap*>::iterator it;
    std::map<std::string, GridMap*>::iterator snapshotMapContainerEnd = m_theSnapShotOutputMaps.end();
  
-   double sulphurExpelledMass  = 0.0;
- 
    const unsigned int i = theNode->GetI ();
    const unsigned int j = theNode->GetJ ();
 
@@ -2134,13 +2132,6 @@ void SourceRock::updateSnapShotOutputMaps(Genex6::SourceRockNode *theNode)
 
       // Convert m^3/m^2 -> mega barrel/km^2.
       const double OilVolumeConversionFactor = 1.0e6 * Genex6::Constants::CubicMetresToBarrel / 1.0e6;
-
-      const Genex6::Input* nodeInputData = theNode->getLastInput ();
-
-      double thicknessScaling = ( nodeInputData == 0 ? 1.0 : nodeInputData->GetThicknessScaleFactor ());
-
-      //     SimulatorState& simulatorState = dynamic_cast<SimulatorState&>( theNode->getPrincipleSimulatorState () ); // GetSimulatorState()
-
 
       double gasVolume;
       double oilVolume;
@@ -2413,8 +2404,7 @@ bool SourceRock::computeSnapShot ( const double previousTime,
          }
 
          if ( not isInitialTimeStep and doApplyAdsorption () ) {
-            (*itNode)->getPrincipleSimulatorState ().postProcessShaleGasTimeStep ( m_theChemicalModel, previousTime - time,
-                                                                                     (*itNode)->GetI() == 0 and (*itNode)->GetJ() == 0 );
+            (*itNode)->getPrincipleSimulatorState ().postProcessShaleGasTimeStep ( m_theChemicalModel, previousTime - time );
          }
 
          if ( not isInitialTimeStep ) {
@@ -2422,7 +2412,7 @@ bool SourceRock::computeSnapShot ( const double previousTime,
          }
 
          if ( doOutputAdsorptionProperties ()) {
-            (*itNode)->updateAdsorptionOutput ( *m_theSimulator, *getAdsorptionSimulator() );
+            (*itNode)->updateAdsorptionOutput ( *getAdsorptionSimulator() );
           }
 
          updateSnapShotOutputMaps((*itNode));
@@ -2430,7 +2420,7 @@ bool SourceRock::computeSnapShot ( const double previousTime,
 
       }
 
-      saveSnapShotOutputMaps(theSnapshot);
+      saveSnapShotOutputMaps();
 
       calcVes->restoreData();
       calcTemp->restoreData();

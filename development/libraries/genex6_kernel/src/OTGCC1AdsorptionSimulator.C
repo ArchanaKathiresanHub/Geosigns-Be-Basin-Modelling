@@ -401,7 +401,6 @@ void Genex6::OTGCC1AdsorptionSimulator::compute ( const Genex6::Input&          
 
    // Set the new masses back to the species-state and the immobile-species-state.
    for ( speciesConcentrationIter = retainedSpeciesConcentrations.begin (); speciesConcentrationIter != retainedSpeciesConcentrations.end (); ++speciesConcentrationIter ) {
-      SpeciesState* speciesState;
 
       const std::string& speciesName = speciesConcentrationIter->first;
       double speciesMass = speciesConcentrationIter->second;
@@ -418,7 +417,6 @@ void Genex6::OTGCC1AdsorptionSimulator::compute ( const Genex6::Input&          
          // Get all the mobile species for later pvt-flash computation.
          componentMasses ( pvtId ) = speciesMass;
          // speciesState = simulatorState->GetSpeciesStateById ( speciesId );
-         speciesState = simulatorState->GetSpeciesStateById ( m_speciesManager.mapPvtComponentsToId ( pvtId ));
 
          if ( output ) {
             cout << "  mob retained: " << setw ( 25 ) << speciesMass;

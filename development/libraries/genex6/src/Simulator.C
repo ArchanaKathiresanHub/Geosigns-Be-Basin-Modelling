@@ -507,7 +507,7 @@ void Simulator::PreprocessTimeStepComputation(const Input &theInput)
    m_currentState->setTotalOilForTSR ( 0.0 );
 }
 
-void Simulator::ProcessTimeStepComputation( const Input &theSourceRockInput ) 
+void Simulator::ProcessTimeStepComputation() 
 {
    const double T1 = (m_simulationType & Genex6::Constants::SIMGENEX ? 
                       s_kerogenTransformationRatio : m_currentState->getMaxPrecokeTransfRatio());
@@ -523,13 +523,7 @@ void Simulator::ProcessTimeStepComputation( const Input &theSourceRockInput )
                                        s_DiffusionConcDependence,
                                        s_VogelFulcherTemperature,
                                        m_openConditions); 
-   /*
-   SubProcessSimulatorList::iterator processIterator;
 
-   for ( processIterator = m_subProcesses.begin (); processIterator != m_subProcesses.end (); ++processIterator ) {
-      (*processIterator)->compute ( theSourceRockInput, m_currentState );
-   }
-   */
 }
 void Simulator::PrintBenchmarkOutput(ofstream &outputTestingSetFile) const 
 {                                  
@@ -640,7 +634,7 @@ void Simulator::advanceSimulatorState(const Input &theInput)
    }
 
    PreprocessTimeStepComputation(theInput);
-   ProcessTimeStepComputation ( theInput );  //updates the current state
+   ProcessTimeStepComputation ();  //updates the current state
    //data of m_currentState updated, now update explicitly the reference time, put here for clarity
    computeToc ( theInput );
    m_currentState->SetReferenceTime(theInput.GetTime());	//update timeStep number as well

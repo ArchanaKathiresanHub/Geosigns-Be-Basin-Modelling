@@ -229,7 +229,7 @@ void LinearGridInterpolator::compute ( const Snapshot *startTime,
      
    double aValue = 0.0;
    double bValue = 0.0;
-   unsigned int depth = 1; // it is a Surface property
+
    unsigned int i = 0;
    unsigned int j = 0;
 
@@ -349,7 +349,7 @@ void LinearGridInterpolator::compute ( const Snapshot *startTime,
      
    double aValue = 0.0;
    double bValue = 0.0;
-   unsigned int depth = 1; // it is a Surface property
+
    unsigned int i = 0;
    unsigned int j = 0;
 
@@ -427,7 +427,6 @@ void LinearGridInterpolator::compute ( const Snapshot *startTime,
      
    double aValue = 0.0;
    double bValue = 0.0;
-   unsigned int depth = 1; // it is a Surface property
    unsigned int i = 0;
    unsigned int j = 0;
 
@@ -503,7 +502,7 @@ void LinearGridInterpolator::compute ( const Snapshot *startTime,
      
    double aValue = 0.0;
    double bValue = 0.0;
-   unsigned int depth = 1; // it is a Surface property
+
    unsigned int i = 0;
    unsigned int j = 0;
 

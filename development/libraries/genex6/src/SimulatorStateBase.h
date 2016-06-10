@@ -43,7 +43,7 @@ public:
    double getMaxCoke2TransTransfRatio();
    void   setMaxCoke2TransTransfRatio(const double inMaxCoke2TransTransfRatio);
 
-   virtual void ComputeFirstTimeInstance(ChemicalModel *theChmod = NULL) = 0;
+   virtual void ComputeFirstTimeInstance(ChemicalModel *theChmod) = 0;
    virtual void SetSpeciesTimeStepVariablesToZero() = 0;
    virtual void PostProcessTimeStep(Species &aSpecies, const double in_dT) = 0;
    virtual double ComputeWaso() = 0;

@@ -117,8 +117,7 @@ public:
    void addNodeAdsorptionHistory ( NodeAdsorptionHistory* adsorptionHistory );
    double getSGMeanBulkDensity () const;
 
-   void updateAdsorptionOutput ( const Simulator&           genexSimulator,
-                                 const AdsorptionSimulator& adsorptionSimulator );
+   void updateAdsorptionOutput ( const AdsorptionSimulator& adsorptionSimulator );
 
 
    /// \brief Computes the volume of oil and gas per volume of rock.

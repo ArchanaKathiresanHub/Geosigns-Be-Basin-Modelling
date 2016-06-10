@@ -77,6 +77,9 @@ double Genex6::LangmuirAdsorptionTOCFunction::computeVL ( const unsigned int i,
    if ( species != CBMGenerics::ComponentManager::C1 ) {
       return 0.0;
    }
+   // Added to prevent a compiler warning about unused parameter.
+   (void) i;
+   (void) j;
 
    double vl;
 

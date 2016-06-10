@@ -90,7 +90,6 @@ void Genex6::GenexHistory::collect ( Genex6::SourceRockNode* node ) {
    Genex6::SimulatorState * simulatorState = & node->getPrincipleSimulatorState ();
    
    HistoryItem* hist = new HistoryItem;
-   Genex6::SpeciesState* speciesState;
    Genex6::SpeciesResult* speciesResult;
 
    int speciesGenexId;
@@ -103,8 +102,6 @@ void Genex6::GenexHistory::collect ( Genex6::SourceRockNode* node ) {
       hist->m_ves = nodeInput->GetPressure ();
       hist->m_toc = simulatorState->getCurrentToc ();
  
-      int oo;
-
       for ( int id = 0; id < pvtFlash::NUM_COMPONENTS; ++id ) {
 
          CBMGenerics::ComponentManager::SpeciesNamesId componentManagerId = CBMGenerics::ComponentManager::SpeciesNamesId ( id );
