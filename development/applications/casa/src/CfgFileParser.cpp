@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2012-2014 Shell International Exploration & Production.
+// Copyright (C) 2012-201666666 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -10,6 +10,8 @@
 
 #include "CfgFileParser.h"
 #include "CasaCommander.h"
+
+#include "ErrorHandler.h"
 
 #include <algorithm>
 #include <fstream>
@@ -94,9 +96,8 @@ void CfgFileParser::parseFile( const std::string & cmdFile, CasaCommander & cmdQ
                }
                else 
                {
-                  std::ostringstream oss;
-                  oss << "Can not find closing \" for the string: " << opt << ", at line: " << lineNum << ", command: " << cmdID;
-                  throw::std::runtime_error( oss.str().c_str() ); 
+                  throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Can not find closing \" for the string: " << opt << 
+                                                                            ", at line: " << lineNum << ", command: " << cmdID;
                }
 
                cmdPrms.push_back( opt );
@@ -113,9 +114,8 @@ void CfgFileParser::parseFile( const std::string & cmdFile, CasaCommander & cmdQ
                   }
                   else 
                   {
-                     std::ostringstream oss;
-                     oss << "Can not find closing ] for the set: " << opt << ", at line: " << lineNum << ", command: " << cmdID;
-                     throw::std::runtime_error( oss.str().c_str() ); 
+                     throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Can not find closing ] for the set: " << opt << 
+                                                                               ", at line: " << lineNum << ", command: " << cmdID;
                   }
                }
                cmdPrms.push_back( opt );
@@ -193,7 +193,7 @@ void CfgFileParser::readTrajectoryFile( const std::string & fileName,
 {
    std::ifstream ifs( fileName.c_str() );
 
-   if ( !ifs.is_open() ) { throw::std::runtime_error( std::string("Can not open trajectory file: " ) + fileName ); }
+   if ( !ifs.is_open() ) { throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Can not open trajectory file: " << fileName; }
 
    x.clear();
    y.clear();
@@ -223,12 +223,12 @@ void CfgFileParser::readTrajectoryFile( const std::string & fileName,
 
          switch( tokNum )
          {
-            case 0: xc = atof( result.c_str( ) ); x.push_back( xc ); break;
-            case 1: yc = atof( result.c_str( ) ); y.push_back( yc ); break;
-            case 2: zc = atof( result.c_str( ) ); z.push_back( zc ); break;
-            case 3: rv = atof( result.c_str( ) ); ref.push_back( rv ); break;
-            case 4: sd = atof( result.c_str( ) ); sdev.push_back( sd ); break;
-            default: throw std::runtime_error( std::string( "Wrong format of Well trajectory file: " ) + fileName );
+            case 0: xc = atof( result.c_str() ); x.push_back(    xc ); break;
+            case 1: yc = atof( result.c_str() ); y.push_back(    yc ); break;
+            case 2: zc = atof( result.c_str() ); z.push_back(    zc ); break;
+            case 3: rv = atof( result.c_str() ); ref.push_back(  rv ); break;
+            case 4: sd = atof( result.c_str() ); sdev.push_back( sd ); break;
+            default: throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Wrong format of Well trajectory file: " << fileName;
          }
          ++tokNum;
       }

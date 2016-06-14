@@ -153,12 +153,12 @@ public:
 
    virtual casa::Observable * createOservableObject( const std::string & name, std::vector<std::string> & prms ) const
    {
-      const std::string & trajFileName =       prms[1];           // well trajectory file with reference values
-      const std::string & propName     =       prms[2];           // property name
-      double              age          = atof( prms[3].c_str() ); // age for the observable
-      double              stdDev       = atof( prms[4].c_str() ); // std deviation value
-      double              wgtSA        = atof( prms[5].c_str() ); // observable weight for Sensitivity Analysis
-      double              wgtUA        = atof( prms[6].c_str() ); // observable weight for Uncertainty Analysis
+      const std::string & trajFileName = prms[1];                                         // well trajectory file with reference values
+      const std::string & propName     = prms[2];                                         // property name
+      double              age          = atof( prms[3].c_str() );                         // age for the observable
+      double              stdDev       = prms.size() > 4 ? atof( prms[4].c_str() ) : 0.0; // std deviation value
+      double              wgtSA        = prms.size() > 5 ? atof( prms[5].c_str() ) : 1.0; // observable weight for Sensitivity Analysis
+      double              wgtUA        = prms.size() > 6 ? atof( prms[6].c_str() ) : 1.0; // observable weight for Uncertainty Analysis
 
       //well trajectories files must be indicated with a full path
       ibs::FilePath trj( trajFileName );
@@ -174,14 +174,27 @@ public:
       std::vector<double> x, y, z, r, sdev;
       CfgFileParser::readTrajectoryFile( trajFileName, x, y, z, r, sdev );
 
-      // If no sdev was specified in the trajFileName, fill sdev vector with stdDev (unique value for all measurements)
-      if ( sdev.empty() )
-         for ( size_t i = 0; i != r.size( ); ++i ) sdev.push_back( stdDev );
-      
+      // check that arrays are matched
+      if ( x.empty()            || 
+           x.size() != y.size() ||
+           x.size() != z.size() ||
+           ( !r.empty()    && r.size()    != x.size() ) ||
+           ( !sdev.empty() && sdev.size() != x.size() )
+         )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Invalid trajectory file: " << trajFileName;
+      }
 
+      // If no sdev was specified in the trajFileName, fill sdev vector with stdDev (unique value for all measurements)
+      if ( !r.empty() && sdev.empty() ) { sdev.insert( sdev.begin(), x.size(), stdDev ); }
+      
       // create observable
       casa::Observable * obsVal = casa::ObsGridPropertyWell::createNewInstance( x, y, z, propName.c_str(), age, name );
-      obsVal->setReferenceValue( new casa::ObsValueDoubleArray( obsVal, r ), new casa::ObsValueDoubleArray( obsVal, sdev ) );
+      
+      if ( !r.empty() )
+      {
+         obsVal->setReferenceValue( new casa::ObsValueDoubleArray( obsVal, r ), new casa::ObsValueDoubleArray( obsVal, sdev ) );
+      }
 
       obsVal->setSAWeight( wgtSA );
       obsVal->setUAWeight( wgtUA );
@@ -189,8 +202,8 @@ public:
       return obsVal;
    }
       
-   size_t expectedParametersNumber() const { return 6; } 
-   size_t optionalParametersNumber() const { return 0; }
+   size_t expectedParametersNumber() const { return 3; } 
+   size_t optionalParametersNumber() const { return 3; }
 
    virtual std::string name() const { return "WellTraj"; }
 

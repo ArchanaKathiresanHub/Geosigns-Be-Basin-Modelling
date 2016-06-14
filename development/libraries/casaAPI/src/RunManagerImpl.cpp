@@ -716,7 +716,8 @@ void RunManagerImpl::createJobScheduler( const std::string & clusterName )
    else                          { m_jobSched.reset( new JobSchedulerLSF( clusterName ) ); }
 #endif
    // delete file with jobs list if exist
-   ibs::FilePath jobsIDFile( std::string( "./" ) + s_jobsIDListFileName );
+   ibs::FilePath jobsIDFile( "." ); 
+   jobsIDFile << s_jobsIDListFileName;
    if ( jobsIDFile.exists() ) { jobsIDFile.remove(); }
 }
  

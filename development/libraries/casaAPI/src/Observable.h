@@ -90,8 +90,8 @@ namespace casa
 
       /// @{
       /// @brief Make observable transformation to present observable value to the user. Some observables
-      ///        (like trap properties) should be differently treated when they aree aproximated by response surface 
-      ///        and when they are presented to the user. This function performs such convertion. If specific observable type
+      ///        (like trap properties) should be differently treated when they are aproximated by response surface 
+      ///        and when they are presented to the user. This function performs such conversion. If specific observable type
       ///        does not need such convertion, this function will return zero pointer.
       /// @param val Original observable value from the run case or from MonteCarlo
       /// @return The new Observable value object which will keep the transformed observable value. This object must be destroyed

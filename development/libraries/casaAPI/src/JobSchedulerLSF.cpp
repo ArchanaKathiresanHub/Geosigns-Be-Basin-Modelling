@@ -484,7 +484,7 @@ JobScheduler::JobState JobSchedulerLSF::runJob( JobID job )
    }
    // log job ID
    std::ofstream ofs( RunManager::s_jobsIDListFileName, std::ios_base::out | std::ios_base::app );
-   if ( ofs.is_open() ) { ofs << schedulerJobID( job ); }
+   if ( ofs.is_open() ) { ofs << schedulerJobID( job ) << "\n"; ofs.close(); }
  
    return jobState( job );
 }

@@ -196,36 +196,30 @@ ObsValue * ObsTrapDerivedProp::getFromModel( mbapi::Model & caldModel )
          for ( size_t j = 0; j < tblSize && !found; ++j )
          {
             double obTime = caldModel.tableValueAsDouble( Observable::s_dataMinerTable, j, "Time" );
-            if ( caldModel.errorCode() == ErrorHandler::NoError && NumericFunctions::isEqual( obTime, m_simTime, eps ) )
-            {
-               double xCrd = caldModel.tableValueAsDouble( Observable::s_dataMinerTable, j, "XCoord" );
-               if ( caldModel.errorCode() == ErrorHandler::NoError && NumericFunctions::isEqual( xCrd, m_x, eps ) )
-               {
-                  double yCrd = caldModel.tableValueAsDouble( Observable::s_dataMinerTable, j, "YCoord" );
-                  if ( caldModel.errorCode() == ErrorHandler::NoError && NumericFunctions::isEqual( yCrd, m_y, eps ) )
-                  {
-                     double zCrd = caldModel.tableValueAsDouble( Observable::s_dataMinerTable, j, "ZCoord" );
-                     if ( caldModel.errorCode() == ErrorHandler::NoError && NumericFunctions::isEqual( zCrd, UndefinedDoubleValue, eps ) )
-                     {
-                        const std::string & resName = caldModel.tableValueAsString( Observable::s_dataMinerTable, j, "ReservoirName" );
-                        if ( caldModel.errorCode() == ErrorHandler::NoError && m_resName == resName )
-                        {
-                           const std::string & pName = caldModel.tableValueAsString( Observable::s_dataMinerTable, j, "PropertyName" );
-                           if ( caldModel.errorCode() == ErrorHandler::NoError && propName == pName )
-                           {
-                              found = true;
-                              val[i] = caldModel.tableValueAsDouble( Observable::s_dataMinerTable, j, "Value" );
+            if ( caldModel.errorCode() != ErrorHandler::NoError || ! NumericFunctions::isEqual( obTime, m_simTime, eps ) ) { continue; }
 
-                              m_posDataMiningTbl[i] = static_cast<int>( j ); // fill the rest of the table as well data must be continuous
-                              for ( size_t k = i+1; k < m_posDataMiningTbl.size(); ++k )
-                              {
-                                 m_posDataMiningTbl[k] = m_posDataMiningTbl[k-1]+1;
-                              }
-                           }
-                        }
-                     }
-                  }
-               }
+            double xCrd = caldModel.tableValueAsDouble( Observable::s_dataMinerTable, j, "XCoord" );
+            if ( caldModel.errorCode() != ErrorHandler::NoError || ! NumericFunctions::isEqual( xCrd, m_x, eps ) ) { continue; }
+
+            double yCrd = caldModel.tableValueAsDouble( Observable::s_dataMinerTable, j, "YCoord" );
+            if ( caldModel.errorCode() != ErrorHandler::NoError || ! NumericFunctions::isEqual( yCrd, m_y, eps ) ) { continue; }
+
+            double zCrd = caldModel.tableValueAsDouble( Observable::s_dataMinerTable, j, "ZCoord" );
+            if ( caldModel.errorCode() != ErrorHandler::NoError || ! NumericFunctions::isEqual( zCrd, UndefinedDoubleValue, eps ) ) { continue; }
+                       
+            const std::string & resName = caldModel.tableValueAsString( Observable::s_dataMinerTable, j, "ReservoirName" );
+            if ( caldModel.errorCode() != ErrorHandler::NoError ||  m_resName != resName ) { continue; }
+                           
+            const std::string & pName = caldModel.tableValueAsString( Observable::s_dataMinerTable, j, "PropertyName" );
+            if ( caldModel.errorCode() != ErrorHandler::NoError || propName != pName ) { continue; }
+                              
+            found = true;
+            val[i] = caldModel.tableValueAsDouble( Observable::s_dataMinerTable, j, "Value" );
+
+            m_posDataMiningTbl[i] = static_cast<int>( j ); // fill the rest of the table as well data must be continuous
+            for ( size_t k = i+1; k < m_posDataMiningTbl.size(); ++k )
+            {
+               m_posDataMiningTbl[k] = m_posDataMiningTbl[k-1]+1;
             }
          }
       }
