@@ -516,23 +516,48 @@ struct RecordSorter
       const database::TableDefinition & tblDef = tbl->getTableDefinition();
       m_eps = tol;
 
-      // cache fields index and data type 
-      for ( size_t i = 0; i < tblDef.size(); ++i )
+      // For TrapIoTbl and TrapperIoTbl sort table by the entries of the trapRecords list
+      if ( tbl->name() == "TrapperIoTbl" or tbl->name() == "TrapIoTbl" )
       {
-         if ( tblDef.getFieldDefinition( static_cast<int>( i ) )->dataType() == datatype::String )
+         std::set<std::string> trapRecords = {"ReservoirName", "Age", "XCoord", "YCoord"};
+         std::set<std::string>::iterator trapRecordsIter = trapRecords.begin();
+
+         for ( size_t k = 1; k > -1; --k )
          {
-            m_fldIDs.push_back( i );
-            m_fldTypes.push_back( tblDef.getFieldDefinition( static_cast<int>( i ) )->dataType() );
-         }         
+            for ( size_t i = 0; i < tblDef.size(); ++i )
+            {
+               std::string fieldDefinition = tblDef.getFieldDefinition( static_cast<int>(i) )->name();
+               if (trapRecords.count( fieldDefinition ) == k)
+               {
+                  m_fldIDs.push_back( i );
+                  m_fldTypes.push_back( tblDef.getFieldDefinition( static_cast<int>(i) )->dataType() );
+               }         
+            }
+         }
       }
-      for ( size_t i = 0; i < tblDef.size(); ++i )
+      // For all other tables sort first by string-type records and then everything else
+      else
       {
-         if ( tblDef.getFieldDefinition( static_cast<int>( i ) )->dataType() != datatype::String )
+         // cache fields index and data type 
+         for ( size_t i = 0; i < tblDef.size(); ++i )
          {
-            m_fldIDs.push_back( i );
-            m_fldTypes.push_back( tblDef.getFieldDefinition( static_cast<int>( i ) )->dataType() );
-         }         
+            if ( tblDef.getFieldDefinition( static_cast<int>( i ) )->dataType() == datatype::String )
+            {
+               m_fldIDs.push_back( i );
+               m_fldTypes.push_back( tblDef.getFieldDefinition( static_cast<int>( i ) )->dataType() );
+            }         
+         }
+         for ( size_t i = 0; i < tblDef.size(); ++i )
+         {
+            if ( tblDef.getFieldDefinition( static_cast<int>( i ) )->dataType() != datatype::String )
+            {
+               m_fldIDs.push_back( i );
+               m_fldTypes.push_back( tblDef.getFieldDefinition( static_cast<int>( i ) )->dataType() );
+            }         
+         }
       }
+
+
    }
 
    //  this function is used as less operator for the strict weak ordering
