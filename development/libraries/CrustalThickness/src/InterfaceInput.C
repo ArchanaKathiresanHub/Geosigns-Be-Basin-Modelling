@@ -750,6 +750,7 @@ GridMap* InterfaceInput::loadPropertyDataFromDepthMap( DataAccess::Mining::Proje
    for (unsigned int i = firstI; i <= lastI; i++){
       for (unsigned int j = firstJ; j <= lastJ; j++){
          if (handle->getNodeIsValid( i, j )){
+            double test = interpolatedValues[mapIJtoElement[i][j]].operator()( property );
             outputPropertyMap->setValue( i, j, interpolatedValues[mapIJtoElement[i][j]].operator()( property ) );
          }
          else{

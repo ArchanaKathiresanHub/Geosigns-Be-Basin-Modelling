@@ -358,7 +358,7 @@ void CrustalThicknessCalculator::run() {
          }
       }
 
-      ///4. Computes the thinning factor and crusltal thicknesses (to be refactored in future requirement)
+      ///7. Computes the thinning factor and crusltal thicknesses (to be refactored in future requirement)
       double WLS;
       double WLS_adjusted, TF, Moho, RDA_adjusted, crustalThickness, basaltThickness, ECT;
       double topBasalt;

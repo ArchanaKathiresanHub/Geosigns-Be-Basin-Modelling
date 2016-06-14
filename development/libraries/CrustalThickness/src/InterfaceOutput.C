@@ -308,7 +308,7 @@ GridMap * InterfaceOutput::createSnapshotResultPropertyValueMap (ProjectHandle *
 
 //------------------------------------------------------------//
 void InterfaceOutput::disableBackstripOutput( ProjectHandle * pHandle, const Interface::Surface* theSurface, const Snapshot* theSnapshot ) const {
-   disableOutput( pHandle, theSurface, theSnapshot, "CumSedimentBackstrip" );
+   disableOutput( pHandle, theSurface, theSnapshot, "SedimentBackstrip" );
 }
 
 //------------------------------------------------------------//
