@@ -761,28 +761,6 @@ void CommandHandler::onSetMaxFPS(
   connection->getSettings()->setMaxSendingFPS(maxFPS);
 }
 
-void CommandHandler::onSetWidth(
-  const jsonxx::Object& params,
-  RemoteViz::Rendering::RenderArea* renderArea,
-  RemoteViz::Rendering::Connection* /*connection*/)
-{
-  auto width = params.get<jsonxx::Number>("width");
-  auto height = renderArea->getSceneManager()->getSize()[1];
-
-  renderArea->resize((int)width, (int)height);
-}
-
-void CommandHandler::onSetHeight(
-  const jsonxx::Object& params,
-  RemoteViz::Rendering::RenderArea* renderArea,
-  RemoteViz::Rendering::Connection* /*connection*/)
-{
-  auto width = renderArea->getSceneManager()->getSize()[0];
-  auto height = params.get<jsonxx::Number>("height");
-
-  renderArea->resize((int)width, (int)height);
-}
-
 void CommandHandler::registerHandlers()
 {
   m_handlers["Pick"] = &CommandHandler::onPick;
@@ -827,8 +805,6 @@ void CommandHandler::registerHandlers()
   m_handlers["SetInteractiveQuality"] = &CommandHandler::onSetInteractiveQuality;
   m_handlers["SetBandwidth"] = &CommandHandler::onSetBandwidth;
   m_handlers["SetMaxFPS"] = &CommandHandler::onSetMaxFPS;
-  m_handlers["SetWidth"] = &CommandHandler::onSetWidth;
-  m_handlers["SetHeight"] = &CommandHandler::onSetHeight;
 }
 
 void CommandHandler::adjustClippingPlanes(RemoteViz::Rendering::RenderArea* renderArea)

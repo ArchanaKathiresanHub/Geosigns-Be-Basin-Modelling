@@ -260,16 +260,6 @@ class CommandHandler
     RemoteViz::Rendering::RenderArea* renderArea,
     RemoteViz::Rendering::Connection* connection);
 
-  void onSetWidth(
-    const jsonxx::Object& params,
-    RemoteViz::Rendering::RenderArea* renderArea,
-    RemoteViz::Rendering::Connection* connection);
-
-  void onSetHeight(
-    const jsonxx::Object& params,
-    RemoteViz::Rendering::RenderArea* renderArea,
-    RemoteViz::Rendering::Connection* connection);
-
   void registerHandlers();
 
   void adjustClippingPlanes(RemoteViz::Rendering::RenderArea* renderArea);
