@@ -100,6 +100,22 @@ namespace casa
       /// return weighting coefficient. This coefficient should be used for RMSE calculation in Monte Carlo simulation
       virtual double uaWeight() const { return m_uaWeight; }
 
+      /// @brief Get Cauldron property name
+      /// @return name of the property as a string
+      std::string propertyName() { return m_propName; }
+
+      /// @brief Get Z coordinates list
+      /// @return array with Z coordinate of the observable point 
+      std::vector<double> depth() const { return std::vector<double>( 1, m_z ); }
+
+      /// @brief Get X coordinates list
+      /// @return array with X coordinate of the observable point
+      std::vector<double> xCoords() const { return std::vector<double>( 1, m_x ); }
+
+       /// @brief Get Y coordinates list
+       /// @return array with Y coordinate of the observable point
+       std::vector<double> yCoords() const { return std::vector<double>( 1, m_y ); }
+
       /// @brief Update Model to be sure that requested property will be saved at requested time
       /// @param caldModel Cauldron model
       /// @return NoError in case of success, or error code otherwise, error message will be set in caldModel.

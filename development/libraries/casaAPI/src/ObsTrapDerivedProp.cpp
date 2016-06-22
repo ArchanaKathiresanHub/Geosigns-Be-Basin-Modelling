@@ -35,7 +35,10 @@ using namespace CBMGenerics;
 #include <cassert>
 #include <sstream>
 
-static const char * g_PropCompSuffix = "TrappedAmount";
+static const char * g_PropCompSuffix       = "TrappedAmount";
+
+static const double g_ZeroMassLogThreshold = -5.0;  // if ( log10( mass ) < ZeroMassLogThreshold ) - mass value is treated as zero 
+static const double g_ZeroMassThreshold    = pow( 10.0, g_ZeroMassThreshold );
 
 // Some auxillary functions
 static bool performPVT( double masses[ComponentManager::NumberOfOutputSpecies]
@@ -46,7 +49,6 @@ static bool performPVT( double masses[ComponentManager::NumberOfOutputSpecies]
                       , double phaseViscosities[ComponentManager::NumberOfPhases]
                       );
 
-static double Accumulate( double values[], int numberOfValues );
 static double ComputeVolume( double * masses, double density, int numberOfSpecies );
 
 
@@ -99,8 +101,9 @@ ObsValue * ObsTrapDerivedProp::transform( const ObsValue * val ) const
       throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << 
          "Wrong observable value type to make a transformation for TrapDerivedProp observable";
    }
-   std::vector<double> values = arrVal->asDoubleArray();
-   bool allDefined = true;
+   std::vector<double> values     = arrVal->asDoubleArray();
+   bool                allDefined = true;
+
    for ( auto it : values ) { if ( it == UndefinedDoubleValue ) { allDefined = false; break; } }
 
    double ret = UndefinedDoubleValue;
@@ -109,7 +112,7 @@ ObsValue * ObsTrapDerivedProp::transform( const ObsValue * val ) const
       // do back transform from log10
       for ( size_t i = 0; i < ComponentManager::NumberOfOutputSpecies + 2; ++i )
       {
-         values[i] = values[i] <= -5.0 ? 0.0 : pow( 10, values[i] );
+         values[i] = values[i] <= g_ZeroMassLogThreshold ? 0.0 : pow( 10, values[i] );
       }
       ret = calculateDerivedTrapProp( values );
    }
@@ -174,7 +177,7 @@ ErrorHandler::ReturnCode ObsTrapDerivedProp::requestObservableInModel( mbapi::Mo
 ObsValue * ObsTrapDerivedProp::getFromModel( mbapi::Model & caldModel )
 {
    std::vector<double> val( m_posDataMiningTbl.size(), UndefinedDoubleValue );
-   double eps = 1.e-5;
+   double eps = g_ZeroMassThreshold;
  
    const std::string & msg = checkObservableForProject( caldModel );
    if ( !msg.empty() ) { return ObsValueTransformable::createNewInstance( this, val ); }
@@ -195,23 +198,23 @@ ObsValue * ObsTrapDerivedProp::getFromModel( mbapi::Model & caldModel )
          bool found = false;
          for ( size_t j = 0; j < tblSize && !found; ++j )
          {
-            double obTime = caldModel.tableValueAsDouble( Observable::s_dataMinerTable, j, "Time" );
-            if ( caldModel.errorCode() != ErrorHandler::NoError || ! NumericFunctions::isEqual( obTime, m_simTime, eps ) ) { continue; }
+            double obTime = caldModel.tableValueAsDouble( Observable::s_dataMinerTable, j, "Time"   );
+            if ( caldModel.errorCode() != ErrorHandler::NoError || ! NumericFunctions::isEqual( obTime, m_simTime,            eps ) ) { continue; }
 
-            double xCrd = caldModel.tableValueAsDouble( Observable::s_dataMinerTable, j, "XCoord" );
-            if ( caldModel.errorCode() != ErrorHandler::NoError || ! NumericFunctions::isEqual( xCrd, m_x, eps ) ) { continue; }
+            double xCrd   = caldModel.tableValueAsDouble( Observable::s_dataMinerTable, j, "XCoord" );
+            if ( caldModel.errorCode() != ErrorHandler::NoError || ! NumericFunctions::isEqual( xCrd,   m_x,                  eps ) ) { continue; }
 
-            double yCrd = caldModel.tableValueAsDouble( Observable::s_dataMinerTable, j, "YCoord" );
-            if ( caldModel.errorCode() != ErrorHandler::NoError || ! NumericFunctions::isEqual( yCrd, m_y, eps ) ) { continue; }
+            double yCrd   = caldModel.tableValueAsDouble( Observable::s_dataMinerTable, j, "YCoord" );
+            if ( caldModel.errorCode() != ErrorHandler::NoError || ! NumericFunctions::isEqual( yCrd,   m_y,                  eps ) ) { continue; }
 
-            double zCrd = caldModel.tableValueAsDouble( Observable::s_dataMinerTable, j, "ZCoord" );
-            if ( caldModel.errorCode() != ErrorHandler::NoError || ! NumericFunctions::isEqual( zCrd, UndefinedDoubleValue, eps ) ) { continue; }
+            double zCrd   = caldModel.tableValueAsDouble( Observable::s_dataMinerTable, j, "ZCoord" );
+            if ( caldModel.errorCode() != ErrorHandler::NoError || ! NumericFunctions::isEqual( zCrd,   UndefinedDoubleValue, eps ) ) { continue; }
                        
             const std::string & resName = caldModel.tableValueAsString( Observable::s_dataMinerTable, j, "ReservoirName" );
-            if ( caldModel.errorCode() != ErrorHandler::NoError ||  m_resName != resName ) { continue; }
+            if ( caldModel.errorCode() != ErrorHandler::NoError || m_resName != resName ) { continue; }
                            
-            const std::string & pName = caldModel.tableValueAsString( Observable::s_dataMinerTable, j, "PropertyName" );
-            if ( caldModel.errorCode() != ErrorHandler::NoError || propName != pName ) { continue; }
+            const std::string & pName   = caldModel.tableValueAsString( Observable::s_dataMinerTable, j, "PropertyName"  );
+            if ( caldModel.errorCode() != ErrorHandler::NoError || propName != pName    ) { continue; }
                               
             found = true;
             val[i] = caldModel.tableValueAsDouble( Observable::s_dataMinerTable, j, "Value" );
@@ -219,7 +222,7 @@ ObsValue * ObsTrapDerivedProp::getFromModel( mbapi::Model & caldModel )
             m_posDataMiningTbl[i] = static_cast<int>( j ); // fill the rest of the table as well data must be continuous
             for ( size_t k = i+1; k < m_posDataMiningTbl.size(); ++k )
             {
-               m_posDataMiningTbl[k] = m_posDataMiningTbl[k-1]+1;
+               m_posDataMiningTbl[k] = m_posDataMiningTbl[k-1] + 1;
             }
          }
       }
@@ -232,7 +235,7 @@ ObsValue * ObsTrapDerivedProp::getFromModel( mbapi::Model & caldModel )
    // do log10 transform for masses
    for ( size_t i = 0; i < ComponentManager::NumberOfOutputSpecies + 2; ++i )
    {
-      val[i] = val[i] < eps ? log10( eps ) : log10( val[i] );
+      val[i] = val[i] < eps ? g_ZeroMassLogThreshold : log10( val[i] );
    }
 
    return ObsValueTransformable::createNewInstance( this, val );
@@ -345,19 +348,16 @@ ObsTrapDerivedProp::ObsTrapDerivedProp( CasaDeserializer & dz, unsigned int objV
 
 double ObsTrapDerivedProp::calculateDerivedTrapProp( const std::vector<double> & vals ) const
 {
-   const double StockTankPressure    = 101325.0 * 1e-6;
-   const double StockTankTemperature = 15.0;
-
    double ret = UndefinedDoubleValue;
 
    if ( vals.size() < ComponentManager::NumberOfOutputSpecies + 4 ) return ret;
 
-   double massLiq = vals[ComponentManager::NumberOfOutputSpecies];
-   double massVap = vals[ComponentManager::NumberOfOutputSpecies+1];
-   if ( massLiq + massVap < 1.e-16 ) return ret; // not possible to calculate for zero mass of HC
+   double massLiq = vals[ComponentManager::NumberOfOutputSpecies    ];
+   double massVap = vals[ComponentManager::NumberOfOutputSpecies + 1];
+   double P       = vals[ComponentManager::NumberOfOutputSpecies + 2];
+   double T       = vals[ComponentManager::NumberOfOutputSpecies + 3];
 
-   double P       = vals[ComponentManager::NumberOfOutputSpecies+2];
-   double T       = vals[ComponentManager::NumberOfOutputSpecies+3];
+   if ( massLiq + massVap < 1.0e-3 ) return ret; // not possible to calculate for zero mass of HC
 
    double masses[ComponentManager::NumberOfOutputSpecies];
    for ( int comp = 0; comp < ComponentManager::NumberOfOutputSpecies; ++comp ) { masses[comp] = vals[comp]; }
@@ -373,14 +373,27 @@ double ObsTrapDerivedProp::calculateDerivedTrapProp( const std::vector<double> &
    double viscositiesST[ComponentManager::NumberOfPhases][ComponentManager::NumberOfPhases];
 
    // perform PVT under reservoir conditions
-   performPVT( masses, T, P, massesRC, densitiesRC, viscositiesRC );
+   if ( !performPVT( masses, T, P, massesRC, densitiesRC, viscositiesRC ) )
+   {
+      throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Can not perform PVT calculation for reservoir conditions";
+   }
 
    // perform PVT's of reservoir condition phases under stock tank conditions
-   performPVT( massesRC[ComponentManager::Vapour], StockTankTemperature, StockTankPressure,
-               massesST[ComponentManager::Vapour], densitiesST[ComponentManager::Vapour], viscositiesST[ComponentManager::Vapour] );
-
-   performPVT( massesRC[ComponentManager::Liquid], StockTankTemperature, StockTankPressure,
-               massesST[ComponentManager::Liquid], densitiesST[ComponentManager::Liquid], viscositiesST[ComponentManager::Liquid] );
+   if ( !performPVT( massesRC[ComponentManager::Vapour], StockTankTemperatureC, StockTankPressureMPa,
+                     massesST[ComponentManager::Vapour], densitiesST[ComponentManager::Vapour], viscositiesST[ComponentManager::Vapour] 
+                   )
+      )
+   { 
+      throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Can not perform PVT calculation for vapour phase for surface conditions";
+   }
+      
+   if ( !performPVT( massesRC[ComponentManager::Liquid], StockTankTemperatureC, StockTankPressureMPa,
+                     massesST[ComponentManager::Liquid], densitiesST[ComponentManager::Liquid], viscositiesST[ComponentManager::Liquid]
+                   )
+      )
+   {
+      throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Can not perform PVT calculation for liquid phase for surface conditions";
+   }
 
    ComponentManager::PhaseId rcPhase;
    ComponentManager::PhaseId stPhase;
@@ -411,20 +424,26 @@ double ObsTrapDerivedProp::calculateDerivedTrapProp( const std::vector<double> &
 
       double volumeFGIIP = ComputeVolume( massesST[rcPhase][stPhase], densitiesST[rcPhase][stPhase], ComponentManager::NumberOfOutputSpecies );
 
-      if ( volumeFGIIP != 0 ) { ret = volumeCIIP / volumeFGIIP; }
+      if ( volumeFGIIP != 0.0 ) { ret = volumeCIIP / volumeFGIIP; }
    }
    else if ( m_propName == "OilAPI" )
    {
-      if ( densitiesST[ComponentManager::Liquid][ComponentManager::Liquid] != 0 )
+      rcPhase = ComponentManager::Liquid;
+      stPhase = ComponentManager::Liquid;
+
+      if ( densitiesST[rcPhase][stPhase] != 0.0 )
       {
-         ret = 141.5 / ( 0.001 * densitiesST[ComponentManager::Liquid][ComponentManager::Liquid] ) - 131.5;
+         ret = 141.5 / ( 0.001 * densitiesST[rcPhase][stPhase] ) - 131.5;
       }
    }
    else if ( m_propName == "CondensateAPI" )
    {
-      if ( densitiesST[ComponentManager::Vapour][ComponentManager::Liquid] != 0 )
+      rcPhase = ComponentManager::Vapour;
+      stPhase = ComponentManager::Liquid;
+
+      if ( densitiesST[rcPhase][stPhase] != 0.0 )
       {
-         ret = 141.5 / ( 0.001*densitiesST[ComponentManager::Vapour][ComponentManager::Liquid] ) - 131.5;
+         ret = 141.5 / ( 0.001 * densitiesST[rcPhase][stPhase] ) - 131.5;
       }
    }
    else { throw ErrorHandler::Exception( ErrorHandler::NotImplementedAPI ) << "Trap property " << m_propName << " is not implemented yet"; }
@@ -462,45 +481,29 @@ bool performPVT( double masses[ComponentManager::NumberOfOutputSpecies]
       phaseViscosities[phase] = 0;
    }
 
-   if ( massTotal > 100 )
-   {
-      performedPVT = pvtFlash::EosPack::getInstance().computeWithLumping( temperature + C2K
-                                                                        , pressure * MPa2Pa
-                                                                        , masses
-                                                                        , phaseMasses
-                                                                        , phaseDensities 
-                                                                        , phaseViscosities
-                                                                        );
-   }
-
-   return performedPVT;
-}
-
-double Accumulate( double values[], int numberOfValues )
-{
-   double accumulatedValue = 0;
-
-   for ( int i = 0; i < numberOfValues; ++i )
-   {
-      accumulatedValue += values[i];
-   }
-
-   return accumulatedValue;
+   return pvtFlash::EosPack::getInstance().computeWithLumping( temperature + C2K
+                                                             , pressure * MPa2Pa
+                                                             , masses
+                                                             , phaseMasses
+                                                             , phaseDensities 
+                                                             , phaseViscosities
+                                                             );
 }
 
 double ComputeVolume( double * masses, double density, int numberOfSpecies )
 {
    double value = UndefinedDoubleValue;
 
-   double mass = Accumulate( masses, numberOfSpecies );
-   if ( mass < 1 )
+   double mass = 0.0;
+   for ( int i = 0; i < numberOfSpecies; ++i ) { mass += masses[i]; }
+   
+   if ( mass < g_ZeroMassThreshold ) // in kg
    {
       value = 0;
    }
    else
    {
-      if ( density == 0 ) throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Zero density computed with non-zero mass";
-
+      if ( density == 0.0 ) throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Zero density computed with non-zero mass";
       value = mass / density;
    }
    return value;

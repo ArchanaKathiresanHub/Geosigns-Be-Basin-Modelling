@@ -16,19 +16,24 @@
 %include "std_shared_ptr.i"
 // CASA API
 %shared_ptr(casa::Parameter)
-%shared_ptr(casa::PrmOneCrustThinningEvent)
-%shared_ptr(casa::PrmCrustThinning)
-%shared_ptr(casa::PrmTopCrustHeatProduction)
-%shared_ptr(casa::PrmPorosityModel)
-%shared_ptr(casa::PrmSurfacePorosity)
-%shared_ptr(casa::PrmPermeabilityModel)
+%shared_ptr(casa::PrmCompactionCoefficient)
 %shared_ptr(casa::PrmLithoSTPThermalCond)
-%shared_ptr(casa::PrmSourceRockProp)
-%shared_ptr(casa::PrmSourceRockTOC)
 %shared_ptr(casa::PrmSourceRockHC)
+%shared_ptr(casa::PrmSourceRockTOC)
+%shared_ptr(casa::PrmWindow)
+%shared_ptr(casa::PrmCrustThinning)
+%shared_ptr(casa::PrmOneCrustThinningEvent)
 %shared_ptr(casa::PrmSourceRockHI)
 %shared_ptr(casa::PrmSourceRockType)
+%shared_ptr(casa::PrmLithoFraction)
+%shared_ptr(casa::PrmPermeabilityModel)
 %shared_ptr(casa::PrmSourceRockPreAsphaltStartAct)
+%shared_ptr(casa::PrmSurfacePorosity)
+%shared_ptr(casa::PrmLithologyProp)
+%shared_ptr(casa::PrmPorosityModel)
+%shared_ptr(casa::PrmSourceRockProp)
+%shared_ptr(casa::PrmTopCrustHeatProduction)
+%shared_ptr(casa::RunCase)
 
 // CASA API enums constants
 %csconstvalue("Cauldron.PermeabilityModel.SANDSTONE_PERMEABILITY")   PermSandstone;
@@ -178,6 +183,7 @@
 #include "../../../casaAPI/src/Observable.h"
 #include "../../../casaAPI/src/ObsValue.h"
 #include "../../../casaAPI/src/ObsGridPropertyXYZ.h"
+#include "../../../casaAPI/src/ObsGridPropertyWell.h"
 #include "../../../casaAPI/src/ObsValueDoubleArray.h"
 #include "../../../casaAPI/src/ObsValueDoubleScalar.h"
 #include "../../../casaAPI/src/ObsSpace.h"
@@ -394,6 +400,7 @@ CSHARP_ARRAYS(char, byte)
 %include "../../../casaAPI/src/Observable.h"
 %include "../../../casaAPI/src/ObsValue.h"
 %include "../../../casaAPI/src/ObsGridPropertyXYZ.h"
+%include "../../../casaAPI/src/ObsGridPropertyWell.h"
 %include "../../../casaAPI/src/ObsValueDoubleArray.h"
 %include "../../../casaAPI/src/ObsValueDoubleScalar.h"
 %include "../../../casaAPI/src/ObsSpace.h"

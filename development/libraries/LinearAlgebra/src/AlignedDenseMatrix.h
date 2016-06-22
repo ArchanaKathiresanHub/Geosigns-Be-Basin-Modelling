@@ -133,7 +133,7 @@ namespace Numerics {
 
    /// \brief Compute the product of two matrices.
    ///
-   /// \f$ c = \alpha \times \mbox{op}\( a \) \times \mbox{op}\( b \) + \beta \times c \f$ 
+   /// \f$ c = \alpha \times \mbox{op}\left( a \right) \times \mbox{op}\left( b \right) + \beta \times c \f$ 
    void matmult ( const MatrixTransposeType transposeA,
                   const MatrixTransposeType transposeB,
                   const double              alpha,

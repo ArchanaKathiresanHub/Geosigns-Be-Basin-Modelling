@@ -75,12 +75,14 @@ SharedParameterPtr VarPrmLithoSTPThermalCond::newParameterFromModel( mbapi::Mode
    return prm;
 }
 
-SharedParameterPtr VarPrmLithoSTPThermalCond::makeThreeDFromOneD( mbapi::Model & mdl, const std::vector<double>& xin, const std::vector<double>& yin, const std::vector<SharedParameterPtr>& prmVec ) const
+SharedParameterPtr VarPrmLithoSTPThermalCond::makeThreeDFromOneD( mbapi::Model                          & mdl
+                                                                , const std::vector<double>             & xin
+                                                                , const std::vector<double>             & yin
+                                                                , const std::vector<SharedParameterPtr> & prmVec 
+                                                                ) const
 {
    // Not yet implemented
-   ErrorHandler::Exception ex( ErrorHandler::NotImplementedAPI );
-   ex << "makeThreeDFromOneD method not yet implemented for VarPrmLithoSTPThermalCond";
-   throw ex;
+   throw ErrorHandler::Exception( ErrorHandler::NotImplementedAPI ) << "makeThreeDFromOneD method not yet implemented for VarPrmLithoSTPThermalCond";
    return nullptr;
 }
 

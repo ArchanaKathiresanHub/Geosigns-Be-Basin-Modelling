@@ -90,6 +90,10 @@ namespace casa
       /// @param w weight coefficient value
       virtual void setSAWeight( double w ) { m_saWeight = w;  }
 
+      /// @brief Get Cauldron property name
+      /// @return name of the property as a string
+      std::string propertyName() { return m_propName; }
+
       /// @brief Get Z coordinates list
       /// @return array with Z coordinate of each observable point along well
       std::vector<double> depth() const { return m_z; }

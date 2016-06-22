@@ -17,6 +17,18 @@
 
 namespace casa
 {
+
+   ObsValueTransformable::ObsValueTransformable( const Observable * parent, const std::vector<double> & val )
+                                               : m_value( val.begin(), val.end() )
+                                               , m_parent( parent ) 
+   { 
+      ObsValueDoubleArray inpVal( parent, val );
+      // transform observable value
+      ObsValue * trObsVal = parent->transform( &inpVal );
+      m_transfVals = trObsVal->asDoubleArray();
+      delete trObsVal;
+   }
+
    double ObsValueTransformable::MSE() const
    {
       double rmse = 0.0;

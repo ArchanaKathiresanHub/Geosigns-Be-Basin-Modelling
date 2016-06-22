@@ -24,13 +24,13 @@ namespace casa
    {
    public:
       /// @brief Construct variable parameter for variation of surface porosity lithology parameter 
-      VarPrmCompactionCoefficient( const std::vector<std::string> & lithosName  ///< list of lithologies type name
-                           , double                                 baseCompCoef ///< base value for compaction coefficient 
-                           , double                                 minCompCoef  ///< minimal value for compaction coefficient 
-                           , double                                 maxCompCoef ///< maximal value for compaction coefficient 
-                           , VarPrmContinuous::PDF                  prmPDF      ///< probability density function 
-                           , const std::string                      & name = 0    ///< user specified parameter name
-                           );
+      VarPrmCompactionCoefficient( const std::vector<std::string> & lithosName   ///< list of lithologies type name
+                                 , double                           baseCompCoef ///< base value for compaction coefficient 
+                                 , double                           minCompCoef  ///< minimal value for compaction coefficient 
+                                 , double                           maxCompCoef  ///< maximal value for compaction coefficient 
+                                 , VarPrmContinuous::PDF            prmPDF       ///< probability density function 
+                                 , const std::string                & name = 0   ///< user specified parameter name
+                                 );
 
       virtual ~VarPrmCompactionCoefficient( ) { ; }
 

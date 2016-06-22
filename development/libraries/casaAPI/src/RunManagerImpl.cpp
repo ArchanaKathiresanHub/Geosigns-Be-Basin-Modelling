@@ -496,7 +496,7 @@ ErrorHandler::ReturnCode RunManagerImpl::stopAllSubmittedJobs()
          }
          catch( Exception & ex )
          {
-            LogHandler( LogHandler::DEBUG_SEVERITY ) << "Job id: " << m_jobs[i][j] << " was failed to stop due to error: " << ex.what();
+            LogHandler( LogHandler::DEBUG_SEVERITY ) << "Job id: " << m_jobs[i][j] << " failed to stop due to error: " << ex.what();
          }
       }
    }

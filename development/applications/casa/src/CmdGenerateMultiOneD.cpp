@@ -26,9 +26,9 @@
 
 CmdGenerateMultiOneD::CmdGenerateMultiOneD( CasaCommander & parent, const std::vector< std::string > & cmdPrms ) : CasaCmd( parent, cmdPrms )
 {
-   m_cldVer   = m_prms.size() > 0 ? m_prms[0] : "Default";
-   m_transformation = m_prms.size( ) > 1 ? m_prms[1] : "none";
-   m_keepHist = m_prms.size() > 2 ? ( m_prms[2] == "KeepHistory" ? true : false ) : false;
+   m_cldVer         = m_prms.size() > 0 ?   m_prms[0]  : "Default";
+   m_transformation = m_prms.size() > 1 ?   m_prms[1]  : "none";
+   m_keepHist       = m_prms.size() > 2 ? ( m_prms[2] == "KeepHistory" ? true : false ) : false;
 }
 
 void CmdGenerateMultiOneD::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
@@ -74,7 +74,12 @@ void CmdGenerateMultiOneD::generateScenarioScripts( std::unique_ptr<casa::Scenar
    {
       oss << m_commander.toString( cmdQueue[i].get() ) << "\n";
    }
-   oss << "\ncalibrateProject \"" << sa->baseCaseProjectFileName( ) << "\" \"LM\" \"" << m_cldVer << "\" \"" << m_transformation << "\"" << ( m_keepHist ? " \"KeepHistory\"" : "" ) << "\n";
+   oss << "\ncalibrateProject \"" << sa->baseCaseProjectFileName() << "\" \"LM\" \""
+                                  << m_cldVer
+                                  << "\" \"" << m_transformation << "\""
+                                  <<  ( m_keepHist ? " \"KeepHistory\"" : "" )
+                                  << "\n";
+
    oss << "\nsavestate \"casa_state.bin\" \"bin\"\n";
 
    // Go over all cases and save scenario file

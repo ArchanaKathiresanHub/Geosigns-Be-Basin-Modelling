@@ -94,16 +94,17 @@ SharedParameterPtr VarPrmOneCrustThinningEvent::newParameterFromDoubles( std::ve
 
 SharedParameterPtr VarPrmOneCrustThinningEvent::newParameterFromModel( mbapi::Model & mdl ) const
 {
-   SharedParameterPtr prm( new PrmOneCrustThinningEvent( mdl ) );
-   return prm;
+   return SharedParameterPtr( new PrmOneCrustThinningEvent( mdl ) );
 }
 
-SharedParameterPtr VarPrmOneCrustThinningEvent::makeThreeDFromOneD( mbapi::Model & mdl, const std::vector<double>& xin, const std::vector<double>& yin, const std::vector<SharedParameterPtr>& prmVec ) const
+SharedParameterPtr VarPrmOneCrustThinningEvent::makeThreeDFromOneD( mbapi::Model                          & mdl
+                                                                  , const std::vector<double>             & xin
+                                                                  , const std::vector<double>             & yin
+                                                                  , const std::vector<SharedParameterPtr> & prmVec
+                                                                  ) const
 {
    // Not yet implemented
-   ErrorHandler::Exception ex( ErrorHandler::NotImplementedAPI );
-   ex << "makeThreeDFromOneD method not yet implemented for VarPrmOneCrustThinningEvent";
-   throw ex;
+   throw ErrorHandler::Exception( ErrorHandler::NotImplementedAPI ) << "makeThreeDFromOneD method not yet implemented for VarPrmOneCrustThinningEvent";
    return nullptr;
 }
 

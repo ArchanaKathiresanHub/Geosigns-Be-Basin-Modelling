@@ -24,19 +24,19 @@
 
 namespace casa
 {
-
-   VarPrmCompactionCoefficient::VarPrmCompactionCoefficient( const std::vector<std::string> & lithosName
-                                        , double                            baseCompCoef ///< base value for compaction coefficient 
-                                        , double                            minCompCoef  ///< minimal value for compaction coefficient 
-                                        , double                            maxCompCoef ///< maximal value for compaction coefficient 
-                                        , VarPrmContinuous::PDF             prmPDF
-                                        , const std::string                 & name
+   VarPrmCompactionCoefficient::VarPrmCompactionCoefficient( 
+                                          const std::vector<std::string> & lithosName
+                                        , double                           baseCompCoef ///< base value for compaction coefficient 
+                                        , double                           minCompCoef  ///< minimal value for compaction coefficient 
+                                        , double                           maxCompCoef ///< maximal value for compaction coefficient 
+                                        , VarPrmContinuous::PDF            prmPDF
+                                        , const std::string              & name
                                         )
                                         : VarPrmLithologyProp( lithosName, prmPDF, name )
 {
    m_propName = "CompactionCoefficient";
-   m_minValue.reset( new PrmCompactionCoefficient( this, m_lithosName, minCompCoef ) );
-   m_maxValue.reset( new PrmCompactionCoefficient( this, m_lithosName, maxCompCoef ) );
+   m_minValue.reset(  new PrmCompactionCoefficient( this, m_lithosName, minCompCoef  ) );
+   m_maxValue.reset(  new PrmCompactionCoefficient( this, m_lithosName, maxCompCoef  ) );
    m_baseValue.reset( new PrmCompactionCoefficient( this, m_lithosName, baseCompCoef ) );
 }
 

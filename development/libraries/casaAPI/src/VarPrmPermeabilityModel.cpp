@@ -309,16 +309,17 @@ SharedParameterPtr VarPrmPermeabilityModel::newParameterFromDoubles( std::vector
 
 SharedParameterPtr VarPrmPermeabilityModel::newParameterFromModel( mbapi::Model & mdl ) const
 {
-   SharedParameterPtr prm( new PrmPermeabilityModel( mdl, m_lithoName.c_str( ) ) );
-   return prm;
+   return SharedParameterPtr( new PrmPermeabilityModel( mdl, m_lithoName.c_str() ) );
 }
 
-SharedParameterPtr VarPrmPermeabilityModel::makeThreeDFromOneD( mbapi::Model & mdl, const std::vector<double>& xin, const std::vector<double>& yin, const std::vector<SharedParameterPtr>& prmVec ) const
+SharedParameterPtr VarPrmPermeabilityModel::makeThreeDFromOneD( mbapi::Model                          & mdl
+                                                              , const std::vector<double>             & xin
+                                                              , const std::vector<double>             & yin
+                                                              , const std::vector<SharedParameterPtr> & prmVec
+                                                              ) const
 {
    // Not yet implemented
-   ErrorHandler::Exception ex( ErrorHandler::NotImplementedAPI );
-   ex << "makeThreeDFromOneD method not yet implemented for VarPrmPermeabilityModel";
-   throw ex;
+   throw ErrorHandler::Exception( ErrorHandler::NotImplementedAPI ) << "makeThreeDFromOneD method not yet implemented for VarPrmPermeabilityModel";
    return nullptr;
 }
 

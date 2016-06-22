@@ -279,7 +279,7 @@ namespace mbapi {
       /// @param[out] yMin minimum y node
       /// @param[out] yMax maximum y node
       /// @return ErrorHandler::NoError on success, or error code otherwise
-      ReturnCode windowSize( double x, double y, int & xMin, int & xMax, int & yMin, int & yMax );
+      ReturnCode windowSize( double x, double y, int & xMin, int & xMax, int & yMin, int & yMax, double & xc, double & yc );
 
 
       // Natural neighbour interpolation of the lithofractions

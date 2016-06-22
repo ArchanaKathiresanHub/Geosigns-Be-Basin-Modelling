@@ -157,7 +157,7 @@ public:
    void arealSize( double & dimX, double & dimY );
    
    // window size
-   void windowSize( double x, double y, int & xMin, int & xMax, int & yMin, int & yMax );
+   void windowSize( double x, double y, int & xMin, int & xMax, int & yMin, int & yMax, double & xc, double & yc );
 
    void interpolateLithoFractions(
       const std::vector<double>& xin,
@@ -434,11 +434,11 @@ Model::ReturnCode Model::arealSize( double & dimX, double & dimY )
    return NoError;
 }
 
-Model::ReturnCode Model::windowSize( double x, double y, int & xMin, int & xMax, int & yMin, int & yMax )
+Model::ReturnCode Model::windowSize( double x, double y, int & xMin, int & xMax, int & yMin, int & yMax, double & xc, double & yc )
 {
    if ( errorCode() != NoError ) resetError(); // clean any previous error
 
-   try { m_pimpl->windowSize( x, y, xMin, xMax, yMin, yMax); }
+   try { m_pimpl->windowSize( x, y, xMin, xMax, yMin, yMax, xc, yc); }
    catch ( const Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
    catch ( ...                  ) { return reportError( UnknownError, "Unknown error" ); }
 
@@ -1182,7 +1182,7 @@ void Model::ModelImpl::arealSize( double & dimX, double & dimY )
 }
 
 // calculate the window size for multi 1d projects
-void Model::ModelImpl::windowSize( double x, double y, int & xMin, int & xMax, int & yMin, int & yMax )
+void Model::ModelImpl::windowSize( double x, double y, int & xMin, int & xMax, int & yMin, int & yMax, double & xc, double & yc)
 {
    if ( !m_projHandle.get() ) { throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Model::origin(): no project was loaded"; }
 
@@ -1193,6 +1193,10 @@ void Model::ModelImpl::windowSize( double x, double y, int & xMin, int & xMax, i
    
    yMin = static_cast<int>( std::floor( ( y - pd->getYOrigin() ) / pd->getDeltaY() ) );
    yMax = yMin + 1;
+   
+   // centre of calculated model
+   xc = pd->getXOrigin() + ( xMin + xMax ) * 0.5 * pd->getDeltaX();
+   yc = pd->getYOrigin() + ( yMin + yMax ) * 0.5 * pd->getDeltaY( );
 }
 
 // transform the lithofractions and interpolate the results

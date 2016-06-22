@@ -19,7 +19,7 @@
 
 class PropertyManager {
 
-   /// \typdef PropertyNameMap
+   /// \typedef PropertyNameMap
    /// A mapping from the output-property name to the name that appears in the time-io table in the project file.
    typedef std::map <std::string, std::string> PropertyNameMap;
 

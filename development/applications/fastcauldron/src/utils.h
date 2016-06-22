@@ -121,12 +121,12 @@ double Float_Epsilon ();
 
 /// For all processes: returns true if any process passes a true, otherwise returns false.
 // Perhaps a name change here! 
-/// \$f r = \lor_i v_i \$f
+/// \f$ r = \lor_i v_i \f$
 bool broadcastAnyTrueBooleanValue ( const bool localValue );
 
 /// For all processes: returns false if any process passes a false value, otherwise returns true.
 ///
-/// \$f r = \land_i v_i \$f
+/// \f$ r = \land_i v_i \f$
 bool successfulExecution ( const bool localSuccessfulExecution );
 
 /// Get the minimum value from all processes.

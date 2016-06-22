@@ -33,7 +33,7 @@ namespace casa
 
 // Constructor
 PrmCompactionCoefficient::PrmCompactionCoefficient( mbapi::Model & mdl, const std::string & lithoName )
-                                      : PrmLithologyProp( 0, std::vector<std::string>( 1, lithoName ), UndefinedDoubleValue )
+                                                  : PrmLithologyProp( 0, std::vector<std::string>( 1, lithoName ), UndefinedDoubleValue )
 { 
    m_propName = "CompactionCoefficient";
 
@@ -46,10 +46,7 @@ PrmCompactionCoefficient::PrmCompactionCoefficient( mbapi::Model & mdl, const st
 
    // go over all lithologies and look for the first lithology with the same name as given
    mbapi::LithologyManager::LithologyID lid = mgr.findID( lithoName );
-   if ( lid == UndefinedIDValue )
-   {
-      throw ErrorHandler::Exception( mgr.errorCode() ) << mgr.errorMessage();
-   }
+   if ( lid == UndefinedIDValue ) { throw ErrorHandler::Exception( mgr.errorCode() ) << mgr.errorMessage(); }
 
    mbapi::LithologyManager::PorosityModel porModel = mbapi::LithologyManager::PorUnknown;
    std::vector<double> porModelPrms;
@@ -72,9 +69,12 @@ PrmCompactionCoefficient::PrmCompactionCoefficient( mbapi::Model & mdl, const st
    }
 }
 
- // Constructor
-PrmCompactionCoefficient::PrmCompactionCoefficient( const VarPrmCompactionCoefficient * parent, const std::vector<std::string> & lithosName, double compCoef )
-                                      : PrmLithologyProp( parent, lithosName, compCoef )
+// Constructor
+PrmCompactionCoefficient::PrmCompactionCoefficient( const VarPrmCompactionCoefficient * parent
+                                                  , const std::vector<std::string>    & lithosName
+                                                  , double                              compCoef
+                                                  )
+                                                  : PrmLithologyProp( parent, lithosName, compCoef )
 {
    m_propName = "CompactionCoefficient";
  
@@ -89,23 +89,17 @@ PrmCompactionCoefficient::PrmCompactionCoefficient( const VarPrmCompactionCoeffi
 // Update given model with the parameter value
 ErrorHandler::ReturnCode PrmCompactionCoefficient::setInModel( mbapi::Model & caldModel, size_t /* caseID */ )
 {
-   mbapi::LithologyManager            & mgr = caldModel.lithologyManager();
+   mbapi::LithologyManager & mgr = caldModel.lithologyManager();
 
    for ( size_t i = 0; i < m_lithosName.size(); ++i )
    {
       mbapi::LithologyManager::LithologyID lid = mgr.findID( m_lithosName[i] );
-      if ( lid == UndefinedIDValue )
-      {
-         return caldModel.moveError( mgr );
-      }
+      if ( lid == UndefinedIDValue ) { return caldModel.moveError( mgr ); }
 
       mbapi::LithologyManager::PorosityModel mdlType = mbapi::LithologyManager::PorUnknown;
       std::vector<double> porModelPrms;
 
-      if ( ErrorHandler::NoError != mgr.porosityModel( lid, mdlType, porModelPrms ) )
-      {
-         return caldModel.moveError( mgr );
-      }
+      if ( ErrorHandler::NoError != mgr.porosityModel( lid, mdlType, porModelPrms ) ) { return caldModel.moveError( mgr ); }
 
       switch ( mdlType )
       {
@@ -124,10 +118,7 @@ ErrorHandler::ReturnCode PrmCompactionCoefficient::setInModel( mbapi::Model & ca
          default: return caldModel.reportError( ErrorHandler::OutOfRangeValue, "Unsupported porosity model" );
       }
 
-      if ( ErrorHandler::NoError != mgr.setPorosityModel( lid, mdlType, porModelPrms ) )
-      {
-         return caldModel.moveError( mgr );
-      }
+      if ( ErrorHandler::NoError != mgr.setPorosityModel( lid, mdlType, porModelPrms ) ) { return caldModel.moveError( mgr ); }
    }
    return ErrorHandler::NoError;
 }
@@ -135,8 +126,8 @@ ErrorHandler::ReturnCode PrmCompactionCoefficient::setInModel( mbapi::Model & ca
 // Validate all porosity model parameters
 std::string PrmCompactionCoefficient::validate( mbapi::Model & caldModel )
 {
-   std::ostringstream oss;
-   mbapi::LithologyManager            & mgr = caldModel.lithologyManager();
+   std::ostringstream        oss;
+   mbapi::LithologyManager & mgr = caldModel.lithologyManager();
 
    for ( size_t i = 0; i < m_lithosName.size(); ++i )
    {

@@ -35,37 +35,25 @@ namespace casa
       /// @brief Constructor
       /// @param parent Observable object which contains full description of observable
       /// @param val value of observable
-      ObsValueTransformable( const Observable * parent, const std::vector<double> & val )
-         : m_value( val.begin(), val.end() )
-         , m_parent( parent ) 
-      { 
-         ObsValueDoubleArray inpVal( parent, val );
-         // transform observable value
-         ObsValue * trObsVal = parent->transform( &inpVal );
-         m_transfVals = trObsVal->asDoubleArray();
-         delete trObsVal;
-      }
+      ObsValueTransformable( const Observable * parent, const std::vector<double> & val );
 
       /// @brief Copy constructor
       /// @param ov another observable value to be copying
-      ObsValueTransformable( const ObsValueTransformable & ov )
-      {
-         m_value      = ov.m_value;
-         m_transfVals = ov.m_transfVals;
-         m_parent     = ov.m_parent;
-      }
-
+      ObsValueTransformable( const ObsValueTransformable & ov ) : m_value(      ov.m_value      )
+                                                                , m_transfVals( ov.m_transfVals )
+                                                                , m_parent(     ov.m_parent     )
+                                                                {;}
       /// @brief Destructor
-      virtual ~ObsValueTransformable() { ; }
+      virtual ~ObsValueTransformable() {;}
 
       /// @brief Copy operator
       /// @param otherObs another observable value to be copying
       /// @return reference to the object itself
-      ObsValueTransformable & operator = ( const ObsValueTransformable & otherObs )
+      ObsValueTransformable & operator = ( const ObsValueTransformable & ov )
       {
-         m_parent = otherObs.m_parent;
-         m_value  = otherObs.m_value;
-         m_transfVals = otherObs.m_transfVals;
+         m_parent     = ov.m_parent;
+         m_value      = ov.m_value;
+         m_transfVals = ov.m_transfVals;
          return *this;
       }
 
@@ -78,7 +66,11 @@ namespace casa
      
       // The following methods are used for testing  
       virtual bool isDouble() const { return true; }
-      virtual std::vector<double> asDoubleArray( bool transformed ) const { return transformed ? m_transfVals : m_value; }
+
+      /// @brief Get observable value as double array
+      /// @param transformed which value for observable shold be returned - transformed is set to default
+      /// @return if transformed is true - transformed value, otherwise the original one
+      virtual std::vector<double> asDoubleArray( bool transformed = true ) const { return transformed ? m_transfVals : m_value; }
 
       /// @{
       /// @brief Defines version of serialized object representation. Must be updated on each change in save()
@@ -103,7 +95,6 @@ namespace casa
       /// @}
 
    protected:
-
       std::vector<double>  m_value;      // value itself
       std::vector<double>  m_transfVals; // transformed values
       const Observable   * m_parent;     // pointer to the observable description object

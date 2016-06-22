@@ -200,16 +200,18 @@ SharedParameterPtr VarPrmPorosityModel::newParameterFromDoubles( std::vector<dou
 
 SharedParameterPtr VarPrmPorosityModel::newParameterFromModel( mbapi::Model & mdl ) const
 {
-   SharedParameterPtr prm( new PrmPorosityModel( mdl, m_lithoName.c_str( ) ));
-   return prm;
+   return SharedParameterPtr( new PrmPorosityModel( mdl, m_lithoName.c_str( ) ));
 }
 
-SharedParameterPtr VarPrmPorosityModel::makeThreeDFromOneD( mbapi::Model & mdl, const std::vector<double>& xin, const std::vector<double>& yin, const std::vector<SharedParameterPtr>& prmVec ) const
+
+SharedParameterPtr VarPrmPorosityModel::makeThreeDFromOneD( mbapi::Model                          & mdl
+                                                          , const std::vector<double>             & xin
+                                                          , const std::vector<double>             & yin
+                                                          , const std::vector<SharedParameterPtr> & prmVec
+                                                          ) const
 {
    // Not yet implemented
-   ErrorHandler::Exception ex( ErrorHandler::NotImplementedAPI );
-   ex << "makeThreeDFromOneD method not yet implemented for VarPrmPorosityModel";
-   throw ex;
+   throw ErrorHandler::Exception( ErrorHandler::NotImplementedAPI ) << "makeThreeDFromOneD method not yet implemented for VarPrmPorosityModel";
    return nullptr;
 }
 

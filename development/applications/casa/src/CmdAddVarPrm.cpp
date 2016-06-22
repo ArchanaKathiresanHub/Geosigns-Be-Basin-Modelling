@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2012-2015 Shell International Exploration & Production.
+// Copyright (C) 2012-2016 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -947,24 +947,22 @@ public:
 
       const std::string & lithoName = prms[pos++];
 
-      double       minCompCoef = atof( prms[pos++].c_str( ) );
-      double       maxCompCoef = atof( prms[pos++].c_str( ) );
+      double minCompCoef = atof( prms[pos++].c_str( ) );
+      double maxCompCoef = atof( prms[pos++].c_str( ) );
 
       casa::VarPrmContinuous::PDF pdfType = Str2pdf( prms.back( ) );
 
       if ( ErrorHandler::NoError != casa::BusinessLogicRulesSet::VaryCompactionCoefficient( *sa.get( )
-         , name
-         , layersList
-         , allochtonLithologiesName
-         , faultsName
-         , lithoName
-         , minCompCoef
-         , maxCompCoef
-         , pdfType
-         )
-         ) {
-         throw ErrorHandler::Exception( sa->errorCode( ) ) << sa->errorMessage( );
-      }
+                                                                                          , name
+                                                                                          , layersList
+                                                                                          , allochtonLithologiesName
+                                                                                          , faultsName
+                                                                                          , lithoName
+                                                                                          , minCompCoef
+                                                                                          , maxCompCoef
+                                                                                          , pdfType
+                                                                                          )
+         ) { throw ErrorHandler::Exception( sa->errorCode( ) ) << sa->errorMessage( ); }
    }
 
    size_t expectedParametersNumber( ) const { return 7; } // lay_names, aloch_names, fault_names, lit_name, comp_coef mn/mx, pdf
@@ -984,8 +982,8 @@ public:
       oss << "    Where:\n";
       oss << "       varPrmName     - user specified variable parameter name (Optional)\n";
       oss << "       layName        - array of layers name\n";
-      oss << "       alochtLithName - array of allochton lithologies names\n";
-      oss << "       faultName      - array of faults names\n";
+      oss << "       alochtLithName - array of allochton lithologies name\n";
+      oss << "       faultName      - array of faults name\n";
       oss << "       litName        - lithology name\n";
       oss << "       minCompCoef    - compaction coefficient - minimal range value\n";
       oss << "       maxCompCoef    - compaction coefficient - maximal range value\n";

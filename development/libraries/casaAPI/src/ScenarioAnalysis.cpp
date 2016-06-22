@@ -223,7 +223,8 @@ private:
    std::unique_ptr<SensitivityCalculatorImpl> m_sensCalc;
    std::unique_ptr<MonteCarloSolver>          m_mcSolver;
 
-   std::vector<std::unique_ptr<ScenarioAnalysis>> m_oneDscenarios;  // keeps a vector of pointers to the extracted 1d scenarios (empty if no 1d scenarios have been extracted)
+   std::vector<std::unique_ptr<ScenarioAnalysis>> m_oneDscenarios;  // keeps a vector of pointers to the extracted
+                                                                    // 1d scenarios (empty if no 1d scenarios have been extracted)
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -358,8 +359,8 @@ ErrorHandler::ReturnCode ScenarioAnalysis::extractOneDProjects( const std::strin
 ErrorHandler::ReturnCode ScenarioAnalysis::importOneDResults( const std::string & expLabel )
 {
    try { m_pimpl->importOneDResults( expLabel ); }
-   catch ( Exception          & ex ) { return reportError( ex.errorCode( ), ex.what( ) ); }
-   catch ( ibs::PathException & pex ) { return reportError( IoError, pex.what( ) ); }
+   catch ( Exception          & ex ) { return reportError( ex.errorCode(), ex.what() ); }
+   catch ( ibs::PathException & pex ) { return reportError( IoError, pex.what() ); }
    catch ( ... ) { return reportError( UnknownError, "Unknown error" ); }
 
    return NoError;
@@ -436,16 +437,12 @@ ErrorHandler::ReturnCode ScenarioAnalysis::saveScenario( const char * fileName, 
       std::unique_ptr<CasaSerializer> outStream( CasaSerializer::createSerializer( fileName, fileType, version() ) );
       m_pimpl->serialize( *(outStream.get()) );
    }
-   catch ( const ErrorHandler::Exception & ex )
-   {
-      return reportError( ex.errorCode(), ex.what() );
-   }
-   catch ( const std::exception & ex )
-   {
-      return reportError( SerializationError, ex.what() );
-   }
+   catch ( const ErrorHandler::Exception & ex ) { return reportError( ex.errorCode(),     ex.what() ); }
+   catch ( const std::exception          & ex ) { return reportError( SerializationError, ex.what() ); }
+
    return NoError;
 }
+
 
 // Create new ScenarioAnaylysis object and read all data from the given file
 ScenarioAnalysis * ScenarioAnalysis::loadScenario( const char * fileName, const char * fileType )
@@ -467,17 +464,13 @@ ScenarioAnalysis * ScenarioAnalysis::loadScenario( const char * fileName, const 
       std::unique_ptr<CasaDeserializer> inStream( CasaDeserializer::createDeserializer( fid, fileType, sc->version() ) );
       
       sc->m_pimpl->deserialize( *(inStream.get()) );
-      if ( sc->errorCode() != ErrorHandler::NoError )
-      {
-         throw ErrorHandler::Exception( sc->errorCode() ) << sc->errorMessage();
-      }
+      if ( sc->errorCode() != ErrorHandler::NoError ) { throw ErrorHandler::Exception( sc->errorCode() ) << sc->errorMessage(); }
    }
-   catch ( const ErrorHandler::Exception & ex )
-   {
-      sc->reportError( ex.errorCode(), ex.what() );
-   }
+   catch ( const ErrorHandler::Exception & ex ) { sc->reportError( ex.errorCode(), ex.what() ); }
+
    return sc.release();
 }
+
 
 // Create new ScenarioAnaylysis object and read all data from the given file
 ScenarioAnalysis * ScenarioAnalysis::loadScenario( const char * stateFileBuf, size_t bufSize, const char * fileType )
@@ -491,19 +484,17 @@ ScenarioAnalysis * ScenarioAnalysis::loadScenario( const char * stateFileBuf, si
       if ( !fid.good() ) throw Exception( DeserializationError ) << "Can not read from the given memory buffer";
 
       std::unique_ptr<CasaDeserializer> inStream( CasaDeserializer::createDeserializer( fid
-                                                                                    , fileType == NULL ? "" : std::string( fileType )
-                                                                                    , sc->version() 
-                                                                                    ) );
+                                                                                      , fileType == NULL ? "" : std::string( fileType )
+                                                                                      , sc->version() 
+                                                                                      ) );
       sc->m_pimpl->deserialize( *(inStream.get()) );
       if ( sc->errorCode() != ErrorHandler::NoError )
       {
          throw ErrorHandler::Exception( sc->errorCode() ) << sc->errorMessage();
       }
    }
-   catch ( const ErrorHandler::Exception & ex )
-   {
-      sc->reportError( ex.errorCode(), ex.what() );
-   }
+   catch ( const ErrorHandler::Exception & ex ) { sc->reportError( ex.errorCode(), ex.what() ); }
+
    return sc.release();
 }
 
@@ -580,7 +571,7 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::setScenarioLocation( const char * p
          {
             saFolder.create();
          }
-         else if ( !saFolder.empty( ) )
+         else if ( !saFolder.empty() )
          {
             bool found = false;
             for ( int i = 1; i < 99 && !found; ++i )
@@ -599,10 +590,7 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::setScenarioLocation( const char * p
          m_caseSetPath = saFolder.fullPath().path();
       }
    }
-   catch ( const ibs::PathException & ex )
-   {
-      throw ErrorHandler::Exception( ErrorHandler::IoError ) << ex.what();
-   }
+   catch ( const ibs::PathException & ex ) { throw ErrorHandler::Exception( ErrorHandler::IoError ) << ex.what(); }
 }
 
 void ScenarioAnalysis::ScenarioAnalysisImpl::restoreScenarioLocation( const char * pathToCaseSet )
@@ -695,26 +683,23 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::restoreScenarioLocation( const char
          m_runManager->restoreCaseStatus( rc );
       }
    }
-   catch ( const ibs::PathException & ex )
-   {
-      throw ErrorHandler::Exception( ErrorHandler::IoError ) << ex.what();
-   }
+   catch ( const ibs::PathException & ex ) { throw ErrorHandler::Exception( ErrorHandler::IoError ) << ex.what(); }
 }
+
 
 void ScenarioAnalysis::ScenarioAnalysisImpl::setDoEAlgorithm( DoEGenerator::DoEAlgorithm algo )
 {
    m_doe.reset( new DoEGeneratorImpl( algo ) );
 }
 
+
 DoEGenerator * ScenarioAnalysis::ScenarioAnalysisImpl::doeGenerator()
 {
-   if ( !m_doe.get() )
-   {
-      setDoEAlgorithm( DoEGenerator::Tornado );
-   }
+   if ( !m_doe.get() ) { setDoEAlgorithm( DoEGenerator::Tornado ); }
 
    return m_doe.get();
 }
+
 
 void ScenarioAnalysis::ScenarioAnalysisImpl::applyMutations( RunCaseSet & cs )
 {
@@ -781,62 +766,42 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::applyMutations( RunCaseSet & cs )
    ++m_iterationNum;
 }
 
-struct XYCoordComp
-{
-   bool operator() ( const casa::ObsGridPropertyWell * c1, const casa::ObsGridPropertyWell * c2 )
-   {
-      double eps = 1.e-3;
-      double x1 = c1->xCoords().front();
-      double x2 = c2->xCoords().front();
-
-      if ( !NumericFunctions::isEqual( x1, x2, eps ) ) { return x1 < x2 ? true : false; }
- 
-      double y2 = c2->yCoords().front();
-      double y1 = c1->yCoords().front();
-
-      if ( !NumericFunctions::isEqual( y1, y2, eps ) ) { return y1 < y2 ? true : false; }
-
-      return false;
-   }
-};
 
 void ScenarioAnalysis::ScenarioAnalysisImpl::extractOneDProjects( const std::string & expLabel )
 {
-   mbapi::Model                                      & mdl = baseCase();
-   const casa::ObsSpace                              & obs = obsSpace();
-   casa::RunCaseSetImpl                              & doeCases = dynamic_cast<casa::RunCaseSetImpl &>( doeCaseSet() );  
-   std::vector< std::shared_ptr<RunCase> >             expSet;
-   std::set< const casa::ObsGridPropertyWell*, XYCoordComp > uniqWellsSet;
+   struct XYCoordComp
+   {
+      bool operator() ( const casa::ObsGridPropertyWell * c1, const casa::ObsGridPropertyWell * c2 )
+      {
+         double x1 = c1->xCoords().front(), x2 = c2->xCoords().front();
+         if ( !NumericFunctions::isEqual( x1, x2, 1.0e-3 ) ) { return x1 < x2 ? true : false; }
+         double y2 = c2->yCoords().front(), y1 = c1->yCoords().front();
+         if ( !NumericFunctions::isEqual( y1, y2, 1.0e-3 ) ) { return y1 < y2 ? true : false; }
+         return false;
+      }
+   };
+
+   mbapi::Model                                          & mdl = baseCase();
+   std::vector<std::shared_ptr<RunCase> >                  expSet;
+   std::set<const casa::ObsGridPropertyWell*, XYCoordComp> uniqWellsSet;
 
    // as a first stem make a unique list of wells based on the first coordinate of the well.
-   for ( size_t i = 0; i < obs.size(); ++i )
+   for ( size_t i = 0; i < m_obsSpace->size(); ++i )
    {
-      const casa::ObsGridPropertyWell * wellObs = dynamic_cast<const casa::ObsGridPropertyWell *>( obs.observable( i ) );
+      const casa::ObsGridPropertyWell * wellObs = dynamic_cast<const casa::ObsGridPropertyWell *>( m_obsSpace->observable( i ) );
       if ( wellObs && !wellObs->xCoords().empty() ) { uniqWellsSet.insert( wellObs ); }
    }
 
-   // for each extracted wells determine minI, maxI and minJ, maxJ
-   int minI;
-   int maxI;
-   int minJ;
-   int maxJ;
+   if ( uniqWellsSet.empty() ) { throw ErrorHandler::Exception( ErrorHandler::IoError ) << "No wells extracted, stopping"; }
 
-   // model coordinates and discretization
-   double originX;
-   double originY;
-   double dimX;
-   double dimY;
-   double centreX;
-   double centreY;
-
-   if ( uniqWellsSet.empty( ))
-   {
-      throw ErrorHandler::Exception( ErrorHandler::IoError ) << "No wells extracted, stopping";
-   }
-
+   // go over all wells and for each extracted wells determine minI, maxI and minJ, maxJ
    for ( auto it = uniqWellsSet.begin(); it != uniqWellsSet.end(); it++ )
    {
-      if ( NoError != mdl.windowSize( (*it)->xCoords().front(), (*it)->yCoords().front(), minI, maxI, minJ, maxJ ) )
+      // model coordinates and discretization
+      int    minI, maxI, minJ, maxJ;
+      double centreX, centreY;
+
+      if ( NoError != mdl.windowSize( (*it)->xCoords().front(), (*it)->yCoords().front(), minI, maxI, minJ, maxJ, centreX, centreY ) )
       {
          throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Setting window around well: " << (*it)->xCoords().front() << " "
                                                                                                   << (*it)->yCoords().front() << " "
@@ -844,30 +809,27 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::extractOneDProjects( const std::str
       }
       SharedParameterPtr window( new casa::PrmWindow( minI, maxI, minJ, maxJ ) );
       
-      std::shared_ptr<RunCase>  newCase( new casa::RunCaseImpl( ) );
+      std::shared_ptr<RunCase> newCase( new casa::RunCaseImpl() );
       newCase->addParameter( window );
 
       expSet.push_back( newCase ); 
 
-      // extract the centre of the model
-      mdl.origin( originX, originY );
-      mdl.arealSize( dimX, dimY );
-      centreX = originX + dimX / 2.0;
-      centreY = originY + dimY / 2.0;
+      // save the centre of the extracted model
       m_xcoordOneD.push_back( centreX );
       m_ycoordOneD.push_back( centreY );
    }
 
    // add the set of cases in DoE
-   doeCases.addNewCases( expSet, expLabel );
+   m_doeCases->addNewCases( expSet, expLabel );
 }
+
 
 void ScenarioAnalysis::ScenarioAnalysisImpl::importOneDResults( const std::string & expLabel )
 {
-   casa::RunManager     & rm =  runManager( );
-   casa::RunCaseSetImpl & rcs = dynamic_cast<RunCaseSetImpl&> (doeCaseSet( ));
-   casa::VarSpace       & var = varSpace( );
-   mbapi::Model         & bc =  baseCase( );
+   casa::RunManager     & rm =  runManager();
+   casa::RunCaseSetImpl & rcs = dynamic_cast<RunCaseSetImpl&> (doeCaseSet());
+   casa::VarSpace       & var = varSpace();
+   mbapi::Model         & bc =  baseCase();
    std::string            threeDFromOneD( "ThreeDFromOneD" );
 
    // set the filter for the run case set
@@ -876,115 +838,103 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::importOneDResults( const std::strin
    // variables used for the averages
    std::vector<SharedParameterPtr> prmVec;
 
+   // Collect 1D results:
    // get the values of the run cases from casa_state files
-   std::vector< std::shared_ptr<RunCase> >     bestMatchedCases( rcs.size( ) );
-   std::vector< std::shared_ptr<RunCase> >     baseCases( rcs.size( ) );
-   std::vector< std::shared_ptr<RunCase> >     lastRunCases( rcs.size( ) );
+   std::vector< std::shared_ptr<RunCase> >     bestMatchedCases( rcs.size() );
+   std::vector< std::shared_ptr<RunCase> >     baseCases( rcs.size() );
+   std::vector< std::shared_ptr<RunCase> >     lastRunCases( rcs.size() );
    m_oneDscenarios.resize( rcs.size() );
 
    for ( size_t c = 0; c < rcs.size(); ++c )
    {
       // load casa_state file from multi1D directories
-      std::string prjPath( rcs[c]->projectPath() );
-#ifdef _WIN32
-      std::size_t sl = prjPath.rfind( "\\" );
-#else
-      std::size_t sl = prjPath.rfind( "/" );
-#endif
-
-      std::string stFile( prjPath.substr( 0, sl + 1 ) + "casa_state.bin" );
+      ibs::FilePath stateFile( ibs::FilePath( rcs[c]->projectPath() ).filePath() );
+      stateFile << "casa_state.bin";
 
       // load scenario from file (deserialization)
-      m_oneDscenarios[c].reset( casa::ScenarioAnalysis::loadScenario( stFile.c_str( ), "bin" ) );
+      m_oneDscenarios[c].reset( casa::ScenarioAnalysis::loadScenario( stateFile.cpath(), "bin" ) );
  
       // get the RunCaseSet 
-      casa::RunCaseSet & oneDCaseSet = m_oneDscenarios[c]->doeCaseSet( );
+      casa::RunCaseSet & oneDCaseSet = m_oneDscenarios[c]->doeCaseSet();
 
       // get and add the best matched case
       oneDCaseSet.filterByExperimentName( "BestMatchedCase" ); 
       if ( oneDCaseSet.size() != 1 )
       {
-         throw ErrorHandler::Exception( ErrorHandler::UnknownError ) << " The best matched case must be present and unique, instead " << oneDCaseSet.size() << " cases were found";
+         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << " The best matched case must be present and unique, instead " 
+                                                                        << oneDCaseSet.size() << " cases were found";
       }
       bestMatchedCases[c] = oneDCaseSet[0];
-      oneDCaseSet.filterByExperimentName( "" );
-
+      
       // get the best base case
       oneDCaseSet.filterByExperimentName( "BaseCase" );
       if ( oneDCaseSet.size() != 1 )
       {
-         throw ErrorHandler::Exception( ErrorHandler::UnknownError ) << " The base case must be present and unique, instead " << oneDCaseSet.size() << " cases were found";
+         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << " The base case must be present and unique, instead "
+                                                                        << oneDCaseSet.size() << " cases were found";
       }
       baseCases[c] = oneDCaseSet[0];
-      oneDCaseSet.filterByExperimentName( "" );
 
       // get the last run case
       oneDCaseSet.filterByExperimentName( "LMSteps" );
       if ( oneDCaseSet.size() < 1 )
       {
-         throw ErrorHandler::Exception( ErrorHandler::UnknownError ) << " Cannot extract the last run case because the LMSteps case set size is " << oneDCaseSet.size( );
+         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << " Cannot extract the last run case because the LMSteps case set size is "
+                                                                        << oneDCaseSet.size();
       }
-      size_t lastCase = oneDCaseSet.size() - 1;
-      lastRunCases[c] = oneDCaseSet[lastCase];
-      oneDCaseSet.filterByExperimentName( "" );
+      lastRunCases[c] = oneDCaseSet[oneDCaseSet.size() - 1];
    }
 
-   if ( m_xcoordOneD.size( ) != bestMatchedCases.size( ) )
+   if ( m_xcoordOneD.size() != bestMatchedCases.size() )
    {
-      throw ErrorHandler::Exception( ErrorHandler::UnknownError ) << " The number of extracted wells is not equal to the number of the calibrated 1D cases";
+      throw ErrorHandler::Exception( ErrorHandler::UnknownError ) << " The number of extracted wells is not equal to the number"
+                                                                   << " of the calibrated 1D cases";
    }
 
+   // Create 3D case with best parameters
    // the best run case
-   std::shared_ptr<RunCase>   brc( new casa::RunCaseImpl( ) );
+   std::shared_ptr<RunCase> brc( new casa::RunCaseImpl() );
 
-   // loop over the entire variable space
-   for ( size_t par = 0; par < var.size( ); ++par )
+   // loop over all IPs
+   for ( size_t par = 0; par < var.size(); ++par )
    {
       const casa::VarParameter * vprm = var.parameter( par );
-      switch ( vprm->variationType( ) )
+      switch ( vprm->variationType() )
       {
-
-      case casa::VarParameter::Continuous:
-      {
-         const casa::VarPrmContinuous * vprmc = dynamic_cast<const casa::VarPrmContinuous*>( vprm );
-
-         for ( size_t c = 0; c < bestMatchedCases.size( ); ++c )
+         case casa::VarParameter::Continuous:
          {
-            SharedParameterPtr nprm = bestMatchedCases[c]->parameter( par );
-            prmVec.push_back( nprm );
-         }
+            const casa::VarPrmContinuous * vprmc = dynamic_cast<const casa::VarPrmContinuous*>( vprm );
 
-         // make the averages
-         SharedParameterPtr prm;
-         try 
-         { 
-            prm = vprmc->makeThreeDFromOneD( bc, m_xcoordOneD, m_ycoordOneD, prmVec );
-         }
-         catch ( const ErrorHandler::Exception & ex )
-         {
-            throw ErrorHandler::Exception( ex.errorCode( ) ) << " The generation of the 3D parameter " << vprmc->name( ) << " from multi 1D results failed ";
-         }
+            for ( size_t c = 0; c < bestMatchedCases.size(); ++c )
+            {
+               SharedParameterPtr nprm = bestMatchedCases[c]->parameter( par );
+               prmVec.push_back( nprm );
+            }
 
-         // if the average method is not implemented a makeThreeDFromOneD returns a nullptr 
-         if ( prm )
-         {
+            // make the averages
+            SharedParameterPtr prm;
+            try 
+            { 
+               // if the average method is not implemented a makeThreeDFromOneD will throw exception 
+               prm = vprmc->makeThreeDFromOneD( bc, m_xcoordOneD, m_ycoordOneD, prmVec );
+            }
+            catch ( const ErrorHandler::Exception & ex )
+            {
+               throw ErrorHandler::Exception( ex.errorCode() ) << " The generation of the 3D parameter " << vprmc->name() 
+                                                               << " from multi 1D results failed. Error message: " << ex.what();
+            }
             brc->addParameter( prm );
-         }
-         else
-         {
-            throw ErrorHandler::Exception( ErrorHandler::UnknownError ) << " average of the parameter " << vprmc->name( ) << " not yet implemented ";
-         }
 
-         //clear previous arrays stored for the mean values 
-         prmVec.clear( );
-      }
+            //clear previous arrays stored for the mean values 
+            prmVec.clear();
+         }
          break;
 
-      case casa::VarParameter::Categorical: brc->addParameter( vprm->baseValue( )); break;
+      case casa::VarParameter::Categorical: brc->addParameter( vprm->baseValue()); break;
 
       case casa::VarParameter::Discrete:
       default:
-         throw ErrorHandler::Exception( ErrorHandler::NotImplementedAPI ) << "Not implemented variable parameter type: " << vprm->variationType( );
+         throw ErrorHandler::Exception( ErrorHandler::NotImplementedAPI ) << "Not implemented variable parameter type: " << vprm->variationType();
          break;
       }
    }
@@ -996,22 +946,22 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::importOneDResults( const std::strin
    ibs::FolderPath casePath( "." );
    casePath << threeDFromOneD;
 
-   if ( casePath.exists( ) ) // clean folder if it is already exist
+   if ( casePath.exists() ) // clean folder if it is already exist
    {
-      casePath.remove( );
+      casePath.remove();
    }
 
-   casePath.create( );
-   casePath << ( std::string( baseCaseProjectFileName( ) ).empty( ) ? baseCaseProjectFileName( ) : "Project.project3d" );
+   casePath.create();
+   casePath << ( std::string( baseCaseProjectFileName() ).empty() ? baseCaseProjectFileName() : "Project.project3d" );
 
    // do mutation
-   brc->mutateCaseTo( bc, casePath.fullPath( ).cpath( ) );
+   brc->mutateCaseTo( bc, casePath.fullPath().cpath() );
 
    // validate the case
-   std::string msg = brc->validateCase( );
-   if ( !msg.empty( ) )
+   std::string msg = brc->validateCase();
+   if ( !msg.empty() )
    {
-      throw ErrorHandler::Exception( ErrorHandler::ValidationError ) << " An invalid project was generated " << casePath.path( );
+      throw ErrorHandler::Exception( ErrorHandler::ValidationError ) << " An invalid project was generated " << casePath.path();
    }
 
    // Add the cases to the run case set

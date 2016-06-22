@@ -2,7 +2,7 @@
 <tagfile>
   <compound kind="file">
     <name>cmbAPI.h</name>
-    <path>/scratch/nlskon/cld-dev/Trunk/development/libraries/cmbAPI/src/</path>
+    <path>/nfs/rvl/groups/ept-sg/SWEast/Cauldron/nlskon/cld-dev-git/Trunk/development/libraries/cmbAPI/src/</path>
     <filename>cmbAPI_8h</filename>
     <includes id="ErrorHandler_8h" name="ErrorHandler.h" local="yes" imported="no">ErrorHandler.h</includes>
     <includes id="LithologyManager_8h" name="LithologyManager.h" local="yes" imported="no">LithologyManager.h</includes>
@@ -18,13 +18,13 @@
   </compound>
   <compound kind="file">
     <name>ErrorHandler.h</name>
-    <path>/scratch/nlskon/cld-dev/Trunk/development/libraries/cmbAPI/src/</path>
+    <path>/nfs/rvl/groups/ept-sg/SWEast/Cauldron/nlskon/cld-dev-git/Trunk/development/libraries/cmbAPI/src/</path>
     <filename>ErrorHandler_8h</filename>
     <class kind="class">ErrorHandler</class>
   </compound>
   <compound kind="file">
     <name>FluidManager.h</name>
-    <path>/scratch/nlskon/cld-dev/Trunk/development/libraries/cmbAPI/src/</path>
+    <path>/nfs/rvl/groups/ept-sg/SWEast/Cauldron/nlskon/cld-dev-git/Trunk/development/libraries/cmbAPI/src/</path>
     <filename>FluidManager_8h</filename>
     <includes id="ErrorHandler_8h" name="ErrorHandler.h" local="yes" imported="no">ErrorHandler.h</includes>
     <class kind="class">mbapi::FluidManager</class>
@@ -32,7 +32,7 @@
   </compound>
   <compound kind="file">
     <name>LithologyManager.h</name>
-    <path>/scratch/nlskon/cld-dev/Trunk/development/libraries/cmbAPI/src/</path>
+    <path>/nfs/rvl/groups/ept-sg/SWEast/Cauldron/nlskon/cld-dev-git/Trunk/development/libraries/cmbAPI/src/</path>
     <filename>LithologyManager_8h</filename>
     <includes id="ErrorHandler_8h" name="ErrorHandler.h" local="yes" imported="no">ErrorHandler.h</includes>
     <class kind="class">mbapi::LithologyManager</class>
@@ -40,7 +40,7 @@
   </compound>
   <compound kind="file">
     <name>MapsManager.h</name>
-    <path>/scratch/nlskon/cld-dev/Trunk/development/libraries/cmbAPI/src/</path>
+    <path>/nfs/rvl/groups/ept-sg/SWEast/Cauldron/nlskon/cld-dev-git/Trunk/development/libraries/cmbAPI/src/</path>
     <filename>MapsManager_8h</filename>
     <includes id="ErrorHandler_8h" name="ErrorHandler.h" local="yes" imported="no">ErrorHandler.h</includes>
     <class kind="class">mbapi::MapsManager</class>
@@ -48,7 +48,7 @@
   </compound>
   <compound kind="file">
     <name>PropertyManager.h</name>
-    <path>/scratch/nlskon/cld-dev/Trunk/development/libraries/cmbAPI/src/</path>
+    <path>/nfs/rvl/groups/ept-sg/SWEast/Cauldron/nlskon/cld-dev-git/Trunk/development/libraries/cmbAPI/src/</path>
     <filename>PropertyManager_8h</filename>
     <includes id="ErrorHandler_8h" name="ErrorHandler.h" local="yes" imported="no">ErrorHandler.h</includes>
     <class kind="class">mbapi::PropertyManager</class>
@@ -56,7 +56,7 @@
   </compound>
   <compound kind="file">
     <name>SnapshotManager.h</name>
-    <path>/scratch/nlskon/cld-dev/Trunk/development/libraries/cmbAPI/src/</path>
+    <path>/nfs/rvl/groups/ept-sg/SWEast/Cauldron/nlskon/cld-dev-git/Trunk/development/libraries/cmbAPI/src/</path>
     <filename>SnapshotManager_8h</filename>
     <includes id="ErrorHandler_8h" name="ErrorHandler.h" local="yes" imported="no">ErrorHandler.h</includes>
     <class kind="class">mbapi::SnapshotManager</class>
@@ -64,7 +64,7 @@
   </compound>
   <compound kind="file">
     <name>SourceRockManager.h</name>
-    <path>/scratch/nlskon/cld-dev/Trunk/development/libraries/cmbAPI/src/</path>
+    <path>/nfs/rvl/groups/ept-sg/SWEast/Cauldron/nlskon/cld-dev-git/Trunk/development/libraries/cmbAPI/src/</path>
     <filename>SourceRockManager_8h</filename>
     <includes id="ErrorHandler_8h" name="ErrorHandler.h" local="yes" imported="no">ErrorHandler.h</includes>
     <class kind="class">mbapi::SourceRockManager</class>
@@ -72,7 +72,7 @@
   </compound>
   <compound kind="file">
     <name>StratigraphyManager.h</name>
-    <path>/scratch/nlskon/cld-dev/Trunk/development/libraries/cmbAPI/src/</path>
+    <path>/nfs/rvl/groups/ept-sg/SWEast/Cauldron/nlskon/cld-dev-git/Trunk/development/libraries/cmbAPI/src/</path>
     <filename>StratigraphyManager_8h</filename>
     <includes id="ErrorHandler_8h" name="ErrorHandler.h" local="yes" imported="no">ErrorHandler.h</includes>
     <class kind="class">mbapi::StratigraphyManager</class>
@@ -80,7 +80,7 @@
   </compound>
   <compound kind="file">
     <name>UndefinedValues.h</name>
-    <path>/scratch/nlskon/cld-dev/Trunk/development/libraries/cmbAPI/src/</path>
+    <path>/nfs/rvl/groups/ept-sg/SWEast/Cauldron/nlskon/cld-dev-git/Trunk/development/libraries/cmbAPI/src/</path>
     <filename>UndefinedValues_8h</filename>
     <member kind="define">
       <type>#define</type>
@@ -290,6 +290,20 @@
     </member>
     <member kind="enumvalue">
       <type>@</type>
+      <name>RunManagerError</name>
+      <anchorfile>classErrorHandler.html</anchorfile>
+      <anchor>acadba1da388468d5c383dbdbcfcee462a77d0430b8b8149b87a3102f49a9c85d7</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
+      <name>RunManagerAborted</name>
+      <anchorfile>classErrorHandler.html</anchorfile>
+      <anchor>acadba1da388468d5c383dbdbcfcee462adbd27b3106897b8886dc46fdab7b6647</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="enumvalue">
+      <type>@</type>
       <name>LSFLibError</name>
       <anchorfile>classErrorHandler.html</anchorfile>
       <anchor>acadba1da388468d5c383dbdbcfcee462a3c56c7c56b2a9aeae5f55a0d6f3839f1</anchor>
@@ -424,6 +438,20 @@
     <base>ErrorHandler</base>
     <member kind="function" virtualness="pure">
       <type>virtual ReturnCode</type>
+      <name>porosityModel</name>
+      <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
+      <anchor>a40be5cc31c1b6bb35097d3b8a4ca120b</anchor>
+      <arglist>(LithologyID id, PorosityModel &amp;porModel, std::vector&lt; double &gt; &amp;porModelPrms)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ReturnCode</type>
+      <name>setPorosityModel</name>
+      <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
+      <anchor>a178cf7cab18aa59e7ac5072e51b3d87c</anchor>
+      <arglist>(LithologyID id, PorosityModel porModel, const std::vector&lt; double &gt; &amp;porModelPrms)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ReturnCode</type>
       <name>permeabilityModel</name>
       <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
       <anchor>a4ffe87e6674c438a85dcdbaa24b00c25</anchor>
@@ -548,6 +576,13 @@
       <anchor>aa7c83dc5fd423ff9253b465f9e3cd738</anchor>
       <arglist></arglist>
     </member>
+    <member kind="typedef">
+      <type>size_t</type>
+      <name>AllochtLithologyID</name>
+      <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
+      <anchor>a05fc2387a1f80ab7478f2c7da383560d</anchor>
+      <arglist></arglist>
+    </member>
     <member kind="function" virtualness="pure">
       <type>virtual std::vector&lt; LithologyID &gt;</type>
       <name>lithologiesIDs</name>
@@ -585,17 +620,52 @@
     </member>
     <member kind="function" virtualness="pure">
       <type>virtual ReturnCode</type>
-      <name>porosityModel</name>
+      <name>deleteLithology</name>
       <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
-      <anchor>a40be5cc31c1b6bb35097d3b8a4ca120b</anchor>
-      <arglist>(LithologyID id, PorosityModel &amp;porModel, std::vector&lt; double &gt; &amp;porModelPrms)=0</arglist>
+      <anchor>a9416c723ece00a24631db7c49fd1ba48</anchor>
+      <arglist>(LithologyID id)=0</arglist>
     </member>
     <member kind="function" virtualness="pure">
       <type>virtual ReturnCode</type>
-      <name>setPorosityModel</name>
+      <name>cleanDuplicatedLithologies</name>
       <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
-      <anchor>a178cf7cab18aa59e7ac5072e51b3d87c</anchor>
-      <arglist>(LithologyID id, PorosityModel porModel, const std::vector&lt; double &gt; &amp;porModelPrms)=0</arglist>
+      <anchor>a9ac65bd2e13d8d8c0a03ca525e0e7332</anchor>
+      <arglist>()=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual std::vector&lt; AllochtLithologyID &gt;</type>
+      <name>allochtonLithologiesIDs</name>
+      <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
+      <anchor>aa7b79e1b0850b92e9c57cf067e4cb0b8</anchor>
+      <arglist>() const =0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual AllochtLithologyID</type>
+      <name>findAllochtID</name>
+      <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
+      <anchor>a130bf7fbbb402f3d9901e7c15b9f7607</anchor>
+      <arglist>(const std::string &amp;layerName)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual std::string</type>
+      <name>allochtonLithology</name>
+      <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
+      <anchor>a229389443401cbc1ce85295536489030</anchor>
+      <arglist>(AllochtLithologyID alID)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual std::string</type>
+      <name>allochtonLithologyLayerName</name>
+      <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
+      <anchor>a9577469cdcb6b249aade91db693653bb</anchor>
+      <arglist>(AllochtLithologyID alID)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ReturnCode</type>
+      <name>setAllochtonLithology</name>
+      <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
+      <anchor>a33d1d8ed2f85e5b5a09d60007cb21597</anchor>
+      <arglist>(AllochtLithologyID alID, const std::string &amp;newLithoName)=0</arglist>
     </member>
   </compound>
   <compound kind="class">
@@ -651,6 +721,34 @@
       <anchor>afec39c2b5ce52454053143086d5008f6</anchor>
       <arglist>(MapID id, double coeff)=0</arglist>
     </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ErrorHandler::ReturnCode</type>
+      <name>mapSetValues</name>
+      <anchorfile>classmbapi_1_1MapsManager.html</anchorfile>
+      <anchor>ae729950be2bb684068a04405abc845bb</anchor>
+      <arglist>(MapID id, const std::vector&lt; double &gt; &amp;vin)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ErrorHandler::ReturnCode</type>
+      <name>interpolateMap</name>
+      <anchorfile>classmbapi_1_1MapsManager.html</anchorfile>
+      <anchor>a6e3c8f2159eeb49d655b624968a8fb2b</anchor>
+      <arglist>(MapID id, MapID minId, MapID maxId, double coeff)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ErrorHandler::ReturnCode</type>
+      <name>interpolateMap</name>
+      <anchorfile>classmbapi_1_1MapsManager.html</anchorfile>
+      <anchor>a9181bd8aa3e9c9ab0c6a4a634e1405db</anchor>
+      <arglist>(const std::vector&lt; double &gt; &amp;xin, const std::vector&lt; double &gt; &amp;yin, const std::vector&lt; double &gt; &amp;vin, double xmin, double xmax, double ymin, double ymax, int numI, int numJ, std::vector&lt; double &gt; &amp;xout, std::vector&lt; double &gt; &amp;yout, std::vector&lt; double &gt; &amp;vout)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual MapID</type>
+      <name>generateMap</name>
+      <anchorfile>classmbapi_1_1MapsManager.html</anchorfile>
+      <anchor>a52e79e34028490e186fdae9c8703247d</anchor>
+      <arglist>(const std::string &amp;refferedTable, const std::string mapName, const std::vector&lt; double &gt; &amp;values)=0</arglist>
+    </member>
     <member kind="function" protection="protected">
       <type></type>
       <name>MapsManager</name>
@@ -671,6 +769,13 @@
     <filename>classmbapi_1_1Model.html</filename>
     <base>ErrorHandler</base>
     <member kind="function">
+      <type>std::vector&lt; std::string &gt;</type>
+      <name>copyLithology</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>af8b6e3860b38c4de16262d46eed03892</anchor>
+      <arglist>(const std::string &amp;litName, const std::vector&lt; std::pair&lt; std::string, size_t &gt; &gt; &amp;layersName, const std::vector&lt; std::string &gt; &amp;alochtLitName, const std::vector&lt; std::pair&lt; std::string, std::string &gt; &gt; &amp;faultsName)</arglist>
+    </member>
+    <member kind="function">
       <type></type>
       <name>Model</name>
       <anchorfile>classmbapi_1_1Model.html</anchorfile>
@@ -690,6 +795,13 @@
       <anchorfile>classmbapi_1_1Model.html</anchorfile>
       <anchor>ab195105149d6f9e12a8a50435bccd515</anchor>
       <arglist>(Model &amp;mdl1, const std::set&lt; std::string &gt; &amp;compareTblsList, const std::set&lt; std::string &gt; &amp;ignoreTblsList, double relTol)</arglist>
+    </member>
+    <member kind="function">
+      <type>std::string</type>
+      <name>mergeProject</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>a512649906008f4a28735a48c8bfed1a7</anchor>
+      <arglist>(Model &amp;mdl1, const std::set&lt; std::string &gt; &amp;procesTblsList, const std::vector&lt; std::vector&lt; std::string &gt; &gt; &amp;flitList, size_t &amp;dlRecNum, size_t &amp;cpRecNum)</arglist>
     </member>
     <member kind="function">
       <type>Model &amp;</type>
@@ -793,8 +905,8 @@
       <type>ReturnCode</type>
       <name>saveModelToProjectFile</name>
       <anchorfile>classmbapi_1_1Model.html</anchorfile>
-      <anchor>a248aa16548ae2a96bfde997bdf4f5020</anchor>
-      <arglist>(const char *projectFileName)</arglist>
+      <anchor>a7833ea4d4ddefc75f4c87b273c473716</anchor>
+      <arglist>(const char *projectFileName, bool copyFiles=false)</arglist>
     </member>
     <member kind="function">
       <type>std::string</type>
@@ -866,6 +978,34 @@
       <anchor>a65ce2138d1f29884606f4c1e5dd25afc</anchor>
       <arglist>(double &amp;dimX, double &amp;dimY)</arglist>
     </member>
+    <member kind="function">
+      <type>ReturnCode</type>
+      <name>windowSize</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>a869464c8f8d9c2e963a914b6a8dadee8</anchor>
+      <arglist>(double x, double y, int &amp;xMin, int &amp;xMax, int &amp;yMin, int &amp;yMax, double &amp;xc, double &amp;yc)</arglist>
+    </member>
+    <member kind="function">
+      <type>ReturnCode</type>
+      <name>interpolateLithoFractions</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>a89f5ab4699e8362ae599bdcf264ad1c8</anchor>
+      <arglist>(const std::vector&lt; double &gt; &amp;xin, const std::vector&lt; double &gt; &amp;yin, const std::vector&lt; double &gt; &amp;lf1, const std::vector&lt; double &gt; &amp;lf2, const std::vector&lt; double &gt; &amp;lf3, std::vector&lt; double &gt; &amp;xInt, std::vector&lt; double &gt; &amp;yInt, std::vector&lt; double &gt; &amp;rpInt, std::vector&lt; double &gt; &amp;r13Int)</arglist>
+    </member>
+    <member kind="function">
+      <type>ReturnCode</type>
+      <name>backTransformLithoFractions</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>a98543238d85dac3497d46e70e2fcb47c</anchor>
+      <arglist>(const std::vector&lt; double &gt; &amp;rpInt, const std::vector&lt; double &gt; &amp;r13Int, std::vector&lt; double &gt; &amp;lf1CorrInt, std::vector&lt; double &gt; &amp;lf2CorrInt, std::vector&lt; double &gt; &amp;lf3CorrInt)</arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const char *</type>
+      <name>s_ResultsFolderSuffix</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>a71c3c2e8cc5660bf24b6ba4df4d823b0</anchor>
+      <arglist></arglist>
+    </member>
   </compound>
   <compound kind="class">
     <name>mbapi::PropertyManager</name>
@@ -898,10 +1038,10 @@
       <arglist>()</arglist>
     </member>
     <member kind="function" virtualness="pure">
-      <type>virtual int</type>
+      <type>virtual size_t</type>
       <name>snapshotsNumber</name>
       <anchorfile>classmbapi_1_1SnapshotManager.html</anchorfile>
-      <anchor>ac2f337e30dda92a9cea2e2d8222d40a5</anchor>
+      <anchor>add307746bee662165d13769ff2af24ac</anchor>
       <arglist>()=0</arglist>
     </member>
     <member kind="function" virtualness="pure">
@@ -1090,6 +1230,13 @@
       <arglist>() const =0</arglist>
     </member>
     <member kind="function" virtualness="pure">
+      <type>virtual std::string</type>
+      <name>referenceID</name>
+      <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
+      <anchor>af4d7b1b8e269caeb43cc628283d79cde</anchor>
+      <arglist>() const =0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
       <type>virtual LayerID</type>
       <name>createNewLayer</name>
       <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
@@ -1135,8 +1282,8 @@
       <type>virtual ErrorHandler::ReturnCode</type>
       <name>layerLithologiesList</name>
       <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
-      <anchor>a1b19b2f0373285b8dfd7c909dc9944f0</anchor>
-      <arglist>(LayerID id, std::vector&lt; std::string &gt; &amp;lithoList, std::vector&lt; double &gt; &amp;lithoPercent)=0</arglist>
+      <anchor>a3a718349249b3ec178d86db00267ab87</anchor>
+      <arglist>(LayerID id, std::vector&lt; std::string &gt; &amp;lithoList, std::vector&lt; double &gt; &amp;lithoPercent, std::vector&lt; std::string &gt; &amp;lithoPercMap)=0</arglist>
     </member>
     <member kind="function" virtualness="pure">
       <type>virtual ErrorHandler::ReturnCode</type>
@@ -1151,6 +1298,13 @@
       <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
       <anchor>ab5b7608a217dea56fc9c8946dcd44d36</anchor>
       <arglist>(const std::string &amp;lithoName)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ErrorHandler::ReturnCode</type>
+      <name>setLayerLithologiesPercentageMaps</name>
+      <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
+      <anchor>a7dcc03aff9dd2bc319765ca3d1773e0d</anchor>
+      <arglist>(LayerID id, const std::string &amp;mapNameFirstLithoPercentage, const std::string mapNameSecondLithoPercentage)=0</arglist>
     </member>
     <member kind="function" virtualness="pure">
       <type>virtual ReturnCode</type>
@@ -1171,6 +1325,20 @@
       <name>isSourceRockMixingEnabled</name>
       <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
       <anchor>a382d21709da3ef5ca8ad746e69d5aa37</anchor>
+      <arglist>(LayerID id)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ErrorHandler::ReturnCode</type>
+      <name>setSourceRockMixingEnabled</name>
+      <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
+      <anchor>aafac5a59f704a014c2068882da77d4d2</anchor>
+      <arglist>(LayerID id, bool val)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual bool</type>
+      <name>isAllochtonLithology</name>
+      <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
+      <anchor>ad891736b306e9cd447d0e8b2c9fd7d83</anchor>
       <arglist>(LayerID id)=0</arglist>
     </member>
     <member kind="function" virtualness="pure">
@@ -1210,10 +1378,59 @@
     </member>
     <member kind="function" virtualness="pure">
       <type>virtual ReturnCode</type>
+      <name>setSourceRockMixHIMapName</name>
+      <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
+      <anchor>a90cb0593f275218592ffa34c666ca4fd</anchor>
+      <arglist>(LayerID lid, const std::string &amp;srmHImap)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ReturnCode</type>
       <name>setSourceRockMixHC</name>
       <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
       <anchor>a1badb903d7c1b6a218a5a3f28ccc8ca1</anchor>
       <arglist>(LayerID lid, double srmHC)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual std::vector&lt; PrFaultCutID &gt;</type>
+      <name>faultCutsIDs</name>
+      <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
+      <anchor>acd9200a0ca9165487f48a2156df9d8d2</anchor>
+      <arglist>()=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual PrFaultCutID</type>
+      <name>findFaultCut</name>
+      <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
+      <anchor>aeb3b17c26466ebdc8d7890056e944b49</anchor>
+      <arglist>(const std::string &amp;mapName, const std::string &amp;fltName)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual std::string</type>
+      <name>faultCutLithology</name>
+      <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
+      <anchor>abbe4a2e58d1750f5aa24e5e4dda7c98e</anchor>
+      <arglist>(PrFaultCutID flID)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual std::string</type>
+      <name>faultCutName</name>
+      <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
+      <anchor>aabfaa86e38c45340ed42b6b1079d990d</anchor>
+      <arglist>(PrFaultCutID flID)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual std::string</type>
+      <name>faultCutMapName</name>
+      <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
+      <anchor>af41c2f32c2f2c52912fc0335704467bf</anchor>
+      <arglist>(PrFaultCutID flID)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ReturnCode</type>
+      <name>setFaultCutLithology</name>
+      <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
+      <anchor>a74cb6cb331f1933ef049d730ac53e770</anchor>
+      <arglist>(PrFaultCutID flID, const std::string &amp;newLithoName)=0</arglist>
     </member>
     <member kind="function" protection="protected">
       <type></type>

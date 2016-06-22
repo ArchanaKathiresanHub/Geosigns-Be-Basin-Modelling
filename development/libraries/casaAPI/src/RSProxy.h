@@ -35,8 +35,8 @@
 /// @f$ x_i @f$ - is the parameter value
 ///
 /// @f$ \beta_i @f$ - is the polynomial coefficient
-////
-/// Response surface proxy could use also \subpage CASA_KrigingPage 
+///
+/// Response surface proxy could use also @ref CASA_KrigingPage 
 
 
 /// @page CASA_KrigingPage Kriging interpolation

@@ -75,6 +75,7 @@
 ///     -# casa::PrmCrustThinning - @link CASA_CrustThinningPage Crust thinning parameter based on a sequence of arbitrary number of thinning events @endlink
 ///     -# casa::PrmPorosityModel - @link CASA_PorosityModelPage lithology porosity model parameters @endlink
 ///     -# casa::PrmSurfacePorosity - @link CASA_SurfacePorosityPage surface porosity of the lithology porosity model parameter @endlink
+///     -# casa::PrmCompactionCoefficient - @link CASA_CompactionCoefficientPage Lithology porosity model @endlink
 ///     -# casa::PrmLithoSTPThermalCond - @link CASA_LithoSTPThermalCondPage lithology STP (Standart Pressure Temperature) thermal conductivity coefficient parameter @endlink
 ///   - casa::Observable - base class which keeps a describtion of target value from simulation results. It also could include reference 
 ///                        value from measurements. casa::ScenarioAnalysis keeps one set of Observables in casa::ObsSpace container.
@@ -337,7 +338,7 @@ namespace casa
          , double                                                   maxCompCoef    ///< [in] max range value for the compaction coefficient
          , VarPrmContinuous::PDF pdfType           /**< [in] probability function type for the variable parameter. If PDF needs
                                                    some middle parameter value it will be taken from the base case model */
-          );
+         );
 
       /// @brief Add variation of one or two lithofractions
       /// @return ErrorHandler::NoError on success or error code otherwise

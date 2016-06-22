@@ -74,7 +74,11 @@ namespace casa
       return prm;
    }
    
-   SharedParameterPtr VarPrmLithoFraction::makeThreeDFromOneD( mbapi::Model & mdl, const std::vector<double>& xin, const std::vector<double>& yin, const std::vector<SharedParameterPtr>& prmVec ) const
+   SharedParameterPtr VarPrmLithoFraction::makeThreeDFromOneD( mbapi::Model                          & mdl
+                                                             , const std::vector<double>             & xin
+                                                             , const std::vector<double>             & yin
+                                                             , const std::vector<SharedParameterPtr> & prmVec
+                                                             ) const
    {
       // get the lithofractions calculate the lithopercentages
       std::vector<double> lf1;
@@ -112,43 +116,45 @@ namespace casa
 
       if ( ErrorHandler::NoError != mdl.backTransformLithoFractions( rpInt, r13Int, lf1CorrInt, lf2CorrInt, lf3CorrInt ) )
       {
-         throw ErrorHandler::Exception( ErrorHandler::UnknownError ) << "The back transformation of the lithopercentages failed for the layer : " << m_layerName;
+         throw ErrorHandler::Exception( ErrorHandler::UnknownError ) << "The back transformation of the lithopercentages failed for the layer : "
+                                                                     << m_layerName;
       }
 
       // get the maps manager
-      mbapi::MapsManager & mapsMgr = mdl.mapsManager( );
+      mbapi::MapsManager & mapsMgr = mdl.mapsManager();
 
       // get the stratigraphy manager
-      mbapi::StratigraphyManager & strMgr = mdl.stratigraphyManager( );
+      mbapi::StratigraphyManager & strMgr = mdl.stratigraphyManager();
 
       // get the layer ID
       mbapi::StratigraphyManager::LayerID lid = strMgr.layerID( m_layerName );
-      if ( strMgr.errorCode( ) != ErrorHandler::NoError )
+      if ( strMgr.errorCode() != ErrorHandler::NoError )
       {
-         throw ErrorHandler::Exception( strMgr.errorCode( ) ) << strMgr.errorMessage( );
+         throw ErrorHandler::Exception( strMgr.errorCode() ) << strMgr.errorMessage();
       }
 
       // generate the maps
-      std::string  mapNameFirstLithoPercentage = std::to_string(lid) + "_percent_1";
-      std::string  mapNameSecondLithoPercentage = std::to_string(lid) + "_percent_2";
+      std::string  mapNameFirstLithoPercentage  = std::to_string( lid ) + "_percent_1";
+      std::string  mapNameSecondLithoPercentage = std::to_string( lid ) + "_percent_2";
 
       mbapi::MapsManager::MapID id = mapsMgr.generateMap( strMgr.referenceID(), mapNameFirstLithoPercentage, lf1CorrInt );
       if ( UndefinedIDValue == id )
       {
-         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Generation of the " << mapNameFirstLithoPercentage << " lithofraction map failed";
+         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Generation of the " << mapNameFirstLithoPercentage 
+                                                                        << " lithofraction map failed";
       }
       id = mapsMgr.generateMap( strMgr.referenceID(), mapNameSecondLithoPercentage, lf2CorrInt );
       if ( UndefinedIDValue == id )
       {
-         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Generation of the " << mapNameSecondLithoPercentage << " lithofraction map failed";
+         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Generation of the " << mapNameSecondLithoPercentage 
+                                                                        << " lithofraction map failed";
       }
 
       strMgr.setLayerLithologiesPercentageMaps( lid, mapNameFirstLithoPercentage, mapNameSecondLithoPercentage );
 
       // both maps are provided, no scalar values is needed
-      SharedParameterPtr prm( new PrmLithoFraction( this, m_name, m_layerName, m_lithoFractionsInds, std::vector<double>(), mapNameFirstLithoPercentage, mapNameSecondLithoPercentage ) );
-
-      return prm;
+      return SharedParameterPtr( new PrmLithoFraction( this, m_name, m_layerName, m_lithoFractionsInds, std::vector<double>(), 
+                                                       mapNameFirstLithoPercentage, mapNameSecondLithoPercentage ) );
    }
 
    std::vector<std::string> VarPrmLithoFraction::name() const

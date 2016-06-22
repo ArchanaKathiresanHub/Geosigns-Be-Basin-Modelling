@@ -131,7 +131,7 @@ ErrorHandler::ReturnCode PrmTopCrustHeatProduction::setInModel( mbapi::Model & c
             mbapi::MapsManager::MapID cmID = mpMgr.copyMap( mID, newMapName );
             if ( UndefinedIDValue == cmID )
             {
-               ErrorHandler::Exception( ErrorHandler::IoError ) << "Copy radiogenic heat production rate map " << mapName << " failed";
+               throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Copy radiogenic heat production rate map " << mapName << " failed";
             }
 
             // extract min/max values from the map
@@ -199,7 +199,7 @@ ErrorHandler::ReturnCode PrmTopCrustHeatProduction::setInModel( mbapi::Model & c
 
             if ( UndefinedIDValue == cmID )
             {
-               ErrorHandler::Exception( ErrorHandler::IoError ) << "Copy radiogenic heat production rate map " << m_mapName << " failed";
+               throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Copy radiogenic heat production rate map " << m_mapName << " failed";
             }
 
             // value interval for maps range case is [-1:0:1] but min/max maps are set for [-1:0] or [0:1] interval

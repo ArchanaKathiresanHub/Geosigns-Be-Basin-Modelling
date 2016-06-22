@@ -143,7 +143,7 @@ ErrorHandler::ReturnCode PrmSourceRockTOC::setInModel( mbapi::Model & caldModel,
          mbapi::MapsManager::MapID cmID = mpMgr.copyMap( mID, mapName + "_Case_" + ibs::to_string( caseID ) + "_VarTOC" );
          if ( UndefinedIDValue == cmID )
          {
-            ErrorHandler::Exception( ErrorHandler::IoError ) << "Copy TOC map " << mapName << " failed";
+            throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Copy TOC map " << mapName << " failed";
          }
 
          double minVal, maxVal;

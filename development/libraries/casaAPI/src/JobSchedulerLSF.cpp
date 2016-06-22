@@ -583,6 +583,8 @@ JobSchedulerLSF::JobSchedulerLSF( CasaDeserializer & dz, unsigned int objVer )
 
 void JobSchedulerLSF::Job::printJobInfo()
 {
+
+   // Some fields of job info structure are not printed now but may be it will be useful to print them in future
 #ifdef WITH_LSF_SCHEDULER
    LogHandler( LogHandler::DEBUG_SEVERITY ) << "LSF job status: " 
    << m_jobInfo.jobId      << " - The job ID that the LSF system assigned to the job.\n"
