@@ -8,7 +8,7 @@
 // Do not distribute without written permission from Shell.
 // 
 
-/// @file ObsValuTransformable.h
+/// @file ObsValueTransformable.h
 /// @brief This file keeps definition of the interface class for handling array of float point observable values which 
 ///        calculated from another array of float point observable values using transformation algorithm from parent Observable object
 
@@ -47,7 +47,7 @@ namespace casa
       virtual ~ObsValueTransformable() {;}
 
       /// @brief Copy operator
-      /// @param otherObs another observable value to be copying
+      /// @param ov another observable value to be copying
       /// @return reference to the object itself
       ObsValueTransformable & operator = ( const ObsValueTransformable & ov )
       {

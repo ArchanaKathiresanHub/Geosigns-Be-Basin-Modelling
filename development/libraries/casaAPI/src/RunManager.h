@@ -133,17 +133,15 @@ namespace casa
       /// @brief Add a new Case to the set
       /// @param newRun new Case to be scheduled for run
       /// @param scenarioID some unique name of the scenario to have reference in GUI
-      /// @param commandString string of commands to write a new casa command file (for multi 1D)
       /// @return ErrorHandler::NoError on success or error code otherwise
       virtual ErrorHandler::ReturnCode scheduleCase( RunCase & newRun, const std::string & scenarioID ) = 0;
 
       /// @brief Execute all scheduled cases
-      /// @param asyncRun
       /// @param updateStateTimeInterval how much to sleep before ask for the jobs states
       /// @return ErrorHandler::NoError on success or error code otherwise
       virtual ErrorHandler::ReturnCode runScheduledCases( int updateStateTimeInterval = -1 ) = 0;
 
-      ///< In case of scenario execution aborted (any exceptions for example) - it kills all submitted but not finished jobs
+      /// @brief In case of scenario execution aborted (any exceptions for example) - it kills all submitted but not finished jobs
       /// @return ErrorHandler::NoError on success or error code otherwise
       virtual ErrorHandler::ReturnCode stopAllSubmittedJobs() = 0;
 

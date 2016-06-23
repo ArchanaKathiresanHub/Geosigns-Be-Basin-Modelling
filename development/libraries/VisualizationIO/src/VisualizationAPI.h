@@ -60,6 +60,8 @@ namespace CauldronIO
         /// \param [in] team Team working on the project
         /// \param [in] version Cauldron simulator version
         /// \param [in] mode Modeling mode
+        /// \param [in] xmlVersionMajor 
+        /// \param [in] xmlVersionMinor
         Project(const std::string& name, const std::string& description, const std::string& team, const std::string& version,
             ModellingMode mode, int xmlVersionMajor, int xmlVersionMinor);
 
@@ -327,7 +329,6 @@ namespace CauldronIO
         /// \brief Construct a new surface
         /// \param [in] name Name of the surface
         /// \param [in] kind kind of surface
-        /// \param [in] geometry the geometry to associate with this surface
         Surface(const std::string& name, SubsurfaceKind kind);
         /// \brief Destructor
         ~Surface();
@@ -354,6 +355,7 @@ namespace CauldronIO
         SubsurfaceKind getSubSurfaceKind() const;
         /// \brief Associate a formation with this map
         /// \param [in] formation the formation to be associated with this map. Optional.
+        /// \param [in] isTop
         void setFormation(std::shared_ptr<const Formation>& formation, bool isTop);
         /// \returns the associated top formation for this map. Can be null
         const std::shared_ptr<const Formation>& getTopFormation() const;
@@ -440,7 +442,7 @@ namespace CauldronIO
         /// \returns true if two geometries are equal
         bool operator==(const Geometry3D& other) const;
         /// \brief updates the k-range [use with care!!!]
-        /// \param [in] first K index in k-dimension
+        /// \param [in] firstK index in k-dimension
         /// \param [in] numK number of elements in k-dimension
         void updateK_range(size_t firstK, size_t numK);
 

@@ -42,8 +42,7 @@ namespace casa
       /// @brief Constructor. Create parameter from variation of variable parameter
       /// @param parent pointer to a variable parameter which created this one
       /// @param val value of top crust heat production rate @f$ [ \mu W/m^3] @f$
-      /// @param minMapName minimal map name if top crust heat production rate is defined as a map
-      /// @param minMapName maximal map name if top crust heat production rate is defined as a map
+      /// @param mapName map name if top crust heat production rate is defined as a map
       PrmTopCrustHeatProduction( const VarPrmTopCrustHeatProduction * parent, double val, std::string mapName = "" );
 
       /// @brief Destructor

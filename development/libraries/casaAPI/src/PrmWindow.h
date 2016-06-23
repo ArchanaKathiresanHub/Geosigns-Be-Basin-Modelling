@@ -42,7 +42,6 @@ namespace casa
       PrmWindow( mbapi::Model & mdl );
 
       /// @brief Constructor. Create parameter from min/max window values
-      /// @param prmValues array of values: 
       /// @param xMin minimum node in x direction
       /// @param xMax maximum node in x direction
       /// @param yMin minimum node in y direction

@@ -235,7 +235,6 @@ namespace mbapi {
 
       /// @brief Get lithology STP (Standart Temperature Pressure) thermal conductivity [W/m/K]
       /// @param[in] id lithology ID
-      /// @param[out] stpThermCond 
       /// @return the STP thermal conductivity value on success or UndefinedDoubleValue on error
       virtual double stpThermalConductivityCoeff( LithologyID id ) = 0;
 

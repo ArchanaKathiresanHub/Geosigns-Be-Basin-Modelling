@@ -57,23 +57,19 @@ namespace casa
 
       /// @brief Constructor. Create parameter by reading parameter value from the given model
       /// @param mdl Cauldron model interface object to get the percentages of each lithology
-      /// @param the layer name
-      /// @param the lithofractions indexes to calculate
+      /// @param layerName the layer name
+      /// @param lithoFractionsInds the lithofractions indexes to calculate
       PrmLithoFraction( mbapi::Model & mdl, const std::string & layerName, const std::vector<int> & lithoFractionsInds );
 
       /// @brief Constructor. Create parameter object from the given parameter value
-      /// @param parent pointer to a variable parameter which created this one
-      /// @param the layer name
-      /// @param the indexes of the lithofractions
-      /// @param the lithofractions
-      /// @param the name of the lithofraction maps
-      PrmLithoFraction( const VarPrmLithoFraction * parent,
-         const std::string         & name, 
-         const std::string         & layerName,
-         const std::vector<int>    & lithoFractionsInds,
-         const std::vector<double> & lithoFractions,
-         const std::string         & m_mapNameFirstLithoPercentage = "",
-         const std::string         & m_mapNameSecondLithoPercentage = "" );
+      PrmLithoFraction( const VarPrmLithoFraction * parent,                             ///< parent variable parameter which created this one
+                        const std::string         & name,                               ///< parameter name
+                        const std::string         & layerName,                          ///< the layer name
+                        const std::vector<int>    & lithoFractionsInds,                 ///< the indexes of the lithofractions
+                        const std::vector<double> & lithoFractions,                     ///< the lithofractions
+                        const std::string         & m_mapNameFirstLithoPercentage = "", ///< the name of the first lithofraction map
+                        const std::string         & m_mapNameSecondLithoPercentage = "" ///< the name of the second lithofraction map
+         );
 
       /// @brief Destructor
       virtual ~PrmLithoFraction() { ; }

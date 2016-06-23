@@ -98,14 +98,14 @@ namespace mbapi {
                                                               ) = 0;
 
       /// @brief Collect layers where the given lithology is referenced
-      /// @param lithName name of lithology type
+      /// @param lithoName name of lithology type
       /// @return list of layers ID
       virtual std::vector<LayerID> findLayersForLithology( const std::string & lithoName ) = 0;
 
       /// @brief For a given layer set the new lithofraction map names in the StratIoTbl
-      /// @param[in] lid layer ID
-      /// @param[in] the name of the first lithology percentage map
-      /// @param[in] the name of the second lithology percentage map
+      /// @param[in] id layer ID
+      /// @param[in] mapNameFirstLithoPercentage the name of the first lithology percentage map
+      /// @param[in] mapNameSecondLithoPercentage the name of the second lithology percentage map
       /// @return NoError on success or NonexistingID on error
       virtual ErrorHandler::ReturnCode setLayerLithologiesPercentageMaps( LayerID id, const std::string & mapNameFirstLithoPercentage, const std::string mapNameSecondLithoPercentage ) = 0;
       
@@ -179,7 +179,7 @@ namespace mbapi {
 
       /// @brief Set H/C value for source rock mix for the given layer
       /// @param lid layer ID
-      /// @param srmHI H/C value for source rock mix
+      /// @param srmHC H/C value for source rock mix
       /// @return ErrorHandler::NoError on success or error code if mixing is not turned off or other error happened
       virtual ReturnCode setSourceRockMixHC( LayerID lid, double srmHC ) = 0;
 

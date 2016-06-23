@@ -30,7 +30,6 @@ namespace CauldronIO
     public:
         /// \brief Exports the current Project to XML and saves all 2D and 3D data in the supplied path
         /// Returns true on success, throws a CauldronIOException on failure
-        /// if \param[in] release is true, data will be unloaded after storing
         /// \param[in] project the project to export to XML
         /// \param[in] absPath the path with the xml file name 
         /// \param[in] numThreads number of threads (optional) used for compression

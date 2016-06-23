@@ -64,7 +64,7 @@ namespace casa
       virtual SharedParameterPtr newParameterFromDoubles( std::vector<double>::const_iterator & vals ) const;
 
       /// @brief Create parameter by reading the values stored in the project file
-      /// @param[in] the model where the parameters values should be read
+      /// @param[in] mdl the model where the parameters values should be read
       /// @return the new parameter read from the model
       virtual SharedParameterPtr newParameterFromModel( mbapi::Model & mdl ) const;
 

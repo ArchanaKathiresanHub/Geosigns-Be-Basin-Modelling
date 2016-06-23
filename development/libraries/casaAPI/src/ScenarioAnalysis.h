@@ -209,7 +209,7 @@ namespace casa
       /// @param cbProjectName name of the project file to save calibrated project
       /// @param optimAlg name of the optimization algorith.
       /// @param keepHistory do not delete all optimization steps projects (could take quite a lot space)
-      /// @param the paramter transformation
+      /// @param transformation the paramter transformation
       /// @return ErrorHandler::NoError on success, error code otherwise
       ReturnCode calibrateProjectUsingOptimizationAlgorithm( const std::string & cbProjectName, const std::string & optimAlg, const std::string & transformation, bool keepHistory = false );
 
@@ -246,7 +246,7 @@ namespace casa
       static ScenarioAnalysis * loadScenario( const char * fileName, const char * fileType );
 
       /// @brief  Create new ScenarioAnaylysis object and read all data from the given memory stream
-      /// @param  buf memory where the state file was loaded
+      /// @param  stateFileBuf memory where the state file was loaded
       /// @param  bufSize size of the buffer
       /// @param  fileType "bin"/"txt" file type
       /// @return null if it fails, else the new casa::ScenarioAnalysis object.

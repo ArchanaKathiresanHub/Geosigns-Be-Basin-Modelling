@@ -38,7 +38,7 @@ namespace mbapi
       virtual std::vector<MapID> mapsIDs() const = 0; 
 
       /// @brief Search for map record which has given name 
-      /// @param name map name
+      /// @param mName map name
       /// @return ID of found input map on success or UndefinedIDValue otherwise
       virtual MapID findID( const std::string & mName ) = 0;
 
@@ -63,7 +63,7 @@ namespace mbapi
 
       /// @brief Scale input map to the new value range: [min,max] -> [min*coeff, newMaxV*coeff]
       /// @param[in] id map ID
-      /// @param[out] maxV new maximal value in the map
+      /// @param[in] coeff map scaler
       /// @return ErrorHandler::NoError on success, or error code otherwise
       virtual ErrorHandler::ReturnCode scaleMap( MapID id, double coeff ) = 0;
 
@@ -110,7 +110,9 @@ namespace mbapi
          std::vector<double>& vout ) = 0;
 
       /// @brief Generate a new map in the GridMapIoTbl
-      /// @param[in] the name of the map
+      /// @param[in] refferedTable the name of the table refferenced this map
+      /// @param[in] mapName the name of the map
+      /// @param[in] values new map values
       /// @return ErrorHandler::NoError on succes, or error code otherwise
       virtual MapID generateMap( const std::string & refferedTable, const std::string mapName, const std::vector<double>& values ) = 0;
 

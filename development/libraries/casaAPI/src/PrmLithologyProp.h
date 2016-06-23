@@ -90,6 +90,7 @@ namespace casa
       PrmLithologyProp();
 
       /// @brief Constructor
+      /// @param parent variable parameter which created this one
       /// @param lithoName lithology name
       /// @param val lithology property value
       PrmLithologyProp( const VarParameter * parent, const std::vector<std::string> & lithoName, double val );

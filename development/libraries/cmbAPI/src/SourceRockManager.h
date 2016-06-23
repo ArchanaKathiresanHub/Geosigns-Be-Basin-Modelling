@@ -82,7 +82,7 @@ namespace mbapi {
 
       /// @brief Set TOC map name for the given source rock lithology
       /// @param id source rock ID
-      /// @param newTOC new TOC map name
+      /// @param mapName new TOC map name
       /// @return ErrorHandler::NoError on success, error code otherwise
       virtual ReturnCode setTOCInitMapName( SourceRockID id, const std::string & mapName ) = 0;
 

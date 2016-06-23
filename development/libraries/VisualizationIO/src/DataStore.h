@@ -117,7 +117,6 @@ namespace CauldronIO
     public:
         /// \brief Creates a new instance, to store binary data to the given filename
         /// \param [in] append If true, appends to existing data structure, otherwise, write from scratch. This is only supported with native data
-        /// \param [in] release If true, data will be release upon saving
         /// \param [in] filename filename where to save to
         DataStoreSave(const std::string& filename, bool append);
         ~DataStoreSave();

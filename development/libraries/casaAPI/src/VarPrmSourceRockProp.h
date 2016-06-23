@@ -37,7 +37,7 @@ namespace casa
       virtual SharedParameterPtr newParameterFromDoubles( std::vector<double>::const_iterator & vals ) const;
 
       /// @brief Create parameter by reading the values stored in the project file
-      /// @param[in] the model where the parameters values should be read
+      /// @param[in] mdl the model where the parameters values should be read
       /// @return the new parameter read from the model
       virtual SharedParameterPtr newParameterFromModel( mbapi::Model & mdl ) const;
 
@@ -68,6 +68,7 @@ namespace casa
       /// @param baseVal base range value
       /// @param minVal minmal range value
       /// @param maxVal maximal range value
+      /// @param pdfType type of probability density function
       void addSourceRockTypeRange( const char * srTypeName, double baseVal, double minVal, double maxVal, PDF pdfType );
       /// @}
 

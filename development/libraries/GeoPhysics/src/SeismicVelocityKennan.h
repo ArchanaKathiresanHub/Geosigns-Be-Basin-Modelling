@@ -21,7 +21,7 @@ namespace GeoPhysics
 	* \details
 	*
    *  If \f[ \phi_{surface} = 0 \f]
-   *  \f[ Vp = \sqrt{\frac{{M_{solid}}{\rho_{solid}}} \f]
+   *  \f[ Vp = \sqrt{\frac{M_{solid}}{\rho_{solid}}} \f]
    *
    *  Esle if \f[ \phi < \phi_{surface} \f]
    *  \f[ Vp = Vp_{fluid} \f]
