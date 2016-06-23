@@ -34,6 +34,7 @@
 %shared_ptr(casa::PrmSourceRockProp)
 %shared_ptr(casa::PrmTopCrustHeatProduction)
 %shared_ptr(casa::RunCase)
+%shared_ptr(casa::RunCaseImpl)
 
 // CASA API enums constants
 %csconstvalue("Cauldron.PermeabilityModel.SANDSTONE_PERMEABILITY")   PermSandstone;
