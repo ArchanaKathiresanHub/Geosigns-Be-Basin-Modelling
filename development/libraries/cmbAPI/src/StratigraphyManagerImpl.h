@@ -216,10 +216,21 @@ namespace mbapi {
       // return ErrorHandler::NoError on success, error code otherwise
       virtual ReturnCode setFaultCutLithology( PrFaultCutID flID, const std::string & newLithoName );
 
+      /// Get the map name of the measured twt at the top surface
+      /// id layer id
+      /// return the twt map name for the layer on success, empty string otherwise
+      virtual std::string twtGridName( LayerID id );
+
+      /// Get the value of the measured twt at the top surface
+      /// id layer id
+      /// the measured twt value on success, UndefinedDoubleValue otherwise
+      virtual double twtValue( LayerID id );
+  
    private:
       static const char * s_stratigraphyTableName;
       static const char * s_layerNameFieldName;
       static const char * s_depoAgeFieldName;
+      static const char * s_depoSequence;
       static const char * s_lithoType1FiledName;
       static const char * s_lithoType2FiledName;
       static const char * s_lithoType3FiledName;
@@ -240,6 +251,12 @@ namespace mbapi {
       static const char * s_FaultcutsMapFieldName;
       static const char * s_FaultNameFieldName;
       static const char * s_FaultLithologyFieldName;
+      static const char * s_twoWayTimeTableName;
+      static const char * s_twoWayTimeGridFiledName;
+
+      static const char * s_twoWayTimeFiledName;
+      static const char * s_surfaceNameFieldName;
+      static const char * s_depthGridFiledName;
                                 
 
       database::Database * m_db;         // cauldron project database

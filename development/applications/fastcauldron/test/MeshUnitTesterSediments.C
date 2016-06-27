@@ -63,12 +63,8 @@ TEST ( DofCountingUnitTest, SedimentMesh ) {
    // Declaration block required so as to finalise all fastcauldron objects before calling PetscFinalise.
    {
       bool canRunSaltModelling = false;
-      std::string errorMessage;
-      FastcauldronFactory* factory = new FastcauldronFactory;
-      AppCtx *appctx = new AppCtx (argc, argv);
-      HydraulicFracturingManager::getInstance ().setAppCtx ( appctx );
-
-      int returnStatus = FastcauldronStartup::startup ( argc, argv, appctx, factory, canRunSaltModelling, errorMessage );
+      int returnStatus = FastcauldronStartup::prepare( canRunSaltModelling );
+      if ( returnStatus == 0 ) returnStatus = FastcauldronStartup::startup( argc, argv, canRunSaltModelling );
 
       EXPECT_EQ ( returnStatus, 0 );
 
@@ -104,9 +100,7 @@ TEST ( DofCountingUnitTest, SedimentMesh ) {
          ASSERT_TRUE ( mut.compareFiles ( validFileName, testFileName ));
       }
 
-      FastcauldronSimulator::finalise ( false );
-      delete factory;
-      delete appctx;
+      FastcauldronStartup::finalise( false );
    }
 
    PetscFinalize ();

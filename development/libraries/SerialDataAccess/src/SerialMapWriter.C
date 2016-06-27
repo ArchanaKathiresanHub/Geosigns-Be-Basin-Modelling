@@ -55,8 +55,11 @@ bool SerialMapWriter::open (const string & fileName, bool append)
 
    if (m_fileHandle < 0)
       return false;
-   
-   size_t slashPos = fileName.rfind ('/');
+#ifdef _WIN32
+   size_t slashPos = fileName.rfind ('\\');
+#else
+   size_t slashPos = fileName.rfind( '/' );
+#endif
    if (slashPos != string::npos)
    {
       m_fileName = fileName.substr (slashPos + 1, string::npos);

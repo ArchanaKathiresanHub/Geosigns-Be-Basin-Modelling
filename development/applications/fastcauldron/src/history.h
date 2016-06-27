@@ -65,7 +65,7 @@ public:
 
    void Locate_Point ( const double X_Coord, const double Y_Coord, Node_Info * &node );
    void Save_Property ( const string&      property_name,
-                        const PropertyList propertyId,
+                        const enum::PropertyList propertyId,
                         LayerProps*        layer,
                         const int          K,
                         Node_Container&    nodes );
@@ -78,7 +78,7 @@ public:
                                         PETSC_3D_Array& property );
 
    void Save_Depositional_Property ( const string&      property_name,
-                                     const PropertyList propertyId,
+                                     const enum::PropertyList propertyId,
                                      LayerProps*        layer,
                                      Node_Container&    nodes );
 

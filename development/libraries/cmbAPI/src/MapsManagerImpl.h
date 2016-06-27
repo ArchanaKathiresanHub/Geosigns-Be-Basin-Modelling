@@ -16,10 +16,12 @@
 
 #include "ErrorHandler.h"
 #include "MapsManager.h"
+#include "Interface/Interface.h"
 
 // STL
 #include <set>
 #include <memory>
+#include <map>
 
 namespace database
 {
@@ -57,7 +59,7 @@ namespace mbapi
       virtual MapID copyMap( MapID id, const std::string & newMapName );
 
       // Save input map to the new HDF file. File with the given name should not exist before.
-      virtual ErrorHandler::ReturnCode saveMapToHDF( MapID id, const std::string & fileName );
+      virtual ErrorHandler::ReturnCode saveMapToHDF( MapID id, const std::string& filePathName );
 
       // Get min/max map values range
       virtual ErrorHandler::ReturnCode mapValuesRange( MapID id, double & minV, double & maxV );
@@ -67,6 +69,9 @@ namespace mbapi
 
       // Set values in the map
       virtual ErrorHandler::ReturnCode mapSetValues( MapID id, const std::vector<double>& vin );
+
+      // Get the values from the map
+      virtual ErrorHandler::ReturnCode mapGetValues( MapID id, std::vector<double>& vout );
 
       // Interpolate between 2 maps, coefficient in range [0:1]
       virtual ErrorHandler::ReturnCode interpolateMap( MapID id, MapID minId, MapID maxId, double coeff );
@@ -87,7 +92,13 @@ namespace mbapi
          std::vector<double>& vout );
 
       // Generate a new map in the GridMapIoTbl
-      virtual MapID generateMap( const std::string & refferedTable, const std::string mapName, const std::vector<double>& values );
+      virtual MapID generateMap( const std::string & refferedTable, const std::string mapName, const std::vector<double>& values, const std::string & filePathName );
+
+      // Inizialize the map writer
+      virtual ErrorHandler::ReturnCode inizializeMapWriter( const std::string & filePathName, const bool append );
+
+      // Finalize the map writer
+      virtual ErrorHandler::ReturnCode finalizeMapWriter();
       
       // Set of interfaces for interacting with a Cauldron model
       // Set project database. Reset all
@@ -104,6 +115,7 @@ namespace mbapi
       static const char * s_MapFileNameColName; // Filename of the grid map (with extension)
       static const char * s_MapSeqNbrColName;   // Sequence number of the grid map, within the grid loader (Starting with 0). This attribute
       static const char * s_StratIoTbl;         // Table name reffered in the GridMapIoTbl for the lithofractions
+      static const char * s_mapResultFile;      // The name of the HDF file containing the maps 
 
       // Copy constructor and operator are disabled
       MapsManagerImpl( const MapsManagerImpl & otherMapsManagerImpl );
@@ -112,13 +124,15 @@ namespace mbapi
       database::Database                                  * m_db;              // cauldron project database
       DataAccess::Interface::ProjectHandle                * m_proj;            // project handle, to load/save maps
       std::string                                           m_projectFileName; // project file name
+      DataAccess::Interface::MapWriter                    * m_mapPropertyValuesWriter; // MapsManager should have its own map writer to write/append maps to HDF file
 
       std::vector<std::string>                              m_mapName;
       std::vector<std::string>                              m_mapRefTable;
 
-      std::vector<DataAccess::Interface::GridMap *>   m_mapObj;
+      std::vector<DataAccess::Interface::GridMap *>         m_mapObj;
+      std::map<std::string, std::vector<std::string>>       m_fileMaps;     // for each HDF file, the vector of maps names
    
-      std::set<std::string>    m_mapsFileList; // unique list of files with project maps
+      std::set<std::string>                                 m_mapsFileList; // unique list of files with project maps
 
       void loadGridMap( MapID id );
    };

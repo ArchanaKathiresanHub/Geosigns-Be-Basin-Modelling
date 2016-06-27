@@ -56,6 +56,12 @@ HydraulicFracturingManager& HydraulicFracturingManager::getInstance () {
   return *s_hydraulicFracturingManagerInstance;
 }
 
+void HydraulicFracturingManager::deleteInstance() 
+{
+   if ( s_hydraulicFracturingManagerInstance ) delete s_hydraulicFracturingManagerInstance;
+   s_hydraulicFracturingManagerInstance = 0;
+}
+
 //------------------------------------------------------------//
 
 const std::string& hydraulicFractureFunctionTypeStr ( const HydraulicFractureFunctionType functionType ) {

@@ -52,7 +52,7 @@ namespace mbapi
       /// @param id map ID
       /// @param fileName unique file name
       /// @return ErrorHandler::NoError on succes, or error code otherwise
-      virtual ErrorHandler::ReturnCode saveMapToHDF( MapID id, const std::string & fileName ) = 0;
+      virtual ErrorHandler::ReturnCode saveMapToHDF( MapID id, const std::string& filePathName ) = 0;
 
       /// @brief Get min/max map values range
       /// @param[in] id map ID
@@ -72,6 +72,12 @@ namespace mbapi
       /// @param[in] vin the values to set
       /// @return ErrorHandler::NoError on success, or error code otherwise
       virtual ErrorHandler::ReturnCode mapSetValues( MapID id, const std::vector<double>& vin ) = 0;
+
+      /// @brief Get the values contained in vin in the map
+      /// @param[in] id map ID
+      /// @param[out] vout the local (partitioned) values of the map
+      /// @return ErrorHandler::NoError on success, or error code otherwise
+      virtual ErrorHandler::ReturnCode mapGetValues( MapID id, std::vector<double>& vout ) = 0;
 
       /// @brief Create map by interpolating between 2 maps 
       /// @param id new map id
@@ -113,8 +119,19 @@ namespace mbapi
       /// @param[in] refferedTable the name of the table refferenced this map
       /// @param[in] mapName the name of the map
       /// @param[in] values new map values
+      /// @param[in] the file name of the  HDF file storing the map
       /// @return ErrorHandler::NoError on succes, or error code otherwise
-      virtual MapID generateMap( const std::string & refferedTable, const std::string mapName, const std::vector<double>& values ) = 0;
+      virtual MapID generateMap( const std::string & refferedTable, const std::string mapName, const std::vector<double>& values, const std::string & filePathName ) = 0;
+
+      /// @brief inizialize the map writer to write 2D HDF maps
+      /// @param[in] filePathName the file name 
+      /// @param[in] append the mode of writing
+      /// @return ErrorHandler::NoError on success, or error code otherwise
+      virtual ErrorHandler::ReturnCode inizializeMapWriter( const std::string & filePathName, const bool append ) = 0;
+
+      /// @brief finalize the map writer to write 2D maps in the HDF file
+      /// @return ErrorHandler::NoError on success, or error code otherwise
+      virtual ErrorHandler::ReturnCode finalizeMapWriter( ) = 0;
 
       /// @}
 

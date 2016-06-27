@@ -200,6 +200,10 @@ namespace mbapi {
       /// @return ErrorHandler::NoError on success, error code otherwise
       ErrorHandler::ReturnCode clearTable( const std::string & tableName );
 
+      /// @brief Copy a record from a reference model and table
+      /// @return ErrorHandler::NoError on success, error code otherwise
+      ErrorHandler::ReturnCode copyRecordFromModel( const std::string & tableName, const Model & refMdl, int recInd );
+
       /// @brief Add a new row
       /// @param tableName name of the table in project file
       /// @return ErrorHandler::NoError on success, error code otherwise

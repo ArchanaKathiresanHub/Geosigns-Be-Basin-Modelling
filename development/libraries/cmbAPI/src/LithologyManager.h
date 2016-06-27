@@ -230,6 +230,16 @@ namespace mbapi {
                                              ) = 0;
       /// @}
 
+      // Seismic velocity
+      /// @{
+
+
+      /// @brief For a referenced lithology, get the value of the seismic velocity
+      /// @return the value of the seismic velocity
+      virtual double seisVelocity( LithologyID id ) = 0;
+
+      /// @}
+
       // Thermal conductivity model parameters
       /// @{
 

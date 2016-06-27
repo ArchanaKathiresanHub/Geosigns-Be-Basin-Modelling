@@ -46,6 +46,7 @@ const char * LithologyManagerImpl::s_ccbDblExponentialFieldName = "CompacCoefESB
 const char * LithologyManagerImpl::s_ccSoilMechanicsFieldName   = "Compaction_Coefficient_SM";
 const char * LithologyManagerImpl::s_minPorosityFieldName       = "MinimumPorosity";
 const char * LithologyManagerImpl::s_stpThermalCondFieldName    = "StpThCond";
+const char * LithologyManagerImpl::s_seisVelocityFieldName      = "SeisVelocity";
 
 // Permeability model
 const char * LithologyManagerImpl::s_permeabilityModelFieldName      = "PermMixModel";
@@ -896,6 +897,28 @@ ErrorHandler::ReturnCode LithologyManagerImpl::setPermeabilityModel( LithologyID
    catch ( const Exception & e ) { return reportError( e.errorCode(), e.what() ); }
 
    return NoError;
+}
+
+double LithologyManagerImpl::seisVelocity( LithologyID id )
+{
+   double val = UndefinedDoubleValue;
+
+   if ( errorCode( ) != NoError ) resetError( );
+   try
+   {
+      // if table does not exist - report error
+      if ( !m_lithIoTbl ) { throw Exception( NonexistingID ) << s_lithoTypesTableName << " table could not be found in project"; }
+
+      database::Record * rec = m_lithIoTbl->getRecord( static_cast<int>( id ) );
+      if ( !rec ) { throw Exception( NonexistingID ) << "No lithology type with such ID: " << id; }
+
+      val = rec->getValue<double>( s_seisVelocityFieldName );
+   }
+   catch ( const Exception & e )
+   {
+      reportError( e.errorCode( ), e.what( ) );
+   }
+   return val;
 }
  
 // Set lithology STP thermal conductivity coefficient

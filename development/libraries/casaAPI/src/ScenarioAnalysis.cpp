@@ -465,7 +465,7 @@ ScenarioAnalysis * ScenarioAnalysis::loadScenario( const char * fileName, const 
       
       sc->m_pimpl->deserialize( *(inStream.get()) );
       if ( sc->errorCode() != ErrorHandler::NoError ) { throw ErrorHandler::Exception( sc->errorCode() ) << sc->errorMessage(); }
-   }
+      }
    catch ( const ErrorHandler::Exception & ex ) { sc->reportError( ex.errorCode(), ex.what() ); }
 
    return sc.release();
@@ -484,9 +484,9 @@ ScenarioAnalysis * ScenarioAnalysis::loadScenario( const char * stateFileBuf, si
       if ( !fid.good() ) throw Exception( DeserializationError ) << "Can not read from the given memory buffer";
 
       std::unique_ptr<CasaDeserializer> inStream( CasaDeserializer::createDeserializer( fid
-                                                                                      , fileType == NULL ? "" : std::string( fileType )
-                                                                                      , sc->version() 
-                                                                                      ) );
+                                                                                    , fileType == NULL ? "" : std::string( fileType )
+                                                                                    , sc->version() 
+                                                                                    ) );
       sc->m_pimpl->deserialize( *(inStream.get()) );
       if ( sc->errorCode() != ErrorHandler::NoError )
       {
@@ -865,7 +865,7 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::importOneDResults( const std::strin
                                                                         << oneDCaseSet.size() << " cases were found";
       }
       bestMatchedCases[c] = oneDCaseSet[0];
-      
+
       // get the best base case
       oneDCaseSet.filterByExperimentName( "BaseCase" );
       if ( oneDCaseSet.size() != 1 )
@@ -901,33 +901,33 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::importOneDResults( const std::strin
       const casa::VarParameter * vprm = var.parameter( par );
       switch ( vprm->variationType() )
       {
-         case casa::VarParameter::Continuous:
-         {
-            const casa::VarPrmContinuous * vprmc = dynamic_cast<const casa::VarPrmContinuous*>( vprm );
+      case casa::VarParameter::Continuous:
+      {
+         const casa::VarPrmContinuous * vprmc = dynamic_cast<const casa::VarPrmContinuous*>( vprm );
 
             for ( size_t c = 0; c < bestMatchedCases.size(); ++c )
-            {
-               SharedParameterPtr nprm = bestMatchedCases[c]->parameter( par );
-               prmVec.push_back( nprm );
-            }
+         {
+            SharedParameterPtr nprm = bestMatchedCases[c]->parameter( par );
+            prmVec.push_back( nprm );
+         }
 
-            // make the averages
-            SharedParameterPtr prm;
-            try 
-            { 
+         // make the averages
+         SharedParameterPtr prm;
+         try 
+         { 
                // if the average method is not implemented a makeThreeDFromOneD will throw exception 
-               prm = vprmc->makeThreeDFromOneD( bc, m_xcoordOneD, m_ycoordOneD, prmVec );
-            }
-            catch ( const ErrorHandler::Exception & ex )
-            {
+            prm = vprmc->makeThreeDFromOneD( bc, m_xcoordOneD, m_ycoordOneD, prmVec );
+         }
+         catch ( const ErrorHandler::Exception & ex )
+         {
                throw ErrorHandler::Exception( ex.errorCode() ) << " The generation of the 3D parameter " << vprmc->name() 
                                                                << " from multi 1D results failed. Error message: " << ex.what();
-            }
+         }
             brc->addParameter( prm );
 
-            //clear previous arrays stored for the mean values 
+         //clear previous arrays stored for the mean values 
             prmVec.clear();
-         }
+      }
          break;
 
       case casa::VarParameter::Categorical: brc->addParameter( vprm->baseValue()); break;

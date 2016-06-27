@@ -30,6 +30,7 @@ namespace mbapi
 
 const char * StratigraphyManagerImpl::s_stratigraphyTableName           = "StratIoTbl";
 const char * StratigraphyManagerImpl::s_layerNameFieldName              = "LayerName";
+const char * StratigraphyManagerImpl::s_surfaceNameFieldName            = "SurfaceName";
 const char * StratigraphyManagerImpl::s_depoAgeFieldName                = "DepoAge";
 const char * StratigraphyManagerImpl::s_lithoType1FiledName             = "Lithotype1";
 const char * StratigraphyManagerImpl::s_lithoType2FiledName             = "Lithotype2";
@@ -51,6 +52,11 @@ const char * StratigraphyManagerImpl::s_pressureFaultCutTableName       = "Press
 const char * StratigraphyManagerImpl::s_FaultcutsMapFieldName           = "FaultcutsMap";
 const char * StratigraphyManagerImpl::s_FaultNameFieldName              = "FaultName";
 const char * StratigraphyManagerImpl::s_FaultLithologyFieldName         = "FaultLithology";
+
+const char * StratigraphyManagerImpl::s_twoWayTimeTableName             = "TwoWayTimeIoTbl";
+const char * StratigraphyManagerImpl::s_twoWayTimeGridFiledName         = "TwoWayTimeGrid";
+const char * StratigraphyManagerImpl::s_twoWayTimeFiledName             = "TwoWayTime";
+const char * StratigraphyManagerImpl::s_depthGridFiledName              = "DepthGrid";
  
 // Constructor
 StratigraphyManagerImpl::StratigraphyManagerImpl()
@@ -188,7 +194,7 @@ std::string StratigraphyManagerImpl::surfaceName( StratigraphyManager::LayerID i
       {
          throw Exception( NonexistingID ) << "No layer with ID: " << id << " in stratigraphy table";
       }
-      sfName = rec->getValue<std::string>( s_layerNameFieldName );
+      sfName = rec->getValue<std::string>( s_surfaceNameFieldName );
    }
    catch ( const Exception & e ) { reportError( e.errorCode(), e.what() ); }
 
@@ -849,6 +855,77 @@ ErrorHandler::ReturnCode StratigraphyManagerImpl::setFaultCutLithology( PrFaultC
    catch ( const Exception & e ) { return reportError( e.errorCode(), e.what() ); }
 
    return NoError;
+}
+
+
+std::string StratigraphyManagerImpl::twtGridName( LayerID id )
+{
+   if ( errorCode( ) != NoError ) resetError( );
+
+   try
+   {
+      // get pointer to the table
+      database::Table * table = m_db->getTable( s_twoWayTimeTableName );
+
+      // if table does not exist - report error
+      if ( !table ) { throw Exception( NonexistingID ) << s_twoWayTimeTableName << " table could not be found in project"; }
+
+      // 
+      std::string topSurface = surfaceName( id );
+      std::string twtGrid("");
+
+      for ( int i = 0; i != table->size(); ++i )
+      {
+         database::Record * rec = table->getRecord( i );
+         if ( !rec ) { throw Exception( NonexistingID ) << "No twt record found for id: " << i; }
+         std::string twtSurface = rec->getValue<std::string>( "SurfaceName" );
+         if ( twtSurface == topSurface  )
+         {
+            twtGrid = rec->getValue<std::string>( s_twoWayTimeGridFiledName );
+            break;
+         }
+      }
+      return twtGrid;
+   }
+   catch ( const Exception & e ) { reportError( e.errorCode( ), e.what( ) ); }
+
+   return "";
+}
+
+double StratigraphyManagerImpl::twtValue( LayerID id )
+{
+
+   if ( errorCode() != NoError ) resetError();
+
+   try
+   {
+      // get pointer to the table
+      database::Table * table = m_db->getTable( s_twoWayTimeTableName );
+
+      // if table does not exist - report error
+      if ( !table ) { throw Exception( NonexistingID ) << s_twoWayTimeTableName << " table could not be found in project"; }
+
+      // 
+      std::string topSurface = surfaceName( id );
+      std::string twtSurface( "" );
+      double twtVal = UndefinedDoubleValue;
+
+      for ( int i = 0; i != table->size(); ++i )
+      {
+         database::Record * rec = table->getRecord( i );
+         if ( !rec ) { throw Exception( NonexistingID ) << "No twt record found for id: " << i; }
+         std::string twtSurface = rec->getValue<std::string>( "SurfaceName" );
+         if ( twtSurface.compare( topSurface ) )
+         {
+            twtVal = rec->getValue<double>( s_twoWayTimeFiledName );
+            break;
+         }
+      }
+      return twtVal;
+   }
+   catch ( const Exception & e ) { reportError( e.errorCode(), e.what() ); }
+
+   return UndefinedDoubleValue;
 }
     
 }

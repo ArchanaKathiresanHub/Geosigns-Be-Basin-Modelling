@@ -21,6 +21,7 @@
 #include "Interface/ProjectHandle.h"
 #include "Interface/ProjectData.h"
 #include "Interface/ObjectFactory.h"
+#include "Interface/MapWriter.h"
 
 // FileSystem library
 #include "FilePath.h"
@@ -41,15 +42,15 @@
 namespace mbapi
 {
 
-const char * MapsManagerImpl::s_mapsTableName      = "GridMapIoTbl"; // table name for input maps list in project file
-const char * MapsManagerImpl::s_ReferredByColName  = "ReferredBy";   // Name of the table which refer to this map, e.g. StratIoTbl
-const char * MapsManagerImpl::s_MapNameColName     = "MapName";      // Input map name
-const char * MapsManagerImpl::s_MapTypeColName     = "MapType";      // Type of the grid map, possible values are: 
-                                                                     //            DECASCII, DECBINARY, ZYCOR, CPS3, EPIRUS, XYZ
-const char * MapsManagerImpl::s_MapFileNameColName = "MapFileName";  // Filename of the grid map (with extension)
-const char * MapsManagerImpl::s_MapSeqNbrColName   = "MapSeqNbr";    // Sequence number of the grid map, within the grid loader (Starting with 0).
-                                                                     // This attribute is only relevant for multiple map files.
-const char * MapsManagerImpl::s_StratIoTbl         = "StratIoTbl";   // Table name reffered in the GridMapIoTbl for the lithofractions
+const char * MapsManagerImpl::s_mapsTableName      = "GridMapIoTbl";  // table name for input maps list in project file
+const char * MapsManagerImpl::s_ReferredByColName  = "ReferredBy";    // Name of the table which refer to this map, e.g. StratIoTbl
+const char * MapsManagerImpl::s_MapNameColName     = "MapName";       // Input map name
+const char * MapsManagerImpl::s_MapTypeColName     = "MapType";       // Type of the grid map, possible values are:DECASCII, DECBINARY, ZYCOR, CPS3, EPIRUS, XYZ
+const char * MapsManagerImpl::s_MapFileNameColName = "MapFileName";   // Filename of the grid map (with extension)
+const char * MapsManagerImpl::s_MapSeqNbrColName   = "MapSeqNbr";     // Sequence number of the grid map, within the grid loader (Starting with 0). This attribute
+                                                                             // is only relevant for multiple map files.
+const char * MapsManagerImpl::s_StratIoTbl         = "StratIoTbl";    // Table name reffered in the GridMapIoTbl for the lithofractions
+const char * MapsManagerImpl::s_mapResultFile      = "CasaModel_Results.HDF";
 
 MapsManagerImpl::MapsManagerImpl()
 {
@@ -153,7 +154,7 @@ MapsManager::MapID MapsManagerImpl::copyMap( MapID id, const std::string & newMa
    return ret;
 }
 
-MapsManager::MapID MapsManagerImpl::generateMap( const std::string & refferedTable, const std::string mapName, const std::vector<double>& values )
+MapsManager::MapID MapsManagerImpl::generateMap( const std::string & refferedTable, const std::string mapName, const std::vector<double>& values, const std::string & filePathName )
 {
    if ( errorCode() != NoError ) resetError();
 
@@ -161,12 +162,21 @@ MapsManager::MapID MapsManagerImpl::generateMap( const std::string & refferedTab
 
    try
    {
-      // create a new Map
-      ret = m_mapName.size();
-      DataAccess::Interface::GridMap * gridMap = m_proj->getFactory()->produceGridMap( 0, 0
-                                                                                     , m_proj->getInputGrid()
-                                                                                     , DataAccess::Interface::DefaultUndefinedMapValue
-                                                                                     , 1 );
+      DataAccess::Interface::GridMap * gridMap = m_proj->getFactory( )->produceGridMap( 0, 0, m_proj->getInputGrid( ), DataAccess::Interface::DefaultUndefinedMapValue, 1 );
+      ibs::FilePath mapFullPath(ibs::FilePath( m_projectFileName ).filePath( ));
+
+      // if filename is empty 
+      if ( filePathName.empty( ) ) 
+         mapFullPath << s_mapResultFile;
+      else
+         mapFullPath << filePathName;
+
+      MapID pos = find( m_mapName.begin( ), m_mapName.end( ), mapName ) - m_mapName.begin( );
+
+      if ( pos == m_mapName.size( ) )
+      {
+         // create a new Map
+         ret = m_mapName.size();
       m_mapObj.push_back( gridMap );
       m_mapName.push_back( mapName );
       m_mapRefTable.push_back( refferedTable );
@@ -178,46 +188,140 @@ MapsManager::MapID MapsManagerImpl::generateMap( const std::string & refferedTab
       // create a new record in s_mapsTableName
       database::Record * newRec = table->createRecord();
 
+         //determine the map sequence number (in this case the map is always a new one)
+         std::string mapFile = mapFullPath.path( );
+         int mapSequenceNbr;
+         if ( !m_fileMaps.count( mapFile ) )
+         {
+            //the first map of the file
+            mapSequenceNbr = 0;
+         }
+         else
+         {
+            //new map needs to be created
+            mapSequenceNbr = m_fileMaps[mapFile].size( );
+         }
+
       // change names
-      newRec->setValue<std::string>( s_ReferredByColName,  refferedTable.c_str() );
-      newRec->setValue(              s_MapNameColName,     mapName );
-      newRec->setValue<std::string>( s_MapTypeColName,     "HDF5" );
-      newRec->setValue<std::string>( s_MapFileNameColName, mapName + ".HDF" ); // not saved yet
-      newRec->setValue<int>(         s_MapSeqNbrColName,   0 );
+         newRec->setValue<std::string>( s_ReferredByColName,  refferedTable.c_str() );
+         newRec->setValue(              s_MapNameColName,     mapName );
+         newRec->setValue<std::string>( s_MapTypeColName,     "HDF5" );
+         newRec->setValue<std::string>( s_MapFileNameColName, mapFullPath.fileName( ) );
+         newRec->setValue<int>(         s_MapSeqNbrColName,   mapSequenceNbr );
+      }
+      else
+      {
+         m_mapObj[pos] = gridMap;
+         m_mapRefTable[pos] = refferedTable;
+         ret = pos;
+      }
 
       // set the values in the map
       mapSetValues( ret, values );
 
       // save the map to HDF
-      saveMapToHDF( ret, mapName + ".HDF" );
-
+      saveMapToHDF( ret, filePathName );
    }
    catch ( const Exception & ex ) { reportError( ex.errorCode(), ex.what() ); }
 
    return ret;
 }
 
+ErrorHandler::ReturnCode MapsManagerImpl::inizializeMapWriter( const std::string & filePathName, const bool append )
+{
+   if ( errorCode( ) != NoError ) resetError( );
+   try
+   {
+      bool status = false;
+      m_mapPropertyValuesWriter = m_proj->getFactory()->produceMapWriter();
+      status = m_mapPropertyValuesWriter->open( filePathName, append );
+      if ( status )
+      {
+         status = m_mapPropertyValuesWriter->saveDescription( m_proj->saveAsInputGrid() ? m_proj->getInputGrid() : m_proj->getActivityOutputGrid() );
+      }
+      if ( !status ) throw Exception( UnknownError ) << "Map writer not instantiated correctly ";
+   }
+   catch ( const Exception & ex ) { reportError( ex.errorCode( ), ex.what( ) ); }
+
+   return NoError;
+}
+
+
+ErrorHandler::ReturnCode MapsManagerImpl::finalizeMapWriter( )
+{
+   
+   if ( errorCode( ) != NoError ) resetError( );
+   try
+   {
+      bool status = false;
+      if ( !m_mapPropertyValuesWriter ) throw Exception( UnknownError ) << "Map writer not allocated, cannot delete ";
+
+      status = m_mapPropertyValuesWriter->close( );
+      if ( !status ) throw Exception( UnknownError ) << "Map writer not closed correctly ";
+      delete m_mapPropertyValuesWriter;
+      m_mapPropertyValuesWriter = 0;
+   }
+   catch ( const Exception & ex ) { reportError( ex.errorCode( ), ex.what( ) ); }
+
+   return NoError;
+}
+
 ErrorHandler::ReturnCode MapsManagerImpl::mapSetValues( MapID id, const std::vector<double>& vin )
 {
+ 
    if ( errorCode() != NoError ) resetError();
    try
    {
-      loadGridMap( id ); // check if map is loaded and load it if not loaded before
+      loadGridMap( id );
+
+      m_mapObj[id]->retrieveData();
 
       const double nulVal = m_mapObj[id]->getUndefinedValue();
 
       const DataAccess::Interface::ProjectData * pd = m_proj->getProjectData();
 
-      int numI = pd->getNumberOfXNodes();
+      int numI = m_mapObj[id]->lastI( ) + 1;
 
-      for ( unsigned int i = m_mapObj[id]->firstI(); i <= m_mapObj[id]->lastI(); ++i )
+      for ( unsigned int j = m_mapObj[id]->firstJ( ); j <= m_mapObj[id]->lastJ( ); ++j )
       {
-         for ( unsigned int j = m_mapObj[id]->firstJ(); j <= m_mapObj[id]->lastJ(); ++j )
-         {
-            unsigned int pos = j * numI + i; //values in vin are saved row-wise
+         for ( unsigned int i = m_mapObj[id]->firstI( ); i <= m_mapObj[id]->lastI( ); ++i )
+      {
+            unsigned int pos = i + j * numI; //values in vin are saved row-wise
             m_mapObj[id]->setValue( i, j, NumericFunctions::isEqual( vin[pos], nulVal, 1e-5 ) ? nulVal : vin[pos] );
          }
       }
+
+      m_mapObj[id]->restoreData( );
+   }
+   catch ( const Exception & ex ) { return reportError( ex.errorCode( ), ex.what( ) ); }
+
+   return NoError;
+}
+
+ErrorHandler::ReturnCode MapsManagerImpl::mapGetValues( MapID id, std::vector<double>& vout )
+{
+   if ( errorCode( ) != NoError ) resetError( );
+   try
+   {
+      loadGridMap( id ); // check if map is loaded and load it if not loaded before
+
+      m_mapObj[id]->retrieveData();
+
+      const double nulVal = m_mapObj[id]->getUndefinedValue( );
+
+      int numI = m_mapObj[id]->lastI( ) +1;
+      int numJ = m_mapObj[id]->lastJ( ) +1;
+      vout.resize( numI * numJ );
+
+      for ( unsigned int j = m_mapObj[id]->firstJ(); j <= m_mapObj[id]->lastJ(); ++j )
+      {
+         for ( unsigned int i = m_mapObj[id]->firstI(); i <= m_mapObj[id]->lastI(); ++i )
+         {
+               vout[i + j * numI] = m_mapObj[id]->getValue( i, j );
+         }
+      }
+
+      m_mapObj[id]->restoreData( );
    }
    catch ( const Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
 
@@ -265,19 +369,53 @@ ErrorHandler::ReturnCode MapsManagerImpl::saveMapToHDF( MapID id, const std::str
       }
       ibs::FilePath mapFullPath( givenPath.empty() ? ibs::FilePath( m_projectFileName ).filePath() : givenPath );
       mapFullPath << mfName;
-      if ( mapFullPath.exists() )
+
+      // write map to HDF using the MapWriter. if the HDF file already exist append
+      bool append = mapFullPath.exists() ? true :false;
+      if ( NoError != inizializeMapWriter( mapFullPath.path().c_str(), append ) )
       {
-         throw Exception( OutOfRangeValue ) << "Can not save map to the given file: " << mapFullPath.path() << ", such file already exists";
+         throw Exception( OutOfRangeValue ) << "Could not inizialize the map writer ";
       }
 
-      if ( !m_mapObj[id]->saveHDF5( mapFullPath.path() ) )
+      //determine the map sequence number
+      int mapSequenceNbr;
+      if ( !m_fileMaps.count(mapFullPath.path( )) )
       {
-         throw Exception( IoError ) << "Can not save map " << m_mapName[id] << " to the file: " << mapFullPath.path();
+         mapSequenceNbr = 0;
+         m_fileMaps.insert( std::pair<std::string, std::vector<std::string>>( mapFullPath.path( ), std::vector<std::string>( ) ) );
+         m_fileMaps[mapFullPath.path( )].push_back( m_mapName[id] );
+      }
+      else
+      {
+         // handle also the case of overwriting an exsisting map
+         std::vector<std::string>  maps = m_fileMaps[mapFullPath.path()];
+         auto pos = std::find( maps.begin( ), maps.end( ), m_mapName[id] );
+         if ( pos == maps.end( ) )
+         {
+            mapSequenceNbr = maps.size( );
+            m_fileMaps[mapFullPath.path( )].push_back( m_mapName[id] ); //add the new name to m_fileMaps
+         }
+         else
+      {
+            mapSequenceNbr = pos - maps.begin( );                       //map already exist
+         }
       }
 
-      // add new file name to the maps file list
-      m_mapsFileList.insert( mfName );
+      bool writingSucceed = m_mapPropertyValuesWriter->writeMapToHDF( m_mapObj[id], 0.0, 0.0, std::to_string( mapSequenceNbr ), m_mapName[id], true );
+      if ( !writingSucceed )
+      {
+         throw Exception( IoError ) << "Can not write the map " << m_mapName[id] << " to HDF ";
+      }
+      if ( NoError != finalizeMapWriter( ) )
+      {
+         throw Exception( OutOfRangeValue ) << "Could not finilize the map writer ";
+      }
 
+      // add new file name to the maps file list if it is not present
+      if ( std::find( m_mapsFileList.begin( ), m_mapsFileList.end( ), mapFullPath.path( ) ) == m_mapsFileList.end( ) )
+      {
+         m_mapsFileList.insert( mapFullPath.path( ) );
+      }
       // set real file name in map record
       rec->setValue( s_MapFileNameColName, mfName );
 
@@ -484,6 +622,7 @@ void MapsManagerImpl::setProject( DataAccess::Interface::ProjectHandle * ph, con
             if ( !m_mapsFileList.count( mapFilePath.path() ) )
             {
                m_mapsFileList.insert( mapFilePath.path() );
+               m_fileMaps.insert( std::pair<std::string, std::vector<std::string>>( mapFilePath.path(), std::vector<std::string>() ) );
             }
          }
 
@@ -493,6 +632,13 @@ void MapsManagerImpl::setProject( DataAccess::Interface::ProjectHandle * ph, con
          {
             m_mapName.push_back( mapName );
             m_mapRefTable.push_back( refTbl );
+            if ( !fname.empty() )
+            {
+               // construct the full file path to the original map file
+               ibs::FolderPath mapFilePath( projectPath );
+               mapFilePath << fname;
+               m_fileMaps[mapFilePath.path( )].push_back( mapName );
+            }
          }
       }
    }

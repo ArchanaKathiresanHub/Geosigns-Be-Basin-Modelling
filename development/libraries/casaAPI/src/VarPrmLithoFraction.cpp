@@ -137,20 +137,20 @@ namespace casa
       std::string  mapNameFirstLithoPercentage  = std::to_string( lid ) + "_percent_1";
       std::string  mapNameSecondLithoPercentage = std::to_string( lid ) + "_percent_2";
 
-      mbapi::MapsManager::MapID id = mapsMgr.generateMap( strMgr.referenceID(), mapNameFirstLithoPercentage, lf1CorrInt );
+      mbapi::MapsManager::MapID id = mapsMgr.generateMap( "StratIoTbl", mapNameFirstLithoPercentage, lf1CorrInt,""); // use the default filename for the file storing the maps
       if ( UndefinedIDValue == id )
       {
          throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Generation of the " << mapNameFirstLithoPercentage 
                                                                         << " lithofraction map failed";
       }
-      id = mapsMgr.generateMap( strMgr.referenceID(), mapNameSecondLithoPercentage, lf2CorrInt );
+      id = mapsMgr.generateMap( "StratIoTbl", mapNameSecondLithoPercentage, lf2CorrInt,"");
       if ( UndefinedIDValue == id )
       {
          throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Generation of the " << mapNameSecondLithoPercentage 
                                                                         << " lithofraction map failed";
       }
 
-      strMgr.setLayerLithologiesPercentageMaps( lid, mapNameFirstLithoPercentage, mapNameSecondLithoPercentage );
+      strMgr.setLayerLithologiesPercentageMaps( lid, mapNameFirstLithoPercentage, mapNameSecondLithoPercentage);
 
       // both maps are provided, no scalar values is needed
       return SharedParameterPtr( new PrmLithoFraction( this, m_name, m_layerName, m_lithoFractionsInds, std::vector<double>(), 

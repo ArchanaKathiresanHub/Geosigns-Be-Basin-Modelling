@@ -216,6 +216,20 @@ namespace mbapi {
       virtual ReturnCode setFaultCutLithology( PrFaultCutID flID, const std::string & newLithoName ) = 0;
       /// @}
  
+      /// @{ Get the maps names for the measured twt and the measured twt 
+
+      /// @brief Get the map name of the measured twt at the top surface
+      /// @param id layer id
+      /// @return the twt map name for the layer on success, empty string otherwise
+      virtual std::string twtGridName( LayerID id ) = 0;
+
+      /// @brief Get the value of the measured twt at the top surface
+      /// @param id layer id
+      /// @return the measured twt value on success, UndefinedDoubleValue otherwise
+      virtual double twtValue( LayerID id ) = 0;
+
+      /// @}
+ 
    protected:
       /// @{
       /// Constructors/destructor

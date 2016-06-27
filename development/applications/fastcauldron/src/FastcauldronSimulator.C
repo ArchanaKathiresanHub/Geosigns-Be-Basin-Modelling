@@ -50,6 +50,8 @@
 #include "PVTCalculator.h"
 
 #include "MultiComponentFlowHandler.h"
+#include "HydraulicFracturingManager.h"
+#include "PropertyManager.h"
 
 #ifndef _MSC_VER
 #include "h5merge.h"
@@ -108,7 +110,7 @@ FastcauldronSimulator* FastcauldronSimulator::CreateFrom ( AppCtx* cauldron, Dat
 
    if ( m_fastcauldronSimulator == 0 ) {
       m_fastcauldronSimulator = (FastcauldronSimulator*) Interface::OpenCauldronProject ( cauldron->getProjectFileName (), "rw", objectFactory );
-
+ 
    }
 
    m_fastcauldronSimulator->m_cauldron = cauldron;
@@ -981,6 +983,9 @@ void FastcauldronSimulator::finalise ( const bool saveResults ) {
       }
 
       delete m_fastcauldronSimulator;
+      m_fastcauldronSimulator = 0;
+      HydraulicFracturingManager::deleteInstance();
+      PropertyManager::deleteInstance( );
    }
 
 }

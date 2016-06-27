@@ -114,6 +114,7 @@ public :
 
   static HydraulicFracturingManager& getInstance ();
 
+  static void deleteInstance();
 
   void setAppCtx ( const AppCtx* newAppCtx );
 

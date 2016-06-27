@@ -57,6 +57,9 @@ public :
 
    static PropertyManager& getInstance ();
 
+   /// Delete the property manager instance
+   static void deleteInstance( );
+
    /// Maps the output-property name of the property-name.
    const std::string& findOutputPropertyName ( const std::string& name ) const;
 
@@ -221,6 +224,11 @@ inline PropertyManager& PropertyManager::getInstance () {
    return *s_propertyManager;
 }
 
+inline void PropertyManager::deleteInstance( )
+{
+   if ( s_propertyManager ) delete s_propertyManager;
+   s_propertyManager = 0;
+}
 
 inline const PropertyManager::OutputPropertyMapSet& PropertyManager::OutputPropertyMapSetArray::operator ()( const OutputPropertyMapAssociation association,
                                                                                                              const PropertyList                 property ) const {

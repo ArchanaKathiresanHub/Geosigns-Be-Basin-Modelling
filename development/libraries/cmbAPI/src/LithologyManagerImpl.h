@@ -146,6 +146,15 @@ namespace mbapi {
       /// @}
 
 
+      /////////////////////////////////////////////////////////////////////////
+      // Seismic velocity
+
+      // Get lithology permeability model
+      // [in] id          lithology ID
+      // return the value on success or UndefinedDoubleValue otherwise
+      virtual double seisVelocity( LithologyID id );
+
+      /// @}
 
       /////////////////////////////////////////////////////////////////////////
       // Thermal conductivity model
@@ -186,6 +195,7 @@ namespace mbapi {
       static const char * s_ccSoilMechanicsFieldName;   // column name for compaction coefficient of the Soil Model porosity model
       static const char * s_minPorosityFieldName;       // column name for minimal porosity of the Double Exponential porosity model
       static const char * s_stpThermalCondFieldName;    // column name for STP thermal conductivity coefficient
+      static const char * s_seisVelocityFieldName;      // column name for the seismic velocity coefficent
 
       static const char * s_permeabilityModelFieldName;        // column name for permeability model
       static const char * s_permeabilityAnisotropyFieldName;   // column name for permeability anisotropy coefficient 

@@ -730,13 +730,13 @@ TEST_F( mbapiModelTest, MapsManagerCopyMapTest )
    ASSERT_NEAR( minV, 2288.0 * coeff, eps );
    ASSERT_NEAR( maxV, 3000.0, eps );
 
-   
-   ASSERT_EQ( ErrorHandler::OutOfRangeValue, mm.saveMapToHDF( nid, "Inputs.HDF" ) ); // attempt to save in already existed file should fail
+
+   // If a file already exist the maps will be appended to that file
    ASSERT_EQ( ErrorHandler::OutOfRangeValue, mm.saveMapToHDF( nid, "/tmp/Inputs.HDF" ) ); // attempt to save in a place different from the project location should fail
 
    ASSERT_EQ( ErrorHandler::NoError, mm.saveMapToHDF( nid, "" ) ); // file name will be generated from map name
-   ASSERT_EQ( true, ibs::FilePath( mapName+"_copy.HDF" ).exists() ); // file was written
-
+   ASSERT_EQ( true, ibs::FilePath( mapName + "_copy.HDF" ).exists() ); // file was written
+   
    ASSERT_EQ( ErrorHandler::NoError, testModel.saveModelToProjectFile( "MapsTest1.project3d" ) );
    {
       mbapi::Model tmpModel;
@@ -769,9 +769,13 @@ TEST_F( mbapiModelTest, MapsManagerCopyMapTest )
 
 TEST_F( mbapiModelTest, MapsManagerNNInterpolation )
 { 
+   // set the folder where to save the files
+   ibs::FilePath    masterResults( "." );
+   std::string      casaResultsFile( "CasaModel_Results.HDF" );
+   masterResults << casaResultsFile;
+
    // clean any previous runs result
-   if ( ibs::FilePath( "5_percent_1.HDF" ).exists( ) )      { ibs::FilePath( "5_percent_1.HDF" ).remove( ); }
-   if ( ibs::FilePath( "5_percent_2.HDF" ).exists( ) )      { ibs::FilePath( "5_percent_2.HDF" ).remove( ); }
+   if ( masterResults.exists( ) ) { masterResults.remove( ); }
    if ( ibs::FilePath( "NNTesting2.project3d" ).exists( ) ) { ibs::FilePath( "NNTesting2.project3d" ).remove( ); }
    
    // load test project
@@ -855,7 +859,7 @@ TEST_F( mbapiModelTest, MapsManagerNNInterpolation )
       ASSERT_NEAR( lf2CorrTemp, lf2CorrInt[i], 1e-4 );
    }
    NNbt.close( );
-
+   
    // save the backtransformed lithofractions in a temporary model
    ASSERT_EQ( ErrorHandler::NoError, testModel.saveModelToProjectFile( "NNTesting2.project3d" ) );
    {
@@ -875,10 +879,12 @@ TEST_F( mbapiModelTest, MapsManagerNNInterpolation )
       std::string  correctFirstLithoFractionMap("5_percent_1");
       std::string  correctSecondLithoFractionMap("5_percent_2");
 
-      mbapi::MapsManager::MapID id = mapsMgr.generateMap( strMgr.referenceID( ), correctFirstLithoFractionMap, lf1CorrInt );
+      // first map, produce the map and update GridmapIoTbl
+      mbapi::MapsManager::MapID id = mapsMgr.generateMap( "StratIoTbl", correctFirstLithoFractionMap, lf1CorrInt, masterResults.path( ) );
       ASSERT_NE( id, UndefinedIDValue );
 
-      id = mapsMgr.generateMap( strMgr.referenceID( ), correctSecondLithoFractionMap, lf2CorrInt );
+      // second map, produce the map and update GridmapIoTbl
+      id = mapsMgr.generateMap( "StratIoTbl", correctSecondLithoFractionMap, lf2CorrInt, masterResults.path( ) );
       ASSERT_NE( id, UndefinedIDValue );
 
       ASSERT_EQ( ErrorHandler::NoError, strMgr.setLayerLithologiesPercentageMaps( lid, correctFirstLithoFractionMap, correctSecondLithoFractionMap ) );
@@ -889,14 +895,13 @@ TEST_F( mbapiModelTest, MapsManagerNNInterpolation )
       ASSERT_EQ( tmpModel.tableValueAsString( "GridMapIoTbl", 26, "MapName" ), std::string( correctFirstLithoFractionMap ) );
       ASSERT_EQ( tmpModel.tableValueAsString( "GridMapIoTbl", 27, "MapName" ), std::string( correctSecondLithoFractionMap ) );
 
-      ASSERT_EQ( tmpModel.tableValueAsString( "GridMapIoTbl", 26, "MapFileName" ), std::string( correctFirstLithoFractionMap + ".HDF" ) );
-      ASSERT_EQ( tmpModel.tableValueAsString( "GridMapIoTbl", 27, "MapFileName" ), std::string( correctSecondLithoFractionMap + ".HDF" ) );
+      ASSERT_EQ( tmpModel.tableValueAsString( "GridMapIoTbl", 26, "MapFileName" ), casaResultsFile );
+      ASSERT_EQ( tmpModel.tableValueAsString( "GridMapIoTbl", 27, "MapFileName" ), casaResultsFile );
 
-      ASSERT_EQ( tmpModel.tableValueAsString( "StratIoTbl", 5, "Percent1Grid" ), std::string( correctFirstLithoFractionMap ) );
-      ASSERT_EQ( tmpModel.tableValueAsString( "StratIoTbl", 5, "Percent2Grid" ), std::string( correctSecondLithoFractionMap ) );
+      ASSERT_EQ( tmpModel.tableValueAsString( "StratIoTbl", 5, "Percent1Grid" ), correctFirstLithoFractionMap  );
+      ASSERT_EQ( tmpModel.tableValueAsString( "StratIoTbl", 5, "Percent2Grid" ), correctSecondLithoFractionMap );
    }
-
+   
    ibs::FilePath( "NNTesting2.project3d" ).remove( );
-   ibs::FilePath( "5_percent_1.HDF" ).remove( ); 
-   ibs::FilePath( "5_percent_2.HDF" ).remove( );
+   masterResults.remove( );
 }

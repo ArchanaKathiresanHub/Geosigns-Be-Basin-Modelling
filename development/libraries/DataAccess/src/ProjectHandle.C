@@ -2437,6 +2437,7 @@ bool ProjectHandle::finalizeMapPropertyValuesWriter( void )
 
       m_mapPropertyValuesWriter->close();
       delete m_mapPropertyValuesWriter;
+      m_mapPropertyValuesWriter = 0;
 
       return true;
    }
