@@ -190,8 +190,8 @@ static int runFastCauldron( int argc, char** argv, int & rank, const std::string
 
       for ( size_t i = 0; i != newDepths.size(); ++i )
       {
-         if ( twtSim[i] > tarTwt[i] )
          newDepths[i] = DataAccess::Interface::DefaultUndefinedScalarValue;
+         if ( twtSim[i] > tarTwt[i] )
          {
             if ( abs( twtSim[i] ) > 1e-12 )
                newDepths[i] = depthSim[i] / twtSim[i] * tarTwt[i];
@@ -325,7 +325,7 @@ int main(int argc, char** argv)
    PetscOptionsGetInt( PETSC_NULL, "-endingLayer", &endingLayer, PETSC_NULL);
    PetscOptionsGetString( PETSC_NULL, "-project", projectName, MAXLINESIZE, 0 );
 
-   // Models (they get destroyed with petscfinilize)
+   // Models (they get destroyed after petscfinilize)
    std::unique_ptr<mbapi::Model> mdl;
    mdl.reset( new mbapi::Model( ) );
    std::unique_ptr<mbapi::Model> refMdl;
@@ -369,7 +369,7 @@ int main(int argc, char** argv)
          {
             throw ErrorHandler::Exception( ErrorHandler::UnknownError ) << " An invalid twt measurement was found for the top surface of the layer " << l;
          }
-         twtMaps[l] = twtGrid ;
+         twtMaps[l] = twtGrid ; //stores the bottom of the twtGrid
       }
 
       // Get the current depth of the endingLayer
@@ -443,13 +443,13 @@ int main(int argc, char** argv)
          std::vector<std::string> lithoList;
          std::vector<double>      lithoPercent;
          std::vector<std::string> lithoPercMap;
-         double maxSeisVel = 0;
          mbapi::LithologyManager & litMgr = mdl->lithologyManager( );
          if ( ErrorHandler::ReturnCode::NoError != stMgr.layerLithologiesList( currentLayer, lithoList, lithoPercent, lithoPercMap ) )
          {
             throw ErrorHandler::Exception( ErrorHandler::UnknownError ) << "Cannot read the lithologies for the current layer";
          }
 
+         double maxSeisVel = 0;
          for ( int lith = 0; lith != lithoList.size(); ++lith )
          {
             mbapi::LithologyManager::LithologyID lithID = litMgr.findID( lithoList[lith] );
@@ -470,7 +470,6 @@ int main(int argc, char** argv)
          if ( currentLayer == startLayer )
          {
             // Get the depths
-            std::vector<double> bottomDepth;
             if ( ErrorHandler::ReturnCode::NoError != getGridMapDepthValues( mdl.get( ), currentLayer, refDepths ) )
             {
                throw ErrorHandler::Exception( ErrorHandler::UnknownError ) << " Cannot get the depth values of the reference surface ";
@@ -527,7 +526,6 @@ int main(int argc, char** argv)
 
          // Create a new map (in map manager) and set it as depth grid ( in the stratigraphy manager) 
          std::string mapName = "Surface_" + std::to_string( nextLayer );
-         std::string surfaceName = stMgr.surfaceName( nextLayer );
          correctedMapsNames[nextLayer] = mapName;
          
          // Generate a new HDF map
@@ -543,6 +541,7 @@ int main(int argc, char** argv)
          // Create a new folder where to run the model and save the input files
          ibs::FolderPath casePath( "." );
          casePath << mapName;
+         MPI_Barrier( PETSC_COMM_WORLD );
          if (rank == 0)
          {
             if ( casePath.exists() ) // clean folder if it is already exist
@@ -589,6 +588,7 @@ int main(int argc, char** argv)
          correctedMapsIDs[nextLayer] = correctMap;
 
          // Here casa results file is written, we can copy them to the master directory
+         MPI_Barrier( PETSC_COMM_WORLD );
          if ( rank == 0 )
          {
             masterResults.remove();
@@ -629,6 +629,7 @@ int main(int argc, char** argv)
       // Create a folder to store the new project and copy the results (rank 0)
       ibs::FilePath finalProject( finalResultsPath );
       finalProject << refMdl->projectFileName( );
+      MPI_Barrier( PETSC_COMM_WORLD );
       if ( rank == 0 )
       {
          // Clean the folder
@@ -683,12 +684,13 @@ int main(int argc, char** argv)
          }
       }
 
+      MPI_Barrier( PETSC_COMM_WORLD );
       if ( rank == 0 )
       {
          refMdl->saveModelToProjectFile( finalProject.path( ).c_str( ), true );
       }
       MPI_Barrier( PETSC_COMM_WORLD );
-
+      
    } 
    catch ( const ErrorHandler::Exception & ex )
    {
