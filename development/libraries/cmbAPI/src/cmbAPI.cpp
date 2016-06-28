@@ -530,7 +530,7 @@ struct RecordSorter
          std::set<std::string> trapRecords = {"ReservoirName", "Age", "XCoord", "YCoord"};
          std::set<std::string>::iterator trapRecordsIter = trapRecords.begin();
 
-         for ( size_t k = 1; k > -1; --k )
+         for ( int k = 1; k > -1; --k )
          {
             for ( size_t i = 0; i < tblDef.size(); ++i )
             {
