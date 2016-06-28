@@ -21,6 +21,9 @@
 // Geophysics library
 #include "Local2DArray.h"
 
+//DataAccess library
+#include "Interface/GridMap.h"
+
 using namespace DataAccess;
 
 /// @class TotalTectonicSubsidenceCalculator The TTS calculator
@@ -37,6 +40,7 @@ class TotalTectonicSubsidenceCalculator {
                                          const unsigned int lastJ,
                                          const double age,
                                          const double airCorrection,
+                                         const Interface::GridMap* previousTTS,
                                          const PolyFunction2DArray& depthWaterBottom,
                                          AbstractInterfaceOutput& outputData,
                                          AbstractValidator&       validator );
@@ -50,6 +54,10 @@ class TotalTectonicSubsidenceCalculator {
       double calculateTTS( const double waterBottom,
                            const double backstrip ) const;
 
+      /// @return The incremental total tectonic subsidence
+      double calculateIncrementalTTS( const double TTS,
+                                      const double previousTTS ) const;
+
    private:
 
       const unsigned int m_firstI; ///< First i index on the map
@@ -57,9 +65,10 @@ class TotalTectonicSubsidenceCalculator {
       const unsigned int m_lastI;  ///< Last i index on the map
       const unsigned int m_lastJ;  ///< Last j index on the map
 
-      const double m_age; ///< Age of the snapshot at which the TTS is computed
-
+      const double m_age;           ///< Age of the snapshot at which the TTS is computed
       const double m_airCorrection; ///< The backstrip air correction to be used when the water bottom is above the see level 0m
+
+      const Interface::GridMap* m_previousTTS; ///< The TTS at the previous time step (in descending order xxma-->0Ma)
 
       const PolyFunction2DArray& m_surfaceDepthHistory; ///< The user defined paleobathymetrie (loaded from the project handle)
 

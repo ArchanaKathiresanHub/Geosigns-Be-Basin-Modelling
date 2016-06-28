@@ -120,6 +120,11 @@ void DensityCalculator::calculate( const double topBasementDepthValue,
          (((pressureTopBasementValue - pressureWaterBottomValue) * 1e6) / CrustalThicknessInterface::GRAVITY) * m_densityTerm;
       m_compensation = m_sedimentThickness - m_backstrip;
    }
+   else if (m_sedimentThickness == 0.0) {
+      m_sedimentDensity = Interface::DefaultUndefinedMapValue;
+      m_backstrip       = 0;
+      m_compensation    = 0;
+   }
    else {
       m_sedimentDensity = Interface::DefaultUndefinedMapValue;
       m_backstrip       = Interface::DefaultUndefinedMapValue;

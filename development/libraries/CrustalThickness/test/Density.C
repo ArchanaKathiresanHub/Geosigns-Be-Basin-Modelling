@@ -160,12 +160,12 @@ TEST( DensityCalculatorTest, backstriping )
    EXPECT_NEAR( -203273.59836901100, densityCalculator2.getBackstrip(),       1e-09 );
    EXPECT_NEAR( 203673.59836901100,  densityCalculator2.getCompensation(),    1e-09 );
 
-   // 2. Test that the outputs are NDV when the sediment thickness is null
+   // 2. Test that the outputs are 0 and NDV when the sediment thickness is null
    densityCalculator2.calculate( 100, 100, 1000, 500 );
    EXPECT_EQ( 0, densityCalculator2.getSedimentThickness() );
-   EXPECT_EQ( Interface::DefaultUndefinedMapValue, densityCalculator2.getSedimentDensity() );
-   EXPECT_EQ( Interface::DefaultUndefinedMapValue, densityCalculator2.getBackstrip()       );
-   EXPECT_EQ( Interface::DefaultUndefinedMapValue, densityCalculator2.getCompensation()    );
+   EXPECT_EQ( Interface::DefaultUndefinedMapValue, densityCalculator2.getSedimentDensity()   );
+   EXPECT_EQ( 0, densityCalculator2.getBackstrip()    );
+   EXPECT_EQ( 0, densityCalculator2.getCompensation() );
 
    //3. Test that the outputs are NDV when the sediment thickness is negative
    densityCalculator2.calculate( 20, 100, 1000, 500 );

@@ -25,20 +25,20 @@ namespace CrustalThicknessInterface {
    const double GRAVITY = 9.81;
    
    enum outputMaps {
-      mohoMap = 0, thicknessBasaltMap, sedimentDensityMap, WLSadjustedMap,
+      mohoMap = 0, thicknessBasaltMap, WLSadjustedMap,
       TFOnsetMap, TFOnsetLinMap, TFOnsetMigMap, PTaMap,
       basaltDensityMap, RDAadjustedMap, TFMap, thicknessCrustMap, ECTMap, 
       estimatedCrustDensityMap, WLSOnsetMap, WLSCritMap, WLSExhumeMap, WLSExhumeSerpMap,
       slopePreMelt, slopePostMelt, interceptPostMelt, thicknessCrustMeltOnset, topBasaltMap,
-      WLSMap, cumSedimentBackstrip, cumSedimentThickness, isostaticBathymetry, cumBasementCompensation,
-      incTectonicSubsidence, PaleowaterdepthResidual,
+      WLSMap, incTectonicSubsidence,
+      cumSedimentBackstrip, cumBasementCompensation, cumSedimentThickness, sedimentDensityMap,
+      isostaticBathymetry, PaleowaterdepthResidual,
       numberOfOutputMaps
    };
 
    const std::string outputMapsNames [CrustalThicknessInterface::numberOfOutputMaps] = {
       "Moho",                               // present-day Moho depth (m)
       "BasaltThickness",                    // present-day basalt thickness (m)
-      "IntegratedSedimentDensity",          // present-day integrated sediment column density (kgm-3)
       "AdjustedWaterLoadedSubsidence",      // present-day water loaded basin subsidence (m)
       "TFonset",                            // crustal thinning, melt onset (accurate) 
       "TFonsetLin",                         // crustal thinning, melt onset
@@ -60,21 +60,22 @@ namespace CrustalThicknessInterface {
       "CrustThicknessMeltOnset",            // crust thickness at melt onset (m) 
       "TopBasaltUnderplate",                // present-day depth to top basalt (m)
       "TotalTectonicSubsidence",            // present-day water loaded basin subsidence (m) (former WLS)
-      "SedimentBackstrip",                  // cumulative sediment backstrip (m)
-      "SedimentThickness",                  // cumulative sediment thickness (m)
-      "PaleowaterDepth",                    // filling up of a basin in absence of any thermal subsidence (m)
-      "BasementCompensation",               // the amount the basement pushed down (or rebound) when sediment load is emplaced or removed [m]
       "IncrementalTectonicSubsidence",      // the change in total tectonic subsidence [m]
+      "SedimentBackstrip",                  // cumulative sediment backstrip (m)
+      "BasementCompensation",               // the amount the basement pushed down (or rebound) when sediment load is emplaced or removed [m]
+      "SedimentThickness",                  // cumulative sediment thickness (m)
+      "IntegratedSedimentDensity",          // present-day integrated sediment column density (kgm-3)
+      "PaleowaterDepth",                    // filling up of a basin in absence of any thermal subsidence (m)
       "PaleowaterdepthResidual"             // The paleowaterdepth residual (PWD-SDH)  [m]
    };
 
    const std::string outputMapsUnits [CrustalThicknessInterface::numberOfOutputMaps] = {
-      "m", "m", "kgm-3", "m",
+      "m", "m", "m",
       "", "", "", "C", 
       "kgm-3", "m", "", "m", "m",
       "kgm-3", "m", "m", "m", "m",
       "", "", "", "m", "m", "m",
-      "m", "m", "m", "m", "m", "m"
+      "m", "m", "m", "m", "kgm-3", "m", "m"
    };
 
    outputMaps getPropertyId(const std::string & propertyName);

@@ -45,9 +45,7 @@ class CrustalThicknessCalculator : public DataAccess::Mining::ProjectHandle {
    typedef std::vector<double> snapshotsList;
 
 public :
-   // Constructor / Destructor
    CrustalThicknessCalculator( database::Database * database, const std::string & name, const std::string & accessMode, ObjectFactory* objectFactory );
-
    ~CrustalThicknessCalculator();
 
    /// @brief Return the reference to the project data
@@ -100,7 +98,9 @@ private :
    InterfaceInput* m_inputData;  ///< Interface for input data (user inputs adn configuration file)
    InterfaceOutput m_outputData; ///< Interface for output data (maps)
 
-   snapshotsList m_snapshots; ///< The list of stratigraphic snapshots
+   snapshotsList m_snapshots; ///< The list of stratigraphic snapshots in reverse order surrounded by 0 snapshot (i.e. [0,150,110,50,...,0])
+
+   GridMap* m_previousTTS; ///< The Total Tectonic Subsidence of the previous iteration (i.e. we are at snapshot 10Ma, the previous iteration was at 15Ma)
 
    /// @brief Set requested output properties from the Project file
    void setRequestedOutputProperties( InterfaceOutput & theOutput);
@@ -120,6 +120,11 @@ private :
    /// @brief Loads the snapshots from the stratigraphy
    void loadSnapshots();
 
+   /// @brief Retrieve the grid map data
+   void retrieveData();
+
+   /// @brief Restore the grid map data
+   void restoreData();
 };
 
 //------------------------------------------------------------//

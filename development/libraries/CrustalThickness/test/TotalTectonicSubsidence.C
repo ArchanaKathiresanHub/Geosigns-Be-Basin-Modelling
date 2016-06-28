@@ -40,6 +40,7 @@ unsigned int numJ = 2;
 
 // Define grid
 const DataAccess::Interface::SerialGrid grid( minI, minJ, maxI, maxJ, numI, numJ );
+DataAccess::Interface::SerialGridMap previousTTS ( 0, 0, &grid, 300 );
 
 #include <gtest/gtest.h>
 
@@ -64,10 +65,11 @@ TEST( TotalTectonicSubsidenceCalculator, total_tectonic_subsidence )
                                                     lastJ,
                                                     10.0,
                                                     1.5,
+                                                    &previousTTS,
                                                     surfaceDepthHistory,
                                                     outputData,
                                                     validator );
-
+   ///1. Test the TTS
    //under see level
    EXPECT_EQ( 0,   ttsCalculator.calculateTTS( 0,     0  ) );
    EXPECT_EQ( 400, ttsCalculator.calculateTTS( 500, -100 ) );
@@ -76,10 +78,14 @@ TEST( TotalTectonicSubsidenceCalculator, total_tectonic_subsidence )
    EXPECT_EQ( 5,  ttsCalculator.calculateTTS( -10, 20 ) );
    EXPECT_EQ( 10, ttsCalculator.calculateTTS( -20, 40 ) );
    //tts<0
-   EXPECT_EQ( 0, ttsCalculator.calculateTTS( -10, -10 ) );
-   EXPECT_EQ( 0, ttsCalculator.calculateTTS( 0,   -10 ) );
+   EXPECT_EQ( 0, ttsCalculator.calculateTTS( -10, -10 )  );
+   EXPECT_EQ( 0, ttsCalculator.calculateTTS( 0,   -10 )  );
    EXPECT_EQ( 0, ttsCalculator.calculateTTS( 20,  -100 ) );
    EXPECT_EQ( 0, ttsCalculator.calculateTTS( 40,  -200 ) );
+
+   ///2. Test the incremental TTS
+   EXPECT_EQ( 80,   ttsCalculator.calculateIncrementalTTS( 100, 20    ) );
+   EXPECT_EQ( -500, ttsCalculator.calculateIncrementalTTS( 2000, 2500 ) );
 
 }
 
@@ -106,6 +112,7 @@ TEST( TotalTectonicSubsidenceCalculator, compute )
                                                      lastJ,
                                                      10.0,
                                                      1.5,
+                                                     &previousTTS,
                                                      surfaceDepthHistory,
                                                      outputData,
                                                      validator );
@@ -114,8 +121,35 @@ TEST( TotalTectonicSubsidenceCalculator, compute )
    EXPECT_EQ( 400, outputData.getMapValue( WLSMap, 0, 1 ) );
    EXPECT_EQ( 400, outputData.getMapValue( WLSMap, 1, 0 ) );
    EXPECT_EQ( 400, outputData.getMapValue( WLSMap, 1, 1 ) );
+   EXPECT_EQ( 100, outputData.getMapValue( incTectonicSubsidence, 0, 0 ) );
+   EXPECT_EQ( 100, outputData.getMapValue( incTectonicSubsidence, 0, 1 ) );
+   EXPECT_EQ( 100, outputData.getMapValue( incTectonicSubsidence, 1, 0 ) );
+   EXPECT_EQ( 100, outputData.getMapValue( incTectonicSubsidence, 1, 1 ) );
 
-   // 2. Test that the outputs are NDV when the backstrip is undefined
+   // 2. Test that the incremental tectonic subsidence output is equal to 0  when there is not yet any previous TTS
+   //aircorrection=1.5
+   outputData.setMapValues( cumSedimentBackstrip, -100 );
+   TotalTectonicSubsidenceCalculator ttsCalculator2( firstI,
+                                                     firstJ,
+                                                     lastI,
+                                                     lastJ,
+                                                     10.0,
+                                                     1.5,
+                                                     nullptr,
+                                                     surfaceDepthHistory,
+                                                     outputData,
+                                                     validator );
+   ttsCalculator2.compute();
+   EXPECT_EQ( 400, outputData.getMapValue( WLSMap, 0, 0 ) );
+   EXPECT_EQ( 400, outputData.getMapValue( WLSMap, 0, 1 ) );
+   EXPECT_EQ( 400, outputData.getMapValue( WLSMap, 1, 0 ) );
+   EXPECT_EQ( 400, outputData.getMapValue( WLSMap, 1, 1 ) );
+   EXPECT_EQ( 0, outputData.getMapValue( incTectonicSubsidence, 0, 0 ) );
+   EXPECT_EQ( 0, outputData.getMapValue( incTectonicSubsidence, 0, 1 ) );
+   EXPECT_EQ( 0, outputData.getMapValue( incTectonicSubsidence, 1, 0 ) );
+   EXPECT_EQ( 0, outputData.getMapValue( incTectonicSubsidence, 1, 1 ) );
+
+   // 3. Test that the outputs are NDV when the backstrip is undefined
    //aircorrection=1.5
    outputData.setMapValues( cumSedimentBackstrip,Interface::DefaultUndefinedMapValue );
    ttsCalculator1.compute();
@@ -123,8 +157,12 @@ TEST( TotalTectonicSubsidenceCalculator, compute )
    EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( WLSMap, 0, 1 ) );
    EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( WLSMap, 1, 0 ) );
    EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( WLSMap, 1, 1 ) );
+   EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( incTectonicSubsidence, 0, 0 ) );
+   EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( incTectonicSubsidence, 0, 1 ) );
+   EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( incTectonicSubsidence, 1, 0 ) );
+   EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( incTectonicSubsidence, 1, 1 ) );
 
-   // 3. Test that the outputs are NDV when the nodes are not valid
+   // 4. Test that the outputs are NDV when the nodes are not valid
    //aircorrection=1.5
    validator.setIsValid( false );
    outputData.setMapValues( cumSedimentBackstrip, -100 );
@@ -133,24 +171,33 @@ TEST( TotalTectonicSubsidenceCalculator, compute )
    EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( WLSMap, 0, 1 ) );
    EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( WLSMap, 1, 0 ) );
    EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( WLSMap, 1, 1 ) );
+   EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( incTectonicSubsidence, 0, 0 ) );
+   EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( incTectonicSubsidence, 0, 1 ) );
+   EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( incTectonicSubsidence, 1, 0 ) );
+   EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( incTectonicSubsidence, 1, 1 ) );
 
-   // 4. Test that the outputs are NDV when the depth water bottom is undefined
+   // 5. Test that the outputs are NDV when the depth water bottom is undefined
    //aircorrection=1.5
    outputData.setMapValues( cumSedimentBackstrip, -100 ); 
-   TotalTectonicSubsidenceCalculator ttsCalculator2( firstI,
+   TotalTectonicSubsidenceCalculator ttsCalculator3( firstI,
                                                      firstJ,
                                                      lastI,
                                                      lastJ,
                                                      20.0,
                                                      1.5,
+                                                     &previousTTS,
                                                      surfaceDepthHistory,
                                                      outputData,
                                                      validator );
-   ttsCalculator2.compute();
+   ttsCalculator3.compute();
    EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( WLSMap, 0, 0 ) );
    EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( WLSMap, 0, 1 ) );
    EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( WLSMap, 1, 0 ) );
    EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( WLSMap, 1, 1 ) );
+   EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( incTectonicSubsidence, 0, 0 ) );
+   EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( incTectonicSubsidence, 0, 1 ) );
+   EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( incTectonicSubsidence, 1, 0 ) );
+   EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( incTectonicSubsidence, 1, 1 ) );
 
 }
 

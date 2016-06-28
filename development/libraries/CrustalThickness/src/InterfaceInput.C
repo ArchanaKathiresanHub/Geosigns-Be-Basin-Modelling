@@ -710,11 +710,13 @@ GridMap* InterfaceInput::loadPropertyDataFromDepthMap( DataAccess::Mining::Proje
                                                        const Interface::Snapshot* snapshot ){
    if (m_derivedManager == nullptr) loadDerivedPropertyManager();
    GridMap* outputPropertyMap = getFactory()->produceGridMap( 0, 0, handle->getActivityOutputGrid(), Interface::DefaultUndefinedMapValue, 1 );
+   outputPropertyMap->retrieveData();
 
    ///1. Set the dataminer to the property we want to extract
    DataAccess::Mining::DataMiner dataMiner( handle, *m_derivedManager );
    std::vector<const Interface::Property*> propertySet;
    propertySet.push_back( property );
+   handle->getDomainPropertyCollection()->setSnapshot( snapshot );
    dataMiner.setProperties( propertySet );
    ///2. Set the cauldron domain to the snapshot we want to extract
    DataAccess::Mining::CauldronDomain cauldronDomain( handle );
@@ -758,7 +760,7 @@ GridMap* InterfaceInput::loadPropertyDataFromDepthMap( DataAccess::Mining::Proje
          }
       }
    }
-
+   outputPropertyMap->restoreData();
    return outputPropertyMap;
 
 }

@@ -216,9 +216,19 @@ void InterfaceOutput::setMapsToOutput(CrustalThicknessInterface::outputMaps mapI
 
 //------------------------------------------------------------//
 void InterfaceOutput::updatePossibleOutputsAtSnapshot( outputMaps id, const GeoPhysics::ProjectHandle * pHandle, const Snapshot * theSnapshot ) {
-   // The TTS is only ouput when we have an SDH
-   if (id == WLSMap){
+   // The TTS and Incremental TS are only ouput when we have an SDH
+   if (id == WLSMap or id == incTectonicSubsidence){
       if (not pHandle->asSurfaceDepthHistory( theSnapshot->getTime() )){
+         m_outputMapsMask[id] = false;
+      }
+      else{
+         m_outputMapsMask[id] = true;
+      }
+   }
+   // The PWD is not output at 0.0Ma
+   else if (id == isostaticBathymetry){
+      if (theSnapshot->getTime() == 0.0)
+      {
          m_outputMapsMask[id] = false;
       }
       else{
