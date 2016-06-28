@@ -87,6 +87,7 @@ bool  DerivedProperties::acquireFormations( GeoPhysics::ProjectHandle * projectH
          const Formation * formation = *formationIter;
          formationSurfacePairs.push_back( FormationSurface( formation, static_cast<const Surface *>(0) ));
       }
+      delete formations;
    }
    return true;
 }
@@ -132,6 +133,7 @@ bool  DerivedProperties::acquireFormationSurfaces( GeoPhysics::ProjectHandle * p
          }
          formationSurfacePairs.push_back( FormationSurface( formation, surface ));
       }
+      delete formations;
    }
 
    return true;

@@ -111,6 +111,7 @@ void GeoPhysics::GeoPhysicsCrustFormation::determineMinMaxThickness () {
 
          thicknessMap->restoreData ( false );
       }
+      delete crustThicknesses;
    } else {
       Interface::PaleoFormationPropertyList* crustThicknesses = Interface::CrustFormation::getPaleoThicknessHistory ();
       Interface::PaleoFormationPropertyList::const_iterator thicknessIter;

@@ -66,7 +66,67 @@ using Interface::Y_COORD;
 LayerProps::LayerProps ( Interface::ProjectHandle * projectHandle,
                          database::Record *              record ) :
    DataAccess::Interface::Formation ( projectHandle, record ),
-   GeoPhysics::Formation ( projectHandle, record )
+   GeoPhysics::Formation ( projectHandle, record ),
+   layerDA(nullptr),
+   depthvec(nullptr),
+   Depth(nullptr),
+   Lithology_ID(nullptr),
+   NodeHeatProd(nullptr),
+   BulkDensXHeatCapacity(nullptr),
+   BulkTHCondN(nullptr),
+   BulkTHCondP(nullptr),
+   BulkHeatProd(nullptr),
+   FCTCorrection(nullptr),
+   Diffusivity(nullptr),
+   Porosity(nullptr),
+   Velocity(nullptr),
+   Reflectivity(nullptr),
+   Sonic(nullptr),
+   BulkDensity(nullptr),
+   ThCond(nullptr),
+   PermeabilityV(nullptr),
+   PermeabilityH(nullptr),
+   m_averagedSaturation(nullptr),
+   m_timeOfElementInvasionVec(nullptr),
+   Vre(nullptr),
+   m_IlliteFraction(nullptr),
+   m_HopaneIsomerisation(nullptr),
+   m_SteraneIsomerisation(nullptr),
+   m_SteraneAromatisation(nullptr),
+   layerThickness(nullptr),
+   Thickness_Error(nullptr),
+   erosionFactor(nullptr),
+   Computed_Deposition_Thickness(nullptr),
+   faultElements(nullptr),
+   allochthonousLithologyMap(nullptr),
+   Real_Thickness_Vector(nullptr),
+   Solid_Thickness(nullptr),
+   OverPressure(nullptr),
+   HydroStaticPressure(nullptr),
+   Pressure(nullptr),
+   Chemical_Compaction(nullptr),
+   LithoStaticPressure(nullptr),
+   Temperature(nullptr),
+   Ves(nullptr),
+   Max_VES(nullptr),
+   Previous_Real_Thickness_Vector(nullptr),
+   Previous_VES(nullptr),
+   Previous_Max_VES(nullptr),
+   Previous_Depth(nullptr),
+   Previous_Solid_Thickness(nullptr),
+   Previous_Hydrostatic_Pressure(nullptr),
+   Previous_Lithostatic_Pressure(nullptr),
+   Previous_Pore_Pressure(nullptr),
+   Previous_Overpressure(nullptr),
+   Previous_Temperature(nullptr),
+   Previous_Chemical_Compaction(nullptr),
+   includedNodeVec(nullptr),
+   m_flowComponents(nullptr),
+   m_previousFlowComponents(nullptr),
+   m_immobileComponents(nullptr),
+   m_saturations(nullptr),
+   m_previousSaturations(nullptr),
+   m_transportedMasses(nullptr)
 {
 
   m_nrOfActiveElements = 0;
@@ -454,7 +514,23 @@ LayerProps::~LayerProps(){
      delete m_genexData;
   }
 
-  if ( layerDA != NULL )  DMDestroy(&layerDA);
+  if ( layerDA != NULL )  DMDestroy( &layerDA );
+  
+  Destroy_Petsc_Vector ( Lithology_ID );
+  Destroy_Petsc_Vector ( NodeHeatProd );
+  Destroy_Petsc_Vector ( FCTCorrection );
+  Destroy_Petsc_Vector ( Diffusivity );
+  Destroy_Petsc_Vector ( Velocity );
+  Destroy_Petsc_Vector ( Reflectivity );
+  Destroy_Petsc_Vector ( Sonic );
+  Destroy_Petsc_Vector ( BulkDensity );
+  Destroy_Petsc_Vector ( ThCond );
+  Destroy_Petsc_Vector ( Vre );
+  Destroy_Petsc_Vector ( layerThickness );
+  Destroy_Petsc_Vector ( Thickness_Error );
+  Destroy_Petsc_Vector ( erosionFactor );
+  Destroy_Petsc_Vector ( faultElements );
+  Destroy_Petsc_Vector ( allochthonousLithologyMap );
 
   Destroy_Petsc_Vector ( Real_Thickness_Vector );
   Destroy_Petsc_Vector ( Solid_Thickness );
@@ -482,6 +558,8 @@ LayerProps::~LayerProps(){
   Destroy_Petsc_Vector ( Previous_Chemical_Compaction );
 
   Destroy_Petsc_Vector ( Porosity );
+  Destroy_Petsc_Vector ( PermeabilityV );
+  Destroy_Petsc_Vector ( PermeabilityH );
   Destroy_Petsc_Vector ( BulkDensXHeatCapacity );
   Destroy_Petsc_Vector ( BulkTHCondN );
   Destroy_Petsc_Vector ( BulkTHCondP );
@@ -495,9 +573,6 @@ LayerProps::~LayerProps(){
   Destroy_Petsc_Vector ( m_IlliteFraction );
 
   Destroy_Petsc_Vector ( Computed_Deposition_Thickness );
-
-  Destroy_Petsc_Vector ( m_averagedSaturation );
-
 
   PetscBool includedInDarcySimulation;
   VecValid ( m_flowComponents, &includedInDarcySimulation);
@@ -527,6 +602,11 @@ LayerProps::~LayerProps(){
          delete m_elementVolumeGrids [ i ];
       }
 
+   }
+
+   for ( i = 0; i < m_nodalVolumeGrids.size (); ++i )
+   {
+      delete m_nodalVolumeGrids[i];
    }
 
 }

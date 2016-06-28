@@ -75,6 +75,7 @@ void ProjectHandle::mapFileCacheDestructor (void)
             static_cast<struct MapFileCache * > (m_mapFileCache) [i].fileName = "";
         }
     }
+    delete[] static_cast<struct MapFileCache * > (m_mapFileCache);
 }
 
 void ProjectHandle::checkForValidPartitioning (const string & name, int M, int N) const

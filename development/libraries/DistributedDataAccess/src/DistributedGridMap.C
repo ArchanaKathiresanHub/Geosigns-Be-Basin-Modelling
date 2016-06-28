@@ -42,7 +42,8 @@ DistributedGridMap::DistributedGridMap( const Grid * grid,
       m_undefinedValue (undefinedValue),
       m_averageValue (m_undefinedValue),
       m_depth (depth),
-      m_retrieved (false)
+      m_retrieved (false),
+      m_vecLocal(nullptr)
 {
    initialize ();
    PetscScalar initialValue = m_undefinedValue;
@@ -61,7 +62,8 @@ DistributedGridMap::DistributedGridMap( const Parent * owner,
       m_averageValue (m_undefinedValue),
       m_depth (depth),
       m_grid (grid),
-      m_retrieved (false)
+      m_retrieved (false),
+      m_vecLocal(nullptr)
 {
    initialize ();
    PetscScalar initialValue = value;
@@ -79,7 +81,8 @@ DistributedGridMap::DistributedGridMap( const Parent * owner,
       m_undefinedValue (undefinedValue),
       m_averageValue (m_undefinedValue),
       m_depth (depth),
-      m_retrieved (false)
+      m_retrieved (false),
+      m_vecLocal(nullptr)
 {
    initialize ();
 
@@ -114,7 +117,8 @@ DistributedGridMap::DistributedGridMap( const Parent * owner,
       m_undefinedValue (operand1->getUndefinedValue ()),
       m_averageValue (m_undefinedValue),
       m_depth (operand1->getDepth ()),
-      m_retrieved (false)
+      m_retrieved (false),
+      m_vecLocal(nullptr)
 {
    initialize ();
 
@@ -194,7 +198,8 @@ DistributedGridMap::DistributedGridMap( const Parent * owner,
    m_undefinedValue (operand1->getUndefinedValue ()), 
    m_averageValue (m_undefinedValue),
    m_depth (operand1->getDepth ()),
-   m_retrieved (false)
+   m_retrieved (false),
+   m_vecLocal(nullptr)
 {
    initialize ();
 
@@ -273,7 +278,8 @@ DistributedGridMap::DistributedGridMap( const Parent * owner,
       m_undefinedValue (operand->getUndefinedValue ()),
       m_averageValue (m_undefinedValue),
       m_depth (operand->getDepth ()),
-      m_retrieved (false)
+      m_retrieved (false),
+      m_vecLocal(nullptr)
 {
    initialize ();
 
@@ -333,7 +339,8 @@ DistributedGridMap::DistributedGridMap( const Parent * owner,
       m_undefinedValue (operand->getUndefinedValue ()),
       m_averageValue (m_undefinedValue),
       m_depth (operand->getDepth ()),
-      m_retrieved (false)
+      m_retrieved (false),
+      m_vecLocal(nullptr)
 {
    initialize ();
 

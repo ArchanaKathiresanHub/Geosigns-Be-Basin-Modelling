@@ -462,6 +462,9 @@ static bool generateBHF (ProjectHandle * projectHandle, DerivedProperties::Deriv
 
    outputFile.close ();
 
+   delete snapshots;
+   delete formations;
+
    return true;
 }
 

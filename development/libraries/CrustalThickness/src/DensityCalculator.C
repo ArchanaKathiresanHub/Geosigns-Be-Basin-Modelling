@@ -102,6 +102,7 @@ void DensityCalculator::loadData( GeoPhysics::ProjectHandle* projectHandle, cons
    m_depthBasementMap    = const_cast<Interface::GridMap *>(bottomOfSedimentSurface->getInputDepthMap());
    m_depthWaterBottomMap = const_cast<Interface::GridMap *>(topOfSedimentSurface->getInputDepthMap());
 
+   delete myFormations;
 }
 #if 0
 //------------------------------------------------------------//

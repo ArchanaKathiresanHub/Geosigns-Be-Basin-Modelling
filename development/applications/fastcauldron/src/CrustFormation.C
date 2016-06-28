@@ -50,7 +50,7 @@ CrustFormation::CrustFormation ( Interface::ProjectHandle * projectHandle, datab
 //------------------------------------------------------------//
 CrustFormation::~CrustFormation () {
 
-   if ( m_heatProductionMap != 0 and not m_heatProductionMap->retrieved ()) {
+   if ( m_heatProductionMap != 0 and m_heatProductionMap->retrieved ()) {
       m_heatProductionMap->restoreData ( false, true );
    }
    

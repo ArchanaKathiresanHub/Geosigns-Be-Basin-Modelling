@@ -403,6 +403,8 @@ ProjectHandle::~ProjectHandle( void )
    deleteInputValues();
    deleteProperties();
    deletePropertyValues();
+   deleteRecordLessMapPropertyValues();
+   deleteRecordLessVolumePropertyValues();
    deleteFluidTypes();
    deleteCrustalThicknessData();
 
@@ -1981,7 +1983,7 @@ bool ProjectHandle::addCrustThinningHistoryMaps( void ) {
 
       const Interface::Snapshot* oldestSnapshot = getCrustFormation()->getTopSurface()->getSnapshot();
       assert( oldestSnapshot != 0 );
-
+      
       Interface::SnapshotList* snapshots = getSnapshots( Interface::MAJOR );
       Interface::SnapshotList::const_iterator snapshotIter = snapshots->begin();
 
@@ -2021,6 +2023,7 @@ bool ProjectHandle::addCrustThinningHistoryMaps( void ) {
       }
       sort( m_crustPaleoThicknesses.begin(), m_crustPaleoThicknesses.end(), PaleoPropertyTimeLessThan() );
 
+      delete snapshots;
    }
 
    return true;
@@ -5478,6 +5481,34 @@ void ProjectHandle::deletePropertyValues( void )
       delete propertyValue;
    }
    m_propertyValues.clear();
+}
+
+void ProjectHandle::deleteRecordLessMapPropertyValues( void )
+{
+   MutablePropertyValueList::const_iterator propertyValueIter;
+
+   for ( propertyValueIter = m_recordLessMapPropertyValues.begin();
+      propertyValueIter != m_recordLessMapPropertyValues.end();
+      ++propertyValueIter )
+   {
+      PropertyValue * propertyValue = *propertyValueIter;
+      delete propertyValue;
+   }
+   m_recordLessMapPropertyValues.clear();
+}
+
+void ProjectHandle::deleteRecordLessVolumePropertyValues( void )
+{
+   MutablePropertyValueList::const_iterator propertyValueIter;
+
+   for ( propertyValueIter = m_recordLessVolumePropertyValues.begin();
+      propertyValueIter != m_recordLessVolumePropertyValues.end();
+      ++propertyValueIter )
+   {
+      PropertyValue * propertyValue = *propertyValueIter;
+      delete propertyValue;
+   }
+   m_recordLessVolumePropertyValues.clear();
 }
 
 void ProjectHandle::deleteBiodegradationParameters( void )

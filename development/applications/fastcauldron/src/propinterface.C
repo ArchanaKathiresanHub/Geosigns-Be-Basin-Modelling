@@ -1601,6 +1601,7 @@ void AppCtx::shareValidNeedleData () {
 
    }
 
+   VecDestroy( &definedNodeVec );
 }
 
 void AppCtx::printValidNeedles () const {

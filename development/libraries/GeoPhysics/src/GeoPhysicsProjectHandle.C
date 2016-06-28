@@ -542,7 +542,7 @@ void GeoPhysics::ProjectHandle::addMantleUndefinedAreas ( const Interface::Mantl
       for ( heatFlowIter = heatFlowMaps->begin (); heatFlowIter != heatFlowMaps->end (); ++heatFlowIter ) {
          addUndefinedAreas ( dynamic_cast<const Interface::GridMap*>((*heatFlowIter)->getMap ( Interface::HeatFlowHistoryInstanceHeatFlowMap )));
       }
-
+      delete heatFlowMaps;
    }
 
 }
@@ -1069,12 +1069,14 @@ bool GeoPhysics::ProjectHandle::createBasaltThicknessAndECT () {
          if( getRank() == 0 ) {
             cerr << " MeSsAgE ERROR BasaltThickness map is not defined." << endl;
          }
+         delete crustThicknesses;
          return false;
       }
       if( crustMeltOnsetMap == 0 ) {
          if( getRank() == 0 ) {
             cerr << " MeSsAgE ERROR Crustal thickness at melt onset  map is not defined." << endl;
          }
+         delete crustThicknesses;
          return false;
       }
 
@@ -1083,6 +1085,7 @@ bool GeoPhysics::ProjectHandle::createBasaltThicknessAndECT () {
          if( getRank() == 0 ) {
             cerr << " MeSsAgE ERROR Initial Lithosperic Mantle Thickness map is negative." << endl;
          }
+         delete crustThicknesses;
          return false;
       }
 
@@ -1201,6 +1204,7 @@ bool GeoPhysics::ProjectHandle::createBasaltThicknessAndECT () {
          getMessageHandler ().printLine ( " MeSsAgE ERROR  Crust or basalt has some non-positive thickness values." );
          getMessageHandler ().printLine ( " MeSsAgE ERROR  For correct execution all crust thickness values must be positive." );
       }
+      delete crustThicknesses;
       return globalStatus;
    }
    return true;
@@ -1581,6 +1585,7 @@ bool GeoPhysics::ProjectHandle::determinePermafrost ( std::vector<double>& timeS
             std::reverse( permafrostAges.begin(), permafrostAges.end() );
             std::reverse( timeSteps.begin(), timeSteps.end() );
          }
+         delete surfaceTemperatureHistory;
       } 
       setPermafrost( isPermafrost );    
    }

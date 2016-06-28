@@ -340,6 +340,7 @@ bool PropertiesCalculator::acquireSnapshots( SnapshotList & snapshots )
    {
       SnapshotList * allSnapshots = m_projectHandle->getSnapshots( m_snapshotsType );
       snapshots = *allSnapshots;
+      delete allSnapshots;
       return true;
    }
    else
@@ -387,6 +388,7 @@ bool PropertiesCalculator::acquireSnapshots( SnapshotList & snapshots )
                         if ( m_debug && snapshot && m_rank == 0 ) LogHandler( LogHandler::INFO_SEVERITY ) << "adding range snapshot " << snapshot->getTime();
                      }
                   }
+                  delete allSnapshots;
                }
             }
             firstAge = secondAge = -1;
@@ -536,7 +538,7 @@ void PropertiesCalculator::printListSnapshots ()  {
       }
       cout << endl;
 
-    //  if( mySnapshots != 0 ) delete mySnapshots;
+      delete mySnapshots;
    }
 }
 //------------------------------------------------------------//
@@ -581,6 +583,8 @@ void PropertiesCalculator::printListStratigraphy () {
          }
       }
       cout << endl;
+
+      delete myFormations;
    }
 
 
@@ -764,6 +768,9 @@ bool PropertiesCalculator::copyFiles( ) {
    } else {
       PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not merge the file %s.\n", filePathName.cpath() );               
    }
+
+   delete snapshots;
+
    return status;  
 }
 //------------------------------------------------------------//

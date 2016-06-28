@@ -110,7 +110,7 @@ FastcauldronSimulator* FastcauldronSimulator::CreateFrom ( AppCtx* cauldron, Dat
 
    if ( m_fastcauldronSimulator == 0 ) {
       m_fastcauldronSimulator = (FastcauldronSimulator*) Interface::OpenCauldronProject ( cauldron->getProjectFileName (), "rw", objectFactory );
- 
+
    }
 
    m_fastcauldronSimulator->m_cauldron = cauldron;
@@ -983,7 +983,7 @@ void FastcauldronSimulator::finalise ( const bool saveResults ) {
       }
 
       delete m_fastcauldronSimulator;
-      m_fastcauldronSimulator = 0;
+      m_fastcauldronSimulator = nullptr;
       HydraulicFracturingManager::deleteInstance();
       PropertyManager::deleteInstance( );
    }

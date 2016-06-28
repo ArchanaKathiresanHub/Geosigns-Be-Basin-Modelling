@@ -17,8 +17,9 @@
 
 Mat PetscObjectAllocator::allocateMatrix ( const ComputationalDomain& domain, 
                                            const bool                 verbose ) {
-
-
+   int mpiSize = 0;
+   MPI_Comm_size( PETSC_COMM_WORLD, &mpiSize );
+   
   MatrixNonZeroCalculator msp;
   std::vector<int> localNzs;
   std::vector<int> ghostNzs;
@@ -32,8 +33,19 @@ Mat PetscObjectAllocator::allocateMatrix ( const ComputationalDomain& domain,
                 domain.getLocalNumberOfActiveNodes (),
                 PETSC_DECIDE, PETSC_DECIDE );
   MatSetFromOptions ( matrix );
-  MatSeqAIJSetPreallocation ( matrix, 0, localNzs.data ());
-  MatMPIAIJSetPreallocation ( matrix, 0, localNzs.data (), 0, ghostNzs.data ());
+
+  // To avoid memory leaks within PETSc
+  // http://lists.mcs.anl.gov/pipermail/petsc-users/2014-September/022866.html
+  if( mpiSize == 1 )
+  {
+     MatSetType( matrix, MATSEQAIJ );
+     MatSeqAIJSetPreallocation ( matrix, 0, localNzs.data ());
+  }
+  else
+  {
+     MatSetType( matrix, MATMPIAIJ );
+     MatMPIAIJSetPreallocation ( matrix, 0, localNzs.data (), 0, ghostNzs.data ());
+  }
   MatSetLocalToGlobalMapping ( matrix,
                                domain.getLocalToGlobalMapping (),
                                domain.getLocalToGlobalMapping ());
@@ -43,7 +55,9 @@ Mat PetscObjectAllocator::allocateMatrix ( const ComputationalDomain& domain,
 }
 
 Vec PetscObjectAllocator::allocateVector ( const ComputationalDomain& domain ) {
-
+ 
+  int mpiSize = 0;
+  MPI_Comm_size( PETSC_COMM_WORLD, &mpiSize );
 
   Vec vector;
 
@@ -52,6 +66,17 @@ Vec PetscObjectAllocator::allocateVector ( const ComputationalDomain& domain ) {
                 domain.getLocalNumberOfActiveNodes (),
                 domain.getGlobalNumberOfActiveNodes ());
   VecSetFromOptions ( vector );
+
+  // To avoid memory leaks within PETSc
+  // http://lists.mcs.anl.gov/pipermail/petsc-users/2014-September/022866.html
+  if( mpiSize == 1 )
+  {
+     VecSetType( vector, VECSEQ );
+  }
+  else
+  {
+     VecSetType( vector, VECMPI );
+  }
   VecSetLocalToGlobalMapping ( vector, domain.getLocalToGlobalMapping ());
 
   return vector;

@@ -47,6 +47,7 @@ bool ProjectHandle::createPersistentTraps (void)
       if (!result)
       {
 	 cerr << "Error in extracting the traps" << endl;
+    delete snapshots;
 	 return false;
       }
 
@@ -57,6 +58,7 @@ bool ProjectHandle::createPersistentTraps (void)
       if (!result)
       {
 	 cerr << "Could not find one or more maps, output is incomplete" << endl;
+    delete snapshots;
 	 return false;
       }
 
@@ -67,7 +69,7 @@ bool ProjectHandle::createPersistentTraps (void)
 
    savePersistentTraps ();
    deletePersistentTraps ();
-
+   delete snapshots;
    return true;
 }
 

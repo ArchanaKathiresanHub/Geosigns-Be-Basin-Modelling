@@ -260,6 +260,8 @@ int main (int argc, char ** argv)
    }
 
    delete factory;
+   delete snapshotList;
+   delete reservoirList;
    return 0;
 }
 
@@ -323,6 +325,7 @@ bool processReservoir (ProjectHandle * projectHandle,  const Reservoir * reservo
 	       trap->getVolume (Oil) / 1e6, cubicmeters2barrels (trap->getVolume (Oil) / 1e6),
 	       trap->getVolume (Gas) / 1e6, cubicmeters2standardcubicfeet (trap->getVolume (Gas) / 1e6));
       }
+      delete trapList;
    }
    fprintf (fp, HLineD);
 
@@ -350,6 +353,7 @@ bool processReservoir (ProjectHandle * projectHandle,  const Reservoir * reservo
 	       undefinedValue /* trap->getSealStrength (Gas) */, undefinedValue /* trap->getSealStrength (Oil) */);
 
       }
+      delete trapList;
    }
 
    fprintf (fp, HLineD1);
@@ -506,6 +510,7 @@ bool processReservoir (ProjectHandle * projectHandle,  const Reservoir * reservo
 		  gasGormString);
 	 }
       }
+      delete trapList;
    }
 
    fprintf (fp, HLineDA);
@@ -620,6 +625,7 @@ bool processReservoir (ProjectHandle * projectHandle,  const Reservoir * reservo
 		  porosityString, permString, net_gross, oilsat, gassat);
 	 }
       }
+      delete trapList;
    }
 
    fprintf (fp, RC_LineD);
@@ -734,6 +740,7 @@ bool processReservoir (ProjectHandle * projectHandle,  const Reservoir * reservo
 		  porosityString, permString, net_gross, oilsat, gassat);
 	 }
       }
+      delete trapList;
    }
 
    fprintf (fp, RC_LineD);
@@ -945,6 +952,7 @@ bool processReservoir (ProjectHandle * projectHandle,  const Reservoir * reservo
 	 fprintf (fp, "%11s|%10s|%10s|%10s\n",
 	       cgrString, gorString, bgString, boString); 
       }
+      delete trapList;
    }
 
    fprintf (fp, ST_LineD);
@@ -1153,6 +1161,7 @@ bool processReservoir (ProjectHandle * projectHandle,  const Reservoir * reservo
 	 fprintf (fp, "%11s|%10s|%10s|%10s\n",
 	       cgrString, gorString, bgString, boString); 
       }
+      delete trapList;
    }
 
 
@@ -1361,6 +1370,7 @@ bool processReservoir (ProjectHandle * projectHandle,  const Reservoir * reservo
 	       percentage (stOutputMasses[Gas][ASPHALTENES], stPhaseMasses[Gas]));
 	 }
       }
+      delete trapList;
    }
 
    fprintf (fp, E_LineD);

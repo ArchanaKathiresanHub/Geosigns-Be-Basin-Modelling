@@ -180,7 +180,7 @@ namespace DataAccess
          virtual const AllochthonousLithology * findAllochthonousLithology( const string& formationName ) const;
          /// Find the FluidType with the given name.
          virtual const FluidType* findFluid( const string& name ) const;
-
+         
          /// return the list of LithoType objects.
          virtual LithoTypeList * getLithoTypes( void ) const;
          /// return the list of snapshots.
@@ -355,6 +355,8 @@ namespace DataAccess
             const Surface * surface = 0, int propertyTypes = MAP | VOLUME );
 
          void deletePropertyValues( void );
+         void deleteRecordLessMapPropertyValues( void );
+         void deleteRecordLessVolumePropertyValues( void );
  
          /// return a list of PropertyValues based on the given arguments.
          /// if an argument equals 0, it is used as a wildcard
@@ -454,7 +456,7 @@ namespace DataAccess
          virtual double getBottomMantleTemperature() const;
 
          virtual ModellingMode getModellingMode() const;
-
+         
          virtual PointAdsorptionHistoryList* getPointAdsorptionHistoryList( const std::string& sourceRockFormationName = "" ) const;
 
          virtual LangmuirAdsorptionIsothermSampleList* getLangmuirAdsorptionIsothermSampleList( const std::string& functionName ) const;

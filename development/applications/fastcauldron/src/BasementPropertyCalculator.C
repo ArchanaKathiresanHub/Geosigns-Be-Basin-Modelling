@@ -115,6 +115,10 @@ bool BasementPropertyCalculator::calculateProperty () {
       
       theMap->restoreData ();
       
+      DMDAVecRestoreArray( *m_BasinModel->mapDA,
+                           *m_formation->vectorList.VecArray [ m_propertyName ],
+                           (void*) &propertyVector );
+      
       m_isCalculated = true;
       return true;
    } else {
