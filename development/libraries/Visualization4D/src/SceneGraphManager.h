@@ -62,14 +62,14 @@ class MoMaterial;
 class MoDataBinding;
 class MoColorMapping;
 class MoMesh;
-class MoScalarSetIj;
-class MoScalarSetIjk;
+class MoScalarSet;
 class MoVec3SetIjk;
 class MoMeshSkin;
 class MoMeshSlab;
 class MoMeshSurface;
 class MoMeshFenceSlice;
-class MoCellFilter;
+class MiSkinExtractIjk;
+class MexSurfaceMeshUnstructured;
 
 template<class T>
 class MiDataSetIjk;
@@ -82,17 +82,15 @@ struct SnapshotInfo
 {
   struct Chunk
   {
-    int minK;
-    int maxK;
+    int minK = 0;
+    int maxK = 0;
 
-    MoMeshSkin* skin;
-
-    Chunk(int kmin, int kmax, MoMeshSkin* meshSkin = 0)
-      : minK(kmin)
-      , maxK(kmax)
-      , skin(meshSkin)
-    {
-    }
+    std::shared_ptr<MiSkinExtractIjk> extractor;
+    MexSurfaceMeshUnstructured* skinExtract = nullptr;
+    SoSeparator* root = nullptr;
+    MoMesh* mesh = nullptr;
+    MoScalarSet* scalarSet = nullptr;
+    MoMeshSurface* skin = nullptr;
   };
 
   struct Surface
@@ -101,7 +99,7 @@ struct SnapshotInfo
 
     SoSeparator* root;
     MoMesh* mesh;
-    MoScalarSetIj* scalarSet;
+    MoScalarSet* scalarSet;
     MoMeshSurface* surfaceMesh;
     std::shared_ptr<MiSurfaceMeshCurvilinear> meshData;
     std::shared_ptr<MiDataSetIj<double> > propertyData;
@@ -122,7 +120,7 @@ struct SnapshotInfo
 
     SoSeparator* root;
     MoMesh* mesh;
-    MoScalarSetIjk* scalarSet;
+    MoScalarSet* scalarSet;
     MoMeshSkin* skin;
 
     SoIndexedLineSet* trapOutlines;
@@ -232,8 +230,9 @@ struct SnapshotInfo
   MoMesh* mesh;
   std::shared_ptr<MiVolumeMeshCurvilinear> meshData;
 
-  MoScalarSetIjk* scalarSet;
+  MoScalarSet* scalarSet;
   std::shared_ptr<MiDataSetIjk<double>> scalarDataSet;
+  std::shared_ptr<PropertyValueCellFilter> propertyValueCellFilter;
 
   MoVec3SetIjk* flowDirSet;
   std::shared_ptr<MiDataSetIjk<double>> flowDirScalarSet;
@@ -241,10 +240,6 @@ struct SnapshotInfo
 
   SoSwitch* sliceSwitch[3];
   MoMeshSlab* slice[3];
-
-  SoSwitch* cellFilterSwitch;
-  MoCellFilter* cellFilter;
-  std::shared_ptr<PropertyValueCellFilter> propertyValueCellFilter;
 
   SoGroup* chunksGroup;
   SoGroup* flowLinesGroup;
@@ -269,6 +264,7 @@ struct SnapshotInfo
   size_t faultsTimeStamp;
   size_t flowLinesTimeStamp;
   size_t fencesTimeStamp;
+  size_t cellFilterTimeStamp;
   size_t seismicPlaneSliceTimeStamp;
 
   SnapshotInfo();
@@ -411,6 +407,7 @@ private:
   size_t m_faultsTimeStamp;
   size_t m_flowLinesTimeStamp;
   size_t m_fencesTimeStamp;
+  size_t m_cellFilterTimeStamp;
 
   SoGroup*        m_root;
   SoShapeHints*   m_formationShapeHints;

@@ -55,17 +55,14 @@
 #include <MeshVizXLM/mapping/nodes/MoMeshSkin.h>
 #include <MeshVizXLM/mapping/nodes/MoMeshSlab.h>
 #include <MeshVizXLM/mapping/nodes/MoMeshFenceSlice.h>
-#include <MeshVizXLM/mapping/nodes/MoMeshVector.h>
-#include <MeshVizXLM/mapping/nodes/MoMeshSurface.h>
 #include <MeshVizXLM/mapping/nodes/MoMeshIsoline.h>
-#include <MeshVizXLM/mapping/nodes/MoScalarSetIj.h>
-#include <MeshVizXLM/mapping/nodes/MoScalarSetIjk.h>
-#include <MeshVizXLM/mapping/nodes/MoVec3SetIjk.h>
+#include <MeshVizXLM/mapping/nodes/MoScalarSet.h>
 #include <MeshVizXLM/mapping/nodes/MoLegend.h>
 #include <MeshVizXLM/mapping/nodes/MoCellFilter.h>
+#include <MeshVizXLM/mapping/nodes/MoMeshSurface.h>
 #include <MeshVizXLM/mapping/details/MoFaceDetailIj.h>
 #include <MeshVizXLM/mapping/details/MoFaceDetailIjk.h>
-#include <MeshVizXLM/mapping/elements/MoScalarSetElementIjk.h>
+#include <MeshVizXLM/extractors/MiSkinExtractIjk.h>
 
 //#define USE_OIV_COORDINATE_GRID
 
@@ -92,8 +89,6 @@ SnapshotInfo::SnapshotInfo()
   , meshData(0)
   , scalarSet(0)
   , flowDirSet(0)
-  , cellFilterSwitch(0)
-  , cellFilter(0)
   , chunksGroup(0)
   , flowLinesGroup(0)
   , surfacesGroup(0)
@@ -107,6 +102,7 @@ SnapshotInfo::SnapshotInfo()
   , faultsTimeStamp(MxTimeStamp::getTimeStamp())
   , flowLinesTimeStamp(MxTimeStamp::getTimeStamp())
   , fencesTimeStamp(MxTimeStamp::getTimeStamp())
+  , cellFilterTimeStamp(MxTimeStamp::getTimeStamp())
   , seismicPlaneSliceTimeStamp(MxTimeStamp::getTimeStamp())
 {
   for (int i = 0; i < 3; ++i)
@@ -285,6 +281,52 @@ void SceneGraphManager::updateSnapshotMesh()
   }
 }
 
+namespace
+{
+  SnapshotInfo::Chunk createChunk(const MiVolumeMeshCurvilinear& mesh, const MiCellFilterIjk* cellFilter, int kmin, int kmax)
+  {
+    SnapshotInfo::Chunk chunk;
+    chunk.minK = kmin;
+    chunk.maxK = kmax;
+
+    auto const& topology = mesh.getTopology();
+    MbVec3ui rangeMin(0u, 0u, (size_t)kmin);
+    MbVec3ui rangeMax(
+      topology.getNumCellsI(),
+      topology.getNumCellsJ(),
+      (size_t)kmax);
+
+    chunk.extractor.reset(MiSkinExtractIjk::getNewInstance(mesh));
+    chunk.extractor->addCellRange(rangeMin, rangeMax);
+    chunk.root = new SoSeparator;
+    chunk.mesh = new MoMesh;
+    chunk.mesh->setMesh(&chunk.extractor->extractSkin(cellFilter));
+    chunk.scalarSet = new MoScalarSet;
+    chunk.skin = new MoMeshSurface;
+    chunk.skin->colorScalarSetId = -1;
+    chunk.root->addChild(chunk.mesh);
+    chunk.root->addChild(chunk.scalarSet);
+    chunk.root->addChild(chunk.skin);
+
+    return chunk;
+  }
+
+  void updateChunkScalarSet(SnapshotInfo::Chunk& chunk, MiDataSetIjk<double>* dataSet)
+  {
+    if(dataSet)
+    {
+      auto chunkDataSet = &chunk.extractor->extractScalarSet(*dataSet);
+      chunk.scalarSet->setScalarSet(chunkDataSet);
+      chunk.skin->colorScalarSetId = 0;
+    }
+    else
+    {
+      chunk.scalarSet->setScalarSet(nullptr);
+      chunk.skin->colorScalarSetId = -1;
+    }
+  }
+}
+
 void SceneGraphManager::updateSnapshotFormations()
 {
   assert(!m_snapshotInfoCache.empty());
@@ -292,67 +334,49 @@ void SceneGraphManager::updateSnapshotFormations()
   SnapshotInfo& snapshot = *m_snapshotInfoCache.begin(); 
 
   // Update formations
-  if (snapshot.formationsTimeStamp == m_formationsTimeStamp || !snapshot.chunksGroup || snapshot.formations.empty())
-    return;
+  if (
+    snapshot.formationsTimeStamp == m_formationsTimeStamp || 
+    !snapshot.meshData ||
+    !snapshot.chunksGroup || 
+    snapshot.formations.empty())
+    {
+      return;
+    }
 
   snapshot.chunksGroup->removeAllChildren();
 
+  const MiCellFilterIjk* cellFilter = nullptr;
+  if (m_viewState.cellFilterEnabled && snapshot.scalarDataSet)
+    cellFilter = snapshot.propertyValueCellFilter.get();
+
   bool buildingChunk = false;
   int minK=0, maxK=0;
-
   std::vector<SnapshotInfo::Chunk> tmpChunks;
-
   for (size_t i = 0; i < snapshot.formations.size(); ++i)
   {
-    int id = snapshot.formations[i].id;
-    if (!buildingChunk && m_viewState.formationVisibility[id])
-    {
-      buildingChunk = true;
+    bool visible = m_viewState.formationVisibility[snapshot.formations[i].id];
+
+    if (!buildingChunk && visible)
       minK = snapshot.formations[i].minK;
-    }
-    else if (buildingChunk && !m_viewState.formationVisibility[id])
-    {
-      buildingChunk = false;
-      tmpChunks.push_back(SnapshotInfo::Chunk(minK, maxK));
-    }
+    else if (buildingChunk && !visible)
+      tmpChunks.push_back(createChunk(*snapshot.meshData, cellFilter, minK, maxK));
 
     maxK = snapshot.formations[i].maxK;
+    buildingChunk = visible;
   }
 
   // don't forget the last one
   if (buildingChunk)
-    tmpChunks.push_back(SnapshotInfo::Chunk(minK, maxK));
+    tmpChunks.push_back(createChunk(*snapshot.meshData, cellFilter, minK, maxK));
 
-  if (snapshot.meshData)
+  for (size_t i = 0; i < tmpChunks.size(); ++i)
   {
-    const MiTopologyIjk& topology = snapshot.meshData->getTopology();
-    for (size_t i = 0; i < tmpChunks.size(); ++i)
-    {
-      MoMeshSkin* meshSkin = new MoMeshSkin;
-      uint32_t rangeMin[] = { 0, 0, (uint32_t)tmpChunks[i].minK };
-      uint32_t rangeMax[] = {
-        (uint32_t)(topology.getNumCellsI()),
-        (uint32_t)(topology.getNumCellsJ()),
-        (uint32_t)(tmpChunks[i].maxK - 1) };
-
-      meshSkin->minCellRanges.setValues(0, 3, rangeMin);
-      meshSkin->maxCellRanges.setValues(0, 3, rangeMax);
-#ifdef _DEBUG
-      meshSkin->parallel = false;
-#endif
-      tmpChunks[i].skin = meshSkin;
-      snapshot.chunksGroup->addChild(meshSkin);
-    }
+    updateChunkScalarSet(tmpChunks[i], snapshot.scalarDataSet.get());
+    snapshot.chunksGroup->addChild(tmpChunks[i].root);
   }
 
   snapshot.chunks.swap(tmpChunks);
   snapshot.formationsTimeStamp = m_formationsTimeStamp;
-
-  if (!snapshot.scalarDataSet)
-  {
-    snapshot.scalarDataSet = createFormationProperty(snapshot, snapshot.currentPropertyId);
-    snapshot.scalarSet->setScalarSet(snapshot.scalarDataSet.get());
-  }
 }
 
 namespace
@@ -395,7 +419,7 @@ void SceneGraphManager::updateSnapshotSurfaces()
       surf.meshData = m_project->createSurfaceMesh(snapshot.index, surf.id);
       surf.mesh = new MoMesh;
       surf.mesh->setMesh(surf.meshData.get());
-      surf.scalarSet = new MoScalarSetIj;
+      surf.scalarSet = new MoScalarSet;
       surf.propertyData = m_project->createSurfaceProperty(snapshot.index, surf.id, snapshot.currentPropertyId);
       surf.scalarSet->setScalarSet(surf.propertyData.get());
       surf.surfaceMesh = new MoMeshSurface;
@@ -443,7 +467,7 @@ void SceneGraphManager::updateSnapshotReservoirs()
       res.mesh->setMesh(res.meshData.get());
 
       res.propertyData = createReservoirProperty(snapshot, res, snapshot.currentPropertyId);
-      res.scalarSet = new MoScalarSetIjk;
+      res.scalarSet = new MoScalarSet;
       res.scalarSet->setScalarSet(res.propertyData.get());
 
       res.skin = new MoMeshSkin;
@@ -657,6 +681,10 @@ void SceneGraphManager::updateSnapshotProperties()
   snapshot.scalarDataSet = createFormationProperty(snapshot, m_viewState.currentPropertyId);
   snapshot.scalarSet->setScalarSet(snapshot.scalarDataSet.get());
 
+  // the cell filter depends on the current property, so update it
+  m_cellFilterTimeStamp = MxTimeStamp::getTimeStamp();
+  updateSnapshotCellFilter();
+
   for (auto &surf : snapshot.surfaces)
   {
     if (surf.root)
@@ -674,6 +702,9 @@ void SceneGraphManager::updateSnapshotProperties()
       res.scalarSet->setScalarSet(res.propertyData.get());
     }
   }
+
+  for (auto &chunk : snapshot.chunks)
+    updateChunkScalarSet(chunk, snapshot.scalarDataSet.get());
 
   snapshot.currentPropertyId = m_viewState.currentPropertyId;
 }
@@ -806,10 +837,22 @@ void SceneGraphManager::updateSnapshotCellFilter()
   assert(!m_snapshotInfoCache.empty());
 
   SnapshotInfo& snapshot = *m_snapshotInfoCache.begin();
-  snapshot.cellFilterSwitch->whichChild = m_viewState.cellFilterEnabled 
-    ? SO_SWITCH_ALL 
-    : SO_SWITCH_NONE;
-  snapshot.propertyValueCellFilter->setRange(m_viewState.cellFilterMinValue, m_viewState.cellFilterMaxValue);
+  if (snapshot.cellFilterTimeStamp == m_cellFilterTimeStamp)
+    return;
+
+  snapshot.propertyValueCellFilter->setDataSet(snapshot.scalarDataSet.get());
+  snapshot.propertyValueCellFilter->setRange(
+    m_viewState.cellFilterMinValue, 
+    m_viewState.cellFilterMaxValue);
+
+  snapshot.cellFilterTimeStamp = m_cellFilterTimeStamp;
+
+  // cell filter changed, so update formations
+  if (m_viewState.cellFilterEnabled)
+  {
+    m_formationsTimeStamp = MxTimeStamp::getTimeStamp();
+    updateSnapshotFormations();
+  }
 }
 
 void SceneGraphManager::updateSnapshotFences()
@@ -956,16 +999,16 @@ void SceneGraphManager::updateText()
 void SceneGraphManager::updateSnapshot()
 {
   updateSnapshotMesh();
+  updateSnapshotProperties();
+  updateSnapshotCellFilter();
   updateSnapshotFormations();
   updateSnapshotSurfaces();
   updateSnapshotReservoirs();
   updateSnapshotTraps();
   updateSnapshotFaults();
-  updateSnapshotProperties();
   updateSnapshotSlices();
   updateSnapshotFlowLines();
   updateSnapshotFences();
-  updateSnapshotCellFilter();
 
   updateColorMap();
   updateText();
@@ -1086,24 +1129,6 @@ void SceneGraphManager::showPickResult(const PickResult& pickResult)
     : SO_SWITCH_ALL;
 }
 
-namespace
-{
-  // This callback picks up the current scalar set from the traversal
-  // state, and passes it to the cell filter. This ensures that the filter
-  // is always operating on the correct values
-  void cellFilterCallbackFunc(void* userData, SoAction* action)
-  {
-    if (!action->isOfType(SoGLRenderAction::getClassTypeId()))
-      return;
-
-    auto filter = reinterpret_cast<PropertyValueCellFilter*>(userData);
-    auto state = action->getState();
-    auto dataSet = MoScalarSetElementIjk::get(state, 0);
-
-    filter->setDataSet(dataSet);
-  }
-}
-
 SnapshotInfo SceneGraphManager::createSnapshotNode(size_t index)
 {
   auto snapshotContents = m_project->getSnapshotContents(index);
@@ -1220,19 +1245,11 @@ SnapshotInfo SceneGraphManager::createSnapshotNode(size_t index)
   info.mesh = new MoMesh;
   info.mesh->setName("snapshotMesh");
 
-  info.scalarSet = new MoScalarSetIjk;
-  info.scalarSet->setName("formationID");
+  info.scalarSet = new MoScalarSet;
+  info.scalarSet->setName("formationProperty");
 
   // Setup cell filter
   info.propertyValueCellFilter = std::make_shared<PropertyValueCellFilter>();
-  info.cellFilter = new MoCellFilter;
-  info.cellFilter->setCellFilter(info.propertyValueCellFilter.get());
-  SoCallback* cellFilterCallback = new SoCallback;
-  cellFilterCallback->setCallback(cellFilterCallbackFunc, info.propertyValueCellFilter.get());
-  info.cellFilterSwitch = new SoSwitch;
-  info.cellFilterSwitch->addChild(cellFilterCallback);
-  info.cellFilterSwitch->addChild(info.cellFilter);
-  info.cellFilterSwitch->whichChild = SO_SWITCH_NONE;
 
   info.chunksGroup = new SoGroup;
   info.chunksGroup->setName("chunks");
@@ -1252,11 +1269,9 @@ SnapshotInfo SceneGraphManager::createSnapshotNode(size_t index)
 
   info.formationsRoot->addChild(info.mesh);
   info.formationsRoot->addChild(info.flowLinesGroup);
-  info.formationsRoot->addChild(info.scalarSet);
   info.formationsRoot->addChild(info.slicesGroup);
   info.formationsRoot->addChild(m_surfaceShapeHints);
   info.formationsRoot->addChild(info.fencesGroup);
-  info.formationsRoot->addChild(info.cellFilterSwitch);
   info.formationsRoot->addChild(info.chunksGroup);
 
   // Add surfaceShapeHints to prevent backface culling, and enable double-sided lighting
@@ -1266,9 +1281,7 @@ SnapshotInfo SceneGraphManager::createSnapshotNode(size_t index)
   info.root->addChild(info.reservoirsGroup);
   info.root->addChild(info.formationsRoot);
 
-  // set property id, so when updateSnapshot() is called, all elements (formations, surfaces
-  // and reservoirs) are created with the correct property
-  info.currentPropertyId = m_viewState.currentPropertyId;
+  info.currentPropertyId = -1;
 
   return info;
 }
@@ -1535,6 +1548,7 @@ SceneGraphManager::SceneGraphManager()
   , m_faultsTimeStamp(MxTimeStamp::getTimeStamp())
   , m_flowLinesTimeStamp(MxTimeStamp::getTimeStamp())
   , m_fencesTimeStamp(MxTimeStamp::getTimeStamp())
+  , m_cellFilterTimeStamp(MxTimeStamp::getTimeStamp())
   , m_root(0)
   , m_formationShapeHints(0)
   , m_surfaceShapeHints(0)
@@ -2068,6 +2082,7 @@ void SceneGraphManager::enableCellFilter(bool enabled)
   {
     m_viewState.cellFilterEnabled = enabled;
 
+    m_cellFilterTimeStamp = MxTimeStamp::getTimeStamp();
     updateSnapshotCellFilter();
   }
 }
@@ -2079,6 +2094,7 @@ void SceneGraphManager::setCellFilterRange(double minValue, double maxValue)
     m_viewState.cellFilterMinValue = minValue;
     m_viewState.cellFilterMaxValue = maxValue;
 
+    m_cellFilterTimeStamp = MxTimeStamp::getTimeStamp();
     updateSnapshotCellFilter();
   }
 }
