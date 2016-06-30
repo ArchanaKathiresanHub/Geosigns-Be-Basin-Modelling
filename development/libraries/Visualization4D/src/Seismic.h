@@ -33,6 +33,7 @@ class SbBox3f;
 #include "Project.h"
 
 #include <Inventor/SbVec.h>
+#include <Inventor/SbBox.h>
 #include <Inventor/SbMatrix.h>
 #include <Inventor/misc/SoRef.h>
 
@@ -58,19 +59,25 @@ public:
     SliceCrossline
   };
 
+  struct Info
+  {
+    SbVec3i32 size;
+    SbBox3f extent;
+  };
+
   struct ViewState
   {
-	bool inlineSliceEnabled = false;
-	float inlineSlicePosition = 0.f;
+    bool inlineSliceEnabled = false;
+    float inlineSlicePosition = 0.f;
 
-	bool crosslineSliceEnabled = false;
-	float crosslineSlicePosition = 0.f;
+    bool crosslineSliceEnabled = false;
+    float crosslineSlicePosition = 0.f;
 
-	bool interpolatedSurfaceEnabled = false;
-	float interpolatedSurfacePosition = 0.f;
+    bool interpolatedSurfaceEnabled = false;
+    float interpolatedSurfacePosition = 0.f;
 
-	float dataRangeMinValue = -20e3f;
-	float dataRangeMaxValue =  20e3f;
+    float dataRangeMinValue = -20e3f;
+    float dataRangeMaxValue =  20e3f;
   };
 
 private:

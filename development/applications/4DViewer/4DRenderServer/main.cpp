@@ -8,12 +8,8 @@
 // Do not distribute without written permission from Shell.
 //
 
-#include "RenderService.h"
 #include "BpaServiceListener.h"
-
-#ifndef _WIN32
-#include <unistd.h> // for usleep
-#endif
+#include "Scheduler.h"
 
 #include <signal.h>
 
@@ -43,15 +39,6 @@ namespace keywords = boost::log::keywords;
 namespace options = boost::program_options;
 
 bool running; 
-
-void sleepms(unsigned int time) // milliseconds
-{ 
-#if defined(_WIN32)
-  Sleep(time);
-#else
-  usleep(time * 1000);
-#endif
-}
 
 void sighandler(int /*sig*/)
 {
@@ -129,7 +116,10 @@ int main(int argc, char** argv)
     ServiceSettings::VOLUMEVIZ |
     ServiceSettings::VOLUMEVIZLDM);
 
-  auto serviceListener = std::make_shared<BpaServiceListener>();
+  Scheduler sched;
+  sched.start();
+
+  auto serviceListener = std::make_shared<BpaServiceListener>(sched);
   serviceListener->setDataDir(options.datadir);
   Service::instance()->addListener(serviceListener);
 
@@ -149,7 +139,8 @@ int main(int argc, char** argv)
     while (running)
     {
       Service::instance()->dispatch();
-      sleepms(1);
+      sched.postProcess();
+      std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 
     // Close the service
@@ -158,10 +149,10 @@ int main(int argc, char** argv)
   else
   {
     BOOST_LOG_TRIVIAL(error) << "Unable to start service";
-    sleepms(5000);
   }
 
   MoMeshViz::finish();
+  sched.stop();
 
   return 0;
 }

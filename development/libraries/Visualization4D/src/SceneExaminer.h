@@ -74,9 +74,11 @@ public:
     FENCE_EDITING
   };
 
-  explicit SceneExaminer(std::shared_ptr<SceneGraphManager> mgr);
+  SceneExaminer();
 
   virtual ~SceneExaminer();
+
+  void setSceneGraphManager(std::shared_ptr<SceneGraphManager> mgr);
 
   /**
   * Set interaction mode to viewing or picking. Default is VIEWING.

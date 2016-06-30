@@ -103,6 +103,16 @@ function checkPropertyRadioButton(propertyId)
   }
 }
 
+function sendMsg(msg)
+{
+  var msgStr = JSON.stringify(msg, null, 4);
+
+  if(logMessages)
+    console.log(msgStr);
+
+  theRenderArea.sendMessage(msgStr);
+}
+
 function showTab(index)
 {
     var elems = [
@@ -339,7 +349,6 @@ function initViewState(viewState)
     uiElements.checkBoxDrawGrid.checked = viewState.showGrid;
     uiElements.checkBoxDrawCompass.checked = viewState.showCompass;
     uiElements.checkBoxDrawText.checked = viewState.showText;
-    uiElements.checkBoxPerspective.checked = viewState.showPerspective;
 
     uiElements.sliceICheckBox.checked = viewState.sliceEnabled[0];
     uiElements.sliceJCheckBox.checked = viewState.sliceEnabled[1];
@@ -357,23 +366,36 @@ function initViewState(viewState)
     uiElements.checkBoxCellFilter.checked = viewState.cellFilterEnabled;
     uiElements.editCellFilterMinValue.value = viewState.cellFilterMinValue;
     uiElements.editCellFilterMaxValue.value = viewState.cellFilterMaxValue;
+}
 
-    uiElements.checkBoxSeismicSliceInline.checked = viewState.seismicInlineSliceEnabled;
-    uiElements.checkBoxSeismicSliceCrossline.checked = viewState.seismicCrosslineSliceEnabled;
-    uiElements.checkBoxInterpolatedSurface.checked = viewState.seismicInterpolatedSurfaceEnabled;
-    uiElements.sliderSeismicSliceInline.value = viewState.seismicInlineSlicePosition;
-    uiElements.sliderSeismicSliceCrossline.value = viewState.seismicCrosslineSlicePosition;
-    uiElements.sliderInterpolatedSurface.value = viewState.seismicInterpolatedSurfacePosition;
-    uiElements.editSeismicRangeMinValue.value = viewState.seismicDataRangeMinValue;
-    uiElements.editSeismicRangeMaxValue.value = viewState.seismicDataRangeMaxValue;
+function initSeismicState(seismicState)
+{
+    uiElements.checkBoxSeismicSliceInline.checked = seismicState.seismicInlineSliceEnabled;
+    uiElements.checkBoxSeismicSliceCrossline.checked = seismicState.seismicCrosslineSliceEnabled;
+    uiElements.checkBoxInterpolatedSurface.checked = seismicState.seismicInterpolatedSurfaceEnabled;
+    uiElements.sliderSeismicSliceInline.value = seismicState.seismicInlineSlicePosition;
+    uiElements.sliderSeismicSliceCrossline.value = seismicState.seismicCrosslineSlicePosition;
+    uiElements.sliderInterpolatedSurface.value = seismicState.seismicInterpolatedSurfacePosition;
+    uiElements.editSeismicRangeMinValue.value = seismicState.seismicDataRangeMinValue;
+    uiElements.editSeismicRangeMaxValue.value = seismicState.seismicDataRangeMaxValue;
+}
 
-    uiElements.sliderStillQuality.value = viewState.stillQuality;
-    uiElements.sliderInteractiveQuality.value = viewState.interactiveQuality;
+function initAreaState(areaState)
+{
+    uiElements.sliderStillQuality.value = areaState.stillQuality;
+    uiElements.sliderInteractiveQuality.value = areaState.interactiveQuality;
 }
 
 function onCheckBoxAllFormationsChanged(elem)
 {
-  theRenderArea.enableAllFormations(elem.checked);
+    var msg = {
+        cmd: "EnableAllFormations",
+        params: {
+            enabled: elem.checked
+        }
+    }
+
+    sendMsg(msg);
 
     var formationsDiv = document.getElementById("formationsList");
     var checkBoxes = formationsDiv.getElementsByTagName("input");
@@ -383,7 +405,14 @@ function onCheckBoxAllFormationsChanged(elem)
 
 function onCheckBoxAllSurfacesChanged(elem)
 {
-  theRenderArea.enableAllSurfaces(elem.checked);
+    var msg = {
+        cmd: "EnableAllSurfaces",
+        params: {
+            enabled: elem.checked
+        }
+    }
+
+    sendMsg(msg);
 
     var surfacesDiv = document.getElementById("surfacesList");
     var checkBoxes = surfacesDiv.getElementsByTagName("input");
@@ -393,7 +422,14 @@ function onCheckBoxAllSurfacesChanged(elem)
 
 function onCheckBoxAllReservoirsChanged(elem)
 {
-  theRenderArea.enableAllReservoirs(elem.checked);
+    var msg = {
+        cmd: "EnableAllReservoirs",
+        params: {
+            enabled: elem.checked
+        }
+    }
+
+    sendMsg(msg);
 
     var reservoirsDiv = document.getElementById("reservoirsList");
     var checkBoxes = reservoirsDiv.getElementsByTagName("input");
@@ -403,7 +439,14 @@ function onCheckBoxAllReservoirsChanged(elem)
 
 function onCheckBoxAllFaultsChanged(elem)
 {
-  theRenderArea.enableAllFaults(elem.checked);
+    var msg = {
+        cmd: "EnableAllFaults",
+        params: {
+            enabled: elem.checked
+        }
+    }
+
+    sendMsg(msg);
 
     var faultsDiv = document.getElementById("faultsList");
     var checkBoxes = faultsDiv.getElementsByTagName("input");
@@ -413,7 +456,14 @@ function onCheckBoxAllFaultsChanged(elem)
 
 function onCheckBoxAllFlowLinesChanged(elem)
 {
-  theRenderArea.enableAllFlowLines(elem.checked);
+    var msg = {
+        cmd: "EnableAllFlowLines",
+        params: {
+            enabled: elem.checked
+        }
+    }
+
+    sendMsg(msg);
 
     var flowLinesDiv = document.getElementById("flowLinesList");
     var checkBoxes = flowLinesDiv.getElementsByTagName("input");
@@ -423,46 +473,133 @@ function onCheckBoxAllFlowLinesChanged(elem)
 
 function onFormationCheckBoxChanged(elem, objectId)
 {
-  theRenderArea.enableFormation(objectId, elem.checked);
+    console.log("formation " + elem.name + " enabled = " + elem.checked);
+
+    var msg = {
+            cmd: "EnableFormation",
+            params: {
+                formationId: objectId,
+                enabled: elem.checked
+            }
+        };
+
+    sendMsg(msg);
 }
 
 function onSurfaceCheckBoxChanged(elem, objectId)
 {
-  theRenderArea.enableSurface(objectId, elem.checked);
+    console.log("surface " + elem.name + " enabled = " + elem.checked);
+
+    var msg = {
+            cmd: "EnableSurface",
+            params: {
+                surfaceId: objectId,
+                enabled: elem.checked
+            }
+        };
+
+    sendMsg(msg);
 }
 
 function onReservoirCheckBoxChanged(elem, objectId)
 {
-  theRenderArea.enableReservoir(objectId, elem.checked);
+    console.log("reservoir " + elem.name + " enabled = " + elem.checked);
+
+    var msg = {
+        cmd: "EnableReservoir",
+        params: {
+            reservoirId: objectId,
+            enabled: elem.checked
+        }
+    }
+
+    sendMsg(msg);
 }
 
 function onFaultCheckBoxChanged(elem, objectId)
 {
-  theRenderArea.enableFault(objectId, elem.checked);
+    console.log("fault " + elem.name + " enabled = " + elem.checked);
+
+    var msg = {
+        cmd: "EnableFault",
+        params: {
+            faultId: objectId,
+            enabled: elem.checked
+        }
+    }
+
+    sendMsg(msg);
 }
 
 function onFlowLinesCheckBoxChanged(elem, objectId)
 {
-  theRenderArea.enableFlowLines(objectId, elem.checked);
+    var msg = {
+        cmd: "EnableFlowLines",
+        params: {
+            flowLinesId: objectId,
+            enabled: elem.checked
+        }
+    }
+
+    sendMsg(msg);
 }
 
 function onFenceCheckBoxChanged(elem, objectId)
 {
-  theRenderArea.enableFence(objectId, elem.checked);
+    console.log("fence " + elem.name + " enabled = " + elem.checked);
+
+    var msg = {
+            cmd: "EnableFence",
+            params: {
+                fenceId: objectId,
+                enabled: elem.checked
+            }
+        };
+
+    sendMsg(msg);
 }
 
 function onPropertyRadioButtonClicked(elem, objectId)
 {
-  theRenderArea.setProperty(objectId);
+    console.log("property " + elem.value + " clicked");
+
+    var msg = {
+        cmd: "SetProperty",
+        params: {
+            propertyId: objectId
+        }
+    }
+
+    sendMsg(msg);
+}
+
+function onShowFlowVectorsChanged(elem)
+{
+    var msg = {
+        cmd: "ShowFlowVectors",
+        params: {
+            show: elem.checked
+        }
+    }
+
+    sendMsg(msg);
 }
 
 function onFlowLinesStepSliderChanged(elem)
 {
-  var typeStr = (elem.id == "sliderFlowLinesLeakageStep")
-      ? "FlowLinesLeakage"
-      : "FlowLinesExpulsion";
+    var typeStr = (elem.id == "sliderFlowLinesLeakageStep")
+        ? "FlowLinesLeakage"
+        : "FlowLinesExpulsion";
 
-  theRenderArea.setFlowLinesStep(typeStr, elem.valueAsNumber);
+    var msg = {
+        cmd: "SetFlowLinesStep",
+        params: {
+            type: typeStr,
+            step: elem.valueAsNumber
+        }
+    }
+
+    sendMsg(msg);
 }
 
 function onFlowLinesThresholdSliderChanged(elem)
@@ -470,68 +607,178 @@ function onFlowLinesThresholdSliderChanged(elem)
     var typeStr = (elem.id == "sliderFlowLinesLeakageThreshold")
         ? "FlowLinesLeakage"
         : "FlowLinesExpulsion";
-    var power = (elem.maxPower * elem.valueAsNumber) / elem.max;
-    var threshold = Math.pow(10, power);
 
-    theRenderArea.setFlowLinesThreshold(typeStr, threshold);
+    var power = (elem.maxPower * elem.valueAsNumber) / elem.max;
+    var thresholdVal = Math.pow(10, power);
+
+    var msg = {
+        cmd: "SetFlowLinesThreshold",
+        params: {
+            type: typeStr,
+            threshold: thresholdVal
+        }
+    }
+
+    sendMsg(msg);
 }
 
 function onDrainageAreaRadioClicked(elem)
 {
-  theRenderArea.showDrainageAreaOutline(elem.value);
+    console.log("radiobutton " + elem.value + " clicked");
+
+    var msg = {
+        cmd: "ShowDrainageAreaOutline",
+        params: {
+            type: elem.value
+        }
+    }
+
+    sendMsg(msg);
 }
 
 function onSlicePositionChanged(index, elem)
 {
-  theRenderArea.setSlicePosition(index, elem.valueAsNumber);
+    console.log("sliceI position = " + elem.value);
+
+    var msg = {
+        cmd: "SetSlicePosition",
+        params: {
+            slice: index,
+            position: elem.valueAsNumber
+        }
+    };
+
+    sendMsg(msg);
 }
 
 function onSliceCheckBoxChanged(index, elem)
 {
-  theRenderArea.enableSlice(index, elem.checked);
+    console.log("sliceI enabled = " + elem.checked);
+
+    var msg = {
+        cmd: "EnableSlice",
+        params: {
+            slice: index,
+            enabled: elem.checked
+        }
+    }
+
+    sendMsg(msg);
 }
 
 function onVerticalScaleSliderChanged(elem)
 {
-  theRenderArea.setVerticalScale(elem.valueAsNumber);
+    console.log("vertical scale = " + elem.value);
+
+    var msg = {
+        cmd: "SetVerticalScale",
+        params: {
+            scale: elem.valueAsNumber
+        }
+    }
+
+    sendMsg(msg);
 }
 
 function onTransparencySliderChanged(elem)
 {
     var transparency = elem.valueAsNumber / elem.max;
-    theRenderArea.setTransparency(transparency);
+    console.log("transparency = " + transparency);
+
+    var msg = {
+        cmd: "SetTransparency",
+        params: {
+            transparency: transparency
+        }
+    }
+
+    sendMsg(msg);
 }
 
 function onRenderStyleChanged()
 {
     var drawFaces = document.getElementById("checkBoxDrawFaces").checked;
     var drawEdges = document.getElementById("checkBoxDrawEdges").checked;
-    theRenderArea.setRenderStyle(drawFaces, drawEdges);
+
+    var msg = {
+        cmd: "SetRenderStyle",
+        params: {
+            drawFaces: drawFaces,
+            drawEdges: drawEdges
+        }
+    }
+
+    sendMsg(msg);
 }
 
 function onShowGridChanged(elem)
 {
-  theRenderArea.showCoordinateGrid(elem.checked);
+    var showGrid = elem.checked;
+
+    var msg = {
+        cmd: "ShowCoordinateGrid",
+        params: {
+            show: showGrid
+        }
+    }
+
+    sendMsg(msg);
 }
 
 function onShowCompassChanged(elem)
 {
-  theRenderArea.showCompass(elem.checked);
+    var showCompass = elem.checked;
+
+    var msg = {
+        cmd: "ShowCompass",
+        params: {
+            show: showCompass
+        }
+    }
+
+    sendMsg(msg);
 }
 
 function onShowTextChanged(elem)
 {
-  theRenderArea.showText(elem.checked);
+    var showText = elem.checked;
+
+    var msg = {
+        cmd: "ShowText",
+        params: {
+            show: showText
+        }
+    }
+
+    sendMsg(msg);
 }
 
 function onShowTrapsChanged(elem)
 {
-  theRenderArea.showTraps(elem.checked);
+    var showTraps = elem.checked;
+
+    var msg = {
+        cmd: "ShowTraps",
+        params: {
+            show: showTraps
+        }
+    }
+
+    sendMsg(msg);
 }
 
 function onShowTrapOutlinesChanged(elem)
 {
-  theRenderArea.showTrapOutlines(elem.checked);
+    var showTrapOutlines = elem.checked;
+
+    var msg = {
+        cmd: "ShowTrapOutlines",
+        params: {
+            show: showTrapOutlines
+        }
+    }
+
+    sendMsg(msg);
 }
 
 function onPerspectiveChanged(elem)
@@ -539,23 +786,57 @@ function onPerspectiveChanged(elem)
     var projection = elem.checked
         ? "Perspective"
         : "Orthographic";
-    theRenderArea.setProjection(projection);
+
+    var msg = {
+        cmd: "SetProjection",
+        params: {
+            type: projection
+        }
+    }
+
+    sendMsg(msg);
 }
 
 function onTimeSliderChanged(elem)
 {
-  theRenderArea.setCurrentSnapshot(elem.valueAsNumber);
+    console.log("timeSlider = " + elem.value);
+
+    var msg = {
+        cmd: "SetCurrentSnapshot",
+        params: {
+            index: elem.valueAsNumber
+        }
+    }
+
+    sendMsg(msg);
 }
 
 function onButtonViewAllClicked()
 {
-  theRenderArea.viewAll();
+    console.log("view all");
+
+    var msg = {
+        cmd: "ViewAll",
+        params: {}
+    }
+
+    sendMsg(msg);
 }
 
 function onButtonViewPresetClicked(index)
 {
-  var viewDirs = [ "Top", "Left", "Front", "Bottom", "Right", "Back" ];
-  theRenderArea.setViewPreset(viewDirs[index]);
+    var viewDirs = [ "Top", "Left", "Front", "Bottom", "Right", "Back" ];
+
+    console.log("view preset " + viewDirs[index]);
+
+    var msg = {
+        cmd: "SetViewPreset",
+        params: {
+            preset: viewDirs[index]
+        }
+    }
+
+    sendMsg(msg);
 }
 
 function onColorScaleParamsChanged()
@@ -568,16 +849,29 @@ function onColorScaleParamsChanged()
     var mappings = [ "linear", "log" ];
     var ranges = ["auto", "manual" ];
 
-    theRenderArea.setColorScaleParams(
-      mappings[selectMapping.selectedIndex],
-      ranges[selectRange.selectedIndex],
-      parseFloat(editMinValue.value),
-      parseFloat(editMaxValue.value));
+    var msg = {
+        cmd: "SetColorScaleParams",
+        params: {
+            mapping: mappings[selectMapping.selectedIndex],
+            range: ranges[selectRange.selectedIndex],
+            minval: parseFloat(editMinValue.value),
+            maxval: parseFloat(editMaxValue.value)
+        }
+    }
+
+    sendMsg(msg);
 }
 
 function onCellFilterToggled(elem)
 {
-  theRenderArea.enableCellFilter(elem.checked);
+    var msg = {
+        cmd: "EnableCellFilter",
+        params: {
+            enabled: elem.checked
+        }
+    }
+
+    sendMsg(msg);
 }
 
 function onCellFilterRangeChanged()
@@ -585,29 +879,63 @@ function onCellFilterRangeChanged()
     var editMinValue = document.getElementById("editCellFilterMinValue");
     var editMaxValue = document.getElementById("editCellFilterMaxValue");
 
-    theRenderArea.setCellFilterRange(
-      parseFloat(editMinValue.value),
-      parseFloat(editMaxValue.value));
+    var msg = {
+        cmd: "SetCellFilterRange",
+        params: {
+            minval: parseFloat(editMinValue.value),
+            maxval: parseFloat(editMaxValue.value)
+        }
+    }
+
+    sendMsg(msg);
 }
 
 function onQualitySliderChanged(value)
 {
-  theRenderArea.setStillQuality(value);
+    var msg = {
+        cmd: "SetStillQuality",
+        params: {
+            quality: value
+        }
+    }
+
+    sendMsg(msg);
 }
 
 function onInteractiveQualitySliderChanged(value)
 {
-  theRenderArea.setInteractiveQuality(value);
+    var msg = {
+        cmd: "SetInteractiveQuality",
+        params: {
+            quality: value
+        }
+    }
+
+    sendMsg(msg);
 }
 
 function onBandwidthSliderChanged(value)
 {
-  theRenderArea.setBandwidth(value);
+    var msg = {
+        cmd: "SetBandwidth",
+        params: {
+            bandwidth: value
+        }
+    }
+
+    sendMsg(msg);
 }
 
 function onMaxFPSSliderChanged(value)
 {
-  theRenderArea.setMaxFPS(value);
+    var msg = {
+        cmd: "SetMaxFPS",
+        params: {
+            maxFPS: value
+        }
+    }
+
+    sendMsg(msg);
 }
 
 function resizeCanvas()
@@ -668,6 +996,27 @@ var eventHandler = {
   {
     addFenceEntry(params.fenceId, true);
   },
+
+    pointPicked: function(params)
+{
+    logPickResult(params.pickResult);
+},
+
+    projectLoaded: function(params)
+{
+    theRenderArea.projectInfo = params.projectInfo;
+    initUI(params.projectInfo);
+
+    if(params.seismicInfo)
+{
+    initSeismicUI(params.seismicInfo);
+    initSeismicState(params.seismicState);
+}
+    initViewState(params.viewState);
+    initAreaState(params.areaState);
+
+    uiElements.checkBoxPerspective.checked = (params.projection === "perspective");
+},
 
   connectionCountChanged: function(params)
   {
@@ -846,7 +1195,7 @@ var eventHandler = {
 
   projectionChanged: function(params)
   {
-    uiElements.checkBoxPerspective.checked = (type === "Perspective");
+    uiElements.checkBoxPerspective.checked = (params.type === "Perspective");
   },
 
   currentSnapshotChanged: function(params)
@@ -933,30 +1282,72 @@ function handleEvent(e)
 
 function onSeismicSlicePositionChanged(index, elem)
 {
-  theRenderArea.setSeismicSlicePosition(index, elem.valueAsNumber);
+    console.log("seismic slice " + index + " position = " + elem.value);
+
+    var msg = {
+        cmd: "SetSeismicSlicePosition",
+        params: {
+            index: index,
+            position: elem.valueAsNumber
+        }
+    };
+
+    sendMsg(msg);
 }
 
 function onSeismicSliceCheckBoxChanged(index, elem)
 {
-  theRenderArea.enableSeismicSlice(index, elem.checked);
+    console.log("seismic slice " + index + " enabled = " + elem.checked);
+
+    var msg = {
+        cmd: "EnableSeismicSlice",
+        params: {
+            index: index,
+            enabled: elem.checked
+        }
+    }
+
+    sendMsg(msg);
 }
 
 function onInterpolatedSurfaceCheckBoxChanged(elem)
 {
-  theRenderArea.enableInterpolatedSurface(elem.checked);
+    var msg = {
+        cmd: "EnableInterpolatedSurface",
+        params: {
+            enabled: elem.checked
+        }
+    }
+
+    sendMsg(msg);
 }
 
 function onInterpolatedSurfacePositionChanged(elem)
 {
-  theRenderArea.setInterpolatedSurfacePosition(elem.valueAsNumber);
+    var msg = {
+        cmd: "SetInterpolatedSurfacePosition",
+        params: {
+            position: elem.valueAsNumber
+        }
+    }
+
+    sendMsg(msg);
 }
 
 function onSeismicRangeChanged()
 {
-  var minValue = parseFloat(uiElements.editSeismicRangeMinValue.value);
-  var maxValue = parseFloat(uiElements.editSeismicRangeMaxValue.value);
+    var minValue = parseFloat(uiElements.editSeismicRangeMinValue.value);
+    var maxValue = parseFloat(uiElements.editSeismicRangeMaxValue.value);
 
-  theRenderArea.setSeismicDataRange(minValue, maxValue);
+    var msg = {
+        cmd: "SetSeismicDataRange",
+        params: {
+            minValue: minValue,
+            maxValue: maxValue
+        }
+    }
+
+    sendMsg(msg);
 }
 
 function receivedMessage(message)
@@ -965,23 +1356,7 @@ function receivedMessage(message)
     	console.log(message);
 
     var msgObj = JSON.parse(message);
-    if(msgObj.projectInfo)
-    {
-    	theRenderArea.projectInfo = msgObj.projectInfo;
-        initUI(msgObj.projectInfo);
-    }
-    else if (msgObj.seismicInfo)
-    {
-        initSeismicUI(msgObj.seismicInfo);
-    }
-    else if(msgObj.viewstate)
-    {
-        initViewState(msgObj.viewstate)
-    }
-    else if (msgObj.pickResult) {
-        logPickResult(msgObj.pickResult);
-    }
-    else if (msgObj.event) {
+    if (msgObj.event) {
         handleEvent(msgObj.event);
     }
 }
@@ -1052,21 +1427,31 @@ function init()
         var x = event.pageX - window.canvas.offsetLeft;
         var y = event.pageY - window.canvas.offsetTop;
 
-        theRenderArea.pick(x, y);
+        var msg = {
+            cmd: "Pick",
+            params: {
+                x: x,
+                y: y
+            }
+        }
+
+        sendMsg(msg);
     });
 
     window.onresize = resizeCanvas;//onWindowResize;
 
     var containerWidth  = canvasDiv.clientWidth;
     var containerHeight = canvasDiv.clientHeight;
-    var url = websocketURL();// + generateGUID();
 
     // This function is called immediately after the page is loaded. Initialization of
     // the renderArea. "TheCanvas" refers to the id of the canvas.
-    //theRenderArea = new RemoteVizRenderArea("TheCanvas", containerWidth, containerHeight);
-    theRenderArea = new Canvas4D("TheCanvas", containerWidth, containerHeight);
+    theRenderArea = new RemoteVizRenderArea("TheCanvas", containerWidth, containerHeight);
     theRenderArea.addReceivedImageListener(receivedImage);
     theRenderArea.addMessageListener(receivedMessage);
+
+    // Connects to the service. The IP address and the port refer to those of the service
+    // (see main.cpp). "Model" refers to the name of the requested renderArea.
+    var url = websocketURL();// + generateGUID();
     theRenderArea.connectTo(url);
 
     bandwidthDiv = document.getElementById("bandwidthDiv");

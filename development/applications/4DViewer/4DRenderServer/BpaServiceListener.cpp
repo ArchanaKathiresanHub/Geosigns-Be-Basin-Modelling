@@ -10,7 +10,6 @@
 
 #include "BpaServiceListener.h"
 #include "BpaRenderAreaListener.h"
-#include "RenderService.h"
 
 #ifdef USE_H264
 #include <RenderArea.h>
@@ -24,8 +23,8 @@
 
 #include <boost/log/trivial.hpp>
 
-BpaServiceListener::BpaServiceListener(RenderService* renderService)
-  : m_renderService(renderService)
+BpaServiceListener::BpaServiceListener(Scheduler& scheduler)
+  : m_scheduler(scheduler)
 {
 }
 
@@ -61,7 +60,7 @@ void BpaServiceListener::onInstantiatedRenderArea(RenderArea *renderArea)
 {
   BOOST_LOG_TRIVIAL(trace) << "instantiated render area " << renderArea->getId();
 
-  auto listener = std::make_shared<BpaRenderAreaListener>(renderArea);
+  auto listener = std::make_shared<BpaRenderAreaListener>(renderArea, m_scheduler);
   listener->setDataDir(m_datadir);
   renderArea->addListener(listener);
   renderArea->getTouchManager()->addDefaultRecognizers();

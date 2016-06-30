@@ -22,18 +22,18 @@
 class BpaRenderAreaListener;
 class SceneGraph;
 class Device;
-class RenderService;
+class Scheduler;
 
 using namespace RemoteViz::Rendering;
 
 class BpaServiceListener : public ServiceListener
 {
-  RenderService* m_renderService;
+  Scheduler& m_scheduler;
   std::string m_datadir;
 
 public:
 
-  explicit BpaServiceListener(RenderService* renderService=0);
+  explicit BpaServiceListener(Scheduler& scheduler);
 
   ~BpaServiceListener();
 

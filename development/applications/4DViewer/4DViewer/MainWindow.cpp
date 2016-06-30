@@ -94,7 +94,8 @@ void MainWindow::loadProject(const QString& filename)
     m_sceneGraphManager = std::make_shared<SceneGraphManager>();
     m_sceneGraphManager->setup(m_project);
 
-    m_examiner = new SceneExaminer(m_sceneGraphManager);
+    m_examiner = new SceneExaminer;
+    m_examiner->setSceneGraphManager(m_sceneGraphManager);
     m_examiner->setModeChangedCallback(std::bind(&MainWindow::onModeChanged, this, std::placeholders::_1));
     m_examiner->setFenceAddedCallback(std::bind(&MainWindow::onFenceAdded, this, std::placeholders::_1));
     

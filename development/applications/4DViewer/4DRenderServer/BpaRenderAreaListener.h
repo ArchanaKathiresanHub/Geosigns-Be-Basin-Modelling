@@ -12,6 +12,10 @@
 
 class SceneGraphManager;
 class SeismicScene;
+class Scheduler;
+class LoadProjectTask;
+
+namespace jsonxx { class Object; }
 
 #include "CommandHandler.h"
 #include "SceneExaminer.h"
@@ -30,9 +34,12 @@ using namespace RemoteViz::Rendering;
 
 class BpaRenderAreaListener : public RenderAreaListener
 {
+  Scheduler& m_scheduler;
+
   std::string m_rootdir;
   std::string m_projectdir;
 
+  std::shared_ptr<LoadProjectTask> m_loadTask;
   std::shared_ptr<Project> m_project;
   Project::ProjectInfo m_projectInfo;
 
@@ -40,11 +47,9 @@ class BpaRenderAreaListener : public RenderAreaListener
   std::shared_ptr<SeismicScene> m_seismicScene;
   SoRef<SceneExaminer> m_examiner;
 
-  RenderArea*       m_renderArea;
-  CommandHandler    m_commandHandler;
+  RenderArea*    m_renderArea;
+  CommandHandler m_commandHandler;
 
-  bool m_drawFaces;
-  bool m_drawEdges;
   bool m_logEvents;
 
   void loadSeismic();
@@ -53,16 +58,19 @@ class BpaRenderAreaListener : public RenderAreaListener
   void onFenceAdded(int fenceId);
   void onConnectionCountChanged();
 
-  void sendProjectInfo(Connection* connection);
-  void sendViewState(Connection* connection);
+  jsonxx::Object createProjectLoadedEvent() const;
+  jsonxx::Object createConnectionCountEvent() const;
+  jsonxx::Object createFenceAddedEvent(int fenceId) const;
 
   void setupProject(const std::string& id);
 
 public:
 
-  explicit BpaRenderAreaListener(RenderArea* renderArea);
+  BpaRenderAreaListener(RenderArea* renderArea, Scheduler& scheduler);
 
   ~BpaRenderAreaListener();
+
+  void onProjectLoaded(std::shared_ptr<Project> project);
 
   void setDataDir(const std::string& dir);
 
@@ -71,10 +79,6 @@ public:
   void onClosedConnection(RenderArea* renderArea, const std::string& connectionId) override;
 
   void onReceivedMessage(RenderArea* renderArea, Connection* sender, const std::string& message) override;
-
-  bool onPreRender(RenderArea* renderArea, bool& clearWindow, bool& clearZBuffer) override;
-
-  void onPostRender(RenderArea* renderArea) override;
 
   void onRequestedSize(RenderArea* renderArea, Connection* sender, unsigned int width, unsigned int height) override;
 };

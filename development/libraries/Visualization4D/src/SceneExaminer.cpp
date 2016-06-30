@@ -13,22 +13,26 @@
 #include <Inventor/ViewerComponents/SoCameraInteractor.h>
 #include <Inventor/SoPickedPoint.h>
 
-SceneExaminer::SceneExaminer(std::shared_ptr<SceneGraphManager> mgr)
+SceneExaminer::SceneExaminer()
   : m_isButton1Down(false)
   , m_isButton2Down(false)
   , m_isTouchOrbitActivated(false)
   , m_activeMode(VIEWING)
   , m_mousePositionNorm( 0.f, 0.f )
   , m_currentFenceId(-1)
-  , m_scenegraph(mgr)
 {
   m_mouseWheelDelta = SoPreferences::getInt( "OIV_WHEEL_DELTA", 120 );
-
-  addChild(mgr->getRoot());
 }
 
 SceneExaminer::~SceneExaminer()
 {
+}
+
+void SceneExaminer::setSceneGraphManager(std::shared_ptr<SceneGraphManager> mgr)
+{
+  m_scenegraph = mgr;
+
+  addChild(mgr->getRoot());
 }
 
 SceneExaminer::InteractionMode SceneExaminer::getInteractionMode()
@@ -145,23 +149,26 @@ void SceneExaminer::mousePressed( SoMouseButtonEvent* mouseEvent, SoHandleEventA
   }
   else if (m_activeMode == FENCE_EDITING)
   {
-    auto pickedPoint = action->getPickedPoint();
-    if (pickedPoint)
+    if(m_scenegraph)
     {
-      auto p = pickedPoint->getPoint();
-      m_fencePoints.push_back(p);
-      if (m_fencePoints.size() == 1)
+      auto pickedPoint = action->getPickedPoint();
+      if (pickedPoint)
       {
-        m_currentFenceId = m_scenegraph->addFence(m_fencePoints);
-        if (m_fenceAddedCallback)
-          m_fenceAddedCallback(m_currentFenceId);
-      }
-      else
-      {
-        m_scenegraph->updateFence(m_currentFenceId, m_fencePoints);
-      }
+	auto p = pickedPoint->getPoint();
+	m_fencePoints.push_back(p);
+	if (m_fencePoints.size() == 1)
+	{
+	  m_currentFenceId = m_scenegraph->addFence(m_fencePoints);
+	  if (m_fenceAddedCallback)
+	    m_fenceAddedCallback(m_currentFenceId);
+	}
+	else
+	{
+	  m_scenegraph->updateFence(m_currentFenceId, m_fencePoints);
+	}
 
-      action->setHandled();
+	action->setHandled();
+      }
     }
   }
 }
