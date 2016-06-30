@@ -376,7 +376,6 @@ public:
   Vec Depth;
 
   Vec              Lithology_ID;
-  Vec              NodeHeatProd;
   Vec              BulkDensXHeatCapacity;
   Vec              BulkTHCondN;
   Vec              BulkTHCondP;

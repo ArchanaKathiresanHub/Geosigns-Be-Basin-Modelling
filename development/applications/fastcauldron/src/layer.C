@@ -71,7 +71,6 @@ LayerProps::LayerProps ( Interface::ProjectHandle * projectHandle,
    depthvec(nullptr),
    Depth(nullptr),
    Lithology_ID(nullptr),
-   NodeHeatProd(nullptr),
    BulkDensXHeatCapacity(nullptr),
    BulkTHCondN(nullptr),
    BulkTHCondP(nullptr),
@@ -137,7 +136,7 @@ LayerProps::LayerProps ( Interface::ProjectHandle * projectHandle,
   createCount          = 0;
 
   nullify ();
-  m_averagedSaturation = NULL;
+  m_averagedSaturation = nullptr;
 
   setVectorList();
 
@@ -171,13 +170,13 @@ LayerProps::LayerProps ( Interface::ProjectHandle * projectHandle,
   FCTCorrection    = PETSC_NULL;
   allochthonousLithologyMap = PETSC_NULL;
 
-  vesInterpolator = 0;
-  maxVesInterpolator = 0;
+  vesInterpolator = nullptr;
+  maxVesInterpolator = nullptr;
 
   chemicalCompactionVesValueIsDefined = false;
   chemicalCompactionVesValue = 0.0;
 
-  m_genexData = 0;
+  m_genexData = nullptr;
 
   m_molarMass.zero ();
 
@@ -269,7 +268,7 @@ void LayerProps::initialise () {
 
    setLayerElements ();
 
-   if ( m_record != 0 ) {
+   if ( m_record != nullptr ) {
 
       layername      = Interface::Formation::getName ();
 
@@ -284,7 +283,7 @@ void LayerProps::initialise () {
       presentDayThickness = Interface::Formation::getInputThicknessMap ();
       depthGridMap = Interface::Formation::getTopSurface ()->getInputDepthMap ();
 
-      if ( Interface::Formation::getTopSurface ()->getSnapshot () != 0 ) {
+      if ( Interface::Formation::getTopSurface ()->getSnapshot () != nullptr ) {
          depoage = Interface::Formation::getTopSurface ()->getSnapshot ()->getTime ();
       } else {
          depoage = -2.0;
@@ -393,13 +392,13 @@ void LayerProps::initialise () {
       IsSourceRock      = false;
       IsMobile          = false;
 
-      presentDayThickness = 0;
-      depthGridMap = 0;
+      presentDayThickness = nullptr;
+      depthGridMap = nullptr;
       depoage = -2.0;
       TopSurface_DepoSeq = int (IBSNULLVALUE);
       Layer_Depo_Seq_Nb = int (IBSNULLVALUE);
       lithoMixModel = "";
-      fluid = 0;
+      fluid = nullptr;
       Calculate_Chemical_Compaction = false;
 
    }
@@ -470,7 +469,7 @@ void LayerProps::initialise () {
 
 void LayerProps::connectElements ( LayerProps* layerAbove ) {
 
-   if ( layerAbove == 0 ) {
+   if ( layerAbove == nullptr ) {
       // Nothing to do here!
       return;
    }
@@ -497,7 +496,7 @@ void LayerProps::connectElements ( LayerProps* layerAbove ) {
 
 LayerProps::~LayerProps(){
 
-   if ( depthvec != 0 ) {
+   if ( depthvec != nullptr ) {
       Destroy_Petsc_Vector(depthvec);
    }
 
@@ -510,14 +509,14 @@ LayerProps::~LayerProps(){
 
   Constrained_Overpressure.clear();
 
-  if ( m_genexData != 0 ) {
+  if ( m_genexData != nullptr ) {
      delete m_genexData;
+     m_genexData = nullptr;
   }
 
-  if ( layerDA != NULL )  DMDestroy( &layerDA );
+  if ( layerDA != nullptr )  DMDestroy( &layerDA );
   
   Destroy_Petsc_Vector ( Lithology_ID );
-  Destroy_Petsc_Vector ( NodeHeatProd );
   Destroy_Petsc_Vector ( FCTCorrection );
   Destroy_Petsc_Vector ( Diffusivity );
   Destroy_Petsc_Vector ( Velocity );
@@ -587,26 +586,27 @@ LayerProps::~LayerProps(){
      Destroy_Petsc_Vector ( m_averagedSaturation );
   }
 
-  if ( vesInterpolator != 0 ) {
+  if ( vesInterpolator != nullptr ) {
     delete vesInterpolator;
+    vesInterpolator = nullptr;
     delete maxVesInterpolator;
+    maxVesInterpolator = nullptr;
   }
 
 
   // Now delete all allocated element-volume-grids.
    size_t i;
 
-   for ( i = 0; i < m_elementVolumeGrids.size (); ++i ) {
-
-      if ( m_elementVolumeGrids [ i ] != 0 ) {
-         delete m_elementVolumeGrids [ i ];
-      }
-
+   for ( i = 0; i < m_elementVolumeGrids.size (); ++i )
+   {
+      delete m_elementVolumeGrids [ i ];
+      m_elementVolumeGrids [ i ] = nullptr;
    }
 
    for ( i = 0; i < m_nodalVolumeGrids.size (); ++i )
    {
       delete m_nodalVolumeGrids[i];
+      m_nodalVolumeGrids[i] = nullptr;
    }
 
 }
@@ -666,13 +666,13 @@ bool LayerProps::allocateNewVecs ( AppCtx* basinModel, const double Current_Time
 
   /// If no layerDA has been allocated yet, then this must be allocated and 
   /// the property vectors allocated also. The layer must also be active.
-  if (layerDA == NULL && isActive()) {
+  if (layerDA == nullptr && isActive()) {
     ierr = FastcauldronSimulator::DACreate3D ( numberOfZNodes, layerDA );
 
     /// Only if we are in loosely calculation mode do we need to allocate these interpolators.
     if ( basinModel->IsCalculationCoupled ) {
 
-      if ( isSediment () && vesInterpolator == 0 ) {
+      if ( isSediment () && vesInterpolator == nullptr ) {
 
          if ( FastcauldronSimulator::getInstance ().getCalculationMode () == COUPLED_HIGH_RES_DECOMPACTION_MODE ) {
           vesInterpolator    = new ConstantSnapshotInterpolator ( 0.0, 1 );
@@ -766,7 +766,7 @@ double LayerProps::calcDiffDensity ( const unsigned int i, const unsigned int j 
   
   lithodens = getLithology ( i,j ) -> density();
 
-  if ( fluid != 0 ) {
+  if ( fluid != nullptr ) {
     fluiddens = fluid->getConstantDensity();
   } else {
     fluiddens = 0.0;
@@ -784,7 +784,7 @@ void LayerProps::setNrOfActiveElements ( const int a_nrActElem ) {
 bool LayerProps::createVec(Vec& propertyVector){
 
    //cerr<<&propertyVector<<endl;
-  IBSASSERT(NULL == propertyVector);
+  IBSASSERT(nullptr == propertyVector);
   createCount++;
   int ierr = DMCreateGlobalVector(layerDA, &(propertyVector));
   CHKERRQ(ierr);
@@ -795,10 +795,10 @@ bool LayerProps::createVec(Vec& propertyVector){
 
 bool LayerProps::destroyDA(DM& propertyDA){
 
-  IBSASSERT(NULL != propertyDA);
+  IBSASSERT(nullptr != propertyDA);
   int ierr = DMDestroy( &propertyDA );
   CHKERRQ(ierr);
-  propertyDA = NULL;
+  propertyDA = nullptr;
 
   // return value is only here because of the CHKERRQ
   return true;
@@ -806,7 +806,7 @@ bool LayerProps::destroyDA(DM& propertyDA){
 
 bool LayerProps::setVec(Vec& propertyVector, const double propertyValue){
 
-  IBSASSERT(NULL != propertyVector);
+  IBSASSERT(nullptr != propertyVector);
   int ierr = VecSet(propertyVector, propertyValue);
   CHKERRQ(ierr);
 
@@ -853,10 +853,10 @@ void LayerProps::print() {
 
 bool LayerProps::propagateVec(DM from_da, DM to_da, Vec from_vec, Vec to_vec)
 {
-  if ((from_da == NULL) || 
-      (to_da == NULL) || 
-      (from_vec == NULL) || 
-      (to_vec == NULL)) {
+  if ((from_da == nullptr) || 
+      (to_da == nullptr) || 
+      (from_vec == nullptr) || 
+      (to_vec == nullptr)) {
     return false;
   }
 
@@ -981,67 +981,66 @@ void LayerProps::nullify (){
    IsSourceRock      = false;
    IsMobile          = false;
 
-   presentDayThickness = 0;
-   depthGridMap = 0;
+   presentDayThickness = nullptr;
+   depthGridMap = nullptr;
    depoage = -2.0;
    TopSurface_DepoSeq = int(IBSNULLVALUE);
    Layer_Depo_Seq_Nb = int(IBSNULLVALUE);
    lithoMixModel = "";
-   fluid = 0;
+   fluid = nullptr;
    Calculate_Chemical_Compaction = false;
 
 
-  layerDA               = NULL;
+  layerDA               = nullptr;
 
   depthvec              = PETSC_NULL;
 
-  Depth                 = NULL;
-  Porosity              = NULL;
-  Ves                   = NULL;
-  Max_VES               = NULL;
+  Depth                 = nullptr;
+  Porosity              = nullptr;
+  Ves                   = nullptr;
+  Max_VES               = nullptr;
 
-  HydroStaticPressure   = NULL;
-  LithoStaticPressure   = NULL;
-  Pressure              = NULL;
-  OverPressure          = NULL;
-  Previous_Overpressure = NULL;
-  Previous_Hydrostatic_Pressure = NULL;
-  Previous_Lithostatic_Pressure = NULL;
-  Previous_Pore_Pressure = NULL;
-  Previous_Temperature  = NULL;
-  Previous_Depth        = NULL;
+  HydroStaticPressure   = nullptr;
+  LithoStaticPressure   = nullptr;
+  Pressure              = nullptr;
+  OverPressure          = nullptr;
+  Previous_Overpressure = nullptr;
+  Previous_Hydrostatic_Pressure = nullptr;
+  Previous_Lithostatic_Pressure = nullptr;
+  Previous_Pore_Pressure = nullptr;
+  Previous_Temperature  = nullptr;
+  Previous_Depth        = nullptr;
 
-  Real_Thickness_Vector          = 0;
-  Previous_Real_Thickness_Vector = 0;
+  Real_Thickness_Vector          = nullptr;
+  Previous_Real_Thickness_Vector = nullptr;
 
-  Solid_Thickness               = 0;
-  Previous_Solid_Thickness      = 0;
-  Computed_Deposition_Thickness = 0;
-  Previous_VES                  = 0;
-  Previous_Max_VES              = 0;
-//  //    Intermediate_Max_VES          = 0;
+  Solid_Thickness               = nullptr;
+  Previous_Solid_Thickness      = nullptr;
+  Computed_Deposition_Thickness = nullptr;
+  Previous_VES                  = nullptr;
+  Previous_Max_VES              = nullptr;
 
-  Chemical_Compaction = 0;
-  Previous_Chemical_Compaction = 0;
+  Chemical_Compaction = nullptr;
+  Previous_Chemical_Compaction = nullptr;
 
-  PermeabilityV = 0;
-  PermeabilityH = 0;
+  PermeabilityV = nullptr;
+  PermeabilityH = nullptr;
 
-  Temperature           = NULL;
-  BulkDensXHeatCapacity = NULL;
-  BulkTHCondN           = NULL;
-  BulkTHCondP           = NULL;
-  BulkHeatProd          = NULL;
-  Lithology_ID          = NULL;
+  Temperature           = nullptr;
+  BulkDensXHeatCapacity = nullptr;
+  BulkTHCondN           = nullptr;
+  BulkTHCondP           = nullptr;
+  BulkHeatProd          = nullptr;
+  Lithology_ID          = nullptr;
 
-  m_IlliteFraction = NULL;
-  m_SteraneAromatisation = NULL;
-  m_SteraneIsomerisation = NULL;
-  m_HopaneIsomerisation   = NULL;
-  m_flowComponents = NULL;
-  m_previousFlowComponents = NULL;
-  m_saturations = NULL;
-  m_timeOfElementInvasionVec=NULL;
+  m_IlliteFraction = nullptr;
+  m_SteraneAromatisation = nullptr;
+  m_SteraneIsomerisation = nullptr;
+  m_HopaneIsomerisation   = nullptr;
+  m_flowComponents = nullptr;
+  m_previousFlowComponents = nullptr;
+  m_saturations = nullptr;
+  m_timeOfElementInvasionVec=nullptr;
 }
 
 void LayerProps::initialiseSourceRockProperties ( const bool printInitialisationDetails ) {
@@ -1097,9 +1096,9 @@ void LayerProps::initialiseSourceRockProperties ( const bool printInitialisation
 
 void LayerProps::reInitialise (){
 
-   if ( layerDA != NULL ) {
+   if ( layerDA != nullptr ) {
       DMDestroy( &layerDA );
-      layerDA = NULL;
+      layerDA = nullptr;
    }
 
    initialiseSourceRockProperties ( false );
@@ -1206,40 +1205,40 @@ void LayerProps::reInitialise (){
 
 void LayerProps::setVectorList() {
 
-  vectorList.VecArray[DEPTH] = &Depth;                  Depth = NULL;
-  vectorList.VecArray[VES] = &Ves;                      Ves = NULL;
-  vectorList.VecArray[MAXVES] = &Max_VES;               Max_VES = NULL;
-  vectorList.VecArray[TEMPERATURE] = &Temperature;      Temperature = NULL;
-  vectorList.VecArray[POROSITYVEC] = &Porosity;         Porosity = NULL;
-  vectorList.VecArray[DIFFUSIVITYVEC] = &Diffusivity;   Diffusivity = NULL;
-  vectorList.VecArray[VR] = &Vre;                       Vre = NULL;
-  vectorList.VecArray[BULKDENSITYVEC] = &BulkDensity;   BulkDensity = NULL;
-  vectorList.VecArray[VELOCITYVEC] = &Velocity;         Velocity = NULL;
-  vectorList.VecArray[SONICVEC] = &Sonic;               Sonic = NULL;
-  vectorList.VecArray[REFLECTIVITYVEC] = &Reflectivity; Reflectivity = NULL;
-  vectorList.VecArray[PERMEABILITYVEC] = &PermeabilityV; PermeabilityV = NULL;
-  vectorList.VecArray[PERMEABILITYHVEC] = &PermeabilityH; PermeabilityH = NULL;
-  vectorList.VecArray[THCONDVEC] = &BulkTHCondN;        BulkTHCondN = NULL;
-  vectorList.VecArray[PRESSURE] = &Pressure;            Pressure = NULL;
-  vectorList.VecArray[OVERPRESSURE] = &OverPressure;    OverPressure = NULL;
+  vectorList.VecArray[DEPTH] = &Depth;                  Depth = nullptr;
+  vectorList.VecArray[VES] = &Ves;                      Ves = nullptr;
+  vectorList.VecArray[MAXVES] = &Max_VES;               Max_VES = nullptr;
+  vectorList.VecArray[TEMPERATURE] = &Temperature;      Temperature = nullptr;
+  vectorList.VecArray[POROSITYVEC] = &Porosity;         Porosity = nullptr;
+  vectorList.VecArray[DIFFUSIVITYVEC] = &Diffusivity;   Diffusivity = nullptr;
+  vectorList.VecArray[VR] = &Vre;                       Vre = nullptr;
+  vectorList.VecArray[BULKDENSITYVEC] = &BulkDensity;   BulkDensity = nullptr;
+  vectorList.VecArray[VELOCITYVEC] = &Velocity;         Velocity = nullptr;
+  vectorList.VecArray[SONICVEC] = &Sonic;               Sonic = nullptr;
+  vectorList.VecArray[REFLECTIVITYVEC] = &Reflectivity; Reflectivity = nullptr;
+  vectorList.VecArray[PERMEABILITYVEC] = &PermeabilityV; PermeabilityV = nullptr;
+  vectorList.VecArray[PERMEABILITYHVEC] = &PermeabilityH; PermeabilityH = nullptr;
+  vectorList.VecArray[THCONDVEC] = &BulkTHCondN;        BulkTHCondN = nullptr;
+  vectorList.VecArray[PRESSURE] = &Pressure;            Pressure = nullptr;
+  vectorList.VecArray[OVERPRESSURE] = &OverPressure;    OverPressure = nullptr;
   vectorList.VecArray[HYDROSTATICPRESSURE] = &HydroStaticPressure; 
-  HydroStaticPressure = NULL;
+  HydroStaticPressure = nullptr;
   vectorList.VecArray[LITHOSTATICPRESSURE] = &LithoStaticPressure;
-  LithoStaticPressure = NULL;
-  vectorList.VecArray[FCTCORRECTION] = &FCTCorrection;  FCTCorrection = NULL;
-  vectorList.VecArray[THICKNESSERROR] = &Thickness_Error;     Thickness_Error = NULL;
-  vectorList.VecArray[FAULTELEMENTS]  = &faultElements;       faultElements = NULL;
-  vectorList.VecArray[THICKNESS]      = &layerThickness;      layerThickness = NULL;
-  vectorList.VecArray[ALLOCHTHONOUS_LITHOLOGY]  = &allochthonousLithologyMap;  allochthonousLithologyMap = NULL;
-  vectorList.VecArray[EROSIONFACTOR] = &erosionFactor;     erosionFactor = NULL;
+  LithoStaticPressure = nullptr;
+  vectorList.VecArray[FCTCORRECTION] = &FCTCorrection;  FCTCorrection = nullptr;
+  vectorList.VecArray[THICKNESSERROR] = &Thickness_Error;     Thickness_Error = nullptr;
+  vectorList.VecArray[FAULTELEMENTS]  = &faultElements;       faultElements = nullptr;
+  vectorList.VecArray[THICKNESS]      = &layerThickness;      layerThickness = nullptr;
+  vectorList.VecArray[ALLOCHTHONOUS_LITHOLOGY]  = &allochthonousLithologyMap;  allochthonousLithologyMap = nullptr;
+  vectorList.VecArray[EROSIONFACTOR] = &erosionFactor;     erosionFactor = nullptr;
 
   vectorList.VecArray [ CHEMICAL_COMPACTION ] = &Chemical_Compaction;
-  Chemical_Compaction = NULL;
+  Chemical_Compaction = nullptr;
 
-  vectorList.VecArray[ILLITEFRACTION]  = &m_IlliteFraction;  m_IlliteFraction = NULL;
-  vectorList.VecArray[STERANEAROMATISATION]  = &m_SteraneAromatisation;  m_SteraneAromatisation = NULL;
-  vectorList.VecArray[STERANEISOMERISATION]  = &m_SteraneIsomerisation;  m_SteraneIsomerisation = NULL;
-  vectorList.VecArray[HOPANEISOMERISATION ]  = &m_HopaneIsomerisation ;  m_HopaneIsomerisation = NULL;
+  vectorList.VecArray[ILLITEFRACTION]  = &m_IlliteFraction;  m_IlliteFraction = nullptr;
+  vectorList.VecArray[STERANEAROMATISATION]  = &m_SteraneAromatisation;  m_SteraneAromatisation = nullptr;
+  vectorList.VecArray[STERANEISOMERISATION]  = &m_SteraneIsomerisation;  m_SteraneIsomerisation = nullptr;
+  vectorList.VecArray[HOPANEISOMERISATION ]  = &m_HopaneIsomerisation ;  m_HopaneIsomerisation = nullptr;
 
 }
 void LayerProps::resetSmectiteIlliteStateVectors()
@@ -1494,7 +1493,7 @@ void LayerProps::Fill_Topmost_Segment_Arrays ( const double          Previous_Ti
   int Current_Topmost_Segment = 0;
   int Previous_Topmost_Segment = 0;
 
-  if ( layerDA == 0 ) {
+  if ( layerDA == nullptr ) {
     Previous_Topmost_Segments.fill ( -3 );
     Current_Topmost_Segments.fill ( -3 );
   } else {
@@ -1755,7 +1754,7 @@ void LayerProps::deleteAllochthonousLithologyMap () {
 
 void LayerProps::deleteFaultElementsMap () {
 
-   PetscBool validVector ( faultElements != 0 ? PETSC_TRUE : PETSC_FALSE );
+   PetscBool validVector ( faultElements != nullptr ? PETSC_TRUE : PETSC_FALSE );
 
   if ( validVector ) {
     VecDestroy ( &faultElements );
@@ -1768,7 +1767,7 @@ void LayerProps::deleteFaultElementsMap () {
 
 void LayerProps::deleteErosionFactorMap () {
 
-  PetscBool validVector ( erosionFactor != 0 ? PETSC_TRUE : PETSC_FALSE );
+  PetscBool validVector ( erosionFactor != nullptr ? PETSC_TRUE : PETSC_FALSE );
 
   if ( validVector ) {
     VecDestroy ( &erosionFactor );
@@ -1784,7 +1783,7 @@ void LayerProps::setSnapshotInterval ( const SnapshotInterval& interval,
 
 
    // If the vesInterpolator != 0 then the maxVesInterpolator will also != 0.
-   if ( isSediment () && vesInterpolator != 0 ) {
+   if ( isSediment () && vesInterpolator != nullptr ) {
       vesInterpolator->setInterval ( interval, basinModel->getOutputDirectory (), layername, "Ves" );
       maxVesInterpolator->setInterval ( interval, basinModel->getOutputDirectory (), layername, "MaxVes" );
    }
@@ -1845,7 +1844,7 @@ void LayerProps::interpolateProperty (       AppCtx*                  basinModel
                                        const PropertyList             property ) {
 
 
-  if ( ! isSediment () || vesInterpolator == 0 ) {
+  if ( ! isSediment () || vesInterpolator == nullptr ) {
     return;
   }
 
@@ -2348,7 +2347,7 @@ void LayerProps::createVolumeGridSlave ( const int numberOfDofs ) const {
    }
 
    // If the element-grid does not exist then create one.
-   if ( m_elementVolumeGrids [ numberOfDofs - 1 ] == 0 ) {
+   if ( m_elementVolumeGrids [ numberOfDofs - 1 ] == nullptr ) {
       m_elementVolumeGrids [ numberOfDofs - 1 ] = new ElementVolumeGrid;
       m_elementVolumeGrids [ numberOfDofs - 1 ]->construct ( FastcauldronSimulator::getInstance ().getElementGrid (),
                                                              getMaximumNumberOfElements (),
@@ -2387,7 +2386,7 @@ void LayerProps::createNodalVolumeGridSlave ( const int numberOfDofs ) const {
    }
 
    // If the nodal-grid does not exist then create one.
-   if ( m_nodalVolumeGrids [ numberOfDofs - 1 ] == 0 ) {
+   if ( m_nodalVolumeGrids [ numberOfDofs - 1 ] == nullptr ) {
       m_nodalVolumeGrids [ numberOfDofs - 1 ] = new NodalVolumeGrid;
       m_nodalVolumeGrids [ numberOfDofs - 1 ]->construct ( FastcauldronSimulator::getInstance ().getNodalGrid (),
                                                            getMaximumNumberOfElements () + 1,
