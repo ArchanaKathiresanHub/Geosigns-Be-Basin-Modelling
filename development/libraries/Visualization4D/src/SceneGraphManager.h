@@ -86,7 +86,7 @@ struct SnapshotInfo
     int maxK = 0;
 
     std::shared_ptr<MiSkinExtractIjk> extractor;
-    MexSurfaceMeshUnstructured* skinExtract = nullptr;
+
     SoSeparator* root = nullptr;
     MoMesh* mesh = nullptr;
     MoScalarSet* scalarSet = nullptr;
@@ -118,10 +118,12 @@ struct SnapshotInfo
   {
     int id;
 
-    SoSeparator* root;
-    MoMesh* mesh;
-    MoScalarSet* scalarSet;
-    MoMeshSkin* skin;
+    std::shared_ptr<MiSkinExtractIjk> extractor;
+
+    SoSeparator* root = nullptr;
+    MoMesh* mesh = nullptr;
+    MoScalarSet* scalarSet = nullptr;
+    MoMeshSurface* skin = nullptr;
 
     SoIndexedLineSet* trapOutlines;
     SoIndexedLineSet* drainageAreaOutlinesFluid;
@@ -301,6 +303,7 @@ public:
       Surface,
       Reservoir,
       Slice,
+      Fence,
       Trap,
       Unknown
     } type = Unknown;
@@ -308,7 +311,7 @@ public:
     SbVec3f position = SbVec3f(0.f, 0.f, 0.f);
 
     // Only valid in case type is not Trap
-    size_t i=0, j=0, k=0;
+    MbVec3ui cellIndex;
     std::string name;
     double propertyValue = 99999.0;
 
@@ -456,7 +459,7 @@ private:
 
   int getSurfaceId(MoMeshSurface* surface) const;
   int getFormationId(/*MoMeshSkin* skin, */size_t k) const;
-  int getReservoirId(MoMeshSkin* skin) const;
+  int getReservoirId(MoMeshSurface* skin) const;
 
   void updateCoordinateGrid();
   void updateSnapshotMesh();

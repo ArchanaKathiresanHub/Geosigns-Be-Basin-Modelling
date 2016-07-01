@@ -60,11 +60,12 @@
 #include <MeshVizXLM/mapping/nodes/MoLegend.h>
 #include <MeshVizXLM/mapping/nodes/MoCellFilter.h>
 #include <MeshVizXLM/mapping/nodes/MoMeshSurface.h>
+#include <MeshVizXLM/mapping/details/MoFaceDetailI.h>
 #include <MeshVizXLM/mapping/details/MoFaceDetailIj.h>
 #include <MeshVizXLM/mapping/details/MoFaceDetailIjk.h>
 #include <MeshVizXLM/extractors/MiSkinExtractIjk.h>
 
-//#define USE_OIV_COORDINATE_GRID
+#define USE_OIV_COORDINATE_GRID
 
 #ifdef USE_OIV_COORDINATE_GRID
 #include <MeshViz/graph/PoAutoCubeAxis.h>
@@ -171,7 +172,7 @@ int SceneGraphManager::getFormationId(/*MoMeshSkin* skin, */size_t k) const
   return -1;
 }
 
-int SceneGraphManager::getReservoirId(MoMeshSkin* skin) const
+int SceneGraphManager::getReservoirId(MoMeshSurface* skin) const
 {
   assert(!m_snapshotInfoCache.empty());
 
@@ -462,15 +463,16 @@ void SceneGraphManager::updateSnapshotReservoirs()
     {
       res.root = new SoSeparator;
       res.mesh = new MoMesh;
+      res.scalarSet = new MoScalarSet;
+      res.skin = new MoMeshSurface;
 
       res.meshData = m_project->createReservoirMesh(snapshot.index, res.id);
-      res.mesh->setMesh(res.meshData.get());
-
       res.propertyData = createReservoirProperty(snapshot, res, snapshot.currentPropertyId);
-      res.scalarSet = new MoScalarSet;
-      res.scalarSet->setScalarSet(res.propertyData.get());
 
-      res.skin = new MoMeshSkin;
+      res.extractor.reset(MiSkinExtractIjk::getNewInstance(*res.meshData));
+      res.mesh->setMesh(&res.extractor->extractSkin());
+      if(res.propertyData)
+        res.scalarSet->setScalarSet(&res.extractor->extractScalarSet(*res.propertyData));
 
       res.root->addChild(res.mesh);
       res.root->addChild(res.scalarSet);
@@ -699,7 +701,8 @@ void SceneGraphManager::updateSnapshotProperties()
     if (res.root)
     {
       res.propertyData = createReservoirProperty(snapshot, res, m_viewState.currentPropertyId);
-      res.scalarSet->setScalarSet(res.propertyData.get());
+      if(res.propertyData)
+        res.scalarSet->setScalarSet(&res.extractor->extractScalarSet(*res.propertyData));
     }
   }
 
@@ -1107,9 +1110,9 @@ void SceneGraphManager::showPickResult(const PickResult& pickResult)
   case PickResult::Reservoir:
   case PickResult::Slice:
     line1.sprintf("[%d, %d, %d]",
-      (int)pickResult.i,
-      (int)pickResult.j,
-      (int)pickResult.k);
+      (int)pickResult.cellIndex[0],
+      (int)pickResult.cellIndex[1],
+      (int)pickResult.cellIndex[2]);
     line2.sprintf("Value %g", pickResult.propertyValue);
     line3 = pickResult.name;
     break;
@@ -1578,29 +1581,109 @@ SoNode* SceneGraphManager::getRoot() const
   return m_root;
 }
 
+namespace
+{
+  MbVec3ui getMappedCellIndex(size_t cellIndex, const MeXSurfaceTopologyExplicitI& extractedTopology, const MiTopologyIjk& topology)
+  {
+    MbVec3ui index;
+
+    if (extractedTopology.hasInputCellMapping())
+    {
+      index[0] = extractedTopology.getInputCellIdI(cellIndex);
+      index[1] = extractedTopology.getInputCellIdJ(cellIndex);
+      index[2] = extractedTopology.getInputCellIdK(cellIndex);
+
+      // workaround for stupid OIV limitation, see docs for MeXTopologyI::getInputCellIdI(size_t id)
+      if (index[1] == UNDEFINED_ID || index[2] == UNDEFINED_ID)
+      {
+        size_t ni = topology.getNumCellsI();
+        size_t nj = topology.getNumCellsJ();
+        size_t flatId = index[0];
+        size_t ij = flatId % (ni * nj);
+
+        index[0] = ij % ni;
+        index[1] = ij / ni;
+        index[2] = flatId / (ni * nj);
+      }
+    }
+
+    return index;
+  }
+}
+
 SceneGraphManager::PickResult SceneGraphManager::processPickedPoint(const SoPickedPoint* pickedPoint)
 {
+  assert(!m_snapshotInfoCache.empty());
+  const SnapshotInfo& snapshot = *m_snapshotInfoCache.begin();
+
   auto p = pickedPoint->getPoint();
 
   PickResult pickResult;
   pickResult.position = p;
-
+  
   auto path = pickedPoint->getPath();
   auto tail = path->getTail();
   auto detail = pickedPoint->getDetail();
 
   if (detail)
   {
-    // Check for surface
+    // check for formation / reservoir
     if (
+      detail->isOfType(MoFaceDetailI::getClassTypeId()) && 
+      tail->isOfType(MoMeshSurface::getClassTypeId()))
+    {
+      MoFaceDetailI* fdetail = (MoFaceDetailI*)detail;
+      pickResult.propertyValue = fdetail->getValue(p);
+      size_t cellIndex = fdetail->getCellIndex();
+
+      auto skin = static_cast<MoMeshSurface*>(tail);
+
+      // find corresponding reservoir
+      auto resIter = snapshot.reservoirs.begin(); 
+      while (resIter != snapshot.reservoirs.end() && resIter->skin != skin)
+        ++resIter;
+
+      if(resIter != snapshot.reservoirs.end())
+      {
+        pickResult.type = PickResult::Reservoir;
+        pickResult.name = m_projectInfo.reservoirs[resIter->id].name;
+
+        auto const& extract = resIter->extractor->getExtract();
+        auto const& topology = extract.getTopology();
+        pickResult.cellIndex = getMappedCellIndex(cellIndex, topology, resIter->meshData->getTopology());
+      }
+      else // try formations
+      {
+        // find corresponding chunk
+        auto chunkIter = snapshot.chunks.begin();
+        while (chunkIter != snapshot.chunks.end() && chunkIter->skin != skin)
+          ++chunkIter;
+
+        if (chunkIter != snapshot.chunks.end())
+        {
+          auto const& extract = chunkIter->extractor->getExtract();
+          auto const& topology = extract.getTopology();
+          pickResult.cellIndex = getMappedCellIndex(cellIndex, topology, snapshot.meshData->getTopology());
+
+          int id = getFormationId(pickResult.cellIndex[2]);
+          if (id >= 0)
+          {
+            pickResult.type = PickResult::Formation;
+            pickResult.name = m_projectInfo.formations[id].name;
+          }
+        }
+      }
+    }
+    // Check for surface
+    else if (
       detail->isOfType(MoFaceDetailIj::getClassTypeId()) &&
       tail->isOfType(MoMeshSurface::getClassTypeId()))
     {
       pickResult.type = PickResult::Surface;
 
       MoFaceDetailIj* fdetail = (MoFaceDetailIj*)detail;
-      pickResult.i = fdetail->getCellIndexI();
-      pickResult.j = fdetail->getCellIndexJ();
+      pickResult.cellIndex[0] = fdetail->getCellIndexI();
+      pickResult.cellIndex[1] = fdetail->getCellIndexJ();
 
       int id = getSurfaceId(static_cast<MoMeshSurface*>(tail));
       if (id != -1)
@@ -1608,47 +1691,33 @@ SceneGraphManager::PickResult SceneGraphManager::processPickedPoint(const SoPick
 
       pickResult.propertyValue = fdetail->getValue(p);
     }
-    // Check for formation / reservoir / slab
+    // Check for slab and fence
     else if (detail->isOfType(MoFaceDetailIjk::getClassTypeId()))
     {
       MoFaceDetailIjk* fdetail = (MoFaceDetailIjk*)detail;
-      pickResult.i = fdetail->getCellIndexI();
-      pickResult.j = fdetail->getCellIndexJ();
-      pickResult.k = fdetail->getCellIndexK();
+      pickResult.cellIndex[0] = fdetail->getCellIndexI();
+      pickResult.cellIndex[1] = fdetail->getCellIndexJ();
+      pickResult.cellIndex[2] = fdetail->getCellIndexK();
 
       pickResult.propertyValue = fdetail->getValue(p);
 
       if (tail->isOfType(MoMeshSlab::getClassTypeId()))
       {
-        int id = getFormationId(pickResult.k);
+        int id = getFormationId(pickResult.cellIndex[2]);
         pickResult.type = PickResult::Slice;
         pickResult.name = m_projectInfo.formations[id].name;
       }
-      else if(tail->isOfType(MoMeshSkin::getClassTypeId()))
+      else if (tail->isOfType(MoMeshFenceSlice::getClassTypeId()))
       {
-        // If this is a MoMeshSkin, it can be a formation or a reservoir
-        MoMeshSkin* skin = static_cast<MoMeshSkin*>(tail);
-        int id = getReservoirId(skin);
-        if (id != -1)
-        {
-          pickResult.type = PickResult::Reservoir;
-          pickResult.name = m_projectInfo.reservoirs[id].name;
-        }
-        else
-        {
-          id = getFormationId(pickResult.k);
-          pickResult.type = PickResult::Formation;
-          pickResult.name = m_projectInfo.formations[id].name;
-        }
+        int id = getFormationId(pickResult.cellIndex[2]);
+        pickResult.type = PickResult::Fence;
+        pickResult.name = m_projectInfo.formations[id].name;
       }
     }
   }
   // Check for trap
   else if (tail->isOfType(SoAlgebraicSphere::getClassTypeId()))
   {
-    assert(!m_snapshotInfoCache.empty());
-    const SnapshotInfo& snapshot = *m_snapshotInfoCache.begin();
-
     for (auto const& res : snapshot.reservoirs)
     {
       Project::Trap pickedTrap;
