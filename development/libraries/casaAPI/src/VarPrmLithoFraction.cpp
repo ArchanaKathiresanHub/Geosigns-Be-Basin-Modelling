@@ -136,14 +136,15 @@ namespace casa
       // generate the maps
       std::string  mapNameFirstLithoPercentage  = std::to_string( lid ) + "_percent_1";
       std::string  mapNameSecondLithoPercentage = std::to_string( lid ) + "_percent_2";
+      int mapSeqNbr = -1;
 
-      mbapi::MapsManager::MapID id = mapsMgr.generateMap( "StratIoTbl", mapNameFirstLithoPercentage, lf1CorrInt,""); // use the default filename for the file storing the maps
+      mbapi::MapsManager::MapID id = mapsMgr.generateMap( "StratIoTbl", mapNameFirstLithoPercentage, lf1CorrInt, mapSeqNbr,"" ); // use the default filename for the file storing the maps
       if ( UndefinedIDValue == id )
       {
          throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Generation of the " << mapNameFirstLithoPercentage 
                                                                         << " lithofraction map failed";
       }
-      id = mapsMgr.generateMap( "StratIoTbl", mapNameSecondLithoPercentage, lf2CorrInt,"");
+      id = mapsMgr.generateMap( "StratIoTbl", mapNameSecondLithoPercentage, lf2CorrInt, mapSeqNbr,"" );
       if ( UndefinedIDValue == id )
       {
          throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Generation of the " << mapNameSecondLithoPercentage 

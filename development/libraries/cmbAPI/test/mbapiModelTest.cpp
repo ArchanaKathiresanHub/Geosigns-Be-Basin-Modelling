@@ -878,13 +878,14 @@ TEST_F( mbapiModelTest, MapsManagerNNInterpolation )
       // generate the maps
       std::string  correctFirstLithoFractionMap("5_percent_1");
       std::string  correctSecondLithoFractionMap("5_percent_2");
+      int mapSeqNbr = -1;
 
       // first map, produce the map and update GridmapIoTbl
-      mbapi::MapsManager::MapID id = mapsMgr.generateMap( "StratIoTbl", correctFirstLithoFractionMap, lf1CorrInt, masterResults.path( ) );
+      mbapi::MapsManager::MapID id = mapsMgr.generateMap( "StratIoTbl", correctFirstLithoFractionMap, lf1CorrInt, mapSeqNbr, masterResults.path( ) );
       ASSERT_NE( id, UndefinedIDValue );
 
       // second map, produce the map and update GridmapIoTbl
-      id = mapsMgr.generateMap( "StratIoTbl", correctSecondLithoFractionMap, lf2CorrInt, masterResults.path( ) );
+      id = mapsMgr.generateMap( "StratIoTbl", correctSecondLithoFractionMap, lf2CorrInt, mapSeqNbr, masterResults.path( ) );
       ASSERT_NE( id, UndefinedIDValue );
 
       ASSERT_EQ( ErrorHandler::NoError, strMgr.setLayerLithologiesPercentageMaps( lid, correctFirstLithoFractionMap, correctSecondLithoFractionMap ) );

@@ -154,7 +154,7 @@ MapsManager::MapID MapsManagerImpl::copyMap( MapID id, const std::string & newMa
    return ret;
 }
 
-MapsManager::MapID MapsManagerImpl::generateMap( const std::string & refferedTable, const std::string mapName, const std::vector<double>& values, const std::string & filePathName )
+MapsManager::MapID MapsManagerImpl::generateMap( const std::string & refferedTable, const std::string mapName, const std::vector<double>& values, int & mapSequenceNbr, const std::string & filePathName )
 {
    if ( errorCode() != NoError ) resetError();
 
@@ -177,20 +177,19 @@ MapsManager::MapID MapsManagerImpl::generateMap( const std::string & refferedTab
       {
          // create a new Map
          ret = m_mapName.size();
-      m_mapObj.push_back( gridMap );
-      m_mapName.push_back( mapName );
-      m_mapRefTable.push_back( refferedTable );
+         m_mapObj.push_back( gridMap );
+         m_mapName.push_back( mapName );
+         m_mapRefTable.push_back( refferedTable );
 
-      // get pointer to the GridMapIo table
-      database::Table * table = m_db->getTable( s_mapsTableName );
-      if ( !table ) { throw Exception( NonexistingID ) << s_mapsTableName << " table could not be found in project " << m_projectFileName; }
+         // get pointer to the GridMapIo table
+         database::Table * table = m_db->getTable( s_mapsTableName );
+         if ( !table ) { throw Exception( NonexistingID ) << s_mapsTableName << " table could not be found in project " << m_projectFileName; }
 
-      // create a new record in s_mapsTableName
-      database::Record * newRec = table->createRecord();
+         // create a new record in s_mapsTableName
+         database::Record * newRec = table->createRecord();
 
          //determine the map sequence number (in this case the map is always a new one)
          std::string mapFile = mapFullPath.path( );
-         int mapSequenceNbr;
          if ( !m_fileMaps.count( mapFile ) )
          {
             //the first map of the file
@@ -202,7 +201,7 @@ MapsManager::MapID MapsManagerImpl::generateMap( const std::string & refferedTab
             mapSequenceNbr = m_fileMaps[mapFile].size( );
          }
 
-      // change names
+         // change names
          newRec->setValue<std::string>( s_ReferredByColName,  refferedTable.c_str() );
          newRec->setValue(              s_MapNameColName,     mapName );
          newRec->setValue<std::string>( s_MapTypeColName,     "HDF5" );
@@ -237,7 +236,8 @@ ErrorHandler::ReturnCode MapsManagerImpl::inizializeMapWriter( const std::string
       status = m_mapPropertyValuesWriter->open( filePathName, append );
       if ( status )
       {
-         status = m_mapPropertyValuesWriter->saveDescription( m_proj->saveAsInputGrid() ? m_proj->getInputGrid() : m_proj->getActivityOutputGrid() );
+         // Note: we assume that all maps written by MapsManagerImpl are full resolution
+         status = m_mapPropertyValuesWriter->saveDescription( m_proj->getInputGrid() );
       }
       if ( !status ) throw Exception( UnknownError ) << "Map writer not instantiated correctly ";
    }

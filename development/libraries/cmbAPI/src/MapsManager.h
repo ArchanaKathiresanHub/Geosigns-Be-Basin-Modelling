@@ -121,7 +121,7 @@ namespace mbapi
       /// @param[in] values new map values
       /// @param[in] the file name of the  HDF file storing the map
       /// @return ErrorHandler::NoError on succes, or error code otherwise
-      virtual MapID generateMap( const std::string & refferedTable, const std::string mapName, const std::vector<double>& values, const std::string & filePathName ) = 0;
+      virtual MapID generateMap( const std::string & refferedTable, const std::string mapName, const std::vector<double>& values, int & mapSequenceNbr, const std::string & filePathName ) = 0;
 
       /// @brief inizialize the map writer to write 2D HDF maps
       /// @param[in] filePathName the file name 

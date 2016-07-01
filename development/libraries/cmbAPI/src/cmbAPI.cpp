@@ -105,7 +105,7 @@ public:
    int                      tableSize(     const std::string & tableName );
    void                     clearTable(    const std::string & tableName );
    void                     addRowToTable( const std::string & tableName );
-   void                     copyRecordFromModel( const std::string & tableName, const Model::ModelImpl * refMdl, int recInd );
+   void                     removeRecordFromTable( const std::string & tableName, int ind );
 
    long        tableValueAsInteger(  const std::string & tableName, size_t rowNumber, const std::string & propName );
    double      tableValueAsDouble(   const std::string & tableName, size_t rowNumber, const std::string & propName );
@@ -366,11 +366,11 @@ ErrorHandler::ReturnCode Model::clearTable( const std::string & tableName )
    return NoError;
 }
 
-ErrorHandler::ReturnCode Model::copyRecordFromModel( const std::string & tableName, const Model & refMdl, int recInd )
+ErrorHandler::ReturnCode Model::removeRecordFromTable( const std::string & tableName, int ind )
 {
    if ( errorCode( ) != NoError ) resetError( ); // clean any previous error
 
-   try { m_pimpl->copyRecordFromModel( tableName, refMdl.m_pimpl.get(), recInd ); }
+   try { m_pimpl->removeRecordFromTable( tableName, ind ); }
    catch ( const Exception & ex ) { return reportError( ex.errorCode( ), ex.what( ) ); }
    catch ( ... )                  { return reportError( UnknownError, "Unknown error" ); }
 
@@ -937,16 +937,18 @@ void Model::ModelImpl::addRowToTable( const std::string & tableName )
    table->createRecord();
 }
 
-void Model::ModelImpl::copyRecordFromModel( const std::string & tableName, const Model::ModelImpl  * refMdl, int recInd )
+void Model::ModelImpl::removeRecordFromTable( const std::string & tableName, int ind )
 {
    // get pointer to the table
-   database::Table * destinationTable = m_projHandle->getDataBase( )->getTable( tableName.c_str( ) );
+   database::Table * table = m_projHandle->getDataBase( )->getTable( tableName.c_str( ) );
 
-   // source Table
-   database::Table * sourceTable = refMdl->m_projHandle->getDataBase( )->getTable( tableName.c_str( ) );
+   if ( !table ) throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << tableName << " table could not be found in project";
 
-   // add the record at the bottom
-   destinationTable->addRecord( sourceTable->getRecord( recInd ) );
+   // get the record to remove
+   database::Record * recordToRemove = table->getRecord( ind );
+
+   // delete the record
+   table->deleteRecord( recordToRemove );
 }
 
 long Model::ModelImpl::tableValueAsInteger( const std::string & tableName, size_t rowNumber, const std::string & propName )

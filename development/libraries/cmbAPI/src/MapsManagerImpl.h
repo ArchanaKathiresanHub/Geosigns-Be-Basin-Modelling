@@ -92,7 +92,7 @@ namespace mbapi
          std::vector<double>& vout );
 
       // Generate a new map in the GridMapIoTbl
-      virtual MapID generateMap( const std::string & refferedTable, const std::string mapName, const std::vector<double>& values, const std::string & filePathName );
+      virtual MapID generateMap( const std::string & refferedTable, const std::string mapName, const std::vector<double>& values, int & mapSequenceNbr, const std::string & filePathName );
 
       // Inizialize the map writer
       virtual ErrorHandler::ReturnCode inizializeMapWriter( const std::string & filePathName, const bool append );
