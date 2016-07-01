@@ -14,9 +14,6 @@
 #include "../../SerialDataAccess/src/Interface/SerialGrid.h"
 #include "../../SerialDataAccess/src/Interface/SerialGridMap.h"
 
-#include "../../DistributedDataAccess/src/Interface/DistributedGrid.h"
-#include "../../DistributedDataAccess/src/Interface/DistributedGridMap.h"
-
 #include <gtest/gtest.h>
 
 double minI = 0.0;
