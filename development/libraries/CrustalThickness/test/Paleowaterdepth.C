@@ -152,7 +152,7 @@ TEST( PaleowaterdepthCalculator, compute )
    EXPECT_EQ( 800, outputData.getMapValue( isostaticBathymetry, 0, 0 ) );
    EXPECT_EQ( 800, outputData.getMapValue( isostaticBathymetry, 0, 1 ) );
    EXPECT_EQ( 800, outputData.getMapValue( isostaticBathymetry, 1, 0 ) );
-   EXPECT_EQ( 800, outputData.getMapValue( isostaticBathymetry, 0, 0 ) );
+   EXPECT_EQ( 800, outputData.getMapValue( isostaticBathymetry, 1, 1 ) );
 
    //Without pressure equilibirium
    // and defined data
@@ -173,7 +173,7 @@ TEST( PaleowaterdepthCalculator, compute )
    EXPECT_NEAR( 800.203873598369, outputData.getMapValue( isostaticBathymetry, 0, 0 ), 1e-12 );
    EXPECT_NEAR( 800.203873598369, outputData.getMapValue( isostaticBathymetry, 0, 1 ), 1e-12 );
    EXPECT_NEAR( 800.203873598369, outputData.getMapValue( isostaticBathymetry, 1, 0 ), 1e-12 );
-   EXPECT_NEAR( 800.203873598369, outputData.getMapValue( isostaticBathymetry, 0, 0 ), 1e-12 );
+   EXPECT_NEAR( 800.203873598369, outputData.getMapValue( isostaticBathymetry, 1, 1 ), 1e-12 );
    // and undefined data
    PaleowaterdepthCalculator pwdCalculator3( firstI,
                                              firstJ,
@@ -192,7 +192,7 @@ TEST( PaleowaterdepthCalculator, compute )
    EXPECT_EQ( 800, outputData.getMapValue( isostaticBathymetry, 0, 0 ) );
    EXPECT_EQ( 800, outputData.getMapValue( isostaticBathymetry, 0, 1 ) );
    EXPECT_EQ( 800, outputData.getMapValue( isostaticBathymetry, 1, 0 ) );
-   EXPECT_EQ( 800, outputData.getMapValue( isostaticBathymetry, 0, 0 ) );
+   EXPECT_EQ( 800, outputData.getMapValue( isostaticBathymetry, 1, 1 ) );
 
    //Undefined values
    // for TTS
@@ -209,7 +209,7 @@ TEST( PaleowaterdepthCalculator, compute )
    EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( isostaticBathymetry, 0, 0 ) );
    EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( isostaticBathymetry, 0, 1 ) );
    EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( isostaticBathymetry, 1, 0 ) );
-   EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( isostaticBathymetry, 0, 0 ) );
+   EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( isostaticBathymetry, 1, 1 ) );
    PaleowaterdepthCalculator pwdCalculator5( firstI,
                                              firstJ,
                                              lastI,
@@ -225,7 +225,7 @@ TEST( PaleowaterdepthCalculator, compute )
    EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( isostaticBathymetry, 0, 0 ) );
    EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( isostaticBathymetry, 0, 1 ) );
    EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( isostaticBathymetry, 1, 0 ) );
-   EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( isostaticBathymetry, 0, 0 ) );
+   EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( isostaticBathymetry, 1, 1 ) );
    //for valid node
    outputData.setMapValues( cumSedimentBackstrip, -300 );
    validator.setIsValid( false );
@@ -233,5 +233,5 @@ TEST( PaleowaterdepthCalculator, compute )
    EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( isostaticBathymetry, 0, 0 ) );
    EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( isostaticBathymetry, 0, 1 ) );
    EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( isostaticBathymetry, 1, 0 ) );
-   EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( isostaticBathymetry, 0, 0 ) );
+   EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( isostaticBathymetry, 1, 1 ) );
 }

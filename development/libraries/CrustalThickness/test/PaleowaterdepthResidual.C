@@ -96,7 +96,7 @@ TEST( PaleowaterdepthResidualCalculator, compute )
    EXPECT_EQ( 300, outputData.getMapValue( PaleowaterdepthResidual, 0, 0 ) );
    EXPECT_EQ( 300, outputData.getMapValue( PaleowaterdepthResidual, 0, 1 ) );
    EXPECT_EQ( 300, outputData.getMapValue( PaleowaterdepthResidual, 1, 0 ) );
-   EXPECT_EQ( 300, outputData.getMapValue( PaleowaterdepthResidual, 0, 0 ) );
+   EXPECT_EQ( 300, outputData.getMapValue( PaleowaterdepthResidual, 1, 1 ) );
 
    //NDV (age is 0Ma)
    // unvalid PWD
@@ -105,14 +105,14 @@ TEST( PaleowaterdepthResidualCalculator, compute )
    EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( PaleowaterdepthResidual, 0, 0 ) );
    EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( PaleowaterdepthResidual, 0, 1 ) );
    EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( PaleowaterdepthResidual, 1, 0 ) );
-   EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( PaleowaterdepthResidual, 0, 0 ) );
+   EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( PaleowaterdepthResidual, 1, 1 ) );
    // unvalid nodes
    validator.setIsValid( false );
    pwdrCalculator.compute();
    EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( PaleowaterdepthResidual, 0, 0 ) );
    EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( PaleowaterdepthResidual, 0, 1 ) );
    EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( PaleowaterdepthResidual, 1, 0 ) );
-   EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( PaleowaterdepthResidual, 0, 0 ) );
+   EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( PaleowaterdepthResidual, 1, 1 ) );
 
 }
 

@@ -708,6 +708,8 @@ namespace DataAccess
 
       /// Value for undefined used in maps
       const double DefaultUndefinedMapValue = 99999;
+      /// Value for undefined used in maps
+      const int DefaultUndefinedMapValueInteger = 99999;
       /// Value for undefined used in project files
       const double DefaultUndefinedScalarValue = -9999;
       const double RecordValueUndefined = DefaultUndefinedScalarValue;

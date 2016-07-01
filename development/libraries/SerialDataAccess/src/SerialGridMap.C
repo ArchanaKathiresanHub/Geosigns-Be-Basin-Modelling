@@ -628,30 +628,28 @@ bool SerialGridMap::saveHDF5 (const string & fileName) const
 
 void SerialGridMap::printOn (ostream & ostr) const
 {
-   unsigned int depth = getDepth ();
-   unsigned int numI = getGrid ()->numI ();
-   unsigned int numJ = getGrid ()->numJ ();
+unsigned int depth = getDepth ();
+unsigned int numI = getGrid ()->numI ();
+unsigned int numJ = getGrid ()->numJ ();
 
-   ostr << "GridMap: ";
-   ostr << "depth = " << depth;
-   ostr << ", numI = " << numI;
-   ostr << ", numJ = " << numJ;
-   ostr << ", undefinedValue = " << getUndefinedValue ();
-   ostr << endl;
+ostr << "GridMap: ";
+ostr << "depth = " << depth;
+ostr << ", numI = " << numI;
+ostr << ", numJ = " << numJ;
+ostr << ", undefinedValue = " << getUndefinedValue ();
+ostr << endl;
 
    for (unsigned int k = 0; k < depth; ++k)
    {
       for (unsigned int i = 0; i < numI; ++i)
       {
-	 for (unsigned int j = 0; j < numJ; ++j)
-	 {
-	    if (j != 0)
-	       ostr << ", ";
-	    double value = getValue (i, j, k);
-
-	    ostr << value;
-	 }
-	 ostr << endl;
+      for (unsigned int j = 0; j < numJ; ++j)
+      {
+         if (j != 0) ostr << ", ";
+         double value = getValue (i, j, k);
+         ostr << value;
+      }
+      ostr << endl;
       }
       ostr << endl;
    }

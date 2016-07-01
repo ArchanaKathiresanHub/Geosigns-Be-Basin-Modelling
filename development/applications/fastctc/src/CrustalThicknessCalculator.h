@@ -93,7 +93,6 @@ private :
    int    m_outputOptions;    ///< The output option is the combination the output options defined in the command line (xyz, sur, hdf)
    bool   m_debug;            ///< Run the CTC in debug mode
    bool   m_applySmoothing;   ///< Smooth the WLS map
-   int    m_smoothRadius;     ///< The smoothing radius defined in the project file under HaflFilterWidth
 
    InterfaceInput* m_inputData;  ///< Interface for input data (user inputs adn configuration file)
    InterfaceOutput m_outputData; ///< Interface for output data (maps)
@@ -105,9 +104,8 @@ private :
    /// @brief Set requested output properties from the Project file
    void setRequestedOutputProperties( InterfaceOutput & theOutput);
 
-   /// @brief Smooth the map according to the smoothing radius
-   /// @param aMap The map to smooth
-   bool movingAverageSmoothing( GridMap * aMap );
+   /// @brief Smooth the TTS and PWD maps according to the user defined smoothing radius
+   void smoothOutputs();
 
    /// @brief Parse additional informations from command lines:
    ///    -# nosmooth turns smoothing off

@@ -33,6 +33,7 @@ using namespace database;
 // Crustal Thickness library
 #include "DensityCalculator.h"
 #include "LinearFunction.h"
+#include "MapSmoother.h"
 #include "TotalTectonicSubsidenceCalculator.h"
 #include "PaleowaterdepthCalculator.h"
 #include "PaleowaterdepthResidualCalculator.h"
@@ -69,11 +70,10 @@ void displayTime( const double timeToDisplay, const char * msgToDisplay ) {
 CrustalThicknessCalculator::CrustalThicknessCalculator( database::Database * database, const std::string & name, const std::string & accessMode, ObjectFactory* objectFactory )
    : DataAccess::Mining::ProjectHandle( database, name, accessMode, objectFactory ) {
 
-   m_outputOptions = 0;
-   m_debug = false;
+   m_outputOptions  = 0;
+   m_debug          = false;
    m_applySmoothing = true;
-   m_smoothRadius = 0;
-   m_previousTTS = nullptr;
+   m_previousTTS    = nullptr;
 
 }
  
@@ -100,7 +100,7 @@ CrustalThicknessCalculator* CrustalThicknessCalculator::CreateFrom( const string
 
 void CrustalThicknessCalculator::loadSnapshots( ) {
 
-   LogHandler( LogHandler::DEBUG_SEVERITY ) << "Loading snpashots from stratigraphy";
+   LogHandler( LogHandler::DEBUG_SEVERITY ) << "Loading snpashots from stratigraphy:";
    Interface::FormationList* formations = getFormations();
    Interface::FormationList::const_iterator formationIter;
 
@@ -157,9 +157,7 @@ void CrustalThicknessCalculator::initialise() {
    updateValidNodes( m_inputData );
 
    ///4. Load smoothing radius
-   m_smoothRadius = m_inputData->getSmoothRadius();
-   m_applySmoothing = (m_smoothRadius > 0);
-   /// @todo is it needed? --> to simplify in future requirement
+   m_applySmoothing = (m_inputData->getSmoothRadius() > 0);
    setAdditionalOptionsFromCommandLine();
 
    ///5. Initialise InterfaceOutput
@@ -355,22 +353,7 @@ void CrustalThicknessCalculator::run() {
       }
 
       ///6. Smooth the TTS and PWD map
-      if (m_applySmoothing) {
-         LogHandler( LogHandler::INFO_SEVERITY ) << "Applying spatial smoothing with radius = " << m_smoothRadius << " @ snapshot " << age <<".";
-         bool status;
-         if (m_outputData.getMap( WLSMap ) != nullptr){
-            status = movingAverageSmoothing( m_outputData.getMap( WLSMap ) );
-            if (!status) {
-               throw CtcException() << "Failed to smooth TotalTEctonicSubsidence map @ snapshot " << age << "Ma.";
-            }
-         }
-         if (m_outputData.getMap( isostaticBathymetry ) != nullptr){
-            status = movingAverageSmoothing( m_outputData.getMap( isostaticBathymetry ) );
-            if (!status) {
-               throw CtcException() << "Failed to smooth isostaticBathymetry map @ snapshot " << age << "Ma.";
-            }
-         }
-      }
+      if (m_applySmoothing) smoothOutputs();
 
       ///7. Computes the thinning factor and crusltal thicknesses (to be refactored in future requirement)
       double WLS;
@@ -470,293 +453,6 @@ void CrustalThicknessCalculator::run() {
 }
 
 //------------------------------------------------------------//
-//
-//
-//            j, yr  ---->     ---> sum
-//              _____  
-//              | | | 
-//              -----
-//              | | | 
-//      |       -----   |
-//   xr | i     | | |   | col
-//      V       -----   V
-//              | | |
-//              ----- 
-//              | | |
-//              -----
-//
-//
-bool CrustalThicknessCalculator::movingAverageSmoothing( GridMap * aWLSMap) {
-
- 
-  const Interface::Grid * grid = getActivityOutputGrid ();
- 
-  bool status = true;
-
-  GridMap * sumMap =  getFactory()->produceGridMap(0, 0, grid, Interface::DefaultUndefinedMapValue, 1);    
-
-  if( sumMap == 0 ) {
-     return false;
-  } 
-
-  GridMap * numberMap = getFactory()->produceGridMap(0, 0, grid, Interface::DefaultUndefinedMapValue, 1 );  
-  
-  if( numberMap == 0 ) {
-     delete sumMap;
-     return false;
-  }
-  const unsigned int averageRadius = m_smoothRadius;
-
-  unsigned int lastI, lastJ, firstI, firstJ;
-  unsigned int i, j, jj, ii, ii1;
-  double val;
-  bool undefValue;
-  int  num = 0;
-    
-  Interface::DistributedGridMap * aMap = dynamic_cast<Interface::DistributedGridMap *> ( aWLSMap );
-
-  const bool ghostNodes = true;
-
-  if( aMap->retrieved () && ghostNodes ) {
-     aMap->restoreData();
-     aMap->retrieveData( ghostNodes );
-  }
-  sumMap->retrieveData( ghostNodes );
-  numberMap->retrieveData( ghostNodes );
-
-  firstI = aMap->firstI( ghostNodes );
-  firstJ = aMap->firstJ( ghostNodes );
-  lastI  = aMap->lastI( ghostNodes );
-  lastJ  = aMap->lastJ( ghostNodes );
-
-#if 0
-  if(( lastI - firstI ) > 2 * averageRadius ) {
-     lastI  = lastI  - averageRadius;
-     firstI = firstI + averageRadius;
-  }
-  if(( lastJ - firstJ ) > 2 * averageRadius ) {
-     lastJ  = lastJ  - averageRadius;
-     firstJ = firstJ + averageRadius;
-  }
-#endif
-
-  double ** columnMap = new double *[2];
-  double ** numberMapCollect = new double* [2];
-  columnMap[0] = new double [lastJ - firstJ + 1]; 
-  columnMap[1] = new double [lastJ - firstJ + 1];
-  numberMapCollect[0] = new double [lastJ - firstJ + 1];
-  numberMapCollect[1] = new double [lastJ - firstJ + 1];
-
-  unsigned int xr = lastI - firstI;
-  if( xr > averageRadius ) xr = averageRadius;
-
-  unsigned int yr = lastJ - firstJ;
-  if( yr > averageRadius ) yr = averageRadius;
-
-  const int lastYr = ( lastJ - yr > 1 ? lastJ - yr - 1 : 0 );
-  const int lastXr = ( lastI - xr > 1 ? lastI - xr - 1 : 0 );
-
-
-//
-//  1.  Init the col sums: go along the first row and collect all column sums up to xr    
-//                j  ---->     
-//              _____  
-//         i    |x|x|  col[0][j], numberMapCollect[0][j]
-//          |   -----
-//          |   |x|x| 
-//          |   -----   
-//          V   |x|x|   
-//        xr    -----   
-//              | | |
-//              ----- 
-//              | | |
-//              -----
-//
-  for( j = firstJ, jj = 0; j <= lastJ; ++ j, ++ jj ) {
-     num = 0;
-     val = 0;
-     undefValue = true;
-     for( i = firstI; i <= firstI + xr; ++ i ) {
-        if( aMap->getValue( i, j ) != Interface::DefaultUndefinedMapValue ) {
-           val += aMap->getValue( i, j );
-           ++ num;
-           undefValue = false;
-        }
-     }
-     if( undefValue ) {
-        columnMap[0][jj] = Interface::DefaultUndefinedMapValue;
-        numberMapCollect[0][jj] = Interface::DefaultUndefinedMapValue;
-     } else {
-        columnMap[0][jj] = val;
-        numberMapCollect[0][jj] = num;
-     }
-  }
-
-//
-//  2. For each row the first step is to init the first sum: sum up column sums of first yr columns.
-//            j ----- yr    
-//              _____  
-//              |x| | --> collect sum 
-//              -----
-//              | | | 
-//      |       -----   
-//      | i     | | |   
-//      V       -----   
-//              | | |
-//              ----- 
-//              | | |
-//              -----
-//
-  ii  = 0;
-  ii1 = 1;
-
-  for( i = firstI; i <= lastI; ++ i ) {
-     val = 0;
-     undefValue = true;
-     num = 0;
-     for ( j = firstJ, jj = 0; j <= firstJ + yr; ++ j, ++ jj ) { 
-        if( columnMap[ii][jj] != Interface::DefaultUndefinedMapValue ) {
-           val += columnMap[ii][jj];
-           num += numberMapCollect[ii][jj];
-           undefValue = false;
-        }
-     }
-     if( !undefValue ) {
-        sumMap->setValue( i, firstJ, val );
-        numberMap->setValue( i, firstJ, num );
-     } else {
-        sumMap->setValue( i, firstJ, Interface::DefaultUndefinedMapValue );
-        numberMap->setValue( i, firstJ, Interface::DefaultUndefinedMapValue );
-     }
-     for ( j = firstJ, jj = 0; j <= lastJ; ++ j, ++ jj ) { 
-        num = 0;
-        val = 0;
-        undefValue = true;
-        if( j < lastJ ) {
-           // moving the window from left to right, update the sums 
-           if( sumMap->getValue( i, j ) != Interface::DefaultUndefinedMapValue ) {
-              // collect the sum for sum[j+1] (next in the row) 
-              val = sumMap->getValue( i, j );
-              num = numberMap->getValue( i, j );
-              undefValue = false;
-           } 
-           if( j <= lastYr && lastYr != 0 ) {
-               if( columnMap[ii][jj + yr + 1] != Interface::DefaultUndefinedMapValue ) {
-                 // update the sum: add the next column from the right
-                 val += columnMap[ii][jj + yr + 1];
-                 num += numberMapCollect[ii][jj + yr + 1];
-                 undefValue = false;
-             }
-           }
-           if( j >= firstJ + yr ) {
-              if( columnMap[ii][jj - yr] != Interface::DefaultUndefinedMapValue ) {
-                 // update the sum: substruct the column from the left
-                 val -= columnMap[ii][jj - yr];
-                 num -= numberMapCollect[ii][jj - yr];
-                 undefValue = false;         
-              }       
-           }
-           if( !undefValue ) {
-              sumMap->setValue( i, j + 1, val );
-              numberMap->setValue( i, j + 1, num );
-           } else {
-              sumMap->setValue( i, j + 1, Interface::DefaultUndefinedMapValue );
-              numberMap->setValue( i, j + 1, Interface::DefaultUndefinedMapValue );
-          }
-        }
-        if( i < lastI ) {
-           // update the column sum in the row below
-           undefValue = true;
-           val = 0;
-           num = 0;
-           if( columnMap[ii][jj] != Interface::DefaultUndefinedMapValue ) {
-              val = columnMap[ii][jj];
-              num = numberMapCollect[ii][jj];
-              undefValue = false; 
-           } 
-           if( i <= lastXr && lastXr != 0 ) {
-              if( aMap->getValue( i + xr + 1, j ) != Interface::DefaultUndefinedMapValue ) {
-                 val += aMap->getValue( i + xr + 1, j );
-                 ++ num;
-                 undefValue = false; 
-              }
-           }
-           if( i >= firstI + xr ) {
-              if( aMap->getValue( i - xr, j ) != Interface::DefaultUndefinedMapValue ) {
-                 val -= aMap->getValue( i - xr, j );
-                 -- num;
-                 undefValue = false;
-              }
-           }
-           if( undefValue ) {
-              columnMap[ii1][jj] = Interface::DefaultUndefinedMapValue;
-              numberMapCollect[ii1][jj] = Interface::DefaultUndefinedMapValue;
-           } else {
-              columnMap[ii1][jj] = val;
-              numberMapCollect[ii1][jj] = num;
-           }
-        }
-     }
-     if ( ii == 0 ) { ii = 1; ii1 = 0; }
-     else { ii = 0; ii1 = 1; }
-  }
-  // copy smoothed map to aMap. 
-
-  int footPrintI = ( ghostNodes ? ( lastI - firstI > 4 ? 2 : 0 ) : 0 );
-  int footPrintJ = ( ghostNodes ? ( lastJ - firstJ > 4 ? 2 : 0 ) : 0 );
-
-  double multVal;
-
-  for( i = firstI + footPrintI; i <= lastI - footPrintI; ++ i ) {
-     
-     for ( j = firstJ + footPrintJ; j <= lastJ - footPrintJ; ++ j ) { 
-        val = sumMap->getValue( i, j );
-        num = numberMap->getValue( i, j );
-
-        if( val != Interface::DefaultUndefinedMapValue && aMap->getValue(i, j ) != Interface::DefaultUndefinedMapValue ) {
-           if( num == Interface::DefaultUndefinedMapValue ) {
-              LogHandler( LogHandler::WARNING_SEVERITY ) << "Undefined num value in the smoothing algorithm!. Will be set to 1.";
-              num = 1;
-           } else if( num == 0 ) {
-              LogHandler( LogHandler::WARNING_SEVERITY ) << "Zero num value in the smoothing algorithm! Will be set to 1.";
-              num = 1;
-           } else  if( num < 0 ) {
-              LogHandler( LogHandler::WARNING_SEVERITY ) << "Negative num value in the smoothing algorithm! Will be set to 1.";
-              num = 1;
-           } 
-           multVal = 1.0 / (double)num;
-           aMap->setValue( i, j, val  * multVal );
-        }
-     }
-  }
-
-
-  // needs to add average across the borders
-  sumMap->restoreData( );
-  numberMap->restoreData( );
-
-  if ( ghostNodes ) {
-     aMap->restoreData();
-     aMap->retrieveData();
-  }
-  // aMap->restoreData(); will be restored in the end
-
-
-  delete[] columnMap[0];
-  delete[] columnMap[1];
-  delete[] columnMap;
-
-  delete[] numberMapCollect[0];
-  delete[] numberMapCollect[1];
-  delete[] numberMapCollect;
-
-  delete sumMap;
-  delete numberMap;
-
-  return status;
-}
-
-//------------------------------------------------------------//
 
 void CrustalThicknessCalculator::updateValidNodes( const InterfaceInput* theInterfaceData ) {
 
@@ -850,15 +546,36 @@ void CrustalThicknessCalculator::setAdditionalOptionsFromCommandLine() {
    PetscOptionsHasName (PETSC_NULL, "-nosmooth", &isDefined);
    if (isDefined) {
       m_applySmoothing = false;
-      m_smoothRadius = 0;
+      m_inputData->setSmoothingRadius( 0 );
    }
 
    PetscOptionsGetInt ( PETSC_NULL, "-smooth", &radius, &isDefined );
    if (isDefined) {
       m_applySmoothing = ( radius > 0 );
-      m_smoothRadius = radius;
+      m_inputData->setSmoothingRadius( static_cast<unsigned int>(radius) );
    }
 
+}
+
+//------------------------------------------------------------//
+
+void CrustalThicknessCalculator::smoothOutputs() {
+   //Smooth the TTS and PWD map if requested
+   if (m_applySmoothing) {
+      std::vector<outputMaps> mapsToSmooth = { WLSMap, isostaticBathymetry };
+      MapSmoother mapSmoother( m_inputData->getSmoothRadius() );
+      LogHandler( LogHandler::INFO_SEVERITY ) << "Applying spatial smoothing with radius = " << m_inputData->getSmoothRadius() << "for maps:";
+
+      for (size_t i = 0; i < mapsToSmooth.size(); i++){
+         LogHandler( LogHandler::INFO_SEVERITY ) << "   #" << outputMapsNames[i];
+         bool status = mapSmoother.averageSmoothing( m_outputData.getMap( mapsToSmooth[i] ) );
+         m_outputData.getMap( mapsToSmooth[i] )->retrieveData();
+         if (!status) {
+            throw CtcException() << "Failed to smooth " << outputMapsNames[i] << ".";
+         }
+          
+      }
+   }
 }
 
 //------------------------------------------------------------//

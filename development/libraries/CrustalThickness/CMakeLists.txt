@@ -29,6 +29,7 @@ set( all_headers
 	src/InterfaceInput.h
 	src/InterfaceOutput.h
    src/LinearFunction.h
+   src/MapSmoother.h
    src/PaleowaterdepthCalculator.h
    src/PaleowaterdepthResidualCalculator.h
    src/PropertyValue.h
@@ -44,6 +45,7 @@ set( all_srcs
 	src/InterfaceInput.C
 	src/InterfaceOutput.C
    src/LinearFunction.C
+   src/MapSmoother.C
    src/PaleowaterdepthCalculator.C
    src/PaleowaterdepthResidualCalculator.C
    src/PropertyValue.C
@@ -130,6 +132,11 @@ add_gtest( NAME "CrustalThickness::Paleowaterdepth"
 
 add_gtest( NAME "CrustalThickness::PaleowaterdepthResidual"
            SOURCES test/PaleowaterdepthResidual.C test/MockInterfaceOutput.h test/MockInterfaceOutput.C test/MockValidator.h test/MockValidator.C
+           LIBRARIES CrustalThickness SerialDataAccess DataAccess
+         )
+
+add_gtest( NAME "CrustalThickness::MapSmoother"
+           SOURCES test/MapSmoother.C
            LIBRARIES CrustalThickness SerialDataAccess DataAccess
          )
 

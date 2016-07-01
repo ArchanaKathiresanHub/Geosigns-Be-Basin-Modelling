@@ -185,7 +185,7 @@ public:
 
    /// @defgroup Accessors
    /// @{
-   int    getSmoothRadius               () const;
+   unsigned int getSmoothRadius         () const;
    double getMidAge                     () const;
    double getDensityDifference          () const;
    double getInitialCrustThickness      () const;
@@ -225,6 +225,11 @@ public:
 
    /// @}
 
+   /// @defgroup Mutators
+   /// @{
+   void setSmoothingRadius( const unsigned int radius ) { m_smoothRadius = radius; };
+   /// @}
+
    /// @brief Calculate coefficients for the linear function to invert from WLS to TF (thinning factor) for the (i,j) node
    bool defineLinearFunction( LinearFunction & theFunction, unsigned int i, unsigned int j );
 
@@ -249,7 +254,7 @@ private:
 
    /// @defgroup User_interface_data
    /// @{
-   int    m_smoothRadius;                  ///< Smoothing radius                           [Cells]
+   unsigned int m_smoothRadius;            ///< Smoothing radius                           [Cells]
    double m_t_0;                           ///< Beginning of rifting                       [Ma]
    double m_t_r;                           ///< End of rifting                             [Ma]
    double m_initialCrustThickness;         ///< Initial continental crust thickness        [m]
@@ -368,7 +373,7 @@ inline const GridMap* InterfaceInput::getDeltaSLMap() const {
    return m_DeltaSLMap;
 }
 
-inline int InterfaceInput::getSmoothRadius() const {
+inline unsigned int InterfaceInput::getSmoothRadius() const {
    return m_smoothRadius;
 }
 

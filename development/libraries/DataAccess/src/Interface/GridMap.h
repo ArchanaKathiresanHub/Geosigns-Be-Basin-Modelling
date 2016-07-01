@@ -128,12 +128,22 @@ namespace DataAccess
          /// return the first local thickness index
          unsigned int firstK (void) const;
 
+         /// return the first local horizontal index
+         unsigned int firstI ( bool withGhosts ) const;
+         /// return the first local vertical index
+         unsigned int firstJ ( bool withGhosts ) const;
+
          /// return the last local horizontal index
          unsigned int lastI (void) const;
          /// return the last local vertical index
          unsigned int lastJ (void) const;
          /// return the last local thickness index
          unsigned int lastK (void) const;
+
+         /// return the last local horizontal index
+         unsigned int lastI( bool withGhosts ) const;
+         /// return the last local vertical index
+         unsigned int lastJ( bool withGhosts ) const;
 
          /// return the leftmost local grid coordinate value
          virtual double minI (void) const = 0;
