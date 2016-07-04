@@ -51,8 +51,9 @@ namespace mbapi
       /// @brief Save input map to the new HDF file. File with the given name should not exist before.
       /// @param id map ID
       /// @param fileName unique file name
+      /// @param mapSequenceNbr the map sequence number in the project3d
       /// @return ErrorHandler::NoError on succes, or error code otherwise
-      virtual ErrorHandler::ReturnCode saveMapToHDF( MapID id, const std::string& filePathName ) = 0;
+      virtual ErrorHandler::ReturnCode saveMapToHDF( MapID id, const std::string& filePathName, const int mapSequenceNbr ) = 0;
 
       /// @brief Get min/max map values range
       /// @param[in] id map ID

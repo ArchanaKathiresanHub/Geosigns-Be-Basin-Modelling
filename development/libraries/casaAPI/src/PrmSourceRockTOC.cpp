@@ -150,7 +150,7 @@ ErrorHandler::ReturnCode PrmSourceRockTOC::setInModel( mbapi::Model & caldModel,
 
          bool ok = ErrorHandler::NoError == mpMgr.mapValuesRange( mID, minVal, maxVal ) ? true : false;
          ok = ErrorHandler::NoError == mpMgr.scaleMap( cmID, (NumericFunctions::isEqual(0.0, maxVal, 1e-10) ? 0.0 : m_val/maxVal)) ? true:ok;
-         ok = ErrorHandler::NoError == mpMgr.saveMapToHDF( cmID, mapName + "_VarTOC.HDF" ) ? true : ok;
+         ok = ErrorHandler::NoError == mpMgr.saveMapToHDF( cmID, mapName + "_VarTOC.HDF", 0 ) ? true : ok;
 
          if ( !ok ) { throw ErrorHandler::Exception( srMgr.errorCode() ) << srMgr.errorMessage(); }
     

@@ -151,7 +151,7 @@ ErrorHandler::ReturnCode PrmTopCrustHeatProduction::setInModel( mbapi::Model & c
             }
 
             // save map to separate HDF file
-            if ( ErrorHandler::NoError != mpMgr.saveMapToHDF( cmID, mapName + s_mapFileSuffix ) )
+            if ( ErrorHandler::NoError != mpMgr.saveMapToHDF( cmID, mapName + s_mapFileSuffix, 0 ) )
             {
                throw ErrorHandler::Exception( cldModel.errorCode() ) << cldModel.errorMessage(); 
             }
@@ -209,7 +209,7 @@ ErrorHandler::ReturnCode PrmTopCrustHeatProduction::setInModel( mbapi::Model & c
             }
             
             // Save new map to file
-            if ( ErrorHandler::NoError != mpMgr.saveMapToHDF( cmID, m_mapName + s_mapFileSuffix ) )
+            if ( ErrorHandler::NoError != mpMgr.saveMapToHDF( cmID, m_mapName + s_mapFileSuffix, 0 ) )
             {
                throw ErrorHandler::Exception( cldModel.errorCode() ) << cldModel.errorMessage();
             }

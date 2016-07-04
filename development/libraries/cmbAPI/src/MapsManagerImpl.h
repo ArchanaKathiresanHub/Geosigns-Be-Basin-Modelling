@@ -59,7 +59,7 @@ namespace mbapi
       virtual MapID copyMap( MapID id, const std::string & newMapName );
 
       // Save input map to the new HDF file. File with the given name should not exist before.
-      virtual ErrorHandler::ReturnCode saveMapToHDF( MapID id, const std::string& filePathName );
+      virtual ErrorHandler::ReturnCode saveMapToHDF( MapID id, const std::string& filePathName, const int mapSequenceNbr );
 
       // Get min/max map values range
       virtual ErrorHandler::ReturnCode mapValuesRange( MapID id, double & minV, double & maxV );

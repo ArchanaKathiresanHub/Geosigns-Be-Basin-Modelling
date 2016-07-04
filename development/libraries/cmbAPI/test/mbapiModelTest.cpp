@@ -732,9 +732,9 @@ TEST_F( mbapiModelTest, MapsManagerCopyMapTest )
 
 
    // If a file already exist the maps will be appended to that file
-   ASSERT_EQ( ErrorHandler::OutOfRangeValue, mm.saveMapToHDF( nid, "/tmp/Inputs.HDF" ) ); // attempt to save in a place different from the project location should fail
+   ASSERT_EQ( ErrorHandler::OutOfRangeValue, mm.saveMapToHDF( nid, "/tmp/Inputs.HDF", 0 ) ); // attempt to save in a place different from the project location should fail
 
-   ASSERT_EQ( ErrorHandler::NoError, mm.saveMapToHDF( nid, "" ) ); // file name will be generated from map name
+   ASSERT_EQ( ErrorHandler::NoError, mm.saveMapToHDF( nid, "" , 0) ); // file name will be generated from map name
    ASSERT_EQ( true, ibs::FilePath( mapName + "_copy.HDF" ).exists() ); // file was written
    
    ASSERT_EQ( ErrorHandler::NoError, testModel.saveModelToProjectFile( "MapsTest1.project3d" ) );
@@ -750,7 +750,7 @@ TEST_F( mbapiModelTest, MapsManagerCopyMapTest )
    }
    ibs::FilePath( "MapsTest1.project3d" ).remove();
 
-   ASSERT_EQ( ErrorHandler::NoError, mm.saveMapToHDF( nid, "Test.HDF" ) ); // file name will be generated from map name
+   ASSERT_EQ( ErrorHandler::NoError, mm.saveMapToHDF( nid, "Test.HDF", 0 ) ); // file name will be generated from map name
    ASSERT_EQ( true, ibs::FilePath( "Test.HDF" ).exists() ); // file was written
    
    ASSERT_EQ( ErrorHandler::NoError, testModel.saveModelToProjectFile( "MapsTest2.project3d" ) );

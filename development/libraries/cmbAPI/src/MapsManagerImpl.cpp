@@ -194,10 +194,12 @@ MapsManager::MapID MapsManagerImpl::generateMap( const std::string & refferedTab
          {
             //the first map of the file
             mapSequenceNbr = 0;
+            m_fileMaps.insert( std::pair<std::string, std::vector<std::string>>( mapFullPath.path( ), std::vector<std::string>( ) ) );
+            m_fileMaps[mapFullPath.path( )].push_back( m_mapName[ret] );
          }
          else
          {
-            //new map needs to be created
+            m_fileMaps[mapFullPath.path( )].push_back( m_mapName[ret] ); //add the new name to m_fileMaps
             mapSequenceNbr = m_fileMaps[mapFile].size( );
          }
 
@@ -213,13 +215,18 @@ MapsManager::MapID MapsManagerImpl::generateMap( const std::string & refferedTab
          m_mapObj[pos] = gridMap;
          m_mapRefTable[pos] = refferedTable;
          ret = pos;
+
+         //map already exist
+         std::vector<std::string>  maps = m_fileMaps[mapFullPath.path( )];
+         auto pos = std::find( maps.begin( ), maps.end( ), m_mapName[ret] );
+         mapSequenceNbr = pos - maps.begin( );
       }
 
       // set the values in the map
       mapSetValues( ret, values );
 
       // save the map to HDF
-      saveMapToHDF( ret, filePathName );
+      saveMapToHDF( ret, filePathName, mapSequenceNbr );
    }
    catch ( const Exception & ex ) { reportError( ex.errorCode(), ex.what() ); }
 
@@ -329,7 +336,7 @@ ErrorHandler::ReturnCode MapsManagerImpl::mapGetValues( MapID id, std::vector<do
 }
 
 // Save input map to the new HDF file. File with the given name should not exist before.
-ErrorHandler::ReturnCode MapsManagerImpl::saveMapToHDF( MapID id, const std::string & fileName )
+ErrorHandler::ReturnCode MapsManagerImpl::saveMapToHDF( MapID id, const std::string & fileName, const int mapSequenceNbr )
 {
    if ( errorCode() != NoError ) resetError();
    try
@@ -375,30 +382,6 @@ ErrorHandler::ReturnCode MapsManagerImpl::saveMapToHDF( MapID id, const std::str
       if ( NoError != inizializeMapWriter( mapFullPath.path().c_str(), append ) )
       {
          throw Exception( OutOfRangeValue ) << "Could not inizialize the map writer ";
-      }
-
-      //determine the map sequence number
-      int mapSequenceNbr;
-      if ( !m_fileMaps.count(mapFullPath.path( )) )
-      {
-         mapSequenceNbr = 0;
-         m_fileMaps.insert( std::pair<std::string, std::vector<std::string>>( mapFullPath.path( ), std::vector<std::string>( ) ) );
-         m_fileMaps[mapFullPath.path( )].push_back( m_mapName[id] );
-      }
-      else
-      {
-         // handle also the case of overwriting an exsisting map
-         std::vector<std::string>  maps = m_fileMaps[mapFullPath.path()];
-         auto pos = std::find( maps.begin( ), maps.end( ), m_mapName[id] );
-         if ( pos == maps.end( ) )
-         {
-            mapSequenceNbr = maps.size( );
-            m_fileMaps[mapFullPath.path( )].push_back( m_mapName[id] ); //add the new name to m_fileMaps
-         }
-         else
-      {
-            mapSequenceNbr = pos - maps.begin( );                       //map already exist
-         }
       }
 
       bool writingSucceed = m_mapPropertyValuesWriter->writeMapToHDF( m_mapObj[id], 0.0, 0.0, std::to_string( mapSequenceNbr ), m_mapName[id], true );
