@@ -1285,7 +1285,7 @@ void Model::ModelImpl::interpolateLithoFractions( const std::vector<double> & xi
    const double deltaXConvexHull = ( xmax - xmin ) / convexHullEdgePoints;
    const double deltaYConvexHull = ( ymax - ymin ) / convexHullEdgePoints;
 
-   // first add the points at the edges in CCW order (needed for Poly2Tri, does not harm triangle)
+   // first add the points at the edges in CCW order
    for ( int i = 0; i <= convexHullEdgePoints; ++i )
    {
       x.push_back( xmin + deltaXConvexHull * i );
@@ -1317,9 +1317,6 @@ void Model::ModelImpl::interpolateLithoFractions( const std::vector<double> & xi
       rp.push_back( rpmean );
       r13.push_back( r13mean );
    }
-
-   // if Poly2Tri is used this value needs to be passed to interpolateMap till to delaunay_build 
-   const int convexHullPoints = x.size();
 
    // add well points only after the convex hull has been defined
    for ( size_t i = 0; i < nin; ++i )

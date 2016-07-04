@@ -22,14 +22,6 @@
  *                   Petroleum Geo-Services, for identifying the problem.
  *
  *****************************************************************************/
-// use triangle for the triangulation. It is a LGPL library that could possibly be substituted with Poly2Tri
-#define USETRIANGLE
-
-#ifdef USETRIANGLE
-#define ANSI_DECLARATORS        /* for triangle.h */
-#else
-#include "poly2tri.h"
-#endif
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -38,7 +30,6 @@
 #include <string.h>
 #include <limits.h>
 #include <float.h>
-#include "triangle.h"
 #include "istack.h"
 #include "nan.h"
 #include "delaunay.h"
@@ -56,66 +47,143 @@
 #define N_FLAGS_TURNON 1000
 #define N_FLAGS_INC 100
 
-#ifdef USETRIANGLE
-static void tio_init(struct triangulateio* tio)
-{
-    tio->pointlist = NULL;
-    tio->pointattributelist = NULL;
-    tio->pointmarkerlist = NULL;
-    tio->numberofpoints = 0;
-    tio->numberofpointattributes = 0;
-    tio->trianglelist = NULL;
-    tio->triangleattributelist = NULL;
-    tio->trianglearealist = NULL;
-    tio->neighborlist = NULL;
-    tio->numberoftriangles = 0;
-    tio->numberofcorners = 0;
-    tio->numberoftriangleattributes = 0;
-    tio->segmentlist = 0;
-    tio->segmentmarkerlist = NULL;
-    tio->numberofsegments = 0;
-    tio->holelist = NULL;
-    tio->numberofholes = 0;
-    tio->regionlist = NULL;
-    tio->numberofregions = 0;
-    tio->edgelist = NULL;
-    tio->edgemarkerlist = NULL;
-    tio->normlist = NULL;
-    tio->numberofedges = 0;
-}
+// Boost polygon allows to remove the proprietary software Triangle.C by using its voronoi builder to create the Delaunay triangulation. 
+#include "boost/polygon/voronoi.hpp"
+#include "boost/polygon/point_data.hpp"
+#include "boost/polygon/segment_data.hpp"
+using namespace boost::polygon;
 
-static void tio_destroy(struct triangulateio* tio)
+//STL
+#include <functional>
+
+namespace triangulation
 {
-    if (tio->pointlist != NULL)
-        free(tio->pointlist);
-    if (tio->pointattributelist != NULL)
-        free(tio->pointattributelist);
-    if (tio->pointmarkerlist != NULL)
-        free(tio->pointmarkerlist);
-    if (tio->trianglelist != NULL)
-        free(tio->trianglelist);
-    if (tio->triangleattributelist != NULL)
-        free(tio->triangleattributelist);
-    if (tio->trianglearealist != NULL)
-        free(tio->trianglearealist);
-    if (tio->neighborlist != NULL)
-        free(tio->neighborlist);
-    if (tio->segmentlist != NULL)
-        free(tio->segmentlist);
-    if (tio->segmentmarkerlist != NULL)
-        free(tio->segmentmarkerlist);
-    if (tio->holelist != NULL)
-        free(tio->holelist);
-    if (tio->regionlist != NULL)
-        free(tio->regionlist);
-    if (tio->edgelist != NULL)
-        free(tio->edgelist);
-    if (tio->edgemarkerlist != NULL)
-        free(tio->edgemarkerlist);
-    if (tio->normlist != NULL)
-        free(tio->normlist);
+   typedef struct
+   {
+      // the triangle vertices
+      int v1;
+      int v2;
+      int v3;
+      // the indexes of the neighbouring triangles 
+      int n1;
+      int n2;
+      int n3;
+   } triangle;
+
+   typedef struct 
+   {
+      // the edge vertices
+      int p1;
+      int p2;
+   } edge;
+
+   const double eps = std::numeric_limits<double>::epsilon( );
+
+   inline bool operator== ( const edge& lhs, const edge& rhs )
+   {
+      if ( lhs.p1 == rhs.p1  &&  lhs.p2 == rhs.p2 )
+         return true;
+      if ( lhs.p1 == rhs.p2  &&  lhs.p2 == rhs.p1 )
+         return true;
+      return false;
+   }
+
+   inline bool operator== ( const triangle  t1, const triangle  t2 )
+   {
+      // create two int array to be sorted
+      std::vector<int> t1v, t2v;
+      t1v.push_back( t1.v1 );
+      t1v.push_back( t1.v2 );
+      t1v.push_back( t1.v3 );
+      t2v.push_back( t2.v1 );
+      t2v.push_back( t2.v2 );
+      t2v.push_back( t2.v3 );
+
+      // sort the array 
+      std::sort( t1v.begin( ), t1v.end( ), std::greater<int>( ) );
+      std::sort( t2v.begin( ), t2v.end( ), std::greater<int>( ) );
+
+      // compare the vertices
+      if ( t1v[0] != t2v[0] ) return  false;
+      if ( t1v[1] != t2v[1] ) return  false;
+      if ( t1v[2] != t2v[2] ) return  false; 
+
+      return true;
+   }
+
+   // Loop over the voronoi cells and connect the centers of the cells sharing the same edge.
+   // Skip the triangle if both heighbouring edges lies to infinity.
+   void triangulateFromVoronoi( const std::vector<point_data<double>> & points, std::vector<triangle>& dTriang )
+   {
+      voronoi_diagram<double> vd;
+      construct_voronoi( points.begin( ), points.end( ), &vd );
+
+      for ( size_t ic = 0; ic != vd.cells( ).size( ); ++ic )
+      {
+         if ( vd.cells( )[ic].contains_point( ) )
+         {
+            int pointInd = vd.cells( )[ic].source_index( );
+            double xc = x( points[pointInd] );
+            double yc = y( points[pointInd] );
+            const voronoi_edge<double>* edge = vd.cells( )[ic].incident_edge( );
+            do
+            {
+               // Next edge in CCW order
+               edge = edge->next( ); 
+               const voronoi_edge<double>::voronoi_edge_type* currentEdge = edge;
+               const voronoi_edge<double>::voronoi_edge_type* nextEdge = edge->next( );
+               int boundEdge = 0;
+               if ( currentEdge->is_infinite( ) ) boundEdge += 1;
+               if ( nextEdge->is_infinite( ) )   boundEdge += 1;
+               if ( boundEdge == 2 ) continue;
+               // The new triangle. The neighbouring triangles (n1, n2, n3) will be determined later
+               triangle t;
+               t.n1 = -1;
+               t.n2 = -1;
+               t.n3 = -1;
+               t.v1 = pointInd;
+               t.v2 = currentEdge->twin( )->cell( )->source_index( );
+               t.v3 = nextEdge->twin( )->cell( )->source_index( );
+               if ( std::find( dTriang.begin( ), dTriang.end( ), t ) == dTriang.end( ) ) dTriang.push_back( t );
+            } while ( edge != vd.cells( )[ic].incident_edge( ) );
+         }
+      }
+
+      // Determine the neighbouring triangles. le is the vector of the local triangle edges, ge is the vector of the global triangle edges, to compare against to 
+      edge le[3];
+      edge ge[3];
+      for ( size_t it = 0; it != dTriang.size( ); ++it )
+      {
+         le[0].p1 = dTriang[it].v1;
+         le[0].p2 = dTriang[it].v2;
+         le[1].p1 = dTriang[it].v2;
+         le[1].p2 = dTriang[it].v3;
+         le[2].p1 = dTriang[it].v3;
+         le[2].p2 = dTriang[it].v1;
+
+         for ( size_t iti = 0; iti != dTriang.size( ); ++iti )
+         {
+
+            ge[0].p1 = dTriang[iti].v1;
+            ge[0].p2 = dTriang[iti].v2;
+            ge[1].p1 = dTriang[iti].v2;
+            ge[1].p2 = dTriang[iti].v3;
+            ge[2].p1 = dTriang[iti].v3;
+            ge[2].p2 = dTriang[iti].v1;
+
+            if ( iti != it )
+            {
+               // Use the same order for neighbour as in triangle.C. This is important for the search algorithm implemented later.
+               if ( ( le[0] == ge[0] || le[0] == ge[1] || le[0] == ge[2] ) ) { dTriang[it].n3 = iti; }
+               else if ( ( le[1] == ge[0] || le[1] == ge[1] || le[1] == ge[2] ) ) { dTriang[it].n1 = iti; }
+               else if ( ( le[2] == ge[0] || le[2] == ge[1] || le[2] == ge[2] ) ) { dTriang[it].n2 = iti; }
+
+               if ( dTriang[it].n1 != -1 && dTriang[it].n2 != -1 && dTriang[it].n3 != -1 ) break;
+            }
+         }
+      }
+   }
 }
-#endif
 
 static delaunay* delaunay_create()
 {
@@ -146,112 +214,10 @@ static delaunay* delaunay_create()
     return d;
 }
 
-#ifdef USETRIANGLE
-static void tio2delaunay(struct triangulateio* tio_out, delaunay* d)
+// This function uses the Delaunay triangulation computed from the boost voronoi builder
+static void tio2delaunayTriangulation( delaunay* d )
 {
-    int i, j;
 
-    /*
-     * I assume that all input points appear in tio_out in the same order as 
-     * they were written to tio_in. I have seen no exceptions so far, even
-     * if duplicate points were presented. Just in case, let us make a couple
-     * of checks. 
-     */
-    assert(tio_out->numberofpoints == d->npoints);
-    assert(tio_out->pointlist[2 * d->npoints - 2] == d->points[d->npoints - 1].x && tio_out->pointlist[2 * d->npoints - 1] == d->points[d->npoints - 1].y);
-
-    for (i = 0, j = 0; i < d->npoints; ++i) {
-        point* p = &d->points[i];
-
-        if (p->x < d->xmin)
-            d->xmin = p->x;
-        if (p->x > d->xmax)
-            d->xmax = p->x;
-        if (p->y < d->ymin)
-            d->ymin = p->y;
-        if (p->y > d->ymax)
-            d->ymax = p->y;
-    }
-    if (nn_verbose) {
-        fprintf(stderr, "input:\n");
-        for (i = 0, j = 0; i < d->npoints; ++i) {
-            point* p = &d->points[i];
-
-            fprintf(stderr, "  %d: %15.7g %15.7g %15.7g\n", i, p->x, p->y, p->z);
-        }
-    }
-
-    d->ntriangles = tio_out->numberoftriangles;
-
-    if (d->ntriangles > 0) {
-        d->triangles = (triangle *) malloc(d->ntriangles * sizeof(triangle));
-        d->neighbours = (triangle_neighbours *) malloc(d->ntriangles * sizeof(triangle_neighbours));
-        d->circles = (circle *) malloc(d->ntriangles * sizeof(circle));
-        d->n_point_triangles = (int *) calloc(d->npoints, sizeof(int));
-        d->point_triangles = (int **) malloc(d->npoints * sizeof(int*));
-        d->flags = (int *) calloc(d->ntriangles, sizeof(int));
-    }
-
-    if (nn_verbose)
-        fprintf(stderr, "triangles:\n");
-    for (i = 0; i < d->ntriangles; ++i) {
-        int offset = i * 3;
-        triangle* t = &d->triangles[i];
-        triangle_neighbours* n = &d->neighbours[i];
-        circle* c = &d->circles[i];
-        int status;
-
-        t->vids[0] = tio_out->trianglelist[offset];
-        t->vids[1] = tio_out->trianglelist[offset + 1];
-        t->vids[2] = tio_out->trianglelist[offset + 2];
-
-        n->tids[0] = tio_out->neighborlist[offset];
-        n->tids[1] = tio_out->neighborlist[offset + 1];
-        n->tids[2] = tio_out->neighborlist[offset + 2];
-
-        status = circle_build1(c, &d->points[t->vids[0]], &d->points[t->vids[1]], &d->points[t->vids[2]]);
-        assert(status);
-
-        if (nn_verbose)
-            fprintf(stderr, "  %d: (%d,%d,%d)\n", i, t->vids[0], t->vids[1], t->vids[2]);
-    }
-
-    for (i = 0; i < d->ntriangles; ++i) {
-        triangle* t = &d->triangles[i];
-
-        for (j = 0; j < 3; ++j)
-            d->n_point_triangles[t->vids[j]]++;
-    }
-    if (d->ntriangles > 0) {
-        for (i = 0; i < d->npoints; ++i) {
-            if (d->n_point_triangles[i] > 0)
-                d->point_triangles[i] = (int *)malloc(d->n_point_triangles[i] * sizeof(int));
-            else
-                d->point_triangles[i] = NULL;
-            d->n_point_triangles[i] = 0;
-        }
-    }
-    for (i = 0; i < d->ntriangles; ++i) {
-        triangle* t = &d->triangles[i];
-
-        for (j = 0; j < 3; ++j) {
-            int vid = t->vids[j];
-
-            d->point_triangles[vid][d->n_point_triangles[vid]] = i;
-            d->n_point_triangles[vid]++;
-        }
-    }
-
-    if (tio_out->edgelist != NULL) 
-    {
-        d->nedges = tio_out->numberofedges;  
-        d->edges = (int *)malloc( d->nedges * 2 * sizeof( int ) );
-        memcpy(d->edges, tio_out->edgelist, d->nedges * 2 * sizeof(int));
-    }
-}
-#else
-static void tio2delaunayPoly2Tri( p2t::CDT & CDT, delaunay* d )
-{
    int i, j;
 
    for ( i = 0, j = 0; i < d->npoints; ++i ) {
@@ -275,9 +241,17 @@ static void tio2delaunayPoly2Tri( p2t::CDT & CDT, delaunay* d )
       }
    }
 
-   // get all triangles from CDT 
-   std::vector<p2t::Triangle*> triangles = CDT.GetTriangles( );
-   d->ntriangles = triangles.size( );
+   // The vector of points must not have duplicates
+   std::vector<point_data<double>> points;
+   for ( i = 0; i < d->npoints; ++i )
+   {
+      point_data<double> newPoint( d->points[i].x, d->points[i].y );
+      if ( std::find( points.begin( ), points.end( ), newPoint ) == points.end( ) ) points.push_back( newPoint );
+   }
+   std::vector<triangulation::triangle> dTriang;
+   triangulation::triangulateFromVoronoi( points, dTriang );
+
+   d->ntriangles = dTriang.size( );
 
    if ( d->ntriangles > 0 )
    {
@@ -289,62 +263,56 @@ static void tio2delaunayPoly2Tri( p2t::CDT & CDT, delaunay* d )
       d->flags = (int *)calloc( d->ntriangles, sizeof( int ) );
    }
 
-   // local variables to save delaunay interpolation 
-   std::vector<p2t::Point*>        trianglePoints( 3 );
-   std::vector<p2t::Triangle*>     triangleNeighbours( 3 );
-   std::vector<int>                neighboursInt( 3 );
-   std::vector<p2t::GeneralEdge>   globalEdges;
-   std::vector<p2t::GeneralEdge>   triangleEdges( 3 );
-   int pos;
+   //edges
+   std::vector<triangulation::edge>   globalEdges;
+   std::vector<triangulation::edge>   localEdges( 3 );
 
    if ( nn_verbose )
       fprintf( stderr, "triangles:\n" );
-   for ( i = 0; i < d->ntriangles; ++i ) {
-      int offset = i * 3;
-      triangle* t = &d->triangles[i];
-      triangle_neighbours* n = &d->neighbours[i];
-      circle* c = &d->circles[i];
+   for ( size_t it = 0; it != dTriang.size( ); ++it )
+   {
+      triangle* t = &d->triangles[it];
+      triangle_neighbours* n = &d->neighbours[it];
+      circle* c = &d->circles[it];
       int status;
 
+      // save the triangles
+      t->vids[0] = dTriang[it].v1;
+      t->vids[1] = dTriang[it].v2;
+      t->vids[2] = dTriang[it].v3;
+
+      // save the unique edges
+      triangulation::edge ed1, ed2, ed3;
+
+      ed1.p1 = dTriang[it].v1;
+      ed1.p2 = dTriang[it].v2;
+      ed2.p1 = dTriang[it].v2;
+      ed2.p2 = dTriang[it].v3;
+      ed3.p1 = dTriang[it].v3;
+      ed3.p2 = dTriang[it].v1;
+
+      localEdges[0] = ed1;
+      localEdges[1] = ed2;
+      localEdges[2] = ed3;
+
       for ( int tp = 0; tp != 3; ++tp )
       {
-         trianglePoints[tp] = triangles[i]->GetPoint( tp );
-         triangleNeighbours[tp] = triangles[i]->NeighborCCW( *trianglePoints[tp] );
+         std::vector<triangulation::edge>::iterator it;
+         if ( std::find( globalEdges.begin( ), globalEdges.end( ), localEdges[tp] ) == globalEdges.end( ) ) globalEdges.push_back( localEdges[tp] );
       }
 
-      triangleEdges[0] = p2t::GeneralEdge( *trianglePoints[0], *trianglePoints[1] );
-      triangleEdges[1] = p2t::GeneralEdge( *trianglePoints[1], *trianglePoints[2] );
-      triangleEdges[2] = p2t::GeneralEdge( *trianglePoints[2], *trianglePoints[0] );
-
-      // save
-      t->vids[0] = trianglePoints[0]->GetInd( );
-      t->vids[1] = trianglePoints[1]->GetInd( );
-      t->vids[2] = trianglePoints[2]->GetInd( );
-
-      for ( int tp = 0; tp != 3; ++tp )
-      {
-         pos = std::find( triangles.begin( ), triangles.end( ), triangleNeighbours[tp] ) - triangles.begin( );
-         if ( pos >= triangles.size( ) ) pos = -1;
-         neighboursInt[tp] = pos;
-         std::vector<p2t::GeneralEdge>::iterator it;
-         it = std::find( globalEdges.begin( ), globalEdges.end( ), triangleEdges[tp] );
-         if ( it == globalEdges.end( ) ) globalEdges.push_back( triangleEdges[tp] );
-      }
-
-      // save
-      n->tids[0] = neighboursInt[0];
-      n->tids[1] = neighboursInt[1];
-      n->tids[2] = neighboursInt[2];
+      // save the found neighbours
+      n->tids[0] = dTriang[it].n1;
+      n->tids[1] = dTriang[it].n2;
+      n->tids[2] = dTriang[it].n3;
 
       if ( nn_verbose )
-         fprintf( stderr, "  %d: (%d,%d,%d)\n", i, t->vids[0], t->vids[1], t->vids[2] );
+         fprintf( stderr, "  %d: (%d,%d,%d)\n", it, t->vids[0], t->vids[1], t->vids[2] );
 
       status = circle_build1( c, &d->points[t->vids[0]], &d->points[t->vids[1]], &d->points[t->vids[2]] );
       assert( status );
-
    }
 
-   //something is different here between the triangulation calculated by poly2tri and triangle (some entries of the triangles vector are different!)
    for ( i = 0; i < d->ntriangles; ++i ) {
       triangle* t = &d->triangles[i];
 
@@ -376,8 +344,8 @@ static void tio2delaunayPoly2Tri( p2t::CDT & CDT, delaunay* d )
       int * edgelist = (int *)malloc( globalEdges.size( ) * 2 * sizeof( int ) );
       for ( int tp = 0; tp != globalEdges.size( ); ++tp )
       {
-         edgelist[tp * 2] = globalEdges[tp].p->GetInd( );
-         edgelist[tp * 2 + 1] = globalEdges[tp].q->GetInd( );
+         edgelist[tp * 2] = globalEdges[tp].p1;
+         edgelist[tp * 2 + 1] = globalEdges[tp].p2;
       }
       d->nedges = globalEdges.size( );
       d->edges = (int *)malloc( d->nedges * 2 * sizeof( int ) );
@@ -385,7 +353,6 @@ static void tio2delaunayPoly2Tri( p2t::CDT & CDT, delaunay* d )
       free( edgelist );
    }
 }
-#endif
 
 /* Builds Delaunay triangulation of the given array of points.
  *
@@ -400,43 +367,15 @@ static void tio2delaunayPoly2Tri( p2t::CDT & CDT, delaunay* d )
 delaunay* delaunay_build(int np, point points[], int ns, int segments[], int nh, double holes[] )
 {
     delaunay* d = delaunay_create();
-#ifdef USETRIANGLE
-    struct triangulateio tio_in; 
-    struct triangulateio tio_out;
-#endif
+
     char cmd[64] = "eznC";
     int i, j;
     
-    assert(sizeof(REAL) == sizeof(double));
-#ifdef USETRIANGLE
-    tio_init(&tio_in);
-#endif
     if (np == 0) {
         free(d);
         return NULL;
     }
-#ifdef USETRIANGLE
-    tio_in.pointlist = (double *) malloc(np * 2 * sizeof(double));
-    tio_in.numberofpoints = np;
-    for (i = 0, j = 0; i < np; ++i) {
-        tio_in.pointlist[j++] = points[i].x;
-        tio_in.pointlist[j++] = points[i].y;
-    }
 
-    if (ns > 0) {
-       tio_in.segmentlist = (int *)malloc( ns * 2 * sizeof( int ) );
-        tio_in.numberofsegments = ns;
-        memcpy(tio_in.segmentlist, segments, ns * 2 * sizeof(int));
-    }
-
-    if (nh > 0) {
-        tio_in.holelist = (double *) malloc(nh * 2 * sizeof(double));
-        tio_in.numberofholes = nh;
-        memcpy(tio_in.holelist, holes, nh * 2 * sizeof(double));
-    }
-
-    tio_init(&tio_out);
-#endif
     if (!nn_verbose)
         strcat(cmd, "Q");
     else if (nn_verbose > 1)
@@ -450,64 +389,14 @@ delaunay* delaunay_build(int np, point points[], int ns, int segments[], int nh,
     /*
      * climax 
      */
-#ifdef USETRIANGLE
-    triangulate( cmd, &tio_in, &tio_out, NULL );
-#else
-    // First define the bounding polygon
-    std::vector<p2t::Point*> polyline;
-    std::vector<p2t::Point>  uniquePoints;
-    int pointInd = 0;
-    int convexHullPoints = 100; // nvexHullPoints is an additional parameter that must be provided by the function
-
-    for ( i = 0; i < convexHullPoints; ++i )
-    {
-       polyline.push_back( new p2t::Point( points[i].x, points[i].y, pointInd++ ) );
-       uniquePoints.push_back( *polyline.back( ) );
-    }
-
-    // create CTD 
-    p2t::CDT CDT( polyline );
-
-    // add only new  points, use polyline to store pointers for later memory deletion
-    for ( i = convexHullPoints; i != np; ++i )
-    {
-       // create a temporary point
-       p2t::Point tempPoint = p2t::Point( points[i].x, points[i].y );
-       //push back the edges if they are not found
-       std::vector<p2t::Point>::iterator it;
-       it = std::find( uniquePoints.begin(), uniquePoints.end(), tempPoint );
-       if ( it == uniquePoints.end() )
-       {
-       polyline.push_back( new p2t::Point( points[i].x, points[i].y, pointInd++ ) );
-       uniquePoints.push_back( *polyline.back( ) );
-       CDT.AddPoint( polyline.back( ) );
-       }
-    }
-
-    // Triangulate
-    CDT.Triangulate( );
-#endif
 
     if (nn_verbose)
         fflush(stderr);
 
     d->npoints = np;
     d->points = points;
+    tio2delaunayTriangulation( d );
 
-#ifdef USETRIANGLE
-    tio2delaunay(&tio_out, d);
-
-    tio_destroy(&tio_in);
-    tio_destroy(&tio_out);
-#else
-	tio2delaunayPoly2Tri(CDT, d);
-
-    // delete allocated p2t::Point
-    for ( i = 0; i != polyline.size( ); ++i )
-    {
-       delete polyline[i];
-    }
-#endif
     return d;
 }
 
