@@ -48,9 +48,9 @@
 #define N_FLAGS_INC 100
 
 // Boost polygon allows to remove the proprietary software Triangle.C by using its voronoi builder to create the Delaunay triangulation. 
-#include "boost/polygon/voronoi.hpp"
-#include "boost/polygon/point_data.hpp"
-#include "boost/polygon/segment_data.hpp"
+#include <boost/polygon/voronoi.hpp>
+#include <boost/polygon/point_data.hpp>
+#include <boost/polygon/segment_data.hpp>
 using namespace boost::polygon;
 
 //STL
