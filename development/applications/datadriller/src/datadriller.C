@@ -249,11 +249,16 @@ int main( int argc, char ** argv )
 
                unsigned int i, j;
                if ( !grid->getGridPoint( x, y, i, j ) ) throw RecordException( "Illegal (XCoord, YCoord) pair: (%, %)", x, y );
-
+                            
                ElementPosition element;
                
                if ( z != Interface::DefaultUndefinedScalarValue ) // if z is given - look for the property at X,Y,Z point
                {
+                  if ( z <= 0 && propertyName == "TwoWayTime" ) // in case of TwoWayTime property and z <=0 set the value to 0
+                  {
+                     database::setValue( record, 0 );
+                     continue;
+                  }
                   if ( !domain.findLocation( x, y, z, element ) ) throw RecordException ("Illegal point coordinates:", x, y, z);
                }
 
