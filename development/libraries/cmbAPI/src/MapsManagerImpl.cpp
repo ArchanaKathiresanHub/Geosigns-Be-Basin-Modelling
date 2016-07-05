@@ -199,8 +199,8 @@ MapsManager::MapID MapsManagerImpl::generateMap( const std::string & refferedTab
          }
          else
          {
-            m_fileMaps[mapFullPath.path( )].push_back( m_mapName[ret] ); //add the new name to m_fileMaps
             mapSequenceNbr = m_fileMaps[mapFile].size( );
+            m_fileMaps[mapFullPath.path( )].push_back( m_mapName[ret] ); //add the new name to m_fileMaps
          }
 
          // change names
