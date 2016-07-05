@@ -181,23 +181,14 @@ struct SnapshotInfo
 
   struct FlowLines
   {
-    int id;
-    int startK;
+    int id = 0;
+    int startK = 0;
 
-    SoSeparator* root;
-    SoBaseColor* color;
-    SoLineSet*   lines;
+    SoSeparator* root  = nullptr;
+    SoBaseColor* color = nullptr;
+    SoLineSet*   lines = nullptr;
 
     std::shared_ptr<MiDataSetIj<double> > expulsionData;
-
-    FlowLines()
-      : id(0)
-      , startK(0)
-      , root(0)
-      , color(0)
-      , lines(0)
-    {
-    }
 
     void clear()
     {
@@ -206,6 +197,29 @@ struct SnapshotInfo
       lines = 0;
 
       expulsionData.reset();
+    }
+  };
+
+  struct Slice
+  {
+    int axis = 0;
+    int position = 0;
+
+    std::shared_ptr<MiSkinExtractIjk> extractor;
+
+    SoSeparator* root = nullptr;
+    MoMesh* mesh = nullptr;
+    MoScalarSet* scalarSet = nullptr;
+    MoMeshSurface* skin = nullptr;
+
+    void clear()
+    {
+      extractor.reset();
+
+      root = nullptr;
+      mesh = nullptr;
+      scalarSet = nullptr;
+      skin = nullptr;
     }
   };
 
@@ -240,9 +254,6 @@ struct SnapshotInfo
   std::shared_ptr<MiDataSetIjk<double>> flowDirScalarSet;
   std::shared_ptr<MiDataSetIjk<MbVec3<double>>> flowDirVectorSet;
 
-  SoSwitch* sliceSwitch[3];
-  MoMeshSlab* slice[3];
-
   SoGroup* chunksGroup;
   SoGroup* flowLinesGroup;
   SoGroup* surfacesGroup;
@@ -259,6 +270,7 @@ struct SnapshotInfo
   std::vector<Fault> faults;
   std::vector<FlowLines> flowlines;
   std::vector<Fence> fences;
+  Slice slices[2];
 
   size_t formationsTimeStamp;
   size_t surfacesTimeStamp;

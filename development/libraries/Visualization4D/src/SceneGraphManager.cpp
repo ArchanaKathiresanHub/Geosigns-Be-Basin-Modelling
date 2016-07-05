@@ -106,11 +106,6 @@ SnapshotInfo::SnapshotInfo()
   , cellFilterTimeStamp(MxTimeStamp::getTimeStamp())
   , seismicPlaneSliceTimeStamp(MxTimeStamp::getTimeStamp())
 {
-  for (int i = 0; i < 3; ++i)
-  {
-    sliceSwitch[i] = 0;
-    slice[i] = 0;
-  }
 }
 
 void SceneGraphManager::mousePressedCallback(void* userData, SoEventCallback* node)
@@ -712,6 +707,52 @@ void SceneGraphManager::updateSnapshotProperties()
   snapshot.currentPropertyId = m_viewState.currentPropertyId;
 }
 
+namespace
+{
+  void setupSlice(SnapshotInfo::Slice& slice, const MiVolumeMeshCurvilinear& mesh)
+  {
+    slice.position = -1;
+    slice.extractor.reset(MiSkinExtractIjk::getNewInstance(mesh));
+    slice.root = new SoSeparator;
+    slice.mesh = new MoMesh;
+    slice.scalarSet = new MoScalarSet;
+    slice.skin = new MoMeshSurface;
+    slice.skin->colorScalarSetId = -1;
+    slice.root->addChild(slice.mesh);
+    slice.root->addChild(slice.scalarSet);
+    slice.root->addChild(slice.skin);
+  }
+
+  void updateSliceGeometry(SnapshotInfo::Slice& slice, int axis, int position)
+  {
+    assert(axis == 0 || axis == 1);
+
+    MbVec3ui rangeMin(0u, 0u, 0u);
+    MbVec3ui rangeMax(UNDEFINED_ID, UNDEFINED_ID, UNDEFINED_ID);
+
+    rangeMin[axis] = (size_t)position;
+    rangeMax[axis] = (size_t)position + 1;
+
+    slice.extractor->clearCellRanges();
+    slice.extractor->addCellRange(rangeMin, rangeMax);
+    slice.mesh->setMesh(&slice.extractor->extractSkin());
+  }
+
+  void updateSliceScalarSet(SnapshotInfo::Slice& slice, MiDataSetIjk<double>* dataSet)
+  {
+    if (dataSet)
+    {
+      slice.scalarSet->setScalarSet(&slice.extractor->extractScalarSet(*dataSet));
+      slice.skin->colorScalarSetId = 0;
+    }
+    else
+    {
+      slice.scalarSet->setScalarSet(nullptr);
+      slice.skin->colorScalarSetId = -1;
+    }
+  }
+}
+
 void SceneGraphManager::updateSnapshotSlices()
 {
   assert(!m_snapshotInfoCache.empty());
@@ -727,28 +768,22 @@ void SceneGraphManager::updateSnapshotSlices()
     {
       assert(snapshot.meshData);
 
-      if (!snapshot.slice[i])
+      if (!snapshot.slices[i].root)
       {
-        auto slice = new MoMeshSlab;
-        slice->dimension = MiMesh::DIMENSION_I + i;
-        slice->thickness = 1;
-
-        snapshot.sliceSwitch[i] = new SoSwitch;
-        snapshot.sliceSwitch[i]->addChild(slice);
-        snapshot.slice[i] = slice;
-
-        snapshot.slicesGroup->addChild(snapshot.sliceSwitch[i]);
+        setupSlice(snapshot.slices[i], *snapshot.meshData);
+        snapshot.slicesGroup->addChild(snapshot.slices[i].root);
       }
 
-      snapshot.slice[i]->index = (int)m_viewState.slicePosition[i];
-      snapshot.slice[i]->touch();
+      if (snapshot.slices[i].position != m_viewState.slicePosition[i])
+      {
+        updateSliceGeometry(snapshot.slices[i], i, (int)m_viewState.slicePosition[i]);
+        updateSliceScalarSet(snapshot.slices[i], snapshot.scalarDataSet.get());
+      }
     }
-
-    if (snapshot.sliceSwitch[i] != 0)
+    else if (snapshot.slices[i].root)
     {
-      snapshot.sliceSwitch[i]->whichChild = m_viewState.sliceEnabled[i]
-        ? SO_SWITCH_ALL
-        : SO_SWITCH_NONE;
+      snapshot.slicesGroup->removeChild(snapshot.slices[i].root);
+      snapshot.slices[i].clear();
     }
   }
 }
@@ -1109,6 +1144,7 @@ void SceneGraphManager::showPickResult(const PickResult& pickResult)
   case PickResult::Surface:
   case PickResult::Reservoir:
   case PickResult::Slice:
+  case PickResult::Fence:
     line1.sprintf("[%d, %d, %d]",
       (int)pickResult.cellIndex[0],
       (int)pickResult.cellIndex[1],
@@ -1583,9 +1619,12 @@ SoNode* SceneGraphManager::getRoot() const
 
 namespace
 {
-  MbVec3ui getMappedCellIndex(size_t cellIndex, const MeXSurfaceTopologyExplicitI& extractedTopology, const MiTopologyIjk& topology)
+  MbVec3ui getMappedCellIndex(size_t cellIndex, const MeXSurfaceMeshUnstructured& extract, const MiMeshIjk& mesh)
   {
     MbVec3ui index;
+
+    auto const& topology = mesh.getTopology();
+    auto const& extractedTopology = extract.getTopology();
 
     if (extractedTopology.hasInputCellMapping())
     {
@@ -1627,7 +1666,7 @@ SceneGraphManager::PickResult SceneGraphManager::processPickedPoint(const SoPick
 
   if (detail)
   {
-    // check for formation / reservoir
+    // check for formation / reservoir / slice
     if (
       detail->isOfType(MoFaceDetailI::getClassTypeId()) && 
       tail->isOfType(MoMeshSurface::getClassTypeId()))
@@ -1639,38 +1678,43 @@ SceneGraphManager::PickResult SceneGraphManager::processPickedPoint(const SoPick
       auto skin = static_cast<MoMeshSurface*>(tail);
 
       // find corresponding reservoir
-      auto resIter = snapshot.reservoirs.begin(); 
-      while (resIter != snapshot.reservoirs.end() && resIter->skin != skin)
-        ++resIter;
-
-      if(resIter != snapshot.reservoirs.end())
+      for(auto const& res : snapshot.reservoirs)
       {
-        pickResult.type = PickResult::Reservoir;
-        pickResult.name = m_projectInfo.reservoirs[resIter->id].name;
-
-        auto const& extract = resIter->extractor->getExtract();
-        auto const& topology = extract.getTopology();
-        pickResult.cellIndex = getMappedCellIndex(cellIndex, topology, resIter->meshData->getTopology());
-      }
-      else // try formations
-      {
-        // find corresponding chunk
-        auto chunkIter = snapshot.chunks.begin();
-        while (chunkIter != snapshot.chunks.end() && chunkIter->skin != skin)
-          ++chunkIter;
-
-        if (chunkIter != snapshot.chunks.end())
+        if (res.skin == skin)
         {
-          auto const& extract = chunkIter->extractor->getExtract();
-          auto const& topology = extract.getTopology();
-          pickResult.cellIndex = getMappedCellIndex(cellIndex, topology, snapshot.meshData->getTopology());
+          pickResult.type = PickResult::Reservoir;
+          pickResult.name = m_projectInfo.reservoirs[res.id].name;
+          pickResult.cellIndex = getMappedCellIndex(cellIndex, res.extractor->getExtract(), *res.meshData);
 
+          return pickResult;
+        }
+      }
+
+      // find corresponding chunk
+      for (auto const& chunk : snapshot.chunks)
+      {
+        if (chunk.skin == skin)
+        {
+          pickResult.type = PickResult::Formation;
+          pickResult.cellIndex = getMappedCellIndex(cellIndex, chunk.extractor->getExtract(), *snapshot.meshData);
           int id = getFormationId(pickResult.cellIndex[2]);
-          if (id >= 0)
-          {
-            pickResult.type = PickResult::Formation;
-            pickResult.name = m_projectInfo.formations[id].name;
-          }
+          pickResult.name = m_projectInfo.formations[id].name;
+
+          return pickResult;
+        }
+      }
+
+      // find corresponding slice
+      for (auto const& slice : snapshot.slices)
+      {
+        if (slice.skin == skin)
+        {
+          pickResult.type = PickResult::Slice;
+          pickResult.cellIndex = getMappedCellIndex(cellIndex, slice.extractor->getExtract(), *snapshot.meshData);
+          int id = getFormationId(pickResult.cellIndex[2]);
+          pickResult.name = m_projectInfo.formations[id].name;
+
+          return pickResult;
         }
       }
     }
@@ -1698,16 +1742,9 @@ SceneGraphManager::PickResult SceneGraphManager::processPickedPoint(const SoPick
       pickResult.cellIndex[0] = fdetail->getCellIndexI();
       pickResult.cellIndex[1] = fdetail->getCellIndexJ();
       pickResult.cellIndex[2] = fdetail->getCellIndexK();
-
       pickResult.propertyValue = fdetail->getValue(p);
 
-      if (tail->isOfType(MoMeshSlab::getClassTypeId()))
-      {
-        int id = getFormationId(pickResult.cellIndex[2]);
-        pickResult.type = PickResult::Slice;
-        pickResult.name = m_projectInfo.formations[id].name;
-      }
-      else if (tail->isOfType(MoMeshFenceSlice::getClassTypeId()))
+      if (tail->isOfType(MoMeshFenceSlice::getClassTypeId()))
       {
         int id = getFormationId(pickResult.cellIndex[2]);
         pickResult.type = PickResult::Fence;
