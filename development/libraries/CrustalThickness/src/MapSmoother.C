@@ -55,6 +55,15 @@ bool MapSmoother::initialize( GridMap * mapToSmooth ){
       return false;
    }
 
+   //Check in which status the map is given
+   //Will be returned with the same status in finalize()
+   if (mapToSmooth->retrieved()){
+      m_mapToRestore = false;
+   }
+   else{
+      m_mapToRestore = true;
+   }
+
    //Be sure that the gohst nodes are retrieved
    if (mapToSmooth->retrieved() && m_ghostNodes) {
       mapToSmooth->restoreData();
@@ -290,5 +299,7 @@ void MapSmoother::finalize( GridMap * mapToSmooth ){
 
    delete[] m_columnMap[0];
    delete[] m_numberMapCollect[0];
-   mapToSmooth->restoreData();
+   if (m_mapToRestore){
+      mapToSmooth->restoreData();
+   }
 }

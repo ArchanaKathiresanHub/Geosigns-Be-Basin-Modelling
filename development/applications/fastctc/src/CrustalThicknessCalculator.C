@@ -569,7 +569,6 @@ void CrustalThicknessCalculator::smoothOutputs() {
       for (size_t i = 0; i < mapsToSmooth.size(); i++){
          LogHandler( LogHandler::INFO_SEVERITY ) << "   #" << outputMapsNames[ mapsToSmooth[i] ];
          bool status = mapSmoother.averageSmoothing( m_outputData.getMap( mapsToSmooth[i] ) );
-         m_outputData.getMap( mapsToSmooth[i] )->retrieveData();
          if (!status) {
             throw CtcException() << "Failed to smooth " << outputMapsNames[ mapsToSmooth[i] ] << ".";
          }

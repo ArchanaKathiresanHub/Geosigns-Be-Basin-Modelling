@@ -24,10 +24,7 @@ namespace CrustalThicknessInterface {
    public:
 
       /// @param smoothingRadius The smoothing radius
-      /// @param sumMap A map which has the same size than the ones you are willing to smooth
-      /// @param numberMap A map which has the same size than the ones you are willing to smooth
       MapSmoother( const unsigned int smoothingRadius );
-      /// @details Also restore map data
       ~MapSmoother() {};
 
       /// @brief Smooth (by simle average) the given map according to the smoothing radius which has been defined in the constructor
@@ -54,6 +51,7 @@ namespace CrustalThicknessInterface {
 
 
       const unsigned int m_smoothingRadius; ///< The smoothing radius
+      bool m_mapToRestore;                  ///< Tell if we need to restore the map or not after the smoothing
 
       boost::multi_array<double, 2> m_sumMap;    ///< Maps each (i,j) to the sum of the cell values included in the smoothing radius
       boost::multi_array<int,    2> m_numberMap; ///< Maps each (i,j) to the number of cells included in the smoothing radius
