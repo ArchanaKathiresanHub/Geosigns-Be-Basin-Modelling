@@ -37,7 +37,7 @@ namespace DataAccess {
 
 namespace GeoPhysics {
    class AllochthonousLithologyManager;
-   class BasementLithologyProps;
+   class ConfigFileParameterAlc;
    class Formation;
    class FracturePressureCalculator;
    class LithologyManager;
@@ -212,7 +212,7 @@ namespace GeoPhysics {
       int    getMaximumNumberOfMantleElements() const;
       double getConstrainedBasaltTemperature() const;
 
-      BasementLithologyProps * getBasementLithologyProps() const;
+      ConfigFileParameterAlc * getBasementLithologyProps() const;
 
       /// Compute the age and time step that will be used in permafrost modeling
       bool determinePermafrost( std::vector<double>& timeSteps, std::vector<double>& permafrostAges );
@@ -443,7 +443,7 @@ namespace GeoPhysics {
 
       /// ALC bottom boundary conditions mode
       bool m_isALCMode;   
-      BasementLithologyProps *m_basementLithoProps;
+      ConfigFileParameterAlc *m_basementLithoProps;
       double m_minimumLithosphereThickness; // defined in configuration file
       int    m_maximumNumberOfMantleElements; // defined in configuration file
       double m_constrainedBasaltTemperature; // defined in configuration file

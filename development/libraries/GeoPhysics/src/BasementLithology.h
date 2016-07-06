@@ -1,44 +1,22 @@
-#ifndef _BASEMENTLITHO_H_
-#define _BASEMENTLITHO_H_
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+#ifndef _GEOPHYSICS_BASEMENTLITHOLOGY_H_
+#define _GEOPHYSICS_BASEMENTLITHOLOGY_H_
 
+#include "ConfigFileParameterAlc.h"
 #include "SimpleLithology.h"
 
 using namespace std;
 using namespace DataAccess;
 
 namespace GeoPhysics {
-
-class BasementLithologyProps 
-{
-public:
-   BasementLithologyProps();
-
-   double m_csRho;
-   double m_clRho;
-   double m_bRho;
-   double m_mRho;
-   
-   double m_csA;
-   double m_csB;
-   double m_clA;
-   double m_clB;
-   double m_bA;
-   double m_bB;
-   double m_mA;
-   double m_mB;
-   double m_bT;
-   double m_bHeat;
-
-   double m_HLmin;
-   double m_NLMEmax;
-
-   BasementLithologyProps& operator=( const BasementLithologyProps& newBP );
-   bool loadConfigurationFile(ifstream &ConfigurationFile );
-private:
-  void clean();
-
-};
-  
 
 class BasementLithology : public SimpleLithology
 {
@@ -86,17 +64,13 @@ class BasementLithology : public SimpleLithology
    double getBasaltDensity( double t, double p ) const;
    double getDensity( ) const;
 
-   void setBasementLithoProperties( BasementLithologyProps & aBP );
+   void setBasementLithoProperties( ConfigFileParameterAlc & aBP );
 private:
  
    typedef enum {CRUST, MANTLE, BASALT, UNKNOWN} BasementLithologyType;
 
-   // typedef double (*fn) ( double, double );
- 
-   // fn * thermfuncs [3];
-   BasementLithologyType m_lithotype;
-
-   BasementLithologyProps m_constants;
+   BasementLithologyType  m_lithotype;
+   ConfigFileParameterAlc m_constants; ///< Constants from the ALC configuration file
 
    void setLithoType();
 private:

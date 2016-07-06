@@ -207,7 +207,7 @@ void GeoPhysics::ProjectHandle::deleteFracturePressureCalculator () {
 }
 
 //------------------------------------------------------------//
-GeoPhysics::BasementLithologyProps * GeoPhysics::ProjectHandle::getBasementLithologyProps() const {
+GeoPhysics::ConfigFileParameterAlc * GeoPhysics::ProjectHandle::getBasementLithologyProps() const {
    return m_basementLithoProps;
 }
 
@@ -2750,14 +2750,12 @@ bool GeoPhysics::ProjectHandle::loadALCConfigurationFile(const string & cfgFileN
          throw RecordException( "MeSsAgE ERROR Attempting to open file : " + fullpath + "\nNo cfg file available in the $CTCDIR directory... Aborting..." );
       }
 
-      m_basementLithoProps = new BasementLithologyProps();
-      if( !m_basementLithoProps->loadConfigurationFile ( ConfigurationFile )) {
+      m_basementLithoProps = new ConfigFileParameterAlc();
+      if( !m_basementLithoProps->loadConfigurationFileAlc ( ConfigurationFile )) {
          ConfigurationFile.close();
          return false;
       };
       
-      //     CrustalThicknessInterface::LoadALCParameters( ConfigurationFile, 
-      //                                            m_minimumLithosphereThickness, m_maximumNumberOfMantleElements );
       m_minimumLithosphereThickness   = m_basementLithoProps->m_HLmin;
       m_maximumNumberOfMantleElements = m_basementLithoProps->m_NLMEmax;
       m_constrainedBasaltTemperature  = m_basementLithoProps->m_bT;

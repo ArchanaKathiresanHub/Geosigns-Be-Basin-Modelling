@@ -24,6 +24,7 @@ endif()
 set( all_headers
    src/AbstractInterfaceOutput.h
    src/AbstractValidator.h
+   src/ConfigFileParameterCtc.h
    src/DensityCalculator.h
    src/InterfaceDefs.h
 	src/InterfaceInput.h
@@ -41,6 +42,7 @@ set( all_headers
 # 2. This list contains all implementation files except main.C
 #
 set( all_srcs
+   src/ConfigFileParameterCtc.C
 	src/DensityCalculator.C
 	src/InterfaceInput.C
 	src/InterfaceOutput.C
@@ -138,6 +140,12 @@ add_gtest( NAME "CrustalThickness::PaleowaterdepthResidual"
 add_gtest( NAME "CrustalThickness::MapSmoother"
            SOURCES test/MapSmoother.C
            LIBRARIES CrustalThickness SerialDataAccess DataAccess
+         )
+
+add_gtest( NAME CrustalThickness::ConfigFileCtc
+           SOURCES test/ConfigFileCtc.C 
+           LIBRARIES CrustalThickness
+           ENV_VARS CTCDIR=${PROJECT_SOURCE_DIR}/geocase/misc
          )
 
 ################################################################

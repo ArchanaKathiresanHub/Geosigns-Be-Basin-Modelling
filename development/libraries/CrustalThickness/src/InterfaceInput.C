@@ -41,6 +41,7 @@
 
 //utility
 #include "LogHandler.h"
+#include "StringHandler.h"
 
 //------------------------------------------------------------//
 InterfaceInput::InterfaceInput(Interface::ProjectHandle * projectHandle, database::Record * record) :
@@ -78,35 +79,6 @@ void InterfaceInput::clean() {
    m_maxBasalticCrustThickness    = 0.0;
    m_seaLevelAdjustment           = 0.0;
 
-   //-------------- Basic constants ---------------------
-   m_coeffThermExpansion  = 0.0;
-   m_initialSubsidenceMax = 0.0;
-   m_pi                   = M_PI;
-   m_E0                   = 0.0;
-   m_tau                  = 0.0;
-   
-   //-------------- Lithospphere and crust properties ---------------------
-   m_modelTotalLithoThickness    = 0.0;
-   m_backstrippingMantleDensity  = 0.0;
-   m_lithoMantleDensity          = 0.0;
-   m_baseLithosphericTemperature = 0.0;
-   m_referenceCrustThickness     = 0.0;
-   m_referenceCrustDensity       = 0.0;
-   m_waterDensity                = 0.0;
-   
-   //------------- Asthenosphere potential temperature data ---------------------
-   m_A = 0.0;
-   m_B = 0.0;
-   
-   //------------- Solidus (onset of adiabatic melting) ---------------------
-   m_C = 0.0;
-   m_D = 0.0;
-   
-   //------------- Magma-layer density ---------------------
-   m_E             = 0.0;
-   m_F             = 0.0;
-   m_decayConstant = 0.0;
-
    //-------------
    m_modelCrustDensity = 0;
    m_TF_onset          = 0;
@@ -133,8 +105,8 @@ void InterfaceInput::loadInputDataAndConfigurationFile( const string & inFile ) 
    }
    ///2. Load configuration file
    try {
-   loadConfigurationFile( inFile );
-}
+      m_constants.loadConfigurationFileCtc( inFile );
+   }
    catch (InputException& ex){
       LogHandler( LogHandler::ERROR_SEVERITY ) << ex.what();
    }
@@ -159,359 +131,7 @@ void InterfaceInput::loadInputData() {
    }
      
 }
-//------------------------------------------------------------//
-void InterfaceInput::loadConfigurationFile( const string & inFile ) {
 
-   char * CTCDIR = getenv("CTCDIR");
-   char * MY_CTCDIR = getenv("MY_CTCDIR");
-
-   string ctcdir;
-   
-   if(      MY_CTCDIR != 0 ) { ctcdir = MY_CTCDIR; }
-   else if( CTCDIR    != 0 ) { ctcdir = CTCDIR;    }
-   else {
-      throw InputException() << "Environment Variable CTCDIR is not set. Aborting...";
-   }
-
-   ibs::FilePath fullpath( ctcdir );
-   fullpath << inFile;
-
-   ifstream  ConfigurationFile;
-   ConfigurationFile.open( fullpath.cpath() );
-   
-   if(!ConfigurationFile) {
-      throw InputException() << "Attempting to open configuration file " << fullpath.path() << " but the file does not exist... Aborting... ";
-   }
-
-   string line;
-   size_t firstNotSpace;
-
-   while( !ConfigurationFile.eof() ) {
-      
-      getline ( ConfigurationFile, line, '\n' );
-      if( line.size() != 0 ) { 
-         firstNotSpace = line.find_first_not_of(" \t"); 
-      
-         if( line[firstNotSpace] != '#' ) {
-            
-            if( line == CrustalThicknessInterface::TableBasicConstants || line.find( CrustalThicknessInterface::TableBasicConstants, 0) != string::npos ) {
-               
-               LoadBasicConstants( ConfigurationFile );
-               
-            } else if( line == CrustalThicknessInterface::TableLithoAndCrustProperties || line.find( CrustalThicknessInterface::TableLithoAndCrustProperties, 0 ) != string::npos ) {
-               
-               LoadLithoAndCrustProperties( ConfigurationFile );
-               
-            } else if( line == CrustalThicknessInterface::TableTemperatureData || line.find( CrustalThicknessInterface::TableTemperatureData, 0 ) != string::npos ) {
-               
-               LoadTemperatureData ( ConfigurationFile );
-               
-            } else if( line == CrustalThicknessInterface::TableSolidus || line.find( CrustalThicknessInterface::TableSolidus, 0) != string::npos ) {
-               
-               LoadSolidus ( ConfigurationFile );
-               
-            } else if( line == CrustalThicknessInterface::TableMagmaLayer || line.find( CrustalThicknessInterface::TableMagmaLayer, 0) != string::npos ) {
-               
-               LoadMagmaLayer ( ConfigurationFile );
-               
-            } else if( line == CrustalThicknessInterface::TableUserDefinedData || line.find( CrustalThicknessInterface::TableUserDefinedData, 0) != string::npos ) {
-               
-               // LoadUserDefinedData ( ConfigurationFile );
-               // - now load from the project file
-               
-            } 
-         }
-      }
-   }
-   ConfigurationFile.close();
-}
-//------------------------------------------------------------//
-void InterfaceInput::LoadBasicConstants( ifstream &ConfigurationFile ) {
-
-   string line;
-   vector<string> theTokens;
-   string delim = ",";
-   size_t firstNotSpace;
-   int countParam = 0;
-
-   for(;;) {
-      getline (ConfigurationFile, line, '\n');
-        
-      if( line == CrustalThicknessInterface::EndOfTable || line.size() == 0) {
-         break;
-      }
-      firstNotSpace = line.find_first_not_of(" \t"); 
-      
-      if( line[firstNotSpace] != '#' ) {
-      
-      CrustalThicknessInterface::parseLine( line, delim, theTokens );
-      
-      if( theTokens.size() == 2 ) {
-         if( theTokens[0] == CrustalThicknessInterface::coeffThermExpansion ) {
-            
-            m_coeffThermExpansion = atof( theTokens[1].c_str() );
-               ++ countParam;
-
-         } else if( theTokens[0] == CrustalThicknessInterface::initialSubsidenceMax ) {
-            
-            m_initialSubsidenceMax = atof( theTokens[1].c_str() );
-               ++ countParam;
-            
-            } else if( theTokens[0] == CrustalThicknessInterface::E0 ) {
-            
-            m_E0 = atof( theTokens[1].c_str() );
-               ++ countParam;
-
-         } else if( theTokens[0] == CrustalThicknessInterface::tau ) {
-            
-            m_tau = atof( theTokens[1].c_str() );
-               ++ countParam;
-         }  
-            else{
-               LogHandler( LogHandler::WARNING_SEVERITY ) << "CTC configuration file BasicConstants table: unknown CTC parameter '" << theTokens[0] << "'.";
-            }
-         }
-         else {
-         theTokens.clear();
-            throw InputException() << "CTC configuration file BasicConstants table: unexpected parameter definition (should be Name, Value).";
-      }
-      theTokens.clear();
-   }
-   }
-   if( countParam != 4 ) {
-      throw InputException() << "CTC configuration file BasicConstants table: 4 parameters expected but only " << countParam << " found.";
-   }
-   if( m_tau == 0 ) {
-      throw InputException() << "CTC configuration file BasicConstants table: Tau=0 but should be !=0.";
-   }
- 
-}
-
-//------------------------------------------------------------//
-void InterfaceInput::LoadLithoAndCrustProperties( ifstream &ConfigurationFile ) {
-
-   string line;
-   vector<string> theTokens;
-   string delim = ",";
-   size_t firstNotSpace;
-   int countParam = 0;
-   
-   for(;;) {
-      getline (ConfigurationFile, line, '\n');
-        
-      if( line == CrustalThicknessInterface::EndOfTable || line.size() == 0) {
-         break;
-      }
-      firstNotSpace = line.find_first_not_of(" \t"); 
-      
-      if( line[firstNotSpace] != '#' ) {
-      
-      CrustalThicknessInterface::parseLine( line, delim, theTokens );
-      
-      if( theTokens.size() == 2 ) {
-         if( theTokens[0] == CrustalThicknessInterface::modelTotalLithoThickness ) {
-
-            m_modelTotalLithoThickness = atof( theTokens[1].c_str() );
-               ++ countParam;
-
-         }  else if( theTokens[0] == CrustalThicknessInterface::backstrippingMantleDensity ) {
-
-            m_backstrippingMantleDensity = atof( theTokens[1].c_str() );
-               ++ countParam;
-
-         } else if( theTokens[0] == CrustalThicknessInterface::lithoMantleDensity ) {
-
-            m_lithoMantleDensity = atof( theTokens[1].c_str() );
-               ++ countParam;
-
-         } else if( theTokens[0] == CrustalThicknessInterface::baseLithosphericTemperature ) {
-
-               ++ countParam;
-            m_baseLithosphericTemperature = atof( theTokens[1].c_str() );
-
-         } else if( theTokens[0] == CrustalThicknessInterface::referenceCrustThickness ) {
-
-            m_referenceCrustThickness = atof( theTokens[1].c_str() );
-               ++ countParam;
-
-         }  else if( theTokens[0] == CrustalThicknessInterface::referenceCrustDensity ) {
-
-            m_referenceCrustDensity = atof( theTokens[1].c_str() );
-               ++ countParam;
-
-         }  else if( theTokens[0] == CrustalThicknessInterface::waterDensity ) {
-
-            m_waterDensity = atof( theTokens[1].c_str() );
-               ++ countParam;
-         } 
-            // lithosphereThicknessMin and maxNumberOfMantleElements will be defined in BasementLithology.C so they should not return a warning
-            else if (theTokens[0] != CrustalThicknessInterface::lithosphereThicknessMin
-                     and theTokens[0] != CrustalThicknessInterface::maxNumberOfMantleElements) {
-               LogHandler( LogHandler::WARNING_SEVERITY ) << "CTC configuration file LithoAndCrustProperties table: unknown CTC parameter '" << theTokens[0] << "'.";
-            }
-      } else {
-         theTokens.clear();
-            throw InputException() << "CTC configuration file LithoAndCrustProperties table: unexpected parameter definition (should be Name, Value).";
-      }
-      theTokens.clear();
-   }
-   }
-   if( countParam != 7 ) {
-      throw InputException() << "CTC configuration file LithoAndCrustProperties table: 7 parameters expected but only " << countParam << " found.";
-   }
-   if( m_modelTotalLithoThickness == 0 ) {
-      throw InputException() << "CTC configuration file LithoAndCrustProperties table: TotalLithoThickness of the Model = 0 but should be !=0.";
-   }
-}
-
-//------------------------------------------------------------//
-void InterfaceInput::LoadTemperatureData( ifstream &ConfigurationFile ) {
-
-   string line;
-   vector<string> theTokens;
-   string delim = ",";
-   size_t firstNotSpace;
-   int countParam = 0;
-   
-   for (;;) {
-      getline( ConfigurationFile, line, '\n' );
-        
-      if (line == CrustalThicknessInterface::EndOfTable || line.size() == 0) {
-         break;
-      }
-      
-      firstNotSpace = line.find_first_not_of( " \t" );
-
-      if (line[firstNotSpace] != '#') {
-
-      CrustalThicknessInterface::parseLine( line, delim, theTokens );
-      
-         if (theTokens.size() == 2) {
-
-            if (theTokens[0] == CrustalThicknessInterface::A) {
-               m_A = atof( theTokens[1].c_str() );
-               ++countParam;
-            }
-            else if (theTokens[0] == CrustalThicknessInterface::B) {
-               m_B = atof( theTokens[1].c_str() );
-               ++countParam;
-            } 
-            else{
-               LogHandler( LogHandler::WARNING_SEVERITY ) << "CTC configuration file TemperatureData table: unknown CTC parameter '" << theTokens[0] << "'.";
-            }
-
-         }
-         else {
-            theTokens.clear();
-            throw InputException() << "CTC configuration file TemperatureData table: unexpected parameter definition (should be Name, Value).";
-      }
-      theTokens.clear();
-   }
-}
-   if (countParam != 2) {
-      throw InputException() << "CTC configuration file TemperatureData table: 2 parameters expected but only " << countParam << " found.";
-   }
-}
-//------------------------------------------------------------//
-void InterfaceInput::LoadSolidus( ifstream &ConfigurationFile ) {
-
-   string line;
-   vector<string> theTokens;
-   string delim = ",";
-   size_t firstNotSpace;
-   int countParam = 0;
-   
-   for (;;) {
-      getline( ConfigurationFile, line, '\n' );
-        
-      if (line == CrustalThicknessInterface::EndOfTable || line.size() == 0) {
-         break;
-      }
-      firstNotSpace = line.find_first_not_of( " \t" );
-   
-      if (line[firstNotSpace] != '#') {
-      
-      CrustalThicknessInterface::parseLine( line, delim, theTokens );
-      
-         if (theTokens.size() == 2) {
-
-            if (theTokens[0] == CrustalThicknessInterface::C) {
-               m_C = atof( theTokens[1].c_str() );
-               ++countParam;
-            }
-            else if (theTokens[0] == CrustalThicknessInterface::D) {
-               m_D = atof( theTokens[1].c_str() );
-               ++countParam;
-            } 
-            else{
-               LogHandler( LogHandler::WARNING_SEVERITY ) << "CTC configuration file Solidus table: unknown CTC parameter '" << theTokens[0] << "'.";
-            }
-
-         }
-         else {
-         theTokens.clear();
-         throw InputException() << "CTC configuration file Solidus table: unexpected parameter definition (should be Name, Value).";
-      }
-      theTokens.clear();
-   }
-}
-   if (countParam != 2) {
-      throw InputException() << "CTC configuration file Solidus table: 2 parameters expected but only " << countParam << " found.";
-   }
-}
-//------------------------------------------------------------//
-void InterfaceInput::LoadMagmaLayer( ifstream &ConfigurationFile ) {
-
-   string line;
-   vector<string> theTokens;
-   string delim = ",";
-   size_t firstNotSpace;
-   int countParam = 0;
-   
-   for(;;) {
-      getline (ConfigurationFile, line, '\n');
-        
-      if( line == CrustalThicknessInterface::EndOfTable || line.size() == 0) {
-         break;
-      }
-      
-      firstNotSpace = line.find_first_not_of(" \t"); 
-      
-      if( line[firstNotSpace] != '#' ) {
-      CrustalThicknessInterface::parseLine( line, delim, theTokens );
-      
-      if( theTokens.size() == 2 ) {
-
-         if( theTokens[0] == CrustalThicknessInterface::E ) {
-
-            m_E = atof( theTokens[1].c_str() );
-               ++ countParam;
-
-         } else if( theTokens[0] == CrustalThicknessInterface::F ) {
-
-            m_F = atof( theTokens[1].c_str() );
-
-         } else if( theTokens[0] == CrustalThicknessInterface::decayConstant ) {
-
-            m_decayConstant = atof( theTokens[1].c_str() );
-               ++ countParam;
-
-         } 
-            else{
-               LogHandler( LogHandler::WARNING_SEVERITY ) << "CTC configuration file MagmaLayer table: unknown CTC parameter '" << theTokens[0] << "'.";
-            }
-         }
-         else {
-         theTokens.clear();
-            throw InputException() << "CTC configuration file MagmaLayer table: unexpected parameter definition (should be Name, Value).";
-      }
-      theTokens.clear();
-   }
-}
-   if( countParam != 2 ) {
-      throw InputException() << "CTC configuration file MagmaLayer table: 2 parameters expected but only " << countParam << " found.";
-   }
-}
 //------------------------------------------------------------//
 void InterfaceInput::LoadUserDefinedData( ifstream &ConfigurationFile ) {
 
@@ -524,43 +144,43 @@ void InterfaceInput::LoadUserDefinedData( ifstream &ConfigurationFile ) {
    for(;;) {
       getline (ConfigurationFile, line, '\n');
         
-      if( line == CrustalThicknessInterface::EndOfTable || line.size() == 0) {
+      if( line == ConfigFileAlcCtc::EndOfTable || line.size() == 0) {
          break;
       }
       firstNotSpace = line.find_first_not_of(" \t"); 
       
       if( line[firstNotSpace] != '#' ) {
       
-      CrustalThicknessInterface::parseLine( line, delim, theTokens );
+      StringHandler::parseLine( line, delim, theTokens );
       
       if( theTokens.size() == 2 ) {
 
-         if( theTokens[0] == CrustalThicknessInterface::t_0 ) {
+         if( theTokens[0] == ConfigFileAlcCtc::t_0 ) {
 
             m_t_0 = atof( theTokens[1].c_str() );
                ++ countParam;
 
-         } else if( theTokens[0] == CrustalThicknessInterface::t_r ) {
+         } else if( theTokens[0] == ConfigFileAlcCtc::t_r ) {
 
             m_t_r = atof( theTokens[1].c_str() );
                ++ countParam;
 
-         } else if( theTokens[0] == CrustalThicknessInterface::initialCrustThickness ) {
+         } else if( theTokens[0] == ConfigFileAlcCtc::initialCrustThickness ) {
 
             m_initialCrustThickness = atof( theTokens[1].c_str() );
                ++ countParam;
 
-         } else if( theTokens[0] == CrustalThicknessInterface::maxBasalticCrustThickness ) {
+         } else if( theTokens[0] == ConfigFileAlcCtc::maxBasalticCrustThickness ) {
 
             m_maxBasalticCrustThickness = atof ( theTokens[1].c_str() );
                ++ countParam;
 
-         } else if( theTokens[0] == CrustalThicknessInterface::initialLithosphericThickness ) {
+         } else if( theTokens[0] == ConfigFileAlcCtc::initialLithosphericThickness ) {
 
             m_initialLithosphericThickness = atof( theTokens[1].c_str() );
                ++ countParam;
 
-         } else if( theTokens[0] == CrustalThicknessInterface::seaLevelAdjustment ) {
+         } else if( theTokens[0] == ConfigFileAlcCtc::seaLevelAdjustment ) {
 
             m_seaLevelAdjustment = atof( theTokens[1].c_str() );
                ++ countParam;
@@ -770,7 +390,7 @@ GridMap* InterfaceInput::loadPropertyDataFromDepthMap( DataAccess::Mining::Proje
 bool InterfaceInput::defineLinearFunction( LinearFunction & theFunction, unsigned int i, unsigned int j ) {
 
    // This method is to calculate coefficients for linear function to invert from WLS to TF (thinning factor)
-   const double pi2 = pow (m_pi, 2);
+   const double pi2 = pow (m_constants.getPi(), 2);
    const double pi2_8 = pi2 / 8;
    
    // Step 4.1
@@ -781,17 +401,18 @@ bool InterfaceInput::defineLinearFunction( LinearFunction & theFunction, unsigne
    if( m_initialCrustThickness == 0 ) {
       throw InputException() << "InitialCrustThickness=0 but should be !=0";
    }
-   const double mantleDensityAV = m_lithoMantleDensity * (1 - (m_coeffThermExpansion * m_baseLithosphericTemperature / 2) * 
-                                                          ((m_referenceCrustThickness + m_initialCrustThickness) / m_modelTotalLithoThickness));  
+   const double mantleDensityAV = m_constants.getLithoMantleDensity() * (1 - (m_constants.getCoeffThermExpansion() * m_constants.getBaseLithosphericTemperature() / 2)
+      * ((m_constants.getReferenceCrustThickness() + m_initialCrustThickness) / m_constants.getModelTotalLithoThickness()));
    // estimated continental crust density
-   m_modelCrustDensity = (m_referenceCrustDensity * m_referenceCrustThickness + mantleDensityAV * (m_initialCrustThickness - m_referenceCrustThickness)) / m_initialCrustThickness;
+   m_modelCrustDensity = (m_constants.getReferenceCrustDensity() * m_constants.getReferenceCrustThickness()
+      + mantleDensityAV * (m_initialCrustThickness - m_constants.getReferenceCrustThickness())) / m_initialCrustThickness;
    
    // Step 4.2
    // asthenosphere potential temperature
    if( m_HBuMap->getValue( i, j ) == m_HBuMap->getUndefinedValue() ) return false;
    m_maxBasalticCrustThickness = m_HBuMap->getValue( i, j );
-   m_PTa = m_B + m_A * sqrt(m_maxBasalticCrustThickness);
-   const double Hsol = m_C * m_PTa + m_D;
+   m_PTa = m_constants.getB() + m_constants.getA() * sqrt( m_maxBasalticCrustThickness );
+   const double Hsol = m_constants.getC() * m_PTa + m_constants.getD();
    // crustal thinning factor at melt onset
    if( m_HLMuMap->getValue( i, j ) == m_HLMuMap->getUndefinedValue() ) return false;
    m_initialLithosphericThickness = ( m_HLMuMap->getValue( i, j ) + m_initialCrustThickness );
@@ -804,9 +425,10 @@ bool InterfaceInput::defineLinearFunction( LinearFunction & theFunction, unsigne
    } else {
       m_TF_onset_mig = m_TF_onset + ((1 - m_TF_onset) * sqrt(2000 / m_maxBasalticCrustThickness));
    }
-   if( m_decayConstant == 0 ) { m_decayConstant = 1; }
+   if (m_constants.getDecayConstant() == 0) { m_constants.setDecayConstant( 1 ); }
       
-   m_magmaticDensity = m_E + (m_F - m_E) * (1 - exp( -1 * m_maxBasalticCrustThickness / m_decayConstant));
+   m_magmaticDensity = m_constants.getE() + (m_constants.getF() - m_constants.getE())
+      * (1 - exp( -1 * m_maxBasalticCrustThickness / m_constants.getDecayConstant() ));
 
    // Step 4.3
    if( m_T0Map->getValue( i, j ) == m_T0Map->getUndefinedValue() || m_TRMap->getValue( i, j ) == m_TRMap->getUndefinedValue()) return false;
@@ -814,15 +436,21 @@ bool InterfaceInput::defineLinearFunction( LinearFunction & theFunction, unsigne
    
    if( t_mr < 0 ) return false; // simple check if input data is valid 
    
-   const double expValue = 1 - exp(-15 * t_mr / m_tau);
+   const double expValue = 1 - exp( -15 * t_mr / m_constants.getTau() );
 
-   m_WLS_exhume = m_initialSubsidenceMax + m_E0 * (( 1 - exp(- t_mr / m_tau)) + (pi2_8 - 1) * expValue );
-   m_WLS_crit =  m_WLS_exhume - m_maxBasalticCrustThickness * (m_backstrippingMantleDensity - m_magmaticDensity) / (m_backstrippingMantleDensity - m_waterDensity);
+   m_WLS_exhume = m_constants.getInitialSubsidenceMax() + m_constants.getE0()
+      * ((1 - exp( -t_mr / m_constants.getTau() )) + (pi2_8 - 1) * expValue);
+
+   m_WLS_crit = m_WLS_exhume - m_maxBasalticCrustThickness * (m_constants.getBackstrippingMantleDensity() - m_magmaticDensity)
+      / (m_constants.getBackstrippingMantleDensity() - m_constants.getWaterDensity());
    
    theFunction.setWLS_crit( m_WLS_crit );
    
-   const double r = ( m_TF_onset_lin == 1.0 ? 1.0 : sin(m_pi * (1 - m_TF_onset_lin)) /(m_pi * (1 - m_TF_onset_lin)));
-   m_WLS_onset = m_TF_onset_lin * m_initialSubsidenceMax + m_E0 * (r * (1 - exp(- t_mr / m_tau)) + (pi2_8 * m_TF_onset_lin - r) * expValue );
+   const double r = (m_TF_onset_lin == 1.0 ? 1.0 : sin( m_constants.getPi()
+      * (1 - m_TF_onset_lin) ) / (m_constants.getPi() * (1 - m_TF_onset_lin)));
+
+   m_WLS_onset = m_TF_onset_lin * m_constants.getInitialSubsidenceMax() + m_constants.getE0()
+      * (r * (1 - exp( -t_mr / m_constants.getTau() )) + (pi2_8 * m_TF_onset_lin - r) * expValue);
    
    //  if( m_WLS_crit < m_WLS_onset )  return false;
 
@@ -835,10 +463,11 @@ bool InterfaceInput::defineLinearFunction( LinearFunction & theFunction, unsigne
   const double m2 = ( m_WLS_crit == m_WLS_onset ? 0 : (1 -  m_TF_onset_lin) / ( m_WLS_crit - m_WLS_onset )); // form Y = m2 * X + c2
   const double c2 = m_TF_onset_lin - m_WLS_onset * m2;
 
-  if( m_maxBasalticCrustThickness != 0 && ( m_backstrippingMantleDensity - m_magmaticDensity ) == 0.0 ) {
+  if (m_maxBasalticCrustThickness != 0 && (m_constants.getBackstrippingMantleDensity() - m_magmaticDensity) == 0.0) {
      throw InputException() << "Backstripping Mantle density == Magmatic density but they should be !=";
   }     
-  const double magmaThicknessCoeff = (m_backstrippingMantleDensity - m_waterDensity) / (m_backstrippingMantleDensity - m_magmaticDensity);
+  const double magmaThicknessCoeff = (m_constants.getBackstrippingMantleDensity() - m_constants.getWaterDensity())
+     / (m_constants.getBackstrippingMantleDensity() - m_magmaticDensity);
 
   theFunction.setM1( m1 );
   theFunction.setM2( m2 );
@@ -868,30 +497,4 @@ void InterfaceInput::restoreData() {
    m_HBuMap    ->restoreData();
    m_DeltaSLMap->restoreData();
 }
-//------------------------------------------------------------//
-namespace CrustalThicknessInterface {
 
-void parseLine(const string &theString, const string &theDelimiter, vector<string> &theTokens)
-{
-   string::size_type startPos = 0;
-   string::size_type endPos = 0;
-
-   string::size_type increment = 0;
-   string Token;
-
-   if(theString.empty() || theDelimiter.empty()) {
-      return;
-   }
-   while( endPos != string::npos ) {
-      endPos = theString.find_first_of( theDelimiter, startPos );
-      increment = endPos - startPos;
-
-      Token = theString.substr( startPos, increment );
-      if( Token.size() != 0 ) {
-         theTokens.push_back( Token );
-      }
-      startPos += increment + 1;
-   }
-}
-
-} // end namespace CrustalThicknessInterface

@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 #include "SourceRockNode.h"
 #include "Input.h"
 #include "SimulatorState.h"
@@ -11,6 +20,7 @@
 #include <math.h>
 #include <cstdlib>
 
+#include "StringHandler.h"
 
 namespace Genex6
 {
@@ -610,7 +620,7 @@ void SourceRockNode::LoadTestingPTHistory(std::string in_FullPathFileName)
        if (line.empty()) {
           break;
        }
-       ParseLine(line, delim, theTokens);
+       StringHandler::parseLine(line, delim, theTokens);
 
        Input *theInput = new Input(atof(theTokens[4].c_str()), atof(theTokens[6].c_str()), 
                                    1000.0 * atof(theTokens[5].c_str()));

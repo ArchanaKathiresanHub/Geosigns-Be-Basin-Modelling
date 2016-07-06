@@ -22,7 +22,7 @@ add_library(genex6_kernel
 )
 
 bm_include_libraries(
-  DataModel
+   DataModel
 	genex6 
 	CBMGenerics 
 	EosPack 

@@ -5,24 +5,17 @@
 #include "GeoPhysicalConstants.h"
 #include "Interface/LithologyHeatCapacitySample.h"
 #include "Interface/LithologyThermalConductivitySample.h"
-#include "InterfaceInput.h"
 
 #include <sstream>
+
 using std::stringstream;
 
 using namespace GeoPhysics;
-using namespace CrustalThicknessInterface;
-
-namespace CrustalThicknessInterface {
-void parseLine(const string &theString, const string &theDelimiter, vector<string> &theTokens);
-}
 
 BasementLithology::BasementLithology (  DataAccess::Interface::ProjectHandle* projectHandle, 
                                         database::Record*                     record ) : 
-  SimpleLithology( projectHandle, record ){ 
-   
+   SimpleLithology( projectHandle, record ){ 
    setLithoType();
-   
 }
 
 
@@ -84,7 +77,7 @@ bool BasementLithology::setThermalModel( const string& aThermalModel ) {
 
 }
 
-void BasementLithology::setBasementLithoProperties( BasementLithologyProps & aBP ) {
+void BasementLithology::setBasementLithoProperties( ConfigFileParameterAlc & aBP ) {
     m_constants = aBP;
 }
 
@@ -519,229 +512,4 @@ double BasementLithology::heatcapacity(const double t) const
     }
     }
    return 0;
-}
-
-bool BasementLithologyProps::loadConfigurationFile( ifstream &ConfigurationFile ) {
-   string line;
-   vector<string> theTokens;
-   string delim = ",";
-   
-   clean();
-
-   size_t firstNotSpace;
-      
-   while( !ConfigurationFile.eof() ) {
-         
-      getline ( ConfigurationFile, line, '\n' );
-      if( line.size() != 0 ) { 
-         firstNotSpace = line.find_first_not_of(" "); 
-         
-         if( line[firstNotSpace] != '#' ) {
-            
-            if( line == CrustalThicknessInterface::TableLithoAndCrustProperties || line.find( CrustalThicknessInterface::TableLithoAndCrustProperties, 0) != string::npos ) {
-               for(;;) {
-                  getline (ConfigurationFile, line, '\n');
-        
-                  if( line == CrustalThicknessInterface::EndOfTable || line.size() == 0) {
-                     break;
-                  }
-      
-                  CrustalThicknessInterface::parseLine( line, delim, theTokens );
-      
-                  if( theTokens.size() == 2 ) {
-                     if( theTokens[0] == CrustalThicknessInterface::lithosphereThicknessMin ) {
-                        m_HLmin = atof( theTokens[1].c_str() );
-                     } else if( theTokens[0] == CrustalThicknessInterface::maxNumberOfMantleElements ) {
-                        m_NLMEmax = atoi( theTokens[1].c_str() );
-                     }
-                     
-                  } else {
-                     theTokens.clear();
-                     string s = "More or less arguments than expected.";
-                     cerr << s << endl;
-                     return false;
-                  }
-                  theTokens.clear();
-               }
-            } else if( line == CrustalThicknessInterface::TableStandardCrust || line.find( CrustalThicknessInterface::TableStandardCrust, 0) != string::npos ) {
-               for(;;) {
-                  getline (ConfigurationFile, line, '\n');
-        
-                  if( line == CrustalThicknessInterface::EndOfTable || line.size() == 0) {
-                     break;
-                  }
-      
-                  CrustalThicknessInterface::parseLine( line, delim, theTokens );
-      
-                  if( theTokens.size() == 2 ) {
-                     if( theTokens[0] == CrustalThicknessInterface::Rho ) {
-                        m_csRho = atof( theTokens[1].c_str() );
-                     } else if( theTokens[0] == CrustalThicknessInterface::A ) {
-                        m_csA = atof( theTokens[1].c_str() );
-                     } else if( theTokens[0] == CrustalThicknessInterface::B ) {
-                        m_csB = atof( theTokens[1].c_str() );
-                     }
-                     
-                  } else {
-                     theTokens.clear();
-                     string s = "More or less arguments than expected.";
-                     cerr << s << endl;
-                     return false;
-                  }
-                  theTokens.clear();
-               }
-             } else if( line == CrustalThicknessInterface::TableLowCondCrust || line.find( CrustalThicknessInterface::TableLowCondCrust, 0) != string::npos ) {
-               for(;;) {
-                  getline (ConfigurationFile, line, '\n');
-        
-                  if( line == CrustalThicknessInterface::EndOfTable || line.size() == 0) {
-                     break;
-                  }
-      
-                  CrustalThicknessInterface::parseLine( line, delim, theTokens );
-      
-                  if( theTokens.size() == 2 ) {
-                     if( theTokens[0] == CrustalThicknessInterface::Rho ) {
-                        m_clRho = atof( theTokens[1].c_str() );
-                     } else if( theTokens[0] == CrustalThicknessInterface::A ) {
-                        m_clA = atof( theTokens[1].c_str() );
-                     } else if( theTokens[0] == CrustalThicknessInterface::B ) {
-                        m_clB = atof( theTokens[1].c_str() );
-                     }
-                       
-                  } else {
-                     theTokens.clear();
-                     string s = "More or less arguments than expected.";
-                     cerr << s << endl;
-                     return false;
-                  }
-                  theTokens.clear();
-               }
-             } else if( line == CrustalThicknessInterface::TableBasalt || line.find( CrustalThicknessInterface::TableBasalt, 0) != string::npos ) {
-               for(;;) {
-                  getline (ConfigurationFile, line, '\n');
-        
-                  if( line == CrustalThicknessInterface::EndOfTable || line.size() == 0) {
-                     break;
-                  }
-      
-                  CrustalThicknessInterface::parseLine( line, delim, theTokens );
-      
-                  if( theTokens.size() == 2 ) {
-                     if( theTokens[0] == CrustalThicknessInterface::Rho ) {
-                        m_bRho = atof( theTokens[1].c_str() );
-                     } else if( theTokens[0] == CrustalThicknessInterface::A ) {
-                        m_bA = atof( theTokens[1].c_str() );
-                     } else if( theTokens[0] == CrustalThicknessInterface::B ) {
-                        m_bB = atof( theTokens[1].c_str() );
-                     } else if( theTokens[0] == CrustalThicknessInterface::T ) {
-                        m_bT = atof( theTokens[1].c_str() );
-                     } else if( theTokens[0] == CrustalThicknessInterface::Heat ) {
-                        m_bHeat = atof( theTokens[1].c_str() );
-                     }
-                       
-                  } else {
-                     theTokens.clear();
-                     string s = "More or less arguments than expected.";
-                     cerr << s << endl;
-                     return false;
-                  }
-                  theTokens.clear();
-               }
-             } else if( line == CrustalThicknessInterface::TableMantle || line.find( CrustalThicknessInterface::TableMantle, 0) != string::npos ) {
-               for(;;) {
-                  getline (ConfigurationFile, line, '\n');
-        
-                  if( line == CrustalThicknessInterface::EndOfTable || line.size() == 0) {
-                     break;
-                  }
-      
-                  CrustalThicknessInterface::parseLine( line, delim, theTokens );
-      
-                  if( theTokens.size() == 2 ) {
-                     if( theTokens[0] == CrustalThicknessInterface::Rho ) {
-                        m_mRho = atof( theTokens[1].c_str() );
-                     } else if( theTokens[0] == CrustalThicknessInterface::A ) {
-                        m_mA = atof( theTokens[1].c_str() );
-                     } else if( theTokens[0] == CrustalThicknessInterface::B ) {
-                        m_mB = atof( theTokens[1].c_str() );
-                     } 
-                      
-                  } else {
-                     theTokens.clear();
-                     string s = "More or less arguments than expected.";
-                     cerr << s << endl;
-                     return false;
-                  }
-                  theTokens.clear();
-               }
-             }
-         }
-      }
-   } 
-
-   /*
-   if( m_csRho == 0 || m_clRho == 0 ||  m_bRho == 0 || m_mRho == 0 ||
-       m_csA  == 0 || m_clA == 0 || m_bA == 0 || m_mA == 0 ||
-       m_csB  == 0 || m_clB == 0 || m_bB == 0 || m_mB == 0 ||
-       m_bT == 0|| m_bHeat == 0 || m_HLmin == 0 || m_NLMEmax == 0 ) {
-      cerr << "Less arguments than expected in CTC configuraton file." << endl;
-      return false;
-   }
-   cout << "m: " << m_mRho << "; " << m_mA << "; " << m_mB << "; " <<  endl;
-   cout << "cl: " << m_clRho << "; " << m_clA << "; " << m_clB << "; " <<  endl;
-   cout << "cs: " << m_csRho << "; " << m_csA << "; " << m_csB << "; " <<  endl;
-   cout << "b: " << m_bRho << "; " <<  m_bA << "; " << m_bB << "; " <<  m_bT << "; " << m_bHeat << endl;
-   */
-   return true;
-}
-//------------------------------------------------------------//
-BasementLithologyProps::BasementLithologyProps() {
-   clean();
-}
-   
-//------------------------------------------------------------//
-void BasementLithologyProps::clean() {
-   
-   m_csRho = 0;
-   m_clRho = 0;
-   m_bRho = 0;
-   m_mRho = 0;
-   m_csA = 0;
-   m_csB = 0;
-   m_clA = 0;
-   m_clB = 0;
-   m_bA = 0;
-   m_bB = 0;
-   m_mA = 0;
-   m_mB = 0;
-   m_bT = 0;
-   m_bHeat = 0;
-
-   m_HLmin = 0;
-   m_NLMEmax = 0;
-
-}
-//------------------------------------------------------------//
-BasementLithologyProps& BasementLithologyProps::operator=( const BasementLithologyProps& aBP ) {
-   
-   m_csRho = aBP.m_csRho;
-   m_clRho = aBP.m_clRho;
-   m_bRho = aBP.m_bRho;
-   m_mRho = aBP.m_mRho;
-   m_csA = aBP.m_csA;
-   m_csB = aBP.m_csB;
-   m_clA = aBP.m_clA;
-   m_clB = aBP.m_clB;
-   m_bA = aBP.m_bA;
-   m_bB = aBP.m_bB;
-   m_mA = aBP.m_mA;
-   m_mB = aBP.m_mB;
-   m_bT = aBP.m_bT;
-   m_bHeat = aBP.m_bHeat;
-   
-   m_HLmin = aBP.m_HLmin;
-   m_NLMEmax = aBP.m_NLMEmax;
-   
-   return * this;
 }

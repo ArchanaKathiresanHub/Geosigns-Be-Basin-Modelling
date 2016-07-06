@@ -9,7 +9,6 @@
 
 namespace Genex6
 {
-  void ParseLine(const std::string &theString, const std::string &theDelimiter, std::vector<std::string> &theTokens);
   void TransformStringToUpper(std::string &theString);
   
   bool fabsEqualDouble(const double val1, const double val2, const double EPS = 1E-05);

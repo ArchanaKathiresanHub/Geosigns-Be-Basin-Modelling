@@ -1,6 +1,6 @@
 #########################################################################
 #                                                                       #
-# Copyright (C) 2012-2013 Shell International Exploration & Production. #
+# Copyright (C) 2012-2016 Shell International Exploration & Production. #
 # All rights reserved.                                                  #
 #                                                                       #
 # Developed under license for Shell by PDS BV.                          #
@@ -9,6 +9,10 @@
 # Do not distribute without written permission from Shell.              #
 #                                                                       #
 #########################################################################
+
+################################################################
+######################### SET TARGETS ##########################
+################################################################
 
 FILE( GLOB all_headers src/*.h )
 source_group(include FILES ${all_headers})
@@ -21,9 +25,13 @@ add_library(utilities
 	${all_headers}
 )
 
+################################################################
+################### SET DEPENDENCIES/LINKS #####################
+################################################################
+
 # under Linux we are building Boost that is why this target exist
 if (UNIX)
-add_dependencies(utilities Boost)
+   add_dependencies(utilities Boost)
 endif (UNIX)
 
 if (MSVC)
@@ -41,8 +49,11 @@ install(TARGETS utilities
 	ARCHIVE DESTINATION lib
 )
 
-### Unit Tests
+################################################################
+######################## UNIT TESTS ############################
+################################################################
 
+######################
 # IBSInterpolator tests
 add_gtest( NAME utilities::IBSinterpolator
 			SOURCES test/IBSinterpolator.C
@@ -52,6 +63,7 @@ add_gtest( NAME utilities::IBSinterpolator2d
 			SOURCES test/IBSinterpolator2d.C
 			LIBRARIES utilities)
 
+######################
 # LogHandler tests
 add_gtest( NAME utilities::LogHandlerCreate
    SOURCES test/LogHandlerCreate.C test/LogHandlerUnitTester.h
@@ -75,4 +87,10 @@ add_gtest( NAME utilities::LogHandlerQuiet
 
 add_gtest( NAME utilities::LogHandlerMinimal
    SOURCES test/LogHandlerMinimal.C test/LogHandlerUnitTester.h
+   LIBRARIES utilities)
+
+######################
+# StringHandler tests
+add_gtest( NAME utilities::StringHandler
+   SOURCES test/StringHandler.C
    LIBRARIES utilities)

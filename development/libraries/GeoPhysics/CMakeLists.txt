@@ -25,6 +25,8 @@ set(all_headers
       src/CompoundLithologyComposition.h
       src/CompoundLithology.h
       src/CompoundProperty.h
+      src/ConfigFileParameter.h
+      src/ConfigFileParameterAlc.h
       src/DoubleExponentialPorosity.h
       src/ExponentialPorosity.h
       src/FracturePressureCalculator.h
@@ -76,6 +78,7 @@ set(all_srcs
       src/CompoundLithology.C
       src/CompoundLithologyComposition.C
       src/CompoundProperty.C
+      src/ConfigFileParameterAlc.C
       src/DoubleExponentialPorosity.C
       src/ExponentialPorosity.C
       src/FracturePressureCalculator.C
@@ -113,7 +116,6 @@ set(unix_only_libs
       Interpolation 
       genex6 
       genex6_kernel 
-      CrustalThickness
 )
 
 set(cross_platform_libs
@@ -264,6 +266,12 @@ add_gtest( NAME GeoPhysics::VreArrheniusMethod
 add_gtest( NAME GeoPhysics::WalderhaugCompactionCalculator
       SOURCES test/WalderhaugCompactionCalculatorTest.C 
       LIBRARIES GeoPhysics SerialDataAccess
+)
+
+add_gtest( NAME GeoPhysics::ConfigFileAlc
+      SOURCES test/ConfigFileAlc.C 
+      LIBRARIES GeoPhysics
+      ENV_VARS CTCDIR=${PROJECT_SOURCE_DIR}/geocase/misc 
 )
 
 

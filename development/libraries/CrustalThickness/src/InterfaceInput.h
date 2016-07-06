@@ -24,6 +24,7 @@
 
 // CrustalThickness library
 #include "LinearFunction.h"
+#include "ConfigFileParameterCtc.h"
 
 // utilitites
 #include "FormattingException.h"
@@ -67,63 +68,6 @@ namespace DataModel{
    class AbstractProperty;
 }
 
-namespace CrustalThicknessInterface {
-   const string TableBasicConstants          = "Table:[BasicConstants]";
-   const string TableLithoAndCrustProperties = "Table:[LithoAndCrustProperties]";
-   const string TableTemperatureData         = "Table:[TemperatureData]";
-   const string TableSolidus                 = "Table:[Solidus]";
-   const string TableMagmaLayer              = "Table:[MagmaLayer]";
-   const string TableUserDefinedData         = "Table:[UserDefinedData]";
-   const string TableMantle                  = "Table:[Mantle]";
-   const string TableStandardCrust           = "Table:[StandardCrust]";
-   const string TableLowCondCrust            = "Table:[LowCondCrust]";
-   const string TableBasalt                  = "Table:[Basalt]";
-   const string EndOfTable                   = "[EndOfTable]";
-
-   const string t_0                          = "t_0";
-   const string t_r                          = "t_r";
-   const string initialCrustThickness        = "initialCrustThickness";
-   const string maxBasalticCrustThickness    = "maxBasalticCrustThickness";
-   const string initialLithosphericThickness = "initialLithosphericThickness";
-   const string seaLevelAdjustment           = "seaLevelAdjustment";
-   const string coeffThermExpansion          = "coeffThermExpansion";
-   const string initialSubsidenceMax         = "initialSubsidenceMax";
-   const string pi                           = "pi";
-   const string E0                           = "E0";
-   const string tau                          = "tau";
-   const string modelTotalLithoThickness     = "modelTotalLithoThickness";
-   const string backstrippingMantleDensity   = "backstrippingMantleDensity";
-   const string lithoMantleDensity           = "lithoMantleDensity";
-   const string baseLithosphericTemperature  = "baseLithosphericTemperature";
-   const string referenceCrustThickness      = "referenceCrustThickness";
-   const string referenceCrustDensity        = "referenceCrustDensity";
-   const string waterDensity                 = "waterDensity";
-   const string A                            = "A";
-   const string B                            = "B";
-   const string C                            = "C";
-   const string D                            = "D";
-   const string E                            = "E";
-   const string F                            = "F";
-   const string T                            = "T";
-   const string Heat                         = "Heat";
-   const string Rho                          = "Rho";
-   const string decayConstant                = "decayConstant";
-   const string lithosphereThicknessMin      = "HLmin";
-   const string maxNumberOfMantleElements    = "NLMEmax";
-
-   /// @brief Parse the CTC command line
-   /// @param theString The command to be parsed
-   /// @param theDelimiter The command option delimiter
-   /// @param theTokens The command's options parsed from the command line
-   void parseLine(const string &theString, const string &theDelimiter, vector<string> &theTokens);
-   /// @brief Get the MPI rank
-   /// @return The MPI rank
-   int GetRank ();
-   /// @brief Get the number of processes
-   /// @return The number of processes
-   int GetNumOfProcs ();
-}
-
 /// @class InterfaceInput The CTC input interface
 class InterfaceInput : public Interface::CrustalThicknessData
 {
@@ -140,12 +84,6 @@ public:
    /// @{
    void loadInputDataAndConfigurationFile( const string & inFile );
    void loadInputData                    ();
-   void loadConfigurationFile            ( const string & inFile );
-   void LoadBasicConstants               ( ifstream &ConfigurationFile );
-   void LoadLithoAndCrustProperties      ( ifstream &ConfigurationFile );
-   void LoadTemperatureData              ( ifstream &ConfigurationFile );
-   void LoadSolidus                      ( ifstream &ConfigurationFile );
-   void LoadMagmaLayer                   ( ifstream &ConfigurationFile );
    void LoadUserDefinedData              ( ifstream &ConfigurationFile );
    /// @}
 
@@ -205,7 +143,7 @@ public:
 
    double getDeltaSLValue               (unsigned int i, unsigned int j) const;
    const string& getBaseRiftSurfaceName () const;
-   double getInitialSubsidence          () const { return m_initialSubsidenceMax; }
+   double getInitialSubsidence() const { return m_constants.getInitialSubsidenceMax(); }
 
    const GridMap* getT0Map     () const;
    const GridMap* getTRMap     () const;
@@ -289,46 +227,7 @@ private:
    DerivedProperties::SurfacePropertyPtr m_depthWaterBottom;             ///< The depth of the water bottom at the current snapshot
    /// @}
 
-   /// @defgroup Basic_constants
-   /// @{
-   double m_coeffThermExpansion;   ///< Thermal expension coefficeint
-   double m_initialSubsidenceMax;  ///< Maximum initial subsidence
-   double m_pi;                    ///< Pi
-   double m_E0;
-   double m_tau;
-   /// @}
-
-   /// @defgroup Lithosphere_and_crust_properties
-   /// @{
-   double m_modelTotalLithoThickness;    ///< Total lithospher thickness (crust + lithospheric mantle)
-   /// @todo Why do we use two mantle and crust density?
-   double m_backstrippingMantleDensity;  ///< The backstriped lithospheric mantle density
-   double m_lithoMantleDensity;          ///< The lithospheric mantle density
-   double m_baseLithosphericTemperature; ///< The bottom lithospheric mantle temperature
-   double m_referenceCrustThickness;     ///< The reference continental crust thickness
-   double m_referenceCrustDensity;       ///< The reference continental crust density
-   double m_waterDensity;                ///< The water density
-   /// @}
-
-   /// @defgroup Asthenosphere_potential_temperature_data
-   /// @{
-   double m_A;
-   double m_B;
-   /// @}
-
-   /// @defgroup Solidus_data
-   ///    onsetof adiabatic melting
-   /// @{
-   double m_C;
-   double m_D;
-   /// @}
-
-   /// @defgroup Magma-layer_density_data
-   /// @{
-   double m_E;
-   double m_F;
-   double m_decayConstant;
-   /// @}
+   CrustalThickness::ConfigFileParameterCtc m_constants; ///< Constants loaded from the configuration file
 
    /// @defgroup Variables
    /// @{
@@ -402,12 +301,12 @@ inline double InterfaceInput::getInitialLithosphereThickness() const {
 
 inline double InterfaceInput::getBackstrippingMantleDensity() const {
    
-   return m_backstrippingMantleDensity;
+   return m_constants.getBackstrippingMantleDensity();
 }
 
 inline double InterfaceInput::getWaterDensity() const {
    
-   return m_waterDensity;
+   return m_constants.getWaterDensity();
 }
 
 inline double InterfaceInput::getEstimatedCrustDensity() const {
