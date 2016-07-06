@@ -12,8 +12,9 @@
 #include "OIVWidget.h"
 #include "GLInfoDialog.h"
 #include "SegYConversionDialog.h"
+
 #include <Seismic.h>
-#include <DataAccessProject.h>
+#include <CameraUtil.h>
 
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QMessageBox>
@@ -26,8 +27,6 @@
 //#include <MeshViz/PoMeshViz.h>
 #include <VolumeViz/nodes/SoVolumeRendering.h>
 #include <IvTune/SoIvTune.h>
-
-#include <CameraUtil.h>
 
 namespace
 {
@@ -91,7 +90,7 @@ void MainWindow::loadProject(const QString& filename)
 
   if (m_oivLicenseOK)
   {
-    m_sceneGraphManager = std::make_shared<SceneGraphManager>();
+    m_sceneGraphManager = std::make_shared<SceneGraphManager>(m_scheduler);
     m_sceneGraphManager->setup(m_project);
 
     m_examiner = new SceneExaminer;
@@ -1084,6 +1083,12 @@ void MainWindow::onInterpolatedSurfacePositionChanged(int value)
   m_ui.renderWidget->updateGL();
 }
 
+void MainWindow::timerEvent(QTimerEvent* event)
+{
+  if (m_scheduler.postProcess())
+    m_ui.renderWidget->updateGL();
+}
+
 MainWindow::MainWindow()
   : m_oivLicenseOK(false)
   , m_modeLabel(nullptr)
@@ -1128,6 +1133,9 @@ MainWindow::MainWindow()
   //viewer->setFramesPerSecondCallback(fpsCallback, this);
 
   connectSignals();
+
+  m_scheduler.start();
+  startTimer(0);
 }
 
 void MainWindow::viewAll()

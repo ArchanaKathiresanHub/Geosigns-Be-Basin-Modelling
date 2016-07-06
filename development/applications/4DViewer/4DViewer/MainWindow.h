@@ -14,6 +14,7 @@
 #include "ui_MainWindow.h"
 
 #include <Project.h>
+#include <Scheduler.h>
 #include <SceneGraphManager.h>
 #include <SceneExaminer.h>
 
@@ -38,6 +39,8 @@ class MainWindow : public QMainWindow
   QLabel* m_dimensionsLabel;
   QLabel* m_timeLabel;
   QLabel* m_fpsLabel;
+
+  Scheduler m_scheduler;
 
   std::shared_ptr<Project> m_project;
   std::shared_ptr<SceneGraphManager> m_sceneGraphManager;
@@ -152,6 +155,10 @@ private slots:
   void onInterpolatedSurfaceToggled(bool value);
 
   void onInterpolatedSurfacePositionChanged(int value);
+
+protected:
+
+  void timerEvent(QTimerEvent* event) override;
 
 public:
 

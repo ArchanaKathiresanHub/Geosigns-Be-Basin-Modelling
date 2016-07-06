@@ -13,6 +13,7 @@
 
 #include "defines.h"
 #include "Project.h"
+#include "Scheduler.h"
 #include "Traps.h"
 
 #include <map>
@@ -34,6 +35,7 @@ class PropertyValueCellFilter;
 class FaultMesh;
 class OutlineBuilder;
 class SeismicScene;
+struct LoadSnapshotMeshTask;
 
 class SbViewportRegion;
 class SoPickedPoint;
@@ -240,19 +242,19 @@ struct SnapshotInfo
   double minZ; // = max depth (negative)
   double maxZ;
 
+  std::weak_ptr<LoadSnapshotMeshTask> loadSnapshotMeshTask;
+
+  std::shared_ptr<MiVolumeMeshCurvilinear> meshData;
+  std::shared_ptr<MiDataSetIjk<double>> scalarDataSet;
+  std::shared_ptr<PropertyValueCellFilter> propertyValueCellFilter;
+  std::shared_ptr<MiDataSetIjk<double>> flowDirScalarSet;
+  std::shared_ptr<MiDataSetIjk<MbVec3<double>>> flowDirVectorSet;
+
   SoRef<SoGroup> root;
   SoGroup* formationsRoot;
 
   MoMesh* mesh;
-  std::shared_ptr<MiVolumeMeshCurvilinear> meshData;
-
   MoScalarSet* scalarSet;
-  std::shared_ptr<MiDataSetIjk<double>> scalarDataSet;
-  std::shared_ptr<PropertyValueCellFilter> propertyValueCellFilter;
-
-  MoVec3SetIjk* flowDirSet;
-  std::shared_ptr<MiDataSetIjk<double>> flowDirScalarSet;
-  std::shared_ptr<MiDataSetIjk<MbVec3<double>>> flowDirVectorSet;
 
   SoGroup* chunksGroup;
   SoGroup* flowLinesGroup;
@@ -284,7 +286,7 @@ struct SnapshotInfo
   SnapshotInfo();
 };
 
-class SceneGraphManager
+class SceneGraphManager : public TaskSource
 {
 public:
 
@@ -406,6 +408,14 @@ public:
 
 private:
 
+  enum TaskType
+  {
+    TaskLoadSnapshotMesh
+    
+  };
+
+  Scheduler& m_scheduler;
+
   std::shared_ptr<Project> m_project;
   Project::ProjectInfo m_projectInfo;
 
@@ -470,7 +480,7 @@ private:
   void onMouseMoved(SoEventCallback* node);
 
   int getSurfaceId(MoMeshSurface* surface) const;
-  int getFormationId(/*MoMeshSkin* skin, */size_t k) const;
+  int getFormationId(size_t k) const;
   int getReservoirId(MoMeshSurface* skin) const;
 
   void updateCoordinateGrid();
@@ -513,7 +523,7 @@ private:
 
 public:
 
-  SceneGraphManager();
+  SceneGraphManager(Scheduler& scheduler);
 
   SoNode* getRoot() const;
 
@@ -588,6 +598,8 @@ public:
   void addSeismicScene(std::shared_ptr<SeismicScene> seismicScene);
 
   void setup(std::shared_ptr<Project> project);
+
+  void onTaskCompleted(Task& task) override;
 };
 
 #endif

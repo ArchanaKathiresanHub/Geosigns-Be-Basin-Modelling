@@ -12,7 +12,6 @@
 #include <iostream>
 #include <chrono>
 
-
 std::shared_ptr<Task> Scheduler::getTask(Queue& q)
 {
   std::unique_lock<std::mutex> lock(q.mutex);
@@ -42,8 +41,8 @@ void Scheduler::run(Queue& q)
       // case we simply skip postprocessing
       if (!task->canceled) 
       {
-	std::unique_lock<std::mutex> lock(m_readyQueueMutex);
-	m_readyQueueWrite.push(task);
+	    std::unique_lock<std::mutex> lock(m_readyQueueMutex);
+	    m_readyQueueWrite.push(task);
       }
     }
   }
@@ -66,10 +65,10 @@ void Scheduler::start()
 
   // init threads
   m_ioThreads.push_back(
-			std::thread(
-				    &Scheduler::run, 
-				    this, 
-				    std::ref(m_ioQueue)));
+    std::thread(
+      &Scheduler::run, 
+      this, 
+      std::ref(m_ioQueue)));
 
   unsigned int n = std::thread::hardware_concurrency();
   if (n == 0)
@@ -78,10 +77,10 @@ void Scheduler::start()
   for (unsigned int i = 0; i < n; ++i)
   {
     m_cpuThreads.push_back(
-			   std::thread(
-				       &Scheduler::run,
-				       this,
-				       std::ref(m_cpuQueue)));
+      std::thread(
+        &Scheduler::run,
+        this,
+        std::ref(m_cpuQueue)));
   }
 
   m_started = true;
@@ -111,7 +110,7 @@ void Scheduler::stop()
  */
 void Scheduler::put(std::shared_ptr<Task> task)
 {
-  Queue& q = (task->type == Task::IOTASK)
+  Queue& q = (task->affinity == Task::IOTASK)
     ? m_ioQueue
     : m_cpuQueue;
 
@@ -123,11 +122,11 @@ void Scheduler::put(std::shared_ptr<Task> task)
 }
 
 /**
- * Calls postRun() on all tasks that are ready. This function needs to be called 
- * periodically as part of the main loop, to ensure that all tasks are properly
- * postprocessed.
+ * Calls TaskSource::onTaskCompleted() for all tasks that are ready. This function 
+ * needs to be called periodically as part of the main loop, to ensure that all tasks 
+ * are properly postprocessed.
  */
-void Scheduler::postProcess()
+bool Scheduler::postProcess()
 {
   // Swap the read and write queues. Since the read queue is empty at this 
   // point, it effectively clears the write queue, moving all ready tasks 
@@ -138,13 +137,18 @@ void Scheduler::postProcess()
     m_readyQueueWrite.swap(m_readyQueueRead);
   }
 
+  bool result = !m_readyQueueRead.empty();
+
   while (!m_readyQueueRead.empty())
   {
     auto task = m_readyQueueRead.front();
     m_readyQueueRead.pop();
 
-    task->postRun();
+    if (task->source)
+      task->source->onTaskCompleted(*task);
   }
+
+  return result;
 }
 
 

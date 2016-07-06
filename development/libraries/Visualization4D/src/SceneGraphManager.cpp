@@ -9,6 +9,7 @@
 //
 
 #include "SceneGraphManager.h"
+#include "Scheduler.h"
 #include "Mesh.h"
 #include "Property.h"
 #include "FlowLines.h"
@@ -79,6 +80,28 @@
 
 SoSwitch* createCompass();
 
+struct LoadSnapshotMeshTask : public Task
+{
+  std::shared_ptr<Project> project;
+  size_t snapshotIndex;
+
+  std::shared_ptr<MiVolumeMeshCurvilinear> result;
+
+public:
+
+  LoadSnapshotMeshTask(std::shared_ptr<Project> proj, size_t index)
+    : project(proj)
+    , snapshotIndex(index)
+  {
+    affinity = IOTASK;
+  }
+
+  void run() override
+  {
+    result = project->createSnapshotMesh(snapshotIndex);
+  }
+};
+
 SnapshotInfo::SnapshotInfo()
   : index(0)
   , currentPropertyId(-1)
@@ -87,9 +110,7 @@ SnapshotInfo::SnapshotInfo()
   , root(0)
   , formationsRoot(0)
   , mesh(0)
-  , meshData(0)
   , scalarSet(0)
-  , flowDirSet(0)
   , chunksGroup(0)
   , flowLinesGroup(0)
   , surfacesGroup(0)
@@ -220,7 +241,8 @@ void SceneGraphManager::updateSnapshotMesh()
 
   SnapshotInfo& snapshot = *m_snapshotInfoCache.begin();
   
-  if (snapshot.meshData)
+  // skip if we already have the mesh data, or are in the process of loading it
+  if (!!snapshot.meshData || !snapshot.loadSnapshotMeshTask.expired())
     return;
 
   bool needMesh = false;
@@ -270,10 +292,13 @@ void SceneGraphManager::updateSnapshotMesh()
 
   if (needMesh)
   {
-    snapshot.meshData = m_project->createSnapshotMesh(snapshot.index);
-    snapshot.mesh->setMesh(snapshot.meshData.get());
-    if(m_seismicScene)
-      m_seismicScene->setMesh(snapshot.meshData.get());
+    auto task = std::make_shared<LoadSnapshotMeshTask>(m_project, snapshot.index);
+    task->type = TaskLoadSnapshotMesh;
+    task->source = this;
+    m_scheduler.put(task);
+
+    // Keep a weak ref to this task, so we know we're loading it
+    snapshot.loadSnapshotMeshTask = task;
   }
 }
 
@@ -1579,8 +1604,9 @@ std::shared_ptr<MiDataSetIjk<double> > SceneGraphManager::createReservoirPropert
   return result;
 }
 
-SceneGraphManager::SceneGraphManager()
-  : m_maxCacheItems(3)
+SceneGraphManager::SceneGraphManager(Scheduler& scheduler)
+  : m_scheduler(scheduler)
+  , m_maxCacheItems(3)
   , m_formationsTimeStamp(MxTimeStamp::getTimeStamp())
   , m_surfacesTimeStamp(MxTimeStamp::getTimeStamp())
   , m_reservoirsTimeStamp(MxTimeStamp::getTimeStamp())
@@ -2240,4 +2266,27 @@ void SceneGraphManager::setup(std::shared_ptr<Project> project)
 
   setupSceneGraph();
   setCurrentSnapshot(0);
+}
+
+void SceneGraphManager::onTaskCompleted(Task& task)
+{
+  if (task.type == TaskLoadSnapshotMesh)
+  {
+    auto &t = static_cast<LoadSnapshotMeshTask&>(task);
+
+    auto iter = m_snapshotInfoCache.begin();
+    while (iter != m_snapshotInfoCache.end() && iter->index != t.snapshotIndex)
+      iter++;
+
+    if (iter != m_snapshotInfoCache.end())
+    {
+      iter->meshData = t.result;
+      iter->mesh->setMesh(iter->meshData.get());
+
+      if (m_seismicScene)
+        m_seismicScene->setMesh(iter->meshData.get());
+
+      updateSnapshot();
+    }
+  }
 }

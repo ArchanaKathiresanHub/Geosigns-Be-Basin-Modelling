@@ -18,28 +18,32 @@
 #include <mutex>
 #include <condition_variable>
 
+struct TaskSource;
+
 struct Task
 {
-  enum Type
+  enum Affinity
   {
     IOTASK,
     CPUTASK
-  } type = CPUTASK;
+  } affinity = CPUTASK;
+
+  int type = 0; //source-specific type identifier
+
+  TaskSource* source = nullptr;
 
   std::atomic<bool> error = false;
   std::atomic<bool> canceled = false;
   std::atomic<bool> finished = false;
 
-  virtual ~Task()
-  {
-  }
+  virtual ~Task() {}
 
   virtual void run() = 0;
+};
 
-  virtual void postRun()
-  {
-    // default implementation is empty
-  }
+struct TaskSource
+{
+  virtual void onTaskCompleted(Task& task) = 0;
 };
 
 class Scheduler
@@ -90,9 +94,9 @@ public:
   /**
    * Calls postRun() on all tasks that are ready. This function needs to be called 
    * periodically as part of the main loop, to ensure that all tasks are properly
-   * postprocessed.
+   * postprocessed. Returns true if any tasks are processed, false otherwise.
    */
-  void postProcess();
+  bool postProcess();
 };
 
 #endif

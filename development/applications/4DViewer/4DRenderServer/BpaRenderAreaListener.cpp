@@ -39,10 +39,9 @@
 
 struct LoadProjectTask : public Task
 {
-  BpaRenderAreaListener* listener;
+  //BpaRenderAreaListener* listener;
 
   std::string projectFile;
-
   std::shared_ptr<Project> project;
 
   void run() override
@@ -52,17 +51,11 @@ struct LoadProjectTask : public Task
       BOOST_LOG_TRIVIAL(trace) << "Loading project " << projectFile;
       project = Project::load(projectFile);
     }
-    catch(std::runtime_error& e)
+    catch(std::runtime_error&)
     {
       BOOST_LOG_TRIVIAL(trace) << "Error loading project";
       error = true;
     }
-  }
-
-  void postRun() override
-  {
-    BOOST_LOG_TRIVIAL(trace) << "Setting project";
-    listener->onProjectLoaded(project);
   }
 };
 
@@ -93,10 +86,9 @@ void BpaRenderAreaListener::createSceneGraph()
 {
   assert(m_project);
 
-  m_sceneGraphManager = std::make_shared<SceneGraphManager>();
+  m_sceneGraphManager = std::make_shared<SceneGraphManager>(m_scheduler);
   m_sceneGraphManager->setup(m_project);
 
-  //m_examiner = new SceneExaminer;
   m_examiner->setSceneGraphManager(m_sceneGraphManager);
   m_examiner->setFenceAddedCallback(std::bind(&BpaRenderAreaListener::onFenceAdded, this, std::placeholders::_1));
 
@@ -176,11 +168,8 @@ void BpaRenderAreaListener::setupProject(const std::string& id)
   m_projectdir = projectFile.parent_path().string();
 
   m_loadTask = std::make_shared<LoadProjectTask>();
-  m_loadTask->listener = this;
   m_loadTask->projectFile = projectFile.string();
   m_scheduler.put(m_loadTask);
-  //m_loadTask->run();
-  //m_loadTask->postRun();
 }
 
 void BpaRenderAreaListener::onFenceAdded(int fenceId)
@@ -292,4 +281,10 @@ void BpaRenderAreaListener::onRequestedSize(RenderArea* renderArea, Connection* 
 {
   if(m_logEvents)
     BOOST_LOG_TRIVIAL(trace) << "requested resize render area " << renderArea->getId() << " to " << width << " x " << height << " (DENIED)";
+}
+
+void BpaRenderAreaListener::onTaskCompleted(Task& task)
+{
+  BOOST_LOG_TRIVIAL(trace) << "task completed";
+  onProjectLoaded(static_cast<LoadProjectTask&>(task).project);
 }

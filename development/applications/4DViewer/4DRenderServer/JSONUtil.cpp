@@ -157,9 +157,9 @@ jsonxx::Object toJSON(const SceneGraphManager::PickResult& pickResult)
     << "positionX" << pickResult.position[0]
     << "positionY" << pickResult.position[1]
     << "positionZ" << pickResult.position[2]
-    << "i" << pickResult.i
-    << "j" << pickResult.j
-    << "k" << pickResult.k
+    << "i" << pickResult.cellIndex[0]
+    << "j" << pickResult.cellIndex[1]
+    << "k" << pickResult.cellIndex[2]
     << "name" << pickResult.name
     << "propertyValue" << pickResult.propertyValue
     << "trapID" << pickResult.trapID

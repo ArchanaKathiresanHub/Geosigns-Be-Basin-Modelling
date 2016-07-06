@@ -12,8 +12,8 @@
 
 class SceneGraphManager;
 class SeismicScene;
-class Scheduler;
-class LoadProjectTask;
+
+struct LoadProjectTask;
 
 namespace jsonxx { class Object; }
 
@@ -21,6 +21,7 @@ namespace jsonxx { class Object; }
 #include "SceneExaminer.h"
 
 #include <Project.h>
+#include <Scheduler.h>
 
 #ifdef USE_H264
 #include <RenderAreaListener.h>
@@ -32,7 +33,9 @@ namespace jsonxx { class Object; }
 
 using namespace RemoteViz::Rendering;
 
-class BpaRenderAreaListener : public RenderAreaListener
+class BpaRenderAreaListener 
+  : public RenderAreaListener
+  , public TaskSource
 {
   Scheduler& m_scheduler;
 
@@ -81,6 +84,8 @@ public:
   void onReceivedMessage(RenderArea* renderArea, Connection* sender, const std::string& message) override;
 
   void onRequestedSize(RenderArea* renderArea, Connection* sender, unsigned int width, unsigned int height) override;
+
+  void onTaskCompleted(Task& task) override;
 };
 
 #endif
