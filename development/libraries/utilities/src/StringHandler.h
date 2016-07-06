@@ -28,7 +28,7 @@ public:
    /// @param theString The command to be parsed
    /// @param theDelimiter The command option delimiter
    /// @return theTokens The command's options parsed from the command line
-   static void StringHandler::parseLine( const std::string& theString, const std::string& theDelimiter, std::vector<std::string>& theTokens );
+   static void parseLine( const std::string& theString, const std::string& theDelimiter, std::vector<std::string>& theTokens );
 
 private:
 
