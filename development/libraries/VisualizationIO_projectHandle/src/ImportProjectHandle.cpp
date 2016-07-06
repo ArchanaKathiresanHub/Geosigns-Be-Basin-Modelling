@@ -184,8 +184,12 @@ std::shared_ptr<CauldronIO::SnapShot> ImportProjectHandle::createSnapShotIO(std:
             cout << " - Adding discontinuous volume data formation " << formationIO->getName() << " with " 
                  << volume->getPropertyVolumeDataList().size() << " properties" << endl;
 
-        CauldronIO::FormationVolume formVolume(formationIO, volume);
-        snapShotIO->addFormationVolume(formVolume);
+        // Only add if there is actual data
+        if (volume->getPropertyVolumeDataList().size() > 0)
+        {
+            CauldronIO::FormationVolume formVolume(formationIO, volume);
+            snapShotIO->addFormationVolume(formVolume);
+        }
     }
         
     // Find trappers
@@ -206,6 +210,8 @@ std::shared_ptr<CauldronIO::SnapShot> ImportProjectHandle::createSnapShotIO(std:
         double depth = trapper->getDepth();
         double pointX, pointY;
         trapper->getPosition(pointX, pointY);
+        double GOC = trapper->getGOC();
+        double OWC = trapper->getOWC();
 
         const Reservoir* reservoir = trapper->getReservoir();
         assert(reservoir);
@@ -218,6 +224,8 @@ std::shared_ptr<CauldronIO::SnapShot> ImportProjectHandle::createSnapShotIO(std:
         trapperIO->setDepth((float)depth);
         trapperIO->setPosition((float)pointX, (float)pointY);
         trapperIO->setDownStreamTrapperID(downstreamTrapperID);
+        trapperIO->setOWC(OWC);
+        trapperIO->setGOC(GOC);
 
         snapShotIO->addTrapper(trapperIO);
     }

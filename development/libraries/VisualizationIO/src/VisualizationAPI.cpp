@@ -1062,6 +1062,27 @@ int CauldronIO::Trapper::getDownStreamTrapperID() const
     return m_downstreamTrapperID;
 }
 
+
+void CauldronIO::Trapper::setGOC(float goc)
+{
+    m_goc = goc;
+}
+
+float CauldronIO::Trapper::getGOC() const
+{
+    return m_goc;
+}
+
+void CauldronIO::Trapper::setOWC(float woc)
+{
+    m_owc = woc;
+}
+
+float CauldronIO::Trapper::getOWC() const
+{
+    return m_owc;
+}
+
 //////////////////////////////////////////////////////////////////////////
 /// Reservoir implementation
 //////////////////////////////////////////////////////////////////////////

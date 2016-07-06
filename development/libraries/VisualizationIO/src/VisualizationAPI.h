@@ -246,11 +246,20 @@ namespace CauldronIO
         void setDownStreamTrapperID(int persistentID);
         /// \returns the downstream trapper ID; temporary state - do not use
         int getDownStreamTrapperID() const;
+        /// \brief set the gas-oil contact depth
+        void setGOC(float goc);
+        /// \returns the gas-oil contact depth
+        float getGOC() const;
+        /// \brief sets the oil-water contact depth
+        void setOWC(float goc);
+        /// \returns the oil-water contact depth
+        float getOWC() const;
 
     private:
         int m_ID, m_persistentID, m_downstreamTrapperID;
         float m_depth, m_positionX, m_positionY;
         float m_spillDepth, m_spillPositionX, m_spillPositionY;
+        float m_goc, m_owc;
         std::shared_ptr<const Trapper> m_downstreamTrapper;
         std::string m_reservoir;
     };

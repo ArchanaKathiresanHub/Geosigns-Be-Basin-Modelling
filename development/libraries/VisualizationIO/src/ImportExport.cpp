@@ -376,6 +376,9 @@ void CauldronIO::ImportExport::addSnapShot(const std::shared_ptr<SnapShot>& snap
             trapperNode.append_attribute("spillPosX") = x;
             trapperNode.append_attribute("spillPosY") = y;
 
+            trapperNode.append_attribute("goc") = trapper->getGOC();
+            trapperNode.append_attribute("owc") = trapper->getOWC();
+
             int downstreamTrapperID = trapper->getDownStreamTrapperID();
             trapperNode.append_attribute("downstreamtrapper") = downstreamTrapperID;
             maxPersistentTrapperID = std::max(maxPersistentTrapperID, trapper->getPersistentID());
@@ -832,6 +835,8 @@ std::shared_ptr<Project> CauldronIO::ImportExport::getProject(const pugi::xml_do
                 float y      = trapperNode.attribute("posY").as_float();
                 float spillX = trapperNode.attribute("spillPosX").as_float();
                 float spillY = trapperNode.attribute("spillPosY").as_float();
+                float goc    = trapperNode.attribute("goc").as_float();
+                float owc    = trapperNode.attribute("owc").as_float();
 
                 std::shared_ptr<Trapper> trapperIO(new Trapper(ID, persistentID));
                 trapperIO->setDownStreamTrapperID(downstreamTrapperID);
@@ -840,6 +845,8 @@ std::shared_ptr<Project> CauldronIO::ImportExport::getProject(const pugi::xml_do
                 trapperIO->setSpillPointPosition(spillX, spillY);
                 trapperIO->setDepth(depth);
                 trapperIO->setPosition(x, y);
+                trapperIO->setOWC(owc);
+                trapperIO->setGOC(goc);
 
                 snapShot->addTrapper(trapperIO);
 
