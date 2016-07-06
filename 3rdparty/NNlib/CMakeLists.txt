@@ -1,6 +1,6 @@
 #########################################################################
 #                                                                       #
-# Copyright (C) 2012-2014 Shell International Exploration & Production. #
+# Copyright (C) 2012-2016 Shell International Exploration & Production. #
 # All rights reserved.                                                  #
 #                                                                       #
 # Developed under license for Shell by PDS BV.                          #
@@ -23,6 +23,10 @@ add_library( NNlib
    ${all_srcs}
    ${all_headers}
 )
+
+if (UNIX)
+add_dependencies(NNlib Boost)
+endif (UNIX)
 
 install(TARGETS NNlib
    RUNTIME DESTINATION bin
