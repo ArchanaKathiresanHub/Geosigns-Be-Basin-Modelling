@@ -7,6 +7,7 @@
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
+
 #include "CompoundLithology.h"
 
 #include <assert.h>
@@ -32,19 +33,17 @@ using namespace capillarySealStrength;
 
 typedef formattingexception::GeneralException fastCauldronException;
 
-//#define NOPRESSURE 1
 
 GeoPhysics::CompoundLithology::CompoundLithology(GeoPhysics::ProjectHandle* projectHandle) : m_projectHandle(projectHandle)
 , m_porosity()
 {
 
-   m_mixmodeltype = HOMOGENEOUS;
+   m_mixmodeltype              = HOMOGENEOUS;
    m_lithologyFractureGradient = 1.0;
-   m_isFaultLithology = false;
-   m_isBasementLithology = false;
+   m_isFaultLithology          = false;
+   m_isBasementLithology       = false;
 }
 //------------------------------------------------------------//
-
 
 GeoPhysics::CompoundLithology::~CompoundLithology() {
    m_lithoComponents.clear();
@@ -78,51 +77,58 @@ GeoPhysics::CompoundLithologyComposition GeoPhysics::CompoundLithology::getCompo
    std::string simpleName2;
    std::string simpleName3;
    std::string mixingModel;
+   float     layeringIndex;
 
    if (m_mixmodeltype == HOMOGENEOUS) {
       mixingModel = "Homogeneous";
+      layeringIndex = -9999;
    }
    else if (m_mixmodeltype == LAYERED) {
       mixingModel = "Layered";
+      layeringIndex = m_layeringIndex;
    }
    else {
       mixingModel = "Undefined";
    }
 
-   if (m_lithoComponents.size() == 1) {
-      fraction1 = m_componentPercentage[0];
-      fraction2 = 0.0;
-      fraction3 = 0.0;
+   switch (m_lithoComponents.size()){
+   case 1:
+      fraction1   = m_componentPercentage[0];
+      fraction2   = 0.0;
+      fraction3   = 0.0;
       simpleName1 = m_lithoComponents[0]->getName();
       simpleName2 = "";
       simpleName3 = "";
-   }
-   else if (m_lithoComponents.size() == 2) {
-      fraction1 = m_componentPercentage[0];
-      fraction2 = m_componentPercentage[1];
-      fraction3 = 0.0;
+      break;
+
+   case 2:
+      fraction1   = m_componentPercentage[0];
+      fraction2   = m_componentPercentage[1];
+      fraction3   = 0.0;
       simpleName1 = m_lithoComponents[0]->getName();
       simpleName2 = m_lithoComponents[1]->getName();
       simpleName3 = "";
-   }
-   else if (m_lithoComponents.size() == 3) {
-      fraction1 = m_componentPercentage[0];
-      fraction2 = m_componentPercentage[1];
-      fraction3 = m_componentPercentage[2];
+      break;
+
+   case 3:
+      fraction1   = m_componentPercentage[0];
+      fraction2   = m_componentPercentage[1];
+      fraction3   = m_componentPercentage[2];
       simpleName1 = m_lithoComponents[0]->getName();
       simpleName2 = m_lithoComponents[1]->getName();
       simpleName3 = m_lithoComponents[2]->getName();
-   }
-   else {
-      fraction1 = 0.0;
-      fraction2 = 0.0;
-      fraction3 = 0.0;
+      break;
+
+   default:
+      fraction1   = 0.0;
+      fraction2   = 0.0;
+      fraction3   = 0.0;
       simpleName1 = "";
       simpleName2 = "";
       simpleName3 = "";
+      break;
    }
-
-   return CompoundLithologyComposition(simpleName1, simpleName2, simpleName3, fraction1, fraction2, fraction3, mixingModel);
+   return CompoundLithologyComposition(simpleName1, simpleName2, simpleName3, fraction1, fraction2, fraction3, mixingModel, layeringIndex);
 }
 //------------------------------------------------------------//
 
@@ -164,7 +170,7 @@ void GeoPhysics::CompoundLithology::setMinimumPorosity(DataAccess::Interface::Po
    }
    else {
       setMinimumExponentialPorosity();
-      
+
    }
 
 }
@@ -211,7 +217,7 @@ void GeoPhysics::CompoundLithology::setMinimumSoilMechanicsPorosity(double  surf
 //------------------------------------------------------------//
 
 void GeoPhysics::CompoundLithology::createThCondTbl() {
-
+   //Note:  mixing type is not considered (homogeneous, layered)
 
    compContainer::iterator componentIter = m_lithoComponents.begin();
    percentContainer::iterator percentIter = m_componentPercentage.begin();
@@ -237,16 +243,10 @@ void GeoPhysics::CompoundLithology::createThCondTbl() {
 
    while (thermCondTbl1.end() != XYIter) {
 
-      if (m_mixmodeltype == HOMOGENEOUS) {
-         ThermalCondN = ThermalCondP = 1.0;
-         ThermalCondN *= pow((*XYIter).getF(), (*percentIter)*0.01);
-         ThermalCondP *= pow((*XYIter).getF()*anisotropy, (*percentIter)*0.01);
-      }
-      else if (m_mixmodeltype == LAYERED) {
-         ThermalCondN = ThermalCondP = 0.0;
-         ThermalCondN += (*percentIter)*0.01 / (*XYIter).getF();
-         ThermalCondP += (*percentIter)*0.01 * (*XYIter).getF() * anisotropy;
-      }
+      //geometric mean
+      ThermalCondN = ThermalCondP = 1.0;
+      ThermalCondN *= pow((*XYIter).getF(), (*percentIter)*0.01);
+      ThermalCondP *= pow((*XYIter).getF()*anisotropy, (*percentIter)*0.01);
 
       ibs::XF xyPoint((*XYIter).getX(), ThermalCondN);
       mixThermCondNTbl.push_back(xyPoint);
@@ -259,7 +259,6 @@ void GeoPhysics::CompoundLithology::createThCondTbl() {
    ++percentIter;
 
    while (m_lithoComponents.end() != componentIter) {
-      //The following line should be uncommented in FastCauldron Release - OFM
       anisotropy = (*componentIter)->getThCondAn();
 
       vector<ibs::XF>& thermCondTbl2 = (*componentIter)->getThermCondTbl();
@@ -273,14 +272,9 @@ void GeoPhysics::CompoundLithology::createThCondTbl() {
          ThermalCondN = (*mixXYnIter).getF();
          ThermalCondP = (*mixXYpIter).getF();
 
-         if (m_mixmodeltype == HOMOGENEOUS) {
-            ThermalCondN *= pow((*XYIter).getF(), (*percentIter)*0.01);
-            ThermalCondP *= pow((*XYIter).getF()*anisotropy, (*percentIter)*0.01);
-         }
-         else if (m_mixmodeltype == LAYERED) {
-            ThermalCondN += (*percentIter)*0.01 / (*XYIter).getF();
-            ThermalCondP += (*percentIter)*0.01 * (*XYIter).getF() * anisotropy;
-         }
+         ThermalCondN *= pow((*XYIter).getF(), (*percentIter)*0.01);
+         ThermalCondP *= pow((*XYIter).getF()*anisotropy, (*percentIter)*0.01);
+
          (*mixXYnIter).setF(ThermalCondN);
          (*mixXYpIter).setF(ThermalCondP);
          ++XYIter;
@@ -297,12 +291,7 @@ void GeoPhysics::CompoundLithology::createThCondTbl() {
    for (mixXYnIter = mixThermCondNTbl.begin(); mixXYnIter != mixThermCondNTbl.end();
       mixXYnIter++) {
       if (++Counter > Array_Size) continue;
-      if (m_mixmodeltype == LAYERED && (*mixXYnIter).getF() != 0.0) {
-         addThermCondPointN((*mixXYnIter).getX(), 1 / (*mixXYnIter).getF());
-      }
-      else {
-         addThermCondPointN((*mixXYnIter).getX(), (*mixXYnIter).getF());
-      }
+      addThermCondPointN((*mixXYnIter).getX(), (*mixXYnIter).getF());
    }
 
    Counter = 0;
@@ -511,17 +500,17 @@ bool  GeoPhysics::CompoundLithology::reCalcProperties(){
       return false;
    }
 
-   m_density                        = 0.0;
-   m_seismicVelocitySolid           = 0.0;
-   m_nExponentVelocity              = 0.0;
-   m_depositionalPermeability       = 0.0;
-   m_heatProduction                 = 0.0;
-   m_permeabilityincr               = 0.0;
-   m_permeabilitydecr               = 0.0;
-   m_thermalConductivityAnisotropy  = 1.0;
-   m_thermalConductivityValue       = 0.0;
-   m_specificSurfaceArea            = 1.0;
-   m_geometricVariance              = 1.0;
+   m_density                       = 0.0;
+   m_seismicVelocitySolid          = 0.0;
+   m_nExponentVelocity             = 0.0;
+   m_depositionalPermeability      = 0.0;
+   m_heatProduction                = 0.0;
+   m_permeabilityincr              = 0.0;
+   m_permeabilitydecr              = 0.0;
+   m_thermalConductivityAnisotropy = 1.0;
+   m_thermalConductivityValue      = 0.0;
+   m_specificSurfaceArea           = 1.0;
+   m_geometricVariance             = 1.0;
 
    // loop through all the simple lithologies and calculate the
    // properties for this lithology
@@ -539,27 +528,27 @@ bool  GeoPhysics::CompoundLithology::reCalcProperties(){
 
    //1. Sill intrusion - temperature of intrusion
    // defined only if an igneous intrusion lithology is used and if there is only one component
-   if ( (double)(*percentIter) == 100 )
+   if ( (double) (*percentIter) == 100 )
    {
-      m_igneousIntrusionTemperature =(*componentIter)->getIgneousIntrusionTemperature();
+      m_igneousIntrusionTemperature = (*componentIter)->getIgneousIntrusionTemperature ();
    }
 
    while (m_lithoComponents.end() != componentIter) {
       double pcMult = (double)(*percentIter) / 100;
 
       //2. Matrix Property calculated using the arithmetic mean
-      m_density                     += (*componentIter)->getDensity()  * pcMult;
-      m_seismicVelocitySolid        += (*componentIter)->getSeismicVelocity() * pcMult;
-      m_nExponentVelocity           += (*componentIter)->getSeismicVelocityExponent( ) * pcMult;
-      m_depositionalPermeability    += (*componentIter)->getDepoPerm() * pcMult;
-      m_thermalConductivityValue    += (*componentIter)->getThCondVal() * pcMult;
-      m_heatProduction              += (*componentIter)->getHeatProduction() * pcMult;
-      m_referenceSolidViscosity     += (*componentIter)->getReferenceSolidViscosity() * pcMult;
-      m_lithologyActivationEnergy   += (*componentIter)->getLithologyActivationEnergy() * pcMult;
-      minimumMechanicalPorosity     += (*componentIter)->getMinimumMechanicalPorosity() / 100.0 * pcMult;
-      m_lithologyFractureGradient   += (*componentIter)->getLithologyFractureGradient() * pcMult;
-      m_quartzFraction              += (*componentIter)->getQuartzFraction() * pcMult;
-      m_coatingClayFactor           += (*componentIter)->getClayCoatingFactor() * pcMult;
+      m_density                   += (*componentIter)->getDensity()  * pcMult;
+      m_seismicVelocitySolid      += (*componentIter)->getSeismicVelocity() * pcMult;
+      m_nExponentVelocity         += (*componentIter)->getSeismicVelocityExponent() * pcMult;
+      m_depositionalPermeability  += (*componentIter)->getDepoPerm() * pcMult;
+      m_thermalConductivityValue  += (*componentIter)->getThCondVal() * pcMult;
+      m_heatProduction            += (*componentIter)->getHeatProduction() * pcMult;
+      m_referenceSolidViscosity   += (*componentIter)->getReferenceSolidViscosity() * pcMult;
+      m_lithologyActivationEnergy += (*componentIter)->getLithologyActivationEnergy() * pcMult;
+      minimumMechanicalPorosity   += (*componentIter)->getMinimumMechanicalPorosity() / 100.0 * pcMult;
+      m_lithologyFractureGradient += (*componentIter)->getLithologyFractureGradient() * pcMult;
+      m_quartzFraction            += (*componentIter)->getQuartzFraction() * pcMult;
+      m_coatingClayFactor         += (*componentIter)->getClayCoatingFactor() * pcMult;
 
       //3. Matrix Property calculated using the geometric mean
       m_thermalConductivityAnisotropy *= pow((*componentIter)->getThCondAn(), pcMult);
@@ -568,7 +557,7 @@ bool  GeoPhysics::CompoundLithology::reCalcProperties(){
       m_geometricVariance *= pow((*componentIter)->getGeometricVariance(), pcMult);
 
       //4. Matrix Property calculated using the algebraic mean
-      m_quartzGrainSize += pcMult * pow((*componentIter)->getQuartzGrainSize(), 3.0); 
+      m_quartzGrainSize += pcMult * pow((*componentIter)->getQuartzGrainSize(), 3.0);
 
       ++componentIter;
       ++percentIter;
@@ -591,18 +580,18 @@ bool  GeoPhysics::CompoundLithology::reCalcProperties(){
    mixPorosityModel(porosityModel);
    mixSurfacePorosity(porosityModel, surfacePorosity, surfaceVoidRatio);
    mixCompactionCoefficients(compactionincr, compactionincrA, compactionincrB, compactiondecr, compactiondecrA, compactiondecrB, soilMechanicsCompactionCoefficient);
-    
+
    //Create porosity object
    m_porosity = Porosity::create(porosityModel,
-   surfacePorosity,
-   minimumMechanicalPorosity,
-   compactionincr,
-   compactionincrA,
-   compactionincrB,
-   compactiondecr,
-   compactiondecrA,
-   compactiondecrB,
-   soilMechanicsCompactionCoefficient);
+      surfacePorosity,
+      minimumMechanicalPorosity,
+      compactionincr,
+      compactionincrA,
+      compactionincrB,
+      compactiondecr,
+      compactiondecrA,
+      compactiondecrB,
+      soilMechanicsCompactionCoefficient);
 
    reSetBehaviorForHysteresis();
    mixCapillaryEntryPressureCofficients();
@@ -620,20 +609,27 @@ bool  GeoPhysics::CompoundLithology::reCalcProperties(){
       m_fracturedPermeabilityScalingValue = 10.0; // What to set this to?  10, 50 or whatever.
    }
 
+   setPermAnisotropy();
+
+   if (m_mixmodeltype == LAYERED && m_componentPercentage.size() >= 2){
+      // Compute values that will be used to compute permeability mixing
+      reSetValuesForPermMixing();
+   }
+
    //7. Seismic velocity
    DataAccess::Interface::SeismicVelocityModel seismicVelocityModel = m_projectHandle->getRunParameters()->getSeismicVelocityAlgorithm();
    double mixedModulusSolid = this->mixModulusSolid();
-   m_seismicVelocity = SeismicVelocity::create( seismicVelocityModel,
-	   m_seismicVelocitySolid,
-	   mixedModulusSolid,
-	   m_density,
-	   surfacePorosity,
-	   m_nExponentVelocity);
+   m_seismicVelocity = SeismicVelocity::create(seismicVelocityModel,
+      m_seismicVelocitySolid,
+      mixedModulusSolid,
+      m_density,
+      surfacePorosity,
+      m_nExponentVelocity);
 
    const string lithoname = m_lithoComponents[0]->getName();
    m_isBasementLithology = false;
 
-   if (( m_lithoComponents.size() == 1) && (lithoname == "Crust" || lithoname == "Litho. Mantle" || lithoname == DataAccess::Interface::ALCBasalt)) {
+   if ((m_lithoComponents.size() == 1) && (lithoname == "Crust" || lithoname == "Litho. Mantle" || lithoname == DataAccess::Interface::ALCBasalt)) {
       m_isBasementLithology = true;
    }
 
@@ -642,6 +638,20 @@ bool  GeoPhysics::CompoundLithology::reCalcProperties(){
 
 //------------------------------------------------------------//
 
+void GeoPhysics::CompoundLithology::reSetValuesForPermMixing()
+{
+   m_percentRatio2 = m_componentPercentage[1] / m_componentPercentage[0];
+   m_percentPowerPlane = std::pow(m_componentPercentage[0] * 0.01, 1 / m_mixHorizonExp);
+   m_percentPowerNormal = std::pow(m_componentPercentage[0] * 0.01, 1 / m_mixVerticalExp);
+   m_anisoRatioExp2 = std::pow((m_componentAnisotropy[1] / m_componentAnisotropy[0]), m_mixHorizonExp);
+
+   if (m_componentPercentage.size() >= 3){
+      m_percentRatio3 = m_componentPercentage[2] / m_componentPercentage[0];
+      m_anisoRatioExp3 = std::pow((m_componentAnisotropy[2] / m_componentAnisotropy[0]), m_mixHorizonExp);
+   }
+}
+
+//------------------------------------------------------------//
 
 void GeoPhysics::CompoundLithology::mixSurfacePorosity(DataAccess::Interface::PorosityModel porosityModel, double & surfacePorosity, double & surfaceVoidRatio) {
 
@@ -666,7 +676,7 @@ void GeoPhysics::CompoundLithology::mixSurfacePorosity(DataAccess::Interface::Po
       surfacePorosity = Mixed_Void_Ratio / (1.0 + Mixed_Void_Ratio);
    }
    else {
-      surfacePorosity = 0.0 ;
+      surfacePorosity = 0.0;
 
       /* Dominant lithotype defines Porosity Model and Compaction Coefficient value */
       while (m_lithoComponents.end() != componentIter) {
@@ -687,45 +697,45 @@ void GeoPhysics::CompoundLithology::mixSurfacePorosity(DataAccess::Interface::Po
 
 
 void GeoPhysics::CompoundLithology::mixCompactionCoefficients(
-		double& compactionincr,
-		double& compactionincrA,
-		double& compactionincrB,
-		double& compactiondecr,
-		double& compactiondecrA,
-		double& compactiondecrB,
-		double& soilMechanicsCompactionCoefficient) {
+   double& compactionincr,
+   double& compactionincrA,
+   double& compactionincrB,
+   double& compactiondecr,
+   double& compactiondecrA,
+   double& compactiondecrB,
+   double& soilMechanicsCompactionCoefficient) {
    compContainer::iterator componentIter = m_lithoComponents.begin();
    percentContainer::iterator percentIter = m_componentPercentage.begin();
 
    soilMechanicsCompactionCoefficient = 0.0;
-   compactionincr  = 0.0;
-   compactionincrA = 0.0;
-   compactionincrB = 0.0;
-   compactiondecr  = 0.0;
-   compactiondecrA = 0.0;
-   compactiondecrB = 0.0;
+   compactionincr                     = 0.0;
+   compactionincrA                    = 0.0;
+   compactionincrB                    = 0.0;
+   compactiondecr                     = 0.0;
+   compactiondecrA                    = 0.0;
+   compactiondecrB                    = 0.0;
 
    double Fraction;
 
    while (m_lithoComponents.end() != componentIter) {
-      
+
       Fraction = 0.01 * (*percentIter);
- 
+
       soilMechanicsCompactionCoefficient = soilMechanicsCompactionCoefficient + (*componentIter)->getCompCoeff() * Fraction;
-      compactionincr = compactionincr + (*componentIter)->getCompCoeff() * Fraction;
+      compactionincr  = compactionincr + (*componentIter)->getCompCoeff() * Fraction;
       compactionincrA = compactionincrA + (*componentIter)->getCompCoeffA() * Fraction;
       compactionincrB = compactionincrB + (*componentIter)->getCompCoeffB() * Fraction;
-       
-      compactiondecr = compactiondecr + 0.1 * (*componentIter)->getCompCoeff() * Fraction;
+
+      compactiondecr  = compactiondecr + 0.1 * (*componentIter)->getCompCoeff() * Fraction;
       compactiondecrA = compactiondecrA + 0.1 * (*componentIter)->getCompCoeffA() * Fraction;
       compactiondecrB = compactiondecrB + 0.1 * (*componentIter)->getCompCoeffB() * Fraction;
-      
+
       ++componentIter;
       ++percentIter;
    }
 }
-//------------------------------------------------------------//
 
+//------------------------------------------------------------//
 
 void   GeoPhysics::CompoundLithology::mixPorosityModel(DataAccess::Interface::PorosityModel & porosityModel) {
 
@@ -751,8 +761,8 @@ void   GeoPhysics::CompoundLithology::mixPorosityModel(DataAccess::Interface::Po
    }
 
 }
-//------------------------------------------------------------// 
 
+//------------------------------------------------------------// 
 
 void GeoPhysics::CompoundLithology::reSetBehaviorForHysteresis() {
 
@@ -795,44 +805,9 @@ void GeoPhysics::CompoundLithology::reSetBehaviorForHysteresis() {
       ++componentIter;
       ++percentIter;
    }
-
-   if (m_mixmodeltype == HOMOGENEOUS) {
-      if (!NoPerm)
-      {
-         if (SandVolFrac > 50.0)
-         {
-            m_hysteresisbehaviour = SAND_BEHAVIOR;
-         }
-         else
-         {
-            m_hysteresisbehaviour = SHALE_BEHAVIOR;
-         }
-      }
-      else
-      {
-         m_hysteresisbehaviour = NO_PERM_BEHAVIOR;
-      }
-   }
-   else if (m_mixmodeltype == LAYERED) {
-      if (!NoPerm)
-      {
-         if (ShaleVolFrac > 0.0)
-         {
-            m_hysteresisbehaviour = SHALE_BEHAVIOR;
-         }
-         else
-         {
-            m_hysteresisbehaviour = SAND_BEHAVIOR;
-         }
-      }
-      else
-      {
-         m_hysteresisbehaviour = NO_PERM_BEHAVIOR;
-      }
-   }
 }
-//------------------------------------------------------------//
 
+//------------------------------------------------------------//
 
 void GeoPhysics::CompoundLithology::getSurfacePorosity(CompoundProperty& porosity) const {
 
@@ -850,19 +825,48 @@ void GeoPhysics::CompoundLithology::getSurfacePorosity(CompoundProperty& porosit
 
 //------------------------------------------------------------//
 
-void GeoPhysics::CompoundLithology::setMixModel(const std::string& mixmodel) {
+void GeoPhysics::CompoundLithology::setMixModel(const std::string& mixmodel, float layeringIndex) {
 
    if (mixmodel == "Homogeneous") {
       m_mixmodeltype = HOMOGENEOUS;
    }
    else if (mixmodel == "Layered") {
       m_mixmodeltype = LAYERED;
+
+      m_layeringIndex = layeringIndex;
+      assert(("Layering Index must be between 0 and 1 included for the Layered mixing", layeringIndex >= 0.0 && layeringIndex <= 1.0));
+      //Equations from [Jennings, 2014]
+      m_mixHorizonExp = (1 + 2 * layeringIndex) / 3;
+      m_mixVerticalExp = (1 - 4 * layeringIndex) / 3;
+
    }
    else {
       m_mixmodeltype = UNDEFINED;
-      std::cout << "mixmodel not defined: " << mixmodel << std::endl;
+      throw fastCauldronException() << "MixModel not defined";
+   }
+}
+
+//------------------------------------------------------------//
+
+void GeoPhysics::CompoundLithology::setPermAnisotropy(){
+
+   int componentIndex = 0;
+   compContainer::const_iterator componentIter = m_lithoComponents.begin();
+
+   while (m_lithoComponents.end() != componentIter) {
+      m_componentAnisotropy.push_back((*componentIter)->getPermAniso());
+
+      ++componentIndex;
+      ++componentIter;
    }
 
+}
+
+void  GeoPhysics::CompoundLithology::setPermAnisotropy(double aniso1, double aniso2, double aniso3){
+   m_componentAnisotropy.clear();
+   m_componentAnisotropy.push_back(aniso1);
+   m_componentAnisotropy.push_back(aniso2);
+   m_componentAnisotropy.push_back(aniso3);
 }
 
 //------------------------------------------------------------//
@@ -932,21 +936,22 @@ void GeoPhysics::CompoundLithology::calcBulkDensXHeatCapacity(const FluidType* f
 
 //------------------------------------------------------------//
 
-double GeoPhysics::CompoundLithology::computeDensity ( const double temperature,
-                                                       const double lithoPressure ) const {
-   return ( not isBasement () ? m_density : m_lithoComponents[0]->getDensity(temperature, lithoPressure));
+double GeoPhysics::CompoundLithology::computeDensity(const double temperature,
+                                                     const double lithoPressure) const {
+   return (not isBasement() ? m_density : m_lithoComponents[0]->getDensity(temperature, lithoPressure));
 }
 
 //------------------------------------------------------------//
 
-void GeoPhysics::CompoundLithology::calcBulkDensity ( const FluidType* fluid,
-                                                      const double     porosity,
-                                                            double&    bulkDensity ) const {
+void GeoPhysics::CompoundLithology::calcBulkDensity(const FluidType* fluid,
+                                                    const double     porosity,
+                                                    double&    bulkDensity) const {
 
    if (fluid != 0) {
       double FluidDensity = fluid->getConstantDensity();
       bulkDensity = m_density * (1.0 - porosity) + FluidDensity * porosity;
-   } else {
+   }
+   else {
       bulkDensity = m_density;
    }
 
@@ -954,16 +959,17 @@ void GeoPhysics::CompoundLithology::calcBulkDensity ( const FluidType* fluid,
 
 //------------------------------------------------------------//
 
-void GeoPhysics::CompoundLithology::calcBulkDensity ( const FluidType* fluid,
-                                                      const double     porosity,
-                                                      const double     porePressure,
-                                                      const double     temperature,
-                                                            double&    bulkDensity ) const {
+void GeoPhysics::CompoundLithology::calcBulkDensity(const FluidType* fluid,
+                                                    const double     porosity,
+                                                    const double     porePressure,
+                                                    const double     temperature,
+                                                    double&    bulkDensity) const {
 
-   if ( fluid != 0 ) {
+   if (fluid != 0) {
       double FluidDensity = fluid->density(temperature, porePressure);
-      bulkDensity = ( m_density * (1.0 - porosity)) + (FluidDensity * porosity);
-   } else {
+      bulkDensity = (m_density * (1.0 - porosity)) + (FluidDensity * porosity);
+   }
+   else {
       bulkDensity = m_density;
    }
 
@@ -972,19 +978,20 @@ void GeoPhysics::CompoundLithology::calcBulkDensity ( const FluidType* fluid,
 //------------------------------------------------------------//
 
 // use this function in calculation of BulkDensity output property
-void GeoPhysics::CompoundLithology::calcBulkDensity ( const FluidType* fluid,
-                                                      const double     porosity,
-                                                      const double     porePressure,
-                                                      const double     temperature,
-                                                      const double     lithoPressure,
-                                                            double&    bulkDensity ) const {
-   
+void GeoPhysics::CompoundLithology::calcBulkDensity(const FluidType* fluid,
+                                                    const double     porosity,
+                                                    const double     porePressure,
+                                                    const double     temperature,
+                                                    const double     lithoPressure,
+                                                    double&    bulkDensity) const {
+
    double MatrixDensity = (!isBasement() ? m_density : m_lithoComponents[0]->getDensity(temperature, lithoPressure));
 
-   if ( fluid != 0 ) {
+   if (fluid != 0) {
       double FluidDensity = fluid->density(temperature, porePressure);
       bulkDensity = (MatrixDensity * (1.0 - porosity)) + (FluidDensity * porosity);
-   } else {
+   }
+   else {
       bulkDensity = MatrixDensity;
    }
 
@@ -993,11 +1000,11 @@ void GeoPhysics::CompoundLithology::calcBulkDensity ( const FluidType* fluid,
 //------------------------------------------------------------//
 
 void GeoPhysics::CompoundLithology::calcBulkThermCondNP(const FluidType* fluid,
-   const double     Porosity,
-   const double     Temperature,
-   const double     PorePressure,
-   double&    BulkTHCondN,
-   double&    BulkTHCondP) const {
+                                                        const double     Porosity,
+                                                        const double     Temperature,
+                                                        const double     PorePressure,
+                                                        double&    BulkTHCondN,
+                                                        double&    BulkTHCondP) const {
 
    double MatrixTHCondN = thermalconductivityN(Temperature);
    double MatrixTHCondP = thermalconductivityP(Temperature);
@@ -1014,22 +1021,19 @@ void GeoPhysics::CompoundLithology::calcBulkThermCondNP(const FluidType* fluid,
 }
 //------------------------------------------------------------// 
 
-
 void GeoPhysics::CompoundLithology::calcBulkHeatProd(const double Porosity, double &BulkHeatProd)  const {
 
    BulkHeatProd = (1.0 - Porosity) * m_heatProduction * MicroWattsToWatts;
 
 }
 
-
 //------------------------------------------------------------//
 
-
 void GeoPhysics::CompoundLithology::getPorosity(const double            ves,
-   const double            maxVes,
-   const bool              includeChemicalCompaction,
-   const double            chemicalCompactionTerm,
-   CompoundProperty& Porosity) const {
+                                                const double            maxVes,
+                                                const bool              includeChemicalCompaction,
+                                                const double            chemicalCompactionTerm,
+                                                CompoundProperty& Porosity) const {
 
    int lithologyIndex = 0;
    compContainer::const_iterator componentIter = m_lithoComponents.begin();
@@ -1053,174 +1057,157 @@ void GeoPhysics::CompoundLithology::getPorosity(const double            ves,
 
 //------------------------------------------------------------//
 
-void GeoPhysics::CompoundLithology::getPermeability(const double  ves,
-   const double  maxVes,
-   const bool    includeChemicalCompaction,
-   const double  chemicalCompactionValue,
-   double& permeabilityNormal,
-   double& permeabilityPlane) const {
+void GeoPhysics::CompoundLithology::calcBulkPermeabilityNP(
+   const double            ves,
+   const double            maxVes,
+   const CompoundProperty& porosity,
+   double&                 permeabilityNormal,
+   double&                 permeabilityPlane) const {
 
+   int numLitho = m_lithoComponents.size();
    int componentIndex = 0;
 
    compContainer::const_iterator componentIter = m_lithoComponents.begin();
    percentContainer::const_iterator percentIter = m_componentPercentage.begin();
 
-   if (m_mixmodeltype == HOMOGENEOUS or m_isFaultLithology) {
-      permeabilityNormal = 1.0;
-      permeabilityPlane = 1.0;
-   }
-   else if (m_mixmodeltype == LAYERED) {
-      permeabilityNormal = 0.0;
+   switch (numLitho)
+   {
+   case 1:
+      permeabilityNormal = (*componentIter)->permeability(ves, maxVes, NumericFunctions::Maximum(porosity(componentIndex), minimumCompoundPorosity(componentIndex)));
+      permeabilityPlane = permeabilityNormal * (*componentIter)->getPermAniso();
+      break;
 
-#if 1
-      permeabilityPlane = 0.0;
-#else
-      permeabilityPlane = 1.0;
-#endif
+   case 2:
+   case 3:
+      double permVal[3];
 
-   }
-   else {
-      permeabilityNormal = Interface::DefaultUndefinedMapValue;
-      permeabilityPlane = Interface::DefaultUndefinedMapValue;
-      return;
-   }
+      while (m_lithoComponents.end() != componentIter) {
+         permVal[componentIndex] = (*componentIter)->permeability(ves, maxVes, NumericFunctions::Maximum(porosity(componentIndex), minimumCompoundPorosity(componentIndex)));
 
-   double volumeFraction;
-   double permeabilityValue;
-   double permeabilityAnisotropy;
-   double porosity;
-
-   while (m_lithoComponents.end() != componentIter) {
-
-      const SimpleLithology* lithology = *componentIter;
-
-      volumeFraction = (double)(*percentIter)*0.01;
-      porosity = lithology->porosity(ves, maxVes, includeChemicalCompaction, chemicalCompactionValue);
-      porosity = NumericFunctions::Maximum(porosity, minimumCompoundPorosity(componentIndex));
-
-      permeabilityValue = lithology->permeability(ves, maxVes, porosity);
-      permeabilityAnisotropy = lithology->getPermAniso();
-
-      if (m_mixmodeltype == HOMOGENEOUS or m_isFaultLithology) {
-         permeabilityNormal *= std::pow(permeabilityValue, volumeFraction);
-         permeabilityPlane *= std::pow(permeabilityValue * permeabilityAnisotropy, volumeFraction);
-      }
-      else if (m_mixmodeltype == LAYERED) {
-
-#if 1
-         // Average vertical permeabilities using harmonic mean.
-         permeabilityNormal += volumeFraction / permeabilityValue;
-
-         // Average parallel permeabilities using arithmetic mean.
-         permeabilityPlane += volumeFraction * permeabilityAnisotropy * permeabilityValue;
-#else
-         // Average vertical permeabilities using harmonic mean.
-         permeabilityNormal += volumeFraction / permeabilityValue;
-
-         // Average parallel permeabilities using geometric mean.
-         permeabilityPlane *= std::pow(permeabilityValue * permeabilityAnisotropy, volumeFraction);
-#endif
-
+         ++componentIndex;
+         ++componentIter;
       }
 
-      ++componentIndex;
-      ++componentIter;
-      ++percentIter;
-   }
+      mixPermeability(permVal, permeabilityNormal, permeabilityPlane);
+      break;
 
-   if (not m_isFaultLithology and m_mixmodeltype == LAYERED) {
-      permeabilityNormal = 1.0 / permeabilityNormal;
+   default:
+      throw fastCauldronException() << "Wrong number of lithologies in CompoundLithology: should be between 1 and 3 ";
+      break;
    }
-
-#if 0
-   permeabilityNormal = NumericFunctions::Minimum(permeabilityNormal, 1000.0);
-   permeabilityPlane = NumericFunctions::Minimum(permeabilityPlane, 1000.0);
-#endif
 
    permeabilityNormal *= MILLIDARCYTOM2;
    permeabilityPlane *= MILLIDARCYTOM2;
-
 }
 
 //------------------------------------------------------------//
 
-void GeoPhysics::CompoundLithology::calcBulkPermeabilityNP(const double            ves,
-   const double            maxVes,
-   const CompoundProperty& porosity,
-   double&           permeabilityNormal,
-   double&           permeabilityPlane) const {
+void GeoPhysics::CompoundLithology::mixPermeability(
+   double*                 permVal,
+   double&                 permeabilityNormal,
+   double&                 permeabilityPlane) const
+{
 
-   int componentIndex = 0;
-
-   compContainer::const_iterator componentIter = m_lithoComponents.begin();
-   percentContainer::const_iterator percentIter = m_componentPercentage.begin();
+   int numLitho = m_lithoComponents.size();
 
    if (m_mixmodeltype == HOMOGENEOUS || m_isFaultLithology) {
+      // Homogeneous model is kept for backward compatibility only.
+      // Should not be modified
+
+      // Average both vertical and plane permeabilities using weighted geometric mean
+      permeabilityNormal = pow(permVal[0], m_componentPercentage[0] * 0.01);
+      permeabilityPlane = pow(permVal[0] * m_componentAnisotropy[0], m_componentPercentage[0] * 0.01);
+
+      permeabilityNormal *= pow(permVal[1], m_componentPercentage[1] * 0.01);
+      permeabilityPlane *= pow(permVal[1] * m_componentAnisotropy[1], m_componentPercentage[1] * 0.01);
+
+      if (numLitho == 3)
+      {
+         permeabilityNormal *= pow(permVal[2], m_componentPercentage[2] * 0.01);
+         permeabilityPlane *= pow(permVal[2] * m_componentAnisotropy[2], m_componentPercentage[2] * 0.01);
+      }
+   }
+
+   else if (m_mixmodeltype == LAYERED && m_layeringIndex != 0.25) {
+      // If layering index = 0.25, particular case because vertical exponent is 0
+      // Average both vertical and plane permeabilities using generalized weigthed mean with vertical and horizontal exponents
+      //
+      // K = ( 1/(sum( a_i ) ) * (sum (a_i K_i^p ))^(1/p)               if p!=0
+      //      where K is the permability (or permeability*anisotropy if horizontal permeability)
+      //            i from 1 to 3,
+      //            p depends on layering index,    p_h = (1+2*LI)/3,
+      //                                            p_v = 1-2*p_h
+      // Equation can be optimized to use less pow functions
+      //             a_2       K_2*A_2           a_3       K_3*A_3            1           1
+      // K_h = [ 1 + ---- * ( --------- )^p_h +  ---- * ( --------- )^p_h ]^(---) * a_1^(---) * (K_1*A_1)
+      //             a_1       K_1*A_1           a_1       K_1*A_1           p_h         p_h
+      //
+      //             a_2   K_2      K_2             a_3   K_3      K_3               1           1
+      // K_v = [ 1 + --- * --- * (( --- )^p_h)^-2 + --- * --- * (( --- )^p_h)^-2 ]^(---) * a_1^(---) * K_1
+      //             a_1   K_1      K_1             a_1   K_1      K_1              p_v         p_v
+
+      const double permRatio2 = permVal[1] / permVal[0];
+      const double permRatioExp2 = std::pow(permRatio2, m_mixHorizonExp);
+      double permRatio3;
+      double permRatioExp3;
+
+      permeabilityPlane = 1.0;
       permeabilityNormal = 1.0;
-      permeabilityPlane = 1.0;
-   }
-   else if (m_mixmodeltype == LAYERED) {
-      permeabilityNormal = 0.0;
 
-#if 1
-      permeabilityPlane = 0.0;
-#else
+      permeabilityPlane += m_percentRatio2 * m_anisoRatioExp2 * permRatioExp2;
+      permeabilityNormal += m_percentRatio2 * permRatio2 * 1 / (permRatioExp2*permRatioExp2);
+
+
+      if (numLitho == 3)
+      {
+         permRatio3 = permVal[2] / permVal[0];
+         permRatioExp3 = std::pow(permRatio3, m_mixHorizonExp);
+         permeabilityPlane += m_percentRatio3 * m_anisoRatioExp3 * permRatioExp3;
+         permeabilityNormal += m_percentRatio3 * permRatio3 * 1 / (permRatioExp3*permRatioExp3);
+      }
+
+      permeabilityPlane = std::pow(permeabilityPlane, 1 / m_mixHorizonExp);
+      permeabilityPlane *= m_percentPowerPlane * permVal[0] * m_componentAnisotropy[0];
+
+      permeabilityNormal = std::pow(permeabilityNormal, 1 / m_mixVerticalExp);
+      permeabilityNormal *= m_percentPowerNormal * permVal[0];
+   }
+
+   else if (m_mixmodeltype == LAYERED && m_layeringIndex == 0.25) {
+      // Average vertical permeabilities using geometric mean (p_v = 0)
+      // Average horizontal permeabilities using generalized mean (see above)
+
       permeabilityPlane = 1.0;
-#endif
+      permeabilityNormal = pow(permVal[0], m_componentPercentage[0] * 0.01);
+
+      permeabilityPlane += m_percentRatio2 * m_anisoRatioExp2 * std::pow(permVal[1] / permVal[0], m_mixHorizonExp);
+      permeabilityNormal *= pow(permVal[1], m_componentPercentage[1] * 0.01);
+
+      if (numLitho == 3)
+      {
+         permeabilityPlane += m_percentRatio3 * m_anisoRatioExp3 * std::pow(permVal[2] / permVal[0], m_mixHorizonExp);
+         permeabilityNormal *= pow(permVal[2], m_componentPercentage[2] * 0.01);
+      }
+
+      permeabilityPlane = std::pow(permeabilityPlane, 1 / m_mixHorizonExp);
+      permeabilityPlane *= m_percentPowerPlane * permVal[0] * m_componentAnisotropy[0];
 
    }
-   else {
+   else { //Wrong mixing model
       permeabilityNormal = Interface::DefaultUndefinedMapValue;
       permeabilityPlane = Interface::DefaultUndefinedMapValue;
+      throw fastCauldronException () << "Undefined mixing model type";
       return;
    }
-
-   while (m_lithoComponents.end() != componentIter) {
-      double VolFrac = (double)(*percentIter)*0.01;
-      double PermVal = (*componentIter)->permeability(ves, maxVes, NumericFunctions::Maximum(porosity(componentIndex), minimumCompoundPorosity(componentIndex)));
-      double PermAniso = (*componentIter)->getPermAniso();
-
-      if (m_mixmodeltype == HOMOGENEOUS || m_isFaultLithology) {
-         permeabilityNormal *= pow(PermVal, VolFrac);
-         permeabilityPlane *= pow(PermVal*PermAniso, VolFrac);
-      }
-      else if (m_mixmodeltype == LAYERED) {
-
-#if 1
-         permeabilityNormal = permeabilityNormal + VolFrac / PermVal;
-         permeabilityPlane = permeabilityPlane + VolFrac * PermAniso * PermVal;
-#else
-         permeabilityNormal += VolFrac / PermVal;
-         permeabilityPlane *= pow(PermVal*PermAniso, VolFrac);
-#endif
-
-      }
-
-      ++componentIndex;
-      ++componentIter;
-      ++percentIter;
-   }
-
-   if (!m_isFaultLithology && m_mixmodeltype == LAYERED) {
-      permeabilityNormal = 1.0 / permeabilityNormal;
-   }
-
-#if 0
-   permeabilityNormal = NumericFunctions::Minimum(permeabilityNormal, 1000.0);
-   permeabilityPlane = NumericFunctions::Minimum(permeabilityPlane, 1000.0);
-#endif
-
-   permeabilityNormal *= MILLIDARCYTOM2;
-   permeabilityPlane *= MILLIDARCYTOM2;
 }
 
 //------------------------------------------------------------//
 
 void GeoPhysics::CompoundLithology::calcBulkPermeabilityNP(const double  ves,
-   const double  maxVes,
-   const double  porosity,
-   double& permeabilityNormal,
-   double& permeabilityPlane) const {
+                                                           const double  maxVes,
+                                                           const double  porosity,
+                                                           double& permeabilityNormal,
+                                                           double& permeabilityPlane) const {
 
    CompoundProperty compoundPorosity;
 
@@ -1234,19 +1221,19 @@ void GeoPhysics::CompoundLithology::calcBulkPermeabilityNP(const double  ves,
 
 //------------------------------------------------------------//
 
-
-void GeoPhysics::CompoundLithology::calcBulkPermeabilityNPDerivativeWRTVes(const double            ves,
+void GeoPhysics::CompoundLithology::calcBulkPermeabilityNPDerivativeWRTVes(
+   const double            ves,
    const double            maxVes,
    const CompoundProperty& Porosity,
    const double            porosityDerivativeWrtVes,
    double&           Permeability_Derivative_Normal,
-                                                                                 double&           Permeability_Derivative_Plane) const
+   double&           Permeability_Derivative_Plane) const
 {
    try
    {
       const int lithologiesNum = m_lithoComponents.size();
 
-      if( m_isFaultLithology && (lithologiesNum > 1) )
+      if (m_isFaultLithology && (lithologiesNum > 1))
       {
          throw fastCauldronException() << "Cannot handle multiple lithologies with a fault";
       }
@@ -1254,111 +1241,206 @@ void GeoPhysics::CompoundLithology::calcBulkPermeabilityNPDerivativeWRTVes(const
       double derivativesWRTVes[MaximumNumberOfLithologies];
       double permeabilities[MaximumNumberOfLithologies];
 
-      for( int lithoIdx = 0; lithoIdx < lithologiesNum; ++lithoIdx )
+      for (int lithoIdx = 0; lithoIdx < lithologiesNum; ++lithoIdx)
       {
-         m_lithoComponents[lithoIdx]->permeabilityDerivative( ves,
-                                                              maxVes,
-                                                              NumericFunctions::Maximum(Porosity(lithoIdx), minimumCompoundPorosity(lithoIdx)),
-         porosityDerivativeWrtVes,
-                                                              permeabilities[lithoIdx],
-                                                              derivativesWRTVes[lithoIdx] );
-   }
-
-      assert( m_componentPercentage.size() == lithologiesNum );
-      std::vector<double> volumeFraction(m_componentPercentage);
-      std::vector<double> anisotropy(lithologiesNum);
-      for( int lithoIdx = 0; lithoIdx < lithologiesNum; ++lithoIdx )
-   {
-         volumeFraction[lithoIdx] *= 0.01;
-         anisotropy[lithoIdx] = m_lithoComponents[lithoIdx]->getPermAniso();
+         m_lithoComponents[lithoIdx]->permeabilityDerivative(ves,
+            maxVes,
+            NumericFunctions::Maximum(Porosity(lithoIdx), minimumCompoundPorosity(lithoIdx)),
+            porosityDerivativeWrtVes,
+            permeabilities[lithoIdx],
+            derivativesWRTVes[lithoIdx]);
       }
-      
+
+      assert(m_componentPercentage.size() == lithologiesNum);
+
       Permeability_Derivative_Normal = 0.0;
       Permeability_Derivative_Plane = 0.0;
 
-      if( m_isFaultLithology )
+      switch (lithologiesNum)
       {
+      case 1:
          Permeability_Derivative_Normal = derivativesWRTVes[0];
-         Permeability_Derivative_Plane = derivativesWRTVes[0];
-      }
-      else if( m_mixmodeltype == LAYERED )
-      {
-         //
-         // Mixed permeability derivative with respect to ves in the NORMAL direction (vertical permeability derivative)
-         //
-         // d k_n                                     w_i    d k_i
-         // ----- = [sum( w_i / k_i )] ^ -2  *  sum( ----- * ----- )
-         // d ves     i                          i   k_i^2   d ves
-         //
-         // Mixed permeability derivative with respect to ves in the PLANE direction (horizontal permeability derivative)
-         //
-         // d k_p                      d k_i 
-         // ----- = sum_i( w_i * a_i * ----- )
-         // d ves                      d ves 
-         //
-         // w_i : volume fraction
-         // a_i : anisotropy
+         Permeability_Derivative_Plane = m_lithoComponents[0]->getPermAniso()*derivativesWRTVes[0];
+         break;
 
-         double A(0.0);
-         double B(0.0);
-         for( int lithoIdx = 0; lithoIdx < lithologiesNum; ++lithoIdx )
-         {
-            double wOverK = volumeFraction[lithoIdx] / permeabilities[lithoIdx];
-            A += wOverK;
-            B += wOverK * derivativesWRTVes[lithoIdx] / permeabilities[lithoIdx];
-            Permeability_Derivative_Plane += volumeFraction[lithoIdx] * derivativesWRTVes[lithoIdx] * anisotropy[lithoIdx];
+      case 2:
+      case 3:
+         mixPermeabilityDerivatives(
+            permeabilities,
+            derivativesWRTVes,
+            Permeability_Derivative_Normal,
+            Permeability_Derivative_Plane);
+         break;
+
+      default:
+         throw fastCauldronException() << "Wrong number of lithologies in CompoundLithology: should be between 1 and 3 ";
+         break;
       }
-         Permeability_Derivative_Normal = B / (A * A);
    }
-      else if( m_mixmodeltype == HOMOGENEOUS )
-      {
-         //
-         // Mixed permeability derivative with respect to ves in the NORMAL direction (vertical permeability derivative)
-         //
-         // d k_n                                  d k_i                  
-         // ----- = sum( w_i * k_i ^ ( w_i - 1 ) * ----- * prod( k_j ^ w_j ) )
-         // d ves    i                             d ves   j!=i               
-         //
-         // Mixed permeability derivative with respect to ves in the PLANE direction (horizontal permeability derivative)
-         //
-         // d k_p                                                  d k_i                            
-         // ----- = sum( w_i * a_i * ( a_i * k_i ) ^ ( w_i - 1 ) * ----- * prod( ( a_j * k_j ) ^ w_j ) )
-         // d ves    i                                             d ves   j!=i                         
-         //
-         // w_i : volume fraction
-         // a_i : anisotropy
 
-         for( int lithoIdx1 = 0; lithoIdx1 < lithologiesNum; ++lithoIdx1 )
-         {
-            double productsSequenceN(1.0);
-            double productsSequenceP(1.0);
-            for( int lithoIdx2 = 0; lithoIdx2 < lithologiesNum; ++lithoIdx2 )
-            {
-               if( lithoIdx1 != lithoIdx2 )
-               {
-                  productsSequenceN *= std::pow( permeabilities[lithoIdx2], volumeFraction[lithoIdx2] );
-                  productsSequenceP *= std::pow( anisotropy[lithoIdx2] * permeabilities[lithoIdx2], volumeFraction[lithoIdx2] );
-               }
-            }
-            Permeability_Derivative_Normal += volumeFraction[lithoIdx1] * std::pow( permeabilities[lithoIdx1], volumeFraction[lithoIdx1] - 1.0 ) *
-                                              derivativesWRTVes[lithoIdx1] * productsSequenceN;
-            Permeability_Derivative_Plane  += volumeFraction[lithoIdx1] * anisotropy[lithoIdx1] *
-                                              std::pow( anisotropy[lithoIdx1] *  permeabilities[lithoIdx1], volumeFraction[lithoIdx1] - 1.0 ) *
-                                              derivativesWRTVes[lithoIdx1] * productsSequenceP;
-         }
-            }
-      else
-      {
-         throw fastCauldronException() << "Undefined mixing model type";
-         }
-
-      Permeability_Derivative_Normal *= MILLIDARCYTOM2;
-      Permeability_Derivative_Plane  *= MILLIDARCYTOM2;
-      }
-   catch( fastCauldronException & ex )
+   catch (fastCauldronException & ex)
    {
       throw ex;
    }
+}
+
+//------------------------------------------------------------//
+
+void GeoPhysics::CompoundLithology::mixPermeabilityDerivatives(
+   double*           permeabilities,
+   double*           derivativesWRTVes,
+   double&           Permeability_Derivative_Normal,
+   double&           Permeability_Derivative_Plane) const
+{
+   const int lithologiesNum = m_lithoComponents.size();
+
+   std::vector<double> volumeFraction(m_componentPercentage);
+   std::vector<double> anisotropy(lithologiesNum);
+   std::vector<double> anisotropyPow(lithologiesNum);
+
+   for (int lithoIdx = 0; lithoIdx < lithologiesNum; ++lithoIdx)
+   {
+      volumeFraction[lithoIdx] *= 0.01;
+      anisotropy[lithoIdx] = m_componentAnisotropy[lithoIdx];
+      anisotropyPow[lithoIdx] = std::pow(anisotropy[lithoIdx], m_mixHorizonExp);
+   }
+
+
+   if (m_mixmodeltype == LAYERED && m_layeringIndex != 0.25)
+   {
+      // If layering index = 0.25, particular case because vertical exponent is 0
+      // Mixed permeability derivative with respect to ves in the PLANE direction (horizontal permeability derivative)
+      //
+      // d k_p                 p_p     p_p   (1-p_p)/p_p                    p_p            p_p-1   d k_i
+      // ----- = [sum( w_i *a_i    *k_i    )]             *  sum( w_i * a_i    * p_p * k_i      * ----- )
+      // d ves     i                                          i                                   d ves
+      //
+      // Mixed permeability derivative with respect to ves in the NORMAL direction (vertical permeability derivative)
+      //
+      // d k_n     1                   p_n   (1-p_n)/p_n                         p_n-1   d k_i
+      // ----- = ---- * [sum( w_i * k_i    )]             *  sum( w_i * p_n * k_i      * ----- )
+      // d ves    p_n     i                                   i                          d ves
+      //
+      //                                  1          (1-p_n)/p_n                      1             d k_i
+      //       =  [sum( w_i * k_i -----------------)]             *  sum( w_i * ----------------- * ----- )
+      //             i             k_i^p_p * k_i^p_p                      i      k_i^p_p * k_i^p_p   d ves
+      // 
+      //
+      // w_i : volume fraction
+      // a_i : anisotropy
+
+      double A(0.0);
+      double B(0.0);
+      double C(0.0);
+      double D(0.0);
+      for (int lithoIdx = 0; lithoIdx < lithologiesNum; ++lithoIdx)
+      {
+         double KPow = std::pow(permeabilities[lithoIdx], m_mixHorizonExp - 1);
+         double sumPlane = volumeFraction[lithoIdx] * anisotropyPow[lithoIdx] * KPow;
+         A += sumPlane * permeabilities[lithoIdx];
+         B += sumPlane * derivativesWRTVes[lithoIdx];
+
+         double sumNormal = volumeFraction[lithoIdx] * 1 / (KPow * KPow * permeabilities[lithoIdx]);
+         C += sumNormal;
+         D += sumNormal / permeabilities[lithoIdx] * derivativesWRTVes[lithoIdx];
+      }
+
+      Permeability_Derivative_Plane = std::pow(A, (1 - m_mixHorizonExp) / m_mixHorizonExp) * B;
+      Permeability_Derivative_Normal = std::pow(C, (1 - m_mixVerticalExp) / m_mixVerticalExp) * D;
+   }
+   else if (m_mixmodeltype == LAYERED && m_layeringIndex == 0.25)
+   {
+      //
+      // Mixed permeability derivative with respect to ves in the PLANE direction (horizontal permeability derivative)
+      // Horizontal exponent = 0.5
+      //
+      // d k_p                 p_p     p_p   (1-p_p)/p_p                    p_p            p_p-1   d k_i
+      // ----- = [sum( w_i *a_i    *k_i    )]             *  sum( w_i * a_i    * p_p * k_i      * ----- )
+      // d ves     i                                          i                                   d ves
+      //
+      // Mixed permeability derivative with respect to ves in the NORMAL direction (vertical permeability derivative)
+      // Vertical exponent = 0 => geometric mean
+      //
+      // d k_n                                  d k_i                  
+      // ----- = sum( w_i * k_i ^ ( w_i - 1 ) * ----- * prod( k_j ^ w_j ) )
+      // d ves    i                             d ves   j!=i               
+      // 
+      //
+      // w_i : volume fraction
+      // a_i : anisotropy
+
+      double A(0.0);
+      double B(0.0);
+      for (int lithoIdx = 0; lithoIdx < lithologiesNum; ++lithoIdx)
+      {
+         double KPow = std::pow(permeabilities[lithoIdx], m_mixHorizonExp - 1);
+         double sumPlane = volumeFraction[lithoIdx] * anisotropyPow[lithoIdx] * KPow;
+         A += sumPlane * permeabilities[lithoIdx];
+         B += sumPlane * derivativesWRTVes[lithoIdx];
+
+         double productsSequenceN(1.0);
+         double productsSequenceP(1.0);
+         for (int lithoIdx2 = 0; lithoIdx2 < lithologiesNum; ++lithoIdx2)
+         {
+            if (lithoIdx != lithoIdx2)
+            {
+               productsSequenceN *= std::pow(permeabilities[lithoIdx2], volumeFraction[lithoIdx2]);
+               productsSequenceP *= std::pow(anisotropy[lithoIdx2] * permeabilities[lithoIdx2], volumeFraction[lithoIdx2]);
+            }
+         }
+         Permeability_Derivative_Normal += volumeFraction[lithoIdx] * std::pow(permeabilities[lithoIdx], volumeFraction[lithoIdx] - 1.0) *
+            derivativesWRTVes[lithoIdx] * productsSequenceN;
+      }
+
+      Permeability_Derivative_Plane = std::pow(A, (1 - m_mixHorizonExp) / m_mixHorizonExp) * B;
+
+   }
+   else if (m_mixmodeltype == HOMOGENEOUS)
+   {
+      //
+      // Mixed permeability derivative with respect to ves in the NORMAL direction (vertical permeability derivative)
+      //
+      // d k_n                                  d k_i                  
+      // ----- = sum( w_i * k_i ^ ( w_i - 1 ) * ----- * prod( k_j ^ w_j ) )
+      // d ves    i                             d ves   j!=i               
+      //
+      // Mixed permeability derivative with respect to ves in the PLANE direction (horizontal permeability derivative)
+      //
+      // d k_p                                                  d k_i                            
+      // ----- = sum( w_i * a_i * ( a_i * k_i ) ^ ( w_i - 1 ) * ----- * prod( ( a_j * k_j ) ^ w_j ) )
+      // d ves    i                                             d ves   j!=i                         
+      //
+      // w_i : volume fraction
+      // a_i : anisotropy
+
+      for (int lithoIdx1 = 0; lithoIdx1 < lithologiesNum; ++lithoIdx1)
+      {
+         double productsSequenceN(1.0);
+         double productsSequenceP(1.0);
+         for (int lithoIdx2 = 0; lithoIdx2 < lithologiesNum; ++lithoIdx2)
+         {
+            if (lithoIdx1 != lithoIdx2)
+            {
+               productsSequenceN *= std::pow(permeabilities[lithoIdx2], volumeFraction[lithoIdx2]);
+               productsSequenceP *= std::pow(anisotropy[lithoIdx2] * permeabilities[lithoIdx2], volumeFraction[lithoIdx2]);
+            }
+         }
+         Permeability_Derivative_Normal += volumeFraction[lithoIdx1] * std::pow(permeabilities[lithoIdx1], volumeFraction[lithoIdx1] - 1.0) *
+            derivativesWRTVes[lithoIdx1] * productsSequenceN;
+         Permeability_Derivative_Plane += volumeFraction[lithoIdx1] * anisotropy[lithoIdx1] *
+            std::pow(anisotropy[lithoIdx1] * permeabilities[lithoIdx1], volumeFraction[lithoIdx1] - 1.0) *
+            derivativesWRTVes[lithoIdx1] * productsSequenceP;
+      }
+   }
+   else
+   {
+      throw fastCauldronException() << "Undefined mixing model type";
+   }
+
+   Permeability_Derivative_Normal *= MILLIDARCYTOM2;
+   Permeability_Derivative_Plane *= MILLIDARCYTOM2;
+
+
 }
 
 //------------------------------------------------------------//
@@ -1373,10 +1455,9 @@ const double activationEnergy) {
 
 //------------------------------------------------------------//
 
-
 bool GeoPhysics::CompoundLithology::hasHydraulicallyFractured(const double hydrostaticPressure,
-   const double porePressure,
-   const double lithostaticPressure) const {
+                                                              const double porePressure,
+                                                              const double lithostaticPressure) const {
 
    return porePressure > fracturePressure(hydrostaticPressure, lithostaticPressure);
 
@@ -1385,60 +1466,45 @@ bool GeoPhysics::CompoundLithology::hasHydraulicallyFractured(const double hydro
 //------------------------------------------------------------//
 
 double GeoPhysics::CompoundLithology::fracturePressure(const double hydrostaticPressure,
-   const double lithostaticPressure) const {
+                                                       const double lithostaticPressure) const {
    return  m_lithologyFractureGradient * (lithostaticPressure - hydrostaticPressure) + hydrostaticPressure;
 }
 
 //------------------------------------------------------------//
 
-
 double GeoPhysics::CompoundLithology::computePorosityDerivativeWRTVes(const double ves,
-   const double maxVes,
-   const bool   includeChemicalCompaction,
-   const double chemicalCompactionTerm) const {
+                                                                      const double maxVes,
+                                                                      const bool   includeChemicalCompaction,
+                                                                      const double chemicalCompactionTerm) const {
 
    return m_porosity.calculateDerivative(ves, maxVes, includeChemicalCompaction, chemicalCompactionTerm);
 
 }
+
 //------------------------------------------------------------//
+
 void GeoPhysics::CompoundLithology::mixCapillaryEntryPressureCofficients()
 {
+   // Capillary entry pressure coefficients are mixed with an arithmetic mean
+   //Note:  mixing type is not considered (homogeneous, layered)
    m_capC1 = m_capC2 = 0.0;
-
    compContainer::iterator componentIter = m_lithoComponents.begin();
+   percentContainer::iterator percentIter = m_componentPercentage.begin();
+   double pcMult;
 
-   if (m_mixmodeltype == HOMOGENEOUS){
-      percentContainer::iterator percentIter = m_componentPercentage.begin();
-      double pcMult;
+   while (m_lithoComponents.end() != componentIter) {
+      pcMult = (double)(*percentIter) / 100;
 
-      while (m_lithoComponents.end() != componentIter) {
-         pcMult = (double)(*percentIter) / 100;
+      m_capC1 += (*componentIter)->getCapC1() * pcMult;
+      m_capC2 += (*componentIter)->getCapC2() * pcMult;
 
-         m_capC1 += (*componentIter)->getCapC1() * pcMult;
-         m_capC2 += (*componentIter)->getCapC2() * pcMult;
-
-         ++componentIter;
-         ++percentIter;
-      }
-   } else { // if (m_mixmodeltype == LAYERED){
-#ifdef _MSC_VER
-#undef max	// To make sure the next statement is using the correct max() function
-#endif
-	   double depoPerm,  minDepoPerm = numeric_limits<double>::max();
-
-      while (m_lithoComponents.end() != componentIter) {
-         depoPerm = (*componentIter)->getDepoPerm();
-         if (depoPerm < minDepoPerm) {
-            m_capC1 = (*componentIter)->getCapC1();
-            m_capC2 = (*componentIter)->getCapC2();
-            minDepoPerm = depoPerm;
-         }
-         ++componentIter;
-      }
+      ++componentIter;
+      ++percentIter;
    }
 
-   m_tenPowerCapC2 = pow(10.0, -m_capC2);
 }
+
+//------------------------------------------------------------//
 
 void GeoPhysics::CompoundLithology::mixBrooksCoreyParameters()
 {
@@ -1494,70 +1560,40 @@ void GeoPhysics::CompoundLithology::mixBrooksCoreyParameters()
    }
 }
 
+//------------------------------------------------------------//
+
 double GeoPhysics::CompoundLithology::mixModulusSolid() const
 {
-	double modulusSolid;
-	switch (m_mixmodeltype)
-	{
-	case HOMOGENEOUS || UNDEFINED:
-		modulusSolid = 1;
-		break;
-	case LAYERED:
-		modulusSolid = 0;
-		break;
-	default:
-		modulusSolid = 1;
-	}
-	double currentModlusSolid = 0;
-	double currentWeight = 0;
+   //Note:  mixing type is not considered (homogeneous, layered)
+   // Mixed with geometric mean
+   double modulusSolid = 1;
 
-	compContainer::const_iterator componentIter = m_lithoComponents.begin();
-	percentContainer::const_iterator percentIter = m_componentPercentage.begin();
+   double currentModlusSolid = 0;
+   double currentWeight = 0;
 
-	while (m_lithoComponents.end() != componentIter) {
-		currentWeight = (double)(*percentIter) / 100;
-		currentModlusSolid = (*componentIter)->getDensity()*pow((*componentIter)->getSeismicVelocity(), 2);
+   compContainer::const_iterator componentIter = m_lithoComponents.begin();
+   percentContainer::const_iterator percentIter = m_componentPercentage.begin();
 
-		switch (m_mixmodeltype)
-		{
-		case HOMOGENEOUS || UNDEFINED:
-			// geometric mean
-			modulusSolid *= pow(currentModlusSolid, currentWeight);
-			break;
-		case LAYERED:
-			// harmonic mean
-			modulusSolid += currentWeight / currentModlusSolid;
-			break;
-		default:
-			// geometric mean
-			modulusSolid *= pow(currentModlusSolid, currentWeight);
-		}
+   while (m_lithoComponents.end() != componentIter) {
+      currentWeight = (double)(*percentIter) / 100;
+      currentModlusSolid = (*componentIter)->getDensity()*pow((*componentIter)->getSeismicVelocity(), 2);
+      modulusSolid *= pow(currentModlusSolid, currentWeight);
+      ++componentIter;
+      ++percentIter;
+   }
 
-		++componentIter;
-		++percentIter;
-	}
+   return modulusSolid;
 
-	switch (m_mixmodeltype)
-	{
-	case HOMOGENEOUS || UNDEFINED:
-		return modulusSolid;
-		break;
-	case LAYERED:
-		return 1 / modulusSolid;
-		break;
-	default :
-		return modulusSolid;
-	}
 }
 
 //------------------------------------------------------------//
 
 double GeoPhysics::CompoundLithology::capillaryPressure(const pvtFlash::PVTPhase phase,
-   const double             densityBrine,
-   const double             densityHc,
-   const double             saturationBrine,
-   const double             saturationHc,
-   const double             porosity) const {
+                                                        const double             densityBrine,
+                                                        const double             densityHc,
+                                                        const double             saturationBrine,
+                                                        const double             saturationHc,
+                                                        const double             porosity) const {
 
    double result = 99999.0;
 
@@ -1587,12 +1623,12 @@ double GeoPhysics::CompoundLithology::capillaryPressure(const pvtFlash::PVTPhase
 //------------------------------------------------------------//
 
 double GeoPhysics::CompoundLithology::capillaryPressure(const unsigned int phaseId,
-   const double& density_H2O,
-   const double& density_HC,
-   const double& T_K,
-   const double& T_c_HC_K,
-   const double& wettingSaturation,
-   const double& porosity) const {
+                                                        const double& density_H2O,
+                                                        const double& density_HC,
+                                                        const double& T_K,
+                                                        const double& T_c_HC_K,
+                                                        const double& wettingSaturation,
+                                                        const double& porosity) const {
 
    double capP = CBMGenerics::capillarySealStrength::capPressure(phaseId, density_H2O, density_HC,
       T_K, T_c_HC_K,
@@ -1604,11 +1640,11 @@ double GeoPhysics::CompoundLithology::capillaryPressure(const unsigned int phase
 }
 //------------------------------------------------------------//
 void GeoPhysics::CompoundLithology::calcBulkThermCondNPBasement(const FluidType* fluid,
-   double           Porosity,
-   double           Temperature,
-   double           LithoPressure,
-   double&          BulkTHCondN,
-   double&          BulkTHCondP) const {
+                                                                double           Porosity,
+                                                                double           Temperature,
+                                                                double           LithoPressure,
+                                                                double&          BulkTHCondN,
+                                                                double&          BulkTHCondP) const {
 
    bool LithoHasFluid = false;
    if (fluid != 0) LithoHasFluid = true;
@@ -1618,8 +1654,8 @@ void GeoPhysics::CompoundLithology::calcBulkThermCondNPBasement(const FluidType*
    }
    SimpleLithology * currentLitho = m_lithoComponents[0];
 
-   if( m_lithoComponents[0]->getName() == DataAccess::Interface::ALCBasalt ) {
-      return calcBulkThermCondNPBasalt ( Temperature, LithoPressure, BulkTHCondN, BulkTHCondP );
+   if (m_lithoComponents[0]->getName() == DataAccess::Interface::ALCBasalt) {
+      return calcBulkThermCondNPBasalt(Temperature, LithoPressure, BulkTHCondN, BulkTHCondP);
    }
    double MatrixTHCondN = 0.0, MatrixTHCondP = 0.0;
 
@@ -1647,11 +1683,11 @@ void GeoPhysics::CompoundLithology::calcBulkThermCondNPBasalt(double           T
                                                               double           LithoPressure,
                                                               double&          BulkTHCondN,
                                                               double&          BulkTHCondP) const {
-   
-    if (this->m_lithoComponents.size() != 1) {
+
+   if (this->m_lithoComponents.size() != 1) {
       cerr << "Few lithologies in basement." << endl;
    }
    // here we assume that the lithology is ALCBasalt
-   BulkTHCondN = ( BulkTHCondP =  m_lithoComponents[0]->basaltThermalConductivity( Temperature, LithoPressure) );
+   BulkTHCondN = (BulkTHCondP = m_lithoComponents[0]->basaltThermalConductivity(Temperature, LithoPressure));
 }
 

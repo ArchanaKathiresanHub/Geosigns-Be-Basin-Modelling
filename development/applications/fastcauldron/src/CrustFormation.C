@@ -1,3 +1,13 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "mpi.h"
 
 #include "CrustFormation.h"
@@ -72,7 +82,7 @@ void CrustFormation::initialise () {
 
    layername = Interface::CrustFormation::getName ();
    depoage = Interface::CrustFormation::getTopSurface ()->getSnapshot ()->getTime ();
-   lithoMixModel = Interface::CrustFormation::getMixModelStr ();
+   m_lithoMixModel = Interface::CrustFormation::getMixModelStr ();
    presentDayThickness = Interface::CrustFormation::getInputThicknessMap ();
    depthGridMap = Interface::CrustFormation::getTopSurface ()->getInputDepthMap ();
 
@@ -253,7 +263,8 @@ bool CrustFormation::setLithologiesFromStratTable () {
      
      CompoundLithologyComposition lc ( DataAccess::Interface::ALCBasalt,           "",  "",
                                        100.0, 0.0, 0.0,
-                                       DataAccess::Interface::CrustFormation::getMixModelStr ());
+                                       DataAccess::Interface::CrustFormation::getMixModelStr (),
+                                       DataAccess::Interface::CrustFormation::getLayeringIndex());
 
      lc.setThermalModel( m_projectHandle->getCrustPropertyModel() );
      CompoundLithology* pMixedLitho = ((GeoPhysics::ProjectHandle*)(GeoPhysics::Formation::m_projectHandle))->getLithologyManager ().getCompoundLithology ( lc );

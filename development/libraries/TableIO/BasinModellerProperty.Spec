@@ -902,10 +902,20 @@ START-properties
 
     Identification      : MixModel
     Description         : Model used for mixing the different lithotypes to a
-                          lithology; either "Homogeneous" or "Layered", could
-                          be extended number of cycles (when layered)
+                          lithology; either "Homogeneous" or "Layered", when 
+                          "Layered", use generalized mean whith parameter 
+                          LayeringIndex as exponent 
     Unit of measurement : 
     Type                : string
+    Error Field         : No
+
+    Identification      : LayeringIndex
+    Description         : Exponent used for mixing
+                          If MixModel is "Layered", should be between 0 and 1
+                          If MixModel is "Homogeneous" should be NoDataValue
+    Unit of measurement : 
+    Type                : float
+    Default             : -9999
     Error Field         : No
 
     Identification      : SourceRock
@@ -6710,6 +6720,7 @@ START-property-tables
     Column         : Lithotype3
     Column         : Percent3
     Column         : MixModel
+    Column         : LayeringIndex
     Column         : Fluidtype
     Column         : TempGradient
     Column         : SourceRock

@@ -1,3 +1,13 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include <assert.h>
 #ifdef sgi
    #ifdef _STANDARD_C_PLUS_PLUS
@@ -213,6 +223,10 @@ const std::string& BasementFormation::getMixModelStr (void) const {
 const FluidType* BasementFormation::getFluidType (void) const
 {
    return 0;
+}
+
+float BasementFormation::getLayeringIndex(void) const {
+   return -9999;
 }
 
 int BasementFormation::getDepositionSequence () const {

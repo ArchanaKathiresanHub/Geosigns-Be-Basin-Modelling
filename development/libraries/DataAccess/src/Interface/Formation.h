@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 #ifndef _INTERFACE_FORMATION_H_
 #define _INTERFACE_FORMATION_H_
 
@@ -137,7 +146,15 @@ namespace DataAccess
 
             virtual CBMGenerics::capillarySealStrength::MixModel getMixModel (void) const;
 
-            virtual const std::string& getMixModelStr (void) const;
+            /// Return the mix model (HOMOGENEOUS or LAYERED)
+            ///
+            /// If wrong model return UNDEFINED
+            virtual const std::string& getMixModelStr(void) const;
+
+            /// Return the layering index between 0 and 1 for LAYERED
+            ///
+            /// Return NoDataValue (-9999) for HOMOGENEOUS
+            virtual float getLayeringIndex(void) const;
 
             virtual const FluidType * getFluidType (void) const;
 

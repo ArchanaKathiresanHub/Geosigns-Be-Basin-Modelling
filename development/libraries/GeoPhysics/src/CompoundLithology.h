@@ -33,7 +33,7 @@ namespace GeoPhysics {
 
    public:
 
-      CompoundLithology(GeoPhysics::ProjectHandle* projectHandle);
+		CompoundLithology(GeoPhysics::ProjectHandle* projectHandle);
 
       virtual ~CompoundLithology();
 
@@ -123,17 +123,24 @@ namespace GeoPhysics {
       /// Re-calculate the compound-lithology properties after a simple-lithology has been added.
       bool reCalcProperties();
 
+      /// Set values needed for the mixing of permeability  
+      void reSetValuesForPermMixing();
+
       // not sure if this is needed.
       void reSetBehaviorForHysteresis();
 
-      /// Set the layer mixing model.
-      void setMixModel(const std::string& mixmodel);
+      /// Set the layer mixing model and layering index.
+      void setMixModel(const std::string& mixmodel, float layeringIndex);
 
-	  /// Return the solid seismic-velocity value for the compound-lithology.
-	  double seismicVelocitySolid() const;
+      /// Set the lithologies anisotropy.
+      void setPermAnisotropy();
+      void setPermAnisotropy(double aniso1, double aniso2, double aniso3);
 
-	  /// Return the SeismicVelocity object for the compound-lithology.
-	  const SeismicVelocity& seismicVelocity() const;
+      /// Return the solid seismic-velocity value for the compound-lithology.
+      double seismicVelocitySolid() const;
+
+      /// Return the SeismicVelocity object for the compound-lithology.
+      const SeismicVelocity& seismicVelocity() const;
 
       /// Return the thermal-conductivity anisotropy.
       double thermalcondaniso() const;
@@ -317,23 +324,19 @@ namespace GeoPhysics {
          const double            chemicalCompactionTerm,
          CompoundProperty& Porosity) const;
 
-      /// \brief Compute the permeability.
-      ///
-      /// Without the need of the porosity. It is computed 
-      /// as a part of the permeability calculation.
-      void getPermeability(const double            ves,
-         const double            maxVes,
-         const bool              includeChemicalCompaction,
-         const double            chemicalCompactionValue,
-         double&           permeabilityNormal,
-         double&           permeabilityPlane) const;
+		/// Calculate the permeability value using the compound porosity.
+		void calcBulkPermeabilityNP(const double            ves,
+			const double            maxVes,
+			const CompoundProperty& Porosity,
+			double&           Permeability_Normal,
+			double&           Permeability_Plane) const;
 
-      /// Calculate the permeability value using the compound porosity.
-      void calcBulkPermeabilityNP(const double            ves,
-         const double            maxVes,
-         const CompoundProperty& Porosity,
-         double&           Permeability_Normal,
-         double&           Permeability_Plane) const;
+		/// Mix three values of permability and return the mixed plane and normal perm.
+		void mixPermeability(
+			double*           permVal,
+			double&           Permeability_Normal,
+			double&           Permeability_Plane) const;
+
 
       /// Calculate the permeability value using the simple porosity.
       void calcBulkPermeabilityNP(const double            ves,
@@ -342,6 +345,7 @@ namespace GeoPhysics {
          double&           permeabilityNormal,
          double&           permeabilityPlane) const;
 
+		
       /// Calculate the permeability-derivative value with respect to ves using the compound porosity.
       /// It returns derivatives computed both in normal and plane direction
       // The handled mixing modes are HOMOGENEOUS and LAYERED
@@ -351,6 +355,12 @@ namespace GeoPhysics {
          const double            porosityDerivativeWrtVes,
          double&                 Permeability_Derivative_Normal,
          double&                 Permeability_Derivative_Plane) const;
+
+      void mixPermeabilityDerivatives(
+         double*           permeabilities,
+         double*           derivativesWRTVes,
+         double&           Permeability_Derivative_Normal,
+         double&           Permeability_Derivative_Plane) const;
 
       /// Integrate the chemical-compaction terms.
       double integrateChemicalCompaction(const double Time_Step,
@@ -363,6 +373,8 @@ namespace GeoPhysics {
 
       /// Return whether of not this lithology is a fault.
       bool isFault() const;
+
+      void setMinimumPorosity(DataAccess::Interface::PorosityModel porosityModel, double  surfaceVoidRatio, double soilMechanicsCompactionCoefficient);
 
    protected:
 
@@ -388,8 +400,6 @@ namespace GeoPhysics {
     		  double & compactiondecrB,
     		  double & soilMechanicsCompactionCoefficient);
 
-      void setMinimumPorosity(DataAccess::Interface::PorosityModel porosityModel, double  surfaceVoidRatio, double soilMechanicsCompactionCoefficient);
-
       void setMinimumExponentialPorosity();
 
       void setMinimumSoilMechanicsPorosity(double surfaceVoidRatio, double soilMechanicsCompactionCoefficient);
@@ -401,8 +411,8 @@ namespace GeoPhysics {
       double           m_density;
       double           m_depositionalPermeability;
       double           m_heatProduction;
-	   double           m_seismicVelocitySolid;
-	   double           m_nExponentVelocity;
+      double           m_seismicVelocitySolid;
+      double           m_nExponentVelocity;
       double           m_permeabilityincr;
       double           m_permeabilitydecr;
       double           m_thermalConductivityValue;
@@ -434,10 +444,13 @@ namespace GeoPhysics {
       double m_igneousIntrusionTemperature;
 
       typedef enum { UNDEFINED, HOMOGENEOUS, LAYERED } MixModelType;
-      MixModelType m_mixmodeltype;
 
-      typedef enum { NO_PERM_BEHAVIOR, SAND_BEHAVIOR, SHALE_BEHAVIOR } HysteresisBehaviour;
-      HysteresisBehaviour m_hysteresisbehaviour;
+      MixModelType m_mixmodeltype; //!< Mixing model: used to mix permeability
+
+      float m_layeringIndex;//!< Permeability layering index used to compute permeability mixing
+
+      typedef std::vector<double> anisotropyContainer;
+      anisotropyContainer m_componentAnisotropy;
 
       typedef std::vector<SimpleLithology*> compContainer;
       compContainer m_lithoComponents;
@@ -472,6 +485,27 @@ namespace GeoPhysics {
 
       bool m_isBasementLithology;
 
+      float m_mixHorizonExp;//!< Permeability horizontal mixing exponent , equals (1-m_mixVerticalExp)/2 */
+
+      float m_mixVerticalExp;//!< Permeability vertical mixing exponent, equals 1-2*m_mixHorizonExp */
+
+      double m_percentRatio2;//!< Value saved to simplify the computation of permeability
+                             //!<  equals percentlitho2/percentlitho1 */
+
+      double m_percentPowerPlane;//!< Value saved to simplify the computation of permeability
+                                 //!< Equals percentlitho1^m_mixHorizonExponent
+
+      double m_percentPowerNormal;//!< Value saved to simplify the computation of permeability
+                                  //!< Equals percentlitho1^m_mixVerticalExponent
+
+      double m_anisoRatioExp2;//!< Value saved to simplify the computation of permeability
+                              //!< Equals anisolitho2/anisolitho1
+
+      double m_percentRatio3;//!< Value saved to simplify the computation of permeability
+                             //!< Equals percentlitho3/percentlitho1
+
+      double m_anisoRatioExp3;//!< Value saved to simplify the computation of permeability
+                              //!< Equals anisolitho3/anisolitho1
    };
 
 

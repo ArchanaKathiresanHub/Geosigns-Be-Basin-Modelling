@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 #ifndef _FASTCAULDRON__LAYER_H_
 #define _FASTCAULDRON__LAYER_H_
 
@@ -345,8 +354,8 @@ public:
    /// \brief Copy current computed saturations to previous.
    void copySaturations ();
 
-  string           lithoMixModel;
-
+  string           m_lithoMixModel;
+  float       m_lithoLayeringIndex;
 
   string           depthgridfilename;
   int              depthgridfileseqnr;

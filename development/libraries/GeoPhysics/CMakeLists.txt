@@ -213,6 +213,11 @@ add_gtest( NAME GeoPhysics::ExponentialPorosity
       LIBRARIES GeoPhysics SerialDataAccess
 )
 
+add_gtest( NAME GeoPhysics::MixingPermeability
+   SOURCES test/MixingPermeability.C
+   LIBRARIES GeoPhysics SerialDataAccess DataAccess DistributedDataAccess
+)
+
 add_gtest( NAME GeoPhysics::PermeabilityImpermeable
    SOURCES test/PermeabilityImpermeable.C
    LIBRARIES GeoPhysics SerialDataAccess

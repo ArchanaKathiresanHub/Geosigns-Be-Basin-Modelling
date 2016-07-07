@@ -1,3 +1,13 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include <assert.h>
 #ifdef sgi
    #ifdef _STANDARD_C_PLUS_PLUS
@@ -550,6 +560,10 @@ CBMGenerics::capillarySealStrength::MixModel Formation::getMixModel() const
 
 const std::string& Formation::getMixModelStr (void) const {
    return database::getMixModel(m_record);
+}
+
+float Formation::getLayeringIndex(void) const {
+   return database::getLayeringIndex(m_record);
 }
 
 const FluidType* Formation::getFluidType () const

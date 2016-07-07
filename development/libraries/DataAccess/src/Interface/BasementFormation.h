@@ -1,3 +1,13 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef _INTERFACE_BASEMENT_FORMATION_H_
 #define _INTERFACE_BASEMENT_FORMATION_H_
 
@@ -101,7 +111,11 @@ namespace DataAccess
 
          CBMGenerics::capillarySealStrength::MixModel getMixModel (void) const;
 
+         /// Return the mix model: always HOMOGENEOUS for basement
          const std::string& getMixModelStr (void) const;
+
+         /// Return the layering index: -9999 for basement
+         float getLayeringIndex(void) const;
 
          /// Return the position in the formation deposition sequence.
          ///

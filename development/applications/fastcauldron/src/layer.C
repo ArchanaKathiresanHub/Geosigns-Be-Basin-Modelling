@@ -1,3 +1,13 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "layer.h"
 
 #include <iostream>
@@ -293,7 +303,8 @@ void LayerProps::initialise () {
       Layer_Depo_Seq_Nb = Interface::Formation::getDepositionSequence ();
       Calculate_Chemical_Compaction = Interface::Formation::hasChemicalCompaction ();
 
-      lithoMixModel = Interface::Formation::getMixModelStr ();
+      m_lithoMixModel = Interface::Formation::getMixModelStr ();
+      m_lithoLayeringIndex = Interface::Formation::getLayeringIndex();
 
       fluid = (FluidType*)Interface::Formation::getFluidType ();
 
@@ -392,13 +403,13 @@ void LayerProps::initialise () {
       IsSourceRock      = false;
       IsMobile          = false;
 
-      presentDayThickness = nullptr;
-      depthGridMap = nullptr;
-      depoage = -2.0;
-      TopSurface_DepoSeq = int (IBSNULLVALUE);
-      Layer_Depo_Seq_Nb = int (IBSNULLVALUE);
-      lithoMixModel = "";
-      fluid = nullptr;
+      presentDayThickness           = nullptr;
+      depthGridMap                  = nullptr;
+      depoage                       = -2.0;
+      TopSurface_DepoSeq            = int (IBSNULLVALUE);
+      Layer_Depo_Seq_Nb             = int (IBSNULLVALUE);
+      m_lithoMixModel               = "";
+      fluid                         = nullptr;
       Calculate_Chemical_Compaction = false;
 
    }
@@ -599,9 +610,9 @@ LayerProps::~LayerProps(){
 
    for ( i = 0; i < m_elementVolumeGrids.size (); ++i )
    {
-      delete m_elementVolumeGrids [ i ];
+         delete m_elementVolumeGrids [ i ];
       m_elementVolumeGrids [ i ] = nullptr;
-   }
+      }
 
    for ( i = 0; i < m_nodalVolumeGrids.size (); ++i )
    {
@@ -981,13 +992,13 @@ void LayerProps::nullify (){
    IsSourceRock      = false;
    IsMobile          = false;
 
-   presentDayThickness = nullptr;
-   depthGridMap = nullptr;
-   depoage = -2.0;
-   TopSurface_DepoSeq = int(IBSNULLVALUE);
-   Layer_Depo_Seq_Nb = int(IBSNULLVALUE);
-   lithoMixModel = "";
-   fluid = nullptr;
+   presentDayThickness           = nullptr;
+   depthGridMap                  = nullptr;
+   depoage                       = -2.0;
+   TopSurface_DepoSeq            = int(IBSNULLVALUE);
+   Layer_Depo_Seq_Nb             = int(IBSNULLVALUE);
+   m_lithoMixModel               = "";
+   fluid                         = nullptr;
    Calculate_Chemical_Compaction = false;
 
 
