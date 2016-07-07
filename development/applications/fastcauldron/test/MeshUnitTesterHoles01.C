@@ -59,12 +59,12 @@ TEST ( DofCountingUnitTest, HoleySedimentMesh01 ) {
    // Declaration block required so as to finalise all fastcauldron objects before calling PetscFinalise.
    {
       bool canRunSaltModelling = false;
-      int returnStatus = FastcauldronStartup::prepare( canRunSaltModelling );
-      if ( returnStatus == 0 ) returnStatus = FastcauldronStartup::startup( argc, argv, canRunSaltModelling );
+      bool returnStatus = FastcauldronStartup::prepare( canRunSaltModelling, false );
+      if ( returnStatus ) returnStatus = FastcauldronStartup::startup( argc, argv, canRunSaltModelling );
 
-      EXPECT_EQ ( returnStatus, 0 );
+      EXPECT_EQ ( returnStatus, true );
 
-      if ( returnStatus == 0 ) {
+      if ( returnStatus ) {
          // The computational domain consists only of sediments: 0 .. n - 3
          // the last 2 layers on the array are for the cryst and mantle.
          ComputationalDomain domain ( *FastcauldronSimulator::getInstance ().getCauldron ()->layers [ 0 ],

@@ -28,7 +28,7 @@ static void abortOnBadAlloc () {
 int main(int argc, char** argv)
 {
    MemoryChecker mc;
-   int returnStatus = 0;
+   bool returnStatus = true;
    bool canRunSaltModelling = true;
 
    // If bad_alloc is raised during an allocation of memory then this function will be called.
@@ -40,28 +40,33 @@ int main(int argc, char** argv)
    MPI_Comm_rank( PETSC_COMM_WORLD, &rank );
 
    // Intitialise fastcauldron loger
-   try{
+   try
+   {
       PetscBool log = PETSC_FALSE;
       PetscOptionsHasName( PETSC_NULL, "-verbosity", &log );
-      if (log){
+      if ( log )
+      {
          char verbosity[11];
          PetscOptionsGetString( PETSC_NULL, "-verbosity", verbosity, 11, 0 );
-         if      (!strcmp( verbosity, "quiet"      )) { LogHandler( "fastcauldron", LogHandler::QUIET_LEVEL,      rank ); }
-         else if (!strcmp( verbosity, "minimal"    )) { LogHandler( "fastcauldron", LogHandler::MINIMAL_LEVEL   , rank ); }
-         else if (!strcmp( verbosity, "normal"     )) { LogHandler( "fastcauldron", LogHandler::NORMAL_LEVEL    , rank ); }
-         else if (!strcmp( verbosity, "detailed"   )) { LogHandler( "fastcauldron", LogHandler::DETAILED_LEVEL  , rank ); }
-         else if (!strcmp( verbosity, "diagnostic" )) { LogHandler( "fastcauldron", LogHandler::DIAGNOSTIC_LEVEL, rank ); }
+         if      ( !strcmp( verbosity, "quiet"      ))  { LogHandler( "fastcauldron", LogHandler::QUIET_LEVEL,      rank ); }
+         else if ( !strcmp( verbosity, "minimal"    ) ) { LogHandler( "fastcauldron", LogHandler::MINIMAL_LEVEL   , rank ); }
+         else if ( !strcmp( verbosity, "normal"     ) ) { LogHandler( "fastcauldron", LogHandler::NORMAL_LEVEL    , rank ); }
+         else if ( !strcmp( verbosity, "detailed"   ) ) { LogHandler( "fastcauldron", LogHandler::DETAILED_LEVEL  , rank ); }
+         else if ( !strcmp( verbosity, "diagnostic" ) ) { LogHandler( "fastcauldron", LogHandler::DIAGNOSTIC_LEVEL, rank ); }
          else throw formattingexception::GeneralException() << "Unknown <" << verbosity << "> option for -verbosity command line parameter.";
       }
-      else{
+      else
+      {
          LogHandler( "fastcauldron", LogHandler::DETAILED_LEVEL, rank );
       }
    }
-   catch (formattingexception::GeneralException& ex){
+   catch ( formattingexception::GeneralException & ex )
+   {
       std::cout << ex.what();
       return 1;
    }
-   catch (...){
+   catch (...)
+   {
       std::cout << "Fatal error when initialising log file(s).";
       return 1;
    }
@@ -69,14 +74,15 @@ int main(int argc, char** argv)
    // prepare (check license)
    returnStatus = FastcauldronStartup::prepare( canRunSaltModelling );
    // startup
-   if ( returnStatus == 0 ) returnStatus = FastcauldronStartup::startup( argc, argv, canRunSaltModelling );
+   if ( returnStatus  ) returnStatus = FastcauldronStartup::startup( argc, argv, canRunSaltModelling );
    // if startup sucessful, run fastcauldron
-   if (returnStatus == 0) returnStatus = FastcauldronStartup::run( );
+   if ( returnStatus ) returnStatus = FastcauldronStartup::run( );
    // delete factory, appctx, exit license
    returnStatus = FastcauldronStartup::finalise( returnStatus );
 
    // finalize
-   PetscFinalize ();
+   PetscFinalize();
    
-   return returnStatus;
+   return returnStatus ? 0 : 1;
 }
+

@@ -32,21 +32,26 @@
 #endif
 
 /// \brief Contains the sequence of operations that are required to initialise the fastcauldron data structures.
-class FastcauldronStartup {
+class FastcauldronStartup
+{
 
 public :
 
-   static int prepare( bool                 canRunSaltModelling );
+   /// @brief Setup FlexLM license if FlexLM library is available
+   /// @param [out] canRunSaltModelling is license allows to run salt modelling?
+   /// @param [in]  checkLicense for unit test we do not need to check license, disable checking with this parameter
+   /// @return true on success false on error
+   static bool prepare( bool & canRunSaltModelling, bool checkLicense = true );
 
-   static int startup ( int                  argc,
-                        char**               argv,
-                        const bool           canRunSaltModelling,
-                        const bool           saveAsInputGrid = false,
-                        const bool           createResultsFile = true );
+   static bool startup ( int                  argc,
+                         char**               argv,
+                         const bool           canRunSaltModelling,
+                         const bool           saveAsInputGrid = false,
+                         const bool           createResultsFile = true );
 
-   static int run();
+   static bool run();
 
-   static int finalise( bool returnStatus );
+   static bool finalise( bool returnStatus );
 
    static bool determineSaltModellingCapability( );
 
@@ -60,6 +65,7 @@ private:
    static bool s_solverHasConverged;
    static bool s_errorInDarcy;
    static bool s_geometryHasConverged;
+   static bool s_checkLicense;
 
 #ifdef FLEXLM
    static char s_feature[EPTFLEXLM_MAX_FEATURE_LEN];

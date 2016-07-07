@@ -33,6 +33,7 @@
 #include "RunCaseSetImpl.h"
 #include "RunManagerImpl.h"
 #include "SensitivityCalculatorImpl.h"
+#include "SUMlibUtils.h"
 #include "CasaSerializer.h"
 #include "CasaDeserializer.h"
 #include "VarSpaceImpl.h"
@@ -199,6 +200,9 @@ public:
    // Load ScenarioAnalysis object from file
    void deserialize( CasaDeserializer & inStream );
 
+   // To copy run case from one scenarion to another
+   std::shared_ptr<RunCaseImpl> copyAnotherScenarioCase( const std::shared_ptr<RunCase> cs );
+
 private:
    std::string                                m_scenarioID;          // scenario ID, some id which will be mentioned in all generated files
    std::string                                m_caseSetPath;         // path to folder which will be the root folder for all scenario cases
@@ -223,8 +227,6 @@ private:
    std::unique_ptr<SensitivityCalculatorImpl> m_sensCalc;
    std::unique_ptr<MonteCarloSolver>          m_mcSolver;
 
-   std::vector<std::unique_ptr<ScenarioAnalysis>> m_oneDscenarios;  // keeps a vector of pointers to the extracted
-                                                                    // 1d scenarios (empty if no 1d scenarios have been extracted)
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -840,10 +842,9 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::importOneDResults( const std::strin
 
    // Collect 1D results:
    // get the values of the run cases from casa_state files
-   std::vector< std::shared_ptr<RunCase> >     bestMatchedCases( rcs.size() );
-   std::vector< std::shared_ptr<RunCase> >     baseCases( rcs.size() );
-   std::vector< std::shared_ptr<RunCase> >     lastRunCases( rcs.size() );
-   m_oneDscenarios.resize( rcs.size() );
+   std::vector< std::shared_ptr<RunCase> > bestMatchedCases( rcs.size() );
+   std::vector< std::shared_ptr<RunCase> > baseCases(        rcs.size() );
+   std::vector< std::shared_ptr<RunCase> > lastRunCases(     rcs.size() );
 
    for ( size_t c = 0; c < rcs.size(); ++c )
    {
@@ -852,10 +853,10 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::importOneDResults( const std::strin
       stateFile << "casa_state.bin";
 
       // load scenario from file (deserialization)
-      m_oneDscenarios[c].reset( casa::ScenarioAnalysis::loadScenario( stateFile.cpath(), "bin" ) );
+      std::unique_ptr<ScenarioAnalysis> oneDscenario( casa::ScenarioAnalysis::loadScenario( stateFile.cpath(), "bin" ) );
  
       // get the RunCaseSet 
-      casa::RunCaseSet & oneDCaseSet = m_oneDscenarios[c]->doeCaseSet();
+      casa::RunCaseSet & oneDCaseSet = oneDscenario->doeCaseSet();
 
       // get and add the best matched case
       oneDCaseSet.filterByExperimentName( "BestMatchedCase" ); 
@@ -864,7 +865,7 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::importOneDResults( const std::strin
          throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << " The best matched case must be present and unique, instead " 
                                                                         << oneDCaseSet.size() << " cases were found";
       }
-      bestMatchedCases[c] = oneDCaseSet[0];
+      bestMatchedCases[c] = copyAnotherScenarioCase( oneDCaseSet[0] );
 
       // get the best base case
       oneDCaseSet.filterByExperimentName( "BaseCase" );
@@ -873,7 +874,7 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::importOneDResults( const std::strin
          throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << " The base case must be present and unique, instead "
                                                                         << oneDCaseSet.size() << " cases were found";
       }
-      baseCases[c] = oneDCaseSet[0];
+      baseCases[c] = copyAnotherScenarioCase( oneDCaseSet[0] );
 
       // get the last run case
       oneDCaseSet.filterByExperimentName( "LMSteps" );
@@ -882,7 +883,7 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::importOneDResults( const std::strin
          throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << " Cannot extract the last run case because the LMSteps case set size is "
                                                                         << oneDCaseSet.size();
       }
-      lastRunCases[c] = oneDCaseSet[oneDCaseSet.size() - 1];
+      lastRunCases[c] = copyAnotherScenarioCase( oneDCaseSet[oneDCaseSet.size() - 1] );
    }
 
    if ( m_xcoordOneD.size() != bestMatchedCases.size() )
@@ -901,36 +902,36 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::importOneDResults( const std::strin
       const casa::VarParameter * vprm = var.parameter( par );
       switch ( vprm->variationType() )
       {
-      case casa::VarParameter::Continuous:
-      {
-         const casa::VarPrmContinuous * vprmc = dynamic_cast<const casa::VarPrmContinuous*>( vprm );
+         case casa::VarParameter::Continuous:
+         {
+            const casa::VarPrmContinuous * vprmc = dynamic_cast<const casa::VarPrmContinuous*>( vprm );
 
             for ( size_t c = 0; c < bestMatchedCases.size(); ++c )
-         {
-            SharedParameterPtr nprm = bestMatchedCases[c]->parameter( par );
-            prmVec.push_back( nprm );
-         }
+            {
+               SharedParameterPtr nprm = bestMatchedCases[c]->parameter( par );
+               prmVec.push_back( nprm );
+            }
 
-         // make the averages
-         SharedParameterPtr prm;
-         try 
-         { 
+            // make the averages
+            SharedParameterPtr prm;
+            try 
+            { 
                // if the average method is not implemented a makeThreeDFromOneD will throw exception 
-            prm = vprmc->makeThreeDFromOneD( bc, m_xcoordOneD, m_ycoordOneD, prmVec );
-         }
-         catch ( const ErrorHandler::Exception & ex )
-         {
-               throw ErrorHandler::Exception( ex.errorCode() ) << " The generation of the 3D parameter " << vprmc->name() 
-                                                               << " from multi 1D results failed. Error message: " << ex.what();
-         }
+               prm = vprmc->makeThreeDFromOneD( bc, m_xcoordOneD, m_ycoordOneD, prmVec );
+            }
+            catch ( const ErrorHandler::Exception & ex )
+            {
+                  throw ErrorHandler::Exception( ex.errorCode() ) << " The generation of the 3D parameter " << vprmc->name() 
+                                                                  << " from multi 1D results failed. Error message: " << ex.what();
+            }
             brc->addParameter( prm );
 
-         //clear previous arrays stored for the mean values 
+            //clear previous arrays stored for the mean values 
             prmVec.clear();
-      }
+         }
          break;
 
-      case casa::VarParameter::Categorical: brc->addParameter( vprm->baseValue()); break;
+      case casa::VarParameter::Categorical: brc->addParameter( vprm->baseValue() ); break;
 
       case casa::VarParameter::Discrete:
       default:
@@ -969,8 +970,8 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::importOneDResults( const std::strin
    bestMatchedCase.push_back( brc );
    rcs.addNewCases( bestMatchedCase, threeDFromOneD );
    rcs.addNewCases( bestMatchedCases, "BestMatchedOneDCases" ); 
-   rcs.addNewCases( baseCases, "BaseOneDCases"); 
-   rcs.addNewCases( lastRunCases, "LastRunOneDCases");
+   rcs.addNewCases( baseCases,        "BaseOneDCases" ); 
+   rcs.addNewCases( lastRunCases,     "LastRunOneDCases" );
 }
 
 void ScenarioAnalysis::ScenarioAnalysisImpl::validateCaseSet( RunCaseSet & cs )
@@ -1163,6 +1164,58 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::deserialize( CasaDeserializer & inS
    m_sensCalc.reset(  new SensitivityCalculatorImpl(  inStream, "SensitivityCalculator" ) );
    
    inStream.load( m_scenarioID, "scenarioID" );
+}
+
+// Make a deep copy of the run case between 2 scenarios
+std::shared_ptr<RunCaseImpl> ScenarioAnalysis::ScenarioAnalysisImpl::copyAnotherScenarioCase( const std::shared_ptr<RunCase> cs )
+{
+   std::shared_ptr<RunCaseImpl> ncs( new RunCaseImpl() );
+
+   // check that parameters space has the same dimension
+   if ( cs->parametersNumber() != varSpace().size() ) 
+   {
+      throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Import run case: IP space for the current scenario is different " << 
+                                                                         varSpace().size() << " != " << cs->parametersNumber();
+   }
+
+   // import paramters using SUMlib <-> CASA converters
+   SUMlib::Case slcs;
+
+   sumext::convertCase( *(cs.get()), varSpace(), slcs         ); // casa -> sumlib
+   sumext::convertCase( slcs,        varSpace(), *(ncs.get()) ); // sumlib -> casa
+
+   if ( cs->observablesNumber() != obsSpace().size() )
+   {
+      throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Import run case: targets number for the current scenario is different " << 
+                                                                         obsSpace().size() << " != " << cs->observablesNumber();
+   }
+
+   // import observables
+   // go over all observable
+   for ( size_t j = 0; j < cs->observablesNumber(); ++j )
+   {
+      // get observable value and check is it double? 
+      const ObsValue * obv = cs->obsValue( j );
+      
+      if ( !obv || !obv->parent() || obv->parent()->typeName() != m_obsSpace->at( j )->typeName() )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Can not convert target " << m_obsSpace->at( j )->name()[0];
+      }
+  
+      if ( obv->isDouble() )
+      {
+         // push values of observable to array of targets
+         const std::vector<double> & vals = obv->asDoubleArray( false );
+         std::vector<double>::const_iterator it = vals.begin();
+         ObsValue * nobv = m_obsSpace->at( j )->createNewObsValueFromDouble( it );
+         ncs->addObsValue( nobv );
+      }
+      else
+      {
+         throw ErrorHandler::Exception( ErrorHandler::NotImplementedAPI ) << "Non double targets are not implemented yet";
+      }
+   }
+   return ncs;
 }
 
 }

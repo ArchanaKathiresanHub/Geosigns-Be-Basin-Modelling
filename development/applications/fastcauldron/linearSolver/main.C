@@ -284,9 +284,9 @@ bool setupCauldron( int argc, char** argv,
 
    HydraulicFracturingManager::getInstance().setAppCtx(appctx);
 
-   const bool canRunSaltModelling = false;
-   const bool prepareOk = ( FastcauldronStartup::prepare( canRunSaltModelling ) == 0 );
-   const bool startupOk = ( FastcauldronStartup::startup( argc, argv, canRunSaltModelling, false, false ) == 0 );
+   bool canRunSaltModelling = false;
+   const bool prepareOk = FastcauldronStartup::prepare( canRunSaltModelling );
+   const bool startupOk = FastcauldronStartup::startup( argc, argv, canRunSaltModelling, false, false );
    if ( startupOk && prepareOk )
    {
       const LayerList & layersList = FastcauldronSimulator::getInstance().getCauldron()->layers;
