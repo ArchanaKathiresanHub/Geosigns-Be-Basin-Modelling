@@ -1096,26 +1096,37 @@ ErrorHandler::ReturnCode VaryLithoFraction( ScenarioAnalysis            & sa
       std::vector<double> baseLithoFractions = prm.asDoubleArray();
 
       // If only one lithofraction was given, the last lithofraction does not vary
-      if ( minLithoFrac.size() == 1 )
+      if ( minLithoFrac.size() == 1 && !baseLithoFractions.empty( ) )
       {
          minLithoFrac.push_back( baseLithoFractions.back() );
          maxLithoFrac.push_back( baseLithoFractions.back() );
       }
 
+      // the map case
+      if ( baseLithoFractions.empty( ) )
+      {
+         baseLithoFractions.push_back( ( minLithoFrac[0] + maxLithoFrac[0] ) * 0.5 );
+         if ( minLithoFrac.size() == 1 )
+         {
+            minLithoFrac.push_back( baseLithoFractions.back( ) );
+            maxLithoFrac.push_back( baseLithoFractions.back( ) );
+         }
+         baseLithoFractions.push_back( ( minLithoFrac[1] + maxLithoFrac[1] ) * 0.5 );
+      }
       // Check ranges and the base value
       ErrorHandler::Exception ex( ErrorHandler::OutOfRangeValue );
 
       if ( baseLithoFractions[0] < minLithoFrac[0] || baseLithoFractions[0] > maxLithoFrac[0] )
       {
          throw ex << "The percentage of the lithology " << lithoFractionsInds[0] << " for the layer " << layerName << " in the base case: " <<
-                      baseLithoFractions[0] << " is outside of the given range : [" << minLithoFrac[0] << ":" << maxLithoFrac[0] << "]" ;
+                       baseLithoFractions[0] << " is outside of the given range : [" << minLithoFrac[0] << ":" << maxLithoFrac[0] << "]";
       }
 
-      if ( baseLithoFractions[1] < minLithoFrac[1] || baseLithoFractions[1] > maxLithoFrac[1] )
-      {
-         throw ex << "The ratio of the lithology " << lithoFractionsInds[1] << " for the layer " << layerName << " in the base case: " <<
-                     baseLithoFractions[1] << " is outside of the given range : [" << minLithoFrac[1] << ":" << maxLithoFrac[1] << "]" ;
-      }
+       if ( baseLithoFractions[1] < minLithoFrac[1] || baseLithoFractions[1] > maxLithoFrac[1] )
+       {
+          throw ex << "The ratio of the lithology " << lithoFractionsInds[1] << " for the layer " << layerName << " in the base case: " <<
+                       baseLithoFractions[1] << " is outside of the given range : [" << minLithoFrac[1] << ":" << maxLithoFrac[1] << "]";
+       }
 
       // add the variable lithofraction parameter to varPrmsSet 
       if ( !layerName.empty() )
