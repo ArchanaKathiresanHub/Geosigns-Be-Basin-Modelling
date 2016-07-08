@@ -11,7 +11,7 @@
 #include "../src/CompoundLithology.h"
 #include "../src/GeoPhysicsProjectHandle.h"
 #include "../src/GeoPhysicsObjectFactory.h"
-#include "FormattingException.h"
+#include "../../utilities/src/FormattingException.h"
 
 #include <gtest/gtest.h>
 
@@ -27,7 +27,7 @@ TEST(MixingPermeability, layered)
    ObjectFactory* factoryptr = &factory;
    ProjectHandle* projectHandle = dynamic_cast< ProjectHandle* >(OpenCauldronProject("MixingPermeabilityProject.project3d", "r", factoryptr));
    CompoundLithology myLitho (projectHandle);
-
+     
    double permeabilityNormal;
    double permeabilityPlane;
    double permVal[3] = { 1000.0, 50.0, 0.01 };
@@ -118,9 +118,6 @@ TEST(MixingPermeability, undefinedModel)
    ProjectHandle* projectHandle = dynamic_cast<ProjectHandle*>(OpenCauldronProject("MixingPermeabilityProject.project3d", "r", factoryptr));
    CompoundLithology myLitho(projectHandle);
 
-   double permeabilityNormal;
-   double permeabilityPlane;
-   double permVal[3] = { 1000.0, 50.0, 0.01 };
    myLitho.addLithology(nullptr, 33);
    myLitho.addLithology(nullptr, 33);
    myLitho.addLithology(nullptr, 34);

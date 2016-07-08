@@ -31,8 +31,6 @@ void DerivedProperties::FormationPropertyCalculator::setUp2dEltMapping( Abstract
 
    int QuadIndices[4][2] = {{0,0},{1,0},{1,1},{0,1}};
 
-   int xs,ys,xm,ym,xdim,ydim;
-
    // DMDAGetInfo(*mapDA,PETSC_NULL,&xdim,&ydim,PETSC_NULL,PETSC_NULL,
    //             PETSC_NULL,PETSC_NULL,PETSC_NULL,PETSC_NULL,PETSC_NULL,PETSC_NULL,PETSC_NULL,PETSC_NULL);
    // DMDAGetCorners(*mapDA,&xs,&ys,PETSC_NULL,&xm,&ym,PETSC_NULL);

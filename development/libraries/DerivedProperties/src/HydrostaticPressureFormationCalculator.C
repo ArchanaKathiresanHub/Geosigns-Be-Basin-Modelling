@@ -183,8 +183,6 @@ void DerivedProperties::HydrostaticPressureFormationCalculator::computeHydrostat
       
       const GeoPhysics::FluidType* fluid = dynamic_cast<const GeoPhysics::FluidType*>(currentFormation->getFluidType ());
       
-      double fluidDensityTop;
-      double fluidDensityBottom;
       double fluidDensity = 0;
       
       double thickness;
