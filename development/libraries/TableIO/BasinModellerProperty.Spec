@@ -915,7 +915,7 @@ START-properties
                           If MixModel is "Homogeneous" should be NoDataValue
     Unit of measurement : 
     Type                : float
-    Default             : -9999
+    Default             : 1
     Error Field         : No
 
     Identification      : SourceRock
