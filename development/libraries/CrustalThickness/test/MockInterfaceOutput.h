@@ -14,7 +14,8 @@
 //Parent
 #include "../src/AbstractInterfaceOutput.h"
 
-#include "../src/InterfaceDefs.h"
+// DataAccess
+#include "../../DataAccess/src/Interface/CrustalThicknessInterface.h"
 
 #include <boost/multi_array.hpp>
 

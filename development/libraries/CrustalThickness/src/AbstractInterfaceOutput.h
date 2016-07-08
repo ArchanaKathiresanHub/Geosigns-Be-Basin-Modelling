@@ -11,7 +11,8 @@
 #ifndef _CRUSTALTHICKNESS_ABSTRACTINTERFACEOUTPUT_H_
 #define _CRUSTALTHICKNESS_ABSTRACTINTERFACEOUTPUT_H_
 
-#include "InterfaceDefs.h"
+// DataAccess
+#include "Interface/CrustalThicknessInterface.h"
 
 /// @class InterfaceOutput The CTC abstract output interface
 class AbstractInterfaceOutput {

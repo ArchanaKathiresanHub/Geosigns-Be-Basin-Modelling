@@ -17,38 +17,36 @@ FILE( GLOB all_srcs src/*.C)
 source_group(source FILES ${all_srcs})
 
 add_library(DataAccess 
-	${all_srcs}
-	${all_headers}
+   ${all_srcs}
+   ${all_headers}
 )
 
 bm_include_libraries(
-    DataModel
-	Serial_Hdf5
-	CBMGenerics
-	utilities
-	FileSystem 
-	TableIO
-	EosPack
-	
-	CrustalThickness
+   DataModel
+   Serial_Hdf5
+   CBMGenerics
+   utilities
+   FileSystem 
+   TableIO
+   EosPack
 )
 
 include_directories( 
-	src
-	${HDF5_INCLUDE_DIRS}
+   src
+   ${HDF5_INCLUDE_DIRS}
 )
 
 target_link_libraries(DataAccess 
-    ${Boost_LIBRARIES}
-	Serial_Hdf5
-	CBMGenerics
-	FileSystem
-	utilities
-	TableIO
+   ${Boost_LIBRARIES}
+   Serial_Hdf5
+   CBMGenerics
+   FileSystem
+   utilities
+   TableIO
 )
 
 if (UNIX)
-add_dependencies(DataAccess HDF5)
+   add_dependencies(DataAccess HDF5)
 endif (UNIX)
 
 generate_dox( src/DataAccess.cfg )

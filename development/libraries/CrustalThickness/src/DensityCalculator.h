@@ -12,7 +12,6 @@
 #define _CRUSTALTHICKNESS_DENSITYCALCULATOR_H_
 
 #include "AbstractInterfaceOutput.h"
-#include "InterfaceDefs.h"
 #include "AbstractValidator.h"
 
 // DerivedProperties library
@@ -20,6 +19,9 @@
 
 // utilitites library
 #include "FormattingException.h"
+
+// DataAccess
+#include "Interface/CrustalThicknessInterface.h"
 
 using namespace DataAccess;
 

@@ -12,7 +12,6 @@
 #define _CRUSTALTHICKNESS_TTSCALCULATOR_H_
 
 #include "AbstractInterfaceOutput.h"
-#include "InterfaceDefs.h"
 #include "AbstractValidator.h"
 
 // CBMGenerics library
@@ -22,6 +21,7 @@
 #include "Local2DArray.h"
 
 //DataAccess library
+#include "Interface/CrustalThicknessInterface.h"
 #include "Interface/GridMap.h"
 
 using namespace DataAccess;

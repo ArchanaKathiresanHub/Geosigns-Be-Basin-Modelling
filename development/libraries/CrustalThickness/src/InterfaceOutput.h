@@ -16,6 +16,7 @@
 #include <string.h>
 
 // DataAccess library
+#include "Interface/CrustalThicknessInterface.h"
 #include "Interface/Grid.h"
 #include "Interface/GridMap.h"
 #include "Interface/MapWriter.h"
@@ -27,7 +28,6 @@
 
 // CrustalThickness library
 #include "AbstractInterfaceOutput.h"
-#include "InterfaceDefs.h"
 
 // utilities library
 #include "FormattingException.h"

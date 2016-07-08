@@ -8,8 +8,8 @@
 // Do not distribute without written permission from Shell.
 //
 
-#ifndef _CRUSTALTHICKNESS_INTERFACEDEFS_H_
-#define _CRUSTALTHICKNESS_INTERFACEDEFS_H_
+#ifndef _DATAACCESS_INTERFACE_CRUSTALTHICKNESSINTERFACE_H_
+#define _DATAACCESS_INTERFACE_CRUSTALTHICKNESSINTERFACE_H_
 
 #include <string>
 
@@ -20,14 +20,15 @@
 #define SUR 0x0004
 /// @}
 
+/// @file Contains the interface dediacted to fastctc
 namespace CrustalThicknessInterface {
 
    const double GRAVITY = 9.81;
-   
+
    enum outputMaps {
       mohoMap = 0, thicknessBasaltMap, WLSadjustedMap,
       TFOnsetMap, TFOnsetLinMap, TFOnsetMigMap, PTaMap,
-      basaltDensityMap, RDAadjustedMap, TFMap, thicknessCrustMap, ECTMap, 
+      basaltDensityMap, RDAadjustedMap, TFMap, thicknessCrustMap, ECTMap,
       estimatedCrustDensityMap, WLSOnsetMap, WLSCritMap, WLSExhumeMap, WLSExhumeSerpMap,
       slopePreMelt, slopePostMelt, interceptPostMelt, thicknessCrustMeltOnset, topBasaltMap,
       WLSMap, incTectonicSubsidence,
@@ -36,7 +37,7 @@ namespace CrustalThicknessInterface {
       numberOfOutputMaps
    };
 
-   const std::string outputMapsNames [CrustalThicknessInterface::numberOfOutputMaps] = {
+   const std::string outputMapsNames[CrustalThicknessInterface::numberOfOutputMaps] = {
       "Moho",                               // present-day Moho depth (m)
       "BasaltThickness",                    // present-day basalt thickness (m)
       "AdjustedWaterLoadedSubsidence",      // present-day water loaded basin subsidence (m)
@@ -69,16 +70,26 @@ namespace CrustalThicknessInterface {
       "PaleowaterdepthResidual"             // The paleowaterdepth residual (PWD-SDH)  [m]
    };
 
-   const std::string outputMapsUnits [CrustalThicknessInterface::numberOfOutputMaps] = {
+   const std::string outputMapsUnits[CrustalThicknessInterface::numberOfOutputMaps] = {
       "m", "m", "m",
-      "", "", "", "C", 
+      "", "", "", "C",
       "kgm-3", "m", "", "m", "m",
       "kgm-3", "m", "m", "m", "m",
       "", "", "", "m", "m", "m",
       "m", "m", "m", "m", "kgm-3", "m", "m"
    };
 
-   outputMaps getPropertyId(const std::string & propertyName);
+   inline outputMaps getPropertyId( const std::string & propertyName ){
+
+      for (unsigned int i = 0; i < numberOfOutputMaps; ++i) {
+         if (propertyName == outputMapsNames[i]) {
+            return static_cast<outputMaps>(i);
+         }
+      }
+
+      return numberOfOutputMaps;
+   };
+
 }
 
 #endif

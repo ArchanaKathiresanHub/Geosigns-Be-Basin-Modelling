@@ -26,7 +26,6 @@ set( all_headers
    src/AbstractValidator.h
    src/ConfigFileParameterCtc.h
    src/DensityCalculator.h
-   src/InterfaceDefs.h
 	src/InterfaceInput.h
 	src/InterfaceOutput.h
    src/LinearFunction.h

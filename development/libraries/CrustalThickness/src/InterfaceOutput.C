@@ -372,19 +372,3 @@ void InterfaceOutput::saveOutput( Interface::ProjectHandle * pHandle, bool isDeb
    }
    
 }
-
-//------------------------------------------------------------//
-namespace CrustalThicknessInterface {
-
-outputMaps getPropertyId(const string & propertyName) {
-
-   for( int i = 0; i < numberOfOutputMaps; ++ i ) {
-      if( propertyName == outputMapsNames[i] ) {
-         return ( outputMaps )i;
-      }
-   }
-
-   return numberOfOutputMaps;
-}
-
-}

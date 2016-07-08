@@ -44,23 +44,24 @@
 #include "Interface/AllochthonousLithology.h"
 #include "Interface/AllochthonousLithologyDistribution.h"
 #include "Interface/AllochthonousLithologyInterpolation.h"
-#include "Interface/RunParameters.h"
-#include "Interface/ProjectData.h"
 #include "Interface/BasementSurface.h"
 #include "Interface/BiodegradationParameters.h"
 #include "Interface/ConstrainedOverpressureInterval.h"
+#include "Interface/CrustFormation.h"
+#include "Interface/CrustalThicknessData.h"
+#include "Interface/CrustalThicknessInterface.h"
+#include "Interface/CrustFormation.h"
 #include "Interface/DiffusionLeakageParameters.h"
 #include "Interface/FluidType.h"
 #include "Interface/Formation.h"
 #include "Interface/FracturePressureFunctionParameters.h"
-#include "Interface/CrustFormation.h"
-#include "Interface/InputValue.h"
 #include "Interface/IgneousIntrusionEvent.h"
-#include "Interface/LithoType.h"
+#include "Interface/InputValue.h"
 #include "Interface/LithologyHeatCapacitySample.h"
 #include "Interface/LithologyThermalConductivitySample.h"
-#include "Interface/FluidHeatCapacitySample.h"
+#include "Interface/LithoType.h"
 #include "Interface/FluidDensitySample.h"
+#include "Interface/FluidHeatCapacitySample.h"
 #include "Interface/FluidThermalConductivitySample.h"
 #include "Interface/Grid.h"
 #include "Interface/GridMap.h"
@@ -75,10 +76,12 @@
 #include "Interface/PaleoFormationProperty.h"
 #include "Interface/PaleoSurfaceProperty.h"
 #include "Interface/PermafrostEvent.h"
+#include "Interface/ProjectData.h"
 #include "Interface/Property.h"
 #include "Interface/PropertyValue.h"
 #include "Interface/RelatedProject.h"
 #include "Interface/Reservoir.h"
+#include "Interface/RunParameters.h"
 #include "Interface/SimulationDetails.h"
 #include "Interface/Snapshot.h"
 #include "Interface/SourceRock.h"
@@ -98,7 +101,6 @@
 #include "Interface/LangmuirAdsorptionIsothermSample.h"
 #include "Interface/LangmuirAdsorptionTOCEntry.h"
 #include "Interface/SGDensitySample.h"
-#include "Interface/CrustalThicknessData.h"
 
 
 #include "errorhandling.h"
@@ -106,7 +108,6 @@
 #include "array.h"
 #include "GenexResultManager.h"
 #include "ComponentManager.h"
-#include "InterfaceDefs.h"
 
 #include "FilePath.h"
 
@@ -1079,14 +1080,14 @@ bool ProjectHandle::loadProperties( void )
       m_properties.push_back( getFactory()->produceProperty( this, 0,
          theComponentManager.GetSpeciesOutputPropertyName( i, false ),
          theComponentManager.GetSpeciesOutputPropertyName( i, false ),
-                                                             theResultManager.GetResultUnit( GenexResultManager::OilGeneratedCum ), FORMATIONPROPERTY,
-                                                             DataModel::FORMATION_2D_PROPERTY) );
+         theResultManager.GetResultUnit( GenexResultManager::OilGeneratedCum ), FORMATIONPROPERTY,
+         DataModel::FORMATION_2D_PROPERTY) );
 
       m_properties.push_back( getFactory()->produceProperty( this, 0,
          theComponentManager.GetSpeciesOutputPropertyName( i, true ),
          theComponentManager.GetSpeciesOutputPropertyName( i, true ),
-                                                             theResultManager.GetResultUnit( GenexResultManager::OilGeneratedCum ), FORMATIONPROPERTY,
-                                                             DataModel::FORMATION_2D_PROPERTY ) );
+         theResultManager.GetResultUnit( GenexResultManager::OilGeneratedCum ), FORMATIONPROPERTY,
+         DataModel::FORMATION_2D_PROPERTY ) );
 
    }
 
@@ -1096,8 +1097,8 @@ bool ProjectHandle::loadProperties( void )
       m_properties.push_back( getFactory()->produceProperty( this, 0,
          theResultManager.GetResultName( i ),
          theResultManager.GetResultName( i ),
-                                                             theResultManager.GetResultUnit( i ), FORMATIONPROPERTY,
-                                                             DataModel::FORMATION_2D_PROPERTY ) );
+         theResultManager.GetResultUnit( i ), FORMATIONPROPERTY,
+         DataModel::FORMATION_2D_PROPERTY ) );
    }
 
    for ( i = 0; i < ComponentManager::NumberOfOutputSpecies; ++i )
@@ -1105,45 +1106,45 @@ bool ProjectHandle::loadProperties( void )
       m_properties.push_back( getFactory()->produceProperty( this, 0,
          theComponentManager.GetSpeciesName( i ) + "Concentration",
          theComponentManager.GetSpeciesName( i ) + "Concentration",
-                                                             "kg/m3", FORMATIONPROPERTY,
-                                                             DataModel::DISCONTINUOUS_3D_PROPERTY ) );
+         "kg/m3", FORMATIONPROPERTY,
+         DataModel::DISCONTINUOUS_3D_PROPERTY ) );
    }
 
    m_properties.push_back( getFactory()->produceProperty( this, 0,
       "ElementMass", "ElementMass",
-                                                          "kg/m3", FORMATIONPROPERTY,
-                                                          DataModel::DISCONTINUOUS_3D_PROPERTY ) );
+       "kg/m3", FORMATIONPROPERTY,
+       DataModel::DISCONTINUOUS_3D_PROPERTY ) );
 
    m_properties.push_back( getFactory()->produceProperty( this, 0,
       "TransportedMass", "TransportedMass",
-                                                          "kg", FORMATIONPROPERTY,
-                                                          DataModel::DISCONTINUOUS_3D_PROPERTY ) );
+      "kg", FORMATIONPROPERTY,
+      DataModel::DISCONTINUOUS_3D_PROPERTY ) );
 
    for ( i = 0; i < ComponentManager::NumberOfOutputSpecies; ++i )
    {
       m_properties.push_back( getFactory()->produceProperty( this, 0,
          theComponentManager.GetSpeciesName( i ) + "Retained",
          theComponentManager.GetSpeciesName( i ) + "Retained",
-                                                             theResultManager.GetResultUnit( GenexResultManager::OilGeneratedCum ), FORMATIONPROPERTY,
-                                                             DataModel::FORMATION_2D_PROPERTY ) );
+          theResultManager.GetResultUnit( GenexResultManager::OilGeneratedCum ), FORMATIONPROPERTY,
+          DataModel::FORMATION_2D_PROPERTY ) );
 
       m_properties.push_back( getFactory()->produceProperty( this, 0,
          theComponentManager.GetSpeciesName( i ) + "Adsorped",
          theComponentManager.GetSpeciesName( i ) + "Adsorped",
-                                                             "scf/ton", FORMATIONPROPERTY,
-                                                             DataModel::FORMATION_2D_PROPERTY ) );
+         "scf/ton", FORMATIONPROPERTY,
+         DataModel::FORMATION_2D_PROPERTY ) );
 
       m_properties.push_back( getFactory()->produceProperty( this, 0,
          theComponentManager.GetSpeciesName( i ) + "AdsorpedExpelled",
          theComponentManager.GetSpeciesName( i ) + "AdsorpedExpelled",
-                                                             "scf/ton", FORMATIONPROPERTY,
-                                                             DataModel::FORMATION_2D_PROPERTY ) );
+         "scf/ton", FORMATIONPROPERTY,
+         DataModel::FORMATION_2D_PROPERTY ) );
 
       m_properties.push_back( getFactory()->produceProperty( this, 0,
          theComponentManager.GetSpeciesName( i ) + "AdsorpedFree",
          theComponentManager.GetSpeciesName( i ) + "AdsorpedFree",
-                                                             "scf/ton", FORMATIONPROPERTY,
-                                                             DataModel::FORMATION_2D_PROPERTY ) );
+         "scf/ton", FORMATIONPROPERTY,
+         DataModel::FORMATION_2D_PROPERTY ) );
 
    }
 
@@ -1246,7 +1247,7 @@ bool ProjectHandle::loadProperties( void )
    m_properties.push_back( getFactory()->produceProperty( this, 0, "SpillDepth",         "SpillDepth",         "m",         TRAPPROPERTY, DataModel::TRAP_PROPERTY )); // Spill depth
    m_properties.push_back( getFactory()->produceProperty( this, 0, "SealPermeability",   "SealPermeability",   "mD",        TRAPPROPERTY, DataModel::TRAP_PROPERTY )); //
 
-   // Crustal Thickness Calculator output property
+   // Crustal Thickness Calculator output properties
    for ( i = 0; i < CrustalThicknessInterface::numberOfOutputMaps; ++i )
    {
       m_properties.push_back( getFactory()->produceProperty( this, 0,
