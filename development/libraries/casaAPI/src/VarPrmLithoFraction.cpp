@@ -68,9 +68,19 @@ namespace casa
       return prm;
    }
 
-   SharedParameterPtr VarPrmLithoFraction::newParameterFromModel( mbapi::Model & mdl ) const
+   SharedParameterPtr VarPrmLithoFraction::newParameterFromModel( mbapi::Model & mdl, const std::vector<double> & vin ) const
    {
-      SharedParameterPtr prm( new PrmLithoFraction( mdl, m_layerName, m_lithoFractionsInds ) );
+      SharedParameterPtr prm( 0 );
+
+      if ( vin.empty() )
+      {
+         prm.reset( new PrmLithoFraction( mdl, m_layerName, m_lithoFractionsInds ) );
+      }
+      else if ( vin.size() == 2 )
+      {
+         prm.reset( new PrmLithoFraction( mdl, m_layerName, m_lithoFractionsInds, vin ) );      
+      }
+      prm->setParent( this );
       return prm;
    }
    

@@ -142,9 +142,10 @@ SharedParameterPtr VarPrmCrustThinning::newParameterFromDoubles( std::vector<dou
    return prm;
 }
 
-SharedParameterPtr VarPrmCrustThinning::newParameterFromModel( mbapi::Model & mdl ) const
+SharedParameterPtr VarPrmCrustThinning::newParameterFromModel( mbapi::Model & mdl, const std::vector<double> & vin ) const
 {
    SharedParameterPtr prm( new PrmCrustThinning( mdl ) );
+   prm->setParent( const_cast<VarPrmCrustThinning *>( this ) );
    return prm;
 }
 

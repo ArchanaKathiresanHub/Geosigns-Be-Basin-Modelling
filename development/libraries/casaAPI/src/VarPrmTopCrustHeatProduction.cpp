@@ -103,9 +103,11 @@ SharedParameterPtr VarPrmTopCrustHeatProduction::newParameterFromDoubles( std::v
    return newPrm;
 }
 
-SharedParameterPtr VarPrmTopCrustHeatProduction::newParameterFromModel( mbapi::Model & mdl ) const
+SharedParameterPtr VarPrmTopCrustHeatProduction::newParameterFromModel( mbapi::Model & mdl, const std::vector<double> & vin ) const
 {
-   return SharedParameterPtr( new PrmTopCrustHeatProduction( mdl ) );
+   SharedParameterPtr prm( new PrmTopCrustHeatProduction( mdl ) );
+   prm->setParent( const_cast<VarPrmTopCrustHeatProduction *>( this ) );
+   return prm;
 }
 
 

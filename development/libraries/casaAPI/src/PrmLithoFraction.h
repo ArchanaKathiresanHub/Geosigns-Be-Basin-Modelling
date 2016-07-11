@@ -61,6 +61,13 @@ namespace casa
       /// @param lithoFractionsInds the lithofractions indexes to calculate
       PrmLithoFraction( mbapi::Model & mdl, const std::string & layerName, const std::vector<int> & lithoFractionsInds );
 
+      /// @brief Constructor. Create parameter by reading parameter value from the given model and at specific i and j locations
+      /// @param mdl Cauldron model interface object to get the percentages of each lithology
+      /// @param layerName the layer name
+      /// @param lithoFractionsInds the lithofractions indexes to calculate
+      /// @param the i, j positions in the model grid
+      PrmLithoFraction( mbapi::Model & mdl, const std::string & layerName, const std::vector<int> & lithoFractionsInds, const std::vector<double> & coordinates );
+
       /// @brief Constructor. Create parameter object from the given parameter value
       PrmLithoFraction( const VarPrmLithoFraction * parent,                             ///< parent variable parameter which created this one
                         const std::string         & name,                               ///< parameter name
@@ -111,6 +118,10 @@ namespace casa
       /// @brief Get variable parameter which was used to create this parameter
       /// @return Pointer to the variable parameter
       virtual const VarParameter * parent() const { return m_parent; }
+
+      /// @brief Set variable parameter which was used to create this parameter
+      /// @param Pointer to the variable parameter
+      virtual void  setParent( const VarParameter * varPrm )  { m_parent =  varPrm; }
 
       /// @{
       /// @brief Defines version of serialized object representation. Must be updated on each change in save()

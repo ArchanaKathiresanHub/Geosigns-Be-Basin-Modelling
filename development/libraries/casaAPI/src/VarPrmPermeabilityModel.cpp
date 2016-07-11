@@ -307,9 +307,11 @@ SharedParameterPtr VarPrmPermeabilityModel::newParameterFromDoubles( std::vector
    return prm;
 }
 
-SharedParameterPtr VarPrmPermeabilityModel::newParameterFromModel( mbapi::Model & mdl ) const
+SharedParameterPtr VarPrmPermeabilityModel::newParameterFromModel( mbapi::Model & mdl, const std::vector<double> & vin ) const
 {
-   return SharedParameterPtr( new PrmPermeabilityModel( mdl, m_lithoName.c_str() ) );
+   SharedParameterPtr prm( new PrmPermeabilityModel( mdl, m_lithoName.c_str( ) ) );
+   prm->setParent( const_cast<VarPrmPermeabilityModel *>( this ) );
+   return prm;
 }
 
 SharedParameterPtr VarPrmPermeabilityModel::makeThreeDFromOneD( mbapi::Model                          & mdl

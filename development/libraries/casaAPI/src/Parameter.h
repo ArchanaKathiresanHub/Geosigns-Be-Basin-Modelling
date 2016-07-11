@@ -53,6 +53,10 @@ namespace casa
       /// @return Pointer to the variable parameter
       virtual const VarParameter * parent() const = 0;
 
+      /// @brief Set variable parameter which was used to create this parameter
+      /// @param Pointer to the variable parameter
+      virtual void  setParent( const VarParameter * varPrm ) = 0;
+
       /// @brief Get the level of influence to cauldron applications pipeline for this parametr
       /// @return number which indicates which solver influence this parameter
       virtual AppPipelineLevel appSolverDependencyLevel() const  = 0;

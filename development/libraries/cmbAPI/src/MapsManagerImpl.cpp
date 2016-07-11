@@ -335,6 +335,20 @@ ErrorHandler::ReturnCode MapsManagerImpl::mapGetValues( MapID id, std::vector<do
    return NoError;
 }
 
+double MapsManagerImpl::mapGetValue( MapID id, const unsigned int i, const unsigned int j )
+{
+   if ( errorCode() != NoError ) resetError();
+
+   double value = UndefinedDoubleValue;
+
+   loadGridMap( id ); // check if map is loaded and load it if not loaded before
+   m_mapObj[id]->retrieveData();
+   value = m_mapObj[id]->getValue( i, j );
+   m_mapObj[id]->restoreData();
+
+   return value;
+}
+
 // Save input map to the new HDF file. File with the given name should not exist before.
 ErrorHandler::ReturnCode MapsManagerImpl::saveMapToHDF( MapID id, const std::string & fileName, const int mapSequenceNbr )
 {

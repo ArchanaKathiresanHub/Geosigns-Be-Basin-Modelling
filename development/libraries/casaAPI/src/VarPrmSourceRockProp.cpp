@@ -82,9 +82,11 @@ SharedParameterPtr VarPrmSourceRockProp::newParameterFromDoubles( std::vector<do
    return prm;
 }
 
-SharedParameterPtr VarPrmSourceRockProp::newParameterFromModel( mbapi::Model & mdl ) const
+SharedParameterPtr VarPrmSourceRockProp::newParameterFromModel( mbapi::Model & mdl, const std::vector<double> & vin ) const
 {
-   return SharedParameterPtr( createNewPrmFromModel( mdl ) );
+   SharedParameterPtr prm( createNewPrmFromModel( mdl ) );
+   prm->setParent( const_cast<VarPrmSourceRockProp *>( this ) );
+   return prm;
 }
 
 SharedParameterPtr VarPrmSourceRockProp::makeThreeDFromOneD( mbapi::Model                          & mdl

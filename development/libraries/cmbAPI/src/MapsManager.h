@@ -74,6 +74,13 @@ namespace mbapi
       /// @return ErrorHandler::NoError on success, or error code otherwise
       virtual ErrorHandler::ReturnCode mapSetValues( MapID id, const std::vector<double>& vin ) = 0;
 
+      /// @brief Get a value contained in the map
+      /// @param[in] id map ID
+      /// @param[in] i position
+      /// @param[in] j position
+      /// @return the parameter value
+      virtual double mapGetValue( MapID id, const unsigned int i, const unsigned int j ) = 0;
+
       /// @brief Get the values contained in vin in the map
       /// @param[in] id map ID
       /// @param[out] vout the local (partitioned) values of the map

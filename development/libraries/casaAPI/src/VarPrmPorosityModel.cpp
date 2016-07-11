@@ -198,9 +198,11 @@ SharedParameterPtr VarPrmPorosityModel::newParameterFromDoubles( std::vector<dou
    return prm;
 }
 
-SharedParameterPtr VarPrmPorosityModel::newParameterFromModel( mbapi::Model & mdl ) const
+SharedParameterPtr VarPrmPorosityModel::newParameterFromModel( mbapi::Model & mdl, const std::vector<double> & vin ) const
 {
-   return SharedParameterPtr( new PrmPorosityModel( mdl, m_lithoName.c_str( ) ));
+   SharedParameterPtr prm( new PrmPorosityModel( mdl, m_lithoName.c_str( ) ) );
+   prm->setParent( const_cast<VarPrmPorosityModel *>( this ) );
+   return prm;
 }
 
 

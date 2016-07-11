@@ -177,6 +177,99 @@ namespace casa
       m_name = "LithoFraction(" + m_layerName + ")";
    }
 
+
+   // Constructor: read from the model with coordinates values
+   PrmLithoFraction::PrmLithoFraction( mbapi::Model & mdl, const std::string & layerName, const std::vector<int> & lithoFractionsInds, const std::vector<double> & coordinates )
+      : m_parent( 0 )
+      , m_layerName( layerName )
+      , m_lithoFractionsInds( lithoFractionsInds )
+   {
+      if ( coordinates.size() != 2 )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "The size of the coordinate vector cannot be different than 2";
+      }
+      
+      mbapi::StratigraphyManager & stMgr = mdl.stratigraphyManager();
+      // get the layer ID
+      mbapi::StratigraphyManager::LayerID lid = stMgr.layerID( m_layerName );
+
+      if ( stMgr.errorCode() != ErrorHandler::NoError ) { throw ErrorHandler::Exception( stMgr.errorCode() ) << stMgr.errorMessage(); }
+
+      // vector to store the lithologies
+      std::vector<string> lithoNames;
+      std::vector<double> lithoPercentages;
+      std::vector<string> percMaps;
+
+      if ( ErrorHandler::NoError != stMgr.layerLithologiesList( lid, lithoNames, lithoPercentages, percMaps ) )
+      {
+         throw ErrorHandler::Exception( stMgr.errorCode( ) ) << stMgr.errorMessage( );
+      }
+
+      mbapi::MapsManager & mpMgr = mdl.mapsManager();
+      
+      // Here we assume to have always 2 maps!
+      if ( !percMaps[0].empty( ) && !percMaps[1].empty( ) )
+      {
+         // first map
+         mbapi::MapsManager::MapID mFirstID = mpMgr.findID( percMaps[0] );
+
+         if ( UndefinedIDValue == mFirstID )
+         {
+            throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Can't find the map: " << percMaps[0]
+               << " defined for the first lithology percentage";
+         }
+
+         // get the value of the map
+         double value = mpMgr.mapGetValue( mFirstID, coordinates[0], coordinates[1] );
+         if ( UndefinedIDValue == value )
+         {
+            throw ErrorHandler::Exception( mdl.errorCode() ) << mdl.errorMessage();
+         }
+
+         // first lithoPercentage
+         lithoPercentages[0] = value ;
+
+         // second map
+         mbapi::MapsManager::MapID mSecondID = mpMgr.findID( percMaps[1] );
+
+         if ( UndefinedIDValue == mSecondID )
+         {
+            throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Can't find the map: " << percMaps[1]
+               << " defined for the second lithology percentage";
+         }
+
+         // get the value of the map
+         value = mpMgr.mapGetValue( mSecondID, coordinates[0], coordinates[1] );
+         if ( UndefinedIDValue == value )
+         {
+            throw ErrorHandler::Exception( mdl.errorCode() ) << mdl.errorMessage();
+         }
+
+         // second lithoPercentage
+         lithoPercentages[1] = value;
+         // third lithoPercentage calculated by difference
+         lithoPercentages[2] = 100.0 - lithoPercentages[0] - lithoPercentages[1];
+
+         // since we got the punctual value, delete the maps (needed for later)
+         m_mapNameFirstLithoPercentage.clear();
+         m_mapNameSecondLithoPercentage.clear();
+      }
+
+      m_lithoFractions = createLithoFractions( lithoPercentages, m_lithoFractionsInds );
+
+      if ( m_lithoFractions[0] < 0.0 || m_lithoFractions[0] > 100.0 )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Lithology percentage " << m_lithoFractionsInds[0] <<
+            " for layer " << m_layerName << " is out of range [0:100]: " << m_lithoFractions[0] << "\n";
+      }
+
+      if ( m_lithoFractions[1] < 0.0 || m_lithoFractions[1] > 1.0 )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Lithology rest fraction " << m_lithoFractionsInds[1] <<
+            " for layer " << m_layerName << " is out of range [0:1]: " << m_lithoFractions[1] << "\n";
+      }
+   }
+
    // Constructor: set the values given by VarPrmLithoFraction
    PrmLithoFraction::PrmLithoFraction( const VarPrmLithoFraction * parent
                                      , const std::string         & name

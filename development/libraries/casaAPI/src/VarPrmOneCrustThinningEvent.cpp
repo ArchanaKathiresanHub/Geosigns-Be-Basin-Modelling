@@ -92,9 +92,11 @@ SharedParameterPtr VarPrmOneCrustThinningEvent::newParameterFromDoubles( std::ve
    return prm;
 }
 
-SharedParameterPtr VarPrmOneCrustThinningEvent::newParameterFromModel( mbapi::Model & mdl ) const
+SharedParameterPtr VarPrmOneCrustThinningEvent::newParameterFromModel( mbapi::Model & mdl, const std::vector<double> & vin ) const
 {
-   return SharedParameterPtr( new PrmOneCrustThinningEvent( mdl ) );
+   SharedParameterPtr prm( new PrmOneCrustThinningEvent( mdl ) );
+   prm->setParent( const_cast<VarPrmOneCrustThinningEvent *>( this ) );
+   return prm;
 }
 
 SharedParameterPtr VarPrmOneCrustThinningEvent::makeThreeDFromOneD( mbapi::Model                          & mdl

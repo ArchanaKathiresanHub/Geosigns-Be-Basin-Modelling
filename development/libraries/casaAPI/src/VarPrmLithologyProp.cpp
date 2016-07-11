@@ -58,9 +58,10 @@ SharedParameterPtr VarPrmLithologyProp::newParameterFromDoubles( std::vector<dou
    return prm;
 }
 
-SharedParameterPtr VarPrmLithologyProp::newParameterFromModel( mbapi::Model & mdl ) const
+SharedParameterPtr VarPrmLithologyProp::newParameterFromModel( mbapi::Model & mdl , const std::vector<double> & vin) const
 {
    SharedParameterPtr prm( createNewPrmFromModel( mdl ) );
+   prm->setParent( const_cast<VarPrmLithologyProp *>( this ) );
    return prm;
 }
 

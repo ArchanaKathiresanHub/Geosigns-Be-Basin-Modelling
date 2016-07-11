@@ -39,7 +39,7 @@ namespace casa
       /// @brief Create parameter by reading the values stored in the project file
       /// @param[in] mdl the model where the parameters values should be read
       /// @return the new parameter read from the model
-      virtual SharedParameterPtr newParameterFromModel( mbapi::Model & mdl ) const;
+      virtual SharedParameterPtr newParameterFromModel( mbapi::Model & mdl, const std::vector<double> & vin ) const;
 
       /// @brief Average the values, interpolate for lithofractions and set the appropriate entries in the project3d file
       /// @param[in, out] mdl the model where to set the new averaged parameter

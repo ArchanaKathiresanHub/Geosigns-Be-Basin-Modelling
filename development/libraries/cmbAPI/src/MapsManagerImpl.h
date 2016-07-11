@@ -73,6 +73,9 @@ namespace mbapi
       // Get the values from the map
       virtual ErrorHandler::ReturnCode mapGetValues( MapID id, std::vector<double>& vout );
 
+      // Get the value from the map
+      virtual double mapGetValue( MapID id, const unsigned int i, const unsigned int j );
+
       // Interpolate between 2 maps, coefficient in range [0:1]
       virtual ErrorHandler::ReturnCode interpolateMap( MapID id, MapID minId, MapID maxId, double coeff );
 

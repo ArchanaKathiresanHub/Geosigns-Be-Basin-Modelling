@@ -69,9 +69,10 @@ SharedParameterPtr VarPrmLithoSTPThermalCond::newParameterFromDoubles( std::vect
    return prm;
 }
 
-SharedParameterPtr VarPrmLithoSTPThermalCond::newParameterFromModel( mbapi::Model & mdl ) const
+SharedParameterPtr VarPrmLithoSTPThermalCond::newParameterFromModel( mbapi::Model & mdl, const std::vector<double> & vin ) const
 {
    SharedParameterPtr prm( new PrmLithoSTPThermalCond( mdl, m_lithoName.c_str( ) ) );
+   prm->setParent( const_cast<VarPrmLithoSTPThermalCond *>( this ) );
    return prm;
 }
 

@@ -303,17 +303,20 @@ ErrorHandler::ReturnCode StratigraphyManagerImpl::setLayerLithologiesList( Layer
       // set 1st lithology
       rec->setValue<std::string>( s_lithoType1FiledName,        lithoList[0]    );
       rec->setValue<double>(      s_lithoTypePercent1FiledName, lithoPercent[0] );
+      rec->setValue<std::string>( s_lithoTypePercent1GridFiledName, "" );
 
       // set 2nd lithology
       if ( lithoList.size() > 1 )
       {
          rec->setValue<std::string>( s_lithoType2FiledName,        lithoList[1] );
          rec->setValue<double>(      s_lithoTypePercent2FiledName, lithoPercent[1] );
+         rec->setValue<std::string>( s_lithoTypePercent2GridFiledName, "" );
       }
       else
       {
          rec->setValue<std::string>( s_lithoType2FiledName,        ""  );
          rec->setValue<double>(      s_lithoTypePercent2FiledName, 0.0 );
+         rec->setValue<std::string>( s_lithoTypePercent2GridFiledName, "" );
       }
 
       // set 3d lithology

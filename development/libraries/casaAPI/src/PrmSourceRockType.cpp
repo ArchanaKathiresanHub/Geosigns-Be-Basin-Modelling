@@ -27,7 +27,7 @@ namespace casa
 
 // Constructor
 PrmSourceRockType::PrmSourceRockType( mbapi::Model & mdl, const std::string & layerName, int mixID )
-   : m_parent(0)
+   : m_parent( 0 )
    , m_layerName( layerName )
    , m_mixID( mixID )
 { 
@@ -76,14 +76,15 @@ PrmSourceRockType::PrmSourceRockType( mbapi::Model & mdl, const std::string & la
 }
 
  // Constructor
-PrmSourceRockType::PrmSourceRockType( const VarPrmSourceRockType * parent
-                                    , const std::string          & layerName
-                                    , const std::string          & sourceRockTypeName
-                                    , int                          mixID
-                                    ) : m_parent( parent )
-                                      , m_layerName( layerName )
-                                      , m_srtName( sourceRockTypeName )
-                                      , m_mixID( mixID )
+PrmSourceRockType::PrmSourceRockType( const VarParameter * parent
+                                    , const std::string  & layerName
+                                    , const std::string  & sourceRockTypeName
+                                    , int                  mixID
+                                    )
+                                    : m_parent( parent )
+                                    , m_layerName( layerName )
+                                    , m_srtName( sourceRockTypeName )
+                                    , m_mixID( mixID )
 {
    // construct parameter name
    std::ostringstream oss;
@@ -188,7 +189,10 @@ int PrmSourceRockType::asInteger() const
 {
    if ( !m_parent ) return -1; // no parent - no enumeration
 
-   return m_parent->index( this );
+   const VarPrmSourceRockType * prnt = dynamic_cast<const VarPrmSourceRockType*>( m_parent );
+   if ( !prnt ) return -1;
+
+   return prnt->index( this );
 }
 
 
