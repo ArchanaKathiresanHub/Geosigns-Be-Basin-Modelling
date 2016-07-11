@@ -18,7 +18,7 @@ namespace HDF5
 	 const char *datasetName, hid_t dataType, const void *data);
 
    bool writeData2D (hid_t fileHandle, long sizeI, long sizeJ,
-	 const char *datasetName, hid_t dataType, const void *data);
+      const char *datasetName, hid_t dataType, const void *data, bool & newDataset );
    bool writeAttribute (hid_t fileHandle,
 	 const char *datasetName, const char *attributeName, const hid_t attributeType,
 	 const hsize_t dims, void *data);

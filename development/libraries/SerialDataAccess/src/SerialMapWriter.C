@@ -94,30 +94,31 @@ bool SerialMapWriter::writeMapToHDF (GridMap * gridMap, float time, double depoA
 
    // create dataset name
    string dataSetName = LAYER_DATASET_PREFIX + propertyGrid;
+   bool newDataset = true;
+   returnVal = writeMapData( dataSetName, gridMap, newDataset );
 
-   writeMapData (dataSetName, gridMap);
+   if ( newDataset )
+   {
+      returnVal = writeAttribute( dataSetName, PROPERTY_NAME_ATTRIBUTE, H5T_C_S1, 3, (void *)tmpString.c_str( ) );
 
-   returnVal = writeAttribute (dataSetName, PROPERTY_NAME_ATTRIBUTE, H5T_C_S1, 3, (void *) tmpString.c_str ());
+      returnVal = writeAttribute( dataSetName, GRID_NAME_ATTRIBUTE, H5T_C_S1,
+         propertyGrid.length( ), (void *)propertyGrid.c_str( ) );
 
-   returnVal = writeAttribute (dataSetName, GRID_NAME_ATTRIBUTE, H5T_C_S1,
-                               propertyGrid.length (), (void *) propertyGrid.c_str ());
+      tmpString = "IMAGE";
+      returnVal = writeAttribute( dataSetName, "CLASS", H5T_C_S1, 6, (void *)tmpString.c_str( ) );
+      returnVal = writeAttribute( dataSetName, STRATTOP_AGE_ATTRIBUTE, H5T_NATIVE_FLOAT, 1, &time );
 
-   tmpString = "IMAGE";
-   returnVal = writeAttribute (dataSetName, "CLASS", H5T_C_S1, 6, (void *) tmpString.c_str ());
+      tmpString = "RDO";
+      returnVal = writeAttribute( dataSetName, STRATTOP_PROPERTY_ATTRIBUTE, H5T_C_S1, 3, (void *)tmpString.c_str( ) );
+   }
 
-   float fdepoAge = float (depoAge);
-
-   Write1DDataSet (1, STRATTOP_AGE_DATASET_NAME, H5T_NATIVE_FLOAT, &fdepoAge);
-
-   returnVal = writeAttribute (dataSetName, STRATTOP_AGE_ATTRIBUTE, H5T_NATIVE_FLOAT, 1, &time);
-
-   tmpString = "RDO";
-   returnVal = writeAttribute (dataSetName, STRATTOP_PROPERTY_ATTRIBUTE, H5T_C_S1, 3, (void *) tmpString.c_str ());
+   float fdepoAge = float( depoAge );
+   Write1DDataSet( 1, STRATTOP_AGE_DATASET_NAME, H5T_NATIVE_FLOAT, &fdepoAge );
 
    return returnVal;
 }
 
-bool SerialMapWriter::writeMapData (const string & dataSetName, const GridMap * gridMap)
+bool SerialMapWriter::writeMapData( const string & dataSetName, const GridMap * gridMap, bool & newDataset )
 {
    int numI = gridMap->getGrid ()->numI ();
    int numJ = gridMap->getGrid ()->numJ ();
@@ -132,7 +133,7 @@ bool SerialMapWriter::writeMapData (const string & dataSetName, const GridMap * 
       }
    }
 
-   HDF5::writeData2D (m_fileHandle, numI, numJ, dataSetName.c_str (), H5T_NATIVE_FLOAT, dataArray);
+   HDF5::writeData2D( m_fileHandle, numI, numJ, dataSetName.c_str( ), H5T_NATIVE_FLOAT, dataArray, newDataset );
 
    delete [] dataArray;
 

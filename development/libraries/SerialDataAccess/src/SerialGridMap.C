@@ -609,20 +609,23 @@ bool SerialGridMap::saveHDF5 (const string & fileName) const
       }
    }
 
-   HDF5::writeData2D (fileHandle, numI, numJ, "/Layer=0", H5T_NATIVE_FLOAT, dataArray);
-
-   HDF5::writeAttribute (fileHandle, "/Layer=0", "PropertyName", H5T_C_S1, 3, (void*)"RD0");
-   HDF5::writeAttribute (fileHandle, "/Layer=0", "GridName", H5T_C_S1, 5, (void*)"RD0_1");
-   HDF5::writeAttribute (fileHandle, "/Layer=0", "CLASS", H5T_C_S1, 5, (void*)"IMAGE");
+   bool newDataset = true;
+   HDF5::writeData2D( fileHandle, numI, numJ, "/Layer=0", H5T_NATIVE_FLOAT, dataArray, newDataset );
 
    float age = 0;
-   HDF5::writeAttribute (fileHandle, "/Layer=0", "StratTopAge", H5T_NATIVE_FLOAT, 1, &age);
-   HDF5::writeData1D (fileHandle, 1, "/StratTopAge", H5T_NATIVE_FLOAT, &age);
+   if ( newDataset )
+   {
+      HDF5::writeAttribute( fileHandle, "/Layer=0", "PropertyName", H5T_C_S1, 3, ( void* )"RD0" );
+      HDF5::writeAttribute( fileHandle, "/Layer=0", "GridName", H5T_C_S1, 5, ( void* )"RD0_1" );
+      HDF5::writeAttribute( fileHandle, "/Layer=0", "CLASS", H5T_C_S1, 5, ( void* )"IMAGE" );
+      HDF5::writeAttribute( fileHandle, "/Layer=0", "StratTopProp", H5T_C_S1, 3, ( void* )"DEP" );
+      HDF5::writeAttribute( fileHandle, "/Layer=0", "StratTopName", H5T_C_S1, 12, ( void* )"Water bottom" );
+      HDF5::writeAttribute( fileHandle, "/Layer=0", "StratTopAge", H5T_NATIVE_FLOAT, 1, &age );
+   }
 
-   HDF5::writeAttribute (fileHandle, "/Layer=0", "StratTopProp", H5T_C_S1, 3, (void*)"DEP");
-   HDF5::writeAttribute (fileHandle, "/Layer=0", "StratTopName", H5T_C_S1, 12, (void*)"Water bottom");
+   HDF5::writeData1D( fileHandle, 1, "/StratTopAge", H5T_NATIVE_FLOAT, &age );
 
-   H5Fclose (fileHandle);
+   H5Fclose( fileHandle );
    return true;
 }
 

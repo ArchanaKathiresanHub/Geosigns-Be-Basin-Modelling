@@ -226,7 +226,7 @@ MapsManager::MapID MapsManagerImpl::generateMap( const std::string & refferedTab
       mapSetValues( ret, values );
 
       // save the map to HDF
-      saveMapToHDF( ret, filePathName, mapSequenceNbr );
+      if ( ErrorHandler::ReturnCode::NoError != saveMapToHDF( ret, filePathName, mapSequenceNbr ) ) { throw Exception( UnknownError ) << "Cannot save HDF5 map"; }
    }
    catch ( const Exception & ex ) { reportError( ex.errorCode(), ex.what() ); }
 
