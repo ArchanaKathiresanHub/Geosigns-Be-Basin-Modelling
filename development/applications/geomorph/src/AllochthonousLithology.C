@@ -226,6 +226,7 @@ void AllochMod::AllochthonousLithology::saveInterpolant ( hid_t& fileId,
       }
 
     }
+    bool newDataSet = true;
 
     // Write the data to the results file.
     HDF5::writeData2D ( interpolationGroupId,
@@ -233,35 +234,35 @@ void AllochMod::AllochthonousLithology::saveInterpolant ( hid_t& fileId,
                         1,
                         Interface::AllochthonousLithologyInterpolation::ScalingDataSetName.c_str (),
                         H5T_NATIVE_DOUBLE,
-                        interpolators [ i ]->getScaling ().data ());
+                        interpolators [ i ]->getScaling ().data (), newDataSet );
 
     HDF5::writeData2D ( interpolationGroupId,
                         Numerics::Point::DIMENSION,
                         1,
                         Interface::AllochthonousLithologyInterpolation::TranslationDataSetName.c_str (),
                         H5T_NATIVE_DOUBLE,
-                        interpolators [ i ]->getTranslation ().data ());
+                        interpolators [ i ]->getTranslation ().data (), newDataSet );
 
     HDF5::writeData2D ( interpolationGroupId,
                         interpolationPoints.size (),
                         Numerics::Point::DIMENSION,
                         Interface::AllochthonousLithologyInterpolation::PointsDataSetName.c_str (),
                         H5T_NATIVE_DOUBLE,
-                        pointBuffer );
+                        pointBuffer, newDataSet );
 
     HDF5::writeData2D ( interpolationGroupId,
                         interpolator.getCoefficients ().dimension (),
                         1,
                         Interface::AllochthonousLithologyInterpolation::CoefficientsDataSetName.c_str (),
                         H5T_NATIVE_DOUBLE, 
-                        interpolator.getCoefficients ().data ());
+                        interpolator.getCoefficients ().data (), newDataSet );
 
     HDF5::writeData2D ( interpolationGroupId,
                         interpolators [ i ]->getInterpolationVector ().dimension (),
                         1,
                         Interface::AllochthonousLithologyInterpolation::RHSDataSetName.c_str (),
                         H5T_NATIVE_DOUBLE, 
-                        interpolators [ i ]->getInterpolationVector ().data ());
+                        interpolators [ i ]->getInterpolationVector ().data (), newDataSet );
 
     H5Gclose( interpolationGroupId );
 
