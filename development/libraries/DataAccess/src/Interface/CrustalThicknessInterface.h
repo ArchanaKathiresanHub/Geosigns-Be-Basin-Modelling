@@ -23,8 +23,6 @@
 /// @file Contains the interface dediacted to fastctc
 namespace CrustalThicknessInterface {
 
-   const double GRAVITY = 9.81;
-
    enum outputMaps {
       mohoMap = 0, thicknessBasaltMap, WLSadjustedMap,
       TFOnsetMap, TFOnsetLinMap, TFOnsetMigMap, PTaMap,

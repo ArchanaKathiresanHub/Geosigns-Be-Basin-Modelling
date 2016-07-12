@@ -122,6 +122,7 @@ void CrustalThicknessCalculator::loadSnapshots( ) {
 //------------------------------------------------------------//
 
 void CrustalThicknessCalculator::initialise() {
+
    ///1. Initialise CTC instance
    bool started = CrustalThicknessCalculator::getInstance().startActivity( CrustalThicknessCalculatorActivityName,
       CrustalThicknessCalculator::getInstance().getHighResolutionOutputGrid(),

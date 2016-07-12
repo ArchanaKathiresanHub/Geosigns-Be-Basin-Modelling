@@ -14,6 +14,7 @@
 
 // utilitites
 #include "LogHandler.h"
+#include "PhysicalConstants.h"
 
 //------------------------------------------------------------//
 DensityCalculator::DensityCalculator( const unsigned int firstI,
@@ -115,9 +116,9 @@ void DensityCalculator::calculate( const double topBasementDepthValue,
 
    // Integrated sediment density calculated across grid using pressure at WaterBottom and TopBasement surfaces
    if( m_sedimentThickness > 0.0 ) {
-      m_sedimentDensity = ((pressureTopBasementValue - pressureWaterBottomValue) * 1e6) / (CrustalThicknessInterface::GRAVITY * m_sedimentThickness);
+      m_sedimentDensity = ((pressureTopBasementValue - pressureWaterBottomValue) * 1e6) / (PhysicalConstants::AccelerationDueToGravity * m_sedimentThickness);
       m_backstrip = m_sedimentThickness *  m_mantleDensity * m_densityTerm -
-         (((pressureTopBasementValue - pressureWaterBottomValue) * 1e6) / CrustalThicknessInterface::GRAVITY) * m_densityTerm;
+         (((pressureTopBasementValue - pressureWaterBottomValue) * 1e6) / PhysicalConstants::AccelerationDueToGravity) * m_densityTerm;
       m_compensation = m_sedimentThickness - m_backstrip;
    }
    else if (m_sedimentThickness == 0.0) {

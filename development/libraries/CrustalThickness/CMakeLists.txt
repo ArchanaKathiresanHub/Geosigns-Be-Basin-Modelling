@@ -26,8 +26,8 @@ set( all_headers
    src/AbstractValidator.h
    src/ConfigFileParameterCtc.h
    src/DensityCalculator.h
-	src/InterfaceInput.h
-	src/InterfaceOutput.h
+   src/InterfaceInput.h
+   src/InterfaceOutput.h
    src/LinearFunction.h
    src/MapSmoother.h
    src/PaleowaterdepthCalculator.h
@@ -42,9 +42,9 @@ set( all_headers
 #
 set( all_srcs
    src/ConfigFileParameterCtc.C
-	src/DensityCalculator.C
-	src/InterfaceInput.C
-	src/InterfaceOutput.C
+   src/DensityCalculator.C
+   src/InterfaceInput.C
+   src/InterfaceOutput.C
    src/LinearFunction.C
    src/MapSmoother.C
    src/PaleowaterdepthCalculator.C
@@ -59,8 +59,8 @@ set( all_srcs
 #       Used byt fastctc application
 #
 add_library(CrustalThickness
-  ${all_srcs}
-  ${all_headers}
+   ${all_srcs}
+   ${all_headers}
 )
 
 ################################################################
@@ -68,48 +68,48 @@ add_library(CrustalThickness
 ################################################################
 
 bm_include_libraries(
-	DataModel
-	DataAccess
+   DataModel
+   DataAccess
    DataMining
-	GeoPhysics
+   GeoPhysics
    DerivedProperties
-	EosPack	
-	CBMGenerics
+   EosPack	
+   CBMGenerics
    FileSystem
-	utilities
-	Interpolation
-	LinearAlgebra
-	Utilities_Petsc
-	TableIO
-	Serial_Hdf5
+   utilities
+   Interpolation
+   LinearAlgebra
+   Utilities_Petsc
+   TableIO
+   Serial_Hdf5
 )
 
 #What is that?
 remove_definitions(-fPIC)
 
 include_directories(
-	${HDF5_INCLUDE_DIRS}
+   ${HDF5_INCLUDE_DIRS}
 )
 
 target_link_libraries(CrustalThickness
-	DistributedDataAccess
-	DataAccess
+   DistributedDataAccess
+   DataAccess
    DataMining
-	DerivedProperties	
-	EosPack	
-	CBMGenerics
+   DerivedProperties	
+   EosPack	
+   CBMGenerics
    FileSystem
-	utilities
-	TableIO
-	Utilities_Petsc
-	Serial_Hdf5
-	${HDF5_LIBRARIES}
+   utilities
+   TableIO
+   Utilities_Petsc
+   Serial_Hdf5
+   ${HDF5_LIBRARIES}
 ) 
 
 install(TARGETS CrustalThickness
-	RUNTIME DESTINATION bin
-	LIBRARY DESTINATION lib
-	ARCHIVE DESTINATION lib
+   RUNTIME DESTINATION bin
+   LIBRARY DESTINATION lib
+   ARCHIVE DESTINATION lib
 )
 
 ################################################################

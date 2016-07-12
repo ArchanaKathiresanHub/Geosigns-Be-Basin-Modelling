@@ -83,9 +83,9 @@ public:
    /// @brief Set the value of the map at the node (i,j)
    /// @param mapIndex The index of the map we set the value
    /// @param value The value to set at the node (i,j)
-   void setMapValue       ( outputMaps mapIndex, unsigned int i, unsigned int j, const double value ); 
+   void setMapValue       ( outputMaps mapIndex, unsigned int i, unsigned int j, const double value );
    /// @brief Set the values of all the maps at the node (i,j) according to the mask
-   void setValuesToMaps   ( unsigned int indI, unsigned int indJ );   
+   void setValuesToMaps   ( unsigned int indI, unsigned int indJ );
    /// @brief Set all map's value to undefined for the node (i,j) according to the mask
    void setAllMapsUndefined( unsigned int indI, unsigned int indJ );
    /// @}
