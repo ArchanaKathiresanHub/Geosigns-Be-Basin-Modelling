@@ -179,10 +179,14 @@ namespace casa
 
 
    // Constructor: read from the model with coordinates values
-   PrmLithoFraction::PrmLithoFraction( mbapi::Model & mdl, const std::string & layerName, const std::vector<int> & lithoFractionsInds, const std::vector<double> & coordinates )
-      : m_parent( 0 )
-      , m_layerName( layerName )
-      , m_lithoFractionsInds( lithoFractionsInds )
+   PrmLithoFraction::PrmLithoFraction( mbapi::Model              & mdl
+                                     , const std::string         & layerName
+                                     , const std::vector<int>    & lithoFractionsInds
+                                     , const std::vector<double> & coordinates
+                                     )
+                                     : m_parent( 0 )
+                                     , m_layerName( layerName )
+                                     , m_lithoFractionsInds( lithoFractionsInds )
    {
       if ( coordinates.size() != 2 )
       {
@@ -190,15 +194,15 @@ namespace casa
       }
       
       mbapi::StratigraphyManager & stMgr = mdl.stratigraphyManager();
+
       // get the layer ID
       mbapi::StratigraphyManager::LayerID lid = stMgr.layerID( m_layerName );
-
-      if ( stMgr.errorCode() != ErrorHandler::NoError ) { throw ErrorHandler::Exception( stMgr.errorCode() ) << stMgr.errorMessage(); }
+      if ( UndefinedIDValue == lid ) { throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Can not find layer: " << m_layerName; }
 
       // vector to store the lithologies
-      std::vector<string> lithoNames;
-      std::vector<double> lithoPercentages;
-      std::vector<string> percMaps;
+      std::vector<std::string> lithoNames;
+      std::vector<double>      lithoPercentages;
+      std::vector<std::string> percMaps;
 
       if ( ErrorHandler::NoError != stMgr.layerLithologiesList( lid, lithoNames, lithoPercentages, percMaps ) )
       {
@@ -208,7 +212,7 @@ namespace casa
       mbapi::MapsManager & mpMgr = mdl.mapsManager();
       
       // Here we assume to have always 2 maps!
-      if ( !percMaps[0].empty( ) && !percMaps[1].empty( ) )
+      if ( !percMaps[0].empty() && !percMaps[1].empty() )
       {
          // first map
          mbapi::MapsManager::MapID mFirstID = mpMgr.findID( percMaps[0] );
@@ -216,34 +220,27 @@ namespace casa
          if ( UndefinedIDValue == mFirstID )
          {
             throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Can't find the map: " << percMaps[0]
-               << " defined for the first lithology percentage";
+                                                                         << " defined for the first lithology percentage";
          }
 
-         // get the value of the map
+         // get the value of the first map
          double value = mpMgr.mapGetValue( mFirstID, coordinates[0], coordinates[1] );
-         if ( UndefinedIDValue == value )
-         {
-            throw ErrorHandler::Exception( mdl.errorCode() ) << mdl.errorMessage();
-         }
+         if ( UndefinedIDValue == value ) { throw ErrorHandler::Exception( mdl.errorCode() ) << mdl.errorMessage(); }
 
          // first lithoPercentage
-         lithoPercentages[0] = value ;
+         lithoPercentages[0] = value;
 
-         // second map
+         // the second map
          mbapi::MapsManager::MapID mSecondID = mpMgr.findID( percMaps[1] );
-
          if ( UndefinedIDValue == mSecondID )
          {
             throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Can't find the map: " << percMaps[1]
-               << " defined for the second lithology percentage";
+                                                                         << " defined for the second lithology percentage";
          }
 
-         // get the value of the map
+         // get the value of the second map
          value = mpMgr.mapGetValue( mSecondID, coordinates[0], coordinates[1] );
-         if ( UndefinedIDValue == value )
-         {
-            throw ErrorHandler::Exception( mdl.errorCode() ) << mdl.errorMessage();
-         }
+         if ( UndefinedIDValue == value ) { throw ErrorHandler::Exception( mdl.errorCode() ) << mdl.errorMessage(); }
 
          // second lithoPercentage
          lithoPercentages[1] = value;
@@ -260,13 +257,13 @@ namespace casa
       if ( m_lithoFractions[0] < 0.0 || m_lithoFractions[0] > 100.0 )
       {
          throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Lithology percentage " << m_lithoFractionsInds[0] <<
-            " for layer " << m_layerName << " is out of range [0:100]: " << m_lithoFractions[0] << "\n";
+                                     " for layer " << m_layerName << " is out of range [0:100]: " << m_lithoFractions[0] << "\n";
       }
 
       if ( m_lithoFractions[1] < 0.0 || m_lithoFractions[1] > 1.0 )
       {
          throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Lithology rest fraction " << m_lithoFractionsInds[1] <<
-            " for layer " << m_layerName << " is out of range [0:1]: " << m_lithoFractions[1] << "\n";
+                                          " for layer " << m_layerName << " is out of range [0:1]: " << m_lithoFractions[1] << "\n";
       }
    }
 

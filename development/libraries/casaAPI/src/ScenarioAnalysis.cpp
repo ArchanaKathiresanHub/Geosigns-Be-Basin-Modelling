@@ -786,7 +786,7 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::extractOneDProjects( const std::str
    mbapi::Model                                          & mdl = baseCase();
    std::vector<std::shared_ptr<RunCase> >                  expSet;
    std::set<const casa::ObsGridPropertyWell*, XYCoordComp> uniqWellsSet;
-   casa::VarSpace                                        & var = varSpace( );
+   casa::VarSpace                                        & var = varSpace();
 
    // as a first stem make a unique list of wells based on the first coordinate of the well.
    for ( size_t i = 0; i < m_obsSpace->size(); ++i )
@@ -812,13 +812,16 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::extractOneDProjects( const std::str
       }
 
        // the new case to add
-      std::shared_ptr<RunCase> newCase( new casa::RunCaseImpl( ) );
+      std::shared_ptr<RunCase> newCase( new casa::RunCaseImpl() );
+      
       //  the new window 
       SharedParameterPtr window( new casa::PrmWindow( minI, maxI, minJ, maxJ ) );
       newCase->addParameter( window );
+      
       // the well coordinates ( for interpolation)
       m_xcoordOneD.push_back( centreX );
       m_ycoordOneD.push_back( centreY );
+      
       // the well coordinates (using i, j positions to extract from the grid) 
       std::vector<double> wellCoord;
       wellCoord.push_back( minI );
@@ -828,14 +831,9 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::extractOneDProjects( const std::str
       for ( size_t par = 0; par < var.size(); ++par )
       {
          const casa::VarParameter * vprm = var.parameter( par );
-         if ( vprm->variationType( ) == casa::VarParameter::Continuous )
-         {
-              const casa::VarPrmContinuous * vprmc = dynamic_cast<const casa::VarPrmContinuous*>( vprm );
-              // get the parameter value at the specific x, y location (bottom left corner) 
-              SharedParameterPtr prm;
-              prm = vprmc->newParameterFromModel( mdl, wellCoord );
-              newCase->addParameter( prm );
-         }   
+         // get the parameter value at the specific x, y location (bottom left corner) 
+         SharedParameterPtr prm( vprm->newParameterFromModel( mdl, wellCoord ) );
+         newCase->addParameter( prm );
       }
 
       // push back the new case in the experiment set

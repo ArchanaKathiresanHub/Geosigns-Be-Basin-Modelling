@@ -59,7 +59,9 @@ static std::vector<double> ReinterpolatePermProf( const std::set<double> & commo
 }
 
 // Calculate base case permeability with porosity profile as average between minmial and maximal curves
-std::vector<double> VarPrmPermeabilityModel::createBaseCaseMPModelPrms( const std::vector<double> & minModelPrms, const std::vector<double> & maxModelPrms )
+std::vector<double> VarPrmPermeabilityModel::createBaseCaseMPModelPrms( const std::vector<double> & minModelPrms
+                                                                      , const std::vector<double> & maxModelPrms
+                                                                      )
 {
    // create unique sorted porosity set values
    std::set<double> sortedPorosityValsSet;
@@ -310,7 +312,7 @@ SharedParameterPtr VarPrmPermeabilityModel::newParameterFromDoubles( std::vector
 SharedParameterPtr VarPrmPermeabilityModel::newParameterFromModel( mbapi::Model & mdl, const std::vector<double> & vin ) const
 {
    SharedParameterPtr prm( new PrmPermeabilityModel( mdl, m_lithoName.c_str( ) ) );
-   prm->setParent( const_cast<VarPrmPermeabilityModel *>( this ) );
+   prm->setParent( const_cast<VarPrmPermeabilityModel*>( this ) );
    return prm;
 }
 

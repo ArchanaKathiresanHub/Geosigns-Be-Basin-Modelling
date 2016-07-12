@@ -86,6 +86,8 @@ void MatlabExporter::exportParametersInfo( ScenarioAnalysis & sc )
    for ( size_t j = 0; j < rcs[0]->parametersNumber(); ++j )
    {
       SharedParameterPtr prm = rcs[0]->parameter( j );
+      if ( !prm->parent()  ) continue;
+
       switch( prm->parent()->variationType() )
       {
          case VarParameter::Discrete:
@@ -114,7 +116,9 @@ void MatlabExporter::exportParametersInfo( ScenarioAnalysis & sc )
    m_ofs << "ParametersMinVals = [ ";
    for ( size_t j = 0; j < rcs[0]->parametersNumber(); ++j )
    {
+      if ( !rcs[0]->parameter( j )->parent()  ) { continue; }
       const SharedParameterPtr prm = rcs[0]->parameter( j )->parent()->minValue();
+
       switch( prm->parent()->variationType() )
       {
          case VarParameter::Discrete:
@@ -134,7 +138,9 @@ void MatlabExporter::exportParametersInfo( ScenarioAnalysis & sc )
    m_ofs << "ParametersMaxVals = [ ";
    for ( size_t j = 0; j < rcs[0]->parametersNumber(); ++j )
    {
+      if ( !rcs[0]->parameter( j )->parent()  ) { continue; }
       const SharedParameterPtr prm = rcs[0]->parameter( j )->parent()->maxValue();
+
       switch( prm->parent()->variationType() )
       {
          case VarParameter::Discrete:
@@ -165,6 +171,7 @@ void MatlabExporter::exportParametersInfo( ScenarioAnalysis & sc )
          for ( size_t j = 0; j < rcs[i]->parametersNumber(); ++j )
          {
             SharedParameterPtr prm = rcs[i]->parameter( j );
+            if ( !prm->parent()  ) continue;
 
             switch( prm->parent()->variationType() )
             {
@@ -195,6 +202,7 @@ void MatlabExporter::exportParametersInfo( ScenarioAnalysis & sc )
       for ( size_t j = 0; j < cs->parametersNumber(); ++j )
       {
          SharedParameterPtr prm = cs->parameter( j );
+         if ( !prm->parent()  ) continue;
 
          switch( prm->parent()->variationType() )
          {
@@ -337,6 +345,8 @@ void MatlabExporter::exportRSAProxies( ScenarioAnalysis & sc )
    for ( size_t j = 0; j < rcs[0]->parametersNumber(); ++j )
    {
       SharedParameterPtr prm = rcs[0]->parameter( j );
+      if ( !prm->parent() ) continue;
+
       switch( prm->parent()->variationType() )
       {
          case VarParameter::Discrete:
@@ -503,6 +513,8 @@ void MatlabExporter::exportMCResults( ScenarioAnalysis & sc )
       for ( size_t j = 0; j < mcSamples[i].second->parametersNumber(); ++j )
       {
          SharedParameterPtr prm = mcSamples[i].second->parameter( j );
+         
+         if ( !prm->parent()  ) continue;
 
          switch( prm->parent()->variationType() )
          {

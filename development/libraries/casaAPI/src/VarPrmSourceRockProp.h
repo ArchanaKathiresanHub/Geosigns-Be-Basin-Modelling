@@ -37,17 +37,17 @@ namespace casa
       virtual SharedParameterPtr newParameterFromDoubles( std::vector<double>::const_iterator & vals ) const;
 
       /// @brief Create parameter by reading the values stored in the project file
-      /// @param[in] mdl the model where the parameters values should be read
+      /// @param [in] mdl the model where the parameters values should be read
       /// @return the new parameter read from the model
       virtual SharedParameterPtr newParameterFromModel( mbapi::Model & mdl, const std::vector<double> & vin ) const;
 
       /// @brief Average the values, interpolate for lithofractions and set the appropriate entries in the project3d file
-      /// @param[in, out] mdl the model where to set the new averaged parameter
-      /// @param[in] xin the vector which stores the x coordinates of each 1D project 
-      /// @param[in] yin the vector which stores the y coordinates of each 1D project 
-      /// @param[in] prmVec the vector that stores the optimal parameter value of each 1D project
       /// @return new parameter for given set of values
-      virtual SharedParameterPtr makeThreeDFromOneD( mbapi::Model & mdl, const std::vector<double>& xin, const std::vector<double>& yin, const std::vector<SharedParameterPtr>& prmVec ) const;
+      virtual SharedParameterPtr makeThreeDFromOneD( mbapi::Model & mdl    ///< [in,out] the model to be updated with the new averaged parameter
+                                                   , const std::vector<double>             & xin    ///< x coordinates of each 1D project 
+                                                   , const std::vector<double>             & yin    ///< y coordinates of each 1D project 
+                                                   , const std::vector<SharedParameterPtr> & prmVec ///< the optimal parameter values of each 1D project
+                                                   ) const;
 
       /// @brief Convert Cauldron parameter values to SUMlib values for some variable parameters
       /// @param prm cauldron parameter with to this variable parameter corresponded type

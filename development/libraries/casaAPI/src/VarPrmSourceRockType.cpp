@@ -85,6 +85,21 @@ int VarPrmSourceRockType::index( const PrmSourceRockType * prm ) const
    return -1;
 }
 
+// Create parameter by reading the values stored in the project file
+SharedParameterPtr VarPrmSourceRockType::newParameterFromModel( mbapi::Model & mdl, const std::vector<double> & vin ) const
+{
+   std::unique_ptr<PrmSourceRockType> prm( new PrmSourceRockType( mdl, m_layerName, m_mixID ) );
+   prm->setParent( this );
+
+   for ( size_t i = 0; i < m_variation.size(); ++i )
+   {
+      if ( (*(m_variation[i].get())) == (*(prm.get()) )) { return m_variation[i]; }
+   }
+   throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Categorical value of source rock type: " << prm->sourceRockTypeName() 
+                                                                  << "found in the model for the layer "  << m_layerName << ", mixing id: " 
+                                                                  << m_mixID << ", does not exist in VarParameter variation";
+}
+ 
 // Save all object data to the given stream, that object could be later reconstructed from saved data
 bool VarPrmSourceRockType::save( CasaSerializer & sz, unsigned int version ) const
 {

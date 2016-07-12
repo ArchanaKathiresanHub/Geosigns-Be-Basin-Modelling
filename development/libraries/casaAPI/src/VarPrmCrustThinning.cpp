@@ -138,7 +138,6 @@ SharedParameterPtr VarPrmCrustThinning::newParameterFromDoubles( std::vector<dou
    }
 
    SharedParameterPtr prm( new PrmCrustThinning( this, prmV, m_mapsName ) );
-
    return prm;
 }
 

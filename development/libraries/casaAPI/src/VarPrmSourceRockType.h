@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2012-2014 Shell International Exploration & Production.
+// Copyright (C) 2012-2016 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -56,6 +56,11 @@ namespace casa
       /// @brief Get layer name
       /// @return layer name
       std::string layerName() const { return m_layerName; }
+
+      /// @brief Create parameter by reading the values stored in the project file
+      /// @param [in] mdl the model where the parameters values should be read
+      /// @return the new parameter read from the model
+      virtual SharedParameterPtr newParameterFromModel( mbapi::Model & mdl, const std::vector<double> & vin ) const;
       /// @}
 
       /// @{

@@ -61,13 +61,12 @@ namespace casa
       virtual SharedParameterPtr newParameterFromModel( mbapi::Model & mdl, const std::vector<double> & vin ) const;
 
       /// @brief Average the values, interpolate for lithofractions and set the appropriate entries in the project3d file
-      /// @param[in, out] mdl the model where to set the new averaged parameter
-      /// @param[in] xin the vector which stores the x coordinates of each 1D project 
-      /// @param[in] yin the vector which stores the y coordinates of each 1D project 
-      /// @param[in] prmVec the vector that stores the optimal parameter value of each 1D project
       /// @return new parameter for given set of values
-      virtual SharedParameterPtr makeThreeDFromOneD( mbapi::Model & mdl, const std::vector<double>& xin, const std::vector<double>& yin, const std::vector<SharedParameterPtr>& prmVec ) const;
-
+      virtual SharedParameterPtr makeThreeDFromOneD( mbapi::Model              & mdl ///< [in,out] the model where to set the new averaged parameter
+                                                   , const std::vector<double> & xin ///< the x coordinates of each 1D project 
+                                                   , const std::vector<double> & yin ///< the y coordinates of each 1D project 
+                                                   , const std::vector<SharedParameterPtr> & prmVec /// the optimal parameter value of each 1D project
+                                                   ) const;
       /// @{
       /// @brief Defines version of serialized object representation. Must be updated on each change in save()
       /// @return Actual version of serialized object representation

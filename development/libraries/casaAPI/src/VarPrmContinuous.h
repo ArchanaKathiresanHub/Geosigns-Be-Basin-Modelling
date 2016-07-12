@@ -87,20 +87,6 @@ namespace casa
       /// @return new parameter for given set of values
       virtual SharedParameterPtr newParameterFromDoubles( std::vector<double>::const_iterator & vals ) const = 0;
 
-      /// @brief Create parameter by reading the values stored in the project file
-      /// @param[in, out] mdl the model where the parameters values should be read
-      /// @param[in] an input vector (e.g. spatial/temporal) coordinates 
-      /// @return the new parameter read from the model
-      virtual SharedParameterPtr newParameterFromModel( mbapi::Model & mdl, const std::vector<double> & vin ) const = 0;
-
-      /// @brief Average the values, interpolate for lithofractions and set the appropriate entries in the project3d file
-      /// @param[in] mdl the model where to set the new averaged parameter
-      /// @param[in] xin the vector which stores the x coordinates of each 1D project 
-      /// @param[in] yin the vector which stores the y coordinates of each 1D project 
-      /// @param[in] prmVec the vector that stores the optimal parameter value of each 1D project
-      /// @return new parameter for given set of values
-      virtual SharedParameterPtr makeThreeDFromOneD( mbapi::Model & mdl, const std::vector<double>& xin, const std::vector<double>& yin, const std::vector<SharedParameterPtr>& prmVec ) const = 0;
-
       /// @brief Wrapper function to use in C# through Swig due to absence of iterators in Swig
       /// @param vals vector with parameters values.
       /// @param[in,out] off position in array where this parameter values are located
@@ -113,6 +99,14 @@ namespace casa
          off += static_cast<unsigned int>(it - sit);
          return ret;
       }
+
+      /// @brief Average the values, interpolate for lithofractions and set the appropriate entries in the project3d file
+      /// @return new parameter for given set of values
+      virtual SharedParameterPtr makeThreeDFromOneD( mbapi::Model              & mdl ///< [in,out] the model where to set the new averaged parameter
+                                                   , const std::vector<double> & xin ///< the x coordinates of each 1D project 
+                                                   , const std::vector<double> & yin ///< the y coordinates of each 1D project 
+                                                   , const std::vector<SharedParameterPtr> & prmVec /// the optimal parameter value of each 1D project
+                                                   ) const = 0;
 
       /// @brief Convert Cauldron parameter values to SUMlib values for some variable parameters
       /// @param prm cauldron parameter with to this variable parameter corresponded type

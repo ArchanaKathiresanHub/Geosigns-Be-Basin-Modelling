@@ -42,7 +42,7 @@ namespace casa
       /// @brief Defines possible types of parameter variation
       enum Type
       {
-         Continuous,  ///< A parameter that can take any value between certain bounds (for instance, a fault-sealing factor that varies in the [0, 1] range)
+         Continuous,  ///< A parameter that can take any value between certain bounds (for instance, a fault-sealing factor that varies in the [0,1] range)
          Discrete,    ///< A parameter that can take ordered discrete values between certain bounds (for instance, a diameter of a pipe, available in some pre-defined sizes). 
          Categorical  ///< A parameter that can take some unordered discrete values each of which referring to a different category
                       /// (for instance, a PVT parameter that can distinguish between a few, unrelated PVT models) 
@@ -75,7 +75,13 @@ namespace casa
       /// @return the parameter object should be deleted by a caller
       virtual const SharedParameterPtr maxValue() const = 0;
 
-protected:
+      /// @brief Create parameter by reading the values stored in the project file
+      /// @param[in, out] mdl the model where the parameters values should be read
+      /// @param[in] an input vector (e.g. spatial/temporal) coordinates 
+      /// @return the new parameter read from the model
+      virtual SharedParameterPtr newParameterFromModel( mbapi::Model & mdl, const std::vector<double> & vin ) const = 0;
+
+   protected:
       // version of serialized object representation
       virtual unsigned int version() const = 0;
    

@@ -60,10 +60,9 @@ namespace casa
          if ( minLithoFractions[i] > lithoFractions.back() || lithoFractions.back() > maxLithoFractions[i]  )
          {
             throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Variation of the lithofraction parameter " << lithoFractions.back() <<
-               " is out of range: [" << minLithoFractions[i] << ":" << maxLithoFractions[i] << "]";
+                                                                  " is out of range: [" << minLithoFractions[i] << ":" << maxLithoFractions[i] << "]";
          }
       }
-
       SharedParameterPtr prm( new PrmLithoFraction( this, m_name, m_layerName, m_lithoFractionsInds, lithoFractions ) );
       return prm;
    }
@@ -80,6 +79,11 @@ namespace casa
       {
          prm.reset( new PrmLithoFraction( mdl, m_layerName, m_lithoFractionsInds, vin ) );      
       }
+      else
+      {
+         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Wrong parameters number for PrmLithofraction constructor";
+      }
+
       prm->setParent( this );
       return prm;
    }

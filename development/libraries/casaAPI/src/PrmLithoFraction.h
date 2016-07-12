@@ -62,11 +62,11 @@ namespace casa
       PrmLithoFraction( mbapi::Model & mdl, const std::string & layerName, const std::vector<int> & lithoFractionsInds );
 
       /// @brief Constructor. Create parameter by reading parameter value from the given model and at specific i and j locations
-      /// @param mdl Cauldron model interface object to get the percentages of each lithology
-      /// @param layerName the layer name
-      /// @param lithoFractionsInds the lithofractions indexes to calculate
-      /// @param the i, j positions in the model grid
-      PrmLithoFraction( mbapi::Model & mdl, const std::string & layerName, const std::vector<int> & lithoFractionsInds, const std::vector<double> & coordinates );
+      PrmLithoFraction( mbapi::Model              & mdl                 ///< Cauldron model interface object to get the percentages of each lithology
+                      , const std::string         & layerName           ///< the layer name
+                      , const std::vector<int>    & lithoFractionsInds  ///< the lithofractions indexes to calculate
+                      , const std::vector<double> & coordinates         ///< the i, j positions in the model grid
+                      );
 
       /// @brief Constructor. Create parameter object from the given parameter value
       PrmLithoFraction( const VarPrmLithoFraction * parent,                             ///< parent variable parameter which created this one
@@ -76,7 +76,7 @@ namespace casa
                         const std::vector<double> & lithoFractions,                     ///< the lithofractions
                         const std::string         & m_mapNameFirstLithoPercentage = "", ///< the name of the first lithofraction map
                         const std::string         & m_mapNameSecondLithoPercentage = "" ///< the name of the second lithofraction map
-         );
+                      );
 
       /// @brief Destructor
       virtual ~PrmLithoFraction() { ; }
