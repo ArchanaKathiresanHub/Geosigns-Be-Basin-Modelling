@@ -30,6 +30,7 @@ GeoPhysics::CompoundLithologyComposition::CompoundLithologyComposition ( const s
                                                                          const std::string& lithoMixModel,
                                                                          const float        layeringIndex) {
 
+   //WARNING: If this list is changed, the returnKeyString method should also be modified
    setComposition ( lithoName1, lithoName2, lithoName3, p1, p2, p3, lithoMixModel, layeringIndex );
 
 }
@@ -142,8 +143,13 @@ std::string GeoPhysics::CompoundLithologyComposition::returnKeyString () const{
   Key_String += "_";
   Key_String += char_percent3;
   Key_String += "_";
-  Key_String += m_mixModel;  
-
+  Key_String += m_mixModel;
+  if (m_mixModel == "Layered")
+  {
+     Key_String += "_";
+     char char_layeringIndex[6]; sprintf( char_layeringIndex, "%5.3f", m_mixLayeringIndex );
+     Key_String += char_layeringIndex;
+  }
   return Key_String;
 
 }
