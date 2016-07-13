@@ -271,6 +271,12 @@ namespace mbapi {
       /// @return ErrorHandler::NoError on success, or error code otherwise
       ReturnCode origin( double & x, double & y );
 
+      /// @brief Get grid subsampling for the model
+      /// @param[out] di grid subsampling step in I direction
+      /// @param[out] dj grid subsampling step in J direction
+      /// @return ErrorHandler::NoError on success, or error code otherwise
+      ReturnCode subsampling( long & di, long & dj );
+
       /// @brief Get basin model areal dimenstions
       /// @param[out] dimX length [m] of the model along X axis
       /// @param[out] dimY length [m] of the model along Y axis

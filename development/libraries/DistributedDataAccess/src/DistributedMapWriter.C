@@ -206,6 +206,52 @@ bool DistributedMapWriter::writeMapToHDF (DM & da, Vec & vec, float time, double
    return returnVal;
 }
 
+bool DistributedMapWriter::writeInputMap( GridMap * gridMap, int mapSeqNumber )
+{
+   string dataSetName = std::string( LAYER_DATASET_PREFIX ) + ( mapSeqNumber < 10 ? "0" : "" ) + std::to_string( mapSeqNumber );
+
+   // get map info
+   DM & da = dynamic_cast<DistributedGridMap*>( gridMap )->getDA();
+   int start[2];
+   int count[2];
+
+   DMDAGetCorners( da, &start[0], &start[1], PETSC_IGNORE, &count[0], &count[1], PETSC_IGNORE );
+
+   // get the info about the total model
+   int size[2];
+   DMDAGetInfo( da, PETSC_IGNORE, &size[0], &size[1], PETSC_IGNORE, PETSC_IGNORE, PETSC_IGNORE, PETSC_IGNORE, PETSC_IGNORE, 
+                PETSC_IGNORE, PETSC_IGNORE, PETSC_IGNORE, PETSC_IGNORE, PETSC_IGNORE );
+
+   const Vec & vec = dynamic_cast<DistributedGridMap*>( gridMap )->getVec(); 
+
+   float * data = new float[ count[0] * count[1] ];
+      
+   PETSC_2D_Array x( da, vec, INSERT_VALUES, true );
+      
+   for ( int yCnt = start[1]; yCnt < (start[1] + count[1]); ++yCnt )
+   {
+      for ( int xCnt = start[0]; xCnt < (start[0] + count[0]); ++xCnt )
+      {
+         int writeIndex = (yCnt - start[1]) + ((xCnt - start[0]) * count[1]);           
+         data[writeIndex] = x( yCnt, xCnt );
+      }
+   }
+
+   DMDALocalInfo localVecInfo;
+   DMDAGetLocalInfo( da, &localVecInfo );
+   localVecInfo.dim = 2;
+
+   bool ok = m_writer->writeRawData( m_outFile, m_outFile->fileId(), dataSetName.c_str(), H5T_NATIVE_FLOAT, localVecInfo, data );
+   delete [] data;
+
+   if ( ok && mapSeqNumber == 0 ) // if this is a first map - write a description
+   {
+      ok = saveDescription( gridMap->getGrid() );
+   }
+   return ok;
+}
+
+
 // Added by V.R. Ambati (13/07/2011):
 bool DistributedMapWriter::writeVolumeToHDF (GridMap * gridMap, const string & propertyName, const string & layerName)
 {

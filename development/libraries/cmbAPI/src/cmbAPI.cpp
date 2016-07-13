@@ -154,6 +154,9 @@ public:
    // model origin
    void origin( double & x, double & y );
 
+   // grid subsampling
+   void subsampling( long & di, long & dj );
+
    // model dimensions along X/Y
    void arealSize( double & dimX, double & dimY );
    
@@ -434,6 +437,16 @@ Model::ReturnCode Model::origin( double & x, double & y )
    return NoError;
 }
 
+Model::ReturnCode Model::subsampling( long & di, long & dj )
+{
+   if ( errorCode() != NoError ) resetError(); // clean any previous error
+
+   try { m_pimpl->subsampling( di, dj ); }
+   catch ( const Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
+   catch ( ... )                  { return reportError( UnknownError, "Unknown error" ); }
+
+   return NoError;
+}
 
 Model::ReturnCode Model::arealSize( double & dimX, double & dimY )
 {
@@ -975,7 +988,7 @@ long Model::ModelImpl::tableValueAsInteger( const std::string & tableName, size_
    case datatype::Int:  return record->getValue<int>( ind );
    case datatype::Long: return record->getValue<long>( ind );
    default:
-      throw ErrorHandler::Exception( UndefinedValue ) << tableName << "(" << propName << ") - data type can't be cast to float point value";
+      throw ErrorHandler::Exception( UndefinedValue ) << tableName << "(" << propName << ") - data type can't be cast to integer value";
    }
    return UndefinedIntegerValue;
 }
@@ -1194,6 +1207,20 @@ void Model::ModelImpl::origin( double & x, double & y )
 
    x = pd->getXOrigin() + pd->getDeltaX() * pd->getWindowXMin();
    y = pd->getYOrigin() + pd->getDeltaY() * pd->getWindowYMin();
+}
+
+// grid subsampling
+void Model::ModelImpl::subsampling( long & di, long & dj )
+{
+   if ( !m_projHandle.get() )
+   {
+      throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Model::subsmapling(): no project was loaded";
+   }
+
+   const DataAccess::Interface::ProjectData * pd = m_projHandle->getProjectData();
+
+   di = pd->getXNodeStep();
+   dj = pd->getYNodeStep();
 }
 
 // model dimensions along X/Y

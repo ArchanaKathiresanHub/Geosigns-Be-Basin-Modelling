@@ -34,16 +34,17 @@
 
 typedef formattingexception::GeneralException T2Zexception;
 
-static const double       twtconvFactor(0.001);
-static const std::string  resultsFile( "CalibratedInputs.HDF" );
-static const std::string  finalResultsFolder( "CalibratedDepthMapsProject" );
+static const double       twtconvFactor      = 0.001;
+static const std::string  resultsFile        = "Inputs.HDF";
+//static const std::string  resultsFile        = "CalibratedInputs.HDF";
+static const std::string  finalResultsFolder = "CalibratedDepthMapsProject";
 
 // Fill the values of the GridMap in one local array 
-static void fillArray( const DataAccess::Interface::GridMap *  grid, std::vector<double>& v, int k, const double convFact )
+static void fillArray( const DataAccess::Interface::GridMap * grid, std::vector<double> & v, int k, const double convFact )
 {
-   int i, j;
    grid->retrieveData();
    int numI = grid->lastI() + 1;
+
    for ( unsigned int j = grid->firstJ(); j <= grid->lastJ(); ++j )
    {
       for ( unsigned int i = grid->firstI(); i <= grid->lastI(); ++i )
@@ -55,49 +56,51 @@ static void fillArray( const DataAccess::Interface::GridMap *  grid, std::vector
 }
 
 // Fill the values of the GridMap contained in the project in one local array 
-static ErrorHandler::ReturnCode getGridMapDepthValues( mbapi::Model * mdl, const mbapi::StratigraphyManager::SurfaceID s, std::vector<double> & v )
+static bool getGridMapDepthValues( mbapi::Model * mdl, const mbapi::StratigraphyManager::SurfaceID s, std::vector<double> & v )
 {
-
    mbapi::MapsManager & mapsMgr = mdl->mapsManager();
 
    // Get the map name and id
    std::string depthMap = mdl->tableValueAsString( "StratIoTbl", s, "DepthGrid" );
-   if ( depthMap == UndefinedStringValue )
-   {
-      return ErrorHandler::UnknownError;
-   }
+   if ( depthMap == UndefinedStringValue ) { return false; }
+
    mbapi::MapsManager::MapID depthMapID = mapsMgr.findID( depthMap );
-   if ( depthMapID == UndefinedIDValue )
-   {
-      return ErrorHandler::UnknownError;
-   }
+   if ( depthMapID == UndefinedIDValue ) { return false; }
+   
    // Get the values
-   if ( ErrorHandler::ReturnCode::NoError != mapsMgr.mapGetValues( depthMapID, v ) )
-   {
-      return ErrorHandler::UnknownError;
-   }
+   if ( ErrorHandler::ReturnCode::NoError != mapsMgr.mapGetValues( depthMapID, v ) ) { return false; }
 
-   return ErrorHandler::NoError;
+   return true;
 }
-// Clean the project tables
-static ErrorHandler::ReturnCode  prepareProject( mbapi::Model * mdl )
-{
 
+// Clean the project tables
+static ErrorHandler::ReturnCode prepareProject( mbapi::Model * mdl )
+{
    ErrorHandler::ReturnCode error( ErrorHandler::ReturnCode::NoError );
+   // get project subsampling values
+   long scX, scY;
+   mdl->subsampling( scX, scY );
+
    // Set full resolution
-   if ( mdl->tableValueAsInteger( "ProjectIoTbl", 0, "ScaleX" ) > 1 || mdl->tableValueAsInteger( "ProjectIoTbl", 0, "ScaleY" ) > 1 )
+   if ( scX > 1 || scY > 1 )
    {
-      LogHandler( LogHandler::WARNING_SEVERITY ) << "The project is subsampled. For the depth calibration the full resolution is required. Changing ScaleX and ScaleY to run in full resolution";
-      if ( error == ErrorHandler::ReturnCode::NoError ) error = mdl->setTableValue( "ProjectIoTbl", 0, "ScaleX", (long)1 );
-      if ( error == ErrorHandler::ReturnCode::NoError ) error = mdl->setTableValue( "ProjectIoTbl", 0, "ScaleY", (long)1 );
+      LogHandler( LogHandler::WARNING_SEVERITY ) << "The project is subsampled. For the depth calibration the full resolution is required." 
+                                                 << " Changing ScaleX and ScaleY to run in full resolution";
+      if ( error == ErrorHandler::ReturnCode::NoError ) error = mdl->setTableValue( "ProjectIoTbl", 0, "ScaleX", 1L );
+      if ( error == ErrorHandler::ReturnCode::NoError ) error = mdl->setTableValue( "ProjectIoTbl", 0, "ScaleY", 1L );
    }
 
    // Set full window
    int NumberX = mdl->tableValueAsInteger( "ProjectIoTbl", 0, "NumberX" );
    int NumberY = mdl->tableValueAsInteger( "ProjectIoTbl", 0, "NumberY" );
-   if ( mdl->tableValueAsInteger( "ProjectIoTbl", 0, "WindowXMin" ) > 0 || mdl->tableValueAsInteger( "ProjectIoTbl", 0, "WindowYMin" ) > 0 || mdl->tableValueAsInteger( "ProjectIoTbl", 0, "WindowXMax" ) < NumberX - 1 || mdl->tableValueAsInteger( "ProjectIoTbl", 0, "WindowYMax" ) < NumberY - 1 )
+   if ( mdl->tableValueAsInteger( "ProjectIoTbl", 0, "WindowXMin" ) > 0           || 
+        mdl->tableValueAsInteger( "ProjectIoTbl", 0, "WindowYMin" ) > 0           ||
+        mdl->tableValueAsInteger( "ProjectIoTbl", 0, "WindowXMax" ) < NumberX - 1 ||
+        mdl->tableValueAsInteger( "ProjectIoTbl", 0, "WindowYMax" ) < NumberY - 1 
+      )
    {
-      LogHandler( LogHandler::WARNING_SEVERITY ) << "The project is windowed. For the depth calibration the entire domain is required. Changing WindowX and WindowY in to run the simulation over the entire domain";
+      LogHandler( LogHandler::WARNING_SEVERITY ) << "The project is windowed. For the depth calibration the entire domain is required."
+                                                 << " Changing WindowX and WindowY in to run the simulation over the entire domain";
       if ( error == ErrorHandler::ReturnCode::NoError ) error = mdl->setTableValue( "ProjectIoTbl", 0, "WindowXMin", (long)1 );
       if ( error == ErrorHandler::ReturnCode::NoError ) error = mdl->setTableValue( "ProjectIoTbl", 0, "WindowYMin", (long)1 );
       if ( error == ErrorHandler::ReturnCode::NoError ) error = mdl->setTableValue( "ProjectIoTbl", 0, "WindowXMax", (long)NumberX );
@@ -133,11 +136,12 @@ static ErrorHandler::ReturnCode  prepareProject( mbapi::Model * mdl )
 }
 
 // Modify the tables
-static ErrorHandler::ReturnCode  modifyTables( mbapi::Model *       mdl, 
-   const mbapi::StratigraphyManager::SurfaceID                      nextSurface,
-   std::map<mbapi::StratigraphyManager::SurfaceID, std::string> &   correctedMapsNames,
-   std::map<mbapi::StratigraphyManager::SurfaceID, int > &          correctedMapsSequenceNbr,
-   std::map<mbapi::StratigraphyManager::SurfaceID, int > &          correctedMapsIDs )
+static ErrorHandler::ReturnCode modifyTables( mbapi::Model                                                *  mdl
+                                            , const mbapi::StratigraphyManager::SurfaceID                    nextSurface
+                                            , std::map<mbapi::StratigraphyManager::SurfaceID, std::string> & correctedMapsNames
+                                            , std::map<mbapi::StratigraphyManager::SurfaceID, int>         & correctedMapsSequenceNbr
+                                            , std::map<mbapi::StratigraphyManager::SurfaceID, int>         & correctedMapsIDs
+                                            )
 {
    ErrorHandler::ReturnCode error( ErrorHandler::ReturnCode::NoError );
 
@@ -207,9 +211,12 @@ static void createCase( mbapi::Model    * mdl
          throw ErrorHandler::Exception( mdl->errorCode() ) << mdl->errorMessage();
       }
 
-      if ( !masterResults.copyFile( casePathResults ) )
+      if ( !casePathResults.exists() ) 
       {
-         throw T2Zexception() << "Fail to copy file: " << casePathResults.path();
+         if ( !masterResults.copyFile( casePathResults ) )
+         {
+            throw T2Zexception() << "Fail to copy file: " << casePathResults.path();
+         }
       }
    }
    MPI_Barrier( PETSC_COMM_WORLD );
@@ -240,7 +247,7 @@ static void runFastCauldron( int                         argc
    const Interface::Snapshot              * presentDaySnapshot = fcApp.findOrCreateSnapshot( 0.0 );
    assert( presentDaySnapshot != 0 );
 
-   const DataAccess::Interface::Property * depthProperty = fcApp.findProperty( "Depth"      );
+   const DataAccess::Interface::Property * depthProperty = fcApp.findProperty( "Depth" );
    std::unique_ptr<const DataAccess::Interface::PropertyValueList> depthPropertyValues( fcApp.getPropertyValues( FORMATION, depthProperty
                                                                                       , presentDaySnapshot, 0, formation, 0, VOLUME ) );
 
@@ -248,19 +255,19 @@ static void runFastCauldron( int                         argc
    std::unique_ptr<const DataAccess::Interface::PropertyValueList> twtPropertyValues( fcApp.getPropertyValues( FORMATION, twtProperty
                                                                                     , presentDaySnapshot, 0, formation, 0, VOLUME ) );
    assert( ( *depthPropertyValues ).size() == 1 );
-   assert( ( *twtPropertyValues ).size() == 1 );
+   assert( ( *twtPropertyValues   ).size() == 1 );
 
    const DataAccess::Interface::GridMap * twtGridMap   = ( *(twtPropertyValues.get())   )[0]->getGridMap();
    const DataAccess::Interface::GridMap * depthGridMap = ( *(depthPropertyValues.get()) )[0]->getGridMap();
 
-   std::vector<double> twtSim( refDepths.size() );
-   std::vector<double> twtSimUpper( refDepths.size() );
-   std::vector<double> depthSim( refDepths.size() );
+   std::vector<double> twtSim(        refDepths.size() );
+   std::vector<double> twtSimUpper(   refDepths.size() );
+   std::vector<double> depthSim(      refDepths.size() );
    std::vector<double> depthSimUpper( refDepths.size() );
 
    // Start from the top
    unsigned int maxK = twtGridMap->getDepth() - 1;
-   fillArray( twtGridMap, twtSim, maxK, twtconvFactor );
+   fillArray( twtGridMap,   twtSim,   maxK, twtconvFactor );
    fillArray( depthGridMap, depthSim, maxK, 1.0 );
 
    bool searching = false;
@@ -288,8 +295,7 @@ static void runFastCauldron( int                         argc
       {
          if ( twtSim[i] > tarTwt[i] && newDepths[i] == DataAccess::Interface::DefaultUndefinedScalarValue )
          {
-
-            double twtSimDiff = twtSim[i] - twtSimUpper[i];
+            double twtSimDiff       = twtSim[i] - twtSimUpper[i];
             double twtMeasDiffUpper = tarTwt[i] - twtSimUpper[i];
             double twtMeasDiffLower = twtSim[i] - tarTwt[i];
 
@@ -301,10 +307,7 @@ static void runFastCauldron( int                         argc
             }
             else
             {
-               if ( abs( twtMeasDiffLower ) < abs( twtMeasDiffUpper ) )
-                  newDepths[i] = depthSim[i];
-               else
-                  newDepths[i] = depthSimUpper[i];
+               newDepths[i] = abs( twtMeasDiffLower ) < abs( twtMeasDiffUpper ) ? depthSim[i] : depthSimUpper[i];
             }
          }
          if ( !searching && newDepths[i] == DataAccess::Interface::DefaultUndefinedScalarValue ) searching = true;
@@ -313,20 +316,21 @@ static void runFastCauldron( int                         argc
       depthSimUpper = depthSim;
    }
 
-   for ( size_t i = 0; i != newDepths.size(); ++i )
+   for ( size_t i = 0; i < newDepths.size(); ++i )
    {
       // Set to the last deepmost simulated depth (k == 0)
-      if ( newDepths[i] == DataAccess::Interface::DefaultUndefinedScalarValue ) newDepths[i] = depthSim[i]; 
+      if ( DataAccess::Interface::DefaultUndefinedScalarValue == newDepths[i] ) { newDepths[i] = depthSim[i]; }
       // If everything goes wrong, use the refDepths value 
-      if ( newDepths[i] - refDepths[i] < 0.0 ) newDepths[i] = refDepths[i]; 
+      if ( newDepths[i] - refDepths[i] < 0.0 ) { newDepths[i] = refDepths[i]; }
    }
 
    // delete factory, appctx, exit license
    if ( ! FastcauldronStartup::finalise( true ) ) { throw T2Zexception() << "Fail to finalise fastcauldron"; }
 }
 
-static void abortOnBadAlloc() {
-   cerr << " cannot allocate resources, aborting" << endl;
+static void abortOnBadAlloc()
+{
+   LogHandler( LogHandler::FATAL_SEVERITY ) << " cannot allocate resources, aborting";
    MPI_Abort( PETSC_COMM_WORLD, 3 );
 }
 
@@ -341,7 +345,7 @@ int main(int argc, char** argv)
    masterResults << resultsFile;
 
    // Removing the result file if exist
-   if ( masterResults.exists() ) 
+   if ( resultsFile != "Inputs.HDF" && masterResults.exists() ) 
    {
       LogHandler( LogHandler::WARNING_SEVERITY ) << "Removing existing " << resultsFile;
       masterResults.remove();
@@ -359,27 +363,26 @@ int main(int argc, char** argv)
 
    // Initialise Petsc and get rank & size of MPI
    PetscInitialize( &argc, &argv, (char *)0, PETSC_NULL );
+
    int rank;
    MPI_Comm_rank( PETSC_COMM_WORLD, &rank );
 
    // Intitialise fastcauldron logger (it is a singleton, must be initialize only once!)
-   try{
+   try
+   {
       PetscBool log = PETSC_FALSE;
       PetscOptionsHasName( PETSC_NULL, "-verbosity", &log );
       if ( log ){
          char verbosity[11];
          PetscOptionsGetString( PETSC_NULL, "-verbosity", verbosity, 11, 0 );
-         if (      !strcmp( verbosity, "quiet"      ) ) { LogHandler( "fastcauldron", LogHandler::QUIET_LEVEL,      rank ); }
-         else if ( !strcmp( verbosity, "minimal"    ) ) { LogHandler( "fastcauldron", LogHandler::MINIMAL_LEVEL,    rank ); }
-         else if ( !strcmp( verbosity, "normal"     ) ) { LogHandler( "fastcauldron", LogHandler::NORMAL_LEVEL,     rank ); }
-         else if ( !strcmp( verbosity, "detailed"   ) ) { LogHandler( "fastcauldron", LogHandler::DETAILED_LEVEL,   rank ); }
-         else if ( !strcmp( verbosity, "diagnostic" ) ) { LogHandler( "fastcauldron", LogHandler::DIAGNOSTIC_LEVEL, rank ); }
+         if (      !strcmp( verbosity, "quiet"      ) ) { LogHandler( "fastdepthcalibration", LogHandler::QUIET_LEVEL,      rank ); }
+         else if ( !strcmp( verbosity, "minimal"    ) ) { LogHandler( "fastdepthcalibration", LogHandler::MINIMAL_LEVEL,    rank ); }
+         else if ( !strcmp( verbosity, "normal"     ) ) { LogHandler( "fastdepthcalibration", LogHandler::NORMAL_LEVEL,     rank ); }
+         else if ( !strcmp( verbosity, "detailed"   ) ) { LogHandler( "fastdepthcalibration", LogHandler::DETAILED_LEVEL,   rank ); }
+         else if ( !strcmp( verbosity, "diagnostic" ) ) { LogHandler( "fastdepthcalibration", LogHandler::DIAGNOSTIC_LEVEL, rank ); }
          else throw T2Zexception() << "Unknown <" << verbosity << "> option for -verbosity command line parameter.";
       }
-      else
-      {
-         LogHandler( "fastcauldron", LogHandler::DETAILED_LEVEL, rank );
-      }
+      else { LogHandler( "fastdepthcalibration", LogHandler::DETAILED_LEVEL, rank ); }
    }
    catch ( T2Zexception & ex )
    {
@@ -393,62 +396,61 @@ int main(int argc, char** argv)
    }
 
    // read command line options
-   int   optionReferenceSurface;
-   int   optionEndSurface;
+   int  optionReferenceSurface;
+   int  optionEndSurface;
    char projectName[MAXLINESIZE];
-   int ierr;
+   int  ierr;
     
-   ierr = PetscOptionsGetInt( PETSC_NULL, "-referenceSurface", &optionReferenceSurface, PETSC_NULL ); CHKERRQ( ierr );
-   ierr = PetscOptionsGetInt( PETSC_NULL, "-endSurface", &optionEndSurface, PETSC_NULL ); CHKERRQ( ierr );
-   ierr = PetscOptionsGetString( PETSC_NULL, "-project", projectName, MAXLINESIZE, 0 ); CHKERRQ( ierr );
+   ierr = PetscOptionsGetInt(    PETSC_NULL, "-referenceSurface", &optionReferenceSurface, PETSC_NULL );     CHKERRQ( ierr );
+   ierr = PetscOptionsGetInt(    PETSC_NULL, "-endSurface",       &optionEndSurface,       PETSC_NULL );     CHKERRQ( ierr );
+   ierr = PetscOptionsGetString( PETSC_NULL, "-project",          projectName,             MAXLINESIZE, 0 ); CHKERRQ( ierr );
+
+   const mbapi::StratigraphyManager::SurfaceID  referenceSurface( optionReferenceSurface );
+   const mbapi::StratigraphyManager::SurfaceID  endSurface(       optionEndSurface       );
 
    // Try the automatic depth calibration
    try
    {
       // Model: we must have an unique instance of the project database during the runtime, so we load the project several times
-      std::unique_ptr<mbapi::Model> mdl( new mbapi::Model());
-      //Load the initial model in mdl and reference mdl (refMdl)
+      std::unique_ptr<mbapi::Model> mdl( new mbapi::Model() );
+
+      // Load the initial model in mdl and reference mdl (refMdl)
       if ( ErrorHandler::NoError != mdl->loadModelFromProjectFile( projectName ) )
       {
-         throw ErrorHandler::Exception( ErrorHandler::UnknownError ) << " Wrong input file name ";
+         throw T2Zexception() << "Can not load model from " << projectName << ", " << mdl->errorMessage();
       }
-      MPI_Barrier( PETSC_COMM_WORLD );
+
       // To be more clear we collect the managers after the load so it is clear to which model they belog to
-      mbapi::StratigraphyManager & stMgr = mdl->stratigraphyManager();
+      mbapi::StratigraphyManager & stMgr  = mdl->stratigraphyManager();
       mbapi::MapsManager &         mapMgr = mdl->mapsManager();
 
       // Get the surfaces
       const std::vector<mbapi::StratigraphyManager::SurfaceID> & surfacesIDs = stMgr.surfacesIDs();
-      mbapi::StratigraphyManager::SurfaceID referenceSurface( optionReferenceSurface );
-      mbapi::StratigraphyManager::SurfaceID endSurface( optionEndSurface );
+      
       if ( referenceSurface >= surfacesIDs.size() )
       {
-         throw ErrorHandler::Exception( ErrorHandler::UnknownError ) << " The value of -referenceSurface is invalid: " << referenceSurface;
+         throw T2Zexception() << " The parameter value of -referenceSurface is invalid: " << referenceSurface;
       }
+
       if ( endSurface <= referenceSurface || endSurface >= surfacesIDs.size() )
       {
-         throw ErrorHandler::Exception( ErrorHandler::UnknownError ) << " The value of -endSurface is invalid: " << endSurface;
+         throw T2Zexception() << " The parameter value of -endSurface is invalid: " << endSurface;
       }
 
       // Now check the twt maps are present for all surfaces 
       std::map<mbapi::StratigraphyManager::SurfaceID, std::string> twtMaps;
       for ( mbapi::StratigraphyManager::SurfaceID s = referenceSurface; s <= endSurface; ++s )
       {
-         // Get the top twt maps
-         std::string twtGrid = stMgr.twtGridName( s ); 
-         if ( twtGrid.empty() )
-         {
-            throw ErrorHandler::Exception( ErrorHandler::UnknownError ) << " No twt maps were found for the surface " << s;
-         }
          // Stores the top twt maps of each surface s
-         twtMaps[s] = twtGrid; 
+         twtMaps[s] = stMgr.twtGridName( s ); 
+         if ( twtMaps[s].empty() ) { throw T2Zexception() << " No twt maps were found for the surface " << s; }
       }
 
       // Get the current depth of the endSurface
       std::vector<double> depthEndSurface;
-      if ( ErrorHandler::ReturnCode::NoError != getGridMapDepthValues( mdl.get(), endSurface, depthEndSurface ) )
+      if ( !getGridMapDepthValues( mdl.get(), endSurface, depthEndSurface ) )
       {
-         throw ErrorHandler::Exception( ErrorHandler::UnknownError ) << " Cannot get the depth map for endSurface";
+         throw T2Zexception() << " Cannot get the depth map for endSurface: " << endSurface;
       }
 
       // Calculate the "isopacks" for the surfaces below the endSurface
@@ -457,14 +459,12 @@ int main(int argc, char** argv)
       {
          // Get the depths
          std::vector<double> bottomDepth;
-         if ( ErrorHandler::ReturnCode::NoError != getGridMapDepthValues( mdl.get(), s, bottomDepth ) )
-         {
-            throw ErrorHandler::Exception( ErrorHandler::UnknownError ) << " Cannot get the depth map for the surface " << s;
-         }
+         if ( !getGridMapDepthValues( mdl.get(), s, bottomDepth ) ) { throw T2Zexception() << " Cannot get the depth map for the surface " << s; }
+
          // Calculate the isopacks (layer thickness)
          for ( size_t i = 0; i != bottomDepth.size(); ++i )
          {
-            bottomDepth[i] = bottomDepth[i] - depthEndSurface[i];
+            bottomDepth[i] -= depthEndSurface[i];
          }
          isoPacks[s] = bottomDepth;
       }
@@ -477,9 +477,12 @@ int main(int argc, char** argv)
       std::map<mbapi::StratigraphyManager::SurfaceID, std::string>   correctedMapsNames;
       std::map<mbapi::StratigraphyManager::SurfaceID, int >          correctedMapsSequenceNbr;
       std::map<mbapi::StratigraphyManager::SurfaceID, int >          correctedMapsIDs;
-      //create an empty result file
-      mapMgr.inizializeMapWriter( resultsFile, false );
+
+      // create an empty result file on master
+      mapMgr.inizializeMapWriter( resultsFile, (resultsFile== "Inputs.HDF" ? true : false) );
       mapMgr.finalizeMapWriter();
+
+      MPI_Barrier( PETSC_COMM_WORLD ); // sync point
 
       //-------------------------------------------------//
       // The start of the main depth calibration loop
@@ -492,11 +495,11 @@ int main(int argc, char** argv)
          mdl.reset( new mbapi::Model() );
          if ( ErrorHandler::NoError != mdl->loadModelFromProjectFile( projectName ) )
          {
-            throw ErrorHandler::Exception( ErrorHandler::UnknownError ) << " Wrong input file name ";
+            throw T2Zexception() << "Can not load project from: " << projectName << ", " << mdl->errorMessage();
          }
          MPI_Barrier( PETSC_COMM_WORLD );
-         mbapi::LithologyManager &    litMgrLocal = mdl->lithologyManager();
-         mbapi::StratigraphyManager & stMgrLocal  = mdl->stratigraphyManager();
+         mbapi::LithologyManager &    litMgrLocal  = mdl->lithologyManager();
+         mbapi::StratigraphyManager & stMgrLocal   = mdl->stratigraphyManager();
          mbapi::MapsManager &         mapsMgrLocal = mdl->mapsManager();
 
          // Prepare mdl to run the automatic depth calibration, always load the master project projectName
@@ -540,7 +543,7 @@ int main(int argc, char** argv)
          // otherwise reuse the ones of the previous iteration as reference
          if ( currentSurface == referenceSurface )
          {
-            if ( ErrorHandler::ReturnCode::NoError != getGridMapDepthValues( mdl.get(), currentSurface, refDepths ) )
+            if ( !getGridMapDepthValues( mdl.get(), currentSurface, refDepths ) )
             {
                throw ErrorHandler::Exception( ErrorHandler::UnknownError ) << " Cannot get the depth values of the reference surface ";
             }
@@ -550,7 +553,6 @@ int main(int argc, char** argv)
          {
             refDepths = newDepths;
          }
-
 
          // Get the measured TWT of the top surface
          mbapi::MapsManager::MapID refTwtID = mapsMgrLocal.findID( twtMaps[currentSurface] );
@@ -587,7 +589,10 @@ int main(int argc, char** argv)
          {
             for ( size_t i = 0; i != refDepths.size(); ++i )
             {
-               if ( refDepths[i] == DataAccess::Interface::DefaultUndefinedMapValue || tarTwt[i] == DataAccess::Interface::DefaultUndefinedMapValue || refTwt[i] == DataAccess::Interface::DefaultUndefinedMapValue )
+               if ( refDepths[i] == DataAccess::Interface::DefaultUndefinedMapValue ||
+                    tarTwt[i]    == DataAccess::Interface::DefaultUndefinedMapValue ||
+                    refTwt[i]    == DataAccess::Interface::DefaultUndefinedMapValue
+                  )
                {
                   increasedDepths[i] = DataAccess::Interface::DefaultUndefinedMapValue;
                }
@@ -616,7 +621,7 @@ int main(int argc, char** argv)
 
          // Reload the model so the map manager gets updated (with the correct map sequence number)
          mdl.reset( new mbapi::Model() );
-         if ( ErrorHandler::NoError != mdl->loadModelFromProjectFile( caseProject.path().c_str() ) )
+         if ( ErrorHandler::NoError != mdl->loadModelFromProjectFile( caseProject.cpath() ) )
          {
             throw ErrorHandler::Exception( ErrorHandler::UnknownError ) << " wrong input file name ";
          }
@@ -641,7 +646,7 @@ int main(int argc, char** argv)
          MPI_Barrier( PETSC_COMM_WORLD );
          if ( rank == 0 )
          {
-            mdl->saveModelToProjectFile( caseProject.path().c_str(), true );
+            mdl->saveModelToProjectFile( caseProject.cpath(), true );
          }
          MPI_Barrier( PETSC_COMM_WORLD );
          

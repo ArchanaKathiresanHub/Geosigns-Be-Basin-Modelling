@@ -118,6 +118,21 @@ bool SerialMapWriter::writeMapToHDF (GridMap * gridMap, float time, double depoA
    return returnVal;
 }
 
+bool SerialMapWriter::writeInputMap( GridMap * gridMap, int mapSeqNumber )
+{
+   string dataSetName = std::string( LAYER_DATASET_PREFIX ) + (mapSeqNumber < 10 ? "0" : "" ) + std::to_string( mapSeqNumber );
+   bool newDataset = true;
+   bool ok = writeMapData( dataSetName, gridMap, newDataset );
+
+   ok = ok && newDataset; // this map must be written always as a new dataset!
+
+   if ( ok && mapSeqNumber == 0 ) // if this is a first map - write a description
+   {
+      ok = saveDescription( gridMap->getGrid() );
+   }
+   return ok;
+}
+
 bool SerialMapWriter::writeMapData( const string & dataSetName, const GridMap * gridMap, bool & newDataset )
 {
    int numI = gridMap->getGrid ()->numI ();
@@ -129,7 +144,7 @@ bool SerialMapWriter::writeMapData( const string & dataSetName, const GridMap * 
    {
       for (int j = 0; j < numJ; ++j)
       {
-	 dataArray[i * numJ + j] = gridMap->getValue ((unsigned int) i, (unsigned int) j, (unsigned int) 0); 
+         dataArray[i * numJ + j] = gridMap->getValue ((unsigned int) i, (unsigned int) j, (unsigned int) 0); 
       }
    }
 

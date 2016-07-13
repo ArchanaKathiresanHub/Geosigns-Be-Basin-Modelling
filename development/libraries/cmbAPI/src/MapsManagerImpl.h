@@ -59,7 +59,7 @@ namespace mbapi
       virtual MapID copyMap( MapID id, const std::string & newMapName );
 
       // Save input map to the new HDF file. File with the given name should not exist before.
-      virtual ErrorHandler::ReturnCode saveMapToHDF( MapID id, const std::string& filePathName, const int mapSequenceNbr );
+      virtual ErrorHandler::ReturnCode saveMapToHDF( MapID id, const std::string & filePathName, const int mapSequenceNbr );
 
       // Get min/max map values range
       virtual ErrorHandler::ReturnCode mapValuesRange( MapID id, double & minV, double & maxV );
@@ -68,7 +68,7 @@ namespace mbapi
       virtual ErrorHandler::ReturnCode scaleMap( MapID id, double coeff );
 
       // Set values in the map
-      virtual ErrorHandler::ReturnCode mapSetValues( MapID id, const std::vector<double>& vin );
+      virtual ErrorHandler::ReturnCode mapSetValues( MapID id, const std::vector<double> & vin );
 
       // Get the values from the map
       virtual ErrorHandler::ReturnCode mapGetValues( MapID id, std::vector<double>& vout );
@@ -80,22 +80,26 @@ namespace mbapi
       virtual ErrorHandler::ReturnCode interpolateMap( MapID id, MapID minId, MapID maxId, double coeff );
 
       // Interpolate input values using the natural neighbour algorithm
-      virtual ErrorHandler::ReturnCode interpolateMap(
-         const std::vector<double>& xin,
-         const std::vector<double>& yin,
-         const std::vector<double>& vin,
-         double xmin,
-         double xmax,
-         double ymin,
-         double ymax,
-         int numI,
-         int numJ,
-         std::vector<double>& xout,
-         std::vector<double>& yout,
-         std::vector<double>& vout );
-
+      virtual ErrorHandler::ReturnCode interpolateMap( const std::vector<double> & xin
+                                                     , const std::vector<double> & yin
+                                                     , const std::vector<double> & vin
+                                                     , double                      xmin
+                                                     , double                      xmax
+                                                     , double                      ymin
+                                                     , double                      ymax
+                                                     , int                         numI
+                                                     , int                         numJ
+                                                     , std::vector<double>       & xout
+                                                     , std::vector<double>       & yout
+                                                     , std::vector<double>       & vout
+                                                     );
       // Generate a new map in the GridMapIoTbl
-      virtual MapID generateMap( const std::string & refferedTable, const std::string mapName, const std::vector<double>& values, int & mapSequenceNbr, const std::string & filePathName );
+      virtual MapID generateMap( const std::string         & refferedTable
+                               , const std::string           mapName
+                               , const std::vector<double> & values
+                               , int                       & mapSequenceNbr
+                               , const std::string         & filePathName
+                               );
 
       // Inizialize the map writer
       virtual ErrorHandler::ReturnCode inizializeMapWriter( const std::string & filePathName, const bool append );

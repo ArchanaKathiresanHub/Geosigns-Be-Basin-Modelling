@@ -39,7 +39,10 @@ namespace DataAccess
          /// write a 2D gridmap to a file
          bool writeMapToHDF (DM & da, Vec & vec, float time, double depoAge,
                              const std::string & propertyGrid, const std::string& surfaceName, const bool saveAsPrimary = false );
-         
+ 
+         /// Write input map to a file. In this case we do not need layer name, property name and other stuff
+         bool writeInputMap( GridMap * gridMap, int mapSeqNumber );
+
          /// write a 3D gridmap to a file; generic implementation (V.R.Ambati, 13/07/2011).
          bool writeVolumeToHDF (GridMap * gridMap, const std::string & propertyName, const std::string & layerName);
 	 
