@@ -1019,6 +1019,41 @@ void VisualizationIOProject::init()
     property.name = prop->getName();
     property.unit = prop->getUnit();
 
+    switch (prop->getAttribute())
+    {
+    case CauldronIO::Continuous3DProperty:
+      property.attrib = Property::Attrib_Continuous3D;
+      break;
+    case CauldronIO::Discontinuous3DProperty:
+      property.attrib = Property::Attrib_Discontinuous3D;
+      break;
+    case CauldronIO::Surface2DProperty:
+      property.attrib = Property::Attrib_Surface2D;
+      break;
+    case CauldronIO::Formation2DProperty:
+      property.attrib = Property::Attrib_Formation2D;
+      break;
+    default:
+      property.attrib = Property::Attrib_Unknown;
+      break;
+    }
+
+    switch (prop->getType())
+    {
+    case CauldronIO::ReservoirProperty:
+      property.type = Property::Type_Reservoir;
+      break;
+    case CauldronIO::FormationProperty:
+      property.type = Property::Type_Formation;
+      break;
+    case CauldronIO::TrapProperty:
+      property.type = Property::Type_Trap;
+      break;
+    default:
+      property.type = Property::Type_Unknown;
+      break;
+    }
+
     m_projectInfo.properties.push_back(property);
     m_propertyIdMap[property.name] = id++;
   }

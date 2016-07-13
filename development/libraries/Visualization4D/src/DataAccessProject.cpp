@@ -353,7 +353,48 @@ void DataAccessProject::init()
     const int allTypes = di::MAP | di::VOLUME;
     if (item->hasPropertyValues(allFlags, 0, 0, 0, 0, allTypes))
     {
-      Property prop = { item->getName(), item->getUnit() };
+      Property prop;
+      prop.name = item->getName();
+      prop.unit = item->getUnit();
+    
+      switch (item->getPropertyAttribute())
+      {
+      case DataModel::CONTINUOUS_3D_PROPERTY:
+        prop.attrib = Property::Attrib_Continuous3D;
+        break;
+      case DataModel::DISCONTINUOUS_3D_PROPERTY:
+        prop.attrib = Property::Attrib_Discontinuous3D;
+        break;
+      case DataModel::SURFACE_2D_PROPERTY:
+        prop.attrib = Property::Attrib_Surface2D;
+        break;
+      case DataModel::FORMATION_2D_PROPERTY:
+        prop.attrib = Property::Attrib_Formation2D;
+        break;
+      case DataModel::TRAP_PROPERTY:
+        prop.attrib = Property::Attrib_Trap;
+        break;
+      default:
+        prop.attrib = Property::Attrib_Unknown;
+        break;
+      }
+
+      switch (item->getType())
+      {
+      case di::FORMATIONPROPERTY:
+        prop.type = Property::Type_Formation;
+        break;
+      case di::RESERVOIR:
+        prop.type = Property::Type_Reservoir;
+        break;
+      case di::TRAPPROPERTY:
+        prop.type = Property::Type_Trap;
+        break;
+      default:
+        prop.type = Property::Type_Unknown;
+        break;
+      }
+
       m_projectInfo.properties.push_back(prop);
 
       m_properties.push_back(item);

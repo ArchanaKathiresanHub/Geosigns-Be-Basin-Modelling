@@ -10,7 +10,9 @@
 
 #include "SceneGraphManager.h"
 #include "Scheduler.h"
+#include "Tasks.h"
 #include "Mesh.h"
+#include "MeshExtraction.h"
 #include "Property.h"
 #include "FlowLines.h"
 #include "OutlineBuilder.h"
@@ -74,37 +76,70 @@
 #include <MeshViz/graph/PoGenAxis.h>
 #endif
 
-#include <VolumeViz/nodes/SoVolumeRenderingQuality.h>
-
 #include <memory>
 
 SoSwitch* createCompass();
 
-struct LoadSnapshotMeshTask : public Task
+void SnapshotInfo::Reservoir::clear()
 {
-  std::shared_ptr<Project> project;
-  size_t snapshotIndex;
-
-  std::shared_ptr<MiVolumeMeshCurvilinear> result;
-
-public:
-
-  LoadSnapshotMeshTask(std::shared_ptr<Project> proj, size_t index)
-    : project(proj)
-    , snapshotIndex(index)
+  if (loadReservoirMeshTask)
   {
-    affinity = IOTASK;
+    loadReservoirMeshTask->canceled = true;
+    loadReservoirMeshTask.reset();
+  }
+  if (loadReservoirPropertyTask)
+  {
+    loadReservoirPropertyTask->canceled = true;
+    loadReservoirPropertyTask.reset();
+  }
+  if (extractReservoirSkinTask)
+  {
+    extractReservoirSkinTask->canceled = true;
+    extractReservoirSkinTask.reset();
   }
 
-  void run() override
+  propertyId = -1;
+  root = nullptr;
+  mesh = nullptr;
+  scalarSet = nullptr;
+  skin = nullptr;
+  trapOutlines = nullptr;
+  drainageAreaOutlinesFluid = nullptr;
+  drainageAreaOutlinesGas = nullptr;
+
+  meshData.reset();
+  propertyData.reset();
+
+  traps = Traps();
+}
+
+void SnapshotInfo::Surface::clear()
+{
+  propertyId = -1;
+
+  if (loadSurfaceMeshTask)
   {
-    result = project->createSnapshotMesh(snapshotIndex);
+    loadSurfaceMeshTask->canceled = true;
+    loadSurfaceMeshTask.reset();
   }
-};
+  if (loadSurfacePropertyTask)
+  {
+    loadSurfacePropertyTask->canceled = true;
+    loadSurfacePropertyTask.reset();
+  }
+
+  root = nullptr;
+  mesh = nullptr;
+  scalarSet = nullptr;
+  surfaceMesh = nullptr;
+
+  meshData.reset();
+  propertyData.reset();
+}
 
 SnapshotInfo::SnapshotInfo()
   : index(0)
-  , currentPropertyId(-1)
+  , formationPropertyId(-1)
   , minZ(0.0)
   , maxZ(0.0)
   , root(0)
@@ -123,8 +158,8 @@ SnapshotInfo::SnapshotInfo()
   , reservoirsTimeStamp(MxTimeStamp::getTimeStamp())
   , faultsTimeStamp(MxTimeStamp::getTimeStamp())
   , flowLinesTimeStamp(MxTimeStamp::getTimeStamp())
+  , slicesTimeStamp(MxTimeStamp::getTimeStamp())
   , fencesTimeStamp(MxTimeStamp::getTimeStamp())
-  , cellFilterTimeStamp(MxTimeStamp::getTimeStamp())
   , seismicPlaneSliceTimeStamp(MxTimeStamp::getTimeStamp())
 {
 }
@@ -242,7 +277,7 @@ void SceneGraphManager::updateSnapshotMesh()
   SnapshotInfo& snapshot = *m_snapshotInfoCache.begin();
   
   // skip if we already have the mesh data, or are in the process of loading it
-  if (!!snapshot.meshData || !snapshot.loadSnapshotMeshTask.expired())
+  if (!!snapshot.meshData || snapshot.loadFormationMeshTask)
     return;
 
   bool needMesh = false;
@@ -272,7 +307,7 @@ void SceneGraphManager::updateSnapshotMesh()
   {
     for (int i = 0; i < 3; ++i)
     {
-      if (m_viewState.sliceEnabled[i])
+      if (m_viewState.sliceParams.enabled[i])
         needMesh = true;
     }
   }
@@ -291,61 +326,7 @@ void SceneGraphManager::updateSnapshotMesh()
   needMesh = needMesh || m_seismicSwitch->getNumChildren() > 0;
 
   if (needMesh)
-  {
-    auto task = std::make_shared<LoadSnapshotMeshTask>(m_project, snapshot.index);
-    task->type = TaskLoadSnapshotMesh;
-    task->source = this;
-    m_scheduler.put(task);
-
-    // Keep a weak ref to this task, so we know we're loading it
-    snapshot.loadSnapshotMeshTask = task;
-  }
-}
-
-namespace
-{
-  SnapshotInfo::Chunk createChunk(const MiVolumeMeshCurvilinear& mesh, const MiCellFilterIjk* cellFilter, int kmin, int kmax)
-  {
-    SnapshotInfo::Chunk chunk;
-    chunk.minK = kmin;
-    chunk.maxK = kmax;
-
-    auto const& topology = mesh.getTopology();
-    MbVec3ui rangeMin(0u, 0u, (size_t)kmin);
-    MbVec3ui rangeMax(
-      topology.getNumCellsI(),
-      topology.getNumCellsJ(),
-      (size_t)kmax);
-
-    chunk.extractor.reset(MiSkinExtractIjk::getNewInstance(mesh));
-    chunk.extractor->addCellRange(rangeMin, rangeMax);
-    chunk.root = new SoSeparator;
-    chunk.mesh = new MoMesh;
-    chunk.mesh->setMesh(&chunk.extractor->extractSkin(cellFilter));
-    chunk.scalarSet = new MoScalarSet;
-    chunk.skin = new MoMeshSurface;
-    chunk.skin->colorScalarSetId = -1;
-    chunk.root->addChild(chunk.mesh);
-    chunk.root->addChild(chunk.scalarSet);
-    chunk.root->addChild(chunk.skin);
-
-    return chunk;
-  }
-
-  void updateChunkScalarSet(SnapshotInfo::Chunk& chunk, MiDataSetIjk<double>* dataSet)
-  {
-    if(dataSet)
-    {
-      auto chunkDataSet = &chunk.extractor->extractScalarSet(*dataSet);
-      chunk.scalarSet->setScalarSet(chunkDataSet);
-      chunk.skin->colorScalarSetId = 0;
-    }
-    else
-    {
-      chunk.scalarSet->setScalarSet(nullptr);
-      chunk.skin->colorScalarSetId = -1;
-    }
-  }
+    snapshot.loadFormationMeshTask = loadFormationMesh(snapshot.index);
 }
 
 void SceneGraphManager::updateSnapshotFormations()
@@ -354,50 +335,63 @@ void SceneGraphManager::updateSnapshotFormations()
 
   SnapshotInfo& snapshot = *m_snapshotInfoCache.begin(); 
 
-  // Update formations
-  if (
-    snapshot.formationsTimeStamp == m_formationsTimeStamp || 
-    !snapshot.meshData ||
-    !snapshot.chunksGroup || 
-    snapshot.formations.empty())
-    {
-      return;
-    }
+  // Update formations if necessary
+  if ((
+    snapshot.formationsTimeStamp == m_formationsTimeStamp &&
+    snapshot.cellFilterTimeStamp == m_cellFilterTimeStamp) ||
+    snapshot.extractFormationSkinTask ||
+    !snapshot.meshData)
+  {
+    return;
+  }
 
-  snapshot.chunksGroup->removeAllChildren();
-
-  const MiCellFilterIjk* cellFilter = nullptr;
-  if (m_viewState.cellFilterEnabled && snapshot.scalarDataSet)
-    cellFilter = snapshot.propertyValueCellFilter.get();
-
-  bool buildingChunk = false;
-  int minK=0, maxK=0;
-  std::vector<SnapshotInfo::Chunk> tmpChunks;
+  // determine contiguous k-ranges from the formation visibility
+  bool prevVisible = false;
+  int minK = 0, maxK = 0;
+  std::vector<std::tuple<int, int>> ranges;
   for (size_t i = 0; i < snapshot.formations.size(); ++i)
   {
     bool visible = m_viewState.formationVisibility[snapshot.formations[i].id];
 
-    if (!buildingChunk && visible)
+    if (!prevVisible && visible)
       minK = snapshot.formations[i].minK;
-    else if (buildingChunk && !visible)
-      tmpChunks.push_back(createChunk(*snapshot.meshData, cellFilter, minK, maxK));
+    else if (prevVisible && !visible)
+      ranges.push_back(std::make_tuple(minK, maxK));
 
     maxK = snapshot.formations[i].maxK;
-    buildingChunk = visible;
+    prevVisible = visible;
   }
 
   // don't forget the last one
-  if (buildingChunk)
-    tmpChunks.push_back(createChunk(*snapshot.meshData, cellFilter, minK, maxK));
+  if (prevVisible)
+    ranges.push_back(std::make_tuple(minK, maxK));
 
-  for (size_t i = 0; i < tmpChunks.size(); ++i)
+  // update cell filter if necessary
+  if (snapshot.cellFilterTimeStamp != m_cellFilterTimeStamp)
   {
-    updateChunkScalarSet(tmpChunks[i], snapshot.scalarDataSet.get());
-    snapshot.chunksGroup->addChild(tmpChunks[i].root);
+    snapshot.propertyValueCellFilter->setRange(
+      m_viewState.cellFilterParams.minValue,
+      m_viewState.cellFilterParams.maxValue);
+    snapshot.propertyValueCellFilter->setDataSet(snapshot.scalarDataSet);
+    snapshot.cellFilterTimeStamp = m_cellFilterTimeStamp;
   }
 
-  snapshot.chunks.swap(tmpChunks);
-  snapshot.formationsTimeStamp = m_formationsTimeStamp;
+  // only pass the cell filter to the task if there is something to filter
+  std::shared_ptr<PropertyValueCellFilter> cellFilter;
+  if (m_viewState.cellFilterParams.enabled && snapshot.scalarDataSet)
+    cellFilter = snapshot.propertyValueCellFilter;
+
+  // check if the cell filter is ready
+  if (!(m_viewState.cellFilterParams.enabled && snapshot.loadFormationPropertyTask))
+  {
+    snapshot.extractFormationSkinTask = extractFormationSkin(
+      snapshot.index,
+      m_formationsTimeStamp,
+      ranges,
+      snapshot.meshData,
+      snapshot.scalarDataSet,
+      cellFilter);
+  }
 }
 
 namespace
@@ -433,39 +427,42 @@ void SceneGraphManager::updateSnapshotSurfaces()
   if (snapshot.surfacesTimeStamp == m_surfacesTimeStamp)
     return;
 
+  bool tasksPending = false;
   for (auto &surf : snapshot.surfaces)
   {
-    if (m_viewState.surfaceVisibility[surf.id] && surf.root == 0)
+    if (m_viewState.surfaceVisibility[surf.id])
     {
-      surf.meshData = m_project->createSurfaceMesh(snapshot.index, surf.id);
-      surf.mesh = new MoMesh;
-      surf.mesh->setMesh(surf.meshData.get());
-      surf.scalarSet = new MoScalarSet;
-      surf.propertyData = m_project->createSurfaceProperty(snapshot.index, surf.id, snapshot.currentPropertyId);
-      surf.scalarSet->setScalarSet(surf.propertyData.get());
-      surf.surfaceMesh = new MoMeshSurface;
+      if (!surf.root)
+      {
+        surf.root = new SoSeparator;
+        surf.mesh = new MoMesh;
+        surf.scalarSet = new MoScalarSet;
+        surf.surfaceMesh = new MoMeshSurface;
 
-      SoSeparator* root = new SoSeparator;
-      root->addChild(surf.mesh);
-      root->addChild(surf.scalarSet);
-      root->addChild(surf.surfaceMesh);
+        surf.root->addChild(surf.mesh);
+        surf.root->addChild(surf.scalarSet);
+        surf.root->addChild(surf.surfaceMesh);
+      }
 
-      surf.root = root;
-      snapshot.surfacesGroup->addChild(root);
+      if (!surf.meshData && !surf.loadSurfaceMeshTask)
+        surf.loadSurfaceMeshTask = loadSurfaceMesh(snapshot.index, surf.id);
+      
+      if (surf.propertyId != m_viewState.propertyId && !surf.loadSurfacePropertyTask)
+        surf.loadSurfacePropertyTask = loadSurfaceProperty(snapshot.index, surf.id, m_viewState.propertyId);
+      
+      tasksPending = tasksPending ||
+        surf.loadSurfaceMeshTask ||
+        surf.loadSurfacePropertyTask;
     }
     else if (!m_viewState.surfaceVisibility[surf.id] && surf.root != 0)
     {
       snapshot.surfacesGroup->removeChild(surf.root);
-      surf.root = 0;
-      surf.mesh = 0;
-      surf.meshData = 0;
-      surf.scalarSet = 0;
-      surf.propertyData = 0;
-      surf.surfaceMesh = 0;
+      surf.clear();
     }
   }
 
-  snapshot.surfacesTimeStamp = m_surfacesTimeStamp;
+  if(!tasksPending)
+    snapshot.surfacesTimeStamp = m_surfacesTimeStamp;
 }
 
 void SceneGraphManager::updateSnapshotReservoirs()
@@ -477,28 +474,36 @@ void SceneGraphManager::updateSnapshotReservoirs()
   if (snapshot.reservoirsTimeStamp == m_reservoirsTimeStamp)
     return;
 
+  bool tasksPending = false;
   for (auto &res : snapshot.reservoirs)
   {
-    if (m_viewState.reservoirVisibility[res.id] && res.root == 0)
+    if (m_viewState.reservoirVisibility[res.id])
     {
-      res.root = new SoSeparator;
-      res.mesh = new MoMesh;
-      res.scalarSet = new MoScalarSet;
-      res.skin = new MoMeshSurface;
+      if (!res.root)
+      {
+        res.root = new SoSeparator;
+        res.mesh = new MoMesh;
+        res.scalarSet = new MoScalarSet;
+        res.skin = new MoMeshSurface;
 
-      res.meshData = m_project->createReservoirMesh(snapshot.index, res.id);
-      res.propertyData = createReservoirProperty(snapshot, res, snapshot.currentPropertyId);
+        res.root->addChild(res.mesh);
+        res.root->addChild(res.scalarSet);
+        res.root->addChild(res.skin);
+      }
 
-      res.extractor.reset(MiSkinExtractIjk::getNewInstance(*res.meshData));
-      res.mesh->setMesh(&res.extractor->extractSkin());
-      if(res.propertyData)
-        res.scalarSet->setScalarSet(&res.extractor->extractScalarSet(*res.propertyData));
+      if (!res.meshData && !res.loadReservoirMeshTask)
+        res.loadReservoirMeshTask = loadReservoirMesh(snapshot.index, res.id);
 
-      res.root->addChild(res.mesh);
-      res.root->addChild(res.scalarSet);
-      res.root->addChild(res.skin);
+      if (res.propertyId != m_viewState.propertyId && !res.loadReservoirPropertyTask)
+        res.loadReservoirPropertyTask = loadReservoirProperty(snapshot.index, res.id, m_viewState.propertyId);
 
-      snapshot.reservoirsGroup->addChild(res.root);
+      if (res.meshData && !res.extractor && !res.extractReservoirSkinTask)
+        res.extractReservoirSkinTask = extractReservoirSkin(snapshot.index, res.id, res.meshData);
+
+      tasksPending = tasksPending ||
+        res.loadReservoirMeshTask ||
+        res.loadReservoirPropertyTask ||
+        res.extractReservoirSkinTask;
     }
     else if (!m_viewState.reservoirVisibility[res.id] && res.root != 0)
     {
@@ -507,7 +512,8 @@ void SceneGraphManager::updateSnapshotReservoirs()
     }
   }
 
-  snapshot.reservoirsTimeStamp = m_reservoirsTimeStamp;
+  if(!tasksPending)
+    snapshot.reservoirsTimeStamp = m_reservoirsTimeStamp;
 }
 
 void SceneGraphManager::updateSnapshotTraps()
@@ -554,7 +560,7 @@ void SceneGraphManager::updateSnapshotTraps()
         std::shared_ptr<MiDataSetIjk<double> > dataSet;
 
         int propertyId = m_project->getPropertyId("ResRockTrapId");
-        if (propertyId == snapshot.currentPropertyId)
+        if (propertyId == res.propertyId)
           dataSet = res.propertyData;
         else
           dataSet = m_project->createReservoirProperty(snapshot.index, res.id, propertyId);
@@ -587,7 +593,7 @@ void SceneGraphManager::updateSnapshotTraps()
         std::shared_ptr<MiDataSetIjk<double> > dataSet;
 
         int propertyId = m_project->getPropertyId("ResRockDrainageIdFluidPhase");
-        if (propertyId == snapshot.currentPropertyId)
+        if (propertyId == res.propertyId)
           dataSet = res.propertyData;
         else
           dataSet = m_project->createReservoirProperty(snapshot.index, res.id, propertyId);
@@ -601,7 +607,7 @@ void SceneGraphManager::updateSnapshotTraps()
         std::shared_ptr<MiDataSetIjk<double> > dataSet;
 
         int propertyId = m_project->getPropertyId("ResRockDrainageIdGasPhase");
-        if (propertyId == snapshot.currentPropertyId)
+        if (propertyId == res.propertyId)
           dataSet = res.propertyData;
         else
           dataSet = m_project->createReservoirProperty(snapshot.index, res.id, propertyId);
@@ -697,22 +703,15 @@ void SceneGraphManager::updateSnapshotProperties()
   SnapshotInfo& snapshot = *m_snapshotInfoCache.begin();
 
   // Update properties
-  if (snapshot.currentPropertyId == m_viewState.currentPropertyId)
-    return;
-
-  snapshot.scalarDataSet = createFormationProperty(snapshot, m_viewState.currentPropertyId);
-  snapshot.scalarSet->setScalarSet(snapshot.scalarDataSet.get());
-
-  // the cell filter depends on the current property, so update it
-  m_cellFilterTimeStamp = MxTimeStamp::getTimeStamp();
-  updateSnapshotCellFilter();
+  if (snapshot.formationPropertyId != m_viewState.propertyId && !snapshot.loadFormationPropertyTask)
+    snapshot.loadFormationPropertyTask = loadFormationProperty(snapshot.index, m_viewState.propertyId);
 
   for (auto &surf : snapshot.surfaces)
   {
     if (surf.root)
     {
-      surf.propertyData = m_project->createSurfaceProperty(snapshot.index, surf.id, m_viewState.currentPropertyId);
-      surf.scalarSet->setScalarSet(surf.propertyData.get());
+      if (surf.propertyId != m_viewState.propertyId && !surf.loadSurfacePropertyTask)
+        surf.loadSurfacePropertyTask = loadSurfaceProperty(snapshot.index, surf.id, m_viewState.propertyId);
     }
   }
 
@@ -720,60 +719,8 @@ void SceneGraphManager::updateSnapshotProperties()
   {
     if (res.root)
     {
-      res.propertyData = createReservoirProperty(snapshot, res, m_viewState.currentPropertyId);
-      if(res.propertyData)
-        res.scalarSet->setScalarSet(&res.extractor->extractScalarSet(*res.propertyData));
-    }
-  }
-
-  for (auto &chunk : snapshot.chunks)
-    updateChunkScalarSet(chunk, snapshot.scalarDataSet.get());
-
-  snapshot.currentPropertyId = m_viewState.currentPropertyId;
-}
-
-namespace
-{
-  void setupSlice(SnapshotInfo::Slice& slice, const MiVolumeMeshCurvilinear& mesh)
-  {
-    slice.position = -1;
-    slice.extractor.reset(MiSkinExtractIjk::getNewInstance(mesh));
-    slice.root = new SoSeparator;
-    slice.mesh = new MoMesh;
-    slice.scalarSet = new MoScalarSet;
-    slice.skin = new MoMeshSurface;
-    slice.skin->colorScalarSetId = -1;
-    slice.root->addChild(slice.mesh);
-    slice.root->addChild(slice.scalarSet);
-    slice.root->addChild(slice.skin);
-  }
-
-  void updateSliceGeometry(SnapshotInfo::Slice& slice, int axis, int position)
-  {
-    assert(axis == 0 || axis == 1);
-
-    MbVec3ui rangeMin(0u, 0u, 0u);
-    MbVec3ui rangeMax(UNDEFINED_ID, UNDEFINED_ID, UNDEFINED_ID);
-
-    rangeMin[axis] = (size_t)position;
-    rangeMax[axis] = (size_t)position + 1;
-
-    slice.extractor->clearCellRanges();
-    slice.extractor->addCellRange(rangeMin, rangeMax);
-    slice.mesh->setMesh(&slice.extractor->extractSkin());
-  }
-
-  void updateSliceScalarSet(SnapshotInfo::Slice& slice, MiDataSetIjk<double>* dataSet)
-  {
-    if (dataSet)
-    {
-      slice.scalarSet->setScalarSet(&slice.extractor->extractScalarSet(*dataSet));
-      slice.skin->colorScalarSetId = 0;
-    }
-    else
-    {
-      slice.scalarSet->setScalarSet(nullptr);
-      slice.skin->colorScalarSetId = -1;
+      if (res.propertyId != m_viewState.propertyId && !res.loadReservoirPropertyTask)
+        res.loadReservoirPropertyTask = loadReservoirProperty(snapshot.index, res.id, m_viewState.propertyId);
     }
   }
 }
@@ -784,12 +731,12 @@ void SceneGraphManager::updateSnapshotSlices()
 
   SnapshotInfo& snapshot = *m_snapshotInfoCache.begin();
 
-  if (snapshot.slicesGroup == 0)
+  if (snapshot.slicesTimeStamp == m_slicesTimeStamp || !snapshot.slicesGroup)
     return;
 
   for (int i = 0; i < 2; ++i)
   {
-    if (m_viewState.sliceEnabled[i])
+    if (m_viewState.sliceParams.enabled[i])
     {
       assert(snapshot.meshData);
 
@@ -799,9 +746,9 @@ void SceneGraphManager::updateSnapshotSlices()
         snapshot.slicesGroup->addChild(snapshot.slices[i].root);
       }
 
-      if (snapshot.slices[i].position != m_viewState.slicePosition[i])
+      if (snapshot.slices[i].position != m_viewState.sliceParams.position[i])
       {
-        updateSliceGeometry(snapshot.slices[i], i, (int)m_viewState.slicePosition[i]);
+        updateSliceGeometry(snapshot.slices[i], i, (int)m_viewState.sliceParams.position[i]);
         updateSliceScalarSet(snapshot.slices[i], snapshot.scalarDataSet.get());
       }
     }
@@ -811,6 +758,8 @@ void SceneGraphManager::updateSnapshotSlices()
       snapshot.slices[i].clear();
     }
   }
+
+  snapshot.slicesTimeStamp = m_slicesTimeStamp;
 }
 
 void SceneGraphManager::updateSnapshotFlowLines()
@@ -895,29 +844,6 @@ void SceneGraphManager::updateSnapshotFlowLines()
   snapshot.flowLinesTimeStamp = m_flowLinesTimeStamp;
 }
 
-void SceneGraphManager::updateSnapshotCellFilter()
-{
-  assert(!m_snapshotInfoCache.empty());
-
-  SnapshotInfo& snapshot = *m_snapshotInfoCache.begin();
-  if (snapshot.cellFilterTimeStamp == m_cellFilterTimeStamp)
-    return;
-
-  snapshot.propertyValueCellFilter->setDataSet(snapshot.scalarDataSet.get());
-  snapshot.propertyValueCellFilter->setRange(
-    m_viewState.cellFilterMinValue, 
-    m_viewState.cellFilterMaxValue);
-
-  snapshot.cellFilterTimeStamp = m_cellFilterTimeStamp;
-
-  // cell filter changed, so update formations
-  if (m_viewState.cellFilterEnabled)
-  {
-    m_formationsTimeStamp = MxTimeStamp::getTimeStamp();
-    updateSnapshotFormations();
-  }
-}
-
 void SceneGraphManager::updateSnapshotFences()
 {
   assert(!m_snapshotInfoCache.empty());
@@ -964,14 +890,14 @@ void SceneGraphManager::updateSnapshotFences()
 
 void SceneGraphManager::updateColorMap()
 {
-  if (m_viewState.currentPropertyId < 0)
+  if (m_viewState.propertyId < 0)
     return;
 
   int index = 0;
   int trapId = m_project->getPropertyId("ResRockTrapId");
-  if (m_viewState.currentPropertyId == trapId || m_viewState.currentPropertyId == PersistentTrapIdPropertyId)
+  if (m_viewState.propertyId== trapId || m_viewState.propertyId == PersistentTrapIdPropertyId)
     index = 1;
-  else if (m_viewState.currentPropertyId == FluidContactsPropertyId)
+  else if (m_viewState.propertyId == FluidContactsPropertyId)
     index = 2;
 
   m_colorMapSwitch->whichChild = index;
@@ -991,7 +917,7 @@ void SceneGraphManager::updateColorMap()
   }
   else
   {
-    if (m_viewState.currentPropertyId == FormationIdPropertyId)
+    if (m_viewState.propertyId == FormationIdPropertyId)
     {
       minValue = 0.0;
       maxValue = (double)(m_projectInfo.formations.size() - 1);
@@ -1040,6 +966,30 @@ void SceneGraphManager::updateColorMap()
   m_legend->maxValue = maxValue;
 }
 
+void SceneGraphManager::updateLegend()
+{
+  // TODO: only update when propertyId changed
+
+  int trapIdPropertyId = m_project->getPropertyId("ResRockTrapId");
+
+  if (
+    m_viewState.propertyId >= 0 && 
+    m_viewState.propertyId < DerivedPropertyBaseId && 
+    m_viewState.propertyId != trapIdPropertyId)
+  {
+    std::string name = m_projectInfo.properties[m_viewState.propertyId].name;
+    std::string unit = m_projectInfo.properties[m_viewState.propertyId].unit;
+    std::string title = name + " [" + unit + "]";
+
+    m_legend->title = title.c_str();
+    m_legendSwitch->whichChild = SO_SWITCH_ALL;
+  }
+  else
+  {
+    m_legendSwitch->whichChild = SO_SWITCH_NONE;
+  }
+}
+
 void SceneGraphManager::updateText()
 {
   assert(!m_snapshotInfoCache.empty());
@@ -1063,7 +1013,6 @@ void SceneGraphManager::updateSnapshot()
 {
   updateSnapshotMesh();
   updateSnapshotProperties();
-  updateSnapshotCellFilter();
   updateSnapshotFormations();
   updateSnapshotSurfaces();
   updateSnapshotReservoirs();
@@ -1074,6 +1023,7 @@ void SceneGraphManager::updateSnapshot()
   updateSnapshotFences();
 
   updateColorMap();
+  updateLegend();
   updateText();
   updateCoordinateGrid();
 }
@@ -1345,7 +1295,7 @@ SnapshotInfo SceneGraphManager::createSnapshotNode(size_t index)
   info.root->addChild(info.reservoirsGroup);
   info.root->addChild(info.formationsRoot);
 
-  info.currentPropertyId = -1;
+  info.formationPropertyId = -1;
 
   return info;
 }
@@ -1546,15 +1496,289 @@ void SceneGraphManager::setupSceneGraph()
   m_colors->setRange(0.0, (double)(m_projectInfo.formations.size() - 1));
 }
 
-std::shared_ptr<MiDataSetIjk<double> > SceneGraphManager::createFormationProperty(
-  const SnapshotInfo& snapshot,
-  int propertyId)
+void SceneGraphManager::setFormationProperty(SnapshotInfo& snapshot, int propertyId, std::shared_ptr<MiDataSetIjk<double>> dataSet)
+{
+  snapshot.formationPropertyId = propertyId;
+  snapshot.scalarDataSet = dataSet;
+  snapshot.scalarSet->setScalarSet(dataSet.get());
+
+  // the cell filter depends on the current property, so if it's
+  // enabled we need to update the formation mesh
+  if (m_viewState.cellFilterParams.enabled)
+  {
+    m_cellFilterTimeStamp = MxTimeStamp::getTimeStamp();
+  }
+  else
+  {
+    for (auto &chunk : snapshot.chunks)
+      updateChunkScalarSet(chunk, dataSet.get());
+
+    for (auto &slice : snapshot.slices)
+      updateSliceScalarSet(slice, dataSet.get());
+
+    // TODO: updateFenceScalarSet
+  }
+}
+
+void SceneGraphManager::onTaskCompleted(std::shared_ptr<LoadFormationMeshTask> task)
+{
+  auto iter = m_snapshotInfoCache.begin();
+  while (iter != m_snapshotInfoCache.end() && iter->index != task->snapshotIndex)
+    iter++;
+
+  if (iter == m_snapshotInfoCache.end())
+    return;
+
+  assert(iter->loadFormationMeshTask == task);
+
+  iter->loadFormationMeshTask.reset();
+  iter->meshData = task->result;
+  iter->mesh->setMesh(iter->meshData.get());
+
+  if (m_seismicScene)
+    m_seismicScene->setMesh(iter->meshData.get());
+
+  updateSnapshot(); // TODO: what if this is not the updated snapshot?
+}
+
+void SceneGraphManager::onTaskCompleted(std::shared_ptr<LoadReservoirMeshTask> task)
+{
+  // find snapshot
+  auto iter = m_snapshotInfoCache.begin();
+  while (iter != m_snapshotInfoCache.end() && iter->index != task->snapshotIndex)
+    iter++;
+
+  if (iter == m_snapshotInfoCache.end())
+    return;
+
+  // find reservoir
+  auto resIter = iter->reservoirs.begin();
+  while (resIter != iter->reservoirs.end() && resIter->id != task->reservoirId)
+    resIter++;
+
+  assert(resIter != iter->reservoirs.end());
+  assert(resIter->loadReservoirMeshTask == task);
+  assert(resIter->root);
+
+  resIter->meshData = task->result;
+  resIter->loadReservoirMeshTask.reset();
+
+  updateSnapshot();
+}
+
+void SceneGraphManager::onTaskCompleted(std::shared_ptr<LoadSurfaceMeshTask> task)
+{
+  // find snapshot
+  auto iter = m_snapshotInfoCache.begin();
+  while (iter != m_snapshotInfoCache.end() && iter->index != task->snapshotIndex)
+    iter++;
+
+  if (iter == m_snapshotInfoCache.end())
+    return;
+
+  // find surface
+  auto surfIter = iter->surfaces.begin();
+  while (surfIter != iter->surfaces.end() && surfIter->id != task->surfaceId)
+    surfIter++;
+
+  assert(surfIter != iter->surfaces.end());
+  assert(surfIter->loadSurfaceMeshTask == task);
+  assert(surfIter->root);
+
+  surfIter->meshData = task->result;
+  surfIter->mesh->setMesh(surfIter->meshData.get());
+  surfIter->loadSurfaceMeshTask.reset();
+  updateSurfaceScalarSet(*surfIter);
+
+  iter->surfacesGroup->addChild(surfIter->root);
+
+  updateSnapshot();
+}
+
+void SceneGraphManager::onTaskCompleted(std::shared_ptr<LoadFormationPropertyTask> task)
+{
+  auto iter = m_snapshotInfoCache.begin();
+  while (iter != m_snapshotInfoCache.end() && iter->index != task->snapshotIndex)
+    iter++;
+
+  if (iter == m_snapshotInfoCache.end())
+    return;
+
+  assert(iter->loadFormationPropertyTask == task);
+  assert(iter->formationPropertyId != task->propertyId);
+  
+  iter->loadFormationPropertyTask.reset();
+
+  setFormationProperty(*iter, task->propertyId, task->result);
+
+  updateSnapshot();
+}
+
+void SceneGraphManager::onTaskCompleted(std::shared_ptr<LoadReservoirPropertyTask> task)
+{
+  // find snapshot
+  auto iter = m_snapshotInfoCache.begin();
+  while (iter != m_snapshotInfoCache.end() && iter->index != task->snapshotIndex)
+    iter++;
+
+  if (iter == m_snapshotInfoCache.end())
+    return;
+
+  // find reservoir
+  auto resIter = iter->reservoirs.begin();
+  while (resIter != iter->reservoirs.end() && resIter->id != task->reservoirId)
+    resIter++;
+
+  assert(resIter != iter->reservoirs.end());
+  assert(resIter->loadReservoirPropertyTask == task);
+  assert(resIter->propertyId != task->propertyId);
+
+  resIter->propertyId = task->propertyId;
+  resIter->propertyData = task->result;
+  if (resIter->extractor)
+    updateReservoirScalarSet(*resIter);
+  resIter->loadReservoirPropertyTask.reset();
+
+  updateSnapshot();
+}
+
+void SceneGraphManager::onTaskCompleted(std::shared_ptr<LoadSurfacePropertyTask> task)
+{
+  // find snapshot
+  auto iter = m_snapshotInfoCache.begin();
+  while (iter != m_snapshotInfoCache.end() && iter->index != task->snapshotIndex)
+    iter++;
+
+  if (iter == m_snapshotInfoCache.end())
+    return;
+
+  // find surface
+  auto surfIter = iter->surfaces.begin();
+  while (surfIter != iter->surfaces.end() && surfIter->id != task->surfaceId)
+    surfIter++;
+
+  assert(surfIter != iter->surfaces.end());
+  assert(surfIter->loadSurfacePropertyTask == task);
+  assert(surfIter->root);
+
+  surfIter->propertyId = task->propertyId;
+  surfIter->propertyData = task->result;
+  if(surfIter->meshData)
+    updateSurfaceScalarSet(*surfIter);
+  surfIter->loadSurfacePropertyTask.reset();
+
+  updateSnapshot();
+}
+
+void SceneGraphManager::onTaskCompleted(std::shared_ptr<ExtractFormationSkinTask> task)
+{
+  auto iter = m_snapshotInfoCache.begin();
+  while (iter != m_snapshotInfoCache.end() && iter->index != task->snapshotIndex)
+    iter++;
+
+  if (iter == m_snapshotInfoCache.end())
+    return;
+
+  assert(iter->extractFormationSkinTask == task);
+
+  // TODO: it would be more efficient to keep chunks that remain unchanged, but
+  // for now we just throw away all chunks and regenerate everything
+  iter->chunksGroup->removeAllChildren();
+
+  for (auto &chunk : task->chunks)
+  {
+    updateChunkScalarSet(chunk, iter->scalarDataSet.get());
+    iter->chunksGroup->addChild(chunk.root);
+  }
+
+  iter->chunks.swap(task->chunks);
+  iter->formationsTimeStamp = task->formationsTimestamp;
+  iter->extractFormationSkinTask.reset();
+
+  updateSnapshot();
+}
+
+void SceneGraphManager::onTaskCompleted(std::shared_ptr<ExtractReservoirSkinTask> task)
+{
+  // find snapshot
+  auto iter = m_snapshotInfoCache.begin();
+  while (iter != m_snapshotInfoCache.end() && iter->index != task->snapshotIndex)
+    iter++;
+
+  if (iter == m_snapshotInfoCache.end())
+    return;
+
+  // find reservoir
+  auto resIter = iter->reservoirs.begin();
+  while (resIter != iter->reservoirs.end() && resIter->id != task->reservoirId)
+    resIter++;
+
+  assert(resIter != iter->reservoirs.end());
+
+  resIter->extractor = task->result;
+  resIter->mesh->setMesh(&resIter->extractor->getExtract());
+  resIter->extractReservoirSkinTask.reset();
+  updateReservoirScalarSet(*resIter);
+
+  // when the skin is extracted, we can add the reservoir root to the scenegraph
+  iter->reservoirsGroup->addChild(resIter->root);
+
+  updateSnapshot();
+}
+
+std::shared_ptr<Task> SceneGraphManager::loadFormationMesh(size_t snapshotIndex)
+{
+  auto task = std::make_shared<LoadFormationMeshTask>();
+  task->source = this;
+  task->project = m_project;
+  task->snapshotIndex = snapshotIndex;
+
+  m_scheduler.put(task);
+
+  return task;
+}
+
+std::shared_ptr<Task> SceneGraphManager::loadReservoirMesh(size_t snapshotIndex, int reservoirId)
+{
+  auto task = std::make_shared<LoadReservoirMeshTask>();
+  task->source = this;
+  task->project = m_project;
+  task->snapshotIndex = snapshotIndex;
+  task->reservoirId = reservoirId;
+
+  m_scheduler.put(task);
+
+  return task;
+}
+
+std::shared_ptr<Task> SceneGraphManager::loadSurfaceMesh(size_t snapshotIndex, int surfaceId)
+{
+  auto task = std::make_shared<LoadSurfaceMeshTask>();
+  task->source = this;
+  task->project = m_project;
+  task->snapshotIndex = snapshotIndex;
+  task->surfaceId = surfaceId;
+
+  m_scheduler.put(task);
+
+  return task;
+}
+
+std::shared_ptr<Task> SceneGraphManager::loadFormationProperty(size_t snapshotIndex, int propertyId)
 {
   if (propertyId == FormationIdPropertyId)
   {
+    // find snapshot
+    auto iter = m_snapshotInfoCache.begin();
+    while (iter != m_snapshotInfoCache.end() && iter->index != snapshotIndex)
+      iter++;
+
+    if (iter == m_snapshotInfoCache.end())
+      return nullptr;
+
     // collect array of formation ids for FormationIdProperty
     std::vector<double> formationIds;
-    for (auto formation : snapshot.formations)
+    for (auto formation : iter->formations)
     {
       int minK = formation.minK;
       int maxK = formation.maxK;
@@ -1563,12 +1787,88 @@ std::shared_ptr<MiDataSetIjk<double> > SceneGraphManager::createFormationPropert
         formationIds.push_back((double)formation.id);
     }
 
-    return std::make_shared<FormationIdProperty>(formationIds);
+    auto scalarSet = std::make_shared<FormationIdProperty>(formationIds);
+    setFormationProperty(*iter, propertyId, scalarSet);
+    return nullptr; // no task has been created
   }
   else
   {
-    return m_project->createFormationProperty(snapshot.index, propertyId);
+    auto task = std::make_shared<LoadFormationPropertyTask>();
+    task->source = this;
+    task->project = m_project;
+    task->snapshotIndex = snapshotIndex;
+    task->propertyId = propertyId;
+
+    m_scheduler.put(task);
+
+    return task;
   }
+}
+
+std::shared_ptr<Task> SceneGraphManager::loadReservoirProperty(size_t snapshotIndex, int reservoirId, int propertyId)
+{
+  auto task = std::make_shared<LoadReservoirPropertyTask>();
+  task->source = this;
+  task->project = m_project;
+  task->snapshotIndex = snapshotIndex;
+  task->reservoirId = reservoirId;
+  task->propertyId = propertyId;
+
+  m_scheduler.put(task);
+
+  return task;
+}
+
+std::shared_ptr<Task> SceneGraphManager::loadSurfaceProperty(size_t snapshotIndex, int surfaceId, int propertyId)
+{
+  auto task = std::make_shared<LoadSurfacePropertyTask>();
+  task->source = this;
+  task->project = m_project;
+  task->snapshotIndex = snapshotIndex;
+  task->surfaceId = surfaceId;
+  task->propertyId = propertyId;
+
+  m_scheduler.put(task);
+
+  return task;
+}
+
+std::shared_ptr<Task> SceneGraphManager::extractFormationSkin(
+  size_t snapshotIndex,
+  size_t formationsTimeStamp,
+  const std::vector<std::tuple<int, int>>& ranges, 
+  std::shared_ptr<MiVolumeMeshCurvilinear> mesh, 
+  std::shared_ptr<MiDataSetIjk<double>> dataSet,
+  std::shared_ptr<MiCellFilterIjk> cellFilter)
+{
+  auto task = std::make_shared<ExtractFormationSkinTask>();
+  task->source = this;
+  task->snapshotIndex = snapshotIndex;
+  task->formationsTimestamp = formationsTimeStamp;
+  task->ranges = ranges;
+  task->mesh = mesh;
+  task->dataSet = dataSet;
+  task->cellFilter = cellFilter;
+
+  m_scheduler.put(task);
+
+  return task;
+}
+
+std::shared_ptr<Task> SceneGraphManager::extractReservoirSkin(
+  size_t snapshotIndex,
+  int reservoirId,
+  std::shared_ptr<MiVolumeMeshCurvilinear> mesh)
+{
+  auto task = std::make_shared<ExtractReservoirSkinTask>();
+  task->source = this;
+  task->snapshotIndex = snapshotIndex;
+  task->reservoirId = reservoirId;
+  task->mesh = mesh;
+
+  m_scheduler.put(task);
+  
+  return task;
 }
 
 std::shared_ptr<MiDataSetIjk<double> > SceneGraphManager::createReservoirProperty(
@@ -1580,13 +1880,13 @@ std::shared_ptr<MiDataSetIjk<double> > SceneGraphManager::createReservoirPropert
 
   if (propertyId < DerivedPropertyBaseId)
   {
-    result = m_project->createReservoirProperty(snapshot.index, res.id, m_viewState.currentPropertyId);
+    result = m_project->createReservoirProperty(snapshot.index, res.id, m_viewState.propertyId);
   }
-  else if (m_viewState.currentPropertyId == FluidContactsPropertyId)
+  else if (m_viewState.propertyId == FluidContactsPropertyId)
   {
     std::shared_ptr<MiDataSetIjk<double> > trapIdPropertyData;
     int trapIdPropertyId = m_project->getPropertyId("ResRockTrapId");
-    if (snapshot.currentPropertyId == trapIdPropertyId)
+    if (res.propertyId == trapIdPropertyId)
       trapIdPropertyData = res.propertyData;
     else
       trapIdPropertyData = m_project->createReservoirProperty(snapshot.index, res.id, trapIdPropertyId);
@@ -1612,6 +1912,7 @@ SceneGraphManager::SceneGraphManager(Scheduler& scheduler)
   , m_reservoirsTimeStamp(MxTimeStamp::getTimeStamp())
   , m_faultsTimeStamp(MxTimeStamp::getTimeStamp())
   , m_flowLinesTimeStamp(MxTimeStamp::getTimeStamp())
+  , m_slicesTimeStamp(MxTimeStamp::getTimeStamp())
   , m_fencesTimeStamp(MxTimeStamp::getTimeStamp())
   , m_cellFilterTimeStamp(MxTimeStamp::getTimeStamp())
   , m_root(0)
@@ -1808,7 +2109,7 @@ void SceneGraphManager::setCurrentSnapshot(size_t index)
   if (!m_snapshotInfoCache.empty() && m_snapshotInfoCache.begin()->index == index)
     return;
 
-  m_viewState.currentSnapshotIndex = (int)index;
+  m_viewState.snapshotIndex = (int)index;
 
   // See if we have this node in the cache
   auto iter = std::find_if(
@@ -1872,26 +2173,10 @@ void SceneGraphManager::setRenderStyle(bool drawFaces, bool drawEdges)
 
 void SceneGraphManager::setProperty(int propertyId)
 {
-  if (m_viewState.currentPropertyId == propertyId)
+  if (m_viewState.propertyId == propertyId)
     return;
 
-  m_viewState.currentPropertyId = propertyId;
-
-  int trapIdPropertyId = m_project->getPropertyId("ResRockTrapId");
-
-  if (propertyId >= 0 && propertyId < DerivedPropertyBaseId && propertyId != trapIdPropertyId)
-  {
-    std::string name = m_projectInfo.properties[propertyId].name;
-    std::string unit = m_projectInfo.properties[propertyId].unit;
-    std::string title = name + " [" + unit + "]";
-
-    m_legend->title = title.c_str();
-    m_legendSwitch->whichChild = SO_SWITCH_ALL;
-  }
-  else
-  {
-    m_legendSwitch->whichChild = SO_SWITCH_NONE;
-  }
+  m_viewState.propertyId = propertyId;
 
   updateSnapshot();
 }
@@ -2051,13 +2336,19 @@ void SceneGraphManager::enableAllFlowLines(bool enabled)
 
 void SceneGraphManager::enableSlice(int slice, bool enabled)
 {
-  m_viewState.sliceEnabled[slice] = enabled;
+  m_viewState.sliceParams.enabled[slice] = enabled;
+
+  m_slicesTimeStamp = MxTimeStamp::getTimeStamp();
+
   updateSnapshot();
 }
 
 void SceneGraphManager::setSlicePosition(int slice, int position)
 {
-  m_viewState.slicePosition[slice] = position;
+  m_viewState.sliceParams.position[slice] = position;
+
+  m_slicesTimeStamp = MxTimeStamp::getTimeStamp();
+
   updateSnapshot();
 }
 
@@ -2210,24 +2501,24 @@ void SceneGraphManager::showDrainageAreaOutlines(DrainageAreaType type)
 
 void SceneGraphManager::enableCellFilter(bool enabled)
 {
-  if (enabled != m_viewState.cellFilterEnabled)
+  if (enabled != m_viewState.cellFilterParams.enabled)
   {
-    m_viewState.cellFilterEnabled = enabled;
-
+    m_viewState.cellFilterParams.enabled = enabled;
     m_cellFilterTimeStamp = MxTimeStamp::getTimeStamp();
-    updateSnapshotCellFilter();
+
+    updateSnapshot();
   }
 }
 
 void SceneGraphManager::setCellFilterRange(double minValue, double maxValue)
 {
-  if (minValue != m_viewState.cellFilterMinValue || maxValue != m_viewState.cellFilterMaxValue)
+  if (minValue != m_viewState.cellFilterParams.minValue || maxValue != m_viewState.cellFilterParams.maxValue)
   {
-    m_viewState.cellFilterMinValue = minValue;
-    m_viewState.cellFilterMaxValue = maxValue;
-
+    m_viewState.cellFilterParams.minValue = minValue;
+    m_viewState.cellFilterParams.maxValue = maxValue;
     m_cellFilterTimeStamp = MxTimeStamp::getTimeStamp();
-    updateSnapshotCellFilter();
+
+    updateSnapshot();
   }
 }
 
@@ -2254,8 +2545,8 @@ void SceneGraphManager::setup(std::shared_ptr<Project> project)
 
   for (int i = 0; i < 3; ++i)
   {
-    m_viewState.sliceEnabled[i] = false;
-    m_viewState.slicePosition[i] = 0;
+    m_viewState.sliceParams.enabled[i] = false;
+    m_viewState.sliceParams.position[i] = 0;
   }
 
   m_outlineBuilder = std::make_shared<OutlineBuilder>(
@@ -2268,25 +2559,35 @@ void SceneGraphManager::setup(std::shared_ptr<Project> project)
   setCurrentSnapshot(0);
 }
 
-void SceneGraphManager::onTaskCompleted(Task& task)
+void SceneGraphManager::onTaskCompleted(std::shared_ptr<Task> task)
 {
-  if (task.type == TaskLoadSnapshotMesh)
+  switch (task->type)
   {
-    auto &t = static_cast<LoadSnapshotMeshTask&>(task);
-
-    auto iter = m_snapshotInfoCache.begin();
-    while (iter != m_snapshotInfoCache.end() && iter->index != t.snapshotIndex)
-      iter++;
-
-    if (iter != m_snapshotInfoCache.end())
-    {
-      iter->meshData = t.result;
-      iter->mesh->setMesh(iter->meshData.get());
-
-      if (m_seismicScene)
-        m_seismicScene->setMesh(iter->meshData.get());
-
-      updateSnapshot();
-    }
+    case Task_LoadFormationMesh:
+      onTaskCompleted(static_pointer_cast<LoadFormationMeshTask>(task));
+      break;
+    case Task_LoadReservoirMesh:
+      onTaskCompleted(static_pointer_cast<LoadReservoirMeshTask>(task));
+      break;
+    case Task_LoadSurfaceMesh:
+      onTaskCompleted(static_pointer_cast<LoadSurfaceMeshTask>(task));
+      break;
+    case Task_LoadFormationProperty:
+      onTaskCompleted(static_pointer_cast<LoadFormationPropertyTask>(task));
+      break;
+    case Task_LoadFormation2DProperty:
+      break;
+    case Task_LoadSurfaceProperty:
+      onTaskCompleted(static_pointer_cast<LoadSurfacePropertyTask>(task));
+      break;
+    case Task_LoadReservoirProperty:
+      onTaskCompleted(static_pointer_cast<LoadReservoirPropertyTask>(task));
+      break;
+    case Task_ExtractFormationSkin:
+      onTaskCompleted(static_pointer_cast<ExtractFormationSkinTask>(task));
+      break;
+    case Task_ExtractReservoirSkin:
+      onTaskCompleted(static_pointer_cast<ExtractReservoirSkinTask>(task));
+      break;
   }
 }

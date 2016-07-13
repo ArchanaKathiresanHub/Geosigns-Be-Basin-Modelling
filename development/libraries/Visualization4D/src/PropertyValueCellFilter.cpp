@@ -26,7 +26,7 @@ size_t PropertyValueCellFilter::getTimeStamp() const
   return m_timestamp;
 }
 
-void PropertyValueCellFilter::setDataSet(const MiDataSetIjk<double>* dataSet)
+void PropertyValueCellFilter::setDataSet(std::shared_ptr<MiDataSetIjk<double>> dataSet)
 {
   if (dataSet != m_dataSet)
   {

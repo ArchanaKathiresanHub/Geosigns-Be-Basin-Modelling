@@ -145,7 +145,7 @@ bool Scheduler::postProcess()
     m_readyQueueRead.pop();
 
     if (task->source)
-      task->source->onTaskCompleted(*task);
+      task->source->onTaskCompleted(task);
   }
 
   return result;

@@ -43,7 +43,7 @@ struct Task
 
 struct TaskSource
 {
-  virtual void onTaskCompleted(Task& task) = 0;
+  virtual void onTaskCompleted(std::shared_ptr<Task> task) = 0;
 };
 
 class Scheduler

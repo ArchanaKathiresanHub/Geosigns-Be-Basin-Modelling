@@ -35,7 +35,15 @@ class PropertyValueCellFilter;
 class FaultMesh;
 class OutlineBuilder;
 class SeismicScene;
-struct LoadSnapshotMeshTask;
+
+struct LoadFormationMeshTask;
+struct LoadReservoirMeshTask;
+struct LoadSurfaceMeshTask;
+struct LoadFormationPropertyTask;
+struct LoadReservoirPropertyTask;
+struct LoadSurfacePropertyTask;
+struct ExtractFormationSkinTask;
+struct ExtractReservoirSkinTask;
 
 class SbViewportRegion;
 class SoPickedPoint;
@@ -70,15 +78,13 @@ class MoMeshSkin;
 class MoMeshSlab;
 class MoMeshSurface;
 class MoMeshFenceSlice;
+class MiCellFilterIjk;
 class MiSkinExtractIjk;
 class MexSurfaceMeshUnstructured;
 
-template<class T>
-class MiDataSetIjk;
-template<class T>
-class MiDataSetIj;
-template<class T>
-class MiDataSetI;
+template<class T> class MiDataSetIjk;
+template<class T> class MiDataSetIj;
+template<class T> class MiDataSetI;
 
 struct SnapshotInfo
 {
@@ -97,88 +103,61 @@ struct SnapshotInfo
 
   struct Surface
   {
-    int id;
+    int id = 0;
+    int propertyId = -1;
 
-    SoSeparator* root;
-    MoMesh* mesh;
-    MoScalarSet* scalarSet;
-    MoMeshSurface* surfaceMesh;
+    std::shared_ptr<Task> loadSurfaceMeshTask;
+    std::shared_ptr<Task> loadSurfacePropertyTask;
+
+    SoSeparator* root = nullptr;
+    MoMesh* mesh = nullptr;
+    MoScalarSet* scalarSet = nullptr;
+    MoMeshSurface* surfaceMesh = nullptr;
+
     std::shared_ptr<MiSurfaceMeshCurvilinear> meshData;
     std::shared_ptr<MiDataSetIj<double> > propertyData;
 
-    Surface()
-      : id(0)
-      , root(0)
-      , mesh(0)
-      , scalarSet(0)
-      , surfaceMesh(0)
-    {
-    }
+    void clear();
   };
 
   struct Reservoir
   {
-    int id;
-
+    int id = 0;
+    int propertyId = -1;
     std::shared_ptr<MiSkinExtractIjk> extractor;
+
+    std::shared_ptr<Task> loadReservoirMeshTask;
+    std::shared_ptr<Task> loadReservoirPropertyTask;
+    std::shared_ptr<Task> extractReservoirSkinTask;
 
     SoSeparator* root = nullptr;
     MoMesh* mesh = nullptr;
     MoScalarSet* scalarSet = nullptr;
     MoMeshSurface* skin = nullptr;
 
-    SoIndexedLineSet* trapOutlines;
-    SoIndexedLineSet* drainageAreaOutlinesFluid;
-    SoIndexedLineSet* drainageAreaOutlinesGas;
+    SoIndexedLineSet* trapOutlines = nullptr;
+    SoIndexedLineSet* drainageAreaOutlinesFluid = nullptr;
+    SoIndexedLineSet* drainageAreaOutlinesGas = nullptr;
 
     std::shared_ptr<MiVolumeMeshCurvilinear> meshData;
     std::shared_ptr<MiDataSetIjk<double> > propertyData;
-    std::weak_ptr<MiDataSetIjk<double> > trapIdPropertyData;
 
     Traps traps;
 
-    void clear()
-    {
-      root = 0;
-      mesh = 0;
-      scalarSet = 0;
-      skin = 0;
-      trapOutlines = 0;
-      drainageAreaOutlinesFluid = 0;
-      drainageAreaOutlinesGas = 0;
-
-      meshData.reset();
-      propertyData.reset();
-
-      traps = Traps();
-    }
-
-    Reservoir()
-      : id(0)
-    {
-      clear();
-    }
+    void clear();
   };
 
   struct Fault
   {
-    int id;
-    int minK;
-    int maxK;
+    int id = 0;
+    int minK = 0;
+    int maxK = 0;
 
-    SoSeparator* root;
-    MoMesh* mesh;
-    MoMeshSurface* surfaceMesh;
+    SoSeparator* root = nullptr;
+    MoMesh* mesh = nullptr;
+    MoMeshSurface* surfaceMesh = nullptr;
 
     std::shared_ptr<FaultMesh> meshData;
-
-    Fault()
-      : id(0)
-      , root(0)
-      , mesh(0)
-      , surfaceMesh(0)
-    {
-    }
   };
 
   struct FlowLines
@@ -237,12 +216,15 @@ struct SnapshotInfo
   size_t index; // index in snapshot list
   double time;
 
-  int currentPropertyId;
+  // Reservoirs and surfaces have per-object propertyId
+  int formationPropertyId;
 
   double minZ; // = max depth (negative)
   double maxZ;
 
-  std::weak_ptr<LoadSnapshotMeshTask> loadSnapshotMeshTask;
+  std::shared_ptr<Task> loadFormationMeshTask;
+  std::shared_ptr<Task> loadFormationPropertyTask;
+  std::shared_ptr<Task> extractFormationSkinTask;
 
   std::shared_ptr<MiVolumeMeshCurvilinear> meshData;
   std::shared_ptr<MiDataSetIjk<double>> scalarDataSet;
@@ -279,6 +261,7 @@ struct SnapshotInfo
   size_t reservoirsTimeStamp;
   size_t faultsTimeStamp;
   size_t flowLinesTimeStamp;
+  size_t slicesTimeStamp;
   size_t fencesTimeStamp;
   size_t cellFilterTimeStamp;
   size_t seismicPlaneSliceTimeStamp;
@@ -360,10 +343,23 @@ public:
 	std::vector<SbVec3f> points;
   };
 
+  struct SliceParams
+  {
+    size_t position[3];
+    bool   enabled[3];
+  };
+
+  struct CellFilterParams
+  {
+    bool enabled = false;
+    double minValue = 0.0;
+    double maxValue = 1.0;
+  };
+
   struct ViewState
   {
-	int currentSnapshotIndex = 0;
-    int currentPropertyId = FormationIdPropertyId;
+	int snapshotIndex = 0;
+    int propertyId = FormationIdPropertyId;
 
     bool showFaces = true;
     bool showEdges = true;
@@ -389,14 +385,9 @@ public:
     std::vector<bool> flowLinesVisibility;
 	std::vector<FenceParams> fences;
 
-    size_t slicePosition[3];
-    bool   sliceEnabled[3];
-
+    SliceParams sliceParams;
     ColorScaleParams colorScaleParams;
-
-    bool cellFilterEnabled = false;
-    double cellFilterMinValue = 0.0;
-    double cellFilterMaxValue = 1.0;
+    CellFilterParams cellFilterParams;
   };
 
   // Derived property ids. These properties are built at runtime
@@ -407,12 +398,6 @@ public:
   static const int FluidContactsPropertyId    = DerivedPropertyBaseId + 2;
 
 private:
-
-  enum TaskType
-  {
-    TaskLoadSnapshotMesh
-    
-  };
 
   Scheduler& m_scheduler;
 
@@ -431,6 +416,7 @@ private:
   size_t m_reservoirsTimeStamp;
   size_t m_faultsTimeStamp;
   size_t m_flowLinesTimeStamp;
+  size_t m_slicesTimeStamp;
   size_t m_fencesTimeStamp;
   size_t m_cellFilterTimeStamp;
 
@@ -493,9 +479,9 @@ private:
   void updateSnapshotProperties();
   void updateSnapshotSlices();
   void updateSnapshotFlowLines();
-  void updateSnapshotCellFilter();
   void updateSnapshotFences();
   void updateColorMap();
+  void updateLegend();
   void updateText();
   void updateSnapshot();
 
@@ -512,9 +498,34 @@ private:
     int k0,
     int k1);
 
-  std::shared_ptr<MiDataSetIjk<double> > createFormationProperty(
-    const SnapshotInfo& snapshot,
-    int propertyId);
+  void setFormationProperty(SnapshotInfo& snapshot, int propertyId, std::shared_ptr<MiDataSetIjk<double>> dataSet);
+
+  void onTaskCompleted(std::shared_ptr<LoadFormationMeshTask> task);
+  void onTaskCompleted(std::shared_ptr<LoadReservoirMeshTask> task);
+  void onTaskCompleted(std::shared_ptr<LoadSurfaceMeshTask> task);
+  void onTaskCompleted(std::shared_ptr<LoadFormationPropertyTask> task);
+  void onTaskCompleted(std::shared_ptr<LoadReservoirPropertyTask> task);
+  void onTaskCompleted(std::shared_ptr<LoadSurfacePropertyTask> task);
+  void onTaskCompleted(std::shared_ptr<ExtractFormationSkinTask> task);
+  void onTaskCompleted(std::shared_ptr<ExtractReservoirSkinTask> task);
+
+  std::shared_ptr<Task> loadFormationMesh(size_t snapshotIndex);
+  std::shared_ptr<Task> loadReservoirMesh(size_t snapshotIndex, int reservoirId);
+  std::shared_ptr<Task> loadSurfaceMesh(size_t snapshotIndex, int surfaceId);
+  std::shared_ptr<Task> loadFormationProperty(size_t snapshotIndex, int propertyId);
+  std::shared_ptr<Task> loadReservoirProperty(size_t snapshotIndex, int reservoirId, int propertyId);
+  std::shared_ptr<Task> loadSurfaceProperty(size_t snapshotIndex, int surfaceId, int propertyId);
+  std::shared_ptr<Task> extractFormationSkin(
+    size_t snapshotIndex, 
+    size_t formationsTimeStamp,
+    const std::vector<std::tuple<int, int>>& ranges,
+    std::shared_ptr<MiVolumeMeshCurvilinear> mesh, 
+    std::shared_ptr<MiDataSetIjk<double>> dataSet,
+    std::shared_ptr<MiCellFilterIjk> cellFilter);
+  std::shared_ptr<Task> extractReservoirSkin(
+    size_t snapshotIndex,
+    int reservoirId,
+    std::shared_ptr<MiVolumeMeshCurvilinear> mesh);
 
   std::shared_ptr<MiDataSetIjk<double> > createReservoirProperty(
     const SnapshotInfo& snapshot, 
@@ -599,7 +610,7 @@ public:
 
   void setup(std::shared_ptr<Project> project);
 
-  void onTaskCompleted(Task& task) override;
+  void onTaskCompleted(std::shared_ptr<Task> task) override;
 };
 
 #endif
