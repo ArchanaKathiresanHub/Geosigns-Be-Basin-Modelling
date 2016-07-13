@@ -322,9 +322,9 @@ function initViewState(viewState)
     for(var i=0; i < uiElements.reservoirCheckBoxes.length; ++i)
         uiElements.reservoirCheckBoxes[i].checked = viewState.reservoirVisibility[i];
 
-    uiElements.timeSlider.value = viewState.currentSnapshotIndex;
+    uiElements.timeSlider.value = viewState.snapshotIndex;
 
-    checkPropertyRadioButton(viewState.currentPropertyId);
+    checkPropertyRadioButton(viewState.propertyId);
 
     uiElements.checkBoxDrawTraps.checked = viewState.showTraps;
     uiElements.checkBoxDrawTrapOutlines.checked = viewState.showTrapOutlines;

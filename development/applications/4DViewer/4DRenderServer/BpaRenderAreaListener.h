@@ -85,7 +85,7 @@ public:
 
   void onRequestedSize(RenderArea* renderArea, Connection* sender, unsigned int width, unsigned int height) override;
 
-  void onTaskCompleted(Task& task) override;
+  void onTaskCompleted(std::shared_ptr<Task> task) override;
 };
 
 #endif

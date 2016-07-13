@@ -168,6 +168,7 @@ void BpaRenderAreaListener::setupProject(const std::string& id)
   m_projectdir = projectFile.parent_path().string();
 
   m_loadTask = std::make_shared<LoadProjectTask>();
+  m_loadTask->source = this;
   m_loadTask->projectFile = projectFile.string();
   m_scheduler.put(m_loadTask);
 }
@@ -283,8 +284,8 @@ void BpaRenderAreaListener::onRequestedSize(RenderArea* renderArea, Connection* 
     BOOST_LOG_TRIVIAL(trace) << "requested resize render area " << renderArea->getId() << " to " << width << " x " << height << " (DENIED)";
 }
 
-void BpaRenderAreaListener::onTaskCompleted(Task& task)
+void BpaRenderAreaListener::onTaskCompleted(std::shared_ptr<Task> task)
 {
   BOOST_LOG_TRIVIAL(trace) << "task completed";
-  onProjectLoaded(static_cast<LoadProjectTask&>(task).project);
+  onProjectLoaded(std::static_pointer_cast<LoadProjectTask>(task)->project);
 }

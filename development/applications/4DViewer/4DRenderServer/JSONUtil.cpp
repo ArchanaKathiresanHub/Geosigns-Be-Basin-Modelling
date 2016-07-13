@@ -88,8 +88,8 @@ jsonxx::Object toJSON(const SceneGraphManager::ViewState& state)
 {
   jsonxx::Object vs;
   vs
-    << "currentSnapshotIndex" << state.currentSnapshotIndex
-    << "currentPropertyId" << state.currentPropertyId
+    << "snapshotIndex" << state.snapshotIndex
+    << "propertyId" << state.propertyId
 
     // display settings
     << "showFaces" << state.showFaces
@@ -118,16 +118,16 @@ jsonxx::Object toJSON(const SceneGraphManager::ViewState& state)
     << "flowLinesVisibility" << toJSON(state.flowLinesVisibility)
 
     // slices
-    << "slicePosition" << toJSON(state.slicePosition, 3)
-    << "sliceEnabled" << toJSON(state.sliceEnabled, 3)
+    << "slicePosition" << toJSON(state.sliceParams.position, 3)
+    << "sliceEnabled" << toJSON(state.sliceParams.enabled, 3)
 
     // fences
     << "fences" << toJSON(state.fences)
 
     // cell filter
-    << "cellFilterEnabled" << state.cellFilterEnabled
-    << "cellFilterMinValue" << state.cellFilterMinValue
-    << "cellFilterMaxValue" << state.cellFilterMaxValue
+    << "cellFilterEnabled" << state.cellFilterParams.enabled
+    << "cellFilterMinValue" << state.cellFilterParams.minValue
+    << "cellFilterMaxValue" << state.cellFilterParams.maxValue
 
     // color scale
     << "colorScaleMapping" << (int)state.colorScaleParams.mapping

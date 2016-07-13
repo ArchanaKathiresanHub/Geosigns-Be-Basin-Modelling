@@ -110,11 +110,9 @@ int main(int argc, char** argv)
   ServiceSettings settings;
   settings.setIP(options.host);
   settings.setPort(options.port);
-  settings.setUsedExtensions(
-    ServiceSettings::MESHVIZXLM | 
-    //ServiceSettings::MESHVIZ |
-    ServiceSettings::VOLUMEVIZ |
-    ServiceSettings::VOLUMEVIZLDM);
+  settings.setUsedExtensions(ServiceSettings::MESHVIZXLM);//
+    //| ServiceSettings::VOLUMEVIZ 
+    //| ServiceSettings::VOLUMEVIZLDM);
 
   Scheduler sched;
   sched.start();
