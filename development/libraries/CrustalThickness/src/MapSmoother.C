@@ -57,12 +57,7 @@ bool MapSmoother::initialize( GridMap * mapToSmooth ){
 
    //Check in which status the map is given
    //Will be returned with the same status in finalize()
-   if (mapToSmooth->retrieved()){
-      m_mapToRestore = false;
-   }
-   else{
-      m_mapToRestore = true;
-   }
+   m_mapToRestore = not mapToSmooth->retrieved();
 
    //Be sure that the gohst nodes are retrieved
    if (mapToSmooth->retrieved() && m_ghostNodes) {
