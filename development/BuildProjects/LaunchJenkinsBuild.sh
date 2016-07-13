@@ -21,7 +21,7 @@
 umask 002
 # check argument count
 if [ "$#" -ne 4 ]; then
-   echo "Not the right number of arguments (${#argv}) for fastretrieve, should be 3: runJenkins <JenkinsURL> <JobName> <jobToken> <RequestedBy>"
+   echo "Not the right number of arguments ($#) for fastretrieve, should be 4: runJenkins <JenkinsURL> <JobName> <jobToken> <RequestedBy>"
    exit 1
 fi
 JENKINS_URL=$1
