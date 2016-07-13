@@ -88,7 +88,7 @@ namespace GeoPhysics {
 
    /// \var MinimumPorosity
    /// The smallest value that can be obtained for the porosity when using chemical compaction
-   const double MinimumPorosity = 0.03;
+   const double MinimumPorosity = 0.001;
 
    /// \var RockViscosityReferenceTemperature
    /// The temperature used in the reference rock viscosity, units Celsius.

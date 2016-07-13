@@ -83,7 +83,7 @@ namespace GeoPhysics
       if (includeChemicalCompaction)
       {
          calculatedPorosity = calculatedPorosity + chemicalCompactionTerm;
-         calculatedPorosity = NumericFunctions::Maximum(calculatedPorosity, MinimumPorosity);
+         calculatedPorosity = NumericFunctions::Maximum(calculatedPorosity, MinimumSoilMechanicsPorosity);
       }
 
       return calculatedPorosity;
@@ -160,7 +160,7 @@ namespace GeoPhysics
       // In these cases the derivative has to be 0
       if( includeChemicalCompaction )
       {
-         if( ( porosityValue == MinimumPorosity ) ||
+         if( ( porosityValue == MinimumSoilMechanicsPorosity ) ||
              ( porosityValue == m_depoPorosity ) )
          {
             porosityDerivative = 0.0;
