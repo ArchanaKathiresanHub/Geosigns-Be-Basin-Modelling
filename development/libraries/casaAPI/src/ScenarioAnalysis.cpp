@@ -775,10 +775,11 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::extractOneDProjects( const std::str
    {
       bool operator() ( const casa::ObsGridPropertyWell * c1, const casa::ObsGridPropertyWell * c2 )
       {
+         // coordinates that differ less than 1 m are equal 
          double x1 = c1->xCoords().front(), x2 = c2->xCoords().front();
-         if ( !NumericFunctions::isEqual( x1, x2, 1.0e-3 ) ) { return x1 < x2 ? true : false; }
+         if ( std::abs( x1 - x2 ) > 1 ) { return x1 < x2 ? true : false; }
          double y2 = c2->yCoords().front(), y1 = c1->yCoords().front();
-         if ( !NumericFunctions::isEqual( y1, y2, 1.0e-3 ) ) { return y1 < y2 ? true : false; }
+         if ( std::abs( y1 - y2 ) > 1 )  { return y1 < y2 ? true : false; }
          return false;
       }
    };
