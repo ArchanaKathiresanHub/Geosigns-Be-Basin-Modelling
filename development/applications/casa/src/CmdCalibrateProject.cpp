@@ -25,7 +25,8 @@ CmdCalibrateProject::CmdCalibrateProject( CasaCommander & parent, const std::vec
    m_optimAlg  = m_prms.size() > 1 ? m_prms[1] : "";
    m_cldVer    = m_prms.size() > 2 ? m_prms[2] : "";
    m_transformation = m_prms.size() > 3 ? m_prms[3] : "none";
-   m_keepHist  = m_prms.size() > 4 ? ( m_prms[4] == "KeepHistory" ? true : false ) : false;
+   m_relativeReduction = m_prms.size( ) > 4 ? atof( m_prms[4].c_str( ) ) : 0.05;
+   m_keepHist  = m_prms.size() > 5 ? ( m_prms[5] == "KeepHistory" ? true : false ) : false;
    
 
    if ( m_bmcName.empty()  ) throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Empty output project name for project calibration";
@@ -49,7 +50,7 @@ void CmdCalibrateProject::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa 
       throw ErrorHandler::Exception( rm.errorCode() ) << rm.errorMessage();
    }
 
-   if ( ErrorHandler::NoError != sa->calibrateProjectUsingOptimizationAlgorithm( m_bmcName, m_optimAlg, m_transformation, m_keepHist ) )
+   if ( ErrorHandler::NoError != sa->calibrateProjectUsingOptimizationAlgorithm( m_bmcName, m_optimAlg, m_transformation, m_relativeReduction, m_keepHist ) )
    { 
       throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage();
    }

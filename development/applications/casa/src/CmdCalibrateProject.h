@@ -35,6 +35,7 @@ protected:
    std::string                  m_optimAlg;          /// name of optimization algorithm
    std::string                  m_cldVer;            /// version of cauldron simulator
    std::string                  m_transformation;    /// the parameter transformation
+   double                       m_relativeReduction; /// the relative reduction to determine when to stop outer loops of the LM optimizations                       
    bool                         m_keepHist;          /// keep history of all LM steps?
 };
 

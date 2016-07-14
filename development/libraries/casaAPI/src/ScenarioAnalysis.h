@@ -211,7 +211,7 @@ namespace casa
       /// @param keepHistory do not delete all optimization steps projects (could take quite a lot space)
       /// @param transformation the paramter transformation
       /// @return ErrorHandler::NoError on success, error code otherwise
-      ReturnCode calibrateProjectUsingOptimizationAlgorithm( const std::string & cbProjectName, const std::string & optimAlg, const std::string & transformation, bool keepHistory = false );
+      ReturnCode calibrateProjectUsingOptimizationAlgorithm( const std::string & cbProjectName, const std::string & optimAlg, const std::string & transformation, const double relativeReduction, bool keepHistory = false );
 
       /// @brief After the Monte Carlo simulation it creates project file with parameters set which corresponds to the
       ///        Monte Carlo sampling point with minimal RMSE

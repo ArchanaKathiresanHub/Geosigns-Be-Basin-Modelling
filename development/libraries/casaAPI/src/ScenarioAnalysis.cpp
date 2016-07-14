@@ -189,6 +189,7 @@ public:
                                                   , ScenarioAnalysis  & sa
                                                   , bool                keepHistory
                                                   , const std::string & transformation
+                                                  , const double        relativeReduction
                                                   );
 
    // Get SensitivityCalculator
@@ -410,10 +411,11 @@ ErrorHandler::ReturnCode ScenarioAnalysis::setMCAlgorithm( MonteCarloSolver::Alg
 ErrorHandler::ReturnCode ScenarioAnalysis::calibrateProjectUsingOptimizationAlgorithm( const std::string & cbProjeName
                                                                                      , const std::string & optimAlg
                                                                                      , const std::string & transformation
+                                                                                     , const double        relativeReduction
                                                                                      , bool                keepHistory
                                                                                      )
 {
-   try { m_pimpl->calibrateProjectUsingOptimizationAlgorithm( cbProjeName, optimAlg, *this, keepHistory, transformation ); }
+   try { m_pimpl->calibrateProjectUsingOptimizationAlgorithm( cbProjeName, optimAlg, *this, keepHistory, transformation, relativeReduction ); }
    catch( Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
    catch( ...            ) { return reportError( UnknownError, "Unknown error" ); }
 
@@ -1026,11 +1028,12 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::calibrateProjectUsingOptimizationAl
                                                                                        , ScenarioAnalysis  & sa
                                                                                        , bool                keepHistory
                                                                                        , const std::string & transformation
+                                                                                       , const double        relativeReduction
                                                                                        )
 {
    std::unique_ptr<OptimizationAlgorithm> optAlgo;
    
-   if ( optimAlg == "LM" ) { optAlgo.reset( new LMOptAlgorithm( cbProjectName, transformation ) ); }
+   if ( optimAlg == "LM" ) { optAlgo.reset( new LMOptAlgorithm( cbProjectName, transformation, relativeReduction ) ); }
    else { throw Exception( OutOfRangeValue ) << "Unsupported optimization algorithm name: " << optimAlg; }
 
    optAlgo->runOptimization( sa );

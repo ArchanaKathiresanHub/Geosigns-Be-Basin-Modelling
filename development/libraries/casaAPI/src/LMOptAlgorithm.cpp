@@ -111,9 +111,9 @@ namespace casa
             {
                RealScalar relativereduction =  1.0 - m_fnorm / m_oldFnorm;
                LogHandler( LogHandler::DEBUG_SEVERITY ) << "Relative reduction of the norm of fval vector " << relativereduction;
-               if ( relativereduction < 0.05 )
+               if ( relativereduction < m_functor.m_lm.relativeReduction( ) )
                {
-                  LogHandler( LogHandler::DEBUG_SEVERITY ) << "Stopping because the relative reduction is less than 0.05 ";
+                  LogHandler( LogHandler::DEBUG_SEVERITY ) << "Stopping because the relative reduction is less than " << m_functor.m_lm.relativeReduction( );
                   relativeReductionOk = false;
                }
             }

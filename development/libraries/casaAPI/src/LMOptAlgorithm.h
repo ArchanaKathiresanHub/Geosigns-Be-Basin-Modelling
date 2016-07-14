@@ -31,12 +31,13 @@ namespace casa
    class LMOptAlgorithm : public OptimizationAlgorithm
    {
    public:
-      LMOptAlgorithm( const std::string & cbProjectName, const std::string & transformation, bool keepHistory = false ) : OptimizationAlgorithm( cbProjectName )
+      LMOptAlgorithm( const std::string & cbProjectName, const std::string & transformation, const double relativeReduction, bool keepHistory = false ) : OptimizationAlgorithm( cbProjectName )
                                                                                     , m_sa( 0 )
                                                                                     , m_stepNum( 0 )
                                                                                     , m_Qmin( 0.0 )
                                                                                     , m_keepHistory( keepHistory )
                                                                                     , m_parameterTransformation(transformation)
+                                                                                    , m_relativeReduction( relativeReduction )
                                                                                     { ; }
 
       virtual ~LMOptAlgorithm() { ; }
@@ -48,6 +49,7 @@ namespace casa
       void updateParametersAndRunCase( const Eigen::VectorXd & x );
       void calculateFunctionValue( Eigen::VectorXd & fvec );
       std::string transformation() const { return m_parameterTransformation; };
+      double relativeReduction( ) const { return m_relativeReduction; };
 
    protected:
       size_t prepareParameters( std::vector<double> & initGuess, std::vector<double> & minPrm, std::vector<double> & maxPrm );
@@ -68,6 +70,7 @@ namespace casa
       double                                                     m_Qmin;             // minimal value of Qtrgt for LM iterations
       bool                                                       m_keepHistory;      // keep all intermediate steps of LM
       std::string                                                m_parameterTransformation; //the type of parameter transformation that is applied
+      double                                                     m_relativeReduction;      // the relative reduction to determine when to stop outer loops of the LM optimizations 
    };
 
 } // namespace casa

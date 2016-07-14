@@ -37,6 +37,7 @@ protected:
    std::string  m_cldVer;                 // cauldron version
    bool         m_keepHist;               // keep history for 1D runs
    std::string  m_transformation;         // the parameter transformation
+   double       m_relativeReduction;      // the relative reduction to determine when to stop outer loops of the LM optimizations
 };
 
 #endif // CASA_GENERATE_MULTI_ONE_D_H
