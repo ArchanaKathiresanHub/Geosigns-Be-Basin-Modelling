@@ -178,6 +178,8 @@ public:
 	 * \brief Go through the basin and get all the needed data.
 	 * The differences between the algorithms are averload in each derived class through the class Properties.
 	 *
+    * \return "true" iff chemical compaction is active on a valid node
+    * 
 	 * \param layerList: LayerList& the list of Layers in the basin
 	 * \param isValisNeedle: Boolean2DArray& the array giving if a node is active or not
 	 * \param areLithologiesChanged: bool By default is false, if the lithology map change, is true
