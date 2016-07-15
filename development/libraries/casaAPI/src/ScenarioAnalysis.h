@@ -206,12 +206,13 @@ namespace casa
       MonteCarloSolver & mcSolver();
 
       /// @brief Run given optimization algorithm and store calibration results to the given projet file
-      /// @param cbProjectName name of the project file to save calibrated project
-      /// @param optimAlg name of the optimization algorith.
-      /// @param keepHistory do not delete all optimization steps projects (could take quite a lot space)
-      /// @param transformation the paramter transformation
       /// @return ErrorHandler::NoError on success, error code otherwise
-      ReturnCode calibrateProjectUsingOptimizationAlgorithm( const std::string & cbProjectName, const std::string & optimAlg, const std::string & transformation, const double relativeReduction, bool keepHistory = false );
+      ReturnCode calibrateProjectUsingOptimizationAlgorithm( const std::string & cbProjectName       ///< file name to save calibrated project
+                                                           , const std::string & optimAlg            ///< name of the optimization algorith
+                                                           , const std::string & transformation      ///< the paramter transformation type (none/log10)
+                                                           , const double        relativeReduction   ///< stop tolerance for optimization algorithm
+                                                           , bool                keepHistory = false ///< do/do not delete all optimization steps projects
+                                                           );
 
       /// @brief After the Monte Carlo simulation it creates project file with parameters set which corresponds to the
       ///        Monte Carlo sampling point with minimal RMSE
@@ -232,7 +233,9 @@ namespace casa
       // version 7: Added scenario ID
       // version 8: Added source rock type mixing ID, different TOC ranges for source rock category parameter
       // version 9: Reset all other objects versions to 0 due to backware uncompatibility with curent state
-      int version() { return 9; }
+      // version 10: add m_xcoordOneD and  m_ycoordOneD - x,y coordinates of the extracted wells for multi 1D 
+ 
+      int version() { return 10; }
 
       /// @brief Save scenario to the file
       /// @param fileName - name of the file for scenario to be saved in

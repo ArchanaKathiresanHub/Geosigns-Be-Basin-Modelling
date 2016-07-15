@@ -1133,6 +1133,9 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::serialize( CasaSerializer & outStre
    ok = ok ? outStream.save( m_iterationNum,        "iterationNum" ) : ok;
    ok = ok ? outStream.save( m_caseNum,             "caseNum"      ) : ok;
 
+   ok = ok ? outStream.save( m_xcoordOneD,          "xCoord1D"     ) : ok; // version 10
+   ok = ok ? outStream.save( m_ycoordOneD,          "yCoord1D"     ) : ok; // version 10
+ 
    ok = ok ? outStream.save( obsSpace(),            "ObsSpace"     ) : ok; // serialize observables manager
    ok = ok ? outStream.save( varSpace(),            "VarSpace"     ) : ok; // serialize variable parameters set
 
@@ -1169,8 +1172,14 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::deserialize( CasaDeserializer & inS
    if ( ok ) defineBaseCase( baseCaseName.c_str() );
 
    ok = ok ? inStream.load( m_iterationNum,        "iterationNum" ) : ok;
-   ok = ok ? inStream.load( m_caseNum,             "caseNum" ) : ok;
+   ok = ok ? inStream.load( m_caseNum,             "caseNum"      ) : ok;
 
+   if ( inStream.version() > 9 )
+   {
+      ok = ok ? inStream.load( m_xcoordOneD,       "xCoord1D"     ) : ok; // version 10
+      ok = ok ? inStream.load( m_ycoordOneD,       "yCoord1D"     ) : ok; // version 10
+   }
+ 
    if ( !ok ) throw Exception( DeserializationError ) << "Deserialization error in ScenarioAnalysis";
 
    m_obsSpace.reset(   new ObsSpaceImpl(              inStream, "ObsSpace"              ) );
