@@ -39,8 +39,6 @@
 
 struct LoadProjectTask : public Task
 {
-  //BpaRenderAreaListener* listener;
-
   std::string projectFile;
   std::shared_ptr<Project> project;
 
@@ -99,8 +97,7 @@ void BpaRenderAreaListener::createSceneGraph()
     m_seismicScene.get(),
     m_examiner.ptr());
 
-  //m_renderArea->getSceneManager()->setSceneGraph(m_examiner.ptr());
-  m_examiner->viewAll(m_renderArea->getSceneManager()->getViewportRegion());
+  m_examiner->viewAll(m_renderArea.getSceneManager()->getViewportRegion());
 }
 
 jsonxx::Object BpaRenderAreaListener::createProjectLoadedEvent() const
@@ -126,7 +123,7 @@ jsonxx::Object BpaRenderAreaListener::createProjectLoadedEvent() const
       << "seismicState" << toJSON(m_seismicScene->getViewState());
   }
 
-  params << "areaState" << toJSON(*m_renderArea->getSettings());
+  params << "areaState" << toJSON(*m_renderArea.getSettings());
   params << "viewState" << toJSON(m_sceneGraphManager->getViewState());
 
   jsonxx::Object event;
@@ -139,7 +136,7 @@ jsonxx::Object BpaRenderAreaListener::createProjectLoadedEvent() const
 jsonxx::Object BpaRenderAreaListener::createConnectionCountEvent() const
 {
   jsonxx::Object params;
-  params << "count" << m_renderArea->getNumConnections();
+  params << "count" << m_renderArea.getNumConnections();
 
   jsonxx::Object event;
   event << "type" << "connectionCountChanged";
@@ -178,7 +175,7 @@ void BpaRenderAreaListener::onFenceAdded(int fenceId)
   jsonxx::Object msg;
   msg << "event" << createFenceAddedEvent(fenceId);
 
-  m_renderArea->sendMessage(msg.write(jsonxx::JSON));
+  m_renderArea.sendMessage(msg.write(jsonxx::JSON));
 }
 
 void BpaRenderAreaListener::onConnectionCountChanged()
@@ -186,7 +183,7 @@ void BpaRenderAreaListener::onConnectionCountChanged()
   jsonxx::Object msg;
   msg << "event" << createConnectionCountEvent();
 
-  m_renderArea->sendMessage(msg.write(jsonxx::JSON));
+  m_renderArea.sendMessage(msg.write(jsonxx::JSON));
 }
 
 void BpaRenderAreaListener::onProjectLoaded(std::shared_ptr<Project> project)
@@ -204,11 +201,11 @@ void BpaRenderAreaListener::onProjectLoaded(std::shared_ptr<Project> project)
 
     jsonxx::Object msg;
     msg << "event" << createProjectLoadedEvent();
-    m_renderArea->sendMessage(msg.write(jsonxx::JSON));
+    m_renderArea.sendMessage(msg.write(jsonxx::JSON));
   }
 }
 
-BpaRenderAreaListener::BpaRenderAreaListener(RenderArea* renderArea, Scheduler& scheduler)
+BpaRenderAreaListener::BpaRenderAreaListener(RenderArea& renderArea, Scheduler& scheduler)
   : m_scheduler(scheduler)
   , m_renderArea(renderArea)
   , m_commandHandler(renderArea)
@@ -244,8 +241,8 @@ void BpaRenderAreaListener::onOpenedConnection(RenderArea* renderArea, Connectio
     if(!m_loadTask)
     {
       m_examiner = new SceneExaminer;
-      m_renderArea->getSceneManager()->setSceneGraph(m_examiner.ptr());
-      m_examiner->viewAll(m_renderArea->getSceneManager()->getViewportRegion());
+      m_renderArea.getSceneManager()->setSceneGraph(m_examiner.ptr());
+      m_examiner->viewAll(m_renderArea.getSceneManager()->getViewportRegion());
 
       setupProject(renderArea->getId());
     }

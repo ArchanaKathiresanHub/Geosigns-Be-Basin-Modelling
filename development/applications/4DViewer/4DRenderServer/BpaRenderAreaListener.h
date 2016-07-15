@@ -50,7 +50,7 @@ class BpaRenderAreaListener
   std::shared_ptr<SeismicScene> m_seismicScene;
   SoRef<SceneExaminer> m_examiner;
 
-  RenderArea*    m_renderArea;
+  RenderArea&    m_renderArea;
   CommandHandler m_commandHandler;
 
   bool m_logEvents;
@@ -69,7 +69,7 @@ class BpaRenderAreaListener
 
 public:
 
-  BpaRenderAreaListener(RenderArea* renderArea, Scheduler& scheduler);
+  BpaRenderAreaListener(RenderArea& renderArea, Scheduler& scheduler);
 
   ~BpaRenderAreaListener();
 

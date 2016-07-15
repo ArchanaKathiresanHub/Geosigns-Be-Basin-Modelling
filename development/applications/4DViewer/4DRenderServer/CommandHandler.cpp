@@ -41,8 +41,8 @@ void CommandHandler::onPick(
   auto x = (int)params.get<jsonxx::Number>("x");
   auto y = (int)params.get<jsonxx::Number>("y");
 
-  unsigned int width = m_renderArea->getWidth();
-  unsigned int height = m_renderArea->getHeight();
+  unsigned int width = m_renderArea.getWidth();
+  unsigned int height = m_renderArea.getHeight();
   SbViewportRegion vpregion((short)width, (short)height);
 
   SoRayPickAction action(vpregion);
@@ -57,7 +57,7 @@ void CommandHandler::onPick(
       jsonxx::Object msg;
       msg << "pickResult" << toJSON(pickResult);
 
-      m_renderArea->sendMessage(msg.write(jsonxx::JSON));
+      m_renderArea.sendMessage(msg.write(jsonxx::JSON));
     }
   }
 }
@@ -409,7 +409,7 @@ void CommandHandler::onViewAll(
   const jsonxx::Object& /*params*/,
   RemoteViz::Rendering::Connection* /*connection*/)
 {
-  SbViewportRegion vpregion = m_renderArea->getSceneManager()->getViewportRegion();
+  SbViewportRegion vpregion = m_renderArea.getSceneManager()->getViewportRegion();
   m_examiner->viewAll(vpregion);
 }
 
@@ -583,7 +583,7 @@ void CommandHandler::onSetStillQuality(
 {
   auto quality = params.get<jsonxx::Number>("quality");
 
-  m_renderArea->getSettings()->setStillCompressionQuality((float)quality);
+  m_renderArea.getSettings()->setStillCompressionQuality((float)quality);
 
   sendEvent("stillQualityChanged", params);
 }
@@ -594,7 +594,7 @@ void CommandHandler::onSetInteractiveQuality(
 {
   auto quality = params.get<jsonxx::Number>("quality");
 
-  m_renderArea->getSettings()->setInteractiveCompressionQuality((float)quality);
+  m_renderArea.getSettings()->setInteractiveCompressionQuality((float)quality);
 
   sendEvent("interactiveQualityChanged", params);
 }
@@ -626,19 +626,19 @@ void CommandHandler::onSetWidth(
   RemoteViz::Rendering::Connection* /*connection*/)
 {
   auto width = params.get<jsonxx::Number>("width");
-  auto height = m_renderArea->getSceneManager()->getSize()[1];
+  auto height = m_renderArea.getSceneManager()->getSize()[1];
 
-  m_renderArea->resize((int)width, (int)height);
+  m_renderArea.resize((int)width, (int)height);
 }
 
 void CommandHandler::onSetHeight(
   const jsonxx::Object& params,
   RemoteViz::Rendering::Connection* /*connection*/)
 {
-  auto width = m_renderArea->getSceneManager()->getSize()[0];
+  auto width = m_renderArea.getSceneManager()->getSize()[0];
   auto height = params.get<jsonxx::Number>("height");
 
-  m_renderArea->resize((int)width, (int)height);
+  m_renderArea.resize((int)width, (int)height);
 }
 
 void CommandHandler::registerHandlers()
@@ -691,7 +691,7 @@ void CommandHandler::registerHandlers()
 
 void CommandHandler::adjustClippingPlanes()
 {
-  SbViewportRegion vpregion(m_renderArea->getWidth(), m_renderArea->getHeight());
+  SbViewportRegion vpregion(m_renderArea.getWidth(), m_renderArea.getHeight());
   m_examiner->getCameraInteractor()->adjustClippingPlanes(m_examiner, vpregion);
 }
 
@@ -704,10 +704,10 @@ void CommandHandler::sendEvent(const std::string& type, const jsonxx::Object& pa
   jsonxx::Object msg;
   msg << "event" << event;
 
-  m_renderArea->sendMessage(msg.write(jsonxx::JSON));
+  m_renderArea.sendMessage(msg.write(jsonxx::JSON));
 }
 
-CommandHandler::CommandHandler(RemoteViz::Rendering::RenderArea* renderArea)
+CommandHandler::CommandHandler(RemoteViz::Rendering::RenderArea& renderArea)
   : m_sceneGraphManager(nullptr)
   , m_examiner(nullptr)
   , m_renderArea(renderArea)
@@ -734,7 +734,7 @@ void CommandHandler::onReceivedMessage(
   auto cmd = jsonObj.get<std::string>("cmd");
   auto params = jsonObj.get<jsonxx::Object>("params");
 
-  BOOST_LOG_TRIVIAL(trace) << "received message \"" << cmd << "\" on render area " << m_renderArea->getId() << std::flush;
+  BOOST_LOG_TRIVIAL(trace) << "received message \"" << cmd << "\" on render area " << m_renderArea.getId() << std::flush;
 
   auto iter = m_handlers.find(cmd);
   if (iter != m_handlers.end())

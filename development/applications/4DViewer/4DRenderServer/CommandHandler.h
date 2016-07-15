@@ -43,7 +43,7 @@ class CommandHandler
   SeismicScene* m_seismicScene;
   SceneExaminer* m_examiner;
   
-  RemoteViz::Rendering::RenderArea* m_renderArea;
+  RemoteViz::Rendering::RenderArea& m_renderArea;
 
   typedef void (CommandHandler::*FunctionPtr)(
     const jsonxx::Object&,
@@ -237,7 +237,7 @@ class CommandHandler
 
 public:
 
-  explicit CommandHandler(RemoteViz::Rendering::RenderArea* renderArea);
+  explicit CommandHandler(RemoteViz::Rendering::RenderArea& renderArea);
   
   void setup(
     SceneGraphManager* mgr, 

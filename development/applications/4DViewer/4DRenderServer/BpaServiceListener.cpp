@@ -56,11 +56,11 @@ bool BpaServiceListener::onPendingShareRenderArea(RenderArea* renderArea, Client
   return true;
 }
 
-void BpaServiceListener::onInstantiatedRenderArea(RenderArea *renderArea)
+void BpaServiceListener::onInstantiatedRenderArea(RenderArea* renderArea)
 {
   BOOST_LOG_TRIVIAL(trace) << "instantiated render area " << renderArea->getId();
 
-  auto listener = std::make_shared<BpaRenderAreaListener>(renderArea, m_scheduler);
+  auto listener = std::make_shared<BpaRenderAreaListener>(*renderArea, m_scheduler);
   listener->setDataDir(m_datadir);
   renderArea->addListener(listener);
   renderArea->getTouchManager()->addDefaultRecognizers();
