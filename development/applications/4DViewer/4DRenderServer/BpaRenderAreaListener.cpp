@@ -170,7 +170,7 @@ void BpaRenderAreaListener::setupProject(const std::string& id)
   m_loadTask = std::make_shared<LoadProjectTask>();
   m_loadTask->source = this;
   m_loadTask->projectFile = projectFile.string();
-  m_scheduler.put(m_loadTask);
+  m_scheduler.push(m_loadTask);
 }
 
 void BpaRenderAreaListener::onFenceAdded(int fenceId)

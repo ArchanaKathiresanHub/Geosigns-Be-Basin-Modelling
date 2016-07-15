@@ -469,21 +469,22 @@ private:
   int getFormationId(size_t k) const;
   int getReservoirId(MoMeshSurface* skin) const;
 
-  void updateCoordinateGrid();
-  void updateSnapshotMesh();
-  void updateSnapshotFormations();
-  void updateSnapshotSurfaces();
-  void updateSnapshotReservoirs();
+  bool updateSnapshotMesh();
+  bool updateSnapshotFormations();
+  bool updateSnapshotSurfaces();
+  bool updateSnapshotReservoirs();
   void updateSnapshotTraps();
   void updateSnapshotFaults();
   void updateSnapshotProperties();
   void updateSnapshotSlices();
   void updateSnapshotFlowLines();
   void updateSnapshotFences();
+  void updateSnapshot();
+
+  void updateCoordinateGrid();
   void updateColorMap();
   void updateLegend();
   void updateText();
-  void updateSnapshot();
 
   void showPickResult(const PickResult& pickResult);
 

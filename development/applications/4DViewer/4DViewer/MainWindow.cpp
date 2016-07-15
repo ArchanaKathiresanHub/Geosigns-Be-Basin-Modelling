@@ -1134,7 +1134,9 @@ MainWindow::MainWindow()
 
   connectSignals();
 
-  m_scheduler.start();
+  size_t numIoThreads = 1;
+  size_t numCpuThreads = 4;
+  m_scheduler.start(numIoThreads, numCpuThreads);
   startTimer(0);
 }
 

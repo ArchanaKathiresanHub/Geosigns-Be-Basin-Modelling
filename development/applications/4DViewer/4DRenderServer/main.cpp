@@ -60,6 +60,7 @@ struct Settings
 {
   std::string datadir;
   std::string host;
+  int threads;
   int port;
 };
 
@@ -77,6 +78,7 @@ Settings initOptions(int argc, char** argv)
     ("help", "show help message")
     ("host", options::value<std::string>()->default_value("auto"), "Set ip address")
     ("port", options::value<int>()->default_value(8081), "Set port number")
+    ("threads", options::value<int>()->default_value(1), "Number of worker threads")
     ("datadir", options::value<std::string>()->default_value("."), "Root directory of data sets");
 
   options::variables_map vm;
@@ -92,6 +94,7 @@ Settings initOptions(int argc, char** argv)
   Settings settings;
   settings.host = vm["host"].as<std::string>();
   settings.port = vm["port"].as<int>();
+  settings.threads = vm["threads"].as<int>();
   settings.datadir = vm["datadir"].as<std::string>();
 
   logOptions(settings);
@@ -115,7 +118,8 @@ int main(int argc, char** argv)
     //| ServiceSettings::VOLUMEVIZLDM);
 
   Scheduler sched;
-  sched.start();
+  size_t numIoThreads = 1;
+  sched.start(numIoThreads, (size_t)options.threads);
 
   auto serviceListener = std::make_shared<BpaServiceListener>(sched);
   serviceListener->setDataDir(options.datadir);

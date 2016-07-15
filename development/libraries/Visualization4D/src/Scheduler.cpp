@@ -12,7 +12,7 @@
 #include <iostream>
 #include <chrono>
 
-std::shared_ptr<Task> Scheduler::getTask(Queue& q)
+std::shared_ptr<Task> Scheduler::popTask(Queue& q)
 {
   std::unique_lock<std::mutex> lock(q.mutex);
 
@@ -32,7 +32,7 @@ void Scheduler::run(Queue& q)
 {
   while (!m_stop)
   {
-    auto task = getTask(q);
+    auto task = popTask(q);
     if (task && !task->canceled)
     {
       task->run();
@@ -58,23 +58,21 @@ Scheduler::Scheduler()
 /**
  * Start processing tasks
  */
-void Scheduler::start()
+void Scheduler::start(size_t numIoThreads, size_t numCpuThreads)
 {
-  if (m_started)
-    return;
+  assert(!m_started);
 
   // init threads
-  m_ioThreads.push_back(
-    std::thread(
-      &Scheduler::run, 
-      this, 
-      std::ref(m_ioQueue)));
+  for (size_t i = 0; i < numIoThreads; ++i)
+  {
+    m_ioThreads.push_back(
+      std::thread(
+        &Scheduler::run,
+        this,
+        std::ref(m_ioQueue)));
+  }
 
-  unsigned int n = std::thread::hardware_concurrency();
-  if (n == 0)
-    n = 2;
-
-  for (unsigned int i = 0; i < n; ++i)
+  for (size_t i = 0; i < numCpuThreads; ++i)
   {
     m_cpuThreads.push_back(
       std::thread(
@@ -108,7 +106,7 @@ void Scheduler::stop()
 /**
  * Enqueue a task for processing in one of the worker threads
  */
-void Scheduler::put(std::shared_ptr<Task> task)
+void Scheduler::push(std::shared_ptr<Task> task)
 {
   Queue& q = (task->affinity == Task::IOTASK)
     ? m_ioQueue

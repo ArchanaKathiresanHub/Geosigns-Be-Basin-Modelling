@@ -68,7 +68,7 @@ class Scheduler
   bool m_started;
   bool m_stop;
 
-  std::shared_ptr<Task> getTask(Queue& q);
+  std::shared_ptr<Task> popTask(Queue& q);
 
   void run(Queue& q);
 
@@ -79,7 +79,7 @@ public:
   /**
    * Start processing tasks
    */
-  void start();
+  void start(size_t numIoThreads, size_t numCpuThreads);
 
   /**
    * Stop processing tasks
@@ -89,7 +89,7 @@ public:
   /**
    * Enqueue a task for processing in one of the worker threads
    */
-  void put(std::shared_ptr<Task> task);
+  void push(std::shared_ptr<Task> task);
 
   /**
    * Calls postRun() on all tasks that are ready. This function needs to be called 
