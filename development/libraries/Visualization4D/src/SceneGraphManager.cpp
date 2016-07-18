@@ -106,6 +106,7 @@ void SnapshotInfo::Reservoir::clear()
   mesh = nullptr;
   scalarSet = nullptr;
   skin = nullptr;
+  outlineGroup = nullptr;
   trapOutlines = nullptr;
   drainageAreaOutlinesFluid = nullptr;
   drainageAreaOutlinesGas = nullptr;
@@ -503,10 +504,12 @@ bool SceneGraphManager::updateSnapshotReservoirs()
         res.mesh = new MoMesh;
         res.scalarSet = new MoScalarSet;
         res.skin = new MoMeshSurface;
+        res.outlineGroup = new SoGroup;
 
         res.root->addChild(res.mesh);
         res.root->addChild(res.scalarSet);
         res.root->addChild(res.skin);
+        res.root->addChild(res.outlineGroup);
       }
 
       if (!res.meshData && !res.loadReservoirMeshTask)
@@ -573,7 +576,22 @@ void SceneGraphManager::updateSnapshotTraps()
         res.root->removeChild(res.traps.root());
         res.traps = Traps();
       }
+    }
+  }
+}
 
+void SceneGraphManager::updateSnapshotOutlines()
+{
+  assert(!m_snapshotInfoCache.empty());
+
+  SnapshotInfo& snapshot = *m_snapshotInfoCache.begin();
+  for (auto &res : snapshot.reservoirs)
+  {
+    if (!res.root)
+      continue;
+
+    if (m_viewState.reservoirVisibility[res.id])
+    {
       // Trap outlines
       if (m_viewState.showTrapOutlines && !res.trapOutlines)
       {
@@ -587,24 +605,24 @@ void SceneGraphManager::updateSnapshotTraps()
         const MiGeometryIjk& geometry = res.meshData->getGeometry();
         res.trapOutlines = m_outlineBuilder->createOutline(dataSet.get(), &geometry);
 
-        res.root->addChild(res.trapOutlines);
+        res.outlineGroup->addChild(res.trapOutlines);
       }
       else if (!m_viewState.showTrapOutlines && res.trapOutlines)
       {
-        res.root->removeChild(res.trapOutlines);
+        res.outlineGroup->removeChild(res.trapOutlines);
         res.trapOutlines = 0;
       }
 
       // Drainage area outlines
       if (m_viewState.drainageAreaType != DrainageAreaFluid && res.drainageAreaOutlinesFluid)
       {
-        res.root->removeChild(res.drainageAreaOutlinesFluid);
+        res.outlineGroup->removeChild(res.drainageAreaOutlinesFluid);
         res.drainageAreaOutlinesFluid = 0;
       }
 
       if (m_viewState.drainageAreaType != DrainageAreaGas && res.drainageAreaOutlinesGas)
       {
-        res.root->removeChild(res.drainageAreaOutlinesGas);
+        res.outlineGroup->removeChild(res.drainageAreaOutlinesGas);
         res.drainageAreaOutlinesGas = 0;
       }
 
@@ -620,7 +638,7 @@ void SceneGraphManager::updateSnapshotTraps()
         const MiGeometryIjk& geometry = res.meshData->getGeometry();
         res.drainageAreaOutlinesFluid = m_outlineBuilder->createOutline(dataSet.get(), &geometry);
 
-        res.root->addChild(res.drainageAreaOutlinesFluid);
+        res.outlineGroup->addChild(res.drainageAreaOutlinesFluid);
       }
       else if (m_viewState.drainageAreaType == DrainageAreaGas && !res.drainageAreaOutlinesGas)
       {
@@ -634,10 +652,11 @@ void SceneGraphManager::updateSnapshotTraps()
         const MiGeometryIjk& geometry = res.meshData->getGeometry();
         res.drainageAreaOutlinesGas = m_outlineBuilder->createOutline(dataSet.get(), &geometry);
 
-        res.root->addChild(res.drainageAreaOutlinesGas);
+        res.outlineGroup->addChild(res.drainageAreaOutlinesGas);
       }
     }
   }
+
 }
 
 std::shared_ptr<FaultMesh> SceneGraphManager::generateFaultMesh(
@@ -1037,6 +1056,7 @@ void SceneGraphManager::updateSnapshot()
   updateSnapshotSurfaces();
   updateSnapshotReservoirs();
   updateSnapshotTraps();
+  updateSnapshotOutlines();
   updateSnapshotFaults();
   updateSnapshotSlices();
   updateSnapshotFlowLines();

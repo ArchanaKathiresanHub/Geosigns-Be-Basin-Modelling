@@ -120,6 +120,22 @@ struct SnapshotInfo
     void clear();
   };
 
+  struct PropertyOutline
+  {
+    int propertyId = -1;
+
+    SoSeparator* root = nullptr;
+    SoBaseColor* color = nullptr;
+    SoIndexedLineSet* lines = nullptr;
+
+    void clear()
+    {
+      root = nullptr;
+      color = nullptr;
+      lines = nullptr;
+    }
+  };
+
   struct Reservoir
   {
     int id = 0;
@@ -134,7 +150,11 @@ struct SnapshotInfo
     MoMesh* mesh = nullptr;
     MoScalarSet* scalarSet = nullptr;
     MoMeshSurface* skin = nullptr;
+    SoGroup* outlineGroup = nullptr;
 
+    //PropertyOutline trapOutlines;
+    //PropertyOutline drainageAreaOutlinesFluid;
+    //PropertyOutline drainageAreaOutlinesGas;
     SoIndexedLineSet* trapOutlines = nullptr;
     SoIndexedLineSet* drainageAreaOutlinesFluid = nullptr;
     SoIndexedLineSet* drainageAreaOutlinesGas = nullptr;
@@ -474,6 +494,7 @@ private:
   bool updateSnapshotSurfaces();
   bool updateSnapshotReservoirs();
   void updateSnapshotTraps();
+  void updateSnapshotOutlines();
   void updateSnapshotFaults();
   void updateSnapshotProperties();
   void updateSnapshotSlices();
