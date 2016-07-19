@@ -834,7 +834,9 @@ namespace migration
                }
                column->setBottomDepth (bottomValue);
 
-            assert(column->getTopDepth() <= column->getBottomDepth()); // The top depth of the column needs to be shallower than the bottom depth
+	       double topDepth = std::trunc (1000.0 * column->getTopDepth());
+	       double bottomDepth = std::trunc (1000.0 * column->getBottomDepth());
+	       assert (topDepth <= bottomDepth); // The top depth of the column needs to be shallower than the bottom depth
             }
          }
       }
@@ -880,7 +882,9 @@ namespace migration
                {
                   column->setTopDepth (getUndefinedValue ());
                   column->setBottomDepth (getUndefinedValue ());
-               assert(column->getTopDepth() <= column->getBottomDepth()); // The top depth of the column needs to be shallower than the bottom depth
+		  double topDepth = std::trunc (1000.0 * column->getTopDepth());
+		  double bottomDepth = std::trunc (1000.0 * column->getBottomDepth());
+		  assert (topDepth <= bottomDepth); // The top depth of the column needs to be shallower than the bottom depth
                }
                else
                {
@@ -897,7 +901,9 @@ namespace migration
                   column->setBottomDepth (bottomValue);
 
                   assert (column->isValid ());
-               assert (column->getTopDepth() <= column->getBottomDepth()); // The top depth of the column needs to be shallower than the bottom depth
+		  double topDepth = std::trunc (1000.0 * column->getTopDepth());
+	          double bottomDepth = std::trunc (1000.0 * column->getBottomDepth());
+	          assert (topDepth <= bottomDepth); // The top depth of the column needs to be shallower than the bottom depth
                }
             }
          }
@@ -2594,6 +2600,7 @@ namespace migration
       {
          if ((*trapIter)->requiresDistribution ())
          {
+	   std::cout << *trapIter << std::endl;
             value = false;
             break;
          }
