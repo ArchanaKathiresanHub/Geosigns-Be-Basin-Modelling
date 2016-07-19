@@ -678,6 +678,8 @@ namespace migration
          Column * perimeterColumn = *iter;
          if (column == perimeterColumn)
             return;
+	 // If the two columns share the same fault status, look at depths,
+	 // otherwise put all non-sealing columns before the sealing ones.
          if (perimeterColumn->isSealing () || (!column->isSealing () && perimeterColumn->isDeeperThan (column)))
          {
             break;
@@ -2204,7 +2206,7 @@ namespace migration
       if (getWasteDepth (GAS) != WasteDepth)
       {
          double wasteLevel = getWasteDepth (GAS) - getTopDepth ();
-         if (wasteLevel <= m_levelToVolume->invert (numeric_limits<double>::max ()))
+         if (wasteLevel < m_levelToVolume->invert (numeric_limits<double>::max ()))
          {
             m_distributor->setWasteLevel (wasteLevel);
             m_distributor->setWasting (true);
