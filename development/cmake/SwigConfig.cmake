@@ -12,9 +12,7 @@
 
 include(cmake/AddPackage.cmake)
 
-set(SWIG_FOUND TRUE)
-set(SWIG_VERSION    "3.0.2" CACHE STRING "The version number of the swig executable")
-set(SWIG_DIR "${THIRD_PARTY_DIR}/swigwin-${SWIG_VERSION}" CACHE PATH "The directory where SWIG is installed")
+
 set(SWIG_EXECUTABLE "${SWIG_DIR}/swig.exe" CACHE FILEPATH "The path to the SWIG executable")
 
 add_external_package_info( 

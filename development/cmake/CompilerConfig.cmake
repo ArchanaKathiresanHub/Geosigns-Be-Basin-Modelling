@@ -260,7 +260,6 @@ elseif(WIN32)
    # If required the MPI implementation
    if (BM_PARALLEL)
        
-      set(MPI_ROOT "${THIRD_PARTY_DIR}/MicrosoftMPI-HPC-Pack-2012-R2" CACHE PATH "Directory where MPI is installed on Windows")
       set( MPIEXEC "${MPI_ROOT}/bin/mpiexec.exe" CACHE FILEPATH "Location of mpiexec command" )
       set( MPIRUN "${MPI_ROOT}/bin/mpiexec.exe" CACHE FILEPATH "Location of mpirun command" )
 

@@ -123,8 +123,6 @@ add_external_package_info(
 
 elseif (WIN32) # windows
 
-   set(PETSC_VERSION "3.5.2" CACHE STRING "PETSC Version")
-   set(PETSC_HOME "${THIRD_PARTY_DIR}/PETSc_Windows-3.5.2" CACHE PATH "PETSc home path") 
    set(PETSC_DEBUG "${PETSC_HOME}/PETSc/c-debug_icl_mkl" CACHE PATH "Debug path")
    set(PETSC_RELEASE "${PETSC_HOME}/PETSc/c-opt_icl_mkl" CACHE PATH "Release path")
    set(PETSC_INCLUDE_DIRS "${PETSC_HOME}/PETSc/include")

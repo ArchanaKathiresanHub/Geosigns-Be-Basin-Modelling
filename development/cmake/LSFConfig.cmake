@@ -13,9 +13,6 @@
 # Try to find the LSF installation
 #
 
-set (LSF_LIBS)
-set (LSF_INCLUDE_DIR)
-set (LSF_HOME "LSF-NOTFOUND" CACHE PATH "Home dir for LSF binary files")
 set (LSF_CAULDRON_PROJECT_NAME               "LSF-NOTFOUND" CACHE STRING "Project name for submitting jobs to LSF (for billing purpose)" )
 set (LSF_CAULDRON_PROJECT_QUEUE              "LSF-NOTFOUND" CACHE STRING "LSF job queue name" )
 set (LSF_CAULDRON_PROJECT_GROUP              "LSF-NOTFOUND" CACHE STRING "Project group" )
@@ -49,14 +46,6 @@ if(UNIX)
    endif (LSF_INCLUDE_DIR AND LSF_LIB AND LSBATCH_LIB)
    
 else (UNIX) # WIN32
-
-   set (LSF_INCLUDE_DIR "${THIRD_PARTY_DIR}/LSF/include")
-   set (LSF_LIB "${THIRD_PARTY_DIR}/LSF/lib/liblsf.lib")
-   set (LSBATCH_LIB "${THIRD_PARTY_DIR}/LSF/lib/libbat.lib")
-   
-   mark_as_advanced(LSF_INCLUDE_DIR)
-   mark_as_advanced(LSBATCH_LIB)
-   mark_as_advanced(LSF_LIB)
 
    list(APPEND LSF_LIBS "${LSBATCH_LIB}" "${LSF_LIB}" "MsWSock.lib" "WS2_32.lib" "WSock32.lib" "adsiid.lib" "activeds.lib" "userenv.lib" "netapi32.lib" "mpr.lib")  
    set (LSF_ENVDIR "${LSF_HOME}/conf" )

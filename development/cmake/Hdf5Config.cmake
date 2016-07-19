@@ -49,8 +49,6 @@ if(UNIX)
   
 else() # WIN32
 
-   set (HDF5_ROOT "${THIRD_PARTY_DIR}/hdf5.win64-1.8.11/hdf5" CACHE PATH "Path to the HDF5 library")
-   set (HDF5_FOUND TRUE)
    set (HDF5_INCLUDE_DIR ${HDF5_ROOT}/include)
    set (HDF5_INCLUDE_DIRS ${HDF5_INCLUDE_DIR} ${MPI_INCLUDE_DIRS})
    
