@@ -678,9 +678,9 @@ namespace migration
          Column * perimeterColumn = *iter;
          if (column == perimeterColumn)
             return;
-	 // If the two columns share the same fault status, look at depths,
-	 // otherwise put all non-sealing columns before the sealing ones.
-         if (perimeterColumn->isSealing () || (!column->isSealing () && perimeterColumn->isDeeperThan (column)))
+         if ((perimeterColumn->isSealing () and column->isSealing () and perimeterColumn->isDeeperThan (column)) or
+            (!perimeterColumn->isSealing () and !column->isSealing () and perimeterColumn->isDeeperThan (column)) or
+            (perimeterColumn->isSealing () and !column->isSealing ()))
          {
             break;
          }

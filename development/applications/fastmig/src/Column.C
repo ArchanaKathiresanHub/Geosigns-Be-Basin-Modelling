@@ -80,21 +80,43 @@ double Column::getVolumeBetweenDepths (double upperDepth, double lowerDepth) con
 /// Does not take into account whether columns are sealing or wasting
 int Column::compareDepths (Column * column, bool useTieBreaker)
 {
-   if (getTopDepth () < column->getTopDepth ()) return -1;
-   if (getTopDepth () > column->getTopDepth ()) return 1;
-
-   if (useTieBreaker)
+   if (!column->isSealing())
    {
-      if (getI () + getJ () > column->getI () + column->getJ ()) return -1;
-      if (getI () + getJ () < column->getI () + column->getJ ()) return 1;
+      if (getTopDepth () < column->getTopDepth ()) return -1;
+      if (getTopDepth () > column->getTopDepth ()) return 1;
 
-      if (getI () > column->getI ()) return -1;
-      if (getI () < column->getI ()) return 1;
-      if (getJ () > column->getJ ()) return -1;
-      if (getJ () < column->getJ ()) return 1;
+      if (useTieBreaker)
+      {
+         if (getI () + getJ () > column->getI () + column->getJ ()) return -1;
+         if (getI () + getJ () < column->getI () + column->getJ ()) return 1;
 
-      assert (this == column);
+         if (getI () > column->getI ()) return -1;
+         if (getI () < column->getI ()) return 1;
+         if (getJ () > column->getJ ()) return -1;
+         if (getJ () < column->getJ ()) return 1;
+
+         assert (this == column);
+      }
    }
+   else
+   {
+      if (getBottomDepth () < column->getBottomDepth ()) return -1;
+      if (getBottomDepth () > column->getBottomDepth ()) return 1;
+
+      if (useTieBreaker)
+      {
+         if (getI () + getJ () > column->getI () + column->getJ ()) return -1;
+         if (getI () + getJ () < column->getI () + column->getJ ()) return 1;
+
+         if (getI () > column->getI ()) return -1;
+         if (getI () < column->getI ()) return 1;
+         if (getJ () > column->getJ ()) return -1;
+         if (getJ () < column->getJ ()) return 1;
+
+         assert (this == column);
+      }
+   }
+
 
    return 0;
 }
