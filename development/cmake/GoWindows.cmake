@@ -11,7 +11,7 @@ if (IS_DIRECTORY "c:/opt")
 endif()
 
 #BOOST
-set( BOOST_ROOT "${buildToolDirectory}/boost_1_59_0" CACHE PATH "Location of the Boost C++ libraries")
+set( BOOST_ROOT "${buildToolDirectory}/3rdparty/boost_1_59_0" CACHE PATH "Location of the Boost C++ libraries")
 
 #PETSC 
 set( PETSC_VERSION "3.5.2" CACHE STRING "PETSC Version")
