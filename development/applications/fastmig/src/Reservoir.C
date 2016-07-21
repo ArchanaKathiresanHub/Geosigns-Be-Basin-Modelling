@@ -2600,7 +2600,6 @@ namespace migration
       {
          if ((*trapIter)->requiresDistribution ())
          {
-	   std::cout << *trapIter << std::endl;
             value = false;
             break;
          }
