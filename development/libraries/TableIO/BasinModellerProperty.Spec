@@ -6220,6 +6220,13 @@ Identification      : HcLiquidBrineCapillaryEntryPressure
     Default             : 5
     Error Field         : No
 
+    Identification      : LastComputationAge
+    Description         : After this age, there is no more CTC output
+    Type                : double
+    Unit of measurement :
+    Default             : 0.0
+    Error Field         : No
+
 #### Crustal Thickness Calculator and Advanced Lithosphere Calculator output properties 
 
     ### Default ctc outputs
@@ -6888,6 +6895,7 @@ START-property-tables
     Column         : DeltaSL
     Column         : DeltaSLGrid
     Column         : FilterHalfWidth
+    Column         : LastComputationAge
     Header         : Crustal Thickness Calculator input data  
 
 # Boundary condition data -------------------------------------------------

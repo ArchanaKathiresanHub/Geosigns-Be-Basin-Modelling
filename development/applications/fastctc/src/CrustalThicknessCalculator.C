@@ -281,174 +281,176 @@ void CrustalThicknessCalculator::run() {
    for (k = 0; k < m_snapshots.size(); ++k) {
 
       const double age = m_snapshots[k];
-      const Snapshot * theSnapshot = (const Snapshot *)findSnapshot( age );
+      if (age >= m_inputData->getFlexuralAge() or k == 0){
+         const Snapshot * theSnapshot = (const Snapshot *)findSnapshot( age );
 
-      /// 1. Load P/T data fot this snapshot
-      m_inputData->loadTopAndBottomOfSediments( m_crustalThicknessCalculator, age, m_inputData->getBaseRiftSurfaceName() );
-      const DataModel::AbstractProperty* depthProperty = m_inputData->loadDepthProperty();
-      m_inputData->loadDepthData( m_crustalThicknessCalculator, depthProperty, age );
-      const DataModel::AbstractProperty* pressureProperty = m_inputData->loadPressureProperty();
-      m_inputData->loadPressureData( m_crustalThicknessCalculator, pressureProperty, age );
+         /// 1. Load P/T data fot this snapshot
+         m_inputData->loadTopAndBottomOfSediments( m_crustalThicknessCalculator, age, m_inputData->getBaseRiftSurfaceName() );
+         const DataModel::AbstractProperty* depthProperty = m_inputData->loadDepthProperty();
+         m_inputData->loadDepthData( m_crustalThicknessCalculator, depthProperty, age );
+         const DataModel::AbstractProperty* pressureProperty = m_inputData->loadPressureProperty();
+         m_inputData->loadPressureData( m_crustalThicknessCalculator, pressureProperty, age );
 
-      /// 2. Create the maps for this snapshot
-      if (!m_outputData.createSnapShotOutputMaps( m_crustalThicknessCalculator, theSnapshot, m_inputData->getTopOfSedimentSurface() )) {
-         throw CtcException() << "Cannot allocate output maps.";
-      }
-
-      retrieveData();
-
-      /// 3. Compute the backstripped density and thickness, the backtrip and the compensation
-      DensityCalculator densityCalculator( firstI, firstJ, lastI, lastJ,
-                                           m_inputData->getBackstrippingMantleDensity(),
-                                           m_inputData->getWaterDensity(),
-                                           m_inputData->getPressureBasement(),
-                                           m_inputData->getPressureWaterBottom(),
-                                           m_inputData->getDepthBasement(),
-                                           m_inputData->getDepthWaterBottom(),
-                                           m_outputData, validator );
-      densityCalculator.compute();
-      if (!m_debug) m_outputData.disableBackstripOutput( m_crustalThicknessCalculator, m_inputData->getBotOfSedimentSurface(), theSnapshot );
-
-      /// 4. Compute the Total Tectonic Subsidence (only if we have a SDH at this snapshot)
-      const Interface::Property* pressureInterfaceProperty = findProperty( "Pressure" );
-      if (asSurfaceDepthHistory( age )){
-         TotalTectonicSubsidenceCalculator TTScalculator( firstI, firstJ, lastI, lastJ,
-                                                          age, densityCalculator.getAirCorrection(),
-                                                          m_previousTTS,
-                                                          m_seaBottomDepth,
-                                                          m_outputData, validator );
-         TTScalculator.compute();
-         if( k > 0 ) m_previousTTS = m_outputData.getMap( WLSMap );
-         currentPressureTTS = m_inputData->loadPropertyDataFromDepthMap( this, m_outputData.getMap( WLSMap ), pressureInterfaceProperty, theSnapshot );
-         // This is just for the first step when we compute the TTS at 0Ma, then we go in the reverse order
-         if (age == 0.0 and k == 0){
-            presentDayTTS          = std::shared_ptr<GridMap>( this->getFactory()->produceGridMap( nullptr, 0, m_outputData.getMap( WLSMap ), identity ) );
-            prensentDayPressureTTS = std::shared_ptr<GridMap>( this->getFactory()->produceGridMap( nullptr, 0, currentPressureTTS, identity ) );
-            // delete the record so it will not be save in TimeIoTbl
-            m_recordLessMapPropertyValues.clear();
-            restoreData();
-            continue;
+         /// 2. Create the maps for this snapshot
+         if (!m_outputData.createSnapShotOutputMaps( m_crustalThicknessCalculator, theSnapshot, m_inputData->getTopOfSedimentSurface() )) {
+            throw CtcException() << "Cannot allocate output maps.";
          }
-      }
-      else{
-         currentPressureTTS = nullptr;
-      }
-      
-      /// 5. Compute the Paleowaterdepth
-      PaleowaterdepthCalculator PWDcalculator( firstI, firstJ, lastI, lastJ,
-                                               m_inputData->getBackstrippingMantleDensity(),
-                                               m_inputData->getWaterDensity(),
-                                               presentDayTTS.get(),
-                                               m_outputData, validator,
-                                               m_inputData->getPressureMantleAtPresentDay(),
-                                               m_inputData->getPressureMantle(),
-                                               prensentDayPressureTTS.get(), currentPressureTTS );
-      PWDcalculator.compute();
-      
-      // 6. Compute the PaleowaterdepthResidual (only if we have a SDH at this snapshot and if we are not at present day)
-      if (asSurfaceDepthHistory( age ) and age!=0.0){
-         PaleowaterdepthResidualCalculator PWDRcalculator( firstI, firstJ, lastI, lastJ,
-                                                           age, m_seaBottomDepth,
-                                                           m_outputData, validator );
-         PWDRcalculator.compute();
-      }
 
-      ///6. Smooth the TTS and PWD map
-      if (m_applySmoothing) smoothOutputs();
+         retrieveData();
 
-      ///7. Computes the thinning factor and crusltal thicknesses (to be refactored in future requirement)
-      double WLS;
-      double WLS_adjusted, TF, Moho, RDA_adjusted, crustalThickness, basaltThickness, ECT;
-      double topBasalt;
+         /// 3. Compute the backstripped density and thickness, the backtrip and the compensation
+         DensityCalculator densityCalculator( firstI, firstJ, lastI, lastJ,
+            m_inputData->getBackstrippingMantleDensity(),
+            m_inputData->getWaterDensity(),
+            m_inputData->getPressureBasement(),
+            m_inputData->getPressureWaterBottom(),
+            m_inputData->getDepthBasement(),
+            m_inputData->getDepthWaterBottom(),
+            m_outputData, validator );
+         densityCalculator.compute();
+         if (!m_debug) m_outputData.disableBackstripOutput( m_crustalThicknessCalculator, m_inputData->getBotOfSedimentSurface(), theSnapshot );
 
-      for (i = firstI; i <= lastI; ++i) {
-         for (j = firstJ; j <= lastJ; ++j) {
-            if (!m_inputData->defineLinearFunction( m_LF, i, j ) || !getNodeIsValid( i, j )) {
-               m_outputData.setAllMapsUndefined( i, j );
+         /// 4. Compute the Total Tectonic Subsidence (only if we have a SDH at this snapshot)
+         const Interface::Property* pressureInterfaceProperty = findProperty( "Pressure" );
+         if (asSurfaceDepthHistory( age )){
+            TotalTectonicSubsidenceCalculator TTScalculator( firstI, firstJ, lastI, lastJ,
+               age, densityCalculator.getAirCorrection(),
+               m_previousTTS,
+               m_seaBottomDepth,
+               m_outputData, validator );
+            TTScalculator.compute();
+            if (k > 0) m_previousTTS = m_outputData.getMap( WLSMap );
+            currentPressureTTS = m_inputData->loadPropertyDataFromDepthMap( this, m_outputData.getMap( WLSMap ), pressureInterfaceProperty, theSnapshot );
+            // This is just for the first step when we compute the TTS at 0Ma, then we go in the reverse order
+            if (age == 0.0 and k == 0){
+               presentDayTTS          = std::shared_ptr<GridMap>( this->getFactory()->produceGridMap( nullptr, 0, m_outputData.getMap( WLSMap ), identity ) );
+               prensentDayPressureTTS = std::shared_ptr<GridMap>( this->getFactory()->produceGridMap( nullptr, 0, currentPressureTTS,            identity ) );
+               // delete the record so it will not be save in TimeIoTbl
+               m_recordLessMapPropertyValues.clear();
+               restoreData();
+               continue;
             }
-            else {
+         }
+         else{
+            currentPressureTTS = nullptr;
+         }
 
-               m_outputData[slopePreMelt]      = m_LF.getM1();
-               m_outputData[slopePostMelt]     = m_LF.getM2();
-               m_outputData[interceptPostMelt] = m_LF.getC2();
+         /// 5. Compute the Paleowaterdepth
+         PaleowaterdepthCalculator PWDcalculator( firstI, firstJ, lastI, lastJ,
+            m_inputData->getBackstrippingMantleDensity(),
+            m_inputData->getWaterDensity(),
+            presentDayTTS.get(),
+            m_outputData, validator,
+            m_inputData->getPressureMantleAtPresentDay(),
+            m_inputData->getPressureMantle(),
+            prensentDayPressureTTS.get(), currentPressureTTS );
+         PWDcalculator.compute();
 
-               m_outputData[estimatedCrustDensityMap] = m_inputData->getEstimatedCrustDensity();
-               m_outputData[TFOnsetMap]               = m_inputData->getTFOnset();
-               m_outputData[TFOnsetLinMap]            = m_inputData->getTFOnsetLin();
-               m_outputData[TFOnsetMigMap]            = m_inputData->getTFOnsetMig();
-               m_outputData[PTaMap]                   = m_inputData->getPTa();
-               m_outputData[basaltDensityMap]         = m_inputData->getMagmaticDensity();
-               m_outputData[WLSOnsetMap]              = m_inputData->getWLSonset();
-               m_outputData[WLSCritMap]               = m_inputData->getWLScrit();
-               m_outputData[WLSExhumeMap]             = m_inputData->getWLSexhume();
-               m_outputData[WLSExhumeSerpMap]         = m_inputData->getWLSexhumeSerp();
-               m_outputData[thicknessCrustMeltOnset]  = m_inputData->getInitialCrustThickness() * (1 - m_inputData->getTFOnsetLin());
+         // 6. Compute the PaleowaterdepthResidual (only if we have a SDH at this snapshot and if we are not at present day)
+         if (asSurfaceDepthHistory( age ) and age!=0.0){
+            PaleowaterdepthResidualCalculator PWDRcalculator( firstI, firstJ, lastI, lastJ,
+               age, m_seaBottomDepth,
+               m_outputData, validator );
+            PWDRcalculator.compute();
+         }
 
-               WLS = m_outputData.getMapValue( WLSMap, i, j );
+         ///6. Smooth the TTS and PWD map
+         if (m_applySmoothing) smoothOutputs();
 
-               if (WLS != Interface::DefaultUndefinedMapValue) {
+         ///7. Computes the thinning factor and crusltal thicknesses (to be refactored in future requirement)
+         double WLS;
+         double WLS_adjusted, TF, Moho, RDA_adjusted, crustalThickness, basaltThickness, ECT;
+         double topBasalt;
 
-                  WLS_adjusted = WLS - m_inputData->getDeltaSLValue( i, j );
-                  RDA_adjusted = m_LF.getWLS_crit() - WLS_adjusted;
-
-                  TF = m_LF.getCrustTF( WLS_adjusted );
-                  crustalThickness = (TF < 1 ? m_inputData->getInitialCrustThickness() * (1 - TF) : 0);
-
-                  if (WLS >= m_outputData[WLSExhumeMap]) basaltThickness = 0;
-                  else basaltThickness = m_LF.getBasaltThickness( WLS_adjusted );
-
-                  m_inputData->getDepthBasement()->retrieveData();
-                  topBasalt = crustalThickness + m_inputData->getDepthBasement()->get(i,j);
-                  m_inputData->getDepthBasement()->restoreData();
-                  Moho = topBasalt + basaltThickness;
-
-               }
-
-               if (WLS == Interface::DefaultUndefinedMapValue || m_inputData->getWLScrit() < m_inputData->getWLSonset()) {
-                  // if WLS_crit < Wls_onset, set all mandatory outputs to Undefined value
-                  m_outputData[WLSadjustedMap]          = Interface::DefaultUndefinedMapValue;
-                  m_outputData[RDAadjustedMap]          = Interface::DefaultUndefinedMapValue;
-                  m_outputData[TFMap]                   = Interface::DefaultUndefinedMapValue;
-                  m_outputData[topBasaltMap]            = Interface::DefaultUndefinedMapValue;
-                  m_outputData[thicknessCrustMap]       = Interface::DefaultUndefinedMapValue;
-                  m_outputData[thicknessBasaltMap]      = Interface::DefaultUndefinedMapValue;
-                  m_outputData[mohoMap]                 = Interface::DefaultUndefinedMapValue;
-                  m_outputData[ECTMap]                  = Interface::DefaultUndefinedMapValue;
-                  m_outputData[thicknessCrustMeltOnset] = Interface::DefaultUndefinedMapValue;
+         for (i = firstI; i <= lastI; ++i) {
+            for (j = firstJ; j <= lastJ; ++j) {
+               if (!m_inputData->defineLinearFunction( m_LF, i, j ) || !getNodeIsValid( i, j )) {
+                  m_outputData.setAllMapsUndefined( i, j );
                }
                else {
-                  m_outputData[WLSadjustedMap]     = WLS_adjusted;
-                  m_outputData[RDAadjustedMap]     = RDA_adjusted;
-                  m_outputData[TFMap]              = TF;
-                  m_outputData[topBasaltMap]       = topBasalt;
-                  m_outputData[thicknessCrustMap]  = crustalThickness;
-                  m_outputData[thicknessBasaltMap] = basaltThickness;
-                  m_outputData[mohoMap]            = Moho;
 
-                  if (m_inputData->getInitialLithosphereThickness() != 0.0 &&
-                     crustalThickness != Interface::DefaultUndefinedMapValue &&
-                     basaltThickness != Interface::DefaultUndefinedMapValue) {
+                  m_outputData[slopePreMelt]      = m_LF.getM1();
+                  m_outputData[slopePostMelt]     = m_LF.getM2();
+                  m_outputData[interceptPostMelt] = m_LF.getC2();
 
-                     ECT = crustalThickness + basaltThickness * (m_inputData->getInitialCrustThickness() / m_inputData->getInitialLithosphereThickness());
+                  m_outputData[estimatedCrustDensityMap] = m_inputData->getEstimatedCrustDensity();
+                  m_outputData[TFOnsetMap]               = m_inputData->getTFOnset();
+                  m_outputData[TFOnsetLinMap]            = m_inputData->getTFOnsetLin();
+                  m_outputData[TFOnsetMigMap]            = m_inputData->getTFOnsetMig();
+                  m_outputData[PTaMap]                   = m_inputData->getPTa();
+                  m_outputData[basaltDensityMap]         = m_inputData->getMagmaticDensity();
+                  m_outputData[WLSOnsetMap]              = m_inputData->getWLSonset();
+                  m_outputData[WLSCritMap]               = m_inputData->getWLScrit();
+                  m_outputData[WLSExhumeMap]             = m_inputData->getWLSexhume();
+                  m_outputData[WLSExhumeSerpMap]         = m_inputData->getWLSexhumeSerp();
+                  m_outputData[thicknessCrustMeltOnset]  = m_inputData->getInitialCrustThickness() * (1 - m_inputData->getTFOnsetLin());
 
+                  WLS = m_outputData.getMapValue( WLSMap, i, j );
+
+                  if (WLS != Interface::DefaultUndefinedMapValue) {
+
+                     WLS_adjusted = WLS - m_inputData->getDeltaSLValue( i, j );
+                     RDA_adjusted = m_LF.getWLS_crit() - WLS_adjusted;
+
+                     TF = m_LF.getCrustTF( WLS_adjusted );
+                     crustalThickness = (TF < 1 ? m_inputData->getInitialCrustThickness() * (1 - TF) : 0);
+
+                     if (WLS >= m_outputData[WLSExhumeMap]) basaltThickness = 0;
+                     else basaltThickness = m_LF.getBasaltThickness( WLS_adjusted );
+
+                     m_inputData->getDepthBasement()->retrieveData();
+                     topBasalt = crustalThickness + m_inputData->getDepthBasement()->get(i,j);
+                     m_inputData->getDepthBasement()->restoreData();
+                     Moho = topBasalt + basaltThickness;
+
+                  }
+
+                  if (WLS == Interface::DefaultUndefinedMapValue || m_inputData->getWLScrit() < m_inputData->getWLSonset()) {
+                     // if WLS_crit < Wls_onset, set all mandatory outputs to Undefined value
+                     m_outputData[WLSadjustedMap]          = Interface::DefaultUndefinedMapValue;
+                     m_outputData[RDAadjustedMap]          = Interface::DefaultUndefinedMapValue;
+                     m_outputData[TFMap]                   = Interface::DefaultUndefinedMapValue;
+                     m_outputData[topBasaltMap]            = Interface::DefaultUndefinedMapValue;
+                     m_outputData[thicknessCrustMap]       = Interface::DefaultUndefinedMapValue;
+                     m_outputData[thicknessBasaltMap]      = Interface::DefaultUndefinedMapValue;
+                     m_outputData[mohoMap]                 = Interface::DefaultUndefinedMapValue;
+                     m_outputData[ECTMap]                  = Interface::DefaultUndefinedMapValue;
+                     m_outputData[thicknessCrustMeltOnset] = Interface::DefaultUndefinedMapValue;
                   }
                   else {
-                     ECT = Interface::DefaultUndefinedMapValue;
-                  }
-                  m_outputData[ECTMap] = ECT;
-               }
+                     m_outputData[WLSadjustedMap]     = WLS_adjusted;
+                     m_outputData[RDAadjustedMap]     = RDA_adjusted;
+                     m_outputData[TFMap]              = TF;
+                     m_outputData[topBasaltMap]       = topBasalt;
+                     m_outputData[thicknessCrustMap]  = crustalThickness;
+                     m_outputData[thicknessBasaltMap] = basaltThickness;
+                     m_outputData[mohoMap]            = Moho;
 
-               // now put all values into the correspondent maps
-               m_outputData.setValuesToMaps( i, j );
+                     if (m_inputData->getInitialLithosphereThickness() != 0.0 &&
+                        crustalThickness != Interface::DefaultUndefinedMapValue &&
+                        basaltThickness != Interface::DefaultUndefinedMapValue) {
+
+                        ECT = crustalThickness + basaltThickness * (m_inputData->getInitialCrustThickness() / m_inputData->getInitialLithosphereThickness());
+
+                     }
+                     else {
+                        ECT = Interface::DefaultUndefinedMapValue;
+                     }
+                     m_outputData[ECTMap] = ECT;
+                  }
+
+                  // now put all values into the correspondent maps
+                  m_outputData.setValuesToMaps( i, j );
+               }
             }
          }
-      }
-      
-      restoreData();
-      m_outputData.saveOutput( m_crustalThicknessCalculator, m_debug, m_outputOptions, theSnapshot );
 
-      // Save properties to disk.
-      m_crustalThicknessCalculator->continueActivity();
+         restoreData();
+         m_outputData.saveOutput( m_crustalThicknessCalculator, m_debug, m_outputOptions, theSnapshot );
+
+         // Save properties to disk.
+         m_crustalThicknessCalculator->continueActivity();
+      }
    }
 
 }

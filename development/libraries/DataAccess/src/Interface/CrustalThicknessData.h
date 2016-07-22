@@ -29,10 +29,13 @@ namespace DataAccess
 	         CrustalThicknessData (ProjectHandle * projectHandle, database::Record * record);
 	         virtual ~CrustalThicknessData (void);
 
-            /// @brief Return the rifting starting time (T0)
+            /// @brief Return the rifting event starting time (T0)
             virtual const double & getT0Ini(void) const;
-            /// @brief Return the rifitng end time (TR)
+            /// @brief Return the rifitng event end time (TR)
             virtual const double & getTRIni(void) const;
+            /// @brief Return the last age at which the CTC will create outputs
+            /// @details This represents the end of rifting and the beginning of the flexural basin
+            virtual const double & getLastComputationAge( void ) const;
             /// @brief Return the Initial Crustal Thickness
             virtual const double & getHCuIni(void) const;
             /// @brief Return the Initial mantle thickness

@@ -26,6 +26,12 @@
 #include "LinearFunction.h"
 #include "ConfigFileParameterCtc.h"
 
+// Geophysics library
+#include "GeoPhysicsProjectHandle.h"
+
+// Datamining library
+#include "DataMiningProjectHandle.h"
+
 // utilitites
 #include "FormattingException.h"
 
@@ -33,24 +39,10 @@ using namespace std;
 using namespace DataAccess;
 using Interface::GridMap;
 
-// Forward declaration because of crossdependency between libraries Geophysics and CrustlThickness
 namespace database
 {
    class Record;
    class Table;
-}
-namespace DataAccess
-{
-   namespace Interface
-   {
-      class ProjectHandle;
-      class GridMap;
-      class Grid;
-   }
-   namespace Mining
-   {
-      class ProjectHandle;
-   }
 }
 
 namespace DerivedProperties
@@ -58,10 +50,6 @@ namespace DerivedProperties
    class SurfaceProperty;
    class DerivedPropertyManager;
    typedef boost::shared_ptr<const SurfaceProperty> SurfacePropertyPtr;
-}
-
-namespace GeoPhysics {
-   class ProjectHandle;
 }
 
 namespace DataModel{
@@ -84,7 +72,6 @@ public:
    /// @{
    void loadInputDataAndConfigurationFile( const string & inFile );
    void loadInputData                    ();
-   void LoadUserDefinedData              ( ifstream &ConfigurationFile );
    /// @}
 
    /// @defgroup LoadData_strati
@@ -123,33 +110,34 @@ public:
 
    /// @defgroup Accessors
    /// @{
-   unsigned int getSmoothRadius         () const;
-   double getMidAge                     () const;
-   double getDensityDifference          () const;
-   double getInitialCrustThickness      () const;
-   double getInitialLithosphereThickness() const;
-   double getBackstrippingMantleDensity () const;
-   double getWaterDensity               () const;
-   double getEstimatedCrustDensity      () const;
-   double getTFOnset                    () const;
-   double getTFOnsetLin                 () const;
-   double getTFOnsetMig                 () const;
-   double getPTa                        () const;
-   double getMagmaticDensity            () const;
-   double getWLSexhume                  () const;
-   double getWLScrit                    () const;
-   double getWLSonset                   () const;
-   double getWLSexhumeSerp              () const;
+   unsigned int getSmoothRadius()          const { return m_smoothRadius;                              };
+   double getFlexuralAge()                 const { return m_t_felxural;                                };
+   double getInitialCrustThickness()       const { return m_initialCrustThickness;                     };
+   double getInitialLithosphereThickness() const { return m_initialLithosphericThickness;              };
+   double getInitialSubsidence()           const { return m_constants.getInitialSubsidenceMax();       };
+   double getBackstrippingMantleDensity()  const { return m_constants.getBackstrippingMantleDensity(); };
+   double getWaterDensity()                const { return m_constants.getWaterDensity();               };
+   double getEstimatedCrustDensity()       const { return m_modelCrustDensity;                         };
+   double getTFOnset()                     const { return m_TF_onset;                                  };
+   double getTFOnsetLin()                  const { return m_TF_onset_lin;                              };
+   double getTFOnsetMig()                  const { return m_TF_onset_mig;                              };
+   double getPTa()                         const { return m_PTa;                                       };
+   double getMagmaticDensity()             const { return m_magmaticDensity;                           };
+   double getWLSexhume()                   const { return m_WLS_exhume;                                };
+   double getWLScrit()                     const { return m_WLS_crit;                                  };
+   double getWLSonset()                    const { return m_WLS_onset;                                 };
+   double getWLSexhumeSerp()               const { return m_WLS_exhume_serp;                           };
 
-   double getDeltaSLValue               (unsigned int i, unsigned int j) const;
-   const string& getBaseRiftSurfaceName () const;
-   double getInitialSubsidence() const { return m_constants.getInitialSubsidenceMax(); }
+   double getDeltaSLValue (unsigned int i, unsigned int j) const;
+   double getMidAge() const;
 
-   const GridMap* getT0Map     () const;
-   const GridMap* getTRMap     () const;
-   const GridMap* getHCuMap    () const;
-   const GridMap* getHLMuMap   () const;
-   const GridMap* getDeltaSLMap() const;
+   const string& getBaseRiftSurfaceName() const { return m_baseRiftSurfaceName; }
+
+   const GridMap* getT0Map()      const { return m_T0Map;      };
+   const GridMap* getTRMap()      const { return m_TRMap;      };
+   const GridMap* getHCuMap()     const { return m_HCuMap;     };
+   const GridMap* getHLMuMap()    const { return m_HLMuMap;    };
+   const GridMap* getDeltaSLMap() const { return m_DeltaSLMap; };
 
    DerivedProperties::SurfacePropertyPtr getPressureBasement           () const { return m_pressureBasement;           };
    DerivedProperties::SurfacePropertyPtr getPressureWaterBottom        () const { return m_pressureWaterBottom;        };
@@ -182,23 +170,24 @@ public:
    /// @defgroup GridUtilities
    ///    Defined from m_T0Map
    /// @{
-   unsigned firstI() const;
-   unsigned firstJ() const;
-   unsigned lastI() const;
-   unsigned lastJ() const;
+   unsigned firstI() const { return m_T0Map->firstI(); };
+   unsigned firstJ() const { return m_T0Map->firstJ(); };
+   unsigned lastI()  const { return m_T0Map->lastI();  };
+   unsigned lastJ()  const { return m_T0Map->lastJ();  };
    /// @}
 
 private:
 
    /// @defgroup User_interface_data
    /// @{
-   unsigned int m_smoothRadius;            ///< Smoothing radius                           [Cells]
-   double m_t_0;                           ///< Beginning of rifting                       [Ma]
-   double m_t_r;                           ///< End of rifting                             [Ma]
-   double m_initialCrustThickness;         ///< Initial continental crust thickness        [m]
-   double m_initialLithosphericThickness;  ///< Initial lithospheric mantle thickness      [m]
-   double m_maxBasalticCrustThickness;     ///< Maximum oceanic (basaltic) crust thickness [m]
-   double m_seaLevelAdjustment;            ///< Sea level adjustment                       [m]
+   unsigned int m_smoothRadius;            ///< Smoothing radius                                                      [Cells]
+   double m_t_0;                           ///< Beginning of rifting                                                  [Ma]
+   double m_t_r;                           ///< End of rifting                                                        [Ma]
+   double m_t_felxural;                    ///< Timing of flexural basin, after this age there is no more CTC outputs [Ma]
+   double m_initialCrustThickness;         ///< Initial continental crust thickness                                   [m]
+   double m_initialLithosphericThickness;  ///< Initial lithospheric mantle thickness                                 [m]
+   double m_maxBasalticCrustThickness;     ///< Maximum oceanic (basaltic) crust thickness                            [m]
+   double m_seaLevelAdjustment;            ///< Sea level adjustment                                                  [m]
 
    const GridMap * m_T0Map;        ///< Beginning of rifting                       [Ma]
    const GridMap * m_TRMap;        ///< End of rifting                             [Ma]
@@ -238,7 +227,6 @@ private:
    double m_PTa;               ///< Asthenospheric mantle potential temperature
    double m_magmaticDensity;   ///< Asthenospheric mantle density
    double m_WLS_onset;         ///< Water loaded subsidence at melt onset
-   /// @todo Ask Natalya what are these WLS for
    double m_WLS_crit;          ///< Water loaded subsidence at critical point (TF=1, basalt)
    double m_WLS_exhume;        ///< Water loaded subsidence at exhumation point (TF=1, no basalt)
    double m_WLS_exhume_serp;   ///< Water loaded subsidence at exhime point with serpentinite (TF=1, serpentinite)
@@ -252,30 +240,6 @@ private:
 
 //------------------------------------------------------------//
 
-inline const GridMap* InterfaceInput::getT0Map() const {
-   return m_T0Map;
-}
-
-inline const GridMap* InterfaceInput::getTRMap() const {
-   return m_TRMap;
-}
-
-inline const GridMap* InterfaceInput::getHCuMap() const {
-   return m_HCuMap;
-}
-
-inline const GridMap* InterfaceInput::getHLMuMap() const {
-   return m_HLMuMap;
-}
-
-inline const GridMap* InterfaceInput::getDeltaSLMap() const {
-   return m_DeltaSLMap;
-}
-
-inline unsigned int InterfaceInput::getSmoothRadius() const {
-   return m_smoothRadius;
-}
-
 inline double InterfaceInput::getDeltaSLValue( unsigned int i, unsigned int j ) const {
    
    if( m_DeltaSLMap->getValue(i, j) != m_DeltaSLMap->getUndefinedValue() ) {
@@ -287,95 +251,6 @@ inline double InterfaceInput::getDeltaSLValue( unsigned int i, unsigned int j ) 
 
 inline double InterfaceInput::getMidAge() const {
    return (m_t_r + m_t_0) / 2;
-}
-
-inline double InterfaceInput::getInitialCrustThickness() const {
-   
-   return m_initialCrustThickness;
-}
-
-inline double InterfaceInput::getInitialLithosphereThickness() const {
-   
-   return m_initialLithosphericThickness;
-}
-
-inline double InterfaceInput::getBackstrippingMantleDensity() const {
-   
-   return m_constants.getBackstrippingMantleDensity();
-}
-
-inline double InterfaceInput::getWaterDensity() const {
-   
-   return m_constants.getWaterDensity();
-}
-
-inline double InterfaceInput::getEstimatedCrustDensity() const {
-   
-   return m_modelCrustDensity;
-}
-
-inline double InterfaceInput::getTFOnset() const {
-   
-   return m_TF_onset;
-}
-
-inline double InterfaceInput::getTFOnsetLin() const {
-   
-   return m_TF_onset_lin;
-}
-
-inline double InterfaceInput::getTFOnsetMig() const {
-   
-   return m_TF_onset_mig;
-}
-
-inline double InterfaceInput::getPTa() const {
-   
-   return m_PTa;
-}
-
-inline double InterfaceInput::getMagmaticDensity() const {
-   
-   return m_magmaticDensity;
-}
-
-inline double InterfaceInput::getWLSexhume() const {
-   
-   return m_WLS_exhume;
-}
-
-inline double InterfaceInput::getWLScrit() const {
-   
-   return m_WLS_crit;
-}
-
-inline double InterfaceInput::getWLSonset() const {
-   
-   return m_WLS_onset;
-}
-
-inline double InterfaceInput::getWLSexhumeSerp() const {
-   
-   return m_WLS_exhume_serp;
-}
-
-inline const string& InterfaceInput::getBaseRiftSurfaceName() const {
-   return m_baseRiftSurfaceName;
-}
-
-inline unsigned InterfaceInput::firstI() const {
-   return m_T0Map->firstI();
-}
-
-inline unsigned InterfaceInput::firstJ() const {
-   return m_T0Map->firstJ();
-}
-inline unsigned InterfaceInput::lastI() const {
-   return m_T0Map->lastI();
-}
-
-inline unsigned InterfaceInput::lastJ() const {
-   return m_T0Map->lastJ();
 }
 
 #endif

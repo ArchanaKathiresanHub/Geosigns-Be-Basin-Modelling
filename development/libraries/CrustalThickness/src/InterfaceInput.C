@@ -8,11 +8,6 @@
 // Do not distribute without written permission from Shell.
 //
 #include "InterfaceInput.h"
-#include "FilePath.h"
-
-// std library
-#define _USE_MATH_DEFINES
-#include <math.h>
 
 // TableIO library
 #include "cauldronschemafuncs.h"
@@ -95,7 +90,7 @@ void InterfaceInput::clean() {
 void InterfaceInput::loadInputDataAndConfigurationFile( const string & inFile ) {
    ///1. Load input data
    try {
-   loadInputData();
+      loadInputData();
    }
    catch (InputException& ex){
       LogHandler( LogHandler::ERROR_SEVERITY ) << ex.what();
@@ -117,88 +112,20 @@ void InterfaceInput::loadInputDataAndConfigurationFile( const string & inFile ) 
 //------------------------------------------------------------//
 void InterfaceInput::loadInputData() {
    
-   m_TRMap   = getMap( Interface::TRIni );
-   m_T0Map   = getMap (Interface::T0Ini);
-   m_HCuMap  = getMap (Interface::HCuIni);
-   m_HLMuMap = getMap (Interface::HLMuIni);
-   m_HBuMap  = getMap (Interface::HBu);
+   m_TRMap      = getMap (Interface::TRIni  );
+   m_T0Map      = getMap (Interface::T0Ini  );
+   m_HCuMap     = getMap (Interface::HCuIni );
+   m_HLMuMap    = getMap (Interface::HLMuIni);
+   m_HBuMap     = getMap (Interface::HBu    );
    m_DeltaSLMap = getMap (Interface::DeltaSL);
    m_baseRiftSurfaceName = getSurfaceName();
-   m_smoothRadius = getFilterHalfWidth();
+   m_smoothRadius        = getFilterHalfWidth();
+   m_t_felxural          = getLastComputationAge();
    static const DataAccess::Interface::Grid * S_a0_FORTEST = m_T0Map->getGrid();
    if (m_T0Map == 0 || m_TRMap == 0 || m_HCuMap == 0 || m_HLMuMap == 0 || m_DeltaSLMap == 0) {
       throw InputException() << "Cannot load input data... Aborting... ";
    }
      
-}
-
-//------------------------------------------------------------//
-void InterfaceInput::LoadUserDefinedData( ifstream &ConfigurationFile ) {
-
-   string line;
-   vector<string> theTokens;
-   string delim = ",";
-   size_t firstNotSpace;
-   int countParam = 0;
-   
-   for(;;) {
-      getline (ConfigurationFile, line, '\n');
-        
-      if( line == ConfigFileAlcCtc::EndOfTable || line.size() == 0) {
-         break;
-      }
-      firstNotSpace = line.find_first_not_of(" \t"); 
-      
-      if( line[firstNotSpace] != '#' ) {
-      
-      StringHandler::parseLine( line, delim, theTokens );
-      
-      if( theTokens.size() == 2 ) {
-
-         if( theTokens[0] == ConfigFileAlcCtc::t_0 ) {
-
-            m_t_0 = atof( theTokens[1].c_str() );
-               ++ countParam;
-
-         } else if( theTokens[0] == ConfigFileAlcCtc::t_r ) {
-
-            m_t_r = atof( theTokens[1].c_str() );
-               ++ countParam;
-
-         } else if( theTokens[0] == ConfigFileAlcCtc::initialCrustThickness ) {
-
-            m_initialCrustThickness = atof( theTokens[1].c_str() );
-               ++ countParam;
-
-         } else if( theTokens[0] == ConfigFileAlcCtc::maxBasalticCrustThickness ) {
-
-            m_maxBasalticCrustThickness = atof ( theTokens[1].c_str() );
-               ++ countParam;
-
-         } else if( theTokens[0] == ConfigFileAlcCtc::initialLithosphericThickness ) {
-
-            m_initialLithosphericThickness = atof( theTokens[1].c_str() );
-               ++ countParam;
-
-         } else if( theTokens[0] == ConfigFileAlcCtc::seaLevelAdjustment ) {
-
-            m_seaLevelAdjustment = atof( theTokens[1].c_str() );
-               ++ countParam;
-            }
-            else{
-               LogHandler( LogHandler::WARNING_SEVERITY ) << "CTC configuration file UserDefinedData table: unknown CTC parameter '" << theTokens[0] << "'.";
-            }
-         } 
-         else {
-         theTokens.clear();
-            throw InputException() << "CTC configuration file UserDefinedData table: unexpected parameter definition (should be Name, Value).";
-      }
-      theTokens.clear();
-   }
-}
-   if( countParam != 6 ) {
-      throw InputException() << "CTC configuration file UserDefinedData table: 6 parameters expected but only " << countParam << " found.";
-   }
 }
 
 //------------------------------------------------------------//

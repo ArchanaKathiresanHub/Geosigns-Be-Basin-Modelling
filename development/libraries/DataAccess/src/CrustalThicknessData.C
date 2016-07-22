@@ -53,6 +53,11 @@ const double & CrustalThicknessData::getTRIni(void) const
    return database::getTRIni (m_record);
 }
 
+const double & CrustalThicknessData::getLastComputationAge( void ) const
+{
+   return database::getLastComputationAge( m_record );
+}
+
 const double & CrustalThicknessData::getHCuIni(void) const
 {
    return database::getHCuIni (m_record);
