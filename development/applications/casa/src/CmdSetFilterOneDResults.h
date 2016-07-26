@@ -7,20 +7,20 @@
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 // 
-#ifndef CASA_CMD_IMPORT_ONED_H
-#define CASA_CMD_IMPORT_ONED_H
+#ifndef CASA_CMD_FILTER_ONED_H
+#define CASA_CMD_FILTER_ONED_H
 
 #include "CasaCmd.h"
 
-/// @brief Extract the best 1D results 
-class CmdImportOneDResults : public CasaCmd
+/// @brief Sets a filter for selecting the parameters from 1D optimizations
+class CmdSetFilterOneDResults : public CasaCmd
 {
 public:
    /// @brief Constructor
    /// @param cmdPrms list of command parameters as set of strings
-   CmdImportOneDResults( CasaCommander & parent, const std::vector< std::string > & cmdPrms );
+   CmdSetFilterOneDResults( CasaCommander & parent, const std::vector< std::string > & cmdPrms );
 
-   virtual ~CmdImportOneDResults( ) { ; }
+   virtual ~CmdSetFilterOneDResults( ) { ; }
 
    /// @brief Run command
    virtual void execute( std::unique_ptr<casa::ScenarioAnalysis> & sa );
@@ -29,6 +29,8 @@ public:
    /// @param cmdName - command name - how it is defined in CasaCommander
    static void printHelpPage( const char * cmdName );
 
+protected:
+   std::string    m_filterAlgorithm;                ///< the filter algorithm to use
 };
 
-#endif // CASA_CMD_IMPORT_ONED_H
+#endif // CASA_CMD_FILTER_ONED_H

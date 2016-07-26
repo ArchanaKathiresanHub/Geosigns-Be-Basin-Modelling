@@ -40,25 +40,29 @@
 #include "CmdLoadState.h"
 #include "CmdGenerateMultiOneD.h"
 #include "CmdImportOneDResults.h"
+#include "CmdSetFilterOneDResults.h"
+#include "CmdGenerateThreeDFromOneD.h"
 
 #include <typeinfo>
 
-static const char * CNAddCldApp        = "app";
-static const char * CNAddObservable    = "target";
-static const char * CNScenarioID       = "scenarioID";
-static const char * CNAddVarPrm        = "varprm";
-static const char * CNExpDataTxt       = "exportDataTxt";
-static const char * CNGenerateBMCase   = "generateCalibratedCase";
-static const char * CNCalibrateProject = "calibrateProject";
-static const char * CNRun              = "run";
-static const char * CNRunBaseCase      = "runBaseCase";
-static const char * CNRunReload        = "runReload";
-static const char * CNPlotMC           = "plotMC";
-static const char * CNPlotP10P90       = "plotP10P90";
-static const char * CNPlotPareto       = "plotPareto";
-static const char * CNPlotTornado      = "plotTornado";
-static const char * CNGenerateMultiOneD= "generateMulti1D";
-static const char * CNImportOneDResults= "importOneDResults";
+static const char * CNAddCldApp              = "app";
+static const char * CNAddObservable          = "target";
+static const char * CNScenarioID             = "scenarioID";
+static const char * CNAddVarPrm              = "varprm";
+static const char * CNExpDataTxt             = "exportDataTxt";
+static const char * CNGenerateBMCase         = "generateCalibratedCase";
+static const char * CNCalibrateProject       = "calibrateProject";
+static const char * CNRun                    = "run";
+static const char * CNRunBaseCase            = "runBaseCase";
+static const char * CNRunReload              = "runReload";
+static const char * CNPlotMC                 = "plotMC";
+static const char * CNPlotP10P90             = "plotP10P90";
+static const char * CNPlotPareto             = "plotPareto";
+static const char * CNPlotTornado            = "plotTornado";
+static const char * CNGenerateMultiOneD      = "generateMulti1D";
+static const char * CNImportOneDResults      = "importOneDResults";
+static const char * CNSetFilterOneDResults   = "setFilterOneDResults";
+static const char * CNGenerateThreeDFromOneD = "generateThreeDFromOneD";
 
 CasaCommander::CasaCommander()
 {
@@ -95,8 +99,10 @@ void CasaCommander::addCommand( const std::string & cmdName, const std::vector< 
    else if ( cmdName == CNScenarioID       ) cmd.reset( new CmdScenarioID(              *this, prms ) );// define scenario ID
    else if ( cmdName == CNPlotTornado      ) cmd.reset( new CmdPlotTornado(             *this, prms ) );// create Tornado diagram for each observable 
                                                                                                         // for parameters sensitivity
-   else if (cmdName == CNGenerateMultiOneD ) cmd.reset(new CmdGenerateMultiOneD(        *this, prms ) );// create 1D projects for each well
-   else if ( cmdName == CNImportOneDResults ) cmd.reset( new CmdImportOneDResults(      *this, prms ) );// import 1D results and make the averages
+   else if (cmdName == CNGenerateMultiOneD ) cmd.reset(new CmdGenerateMultiOneD(        *this, prms) );//  create 1D projects for each well
+   else if ( cmdName == CNImportOneDResults ) cmd.reset( new CmdImportOneDResults(      *this, prms ) );// import 1D results
+   else if ( cmdName == CNSetFilterOneDResults ) cmd.reset( new CmdSetFilterOneDResults(*this, prms ) );// sets the parameter filter
+   else if ( cmdName == CNGenerateThreeDFromOneD ) cmd.reset( new CmdGenerateThreeDFromOneD( *this, prms ) );// generate the 3D case from 1D scenario
    // for parameters sensitivity
 
    else throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Unknown command: " << cmdName;
@@ -175,22 +181,24 @@ void CasaCommander::printHelpPage( const std::string & cmd )
       std::cout << "Here is a list of implemented commands. To get detailed help on any command just specify this command name with -help option \n";
    }
    
-   if (      cmd == CNAddCldApp        ) { CmdAddCldApp::printHelpPage(               CNAddCldApp        ); }
-   else if ( cmd == CNAddObservable    ) { CmdAddObs::printHelpPage(                  CNAddObservable    ); }
-   else if ( cmd == CNAddVarPrm        ) { CmdAddVarPrm::printHelpPage(               CNAddVarPrm        ); }
-   else if ( cmd == CNExpDataTxt       ) { CmdExpDataTxt::printHelpPage(              CNExpDataTxt       ); }
-   else if ( cmd == CNRun              ) { CmdRun::printHelpPage(                     CNRun              ); }
-   else if ( cmd == CNRunBaseCase      ) { CmdRunBaseCase::printHelpPage(             CNRunBaseCase      ); }
-   else if ( cmd == CNRunReload        ) { CmdRunReload::printHelpPage(               CNRunReload        ); }
-   else if ( cmd == CNGenerateBMCase   ) { CmdGenerateBestMatchedCase::printHelpPage( CNGenerateBMCase   ); }
-   else if ( cmd == CNCalibrateProject ) { CmdCalibrateProject::printHelpPage(        CNCalibrateProject ); }
-   else if ( cmd == CNPlotMC           ) { CmdPlotMC::printHelpPage(                  CNPlotMC           ); }
-   else if ( cmd == CNPlotP10P90       ) { CmdPlotP10P90::printHelpPage(              CNPlotP10P90       ); }
-   else if ( cmd == CNPlotPareto       ) { CmdPlotPareto::printHelpPage(              CNPlotPareto       ); }
-   else if ( cmd == CNScenarioID       ) { CmdScenarioID::printHelpPage(              CNScenarioID       ); }
-   else if ( cmd == CNPlotTornado      ) { CmdPlotTornado::printHelpPage(             CNPlotTornado      ); }
-   else if ( cmd == CNGenerateMultiOneD) { CmdGenerateMultiOneD::printHelpPage(       CNGenerateMultiOneD); }
-   else if ( cmd == CNImportOneDResults ) { CmdImportOneDResults::printHelpPage(      CNImportOneDResults); }
+   if (      cmd == CNAddCldApp        ) { CmdAddCldApp::printHelpPage(                    CNAddCldApp        ); }
+   else if ( cmd == CNAddObservable    ) { CmdAddObs::printHelpPage(                       CNAddObservable    ); }
+   else if ( cmd == CNAddVarPrm        ) { CmdAddVarPrm::printHelpPage(                    CNAddVarPrm        ); }
+   else if ( cmd == CNExpDataTxt       ) { CmdExpDataTxt::printHelpPage(                   CNExpDataTxt       ); }
+   else if ( cmd == CNRun              ) { CmdRun::printHelpPage(                          CNRun              ); }
+   else if ( cmd == CNRunBaseCase      ) { CmdRunBaseCase::printHelpPage(                  CNRunBaseCase      ); }
+   else if ( cmd == CNRunReload        ) { CmdRunReload::printHelpPage(                    CNRunReload        ); }
+   else if ( cmd == CNGenerateBMCase   ) { CmdGenerateBestMatchedCase::printHelpPage(      CNGenerateBMCase   ); }
+   else if ( cmd == CNCalibrateProject ) { CmdCalibrateProject::printHelpPage(             CNCalibrateProject ); }
+   else if ( cmd == CNPlotMC           ) { CmdPlotMC::printHelpPage(                       CNPlotMC           ); }
+   else if ( cmd == CNPlotP10P90       ) { CmdPlotP10P90::printHelpPage(                   CNPlotP10P90       ); }
+   else if ( cmd == CNPlotPareto       ) { CmdPlotPareto::printHelpPage(                   CNPlotPareto       ); }
+   else if ( cmd == CNScenarioID       ) { CmdScenarioID::printHelpPage(                   CNScenarioID       ); }
+   else if ( cmd == CNPlotTornado      ) { CmdPlotTornado::printHelpPage(                  CNPlotTornado      ); }
+   else if ( cmd == CNGenerateMultiOneD) { CmdGenerateMultiOneD::printHelpPage(            CNGenerateMultiOneD); }
+   else if ( cmd == CNImportOneDResults ) { CmdImportOneDResults::printHelpPage(           CNImportOneDResults); }
+   else if ( cmd == CNSetFilterOneDResults ) { CmdSetFilterOneDResults::printHelpPage(     CNSetFilterOneDResults ); }
+   else if ( cmd == CNGenerateThreeDFromOneD ) { CmdGenerateThreeDFromOneD::printHelpPage( CNGenerateThreeDFromOneD ); }
    else // print all commands
    {
       std::cout << "   " << CNAddCldApp        << " - add new Cauldron app to application pipeline\n";

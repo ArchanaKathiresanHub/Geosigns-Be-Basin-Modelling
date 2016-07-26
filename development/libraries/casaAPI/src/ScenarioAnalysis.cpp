@@ -41,6 +41,7 @@
 #include "VarPrmTopCrustHeatProduction.h"
 #include "VarPrmSourceRockTOC.h"
 #include "PrmWindow.h"
+#include "PrmLithoFraction.h"
 
 // Utilities lib
 #include <NumericFunctions.h>
@@ -133,6 +134,15 @@ public:
    // Import 1D results and make the averages
    void importOneDResults( const std::string & expLabel );
 
+   // Set one filter for selecting the parameters from 1D optimizations
+   void setFilterOneDResults( const std::string & filterAlgorithm );
+
+   // The parameter filter
+   bool parameterFilter( Parameter * prm, RunCase * rc );
+
+   // Generate 3D result project file from  1D cases
+   void generateThreeDFromOneD( const std::string & expLabel );
+
    // Validate Cauldron model for consistency and valid parameters range. This function should be 
    // called after ScenarioAnalysis::applyMutation()
    void validateCaseSet( RunCaseSet & cs );
@@ -212,6 +222,7 @@ private:
    int                                        m_caseNum;             // counter for the cases, used in folder name of the case
    std::vector<double>                        m_xcoordOneD;          // x coordinates of the extracted wells for multi 1D 
    std::vector<double>                        m_ycoordOneD;          // y coordinates of the extracted wells for multi 1D 
+   filteringAlgorithms                        m_filteringAlgorithm;  // The filtering algorithm
  
    std::unique_ptr<mbapi::Model>              m_baseCase;
    std::unique_ptr<RunCaseImpl>               m_baseCaseRunCase;    // run case for the base case project
@@ -368,6 +379,27 @@ ErrorHandler::ReturnCode ScenarioAnalysis::importOneDResults( const std::string 
 
    return NoError;
 
+}
+
+ErrorHandler::ReturnCode ScenarioAnalysis::setFilterOneDResults( const std::string & filterAlgorithm )
+{
+   try { m_pimpl->setFilterOneDResults( filterAlgorithm ); }
+   catch ( Exception          & ex ) { return reportError( ex.errorCode( ), ex.what( ) ); }
+   catch ( ibs::PathException & pex ) { return reportError( IoError, pex.what( ) ); }
+   catch ( ... ) { return reportError( UnknownError, "Unknown error" ); }
+
+   return NoError;
+}
+
+
+ErrorHandler::ReturnCode ScenarioAnalysis::generateThreeDFromOneD( const std::string & expLabel )
+{
+   try { m_pimpl->generateThreeDFromOneD( expLabel ); }
+   catch ( Exception          & ex ) { return reportError( ex.errorCode( ), ex.what( ) ); }
+   catch ( ibs::PathException & pex ) { return reportError( IoError, pex.what( ) ); }
+   catch ( ... ) { return reportError( UnknownError, "Unknown error" ); }
+
+   return NoError;
 }
 
 ErrorHandler::ReturnCode ScenarioAnalysis::validateCaseSet( RunCaseSet & cs )
@@ -847,7 +879,6 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::extractOneDProjects( const std::str
    m_doeCases->addNewCases( expSet, expLabel );
 }
 
-
 void ScenarioAnalysis::ScenarioAnalysisImpl::importOneDResults( const std::string & expLabel )
 {
    casa::RunManager     & rm =  runManager();
@@ -859,14 +890,11 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::importOneDResults( const std::strin
    // set the filter for the run case set
    rcs.filterByExperimentName( expLabel );
 
-   // variables used for the averages
-   std::vector<SharedParameterPtr> prmVec;
-
    // Collect 1D results:
    // get the values of the run cases from casa_state files
    std::vector< std::shared_ptr<RunCase> > bestMatchedCases( rcs.size() );
-   std::vector< std::shared_ptr<RunCase> > baseCases(        rcs.size() );
-   std::vector< std::shared_ptr<RunCase> > lastRunCases(     rcs.size() );
+   std::vector< std::shared_ptr<RunCase> > baseCases(rcs.size() );
+   std::vector< std::shared_ptr<RunCase> > lastRunCases(rcs.size() );
 
    for ( size_t c = 0; c < rcs.size(); ++c )
    {
@@ -876,16 +904,16 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::importOneDResults( const std::strin
 
       // load scenario from file (deserialization)
       std::unique_ptr<ScenarioAnalysis> oneDscenario( casa::ScenarioAnalysis::loadScenario( stateFile.cpath(), "bin" ) );
- 
+
       // get the RunCaseSet 
       casa::RunCaseSet & oneDCaseSet = oneDscenario->doeCaseSet();
 
       // get and add the best matched case
-      oneDCaseSet.filterByExperimentName( "BestMatchedCase" ); 
+      oneDCaseSet.filterByExperimentName( "BestMatchedCase" );
       if ( oneDCaseSet.size() != 1 )
       {
-         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << " The best matched case must be present and unique, instead " 
-                                                                        << oneDCaseSet.size() << " cases were found";
+         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << " The best matched case must be present and unique, instead "
+            << oneDCaseSet.size() << " cases were found";
       }
       bestMatchedCases[c] = copyAnotherScenarioCase( oneDCaseSet[0] );
 
@@ -894,7 +922,7 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::importOneDResults( const std::strin
       if ( oneDCaseSet.size() != 1 )
       {
          throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << " The base case must be present and unique, instead "
-                                                                        << oneDCaseSet.size() << " cases were found";
+            << oneDCaseSet.size() << " cases were found";
       }
       baseCases[c] = copyAnotherScenarioCase( oneDCaseSet[0] );
 
@@ -903,7 +931,7 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::importOneDResults( const std::strin
       if ( oneDCaseSet.size() < 1 )
       {
          throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << " Cannot extract the last run case because the LMSteps case set size is "
-                                                                        << oneDCaseSet.size();
+            << oneDCaseSet.size();
       }
       lastRunCases[c] = copyAnotherScenarioCase( oneDCaseSet[oneDCaseSet.size() - 1] );
    }
@@ -911,12 +939,103 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::importOneDResults( const std::strin
    if ( m_xcoordOneD.size() != bestMatchedCases.size() )
    {
       throw ErrorHandler::Exception( ErrorHandler::UnknownError ) << " The number of extracted wells is not equal to the number"
-                                                                   << " of the calibrated 1D cases";
+         << " of the calibrated 1D cases";
+   }
+
+   // set the filter back and add the cases
+   rcs.filterByExperimentName( "" );
+   rcs.addNewCases( bestMatchedCases, "BestMatchedOneDCases" );
+   rcs.addNewCases( baseCases, "BaseOneDCases" );
+   rcs.addNewCases( lastRunCases, "LastRunOneDCases" );
+
+}
+
+void ScenarioAnalysis::ScenarioAnalysisImpl::setFilterOneDResults( const std::string & filterAlgorithm )
+{
+   // Just set the filtering algorithm
+   if ( filterAlgorithm == "smartLithoFractionGridding")
+   {
+      m_filteringAlgorithm = smartLithoFractionGridding;
+   } 
+   // for other cases add an else if
+   else
+   {
+      throw ErrorHandler::Exception( ErrorHandler::NotImplementedAPI ) << "The filter algorithm " << filterAlgorithm << " is not implemented";
+   }
+}
+ 
+bool ScenarioAnalysis::ScenarioAnalysisImpl::parameterFilter( Parameter * prm, RunCase * rc )
+{
+   RunCaseImpl   *  rci = dynamic_cast<RunCaseImpl*>( rc );
+   mbapi::Model  *  model = rci->caseModel( );
+   bool includeParameter = false;
+
+   if ( m_filteringAlgorithm == smartLithoFractionGridding )
+   {
+      // Only the lithofraction parameters should be filtered in smartLithoFractionGridding
+      const casa::PrmLithoFraction * lf = dynamic_cast<PrmLithoFraction *>( prm );
+      if ( !lf ) return true;
+      std::string layerName = lf->layerName( );
+      int numObs = 0;
+      size_t numObservables = rci->observablesNumber( );
+      for ( size_t ob = 0; ob < numObservables; ++ob )
+      {
+         const Observable * obsv = rci->obsValue( ob )->parent( );
+         const casa::ObsGridPropertyWell * wellObs = dynamic_cast<const casa::ObsGridPropertyWell *>( obsv );
+         if ( wellObs )
+         {
+            std::vector<double> xc = wellObs->xCoords( );
+            std::vector<double> yc = wellObs->yCoords( );
+            std::vector<double> zc = wellObs->depth( );
+            for ( size_t i = 0; i < zc.size( ); ++i )
+            {
+               if ( model->checkValueIsInLayer( xc[i], yc[i], zc[i], layerName ) ) numObs += 1;
+            }
+         }
+      }
+      // include the parameter if we have at least 1 well observation for the lithofraction parameter
+      includeParameter = numObs >= 1;
+   }
+   // for other cases add an else if
+   else
+   {
+      // by default we should not apply any filtering
+      return true;
+   }
+
+   return includeParameter;
+}
+
+void ScenarioAnalysis::ScenarioAnalysisImpl::generateThreeDFromOneD( const std::string & expLabel )
+{
+   casa::RunCaseSetImpl & rcs = dynamic_cast<RunCaseSetImpl&> ( doeCaseSet( ) );
+   casa::VarSpace       & var = varSpace( );
+   mbapi::Model         & bc = baseCase( );
+   std::string            threeDFromOneD( "ThreeDFromOneD" );
+
+   // get the OneDProjects
+   std::vector<std::shared_ptr<RunCase>> baseOneDCases;
+   rcs.filterByExperimentName( "OneDProjects" );
+   baseOneDCases.resize( rcs.size( ) );
+   for ( size_t c = 0; c < rcs.size( ); ++c )
+   {
+      baseOneDCases[c] = rcs[c];
+   }
+   rcs.filterByExperimentName( "" );
+
+   // set the filter for the bestMatchedCases
+   rcs.filterByExperimentName( expLabel );
+   if ( baseOneDCases.size( ) != rcs.size( ) )
+   {
+      throw ErrorHandler::Exception( ErrorHandler::UnknownError ) << " The number of base 1D cases is not equal to the number the best 1D cases";
    }
 
    // Create 3D case with best parameters
    // the best run case
-   std::shared_ptr<RunCase> brc( new casa::RunCaseImpl() );
+   std::shared_ptr<RunCase> brc( new casa::RunCaseImpl( ) );
+
+   // Vector storing the parameters of each 1D case
+   std::vector<SharedParameterPtr> prmVec;
 
    // loop over all IPs
    for ( size_t par = 0; par < var.size(); ++par )
@@ -928,42 +1047,42 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::importOneDResults( const std::strin
          {
             const casa::VarPrmContinuous * vprmc = dynamic_cast<const casa::VarPrmContinuous*>( vprm );
 
-            for ( size_t c = 0; c < bestMatchedCases.size(); ++c )
+            for ( size_t c = 0; c < rcs.size(); ++c )
             {
-               SharedParameterPtr nprm = bestMatchedCases[c]->parameter( par );
-               prmVec.push_back( nprm );
+               SharedParameterPtr nprm = rcs[c]->parameter( par );
+               // add only valid parameters
+               if ( parameterFilter( nprm.get( ), baseOneDCases[c].get( ) ) ) prmVec.push_back( nprm );
             }
 
-            // make the averages
-            SharedParameterPtr prm;
             try 
             { 
                // if the average method is not implemented a makeThreeDFromOneD will throw exception 
-               prm = vprmc->makeThreeDFromOneD( bc, m_xcoordOneD, m_ycoordOneD, prmVec );
+               if ( prmVec.size() > 0 )
+               {
+                  // make the averages
+                  SharedParameterPtr prm;
+                  prm = vprmc->makeThreeDFromOneD( bc, m_xcoordOneD, m_ycoordOneD, prmVec );
+                  brc->addParameter( prm );
+               }
             }
             catch ( const ErrorHandler::Exception & ex )
             {
                   throw ErrorHandler::Exception( ex.errorCode() ) << " The generation of the 3D parameter " << vprmc->name() 
                                                                   << " from multi 1D results failed. Error message: " << ex.what();
             }
-            brc->addParameter( prm );
 
             //clear previous arrays stored for the mean values 
             prmVec.clear();
          }
          break;
 
-      case casa::VarParameter::Categorical: brc->addParameter( vprm->baseValue() ); break;
-
-      case casa::VarParameter::Discrete:
-      default:
-         throw ErrorHandler::Exception( ErrorHandler::NotImplementedAPI ) << "Not implemented variable parameter type: " << vprm->variationType();
-         break;
+         case casa::VarParameter::Categorical: brc->addParameter( vprm->baseValue() ); break;
+         case casa::VarParameter::Discrete:
+         default:
+            throw ErrorHandler::Exception( ErrorHandler::NotImplementedAPI ) << "Not implemented variable parameter type: " << vprm->variationType();
+            break;
       }
    }
-
-   // set the filter back 
-   rcs.filterByExperimentName( "" );
 
    // construct case project path for the best case
    ibs::FolderPath casePath( "." );
@@ -991,9 +1110,6 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::importOneDResults( const std::strin
    std::vector<std::shared_ptr<RunCase>> bestMatchedCase;
    bestMatchedCase.push_back( brc );
    rcs.addNewCases( bestMatchedCase, threeDFromOneD );
-   rcs.addNewCases( bestMatchedCases, "BestMatchedOneDCases" ); 
-   rcs.addNewCases( baseCases,        "BaseOneDCases" ); 
-   rcs.addNewCases( lastRunCases,     "LastRunOneDCases" );
 }
 
 void ScenarioAnalysis::ScenarioAnalysisImpl::validateCaseSet( RunCaseSet & cs )
@@ -1070,7 +1186,7 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::saveCalibratedCase( const char * pr
    bmCasePath.create();
    bmCasePath << projFileName;
 
-   // do mutationo
+   // do mutation
    bmCaseImpl->setCleanDuplicatedLithologies( true );
    bmCaseImpl->mutateCaseTo( baseCase(), bmCasePath.path().c_str() );
    // add observables

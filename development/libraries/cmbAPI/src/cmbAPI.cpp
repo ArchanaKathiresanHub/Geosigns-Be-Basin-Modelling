@@ -25,6 +25,8 @@
 #include "Interface/ProjectHandle.h"
 #include "Interface/ProjectData.h"
 #include "Interface/ObjectFactory.h"
+#include "Interface/Surface.h"
+#include "Interface/GridMap.h"
 
 // TableIO library
 #include "cauldronschemafuncs.h"
@@ -129,6 +131,9 @@ public:
                                          , const std::vector<std::string>                          & alochtLitName
                                          , const std::vector<std::pair<std::string, std::string> > & faultsName
                                          );
+
+   // determine if a particular point lies within the formation top and bottom
+   bool checkValueIsInLayer( const double x, const double y, const double z, const std::string & layerName );
   
    LithologyManager    & lithologyManager()    { return m_lithMgr;  } // Lithology
    StratigraphyManager & stratigraphyManager() { return m_stratMgr; } // Stratigraphy
@@ -521,7 +526,21 @@ std::vector<std::string> Model::copyLithology( const std::string                
 
    return std::vector<std::string>();
 }
- 
+
+bool Model::checkValueIsInLayer( const double x,
+                                 const double y, 
+                                 const double z, 
+                                 const std::string & layerName )
+{
+   if ( errorCode( ) != NoError ) resetError( ); // clean any previous error
+
+   try { return m_pimpl->checkValueIsInLayer( x, y, z, layerName ); }
+
+   catch ( const Exception & ex ) { reportError( ex.errorCode( ), ex.what( ) ); }
+   catch ( ... )                  { reportError( UnknownError, "Unknown error" ); }
+
+   return false;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // Actual implementation of CMB API
@@ -1614,6 +1633,32 @@ std::vector<std::string> Model::ModelImpl::copyLithology( const std::string     
 
    if ( copiedLithologiesName.empty() ) { copiedLithologiesName.push_back( litName ); }
    return copiedLithologiesName;
+}
+
+
+bool Model::ModelImpl::checkValueIsInLayer( const double x, const double y, const double z, const std::string & layerName )
+{
+
+   bool value = false;
+   const DataAccess::Interface::Formation *   formation = m_projHandle->findFormation( layerName );
+   if ( !formation )
+   {
+      throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << " The layer " << layerName << " cannot be found";
+   }
+
+   const DataAccess::Interface::GridMap *  topGridMap = formation->getTopSurface()->getInputDepthMap();
+   const DataAccess::Interface::GridMap *  bottomGridMap = formation->getBottomSurface()->getInputDepthMap();
+
+   const DataAccess::Interface::ProjectData * pd = m_projHandle->getProjectData( );
+   double xind =  ( x - pd->getXOrigin( ) ) / pd->getDeltaX( );
+   double yind = ( y - pd->getYOrigin( ) ) / pd->getDeltaY( ) ;
+
+   double topDepth = topGridMap->getValue( xind, yind );
+   double bottomDepth = bottomGridMap->getValue( xind, yind );
+
+   if ( z >= topDepth  && z < bottomDepth ) value = true;
+
+   return value;
 }
  
 }

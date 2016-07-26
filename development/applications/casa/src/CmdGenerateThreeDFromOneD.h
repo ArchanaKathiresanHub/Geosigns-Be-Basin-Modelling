@@ -7,20 +7,20 @@
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 // 
-#ifndef CASA_CMD_IMPORT_ONED_H
-#define CASA_CMD_IMPORT_ONED_H
+#ifndef CASA_CMD_GENERATE_THREED_ONED_H
+#define CASA_CMD_GENERATE_THREED_ONED_H
 
 #include "CasaCmd.h"
 
-/// @brief Extract the best 1D results 
-class CmdImportOneDResults : public CasaCmd
+/// @brief Generate a 3D project from 1D results using appropriate parameter averages
+class CmdGenerateThreeDFromOneD : public CasaCmd
 {
 public:
    /// @brief Constructor
    /// @param cmdPrms list of command parameters as set of strings
-   CmdImportOneDResults( CasaCommander & parent, const std::vector< std::string > & cmdPrms );
+   CmdGenerateThreeDFromOneD( CasaCommander & parent, const std::vector< std::string > & cmdPrms );
 
-   virtual ~CmdImportOneDResults( ) { ; }
+   virtual ~CmdGenerateThreeDFromOneD( ) { ; }
 
    /// @brief Run command
    virtual void execute( std::unique_ptr<casa::ScenarioAnalysis> & sa );
@@ -28,7 +28,6 @@ public:
    /// @brief Print help page about command purpose and it parameters
    /// @param cmdName - command name - how it is defined in CasaCommander
    static void printHelpPage( const char * cmdName );
-
 };
 
-#endif // CASA_CMD_IMPORT_ONED_H
+#endif // CASA_CMD_GENERATE_THREED_ONED_H

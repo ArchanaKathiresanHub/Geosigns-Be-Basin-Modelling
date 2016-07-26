@@ -346,6 +346,12 @@ namespace mbapi {
             , const std::vector<std::string>                          & alochtLitName ///< list of layers with alochtonous lithologies
             , const std::vector<std::pair<std::string, std::string> > & faultsName    ///< list of pairs map name - fault cut name
                                             );
+
+
+      /// @brief determine if a particular point lies within the layer
+      /// @return true is comprised, false otherwise
+      bool checkValueIsInLayer( const double x, const double y, const double z, const std::string & layerName );
+
    private:
       /// @{
       /// Implementation part

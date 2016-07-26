@@ -117,10 +117,20 @@ namespace casa
       /// @return ErrorHandler::NoError in case of success, or error code otherwise
       ErrorHandler::ReturnCode extractOneDProjects( const std::string & expLabel );
 
-      /// @brief Imports the 1D results after the optimization and makes the averages
+      /// @brief Imports the 1D results after the optimization 
       /// @param expLabel name of the cases where the extraction should take place
       /// @return ErrorHandler::NoError in case of success, or error code otherwise
       ErrorHandler::ReturnCode importOneDResults( const std::string & expLabel );
+
+      /// @brief Set the filter algorithm 
+      /// @param filterAlgorithm the name of the filtering algorithm to use
+      /// @return ErrorHandler::NoError in case of success, or error code otherwise
+      ErrorHandler::ReturnCode setFilterOneDResults( const std::string & filterAlgorithm );
+
+      /// @brief Generate a 3D project from 1D results using appropriate parameter averages
+      /// @param expLabel name of the cases where the averages should take place
+      /// @return ErrorHandler::NoError in case of success, or error code otherwise
+      ErrorHandler::ReturnCode generateThreeDFromOneD( const std::string & expLabel );
       
       /// @brief Create copy of the base case model and set all variable parameters value defined for each case. Each call of
       ///        this function increase scenario iteration number.
@@ -254,6 +264,9 @@ namespace casa
       /// @param  fileType "bin"/"txt" file type
       /// @return null if it fails, else the new casa::ScenarioAnalysis object.
       static ScenarioAnalysis * loadScenario( const char * stateFileBuf, size_t bufSize, const char * fileType = NULL );
+
+      ///  @brief The available smartLithoFractionGridding algorithms
+      enum filteringAlgorithms { smartLithoFractionGridding = 0 };
 
    private:
       /// @brief Copy constructor is disabled

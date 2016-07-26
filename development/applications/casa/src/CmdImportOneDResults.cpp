@@ -18,27 +18,24 @@
 
 CmdImportOneDResults::CmdImportOneDResults( CasaCommander & parent, const std::vector< std::string > & cmdPrms ) : CasaCmd( parent, cmdPrms )
 {
-   // no members yet
 }
 
 void CmdImportOneDResults::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
 {
-   LogHandler( LogHandler::INFO_SEVERITY ) << "Importing 1D results and saving the averages in the 3D model ... ";
+   LogHandler( LogHandler::INFO_SEVERITY ) << "Importing 1D results... ";
 
-   if ( ErrorHandler::NoError != sa->importOneDResults( "OneDProjects" ) )
+   if ( ErrorHandler::NoError != sa->importOneDResults( "OneDProjects") )
    {
       throw ErrorHandler::Exception( sa->errorCode( ) ) << sa->errorMessage( );
    }
 
-   LogHandler( LogHandler::INFO_SEVERITY ) << "Importing of the 1D results and saving the averages in the 3D model finished";
+   LogHandler( LogHandler::INFO_SEVERITY ) << "Importing of the 1D results finished";
 }
 
 void CmdImportOneDResults::printHelpPage( const char * cmdName )
 {
    std::cout << "  " << cmdName << "\n";
-   std::cout << "  - Collect the results from multiple 1D calibration, make the averages (maps for lithopercentages) and save the results in one 3D project file.\n";
-   std::cout << "    For lithopercentages 2D maps for each layer are generated using the Natural Neighbour algorithm\n";
-   std::cout << "    A new folder ThreeDFromOneD is created and the optimal 3D project file is saved there. \n";
+   std::cout << "  - Collect the results from multiple 1D calibration.\n";
 }
 
 

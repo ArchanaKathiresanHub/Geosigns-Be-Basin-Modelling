@@ -138,6 +138,11 @@ namespace casa
       /// @return object class name
       virtual const char * typeName() const { return "PrmLithoFraction"; }
 
+      /// @brief Get the layer name 
+      /// @return the layer name
+      virtual std::string layerName( ) const { return m_layerName; }
+      /// @}
+
       /// @brief Create a new parameter instance by deserializing it from the given stream
       /// @param dz input stream
       /// @param objVer version of object representation in stream
