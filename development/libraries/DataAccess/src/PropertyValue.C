@@ -509,38 +509,7 @@ bool PropertyValue::saveMapToFile (MapWriter & mapWriter, const bool saveAsPrima
    return true;
 }
 
-bool PropertyValue::savePrimaryVolumeToFile (MapWriter & mapWriter )
-{
-   database::setMapFileName (m_record, mapWriter.getFileName ());
-   database::setGroupName (m_record, getName ());
-   database::setDataSetName (m_record, getFormation ()->getMangledName ());
-
-   GridMap * gridMap = getGridMap ();
-   gridMap->retrieveData();
-
-   database::setNumberX (m_record, gridMap->numI ());
-   database::setNumberY (m_record, gridMap->numJ ());
-   database::setNumberZ (m_record, gridMap->getDepth ());
-
-   double min, max;
-   gridMap->getMinMaxValue (min, max);
-
-   database::setMinimum (m_record, min);
-   database::setMaximum (m_record, max);
-   database::setAverage (m_record, gridMap->getAverageValue ());
-   database::setSum (m_record, gridMap->getSumOfValues ());
-   database::setSum2 (m_record, gridMap->getSumOfSquaredValues ());
-   database::setNP (m_record, gridMap->getNumberOfDefinedValues ());
-
-   gridMap->restoreData();
-
-   double time = getSnapshot ()->getTime ();
-
-   mapWriter.writePrimaryVolumeToHDF (gridMap, getName (), time, getFormation ()->getMangledName (), isPrimary() );
-   return true;
-}
-
-bool PropertyValue::saveVolumeToFile (MapWriter & mapWriter)
+bool PropertyValue::saveVolumeToFile (MapWriter & mapWriter, const bool primaryFlag )
 {
    database::setMapFileName (m_record, mapWriter.getFileName ());
    database::setGroupName (m_record, getName ());
@@ -566,7 +535,7 @@ bool PropertyValue::saveVolumeToFile (MapWriter & mapWriter)
 
    gridMap->restoreData();
 
-   mapWriter.writeVolumeToHDF (gridMap, getName (), getFormation ()->getMangledName ());
+   mapWriter.writeVolumeToHDF (gridMap, getName (), getFormation ()->getMangledName (), primaryFlag );
    return true;
 }
 

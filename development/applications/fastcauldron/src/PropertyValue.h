@@ -43,10 +43,7 @@ public :
    bool saveMapToFile ( Interface::MapWriter & mapWriter, const bool saveAsPrimary = false );
 
    /// save a 3D PropertyValue to file
-   bool saveVolumeToFile ( Interface::MapWriter & mapWriter );
-
-   /// save a primary 3D PropertyValue to file
-   bool savePrimaryVolumeToFile ( Interface::MapWriter & mapWriter );
+   bool saveVolumeToFile ( Interface::MapWriter & mapWriter, const bool saveAsPrimary = false );
 
    database::Record * createTimeIoRecord (database::Table * timeIoTbl, Interface::ModellingMode theMode);
 

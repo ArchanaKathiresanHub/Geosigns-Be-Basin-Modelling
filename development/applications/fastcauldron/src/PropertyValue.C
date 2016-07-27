@@ -87,23 +87,13 @@ bool PropertyValue::saveMapToFile ( Interface::MapWriter & mapWriter, const bool
 
 }
 
-bool PropertyValue::saveVolumeToFile ( Interface::MapWriter & mapWriter ) {
+bool PropertyValue::saveVolumeToFile ( Interface::MapWriter & mapWriter, const bool isPrimary ) {
 
    if ( outputIsRequested ()) {
-      return Interface::PropertyValue::saveVolumeToFile ( mapWriter );
+      return Interface::PropertyValue::saveVolumeToFile ( mapWriter, isPrimary );
    } else {
       return true;
    } 
-}
-
-bool PropertyValue::savePrimaryVolumeToFile ( Interface::MapWriter & mapWriter ) {
-
-   bool status = true;
-
-   if ( FastcauldronSimulator::getInstance ().isPrimaryDouble() and outputIsRequested ()) { 
-      status = Interface::PropertyValue::savePrimaryVolumeToFile ( mapWriter );
-   } 
-   return status;
 }
 
 database::Record * PropertyValue::createTimeIoRecord (database::Table * timeIoTbl, Interface::ModellingMode theMode) {

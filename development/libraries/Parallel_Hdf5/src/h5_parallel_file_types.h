@@ -34,6 +34,8 @@ public:
    {  s_primaryPod = oneFilePerProcess; }
    
    static bool copyMergedFile( const std::string & fileName, const bool rank = true );
+
+   static bool mergeOutputFiles ( const string & activityName, const std::string & localPath );
 private:
    static bool s_oneFilePerProcess;
    static bool s_primaryPod;

@@ -155,13 +155,7 @@ bool SerialMapWriter::writeMapData( const string & dataSetName, const GridMap * 
    return true;
 }
 
-bool SerialMapWriter::writeVolumeToHDF (GridMap * gridMap, const string & propertyName, const string & layerName)
-{
-   // not yet implemented
-   return false;
-}
-
-bool SerialMapWriter::writePrimaryVolumeToHDF (GridMap * gridMap, const string & propertyName, double time, const string & layerName, const bool isPrimary )
+bool SerialMapWriter::writeVolumeToHDF (GridMap * gridMap, const string & propertyName, const string & layerName, const bool isPrimary )
 {
    // not yet implemented
    return false;

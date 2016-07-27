@@ -35,9 +35,29 @@ hid_t H5_Parallel_PropertyList :: createFilePropertyList() const
    else 
    {
       H5Pset_fapl_mpio (plist, PETSC_COMM_WORLD, s_mpiInfo);  
+#if 0
+      if( s_primaryPod ) {
+         // Disable cache
+         // set B-tree to roughly same size as 'stripe size' (default stripe size 1Mb)
+         // https://www.nersc.gov/users/training/online-tutorials/introduction-to-scientific-i-o/?start=5
+         // hsize_t btree_ik = 10880; //(chunkSize - 4096) / 96;
+         // H5Pset_istore_k(plist, btree_ik);
+         
+         // disable cache evictions
+         H5AC_cache_config_t mdc_config;
+         memset(&mdc_config, 0, sizeof(mdc_config));
+         mdc_config.version = H5AC__CURR_CACHE_CONFIG_VERSION;
+         H5Pget_mdc_config(plist, &mdc_config);
+         mdc_config.evictions_enabled = 0;
+         mdc_config.flash_incr_mode = H5C_flash_incr__off;
+         mdc_config.incr_mode = H5C_incr__off;
+         mdc_config.decr_mode = H5C_decr__off;
+         H5Pset_mdc_config(plist, &mdc_config);
+      }
+#endif     
    }
 #else
-	  H5Pset_fapl_mpio (plist, PETSC_COMM_WORLD, s_mpiInfo);  
+   H5Pset_fapl_mpio (plist, PETSC_COMM_WORLD, s_mpiInfo);  
 #endif
    return plist;
 }
@@ -154,5 +174,69 @@ void H5_Parallel_PropertyList ::  setOneNodeCollectiveBufferingOption()
       MPI_Info_set (s_mpiInfo, "cb_nodes", "1");
    }
 }
+bool H5_Parallel_PropertyList ::mergeOutputFiles ( const string & activityName, const std::string & localPath ) {
+
+   if( not H5_Parallel_PropertyList::isOneFilePerProcessEnabled() and not H5_Parallel_PropertyList::isPrimaryPodEnabled ()) {
+      return true;
+   }
+
+#ifdef _MSC_VER
+   return true;
+#else
+   int rank;
+   MPI_Comm_rank(PETSC_COMM_WORLD, &rank);
+
+   PetscBool noFileCopy = PETSC_FALSE;
+   PetscOptionsHasName( PETSC_NULL, "-nocopy", &noFileCopy );
+   PetscBool noFileRemove = PETSC_FALSE;
+   PetscOptionsHasName( PETSC_NULL, "-noremove", &noFileRemove );
+
+   string fileName = activityName + "_Results.HDF" ; 
+   ibs::FilePath filePathName( localPath );
+   filePathName << fileName;
+ 
+   bool status;
+
+   if( not  H5_Parallel_PropertyList::isPrimaryPodEnabled () ) {
+      PetscPrintf ( PETSC_COMM_WORLD, "Merging of output files.\n" );
+      status = mergeFiles ( allocateFileHandler( PETSC_COMM_WORLD, filePathName.path(), H5_Parallel_PropertyList::getTempDirName(),( noFileCopy ? CREATE : REUSE )));
+      
+      if( !noFileCopy and status ) {
+         status = H5_Parallel_PropertyList::copyMergedFile( filePathName.path() );
+      } 
+   } else {
+      if( not noFileCopy ) {
+         PetscPrintf ( PETSC_COMM_WORLD, "Copying of output files.\n" );
+         
+         status = H5_Parallel_PropertyList::copyMergedFile( filePathName.path(), false );
+         if( status and rank == 0  and not noFileRemove ) {
+            ibs::FilePath fileName( H5_Parallel_PropertyList::getTempDirName() );
+            fileName << filePathName.cpath ();
+            int status = std::remove( fileName.cpath() );
+            
+            if (status == -1)
+               PetscPrintf ( PETSC_COMM_WORLD, " %s  MeSsAgE WARNING  Unable to remove the file, because '%s' \n", fileName.cpath (), std::strerror(errno) );
+            
+            // remove the output directory from the shared scratch
+#if 0
+            ibs::FilePath dirName(H5_Parallel_PropertyList::getTempDirName() );
+            dirName << directoryName;
+            status = std::remove( dirName.cpath() );
+            
+            if (status == -1)
+               PetscPrintf ( PETSC_COMM_WORLD, " %s  MeSsAgE WARNING  Unable to remove the directory, because '%s' \n", dirName.cpath (), std::strerror(errno) );
+#endif
+         }      
+      }
+   }
+   if( !status ) {
+      PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not merge/copy the file %s.\n", filePathName.cpath() );
+   }
+   
+   return status;
+#endif
+}
+
+
 
 

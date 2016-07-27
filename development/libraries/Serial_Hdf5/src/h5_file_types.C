@@ -139,7 +139,7 @@ hid_t H5_Write_File::addDataset (const char *dataname, hid_t locId, hid_t type,
 {
    int numDimensions = space.numDimensions();
 
-   if( not m_useChunks or numDimensions < 3 or memspace == NULL ) {
+   if( not m_useChunks or memspace == NULL ) {
       return addDataset (dataname, locId, type, space, propertyList);
    }
    
@@ -165,7 +165,7 @@ hid_t H5_Write_File::addDataset (const char *dataname, hid_t locId, hid_t type,
    // chunk size must be the same for all ranks
    MPI_Allreduce ( (void *)dims, chunk, numDimensions, MPI_UNSIGNED_LONG_LONG, MPI_MIN, MPI_COMM_WORLD);
 
-   // H5Pset_cache //chunking cache size
+   // H5Pset_cache //chunking cache size. Works only for reading
 
    // H5Pset_layout(dcpl, H5D_CHUNKED);
    

@@ -2409,16 +2409,10 @@ bool ProjectHandle::initializeMapPropertyValuesWriter( const bool append )
    m_mapPropertyValuesWriter = getFactory()->produceMapWriter();
    bool status = m_mapPropertyValuesWriter->open( filePathName, append );
    if ( status ) {
+      m_mapPropertyValuesWriter->setChunking();
       status = m_mapPropertyValuesWriter->saveDescription( saveAsInputGrid() ? getInputGrid() : getActivityOutputGrid() );
    }
    return status;
-}
-
-bool ProjectHandle::initializePrimaryPropertyValuesWriter( const bool append )
-{
-   if ( Interface::MODE3D != getModellingMode() ) return true;
-
-   return true;
 }
 
 bool TimeIoTblSorter( database::Record * recordL, database::Record * recordR );
@@ -2532,6 +2526,7 @@ bool ProjectHandle::saveCreatedMapPropertyValuesMode3D( void )
       if( m_primaryDouble and propertyValue->isPrimary() and 
           propertyValue->getProperty()->getPropertyAttribute() == DataModel::FORMATION_2D_PROPERTY ) {
 
+         // output primary properties in double precision for fastcauldron simulations
          if(( getActivityName() != "Genex5" and getActivityName() != "HighResMigration" and 
               getActivityName() != "FastTouch" and getActivityName() != "CrustalThicknessCalculator" )) {
             saveAsPrimary = true;
@@ -2607,6 +2602,7 @@ bool ProjectHandle::saveCreatedVolumePropertyValuesMode3D( void )
 #endif
             
                mapWriter->open( filePathName.path(), snapshotUsed->getAppendFile() );
+               mapWriter->setChunking();
          }
          
          propertyValue->create3DTimeIoRecord( timeIoTbl, Interface::MODE3D );
@@ -2614,13 +2610,10 @@ bool ProjectHandle::saveCreatedVolumePropertyValuesMode3D( void )
          propertyValueIter = m_recordLessVolumePropertyValues.erase( propertyValueIter );
          increment = 0;
 
-         if( m_primaryDouble and propertyValue->isPrimary() and snapshotUsed->getType() == Interface::MAJOR  ) {
-            // save primary propeties in double precision and chunked at major snapshots
-            status &= propertyValue->savePrimaryVolumeToFile( *mapWriter );
-         } else {
-            status &= propertyValue->saveVolumeToFile( *mapWriter );
-         }
-         
+         // output primary properties in double precision at major snapshots
+         const bool saveAsPrimary = m_primaryDouble and propertyValue->isPrimary() and snapshotUsed->getType() == Interface::MAJOR; 
+
+         status &= propertyValue->saveVolumeToFile( *mapWriter, saveAsPrimary );
       }
 
       if ( !snapshotUsed ) break; // nothing was written
@@ -3187,7 +3180,15 @@ GridMap * ProjectHandle::loadOutputMap( const Parent * parent, unsigned int chil
    filePathName << fileName;
 
    string dataSetName = propertyId;
-   return loadGridMap( parent, childIndex, filePathName.path(), dataSetName );
+
+   if( filePathName.exists() ) {
+      return loadGridMap( parent, childIndex, filePathName.path(), dataSetName );
+   } else {
+      ibs::FilePath outputFilePathName( getOutputDir() );
+      outputFilePathName << fileName;
+
+      return loadGridMap( parent, childIndex, outputFilePathName.path(), dataSetName );
+   }
 }
 
 //static float GetUndefinedValue (hid_t fileId);

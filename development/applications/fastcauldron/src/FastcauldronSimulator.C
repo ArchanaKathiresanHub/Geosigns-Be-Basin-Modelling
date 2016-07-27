@@ -835,10 +835,12 @@ bool FastcauldronSimulator::mergeOutputFiles ( ) {
    
    const std::string& directoryName = getOutputDir ();
 
-   bool doMerge = not isPrimaryDouble();
+   bool doMerge = not isPrimaryDouble() and not H5_Parallel_PropertyList::isPrimaryPodEnabled ();
  
-   if( doMerge or not noFileCopy ) {
+   if( doMerge ) {
       PetscPrintf ( PETSC_COMM_WORLD, "Merging output files ...\n" ); 
+   } else if ( not noFileCopy ) {
+      PetscPrintf ( PETSC_COMM_WORLD, "Copying output files ...\n" ); 
    }
 
    if(  m_calculationMode != HYDROSTATIC_HIGH_RES_DECOMPACTION_MODE && m_calculationMode != COUPLED_HIGH_RES_DECOMPACTION_MODE && 
@@ -858,10 +860,9 @@ bool FastcauldronSimulator::mergeOutputFiles ( ) {
             filePathName << directoryName << snapshotFileName;
 
           //  string filePathName = getProjectPath () + "/" + directoryName + "/" + snapshotFileName;
-            string messString = ( H5_Parallel_PropertyList::isPrimaryPodEnabled () ? "Copy " + snapshotFileName : snapshotFileName );
-            
+             
             if( doMerge ) {
-               Display_Merging_Progress( messString, StartMergingTime );
+               Display_Merging_Progress( snapshotFileName, StartMergingTime, "Merging of " );
                
                if( m_calculationMode == OVERPRESSURED_TEMPERATURE_MODE ) {
                   if( ! database::getIsMinorSnapshot ( *timeTableIter ) ) {                  
@@ -880,7 +881,7 @@ bool FastcauldronSimulator::mergeOutputFiles ( ) {
                // we used a shared scratch directory. No merging is required. Copy the file to the final place
                if( H5_Parallel_PropertyList::isPrimaryPodEnabled () ) {
                   if( not noFileCopy ) {
-                     Display_Merging_Progress( messString, StartMergingTime );
+                     Display_Merging_Progress( snapshotFileName, StartMergingTime, "Copying of " );
                   }
                   status = H5_Parallel_PropertyList::copyMergedFile( filePathName.path(), false );
                   
@@ -918,7 +919,7 @@ bool FastcauldronSimulator::mergeOutputFiles ( ) {
          getMapPropertyValuesWriter( )->close();
       }
       if( not noFileCopy ) {
-         Display_Merging_Progress( fileName, StartMergingTime );
+         Display_Merging_Progress( fileName, StartMergingTime, "Copying of " );
       }         
       status = H5_Parallel_PropertyList::copyMergedFile( filePathName.path(), false );
       // remove the file from the shared scratch
@@ -2086,12 +2087,7 @@ void FastcauldronSimulator::readCommandLineParametersEarlyStage( const int argc,
          if( not H5_Parallel_PropertyList::isPrimaryPodEnabled() ) {
             H5_Parallel_PropertyList::setOneFilePerProcess( false );
          }
-      } else {
-         if( H5_Parallel_PropertyList::isPrimaryPodEnabled() ) {
-            H5_Parallel_PropertyList::setPrimaryPod( false );
-         }
       }
-      
    }  
    //
  

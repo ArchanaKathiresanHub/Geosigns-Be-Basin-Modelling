@@ -132,29 +132,14 @@ bool FastTouch::addToComputationList (const TouchstoneMap * touchstoneMap)
 
 bool FastTouch::mergeOutputFiles ( ) {
 
-   if( ! H5_Parallel_PropertyList::isOneFilePerProcessEnabled() ){
-      return true; 
-   }
-#ifndef _MSC_VER   
-   PetscBool noFileCopy = PETSC_FALSE;
-   
-   PetscOptionsHasName( PETSC_NULL, "-nocopy", &noFileCopy );
-   
-   ibs::FilePath filePathName( m_projectHandle->getProjectPath () );
-   
-   filePathName << m_projectHandle->getOutputDir () << (FastTouchActivityName + "_Results.HDF");
-   
-   bool status = mergeFiles ( allocateFileHandler( PETSC_COMM_WORLD, filePathName.path(), H5_Parallel_PropertyList::getTempDirName(), ( noFileCopy ? CREATE : REUSE )));
+  if( m_projectHandle->getModellingMode () == Interface::MODE1D ) return true;
 
-   if( status ) {
-      status = H5_Parallel_PropertyList::copyMergedFile( filePathName.path() );
-   }
-   if( status ) {
-      PetscPrintf ( PETSC_COMM_WORLD, "Merged Output Maps\n");
-   } else {
-      PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not copy the file %s.\n", filePathName.cpath() );   
-   }
-   return status;
+#ifndef _MSC_VER   
+  ibs::FilePath localPath  ( m_projectHandle->getProjectPath () );
+  localPath <<  m_projectHandle->getOutputDir ();
+  const bool status = H5_Parallel_PropertyList ::mergeOutputFiles ( FastTouchActivityName, localPath.path() );
+  
+  return status;
 #else
    return true;
 #endif

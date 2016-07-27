@@ -26,6 +26,7 @@ namespace DataAccess
          bool close ();
          ~DistributedMapWriter ();
          
+         void setChunking();
          /// return the filename without the leading directories
          const std::string & getFileName (void);
          
@@ -44,16 +45,10 @@ namespace DataAccess
          bool writeInputMap( GridMap * gridMap, int mapSeqNumber );
 
          /// write a 3D gridmap to a file; generic implementation (V.R.Ambati, 13/07/2011).
-         bool writeVolumeToHDF (GridMap * gridMap, const std::string & propertyName, const std::string & layerName);
+         bool writeVolumeToHDF (GridMap * gridMap, const std::string & propertyName, const std::string & layerName, const bool isPrimary = false);
 	 
          /// write a 3D gridmap to a file; originally implemented.
-         bool writeVolumeToHDF (DM & da, Vec & vec, const std::string & propertyName, const std::string & layerName);
-         
-         /// write a 3D gridmap to a primary properties file; generic implementation 
-         bool writePrimaryVolumeToHDF (GridMap * gridMap, const std::string & propertyName, double time, const std::string & layerName, const bool isPrimary = false ); 
-	 
-         /// write a 3D gridmap to a primary properties file; originally implemented.
-         bool writePrimaryVolumeToHDF (DM & da, Vec & vec, const std::string & propertyName, double time, const std::string & layerName, const bool isPrimary = false );
+         bool writeVolumeToHDF (DM & da, Vec & vec, const std::string & propertyName, const std::string & layerName, const bool isPrimary = false);
          
          bool write2DDataSet (const std::string & dataSetName, float *data, int *start, int *count, int *size);
          

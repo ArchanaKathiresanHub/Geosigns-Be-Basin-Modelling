@@ -51,14 +51,7 @@ namespace DataAccess
          bool writeMapData( const string & dataSetName, const GridMap * gridMap, bool & newDataset );
 
          /// write a 3D gridmap to a file, not yet implemented
-         bool writeVolumeToHDF( GridMap * gridMap, const string & propertyName, const string & layerName );
-
-         bool writePrimaryVolumeToHDF( GridMap      * gridMap
-                                     , const string & propertyName
-                                     , double         time
-                                     , const string & layerName
-                                     , const bool     isPrimary = false 
-                                     );
+         bool writeVolumeToHDF( GridMap * gridMap, const string & propertyName, const string & layerName, const bool isPrimary = false );
 
          //bool write2DDataSet (const string & dataSetName, float *data, int *start, int *count, int *size);
 
@@ -68,6 +61,8 @@ namespace DataAccess
 
          /// save a grid description to file
          bool saveDescription (const Grid * grid);
+
+         void setChunking() {}
       protected:
 
       private:

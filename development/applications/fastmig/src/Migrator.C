@@ -1808,39 +1808,14 @@ bool reservoirSorter (const Interface::Reservoir * reservoir1, const Interface::
 
 bool Migrator::mergeOutputFiles ()
 {
-   if (!H5_Parallel_PropertyList::isOneFilePerProcessEnabled ())
-   {
-      return true;
-   }
-
+   if( m_projectHandle->getModellingMode () == Interface::MODE1D ) return true;
 #ifndef _MSC_VER
-   PetscBool noFileCopy = PETSC_FALSE;
-
-   PetscOptionsHasName( PETSC_NULL, "-nocopy", &noFileCopy );
-
-   ibs::FilePath filePathName( m_projectHandle->getProjectPath () );
-   filePathName << m_projectHandle->getOutputDir () << (MigrationActivityName + "_Results.HDF");
-
-   bool status = mergeFiles ( allocateFileHandler( PETSC_COMM_WORLD, filePathName.path(), H5_Parallel_PropertyList::getTempDirName(), ( noFileCopy ? CREATE : REUSE ) ));
-
-   if( status )
-   {
-      status = H5_Parallel_PropertyList::copyMergedFile( filePathName.path() ); 
-   }
-
-   if( ! status )
-   {
-      PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not merge the file %s.\n", filePathName.cpath() );
-   }
-   else
-   {
-      ReportProgress ("Merged Output Maps");
-   }
+   ibs::FilePath localPath  ( m_projectHandle->getProjectPath () );
+   localPath <<  m_projectHandle->getOutputDir ();
+   const bool status = H5_Parallel_PropertyList ::mergeOutputFiles ( MigrationActivityName, localPath.path() );
 
    return status;
 #else
    return true;
 #endif
 }
-
-

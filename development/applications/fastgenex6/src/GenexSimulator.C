@@ -367,37 +367,17 @@ void GenexSimulator::deleteSourceRockPropertyValues()
    }
 
 }
-
 bool GenexSimulator::mergeOutputFiles ( ) {
 
-   if( ! H5_Parallel_PropertyList::isOneFilePerProcessEnabled() || 
-       getModellingMode () == Interface::MODE1D ) return true;
-
+   if( getModellingMode () == Interface::MODE1D ) return true;
 #ifdef _MSC_VER
    return true;
 #else
-
-   PetscBool noFileCopy = PETSC_FALSE;
-   PetscOptionsHasName( PETSC_NULL, "-nocopy", &noFileCopy );
-
-   string fileName = GenexActivityName + "_Results.HDF" ; 
-   ibs::FilePath filePathName( getProjectPath () );
-   filePathName << getOutputDir () << fileName;
-
-   PetscPrintf ( PETSC_COMM_WORLD, "Merging of output files.\n" );
-  
-   bool status = mergeFiles ( allocateFileHandler( PETSC_COMM_WORLD, filePathName.path(), H5_Parallel_PropertyList::getTempDirName(),( noFileCopy ? CREATE : REUSE )));
-
-   if( status ) {
-      status = H5_Parallel_PropertyList::copyMergedFile( filePathName.path() );
-   } 
-   
-   if( !status ) {
-      PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not merge the file %s.\n", filePathName.cpath() );
-   }
+   ibs::FilePath localPath  ( getProjectPath () );
+   localPath <<  getOutputDir ();
+   const bool status = H5_Parallel_PropertyList ::mergeOutputFiles ( GenexActivityName, localPath.path() );
 
    return status;
 #endif
 }
-
 

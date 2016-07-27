@@ -742,8 +742,6 @@ namespace DataAccess
          bool initializeMapPropertyValuesWriter( const bool append = false );
          bool finalizeMapPropertyValuesWriter( void );
 
-         bool initializePrimaryPropertyValuesWriter( const bool append = false );
-
          bool saveCreatedMapPropertyValues( void );
 
          //1DComponent
