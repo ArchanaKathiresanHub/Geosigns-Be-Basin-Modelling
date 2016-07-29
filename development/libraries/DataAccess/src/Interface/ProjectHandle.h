@@ -357,7 +357,8 @@ namespace DataAccess
          void deletePropertyValues( void );
          void deleteRecordLessMapPropertyValues( void );
          void deleteRecordLessVolumePropertyValues( void );
- 
+         unsigned int deletePropertiesValuesMaps ( const Snapshot * snapshot );
+
          /// return a list of PropertyValues based on the given arguments.
          /// if an argument equals 0, it is used as a wildcard
          virtual bool hasPropertyValues( int selectionFlags,

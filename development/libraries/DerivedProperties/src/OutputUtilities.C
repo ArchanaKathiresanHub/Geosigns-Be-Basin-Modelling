@@ -141,6 +141,22 @@ bool  DerivedProperties::acquireFormationSurfaces( GeoPhysics::ProjectHandle * p
 
 //------------------------------------------------------------//
 
+void  DerivedProperties::removeProperties (  const Snapshot * snapshot, 
+                                             SnapshotFormationSurfaceOutputPropertyValueMap & allOutputPropertyValues ) {
+
+   SnapshotFormationSurfaceOutputPropertyValueMap::iterator propertyValueToRemove;
+   for( propertyValueToRemove = allOutputPropertyValues.begin(); propertyValueToRemove != allOutputPropertyValues.end(); ) {
+      if( propertyValueToRemove->first == snapshot ) {
+         allOutputPropertyValues.erase( propertyValueToRemove ++ );
+      } else {
+         
+         ++ propertyValueToRemove;
+      }
+   }
+}
+
+//------------------------------------------------------------//
+
 void  DerivedProperties::outputSnapshotFormationData( GeoPhysics::ProjectHandle* projectHandle, 
                                                       const Snapshot * snapshot, const FormationSurface & formationItem, 
                                                       DataAccess::Interface::PropertyList & properties,

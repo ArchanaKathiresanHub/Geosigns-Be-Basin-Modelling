@@ -76,7 +76,8 @@ int main( int argc, char ** argv )
 
    GeoPhysics::ObjectFactory* factory = new GeoPhysics::ObjectFactory;
    PropertiesCalculator propCalculator ( rank );
-       
+   propCalculator.startTimer();
+
    if( !propCalculator.parseCommandLine( argc, argv )) {
 
       PetscFinalize();
@@ -154,6 +155,8 @@ int main( int argc, char ** argv )
    ///5. Save results
 
    bool status = propCalculator.finalise ( true );
+
+   delete factory;
 
    PetscLogDouble sim_End_Time;
    PetscTime( &sim_End_Time );   

@@ -14,6 +14,9 @@
 
 #include "Interface/SimulationDetails.h"
 #include "h5_parallel_file_types.h"
+#include "Interface/OutputProperty.h"
+#include "Interface/RunParameters.h"
+#include "GeoPhysicsFormation.h"
 #include "PropertiesCalculator.h"
 #include "FilePath.h"
 
@@ -49,12 +52,14 @@ PropertiesCalculator::PropertiesCalculator( int aRank ) {
    m_primaryPod       = false;
    m_extract2D        = false;
    m_no3Dproperties   = false;
+   m_projectProperties = false;
 
    m_snapshotsType = MAJOR;
 
    m_projectFileName = "";
    m_simulationMode  = "";
    m_activityName    = "";
+   m_decompactionMode = false;
 
    m_projectHandle   = 0; 
    m_propertyManager = 0;
@@ -89,19 +94,26 @@ DerivedPropertyManager * PropertiesCalculator::getPropertyManager() const {
 
 bool  PropertiesCalculator::finalise ( bool isComplete ) {
 
-   m_projectHandle->setSimulationDetails ( "fastproperties", "Default", "" );
-   m_projectHandle->finishActivity ( isComplete );
+   PetscLogDouble Start_Time;
+   PetscTime( &Start_Time );
    
-   bool status = 0;
+  // set false as there is no need to save any properties - all are saved
+   m_projectHandle->finishActivity ( false );
+
+   bool status = true;
    if( isComplete ) {
       if( ! copyFiles ()) {
          PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Unable to copy output files\n");
          
-         status = 1;
+         status = false;
       }
    }
-
-   if( isComplete && m_rank == 0 ) {
+   
+   if( isComplete and status and m_rank == 0 ) {
+      displayProgress( "Project file", Start_Time, "Start saving " );
+  
+      m_projectHandle->setSimulationDetails ( "fastproperties", "Default", "" );
+    
       char outputFileName[128];
       outputFileName[0] = '\0';
       
@@ -112,8 +124,9 @@ bool  PropertiesCalculator::finalise ( bool isComplete ) {
       } else {
          m_projectHandle->saveToFile(m_projectFileName);
       }
+      displayProgress( "", Start_Time, "Saving is finished for ProjectFile " );
    }
-
+   
    delete m_propertyManager;
    m_propertyManager = 0;
 
@@ -235,12 +248,8 @@ void PropertiesCalculator::calculateProperties( FormationSurfaceVector& formatio
    if( properties.size () == 0 ) {
       return;
    }
-   PetscLogDouble Accumulated_Saving_Time = 0;
-   PetscLogDouble Start_Saving_Time = 0;
-   PetscLogDouble Start_Time;
-   PetscLogDouble End_Time;
    
-   SnapshotList::iterator snapshotIter;
+   SnapshotList::reverse_iterator snapshotIter;
 
    PropertyList::iterator propertyIter;
    FormationSurfaceVector::iterator formationIter;
@@ -258,11 +267,11 @@ void PropertiesCalculator::calculateProperties( FormationSurfaceVector& formatio
    struct stat fileStatus;
    int fileError;
     
-   PetscTime( & Start_Saving_Time );
-   for ( snapshotIter = snapshots.begin(); snapshotIter != snapshots.end(); ++snapshotIter )
+   for ( snapshotIter = snapshots.rbegin(); snapshotIter != snapshots.rend(); ++snapshotIter )
    {
       const Interface::Snapshot * snapshot = *snapshotIter;
-      PetscTime( &Start_Time );
+
+      displayProgress( snapshot->getFileName (), m_startTime, "Start computing " );
  
       if ( snapshot->getFileName () != "" ) {
          ibs::FilePath fileName( m_projectHandle->getFullOutputDir () );
@@ -276,7 +285,14 @@ void PropertiesCalculator::calculateProperties( FormationSurfaceVector& formatio
       {
          const Formation * formation = ( *formationIter ).first;
          const Surface   * surface   = ( *formationIter ).second;
-
+         const Interface::Snapshot * bottomSurfaceSnapshot = ( formation->getBottomSurface() != 0 ? formation->getBottomSurface()->getSnapshot() : 0 );
+         
+         if( snapshot->getTime() != 0.0 and surface == 0 and bottomSurfaceSnapshot != 0 ) {
+            const double depoAge = bottomSurfaceSnapshot->getTime();
+            if ( snapshot->getTime() > depoAge or fabs( snapshot->getTime() - depoAge ) < snapshot->getTime() * 1e-9 ) {
+               continue;
+            }
+         }
 
          for ( propertyIter = properties.begin(); propertyIter != properties.end(); ++propertyIter )
          {
@@ -288,48 +304,153 @@ void PropertiesCalculator::calculateProperties( FormationSurfaceVector& formatio
                continue;
             }
              
-            OutputPropertyValuePtr outputProperty = DerivedProperties::allocateOutputProperty ( * m_propertyManager, property, snapshot, * formationIter );
-  
-            if ( outputProperty != 0 ) {
-               if( m_debug && m_rank == 0 ) {
-                  LogHandler( LogHandler::INFO_SEVERITY) << "Snapshot: " << snapshot->getTime() << 
-                     " allocate " << property->getName() << " " << ( formation != 0 ? formation->getName() : "" ) << " " <<
-                     ( surface != 0 ? surface->getName() : "" );
-               }
-               allOutputPropertyValues [ snapshot ][ * formationIter ][ property ] = outputProperty;
+            if ( not m_projectProperties or ( m_projectProperties and allowOutput( property->getCauldronName(), formation, surface ))) {
+               OutputPropertyValuePtr outputProperty = DerivedProperties::allocateOutputProperty ( * m_propertyManager, property, snapshot, * formationIter );
+               
+               if ( outputProperty != 0 ) {
+                  if( m_debug && m_rank == 0 ) {
+                     LogHandler( LogHandler::INFO_SEVERITY) << "Snapshot: " << snapshot->getTime() << 
+                        " allocate " << property->getName() << " " << ( formation != 0 ? formation->getName() : "" ) << " " <<
+                        ( surface != 0 ? surface->getName() : "" );
+                  }
+                  allOutputPropertyValues [ snapshot ][ * formationIter ][ property ] = outputProperty;
+              }
+               else{
+                  if( m_debug && m_rank == 0 ) {
+                     LogHandler( LogHandler::INFO_SEVERITY ) << "Could not calculate derived property " << property->getName()
+                                                             << " @ snapshot " << snapshot->getTime() << "Ma for formation " <<  
+                        ( formation != 0 ? formation->getName() : "" ) << " " <<  ( surface != 0 ? surface->getName() : "" ) << ".";
+                  }
+               } 
             }
-            else{
-               if( m_debug && m_rank == 0 ) {
-                  LogHandler( LogHandler::INFO_SEVERITY ) << "Could not calculate derived property " << property->getName()
-                                                          << " @ snapshot " << snapshot->getTime() << "Ma for formation " <<  
-                     ( formation != 0 ? formation->getName() : "" ) << " " <<  ( surface != 0 ? surface->getName() : "" ) << ".";
-               }
-            } 
          }
-      
- 
          DerivedProperties::outputSnapshotFormationData( m_projectHandle, snapshot, * formationIter, properties, allOutputPropertyValues );
-     
-      }
-
-      displayProgress( snapshot->getFileName (), Start_Saving_Time, "Saving " );
-
-      m_projectHandle->continueActivity();
- 
-      PetscTime( &End_Time );
-      Accumulated_Saving_Time += ( End_Time - Start_Time );
-
-      unsigned int nrdeleted = 0;
-      Interface::PropertyList::iterator propertyIter;
-      for ( propertyIter = properties.begin(); propertyIter != properties.end(); ++propertyIter ) {
-         const Interface::Property * property = *propertyIter;
-         
-         nrdeleted += m_projectHandle->deletePropertyValueGridMaps(SURFACE | FORMATION | FORMATIONSURFACE, 
-                                                                   property, snapshot, 0, 0, 0, VOLUME | SURFACE );
       }
       
+      removeProperties( snapshot, allOutputPropertyValues );
+      m_propertyManager->removeProperties( snapshot );
+
+      displayProgress( snapshot->getFileName (), m_startTime, "Start saving " );
+      
+      m_projectHandle->continueActivity();
+      
+      displayProgress( snapshot->getFileName (), m_startTime, "Saving is finished for " );
+ 
+      //     m_projectHandle->deleteRecordLessMapPropertyValues();
+      //     m_projectHandle->deleteRecordLessVolumePropertyValues();
+
+      m_projectHandle->deletePropertiesValuesMaps ( snapshot );
    }
-   displayTime( Accumulated_Saving_Time, "Total derived properties saving: ");
+ 
+   PetscLogDouble End_Time;
+   PetscTime( &End_Time );
+   displayTime( End_Time - m_startTime, "Total derived properties saving: ");
+}
+//------------------------------------------------------------//
+
+PropertyOutputOption PropertiesCalculator::checkTimeFilter3D ( const string & name ) const {
+
+   if ( name == "AllochthonousLithology" or  name == "Lithology" or name == "BrineDensity" or name == "BrineViscosity" ) {
+      return Interface::SEDIMENTS_ONLY_OUTPUT;
+   }
+   if ( name == "FracturePressure" ) {
+      if ( m_projectHandle->getRunParameters ()->getFractureType () == "None" ) {
+         return Interface::NO_OUTPUT;
+      }
+   }   
+   if ( name == "FaultElements" ) {
+      if ( m_projectHandle->getBasinHasActiveFaults ()) {
+         return Interface::SEDIMENTS_ONLY_OUTPUT;
+      } else {
+         return Interface::NO_OUTPUT;
+      } 
+   }
+   if ( name == "HorizontalPermeability" ) {
+      
+      const Interface::OutputProperty* permeability = m_projectHandle->findTimeOutputProperty ( "PermeabilityVec" );
+      const Interface::PropertyOutputOption permeabilityOption = ( permeability == 0 ? Interface::NO_OUTPUT : permeability->getOption ());
+      const Interface::OutputProperty* hpermeability = m_projectHandle->findTimeOutputProperty ( "HorizontalPermeability" );
+      const Interface::PropertyOutputOption hpermeabilityOption = ( hpermeability == 0 ? Interface::NO_OUTPUT : hpermeability->getOption ());
+      
+      if( hpermeabilityOption  == Interface::NO_OUTPUT and permeability != 0 ) {
+         return permeabilityOption;
+      } 
+      if( permeability == 0 ) {
+         return hpermeabilityOption;
+      }
+   }
+   
+   const Interface::OutputProperty * property = m_projectHandle->findTimeOutputProperty( name );
+
+   if( property != 0 ) {
+      if( m_simulationMode == "HydrostaticDecompaction" and name == "LithoStaticPressure" and 
+          property->getOption () == Interface::SEDIMENTS_AND_BASEMENT_OUTPUT ) {
+         return Interface::SEDIMENTS_ONLY_OUTPUT;
+      }
+     if( name == "HydroStaticPressure" and 
+         property->getOption () == Interface::SEDIMENTS_AND_BASEMENT_OUTPUT ) {
+        return Interface::SEDIMENTS_ONLY_OUTPUT;
+     }
+      
+     return property->getOption ();
+   } 
+   
+   return Interface::NO_OUTPUT;
+}
+
+//------------------------------------------------------------//
+
+bool PropertiesCalculator::allowOutput ( const string & propertyName3D, 
+                                         const Interface::Formation * formation, const Interface::Surface * surface ) const {
+
+
+   string propertyName = propertyName3D;
+   size_t len = 4;
+   size_t pos = propertyName.find( "Vec2" );
+   if( pos != string::npos ) {
+      propertyName.replace( pos, len, "Vec" );
+   } else {
+      pos = propertyName.find( "HeatFlow" );
+      if( pos != string::npos ) {
+         propertyName = "HeatFlow";
+      } else {
+         pos = propertyName.find( "FluidVelocity" );
+         if( pos != string::npos ) {
+            propertyName = "FluidVelocity";
+         }
+      }
+   }  
+
+   if(( propertyName == "BrineDensity" or  propertyName == "BrineViscosity" ) and surface != 0 ) {
+      return false;
+   }
+   if( m_decompactionMode and ( propertyName == "BulkDensity" ) and surface == 0 ) {
+      return false;
+   }
+    
+   bool basementFormation = formation->kind () == DataAccess::Interface::BASEMENT_FORMATION;
+   
+   // The top of the crust is a part of the sediment 
+   if( basementFormation and surface != 0 and ( propertyName == "Depth" or propertyName == "Temperature" ) ) {
+      if( dynamic_cast<const GeoPhysics::Formation*>( formation )->isCrust() ) {
+         if( formation->getTopSurface() and ( formation->getTopSurface() == surface )) {
+            return true;
+         }
+      }
+   }
+   PropertyOutputOption outputOption = checkTimeFilter3D ( propertyName );
+
+   if( outputOption == Interface::NO_OUTPUT ) {
+      return false;
+   }
+   if( basementFormation ) {
+      if( outputOption < Interface::SEDIMENTS_AND_BASEMENT_OUTPUT ) { 
+         return false;
+      } 
+   }
+
+   return true;
+   
 }
 
 //------------------------------------------------------------//
@@ -437,11 +558,15 @@ void PropertiesCalculator::acquireProperties( PropertyList & properties ) {
 //------------------------------------------------------------//
 void PropertiesCalculator::acquireFormationsSurfaces( FormationSurfaceVector& formationSurfaceItems ) {
 
+   bool load3d = false;
    if( m_formationNames.size() != 0 or m_all3Dproperties  ) {
       DerivedProperties::acquireFormations( m_projectHandle, formationSurfaceItems, m_formationNames, m_basement );
+      load3d = true;
    }
    if(  m_all2Dproperties  ) {
-      DerivedProperties::acquireFormations( m_projectHandle, formationSurfaceItems, m_formationNames, m_basement);
+      if( not load3d ) {
+         DerivedProperties::acquireFormations( m_projectHandle, formationSurfaceItems, m_formationNames, m_basement);
+      }
       DerivedProperties::acquireFormationSurfaces( m_projectHandle, formationSurfaceItems, m_formationNames, true, m_basement );
       DerivedProperties::acquireFormationSurfaces( m_projectHandle, formationSurfaceItems, m_formationNames, false, m_basement );
 
@@ -677,6 +802,8 @@ bool PropertiesCalculator::setFastcauldronActivityName() {
    } else {
       m_activityName = "Fastproperties";
    }
+   m_decompactionMode = ( m_activityName == "HydrostaticDecompaction" ) or ( m_activityName == "HighResDecompaction");
+
    return true;
 }
 //------------------------------------------------------------//
@@ -841,6 +968,10 @@ bool PropertiesCalculator::parseCommandLine( int argc, char ** argv ) {
       {
          m_all3Dproperties = true;
       }
+      else if ( strncmp( argv[ arg ], "-project-properties", Max( 12, (int)strlen( argv[ arg ] ) ) ) == 0 )
+      {
+         m_projectProperties = true;
+      }
       else if ( strncmp( argv[ arg ], "-list-properties", Max( 7, (int)strlen( argv[ arg ] ) ) ) == 0 )
       {
          m_listProperties = true;
@@ -938,6 +1069,13 @@ bool PropertiesCalculator::parseCommandLine( int argc, char ** argv ) {
 
       return false;
    }
+   if( m_projectProperties ) {
+      m_all3Dproperties = true;
+      m_all2Dproperties = true;
+      m_extract2D = true;
+      m_basement = true;
+   }
+
    if( m_convert ) {
       int numberOfRanks;
       
@@ -949,7 +1087,11 @@ bool PropertiesCalculator::parseCommandLine( int argc, char ** argv ) {
    }
   return true;
 }
+//------------------------------------------------------------//
+void PropertiesCalculator::startTimer() {
+   PetscTime( &m_startTime );
 
+}
 //------------------------------------------------------------//
 
 bool PropertiesCalculator::convert() const {
@@ -981,6 +1123,7 @@ void PropertiesCalculator::showUsage( const char* command, const char* message )
            << endl
            << "\t[-all-3D-properties]                       produce output for all 3D properties" << endl
            << "\t[-all-2D-properties]                       produce output for all 2D primary properties" << endl
+           << "\t[-project-properties]                      produce output for the properties selected for output in the project file" << endl
            << "\t[-extract2D]                               produce output for all 2D properties (use with -all-2D-properties)" << endl
            << "\t[-list-properties]                         print a list of available properties and exit" << endl
            << "\t[-list-snapshots]                          print a list of available snapshots and exit" << endl

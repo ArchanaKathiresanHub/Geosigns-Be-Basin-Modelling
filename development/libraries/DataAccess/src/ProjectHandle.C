@@ -4075,6 +4075,32 @@ void ProjectHandle::deletePropertyValues( int selectionFlags,
       }
    }
 }
+unsigned int ProjectHandle::deletePropertiesValuesMaps( const Snapshot * snapshot )
+{
+   MutablePropertyValueList::iterator propertyValueIter;
+   unsigned int nrDeleted = 0;
+   propertyValueIter = m_propertyValues.begin();
+   while ( propertyValueIter != m_propertyValues.end() )
+   {
+      PropertyValue * propertyValue = *propertyValueIter;
+      if( propertyValue->getSnapshot() == snapshot ) {
+
+         GridMap * localGridMap = propertyValue->hasGridMap();
+         if ( localGridMap )
+         {
+            delete localGridMap;
+            ++nrDeleted;
+         }
+         propertyValueIter = m_propertyValues.erase( propertyValueIter );
+         
+      }
+      else
+      {
+         ++propertyValueIter;
+      }
+   }
+   return nrDeleted;
+}
 
 void splitFilePath( const string & filePath, string & directoryName, string & fileName )
 {

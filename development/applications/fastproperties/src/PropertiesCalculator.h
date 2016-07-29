@@ -98,6 +98,7 @@ private:
    bool m_listProperties;     ///< If true: prints all outputable properties
    bool m_listSnapshots;      ///< If true: prints all snapshots from project file
    bool m_listStratigraphy;   ///< If true: prints all stratigraphy from project file
+   bool m_projectProperties;
 
    string m_projectFileName;
 
@@ -107,8 +108,13 @@ private:
 
    string m_activityName;   ///< The name of the current activity producing output values
    string m_simulationMode; ///< The name of the last simulation fastcauldron mode
+   bool   m_decompactionMode;
+   int    m_snapshotsType; ///< The type of snapshots to calculate derived properties at
 
-   int m_snapshotsType; ///< The type of snapshots to calculate derived properties at
+   PetscLogDouble m_startTime;
+
+   bool allowOutput ( const string & propertyName, const Interface::Formation * formation, const Interface::Surface * surface ) const;
+   PropertyOutputOption checkTimeFilter3D ( const string & name ) const;
 
 public:
 
@@ -148,6 +154,8 @@ public:
    void showUsage( const char* command, const char* message = 0 );
 
    bool copyFiles();
+
+   void startTimer();
  
 };
 

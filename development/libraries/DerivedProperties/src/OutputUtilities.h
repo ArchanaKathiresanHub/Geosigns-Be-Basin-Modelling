@@ -112,5 +112,8 @@ namespace DerivedProperties {
                         const DataModel::AbstractFormation * formation,
                         const DataModel::AbstractSurface   * surface,
                         const DataModel::AbstractSnapshot  * snapshot );
+
+   void removeProperties (  const Snapshot * snapshot,
+                            SnapshotFormationSurfaceOutputPropertyValueMap & allOutputPropertyValues );
    }
 #endif // DERIVED_PROPERTIES__OUTPUT_UTILITIES_HH
