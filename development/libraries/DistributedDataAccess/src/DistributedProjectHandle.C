@@ -67,15 +67,18 @@ void ProjectHandle::mapFileCacheConstructor (void)
 }
 void ProjectHandle::mapFileCacheDestructor (void)
 {
-    for (int i = 0; i < 4; ++i) 
-    {
-        if (static_cast<struct MapFileCache * > (m_mapFileCache) [i].fileName != "")
-        {
+   if( m_mapFileCache != nullptr ) {
+      for (int i = 0; i < 4; ++i) 
+      {
+         if (static_cast<struct MapFileCache * > (m_mapFileCache) [i].fileName != "")
+         {
             static_cast<struct MapFileCache * > (m_mapFileCache) [i].gridMapFile.close ();
             static_cast<struct MapFileCache * > (m_mapFileCache) [i].fileName = "";
-        }
-    }
-    delete[] static_cast<struct MapFileCache * > (m_mapFileCache);
+         }
+      }
+      delete[] static_cast<struct MapFileCache * > (m_mapFileCache);
+      m_mapFileCache = nullptr;
+   }
 }
 
 void ProjectHandle::checkForValidPartitioning (const string & name, int M, int N) const
