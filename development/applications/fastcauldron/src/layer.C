@@ -773,19 +773,21 @@ bool LayerProps::allocateNewVecs ( AppCtx* basinModel, const double Current_Time
 
 double LayerProps::calcDiffDensity ( const unsigned int i, const unsigned int j ) const {
 
-  double lithodens, fluiddens;
+   double lithodens, fluiddens, densityDifference = 0.0;
   
   lithodens = getLithology ( i,j ) -> density();
 
-  if ( fluid != nullptr ) {
+  if ( fluid != nullptr ) 
+  {
     fluiddens = fluid->getConstantDensity();
-  } else {
-    fluiddens = 0.0;
+    if ( lithodens > fluiddens ) densityDifference = lithodens - fluiddens;
+  } 
+  else 
+  {
+     densityDifference = lithodens;
   }
 
-  return lithodens - fluiddens;
-
-
+  return densityDifference;
 }
 
 void LayerProps::setNrOfActiveElements ( const int a_nrActElem ) {

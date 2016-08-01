@@ -169,6 +169,7 @@ void DerivedProperties::VesHighResFormationCalculator::computeForSubsampledHydro
       double solidThickness = 0.0;
       const GeoPhysics::FluidType * fluid = dynamic_cast<const GeoPhysics::FluidType*>(currentFormation->getFluidType());
       const double constFluidDensity = (fluid == 0) ? 0.0 : fluid->getConstantDensity();
+      const bool switchPermafrost = ( fluid == 0 ) ? false : fluid->SwitchPermafrost( );
 
       for( unsigned int i = firstI; i <= lastI; ++i )
       {
@@ -177,8 +178,18 @@ void DerivedProperties::VesHighResFormationCalculator::computeForSubsampledHydro
             if( m_projectHandle->getNodeIsValid(i, j) )
             {
                const GeoPhysics::CompoundLithology * lithology = currentFormation->getCompoundLithology(i, j);
+               bool surfacePorosity = lithology->surfacePorosity();
                assert( lithology != 0 );
-               densityDifference = lithology->density() - constFluidDensity;
+
+               // the density difference cannot be smaller than 0
+               if ( lithology->density() > constFluidDensity ) 
+               {
+                  densityDifference = lithology->density() - constFluidDensity;
+               }
+               else 
+               {
+                  densityDifference = 0.0;
+               }
                vesHighResAboveValue = vesHighRes->getA(i, j, lastK);
 
                // Loop index is shifted up by 1.
@@ -187,7 +198,14 @@ void DerivedProperties::VesHighResFormationCalculator::computeForSubsampledHydro
                   // index k     is top node of segment
                   // index k - 1 is bottom node of segment
                   solidThickness = currentFormation->getSolidThickness( i, j, k - 1, time);
-                  if( solidThickness > 0.0 )
+                  
+                  // Fluid is denser than rock and the permafrost switch is on
+                  if ( densityDifference <= 0 && solidThickness > 0.0 && switchPermafrost )
+                  {
+                     // mobile layer cannot compress, but permafrost lithology has certain porosity that must be accounted in the calculation of ves
+                     vesHighResValue = vesHighResAboveValue + GeoPhysics::AccelerationDueToGravity * lithology->density( ) * solidThickness * ( 1.0 - surfacePorosity);
+                  }
+                  else if( solidThickness > 0.0 )
                   {
                      vesHighResValue = vesHighResAboveValue + GeoPhysics::AccelerationDueToGravity * densityDifference * solidThickness;
                   }

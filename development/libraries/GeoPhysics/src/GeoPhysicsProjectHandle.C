@@ -2299,13 +2299,13 @@ double GeoPhysics::ProjectHandle::getBasaltInMantleThickness ( const unsigned in
 bool GeoPhysics::ProjectHandle::compFCThicknessHistories ( const unsigned int i,
                                                            const unsigned int j,
                                                            const bool     overpressureCalculation,
-                                                                 GeoPhysics::Formation* formation,
-                                                                 int& nrActUnc, 
-                                                                 FloatStack &uncMaxVes, 
-                                                                 FloatStack &uncThickness ) {
+                                                           GeoPhysics::Formation* formation,
+                                                           int& nrActUnc, 
+                                                           FloatStack &uncMaxVes, 
+                                                           FloatStack &uncThickness ) {
 
    // we have 3 possible types of layer: 1: a mobile layer, 2: a normal
-   // sedemented layer or 3: an erosion (layer).
+   // sedimented layer or 3: an erosion (layer).
 
    if ( formation->isMobileLayer () or formation->getIsIgneousIntrusion ()) {
       // mobile layer or igneous intrusion!!
@@ -2345,21 +2345,36 @@ bool GeoPhysics::ProjectHandle::updateMobileLayerOrIgneousIntrusionMaxVes ( cons
   bool result = true;
   double segmentThickness;
   double dummy;
-  double diffdensity;
+  double diffdensity = 0.0;
 
   int segment;
 
   const CompoundLithology* lithology = formation->getCompoundLithology ( i, j );
   const GeoPhysics::FluidType* fluid = dynamic_cast<const GeoPhysics::FluidType*>( formation->getFluidType ());
 
-  for ( segment = formation->getMaximumNumberOfElements() - 1; segment >= 0; --segment ) {
+  for ( segment = formation->getMaximumNumberOfElements() - 1; segment >= 0; --segment )
+  {
 
       segmentThickness = formation->getSolidThickness ( i, j, (unsigned int)(segment)).MaxY (dummy);
       assert( segmentThickness != Interface::DefaultUndefinedScalarValue );
 
-      if ( fluid != 0  ) {
+      if ( fluid != 0  ) 
+      {
          diffdensity = lithology->density () - fluid->getConstantDensity ();
-      } else {
+         
+         bool switchPermaFrost = fluid->SwitchPermafrost( );
+         double surfacePorosity = lithology->surfacePorosity( );
+
+         // Fluid is denser than rock and the permafrost switch is on
+         if ( diffdensity <= 0 && switchPermaFrost )
+         {
+            maxVes += AccelerationDueToGravity *  lithology->density() * segmentThickness * ( 1.0 - surfacePorosity );
+            return result;
+         }
+         else if ( diffdensity <= 0 ) diffdensity = 0.0;         
+      } 
+      else 
+      {
          diffdensity = lithology->density ();
       }
 
@@ -2634,33 +2649,39 @@ bool GeoPhysics::ProjectHandle::compactLayerThicknessHistory ( const unsigned in
 //------------------------------------------------------------//
 
 bool GeoPhysics::ProjectHandle::calcFullCompactedThickness ( const unsigned int i,
-                                                             const unsigned int j,
-                                                             const bool     overpressureCalculation,
-                                                                   GeoPhysics::Formation* formation,
-                                                             const double compThickness,
-                                                                   double &uncMaxVes,
-                                                             double &fullCompThickness,
-                                                             double age ) {
+   const unsigned int j,
+   const bool     overpressureCalculation,
+   GeoPhysics::Formation* formation,
+   const double compThickness,
+   double &uncMaxVes,
+   double &fullCompThickness,
+   double age ) {
 
-  bool result = true;
+   bool result = true;
 
-  double diffdensity;
+   const CompoundLithology* lithology = formation->getCompoundLithologyArray()( i, j, age );
+   const GeoPhysics::FluidType* fluid = dynamic_cast<const GeoPhysics::FluidType*>( formation->getFluidType() );
 
-  const CompoundLithology* lithology = formation->getCompoundLithologyArray ()( i, j, age ); 
-  const GeoPhysics::FluidType* fluid = dynamic_cast<const GeoPhysics::FluidType*>( formation->getFluidType ());
+   double fluidDensity = 0.0;
+   double lithologyDensity = lithology->density();
+   double densityDifference = 0.0;
 
-  if ( fluid != 0 ) {
-     diffdensity = lithology->density () - fluid->getConstantDensity ();
-  } else {
-     diffdensity = lithology->density ();
-  }
+   if ( fluid != 0 )
+   {
+      fluidDensity = fluid->getConstantDensity( );
+      if ( lithologyDensity > fluidDensity ) densityDifference = lithologyDensity - fluidDensity;
+   }
+   else
+   {
+      densityDifference = lithologyDensity;
+   }
 
   fullCompThickness = lithology->hydrostatFullCompThickness ( uncMaxVes, 
                                                               compThickness, 
-                                                              diffdensity,
+                                                              densityDifference,
                                                               overpressureCalculation );
 
-  uncMaxVes += AccelerationDueToGravity * diffdensity * fullCompThickness;
+  uncMaxVes += AccelerationDueToGravity * densityDifference * fullCompThickness;
 
   return result;
 }

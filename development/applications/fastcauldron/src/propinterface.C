@@ -2015,34 +2015,45 @@ bool AppCtx::calcNodeVes( const double time ) {
     }
 
     firstpass = false;
+    // determine if the switch permafrost is activated (imposing a constant hydrostatic pressure in the layer)
+    const GeoPhysics::FluidType * fluid = dynamic_cast<const GeoPhysics::FluidType*>( Current_Layer->getFluidType() );
+    bool switchPermaFrost = fluid->SwitchPermafrost();
 
     // Set the rest of the values
-    for ( i = xs; i < ( xs + xm ); i++) 
+    for ( i = xs; i < ( xs + xm ); i++ )
     {
-      for ( j = ys; j < ( ys + ym ); j++) 
-      {
+       for ( j = ys; j < ( ys + ym ); j++ )
+       {
 
-         if ( not nodeIsDefined ( i, j )) continue;
+          if ( not nodeIsDefined( i, j ) ) continue;
 
-         ix = i - xs; iy = j - ys;
-	
-         double Density_Difference = Current_Layer -> calcDiffDensity( i,j );
-	
-         for ( k = Top_Z_Index - 1; k >= zs; k--) 
-         {
-	  
-	  if (Current_Layer ->getSolidThickness ( i, j, k, time) >= 0) 
-	  {
-	    ves( k,j,i ) = ves( k+1,j,i ) + GRAVITY * Density_Difference *
-	      Current_Layer->getSolidThickness ( i, j, k, time);
-	  } 
-	  else 
-	  {
-	    ves( k,j,i ) = ves( k+1,j,i );
-	  }
+          ix = i - xs; iy = j - ys;
 
-	}
-      }
+          double Density_Difference = Current_Layer->calcDiffDensity( i, j );
+
+          for ( k = Top_Z_Index - 1; k >= zs; k--)
+          {
+             // Fluid is denser than rock and the permafrost switch is on
+             if ( Density_Difference <= 0.0 && switchPermaFrost && Current_Layer->getSolidThickness( i, j, k, time) >= 0 )
+             {
+                double solidDensity = Current_Layer->getLithology( i, j, k )->density( );
+                double solidThickness = Current_Layer->getSolidThickness( i, j, k, time );
+                double surfacePorosity = Current_Layer->getLithology( i, j, k )->surfacePorosity( );
+                ves( k, j, i ) = ves( k + 1, j, i ) +
+                   GRAVITY * solidDensity * solidThickness *( 1.0 - surfacePorosity );
+             }
+             else if ( Current_Layer->getSolidThickness( i, j, k, time ) >= 0 )
+             {
+                ves( k,j,i ) = ves( k+1,j,i ) + GRAVITY * Density_Difference *
+                   Current_Layer->getSolidThickness( i, j, k, time);
+             }
+             else
+             {
+                ves( k,j,i ) = ves( k+1,j,i );
+             }
+
+          }
+       }
     }
     
     // Store bottom values
@@ -2285,7 +2296,7 @@ bool AppCtx::Calculate_Pressure( const double time ) {
 	  surface_sea_bottom_depth[ ix ][ iy ] = seaBottomDepth;
 	  surface_temperature[ ix ][ iy ] = FastcauldronSimulator::getInstance ().getSeaBottomTemperature ( i, j, time );
 
-          computeHydrostaticPressure ( Current_Layer -> fluid, surface_temperature[ ix ][ iy ], seaBottomDepth, Hydrostatic_Pressure );
+     computeHydrostaticPressure ( Current_Layer -> fluid, surface_temperature[ ix ][ iy ], seaBottomDepth, Hydrostatic_Pressure );
 
 	  hydro_pressure( Top_Z_Node_Index,j,i ) = Hydrostatic_Pressure;
 	  litho_pressure( Top_Z_Node_Index,j,i ) = Hydrostatic_Pressure;
@@ -2329,6 +2340,8 @@ bool AppCtx::Calculate_Pressure( const double time ) {
 	ix = i - xs; iy = j - ys;
 	
 	Solid_Density = Current_Layer->getLithology ( i,j )->density();
+   // Determine if the permafrost switch is on
+   bool switchPermafrost = Current_Layer->fluid->SwitchPermafrost( );
 
 	for ( k = ( Top_Z_Node_Index - 1 ); k >= 0; k-- ) 
 	{
@@ -2358,12 +2371,23 @@ bool AppCtx::Calculate_Pressure( const double time ) {
 
           Fluid_Density = Current_Layer -> fluid -> density( Temperature, fluid_pressure( k_top,j,i ) );
 
-	  Hydrostatic_Pressure = hydro_pressure( k_top,j,i ) 
-	    + Fluid_Density * GRAVITY * Segment_Thickness * Pa_To_MPa;
+          // Fluid is denser than rock and the permafrost switch is on
+          if ( switchPermafrost && Solid_Density <= Fluid_Density )
+          {
+             Hydrostatic_Pressure = hydro_pressure( k_top, j, i );
+             double surfacePorosity = Current_Layer->getLithology( i, j, k )->surfacePorosity( );
+             Lithostatic_Pressure = litho_pressure( k_top, j, i ) +
+                Solid_Thickness * Solid_Density *( 1.0 - surfacePorosity ) * GRAVITY * Pa_To_MPa;
+          }
+          else
+          {
+             Hydrostatic_Pressure = hydro_pressure( k_top,j,i )
+                + Fluid_Density * GRAVITY * Segment_Thickness * Pa_To_MPa;
 
-	  Lithostatic_Pressure = litho_pressure( k_top,j,i ) + 
-	    ( ( Segment_Thickness - Solid_Thickness ) * Fluid_Density +
-	      Solid_Thickness * Solid_Density ) * GRAVITY * Pa_To_MPa;
+             Lithostatic_Pressure = litho_pressure( k_top,j,i ) +
+                ( ( Segment_Thickness - Solid_Thickness ) * Fluid_Density +
+                Solid_Thickness * Solid_Density ) * GRAVITY * Pa_To_MPa;
+          }
 
           if ( IsCalculationCoupled ) {
             Fluid_Pressure  = Lithostatic_Pressure - ( ves( k,j,i ) * Pa_To_MPa );

@@ -876,7 +876,7 @@ double GeoPhysics::CompoundLithology::computeSegmentThickness(const double topMa
    const double densityDifference,
    const double solidThickness) const {
 
-   if (m_porosity.getPorosityModel() == DataAccess::Interface::EXPONENTIAL_POROSITY) {
+   if (m_porosity.getPorosityModel() == DataAccess::Interface::EXPONENTIAL_POROSITY && densityDifference > 0.0 ) {
 
       double d1 = exponentialDecompactionFunction(topMaxVes);
       double d2 = exponentialDecompactionFunction(botMaxVes);

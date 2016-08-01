@@ -81,7 +81,7 @@ namespace GeoPhysics
       double c2;
       double Solid_Thickness;
 
-      if (m_compactionIncr == 0) {
+      if (m_compactionIncr == 0 || densitydiff <= 0.0 ) {
          Solid_Thickness = thickness * (1.0 - m_depoPorosity);
       }
       else {
