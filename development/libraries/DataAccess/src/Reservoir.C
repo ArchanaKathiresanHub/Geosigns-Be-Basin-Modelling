@@ -56,6 +56,12 @@ const string & Reservoir::getName (void) const
    return database::getReservoirName (m_record);
 }
 
+void Reservoir::setName (const string reservoirName)
+{
+   database::setReservoirName (m_record, reservoirName);
+   return;
+}
+
 const string & Reservoir::getMangledName (void) const
 {
    return m_mangledName;

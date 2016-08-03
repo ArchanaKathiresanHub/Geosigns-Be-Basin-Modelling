@@ -1219,6 +1219,8 @@ double LocalColumn::getValue (ValueSpec valueSpec, PhaseId phase)
 	 return getLateralChargeDensity (phase);
       case LEAKAGEQUANTITY:
 	 return getCompositionWeight ();
+      case SEEPAGEQUANTITY:
+	 return getCompositionWeight ();
       case CHARGEQUANTITY:
 	 return getChargeQuantity (phase);
       case PASTEURIZATIONSTATUS:

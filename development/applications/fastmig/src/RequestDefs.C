@@ -26,6 +26,7 @@ namespace migration
 
    MPI_Datatype FormationNodeType;
    MPI_Datatype FormationNodeValueType;
+   MPI_Datatype FormationNodeCompositionType;
    MPI_Datatype FormationNodeThreeVectorType;
    MPI_Datatype FormationNodeThreeVectorValueType;
 
@@ -41,6 +42,7 @@ namespace migration
 
       FormationNodeRequest formationNodeRequest;
       FormationNodeValueRequest formationNodeValueRequest;
+      FormationNodeCompositionRequest formationNodeCompositionRequest;
       FormationNodeThreeVectorRequest formationNodeThreeVectorRequest;
       FormationNodeThreeVectorValueRequest formationNodeThreeVectorValueRequest;
 
@@ -330,6 +332,39 @@ namespace migration
 
       MPI_Type_create_struct (index, blockSizes, offsets, types, &FormationNodeValueType);
       MPI_Type_commit (&FormationNodeValueType);
+
+      //*****************************************
+      // FormationNodeCompositionRequest
+
+      index = baseIndex;
+      MPI_Get_address (&formationNodeCompositionRequest, &baseAddress);
+
+      MPI_Get_address (&formationNodeCompositionRequest.phase, &offsetAddress);
+      offsets[index] = offsetAddress - baseAddress;
+      types[index] = MPI_INT;
+      blockSizes[index] = 1;
+      ++index;
+
+      MPI_Get_address (&formationNodeCompositionRequest.composition.m_components, &offsetAddress);
+      offsets[index] = offsetAddress - baseAddress;
+      types[index] = MPI_DOUBLE;
+      blockSizes[index] = NUM_COMPONENTS;
+      ++index;
+
+      MPI_Get_address (&formationNodeCompositionRequest.composition.m_density, &offsetAddress);
+      offsets[index] = offsetAddress - baseAddress;
+      types[index] = MPI_DOUBLE;
+      blockSizes[index] = 1;
+      ++index;
+
+      MPI_Get_address (&formationNodeCompositionRequest.composition.m_viscosity, &offsetAddress);
+      offsets[index] = offsetAddress - baseAddress;
+      types[index] = MPI_DOUBLE;
+      blockSizes[index] = 1;
+      ++index;
+
+      MPI_Type_create_struct (index, blockSizes, offsets, types, &FormationNodeCompositionType);
+      MPI_Type_commit (&FormationNodeCompositionType);
 
       //*****************************************
       // FormationNodeThreeVectorRequest

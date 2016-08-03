@@ -317,11 +317,12 @@ namespace database {
    }
 
 
-   Record *Table::createRecord ()
+   Record *Table::createRecord (bool addToFile)
    {
       Record *record = new Record (m_tableDefinition, this);
 
-      addRecord (record);
+      if (addToFile)
+         addRecord (record);
 
       return record;
    }

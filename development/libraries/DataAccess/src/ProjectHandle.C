@@ -1172,6 +1172,7 @@ bool ProjectHandle::loadProperties( void )
    m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockTrapArea",               "ResRockTrapArea",               "",        RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockTrapId",                 "ResRockTrapId",                 "",        RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockLeakage",                "ResRockLeakage",                "kg",      RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( this, 0, "SeepageBasinTop",               "SeepageBasinTop",               "kg",      RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockLeakageUpward",          "ResRockLeakageUpward",          "kg",      RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockLeakageOutward",         "ResRockLeakageOutward",         "kg",      RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockTop",                    "ResRockTop",                    "m",       RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY ));

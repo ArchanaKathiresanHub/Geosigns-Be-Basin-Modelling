@@ -272,30 +272,30 @@ namespace migration
                      formationNode->setCapillaryEntryPressureLiquid (0.0, k == depth);
                   }
                }
-               else
-               {
-                  ptrVapourPcE->set (i, j, (unsigned int)k, capillaryEntryPressureVapour);
-                  ptrLiquidPcE->set (i, j, (unsigned int)k, capillaryEntryPressureLiquid);
-
-                  // If not a ghost node and not on last I or J row of the basin then assign the values to the local formation node
-                  if (i >= m_formationNodeArray->firstILocal () and i <= m_formationNodeArray->lastILocal () and
-                      j >= m_formationNodeArray->firstJLocal () and j <= m_formationNodeArray->lastJLocal () and
-                      i < grid->numIGlobal () - 1 and j < grid->numJGlobal () - 1)
+                  else
                   {
-                     // If at the top choose the formation node right below it. We will still calculate and save values for the top node,
-                     // but these values will be stored in the arrays of the node below it.
-                     LocalFormationNode * formationNode = (k == depth) ? getLocalFormationNode (i, j, k - 1) : getLocalFormationNode (i, j, k);
-                     if (!formationNode)
-                        continue;
+                     ptrVapourPcE->set (i, j, (unsigned int)k, capillaryEntryPressureVapour);
+                     ptrLiquidPcE->set (i, j, (unsigned int)k, capillaryEntryPressureLiquid);
 
-                     formationNode->setCapillaryEntryPressureVapour (capillaryEntryPressureVapour, k == depth);
-                     formationNode->setCapillaryEntryPressureLiquid (capillaryEntryPressureLiquid, k == depth);
+                     // If not a ghost node and not on last I or J row of the basin then assign the values to the local formation node
+                     if (i >= m_formationNodeArray->firstILocal () and i <= m_formationNodeArray->lastILocal () and
+                        j >= m_formationNodeArray->firstJLocal () and j <= m_formationNodeArray->lastJLocal () and
+                        i < grid->numIGlobal () - 1 and j < grid->numJGlobal () - 1)
+                     {
+                        // If at the top choose the formation node right below it. We will still calculate and save values for the top node,
+                        // but these values will be stored in the arrays of the node below it.
+                        LocalFormationNode * formationNode = (k == depth) ? getLocalFormationNode (i, j, k - 1) : getLocalFormationNode (i, j, k);
+                        if (!formationNode)
+                           continue;
+
+                        formationNode->setCapillaryEntryPressureVapour (capillaryEntryPressureVapour, k == depth);
+                        formationNode->setCapillaryEntryPressureLiquid (capillaryEntryPressureLiquid, k == depth);
+                     }
                   }
                }
             }
          }
-      }
-      
+
 
       return true;
    }
@@ -615,9 +615,9 @@ namespace migration
       {
          allComputed = true;
          int targetNodesToCompute = 0;
-         for (int i = m_formationNodeArray->firstILocal (); i <= m_formationNodeArray->lastILocal (); ++i)
+         for (int i = (int) m_formationNodeArray->firstILocal (); i <= (int) m_formationNodeArray->lastILocal (); ++i)
          {
-            for (int j = m_formationNodeArray->firstJLocal (); j <= m_formationNodeArray->lastJLocal (); ++j)
+            for (int j = (int) m_formationNodeArray->firstJLocal (); j <= (int) m_formationNodeArray->lastJLocal (); ++j)
             {
                if (!computeTargetFormationNode (i, j, depthIndex))
                {
@@ -954,7 +954,7 @@ namespace migration
             if (theFormationProperty != 0)
             {
                theMap = m_migrator->getPropertyManager().produceDerivedGridMap(theFormationProperty);
-            }
+                  }
 
          }
       }
@@ -989,7 +989,7 @@ namespace migration
       if (!m_formationNodeArray)
          return true;
 
-      int nodeDepth = getNodeDepth ();
+      unsigned int nodeDepth = (unsigned int) getNodeDepth ();
 
       Interface::PropertyValue * propertyValue =
          m_migrator->getProjectHandle ()->createVolumePropertyValue ("FlowDirectionIJK", end, 0, this, nodeDepth + 1);
@@ -1032,11 +1032,11 @@ namespace migration
                {
                   if (!m_migrator->performVerticalMigration ())
                   {
-                     gridMapValue =
-                        100 * node->getAdjacentFormationNodeGridOffset (2) +     // K
-                        10 * node->getAdjacentFormationNodeGridOffset (1) +     // J
-                        1 * node->getAdjacentFormationNodeGridOffset (0);      // I
-                  }
+                  gridMapValue = 
+                  100 * node->getAdjacentFormationNodeGridOffset (2) +     // K
+                  10 * node->getAdjacentFormationNodeGridOffset (1) +     // J
+                  1 * node->getAdjacentFormationNodeGridOffset (0);      // I
+               }
                   else
                   {
                      gridMapValue = 100;
@@ -1436,7 +1436,7 @@ namespace migration
                fs = FaultStatus ((int) gmValue);
             }
 
-            for (unsigned int k = 0; k < getNodeDepth (); ++k)
+            for (unsigned int k = 0; k < (unsigned int) getNodeDepth (); ++k)
             {
                getLocalFormationNode (i, j, k)->setFaultStatus (fs);
             }
@@ -1547,8 +1547,7 @@ namespace migration
       {
          for (unsigned int j = m_formationNodeArray->firstJLocal (); j <= m_formationNodeArray->lastJLocal (); ++j)
          {
-            // Make sure the expelling node is a valid node.
-            LocalFormationNode * formationNode = getLocalFormationNode (i, j, depthIndex);
+            LocalFormationNode * formationNode = validReservoirNode (i, j);
             if (!IsValid (formationNode)) continue;
 
             // Force expulsion by getting node above source rock
@@ -1567,9 +1566,7 @@ namespace migration
                unsigned int iTarget = targetFormationNode->getI ();
                unsigned int jTarget = targetFormationNode->getJ ();
                unsigned int kTarget = targetFormationNode->getK ();
-
-               //assert (getDepth (iTarget, jTarget, kTarget) >= targetReservoir->getColumn (iTarget, jTarget)->getTopDepth ());
-
+               
                // calculate the composition to migrate
                Composition composition;
                for (int componentId = FIRST_COMPONENT; componentId < NUM_COMPONENTS; ++componentId)
@@ -1585,10 +1582,10 @@ namespace migration
 
                   double value = densityMap->getValue (i,j);
                   if (value != densityMap->getUndefinedValue ())
-                  {
+                     {
                      double weight = value * expulsionFraction * surface;
                      composition.add ((ComponentId) componentId, weight);
-                  }   
+                  }
                }
 
                int offsetIndex;
@@ -1679,9 +1676,8 @@ namespace migration
             {
                unsigned int iTarget = targetFormationNode->getI ();
                unsigned int jTarget = targetFormationNode->getJ ();
-               unsigned int kTarget = targetFormationNode->getK ();
 
-               //assert (getDepth (iTarget, jTarget, kTarget) >= targetReservoir->getColumn (iTarget, jTarget)->getTopDepth ());
+               unsigned int kTarget = targetFormationNode->getK ();
 
                Composition leakingComposition, composition;
                assert (leakingComposition.isEmpty ());
@@ -1734,9 +1730,159 @@ namespace migration
             }
          }
       }
-      
+ 
       delete leakingReservoirList;
       RequestHandling::FinishRequestHandling ();
+   }
+
+   bool Formation::calculateExpulsionSeeps (const Interface::Snapshot * end, const double expulsionFraction, const bool verticalMigration)
+   {
+      int depthIndex = m_formationNodeArray->depth () - 1;
+
+      Formation *topActiveFormation = m_migrator->getTopActiveFormation (end);
+
+      RequestHandling::StartRequestHandling (getMigrator (), "calculateExpulsionSeeps");
+
+      for (unsigned int i = m_formationNodeArray->firstILocal (); i <= m_formationNodeArray->lastILocal (); ++i)
+      {
+         for (unsigned int j = m_formationNodeArray->firstJLocal (); j <= m_formationNodeArray->lastJLocal (); ++j)
+         {
+            LocalFormationNode * formationNode = validReservoirNode (i, j);
+            if (!IsValid (formationNode)) continue;
+
+            FormationNode * targetFormationNode;
+
+            if (verticalMigration)
+            {
+               int k = topActiveFormation->getNodeDepth () - 1;
+               targetFormationNode = topActiveFormation->getFormationNode (i, j, k);
+            }
+            else
+               targetFormationNode = formationNode->getTargetFormationNode ();
+
+            // check if the top formation is the formation to migrate to for given i, j
+            if (targetFormationNode and targetFormationNode->isEndOfPath () and
+               !targetFormationNode->goesOutOfBounds () and
+               targetFormationNode->getFormation () == topActiveFormation)
+            {
+               unsigned int iTarget = targetFormationNode->getI ();
+               unsigned int jTarget = targetFormationNode->getJ ();
+               unsigned int kTarget = targetFormationNode->getK ();
+
+               // calculate the composition to migrate
+               Composition composition;
+               for (int componentId = FIRST_COMPONENT; componentId < NUM_COMPONENTS; ++componentId)
+               {
+                  if (!ComponentsUsed[componentId])
+                     continue;
+                  if (!m_expulsionGridMaps || !m_expulsionGridMaps[componentId])
+                     continue;
+
+                  GridMap *densityMap = m_expulsionGridMaps[componentId];
+
+                  double surface = densityMap->getGrid ()->getSurface (1, 1);
+
+                  double value = densityMap->getValue (i, j);
+                  if (value != densityMap->getUndefinedValue ())
+                  {
+                     double weight = expulsionFraction * surface * value;
+                     composition.add ((ComponentId)componentId, weight);
+                  }
+               }
+               targetFormationNode->addComposition (composition);
+            }
+         }
+      }
+
+      RequestHandling::FinishRequestHandling ();
+
+      return true;
+   }
+
+   bool Formation::calculateLeakageSeeps (const Interface::Snapshot * end, const bool verticalMigration)
+   {
+      // LeakingReservoirList should contain only the reservoir corresponding
+      // to the formation whose member function is being executed
+      DataAccess::Interface::ReservoirList * leakingReservoirList = m_migrator->getReservoirs (this);
+      assert (!leakingReservoirList->empty ());
+
+      // leakingReservoir is the reservoir hosted in "this" formation
+      const DataAccess::Interface::Reservoir * dataAccessReservoir = (*leakingReservoirList)[0];
+
+      const Reservoir * leakingReservoir = dynamic_cast<const migration::Reservoir *> (dataAccessReservoir);
+
+      Formation *topActiveFormation = m_migrator->getTopActiveFormation (end);
+      Formation *formationAbove     = getTopFormation ();
+
+      int depthIndex = m_formationNodeArray->depth () - 1;
+
+      RequestHandling::StartRequestHandling (getMigrator (), "calculateLeakageSeeps");
+
+      for (unsigned int i = m_formationNodeArray->firstILocal (); i <= m_formationNodeArray->lastILocal (); ++i)
+      {
+         for (unsigned int j = m_formationNodeArray->firstJLocal (); j <= m_formationNodeArray->lastJLocal (); ++j)
+         {
+            LocalColumn * leakingColumn = leakingReservoir->getLocalColumn (i, j);
+            if (!IsValid (leakingColumn) or leakingColumn->isOnBoundary ()) continue;            
+
+            // The "leaking" node probably isEndOfPath (e.g. because it's a trap crest).
+            // Then the HC path will be forced to be lateral.
+            // But we know it should leak so we force it to do so
+            // by probing the first non-zero thickness node  above it.
+            LocalFormationNode * formationNode = validSealNode (i, j, formationAbove, topActiveFormation);
+            if (!IsValid (formationNode)) continue;
+
+            FormationNode *targetFormationNode;
+
+            if (verticalMigration)
+            {
+               int k = topActiveFormation->getNodeDepth () - 1;
+               targetFormationNode = topActiveFormation->getFormationNode (i, j, k);
+            }
+            else
+               targetFormationNode = formationNode->getTargetFormationNode ();
+
+            // check if targetReservoir is the reservoir to migrate to for given i, j
+            if (targetFormationNode and targetFormationNode->isEndOfPath () and
+               !targetFormationNode->goesOutOfBounds () and
+               targetFormationNode->getFormation () == topActiveFormation)
+            {
+               unsigned int iTarget = targetFormationNode->getI ();
+               unsigned int jTarget = targetFormationNode->getJ ();
+               unsigned int kTarget = targetFormationNode->getK ();
+
+               Composition leakingComposition, composition;
+               assert (leakingComposition.isEmpty ());
+               assert (composition.isEmpty ());
+
+               leakingComposition = leakingColumn->getComposition ();
+
+               // calculate the composition to migrate
+               for (int componentId = FIRST_COMPONENT; componentId < NUM_COMPONENTS; ++componentId)
+               {
+                  if (!ComponentsUsed[componentId])
+                     continue;
+
+                  double weight = leakingComposition.getWeight ((ComponentId)componentId);
+
+                  if (weight)
+                  {
+                     composition.add ((ComponentId)componentId, weight);
+                  }
+               }
+
+               if (!composition.isEmpty ())
+               {
+                  targetFormationNode->addComposition (composition);
+               }
+            }
+         }
+      }
+
+      delete leakingReservoirList;
+      RequestHandling::FinishRequestHandling ();
+
+      return true;
    }
 
    bool Formation::preprocessSourceRock (const double startTime, const bool printDebug) {
@@ -2000,6 +2146,24 @@ namespace migration
    const Grid * Formation::getGrid (void) const
    {
       return m_projectHandle->getHighResolutionOutputGrid (); // not to be changed to getActivityOutputGrid ()!!
+   }
+
+   void Formation::manipulateFormationNodeComposition (FormationNodeCompositionRequest & compositionRequest)
+   {
+      LocalFormationNode * localFormationNode = getLocalFormationNode (compositionRequest.i, compositionRequest.j, compositionRequest.k);
+      
+      if (localFormationNode)
+      localFormationNode->manipulateComposition (compositionRequest.valueSpec, compositionRequest.phase, compositionRequest.composition);
+   }
+
+   void Formation::getFormationNodeComposition (FormationNodeCompositionRequest & compositionRequest, FormationNodeCompositionRequest & compositionResponse)
+   {
+      compositionResponse.formationIndex = getIndex ();
+      compositionResponse.valueSpec = compositionRequest.valueSpec;
+
+      getLocalFormationNode (compositionRequest.i, compositionRequest.j, compositionRequest.k)->getComposition (compositionRequest.valueSpec,
+                                                                                                                compositionRequest.phase,
+                                                                                                                compositionResponse.composition);
    }
 
    const Interface::GridMap * Formation::getPropertyGridMap (const string & propertyName,

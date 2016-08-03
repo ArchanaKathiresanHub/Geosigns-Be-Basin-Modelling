@@ -210,7 +210,7 @@ namespace database
       typedef RecordList::iterator iterator;
 
       /// Create a new Record in this Table
-      Record * createRecord ();
+      Record * createRecord (bool addToFile = true);
 
       /// Find the position of a record
       Table::iterator findRecordPosition (Record * record);

@@ -39,6 +39,7 @@ using namespace database;
 
 using namespace migration;
  
+#include "GeoPhysicsProjectHandle.h"
 #include "Interface/ProjectHandle.h"
 #include "Interface/Reservoir.h"
 #include "Interface/PropertyValue.h"
@@ -81,7 +82,7 @@ Migrator::Migrator (const string & name)
    m_reservoirs = 0;
    m_formations = 0;
    
- 
+
    InitializeRequestTypes ();
    if (GetRank () == 0)
    {
@@ -161,11 +162,12 @@ bool Migrator::compute (void)
 
    ComputeRanks (m_projectHandle->getActivityOutputGrid ());
 
-   m_verticalMigration = m_projectHandle->getRunParameters ()->getVerticalSecondaryMigration ();
+   m_verticalMigration    = m_projectHandle->getRunParameters ()->getVerticalSecondaryMigration ();
    m_hdynamicAndCapillary = m_projectHandle->getRunParameters ()->getHydrodynamicCapillaryPressure ();
    if (m_verticalMigration)
       m_hdynamicAndCapillary = 0;
    m_reservoirDetection = m_projectHandle->getRunParameters ()->getReservoirDetection ();
+   m_paleoSeeps         = m_projectHandle->getRunParameters ()->getPaleoSeeps ();
    m_legacyMigration    = m_projectHandle->getRunParameters ()->getLegacy ();
 
    if (!setUpBasinGeometry()) return false;
@@ -175,6 +177,7 @@ bool Migrator::compute (void)
       m_verticalMigration    = true;
       m_hdynamicAndCapillary = false;
       m_reservoirDetection   = false;
+      m_paleoSeeps           = false;
    }
 
    bool overPressureRun = !isHydrostaticCalculation ();
@@ -286,15 +289,15 @@ bool Migrator::setUpBasinGeometry (void)
 
    if (!m_legacyMigration)
    {
-      // From GeoPhysics::ProjectHandle
+   // From GeoPhysics::ProjectHandle
       if (!m_projectHandle->initialise(true) ||
          !m_projectHandle->setFormationLithologies(true, true) ||
          !m_projectHandle->initialiseLayerThicknessHistory(!HydrostaticCalculation) || // Backstripping
          !m_projectHandle->applyFctCorrections())
-         return false;
-      else
-         return true;
-   }
+      return false;
+   else
+      return true;
+}
    else 
    {
       if (!m_projectHandle->initialise(true) ||
@@ -414,11 +417,11 @@ bool Migrator::performSnapshotMigration (const Interface::Snapshot * start, cons
 {
    bool sourceRockActive = false;
    migration::Formation * bottomSourceRock = getBottomSourceRockFormation ();
-
+      
    if (bottomSourceRock != nullptr)
       sourceRockActive = bottomSourceRock->isActive (end);
 
-   if ((activeReservoirs (end) or m_reservoirDetection) and sourceRockActive )
+   if ((activeReservoirs (end) or m_reservoirDetection or m_paleoSeeps or end->getTime () == 0.0) and sourceRockActive)
    {
       if (GetRank () == 0)
          std::cout << "Processing snapshot " << end->getTime () << std::endl;
@@ -432,20 +435,21 @@ bool Migrator::performSnapshotMigration (const Interface::Snapshot * start, cons
       {
          clearFormationNodeProperties ();
 
-         if (!computeFormationPropertyMaps (end, overPressureRun) ||
-            !retrieveFormationPropertyMaps (end) ||
-            !computeFormationNodeProperties (end) ||
-            !detectReservoirs (start, end, overPressureRun) ||
-            !computeSMFlowPaths (start, end) ||
-            !restoreFormationPropertyMaps (end) ||
-            !loadExpulsionMaps (start, end) ||
-            !chargeReservoirs (start, end) ||
-            !unloadExpulsionMaps (end) ||
-            !saveSMFlowPaths (start, end))
-         {
-            return false;
-         }
+      if (!computeFormationPropertyMaps (end, overPressureRun) ||
+          !retrieveFormationPropertyMaps (end) ||
+          !computeFormationNodeProperties (end) ||
+          !detectReservoirs (start, end, overPressureRun) ||
+          !computeSMFlowPaths (start, end) ||
+          !restoreFormationPropertyMaps (end) ||
+          !loadExpulsionMaps (start, end) ||
+          !chargeReservoirs (start, end) ||
+          !calculateSeepage (end) ||
+          !unloadExpulsionMaps (end) ||
+          !saveSMFlowPaths (start, end))
+      {
+         return false;
       }
+   }
    }
 
    m_projectHandle->continueActivity ();
@@ -453,7 +457,7 @@ bool Migrator::performSnapshotMigration (const Interface::Snapshot * start, cons
    m_propertyManager->removeProperties (start);
    m_projectHandle->deletePropertyValueGridMaps (Interface::SURFACE | Interface::FORMATION | Interface::FORMATIONSURFACE | Interface::RESERVOIR,
                                                  0, start, 0, 0, 0, Interface::MAP | Interface::VOLUME);
-                                                 
+
    return true;
 }
 
@@ -639,6 +643,26 @@ migration::Formation * Migrator::getBottomSourceRockFormation ()
    return bottomSourceRockFormation;
 }
 
+migration::Formation * Migrator::getTopSourceRockFormation (const Interface::Snapshot * end)
+{
+   Interface::FormationList * formations = getAllFormations ();
+   Interface::FormationList::iterator formationIter;
+
+   Formation * topSourceRockFormation = 0;
+   for (formationIter = formations->begin (); formationIter != formations->end (); ++formationIter)
+   {
+      Formation * formation = Formation::CastToFormation (*formationIter);
+
+      if (formation->isSourceRock () && formation->isActive (end))
+      {
+         topSourceRockFormation = formation;
+         break;
+      }
+   }
+
+   return topSourceRockFormation;
+}
+
 migration::Formation * Migrator::getTopActiveFormation (const Interface::Snapshot * end)
 {
    Interface::FormationList * formations = getAllFormations ();
@@ -654,6 +678,7 @@ migration::Formation * Migrator::getTopActiveFormation (const Interface::Snapsho
    return 0;
 }
 
+// Returns the top reservoir that has been deposited, is sealed and is active at snapshot "end"
 migration::Formation * Migrator::getTopActiveReservoirFormation (const Interface::Snapshot * end)
 {
    Interface::ReservoirList * reservoirs = getReservoirs ();
@@ -665,7 +690,11 @@ migration::Formation * Migrator::getTopActiveReservoirFormation (const Interface
    for (reservoirIter = reservoirs->begin (); reservoirIter != reservoirs->end (); ++reservoirIter)
    {
       Reservoir * reservoir = (Reservoir *) (*reservoirIter);
-      if (reservoir->isActive (end))
+      Formation * tempFormation = Formation::CastToFormation (reservoir->getFormation ());
+
+      bool isDeposited = tempFormation->getTopSurface ()->getSnapshot ()->getTime () > end->getTime ();
+      
+      if (reservoir->isActive (end) and isDeposited)
       {
          topActiveReservoir = reservoir;
       }
@@ -675,6 +704,7 @@ migration::Formation * Migrator::getTopActiveReservoirFormation (const Interface
    {
       topActiveReservoirFormation = Formation::CastToFormation (topActiveReservoir->getFormation ());
    }
+
    return topActiveReservoirFormation;
 }
 
@@ -689,7 +719,10 @@ migration::Formation * Migrator::getBottomActiveReservoirFormation (const Interf
    for (reservoirIter = reservoirs->begin (); reservoirIter != reservoirs->end (); ++reservoirIter)
    {
       Reservoir * reservoir = (Reservoir *) (*reservoirIter);
-      if (reservoir->isActive (end))
+      Formation * tempFormation = Formation::CastToFormation (reservoir->getFormation ());
+
+      bool isDeposited = tempFormation->getTopSurface ()->getSnapshot ()->getTime () >= end->getTime ();
+      if (reservoir->isActive (end) and isDeposited)
       {
          bottomActiveReservoir = reservoir;
          break;
@@ -801,7 +834,7 @@ bool Migrator::detectReservoirs (const Interface::Snapshot * start, const Interf
          if (reservoirFormation->getDetectedReservoir()) reservoirFormation->setEndOfPath ();
       }
    }
-   
+
    // in case one or more formations have been detected, sort m_reservoirs
    if (numDetected > 0) sortReservoirs();
 
@@ -1067,6 +1100,114 @@ bool Migrator::chargeReservoir (migration::Reservoir * reservoir, migration::Res
    return true;
 }
 
+// Depending on the configuration of the basin it calculates leakage from the top reservoir
+// and expulsion from all active source rocks above the top reservoir
+bool Migrator::calculateSeepage (const Interface::Snapshot * end)
+{
+   if (!m_paleoSeeps and end->getTime () > 0.0)
+      return true;
+
+   Formation * seepsFormation = getTopActiveFormation (end);
+   if (!seepsFormation)
+      return false;
+
+   Formation * topSourceRockFormation = getTopSourceRockFormation (end);
+   Formation * topReservoirFormation  = getTopActiveReservoirFormation (end);
+   
+   // If no source rock and no reservoir there can't be a source for new seepage
+   if (!topSourceRockFormation and !topReservoirFormation)
+   return true;
+
+   // Index of the position of the top reservoir. If no reservoir exists, then a value well
+   // below zero is needed to exclude downward migration and get the right expulsion amounts.
+   // Top source rock is treated in a similar way
+   int topReservoirIndex, topSourceRockIndex;
+   topReservoirIndex = topSourceRockIndex = -10;
+
+   // First calculate leakage from the top active reservoir
+   if (topReservoirFormation)
+   {
+      Formation * formationOnTop = topReservoirFormation->getTopFormation ();
+
+      // Only calculate leakage seeps if the top-reservoir top surface is not the top of the basin.
+      // If it is, the column composition will be registered for seeps as it is currently stored.
+      if (formationOnTop and formationOnTop->isActive (end))
+      {
+         if (!topReservoirFormation->calculateLeakageSeeps (end, m_verticalMigration))
+            return false;
+      }
+
+      // Determine the position of the top reservoir. 
+      topReservoirIndex = topReservoirFormation ->getDepositionSequence ();
+   }
+
+   if (topSourceRockFormation)
+      topSourceRockIndex = topSourceRockFormation->getDepositionSequence ();
+
+   int indexDifference = topReservoirIndex - topSourceRockIndex;
+
+   // If the top SR is higher than the top reservoir, calculate expulsion as well
+   if (indexDifference < 0)
+   {
+      Interface::FormationList * formations = getAllFormations ();
+      Interface::FormationList::iterator formationIter;
+
+      // There may be more than one source rock above the top reservoir
+      for (formationIter = formations->begin (); formationIter != formations->end (); ++formationIter)
+      {
+         Formation * formation = Formation::CastToFormation (*formationIter);
+         int formationIndex    = formation->getDepositionSequence ();
+
+         // Continue if above the top source rock (no source for seepage here)
+         if (formationIndex > topSourceRockIndex )
+            continue;
+         // Break if at or below the top reservoir (expulsion won't reach the top)
+         if (formationIndex <= topReservoirIndex)
+            break;
+         
+         if (formation->isSourceRock () and formation->isActive (end))
+         {
+            // Account for the possibility of downward migration
+            indexDifference = topReservoirIndex - formation->getDepositionSequence ();
+            double fractionOfExpulsion = indexDifference < -2 ? 1.0 : 0.5;
+            if (!formation->calculateExpulsionSeeps (end, fractionOfExpulsion, m_verticalMigration))
+               return false;
+         }  
+      }
+   }
+
+   saveSeepageAmounts (seepsFormation, end);
+
+   return true;
+}
+
+void Migrator::saveSeepageAmounts (migration::Formation * seepsFormation, const Interface::Snapshot * end)
+{
+   // save only major snapshots results
+   const bool saveSnapshot = end->getType () == Interface::MAJOR;
+   if (!saveSnapshot)
+      return;
+
+   if (!m_ReservoirIoTbl) m_ReservoirIoTbl = m_projectHandle->getTable ("ReservoirIoTbl");
+   assert (m_ReservoirIoTbl);
+   // Create record without adding it to file
+   database::Record * seepsReservoirRecord = m_ReservoirIoTbl->createRecord(false);
+
+   // set the name of the new record object
+   database::setReservoirName (seepsReservoirRecord, seepsFormation->getName ());
+
+   DataAccess::Interface::ProjectHandle * dataAccessProjectHandle = dynamic_cast<DataAccess::Interface::ProjectHandle *> (getProjectHandle ());
+   // Not a real reservoir, but the I/O functionality of the reservoir class comes in handy
+   migration::Reservoir seepsReservoir (dataAccessProjectHandle, this, seepsReservoirRecord);
+
+   // transfer seepage amounts from nodes to columns
+   seepsReservoir.putSeepsInColumns (seepsFormation);
+   
+   seepsReservoir.saveSeepageProperties (seepsFormation, end);
+
+   return;
+}
+
 // collect expelled charges into reservoirs from the formations that are
 // above reservoirBelow and not above or just above reservoir
 bool Migrator::collectAndMigrateExpelledCharges (Reservoir * reservoir, Reservoir * reservoirAbove, Reservoir * reservoirBelow,
@@ -1244,8 +1385,8 @@ Interface::ReservoirList * Migrator::getReservoirs (const Interface::Formation *
    {
       if (!m_reservoirs) sortReservoirs();
       return m_reservoirs;
+      }
    }
-}
 
 void Migrator::sortReservoirs() const
 { 
@@ -1807,7 +1948,7 @@ bool reservoirSorter (const Interface::Reservoir * reservoir1, const Interface::
 }
 
 bool Migrator::mergeOutputFiles ()
-{
+   {
    if( m_projectHandle->getModellingMode () == Interface::MODE1D ) return true;
 #ifndef _MSC_VER
    ibs::FilePath localPath  ( m_projectHandle->getProjectPath () );
@@ -1818,4 +1959,4 @@ bool Migrator::mergeOutputFiles ()
 #else
    return true;
 #endif
-}
+      }

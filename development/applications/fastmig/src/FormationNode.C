@@ -175,6 +175,40 @@ namespace migration {
       return valueResponse.value;
    }
 
+   Composition & ProxyFormationNode::getComposition (void)
+   {
+      FormationNodeCompositionRequest chargesRequest;
+      FormationNodeCompositionRequest chargesResponse;
+
+      chargesRequest.i = getI ();
+      chargesRequest.j = getJ ();
+      chargesRequest.k = getK ();
+
+      chargesRequest.formationIndex = m_formation->getIndex ();
+      chargesRequest.valueSpec = GETCHARGES;
+
+      RequestHandling::SendFormationNodeCompositionRequest (chargesRequest, chargesResponse);
+      m_compositionToBeMigrated = &chargesResponse.composition;
+      return *m_compositionToBeMigrated;
+   }
+
+   void ProxyFormationNode::addComposition (const Composition & composition)
+   {
+      FormationNodeCompositionRequest chargesRequest;
+      FormationNodeCompositionRequest chargesResponse;
+
+      chargesRequest.i = getI ();
+      chargesRequest.j = getJ ();
+      chargesRequest.k = getK ();
+
+      chargesRequest.formationIndex = m_formation->getIndex ();
+
+      chargesRequest.valueSpec = ADDCOMPOSITIONTOBEMIGRATED;
+
+      chargesRequest.composition = composition;
+
+      RequestHandling::SendFormationNodeCompositionRequest (chargesRequest, chargesResponse);
+   }
 
    bool ProxyFormationNode::isValid (void)
    {
@@ -355,7 +389,7 @@ namespace migration {
 
    /// Constructor
    LocalFormationNode::LocalFormationNode (unsigned int i, unsigned int j, int k, Formation * formation) :
-      FormationNode (i, j, k, formation), m_compositionToBeMigrated (0), m_topFormationNode (0), m_targetFormationNode (0), m_selectedDirectionIndex (-1),
+      FormationNode (i, j, k, formation), m_topFormationNode (0), m_targetFormationNode (0), m_selectedDirectionIndex (-1),
       m_depth (Interface::DefaultUndefinedMapValue), m_horizontalPermeability (-1), m_porosity (-1), m_pressure (-1), m_temperature (-1), m_adjacentNodeIndex (0),
       m_entered (false), m_tried (0), m_hasNoThickness (false), m_cosines (0), m_isCrestLiquid (true), m_isCrestVapour (true), m_isEndOfPath (false)
    {
@@ -370,11 +404,14 @@ namespace migration {
 
       m_vapourDensity = -1.0;
       m_liquidDensity = -1.0;
+
+      m_compositionToBeMigrated = new Composition;
    }
 
    /// Destructor
    LocalFormationNode::~LocalFormationNode (void)
    {
+      delete m_compositionToBeMigrated;
    }
 
    bool LocalFormationNode::isValid (void)
@@ -417,6 +454,9 @@ namespace migration {
       m_entered = false;
       m_tried = 0;
       m_hasNoThickness = false;
+
+      if (m_compositionToBeMigrated)
+         m_compositionToBeMigrated->reset ();
 
       if (m_cosines) m_cosines->clear ();
 
@@ -610,6 +650,35 @@ namespace migration {
       }
    }
 
+   void LocalFormationNode::manipulateComposition (ValueSpec valueSpec, int phase, Composition & composition)
+   {
+      switch (valueSpec)
+      {
+      case ADDCOMPOSITIONTOBEMIGRATED:
+         addComposition (composition);
+         break;
+      default:
+         assert (0);
+      }
+   }
+
+   void LocalFormationNode::getComposition (ValueSpec valueSpec, int phase, Composition & composition)
+   {
+      switch (valueSpec)
+      {
+      case GETCHARGES:
+         composition = getComposition ();
+         break;
+      default:
+         assert (0);
+      }
+   }
+
+   migration::Composition & LocalFormationNode::getComposition (void)
+   {
+      return *m_compositionToBeMigrated;
+   }
+
    void LocalFormationNode::getThreeVectorValue (FormationNodeThreeVectorValueRequest & request, FormationNodeThreeVectorValueRequest & response)
    {
       switch (request.valueSpec)
@@ -698,6 +767,11 @@ namespace migration {
       if (!m_compositionToBeMigrated) m_compositionToBeMigrated = new Composition;
 
       m_compositionToBeMigrated->add ((ComponentId) componentId, weight);
+   }
+
+   void LocalFormationNode::addComposition (const Composition & composition)
+   {
+      m_compositionToBeMigrated->add (composition);
    }
 
    //

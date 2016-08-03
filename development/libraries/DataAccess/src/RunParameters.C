@@ -147,6 +147,10 @@ bool RunParameters::getReservoirDetection () const {
    return database::getReservoirDetection ( m_record ) != 0;
 }
 
+bool RunParameters::getPaleoSeeps () const {
+   return database::getPaleoSeeps ( m_record ) != 0;
+}
+
 bool RunParameters::getLegacy () const {
    return database::getLegacy ( m_record ) != 0;
 }

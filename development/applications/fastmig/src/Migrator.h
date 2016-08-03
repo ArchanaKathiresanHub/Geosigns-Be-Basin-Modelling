@@ -92,9 +92,12 @@ namespace migration
       int getIndex (Reservoir * reservoir);
 
       Formation * getBottomSourceRockFormation ();
+      Formation * getTopSourceRockFormation (const Interface::Snapshot * end);
       Formation * getTopActiveFormation (const Interface::Snapshot * end);
       Formation * getBottomActiveReservoirFormation (const Interface::Snapshot * end);
       Formation * getTopActiveReservoirFormation (const Interface::Snapshot * end);
+
+      // Formation * getBotomSourceRockOverTopReservoir (const Interface::Snapshot * end);
 
       // If getMinOilColumnHeight and getMinGasColumnHeight get moved to RunOptionsIoTbl these functions can be used
       /*
@@ -123,6 +126,12 @@ namespace migration
       /// additionally expelled charge between the given snapshots.
       bool chargeReservoir (Reservoir * reservoir, Reservoir * reservoirAbove, Reservoir * reservoirBelow,
                             const Interface::Snapshot * start, const Interface::Snapshot * end);
+
+      // Calculate flow at the top level of the basin for a given snapshot time.
+      bool calculateSeepage (const Interface::Snapshot * end);
+
+      // Save the calculated amounts of seapage
+      void saveSeepageAmounts (migration::Formation * seepsFormation, const Interface::Snapshot * end);
 
       /// Collect expelled charges into the given reservoir from the appropriate source rocks.
       bool collectAndMigrateExpelledCharges (Reservoir * reservoir, Reservoir * reservoirAbove, Reservoir * reservoirBelow,
@@ -187,6 +196,7 @@ namespace migration
       inline bool performVerticalMigration (void) const;
       inline bool performHDynamicAndCapillary (void) const;
       inline bool performReservoirDetection (void) const;
+      inline bool calculatePaleoSeeps (void) const;
       inline bool performLegacyMigration (void) const;
       inline bool isBlockingOn (void);
       inline double getBlockingPermeability (void);
@@ -225,6 +235,7 @@ namespace migration
       bool m_verticalMigration;
       bool m_hdynamicAndCapillary;
       bool m_reservoirDetection;
+      bool m_paleoSeeps;
       bool m_isBlockingOn;
       bool m_legacyMigration;
       double m_blockingPermeability;
@@ -257,6 +268,11 @@ bool migration::Migrator::performHDynamicAndCapillary (void) const
 bool migration::Migrator::performReservoirDetection (void) const
 {
    return m_reservoirDetection;
+}
+
+bool migration::Migrator::calculatePaleoSeeps (void) const
+{
+   return m_paleoSeeps;
 }
 
 bool migration::Migrator::performLegacyMigration (void) const

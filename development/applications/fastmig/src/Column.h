@@ -88,10 +88,10 @@ namespace migration
 
 	 virtual void setChargeDensity (PhaseId phase, double chargeDensity) = 0;
 
-      virtual Composition & getComposition (void) = 0;
+    virtual Composition & getComposition (void) = 0;
 	 virtual void setChargesToBeMigrated (PhaseId phase, Composition & composition) = 0;
 
-      virtual void addCompositionToBeMigrated (Composition & composition) = 0;
+    virtual void addCompositionToBeMigrated (Composition & composition) = 0;
 
 	 virtual void addMigrated (PhaseId phase, double weight) = 0;
 	 virtual void addFlux (double weight) = 0;
@@ -189,12 +189,12 @@ namespace migration
 
 	 virtual double getFillDepth (PhaseId phase);
 	 virtual void setFillDepth (PhaseId phase, double fillDepth);
-      virtual Composition & getComposition (void);
+    virtual Composition & getComposition (void);
 	 virtual void setChargeDensity (PhaseId phase, double chargeDensity);
 
 	 virtual void setChargesToBeMigrated (PhaseId phase, Composition & composition);
 
-      virtual void addCompositionToBeMigrated (Composition & composition);
+    virtual void addCompositionToBeMigrated (Composition & composition);
 
 	 virtual void addMigrated (PhaseId phase, double weight);
 	 virtual void addFlux (double weight);
@@ -469,7 +469,7 @@ namespace migration
 	 virtual double getChargeQuantity (PhaseId phase);
 
 	 void manipulateComposition (ValueSpec valueSpec, int phase, Composition & composition);
-      void getComposition (ValueSpec valueSpec, int phase, Composition & composition);
+    void getComposition (ValueSpec valueSpec, int phase, Composition & composition);
 
 	 inline bool containsComponent (ComponentId componentId);
 	 inline void addComponent (ComponentId componentId, double value);
@@ -477,7 +477,7 @@ namespace migration
 	 inline void setComponent (ComponentId componentId, double value);
 	 inline double getComponent (ComponentId componentId);
 	 inline Composition & getComposition (void);
-         inline int getCompositionState (void);
+    inline int getCompositionState (void);
 
 	 void addProxy (int rank);
 	 void deleteProxy (int rank);

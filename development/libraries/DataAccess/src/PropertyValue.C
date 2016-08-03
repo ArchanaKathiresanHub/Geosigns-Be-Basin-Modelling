@@ -315,10 +315,16 @@ database::Record* PropertyValue::createTimeIoRecord (database::Table * timeIoTbl
       if (getReservoir () && !m_surface && !getFormation ())
       {
          propertyGrid += "_";
-         propertyGrid += ((Reservoir *) getReservoir ())->getMangledName ();
-         database::setFormationName (timeIoRecord, getReservoir ()->getName ());
 
-         propertyGrid += "_";
+         // Supress printing of this information as
+         // a) It is not avialable (Seep formation is no reservoir), and
+         // b) It is not needed.
+         if (getName () != "SeepageBasinTop")
+         {
+            propertyGrid += ((Reservoir *) getReservoir ())->getMangledName ();
+            database::setFormationName (timeIoRecord, getReservoir ()->getName ());
+            propertyGrid += "_";
+         }
       }
       else if (m_surface || m_formation)
       {
@@ -381,7 +387,9 @@ database::Record* PropertyValue::createTimeIoRecord (database::Table * timeIoTbl
 
       depoSequence += formation->getDepositionSequence ();
    }
-   if (m_reservoir)
+
+   // Supress printing of depo sequence for seep formations
+   if (m_reservoir and getName () != "SeepageBasinTop")
    {
       depoSequence += m_reservoir->getFormation ()->getDepositionSequence () * 1000;
    }

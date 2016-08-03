@@ -144,9 +144,6 @@ namespace migration
       bool retrievePropertyMaps (bool);
       bool restorePropertyMaps (bool);
 
-      //bool retrieveCapillaryPressureMaps (bool);
-      //bool restoreCapillaryPressureMaps (bool);
-
       bool clearNodeProperties (void);
       bool clearNodeReservoirProperties (void);
       LocalFormationNode * validReservoirNode (const int i, const int j) const;
@@ -186,6 +183,12 @@ namespace migration
 
       void migrateExpelledChargesToReservoir (unsigned int direction, Reservoir * targetReservoir) const;
       void migrateLeakedChargesToReservoir (Reservoir * targetReservoir) const;
+
+      bool calculateLeakageSeeps (const Interface::Snapshot * end, const bool verticalMigration);
+      bool calculateExpulsionSeeps (const Interface::Snapshot * end, const double expulsionFraction, const bool verticalMigration);
+
+      void manipulateFormationNodeComposition (FormationNodeCompositionRequest & compositionRequest);
+      void getFormationNodeComposition (FormationNodeCompositionRequest & compositionRequest, FormationNodeCompositionRequest & compositionResponse);
 
       void getValue (FormationNodeValueRequest & request, FormationNodeValueRequest & response);
       void setValue (FormationNodeValueRequest & request);

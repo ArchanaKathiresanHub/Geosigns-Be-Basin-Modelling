@@ -69,6 +69,9 @@ namespace migration
       virtual bool getReservoirVapour (void) = 0;
       virtual bool getReservoirLiquid (void) = 0;
 
+      virtual void addComposition (const Composition &) = 0;
+      virtual Composition & getComposition (void) = 0;
+
       virtual bool isEndOfPath (void) = 0;
 
       virtual double getHeightVapour (void) = 0;
@@ -140,6 +143,9 @@ namespace migration
       virtual bool getReservoirVapour (void);
       virtual bool getReservoirLiquid (void);
 
+      virtual void addComposition (const Composition &);
+      virtual Composition & getComposition (void);
+
       virtual bool isEndOfPath (void);
 
       virtual double getHeightVapour (void);
@@ -169,6 +175,8 @@ namespace migration
       double m_depth;
       double m_heightVapour;
       double m_heightLiquid;
+
+      Composition * m_compositionToBeMigrated;
 
       virtual bool isCached (FormationNodeCacheBit bit) const;
       virtual void setCached (FormationNodeCacheBit bit) const;
@@ -298,6 +306,11 @@ namespace migration
 
       virtual bool getReservoirVapour (void);
       virtual bool getReservoirLiquid (void);
+
+      void manipulateComposition (ValueSpec valueSpec, int phase, Composition & composition);
+      virtual void addComposition (const Composition &);
+      virtual Composition & getComposition (void);
+      void getComposition (ValueSpec valueSpec, int phase, Composition & composition);
 
       virtual bool isEndOfPath (void);
 
@@ -492,6 +505,7 @@ namespace migration
       FormationNode::clearProperties ();
       clearCache ();
       m_targetFormationNode = 0;
+      m_compositionToBeMigrated = 0;
    }
 
    unsigned int FormationNodeArray::numIGlobal (void)

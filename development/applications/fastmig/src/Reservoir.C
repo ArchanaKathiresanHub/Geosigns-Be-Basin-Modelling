@@ -1187,6 +1187,34 @@ namespace migration
       return SumAll (totalMass);
    }
 
+   void Reservoir::putSeepsInColumns (const Formation * seepsFormation)
+   {
+      createColumns ();
+
+      // index of top formation nodes in seepsFormation
+      int k = seepsFormation->getMaximumNumberOfElements () - 1;
+      
+      for (unsigned int i = m_columnArray->firstILocal (); i <= m_columnArray->lastILocal (); ++i)
+      {
+         for (unsigned int j = m_columnArray->firstJLocal (); j <= m_columnArray->lastJLocal (); ++j)
+         {
+            LocalFormationNode * localFormationNode = seepsFormation->getLocalFormationNode (i,j,k);
+            if (!IsValid (localFormationNode) or localFormationNode->goesOutOfBounds ())
+               continue;
+
+            LocalColumn * localColumn = getLocalColumn (i,j);
+            if (!localColumn)
+               continue;
+
+            Composition composition = localFormationNode->getComposition ();
+            
+            localColumn->addComposition (composition);
+         }
+      }
+
+      return;
+   }
+
    bool Reservoir::saveComputedInputProperties (const bool saveSnapshot)
    {
       bool result = true;
@@ -1278,6 +1306,40 @@ namespace migration
 
       // do not delete gridMap, it is our (temporary) storageDevice !!!
       RequestHandling::FinishRequestHandling ();
+      return true;
+   }
+
+   bool Reservoir::saveSeepageProperties (const Formation * seepsFormation, const Interface::Snapshot * end)
+   {
+      RequestHandling::StartRequestHandling (m_migrator, "saveComputedProperty");
+
+      PropertyValue * propertyValue = getProjectHandle ()->createMapPropertyValue ("SeepageBasinTop", end, this, 0, 0);
+      assert (propertyValue);
+
+      GridMap * gridMap = propertyValue->getGridMap ();
+      assert (gridMap);
+
+      gridMap->retrieveData ();
+
+      for (unsigned int i = m_columnArray->firstILocal (); i <= m_columnArray->lastILocal (); ++i)
+      {
+         for (unsigned int j = m_columnArray->firstJLocal (); j <= m_columnArray->lastJLocal (); ++j)
+         {
+            if (getLocalColumn (i, j))
+            {
+               gridMap->setValue (i, j, getLocalColumn (i, j)->getValue (SEEPAGEQUANTITY, NO_PHASE));
+            }
+            else
+            {
+               gridMap->setValue (i, j, gridMap->getUndefinedValue ());
+            }
+         }
+      }
+      gridMap->restoreData ();
+
+      // do not delete gridMap, it is our (temporary) storageDevice !!!
+      RequestHandling::FinishRequestHandling ();
+
       return true;
    }
 

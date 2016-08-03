@@ -169,6 +169,12 @@ namespace migration
             double value;
          };
 
+         struct FormationNodeCompositionRequest : public FormationNodeRequest
+         {
+            int phase;
+            Composition composition;
+         };
+
          struct FormationNodeThreeVectorRequest : public FormationNodeRequest
          {
             double values[3];
@@ -189,6 +195,7 @@ namespace migration
 
          extern MPI_Datatype FormationNodeType;
          extern MPI_Datatype FormationNodeValueType;
+         extern MPI_Datatype FormationNodeCompositionType;
          extern MPI_Datatype FormationNodeThreeVectorType;
          extern MPI_Datatype FormationNodeThreeVectorValueType;
 }
