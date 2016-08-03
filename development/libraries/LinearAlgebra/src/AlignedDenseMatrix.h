@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef LINEAR_ALGEBRA__ALIGNED_DENSE_MATRIX__H
 #define LINEAR_ALGEBRA__ALIGNED_DENSE_MATRIX__H
 
@@ -22,6 +32,9 @@ namespace Numerics {
    class AlignedDenseMatrix {
 
    public :
+
+      /// \brief Empty matix copy constructor.
+      AlignedDenseMatrix ();
 
       /// \brief Construct matrix with particular size.
       ///
@@ -94,6 +107,16 @@ namespace Numerics {
       void print ( const std::string& name,
                    std::ostream& o ) const;
 
+      /// \brief Resize matrix.
+      /// \param [in] m Number of rows.
+      /// \param [in] n Number of columns.
+      /// \pre m > 0
+      /// \pre n > 0
+      void resize ( const int m, const int n );
+
+      /// \brief Resize the current object to match that of the mat parameter.
+      void resize ( const AlignedDenseMatrix& mat );
+
    protected :
 
       /// \brief Get the position in the 1d array of the 2d position requested.
@@ -111,9 +134,6 @@ namespace Numerics {
 
       /// \brief Copy the values of mat to the current object.
       void copy ( const AlignedDenseMatrix& mat );
-
-      /// \brief Resize the current object to match that of the mat parameter.
-      void resize ( const AlignedDenseMatrix& mat );
 
    private :
 

@@ -61,14 +61,15 @@ double PressureSolver::NewtonSolverTolerances [ NumberOfOptimisationLevels ][ 3 
 
 PressureSolver::PressureSolver(AppCtx *appl) : cauldron ( appl ) {
   initialiseFctCorrection();
-  basisFunctions = 0;
+  basisFunctions = nullptr;
 }
 
 
 PressureSolver::~PressureSolver() {
 
-   if ( basisFunctions != 0 ) {
+   if ( basisFunctions != nullptr ) {
       delete basisFunctions;
+      basisFunctions = nullptr;
    }
 
 }
@@ -285,13 +286,13 @@ PetscScalar PressureSolver::maximumPressureDifference2 () {
     maxK = -1;
 
 
-    if ( Layers.Layer_Above () == 0 ) {
+    if ( Layers.Layer_Above () == nullptr ) {
       layerAbove = currentLayer;
     } else {
       layerAbove = Layers.Layer_Above ();
     }
 
-    if ( Layers.Layer_Below () == 0 ) {
+    if ( Layers.Layer_Below () == nullptr ) {
       layerBelow = currentLayer;
     } else {
       layerBelow = Layers.Layer_Below ();
@@ -679,7 +680,7 @@ void PressureSolver::getBoundaryConditions ( const GeneralElement& element,
       }
       else if ( layerNodeK == numberOfDepthElements - 1 and 
                 fracturePressureExceeded ( n + 1 ) > 0.0 and
-                elementAbove != 0 and 
+                elementAbove != nullptr and 
                 elementAbove->getLayerElement ().getLithology ()->surfacePorosity () == 0.0 )
       {
 
@@ -895,7 +896,7 @@ void PressureSolver::assembleSystem ( const ComputationalDomain& computationalDo
 
   elementContributionsTime = 0.0;
 
-  if ( basisFunctions == 0 ) {
+  if ( basisFunctions == nullptr ) {
      basisFunctions = new FiniteElementMethod::BasisFunctionCache ( Plane_Quadrature_Degree, Plane_Quadrature_Degree, Depth_Quadrature_Degree );
   }
 

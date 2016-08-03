@@ -20,11 +20,12 @@ add_library(FiniteElements
 	${all_headers}
 )
 
-include_directories (${EIGEN_INCLUDE_DIRS} )
+include_directories ( ${EIGEN_INCLUDE_DIRS} )
 
-bm_include_libraries(DataModel utilities FiniteElements)
+bm_include_libraries(LinearAlgebra DataModel utilities FiniteElements)
 
 target_link_libraries(FiniteElements
+	LinearAlgebra
 	utilities
 )
 
@@ -41,24 +42,27 @@ install(TARGETS FiniteElements
 #######################################
 # Unit tests for PTDiagramCalculator
 
-add_gtest ( NAME  BasisCacheTest
+add_gtest ( NAME FEM::BasisCache
    SOURCES test/BasisCacheTest.C
    LIBRARIES FiniteElements 
  )
 
-
-add_gtest( NAME FiniteElementMethod::ThreeVector
+add_gtest( NAME FEM::ThreeVector
    SOURCES test/ThreeVectorTest.C
    LIBRARIES FiniteElements
 )
 
-add_gtest( NAME FiniteElementMethod::Matrix3x3
+add_gtest( NAME FEM::Matrix3x3
    SOURCES test/Matrix3x3Test.C
    LIBRARIES FiniteElements
 )
 
-add_gtest( NAME FiniteElementMethod::ElementVector 
+add_gtest( NAME FEM::ElementVector 
    SOURCES test/ElementVectorTest.C
    LIBRARIES FiniteElements
 )
 
+add_gtest ( NAME FEM::PropertiesToQuadPts
+   SOURCES test/PropertiesToQuadPtsTest.C
+   LIBRARIES FiniteElements LinearAlgebra
+ )

@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef ALIGNED_MEMORY_ALLOCATOR__H
 #define ALIGNED_MEMORY_ALLOCATOR__H
 
@@ -37,7 +47,7 @@ Type* AlignedMemoryAllocator<Type, Alignment>::allocate ( const unsigned int num
    if ( error == 0 ) {
       return (Type*)(buf);
    } else {
-      return 0;
+      return nullptr;
    }
 #endif
 
@@ -48,11 +58,11 @@ void AlignedMemoryAllocator<Type, Alignment>::free ( Type*& buf ) {
 
 #ifdef _WIN32
    delete [] buf;
-   buf = 0;
+   buf = nullptr;
 #else
-   if ( buf != 0 ) {
+   if ( buf != nullptr ) {
       std::free ( buf );
-      buf = 0;
+      buf = nullptr;
    }
 #endif
 }

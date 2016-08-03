@@ -24,6 +24,11 @@ inline void dgemm(char transa, char transb, int m, int n, int k, double alpha, c
 #endif
 
 
+Numerics::AlignedDenseMatrix::AlignedDenseMatrix () : m_rows ( 0 ), m_cols ( 0 ) {
+   allocate ();
+}
+
+
 Numerics::AlignedDenseMatrix::AlignedDenseMatrix ( const int m, const int n ) : m_rows ( m ), m_cols ( n ) {
    allocate ();
 }
@@ -35,7 +40,7 @@ Numerics::AlignedDenseMatrix::AlignedDenseMatrix ( const AlignedDenseMatrix& mat
 
 Numerics::AlignedDenseMatrix::~AlignedDenseMatrix  () {
 
-   if ( m_values != 0 ) {
+   if ( m_values != nullptr ) {
       SimdInstruction<CurrentSimdTechnology>::free ( m_values );
    }
 
@@ -78,18 +83,22 @@ void Numerics::AlignedDenseMatrix::allocate () {
    m_values = SimdInstruction<CurrentSimdTechnology>::allocate ( m_leadingDimension * m_cols );
 }
 
-void Numerics::AlignedDenseMatrix::resize ( const AlignedDenseMatrix& mat ) {
+void Numerics::AlignedDenseMatrix::resize ( const int m, const int n ) {
 
-   if ( m_values != 0 and m_rows == mat.m_rows and m_cols == mat.m_cols ) {
+   if ( m_values != nullptr and m_rows == m and m_cols == n ) {
       // Matrix has same size already, so nothing to do.
       return;
-   } else if ( m_values != 0 ) {
+   } else if ( m_values != nullptr ) {
       SimdInstruction<CurrentSimdTechnology>::free ( m_values );
    }
 
-   m_rows = mat.m_rows;
-   m_cols = mat.m_cols;
+   m_rows = m;
+   m_cols = n;
    allocate ();
+}
+
+void Numerics::AlignedDenseMatrix::resize ( const AlignedDenseMatrix& mat ) {
+   resize( mat.m_rows, mat.m_cols );
 }
 
 void Numerics::AlignedDenseMatrix::fill ( const double withTheValue ) {

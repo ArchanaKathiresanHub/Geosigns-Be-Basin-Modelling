@@ -1,17 +1,21 @@
+//
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef _FINITE_ELEMENT_METHOD__BASIS_FUNCTION_CACHE_H_
 #define _FINITE_ELEMENT_METHOD__BASIS_FUNCTION_CACHE_H_
 
 #include "FiniteElementTypes.h"
-#include "eigen3/Eigen/Dense"
+#include "AlignedDenseMatrix.h"
 
 namespace FiniteElementMethod {
-
-   /// A matrix holding all the basis functions evaluated at each Gaussian quadrature point.
-   typedef Eigen::Matrix<double,8, Eigen::Dynamic> BasisFunctionMatrix;
-
-   /// A matrix holding all the gradient of the basis functions evaluated at each Gaussian quadrature point.
-   typedef Eigen::Matrix<double,8, Eigen::Dynamic> GradBasisFunctionMatrix;
-
+   
    /// Has matrices containing the basis functions and grad-basis function evaluated at all of the quadrature points.
    ///
    /// The quickest varying direction is the z, followed by y and the slowest is the x direction.
@@ -48,19 +52,19 @@ namespace FiniteElementMethod {
       int getNumberOfQuadraturePoints () const;
 
       /// Get the matrix containing the basis functions.
-      const BasisFunctionMatrix& getBasisFunctions () const;
+      const Numerics::AlignedDenseMatrix & getBasisFunctions () const;
 
       /// Get the matrix containing the grad-basis functions.
-      const GradBasisFunctionMatrix& getGradBasisFunctions () const;
+      const Numerics::AlignedDenseMatrix & getGradBasisFunctions () const;
       
 
    private :
 
-      /// The matrix containing the basis functions.
-      BasisFunctionMatrix     m_basisFunctions;
+      /// A matrix holding all the basis functions evaluated at each Gaussian quadrature point.
+      Numerics::AlignedDenseMatrix m_basisFunctions;
 
-      /// The matrix containing the gradient of the basis functions.
-      GradBasisFunctionMatrix m_gradBasisFunctions;
+      /// A matrix holding all the gradient of the basis functions evaluated at each Gaussian quadrature point.
+      Numerics::AlignedDenseMatrix m_gradBasisFunctions;
 
       /// Number of quadrature points in the x-direction.
       int m_numberOfPointsX;
@@ -94,11 +98,11 @@ inline int FiniteElementMethod::BasisFunctionCache::getNumberOfQuadraturePoints 
    return m_numberOfQuadraturePoints;
 }
 
-inline const FiniteElementMethod::BasisFunctionMatrix& FiniteElementMethod::BasisFunctionCache::getBasisFunctions () const {
+inline const Numerics::AlignedDenseMatrix & FiniteElementMethod::BasisFunctionCache::getBasisFunctions () const {
    return m_basisFunctions;
 } 
 
-inline const FiniteElementMethod::GradBasisFunctionMatrix& FiniteElementMethod::BasisFunctionCache::getGradBasisFunctions () const {
+inline const  Numerics::AlignedDenseMatrix& FiniteElementMethod::BasisFunctionCache::getGradBasisFunctions () const {
    return m_gradBasisFunctions;
 } 
 
