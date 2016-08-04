@@ -103,6 +103,7 @@ install(TARGETS fastctc
 	RUNTIME DESTINATION bin
 )
 
+# Create doxygen
 generate_dox(fastctc.cfg)
 
 endif(BM_PARALLEL)
