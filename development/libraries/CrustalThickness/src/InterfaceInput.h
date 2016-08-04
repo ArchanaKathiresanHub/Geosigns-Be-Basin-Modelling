@@ -17,6 +17,9 @@
 #include <string>
 #include <vector>
 
+// boost library
+#include <boost/shared_ptr.hpp>
+
 // DataAccess library
 #include "Interface/GridMap.h"
 #include "Interface/CrustalThicknessData.h"
@@ -110,23 +113,23 @@ public:
 
    /// @defgroup Accessors
    /// @{
-   unsigned int getSmoothRadius()          const { return m_smoothRadius;                              };
-   double getFlexuralAge()                 const { return m_t_felxural;                                };
-   double getInitialCrustThickness()       const { return m_initialCrustThickness;                     };
-   double getInitialLithosphereThickness() const { return m_initialLithosphericThickness;              };
-   double getInitialSubsidence()           const { return m_constants.getInitialSubsidenceMax();       };
-   double getBackstrippingMantleDensity()  const { return m_constants.getBackstrippingMantleDensity(); };
-   double getWaterDensity()                const { return m_constants.getWaterDensity();               };
-   double getEstimatedCrustDensity()       const { return m_modelCrustDensity;                         };
-   double getTFOnset()                     const { return m_TF_onset;                                  };
-   double getTFOnsetLin()                  const { return m_TF_onset_lin;                              };
-   double getTFOnsetMig()                  const { return m_TF_onset_mig;                              };
-   double getPTa()                         const { return m_PTa;                                       };
-   double getMagmaticDensity()             const { return m_magmaticDensity;                           };
-   double getWLSexhume()                   const { return m_WLS_exhume;                                };
-   double getWLScrit()                     const { return m_WLS_crit;                                  };
-   double getWLSonset()                    const { return m_WLS_onset;                                 };
-   double getWLSexhumeSerp()               const { return m_WLS_exhume_serp;                           };
+   unsigned int getSmoothRadius()          const { return m_smoothRadius;                              }
+   double getFlexuralAge()                 const { return m_t_felxural;                                }
+   double getInitialCrustThickness()       const { return m_initialCrustThickness;                     }
+   double getInitialLithosphereThickness() const { return m_initialLithosphericThickness;              }
+   double getInitialSubsidence()           const { return m_constants.getInitialSubsidenceMax();       }
+   double getBackstrippingMantleDensity()  const { return m_constants.getBackstrippingMantleDensity(); }
+   double getWaterDensity()                const { return m_constants.getWaterDensity();               }
+   double getEstimatedCrustDensity()       const { return m_modelCrustDensity;                         }
+   double getTFOnset()                     const { return m_TF_onset;                                  }
+   double getTFOnsetLin()                  const { return m_TF_onset_lin;                              }
+   double getTFOnsetMig()                  const { return m_TF_onset_mig;                              }
+   double getPTa()                         const { return m_PTa;                                       }
+   double getMagmaticDensity()             const { return m_magmaticDensity;                           }
+   double getWLSexhume()                   const { return m_WLS_exhume;                                }
+   double getWLScrit()                     const { return m_WLS_crit;                                  }
+   double getWLSonset()                    const { return m_WLS_onset;                                 }
+   double getWLSexhumeSerp()               const { return m_WLS_exhume_serp;                           }
 
    double getDeltaSLValue (unsigned int i, unsigned int j) const;
    double getMidAge() const;
