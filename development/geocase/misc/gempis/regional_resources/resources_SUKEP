@@ -45,7 +45,7 @@ res_submit[11]="-P cldrn"
 res_name[12]="AMSGDC"
 res_jobtype[12]="LSFHPC"
 res_mpiref[12]="INTELMPI"
-res_remote[12]="amsdc2-n-sp010c30.europe.shell.com"
+#res_remote[12]="amsdc2-n-sp010c30.europe.shell.com"
 res_request[12]="cldrn"
 res_submit[12]="-P cldrn -We 01:00"
 
