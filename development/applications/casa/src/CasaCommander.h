@@ -84,8 +84,8 @@ public:
    static const char * s_CNPlotTornado;
    static const char * s_CNGenerateMultiOneD;
    static const char * s_CNImportOneDResults;
-
-
+   static const char * s_CNSetFilterOneDResults;
+   static const char * s_CNGenerateThreeDFromOneD;
 
 private:
    std::vector< SharedCmdPtr>  m_cmds;          ///< Queue of commands
