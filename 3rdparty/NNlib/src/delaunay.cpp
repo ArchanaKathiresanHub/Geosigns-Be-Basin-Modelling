@@ -51,136 +51,248 @@
 #include <boost/polygon/voronoi.hpp>
 #include <boost/polygon/point_data.hpp>
 #include <boost/polygon/segment_data.hpp>
+
+// Needed to check intersecting triangle edges when building the Delaunay triangulation from the Voronoi diagram
+#include <boost/geometry/geometries/point_xy.hpp>
+#include <boost/geometry/geometries/segment.hpp> 
+#include <boost/geometry/algorithms/intersection.hpp>
+
 using namespace boost::polygon;
 
 //STL
 #include <functional>
+#include <map>
 
 namespace triangulation
 {
    typedef struct
    {
       // the triangle vertices
+      int v0;
       int v1;
       int v2;
-      int v3;
       // the indexes of the neighbouring triangles 
+      int n0;
       int n1;
       int n2;
-      int n3;
    } triangle;
 
    typedef struct 
    {
       // the edge vertices
+      int p0;
       int p1;
-      int p2;
    } edge;
 
    const double eps = std::numeric_limits<double>::epsilon( );
 
    inline bool operator== ( const edge& lhs, const edge& rhs )
    {
-      if ( lhs.p1 == rhs.p1  &&  lhs.p2 == rhs.p2 )
+      if ( lhs.p0 == rhs.p0  &&  lhs.p1 == rhs.p1 )
          return true;
-      if ( lhs.p1 == rhs.p2  &&  lhs.p2 == rhs.p1 )
+      if ( lhs.p0 == rhs.p1  &&  lhs.p1 == rhs.p0 )
          return true;
       return false;
    }
 
-   inline bool operator== ( const triangle  t1, const triangle  t2 )
+   inline bool operator < ( const edge& lhs, const edge& rhs )
    {
       // create two int array to be sorted
-      std::vector<int> t1v, t2v;
-      t1v.push_back( t1.v1 );
-      t1v.push_back( t1.v2 );
-      t1v.push_back( t1.v3 );
-      t2v.push_back( t2.v1 );
-      t2v.push_back( t2.v2 );
-      t2v.push_back( t2.v3 );
+      std::vector<int> ev0, ev1;
+      ev0.push_back( lhs.p0 );
+      ev0.push_back( lhs.p1 );
+      ev1.push_back( rhs.p0 );
+      ev1.push_back( rhs.p1 );
 
       // sort the array 
+      std::sort( ev0.begin( ), ev0.end( ), std::greater<int>( ) );
+      std::sort( ev1.begin( ), ev1.end( ), std::greater<int>( ) );
+
+      // strict weak ordering
+      if ( ev0[0] != ev1[0] ) { return ev0[0] < ev1[0] ? true : false; }
+      if ( ev0[1] != ev1[1] )  { return ev0[1] < ev1[1] ? true : false; }
+      return false;
+   }
+
+   inline bool operator== ( const triangle  lhs, const triangle  rhs )
+   {
+      // create two int array to be sorted
+      std::vector<int> t0v, t1v;
+
+      t0v.push_back( lhs.v0 );
+      t0v.push_back( lhs.v1 );
+      t0v.push_back( lhs.v2 );
+
+      t1v.push_back( rhs.v0 );
+      t1v.push_back( rhs.v1 );
+      t1v.push_back( rhs.v2 );
+
+      // sort the array 
+      std::sort( t0v.begin( ), t0v.end( ), std::greater<int>( ) );
       std::sort( t1v.begin( ), t1v.end( ), std::greater<int>( ) );
-      std::sort( t2v.begin( ), t2v.end( ), std::greater<int>( ) );
 
       // compare the vertices
-      if ( t1v[0] != t2v[0] ) return  false;
-      if ( t1v[1] != t2v[1] ) return  false;
-      if ( t1v[2] != t2v[2] ) return  false; 
+      if ( t0v[0] != t1v[0] ) return  false;
+      if ( t0v[1] != t1v[1] ) return  false;
+      if ( t0v[2] != t1v[2] ) return  false; 
 
       return true;
    }
 
+   // required to check intersection and collinearity
+   typedef boost::geometry::model::d2::point_xy<double> geometricPoint;
+   typedef boost::geometry::model::segment<geometricPoint> geometricSegment;
+
    // Loop over the voronoi cells and connect the centers of the cells sharing the same edge.
-   // Skip the triangle if both heighbouring edges lies to infinity.
-   void triangulateFromVoronoi( const std::vector<point_data<double>> & points, std::vector<triangle>& dTriang )
+   void triangulateFromVoronoi( const std::vector<point_data<double>> & points, std::vector<triangle>& dTriang, std::map<triangulation::edge, std::vector<size_t>> & gEdges )
    {
       voronoi_diagram<double> vd;
-      construct_voronoi( points.begin( ), points.end( ), &vd );
-
-      for ( size_t ic = 0; ic != vd.cells( ).size( ); ++ic )
+      construct_voronoi( points.begin(), points.end(), &vd );
+      std::vector<const voronoi_edge<double>::voronoi_edge_type*> vtEdges( 2 );
+      for ( size_t ic = 0; ic != vd.cells().size(); ++ic )
       {
-         if ( vd.cells( )[ic].contains_point( ) )
+         if ( vd.cells()[ic].contains_point() )
          {
-            int pointInd = vd.cells( )[ic].source_index( );
-            double xc = x( points[pointInd] );
-            double yc = y( points[pointInd] );
-            const voronoi_edge<double>* edge = vd.cells( )[ic].incident_edge( );
+            int v0 = vd.cells()[ic].source_index();
+            const voronoi_edge<double>* vedge = vd.cells()[ic].incident_edge();
             do
             {
-               // Next edge in CCW order
-               edge = edge->next( ); 
-               const voronoi_edge<double>::voronoi_edge_type* currentEdge = edge;
-               const voronoi_edge<double>::voronoi_edge_type* nextEdge = edge->next( );
-               int boundEdge = 0;
-               if ( currentEdge->is_infinite( ) ) boundEdge += 1;
-               if ( nextEdge->is_infinite( ) )   boundEdge += 1;
-               if ( boundEdge == 2 ) continue;
-               // The new triangle. The neighbouring triangles (n1, n2, n3) will be determined later
-               triangle t;
+               vedge = vedge->next();
+
+               // Edges in CCW order
+               vtEdges[0] = vedge;
+               vtEdges[1] = vedge->next();
+               // Do not build triangles just using points at the edges. We need at least one internal point to build a valid Delunay triangulation!
+               if ( vtEdges[0]->is_infinite( ) && vtEdges[1]->is_infinite( ) ) continue;
+
+               // Build new edges
+               int v1 = vtEdges[0]->twin()->cell()->source_index();
+               int v2 = vtEdges[1]->twin()->cell()->source_index();
+               triangulation::edge e0, e1, e2;
+               e0.p0 = v0;
+               e0.p1 = v1;
+               e1.p0 = v0;
+               e1.p1 = v2;
+               e2.p0 = v1;
+               e2.p1 = v2;
+
+               // Check the generated triangle is valid
+               std::vector<triangulation::edge> lEdges( 3 );
+               lEdges[0] = e0;
+               lEdges[1] = e1;
+               lEdges[2] = e2;
+               bool invalidTriangle = false;
+               std::vector<size_t> neighbouringTrianglesIndexses;
+               for ( int i = 0; i != 3; ++i )
+               {
+                  if ( gEdges.count( lEdges[i] ) != 0 )
+                  {
+                     // the edge at the boundaries of the convex hull cannot be shared by more than one triangle. 
+                     // skip this check for the last edge (a voronoi edge might be not defined in a degenerate case)
+                     if ( i < 2 && vtEdges[i]->is_infinite() )
+                     {
+                        invalidTriangle = true;
+                        break;
+                     }
+                     // internal edges cannot be shared by more than 2 triangles
+                     if ( gEdges[lEdges[i]].size() == 2 )
+                     {
+                        invalidTriangle = true;
+                        break;
+                     }
+                     // maximum one triangle is present at this point (the neighbour)
+                     neighbouringTrianglesIndexses.push_back( gEdges[lEdges[i]].front() );
+                  }
+
+                  // For the last oblique edge we must check 
+                  // 1 . collinearity: if the edges are collinear than the triangles is degenerate
+                  // 2 . is not intersecting other triangle edges (degenerate Voronoi vertex with degree > 3)
+                  if ( i == 2 )
+                  {
+                     triangulation::geometricSegment obliqueSegment( triangulation::geometricPoint( points[v1].x( ), points[v1].y( ) ), triangulation::geometricPoint( points[v2].x( ), points[v2].y( ) ) );
+                     std::vector<geometricPoint> intersections;
+                     double p0x = points[v0].x();
+                     double p0y = points[v0].y();
+                     double p1x = points[v1].x();
+                     double p1y = points[v1].y();
+                     triangulation::geometricSegment localSegment( triangulation::geometricPoint( p0x, p0y ), triangulation::geometricPoint( p1x, p1y ) );
+                     boost::geometry::intersection( obliqueSegment, localSegment, intersections );
+                     // collinearity: a degenerated triangle 
+                     if ( intersections.size() == 2 ) invalidTriangle = true;
+
+                     // need to check the oblique segment is not intersecting with another oblique segment
+                     if ( !neighbouringTrianglesIndexses.empty( ) && !invalidTriangle )
+                     {
+                        for ( int nt = 0; nt != neighbouringTrianglesIndexses.size( ); ++nt )
+                        {
+                           triangulation::triangle neighbouringTriangle = dTriang[neighbouringTrianglesIndexses[nt]];
+                           p0x = points[neighbouringTriangle.v1].x( );
+                           p0y = points[neighbouringTriangle.v1].y( );
+                           p1x = points[neighbouringTriangle.v2].x( );
+                           p1y = points[neighbouringTriangle.v2].y( );
+                           triangulation::geometricSegment neighbouringObliqueSegment( triangulation::geometricPoint( p0x, p0y ), triangulation::geometricPoint( p1x, p1y ) );
+                           intersections.clear();
+                           boost::geometry::intersection( obliqueSegment, neighbouringObliqueSegment, intersections );
+                           if ( intersections.size() == 1 )
+                           {
+                              // it is valid if the intersection is only at one of the segment vertices
+                              if ( ( intersections[0].x() == p0x &&  intersections[0].y() == p0y ) || ( intersections[0].x() == p1x &&  intersections[0].y() == p1y ) )
+                              {
+                                 continue;
+                              }
+                              else
+                              {
+                                 // it is invalid if the intersection is in the middle of another oblique edge 
+                                 invalidTriangle = true;
+                                 break;
+                              }
+                           }
+                        }
+                     }
+                  }
+               }
+               if ( invalidTriangle ) continue;
+
+               // The new triangle. The neighbouring triangles (n0, n1, n2) will be determined later
+               triangulation::triangle t;
+               t.n0 = -1;
                t.n1 = -1;
                t.n2 = -1;
-               t.n3 = -1;
-               t.v1 = pointInd;
-               t.v2 = currentEdge->twin( )->cell( )->source_index( );
-               t.v3 = nextEdge->twin( )->cell( )->source_index( );
-               if ( std::find( dTriang.begin( ), dTriang.end( ), t ) == dTriang.end( ) ) dTriang.push_back( t );
-            } while ( edge != vd.cells( )[ic].incident_edge( ) );
+               t.v0 = v0;
+               t.v1 = v1;
+               t.v2 = v2;
+               if ( std::find( dTriang.begin(), dTriang.end(), t ) == dTriang.end() )
+               {
+                  // add the new triangle to the gEdges map
+                  for ( int i = 0; i != 3; ++i )
+                  {
+                     gEdges[lEdges[i]].push_back( dTriang.size() );
+                  }
+                  // add a new triangle
+                  dTriang.push_back( t );
+               }
+            } while ( vedge != vd.cells()[ic].incident_edge() );
          }
       }
 
-      // Determine the neighbouring triangles. le is the vector of the local triangle edges, ge is the vector of the global triangle edges, to compare against to 
-      edge le[3];
-      edge ge[3];
-      for ( size_t it = 0; it != dTriang.size( ); ++it )
+
+      // Determine the neighbouring triangles.
+      for ( size_t t = 0; t != dTriang.size( ); ++t )
       {
-         le[0].p1 = dTriang[it].v1;
-         le[0].p2 = dTriang[it].v2;
-         le[1].p1 = dTriang[it].v2;
-         le[1].p2 = dTriang[it].v3;
-         le[2].p1 = dTriang[it].v3;
-         le[2].p2 = dTriang[it].v1;
+         triangulation::edge e0, e1, e2;
+         e0.p0 = dTriang[t].v0;
+         e0.p1 = dTriang[t].v1;
+         e1.p0 = dTriang[t].v1;
+         e1.p1 = dTriang[t].v2;
+         e2.p0 = dTriang[t].v2;
+         e2.p1 = dTriang[t].v0;
 
-         for ( size_t iti = 0; iti != dTriang.size( ); ++iti )
-         {
-
-            ge[0].p1 = dTriang[iti].v1;
-            ge[0].p2 = dTriang[iti].v2;
-            ge[1].p1 = dTriang[iti].v2;
-            ge[1].p2 = dTriang[iti].v3;
-            ge[2].p1 = dTriang[iti].v3;
-            ge[2].p2 = dTriang[iti].v1;
-
-            if ( iti != it )
-            {
-               // Use the same order for neighbour as in triangle.C. This is important for the search algorithm implemented later.
-               if ( ( le[0] == ge[0] || le[0] == ge[1] || le[0] == ge[2] ) ) { dTriang[it].n3 = iti; }
-               else if ( ( le[1] == ge[0] || le[1] == ge[1] || le[1] == ge[2] ) ) { dTriang[it].n1 = iti; }
-               else if ( ( le[2] == ge[0] || le[2] == ge[1] || le[2] == ge[2] ) ) { dTriang[it].n2 = iti; }
-
-               if ( dTriang[it].n1 != -1 && dTriang[it].n2 != -1 && dTriang[it].n3 != -1 ) break;
-            }
-         }
+         if ( gEdges[e0].size( )  == 2 ) 
+            dTriang[t].n2 = gEdges[e0].front( ) != t ? gEdges[e0].front( ) : gEdges[e0].back( );
+         if ( gEdges[e1].size( ) == 2 ) 
+            dTriang[t].n0 = gEdges[e1].front( ) != t ? gEdges[e1].front( ) : gEdges[e1].back( );
+         if ( gEdges[e2].size( ) == 2 ) 
+            dTriang[t].n1 = gEdges[e2].front( ) != t ? gEdges[e2].front( ) : gEdges[e2].back( );
       }
    }
 }
@@ -246,10 +358,17 @@ static void tio2delaunayTriangulation( delaunay* d )
    for ( i = 0; i < d->npoints; ++i )
    {
       point_data<double> newPoint( d->points[i].x, d->points[i].y );
-      if ( std::find( points.begin( ), points.end( ), newPoint ) == points.end( ) ) points.push_back( newPoint );
+      if ( std::find( points.begin(), points.end(), newPoint ) == points.end() )
+      {
+         points.push_back( newPoint );
+      }
    }
+
+   // dTriang: the delaunay triangles
    std::vector<triangulation::triangle> dTriang;
-   triangulation::triangulateFromVoronoi( points, dTriang );
+   // gEdges: mapping the edges to the triangles indexses
+   std::map<triangulation::edge, std::vector<size_t>> gEdges;
+   triangulation::triangulateFromVoronoi( points, dTriang, gEdges );
 
    d->ntriangles = dTriang.size( );
 
@@ -263,10 +382,6 @@ static void tio2delaunayTriangulation( delaunay* d )
       d->flags = (int *)calloc( d->ntriangles, sizeof( int ) );
    }
 
-   //edges
-   std::vector<triangulation::edge>   globalEdges;
-   std::vector<triangulation::edge>   localEdges( 3 );
-
    if ( nn_verbose )
       fprintf( stderr, "triangles:\n" );
    for ( size_t it = 0; it != dTriang.size( ); ++it )
@@ -277,34 +392,14 @@ static void tio2delaunayTriangulation( delaunay* d )
       int status;
 
       // save the triangles
-      t->vids[0] = dTriang[it].v1;
-      t->vids[1] = dTriang[it].v2;
-      t->vids[2] = dTriang[it].v3;
-
-      // save the unique edges
-      triangulation::edge ed1, ed2, ed3;
-
-      ed1.p1 = dTriang[it].v1;
-      ed1.p2 = dTriang[it].v2;
-      ed2.p1 = dTriang[it].v2;
-      ed2.p2 = dTriang[it].v3;
-      ed3.p1 = dTriang[it].v3;
-      ed3.p2 = dTriang[it].v1;
-
-      localEdges[0] = ed1;
-      localEdges[1] = ed2;
-      localEdges[2] = ed3;
-
-      for ( int tp = 0; tp != 3; ++tp )
-      {
-         std::vector<triangulation::edge>::iterator it;
-         if ( std::find( globalEdges.begin( ), globalEdges.end( ), localEdges[tp] ) == globalEdges.end( ) ) globalEdges.push_back( localEdges[tp] );
-      }
+      t->vids[0] = dTriang[it].v0;
+      t->vids[1] = dTriang[it].v1;
+      t->vids[2] = dTriang[it].v2;
 
       // save the found neighbours
-      n->tids[0] = dTriang[it].n1;
-      n->tids[1] = dTriang[it].n2;
-      n->tids[2] = dTriang[it].n3;
+      n->tids[0] = dTriang[it].n0;
+      n->tids[1] = dTriang[it].n1;
+      n->tids[2] = dTriang[it].n2;
 
       if ( nn_verbose )
          fprintf( stderr, "  %d: (%d,%d,%d)\n", it, t->vids[0], t->vids[1], t->vids[2] );
@@ -339,15 +434,17 @@ static void tio2delaunayTriangulation( delaunay* d )
       }
    }
 
-   if ( globalEdges.size( ) > 0 )
+   if ( gEdges.size( ) > 0 )
    {
-      int * edgelist = (int *)malloc( globalEdges.size( ) * 2 * sizeof( int ) );
-      for ( int tp = 0; tp != globalEdges.size( ); ++tp )
+      int * edgelist = (int *)malloc( gEdges.size( ) * 2 * sizeof( int ) );
+      std::map<triangulation::edge, std::vector<size_t>>::const_iterator it;
+      int tp;
+      for ( it = gEdges.begin( ), tp = 0; it != gEdges.end( ); ++it, ++tp )
       {
-         edgelist[tp * 2] = globalEdges[tp].p1;
-         edgelist[tp * 2 + 1] = globalEdges[tp].p2;
+         edgelist[tp * 2] = it->first.p0;
+         edgelist[tp * 2 + 1] = it->first.p1;
       }
-      d->nedges = globalEdges.size( );
+      d->nedges = gEdges.size( );
       d->edges = (int *)malloc( d->nedges * 2 * sizeof( int ) );
       memcpy( d->edges, edgelist, d->nedges * 2 * sizeof( int ) );
       free( edgelist );
