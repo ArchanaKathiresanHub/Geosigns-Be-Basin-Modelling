@@ -49,7 +49,6 @@ TEST( PropertiesToQuadPts, DefaultTest )
          EXPECT_EQ( test.getPropertyNames()[0], FiniteElementMethod::Ph );
          EXPECT_EQ( test.getPropertyNames()[1], FiniteElementMethod::Pl );
          EXPECT_EQ( test.getNumberOfProperties(), 2 );
-         ASSERT_DEATH( test.getProperty( FiniteElementMethod::Ves ), "" );
       }
       else
       {
