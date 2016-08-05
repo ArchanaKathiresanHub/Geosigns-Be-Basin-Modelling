@@ -64,6 +64,7 @@ void DensityCalculator::restoreData() {
    m_depthWaterBottom   ->restoreData ();
    m_pressureBasement   ->restoreData ();
    m_pressureWaterBottom->restoreData ();
+      //       m_pressureWaterBottom->restoreData ();
 }
 
 //------------------------------------------------------------//
