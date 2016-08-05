@@ -104,7 +104,9 @@ TEST_F( BLRSTest, VarySourceRockTOCSimpleTest )
    ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( m_testProject ) );
 
    // set the parameter
-   ASSERT_EQ( ErrorHandler::NoError, VarySourceRockTOC( sc, 0, "Lower Jurassic", 1, 0, 0.0, 30.0, VarPrmContinuous::Block ) );
+   std::vector<double> dblRng( 2, 0.0 );
+   dblRng[1] = 30.0;
+   ASSERT_EQ( ErrorHandler::NoError, VarySourceRockTOC( sc, 0, "Lower Jurassic", 1, 0, dblRng, vector<string>(), VarPrmContinuous::Block ) );
      
    // get varspace 
    casa::VarSpaceImpl & varPrms = dynamic_cast<casa::VarSpaceImpl&>( sc.varSpace() );
@@ -151,28 +153,33 @@ TEST_F( BLRSTest, VarySourceRockTOCDepOnSrourceRockTypeTest )
    ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( m_testProjectCatPrms ) );
 
    // !!! set the parameter which depends on SourceRockType parameter. Must be en error because categorical parameter wasn't defined before
-   ASSERT_EQ( ErrorHandler::OutOfRangeValue, VarySourceRockTOC( sc, 0, layerName, 1, srList[0].c_str(), 1.0, 15.0, pdft ) );
-
+   std::vector<double> dblRng( 2, 1.0 );
+   dblRng[1] = 15.0;
+   ASSERT_EQ( ErrorHandler::OutOfRangeValue, VarySourceRockTOC( sc, 0, layerName, 1, srList[0].c_str(), dblRng, vector<string>(), pdft) );
+ 
    // define new categorilcal variable parameter
    ASSERT_EQ( ErrorHandler::NoError, VarySourceRockType( sc, 0, layerName, 1, srList, srWeights ) );
 
    // Add variable TOC parameter with 3 different TOC ranges
+   vector<double> tocRng( 2, 0.0 );
    for ( size_t i = 0; i < srList.size(); ++i )
    {
+      tocRng[0] = valRgs[i][0];
+      tocRng[1] = valRgs[i][2];
       if ( i == 1 )
       {
          // !!! check for the different name for the same layer/mixing ID for TOC
          ASSERT_EQ( ErrorHandler::OutOfRangeValue, VarySourceRockTOC( sc, "lowerJurTOC2", layerName, 1, srList[i].c_str(), 
-                                                                                           valRgs[i][0], valRgs[i][2],  pdft ) );
+                                                                      tocRng, vector<string>(), pdft ) );
       }
       // set the parameter which depends on SourceRockType parameter
-      ASSERT_EQ( ErrorHandler::NoError, VarySourceRockTOC( sc, "lowerJurTOC", layerName, 1, srList[i].c_str(), valRgs[i][0], valRgs[i][2], pdft ) );
+      ASSERT_EQ( ErrorHandler::NoError, VarySourceRockTOC( sc, "lowerJurTOC", layerName, 1, srList[i].c_str(), tocRng, vector<string>(), pdft ) );
    }
-
+   tocRng[0] = 10.0; 
+   tocRng[1] = 90.0;
    // !!! add unexistent category - expecting some error
-   ASSERT_EQ( ErrorHandler::UndefinedValue, VarySourceRockTOC( sc, "lowerJurTOC", layerName, 1, 
-            "Type III MesoPaleozoic Vitrinitic Coals (Kinetics)", 10.0, 90.0, pdft ) );
-
+   ASSERT_EQ( ErrorHandler::UndefinedValue, VarySourceRockTOC( sc, "lowerJurTOC", layerName, 1, "Type III MesoPaleozoic Vitrinitic Coals (Kinetics)",
+                                                               tocRng, vector<string>(), pdft ) );
 
    // get varspace 
    casa::VarSpaceImpl & varPrms = dynamic_cast<casa::VarSpaceImpl&>( sc.varSpace() );
@@ -582,6 +589,9 @@ TEST_F( BLRSTest, VarySourceRockTypeTest )
 
    VarPrmContinuous::PDF pdft = VarPrmContinuous::Block;
    const char * layerName = "Lower Jurassic";
+   vector<double> tocRng( 2, 0.0 );
+   tocRng[0] = 1.0;
+   tocRng[1] = 15.0;
 
    // check order of variable parameters for Source Rock Type. User can't add any source rock variable parameter before 
    // source rock type categorical parameter
@@ -596,7 +606,7 @@ TEST_F( BLRSTest, VarySourceRockTypeTest )
       // set one of the Source Rock parameter
       switch( i )
       {
-         case 0: ASSERT_EQ( ErrorHandler::NoError, VarySourceRockTOC(                 sc, 0, layerName, 1, 0, 1.0,   15.0,  pdft ) ); break;
+         case 0: ASSERT_EQ( ErrorHandler::NoError, VarySourceRockTOC(    sc, 0, layerName, 1, 0, tocRng, vector<string>(),  pdft ) ); break;
          case 1: ASSERT_EQ( ErrorHandler::NoError, VarySourceRockHI(                  sc, 0, layerName, 1, 0, 371.0, 571.0, pdft ) ); break;
          case 2: ASSERT_EQ( ErrorHandler::NoError, VarySourceRockHC(                  sc, 0, layerName, 1, 0, 0.5,   1.75,  pdft ) ); break;
          case 3: ASSERT_EQ( ErrorHandler::NoError, VarySourceRockPreAsphaltActEnergy( sc, 0, layerName, 1, 0, 208.0, 212.0, pdft ) ); break;

@@ -29,12 +29,15 @@ VarPrmSourceRockPreAsphaltStartAct::VarPrmSourceRockPreAsphaltStartAct( const ch
                                                                       , const char          * srTypeName
                                                                       , int                   mixID
                                                                       )
-   : VarPrmSourceRockProp( lrName, baseValue, minValue, maxValue, pdfType, name, srTypeName, mixID )
+                                                                      : VarPrmSourceRockProp( lrName, pdfType, name, srTypeName, mixID )
 {
    m_propName = "PreAsphaltStartAct";
    m_minValue.reset(  new PrmSourceRockPreAsphaltStartAct( this, minValue,  lrName, srTypeName, m_mixID ) );
    m_maxValue.reset(  new PrmSourceRockPreAsphaltStartAct( this, maxValue,  lrName, srTypeName, m_mixID ) );
    m_baseValue.reset( new PrmSourceRockPreAsphaltStartAct( this, baseValue, lrName, srTypeName, m_mixID ) );
+
+   // add given range to map
+   if ( !m_srTypeName.empty() ) { addSourceRockTypeRange( srTypeName, m_baseValue, m_minValue, m_maxValue, pdfType ); }
 }
 
 std::vector<std::string> VarPrmSourceRockPreAsphaltStartAct::name() const
@@ -65,14 +68,16 @@ VarPrmSourceRockPreAsphaltStartAct::VarPrmSourceRockPreAsphaltStartAct( CasaDese
    }
 }
 
-PrmSourceRockProp * VarPrmSourceRockPreAsphaltStartAct::createNewPrm( double val ) const
+SharedParameterPtr VarPrmSourceRockPreAsphaltStartAct::createNewPrm( double val, const std::string & srType ) const
 {
-   return new PrmSourceRockPreAsphaltStartAct( this, val, m_layerName.c_str(), (m_srTypeName.empty() ? 0 : m_srTypeName.c_str()), m_mixID ); 
+   SharedParameterPtr prm( new PrmSourceRockPreAsphaltStartAct( this, val, m_layerName.c_str(), (srType.empty() ? 0 : srType.c_str()), m_mixID ) );
+   return prm;
 }
 
-PrmSourceRockProp * VarPrmSourceRockPreAsphaltStartAct::createNewPrmFromModel( mbapi::Model & mdl ) const
+SharedParameterPtr VarPrmSourceRockPreAsphaltStartAct::createNewPrmFromModel( mbapi::Model & mdl ) const
 {
-   return new PrmSourceRockPreAsphaltStartAct( mdl, m_layerName.c_str( ), ( m_srTypeName.empty( ) ? 0 : m_srTypeName.c_str( ) ), m_mixID );
+   SharedParameterPtr prm( new PrmSourceRockPreAsphaltStartAct( mdl, m_layerName.c_str(), (m_srTypeName.empty() ? 0 : m_srTypeName.c_str() ), m_mixID ) );
+   return prm;
 }
 
 }

@@ -128,18 +128,18 @@ namespace mbapi
       MapsManagerImpl( const MapsManagerImpl & otherMapsManagerImpl );
       MapsManagerImpl & operator = ( const MapsManagerImpl & otherMapsManagerImpl );
    
-      database::Database                                  * m_db;              // cauldron project database
-      DataAccess::Interface::ProjectHandle                * m_proj;            // project handle, to load/save maps
-      std::string                                           m_projectFileName; // project file name
-      DataAccess::Interface::MapWriter                    * m_mapPropertyValuesWriter; // MapsManager should have its own map writer to write/append maps to HDF file
+      database::Database                              * m_db;                      // cauldron project database
+      DataAccess::Interface::ProjectHandle            * m_proj;                    // project handle, to load/save maps
+      std::string                                       m_projectFileName;         // project file name
+      DataAccess::Interface::MapWriter                * m_mapPropertyValuesWriter; // own map writer to write/append maps to HDF file
 
-      std::vector<std::string>                              m_mapName;
-      std::vector<std::string>                              m_mapRefTable;
+      std::vector<std::string>                          m_mapName;
+      std::vector<std::string>                          m_mapRefTable;
 
-      std::vector<DataAccess::Interface::GridMap *>         m_mapObj;
-      std::map<std::string, std::vector<std::string>>       m_fileMaps;     // for each HDF file, the vector of maps names
+      std::vector<DataAccess::Interface::GridMap *>     m_mapObj;
+      std::map<std::string, std::vector<std::string>>   m_fileMaps;     // for each HDF file, the vector of maps names
    
-      std::set<std::string>                                 m_mapsFileList; // unique list of files with project maps
+      std::set<std::string>                             m_mapsFileList; // unique list of files with project maps
 
       void loadGridMap( MapID id );
    };

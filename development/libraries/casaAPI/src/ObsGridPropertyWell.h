@@ -92,7 +92,7 @@ namespace casa
 
       /// @brief Get Cauldron property name
       /// @return name of the property as a string
-      std::string propertyName() { return m_propName; }
+      std::string propertyName() const { return m_propName; }
 
       /// @brief Get Z coordinates list
       /// @return array with Z coordinate of each observable point along well

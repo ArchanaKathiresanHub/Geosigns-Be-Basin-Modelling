@@ -171,7 +171,7 @@ ErrorHandler::ReturnCode PrmTopCrustHeatProduction::setInModel( mbapi::Model & c
             throw ErrorHandler::Exception( cldModel.errorCode() ) << cldModel.errorMessage();
          }
       }
-      else // interpolation between range maps 
+      else // interpolation between two min/max maps 
       {
          if ( m_minMapName.empty() && m_maxMapName.empty() ) // no interpolation needed, just set map name
          {
@@ -385,7 +385,10 @@ bool PrmTopCrustHeatProduction::operator == ( const Parameter & prm ) const
    const PrmTopCrustHeatProduction * pp = dynamic_cast<const PrmTopCrustHeatProduction *>( &prm );
    if ( !pp ) return false;
    
-   return NumericFunctions::isEqual( m_value, pp->m_value, 1.e-6 ) ? true : false;
+   if ( !NumericFunctions::isEqual( m_value, pp->m_value, 1.e-6 ) ) return false;
+   if ( m_mapName != pp->m_mapName                                ) return false;
+
+   return true;
 }
 
 

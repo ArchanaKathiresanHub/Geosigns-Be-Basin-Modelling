@@ -40,11 +40,15 @@ public:
       VarSpace      & vrs = sc.varSpace();
       ObsSpaceImpl  & obs = dynamic_cast<ObsSpaceImpl&>( sc.obsSpace() );
 
-      ASSERT_EQ( ErrorHandler::NoError, vrs.addParameter( new VarPrmSourceRockTOC(         "Lower Jurassic", 10.0, 5.0, 15.0, VarPrmContinuous::Block ) ) );
-      vector<double> dblRng( 1, 0.1 );
-      dblRng.push_back( 4.9 );
-      dblRng.push_back( 2.5 );
-      ASSERT_EQ( ErrorHandler::NoError, vrs.addParameter( new VarPrmTopCrustHeatProduction( dblRng, vector<string>(), VarPrmContinuous::Block ) ) );
+      vector<double> dblRng( 3, 5.0 );
+      dblRng[1] = 15.0;
+      dblRng[2] = 10.0;
+      ASSERT_EQ( ErrorHandler::NoError, vrs.addParameter( new VarPrmSourceRockTOC( "Lower Jurassic", dblRng, vector<string>() ) ) );
+   
+      dblRng[0] = 0.1;
+      dblRng[1] = 4.9;
+      dblRng[2] = 2.5;
+      ASSERT_EQ( ErrorHandler::NoError, vrs.addParameter( new VarPrmTopCrustHeatProduction( dblRng, vector<string>() ) ) );
 
       Observable * ob = ObsGridPropertyXYZ::createNewInstance( 460001.0, 6750001.0, 2751.0, "Temperature", 0.0 );
       ob->setReferenceValue( new ObsValueDoubleScalar( ob, 108.6 ), new ObsValueDoubleScalar( ob, 2.0 ) ); 

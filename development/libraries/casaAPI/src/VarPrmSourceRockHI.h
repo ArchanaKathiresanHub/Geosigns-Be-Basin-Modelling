@@ -43,7 +43,7 @@ namespace casa
       /// @{
       /// @brief Defines version of serialized object representation. Must be updated on each change in save()
       /// @return Actual version of serialized object representation
-      virtual unsigned int version() const { return VarPrmContinuous::version() + 0; }
+      virtual unsigned int version() const { return VarPrmSourceRockProp::version() + 0; }
 
       /// @brief Get type name of the serialaizable object, used in deserialization to create object with correct type
       /// @return object class name
@@ -62,8 +62,8 @@ namespace casa
       /// @}
 
    protected:
-      virtual PrmSourceRockProp * createNewPrm( double val ) const; // creates PrmSourceRockHI parameter object instance
-      virtual PrmSourceRockProp * createNewPrmFromModel( mbapi::Model & mdl ) const;// creates PrmSourceRockHI parameter object instance from model
+      virtual SharedParameterPtr createNewPrm( double val, const std::string & srType ) const; // creates PrmSourceRockHI parameter object instance
+      virtual SharedParameterPtr createNewPrmFromModel( mbapi::Model & mdl ) const;// creates PrmSourceRockHI parameter object instance from model
 };
 
 }

@@ -130,7 +130,7 @@ ErrorHandler::ReturnCode VaryTopCrustHeatProduction( ScenarioAnalysis           
       mbapi::Model & mdl = sa.baseCase();
       
       casa::PrmTopCrustHeatProduction prm( mdl );
-      if ( mdl.errorCode() != ErrorHandler::NoError ) return sa.moveError( mdl );
+      if ( mdl.errorCode() != ErrorHandler::NoError ) { return sa.moveError( mdl ); }
 
       if ( dblRng.size() == 2 )
       {
@@ -183,14 +183,14 @@ ErrorHandler::ReturnCode VaryTopCrustHeatProduction( ScenarioAnalysis           
 }
 
 // Add a parameter to variate source rock lithology TOC value @f$ [%%] @f$ in given range
-ErrorHandler::ReturnCode VarySourceRockTOC( ScenarioAnalysis    & sa
-                                          , const char          * name
-                                          , const char          * layerName
-                                          , int                   mixID
-                                          , const char          * srTypeName
-                                          , double                minVal
-                                          , double                maxVal
-                                          , VarPrmContinuous::PDF rangeShape
+ErrorHandler::ReturnCode VarySourceRockTOC( ScenarioAnalysis               & sa
+                                          , const char                     * name
+                                          , const char                     * layerName
+                                          , int                              mixID
+                                          , const char                     * srTypeName
+                                          , const std::vector<double>      & dblRngIn
+                                          , const std::vector<std::string> & mapRngIn
+                                          , VarPrmContinuous::PDF            rangeShape
                                           )
 {
    try
@@ -198,18 +198,50 @@ ErrorHandler::ReturnCode VarySourceRockTOC( ScenarioAnalysis    & sa
       std::string srtName = srTypeName ? srTypeName : "";
       VarSpaceImpl & varPrmsSet = dynamic_cast< VarSpaceImpl & >( sa.varSpace() );
 
+      std::vector<double>      dblRng( dblRngIn.begin(), dblRngIn.end() );
+      std::vector<std::string> mapRng( mapRngIn.begin(), mapRngIn.end() );
+
       // Get base value of parameter from the Model
       mbapi::Model & mdl = sa.baseCase();
 
       casa::PrmSourceRockTOC prm( mdl, layerName, srTypeName, mixID );
-      if ( mdl.errorCode() != ErrorHandler::NoError ) return sa.moveError( mdl );
+      if ( mdl.errorCode() != ErrorHandler::NoError ) { return sa.moveError( mdl ); } 
 
-      const std::vector<double> & baseValue = prm.asDoubleArray();
-      assert( baseValue.size() == 1 );
-
-      if ( baseValue[0] < minVal || baseValue[0] > maxVal )
+      if ( dblRng.size() == 2 )
       {
-         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Value of parameter in base case is outside of the given range";
+         double baseValue = prm.value();
+
+         if ( baseValue < dblRng[0] || baseValue > dblRng[1] )
+         {
+            throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Value of TOC parameter in base case is outside of the given range";
+         }
+         dblRng.push_back( baseValue );
+      }
+      else if ( mapRng.size() == 2 )
+      {
+         std::string baseValue = prm.mapName();
+         if ( baseValue.empty() )
+         {
+            throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Base case has no map defined for initial TOC parameter "
+                                       << (name ? std::string( name ) : ( std::string( layerName ) + "(" + std::to_string( mixID ) + ")" ));
+         }
+         mapRng.push_back( baseValue );
+
+         // check are other 2 maps exist in maps list
+         mbapi::MapsManager & mm = mdl.mapsManager();
+         for ( size_t k = 0; k < 2; ++k )
+         {
+            mbapi::MapsManager::MapID mid = mm.findID( mapRng[k] );
+            if ( UndefinedIDValue == mid )
+            {
+               throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Base case project has no map " << mapRng[k] << " defined";
+            }
+         }
+      }
+      else
+      {
+         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Initial TOC IP must be defined by simple range of" <<
+            " two double values or by map range with two map names";
       }
 
       bool alreadyAdded = false;
@@ -226,24 +258,32 @@ ErrorHandler::ReturnCode VarySourceRockTOC( ScenarioAnalysis    & sa
                if ( name && prm->name()[0].compare( name ) ) // if name is given and name is different - error
                {
                   throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Different name for the same TOC variable parameter. Given: " 
-                     << name << ", expected : " << prm->name()[0];
+                                                                                 << name << ", expected : " << prm->name()[0];
                }
                alreadyAdded = true;
-               prm->addSourceRockTypeRange( srTypeName, baseValue[0], minVal, maxVal, rangeShape );
+               SharedParameterPtr minVal( new PrmSourceRockTOC( prm, (dblRng.size() == 3 ? dblRng[0] : -1.0), layerName, 
+                                                                     (mapRng.size() == 3 ? mapRng[0] : std::string("")), srTypeName, mixID ) );
+
+               SharedParameterPtr maxVal( new PrmSourceRockTOC( prm, (dblRng.size() == 3 ? dblRng[1] :  1.0), layerName, 
+                                                                     (mapRng.size() == 3 ? mapRng[1] : std::string("")), srTypeName, mixID ) );
+
+               SharedParameterPtr basVal( new PrmSourceRockTOC( prm, (dblRng.size() == 3 ? dblRng[2] :  0.0), layerName, 
+                                                                     (mapRng.size() == 3 ? mapRng[2] : std::string("")), srTypeName, mixID ) );
+               prm->addSourceRockTypeRange( srTypeName, basVal, minVal, maxVal, rangeShape );
             }
          }
       }
+
       if ( !alreadyAdded )
       {
          std::unique_ptr<VarPrmSourceRockTOC> newPrm( new VarPrmSourceRockTOC( layerName
-                                                                       , baseValue[0]
-                                                                       , minVal
-                                                                       , maxVal
-                                                                       , rangeShape
-                                                                       , name
-                                                                       , srTypeName
-                                                                       , mixID
-                                                                       ) );
+                                                                             , dblRng
+                                                                             , mapRng
+                                                                             , rangeShape
+                                                                             , name
+                                                                             , srTypeName
+                                                                             , mixID
+                                                                             ) );
          // check if there is SourceRockType category parameter
          if ( !srtName.empty() )
          {
@@ -336,7 +376,11 @@ ErrorHandler::ReturnCode VarySourceRockHI( ScenarioAnalysis    & sa
             }
 
             alreadyAdded = true;
-            hiPrm->addSourceRockTypeRange( srTypeName, baseValue[0], minVal, maxVal, rangeShape );
+            SharedParameterPtr minValPrm( new PrmSourceRockHI( hiPrm, minVal,       layerName, srTypeName, mixID ) );
+            SharedParameterPtr maxValPrm( new PrmSourceRockHI( hiPrm, maxVal,       layerName, srTypeName, mixID ) );
+            SharedParameterPtr basValPrm( new PrmSourceRockHI( hiPrm, baseValue[0], layerName, srTypeName, mixID ) );
+
+            hiPrm->addSourceRockTypeRange( srTypeName, basValPrm, minValPrm, maxValPrm, rangeShape );
          }
       }
 
@@ -442,7 +486,11 @@ ErrorHandler::ReturnCode VarySourceRockHC( ScenarioAnalysis    & sa
             }
 
             alreadyAdded = true;
-            hcPrm->addSourceRockTypeRange( srTypeName, baseValue[0], minVal, maxVal, rangeShape );
+            SharedParameterPtr minValPrm( new PrmSourceRockHC( hcPrm, minVal,       layerName, srTypeName, mixID ) );
+            SharedParameterPtr maxValPrm( new PrmSourceRockHC( hcPrm, maxVal,       layerName, srTypeName, mixID ) );
+            SharedParameterPtr basValPrm( new PrmSourceRockHC( hcPrm, baseValue[0], layerName, srTypeName, mixID ) );
+
+            hcPrm->addSourceRockTypeRange( srTypeName, basValPrm, minValPrm, maxValPrm, rangeShape );
          }
       }
       // add variable parameter to VarSpace
@@ -545,7 +593,12 @@ ErrorHandler::ReturnCode VarySourceRockPreAsphaltActEnergy( ScenarioAnalysis    
                      "variable parameter. Given: " << name << ", expected : " << prm->name()[0];
                }
                alreadyAdded = true;
-               prm->addSourceRockTypeRange( srTypeName, baseValue[0], minVal, maxVal, rangeShape );
+               
+               SharedParameterPtr minValPrm( new PrmSourceRockPreAsphaltStartAct( prm, minVal,       layerName, srTypeName, mixID ) );
+               SharedParameterPtr maxValPrm( new PrmSourceRockPreAsphaltStartAct( prm, maxVal,       layerName, srTypeName, mixID ) );
+               SharedParameterPtr basValPrm( new PrmSourceRockPreAsphaltStartAct( prm, baseValue[0], layerName, srTypeName, mixID ) );
+
+               prm->addSourceRockTypeRange( srTypeName, basValPrm, minValPrm, maxValPrm, rangeShape );
             }
          }
       }

@@ -28,12 +28,15 @@ VarPrmSourceRockHI::VarPrmSourceRockHI( const char          * lrName
                                       , const char          * name
                                       , const char          * srTypeName
                                       , int                   mixID
-                                      ) : VarPrmSourceRockProp( lrName, baseValue, minValue, maxValue, pdfType, name, srTypeName, mixID )
+                                      ) : VarPrmSourceRockProp( lrName, pdfType, name, srTypeName, mixID )
 {
    m_propName = "HI";
    m_minValue.reset(  new PrmSourceRockHI( this, minValue,  lrName, srTypeName, m_mixID ) );
    m_maxValue.reset(  new PrmSourceRockHI( this, maxValue,  lrName, srTypeName, m_mixID ) );
    m_baseValue.reset( new PrmSourceRockHI( this, baseValue, lrName, srTypeName, m_mixID ) );
+
+   // add given range to map
+   if ( !m_srTypeName.empty() ) { addSourceRockTypeRange( srTypeName, m_baseValue, m_minValue, m_maxValue, pdfType ); }
 }
 
 std::vector<std::string> VarPrmSourceRockHI::name() const
@@ -66,14 +69,16 @@ VarPrmSourceRockHI::VarPrmSourceRockHI( CasaDeserializer & dz, unsigned int objV
    }
 }
 
-PrmSourceRockProp * VarPrmSourceRockHI::createNewPrm( double val ) const
+SharedParameterPtr VarPrmSourceRockHI::createNewPrm( double val, const std::string & srType ) const
 {
-   return new PrmSourceRockHI( this, val, m_layerName.c_str(), (m_srTypeName.empty() ? 0 : m_srTypeName.c_str()), m_mixID ); 
+   SharedParameterPtr prm( new PrmSourceRockHI( this, val, m_layerName.c_str(), (srType.empty() ? 0 : srType.c_str()), m_mixID ) ); 
+   return prm;
 }
 
-PrmSourceRockProp * VarPrmSourceRockHI::createNewPrmFromModel( mbapi::Model & mdl ) const
+SharedParameterPtr VarPrmSourceRockHI::createNewPrmFromModel( mbapi::Model & mdl ) const
 {
-   return new PrmSourceRockHI( mdl, m_layerName.c_str( ), ( m_srTypeName.empty( ) ? 0 : m_srTypeName.c_str( ) ), m_mixID );
+   SharedParameterPtr prm( new PrmSourceRockHI( mdl, m_layerName.c_str( ), ( m_srTypeName.empty( ) ? 0 : m_srTypeName.c_str( ) ), m_mixID ) );
+   return prm;
 }
 
 }

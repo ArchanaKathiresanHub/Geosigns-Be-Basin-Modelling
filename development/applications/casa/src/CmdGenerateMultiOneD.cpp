@@ -10,10 +10,14 @@
 
 #include "CasaCommander.h"
 #include "CmdGenerateMultiOneD.h"
+#include "CmdAddCldApp.h"
 
 #include "casaAPI.h"
 #include "RunCase.h"
+#include "Observable.h"
 #include "RunManager.h"
+#include "ObsSpace.h"
+#include "ObsGridPropertyWell.h"
 
 #include "LogHandler.h"
 
@@ -24,11 +28,12 @@
 #include <iostream>
 #include <fstream>
 
+
 CmdGenerateMultiOneD::CmdGenerateMultiOneD( CasaCommander & parent, const std::vector< std::string > & cmdPrms ) : CasaCmd( parent, cmdPrms )
 {
    m_cldVer            = m_prms.size() > 0 ?   m_prms[0]  : "Default";
    m_transformation    = m_prms.size() > 1 ?   m_prms[1]  : "none";
-   m_relativeReduction = m_prms.size( ) > 2 ? atof( m_prms[2].c_str( ) ) : 0.05;
+   m_relativeReduction = m_prms.size() > 2 ?   atof( m_prms[2].c_str() ) : 0.05;
    m_keepHist          = m_prms.size() > 3 ? ( m_prms[3] == "KeepHistory" ? true : false ) : false;
 }
 
@@ -62,6 +67,54 @@ void CmdGenerateMultiOneD::printHelpPage( const char * cmdName )
    std::cout << "\n";
 }
 
+static std::string generateTrack1DCommand( std::unique_ptr<casa::ScenarioAnalysis> & sa, const casa::RunCase * cs )
+{
+   mbapi::Model   * mdl = cs->caseModel();
+   const casa::ObsSpace & obs = sa->obsSpace();
+
+   std::vector<double> x;
+   std::vector<double> y;
+   std::vector<std::string> propNames;
+
+   for ( size_t i = 0; i < obs.size(); ++i )
+   {
+      const casa::Observable * ob = obs.observable( i );
+      const casa::ObsGridPropertyWell * obw = dynamic_cast<const casa::ObsGridPropertyWell*>( ob );
+      if ( obw )
+      {
+         if ( obw->checkObservableForProject( *mdl ).empty() )
+         {
+            x.push_back( obw->xCoords()[0] );
+            y.push_back( obw->yCoords()[0] );
+            propNames.push_back( obw->propertyName() );
+         }
+      }
+   }
+
+   std::ostringstream oss;
+   std::vector<bool> mask( x.size(), false );
+   for ( size_t i = 0, k = 0; i < mask.size(); ++i )
+   {
+      if ( mask[i] ) continue;
+      
+      oss << "app track1d \"-coordinates " << x[i] << "," << y[i] << "\"";
+      oss << " \"-properties " << propNames[i];
+      for ( size_t j = i+1; j < mask.size(); ++j )
+      {
+         if ( mask[j] ) continue;
+
+         if ( std::abs( x[i] - x[j] ) < 1 && std::abs( y[i] - y[j] ) < 1 )
+         {
+            oss << "," << propNames[j];
+            mask[j] = true;
+         }
+      }
+      oss << "\" \"-age 0\" \"-save track1Dresults_" << k << ".csv\"\n";
+      mask[i] = true;
+      k++;
+   }
+   return oss.str();
+}
 
 void CmdGenerateMultiOneD::generateScenarioScripts( std::unique_ptr<casa::ScenarioAnalysis> & sa  ) const
 {
@@ -96,7 +149,20 @@ void CmdGenerateMultiOneD::generateScenarioScripts( std::unique_ptr<casa::Scenar
 
       std::ofstream ofs( scFile.path().c_str(), std::ios_base::out | std::ios_base::trunc );
       if ( !ofs.is_open() ) { throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Can't save script file: " << scFile.path(); }
-      ofs << oss.str();
+     
+      const std::string & scrptFile = oss.str();
+/*      const std::string & track1Dcmd = generateTrack1DCommand( sa, cs );
+      size_t pos = scrptFile.rfind( std::string( CasaCommander::s_CNBaseProject ) ); 
+
+      if ( pos != std::string::npos )
+      {
+         ofs << scrptFile.substr( 0, pos );
+         ofs << track1Dcmd;
+         ofs << scrptFile.substr( pos );
+      }
+      else
+*/
+      { ofs << scrptFile; }
    }
    sa->doeCaseSet().filterByExperimentName( "" );
 

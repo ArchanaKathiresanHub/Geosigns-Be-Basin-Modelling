@@ -134,7 +134,7 @@ namespace casa
       {
          pushDefaultEnv( "CTCDIR",     (ibs::FolderPath( miscPath )             ).path() );
          pushDefaultEnv( "EOSPACKDIR", (ibs::FolderPath( miscPath ) << "eospack").path() );
-         m_outputOpt = "| sed '1,4d' > track1d_results.csv";
+         m_outputOpt = "-save track1d_results.csv";
          m_appDepLevel = Postprocessing;
       }
       else if ( m_appName == "casa" )
@@ -224,7 +224,15 @@ namespace casa
          oss << " " << m_inputOpt << " " << inProjectFile;
       }
 
-      if (      m_appName.substr( 0, 7 ) == "track1d" ) { oss << " " << m_outputOpt; }
+      if ( m_appName.substr( 0, 7 ) == "track1d" ) 
+      {
+         bool hasSaveOpt = false;
+         for ( size_t i = 0; i < m_optionsList.size() && !hasSaveOpt; ++i )
+         {
+            if ( m_optionsList[i].find( "-save" ) != std::string::npos ) { hasSaveOpt = true; }
+         }
+         if ( !hasSaveOpt ) { oss << " " << m_outputOpt; }
+      }
       else if ( m_appName.substr( 0, 4 ) == "casa"    ) { ; }
       else if ( !outProjectFile.empty()               ) { oss << " " << m_outputOpt << " " << outProjectFile; }
 

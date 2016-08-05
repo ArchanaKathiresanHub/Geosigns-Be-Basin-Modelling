@@ -27,14 +27,13 @@ namespace casa
    {
    public:
       /// @brief Create a new initial source rock TOC variable parameter
-      VarPrmSourceRockTOC( const char          * layerName       ///< name of the layer for TOC variation
-                         , double                baseValue       ///< base value of parameter
-                         , double                minValue        ///< minimal value for the variable parameter range
-                         , double                maxValue        ///< maximal value for the variable parameter range
-                         , VarPrmContinuous::PDF pdfType = Block ///< type of PDF shape for the variable parameter
-                         , const char          * name = 0        ///< user specified parameter name
-                         , const char          * srTypeName = 0  ///< source rock type name, to connect with source rock type cat. prm.
-                         , int                   mixID = 1       ///< mixing ID. Could be 1 or 2
+      VarPrmSourceRockTOC( const char                     * layerName       ///< name of the layer for TOC variation
+                         , const std::vector<double>      & dblRng          ///< simple range of double values [min,max,base]
+                         , const std::vector<std::string> & mapRng          ///< maps range [min map, max map, base map]
+                         , VarPrmContinuous::PDF            pdfType = Block ///< type of PDF shape for the variable parameter
+                         , const char                     * name = 0        ///< user specified parameter name
+                         , const char                     * srTypeName = 0  ///< source rock type name, to connect with source rock type cat. prm.
+                         , int                              mixID = 1       ///< mixing ID. Could be 1 or 2
                          );
 
       /// @brief Destructor
@@ -47,7 +46,7 @@ namespace casa
       /// @{
       /// @brief Defines version of serialized object representation. Must be updated on each change in save()
       /// @return Actual version of serialized object representation
-      virtual unsigned int version() const { return VarPrmContinuous::version() + 0; }
+      virtual unsigned int version() const { return VarPrmSourceRockProp::version() + 0; }
 
       /// @brief Get type name of the serialaizable object, used in deserialization to create object with correct type
       /// @return object class name
@@ -66,8 +65,8 @@ namespace casa
       /// @}
       
    protected:
-      virtual PrmSourceRockProp * createNewPrm( double val ) const; // creates PrmSourceRockProp parameter object instance
-      virtual PrmSourceRockProp * createNewPrmFromModel( mbapi::Model & mdl ) const;// creates PrmSourceRockProp parameter object instance from the model
+      virtual SharedParameterPtr createNewPrm( double val, const std::string & srType ) const; // creates PrmSourceRockProp parameter object instance
+      virtual SharedParameterPtr createNewPrmFromModel( mbapi::Model & mdl ) const;// creates PrmSourceRockProp parameter object instance from the model
    };
 
 }

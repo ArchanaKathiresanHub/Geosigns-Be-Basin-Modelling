@@ -84,7 +84,7 @@ namespace casa
       /// @return map name
       std::string mapName() const { return m_mapName; }
 
-      /// @brief Define min/max maps name to interpolate between them on setInModel reques
+      /// @brief Define min/max maps name to interpolate between them on setInModel request
       /// @param minMap low range map
       /// @param maxMap high range map
       void defineMapsRange( const std::string & minMap, const std::string & maxMap ) { m_minMapName = minMap; m_maxMapName = maxMap; }

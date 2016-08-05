@@ -247,7 +247,7 @@ ErrorHandler::ReturnCode SourceRockManagerImpl::setTOCIni( SourceRockID id, doub
 
    try
    {
-      if ( newTOC < 0.0 || newTOC > 100.0 )
+      if ( (newTOC < 0.0 || newTOC > 100.0 ) && newTOC != UndefinedDoubleValue )
       {
          throw Exception( OutOfRangeValue ) << "TOC value must be in range [0:100] but given is: " << newTOC;
       }
@@ -293,6 +293,7 @@ ErrorHandler::ReturnCode SourceRockManagerImpl::setTOCInitMapName( SourceRockID 
          throw Exception( NonexistingID ) << "No source rock lithology with such ID: " << id;
       }
       rec->setValue( s_tocIniMap, mapName );
+      rec->setValue( s_tocIni,    UndefinedDoubleValue ); // TOC must be -9999
    }
    catch ( const Exception & e ) { return reportError( e.errorCode(), e.what() ); }
 

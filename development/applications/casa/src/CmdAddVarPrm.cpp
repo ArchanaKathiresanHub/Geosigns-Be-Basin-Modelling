@@ -177,14 +177,27 @@ public:
                                   , const std::vector<std::string>        & prms
                                   ) const
    {
+      std::vector<double>         simpleRange;
+      std::vector<std::string>    mapRange;
+      
       size_t pos = 1;
       std::string                 srtMix = prms.size() > 5 ? ( prms[pos++] ) : "";
       std::string                 layerName = prms[pos++];
       std::string                 srType = prms.size() > 6 ? ( prms[pos++] ) : "";
-      double                      minVal = atof(    prms[pos++].c_str() );
-      double                      maxVal = atof(    prms[pos++].c_str() );
-      casa::VarPrmContinuous::PDF ppdf   = Str2pdf( prms[pos++] );
 
+      // if parameters - 2 doubles - it is a simple range
+      if ( CfgFileParser::isNumericPrm( prms[pos] ) && CfgFileParser::isNumericPrm( prms[pos+1] ) )
+      {
+         simpleRange.push_back( atof( prms[pos++].c_str() ) );
+         simpleRange.push_back( atof( prms[pos++].c_str() ) );
+      }
+      else // otherwise consider it as a map range
+      {
+         mapRange.push_back( prms[pos++] );
+         mapRange.push_back( prms[pos++] );
+      }
+      
+      casa::VarPrmContinuous::PDF ppdf   = Str2pdf( prms[pos++] );
       int mixID = srtMix.empty() ? 1 : atoi( srtMix.substr( srtMix.size() - 1 ).c_str() );
 
       if ( ErrorHandler::NoError != casa::BusinessLogicRulesSet::VarySourceRockTOC( *sa.get()
@@ -192,8 +205,8 @@ public:
                                                                                   , layerName.c_str()
                                                                                   , mixID
                                                                                   , ( srType.empty() ? 0 : srType.c_str() )
-                                                                                  , minVal
-                                                                                  , maxVal
+                                                                                  , simpleRange 
+                                                                                  , mapRange 
                                                                                   , ppdf ) )
       {
          throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage();
@@ -218,8 +231,8 @@ public:
       oss << "       layerName  - source rock layer name\n";
       oss << "       srType     - (Optional) if source rock type name. If TOC value is dependent on Categorical Source Rock Type parameter\n";
       oss << "                    this value will be used to connect and establish this dependency.\n";
-      oss << "       minVal     - the parameter minimal range value\n";
-      oss << "       maxVal     - the parameter maximal range value\n";
+      oss << "       minVal     - the parameter minimal range value (double value or a map name)\n";
+      oss << "       maxVal     - the parameter maximal range value (double value or a map name)\n";
       oss << "       prmPDF     - the parameter probability density function type\n";
       oss << "\n";
 
@@ -230,7 +243,10 @@ public:
    {
       std::ostringstream oss;
       oss << "    #                              type         layerName        minVal  maxVal   prmPDF\n";
-      oss << "    "<< cmdName << " \"Lower Jurasic TOC\" \"" << name() << "\" \"Lower Jurassic\"  0.5    1.0  \"Block\"\n";
+      oss << "    "<< cmdName << " \"Lower Jurasic TOC\" \"" << name() << "\" \"Lower Jurassic\"  0.5    1.0  \"Block\"\n\n";
+      oss << "    #                              type         layerName          minMap         maxMap   prmPDF\n";
+      oss << "    "<< cmdName << " \"Lower Jurasic TOC\" \"" << name() << "\" \"Lower Jurassic\"  \"MinMapName\"   \"MaxMapName\"  \"Block\"\n";
+
       oss << "\n    # Example with source rock mixing, TOC Value is set for the second SR in the mix for the Spekk layer\n";
 
       oss << "    "<< cmdName << " \"SpekkTOC\" \"" << name() << "\" \"StratIoTbl:SourceRockType2\" \"Spekk\" 0.5 1.0 \"Block\"\n";

@@ -64,12 +64,12 @@ namespace casa
       int mixID() const { return m_mixID; }
 
       /// @brief Add one more range for the given source rock type category value
-      /// @param srTypeName name of the source rock type
-      /// @param baseVal base range value
-      /// @param minVal minmal range value
-      /// @param maxVal maximal range value
-      /// @param pdfType type of probability density function
-      void addSourceRockTypeRange( const char * srTypeName, double baseVal, double minVal, double maxVal, PDF pdfType );
+     void addSourceRockTypeRange( const char          * srTypeName ///< name of the source rock type
+                                 , SharedParameterPtr   baseVal    ///< base range value
+                                 , SharedParameterPtr   minVal     ///< minmal range value
+                                 , SharedParameterPtr   maxVal     ///< maximal range value
+                                 , PDF                  pdfType    ///< type of probability density function
+                                 );
       /// @}
 
       /// @brief Save common data to the given stream, that object could be later reconstructed from saved data
@@ -93,24 +93,23 @@ namespace casa
       /// @brief Could be called only from the child class
       VarPrmSourceRockProp( const char * layerName /**< name of the layer for Prop variation. If layer has mix of 
                                                       source rocks litho-types, Prop will be changed for all of them */
-                         , double       baseValue  ///< parameter base value
-                         , double       minValue   ///< minimal value for the variable parameter range
-                         , double       maxValue   ///< maximal value for the variable parameter range
-                         , PDF          pdfType    ///< type of PDF shape for the variable parameter
-                         , const char * name       ///< user specified parameter name
-                         , const char * srTypeName ///< source rock type name, to connect with source rock type cat. prm.
-                         , int          mixID      ///< mixing ID. Could be 1 or 2
-                         );
+                          , PDF          pdfType    ///< type of PDF shape for the variable parameter
+                          , const char * name       ///< user specified parameter name
+                          , const char * srTypeName ///< source rock type name, to connect with source rock type cat. prm.
+                          , int          mixID      ///< mixing ID. Could be 1 or 2
+                          );
 
-      virtual PrmSourceRockProp * createNewPrm( double val ) const = 0;
-      virtual PrmSourceRockProp * createNewPrmFromModel( mbapi::Model & mdl ) const = 0;
+      unsigned int version() const { return VarPrmContinuous::version() + 1; } /// Reflects any changes in common part of inheritance
+
+      virtual SharedParameterPtr createNewPrm( double val, const std::string & srType ) const = 0;
+      virtual SharedParameterPtr createNewPrmFromModel( mbapi::Model & mdl ) const = 0;
 
       std::string m_propName;   ///< Defines which source rock lithology property this parameter defines
       std::string m_layerName;  ///< active source rock lithology name
       int         m_mixID;      ///< mixing ID
       std::string m_srTypeName; ///< active source rock type name
      
-      std::map<std::string, std::vector<double> > m_name2range; ///< Keeps range and base property values for each category
+      std::map<std::string, std::vector<SharedParameterPtr> > m_name2range; ///< Keeps range and base property values for each category
    };
 }
 

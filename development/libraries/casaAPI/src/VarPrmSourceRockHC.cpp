@@ -28,13 +28,15 @@ VarPrmSourceRockHC::VarPrmSourceRockHC( const char          * lrName
                                       , const char          * name
                                       , const char          * srTypeName
                                       , int                   mixID
-                                      ) : VarPrmSourceRockProp( lrName, baseValue, minValue, maxValue, pdfType, name, srTypeName, mixID )
+                                      ) : VarPrmSourceRockProp( lrName, pdfType, name, srTypeName, mixID )
 {
    m_propName = "H/C";
 
    m_minValue.reset(  new PrmSourceRockHC( this, minValue,  lrName, srTypeName, m_mixID ) );
    m_maxValue.reset(  new PrmSourceRockHC( this, maxValue,  lrName, srTypeName, m_mixID ) );
    m_baseValue.reset( new PrmSourceRockHC( this, baseValue, lrName, srTypeName, m_mixID ) );
+
+   if ( !m_srTypeName.empty() ) { addSourceRockTypeRange( srTypeName, m_baseValue, m_minValue, m_maxValue, pdfType ); }
 }
 
 std::vector<std::string> VarPrmSourceRockHC::name() const
@@ -65,14 +67,16 @@ VarPrmSourceRockHC::VarPrmSourceRockHC( CasaDeserializer & dz, unsigned int objV
    }
 }
 
-PrmSourceRockProp * VarPrmSourceRockHC::createNewPrm( double val ) const
+SharedParameterPtr VarPrmSourceRockHC::createNewPrm( double val, const std::string & srType ) const
 {
-   return new PrmSourceRockHC( this, val, m_layerName.c_str(), (m_srTypeName.empty() ? 0 : m_srTypeName.c_str()), m_mixID ); 
+   SharedParameterPtr prm( new PrmSourceRockHC( this, val, m_layerName.c_str(), srType.empty() ? 0 : srType.c_str(), m_mixID ) );
+   return prm;
 }
 
-PrmSourceRockProp * VarPrmSourceRockHC::createNewPrmFromModel( mbapi::Model & mdl ) const
+SharedParameterPtr VarPrmSourceRockHC::createNewPrmFromModel( mbapi::Model & mdl ) const
 {
-   return new PrmSourceRockHC( mdl, m_layerName.c_str( ), ( m_srTypeName.empty( ) ? 0 : m_srTypeName.c_str( ) ), m_mixID );
+   SharedParameterPtr prm( new PrmSourceRockHC( mdl, m_layerName.c_str(), ( m_srTypeName.empty( ) ? 0 : m_srTypeName.c_str( ) ), m_mixID ) );
+   return prm;
 }
 
 }

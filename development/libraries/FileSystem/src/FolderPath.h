@@ -28,7 +28,7 @@ namespace ibs
       FolderPath( const std::string & folderPath ) : Path( folderPath ) { ; }
 
       /// @brief Copy constructor
-      FolderPath( const FolderPath & fld ) : Path( fld.m_path ) { ; }
+      FolderPath( const Path & aPath ) : Path( aPath ) { ; }
 
       /// @brief Destructor
       virtual ~FolderPath( ) { ; }

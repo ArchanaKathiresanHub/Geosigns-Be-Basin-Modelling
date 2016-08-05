@@ -716,7 +716,7 @@ void LMOptAlgorithm::calculateFunctionValue( Eigen::VectorXd & fvec )
 
    size_t mi = 0;
 
-   // at first alculate minimization function terms for observables value 
+   // at first calculate minimization function terms for observables value 
    for ( size_t i = 0; i < m_permObs.size(); ++i )
    {
       const Observable          * obs      = m_optimObs[i]; 
@@ -837,8 +837,7 @@ void LMOptAlgorithm::calculateFunctionValue( Eigen::VectorXd & fvec )
       LogHandler( LogHandler::DEBUG_SEVERITY ) << "New minimum found with Qmin target = " << m_Qmin << ", copying project...";
 
       // copy better case as calibrated
-      ibs::FolderPath clbPath( "." );
-      clbPath << m_projectName;
+      ibs::FolderPath clbPath = ibs::FolderPath( "." ) << m_projectName;
 
       rc->caseModel()->saveModelToProjectFile( clbPath.fullPath().cpath(), true );
 
@@ -863,15 +862,13 @@ void LMOptAlgorithm::runOptimization( ScenarioAnalysis & sa )
    size_t prmSpDim = prepareParameters( guess, minPrm, maxPrm );
 
    // convert std::vector to Eigen vector
-   Eigen::VectorXd initialGuess( guess.size() );
-   Eigen::VectorXd minPrmEig( minPrm.size() );
-   Eigen::VectorXd maxPrmEig( maxPrm.size() );
-   size_t xi = 0;
-   for ( auto pv : guess ) initialGuess[xi++] = pv;
-   xi = 0;
-   for ( auto pv : minPrm ) minPrmEig[xi++] = pv;
-   xi = 0;
-   for ( auto pv : maxPrm ) maxPrmEig[xi++] = pv;
+   Eigen::VectorXd initialGuess( guess.size()  );
+   Eigen::VectorXd minPrmEig(    minPrm.size() );
+   Eigen::VectorXd maxPrmEig(    maxPrm.size() );
+
+   size_t xi = 0; for ( auto pv : guess  ) { initialGuess[xi++] = pv; }
+   xi        = 0; for ( auto pv : minPrm ) { minPrmEig[xi++]    = pv; }
+   xi        = 0; for ( auto pv : maxPrm ) { maxPrmEig[xi++]    = pv; }
    
    // extract observables with reference values and calculate dimension
    size_t obsSpDim = prepareObservables();
@@ -903,8 +900,7 @@ void LMOptAlgorithm::runOptimization( ScenarioAnalysis & sa )
    // if we should not keep history - delete the last step
    if ( !m_keepHistory )
    {
-      ibs::FolderPath casePath( "." );
-      casePath << "LMStep";
+      ibs::FolderPath casePath = ibs::FolderPath( "." ) << "LMStep";
 
       if ( casePath.exists() ) { casePath.remove(); }
 

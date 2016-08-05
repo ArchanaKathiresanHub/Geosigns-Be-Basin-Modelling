@@ -46,8 +46,10 @@
 #include <algorithm>
 #include <sstream>
 
+namespace mbapi {
+
 // generates pseudo random string from alphanumeric characters with given length
-static std::string GetRandomString( size_t len )
+std::string Model::randomString( size_t len )
 {
    static unsigned long next = 1970;
    static const char alphanum[] = "0123456789"
@@ -66,7 +68,6 @@ static std::string GetRandomString( size_t len )
 } 
 
 
-namespace mbapi {
 
 const char * Model::s_ResultsFolderSuffix = "_CauldronOutputDir"; // defines Cauldron results folder name suffix
 
@@ -131,6 +132,46 @@ public:
                                          , const std::vector<std::string>                          & alochtLitName
                                          , const std::vector<std::pair<std::string, std::string> > & faultsName
                                          );
+   // model origin
+   void origin( double & x, double & y );
+
+   // model window in IJ space
+   void window( long & minWinI, long & maxWinI, long & minWinJ, long & maxWinJ );
+
+   // set model window in IJ space
+   void setWindow( long minWinI, long maxWinI, long minWinJ, long maxWinJ );
+
+   // grid subsampling
+   void subsampling( long & di, long & dj );
+
+   // set grid subsampling
+   void setSubsampling( long di, long dj );
+
+   // model dimensions along X/Y [m]
+   void arealSize( double & dimX, double & dimY );
+   
+   // window size
+   void windowSize( double x, double y, int & xMin, int & xMax, int & yMin, int & yMax, double & xc, double & yc );
+
+   void hiresGridArealSize( long & sizeI, long & sizeJ );
+
+   void interpolateLithoFractions( const std::vector<double> & xin
+                                 , const std::vector<double> & yin
+                                 , const std::vector<double> & lf1
+                                 , const std::vector<double> & lf2
+                                 , const std::vector<double> & lf3
+                                 , std::vector<double>       & xInt
+                                 , std::vector<double>       & yInt
+                                 , std::vector<double>       & rpInt
+                                 , std::vector<double>       & r13Int
+                                 );
+
+   void backTransformLithoFractions( const std::vector<double> & rpInt
+                                   , const std::vector<double> & r13Int
+                                   , std::vector<double>       & lf1CorrInt
+                                   , std::vector<double>       & lf2CorrInt
+                                   , std::vector<double>       & lf3CorrInt
+                                   );
 
    // determine if a particular point lies within the formation top and bottom
    bool checkValueIsInLayer( const double x, const double y, const double z, const std::string & layerName );
@@ -142,7 +183,7 @@ public:
    SnapshotManager     & snapshotManager()     { return m_snpMgr;   } // Snapshots manager
    PropertyManager     & propertyManager()     { return m_prpMgr;   } // Properties manager
    MapsManager         & mapsManager()         { return m_mapMgr;   } // Maps manager
-  
+   
    // data members
    LithologyManagerImpl     m_lithMgr;
    StratigraphyManagerImpl  m_stratMgr;
@@ -155,36 +196,6 @@ public:
    std::unique_ptr<DataAccess::Interface::ProjectHandle> m_projHandle;   // project file database (set of tables)
    std::unique_ptr<DataAccess::Interface::ObjectFactory> m_factory;  
    std::string                                           m_projFileName; // project files name with path
-
-   // model origin
-   void origin( double & x, double & y );
-
-   // grid subsampling
-   void subsampling( long & di, long & dj );
-
-   // model dimensions along X/Y
-   void arealSize( double & dimX, double & dimY );
-   
-   // window size
-   void windowSize( double x, double y, int & xMin, int & xMax, int & yMin, int & yMax, double & xc, double & yc );
-
-   void interpolateLithoFractions(
-      const std::vector<double>& xin,
-      const std::vector<double>& yin,
-      const std::vector<double>& lf1,
-      const std::vector<double>& lf2,
-      const std::vector<double>& lf3,
-      std::vector<double>& xInt,
-      std::vector<double>& yInt,
-      std::vector<double>& rpInt,
-      std::vector<double>& r13Int );
-
-   void backTransformLithoFractions(
-      const std::vector<double>& rpInt,
-      const std::vector<double>& r13Int,
-      std::vector<double>& lf1CorrInt,
-      std::vector<double>& lf2CorrInt,
-      std::vector<double>& lf3CorrInt );
 };
 
 
@@ -202,7 +213,6 @@ Model & Model::operator = ( const Model & otherModel )
 
 ///////////////////////////////////////////////////////////////////////////////
 // Generic Table IO interface
-
 
 std::vector<std::string> Model::tablesList()
 {
@@ -442,6 +452,29 @@ Model::ReturnCode Model::origin( double & x, double & y )
    return NoError;
 }
 
+Model::ReturnCode Model::window( long & minWinI, long & maxWinI, long & minWinJ, long & maxWinJ )
+{
+   if ( errorCode() != NoError ) resetError(); // clean any previous error
+
+   try { m_pimpl->window( minWinI, maxWinI, minWinJ, maxWinJ ); }
+   catch ( const Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
+   catch ( ... )                  { return reportError( UnknownError, "Unknown error" ); }
+
+   return NoError;
+}
+
+Model::ReturnCode Model::setWindow( long minWinI, long maxWinI, long minWinJ, long maxWinJ )
+{
+   if ( errorCode() != NoError ) resetError(); // clean any previous error
+
+   try { m_pimpl->setWindow( minWinI, maxWinI, minWinJ, maxWinJ ); }
+   catch ( const Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
+   catch ( ... )                  { return reportError( UnknownError, "Unknown error" ); }
+
+   return NoError;
+}
+
+
 Model::ReturnCode Model::subsampling( long & di, long & dj )
 {
    if ( errorCode() != NoError ) resetError(); // clean any previous error
@@ -452,6 +485,18 @@ Model::ReturnCode Model::subsampling( long & di, long & dj )
 
    return NoError;
 }
+
+Model::ReturnCode Model::setSubsampling( long di, long dj )
+{
+   if ( errorCode() != NoError ) resetError(); // clean any previous error
+
+   try { m_pimpl->setSubsampling( di, dj ); }
+   catch ( const Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
+   catch ( ... )                  { return reportError( UnknownError, "Unknown error" ); }
+
+   return NoError;
+}
+
 
 Model::ReturnCode Model::arealSize( double & dimX, double & dimY )
 {
@@ -469,6 +514,17 @@ Model::ReturnCode Model::windowSize( double x, double y, int & xMin, int & xMax,
    if ( errorCode() != NoError ) resetError(); // clean any previous error
 
    try { m_pimpl->windowSize( x, y, xMin, xMax, yMin, yMax, xc, yc); }
+   catch ( const Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
+   catch ( ...                  ) { return reportError( UnknownError, "Unknown error" ); }
+
+   return NoError;
+}
+
+Model::ReturnCode Model::hiresGridArealSize( long & sizeI, long & sizeJ )
+{
+   if ( errorCode() != NoError ) resetError(); // clean any previous error
+
+   try { m_pimpl->hiresGridArealSize( sizeI, sizeJ ); }
    catch ( const Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
    catch ( ...                  ) { return reportError( UnknownError, "Unknown error" ); }
 
@@ -1073,7 +1129,7 @@ void Model::ModelImpl::setTableIntegerValue( const std::string & tableName, size
    database::Table * table = m_projHandle->getDataBase()->getTable( tableName );
 
    // if table does not exist - report error
-   if (                     !table ) throw ErrorHandler::Exception( UndefinedValue ) << tableName << " table could not be found in project";
+   if (                    !table ) throw ErrorHandler::Exception( UndefinedValue ) << tableName << " table could not be found in project";
    if ( table->size() < rowNumber ) throw ErrorHandler::Exception( UndefinedValue ) << tableName << " size is less then requested row number";
 
    database::Record * record = table->getRecord( static_cast<int>( rowNumber ) );
@@ -1087,11 +1143,11 @@ void Model::ModelImpl::setTableIntegerValue( const std::string & tableName, size
    datatype::DataType dt = tblDef.getFieldDefinition( ind )->dataType();
    switch ( dt )
    {
-   case datatype::Bool: record->setValue<bool>( ind, (propValue ? true : false)  ); break;
-   case datatype::Int:  record->setValue<int>(  ind, static_cast<int>(propValue) ); break;
-   case datatype::Long: record->setValue<long>( ind,                  propValue  ); break;
-   default:
-      throw ErrorHandler::Exception( UndefinedValue ) << tableName << "(" << propName << ") - data type can't be cast to integer value";
+      case datatype::Bool: record->setValue<bool>( ind, (propValue ? true : false)  ); break;
+      case datatype::Int:  record->setValue<int>(  ind, static_cast<int>(propValue) ); break;
+      case datatype::Long: record->setValue<long>( ind,                  propValue  ); break;
+      default:
+         throw ErrorHandler::Exception( UndefinedValue ) << tableName << "(" << propName << ") - data type can't be cast to integer value";
    }
 }
 
@@ -1228,6 +1284,34 @@ void Model::ModelImpl::origin( double & x, double & y )
    y = pd->getYOrigin() + pd->getDeltaY() * pd->getWindowYMin();
 }
 
+void Model::ModelImpl::window( long & minWinI, long & maxWinI, long & minWinJ, long & maxWinJ )
+{
+   if ( !m_projHandle.get() )
+   {
+      throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Model::origin(): no project was loaded";
+   }
+
+   const DataAccess::Interface::ProjectData * pd = m_projHandle->getProjectData();
+
+   minWinI = pd->getWindowXMin();
+   maxWinI = pd->getWindowXMax();
+   minWinJ = pd->getWindowYMin();
+   maxWinJ = pd->getWindowYMax();
+}
+
+void Model::ModelImpl::setWindow( long minWinI, long maxWinI, long minWinJ, long maxWinJ )
+{
+   if ( !m_projHandle.get() )
+   {
+      throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Model::setSubsmapling(): no project was loaded";
+   }
+
+   setTableIntegerValue( "ProjectIoTbl", 0, "WindowXMin", minWinI );
+   setTableIntegerValue( "ProjectIoTbl", 0, "WindowYMin", minWinJ );
+   setTableIntegerValue( "ProjectIoTbl", 0, "WindowXMax", maxWinI );
+   setTableIntegerValue( "ProjectIoTbl", 0, "WindowYMax", maxWinJ );
+}
+
 // grid subsampling
 void Model::ModelImpl::subsampling( long & di, long & dj )
 {
@@ -1241,6 +1325,18 @@ void Model::ModelImpl::subsampling( long & di, long & dj )
    di = pd->getXNodeStep();
    dj = pd->getYNodeStep();
 }
+
+// set grid subsampling
+void Model::ModelImpl::setSubsampling( long di, long dj )
+{
+   if ( !m_projHandle.get() )
+   {
+      throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Model::setSubsmapling(): no project was loaded";
+   }
+   setTableIntegerValue( "ProjectIoTbl", 0, "ScaleX", di );
+   setTableIntegerValue( "ProjectIoTbl", 0, "ScaleY", dj );
+}
+
 
 // model dimensions along X/Y
 void Model::ModelImpl::arealSize( double & dimX, double & dimY )
@@ -1269,6 +1365,16 @@ void Model::ModelImpl::windowSize( double x, double y, int & xMin, int & xMax, i
    // centre of calculated model
    xc = pd->getXOrigin() + ( xMin + xMax ) * 0.5 * pd->getDeltaX();
    yc = pd->getYOrigin() + ( yMin + yMax ) * 0.5 * pd->getDeltaY( );
+}
+
+void Model::ModelImpl::hiresGridArealSize( long & sizeI, long & sizeJ )
+{
+   if ( !m_projHandle.get() ) { throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Model::origin(): no project was loaded"; }
+
+   const DataAccess::Interface::ProjectData * pd = m_projHandle->getProjectData();
+
+   sizeI = pd->getNumberOfXNodes();
+   sizeJ = pd->getNumberOfYNodes();
 }
 
 // transform the lithofractions and interpolate the results
@@ -1536,7 +1642,7 @@ std::vector<std::string> Model::ModelImpl::copyLithology( const std::string     
       }
 
       // create new lithology name, copy it and assign the new lithology name for the corresponded mixing position to the layer
-      std::string newLithoName = litName + "_" + GetRandomString( randStringSize ) + "_CASA";
+      std::string newLithoName = litName + "_" + randomString( randStringSize ) + "_CASA";
 
       mbapi::LithologyManager::LithologyID newLithID = m_lithMgr.copyLithology( lithID, newLithoName );
       if ( UndefinedIDValue == newLithID ) throw ErrorHandler::Exception( m_lithMgr.errorCode() ) << m_lithMgr.errorMessage();
@@ -1576,7 +1682,7 @@ std::vector<std::string> Model::ModelImpl::copyLithology( const std::string     
       }
 
       // create new lithology name, copy it and assign the new lithology name for the corresponded layer
-      std::string newLithoName = litName + "_" + GetRandomString( randStringSize ) + "_CASA";
+      std::string newLithoName = litName + "_" + randomString( randStringSize ) + "_CASA";
 
       mbapi::LithologyManager::LithologyID newLithID = m_lithMgr.copyLithology( lithID, newLithoName );
       if ( UndefinedIDValue == newLithID ) throw ErrorHandler::Exception( m_lithMgr.errorCode() ) << m_lithMgr.errorMessage();
@@ -1617,7 +1723,7 @@ std::vector<std::string> Model::ModelImpl::copyLithology( const std::string     
       }
 
       // create new lithology name, copy it and assign the new lithology name for the corresponded fault cut
-      std::string newLithoName = litName + "_" + GetRandomString( randStringSize ) + "_CASA";
+      std::string newLithoName = litName + "_" + randomString( randStringSize ) + "_CASA";
 
       mbapi::LithologyManager::LithologyID newLithID = m_lithMgr.copyLithology( lithID, newLithoName );
       if ( UndefinedIDValue == newLithID ) throw ErrorHandler::Exception( m_lithMgr.errorCode() ) << m_lithMgr.errorMessage();

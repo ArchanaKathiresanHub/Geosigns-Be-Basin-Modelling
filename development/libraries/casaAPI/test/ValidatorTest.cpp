@@ -58,10 +58,12 @@ TEST_F( ValidatorTest, TwoPrmsValidationTornadoDoE )
    ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( m_projectFileName ) );
    
    // vary 2 parameters
-   ASSERT_EQ( ErrorHandler::NoError, VarySourceRockTOC(          sc, 0, m_layerName, 1, 0, m_minTOC,  m_maxTOC,  VarPrmContinuous::Block ) );
+   std::vector<double> dblRng( 2, m_minTOC );
+   dblRng[1] = m_maxTOC;
+   ASSERT_EQ( ErrorHandler::NoError, VarySourceRockTOC( sc, 0, m_layerName, 1, 0, dblRng, vector<string>(),  VarPrmContinuous::Block ) );
 
-   vector<double> dblRng( 1, m_minTCHP );
-   dblRng.push_back( m_maxTCHP );
+   dblRng[0] = m_minTCHP;
+   dblRng[1] = m_maxTCHP;
    ASSERT_EQ( ErrorHandler::NoError, VaryTopCrustHeatProduction( sc, 0, dblRng, vector<string>(), VarPrmContinuous::Block ) );
 
    // set up and generate DoE

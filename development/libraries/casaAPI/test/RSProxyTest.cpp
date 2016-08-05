@@ -41,12 +41,15 @@ TEST_F( RSProxyTest, Prm2Obs1Proxy1Test )
    VarSpace      & vrs = sc.varSpace();
    ObsSpaceImpl  & obs = dynamic_cast<ObsSpaceImpl&>( sc.obsSpace() );
 
-   ASSERT_EQ( ErrorHandler::NoError, vrs.addParameter( new VarPrmSourceRockTOC( "Lower Jurassic", 10.0, 5.0, 15.0, VarPrmContinuous::Block ) ) );
+   std::vector<double> dblRng( 3, 5.0 );
+   dblRng[1] = 15.0;
+   dblRng[2] = 10.0;
+   ASSERT_EQ( ErrorHandler::NoError, vrs.addParameter( new VarPrmSourceRockTOC( "Lower Jurassic", dblRng, std::vector<std::string>() ) ) );
    
-   std::vector<double> dblRng( 1, 0.1 );
-   dblRng.push_back( 4.9 );
-   dblRng.push_back( 2.5 );
-   ASSERT_EQ( ErrorHandler::NoError, vrs.addParameter( new VarPrmTopCrustHeatProduction( dblRng, std::vector<std::string>(), VarPrmContinuous::Block ) ) );
+   dblRng[0] = 0.1;
+   dblRng[1] = 4.9;
+   dblRng[2] = 2.5;
+   ASSERT_EQ( ErrorHandler::NoError, vrs.addParameter( new VarPrmTopCrustHeatProduction( dblRng, std::vector<std::string>() ) ) );
 
    ASSERT_EQ( ErrorHandler::NoError, obs.addObservable( ObsGridPropertyXYZ::createNewInstance( 460001.0, 6750001.0, 2751.0, "Temperature", 0.01 ) ) );
    ASSERT_EQ( ErrorHandler::NoError, obs.addObservable( ObsGridPropertyXYZ::createNewInstance( 460001.0, 6750001.0, 2730.0, "Vr", 0.002 ) ) );

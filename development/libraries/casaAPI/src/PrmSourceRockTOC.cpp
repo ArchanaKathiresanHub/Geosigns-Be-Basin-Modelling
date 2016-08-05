@@ -31,6 +31,9 @@
 namespace casa
 {
 
+static const char * s_mapFileSuffix        = ".HDF";
+static const char * s_mapNameSuffix        = "_TOC";
+
 // Constructor
 PrmSourceRockTOC::PrmSourceRockTOC( mbapi::Model & mdl
                                   , const char * layerName
@@ -46,7 +49,14 @@ PrmSourceRockTOC::PrmSourceRockTOC( mbapi::Model & mdl
 
    // get this layer has a mix of source rocks (all checking were done in parent constructor
    const std::vector<std::string> & srtNames = stMgr.sourceRockTypeName( stMgr.layerID( m_layerName ) );
-   mbapi::SourceRockManager::SourceRockID sid = srMgr.findID( m_layerName, (!m_srTypeName.empty() ? m_srTypeName : srtNames[m_mixID-1]) );
+   
+   if ( m_srTypeName.empty() ) { m_srTypeName = srtNames[m_mixID-1]; }
+   mbapi::SourceRockManager::SourceRockID sid = srMgr.findID( m_layerName, m_srTypeName );
+
+   if ( UndefinedIDValue == sid )
+   {
+      throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Can't find source rock lithology: " << m_srTypeName;
+   }
 
    // check if in base project TOC is defined as a map
    const std::string & mapName = srMgr.tocInitMapName( sid );
@@ -60,8 +70,12 @@ PrmSourceRockTOC::PrmSourceRockTOC( mbapi::Model & mdl
             << " has TOC defined as unknown map :" << mapName; 
       }
       double minVal, maxVal;
-      mpMgr.mapValuesRange( mID, minVal, maxVal );
+      if ( ErrorHandler::NoError != mpMgr.mapValuesRange( mID, minVal, maxVal ) )
+      {
+         throw ErrorHandler::Exception( mpMgr.errorCode() ) << mpMgr.errorMessage();
+      }
       m_val = maxVal;
+      m_mapName = mapName;
    }
    else
    {
@@ -78,10 +92,12 @@ PrmSourceRockTOC::PrmSourceRockTOC( mbapi::Model & mdl
 PrmSourceRockTOC::PrmSourceRockTOC( const VarPrmSourceRockTOC * parent
                                   , double                      val
                                   , const char                * lrName
+                                  , const std::string         & mapName
                                   , const char                * srType
                                   , int                         mixingID 
                                  ) : PrmSourceRockProp( parent, val, lrName, srType, mixingID )
 {
+   m_mapName = mapName;
    m_propName = "TOC";
    // construct parameter name
    std::ostringstream oss;
@@ -126,38 +142,121 @@ ErrorHandler::ReturnCode PrmSourceRockTOC::setInModel( mbapi::Model & caldModel,
             << m_layerName << " and SR type " << (!m_srTypeName.empty() ? m_srTypeName : srtNames[m_mixID-1]);
       }
 
-      // check if in base project TOC is defined as a map
-      const std::string & mapName = srMgr.tocInitMapName( sid );
-      if ( !mapName.empty() )
+      mbapi::MapsManager & mpMgr = caldModel.mapsManager();
+      if ( m_mapName.empty() && m_minMapName.empty() && m_maxMapName.empty() )
       {
-         mbapi::MapsManager & mpMgr = caldModel.mapsManager();
-         mbapi::MapsManager::MapID mID = mpMgr.findID( mapName );
-
-         if ( UndefinedIDValue == mID )
+         const std::string & mapName = srMgr.tocInitMapName( sid );
+         // check if in base project TOC is defined as a map
+         if ( ! mapName.empty() )
          {
-            throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Source rock lithology for layer" << m_layerName
-               << " has TOC defined as unknown map :" << mapName; 
-         }
+            mbapi::MapsManager::MapID mID = mpMgr.findID( mapName );
 
-         // copy map and rescale it for max TOC
-         mbapi::MapsManager::MapID cmID = mpMgr.copyMap( mID, mapName + "_Case_" + ibs::to_string( caseID ) + "_VarTOC" );
-         if ( UndefinedIDValue == cmID )
+            if ( UndefinedIDValue == mID )
+            {
+               throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Source rock lithology for layer"   << m_layerName
+                                                                            << " has TOC defined as unknown map :" << mapName; 
+            }
+
+            // extract min/max values from the map
+            double minVal, maxVal;
+            if ( ErrorHandler::NoError != mpMgr.mapValuesRange( mID, minVal, maxVal ) )
+            {
+               throw ErrorHandler::Exception( mpMgr.errorCode() ) << mpMgr.errorMessage();
+            }
+
+            double scaleCoeff = NumericFunctions::isEqual( 0.0, maxVal, 1e-10 ) ? 0.0 : ( value() / maxVal );
+
+            if ( scaleCoeff != 1.0 ) // for some cases we will have base case value, in this case we do not need copy map
+            {
+               // copy map to avoid influence on other project parts
+               std::string newMapName = "CasaGeneratedMap_" + caldModel.randomString( 3 ) + "_" + s_mapNameSuffix;
+               mbapi::MapsManager::MapID cmID = mpMgr.copyMap( mID, newMapName );
+               if ( UndefinedIDValue == cmID )
+               {
+                  throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Copy initial TOC map " << mapName << " failed";
+               }
+
+               // scale map with new maximum value
+               if ( ErrorHandler::NoError != mpMgr.scaleMap( cmID, scaleCoeff ) )
+               {
+                  throw ErrorHandler::Exception( mpMgr.errorCode() ) << mpMgr.errorMessage();
+               }
+
+               // save map to separate HDF file
+               if ( ErrorHandler::NoError != mpMgr.saveMapToHDF( cmID, newMapName + s_mapFileSuffix, 0 ) )
+               {
+                  throw ErrorHandler::Exception( mpMgr.errorCode() ) << mpMgr.errorMessage();
+               }
+           
+               // update project with new map name 
+               if ( ErrorHandler::NoError != srMgr.setTOCInitMapName( sid, newMapName ) )
+               {
+                  throw ErrorHandler::Exception( srMgr.errorCode() ) << srMgr.errorMessage();
+               }
+            }
+         }
+         else if ( ErrorHandler::NoError != srMgr.setTOCIni( sid, value() ) )
          {
-            throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Copy TOC map " << mapName << " failed";
+            throw ErrorHandler::Exception( srMgr.errorCode() ) << srMgr.errorMessage();
          }
-
-         double minVal, maxVal;
-
-         bool ok = ErrorHandler::NoError == mpMgr.mapValuesRange( mID, minVal, maxVal ) ? true : false;
-         ok = ErrorHandler::NoError == mpMgr.scaleMap( cmID, (NumericFunctions::isEqual(0.0, maxVal, 1e-10) ? 0.0 : m_val/maxVal)) ? true:ok;
-         ok = ErrorHandler::NoError == mpMgr.saveMapToHDF( cmID, mapName + "_VarTOC.HDF", 0 ) ? true : ok;
-
-         if ( !ok ) { throw ErrorHandler::Exception( srMgr.errorCode() ) << srMgr.errorMessage(); }
-    
       }
-      else if ( ErrorHandler::NoError != srMgr.setTOCIni( sid, m_val ) )
+      else // interpolation between two min/max maps
       {
-         throw ErrorHandler::Exception( srMgr.errorCode() ) << srMgr.errorMessage();
+         if ( m_minMapName.empty() && m_maxMapName.empty() ) // no interpolation needed, just set map name
+         {
+            if ( ErrorHandler::NoError != srMgr.setTOCInitMapName( sid, m_mapName ) )
+            {
+               throw ErrorHandler::Exception( srMgr.errorCode() ) << srMgr.errorMessage();
+            }
+         }
+         else // interpolation is needed
+         {
+            mbapi::MapsManager::MapID minID = mpMgr.findID( m_minMapName );
+            if ( UndefinedIDValue == minID ) { throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Can't find map: " << m_minMapName; }
+
+            mbapi::MapsManager::MapID maxID = mpMgr.findID( m_maxMapName );
+            if ( UndefinedIDValue == maxID ) { throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Can't find map: " << m_maxMapName; }
+
+            std::string newMapName;
+            
+            // value interval for maps range case is [-1:0:1] but min/max maps are set for [-1:0] or [0:1] interval
+            double halfRangeVal = m_val < 0.0 ? m_val + 1.0 : m_val;
+            
+            if (      halfRangeVal == 0.0 ) { newMapName = m_minMapName; }
+            else if ( halfRangeVal == 1.0 ) { newMapName = m_maxMapName; }
+
+            if ( newMapName.empty() )
+            {
+               // copy map and overwrite it when interpolating between min/max maps values
+               newMapName = "CasaGeneratedMap_" + caldModel.randomString( 3 ) + "_" + s_mapNameSuffix;
+               mbapi::MapsManager::MapID cmID = mpMgr.copyMap( minID, newMapName );
+
+               if ( UndefinedIDValue == cmID )
+               {
+                  throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Copy initial TOC map " << m_mapName << " failed";
+               }
+
+               if ( ErrorHandler::NoError != mpMgr.interpolateMap( cmID, minID, maxID, halfRangeVal ) )
+               {
+                  throw ErrorHandler::Exception( mpMgr.errorCode() ) << mpMgr.errorMessage();
+               }
+               
+               // Save new map to file 
+               if ( ErrorHandler::NoError != mpMgr.saveMapToHDF( cmID, newMapName + s_mapFileSuffix, 0 ) )
+               {
+                  throw ErrorHandler::Exception( mpMgr.errorCode() ) << mpMgr.errorMessage();
+               }
+            }
+            // Set this map to table
+            if ( ErrorHandler::NoError != srMgr.setTOCInitMapName( sid, newMapName ) )
+            {
+               throw ErrorHandler::Exception( srMgr.errorCode() ) << srMgr.errorMessage();
+            }
+         }
+         if ( ErrorHandler::NoError != srMgr.setTOCIni( sid, UndefinedDoubleValue ) )
+         {
+            throw ErrorHandler::Exception( srMgr.errorCode() ) << srMgr.errorMessage();
+         }
       }
    }
    catch ( const ErrorHandler::Exception & e ) { return caldModel.reportError( e.errorCode(), e.what() ); }
@@ -165,13 +264,16 @@ ErrorHandler::ReturnCode PrmSourceRockTOC::setInModel( mbapi::Model & caldModel,
    return ErrorHandler::NoError;
 }
 
-// Validate TOC value if it is in [0:100] range
+// Validate TOC value if it is in [0:100] for simple range
 std::string PrmSourceRockTOC::validate( mbapi::Model & caldModel )
 {
    std::ostringstream oss;
 
-   if (      m_val < 0   ) oss << "TOC value for the layer " << m_layerName << ", can not be negative: "       << m_val << std::endl;
-   else if ( m_val > 100 ) oss << "TOC value for the layer " << m_layerName << ", can not be more than 100%: " << m_val << std::endl;
+   if ( m_mapName.empty() && m_minMapName.empty() && m_maxMapName.empty() ) // check this just for simple range
+   {
+      if (      m_val < 0   ) oss << "TOC value for the layer " << m_layerName << ", can not be negative: "       << m_val << std::endl;
+      else if ( m_val > 100 ) oss << "TOC value for the layer " << m_layerName << ", can not be more than 100%: " << m_val << std::endl;
+   }
 
    try
    {
@@ -185,8 +287,7 @@ std::string PrmSourceRockTOC::validate( mbapi::Model & caldModel )
       // check if layer set as active source rock
       if ( !stMgr.isSourceRockActive( lid ) )
       {
-         throw ErrorHandler::Exception( ErrorHandler::ValidationError ) <<
-            "TOC setting error: source rock is not active for the layer:" << m_layerName;
+         throw ErrorHandler::Exception( ErrorHandler::ValidationError ) << "TOC error: source rock is not active for the layer:" << m_layerName;
       }
 
       double tocInModel = UndefinedDoubleValue;
@@ -222,25 +323,85 @@ std::string PrmSourceRockTOC::validate( mbapi::Model & caldModel )
 
       // check if in base project TOC is defined as a map
       const std::string & mapName = srMgr.tocInitMapName( sid );
-      if ( !mapName.empty() )
-      {
-         mbapi::MapsManager & mpMgr = caldModel.mapsManager();
-         mbapi::MapsManager::MapID mID = mpMgr.findID( mapName );
 
-         if ( UndefinedIDValue == mID )
+      if ( m_mapName.empty() && m_minMapName.empty() && m_maxMapName.empty() )
+      {
+         tocInModel = srMgr.tocIni( sid ); 
+
+         if ( mapName.empty() )
          {
-            throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Source rock lithology for layer" << m_layerName
-               << " has TOC defined as unknown map :" << mapName; 
+            if ( !NumericFunctions::isEqual( tocInModel, m_val, 1.e-4 ) ) // just scalar value
+            {
+               oss << "Value of TOC in the model (" << tocInModel << ") is different from the parameter value (" << m_val << ")" << std::endl;
+            }
          }
-         // copy map and rescale it for max TOC
-         double minV;
-         mpMgr.mapValuesRange( mID, minV, tocInModel );
-      }
-      else { tocInModel = srMgr.tocIni( sid ); }
+         else // scaler
+         {
+            // get map and check that scaling was done right
+            mbapi::MapsManager & mpMgr = caldModel.mapsManager();
 
-      if ( !NumericFunctions::isEqual( tocInModel, m_val, 1.e-4 ) )
+            mbapi::MapsManager::MapID mID = mpMgr.findID( mapName ); // get map
+            if ( UndefinedIDValue == mID )
+            {
+               throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Can't find the map: " << mapName 
+                                                                            << " defined for initial TOC in maps catalog"; 
+            }
+
+            double minVal, maxVal;
+            if ( ErrorHandler::NoError != mpMgr.mapValuesRange( mID, minVal, maxVal ) )
+            {
+               throw ErrorHandler::Exception( mpMgr.errorCode() ) << mpMgr.errorMessage();
+            }
+
+            if ( !NumericFunctions::isEqual( m_val, maxVal, 1e-6 ) )
+            {
+               oss << "Scaled initial TOC map in the project: " << maxVal << ", is differ from the parameter value: " << m_val;
+            }
+         }
+      }
+      else 
       {
-         oss << "Value of TOC in the model (" << tocInModel << ") is different from the parameter value (" << m_val << ")" << std::endl;
+         if ( m_minMapName.empty() && m_maxMapName.empty() ) // no interpolation needed, just check map name
+         {
+            if ( m_mapName != mapName )
+            {
+               oss << "Map name in project: " << mapName << ", is different from parameter value: " << m_mapName;
+               return oss.str();
+            }
+         }
+         else
+         {
+            // get map and check that scaling was done right
+            mbapi::MapsManager & mpMgr = caldModel.mapsManager();
+
+            mbapi::MapsManager::MapID minID = mpMgr.findID( m_minMapName );
+            if ( UndefinedIDValue == minID ) { throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Can't find map: " << m_minMapName; }
+            mbapi::MapsManager::MapID maxID = mpMgr.findID( m_maxMapName );
+            if ( UndefinedIDValue == maxID ) { throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Can't find map: " << m_maxMapName; }
+            mbapi::MapsManager::MapID mID = mpMgr.findID( mapName ); // get map
+            if ( UndefinedIDValue == mID   ) { throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Can't find map: " << mapName; }
+
+            // get min/max values for min/max maps
+            double minMinVal, minMaxVal, maxMinVal, maxMaxVal, minVal, maxVal;
+            if ( ErrorHandler::NoError != mpMgr.mapValuesRange( minID, minMinVal, minMaxVal ) )
+            {
+               throw ErrorHandler::Exception( mpMgr.errorCode() ) << mpMgr.errorMessage();
+            }
+
+            if ( ErrorHandler::NoError != mpMgr.mapValuesRange( maxID, maxMinVal, maxMaxVal ) )
+            {
+               throw ErrorHandler::Exception( mpMgr.errorCode() ) << mpMgr.errorMessage();
+            }
+ 
+            if ( ErrorHandler::NoError != mpMgr.mapValuesRange( mID, minVal, maxVal ) )
+            {
+               throw ErrorHandler::Exception( mpMgr.errorCode() ) << mpMgr.errorMessage();
+            }
+
+            if ( minVal < minMinVal ) { oss << "Minimal value of the TOC map is outside of the range"; }
+            if ( maxVal > maxMaxVal ) { oss << "Maximal value of the TOC map is outside of the range"; }
+            // TODO scale the map again and compare with map from project file
+         }
       }
    }
    catch ( const ErrorHandler::Exception & e ) { oss << e.what() << std::endl; }
@@ -260,6 +421,7 @@ if ( !pp ) return false;
    if ( m_layerName  != pp->m_layerName  ) return false;
    if ( m_mixID      != pp->m_mixID      ) return false;
    if ( m_srTypeName != pp->m_srTypeName ) return false;
+   if ( m_mapName    != pp->m_mapName    ) return false;
 
    if ( !NumericFunctions::isEqual( m_val, pp->m_val, eps ) ) return false;
 
@@ -272,6 +434,10 @@ bool PrmSourceRockTOC::save( CasaSerializer & sz, unsigned int version ) const
 {
    bool ok = PrmSourceRockProp::serializeCommonPart( sz, version ); 
 
+   ok = ok ? sz.save( m_mapName,    "mapName"    ) : ok;
+   ok = ok ? sz.save( m_minMapName, "minMapName" ) : ok;
+   ok = ok ? sz.save( m_maxMapName, "maxMapName" ) : ok;
+
    return ok;
 }
 
@@ -281,6 +447,13 @@ PrmSourceRockTOC::PrmSourceRockTOC( CasaDeserializer & dz, unsigned int objVer )
    bool ok = PrmSourceRockProp::deserializeCommonPart( dz, objVer );
 
    if ( m_propName.empty() ) { m_propName = "TOC"; }
+
+   if ( objVer > 0 )
+   {
+      ok = ok ? dz.load( m_mapName,    "mapName"    ) : ok;
+      ok = ok ? dz.load( m_minMapName, "minMapName" ) : ok;
+      ok = ok ? dz.load( m_maxMapName, "maxMapName" ) : ok;
+   }
 
    if ( !ok )
    {
