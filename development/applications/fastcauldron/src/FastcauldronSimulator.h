@@ -89,6 +89,7 @@ public :
    ///
    /// \b Must be called at end of calculation.
    bool mergeOutputFiles ( );
+   bool mergeSharedOutputFiles ( );
 
    /// \brief If required, the number of 
    void setFormationElementHeightScalingFactors ();

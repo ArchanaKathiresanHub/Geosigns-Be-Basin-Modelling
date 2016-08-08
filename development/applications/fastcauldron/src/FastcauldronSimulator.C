@@ -822,6 +822,9 @@ bool FastcauldronSimulator::mergeOutputFiles ( ) {
       return true;
    }
 
+   if(  H5_Parallel_PropertyList::isPrimaryPodEnabled () or isPrimaryDouble() ) {
+      return mergeSharedOutputFiles();
+   }
 #ifndef _MSC_VER
  
    PetscBool noFileCopy = PETSC_FALSE;
@@ -835,13 +838,7 @@ bool FastcauldronSimulator::mergeOutputFiles ( ) {
    
    const std::string& directoryName = getOutputDir ();
 
-   bool doMerge = not isPrimaryDouble() and not H5_Parallel_PropertyList::isPrimaryPodEnabled ();
- 
-   if( doMerge ) {
-      PetscPrintf ( PETSC_COMM_WORLD, "Merging output files ...\n" ); 
-   } else if ( not noFileCopy ) {
-      PetscPrintf ( PETSC_COMM_WORLD, "Copying output files ...\n" ); 
-   }
+   PetscPrintf ( PETSC_COMM_WORLD, "Merging output files ...\n" ); 
 
    if(  m_calculationMode != HYDROSTATIC_HIGH_RES_DECOMPACTION_MODE && m_calculationMode != COUPLED_HIGH_RES_DECOMPACTION_MODE && 
         m_calculationMode != NO_CALCULATION_MODE ) {
@@ -859,46 +856,22 @@ bool FastcauldronSimulator::mergeOutputFiles ( ) {
             ibs::FilePath filePathName( getProjectPath () );
             filePathName << directoryName << snapshotFileName;
 
-          //  string filePathName = getProjectPath () + "/" + directoryName + "/" + snapshotFileName;
-             
-            if( doMerge ) {
-               Display_Merging_Progress( snapshotFileName, StartMergingTime, "Merging of " );
+            Display_Merging_Progress( snapshotFileName, StartMergingTime, "Merging of " );
                
-               if( m_calculationMode == OVERPRESSURED_TEMPERATURE_MODE ) {
-                  if( ! database::getIsMinorSnapshot ( *timeTableIter ) ) {                  
-                     if( !mergeFiles ( allocateFileHandler( PETSC_COMM_WORLD, filePathName.path(), H5_Parallel_PropertyList::getTempDirName(), APPEND ))) {
-                        status = false;
-                        PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not merge the file %s.\n", filePathName.cpath() );
-                     } 
-                  }
-               } else {
-                  if( !mergeFiles ( allocateFileHandler( PETSC_COMM_WORLD, filePathName.path(), H5_Parallel_PropertyList::getTempDirName(), CREATE ))) {
+            if( m_calculationMode == OVERPRESSURED_TEMPERATURE_MODE ) {
+               if( ! database::getIsMinorSnapshot ( *timeTableIter ) ) {                  
+                  if( !mergeFiles ( allocateFileHandler( PETSC_COMM_WORLD, filePathName.path(), H5_Parallel_PropertyList::getTempDirName(), APPEND ))) {
                      status = false;
-                     PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not merge the file %s.\n", filePathName.cpath() );               
+                     PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not merge the file %s.\n", filePathName.cpath() );
                   } 
                }
             } else {
-               // we used a shared scratch directory. No merging is required. Copy the file to the final place
-               if( H5_Parallel_PropertyList::isPrimaryPodEnabled () ) {
-                  if( not noFileCopy ) {
-                     Display_Merging_Progress( snapshotFileName, StartMergingTime, "Copying of " );
-                  }
-                  status = H5_Parallel_PropertyList::copyMergedFile( filePathName.path(), false );
-                  
-                  // delete the file in the shared scratch
-                  if( status and  getRank() == 0  and not noFileRemove ) {
-                     ibs::FilePath fileName(H5_Parallel_PropertyList::getTempDirName() );
-                     fileName << filePathName.cpath ();
-
-                     int status = std::remove( fileName.cpath() ); //c_str ());
-                        if (status == -1)
-                           cerr << fileName.cpath() << " MeSsAgE WARNING  Unable to remove snapshot file, because '" 
-                                << std::strerror(errno) << "'" << endl;
-                  }  
-                  
-               }
+               if( !mergeFiles ( allocateFileHandler( PETSC_COMM_WORLD, filePathName.path(), H5_Parallel_PropertyList::getTempDirName(), CREATE ))) {
+                  status = false;
+                  PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not merge the file %s.\n", filePathName.cpath() );               
+               } 
             }
-         }
+         } 
       }
    }
    
@@ -906,44 +879,12 @@ bool FastcauldronSimulator::mergeOutputFiles ( ) {
    ibs::FilePath filePathName( getProjectPath () );
    filePathName <<  directoryName << fileName;
    
-   if( doMerge ) {
-      Display_Merging_Progress( fileName, StartMergingTime );
-    
-      status = mergeFiles (  allocateFileHandler( PETSC_COMM_WORLD, filePathName.path(), H5_Parallel_PropertyList::getTempDirName(), ( noFileCopy ? CREATE : REUSE )));
-      if( !noFileCopy && status ) {
-         status = H5_Parallel_PropertyList::copyMergedFile( filePathName.path() );
-      }
-   } else if( H5_Parallel_PropertyList::isPrimaryPodEnabled () ) {
-      // we used a shared scratch directory. No merging is required. Copy the file to the final place
-      if( m_noDerivedPropertiesCalc ) {
-         getMapPropertyValuesWriter( )->close();
-      }
-      if( not noFileCopy ) {
-         Display_Merging_Progress( fileName, StartMergingTime, "Copying of " );
-      }         
-      status = H5_Parallel_PropertyList::copyMergedFile( filePathName.path(), false );
-      // remove the file from the shared scratch
-      if( status and H5_Parallel_PropertyList::isPrimaryPodEnabled () and getRank() == 0  and not noFileRemove ) {
-
-         ibs::FilePath fileName(H5_Parallel_PropertyList::getTempDirName() );
-         fileName << filePathName.cpath ();
-         int status = std::remove( fileName.cpath() );
-
-         if (status == -1)
-            cerr << fileName.cpath () << " MeSsAgE WARNING  Unable to remove file, because '" 
-                 << std::strerror(errno) << "'" << endl;
-         
-         // remove the output directory from the shared scratch
-         ibs::FilePath dirName(H5_Parallel_PropertyList::getTempDirName() );
-         dirName << directoryName;
-         status = std::remove( dirName.cpath() );
-         
-         if (status == -1)
-             cerr << dirName.cpath () << " MeSsAgE WARNING  Unable to remove the directory, because '" 
-                 << std::strerror(errno) << "'" << endl;
-      }  
-   }
+   Display_Merging_Progress( fileName, StartMergingTime );
    
+   status = mergeFiles (  allocateFileHandler( PETSC_COMM_WORLD, filePathName.path(), H5_Parallel_PropertyList::getTempDirName(), ( noFileCopy ? CREATE : REUSE )));
+   if( !noFileCopy && status ) {
+      status = H5_Parallel_PropertyList::copyMergedFile( filePathName.path() );
+   }
       
    if( status ) {
       if( m_fastcauldronSimulator->getRank () == 0 ) {
@@ -951,6 +892,144 @@ bool FastcauldronSimulator::mergeOutputFiles ( ) {
       }
     } else {
       PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not merge the file %s.\n", filePathName.cpath() );               
+   }
+   return status;
+#else
+   return true;
+#endif
+}
+//------------------------------------------------------------//
+bool FastcauldronSimulator::mergeSharedOutputFiles ( ) {
+
+   if( ( not H5_Parallel_PropertyList::isPrimaryPodEnabled () and not isPrimaryDouble() ) or getModellingMode () == Interface::MODE1D ) {
+
+      return true;
+   }
+
+#ifndef _MSC_VER
+   if( m_noDerivedPropertiesCalc ) {
+      getMapPropertyValuesWriter( )->close();
+   }
+      
+   bool doMerge =  m_calculationMode == OVERPRESSURED_TEMPERATURE_MODE;
+
+   MPI_Comm  newComm;
+
+   if( doMerge ) {
+      // In overpressured temperature mode the results should be merged with overpressure results
+      // This should be done by rank 0 only
+      // Create sub-communicator with rank 0
+      MPI_Group allGroup, newGroup;
+      const int rank0 = 0;
+      
+      MPI_Comm_group( PETSC_COMM_WORLD, &allGroup );
+      
+      MPI_Group_incl ( allGroup, 1, &rank0, &newGroup );
+      
+      MPI_Comm_create (  PETSC_COMM_WORLD, newGroup, &newComm );
+      
+      MPI_Group_free ( &allGroup );
+      MPI_Group_free ( &newGroup );
+   }
+
+   bool status = true;
+   if( m_rank == 0 ) {
+
+      PetscBool noFileCopy = PETSC_FALSE;
+      PetscOptionsHasName( PETSC_NULL, "-nocopy", &noFileCopy );
+      PetscBool noFileRemove = PETSC_FALSE;
+      PetscOptionsHasName( PETSC_NULL, "-noremove", &noFileRemove );
+      
+      PetscLogDouble StartMergingTime;
+      PetscTime(&StartMergingTime);
+      
+      const std::string& directoryName = getOutputDir ();
+      
+      if( doMerge ) {
+         PetscPrintf ( newComm, "Merging output files ...\n" ); 
+      } else if ( not noFileCopy ) {
+         PetscPrintf ( PETSC_COMM_WORLD, "Copying output files ...\n" ); 
+      }
+      
+      if(  m_calculationMode != HYDROSTATIC_HIGH_RES_DECOMPACTION_MODE && m_calculationMode != COUPLED_HIGH_RES_DECOMPACTION_MODE && 
+           m_calculationMode != NO_CALCULATION_MODE ) {
+         
+         database::Table::iterator timeTableIter;
+         database::Table* snapshotTable = getTable ( "SnapshotIoTbl" );
+         
+         assert ( snapshotTable != 0 );
+         
+         for ( timeTableIter = snapshotTable->begin (); timeTableIter != snapshotTable->end (); ++timeTableIter ) {
+            
+            string snapshotFileName = database::getSnapshotFileName ( *timeTableIter );
+            
+            if ( !snapshotFileName.empty() ) {
+               ibs::FilePath filePathName( getProjectPath () );
+               filePathName << directoryName << snapshotFileName;
+               
+               if( doMerge ) {
+                  
+                  if( ! database::getIsMinorSnapshot ( *timeTableIter ) ) {                  
+                     Display_Merging_Progress( snapshotFileName, StartMergingTime, "Merging of " );
+                     
+                     if( filePathName.exists() ) {
+                        if( !mergeFiles ( allocateFileHandler( newComm, filePathName.path(), H5_Parallel_PropertyList::getTempDirName(), APPEND ), false )) {
+                           status = false;
+                           PetscPrintf ( newComm, "  MeSsAgE ERROR Could not merge the file %s.\n", filePathName.cpath() );
+                        } 
+                     } else {
+                        status = H5_Parallel_PropertyList::copyMergedFile( filePathName.path(), false );
+                     }
+                     if ( status and not noFileRemove ) {
+                        H5_Parallel_PropertyList::removeOutputFile ( filePathName.cpath () );
+                     }
+                  }
+                  
+            } else {
+                  // we used a shared scratch directory. No merging is required. Copy the file to the final place
+                  if( not noFileCopy ) {
+                     Display_Merging_Progress( snapshotFileName, StartMergingTime, "Copying of " );
+                  }
+                  status = H5_Parallel_PropertyList::copyMergedFile( filePathName.path(), false );
+                  
+                  // delete the file in the shared scratch
+                  if( status and not noFileRemove ) {
+                     H5_Parallel_PropertyList::removeOutputFile ( filePathName.cpath () );
+                  }  
+               }
+            }
+         }
+      }
+      
+      string fileName = getActivityName () + "_Results.HDF" ; 
+      ibs::FilePath filePathName( getProjectPath () );
+      filePathName <<  directoryName << fileName;
+      
+      // we used a shared scratch directory. No merging is required. Copy the file to the final place
+      if( not noFileCopy ) {
+         Display_Merging_Progress( fileName, StartMergingTime, "Copying of " );
+      }         
+      status = H5_Parallel_PropertyList::copyMergedFile( filePathName.path(), false );
+      // remove the file from the shared scratch
+      if( status and not noFileRemove ) {
+         H5_Parallel_PropertyList::removeOutputFile ( filePathName.cpath () );
+         
+         // remove the output directory from the shared scratch
+         H5_Parallel_PropertyList::removeOutputFile ( directoryName );
+
+         // remove the temporary dir directory from the shared scratch
+         H5_Parallel_PropertyList::removeOutputFile ( std::string("") );
+      }  
+      
+      if( status ) {
+         displayTime( "Total merging time: ", StartMergingTime );
+      } else {
+         PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not merge the file %s.\n", filePathName.cpath() );               
+      }
+   } 
+
+   if( doMerge ) {
+      MPI_Comm_free( & newComm );
    }
    return status;
 #else

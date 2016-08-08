@@ -114,7 +114,7 @@ bool  PropertiesCalculator::finalise ( bool isComplete ) {
   
       m_projectHandle->setSimulationDetails ( "fastproperties", "Default", "" );
     
-      char outputFileName[128];
+      char outputFileName[ PETSC_MAX_PATH_LEN ];
       outputFileName[0] = '\0';
       
       PetscBool isDefined = PETSC_FALSE;

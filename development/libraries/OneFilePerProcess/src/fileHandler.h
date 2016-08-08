@@ -29,7 +29,7 @@ public:
 
    /// \brief Merge local files with a given name (m_fileName) and path (m_tempDirName) into a one global file
    ///
-   bool mergeFiles( );
+   bool mergeFiles( const bool appendRank = true );
 
    /// \brief Open a global file
    virtual void openGlobalFile( );
@@ -118,6 +118,9 @@ private:
 
    /// \brief Operation to collect data on 0 process
    MPI_Op m_op;
+
+   /// \brief Name of the current group
+   std::string m_groupName;
 };
 
  

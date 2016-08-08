@@ -106,15 +106,19 @@ void FileHandler::setSpatialDimension( int dimension ) {
 
 }
 
-bool FileHandler::mergeFiles() {
+bool FileHandler::mergeFiles( const bool appendRank ) {
 
    hid_t status = 0, close_status = 0, iteration_status = 0;
 
    hid_t fileAccessPList = H5Pcreate(H5P_FILE_ACCESS);
 
    std::stringstream tmpName;
-   tmpName << m_tempDirName << "/{NAME}_{MPI_RANK}";
-
+   if( appendRank ) {
+      tmpName << m_tempDirName << "/{NAME}_{MPI_RANK}";
+   } else {
+      tmpName << m_tempDirName << "/{NAME}";
+   }
+      
    H5Pset_fapl_ofpp ( fileAccessPList, m_comm, tmpName.str().c_str(), 0 );  
    
    openLocalFile( fileAccessPList );
@@ -338,6 +342,8 @@ herr_t readDataset ( hid_t groupId, const char* name, void * voidReader)  {
          groupName << "/" << name;
 
          reader->createGroup( name );
+
+         reader->m_groupName = groupName.str().c_str();
          // Iterate over the members of the group
          H5Giterate ( reader-> m_localFileId, groupName.str().c_str(), 0, readDataset, voidReader );
 
@@ -406,11 +412,11 @@ herr_t readDataset ( hid_t groupId, const char* name, void * voidReader)  {
    }
 
    if( reader->m_rank == 0 ) {
-
+ 
       if( status >= 0 ) {
-         reader->writeAttributes();
+        reader->writeAttributes();
       } else {
-         std::cout << " ERROR Cannot write the dataset" << name << std::endl;
+         std::cout << " ERROR Cannot write the dataset " << name << " into the group " << reader-> m_groupName << std::endl;
       }
       
       H5Sclose( reader->m_filespace );
@@ -450,6 +456,14 @@ herr_t FileHandler::merge2D ( const char* name, hid_t dtype ) {
    
    herr_t status = H5Dread ( m_local_dset_id, dtype, m_memspace, m_filespace, H5P_DEFAULT, m_data.data() );
 
+   if( status < 0 ) {
+      if( m_rank == 0 ) {
+         H5Eprint ( H5E_DEFAULT, 0 );
+         std::cout << "ERROR Cannot read dataset " << name << std::endl;
+      }
+      return status;
+   }
+         
    closeSpaces();
    
    // Collect all local data in a global array on rank 0
@@ -471,6 +485,13 @@ herr_t FileHandler::merge2D ( const char* name, hid_t dtype ) {
       createDataset( name, dtype );
    
       status = H5Dwrite( m_global_dset_id, dtype, m_memspace, m_filespace, H5P_DEFAULT, m_sumData.data() );
+      if( status < 0 ) {
+         if( m_rank == 0 ) {
+            H5Eprint ( H5E_DEFAULT, 0 );
+            std::cout << "ERROR Cannot write dataset " << name << std::endl;
+         }
+         return status;
+      }
    }
    return status;
 }

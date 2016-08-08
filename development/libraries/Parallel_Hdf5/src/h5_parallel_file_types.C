@@ -11,7 +11,6 @@
 #include "h5merge.h"
 #endif
 
-
 bool        H5_Parallel_PropertyList :: s_oneFilePerProcess = false;
 bool        H5_Parallel_PropertyList :: s_primaryPod = false;
 
@@ -100,11 +99,44 @@ bool H5_Parallel_PropertyList :: setOneFilePerProcessOption( )
       if( temporaryDirName[0] == 0 ) {
          if( primaryPod ) {
             PetscPrintf ( PETSC_COMM_WORLD, "PrimaryPod directory is not defined. Please specify a shared dir name.\n" );           
-         } else {
+            setPrimaryPod ( PETSC_FALSE );
+       } else {
             tmpDir = getenv( "TMPDIR" );
          }
       } else {
-         tmpDir = temporaryDirName;
+         if( primaryPod ) {
+            // Create a temporary dir unique name and broadcast it
+            int rank;
+            
+            MPI_Comm_rank(PETSC_COMM_WORLD, &rank);
+            int tempLen = 0;
+            if( rank == 0 ) {
+               char templateName[] = "ProjectXXXXXX";
+               char * tempName = 0;
+               
+               tempName = mkdtemp(templateName);
+               
+               if( tempName != 0 ) {
+                  strcat( temporaryDirName, "/" );
+                  strcat( temporaryDirName, tempName );
+                  tmpDir = temporaryDirName;
+                  tempLen = strlen( temporaryDirName ) + strlen( templateName );
+                  PetscPrintf ( PETSC_COMM_WORLD, "tmpdir %s\n", tmpDir ); 
+              } 
+            }
+
+            MPI_Bcast( &tempLen, 1, MPI_INT, 0, PETSC_COMM_WORLD );
+            if( tempLen > 0 ) {
+               MPI_Bcast( temporaryDirName, tempLen, MPI_CHAR, 0, PETSC_COMM_WORLD );
+               tmpDir = temporaryDirName;
+            } else {
+               setPrimaryPod ( PETSC_FALSE );
+               tmpDir = 0;
+               PetscPrintf ( PETSC_COMM_WORLD, "Temporary dir cannot be created.\n" );    
+            }       
+         } else {
+            tmpDir = temporaryDirName;
+         }
       }
       
       if( tmpDir == NULL ) {
@@ -210,22 +242,14 @@ bool H5_Parallel_PropertyList ::mergeOutputFiles ( const string & activityName, 
          
          status = H5_Parallel_PropertyList::copyMergedFile( filePathName.path(), false );
          if( status and rank == 0  and not noFileRemove ) {
-            ibs::FilePath fileName( H5_Parallel_PropertyList::getTempDirName() );
-            fileName << filePathName.cpath ();
-            int status = std::remove( fileName.cpath() );
-            
-            if (status == -1)
-               PetscPrintf ( PETSC_COMM_WORLD, " %s  MeSsAgE WARNING  Unable to remove the file, because '%s' \n", fileName.cpath (), std::strerror(errno) );
-            
-            // remove the output directory from the shared scratch
-#if 0
-            ibs::FilePath dirName(H5_Parallel_PropertyList::getTempDirName() );
-            dirName << directoryName;
-            status = std::remove( dirName.cpath() );
-            
-            if (status == -1)
-               PetscPrintf ( PETSC_COMM_WORLD, " %s  MeSsAgE WARNING  Unable to remove the directory, because '%s' \n", dirName.cpath (), std::strerror(errno) );
-#endif
+            // remove the file
+            removeOutputFile ( filePathName.cpath () );
+
+            // remove the directory
+            removeOutputFile ( localPath );
+
+            // remove the temporary directory
+            removeOutputFile ( std::string("") );
          }      
       }
    }
@@ -236,6 +260,19 @@ bool H5_Parallel_PropertyList ::mergeOutputFiles ( const string & activityName, 
    return status;
 #endif
 }
+
+bool H5_Parallel_PropertyList ::removeOutputFile ( const string & filePathName ) {
+
+   ibs::FilePath fileName(H5_Parallel_PropertyList::getTempDirName() );
+   fileName << filePathName;
+  
+   int status = std::remove( fileName.cpath() ); 
+   if (status == -1) {
+      PetscPrintf ( PETSC_COMM_WORLD, " %s  MeSsAgE WARNING  Unable to remove the file, because '%s' \n", filePathName.c_str (), std::strerror(errno) );
+      return false;
+   }
+   return true;
+}  
 
 
 
