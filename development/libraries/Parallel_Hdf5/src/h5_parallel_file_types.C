@@ -114,14 +114,13 @@ bool H5_Parallel_PropertyList :: setOneFilePerProcessOption( )
                char templateName[] = "ProjectXXXXXX";
                char * tempName = 0;
                
-               tempName = mkdtemp(templateName);
+               tempName = mktemp(templateName);
                
                if( tempName != 0 ) {
                   strcat( temporaryDirName, "/" );
                   strcat( temporaryDirName, tempName );
                   tmpDir = temporaryDirName;
                   tempLen = strlen( temporaryDirName ) + strlen( templateName );
-                  PetscPrintf ( PETSC_COMM_WORLD, "tmpdir %s\n", tmpDir ); 
               } 
             }
 
