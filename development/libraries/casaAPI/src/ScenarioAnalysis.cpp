@@ -544,6 +544,7 @@ ScenarioAnalysis::ScenarioAnalysisImpl::ScenarioAnalysisImpl()
    m_caseNum      = 1;
    m_caseSetPath = ".";
    m_scenarioID = "Undefined";
+   m_filteringAlgorithm = NoFilter;
 
    m_varSpace.reset(   new VarSpaceImpl()   );
    m_obsSpace.reset(   new ObsSpaceImpl()   );

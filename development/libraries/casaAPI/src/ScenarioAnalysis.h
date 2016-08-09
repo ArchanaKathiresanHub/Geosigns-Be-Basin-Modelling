@@ -266,7 +266,8 @@ namespace casa
       static ScenarioAnalysis * loadScenario( const char * stateFileBuf, size_t bufSize, const char * fileType = NULL );
 
       ///  @brief The available smartLithoFractionGridding algorithms
-      enum filteringAlgorithms { smartLithoFractionGridding = 0 };
+      enum filteringAlgorithms { NoFilter = 0,
+                                 smartLithoFractionGridding };
 
    private:
       /// @brief Copy constructor is disabled
