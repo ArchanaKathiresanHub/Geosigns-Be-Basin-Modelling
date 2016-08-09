@@ -1034,8 +1034,10 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::generateThreeDFromOneD( const std::
    // the best run case
    std::shared_ptr<RunCase> brc( new casa::RunCaseImpl( ) );
 
-   // Vector storing the parameters of each 1D case
+   // Vectors storing the filtered parameters of each 1D case and their x and y coordinates
    std::vector<SharedParameterPtr> prmVec;
+   std::vector<double> xcoordOneD;
+   std::vector<double> ycoordOneD;
 
    // loop over all IPs
    for ( size_t par = 0; par < var.size(); ++par )
@@ -1051,7 +1053,12 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::generateThreeDFromOneD( const std::
             {
                SharedParameterPtr nprm = rcs[c]->parameter( par );
                // add only valid parameters
-               if ( parameterFilter( nprm.get( ), baseOneDCases[c].get( ) ) ) prmVec.push_back( nprm );
+               if ( parameterFilter( nprm.get(), baseOneDCases[c].get() ) )
+               {
+                  prmVec.push_back( nprm );
+                  xcoordOneD.push_back( m_xcoordOneD[c]);
+                  ycoordOneD.push_back( m_ycoordOneD[c]);
+               }
             }
 
             try 
@@ -1061,7 +1068,7 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::generateThreeDFromOneD( const std::
                {
                   // make the averages
                   SharedParameterPtr prm;
-                  prm = vprmc->makeThreeDFromOneD( bc, m_xcoordOneD, m_ycoordOneD, prmVec );
+                  prm = vprmc->makeThreeDFromOneD( bc, xcoordOneD, ycoordOneD, prmVec );
                   brc->addParameter( prm );
                }
             }
@@ -1073,6 +1080,8 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::generateThreeDFromOneD( const std::
 
             //clear previous arrays stored for the mean values 
             prmVec.clear();
+            xcoordOneD.clear();
+            ycoordOneD.clear();
          }
          break;
 

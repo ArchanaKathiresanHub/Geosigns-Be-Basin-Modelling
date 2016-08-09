@@ -1391,7 +1391,7 @@ void Model::ModelImpl::interpolateLithoFractions( const std::vector<double> & xi
 {
    const double shift                = 100.0;
    const int    convexHullEdgePoints = 25;
-   const size_t nin                  = xin.size();
+   const size_t nin                  = lf1.size();
 
    // for all wells calculate rp, r12 
    std::vector<double> rp;
@@ -1762,7 +1762,16 @@ bool Model::ModelImpl::checkValueIsInLayer( const double x, const double y, cons
    double topDepth = topGridMap->getValue( xind, yind );
    double bottomDepth = bottomGridMap->getValue( xind, yind );
 
-   if ( z >= topDepth  && z < bottomDepth ) value = true;
+   // now check the observation is in the project window and within the layer
+   long minWinI;
+   long maxWinI;
+   long minWinJ;
+   long maxWinJ;
+   window( minWinI, maxWinI, minWinJ, maxWinJ );
+
+   if ( z >= topDepth  && z < bottomDepth &&
+      xind >= minWinI  && xind < maxWinI  &&
+      yind >= minWinJ  && yind < maxWinJ ) value = true;
 
    return value;
 }
