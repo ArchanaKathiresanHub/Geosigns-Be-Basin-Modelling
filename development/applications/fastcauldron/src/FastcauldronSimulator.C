@@ -948,7 +948,7 @@ bool FastcauldronSimulator::mergeSharedOutputFiles ( ) {
       if( doMerge ) {
          PetscPrintf ( newComm, "Merging output files ...\n" ); 
       } else if ( not noFileCopy ) {
-         PetscPrintf ( PETSC_COMM_WORLD, "Copying output files ...\n" ); 
+         PetscPrintf ( PETSC_COMM_WORLD, "Copying output files from Lustre to TCS storage...\n" ); 
       }
       
       if(  m_calculationMode != HYDROSTATIC_HIGH_RES_DECOMPACTION_MODE && m_calculationMode != COUPLED_HIGH_RES_DECOMPACTION_MODE && 
@@ -988,7 +988,7 @@ bool FastcauldronSimulator::mergeSharedOutputFiles ( ) {
             } else {
                   // we used a shared scratch directory. No merging is required. Copy the file to the final place
                   if( not noFileCopy ) {
-                     Display_Merging_Progress( snapshotFileName, StartMergingTime, "Copying of " );
+                     Display_Merging_Progress( snapshotFileName, StartMergingTime, "Copying from Lustre to TCS storage of " );
                   }
                   status = H5_Parallel_PropertyList::copyMergedFile( filePathName.path(), false );
                   

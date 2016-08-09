@@ -237,7 +237,7 @@ bool H5_Parallel_PropertyList ::mergeOutputFiles ( const string & activityName, 
       } 
    } else {
       if( not noFileCopy ) {
-         PetscPrintf ( PETSC_COMM_WORLD, "Copying of output files.\n" );
+         PetscPrintf ( PETSC_COMM_WORLD, "Copying of output files from Lustre to TCS storage.\n" );
          
          status = H5_Parallel_PropertyList::copyMergedFile( filePathName.path(), false );
          if( status and rank == 0  and not noFileRemove ) {
