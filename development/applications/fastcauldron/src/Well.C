@@ -50,7 +50,7 @@ void Well::Save_Present_Day_Data ()
     needle.X_Coord = Basin_Model -> Related_Projects [ indx ] -> X_Coord;
     needle.Y_Coord = Basin_Model -> Related_Projects [ indx ] -> Y_Coord;
 
-    ibs::FilePath Related_Project_Name( Basin_Model -> getOutputDirectory () );
+    ibs::FilePath Related_Project_Name( Basin_Model -> getOutputPath () );
     Related_Project_Name << Basin_Model -> Related_Projects [ indx ] -> Name;
 
     Locate_Well( needle);

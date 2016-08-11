@@ -186,6 +186,7 @@ public:
    bool setProjectFileName (const string & projectFileName);
 
    string getOutputDirectory ();
+   string getOutputPath ();
    bool makeOutputDirectory ();
 
    const string& getFastCauldronProjectFileName () const

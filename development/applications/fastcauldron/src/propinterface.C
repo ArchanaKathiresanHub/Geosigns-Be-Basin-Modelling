@@ -1339,6 +1339,14 @@ string AppCtx::getOutputDirectory ()
 }
 
 #undef __FUNCT__  
+#define __FUNCT__ "AppCtx::getOutputPath"
+
+string AppCtx::getOutputPath ()
+{
+   return ibs::FolderPath( FastcauldronSimulator::getInstance ().getOutputDir () ).path();
+}
+
+#undef __FUNCT__  
 #define __FUNCT__ "AppCtx::makeOutputDirectory"
 
 bool AppCtx::makeOutputDirectory ()
