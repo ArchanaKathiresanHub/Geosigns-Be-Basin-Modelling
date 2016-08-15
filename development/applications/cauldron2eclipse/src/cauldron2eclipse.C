@@ -155,7 +155,6 @@ PropertyConversion conversions[] =
    { "Pressure",               "PRESSURE", 0, 0, false },
    { "Velocity",               "SONICVEL", 0, 1, true },
    { "ThCond",                 "TCOND   ", 0, 1, true },
-   { "Reflectivity",           "REFLECTI", 0, 1, true },
    { "OverPressure",           "OVERPRES", 0, 0, false },
    { "Ves",                    "VES     ", PascalToMegaPascal, 0, false },
    { "MaxVes",                 "MAXVES  ", PascalToMegaPascal, 0, false },
