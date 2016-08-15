@@ -16,10 +16,9 @@ namespace Numerics {
    /// Here SSE means the sse2 update that includes double precision floating point arithmetic.
    ///
    /// Possible future technology additions include:
-   ///    - AVXFMA   This extends AVX with a fused-multiply-add instruction.
    ///    - AVX512   This extends the size of the AVX register to 512 bits, thus 8 doubles.
    ///
-   enum SimdInstructionTechnology { NO_SIMD, SSE, AVX };
+   enum SimdInstructionTechnology { NO_SIMD, SSE, AVX, AVXFMA };
 
 
 #ifdef __AVX__
@@ -66,7 +65,7 @@ namespace Numerics {
       static const int Alignment = 16;
 
       /// \brief The number of doubles contained in the PackedDouble.
-      /// 
+      ///
       /// For SSE this will be 2 doubles.
       static const int DoubleStride = Alignment / sizeof ( double );
 
@@ -89,7 +88,27 @@ namespace Numerics {
       static const int Alignment = 32;
 
       /// \brief The number of doubles contained in the PackedDouble.
-      /// 
+      ///
+      /// For AVX this will be 4 doubles.
+      static const int DoubleStride = Alignment / sizeof ( double );
+
+      /// \brief Four double values packed into the data type.
+      typedef __m256d PackedDouble;
+
+   };
+
+   /// \brief Specialisation of SimdTraits for AVX instructions.
+   template<>
+   struct SimdTraits<AVXFMA> {
+
+      /// \brief Indicate which SIMD instruction technology is being used.
+      static const SimdInstructionTechnology SimdInstructionUsed = AVXFMA;
+
+      /// \brief Alignment on the size of a AVX data type.
+      static const int Alignment = 32;
+
+      /// \brief The number of doubles contained in the PackedDouble.
+      ///
       /// For AVX this will be 4 doubles.
       static const int DoubleStride = Alignment / sizeof ( double );
 

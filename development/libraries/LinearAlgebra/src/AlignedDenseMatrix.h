@@ -16,7 +16,7 @@
 
 namespace Numerics {
 
-  
+
   /** @addtogroup LinearAlgebra
    *
    * @{
@@ -27,7 +27,7 @@ namespace Numerics {
 
    /// \brief Simple dense matrix structure with storage in column major order.
    ///
-   /// All values are contiguous in memory and each column will be aligned 
+   /// All values are contiguous in memory and each column will be aligned
    /// with with correct double or simd data-type depending on the alignment required.
    class AlignedDenseMatrix {
 
@@ -151,9 +151,17 @@ namespace Numerics {
 
    };
 
+   /// \brief Transpose the matrix.
+   ///
+   /// \f$ b_{i,j} = a_{j,i} \f$
+   /// \pre [in] mat.rows = transpose.cols
+   /// \pre [in] mat.cols = transpose.rows
+   void transpose ( const AlignedDenseMatrix& mat,
+                          AlignedDenseMatrix& transpose );
+
    /// \brief Compute the product of two matrices.
    ///
-   /// \f$ c = \alpha \times \mbox{op}\left( a \right) \times \mbox{op}\left( b \right) + \beta \times c \f$ 
+   /// \f$ c = \alpha \times \mbox{op}\left( a \right) \times \mbox{op}\left( b \right) + \beta \times c \f$
    void matmult ( const MatrixTransposeType transposeA,
                   const MatrixTransposeType transposeB,
                   const double              alpha,

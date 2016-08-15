@@ -18,6 +18,7 @@ extern void dgemm_(char *transa, char *transb, int *m, int *n, int *k, double *a
 #endif /* __cplusplus */
 
 
+
 inline void dgemm(char transa, char transb, int m, int n, int k, double alpha, const double *a, int lda, const double *b, int ldb, double beta, double *c, int ldc) {
   dgemm_ ( &transa, &transb, &m, &n, &k, &alpha, a, &lda, b, &ldb, &beta, c, &ldc);
 }
@@ -106,10 +107,21 @@ void Numerics::AlignedDenseMatrix::fill ( const double withTheValue ) {
    int i;
    int j;
 
+   // Fill the usable part of the matrix with the value.
    for ( j = 0; j < cols (); ++j ) {
 
       for ( i = 0; i < rows (); ++i ) {
          operator ()( i, j ) = withTheValue;
+      }
+
+   }
+
+   // Now fill the unused part with zeros.
+   // The used part is used in order to get correct alignment of columns.
+   for ( j = 0; j < cols (); ++j ) {
+
+      for ( i = rows (); i < leadingDimension (); ++i ) {
+         operator ()( i, j ) = 0.0;
       }
 
    }
@@ -123,12 +135,32 @@ void Numerics::AlignedDenseMatrix::print ( const std::string& name,
    int j;
 
    for ( i = 0; i < rows (); ++i ) {
-      
+
       for ( j = 0; j < cols (); ++j ) {
          o << name << " ( "  << i + 1 << ", " << j + 1 << " ) = " << operator ()( i, j ) << ";" << std::endl;
       }
 
-   } 
+   }
+
+}
+
+void Numerics::transpose ( const AlignedDenseMatrix& mat,
+                                 AlignedDenseMatrix& transpose ) {
+
+   if ( mat.rows () != transpose.cols () or
+        mat.cols () != transpose.rows ()) {
+      // Error.
+   }
+
+   transpose.fill ( 0.0 );
+
+   for ( int i = 0; i < mat.rows (); ++i ) {
+
+      for ( int j = 0; j < mat.cols (); ++j ) {
+         transpose ( j, i ) = mat ( i, j );
+      }
+
+   }
 
 }
 
@@ -162,7 +194,7 @@ void Numerics::matmult ( const MatrixTransposeType transposeA,
       n = b.rows ();
    }
 
-   dgemm ( transChar [ transposeA ], transChar [ transposeB ], 
+   dgemm ( transChar [ transposeA ], transChar [ transposeB ],
            m, n, k, alpha,
            a.data (), a.leadingDimension (),
            b.data (), b.leadingDimension (),
