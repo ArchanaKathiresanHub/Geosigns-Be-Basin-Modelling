@@ -95,6 +95,38 @@ TEST ( MatrixTest, CopyTest01 ) {
 
 }
 
+TEST ( MatrixTest, TransposeTest01 ) {
+
+   static const Numerics::SimdInstructionTechnology SimdUsed = Numerics::CurrentSimdTechnology;
+
+   typedef Numerics::SimdTraits<SimdUsed> SimdTraits;
+   typedef Numerics::SimdInstruction<SimdUsed> SimdInstruction;
+
+   const int n1 = 8;
+   const int n2 = 27;
+   AlignedDenseMatrix mat1 ( n1, n2 );
+   AlignedDenseMatrix mat2 ( n2, n1 );
+
+   int i;
+   int j;
+
+   for ( i = 1; i <= 5; ++i ) drand48 ();
+
+   randomise ( mat1 );
+   randomise ( mat2 );
+
+   // mat2 should be overwritten with the transpose of mat1
+   Numerics::transpose ( mat1, mat2 );
+
+   for ( i = 0; i < n1; ++i ) {
+
+      for ( j = 0; j < n2; ++j ) {
+         EXPECT_EQ ( mat1 ( i, j ), mat2 ( j, i ));
+      }
+   }
+
+}
+
 void randomise ( AlignedDenseMatrix& mat ) {
 
    int i;
