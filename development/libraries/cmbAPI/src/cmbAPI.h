@@ -369,7 +369,7 @@ namespace mbapi {
 
       /// @brief determine if a particular point lies within the layer
       /// @return true is comprised, false otherwise
-      bool checkValueIsInLayer( const double x, const double y, const double z, const std::string & layerName );
+      bool checkPoint( const double x, const double y, const double z, const std::string & layerName );
 
    private:
       /// @{

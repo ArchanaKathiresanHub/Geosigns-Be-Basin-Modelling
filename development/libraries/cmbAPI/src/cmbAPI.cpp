@@ -174,7 +174,7 @@ public:
                                    );
 
    // determine if a particular point lies within the formation top and bottom
-   bool checkValueIsInLayer( const double x, const double y, const double z, const std::string & layerName );
+   bool checkPoint( const double x, const double y, const double z, const std::string & layerName );
   
    LithologyManager    & lithologyManager()    { return m_lithMgr;  } // Lithology
    StratigraphyManager & stratigraphyManager() { return m_stratMgr; } // Stratigraphy
@@ -583,14 +583,14 @@ std::vector<std::string> Model::copyLithology( const std::string                
    return std::vector<std::string>();
 }
 
-bool Model::checkValueIsInLayer( const double x,
-                                 const double y, 
-                                 const double z, 
-                                 const std::string & layerName )
+bool Model::checkPoint( const double x,
+                        const double y, 
+                        const double z, 
+                        const std::string & layerName )
 {
    if ( errorCode( ) != NoError ) resetError( ); // clean any previous error
 
-   try { return m_pimpl->checkValueIsInLayer( x, y, z, layerName ); }
+   try { return m_pimpl->checkPoint( x, y, z, layerName ); }
 
    catch ( const Exception & ex ) { reportError( ex.errorCode( ), ex.what( ) ); }
    catch ( ... )                  { reportError( UnknownError, "Unknown error" ); }
@@ -1742,8 +1742,12 @@ std::vector<std::string> Model::ModelImpl::copyLithology( const std::string     
 }
 
 
-bool Model::ModelImpl::checkValueIsInLayer( const double x, const double y, const double z, const std::string & layerName )
+bool Model::ModelImpl::checkPoint( const double x, const double y, const double z, const std::string & layerName )
 {
+   if ( !m_projHandle.get( ) )
+   {
+      throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Project " << m_projFileName << " not loaded";
+   }
 
    bool value = false;
    const DataAccess::Interface::Formation *   formation = m_projHandle->findFormation( layerName );

@@ -245,7 +245,7 @@ namespace casa
       // version 9: Reset all other objects versions to 0 due to backware uncompatibility with curent state
       // version 10: add m_xcoordOneD and  m_ycoordOneD - x,y coordinates of the extracted wells for multi 1D 
  
-      int version() { return 10; }
+      int version() { return 11; }
 
       /// @brief Save scenario to the file
       /// @param fileName - name of the file for scenario to be saved in
@@ -264,10 +264,6 @@ namespace casa
       /// @param  fileType "bin"/"txt" file type
       /// @return null if it fails, else the new casa::ScenarioAnalysis object.
       static ScenarioAnalysis * loadScenario( const char * stateFileBuf, size_t bufSize, const char * fileType = NULL );
-
-      ///  @brief The available smartLithoFractionGridding algorithms
-      enum filteringAlgorithms { NoFilter = 0,
-                                 smartLithoFractionGridding };
 
    private:
       /// @brief Copy constructor is disabled

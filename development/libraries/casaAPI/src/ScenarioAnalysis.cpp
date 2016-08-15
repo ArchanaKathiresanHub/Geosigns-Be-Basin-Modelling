@@ -222,7 +222,7 @@ private:
    int                                        m_caseNum;             // counter for the cases, used in folder name of the case
    std::vector<double>                        m_xcoordOneD;          // x coordinates of the extracted wells for multi 1D 
    std::vector<double>                        m_ycoordOneD;          // y coordinates of the extracted wells for multi 1D 
-   filteringAlgorithms                        m_filteringAlgorithm;  // The filtering algorithm
+   int                                        m_filteringAlgorithm;  // The filtering algorithm
  
    std::unique_ptr<mbapi::Model>              m_baseCase;
    std::unique_ptr<RunCaseImpl>               m_baseCaseRunCase;    // run case for the base case project
@@ -544,7 +544,7 @@ ScenarioAnalysis::ScenarioAnalysisImpl::ScenarioAnalysisImpl()
    m_caseNum      = 1;
    m_caseSetPath = ".";
    m_scenarioID = "Undefined";
-   m_filteringAlgorithm = NoFilter;
+   m_filteringAlgorithm = 0;
 
    m_varSpace.reset(   new VarSpaceImpl()   );
    m_obsSpace.reset(   new ObsSpaceImpl()   );
@@ -894,8 +894,8 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::importOneDResults( const std::strin
    // Collect 1D results:
    // get the values of the run cases from casa_state files
    std::vector< std::shared_ptr<RunCase> > bestMatchedCases( rcs.size() );
-   std::vector< std::shared_ptr<RunCase> > baseCases(rcs.size() );
-   std::vector< std::shared_ptr<RunCase> > lastRunCases(rcs.size() );
+   std::vector< std::shared_ptr<RunCase> > baseCases(        rcs.size() );
+   std::vector< std::shared_ptr<RunCase> > lastRunCases(     rcs.size() );
 
    for ( size_t c = 0; c < rcs.size(); ++c )
    {
@@ -956,7 +956,7 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::setFilterOneDResults( const std::st
    // Just set the filtering algorithm
    if ( filterAlgorithm == "smartLithoFractionGridding")
    {
-      m_filteringAlgorithm = smartLithoFractionGridding;
+      m_filteringAlgorithm = 1;
    } 
    // for other cases add an else if
    else
@@ -971,7 +971,7 @@ bool ScenarioAnalysis::ScenarioAnalysisImpl::parameterFilter( Parameter * prm, R
    mbapi::Model  *  model = rci->caseModel( );
    bool includeParameter = false;
 
-   if ( m_filteringAlgorithm == smartLithoFractionGridding )
+   if ( m_filteringAlgorithm == 1 )
    {
       // Only the lithofraction parameters should be filtered in smartLithoFractionGridding
       const casa::PrmLithoFraction * lf = dynamic_cast<PrmLithoFraction *>( prm );
@@ -990,7 +990,7 @@ bool ScenarioAnalysis::ScenarioAnalysisImpl::parameterFilter( Parameter * prm, R
             std::vector<double> zc = wellObs->depth( );
             for ( size_t i = 0; i < zc.size( ); ++i )
             {
-               if ( model->checkValueIsInLayer( xc[i], yc[i], zc[i], layerName ) ) numObs += 1;
+               if ( model->checkPoint( xc[i], yc[i], zc[i], layerName ) ) numObs += 1;
             }
          }
       }
@@ -1254,28 +1254,29 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::addRSAlgorithm( const std::string  
 
 void ScenarioAnalysis::ScenarioAnalysisImpl::serialize( CasaSerializer & outStream )
 {
-   bool ok = outStream.save( m_caseSetPath,         "caseSetPath"  );
-   ok = ok ? outStream.save( m_baseCaseProjectFile, "baseCaseProjectFile" ) : ok;
-   ok = ok ? outStream.save( m_iterationNum,        "iterationNum" ) : ok;
-   ok = ok ? outStream.save( m_caseNum,             "caseNum"      ) : ok;
+   bool ok = outStream.save( m_caseSetPath,         "caseSetPath"           );
+   ok = ok ? outStream.save( m_baseCaseProjectFile, "baseCaseProjectFile"   ) : ok;
+   ok = ok ? outStream.save( m_iterationNum,        "iterationNum"          ) : ok;
+   ok = ok ? outStream.save( m_caseNum,             "caseNum"               ) : ok;
 
-   ok = ok ? outStream.save( m_xcoordOneD,          "xCoord1D"     ) : ok; // version 10
-   ok = ok ? outStream.save( m_ycoordOneD,          "yCoord1D"     ) : ok; // version 10
+   ok = ok ? outStream.save( m_xcoordOneD,          "xCoord1D"              ) : ok; // version 10
+   ok = ok ? outStream.save( m_ycoordOneD,          "yCoord1D"              ) : ok; // version 10
+   ok = ok ? outStream.save( m_filteringAlgorithm,  "filteringAlgorithm"    ) : ok; // version 11
  
-   ok = ok ? outStream.save( obsSpace(),            "ObsSpace"     ) : ok; // serialize observables manager
-   ok = ok ? outStream.save( varSpace(),            "VarSpace"     ) : ok; // serialize variable parameters set
+   ok = ok ? outStream.save( obsSpace(),            "ObsSpace"              ) : ok; // serialize observables manager
+   ok = ok ? outStream.save( varSpace(),            "VarSpace"              ) : ok; // serialize variable parameters set
 
-   ok = ok ? outStream.save( *m_doeCases.get(),     "DoECasesSet"  ) : ok;
-   ok = ok ? outStream.save( *m_mcCases.get(),      "MCCasesSet"   ) : ok;
-   ok = ok ? outStream.save( *m_rsProxySet.get(),   "RSProxySet"   ) : ok;
+   ok = ok ? outStream.save( *m_doeCases.get(),     "DoECasesSet"           ) : ok;
+   ok = ok ? outStream.save( *m_mcCases.get(),      "MCCasesSet"            ) : ok;
+   ok = ok ? outStream.save( *m_rsProxySet.get(),   "RSProxySet"            ) : ok;
 
-   ok = ok ? outStream.save( *(doeGenerator()),     "DoE"          ) : ok; // serialize doe generator
-   ok = ok ? outStream.save( dataDigger(),          "DataDigger"   ) : ok; // data digger
-   ok = ok ? outStream.save( runManager(),          "RunManager"   ) : ok; // run manager
+   ok = ok ? outStream.save( *(doeGenerator()),     "DoE"                   ) : ok; // serialize doe generator
+   ok = ok ? outStream.save( dataDigger(),          "DataDigger"            ) : ok; // data digger
+   ok = ok ? outStream.save( runManager(),          "RunManager"            ) : ok; // run manager
 
-   ok = ok ? outStream.save( mcSolver(),            "MCSolver"     ) : ok;
+   ok = ok ? outStream.save( mcSolver(),            "MCSolver"              ) : ok;
    ok = ok ? outStream.save( *m_sensCalc.get(),     "SensitivityCalculator" ) : ok;
-   ok = ok ? outStream.save( m_scenarioID,          "scenarioID"   ) : ok;
+   ok = ok ? outStream.save( m_scenarioID,          "scenarioID"            ) : ok;
 
    if ( !ok ) throw ErrorHandler::Exception( SerializationError ) << "Serialization error in ScenarioAnalysis";
 }
@@ -1302,8 +1303,9 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::deserialize( CasaDeserializer & inS
 
    if ( inStream.version() > 9 )
    {
-      ok = ok ? inStream.load( m_xcoordOneD,       "xCoord1D"     ) : ok; // version 10
-      ok = ok ? inStream.load( m_ycoordOneD,       "yCoord1D"     ) : ok; // version 10
+      ok = ok ? inStream.load( m_xcoordOneD,               "xCoord1D"           ) : ok; // version 10
+      ok = ok ? inStream.load( m_ycoordOneD,               "yCoord1D"           ) : ok; // version 10
+      ok = ok ? inStream.load( m_filteringAlgorithm,       "filteringAlgorithm" ) : ok; // version 11
    }
  
    if ( !ok ) throw Exception( DeserializationError ) << "Deserialization error in ScenarioAnalysis";
