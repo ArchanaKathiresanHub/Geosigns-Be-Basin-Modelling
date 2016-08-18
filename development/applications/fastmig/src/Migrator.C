@@ -230,24 +230,24 @@ bool Migrator::compute (void)
    
    if(!m_verticalMigration and !m_hdynamicAndCapillary ) 
    {
-   simulatorMode += simulationModeStr[3];
-   simulatorMode += " ";
+      simulatorMode += simulationModeStr[3];
+      simulatorMode += " ";
    }
      
    if (m_verticalMigration)
    {
-   simulatorMode += simulationModeStr[0];
-   simulatorMode += " ";
+      simulatorMode += simulationModeStr[0];
+      simulatorMode += " ";
    }
    if (m_hdynamicAndCapillary) 
    {
-   simulatorMode += simulationModeStr[1];
-   simulatorMode += " ";
+      simulatorMode += simulationModeStr[1];
+      simulatorMode += " ";
    }
    if (m_reservoirDetection)
    {
-   simulatorMode += simulationModeStr[2];
-   simulatorMode += " ";
+      simulatorMode += simulationModeStr[2];
+      simulatorMode += " ";
    }
    
    m_projectHandle->setSimulationDetails ("fastmig", simulatorMode, "");
@@ -289,19 +289,19 @@ bool Migrator::setUpBasinGeometry (void)
 
    if (!m_legacyMigration)
    {
-   // From GeoPhysics::ProjectHandle
+      // From GeoPhysics::ProjectHandle
       if (!m_projectHandle->initialise(true) ||
-         !m_projectHandle->setFormationLithologies(true, true) ||
-         !m_projectHandle->initialiseLayerThicknessHistory(!HydrostaticCalculation) || // Backstripping
-         !m_projectHandle->applyFctCorrections())
-      return false;
-   else
-      return true;
-}
+          !m_projectHandle->setFormationLithologies(true, true) ||
+          !m_projectHandle->initialiseLayerThicknessHistory(!HydrostaticCalculation) || // Backstripping
+          !m_projectHandle->applyFctCorrections())
+         return false;
+      else
+         return true;
+   }
    else 
    {
       if (!m_projectHandle->initialise(true) ||
-         !m_projectHandle->setFormationLithologies(true, true))
+          !m_projectHandle->setFormationLithologies(true, true))
          return false;
       else
          return true;
@@ -316,8 +316,8 @@ bool Migrator::isHydrostaticCalculation (void) const
    if (lastFastcauldronRun != 0)
    {
       hydrostaticCalculation = lastFastcauldronRun->getSimulatorMode () == "HydrostaticTemperature" or
-                               lastFastcauldronRun->getSimulatorMode () == "HydrostaticHighResDecompaction" or
-                               lastFastcauldronRun->getSimulatorMode () == "HydrostaticDarcy";
+         lastFastcauldronRun->getSimulatorMode () == "HydrostaticHighResDecompaction" or
+         lastFastcauldronRun->getSimulatorMode () == "HydrostaticDarcy";
    }
 
    return hydrostaticCalculation;
@@ -381,7 +381,7 @@ bool Migrator::getSeaBottomDepths (Interface::GridMap * topDepthGridMap, const I
             topDepthGridMap->setValue (i, j, m_projectHandle->getSeaBottomDepth (i, j, snapshot->getTime ()));
          }
       }
-         }
+   }
    if (!topDepthGridMap->restoreData (true)) return false;
 
    return true;
@@ -435,21 +435,21 @@ bool Migrator::performSnapshotMigration (const Interface::Snapshot * start, cons
       {
          clearFormationNodeProperties ();
 
-      if (!computeFormationPropertyMaps (end, overPressureRun) ||
-          !retrieveFormationPropertyMaps (end) ||
-          !computeFormationNodeProperties (end) ||
-          !detectReservoirs (start, end, overPressureRun) ||
-          !computeSMFlowPaths (start, end) ||
-          !restoreFormationPropertyMaps (end) ||
-          !loadExpulsionMaps (start, end) ||
-          !chargeReservoirs (start, end) ||
-          !calculateSeepage (end) ||
-          !unloadExpulsionMaps (end) ||
-          !saveSMFlowPaths (start, end))
-      {
-         return false;
+         if (!computeFormationPropertyMaps (end, overPressureRun) ||
+             !retrieveFormationPropertyMaps (end) ||
+             !computeFormationNodeProperties (end) ||
+             !detectReservoirs (start, end, overPressureRun) ||
+             !computeSMFlowPaths (start, end) ||
+             !restoreFormationPropertyMaps (end) ||
+             !loadExpulsionMaps (start, end) ||
+             !chargeReservoirs (start, end) ||
+             !calculateSeepage (end) ||
+             !unloadExpulsionMaps (end) ||
+             !saveSMFlowPaths (start, end))
+         {
+            return false;
+         }
       }
-   }
    }
 
    m_projectHandle->continueActivity ();
@@ -858,6 +858,17 @@ bool Migrator::computeSMFlowPaths (const Interface::Snapshot * start, const Inte
 
       if (!computeTargetFormationNodes (topActiveFormation, bottomSourceRockFormation)) return false;
    }
+   else
+   {
+      if (m_paleoSeeps or end->getTime() == 0.0)
+      {
+         Formation * topActiveFormation = getTopActiveFormation (end);
+         if (!topActiveFormation) return false;
+
+         topActiveFormation->setEndOfPath();
+      }
+   }
+
    return true;
 }
 
@@ -1055,10 +1066,10 @@ bool Migrator::chargeReservoir (migration::Reservoir * reservoir, migration::Res
 
    if (!m_legacyMigration && reservoir->isDiffusionOn())
    {
-   /// For each column in the trap set the diffusion starting time
-   reservoir->broadcastTrapDiffusionStartTimes ();
-   /// For each column in the trap set the new penetration distances
-   reservoir->broadcastTrapPenetrationDistances ();
+      /// For each column in the trap set the diffusion starting time
+      reservoir->broadcastTrapDiffusionStartTimes ();
+      /// For each column in the trap set the new penetration distances
+      reservoir->broadcastTrapPenetrationDistances ();
    }
 
    reservoir->broadcastTrapFillDepthProperties ();
@@ -1116,7 +1127,7 @@ bool Migrator::calculateSeepage (const Interface::Snapshot * end)
    
    // If no source rock and no reservoir there can't be a source for new seepage
    if (!topSourceRockFormation and !topReservoirFormation)
-   return true;
+      return true;
 
    // Index of the position of the top reservoir. If no reservoir exists, then a value well
    // below zero is needed to exclude downward migration and get the right expulsion amounts.
@@ -1200,10 +1211,13 @@ void Migrator::saveSeepageAmounts (migration::Formation * seepsFormation, const 
    // Not a real reservoir, but the I/O functionality of the reservoir class comes in handy
    migration::Reservoir seepsReservoir (dataAccessProjectHandle, this, seepsReservoirRecord);
 
-   // transfer seepage amounts from nodes to columns
+   // Setting formation but in PropertyValue.C getting the formation fails
+   seepsReservoir.setFormation (dynamic_cast<DataAccess::Interface::Formation *> (seepsFormation));
+
+   // Transfer seepage amounts from nodes to columns
    seepsReservoir.putSeepsInColumns (seepsFormation);
    
-   seepsReservoir.saveSeepageProperties (seepsFormation, end);
+   seepsReservoir.saveSeepageProperties (end);
 
    return;
 }
@@ -1385,8 +1399,8 @@ Interface::ReservoirList * Migrator::getReservoirs (const Interface::Formation *
    {
       if (!m_reservoirs) sortReservoirs();
       return m_reservoirs;
-      }
    }
+}
 
 void Migrator::sortReservoirs() const
 { 
@@ -1948,7 +1962,7 @@ bool reservoirSorter (const Interface::Reservoir * reservoir1, const Interface::
 }
 
 bool Migrator::mergeOutputFiles ()
-   {
+{
    if( m_projectHandle->getModellingMode () == Interface::MODE1D ) return true;
 #ifndef _MSC_VER
    ibs::FilePath localPath  ( m_projectHandle->getProjectPath () );
@@ -1959,4 +1973,4 @@ bool Migrator::mergeOutputFiles ()
 #else
    return true;
 #endif
-      }
+}

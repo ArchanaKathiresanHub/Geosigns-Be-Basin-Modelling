@@ -1,20 +1,20 @@
 #include <assert.h>
 
 #ifdef sgi
-   #ifdef _STANDARD_C_PLUS_PLUS
-      #include<iostream>
-      #include <sstream>
-      using namespace std;
-      #define USESTANDARD
-   #else // !_STANDARD_C_PLUS_PLUS
-      #include<iostream.h>
-      #include<strstream.h>
-   #endif // _STANDARD_C_PLUS_PLUS
+#ifdef _STANDARD_C_PLUS_PLUS
+#include<iostream>
+#include <sstream>
+using namespace std;
+#define USESTANDARD
+#else // !_STANDARD_C_PLUS_PLUS
+#include<iostream.h>
+#include<strstream.h>
+#endif // _STANDARD_C_PLUS_PLUS
 #else // !sgi
-   #include <iostream>
-   #include <sstream>
-   using namespace std;
-   #define USESTANDARD
+#include <iostream>
+#include <sstream>
+using namespace std;
+#define USESTANDARD
 #endif // sgi
 
 #include "database.h"
@@ -37,7 +37,7 @@ using namespace DataAccess;
 using namespace Interface;
 
 PropertyValue::PropertyValue (ProjectHandle * projectHandle, Record * record, const string & name, const Property * property, const Snapshot * snapshot,
-      const Reservoir * reservoir, const Formation * formation, const Surface * surface, PropertyStorage storage) :
+                              const Reservoir * reservoir, const Formation * formation, const Surface * surface, PropertyStorage storage) :
    DAObject (projectHandle, record),
    m_name (name),
    m_property (property), m_snapshot (snapshot),
@@ -52,7 +52,7 @@ PropertyValue::~PropertyValue (void)
 }
 
 bool PropertyValue::matchesConditions (int selectionFlags, const Property * property, const Snapshot * snapshot,
-      const Reservoir * reservoir, const Formation * formation, const Surface * surface, int propertyType) const
+                                       const Reservoir * reservoir, const Formation * formation, const Surface * surface, int propertyType) const
 {
    bool selected = false;
 
@@ -139,9 +139,9 @@ bool PropertyValue::toBeSaved () const {
 bool PropertyValue::hasRecord() const {
 
 
-  if (! getRecord() ) return false;
+   if (! getRecord() ) return false;
   
-  return true;
+   return true;
 
 }
 
@@ -160,47 +160,47 @@ GridMap * PropertyValue::createGridMap (const Grid * grid, unsigned int depth)
 /// Return the GridMap if already there
 GridMap * PropertyValue::hasGridMap (void) const
 {
-      return (GridMap *) getChild (ValueMap);
+   return (GridMap *) getChild (ValueMap);
 }
 
 void PropertyValue::getHDFinfo(string& fileName, string& dataSetName, string& outputDir) const
 {
-    Record * record = getRecord();
-    if (!record) return;
+   Record * record = getRecord();
+   if (!record) return;
 
-    outputDir = m_projectHandle->getFullOutputDir();
+   outputDir = m_projectHandle->getFullOutputDir();
     
-    if (getStorage() == TIMEIOTBL)
-    {
-        // The record to refer to is a TimeIoTbl record
+   if (getStorage() == TIMEIOTBL)
+   {
+      // The record to refer to is a TimeIoTbl record
 
-        const string & mapFileName = getMapFileName(record);
-        const string & propertyId = getPropertyGrid(record);
+      const string & mapFileName = getMapFileName(record);
+      const string & propertyId = getPropertyGrid(record);
 
-        if (mapFileName != "")
-        {
-            fileName = mapFileName;
-            dataSetName = "/Layer=" + propertyId;
-        }
-        else
-        {
-            fileName = propertyId + ".HDF";
-            dataSetName = "/Layer=0";
-        }
-    }
-    else if (getStorage() == THREEDTIMEIOTBL)
-    {
-        // The record to refer to is SnapshotIoTbl record
-        fileName = getMapFileName(record);
+      if (mapFileName != "")
+      {
+         fileName = mapFileName;
+         dataSetName = "/Layer=" + propertyId;
+      }
+      else
+      {
+         fileName = propertyId + ".HDF";
+         dataSetName = "/Layer=0";
+      }
+   }
+   else if (getStorage() == THREEDTIMEIOTBL)
+   {
+      // The record to refer to is SnapshotIoTbl record
+      fileName = getMapFileName(record);
 
-        dataSetName += "/" + getGroupName(record) + "/" + getDataSetName(record);
-    }
-    else if (getStorage() == SNAPSHOTIOTBL)
-    {
-        // The record to refer to is SnapshotIoTbl record
-        fileName = getSnapshotFileName(record);
-        dataSetName = "/" + getName() + "/" + (dynamic_cast<const Formation *>(getFormation())->getMangledName());
-    }
+      dataSetName += "/" + getGroupName(record) + "/" + getDataSetName(record);
+   }
+   else if (getStorage() == SNAPSHOTIOTBL)
+   {
+      // The record to refer to is SnapshotIoTbl record
+      fileName = getSnapshotFileName(record);
+      dataSetName = "/" + getName() + "/" + (dynamic_cast<const Formation *>(getFormation())->getMangledName());
+   }
 }
 
 /// Read in the GridMap if not there yet and return it
@@ -217,7 +217,7 @@ GridMap * PropertyValue::getGridMap (void) const
    if (MODE3D == m_projectHandle->getModellingMode ())
    {
       // The GridMap is to be retrieved from file
-       string fileName, dataSetName, outputDir;
+      string fileName, dataSetName, outputDir;
       getHDFinfo(fileName, dataSetName, outputDir);
 
       const bool oldPrimaryDoubleFlag = m_projectHandle->isPrimaryDouble();
@@ -381,8 +381,8 @@ database::Record* PropertyValue::createTimeIoRecord (database::Table * timeIoTbl
       const Formation * formation = m_surface->getBottomFormation ();
       if (!formation)
       {
-	 --depoSequence;
-	 formation = m_surface->getTopFormation ();
+         --depoSequence;
+         formation = m_surface->getTopFormation ();
       }
 
       depoSequence += formation->getDepositionSequence ();
@@ -390,13 +390,10 @@ database::Record* PropertyValue::createTimeIoRecord (database::Table * timeIoTbl
 
    // Supress printing of depo sequence for seep formations
    if (m_reservoir and getName () != "SeepageBasinTop")
-   {
       depoSequence += m_reservoir->getFormation ()->getDepositionSequence () * 1000;
-   }
+
    if (m_formation)
-   {
       depoSequence += m_formation->getDepositionSequence () * 1000;
-   }
 
    database::setDepoSequence (timeIoRecord, depoSequence);
    database::setBPAPresence (timeIoRecord, 0);
@@ -578,9 +575,9 @@ int PropertyValue::compareByAge (const PropertyValue * rhs) const
    if (lhsSnapshot != rhsSnapshot)
    {
       if (lhsSnapshot->getTime () < rhsSnapshot->getTime ())
-	 return -1;
+         return -1;
       else if (lhsSnapshot->getTime () > rhsSnapshot->getTime ())
-	 return 1;
+         return 1;
    }
    return 0;
 }

@@ -139,7 +139,6 @@ namespace migration
       bool computeTargetFormationNodes (Formation * targetFormation);
       bool computeTargetFormationNodes (int depthIndex);
       bool computeTargetFormationNode (unsigned int i, unsigned int j, int depthIndex);
-      void prescribeTargetFormationNodes (void);
 
       bool retrievePropertyMaps (bool);
       bool restorePropertyMaps (bool);

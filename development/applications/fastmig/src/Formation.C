@@ -581,7 +581,7 @@ namespace migration
 
    bool Formation::computeTargetFormationNodes (Formation * targetFormation)
    {
-      targetFormation->prescribeTargetFormationNodes (); // The path has to stop somewhere if nowhere else
+      targetFormation->setEndOfPath (); // The path has to stop somewhere if nowhere else
 
       bool allComputed = false;
       do
@@ -641,19 +641,6 @@ namespace migration
          return true;
       else
          return formationNode->computeTargetFormationNode ();
-   }
-
-   void Formation::prescribeTargetFormationNodes (void)
-   {
-      int depthIndex = m_formationNodeArray->depth () - 1;
-
-      for (unsigned int i = m_formationNodeArray->firstILocal (); i <= m_formationNodeArray->lastILocal (); ++i)
-      {
-         for (unsigned int j = m_formationNodeArray->firstJLocal (); j <= m_formationNodeArray->lastJLocal (); ++j)
-         {
-            getLocalFormationNode (i, j, depthIndex)->setEndOfPath ();
-         }
-      }
    }
 
    void Formation::setEndOfPath (void)
@@ -1762,8 +1749,8 @@ namespace migration
 
             // check if the top formation is the formation to migrate to for given i, j
             if (targetFormationNode and targetFormationNode->isEndOfPath () and
-               !targetFormationNode->goesOutOfBounds () and
-               targetFormationNode->getFormation () == topActiveFormation)
+                !targetFormationNode->goesOutOfBounds () and
+                targetFormationNode->getFormation () == topActiveFormation)
             {
                unsigned int iTarget = targetFormationNode->getI ();
                unsigned int jTarget = targetFormationNode->getJ ();
@@ -1844,8 +1831,8 @@ namespace migration
 
             // check if targetReservoir is the reservoir to migrate to for given i, j
             if (targetFormationNode and targetFormationNode->isEndOfPath () and
-               !targetFormationNode->goesOutOfBounds () and
-               targetFormationNode->getFormation () == topActiveFormation)
+                !targetFormationNode->goesOutOfBounds () and
+                targetFormationNode->getFormation () == topActiveFormation)
             {
                unsigned int iTarget = targetFormationNode->getI ();
                unsigned int jTarget = targetFormationNode->getJ ();
