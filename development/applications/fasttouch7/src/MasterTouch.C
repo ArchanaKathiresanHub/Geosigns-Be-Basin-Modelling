@@ -122,7 +122,7 @@ bool MasterTouch::executeWrapper( const char * burHistFile, const string & filen
       int childstate; 		
       int fd = open( status, O_RDONLY| O_NONBLOCK );
       
-      ReportProgress( "Inizialing touchstone and creating the realizations, please wait ..." );
+      ReportProgress( "Initializing touchstone and creating the realizations, please wait ..." );
 
       while ( !waitpid( pid, &childstate, WNOHANG ) ) 
       {	
