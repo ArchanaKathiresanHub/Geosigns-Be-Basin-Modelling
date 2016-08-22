@@ -33,7 +33,7 @@ void fasttouch::StartProgress()
 
 void fasttouch::ReportProgress(const std::string & message)
 {
-   if ( GetRank() == 0 ) std::cout << FastTouchProgressManager.report( message ) << std::endl;
+   if ( GetRank() == 0 ) std::cerr << FastTouchProgressManager.report( message ) << std::endl;
 }
 
 

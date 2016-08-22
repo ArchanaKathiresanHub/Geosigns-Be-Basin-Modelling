@@ -289,9 +289,7 @@ void TouchstoneWrapper::calculateWrite ( ) {
       std::vector<size_t> usedSnapshotsIndexes;
    
       mkfifo(m_status, 0777);
-      int fd = open(m_status, O_WRONLY);
-      int flags = fcntl(fd, F_GETFL);
-      fcntl(fd, F_SETFL, flags | O_NONBLOCK ); 
+      int fd = open(m_status, O_WRONLY| O_NONBLOCK);
    
       ReadBurial ReadBurial(m_burhistFile);
       ReadBurial.readIndexes(&firstI, &lastI, &firstJ, &lastJ, &numLayers, &numActive);
@@ -299,8 +297,12 @@ void TouchstoneWrapper::calculateWrite ( ) {
        
       TouchstoneFiles WriteTouchstone(m_results);
       WriteTouchstone.writeOrder(m_categoriesMappingOrder);  
-      double fractionCompleted = 0;
+      double fractionCompleted = 1e-6;
       int step = 0;
+      
+      // write a small number to tell the parent process that the calculation has started
+      write( fd, &fractionCompleted, sizeof( fractionCompleted ) );
+
 
       for ( int l = 1; l <= numLayers; ++l )
       {
@@ -331,27 +333,25 @@ void TouchstoneWrapper::calculateWrite ( ) {
                   {
                      writeTouchstoneResults( numTimeSteps - usedSnapshotsIndexes[sn] - 1, WriteTouchstone );
                   }
-
-               } else {
+                  
+                  if (numActive == 0) fractionCompleted = 1;                                   // nothing to do, everything completed
+                  else if (step > 0) fractionCompleted =  (double) step / (double) numActive ;
+                  
+               } 
+               else 
+               {
 
                   WriteTouchstone.writeNumTimeSteps(numTimeSteps);
 
                }
+               
+               if ( write( fd, &fractionCompleted, sizeof( fractionCompleted ) ) < 0 )
+               {
+                  ostringstream oss;
+                  oss << "Could not write the status file on calculateWrite(), error code " << std::strerror( errno ) <<" on MPI process "<< m_rank;
+                  message( oss.str() );
+               }                          
             }  
-         
-            if (step == 0 && numActive > 0) 
-            fractionCompleted =1e-6;         // we need to write a number larger than 0 to tell the process has started
-            else if (step == 0 && numActive == 0) 
-            fractionCompleted = 1;           // nothing to do, everything completed
-            else if (step > 0 && numActive > 0)
-            fractionCompleted =  (double) step / (double) numActive ;
-            
-            if ( write( fd, &fractionCompleted, sizeof( fractionCompleted ) ) < 0 )
-            {
-               ostringstream oss;
-               oss << "Could not write the status file on calculateWrite(), error code " << std::strerror( errno ) <<" on MPI process "<< m_rank;
-               message( oss.str() );
-           }
          }
       }
    }

@@ -68,10 +68,8 @@ bool MasterTouch::executeWrapper( const char * burHistFile, const string & filen
    char status[PATH_MAX];
    strcpy( status, tempStatus );
    mkstemp( status );
-   
    mkfifo( status, 0777 );
    
-   //convert GetRank( ) value to ostringstream
    ostringstream rank;
    rank << GetRank();
 	
@@ -117,26 +115,33 @@ bool MasterTouch::executeWrapper( const char * burHistFile, const string & filen
    } 	
    else 	
    { 
-      double fractionCompleted = 0.0;    
-      utilities::TimeToComplete timeToComplete( 10, 120, 0.05, 0.05 );
-      timeToComplete.start(); 
+      double fractionCompleted = 0.0;  
+      double minAllFractions  = 0.01;
+      bool childStartedCalculation = false;	 
+      utilities::TimeToComplete timeToComplete( 300, 300, minAllFractions, 0.01 );
       int childstate; 		
-		
-      int fd    = open( status, O_RDONLY );
-      int flags = fcntl( fd, F_GETFL );
-      fcntl( fd, F_SETFL, flags | O_NONBLOCK ); 
-		
-			
+      int fd = open( status, O_RDONLY| O_NONBLOCK );
+      
+      ReportProgress( "Inizialing touchstone and creating the realizations, please wait ..." );
+
       while ( !waitpid( pid, &childstate, WNOHANG ) ) 
       {	
-         bool childStartedCalculation = fractionCompleted > 0 ? true : false;
-         usleep( 500 );		
-         if ( read( fd, &fractionCompleted, sizeof( fractionCompleted ) ) == sizeof( fractionCompleted) )
+         if ( fractionCompleted > 0 && !childStartedCalculation) 
          {
-            double minAllFractions =  MinimumAll( fractionCompleted );
-            string reported; 
-            if (minAllFractions > 0.05) reported = timeToComplete.report( minAllFractions );
-            if ( !reported.empty()) ReportProgress( reported );
+            childStartedCalculation = true;
+            timeToComplete.start(); 
+         }
+         usleep(500);
+
+         if ( read( fd, &fractionCompleted, sizeof( fractionCompleted ) ) == sizeof( fractionCompleted ) )
+         {
+            double currentMinimum = MinimumAll( fractionCompleted ); 
+            if (currentMinimum > minAllFractions)
+            {
+               minAllFractions = currentMinimum;
+               string reported = timeToComplete.report( minAllFractions );
+               if (!reported.empty()) ReportProgress( reported );
+            }
          }
          else
          {
@@ -146,9 +151,8 @@ bool MasterTouch::executeWrapper( const char * burHistFile, const string & filen
                oss << "warning: touchstoneWrapper is zombie " << std::strerror(errno);
                message( oss.str() );
                return false;
-            } 
-         }
-
+            }
+        }
       }
 				
       if ( close( fd ) < 0 )
@@ -164,7 +168,7 @@ bool MasterTouch::executeWrapper( const char * burHistFile, const string & filen
          oss << "error: Could not unlink status file, error code " << std::strerror(errno);
          message( oss.str() );
       }
-			
+	
    } 
    
    return true; 
@@ -342,14 +346,7 @@ bool MasterTouch::run()
          calculated =  calculate(filename, burhistFile);
          }
   
-         if (calculated) 
-         {
-         		
-            progressString = "Finished TCF: ";
-            progressString += filename;
-            ReportProgress( progressString );
-         
-         } else 
+         if (!calculated) 
          {
             std::ostringstream oss;
             oss << "warning: MasterTouch::calculate is restarted on MPI process " << GetRank( ) << " after " << runs <<" runs";
@@ -357,16 +354,19 @@ bool MasterTouch::run()
          }		
       }
 
-      while(MinimumAll(10)<10);	 
-         
+      while(MinimumAll(10)<10);
+                    
       if (!calculated) 
       {
          failure = true;
          break;
       }
+      
+      progressString = "Finished TCF: ";
+      progressString += filename;
+      ReportProgress( progressString ); 
    }        
   
-   
    return (!failure);
    
 }  
@@ -518,7 +518,7 @@ int MasterTouch::countActive( const Surface * surface, const faciesGridMap * fac
         }
       }
    }
-   
+
    if (faciesGridMap->GridMap) faciesGridMap->GridMap->restoreData(false,false);
    
    return numActive; 
