@@ -42,7 +42,7 @@ namespace FiniteElementMethod
       
       /// \brief Constructor
       /// \param [in] basisMat Matrix storing all basis functions.
-      PropertiesToQuadPts( const Numerics::AlignedDenseMatrix & basisMat );
+      explicit PropertiesToQuadPts( const Numerics::AlignedDenseMatrix & basisMat );
       
       /// \brief Compute the properties in each quadrature point, basically it's a matrix-matrix product
       /// \param [in] propName Enum for the property type

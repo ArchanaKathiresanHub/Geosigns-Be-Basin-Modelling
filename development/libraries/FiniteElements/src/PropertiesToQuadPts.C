@@ -6,7 +6,9 @@
 namespace FiniteElementMethod
 {
    PropertiesToQuadPts::~PropertiesToQuadPts()
-   {}
+   {
+      // Intentionally unimplemented
+   }
   
 
    PropertiesToQuadPts::PropertiesToQuadPts( const Numerics::AlignedDenseMatrix & basisMat )
