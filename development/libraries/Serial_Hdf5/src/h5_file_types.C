@@ -290,6 +290,24 @@ void H5_Unique_File::openInMode (const char *filename)
 //
 // Read only File Methods
 //
+
+bool H5_ReadOnly_File::open (const char *filename, H5_PropertyList *propertyType)
+{
+   // create property list
+   hPropertyListId = createPropertyList ( NULL );
+
+   // create or open file 
+   openInMode (filename);
+
+   // close property list id
+   H5Pclose (hPropertyListId);
+
+   // turn off errors by default
+   H5Eset_auto( H5E_DEFAULT, 0, 0);
+
+   return hFileId > 0;
+}
+
 void H5_ReadOnly_File::openInMode (const char *filename)
 {
    // open file for reading
@@ -306,7 +324,7 @@ bool H5_ReadOnly_File::readDataset (hid_t dataId, void *buffer, H5_PropertyList 
 {
    // create read object
    ReadObject read (dataId, fileSpace, memSpace, 
-                    createDatasetPropertyList (pList), 
+                    createDatasetPropertyList ( NULL ), 
                     buffer);
 
    // call safe readWrite

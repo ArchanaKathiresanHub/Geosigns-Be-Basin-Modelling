@@ -162,6 +162,7 @@ public:
    bool readAttribute  (hid_t attributeId, hid_t spaceId, void *buffer,  
                         H5_PropertyList *pList = NULL);
 
+   bool open (const char *filename, H5_PropertyList *propertyType);
 private:
    void openInMode (const char *filename);
 };
