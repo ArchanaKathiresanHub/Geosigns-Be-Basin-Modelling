@@ -840,6 +840,9 @@ bool FastcauldronSimulator::mergeOutputFiles ( ) {
 
    PetscPrintf ( PETSC_COMM_WORLD, "Merging output files ...\n" ); 
 
+   // clean mpaCache which can hold read-only opened files
+   mapFileCacheDestructor();
+
    if(  m_calculationMode != HYDROSTATIC_HIGH_RES_DECOMPACTION_MODE && m_calculationMode != COUPLED_HIGH_RES_DECOMPACTION_MODE && 
         m_calculationMode != NO_CALCULATION_MODE ) {
       
@@ -910,6 +913,8 @@ bool FastcauldronSimulator::mergeSharedOutputFiles ( ) {
    if( m_noDerivedPropertiesCalc ) {
       getMapPropertyValuesWriter( )->close();
    }
+   // clean mpaCache which can hold read-only opened files
+   mapFileCacheDestructor();
       
    bool doMerge =  m_calculationMode == OVERPRESSURED_TEMPERATURE_MODE;
 
