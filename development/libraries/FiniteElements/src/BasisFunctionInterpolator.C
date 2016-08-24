@@ -327,6 +327,7 @@ void FiniteElementMethod::BasisFunctionInterpolator::interpolatePropertiesRemain
    }
 
 }
+#endif
 
 
 void FiniteElementMethod::BasisFunctionInterpolator::simpleInterpolate ( const Numerics::AlignedDenseMatrix& basisFunctionsTranspose,
@@ -359,7 +360,6 @@ void FiniteElementMethod::BasisFunctionInterpolator::simpleInterpolate ( const N
    }
 
 }
-#endif
 
 void FiniteElementMethod::BasisFunctionInterpolator::compute ( const Numerics::AlignedDenseMatrix& basisFunctionsTranspose,
                                                                const Numerics::AlignedDenseMatrix& propertyVectors,
