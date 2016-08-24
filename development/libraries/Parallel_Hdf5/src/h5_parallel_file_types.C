@@ -34,7 +34,7 @@ hid_t H5_Parallel_PropertyList :: createFilePropertyList() const
    else 
    {
       H5Pset_fapl_mpio (plist, PETSC_COMM_WORLD, s_mpiInfo);  
-#if 0
+
       if( s_primaryPod ) {
          // Disable cache
          // set B-tree to roughly same size as 'stripe size' (default stripe size 1Mb)
@@ -53,7 +53,6 @@ hid_t H5_Parallel_PropertyList :: createFilePropertyList() const
          mdc_config.decr_mode = H5C_decr__off;
          H5Pset_mdc_config(plist, &mdc_config);
       }
-#endif     
    }
 #else
    H5Pset_fapl_mpio (plist, PETSC_COMM_WORLD, s_mpiInfo);  
