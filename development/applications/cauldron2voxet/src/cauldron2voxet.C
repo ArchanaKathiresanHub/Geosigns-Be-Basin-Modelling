@@ -484,6 +484,15 @@ int main (int argc, char ** argv)
       }
 
 
+      // Check if the property has values (only for 2016.11 release. Remove this check to enable DerivedProperty calculation)
+      PropertyValueList *propertyValueListAvailable = projectHandle->getPropertyValues (FORMATION, property, snapshot, 0, 0, 0, VOLUME);
+      unsigned int propertiesSize = propertyValueListAvailable->size ();
+      delete propertyValueListAvailable;
+      if (propertiesSize == 0)
+      {
+         continue;
+      }
+
       DerivedProperties::FormationPropertyList propertyValueList ( propertyManager.getFormationProperties ( property, snapshot, useBasement ));
 
       // Could just ask if property is computable.

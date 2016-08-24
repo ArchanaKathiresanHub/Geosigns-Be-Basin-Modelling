@@ -1150,6 +1150,17 @@ int main (int argc, char ** argv)
          continue;
       }
 
+      // Check if the property has values (only for 2016.11 release. Remove this check to enable DerivedProperty calculation)
+      PropertyValueList *propertyValueListAvailable = projectHandle->getPropertyValues (FORMATION, property, snapshot, 0, 0, 0, VOLUME);
+      unsigned int propertiesSize = propertyValueListAvailable->size ();
+      delete propertyValueListAvailable;
+ 
+      if( propertiesSize == 0 ) {
+           if (debug)
+            cerr << "Property " << conversion.cauldronName << " has no values" << endl;
+         continue;
+      }       
+ 
       DerivedProperties::FormationPropertyList propertyValueList ( propertyManager.getFormationProperties ( property, snapshot, basement ));
 
       if (propertyValueList.size () == 0)
