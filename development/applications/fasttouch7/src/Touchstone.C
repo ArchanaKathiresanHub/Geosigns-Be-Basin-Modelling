@@ -314,7 +314,7 @@ void TouchstoneWrapper::calculateWrite ( ) {
             
                ReadBurial.readNumTimeStepsID(&numTimeSteps, &iD);
 
-               if (numTimeSteps > 0) 
+               if ( numActive > 0 && numTimeSteps > 0) 
                {
                   std::vector<Geocosm::TsLib::burHistTimestep> burHistTimesteps(numTimeSteps) ; 
                   
@@ -333,16 +333,14 @@ void TouchstoneWrapper::calculateWrite ( ) {
                   {
                      writeTouchstoneResults( numTimeSteps - usedSnapshotsIndexes[sn] - 1, WriteTouchstone );
                   }
-                  
-                  if (numActive == 0) fractionCompleted = 1;                                   // nothing to do, everything completed
-                  else if (step > 0) fractionCompleted =  (double) step / (double) numActive ;
+
+                  fractionCompleted =  (double) step / (double) numActive ;
                   
                } 
                else 
                {
-
                   WriteTouchstone.writeNumTimeSteps(numTimeSteps);
-
+				      if (numActive == 0) fractionCompleted = 1.0;
                }
                
                if ( write( fd, &fractionCompleted, sizeof( fractionCompleted ) ) < 0 )
