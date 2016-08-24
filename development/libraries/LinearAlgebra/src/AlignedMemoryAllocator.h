@@ -38,8 +38,8 @@ template<typename Type, const unsigned int Alignment>
 Type* AlignedMemoryAllocator<Type, Alignment>::allocate ( const unsigned int numberOfItems ) {
 
 #ifdef _WIN32
-   // Since, at the moment, we do not run on 
-   return new Type [ numberOfItems ];
+   // Since, at the moment, we do not run on
+   return static_cast<Type*>(_aligned_malloc ( sizeof ( Type ) * numberOfItems, Alignment ));
 #else
    void* buf;
    int error = posix_memalign ( &buf, Alignment, sizeof ( Type ) * numberOfItems );
@@ -57,7 +57,8 @@ template<typename Type, const unsigned int Alignment>
 void AlignedMemoryAllocator<Type, Alignment>::free ( Type*& buf ) {
 
 #ifdef _WIN32
-   delete [] buf;
+   void* voidBuf = static_cast<void*>( buf );
+   _aligned_free ( voidBuf );
    buf = nullptr;
 #else
    if ( buf != nullptr ) {

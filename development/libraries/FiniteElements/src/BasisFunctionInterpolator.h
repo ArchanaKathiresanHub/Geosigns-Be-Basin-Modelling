@@ -15,11 +15,10 @@
 #include <array>
 #else
 #include <tr1/array>
-#endif
-
 #include <cmath>
 #include <xmmintrin.h>
 #include <immintrin.h>
+#endif
 
 #include "AlignedDenseMatrix.h"
 #include "SimdInstruction.h"
@@ -37,18 +36,20 @@ namespace FiniteElementMethod {
    public :
 
       /// \brief Interpolate all properties at all quadrature points at the same time.
-      static void compute ( const Numerics::AlignedDenseMatrix& basisFunctionsTranspose,
-                            const Numerics::AlignedDenseMatrix& propertyVectors,
-                                  Numerics::AlignedDenseMatrix& interpolatedProperties );
+      void compute ( const Numerics::AlignedDenseMatrix& basisFunctionsTranspose,
+                     const Numerics::AlignedDenseMatrix& propertyVectors,
+                           Numerics::AlignedDenseMatrix& interpolatedProperties );
 
       /// \brief Interpolate the properties at all quadrature points at the same time using a simple scheme.
       ///
       /// This is primarily for the unit tests.
-      static void simpleInterpolate ( const Numerics::AlignedDenseMatrix& basisFunctionsTranspose,
-                                      const Numerics::AlignedDenseMatrix& propertyVectors,
-                                            Numerics::AlignedDenseMatrix& interpolatedProperties );
+      void simpleInterpolate ( const Numerics::AlignedDenseMatrix& basisFunctionsTranspose,
+                               const Numerics::AlignedDenseMatrix& propertyVectors,
+                                     Numerics::AlignedDenseMatrix& interpolatedProperties );
 
    private :
+
+#ifndef _WIN32
 
       /// \brief An array of four vectors of doubles.
       typedef std::tr1::array<__m256d, 4> FourByFour;
@@ -57,19 +58,19 @@ namespace FiniteElementMethod {
       typedef std::tr1::array<__m256d, 2> FourByTwo;
 
       /// \brief Set all four vectors to zero
-      static void zero ( FourByFour& avx );
+      void zero ( FourByFour& avx );
 
       /// \brief Set all two vectors to zero
-      static void zero ( FourByTwo& avx );
+      void zero ( FourByTwo& avx );
 
       /// \brief Set a single vector to zero
-      static void zero ( __m256d& avx );
+      void zero ( __m256d& avx );
 
       /// \brief Load four vectors.
-      static void loadContiguous ( const double* mat, const int lda, FourByFour& avx );
+      void loadContiguous ( const double* mat, const int lda, FourByFour& avx );
 
       /// \brief Load two vectors.
-      static void loadContiguous ( const double* mat, const int lda, FourByTwo& avx );
+      void loadContiguous ( const double* mat, const int lda, FourByTwo& avx );
 
       /// \brief Load four vectors and transpose them.
       ///
@@ -90,7 +91,7 @@ namespace FiniteElementMethod {
       /// i & j & k & l\                             \
       /// m & n & o & p\end{array}
       /// \right) \f
-      static void loadContiguousTrans4x4 ( const double* mat, const int lda, FourByFour& avx );
+      void loadContiguousTrans4x4 ( const double* mat, const int lda, FourByFour& avx );
 
       /// \brief Load two vectors.
       ///
@@ -111,7 +112,7 @@ namespace FiniteElementMethod {
       /// a & b & c & d\                             \
       /// e & f & g & h\end{array}
       /// \right) \f
-      static void loadContiguousTrans4x2 ( const double* mat, const int lda, FourByFour& avx );
+      void loadContiguousTrans4x2 ( const double* mat, const int lda, FourByFour& avx );
 
       /// \brief Load a single vector.
       ///
@@ -132,40 +133,40 @@ namespace FiniteElementMethod {
       /// a & b & c & d\                             \
       /// a & b & c & d\end{array}
       /// \right) \f
-      static void loadBroadcast4x1 ( const double* mat, FourByFour& avx );
+      void loadBroadcast4x1 ( const double* mat, FourByFour& avx );
 
       /// \brief Write the four vectors to the matrix.
       ///
       /// Additional permutation operatations are required as the values are computed
       /// are not in the correct order.
-      static void store ( double* mat, const int lda, FourByFour& avx );
+      void store ( double* mat, const int lda, FourByFour& avx );
 
       /// \brief Write the two vectors to the matrix.
       ///
       /// Additional permutation operatations are required as the values are computed
       /// are not in the correct order.
-      static void store ( double* mat, const int lda, FourByTwo& avx );
+      void store ( double* mat, const int lda, FourByTwo& avx );
 
       /// \brief Write a single vectors to the matrix.
-      static void store ( double* mat, __m256d avx );
+      void store ( double* mat, __m256d avx );
 
       /// \brief Sum the product of the four vectors.
       ///
       /// \f$ c_i = \sum_j a_{i,j} * b_{i,j} \forall i \f$
-      static void product ( FourByFour& a, FourByFour& b, __m256d& c );
+      void product ( FourByFour& a, FourByFour& b, __m256d& c );
 
       /// \brief Compute the product of the 4x4 vectors.
       ///
       /// Consider each of the the four vectors to be a 4x4 matrix.
       /// This function computes the product of the 4x4 matrices.
-      static void product ( FourByFour& a, FourByFour& b, FourByFour& c );
+      void product ( FourByFour& a, FourByFour& b, FourByFour& c );
 
       /// \brief Compute the product of the 2 sets of 4x4 vectors.
       ///
       /// Consider each of the the four vectors to be a 4x4 matrix.
       /// This function computes the product of the 4x4 matrices.
       /// \f$ c_1 = a_1 * b, c2 = a_2 * b \f$
-      static void product ( FourByFour& a1, FourByFour& a2, FourByFour& b, FourByFour& c1, FourByFour& c2 );
+      void product ( FourByFour& a1, FourByFour& a2, FourByFour& b, FourByFour& c1, FourByFour& c2 );
 
       /// \brief Compute the product of the 2 sets of 2x2 vectors.
       ///
@@ -190,16 +191,16 @@ namespace FiniteElementMethod {
       /// d & h\end{array}
       /// \right) \f
       ///
-      static void product ( FourByFour& a, FourByFour& b, FourByTwo& c );
+      void product ( FourByFour& a, FourByFour& b, FourByTwo& c );
 
       /// \brief One step in the product of 4 vectors by 4 vectors.
-      static void product ( __m256d a, __m256d b, FourByFour& c );
+      void product ( __m256d a, __m256d b, FourByFour& c );
 
       /// \brief One step in the product of 4 vectors by 2 vectors.
-      static void product ( __m256d a, __m256d b, FourByTwo& c );
+      void product ( __m256d a, __m256d b, FourByTwo& c );
 
       /// \brief One step in the product of 2 sets of 4 vectors by 4 vectors.
-      static void product ( __m256d a1, __m256d a2, __m256d b, FourByFour& c1, FourByFour& c2 );
+      void product ( __m256d a1, __m256d a2, __m256d b, FourByFour& c1, FourByFour& c2 );
 
       /// \brief Compute an inner product of two vectors.
       ///
@@ -207,71 +208,67 @@ namespace FiniteElementMethod {
       /// freedom in each element, which is 8.
       /// The first is a row of the 'a' matrix, values here will be separated by LDA values.
       /// The second vector is a column of b, values will be contiguous.
-      static double innerProduct ( const double* a, const int posA, const int LDA,
-                                   const double* b, const int posB );
+      double innerProduct ( const double* a, const int posA, const int LDA,
+                            const double* b, const int posB );
 
       /// \brief Compute all contributions from the column in the range rows - rows mod 4 range + 1 to rows.
-      static void interpolatePropertiesRemainingRows ( const int NA, const int MA, const int MB,
-                                                       int rowsRemaining,
-                                                       const double* a, const int LDA,
-                                                       const double* b, const int LDB,
-                                                       double* c, const int LDC );
+      void interpolatePropertiesRemainingRows ( const int NA, const int MA, const int MB,
+                                                int rowsRemaining,
+                                                const double* a, const int LDA,
+                                                const double* b, const int LDB,
+                                                      double* c, const int LDC );
 
       /// \brief Compute all contributions from the last column.
       ///
       /// Only called if the number of columns mod 4 = 1
-      static void interpolatePropertiesOneRemainingColumn ( const int rowBlocks,
-                                                            const int rowBlocksRemaining,
-                                                            const double* a, const int LDA,
-                                                            const double* b, const int LDB,
-                                                                  double* c, const int LDC );
+      void interpolatePropertiesOneRemainingColumn ( const int rowBlocks,
+                                                     const int rowBlocksRemaining,
+                                                     const double* a, const int LDA,
+                                                     const double* b, const int LDB,
+                                                           double* c, const int LDC );
 
       /// \brief Compute all contributions from the last two columns.
       ///
       /// Only called if the number of columns mod 4 = 2
-      static void interpolatePropertiesTwoRemainingColumns ( const int rowBlocks,
-                                                             const int rowBlocksRemaining,
-                                                             const double*  a, const int LDA,
-                                                             const double*& b, const int LDB,
-                                                                   double*& c, const int LDC );
+      void interpolatePropertiesTwoRemainingColumns ( const int rowBlocks,
+                                                      const int rowBlocksRemaining,
+                                                      const double*  a, const int LDA,
+                                                      const double*& b, const int LDB,
+                                                            double*& c, const int LDC );
 
       /// \brief Compute all contributions from the last three columns.
       ///
       /// Only called if the number of columns mod 4 = 3
-      static void interpolatePropertiesThreeRemainingColumns ( const int rowBlocks,
-                                                               const int rowBlocksRemaining,
-                                                               const double*  a, const int LDA,
-                                                               const double*& b, const int LDB,
-                                                                     double*& c, const int LDC );
+      void interpolatePropertiesThreeRemainingColumns ( const int rowBlocks,
+                                                        const int rowBlocksRemaining,
+                                                        const double*  a, const int LDA,
+                                                        const double*& b, const int LDB,
+                                                              double*& c, const int LDC );
 
       /// \brief Compute all contributions from the column in the range columns - columns mod 4 range + 1 to columns.
-      static void interpolatePropertiesRemainingColumns ( const int NA, const int MA, const int MB,
-                                                          const int rowBlocks,
-                                                          const int rowBlocksRemaining,
-                                                          const int colsRemaining,
-                                                          const double*  a, const int LDA,
-                                                          const double*& b, const int LDB,
-                                                                double*& c, const int LDC );
+      void interpolatePropertiesRemainingColumns ( const int NA, const int MA, const int MB,
+                                                   const int rowBlocks,
+                                                   const int rowBlocksRemaining,
+                                                   const int colsRemaining,
+                                                   const double*  a, const int LDA,
+                                                   const double*& b, const int LDB,
+                                                         double*& c, const int LDC );
 
       /// \brief Compute the main part of the interpolation.
       ///
       /// Tha is all values in the rows - rows mod 4 and columns - columns mod 4 range.
-      static void interpolatePropertiesMain ( const int NA, const int MA, const int MB,
-                                              const int colBlocks,
-                                              const int rowBlocks,
-                                              const int rowBlocksRemaining,
-                                              const double*  a, const int LDA,
-                                              const double*& b, const int LDB,
-                                                    double*& c, const int LDC );
+      void interpolatePropertiesMain ( const int NA, const int MA, const int MB,
+                                       const int colBlocks,
+                                       const int rowBlocks,
+                                       const int rowBlocksRemaining,
+                                       const double*  a, const int LDA,
+                                       const double*& b, const int LDB,
+                                             double*& c, const int LDC );
 
-
-#if 0
-#ifndef _WIN32
 #ifdef INTERPOLATOR_USE_FMA
-      static SimdInstruction<Numerics::AVXFMA> instructions;
+      Numerics::SimdInstruction<Numerics::AVXFMA> instructions;
 #else
-      static SimdInstruction<Numerics::AVX> instructions;
-#endif
+      Numerics::SimdInstruction<Numerics::AVX> instructions;
 #endif
 #endif
 
@@ -279,8 +276,7 @@ namespace FiniteElementMethod {
 
 }
 
-//
-#define UNALIGNED_MATRIX_STORAGE 1
+#ifndef _WIN32
 
 inline void FiniteElementMethod::BasisFunctionInterpolator::zero ( FourByFour& avx ) {
    // Set all values to be zero.
@@ -303,34 +299,17 @@ inline void FiniteElementMethod::BasisFunctionInterpolator::zero ( __m256d& avx 
 
 inline void FiniteElementMethod::BasisFunctionInterpolator::loadContiguous ( const double* mat, const int lda, FourByFour& avx ) {
 
-#if UNALIGNED_MATRIX_STORAGE
-   // Load 4 values from aligned memory, starting at address 'mat'
-   avx [ 0 ] = _mm256_loadu_pd ( mat );
-   // Load 4 values from aligned memory, starting at address 'mat + lda'
-   avx [ 1 ] = _mm256_loadu_pd ( mat + lda );
-   avx [ 2 ] = _mm256_loadu_pd ( mat + 2 * lda );
-   avx [ 3 ] = _mm256_loadu_pd ( mat + 3 * lda );
-#else
    // Load 4 values from aligned memory, starting at address 'mat'
    avx [ 0 ] = _mm256_load_pd ( mat );
    // Load 4 values from aligned memory, starting at address 'mat + lda'
    avx [ 1 ] = _mm256_load_pd ( mat + lda );
    avx [ 2 ] = _mm256_load_pd ( mat + 2 * lda );
    avx [ 3 ] = _mm256_load_pd ( mat + 3 * lda );
-#endif
-
 }
 
 inline void FiniteElementMethod::BasisFunctionInterpolator::loadContiguous ( const double* mat, const int lda, FourByTwo& avx ) {
-
-#if UNALIGNED_MATRIX_STORAGE
-   avx [ 0 ] = _mm256_loadu_pd ( mat );
-   avx [ 1 ] = _mm256_loadu_pd ( mat + lda );
-#else
    avx [ 0 ] = _mm256_load_pd ( mat );
    avx [ 1 ] = _mm256_load_pd ( mat + lda );
-#endif
-
 }
 
 inline void FiniteElementMethod::BasisFunctionInterpolator::loadContiguousTrans4x4 ( const double* mat, const int lda, FourByFour& avx ) {
@@ -366,13 +345,8 @@ inline void FiniteElementMethod::BasisFunctionInterpolator::loadContiguousTrans4
    __m256d a1;
    __m256d a2;
 
-#if UNALIGNED_MATRIX_STORAGE
-   avx [ 0 ] = _mm256_loadu_pd ( mat );
-   avx [ 1 ] = _mm256_loadu_pd ( mat + lda );
-#else
    avx [ 0 ] = _mm256_load_pd ( mat );
    avx [ 1 ] = _mm256_load_pd ( mat + lda );
-#endif
 
    // u = (a,b,c,d)
    // v = (f,g,h,i)
@@ -419,17 +393,10 @@ inline void FiniteElementMethod::BasisFunctionInterpolator::store ( double* mat,
   avx [ 1 ] = _mm256_permute2f128_pd ( a2, a4, 48 );
   avx [ 3 ] = _mm256_permute2f128_pd ( a2, a4, 18 );
 
-#if UNALIGNED_MATRIX_STORAGE
-  _mm256_storeu_pd ( mat, avx [ 0 ] );
-  _mm256_storeu_pd ( mat + lda, avx [ 1 ] );
-  _mm256_storeu_pd ( mat + 2 * lda, avx [ 2 ] );
-  _mm256_storeu_pd ( mat + 3 * lda, avx [ 3 ] );
-#else
   _mm256_store_pd ( mat, avx [ 0 ] );
   _mm256_store_pd ( mat + lda, avx [ 1 ] );
   _mm256_store_pd ( mat + 2 * lda, avx [ 2 ] );
   _mm256_store_pd ( mat + 3 * lda, avx [ 3 ] );
-#endif
 
 }
 
@@ -443,180 +410,68 @@ inline void FiniteElementMethod::BasisFunctionInterpolator::store ( double* mat,
    // w = _mm256_blend_pd (u,v,5) = (f,b,h,d)
   __m256d a2 = _mm256_blend_pd ( avx [ 0 ], avx [ 1 ],  5 );
 
-#if UNALIGNED_MATRIX_STORAGE
-  _mm256_storeu_pd ( mat, a1 );
-  _mm256_storeu_pd ( mat + lda, a2 );
-#else
   _mm256_store_pd ( mat, a1 );
   _mm256_store_pd ( mat + lda, a2 );
-#endif
 
 }
 
 inline void FiniteElementMethod::BasisFunctionInterpolator::store ( double* mat,  __m256d avx ) {
-
-#if UNALIGNED_MATRIX_STORAGE
-   _mm256_storeu_pd ( mat, avx );
-#else
    _mm256_store_pd ( mat, avx );
-#endif
-
 }
 
 inline void FiniteElementMethod::BasisFunctionInterpolator::product ( __m256d a1, __m256d a2, __m256d b, FourByFour& c1, FourByFour& c2 ) {
 
-#if 0
    //b = (a,b,c,d)
-   c1 [ 0 ] = instructions::mulAdd ( a1, b, c1 [ 0 ]);
-   c2 [ 0 ] = instructions::mulAdd ( a2, b, c2 [ 0 ]);
+   c1 [ 0 ] = instructions.mulAdd ( a1, b, c1 [ 0 ]);
+   c2 [ 0 ] = instructions.mulAdd ( a2, b, c2 [ 0 ]);
 
    // Permute b vector
    // (a,b,c,d)->(b,a,d,c)
    b = _mm256_permute_pd ( b, 5 );
-   c1 [ 1 ] = instructions::mulAdd ( a1, b, c1 [ 1 ]);
-   c2 [ 1 ] = instructions::mulAdd ( a2, b, c2 [ 1 ]);
+   c1 [ 1 ] = instructions.mulAdd ( a1, b, c1 [ 1 ]);
+   c2 [ 1 ] = instructions.mulAdd ( a2, b, c2 [ 1 ]);
 
    // Permute b vector again
    // (b,a,d,c)->(d,c,b,a)
    b = _mm256_permute2f128_pd ( b, b, 1 );
-   c1 [ 2 ] = instructions::mulAdd ( a1, b, c1 [ 2 ]);
-   c2 [ 2 ] = instructions::mulAdd ( a2, b, c2 [ 2 ]);
+   c1 [ 2 ] = instructions.mulAdd ( a1, b, c1 [ 2 ]);
+   c2 [ 2 ] = instructions.mulAdd ( a2, b, c2 [ 2 ]);
 
    // Permute b vector again
    // (d,c,b,a)->(c,d,a,b)
    b = _mm256_permute_pd ( b, 5 );
-   c1 [ 3 ] = instructions::mulAdd ( a1, b, c1 [ 3 ]);
-   c2 [ 3 ] = instructions::mulAdd ( a2, b, c2 [ 3 ]);
-#endif
-
-
-#ifdef INTERPOLATOR_USE_FMA
-   //b = (a,b,c,d)
-   c1 [ 0 ] = _mm256_fmadd_pd ( a1, b, c1 [ 0 ]);
-   c2 [ 0 ] = _mm256_fmadd_pd ( a2, b, c2 [ 0 ]);
-
-   // Permute b vector
-   // (a,b,c,d)->(b,a,d,c)
-   b = _mm256_permute_pd ( b, 5 );
-   c1 [ 1 ] = _mm256_fmadd_pd ( a1, b, c1 [ 1 ]);
-   c2 [ 1 ] = _mm256_fmadd_pd ( a2, b, c2 [ 1 ]);
-
-   // Permute b vector again
-   // (b,a,d,c)->(d,c,b,a)
-   b = _mm256_permute2f128_pd ( b, b, 1 );
-   c1 [ 2 ] = _mm256_fmadd_pd ( a1, b, c1 [ 2 ]);
-   c2 [ 2 ] = _mm256_fmadd_pd ( a2, b, c2 [ 2 ]);
-
-   // Permute b vector again
-   // (d,c,b,a)->(c,d,a,b)
-   b = _mm256_permute_pd ( b, 5 );
-   c1 [ 3 ] = _mm256_fmadd_pd ( a1, b, c1 [ 3 ]);
-   c2 [ 3 ] = _mm256_fmadd_pd ( a2, b, c2 [ 3 ]);
-#else
-
-   c1 [ 0 ] = _mm256_add_pd ( c1 [ 0 ], _mm256_mul_pd ( a1, b ));
-   c2 [ 0 ] = _mm256_add_pd ( c2 [ 0 ], _mm256_mul_pd ( a2, b ));
-
-   b = _mm256_permute_pd ( b, 5 );
-   c1 [ 1 ] = _mm256_add_pd ( c1 [ 1 ], _mm256_mul_pd ( a1, b ));
-   c2 [ 1 ] = _mm256_add_pd ( c2 [ 1 ], _mm256_mul_pd ( a2, b ));
-
-   b = _mm256_permute2f128_pd ( b, b, 1 );
-   c1 [ 2 ] = _mm256_add_pd ( c1 [ 2 ], _mm256_mul_pd ( a1, b ));
-   c2 [ 2 ] = _mm256_add_pd ( c2 [ 2 ], _mm256_mul_pd ( a2, b ));
-
-   b = _mm256_permute_pd ( b, 5 );
-   c1 [ 3 ] = _mm256_add_pd ( c1 [ 3 ], _mm256_mul_pd ( a1, b ));
-   c2 [ 3 ] = _mm256_add_pd ( c2 [ 3 ], _mm256_mul_pd ( a2, b ));
-#endif
+   c1 [ 3 ] = instructions.mulAdd ( a1, b, c1 [ 3 ]);
+   c2 [ 3 ] = instructions.mulAdd ( a2, b, c2 [ 3 ]);
 
 }
 
 inline void FiniteElementMethod::BasisFunctionInterpolator::product ( __m256d a, __m256d b, FourByFour& c ) {
 
-#if 0
    // c = a * b + c
-   c [ 0 ] = instructions::mulAdd ( a, b, c [ 0 ]);
+   c [ 0 ] = instructions.mulAdd ( a, b, c [ 0 ]);
 
    b = _mm256_permute_pd ( b, 5 );
-   c [ 1 ] = instructions::mulAdd ( a, b, c [ 1 ]);
+   c [ 1 ] = instructions.mulAdd ( a, b, c [ 1 ]);
 
    b = _mm256_permute2f128_pd ( b, b, 1 );
-   c [ 2 ] = instructions::mulAdd ( a, b, c [ 2 ]);
+   c [ 2 ] = instructions.mulAdd ( a, b, c [ 2 ]);
 
    b = _mm256_permute_pd ( b, 5 );
-   c [ 3 ] = instructions::mulAdd ( a, b, c [ 3 ]);
-#endif
-
-#ifdef INTERPOLATOR_USE_FMA
-   // c = a * b + c
-   c [ 0 ] = _mm256_fmadd_pd ( a, b, c [ 0 ]);
-
-   b = _mm256_permute_pd ( b, 5 );
-   c [ 1 ] = _mm256_fmadd_pd ( a, b, c [ 1 ]);
-
-   b = _mm256_permute2f128_pd ( b, b, 1 );
-   c [ 2 ] = _mm256_fmadd_pd ( a, b, c [ 2 ]);
-
-   b = _mm256_permute_pd ( b, 5 );
-   c [ 3 ] = _mm256_fmadd_pd ( a, b, c [ 3 ]);
-#else
-   // c = a * b + c
-   c [ 0 ] = _mm256_add_pd ( c [ 0 ], _mm256_mul_pd ( a, b ));
-
-   b = _mm256_permute_pd ( b, 5 );
-   c [ 1 ] = _mm256_add_pd ( c [ 1 ], _mm256_mul_pd ( a, b ));
-
-   b = _mm256_permute2f128_pd ( b, b, 1 );
-   c [ 2 ] = _mm256_add_pd ( c [ 2 ], _mm256_mul_pd ( a, b ));
-
-   b = _mm256_permute_pd ( b, 5 );
-   c [ 3 ] = _mm256_add_pd ( c [ 3 ], _mm256_mul_pd ( a, b ));
-#endif
+   c [ 3 ] = instructions.mulAdd ( a, b, c [ 3 ]);
 
 }
 
 inline void FiniteElementMethod::BasisFunctionInterpolator::product ( __m256d a, __m256d b, FourByTwo& c ) {
-
-#if 0
-   c [ 0 ] = instructions::mulAdd ( a, b, c [ 0 ]);
+   c [ 0 ] = instructions.mulAdd ( a, b, c [ 0 ]);
    b = _mm256_permute_pd ( b, 5 );
-   c [ 1 ] = instructions::mulAdd ( a, b, c [ 1 ]);
-#endif
-
-#ifdef INTERPOLATOR_USE_FMA
-   c [ 0 ] = _mm256_fmadd_pd ( a, b, c [ 0 ]);
-   b = _mm256_permute_pd ( b, 5 );
-   c [ 1 ] = _mm256_fmadd_pd ( a, b, c [ 1 ]);
-#else
-   c [ 0 ] = _mm256_add_pd ( c [ 0 ], _mm256_mul_pd ( a, b ));
-   b = _mm256_permute_pd ( b, 5 );
-   c [ 1 ] = _mm256_add_pd ( c [ 1 ], _mm256_mul_pd ( a, b ));
-#endif
-
+   c [ 1 ] = instructions.mulAdd ( a, b, c [ 1 ]);
 }
 
 inline void FiniteElementMethod::BasisFunctionInterpolator::product ( FourByFour& a, FourByFour& b, __m256d& c ) {
-
-#if 0
-   c = instructions::mulAdd ( a [ 0 ], b [ 0 ], c );
-   c = instructions::mulAdd ( a [ 1 ], b [ 1 ], c );
-   c = instructions::mulAdd ( a [ 2 ], b [ 2 ], c );
-   c = instructions::mulAdd ( a [ 3 ], b [ 3 ], c );
-#endif
-
-#ifdef INTERPOLATOR_USE_FMA
-   c = _mm256_fmadd_pd ( a [ 0 ], b [ 0 ], c );
-   c = _mm256_fmadd_pd ( a [ 1 ], b [ 1 ], c );
-   c = _mm256_fmadd_pd ( a [ 2 ], b [ 2 ], c );
-   c = _mm256_fmadd_pd ( a [ 3 ], b [ 3 ], c );
-#else
-   c = _mm256_add_pd ( c, _mm256_mul_pd ( a [ 0 ], b [ 0 ]));
-   c = _mm256_add_pd ( c, _mm256_mul_pd ( a [ 1 ], b [ 1 ]));
-   c = _mm256_add_pd ( c, _mm256_mul_pd ( a [ 2 ], b [ 2 ]));
-   c = _mm256_add_pd ( c, _mm256_mul_pd ( a [ 3 ], b [ 3 ]));
-#endif
-
+   c = instructions.mulAdd ( a [ 0 ], b [ 0 ], c );
+   c = instructions.mulAdd ( a [ 1 ], b [ 1 ], c );
+   c = instructions.mulAdd ( a [ 2 ], b [ 2 ], c );
+   c = instructions.mulAdd ( a [ 3 ], b [ 3 ], c );
 }
 
 inline void FiniteElementMethod::BasisFunctionInterpolator::product ( FourByFour& a1, FourByFour& a2, FourByFour& b, FourByFour& c1, FourByFour& c2 ) {
@@ -639,5 +494,7 @@ inline void FiniteElementMethod::BasisFunctionInterpolator::product ( FourByFour
    product ( a [ 2 ], b [ 2 ], c );
    product ( a [ 3 ], b [ 3 ], c );
 }
+
+#endif
 
 #endif // FINITE_ELEMENT_METHOD__BASIS_FUNCTION_INTERPOLATOR_H

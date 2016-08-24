@@ -181,7 +181,9 @@ namespace FiniteElementMethod
 
       // Computing values in each quadrature point
       m_propOnQuadMat.resize( m_basisMat.cols(), m_numProps );
-      BasisFunctionInterpolator::compute ( m_basisMatTranspose, m_propOnDofsMat, m_propOnQuadMat );
+
+      FiniteElementMethod::BasisFunctionInterpolator interpolator;
+      interpolator.compute ( m_basisMatTranspose, m_propOnDofsMat, m_propOnQuadMat );
    }
 
 }

@@ -16,27 +16,29 @@
 // The number of degrees of freedom (Dofs) will always be 8, the number of nodes in the element.
 
 
-const int NumberOfDofs = 8;
-const double NumberOfDofsDouble = static_cast<double>( NumberOfDofs );
 
+void doSimpleTest ( const int NumberOfQuadPoints,
+                    const int NumberOfProperties,
+                    const double value ) {
 
-void doTest ( const int NumberOfQuadPoints,
-              const int NumberOfProperties ) {
+   const int NumberOfDofs = 8;
+   const double NumberOfDofsDouble = static_cast<double>( NumberOfDofs );
 
    Numerics::AlignedDenseMatrix basisFunctionsTranspose ( NumberOfQuadPoints, NumberOfDofs );
    Numerics::AlignedDenseMatrix propertyVectors ( NumberOfDofs, NumberOfProperties );
    Numerics::AlignedDenseMatrix interpolatedProperties ( NumberOfQuadPoints, NumberOfProperties );
+   FiniteElementMethod::BasisFunctionInterpolator interpolator;
 
-   basisFunctionsTranspose.fill ( 1.0 );
-   propertyVectors.fill ( 1.0 );
+   basisFunctionsTranspose.fill ( value );
+   propertyVectors.fill ( 1.0 / value );
    interpolatedProperties.fill ( 1.0 );
 
-   FiniteElementMethod::BasisFunctionInterpolator::compute ( basisFunctionsTranspose, propertyVectors, interpolatedProperties );
+   interpolator.compute ( basisFunctionsTranspose, propertyVectors, interpolatedProperties );
 
    for ( int i = 0; i < NumberOfQuadPoints; ++i ) {
 
       for ( int j = 0; j < NumberOfProperties; ++j ) {
-         EXPECT_DOUBLE_EQ ( interpolatedProperties ( i, j ), NumberOfDofsDouble );
+         EXPECT_NEAR ( interpolatedProperties ( i, j ), NumberOfDofsDouble, 1.0e-12 );
       }
 
    }
@@ -51,7 +53,7 @@ TEST ( BasisFunctionInterpolator, Test_12x10 ) {
 
    const int NumberOfQuadPoints = 12;
    const int NumberOfProperties = 10;
-   doTest ( NumberOfQuadPoints, NumberOfProperties );
+   doSimpleTest ( NumberOfQuadPoints, NumberOfProperties, 2.0 );
 }
 
 
@@ -62,7 +64,7 @@ TEST ( BasisFunctionInterpolator, Test_13x10 ) {
 
    const int NumberOfQuadPoints = 13;
    const int NumberOfProperties = 10;
-   doTest ( NumberOfQuadPoints, NumberOfProperties );
+   doSimpleTest ( NumberOfQuadPoints, NumberOfProperties, 4.0 );
 }
 
 
@@ -73,7 +75,7 @@ TEST ( BasisFunctionInterpolator, Test_14x10 ) {
 
    const int NumberOfQuadPoints = 14;
    const int NumberOfProperties = 10;
-   doTest ( NumberOfQuadPoints, NumberOfProperties );
+   doSimpleTest ( NumberOfQuadPoints, NumberOfProperties, 0.125 );
 }
 
 
@@ -84,7 +86,7 @@ TEST ( BasisFunctionInterpolator, Test_15x10 ) {
 
    const int NumberOfQuadPoints = 15;
    const int NumberOfProperties = 10;
-   doTest ( NumberOfQuadPoints, NumberOfProperties );
+   doSimpleTest ( NumberOfQuadPoints, NumberOfProperties, 7.0 );
 }
 
 
@@ -92,7 +94,7 @@ TEST ( BasisFunctionInterpolator, Test_36x11 ) {
 
    const int NumberOfQuadPoints = 36;
    const int NumberOfProperties = 11;
-   doTest ( NumberOfQuadPoints, NumberOfProperties );
+   doSimpleTest ( NumberOfQuadPoints, NumberOfProperties, 11.234 );
 
 }
 
@@ -100,7 +102,7 @@ TEST ( BasisFunctionInterpolator, Test_45x9 ) {
 
    const int NumberOfQuadPoints = 45;
    const int NumberOfProperties = 9;
-   doTest ( NumberOfQuadPoints, NumberOfProperties );
+   doSimpleTest ( NumberOfQuadPoints, NumberOfProperties, 0.2334 );
 
 }
 
@@ -108,7 +110,7 @@ TEST ( BasisFunctionInterpolator, Test_45x13 ) {
 
    const int NumberOfQuadPoints = 45;
    const int NumberOfProperties = 13;
-   doTest ( NumberOfQuadPoints, NumberOfProperties );
+   doSimpleTest ( NumberOfQuadPoints, NumberOfProperties, 1.0 );
 
 }
 
@@ -116,6 +118,6 @@ TEST ( BasisFunctionInterpolator, Test_80x13 ) {
 
    const int NumberOfQuadPoints = 80;
    const int NumberOfProperties = 13;
-   doTest ( NumberOfQuadPoints, NumberOfProperties );
+   doSimpleTest ( NumberOfQuadPoints, NumberOfProperties, 123.0987 );
 
 }

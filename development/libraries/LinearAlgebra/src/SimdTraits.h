@@ -1,11 +1,8 @@
 #ifndef NUMERICS__SIMD_TRAITS__H
 #define NUMERICS__SIMD_TRAITS__H
 
-#ifdef __SSE2__
+#ifndef _WIN32
 #include <xmmintrin.h>
-#endif
-
-#ifdef __AVX__
 #include <immintrin.h>
 #endif
 
@@ -19,18 +16,6 @@ namespace Numerics {
    ///    - AVX512   This extends the size of the AVX register to 512 bits, thus 8 doubles.
    ///
    enum SimdInstructionTechnology { NO_SIMD, SSE, AVX, AVXFMA };
-
-
-#ifdef __AVX__
-  #undef SIMD_TECHNOLOGY
-  #define SIMD_TECHNOLOGY AVX
-#elif defined __SSE2__
-  #undef SIMD_TECHNOLOGY
-  #define SIMD_TECHNOLOGY SSE
-#else
-  #undef SIMD_TECHNOLOGY
-  #define SIMD_TECHNOLOGY NO_SIMD
-#endif
 
 
    /// \brief Traits class for alignment and number of double packed into the packed-double.
@@ -53,7 +38,7 @@ namespace Numerics {
 
    };
 
-#ifdef __SSE2__
+#ifndef _WIN32
    /// \brief Specialisation of SimdTraits for SSE instructions.
    template<>
    struct SimdTraits<SSE> {
@@ -73,10 +58,8 @@ namespace Numerics {
       typedef __m128d PackedDouble;
 
    };
-#endif
 
 
-#ifdef __AVX__
    /// \brief Specialisation of SimdTraits for AVX instructions.
    template<>
    struct SimdTraits<AVX> {
@@ -123,7 +106,7 @@ namespace Numerics {
    static const SimdInstructionTechnology CurrentSimdTechnology = NO_SIMD;
 #else
    /// \brief The maximum simd instruction capability.
-   static const SimdInstructionTechnology CurrentSimdTechnology = SSE; //SIMD_TECHNOLOGY;
+   static const SimdInstructionTechnology CurrentSimdTechnology = AVX;
 #endif
 
 
