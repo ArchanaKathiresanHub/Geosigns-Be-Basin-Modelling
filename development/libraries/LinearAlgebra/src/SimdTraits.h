@@ -1,8 +1,11 @@
 #ifndef NUMERICS__SIMD_TRAITS__H
 #define NUMERICS__SIMD_TRAITS__H
 
-#ifndef _WIN32
+#ifdef __SSE2__
 #include <xmmintrin.h>
+#endif
+
+#ifdef __AVX__
 #include <immintrin.h>
 #endif
 
@@ -38,7 +41,7 @@ namespace Numerics {
 
    };
 
-#ifndef _WIN32
+#ifdef __SSE2__
    /// \brief Specialisation of SimdTraits for SSE instructions.
    template<>
    struct SimdTraits<SSE> {
@@ -58,8 +61,10 @@ namespace Numerics {
       static const int DoubleStride = Alignment / sizeof ( double );
 
    };
+#endif
 
 
+#ifdef __AVX__
    /// \brief Specialisation of SimdTraits for AVX instructions.
    template<>
    struct SimdTraits<AVX> {

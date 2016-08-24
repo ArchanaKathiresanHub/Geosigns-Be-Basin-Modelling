@@ -49,6 +49,7 @@ namespace FiniteElementMethod {
 
    private :
 
+#if 0
 #ifndef _WIN32
 
       /// \brief An array of four vectors of doubles.
@@ -271,11 +272,13 @@ namespace FiniteElementMethod {
       Numerics::SimdInstruction<Numerics::AVX> instructions;
 #endif
 #endif
+#endif
 
    };
 
 }
 
+#if 0
 #ifndef _WIN32
 
 inline void FiniteElementMethod::BasisFunctionInterpolator::zero ( FourByFour& avx ) {
@@ -495,6 +498,7 @@ inline void FiniteElementMethod::BasisFunctionInterpolator::product ( FourByFour
    product ( a [ 3 ], b [ 3 ], c );
 }
 
+#endif
 #endif
 
 #endif // FINITE_ELEMENT_METHOD__BASIS_FUNCTION_INTERPOLATOR_H

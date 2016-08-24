@@ -9,6 +9,7 @@
 //
 #include "BasisFunctionInterpolator.h"
 
+#if 0
 #ifndef _WIN32
 void FiniteElementMethod::BasisFunctionInterpolator::interpolatePropertiesMain ( const int NA, const int MA, const int MB,
                                                                                  const int colBlocks,
@@ -328,6 +329,7 @@ void FiniteElementMethod::BasisFunctionInterpolator::interpolatePropertiesRemain
 
 }
 #endif
+#endif
 
 
 void FiniteElementMethod::BasisFunctionInterpolator::simpleInterpolate ( const Numerics::AlignedDenseMatrix& basisFunctionsTranspose,
@@ -366,7 +368,8 @@ void FiniteElementMethod::BasisFunctionInterpolator::compute ( const Numerics::A
                                                                      Numerics::AlignedDenseMatrix& interpolatedProperties ) {
 
 
-#ifndef _WIN32
+
+#if 0
    if ( basisFunctionsTranspose.cols () != 8 and propertyVectors.rows () != 8 ) {
       // Incorrect number of dofs.
    }
