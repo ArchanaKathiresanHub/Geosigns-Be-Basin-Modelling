@@ -206,6 +206,7 @@ namespace Numerics {
 
    };
 
+#ifdef INTERPOLATOR_USE_FMA
    /// \brief Specialisation of SimdInstruction with AVX-FMA instruction set.
    template<>
    struct SimdInstruction<AVXFMA> {
@@ -276,6 +277,7 @@ namespace Numerics {
       static PackedDouble mulAdd ( const PackedDouble& a, const PackedDouble& b, const PackedDouble& c );
 
    };
+#endif // INTERPOLATOR_USE_FMA
 #endif
 
 
@@ -418,6 +420,8 @@ Numerics::SimdInstruction<Numerics::AVX>::mulAdd ( const PackedDouble& a, const 
 // AVX-FMA
 //--------------------------------
 
+#ifdef INTERPOLATOR_USE_FMA
+
 inline double* Numerics::SimdInstruction<Numerics::AVXFMA>::allocate ( const int numberOfDoubles ) {
    return AlignedMemoryAllocator<double, Alignment>::allocate ( numberOfDoubles );
 }
@@ -454,6 +458,7 @@ Numerics::SimdInstruction<Numerics::AVXFMA>::mulAdd ( const PackedDouble& a, con
    // comptute a * b + c
    return _mm256_fmadd_pd ( a, b, c );
 }
+#endif // INTERPOLATOR_USE_FMA
 #endif
 
 
