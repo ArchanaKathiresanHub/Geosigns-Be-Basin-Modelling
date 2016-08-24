@@ -44,7 +44,7 @@ install(TARGETS FiniteElements
 
 add_gtest ( NAME FEM::BasisCache
    SOURCES test/BasisCacheTest.C
-   LIBRARIES FiniteElements 
+   LIBRARIES FiniteElements
  )
 
 add_gtest( NAME FEM::ThreeVector
@@ -57,7 +57,7 @@ add_gtest( NAME FEM::Matrix3x3
    LIBRARIES FiniteElements
 )
 
-add_gtest( NAME FEM::ElementVector 
+add_gtest( NAME FEM::ElementVector
    SOURCES test/ElementVectorTest.C
    LIBRARIES FiniteElements
 )
@@ -65,4 +65,9 @@ add_gtest( NAME FEM::ElementVector
 add_gtest ( NAME FEM::PropertiesToQuadPts
    SOURCES test/PropertiesToQuadPtsTest.C
    LIBRARIES FiniteElements LinearAlgebra
+ )
+
+add_gtest ( NAME FEM::BasisFunctionInterpolator
+   SOURCES test/BasisFunctionInterpolatorTest.C
+   LIBRARIES FiniteElements
  )

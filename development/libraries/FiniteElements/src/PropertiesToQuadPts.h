@@ -13,6 +13,7 @@
 
 #include <vector>
 #include "AlignedDenseMatrix.h"
+#include "BasisFunctionInterpolator.h"
 
 namespace FiniteElementMethod
 {
@@ -31,7 +32,7 @@ namespace FiniteElementMethod
                   No_Property }; // Total number of properties in this enum
    /// \enum Time step
    enum TimeStep{ Curr, Prev };
-   
+
    /// \brief Class to compute provided properties on all quadrature points
    class PropertiesToQuadPts
    {
@@ -39,36 +40,36 @@ namespace FiniteElementMethod
 
       /// \brief Destructor
       ~PropertiesToQuadPts();
-      
+
       /// \brief Constructor
       /// \param [in] basisMat Matrix storing all basis functions.
       explicit PropertiesToQuadPts( const Numerics::AlignedDenseMatrix & basisMat );
-      
+
       /// \brief Compute the properties in each quadrature point, basically it's a matrix-matrix product
       /// \param [in] propName Enum for the property type
       /// \param [in] propVal ElementVector containing property values on all DOFs
       template<typename T, typename V, typename... Args>
       void compute( const T propName, const V & propVal, const Args & ... args );
-      
+
       /// \brief Gets the number of properties to be computed at each quadrature point
       unsigned int getNumberOfProperties() const;
-      
+
       /// \brief Gets the stored basis function matrix
       const Numerics::AlignedDenseMatrix & getBasisFunctionsMatrix() const;
-      
+
       /// \brief Gets the stored property matrix
       const Numerics::AlignedDenseMatrix & getPropertyDofMatrix() const;
-      
+
       /// \brief Gets the stored property matrix on quadrature points
       const Numerics::AlignedDenseMatrix & getPropertyQuadMatrix() const;
-      
+
       /// \brief Get property names stored inside the object
       const std::vector< Property > & getPropertyNames() const;
-      
+
       /// \brief Retrieve (by index) property values in each quadrature point
       /// \param [in] idx Index of the property to be retrieved (consistent with the order used in compute).
       const double * getProperty( const unsigned int idx ) const;
-      
+
       /// \brief Retrieve (by name) property values in each quadrature point
       /// \param [in] idx Enum name of the property to be retrieved
       const double * getProperty( Property propName ) const;
@@ -84,23 +85,26 @@ namespace FiniteElementMethod
       /// \brief Aligned matrix containing the basis function values (#DOFs x #quad)
       Numerics::AlignedDenseMatrix m_basisMat;
 
+      /// \brief Aligned matrix containing the transpose of the basis function values (#quad x #DOFs)
+      Numerics::AlignedDenseMatrix m_basisMatTranspose;
+
       /// \brief Aligned matrix containing the property values (#DOFs x #prop)
       Numerics::AlignedDenseMatrix m_propOnDofsMat;
 
       /// \brief Aligned matrix containing the properties computed on each quadrature point (#prop x #quad)
       Numerics::AlignedDenseMatrix m_propOnQuadMat;
-      
+
       /// \brief
       void addSingleProperty( const unsigned int propIdx,
                               Property propName,
                               const ElementVector & propVal );
-      
+
       /// \brief
       template <typename T, typename V>
       void addProperties( const unsigned int propIdx,
                           const T propName,
                           const V & propVal );
-      
+
       /// \brief
       template<typename T, typename V, typename... Args>
       void addProperties( const unsigned int propIdx,
@@ -109,26 +113,26 @@ namespace FiniteElementMethod
                           const Args & ... args );
 
    };
-   
+
 
    inline unsigned int PropertiesToQuadPts::getNumberOfProperties() const { return m_numProps; }
-   
+
 
    inline const Numerics::AlignedDenseMatrix & PropertiesToQuadPts::getBasisFunctionsMatrix() const { return m_basisMat; }
-   
+
 
    inline const Numerics::AlignedDenseMatrix & PropertiesToQuadPts::getPropertyDofMatrix() const { return m_propOnDofsMat; }
-   
+
 
    inline const Numerics::AlignedDenseMatrix & PropertiesToQuadPts::getPropertyQuadMatrix() const { return m_propOnQuadMat; }
-   
+
 
    inline const std::vector< Property > & PropertiesToQuadPts::getPropertyNames() const { return m_propNames; }
-   
+
 
    template <typename T, typename V>
    void PropertiesToQuadPts::addProperties( const unsigned int propIdx,
-                                            const T propName, 
+                                            const T propName,
                                             const V & propVal )
    {
       // Check that all types are correct
@@ -136,7 +140,7 @@ namespace FiniteElementMethod
                      "Only allowed for Fundamental_Property and ElementVector");
       addSingleProperty( propIdx, propName, propVal );
    }
-   
+
 
    template <typename T, typename V, typename... Args>
    void PropertiesToQuadPts::addProperties( const unsigned int propIdx,
@@ -150,7 +154,7 @@ namespace FiniteElementMethod
       addSingleProperty( propIdx, propName, propVal );
       addProperties( propIdx + 1, args... ); // recursive variadic template
    }
-   
+
 
    template <typename T, typename V, typename... Args>
    void PropertiesToQuadPts::compute( const T propName,
@@ -177,8 +181,7 @@ namespace FiniteElementMethod
 
       // Computing values in each quadrature point
       m_propOnQuadMat.resize( m_basisMat.cols(), m_numProps );
-      Numerics::matmult( Numerics::TRANSPOSE, Numerics::NO_TRANSPOSE, 1.0,
-                         m_basisMat, m_propOnDofsMat, 0.0, m_propOnQuadMat);
+      BasisFunctionInterpolator::compute ( m_basisMatTranspose, m_propOnDofsMat, m_propOnQuadMat );
    }
 
 }
