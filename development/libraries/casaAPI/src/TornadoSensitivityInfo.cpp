@@ -279,7 +279,29 @@ namespace casa
                                                  , m_refObsValue( tsi.refObsValue() )
                                                  , m_vprmPtr( tsi.varPrmList() )
                                                  , m_sensitivities( tsi.sensitivities() )
-                                                 , m_relSensitivities( tsi.relSensitivities() ) {;}
+                                                 , m_relSensitivities( tsi.relSensitivities() )
+                                                 , m_maxSensitivities( tsi.maxSensitivities() )
+                                                 , m_maxRelSensitivities( tsi.maxRelSensitivities() )
+                                                 , m_prmValForMaxSensitivities( tsi.prmValsForMaxSensitivities() )
+                                                 , m_validSensitivitiesObsVals( tsi.validRangesObsVals() )
+                                                 , m_validSensitivitiesPrmVals( tsi.validRangesPrmVals() )
+   { ; }
+
+   TornadoSensitivityInfo & TornadoSensitivityInfo::operator = ( const TornadoSensitivityInfo & tsi )
+   {
+      m_obs                       = tsi.observable();
+      m_obsSubID                  = tsi.observableSubID();
+      m_refObsValue               = tsi.refObsValue();
+      m_vprmPtr                   = tsi.varPrmList();
+      m_sensitivities             = tsi.sensitivities();
+      m_relSensitivities          = tsi.relSensitivities();
+      m_maxSensitivities          = tsi.maxSensitivities();
+      m_maxRelSensitivities       = tsi.maxRelSensitivities();
+      m_prmValForMaxSensitivities = tsi.prmValsForMaxSensitivities();
+      m_validSensitivitiesObsVals = tsi.validRangesObsVals();
+      m_validSensitivitiesPrmVals = tsi.validRangesPrmVals();
+      return *this;
+   }
 
 
    double TornadoSensitivityInfo::minAbsSensitivityValue( size_t prmNum ) const

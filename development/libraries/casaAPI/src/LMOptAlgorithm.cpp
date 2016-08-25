@@ -872,9 +872,9 @@ void LMOptAlgorithm::runOptimization( ScenarioAnalysis & sa )
 
    // Functor
 #ifndef ACCUMULATE_MIN_FUNCTION
-   ProjectFunctor functor( *this, prmSpDim, prmSpDim + obsSpDim, maxPrmEig ); // use parameters also as observables to keep them in range
+   ProjectFunctor functor( *this, static_cast<int>( prmSpDim ), static_cast<int>( prmSpDim + obsSpDim ), maxPrmEig ); // use parameters also as observables to keep them in range
 #else
-   ProjectFunctor functor( *this, prmSpDim, 2, maxPrmEig ); // use parameters also as observables to keep them in range
+   ProjectFunctor functor( *this, static_cast<int>( prmSpDim ), 2, maxPrmEig ); // use parameters also as observables to keep them in range
 #endif
 
    // use our constrained optimization algorithm derived from Eigen

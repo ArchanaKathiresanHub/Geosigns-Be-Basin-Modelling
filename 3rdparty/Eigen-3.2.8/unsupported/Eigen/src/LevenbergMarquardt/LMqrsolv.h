@@ -32,7 +32,7 @@ void lmqrsolv(
     /* Local variables */
     Index i, j, k, l;
     Scalar temp;
-    Index n = s.cols();
+    Index n = static_cast<Index>( s.cols() );
     Matrix<Scalar,Dynamic,1>  wa(n);
     JacobiRotation<Scalar> givens;
 

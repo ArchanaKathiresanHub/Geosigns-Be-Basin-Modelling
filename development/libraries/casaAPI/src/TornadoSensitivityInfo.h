@@ -75,6 +75,9 @@ namespace casa
 
       /// @brief Copy constructor
       TornadoSensitivityInfo( const TornadoSensitivityInfo & tsi );
+      
+      /// @brief Copy operator
+      TornadoSensitivityInfo & operator = ( const TornadoSensitivityInfo & tsi );
 
       const Observable                  * observable()                 const { return m_obs; }
       int                                 observableSubID()            const { return m_obsSubID; }
@@ -84,6 +87,8 @@ namespace casa
       const SensitivityData             & maxSensitivities()           const { return m_maxSensitivities; }
       const SensitivityData             & maxRelSensitivities()        const { return m_maxRelSensitivities; }
       const SensitivityData             & prmValsForMaxSensitivities() const { return m_prmValForMaxSensitivities; }
+      const SensitivityData             & validRangesObsVals()         const { return m_validSensitivitiesObsVals; }
+      const SensitivityData             & validRangesPrmVals()         const { return m_validSensitivitiesPrmVals; }
 
       /// @brief Get value which is used for indicating the absense of observable value
       /// @return undefined value
