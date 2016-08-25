@@ -27,6 +27,7 @@
 namespace casa
 {
    class RSProxyImpl;
+   class RunCaseImpl;
 
    /// @brief Allows to find all variable parameters sensitivity with respect to each observable and
    /// build Tornado and Pareto diagrams
@@ -73,6 +74,19 @@ namespace casa
       const ObsSpace * m_obsSpace; // set of observable definitions
       const VarSpace * m_varSpace; // set of variable parameters descriptions
 
+      // Create 1st order proxy with global kriging for the given DoE experiments. This proxy is used for Tornado diagram calculation  
+      RSProxyImpl * createProxyForTornado( RunCaseSet & cs, const std::vector< std::string> & expNames );
+
+      // Populate case with base case value for all parameters but the given. For the given parameter value is calculated 
+      // from min/base/max parameter range using rngValue [-1:0:1]
+      void prepareCaseForProxyEvaluation( RunCaseImpl & cs, size_t prmID, size_t subPrmID, double rngValue );
+
+      // Calculate given parameter sensitivity over all parameter range for all observables
+      // 1. It calculates min/max sensitivity for min/max paramter range
+      // 2. It looks for min/max observable value over all paramter range with 1/100 paramter range step
+      // 3. If observable value is undefined in parameter range it looks for valid parameter subranges set
+      void calculatePrmSensitivity( std::vector<TornadoSensitivityInfo> & sensData, std::vector<RunCaseImpl> & css, size_t prmID, size_t prmSubID );
+ 
    private: // not copyable
       SensitivityCalculatorImpl( const SensitivityCalculatorImpl & sc );
       SensitivityCalculatorImpl & operator = ( const SensitivityCalculatorImpl & sc );

@@ -96,7 +96,7 @@ namespace casa
       /// @param val Original observable value from the run case or from MonteCarlo
       /// @return The new Observable value object which will keep the transformed observable value. This object must be destroyed
       ///         by calling function.
-      virtual ObsValue * transform( const ObsValue * val ) const { return 0; }
+      virtual ObsValue * transform( const ObsValue * /* val */ ) const { return 0; }
 
       /// @brief If observable has transformation, it could has different dimension
       /// @return untransformed observable dimension

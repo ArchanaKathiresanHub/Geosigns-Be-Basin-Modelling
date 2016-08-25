@@ -19,6 +19,7 @@
 
 // CASA
 #include "CasaSerializer.h"
+#include "TornadoSensitivityInfo.h"
 
 /// @page CASA_SensitivityCalculatorPage Sensitivity calculator for variable parameters
 /// <b>Sensitivity calculator</b> uses the results of DoE Cauldron runs and 
@@ -106,70 +107,6 @@ namespace casa
       std::vector< const VarParameter * > m_vprmPtr;    ///< Variable parameter pointer
       std::vector< int >                  m_vprmSubID;  ///< Variable parameter sub-parameter ID
       std::vector< double >               m_vprmSens;   ///< Variable parameter sub-parameter sensitivity
-   };
-
-   /// @brief Data structure for keeping Tornado sensitivity calculation results
-   class TornadoSensitivityInfo
-   {
-   public:
-      typedef std::vector< std::vector< double > > SensitivityData;
-
-      /// @brief Default constructor
-      TornadoSensitivityInfo( const  Observable * obs
-                            , int    obsSubID
-                            , double obsRefVal
-                            , const  std::vector< std::pair<const VarParameter *, int> > & varPrms
-                            , const  SensitivityData & sensData
-                            , const  SensitivityData & relSensData
-                            ); 
-
-      /// @brief Copy constructor
-      TornadoSensitivityInfo( const TornadoSensitivityInfo & tsi );
-
-      const Observable                  * observable()      const { return m_obs; }
-      int                                 observableSubID() const { return m_obsSubID; }
-      double                              refObsValue()     const { return m_refObsValue; }
-      const SensitivityData             & sensitivities()   const { return m_sensitivities; }
-      const SensitivityData             & relSensitivities() const { return m_relSensitivities; }
-
-      const std::vector<std::pair<const VarParameter *, int> >  & varPrmList() const { return m_vprmPtr; }
-
-      // interfaces for C#
-      /// @{
-
-      /// @brief Get minimal absolute value of tornado sensitivity for the given parameter number
-      /// @param prmNum parameter number
-      /// @return minimal absolute value of tornado sensitivity
-      double minAbsSensitivityValue( size_t prmNum ) const;
-
-      /// @brief Get maximal absolute value of tornado sensitivity for the given parameter number
-      /// @param prmNum parameter number
-      /// @return maximal absolute value of tornado sensitivity
-      double maxAbsSensitivityValue( size_t prmNum ) const;
-
-      /// @brief Get minimal relative value of tornado sensitivity for the given parameter number
-      /// @param prmNum parameter number
-      /// @return minimal absolute value of tornado sensitivity
-      double minRelSensitivityValue( size_t prmNum ) const;
-
-      /// @brief Get maximal relative value of tornado sensitivity for the given parameter number
-      /// @param prmNum parameter number
-      /// @return maximal absolute value of tornado sensitivity
-      double maxRelSensitivityValue( size_t prmNum ) const;
-      
-      const VarParameter     * varParameter(      size_t vPrmNum ) { return m_vprmPtr[vPrmNum].first; }
-      int                      varParameterSubID( size_t vPrmNum ) { return m_vprmPtr[vPrmNum].second; }
-      std::vector<std::string> varParametersNameList();
-
-      ///@}
-
-   private:
-      const Observable                                  * m_obs;              ///< corresponded observable for which this sensitivities were calculated
-      int                                                 m_obsSubID;         ///< observable could has dimension more than one, in this case here it is ID of sub-observable
-      double                                              m_refObsValue;      ///< reference observable value
-      std::vector< std::pair<const VarParameter *, int> > m_vprmPtr;          ///< Variable parameters set (size N) in the same order as sensitivities
-      SensitivityData                                     m_sensitivities;    ///< Array Nx2 which keep for each var parameter min/max values for observable
-      SensitivityData                                     m_relSensitivities; ///< Array Nx2 with relative sensitivities
    };
 
 

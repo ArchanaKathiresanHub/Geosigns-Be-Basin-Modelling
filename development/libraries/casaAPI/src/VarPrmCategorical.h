@@ -79,7 +79,7 @@ namespace casa
       /// @brief Create a copy of the parameter and assign to the given value. If value is not in var. parameter values set,
       ///        the method will return a zero pointer
       /// @param val new value for parameter
-      /// @return the new parameter object which should be deleted by the caller itself
+      /// @return parameter object for the given category number 
       virtual SharedParameterPtr createNewParameterFromUnsignedInt( unsigned int val ) const;
 
       /// @brief Save all object data to the given stream, that object could be later reconstructed from saved data

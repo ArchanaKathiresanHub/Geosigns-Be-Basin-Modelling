@@ -38,7 +38,7 @@ class TouchstoneWrapper
 
    void calculateWrite ( );
       
-   struct Exception : formattingexception::BaseException< Exception > {}; 
+   class Exception : public formattingexception::BaseException< Exception > {}; 
    
    void message( const std::string & msg, int level = 0 )
    {  

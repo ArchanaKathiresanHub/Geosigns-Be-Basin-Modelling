@@ -40,18 +40,17 @@ public:
    ~RunManagerTest( ) { ; }
 
    // set of parameters range for DoE
-   const double m_minTOC;
-   const double m_maxTOC;
+   const double      m_minTOC;
+   const double      m_maxTOC;
 
-   const double m_minTCHP;
-   const double m_maxTCHP;
+   const double      m_minTCHP;
+   const double      m_maxTCHP;
    
-   const char * m_layerName;
+   const char      * m_layerName;
 
-   const char * m_projectFileName;
-
-   const char * m_scriptExt;
-   ibs::FolderPath m_caseSetPath;
+   const char      * m_projectFileName;
+   ibs::FolderPath   m_caseSetPath;
+   const char      * m_scriptExt;
 };
 
 

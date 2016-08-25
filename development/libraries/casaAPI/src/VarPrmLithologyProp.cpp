@@ -58,16 +58,16 @@ SharedParameterPtr VarPrmLithologyProp::newParameterFromDoubles( std::vector<dou
    return prm;
 }
 
-SharedParameterPtr VarPrmLithologyProp::newParameterFromModel( mbapi::Model & mdl , const std::vector<double> & vin ) const
+SharedParameterPtr VarPrmLithologyProp::newParameterFromModel( mbapi::Model & mdl , const std::vector<double> & /* vin */ ) const
 {
    SharedParameterPtr prm( createNewPrmFromModel( mdl ) );
    prm->setParent( const_cast<VarPrmLithologyProp *>( this ) );
    return prm;
 }
 
-SharedParameterPtr VarPrmLithologyProp::makeThreeDFromOneD( mbapi::Model                          & mdl
-                                                          , const std::vector<double>             & xin
-                                                          , const std::vector<double>             & yin
+SharedParameterPtr VarPrmLithologyProp::makeThreeDFromOneD( mbapi::Model                          & // mdl
+                                                          , const std::vector<double>             & // xin
+                                                          , const std::vector<double>             & // yin
                                                           , const std::vector<SharedParameterPtr> & prmVec
                                                           ) const
 {

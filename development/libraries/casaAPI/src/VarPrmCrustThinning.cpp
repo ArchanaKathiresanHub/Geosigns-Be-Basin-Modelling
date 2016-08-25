@@ -141,17 +141,17 @@ SharedParameterPtr VarPrmCrustThinning::newParameterFromDoubles( std::vector<dou
    return prm;
 }
 
-SharedParameterPtr VarPrmCrustThinning::newParameterFromModel( mbapi::Model & mdl, const std::vector<double> & vin ) const
+SharedParameterPtr VarPrmCrustThinning::newParameterFromModel( mbapi::Model & mdl, const std::vector<double> & /*vin*/ ) const
 {
    SharedParameterPtr prm( new PrmCrustThinning( mdl ) );
    prm->setParent( const_cast<VarPrmCrustThinning *>( this ) );
    return prm;
 }
 
-SharedParameterPtr VarPrmCrustThinning::makeThreeDFromOneD( mbapi::Model                          & mdl
-                                                          , const std::vector<double>             & xin
-                                                          , const std::vector<double>             & yin
-                                                          , const std::vector<SharedParameterPtr> & prmVec
+SharedParameterPtr VarPrmCrustThinning::makeThreeDFromOneD( mbapi::Model                          & // mdl
+                                                          , const std::vector<double>             & // xin
+                                                          , const std::vector<double>             & // yin
+                                                          , const std::vector<SharedParameterPtr> & // prmVec
                                                           ) const
 {
    // Not yet implemented

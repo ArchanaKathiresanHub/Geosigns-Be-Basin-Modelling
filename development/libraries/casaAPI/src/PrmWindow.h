@@ -61,7 +61,7 @@ namespace casa
 
       /// @brief Set variable parameter which was used to create this parameter
       /// @param Pointer to the variable parameter
-      virtual void setParent( const VarParameter * varPrm ) { ; }
+      virtual void setParent( const VarParameter * /*varPrm*/ ) { ; }
 
       /// @brief Get the level of influence to cauldron applications pipeline for this parametr
       /// @return number which indicates which solver influence this parameter
@@ -115,13 +115,11 @@ namespace casa
       /// @}
 
    private:
-      std::string          m_name;            ///< name of the parameter
-      
       int                  m_xMin;
 	   int                  m_xMax;
 	   int                  m_yMin;
 	   int                  m_yMax;
-	  
+      std::string          m_name;            ///< name of the parameter
    };
 }
 #endif // CASA_API_PARAMETER_WINDOW_H

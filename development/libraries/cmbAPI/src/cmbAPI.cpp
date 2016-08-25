@@ -623,7 +623,7 @@ struct RecordSorter
             for ( size_t i = 0; i < tblDef.size(); ++i )
             {
                std::string fieldDefinition = tblDef.getFieldDefinition( static_cast<int>(i) )->name();
-               if (trapRecords.count( fieldDefinition ) == k)
+               if ( static_cast<int>( trapRecords.count( fieldDefinition ) ) == k )
                {
                   m_fldIDs.push_back( i );
                   m_fldTypes.push_back( tblDef.getFieldDefinition( static_cast<int>(i) )->dataType() );
@@ -1523,7 +1523,7 @@ void Model::ModelImpl::backTransformLithoFractions( const std::vector<double> & 
    lf3CorrInt.resize( rpInt.size() );
    
    // back-transform and correct the lithofractions
-   for ( int i = 0; i != rpInt.size(); ++i )
+   for ( size_t i = 0; i < rpInt.size(); ++i )
    {
       double lf2Int =   sumLfInt            / ( rpInt[i]  + 1 );
       double lf3Int = ( sumLfInt - lf2Int ) / ( r13Int[i] + 1 );
@@ -1543,37 +1543,35 @@ void Model::ModelImpl::backTransformLithoFractions( const std::vector<double> & 
             lf3Int = 100.0 - lf1Int - lf2Int;
          }
          else if ( lf1Int < 0 && lf1Int > -eps ) // correct lf1Int
-            {
+         {
             if ( lf2Int > abs( lf1Int ) ) { lf2Int -= lf1Int; }
             else                          { lf3Int -= lf1Int; }
             lf1Int = 0.0;
-            }
+         }
          else if ( lf2Int < 0 && lf2Int > -eps ) // correct lf2Int
-            {
+         {
             if ( lf1Int > abs( lf2Int ) ) { lf1Int -= lf2Int; }
             else                          { lf3Int -= lf2Int; }
             lf2Int = 0.0;
          }
          else if ( lf3Int < 0 && lf3Int > -eps ) // correct lf3Int
-            {
+         {
             if ( lf1Int > abs( lf3Int ) ) { lf1Int -= lf3Int; }
             else                          { lf2Int -= lf3Int; }
             lf3Int = 0;
-            }
-            else
-            {
+         }
+         else
+         {
             throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Negative interpolated lithofractions: lf1Int " << lf1Int << 
                                                                                                                    " lf2Int " << lf2Int << 
                                                                                                                    " lf3Int " << lf3Int;
          }
-            }
-
+      }
       if ( ( lf1Int + lf2Int + lf3Int ) > 100 + eps ) 
-            {
+      {
          throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << 
                                       "The sum of the interpolated lithofractions is greater than 100.0001: " << lf1Int + lf2Int + lf3Int;
       }
-
       lf1CorrInt[i] = lf1Int;
       lf2CorrInt[i] = lf2Int;
       lf3CorrInt[i] = lf3Int;

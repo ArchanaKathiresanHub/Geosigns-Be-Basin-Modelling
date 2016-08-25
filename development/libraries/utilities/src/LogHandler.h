@@ -77,7 +77,8 @@ public:
    ///    -# LogHandler(DEBUG) << "This is my debug message with value" << 4 << " or " << m_value;
    ///    -# LogHandler(INFO)  << "This is my info message with value"  << 4 << " or " << m_value;
    ///    -# etc.
-   template <typename T> LogHandler & operator << (T val){
+   template <typename T> LogHandler & operator << ( T val ) 
+   {
       m_oss << val;
       return *this;
    };
@@ -87,15 +88,19 @@ public:
    ///    -# LogHandler(DEBUG) << "This is my debug message with values" << m_stringVector;
    ///    -# LogHandler(INFO)  << "This is my info message with values"  << m_stringVector;
    ///    -# etc.
-   LogHandler & operator << (std::vector<std::string> vectVal){
+   template <typename T> LogHandler & operator << ( std::vector<T> vectVal ) 
+   {
       m_oss << "[";
-      for (int i = 0; i < vectVal.size(); i++){
+      for ( size_t i = 0; i < vectVal.size(); i++ )
+      {
          m_oss << vectVal[i];
-         if (i < vectVal.size() - 1){
+         if ( i < vectVal.size() - 1 )
+         {
             m_oss << ";";
          }
       }
       m_oss << "]";
+
       return *this;
    };
 
@@ -106,9 +111,10 @@ public:
 
 private:
    /// @brief Overwrite default assginment operator
-   LogHandler& operator= (const LogHandler&);
+   LogHandler & operator = ( const LogHandler & );
+
    /// @brief Overwrite default copy constructor
-   LogHandler( const LogHandler& );
+   LogHandler( const LogHandler & );
 
    static std::string s_logName;         ///< Full name of the log file (from constructor logName_mpiRank.log)
    static bool        s_logIsCreated;    ///< Singleton token

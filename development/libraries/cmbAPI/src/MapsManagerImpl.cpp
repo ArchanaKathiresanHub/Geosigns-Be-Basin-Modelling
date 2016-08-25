@@ -280,29 +280,23 @@ ErrorHandler::ReturnCode MapsManagerImpl::finalizeMapWriter()
 
 ErrorHandler::ReturnCode MapsManagerImpl::mapSetValues( MapID id, const std::vector<double>& vin )
 {
- 
    if ( errorCode() != NoError ) resetError();
    try
    {
       loadGridMap( id );
-
       m_mapObj[id]->retrieveData();
 
       const double nulVal = m_mapObj[id]->getUndefinedValue();
-
-      const DataAccess::Interface::ProjectData * pd = m_proj->getProjectData();
-
-      int numI = m_mapObj[id]->lastI() + 1;
+      int          numI   = m_mapObj[id]->lastI() + 1;
 
       for ( unsigned int j = m_mapObj[id]->firstJ(); j <= m_mapObj[id]->lastJ(); ++j )
       {
          for ( unsigned int i = m_mapObj[id]->firstI(); i <= m_mapObj[id]->lastI(); ++i )
-      {
-            unsigned int pos = i + j * numI; //values in vin are saved row-wise
+         {
+            unsigned int pos = i + j * numI; // values in vin are saved row-wise
             m_mapObj[id]->setValue( i, j, NumericFunctions::isEqual( vin[pos], nulVal, 1e-5 ) ? nulVal : vin[pos] );
          }
       }
-
       m_mapObj[id]->restoreData();
    }
    catch ( const Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
@@ -310,16 +304,13 @@ ErrorHandler::ReturnCode MapsManagerImpl::mapSetValues( MapID id, const std::vec
    return NoError;
 }
 
-ErrorHandler::ReturnCode MapsManagerImpl::mapGetValues( MapID id, std::vector<double>& vout )
+ErrorHandler::ReturnCode MapsManagerImpl::mapGetValues( MapID id, std::vector<double> & vout )
 {
    if ( errorCode() != NoError ) resetError();
    try
    {
       loadGridMap( id ); // check if map is loaded and load it if not loaded before
-
       m_mapObj[id]->retrieveData();
-
-      const double nulVal = m_mapObj[id]->getUndefinedValue();
 
       int numI = m_mapObj[id]->lastI() +1;
       int numJ = m_mapObj[id]->lastJ() +1;
@@ -332,7 +323,6 @@ ErrorHandler::ReturnCode MapsManagerImpl::mapGetValues( MapID id, std::vector<do
                vout[i + j * numI] = m_mapObj[id]->getValue( i, j );
          }
       }
-
       m_mapObj[id]->restoreData();
    }
    catch ( const Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }

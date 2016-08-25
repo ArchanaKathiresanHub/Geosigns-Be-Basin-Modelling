@@ -706,11 +706,10 @@ void LMOptAlgorithm::updateParametersAndRunCase( const Eigen::VectorXd & x )
 void LMOptAlgorithm::calculateFunctionValue( Eigen::VectorXd & fvec )
 {
    double trgtQ = 0.0;
-   int    trgtNum = 0;
    double prmQ  = 0.0;
 
    // initialze minimization function with all zeros
-   for ( size_t i = 0; i < fvec.rows() * fvec.cols(); ++i ) { fvec( i ) = 0.0; }
+   for ( int i = 0; i < fvec.rows() * fvec.cols(); ++i ) { fvec( i ) = 0.0; }
    
    std::shared_ptr<RunCase>  rc (m_casesSet.back());
 
@@ -749,8 +748,6 @@ void LMOptAlgorithm::calculateFunctionValue( Eigen::VectorXd & fvec )
          ++mi;
       }
    }
-
-   trgtNum = mi;
 
 // 2. There is need to average trgtQ by mi (it is like multiplying by a constant)
 #ifdef ACCUMULATE_MIN_FUNCTION
@@ -925,7 +922,7 @@ void LMOptAlgorithm::runOptimization( ScenarioAnalysis & sa )
 
    if ( m_parameterTransformation == "log10" )
    {
-      for ( size_t i = 0; i < initialGuess.size(); ++i )
+      for ( int i = 0; i < initialGuess.size(); ++i )
          initialGuess( i ) = pow( 10, initialGuess( i ) );
    }
 

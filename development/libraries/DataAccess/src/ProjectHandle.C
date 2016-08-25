@@ -127,9 +127,9 @@ const double DefaultUndefinedValue = 99999;
 
 typedef formattingexception::GeneralException ProjectHandleException; 
 
-static char * words [] = {"ALCStepBasaltThickness", "ALCStepTopBasaltDepth", "ChemicalCompaction" , "Depth", 
-                          "ErosionFactor", "FCTCorrection", "MaxVes",
-                          "Pressure", "Temperature", "ThicknessError", "Ves", "Vr" };
+static const char * words [] = {"ALCStepBasaltThickness", "ALCStepTopBasaltDepth", "ChemicalCompaction" , "Depth", 
+                                "ErosionFactor", "FCTCorrection", "MaxVes",
+                                "Pressure", "Temperature", "ThicknessError", "Ves", "Vr" };
 
 DataAccess::Interface::ProjectHandle * DataAccess::Interface::OpenCauldronProject( const string & name, const string & accessMode, ObjectFactory* objectFactory )
 {
@@ -501,10 +501,10 @@ const string & ProjectHandle::getFileName( void ) const
 
 bool ProjectHandle::startActivity( const string & name, const Interface::Grid * grid, bool saveAsInputGrid, bool createResultsFile, bool append )
 {
-   char * svnRevision = "unknown";
-
 #ifdef SVNREVISION
-   svnRevision = SVNREVISION;
+   const char * svnRevision = SVNREVISION;
+#else 
+   const char * svnRevision = "unknown";
 #endif
 
    if ( getRank() == 0 )
@@ -2701,8 +2701,8 @@ bool ProjectHandle::saveCreatedVolumePropertyValuesMode1D( void )
 /// This function assumes that all volume properties for a given snapshot are written in one go
 bool ProjectHandle::saveCreatedVolumePropertyValuesMode1DOld( void )
 {
-   char * scalarPostfixes[ 2 ] = { "", "" };
-   char * vecPostfixes[ 2 ] = { "[0]", "[1]" };
+   const char * scalarPostfixes[ 2 ] = { "", "" };
+   const char * vecPostfixes[ 2 ] = { "[0]", "[1]" };
 
    const Snapshot *zeroSnapshot = (const Snapshot *)findSnapshot( 0 );
 
@@ -2774,7 +2774,7 @@ bool ProjectHandle::saveCreatedVolumePropertyValuesMode1DOld( void )
 
          int nrOutputs = 1;
 
-         char ** postFixes = scalarPostfixes;
+         const char ** postFixes = scalarPostfixes;
 
          if ( property->getCauldronName().rfind( "Vec2" ) != string::npos )
          {
@@ -2991,13 +2991,13 @@ PropertyValue * ProjectHandle::createMapPropertyValue( const string &    propert
 PropertyValue * ProjectHandle::createVolumePropertyValue( const string & propertyValueName, const Snapshot * snapshot,
    const Reservoir * reservoir, const Formation * formation, unsigned int depth )
 {
-   if ( getActivityName() == "" || getActivityOutputGrid() == 0 ) return false;
+   if ( getActivityName() == "" || getActivityOutputGrid() == 0 ) return nullptr;
 
    const Property * property = (const Property *)findProperty( propertyValueName );
-   if ( !property ) return false;
+   if ( !property ) return nullptr;
 
-   if ( reservoir && formation ) return false;
-   if ( !reservoir && !formation ) return false;
+   if ( reservoir && formation ) return nullptr;
+   if ( !reservoir && !formation ) return nullptr;
 
    PropertyValue * propertyValue = addPropertyValue( 0, propertyValueName, property, snapshot, reservoir, formation, 0, THREEDTIMEIOTBL );
    propertyValue->createGridMap( getActivityOutputGrid(), depth );
@@ -4369,7 +4369,6 @@ void ProjectHandle::printSnapshotTable() const
 const Interface::Snapshot * ProjectHandle::findNextSnapshot( double time, int type ) const
 {
    // first, try the highway
-   const double tolerance = 1e-6;
    MutableSnapshotList::const_reverse_iterator snapshotIter;
 
    for ( snapshotIter = m_snapshots.rbegin(); snapshotIter != m_snapshots.rend(); ++ snapshotIter )
@@ -4387,7 +4386,6 @@ const Interface::Snapshot * ProjectHandle::findNextSnapshot( double time, int ty
 const Interface::Snapshot * ProjectHandle::findPreviousSnapshot( double time, int type ) const
 {
    // first, try the highway
-   const double tolerance = 1e-6;
    MutableSnapshotList::const_iterator snapshotIter;
 
    for ( snapshotIter = m_snapshots.begin(); snapshotIter != m_snapshots.end(); ++ snapshotIter )

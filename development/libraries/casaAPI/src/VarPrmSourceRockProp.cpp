@@ -67,17 +67,17 @@ SharedParameterPtr VarPrmSourceRockProp::newParameterFromDoubles( std::vector<do
    return prm;
 }
 
-SharedParameterPtr VarPrmSourceRockProp::newParameterFromModel( mbapi::Model & mdl, const std::vector<double> & vin ) const
+SharedParameterPtr VarPrmSourceRockProp::newParameterFromModel( mbapi::Model & mdl, const std::vector<double> & /* vin */ ) const
 {
    SharedParameterPtr prm( createNewPrmFromModel( mdl ) );
    prm->setParent( const_cast<VarPrmSourceRockProp *>( this ) );
    return prm;
 }
 
-SharedParameterPtr VarPrmSourceRockProp::makeThreeDFromOneD( mbapi::Model                          & mdl
-                                                           , const std::vector<double>             & xin
-                                                           , const std::vector<double>             & yin
-                                                           , const std::vector<SharedParameterPtr> & prmVec ) const
+SharedParameterPtr VarPrmSourceRockProp::makeThreeDFromOneD( mbapi::Model                          & /* mdl    */
+                                                           , const std::vector<double>             & /* xin    */
+                                                           , const std::vector<double>             & /* yin    */
+                                                           , const std::vector<SharedParameterPtr> & /* prmVec */ ) const
 {
    // Not yet implemented
    throw ErrorHandler::Exception( ErrorHandler::NotImplementedAPI ) << "makeThreeDFromOneD method not yet implemented for VarPrmSourceRockProp";

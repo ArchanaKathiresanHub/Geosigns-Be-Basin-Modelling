@@ -110,7 +110,7 @@ PrmSourceRockTOC::~PrmSourceRockTOC() {;}
 
 
 // Update given model with the parameter value
-ErrorHandler::ReturnCode PrmSourceRockTOC::setInModel( mbapi::Model & caldModel, size_t caseID )
+ErrorHandler::ReturnCode PrmSourceRockTOC::setInModel( mbapi::Model & caldModel, size_t /*caseID*/ )
 {
    try
    {

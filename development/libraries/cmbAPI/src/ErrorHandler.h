@@ -50,11 +50,15 @@ public:
    } ReturnCode;
    /// @}
 
-   struct Exception : formattingexception::BaseException<Exception>
+   class Exception : public formattingexception::BaseException<Exception>
    {
-      Exception( ReturnCode errCode ) : m_errCode( errCode ) { ; }
+   public:
+      Exception( ReturnCode           errCode ) : m_errCode( errCode ) { ; }
+      Exception( const ErrorHandler & eh      ) : m_errCode( eh.errorCode() ) { m_message << eh.errorMessage(); }
 
       ReturnCode errorCode() const { return m_errCode; }
+
+   protected:
       ReturnCode m_errCode;
    };
 

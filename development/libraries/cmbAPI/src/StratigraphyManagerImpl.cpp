@@ -877,10 +877,11 @@ std::string StratigraphyManagerImpl::twtGridName( LayerID id )
       std::string topSurface = surfaceName( id );
       std::string twtGrid("");
 
-      for ( int i = 0; i != table->size(); ++i )
+      for ( size_t i = 0; i < table->size(); ++i )
       {
-         database::Record * rec = table->getRecord( i );
+         database::Record * rec = table->getRecord( static_cast<int>( i ) );
          if ( !rec ) { throw Exception( NonexistingID ) << "No twt record found for id: " << i; }
+
          std::string twtSurface = rec->getValue<std::string>( "SurfaceName" );
          if ( twtSurface == topSurface  )
          {
@@ -913,9 +914,9 @@ double StratigraphyManagerImpl::twtValue( LayerID id )
       std::string twtSurface( "" );
       double twtVal = UndefinedDoubleValue;
 
-      for ( int i = 0; i != table->size(); ++i )
+      for ( size_t i = 0; i < table->size(); ++i )
       {
-         database::Record * rec = table->getRecord( i );
+         database::Record * rec = table->getRecord( static_cast<int>( i ) );
          if ( !rec ) { throw Exception( NonexistingID ) << "No twt record found for id: " << i; }
          std::string twtSurface = rec->getValue<std::string>( "SurfaceName" );
          if ( twtSurface.compare( topSurface ) )

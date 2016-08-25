@@ -86,7 +86,7 @@ int VarPrmSourceRockType::index( const PrmSourceRockType * prm ) const
 }
 
 // Create parameter by reading the values stored in the project file
-SharedParameterPtr VarPrmSourceRockType::newParameterFromModel( mbapi::Model & mdl, const std::vector<double> & vin ) const
+SharedParameterPtr VarPrmSourceRockType::newParameterFromModel( mbapi::Model & mdl, const std::vector<double> & /* vin */ ) const
 {
    std::unique_ptr<PrmSourceRockType> prm( new PrmSourceRockType( mdl, m_layerName, m_mixID ) );
    prm->setParent( this );

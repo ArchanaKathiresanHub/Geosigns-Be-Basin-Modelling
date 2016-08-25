@@ -882,10 +882,7 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::extractOneDProjects( const std::str
 
 void ScenarioAnalysis::ScenarioAnalysisImpl::importOneDResults( const std::string & expLabel )
 {
-   casa::RunManager     & rm =  runManager();
    casa::RunCaseSetImpl & rcs = dynamic_cast<RunCaseSetImpl&> (doeCaseSet());
-   casa::VarSpace       & var = varSpace();
-   mbapi::Model         & bc =  baseCase();
    std::string            threeDFromOneD( "ThreeDFromOneD" );
 
    // set the filter for the run case set
@@ -1152,7 +1149,7 @@ void ScenarioAnalysis::ScenarioAnalysisImpl::validateCaseSet( RunCaseSet & cs )
 void ScenarioAnalysis::ScenarioAnalysisImpl::calibrateProjectUsingOptimizationAlgorithm( const std::string & cbProjectName
                                                                                        , const std::string & optimAlg
                                                                                        , ScenarioAnalysis  & sa
-                                                                                       , bool                keepHistory
+                                                                                       , bool                // keepHistory
                                                                                        , const std::string & transformation
                                                                                        , const double        relativeReduction
                                                                                        )

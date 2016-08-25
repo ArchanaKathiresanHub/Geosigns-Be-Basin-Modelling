@@ -103,7 +103,7 @@ SharedParameterPtr VarPrmTopCrustHeatProduction::newParameterFromDoubles( std::v
    return newPrm;
 }
 
-SharedParameterPtr VarPrmTopCrustHeatProduction::newParameterFromModel( mbapi::Model & mdl, const std::vector<double> & vin ) const
+SharedParameterPtr VarPrmTopCrustHeatProduction::newParameterFromModel( mbapi::Model & mdl, const std::vector<double> & /* vin */ ) const
 {
    SharedParameterPtr prm( new PrmTopCrustHeatProduction( mdl ) );
    prm->setParent( const_cast<VarPrmTopCrustHeatProduction *>( this ) );
@@ -111,10 +111,10 @@ SharedParameterPtr VarPrmTopCrustHeatProduction::newParameterFromModel( mbapi::M
 }
 
 
-SharedParameterPtr VarPrmTopCrustHeatProduction::makeThreeDFromOneD( mbapi::Model                          & mdl
-                                                                   , const std::vector<double>             & xin
-                                                                   , const std::vector<double>             & yin
-                                                                   , const std::vector<SharedParameterPtr> & prmVeci
+SharedParameterPtr VarPrmTopCrustHeatProduction::makeThreeDFromOneD( mbapi::Model                          & /* mdl     */
+                                                                   , const std::vector<double>             & /* xin     */
+                                                                   , const std::vector<double>             & /* yin     */
+                                                                   , const std::vector<SharedParameterPtr> & /* prmVeci */
                                                                    ) const
 {
    // Not yet implemented

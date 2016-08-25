@@ -41,8 +41,8 @@ namespace casa
    public:
       /// @brief Defines possible types of parameter variation
       enum Type
-      {
-         Continuous,  ///< A parameter that can take any value between certain bounds (for instance, a fault-sealing factor that varies in the [0,1] range)
+         {
+            Continuous,  ///< A parameter that can take any value between certain bounds (for instance, a fault-sealing factor that varies in the [0,1] range)
          Discrete,    ///< A parameter that can take ordered discrete values between certain bounds (for instance, a diameter of a pipe, available in some pre-defined sizes). 
          Categorical  ///< A parameter that can take some unordered discrete values each of which referring to a different category
                       /// (for instance, a PVT parameter that can distinguish between a few, unrelated PVT models) 

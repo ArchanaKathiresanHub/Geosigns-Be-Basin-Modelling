@@ -67,7 +67,7 @@ namespace casa
 
       // The following methods are used for testing  
       virtual bool isDouble() const { return true; }
-      virtual std::vector<double> asDoubleArray( bool transformed = true ) const { transformed; return std::vector<double>( 1, value() ); }
+      virtual std::vector<double> asDoubleArray( bool /* transformed */ = true ) const { return std::vector<double>( 1, value() ); }
 
       /// @{
       /// @brief Defines version of serialized object representation. Must be updated on each change in save()

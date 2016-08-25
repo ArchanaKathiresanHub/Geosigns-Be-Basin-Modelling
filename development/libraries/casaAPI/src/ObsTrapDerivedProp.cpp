@@ -462,7 +462,6 @@ bool performPVT( double masses[ComponentManager::NumberOfOutputSpecies]
                , double phaseViscosities[ComponentManager::NumberOfPhases]
                )
 {
-   bool performedPVT = false;
    double massTotal = 0.0;
 
    for ( int comp = 0; comp < ComponentManager::NumberOfOutputSpecies; ++comp )

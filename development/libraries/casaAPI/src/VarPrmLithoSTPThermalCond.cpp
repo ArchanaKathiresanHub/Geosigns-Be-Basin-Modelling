@@ -69,17 +69,17 @@ SharedParameterPtr VarPrmLithoSTPThermalCond::newParameterFromDoubles( std::vect
    return prm;
 }
 
-SharedParameterPtr VarPrmLithoSTPThermalCond::newParameterFromModel( mbapi::Model & mdl, const std::vector<double> & vin ) const
+SharedParameterPtr VarPrmLithoSTPThermalCond::newParameterFromModel( mbapi::Model & mdl, const std::vector<double> & /*vin*/ ) const
 {
    SharedParameterPtr prm( new PrmLithoSTPThermalCond( mdl, m_lithoName.c_str( ) ) );
    prm->setParent( const_cast<VarPrmLithoSTPThermalCond *>( this ) );
    return prm;
 }
 
-SharedParameterPtr VarPrmLithoSTPThermalCond::makeThreeDFromOneD( mbapi::Model                          & mdl
-                                                                , const std::vector<double>             & xin
-                                                                , const std::vector<double>             & yin
-                                                                , const std::vector<SharedParameterPtr> & prmVec 
+SharedParameterPtr VarPrmLithoSTPThermalCond::makeThreeDFromOneD( mbapi::Model                          & // mdl
+                                                                , const std::vector<double>             & // xin
+                                                                , const std::vector<double>             & // yin
+                                                                , const std::vector<SharedParameterPtr> & // prmVec 
                                                                 ) const
 {
    // Not yet implemented

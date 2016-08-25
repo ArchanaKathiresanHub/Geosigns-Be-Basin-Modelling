@@ -276,10 +276,10 @@ namespace casa
                                      , const std::string         & mapNameFirstLithoPercentage
                                      , const std::string         & mapNameSecondLithoPercentage )
                                      : m_parent( parent )
+                                     , m_name( name )
                                      , m_layerName( layerName )
                                      , m_lithoFractionsInds( lithoFractionsInds )
                                      , m_lithoFractions( lithoFractions )
-                                     , m_name( name )
                                      , m_mapNameFirstLithoPercentage( mapNameFirstLithoPercentage )
                                      , m_mapNameSecondLithoPercentage( mapNameSecondLithoPercentage )
    {
