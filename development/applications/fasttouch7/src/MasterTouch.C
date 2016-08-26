@@ -115,33 +115,39 @@ bool MasterTouch::executeWrapper( const char * burHistFile, const string & filen
    } 	
    else 	
    { 
-      double fractionCompleted = 0.0;  
+      double fractionCompleted = 0.0;
+      double temFraction;    
       double minAllFractions  = 0.01;
+      double currentMinimum = 0.0;
+      int byteRead;
       bool childStartedCalculation = false;	 
-      utilities::TimeToComplete timeToComplete( 300, 300, minAllFractions, 0.01 );
+      utilities::TimeToComplete timeToComplete( 5, 30, minAllFractions, 0.01 );
       int childstate; 		
       int fd = open( status, O_RDONLY| O_NONBLOCK );
-      
-      ReportProgress( "Initializing touchstone and creating the realizations, please wait ..." );
 
-      while ( !waitpid( pid, &childstate, WNOHANG ) ) 
+      ReportProgress( "Initializing touchstone and creating the realizations, please wait ..." );
+      
+      // Progress is reported only in Rank 0, we need to keep Rank 0 in the loop even if its child exited. 
+      // One way to do this is to exit the while loop only if the chiled exited AND we are about to finish (0.99)   
+      while ( !waitpid( pid, &childstate, WNOHANG ) || minAllFractions < 0.99) 
       {	
          if ( fractionCompleted > 0 && !childStartedCalculation) 
          {
             childStartedCalculation = true;
-            timeToComplete.start(); 
-         }
-         usleep(500);
-
-         if ( read( fd, &fractionCompleted, sizeof( fractionCompleted ) ) == sizeof( fractionCompleted ) )
+            timeToComplete.start();
+         }          
+         // calling MinimumAll requires all MPI processes to sync all times. This is expensive so we call it every 30 sec
+         currentMinimum = MinimumAll( fractionCompleted );
+         usleep(30000);
+         
+         byteRead = read( fd, &temFraction, sizeof( temFraction ) );
+         if (byteRead == sizeof( temFraction ) ) fractionCompleted = temFraction;
+    
+         if (currentMinimum > minAllFractions)
          {
-            double currentMinimum = MinimumAll( fractionCompleted ); 
-            if (currentMinimum > minAllFractions)
-            {
-               minAllFractions = currentMinimum;
-               string reported = timeToComplete.report( minAllFractions );
-               if (!reported.empty()) ReportProgress( reported );
-            }
+            minAllFractions = currentMinimum;
+            string reported = timeToComplete.report( minAllFractions );
+            if (!reported.empty()) ReportProgress( reported );
          }
          else
          {
@@ -152,7 +158,7 @@ bool MasterTouch::executeWrapper( const char * burHistFile, const string & filen
                message( oss.str() );
                return false;
             }
-        }
+         }
       }
 				
       if ( close( fd ) < 0 )
