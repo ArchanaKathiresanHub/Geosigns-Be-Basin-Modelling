@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -125,9 +125,9 @@ using database::Record;
 
 const double DefaultUndefinedValue = 99999;
 
-typedef formattingexception::GeneralException ProjectHandleException; 
+typedef formattingexception::GeneralException ProjectHandleException;
 
-static const char * words [] = {"ALCStepBasaltThickness", "ALCStepTopBasaltDepth", "ChemicalCompaction" , "Depth", 
+static const char * words [] = {"ALCStepBasaltThickness", "ALCStepTopBasaltDepth", "ChemicalCompaction" , "Depth",
                                 "ErosionFactor", "FCTCorrection", "MaxVes",
                                 "Pressure", "Temperature", "ThicknessError", "Ves", "Vr" };
 
@@ -194,7 +194,7 @@ ProjectHandle::ProjectHandle( Database * tables, const string & name, const stri
 {
    (void) accessMode; // ignore warning about unused parameter
 
-   
+
    m_messageHandler = 0;
    m_globalOperations = 0;
 
@@ -284,7 +284,7 @@ ProjectHandle::ProjectHandle( Database * tables, const string & name, const stri
       connectMigrations();
       connectUpAndDownstreamTrappers();
    }
-   
+
    loadIgneousIntrusions();
    loadFaults();
 
@@ -347,11 +347,11 @@ bool ProjectHandle::loadModellingMode( void )
 
    if ( "3d" == theModellingMode )
    {
-      m_modellingMode = Interface::MODE3D; //declared in Interface.h 
+      m_modellingMode = Interface::MODE3D; //declared in Interface.h
    }
    else if ( "1d" == theModellingMode )
    {
-      m_modellingMode = Interface::MODE1D; //declared in Interface.h 
+      m_modellingMode = Interface::MODE1D; //declared in Interface.h
    }
    else
    {
@@ -503,7 +503,7 @@ bool ProjectHandle::startActivity( const string & name, const Interface::Grid * 
 {
 #ifdef SVNREVISION
    const char * svnRevision = SVNREVISION;
-#else 
+#else
    const char * svnRevision = "unknown";
 #endif
 
@@ -790,7 +790,7 @@ bool ProjectHandle::createSnapshotsAtGeologicalEvents()
    tableNameList.push_back( "MobLayThicknIoTbl" );
    tableNameList.push_back( "SurfaceTempIoTbl" );
 
-   // add table name "CrustIoTbl" or "MntlHeatFlowIoTbl" to list? Depends on BasementIoTbl! 
+   // add table name "CrustIoTbl" or "MntlHeatFlowIoTbl" to list? Depends on BasementIoTbl!
    tbl = getTable( "BasementIoTbl" );
    assert( tbl );
 
@@ -1003,7 +1003,7 @@ bool ProjectHandle::loadProperties( void )
    m_properties.push_back( getFactory()->produceProperty( this, 0, "Permeability",                   "PermeabilityVec2",               "mD",    FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "Porosity",                       "PorosityVec2",                   "vol%",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "Pressure",                       "Pressure",                       "MPa",   FORMATIONPROPERTY, DataModel::CONTINUOUS_3D_PROPERTY ));
-   
+
    // Reflectivity should be DataModel::SURFACE_2D_PROPERTY.
    // Currently fastcauldron outputs both surface and a volume dataset for this property.
    // The Volume data is largely filled with the null-value (99999) except at the surface.
@@ -1240,7 +1240,7 @@ bool ProjectHandle::loadProperties( void )
    m_properties.push_back( getFactory()->produceProperty( this, 0, "CondensateAPI",      "CondensateAPI",      "",          TRAPPROPERTY, DataModel::TRAP_PROPERTY )); // API of CIIP
    m_properties.push_back( getFactory()->produceProperty( this, 0, "GasWetnessFGIIP",    "GasWetnessFGIIP",    "mole/mole", TRAPPROPERTY, DataModel::TRAP_PROPERTY )); // C1 / Sum (C2 - C5) of FGIIP
    m_properties.push_back( getFactory()->produceProperty( this, 0, "GasWetnessSGIIP",    "GasWetnessSGIIP",    "mole/mole", TRAPPROPERTY, DataModel::TRAP_PROPERTY )); // C1 / Sum (C2 - C5) of SGIIP
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "CEPLiquid",          "CEPLiquid",          "MPa",       TRAPPROPERTY, DataModel::TRAP_PROPERTY )); // 
+   m_properties.push_back( getFactory()->produceProperty( this, 0, "CEPLiquid",          "CEPLiquid",          "MPa",       TRAPPROPERTY, DataModel::TRAP_PROPERTY )); //
    m_properties.push_back( getFactory()->produceProperty( this, 0, "CEPVapour",          "CEPVapour",          "MPa",       TRAPPROPERTY, DataModel::TRAP_PROPERTY )); //
    m_properties.push_back( getFactory()->produceProperty( this, 0, "FracturePressure",   "FracturePressure",   "MPa",       TRAPPROPERTY, DataModel::TRAP_PROPERTY )); // Fracture pressure of the trap
    m_properties.push_back( getFactory()->produceProperty( this, 0, "ColumnHeightLiquid", "ColumnHeightLiquid", "m",         TRAPPROPERTY, DataModel::TRAP_PROPERTY )); // Height of the liquid column
@@ -1250,7 +1250,7 @@ bool ProjectHandle::loadProperties( void )
    m_properties.push_back( getFactory()->produceProperty( this, 0, "SpillDepth",         "SpillDepth",         "m",         TRAPPROPERTY, DataModel::TRAP_PROPERTY )); // Spill depth
    m_properties.push_back( getFactory()->produceProperty( this, 0, "SealPermeability",   "SealPermeability",   "mD",        TRAPPROPERTY, DataModel::TRAP_PROPERTY )); //
 
-   // amount of trapped HC per spice 
+   // amount of trapped HC per spice
    for ( i = 0; i < ComponentManager::NumberOfOutputSpecies; ++i )
    {
       m_properties.push_back( getFactory()->produceProperty( this, 0
@@ -1506,7 +1506,7 @@ bool ProjectHandle::loadIgneousIntrusions() {
       }
 
    }
-   
+
    m_previousIgneousIntrusionTime = DefaultUndefinedValue;
    return true;
 }
@@ -1984,7 +1984,7 @@ bool ProjectHandle::addCrustThinningHistoryMaps( void ) {
 
       const Interface::Snapshot* oldestSnapshot = getCrustFormation()->getTopSurface()->getSnapshot();
       assert( oldestSnapshot != 0 );
-      
+
       Interface::SnapshotList* snapshots = getSnapshots( Interface::MAJOR );
       Interface::SnapshotList::const_iterator snapshotIter = snapshots->begin();
 
@@ -2166,11 +2166,11 @@ bool ProjectHandle::loadBottomBoundaryConditions( void )
 
    if ( theBottomBCsStr == "Fixed Temperature" )
    {
-      m_bottomBoundaryConditions = Interface::FIXED_BASEMENT_TEMPERATURE; //declared in Interface.h 
+      m_bottomBoundaryConditions = Interface::FIXED_BASEMENT_TEMPERATURE; //declared in Interface.h
    }
    else if ( theBottomBCsStr == "Fixed HeatFlow" )
    {
-      m_bottomBoundaryConditions = Interface::MANTLE_HEAT_FLOW; //declared in Interface.h 
+      m_bottomBoundaryConditions = Interface::MANTLE_HEAT_FLOW; //declared in Interface.h
    }
    else if ( theBottomBCsStr == "Advanced Lithosphere Calculator" )
    {
@@ -2524,15 +2524,15 @@ bool ProjectHandle::saveCreatedMapPropertyValuesMode3D( void )
       increment = 0;
 
       bool saveAsPrimary = false;
-      if( m_primaryDouble and propertyValue->isPrimary() and 
+      if( m_primaryDouble and propertyValue->isPrimary() and
           propertyValue->getProperty()->getPropertyAttribute() == DataModel::FORMATION_2D_PROPERTY ) {
 
          // output primary properties in double precision for fastcauldron simulations
-         if(( getActivityName() != "Genex5" and getActivityName() != "HighResMigration" and 
+         if(( getActivityName() != "Genex5" and getActivityName() != "HighResMigration" and
               getActivityName() != "FastTouch" and getActivityName() != "CrustalThicknessCalculator" )) {
             saveAsPrimary = true;
          }
-      }   
+      }
       propertyValue->saveMapToFile( *m_mapPropertyValuesWriter, saveAsPrimary); // depends on success of createRecord ()
    }
 
@@ -2583,36 +2583,36 @@ bool ProjectHandle::saveCreatedVolumePropertyValuesMode3D( void )
             continue;
          }
 
-         if ( !snapshotUsed ) 
+         if ( !snapshotUsed )
          {
             // let's use this propertyValue's snapshot during this iteration
             // and open a (new, empty) snapshot file for it.
             // File will be appended if append-flag is true in the snapshot.
             snapshotUsed = (Snapshot *)propertyValue->getSnapshot();
- 
+
             const string & fileName = snapshotUsed->getFileName( true );
             ibs::FilePath filePathName( getFullOutputDir() );
-            filePathName << fileName;               
+            filePathName << fileName;
 
 
-            
+
 #if 0
                cerr << "Saving snapshot ";
                snapshotUsed->printOn (cerr);
                cerr << " to file " << filePathName.path() << "  " << (snapshotUsed->getAppendFile () ? "APPEND" : "CREATE" ) << endl;
 #endif
-            
+
                mapWriter->open( filePathName.path(), snapshotUsed->getAppendFile() );
                mapWriter->setChunking();
          }
-         
+
          propertyValue->create3DTimeIoRecord( timeIoTbl, Interface::MODE3D );
          m_propertyValues.push_back( propertyValue );
          propertyValueIter = m_recordLessVolumePropertyValues.erase( propertyValueIter );
          increment = 0;
 
          // output primary properties in double precision at major snapshots
-         const bool saveAsPrimary = m_primaryDouble and propertyValue->isPrimary() and snapshotUsed->getType() == Interface::MAJOR; 
+         const bool saveAsPrimary = m_primaryDouble and propertyValue->isPrimary() and snapshotUsed->getType() == Interface::MAJOR;
 
          status &= propertyValue->saveVolumeToFile( *mapWriter, saveAsPrimary );
       }
@@ -2933,7 +2933,7 @@ void ProjectHandle::addProperty( Property * property )
 void ProjectHandle::addPropertyToFront( Property * property )
 {
    MutablePropertyList::iterator propertyIter = m_properties.begin();
- 
+
    m_properties.insert( propertyIter, property );
 }
 
@@ -3139,7 +3139,7 @@ bool ProjectHandle::loadVolumePropertyValuesViaSnapshotIoTbl( void )
       ibs::FilePath ppath( getFullOutputDir() );
       ppath << fileName;
       string filePathName = ppath.path();
- 
+
 #if 0
       cerr << "Opening snapshot file " << filePathName << endl;
 #endif
@@ -3278,7 +3278,7 @@ Interface::FormationList * ProjectHandle::getFormations( const Interface::Snapsh
       //
       // 1. The snapshot is null and the formation is a sediment formation;
       //
-      // 2. The include-basement flag is true and the formation is a basement 
+      // 2. The include-basement flag is true and the formation is a basement
       //    formation, it is assumed that the basement formations exist always;
       //
       // 3. The snapshot is not null and the snapshot-time is less than the bottom surface
@@ -3365,7 +3365,7 @@ Interface::ReservoirList * ProjectHandle::getReservoirs( const Interface::Format
 }
 
 
-Reservoir* ProjectHandle::addDetectedReservoirs (database::Record * record, const Formation * formation) 
+Reservoir* ProjectHandle::addDetectedReservoirs (database::Record * record, const Formation * formation)
 {
 	DataAccess::Interface::Reservoir * detectedReservoir = getFactory ()->produceReservoir (this, record);
    // connect the detected Reservoir
@@ -4093,7 +4093,7 @@ unsigned int ProjectHandle::deletePropertiesValuesMaps( const Snapshot * snapsho
             ++nrDeleted;
          }
          propertyValueIter = m_propertyValues.erase( propertyValueIter );
-         
+
       }
       else
       {
@@ -4353,7 +4353,7 @@ void ProjectHandle::sortSnapshots()
 {
    std::sort( m_snapshots.begin(), m_snapshots.end(), SnapshotLessThan() );
 }
- 
+
 void ProjectHandle::printSnapshotTable() const
 {
   MutableSnapshotList::const_iterator snapshotIter;
@@ -4545,6 +4545,27 @@ const Interface::OutputProperty * ProjectHandle::findTimeOutputProperty( const s
       }
    }
    return 0;
+}
+
+Interface::OutputProperty * ProjectHandle::findTimeOutputProperty( const string & propertyName )
+{
+   MutableOutputPropertyList::iterator propertyIter;
+
+   for ( propertyIter = m_timeOutputProperties.begin();
+      propertyIter != m_timeOutputProperties.end();
+      ++propertyIter )
+   {
+      OutputProperty * property = *propertyIter;
+
+      if ( property->getName() == propertyName )
+         //       if (WildMatch (property->getName ().c_str (), propertyName.c_str ()))
+      {
+         // Note that we return an Interface::OutputProperty
+         return property;
+      }
+   }
+
+   return nullptr;
 }
 
 /// Find the InputValue  with the given attributes
@@ -5104,7 +5125,7 @@ Interface::Trapper * ProjectHandle::findTrapper( const Interface::Reservoir * re
   return findTrapper( m_trappers, reservoir, snapshot, id, persistentId );
 }
 
-Interface::TrapperList* ProjectHandle::getTrappers(const Interface::Reservoir* reservoir, 
+Interface::TrapperList* ProjectHandle::getTrappers(const Interface::Reservoir* reservoir,
   const Interface::Snapshot* snapshot, unsigned int id, unsigned int persistentId) const
 {
   Interface::TrapperList* trapperList = new Interface::TrapperList;
@@ -5641,7 +5662,7 @@ SimulationDetailsListPtr ProjectHandle::getSimulationDetails () const {
 
    for ( size_t i = 0; i < m_simulationDetails.size (); ++i ) {
       (*result)[ i ] = m_simulationDetails [ i ];
-   } 
+   }
 
    return result;
 }
@@ -5656,7 +5677,7 @@ const SimulationDetails* ProjectHandle::getDetailsOfLastSimulation ( const std::
          return *simDetailsIter;
       }
    }
-   
+
 
    return 0;
 }

@@ -87,7 +87,7 @@ namespace DataAccess
          /// Get a handle to the Table with the given name
          database::Table * getTable( const string & tableName ) const;
 
- 
+
          /// return the ObjectFactory
          ObjectFactory * getFactory( void ) const;
 
@@ -142,7 +142,7 @@ namespace DataAccess
          /// Returns the Grid of the output GridMaps that were not produced by either a migration run or
          /// a high resolution decompaction run. This grid is a subgrid of the high resolution output grid.
          virtual const Grid * getLowResolutionOutputGrid( void ) const;
-         
+
          /// print the snapshot table
          void printSnapshotTable () const;
          /// sort the snapshots
@@ -180,7 +180,7 @@ namespace DataAccess
          virtual const AllochthonousLithology * findAllochthonousLithology( const string& formationName ) const;
          /// Find the FluidType with the given name.
          virtual const FluidType* findFluid( const string& name ) const;
-         
+
          /// return the list of LithoType objects.
          virtual LithoTypeList * getLithoTypes( void ) const;
          /// return the list of snapshots.
@@ -290,7 +290,7 @@ namespace DataAccess
             const Snapshot * snapshot, unsigned int id, unsigned int persistentId ) const;
 
          // return a list of Trapper objects based on the given arguments.
-         // if an argument equals 0, it is used as a wildcard.  
+         // if an argument equals 0, it is used as a wildcard.
          virtual TrapperList* getTrappers(const Reservoir* reservoir,
            const Snapshot* snapshot, unsigned int id, unsigned int persistentId) const;
 
@@ -332,7 +332,7 @@ namespace DataAccess
          /// 	                         FORMATIONSURFACE = a surface property that is not continuous over the surface.
          /// 	                         RESERVOIR = properties which apply to a reservoir and are therefore 2D.
          /// @param property
-         /// @param[in] snapshot properties belonging to this snapshot. If not specified, return 
+         /// @param[in] snapshot properties belonging to this snapshot. If not specified, return
          ///            properties for all snapshots.
          /// @param[in] reservoir properties belonging to this reservoir.
          /// @param[in] formation properties belonging to this formation.
@@ -457,7 +457,7 @@ namespace DataAccess
          virtual double getBottomMantleTemperature() const;
 
          virtual ModellingMode getModellingMode() const;
-         
+
          virtual PointAdsorptionHistoryList* getPointAdsorptionHistoryList( const std::string& sourceRockFormationName = "" ) const;
 
          virtual LangmuirAdsorptionIsothermSampleList* getLangmuirAdsorptionIsothermSampleList( const std::string& functionName ) const;
@@ -505,7 +505,7 @@ namespace DataAccess
 
          /// Set whether or not to model permafrost
          void setPermafrost( const bool aPermafrost );
-         
+
          /// Return whether or not it is the beginning of an igneous intrusion
          double getPreviousIgneousIntrusionTime( const double Current_Time );
 
@@ -514,13 +514,13 @@ namespace DataAccess
 
          /// get primary properties map writer
          MapWriter * getMapPropertyValuesWriter();
-         
+
          /// get primary properties flag
          bool isPrimaryDouble() const;
 
          /// set primary properties flag
          void setPrimaryDouble( const bool primaryFlag );
-        
+
          const string & getActivityName( void ) const;
 
          bool isPrimaryProperty( const string propertyName ) const;
@@ -574,7 +574,7 @@ namespace DataAccess
          MutablePaleoFormationPropertyList m_mantlePaleoThicknesses;
          MutableCrustalThicknessDataList   m_crustalThicknessData;
 
-         // Should really be a list of PaleoSurfaceProperty's, 
+         // Should really be a list of PaleoSurfaceProperty's,
          // but there is no surface defined for the top surface.
          MutablePaleoPropertyList m_surfaceDepthHistory;
          MutablePaleoPropertyList m_surfaceTemperatureHistory;
@@ -740,6 +740,11 @@ namespace DataAccess
 
          Snapshot * createSnapshot( database::Record record );
 
+         /// Find and return a pointer to the property int the time-filter.
+         ///
+         /// If the name is not found then a null value will be returned.
+         OutputProperty * findTimeOutputProperty( const std::string & propertyName );
+
          bool initializeMapPropertyValuesWriter( const bool append = false );
          bool finalizeMapPropertyValuesWriter( void );
 
@@ -856,7 +861,7 @@ namespace DataAccess
       private:
          static float GetUndefinedValue( hid_t fileId );
          double m_previousIgneousIntrusionTime;
-         
+
          /// \brief Allocate architecture related clases.
          ///
          /// E.g. Message-handler, global-operations.
