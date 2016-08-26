@@ -8,6 +8,7 @@
 // Do not distribute without written permission from Shell.
 //
 #include "BasisFunctionInterpolator.h"
+#include "FormattingException.h"
 
 #if 0
 #ifndef _WIN32
@@ -368,16 +369,16 @@ void FiniteElementMethod::BasisFunctionInterpolator::compute ( const Numerics::A
                                                                      Numerics::AlignedDenseMatrix& interpolatedProperties ) {
 
 
-
-#if 0
-   if ( basisFunctionsTranspose.cols () != 8 and propertyVectors.rows () != 8 ) {
-      // Incorrect number of dofs.
+   if ( basisFunctionsTranspose.cols () != 8 or propertyVectors.rows () != 8 ) {
+      throw formattingexception::GeneralException () << "Incorrect number of DoFs";
    }
 
    if ( basisFunctionsTranspose.rows () != interpolatedProperties.rows () or
         propertyVectors.cols ()         != interpolatedProperties.cols ()) {
-      // Dimension mismatch.
+      throw formattingexception::GeneralException () << "Dimension mismatch";
    }
+
+#if 0
 
    const double* bufAPos = basisFunctionsTranspose.data ();
    const double* bufBPos = propertyVectors.data ();
