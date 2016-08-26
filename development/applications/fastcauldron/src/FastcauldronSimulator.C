@@ -1096,9 +1096,9 @@ void FastcauldronSimulator::correctTimeFilterDefaults1D () {
 
 void FastcauldronSimulator::correctPermeabilityTimeFilter () {
 
-   Interface::OutputProperty* permeability = (findTimeOutputProperty ( "PermeabilityVec" ));
-   Interface::OutputProperty* horizontalPermeability = (findTimeOutputProperty ( "HorizontalPermeability" ));
-   Interface::OutputProperty* permeabilityHVec = (findTimeOutputProperty ( "PermeabilityHVec" ));
+   Interface::OutputProperty* permeability = const_cast<Interface::OutputProperty*>(findTimeOutputProperty ( "PermeabilityVec" ));
+   Interface::OutputProperty* horizontalPermeability = const_cast<Interface::OutputProperty*>(findTimeOutputProperty ( "HorizontalPermeability" ));
+   Interface::OutputProperty* permeabilityHVec = const_cast<Interface::OutputProperty*>(findTimeOutputProperty ( "PermeabilityHVec" ));
 
    Interface::PropertyOutputOption maxPermeabilityOption = Interface::NO_OUTPUT;
 

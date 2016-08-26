@@ -740,11 +740,6 @@ namespace DataAccess
 
          Snapshot * createSnapshot( database::Record record );
 
-         /// Find and return a pointer to the property int the time-filter.
-         ///
-         /// If the name is not found then a null value will be returned.
-         OutputProperty * findTimeOutputProperty( const std::string & propertyName );
-
          bool initializeMapPropertyValuesWriter( const bool append = false );
          bool finalizeMapPropertyValuesWriter( void );
 

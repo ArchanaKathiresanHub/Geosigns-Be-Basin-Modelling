@@ -4547,27 +4547,6 @@ const Interface::OutputProperty * ProjectHandle::findTimeOutputProperty( const s
    return 0;
 }
 
-Interface::OutputProperty * ProjectHandle::findTimeOutputProperty( const string & propertyName )
-{
-   MutableOutputPropertyList::iterator propertyIter;
-
-   for ( propertyIter = m_timeOutputProperties.begin();
-      propertyIter != m_timeOutputProperties.end();
-      ++propertyIter )
-   {
-      OutputProperty * property = *propertyIter;
-
-      if ( property->getName() == propertyName )
-         //       if (WildMatch (property->getName ().c_str (), propertyName.c_str ()))
-      {
-         // Note that we return an Interface::OutputProperty
-         return property;
-      }
-   }
-
-   return nullptr;
-}
-
 /// Find the InputValue  with the given attributes
 const Interface::InputValue * ProjectHandle::findInputValue( const string & tableName, const string & mapName ) const
 {
