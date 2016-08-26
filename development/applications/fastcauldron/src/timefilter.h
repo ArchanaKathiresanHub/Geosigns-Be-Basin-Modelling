@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -26,7 +26,7 @@ const string OutputOptionName[] = {
   "SedimentsOnly",
   "SedimentsPlusBasement"
 };
- 
+
 enum PropertyList {
    //Please use alphabetic order inside subcategories, and update PropertyOutputConstraints.C according to the order
 
@@ -36,11 +36,11 @@ enum PropertyList {
 
    //Scalar Properties
    DEPTH, HEAT_FLOW, HEAT_FLOWY, HEAT_FLOWZ, HEAT_FLOW_,
-   FLUID_VELOCITY, FLUID_VELOCITY_Y, FLUID_VELOCITY_Z, ISOSTATICMASS, 
-   ISOSTATICDEFLECTION, ISOSTATICWB, MASSFLUX, MASSFLUX_, TEMPERATURE, 
-   PRESSURE, HYDROSTATICPRESSURE, LITHOSTATICPRESSURE, OVERPRESSURE, FRACTURE_PRESSURE, VES, 
+   FLUID_VELOCITY, FLUID_VELOCITY_Y, FLUID_VELOCITY_Z, ISOSTATICMASS,
+   ISOSTATICDEFLECTION, ISOSTATICWB, MASSFLUX, MASSFLUX_, TEMPERATURE,
+   PRESSURE, HYDROSTATICPRESSURE, LITHOSTATICPRESSURE, OVERPRESSURE, FRACTURE_PRESSURE, VES,
    BIOMARKERS, STERANEAROMATISATION, STERANEISOMERISATION,HOPANEISOMERISATION,
-   ILLITEFRACTION, ALLOCHTHONOUS_LITHOLOGY, EROSIONFACTOR, 
+   ILLITEFRACTION, ALLOCHTHONOUS_LITHOLOGY, EROSIONFACTOR,
    FAULTELEMENTS, FCTCORRECTION, THICKNESS, THICKNESSERROR, CHEMICAL_COMPACTION,
    LITHOLOGY, TWOWAYTIME, TWOWAYTIME_RESIDUAL,
 
@@ -79,7 +79,7 @@ enum PropertyList {
    EXPULSION_AROMATICITY_INST,          EXPULSION_AROMATICITY_CUM,
    KEROGEN_CONVERSION_RATIO,
 
-   OIL_GENERATED_CUM,                   OIL_GENERATED_RATE, 
+   OIL_GENERATED_CUM,                   OIL_GENERATED_RATE,
    OIL_EXPELLED_CUM,                    OIL_EXPELLEDRATE,
    HC_GAS_GENERATED_CUM,                HC_GAS_GENERATED_RATE,
    HC_GAS_EXPELLED_CUM,                 HC_GAS_EXPELLED_RATE,
@@ -123,7 +123,7 @@ enum PropertyList {
 
    //Averaged saturation
    AVERAGE_SATURATION,
-   
+
    // The velocity of the hydrocarbon, both vapour and liquid.
    HC_FLUID_VELOCITY,
 
@@ -139,93 +139,17 @@ enum PropertyList {
 
    //time of element invasion
    TIME_OF_ELEMENT_INVASION,
-   
+
    // ALC properties
    BASALTTHICKNESS, HLMOD, TOPBASALTALC, MOHOALC, THICKNESSCCRUSTALC, THICKNESSBASALTALC,
-   ALCSMCRUST, ALCSMTOPBASALT, ALCSMMOHO, ALCORIGMANTLE, 
+   ALCSMCRUST, ALCSMTOPBASALT, ALCSMMOHO, ALCORIGMANTLE,
 
    //
    HORIZONTALPERMEABILITY,
+
    // End of enum. Do not put anything after this.
    ENDPROPERTYLIST
 };
-
-
-
-
-
-
-#if 0
-namespace MajorProperty {
-
-   enum MajorPropertyName {
-      DIFFUSIVITY,             //!< Vector property.
-      POROSITY,                //!< Vector property.
-      VELOCITY,                //!< Vector property.
-      REFLECTIVITY,            //!< Vector property.
-      SONIC,                   //!< Only output in 1d, vector property.
-      BULK_DENSITY,            //!< Vector property.
-      THERMAL_CONDUCTIVITY,    //!< Vector property.
-      PERMEABILITY,            //!< Permeability, 2 components in 3d (horizontal and vertical) and 1 component in 1d (vertical), vector property.
-      DEPTH,                   //!< Scalar property.
-      HEAT_FLOW,               //!< Heat-flow, 3 components in 3d (-x, -y, and -z) and 1 component in 1d (-z), scalar property.
-      FLUID_VELOCITY,          //!< Fluid-velocity, 3 components in 3d (-x, -y, and -z) and 1 component in 1d (-z), scalar property.
-//       ISOSTATIC_MASS,          //!< ?
-//       ISOSTATIC_DEFLECTION,    //!< ?
-//       ISOSTATIC_WB,            //!< ?
-//       MASS_FLUX,               //!< ?
-      TEMPERATURE,             //!< Scalar property.
-      PORE_PRESSURE,           //!< Scalar property.
-      HYDROSTATIC_PRESSURE,    //!< Scalar property.
-      LITHOSTATIC_PRESSURE,    //!< Scalar property.
-      OVERPRESSURE,            //!< Scalar property.
-      VES,                     //!< Scalar property.
-      VR,                      //!< Scalar property.
-      BIOMARKERS,              //!< Only output in 1d, HopaneIsomerisation, SteraneIsomerisation and SteraneAromatisation, scalar property.
-      ILLITE_FRACTION,         //!< Only output in 1d, scalar property.
-      ALLOCHTHONOUS_LITHOLOGY, //!< Only output in 3d, scalar property.
-      EROSION_FACTOR,          //!< Scalar property.
-      FAULT_ELEMENTS,          //!< Elements containing faults, only output in 3d, scalar property.
-      FCT_CORRECTION,          //!< Scalar property.
-      THICKNESS,               //!< The computed thickness, scalar property.
-      THICKNESS_ERROR,         //!< Error in the input and computed thicknesses, scalar property.
-      CHEMICAL_COMPACTION,     //!< Chemical compaction values, these should never be output, scalar property.
-      LITHOLOGY,               //!< Scalar property.
-      BASALTTHICKNESS,         //!< Smooth basalt thickness
-      HLMOD,                   //!< Depth of lithosphere below ECT
-      TOPBASALTALC,            //!< Top of basalt layer, calculated in ALC
-      MOHOALC,                 //!< Bottom of basalt layer, calculated in ALC
-      THICKNESSCCRUSTALC,      //!< Effective crustalThickness excluding Basalt
-      THICKNESSBASALTALC,      //!< approximated thickness of Basalt
-      ALCSMCRUST,              //!< smooth cont crust thickness
-      ALCSMTOPBASALT,          //!< smooth basalt thickness
-      ALCSMMOHO,               //!< calculated depth to top of smooth basalt
-      ALCORIGMANTLE,           //!< base of uplifted mantle
-      // Add additional properties before here.
-
-      UNKNOWN_PROPERTY         //!< 
-   };
-
-   Interface::PropertyOutputOption getMaximumOutputOption ( const MajorPropertyName property,
-                                                            const CalculationMode   calculation );
-
-   Interface::PropertyOutputOption getMinimumOutputOption ( const MajorPropertyName property,
-                                                            const CalculationMode   calculation );
-
-   Interface::PropertyOutputOption getMaximumOutputOption ( const std::string&      property,
-                                                            const CalculationMode   calculation );
-
-   Interface::PropertyOutputOption getMinimumOutputOption ( const std::string&      property,
-                                                            const CalculationMode   calculation );
-
-   const std::string& MajorPropertyNameImage ( const MajorPropertyName property );
-
-   const MajorPropertyName MajorPropertyNameValue ( const std::string property );
-
-   const int NumberOfMajorProperties = int ( UNKNOWN_PROPERTY ) + 1;
-
-}
-#endif
 
 typedef vector<PropertyList> PropListVec;
 
@@ -271,7 +195,7 @@ const string PropertyName[] = {
   "FracturePressure",
   "Ves",
   "Biomarkers",
-  "SteraneAromatisation", 
+  "SteraneAromatisation",
   "SteraneIsomerisation",
   "HopaneIsomerisation",
   "IlliteFraction",
@@ -314,7 +238,7 @@ const string PropertyName[] = {
   "C6-14SatSExpelledCumulative",
   "C6-14AroSExpelledCumulative",
   "InstantaneousExpulsionApi",
-  "CumulativeExpulsionApi", 
+  "CumulativeExpulsionApi",
   "InstantaneousExpulsionCondensateGasRatio",
   "CumulativeExpulsionCondensateGasRatio",
   "InstantaneousExpulsionGasOilRatio",
@@ -323,7 +247,7 @@ const string PropertyName[] = {
   "CumulativeExpulsionGasWetness",
   "InstantaneousExpulsionAromaticity",
   "CumulativeExpulsionAromaticity",
-  "KerogenConversionRatio", 
+  "KerogenConversionRatio",
   "OilGeneratedCumulative",
   "OilGeneratedRate",
   "OilExpelledCumulative",
@@ -339,7 +263,7 @@ const string PropertyName[] = {
   "WetGasGeneratedCumulative",
   "WetGasGeneratedRate",
   "WetGasExpelledCumulative",
-  "WetGasExpelledRate", 
+  "WetGasExpelledRate",
 //   "ExpulsionApiInst",
 //   "ExpulsionApiCum",
 //   "ExpulsionCondensateGasRatioInst",
@@ -350,7 +274,7 @@ const string PropertyName[] = {
 //   "ExpulsionGasWetnessCum",
 //   "ExpulsionAromaticityInst",
 //   "ExpulsionAromaticityCum",
-//   "KerogenConversionRatio", 
+//   "KerogenConversionRatio",
 //   "OilGeneratedCum",
 //   "OilGeneratedRate",
 //   "OilExpelledCum",
@@ -366,7 +290,7 @@ const string PropertyName[] = {
 //   "WetGasGeneratedCum",
 //   "WetGasGeneratedRate",
 //   "WetGasExpelledCum",
-//   "WetGasExpelledRate", 
+//   "WetGasExpelledRate",
   "Concentrations",
   "PVTProperties",
   "RelativePermeability",
@@ -417,7 +341,7 @@ class TimeFilter
  private:
 
    std::map <std::string, PropertyList> m_string2PropertyName;
-  
+
 };
 
 #endif /* _TIMEFILTER_H_ */

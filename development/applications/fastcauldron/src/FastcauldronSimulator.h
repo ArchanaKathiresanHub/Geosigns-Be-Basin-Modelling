@@ -91,7 +91,7 @@ public :
    bool mergeOutputFiles ( );
    bool mergeSharedOutputFiles ( );
 
-   /// \brief If required, the number of 
+   /// \brief If required, the number of
    void setFormationElementHeightScalingFactors ();
 
    /// Set the calculation mode.
@@ -124,7 +124,7 @@ public :
    /// Add properties that were not added.
    ///
    /// Those that were not loaded by 'Interface::ProjectHandle::loadProperties', e.g. chemical-compaction.
-   /// Some of these may not be output but nay be required for calculation of derived properties. 
+   /// Some of these may not be output but nay be required for calculation of derived properties.
    /// This function should be called after the project file has been read-in, since some properties depend
    /// on this, e.g. FaultElements.
    void correctAllPropertyLists ();
@@ -203,7 +203,7 @@ public :
    database::Record* findTimeIoRecord ( database::Table*   timeIoTbl,
                                         const std::string& propertyName,
                                         const double       time,
-                                        const std::string& surfaceName, 
+                                        const std::string& surfaceName,
                                         const std::string& formationName ) const;
 
    LayerProps* findLayer ( const std::string& layerName ) const;
@@ -242,7 +242,7 @@ public :
 
    const Interface::OutputProperty* findOutputProperty ( const Interface::Property* property ) const;
 
-   /// \brief Delete major snapshots files from TMPDIR 
+   /// \brief Delete major snapshots files from TMPDIR
    void deleteTemporaryDirSnapshots();
 
    /// \brief Read the command-line parameters that can be processed during early stage
@@ -275,7 +275,7 @@ public :
    double getHcVapourCurveExponent () const;
 
 
-   /// \brief The 
+   /// \brief The
    double getFctCorrectionScalingWeight () const;
 
    /// \name Consistency and error checks.
@@ -292,7 +292,7 @@ public :
    ///
    /// By default the constant 1.0e6 Pa is the capillary entry pressure.
    bool useCalculatedCapillaryPressure () const;
- 
+
    /// \brief Return the flag indicating the calculation of derived properties
    bool noDerivedPropertiesCalc () const;
 
@@ -301,7 +301,7 @@ public :
 
    /// \brief Connect one property to output property from FilterTimeIoTbl
    void connectOutputProperty ( const Interface::Property* aProperty );
-       
+
 private :
 
 
@@ -318,6 +318,14 @@ private :
       const Interface::MutablePropertyValueList& m_list;
 
    };
+
+   /// \brief Correct permeability entries in filter time-io table.
+   ///
+   /// These are:
+   /// - PermeabilityVec
+   /// - PermeabilityHVec
+   /// - HorizontalPermeability
+   void correctPermeabilityTimeFilter ();
 
    /// Some properties that are required may not be selected, or the output selection may be too restrictive.
    void correctTimeFilterDefaults ();
@@ -380,7 +388,7 @@ private :
    std::string                m_commandLine;
    bool                       m_computeCapillaryPressure;
    bool                       m_noDerivedPropertiesCalc;
-   
+
 };
 
 //------------------------------------------------------------//

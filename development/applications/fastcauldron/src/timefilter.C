@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -95,7 +95,7 @@ void TimeFilter::setFilter(const string & propertyName, const string & outputOpt
 	   PLCount == VES || PLCount == MAXVES || PLCount == TEMPERATURE ||
 	   PLCount == VR || PLCount == OVERPRESSURE || PLCount == PRESSURE ||
         PLCount == HYDROSTATICPRESSURE || PLCount == LITHOSTATICPRESSURE) && PropertyOutputOption[PLCount] < SEDIMENTSONLY )
-  { 
+  {
 
     if ( PropertyOutputOption[PLCount] < SEDIMENTSONLY ) {
       PropertyOutputOption[PLCount] = SEDIMENTSONLY;
@@ -105,7 +105,7 @@ void TimeFilter::setFilter(const string & propertyName, const string & outputOpt
 
   PropertyOutputOption [ PERMEABILITYHVEC ] = PropertyOutputOption [ PERMEABILITYVEC ];
   PropertyOutputOption [ HORIZONTALPERMEABILITY ] = PropertyOutputOption [ PERMEABILITYHVEC ];
-  
+
   PropertyOutputOption[HEAT_FLOWY] = PropertyOutputOption[HEAT_FLOW];
   PropertyOutputOption[HEAT_FLOWZ] = PropertyOutputOption[HEAT_FLOW];
 
@@ -138,7 +138,7 @@ void TimeFilter::setFilter(const string& propertyName, const DataAccess::Interfa
 }
 
 OutputOption TimeFilter::getOutputRange(const string & outputOption){
-  
+
   int RangeCount;
   bool optionFound = false;
 
@@ -158,7 +158,7 @@ OutputOption TimeFilter::getOutputRange(const string & outputOption){
 
 
 bool TimeFilter::propertyIsSelected ( const PropertyList propertyId ) const {
-  return PropertyOutputOption [ propertyId ] != NOOUTPUT; 
+  return PropertyOutputOption [ propertyId ] != NOOUTPUT;
 }
 
 const std::string& propertyListName ( const PropertyList property ) {
@@ -174,15 +174,14 @@ const std::string& propertyListName ( const PropertyList property ) {
 OutputOption TimeFilter::getPropertyOutputOption ( const std::string& propertyName ) const {
 
    if( getPropertylist( propertyName ) == ENDPROPERTYLIST ) {
-      if( propertyName == "HorizontalPermeability" ) {
-         return PropertyOutputOption[ getPropertylist( "PermeabilityHVec" ) ]; 
-      } 
+
       if( propertyName == "BrineDensity" ) {
-         return PropertyOutputOption[ getPropertylist( "BrineProperties" ) ]; 
-      } 
+         return PropertyOutputOption[ getPropertylist( "BrineProperties" ) ];
+      }
+
       if( propertyName == "BrineViscosity" ) {
-         return PropertyOutputOption[ getPropertylist( "BrineProperties" ) ]; 
-      } 
+         return PropertyOutputOption[ getPropertylist( "BrineProperties" ) ];
+      }
    }
    return PropertyOutputOption[ getPropertylist( propertyName ) ];
 }
@@ -198,68 +197,3 @@ PropertyList TimeFilter::getPropertylist ( const std::string& propertyName ) con
    }
 
 }
-
-#if 0
-
-Interface::PropertyOutputOption MajorProperty::getMaximumOutputOption ( const PropertyList    property,
-                                                                        const CalculationMode calculation ) {
-
-   static const Interface::PropertyOutputOption NONE = Interface::NO_OUTPUT;
-   static const Interface::PropertyOutputOption SEDS = Interface::SEDIMENTS_ONLY_OUTPUT;
-   static const Interface::PropertyOutputOption SEBA = Interface::SEDIMENTS_AND_BASEMENT_OUTPUT;
-
-   static const Interface::PropertyOutputOption maximumOutputOptions [ NumberOfMajorProperties ][ NumberOfCalculationModes ] = 
-      {{ NONE, NONE, SEBA, NONE, SEBA, NONE, SEBA, NONE }, /* DIFFUSIVITYVEC */
-       { SEBA, NONE, SEBA, SEDS, SEBA, NONE, SEBA, NONE }, /* POROSITYVEC */
-       { NONE, NONE, SEBA, NONE, SEBA, NONE, SEBA, NONE }, /* VELOCITYVEC */
-       { NONE, NONE, SEBA, NONE, SEDS, NONE, SEBA, NONE }, /* REFLECTIVITYVEC */
-       {, NONE }, /* SONICVEC */
-       { NONE, NONE, SEBA, SEDS, NONE, NONE, SEBA, NONE }, /* BULKDENSITYVEC */
-       { NONE, NONE, SEBA, NONE, SEBA, NONE, SEBA, NONE }, /* THCONDVEC */
-       { NONE, NONE, SEBA, SEDS, SEBA, NONE, SEBA, NONE }, /* PERMEABILITYVEC */
-       { SEBA, SEDS, SEBA, SEDS, SEDS, SEDS, SEBA, NONE }, /* DEPTH */
-       { NONE, NONE, SEBA, NONE, SEBA, NONE, SEBA, NONE }, /* HEAT_FLOW */
-       { NONE, NONE, NONE, SEDS, NONE, NONE, SEDS, NONE }, /* FLUID_VELOCITY */
-//        {, NONE }, /* ISOSTATICMASS */ 
-//        {, NONE }, /* ISOSTATICDEFLECTION */
-//        {, NONE }, /* ISOSTATICWB */
-//        {, NONE }, /* MASSFLUX */
-       { SEBA, SEDS, SEBA, SEDS, SEBA, SEDS, SEBA, NONE }, /* MAXVES */
-       { NONE, NONE, SEBA, NONE, SEBA, NONE, SEBA, NONE }, /* TEMPERATURE */ 
-       { NONE, NONE, SEDS, SEDS, SEDS, NONE, SEDS, NONE }, /* PRESSURE */
-       { NONE, NONE, SEDS, NEDS, SEDS, NONE, SEDS, NONE }, /* HYDROSTATICPRESSURE */
-       { NONE, NONE, SEBA, SEDS, SEBA, NONE, SEBA, NONE }, /* LITHOSTATICPRESSURE */
-       { NONE, NONE, SEDS, SEDS, NONE, NONE, SEDS, NONE }, /* OVERPRESSURE */
-       { SEBA, SEDS, SEBA, SEDS, SEBA, SEDS, SEBA, NONE }, /* VES */
-       { NONE, NONE, SEDS, NONE, SEDS, NONE, SEDS, NONE }, /* VR */
-       {, NONE }, /* BIOMARKERS */
-       {, NONE }, /* ILLITEFRACTION */
-       { NONE, NONE, NONE, SEDS, NONE, NONE, SEDS, NONE }, /* ALLOCHTHONOUS_LITHOLOGY */
-       { NONE, NONE, SEDS, SEDS, SEDS, NONE, SEDS, NONE }, /* EROSIONFACTOR */ 
-       { NONE, NONE, NONE, SEDS, NONE, NONE, SEDS, NONE }, /* FAULTELEMENTS */
-       { NONE, NONE, NONE, SEDS, NONE, NONE, SEDS, NONE }, /* FCTCORRECTION */
-       { SEBA, SEDS, SEBA, SEDS, SEBA, SEDS, SEBA, NONE }, /* THICKNESS */
-       { NONE, NONE, NONE, SEDS, NONE, NONE, SEDS, NONE }, /* THICKNESSERROR */
-       { NONE, NONE, NONE, NONE, NONE, NONE, NONE, NONE }, /* CHEMICAL_COMPACTION */
-       {, NONE }}; /* LITHOLOGY */
-
-   return maximumOutputOptions [ property ][ calcualtion ];
-
-}
-
-Interface::PropertyOutputOption MajorProperty::getMinimumOutputOption ( const PropertyList    property,
-                                                                        const CalculationMode calculation ) {
-}
-
-
-Interface::PropertyOutputOption MajorProperty::getMaximumOutputOption ( const std::string&      property,
-                                                                        const CalculationMode   calculation ) {
-   return getMaximumOutputOption ( MajorPropertyNameValue ( property ), calculation );
-}
-
-Interface::PropertyOutputOption MajorProperty::getMinimumOutputOption ( const std::string&      property,
-                                                                        const CalculationMode   calculation ) {
-   return getMinimumOutputOption ( MajorPropertyNameValue ( property ), calculation );
-}
-
-#endif

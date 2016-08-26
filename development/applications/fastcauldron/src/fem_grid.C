@@ -114,13 +114,13 @@ using namespace FiniteElementMethod;
 //------------------------------------------------------------//
 
 
-#undef  __FUNCT__  
+#undef  __FUNCT__
 #define __FUNCT__ "Basin_Modelling::FEM_Grid::contructor"
 
-Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context ) 
+Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
    : m_vreOutputGrid(Application_Context->mapDA, Application_Context->layers),
      m_vreAlgorithm(GeoPhysics::VitriniteReflectance::create( FastcauldronSimulator::getInstance ().getRunParameters ()->getVreAlgorithm () ) ),
-     Temperature_Calculator ( Application_Context ), 
+     Temperature_Calculator ( Application_Context ),
      m_surfaceNodeHistory ( Application_Context ),
      m_chemicalCompactionGrid ( ChemicalCompactionGrid::create( FastcauldronSimulator::getInstance ().getRunParameters ()->getChemicalCompactionAlgorithm (),
                                                                 Application_Context -> mapDA,
@@ -306,7 +306,7 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
      m_mapDerivedOutputProperties.push_back ( TWOWAYTIME_RESIDUAL );
      m_mapDerivedOutputProperties.push_back ( SONICVEC );
      m_mapDerivedOutputProperties.push_back ( VELOCITYVEC );
- 
+
      m_mapDerivedOutputProperties.push_back ( CHEMICAL_COMPACTION );
      m_mapDerivedOutputProperties.push_back ( VES );
      m_mapDerivedOutputProperties.push_back ( DEPTH );
@@ -322,7 +322,7 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
      mapOutputProperties.push_back( BIOMARKERS );
   }
 
-  // If the pressure calculator is changed to solve for the pore-pressure (or Hubberts potential, see Annette) 
+  // If the pressure calculator is changed to solve for the pore-pressure (or Hubberts potential, see Annette)
   // then remove the if statement. Keep only the assignment of the fluid-velocities.
   if (basinModel->DoOverPressure or basinModel->Do_Iteratively_Coupled)  {
      mapOutputProperties.push_back ( FLUID_VELOCITY );
@@ -529,7 +529,7 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
   //Set the derived volume properties that may be required for the simulation
 
   if( not Application_Context->primaryOutput() ) {
-     m_volumeOutputProperties.push_back ( BRINE_PROPERTIES );  
+     m_volumeOutputProperties.push_back ( BRINE_PROPERTIES );
      m_volumeOutputProperties.push_back ( BULKDENSITYVEC );
      m_volumeOutputProperties.push_back ( DIFFUSIVITYVEC );
      m_volumeOutputProperties.push_back ( FLUID_VELOCITY );
@@ -547,7 +547,7 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
      m_volumeOutputProperties.push_back ( VELOCITYVEC );
   } else {
      if( not FastcauldronSimulator::getInstance ().noDerivedPropertiesCalc() ) {
-        // m_volumeDerivedOutputProperties.push_back ( BRINE_PROPERTIES );  
+        // m_volumeDerivedOutputProperties.push_back ( BRINE_PROPERTIES );
         m_volumeDerivedOutputProperties.push_back ( BULKDENSITYVEC );
         m_volumeDerivedOutputProperties.push_back ( DIFFUSIVITYVEC );
         m_volumeDerivedOutputProperties.push_back ( FLUID_VELOCITY );
@@ -593,7 +593,7 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
      looselyCoupledOutputProperties.push_back( PRESSURE );
      looselyCoupledOutputProperties.push_back( TEMPERATURE );
      looselyCoupledOutputProperties.push_back( VR );
-     looselyCoupledOutputProperties.push_back( DEPTH );   
+     looselyCoupledOutputProperties.push_back( DEPTH );
   }
   looselyCoupledOutputProperties.push_back( MAXVES );
   looselyCoupledOutputProperties.push_back( VES );
@@ -602,7 +602,7 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
   //2.2 Debug properties------------------
   //--------------------------------------
 
-#ifdef DEBUG_CAPILLARYPRESSURE 
+#ifdef DEBUG_CAPILLARYPRESSURE
   m_volumeOutputProperties.push_back( CAPILLARYPRESSUREGAS100 );
   m_volumeOutputProperties.push_back( CAPILLARYPRESSUREGAS0 );
   m_volumeOutputProperties.push_back( CAPILLARYPRESSUREOIL100 );
@@ -629,14 +629,14 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
   //------------------------------------------------------------------------------------------------
   //3. Initialise-----------------------------------------------------------------------------------
   //------------------------------------------------------------------------------------------------
-  // Initialise the surfaceNodeHistory object, by reading in the 
+  // Initialise the surfaceNodeHistory object, by reading in the
   // specification file containing all nodes that are to be recorded.
   // Is it used by someone? This will need to be checked when revising properties
 
   m_surfaceNodeHistory.Read_Spec_File ();
   savedMinorSnapshotTimes.clear ();
 
-  
+
   //------------------------------------------------------------------------------------------------
   //4. Matrix and RHS I/O --------------------------------------------------------------------------
   //------------------------------------------------------------------------------------------------
@@ -647,7 +647,7 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
   m_saveTimeStep       = 0.0;
   PetscOptionsHasName( NULL, "-saveMatrix", &m_saveMatrixToFile );
   if( m_saveMatrixToFile )
-  {    
+  {
      PetscBool status = PETSC_FALSE;
      PetscOptionsGetReal( NULL, "-saveMatrix", &m_saveTimeStep, &status );
      if( !status )
@@ -667,7 +667,7 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
 
 //------------------------------------------------------------//
 
-#undef  __FUNCT__  
+#undef  __FUNCT__
 #define __FUNCT__ "Basin_Modelling::FEM_Grid::destructor"
 
 Basin_Modelling::FEM_Grid::~FEM_Grid () {
@@ -712,10 +712,10 @@ Basin_Modelling::FEM_Grid::~FEM_Grid () {
   delete pressureSolver;
 }
 
- 
+
 //------------------------------------------------------------//
 
-#undef  __FUNCT__  
+#undef  __FUNCT__
 #define __FUNCT__ "Basin_Modelling::FEM_Grid::solvePressure"
 
 void Basin_Modelling::FEM_Grid::solvePressure ( bool& solverHasConverged,
@@ -756,7 +756,7 @@ void Basin_Modelling::FEM_Grid::solvePressure ( bool& solverHasConverged,
 
     savedMinorSnapshotTimes.clear ();
 
-    if( basinModel->isModellingMode1D () ) 
+    if( basinModel->isModellingMode1D () )
     {
        Temperature_Calculator.resetBiomarkerStateVectors ( );
        Temperature_Calculator.resetSmectiteIlliteStateVectors ( );
@@ -765,14 +765,14 @@ void Basin_Modelling::FEM_Grid::solvePressure ( bool& solverHasConverged,
     }
 
     if ( basinModel->debug1 or basinModel->verbose ) {
-      PetscPrintf ( PETSC_COMM_WORLD, 
+      PetscPrintf ( PETSC_COMM_WORLD,
                     "o Starting iteration %d of %d (Maximum number of iterations)",
                     Number_Of_Geometric_Iterations,
                     Maximum_Number_Of_Geometric_Iterations );
     }
 
     // Compute the overpressure from basin-start-age to present day.
-    Evolve_Pressure_Basin ( Number_Of_Geometric_Iterations, 
+    Evolve_Pressure_Basin ( Number_Of_Geometric_Iterations,
                             overpressureHasDiverged,
                             errorInDarcy );
 
@@ -798,7 +798,7 @@ void Basin_Modelling::FEM_Grid::solvePressure ( bool& solverHasConverged,
 
   if ( overpressureHasDiverged ) {
     PetscPrintf ( PETSC_COMM_WORLD,
-                  "MeSsAgE ERROR Calculation has diverged, see help for possible solutions. \n" );    
+                  "MeSsAgE ERROR Calculation has diverged, see help for possible solutions. \n" );
   } else {
     displayTime(basinModel->debug1 or basinModel->verbose,"OverPressure Calculation: ");
 
@@ -819,7 +819,7 @@ void Basin_Modelling::FEM_Grid::solvePressure ( bool& solverHasConverged,
        PetscPrintf ( PETSC_COMM_WORLD,
                      "MeSsAgE WARNING Maximum number of geometric iterations, %d, exceeded and geometry has not converged \n",
                      Maximum_Number_Of_Geometric_Iterations );
-      
+
        PetscPrintf ( PETSC_COMM_WORLD,
                      "MeSsAgE WARNING Look at the ThicknessError maps in Cauldron to see if the error is acceptable\n" );
     }
@@ -831,7 +831,7 @@ void Basin_Modelling::FEM_Grid::solvePressure ( bool& solverHasConverged,
 
 //------------------------------------------------------------//
 
-#undef  __FUNCT__  
+#undef  __FUNCT__
 #define __FUNCT__ "Basin_Modelling::FEM_Grid::solveTemperature"
 
 void Basin_Modelling::FEM_Grid::solveTemperature ( bool& solverHasConverged,
@@ -850,14 +850,14 @@ void Basin_Modelling::FEM_Grid::solveTemperature ( bool& solverHasConverged,
     basinModel->initialiseTimeIOTable ( HydrostaticTemperatureRunStatusStr );
     basinModel->deleteMinorSnapshotsFromTimeIOTable ( savedMinorSnapshotTimes, genexOutputProperties );
     basinModel->deleteMinorSnapshotsFromTimeIOTable ( savedMinorSnapshotTimes, shaleGasOutputProperties );
-    
-    //make sure that surfaceOutputPropterties is a superset of properties output in Output.C:savePropsOnSegmentNodes1D() 
-    basinModel->deleteMinorSnapshotsFromTimeIOTable ( savedMinorSnapshotTimes, mapOutputProperties ); 
+
+    //make sure that surfaceOutputPropterties is a superset of properties output in Output.C:savePropsOnSegmentNodes1D()
+    basinModel->deleteMinorSnapshotsFromTimeIOTable ( savedMinorSnapshotTimes, mapOutputProperties );
 
     FastcauldronSimulator::getInstance ().deleteSnapshotProperties ();
 
     // Delete the minor snapshots from the snapshot-table.
-    FastcauldronSimulator::getInstance ().deleteMinorSnapshots (); 
+    FastcauldronSimulator::getInstance ().deleteMinorSnapshots ();
     FastcauldronSimulator::getInstance ().deleteMinorSnapshotsFromSnapshotTable ();
 
     // delete the propertyValues from the previous iteration
@@ -880,7 +880,7 @@ void Basin_Modelling::FEM_Grid::solveTemperature ( bool& solverHasConverged,
 
   if ( temperatureHasDiverged ) {
     PetscPrintf ( PETSC_COMM_WORLD,
-                  "MeSsAgE ERROR Calculation has diverged, see help for possible solutions. \n" );    
+                  "MeSsAgE ERROR Calculation has diverged, see help for possible solutions. \n" );
   } else if ( errorInDarcy ) {
      //
   } else {
@@ -896,7 +896,7 @@ void Basin_Modelling::FEM_Grid::solveTemperature ( bool& solverHasConverged,
     }
 
     // If the minor snapshot times were not prescribed (from a previous overpressure/coupled run)
-    // then the times that are saved must be assigned to the 
+    // then the times that are saved must be assigned to the
     if ( ! basinModel->projectSnapshots.projectPrescribesMinorSnapshots ()) {
       basinModel->projectSnapshots.setActualMinorSnapshots ( savedMinorSnapshotTimes );
     }
@@ -908,7 +908,7 @@ void Basin_Modelling::FEM_Grid::solveTemperature ( bool& solverHasConverged,
 
 //------------------------------------------------------------//
 
-#undef  __FUNCT__  
+#undef  __FUNCT__
 #define __FUNCT__ "Basin_Modelling::FEM_Grid::solveCoupled"
 
 void Basin_Modelling::FEM_Grid::solveCoupled ( bool& solverHasConverged,
@@ -940,18 +940,18 @@ void Basin_Modelling::FEM_Grid::solveCoupled ( bool& solverHasConverged,
     // because we are at the start of a possible new overpressure run, with probably slightly different
     // time-steps. So the files will have different names!
 //     basinModel->projectSnapshots.deleteIntermediateMinorSnapshotFiles ( savedMinorSnapshotTimes, basinModel->getOutputDirectory ());
-    
+
     if ( basinModel->isModellingMode3D() )
     {
        basinModel->threeDTimeIoTbl->clear();
        basinModel->deleteMinorSnapshotsFromTimeIOTable ( savedMinorSnapshotTimes, genexOutputProperties );
        basinModel->deleteMinorSnapshotsFromTimeIOTable ( savedMinorSnapshotTimes, shaleGasOutputProperties );
-    
-       //make sure that surfaceOutputPropterties is a superset of properties output in Output.C:savePropsOnSegmentNodes1D() 
-       basinModel->deleteMinorSnapshotsFromTimeIOTable ( savedMinorSnapshotTimes, mapOutputProperties ); 
+
+       //make sure that surfaceOutputPropterties is a superset of properties output in Output.C:savePropsOnSegmentNodes1D()
+       basinModel->deleteMinorSnapshotsFromTimeIOTable ( savedMinorSnapshotTimes, mapOutputProperties );
 
        FastcauldronSimulator::getInstance ().deleteSnapshotProperties ();
-       FastcauldronSimulator::getInstance ().deleteMinorSnapshots (); 
+       FastcauldronSimulator::getInstance ().deleteMinorSnapshots ();
        FastcauldronSimulator::getInstance ().deleteMinorSnapshotsFromSnapshotTable ();
 
        // delete the propertyValues from the previous iteration
@@ -973,8 +973,8 @@ void Basin_Modelling::FEM_Grid::solveCoupled ( bool& solverHasConverged,
     savedMinorSnapshotTimes.clear ();
 
     if ( basinModel->debug1 or basinModel->verbose ) {
-      PetscPrintf ( PETSC_COMM_WORLD, 
-                    "o Starting iteration %d of %d (Maximum number of iterations)", 
+      PetscPrintf ( PETSC_COMM_WORLD,
+                    "o Starting iteration %d of %d (Maximum number of iterations)",
                     Number_Of_Geometric_Iterations,
                     Maximum_Number_Of_Geometric_Iterations );
     }
@@ -1005,9 +1005,9 @@ void Basin_Modelling::FEM_Grid::solveCoupled ( bool& solverHasConverged,
 
   if ( overpressureHasDiverged ) {
     PetscPrintf ( PETSC_COMM_WORLD,
-                  "MeSsAgE ERROR Calculation has diverged, see help for possible solutions. \n" );    
+                  "MeSsAgE ERROR Calculation has diverged, see help for possible solutions. \n" );
   } else if ( errorInDarcy ) {
-     // 
+     //
   } else {
     displayTime(basinModel->debug1 or basinModel->verbose,"P/T Coupled Calculation: ");
 
@@ -1110,7 +1110,8 @@ void Basin_Modelling::FEM_Grid::Evolve_Pressure_Basin ( const int   Number_Of_Ge
 
     Display_Pressure_Solver_Progress ( Number_Of_Geometric_Iterations,
                                        maximumNumberOfOverpressureIterations,
-                   Current_Time, Previous_Time - Current_Time,
+                                       Current_Time,
+                                       Previous_Time - Current_Time,
                                        true or FastcauldronSimulator::getInstance ().getMcfHandler ().numberOfActiveSubdomains () != 1 );
 
     Temperature_Calculator.Estimate_Temperature ( basinModel, Current_Time );
@@ -1140,7 +1141,7 @@ void Basin_Modelling::FEM_Grid::Evolve_Pressure_Basin ( const int   Number_Of_Ge
        printRelatedProjects ( Current_Time );
        Determine_Next_Pressure_Time_Step ( Current_Time, Time_Step, Number_Of_Newton_Iterations, Number_Of_Geometric_Iterations );
 
-       computeBasementLithostaticPressureForCurrentTimeStep ( basinModel, Current_Time ); 
+       computeBasementLithostaticPressureForCurrentTimeStep ( basinModel, Current_Time );
 
        Copy_Current_Properties ();
        Save_Properties ( Current_Time );
@@ -1209,11 +1210,11 @@ void Basin_Modelling::FEM_Grid::Evolve_Temperature_Basin ( bool& temperatureHasD
 
 
   /* Position Snapshots Iterator to Origin of Basin */
-  if ( basinModel -> projectSnapshots.majorSnapshotsEnd () != majorSnapshots ) 
+  if ( basinModel -> projectSnapshots.majorSnapshotsEnd () != majorSnapshots )
   {
     Current_Time = (*majorSnapshots)->time ();
-  } 
-  else 
+  }
+  else
   {
     PetscPrintf ( PETSC_COMM_WORLD, " No SnapShotTimes Present \n" );
     return;
@@ -1249,7 +1250,7 @@ void Basin_Modelling::FEM_Grid::Evolve_Temperature_Basin ( bool& temperatureHasD
     Construct_FEM_Grid ( Previous_Time, Current_Time, majorSnapshots, majorSnapshotTimesUpdated );
     FastcauldronSimulator::getInstance ().getMcfHandler ().setSubdomainActivity ( Current_Time );
 
-    Display_Temperature_Solver_Progress ( Current_Time, Previous_Time - Current_Time, 
+    Display_Temperature_Solver_Progress ( Current_Time, Previous_Time - Current_Time,
                                           true or FastcauldronSimulator::getInstance ().getMcfHandler ().numberOfActiveSubdomains () != 1 );
 
 
@@ -1272,16 +1273,16 @@ void Basin_Modelling::FEM_Grid::Evolve_Temperature_Basin ( bool& temperatureHasD
 
        // Do a time step in the Vre algorithm
        m_vreAlgorithm->doTimestep (
-          TemperatureForVreInputGrid( 
-             basinModel->mapDA, 
-             basinModel->layers, 
+          TemperatureForVreInputGrid(
+             basinModel->mapDA,
+             basinModel->layers,
              basinModel->getValidNeedles(),
              Previous_Time,
              true // use previous temperature
              ),
           TemperatureForVreInputGrid(
-             basinModel->mapDA, 
-             basinModel->layers, 
+             basinModel->mapDA,
+             basinModel->layers,
              basinModel->getValidNeedles(),
              Current_Time,
              false // use current temperature
@@ -1304,7 +1305,7 @@ void Basin_Modelling::FEM_Grid::Evolve_Temperature_Basin ( bool& temperatureHasD
 
        Determine_Next_Temperature_Time_Step ( Current_Time, Time_Step );
 
-       computeBasementLithostaticPressureForCurrentTimeStep ( basinModel, Current_Time ); 
+       computeBasementLithostaticPressureForCurrentTimeStep ( basinModel, Current_Time );
 
        Copy_Current_Properties ();
 
@@ -1402,21 +1403,21 @@ void Basin_Modelling::FEM_Grid::Evolve_Coupled_Basin ( const int   Number_Of_Geo
   Time_Step = NumericFunctions::Minimum ( Time_Step, basinModel->maximumTimeStep ());
   Display_Coupled_Solver_Progress ( Number_Of_Geometric_Iterations,
                                     maximumNumberOfOverpressureIterations,
-                                    Current_Time, 0.0, 
+                                    Current_Time, 0.0,
                                     true );
 
   FastcauldronSimulator::getInstance ().getAllochthonousLithologyManager ().reset ();
-  
+
   Initialise_Basin_Temperature ( hasDiverged );
-  
+
   m_chemicalCompactionGrid->emptyGrid();
   m_vreAlgorithm->reset();
-  
+
   Save_Properties ( Current_Time );
 
   if ( basinModel -> debug1 or basinModel->verbose ) {
     PetscPrintf ( PETSC_COMM_WORLD, "Solving Coupled for Time (Ma): %f \n", Current_Time );
-  } 
+  }
 
 
   // Now only need to do a single newton iteration (keep constant and Newton iterations for future use)
@@ -1433,7 +1434,7 @@ void Basin_Modelling::FEM_Grid::Evolve_Coupled_Basin ( const int   Number_Of_Geo
 
     Display_Coupled_Solver_Progress ( Number_Of_Geometric_Iterations,
                                       maximumNumberOfOverpressureIterations,
-                                      Current_Time, Previous_Time - Current_Time, 
+                                      Current_Time, Previous_Time - Current_Time,
                                       true or FastcauldronSimulator::getInstance ().getMcfHandler ().numberOfActiveSubdomains () != 1 );
 
     fracturingOccurredInPreviousTimeStep = fracturingOccurred;
@@ -1457,19 +1458,19 @@ void Basin_Modelling::FEM_Grid::Evolve_Coupled_Basin ( const int   Number_Of_Geo
        // Do chemical compaction computation on time step
        integrateChemicalCompaction ( Previous_Time, Current_Time );
        integrateGenex ( Previous_Time, Current_Time );
-       
+
       // Do a time step in the Vre algorithm
        m_vreAlgorithm->doTimestep (
-          TemperatureForVreInputGrid( 
-             basinModel->mapDA, 
-             basinModel->layers, 
+          TemperatureForVreInputGrid(
+             basinModel->mapDA,
+             basinModel->layers,
              basinModel->getValidNeedles(),
              Previous_Time,
              true // use previous temperature
              ),
           TemperatureForVreInputGrid(
-             basinModel->mapDA, 
-             basinModel->layers, 
+             basinModel->mapDA,
+             basinModel->layers,
              basinModel->getValidNeedles(),
              Current_Time,
              false // use current temperature
@@ -1487,7 +1488,7 @@ void Basin_Modelling::FEM_Grid::Evolve_Coupled_Basin ( const int   Number_Of_Geo
 
        Determine_Next_Coupled_Time_Step ( Current_Time, Time_Step, Number_Of_Newton_Iterations, Number_Of_Geometric_Iterations );
 
-       computeBasementLithostaticPressureForCurrentTimeStep ( basinModel, Current_Time ); 
+       computeBasementLithostaticPressureForCurrentTimeStep ( basinModel, Current_Time );
 
        Copy_Current_Properties ();
 
@@ -1531,7 +1532,7 @@ void Basin_Modelling::FEM_Grid::Save_Properties ( const double Current_Time ) {
       Well wells( basinModel );
       wells.Save_Present_Day_Data ();
    }
-  
+
    if ( ! basinModel->DoHDFOutput ) {
       return;
    }
@@ -1539,13 +1540,13 @@ void Basin_Modelling::FEM_Grid::Save_Properties ( const double Current_Time ) {
    if ( basinModel->m_doOutputAtAge && Current_Time!=basinModel->m_ageToOutput) {
       return;
    }
-    
+
   PetscLogDouble Start_Time;
   PetscLogDouble End_Time;
 
   PetscTime(&Start_Time);
   if (   ( Current_Time == (*majorSnapshots)->time ()  )
-      || (    basinModel->isModellingMode1D()  
+      || (    basinModel->isModellingMode1D()
            && basinModel->projectSnapshots.isMinorSnapshot ( Current_Time, minorSnapshots ) ) ) // 1D model: save minor AND major timesteps
   {
 
@@ -1602,7 +1603,7 @@ void Basin_Modelling::FEM_Grid::Save_Properties ( const double Current_Time ) {
         Temperature_Calculator.deleteBiomarkersVectors ();
      }
 
-     if (      basinModel->isModellingMode1D()  
+     if (      basinModel->isModellingMode1D()
           &&  Current_Time != (*majorSnapshots)->time () ) // 1D model: save minor snapshot
      {
         savedMinorSnapshotTimes.insert ( Current_Time );
@@ -1637,7 +1638,7 @@ void Basin_Modelling::FEM_Grid::Save_Properties ( const double Current_Time ) {
         computePermeabilityVectors ( basinModel );
         computeThermalConductivityVectors ( basinModel );
         computeBulkDensityVectors ( basinModel );
-        
+
         // Collect surface node properties.
         m_surfaceNodeHistory.Add_Time ( Current_Time );
 
@@ -1656,7 +1657,7 @@ void Basin_Modelling::FEM_Grid::Save_Properties ( const double Current_Time ) {
 //------------------------------------------------------------//
 
 
-bool Basin_Modelling::FEM_Grid::Step_Forward (       double& Previous_Time, 
+bool Basin_Modelling::FEM_Grid::Step_Forward (       double& Previous_Time,
                                                      double& Current_Time,
                                                      double& Time_Step,
                                                      bool&   majorSnapshotTimesUpdated,
@@ -1692,17 +1693,17 @@ bool Basin_Modelling::FEM_Grid::Step_Forward (       double& Previous_Time,
     Current_Time = (*minorSnapshots)->time ();
   }
 
-  if ( basinModel->projectSnapshots.projectPrescribesMinorSnapshots () && 
+  if ( basinModel->projectSnapshots.projectPrescribesMinorSnapshots () &&
        basinModel->projectSnapshots.validMinorSnapshots ( minorSnapshots ) &&
        Current_Time < (*minorSnapshots)->time () &&
        (*minorSnapshots)->time () > (*majorSnapshots)->time ()) {
     Current_Time = (*minorSnapshots)->time ();
   } else if ( Current_Time < (*majorSnapshots)->time ()) {
     Current_Time = (*majorSnapshots)->time ();
-  } 
+  }
 
   basinModel->adjustTimeStepToPermafrost ( Previous_Time, Current_Time );
-  
+
   Time_Step = Previous_Time - Current_Time;
 
   return true;
@@ -1712,7 +1713,7 @@ bool Basin_Modelling::FEM_Grid::Step_Forward (       double& Previous_Time,
 
 //------------------------------------------------------------//
 
-#undef  __FUNCT__  
+#undef  __FUNCT__
 #define __FUNCT__ "Basin_Modelling::FEM_Grid::Determine_Next_Pressure_Time_Step"
 
 void Basin_Modelling::FEM_Grid::Determine_Next_Pressure_Time_Step ( const double  Current_Time,
@@ -1721,7 +1722,7 @@ void Basin_Modelling::FEM_Grid::Determine_Next_Pressure_Time_Step ( const double
                                                                     const int     numberOfGeometricIterations ) {
    //Store Time_Step for igneous intrusion computation
    const double previousTimeStep = Time_Step;
-  
+
    if ( Current_Time == (*majorSnapshots)->time ()) {
     Time_Step = basinModel->getInitialTimeStep ( Current_Time );
   } else {
@@ -1746,7 +1747,7 @@ void Basin_Modelling::FEM_Grid::Determine_Next_Pressure_Time_Step ( const double
      } else if ( Maximum_Difference < Optimal_Pressure_Difference ) {
         Predicted_Time_Step = Time_Step * PetscMin ( Optimal_Pressure_Difference / Maximum_Difference, Increase_Factor );
      } else {
-        Predicted_Time_Step = Time_Step * PetscMax ( Optimal_Pressure_Difference / Maximum_Difference, Decrease_Factor );    
+        Predicted_Time_Step = Time_Step * PetscMax ( Optimal_Pressure_Difference / Maximum_Difference, Decrease_Factor );
      }
 
      Time_Step = NumericFunctions::Maximum ( Predicted_Time_Step, basinModel->minimumTimeStep ());
@@ -1756,17 +1757,17 @@ void Basin_Modelling::FEM_Grid::Determine_Next_Pressure_Time_Step ( const double
   Determine_Permafrost_Time_Step ( Current_Time, Time_Step );
   //If during an igneous intrusion, change the time step
   determineIgneousIntrusionTimeStep( Current_Time, previousTimeStep, Time_Step);
-  
+
 }
 
 
 //------------------------------------------------------------//
 
-#undef  __FUNCT__  
+#undef  __FUNCT__
 #define __FUNCT__ "Basin_Modelling::FEM_Grid::Determine_Next_Temperature_Time_Step"
 
 void Basin_Modelling::FEM_Grid::Determine_Next_Temperature_Time_Step ( const double  Current_Time,
-                                                                             double& Time_Step ) 
+                                                                             double& Time_Step )
 {
 
 
@@ -1778,14 +1779,14 @@ void Basin_Modelling::FEM_Grid::Determine_Next_Temperature_Time_Step ( const dou
    double Predicted_Time_Step_In_Source_Rocks;
    //Store Time_Step for igneous intrusion computation
    const double previousTimeStep = Time_Step;
-   
+
    MPI_Barrier(PETSC_COMM_WORLD);
 
    if ( Current_Time == (*majorSnapshots)->time ()) {
       Time_Step = basinModel->getInitialTimeStep ( Current_Time );
    } else {
       PetscScalar Maximum_Difference;
-  
+
       Maximum_Difference = Temperature_Calculator.Maximum_Temperature_Difference ();
 
       if ( basinModel -> debug1 or basinModel->verbose ) {
@@ -1795,11 +1796,11 @@ void Basin_Modelling::FEM_Grid::Determine_Next_Temperature_Time_Step ( const dou
       if ( Maximum_Difference <= 0.0 )  {
          Predicted_Time_Step = Time_Step * Increase_Factor;
       } else if ( Maximum_Difference < Optimal_Temperature_Difference ) {
-         Predicted_Time_Step = Time_Step * 
+         Predicted_Time_Step = Time_Step *
             PetscMin ( Optimal_Temperature_Difference / Maximum_Difference, Increase_Factor );
       } else {
-         Predicted_Time_Step = Time_Step * 
-            PetscMax ( Optimal_Temperature_Difference / Maximum_Difference, Decrease_Factor );    
+         Predicted_Time_Step = Time_Step *
+            PetscMax ( Optimal_Temperature_Difference / Maximum_Difference, Decrease_Factor );
       }
 
       Maximum_Difference = Temperature_Calculator.Maximum_Temperature_Difference_In_Source_Rocks ();
@@ -1811,13 +1812,13 @@ void Basin_Modelling::FEM_Grid::Determine_Next_Temperature_Time_Step ( const dou
       if ( Maximum_Difference <= 0.0 ) {
          Predicted_Time_Step_In_Source_Rocks = Time_Step * Increase_Factor;
       } else if ( Maximum_Difference < Optimal_Temperature_Difference_In_Source_Rocks ) {
-         Predicted_Time_Step_In_Source_Rocks = Time_Step * 
+         Predicted_Time_Step_In_Source_Rocks = Time_Step *
             PetscMin ( Optimal_Temperature_Difference_In_Source_Rocks / Maximum_Difference, Increase_Factor );
       } else {
-         Predicted_Time_Step_In_Source_Rocks = Time_Step * 
-            PetscMax ( Optimal_Temperature_Difference_In_Source_Rocks / Maximum_Difference, Decrease_Factor );    
+         Predicted_Time_Step_In_Source_Rocks = Time_Step *
+            PetscMax ( Optimal_Temperature_Difference_In_Source_Rocks / Maximum_Difference, Decrease_Factor );
       }
- 
+
       Time_Step = NumericFunctions::Minimum ( Predicted_Time_Step, Predicted_Time_Step_In_Source_Rocks );
       Time_Step = NumericFunctions::Minimum ( Time_Step, basinModel->maximumTimeStep ());
 
@@ -1834,7 +1835,7 @@ void Basin_Modelling::FEM_Grid::Determine_Next_Temperature_Time_Step ( const dou
 
 //------------------------------------------------------------//
 
-#undef  __FUNCT__  
+#undef  __FUNCT__
 #define __FUNCT__ "Basin_Modelling::FEM_Grid::Determine_Next_Coupled_Time_Step"
 
 void Basin_Modelling::FEM_Grid::Determine_Next_Coupled_Time_Step ( const double  Current_Time,
@@ -1843,7 +1844,7 @@ void Basin_Modelling::FEM_Grid::Determine_Next_Coupled_Time_Step ( const double 
                                                                    const int     numberOfGeometricIterations ) {
    //Store Time_Step for igneous intrusion computation
    const double previousTimeStep = Time_Step;
-  
+
    if ( Current_Time == (*majorSnapshots)->time ()) {
     Time_Step = basinModel->getInitialTimeStep ( Current_Time );
   } else {
@@ -1877,11 +1878,11 @@ void Basin_Modelling::FEM_Grid::Determine_Next_Coupled_Time_Step ( const double 
      if ( Maximum_Overpressure_Difference <= 0.0 ) {
         Predicted_Overpressure_Time_Step = Time_Step * Increase_Factor;
      } else if ( Maximum_Overpressure_Difference < Optimal_Pressure_Difference ) {
-        Predicted_Overpressure_Time_Step = Time_Step * PetscMin ( Optimal_Pressure_Difference / Maximum_Overpressure_Difference, 
+        Predicted_Overpressure_Time_Step = Time_Step * PetscMin ( Optimal_Pressure_Difference / Maximum_Overpressure_Difference,
                                                                   Increase_Factor );
      } else {
-        Predicted_Overpressure_Time_Step = Time_Step * PetscMax ( Optimal_Pressure_Difference / Maximum_Overpressure_Difference, 
-                                                                  Decrease_Factor );    
+        Predicted_Overpressure_Time_Step = Time_Step * PetscMax ( Optimal_Pressure_Difference / Maximum_Overpressure_Difference,
+                                                                  Decrease_Factor );
      }
 
      // Determine the best TEMPERATURE time step
@@ -1891,19 +1892,19 @@ void Basin_Modelling::FEM_Grid::Determine_Next_Coupled_Time_Step ( const double 
         Predicted_Temperature_Time_Step = Time_Step * PetscMin ( Optimal_Temperature_Difference / Maximum_Temperature_Difference,
                                                                  Increase_Factor );
      } else {
-        Predicted_Temperature_Time_Step = Time_Step * PetscMax ( Optimal_Temperature_Difference / Maximum_Temperature_Difference, 
-                                                                 Decrease_Factor );    
+        Predicted_Temperature_Time_Step = Time_Step * PetscMax ( Optimal_Temperature_Difference / Maximum_Temperature_Difference,
+                                                                 Decrease_Factor );
      }
 
      // Determine the best time step in SOURCE ROCKS
      if ( Maximum_Source_Rock_Difference <= 0.0 ) {
         Predicted_Source_Rock_Time_Step = Time_Step * Increase_Factor;
      } else if ( Maximum_Source_Rock_Difference < Optimal_Temperature_Difference_In_Source_Rocks ) {
-        Predicted_Source_Rock_Time_Step = Time_Step * PetscMin ( Optimal_Temperature_Difference_In_Source_Rocks / Maximum_Source_Rock_Difference, 
+        Predicted_Source_Rock_Time_Step = Time_Step * PetscMin ( Optimal_Temperature_Difference_In_Source_Rocks / Maximum_Source_Rock_Difference,
                                                                  Increase_Factor );
      } else {
-        Predicted_Source_Rock_Time_Step = Time_Step * PetscMax ( Optimal_Temperature_Difference_In_Source_Rocks / Maximum_Source_Rock_Difference, 
-                                                                 Decrease_Factor );    
+        Predicted_Source_Rock_Time_Step = Time_Step * PetscMax ( Optimal_Temperature_Difference_In_Source_Rocks / Maximum_Source_Rock_Difference,
+                                                                 Decrease_Factor );
      }
 
      // Find the MINIMUM of these three predicted time steps.
@@ -1920,7 +1921,7 @@ void Basin_Modelling::FEM_Grid::Determine_Next_Coupled_Time_Step ( const double 
 
 //------------------------------------------------------------//
 
-#undef  __FUNCT__  
+#undef  __FUNCT__
 #define __FUNCT__ "Basin_Modelling::FEM_Grid::Construct_Pressure_FEM_Grid"
 
 void Basin_Modelling::FEM_Grid::Construct_Pressure_FEM_Grid ( const double Previous_Time,
@@ -1946,7 +1947,7 @@ void Basin_Modelling::FEM_Grid::Construct_Pressure_FEM_Grid ( const double Previ
 
 //------------------------------------------------------------//
 
-#undef  __FUNCT__  
+#undef  __FUNCT__
 #define __FUNCT__ "Basin_Modelling::FEM_Grid::Construct_Temperature_FEM_Grid"
 
 void Basin_Modelling::FEM_Grid::Construct_Temperature_FEM_Grid ( const double                    Previous_Time,
@@ -1959,18 +1960,18 @@ void Basin_Modelling::FEM_Grid::Construct_Temperature_FEM_Grid ( const double   
    // Allocate the property vectors in each of the layers
    Layers.Initialise_Iterator ( basinModel -> layers, Descending, Basement_And_Sediments, Active_Layers_Only );
 
-   while ( ! Layers.Iteration_Is_Done () ) 
+   while ( ! Layers.Iteration_Is_Done () )
    {
       Layers.Current_Layer ()->allocateNewVecs ( basinModel, Current_Time );
       Layers++;
-   } 
+   }
 
    // If the calculation mode is the loosely coupled then we need to set-up the interpolators for the
    // properties that are to be read in and used in the temperature calcualtion.
    if ( majorSnapshotTimesUpdated && basinModel->DoTemperature ) {
       SnapshotInterval interval;
 
-      // Set the snapshots that are to be interpolated (from the current major snapshot back to 
+      // Set the snapshots that are to be interpolated (from the current major snapshot back to
       // the previous major snapshot, including all the minor snapshots in between).
       basinModel->projectSnapshots.getPrecedingSnapshotInterval ( majorSnapshotTimes, true, interval );
 
@@ -1982,13 +1983,13 @@ void Basin_Modelling::FEM_Grid::Construct_Temperature_FEM_Grid ( const double   
    Set_Pressure_Dependent_Properties ( Current_Time );
    Compute_Temperature_Dependant_Properties ( Previous_Time, Current_Time );
    Temperature_Calculator.computeHeatProduction ( Previous_Time, Current_Time );
-  
+
 }
 
 
 //------------------------------------------------------------//
 
-#undef  __FUNCT__  
+#undef  __FUNCT__
 #define __FUNCT__ "Basin_Modelling::FEM_Grid::Construct_FEM_Grid"
 
 void Basin_Modelling::FEM_Grid::Construct_FEM_Grid ( const double                    Previous_Time,
@@ -2002,7 +2003,7 @@ void Basin_Modelling::FEM_Grid::Construct_FEM_Grid ( const double               
   if ( basinModel -> DoTemperature || basinModel -> Do_Iteratively_Coupled ) {
     Construct_Temperature_FEM_Grid ( Previous_Time, Current_Time, majorSnapshotTimes, majorSnapshotTimesUpdated );
   }
-  
+
   if ( basinModel -> DoOverPressure || basinModel -> Do_Iteratively_Coupled ) {
     Construct_Pressure_FEM_Grid ( Previous_Time, Current_Time );
   }
@@ -2051,7 +2052,7 @@ void Basin_Modelling::FEM_Grid::integrateChemicalCompaction( const double Previo
 
 //------------------------------------------------------------//
 
-#undef  __FUNCT__  
+#undef  __FUNCT__
 #define __FUNCT__ "Basin_Modelling::FEM_Grid::integrateGenex"
 
 void Basin_Modelling::FEM_Grid::integrateGenex ( const double previousTime,
@@ -2074,7 +2075,7 @@ void Basin_Modelling::FEM_Grid::integrateGenex ( const double previousTime,
 
 //------------------------------------------------------------//
 
-#undef  __FUNCT__  
+#undef  __FUNCT__
 #define __FUNCT__ "Basin_Modelling::FEM_Grid::clearGenexOutput"
 
 void Basin_Modelling::FEM_Grid::clearGenexOutput () {
@@ -2128,7 +2129,7 @@ void Basin_Modelling::FEM_Grid::postTimeStepOperations ( const double currentTim
 
 //------------------------------------------------------------//
 
-#undef  __FUNCT__  
+#undef  __FUNCT__
 #define __FUNCT__ "Basin_Modelling::FEM_Grid::RecomputeJacobian"
 
 bool Basin_Modelling::FEM_Grid::RecomputeJacobian ( const int iterationCount,
@@ -2161,7 +2162,7 @@ bool Basin_Modelling::FEM_Grid::RecomputeJacobian ( const int iterationCount,
     // Here we require higher accuracy over speed, therefore ALWAYS compute the Jacobian.
     recompute = true;
   } else {
-    recompute = ( iterationCount < MinimumInitialJacobianComputations [ optimisationLevel - 1 ] ) || 
+    recompute = ( iterationCount < MinimumInitialJacobianComputations [ optimisationLevel - 1 ] ) ||
                 ( iterationCount % RecomputeJacobianEveryNthIteration ) == 0;
   }
 #endif
@@ -2172,7 +2173,7 @@ bool Basin_Modelling::FEM_Grid::RecomputeJacobian ( const int iterationCount,
 
 //------------------------------------------------------------//
 
-#undef  __FUNCT__  
+#undef  __FUNCT__
 #define __FUNCT__ "Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step"
 
 void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Previous_Time,
@@ -2327,10 +2328,10 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
 
 
       // Compute the Jacobian and residual for the nonlinear solver (Newton).
-      MatZeroEntries ( Jacobian ); 
+      MatZeroEntries ( Jacobian );
       PetscTime(&Assembly_Start_Time);
       pressureSolver->assembleSystem ( m_pressureComputationalDomain,
-                                       Previous_Time, Current_Time, 
+                                       Previous_Time, Current_Time,
                                        Jacobian, Residual,
                                        Element_Contributions_Time );
 
@@ -2344,8 +2345,8 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
       JacobianComputed = true;
 
       PetscTime(&Jacobian_End_Time);
-      Jacobian_Time = Jacobian_End_Time - Jacobian_Start_Time; 
-      Total_Jacobian_Time = Total_Jacobian_Time + Jacobian_Time; 
+      Jacobian_Time = Jacobian_End_Time - Jacobian_Start_Time;
+      Total_Jacobian_Time = Total_Jacobian_Time + Jacobian_Time;
 
       VecSet ( Residual_Solution, Zero );
 
@@ -2366,10 +2367,10 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
       KSPConvergedReason convergedReason;
       pressureLinearSolver->solve ( Jacobian,
                                     Residual,
-                                    Residual_Solution, 
+                                    Residual_Solution,
                                     &numberOfLinearIterations,
                                     &convergedReason,
-                                    &linearSolverResidualNorm ); 
+                                    &linearSolverResidualNorm );
 
       // Print solution to file
       if( saveMatrix and totalNumberOfNonlinearIterations == 0 )
@@ -2402,7 +2403,7 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
             boost::shared_ptr<PetscGMRES> gmres = boost::dynamic_pointer_cast<PetscGMRES>( pressureLinearSolver);
             if ( ! gmres  ) {
                pressureLinearSolver.reset ( new PetscGMRES ( pressureLinearSolver->getTolerance(),
-                                                             PressureSolver::DefaultGMResRestartValue, 
+                                                             PressureSolver::DefaultGMResRestartValue,
                                                              pressureLinearSolver->getMaxIterations ()));
 
                gmres = boost::dynamic_pointer_cast<PetscGMRES>( pressureLinearSolver);
@@ -2415,7 +2416,7 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
                gmres->setMaxIterations(( 3 * gmres->getMaxIterations ()) / 2 );
             }
 
-            pressureLinearSolver->solve ( Jacobian, Residual, Residual_Solution, 
+            pressureLinearSolver->solve ( Jacobian, Residual, Residual_Solution,
                                           &numberOfLinearIterations, &convergedReason, &linearSolverResidualNorm );
 
             linearSolverTotalIterationCount += numberOfLinearIterations;
@@ -2440,7 +2441,7 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
 #endif
 
       PetscTime(&End_Time);
-      timeStepCalculationTime = End_Time - Start_Time; 
+      timeStepCalculationTime = End_Time - Start_Time;
       Total_Solve_Time = Total_Solve_Time + timeStepCalculationTime;
 
       System_Solve_Time = System_Solve_Time + timeStepCalculationTime;
@@ -2482,7 +2483,7 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
          PetscPrintf ( PETSC_COMM_WORLD, " MeSsAgE ERROR pressure solver exit condition was: %s \n",
                        getKspConvergedReasonImage ( convergedReason ).c_str ());
          PetscPrintf ( PETSC_COMM_WORLD, " MeSsAgE ERROR the linear solver could not converge to a solution after %i attempts and %i iterations. \n",
-                       linearSolveAttempts, 
+                       linearSolveAttempts,
                        linearSolverTotalIterationCount );
          overpressureHasDiverged = true;
       } else {
@@ -2506,12 +2507,12 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
       }
 
       PetscTime(&Iteration_End_Time);
-      Iteration_Time = Iteration_End_Time - Iteration_Start_Time; 
-      Total_Iteration_Time = Total_Iteration_Time + Iteration_Time; 
+      Iteration_Time = Iteration_End_Time - Iteration_Start_Time;
+      Total_Iteration_Time = Total_Iteration_Time + Iteration_Time;
 
-      if (( basinModel -> debug1 || basinModel->verbose ) && ( FastcauldronSimulator::getInstance ().getRank () == 0 )) 
+      if (( basinModel -> debug1 || basinModel->verbose ) && ( FastcauldronSimulator::getInstance ().getRank () == 0 ))
       {
-        cout << " Newton iteration (p): " 
+        cout << " Newton iteration (p): "
              << setw (  5 ) << totalNumberOfNonlinearIterations + 1
              << setw ( 16 ) << Residual_Length
              << setw ( 16 ) << Solution_Length
@@ -2563,9 +2564,9 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
 
     fracturingOccurred = fracturingOccurred or hasFractured;
     ++fractureIterations;
-  } while ( hasFractured and not overpressureHasDiverged and 
+  } while ( hasFractured and not overpressureHasDiverged and
             fractureIterations <= MaximumNumberOfFractureIterations );
-  
+
 
   StatisticsHandler::update ();
 
@@ -2581,27 +2582,27 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
   if (( basinModel -> debug1 or basinModel->verbose ) && ( FastcauldronSimulator::getInstance ().getRank () == 0 )) {
     cout << setw ( 193 ) << "  --------------  --------------  --------------" << endl;
     cout << setw ( 161 )
-         << Total_Jacobian_Time 
-         << setw ( 16 ) << Total_Solve_Time 
-         << setw ( 16 ) << Total_Iteration_Time 
+         << Total_Jacobian_Time
+         << setw ( 16 ) << Total_Solve_Time
+         << setw ( 16 ) << Total_Iteration_Time
          << endl;
 
     cout << " Maximum_Pressure               " << Maximum_Overpressure << endl;
     cout << " Maximum_Pressure_Difference    " << Max_Difference << endl;
     cout << " Number Of Nonlinear Iterations " << Number_Of_Nonlinear_Iterations << endl;
     cout << " Number Of Nonlinear Iterations " << totalNumberOfNonlinearIterations << endl;
-    cout << " Pressure_Norms                 " 
-         << Previous_TS_Po_Norm << "  " 
-         << First_Po_Norm << "   " 
-         << Po_Norm << "  " 
-         << Previous_TS_Po_Norm / First_Po_Norm << "  " 
-         << Po_Norm / First_Po_Norm << "  " 
-         << Previous_TS_Po_Norm / Po_Norm << "  " 
+    cout << " Pressure_Norms                 "
+         << Previous_TS_Po_Norm << "  "
+         << First_Po_Norm << "   "
+         << Po_Norm << "  "
+         << Previous_TS_Po_Norm / First_Po_Norm << "  "
+         << Po_Norm / First_Po_Norm << "  "
+         << Previous_TS_Po_Norm / Po_Norm << "  "
          << endl;
   }
 
-  // if DEBUG3 set then call the script fastcauldron_performance 
-  if ( basinModel -> debug3 ) { 
+  // if DEBUG3 set then call the script fastcauldron_performance
+  if ( basinModel -> debug3 ) {
     system( "fastcauldron_PostNLsolve" );
   }
 
@@ -2618,7 +2619,7 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
 
 //------------------------------------------------------------//
 
-#undef  __FUNCT__  
+#undef  __FUNCT__
 #define __FUNCT__ "Basin_Modelling::FEM_Grid::Solve_Temperature_For_Time_Step"
 
 void Basin_Modelling::FEM_Grid::Solve_Temperature_For_Time_Step
@@ -2650,7 +2651,7 @@ void Basin_Modelling::FEM_Grid::Solve_Temperature_For_Time_Step
 
 //------------------------------------------------------------//
 
-#undef  __FUNCT__  
+#undef  __FUNCT__
 #define __FUNCT__ "Basin_Modelling::FEM_Grid::Solve_Nonlinear_Temperature_For_Time_Step"
 
 void Basin_Modelling::FEM_Grid::Solve_Nonlinear_Temperature_For_Time_Step ( const double  Previous_Time,
@@ -2696,7 +2697,7 @@ void Basin_Modelling::FEM_Grid::Solve_Nonlinear_Temperature_For_Time_Step ( cons
   PetscLogDouble Total_Jacobian_Time = 0.0;
 
   boost::shared_ptr< PetscSolver > temperatureLinearSolver;
-  
+
   if (isSteadyStateCalculation || strcmp(basinModel->Temperature_Linear_Solver_Type, KSPCG) == 0)
   {
      temperatureLinearSolver.reset ( new PetscCG ( Temperature_Calculator.linearSolverTolerance ( basinModel->Optimisation_Level )));
@@ -2749,7 +2750,7 @@ void Basin_Modelling::FEM_Grid::Solve_Nonlinear_Temperature_For_Time_Step ( cons
   cout.flags ( ios::scientific );
 
   temperatureHasDiverged = false;
-  
+
   // If the input provided m_saveTimeStep is equal to the age of the basin (case m_saveTimeStep == Previous_Time) or
   // the current time step is the first one greater or equal to m_saveTimeStep, then matrix and RHS will be saved
   const bool saveMatrix = m_saveMatrixToFile and
@@ -2764,10 +2765,10 @@ void Basin_Modelling::FEM_Grid::Solve_Nonlinear_Temperature_For_Time_Step ( cons
     PetscTime(&Jacobian_Start_Time);
 
     if ( Number_Of_Nonlinear_Iterations == 0 ) {
-      MatZeroEntries ( Jacobian ); 
+      MatZeroEntries ( Jacobian );
       PetscTime(&Assembly_Start_Time);
-      Temperature_Calculator.assembleSystem ( m_temperatureComputationalDomain, 
-                                              Previous_Time, Current_Time, 
+      Temperature_Calculator.assembleSystem ( m_temperatureComputationalDomain,
+                                              Previous_Time, Current_Time,
                                               Jacobian, Residual,
                                               Element_Contributions_Time );
       PetscTime(&Assembly_End_Time);
@@ -2790,13 +2791,13 @@ void Basin_Modelling::FEM_Grid::Solve_Nonlinear_Temperature_For_Time_Step ( cons
 
     } else {
 
-      // It is not always necessary to compute the Jacobian, the one from the previous 
+      // It is not always necessary to compute the Jacobian, the one from the previous
       // iteration is good enough. This saves some time not only because the Jacobian
       // is not computed but also the preconditioner remains the same as for the previous
       // iteration.
       PetscTime(&Assembly_Start_Time);
-      Temperature_Calculator.assembleResidual ( m_temperatureComputationalDomain, 
-                                                Previous_Time, Current_Time, 
+      Temperature_Calculator.assembleResidual ( m_temperatureComputationalDomain,
+                                                Previous_Time, Current_Time,
                                                 Residual,
                                                 Element_Contributions_Time );
       PetscTime(&Assembly_End_Time);
@@ -2810,11 +2811,11 @@ void Basin_Modelling::FEM_Grid::Solve_Nonlinear_Temperature_For_Time_Step ( cons
     PetscTime(&Start_Time);
 
     PetscTime(&Jacobian_End_Time);
-    Jacobian_Time = Jacobian_End_Time - Jacobian_Start_Time; 
-    Total_Jacobian_Time = Total_Jacobian_Time + Jacobian_Time; 
-    
+    Jacobian_Time = Jacobian_End_Time - Jacobian_Start_Time;
+    Total_Jacobian_Time = Total_Jacobian_Time + Jacobian_Time;
+
     VecSet ( Residual_Solution, Zero );
-    
+
     KSPConvergedReason convergedReason;
     temperatureLinearSolver->solve( Jacobian, Residual, Residual_Solution, &numberOfLinearIterations, &convergedReason);
     temperatureHasDiverged = ( numberOfLinearIterations == maximumNumberOfLinearSolverIterations ) || convergedReason == KSP_DIVERGED_NANORINF;
@@ -2831,7 +2832,7 @@ void Basin_Modelling::FEM_Grid::Solve_Nonlinear_Temperature_For_Time_Step ( cons
        temperatureLinearSolver->viewSettings();
     }
 
-    timeStepCalculationTime   = End_Time - Start_Time; 
+    timeStepCalculationTime   = End_Time - Start_Time;
     Total_Solve_Time  = Total_Solve_Time + timeStepCalculationTime;
     System_Solve_Time = System_Solve_Time + timeStepCalculationTime;
 
@@ -2849,11 +2850,11 @@ void Basin_Modelling::FEM_Grid::Solve_Nonlinear_Temperature_For_Time_Step ( cons
     VecNorm ( Residual, NORM_2, &Residual_Length );
 
     PetscTime(&Iteration_End_Time);
-    Iteration_Time = Iteration_End_Time - Iteration_Start_Time; 
-    Total_Iteration_Time = Total_Iteration_Time + Iteration_Time; 
+    Iteration_Time = Iteration_End_Time - Iteration_Start_Time;
+    Total_Iteration_Time = Total_Iteration_Time + Iteration_Time;
 
     if ( FastcauldronSimulator::getInstance ().getRank () == 0 && ( basinModel -> debug1 || basinModel->verbose) ){
-      cout << " Newton iteration (t): " 
+      cout << " Newton iteration (t): "
            << setw (  4 ) << Number_Of_Nonlinear_Iterations + 1
            << setw ( 16 ) << Residual_Length / Element_Scaling
            << setw ( 16 ) << Solution_Length
@@ -2882,16 +2883,16 @@ void Basin_Modelling::FEM_Grid::Solve_Nonlinear_Temperature_For_Time_Step ( cons
   if (( basinModel -> debug1 || basinModel->verbose ) && ( FastcauldronSimulator::getInstance ().getRank () == 0 )) {
     cout << setw ( 160 ) << "  --------------  --------------  --------------" << endl;
     cout << setw ( 128 )
-         << Total_Jacobian_Time 
-         << setw ( 16 ) << Total_Solve_Time 
-         << setw ( 16 ) << Total_Iteration_Time 
+         << Total_Jacobian_Time
+         << setw ( 16 ) << Total_Solve_Time
+         << setw ( 16 ) << Total_Iteration_Time
          << endl;
 
     cout << " Number Of Nonlinear Iterations " << Number_Of_Nonlinear_Iterations << endl;
   }
 
-  // if DEBUG3 set then call the script fastcauldron_performance 
-  if ( basinModel -> debug3 ) { 
+  // if DEBUG3 set then call the script fastcauldron_performance
+  if ( basinModel -> debug3 ) {
     system( "fastcauldron_PostNLsolve" );
   }
 
@@ -2907,7 +2908,7 @@ void Basin_Modelling::FEM_Grid::Solve_Nonlinear_Temperature_For_Time_Step ( cons
 
 //------------------------------------------------------------//
 
-#undef  __FUNCT__  
+#undef  __FUNCT__
 #define __FUNCT__ "Basin_Modelling::FEM_Grid::Solve_Linear_Temperature_For_Time_Step"
 
 void Basin_Modelling::FEM_Grid::Solve_Linear_Temperature_For_Time_Step ( const double Previous_Time,
@@ -2954,7 +2955,7 @@ void Basin_Modelling::FEM_Grid::Solve_Linear_Temperature_For_Time_Step ( const d
   PetscLogDouble Total_System_Assembly_Time;
 
   boost::shared_ptr< PetscSolver > temperatureLinearSolver;
-  
+
   if ( strcmp(basinModel->Temperature_Linear_Solver_Type, KSPCG) == 0)
   {
      temperatureLinearSolver.reset ( new PetscCG ( Temperature_Calculator.linearSolverTolerance ( basinModel->Optimisation_Level )));
@@ -2994,11 +2995,11 @@ void Basin_Modelling::FEM_Grid::Solve_Linear_Temperature_For_Time_Step ( const d
   PetscTime(&System_Assembly_Start_Time);
   VecSet ( Load_Vector, Zero );
 
-  MatZeroEntries ( Stiffness_Matrix ); 
+  MatZeroEntries ( Stiffness_Matrix );
 
   Temperature_Calculator.assembleStiffnessMatrix ( m_temperatureComputationalDomain,
                                                    Previous_Time,
-                                                   Current_Time, 
+                                                   Current_Time,
                                                    Stiffness_Matrix,
                                                    Load_Vector,
                                                    Element_Contributions_Time );
@@ -3070,23 +3071,23 @@ void Basin_Modelling::FEM_Grid::Solve_Linear_Temperature_For_Time_Step ( const d
   PetscTime(&End_Time);
   Property_Time = End_Time - Start_Time;
 
-  // if DEBUG3 set then call the script fastcauldron_performance 
-  if ( basinModel -> debug3 ) { 
+  // if DEBUG3 set then call the script fastcauldron_performance
+  if ( basinModel -> debug3 ) {
     system( "fastcauldron_PostNLsolve" );
   }
 
   StatisticsHandler::update ();
 
   PetscTime(&Iteration_End_Time);
-  Iteration_Time = Iteration_End_Time - Iteration_Start_Time; 
+  Iteration_Time = Iteration_End_Time - Iteration_Start_Time;
 
   if (( basinModel -> debug1 || basinModel->verbose ) && ( FastcauldronSimulator::getInstance ().getRank () == 0 )) {
-    cout << " Temperature solving: "  
+    cout << " Temperature solving: "
          << m_temperatureComputationalDomain.getGlobalNumberOfActiveNodes () << "  "
-         << numberOfLinearIterations << "  " 
-         << Total_System_Assembly_Time << "  " 
-         << Solve_Time << "  " 
-         << Property_Time << "  " 
+         << numberOfLinearIterations << "  "
+         << Total_System_Assembly_Time << "  "
+         << Solve_Time << "  "
+         << Property_Time << "  "
          << Iteration_Time << "  "
          << matrixCreationTime << "  "
          << storeCreationTime << "  "
@@ -3110,7 +3111,7 @@ void Basin_Modelling::FEM_Grid::Solve_Linear_Temperature_For_Time_Step ( const d
 
 //------------------------------------------------------------//
 
-#undef  __FUNCT__  
+#undef  __FUNCT__
 #define __FUNCT__ "Basin_Modelling::FEM_Grid::Solve_Coupled_For_Time_Step"
 
 void Basin_Modelling::FEM_Grid::Solve_Coupled_For_Time_Step ( const double  Previous_Time,
@@ -3144,7 +3145,7 @@ void Basin_Modelling::FEM_Grid::Solve_Coupled_For_Time_Step ( const double  Prev
 
     // Solve pressure equations before the temperature, the main reason for this
     // is that the pressure is thought to have more of an influence on the temperature
-    // than vice-versa. Also, the pressure will affect the depth, if using the geometric 
+    // than vice-versa. Also, the pressure will affect the depth, if using the geometric
     // loop, therefore therefore we need to solve the temperature uising the correct depth.
     //
     // If the number of iteration in the outer coupling loop is greater than 1,
@@ -3161,9 +3162,9 @@ void Basin_Modelling::FEM_Grid::Solve_Coupled_For_Time_Step ( const double  Prev
     // compute lithostatic pressure in basement.
 
     if ( not overpressureHasDiverged ) {
-      Solve_Temperature_For_Time_Step ( Previous_Time, 
-                                        Current_Time, 
-                                        Maximum_Number_Of_Nonlinear_Temperature_Iterations, 
+      Solve_Temperature_For_Time_Step ( Previous_Time,
+                                        Current_Time,
+                                        Maximum_Number_Of_Nonlinear_Temperature_Iterations,
                                         temperatureHasDiverged,
                                         Number_Of_Temperature_Nonlinear_Iterations,
                                         T_Norm );
@@ -3175,12 +3176,12 @@ void Basin_Modelling::FEM_Grid::Solve_Coupled_For_Time_Step ( const double  Prev
 
     if ( (basinModel -> debug1 || basinModel->verbose) && FastcauldronSimulator::getInstance ().getRank () == 0 ) {
       cout << " Norms" << setw ( 3 ) << I << " "
-           << Po_Norm << "  " 
-           << T_Norm << "  " 
-           << fabs ( Po_Norm - Previous_Po_Norm ) / Po_Norm << "  " 
+           << Po_Norm << "  "
+           << T_Norm << "  "
+           << fabs ( Po_Norm - Previous_Po_Norm ) / Po_Norm << "  "
            << fabs ( T_Norm - Previous_T_Norm ) / T_Norm << "  "
-           << Number_Of_Pressure_Nonlinear_Iterations << "  " 
-           << Number_Of_Temperature_Nonlinear_Iterations << "  " 
+           << Number_Of_Pressure_Nonlinear_Iterations << "  "
+           << Number_Of_Temperature_Nonlinear_Iterations << "  "
            << endl;
     }
 
@@ -3189,7 +3190,7 @@ void Basin_Modelling::FEM_Grid::Solve_Coupled_For_Time_Step ( const double  Prev
       break;
     }
 
-    if ( fabs (( Po_Norm - Previous_Po_Norm ) / Po_Norm ) < Pressure_Newton_Solver_Tolerance || 
+    if ( fabs (( Po_Norm - Previous_Po_Norm ) / Po_Norm ) < Pressure_Newton_Solver_Tolerance ||
          fabs (( T_Norm  - Previous_T_Norm  ) / T_Norm  ) < Temperature_Newton_Solver_Tolerance ) {
 
       // We 'OR' these 2 convergence checks because if one has converged then
@@ -3208,7 +3209,7 @@ void Basin_Modelling::FEM_Grid::Solve_Coupled_For_Time_Step ( const double  Prev
 
 //------------------------------------------------------------//
 
-#undef  __FUNCT__  
+#undef  __FUNCT__
 #define __FUNCT__ "Basin_Modelling::FEM_Grid::Compute_Temperature_Dependant_Properties"
 
 void Basin_Modelling::FEM_Grid::Compute_Temperature_Dependant_Properties ( const double Previous_Time,
@@ -3247,7 +3248,7 @@ void Basin_Modelling::FEM_Grid::Compute_Temperature_Dependant_Properties ( const
 
 
   Double_Array_2D Temperature_Above ( X_Count, Y_Count );
-  
+
   Layers.Initialise_Iterator ( basinModel -> layers, Descending, Sediments_Only, Active_Layers_Only );
 
   if ( Layers.Iteration_Is_Done ()) {
@@ -3293,7 +3294,7 @@ void Basin_Modelling::FEM_Grid::Compute_Temperature_Dependant_Properties ( const
   Current_Layer -> Current_Properties.Restore_Property ( Basin_Modelling::Depth );
 
   while ( ! Layers.Iteration_Is_Done () ) {
-    
+
     Current_Layer = Layers.Current_Layer ();
 
     PETSC_3D_Array Layer_Porosity        ( Current_Layer -> layerDA, Current_Layer -> Porosity );
@@ -3355,7 +3356,7 @@ void Basin_Modelling::FEM_Grid::clearLayerVectors () {
 
 //------------------------------------------------------------//
 
-#undef  __FUNCT__  
+#undef  __FUNCT__
 #define __FUNCT__ "Basin_Modelling::FEM_Grid::Copy_Current_Properties"
 
 void Basin_Modelling::FEM_Grid::Copy_Current_Properties () {
@@ -3367,14 +3368,14 @@ void Basin_Modelling::FEM_Grid::Copy_Current_Properties () {
 
   for ( Layers.Initialise_Iterator (); ! Layers.Iteration_Is_Done (); Layers++ ) {
      Layers.Current_Layer ()->copyProperties ();
-  } 
+  }
 
 }
 
 
 //------------------------------------------------------------//
 
-#undef  __FUNCT__  
+#undef  __FUNCT__
 #define __FUNCT__ "Basin_Modelling::FEM_Grid::Store_Computed_Deposition_Thickness"
 
 void Basin_Modelling::FEM_Grid::Store_Computed_Deposition_Thickness ( const double Current_Time ) {
@@ -3401,9 +3402,9 @@ void Basin_Modelling::FEM_Grid::Store_Computed_Deposition_Thickness ( const doub
 
       LayerProps_Ptr Current_Layer = Layers.Current_Layer ();
       // Is this the best number to have here? I think so, but cannot prove it.
-      // The snapshot times, time step, ... are written out (perhaps read in too) 
+      // The snapshot times, time step, ... are written out (perhaps read in too)
       // as a float, but stored and used as doubles.
-      const double Float_Epsilon = pow ( 2.0, -23 ); 
+      const double Float_Epsilon = pow ( 2.0, -23 );
 
       if ( fabs ( Current_Time - Current_Layer -> depoage ) >= NumericFunctions::Maximum ( Current_Time, 1.0 ) * Float_Epsilon ) break;
 
@@ -3411,7 +3412,7 @@ void Basin_Modelling::FEM_Grid::Store_Computed_Deposition_Thickness ( const doub
 
       DMCreateGlobalVector ( *basinModel->mapDA, &(Current_Layer -> Computed_Deposition_Thickness) );
 
-      PETSC_2D_Array Computed_Deposition_Thickness ( *basinModel->mapDA, 
+      PETSC_2D_Array Computed_Deposition_Thickness ( *basinModel->mapDA,
             Current_Layer -> Computed_Deposition_Thickness );
 
       DMDAGetCorners ( Current_Layer->layerDA, &X_Start, &Y_Start, &Z_Start, &X_Count, &Y_Count, &Z_Count );
@@ -3470,20 +3471,20 @@ void Basin_Modelling::FEM_Grid::Store_Computed_Deposition_Thickness ( const doub
 
 //------------------------------------------------------------//
 
-#undef  __FUNCT__  
+#undef  __FUNCT__
 #define __FUNCT__ "Basin_Modelling::FEM_Grid::Set_Pressure_Dependent_Properties"
 
 void Basin_Modelling::FEM_Grid::Set_Pressure_Dependent_Properties ( const double Current_Time ) {
 
    CalculationMode calculationMode = FastcauldronSimulator::getInstance ().getCalculationMode ();
 
-   if ( calculationMode == OVERPRESSURE_MODE or 
+   if ( calculationMode == OVERPRESSURE_MODE or
         calculationMode == NO_CALCULATION_MODE ) {
       return;
    }
 
    if ( Current_Time == FastcauldronSimulator::getInstance ().getAgeOfBasin ()) {
-      // There is no need to distinguish between geometric-loop and non-geometric-loop 
+      // There is no need to distinguish between geometric-loop and non-geometric-loop
       // since the basement lithologies have zero porosity.
       basinModel->calcNodeDepths ( Current_Time );
    } else if ( calculationMode != PRESSURE_AND_TEMPERATURE_MODE and calculationMode != COUPLED_DARCY_MODE ) {
@@ -3507,7 +3508,7 @@ void Basin_Modelling::FEM_Grid::Set_Pressure_Dependent_Properties ( const double
 
 //------------------------------------------------------------//
 
-#undef  __FUNCT__  
+#undef  __FUNCT__
 #define __FUNCT__ "Basin_Modelling::FEM_Grid::Initialise_Basin_Temperature"
 
 void Basin_Modelling::FEM_Grid::Initialise_Basin_Temperature ( bool& temperatureHasDiverged ) {
@@ -3545,7 +3546,7 @@ void Basin_Modelling::FEM_Grid::Initialise_Basin_Temperature ( bool& temperature
 
 //------------------------------------------------------------//
 
-#undef  __FUNCT__  
+#undef  __FUNCT__
 #define __FUNCT__ "Basin_Modelling::FEM_Grid::printRelatedProjects"
 
 void Basin_Modelling::FEM_Grid::printRelatedProjects ( const double currentAge ) const {
@@ -3572,20 +3573,20 @@ void Basin_Modelling::FEM_Grid::printRelatedProjects ( const double currentAge )
       Y_Position = int (( basinModel -> Related_Projects [ I ] -> Y_Coord - Origin_Y ) / Delta_Y );
 
       if ( basinModel -> debug1 && FastcauldronSimulator::getInstance ().getRank () == 0 ) {
-        cout << " outputting pseudo well for project " <<  basinModel -> Related_Projects [ I ] -> Name 
-             << " at location ( " 
+        cout << " outputting pseudo well for project " <<  basinModel -> Related_Projects [ I ] -> Name
+             << " at location ( "
              << basinModel -> Related_Projects [ I ] -> X_Coord
              << ", "
              << basinModel -> Related_Projects [ I ] -> Y_Coord
              << " ), ( "
-             << X_Position 
+             << X_Position
              << ", "
-             << Y_Position 
+             << Y_Position
              << " )"
              << endl << flush;
         fflush ( stdout );
       }
- 
+
       Print_Needle ( currentAge, X_Position, Y_Position );
     }
 
@@ -3646,7 +3647,7 @@ void Basin_Modelling::FEM_Grid::Print_Needle ( const double currentAge, const in
 
   string Layer_Name;
   std::stringstream buffer;
- 
+
   int Old_Precision = buffer.precision ( 6 );
   buffer.setf ( ios::scientific );
 
@@ -3961,7 +3962,7 @@ void Basin_Modelling::FEM_Grid::printElementNeedle ( const int i, const int j ) 
 
 
    const LayerElement* neighbour;
-  
+
    for ( layers.Initialise_Iterator (); ! layers.Iteration_Is_Done (); layers++ ) {
 
       LayerProps* layer = layers.Current_Layer ();
@@ -3973,17 +3974,17 @@ void Basin_Modelling::FEM_Grid::printElementNeedle ( const int i, const int j ) 
 
       if ( above != 0 ) {
          cout << " Element above " << endl;
-         cout << layer->getLayerElement ( i, j, layer->getMaximumNumberOfElements () - 1 ).getNeighbour ( VolumeData::ShallowFace )->image () << endl; 
+         cout << layer->getLayerElement ( i, j, layer->getMaximumNumberOfElements () - 1 ).getNeighbour ( VolumeData::ShallowFace )->image () << endl;
       }
 
       neighbour = layer->getLayerElement ( i, j, layer->getMaximumNumberOfElements () - 1 ).getActiveNeighbour ( VolumeData::ShallowFace );
 
       if ( neighbour != 0 ) {
          cout << " active element above " << endl;
-         cout << neighbour->image () << endl; 
+         cout << neighbour->image () << endl;
       } else {
-         cout << " neighbour is null " << endl; 
-      } 
+         cout << " neighbour is null " << endl;
+      }
 
       for ( k = layer->getMaximumNumberOfElements () - 1; k >= 0; --k ) {
          cout << " Element " << k << endl;
@@ -3993,17 +3994,17 @@ void Basin_Modelling::FEM_Grid::printElementNeedle ( const int i, const int j ) 
 
       if ( below != 0 ) {
          cout << " Element below " << endl;
-         cout << layer->getLayerElement ( i, j, 0 ).getNeighbour ( VolumeData::DeepFace )->image () << endl;        
+         cout << layer->getLayerElement ( i, j, 0 ).getNeighbour ( VolumeData::DeepFace )->image () << endl;
       }
 
       neighbour = layer->getLayerElement ( i, j, 0 ).getActiveNeighbour ( VolumeData::DeepFace );
 
       if ( neighbour != 0 ) {
          cout << " active element below " << endl;
-         cout << neighbour->image () << endl; 
+         cout << neighbour->image () << endl;
       } else {
-         cout << " neighbour is null " << endl; 
-      } 
+         cout << " neighbour is null " << endl;
+      }
 
       cout << endl;
       cout << endl;
@@ -4032,7 +4033,7 @@ void Basin_Modelling::FEM_Grid::Determine_Permafrost_Time_Step ( const double  C
       } else if ( basinModel->switchPermafrostTimeStep( Current_Time )) {
          Time_Step = NumericFunctions::Minimum ( Time_Step, basinModel->permafrostTimeStep() );
       }
-   } 
+   }
 }
 
 //------------------------------------------------------------//
@@ -4059,7 +4060,7 @@ void Basin_Modelling::FEM_Grid::determineIgneousIntrusionTimeStep ( const double
    }
 
    return;
-   
+
 }
 //------------------------------------------------------------//
 

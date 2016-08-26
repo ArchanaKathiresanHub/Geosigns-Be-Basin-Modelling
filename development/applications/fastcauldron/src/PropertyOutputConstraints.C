@@ -26,7 +26,7 @@ const std::string& PropertyOutputOptionImage ( const Interface::PropertyOutputOp
       return outputOptionImages [ option ];
    } else {
       return outputOptionImages [ 4 ];
-   } 
+   }
 
 }
 
@@ -156,7 +156,8 @@ const ApplicableOutputRegion::ApplicableRegion PropertyOutputConstraints::s_prop
      ApplicableOutputRegion::SEDIMENTS_AND_BASEMENT,      /* ALCSmContCrustThickness  */
      ApplicableOutputRegion::SEDIMENTS_AND_BASEMENT,      /* ALCSmTopBasaltDepth      */
      ApplicableOutputRegion::SEDIMENTS_AND_BASEMENT,      /* ALCSmMohoDepth           */
-     ApplicableOutputRegion::SEDIMENTS_AND_BASEMENT       /* ALCOrigMantle            */
+     ApplicableOutputRegion::SEDIMENTS_AND_BASEMENT,      /* ALCOrigMantle            */
+     ApplicableOutputRegion::SEDIMENTS_AND_BASEMENT       /* HorizontalPermeability   */
 };
 
 const Interface::PropertyOutputOption PropertyOutputConstraints::s_calculationModeMaxima[NumberOfCalculationModes] = {
@@ -173,7 +174,7 @@ const Interface::PropertyOutputOption PropertyOutputConstraints::s_calculationMo
 };
 
 
-/* 
+/*
     s_outputPermitted: indicated whether, or not, a property can be output for a given calculation mode.
 
     HD   : Hydrostatic decompaction;
@@ -265,38 +266,38 @@ const bool PropertyOutputConstraints::s_outputPermitted [ PropertyListSize ][ Nu
    { false, false,  true, false,  true, false,  true,  true,  true, false },  /* C15+SatS               */
    { false, false,  true, false,  true, false,  true,  true,  true, false },  /* C6-14 SatS             */
    { false, false,  true, false,  true, false,  true,  true,  true, false },  /* C6-14 AroS             */
-   { false, false,  true, false,  true, false,  true,  true,  true, false },  /* InstantaneousExpulsionApi                 */ 
-   { false, false,  true, false,  true, false,  true,  true,  true, false },  /* CumulativeExpulsionApi                    */ 
-   { false, false,  true, false,  true, false,  true,  true,  true, false },  /* InstantaneousExpulsionCondensateGasRatio  */ 
-   { false, false,  true, false,  true, false,  true,  true,  true, false },  /* CumulativeExpulsionCondensateGasRatio     */ 
-   { false, false,  true, false,  true, false,  true,  true,  true, false },  /* InstantaneousExpulsionGasOilRatio         */ 
-   { false, false,  true, false,  true, false,  true,  true,  true, false },  /* CumulativeExpulsionGasOilRatio            */ 
-   { false, false,  true, false,  true, false,  true,  true,  true, false },  /* InstantaneousExpulsionGasWetness          */ 
-   { false, false,  true, false,  true, false,  true,  true,  true, false },  /* CumulativeExpulsionGasWetness             */ 
-   { false, false,  true, false,  true, false,  true,  true,  true, false },  /* InstantaneousExpulsionAromaticity         */ 
-   { false, false,  true, false,  true, false,  true,  true,  true, false },  /* CumulativeExpulsionAromaticity            */ 
-   { false, false,  true, false,  true, false,  true,  true,  true, false },  /* KerogenConversionRatio                    */ 
-   { false, false,  true, false,  true, false,  true,  true,  true, false },  /* OilGeneratedCumulative                    */ 
-   { false, false,  true, false,  true, false,  true,  true,  true, false },  /* OilGeneratedRate                          */ 
-   { false, false,  true, false,  true, false,  true,  true,  true, false },  /* OilExpelledCumulative                     */ 
-   { false, false,  true, false,  true, false,  true,  true,  true, false },  /* OilExpelledRate                           */ 
-   { false, false,  true, false,  true, false,  true,  true,  true, false },  /* HcGasGeneratedCumulative                  */ 
-   { false, false,  true, false,  true, false,  true,  true,  true, false },  /* HcGasGeneratedRate                        */ 
-   { false, false,  true, false,  true, false,  true,  true,  true, false },  /* HcGasExpelledCumulative                   */ 
-   { false, false,  true, false,  true, false,  true,  true,  true, false },  /* HcGasExpelledRate                         */ 
-   { false, false,  true, false,  true, false,  true,  true,  true, false },  /* DryGasGeneratedCumulative                 */ 
-   { false, false,  true, false,  true, false,  true,  true,  true, false },  /* DryGasGeneratedRate                       */ 
-   { false, false,  true, false,  true, false,  true,  true,  true, false },  /* DryGasExpelledCumulative                  */ 
-   { false, false,  true, false,  true, false,  true,  true,  true, false },  /* DryGasExpelledRate                        */ 
-   { false, false,  true, false,  true, false,  true,  true,  true, false },  /* WetGasGeneratedCumulative                 */ 
-   { false, false,  true, false,  true, false,  true,  true,  true, false },  /* WetGasGeneratedRate                       */ 
-   { false, false,  true, false,  true, false,  true,  true,  true, false },  /* WetGasExpelledCumulative                  */ 
-   { false, false,  true, false,  true, false,  true,  true,  true, false },  /* WetGasExpelledRate                        */ 
-   { false, false, false, false, false, false, false,  true,  true, false },  /* Concentrations                            */ 
-   { false, false, false, false, false, false, false,  true,  true, false },  /* PVT Properties: hc-density and -viscocity */ 
-   { false, false, false, false, false, false, false,  true,  true, false },  /* Rel Perm calculations                     */ 
-   { false, false,  true,  true,  true, false,  true,  true,  true, false },  /* Volume calculations                       */ 
-   { false, false, false, false, false, false, false,  true,  true, false },  /* Transported volume calculations           */ 
+   { false, false,  true, false,  true, false,  true,  true,  true, false },  /* InstantaneousExpulsionApi                 */
+   { false, false,  true, false,  true, false,  true,  true,  true, false },  /* CumulativeExpulsionApi                    */
+   { false, false,  true, false,  true, false,  true,  true,  true, false },  /* InstantaneousExpulsionCondensateGasRatio  */
+   { false, false,  true, false,  true, false,  true,  true,  true, false },  /* CumulativeExpulsionCondensateGasRatio     */
+   { false, false,  true, false,  true, false,  true,  true,  true, false },  /* InstantaneousExpulsionGasOilRatio         */
+   { false, false,  true, false,  true, false,  true,  true,  true, false },  /* CumulativeExpulsionGasOilRatio            */
+   { false, false,  true, false,  true, false,  true,  true,  true, false },  /* InstantaneousExpulsionGasWetness          */
+   { false, false,  true, false,  true, false,  true,  true,  true, false },  /* CumulativeExpulsionGasWetness             */
+   { false, false,  true, false,  true, false,  true,  true,  true, false },  /* InstantaneousExpulsionAromaticity         */
+   { false, false,  true, false,  true, false,  true,  true,  true, false },  /* CumulativeExpulsionAromaticity            */
+   { false, false,  true, false,  true, false,  true,  true,  true, false },  /* KerogenConversionRatio                    */
+   { false, false,  true, false,  true, false,  true,  true,  true, false },  /* OilGeneratedCumulative                    */
+   { false, false,  true, false,  true, false,  true,  true,  true, false },  /* OilGeneratedRate                          */
+   { false, false,  true, false,  true, false,  true,  true,  true, false },  /* OilExpelledCumulative                     */
+   { false, false,  true, false,  true, false,  true,  true,  true, false },  /* OilExpelledRate                           */
+   { false, false,  true, false,  true, false,  true,  true,  true, false },  /* HcGasGeneratedCumulative                  */
+   { false, false,  true, false,  true, false,  true,  true,  true, false },  /* HcGasGeneratedRate                        */
+   { false, false,  true, false,  true, false,  true,  true,  true, false },  /* HcGasExpelledCumulative                   */
+   { false, false,  true, false,  true, false,  true,  true,  true, false },  /* HcGasExpelledRate                         */
+   { false, false,  true, false,  true, false,  true,  true,  true, false },  /* DryGasGeneratedCumulative                 */
+   { false, false,  true, false,  true, false,  true,  true,  true, false },  /* DryGasGeneratedRate                       */
+   { false, false,  true, false,  true, false,  true,  true,  true, false },  /* DryGasExpelledCumulative                  */
+   { false, false,  true, false,  true, false,  true,  true,  true, false },  /* DryGasExpelledRate                        */
+   { false, false,  true, false,  true, false,  true,  true,  true, false },  /* WetGasGeneratedCumulative                 */
+   { false, false,  true, false,  true, false,  true,  true,  true, false },  /* WetGasGeneratedRate                       */
+   { false, false,  true, false,  true, false,  true,  true,  true, false },  /* WetGasExpelledCumulative                  */
+   { false, false,  true, false,  true, false,  true,  true,  true, false },  /* WetGasExpelledRate                        */
+   { false, false, false, false, false, false, false,  true,  true, false },  /* Concentrations                            */
+   { false, false, false, false, false, false, false,  true,  true, false },  /* PVT Properties: hc-density and -viscocity */
+   { false, false, false, false, false, false, false,  true,  true, false },  /* Rel Perm calculations                     */
+   { false, false,  true,  true,  true, false,  true,  true,  true, false },  /* Volume calculations                       */
+   { false, false, false, false, false, false, false,  true,  true, false },  /* Transported volume calculations           */
    { false, false, false, false, false, false, false,  true,  true, false },  /* Saturations                               */
    { false, false, false, false, false, false, false,  true,  true, false },  /* AverageSaturations                        */
    { false, false, false, false, false, false, false,  true,  true, false },  /* HC fliud velocity                         */
@@ -313,7 +314,8 @@ const bool PropertyOutputConstraints::s_outputPermitted [ PropertyListSize ][ Nu
    {  true,  true,  true, false,  true,  true,  true,  true,  true, false },  /* ALCSmContCrustThickness  */
    {  true,  true,  true, false,  true,  true,  true,  true,  true, false },  /* ALCSmTopBasaltDepth      */
    {  true,  true,  true, false,  true,  true,  true,  true,  true, false },  /* ALCSmMohoDepth           */
-   {  true,  true,  true, false,  true,  true,  true,  true,  true, false }   /* ALCOrigMantle            */
+   {  true,  true,  true, false,  true,  true,  true,  true,  true, false },  /* ALCOrigMantle            */
+   { false, false,  true,  true, false, false,  true,  true,  true, false }   /* HorizontalPermeability   */
 };
 
 /*
@@ -407,38 +409,38 @@ const bool PropertyOutputConstraints::s_outputRequired [ PropertyListSize ][ Num
    { false, false, false, false, false, false, false, false, false, false },  /* C15+SatS               */
    { false, false, false, false, false, false, false, false, false, false },  /* C6-14 SatS             */
    { false, false, false, false, false, false, false, false, false, false },  /* C6-14 AroS             */
-   { false, false, false, false, false, false, false, false, false, false },  /* InstantaneousExpulsionApi                 */ 
-   { false, false, false, false, false, false, false, false, false, false },  /* CumulativeExpulsionApi                    */ 
-   { false, false, false, false, false, false, false, false, false, false },  /* InstantaneousExpulsionCondensateGasRatio  */ 
-   { false, false, false, false, false, false, false, false, false, false },  /* CumulativeExpulsionCondensateGasRatio     */ 
-   { false, false, false, false, false, false, false, false, false, false },  /* InstantaneousExpulsionGasOilRatio         */ 
-   { false, false, false, false, false, false, false, false, false, false },  /* CumulativeExpulsionGasOilRatio            */ 
-   { false, false, false, false, false, false, false, false, false, false },  /* InstantaneousExpulsionGasWetness          */ 
-   { false, false, false, false, false, false, false, false, false, false },  /* CumulativeExpulsionGasWetness             */ 
-   { false, false, false, false, false, false, false, false, false, false },  /* InstantaneousExpulsionAromaticity         */ 
-   { false, false, false, false, false, false, false, false, false, false },  /* CumulativeExpulsionAromaticity            */ 
-   { false, false, false, false, false, false, false, false, false, false },  /* KerogenConversionRatio                    */ 
-   { false, false, false, false, false, false, false, false, false, false },  /* OilGeneratedCumulative                    */ 
-   { false, false, false, false, false, false, false, false, false, false },  /* OilGeneratedRate                          */ 
-   { false, false, false, false, false, false, false, false, false, false },  /* OilExpelledCumulative                     */ 
-   { false, false, false, false, false, false, false, false, false, false },  /* OilExpelledRate                           */ 
-   { false, false, false, false, false, false, false, false, false, false },  /* HcGasGeneratedCumulative                  */ 
-   { false, false, false, false, false, false, false, false, false, false },  /* HcGasGeneratedRate                        */ 
-   { false, false, false, false, false, false, false, false, false, false },  /* HcGasExpelledCumulative                   */ 
-   { false, false, false, false, false, false, false, false, false, false },  /* HcGasExpelledRate                         */ 
-   { false, false, false, false, false, false, false, false, false, false },  /* DryGasGeneratedCumulative                 */ 
-   { false, false, false, false, false, false, false, false, false, false },  /* DryGasGeneratedRate                       */ 
-   { false, false, false, false, false, false, false, false, false, false },  /* DryGasExpelledCumulative                  */ 
-   { false, false, false, false, false, false, false, false, false, false },  /* DryGasExpelledRate                        */ 
-   { false, false, false, false, false, false, false, false, false, false },  /* WetGasGeneratedCumulative                 */ 
-   { false, false, false, false, false, false, false, false, false, false },  /* WetGasGeneratedRate                       */ 
-   { false, false, false, false, false, false, false, false, false, false },  /* WetGasExpelledCumulative                  */ 
-   { false, false, false, false, false, false, false, false, false, false },  /* WetGasExpelledRate                        */ 
-   { false, false, false, false, false, false, false, false, false, false },  /* Concentrations                            */ 
-   { false, false, false, false, false, false, false, false, false, false },  /* PVT Properties: hc-density and -viscocity */ 
-   { false, false, false, false, false, false, false, false, false, false },  /* Rel Perm calculations                     */ 
-   { false, false, false, false, false, false, false, false, false, false },  /* Volume calculations                       */ 
-   { false, false, false, false, false, false, false, false, false, false },  /* Transported volume calculations           */ 
+   { false, false, false, false, false, false, false, false, false, false },  /* InstantaneousExpulsionApi                 */
+   { false, false, false, false, false, false, false, false, false, false },  /* CumulativeExpulsionApi                    */
+   { false, false, false, false, false, false, false, false, false, false },  /* InstantaneousExpulsionCondensateGasRatio  */
+   { false, false, false, false, false, false, false, false, false, false },  /* CumulativeExpulsionCondensateGasRatio     */
+   { false, false, false, false, false, false, false, false, false, false },  /* InstantaneousExpulsionGasOilRatio         */
+   { false, false, false, false, false, false, false, false, false, false },  /* CumulativeExpulsionGasOilRatio            */
+   { false, false, false, false, false, false, false, false, false, false },  /* InstantaneousExpulsionGasWetness          */
+   { false, false, false, false, false, false, false, false, false, false },  /* CumulativeExpulsionGasWetness             */
+   { false, false, false, false, false, false, false, false, false, false },  /* InstantaneousExpulsionAromaticity         */
+   { false, false, false, false, false, false, false, false, false, false },  /* CumulativeExpulsionAromaticity            */
+   { false, false, false, false, false, false, false, false, false, false },  /* KerogenConversionRatio                    */
+   { false, false, false, false, false, false, false, false, false, false },  /* OilGeneratedCumulative                    */
+   { false, false, false, false, false, false, false, false, false, false },  /* OilGeneratedRate                          */
+   { false, false, false, false, false, false, false, false, false, false },  /* OilExpelledCumulative                     */
+   { false, false, false, false, false, false, false, false, false, false },  /* OilExpelledRate                           */
+   { false, false, false, false, false, false, false, false, false, false },  /* HcGasGeneratedCumulative                  */
+   { false, false, false, false, false, false, false, false, false, false },  /* HcGasGeneratedRate                        */
+   { false, false, false, false, false, false, false, false, false, false },  /* HcGasExpelledCumulative                   */
+   { false, false, false, false, false, false, false, false, false, false },  /* HcGasExpelledRate                         */
+   { false, false, false, false, false, false, false, false, false, false },  /* DryGasGeneratedCumulative                 */
+   { false, false, false, false, false, false, false, false, false, false },  /* DryGasGeneratedRate                       */
+   { false, false, false, false, false, false, false, false, false, false },  /* DryGasExpelledCumulative                  */
+   { false, false, false, false, false, false, false, false, false, false },  /* DryGasExpelledRate                        */
+   { false, false, false, false, false, false, false, false, false, false },  /* WetGasGeneratedCumulative                 */
+   { false, false, false, false, false, false, false, false, false, false },  /* WetGasGeneratedRate                       */
+   { false, false, false, false, false, false, false, false, false, false },  /* WetGasExpelledCumulative                  */
+   { false, false, false, false, false, false, false, false, false, false },  /* WetGasExpelledRate                        */
+   { false, false, false, false, false, false, false, false, false, false },  /* Concentrations                            */
+   { false, false, false, false, false, false, false, false, false, false },  /* PVT Properties: hc-density and -viscocity */
+   { false, false, false, false, false, false, false, false, false, false },  /* Rel Perm calculations                     */
+   { false, false, false, false, false, false, false, false, false, false },  /* Volume calculations                       */
+   { false, false, false, false, false, false, false, false, false, false },  /* Transported volume calculations           */
    { false, false, false, false, false, false, false, false, false, false },  /* Saturations                               */
    { false, false, false, false, false, false, false, false, false, false },  /* AverageSaturations                        */
    { false, false, false, false, false, false, false, false, false, false },  /* HC fluid velocity                         */
@@ -455,11 +457,12 @@ const bool PropertyOutputConstraints::s_outputRequired [ PropertyListSize ][ Num
    {  true,  true,  true, false, false,  true,  true, false, false, false },  /* ALCSmContCrustThickness  */
    {  true,  true,  true, false, false,  true,  true, false, false, false },  /* ALCSmTopBasaltDepth      */
    {  true,  true,  true, false, false,  true,  true, false, false, false },  /* ALCSmMohoDepth           */
-   {  true,  true,  true, false, false,  true,  true, false, false, false }   /* ALCOrigMantle            */
+   {  true,  true,  true, false, false,  true,  true, false, false, false },  /* ALCOrigMantle            */
+   { false, false,  true,  true, false, false,  true,  true,  true, false }   /* HorizontalPermeability   */
 
 
 };
-                                                                                                     
+
 
 PropertyOutputConstraints::PropertyOutputConstraints () {
 
@@ -467,8 +470,8 @@ PropertyOutputConstraints::PropertyOutputConstraints () {
    int property;
    int calcMode;
 
-   // Perform a consistency check 
-   // 
+   // Perform a consistency check
+   //
    // output of property ( not permitted and required ) is inconsistent.
    for ( property = 0; property < PropertyListSize; ++property ) {
 
@@ -589,9 +592,9 @@ void PropertyOutputConstraints::print ( std::ostream& o ) const {
    o << " Maximum options: " << std::endl;
 
    for ( property = 0; property < PropertyListSize; ++property ) {
-      o << "Property: " 
-        << std::setw ( 30 ) << propertyListName ( PropertyList ( property )) << "  " 
-        << std::setw ( 20 ) << PropertyOutputOptionImage ( m_maximumOutputOption [ property ]) 
+      o << "Property: "
+        << std::setw ( 30 ) << propertyListName ( PropertyList ( property )) << "  "
+        << std::setw ( 20 ) << PropertyOutputOptionImage ( m_maximumOutputOption [ property ])
         << std::endl;
    }
 
@@ -599,9 +602,9 @@ void PropertyOutputConstraints::print ( std::ostream& o ) const {
    o << " Minimum options: " << std::endl;
 
    for ( property = 0; property < PropertyListSize; ++property ) {
-      o << "Property: " 
-        << std::setw ( 30 ) << propertyListName ( PropertyList ( property )) << "  " 
-        << std::setw ( 20 ) << PropertyOutputOptionImage ( m_minimumOutputOption [ property ]) 
+      o << "Property: "
+        << std::setw ( 30 ) << propertyListName ( PropertyList ( property )) << "  "
+        << std::setw ( 20 ) << PropertyOutputOptionImage ( m_minimumOutputOption [ property ])
         << std::endl;
    }
 
@@ -612,8 +615,8 @@ void PropertyOutputConstraints::print ( std::ostream& o ) const {
    for ( property = 0; property < PropertyListSize; ++property ) {
 
       if ( m_maximumOutputOption [ property ] > Interface::NO_OUTPUT or m_minimumOutputOption [ property ] > Interface::NO_OUTPUT ) {
-         o << "Property: " 
-           << std::setw ( 30 ) << propertyListName ( PropertyList ( property )) << "  " 
+         o << "Property: "
+           << std::setw ( 30 ) << propertyListName ( PropertyList ( property )) << "  "
            << std::setw ( 20 ) << PropertyOutputOptionImage ( m_minimumOutputOption [ property ]) << "  "
            << std::setw ( 20 ) << PropertyOutputOptionImage ( m_maximumOutputOption [ property ]) << std::endl;
       }
@@ -626,7 +629,7 @@ void PropertyOutputConstraints::print ( std::ostream& o ) const {
 
       if ( m_maximumOutputOption [ property ] == Interface::NO_OUTPUT and m_minimumOutputOption [ property ] == Interface::NO_OUTPUT ) {
          o << "Property: "
-           << std::setw ( 30 ) << propertyListName ( PropertyList ( property )) << "  " 
+           << std::setw ( 30 ) << propertyListName ( PropertyList ( property )) << "  "
            << std::setw ( 20 ) << PropertyOutputOptionImage ( m_minimumOutputOption [ property ]) << "  "
            << std::setw ( 20 ) << PropertyOutputOptionImage ( m_maximumOutputOption [ property ]) << std::endl;
       }
