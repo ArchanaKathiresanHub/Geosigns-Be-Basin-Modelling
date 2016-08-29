@@ -115,7 +115,7 @@ bool MasterTouch::executeWrapper( const char * burHistFile, const string & filen
    } 	
    else 	
    { 
-      double fractionCompleted = 0.0;
+      double fractionCompleted = 0.0;  
       double temFraction;    
       double minAllFractions  = 0.01;
       double currentMinimum = 0.0;
@@ -124,50 +124,49 @@ bool MasterTouch::executeWrapper( const char * burHistFile, const string & filen
       utilities::TimeToComplete timeToComplete( 5, 30, minAllFractions, 0.01 );
       int childstate; 		
       int fd = open( status, O_RDONLY| O_NONBLOCK );
-
-      ReportProgress( "Initializing touchstone and creating the realizations, please wait ..." );
       
+      ReportProgress( "Initializing touchstone and creating the realizations, please wait ..." );
+
       // Progress is reported only in Rank 0, we need to keep Rank 0 in the loop even if its child exited. 
       // One way to do this is to exit the while loop only if the chiled exited AND we are about to finish (0.99)   
-      while ( !waitpid( pid, &childstate, WNOHANG ) || minAllFractions < 0.99) 
+      while ( !waitpid( pid, &childstate, WNOHANG ) || minAllFractions < 1.0 )
       {	
-         if ( fractionCompleted > 0 && !childStartedCalculation) 
+         if ( fractionCompleted > 0 && !childStartedCalculation )
          {
             childStartedCalculation = true;
-            timeToComplete.start();
-         }          
-         // calling MinimumAll requires all MPI processes to sync all times. This is expensive so we call it every 30 sec
-         currentMinimum = MinimumAll( fractionCompleted );
-         usleep(30000);
-         
-         byteRead = read( fd, &temFraction, sizeof( temFraction ) );
-         if (byteRead == sizeof( temFraction ) ) fractionCompleted = temFraction;
-    
-         if (currentMinimum > minAllFractions)
-         {
-            minAllFractions = currentMinimum;
-            string reported = timeToComplete.report( minAllFractions );
-            if (!reported.empty()) ReportProgress( reported );
+            timeToComplete.start( );
          }
+         byteRead = read( fd, &temFraction, sizeof( temFraction ) );
+         if ( byteRead == sizeof( temFraction ) ) fractionCompleted = temFraction;
+         if ( childStartedCalculation )
+         {
+            // calling MinimumAll requires all MPI processes to sync all times. This is expensive so we call it every 0.05 sec
+            currentMinimum = MinimumAll( fractionCompleted );
+            usleep( 5000 );
+            if ( currentMinimum > minAllFractions )
+            {
+               minAllFractions = currentMinimum;
+               string reported = timeToComplete.report( minAllFractions );
+               if (!reported.empty()) ReportProgress( reported );
+            }
          else
          {
-            if ( !WIFEXITED(childstate) && !childStartedCalculation && check_zombie(pid) ) 
+            usleep( 5000 );
+            if ( !WIFEXITED(childstate) && !childStartedCalculation && check_zombie(pid) )
             { 
                ostringstream oss;
                oss << "warning: touchstoneWrapper is zombie " << std::strerror(errno);
                message( oss.str() );
                return false;
             }
-         }
+        }
       }
-				
       if ( close( fd ) < 0 )
       {
          ostringstream oss;
          oss << "error: Could not close status file, error code " << std::strerror(errno);
          message( oss.str() );
       }
-	  	
       if ( unlink( status ) < 0 )
       {
          ostringstream oss;

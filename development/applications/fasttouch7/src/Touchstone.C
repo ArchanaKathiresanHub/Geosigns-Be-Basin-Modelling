@@ -279,13 +279,13 @@ void TouchstoneWrapper::calculateWrite ( ) {
    try
    {
       // initialize indexes
-      int firstI			= -1;
-      int lastI 			= -1;
-      int firstJ 			= -1;
-      int lastJ 			= -1;
-      int numLayers		= -1;
-      int numActive		= -1;
-      int iD 				= -1;
+      int firstI    = -1;
+      int lastI     = -1;
+      int firstJ    = -1;
+      int lastJ     = -1;
+      int numLayers = -1;
+      int numActive = -1;
+      int iD        = -1;
       std::vector<size_t> usedSnapshotsIndexes;
    
       mkfifo(m_status, 0777);
@@ -303,55 +303,54 @@ void TouchstoneWrapper::calculateWrite ( ) {
       // write a small number to tell the parent process that the calculation has started
       write( fd, &fractionCompleted, sizeof( fractionCompleted ) );
 
-
       for ( int l = 1; l <= numLayers; ++l )
       {
          for ( int i = firstI; i <= lastI; ++i )
          {
-            for( int j = firstJ; j <= lastJ; ++j )
+            for ( int j = firstJ; j <= lastJ; ++j )
             {	
                size_t numTimeSteps = 0;
             
-               ReadBurial.readNumTimeStepsID(&numTimeSteps, &iD);
+               ReadBurial.readNumTimeStepsID( &numTimeSteps, &iD );
 
-               if ( numActive > 0 && numTimeSteps > 0) 
+               if ( numActive > 0 && numTimeSteps > 0 )
                {
-                  std::vector<Geocosm::TsLib::burHistTimestep> burHistTimesteps(numTimeSteps) ; 
+                  std::vector<Geocosm::TsLib::burHistTimestep> burHistTimesteps( numTimeSteps );
                   
                   // determine how many active time steps in the burial history. this is done in the reading of the file
-                  step += ReadBurial.readBurialHistory(burHistTimesteps,numTimeSteps); 
+                  step += ReadBurial.readBurialHistory( burHistTimesteps, numTimeSteps );
                   
                   m_tslibBurialHistoryInfo.burialHistoryTSteps = &burHistTimesteps[0];
-                  m_tslibBurialHistoryInfo.count               = numTimeSteps;
-                  m_tslibBurialHistoryInfo.iD                  = iD; 
+                  m_tslibBurialHistoryInfo.count = numTimeSteps;
+                  m_tslibBurialHistoryInfo.iD = iD;
 
                   m_tslibCalcContext->Calculate( m_tslibBurialHistoryInfo, true ); 
 
-                  WriteTouchstone.writeNumTimeSteps(numTimeSteps);  
+                  WriteTouchstone.writeNumTimeSteps( numTimeSteps );
        
-                  for( size_t sn = 0; sn < usedSnapshotsIndexes.size(); ++sn )
+                  for ( size_t sn = 0; sn < usedSnapshotsIndexes.size(); ++sn )
                   {
                      writeTouchstoneResults( numTimeSteps - usedSnapshotsIndexes[sn] - 1, WriteTouchstone );
                   }
 
-                  fractionCompleted =  (double) step / (double) numActive ;
-                  
-               } 
-               else 
-               {
-                  WriteTouchstone.writeNumTimeSteps(numTimeSteps);
-				      if (numActive == 0) fractionCompleted = 1.0;
-               }
+                  fractionCompleted = (double)step / (double)numActive;
                
                if ( write( fd, &fractionCompleted, sizeof( fractionCompleted ) ) < 0 )
                {
                   ostringstream oss;
-                  oss << "Could not write the status file on calculateWrite(), error code " << std::strerror( errno ) <<" on MPI process "<< m_rank;
+                     oss << "Could not write the status file on calculateWrite(), error code " << std::strerror( errno ) << " on MPI process " << m_rank;
                   message( oss.str() );
                }                          
             }  
+               else
+               {
+                  WriteTouchstone.writeNumTimeSteps( numTimeSteps );
+               }
+            }
          }
       }
+      fractionCompleted = 1.0;
+      write( fd, &fractionCompleted, sizeof( fractionCompleted ) );
    }
    catch ( const GeocosmException & g )
    {  
