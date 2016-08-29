@@ -149,6 +149,7 @@ bool MasterTouch::executeWrapper( const char * burHistFile, const string & filen
                string reported = timeToComplete.report( minAllFractions );
                if (!reported.empty()) ReportProgress( reported );
             }
+	     }
          else
          {
             usleep( 5000 );
@@ -159,7 +160,7 @@ bool MasterTouch::executeWrapper( const char * burHistFile, const string & filen
                message( oss.str() );
                return false;
             }
-        }
+         }
       }
       if ( close( fd ) < 0 )
       {
