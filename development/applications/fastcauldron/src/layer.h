@@ -106,6 +106,8 @@ public:
 
    void initialiseTemperature( AppCtx* basinModel, const double Current_Time );
 
+   void initialisePreviousFluidPressures( AppCtx* basinModel, const double Current_Time );
+
    double calcDiffDensity ( const unsigned int i, const unsigned int j ) const;
 
    const GeoPhysics::FluidType* getFluid () const;

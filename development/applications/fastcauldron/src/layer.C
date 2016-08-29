@@ -60,6 +60,7 @@
 #include "MultiComponentFlowHandler.h"
 
 #include "ImmobileSpeciesValues.h"
+#include "GeoPhysicalFunctions.h"
 
 using namespace DataAccess;
 using namespace FiniteElementMethod;
@@ -664,6 +665,46 @@ void LayerProps::initialiseTemperature ( AppCtx* basinModel, const double Curren
 
 //------------------------------------------------------------//
 
+#undef  __FUNCT__
+#define __FUNCT__ "LayerProps::initialisePreviousFluidPressures"
+
+void LayerProps::initialisePreviousFluidPressures( AppCtx* basinModel, const double Current_Time )
+{
+
+   int I, J, K;
+   int X_Start;
+   int Y_Start;
+   int Z_Start;
+   int X_Count;
+   int Y_Count;
+   int Z_Count;
+
+   Previous_Properties.Activate_Property( Basin_Modelling::Hydrostatic_Pressure );
+   Previous_Properties.Activate_Property( Basin_Modelling::Pore_Pressure );
+   const Boolean2DArray& Valid_Needle = basinModel->getValidNeedles();
+
+   DMDAGetCorners( layerDA, &X_Start, &Y_Start, &Z_Start, &X_Count, &Y_Count, &Z_Count );
+
+   for ( I = X_Start; I < X_Start + X_Count; I++ ) {
+      for ( J = Y_Start; J < Y_Start + Y_Count; J++ ) {
+         if ( Valid_Needle( I, J ) && fluid ) {
+            double seaTemperature = FastcauldronSimulator::getInstance().getSeaBottomTemperature( I, J, Current_Time );
+            double seaBottomDepth = FastcauldronSimulator::getInstance().getSeaBottomDepth( I, J, Current_Time );
+            double Estimated_HydrostaticPressure;
+            GeoPhysics::computeHydrostaticPressure( fluid, seaTemperature, seaBottomDepth, Estimated_HydrostaticPressure );
+            for ( K = Z_Start + Z_Count - 1; K >= Z_Start; K-- ) {
+               Previous_Properties( Basin_Modelling::Hydrostatic_Pressure, K, J, I ) = Estimated_HydrostaticPressure;
+               Previous_Properties( Basin_Modelling::Pore_Pressure, K, J, I ) = Estimated_HydrostaticPressure;
+            }
+         }
+      }
+   }
+   Previous_Properties.Restore_Property( Basin_Modelling::Hydrostatic_Pressure );
+   Previous_Properties.Restore_Property( Basin_Modelling::Pore_Pressure );
+
+}
+
+//---------------------------------------------------------------//
 #undef __FUNCT__  
 #define __FUNCT__ "LayerProps::allocateNewVecs"
 
@@ -731,6 +772,7 @@ bool LayerProps::allocateNewVecs ( AppCtx* basinModel, const double Current_Time
     createVec ( Previous_Max_VES );
     createVec ( Previous_Temperature );
 
+    initialisePreviousFluidPressures( basinModel, Current_Time );
     initialiseTemperature( basinModel, Current_Time );
 
     createVec ( Chemical_Compaction );
