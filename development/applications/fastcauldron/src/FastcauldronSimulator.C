@@ -1115,10 +1115,6 @@ void FastcauldronSimulator::correctPermeabilityTimeFilter () {
       maxPermeabilityOption = permeabilityHVec->getOption ();
    }
 
-   if ( getRank () == 0 ) {
-      cout << " maxPermeabilityOption " << maxPermeabilityOption << endl;
-   }
-
    // Then set all permeability output properties to this maximum value.
    // If the output ptoperty does not exist then create it.
    if ( permeability != nullptr ) {
