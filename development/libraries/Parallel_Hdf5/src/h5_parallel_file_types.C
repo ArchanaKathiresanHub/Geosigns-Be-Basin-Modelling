@@ -19,7 +19,7 @@ std::string H5_Parallel_PropertyList :: s_temporaryDirName;
 MPI_Info    H5_Parallel_PropertyList :: s_mpiInfo = MPI_INFO_NULL;
 
 
-hid_t H5_Parallel_PropertyList :: createFilePropertyList() const 
+hid_t H5_Parallel_PropertyList :: createFilePropertyList( const bool readOnly ) const 
 {
    hid_t plist = H5Pcreate (H5P_FILE_ACCESS);
    
@@ -33,39 +33,43 @@ hid_t H5_Parallel_PropertyList :: createFilePropertyList() const
    } 
    else 
    {
-      H5Pset_fapl_mpio (plist, PETSC_COMM_WORLD, s_mpiInfo);  
+      if( not readOnly ) {
+         H5Pset_fapl_mpio (plist, PETSC_COMM_WORLD, s_mpiInfo);  
 
-      if( s_primaryPod ) {
-         // Disable cache
-         // set B-tree to roughly same size as 'stripe size' (default stripe size 1Mb)
-         // https://www.nersc.gov/users/training/online-tutorials/introduction-to-scientific-i-o/?start=5
-         // hsize_t btree_ik = 10880; //(chunkSize - 4096) / 96;
-         // H5Pset_istore_k(plist, btree_ik);
-         
-         // disable cache evictions
-         H5AC_cache_config_t mdc_config;
-         memset(&mdc_config, 0, sizeof(mdc_config));
-         mdc_config.version = H5AC__CURR_CACHE_CONFIG_VERSION;
-         H5Pget_mdc_config(plist, &mdc_config);
-         mdc_config.evictions_enabled = 0;
-         mdc_config.flash_incr_mode = H5C_flash_incr__off;
-         mdc_config.incr_mode = H5C_incr__off;
-         mdc_config.decr_mode = H5C_decr__off;
-         H5Pset_mdc_config(plist, &mdc_config);
+         if( s_primaryPod ) {
+            // Disable cache
+            // set B-tree to roughly same size as 'stripe size' (default stripe size 1Mb)
+            // https://www.nersc.gov/users/training/online-tutorials/introduction-to-scientific-i-o/?start=5
+            // hsize_t btree_ik = 10880; //(chunkSize - 4096) / 96;
+            // H5Pset_istore_k(plist, btree_ik);
+            
+            // disable cache evictions
+            H5AC_cache_config_t mdc_config;
+            memset(&mdc_config, 0, sizeof(mdc_config));
+            mdc_config.version = H5AC__CURR_CACHE_CONFIG_VERSION;
+            H5Pget_mdc_config(plist, &mdc_config);
+            mdc_config.evictions_enabled = 0;
+            mdc_config.flash_incr_mode = H5C_flash_incr__off;
+            mdc_config.incr_mode = H5C_incr__off;
+            mdc_config.decr_mode = H5C_decr__off;
+            H5Pset_mdc_config(plist, &mdc_config);
+         }
       }
    }
+   
+
 #else
    H5Pset_fapl_mpio (plist, PETSC_COMM_WORLD, s_mpiInfo);  
 #endif
    return plist;
 }
 
-hid_t H5_Parallel_PropertyList :: createDatasetPropertyList() const
+hid_t H5_Parallel_PropertyList :: createDatasetPropertyList( const bool readOnly ) const
 {
    // set parallel read/write on file
    hid_t pList = H5P_DEFAULT;
    
-   if( not s_oneFilePerProcess ) 
+   if( not s_oneFilePerProcess and not readOnly ) 
    {
       pList = H5Pcreate (H5P_DATASET_XFER);
       H5Pset_dxpl_mpio (pList, H5FD_MPIO_COLLECTIVE);
@@ -181,6 +185,7 @@ bool H5_Parallel_PropertyList :: copyMergedFile( const std::string & filePathNam
           }
        }
    }
+
    return status;
 #endif
 }
@@ -251,6 +256,8 @@ bool H5_Parallel_PropertyList ::mergeOutputFiles ( const string & activityName, 
          }      
       }
    }
+   MPI_Barrier( PETSC_COMM_WORLD );
+   
    if( !status ) {
       PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not merge/copy the file %s.\n", filePathName.cpath() );
    }

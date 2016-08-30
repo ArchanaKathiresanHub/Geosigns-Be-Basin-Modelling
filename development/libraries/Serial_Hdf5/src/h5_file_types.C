@@ -59,13 +59,12 @@ hid_t H5_Base_File::createPropertyList (H5_PropertyList *userPropertyType)
    hPropertyListType = (userPropertyType ? userPropertyType->clone () 
                                          : hSerialPropertyType.clone ()); 
 
-   return hPropertyListType->createFilePropertyList ();
+   return hPropertyListType->createFilePropertyList ( false );
 }
-
-hid_t H5_Base_File::createDatasetPropertyList (H5_PropertyList *propertyType)
+hid_t H5_Base_File::createDatasetPropertyList (H5_PropertyList *propertyType )
 {
-   return (propertyType ? propertyType->createDatasetPropertyList ()
-                        : hPropertyListType->createDatasetPropertyList ());
+   return (propertyType ? propertyType->createDatasetPropertyList ( false )
+                        : hPropertyListType->createDatasetPropertyList ( false ));
 }
 
 hid_t H5_Base_File::openGroup (const char *name)
@@ -291,21 +290,19 @@ void H5_Unique_File::openInMode (const char *filename)
 // Read only File Methods
 //
 
-bool H5_ReadOnly_File::open (const char *filename, H5_PropertyList *propertyType)
+hid_t H5_ReadOnly_File::createPropertyList (H5_PropertyList *userPropertyType )
 {
-   // create property list
-   hPropertyListId = createPropertyList ( NULL );
+   // use user-specified property type or default (serial)
+   hPropertyListType = (userPropertyType ? userPropertyType->clone () 
+                                         : hSerialPropertyType.clone ()); 
 
-   // create or open file 
-   openInMode (filename);
+   return hPropertyListType->createFilePropertyList ( true );
+}
 
-   // close property list id
-   H5Pclose (hPropertyListId);
-
-   // turn off errors by default
-   H5Eset_auto( H5E_DEFAULT, 0, 0);
-
-   return hFileId > 0;
+hid_t H5_ReadOnly_File::createDatasetPropertyList (H5_PropertyList *propertyType )
+{
+   return (propertyType ? propertyType->createDatasetPropertyList ( true )
+                        : hPropertyListType->createDatasetPropertyList ( true ));
 }
 
 void H5_ReadOnly_File::openInMode (const char *filename)
@@ -324,7 +321,7 @@ bool H5_ReadOnly_File::readDataset (hid_t dataId, void *buffer, H5_PropertyList 
 {
    // create read object
    ReadObject read (dataId, fileSpace, memSpace, 
-                    createDatasetPropertyList ( NULL ), 
+                    createDatasetPropertyList ( pList ), 
                     buffer);
 
    // call safe readWrite

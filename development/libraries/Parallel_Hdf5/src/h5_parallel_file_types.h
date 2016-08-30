@@ -11,9 +11,9 @@ public:
    H5_PropertyList* clone() const
    { return new H5_Parallel_PropertyList(*this); }
 
-   virtual hid_t createFilePropertyList() const ;
+   virtual hid_t createFilePropertyList( const bool readOnly ) const ;
 
-   virtual hid_t createDatasetPropertyList() const;
+   virtual hid_t createDatasetPropertyList( const bool readOnly ) const;
          
    static bool setOneFilePerProcessOption() ;
 

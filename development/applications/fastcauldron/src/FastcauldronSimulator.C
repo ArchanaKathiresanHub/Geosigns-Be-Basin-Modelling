@@ -1036,6 +1036,9 @@ bool FastcauldronSimulator::mergeSharedOutputFiles ( ) {
    if( doMerge ) {
       MPI_Comm_free( & newComm );
    }
+
+   MPI_Barrier( PETSC_COMM_WORLD );
+
    return status;
 #else
    return true;

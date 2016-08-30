@@ -21,14 +21,14 @@ public:
    // public methods
 
    // returns property list (default: serial)
-   virtual hid_t createFilePropertyList (void) const
+   virtual hid_t createFilePropertyList (  const bool readOnly ) const
    { 
       // hope this works across the board
       return H5P_DEFAULT; 
    }
 
    // returns data property list
-   virtual hid_t createDatasetPropertyList (void) const
+   virtual hid_t createDatasetPropertyList (  const bool readOnly ) const
    {
       return H5P_DEFAULT; 
    }
@@ -67,8 +67,8 @@ protected:
 
    virtual void  openInMode (const char *filename) = 0;
    
-   hid_t createPropertyList        (H5_PropertyList *propertyType);
-   hid_t createDatasetPropertyList (H5_PropertyList *propertyType);
+   virtual hid_t createPropertyList        (H5_PropertyList *propertyType );
+   virtual hid_t createDatasetPropertyList (H5_PropertyList *propertyType );
 
    bool safeReadWrite (ReadWriteObject &fileOp, ostream &os);
  
@@ -162,7 +162,8 @@ public:
    bool readAttribute  (hid_t attributeId, hid_t spaceId, void *buffer,  
                         H5_PropertyList *pList = NULL);
 
-   bool open (const char *filename, H5_PropertyList *propertyType);
+   hid_t createPropertyList (H5_PropertyList *userPropertyType );
+   hid_t createDatasetPropertyList (H5_PropertyList *propertyType );
 private:
    void openInMode (const char *filename);
 };
