@@ -104,13 +104,14 @@ GeoPhysics::SimpleLithology::SimpleLithology(Interface::ProjectHandle * projectH
    loadPropertyTables();
 }
 
-GeoPhysics::SimpleLithology::SimpleLithology ( const SimpleLithology& litho ) : 
+GeoPhysics::SimpleLithology::SimpleLithology ( const SimpleLithology& litho ) :
    Interface::LithoType ( litho.getProjectHandle(), litho.getRecord ()),
    m_thermCondTbl ( litho.m_thermCondTbl ),
    m_density ( litho.m_density ),
 
    m_heatproduction ( litho.m_heatproduction ),
    m_seismicvelocity ( litho.m_seismicvelocity ),
+   m_nExponentVelocity ( litho.m_nExponentVelocity ),
 
    m_thermalcondaniso ( litho.m_thermalcondaniso ),
    m_thermalconductivityval ( litho.m_thermalconductivityval ),
@@ -157,7 +158,7 @@ GeoPhysics::SimpleLithology::SimpleLithology ( const SimpleLithology& litho ) :
    m_lithoname ( litho.m_lithoname ),
    m_thermalcondmodel ( litho.m_thermalcondmodel ),
    m_heatcapmodel ( litho.m_heatcapmodel )
-   
+
 {
 }
 
@@ -388,4 +389,3 @@ const std::string GeoPhysics::SimpleLithology::getThermalCondModelName() const {
    }
    return model;
 }
-
