@@ -30,7 +30,7 @@ option( BM_CSHARP_API "Build the C sharp interface (Windows only)" OFF )
 option( BM_USE_FLEXLM "Whether to require a license via FlexLM" ON)
 option( BM_EXTERNAL_COMPONENTS_REBUILD "Whether or not to rebuild external components" OFF)
 option( BM_BUILD_HYPRE "Whether or not to build Hypre shared library" OFF)
-set(BM_EXTERNAL_COMPONENTS_DIR "/nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc-library" CACHE PATH "The path to the directory of prebuilt libraries")
+set(BM_EXTERNAL_COMPONENTS_DIR "${CBM_HOME}/hpc-library" CACHE PATH "The path to the directory of prebuilt libraries")
 set(BM_SSSDEV_INSTALL_DIR "/apps/sssdev/ibs" CACHE PATH "sssdev installation path")
 
 set(INTEL_CXX_ROOT "/apps/3rdparty/intel/ics2013/composer_xe_2013.5.192" CACHE PATH "Path to Intel's compiler collection")
@@ -40,16 +40,8 @@ set(INTEL_MKL_ROOT "${INTEL_CXX_ROOT}/mkl" CACHE PATH "Path to Intel MKL" )
 option(BM_USE_INTEL_COMPILER "Whether to use the Intel compiler (UNIX only)" ON)
 option(BM_USE_INTEL_MPI "Whether to use the Intel MPI (UNIX only)" ON)
 
-# Qt3 programs are failed to build with gcc 4.9
-if (BM_USE_INTEL_COMPILER)
-   option( BM_BUILD_QT3_APPS "Build programs that need QT3" ON)
-else (BM_USE_INTEL_COMPILER)
-   option( BM_BUILD_QT3_APPS "Build programs that need QT3" OFF)
-endif (BM_USE_INTEL_COMPILER)
-
-
 set(BM_CLOCK_GETTIME_LIB "")
-set(BM_DL_LIB "" )
+set(BM_DL_LIB "")
 
 set(BLA_VENDOR "MKL")
 
@@ -71,7 +63,7 @@ set(PARAVIEW_CONFIG_ROOT "${CBM_HOME}/Tools/paraview/Paraview-4.1.0-Release/Linu
       CACHE PATH "Path where ParaViewConfig.cmake can be found")
 
 set( TSLIB_VERSION "7.4")
-set( TSLIB_ROOT "/nfs/rvl/groups/ept-sg/SWEast/Cauldron/hpc/tslib/tslib-7.4.2" CACHE PATH "Path to Geocosm's TsLib" )
+set( TSLIB_ROOT "${CBM_HOME}/hpc/tslib/tslib-7.4.2" CACHE PATH "Path to Geocosm's TsLib" )
 set( TSLIB_LIBRARY_DIR "${TSLIB_ROOT}/bin/x86_64_linux/Release" CACHE PATH "Path to Geocosm's TsLib library directory")
 
 set( MCR_ROOT "/apps/sss/matlab/8.0" CACHE PATH "Path to Matlab")
