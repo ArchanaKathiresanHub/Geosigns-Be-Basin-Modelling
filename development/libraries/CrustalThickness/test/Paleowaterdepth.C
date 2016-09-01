@@ -7,11 +7,15 @@
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
-#include "MockInterfaceOutput.h"
-#include "MockValidator.h"
 #include "../src/PaleowaterdepthCalculator.h"
 
-// Derived Properties library
+// CrustalThickness library test utilities
+#include "MockConfigFileParameterCtc.h"
+#include "MockInterfaceInput.h"
+#include "MockInterfaceOutput.h"
+#include "MockValidator.h"
+
+// Derived Properties library test utilities
 #include "../../DerivedProperties/test/MockDerivedSurfaceProperty.h"
 
 // utility library
@@ -27,127 +31,204 @@
 typedef formattingexception::GeneralException PaleowaterdepthException;
 
 using namespace CrustalThicknessInterface;
+using namespace CrustalThickness;
 
 // Global validator
 MockValidator validator = MockValidator();
 
-// Global grid size variables (no gosth nodes)
-unsigned int firstI = 0;
-unsigned int firstJ = 0;
-unsigned int lastI  = 1;
-unsigned int lastJ  = 1;
-
-double minI = 0.0;
-double minJ = 0.0;
-double maxI = 4.0;
-double maxJ = 4.0;
-unsigned int numI = 2;
-unsigned int numJ = 2;
-
-// Define grids and derived properties
-DataModel::MockDerivedSurfaceProperty currentPressureMantle   ( firstI, firstJ, firstI, firstJ, lastI, lastJ, lastI, lastJ, "Mantle", "Pressure", 10, 10000 );
-DataModel::MockDerivedSurfaceProperty presentDayPressureMantle( firstI, firstJ, firstI, firstJ, lastI, lastJ, lastI, lastJ, "Mantle", "Pressure", 0,  5000  );
-DataAccess::Interface::SerialGrid grid( minI, minJ, maxI, maxJ, numI, numJ );
-DataAccess::Interface::SerialGridMap gridMapPresentDayTTS           ( 0, 0, &grid, 1000 );
-DataAccess::Interface::SerialGridMap gridMapPresentDayTTSNDV        ( 0, 0, &grid, Interface::DefaultUndefinedMapValue );
-DataAccess::Interface::SerialGridMap gridMapPresentDayPressureTTS   ( 0, 0, &grid, 1000 );
-DataAccess::Interface::SerialGridMap gridMapPresentDayPressureTTSNDV( 0, 0, &grid, Interface::DefaultUndefinedMapValue );
-DataAccess::Interface::SerialGridMap gridMapCurrentPressureTTS      ( 0, 0, &grid, 2000 );
-
-///1. Test the paleowaterdepth calculation
-TEST( PaleowaterdepthCalculator, paleowaterdepth )
+// Create some data before tests
+class PWDCalculatorTest : public ::testing::Test
 {
+public:
+   PWDCalculatorTest() :
+      m_firstI( 0 ), m_firstJ( 0 ), m_lastI( 1 ), m_lastJ( 1 ),
+      m_minI( 0.0 ), m_minJ( 0.0 ), m_maxI( 4.0 ), m_maxJ( 4.0 ),
+      m_numI( 2 ), m_numJ( 2 )
+   {
+      m_grid                = new DataAccess::Interface::SerialGrid( this->m_minI, this->m_minJ, this->m_maxI, this->m_maxJ, this->m_numI, this->m_numJ );
+      m_gridMap             = new DataAccess::Interface::SerialGridMap( 0, 0, this->m_grid, 0, 1 );
+      m_gridMapPresentDayTTS            = new DataAccess::Interface::SerialGridMap( 0, 0, this->m_grid, 1000 );
+      m_gridMapPresentDayTTSNDV         = new DataAccess::Interface::SerialGridMap( 0, 0, this->m_grid, Interface::DefaultUndefinedMapValue );
+      m_gridMapPresentDayPressureTTS    = new DataAccess::Interface::SerialGridMap( 0, 0, this->m_grid, 1000 );
+      m_gridMapPresentDayPressureTTSNDV = new DataAccess::Interface::SerialGridMap( 0, 0, this->m_grid, Interface::DefaultUndefinedMapValue );
+      m_gridMapCurrentPressureTTS       = new DataAccess::Interface::SerialGridMap( 0, 0, this->m_grid, 2000 );
+      m_currentPressureMantle    = new DataModel::MockDerivedSurfaceProperty( this->m_firstI, this->m_firstJ, this->m_firstI, this->m_firstJ, this->m_lastI, this->m_lastJ, this->m_lastI, this->m_lastJ, "Mantle", "Pressure", 10, 10000 );
+      m_presentDayPressureMantle = new DataModel::MockDerivedSurfaceProperty( this->m_firstI, this->m_firstJ, this->m_firstI, this->m_firstJ, this->m_lastI, this->m_lastJ, this->m_lastI, this->m_lastJ, "Mantle", "Pressure", 10, 5000  );
+   }
 
-   MockInterfaceOutput outputData = MockInterfaceOutput( firstI, firstJ, lastI, lastJ );
+   ~PWDCalculatorTest()
+   {
+      delete m_grid;
+      delete m_gridMap;
+      delete m_gridMapPresentDayTTS;
+      delete m_gridMapPresentDayTTSNDV;
+      delete m_gridMapPresentDayPressureTTS;
+      delete m_gridMapPresentDayPressureTTSNDV;
+      delete m_gridMapCurrentPressureTTS;
+      delete m_currentPressureMantle;
+      delete m_presentDayPressureMantle;
+   }
 
-   //With pressure equlibrium
-   PaleowaterdepthCalculator pwdCalculator1( firstI,
-                                             firstJ,
-                                             lastI,
-                                             lastJ,
-                                             3000,
-                                             1000,
-                                             &gridMapPresentDayTTS,
-                                             outputData,
-                                             validator,
-                                             presentDayPressureMantle.getMockderivedSurfacePropertyPtr(),
-                                             currentPressureMantle.getMockderivedSurfacePropertyPtr(),
-                                             &gridMapPresentDayPressureTTS,
-                                             &gridMapCurrentPressureTTS );
-   EXPECT_NEAR( 800.203873598369,  pwdCalculator1.calculatePWD( 1000, 200,   5000, 1000, 10000, 2000 ), 1e-12 );
-   EXPECT_NEAR( 3000.183486238530, pwdCalculator1.calculatePWD( 1000, -2000, 6000, 700,  9000,  100 ),  1e-11 );
-   EXPECT_NEAR( -0.089194699286,   pwdCalculator1.calculatePWD( 0,    0,     4000, 350,  2000,  100 ),  1e-12 );
-   
-   //Without pressure equilibirium
-   PaleowaterdepthCalculator pwdCalculator2( firstI,
-                                             firstJ,
-                                             lastI,
-                                             lastJ,
-                                             3000,
-                                             1000,
-                                             &gridMapPresentDayTTS,
-                                             outputData,
-                                             validator );
-   EXPECT_EQ( 700,   pwdCalculator2.calculatePWD( 500,  -200  ) );
-   EXPECT_EQ( 800  , pwdCalculator2.calculatePWD( 1000, 200   ) );
-   EXPECT_EQ( 0,     pwdCalculator2.calculatePWD( 0,    0     ) );
-   
-   //Unvalid constructor
+   // Global grid size variables (no gosth nodes)
+   const unsigned int m_firstI;
+   const unsigned int m_firstJ;
+   const unsigned int m_lastI;
+   const unsigned int m_lastJ;
+   const double m_minI;
+   const double m_minJ;
+   const double m_maxI;
+   const double m_maxJ;
+   const unsigned int m_numI;
+   const unsigned int m_numJ;
+
+   // grids
+   const DataAccess::Interface::SerialGrid* m_grid;
+   const DataAccess::Interface::SerialGridMap* m_gridMap;
+   const DataAccess::Interface::SerialGridMap* m_gridMapPresentDayTTS;
+   const DataAccess::Interface::SerialGridMap* m_gridMapPresentDayTTSNDV;
+   const DataAccess::Interface::SerialGridMap* m_gridMapPresentDayPressureTTS;
+   const DataAccess::Interface::SerialGridMap* m_gridMapPresentDayPressureTTSNDV;
+   const DataAccess::Interface::SerialGridMap* m_gridMapCurrentPressureTTS;
+
+   //derived properties
+   const DataModel::MockDerivedSurfaceProperty* m_currentPressureMantle;
+   const DataModel::MockDerivedSurfaceProperty* m_presentDayPressureMantle;
+
+};
+
+///0. Exception handling by the constructor
+TEST_F( PWDCalculatorTest, exceptions ){
+
+   MockInterfaceOutput outputData = MockInterfaceOutput( m_firstI, m_firstJ, m_lastI, m_lastJ );
+   MockInterfaceInput inputData = MockInterfaceInput();
+   MockConfigFileParameterCtc constants = MockConfigFileParameterCtc();
+   constants.setWaterDensity( 3000 );
+   constants.setBackstrippingMantleDensity( 3000 );
+   inputData.setT0Map( m_gridMap );
+   inputData.setConstants( constants );
+   inputData.setPressureMantleAtPresentDay( m_presentDayPressureMantle->getMockderivedSurfacePropertyPtr() );
+   inputData.setPressureMantle( m_currentPressureMantle->getMockderivedSurfacePropertyPtr() );
+
    // with wrong density values
    try{
-      PaleowaterdepthCalculator pwdCalculator3( firstI,
-                                                firstJ,
-                                                lastI,
-                                                lastJ,
-                                                3000,
-                                                3000,
-                                                &gridMapPresentDayTTS,
-                                                outputData,
-                                                validator );
-      FAIL() << "Expected 'The water density is equal to the mantle density in the Paleowaterdepth calculator but they should be different.' exception";
+      PaleowaterdepthCalculator pwdCalculator3( inputData,
+         outputData,
+         validator,
+         m_gridMapPresentDayTTS );
+      FAIL() << "Expected 'The water density is equal to the mantle density in the Paleowaterdepth calculator but they should be different' exception";
    }
    catch (const PaleowaterdepthException& ex) {
-      EXPECT_EQ( "The water density is equal to the mantle density in the Paleowaterdepth calculator but they should be different.", std::string( ex.what() ) );
+      EXPECT_EQ( "The water density is equal to the mantle density in the Paleowaterdepth calculator but they should be different", std::string( ex.what() ) );
    }
    catch (...) {
-      FAIL() << "Expected 'The water density is equal to the mantle density in the Paleowaterdepth calculator but they should be different.' exception";
+      FAIL() << "Expected 'The water density is equal to the mantle density in the Paleowaterdepth calculator but they should be different' exception";
    }
    // with present day TTS = nullptr
+   constants.setWaterDensity( 1000 );
+   constants.setBackstrippingMantleDensity( 3000 );
+   inputData.setConstants( constants );
    try{
-      PaleowaterdepthCalculator pwdCalculator4( firstI,
-                                                firstJ,
-                                                lastI,
-                                                lastJ,
-                                                3000,
-                                                1000,
-                                                nullptr,
-                                                outputData,
-                                                validator );
-      FAIL() << "Expected 'Cannot retrieve the present day Total Tectonic Subsidence (TTS) for Paleowaterdepth computation (PWD).' exception";
+      PaleowaterdepthCalculator pwdCalculator4( inputData,
+         outputData,
+         validator,
+         nullptr );
+      FAIL() << "Expected 'The present day total tectonic subsidence is a null pointer and is required by the Paleowaterdepth calculator' exception";
    }
    catch (const PaleowaterdepthException& ex) {
-      EXPECT_EQ( "Cannot retrieve the present day Total Tectonic Subsidence (TTS) for Paleowaterdepth computation (PWD).", std::string( ex.what() ) );
+      EXPECT_EQ( "The present day total tectonic subsidence is a null pointer and is required by the Paleowaterdepth calculator", std::string( ex.what() ) );
    }
    catch (...) {
-      FAIL() << "Expected 'Cannot retrieve the present day Total Tectonic Subsidence (TTS) for Paleowaterdepth computation (PWD).' exception";
+      FAIL() << "Expected 'The present day total tectonic subsidence is a null pointer and is required by the Paleowaterdepth calculator' exception";
+   }
+   // with present day mantle pressure = nullptr
+   inputData.setPressureMantleAtPresentDay( nullptr );
+   try{
+      PaleowaterdepthCalculator pwdCalculator4( inputData,
+         outputData,
+         validator,
+         m_gridMapPresentDayTTS );
+      FAIL() << "Expected 'The present day bottom mantle pressure is a null pointer and is required by the Paleowaterdepth calculator' exception";
+   }
+   catch (const PaleowaterdepthException& ex) {
+      EXPECT_EQ( "The present day bottom mantle pressure is a null pointer and is required by the Paleowaterdepth calculator", std::string( ex.what() ) );
+   }
+   catch (...) {
+      FAIL() << "Expected 'The present day bottom mantle pressure is a null pointer and is required by the Paleowaterdepth calculator' exception";
+   }
+   // with current amntle pressure = nullptr
+   inputData.setPressureMantleAtPresentDay( m_presentDayPressureMantle->getMockderivedSurfacePropertyPtr() );
+   inputData.setPressureMantle( nullptr );
+   try{
+      PaleowaterdepthCalculator pwdCalculator4( inputData,
+         outputData,
+         validator,
+         m_gridMapPresentDayTTS );
+      FAIL() << "Expected 'The current bottom mantle pressure is a null pointer and is required by the Paleowaterdepth calculator' exception";
+   }
+   catch (const PaleowaterdepthException& ex) {
+      EXPECT_EQ( "The current bottom mantle pressure is a null pointer and is required by the Paleowaterdepth calculator", std::string( ex.what() ) );
+   }
+   catch (...) {
+      FAIL() << "Expected 'The current bottom mantle pressure is a null pointer and is required by the Paleowaterdepth calculator' exception";
    }
 }
 
-///2. Test the general calculator computation
-TEST( PaleowaterdepthCalculator, compute )
+///1. Test the paleowaterdepth calculation
+TEST_F( PWDCalculatorTest, paleowaterdepth )
 {
+
+   MockInterfaceOutput outputData = MockInterfaceOutput( m_firstI, m_firstJ, m_lastI, m_lastJ );
+   MockInterfaceInput inputData = MockInterfaceInput();
+   MockConfigFileParameterCtc constants = MockConfigFileParameterCtc();
+   constants.setWaterDensity( 1000 );
+   constants.setBackstrippingMantleDensity( 3000 );
+   inputData.setT0Map( m_gridMap );
+   inputData.setConstants( constants );
+   inputData.setPressureMantleAtPresentDay( m_presentDayPressureMantle->getMockderivedSurfacePropertyPtr() );
+   inputData.setPressureMantle( m_currentPressureMantle->getMockderivedSurfacePropertyPtr() );
+
+   //With pressure equlibrium
+   PaleowaterdepthCalculator pwdCalculator1( inputData,
+      outputData,
+      validator,
+      m_gridMapPresentDayTTS,
+      m_gridMapPresentDayPressureTTS,
+      m_gridMapCurrentPressureTTS );
+   EXPECT_NEAR( 800.203873598369, pwdCalculator1.calculatePWD( 1000, 200, 5000, 1000, 10000, 2000 ), 1e-12 );
+   EXPECT_NEAR( 3000.183486238530, pwdCalculator1.calculatePWD( 1000, -2000, 6000, 700, 9000, 100 ), 1e-11 );
+   EXPECT_NEAR( -0.089194699286, pwdCalculator1.calculatePWD( 0, 0, 4000, 350, 2000, 100 ), 1e-12 );
+
+   //Without pressure equilibirium
+   PaleowaterdepthCalculator pwdCalculator2( inputData,
+      outputData,
+      validator,
+      m_gridMapPresentDayTTS );
+   EXPECT_EQ( 700, pwdCalculator2.calculatePWD( 500, -200 ) );
+   EXPECT_EQ( 800, pwdCalculator2.calculatePWD( 1000, 200 ) );
+   EXPECT_EQ( 0, pwdCalculator2.calculatePWD( 0, 0 ) );
+
+}
+
+///2. Test the general calculator computation
+TEST_F( PWDCalculatorTest, compute )
+{
+
+   MockInterfaceOutput outputData = MockInterfaceOutput( m_firstI, m_firstJ, m_lastI, m_lastJ );
+   MockInterfaceInput inputData = MockInterfaceInput();
+   MockConfigFileParameterCtc constants = MockConfigFileParameterCtc();
+   constants.setWaterDensity( 1000 );
+   constants.setBackstrippingMantleDensity( 3000 );
+   inputData.setT0Map( m_gridMap );
+   inputData.setConstants( constants );
+   inputData.setPressureMantleAtPresentDay( m_presentDayPressureMantle->getMockderivedSurfacePropertyPtr() );
+   inputData.setPressureMantle( m_currentPressureMantle->getMockderivedSurfacePropertyPtr() );
+
    //Without pressure equlibrium
-   MockInterfaceOutput outputData = MockInterfaceOutput( firstI, firstJ, lastI, lastJ );
    outputData.setMapValues( cumSedimentBackstrip, 200 );
-   PaleowaterdepthCalculator pwdCalculator1( firstI,
-                                             firstJ,
-                                             lastI,
-                                             lastJ,
-                                             3000,
-                                             1000,
-                                             &gridMapPresentDayTTS,
+   PaleowaterdepthCalculator pwdCalculator1( inputData,
                                              outputData,
-                                             validator );
+                                             validator,
+                                             m_gridMapPresentDayTTS );
    pwdCalculator1.compute();
    EXPECT_EQ( 800, outputData.getMapValue( isostaticBathymetry, 0, 0 ) );
    EXPECT_EQ( 800, outputData.getMapValue( isostaticBathymetry, 0, 1 ) );
@@ -156,38 +237,24 @@ TEST( PaleowaterdepthCalculator, compute )
 
    //Without pressure equilibirium
    // and defined data
-   PaleowaterdepthCalculator pwdCalculator2( firstI,
-                                             firstJ,
-                                             lastI,
-                                             lastJ,
-                                             3000,
-                                             1000,
-                                             &gridMapPresentDayTTS,
+   PaleowaterdepthCalculator pwdCalculator2( inputData,
                                              outputData,
                                              validator,
-                                             presentDayPressureMantle.getMockderivedSurfacePropertyPtr(),
-                                             currentPressureMantle.getMockderivedSurfacePropertyPtr(),
-                                             &gridMapPresentDayPressureTTS,
-                                             &gridMapCurrentPressureTTS );
+                                             m_gridMapPresentDayTTS,
+                                             m_gridMapPresentDayPressureTTS,
+                                             m_gridMapCurrentPressureTTS );
    pwdCalculator2.compute();
    EXPECT_NEAR( 800.203873598369, outputData.getMapValue( isostaticBathymetry, 0, 0 ), 1e-12 );
    EXPECT_NEAR( 800.203873598369, outputData.getMapValue( isostaticBathymetry, 0, 1 ), 1e-12 );
    EXPECT_NEAR( 800.203873598369, outputData.getMapValue( isostaticBathymetry, 1, 0 ), 1e-12 );
    EXPECT_NEAR( 800.203873598369, outputData.getMapValue( isostaticBathymetry, 1, 1 ), 1e-12 );
    // and undefined data
-   PaleowaterdepthCalculator pwdCalculator3( firstI,
-                                             firstJ,
-                                             lastI,
-                                             lastJ,
-                                             3000,
-                                             1000,
-                                             &gridMapPresentDayTTS,
+   PaleowaterdepthCalculator pwdCalculator3( inputData,
                                              outputData,
                                              validator,
-                                             presentDayPressureMantle.getMockderivedSurfacePropertyPtr(),
-                                             currentPressureMantle.getMockderivedSurfacePropertyPtr(),
-                                             &gridMapPresentDayPressureTTSNDV,
-                                             &gridMapCurrentPressureTTS );
+                                             m_gridMapPresentDayTTS,
+                                             m_gridMapPresentDayPressureTTSNDV,
+                                             m_gridMapCurrentPressureTTS );
    pwdCalculator3.compute();
    EXPECT_EQ( 800, outputData.getMapValue( isostaticBathymetry, 0, 0 ) );
    EXPECT_EQ( 800, outputData.getMapValue( isostaticBathymetry, 0, 1 ) );
@@ -196,32 +263,22 @@ TEST( PaleowaterdepthCalculator, compute )
 
    //Undefined values
    // for TTS
-   PaleowaterdepthCalculator pwdCalculator4( firstI,
-                                             firstJ,
-                                             lastI,
-                                             lastJ,
-                                             3000,
-                                             1000,
-                                             &gridMapPresentDayTTSNDV,
+   PaleowaterdepthCalculator pwdCalculator4( inputData,
                                              outputData,
-                                             validator );
+                                             validator,
+                                             m_gridMapPresentDayTTSNDV );
    pwdCalculator4.compute();
    EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( isostaticBathymetry, 0, 0 ) );
    EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( isostaticBathymetry, 0, 1 ) );
    EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( isostaticBathymetry, 1, 0 ) );
    EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( isostaticBathymetry, 1, 1 ) );
-   PaleowaterdepthCalculator pwdCalculator5( firstI,
-                                             firstJ,
-                                             lastI,
-                                             lastJ,
-                                             3000,
-                                             1000,
-                                             &gridMapPresentDayTTS,
+   // for backstrip
+   PaleowaterdepthCalculator pwdCalculator5( inputData,
                                              outputData,
-                                             validator );
+                                             validator,
+                                             m_gridMapPresentDayTTS );
    outputData.setMapValues( cumSedimentBackstrip, Interface::DefaultUndefinedMapValue );
    pwdCalculator5.compute();
-   // for backstrip
    EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( isostaticBathymetry, 0, 0 ) );
    EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( isostaticBathymetry, 0, 1 ) );
    EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( isostaticBathymetry, 1, 0 ) );

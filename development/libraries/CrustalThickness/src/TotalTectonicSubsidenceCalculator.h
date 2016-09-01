@@ -11,8 +11,10 @@
 #ifndef _CRUSTALTHICKNESS_TTSCALCULATOR_H_
 #define _CRUSTALTHICKNESS_TTSCALCULATOR_H_
 
+// CrusltalThickness library
 #include "AbstractInterfaceOutput.h"
 #include "AbstractValidator.h"
+#include "InterfaceInput.h"
 
 // CBMGenerics library
 #include "Polyfunction.h"
@@ -34,16 +36,13 @@ class TotalTectonicSubsidenceCalculator {
    public:
    
       /// @brief Constructs the TTS calculator in order to compute the total tectonic subsidence
-      TotalTectonicSubsidenceCalculator( const unsigned int firstI,
-                                         const unsigned int firstJ,
-                                         const unsigned int lastI,
-                                         const unsigned int lastJ,
-                                         const double age,
-                                         const double airCorrection,
-                                         const Interface::GridMap* previousTTS,
-                                         const PolyFunction2DArray& depthWaterBottom,
-                                         AbstractInterfaceOutput& outputData,
-                                         AbstractValidator&       validator );
+      TotalTectonicSubsidenceCalculator( InterfaceInput&            inputData,
+                                         AbstractInterfaceOutput&   outputData,
+                                         AbstractValidator&         validator,
+                                         const double               age,
+                                         const double               airCorrection,
+                                         const Interface::GridMap*  previousTTS,
+                                         const PolyFunction2DArray& depthWaterBottom);
 
       ~TotalTectonicSubsidenceCalculator() {};
 
@@ -58,7 +57,19 @@ class TotalTectonicSubsidenceCalculator {
       double calculateIncrementalTTS( const double TTS,
                                       const double previousTTS ) const;
 
+      /// @return The see level adjusted total tectonic subsidence
+      double calculateTTSadjusted( const double TTS,
+                                   const double seeLevelAdjustment ) const;
+
    private:
+
+      /// @defgroup DataUtilities
+      /// @{
+      /// @brief Retrieve basement depth data
+      void retrieveData();
+      /// @brief Restore basement depth data
+      void restoreData();
+      /// @}
 
       const unsigned int m_firstI; ///< First i index on the map
       const unsigned int m_firstJ; ///< First j index on the map
@@ -69,7 +80,7 @@ class TotalTectonicSubsidenceCalculator {
       const double m_airCorrection; ///< The backstrip air correction to be used when the water bottom is above the see level 0m
 
       const Interface::GridMap* m_previousTTS; ///< The TTS at the previous time step (in descending order xxma-->0Ma)
-
+      const Interface::GridMap& m_seeLevelAdjustment; ///< The see level adjustment [m]
       const PolyFunction2DArray& m_surfaceDepthHistory; ///< The user defined paleobathymetrie (loaded from the project handle)
 
       AbstractInterfaceOutput& m_outputData; ///< The global interface output object (contains the output maps)

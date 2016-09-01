@@ -120,23 +120,11 @@ namespace DataAccess
          virtual void printOn (std::ostream &) const = 0;
          virtual void asString (std::string&) const = 0;
 
-      private:
+         virtual bool isEqual( const Grid& grid ) const = 0;
 
-#if 0
-         const double m_minI;
-         const double m_minJ;
-         const double m_maxI;
-         const double m_maxJ;
-         const unsigned int m_numI;
-         const unsigned int m_numJ;
-
-         const double m_deltaI;
-         const double m_deltaJ;
-         const double m_surface;
-#endif
       };
 
-      bool operator==(const Grid & Grid1, const Grid & Grid2);
+      inline bool operator==(const Grid & Grid1, const Grid & Grid2) { return Grid1.isEqual( Grid2 ); }
    }
 }
 

@@ -11,9 +11,9 @@
 // std library
 #include <assert.h>
 #include <iostream>
-#include <sstream>
-using namespace std;
-#define USESTANDARD
+
+// utilities library
+#include "LogHandler.h"
 
 // TableIO library
 #include "cauldronschemafuncs.h"
@@ -138,20 +138,7 @@ void CrustalThicknessData::printOn (ostream & ostr) const
 
 void CrustalThicknessData::asString (string & str) const
 {
-#ifdef USESTANDARD
-   ostringstream buf;
-#else
-   strstream buf;
-#endif
-
-   buf << "Crustul Thickness Data:";
-   buf << " t0 = " << getT0Ini();
-   buf << ", tr = " << getTRIni ();
-   buf << endl;
-   
-   str = buf.str ();
-#ifndef USESTANDARD
-   buf.rdbuf ()->freeze (0);
-#endif
-
+   str = "Crustul Thickness Data:";
+   str.append( " t0 = "  + std::to_string( getT0Ini() ) );
+   str.append( ", tr = " + std::to_string( getTRIni() ) );
 }

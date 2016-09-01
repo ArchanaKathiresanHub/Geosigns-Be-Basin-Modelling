@@ -50,25 +50,38 @@ namespace CrustalThicknessInterface {
       /// @}
 
 
-      const unsigned int m_smoothingRadius; ///< The smoothing radius
       bool m_mapToRestore;                  ///< Tell if we need to restore the map or not after the smoothing
 
+      /// @defgroup TemporaryArrays
+      /// @{
       boost::multi_array<double, 2> m_sumMap;    ///< Maps each (i,j) to the sum of the cell values included in the smoothing radius
       boost::multi_array<int,    2> m_numberMap; ///< Maps each (i,j) to the number of cells included in the smoothing radius
+      /// @}
 
+      /// @defgroup InputMapRange
+      /// Loaded from map to smooth
+      /// @{
       unsigned int m_firstI;
       unsigned int m_firstJ;
       unsigned int m_lastI;
       unsigned int m_lastJ;
-      bool         m_ghostNodes; ///< Set to true in constructor (for debug purpose only)
+      const bool   m_ghostNodes; ///< Set to true in constructor (for debug purpose only)
+      /// @}
 
-      unsigned int m_xSmoothingRadius;  ///< The smoothing radius in the i direction
-      unsigned int m_ySmoothingRadius;  ///< The smoothing radius in the j direction
-      unsigned int m_xLastSmoothedNode; ///< The last smoothed radius in the i direction
-      unsigned int m_yLastSmoothedNode; ///< The last smoothed radius in the j direction
+      /// @defgroup Smoothing
+      /// @{
+      const unsigned int m_smoothingRadius; ///< The smoothing radius
+      unsigned int m_xSmoothingRadius;      ///< The smoothing radius in the i direction
+      unsigned int m_ySmoothingRadius;      ///< The smoothing radius in the j direction
+      unsigned int m_xLastSmoothedNode;     ///< The last smoothed radius in the i direction
+      unsigned int m_yLastSmoothedNode;     ///< The last smoothed radius in the j direction
+      /// @}
 
+      /// @defgroup Maping
+      /// @{
       double * m_columnMap[2];        ///<Maping between (i,j) and the value of its column
       int *    m_numberMapCollect[2]; ///<Maping between (i,j) and the number of cells of its column
+      /// @}
 
    };
 

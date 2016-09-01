@@ -14,13 +14,13 @@ if (BM_PARALLEL)
 
 set( all_headers
    src/CrustalThicknessCalculator.h
-	src/CrustalThicknessCalculatorFactory.h
+   src/CrustalThicknessCalculatorFactory.h
 )
 
 set( all_srcs
    src/CrustalThicknessCalculator.C 
-	src/CrustalThicknessCalculatorFactory.C 
-	src/main.C
+   src/CrustalThicknessCalculatorFactory.C 
+   src/main.C
 )
 
 source_group(include FILES ${all_headers})
@@ -29,64 +29,64 @@ source_group(source FILES ${all_srcs})
 add_executable(fastctc ${all_srcs} ${all_headers})
 
 bm_include_libraries(
-	DataModel
+   DataModel
    DataMining
-	DataAccess
-	DistributedDataAccess
-	GeoPhysics
+   DataAccess
+   DistributedDataAccess
+   GeoPhysics
    DerivedProperties
-	Interpolation
-	LinearAlgebra
+   Interpolation
+   LinearAlgebra
    TableIO
    EosPack
-	CBMGenerics
-	Serial_Hdf5
+   CBMGenerics
+   Serial_Hdf5
    OneFilePerProcess
-	Parallel_Hdf5
-	utilities
-	FileSystem
-	Utilities_Petsc
-	LinearAlgebra
-	Interpolation
-	CrustalThickness
+   Parallel_Hdf5
+   utilities
+   FileSystem
+   Utilities_Petsc
+   LinearAlgebra
+   Interpolation
+   CrustalThickness
 )
 
 include_directories(
-	${HDF5_INCLUDE_DIRS}
-	${MPI_INCLUDE_DIRS}
-	${PETSC_INCLUDE_DIRS}
-	${FLEXLM_INCLUDE_DIRS}
+   ${HDF5_INCLUDE_DIRS}
+   ${MPI_INCLUDE_DIRS}
+   ${PETSC_INCLUDE_DIRS}
+   ${FLEXLM_INCLUDE_DIRS}
 )
 
 target_link_libraries(fastctc
-	DataModel
+   DataModel
    DataMining
-	DataAccess
-	DistributedDataAccess
+   DataAccess
+   DistributedDataAccess
    GeoPhysics
-	DerivedProperties
-	Interpolation
-	LinearAlgebra
+   DerivedProperties
+   Interpolation
+   LinearAlgebra
    TableIO
    EosPack
-	CBMGenerics
-	Serial_Hdf5
-  	Parallel_Hdf5
-	utilities
-	FileSystem
-	Utilities_Petsc
-	LinearAlgebra
-	Interpolation
-	CrustalThickness
+   CBMGenerics
+   Serial_Hdf5
+   Parallel_Hdf5
+   utilities
+   FileSystem
+   Utilities_Petsc
+   LinearAlgebra
+   Interpolation
+   CrustalThickness
    ${HDF5_LIBRARIES}
-	${PETSC_LIBRARIES}
+   ${PETSC_LIBRARIES}
 )
 
 
 # OFPP only for Linux
 if (UNIX)
-	target_link_libraries(fastctc OneFilePerProcess)
-	bm_include_libraries( OneFilePerProcess )
+   target_link_libraries(fastctc OneFilePerProcess)
+   bm_include_libraries( OneFilePerProcess )
 endif (UNIX)
 
 # Add FLEXLM if enabled
@@ -96,11 +96,11 @@ if (BM_USE_FLEXLM)
 endif(BM_USE_FLEXLM)
 
 set_target_properties(fastctc
-      PROPERTIES LINK_FLAGS "${PETSC_LINK_FLAGS}"
+   PROPERTIES LINK_FLAGS "${PETSC_LINK_FLAGS}"
 )
 
 install(TARGETS fastctc
-	RUNTIME DESTINATION bin
+   RUNTIME DESTINATION bin
 )
 
 # Create doxygen

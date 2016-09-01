@@ -14,14 +14,13 @@
 #include "Interface/PropertyValue.h"
 #include "Interface/Interface.h"
 
-namespace database
-{
-   class Record;
-}
+// TableIo library
+#include "database.h"
 
 using namespace DataAccess;
 
 namespace Ctc {
+   /// @class PropertyValue The property value used by fastctc
    class PropertyValue : public Interface::PropertyValue {
 
    public:
@@ -38,14 +37,13 @@ namespace Ctc {
 
       bool toBeSaved() const;
 
-      /// Allow or prevent a property from being output.
-      ///
-      /// Allows repression of output what-ever the output option is selected.
+      /// @brief Allow or prevent a property from being output.
+      /// @details Allows repression of output what-ever the output option is selected.
       void allowOutput( const bool output );
 
    private:
 
-      bool m_allowOutput;
+      bool m_allowOutput; ///< Says if the property has to be output
    };
 
 }

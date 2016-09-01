@@ -30,6 +30,7 @@ set( all_headers
    src/InterfaceOutput.h
    src/LinearFunction.h
    src/MapSmoother.h
+   src/McKenzieCrustCalculator.h
    src/PaleowaterdepthCalculator.h
    src/PaleowaterdepthResidualCalculator.h
    src/PropertyValue.h
@@ -47,6 +48,7 @@ set( all_srcs
    src/InterfaceOutput.C
    src/LinearFunction.C
    src/MapSmoother.C
+   src/McKenzieCrustCalculator.C
    src/PaleowaterdepthCalculator.C
    src/PaleowaterdepthResidualCalculator.C
    src/PropertyValue.C
@@ -73,7 +75,7 @@ bm_include_libraries(
    DataMining
    GeoPhysics
    DerivedProperties
-   EosPack	
+   EosPack
    CBMGenerics
    FileSystem
    utilities
@@ -92,11 +94,10 @@ include_directories(
 )
 
 target_link_libraries(CrustalThickness
-   DistributedDataAccess
    DataAccess
    DataMining
-   DerivedProperties	
-   EosPack	
+   DerivedProperties
+   EosPack
    CBMGenerics
    FileSystem
    utilities
@@ -104,7 +105,8 @@ target_link_libraries(CrustalThickness
    Utilities_Petsc
    Serial_Hdf5
    ${HDF5_LIBRARIES}
-) 
+   ${PETSC_LIBRARIES}
+)
 
 install(TARGETS CrustalThickness
    RUNTIME DESTINATION bin
@@ -116,35 +118,62 @@ install(TARGETS CrustalThickness
 ######################## UNIT TESTS ############################
 ################################################################
 
+set ( io_mockFiles
+   test/MockConfigFileParameterCtc.h
+   test/MockInterfaceInput.h
+   test/MockInterfaceOutput.h
+   test/MockInterfaceOutput.C
+   test/MockValidator.h
+   test/MockValidator.C
+)
+
+set( all_mockFiles
+   ${io_mockFiles}
+   ../DerivedProperties/test/MockDerivedSurfaceProperty.h
+   ../DerivedProperties/test/MockDerivedSurfaceProperty.C
+)
+
+
+
 add_gtest( NAME "CrustalThickness::Density"
-           SOURCES test/Density.C test/MockInterfaceOutput.h test/MockValidator.h test/MockInterfaceOutput.C test/MockValidator.C ../DerivedProperties/test/MockDerivedSurfaceProperty.h ../DerivedProperties/test/MockDerivedSurfaceProperty.C
-           LIBRARIES CrustalThickness
+           SOURCES test/Density.C ${all_mockFiles}
+           LIBRARIES CrustalThickness SerialDataAccess
          )
 
 add_gtest( NAME "CrustalThickness::TotalTectonicSubsidence"
-           SOURCES test/TotalTectonicSubsidence.C test/MockInterfaceOutput.h test/MockInterfaceOutput.C test/MockValidator.h test/MockValidator.C ../DerivedProperties/test/MockDerivedSurfaceProperty.h ../DerivedProperties/test/MockDerivedSurfaceProperty.C
-           LIBRARIES CrustalThickness SerialDataAccess DataAccess
+           SOURCES test/TotalTectonicSubsidence.C ${all_mockFiles}
+           LIBRARIES CrustalThickness SerialDataAccess
          )
 
 add_gtest( NAME "CrustalThickness::Paleowaterdepth"
-           SOURCES test/Paleowaterdepth.C test/MockInterfaceOutput.h test/MockInterfaceOutput.C test/MockValidator.h test/MockValidator.C ../DerivedProperties/test/MockDerivedSurfaceProperty.h ../DerivedProperties/test/MockDerivedSurfaceProperty.C
-           LIBRARIES CrustalThickness SerialDataAccess DataAccess
+           SOURCES test/Paleowaterdepth.C ${all_mockFiles}
+           LIBRARIES CrustalThickness SerialDataAccess
          )
 
 add_gtest( NAME "CrustalThickness::PaleowaterdepthResidual"
-           SOURCES test/PaleowaterdepthResidual.C test/MockInterfaceOutput.h test/MockInterfaceOutput.C test/MockValidator.h test/MockValidator.C
-           LIBRARIES CrustalThickness SerialDataAccess DataAccess
+           SOURCES test/PaleowaterdepthResidual.C ${io_mockFiles}
+           LIBRARIES CrustalThickness SerialDataAccess
          )
 
 add_gtest( NAME "CrustalThickness::MapSmoother"
            SOURCES test/MapSmoother.C
-           LIBRARIES CrustalThickness SerialDataAccess DataAccess
+           LIBRARIES CrustalThickness SerialDataAccess
          )
 
-add_gtest( NAME CrustalThickness::ConfigFileCtc
+add_gtest( NAME "CrustalThickness::ConfigFileCtc"
            SOURCES test/ConfigFileCtc.C 
            LIBRARIES CrustalThickness
            ENV_VARS CTCDIR=${PROJECT_SOURCE_DIR}/geocase/misc
+         )
+
+add_gtest( NAME "CrustalThickness::LinearFunction"
+           SOURCES test/LinearFunction.C 
+           LIBRARIES CrustalThickness
+         )
+
+add_gtest( NAME "CrustalThickness::McKenzie"
+           SOURCES test/McKenzie.C ${all_mockFiles}
+           LIBRARIES CrustalThickness SerialDataAccess
          )
 
 ################################################################

@@ -365,12 +365,14 @@ void SerialGrid::asString (string & str) const
 #endif
 }
 
-bool DataAccess::Interface::operator==(const Grid & Grid1, const Grid & Grid2)
+bool SerialGrid::isEqual( const Grid& grid ) const
 {
-   return (Grid1.numI () == Grid2.numI () &&
-	 Grid1.numJ () == Grid2.numJ () &&
-	 Grid1.minI () == Grid2.minI () &&
-	 Grid1.minJ () == Grid2.minJ () &&
-	 Grid1.deltaI () == Grid2.deltaI () &&
-	 Grid1.deltaJ () == Grid2.deltaJ ());
+   return(
+      this->numI()   == grid.numI   () &&
+      this->numJ()   == grid.numJ   () &&
+      this->minI()   == grid.minI   () &&
+      this->minJ()   == grid.minJ   () &&
+      this->deltaI() == grid.deltaI () &&
+      this->deltaJ() == grid.deltaJ ()
+   );
 }

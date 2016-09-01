@@ -715,28 +715,15 @@ void DistributedGrid::printDistributionOn (MPI_Comm comm) const
    PetscPrintf (comm, "\n");
 }
 
-bool DataAccess::Interface::operator==(const Grid & Grid1, const Grid & Grid2)
+bool DistributedGrid::isEqual( const Grid& grid ) const
 {
    return ( 
-            Grid1.numI()  == Grid2.numI()   && 
-            Grid1.numJ()  == Grid2.numJ()   &&
-            Grid1.firstI()== Grid2.firstI() && 
-            Grid1.firstJ()== Grid2.firstJ() &&
-       Grid1.lastI() == Grid2.lastI()  && 
-            Grid1.lastJ() == Grid2.lastJ() 
-          );
+      this->numI()  == grid.numI()   && 
+      this->numJ()  == grid.numJ()   &&
+      this->firstI()== grid.firstI() && 
+      this->firstJ()== grid.firstJ() &&
+      this->lastI() == grid.lastI()  && 
+      this->lastJ() == grid.lastJ() 
+   );
    
 }
-/*bool Grid::operator==(const Grid & Grid1) const
-{
-   return ( 
-             numI()  == Grid1.numI()   && 
-             numJ()  == Grid1.numJ()   &&
-             firstI()== Grid1.firstI() && 
-             firstJ()== Grid1.firstJ() &&
-        lastI() == Grid1.lastI()  && 
-             lastJ() == Grid1.lastJ() 
-          );
-   
-}*/
-      

@@ -25,7 +25,6 @@ TEST( ConfigFileCtc, parameters ){
    parameters.loadConfigurationFileCtc( "InterfaceData.cfg" );
    EXPECT_EQ( 3.45E-5, parameters.getCoeffThermExpansion()         );
    EXPECT_EQ( 4055,    parameters.getInitialSubsidenceMax()        );
-   EXPECT_EQ( M_PI,    parameters.getPi()                          );
    EXPECT_EQ( 2656,    parameters.getE0()                          );
    EXPECT_EQ( 42.9,    parameters.getTau()                         );
    EXPECT_EQ( 92500,   parameters.getModelTotalLithoThickness()    );
@@ -47,7 +46,6 @@ TEST( ConfigFileCtc, parameters ){
    parameters.setDecayConstant( 300.156 );
    EXPECT_EQ( 3.45E-5, parameters.getCoeffThermExpansion()         );
    EXPECT_EQ( 4055,    parameters.getInitialSubsidenceMax()        );
-   EXPECT_EQ( M_PI,    parameters.getPi()                          );
    EXPECT_EQ( 2656,    parameters.getE0()                          );
    EXPECT_EQ( 42.9,    parameters.getTau()                         );
    EXPECT_EQ( 92500,   parameters.getModelTotalLithoThickness()    );
@@ -70,7 +68,6 @@ TEST( ConfigFileCtc, parameters ){
    parameters.setDecayConstant( 300.156 );
    EXPECT_EQ( 3.45E-5, parametersCopy.getCoeffThermExpansion()         );
    EXPECT_EQ( 4055,    parametersCopy.getInitialSubsidenceMax()        );
-   EXPECT_EQ( M_PI,    parametersCopy.getPi()                          );
    EXPECT_EQ( 2656,    parametersCopy.getE0()                          );
    EXPECT_EQ( 42.9,    parametersCopy.getTau()                         );
    EXPECT_EQ( 92500,   parametersCopy.getModelTotalLithoThickness()    );

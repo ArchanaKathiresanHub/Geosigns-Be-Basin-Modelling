@@ -15,7 +15,7 @@ namespace DataAccess
 public:
          /// create a new global grid
          GlobalGrid (double minI, double minJ, double maxI, double maxJ, int numI, int numJ);
-	 virtual ~GlobalGrid (void);
+         virtual ~GlobalGrid (void);
 
          /// Checks whether the given point is a grid point
          bool isGridPoint (int i, int j) const;

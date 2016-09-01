@@ -14,21 +14,21 @@
 #include "Interface/Interface.h"
 
 //------------------------------------------------------------//
-PaleowaterdepthResidualCalculator::PaleowaterdepthResidualCalculator( const unsigned int firstI,
-                                                                      const unsigned int firstJ,
-                                                                      const unsigned int lastI,
-                                                                      const unsigned int lastJ,
-                                                                      const double age,
-                                                                      const PolyFunction2DArray& surfaceDepthHistory,
-                                                                      AbstractInterfaceOutput& outputData,
-                                                                      AbstractValidator&       validator ) : m_firstI( firstI ),
-                                                                                                             m_firstJ( firstJ ),
-                                                                                                             m_lastI ( lastI  ),
-                                                                                                             m_lastJ ( lastJ  ),
-                                                                                                             m_age(age),
-                                                                                                             m_surfaceDepthHistory( surfaceDepthHistory ),
-                                                                                                             m_outputData ( outputData ),
-                                                                                                             m_validator  ( validator ){ }
+PaleowaterdepthResidualCalculator::PaleowaterdepthResidualCalculator(
+   InterfaceInput&            inputData,
+   AbstractInterfaceOutput&   outputData,
+   AbstractValidator&         validator,
+   const double               age,
+   const PolyFunction2DArray& surfaceDepthHistory ) :
+      m_firstI             ( inputData.firstI() ),
+      m_firstJ             ( inputData.firstJ() ),
+      m_lastI              ( inputData.lastI() ),
+      m_lastJ              ( inputData.lastJ() ),
+      m_outputData         ( outputData ),
+      m_validator          ( validator  ),
+      m_age                ( age ),
+      m_surfaceDepthHistory( surfaceDepthHistory )
+{}
 
 //------------------------------------------------------------//
 void PaleowaterdepthResidualCalculator::compute(){
@@ -57,6 +57,5 @@ void PaleowaterdepthResidualCalculator::compute(){
 //------------------------------------------------------------//
 double PaleowaterdepthResidualCalculator::calculatePWDR( const double  PWD,
                                                          const double  surfaceDepthHistory ) const {
-   double PWDR = PWD - surfaceDepthHistory;
-   return PWDR;
+   return PWD - surfaceDepthHistory;
 }

@@ -230,14 +230,21 @@ int main (int argc, char ** argv)
       CrustalThicknessCalculator::getInstance().initialise();
       CrustalThicknessCalculator::getInstance().run();
    }
+   catch (std::invalid_argument& ex){
+      LogHandler( LogHandler::ERROR_SEVERITY ) << "CTC INPUT ERROR";
+      LogHandler( LogHandler::ERROR_SEVERITY ) << ex.what();
+      finaliseCrustalThicknessCalculator( feature, ex.what(), factory );
+      return 0;
+   }
    catch (CtcException& ex){
+      LogHandler( LogHandler::ERROR_SEVERITY ) << "CTC COMPUTATION ERROR";
       LogHandler( LogHandler::ERROR_SEVERITY ) << ex.what();
       finaliseCrustalThicknessCalculator( feature, ex.what(), factory );
       return 0;
    }
    catch (...) {
-      LogHandler( LogHandler::FATAL_SEVERITY ) << "CTC fatal error.";
-      finaliseCrustalThicknessCalculator(feature, "CTC fatal error.", factory);
+      LogHandler( LogHandler::FATAL_SEVERITY ) << "CTC FATAL ERROR";
+      finaliseCrustalThicknessCalculator(feature, "CTC fatal error", factory);
       return 0;
    }
 

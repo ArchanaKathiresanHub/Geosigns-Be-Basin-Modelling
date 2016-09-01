@@ -25,6 +25,9 @@
 #include "Interface/CrustalThicknessData.h"
 #include "Interface/Surface.h"
 
+// DataModel library
+#include "AbstractProperty.h"
+
 // CrustalThickness library
 #include "LinearFunction.h"
 #include "ConfigFileParameterCtc.h"
@@ -35,6 +38,13 @@
 // Datamining library
 #include "DataMiningProjectHandle.h"
 
+// Derived properties library
+#include "SurfaceProperty.h"
+#include "DerivedPropertyManager.h"
+
+// TableIO library
+#include "database.h"
+
 // utilitites
 #include "FormattingException.h"
 
@@ -42,24 +52,8 @@ using namespace std;
 using namespace DataAccess;
 using Interface::GridMap;
 
-namespace database
-{
-   class Record;
-   class Table;
-}
-
-namespace DerivedProperties
-{
-   class SurfaceProperty;
-   class DerivedPropertyManager;
-   typedef boost::shared_ptr<const SurfaceProperty> SurfacePropertyPtr;
-}
-
-namespace DataModel{
-   class AbstractProperty;
-}
-
 /// @class InterfaceInput The CTC input interface
+/// @throw InputException This class throw many exceptions in order to avoid calculator failures because of bad inputs
 class InterfaceInput : public Interface::CrustalThicknessData
 {
 
@@ -73,8 +67,10 @@ public:
    /// @defgroup LoadData_cfg
    ///    Load data from configuration file
    /// @{
+   /// @throw Fatal error exceptions to main after error loging
    void loadInputDataAndConfigurationFile( const string & inFile );
-   void loadInputData                    ();
+   /// @throw InputException if the user input data can't be loaded
+   void loadInputData ();
    /// @}
 
    /// @defgroup LoadData_strati
@@ -101,10 +97,11 @@ public:
    const DataModel::AbstractProperty* loadDepthProperty( );
 
    /// @brief Load a property at the defined snapshot for every point specified in the depth map
-   /// @param handle The datamining project handle
-   /// @param depthMap The depth map whcih defines the location of the points where we want to load the property
-   /// @property The property to load
-   /// @snapshot The snapshot at which we want to load the property
+   /// @param[in] handle The datamining project handle
+   /// @param[in] depthMap The depth map whcih defines the location of the points where we want to load the property
+   /// @param[in] property The property to load
+   /// @param[in] snapshot The snapshot at which we want to load the property
+   /// @return A grid map with the property values at the defined snapshot and depth
    GridMap* loadPropertyDataFromDepthMap( DataAccess::Mining::ProjectHandle* handle,
                                           const GridMap* depthMap,
                                           const Interface::Property* property,
@@ -115,59 +112,34 @@ public:
    /// @{
    unsigned int getSmoothRadius()          const { return m_smoothRadius;                              }
    double getFlexuralAge()                 const { return m_t_felxural;                                }
-   double getInitialCrustThickness()       const { return m_initialCrustThickness;                     }
-   double getInitialLithosphereThickness() const { return m_initialLithosphericThickness;              }
    double getInitialSubsidence()           const { return m_constants.getInitialSubsidenceMax();       }
    double getBackstrippingMantleDensity()  const { return m_constants.getBackstrippingMantleDensity(); }
    double getWaterDensity()                const { return m_constants.getWaterDensity();               }
-   double getEstimatedCrustDensity()       const { return m_modelCrustDensity;                         }
-   double getTFOnset()                     const { return m_TF_onset;                                  }
-   double getTFOnsetLin()                  const { return m_TF_onset_lin;                              }
-   double getTFOnsetMig()                  const { return m_TF_onset_mig;                              }
-   double getPTa()                         const { return m_PTa;                                       }
-   double getMagmaticDensity()             const { return m_magmaticDensity;                           }
-   double getWLSexhume()                   const { return m_WLS_exhume;                                }
-   double getWLScrit()                     const { return m_WLS_crit;                                  }
-   double getWLSonset()                    const { return m_WLS_onset;                                 }
-   double getWLSexhumeSerp()               const { return m_WLS_exhume_serp;                           }
 
-   double getDeltaSLValue (unsigned int i, unsigned int j) const;
-   double getMidAge() const;
+   const CrustalThickness::ConfigFileParameterCtc& getConstants() const { return m_constants;           }
+   const string& getBaseRiftSurfaceName()                         const { return m_baseRiftSurfaceName; }
 
-   const string& getBaseRiftSurfaceName() const { return m_baseRiftSurfaceName; }
+   const GridMap& getT0Map     () const;
+   const GridMap& getTRMap     () const;
+   const GridMap& getHCuMap    () const;
+   const GridMap& getHBuMap    () const;
+   const GridMap& getHLMuMap   () const;
+   const GridMap& getDeltaSLMap() const;
 
-   const GridMap* getT0Map()      const { return m_T0Map;      };
-   const GridMap* getTRMap()      const { return m_TRMap;      };
-   const GridMap* getHCuMap()     const { return m_HCuMap;     };
-   const GridMap* getHLMuMap()    const { return m_HLMuMap;    };
-   const GridMap* getDeltaSLMap() const { return m_DeltaSLMap; };
+   DerivedProperties::SurfacePropertyPtr getPressureBasement           () const { return m_pressureBasement;           }
+   DerivedProperties::SurfacePropertyPtr getPressureWaterBottom        () const { return m_pressureWaterBottom;        }
+   DerivedProperties::SurfacePropertyPtr getPressureMantle             () const { return m_pressureMantle;             }
+   DerivedProperties::SurfacePropertyPtr getPressureMantleAtPresentDay () const { return m_pressureMantleAtPresentDay; }
+   DerivedProperties::SurfacePropertyPtr getDepthBasement              () const { return m_depthBasement;              }
+   DerivedProperties::SurfacePropertyPtr getDepthWaterBottom           () const { return m_depthWaterBottom;           }
 
-   DerivedProperties::SurfacePropertyPtr getPressureBasement           () const { return m_pressureBasement;           };
-   DerivedProperties::SurfacePropertyPtr getPressureWaterBottom        () const { return m_pressureWaterBottom;        };
-   DerivedProperties::SurfacePropertyPtr getPressureMantle             () const { return m_pressureMantle;             };
-   DerivedProperties::SurfacePropertyPtr getPressureMantleAtPresentDay () const { return m_pressureMantleAtPresentDay; };
-   DerivedProperties::SurfacePropertyPtr getDepthBasement              () const { return m_depthBasement;              };
-   DerivedProperties::SurfacePropertyPtr getDepthWaterBottom           () const { return m_depthWaterBottom;           };
-
-   const Interface::Surface* getTopOfSedimentSurface() const { return m_topOfSedimentSurface;    };
-   const Interface::Surface* getBotOfSedimentSurface() const { return m_bottomOfSedimentSurface; };
-
+   const Interface::Surface* getTopOfSedimentSurface() const { return m_topOfSedimentSurface;    }
+   const Interface::Surface* getBotOfSedimentSurface() const { return m_bottomOfSedimentSurface; }
    /// @}
 
    /// @defgroup Mutators
    /// @{
    void setSmoothingRadius( const unsigned int radius ) { m_smoothRadius = radius; };
-   /// @}
-
-   /// @brief Calculate coefficients for the linear function to invert from WLS to TF (thinning factor) for the (i,j) node
-   bool defineLinearFunction( LinearFunction & theFunction, unsigned int i, unsigned int j );
-
-   /// @defgroup DataUtilities
-   /// @{
-   /// @brief Retrieve all CTC maps data
-   void retrieveData();
-   /// @brief Restore all CTC maps data
-   void restoreData();
    /// @}
 
    /// @defgroup GridUtilities
@@ -179,25 +151,19 @@ public:
    unsigned lastJ()  const { return m_T0Map->lastJ();  };
    /// @}
 
-private:
+protected:
 
    /// @defgroup User_interface_data
    /// @{
-   unsigned int m_smoothRadius;            ///< Smoothing radius                                                      [Cells]
-   double m_t_0;                           ///< Beginning of rifting                                                  [Ma]
-   double m_t_r;                           ///< End of rifting                                                        [Ma]
-   double m_t_felxural;                    ///< Timing of flexural basin, after this age there is no more CTC outputs [Ma]
-   double m_initialCrustThickness;         ///< Initial continental crust thickness                                   [m]
-   double m_initialLithosphericThickness;  ///< Initial lithospheric mantle thickness                                 [m]
-   double m_maxBasalticCrustThickness;     ///< Maximum oceanic (basaltic) crust thickness                            [m]
-   double m_seaLevelAdjustment;            ///< Sea level adjustment                                                  [m]
+   unsigned int m_smoothRadius; ///< Smoothing radius                                                      [Cells]
+   double m_t_felxural;         ///< Timing of flexural basin, after this age there is no more CTC outputs [Ma]
 
-   const GridMap * m_T0Map;        ///< Beginning of rifting                       [Ma]
-   const GridMap * m_TRMap;        ///< End of rifting                             [Ma]
-   const GridMap * m_HCuMap;       ///< Initial continental crust thickness        [m]
-   const GridMap * m_HLMuMap;      ///< Initial lithospheric mantle thickness      [m]
-   const GridMap * m_HBuMap;       ///< Maximum oceanic (basaltic) crust thickness [m]
-   const GridMap * m_DeltaSLMap;   ///< Sea level adjustment                       [m]
+   const GridMap * m_T0Map;      ///< Beginning of rifting                       [Ma]
+   const GridMap * m_TRMap;      ///< End of rifting                             [Ma]
+   const GridMap * m_HCuMap;     ///< Initial continental crust thickness        [m]
+   const GridMap * m_HLMuMap;    ///< Initial lithospheric mantle thickness      [m]
+   const GridMap * m_HBuMap;     ///< Maximum oceanic (basaltic) crust thickness [m]
+   const GridMap * m_DeltaSLMap; ///< Sea level adjustment                       [m]
    /// @}
 
    /// @defgroup Stratigraphy
@@ -210,51 +176,19 @@ private:
 
    /// @defgroup DerivedProperties
    /// @{
-   DerivedProperties::DerivedPropertyManager* m_derivedManager;          ///< The derived property manager (we have to use a pointer for forward declaration due to crossdependent libraries)
-   DerivedProperties::SurfacePropertyPtr m_pressureBasement;             ///< The pressure of the basement at the current snapshot
-   DerivedProperties::SurfacePropertyPtr m_pressureWaterBottom;          ///< The pressure of the water bottom at the current snapshot
-   DerivedProperties::SurfacePropertyPtr m_pressureMantle;               ///< The pressure of the bottom of mantle at the current snapshot
-   DerivedProperties::SurfacePropertyPtr m_pressureMantleAtPresentDay;   ///< The pressure of the bootom of mantle at the present day
-   DerivedProperties::SurfacePropertyPtr m_depthBasement;                ///< The depth of the basement at the current snapshot
-   DerivedProperties::SurfacePropertyPtr m_depthWaterBottom;             ///< The depth of the water bottom at the current snapshot
+   DerivedProperties::DerivedPropertyManager* m_derivedManager;        ///< The derived property manager (we have to use a pointer for forward declaration due to crossdependent libraries)
+   DerivedProperties::SurfacePropertyPtr m_pressureBasement;           ///< The pressure of the basement at the current snapshot
+   DerivedProperties::SurfacePropertyPtr m_pressureWaterBottom;        ///< The pressure of the water bottom at the current snapshot
+   DerivedProperties::SurfacePropertyPtr m_pressureMantle;             ///< The pressure of the bottom of mantle at the current snapshot
+   DerivedProperties::SurfacePropertyPtr m_pressureMantleAtPresentDay; ///< The pressure of the bootom of mantle at the present day
+   DerivedProperties::SurfacePropertyPtr m_depthBasement;              ///< The depth of the basement at the current snapshot
+   DerivedProperties::SurfacePropertyPtr m_depthWaterBottom;           ///< The depth of the water bottom at the current snapshot
    /// @}
 
    CrustalThickness::ConfigFileParameterCtc m_constants; ///< Constants loaded from the configuration file
 
-   /// @defgroup Variables
-   /// @{
-   double m_modelCrustDensity; ///< Estimated continental crust density
-   double m_TF_onset;          ///< Crustal thinning factor at melt onset
-   double m_TF_onset_lin;      ///< Liner approximation of thinning factor at melt onset
-   double m_TF_onset_mig;      ///< Crustal thinning factor at threshold 'm_maxBasalticCrustThickness'
-   double m_PTa;               ///< Asthenospheric mantle potential temperature
-   double m_magmaticDensity;   ///< Asthenospheric mantle density
-   double m_WLS_onset;         ///< Water loaded subsidence at melt onset
-   double m_WLS_crit;          ///< Water loaded subsidence at critical point (TF=1, basalt)
-   double m_WLS_exhume;        ///< Water loaded subsidence at exhumation point (TF=1, no basalt)
-   double m_WLS_exhume_serp;   ///< Water loaded subsidence at exhime point with serpentinite (TF=1, serpentinite)
-   /// @}
-
    string m_baseRiftSurfaceName;  ///< Name of a base of syn-rift 
 
-   /// @brief Clean all class members
-   void clean();
 };
 
-//------------------------------------------------------------//
-
-inline double InterfaceInput::getDeltaSLValue( unsigned int i, unsigned int j ) const {
-   
-   if( m_DeltaSLMap->getValue(i, j) != m_DeltaSLMap->getUndefinedValue() ) {
-      return m_DeltaSLMap->getValue(i, j);
-   } else {
-      return Interface::DefaultUndefinedMapValue;
-   }
-}
-
-inline double InterfaceInput::getMidAge() const {
-   return (m_t_r + m_t_0) / 2;
-}
-
 #endif
-

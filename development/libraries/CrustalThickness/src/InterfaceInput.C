@@ -16,6 +16,7 @@
 #include "errorhandling.h"
 #include "Interface/CrustFormation.h"
 #include "Interface/Formation.h"
+#include "Interface/MantleFormation.h"
 #include "Interface/ProjectHandle.h"
 #include "Interface/Snapshot.h"
 #include "Interface/Grid.h"
@@ -42,50 +43,37 @@
 InterfaceInput::InterfaceInput(Interface::ProjectHandle * projectHandle, database::Record * record) :
    Interface::CrustalThicknessData( projectHandle, record )
    {
-
-   clean();
-   //-------------
-   m_T0Map = 0;
-   m_TRMap = 0;
-   m_HCuMap = 0;
-   m_HLMuMap = 0;
-   m_HBuMap = 0;
-   m_DeltaSLMap = 0;
-   m_smoothRadius = 0;
-
-   m_baseRiftSurfaceName = "";
-   m_derivedManager = nullptr;
-
+   m_T0Map                      = nullptr;
+   m_TRMap                      = nullptr;
+   m_HCuMap                     = nullptr;
+   m_HLMuMap                    = nullptr;
+   m_HBuMap                     = nullptr;
+   m_DeltaSLMap                 = nullptr;
+   m_derivedManager             = nullptr;
+   m_bottomOfSedimentSurface    = nullptr;
+   m_topOfSedimentSurface       = nullptr;
+   m_topOfMantle                = nullptr;
+   m_botOfMantle                = nullptr;
+   m_derivedManager             = nullptr;
+   m_pressureBasement           = nullptr;
+   m_pressureWaterBottom        = nullptr;
+   m_pressureMantle             = nullptr;
+   m_pressureMantleAtPresentDay = nullptr;
+   m_depthBasement              = nullptr;
+   m_depthWaterBottom           = nullptr;
+   m_smoothRadius               = 0;
+   m_t_felxural                 = 0.0;
+   m_constants                  = CrustalThickness::ConfigFileParameterCtc();
+   m_baseRiftSurfaceName        = "";
 }
+
 //------------------------------------------------------------//
 InterfaceInput::~InterfaceInput() {
    if (m_derivedManager != nullptr){
       delete m_derivedManager;
    }
 } 
-//------------------------------------------------------------//
-void InterfaceInput::clean() {
 
-   //-------------- User defined ---------------------
-   m_t_0                          = 0.0;
-   m_t_r                          = 0.0;
-   m_initialCrustThickness        = 0.0;
-   m_initialLithosphericThickness = 0.0;
-   m_maxBasalticCrustThickness    = 0.0;
-   m_seaLevelAdjustment           = 0.0;
-
-   //-------------
-   m_modelCrustDensity = 0;
-   m_TF_onset          = 0;
-   m_TF_onset_lin      = 0;
-   m_TF_onset_mig      = 0;
-   m_PTa               = 0;
-   m_magmaticDensity   = 0;
-   m_WLS_exhume        = 0;
-   m_WLS_crit          = 0;
-   m_WLS_onset         = 0;
-   m_WLS_exhume_serp   = 0;  
-}
 //------------------------------------------------------------//
 void InterfaceInput::loadInputDataAndConfigurationFile( const string & inFile ) {
    ///1. Load input data
@@ -93,25 +81,29 @@ void InterfaceInput::loadInputDataAndConfigurationFile( const string & inFile ) 
       loadInputData();
    }
    catch (InputException& ex){
-      LogHandler( LogHandler::ERROR_SEVERITY ) << ex.what();
+      LogHandler( LogHandler::ERROR_SEVERITY ) << "CTC error when loading input data";
+      throw ex;
    }
    catch (...){
       LogHandler( LogHandler::FATAL_SEVERITY ) << "CTC fatal error when loading input data";
+      throw;
    }
    ///2. Load configuration file
    try {
       m_constants.loadConfigurationFileCtc( inFile );
    }
    catch (InputException& ex){
-      LogHandler( LogHandler::ERROR_SEVERITY ) << ex.what();
+      LogHandler( LogHandler::ERROR_SEVERITY ) << "CTC error when loading configuration file";
+      throw ex;
    }
    catch (...){
       LogHandler( LogHandler::FATAL_SEVERITY ) << "CTC fatal error when loading configuration file";
+      throw;
    }
 }
 //------------------------------------------------------------//
 void InterfaceInput::loadInputData() {
-   
+
    m_TRMap      = getMap (Interface::TRIni  );
    m_T0Map      = getMap (Interface::T0Ini  );
    m_HCuMap     = getMap (Interface::HCuIni );
@@ -121,11 +113,10 @@ void InterfaceInput::loadInputData() {
    m_baseRiftSurfaceName = getSurfaceName();
    m_smoothRadius        = getFilterHalfWidth();
    m_t_felxural          = getLastComputationAge();
-   static const DataAccess::Interface::Grid * S_a0_FORTEST = m_T0Map->getGrid();
-   if (m_T0Map == 0 || m_TRMap == 0 || m_HCuMap == 0 || m_HLMuMap == 0 || m_DeltaSLMap == 0) {
-      throw InputException() << "Cannot load input data... Aborting... ";
+   if (m_T0Map == nullptr or m_TRMap == nullptr or m_HCuMap == nullptr or m_HLMuMap == nullptr or m_DeltaSLMap == nullptr) {
+      throw InputException() << "One of the input maps cannot be retreived by the interface input";
    }
-     
+
 }
 
 //------------------------------------------------------------//
@@ -133,12 +124,15 @@ void InterfaceInput::loadDerivedPropertyManager(){
    if (m_derivedManager == nullptr){
       GeoPhysics::ProjectHandle* projectHandle = dynamic_cast<GeoPhysics::ProjectHandle*>(this->getProjectHandle());
       if (projectHandle == nullptr){
-         throw InputException() << "Cannot access the derived property manager.";
+         throw InputException() << "Cannot access the derived property manager";
       }
       m_derivedManager = new DerivedProperties::DerivedPropertyManager( projectHandle );
+      if (m_derivedManager == nullptr){
+         throw InputException() << "Derived property manager cannot be retreived by the interface input";
+      }
    }
    else{
-      LogHandler( LogHandler::DEBUG_SEVERITY ) << "Derived property manager already loaded.";
+      LogHandler( LogHandler::DEBUG_SEVERITY ) << "Derived property manager already loaded";
    }
 }
 
@@ -146,44 +140,73 @@ void InterfaceInput::loadDerivedPropertyManager(){
 void InterfaceInput::loadTopAndBottomOfSediments( GeoPhysics::ProjectHandle* projectHandle, const double snapshotAge, const string & baseSurfaceName ) {
 
    const Interface::Snapshot * currentSnapshot = projectHandle->findSnapshot( snapshotAge, MINOR | MAJOR );
-
-   //1. Find the bottom of the sediment
-   if (baseSurfaceName == "") {
-
-      const Interface::CrustFormation * formationCrust = dynamic_cast<const Interface::CrustFormation *>(projectHandle->getCrustFormation());
-
-      if (!formationCrust) {
-         throw InputException() << "Could not find Crust formation at the age " << currentSnapshot->getTime() << ".";
-      }
-      m_bottomOfSedimentSurface = formationCrust->getTopSurface();
-      m_topOfMantle = formationCrust->getBottomSurface();
-      m_botOfMantle = formationCrust->getTopSurface();
-      LogHandler( LogHandler::DEBUG_SEVERITY ) << "Crust formation: '" << formationCrust->getName() << "', surface above '" << m_bottomOfSedimentSurface->getName() << "'.";
-      LogHandler( LogHandler::DEBUG_SEVERITY ) << "Crust formation: '" << formationCrust->getName() << "', surface under '" << m_topOfMantle->getName()             << "'.";
+   if (currentSnapshot == nullptr){
+      throw InputException() << "Could not retrieve snapshot " << snapshotAge;
    }
+
+   // - SEDIMENTS -
+   //1. Find the bottom of the sediment
+   //1.1 If the base of the rift is the base of the stratigraphy (ie. no crust in the stratigraphy)
+   if (baseSurfaceName == "") {
+      const Interface::CrustFormation * formationCrust  = projectHandle->getCrustFormation();
+      if (formationCrust == nullptr) {
+         throw InputException() << "Could not find Crust formation at the age " << currentSnapshot->getTime();
+      }
+      else{
+         m_bottomOfSedimentSurface = formationCrust->getTopSurface();
+      }
+   }
+   //1.2 If the base of the rift is the not base of the stratigraphy (ie. crust layers in the stratigraphy)
+   // This is an R&D feature only which can be acctivated by edditing the project handle CTCIoTbl SurfaceName field
    else {
       m_bottomOfSedimentSurface = projectHandle->findSurface( baseSurfaceName );
-      if (!m_bottomOfSedimentSurface) {
-         throw InputException() << "Could not find user defined base surface of the rift event: '" << baseSurfaceName << "'.";
-      }
-      else {
-         m_topOfMantle = m_bottomOfSedimentSurface->getBottomFormation()->getBottomSurface();
-         LogHandler( LogHandler::DEBUG_SEVERITY ) << "Using surface '" << m_bottomOfSedimentSurface->getName() << "' as the base of syn-rift.";
+      if (m_bottomOfSedimentSurface == nullptr) {
+         throw InputException() << "Could not find user defined base surface of the rift event: '" << baseSurfaceName;
       }
    }
 
    //2. Find the top of the sediment
    Interface::FormationList * myFormations = projectHandle->getFormations( currentSnapshot, true );
    const Interface::Formation * formationWB = (*myFormations)[0]; // find Water bottom
-
-   if (!formationWB) {
+   if (formationWB == nullptr) {
       throw InputException() << "Could not find the Water bottom formation at the age " << currentSnapshot->getTime();
    }
+   else{
+      m_topOfSedimentSurface = formationWB->getTopSurface();
+   }
 
-   m_topOfSedimentSurface = formationWB->getTopSurface();
 
-   LogHandler( LogHandler::DEBUG_SEVERITY ) << "Top sediment surface: '" << m_topOfSedimentSurface->getName()    << "'.";
-   LogHandler( LogHandler::DEBUG_SEVERITY ) << "Bot sediment surface: '" << m_bottomOfSedimentSurface->getName() << "'.";
+   // - MANTLE -
+   const Interface::CrustFormation * formationMantle = projectHandle->getCrustFormation();
+   if (formationMantle == nullptr) {
+      throw InputException() << "Could not find Mantle formation at the age " << currentSnapshot->getTime();
+   }
+   else{
+      //3. Find the top of the mantle
+      m_topOfMantle = formationMantle->getTopSurface();
+      //4. Find the bottom of the mantle
+      m_botOfMantle = formationMantle->getBottomSurface();
+   }
+
+   if (m_bottomOfSedimentSurface == nullptr) {
+      throw InputException() << "Could not find bottom sediment surface at the age " << currentSnapshot->getTime();
+   }
+   else if (m_topOfSedimentSurface == nullptr) {
+      throw InputException() << "Could not find top sediment surface at the age " << currentSnapshot->getTime();
+   }
+   else if (m_topOfMantle == nullptr) {
+      throw InputException() << "Could not find top mantle surface at the age " << currentSnapshot->getTime();
+   }
+   else if (m_botOfMantle == nullptr) {
+      throw InputException() << "Could not find bottom mantle surface at the age " << currentSnapshot->getTime();
+   }
+
+   LogHandler( LogHandler::DEBUG_SEVERITY ) << "Loading surfaces for snapshot " << currentSnapshot->getTime() << ":";
+   LogHandler( LogHandler::DEBUG_SEVERITY ) << "   #Top sediment surface   "     << m_topOfSedimentSurface->getName();
+   LogHandler( LogHandler::DEBUG_SEVERITY ) << "   #Bot sediment surface   "     << m_bottomOfSedimentSurface->getName();
+   LogHandler( LogHandler::DEBUG_SEVERITY ) << "   #Top mantle surface     "     << m_topOfMantle->getName();
+   LogHandler( LogHandler::DEBUG_SEVERITY ) << "   #Bop mantle surface     "     << m_botOfMantle->getName();
+
 }
 
 //------------------------------------------------------------//
@@ -191,8 +214,8 @@ const DataModel::AbstractProperty* InterfaceInput::loadDepthProperty () {
 
    if (m_derivedManager == nullptr) loadDerivedPropertyManager();
    const DataModel::AbstractProperty* depthProperty = m_derivedManager->getProperty( "Depth" );
-   if (!depthProperty) {
-      throw InputException() << "Could not find property named Depth.";
+   if (depthProperty == nullptr) {
+      throw InputException() << "Could not find property named Depth";
    }
    return depthProperty;
 }
@@ -207,12 +230,13 @@ void InterfaceInput::loadDepthData( GeoPhysics::ProjectHandle* projectHandle, co
       m_depthBasement = m_derivedManager->getSurfaceProperty( depthProperty, currentSnapshot, m_bottomOfSedimentSurface );
       // Find the depth property of the top of sediment
       m_depthWaterBottom = m_derivedManager->getSurfaceProperty( depthProperty, currentSnapshot, m_topOfSedimentSurface );
-   }
-   catch (InputException& ex){
-      LogHandler( LogHandler::ERROR_SEVERITY ) << ex.what();
+      if (m_depthBasement == nullptr or m_depthWaterBottom == nullptr){
+         throw InputException() << "Could not create surface derived property objects for depth property";
+      }
    }
    catch (...){
-      LogHandler( LogHandler::FATAL_SEVERITY ) << "Could not load depth data for property " << depthProperty->getName() << " @ snapshot " << snapshotAge << ".";
+      LogHandler( LogHandler::FATAL_SEVERITY ) << "Could not load depth data for property " << depthProperty->getName() << " @ snapshot " << snapshotAge;
+      throw;
    }
 }
 
@@ -221,8 +245,8 @@ const DataModel::AbstractProperty* InterfaceInput::loadPressureProperty () {
 
    if (m_derivedManager == nullptr) loadDerivedPropertyManager();
    const DataModel::AbstractProperty* pressureProperty = m_derivedManager->getProperty( "LithoStaticPressure" );
-   if (!pressureProperty) {
-      throw InputException() << "Could not find property named LithoStaticPressure.";
+   if (pressureProperty == nullptr) {
+      throw InputException() << "Could not find property named LithoStaticPressure";
    }
    return pressureProperty;
 }
@@ -241,22 +265,32 @@ void InterfaceInput::loadPressureData( GeoPhysics::ProjectHandle* projectHandle,
       // Find the pressure property of the bottom of the mantle
       m_pressureMantle             = m_derivedManager->getSurfaceProperty( pressureProperty, currentSnapshot,    m_botOfMantle );
       m_pressureMantleAtPresentDay = m_derivedManager->getSurfaceProperty( pressureProperty, presentDaySnapshot, m_botOfMantle );
-   }
-   catch (InputException& ex){
-      LogHandler( LogHandler::ERROR_SEVERITY ) << ex.what();
+      if (m_pressureBasement == nullptr or m_pressureWaterBottom == nullptr or m_pressureMantle == nullptr or m_pressureMantleAtPresentDay == nullptr){
+         throw InputException() << "Could not create surface derived property objects for pressure property";
+      }
    }
    catch (...){
-      LogHandler( LogHandler::FATAL_SEVERITY ) << "Could not load pressure data for property " << pressureProperty->getName() << " @ snapshot " << snapshotAge << ".";
+      LogHandler( LogHandler::FATAL_SEVERITY ) << "Could not load pressure data for property " << pressureProperty->getName() << " @ snapshot " << snapshotAge;
+      throw;
    }
 
 }
 
+//------------------------------------------------------------//
 GridMap* InterfaceInput::loadPropertyDataFromDepthMap( DataAccess::Mining::ProjectHandle* handle,
                                                        const GridMap* depthMap,
                                                        const Interface::Property* property,
                                                        const Interface::Snapshot* snapshot ){
+
+   if (handle == nullptr or depthMap == nullptr or property == nullptr or snapshot == nullptr){
+      throw InputException() << "Could not load property " << property->getName() << " from depth map @ snapshot " <<
+         snapshot->getTime() << " because one of the function inputs is a null pointer";
+   }
    if (m_derivedManager == nullptr) loadDerivedPropertyManager();
    GridMap* outputPropertyMap = getFactory()->produceGridMap( 0, 0, handle->getActivityOutputGrid(), Interface::DefaultUndefinedMapValue, 1 );
+   if (outputPropertyMap == nullptr){
+      throw InputException() << "Could not create grid map to store property values";
+   }
    outputPropertyMap->retrieveData();
 
    ///1. Set the dataminer to the property we want to extract
@@ -274,12 +308,12 @@ GridMap* InterfaceInput::loadPropertyDataFromDepthMap( DataAccess::Mining::Proje
    std::vector<DataAccess::Mining::InterpolatedPropertyValues> interpolatedValues;
    ///4. Find x,y,z position
    std::map<unsigned int, map<unsigned int, size_t>> mapIJtoElement;
-   unsigned int firstI = depthMap->firstI();
-   unsigned int lastI  = depthMap->lastI();
-   unsigned int firstJ = depthMap->firstJ();
-   unsigned int lastJ  = depthMap->lastJ();
-   double deltaX = depthMap->deltaI();
-   double deltaY = depthMap->deltaJ();
+   const unsigned int firstI = depthMap->firstI();
+   const unsigned int lastI  = depthMap->lastI();
+   const unsigned int firstJ = depthMap->firstJ();
+   const unsigned int lastJ  = depthMap->lastJ();
+   const double deltaX = depthMap->deltaI();
+   const double deltaY = depthMap->deltaJ();
    double x, y, z;
    for (unsigned int i = firstI; i <= lastI; i++){
       for (unsigned int j = firstJ; j <= lastJ; j++){
@@ -299,7 +333,6 @@ GridMap* InterfaceInput::loadPropertyDataFromDepthMap( DataAccess::Mining::Proje
    for (unsigned int i = firstI; i <= lastI; i++){
       for (unsigned int j = firstJ; j <= lastJ; j++){
          if (handle->getNodeIsValid( i, j )){
-            double test = interpolatedValues[mapIJtoElement[i][j]].operator()( property );
             outputPropertyMap->setValue( i, j, interpolatedValues[mapIJtoElement[i][j]].operator()( property ) );
          }
          else{
@@ -312,116 +345,51 @@ GridMap* InterfaceInput::loadPropertyDataFromDepthMap( DataAccess::Mining::Proje
 
 }
 
-
 //------------------------------------------------------------//
-bool InterfaceInput::defineLinearFunction( LinearFunction & theFunction, unsigned int i, unsigned int j ) {
-
-   // This method is to calculate coefficients for linear function to invert from WLS to TF (thinning factor)
-   const double pi2 = pow (m_constants.getPi(), 2);
-   const double pi2_8 = pi2 / 8;
-   
-   // Step 4.1
-   // average uppermost mantle density 
-   if( m_HCuMap->getValue( i, j ) == m_HCuMap->getUndefinedValue() ) return false;
-   m_initialCrustThickness = m_HCuMap->getValue( i, j );
-
-   if( m_initialCrustThickness == 0 ) {
-      throw InputException() << "InitialCrustThickness=0 but should be !=0";
+const GridMap& InterfaceInput::getT0Map() const {
+   if (m_T0Map == nullptr){
+      throw InputException() << "Undefined starting rift age map (null pointer)";
    }
-   const double mantleDensityAV = m_constants.getLithoMantleDensity() * (1 - (m_constants.getCoeffThermExpansion() * m_constants.getBaseLithosphericTemperature() / 2)
-      * ((m_constants.getReferenceCrustThickness() + m_initialCrustThickness) / m_constants.getModelTotalLithoThickness()));
-   // estimated continental crust density
-   m_modelCrustDensity = (m_constants.getReferenceCrustDensity() * m_constants.getReferenceCrustThickness()
-      + mantleDensityAV * (m_initialCrustThickness - m_constants.getReferenceCrustThickness())) / m_initialCrustThickness;
-   
-   // Step 4.2
-   // asthenosphere potential temperature
-   if( m_HBuMap->getValue( i, j ) == m_HBuMap->getUndefinedValue() ) return false;
-   m_maxBasalticCrustThickness = m_HBuMap->getValue( i, j );
-   m_PTa = m_constants.getB() + m_constants.getA() * sqrt( m_maxBasalticCrustThickness );
-   const double Hsol = m_constants.getC() * m_PTa + m_constants.getD();
-   // crustal thinning factor at melt onset
-   if( m_HLMuMap->getValue( i, j ) == m_HLMuMap->getUndefinedValue() ) return false;
-   m_initialLithosphericThickness = ( m_HLMuMap->getValue( i, j ) + m_initialCrustThickness );
-   m_TF_onset = 1 - Hsol / m_initialLithosphericThickness;
-   // liner approximation of thinning factor at melt onset
-   m_TF_onset_lin = ( 1 + 2 * m_TF_onset ) / 3;
-   // crustal thinning factor at threshold
-   if( m_maxBasalticCrustThickness == 0 ) {
-      m_TF_onset_mig = m_TF_onset;
-   } else {
-      m_TF_onset_mig = m_TF_onset + ((1 - m_TF_onset) * sqrt(2000 / m_maxBasalticCrustThickness));
+   return *m_T0Map;
+}
+
+//------------------------------------------------------------//
+const GridMap& InterfaceInput::getTRMap() const {
+   if (m_TRMap == nullptr){
+      throw InputException() << "Undefined ending rift age map (null pointer)";
    }
-   if (m_constants.getDecayConstant() == 0) { m_constants.setDecayConstant( 1 ); }
-      
-   m_magmaticDensity = m_constants.getE() + (m_constants.getF() - m_constants.getE())
-      * (1 - exp( -1 * m_maxBasalticCrustThickness / m_constants.getDecayConstant() ));
-
-   // Step 4.3
-   if( m_T0Map->getValue( i, j ) == m_T0Map->getUndefinedValue() || m_TRMap->getValue( i, j ) == m_TRMap->getUndefinedValue()) return false;
-   const double t_mr = (m_T0Map->getValue(i, j) + m_TRMap->getValue(i, j)) / 2; 
-   
-   if( t_mr < 0 ) return false; // simple check if input data is valid 
-   
-   const double expValue = 1 - exp( -15 * t_mr / m_constants.getTau() );
-
-   m_WLS_exhume = m_constants.getInitialSubsidenceMax() + m_constants.getE0()
-      * ((1 - exp( -t_mr / m_constants.getTau() )) + (pi2_8 - 1) * expValue);
-
-   m_WLS_crit = m_WLS_exhume - m_maxBasalticCrustThickness * (m_constants.getBackstrippingMantleDensity() - m_magmaticDensity)
-      / (m_constants.getBackstrippingMantleDensity() - m_constants.getWaterDensity());
-   
-   theFunction.setWLS_crit( m_WLS_crit );
-   
-   const double r = (m_TF_onset_lin == 1.0 ? 1.0 : sin( m_constants.getPi()
-      * (1 - m_TF_onset_lin) ) / (m_constants.getPi() * (1 - m_TF_onset_lin)));
-
-   m_WLS_onset = m_TF_onset_lin * m_constants.getInitialSubsidenceMax() + m_constants.getE0()
-      * (r * (1 - exp( -t_mr / m_constants.getTau() )) + (pi2_8 * m_TF_onset_lin - r) * expValue);
-   
-   //  if( m_WLS_crit < m_WLS_onset )  return false;
-
-   theFunction.setWLS_onset( m_WLS_onset );
-   
-   m_WLS_exhume_serp = m_WLS_exhume - 681.6394;
-   
-  // Step 4.4
-  const double m1 = m_TF_onset_lin / m_WLS_onset; // form Y = m1 * X
-  const double m2 = ( m_WLS_crit == m_WLS_onset ? 0 : (1 -  m_TF_onset_lin) / ( m_WLS_crit - m_WLS_onset )); // form Y = m2 * X + c2
-  const double c2 = m_TF_onset_lin - m_WLS_onset * m2;
-
-  if (m_maxBasalticCrustThickness != 0 && (m_constants.getBackstrippingMantleDensity() - m_magmaticDensity) == 0.0) {
-     throw InputException() << "Backstripping Mantle density == Magmatic density but they should be !=";
-  }     
-  const double magmaThicknessCoeff = (m_constants.getBackstrippingMantleDensity() - m_constants.getWaterDensity())
-     / (m_constants.getBackstrippingMantleDensity() - m_magmaticDensity);
-
-  theFunction.setM1( m1 );
-  theFunction.setM2( m2 );
-  theFunction.setC2( c2 );
-  theFunction.setMagmaThicknessCoeff( magmaThicknessCoeff );
-  theFunction.setMaxBasalticCrustThickness( m_maxBasalticCrustThickness );
-   
-  return true;
+   return *m_TRMap;
 }
-//------------------------------------------------------------//
-void InterfaceInput::retrieveData() {
 
-   m_T0Map     ->retrieveData();
-   m_TRMap     ->retrieveData();
-   m_HCuMap    ->retrieveData();
-   m_HLMuMap   ->retrieveData();
-   m_HBuMap    ->retrieveData();
-   m_DeltaSLMap->retrieveData();
+//------------------------------------------------------------//
+const GridMap& InterfaceInput::getHCuMap() const {
+   if (m_HCuMap == nullptr){
+      throw InputException() << "Undefined initial crust thickness map (null pointer)";
+   }
+   return *m_HCuMap;
 }
-//------------------------------------------------------------//
-void InterfaceInput::restoreData() {
 
-   m_T0Map     ->restoreData();
-   m_TRMap     ->restoreData();
-   m_HCuMap    ->restoreData();
-   m_HLMuMap   ->restoreData();
-   m_HBuMap    ->restoreData();
-   m_DeltaSLMap->restoreData();
+//------------------------------------------------------------//
+const GridMap& InterfaceInput::getHBuMap() const {
+   if (m_HBuMap == nullptr){
+      throw InputException() << "Undefined maximum basalt thickness map (null pointer)";
+   }
+   return *m_HBuMap;
+}
+
+//------------------------------------------------------------//
+const GridMap& InterfaceInput::getHLMuMap() const {
+   if (m_HLMuMap == nullptr){
+      throw InputException() << "Undefined initial lithospheric mantle thickness map (null pointer)";
+   }
+   return *m_HLMuMap;
+}
+
+//------------------------------------------------------------//
+const GridMap& InterfaceInput::getDeltaSLMap() const {
+   if (m_DeltaSLMap == nullptr){
+      throw InputException() << "Undefined delta see level map (null pointer)";
+   }
+   return *m_DeltaSLMap;
 }
 

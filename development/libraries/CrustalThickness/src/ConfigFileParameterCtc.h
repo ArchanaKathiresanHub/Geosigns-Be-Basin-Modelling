@@ -30,7 +30,6 @@ namespace CrustalThickness {
       /// @{
       double getCoeffThermExpansion()         const { return m_coeffThermExpansion;         };
       double getInitialSubsidenceMax()        const { return m_initialSubsidenceMax;        };
-      double getPi()                          const { return m_pi;                          };
       double getE0()                          const { return m_E0;                          };
       double getTau()                         const { return m_tau;                         };
       double getModelTotalLithoThickness()    const { return m_modelTotalLithoThickness;    };
@@ -58,7 +57,7 @@ namespace CrustalThickness {
 
       /// @brief Load the configuration file CTC parameters
       /// @param ConfigurationFile The configuration file
-      bool loadConfigurationFileCtc( const std::string &inFile );
+      void loadConfigurationFileCtc( const std::string &inFile );
 
    private:
 
@@ -72,11 +71,12 @@ namespace CrustalThickness {
       void loadMagmaLayer             ( std::ifstream &ConfigurationFile );
       /// @}
 
+   protected:
+
       /// @defgroup Basic_constants
       /// @{
       double m_coeffThermExpansion;   ///< Thermal expension coefficeint
       double m_initialSubsidenceMax;  ///< Maximum initial subsidence
-      double m_pi;                    ///< Pi
       double m_E0;                    ///< E0 for McKenzie equations
       double m_tau;                   ///< Tau for McKenzie equations
       /// @}

@@ -11,7 +11,7 @@
 #ifndef _CRUSTALTHICKNESS_LINEARFUNCTION_H_
 #define _CRUSTALTHICKNESS_LINEARFUNCTION_H_
 
-/// @class LinearFunction Stores the linear functions used by the CTC
+/// @class LinearFunction A linear function used by the CTC McKenzieCalculator
 class LinearFunction {
 
    public:
@@ -44,15 +44,15 @@ class LinearFunction {
       /// @brief Compute the thinning factor according to the WLS value
       /// @param WLS the water loaded subsidence
       /// @return the thinning factor (TF)
-      double getCrustTF        ( const double WLS );
+      double getCrustTF( const double WLS ) const;
 
       /// @brief Compute the basalt factor according to the WLS value
       /// @param WLS the water loaded subsidence
       /// @return the basalt thickness
-      double getBasaltThickness( const double WLS );
+      double getBasaltThickness( const double WLS ) const;
      
       /// @brief Print m1, m2 and c2 coefficients
-      void printCoeffs();
+      void printCoeffs() const;
 
    private:
    
@@ -62,7 +62,7 @@ class LinearFunction {
       /// @defgroup Thinning factor coefficients
       /// @{
       double m_m1;
-      double m_m2;          
+      double m_m2;
       double m_c2;
       /// @}
 
@@ -99,24 +99,31 @@ inline void LinearFunction::setMaxBasalticCrustThickness( const double inMaxBasa
 inline void LinearFunction::setMagmaThicknessCoeff( const double inMagmaThicknessCoeff ) {
    m_magmaThicknessCoeff = inMagmaThicknessCoeff;
 }
+
 inline double LinearFunction::getWLS_crit() const {
    return m_WLS_crit;
 }
+
 inline double LinearFunction::getWLS_onset() const{
    return m_WLS_onset;
 }
+
 inline double LinearFunction::getM1() const{
    return m_m1;
 }
+
 inline double LinearFunction::getM2() const{
    return m_m2;
 }
+
 inline double LinearFunction::getC2() const{
    return m_c2;
 }
+
 inline double LinearFunction::getMaxBasalticCrustThickness() const{
    return m_maxBasalticCrustThickness;
 }
+
 inline double LinearFunction::getMagmaThicknessCoeff() const{
    return m_magmaThicknessCoeff;
 }

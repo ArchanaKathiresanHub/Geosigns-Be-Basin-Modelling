@@ -25,6 +25,7 @@ class MockInterfaceOutput : public AbstractInterfaceOutput {
 
    public:
    
+      MockInterfaceOutput();
       MockInterfaceOutput( unsigned int firstI,
                            unsigned int firstJ,
                            unsigned int lastI,
@@ -34,9 +35,16 @@ class MockInterfaceOutput : public AbstractInterfaceOutput {
       double getMapValue ( CrustalThicknessInterface::outputMaps mapIndex, unsigned int i, unsigned int j ) const { return m_outputMaps[mapIndex][i - m_firstI][j - m_firstJ]; };
       
       /// @brief Set m_outputMaps[i,j] to value
-      void   setMapValue ( CrustalThicknessInterface::outputMaps mapIndex, unsigned int i, unsigned int j, const double value );
+      void setMapValue ( const CrustalThicknessInterface::outputMaps mapIndex,
+         const unsigned int i,
+         const unsigned int j,
+         const double value ) override;
+
       /// @brief Set all m_outputMaps[i,j] to value
-      void   setMapValues( CrustalThicknessInterface::outputMaps mapIndex, const double value );
+      void setMapValues( CrustalThicknessInterface::outputMaps mapIndex, const double value );
+
+      /// @brief Clear the boost multi array by setting all values to 0;
+      void clear();
 
    private:
    

@@ -13,5 +13,8 @@ MockValidator::MockValidator()
    :m_isValid( true ) {}
 
 bool MockValidator::isValid( const unsigned int i, const unsigned int j ) const {
+   // added to remove gcc warnings
+   (void) i;
+   (void) j;
    return m_isValid;
 }

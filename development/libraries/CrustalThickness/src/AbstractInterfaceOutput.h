@@ -17,13 +17,15 @@
 /// @class InterfaceOutput The CTC abstract output interface
 class AbstractInterfaceOutput {
 
-
 public:
-   AbstractInterfaceOutput()          {};
-   virtual ~AbstractInterfaceOutput() {};
+   AbstractInterfaceOutput() {}
+   virtual ~AbstractInterfaceOutput() {}
 
    virtual double getMapValue( CrustalThicknessInterface::outputMaps mapIndex, unsigned int i, unsigned int j ) const               = 0;
-   virtual void   setMapValue( CrustalThicknessInterface::outputMaps mapIndex, unsigned int i, unsigned int j, const double value ) = 0;
+   virtual void   setMapValue( const CrustalThicknessInterface::outputMaps mapIndex,
+      const unsigned int i,
+      const unsigned int j,
+      const double value ) = 0;
 
 };
 

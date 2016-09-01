@@ -11,8 +11,10 @@
 #ifndef _CRUSTALTHICKNESS_PWDRCALCULATOR_H_
 #define _CRUSTALTHICKNESS_PWDRCALCULATOR_H_
 
+// CrustalThicness library
 #include "AbstractInterfaceOutput.h"
 #include "AbstractValidator.h"
+#include "InterfaceInput.h"
 
 // CBMGenerics library
 #include "Polyfunction.h"
@@ -31,14 +33,12 @@ class PaleowaterdepthResidualCalculator {
    
       /// @brief Constructs the PWDR calculator in order to compute the paleowaterdepth residual
       /// @param surfaceDepthHistory The user defined paleobathymetrie (loaded from the project handle)
-      PaleowaterdepthResidualCalculator( const unsigned int firstI,
-                                         const unsigned int firstJ,
-                                         const unsigned int lastI,
-                                         const unsigned int lastJ,
-                                         const double age,
-                                         const PolyFunction2DArray& surfaceDepthHistory,
-                                         AbstractInterfaceOutput& outputData,
-                                         AbstractValidator&       validator);
+      PaleowaterdepthResidualCalculator( InterfaceInput&            inputData,
+                                         AbstractInterfaceOutput&   outputData,
+                                         AbstractValidator&         validator,
+                                         const double               age,
+                                         const PolyFunction2DArray& surfaceDepthHistory
+                                         );
 
       ~PaleowaterdepthResidualCalculator() {};
 

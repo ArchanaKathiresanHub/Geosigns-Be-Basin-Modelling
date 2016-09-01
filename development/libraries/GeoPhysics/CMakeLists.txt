@@ -264,14 +264,14 @@ add_gtest( NAME GeoPhysics::VreArrheniusMethod
 )
 
 add_gtest( NAME GeoPhysics::WalderhaugCompactionCalculator
-      SOURCES test/WalderhaugCompactionCalculatorTest.C 
+      SOURCES test/WalderhaugCompactionCalculatorTest.C
       LIBRARIES GeoPhysics SerialDataAccess
 )
 
 add_gtest( NAME GeoPhysics::ConfigFileAlc
-      SOURCES test/ConfigFileAlc.C 
-      LIBRARIES GeoPhysics
-      ENV_VARS CTCDIR=${PROJECT_SOURCE_DIR}/geocase/misc 
+      SOURCES test/ConfigFileAlc.C
+      LIBRARIES GeoPhysics SerialDataAccess
+      ENV_VARS CTCDIR=${PROJECT_SOURCE_DIR}/geocase/misc
 )
 
 

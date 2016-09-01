@@ -155,6 +155,7 @@ namespace DataAccess
          
          static bool CalculatePartitioning (int M, int N, int & m, int & n);
 
+         bool isEqual( const Grid& grid ) const;
 	
       private:
          GlobalGrid m_globalGrid;

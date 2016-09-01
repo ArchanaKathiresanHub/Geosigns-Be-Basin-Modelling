@@ -11,8 +11,10 @@
 #ifndef _CRUSTALTHICKNESS_PWDCALCULATOR_H_
 #define _CRUSTALTHICKNESS_PWDCALCULATOR_H_
 
+// CrusltalThickness library
 #include "AbstractInterfaceOutput.h"
 #include "AbstractValidator.h"
+#include "InterfaceInput.h"
 
 // DerivedProperties library
 #include "SurfaceProperty.h"
@@ -38,19 +40,12 @@ class PaleowaterdepthCalculator {
       /// @param currentPressureMantle The current snapshot pressure of the top mantle
       /// @param presentDayPressureTTS The present day pressure at the present day TTS depth
       /// @param currentPressureTTS The current snapshot pressure at the current snapshot TTS depth
-      PaleowaterdepthCalculator( const unsigned int firstI,
-                                 const unsigned int firstJ,
-                                 const unsigned int lastI,
-                                 const unsigned int lastJ,
-                                 const double theMantleDensity,
-                                 const double theWaterDensity,
-                                 Interface::GridMap* presentDayTTS,
+      PaleowaterdepthCalculator( const InterfaceInput&          inputData,
                                  AbstractInterfaceOutput& outputData,
-                                 AbstractValidator&       validator,
-                                 DerivedProperties::SurfacePropertyPtr presentDayPressureMantle = 0,
-                                 DerivedProperties::SurfacePropertyPtr currentPressureMantle    = 0,
-                                 Interface::GridMap* presentDayPressureTTS = 0,
-                                 Interface::GridMap* currentPressureTTS    = 0 );
+                                 const AbstractValidator&       validator,
+                                 const Interface::GridMap*      presentDayTTS,
+                                 const Interface::GridMap*      presentDayPressureTTS = 0,
+                                 const Interface::GridMap*      currentPressureTTS    = 0 );
 
       /// @details Restore presentDayPressureTTS and currentPressureTTS data if they are not nullptr
       ~PaleowaterdepthCalculator();
@@ -60,16 +55,16 @@ class PaleowaterdepthCalculator {
 
       /// @return The paleowaterdepth with the thermal correction
       /// @details The thermal correction aims to equilibrate the pressure between the TTS and the Top Mantle
-      double calculatePWD( const double  presentDayTTS,
-                           const double  backstrip,
-                           const double presentDayPressureMantle,
+      double calculatePWD( const double presentDayTTS,
+                           const double backstrip,
+                           const double presentDayPressureBotMantle,
                            const double presentDayPressureTTS,
-                           const double currentPressureMantle,
+                           const double currentPressureBotMantle,
                            const double currentPressureTTS ) const;
 
       /// @return The paleowaterdepth without the thermal correction
-      double calculatePWD( const double  presentDayTTS,
-                           const double  backstrip ) const;
+      double calculatePWD( const double presentDayTTS,
+                           const double backstrip ) const;
 
    private:
 
@@ -89,14 +84,14 @@ class PaleowaterdepthCalculator {
       const double  m_mantleDensity; ///< The mantle density (is currently the same for lithospheric and asthenospheric mantle)
       const double  m_waterDensity;  ///< The water density
 
-      DerivedProperties::SurfacePropertyPtr m_presentDayPressureMantle; ///< The present day pressure of the top mantle
-      DerivedProperties::SurfacePropertyPtr m_currentPressureMantle;    ///< The current snapshot pressure of the top mantle
-      Interface::GridMap* m_presentDayTTS;                              ///< The present day total tectonic subsidence (at 0.0Ma)
-      Interface::GridMap* m_presentDayPressureTTS;                      ///< The present day pressure at the present day TTS depth
-      Interface::GridMap* m_currentPressureTTS;                         ///< The current snapshot pressure at the current snapshot TTS depth
+      const DerivedProperties::SurfacePropertyPtr m_presentDayPressureMantle; ///< The present day pressure of the top mantle
+      const DerivedProperties::SurfacePropertyPtr m_currentPressureMantle;    ///< The current snapshot pressure of the top mantle
+      const Interface::GridMap* m_presentDayTTS;                              ///< The present day total tectonic subsidence (at 0.0Ma)
+      const Interface::GridMap* m_presentDayPressureTTS;                      ///< The present day pressure at the present day TTS depth
+      const Interface::GridMap* m_currentPressureTTS;                         ///< The current snapshot pressure at the current snapshot TTS depth
 
       AbstractInterfaceOutput& m_outputData; ///< The global interface output object (contains the output maps)
-      AbstractValidator&       m_validator;  ///< The validator to check if a node (i,j) is valid or not
+      const AbstractValidator& m_validator;  ///< The validator to check if a node (i,j) is valid or not
 };
 #endif
 

@@ -10,6 +10,9 @@
 #ifndef _GEOPHYSICS__GEOPHYSICAL_CONSTANTS_H_
 #define _GEOPHYSICS__GEOPHYSICAL_CONSTANTS_H_
 
+// std library
+#define _USE_MATH_DEFINES
+#include <math.h>
 #include <string>
 #include <cmath>
 
@@ -176,6 +179,8 @@ namespace GeoPhysics {
    // Mathematical constants
 
    const double Log10 = std::log( 10.0 );
+   const double Pi2    = pow( M_PI, 2 );
+   const double Pi2by8 = Pi2 / 8;
 
 }
 

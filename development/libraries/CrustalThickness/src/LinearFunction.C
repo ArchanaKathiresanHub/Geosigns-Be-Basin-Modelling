@@ -10,28 +10,25 @@
 
 #include "LinearFunction.h"
 
-// std library
-#include <math.h>
-#include <iostream>
-using namespace std;
+// utilities library
+#include "LogHandler.h"
 
 //------------------------------------------------------------//
 LinearFunction::LinearFunction() {
-
-   m_WLS_crit = 0.0;
-   m_WLS_onset = 0.0;
-   m_m1 = 0.0;
-   m_m2 = 0.0;
-   m_c2 = 0.0;
+   m_WLS_crit                  = 0.0;
+   m_WLS_onset                 = 0.0;
+   m_m1                        = 0.0;
+   m_m2                        = 0.0;
+   m_c2                        = 0.0;
    m_maxBasalticCrustThickness = 0.0;
-   m_magmaThicknessCoeff = 0.0;
+   m_magmaThicknessCoeff       = 0.0;
 } 
 //------------------------------------------------------------//
-double LinearFunction::getCrustTF( const double WLS ) {
+double LinearFunction::getCrustTF( const double WLS ) const {
 
    double TF = 1.0;
    
-   if( m_maxBasalticCrustThickness == 0 ) {
+   if( m_maxBasalticCrustThickness == 0.0 ) {
       TF = m_m1 * WLS;
    } else {
       if( WLS < m_WLS_onset ) {
@@ -45,11 +42,11 @@ double LinearFunction::getCrustTF( const double WLS ) {
    return TF;
 }
 //------------------------------------------------------------//
-double LinearFunction::getBasaltThickness( const double WLS ) {
+double LinearFunction::getBasaltThickness( const double WLS ) const {
 
    double thickness = 0.0;
 
-   if( m_maxBasalticCrustThickness != 0 ) {
+   if( m_maxBasalticCrustThickness != 0.0 ) {
       if ( WLS < m_WLS_onset)  {
          thickness = 0.0;
       } else if( WLS >= m_WLS_crit ){
@@ -58,17 +55,19 @@ double LinearFunction::getBasaltThickness( const double WLS ) {
          thickness = m_maxBasalticCrustThickness * ((WLS - m_WLS_onset) / ( m_WLS_crit - m_WLS_onset));
       }
       
-      if( thickness < 0 ) {
-         thickness = 0;
+      if( thickness < 0.0 ) {
+         thickness = 0.0;
       }
    }
    return thickness;
 }
-//------------------------------------------------------------//
-void LinearFunction::printCoeffs() {
 
-   cout << "m1 = " << m_m1 << endl;
-   cout << "m2 = " << m_m2 << endl;
-   cout << "c2 = " << m_c2 << endl;
+//------------------------------------------------------------//
+void LinearFunction::printCoeffs() const {
+
+   LogHandler( LogHandler::INFO_SEVERITY ) << "Linear function is defined by:";
+   LogHandler( LogHandler::INFO_SEVERITY ) << "   #m1 = " << m_m1;
+   LogHandler( LogHandler::INFO_SEVERITY ) << "   #m2 = " << m_m2;
+   LogHandler( LogHandler::INFO_SEVERITY ) << "   #c2 = " << m_c2;
 }
 

@@ -132,6 +132,9 @@ namespace DataAccess
          // May not work if user application is compiled under IRIX with CC -lang:std
          virtual void printOn (ostream &) const;
          virtual void asString (std::string&) const;
+
+         bool isEqual( const Grid& grid ) const;
+
       protected:
          //virtual ~SerialGrid (void);
       private:

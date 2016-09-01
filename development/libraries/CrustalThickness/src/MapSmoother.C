@@ -52,6 +52,8 @@ bool MapSmoother::averageSmoothing( GridMap * mapToSmooth ){
 bool MapSmoother::initialize( GridMap * mapToSmooth ){
    //Check inputs
    if (mapToSmooth == nullptr) {
+      LogHandler( LogHandler::WARNING_SEVERITY ) << "Trying to smooth a map which do not exist (null pointer)"
+         << ", smoothing will be skiped for this map";
       return false;
    }
 

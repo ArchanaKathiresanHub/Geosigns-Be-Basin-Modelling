@@ -201,7 +201,7 @@ bool InterfaceOutput::saveExcelSurfaceOutputMaps( Interface::ProjectHandle * pro
 }
 
 //------------------------------------------------------------//
-void InterfaceOutput::setMapsToOutput(CrustalThicknessInterface::outputMaps mapIndex, ... ) {
+void InterfaceOutput::setMapsToOutput(const CrustalThicknessInterface::outputMaps mapIndex, ... ) {
 
    va_list vlist;
    va_start( vlist, mapIndex );
@@ -248,7 +248,7 @@ void InterfaceOutput::updatePossibleOutputsAtSnapshot( outputMaps id, const GeoP
 }
 
 //------------------------------------------------------------//
-void InterfaceOutput::setAllMapsToOutput( bool flag ) {
+void InterfaceOutput::setAllMapsToOutput( const bool flag ) {
  
    for( int i = 0; i < numberOfOutputMaps; ++ i ) {
       m_outputMapsMask[i] = flag;
@@ -260,39 +260,22 @@ void InterfaceOutput::setAllMapsToOutput( bool flag ) {
 bool InterfaceOutput::createSnapShotOutputMaps( GeoPhysics::ProjectHandle * pHandle, const Snapshot * theSnapshot, const Interface::Surface *theSurface ) {
    
    LogHandler( LogHandler::DEBUG_SEVERITY ) << "Create snaphot output maps @ snapshot " << theSnapshot->asString();
-   int i;
    bool status = true;
-   if( theSnapshot->getTime() == 0.0 ) {
-      // Output these properties for present-day only
-      for( i = 0; i < WLSMap; ++ i ) {
-         updatePossibleOutputsAtSnapshot( (outputMaps)i, pHandle, theSnapshot );
-         if( m_outputMapsMask[i] ) {
+   for( int i = 0; i < numberOfOutputMaps; ++ i ) {
+      outputMaps id = (outputMaps)i;
+      updatePossibleOutputsAtSnapshot( id, pHandle, theSnapshot );
+      if( m_outputMapsMask[i] ) {
+         if( id != isostaticBathymetry && id != incTectonicSubsidence ) {
             LogHandler( LogHandler::DEBUG_SEVERITY ) << "   #for map " << outputMapsNames[i];
             m_outputMaps[i] = createSnapshotResultPropertyValueMap(pHandle, outputMapsNames[i], theSnapshot);
-            if( m_outputMaps[i] == 0 ) {
-               status = false;
-               break;
-            }
          }
-      }
-   }
-   if( status ) {
-      for( i = WLSMap; i < numberOfOutputMaps; ++ i ) {
-         outputMaps id = (outputMaps)i;
-         updatePossibleOutputsAtSnapshot( id, pHandle, theSnapshot );
-         if( m_outputMapsMask[i] ) {
-            if( id != isostaticBathymetry && id != incTectonicSubsidence ) {
-               LogHandler( LogHandler::DEBUG_SEVERITY ) << "   #for map " << outputMapsNames[i];
-               m_outputMaps[i] = createSnapshotResultPropertyValueMap(pHandle, outputMapsNames[i], theSnapshot);
-            }
-            else {
-               LogHandler( LogHandler::DEBUG_SEVERITY ) << "   #for map " << outputMapsNames[i];
-               m_outputMaps[i] = createSnapshotResultPropertyValueMap(pHandle, outputMapsNames[i], theSnapshot, theSurface );
-            }
-            if( m_outputMaps[i] == 0 ) {
-               status = false;
-               break;
-            }
+         else {
+            LogHandler( LogHandler::DEBUG_SEVERITY ) << "   #for map " << outputMapsNames[i];
+            m_outputMaps[i] = createSnapshotResultPropertyValueMap(pHandle, outputMapsNames[i], theSnapshot, theSurface );
+         }
+         if( m_outputMaps[i] == 0 ) {
+            status = false;
+            break;
          }
       }
    }

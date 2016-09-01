@@ -14,31 +14,33 @@
 #include "Interface/Interface.h"
 
 //------------------------------------------------------------//
-TotalTectonicSubsidenceCalculator::TotalTectonicSubsidenceCalculator( const unsigned int firstI,
-   const unsigned int firstJ,
-   const unsigned int lastI,
-   const unsigned int lastJ,
-   const double age,
-   const double airCorrection,
+TotalTectonicSubsidenceCalculator::TotalTectonicSubsidenceCalculator( 
+   InterfaceInput&           inputData,
+   AbstractInterfaceOutput&  outputData,
+   AbstractValidator&        validator,
+   const double              age,
+   const double              airCorrection,
    const Interface::GridMap* previousTTS,
-   const PolyFunction2DArray& depthWaterBottom,
-   AbstractInterfaceOutput& outputData,
-   AbstractValidator& validator ) : m_firstI( firstI ),
-                                    m_firstJ( firstJ ),
-                                    m_lastI ( lastI ),
-                                    m_lastJ ( lastJ ),
-                                    m_age( age ),
-                                    m_airCorrection( airCorrection ),
-                                    m_previousTTS( previousTTS),
-                                    m_surfaceDepthHistory( depthWaterBottom ),
-                                    m_outputData( outputData ),
-                                    m_validator ( validator ){}
+   const PolyFunction2DArray& depthWaterBottom ) :
+      m_firstI             ( inputData.firstI() ),
+      m_firstJ             ( inputData.firstJ() ),
+      m_lastI              ( inputData.lastI()  ),
+      m_lastJ              ( inputData.lastJ()  ),
+      m_seeLevelAdjustment ( inputData.getDeltaSLMap() ),
+      m_outputData         ( outputData       ),
+      m_validator          ( validator        ),
+      m_age                ( age              ),
+      m_airCorrection      ( airCorrection    ),
+      m_previousTTS        ( previousTTS      ),
+      m_surfaceDepthHistory( depthWaterBottom )
+{}
 
 //------------------------------------------------------------//
 void TotalTectonicSubsidenceCalculator::compute(){
 
    unsigned int i, j;
-   double TTS, incTS;
+   double TTS, incTS, TTSadjusted;
+   retrieveData();
 
    for ( i = m_firstI; i <= m_lastI; ++i ) {
       for ( j = m_firstJ; j <= m_lastJ; ++j ) {
@@ -51,25 +53,42 @@ void TotalTectonicSubsidenceCalculator::compute(){
             //1. Compute the TTS
             TTS = calculateTTS( depthWaterBottom, backstrip );
             //2. Compute the incremental TTS
-            if (m_previousTTS != nullptr) {
+            if ( m_previousTTS != nullptr ) {
                const double previousTTS = m_previousTTS->getValue( i, j );
-               incTS = calculateIncrementalTTS( TTS, previousTTS );
+               if ( previousTTS != Interface::DefaultUndefinedMapValue ){
+                  incTS = calculateIncrementalTTS( TTS, previousTTS );
+               }
+               else{
+                  incTS = Interface::DefaultUndefinedMapValue;
+               }
             }
             //else this is the first TTS, there is nothing to compute
             else{
                incTS = 0;
             }
+            //3. Compute the see level adjusted TTS
+            const double seeLevelAdjustment = m_seeLevelAdjustment.getValue( i, j );
+            if ( seeLevelAdjustment != Interface::DefaultUndefinedMapValue ){
+               TTSadjusted = calculateTTSadjusted( TTS, seeLevelAdjustment );
+            }
+            else{
+               TTSadjusted = Interface::DefaultUndefinedMapValue;
+            }
          }
          else{
-            TTS    = Interface::DefaultUndefinedMapValue;
-            incTS = Interface::DefaultUndefinedMapValue;
+            TTS         = Interface::DefaultUndefinedMapValue;
+            incTS       = Interface::DefaultUndefinedMapValue;
+            TTSadjusted = Interface::DefaultUndefinedMapValue;
          }
 
-         m_outputData.setMapValue( CrustalThicknessInterface::outputMaps::WLSMap,                i, j, TTS    );
-         m_outputData.setMapValue( CrustalThicknessInterface::outputMaps::incTectonicSubsidence, i, j, incTS );
+         m_outputData.setMapValue( CrustalThicknessInterface::outputMaps::WLSMap,                i, j, TTS         );
+         m_outputData.setMapValue( CrustalThicknessInterface::outputMaps::incTectonicSubsidence, i, j, incTS       );
+         m_outputData.setMapValue( CrustalThicknessInterface::outputMaps::WLSadjustedMap,        i, j, TTSadjusted );
 
       }
    }
+
+   restoreData();
 
 }
 
@@ -92,6 +111,28 @@ double TotalTectonicSubsidenceCalculator::calculateTTS( const double waterBottom
 //------------------------------------------------------------//
 double TotalTectonicSubsidenceCalculator::calculateIncrementalTTS( const double TTS,
                                                                    const double previousTTS ) const {
-   double incTS = TTS - previousTTS;
-   return incTS;
+   return TTS - previousTTS;
 }
+
+//------------------------------------------------------------//
+double TotalTectonicSubsidenceCalculator::calculateTTSadjusted( const double TTS,
+                                                                const double seeLevelAdjustment ) const{
+   return TTS - seeLevelAdjustment;
+}
+
+//------------------------------------------------------------//
+void TotalTectonicSubsidenceCalculator::retrieveData(){
+   m_seeLevelAdjustment.retrieveData();
+   if (m_previousTTS != nullptr) {
+      m_previousTTS->retrieveData();
+   }
+}
+
+//------------------------------------------------------------//
+void TotalTectonicSubsidenceCalculator::restoreData(){
+   m_seeLevelAdjustment.restoreData();
+   if (m_previousTTS != nullptr) {
+      m_previousTTS->restoreData();
+   }
+}
+

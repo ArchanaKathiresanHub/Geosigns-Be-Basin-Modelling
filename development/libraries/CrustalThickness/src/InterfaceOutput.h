@@ -69,25 +69,25 @@ public:
    /// @brief Set all map's masks to flag
    /// @details If falg is true all the maps will be output, if flag is false nothing will be output
    /// @param flag The flag which sets the map's masks
-   void setAllMapsToOutput( bool flag );
+   void setAllMapsToOutput( const bool flag );
    /// @brief Set the list of maps flag to be true, so this maps will be output
    /// @details This function is an ellipsis. The list of map is 'mapIndex + ...'.
    /// @warning This function must contain numberOfOutputMaps in the ellipsis parameters
    /// @param mapIndex The index of the map
    /// @param ... The indexes of the other maps
-   void setMapsToOutput   ( outputMaps mapIndex, ... );
+   void setMapsToOutput(const outputMaps mapIndex, ... );
    /// @brief Set map's mask to aValue
    /// @param mapIndex The index of the map
    /// @param aValue The value to be set to the map's mask (true by default)
-   void setMapToOutput    ( outputMaps mapIndex, bool aValue = true );
+   void setMapToOutput( const outputMaps mapIndex, const bool aValue = true );
    /// @brief Set the value of the map at the node (i,j)
    /// @param mapIndex The index of the map we set the value
    /// @param value The value to set at the node (i,j)
-   void setMapValue       ( outputMaps mapIndex, unsigned int i, unsigned int j, const double value );
+   void setMapValue( const outputMaps mapIndex, const unsigned int i, const unsigned int j, const double value ) override;
    /// @brief Set the values of all the maps at the node (i,j) according to the mask
-   void setValuesToMaps   ( unsigned int indI, unsigned int indJ );
+   void setValuesToMaps( const unsigned int indI, const unsigned int indJ );
    /// @brief Set all map's value to undefined for the node (i,j) according to the mask
-   void setAllMapsUndefined( unsigned int indI, unsigned int indJ );
+   void setAllMapsUndefined( const unsigned int indI, const unsigned int indJ );
    /// @}
 
    /// @defgroup CreateDeleteMaps
@@ -101,8 +101,8 @@ public:
    /// @param theSnapshot The snapshot corresponding to the map
    /// @param theSurface The stratigraphic surface corresponding to the map
    /// @return The map created
-   GridMap * createSnapshotResultPropertyValueMap ( ProjectHandle * pHandle, const std::string& propertyName, const Snapshot* theSnapshot, 
-                                                    const Interface::Surface *theSurface = 0 );
+   GridMap * createSnapshotResultPropertyValueMap( ProjectHandle * pHandle, const std::string& propertyName, const Snapshot* theSnapshot, 
+                                                   const Interface::Surface *theSurface = 0 );
    /// @}
 
    /// @defgroup DisableOutput
@@ -148,7 +148,7 @@ private:
 
 //------------------------------------------------------------//
 
-inline void InterfaceOutput::setMapValue(outputMaps mapIndex, unsigned int i, unsigned int j, const double value) 
+inline void InterfaceOutput::setMapValue(const outputMaps mapIndex, const unsigned int i, const unsigned int j, const double value) 
 {
 
    if( m_outputMaps[mapIndex] != 0 ) {
@@ -159,7 +159,7 @@ inline void InterfaceOutput::setMapValue(outputMaps mapIndex, unsigned int i, un
 
 //------------------------------------------------------------//
 
-inline double InterfaceOutput::getMapValue(outputMaps mapIndex, unsigned int i, unsigned int j) const
+inline double InterfaceOutput::getMapValue(const outputMaps mapIndex, const unsigned int i, const unsigned int j) const
 {
 
    if( m_outputMaps[mapIndex] != 0 ) {
@@ -171,14 +171,14 @@ inline double InterfaceOutput::getMapValue(outputMaps mapIndex, unsigned int i, 
 
 //------------------------------------------------------------//
 
-inline void InterfaceOutput::setMapToOutput(outputMaps aMapIndex, bool aValue) 
+inline void InterfaceOutput::setMapToOutput(const outputMaps aMapIndex,const bool aValue) 
 {
    m_outputMapsMask[aMapIndex] = aValue;
 }
 
 //------------------------------------------------------------//
 
-inline void InterfaceOutput::setValuesToMaps( unsigned int indI, unsigned int indJ )
+inline void InterfaceOutput::setValuesToMaps( const unsigned int indI, const unsigned int indJ )
 {
    for (int i = 0; i < WLSMap; ++i) {
       if( m_outputMapsMask[i] && m_outputMaps[i] != 0 ) {
@@ -190,7 +190,7 @@ inline void InterfaceOutput::setValuesToMaps( unsigned int indI, unsigned int in
 
 //------------------------------------------------------------//
 
-inline void InterfaceOutput::setAllMapsUndefined( unsigned int indI, unsigned int indJ ) 
+inline void InterfaceOutput::setAllMapsUndefined( const unsigned int indI, const unsigned int indJ ) 
 {
    for(int i = 0; i < numberOfOutputMaps; ++ i ) {
       if( m_outputMapsMask[i]  && m_outputMaps[i] != 0 ) {
@@ -202,7 +202,7 @@ inline void InterfaceOutput::setAllMapsUndefined( unsigned int indI, unsigned in
 
 //------------------------------------------------------------//
 
-inline bool InterfaceOutput::getOutputMask(outputMaps mapIndex) const
+inline bool InterfaceOutput::getOutputMask(const outputMaps mapIndex) const
 {
    return m_outputMapsMask[mapIndex];
 } 

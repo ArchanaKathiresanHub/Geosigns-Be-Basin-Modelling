@@ -14,37 +14,38 @@
 #include "PhysicalConstants.h"
 
 //------------------------------------------------------------//
-PaleowaterdepthCalculator::PaleowaterdepthCalculator( const unsigned int firstI,
-                                                      const unsigned int firstJ,
-                                                      const unsigned int lastI,
-                                                      const unsigned int lastJ,
-                                                      const double theMantleDensity,
-                                                      const double theWaterDensity,
-                                                      Interface::GridMap* presentDayTTS,
-                                                      AbstractInterfaceOutput& outputData,
-                                                      AbstractValidator&       validator,
-                                                      DerivedProperties::SurfacePropertyPtr presentDayPressureMantle,
-                                                      DerivedProperties::SurfacePropertyPtr currentPressureMantle,
-                                                      Interface::GridMap* presentDayPressureTTS,
-                                                      Interface::GridMap* currentPressureTTS ) : m_firstI( firstI ),
-                                                                                                 m_firstJ( firstJ ),
-                                                                                                 m_lastI ( lastI  ),
-                                                                                                 m_lastJ ( lastJ  ),
-                                                                                                 m_mantleDensity( theMantleDensity ),
-                                                                                                 m_waterDensity ( theWaterDensity ),
-                                                                                                 m_presentDayTTS( presentDayTTS ),
-                                                                                                 m_outputData ( outputData ),
-                                                                                                 m_validator  ( validator ),
-                                                                                                 m_presentDayPressureMantle ( presentDayPressureMantle ),
-                                                                                                 m_currentPressureMantle    ( currentPressureMantle ),
-                                                                                                 m_presentDayPressureTTS    ( presentDayPressureTTS ),
-                                                                                                 m_currentPressureTTS       ( currentPressureTTS )
+PaleowaterdepthCalculator::PaleowaterdepthCalculator(
+   const InterfaceInput& inputData,
+   AbstractInterfaceOutput& outputData,
+   const AbstractValidator&       validator,
+   const Interface::GridMap*      presentDayTTS,
+   const Interface::GridMap*      presentDayPressureTTS,
+   const Interface::GridMap*      currentPressureTTS ) : 
+      m_firstI                  ( inputData.firstI() ),
+      m_firstJ                  ( inputData.firstJ() ),
+      m_lastI                   ( inputData.lastI()  ),
+      m_lastJ                   ( inputData.lastJ()  ),
+      m_mantleDensity           ( inputData.getBackstrippingMantleDensity() ),
+      m_waterDensity            ( inputData.getWaterDensity()               ),
+      m_presentDayPressureMantle( inputData.getPressureMantleAtPresentDay() ),
+      m_currentPressureMantle   ( inputData.getPressureMantle()             ),
+      m_outputData              ( outputData ),
+      m_validator               ( validator  ),
+      m_presentDayTTS           ( presentDayTTS         ),
+      m_presentDayPressureTTS   ( presentDayPressureTTS ),
+      m_currentPressureTTS      ( currentPressureTTS    )
 {
-   if (theMantleDensity == theWaterDensity){
-      throw PWDException() << "The water density is equal to the mantle density in the Paleowaterdepth calculator but they should be different.";
+   if (m_mantleDensity == m_waterDensity){
+      throw PWDException() << "The water density is equal to the mantle density in the Paleowaterdepth calculator but they should be different";
    }
-   if (m_presentDayTTS == nullptr) {
-      throw PWDException() << "Cannot retrieve the present day Total Tectonic Subsidence (TTS) for Paleowaterdepth computation (PWD).";
+   else if (m_presentDayTTS == nullptr) {
+      throw PWDException() << "The present day total tectonic subsidence is a null pointer and is required by the Paleowaterdepth calculator";
+   }
+   else if (m_presentDayPressureMantle == nullptr){
+      throw PWDException() << "The present day bottom mantle pressure is a null pointer and is required by the Paleowaterdepth calculator";
+   }
+   else if (m_currentPressureMantle == nullptr){
+      throw PWDException() << "The current bottom mantle pressure is a null pointer and is required by the Paleowaterdepth calculator";
    }
 }
 
@@ -107,14 +108,14 @@ void PaleowaterdepthCalculator::compute(){
 //------------------------------------------------------------//
 double PaleowaterdepthCalculator::calculatePWD( const double presentDayTTS,
                                                 const double backstrip,
-                                                const double presentDayPressureMantle,
+                                                const double presentDayPressureBotMantle,
                                                 const double presentDayPressureTTS,
-                                                const double currentPressureMantle,
+                                                const double currentPressureBotMantle,
                                                 const double currentPressureTTS ) const {
    double PWD = presentDayTTS - backstrip;
    assert( m_mantleDensity != m_waterDensity );
    //Pressure data available to equilibrate TTS and Mantle pressure
-   PWD -= ((presentDayPressureMantle - presentDayPressureTTS) - (currentPressureMantle - currentPressureTTS)) /
+   PWD -= ((presentDayPressureBotMantle - presentDayPressureTTS) - (currentPressureBotMantle - currentPressureTTS)) /
       (PhysicalConstants::AccelerationDueToGravity*(m_mantleDensity - m_waterDensity));
    return PWD;
 }
@@ -122,44 +123,33 @@ double PaleowaterdepthCalculator::calculatePWD( const double presentDayTTS,
 //------------------------------------------------------------//
 double PaleowaterdepthCalculator::calculatePWD( const double presentDayTTS,
                                                 const double backstrip ) const {
-   double PWD = presentDayTTS - backstrip;
-   return PWD;
+   return presentDayTTS - backstrip;
 }
 
 //------------------------------------------------------------//
 void PaleowaterdepthCalculator::retrieveData() {
-   if (m_presentDayTTS){
-      m_presentDayTTS->retrieveData();
-   }
    if (m_presentDayPressureTTS){
       m_presentDayPressureTTS->retrieveData();
    }
    if (m_currentPressureTTS){
       m_currentPressureTTS->retrieveData();
    }
-   if (m_presentDayPressureMantle){
-      m_presentDayPressureMantle->retrieveData();
-   }
-   if (m_currentPressureMantle){
-      m_currentPressureMantle->retrieveData();
-   }
+   m_presentDayTTS           ->retrieveData();
+   m_presentDayPressureMantle->retrieveData();
+   m_currentPressureMantle   ->retrieveData();
+
 }
 
 //------------------------------------------------------------//
 void PaleowaterdepthCalculator::restoreData() {
-   if (m_presentDayTTS){
-      m_presentDayTTS->restoreData();
-   }
    if (m_presentDayPressureTTS){
       m_presentDayPressureTTS->restoreData();
    }
    if (m_currentPressureTTS){
       m_currentPressureTTS->restoreData();
    }
-   if (m_presentDayPressureMantle){
-      m_presentDayPressureMantle->restoreData();
-   }
-   if (m_currentPressureMantle){
-      m_currentPressureMantle->restoreData();
-   }
+   m_presentDayTTS           ->restoreData();
+   m_presentDayPressureMantle->restoreData();
+   m_currentPressureMantle   ->restoreData();
+
 }
