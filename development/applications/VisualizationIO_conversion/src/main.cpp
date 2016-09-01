@@ -49,11 +49,14 @@ int main(int argc, char ** argv)
 {
     if (argc <= 1)
     {
-        cout << "Usage: VisualizationIO_convert [ -import-native <xml-file> | -import-projectHandle <projectHandle> | -convert <projectHandle> [-threads=x] ]" << endl
-            << " -import-native       : loads xml reads all the data into memory" << endl
-            << " -import-projectHandle: loads the specified projectHandle into memory" << endl
-            << " -convert             : converts the specified projectHandle to new native format" << endl
-            << " -threads=x           : use x threads for compression during export or parallel importing" << endl;
+        cout << "Usage: VisualizationIO_convert [mode] [options] " << endl
+            << "  Modes: "
+            << "  -import-native <xml-file>              : loads xml reads all the data into memory" << endl
+            << "  -import-projectHandle <projectHandle>  : loads the specified projectHandle into memory" << endl
+            << "  -convert <projectHandle> [<directory>] : converts the specified projectHandle to new native format, " << endl
+            << "                                           output to directory if specified, otherwise same as input directory" << endl
+            << " Options: " << endl
+            << " -threads=x                             : use x threads for compression during export or parallel importing" << endl;
         return 1;
     }
 
@@ -61,9 +64,9 @@ int main(int argc, char ** argv)
 
     // Check threads
     int numThreads = 1;
-    if (argc >= 4)
+    if (std::string(argv[argc - 1]).find("threads") != std::string::npos)
     {
-        numThreads = std::atoi(argv[3] + 9);
+        numThreads = std::atoi(argv[argc - 1] + 9);
         numThreads = min(24, (int)max(1, (int)numThreads));
     }
 
@@ -151,9 +154,11 @@ int main(int argc, char ** argv)
             timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
             cout << "Finished opening project handle in " << timeInSeconds << " seconds " << endl;
 
+            shared_ptr<CauldronIO::Project> project;
+            
             // Import from ProjectHandle
             cout << "Importing from project handle (requires reading depth formations)" << endl;
-            shared_ptr<CauldronIO::Project> project = ImportProjectHandle::createFromProjectHandle(projectHandle, verbose);
+            project = ImportProjectHandle::createFromProjectHandle(projectHandle, verbose);
             timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
             cout << "Finished import in " << timeInSeconds << " seconds " << endl;
 
@@ -166,15 +171,23 @@ int main(int argc, char ** argv)
                 timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
                 cout << "Finished retrieve in " << timeInSeconds << " seconds " << endl;
             }
-            else
+            else // mode is convert
             {
                 // Export to native format: it will retrieve data when needed
                 cout << "Writing to new format" << endl;
                 start = clock();
 
-                // Construct output path
+                // Check for explicit output path (should be argument 3)
                 ibs::FilePath absPath(projectFileName);
-                
+                if (argc > 3)
+                {
+                    std::string argOutput(argv[3]);
+                    if (argOutput.find("threads") == std::string::npos)
+                    {
+                        absPath = ibs::FilePath(argOutput) << absPath.fileName();
+                    }
+                }
+
                 CauldronIO::ImportExport::exportToXML(project, absPath.path(), numThreads);
                 timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
                 cout << "Wrote to new format in " << timeInSeconds << " seconds" << endl;
