@@ -45,7 +45,6 @@ set(THIRD_PARTY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty")
 #
 option( BM_CSHARP_API "Build the C sharp interface (Windows only)" OFF )
 option( BM_PARALLEL "Build the parallel cauldron applications" ON )
-option( BM_BUILD_QT3_APPS "Build programs that need QT3" OFF)
 option( BM_BUILD_PARAVIEW_PLUGIN "Also build the ParaView plugin to view cauldron projects in ParaView."  OFF)
 option( BM_BUILD_SERIAL_APPS "Also build serial version of apps" ON )
 option( BM_BUILD_DOCS "Build documentation" ON )
@@ -231,10 +230,6 @@ find_package(LSF REQUIRED CONFIG)
 if (UNIX)
    find_package(FlexLM REQUIRED CONFIG)
    find_package(ZLIB REQUIRED)
-
-   if (BM_BUILD_QT3_APPS)
-      find_package(Qt3 REQUIRED CONFIG)
-   endif()
 
    if (BM_BUILD_PARAVIEW_PLUGIN)
       find_package(ParaView REQUIRED CONFIG)

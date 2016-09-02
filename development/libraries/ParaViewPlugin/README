@@ -1,7 +1,7 @@
 The ParaView plugin is not built by default. To build it, your build has to
 configured a bit differently.  Concretely, run the following command from your
 build directory:
-$srcdir/bootstrap.csh -DBM_BUILD_PARAVIEW_PLUGIN=ON -DBM_BUILD_QT3_APPS=OFF && make ParaViewReader
+$srcdir/bootstrap.csh -DBM_BUILD_PARAVIEW_PLUGIN=ON && make ParaViewReader
 where you should substitute $srcdir with the path to your source directory.
 
 This will create the libParaViewReader.so file in the subdir

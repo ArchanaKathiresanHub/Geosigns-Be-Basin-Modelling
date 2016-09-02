@@ -27,7 +27,6 @@ endif()
 
 set(CBM_HOME "/glb/data/cauldron" CACHE PATH "The path the shared drive of the development team")
 
-option( BM_BUILD_QT3_APPS "Build programs that need QT3" OFF)
 option( BM_CSHARP_API "Build the C sharp interface (Windows only)" OFF )
 option( BM_EXTERNAL_COMPONENTS_REBUILD "Whether or not to rebuild external components" OFF)
 option( BM_BUILD_HYPRE "Whether or not to build Hypre shared library" OFF)
