@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include <stdlib.h>
 #include <math.h>
 #include <map>
@@ -145,7 +155,8 @@ double GetValue (const DerivedProperties::FormationPropertyPtr& gridMap, double 
 
 void GetCornerIndices (double kIndices[], int k, int numK);
 
-/// Conversions between Cauldron properties and Eclipse properties
+/// Conversions between Cauldron properties and Eclipse properties.
+/// Only 3D properties can be converted.
 PropertyConversion conversions[] =
 {
    { "Depth",                  "DEPTH   ", Negate, 0, true },
