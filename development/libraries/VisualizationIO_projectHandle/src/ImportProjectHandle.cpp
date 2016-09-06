@@ -525,7 +525,7 @@ std::shared_ptr<CauldronIO::SurfaceData> ImportProjectHandle::createMapIO(const 
     return map;
 }
 
-CauldronIO::SnapShotKind ImportProjectHandle::getSnapShotKind(const Snapshot* snapShot) const
+CauldronIO::SnapShotKind ImportProjectHandle::getSnapShotKind(const Snapshot* snapShot) 
 {
     // Get snapshot kind
     const string snapShotKind = snapShot->getKind();
@@ -538,7 +538,7 @@ CauldronIO::SnapShotKind ImportProjectHandle::getSnapShotKind(const Snapshot* sn
     return kind;
 }
 
-CauldronIO::PropertyType ImportProjectHandle::getPropertyType(const Property* prop) const
+CauldronIO::PropertyType ImportProjectHandle::getPropertyType(const Property* prop) 
 {
     PropertyType type = prop->getType();
     CauldronIO::PropertyType typeIO;
@@ -594,7 +594,7 @@ CauldronIO::SubsurfaceKind ImportProjectHandle::getSubSurfaceKind(const DataAcce
     return kind;
 }
 
-CauldronIO::PropertyAttribute ImportProjectHandle::getPropertyAttribute(const Property* prop) const
+CauldronIO::PropertyAttribute ImportProjectHandle::getPropertyAttribute(const Property* prop) 
 {
     PropertyAttribute attrib = prop->getPropertyAttribute();
     CauldronIO::PropertyAttribute attribIO;

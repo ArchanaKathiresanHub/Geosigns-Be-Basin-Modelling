@@ -40,7 +40,11 @@ public:
     /// \param [in] verbose If true, output will be generated to cout to reflect the import process
     /// \returns A boost sharedpointer to a newly created CauldronIO::Project
     static std::shared_ptr<CauldronIO::Project> createFromProjectHandle(std::shared_ptr<DataAccess::Interface::ProjectHandle> projectHandle, bool verbose);
+	static CauldronIO::SnapShotKind getSnapShotKind(const DataAccess::Interface::Snapshot* snapShot);
 
+	static CauldronIO::PropertyType getPropertyType(const DataAccess::Interface::Property* prop) ;
+
+	static CauldronIO::PropertyAttribute getPropertyAttribute(const DataAccess::Interface::Property* prop);
 private:
 
     /// Private constructor
@@ -52,11 +56,7 @@ private:
     std::shared_ptr<DataAccess::Interface::PropertyList> m_props;
 
     /// Private helper methods
-    CauldronIO::SnapShotKind getSnapShotKind(const DataAccess::Interface::Snapshot* snapShot) const;
-
-    CauldronIO::PropertyType getPropertyType(const DataAccess::Interface::Property* prop) const;
-
-    CauldronIO::PropertyAttribute getPropertyAttribute(const DataAccess::Interface::Property* prop) const;
+    
 
     std::shared_ptr<CauldronIO::SnapShot> createSnapShotIO(std::shared_ptr<DataAccess::Interface::ProjectHandle> projectHandle,
         const DataAccess::Interface::Snapshot* snapShot);
