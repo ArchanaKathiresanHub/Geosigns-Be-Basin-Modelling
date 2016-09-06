@@ -28,7 +28,7 @@ namespace GeoPhysics {
 
 namespace GeoPhysics {
 
-
+ 
    class CompoundLithology {
 
    public:
@@ -374,6 +374,11 @@ namespace GeoPhysics {
       /// Return whether of not this lithology is a fault.
       bool isFault() const;
 
+      /// Set the value of m_isLegacy to determine which behaviour to use for
+      ///    1.Mixing of lithologies
+      ///    2.Minimum porosity behaviour
+      void setIsLegacy( bool isLegacy );
+
       void setMinimumPorosity(DataAccess::Interface::PorosityModel porosityModel, double  surfaceVoidRatio, double soilMechanicsCompactionCoefficient);
 
    protected:
@@ -484,6 +489,11 @@ namespace GeoPhysics {
       SeismicVelocity m_seismicVelocity;
 
       bool m_isBasementLithology;
+
+      bool m_isLegacy; /*!< Legacy behaviour for minimum porosity?
+                        *Flag for new rock property library( and new migration engine )
+                        * 0 is the revised minimum porosity behaviour and additional mixing models
+                        * 1 is simple minimum porosity behaviour and 2 mixing models */
 
       float m_mixHorizonExp;//!< Permeability horizontal mixing exponent , equals (1-m_mixVerticalExp)/2 */
 
@@ -642,5 +652,10 @@ inline double GeoPhysics::CompoundLithology::quartzFraction() const{
 
 inline double GeoPhysics::CompoundLithology::igneousIntrusionTemperature() const{
    return m_igneousIntrusionTemperature;
+}
+
+inline void GeoPhysics::CompoundLithology::setIsLegacy( bool isLegacy )
+{
+   m_isLegacy = isLegacy;
 }
 #endif // _GEOPHYSICS__COMPOUND_LITHOLOGY_H_

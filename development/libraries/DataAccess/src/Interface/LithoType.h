@@ -1,3 +1,13 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef _INTERFACE_LITHOTYPE_H_
 #define _INTERFACE_LITHOTYPE_H_
 
@@ -174,6 +184,10 @@ namespace DataAccess
 
          /// Return the pixmap.
          virtual const std::string& getPixmap () const;
+
+         
+         /// Is the behaviour legacy (1) or new rock property feature (0)?
+         virtual const bool getLegacy() const;
 
          /// Return the temperature of the sill intrusion when intruded
          virtual double getIgneousIntrusionTemperature () const;

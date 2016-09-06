@@ -123,6 +123,7 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
      Temperature_Calculator ( Application_Context ),
      m_surfaceNodeHistory ( Application_Context ),
      m_chemicalCompactionGrid ( ChemicalCompactionGrid::create( FastcauldronSimulator::getInstance ().getRunParameters ()->getChemicalCompactionAlgorithm (),
+                                                                FastcauldronSimulator::getInstance().getRunParameters()->getLegacy(),
                                                                 Application_Context -> mapDA,
                                                                 Application_Context -> layers )),
      m_chemicalCompactionCalculator ( m_chemicalCompactionGrid -> createChemicalCompaction() ),

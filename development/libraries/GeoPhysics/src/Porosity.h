@@ -18,7 +18,7 @@ using namespace std;
 #include "Interface/Interface.h"
 
 namespace GeoPhysics
-{
+{   
 	/*! \class Porosity
 	 * \brief Abstract class defining the algorithm to compute the porosity value
 	 *
@@ -64,7 +64,8 @@ namespace GeoPhysics
          double compactionDecr,
          double compactionDecrA,
          double compactionDecrB,
-         double soilMechanicsCompactionCoefficient);
+         double soilMechanicsCompactionCoefficient,
+         bool   isLegacy);
 
       /*!
        * \brief Compute the porosity function.

@@ -24,7 +24,8 @@ namespace GeoPhysics
                                  const double compactionIncrA, 
                                  const double compactionIncrB,
                                  const double compactionDecrA,
-                                 const double compactionDecrB );
+                                 const double compactionDecrB,
+                                 const bool   isLegacy);
 
       /// Return porosity with exponential function
       virtual double calculate( const double ves,
@@ -59,6 +60,10 @@ namespace GeoPhysics
       const double m_compactionIncrB; ///< The seconf member loading phase compaction coefficient
       const double m_compactionDecrA; ///< The first member unloading phase compaction coefficient
       const double m_compactionDecrB; ///< The seconf member unloading phase compaction coefficient
+      const bool   m_isLegacy;        /*!< Legacy behaviour for minimum porosity?
+                                       * Flag for new rock property library (and new migration engine)
+                                       * 0 is the revised minimum porosity behaviour and additional mixing models
+                                       * 1 is simple minimum porosity behaviour and 2 mixing models*/
    };
 }
 #endif

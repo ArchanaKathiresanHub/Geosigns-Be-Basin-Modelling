@@ -1,3 +1,13 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 /**
  * \file ChemicalCompactionCalculator.h
  * \brief ChemicalCompactionCalculator class which computes quartz cementation (=chemical compaction) in a sedimentary basin
@@ -170,6 +180,11 @@ public:
        * The size of the array is the one returned by getNumberOfLithologies() ie the number of different lithologies through the grid.
        */
       virtual const double * getClayCoatingFactor() const { return 0; }
+
+      /*!
+      * \brief is the behaviour legacy or new rock property library feature?
+      */
+      virtual const bool isLegacy() const { return 0; }
 
    };
 

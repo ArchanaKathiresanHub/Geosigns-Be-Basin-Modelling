@@ -1,3 +1,13 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include <assert.h>
 #ifdef sgi
    #ifdef _STANDARD_C_PLUS_PLUS
@@ -25,6 +35,7 @@ using namespace database;
 #include "Interface/LithologyHeatCapacitySample.h"
 #include "Interface/LithologyThermalConductivitySample.h"
 #include "Interface/ProjectHandle.h"
+#include "Interface/RunParameters.h"
 
 using namespace DataAccess;
 using namespace Interface;
@@ -284,6 +295,10 @@ const std::string& LithoType::getBackgroundColour () const {
 
 const std::string& LithoType::getPixmap () const {
    return database::getPixmap ( m_record );
+}
+
+const bool LithoType::getLegacy() const {
+   return m_projectHandle->getRunParameters()->getLegacy( );
 }
 
 void LithoType::printOn (ostream & ostr) const

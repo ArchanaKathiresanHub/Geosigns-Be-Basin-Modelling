@@ -52,7 +52,8 @@ GeoPhysics::SimpleLithology::SimpleLithology(Interface::ProjectHandle * projectH
    0.1 * 1.0E-08 * this->getExponentialCompactionCoefficient(),
    0.1 * 1.0E-08 * this->getExponentialCompactionCoefficientA(),
    0.1 * 1.0E-08 * this->getExponentialCompactionCoefficientB(),
-   this->getSoilMechanicsCompactionCoefficient()
+   this->getSoilMechanicsCompactionCoefficient(),
+   Interface::LithoType::getLegacy()
    ))
 {
    m_lithoname = Interface::LithoType::getName();
@@ -153,7 +154,8 @@ GeoPhysics::SimpleLithology::SimpleLithology ( const SimpleLithology& litho ) :
                                    0.1 * 1.0E-8 * litho.getExponentialCompactionCoefficient ( ),
                                    0.1 * 1.0E-8 * litho.getExponentialCompactionCoefficientA ( ),
                                    0.1 * 1.0E-8 * litho.getExponentialCompactionCoefficientB ( ),
-                                   litho.getSoilMechanicsCompactionCoefficient ( ))),
+                                   litho.getSoilMechanicsCompactionCoefficient ( ),
+                                   Interface::LithoType::getLegacy() ) ),
 
    m_lithoname ( litho.m_lithoname ),
    m_thermalcondmodel ( litho.m_thermalcondmodel ),

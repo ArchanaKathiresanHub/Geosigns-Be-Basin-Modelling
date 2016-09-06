@@ -1,3 +1,13 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 /*
  * \file ChemicalCompactionSchneiderGrid.C
  */
@@ -6,11 +16,13 @@
 #include "../../../libraries/GeoPhysics/src/SchneiderCompactionCalculator.h"
 
 ChemicalCompactionSchneiderGrid :: ChemicalCompactionSchneiderGrid( DM* mapViewOfDomain,
+      const bool isLegacy,
       const LayerList & layerList ) :
 		ChemicalCompactionGrid( mapViewOfDomain, layerList ),
 		m_currentTemperature ( getNumberOfNodes( mapViewOfDomain, layerList) ),
 		m_porosity ( getNumberOfNodes( mapViewOfDomain, layerList) ),
-		m_ves ( getNumberOfNodes( mapViewOfDomain, layerList) )
+		m_ves ( getNumberOfNodes( mapViewOfDomain, layerList) ),
+      m_isLegacy(isLegacy)
 {
 
 }
@@ -132,5 +144,9 @@ const double * ChemicalCompactionSchneiderGrid::getReferenceViscosity() const
 	return &m_referenceViscosity[0];
 }
 
+const bool ChemicalCompactionSchneiderGrid::isLegacy() const
+{
+   return m_isLegacy; 
+}
 
 

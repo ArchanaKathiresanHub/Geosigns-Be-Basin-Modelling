@@ -36,6 +36,7 @@ TEST(MixingPermeability, layered)
    myLitho.addLithology(nullptr, 34);
    myLitho.makeFault(false);
    myLitho.setPermAnisotropy(1, 1, 1);
+   myLitho.setIsLegacy( false );
    
    // Layering Index = 1.0
    myLitho.setMixModel("Layered", 1.0 );

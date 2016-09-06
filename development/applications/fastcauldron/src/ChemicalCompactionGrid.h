@@ -1,3 +1,13 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 /*
  * \file ChemicalCompactionGrid.h
  */
@@ -70,6 +80,7 @@ public:
 	 * \param algorithmName: const std::string &  Name of the algorithm
 	 */
 	static ChemicalCompactionGrid * create( const std::string & algorithmName,
+         const bool isLegacy,
 			DM* mapViewOfDomain,
 			const LayerList & layerList );
 
@@ -174,7 +185,7 @@ public:
 	 */
 	virtual const double * getClayCoatingFactor() const { return 0; }
 
-	/*!
+   /*!
 	 * \brief Go through the basin and get all the needed data.
 	 * The differences between the algorithms are averload in each derived class through the class Properties.
 	 *

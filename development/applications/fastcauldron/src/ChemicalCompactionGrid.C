@@ -1,3 +1,13 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 /*
  * \file ChemicalCompactionGrid.C
  */
@@ -65,12 +75,14 @@ int ChemicalCompactionGrid :: getNumberOfNodes( DM * mapViewOfDomain, const Laye
 }
 
 ChemicalCompactionGrid * ChemicalCompactionGrid :: create( const std::string & algorithmName,
+      const bool isLegacy,
 		DM* mapViewOfDomain,
 		const LayerList & layerList)
 {
 	if ( algorithmName == "Schneider" )
 	{
 		return new ChemicalCompactionSchneiderGrid ( mapViewOfDomain,
+            isLegacy,
 				layerList );
 	}
 	else if ( algorithmName == "Walderhaug" )

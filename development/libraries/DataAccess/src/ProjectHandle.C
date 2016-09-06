@@ -239,6 +239,7 @@ ProjectHandle::ProjectHandle( Database * tables, const string & name, const stri
    loadLithologyHeatCapacitySamples();
    loadLithologyThermalConductivitySamples();
 
+   loadRunParameters();
    loadBottomBoundaryConditions();
    loadLithoTypes();
 #if 0
@@ -302,7 +303,6 @@ ProjectHandle::ProjectHandle( Database * tables, const string & name, const stri
    loadBiodegradationParameters();
    loadDiffusionLeakageParameters();
 
-   loadRunParameters();
    loadSimulationDetails ();
 
    // Depends on the run parameters.

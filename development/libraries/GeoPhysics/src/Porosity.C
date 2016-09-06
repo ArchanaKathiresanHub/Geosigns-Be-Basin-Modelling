@@ -46,17 +46,18 @@ namespace GeoPhysics
       double compactionDecr,
       double compactionDecrA,
       double compactionDecrB,
-      double soilMechanicsCompactionCoefficient)
+      double soilMechanicsCompactionCoefficient,
+      bool isLegacy)
    {
       
 	  switch (porosityModel)
       {
       case DataAccess::Interface::EXPONENTIAL_POROSITY:
-         return Porosity(new ExponentialPorosity(depoPorosity, minimumMechanicalPorosity, compactionIncr, compactionDecr));
+         return Porosity(new ExponentialPorosity(depoPorosity, minimumMechanicalPorosity, compactionIncr, compactionDecr, isLegacy));
       case DataAccess::Interface::SOIL_MECHANICS_POROSITY:
          return Porosity(new soilMechanicsPorosity(depoPorosity, minimumMechanicalPorosity, soilMechanicsCompactionCoefficient, depoPorosity/(1-depoPorosity)));
       case DataAccess::Interface::DOUBLE_EXPONENTIAL_POROSITY:
-         return Porosity(new DoubleExponentialPorosity(depoPorosity, minimumMechanicalPorosity, compactionIncrA, compactionIncrB, compactionDecrA, compactionDecrB));
+         return Porosity(new DoubleExponentialPorosity(depoPorosity, minimumMechanicalPorosity, compactionIncrA, compactionIncrB, compactionDecrA, compactionDecrB, isLegacy));
       default:
          assert(false);
       }

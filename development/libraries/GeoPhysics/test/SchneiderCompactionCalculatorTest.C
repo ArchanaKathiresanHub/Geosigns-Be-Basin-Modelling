@@ -1,3 +1,13 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 /**
  * \file SchmeiderCompactionCalculatorTest.C
  * \brief Test the SchneiderCompactionCalculator class
@@ -80,14 +90,14 @@ TEST_F( testSchneiderCompactionCalculator, test_extreme_time_values )
 	const double referenceViscosity            [numberLithologies] = { 100.0 };  //[GPa.my]
 
 
-	MockGrid grid1( size, previousTime1, currentTime, chemicalCompaction1, porosity, temperature, ves, sizeValidNodes, validNodes,
-			lithoId, numberLithologies, activationEnergy, referenceViscosity );
+   MockGrid grid1( size, previousTime1, currentTime, chemicalCompaction1, porosity, temperature, ves, sizeValidNodes, validNodes,
+      lithoId, numberLithologies, activationEnergy, referenceViscosity, false );
 
-	MockGrid grid2( size, previousTime2, currentTime, chemicalCompaction2, porosity, temperature, ves, sizeValidNodes, validNodes,
-			lithoId, numberLithologies, activationEnergy, referenceViscosity );
+   MockGrid grid2( size, previousTime2, currentTime, chemicalCompaction2, porosity, temperature, ves, sizeValidNodes, validNodes,
+      lithoId, numberLithologies, activationEnergy, referenceViscosity, false );
 
-	MockGrid grid3( size, previousTime3, currentTime, chemicalCompaction3, porosity, temperature, ves, sizeValidNodes, validNodes,
-			lithoId, numberLithologies, activationEnergy, referenceViscosity );
+   MockGrid grid3( size, previousTime3, currentTime, chemicalCompaction3, porosity, temperature, ves, sizeValidNodes, validNodes,
+      lithoId, numberLithologies, activationEnergy, referenceViscosity, false );
 
 	my_Object -> computeOnTimeStep ( grid1 ); //Time step = 0 => no change in the chemical compaction
 	ASSERT_EQ( chemicalCompaction1[0], grid1.setChemicalCompaction()[0] );
@@ -192,7 +202,7 @@ TEST_F( testSchneiderCompactionCalculator, test_extreme_parameters_values )
 	const double referenceViscosity            [numberLithologies] = { 100.0 };              //[GPa.my]
 
 	MockGrid grid( size, previousTime, currentTime, chemicalCompaction1, porosity, temperature, ves, sizeValidNodes, validNodes,
-			lithoId, numberLithologies, activationEnergy, referenceViscosity );
+			lithoId, numberLithologies, activationEnergy, referenceViscosity, false );
 
 	my_Object -> computeOnTimeStep( grid );
 
@@ -200,7 +210,9 @@ TEST_F( testSchneiderCompactionCalculator, test_extreme_parameters_values )
 	{
 		double result         = grid.setChemicalCompaction()[i];
 		double expectedResult = 0;
-		if( porosity[i] > MinimumPorosity )
+
+      double validMinimumPorosity = (grid.isLegacy())?MinimumPorosity:MinimumPorosityNonLegacy;
+      if (porosity[i] > validMinimumPorosity)
 		{
 			expectedResult = std::max(
 					computeTestTimeStep( porosity[i], ves[i], previousTime, currentTime,
@@ -249,7 +261,7 @@ TEST_F( testSchneiderCompactionCalculator, no_valid_nodes )
 	const double referenceViscosity            [numberLithologies] = { 100.0 };                //[GPa.my]
 
 	MockGrid grid( size, previousTime, currentTime, chemicalCompaction1, porosity, temperature, ves, sizeValidNodes, validNodes,
-			lithoId, numberLithologies, activationEnergy, referenceViscosity );
+			lithoId, numberLithologies, activationEnergy, referenceViscosity, false );
 
 	my_Object -> computeOnTimeStep ( grid );
 
@@ -289,7 +301,7 @@ TEST_F( testSchneiderCompactionCalculator, reference_temperature )
 	const int lithoId [size]           = { 0 };
 
 	MockGrid grid( size, previousTime, currentTime, chemicalCompaction1, porosity, temperature, ves, sizeValidNodes, validNodes,
-			lithoId, numberLithologies, activationEnergy, referenceViscosity );
+			lithoId, numberLithologies, activationEnergy, referenceViscosity, false );
 
 	double result = ( chemicalCompaction1[0] ) - ( ( 1 - porosity[0] ) * ves[0] / ( 1.0e9* referenceViscosity[0] ) * ( previousTime - currentTime ));
 
@@ -332,7 +344,7 @@ TEST_F( testSchneiderCompactionCalculator, extreme_lithology_values )
 	const int lithoId [size]           = { 0, 1, 2, 3, 4, 5, 6, 7, 8 };
 
 	MockGrid grid( size, previousTime, currentTime, chemicalCompaction1, porosity, temperature, ves, sizeValidNodes, validNodes,
-			lithoId, numberLithologies, activationEnergy, referenceViscosity );
+			lithoId, numberLithologies, activationEnergy, referenceViscosity, false );
 
 	my_Object -> computeOnTimeStep ( grid );
 
@@ -384,10 +396,10 @@ TEST_F( testSchneiderCompactionCalculator, test_change_lithology )
 
 
 	MockGrid previousGrid( size, previousTime, currentTime1, chemicalCompaction1, porosity1, temperature1, ves, sizeValidNodes, validNodes,
-			lithoId, numberLithologies, activationEnergy1, referenceViscosity1 );
+			lithoId, numberLithologies, activationEnergy1, referenceViscosity1, false );
 
 	MockGrid currentGrid1( size, currentTime1, currentTime2, chemicalCompaction2, porosity1, temperature1, ves, sizeValidNodes, validNodes,
-			lithoId, numberLithologies, activationEnergy2, referenceViscosity2 );
+			lithoId, numberLithologies, activationEnergy2, referenceViscosity2, false );
 
 	// The change of lithology is taken into account
 	double expectedResult1 = computeTestTimeStep( porosity1[0], ves[0], previousTime, currentTime1,
