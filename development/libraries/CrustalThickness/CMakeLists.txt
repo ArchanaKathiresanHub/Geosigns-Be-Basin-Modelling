@@ -137,27 +137,27 @@ set( all_mockFiles
 
 add_gtest( NAME "CrustalThickness::Density"
            SOURCES test/Density.C ${all_mockFiles}
-           LIBRARIES CrustalThickness SerialDataAccess
+           LIBRARIES CrustalThickness DataMining DataAccess SerialDataAccess
          )
 
 add_gtest( NAME "CrustalThickness::TotalTectonicSubsidence"
            SOURCES test/TotalTectonicSubsidence.C ${all_mockFiles}
-           LIBRARIES CrustalThickness SerialDataAccess
+           LIBRARIES CrustalThickness DataMining DataAccess SerialDataAccess
          )
 
 add_gtest( NAME "CrustalThickness::Paleowaterdepth"
            SOURCES test/Paleowaterdepth.C ${all_mockFiles}
-           LIBRARIES CrustalThickness SerialDataAccess
+           LIBRARIES CrustalThickness DataMining DataAccess SerialDataAccess
          )
 
 add_gtest( NAME "CrustalThickness::PaleowaterdepthResidual"
            SOURCES test/PaleowaterdepthResidual.C ${io_mockFiles}
-           LIBRARIES CrustalThickness SerialDataAccess
+           LIBRARIES CrustalThickness DataMining DataAccess SerialDataAccess
          )
 
 add_gtest( NAME "CrustalThickness::MapSmoother"
            SOURCES test/MapSmoother.C
-           LIBRARIES CrustalThickness SerialDataAccess
+           LIBRARIES CrustalThickness DataAccess SerialDataAccess
          )
 
 add_gtest( NAME "CrustalThickness::ConfigFileCtc"
@@ -173,7 +173,7 @@ add_gtest( NAME "CrustalThickness::LinearFunction"
 
 add_gtest( NAME "CrustalThickness::McKenzie"
            SOURCES test/McKenzie.C ${all_mockFiles}
-           LIBRARIES CrustalThickness SerialDataAccess
+           LIBRARIES CrustalThickness DataMining DataAccess SerialDataAccess
          )
 
 ################################################################

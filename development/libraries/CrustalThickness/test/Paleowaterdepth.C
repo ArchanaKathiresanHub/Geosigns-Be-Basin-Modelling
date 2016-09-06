@@ -24,7 +24,6 @@
 // DataAccess libraries
 #include "../../SerialDataAccess/src/Interface/SerialGrid.h"
 #include "../../SerialDataAccess/src/Interface/SerialGridMap.h"
-#include "../../DataAccess/src/Interface/Grid.h"
 
 #include <gtest/gtest.h>
 
