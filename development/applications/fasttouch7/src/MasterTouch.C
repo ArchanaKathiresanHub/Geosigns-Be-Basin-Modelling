@@ -69,41 +69,44 @@ bool MasterTouch::executeWrapper( const char * burHistFile, const string & filen
    strcpy( status, tempStatus );
    mkstemp( status );
    mkfifo( status, 0777 );
-   
+
    ostringstream rank;
    rank << GetRank();
-	
+
    int pid = fork();
 
+   double childExitStatus = 0.0;
+   double childExitStatusMinimum = 0.0;
+
    if (pid == 0)
-   {	
+   {
       const char * wrapperName = "touchstoneWrapper";
-				
+
       errno = 0;
       ibs::Path pathToWrapper = ibs::Path::applicationFullPath();
       pathToWrapper << wrapperName;
-      
+
       // create a temporary file in the current directory to store the standard output (e.g. the warning messages from Matlab)
       string wrapperOut("./wrapperStandardOutput_");
       wrapperOut += rank.str( );
       //read and write permissions for the user, read permission for the group  
-      mode_t mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH; 
+      mode_t mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;
       // copy standard output (1) to file
-      int fd=open(wrapperOut.c_str(), O_WRONLY| O_CREAT| O_TRUNC, mode);      
+      int fd=open(wrapperOut.c_str(), O_WRONLY| O_CREAT| O_TRUNC, mode);
       dup2(fd,1);
       close(fd);
 
       if ( pathToWrapper.exists() )
       {
          execl( pathToWrapper.path().c_str(), wrapperName,
-                burHistFile , filename.c_str() , resultFile , status, (rank.str( )).c_str(),  
-                static_cast<const char *>(0) );
+            burHistFile , filename.c_str() , resultFile , status, (rank.str( )).c_str(),
+            static_cast<const char *>(0) );
 
          if (errno != 0)
-         { 
+         {
             std::ostringstream oss;
-            oss << "error: Could not run TouchstoneWrapper '" << pathToWrapper.path() 
-                << "  Error code " << errno << ":  " << std::strerror(errno);
+            oss << "error: Could not run TouchstoneWrapper '" << pathToWrapper.path()
+               << "  Error code " << errno << ":  " << std::strerror(errno);
             message( oss.str());
          }
       }
@@ -111,36 +114,34 @@ bool MasterTouch::executeWrapper( const char * burHistFile, const string & filen
       {
          message( (std::string( "error: could not find TouchstoneWrapper at: ") + pathToWrapper.path()).c_str() );
       }
-      exit(0);		
-   } 	
-   else 	
-   { 
-      double fractionCompleted = 0.0;  
-      double temFraction;    
+      exit( 0 );
+   }
+   else
+   {
+      double fractionCompleted = 0.0;
+      double temFraction;
       double minAllFractions  = 0.01;
       double currentMinimum = 0.0;
       int byteRead;
-      bool childStartedCalculation = false;	 
+      bool childStartedCalculation = false;
       utilities::TimeToComplete timeToComplete( 5, 30, minAllFractions, 0.01 );
-      int childstate; 		
+      int childstate;
       int fd = open( status, O_RDONLY| O_NONBLOCK );
-      
+
       ReportProgress( "Initializing touchstone and creating the realizations, please wait ..." );
 
-      // Progress is reported only in Rank 0, we need to keep Rank 0 in the loop even if its child exited. 
-      // One way to do this is to exit the while loop only if the chiled exited AND we are about to finish (0.99)   
-      while ( !waitpid( pid, &childstate, WNOHANG ) || minAllFractions < 1.0 )
-      {	
-         if ( fractionCompleted > 0 && !childStartedCalculation )
+      // Progress is reported only by Rank 0, we need to keep Rank 0 in the loop even if its child exited. 
+      // One way to do this is to exit the while loop only if one of the childs exited prematurely (WIFEXITED(childstate) == 0) OR the child exited normally AND we are done in all the ranks (minAllFractions == 1.0)
+      while ( childExitStatusMinimum >= 0.0 && ( !waitpid( pid, &childstate, WNOHANG ) || currentMinimum < 1.0 ) )
+      {
+         if ( fractionCompleted > 0.0 && !childStartedCalculation )
          {
             childStartedCalculation = true;
             timeToComplete.start( );
          }
-         byteRead = read( fd, &temFraction, sizeof( temFraction ) );
-         if ( byteRead == sizeof( temFraction ) ) fractionCompleted = temFraction;
          if ( childStartedCalculation )
          {
-            // calling MinimumAll requires all MPI processes to sync all times. This is expensive so we call it every 0.05 sec
+            // calling MinimumAll requires all MPI processes to sync all times. This is expensive so we call it every 0.005 sec
             currentMinimum = MinimumAll( fractionCompleted );
             usleep( 5000 );
             if ( currentMinimum > minAllFractions )
@@ -149,37 +150,52 @@ bool MasterTouch::executeWrapper( const char * burHistFile, const string & filen
                string reported = timeToComplete.report( minAllFractions );
                if (!reported.empty()) ReportProgress( reported );
             }
-	     }
+         }
          else
          {
             usleep( 5000 );
-            if ( !WIFEXITED(childstate) && !childStartedCalculation && check_zombie(pid) )
-            { 
+            if ( !WIFEXITED( childstate ) )
+            {
                ostringstream oss;
-               oss << "warning: touchstoneWrapper is zombie " << std::strerror(errno);
-               message( oss.str() );
-               return false;
+               if ( check_zombie( pid ) )
+               {
+                  oss << "warning: touchstoneWrapper is zombie " << std::strerror( errno );
+               }
+               else
+               {
+                  oss << "warning: touchstoneWrapper exited prematurely ";
+               }
+               message( oss.str( ) );
+               childExitStatus = -1.0;
             }
+            // communicate to all childs if one has failed and re-start all childs 
+            childExitStatusMinimum = MinimumAll( childExitStatus );
          }
+         byteRead = read( fd, &temFraction, sizeof( temFraction ) );
+         if ( byteRead == sizeof( temFraction ) ) fractionCompleted = temFraction;
       }
       if ( close( fd ) < 0 )
       {
          ostringstream oss;
          oss << "error: Could not close status file, error code " << std::strerror(errno);
          message( oss.str() );
+         childExitStatus = -1.0;
       }
       if ( unlink( status ) < 0 )
       {
          ostringstream oss;
          oss << "error: Could not unlink status file, error code " << std::strerror(errno);
          message( oss.str() );
+         childExitStatus = -1.0;
       }
-	
-   } 
-   
-   return true; 
-}
 
+      // if one child cannot close or unlink the status file, re-start all childs
+      childExitStatusMinimum = MinimumAll( childExitStatus );
+   }
+
+   return childExitStatusMinimum < 0 ? false : true;
+
+}
 // PUBLIC METHODS
 //
 /// The job of the constructor is to open the ResQ library and initialise
