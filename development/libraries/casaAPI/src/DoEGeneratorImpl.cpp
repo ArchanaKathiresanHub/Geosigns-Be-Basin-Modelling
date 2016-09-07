@@ -69,7 +69,7 @@ namespace casa
    // [out] expSet list of cases for DoE
    // [in]  runsNum number of runs for DoE algorithms which support this parameter
    // return ErrorHandler::NoError on success, error code otherwise
-   ErrorHandler::ReturnCode DoEGeneratorImpl::generateDoE( const VarSpace & varPrmsSet, RunCaseSet & doeCaseSet, size_t runsNum )
+   ErrorHandler::ReturnCode DoEGeneratorImpl::generateDoE( const VarSpace & varPrmsSet, RunCaseSet & doeCaseSet, size_t runsNum, std::string doeName )
    {
       std::vector< std::shared_ptr<RunCase> > expSet;
 
@@ -106,8 +106,20 @@ namespace casa
          // create SUMlib object for DoE generation
          if ( SpaceFilling == m_typeOfDoE ) // special case, can extend already existed set of cases
          {
-            const SUMlib::HybridMC doe( selectedPrms, static_cast<unsigned int>( numOfOrdPrms ),
-                                        static_cast<unsigned int>(expSet.size()), static_cast<unsigned int>( runsNum ) );
+            // collect number of existed SpaceFilling DoE cases:
+            unsigned int numOldRuns = expSet.size();
+            const std::vector< std::string > & expNames = doeCaseSet.experimentNames();
+            for ( auto nm : expNames )
+            {
+               if ( nm.find( "SpaceFilling", 0 ) != std::string::npos )
+               {
+                  doeCaseSet.filterByExperimentName( nm );
+                  numOldRuns += doeCaseSet.size();
+               }
+            }
+            doeCaseSet.filterByExperimentName( "" );
+
+            const SUMlib::HybridMC doe( selectedPrms, static_cast<unsigned int>( numOfOrdPrms ), numOldRuns, static_cast<unsigned int>( runsNum ) );
             const bool replicate = false;
             doe.getCaseSet( pBounds, baseCase, replicate, sumCases );
          }
@@ -142,7 +154,7 @@ namespace casa
          }
 
          RunCaseSetImpl & doeCases = dynamic_cast<RunCaseSetImpl &>(doeCaseSet);
-         doeCases.addNewCases( expSet, DoEGenerator::DoEName( m_typeOfDoE ) );
+         doeCases.addNewCases( expSet, doeName.empty() ? DoEGenerator::DoEName( m_typeOfDoE ) : doeName );
       }
       catch ( const SUMlib::Exception & e )
       {

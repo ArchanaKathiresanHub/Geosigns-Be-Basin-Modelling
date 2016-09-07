@@ -27,17 +27,17 @@ CmdDoE::CmdDoE( CasaCommander & parent, const std::vector< std::string > & cmdPr
 
    m_numExp = 0;
 
-   if (      m_prms[0] == "Tornado"              ) { m_doeAlg = casa::DoEGenerator::Tornado; }
-   else if ( m_prms[0] == "BoxBehnken"           ) { m_doeAlg = casa::DoEGenerator::BoxBehnken; }
-   else if ( m_prms[0] == "PlackettBurman"       ) { m_doeAlg = casa::DoEGenerator::PlackettBurman; }
-   else if ( m_prms[0] == "PlackettBurmanMirror" ) { m_doeAlg = casa::DoEGenerator::PlackettBurmanMirror; }
-   else if ( m_prms[0] == "FullFactorial"        ) { m_doeAlg = casa::DoEGenerator::FullFactorial; }
-   else if ( m_prms[0] == "LatinHypercube"       )
+   if (      m_prms[0].find( "Tornado"             , 0 ) != std::string::npos ) { m_doeAlg = casa::DoEGenerator::Tornado; }
+   else if ( m_prms[0].find( "BoxBehnken"          , 0 ) != std::string::npos ) { m_doeAlg = casa::DoEGenerator::BoxBehnken; }
+   else if ( m_prms[0].find( "PlackettBurman"      , 0 ) != std::string::npos ) { m_doeAlg = casa::DoEGenerator::PlackettBurman; }
+   else if ( m_prms[0].find( "PlackettBurmanMirror", 0 ) != std::string::npos ) { m_doeAlg = casa::DoEGenerator::PlackettBurmanMirror; }
+   else if ( m_prms[0].find( "FullFactorial"       , 0 ) != std::string::npos ) { m_doeAlg = casa::DoEGenerator::FullFactorial; }
+   else if ( m_prms[0].find( "LatinHypercube"      , 0 ) != std::string::npos )
    {
       m_doeAlg = casa::DoEGenerator::LatinHypercube;
       if ( m_prms.size() > 1 ) m_numExp = atol( m_prms[1].c_str() );
    }
-   else if ( m_prms[0] == "SpaceFilling" )
+   else if ( m_prms[0].find( "SpaceFilling", 0 ) != std::string::npos )
    {
       m_doeAlg = casa::DoEGenerator::SpaceFilling;
       if ( m_prms.size() > 1 ) m_numExp = atol( m_prms[1].c_str() );
@@ -53,7 +53,7 @@ void CmdDoE::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
    LogHandler( LogHandler::INFO_SEVERITY ) << "Generating parameters sets for " << m_prms[0] << " DoE ... ";
 
    if ( ErrorHandler::NoError != sa->setDoEAlgorithm( static_cast<casa::DoEGenerator::DoEAlgorithm>( m_doeAlg ) ) ||
-        ErrorHandler::NoError != sa->doeGenerator().generateDoE( sa->varSpace(), sa->doeCaseSet(), m_numExp ) )
+        ErrorHandler::NoError != sa->doeGenerator().generateDoE( sa->varSpace(), sa->doeCaseSet(), m_numExp, m_prms[0] ) )
    {
       throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage();
    }

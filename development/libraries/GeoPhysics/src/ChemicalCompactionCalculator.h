@@ -184,7 +184,7 @@ public:
       /*!
       * \brief is the behaviour legacy or new rock property library feature?
       */
-      virtual const bool isLegacy() const { return 0; }
+      virtual bool isLegacy() const { return 0; }
 
    };
 

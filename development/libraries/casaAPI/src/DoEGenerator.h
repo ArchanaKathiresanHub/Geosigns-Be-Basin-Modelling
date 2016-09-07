@@ -129,11 +129,12 @@ namespace casa
       virtual ~DoEGenerator() {;}
 
       /// @brief Generate set of cases for DoE
-      /// @param[in]  varPrmsSet list of variable parameters
-      /// @param[out] rcSet container to keep the set of cases for DoE
-      /// @param[in]  runsNum number of runs for DoE algorithms which support this parameter
       /// @return ErrorHandler::NoError on success, error code otherwise
-      virtual ErrorHandler::ReturnCode generateDoE( const VarSpace & varPrmsSet, RunCaseSet & rcSet, size_t runsNum = 0 ) = 0;
+      virtual ErrorHandler::ReturnCode generateDoE( const VarSpace & varPrmsSet   ///< [in] list of variable parameters
+                                                  , RunCaseSet     & rcSet        ///< [out] container to keep the set of cases for DoE
+                                                  , size_t           runsNum = 0  ///< [in] number of runs for DoE algorithm (if it support it)
+                                                  , std::string      doeName = "" ///< [in] optional user given name for further reference
+                                                  ) = 0;
 
       /// @brief Convert algorithm enumeration to the string with DoE name
       /// @param algo DoE type

@@ -42,11 +42,12 @@ namespace casa
       virtual ~DoEGeneratorImpl();
 
       // Generate set of cases for DoE
-      // [in]  varPrmsSet list of variable parameters
-      // [out] rcSet list of cases for DoE
-      // [in]  runsNum number of runs for DoE algorithms which support this parameter
       // return ErrorHandler::NoError on success, error code otherwise
-      virtual ErrorHandler::ReturnCode generateDoE( const VarSpace & varPrmsSet, RunCaseSet & rcSet, size_t runsNum = 0 );
+      virtual ErrorHandler::ReturnCode generateDoE( const VarSpace & varPrmsSet   // [in]  list of variable parameters
+                                                  , RunCaseSet     & rcSet        // [out] list of cases for DoE
+                                                  , size_t           runsNum = 0  // [in]  number of runs for DoE (if it is supported)
+                                                  , std::string      doeName = "" // [in]  DoE name which can be assigned for further reference
+                                                  );
 
       // Get DoE type
       // return DoE algorithm type

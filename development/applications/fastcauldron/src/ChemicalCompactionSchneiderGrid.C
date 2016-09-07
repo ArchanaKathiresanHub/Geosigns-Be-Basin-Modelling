@@ -144,7 +144,7 @@ const double * ChemicalCompactionSchneiderGrid::getReferenceViscosity() const
 	return &m_referenceViscosity[0];
 }
 
-const bool ChemicalCompactionSchneiderGrid::isLegacy() const
+bool ChemicalCompactionSchneiderGrid::isLegacy() const
 {
    return m_isLegacy; 
 }

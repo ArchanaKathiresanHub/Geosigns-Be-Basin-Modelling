@@ -187,7 +187,7 @@ namespace DataAccess
 
          
          /// Is the behaviour legacy (1) or new rock property feature (0)?
-         virtual const bool getLegacy() const;
+         virtual bool getLegacy() const;
 
          /// Return the temperature of the sill intrusion when intruded
          virtual double getIgneousIntrusionTemperature () const;

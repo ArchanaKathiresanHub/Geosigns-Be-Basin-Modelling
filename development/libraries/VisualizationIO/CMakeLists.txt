@@ -80,12 +80,11 @@ configure_file(test/data/ARD_simple-test_CauldronOutputDir/Time_70.000000.h5 ${C
 
 add_custom_command(TARGET VisualizationIO PRE_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_directory
-                     test/data/ARD_simple-test_CauldronOutputDir     ${CMAKE_CURRENT_BINARY_DIR}/data/ARD_simple-test_CauldronOutputDir )
+                   test/data/ARD_simple-test_CauldronOutputDir ${CMAKE_CURRENT_BINARY_DIR}/data/ARD_simple-test_CauldronOutputDir )
 
 add_gtest( NAME CauldronIO::Project
            SOURCES test/Project.cpp test/DataStore.cpp test/VerifyData.cpp
-           LIBRARIES VisualizationIO
-)
+           LIBRARIES VisualizationIO DataModel DataAccess utilities SerialDataAccess FileSystem TableIO VisualizationIO_projectHandle Serial_Hdf5 CBMGenerics ${HDF5_LIBRARIES} ${Boost_LIBRARIES} )
 
 # Local Variables:
 # mode: cmake

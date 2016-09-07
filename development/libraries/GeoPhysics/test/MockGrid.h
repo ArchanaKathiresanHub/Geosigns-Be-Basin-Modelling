@@ -156,7 +156,7 @@ public:
    /*!
    * \brief is the behaviour legacy or new rock property library feature? 
    */
-   inline const bool isLegacy() const { return m_isLegacy; }
+   inline bool isLegacy() const { return m_isLegacy; }
 
 
 private:

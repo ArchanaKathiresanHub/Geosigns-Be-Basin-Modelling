@@ -401,8 +401,7 @@ static void tio2delaunayTriangulation( delaunay* d )
       n->tids[1] = dTriang[it].n1;
       n->tids[2] = dTriang[it].n2;
 
-      if ( nn_verbose )
-         fprintf( stderr, "  %d: (%d,%d,%d)\n", it, t->vids[0], t->vids[1], t->vids[2] );
+      if ( nn_verbose ) { fprintf( stderr, "  %zu: (%d,%d,%d)\n", it, t->vids[0], t->vids[1], t->vids[2] ); }
 
       status = circle_build1( c, &d->points[t->vids[0]], &d->points[t->vids[1]], &d->points[t->vids[2]] );
       assert( status );

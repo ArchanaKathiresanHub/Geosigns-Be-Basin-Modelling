@@ -297,7 +297,7 @@ const std::string& LithoType::getPixmap () const {
    return database::getPixmap ( m_record );
 }
 
-const bool LithoType::getLegacy() const {
+bool LithoType::getLegacy() const {
    return m_projectHandle->getRunParameters()->getLegacy( );
 }
 
