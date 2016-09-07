@@ -28,9 +28,10 @@ namespace GeoPhysics
                                             const bool isLegacy) :
 	  Algorithm(depoPorosity,minimumMechanicalPorosity),
       m_compactionIncr(compactionIncr),
-      m_compactionDecr(compactionDecr),
-      m_isLegacy(isLegacy)
-   {}
+      m_compactionDecr(compactionDecr)
+   {
+      m_isLegacy = isLegacy;
+   }
 
    ///Exponential porosity function
    double ExponentialPorosity::calculate( const double ves,
@@ -162,9 +163,6 @@ namespace GeoPhysics
 
       double porosityDerivative;
       const double porosityValue = calculate(ves, maxVes, includeChemicalCompaction, chemicalCompactionTerm);
-      //For new rock property library only
-      const double minimumMechanicalPorosity = NumericFunctions::Maximum( m_minimumMechanicalPorosity, MinimumPorosityNonLegacy );
-      double localChemicalCompactionTerm;
 
       // Chemical compaction equations also depends on VES, should we consider adding the chemical compaction derivative to 
       // these equations?
@@ -200,6 +198,9 @@ namespace GeoPhysics
       }
       else // new rock property library behaviour
       {
+         const double minimumMechanicalPorosity = NumericFunctions::Maximum( m_minimumMechanicalPorosity, MinimumPorosityNonLegacy );
+         double localChemicalCompactionTerm;
+
          if (porosityValue == MinimumPorosityNonLegacy)
          {
             porosityDerivative = 0.0;

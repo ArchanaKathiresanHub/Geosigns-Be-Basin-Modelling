@@ -27,9 +27,11 @@ namespace GeoPhysics
         m_compactionIncrA(compactionIncrA),
         m_compactionIncrB(compactionIncrB),
         m_compactionDecrA(compactionDecrA),
-        m_compactionDecrB(compactionDecrB),
-        m_isLegacy(isLegacy)
-   {}
+        m_compactionDecrB(compactionDecrB)
+        
+   {
+      m_isLegacy = isLegacy ;
+   }
 
    ///Double Exponential porosity function
    double DoubleExponentialPorosity::calculate( const double ves,
@@ -39,8 +41,6 @@ namespace GeoPhysics
    {
       double calculatedPorosity;
       bool   loadingPhase = (ves >= maxVes);
-      //For new rock property library feature only
-		const double minimumMechanicalPorosity = NumericFunctions::Maximum(m_minimumMechanicalPorosity, MinimumPorosityNonLegacy);
       
       if (m_isLegacy) //legacy behaviour
       {
@@ -62,7 +62,7 @@ namespace GeoPhysics
       }
       else // new rock property library behaviour
       {
-
+         const double minimumMechanicalPorosity = NumericFunctions::Maximum( m_minimumMechanicalPorosity, MinimumPorosityNonLegacy );
          if (loadingPhase)
          {
             calculatedPorosity = 0.5 * (m_depoPorosity - minimumMechanicalPorosity) * exp( -m_compactionIncrA * ves );
@@ -122,10 +122,7 @@ namespace GeoPhysics
       double porosityDerivative(0.0);
       const bool loadingPhase = (ves >= maxVes); 
       const double porosityValue = calculate(ves, maxVes, includeChemicalCompaction, chemicalCompactionTerm);
-      //For new rock property library feature only
-      const double minimumMechanicalPorosity = NumericFunctions::Maximum(m_minimumMechanicalPorosity, MinimumPorosityNonLegacy);
-      const double depoPorosity = NumericFunctions::Maximum( m_depoPorosity, MinimumPorosityNonLegacy );
-
+      
       // Chemical compaction equations also depends on VES, should we consider adding the chemical compaction derivative to 
       // these equations?
       double localChemicalCompactionTerm = (includeChemicalCompaction?chemicalCompactionTerm:0.0);
@@ -149,6 +146,10 @@ namespace GeoPhysics
       }
       else // new rock property library behaviour
       {
+         //For new rock property library feature only
+         const double minimumMechanicalPorosity = NumericFunctions::Maximum( m_minimumMechanicalPorosity, MinimumPorosityNonLegacy );
+         const double depoPorosity = NumericFunctions::Maximum( m_depoPorosity, MinimumPorosityNonLegacy );
+
          if ((porosityValue == MinimumPorosityNonLegacy))
          {
             porosityDerivative = 0.0;

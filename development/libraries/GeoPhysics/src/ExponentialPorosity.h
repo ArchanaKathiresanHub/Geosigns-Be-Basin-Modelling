@@ -65,10 +65,6 @@ namespace GeoPhysics
 
       const double  m_compactionIncr; ///< The loading phase compaction coefficient
       const double  m_compactionDecr; ///< The unloading phase compaction coefficient
-      const bool    m_isLegacy;       /*!< Legacy behaviour for minimum porosity?
-                                       * Flag for new rock property library (and new migration engine)
-                                       * 0 is the revised minimum porosity behaviour and additional mixing models
-                                       * 1 is simple minimum porosity behaviour and 2 mixing models*/
    };
 }
 #endif

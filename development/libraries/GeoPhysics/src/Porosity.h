@@ -210,7 +210,10 @@ namespace GeoPhysics
          
          double m_minimumMechanicalPorosity; /*!< Minimum porosity */
          double m_depoPorosity;              /*!< Porosity at deposition */
-
+         bool   m_isLegacy;        /*!< Legacy behaviour for minimum porosity?
+                                    * Flag for new rock property library (and new migration engine)
+                                    * 0 is the revised minimum porosity behaviour and additional mixing models
+                                    * 1 is simple minimum porosity behaviour and 2 mixing models*/
       };
 
    private:

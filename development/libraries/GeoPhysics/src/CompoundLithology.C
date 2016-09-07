@@ -1719,8 +1719,6 @@ void GeoPhysics::CompoundLithology::mixCapillaryEntryPressureCofficients()
             ++componentIter;
          }
       }
-
-      m_tenPowerCapC2 = pow( 10.0, -m_capC2 );
    }
    else //new rock property behaviour
    {// Capillary entry pressure coefficients are mixed with an arithmetic mean
@@ -1736,6 +1734,8 @@ void GeoPhysics::CompoundLithology::mixCapillaryEntryPressureCofficients()
          ++percentIter;
       }
    }
+
+   m_tenPowerCapC2 = pow( 10.0, -m_capC2 );
 
 }
 
