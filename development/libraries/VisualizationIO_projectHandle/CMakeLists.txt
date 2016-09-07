@@ -30,6 +30,7 @@ bm_include_libraries(
    FileSystem 
 	DataAccess
    VisualizationIO
+   VisualizationIO_projectHandle
 	TableIO
 )
 
