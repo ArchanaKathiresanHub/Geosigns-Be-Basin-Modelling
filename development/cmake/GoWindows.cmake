@@ -9,6 +9,9 @@ set(buildToolDirectory "c:/Apps")
 if (IS_DIRECTORY "c:/opt")
   set(buildToolDirectory "c:/opt")
 endif()
+if (IS_DIRECTORY "E:/APPS")
+  set(buildToolDirectory "E:/APPS")
+endif()
 
 #BOOST
 set( BOOST_ROOT "${buildToolDirectory}/3rdparty/boost_1_59_0" CACHE PATH "Location of the Boost C++ libraries")
