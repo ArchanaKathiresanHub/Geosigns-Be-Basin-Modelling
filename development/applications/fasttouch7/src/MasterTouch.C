@@ -75,8 +75,8 @@ bool MasterTouch::executeWrapper( const char * burHistFile, const string & filen
 
    int pid = fork();
 
-   double childExitStatus = 0.0;
-   double childExitStatusMinimum = 0.0;
+   int childsStatusMinimum = 1;
+   int childStatus = 1;
 
    if (pid == 0)
    {
@@ -92,14 +92,14 @@ bool MasterTouch::executeWrapper( const char * burHistFile, const string & filen
       //read and write permissions for the user, read permission for the group  
       mode_t mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;
       // copy standard output (1) to file
-      int fd=open(wrapperOut.c_str(), O_WRONLY| O_CREAT| O_TRUNC, mode);
+      int fd=open(wrapperOut.c_str(),O_WRONLY| O_CREAT| O_TRUNC, mode);
       dup2(fd,1);
       close(fd);
 
       if ( pathToWrapper.exists() )
       {
          execl( pathToWrapper.path().c_str(), wrapperName,
-            burHistFile , filename.c_str() , resultFile , status, (rank.str( )).c_str(),
+            burHistFile, filename.c_str() , resultFile , status, (rank.str()).c_str(),
             static_cast<const char *>(0) );
 
          if (errno != 0)
@@ -116,84 +116,112 @@ bool MasterTouch::executeWrapper( const char * burHistFile, const string & filen
       }
       exit( 0 );
    }
-   else
+
+   double fractionCompleted = -10.0;
+   double temFraction = -10.0;
+   double minAllFractions  = 0.01;
+   double currentMinimum = 0.0;
+   bool childStarted = false;
+   int byteRead;
+   int childstate;
+   utilities::TimeToComplete timeToComplete( 5, 30, minAllFractions, 0.01 );
+   int fd = open( status, O_RDONLY| O_NONBLOCK );
+
+   ReportProgress( "Loading touchstone and creating the realizations, please wait ..." ); 
+      
+   // here we check several behaviours that can happen before the touchstone computation is started. 
+   // If one child is bad we re-start all childrens 
+   do
    {
-      double fractionCompleted = 0.0;
-      double temFraction;
-      double minAllFractions  = 0.01;
-      double currentMinimum = 0.0;
-      int byteRead;
-      bool childStartedCalculation = false;
-      utilities::TimeToComplete timeToComplete( 5, 30, minAllFractions, 0.01 );
-      int childstate;
-      int fd = open( status, O_RDONLY| O_NONBLOCK );
+      // read the fractionCompleted first
+      byteRead = read( fd, &temFraction, sizeof( temFraction ) );
+      if ( byteRead == sizeof( temFraction ) ) fractionCompleted = temFraction;
+      usleep( 5000 );
+      
+      // get the waitpidReturnValue and the childstate
+      bool waitpidReturnValue = waitpid( pid, &childstate, WNOHANG );
 
-      ReportProgress( "Initializing touchstone and creating the realizations, please wait ..." );
+      // the message string stream
+      ostringstream oss;
 
-      // Progress is reported only by Rank 0, we need to keep Rank 0 in the loop even if its child exited. 
-      // One way to do this is to exit the while loop only if one of the childs exited prematurely (WIFEXITED(childstate) == 0) OR the child exited normally AND we are done in all the ranks (minAllFractions == 1.0)
-      while ( childExitStatusMinimum >= 0.0 && ( !waitpid( pid, &childstate, WNOHANG ) || currentMinimum < 1.0 ) )
+      // if the child did not exit and computation started it is a good one
+      if ( !waitpidReturnValue && fractionCompleted > 0.0 )
       {
-         if ( fractionCompleted > 0.0 && !childStartedCalculation )
-         {
-            childStartedCalculation = true;
-            timeToComplete.start( );
-         }
-         if ( childStartedCalculation )
-         {
-            // calling MinimumAll requires all MPI processes to sync all times. This is expensive so we call it every 0.005 sec
-            currentMinimum = MinimumAll( fractionCompleted );
-            usleep( 5000 );
-            if ( currentMinimum > minAllFractions )
-            {
-               minAllFractions = currentMinimum;
-               string reported = timeToComplete.report( minAllFractions );
-               if (!reported.empty()) ReportProgress( reported );
-            }
-         }
-         else
-         {
-            usleep( 5000 );
-            if ( !WIFEXITED( childstate ) )
-            {
-               ostringstream oss;
-               if ( check_zombie( pid ) )
-               {
-                  oss << "warning: touchstoneWrapper is zombie " << std::strerror( errno );
-               }
-               else
-               {
-                  oss << "warning: touchstoneWrapper exited prematurely ";
-               }
-               message( oss.str( ) );
-               childExitStatus = -1.0;
-            }
-            // communicate to all childs if one has failed and re-start all childs 
-            childExitStatusMinimum = MinimumAll( childExitStatus );
-         }
-         byteRead = read( fd, &temFraction, sizeof( temFraction ) );
-         if ( byteRead == sizeof( temFraction ) ) fractionCompleted = temFraction;
-      }
-      if ( close( fd ) < 0 )
+         childStarted = true;
+      } 
+      
+      // if the child did not exit and is zombie it is a bad child
+      else if ( !waitpidReturnValue && fractionCompleted < 0.0 && check_zombie( pid ) )
       {
-         ostringstream oss;
-         oss << "error: Could not close status file, error code " << std::strerror(errno);
-         message( oss.str() );
-         childExitStatus = -1.0;
-      }
-      if ( unlink( status ) < 0 )
-      {
-         ostringstream oss;
-         oss << "error: Could not unlink status file, error code " << std::strerror(errno);
-         message( oss.str() );
-         childExitStatus = -1.0;
-      }
+         oss << "warning: touchstoneWrapper is zombie " << std::strerror( errno );
+         message( oss.str( ) );
+         childStatus = -1;
+		   childStarted = true;
+      } 
 
-      // if one child cannot close or unlink the status file, re-start all childs
-      childExitStatusMinimum = MinimumAll( childExitStatus );
+      // if the child exited badly before starting the computations it is a bad child
+      else if ( waitpidReturnValue && fractionCompleted < 0.0 && !WIFEXITED( childstate ))
+      {
+         oss << "warning: touchstoneWrapper terminated prematurely "<< std::strerror( errno );
+         message( oss.str( ) );
+         childStatus = -1;
+		   childStarted = true;
+      } 
+      
+      // if the child exited ok before starting the computations it is a bad child (an exception was thrown and caught in Touchstone.C)
+      else if ( waitpidReturnValue && fractionCompleted < 0.0 && WIFEXITED( childstate ))
+      {
+         oss << "warning: touchstoneWrapper thrown an execption "<< std::strerror( errno );
+         message( oss.str( ) );
+         childStatus = -1;
+		   childStarted = true;
+      }   
+   } while ( !childStarted );
+   
+   childsStatusMinimum = MinimumAll( childStatus );
+   
+   // return false if childsStatusMinimum is < 0 
+   if (childsStatusMinimum < 0 ) return false; 
+         
+   timeToComplete.start( );      
+   
+   // Progress is reported only by Rank 0, we need to keep Rank 0 in the loop even if its child exited. 
+   // One way to do this is to exit the while loop only if the child did not exit and we are done in all ranks (currentMinimum < 1.0)
+   while ( !waitpid( pid, &childstate, WNOHANG ) || currentMinimum < 1.0 )
+   {
+      // read the fractionCompleted first. Calling MinimumAll requires all MPI processes to sync all times. This is expensive so we call it every 0.005 sec
+      byteRead = read( fd, &temFraction, sizeof( temFraction ) );
+      if ( byteRead == sizeof( temFraction ) ) fractionCompleted = temFraction;
+
+      currentMinimum = MinimumAll( fractionCompleted );
+      usleep( 5000 );
+      
+      if ( currentMinimum > minAllFractions )
+      {
+         minAllFractions = currentMinimum;
+         string reported = timeToComplete.report( minAllFractions );
+         if (!reported.empty()) ReportProgress( reported );
+      }
+   }       
+   if ( close( fd ) < 0 )
+   {
+      ostringstream oss;
+      oss << "error: Could not close status file, error code " << std::strerror(errno);
+      message( oss.str() );       
+      childStatus = -1;
+   }   
+   if ( unlink( status ) < 0 )
+   {
+      ostringstream oss;
+      oss << "error: Could not unlink status file, error code " << std::strerror(errno);
+      message( oss.str() );
+      childStatus = -1;
    }
 
-   return childExitStatusMinimum < 0 ? false : true;
+   // if one child cannot close or unlink the status file, re-start all childs
+   childsStatusMinimum = MinimumAll( childStatus );
+
+   return childsStatusMinimum < 0 ? false : true; 
 
 }
 // PUBLIC METHODS

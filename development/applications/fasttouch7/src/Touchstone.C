@@ -297,7 +297,7 @@ void TouchstoneWrapper::calculateWrite ( ) {
        
       TouchstoneFiles WriteTouchstone(m_results);
       WriteTouchstone.writeOrder(m_categoriesMappingOrder);  
-      double fractionCompleted = 1e-6;
+      double fractionCompleted = 1e-10;
       int step = 0;
       
       // write a small number to tell the parent process that the calculation has started
