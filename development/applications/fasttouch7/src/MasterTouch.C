@@ -129,14 +129,13 @@ bool MasterTouch::executeWrapper( const char * burHistFile, const string & filen
 
    ReportProgress( "Loading touchstone and creating the realizations, please wait ..." ); 
       
-   // here we check several behaviours that can happen before the touchstone computation is started. 
-   // If one child is bad we re-start all childrens 
+   // here we check several behaviours that can happen in the loading phase. 
+   // If one child is bad we re-start all childrens. 
    do
    {
       // read the fractionCompleted first
       byteRead = read( fd, &temFraction, sizeof( temFraction ) );
       if ( byteRead == sizeof( temFraction ) ) fractionCompleted = temFraction;
-      usleep( 5000 );
       
       // get the waitpidReturnValue and the childstate
       bool waitpidReturnValue = waitpid( pid, &childstate, WNOHANG );
@@ -165,17 +164,20 @@ bool MasterTouch::executeWrapper( const char * burHistFile, const string & filen
          oss << "warning: touchstoneWrapper terminated prematurely "<< std::strerror( errno );
          message( oss.str( ) );
          childStatus = -1;
-		   childStarted = true;
+		 childStarted = true;
       } 
       
       // if the child exited ok before starting the computations it is a bad child (an exception was thrown and caught in Touchstone.C)
       else if ( waitpidReturnValue && fractionCompleted < 0.0 && WIFEXITED( childstate ))
       {
-         oss << "warning: touchstoneWrapper thrown an execption "<< std::strerror( errno );
+         oss << "warning: touchstoneWrapper thrown an exeception "<< std::strerror( errno );
          message( oss.str( ) );
          childStatus = -1;
-		   childStarted = true;
-      }   
+		 childStarted = true;
+      }
+	  
+      // sleep only after the checks ( waitpidReturnValue and childstate are are up to date in the checks above). 
+      usleep( 5000 );	  
    } while ( !childStarted );
    
    childsStatusMinimum = MinimumAll( childStatus );
@@ -186,7 +188,7 @@ bool MasterTouch::executeWrapper( const char * burHistFile, const string & filen
    timeToComplete.start( );      
    
    // Progress is reported only by Rank 0, we need to keep Rank 0 in the loop even if its child exited. 
-   // One way to do this is to exit the while loop only if the child did not exit and we are done in all ranks (currentMinimum < 1.0)
+   // One way to do this is to exit the while loop only if the child did not exit AND we are done in all ranks (currentMinimum < 1.0)
    while ( !waitpid( pid, &childstate, WNOHANG ) || currentMinimum < 1.0 )
    {
       // read the fractionCompleted first. Calling MinimumAll requires all MPI processes to sync all times. This is expensive so we call it every 0.005 sec
@@ -194,7 +196,6 @@ bool MasterTouch::executeWrapper( const char * burHistFile, const string & filen
       if ( byteRead == sizeof( temFraction ) ) fractionCompleted = temFraction;
 
       currentMinimum = MinimumAll( fractionCompleted );
-      usleep( 5000 );
       
       if ( currentMinimum > minAllFractions )
       {
@@ -202,6 +203,9 @@ bool MasterTouch::executeWrapper( const char * burHistFile, const string & filen
          string reported = timeToComplete.report( minAllFractions );
          if (!reported.empty()) ReportProgress( reported );
       }
+
+	   // sleep only after the check
+      usleep( 5000 );	
    }       
    if ( close( fd ) < 0 )
    {
@@ -218,7 +222,7 @@ bool MasterTouch::executeWrapper( const char * burHistFile, const string & filen
       childStatus = -1;
    }
 
-   // if one child cannot close or unlink the status file, re-start all childs
+   // if one child cannot close or unlink the status file, re-start all childrens.
    childsStatusMinimum = MinimumAll( childStatus );
 
    return childsStatusMinimum < 0 ? false : true; 
