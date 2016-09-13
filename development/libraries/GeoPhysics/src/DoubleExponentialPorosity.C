@@ -42,7 +42,8 @@ namespace GeoPhysics
       double calculatedPorosity;
       bool   loadingPhase = (ves >= maxVes);
       
-      if (m_isLegacy) //legacy behaviour
+      //legacy behaviour
+      if (m_isLegacy) 
       {
          if (loadingPhase)
          {
@@ -60,7 +61,8 @@ namespace GeoPhysics
             calculatedPorosity = NumericFunctions::Maximum( calculatedPorosity, MinimumPorosity );
          }
       }
-      else // new rock property library behaviour
+      // new rock property library behaviour
+      else 
       {
          const double minimumMechanicalPorosity = NumericFunctions::Maximum( m_minimumMechanicalPorosity, MinimumPorosityNonLegacy );
          if (loadingPhase)
@@ -127,7 +129,8 @@ namespace GeoPhysics
       // these equations?
       double localChemicalCompactionTerm = (includeChemicalCompaction?chemicalCompactionTerm:0.0);
 
-      if (m_isLegacy) //legacy behaviour
+      //legacy behaviour
+      if (m_isLegacy)
       {
          if (includeChemicalCompaction && (porosityValue == MinimumPorosity))
          {
@@ -144,7 +147,8 @@ namespace GeoPhysics
             porosityDerivative -= 0.5 * m_compactionDecrB * (m_depoPorosity - m_minimumMechanicalPorosity) * exp( m_compactionDecrB * (maxVes - ves) - m_compactionIncrB * maxVes );
          }
       }
-      else // new rock property library behaviour
+      // new rock property library behaviour
+      else 
       {
          //For new rock property library feature only
          const double minimumMechanicalPorosity = NumericFunctions::Maximum( m_minimumMechanicalPorosity, MinimumPorosityNonLegacy );

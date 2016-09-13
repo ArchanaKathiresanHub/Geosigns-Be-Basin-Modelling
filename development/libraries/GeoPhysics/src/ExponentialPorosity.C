@@ -26,7 +26,7 @@ namespace GeoPhysics
                                             const double compactionIncr,
                                             const double compactionDecr,
                                             const bool isLegacy) :
-	  Algorithm(depoPorosity,minimumMechanicalPorosity),
+                                            Algorithm( depoPorosity, minimumMechanicalPorosity ),
       m_compactionIncr(compactionIncr),
       m_compactionDecr(compactionDecr)
    {
@@ -42,7 +42,8 @@ namespace GeoPhysics
       double calculatedPorosity;
       const bool loadingPhase = (ves >= maxVes);
 
-      if (m_isLegacy) //legacy behaviour
+      //legacy behaviour
+      if (m_isLegacy)
       {
          if (includeChemicalCompaction)
          {
@@ -70,7 +71,8 @@ namespace GeoPhysics
             }
          }
       }
-      else //New rock property library behaviour
+      //New rock property library behaviour
+      else
       {
          const double minimumMechanicalPorosity = NumericFunctions::Maximum( m_minimumMechanicalPorosity, MinimumPorosityNonLegacy );
 
@@ -105,7 +107,7 @@ namespace GeoPhysics
    }
 
    ///FullCompThickness
-   double ExponentialPorosity::fullCompThickness(const double MaxVesValue,
+   double ExponentialPorosity::fullCompThickness(const double maxVesValue,
                                                  const double thickness,
                                                  const double densitydiff,
                                                  const double vesScaleFactor,
@@ -113,21 +115,21 @@ namespace GeoPhysics
    {
       double c1;
       double c2;
-      double Solid_Thickness;
+      double solid_Thickness;
 
       if (m_compactionIncr == 0 || densitydiff <= 0.0 ) {
-         Solid_Thickness = thickness * (1.0 - m_depoPorosity);
+         solid_Thickness = thickness * (1.0 - m_depoPorosity);
       }
       else {
          c1 = AccelerationDueToGravity * densitydiff * m_compactionIncr;
 
          c2 = (1.0 - exp(-c1 * thickness)) * m_depoPorosity
-            * exp(-m_compactionIncr * MaxVesValue);
+            * exp(-m_compactionIncr * maxVesValue);
 
-         Solid_Thickness = log(1.0 - c2) / c1 + thickness;
+         solid_Thickness = log(1.0 - c2) / c1 + thickness;
       }
 
-      return Solid_Thickness;
+      return solid_Thickness;
    }
 
    ///CompactionCoefficent
@@ -166,8 +168,9 @@ namespace GeoPhysics
 
       // Chemical compaction equations also depends on VES, should we consider adding the chemical compaction derivative to 
       // these equations?
-      
-      if (m_isLegacy) //legacy behaviour
+
+      //legacy behaviour
+      if (m_isLegacy) 
       {
          if (includeChemicalCompaction)
          {
@@ -196,7 +199,8 @@ namespace GeoPhysics
             }
          }
       }
-      else // new rock property library behaviour
+      // new rock property library behaviour
+      else 
       {
          const double minimumMechanicalPorosity = NumericFunctions::Maximum( m_minimumMechanicalPorosity, MinimumPorosityNonLegacy );
          double localChemicalCompactionTerm;
