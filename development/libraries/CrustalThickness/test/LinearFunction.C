@@ -19,8 +19,8 @@ TEST( LinearFunction, thinningFactor )
 {
    //First function test
    LinearFunction linearFunction;
-   linearFunction.setWLS_crit ( 8000 );
-   linearFunction.setWLS_onset( 3000 );
+   linearFunction.setTTS_crit ( 8000 );
+   linearFunction.setTTS_onset( 3000 );
    linearFunction.setM1( 3e-5 );
    linearFunction.setM2( 5e-5 );
    linearFunction.setC2( 5e-3 );
@@ -40,8 +40,8 @@ TEST( LinearFunction, thinningFactor )
    EXPECT_EQ  ( 1,      linearFunction.getCrustTF( 10000 ) );
 
    //Second function test
-   linearFunction.setWLS_crit ( 1000 );
-   linearFunction.setWLS_onset( 500 );
+   linearFunction.setTTS_crit ( 1000 );
+   linearFunction.setTTS_onset( 500 );
    linearFunction.setM1( 1e-3   );
    linearFunction.setM2( 4e-3   );
    linearFunction.setC2( 100e-3 );
@@ -65,8 +65,8 @@ TEST( LinearFunction, basaltThickness )
 {
    //First function test
    LinearFunction linearFunction;
-   linearFunction.setWLS_crit ( 8000 );
-   linearFunction.setWLS_onset( 3000 );
+   linearFunction.setTTS_crit ( 8000 );
+   linearFunction.setTTS_onset( 3000 );
    linearFunction.setM1( 3e-5   );
    linearFunction.setM2( 5e-5   );
    linearFunction.setC2( 500e-5 );
@@ -87,8 +87,8 @@ TEST( LinearFunction, basaltThickness )
    EXPECT_EQ( 0.0, linearFunction.getBasaltThickness( 100000 ) );
 
    //Second function test
-   linearFunction.setWLS_crit( 1000 );
-   linearFunction.setWLS_onset( 500 );
+   linearFunction.setTTS_crit( 1000 );
+   linearFunction.setTTS_onset( 500 );
    linearFunction.setM1( 1e-3   );
    linearFunction.setM2( 4e-3   );
    linearFunction.setC2( 100e-3 );
@@ -104,7 +104,7 @@ TEST( LinearFunction, basaltThickness )
    linearFunction.setMaxBasalticCrustThickness( 2000 );
    EXPECT_EQ( 0.0,    linearFunction.getBasaltThickness( 200    ) );
    EXPECT_NEAR( 1200.0, linearFunction.getBasaltThickness( 800    ) , 1e-14 );
-   EXPECT_NEAR( 1100,    linearFunction.getBasaltThickness( 1900   ) , 1e-14 );
+   EXPECT_NEAR( 1100,   linearFunction.getBasaltThickness( 1900   ) , 1e-14 );
    EXPECT_EQ( 0.0,    linearFunction.getBasaltThickness( 100000 ) );
 
 }
@@ -113,8 +113,8 @@ TEST( LinearFunction, basaltThickness )
 TEST( LinearFunction, print )
 {
    LinearFunction linearFunction;
-   linearFunction.setWLS_crit( 8000 );
-   linearFunction.setWLS_onset( 3000 );
+   linearFunction.setTTS_crit( 8000 );
+   linearFunction.setTTS_onset( 3000 );
    linearFunction.setM1( 3e-5   );
    linearFunction.setM2( 5e-5   );
    linearFunction.setC2( 500e-5 );

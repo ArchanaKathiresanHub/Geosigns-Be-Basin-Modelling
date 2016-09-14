@@ -38,7 +38,7 @@ class MockInterfaceOutput : public AbstractInterfaceOutput {
       void setMapValue ( const CrustalThicknessInterface::outputMaps mapIndex,
          const unsigned int i,
          const unsigned int j,
-         const double value ) override;
+         const double value ) final;
 
       /// @brief Set all m_outputMaps[i,j] to value
       void setMapValues( CrustalThicknessInterface::outputMaps mapIndex, const double value );

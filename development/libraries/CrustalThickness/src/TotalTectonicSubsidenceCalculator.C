@@ -38,12 +38,11 @@ TotalTectonicSubsidenceCalculator::TotalTectonicSubsidenceCalculator(
 //------------------------------------------------------------//
 void TotalTectonicSubsidenceCalculator::compute(){
 
-   unsigned int i, j;
-   double TTS, incTS, TTSadjusted;
+   double TTS = 0.0, incTS = 0.0, TTSadjusted = 0.0, incTSadjusted = 0.0;
    retrieveData();
 
-   for ( i = m_firstI; i <= m_lastI; ++i ) {
-      for ( j = m_firstJ; j <= m_lastJ; ++j ) {
+   for ( unsigned int i = m_firstI; i <= m_lastI; ++i ) {
+      for ( unsigned int j = m_firstJ; j <= m_lastJ; ++j ) {
          const double depthWaterBottom = m_surfaceDepthHistory( i, j ).F( m_age );
          const double backstrip        = m_outputData.getMapValue( CrustalThicknessInterface::outputMaps::cumSedimentBackstrip, i, j );
          if ( m_validator.isValid( i, j ) and
@@ -69,21 +68,30 @@ void TotalTectonicSubsidenceCalculator::compute(){
             //3. Compute the see level adjusted TTS
             const double seeLevelAdjustment = m_seeLevelAdjustment.getValue( i, j );
             if ( seeLevelAdjustment != Interface::DefaultUndefinedMapValue ){
-               TTSadjusted = calculateTTSadjusted( TTS, seeLevelAdjustment );
+               TTSadjusted = calculateTSadjusted( TTS, seeLevelAdjustment );
+               if (incTS != Interface::DefaultUndefinedMapValue){
+                  incTSadjusted = calculateTSadjusted( incTS, seeLevelAdjustment );
+               }
+               else {
+                  incTSadjusted = Interface::DefaultUndefinedMapValue;
+               }
             }
             else{
-               TTSadjusted = Interface::DefaultUndefinedMapValue;
+               TTSadjusted   = Interface::DefaultUndefinedMapValue;
+               incTSadjusted = Interface::DefaultUndefinedMapValue;
             }
          }
          else{
-            TTS         = Interface::DefaultUndefinedMapValue;
-            incTS       = Interface::DefaultUndefinedMapValue;
-            TTSadjusted = Interface::DefaultUndefinedMapValue;
+            TTS           = Interface::DefaultUndefinedMapValue;
+            incTS         = Interface::DefaultUndefinedMapValue;
+            TTSadjusted   = Interface::DefaultUndefinedMapValue;
+            incTSadjusted = Interface::DefaultUndefinedMapValue;
          }
 
-         m_outputData.setMapValue( CrustalThicknessInterface::outputMaps::WLSMap,                i, j, TTS         );
-         m_outputData.setMapValue( CrustalThicknessInterface::outputMaps::incTectonicSubsidence, i, j, incTS       );
-         m_outputData.setMapValue( CrustalThicknessInterface::outputMaps::WLSadjustedMap,        i, j, TTSadjusted );
+         m_outputData.setMapValue( CrustalThicknessInterface::outputMaps::WLSMap,                        i, j, TTS           );
+         m_outputData.setMapValue( CrustalThicknessInterface::outputMaps::incTectonicSubsidence,         i, j, incTS         );
+         m_outputData.setMapValue( CrustalThicknessInterface::outputMaps::WLSadjustedMap,                i, j, TTSadjusted   );
+         m_outputData.setMapValue( CrustalThicknessInterface::outputMaps::incTectonicSubsidenceAdjusted, i, j, incTSadjusted );
 
       }
    }
@@ -115,9 +123,15 @@ double TotalTectonicSubsidenceCalculator::calculateIncrementalTTS( const double 
 }
 
 //------------------------------------------------------------//
-double TotalTectonicSubsidenceCalculator::calculateTTSadjusted( const double TTS,
+double TotalTectonicSubsidenceCalculator::calculateTSadjusted( const double TS,
                                                                 const double seeLevelAdjustment ) const{
-   return TTS - seeLevelAdjustment;
+   const double result = TS - seeLevelAdjustment;
+   if (result < 0.0){
+      return 0.0;
+   }
+   else{
+      return result;
+   }
 }
 
 //------------------------------------------------------------//

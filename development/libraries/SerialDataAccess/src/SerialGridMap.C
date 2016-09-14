@@ -416,6 +416,14 @@ bool SerialGridMap::setValue (unsigned int i, unsigned int j, unsigned int k, do
    }
 }
 
+void SerialGridMap::setValues( const double value ){
+   if (m_values != nullptr){
+      Array < double >::delete3d( m_values );
+      m_values = nullptr;
+   }
+   m_singleValue = value;
+}
+
 double SerialGridMap::getAverageValue (void) const
 {
    unsigned int numValues = 0;

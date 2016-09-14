@@ -216,8 +216,30 @@ void InterfaceOutput::setMapsToOutput(const CrustalThicknessInterface::outputMap
 
 //------------------------------------------------------------//
 void InterfaceOutput::updatePossibleOutputsAtSnapshot( outputMaps id, const GeoPhysics::ProjectHandle * pHandle, const Snapshot * theSnapshot ) {
-   // The TTS and Incremental TS are only ouput when we have an SDH
-   if (id == WLSMap or id == incTectonicSubsidence){
+   // The TTS, Incremental TS, and McKenzie properties are only ouput when we have an SDH
+   if (  id == WLSMap
+      or id == incTectonicSubsidence
+      or id == estimatedCrustDensityMap
+      or id == basaltDensityMap
+      or id == PTaMap
+      or id == TFOnsetMap
+      or id == TFOnsetMigMap
+      or id == TFOnsetLinMap
+      or id == WLSExhumeMap
+      or id == WLSCritMap
+      or id == WLSOnsetMap
+      or id == WLSExhumeSerpMap
+      or id == thicknessCrustMeltOnset
+      or id == slopePreMelt
+      or id == slopePostMelt
+      or id == interceptPostMelt
+      or id == RDAadjustedMap
+      or id == TFMap
+      or id == thicknessCrustMap
+      or id == thicknessBasaltMap
+      or id == topBasaltMap
+      or id == mohoMap
+      or id == ECTMap ){
       if (not pHandle->asSurfaceDepthHistory( theSnapshot->getTime() )){
          m_outputMapsMask[id] = false;
       }
@@ -225,7 +247,7 @@ void InterfaceOutput::updatePossibleOutputsAtSnapshot( outputMaps id, const GeoP
          m_outputMapsMask[id] = true;
       }
    }
-   // The PWD is not output at 0.0Ma
+   // The PWD is not output at 0.0Ma (it is equal to the water depth of the input stratigraphy)
    else if (id == isostaticBathymetry){
       if (theSnapshot->getTime() == 0.0)
       {
@@ -235,7 +257,7 @@ void InterfaceOutput::updatePossibleOutputsAtSnapshot( outputMaps id, const GeoP
          m_outputMapsMask[id] = true;
       }
    }
-   // The PWDR is only output when we have an SDH and never output at 0.0Ma
+   // The PWDR is only output when we have an SDH and never output at 0.0Ma (since we do not have a PWD at 0.0Ma)
    else if (id == PaleowaterdepthResidual){
       if (not pHandle->asSurfaceDepthHistory( theSnapshot->getTime() ) or theSnapshot->getTime() == 0.0)
       {

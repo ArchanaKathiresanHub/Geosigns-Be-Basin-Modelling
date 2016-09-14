@@ -35,11 +35,17 @@ class McKenzieCrustCalculator {
 
    public:
    
+      /// @param[in] previousThinningFactor Can be nullptr if first rifting event
+      /// @param[in] previousContinentalCrustThickness Can be nullptr if first rifting event
+      /// @param[in] previousOceanicCrustThickness Can be nullptr if first rifting event
       /// @throw std::invalid_argument If the inputData provided has no basement depth defined (nullptr)
       ///    or invalid constants
       McKenzieCrustCalculator( const InterfaceInput&    inputData,
                                AbstractInterfaceOutput& outputData,
-                               const AbstractValidator& validator );
+                               const AbstractValidator& validator,
+                               const Interface::GridMap* previousThinningFactor,
+                               const Interface::GridMap* previousContinentalCrustThickness,
+                               const Interface::GridMap* previousOceanicCrustThickness );
       
       ~McKenzieCrustCalculator() {};
 
@@ -96,6 +102,10 @@ class McKenzieCrustCalculator {
       /// @return The total tectonic subsidence at exhume point after serpentinization of the mantle
       /// @details This corresponds to a maximum basalt thickness of 2Km, so the subsidence correction can be approximated to 681.6394
       double calculateTTSexhumeSerpentinized( const double TTSexhume ) const;
+      /// @return The (thinning factor) corrected incremental tectonic subsidence
+      /// @param[in] ITS The incremental tectonic subsidence
+      /// @param[in] previousTF The previous thinning factor (0 if does not exists)
+      double calculateITScorrected( const double ITS, const double previousTF ) const;
       /// @}
 
       /// @defgroup CrustCalculators
@@ -106,9 +116,14 @@ class McKenzieCrustCalculator {
       /// @return The residual depth anomaly between the seelevel adjusted total tectonic subsidence and the maximum total tectonic subsidence
       double calculateResidualDepthAnomaly( const double TTScritial, const double TTSadjusted ) const;
       /// @return The continental crustal thickness
-      double calculateContinentalCrusltalThickness( const double thinningFactor, const double initialContinentalCrustThickness ) const;
+      double calculateContinentalCrustalThickness( const double thinningFactor, const double previousContinentalCrustThickness ) const;
       /// @return The oceanic (basalt) crusltal thickness
-      double calculateOceanicCrustalThickness( const double TTS, const double TTSexhume, const double TTSadjusted, const LinearFunction& linearFunction ) const;
+      /// @param[in] ITSadjusted The adjusted (by previous thining factor) incremental tectonic subsidence
+      double calculateOceanicCrustalThickness(
+         const double ITSadjusted,
+         const double TTSexhume,
+         const LinearFunction& linearFunction,
+         const double previousOceanicCrustThickness ) const;
       /// @return The depth of the top of the oceanic (basalt) crust
       double calculateTopOceanicCrust( const double continentalCrusltalThickness, const double depthBasement ) const;
       /// @return The depth of the Moho
@@ -116,8 +131,11 @@ class McKenzieCrustCalculator {
       double calculateMoho( const double topOceanicCrust, const double oceanicCrustalThickness ) const;
       /// @return The effective crustal thickness
       /// @details Represents the crust thickness as if there was no basalt
-      double calculateEffectiveCrustalThickness( const double continentalCrusltalThickness, const double oceanicCrustalThickness,
-         const double initialContinentalCrustThickness, const double initialLithosphericMantleThickness ) const;
+      double calculateEffectiveCrustalThickness(
+         const double continentalCrusltalThickness,
+         const double oceanicCrustalThickness,
+         const double initialContinentalCrustThickness,
+         const double initialLithosphericMantleThickness ) const;
       /// @}
 
       /*! @brief Computes the following map properties:
@@ -145,7 +163,7 @@ class McKenzieCrustCalculator {
    private:
 
       /// @brief Check the input map values for a defined node (i,j)
-      /// @throw std::invalid_argument Thorw exception when the input value for the node is forbiden
+      /// @throw std::invalid_argument Throw exception when the input value for the node is forbiden
       void checkInputValues( const unsigned int i, const unsigned int j ) const;
 
       /// @defgroup DataUtilities
@@ -154,6 +172,15 @@ class McKenzieCrustCalculator {
       void retrieveData();
       /// @brief Restore input maps data
       void restoreData();
+      /// @brief Get the previous thinning factor value from its map (m_previousThinningFactor)
+      /// @return valued(i,j) if the map is not a nullptr, 0 if the map is a nullptr
+      const double getPreviousTF( const unsigned int i, const unsigned int j ) const;
+      /// @brief Get the previous thinning factor value from its map (m_previousContinentalCrustThickness)
+      /// @return valued(i,j) if the map is not a nullptr, the initial continental crust thickness if the map is a nullptr
+      const double getPreviousContinentalCrustThickness( const unsigned int i, const unsigned int j ) const;
+      /// @brief Get the previous thinning factor value from its map (m_previousOceanicCrustThickness)
+      /// @return valued(i,j) if the map is not a nullptr, 0 if the map is a nullptr
+      const double getPreviousOceanicCrustThickness( const unsigned int i, const unsigned int j ) const;
       /// @}
 
       const CrustalThickness::ConfigFileParameterCtc& m_constants;  ///< Constants loaded from the configuration file via InterfaceInput
@@ -162,11 +189,11 @@ class McKenzieCrustCalculator {
       /// @defgroup InputMaps
       /// Loaded from InterfaceInput
       /// @{
-      const GridMap& m_T0Map;   ///< Beginning of rifting                       [Ma]
-      const GridMap& m_TRMap;   ///< End of rifting                             [Ma]
-      const GridMap& m_HCuMap;  ///< Initial continental crust thickness        [m]
-      const GridMap& m_HBuMap;  ///< Maximum oceanic (basaltic) crust thickness [m]
-      const GridMap& m_HLMuMap; ///< Initial lithospheric mantle thickness      [m]
+      const GridMap& m_T0Map;        ///< Beginning of rifting event                 [Ma]
+      const GridMap& m_TRMap;        ///< End of rifting event                       [Ma]
+      const GridMap& m_HCuMap;       ///< Initial continental crust thickness        [m]
+      const GridMap& m_HBuMap;       ///< Maximum oceanic (basaltic) crust thickness [m]
+      const GridMap& m_HLMuMap;      ///< Initial lithospheric mantle thickness      [m]
       /// @}
 
       /// @defgroup InputMapsRange
@@ -176,6 +203,13 @@ class McKenzieCrustCalculator {
       const unsigned int m_firstJ; ///< First j index on the map
       const unsigned int m_lastI;  ///< Last i index on the map
       const unsigned int m_lastJ;  ///< Last j index on the map
+      /// @}
+
+      /// @defgroup previousSnapshotValues
+      /// @{
+      const Interface::GridMap* m_previousThinningFactor;            ///< The thinning factor of the previous computation age
+      const Interface::GridMap* m_previousContinentalCrustThickness; ///< The continental crustal thickness of the previous computation age
+      const Interface::GridMap* m_previousOceanicCrustThickness;     ///< The oceanic crustal thickness of the previous computation age
       /// @}
 
       AbstractInterfaceOutput& m_outputData;  ///< The global interface output object (contains the output maps)

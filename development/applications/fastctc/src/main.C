@@ -45,7 +45,7 @@ void showUsage () {
    cout << "Usage: " << endl
         << "\t-project projectname       Name of the project file" << endl
         << "\t[-debug]                   Output all map properties. Use in combination with -hdf or/and -xyz or/and -sur to output into individual files" << endl
-        << "\t[-nosmooth]                Don't smooth the result maps" << endl
+        << "\t[-nosmooth]                Don't smooth the result maps, equivalent to -smooth 0" << endl
         << "\t[-smooth <radius>]         Smooth the result maps using the defined <radius>. Default value: 5" << endl
         << "\t[-save filename]           Name of output project file" << endl
         << "\t[-xyz]                     Output selected maps also in XYZ format" << endl
@@ -56,15 +56,12 @@ void showUsage () {
 
 //------------------------------------------------------------//
 void finaliseCrustalThicknessCalculator ( char* feature, const char* errorMessage = "" , CrustalThicknessCalculatorFactory* factory = 0 ) {
-   
-   if ( strlen ( errorMessage ) > 0 ) {
-      PetscPrintf ( PETSC_COMM_WORLD, "\nMeSsAgE ERROR %s \n\n", errorMessage );
-   }
 
- 
+   LogHandler( LogHandler::ERROR_SEVERITY ) << errorMessage;
+
    CrustalThicknessCalculator::finalise (false);
 
-   if ( factory != 0 ) {
+   if ( factory != nullptr ) {
       delete factory;
    }
 
@@ -232,13 +229,11 @@ int main (int argc, char ** argv)
    }
    catch (std::invalid_argument& ex){
       LogHandler( LogHandler::ERROR_SEVERITY ) << "CTC INPUT ERROR";
-      LogHandler( LogHandler::ERROR_SEVERITY ) << ex.what();
       finaliseCrustalThicknessCalculator( feature, ex.what(), factory );
       return 0;
    }
    catch (CtcException& ex){
       LogHandler( LogHandler::ERROR_SEVERITY ) << "CTC COMPUTATION ERROR";
-      LogHandler( LogHandler::ERROR_SEVERITY ) << ex.what();
       finaliseCrustalThicknessCalculator( feature, ex.what(), factory );
       return 0;
    }

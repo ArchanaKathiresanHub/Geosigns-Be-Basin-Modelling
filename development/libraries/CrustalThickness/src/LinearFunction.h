@@ -21,8 +21,8 @@ class LinearFunction {
 
       /// @defgroup Mutators
       /// @{
-      void setWLS_crit                 ( const double inWLS );
-      void setWLS_onset                ( const double inWLS );
+      void setTTS_crit                 ( const double inTTS );
+      void setTTS_onset                ( const double inTTS );
       void setM1                       ( const double inM1 );
       void setM2                       ( const double inM2 );
       void setC2                       ( const double inC2 );
@@ -32,8 +32,8 @@ class LinearFunction {
    
       /// @defgroup Accessors
       /// @{
-      double getWLS_crit                 () const;
-      double getWLS_onset                () const;
+      double getTTS_crit                 () const;
+      double getTTS_onset                () const;
       double getM1                       () const;
       double getM2                       () const;
       double getC2                       () const;
@@ -41,29 +41,29 @@ class LinearFunction {
       double getMagmaThicknessCoeff      () const;
       /// @}
 
-      /// @brief Compute the thinning factor according to the WLS value
-      /// @param WLS the water loaded subsidence
+      /// @brief Compute the thinning factor according to the incrementalTTS value
+      /// @param[in] incrementalTTS the incremental total tectonic subsidence
       /// @return the thinning factor (TF)
-      double getCrustTF( const double WLS ) const;
+      double getCrustTF( const double incrementalTTS ) const;
 
-      /// @brief Compute the basalt factor according to the WLS value
-      /// @param WLS the water loaded subsidence
+      /// @brief Compute the basalt thickness according to the incrementalTTS value
+      /// @param[in] incrementalTTS the incremental total tectonic subsidence
       /// @return the basalt thickness
-      double getBasaltThickness( const double WLS ) const;
+      double getBasaltThickness( const double incrementalTTS ) const;
      
       /// @brief Print m1, m2 and c2 coefficients
       void printCoeffs() const;
 
    private:
    
-      double m_WLS_crit;    ///< The maximum water loaded subsidence
-      double m_WLS_onset;   ///< The initial water loaded subsidence at the beginning of the rifting
+      double m_TTS_crit;    ///< The critical total tectonic subsidence
+      double m_TTS_onset;   ///< The total tectonic subsidence at melting point
       
       /// @defgroup Thinning factor coefficients
       /// @{
-      double m_m1;
-      double m_m2;
-      double m_c2;
+      double m_m1; ///< Pre-melt coefficient which defines the thinning factor linear function such as TF(x)=m_m1*x
+      double m_m2; ///< Post-melt coefficient which defines the thinning factor linear function such as TF(x)=m_m2*x+m_c2
+      double m_c2; ///< Post-melt intercept which defines the thinning factor linear function such as TF(x)=m_m2*x+m_c2
       /// @}
 
       double m_maxBasalticCrustThickness;   ///< The maximum oceanic (basaltic) crust thickness
@@ -72,12 +72,12 @@ class LinearFunction {
 
 //------------------------------------------------------------//
 
-inline void LinearFunction::setWLS_crit( const double inWLS ) {
-   m_WLS_crit = inWLS;
+inline void LinearFunction::setTTS_crit( const double inTTS ) {
+   m_TTS_crit = inTTS;
 }
 
-inline void LinearFunction::setWLS_onset( const double inWLS ) {
-   m_WLS_onset = inWLS;
+inline void LinearFunction::setTTS_onset( const double inTTS ) {
+   m_TTS_onset = inTTS;
 }
 
 inline void LinearFunction::setM1( const double inM1 ) {
@@ -100,12 +100,12 @@ inline void LinearFunction::setMagmaThicknessCoeff( const double inMagmaThicknes
    m_magmaThicknessCoeff = inMagmaThicknessCoeff;
 }
 
-inline double LinearFunction::getWLS_crit() const {
-   return m_WLS_crit;
+inline double LinearFunction::getTTS_crit() const {
+   return m_TTS_crit;
 }
 
-inline double LinearFunction::getWLS_onset() const{
-   return m_WLS_onset;
+inline double LinearFunction::getTTS_onset() const{
+   return m_TTS_onset;
 }
 
 inline double LinearFunction::getM1() const{

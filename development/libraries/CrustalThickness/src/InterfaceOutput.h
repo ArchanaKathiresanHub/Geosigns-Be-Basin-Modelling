@@ -95,7 +95,7 @@ public:
    /// @brief create the all CTC maps for the defined snapshot
    /// @param theSnapshot The snapshot corresponding to the maps
    /// @param theSurface The stratigraphic surface corresponding to the maps
-   bool   createSnapShotOutputMaps( GeoPhysics::ProjectHandle * pHandle, const Snapshot* theSnapshot, const Interface::Surface *theSurface = 0 );
+   bool createSnapShotOutputMaps( GeoPhysics::ProjectHandle * pHandle, const Snapshot* theSnapshot, const Interface::Surface *theSurface = nullptr );
    /// @brief Create a map for the defined snapshot
    /// @param propertyName The name of the property corresponding to the map
    /// @param theSnapshot The snapshot corresponding to the map

@@ -15,8 +15,8 @@
 
 //------------------------------------------------------------//
 LinearFunction::LinearFunction() {
-   m_WLS_crit                  = 0.0;
-   m_WLS_onset                 = 0.0;
+   m_TTS_crit                  = 0.0;
+   m_TTS_onset                 = 0.0;
    m_m1                        = 0.0;
    m_m2                        = 0.0;
    m_c2                        = 0.0;
@@ -24,35 +24,37 @@ LinearFunction::LinearFunction() {
    m_magmaThicknessCoeff       = 0.0;
 } 
 //------------------------------------------------------------//
-double LinearFunction::getCrustTF( const double WLS ) const {
+double LinearFunction::getCrustTF( const double incrementalTTS ) const {
 
    double TF = 1.0;
    
    if( m_maxBasalticCrustThickness == 0.0 ) {
-      TF = m_m1 * WLS;
+      TF = m_m1 * incrementalTTS;
    } else {
-      if( WLS < m_WLS_onset ) {
-         TF = m_m1 * WLS;
-      }else if( WLS > m_WLS_crit ) {
+      if (incrementalTTS < m_TTS_onset) {
+         TF = m_m1 * incrementalTTS;
+      }
+      else if (incrementalTTS > m_TTS_crit) {
          TF = 1.0;
       } else {
-         TF =  m_m2 * WLS + m_c2;
+         TF = m_m2 * incrementalTTS + m_c2;
       }
    }
    return TF;
 }
 //------------------------------------------------------------//
-double LinearFunction::getBasaltThickness( const double WLS ) const {
+double LinearFunction::getBasaltThickness( const double incrementalTTS ) const {
 
    double thickness = 0.0;
 
    if( m_maxBasalticCrustThickness != 0.0 ) {
-      if ( WLS < m_WLS_onset)  {
+      if (incrementalTTS < m_TTS_onset)  {
          thickness = 0.0;
-      } else if( WLS >= m_WLS_crit ){
-         thickness = m_maxBasalticCrustThickness - (WLS - m_WLS_crit) * m_magmaThicknessCoeff;
+      }
+      else if (incrementalTTS >= m_TTS_crit){
+         thickness = m_maxBasalticCrustThickness - (incrementalTTS - m_TTS_crit) * m_magmaThicknessCoeff;
       } else {
-         thickness = m_maxBasalticCrustThickness * ((WLS - m_WLS_onset) / ( m_WLS_crit - m_WLS_onset));
+         thickness = m_maxBasalticCrustThickness * ((incrementalTTS - m_TTS_onset) / (m_TTS_crit - m_TTS_onset));
       }
       
       if( thickness < 0.0 ) {

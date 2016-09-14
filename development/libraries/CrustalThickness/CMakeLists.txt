@@ -171,8 +171,13 @@ add_gtest( NAME "CrustalThickness::LinearFunction"
            LIBRARIES CrustalThickness
          )
 
-add_gtest( NAME "CrustalThickness::McKenzie"
-           SOURCES test/McKenzie.C ${all_mockFiles}
+add_gtest( NAME "CrustalThickness::McKenzieEquations"
+           SOURCES test/McKenzieEquations.C test/McKenzieTester.h test/McKenzieTester.C ${all_mockFiles}
+           LIBRARIES CrustalThickness DataMining DataAccess SerialDataAccess
+         )
+
+add_gtest( NAME "CrustalThickness::McKenzieCompute"
+           SOURCES test/McKenzieCompute.C test/McKenzieTester.h test/McKenzieTester.C ${all_mockFiles}
            LIBRARIES CrustalThickness DataMining DataAccess SerialDataAccess
          )
 

@@ -84,9 +84,8 @@ namespace CrustalThickness {
       /// @defgroup Lithosphere_and_crust_properties
       /// @{
       double m_modelTotalLithoThickness;    ///< Total lithospher thickness (crust + lithospheric mantle)
-      /// @todo Why do we use two mantle and crust density?
-      double m_backstrippingMantleDensity;  ///< The backstriped lithospheric mantle density
-      double m_lithoMantleDensity;          ///< The lithospheric mantle density
+      double m_backstrippingMantleDensity;  ///< The backstriped lithospheric mantle density (used in the density calculator)
+      double m_lithoMantleDensity;          ///< The lithospheric mantle density (used in the McKenzie calculator)
       double m_baseLithosphericTemperature; ///< The bottom lithospheric mantle temperature
       double m_referenceCrustThickness;     ///< The reference continental crust thickness
       double m_referenceCrustDensity;       ///< The reference continental crust density
