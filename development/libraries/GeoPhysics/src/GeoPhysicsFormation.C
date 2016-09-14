@@ -334,6 +334,10 @@ bool GeoPhysics::Formation::setLithologiesFromStratTable () {
    if ( lithoMap3 != 0 ) {
       lithoMap3->restoreData ( false, true );
    }
+   
+   if ( lithoMap1 ) lithoMap1->release();
+   if ( lithoMap2 ) lithoMap2->release();
+   if ( lithoMap3 ) lithoMap3->release();
 
    return createdLithologies;
 }
@@ -516,6 +520,7 @@ void GeoPhysics::Formation::determineMinMaxThickness () {
             m_maximumDepositedThickness = NumericFunctions::Maximum ( m_maximumDepositedThickness, gridMapMaximum );
 
             gridMap->restoreData ( false );
+            gridMap->release();
          }
 
       }

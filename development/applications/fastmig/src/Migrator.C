@@ -8,6 +8,13 @@
 // Do not distribute without written permission from Shell.
 //
 
+#ifndef WIN32
+#define DEBUGMEMORY
+#endif
+
+#ifdef DEBUGMEMORY
+#include <sstream>
+#endif
 
 #include <iostream>
 #include <fstream>
@@ -453,6 +460,13 @@ bool Migrator::performSnapshotMigration (const Interface::Snapshot * start, cons
    }
 
    m_projectHandle->continueActivity ();
+   
+#ifdef DEBUGMEMORY   
+   stringstream ss;
+   ss << " rank "<<GetRank()<< " " << getMemoryUsed();
+   string mystring1 (" Before deleting properties: ");
+   cerr << mystring1 + ss.str() << endl;  
+#endif
 
    m_propertyManager->removeProperties (start);
    m_projectHandle->deletePropertyValueGridMaps (Interface::SURFACE | Interface::FORMATION | Interface::FORMATIONSURFACE | Interface::RESERVOIR,

@@ -13,6 +13,11 @@
 
 #include "ComponentManager.h"
 
+#ifndef WIN32
+#include "System.h"
+#include <unistd.h>
+#endif
+
 #include <vector>
 using namespace std;
 
@@ -339,6 +344,18 @@ namespace migration
    
    //Specify the simulation details
    static const std::string simulationModeStr[4] = { "VerticalSecondaryMigration", "HydrodynamicCapillaryPressure", "ReservoirDetection", "InclinedStratigraphy" };
+   
+#ifndef WIN32
+   inline unsigned long getMemoryUsed ()  
+   { 
+   int ToMegaBytes = 1048576;
+   int pageSize = sysconf (_SC_PAGESIZE);
+   
+   StatM statm;
+   getStatM ( statm );
+   return ( statm.resident * pageSize) / ToMegaBytes; //resident not virtual 
+   }
+#endif
    
 }
 #endif // _MIGRATION_H
