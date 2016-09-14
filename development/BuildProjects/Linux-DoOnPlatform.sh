@@ -36,9 +36,9 @@ trap onExit EXIT
 # Execute on available platforms
 exit_status=0
 case $PLATFORM in
-  RHEL6.4) 
+  RHEL6.8) 
       # Submit command to cluster
-      bsub -P $LSF_PROJECT -Is -q default.q -R "select[ostype=$PLATFORM]" $LSF_PROCS "$@" 
+      bsub -P $LSF_PROJECT -x -Is -q default.q -R "select[ostype=$PLATFORM]" $LSF_PROCS "$@" 
       exit_status=$?
 
       # Print that we ended the job

@@ -16,8 +16,10 @@ set -e
 cldgrp=`groups 2> /dev/null` || true
 if [[ "$cldgrp" =~ "g_psaz00" ]];then
    cldgrp="g_psaz00"
+   installgrp="--group=$cldgrp"
 else
    cldgrp=""
+   installgrp=""
 fi
 
 # Check whether we don't add too many versions. 
@@ -54,8 +56,8 @@ fi
 
 # Install results of main build
 echo "Installing binaries"
-install -d $mainBinaryDirectory
-install @CMAKE_INSTALL_PREFIX@/bin/* $mainBinaryDirectory
+install $installgrp --mode=775 -d $mainBinaryDirectory
+install $installgrp --mode=775 @CMAKE_INSTALL_PREFIX@/bin/* $mainBinaryDirectory
 
 # BPA expects the binaries to be in the LinuxRHEL64 folder. For BPA we pick the RHEL64 binaries
 if [ -e /apps/sss/share/getos2 ]; then
@@ -73,7 +75,7 @@ else
    echo "Installing platform independent files:"
    echo " - Geocase"
    # Install Geocase
-   cp -r @CMAKE_INSTALL_PREFIX@/misc $targetDirectory
+   cp -r /glb/data/Finite-Scratch/s_bpac00/tmp/cld-cln-git_Release/misc $targetDirectory
 
    # installing 3rdparty stuff
    echo " - Geocosm's TsLib"
@@ -89,18 +91,19 @@ else
          tar --no-same-permissions -xf xsd.tar
       popd > /dev/null
    popd > /dev/null
+
+   if [ "$cldgrp" ]; then
+      echo " - Changing group to $cldgrp"
+      chgrp -R "${cldgrp}" $targetDirectory/misc
+   fi
+
+   echo " - Changing mode to g+w"
+   chmod -R g+w $targetDirectory/misc
 fi
 
 echo "Configuring installation"
 echo " - Marking installation as successful"
 touch $miscDirectory/successfully_installed
 
-if [ "$cldgrp" ];then
-  echo " - Changing group to $cldgrp"
-  chgrp -R "${cldgrp}" $targetDirectory
-fi
-
-echo " - Changing mode to g+w"
-chmod -R g+w $targetDirectory
 
 echo "DONE"

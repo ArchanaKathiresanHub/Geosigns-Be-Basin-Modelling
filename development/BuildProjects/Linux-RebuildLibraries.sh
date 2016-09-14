@@ -1,11 +1,11 @@
 #!/bin/bash -xl
 
 # Essential parameters
-LIBS="Boost PETSC HDF5"
+LIBS="Boost PETSC HDF5 Eigen"
 SRC=`dirname $0`/..
 
 if [ `hostname -s` == "okapi" ]; then
-    USERGROUP='cauldron developers'
+    USERGROUP='okapi_bm_dev'
     LIBDIR="/glb/data/cauldron/hpc-library"
     CPUS=24
 else
@@ -56,15 +56,24 @@ cat > $combinations  <<EOF
 #RHEL6.6  OFF              ON          ON            Release
 #RHEL6.6  OFF              ON          ON            Debug
 #RHEL6.6  OFF              ON          ON            MemCheck
-RHEL7.2  ON               ON          OFF           Release
-RHEL7.2  ON               ON          OFF           Debug
-RHEL7.2  ON               ON          ON            Release
-RHEL7.2  ON               ON          ON            Debug
-RHEL7.2  OFF              ON          OFF           Release
-RHEL7.2  OFF              ON          OFF           Debug
-RHEL7.2  OFF              ON          ON            Release
-RHEL7.2  OFF              ON          ON            Debug
-RHEL7.2  OFF              ON          ON            MemCheck
+RHEL6.8  ON               ON          OFF           Release
+RHEL6.8  ON               ON          OFF           Debug
+RHEL6.8  ON               ON          ON            Release
+RHEL6.8  ON               ON          ON            Debug
+RHEL6.8  OFF              ON          OFF           Release
+RHEL6.8  OFF              ON          OFF           Debug
+RHEL6.8  OFF              ON          ON            Release
+RHEL6.8  OFF              ON          ON            Debug
+RHEL6.8  OFF              ON          ON            MemCheck
+#RHEL7.2  ON               ON          OFF           Release
+#RHEL7.2  ON               ON          OFF           Debug
+#RHEL7.2  ON               ON          ON            Release
+#RHEL7.2  ON               ON          ON            Debug
+#RHEL7.2  OFF              ON          OFF           Release
+#RHEL7.2  OFF              ON          OFF           Debug
+#RHEL7.2  OFF              ON          ON            Release
+#RHEL7.2  OFF              ON          ON            Debug
+#RHEL7.2  OFF              ON          ON            MemCheck
 EOF
 
 
@@ -80,7 +89,7 @@ do
    echo  'Run build for $platform intel_compiler: $intel_compiler'
 
 #   bash $SRC/BuildProjects/Linux-DoOnPlatform.sh $platform bash -s <<EOF &
-   cat >  test.sh <<EOF 
+   cat >  test.sh <<EOF
 #!/bin/bash
 
 TMPLIBDIR=\`mktemp -d\` || { echo "Cannot create temporary installation directory"; exit 1; }
@@ -95,9 +104,9 @@ function onExit()
 trap onExit EXIT
 
 
-cd \$BUILD 
+cd \$BUILD
 $SRC/bootstrap.sh -DCMAKE_BUILD_TYPE=$configuration -DBUILD_SHARED_LIBS=$shared_libs -DBM_USE_INTEL_COMPILER=$intel_compiler -DBM_USE_INTEL_MPI=$intel_mpi -DBM_EXTERNAL_COMPONENTS_REBUILD=ON -DBM_EXTERNAL_COMPONENTS_DIR=\$TMPLIBDIR 
-source envsetup.sh 
+source envsetup.sh
 make -j$CPUS $LIBS
 
 
@@ -117,9 +126,9 @@ exit 0
 EOF
 
     if [ `hostname -s` == "okapi" ]; then
-	bash $SRC/BuildProjects/test.sh
+        bash $SRC/BuildProjects/test.sh
     else
-	bash $SRC/BuildProjects/Linux-DoOnPlatform.sh $platform bash $SRC/BuildProjects/test.sh
+        bash $SRC/BuildProjects/Linux-DoOnPlatform.sh $platform bash $SRC/BuildProjects/test.sh
     fi
 
 done

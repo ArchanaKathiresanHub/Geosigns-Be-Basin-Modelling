@@ -3,27 +3,32 @@
 # Reading parameters with some defaults
 svnRepository=file:///nfs/rvl/groups/ept-sg/SWEast/Cauldron/SUBVERSION/repository
 src=${SRC_DIR:-`dirname $0`/../..}
-build=${BUILD_DIR:-`mktemp -d`}
-installdir=${INSTALL_DIR:-"${build}"}
-unit_test_output=${UNIT_TEST_OUTPUT_DIR:-"${build}"}
 platform=${PLATFORM:-Linux}
-configuration=${CONFIGURATION:-Release}
 nprocs=${NUMBER_OF_CORES:-20}
 deploy=${DEPLOY:-True}
 geocase=${GEOCASE:-False}
 version_number_major=${VERSION_NUMBER_MAJOR:-`date +%Y`}
 version_number_minor=${VERSION_NUMBER_MINOR:-`date +%m`}
 version_tag=${VERSION_TAG:-`whoami`}
+configuration=${CONFIGURATION:-Release}
+
+if [ "x$TMPDIR" != "x" ] && [ -e $TMPDIR ]; then
+   tempdir=$TMPDIR/build_${configuration}
+   mkdir -p ${tempdir}
+else
+   tempdir=`mktemp -d`
+fi
+build=${BUILD_DIR:-"${tempdir}"}
+
+installdir=${INSTALL_DIR:-"${build}"}
+unit_test_output=${UNIT_TEST_OUTPUT_DIR:-"${build}"}
+
 
 cldgrp=`groups 2> /dev/null` || true
 if [[ "$cldgrp" =~ "g_psaz00" ]];then
     cldgrp="g_psaz00"
 else
-    if [[ "$cldgrp" =~ "cauldron" ]];then
-        cldgrp="cauldron"
-    else
-        cldgrp=""
-    fi
+    cldgrp=""
 fi
 
 # Set some code to execute when shell script exits
@@ -78,9 +83,11 @@ else
 fi
 
 # Load module for intel 2016.01 compiler
-[[ -r /glb/data/hpcrnd/easybuild/public/etc/profile.d/shell-envmodules.sh ]] && . /glb/data/hpcrnd/easybuild/public/etc/profile.d/shell-envmodules.sh
+set +x
+. /glb/data/hpcrnd/easybuild/public/etc/profile.d/shell-envmodules.sh
+module purge
 module load intel/2016.01
-
+set -x
 
 # Set the simplest locale so that there won't be any text conversion problems
 # for the logged output between Linux and Windows
