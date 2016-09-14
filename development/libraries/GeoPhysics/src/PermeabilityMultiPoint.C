@@ -26,16 +26,7 @@ namespace GeoPhysics
       assert( porositySamples.size() > 0);
 
       const int n = static_cast<int>(porositySamples.size());
-
-      m_porosityPermeabilityInterpolant.setInterpolation(
-            ibs::PiecewiseInterpolator::PIECEWISE_LINEAR,
-            n,
-            &porositySamples[0],
-            &permeabilitySamples[0]
-          );
-         
-      m_porosityPermeabilityInterpolant.computeCoefficients ();
-
+      m_porosityPermeabilityInterpolant.setInterpolation( n, porositySamples.data (), permeabilitySamples.data ());
       m_depoPermeability = m_porosityPermeabilityInterpolant.evaluate ( depoPorosity );
    }
 

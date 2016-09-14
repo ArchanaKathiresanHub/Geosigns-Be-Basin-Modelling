@@ -46,14 +46,9 @@ GeoPhysics::FluidType::FluidType (Interface::ProjectHandle * projectHandle, data
    double heatCapacityValues [ 5 ] = { 1800.0, 1880.0, 1960.0, 2030.0, 2110.0 }; // 2960.0, 2030.0, 2110.0 };
    double thermalConductivityValues [ 5 ] = { 2.6, 2.5, 2.4, 2.3, 2.14 };
 
-   m_iceDensityInterpolator.setInterpolation (ibs::PiecewiseInterpolator::PIECEWISE_LINEAR, 5, temperatureValues, densityValues);
-   m_iceDensityInterpolator.computeCoefficients ();
-
-   m_iceHeatCapacityInterpolator.setInterpolation (ibs::PiecewiseInterpolator::PIECEWISE_LINEAR, 5, temperatureValues, heatCapacityValues);
-   m_iceHeatCapacityInterpolator.computeCoefficients ();
-
-   m_iceThermalConductivityInterpolator.setInterpolation (ibs::PiecewiseInterpolator::PIECEWISE_LINEAR, 5, temperatureValues, thermalConductivityValues);
-   m_iceThermalConductivityInterpolator.computeCoefficients ();
+   m_iceDensityInterpolator.setInterpolation ( 5, temperatureValues, densityValues);
+   m_iceHeatCapacityInterpolator.setInterpolation ( 5, temperatureValues, heatCapacityValues);
+   m_iceThermalConductivityInterpolator.setInterpolation ( 5, temperatureValues, thermalConductivityValues);
 
    m_pressureTerm = 0.0;
    m_salinityTerm = 0.0;
@@ -105,7 +100,7 @@ void GeoPhysics::FluidType::loadPropertyTables () {
       if(m_projectHandle->getPermafrostData()->getSalinityTerm()) {
          m_salinityTerm = 0.064;
       }
-    } 
+    }
 
    delete heatCapacitySamples;
    delete thermalConductivitySamples;
@@ -117,9 +112,9 @@ double GeoPhysics::FluidType::getLiquidusTemperature (const double temperature, 
 
    return (- m_pressureTerm * p - m_salinityTerm * salinityConcentration (temperature, p));
 }
-    
+
 double GeoPhysics::FluidType::getSolidusTemperature (const double liquidusTemperature) const {
-   
+
    // Ts = Tl - omega * sqrt(- log(solidFractionForFrozen))
    // solidFractionForFrozen = 0.01; omega = 1
    //return liquidusTemperature - 2.14596603; // omega = 1
@@ -136,9 +131,9 @@ void GeoPhysics::FluidType::setDensityToConstant () {
 }
 
 double GeoPhysics::FluidType::salinityConcentration(const double temperature, const double pressure) const {
-   
+
    const double p = NumericFunctions::Maximum (0.0, pressure);
-  
+
    return m_density.phaseChange (temperature, p, m_salinity) - m_density.phaseChange (temperature, p, 0.0);
 
 }
@@ -222,15 +217,15 @@ double GeoPhysics::FluidType::viscosity (const double temperature, const double 
 
 double GeoPhysics::FluidType::thermalConductivity (const double temperature, const double pressure) const {
 
-   if(m_projectHandle->getPermafrost()) {  
+   if(m_projectHandle->getPermafrost()) {
       const double liquidusTemperature = getLiquidusTemperature(temperature, pressure);
-      
+
       if (temperature < liquidusTemperature) {
          const double theta = computeTheta (temperature, liquidusTemperature);
-         
+
          return pow (m_iceThermalConductivityInterpolator.evaluate (temperature), 1.0 - theta) *
             pow (m_conductivity.phaseChange (temperature, pressure, 0.0), theta);
-      } 
+      }
    }
    return m_conductivity.phaseChange (temperature, pressure, 0.0);
 }
@@ -247,12 +242,12 @@ double GeoPhysics::FluidType::densXheatCapacity (const double temperature,
 
 	// Calculate the volumetric heat capacity (VHC) of water. Salinity is taken into account through density.
    const double waterVHC = m_heatCapacitytbl.compute(temperature, pressure, ibs::Interpolator2d::constant) * density(temperature, pressure);
- 
+
    if(includePermafrost) {
 
       // Determine the freezing temperature
       const double liquidusTemperature = getLiquidusTemperature(temperature, pressure);
-      
+
       // When there is no ice, there is only water: return the VHC of water
       if (temperature > liquidusTemperature)
          return waterVHC;
@@ -279,7 +274,7 @@ double GeoPhysics::FluidType::densXheatCapacity (const double temperature,
 
       // return the volumetric heat capacity of the mixture minus the latent heat term
       return waterFraction * waterVHC + iceFraction * iceVHC - latentHeatTerm;
-   } 
+   }
    else
    {
       // return just the volumetric heat capacity of water
@@ -310,7 +305,7 @@ double GeoPhysics::FluidType::solidDensityTimesHeatCapacity (const double temper
 
 double GeoPhysics::FluidType::computeTheta (const double temperature, const double liquidusTemperature) const {
 
-   if (temperature < liquidusTemperature) { 
+   if (temperature < liquidusTemperature) {
       const double temp = (temperature - liquidusTemperature) / m_omega; // not necessarily divide by m_omega (= 1.0)
       return exp (-temp * temp);
    } else {
@@ -320,7 +315,7 @@ double GeoPhysics::FluidType::computeTheta (const double temperature, const doub
 
 double GeoPhysics::FluidType::computeThetaDerivative (const double temperature, const double liquidusTemperature) const {
 
-   if (temperature < liquidusTemperature) { 
+   if (temperature < liquidusTemperature) {
       const double temp = (temperature - liquidusTemperature) / m_omega; // not necessarily divide by m_omega (= 1.0)
       return -2.0 * temp / m_omega * exp (-temp * temp);
    } else {
@@ -328,7 +323,7 @@ double GeoPhysics::FluidType::computeThetaDerivative (const double temperature, 
    }
 }
 
-double GeoPhysics::FluidType::relativePermeability (const double temperature, const double pressure) const { 
+double GeoPhysics::FluidType::relativePermeability (const double temperature, const double pressure) const {
    return 1.0;
 }
 

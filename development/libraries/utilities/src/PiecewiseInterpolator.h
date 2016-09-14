@@ -7,14 +7,13 @@
 
 namespace ibs {
 
-   /// A simple piece-wise linear interpolator.
-   /// The data must be added to the interpolator before calculation 
+   /// \brief A simple piece-wise linear interpolator.
+   ///
+   /// The data must be added to the interpolator before calculation
    /// can proceed.
-   // Not currently working for cubic-spline, although all the code is
-   // there, it has not been tested.
    class PiecewiseInterpolator {
 
-      /// Class used to sort porosit and permeability values.
+      /// \brief Class used to sort porosit and permeability values.
       ///
       /// It does not sort the values directly but is used to sort an index pointer array.
       class PointerSort {
@@ -24,7 +23,7 @@ namespace ibs {
          /// Constructor with the array to be sorted.
          PointerSort ( const double* xVals );
 
-         bool operator ()( const int p1, 
+         bool operator ()( const int p1,
                            const int p2 ) const;
 
       private :
@@ -35,79 +34,57 @@ namespace ibs {
 
    public :
 
-      /// Which kind of interpolation, linear or cubic.
-      enum InterpolationMethod { PIECEWISE_LINEAR, CUBIC_SPLINE };
-
 
       PiecewiseInterpolator ();
 
       ~PiecewiseInterpolator ();
 
-      /// Set the values for the interpolator.
+      /// \brief Set the values for the interpolator.
       ///
       /// The data will copied and sorted into ascending order of porosities.
-      void setInterpolation ( const InterpolationMethod newInterpolationMethod,
-                              const int                 newNumberOfPoints,
+      void setInterpolation ( const int                 newNumberOfPoints,
                               const double*             newPorosities,
                               const double*             newPermeabilities );
 
-      /// Compute the interpolation coefficients, based on the data set.
-      void computeCoefficients ();
-
-      /// Evaluate the interpolator at the point.
+      /// \brief Evaluate the interpolator at the point.
       double evaluate ( const double value ) const;
 
-      /// Evaluate the derivative of the interpolator at the point.
+      /// \brief Evaluate the interpolator for an array of values.
+      ///
+      /// The values array is over written by the interpolated values.
+      void evaluate ( const int size, double* values ) const;
+
+      /// \brief Evaluate the derivative of the interpolator at the point.
       double evaluateDerivative ( const double value ) const;
 
       void print ( std::ostream& o ) const;
 
-      /// Return a string representation of the interpolator.
+      /// \brief Return a string representation of the interpolator.
       std::string image () const;
 
+      /// \brief Assignment operator
       PiecewiseInterpolator& operator=( const PiecewiseInterpolator& newInterpolator );
-
-      friend bool operator== ( const PiecewiseInterpolator& interp1, 
-                               const PiecewiseInterpolator& interp2 );
 
 
    private :
 
+      /// \brief Compute the interpolation coefficients, based on the data set.
+      ///
+      /// All member varibales must be set before calling this function.
+      void computeCoefficients ();
+
+      /// \brief Deallocate the arrays used in interpolator and set them to null.
       void deleteCoefficients ();
 
-      /// Find ni which panel, if any, the point lies.
+      /// \brief Find in which panel, if any, the point lies.
       int findPanel ( const double value ) const;
-
-      void computePiecewiseLinearCoefficients ();
-
-      void computeCubicSplineCoefficients ();
-
-      double evaluatePiecewiseLinear ( const double value ) const;
-
-      double evaluateCubicSpline     ( const double value ) const;
-
-      double evaluatePiecewiseLinearDerivative ( const double value ) const;
-
-      double evaluateCubicSplineDerivative     ( const double value ) const;
 
       /// The number of points in the interpolant.
       int m_numberOfPoints;
 
-      /// The interpolation method used in this interpolator.
-      InterpolationMethod m_method;
-
       /// The coefficients of the interpolant.
       double* m_aCoeffs;
       double* m_bCoeffs;
-      double* m_cCoeffs;
-      double* m_dCoeffs;
-
-      // Coefficients for the extrapolation method.
-      double m_m0;
-      double m_c0;
-
-      double m_mN;
-      double m_cN;
 
       /// The locally stored x-points.
       double* m_xs;
@@ -115,12 +92,12 @@ namespace ibs {
       /// The locally stored y-points.
       double* m_ys;
 
-   }; 
+   };
 
 }
 
 
-inline bool ibs::PiecewiseInterpolator::PointerSort::operator ()( const int p1, 
+inline bool ibs::PiecewiseInterpolator::PointerSort::operator ()( const int p1,
                                                                   const int p2 ) const {
    return m_xs [ p1 ] < m_xs [ p2 ];
 }
