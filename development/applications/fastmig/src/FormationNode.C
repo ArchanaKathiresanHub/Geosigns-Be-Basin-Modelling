@@ -81,7 +81,7 @@ namespace migration {
 
    /// constructor
    ProxyFormationNode::ProxyFormationNode (unsigned int i, unsigned int j, int k, Formation * formation) :
-      FormationNode (i, j, k, formation)
+      FormationNode( i, j, k, formation ), m_compositionToBeMigrated( 0 ), m_analogFlowDirection(0)
    {
       clearProperties ();
       clearReservoirProperties ();
@@ -90,6 +90,17 @@ namespace migration {
    /// Destructor
    ProxyFormationNode::~ProxyFormationNode (void)
    {
+      if ( m_compositionToBeMigrated )
+      {
+         delete m_compositionToBeMigrated;
+         m_compositionToBeMigrated = 0;
+      }
+
+      if ( m_analogFlowDirection )
+      {
+         delete m_analogFlowDirection ;
+         m_analogFlowDirection = 0;
+      }
    }
 
    void ProxyFormationNode::clearCache ()
@@ -297,6 +308,7 @@ namespace migration {
 
    ThreeVector & ProxyFormationNode::getAnalogFlowDirection (void)
    {
+      if ( !m_analogFlowDirection ) m_analogFlowDirection = new FiniteElementMethod::ThreeVector;
       if (!isCached ((FormationNodeCacheBit) (ANALOGFLOWDIRECTIONCACHE)))
       {
          FormationNodeThreeVectorRequest threeVectorRequest;
@@ -306,10 +318,12 @@ namespace migration {
 
          RequestHandling::SendFormationNodeThreeVectorRequest (threeVectorRequest, threeVectorResponse);
 
-         m_analogFlowDirection = threeVectorResponse.values;
+
+         (*m_analogFlowDirection) = threeVectorResponse.values;
          setCached ((FormationNodeCacheBit) (ANALOGFLOWDIRECTIONCACHE));
       }
-      return m_analogFlowDirection;
+
+      return (*m_analogFlowDirection);
    }
 
    ThreeVector ProxyFormationNode::getFiniteElementGrad (PropertyIndex propertyIndex)
@@ -391,7 +405,8 @@ namespace migration {
    LocalFormationNode::LocalFormationNode (unsigned int i, unsigned int j, int k, Formation * formation) :
       FormationNode (i, j, k, formation), m_topFormationNode (0), m_targetFormationNode (0), m_selectedDirectionIndex (-1),
       m_depth (Interface::DefaultUndefinedMapValue), m_horizontalPermeability (-1), m_porosity (-1), m_pressure (-1), m_temperature (-1), m_adjacentNodeIndex (0),
-      m_entered (false), m_tried (0), m_hasNoThickness (false), m_cosines (0), m_isCrestLiquid (true), m_isCrestVapour (true), m_isEndOfPath (false)
+      m_entered( false ), m_tried( 0 ), m_hasNoThickness( false ), m_cosines( 0 ), m_isCrestLiquid( true ), m_isCrestVapour( true ), m_isEndOfPath( false ), 
+      m_compositionToBeMigrated( 0 ), m_analogFlowDirection( 0 ), m_finiteElementsDepths(0)
    {
       m_verticalPermeability[0] = -1.0;
       m_verticalPermeability[1] = -1.0;
@@ -404,14 +419,37 @@ namespace migration {
 
       m_vapourDensity = -1.0;
       m_liquidDensity = -1.0;
-
-      m_compositionToBeMigrated = new Composition;
    }
 
    /// Destructor
    LocalFormationNode::~LocalFormationNode (void)
    {
-      delete m_compositionToBeMigrated;
+
+      if ( m_compositionToBeMigrated )
+      {
+         delete m_compositionToBeMigrated;
+         m_compositionToBeMigrated = 0;
+      }
+          
+      if ( m_cosines  )
+      {
+         delete m_cosines;
+         m_cosines = 0;
+      }
+
+      if ( m_analogFlowDirection )
+      {
+         delete m_analogFlowDirection;
+         m_analogFlowDirection = 0;
+      
+      }
+
+      if ( m_finiteElementsDepths )
+      {
+         delete [] m_finiteElementsDepths;
+         m_finiteElementsDepths = 0;
+      }
+         
    }
 
    bool LocalFormationNode::isValid (void)
@@ -455,10 +493,30 @@ namespace migration {
       m_tried = 0;
       m_hasNoThickness = false;
 
-      if (m_compositionToBeMigrated)
-         m_compositionToBeMigrated->reset ();
+      if ( m_compositionToBeMigrated  ) 
+      {
+         delete m_compositionToBeMigrated;
+         m_compositionToBeMigrated = 0;
+      }
 
-      if (m_cosines) m_cosines->clear ();
+      if ( m_cosines )
+      {
+         delete m_cosines;
+         m_cosines = 0;
+      }
+
+      if ( m_analogFlowDirection )
+      {
+         delete m_analogFlowDirection;
+         m_analogFlowDirection = 0;
+
+      }
+
+      if ( m_finiteElementsDepths )
+      {
+         delete[] m_finiteElementsDepths;
+         m_finiteElementsDepths = 0;
+      }
 
       clearReservoirProperties ();
    }
@@ -480,8 +538,6 @@ namespace migration {
       {
          // undefined node, not to be used in flow path calculations
          m_depth = Interface::DefaultUndefinedMapValue;
-         m_analogFlowDirection.zero ();
-
          return;
       }
 
@@ -489,7 +545,6 @@ namespace migration {
       m_depth = getFiniteElementValue (0.0, 0.0, 0.0, DEPTHPROPERTY);
 
       const GeoPhysics::FluidType * fluid = (GeoPhysics::FluidType *) (m_formation->getFluidType ());
-
       m_waterDensity = fluid->density (m_temperature, m_pressure);
    }
 
@@ -676,6 +731,7 @@ namespace migration {
 
    migration::Composition & LocalFormationNode::getComposition (void)
    {
+      if ( !m_compositionToBeMigrated ) m_compositionToBeMigrated = new Composition;
       return *m_compositionToBeMigrated;
    }
 
@@ -702,9 +758,9 @@ namespace migration {
          response.i = getI ();
          response.j = getJ ();
          response.k = getK ();
-         response.values[0] = m_analogFlowDirection (1);
-         response.values[1] = m_analogFlowDirection (2);
-         response.values[2] = m_analogFlowDirection (3);
+         response.values[0] = ( *m_analogFlowDirection)  ( 1 );
+         response.values[1] = ( *m_analogFlowDirection ) ( 2 );
+         response.values[2] = ( *m_analogFlowDirection ) ( 3 );
          break;
       case GETFINITEELEMENTGRAD:
          {
@@ -764,13 +820,13 @@ namespace migration {
 
    void LocalFormationNode::addChargeToBeMigrated (int componentId, double weight)
    {
-      if (!m_compositionToBeMigrated) m_compositionToBeMigrated = new Composition;
-
+      if ( !m_compositionToBeMigrated ) m_compositionToBeMigrated = new Composition;
       m_compositionToBeMigrated->add ((ComponentId) componentId, weight);
    }
 
    void LocalFormationNode::addComposition (const Composition & composition)
    {
+      if ( !m_compositionToBeMigrated ) m_compositionToBeMigrated = new Composition;
       m_compositionToBeMigrated->add (composition);
    }
 
@@ -1010,15 +1066,21 @@ namespace migration {
       if (performVerticalMigration () || hasNoThickness ())
       {
          // let's assume everything will go straight up in this case
-         m_analogFlowDirection.zero ();
-         m_analogFlowDirection (3) = -1.0;
+         if ( !m_analogFlowDirection ) m_analogFlowDirection = new FiniteElementMethod::ThreeVector;
+         ( *m_analogFlowDirection ).zero ();
+         ( *m_analogFlowDirection ) ( 3 ) = -1.0;
 
          return;
       }
 
       Matrix3x3 permeabilityTensor;
 
-      getFiniteElement ().setTensor (1.0, getHorizontalPermeability () / getVerticalPermeability (), permeabilityTensor);
+      FiniteElement finiteElement;
+
+      setFiniteElement( finiteElement );
+
+      // setTensor does not modify any private member of finiteElement
+      finiteElement.setTensor( 1.0, getHorizontalPermeability( ) / getVerticalPermeability( ), permeabilityTensor );
 
       ThreeVector capPressureGrad;
 
@@ -1035,8 +1097,8 @@ namespace migration {
 
          vertical.zero ();
          vertical (3) = -1.0;
-
-         matrixVectorProduct (permeabilityTensor, vertical, m_analogFlowDirection);
+         if ( !m_analogFlowDirection ) m_analogFlowDirection = new FiniteElementMethod::ThreeVector;
+         matrixVectorProduct (permeabilityTensor, vertical, *m_analogFlowDirection);
       }
 
       else
@@ -1055,11 +1117,11 @@ namespace migration {
          force (1) = -pressureGrad (1);
          force (2) = -pressureGrad (2);
          force (3) = -pressureGrad (3) + gravity;
-
-         matrixVectorProduct (permeabilityTensor, force, m_analogFlowDirection);
+         if ( !m_analogFlowDirection ) m_analogFlowDirection = new FiniteElementMethod::ThreeVector;
+         matrixVectorProduct (permeabilityTensor, force, *m_analogFlowDirection);
       }
 
-      normalise (m_analogFlowDirection);
+      normalise (*m_analogFlowDirection);
    }
 
    void LocalFormationNode::determineThicknessProperties (void)
@@ -1162,7 +1224,10 @@ namespace migration {
       double dxSquare = dx * dx;
       double dySquare = dy * dy;
 
-      if (!m_cosines) m_cosines = new vector < IntDoublePair >;
+      if (!m_cosines)
+      {
+         m_cosines = new vector < IntDoublePair >; 
+      }
 
       ThreeVector analogFDnode = getAnalogFlowDirection ();
 
@@ -1294,14 +1359,14 @@ namespace migration {
             ThreeVector neighbourAnalogFlowDirection = m_formation->getAnalogFlowDirection (iNeighbour, jNeighbour, kNeighbour);
 
             /// compound analog flow direction is weighted sum of this node's analog flow direction of (i, j, k) and neighbour node's analog flow direction
-            compoundAnalogFlowDirection = m_analogFlowDirection * diagonal + neighbourAnalogFlowDirection * neighbourDiagonal;
+            compoundAnalogFlowDirection =(*m_analogFlowDirection) * diagonal + neighbourAnalogFlowDirection * neighbourDiagonal;
 
             normalise (compoundAnalogFlowDirection);
          }
          else
          {
             // neighbour node is undefined or invalid, compound analog flow direction equals analog flow direction of current element.
-            compoundAnalogFlowDirection = m_analogFlowDirection;
+            compoundAnalogFlowDirection = *m_analogFlowDirection;
          }
 
          double cosine = innerProduct (compoundAnalogFlowDirection, normalizedDiscretizedFlowDirection);
@@ -1730,27 +1795,53 @@ namespace migration {
 
    ThreeVector & LocalFormationNode::getAnalogFlowDirection (void)
    {
-      return m_analogFlowDirection;
+      if ( !m_analogFlowDirection ) m_analogFlowDirection = new FiniteElementMethod::ThreeVector;
+      return *m_analogFlowDirection;
    }
 
-   FiniteElement & LocalFormationNode::getFiniteElement (void)
+   void LocalFormationNode::setFiniteElementDepths( double * depths )
    {
-      return m_finiteElement;
+      if ( !m_finiteElementsDepths ) m_finiteElementsDepths = new double[NumberOfNodeCorners];
+      for ( int i = 0; i<NumberOfNodeCorners;++i )
+       m_finiteElementsDepths[i] = depths[i];
+   }
+
+   bool LocalFormationNode::setFiniteElement( FiniteElementMethod::FiniteElement& finiteElement )
+   {
+
+      // now is time to calculate the finite element
+      bool returnValue = true;
+      double dx = m_formation->getDeltaI();
+      double dy = m_formation->getDeltaJ();
+      int oi;
+
+      if ( !m_finiteElementsDepths ) m_formation->computeFiniteElement( getI( ), getJ( ), getK( ) );
+
+      for ( oi = 0; oi < NumberOfNodeCorners; ++oi )
+      {
+         if ( m_finiteElementsDepths[oi] == Interface::DefaultUndefinedMapValue ) returnValue = false;
+         finiteElement.setGeometryPoint( oi + 1, NodeCornerOffsets[oi][0] * dx, NodeCornerOffsets[oi][1] * dy, m_finiteElementsDepths[oi] );
+      }
+      finiteElement.setQuadraturePoint( 0.0, 0.0, 0.0 );
+
+      return returnValue;
    }
 
    double LocalFormationNode::getFiniteElementValue (double iOffset, double jOffset, double kOffset, PropertyIndex propertyIndex)
    {
+      FiniteElement finiteElement;
       //Check the node
-      if (!hasThickness ())
+      if ( !hasThickness() )
       {
-         if (m_topFormationNode)
-            return m_topFormationNode->getFiniteElementValue (iOffset, jOffset, kOffset, propertyIndex);
+         if ( m_topFormationNode )
+            return m_topFormationNode->getFiniteElementValue( iOffset, jOffset, kOffset, propertyIndex );
          else
             return Interface::DefaultUndefinedMapValue;
       }
       else
       {
-         getFiniteElement ().setQuadraturePoint (iOffset, jOffset, kOffset);
+         if ( !setFiniteElement( finiteElement ) ) return Interface::DefaultUndefinedMapValue;
+         finiteElement.setQuadraturePoint( iOffset, jOffset, kOffset );
       }
 
       //Calculate the property
@@ -1770,7 +1861,7 @@ namespace migration {
          valueVector (oi + 1) = propertyValue;
       }
 
-      return getFiniteElement ().interpolate (valueVector);
+      return finiteElement.interpolate( valueVector );
    }
 
    double LocalFormationNode::getFiniteElementMinimumValue (PropertyIndex propertyIndex)
@@ -1809,6 +1900,8 @@ namespace migration {
    ThreeVector LocalFormationNode::getFiniteElementGrad (PropertyIndex propertyIndex)
    {
       ElementVector valueVector;
+      FiniteElement finiteElement;
+      setFiniteElement( finiteElement );
 
       int oi;
       for (oi = 0; oi < NumberOfNodeCorners; ++oi)
@@ -1830,7 +1923,7 @@ namespace migration {
          valueVector (oi + 1) = propertyValue;
       }
 
-      return getFiniteElement ().interpolateGrad (valueVector);
+      return finiteElement.interpolateGrad( valueVector );
    }
 
 #ifdef USEPROPERTYVALUES
@@ -1987,14 +2080,14 @@ namespace migration {
    }
 
    bool FormationNodeArray::clearProperties (void)
-   {
+   {  
       for (unsigned int i = firstILocal (); i <= lastILocal (); ++i)
       {
          for (unsigned int j = firstJLocal (); j <= lastJLocal (); ++j)
          {
             for (unsigned int k = 0; k < m_depth; ++k)
             {
-               getLocalFormationNode (i, j, k)->clearProperties ();
+               getLocalFormationNode (i, j, k)->clearProperties( );
             }
          }
       }

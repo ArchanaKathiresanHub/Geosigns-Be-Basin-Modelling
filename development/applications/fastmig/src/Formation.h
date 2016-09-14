@@ -93,7 +93,7 @@ namespace migration
       void setFiniteElementQuadraturePoint (int i, int j, int k, double iOffset, double jOffset, double kOffset);
       double getFiniteElementValue (int i, int j, int k, double iOffset, double jOffset, double kOffset, PropertyIndex propertyIndex);
       double getFiniteElementValue (int i, int j, int k, PropertyIndex propertyIndex);
-      FiniteElementMethod::FiniteElement & getFiniteElement (int i, int j, int k);
+      void setFiniteElementDepths( int i, int j, int k, double * depths );
 
       LocalFormationNode * getLocalFormationNode (int i, int j, int k) const;
       FormationNode * getFormationNode (int i, int j, int k);
@@ -142,6 +142,7 @@ namespace migration
 
       bool retrievePropertyMaps (bool);
       bool restorePropertyMaps (bool);
+      void deleteFormationProperties();
 
       bool clearNodeProperties (void);
       bool clearNodeReservoirProperties (void);
@@ -352,4 +353,3 @@ namespace migration
 }
 
 #endif // _MIGRATION_FORMATION_H_
-

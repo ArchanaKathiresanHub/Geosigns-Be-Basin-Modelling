@@ -25,6 +25,7 @@ namespace migration
    int GetRank (void);
    string & GetRankString (void);
    int GetRank (int i, int j);
+   void deleteRanks();
    
    void Serialize (void);
    void Deserialize (void);

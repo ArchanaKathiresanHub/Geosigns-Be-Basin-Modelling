@@ -101,14 +101,10 @@ namespace migration
          m_toBeDistributed[phase].setDensity (0);
 
          m_fillDepth[phase] = column->getTopDepth ();
-
-         m_diffusionLeaked[phase].reset ();
-         m_diffusionLeaked[phase].setDensity (0);
       }
-
-      m_leakedBeforeDiffusion.reset ();
-      m_leakedBeforeDiffusion.setDensity (0);
-
+      
+      m_diffusionLeaked = 0;
+      m_leakedBeforeDiffusion = 0;
       m_sealPermeability = -1;
       m_fracturePressure = -1;
 
@@ -169,6 +165,16 @@ namespace migration
 
       delete m_levelToVolume;
       delete m_distributor;
+      if ( m_diffusionLeaked )
+      {
+         delete [] m_diffusionLeaked;
+         m_diffusionLeaked = 0;
+      }
+      if ( m_leakedBeforeDiffusion )
+      {
+         delete  m_leakedBeforeDiffusion;
+         m_leakedBeforeDiffusion = 0;
+      }
    }
 
    size_t Trap::getSize (void)
@@ -1041,23 +1047,10 @@ namespace migration
       return m_toBeDistributed[phase].getWeight ();
    }
 
-   double Trap::getSealPressureLeakages (void) const
-   {
-      double loss = 0.0;
-      for (int phase = FIRST_PHASE; phase < NUM_PHASES; ++phase)
-      {
-         loss += getSealPressureLeakages ((PhaseId)phase);
-      }
-      return loss;
-   }
-
-   double Trap::getSealPressureLeakages (PhaseId phase) const
-   {
-      return m_sealPressureLeaked[phase].getWeight ();
-   }
 
    double Trap::getDiffusionLeakages (void) const
    {
+      if ( !m_diffusionLeaked ) return 0.0;
       return m_diffusionLeaked[GAS].getWeight ();
    }
 
@@ -1157,7 +1150,7 @@ namespace migration
 
    bool Trap::diffusionLeakageOccoured () const
    {
-
+      if ( !m_diffusionLeaked ) return false;
 
       double diffusedWeight = 0;
 
@@ -1833,6 +1826,15 @@ namespace migration
 
       assert (diffusionLeaks.size () <= solubilities.size ());
 
+      // if not present create a new m_diffusionLeaked
+      if ( !m_diffusionLeaked ) m_diffusionLeaked = new Composition[2];
+
+      m_diffusionLeaked[GAS].reset( );
+      m_diffusionLeaked[GAS].setDensity( 0 );
+
+      m_diffusionLeaked[OIL].reset( );
+      m_diffusionLeaked[OIL].setDensity( 0 );
+
       m_distributed[GAS].computeDiffusionLeakages (diffusionStartTime, intervalStartTime, intervalEndTime, solubilities, getSurface (GAS), diffusionLeaks,
          computeGorm (m_distributed[GAS], m_distributed[OIL]), &m_distributed[GAS], &m_diffusionLeaked[GAS]);
 
@@ -2223,7 +2225,7 @@ namespace migration
       Composition oilSpilledOrWasted;
 
       //add what was leaked before the diffusion event, do not update m_compositionState
-      getCrestColumn ()->getComposition ().add (m_leakedBeforeDiffusion);
+      if ( m_leakedBeforeDiffusion ) getCrestColumn( )->getComposition( ).add( *m_leakedBeforeDiffusion );
 
       double finalGasLevel;
       double finalHCLevel;
@@ -2820,7 +2822,10 @@ namespace migration
    {
       // store what was leaked before diffusion
       LocalColumn * crestColumn = getCrestColumn ();
-      m_leakedBeforeDiffusion.add (crestColumn->getComposition ());
+      if ( !m_leakedBeforeDiffusion ) m_leakedBeforeDiffusion = new Composition;
+
+      m_leakedBeforeDiffusion->setDensity( 0 );
+      m_leakedBeforeDiffusion->add (crestColumn->getComposition ());
 
       // reset crest column composition
       crestColumn->getComposition ().reset ();

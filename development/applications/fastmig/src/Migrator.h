@@ -160,6 +160,7 @@ namespace migration
 
       bool retrieveFormationPropertyMaps (const Interface::Snapshot * end);
       bool restoreFormationPropertyMaps (const Interface::Snapshot * end);
+      bool deleteFormationPropertyMaps( );
 
       bool retrieveFormationCapillaryPressureMaps (const Interface::Snapshot * end);
       bool restoreFormationCapillaryPressureMaps (const Interface::Snapshot * end);

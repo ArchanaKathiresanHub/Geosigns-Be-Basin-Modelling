@@ -56,6 +56,14 @@ int migration::GetRank (void)
    return rank;
 }
 
+void migration::deleteRanks()
+{
+   if ( Ranks )
+   {
+      Array<int>::delete2d( Ranks );
+   }
+}
+
 void migration::Serialize (void)
 {
    int rank;

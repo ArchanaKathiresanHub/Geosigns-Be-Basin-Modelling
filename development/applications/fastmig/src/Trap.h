@@ -480,9 +480,6 @@ namespace migration
 
 	 void negotiateDensity (PhaseId phase);
 
-    double getSealPressureLeakages(void) const;
-    double getSealPressureLeakages(PhaseId phase) const;
-
     double getDiffusionLeakages(void) const;         
 
 	 void reportLeakage ();
@@ -506,11 +503,11 @@ namespace migration
 
 	 Composition m_toBeDistributed[NUM_PHASES];
 	 Composition m_distributed[NUM_PHASES];
-    Composition m_diffusionLeaked[NUM_PHASES];
-    Composition m_sealPressureLeaked[NUM_PHASES];
+    Composition * m_diffusionLeaked;
+
 
     //store what was already leaked before diffusion
-    Composition m_leakedBeforeDiffusion;
+    Composition * m_leakedBeforeDiffusion;
 		
 	 double m_diffusionStartTime;
 	 double m_penetrationDistances[DiffusionComponentSize];

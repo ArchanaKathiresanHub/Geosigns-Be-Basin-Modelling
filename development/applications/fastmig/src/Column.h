@@ -91,7 +91,7 @@ namespace migration
     virtual Composition & getComposition (void) = 0;
 	 virtual void setChargesToBeMigrated (PhaseId phase, Composition & composition) = 0;
 
-    virtual void addCompositionToBeMigrated (Composition & composition) = 0;
+    virtual void addCompositionToBeMigrated (const Composition & composition) = 0;
 
 	 virtual void addMigrated (PhaseId phase, double weight) = 0;
 	 virtual void addFlux (double weight) = 0;
@@ -117,7 +117,7 @@ namespace migration
 
 	 virtual Column * getTrapSpillColumn (void) = 0;
 
-	 virtual void addComposition (Composition & composition) = 0;
+	 virtual void addComposition (const Composition & composition) = 0;
 	 virtual void addLeakComposition (Composition & composition) = 0;
 	 virtual void addWasteComposition (Composition & composition) = 0;
 	 virtual void addSpillComposition (Composition & composition) = 0;
@@ -194,7 +194,7 @@ namespace migration
 
 	 virtual void setChargesToBeMigrated (PhaseId phase, Composition & composition);
 
-    virtual void addCompositionToBeMigrated (Composition & composition);
+    virtual void addCompositionToBeMigrated (const Composition & composition);
 
 	 virtual void addMigrated (PhaseId phase, double weight);
 	 virtual void addFlux (double weight);
@@ -214,7 +214,7 @@ namespace migration
 	 void registerWithLocal (void);
 	 void deregisterWithLocal (void);
 
-	 virtual void addComposition (Composition & composition);
+	 virtual void addComposition (const Composition & composition);
 	 virtual void addLeakComposition (Composition & composition);
 	 virtual void addWasteComposition (Composition & composition);
 	 virtual void addSpillComposition (Composition & composition);
@@ -241,7 +241,7 @@ namespace migration
 	 Column * m_targetColumn[NumPhases];
 
 	 mutable BitField m_cachedValues;
-      Composition m_composition;
+    Composition * m_composition;
    };
 
    class LocalColumn : public Column
@@ -304,8 +304,8 @@ namespace migration
 	 virtual double getImmobilesDensity (void) const;
 #endif
 
-         virtual double getPermeability (void) const;
-         virtual void setPermeability (double newPermeability);
+    virtual double getPermeability (void) const;
+    virtual void setPermeability (double newPermeability);
 
 	 virtual FaultStatus getFaultStatus (void);
 	 virtual void setFaultStatus (FaultStatus newFaultStatus);
@@ -341,14 +341,14 @@ namespace migration
 	 virtual double getPreviousPressure (void) const;
 	 virtual void setPressure (double newPressure);
 
-      virtual double getViscosity(void) const;
-      virtual void setViscosity(double viscosity);
+    virtual double getViscosity(void) const;
+    virtual void setViscosity(double viscosity);
 
-         virtual double getHydrostaticPressure (void) const;
-         virtual void setHydrostaticPressure (double newHydrostaticpressure);
+    virtual double getHydrostaticPressure (void) const;
+    virtual void setHydrostaticPressure (double newHydrostaticpressure);
 
-         virtual double getLithostaticPressure (void) const;
-         virtual void setLithostaticPressure (double newLithostaticPressure);
+    virtual double getLithostaticPressure (void) const;
+    virtual void setLithostaticPressure (double newLithostaticPressure);
 
 #ifdef USEOTGC
 	 void setImmobiles (const Immobiles & immobiles);
@@ -399,9 +399,8 @@ namespace migration
 	 inline double getImmobilesWeight (void);
 #endif
 
-	 inline bool containsCompositionToBeMigrated (void);
 	 inline void resetCompositionToBeMigrated (void);
-	 virtual void addCompositionToBeMigrated (Composition & composition);
+	 virtual void addCompositionToBeMigrated (const Composition & composition);
 
 #ifdef USEOTGC
 	 void crackChargesToBeMigrated (OilToGasCracker & otgc, double startTime, double endTime);
@@ -409,17 +408,15 @@ namespace migration
 
 	 void migrateChargesToBeMigrated (void);
 
-	 inline bool containsComponentToBeMigrated (ComponentId componentId);
 	 inline void addComponentToBeMigrated (ComponentId componentId, double value);
 	 inline void subtractComponentToBeMigrated (ComponentId componentId, double value);
-	 inline void setComponentToBeMigrated (ComponentId componentId, double value);
 	 inline double getComponentToBeMigrated (ComponentId componentId);
 
 	 inline bool containsComposition (void);
 	 inline void resetComposition (void);
 
-         virtual void resetCompositionState ();
-	 virtual void addComposition (Composition & composition);
+    virtual void resetCompositionState ();
+	 virtual void addComposition (const Composition & composition);
 	 virtual void addLeakComposition (Composition & composition);
 	 virtual void addWasteComposition (Composition & composition);
 	 virtual void addSpillComposition (Composition & composition);
@@ -431,13 +428,13 @@ namespace migration
 
 	 virtual void addToYourTrap (unsigned int i, unsigned int j);
 
-         virtual bool isSpilling (void);
-         virtual bool isUndersized (void);
+    virtual bool isSpilling (void);
+    virtual bool isUndersized (void);
 
 	 Column * getSpillBackTarget (PhaseId phase);
 
-         virtual bool isSpillingBack (void);
-         virtual bool isSpillingBack (PhaseId phase);
+    virtual bool isSpillingBack (void);
+    virtual bool isSpillingBack (PhaseId phase);
 
 	 virtual double getDiffusionStartTime ();
 	 virtual void setDiffusionStartTime (double diffusionStartTime);
@@ -471,10 +468,6 @@ namespace migration
 	 void manipulateComposition (ValueSpec valueSpec, int phase, Composition & composition);
     void getComposition (ValueSpec valueSpec, int phase, Composition & composition);
 
-	 inline bool containsComponent (ComponentId componentId);
-	 inline void addComponent (ComponentId componentId, double value);
-	 inline void subtractComponent (ComponentId componentId, double value);
-	 inline void setComponent (ComponentId componentId, double value);
 	 inline double getComponent (ComponentId componentId);
 	 inline Composition & getComposition (void);
     inline int getCompositionState (void);
@@ -500,12 +493,12 @@ namespace migration
 #ifdef USEOTGC
 	 double m_immobilesVolume;
 #endif
-         double m_permeability;
+    double m_permeability;
 	 double m_temperature;
 	 double m_pressure;
-         double m_hydrostaticPressure;
-         double m_lithostaticPressure;
-      double m_viscosity;
+    double m_hydrostaticPressure;
+    double m_lithostaticPressure;
+    double m_viscosity;
 
 	 FaultStatus m_faultStatus;
 
@@ -522,14 +515,14 @@ namespace migration
 	 Trap * m_trap;
     int m_pasteurizationStatus;
 
-	 Composition m_compositionToBeMigrated;
+	 Composition * m_compositionToBeMigrated;
 
 #ifdef USEOTGC
 	 Immobiles m_immobiles;
 #endif
 
-	 Composition m_composition;
-         int m_compositionState;
+	 Composition * m_composition;
+    int m_compositionState;
 
 	 double m_diffusionStartTime;
 	 double m_penetrationDistances[DiffusionComponentSize];
@@ -626,59 +619,49 @@ const migration::Reservoir * migration::Column::reservoir (void) const
    return m_reservoir;
 }
 
-bool migration::LocalColumn::containsCompositionToBeMigrated (void)
-{
-   return !m_compositionToBeMigrated.isEmpty ();
-}
-
 void migration::LocalColumn::resetCompositionToBeMigrated (void)
 {
-   m_compositionToBeMigrated.reset ();
-}
-
-bool migration::LocalColumn::containsComponentToBeMigrated (ComponentId componentId)
-{
-   return !m_compositionToBeMigrated.isEmpty (componentId);
+   if ( m_compositionToBeMigrated ) m_compositionToBeMigrated->reset( );
 }
 
 void migration::LocalColumn::addComponentToBeMigrated (ComponentId componentId, double value)
 {
-   m_compositionToBeMigrated.add (componentId, value);
+   if ( !m_compositionToBeMigrated ) m_compositionToBeMigrated = new Composition;
+   m_compositionToBeMigrated->add (componentId, value);
 }
 
 void migration::LocalColumn::subtractComponentToBeMigrated (ComponentId componentId, double value)
 {
-   m_compositionToBeMigrated.subtract (componentId, value);
-}
-
-void migration::LocalColumn::setComponentToBeMigrated (ComponentId componentId, double value)
-{
-   m_compositionToBeMigrated.set (componentId, value);
+   if ( m_compositionToBeMigrated ) m_compositionToBeMigrated->subtract( componentId, value );
 }
 
 double migration::LocalColumn::getComponentToBeMigrated (ComponentId componentId)
 {
-   return m_compositionToBeMigrated.getWeight (componentId);
+   if ( !m_compositionToBeMigrated ) return 0.0;
+   return m_compositionToBeMigrated->getWeight (componentId);
 }
 
 double migration::LocalColumn::getWeightToBeMigrated (void)
 {
-   return m_compositionToBeMigrated.getWeight ();
+   if ( !m_compositionToBeMigrated ) return 0.0;
+   return m_compositionToBeMigrated->getWeight ();
 }
 
 bool migration::LocalColumn::containsComposition (void)
 {
-   return !m_composition.isEmpty ();
+   if ( !m_composition ) return false;
+   return !m_composition->isEmpty ();
 }
 
 void migration::LocalColumn::resetComposition (void)
 {
-   m_composition.reset ();
+   if ( m_composition ) m_composition->reset( );
 }
 
 double migration::LocalColumn::getCompositionWeight (void)
 {
-   return m_composition.getWeight ();
+   if ( !m_composition ) return 0.0;
+   return m_composition->getWeight ();
 }
 
 #ifdef USEOTGC
@@ -688,34 +671,16 @@ double migration::LocalColumn::getImmobilesWeight (void)
 }
 #endif
 
-bool migration::LocalColumn::containsComponent (ComponentId componentId)
-{
-   return !m_composition.isEmpty (componentId);
-}
-
-void migration::LocalColumn::addComponent (ComponentId componentId, double value)
-{
-   m_composition.add (componentId, value);
-}
-
-void migration::LocalColumn::subtractComponent (ComponentId componentId, double value)
-{
-   m_composition.subtract (componentId, value);
-}
-
-void migration::LocalColumn::setComponent (ComponentId componentId, double value)
-{
-   m_composition.set (componentId, value);
-}
-
 double migration::LocalColumn::getComponent (ComponentId componentId)
 {
-   return m_composition.getWeight (componentId);
+   if ( !m_composition ) return 0.0;
+   return m_composition->getWeight (componentId);
 }
 
 migration::Composition & migration::LocalColumn::getComposition (void)
 {
-   return m_composition;
+   if ( !m_composition ) m_composition = new Composition;
+   return (*m_composition);
 }
 
 int migration::LocalColumn::getCompositionState (void)

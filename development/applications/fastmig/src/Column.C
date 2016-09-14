@@ -221,6 +221,8 @@ LocalColumn::LocalColumn (unsigned int i, unsigned int j, Reservoir * reservoir)
 {
    m_topDepthOffset = 0;
    m_bottomDepthOffset = 0;
+   m_composition = 0;
+   m_compositionToBeMigrated = 0;
       /// Local column penetration distance is initially zero
    std::fill (m_penetrationDistances, m_penetrationDistances + DiffusionComponentSize, (double) 0);
    m_diffusionStartTime = -1;
@@ -230,6 +232,16 @@ LocalColumn::LocalColumn (unsigned int i, unsigned int j, Reservoir * reservoir)
 
 LocalColumn::~LocalColumn (void)
 {
+   if ( m_composition )
+   {
+      delete m_composition;
+      m_composition = 0;
+   }
+   if ( m_compositionToBeMigrated )
+   {
+      delete m_compositionToBeMigrated;
+      m_compositionToBeMigrated = 0;
+   }
 }
 
 void LocalColumn::retainPreviousProperties (void)
@@ -249,7 +261,7 @@ void LocalColumn::clearProperties (void)
    m_porosity = m_reservoir->getUndefinedValue ();
    m_permeability = m_reservoir->getUndefinedValue ();
    m_temperature = m_reservoir->getUndefinedValue ();
-      m_viscosity = m_reservoir->getUndefinedValue ();
+   m_viscosity = m_reservoir->getUndefinedValue ();
    m_pressure = m_reservoir->getUndefinedValue ();
    m_hydrostaticPressure = m_reservoir->getUndefinedValue ();
    m_lithostaticPressure = m_reservoir->getUndefinedValue ();
@@ -259,6 +271,12 @@ void LocalColumn::clearProperties (void)
    m_globalTrapId = NoTrapId;
    m_drainageAreaId = NoTrapId;
    m_faultStatus = NOFAULT;
+
+   if ( m_composition )
+   {
+      delete m_composition;
+      m_composition = 0;
+   }
 
    resetFillDepths ();
    resetChargeDensities ();
@@ -270,6 +288,7 @@ void LocalColumn::clearProperties (void)
       m_targetColumn[phase] = 0;
       m_migrated[phase] = 0;
    }
+
    Column::clearProperties ();
 }
 
@@ -478,10 +497,10 @@ void LocalColumn::setChargesToBeMigrated (PhaseId phase, Composition & compositi
       weightFraction = 1;
    }
 
-
+   if ( !m_compositionToBeMigrated ) m_compositionToBeMigrated = new Composition;
    for (unsigned int component = 0; component < NumComponents; ++component)
    {
-      m_compositionToBeMigrated.add ((ComponentId) component, weightFraction * composition.getWeight ((ComponentId) component));
+      m_compositionToBeMigrated->add ((ComponentId) component, weightFraction * composition.getWeight ((ComponentId) component));
    }
 
    setChargeDensity (phase, composition.getDensity ());
@@ -1372,16 +1391,16 @@ void LocalColumn::crackChargesToBeMigrated (OilToGasCracker & otgc, double start
    Immobiles immobilesIn;
 
 
-   if (m_compositionToBeMigrated.isEmpty ()) return;
+   if ( !m_compositionToBeMigrated || m_compositionToBeMigrated->isEmpty( ) ) return;
 
    immobilesIn = getImmobiles ();
 
    if (getPreviousGlobalTrapId () < 0)
    {
-      cerr << "Error: Trying to crack " << m_compositionToBeMigrated.getWeight () << " kg in column " << this << " outside of any trap " << endl;
+      cerr << "Error: Trying to crack " << m_compositionToBeMigrated->getWeight () << " kg in column " << this << " outside of any trap " << endl;
    }
 
-   otgc.compute (m_compositionToBeMigrated, immobilesIn, startTime, endTime,
+   otgc.compute (*m_compositionToBeMigrated, immobilesIn, startTime, endTime,
 	 getPreviousPressure (), getPressure (), getPreviousTemperature (), getTemperature (),
 	 compositionCracked, immobilesOut);
 
@@ -1390,7 +1409,7 @@ void LocalColumn::crackChargesToBeMigrated (OilToGasCracker & otgc, double start
 
    for (unsigned int component = 0; component < NumComponents; ++component)
    {
-      double gained = compositionCracked.getWeight ((ComponentId) component) - m_compositionToBeMigrated.getWeight ((ComponentId) component);
+      double gained = compositionCracked.getWeight ((ComponentId) component) - m_compositionToBeMigrated->getWeight ((ComponentId) component);
       if (gained > 0)
       {
 	 // stuff got generated
@@ -1403,19 +1422,19 @@ void LocalColumn::crackChargesToBeMigrated (OilToGasCracker & otgc, double start
       }
    }
    
-   double inWeight = immobilesIn.getWeight () + m_compositionToBeMigrated.getWeight ();
+   double inWeight = immobilesIn.getWeight () + m_compositionToBeMigrated->getWeight ();
    double outWeight = immobilesOut.getWeight () + compositionCracked.getWeight ();
    double percentageWeightDeviation = 100.0 * (inWeight - outWeight) / inWeight;
       if (percentageWeightDeviation < -0.5)
    {
       cerr << "Error in Oil to Gas Cracking of " << this << endl;
       cerr << "    Immobiles In:             " << immobilesIn.getWeight () << endl;
-      cerr << "    Sara In:                  " << m_compositionToBeMigrated.getWeight () << endl;
+      cerr << "    Sara In:                  " << m_compositionToBeMigrated->getWeight () << endl;
       cerr << endl;
       cerr << "    Immobiles Out:            " << immobilesOut.getWeight () << endl;
       cerr << "    Sara Out:                 " << compositionCracked.getWeight () << endl;
       cerr << "    ------------------------- " << endl;
-      cerr << "    Balance:	             " << immobilesIn.getWeight () + m_compositionToBeMigrated.getWeight () - (immobilesOut.getWeight () + compositionCracked.getWeight ()) << endl;
+      cerr << "    Balance:	             " << immobilesIn.getWeight () + m_compositionToBeMigrated->getWeight () - (immobilesOut.getWeight () + compositionCracked.getWeight ()) << endl;
          cerr << "    Weight Deviation in %:    " << percentageWeightDeviation << endl;
       cerr << "    Temperatures:             " << getPreviousTemperature () << " C - " << getTemperature () << " C" << endl;
       cerr << "    Pressures:                " << getPreviousPressure () << " MPa - " << getPressure () << " MPa" << endl;
@@ -1423,7 +1442,7 @@ void LocalColumn::crackChargesToBeMigrated (OilToGasCracker & otgc, double start
       cerr << endl;
    }
 
-   m_compositionToBeMigrated = compositionCracked;
+   *m_compositionToBeMigrated = compositionCracked;
    setImmobiles (immobilesOut);
 
    // add the amounts lost and gained to the mass balance
@@ -1440,13 +1459,12 @@ void LocalColumn::crackChargesToBeMigrated (OilToGasCracker & otgc, double start
 
 void LocalColumn::migrateChargesToBeMigrated (void)
 {
-      if (m_compositionToBeMigrated.isEmpty ())
+   if ( !m_compositionToBeMigrated || m_compositionToBeMigrated->isEmpty( ) )
          return;
 
    Composition phaseCompositions[NumPhases];
 
    flashChargesToBeMigrated (phaseCompositions);
-   assert (m_compositionToBeMigrated.isEmpty ());
 
    for (unsigned int phase = 0; phase < NumPhases; ++phase)
    {
@@ -1511,60 +1529,65 @@ void LocalColumn::resetCompositionState ()
    m_compositionState = 0;
 }
 
-void LocalColumn::addComposition (Composition & composition)
+void LocalColumn::addComposition (const Composition & composition)
 {
-   m_composition.add (composition);
+   if ( !m_composition ) m_composition = new Composition;
+   m_composition->add (composition);
    m_compositionState |= INITIAL;
 }
 
 void LocalColumn::addLeakComposition (Composition & composition)
 {
-   m_composition.add (composition);
+   if ( !m_composition ) m_composition = new Composition;
+   m_composition->add (composition);
    m_compositionState |= LEAKED;
 }
 
 void LocalColumn::addWasteComposition (Composition & composition)
 {
-   m_composition.add (composition);
+   if ( !m_composition ) m_composition = new Composition;
+   m_composition->add (composition);
    m_compositionState |= WASTED;
 }
 
 void LocalColumn::addSpillComposition (Composition & composition)
 {
-   m_composition.add (composition);
+   if ( !m_composition ) m_composition = new Composition;
+   m_composition->add (composition);
    m_compositionState |= SPILLED;
 }
 
 void LocalColumn::flashChargesToBeMigrated (Composition * compositionsOut)
 {
-   m_compositionToBeMigrated.computePVT (getTemperature (), getPressure (), compositionsOut);
+   m_compositionToBeMigrated->computePVT (getTemperature (), getPressure (), compositionsOut);
 
    // error handling
-   double pvtError = m_compositionToBeMigrated.getWeight ();
+   double pvtError = m_compositionToBeMigrated->getWeight ();
 
    for (unsigned int phase = 0; phase < NumPhases; ++phase)
    {
       pvtError -= compositionsOut[phase].getWeight ();
    }
 
-   if (Abs (pvtError) > 1)
-   {
-      cerr << "PVT Error in " << this << ": weight in = " << m_composition.getWeight ()
-	 << ", weight out = (" << compositionsOut[GAS].getWeight () << ", " << compositionsOut[OIL].getWeight ()
-	 << "), error = " << pvtError << endl;
-   }
+   double compositionWeight = 0.0;
+   if ( m_composition )
+      compositionWeight = m_composition->getWeight();
+   else
+      compositionWeight = 0.0;
+
 
    m_reservoir->accumulateErrorInPVT (-pvtError);
 
-   m_compositionToBeMigrated.reset ();
+   m_compositionToBeMigrated->reset ();
 }
 
 void LocalColumn::computePVT (Composition * compositionsOut)
 {
-   m_composition.computePVT (getTemperature (), getPressure (), compositionsOut);
+   assert( m_composition );
+   m_composition->computePVT (getTemperature (), getPressure (), compositionsOut);
 
    // error handling
-   double pvtError = m_composition.getWeight ();
+   double pvtError = m_composition->getWeight ();
 
    for (unsigned int phase = 0; phase < NumPhases; ++phase)
    {
@@ -1573,7 +1596,7 @@ void LocalColumn::computePVT (Composition * compositionsOut)
 
    if (Abs (pvtError) > 1)
    {
-      cerr << "PVT Error in " << this << ": weight in = " << m_composition.getWeight ()
+      cerr << "PVT Error in " << this << ": weight in = " << m_composition->getWeight ()
 	 << ", weight out = (" << compositionsOut[GAS].getWeight () << ", " << compositionsOut[OIL].getWeight ()
 	 << "), error = " << pvtError << endl;
    }
@@ -1581,7 +1604,7 @@ void LocalColumn::computePVT (Composition * compositionsOut)
    m_reservoir->accumulateErrorInPVT (-pvtError);
 
       // here the crest column composition is re-set to 0
-   m_composition.reset ();
+   m_composition->reset ();
 		
 }
 
@@ -1647,6 +1670,11 @@ ProxyColumn::ProxyColumn (unsigned int i, unsigned int j, Reservoir * reservoir)
 ProxyColumn::~ProxyColumn (void)
 {
    deregisterWithLocal ();
+   if ( m_composition )
+   {
+      delete m_composition;
+      m_composition = 0;
+   }
 }
 
 void ProxyColumn::clearProperties ()
@@ -1688,31 +1716,32 @@ void ProxyColumn::setCached (CacheBit bit) const
 
 void ProxyColumn::resetCached (CacheBit bit) const
 {
-   m_cachedValues.setValue ((unsigned int) bit, false);
+   m_cachedValues.setValue( (unsigned int)bit, false );
 }
 
-   Composition & ProxyColumn::getComposition (void)
-   {
-      ColumnCompositionRequest chargesRequest;
-      ColumnCompositionRequest chargesResponse;
+Composition & ProxyColumn::getComposition( void )
+{
+   if ( !m_composition ) m_composition = new Composition;
+   ColumnCompositionRequest chargesRequest;
+   ColumnCompositionRequest chargesResponse;
 
-      chargesRequest.i = getI ();
-      chargesRequest.j = getJ ();
+   chargesRequest.i = getI();
+   chargesRequest.j = getJ();
 
-      chargesRequest.reservoirIndex = m_reservoir->getIndex ();
-      chargesRequest.valueSpec = GETCHARGES;
+   chargesRequest.reservoirIndex = m_reservoir->getIndex();
+   chargesRequest.valueSpec = GETCHARGES;
 
-      RequestHandling::SendRequest (chargesRequest, chargesResponse);
-      m_composition = chargesResponse.composition;
-      return m_composition;
-   }
+   RequestHandling::SendRequest( chargesRequest, chargesResponse );
+   (*m_composition) = chargesResponse.composition;
+   return (*m_composition);
+}
 
-void ProxyColumn::addComposition (Composition & composition)
+void ProxyColumn::addComposition( const Composition & composition )
 {
    ColumnCompositionRequest chargesRequest;
    ColumnCompositionRequest chargesResponse;
 
-   chargesRequest.i = getI ();
+   chargesRequest.i = getI();
    chargesRequest.j = getJ ();
       chargesRequest.reservoirIndex = m_reservoir->getIndex ();
 
@@ -1741,7 +1770,7 @@ void ProxyColumn::setChargesToBeMigrated (PhaseId phase, Composition & compositi
    RequestHandling::SendRequest (chargesRequest, chargesResponse);
 }
 
-   void ProxyColumn::addCompositionToBeMigrated (Composition & composition)
+   void ProxyColumn::addCompositionToBeMigrated (const Composition & composition)
    {
       ColumnCompositionRequest chargesRequest;
       ColumnCompositionRequest chargesResponse;
@@ -1757,9 +1786,10 @@ void ProxyColumn::setChargesToBeMigrated (PhaseId phase, Composition & compositi
       RequestHandling::SendRequest (chargesRequest, chargesResponse);
    }
 
-void LocalColumn::addCompositionToBeMigrated (Composition & composition)
+void LocalColumn::addCompositionToBeMigrated (const Composition & composition)
 {
-   m_compositionToBeMigrated.add (composition);
+   if ( !m_compositionToBeMigrated ) m_compositionToBeMigrated = new Composition;
+   m_compositionToBeMigrated->add (composition);
 }
 
 void ProxyColumn::addLeakComposition (Composition & composition)

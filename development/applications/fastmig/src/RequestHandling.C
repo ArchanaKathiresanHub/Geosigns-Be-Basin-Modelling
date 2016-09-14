@@ -665,6 +665,11 @@ namespace migration
    /// Will finish after all processors have completed their phase.
    RequestHandling::~RequestHandling ()
    {
+      if ( s_instance )
+      {
+         delete s_instance;
+         s_instance = 0;
+      }
    }
 
    RequestHandling * RequestHandling::GetInstance ()

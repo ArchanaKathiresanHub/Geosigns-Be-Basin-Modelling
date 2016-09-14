@@ -51,7 +51,7 @@ OilToGasCracker::~OilToGasCracker (void)
    delete m_theSimulator;
 }
 
-void OilToGasCracker::compute (Composition & saraIn, Immobiles &immobilesIn,
+void OilToGasCracker::compute (const Composition & saraIn, Immobiles &immobilesIn,
       double startTime, double endTime,
       double startPressure, double endPressure,
       double startTemperature, double endTemperature,

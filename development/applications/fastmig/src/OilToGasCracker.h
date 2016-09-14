@@ -19,7 +19,7 @@ public:
    OilToGasCracker (bool containSuplhur = false);
    virtual ~OilToGasCracker (void);
 
-   void compute (Composition & saraIn, Immobiles &immobilesIn,
+   void compute (const Composition & saraIn, Immobiles &immobilesIn,
 	 double startTime, double endTime,
 	 double startPressure, double endPressure,
 	 double startTemperature, double endTemperature,

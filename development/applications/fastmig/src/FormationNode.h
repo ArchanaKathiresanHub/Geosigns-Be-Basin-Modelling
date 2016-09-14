@@ -163,26 +163,25 @@ namespace migration
 #endif
 
    private:
-      FormationNode * m_targetFormationNode;
-      FiniteElementMethod::ThreeVector m_analogFlowDirection;
 
       bool m_isValid;
       bool m_isImpermeable;
       bool m_hasNoThickness;
       bool m_hasNowhereToGo;
       bool m_goesOutOfBounds;
-
       double m_depth;
       double m_heightVapour;
       double m_heightLiquid;
-
-      Composition * m_compositionToBeMigrated;
 
       virtual bool isCached (FormationNodeCacheBit bit) const;
       virtual void setCached (FormationNodeCacheBit bit) const;
       virtual void resetCached (FormationNodeCacheBit bit) const;
 
       mutable BitField m_cachedValues;
+
+      Composition * m_compositionToBeMigrated;
+      FormationNode * m_targetFormationNode;
+      FiniteElementMethod::ThreeVector *  m_analogFlowDirection;
    };
 
    typedef pair < int, double >IntDoublePair;
@@ -277,7 +276,8 @@ namespace migration
 
       virtual FiniteElementMethod::ThreeVector getFiniteElementGrad (PropertyIndex propertyIndex);
 
-      FiniteElementMethod::FiniteElement & getFiniteElement (void);
+      void setFiniteElementDepths( double * depths );
+      bool setFiniteElement( FiniteElementMethod::FiniteElement& finiteElement );
 
       double getDepth (void);
 
@@ -333,13 +333,7 @@ namespace migration
       inline double getHeightVapour () const;
 
    private:
-      Composition * m_compositionToBeMigrated;
 
-      FiniteElementMethod::FiniteElement m_finiteElement;
-
-      FiniteElementMethod::ThreeVector m_analogFlowDirection;
-
-      LocalFormationNode * m_topFormationNode;
 #ifdef USEBOTTOMFORMATIONNODE
       LocalFormationNode * m_bottomFormationNode;
 #endif
@@ -358,19 +352,12 @@ namespace migration
       double m_temperature;
       double m_pressure;
       double m_horizontalPermeability;
-      boost::array<double, 2> m_verticalPermeability;
       double m_porosity;
       double m_overPressure;
-
       double m_liquidDensity;
       double m_vapourDensity;
-
-      boost::array<double, 2> m_capillaryEntryPressureLiquid;
-      boost::array<double, 2> m_capillaryEntryPressureVapour;
-
       double m_heightLiquid;                   // actual height of liquid column (only for uppermost cells!)
       double m_heightVapour;                   // actual height of vapour column (only for uppermost cells!)
-
       double m_waterDensity;
 
       FaultStatus m_faultStatus;
@@ -378,7 +365,6 @@ namespace migration
       int m_adjacentNodeIndex;                 // index into m_cosines of current adjacent node to use in computeAdjacentNode ()
       int m_selectedDirectionIndex;            // index into NeighbourOffsets3D of current adjacent node to use in computeTargetFormationNode (),
                                                // derived using m_adjacentNodeIndex
-
       int m_tried;
 
       bool m_entered;                          // Whether computeTargetFormationNode () loops
@@ -392,7 +378,19 @@ namespace migration
       bool m_isEndOfPath;                      // true - if node is end of path. May even be a leaking (or zero-thickness) node
                                                // but it needs to be the end of the path to register it in the leaking reservoir.
 
-      vector < IntDoublePair > *m_cosines;     // cosines of angles between the analog flow direction and the feasible discretized flow directions
+      vector < IntDoublePair > *  m_cosines;     // cosines of angles between the analog flow direction and the feasible discretized flow directions  
+      
+      boost::array<double, 2> m_verticalPermeability;
+      boost::array<double, 2> m_capillaryEntryPressureLiquid;
+      boost::array<double, 2> m_capillaryEntryPressureVapour;
+
+      Composition * m_compositionToBeMigrated;
+      FiniteElementMethod::ThreeVector * m_analogFlowDirection;
+      LocalFormationNode * m_topFormationNode;
+      
+      // we only need 8 depths (64 bytes), we can create finite elements (816 bytes) in the scope of the functions. 
+      // In this way we save 752 bytes per grid node. 
+      double * m_finiteElementsDepths;
    };
 
    bool IsValid (FormationNode * formationNode);
@@ -425,8 +423,6 @@ namespace migration
       bool computeProperties (void);
 
    private:
-      Formation * m_formation;
-
       unsigned int m_numIGlobal;
       unsigned int m_numJGlobal;
       unsigned int m_firstILocal;
@@ -434,13 +430,13 @@ namespace migration
       unsigned int m_firstJLocal;
       unsigned int m_lastJLocal;
       unsigned int m_depth;
-
-      FormationNode ****m_localFormationNodes;
+      int m_numberOfProxyFormationNodes;
 
       typedef map < IndexPair, ProxyFormationNode * >ProxyFormationNodeMap;
       ProxyFormationNodeMap *m_proxyFormationNodes;
 
-      int m_numberOfProxyFormationNodes;
+      FormationNode ****m_localFormationNodes;
+      Formation * m_formation;
    };
 
    ostream & operator<< (ostream & stream, FormationNode & node);
@@ -505,7 +501,18 @@ namespace migration
       FormationNode::clearProperties ();
       clearCache ();
       m_targetFormationNode = 0;
-      m_compositionToBeMigrated = 0;
+
+      if ( m_compositionToBeMigrated )
+      {
+         delete m_compositionToBeMigrated;
+         m_compositionToBeMigrated = 0;
+      }
+
+      if ( m_analogFlowDirection )
+      {
+         delete m_analogFlowDirection;
+         m_analogFlowDirection = 0;
+      }
    }
 
    unsigned int FormationNodeArray::numIGlobal (void)

@@ -76,24 +76,29 @@ namespace migration
 
       m_startGenexTime = -1;
       m_endGenexTime = -1;
-      m_formationNodeArray = NULL;
+      m_formationNodeArray = 0;
 
       // Initializing other data members for Windows build
 
       for (size_t i = 0; i != NUM_COMPONENTS; ++i)
          m_expulsionGridMaps[i] = NULL;
 
-      // Initializing other data members for Windows build
-      //for (size_t i = 0; i != NUMBEROFPROPERTYINDICES; ++i)
-      //   m_derivedFormationPropertyPtr[i] = NULL;
+
 
    }
 
    Formation::~Formation (void)
    {
-      if (m_genexData != 0)
+      if (m_genexData)
       {
          delete m_genexData;
+         m_genexData = 0;
+      } 
+
+      if ( m_formationNodeArray )
+      {
+         delete m_formationNodeArray;
+         m_formationNodeArray = 0;
       }
    }
 
@@ -117,70 +122,71 @@ namespace migration
    }
 
    bool Formation::computePropertyMaps (Interface::GridMap * topDepthGridMap, const Interface::Snapshot * snapshot,
-                                        bool lowResEqualsHighRes, const bool isOverPressureRun, bool nonGeometricLoop, bool chemicalCompaction)
+      bool lowResEqualsHighRes, const bool isOverPressureRun, bool nonGeometricLoop, bool chemicalCompaction )
    {
-      assert (topDepthGridMap);
-      const Grid *grid = m_projectHandle->getActivityOutputGrid ();
+      assert( topDepthGridMap );
+      const Grid *grid = m_projectHandle->getActivityOutputGrid();
 
-      assert (topDepthGridMap->getGrid () == grid);
+      assert( topDepthGridMap->getGrid() == grid );
 
       // Calculate all properties at once
-      if ( (m_formationPropertyPtr[DEPTHPROPERTY]                  = getFormationPropertyPtr ("Depth", snapshot)) == 0 )  
+      if ( ( m_formationPropertyPtr[DEPTHPROPERTY] = getFormationPropertyPtr( "Depth", snapshot ) ) == 0 )
          return false;
-      if ( (m_formationPropertyPtr[PRESSUREPROPERTY]               = getFormationPropertyPtr ("Pressure", snapshot)) == 0 )  
+      if ( ( m_formationPropertyPtr[PRESSUREPROPERTY] = getFormationPropertyPtr( "Pressure", snapshot ) ) == 0 )
          return false;
-      if ( (m_formationPropertyPtr[TEMPERATUREPROPERTY]            = getFormationPropertyPtr ("Temperature", snapshot)) == 0 )  
+      if ( ( m_formationPropertyPtr[TEMPERATUREPROPERTY] = getFormationPropertyPtr( "Temperature", snapshot ) ) == 0 )
          return false;
-      if ( (m_formationPropertyPtr[HORIZONTALPERMEABILITYPROPERTY] = getFormationPropertyPtr ("HorizontalPermeability", snapshot)) == 0 )  
+      if ( ( m_formationPropertyPtr[HORIZONTALPERMEABILITYPROPERTY] = getFormationPropertyPtr( "HorizontalPermeability", snapshot ) ) == 0 )
          return false;
-      if ( (m_formationPropertyPtr[VERTICALPERMEABILITYPROPERTY]   = getFormationPropertyPtr ("Permeability", snapshot)) == 0 )  
+      if ( ( m_formationPropertyPtr[VERTICALPERMEABILITYPROPERTY] = getFormationPropertyPtr( "Permeability", snapshot ) ) == 0 )
          return false;
-      if ( (m_formationPropertyPtr[POROSITYPROPERTY]               = getFormationPropertyPtr ("Porosity", snapshot)) == 0 )  
+      if ( ( m_formationPropertyPtr[POROSITYPROPERTY] = getFormationPropertyPtr( "Porosity", snapshot ) ) == 0 )
          return false;
-      if (isOverPressureRun)
+      if ( isOverPressureRun )
       {
-         if ( (m_formationPropertyPtr[OVERPRESSUREPROPERTY]        = getFormationPropertyPtr ("OverPressure", snapshot)) == 0 )
+         if ( ( m_formationPropertyPtr[OVERPRESSUREPROPERTY] = getFormationPropertyPtr( "OverPressure", snapshot ) ) == 0 )
             return false;
       }
 
-      
-      unsigned int depth = getMaximumNumberOfElements () - 1;
+
+      unsigned int depth = getMaximumNumberOfElements() - 1;
       assert (depth >= 0);
 
       // Using the PropertyRetriever class which ensures the retrieval and later on the restoration of property pointers
-      DerivedProperties::PropertyRetriever depthPropertyRetriever         (m_formationPropertyPtr[DEPTHPROPERTY]);
-      DerivedProperties::PropertyRetriever pressurePropertyRetriever      (m_formationPropertyPtr[PRESSUREPROPERTY]);
-      DerivedProperties::PropertyRetriever temperaturePropertyRetriever   (m_formationPropertyPtr[TEMPERATUREPROPERTY]);
-      DerivedProperties::PropertyRetriever porosityPropertyRetriever      (m_formationPropertyPtr[POROSITYPROPERTY]);
-      DerivedProperties::PropertyRetriever vPermeabilityPropertyRetriever (m_formationPropertyPtr[VERTICALPERMEABILITYPROPERTY]);
-      DerivedProperties::PropertyRetriever hPermeabilityPropertyRetriever (m_formationPropertyPtr[HORIZONTALPERMEABILITYPROPERTY]);
+      DerivedProperties::PropertyRetriever depthPropertyRetriever( m_formationPropertyPtr[DEPTHPROPERTY] );
+      DerivedProperties::PropertyRetriever pressurePropertyRetriever( m_formationPropertyPtr[PRESSUREPROPERTY] );
+      DerivedProperties::PropertyRetriever temperaturePropertyRetriever( m_formationPropertyPtr[TEMPERATUREPROPERTY] );
+      DerivedProperties::PropertyRetriever porosityPropertyRetriever( m_formationPropertyPtr[POROSITYPROPERTY] );
+      DerivedProperties::PropertyRetriever vPermeabilityPropertyRetriever( m_formationPropertyPtr[VERTICALPERMEABILITYPROPERTY] );
+      DerivedProperties::PropertyRetriever hPermeabilityPropertyRetriever( m_formationPropertyPtr[HORIZONTALPERMEABILITYPROPERTY] );
       if (isOverPressureRun)
-         DerivedProperties::PropertyRetriever depthPropertyRetriever      (m_formationPropertyPtr[OVERPRESSUREPROPERTY]);
+         DerivedProperties::PropertyRetriever depthPropertyRetriever( m_formationPropertyPtr[OVERPRESSUREPROPERTY] );
 
 
-      for (unsigned int i = m_formationNodeArray->firstILocal (); i <= m_formationNodeArray->lastILocal (); ++i)
+      for ( unsigned int i = m_formationNodeArray->firstILocal(); i <= m_formationNodeArray->lastILocal(); ++i )
       {
-         for (unsigned int j = m_formationNodeArray->firstJLocal (); j <= m_formationNodeArray->lastJLocal (); ++j)
+         for ( unsigned int j = m_formationNodeArray->firstJLocal(); j <= m_formationNodeArray->lastJLocal(); ++j )
          {
-            for (unsigned int k = 0; k <= depth; ++k)
+            for ( unsigned int k = 0; k <= depth; ++k )
             {
-               LocalFormationNode * formationNode = getLocalFormationNode (i, j, k);
+               LocalFormationNode * formationNode = getLocalFormationNode( i, j, k );
 
-               formationNode->setDepth                  (m_formationPropertyPtr[DEPTHPROPERTY]                  ->get (i, j, k));
-               formationNode->setPressure               (m_formationPropertyPtr[PRESSUREPROPERTY]               ->get (i, j, k));
-               formationNode->setTemperature            (m_formationPropertyPtr[TEMPERATUREPROPERTY]            ->get (i, j, k));
-               formationNode->setPorosity               (m_formationPropertyPtr[POROSITYPROPERTY]               ->get (i, j, k));
-               formationNode->setVerticalPermeability   (m_formationPropertyPtr[VERTICALPERMEABILITYPROPERTY]   ->get (i, j, k));
-               if (k == depth)
-                  formationNode->setVerticalPermeability(m_formationPropertyPtr[VERTICALPERMEABILITYPROPERTY]   ->get (i, j, k+1),true);
-               formationNode->setHorizontalPermeability (m_formationPropertyPtr[HORIZONTALPERMEABILITYPROPERTY] ->get (i, j, k));
-               if (isOverPressureRun)
+               formationNode->setDepth( m_formationPropertyPtr[DEPTHPROPERTY]->get( i, j, k ) );
+               formationNode->setPressure( m_formationPropertyPtr[PRESSUREPROPERTY]->get( i, j, k ) );
+               formationNode->setTemperature( m_formationPropertyPtr[TEMPERATUREPROPERTY]->get( i, j, k ) );
+               formationNode->setPorosity( m_formationPropertyPtr[POROSITYPROPERTY]->get( i, j, k ) );
+               formationNode->setVerticalPermeability( m_formationPropertyPtr[VERTICALPERMEABILITYPROPERTY]->get( i, j, k ) );
+               if ( k == depth )
+                  formationNode->setVerticalPermeability( m_formationPropertyPtr[VERTICALPERMEABILITYPROPERTY]->get( i, j, k + 1 ), true );
+               formationNode->setHorizontalPermeability( m_formationPropertyPtr[HORIZONTALPERMEABILITYPROPERTY]->get( i, j, k ) );
+               if ( isOverPressureRun )
                {
-                  formationNode->setOverPressure        (m_formationPropertyPtr[OVERPRESSUREPROPERTY]           ->get (i, j, k));
+                  formationNode->setOverPressure( m_formationPropertyPtr[OVERPRESSUREPROPERTY]->get( i, j, k ) );
                }
             }
          }
       }
+
       return true;
    }
 
@@ -423,26 +429,19 @@ namespace migration
 
    bool Formation::computeFiniteElement (int i, int j, int k)
    {
-      double dx = getDeltaI ();
-      double dy = getDeltaJ ();
-
-      FiniteElement & element = getFiniteElement (i, j, k);
+      bool returnValue = true;
+      double depthValues[NumberOfNodeCorners];
 
       int oi;
       for (oi = 0; oi < NumberOfNodeCorners; ++oi)
       {
          double depth = getDepth (i + NodeCornerOffsets[oi][0], j + NodeCornerOffsets[oi][1], k + NodeCornerOffsets[oi][2]);
-
-         if (depth == Interface::DefaultUndefinedMapValue)
-         {
-            // undefined node
-            return false;
-         }
-
-         element.setGeometryPoint (oi + 1, NodeCornerOffsets[oi][0] * dx, NodeCornerOffsets[oi][1] * dy, depth);
+         depthValues[oi] = depth;
+         if ( depth == Interface::DefaultUndefinedMapValue ) returnValue = false;
       }
 
-      return true;
+      setFiniteElementDepths( i, j, k, depthValues );
+      return returnValue;
    }
 
    double Formation::getFiniteElementValue (int i, int j, int k, double iOffset, double jOffset, double kOffset, PropertyIndex propertyIndex)
@@ -460,9 +459,9 @@ namespace migration
       return value;
    }
 
-   FiniteElementMethod::FiniteElement & Formation::getFiniteElement (int i, int j, int k)
+   void Formation::setFiniteElementDepths( int i, int j, int k, double * depths )
    {
-      return getLocalFormationNode (i, j, k)->getFiniteElement ();
+      return getLocalFormationNode( i, j, k )->setFiniteElementDepths( depths );
    }
 
    void Formation::getThreeVectorValue (FormationNodeThreeVectorValueRequest & request, FormationNodeThreeVectorValueRequest & response)
@@ -581,7 +580,7 @@ namespace migration
 
    bool Formation::computeTargetFormationNodes (Formation * targetFormation)
    {
-      targetFormation->setEndOfPath (); // The path has to stop somewhere if nowhere else
+      targetFormation->setEndOfPath(); // The path has to stop somewhere if nowhere else
 
       bool allComputed = false;
       do
@@ -1104,6 +1103,23 @@ namespace migration
       return true;
    }
 
+   void Formation::deleteFormationProperties()
+   {
+      for ( size_t i = 0; i != NUMBEROFPROPERTYINDICES; ++i ) 
+      {
+         
+         if ( m_formationPropertyPtr[i])
+         {
+            const Interface::GridMap * grid = dynamic_cast<const Interface::GridMap *>( m_formationPropertyPtr[i]->getGridMap( ) );
+            if ( grid )
+            {
+               grid->release();
+            }
+            m_formationPropertyPtr[i].reset();
+         }
+      }
+   }
+
    bool Formation::clearNodeProperties (void)
    {
       if (m_formationNodeArray) m_formationNodeArray->clearProperties ();
@@ -1343,6 +1359,8 @@ namespace migration
 
                getLocalFormationNode (i, j, depth)->identifyAsReservoir ();
             }
+
+            delete reservoirs;
          }
       }
    }
@@ -1379,6 +1397,9 @@ namespace migration
          {
             m_expulsionGridMaps[componentId]->retrieveData (true); // divided over different nodes
          }
+
+         if ( gridMapEnd )  gridMapEnd->release();
+         if ( gridMapStart ) gridMapStart->release();
       }
    }
 
@@ -1749,8 +1770,8 @@ namespace migration
 
             // check if the top formation is the formation to migrate to for given i, j
             if (targetFormationNode and targetFormationNode->isEndOfPath () and
-                !targetFormationNode->goesOutOfBounds () and
-                targetFormationNode->getFormation () == topActiveFormation)
+               !targetFormationNode->goesOutOfBounds () and
+               targetFormationNode->getFormation () == topActiveFormation)
             {
                unsigned int iTarget = targetFormationNode->getI ();
                unsigned int jTarget = targetFormationNode->getJ ();
@@ -1831,8 +1852,8 @@ namespace migration
 
             // check if targetReservoir is the reservoir to migrate to for given i, j
             if (targetFormationNode and targetFormationNode->isEndOfPath () and
-                !targetFormationNode->goesOutOfBounds () and
-                targetFormationNode->getFormation () == topActiveFormation)
+               !targetFormationNode->goesOutOfBounds () and
+               targetFormationNode->getFormation () == topActiveFormation)
             {
                unsigned int iTarget = targetFormationNode->getI ();
                unsigned int jTarget = targetFormationNode->getJ ();
