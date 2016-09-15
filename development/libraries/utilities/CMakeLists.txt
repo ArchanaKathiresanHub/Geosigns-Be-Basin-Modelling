@@ -11,9 +11,6 @@
 #########################################################################
 
 
-set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -qopt-report=7 -qopt-report-phase=vec" )
-
-
 FILE( GLOB all_headers src/*.h )
 source_group(include FILES ${all_headers})
 
