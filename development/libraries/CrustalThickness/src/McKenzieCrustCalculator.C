@@ -469,7 +469,7 @@ void McKenzieCrustCalculator::restoreData() {
 }
 
 //------------------------------------------------------------//
-const double McKenzieCrustCalculator::getPreviousTF( const unsigned int i, const unsigned int j ) const{
+double McKenzieCrustCalculator::getPreviousTF( const unsigned int i, const unsigned int j ) const{
    // if no previous map then the previous TF is equal to 0
    double previousTF = 0.0;
    if (m_previousThinningFactor != nullptr){
@@ -479,7 +479,7 @@ const double McKenzieCrustCalculator::getPreviousTF( const unsigned int i, const
 }
 
 //------------------------------------------------------------//
-const double McKenzieCrustCalculator::getPreviousContinentalCrustThickness( const unsigned int i, const unsigned int j ) const{
+double McKenzieCrustCalculator::getPreviousContinentalCrustThickness( const unsigned int i, const unsigned int j ) const{
    // if no previous map then the previous continental crust thickness is equal to the inital crust thickness
    double previousContinentalCrustThickness = m_HCuMap.getValue( i, j );
    if (m_previousContinentalCrustThickness != nullptr){
@@ -489,7 +489,7 @@ const double McKenzieCrustCalculator::getPreviousContinentalCrustThickness( cons
 }
 
 //------------------------------------------------------------//
-const double McKenzieCrustCalculator::getPreviousOceanicCrustThickness( const unsigned int i, const unsigned int j ) const{
+double McKenzieCrustCalculator::getPreviousOceanicCrustThickness( const unsigned int i, const unsigned int j ) const{
    // if no previous map then the previous oceanic crust thickness is equal 0
    double previousOceanicCrustThickness = 0.0;
    if (m_previousOceanicCrustThickness != nullptr){

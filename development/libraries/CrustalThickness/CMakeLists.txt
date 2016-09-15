@@ -157,18 +157,18 @@ add_gtest( NAME "CrustalThickness::PaleowaterdepthResidual"
 
 add_gtest( NAME "CrustalThickness::MapSmoother"
            SOURCES test/MapSmoother.C
-           LIBRARIES CrustalThickness DataAccess SerialDataAccess
+           LIBRARIES CrustalThickness DataMining DataAccess SerialDataAccess
          )
 
 add_gtest( NAME "CrustalThickness::ConfigFileCtc"
            SOURCES test/ConfigFileCtc.C 
-           LIBRARIES CrustalThickness
+           LIBRARIES CrustalThickness DataMining DataAccess SerialDataAccess
            ENV_VARS CTCDIR=${PROJECT_SOURCE_DIR}/geocase/misc
          )
 
 add_gtest( NAME "CrustalThickness::LinearFunction"
            SOURCES test/LinearFunction.C 
-           LIBRARIES CrustalThickness
+           LIBRARIES CrustalThickness DataMining DataAccess SerialDataAccess
          )
 
 add_gtest( NAME "CrustalThickness::McKenzieEquations"

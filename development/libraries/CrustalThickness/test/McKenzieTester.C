@@ -19,9 +19,9 @@ McKenzieTester::McKenzieTester() :
    m_minI( 0.0 ), m_minJ( 0.0 ), m_maxI( 4.0 ), m_maxJ( 4.0 ),
    m_numI( 3 ), m_numJ( 3 ),
    m_constants(),
-   m_validator(),
    m_inputData(),
-   m_outputData( this->m_firstI, this->m_firstJ, this->m_lastI, this->m_lastJ )
+   m_outputData( this->m_firstI, this->m_firstJ, this->m_lastI, this->m_lastJ ),
+   m_validator()
 {
    m_grid    = new DataAccess::Interface::SerialGrid( this->m_minI, this->m_minJ, this->m_maxI, this->m_maxJ, this->m_numI, this->m_numJ );
    //   - basement depth is 5000m

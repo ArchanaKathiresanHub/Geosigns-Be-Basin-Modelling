@@ -24,10 +24,10 @@ PaleowaterdepthResidualCalculator::PaleowaterdepthResidualCalculator(
       m_firstJ             ( inputData.firstJ() ),
       m_lastI              ( inputData.lastI() ),
       m_lastJ              ( inputData.lastJ() ),
-      m_outputData         ( outputData ),
-      m_validator          ( validator  ),
       m_age                ( age ),
-      m_surfaceDepthHistory( surfaceDepthHistory )
+      m_surfaceDepthHistory( surfaceDepthHistory ),
+      m_outputData         ( outputData ),
+      m_validator          ( validator  )
 {}
 
 //------------------------------------------------------------//

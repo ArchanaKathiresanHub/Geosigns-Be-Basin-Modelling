@@ -29,11 +29,11 @@ PaleowaterdepthCalculator::PaleowaterdepthCalculator(
       m_waterDensity            ( inputData.getWaterDensity()               ),
       m_presentDayPressureMantle( inputData.getPressureMantleAtPresentDay() ),
       m_currentPressureMantle   ( inputData.getPressureMantle()             ),
-      m_outputData              ( outputData ),
-      m_validator               ( validator  ),
       m_presentDayTTS           ( presentDayTTS         ),
       m_presentDayPressureTTS   ( presentDayPressureTTS ),
-      m_currentPressureTTS      ( currentPressureTTS    )
+      m_currentPressureTTS      ( currentPressureTTS    ),
+      m_outputData              ( outputData ),
+      m_validator               ( validator  )
 {
    if (m_mantleDensity == m_waterDensity){
       throw PWDException() << "The water density is equal to the mantle density in the Paleowaterdepth calculator but they should be different";

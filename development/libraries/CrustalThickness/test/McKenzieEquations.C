@@ -216,7 +216,7 @@ TEST_F( McKenzieTester, calculates_crustproperties )
 // Once issues in projecthandle and the data access library are fixed
 // then we will be able to enable the death test on windows
 // However this is not an easy problem as it seems that the memory is corrupted
-TEST_F( McKenzieTest, death_tests ){
+TEST_F( McKenzieTester, death_tests ){
    ::testing::FLAGS_gtest_death_test_style = "threadsafe";
    McKenzieCrustCalculatorPtr mcKenzieCalculator = createMcKenzieCalculator();
    LinearFunction linearFunction;

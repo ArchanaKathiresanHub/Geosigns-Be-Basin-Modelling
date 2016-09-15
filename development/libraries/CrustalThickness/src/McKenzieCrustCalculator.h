@@ -174,13 +174,13 @@ class McKenzieCrustCalculator {
       void restoreData();
       /// @brief Get the previous thinning factor value from its map (m_previousThinningFactor)
       /// @return valued(i,j) if the map is not a nullptr, 0 if the map is a nullptr
-      const double getPreviousTF( const unsigned int i, const unsigned int j ) const;
+      double getPreviousTF( const unsigned int i, const unsigned int j ) const;
       /// @brief Get the previous thinning factor value from its map (m_previousContinentalCrustThickness)
       /// @return valued(i,j) if the map is not a nullptr, the initial continental crust thickness if the map is a nullptr
-      const double getPreviousContinentalCrustThickness( const unsigned int i, const unsigned int j ) const;
+      double getPreviousContinentalCrustThickness( const unsigned int i, const unsigned int j ) const;
       /// @brief Get the previous thinning factor value from its map (m_previousOceanicCrustThickness)
       /// @return valued(i,j) if the map is not a nullptr, 0 if the map is a nullptr
-      const double getPreviousOceanicCrustThickness( const unsigned int i, const unsigned int j ) const;
+      double getPreviousOceanicCrustThickness( const unsigned int i, const unsigned int j ) const;
       /// @}
 
       const CrustalThickness::ConfigFileParameterCtc& m_constants;  ///< Constants loaded from the configuration file via InterfaceInput

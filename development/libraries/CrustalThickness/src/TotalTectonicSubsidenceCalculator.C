@@ -26,13 +26,13 @@ TotalTectonicSubsidenceCalculator::TotalTectonicSubsidenceCalculator(
       m_firstJ             ( inputData.firstJ() ),
       m_lastI              ( inputData.lastI()  ),
       m_lastJ              ( inputData.lastJ()  ),
-      m_seeLevelAdjustment ( inputData.getDeltaSLMap() ),
-      m_outputData         ( outputData       ),
-      m_validator          ( validator        ),
       m_age                ( age              ),
       m_airCorrection      ( airCorrection    ),
       m_previousTTS        ( previousTTS      ),
-      m_surfaceDepthHistory( depthWaterBottom )
+      m_seeLevelAdjustment ( inputData.getDeltaSLMap() ),
+      m_surfaceDepthHistory( depthWaterBottom ),
+      m_outputData         ( outputData       ),
+      m_validator          ( validator        )
 {}
 
 //------------------------------------------------------------//

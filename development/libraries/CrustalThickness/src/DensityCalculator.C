@@ -31,12 +31,12 @@ DensityCalculator::DensityCalculator(
       m_pressureWaterBottom( inputData.getPressureWaterBottom()        ),
       m_depthBasement      ( inputData.getDepthBasement()              ),
       m_depthWaterBottom   ( inputData.getDepthWaterBottom()           ),
-      m_outputData         ( outputData ),
-      m_validator          ( validator  ),
       m_sedimentDensity  (0.0),
       m_sedimentThickness(0.0),
       m_backstrip        (0.0),
-      m_compensation     (0.0)
+      m_compensation     (0.0),
+      m_outputData         ( outputData ),
+      m_validator          ( validator  )
 {
    // Check the inputs
    // In normal behavior these exceptions will be handled before the creation of the McKenzieCalculator by the inputData object itself

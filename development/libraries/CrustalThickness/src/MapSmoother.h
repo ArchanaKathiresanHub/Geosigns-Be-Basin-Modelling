@@ -50,7 +50,7 @@ namespace CrustalThicknessInterface {
       /// @}
 
 
-      bool m_mapToRestore;                  ///< Tell if we need to restore the map or not after the smoothing
+      bool m_mapToRestore; ///< Tell if we need to restore the map or not after the smoothing
 
       /// @defgroup TemporaryArrays
       /// @{

@@ -17,8 +17,8 @@ using namespace Interface;
 using namespace CrustalThicknessInterface;
 
 MapSmoother::MapSmoother( const unsigned int smoothingRadius ) :
-   m_smoothingRadius( smoothingRadius ),
-   m_ghostNodes(true)
+   m_ghostNodes(true),
+   m_smoothingRadius( smoothingRadius )
 {}
 
 //------------------------------------------------------------//
