@@ -1,5 +1,5 @@
-#ifndef _UTILITIES__PIECEWISE_INTERPOLATOR_H_
-#define _UTILITIES__PIECEWISE_INTERPOLATOR_H_
+#ifndef UTILITIES__PIECEWISE_INTERPOLATOR_H
+#define UTILITIES__PIECEWISE_INTERPOLATOR_H
 
 #include <iostream>
 #include <vector>
@@ -7,10 +7,7 @@
 
 namespace ibs {
 
-   /// \brief A simple piece-wise linear interpolator.
-   ///
-   /// The data must be added to the interpolator before calculation
-   /// can proceed.
+   /// \brief A simple continuous piece-wise linear interpolator.
    class PiecewiseInterpolator {
 
       /// \brief Class used to sort porosit and permeability values.
@@ -23,8 +20,8 @@ namespace ibs {
          /// Constructor with the array to be sorted.
          PointerSort ( const double* xVals );
 
-         bool operator ()( const int p1,
-                           const int p2 ) const;
+         bool operator ()( const unsigned int p1,
+                           const unsigned int p2 ) const;
 
       private :
 
@@ -34,7 +31,6 @@ namespace ibs {
 
    public :
 
-
       PiecewiseInterpolator ();
 
       ~PiecewiseInterpolator ();
@@ -42,7 +38,7 @@ namespace ibs {
       /// \brief Set the values for the interpolator.
       ///
       /// The data will copied and sorted into ascending order of porosities.
-      void setInterpolation ( const int                 newNumberOfPoints,
+      void setInterpolation ( const unsigned int        newNumberOfPoints,
                               const double*             newPorosities,
                               const double*             newPermeabilities );
 
@@ -50,13 +46,12 @@ namespace ibs {
       double evaluate ( const double value ) const;
 
       /// \brief Evaluate the interpolator for an array of values.
-      ///
-      /// The values array is over written by the interpolated values.
-      void evaluate ( const int size, double* values ) const;
+      void evaluate ( const unsigned int size, const double const* pnts, double* values ) const;
 
       /// \brief Evaluate the derivative of the interpolator at the point.
       double evaluateDerivative ( const double value ) const;
 
+      /// \brief Writes a string representation of the interpolator to the stream.
       void print ( std::ostream& o ) const;
 
       /// \brief Return a string representation of the interpolator.
@@ -77,10 +72,10 @@ namespace ibs {
       void deleteCoefficients ();
 
       /// \brief Find in which panel, if any, the point lies.
-      int findPanel ( const double value ) const;
+      unsigned int findPanel ( const double value ) const;
 
       /// The number of points in the interpolant.
-      int m_numberOfPoints;
+      unsigned int m_numberOfPoints;
 
       /// The coefficients of the interpolant.
       double* m_aCoeffs;
@@ -97,10 +92,9 @@ namespace ibs {
 }
 
 
-inline bool ibs::PiecewiseInterpolator::PointerSort::operator ()( const int p1,
-                                                                  const int p2 ) const {
+inline bool ibs::PiecewiseInterpolator::PointerSort::operator ()( const unsigned int p1,
+                                                                  const unsigned int p2 ) const {
    return m_xs [ p1 ] < m_xs [ p2 ];
 }
 
-
-#endif // _UTILITIES__PIECEWISE_INTERPOLATOR_H_
+#endif // UTILITIES__PIECEWISE_INTERPOLATOR_H

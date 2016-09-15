@@ -10,13 +10,17 @@
 #                                                                       #
 #########################################################################
 
+
+set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -qopt-report=7 -qopt-report-phase=vec" )
+
+
 FILE( GLOB all_headers src/*.h )
 source_group(include FILES ${all_headers})
 
 FILE( GLOB all_srcs src/*.C )
 source_group(source FILES ${all_srcs})
 
-add_library(utilities 
+add_library(utilities
 	${all_srcs}
 	${all_headers}
 )
@@ -43,11 +47,15 @@ install(TARGETS utilities
 
 ### Unit Tests
 
+# PiecewiseInterpolator tests
+add_gtest( NAME utilities::PiecewiseInterpolator
+			SOURCES test/PiecewiseInterpolatorTest.C
+			LIBRARIES utilities)
 # IBSInterpolator tests
 add_gtest( NAME utilities::IBSinterpolator
 			SOURCES test/IBSinterpolator.C
 			LIBRARIES utilities)
- 			
+
 add_gtest( NAME utilities::IBSinterpolator2d
 			SOURCES test/IBSinterpolator2d.C
 			LIBRARIES utilities)
