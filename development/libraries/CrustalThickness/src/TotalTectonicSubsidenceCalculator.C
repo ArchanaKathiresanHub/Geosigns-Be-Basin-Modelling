@@ -61,16 +61,18 @@ void TotalTectonicSubsidenceCalculator::compute(){
                   incTS = Interface::DefaultUndefinedMapValue;
                }
             }
-            //else this is the first TTS, there is nothing to compute
+            //else this is the first TTS
             else{
-               incTS = 0;
+               incTS = TTS;
             }
             //3. Compute the see level adjusted TTS
             const double seeLevelAdjustment = m_seeLevelAdjustment.getValue( i, j );
             if ( seeLevelAdjustment != Interface::DefaultUndefinedMapValue ){
                TTSadjusted = calculateTSadjusted( TTS, seeLevelAdjustment );
                if (incTS != Interface::DefaultUndefinedMapValue){
-                  incTSadjusted = calculateTSadjusted( incTS, seeLevelAdjustment );
+                  /// @todo will be modified with requirement 60262
+                  //incTSadjusted = calculateTSadjusted( incTS, seeLevelAdjustment );
+                  incTSadjusted = incTS;
                }
                else {
                   incTSadjusted = Interface::DefaultUndefinedMapValue;

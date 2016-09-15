@@ -215,28 +215,16 @@ void InterfaceOutput::setMapsToOutput(const CrustalThicknessInterface::outputMap
 }
 
 //------------------------------------------------------------//
-void InterfaceOutput::updatePossibleOutputsAtSnapshot( outputMaps id, const GeoPhysics::ProjectHandle * pHandle, const Snapshot * theSnapshot ) {
-   // The TTS, Incremental TS, and McKenzie properties are only ouput when we have an SDH
+void InterfaceOutput::updatePossibleOutputsAtSnapshot( outputMaps id, const GeoPhysics::ProjectHandle * pHandle, const Snapshot * theSnapshot, const bool debug ) {
+   
+   // The TTS, Incremental TS, and McKenzie general properties are only ouput when we have an SDH
    if (  id == WLSMap
+      or id == WLSadjustedMap
       or id == incTectonicSubsidence
-      or id == estimatedCrustDensityMap
-      or id == basaltDensityMap
-      or id == PTaMap
-      or id == TFOnsetMap
-      or id == TFOnsetMigMap
-      or id == TFOnsetLinMap
-      or id == WLSExhumeMap
-      or id == WLSCritMap
-      or id == WLSOnsetMap
-      or id == WLSExhumeSerpMap
-      or id == thicknessCrustMeltOnset
-      or id == slopePreMelt
-      or id == slopePostMelt
-      or id == interceptPostMelt
       or id == RDAadjustedMap
-      or id == TFMap
       or id == thicknessCrustMap
       or id == thicknessBasaltMap
+      or id == thicknessCrustMeltOnset
       or id == topBasaltMap
       or id == mohoMap
       or id == ECTMap ){
@@ -247,6 +235,31 @@ void InterfaceOutput::updatePossibleOutputsAtSnapshot( outputMaps id, const GeoP
          m_outputMapsMask[id] = true;
       }
    }
+
+   // The McKenzie debug properties are only ouput when we have an SDH and in debug mode
+   if (debug
+      and (id == estimatedCrustDensityMap
+        or id == basaltDensityMap
+        or id == PTaMap
+        or id == TFOnsetMap
+        or id == TFOnsetMigMap
+        or id == TFOnsetLinMap
+        or id == WLSExhumeMap
+        or id == WLSCritMap
+        or id == WLSOnsetMap
+        or id == WLSExhumeSerpMap
+        or id == slopePreMelt
+        or id == slopePostMelt
+        or id == interceptPostMelt
+        or id == TFMap) ){
+      if (not pHandle->asSurfaceDepthHistory( theSnapshot->getTime() )){
+         m_outputMapsMask[id] = false;
+      }
+      else{
+         m_outputMapsMask[id] = true;
+      }
+   }
+
    // The PWD is not output at 0.0Ma (it is equal to the water depth of the input stratigraphy)
    else if (id == isostaticBathymetry){
       if (theSnapshot->getTime() == 0.0)
@@ -279,13 +292,13 @@ void InterfaceOutput::setAllMapsToOutput( const bool flag ) {
 }
 
 //------------------------------------------------------------//
-bool InterfaceOutput::createSnapShotOutputMaps( GeoPhysics::ProjectHandle * pHandle, const Snapshot * theSnapshot, const Interface::Surface *theSurface ) {
+bool InterfaceOutput::createSnapShotOutputMaps( GeoPhysics::ProjectHandle * pHandle, const Snapshot * theSnapshot, const Interface::Surface *theSurface, const bool debug ) {
    
    LogHandler( LogHandler::DEBUG_SEVERITY ) << "Create snaphot output maps @ snapshot " << theSnapshot->asString();
    bool status = true;
    for( int i = 0; i < numberOfOutputMaps; ++ i ) {
       outputMaps id = (outputMaps)i;
-      updatePossibleOutputsAtSnapshot( id, pHandle, theSnapshot );
+      updatePossibleOutputsAtSnapshot( id, pHandle, theSnapshot, debug );
       if( m_outputMapsMask[i] ) {
          if( id != isostaticBathymetry && id != incTectonicSubsidence ) {
             LogHandler( LogHandler::DEBUG_SEVERITY ) << "   #for map " << outputMapsNames[i];
@@ -322,8 +335,10 @@ GridMap * InterfaceOutput::createSnapshotResultPropertyValueMap (ProjectHandle *
 }
 
 //------------------------------------------------------------//
-void InterfaceOutput::disableBackstripOutput( ProjectHandle * pHandle, const Interface::Surface* theSurface, const Snapshot* theSnapshot ) const {
-   disableOutput( pHandle, theSurface, theSnapshot, "SedimentBackstrip" );
+void InterfaceOutput::disableDebugOutput( ProjectHandle * pHandle, const Interface::Surface* theSurface, const Snapshot* theSnapshot ) const {
+   disableOutput( pHandle, theSurface, theSnapshot, "SedimentBackstrip"                     );
+   disableOutput( pHandle, theSurface, theSnapshot, "IncrementalTectonicSubsidenceAdjusted" );
+   disableOutput( pHandle, theSurface, theSnapshot, "TF"                                    );
 }
 
 //------------------------------------------------------------//
@@ -351,6 +366,7 @@ void InterfaceOutput::disableOutput( ProjectHandle * pHandle, const Interface::S
 //------------------------------------------------------------//
 void InterfaceOutput::saveOutput( Interface::ProjectHandle * pHandle, bool isDebug, int outputOptions, const Snapshot * theSnapshot ) {
 
+   LogHandler( LogHandler::INFO_SEVERITY ) << "   ->Save maps to local disk";
    if( isDebug ) {
       if( outputOptions & XYZ ) {
          if( pHandle->getSize() > 1 ) {

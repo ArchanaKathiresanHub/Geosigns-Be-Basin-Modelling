@@ -4503,7 +4503,8 @@ const Interface::Property * ProjectHandle::findProperty( const string & name ) c
          return property;
       }
    }
-   LogHandler( LogHandler::WARNING_SEVERITY ) << "Property '" << name << "' could not be found by the ProjectHandle.";
+   /// @todo To be fixed by requirement 61411
+   //LogHandler( LogHandler::WARNING_SEVERITY ) << "Property '" << name << "' could not be found by the ProjectHandle.";
    return 0;
 }
 

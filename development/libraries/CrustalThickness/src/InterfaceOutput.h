@@ -92,10 +92,12 @@ public:
 
    /// @defgroup CreateDeleteMaps
    /// @{
-   /// @brief create the all CTC maps for the defined snapshot
-   /// @param theSnapshot The snapshot corresponding to the maps
-   /// @param theSurface The stratigraphic surface corresponding to the maps
-   bool createSnapShotOutputMaps( GeoPhysics::ProjectHandle * pHandle, const Snapshot* theSnapshot, const Interface::Surface *theSurface = nullptr );
+   /// @brief Create all the CTC maps for the defined snapshot
+   /// @param[in] theSnapshot The snapshot corresponding to the maps
+   /// @param[in] theSurface The stratigraphic surface corresponding to the maps
+   /// @param[in] debug If true, then will create debug maps
+   bool createSnapShotOutputMaps( GeoPhysics::ProjectHandle * pHandle, const Snapshot* theSnapshot, const Interface::Surface *theSurface = nullptr,
+                                  const bool debug = false );
    /// @brief Create a map for the defined snapshot
    /// @param propertyName The name of the property corresponding to the map
    /// @param theSnapshot The snapshot corresponding to the map
@@ -107,8 +109,12 @@ public:
 
    /// @defgroup DisableOutput
    /// @{
-   void disableBackstripOutput( ProjectHandle * pHandle, const Interface::Surface* theSurface, const Snapshot* theSnapshot ) const;
-   void updatePossibleOutputsAtSnapshot( outputMaps id, const GeoPhysics::ProjectHandle * pHandle, const Snapshot * theSnapshot );
+   /// @brief Ensure that the CTC only saves the required maps
+   /// @details Some maps are required for the CTC computations but they should be output in debug mode only
+   void disableDebugOutput( ProjectHandle * pHandle, const Interface::Surface* theSurface, const Snapshot* theSnapshot ) const;
+   /// @brief Ensure that the CTC only allocates the required maps
+   /// @details Some maps can't be created if some inputs are missing
+   void updatePossibleOutputsAtSnapshot( outputMaps id, const GeoPhysics::ProjectHandle * pHandle, const Snapshot * theSnapshot, const bool debug );
    /// @}
 
    /// @defgroup DataUtilities

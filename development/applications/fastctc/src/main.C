@@ -163,7 +163,7 @@ int main (int argc, char ** argv)
          else if (!strcmp( verbosity, "normal"     )) { LogHandler( "fastctc", LogHandler::NORMAL_LEVEL,     rank ); }
          else if (!strcmp( verbosity, "detailed"   )) { LogHandler( "fastctc", LogHandler::DETAILED_LEVEL,   rank ); }
          else if (!strcmp( verbosity, "diagnostic" )) { LogHandler( "fastctc", LogHandler::DIAGNOSTIC_LEVEL, rank ); }
-         else throw formattingexception::GeneralException() << "Unknown <" << verbosity << "> option for -verbosity command line parameter.";
+         else throw formattingexception::GeneralException() << "Unknown <" << verbosity << "> option for -verbosity command line parameter";
       }
       else{
          LogHandler( "fastctc", LogHandler::DETAILED_LEVEL, rank );
@@ -174,7 +174,7 @@ int main (int argc, char ** argv)
       return 1;
    }
    catch (...){
-      std::cout << "Fatal error when initialising log file(s).";
+      std::cout << "Fatal error when initialising log file(s)";
       return 1;
    }
 
@@ -196,8 +196,7 @@ int main (int argc, char ** argv)
    PetscOptionsGetString (PETSC_NULL, "-project", inputFileName, lineSize, &isDefined);
 
    if (!isDefined)  {
-      LogHandler( LogHandler::ERROR_SEVERITY ) << "ERROR Error when reading the project file.";
-      fprintf(stderr, "MeSsAgE ERROR Error when reading the project file\n");
+      LogHandler( LogHandler::ERROR_SEVERITY ) << "ERROR Error when reading the project file";
       showUsage ();
       PetscFinalize ();
       return -1;
@@ -207,15 +206,14 @@ int main (int argc, char ** argv)
    PetscTime( &sim_Start_Time );
 
    if (!CrustalThicknessCalculator::CreateFrom( inputFileName, factory )) {
-      LogHandler( LogHandler::ERROR_SEVERITY ) << "Can not open the project file.";
-      fprintf(stderr, "MeSsAgE ERROR Can not open the project file\n");
+      LogHandler( LogHandler::ERROR_SEVERITY ) << "Can not open the project file";
       showUsage ();
       PetscFinalize ();
       return -1;
    };
 
    if( !CrustalThicknessCalculator::getInstance().parseCommandLine()) {
-      LogHandler( LogHandler::ERROR_SEVERITY ) << "Could not parse command line.";
+      LogHandler( LogHandler::ERROR_SEVERITY ) << "Could not parse command line";
       finaliseCrustalThicknessCalculator(feature, "", factory);
       return -1;
    };
@@ -224,7 +222,11 @@ int main (int argc, char ** argv)
    ///3. Run CTC
    try {
       CrustalThicknessCalculator::getInstance().deleteCTCPropertyValues();
+      LogHandler( LogHandler::INFO_SEVERITY ) << "_______________________________________________________";
+      LogHandler( LogHandler::INFO_SEVERITY ) << "_____________________INITIALIZE CTC____________________";
       CrustalThicknessCalculator::getInstance().initialise();
+      LogHandler( LogHandler::INFO_SEVERITY ) << "_______________________________________________________";
+      LogHandler( LogHandler::INFO_SEVERITY ) << "_________________________RUN CTC_______________________";
       CrustalThicknessCalculator::getInstance().run();
    }
    catch (std::invalid_argument& ex){
@@ -258,6 +260,8 @@ int main (int argc, char ** argv)
 
    ////////////////////////////////////////////
    ///4. Save results
+   LogHandler( LogHandler::INFO_SEVERITY ) << "_______________________________________________________";
+   LogHandler( LogHandler::INFO_SEVERITY ) << "____________________SAVE CTC OUTPUTS___________________";
    CrustalThicknessCalculator::finalise(true);
 
    PetscTime( &sim_End_Time );

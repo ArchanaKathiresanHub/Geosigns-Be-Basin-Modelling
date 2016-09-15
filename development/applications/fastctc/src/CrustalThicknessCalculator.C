@@ -234,8 +234,8 @@ void CrustalThicknessCalculator::setRequestedOutputProperties( InterfaceOutput &
 
    // set default output properties
    theOutput.setMapsToOutput( mohoMap, topBasaltMap,
-      thicknessBasaltMap, thicknessCrustMap, thicknessCrustMeltOnset, WLSadjustedMap, RDAadjustedMap,
-      cumSedimentBackstrip, WLSMap, isostaticBathymetry, PaleowaterdepthResidual,
+      thicknessBasaltMap, thicknessCrustMap, thicknessCrustMeltOnset, WLSadjustedMap, RDAadjustedMap, TFMap,
+      cumSedimentBackstrip, WLSMap, incTectonicSubsidenceAdjusted, isostaticBathymetry, PaleowaterdepthResidual,
       numberOfOutputMaps );
 }
 
@@ -285,6 +285,21 @@ void CrustalThicknessCalculator::run() {
       }
 
       if (age >= m_inputData->getFlexuralAge() or k == 0){
+
+         /// @todo temporary log, will be modified with requirement 60263
+         if (k == 0){
+            LogHandler( LogHandler::INFO_SEVERITY ) << "////////////////////";
+            LogHandler( LogHandler::INFO_SEVERITY ) << "/// Precomputing present day Total Tectonic Subsidence";
+            LogHandler( LogHandler::INFO_SEVERITY ) << "/// and it's associated Lithostatic Pressure property";
+         }
+         else{
+            if (k == 1){
+               LogHandler( LogHandler::INFO_SEVERITY ) << "////////////////////";
+               LogHandler( LogHandler::INFO_SEVERITY ) << "/// Computing CTC output maps";
+            }
+            LogHandler( LogHandler::INFO_SEVERITY ) << "/// Snapshot: " << age << "Ma";
+         }
+
          const Snapshot * theSnapshot = (const Snapshot *)findSnapshot( age );
 
          /// 1. Load P/T data fot this snapshot
@@ -295,20 +310,22 @@ void CrustalThicknessCalculator::run() {
          m_inputData->loadPressureData( m_crustalThicknessCalculator, pressureProperty, age );
 
          /// 2. Create the maps for this snapshot
-         if (!m_outputData.createSnapShotOutputMaps( m_crustalThicknessCalculator, theSnapshot, m_inputData->getTopOfSedimentSurface() )) {
-            throw CtcException() << "Cannot allocate output maps.";
+         if (!m_outputData.createSnapShotOutputMaps( m_crustalThicknessCalculator, theSnapshot, m_inputData->getTopOfSedimentSurface(), m_debug )) {
+            throw CtcException() << "Cannot allocate output maps";
          }
 
          retrieveData();
 
          /// 3. Compute the backstripped density and thickness, the backtrip and the compensation
+         LogHandler( LogHandler::INFO_SEVERITY ) << "   ->Computing Backstrip";
          DensityCalculator densityCalculator( *m_inputData, m_outputData, validator );
          densityCalculator.compute();
-         if (!m_debug) m_outputData.disableBackstripOutput( m_crustalThicknessCalculator, m_inputData->getBotOfSedimentSurface(), theSnapshot );
+         if (!m_debug) m_outputData.disableDebugOutput( m_crustalThicknessCalculator, m_inputData->getBotOfSedimentSurface(), theSnapshot );
 
          /// 4. Compute the Total Tectonic Subsidence (only if we have a SDH at this snapshot)
          const Interface::Property* pressureInterfaceProperty = findProperty( "Pressure" );
          if (asSurfaceDepthHistory( age )){
+            LogHandler( LogHandler::INFO_SEVERITY ) << "   ->Computing Tectonic Subsidence";
             TotalTectonicSubsidenceCalculator TTScalculator( *m_inputData, m_outputData, validator,
                age, densityCalculator.getAirCorrection(), m_previousTTS, m_seaBottomDepth );
             TTScalculator.compute();
@@ -332,12 +349,14 @@ void CrustalThicknessCalculator::run() {
          }
 
          /// 5. Compute the Paleowaterdepth
+         LogHandler( LogHandler::INFO_SEVERITY ) << "   ->Computing Paleowaterdepth";
          PaleowaterdepthCalculator PWDcalculator( *m_inputData, m_outputData, validator,
             presentDayTTS.get(), prensentDayPressureTTS.get(), currentPressureTTS );
          PWDcalculator.compute();
 
          // 6. Compute the PaleowaterdepthResidual (only if we have a SDH at this snapshot and if we are not at present day)
          if (asSurfaceDepthHistory( age ) and age!=0.0){
+            LogHandler( LogHandler::INFO_SEVERITY ) << "   ->Computing PaleowaterdepthResidual";
             PaleowaterdepthResidualCalculator PWDRcalculator( *m_inputData, m_outputData, validator,
                age, m_seaBottomDepth );
             PWDRcalculator.compute();
@@ -345,6 +364,7 @@ void CrustalThicknessCalculator::run() {
 
          ///7. Computes the thinning factor and crustal thicknesse
          if (asSurfaceDepthHistory( age )){
+            LogHandler( LogHandler::INFO_SEVERITY ) << "   ->Computing Crustal Thicknesses";
             McKenzieCrustCalculator mcKenzieCalculator( *m_inputData, m_outputData, validator, m_previousTF, m_previousContinentalCrustalThickness, m_previousOceanicCrustalThickness );
             mcKenzieCalculator.compute();
             m_previousTF                          = m_outputData.getMap( TFMap );
@@ -477,16 +497,18 @@ void CrustalThicknessCalculator::smoothOutputs() {
    if (m_applySmoothing) {
       std::vector<outputMaps> mapsToSmooth = { isostaticBathymetry, thicknessBasaltMap, thicknessCrustMap };
       MapSmoother mapSmoother( m_inputData->getSmoothRadius() );
-      LogHandler( LogHandler::INFO_SEVERITY ) << "Applying spatial smoothing with radius set to " << m_inputData->getSmoothRadius() << " for maps:";
+      LogHandler( LogHandler::INFO_SEVERITY ) << "   ->Applying spatial smoothing with radius set to " << m_inputData->getSmoothRadius() << " for maps:";
 
       for (size_t i = 0; i < mapsToSmooth.size(); i++){
-         LogHandler( LogHandler::INFO_SEVERITY ) << "   #" << outputMapsNames[ mapsToSmooth[i] ];
-         bool status = mapSmoother.averageSmoothing( m_outputData.getMap( mapsToSmooth[i] ) );
-         if (!status) {
-            throw CtcException() << "Failed to smooth " << outputMapsNames[ mapsToSmooth[i] ];
+         if (m_outputData.getOutputMask( mapsToSmooth[i] )){
+            LogHandler( LogHandler::INFO_SEVERITY ) << "      #" << outputMapsNames[mapsToSmooth[i]];
+            bool status = mapSmoother.averageSmoothing( m_outputData.getMap( mapsToSmooth[i] ) );
+            if (!status) {
+               throw CtcException() << "Failed to smooth " << outputMapsNames[mapsToSmooth[i]];
+            }
          }
-          
       }
+
    }
 }
 
