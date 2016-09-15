@@ -167,12 +167,12 @@ TEST_F( TTSCalculatorTest, compute )
    EXPECT_EQ( 380, outputData.getMapValue( WLSadjustedMap, 0, 1 ) );
    EXPECT_EQ( 380, outputData.getMapValue( WLSadjustedMap, 1, 0 ) );
    EXPECT_EQ( 380, outputData.getMapValue( WLSadjustedMap, 1, 1 ) );
-   EXPECT_EQ( 80,  outputData.getMapValue( incTectonicSubsidenceAdjusted, 0, 0 ) );
-   EXPECT_EQ( 80,  outputData.getMapValue( incTectonicSubsidenceAdjusted, 0, 1 ) );
-   EXPECT_EQ( 80,  outputData.getMapValue( incTectonicSubsidenceAdjusted, 1, 0 ) );
-   EXPECT_EQ( 80,  outputData.getMapValue( incTectonicSubsidenceAdjusted, 1, 1 ) );
+   EXPECT_EQ( 100,  outputData.getMapValue( incTectonicSubsidenceAdjusted, 0, 0 ) );
+   EXPECT_EQ( 100,  outputData.getMapValue( incTectonicSubsidenceAdjusted, 0, 1 ) );
+   EXPECT_EQ( 100,  outputData.getMapValue( incTectonicSubsidenceAdjusted, 1, 0 ) );
+   EXPECT_EQ( 100,  outputData.getMapValue( incTectonicSubsidenceAdjusted, 1, 1 ) );
 
-   // 2. Test that the incremental tectonic subsidence output is equal to 0 when there is not yet any previous TTS
+   // 2. Test that the incremental tectonic subsidence output is equal to the first TTS when there is not yet any previous TTS
    //aircorrection=1.5
    TotalTectonicSubsidenceCalculator ttsCalculator2( inputData,
       outputData,
@@ -186,18 +186,18 @@ TEST_F( TTSCalculatorTest, compute )
    EXPECT_EQ( 400, outputData.getMapValue( WLSMap, 0, 1 ) );
    EXPECT_EQ( 400, outputData.getMapValue( WLSMap, 1, 0 ) );
    EXPECT_EQ( 400, outputData.getMapValue( WLSMap, 1, 1 ) );
-   EXPECT_EQ( 0, outputData.getMapValue( incTectonicSubsidence, 0, 0 ) );
-   EXPECT_EQ( 0, outputData.getMapValue( incTectonicSubsidence, 0, 1 ) );
-   EXPECT_EQ( 0, outputData.getMapValue( incTectonicSubsidence, 1, 0 ) );
-   EXPECT_EQ( 0, outputData.getMapValue( incTectonicSubsidence, 1, 1 ) );
+   EXPECT_EQ( 400, outputData.getMapValue( incTectonicSubsidence, 0, 0 ) );
+   EXPECT_EQ( 400, outputData.getMapValue( incTectonicSubsidence, 0, 1 ) );
+   EXPECT_EQ( 400, outputData.getMapValue( incTectonicSubsidence, 1, 0 ) );
+   EXPECT_EQ( 400, outputData.getMapValue( incTectonicSubsidence, 1, 1 ) );
    EXPECT_EQ( 380, outputData.getMapValue( WLSadjustedMap, 0, 0 ) );
    EXPECT_EQ( 380, outputData.getMapValue( WLSadjustedMap, 0, 1 ) );
    EXPECT_EQ( 380, outputData.getMapValue( WLSadjustedMap, 1, 0 ) );
    EXPECT_EQ( 380, outputData.getMapValue( WLSadjustedMap, 1, 1 ) );
-   EXPECT_EQ( 0, outputData.getMapValue( incTectonicSubsidenceAdjusted, 0, 0 ) );
-   EXPECT_EQ( 0, outputData.getMapValue( incTectonicSubsidenceAdjusted, 0, 1 ) );
-   EXPECT_EQ( 0, outputData.getMapValue( incTectonicSubsidenceAdjusted, 1, 0 ) );
-   EXPECT_EQ( 0, outputData.getMapValue( incTectonicSubsidenceAdjusted, 1, 1 ) );
+   EXPECT_EQ( 400, outputData.getMapValue( incTectonicSubsidenceAdjusted, 0, 0 ) );
+   EXPECT_EQ( 400, outputData.getMapValue( incTectonicSubsidenceAdjusted, 0, 1 ) );
+   EXPECT_EQ( 400, outputData.getMapValue( incTectonicSubsidenceAdjusted, 1, 0 ) );
+   EXPECT_EQ( 400, outputData.getMapValue( incTectonicSubsidenceAdjusted, 1, 1 ) );
 
    // 3. Test that the incremental tectonic subsidence are NDV if the previous TTS is undefined
    //aircorrection=1.5
