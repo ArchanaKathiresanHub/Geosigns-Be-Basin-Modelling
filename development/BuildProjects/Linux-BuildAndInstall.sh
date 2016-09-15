@@ -1,4 +1,5 @@
 #!/bin/bash
+set
 
 # Reading parameters with some defaults
 svnRepository=file:///nfs/rvl/groups/ept-sg/SWEast/Cauldron/SUBVERSION/repository

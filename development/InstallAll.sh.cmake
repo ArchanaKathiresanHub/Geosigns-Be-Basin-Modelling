@@ -75,7 +75,7 @@ else
    echo "Installing platform independent files:"
    echo " - Geocase"
    # Install Geocase
-   cp -r /glb/data/Finite-Scratch/s_bpac00/tmp/cld-cln-git_Release/misc $targetDirectory
+   cp -r @CMAKE_INSTALL_PREFIX@/misc $targetDirectory
 
    # installing 3rdparty stuff
    echo " - Geocosm's TsLib"
