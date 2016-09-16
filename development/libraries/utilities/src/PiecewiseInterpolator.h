@@ -46,7 +46,7 @@ namespace ibs {
       double evaluate ( const double value ) const;
 
       /// \brief Evaluate the interpolator for an array of values.
-      void evaluate ( const unsigned int size, const double const* pnts, double* values ) const;
+      void evaluate ( const unsigned int size, const double* const pnts, double* values ) const;
 
       /// \brief Evaluate the derivative of the interpolator at the point.
       double evaluateDerivative ( const double value ) const;

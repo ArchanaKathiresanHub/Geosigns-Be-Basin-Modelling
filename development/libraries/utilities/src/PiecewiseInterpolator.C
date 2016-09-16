@@ -55,7 +55,8 @@ double ibs::PiecewiseInterpolator::evaluate ( const double value ) const {
 //------------------------------------------------------------//
 
 void ibs::PiecewiseInterpolator::evaluate ( const unsigned int size,
-                                            const double const* pnts, double* values ) const {
+                                            const double* const pnts,
+                                            double* values ) const {
 
    if ( m_numberOfPoints == 2 ) {
       // Only a single panel
