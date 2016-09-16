@@ -107,6 +107,44 @@ void ibs::PiecewiseInterpolator::evaluateDerivative ( const unsigned int size,
 
    }
 
+}
+
+//------------------------------------------------------------//
+
+void ibs::PiecewiseInterpolator::evaluate ( const double x,
+                                            double&      value,
+                                            double&      derivative ) const {
+
+   unsigned int panelNumber = findPanel ( x );
+
+   value = m_aCoeffs [ panelNumber ] + m_bCoeffs [ panelNumber ] * x;
+   derivative = m_bCoeffs [ panelNumber ];
+}
+
+//------------------------------------------------------------//
+
+void ibs::PiecewiseInterpolator::evaluate (  const unsigned int  size,
+                                             const double* const pnts,
+                                             double*             values,
+                                             double*             derivatives ) const {
+
+   if ( m_numberOfPoints == 2 ) {
+      // Only a single panel
+
+      #pragma simd
+      for ( unsigned int i = 0; i < size; ++i ) {
+         values [ i ] = m_aCoeffs [ 0 ] + m_bCoeffs [ 0 ] * pnts [ i ];
+         derivatives [ i ] = m_bCoeffs [ 0 ];
+      }
+
+   } else {
+
+      #pragma simd
+      for ( unsigned int i = 0; i < size; ++i ) {
+         evaluate ( pnts [ i ], values [ i ], derivatives [ i ]);
+      }
+
+   }
 
 }
 
