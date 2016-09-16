@@ -86,6 +86,32 @@ double ibs::PiecewiseInterpolator::evaluateDerivative ( const double value ) con
 
 //------------------------------------------------------------//
 
+void ibs::PiecewiseInterpolator::evaluateDerivative ( const unsigned int size,
+                                                      const double* const pnts,
+                                                      double*             values ) const {
+
+   if ( m_numberOfPoints == 2 ) {
+      // Only a single panel
+
+      #pragma simd
+      for ( unsigned int i = 0; i < size; ++i ) {
+         values [ i ] = m_bCoeffs [ 0 ];
+      }
+
+   } else {
+
+      // #pragma omp simd aligned ( pnts, values )
+      for ( unsigned int i = 0; i < size; ++i ) {
+         values [ i ] = evaluateDerivative ( pnts [ i ]);
+      }
+
+   }
+
+
+}
+
+//------------------------------------------------------------//
+
 void ibs::PiecewiseInterpolator::setInterpolation ( const unsigned int        newNumberOfPoints,
                                                     const double*             newXs,
                                                     const double*             newYs ) {

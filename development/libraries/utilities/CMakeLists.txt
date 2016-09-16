@@ -48,6 +48,13 @@ install(TARGETS utilities
 add_gtest( NAME utilities::PiecewiseInterpolator
 			SOURCES test/PiecewiseInterpolatorTest.C
 			LIBRARIES utilities)
+
+# PiecewiseInterpolator tests
+add_gtest( NAME utilities::PiecewiseInterpolatorDerivative
+			SOURCES test/PiecewiseInterpolatorDerivativeTest.C
+			LIBRARIES utilities)
+
+
 # IBSInterpolator tests
 add_gtest( NAME utilities::IBSinterpolator
 			SOURCES test/IBSinterpolator.C
