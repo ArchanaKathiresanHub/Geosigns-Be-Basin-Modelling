@@ -81,7 +81,7 @@ bool ProjectHandle::extractRelevantTraps (const Interface::Snapshot * snapshot)
 
    const Interface::Formation* srFormation = getBottomSourceRockFormation ();
    if (srFormation == nullptr)
-      return false;
+      return true;
 
    for (reservoirIter = reservoirs->begin (); reservoirIter != reservoirs->end (); ++reservoirIter)
    {
@@ -104,7 +104,7 @@ bool ProjectHandle::determineTrapExtents (const Interface::Snapshot * snapshot)
 
    const Interface::Formation* srFormation = getBottomSourceRockFormation ();
    if (srFormation == nullptr)
-      return false;
+      return true;
 
    for (reservoirIter = reservoirs->begin (); reservoirIter != reservoirs->end (); ++reservoirIter)
    {
@@ -126,7 +126,7 @@ bool ProjectHandle::determineTrapSealPermeabilities (const Interface::Snapshot *
 
    const Interface::Formation* srFormation = getBottomSourceRockFormation ();
    if (srFormation == nullptr)
-      return false;
+      return true;
 
    for (reservoirIter = reservoirs->begin (); reservoirIter != reservoirs->end (); ++reservoirIter)
    {
@@ -148,7 +148,7 @@ bool ProjectHandle::determineTrapPorosities (const Interface::Snapshot * snapsho
 
    const Interface::Formation* srFormation = getBottomSourceRockFormation ();
    if (srFormation == nullptr)
-      return false;
+      return true;
 
    for (reservoirIter = reservoirs->begin (); reservoirIter != reservoirs->end (); ++reservoirIter)
    {
@@ -170,7 +170,7 @@ bool ProjectHandle::determineReservoirDepths (const Interface::Snapshot * snapsh
 
    const Interface::Formation* srFormation = getBottomSourceRockFormation ();
    if (srFormation == nullptr)
-      return false;
+      return true;
 
    for (reservoirIter = reservoirs->begin (); reservoirIter != reservoirs->end (); ++reservoirIter)
    {
@@ -194,7 +194,7 @@ bool ProjectHandle::computePersistentTraps (const Interface::Snapshot * snapshot
 
    const Interface::Formation* srFormation = getBottomSourceRockFormation ();
    if (srFormation == nullptr)
-      return false;
+      return true;
 
    for (reservoirIter = reservoirs->begin (); reservoirIter != reservoirs->end (); ++reservoirIter)
    {
