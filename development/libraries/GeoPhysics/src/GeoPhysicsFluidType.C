@@ -1,3 +1,13 @@
+//                                                                      
+// Copyright (C) 2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "GeoPhysicsFluidType.h"
 #include "GeoPhysicsProjectHandle.h"
 
@@ -17,6 +27,9 @@
 #include "Interface/PermafrostEvent.h"
 
 #include "NumericFunctions.h"
+
+// utilities library
+#include "LogHandler.h"
 
 using namespace DataAccess;
 
@@ -57,14 +70,17 @@ GeoPhysics::FluidType::FluidType (Interface::ProjectHandle * projectHandle, data
 GeoPhysics::FluidType::~FluidType () {
 }
 
-void GeoPhysics::FluidType::loadPropertyTables () {
-
+void GeoPhysics::FluidType::loadPropertyTables ()
+{
    // Load heat-capacity, thermal-conductivity and density tables.
    Interface::FluidHeatCapacitySampleList* heatCapacitySamples;
    Interface::FluidThermalConductivitySampleList* thermalConductivitySamples;
 
    heatCapacitySamples = m_projectHandle->getFluidHeatCapacitySampleList (m_projectHandle->findFluid (getHeatCapacityFluidName ()));
+
    thermalConductivitySamples = m_projectHandle->getFluidThermalConductivitySampleList (m_projectHandle->findFluid (getThermalConductivityFluidName ()));
+   if ((*thermalConductivitySamples).size () != GeoPhysics::BrineConductivity::s_thCondArraySize)
+      throw std::runtime_error("Size of fluid thremal-conductivity table in project file is not correct");
 
    Interface::FluidHeatCapacitySampleList::const_iterator heatCapacitySampleIter;
    Interface::FluidThermalConductivitySampleList::const_iterator thermalConductivitySampleIter;

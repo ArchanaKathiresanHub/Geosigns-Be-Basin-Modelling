@@ -74,7 +74,24 @@ int main(int argc, char** argv)
    // prepare (check license)
    returnStatus = FastcauldronStartup::prepare( canRunSaltModelling );
    // startup
-   if ( returnStatus  ) returnStatus = FastcauldronStartup::startup( argc, argv, canRunSaltModelling );
+
+   try
+   {
+      if ( returnStatus  ) returnStatus = FastcauldronStartup::startup( argc, argv, canRunSaltModelling );
+   }
+
+   catch (std::exception& e)
+   {
+      LogHandler (LogHandler::ERROR_SEVERITY) << e.what ();
+      return 1;
+   }
+
+   catch (...)
+   {
+      std::cerr << "Unknown exception occured.\n";
+      return 1;
+   }
+
    // if startup sucessful, run fastcauldron
    if ( returnStatus ) returnStatus = FastcauldronStartup::run( );
    // delete factory, appctx, exit license
