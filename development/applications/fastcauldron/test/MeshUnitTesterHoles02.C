@@ -60,9 +60,8 @@ TEST ( DofCountingUnitTest, HoleySedimentMesh02 ) {
 
    // Declaration block required so as to finalise all fastcauldron objects before calling PetscFinalise.
    {
-      bool canRunSaltModelling = false;
-      bool returnStatus = FastcauldronStartup::prepare( canRunSaltModelling, false );
-      if ( returnStatus ) returnStatus = FastcauldronStartup::startup( argc, argv, canRunSaltModelling );
+      FastcauldronStartup fastcauldronStartup( argc, argv, false, false );
+      bool returnStatus = fastcauldronStartup.getPrepareStatus( ) && fastcauldronStartup.getStartUpStatus( );
 
       EXPECT_EQ ( returnStatus, true );
 
@@ -89,7 +88,7 @@ TEST ( DofCountingUnitTest, HoleySedimentMesh02 ) {
          ASSERT_TRUE ( mut.compareFiles ( validFileName, testFileName ));
       }
 
-      FastcauldronStartup::finalise( false );
+      fastcauldronStartup.finalize( );
    }
 
    PetscFinalize ();

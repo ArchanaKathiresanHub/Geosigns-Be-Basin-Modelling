@@ -71,33 +71,25 @@ int main(int argc, char** argv)
       return 1;
    }
 
-   // prepare (check license)
-   returnStatus = FastcauldronStartup::prepare( canRunSaltModelling );
-   // startup
-
+   
    try
    {
-      if ( returnStatus  ) returnStatus = FastcauldronStartup::startup( argc, argv, canRunSaltModelling );
+      FastcauldronStartup fastcauldronStartup( argc, argv );
+      fastcauldronStartup.run();
+      fastcauldronStartup.finalize( );
+      returnStatus = fastcauldronStartup.getPrepareStatus() && fastcauldronStartup.getStartUpStatus() && fastcauldronStartup.getRunStatus();
    }
-
-   catch (std::exception& e)
+   catch ( std::exception& e )
    {
-      LogHandler (LogHandler::ERROR_SEVERITY) << e.what ();
+      LogHandler( LogHandler::ERROR_SEVERITY ) << e.what( );
       return 1;
    }
-
-   catch (...)
+   catch ( ... )
    {
       std::cerr << "Unknown exception occured.\n";
       return 1;
    }
 
-   // if startup sucessful, run fastcauldron
-   if ( returnStatus ) returnStatus = FastcauldronStartup::run( );
-   // delete factory, appctx, exit license
-   returnStatus = FastcauldronStartup::finalise( returnStatus );
-
-   // finalize
    PetscFinalize();
    
    return returnStatus ? 0 : 1;

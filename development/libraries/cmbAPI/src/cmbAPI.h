@@ -371,6 +371,11 @@ namespace mbapi {
       /// @return true is comprised, false otherwise
       bool checkPoint( const double x, const double y, const double z, const std::string & layerName );
 
+
+      /// @brief get the depth values of one specific surface
+      /// @return true is the grid values could be retrived, false otherwise
+      bool getGridMapDepthValues( const mbapi::StratigraphyManager::SurfaceID s, std::vector<double> & v );
+
    private:
       /// @{
       /// Implementation part

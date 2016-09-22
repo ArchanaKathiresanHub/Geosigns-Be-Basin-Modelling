@@ -37,22 +37,38 @@
 #include "HydraulicFracturingManager.h"
 #include "propinterface.h"
 
-// inizialize the static members
-AppCtx              * FastcauldronStartup::s_cauldron             = 0;
-FastcauldronFactory * FastcauldronStartup::s_factory              = 0;
-std::string           FastcauldronStartup::s_errorMessage         = "";
-bool                  FastcauldronStartup::s_checkLicense         = true;
-bool                  FastcauldronStartup::s_solverHasConverged   = false;
-bool                  FastcauldronStartup::s_errorInDarcy         = false;
-bool                  FastcauldronStartup::s_geometryHasConverged = false;
-#ifdef FLEXLM
+unsigned int FastcauldronStartup::s_instances = 0;
 
-char FastcauldronStartup::s_feature[EPTFLEXLM_MAX_FEATURE_LEN];
-#else
-char FastcauldronStartup::s_feature[256];
-#endif
+FastcauldronStartup::FastcauldronStartup( int argc, char** argv, bool checkLicense, bool saveResults ) : 
+                                          m_checkLicense( checkLicense ), 
+                                          m_prepareOk( false ),
+                                          m_startUpOk( false ),
+                                          m_saveResults( saveResults )
+{
+   if ( s_instances == 0 )
+   {
+      m_prepareOk              = prepare();
+      m_factory                = new FastcauldronFactory;
+      m_cauldron               = new AppCtx( argc, argv );
+      m_solverHasConverged     = true;
+      m_errorInDarcy           = false;
+      m_geometryHasConverged   = true;
+      m_runOk                  = true;
+      s_instances              = s_instances + 1;
+      m_startUpOk              = startup( argc, argv );
+   }
+   else
+   {
+      if ( s_instances != 0 ) m_errorMessage = "MeSsAgE ERROR FastcauldronStartup already instantiated";
+   }
+};
 
-bool FastcauldronStartup::prepare( bool & canRunSaltModelling, bool checkLicense )
+FastcauldronStartup::~FastcauldronStartup( )
+{
+   //No action taken by the destructor. We need to make sure that factories and other classes are deleted before PetscFinalize and not after by automatic destruction
+}
+
+bool FastcauldronStartup::prepare()
 {
 
    // If FLEXLM is defined then this is updated within the FLEXLM section.
@@ -61,7 +77,6 @@ bool FastcauldronStartup::prepare( bool & canRunSaltModelling, bool checkLicense
    // Some OU's are no permitted to have access to the salt modelling functionality.
 
 #ifdef FLEXLM
-   s_checkLicense = checkLicense;
    int rc = EPTFLEXLM_OK;
    char version[EPTFLEXLM_MAX_VER_LEN];
    char errmessage[EPTFLEXLM_MAX_MESS_LEN];
@@ -69,13 +84,13 @@ bool FastcauldronStartup::prepare( bool & canRunSaltModelling, bool checkLicense
    // FlexLM license handling only for node with rank = 0
    if ( ourRank() == 0 )
    {
-      sprintf( s_feature, "ibs_cauldron_calc" );
+      sprintf( m_feauture, "ibs_cauldron_calc" );
 #ifdef IBSFLEXLMVERSION
       sprintf( version, IBSFLEXLMVERSION );
 #else
       sprintf( version, "9999.99" );
 #endif
-      if ( checkLicense )
+      if ( m_checkLicense )
       {
          rc = EPTFlexLmInit( errmessage );
          if ( rc != EPTFLEXLM_OK )
@@ -83,7 +98,7 @@ bool FastcauldronStartup::prepare( bool & canRunSaltModelling, bool checkLicense
             fprintf( stderr, "\n@@@@@@@@@@@@@@@\n FlexLm license init problems: fastcauldron cannot start.\n Please contact your helpdesk\n@@@@@@@@@@@@@@@\n" );
          }
          // FlexLM license handling: Checkout
-         rc = EPTFlexLmCheckOut( s_feature, version, errmessage );
+         rc = EPTFlexLmCheckOut( m_feauture, version, errmessage );
          if ( rc == EPTFLEXLM_WARN )
          {
             fprintf( stderr, "\n@@@@@@@@@@@@@@@\n FlexLm license warning: fastcauldron will still start anyway.\n@@@@@@@@@@@@@@@\n" );
@@ -93,58 +108,57 @@ bool FastcauldronStartup::prepare( bool & canRunSaltModelling, bool checkLicense
             fprintf( stderr, "\n@@@@@@@@@@@@@@@\n FlexLm license error: fastcauldron cannot start.\n Please contact your helpdesk\n@@@@@@@@@@@@@@@\n" );
          }
       }
-      else { sprintf( s_feature, "ibs_cauldron_calc" ); }
+      else { sprintf( m_feauture, "ibs_cauldron_calc" ); }
    }
    MPI_Bcast( &rc, 1, MPI_INT, 0, PETSC_COMM_WORLD );
-   canRunSaltModelling = checkLicense ? determineSaltModellingCapability() : true;
+   m_canRunSaltModelling = m_checkLicense ? determineSaltModellingCapability() : true;
 
-   if ( checkLicense && rc != EPTFLEXLM_OK &&  rc != EPTFLEXLM_WARN ) { return false; }
+   if ( m_checkLicense && rc != EPTFLEXLM_OK &&  rc != EPTFLEXLM_WARN ) 
+   {
+      m_errorMessage = "MeSsAgE ERROR FastcauldronStartup::prepare() failed";
+      return false; 
+   }
 
 #else
-   sprintf( s_feature, "ibs_cauldron_calc" );
+   sprintf( m_feauture, "ibs_cauldron_calc" );
 #endif
 
    return true;
 }
 
-bool FastcauldronStartup::startup( int        argc
-                                 , char**     argv
-                                 , const bool canRunSaltModelling
-                                 , const bool saveAsInputGrid
-                                 , const bool createResultsFile
-                                 )
+bool FastcauldronStartup::startup( int        argc,
+                                   char**     argv,
+                                   const bool saveAsInputGrid,
+                                   const bool createResultsFile )
 {
-   s_factory  = new FastcauldronFactory;
-   s_cauldron = new AppCtx( argc, argv );
-
-   HydraulicFracturingManager::getInstance().setAppCtx( s_cauldron );
+   HydraulicFracturingManager::getInstance().setAppCtx( m_cauldron );
 
    StartTiming();
 
-   if ( not s_cauldron->readProjectName() )
+   if ( not m_cauldron->readProjectName() )
    {
-      s_errorMessage = "MeSsAgE ERROR Error when reading the project file";
+      m_errorMessage = "MeSsAgE ERROR Error when reading the project file";
       return false;
    }
 
    StatisticsHandler::initialise();
-   FastcauldronSimulator::CreateFrom( s_cauldron, s_factory );
+   FastcauldronSimulator::CreateFrom( m_cauldron, m_factory );
    FastcauldronSimulator::getInstance().readCommandLineParametersEarlyStage( argc, argv );
    FastcauldronSimulator::getInstance().deleteTemporaryDirSnapshots();
    FastcauldronSimulator::getInstance().setFormationElementHeightScalingFactors();
 
-   if ( not FastcauldronSimulator::getInstance().setCalculationMode( s_cauldron->getCalculationMode(), saveAsInputGrid, createResultsFile ) )
+   if ( not FastcauldronSimulator::getInstance().setCalculationMode( m_cauldron->getCalculationMode(), saveAsInputGrid, createResultsFile ) )
    {
-      s_errorMessage = "MeSsAgE ERROR Error when setting calculation mode";
+      m_errorMessage = "MeSsAgE ERROR Error when setting calculation mode";
       return false;
    }
 
    FastcauldronSimulator::getInstance().getMcfHandler().determineUsage();
    FastcauldronSimulator::getInstance().initialiseFastcauldronLayers();
 
-   if ( not s_cauldron->readProjectFile() )
+   if ( not m_cauldron->readProjectFile() )
    {
-      s_errorMessage = "MeSsAgE ERROR Error when reading the project file";
+      m_errorMessage = "MeSsAgE ERROR Error when reading the project file";
       return false;
    }
 
@@ -152,26 +166,26 @@ bool FastcauldronStartup::startup( int        argc
    FastcauldronSimulator::getInstance().readCommandLineParametersLateStage( argc, argv );
 
    // Initialise anything that is to be set from the environment.
-   s_cauldron->setParametersFromEnvironment();
-   s_cauldron->Display_Grid_Description();
-   s_cauldron->setLayerBottSurfaceName();
+   m_cauldron->setParametersFromEnvironment();
+   m_cauldron->Display_Grid_Description();
+   m_cauldron->setLayerBottSurfaceName();
 
    // Process Data Map and Assess Valid Nodes
-   s_cauldron->setValidNodeArray();
-   s_cauldron->Examine_Load_Balancing();
-   s_cauldron->Output_Number_Of_Geological_Events();
+   m_cauldron->setValidNodeArray();
+   m_cauldron->Examine_Load_Balancing();
+   m_cauldron->Output_Number_Of_Geological_Events();
 
-   if ( not s_cauldron->createFormationLithologies( canRunSaltModelling ) )
+   if ( not m_cauldron->createFormationLithologies( m_canRunSaltModelling ) )
    {
-      s_errorMessage = "MeSsAgE ERROR Unable to create lithologies";
+      m_errorMessage = "MeSsAgE ERROR Unable to create lithologies";
       return false;
    }
 
    // Find which derived properties are required
-   s_cauldron->filterwizard.InitDerivedCalculationsNeeded();
+   m_cauldron->filterwizard.InitDerivedCalculationsNeeded();
 
-   s_cauldron->Locate_Related_Project();
-   s_cauldron->setInitialTimeStep();
+   m_cauldron->Locate_Related_Project();
+   m_cauldron->setInitialTimeStep();
    FastcauldronSimulator::getInstance().getMcfHandler().initialise();
    FastcauldronSimulator::getInstance().updateSourceRocksForDarcy();
    // Must be done after updating source-rocks for Darcy, since this disables adsorption.
@@ -187,181 +201,150 @@ bool FastcauldronStartup::startup( int        argc
    FastcauldronSimulator::getInstance().updateSnapshotFileCreationFlags();
 
    const bool overpressureCalculation = FastcauldronSimulator::getInstance().getCalculationMode() == OVERPRESSURE_MODE or
-                                        FastcauldronSimulator::getInstance().getCalculationMode() == OVERPRESSURED_TEMPERATURE_MODE or
-                                        FastcauldronSimulator::getInstance().getCalculationMode() == COUPLED_HIGH_RES_DECOMPACTION_MODE or
-                                        FastcauldronSimulator::getInstance().getCalculationMode() == PRESSURE_AND_TEMPERATURE_MODE or
-                                        FastcauldronSimulator::getInstance().getCalculationMode() == COUPLED_DARCY_MODE;
+      FastcauldronSimulator::getInstance().getCalculationMode() == OVERPRESSURED_TEMPERATURE_MODE or
+      FastcauldronSimulator::getInstance().getCalculationMode() == COUPLED_HIGH_RES_DECOMPACTION_MODE or
+      FastcauldronSimulator::getInstance().getCalculationMode() == PRESSURE_AND_TEMPERATURE_MODE or
+      FastcauldronSimulator::getInstance().getCalculationMode() == COUPLED_DARCY_MODE;
 
 
    if ( not FastcauldronSimulator::getInstance().initialiseLayerThicknessHistory( overpressureCalculation ) )
    {
-      s_errorMessage = "MeSsAgE ERROR when initialising thickness history.";
+      m_errorMessage = "MeSsAgE ERROR when initialising thickness history.";
       return false;
    }
 
    if ( FastcauldronSimulator::getInstance().getCalculationMode() == OVERPRESSURED_TEMPERATURE_MODE or
-      FastcauldronSimulator::getInstance().getCalculationMode() == COUPLED_HIGH_RES_DECOMPACTION_MODE ) {
-
+      FastcauldronSimulator::getInstance().getCalculationMode() == COUPLED_HIGH_RES_DECOMPACTION_MODE )
+   {
       // Scale the initalised solid-thicknesses by the fct-correction factors.
       FastcauldronSimulator::getInstance().applyFctCorrections();
    }
 
-   s_errorMessage = "";
+   m_errorMessage = "";
    return true;
 }
 
-
-bool FastcauldronStartup::run()
+void FastcauldronStartup::run()
 {
-   bool returnStatus     = true;
-   s_solverHasConverged  = true;
-   s_errorInDarcy        = false;
-   s_geometryHasConverged = true;
-
-   // Calculate FCT 
-   FCTCalc fctCtx( s_cauldron );
-
-   if ( s_cauldron->DoHighResDecompaction || s_cauldron->DoDecompaction )
+   if ( m_prepareOk && m_startUpOk )
    {
-      fctCtx.decompact();
+      bool returnStatus = true;
+      // Calculate FCT 
+      FCTCalc fctCtx( m_cauldron );
 
-      if ( not FastcauldronSimulator::getInstance().noDerivedPropertiesCalc() ) 
+      if ( m_cauldron->DoHighResDecompaction || m_cauldron->DoDecompaction )
       {
-         DerivedPropertiesCalculator propertyCalculator( s_cauldron, fctCtx.getVolumeOutputProperties(), fctCtx.getMapOutputProperties() );
-         propertyCalculator.compute();
+         fctCtx.decompact();
+
+         if ( not FastcauldronSimulator::getInstance().noDerivedPropertiesCalc() )
+         {
+            DerivedPropertiesCalculator propertyCalculator( m_cauldron, fctCtx.getVolumeOutputProperties(), fctCtx.getMapOutputProperties() );
+            propertyCalculator.compute();
+         }
       }
-   }
 
-   if ( s_cauldron->DoOverPressure && !s_cauldron->Do_Iteratively_Coupled )
-   {
-      Basin_Modelling::FEM_Grid basin( s_cauldron );
-
-      // Do Pressure Calculation
-      basin.solvePressure( s_solverHasConverged, s_errorInDarcy, s_geometryHasConverged );
-   }
-
-   if ( s_cauldron->DoTemperature && !s_cauldron->Do_Iteratively_Coupled )
-   {
-      Basin_Modelling::FEM_Grid basin( s_cauldron );
-
-      // Do Tempearature Calculation
-      basin.solveTemperature( s_solverHasConverged, s_errorInDarcy );
-
-      if ( not FastcauldronSimulator::getInstance().noDerivedPropertiesCalc() )
+      if ( m_cauldron->DoOverPressure && !m_cauldron->Do_Iteratively_Coupled )
       {
-         DerivedPropertiesCalculator propertyCalculator( s_cauldron, basin.getVolumeOutputProperties(), basin.getMapOutputProperties() );
-         propertyCalculator.compute();
+         Basin_Modelling::FEM_Grid basin( m_cauldron );
+
+         // Do Pressure Calculation
+         basin.solvePressure( m_solverHasConverged, m_errorInDarcy, m_geometryHasConverged );
       }
-   }
 
-   if ( s_cauldron->Do_Iteratively_Coupled )
-   {
-      Basin_Modelling::FEM_Grid basin( s_cauldron );
-      // Do Coupled Calculation
-      basin.solveCoupled( s_solverHasConverged, s_errorInDarcy, s_geometryHasConverged );
+      if ( m_cauldron->DoTemperature && !m_cauldron->Do_Iteratively_Coupled )
+      {
+         Basin_Modelling::FEM_Grid basin( m_cauldron );
 
-      if ( not FastcauldronSimulator::getInstance().noDerivedPropertiesCalc() ) {
-         DerivedPropertiesCalculator propertyCalculator( s_cauldron, basin.getVolumeOutputProperties(), basin.getMapOutputProperties() );
+         // Do Tempearature Calculation
+         basin.solveTemperature( m_solverHasConverged, m_errorInDarcy );
 
-         propertyCalculator.compute();
+         if ( not FastcauldronSimulator::getInstance().noDerivedPropertiesCalc() )
+         {
+            DerivedPropertiesCalculator propertyCalculator( m_cauldron, basin.getVolumeOutputProperties(), basin.getMapOutputProperties() );
+            propertyCalculator.compute();
+         }
       }
-   }
 
-   if ( s_cauldron->integrateGenexEquations() )
-   {
-      FastcauldronSimulator::getInstance().saveGenexHistory();
-   }
+      if ( m_cauldron->Do_Iteratively_Coupled )
+      {
+         Basin_Modelling::FEM_Grid basin( m_cauldron );
+         // Do Coupled Calculation
+         basin.solveCoupled( m_solverHasConverged, m_errorInDarcy, m_geometryHasConverged );
 
-   /// Delete all the arrays used to store the quadrature points and weights.
-   /// They will not be used from this point onwards.
-   NumericFunctions::Quadrature::finaliseQuadrature();
+         if ( not FastcauldronSimulator::getInstance().noDerivedPropertiesCalc() ) {
+            DerivedPropertiesCalculator propertyCalculator( m_cauldron, basin.getVolumeOutputProperties(), basin.getMapOutputProperties() );
 
-   if ( ( not s_cauldron->saveOnDarcyError() and s_errorInDarcy ) or not s_solverHasConverged )
-   {
-      returnStatus = false;
+            propertyCalculator.compute();
+         }
+      }
+
+      if ( m_cauldron->integrateGenexEquations() )
+      {
+         FastcauldronSimulator::getInstance().saveGenexHistory();
+      }
+
+      /// Delete all the arrays used to store the quadrature points and weights.
+      /// They will not be used from this point onwards.
+      NumericFunctions::Quadrature::finaliseQuadrature();
+
+      if ( ( not m_cauldron->saveOnDarcyError() and m_errorInDarcy ) or not m_solverHasConverged )
+      {
+         m_runOk = false;
+      }
+      else
+      {
+         m_runOk = true;
+      }
+
+      if ( !FastcauldronSimulator::getInstance().mergeOutputFiles() )
+      {
+         PetscPrintf( PETSC_COMM_WORLD, "  MeSsAgE ERROR Unable to merge output files\n" );
+         m_runOk = false;
+      }
+
+      StatisticsHandler::print();
    }
    else
    {
-      returnStatus = true;
+      m_runOk = false;
    }
-
-   if ( !FastcauldronSimulator::getInstance().mergeOutputFiles() )
-   {
-      PetscPrintf( PETSC_COMM_WORLD, "  MeSsAgE ERROR Unable to merge output files\n" );
-      returnStatus = false;
-   }
-
-   StatisticsHandler::print();
-
-   return returnStatus;
 }
 
-bool FastcauldronStartup::finalise( bool returnStatus )
+void FastcauldronStartup::finalize( )
 {
-   if ( !returnStatus )
-   {
-      if ( s_errorMessage != "" )
-      {
-         PetscPrintf( PETSC_COMM_WORLD, "\n %s \n", s_errorMessage.c_str() );
-      }
+   if ( m_errorMessage != "" ) PetscPrintf( PETSC_COMM_WORLD, "\n %s \n", m_errorMessage.c_str( ) );
 
-      if ( s_factory != 0 )
-      {
-         delete s_factory;
-      }
+   bool displayEndTime = false;
 
-      delete s_cauldron;
+   bool saveResults = m_prepareOk && m_startUpOk && m_runOk && m_saveResults;
+ 
+   FastcauldronSimulator::finalise( saveResults && m_solverHasConverged && ( m_cauldron->saveOnDarcyError( ) or not m_errorInDarcy ) );
 
-      FastcauldronSimulator::finalise( false );
-
-      //FlexLM license check in only for node with rank = 0
-#ifdef FLEXLM
-      if ( s_checkLicense && ourRank() == 0 )
-      {
-         // FlexLm license check in, close down and enable logging
-         EPTFlexLmCheckIn( s_feature );
-         EPTFlexLmTerminate();
-      }
-#endif
-      return false;
-   }
-
-   if ( s_errorMessage != "" )
-   {
-      PetscPrintf( PETSC_COMM_WORLD, "\n %s \n", s_errorMessage.c_str() );
-   }
-
-   FastcauldronSimulator::finalise( s_solverHasConverged and( s_cauldron->saveOnDarcyError() or not s_errorInDarcy ) );
-
-   if ( s_factory != 0 )
-   {
-      delete s_factory;
-   }
-
-   bool displayEndTime = s_cauldron->debug1 or s_cauldron->verbose;
-
-   delete s_cauldron;
+   if ( m_cauldron ) displayEndTime = m_cauldron->debug1 or m_cauldron->verbose;
+   if ( m_factory != 0 ) delete m_factory;
+   if ( m_cauldron != 0 ) delete m_cauldron;
 
    // display
    displayTime( displayEndTime, "End of simulation: " );
-
    //FlexLM license check in only for node with rank = 0
 #ifdef FLEXLM
-   if ( s_checkLicense && ourRank() == 0 )
+   if ( m_checkLicense && ourRank( ) == 0 )
    {
       // FlexLm license check in, close down and enable logging
-      EPTFlexLmCheckIn( s_feature );
-      EPTFlexLmTerminate();
+      EPTFlexLmCheckIn( m_feauture );
+      EPTFlexLmTerminate( );
    }
 #endif
-   return true;
+
+   // update the number of instances
+   s_instances = s_instances - 1;
 }
 
 bool FastcauldronStartup::determineSaltModellingCapability()
 {
    int capable = 1;
 
-   if ( !s_checkLicense ) return true;
+   if ( !m_checkLicense ) return true;
 
 #ifdef FLEXLM
    int rc = EPTFLEXLM_OK;
@@ -372,7 +355,7 @@ bool FastcauldronStartup::determineSaltModellingCapability()
    // FlexLM license handling only for node with rank = 0
    if ( ourRank() == 0 )
    {
-      sprintf( s_feature, "ibs_cauldron_halo" );
+      sprintf( m_feauture, "ibs_cauldron_halo" );
 #ifdef IBSFLEXLMVERSION
       sprintf( version, IBSFLEXLMVERSION );
 #else
@@ -389,7 +372,7 @@ bool FastcauldronStartup::determineSaltModellingCapability()
       else {
 
          // FlexLM license handling: Checkout
-         rc = EPTFlexLmCheckOut( s_feature, version, errmessage );
+         rc = EPTFlexLmCheckOut( m_feauture, version, errmessage );
 
          if ( rc == EPTFLEXLM_WARN ) {
             cout << endl << "@@@@@@@@@@@@@@@\n MeSsAgE WARNING: fastcauldron will still start the salt modelling capabilities anyway.\n@@@@@@@@@@@@@@@" << endl;
@@ -411,7 +394,7 @@ bool FastcauldronStartup::determineSaltModellingCapability()
 
    if ( ourRank() == 0 && rc != EPTFLEXLM_WARN && rc != EPTFLEXLM_OK )
    {
-      EPTFlexLmCheckIn( s_feature );
+      EPTFlexLmCheckIn( m_feauture );
       EPTFlexLmTerminate();
    }
 

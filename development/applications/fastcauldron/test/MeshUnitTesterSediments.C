@@ -62,11 +62,11 @@ TEST ( DofCountingUnitTest, SedimentMesh ) {
 
    // Declaration block required so as to finalise all fastcauldron objects before calling PetscFinalise.
    {
-      bool canRunSaltModelling = false;
-      bool returnStatus = FastcauldronStartup::prepare( canRunSaltModelling, false );
-      if ( returnStatus ) returnStatus = FastcauldronStartup::startup( argc, argv, canRunSaltModelling );
+      FastcauldronStartup fastcauldronStartup( argc, argv, false, false );
+      bool returnStatus = fastcauldronStartup.getPrepareStatus( ) && fastcauldronStartup.getStartUpStatus( );
 
-      EXPECT_EQ ( returnStatus, true );
+
+      EXPECT_EQ( returnStatus, true );
 
       if ( returnStatus ) {
          // The computational domain consists only of sediments: 0 .. n - 3
@@ -100,7 +100,7 @@ TEST ( DofCountingUnitTest, SedimentMesh ) {
          ASSERT_TRUE ( mut.compareFiles ( validFileName, testFileName ));
       }
 
-      FastcauldronStartup::finalise( false );
+      fastcauldronStartup.finalize( );
    }
 
    PetscFinalize ();

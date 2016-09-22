@@ -31,48 +31,67 @@
 #include <EPTFlexLm.h>
 #endif
 
-/// \brief Contains the sequence of operations that are required to initialise the fastcauldron data structures.
+/// @brief Contains the sequence of operations that are required to initialise, run and finilize fastcauldron.
 class FastcauldronStartup
 {
-
 public :
 
-   /// @brief Setup FlexLM license if FlexLM library is available
-   /// @param [out] canRunSaltModelling is license allows to run salt modelling?
-   /// @param [in]  checkLicense for unit test we do not need to check license, disable checking with this parameter
-   /// @return true on success false on error
-   static bool prepare( bool & canRunSaltModelling, bool checkLicense = true );
+   FastcauldronStartup( int argc, char** argv, bool checkLicense = true, bool saveResults = true );
+   ~FastcauldronStartup();
+   void run();
+   bool getPrepareStatus()  { return m_prepareOk; };
+   bool getStartUpStatus( ) { return m_startUpOk; };
+   bool getRunStatus()      { return m_runOk; };
 
-   static bool startup ( int                  argc,
-                         char**               argv,
-                         const bool           canRunSaltModelling,
-                         const bool           saveAsInputGrid = false,
-                         const bool           createResultsFile = true );
-
-   static bool run();
-
-   static bool finalise( bool returnStatus );
-
-   static bool determineSaltModellingCapability( );
-
-   static int ourRank();
+   // here we delete m_cauldron, m_factory. We do not want the destructor to do this job, because can be after PetscFinalize.
+   void finalize();         
 
 private:
-   
-   static AppCtx * s_cauldron;
-   static FastcauldronFactory* s_factory;
-   static std::string s_errorMessage;
-   static bool s_solverHasConverged;
-   static bool s_errorInDarcy;
-   static bool s_geometryHasConverged;
-   static bool s_checkLicense;
+
+   // Disable default constructor (arguments must be provided to instantiate FastcauldronStartup) 
+   FastcauldronStartup();
+
+   /// @brief Setup FlexLM license if FlexLM library is available
+   /// @return true on success false on error
+   bool prepare();
+
+   /// @brief Create fastcauldron simulator, create the lithologies, initialise layer thickness history
+   /// @param argc number of command line parameters 
+   /// @param argv command line parameters values
+   /// @param saveAsInputGrid 
+   /// @param createResultsFile
+   /// @return true on success false on error
+   bool startup( int argc, char** argv, const bool saveAsInputGrid = false, const bool createResultsFile = true );
+
+   /// @brief determines if salt modelling can be used
+   /// @return true if salt modelling can be used, false otherwise
+   bool determineSaltModellingCapability( );
+
+   /// @brief Determines the current rank
+   /// @return the current rank
+   int ourRank( );
+
+   /// How many instances of FastcauldronStartup are present.
+   static unsigned int  s_instances;
+
+   AppCtx * m_cauldron;              // propinterface
+   FastcauldronFactory* m_factory;   // fastcauldronFactory
+   std::string m_errorMessage;       
+   bool m_solverHasConverged;       
+   bool m_errorInDarcy;
+   bool m_geometryHasConverged;
+   bool m_checkLicense;
+   bool m_prepareOk;                // flag to indicate if the license was checked out correctly
+   bool m_startUpOk;                // flag to indicate if startup step (creating factories and other instances) was correct
+   bool m_runOk;                    // flag to indicate if the run was successful
+   bool m_canRunSaltModelling;      // flag to indicate if we can run salt modelling
+   bool m_saveResults;              // flag to indicate if we can save the results
 
 #ifdef FLEXLM
-   static char s_feature[EPTFLEXLM_MAX_FEATURE_LEN];
+   char m_feauture[EPTFLEXLM_MAX_FEATURE_LEN];
 #else
-   static char s_feature[256];
-#endif
-                        
+   char m_feauture[256];            // flexlm feature
+#endif                     
 };
 
 #endif // FASTCAULDRON__FASTCAULDRON_STARTUP__H

@@ -284,9 +284,10 @@ bool setupCauldron( int argc, char** argv,
 
    HydraulicFracturingManager::getInstance().setAppCtx(appctx);
 
-   bool canRunSaltModelling = false;
-   const bool prepareOk = FastcauldronStartup::prepare( canRunSaltModelling );
-   const bool startupOk = FastcauldronStartup::startup( argc, argv, canRunSaltModelling, false, false );
+   FastcauldronStartup fastcauldronStartup( argc, argv, false, false );
+   bool startupOk = fastcauldronStartup.getStartUpStatus();
+   bool prepareOk = fastcauldronStartup.getPrepareStatus();
+
    if ( startupOk && prepareOk )
    {
       const LayerList & layersList = FastcauldronSimulator::getInstance().getCauldron()->layers;
@@ -373,8 +374,8 @@ bool setupCauldron( int argc, char** argv,
    // Restoring cout
    std::cout.rdbuf( coutold );
 
-   const bool saveResults = false;
-   FastcauldronStartup::finalise( saveResults );
+
+   fastcauldronStartup.finalize();
 
    if ( not prepareOk ) PetscPrintf( PETSC_COMM_WORLD, "FastcauldronPrepare failed, default uniform distribution will be applied\n" );
    if ( not startupOk ) PetscPrintf( PETSC_COMM_WORLD, "FastcauldronStartup failed, default uniform distribution will be applied\n" );

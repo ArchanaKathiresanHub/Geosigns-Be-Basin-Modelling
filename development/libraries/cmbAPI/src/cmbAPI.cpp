@@ -175,6 +175,9 @@ public:
 
    // determine if a particular point lies within the formation top and bottom
    bool checkPoint( const double x, const double y, const double z, const std::string & layerName );
+
+   // get the depth values of one specific surface
+   bool getGridMapDepthValues( const mbapi::StratigraphyManager::SurfaceID s, std::vector<double> & v );
   
    LithologyManager    & lithologyManager()    { return m_lithMgr;  } // Lithology
    StratigraphyManager & stratigraphyManager() { return m_stratMgr; } // Stratigraphy
@@ -597,6 +600,21 @@ bool Model::checkPoint( const double x,
 
    return false;
 }
+
+
+bool Model::getGridMapDepthValues( const mbapi::StratigraphyManager::SurfaceID s, 
+                                   std::vector<double> & v )
+{
+   if ( errorCode( ) != NoError ) resetError( ); // clean any previous error
+
+   try { return m_pimpl->getGridMapDepthValues( s, v ); }
+
+   catch ( const Exception & ex ) { reportError( ex.errorCode( ), ex.what( ) ); }
+   catch ( ... )                  { reportError( UnknownError, "Unknown error" ); }
+
+   return false;
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // Actual implementation of CMB API
@@ -1776,6 +1794,22 @@ bool Model::ModelImpl::checkPoint( const double x, const double y, const double 
       yind >= minWinJ  && yind < maxWinJ ) value = true;
 
    return value;
+}
+
+bool Model::ModelImpl::getGridMapDepthValues( const mbapi::StratigraphyManager::SurfaceID s, std::vector<double> & v )
+{
+
+   // Get the map name and id
+   std::string depthMap = tableValueAsString( "StratIoTbl", s, "DepthGrid" );
+   if ( depthMap == UndefinedStringValue ) { return false; }
+
+   mbapi::MapsManager::MapID depthMapID = m_mapMgr.findID( depthMap );
+   if ( depthMapID == UndefinedIDValue ) { return false; }
+
+   // Get the values
+   if ( ErrorHandler::ReturnCode::NoError != m_mapMgr.mapGetValues( depthMapID, v ) ) { return false; }
+
+   return true;
 }
  
 }

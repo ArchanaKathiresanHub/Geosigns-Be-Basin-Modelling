@@ -16,8 +16,13 @@ if (BM_PARALLEL)
 ######################### SET TARGETS ##########################
 ################################################################
 
-source_group(source FILES src/main.C)
-add_executable(fastdepthcalibration src/main.C )
+FILE( GLOB all_headers src/*.h )
+source_group(include FILES ${all_headers})
+
+FILE( GLOB all_srcs src/*.C)
+source_group(source FILES ${all_srcs})
+
+add_executable(fastdepthcalibration ${all_srcs} ${all_headers})
 
 ################################################################
 ################### SET DEPENDENCIES/LINKS #####################
