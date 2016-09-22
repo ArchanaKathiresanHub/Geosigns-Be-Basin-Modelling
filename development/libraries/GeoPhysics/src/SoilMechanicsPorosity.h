@@ -34,6 +34,25 @@ namespace GeoPhysics
                                           const bool includeChemicalCompaction,
                                           const double chemicalCompactionTerm ) const;
 
+      /// Return porosity (vectorized version)
+      /// \pre arrays MUST BE ALIGNED
+      virtual void calculate( const unsigned int n,
+                              ConstReal_ptr ves,
+                              ConstReal_ptr maxVes,
+                              const bool includeChemicalCompaction,
+                              ConstReal_ptr chemicalCompactionTerm,
+                              Real_ptr porosities ) const;
+
+      /// Return porosity and its derivative (vectorized version)
+      /// \pre arrays MUST BE ALIGNED
+      virtual void calculate( const unsigned int n,
+                              ConstReal_ptr ves,
+                              ConstReal_ptr maxVes,
+                              const bool includeChemicalCompaction,
+                              ConstReal_ptr chemicalCompactionTerm,
+                              Real_ptr porosities,
+                              Real_ptr porosityDers ) const;
+
       /// \brief Determine if the porosity model is incompressible.
       virtual bool isIncompressible () const;
 
@@ -44,19 +63,83 @@ namespace GeoPhysics
       virtual double compactionCoefficient() const;
       
       /// Return Compaction coefficients 
-      virtual double compactionCoefficientA() const { return 0.0; }
+      virtual double compactionCoefficientA() const;
                   
       /// Return Compaction coefficients 
-      virtual double compactionCoefficientB() const { return 0.0; }
+      virtual double compactionCoefficientB() const;
 
    private:
       /// @brief Overwrite default assginment operator
       soilMechanicsPorosity& operator= (const soilMechanicsPorosity&);
       /// @brief Overwrite default copy constructor
       soilMechanicsPorosity( const soilMechanicsPorosity& );
+      
+      /// @brief Compute a single porosity value
+      double computeSingleValue( const double ves,
+                                 const double maxVes,
+                                 const bool includeChemicalCompaction,
+                                 const double chemicalCompactionTerm ) const;
+      
+      /// @brief Compute a single porosity value
+      double computeSingleValueDerivative( const double porosity,
+                                           const double ves,
+                                           const double maxVes,
+                                           const bool includeChemicalCompaction,
+                                           const double chemicalCompactionTerm ) const;
+
 
       const double m_soilMechanicsCompactionCoefficient; ///< The soil mechanics compaction coefficient
       const double m_depositionVoidRatio;                ///< The depositional void ration
+      const double m_percentagePorosityRebound;          ///< Age porosity regain
    };
+
+
+   inline double
+   soilMechanicsPorosity::calculate( const double ves, const double maxVes, const bool includeChemicalCompaction, const double chemicalCompactionTerm ) const
+   {
+      return computeSingleValue( ves, maxVes, includeChemicalCompaction, chemicalCompactionTerm );
+   }
+
+
+   inline double
+   soilMechanicsPorosity::calculateDerivative(const double ves, const double maxVes, const bool includeChemicalCompaction, const double chemicalCompactionTerm) const
+   {
+      return computeSingleValueDerivative( computeSingleValue(ves, maxVes, includeChemicalCompaction, chemicalCompactionTerm), ves, maxVes, includeChemicalCompaction, chemicalCompactionTerm );
+   }
+
+
+   inline bool
+   soilMechanicsPorosity::isIncompressible() const
+   {
+      return m_soilMechanicsCompactionCoefficient == 0.0;
+   }
+
+
+   inline Porosity::Model
+   soilMechanicsPorosity::model() const
+   {
+      return DataAccess::Interface::SOIL_MECHANICS_POROSITY;
+   }
+
+
+   inline double
+   soilMechanicsPorosity::compactionCoefficient() const
+   {
+      return m_soilMechanicsCompactionCoefficient;
+   }
+
+
+   inline double
+   soilMechanicsPorosity::compactionCoefficientA () const
+   {
+      return 0.0;
+   }
+
+
+   inline double
+   soilMechanicsPorosity::compactionCoefficientB () const
+   {
+      return 0.0;
+   }
 }
 #endif

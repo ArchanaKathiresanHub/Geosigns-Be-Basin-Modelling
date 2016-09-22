@@ -9,6 +9,7 @@
 //
 
 #include "../src/ExponentialPorosity.h"
+#include "AlignedMemoryAllocator.h"
 
 #include <iostream>
 #include <iomanip>
@@ -21,10 +22,6 @@
 
 using namespace GeoPhysics;
 
-namespace {
-const double NaN = std::numeric_limits<double>::quiet_NaN();
-}
-
 TEST( ExponentialPorosity, Sandstone )
 {
 
@@ -34,7 +31,7 @@ TEST( ExponentialPorosity, Sandstone )
    
    EXPECT_NEAR( 8.06549198802E-02, ExponentialPorosity( 0.60, 0.03, 2.66E-07, 2.66E-08, false ).calculate( 1E+6, 1.0E+7, false, 0 ), 1E-10 );
    
-   EXPECT_NEAR( 6.98704863944E-02, ExponentialPorosity( 0.60, 0.03, 2.66E-07, 2.66E-08, false ).calculate( 1E+7, 1.0E+7, true, 0 ), 1E-10 );
+   EXPECT_NEAR( 6.98704863944E-02, ExponentialPorosity( 0.60, 0.03, 2.66E-07, 2.66E-08, false ).calculate( 1E+7, 1.0E+7, true, 0 ),  1E-10 );
    
 }
 
@@ -102,4 +99,175 @@ TEST( ExponentialPorosity, DerivativesExactValues )
    EXPECT_NEAR( -9.839382376159E-08, ExponentialPorosity( 0.4, 0.03, 2.66E-07, 2.66E-08, false ).calculateDerivative( 1.00E+03, 1.00E+03, true, -3.0E-1 ), 1.0E-18 );
    EXPECT_NEAR( -9.839382376159E-08, ExponentialPorosity( 0.4, 0.03, 2.66E-07, 2.66E-08, false ).calculateDerivative( 1.00E+03, 1.00E+03, true, -3.5E-1 ), 1.0E-18 );
    EXPECT_NEAR( 0., ExponentialPorosity( 0.4, 0.03, 2.66E-07, 2.66E-08, false ).calculateDerivative( 1.00E+03, 1.00E+03, true, -4.0E-1 ), 1.0E-18 );
+}
+
+
+#include <chrono>
+TEST( ExponentialPorosity, DerivativesLoadingVec )
+{
+   // loading phase, no chemical compaction, variations wrt ves, compactionIncr = 2.66E-07, compactionDecr = 2.66E-08
+   Porosity porosity( Porosity::create(DataAccess::Interface::EXPONENTIAL_POROSITY, 0.4, 0.03, 2.66E-07, 0.0, 0.0, 2.66E-08, 0.0, 0.0, 0.0, false ));
+   const unsigned int N = 12;
+   double* ves = AlignedMemoryAllocator<double, 32>::allocate ( N );
+   ves[0 ] = 0.0;
+   ves[1 ] = 1.00E+01;
+   ves[2 ] = 1.00E+02;
+   ves[3 ] = 1.00E+03;
+   ves[4 ] = 1.00E+04;
+   ves[5 ] = 1.00E+05;
+   ves[6 ] = 1.00E+06;
+   ves[7 ] = 1.00E+07;
+   ves[8 ] = 0.0;
+   ves[9 ] = 1.00E+01;
+   ves[10] = 1.00E+02;
+   ves[11] = 1.00E+03;
+   double* maxVes = AlignedMemoryAllocator<double, 32>::allocate ( N );
+   maxVes[0 ] = 0.0;
+   maxVes[1 ] = 1.00E+01;
+   maxVes[2 ] = 1.00E+02;
+   maxVes[3 ] = 1.00E+03;
+   maxVes[4 ] = 1.00E+04;
+   maxVes[5 ] = 1.00E+05;
+   maxVes[6 ] = 1.00E+06;
+   maxVes[7 ] = 1.00E+07;
+   maxVes[8 ] = 0.0;
+   maxVes[9 ] = 1.00E+01;
+   maxVes[10] = 1.00E+02;
+   maxVes[11] = 1.00E+03;
+   double* chemComp = AlignedMemoryAllocator<double, 32>::allocate ( N );
+   chemComp[0 ] = 0.0;
+   chemComp[1 ] = 0.0;
+   chemComp[2 ] = 0.0;
+   chemComp[3 ] = 0.0;
+   chemComp[4 ] = 0.0;
+   chemComp[5 ] = 0.0;
+   chemComp[6 ] = 0.0;
+   chemComp[7 ] = 0.0;
+   chemComp[8 ] = 0.0;
+   chemComp[9 ] = 0.0;
+   chemComp[10] = 0.0;
+   chemComp[11] = 0.0;
+   double* poro = AlignedMemoryAllocator<double, 32>::allocate ( N );
+   double* poroDer = AlignedMemoryAllocator<double, 32>::allocate ( N );
+
+   porosity.calculate( N, ves, maxVes, false, chemComp, poro, poroDer );
+   EXPECT_NEAR( -9.842000000000E-08, poroDer[0 ], 1.0E-18 );
+   EXPECT_NEAR( -9.841973820314E-08, poroDer[1 ], 1.0E-18 );
+   EXPECT_NEAR( -9.841738206281E-08, poroDer[2 ], 1.0E-18 );
+   EXPECT_NEAR( -9.839382376159E-08, poroDer[3 ], 1.0E-18 );
+   EXPECT_NEAR( -9.815855068175E-08, poroDer[4 ], 1.0E-18 );
+   EXPECT_NEAR( -9.583654034106E-08, poroDer[5 ], 1.0E-18 );
+   EXPECT_NEAR( -7.543293892865E-08, poroDer[6 ], 1.0E-18 );
+   EXPECT_NEAR( -6.884303984108E-09, poroDer[7 ], 1.0E-18 );
+   EXPECT_NEAR( -9.842000000000E-08, poroDer[8 ], 1.0E-18 );
+   EXPECT_NEAR( -9.841973820314E-08, poroDer[9 ], 1.0E-18 );
+   EXPECT_NEAR( -9.841738206281E-08, poroDer[10], 1.0E-18 );
+   EXPECT_NEAR( -9.839382376159E-08, poroDer[11], 1.0E-18 );
+
+   AlignedMemoryAllocator<double, 32>::free( ves );
+   AlignedMemoryAllocator<double, 32>::free( maxVes );
+   AlignedMemoryAllocator<double, 32>::free( chemComp );
+   AlignedMemoryAllocator<double, 32>::free( poro );
+   AlignedMemoryAllocator<double, 32>::free( poroDer );
+}
+
+
+TEST( ExponentialPorosity, DerivativesUnLoadingVec )
+{
+   // unloading phase, no chemical compaction, variations wrt ves, compactionIncr = 2.66E-07, compactionDecr = 2.66E-08
+   Porosity porosity( Porosity::create(DataAccess::Interface::EXPONENTIAL_POROSITY, 0.4, 0.03, 2.66E-07, 0.0, 0.0, 2.66E-08, 0.0, 0.0, 0.0, false ));
+   const unsigned int N = 6;
+   double* ves = AlignedMemoryAllocator<double, 32>::allocate ( N );
+   ves[0] = 1.00E+01;
+   ves[1] = 1.00E+02;
+   ves[2] = 1.00E+03;
+   ves[3] = 1.00E+04;
+   ves[4] = 1.00E+05;
+   ves[5] = 1.00E+06;
+   double* maxVes = AlignedMemoryAllocator<double, 32>::allocate ( N );
+   maxVes[0] = 2.00E+01;
+   maxVes[1] = 2.00E+02;
+   maxVes[2] = 2.00E+03;
+   maxVes[3] = 2.00E+04;
+   maxVes[4] = 2.00E+05;
+   maxVes[5] = 2.00E+06;
+   double* chemComp = AlignedMemoryAllocator<double, 32>::allocate ( N );
+   chemComp[0] = 0.0;
+   chemComp[1] = 0.0;
+   chemComp[2] = 0.0;
+   chemComp[3] = 0.0;
+   chemComp[4] = 0.0;
+   chemComp[5] = 0.0;
+   double* poro = AlignedMemoryAllocator<double, 32>::allocate ( N );
+   double* poroDer = AlignedMemoryAllocator<double, 32>::allocate ( N );
+
+   porosity.calculate( N, ves, maxVes, false, chemComp, poro, poroDer );
+   EXPECT_NEAR( -9.841950258657E-09, poroDer[0], 1.0E-18 );
+   EXPECT_NEAR( -9.841502597889E-09, poroDer[1], 1.0E-18 );
+   EXPECT_NEAR( -9.837027109955E-09, poroDer[2], 1.0E-18 );
+   EXPECT_NEAR( -9.792384017199E-09, poroDer[3], 1.0E-18 );
+   EXPECT_NEAR( -9.356945880672E-09, poroDer[4], 1.0E-18 );
+   EXPECT_NEAR( -5.937326467716E-09, poroDer[5], 1.0E-18 );
+
+   AlignedMemoryAllocator<double, 32>::free( ves );
+   AlignedMemoryAllocator<double, 32>::free( maxVes );
+   AlignedMemoryAllocator<double, 32>::free( chemComp );
+   AlignedMemoryAllocator<double, 32>::free( poro );
+   AlignedMemoryAllocator<double, 32>::free( poroDer );
+}
+
+
+TEST( ExponentialPorosity, DerivativesChemCompVec )
+{
+   Porosity porosity( Porosity::create(DataAccess::Interface::EXPONENTIAL_POROSITY, 0.4, 0.03, 2.66E-07, 0.0, 0.0, 2.66E-08, 0.0, 0.0, 0.0, false ));
+   const unsigned int N = 9;
+   double* ves = AlignedMemoryAllocator<double, 32>::allocate ( N );
+   ves[0] = 1.00E+03;
+   ves[1] = 1.00E+03;
+   ves[2] = 1.00E+03;
+   ves[3] = 1.00E+03;
+   ves[4] = 1.00E+03;
+   ves[5] = 1.00E+03;
+   ves[6] = 1.00E+03;
+   ves[7] = 1.00E+03;
+   ves[8] = 1.00E+03;
+   double* maxVes = AlignedMemoryAllocator<double, 32>::allocate ( N );
+   maxVes[0] = 1.00E+03;
+   maxVes[1] = 1.00E+03;
+   maxVes[2] = 1.00E+03;
+   maxVes[3] = 1.00E+03;
+   maxVes[4] = 1.00E+03;
+   maxVes[5] = 1.00E+03;
+   maxVes[6] = 1.00E+03;
+   maxVes[7] = 1.00E+03;
+   maxVes[8] = 1.00E+03;
+   double* chemComp = AlignedMemoryAllocator<double, 32>::allocate ( N );
+   chemComp[0] = 0.0;
+   chemComp[1] = -5.0E-2;
+   chemComp[2] = -1.0E-1;
+   chemComp[3] = -1.5E-1;
+   chemComp[4] = -2.0E-1;
+   chemComp[5] = -2.5E-1;
+   chemComp[6] = -3.0E-1;
+   chemComp[7] = -3.5E-1;
+   chemComp[8] = -4.0E-1;
+   double* poro = AlignedMemoryAllocator<double, 32>::allocate ( N );
+   double* poroDer = AlignedMemoryAllocator<double, 32>::allocate ( N );
+
+   porosity.calculate( N, ves, maxVes, true, chemComp, poro, poroDer );
+   EXPECT_NEAR( -9.839382376159E-08, poroDer[0], 1.0E-18 );
+   EXPECT_NEAR( -9.839382376159E-08, poroDer[1], 1.0E-18 );
+   EXPECT_NEAR( -9.839382376159E-08, poroDer[2], 1.0E-18 );
+   EXPECT_NEAR( -9.839382376159E-08, poroDer[3], 1.0E-18 );
+   EXPECT_NEAR( -9.839382376159E-08, poroDer[4], 1.0E-18 );
+   EXPECT_NEAR( -9.839382376159E-08, poroDer[5], 1.0E-18 );
+   EXPECT_NEAR( -9.839382376159E-08, poroDer[6], 1.0E-18 );
+   EXPECT_NEAR( -9.839382376159E-08, poroDer[7], 1.0E-18 );
+   EXPECT_NEAR( 0.0                , poroDer[8], 1.0E-18 );
+
+   AlignedMemoryAllocator<double, 32>::free( ves );
+   AlignedMemoryAllocator<double, 32>::free( maxVes );
+   AlignedMemoryAllocator<double, 32>::free( chemComp );
+   AlignedMemoryAllocator<double, 32>::free( poro );
+   AlignedMemoryAllocator<double, 32>::free( poroDer );
 }

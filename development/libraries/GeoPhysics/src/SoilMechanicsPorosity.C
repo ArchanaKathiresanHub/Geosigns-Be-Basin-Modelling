@@ -12,6 +12,7 @@
 #include "GeoPhysicalConstants.h"
 #include "NumericFunctions.h"
 
+#include <algorithm>
 #include <cmath>
 #include <iostream>
 #include <iomanip>
@@ -20,96 +21,121 @@ using namespace DataAccess;
 
 namespace GeoPhysics
 {
-
    ///Parameters from constructor
    soilMechanicsPorosity::soilMechanicsPorosity( const double depoPorosity,
                                                  const double minimumMechanicalPorosity,
                                                  const double soilMechanicsCompactionCoefficient,
                                                  const double depositionVoidRatio ):
-	  Algorithm(depoPorosity,minimumMechanicalPorosity),
+     Algorithm(depoPorosity,minimumMechanicalPorosity),
       m_soilMechanicsCompactionCoefficient(soilMechanicsCompactionCoefficient),
-      m_depositionVoidRatio(depositionVoidRatio)
+      m_depositionVoidRatio(depositionVoidRatio),
+      m_percentagePorosityRebound(0.02)
    {}
 
-   ///soilMechanicsPorosity porosity function
-   double soilMechanicsPorosity::calculate( const double ves,
-                                            const double maxVes,
-                                            const bool includeChemicalCompaction,
-                                            const double chemicalCompactionTerm) const
+
+   void soilMechanicsPorosity::calculate( const unsigned int n,
+                                          ConstReal_ptr ves,
+                                          ConstReal_ptr maxVes,
+                                          const bool includeChemicalCompaction,
+                                          ConstReal_ptr chemicalCompactionTerm,
+                                          Real_ptr porosities ) const
    {
+      assert( ((uintptr_t)(const void *)(ves) % 32) == 0 );
+      assert( ((uintptr_t)(const void *)(maxVes) % 32) == 0 );
+      assert( ((uintptr_t)(const void *)(chemicalCompactionTerm) % 32) == 0 );
+      assert( ((uintptr_t)(const void *)(porosities) % 32) == 0 );
+
+      #pragma omp simd aligned (ves, maxVes, chemicalCompactionTerm, porosities)
+      for( size_t i = 0; i < n; ++i)
+      {
+         porosities[i] = computeSingleValue( ves[i], maxVes[i], includeChemicalCompaction, chemicalCompactionTerm[i] );
+      }
+   }
+
+
+   void soilMechanicsPorosity::calculate( const unsigned int n,
+                                          ConstReal_ptr ves,
+                                          ConstReal_ptr maxVes,
+                                          const bool includeChemicalCompaction,
+                                          ConstReal_ptr chemicalCompactionTerm,
+                                          Real_ptr porosities,
+                                          Real_ptr porosityDers ) const
+   {
+      assert( ((uintptr_t)(const void *)(ves) % 32) == 0 );
+      assert( ((uintptr_t)(const void *)(maxVes) % 32) == 0 );
+      assert( ((uintptr_t)(const void *)(chemicalCompactionTerm) % 32) == 0 );
+      assert( ((uintptr_t)(const void *)(porosities) % 32) == 0 );
+      assert( ((uintptr_t)(const void *)(porosityDers) % 32) == 0 );
+
+      #pragma omp simd aligned (ves, maxVes, chemicalCompactionTerm, porosities, porosityDers)
+      for( size_t i = 0; i < n; ++i)
+      {
+          porosities[i] = computeSingleValue( ves[i], maxVes[i], includeChemicalCompaction, chemicalCompactionTerm[i] );
+          porosityDers[i] = computeSingleValueDerivative( porosities[i], ves[i], maxVes[i], includeChemicalCompaction, chemicalCompactionTerm[i] );
+      }
+   }
+   
+
+   double soilMechanicsPorosity::computeSingleValue( const double ves,
+                                                     const double maxVes,
+                                                     const bool includeChemicalCompaction,
+                                                     const double chemicalCompactionTerm ) const
+   {
+      double poro = 0.0;
+      const double epsilon100 = m_depositionVoidRatio;
       const bool loadingPhase = (ves >= maxVes);
 
-      /// Depositional void-ratio.
-      const double Epsilon100 = m_depositionVoidRatio;
-
-      const double vesUsed = NumericFunctions::Maximum(Ves0, loadingPhase ? ves : maxVes);
+      const double vesUsed = std::max(Ves0, loadingPhase ? ves : maxVes);
       
-      double voidRatio = Epsilon100 - m_soilMechanicsCompactionCoefficient * log(vesUsed / Ves0);
+      double voidRatio = epsilon100 - m_soilMechanicsCompactionCoefficient * std::log(vesUsed / Ves0);
       
-      double calculatedPorosity;
       if ( voidRatio > 0.0 )
       {
-         calculatedPorosity = voidRatio / (1.0 + voidRatio);
+         poro = voidRatio / (1.0 + voidRatio);
       } else
       {
-         calculatedPorosity = MinimumSoilMechanicsPorosity;
+         poro = MinimumSoilMechanicsPorosity;
       }
 
       if( !loadingPhase )
       {
-         voidRatio = Epsilon100;
-         const double phiMaxVes = calculatedPorosity;
+         voidRatio = epsilon100;
+         const double phiMaxVes = poro;
          const double phiMinVes = voidRatio / (1.0 + voidRatio);
 
-         const double PercentagePorosityRebound = 0.02; // => %age porosity regain
-         const double M = PercentagePorosityRebound * (phiMaxVes - phiMinVes) / (maxVes - Ves0);
+         const double M = m_percentagePorosityRebound * (phiMaxVes - phiMinVes) / (maxVes - Ves0);
 
-         const double C = ( (1.0 - PercentagePorosityRebound) * phiMaxVes * maxVes
-                            - phiMaxVes * Ves0 + PercentagePorosityRebound * phiMinVes * maxVes) / (maxVes - Ves0);
+         const double C = ( (1.0 - m_percentagePorosityRebound) * phiMaxVes * maxVes
+                              - phiMaxVes * Ves0 + m_percentagePorosityRebound * phiMinVes * maxVes) / (maxVes - Ves0);
 
-         calculatedPorosity = M * ves + C;
+         poro = M * ves + C;
       }
 
       // Force porosity to be in range 0.03 .. Surface_Porosity
+      if (includeChemicalCompaction)
+      {
+         poro = std::max(poro, m_minimumMechanicalPorosity);
+      }
+
+      poro = std::max(poro, MinimumSoilMechanicsPorosity);
+      poro = std::min(poro, m_depoPorosity);
 
       if (includeChemicalCompaction)
       {
-         calculatedPorosity = NumericFunctions::Maximum(calculatedPorosity, m_minimumMechanicalPorosity);
+         poro = poro + chemicalCompactionTerm;
+         poro = std::max(poro, MinimumSoilMechanicsPorosity);
       }
 
-      calculatedPorosity = NumericFunctions::Maximum(calculatedPorosity, MinimumSoilMechanicsPorosity);
-      calculatedPorosity = NumericFunctions::Minimum(calculatedPorosity, m_depoPorosity);
-
-      if (includeChemicalCompaction)
-      {
-         calculatedPorosity = calculatedPorosity + chemicalCompactionTerm;
-         calculatedPorosity = NumericFunctions::Maximum(calculatedPorosity, MinimumSoilMechanicsPorosity);
-      }
-
-      return calculatedPorosity;
-   }
-   
-   bool soilMechanicsPorosity::isIncompressible () const {
-      return m_soilMechanicsCompactionCoefficient == 0.0;
+      return poro;
    }
 
-   Porosity::Model soilMechanicsPorosity::model() const
+
+   double soilMechanicsPorosity::computeSingleValueDerivative( const double porosity,
+                                                               const double ves,
+                                                               const double maxVes,
+                                                               const bool includeChemicalCompaction,
+                                                               const double chemicalCompactionTerm ) const
    {
-      return DataAccess::Interface::SOIL_MECHANICS_POROSITY;
-   }
-
-   ///CompactionCoefficient
-   double soilMechanicsPorosity::compactionCoefficient() const {
-      return m_soilMechanicsCompactionCoefficient;
-   }
-
-   ///PorosityDerivative
-   double soilMechanicsPorosity::calculateDerivative( const double ves,
-                                                      const double maxVes,
-                                                      const bool includeChemicalCompaction,
-                                                      const double chemicalCompactionTerm) const
-   {
-      //
       //   Derivative for the loading phase
       //
       //   d Phi     d Phi   d Psi           1         -Beta                2   -Beta
@@ -127,55 +153,39 @@ namespace GeoPhysics
       //   rebPct = percentage porosity rebound
       //
       //   NB: in case of cutoffs to upper or lower threshold the derivative has to be 0
-      //
+      double poroDer = 0.0;
 
-      double porosityDerivative(0.0);
-
-      const bool   loadingPhase  = (ves >= maxVes);
-      const double porosityValue = calculate(ves, maxVes, includeChemicalCompaction, chemicalCompactionTerm);
-
+      const bool loadingPhase = (ves >= maxVes);
       if( loadingPhase )
       {
          // What to do if the ves is zero, for now just take double model epsilon ( ~= O(10^-16))
-         const double vesValue = NumericFunctions::Maximum(ves, std::numeric_limits<double>::epsilon());
-         porosityDerivative = - pow(1.0 - porosityValue, 2) * m_soilMechanicsCompactionCoefficient / vesValue;
+         const double vesValue = std::max(ves, std::numeric_limits<double>::epsilon());
+         poroDer = - std::pow(1.0 - porosity, 2) * m_soilMechanicsCompactionCoefficient / vesValue;
       }
       else
       {
          // Basically here the derivative should be M (the linear coefficient for porosity wrt ves, see above)
-         const double Epsilon100 = m_depositionVoidRatio;
-         const double vesUsed = NumericFunctions::Maximum(Ves0, loadingPhase ? ves : maxVes);
-         double voidRatio = Epsilon100 - m_soilMechanicsCompactionCoefficient * log(vesUsed / Ves0);
+         const double epsilon100 = m_depositionVoidRatio;
+         const double vesUsed = std::max(Ves0, loadingPhase ? ves : maxVes);
+         double voidRatio = epsilon100 - m_soilMechanicsCompactionCoefficient * std::log(vesUsed / Ves0);
          const double calculatedPorosity = ( voidRatio > 0.0 ) ? voidRatio / (1.0 + voidRatio) : MinimumSoilMechanicsPorosity;
 
-         voidRatio = Epsilon100;
+         voidRatio = epsilon100;
          const double phiMaxVes = calculatedPorosity;
          const double phiMinVes = voidRatio / (1.0 + voidRatio);
 
-         const double PercentagePorosityRebound = 0.02; // => %age porosity regain
-         porosityDerivative = PercentagePorosityRebound * (phiMaxVes - phiMinVes) / (maxVes - Ves0);  // M
+         poroDer = m_percentagePorosityRebound * (phiMaxVes - phiMinVes) / (maxVes - Ves0);  // M
       }
 
       // Check for cutoff to the upper or lower threshold
       // In these cases the derivative has to be 0
-      if( includeChemicalCompaction )
+      if( ( porosity == MinimumSoilMechanicsPorosity ) ||
+          ( porosity == m_depoPorosity ) )
       {
-         if( ( porosityValue == MinimumSoilMechanicsPorosity ) ||
-             ( porosityValue == m_depoPorosity ) )
-         {
-            porosityDerivative = 0.0;
-         }
-      }
-      else
-      {
-         if( ( porosityValue == MinimumSoilMechanicsPorosity ) ||
-             ( porosityValue == m_depoPorosity ) )
-         {
-            porosityDerivative = 0.0;
-         }
+         poroDer = 0.0;
       }
 
-      return porosityDerivative;
+      return poroDer;
    }
 
 }

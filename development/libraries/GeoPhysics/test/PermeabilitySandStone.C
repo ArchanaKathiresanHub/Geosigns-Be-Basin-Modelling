@@ -64,7 +64,7 @@ TEST( PermeabilitySandStonePermeability, validCases )
    // The normal cases
    EXPECT_NEAR(8.47522526773653202270e-03 , PermeabilitySandStone( 0.39, 6000, 1.5).calculate( 1.0e+5, 1.0e+5, 0.0), 2e-17 );
 
-   EXPECT_NEAR(3.78574406688116593678e-01, PermeabilitySandStone( 0.48, 6000, 1.5).calculate( 1.0e+6, 1.0e+6, 0.2), 3e-16 );
+   EXPECT_NEAR(3.78574406688116593678e-01, PermeabilitySandStone( 0.48, 6000, 1.5).calculate( 1.0e+6, 1.0e+6, 0.2), 3e-15 );
 
    EXPECT_DOUBLE_EQ(1.89736659610102775808e-01, PermeabilitySandStone( 0.60, 6000, 1.5).calculate( 1.0e+6, 2.0e+6, 0.3) );
 
@@ -126,7 +126,7 @@ TEST( PermeabilitySandStonePermeabilityDerivative, invalidNegativePorosity)
 {
    double permeability = NaN, derivative = NaN;
    PermeabilitySandStone( 0.50, 6000, 1.5).calculateDerivative( 0, 0, -5, 1, permeability, derivative);
-   EXPECT_NEAR(1.89736659610102742578e-79, permeability, 2e-93 );
+   EXPECT_NEAR(1.89736659610102742578e-79, permeability, 1e-92 );
    EXPECT_NEAR(6.55327206019062006483e-78, derivative, 1e-90);
 }
 
@@ -151,8 +151,8 @@ TEST( PermeabilitySandStonePermeabilityDerivative, highVes)
 {
    double permeability = NaN, derivative = NaN;
    PermeabilitySandStone( 0.48, 6000, 1.5).calculateDerivative( 1.0e+6, 1.0e+6, 0.2, 1, permeability, derivative);
-   EXPECT_NEAR(3.78574406688116593678e-01, permeability, 5e-16 );
-   EXPECT_DOUBLE_EQ(1.30754967814368405765e+01 , derivative );
+   EXPECT_NEAR(3.78574406688116593678e-01, permeability, 5e-15 );
+   EXPECT_NEAR(1.30754967814368405765e+01, derivative,   1e-13 );
 }
 
 TEST( PermeabilitySandStonePermeabilityDerivative, higherMaxVes)

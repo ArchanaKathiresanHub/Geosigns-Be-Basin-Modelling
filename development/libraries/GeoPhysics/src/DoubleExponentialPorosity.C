@@ -9,9 +9,11 @@
 //
 #include "DoubleExponentialPorosity.h"
 
+#include <algorithm>
+#include <cmath>
+
 #include "NumericFunctions.h"
 #include "GeoPhysicalConstants.h"
-#include <cmath>
 
 namespace GeoPhysics
 {
@@ -28,89 +30,111 @@ namespace GeoPhysics
         m_compactionIncrB(compactionIncrB),
         m_compactionDecrA(compactionDecrA),
         m_compactionDecrB(compactionDecrB)
-        
    {
-      m_isLegacy = isLegacy ;
+      m_isLegacy = isLegacy;
    }
 
-   ///Double Exponential porosity function
-   double DoubleExponentialPorosity::calculate( const double ves,
-                                                const double maxVes,
-                                                const bool includeChemicalCompaction,
-                                                const double chemicalCompactionTerm ) const
+
+   void DoubleExponentialPorosity::calculate( const unsigned int n,
+                                              ConstReal_ptr ves,
+                                              ConstReal_ptr maxVes,
+                                              const bool includeChemicalCompaction,
+                                              ConstReal_ptr chemicalCompactionTerm,
+                                              Real_ptr porosities ) const
    {
-      double calculatedPorosity;
-      bool   loadingPhase = (ves >= maxVes);
+      assert( ((uintptr_t)(const void *)(ves) % 32) == 0 );
+      assert( ((uintptr_t)(const void *)(maxVes) % 32) == 0 );
+      assert( ((uintptr_t)(const void *)(chemicalCompactionTerm) % 32) == 0 );
+      assert( ((uintptr_t)(const void *)(porosities) % 32) == 0 );
+
+      #pragma omp simd aligned (ves, maxVes, chemicalCompactionTerm, porosities)
+      for( size_t i = 0; i < n; ++i)
+      {
+         porosities[i] = computeSingleValue( ves[i], maxVes[i], includeChemicalCompaction, chemicalCompactionTerm[i] );
+      }
+   }
+
+
+   void DoubleExponentialPorosity::calculate( const unsigned int n,
+                                              ConstReal_ptr ves,
+                                              ConstReal_ptr maxVes,
+                                              const bool includeChemicalCompaction,
+                                              ConstReal_ptr chemicalCompactionTerm,
+                                              Real_ptr porosities,
+                                              Real_ptr porosityDers ) const
+   {
+      assert( ((uintptr_t)(const void *)(ves) % 32) == 0 );
+      assert( ((uintptr_t)(const void *)(maxVes) % 32) == 0 );
+      assert( ((uintptr_t)(const void *)(chemicalCompactionTerm) % 32) == 0 );
+      assert( ((uintptr_t)(const void *)(porosities) % 32) == 0 );
+      assert( ((uintptr_t)(const void *)(porosityDers) % 32) == 0 );
+
+      #pragma omp simd aligned (ves, maxVes, chemicalCompactionTerm, porosities, porosityDers)
+      for( size_t i = 0; i < n; ++i)
+      {
+          porosities[i] = computeSingleValue( ves[i], maxVes[i], includeChemicalCompaction, chemicalCompactionTerm[i] );
+          porosityDers[i] = computeSingleValueDerivative( porosities[i], ves[i], maxVes[i], includeChemicalCompaction, chemicalCompactionTerm[i] );
+      }
+   }
+    
+
+   double DoubleExponentialPorosity::computeSingleValue( const double ves,
+                                                         const double maxVes,
+                                                         const bool includeChemicalCompaction,
+                                                         const double chemicalCompactionTerm ) const
+   {
+      double poro = 0.0;
       
       //legacy behaviour
-      if (m_isLegacy) 
+      if (m_isLegacy)
       {
-         if (loadingPhase)
+         if (ves >= maxVes)
          {
-            calculatedPorosity = 0.5 * (m_depoPorosity - m_minimumMechanicalPorosity) * exp( -m_compactionIncrA * ves );
-            calculatedPorosity += 0.5 * (m_depoPorosity - m_minimumMechanicalPorosity) * exp( -m_compactionIncrB * ves ) + m_minimumMechanicalPorosity;
+            poro = 0.5 * (m_depoPorosity - m_minimumMechanicalPorosity) * std::exp( -m_compactionIncrA * ves );
+            poro += 0.5 * (m_depoPorosity - m_minimumMechanicalPorosity) * std::exp( -m_compactionIncrB * ves ) + m_minimumMechanicalPorosity;
          }
          else
          {
-            calculatedPorosity = 0.5 * (m_depoPorosity - m_minimumMechanicalPorosity) * exp( m_compactionDecrA * (maxVes - ves) - m_compactionIncrA * maxVes );
-            calculatedPorosity += 0.5 * (m_depoPorosity - m_minimumMechanicalPorosity) * exp( m_compactionDecrB * (maxVes - ves) - m_compactionIncrB * maxVes ) + m_minimumMechanicalPorosity;
+            poro = 0.5 * (m_depoPorosity - m_minimumMechanicalPorosity) * std::exp( m_compactionDecrA * (maxVes - ves) - m_compactionIncrA * maxVes );
+            poro += 0.5 * (m_depoPorosity - m_minimumMechanicalPorosity) * std::exp( m_compactionDecrB * (maxVes - ves) - m_compactionIncrB * maxVes ) + m_minimumMechanicalPorosity;
          }
          if (includeChemicalCompaction)
          {
-            calculatedPorosity += chemicalCompactionTerm;
-            calculatedPorosity = NumericFunctions::Maximum( calculatedPorosity, MinimumPorosity );
+            poro += chemicalCompactionTerm;
+            poro = NumericFunctions::Maximum( poro, MinimumPorosity );
          }
       }
-      // new rock property library behaviour
-      else 
+      else
       {
-         const double minimumMechanicalPorosity = NumericFunctions::Maximum( m_minimumMechanicalPorosity, MinimumPorosityNonLegacy );
-         if (loadingPhase)
+         // new rock property library behaviour
+         if (ves >= maxVes)
          {
-            calculatedPorosity = 0.5 * (m_depoPorosity - minimumMechanicalPorosity) * exp( -m_compactionIncrA * ves );
-            calculatedPorosity += 0.5 * (m_depoPorosity - minimumMechanicalPorosity) * exp( -m_compactionIncrB * ves ) + minimumMechanicalPorosity;
+            poro = 0.5 * (m_depoPorosity - m_minimumNumericalMechanicalPorosity)
+                 * ( std::exp(-m_compactionIncrA * ves) + std::exp(-m_compactionIncrB * ves) ) + m_minimumNumericalMechanicalPorosity;
          }
          else
          {
-            calculatedPorosity = 0.5 * (m_depoPorosity - minimumMechanicalPorosity) * exp( m_compactionDecrA * (maxVes - ves) - m_compactionIncrA * maxVes );
-            calculatedPorosity += 0.5 * (m_depoPorosity - minimumMechanicalPorosity) * exp( m_compactionDecrB * (maxVes - ves) - m_compactionIncrB * maxVes ) + minimumMechanicalPorosity;
+            poro = 0.5 * (m_depoPorosity - m_minimumNumericalMechanicalPorosity)
+                 * ( std::exp( m_compactionDecrA * (maxVes - ves) - m_compactionIncrA * maxVes) + std::exp( m_compactionDecrB * (maxVes - ves) - m_compactionIncrB * maxVes) ) + m_minimumNumericalMechanicalPorosity;
          }
 
          if (includeChemicalCompaction)
          {
-            calculatedPorosity += chemicalCompactionTerm;
-            calculatedPorosity = NumericFunctions::Maximum( calculatedPorosity, MinimumPorosityNonLegacy );
+            poro += chemicalCompactionTerm;
+            poro = std::max(poro, MinimumPorosityNonLegacy);
          }
       }
-      return calculatedPorosity;
+
+      return poro;
    }
 
-   bool DoubleExponentialPorosity::isIncompressible () const {
-      return m_compactionIncrA == 0.0 and m_compactionIncrB == 0.0;
-   }
 
-   Porosity::Model DoubleExponentialPorosity::model() const
+   double DoubleExponentialPorosity::computeSingleValueDerivative( const double porosity,
+                                                                   const double ves,
+                                                                   const double maxVes,
+                                                                   const bool includeChemicalCompaction,
+                                                                   const double chemicalCompactionTerm ) const
    {
-      return DataAccess::Interface::DOUBLE_EXPONENTIAL_POROSITY;
-   }
-
-   ///CompactionCoefficientA
-   double DoubleExponentialPorosity::compactionCoefficientA() const {
-      return m_compactionIncrA;
-   }
-
-   ///CompactionCoefficientB
-   double DoubleExponentialPorosity::compactionCoefficientB() const {
-      return m_compactionIncrB;
-   }
-
-   ///PorosityDerivative
-   double DoubleExponentialPorosity::calculateDerivative( const double ves,
-                                                          const double maxVes,
-                                                          const bool includeChemicalCompaction,
-                                                          const double chemicalCompactionTerm) const
-   {
-      //
       //   d Phi
       //   -----  = - phiA * kA * exp(-kA*ves) - phiB * kB * exp(-kB*ves)
       //   d ves
@@ -120,56 +144,50 @@ namespace GeoPhysics
       //   If there is chemical compaction and porosity is equal to MinimumPorosity the derivative is zero
       //
       //   NB: ves = lithostatic pressure - pressure 
-      //
-      double porosityDerivative(0.0);
-      const bool loadingPhase = (ves >= maxVes); 
-      const double porosityValue = calculate(ves, maxVes, includeChemicalCompaction, chemicalCompactionTerm);
-      
+      double poroDer = 0.0;
+
       // Chemical compaction equations also depends on VES, should we consider adding the chemical compaction derivative to 
       // these equations?
-      double localChemicalCompactionTerm = (includeChemicalCompaction?chemicalCompactionTerm:0.0);
 
       //legacy behaviour
       if (m_isLegacy)
       {
-         if (includeChemicalCompaction && (porosityValue == MinimumPorosity))
+         if (includeChemicalCompaction && (porosity == MinimumPorosity))
          {
-            porosityDerivative = 0.0;
+            poroDer = 0.0;
          }
-         else if (loadingPhase)
+         else if (ves >= maxVes)
          {
-            porosityDerivative -= 0.5 * (m_depoPorosity - m_minimumMechanicalPorosity) * m_compactionIncrA * exp( -m_compactionIncrA * ves );
-            porosityDerivative -= 0.5 * (m_depoPorosity - m_minimumMechanicalPorosity) * m_compactionIncrB * exp( -m_compactionIncrB * ves );
+            poroDer -= 0.5 * (m_depoPorosity - m_minimumMechanicalPorosity) * m_compactionIncrA * std::exp( -m_compactionIncrA * ves );
+            poroDer -= 0.5 * (m_depoPorosity - m_minimumMechanicalPorosity) * m_compactionIncrB * std::exp( -m_compactionIncrB * ves );
          }
          else
          {
-            porosityDerivative -= 0.5 * m_compactionDecrA * (m_depoPorosity - m_minimumMechanicalPorosity) * exp( m_compactionDecrA * (maxVes - ves) - m_compactionIncrA * maxVes );
-            porosityDerivative -= 0.5 * m_compactionDecrB * (m_depoPorosity - m_minimumMechanicalPorosity) * exp( m_compactionDecrB * (maxVes - ves) - m_compactionIncrB * maxVes );
+            poroDer -= 0.5 * m_compactionDecrA * (m_depoPorosity - m_minimumMechanicalPorosity) * std::exp( m_compactionDecrA * (maxVes - ves) - m_compactionIncrA * maxVes );
+            poroDer -= 0.5 * m_compactionDecrB * (m_depoPorosity - m_minimumMechanicalPorosity) * std::exp( m_compactionDecrB * (maxVes - ves) - m_compactionIncrB * maxVes );
          }
       }
-      // new rock property library behaviour
-      else 
+      else
       {
-         //For new rock property library feature only
-         const double minimumMechanicalPorosity = NumericFunctions::Maximum( m_minimumMechanicalPorosity, MinimumPorosityNonLegacy );
-         const double depoPorosity = NumericFunctions::Maximum( m_depoPorosity, MinimumPorosityNonLegacy );
+         // new rock property library behaviour
+         const double localChemicalCompactionTerm = (includeChemicalCompaction?chemicalCompactionTerm:0.0);
+         const double coeff = 0.5 * (m_minimumNumericalDepoPorosity - m_minimumNumericalMechanicalPorosity - localChemicalCompactionTerm);
 
-         if ((porosityValue == MinimumPorosityNonLegacy))
+         if( (porosity == MinimumPorosityNonLegacy) )
          {
-            porosityDerivative = 0.0;
+            poroDer = 0.0;
          }
-         else if (loadingPhase)
+         else if (ves >= maxVes)
          {
-            porosityDerivative -= 0.5 * (depoPorosity - minimumMechanicalPorosity - localChemicalCompactionTerm) * m_compactionIncrA * exp( -m_compactionIncrA * ves );
-            porosityDerivative -= 0.5 * (depoPorosity - minimumMechanicalPorosity - localChemicalCompactionTerm) * m_compactionIncrB * exp( -m_compactionIncrB * ves );
+            poroDer -= coeff * ( m_compactionIncrA * std::exp(-m_compactionIncrA * ves) + m_compactionIncrB * std::exp(-m_compactionIncrB * ves) );
          }
          else
          {
-            porosityDerivative -= 0.5 * m_compactionDecrA * (depoPorosity - minimumMechanicalPorosity - localChemicalCompactionTerm) * exp( m_compactionDecrA * (maxVes - ves) - m_compactionIncrA * maxVes );
-            porosityDerivative -= 0.5 * m_compactionDecrB * (depoPorosity - minimumMechanicalPorosity - localChemicalCompactionTerm) * exp( m_compactionDecrB * (maxVes - ves) - m_compactionIncrB * maxVes );
+            poroDer -= coeff * ( m_compactionDecrA * std::exp( m_compactionDecrA * (maxVes - ves) - m_compactionIncrA * maxVes ) + m_compactionDecrB * std::exp( m_compactionDecrB * (maxVes - ves) - m_compactionIncrB * maxVes ) );
          }
       }
-       return porosityDerivative;
+
+      return poroDer;
    }
 
 } //end of namespace GeoPhysics

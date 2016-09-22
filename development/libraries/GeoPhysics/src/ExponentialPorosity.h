@@ -21,8 +21,8 @@ namespace GeoPhysics
                            const double minimumMechanicalPorosity,
                            const double compactionIncr,
                            const double compactionDecr,
-                           const bool isLegacy);
-
+                           const bool   isLegacy);
+      
       /// Return porosity with exponential function
       virtual double calculate( const double ves,
                                 const double maxVes,
@@ -35,14 +35,33 @@ namespace GeoPhysics
                                           const bool includeChemicalCompaction,
                                           const double chemicalCompactionTerm ) const;
 
+      /// Return porosity (vectorized version)
+      /// \pre arrays MUST BE ALIGNED
+      virtual void calculate( const unsigned int n,
+                              ConstReal_ptr ves,
+                              ConstReal_ptr maxVes,
+                              const bool includeChemicalCompaction,
+                              ConstReal_ptr chemicalCompactionTerm,
+                              Real_ptr porosities ) const;
+
+      /// Return porosity and its derivative (vectorized version)
+      /// \pre arrays MUST BE ALIGNED
+      virtual void calculate( const unsigned int n,
+                              ConstReal_ptr ves,
+                              ConstReal_ptr maxVes,
+                              const bool includeChemicalCompaction,
+                              ConstReal_ptr chemicalCompactionTerm,
+                              Real_ptr porosities,
+                              Real_ptr porosityDers ) const;
+
       /// \brief Determine if the porosity model is incompressible.
       virtual bool isIncompressible () const;
 
       /// Return the permeability model
-      virtual Porosity::Model  model() const;
+      virtual Porosity::Model model() const;
 
       /// Return FullCompThickness
-      virtual double fullCompThickness( const double MaxVesValue,
+      virtual double fullCompThickness( const double maxVesValue,
                                         const double thickness,
                                         const double densitydiff,
                                         const double vesScaleFactor,
@@ -52,19 +71,83 @@ namespace GeoPhysics
       virtual double compactionCoefficient() const;
       
       /// Return Compaction coefficients 
-      virtual double compactionCoefficientA() const { return 0.0; }
+      virtual double compactionCoefficientA() const;
 
       /// Return Compaction coefficients 
-      virtual double compactionCoefficientB() const { return 0.0; }
+      virtual double compactionCoefficientB() const;
 
    private:
       /// @brief Overwrite default assginment operator
       ExponentialPorosity& operator= (const ExponentialPorosity&);
       /// @brief Overwrite default copy constructor
       ExponentialPorosity( const ExponentialPorosity& );
+      
+      /// @brief Compute a single porosity value
+      double computeSingleValue( const double ves,
+                                 const double maxVes,
+                                 const bool includeChemicalCompaction,
+                                 const double chemicalCompactionTerm ) const;
+      
+      /// @brief Compute a single porosity value
+      double computeSingleValueDerivative( const double porosity,
+                                           const double ves,
+                                           const double maxVes,
+                                           const bool includeChemicalCompaction,
+                                           const double chemicalCompactionTerm ) const;
 
-      const double  m_compactionIncr; ///< The loading phase compaction coefficient
-      const double  m_compactionDecr; ///< The unloading phase compaction coefficient
+      const double m_compactionIncr; ///< The loading phase compaction coefficient
+      const double m_compactionDecr; ///< The unloading phase compaction coefficient
    };
+
+
+   inline double
+   ExponentialPorosity::calculate( const double ves, const double maxVes, const bool includeChemicalCompaction, const double chemicalCompactionTerm ) const
+   {
+      return computeSingleValue( ves, maxVes, includeChemicalCompaction, chemicalCompactionTerm );
+   }
+
+
+   inline double
+   ExponentialPorosity::calculateDerivative(const double ves, const double maxVes, const bool includeChemicalCompaction, const double chemicalCompactionTerm) const
+   {
+      return computeSingleValueDerivative( computeSingleValue(ves, maxVes, includeChemicalCompaction, chemicalCompactionTerm), ves, maxVes, includeChemicalCompaction, chemicalCompactionTerm );
+   }
+
+
+   inline bool
+   ExponentialPorosity::isIncompressible () const
+   {
+      return m_compactionIncr == 0.0;
+   }
+
+
+   inline Porosity::Model
+   ExponentialPorosity::model () const
+   {
+      return DataAccess::Interface::EXPONENTIAL_POROSITY;
+   }
+
+
+   inline double
+    ExponentialPorosity::compactionCoefficient () const
+   {
+      return m_compactionIncr;
+   }
+
+
+   inline double
+   ExponentialPorosity::compactionCoefficientA () const
+   {
+      return 0.0;
+   }
+
+
+   inline double
+   ExponentialPorosity::compactionCoefficientB () const
+   {
+      return 0.0;
+   }
+
 }
+
 #endif
