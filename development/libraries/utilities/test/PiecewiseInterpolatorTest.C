@@ -7,6 +7,7 @@
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
+#include "../src/AlignedMemoryAllocator.h"
 #include "../src/PiecewiseInterpolator.h"
 #include <gtest/gtest.h>
 
@@ -51,9 +52,9 @@ TEST ( PiecewiseInterpolator, TestSize2Vector ) {
 
    interp.setInterpolation ( Size, xs, ys );
 
-   double evaluationPoints [ NumberOfEvaluations ];
-   double interpolationValues [ NumberOfEvaluations ];
-   double expectedInterpolations [ NumberOfEvaluations ];
+   double* evaluationPoints = AlignedMemoryAllocator<double,ARRAY_ALIGNMENT>::allocate ( NumberOfEvaluations );
+   double* interpolationValues = AlignedMemoryAllocator<double,ARRAY_ALIGNMENT>::allocate ( NumberOfEvaluations );
+   double* expectedInterpolations = AlignedMemoryAllocator<double,ARRAY_ALIGNMENT>::allocate ( NumberOfEvaluations );
 
    double h = (xs [1] - xs [0]) / double ( NumberOfEvaluations - 1 );
    double x = xs [0];
@@ -74,6 +75,9 @@ TEST ( PiecewiseInterpolator, TestSize2Vector ) {
       EXPECT_NEAR (expectedInterpolations [ i ], interpolationValues [ i ], 1.0e-11 );
    }
 
+   AlignedMemoryAllocator<double, 32>::free ( evaluationPoints );
+   AlignedMemoryAllocator<double, 32>::free ( interpolationValues );
+   AlignedMemoryAllocator<double, 32>::free ( expectedInterpolations );
 }
 
 
@@ -118,9 +122,9 @@ TEST ( PiecewiseInterpolator, TestSize3Vector ) {
 
    interp.setInterpolation ( Size, xs, ys );
 
-   double evaluationPoints [ NumberOfEvaluations ];
-   double interpolationValues [ NumberOfEvaluations ];
-   double expectedInterpolations [ NumberOfEvaluations ];
+   double* evaluationPoints = AlignedMemoryAllocator<double,ARRAY_ALIGNMENT>::allocate ( NumberOfEvaluations );
+   double* interpolationValues = AlignedMemoryAllocator<double,ARRAY_ALIGNMENT>::allocate ( NumberOfEvaluations );
+   double* expectedInterpolations = AlignedMemoryAllocator<double,ARRAY_ALIGNMENT>::allocate ( NumberOfEvaluations );
 
    double h = (xs [2] - xs [0]) / double ( NumberOfEvaluations - 1 );
    double x = xs [0];
@@ -141,4 +145,7 @@ TEST ( PiecewiseInterpolator, TestSize3Vector ) {
       EXPECT_NEAR (expectedInterpolations [ i ], interpolationValues [ i ], 1.0e-11 );
    }
 
+   AlignedMemoryAllocator<double, 32>::free ( evaluationPoints );
+   AlignedMemoryAllocator<double, 32>::free ( interpolationValues );
+   AlignedMemoryAllocator<double, 32>::free ( expectedInterpolations );
 }
