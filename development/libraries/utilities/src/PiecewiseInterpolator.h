@@ -119,14 +119,14 @@ namespace ibs {
       unsigned int m_numberOfPoints;
 
       /// The coefficients of the interpolant.
-      ArrayDefs::Real_ptr m_aCoeffs;
-      ArrayDefs::Real_ptr m_bCoeffs;
+      double* m_aCoeffs;
+      double* m_bCoeffs;
 
       /// The locally stored x-points.
-      ArrayDefs::Real_ptr m_xs;
+      double* m_xs;
 
       /// The locally stored y-points.
-      ArrayDefs::Real_ptr m_ys;
+      double* m_ys;
 
    };
 
