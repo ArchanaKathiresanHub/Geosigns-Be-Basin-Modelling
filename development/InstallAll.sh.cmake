@@ -83,16 +83,16 @@ else
    # permissions for everyone to read and execute the shared-libraries.
    tar --no-same-permissions -xf @CMAKE_CURRENT_SOURCE_DIR@/../3rdparty/sources/geocosm.tar -C $miscDirectory
    pushd $miscDirectory > /dev/null
-      echo " - Geocosm's 3rd party components:"
-      pushd geocosm/3rdparty > /dev/null
-         echo "    - Unpacking Xerces archive"
-         tar --no-same-permissions -xf Xerces.tar
-         echo "    - Unpacking Codesynthesis XSD archive"
-         tar --no-same-permissions -xf xsd.tar
-      popd > /dev/null
+   echo " - Geocosm's 3rd party components:"
+   pushd geocosm/3rdparty > /dev/null
+   echo "    - Unpacking Xerces archive"
+   tar --no-same-permissions -xf Xerces.tar
+   echo "    - Unpacking Codesynthesis XSD archive"
+   tar --no-same-permissions -xf xsd.tar
+   popd > /dev/null
    popd > /dev/null
 
-   if [ "$cldgrp" ]; then
+   if [ "x${cldgrp}" != "x" ]; then
       echo " - Changing group to $cldgrp"
       chgrp -R "${cldgrp}" $targetDirectory/misc
    fi

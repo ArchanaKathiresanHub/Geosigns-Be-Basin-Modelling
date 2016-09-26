@@ -56,21 +56,22 @@ namespace casa
 {
 
 // Create observable for the given trap property for specified areal position
-ObsTrapDerivedProp::ObsTrapDerivedProp( double x
-                        , double y
-                        , const char * resName
-                        , const char * propName
-                        , double simTime
-                        , const std::string & name
-                        )
-                        : m_x( x )
-                        , m_y( y )
-                        , m_resName( resName )
-                        , m_propName( propName )
-                        , m_simTime( simTime )
-                        , m_saWeight( 1.0 )
-                        , m_uaWeight( 1.0 )
-
+ObsTrapDerivedProp::ObsTrapDerivedProp( double              x
+                                      , double              y
+                                      , const char        * resName
+                                      , const char        * propName
+                                      , double              simTime
+                                      , bool                logTrans
+                                      , const std::string & name
+                                      )
+                                      : m_x( x )
+                                      , m_y( y )
+                                      , m_resName( resName )
+                                      , m_propName( propName )
+                                      , m_simTime( simTime )
+                                      , m_saWeight( 1.0 )
+                                      , m_uaWeight( 1.0 )
+                                      , m_logTransf( logTrans )
 {
    // check input values
    if ( m_propName.empty() ) throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "No property name specified for trap target";
@@ -112,7 +113,14 @@ ObsValue * ObsTrapDerivedProp::transform( const ObsValue * val ) const
       // do back transform from log10
       for ( size_t i = 0; i < ComponentManager::NumberOfOutputSpecies + 2; ++i )
       {
-         values[i] = values[i] <= g_ZeroMassLogThreshold ? 0.0 : pow( 10, values[i] );
+         if ( m_logTransf )
+         {
+            values[i] = values[i] <= g_ZeroMassLogThreshold ? 0.0 : pow( 10, values[i] );
+         }
+         else
+         {
+            values[i] = values[i] < 0.0 ? 0.0 : values[i];
+         }
       }
       ret = calculateDerivedTrapProp( values );
    }
@@ -232,12 +240,17 @@ ObsValue * ObsTrapDerivedProp::getFromModel( mbapi::Model & caldModel )
       }
    }
 
-   // do log10 transform for masses
    for ( size_t i = 0; i < ComponentManager::NumberOfOutputSpecies + 2; ++i )
    {
-      val[i] = val[i] < eps ? g_ZeroMassLogThreshold : log10( val[i] );
+      if ( m_logTransf )
+      { // do log10 transform for masses
+         val[i] = val[i] < eps ? g_ZeroMassLogThreshold : log10( val[i] );
+      }
+      else // if Undefinded value, this could be because trap not found. Set mass value to 0 in this case
+      {  
+         val[i] = val[i] < eps ? 0.0 : val[i];
+      }
    }
-
    return ObsValueTransformable::createNewInstance( this, val );
 }
 
@@ -300,6 +313,8 @@ bool ObsTrapDerivedProp::save( CasaSerializer & sz, unsigned int /* version */) 
    ok = ok ? sz.save( m_saWeight, "saWeight" ) : ok;
    ok = ok ? sz.save( m_uaWeight, "uaWeight" ) : ok;
 
+   ok = ok ? sz.save( m_logTransf, "logTransfer" ) : ok;
+
    return ok;
 }
 
@@ -339,6 +354,12 @@ ObsTrapDerivedProp::ObsTrapDerivedProp( CasaDeserializer & dz, unsigned int objV
    ok = ok ? dz.load( m_saWeight, "saWeight" ) : ok;
    ok = ok ? dz.load( m_uaWeight, "uaWeight" ) : ok;
    
+   if ( objVer > 0 )
+   {
+      ok = ok ? dz.load( m_logTransf, "logTransfer" ) : ok;
+   }
+   else { m_logTransf = true; }
+
    if ( !ok )
    {
       throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
@@ -395,10 +416,57 @@ double ObsTrapDerivedProp::calculateDerivedTrapProp( const std::vector<double> &
       throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Can not perform PVT calculation for liquid phase for surface conditions";
    }
 
+   bool stPhaseFound = false;
+   bool rcPhaseFound = false;
+
    ComponentManager::PhaseId rcPhase;
    ComponentManager::PhaseId stPhase;
 
-   if ( m_propName == "GOR" )
+   if ( m_propName.find( "FGIIP" ) != string::npos )
+   {
+      stPhaseFound = true;
+      rcPhase = ComponentManager::Vapour;
+      stPhase = ComponentManager::Vapour;
+   }
+   else if (m_propName.find( "CIIP" ) != string::npos )
+   {
+      stPhaseFound = true;
+      rcPhase = ComponentManager::Vapour;
+      stPhase = ComponentManager::Liquid;
+   }
+   else if (m_propName.find( "SGIIP" ) != string::npos )
+   {
+      stPhaseFound = true;
+      rcPhase = ComponentManager::Liquid;
+      stPhase = ComponentManager::Vapour;
+   }
+   else if ( m_propName.find( "STOIIP" ) != string::npos )
+   {
+      stPhaseFound = true;
+      rcPhase = ComponentManager::Liquid;
+      stPhase = ComponentManager::Liquid;
+   }
+   else if ( m_propName.find( "Vapour" ) != string::npos )
+   {
+      rcPhaseFound = true;
+      rcPhase = ComponentManager::Vapour;
+   }
+   else if ( m_propName.find( "Liquid" ) != string::npos )
+   {
+      rcPhaseFound = true;
+      rcPhase = ComponentManager::Liquid;
+   }
+
+   // Volume, Density, Viscosity, and Mass properties for stock tank conditions
+   if ( m_propName.find( "Density" ) != string::npos )
+   {
+      ret = stPhaseFound ? densitiesST[rcPhase][stPhase]   : densitiesRC[rcPhase];
+   }
+   else if ( m_propName.find( "Viscosity" ) != string::npos )
+   {
+      ret = stPhaseFound ? viscositiesST[rcPhase][stPhase] : viscositiesRC[rcPhase];
+   }
+   else if ( m_propName == "GOR" )
    {
       rcPhase = ComponentManager::Liquid;
       stPhase = ComponentManager::Liquid;

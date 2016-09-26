@@ -318,14 +318,16 @@ namespace casa
 
    double TornadoSensitivityInfo::minRelSensitivityValue( size_t prmNum ) const
    {
-      return m_sensitivities[prmNum].size() == 1 ? 101 : // no rel. sensitivity for categ. prm
-                                                   m_relSensitivities[prmNum][0];
+      return m_relSensitivities.size()      == 0 ? 0.0 : (
+             m_sensitivities[prmNum].size() == 1 ? 101 : // no rel. sensitivity for categ. prm
+                                                   m_relSensitivities[prmNum][0] );
    }
 
    double TornadoSensitivityInfo::maxRelSensitivityValue( size_t prmNum ) const
    {
-      return m_sensitivities[prmNum].size() == 1 ? 101 : // no rel. sensitivity for categ. prm
-                                                   m_relSensitivities[prmNum][1];
+      return m_relSensitivities.size()      == 0 ? 0.0 : (
+             m_sensitivities[prmNum].size() == 1 ? 101 : // no rel. sensitivity for categ. prm
+                                                   m_relSensitivities[prmNum][1] );
    }
 
    std::vector<std::string> TornadoSensitivityInfo::varParametersNameList()

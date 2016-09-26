@@ -50,11 +50,14 @@ SharedParameterPtr VarPrmSourceRockProp::newParameterFromDoubles( std::vector<do
 
    double prmV = *vals++; // in [-1:0:1] range
 
-   // 0.0 is the base value for [-1:1] range
-   prmV = prmV < 0.0 ? minProp  + (prmV + 1.0) * (baseProp - minProp) : // [minV, baseV] range
-                       baseProp + prmV * ( maxProp  - baseProp);  // [baseV, maxV] range
-
-   // scale prmV from [-1:1] to the current Prop range - [minProp:maxProp]
+   // scale to range [-1:0:1] if variable parameter has more than 1 range
+   if ( m_name2range.size() > 1 ) 
+   {  
+      // scale prmV from [-1:1] to the current Prop range - [minProp:maxProp]
+      // 0.0 is the base value for [-1:1] range
+      prmV = prmV < 0.0 ? minProp  + (prmV + 1.0) * (baseProp - minProp) : // [minV, baseV] range
+                          baseProp + prmV * ( maxProp  - baseProp);  // [baseV, maxV] range
+   }
 
    if ( minProp > prmV || prmV > maxProp )
    {
@@ -105,9 +108,13 @@ std::vector<double> VarPrmSourceRockProp::asDoubleArray( const SharedParameterPt
    }
 
    std::vector<double> ret;
-   // scale to range [-1:0:1]
-   ret.push_back( tocVal < basV ? -1.0 + (tocVal - minV)/(basV-minV) * (0.0 - (-1.0)) :
-                                   0.0 + (tocVal - basV)/(maxV-basV) * (1.0 - 0.0 ) );
+   if ( m_name2range.size() > 1 )
+   {  // scale to range [-1:0:1] if variable parameter has more than 1 range
+      ret.push_back( tocVal < basV ? -1.0 + (tocVal - minV)/(basV-minV) * (0.0 - (-1.0)) :
+                                      0.0 + (tocVal - basV)/(maxV-basV) * (1.0 - 0.0 ) );
+   }
+   else { ret.push_back( tocVal ); } // if just one simple range without source rock type parameter - do not scale it
+
    return ret;
 }
 

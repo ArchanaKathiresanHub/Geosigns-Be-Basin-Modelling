@@ -40,9 +40,10 @@ namespace casa
                                             , double              y             ///< Y-th grid coordinate [m]
                                             , const char        * resName       ///< reservoir name
                                             , const char        * propName      ///< name of the trap property
-                                            , double              simTime = 0.0 ///< simulation time [Ma]
+                                            , double              simTime       ///< simulation time [Ma]
+                                            , bool                logTrans      ///< should we transform observable to log scale?
                                             , const std::string & name = ""     ///< user specified name for observable
-                                            ) { return new ObsTrapProp( x, y, resName, propName, simTime, name ); }
+                                            ) { return new ObsTrapProp( x, y, resName, propName, simTime, logTrans, name ); }
 
       /// @brief Create observable for the given grid property for specified grid position
       ObsTrapProp( double              x         ///< X-th grid coordinate [m]
@@ -50,6 +51,7 @@ namespace casa
                  , const char        * resName   ///< reservoir name
                  , const char        * propName  ///< name of the property
                  , double              simTime   ///< simulation time [Ma]
+                 , bool                logTrans  ///< should we transform observable to log scale?
                  , const std::string & name = "" ///< user specified name for observable
                  );
 
@@ -128,7 +130,7 @@ namespace casa
       /// @{
       /// @brief Defines version of serialized object representation. Must be updated on each change in save()
       /// @return Actual version of serialized object representation
-      virtual unsigned int version() const { return 1; }
+      virtual unsigned int version() const { return 2; }
 
       /// @brief Save all object data to the given stream, that object could be later reconstructed from saved data
       /// @param sz Serializer stream

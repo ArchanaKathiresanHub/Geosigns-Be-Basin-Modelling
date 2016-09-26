@@ -144,10 +144,10 @@ void CmdPlotTornado::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
          {
             ofs << "TornadoSens.absSensMin( "    << obsNum << ", " << j+1 << ") = " << absSensMin << ";\n";
             ofs << "TornadoSens.absSensMax( "    << obsNum << ", " << j+1 << ") = " << absSensMax << ";\n";
-            ofs << "TornadoSens.relSensMin( "    << obsNum << ", " << j+1 << ") = " << relSens[j][0] << ";\n";
-            ofs << "TornadoSens.relSensMax( "    << obsNum << ", " << j+1 << ") = " << relSens[j][1] << ";\n";
-            ofs << "TornadoSens.maxRelSensMin( " << obsNum << ", " << j+1 << ") = " << maxRelSens[j][0] << ";\n";
-            ofs << "TornadoSens.maxRelSensMax( " << obsNum << ", " << j+1 << ") = " << maxRelSens[j][1] << ";\n";
+            ofs << "TornadoSens.relSensMin( "    << obsNum << ", " << j+1 << ") = " << (relSens.empty() ? 0.0 : relSens[j][0]) << ";\n";
+            ofs << "TornadoSens.relSensMax( "    << obsNum << ", " << j+1 << ") = " << (relSens.empty() ? 0.0 : relSens[j][1]) << ";\n";
+            ofs << "TornadoSens.maxRelSensMin( " << obsNum << ", " << j+1 << ") = " << (maxRelSens.empty() ? 0.0 : maxRelSens[j][0]) << ";\n";
+            ofs << "TornadoSens.maxRelSensMax( " << obsNum << ", " << j+1 << ") = " << (maxRelSens.empty() ? 0.0 : maxRelSens[j][1]) << ";\n";
          }
          
          absSensMin = maxSens[j].front() == UndefinedDoubleValue ? maxSens[j].front() : data[i].refObsValue() + maxSens[j].front();

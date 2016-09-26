@@ -162,11 +162,13 @@ void CmdPlotRSProxyQC::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
          ofs << "ProxyQC( end ).obsNameFN = '" << MatlabExporter::correctName( obsName ) << "';\n";
 
          ofs << "\nProxyQC( end ).obsRefAndDevValues = [";
-         const casa::ObsValue * refVal =  obsObj->referenceValue(); 
-         if ( refVal && refVal->isDouble() )
+         const casa::ObsValue * refVal   =  obsObj->referenceValue(); 
+         const casa::ObsValue * sigmaVal =  obsObj->stdDeviationForRefValue(); 
+         if ( refVal && refVal->isDouble() && sigmaVal && sigmaVal->isDouble() )
          {
             const std::vector<double> & vals = refVal->asDoubleArray();
-            ofs << vals[o] << " " << obsObj->stdDeviationForRefValue();
+            const std::vector<double> & sigma = sigmaVal->asDoubleArray();
+            ofs << vals[o] << " " << sigma[o];
          } 
          ofs << "];\n";
 

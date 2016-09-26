@@ -312,23 +312,52 @@ public:
 
    virtual casa::Observable * createOservableObject( const std::string & name, std::vector<std::string> & prms ) const
    {
+      bool logTransf  = false; // create RS for HCs volumes using logarithm of value
+      bool byCompos   = true;  // calculate trap property by flashing the predicted composition
+
       size_t pos                   = 1;
-      const std::string & propName =       prms[pos++];           // trap property
+      if ( prms[pos][0] == '[' )   // options list is given
+      {
+         const std::vector<std::string> & optList = CfgFileParser::list2array( prms[pos++], ',' );
+         for ( auto s : optList )
+         {
+            if (      s == "log"    ) { logTransf = true;  } // create RS for logarithm of value
+            else if ( s == "direct" ) { byCompos  = false; } // do not use composition RSs and flash for value prediction
+            else    { throw ErrorHandler::Exception( ErrorHandler:: OutOfRangeValue ) << "Unknown trap property option: " << s; }
+         }
+      }
+      std::string         propName =       prms[pos++];           // trap property
       double x                     = atof( prms[pos++].c_str() ); // trap X coord
       double y                     = atof( prms[pos++].c_str() ); // trap Y coord
       const std::string & resName  =       prms[pos++];           // reservoir name
       double age                   = atof( prms[pos++].c_str() ); // age for the observable
 
-      casa::Observable * obsVal = 0;
-      if ( propName == "GOR"    || propName == "CGR" ||
-           propName == "OilAPI" || propName == "CondensateAPI"
+      if ( logTransf && propName.find( "Mass"      ) == std::string::npos && 
+                        propName.find( "Volume"    ) == std::string::npos && 
+                        propName.find( "API"       ) == std::string::npos && 
+                        propName.find( "Density"   ) == std::string::npos && 
+                        propName.find( "Viscosity" ) == std::string::npos && 
+                        propName !=    "GOR"         && 
+                        propName !=    "CGR"
          )
       {
-         obsVal = casa::ObsTrapDerivedProp::createNewInstance( x, y, resName.c_str(), propName.c_str(), age, name );
+         throw ErrorHandler::Exception( ErrorHandler::NotImplementedAPI ) << "Logarithmic transformation for trap property " << propName
+                                                                          << " not yet implemented";
+      }
+
+      casa::Observable * obsVal = 0;
+      if ( byCompos && ( propName == "GOR"    || propName == "CGR" ||
+                         propName.find( "API"       ) != std::string::npos ||
+                         propName.find( "Density"   ) != std::string::npos ||
+                         propName.find( "Viscosity" ) != std::string::npos
+                       )
+         )
+      {
+         obsVal = casa::ObsTrapDerivedProp::createNewInstance( x, y, resName.c_str(), propName.c_str(), age, logTransf, name );
       }
       else
       {
-         obsVal = casa::ObsTrapProp::createNewInstance( x, y, resName.c_str(), propName.c_str(), age, name );
+         obsVal = casa::ObsTrapProp::createNewInstance( x, y, resName.c_str(), propName.c_str(), age, logTransf, name );
       }
 
       // optional parameters
@@ -360,14 +389,25 @@ public:
    virtual std::string fullDescription() const
    {
       std::ostringstream oss;
-      oss << "    TrapProp <PropName> <X> <Y> <ReservoirName> <Age> [<SA weight> <UA weight>]\n";
+      oss << "    TrapProp [optionLst] <PropName> <X> <Y> <ReservoirName> <Age> [<SA weight> <UA weight>]\n";
       oss << "    Where:\n";
+      oss << "       optionList             - modifies how trap property RS is constructed. Implemented now options are:\n";
+      oss << "                                \"log\" if this option is given:\n";
+      oss << "                                        for Volume/Mass trap properties casa will create RS for logarithm of target value,\n";
+      oss << "                                        for trap properties calculated by flashing interpolated over RS composition,\n";
+      oss << "                                        casa will create RCs for logarithm of mass of components in composition\n";
+      oss << "                                \"direct\" if this option is given the GOR/CGR/API/Density/Viscosity calculation by flashing\n";
+      oss << "                                        interpolated over RS composition will be disabled\n";
       oss << "       PropName               - trap property name (supported properties list - see below)\n";
       oss << "       X,Y                    - are the aerial target point coordinates\n";
       oss << "       LayerName              - source rock layer name\n";
       oss << "       Age                    - simulation age in [Ma]\n";
       oss << "       SA weight              - weight [0:1] for this target for Sensitivity Analysis (it will used for Pareto diagram)\n";
       oss << "       UA weight              - weight [0:1] for this target for Uncertainty Analysis (it will be used in RMSE calculation)\n";
+      oss << "\n"; 
+      oss << "       Note: If property name for Mass or Volume is prefixed by Log - response surface will approximate the logarithm of \n";
+      oss << "       property values. For GOR/CGR and all APIs properties, Log prefix means that logarthim of composition masses will be approximated \n";
+      oss << "       by response surface\n";
       oss << "\n"; 
       oss << "    Supported trap property list:\n";
       oss << "       VolumeFGIIP [m3] -             Volume of free gas initially in place\n";
@@ -409,6 +449,14 @@ public:
       oss << "       OWC [m] -                      Depth of Liquid-Water contact\n";
       oss << "       SpillDepth [m] -               Spill depth\n";
       oss << "       SealPermeability [mD] -        Seal permeability\n";
+      oss << "       Pressure [MPa] -               Pressure at crest point\n";
+      oss << "       LithoStaticPressure [MPa] -    lithostatic pressure at crest point\n";
+      oss << "       HydroStaticPressure [MPa] -    hydrostatic pressure at crest point\n";
+      oss << "       OverPressure [MPa] -           over pressure at crest point\n";
+      oss << "       Temperature [C] -              Temperature at crest point\n";
+      oss << "       Permeability [mD] -            Permeability at crest point\n";       
+      oss << "       Porosity [%] -                 Porosity at crest point\n";       
+
       return oss.str();
    }
 
@@ -416,7 +464,10 @@ public:
    {
       std::ostringstream oss;
       oss << "    #       type      prop name       X        Y          ReservName    Age   SWght UWght\n";
-      oss << "    "<< cmdName << " TrapProp \"GOR\" 460001.0 6750001.0  \"Res\"       0.0    1.0  1.0\n";
+      oss << "    "<< cmdName << " TrapProp \"GOR\" 460001.0 6750001.0  \"Res\"       0.0    1.0  1.0\n\n";
+      oss << "    #       type      prop name       X        Y          ReservName    Age   SWght UWght\n";
+      oss << "    "<< cmdName << " [\"log\"] TrapProp \"GOR\" 460001.0 6750001.0  \"Res\"       0.0    1.0  1.0\n";
+      oss << "    "<< cmdName << " [\"direct\"] TrapProp \"GOR\" 460001.0 6750001.0  \"Res\"    0.0    1.0  1.0\n";
       return oss.str();
    }
 };

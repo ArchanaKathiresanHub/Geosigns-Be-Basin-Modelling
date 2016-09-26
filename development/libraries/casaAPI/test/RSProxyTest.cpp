@@ -145,7 +145,7 @@ TEST_F( RSProxyTest, Prm2Obs1Proxy1Test )
    std::vector<double> prmVals(2);
 
    // set case parameters, just some arbitrary values inside corresponded ranges
-   prmVals[0] = (10.16 - 10.0)/(15.0-10.0); // scale to range [baseVal:maxVal] for [-1:0:1] range
+   prmVals[0] = 10.16; 
    prmVals[1] = 1.970;
 
    std::vector<double>::const_iterator vit = prmVals.begin();
