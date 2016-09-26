@@ -5,6 +5,8 @@
 #include <vector>
 #include <string>
 
+#include "ArrayDefinitions.h"
+
 namespace ibs {
 
    /// \brief A simple continuous piece-wise linear interpolator.
@@ -52,7 +54,9 @@ namespace ibs {
       /// \param  [in] size   The number of points at which the interpolator is to be evalauted.
       /// \param  [in] pnts   The points at which the interpolator is to be evalauted.
       /// \param [out] values The values of the interpolator at the provided points.
-      void evaluate ( const unsigned int size, const double* const pnts, double* values ) const;
+      void evaluate ( const unsigned int       size,
+                      ArrayDefs::ConstReal_ptr pnts,
+                      ArrayDefs::Real_ptr      values ) const;
 
       /// \brief Evaluate the derivative of the interpolator at the point.
       ///
@@ -64,7 +68,9 @@ namespace ibs {
       /// \param  [in] size   The number of points at which the interpolator derivative is to be evalauted.
       /// \param  [in] pnts   The points at which the interpolator derivative is to be evalauted.
       /// \param [out] values The values of the interpolator derivative at the provided points.
-      void evaluateDerivative ( const unsigned int size, const double* const pnts, double* values ) const;
+      void evaluateDerivative ( const unsigned int       size,
+                                ArrayDefs::ConstReal_ptr pnts,
+                                ArrayDefs::Real_ptr      values ) const;
 
       /// \brief Evaluate both the interpolator and its derivative for a scalar value.
       ///
@@ -81,10 +87,10 @@ namespace ibs {
       /// \param  [in] pnts       The points at which the interpolator is to be evalauted.
       /// \param [out] values     The values of the interpolator at the provided points.
       /// \param [out] derivative The values of the interpolator derivative at the provided points.
-      void evaluate (  const unsigned int  size,
-                       const double* const pnts,
-                       double*             values,
-                       double*             derivatives ) const;
+      void evaluate ( const unsigned int       size,
+                      ArrayDefs::ConstReal_ptr pnts,
+                      ArrayDefs::Real_ptr      values,
+                      ArrayDefs::Real_ptr      derivatives ) const;
 
       /// \brief Writes a string representation of the interpolator to the stream.
       void print ( std::ostream& o ) const;
@@ -113,14 +119,14 @@ namespace ibs {
       unsigned int m_numberOfPoints;
 
       /// The coefficients of the interpolant.
-      double* m_aCoeffs;
-      double* m_bCoeffs;
+      ArrayDefs::Real_ptr m_aCoeffs;
+      ArrayDefs::Real_ptr m_bCoeffs;
 
       /// The locally stored x-points.
-      double* m_xs;
+      ArrayDefs::Real_ptr m_xs;
 
       /// The locally stored y-points.
-      double* m_ys;
+      ArrayDefs::Real_ptr m_ys;
 
    };
 

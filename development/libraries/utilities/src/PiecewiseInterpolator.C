@@ -3,6 +3,7 @@
 #include <sstream>
 #include <algorithm>
 
+#include "AlignedMemoryAllocator.h"
 #include "FormattingException.h"
 
 //------------------------------------------------------------//
@@ -31,16 +32,10 @@ ibs::PiecewiseInterpolator::~PiecewiseInterpolator () {
 void ibs::PiecewiseInterpolator::deleteCoefficients () {
 
   if ( m_xs != 0 ) {
-    delete [] m_xs;
-    m_xs = 0;
-
-    delete [] m_ys;
-    m_ys = 0;
-
-    delete [] m_aCoeffs;
-    delete [] m_bCoeffs;
-    m_aCoeffs = 0;
-    m_bCoeffs = 0;
+     AlignedMemoryAllocator<double,32>::free ( m_xs );
+     AlignedMemoryAllocator<double,32>::free ( m_ys );
+     AlignedMemoryAllocator<double,32>::free ( m_aCoeffs );
+     AlignedMemoryAllocator<double,32>::free ( m_bCoeffs );
   }
 
 }
@@ -54,9 +49,9 @@ double ibs::PiecewiseInterpolator::evaluate ( const double value ) const {
 
 //------------------------------------------------------------//
 
-void ibs::PiecewiseInterpolator::evaluate ( const unsigned int size,
-                                            const double* const pnts,
-                                            double* values ) const {
+void ibs::PiecewiseInterpolator::evaluate ( const unsigned int       size,
+                                            ArrayDefs::ConstReal_ptr pnts,
+                                            ArrayDefs::Real_ptr      values ) const {
 
    if ( m_numberOfPoints == 2 ) {
       // Only a single panel
@@ -86,9 +81,9 @@ double ibs::PiecewiseInterpolator::evaluateDerivative ( const double value ) con
 
 //------------------------------------------------------------//
 
-void ibs::PiecewiseInterpolator::evaluateDerivative ( const unsigned int size,
-                                                      const double* const pnts,
-                                                      double*             values ) const {
+void ibs::PiecewiseInterpolator::evaluateDerivative ( const unsigned int       size,
+                                                      ArrayDefs::ConstReal_ptr pnts,
+                                                      ArrayDefs::Real_ptr      values ) const {
 
    if ( m_numberOfPoints == 2 ) {
       // Only a single panel
@@ -123,10 +118,10 @@ void ibs::PiecewiseInterpolator::evaluate ( const double x,
 
 //------------------------------------------------------------//
 
-void ibs::PiecewiseInterpolator::evaluate (  const unsigned int  size,
-                                             const double* const pnts,
-                                             double*             values,
-                                             double*             derivatives ) const {
+void ibs::PiecewiseInterpolator::evaluate (  const unsigned int       size,
+                                             ArrayDefs::ConstReal_ptr pnts,
+                                             ArrayDefs::Real_ptr      values,
+                                             ArrayDefs::Real_ptr      derivatives ) const {
 
    if ( m_numberOfPoints == 2 ) {
       // Only a single panel
@@ -161,7 +156,7 @@ void ibs::PiecewiseInterpolator::setInterpolation ( const unsigned int        ne
    }
 
    if ( newXs == nullptr or newYs == nullptr ) {
-      throw formattingexception::GeneralException () << "The data arrays are null.";
+      throw formattingexception::GeneralException () << "One or both of the data arrays are null.";
    }
 
    unsigned int* pointer = new unsigned int [ newNumberOfPoints ];
@@ -179,11 +174,11 @@ void ibs::PiecewiseInterpolator::setInterpolation ( const unsigned int        ne
 
    m_numberOfPoints = newNumberOfPoints;
 
-   m_xs = new double [ m_numberOfPoints ];
-   m_ys = new double [ m_numberOfPoints ];
+   m_xs = AlignedMemoryAllocator<double,32>::allocate ( m_numberOfPoints );
+   m_ys = AlignedMemoryAllocator<double,32>::allocate ( m_numberOfPoints );
 
-   m_aCoeffs = new double [ m_numberOfPoints - 1 ];
-   m_bCoeffs = new double [ m_numberOfPoints - 1 ];
+   m_aCoeffs = AlignedMemoryAllocator<double,32>::allocate ( m_numberOfPoints - 1 );
+   m_bCoeffs = AlignedMemoryAllocator<double,32>::allocate ( m_numberOfPoints - 1 );
 
    // Sort the array index pointer based on the order of the x-values.
    std::sort ( pointer, pointer + m_numberOfPoints, comp );
