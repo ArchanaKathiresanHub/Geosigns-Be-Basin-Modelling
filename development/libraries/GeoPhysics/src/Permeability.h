@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -16,6 +16,8 @@
 
 #include "Interface/Interface.h"
 
+#include "ArrayDefinitions.h"
+
 namespace GeoPhysics
 {
 
@@ -25,7 +27,7 @@ namespace GeoPhysics
       typedef DataAccess::Interface::PermeabilityModel Model;
 
       /// Factory method: Intended to be used from SimpleLithology only
-      static Permeability create( 
+      static Permeability create(
             Model permeabilityModel, double permAniso,
             double depoPorosityPercentage, double depoPermeability,
             double permeabilityIncr, double permeabilityDecr,
@@ -38,7 +40,7 @@ namespace GeoPhysics
       static Permeability createMultiPoint(
             double permAniso,
             double depoPorosityPercentage,
-            const std::vector<double> &porosityPercentageSamples, 
+            const std::vector<double> &porosityPercentageSamples,
             const std::vector<double> & permeabilitySamples
             );
 
@@ -47,13 +49,30 @@ namespace GeoPhysics
                          const double maxVes,
                          const double calculatedPorosityFraction ) const;
 
+
+      /// \brief Compute the permeability for an array of values
+      void calculate ( const unsigned int       n,
+                       ArrayDefs::ConstReal_ptr ves,
+                       ArrayDefs::ConstReal_ptr maxVes,
+                       ArrayDefs::ConstReal_ptr calculatedPorosity,
+                       ArrayDefs::Real_ptr      permeabilities ) const;
+
       /// Compte the derivative of the permeability function.
-      void calculateDerivative( const double  ves,
-                                const double  maxVes,
-                                const double  calculatedPorosityFraction, 
-                                const double  porosityDerivativeWrtVes,
-                                      double& permeability, 
-                                      double& derivative ) const;
+      void calculateDerivative ( const double  ves,
+                                 const double  maxVes,
+                                 const double  calculatedPorosityFraction,
+                                 const double  porosityDerivativeWrtVes,
+                                       double& permeability,
+                                       double& derivative ) const;
+
+      /// \brief Compute the permeability and its derivative for an array of values.
+      void calculateDerivative ( const unsigned int       n,
+                                 ArrayDefs::ConstReal_ptr ves,
+                                 ArrayDefs::ConstReal_ptr maxVes,
+                                 ArrayDefs::ConstReal_ptr calculatedPorosity,
+                                 ArrayDefs::ConstReal_ptr porosityDerivativeWrtVes,
+                                 ArrayDefs::Real_ptr      permeabilities,
+                                 ArrayDefs::Real_ptr      derivatives ) const;
 
       /// @brief Overwrite default assginment operator to avoid bitwise copy
       Permeability& operator= (const Permeability& permeability);
@@ -64,7 +83,7 @@ namespace GeoPhysics
       double getDepoPerm()  const;
       double getPermAniso() const;
 
-      /// Abstract class 
+      /// Abstract class
       class Algorithm
       {
       public:
@@ -72,16 +91,46 @@ namespace GeoPhysics
 
          /// Coompute the permeability
          virtual double calculate( const double ves,
-                                      const double maxVes,
-                                      const double calculatedPorosityFraction ) const = 0;
+                                   const double maxVes,
+                                   const double calculatedPorosityFraction ) const = 0;
+
+         /// \brief Compute the permeability for an array of values.
+         ///
+         /// \param  [in] n                     The number of values in the array.
+         /// \param  [in] ves                   The ves values for which the permeability is to be calculated.
+         /// \param  [in] maxVes                The max-ves values for which the permeability is to be calculated.
+         /// \param  [in] calculatedPorosities  The porosity values for which the permeability is to be calculated.
+         /// \param [out] permeabilities        The calculated permeability values.
+         virtual void calculate ( const unsigned int       n,
+                                  ArrayDefs::ConstReal_ptr ves,
+                                  ArrayDefs::ConstReal_ptr maxVes,
+                                  ArrayDefs::ConstReal_ptr calculatedPorosity,
+                                  ArrayDefs::Real_ptr      permeabilities ) const = 0;
 
          /// Compute the derivative of the permeability function.
-         virtual void calculateDerivative( const double  ves,
-                                              const double  maxVes,
-                                              const double  calculatedPorosityFraction, 
-                                              const double  porosityDerivativeWrtVes,
-                                                    double& permeability, 
-                                                    double& derivative ) const = 0;
+         virtual void calculateDerivative ( const double  ves,
+                                            const double  maxVes,
+                                            const double  calculatedPorosityFraction,
+                                            const double  porosityDerivativeWrtVes,
+                                                  double& permeability,
+                                                  double& derivative ) const = 0;
+
+         /// \brief Compute the permeability and its derivative for an array of values.
+         ///
+         /// \param  [in] n                         The number of values in the array.
+         /// \param  [in] ves                       The ves values for which the permeability is to be calculated.
+         /// \param  [in] maxVes                    The max-ves values for which the permeability is to be calculated.
+         /// \param  [in] calculatedPorosities      The porosity values for which the permeability is to be calculated.
+         /// \param  [in] porosityDerivativeWrtVes  The derivative of the porosity for which the permeability is to be calculated.
+         /// \param [out] permeabilities            The calculated permeability values.
+         /// \param [out] derivatives               The calculated permeability derivative values.
+         virtual void calculateDerivative ( const unsigned int       n,
+                                            ArrayDefs::ConstReal_ptr ves,
+                                            ArrayDefs::ConstReal_ptr maxVes,
+                                            ArrayDefs::ConstReal_ptr calculatedPorosity,
+                                            ArrayDefs::ConstReal_ptr porosityDerivativeWrtVes,
+                                            ArrayDefs::Real_ptr      permeabilities,
+                                            ArrayDefs::Real_ptr      derivatives ) const = 0;
 
          /// return the depositional permeability
          virtual double depoPerm() const = 0;
@@ -109,17 +158,17 @@ namespace GeoPhysics
    ///////////////////////////////////////////////
    // Inline functions
 
-   inline DataAccess::Interface::PermeabilityModel Permeability::getPermModel () const 
+   inline DataAccess::Interface::PermeabilityModel Permeability::getPermModel () const
    {
       return m_algorithm->model();
    }
 
-   inline double Permeability::getDepoPerm () const 
+   inline double Permeability::getDepoPerm () const
    {
       return m_algorithm->depoPerm();
    }
 
-   inline double Permeability::getPermAniso () const 
+   inline double Permeability::getPermAniso () const
    {
       return m_permeabilityAniso;
    }
@@ -129,10 +178,33 @@ namespace GeoPhysics
       return m_algorithm->calculate( ves, maxVes, calculatedPorosityFraction );
    }
 
-   inline void Permeability::calculateDerivative( const double ves, const double maxVes, const double calculatedPorosityFraction,
-    		const double porosityDerivativeWrtVes, double & permeability, double & derivative) const
+   inline void Permeability::calculate ( const unsigned int       n,
+                                         ArrayDefs::ConstReal_ptr ves,
+                                         ArrayDefs::ConstReal_ptr maxVes,
+                                         ArrayDefs::ConstReal_ptr calculatedPorosity,
+                                         ArrayDefs::Real_ptr      permeabilities ) const {
+      m_algorithm->calculate ( n, ves, maxVes, calculatedPorosity, permeabilities );
+   }
+
+
+   inline void Permeability::calculateDerivative ( const double ves,
+                                                   const double maxVes,
+                                                   const double calculatedPorosityFraction,
+                                                   const double porosityDerivativeWrtVes,
+                                                   double&      permeability,
+                                                   double&      derivative ) const
    {
-      return m_algorithm->calculateDerivative( ves, maxVes, calculatedPorosityFraction, porosityDerivativeWrtVes, permeability, derivative );
+      m_algorithm->calculateDerivative( ves, maxVes, calculatedPorosityFraction, porosityDerivativeWrtVes, permeability, derivative );
+   }
+
+   inline void Permeability::calculateDerivative ( const unsigned int       n,
+                                                   ArrayDefs::ConstReal_ptr ves,
+                                                   ArrayDefs::ConstReal_ptr maxVes,
+                                                   ArrayDefs::ConstReal_ptr calculatedPorosity,
+                                                   ArrayDefs::ConstReal_ptr porosityDerivativeWrtVes,
+                                                   ArrayDefs::Real_ptr      permeabilities,
+                                                   ArrayDefs::Real_ptr      derivatives ) const {
+      m_algorithm->calculateDerivative ( n, ves, maxVes, calculatedPorosity, porosityDerivativeWrtVes, permeabilities, derivatives );
    }
 
 }

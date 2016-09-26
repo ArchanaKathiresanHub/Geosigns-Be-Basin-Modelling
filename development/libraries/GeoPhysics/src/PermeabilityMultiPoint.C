@@ -12,9 +12,11 @@
 #include "GeoPhysicalConstants.h"
 
 #include <cmath>
+#include <algorithm>
 
 namespace GeoPhysics
 {
+
 
    PermeabilityMultiPoint::PermeabilityMultiPoint(const double depoPorosity,
                                                   const std::vector<double> & porositySamples,
@@ -25,34 +27,108 @@ namespace GeoPhysics
       assert( porositySamples.size() == permeabilitySamples.size());
       assert( porositySamples.size() > 0);
 
-      const int n = static_cast<int>(porositySamples.size());
-      m_porosityPermeabilityInterpolant.setInterpolation( n, porositySamples.data (), permeabilitySamples.data ());
-      m_depoPermeability = m_porosityPermeabilityInterpolant.evaluate ( depoPorosity );
+      // Scale the permeability values by log ( 10 ) so that this operation
+      // does not need to be performed later when interpolating
+      std::vector<double> scaledPermeabilitySamples ( permeabilitySamples );
+      std::transform ( scaledPermeabilitySamples.begin (),
+                       scaledPermeabilitySamples.end (),
+                       scaledPermeabilitySamples.begin (),
+                       [](const double x){ return Log10 * x; });
+      m_porosityPermeabilityInterpolant.setInterpolation( porositySamples.size (), porositySamples.data (), scaledPermeabilitySamples.data ());
+
+      // Need to divide by log ( 10 ) because interpolator has been scaled by log ( 10 ).
+      m_depoPermeability = m_porosityPermeabilityInterpolant.evaluate ( depoPorosity ) / Log10;
    }
 
-   double PermeabilityMultiPoint::calculate( const double ves, const double maxVes, const double calculatedPorosity) const
-   {
-      double  val = exp ( Log10 * m_porosityPermeabilityInterpolant.evaluate ( calculatedPorosity ));
+   inline double PermeabilityMultiPoint::calculateSingleValue ( const double porosity ) const {
+      // return exp ( m_porosityPermeabilityInterpolant.evaluate ( porosity ));
+      double val = exp ( m_porosityPermeabilityInterpolant.evaluate ( porosity ));
       return std::min( val, MaxPermeability );
+   }
+
+
+   double PermeabilityMultiPoint::calculate( const double ves, const double maxVes, const double calculatedPorosity ) const
+   {
+
+      // Added to prevent compiler warning about unused parameters.
+      (void) ves;
+      (void) maxVes;
+
+      return calculateSingleValue ( calculatedPorosity );
+   }
+
+   void PermeabilityMultiPoint::calculate ( const unsigned int       n,
+                                            ArrayDefs::ConstReal_ptr ves,
+                                            ArrayDefs::ConstReal_ptr maxVes,
+                                            ArrayDefs::ConstReal_ptr calculatedPorosity,
+                                            ArrayDefs::Real_ptr      permeabilities ) const {
+
+      // Added to prevent some compiler warnings about unused parameters.
+      (void) ves;
+      (void) maxVes;
+
+      // Initialise permeabilities array with the log of the permeabilty from the interpoaltor.
+      m_porosityPermeabilityInterpolant.evaluate ( n, calculatedPorosity, permeabilities );
+
+      // Now compute the permeability.
+      #pragma simd
+      for ( unsigned int i = 0; i < n; ++i ) {
+         permeabilities [ i ] = std::min ( MaxPermeability, exp ( permeabilities [ i ] ));
+      }
+
    }
 
    void PermeabilityMultiPoint::calculateDerivative( const double ves,
                                                      const double maxVes,
                                                      const double calculatedPorosity,
                                                      const double porosityDerivativeWrtVes,
-                                                     double & permeability,
-                                                     double & derivative ) const
-   {
-      permeability = this->calculate( ves, maxVes, calculatedPorosity);
-      if( permeability == MaxPermeability )
+                                                     double&      permeability,
+                                                     double&      derivative ) const {
+
+      // Added to prevent compiler warning about unused parameters.
+      (void) ves;
+      (void) maxVes;
+
+      permeability = calculateSingleValue ( calculatedPorosity );
+
+      if ( permeability < MaxPermeability )
       {
-         derivative = 0.0;
+         derivative = permeability * porosityDerivativeWrtVes * m_porosityPermeabilityInterpolant.evaluateDerivative ( calculatedPorosity );
       }
       else
       {
-         derivative = permeability * Log10 * porosityDerivativeWrtVes * m_porosityPermeabilityInterpolant.evaluateDerivative ( calculatedPorosity );
+         derivative = 0.0;
       }
+
    }
+
+   void PermeabilityMultiPoint::calculateDerivative ( const unsigned int       n,
+                                                      ArrayDefs::ConstReal_ptr ves,
+                                                      ArrayDefs::ConstReal_ptr maxVes,
+                                                      ArrayDefs::ConstReal_ptr calculatedPorosity,
+                                                      ArrayDefs::ConstReal_ptr porosityDerivativeWrtVes,
+                                                      ArrayDefs::Real_ptr      permeabilities,
+                                                      ArrayDefs::Real_ptr      derivatives ) const {
+
+      // Initialise permeabilities array with the log of the permeabilty.
+      m_porosityPermeabilityInterpolant.evaluate ( n, calculatedPorosity, permeabilities, derivatives );
+
+      #pragma simd
+      for ( unsigned int i = 0; i < n; ++i ) {
+         double perm = exp ( permeabilities [ i ]);
+
+         if ( perm < MaxPermeability ) {
+            permeabilities [ i ] = perm;
+            derivatives [ i ] = perm * porosityDerivativeWrtVes [ i ] * derivatives [ i ];
+         } else {
+            permeabilities [ i ] = MaxPermeability;
+            derivatives [ i ] = 0.0;
+         }
+
+      }
+
+   }
+
 
    double PermeabilityMultiPoint::depoPerm() const
    {
