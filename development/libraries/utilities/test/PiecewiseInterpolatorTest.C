@@ -20,7 +20,7 @@ TEST ( PiecewiseInterpolator, TestSize2Scalar ) {
    double expectedValue = ys [0];
    double expectedValueDelta = (ys [1] - ys [0]) / double ( NumberOfEvaluations - 1 );
 
-   for ( int i = 0; i < NumberOfEvaluations; ++i ) {
+   for ( unsigned int i = 0; i < NumberOfEvaluations; ++i ) {
       EXPECT_NEAR ( expectedValue, interp.evaluate ( x ), 1.0e-10 );
       x += h;
       expectedValue += expectedValueDelta;
@@ -52,7 +52,7 @@ TEST ( PiecewiseInterpolator, TestSize2Vector ) {
    double expectedValueDelta = (ys [1] - ys [0]) / double ( NumberOfEvaluations - 1 );
 
    // Generate expected values
-   for ( int i = 0; i < NumberOfEvaluations; ++i ) {
+   for ( unsigned int i = 0; i < NumberOfEvaluations; ++i ) {
       evaluationPoints [ i ] = x;
       expectedInterpolations [ i ] = expectedValue;
       x += h;
@@ -61,7 +61,7 @@ TEST ( PiecewiseInterpolator, TestSize2Vector ) {
 
    interp.evaluate ( NumberOfEvaluations, evaluationPoints, interpolationValues );
 
-   for ( int i = 0; i < NumberOfEvaluations; ++i ) {
+   for ( unsigned int i = 0; i < NumberOfEvaluations; ++i ) {
       EXPECT_NEAR (expectedInterpolations [ i ], interpolationValues [ i ], 1.0e-11 );
    }
 
@@ -87,7 +87,7 @@ TEST ( PiecewiseInterpolator, TestSize3Scalar ) {
    double expectedValue = ys [0];
    double expectedValueDelta = (ys [2] - ys [0]) / double ( NumberOfEvaluations - 1 );
 
-   for ( int i = 0; i < NumberOfEvaluations; ++i ) {
+   for ( unsigned int i = 0; i < NumberOfEvaluations; ++i ) {
       EXPECT_NEAR ( expectedValue, interp.evaluate ( x ), 1.0e-10 );
       x += h;
       expectedValue += expectedValueDelta;
@@ -119,7 +119,7 @@ TEST ( PiecewiseInterpolator, TestSize3Vector ) {
    double expectedValueDelta = (ys [2] - ys [0]) / double ( NumberOfEvaluations - 1 );
 
    // Generate expected values
-   for ( int i = 0; i < NumberOfEvaluations; ++i ) {
+   for ( unsigned int i = 0; i < NumberOfEvaluations; ++i ) {
       evaluationPoints [ i ] = x;
       expectedInterpolations [ i ] = expectedValue;
       x += h;
@@ -128,7 +128,7 @@ TEST ( PiecewiseInterpolator, TestSize3Vector ) {
 
    interp.evaluate ( NumberOfEvaluations, evaluationPoints, interpolationValues );
 
-   for ( int i = 0; i < NumberOfEvaluations; ++i ) {
+   for ( unsigned int i = 0; i < NumberOfEvaluations; ++i ) {
       EXPECT_NEAR (expectedInterpolations [ i ], interpolationValues [ i ], 1.0e-11 );
    }
 

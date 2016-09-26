@@ -19,7 +19,7 @@ TEST ( PiecewiseInterpolatorDerivative, TestSize2Scalar ) {
    double x = xs [0];
    double expectedValue = (ys [1] - ys [0]) / ( xs [1] - xs [0]);
 
-   for ( int i = 0; i < NumberOfEvaluations; ++i ) {
+   for ( unsigned int i = 0; i < NumberOfEvaluations; ++i ) {
       EXPECT_NEAR ( expectedValue, interp.evaluateDerivative ( x ), 1.0e-10 );
       x += h;
    }
@@ -42,21 +42,20 @@ TEST ( PiecewiseInterpolatorDerivative, TestSize2Vector ) {
 
    double evaluationPoints [ NumberOfEvaluations ];
    double interpolationValues [ NumberOfEvaluations ];
-   double expectedInterpolations [ NumberOfEvaluations ];
 
    double h = (xs [1] - xs [0]) / double ( NumberOfEvaluations - 1 );
    double x = xs [0];
    double expectedValue = (ys [1] - ys [0]) / ( xs [1] - xs [0]);
 
    // Generate expected values
-   for ( int i = 0; i < NumberOfEvaluations; ++i ) {
+   for ( unsigned int i = 0; i < NumberOfEvaluations; ++i ) {
       evaluationPoints [ i ] = x;
       x += h;
    }
 
    interp.evaluateDerivative ( NumberOfEvaluations, evaluationPoints, interpolationValues );
 
-   for ( int i = 0; i < NumberOfEvaluations; ++i ) {
+   for ( unsigned int i = 0; i < NumberOfEvaluations; ++i ) {
       EXPECT_NEAR ( expectedValue, interpolationValues [ i ], 1.0e-11 );
    }
 
@@ -81,7 +80,7 @@ TEST ( PiecewiseInterpolatorDerivative, TestSize3Scalar ) {
    double x = xs [0];
    double expectedValue = ys [0];
 
-   for ( int i = 0; i < NumberOfEvaluations; ++i ) {
+   for ( unsigned int i = 0; i < NumberOfEvaluations; ++i ) {
 
       if ( x < xs [1] ) {
          expectedValue = (ys [1] - ys [0]) / ( xs [1] - xs [0]);
@@ -116,10 +115,9 @@ TEST ( PiecewiseInterpolatorDerivative, TestSize3Vector ) {
    double h = (xs [2] - xs [0]) / double ( NumberOfEvaluations - 1 );
    double x = xs [0];
    double expectedValue = ys [0];
-   double expectedValueDelta = (ys [2] - ys [0]) / double ( NumberOfEvaluations - 1 );
 
    // Generate expected values
-   for ( int i = 0; i < NumberOfEvaluations; ++i ) {
+   for ( unsigned int i = 0; i < NumberOfEvaluations; ++i ) {
       evaluationPoints [ i ] = x;
 
       if ( x < xs [1] ) {
@@ -135,12 +133,12 @@ TEST ( PiecewiseInterpolatorDerivative, TestSize3Vector ) {
    interp.evaluateDerivative ( NumberOfEvaluations, evaluationPoints, interpolationValues );
 
    // Compare with expected value
-   for ( int i = 0; i < NumberOfEvaluations; ++i ) {
+   for ( unsigned int i = 0; i < NumberOfEvaluations; ++i ) {
       EXPECT_NEAR (expectedInterpolations [ i ], interpolationValues [ i ], 1.0e-11 );
    }
 
    // Compare with scalar value
-   for ( int i = 0; i < NumberOfEvaluations; ++i ) {
+   for ( unsigned int i = 0; i < NumberOfEvaluations; ++i ) {
       EXPECT_NEAR ( interp.evaluateDerivative ( evaluationPoints [ i ]), interpolationValues [ i ], 1.0e-11 );
    }
 
