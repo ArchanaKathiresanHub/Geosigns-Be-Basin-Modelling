@@ -1572,26 +1572,19 @@ namespace migration
 
    void LocalColumn::flashChargesToBeMigrated (Composition * compositionsOut)
    {
+      if (!m_compositionToBeMigrated or m_compositionToBeMigrated->isEmpty ())
+         return;
       m_compositionToBeMigrated->computePVT (getTemperature (), getPressure (), compositionsOut);
 
       // Check that weights of phases add up to total weight
       const double vapourWeight = compositionsOut[GAS].getWeight ();
       const double liquidWeight = compositionsOut[OIL].getWeight ();
-      const double totalWeight = m_composition->getWeight ();
+      const double totalWeight = m_compositionToBeMigrated->getWeight ();
 
-      if (m_composition->isEmpty ())
-      {
-         if (!compositionsOut[OIL].isEmpty () or !compositionsOut[GAS].isEmpty ())
-            LogHandler (LogHandler::WARNING_SEVERITY) << "Warning: something is wrong with composition of seepage at i=" << getI () << ", j=" << getJ () <<
+      if ((liquidWeight + vapourWeight - totalWeight) / totalWeight > 0.01)
+         LogHandler (LogHandler::WARNING_SEVERITY) << "Warning: something is wrong with composition of seepage at i=" << getI () << ", j=" << getJ () <<
             "\nTotal weight: " << totalWeight << "\nVapor weight: " << vapourWeight << "\nLiquid weight: " << liquidWeight;
-      }
-      else
-      {
-         if ((liquidWeight + vapourWeight - totalWeight) / totalWeight > 0.01)
-            LogHandler (LogHandler::WARNING_SEVERITY) << "Warning: something is wrong with composition of seepage at i=" << getI () << ", j=" << getJ () <<
-            "\nTotal weight: " << totalWeight << "\nVapor weight: " << vapourWeight << "\nLiquid weight: " << liquidWeight;
-      }
-
+     
       double pvtMassError = totalWeight - (liquidWeight + vapourWeight);
 
       m_reservoir->accumulateErrorInPVT (-pvtMassError);
