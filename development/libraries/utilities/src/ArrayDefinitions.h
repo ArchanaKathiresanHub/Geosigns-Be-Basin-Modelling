@@ -3,8 +3,7 @@
 
 namespace ArrayDefs {
 
-   // #define ARRAY_ALIGNMENT 32
-   static const unsigned int ARRAY_ALIGNMENT = 32;
+   #define ARRAY_ALIGNMENT 32
 
 #ifdef _MSC_VER
    typedef __declspec(align(ARRAY_ALIGNMENT)) double * Real_ptr;
