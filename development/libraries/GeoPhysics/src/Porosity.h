@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -17,23 +17,15 @@ using namespace std;
 
 #include "Interface/Interface.h"
 
+#include "ArrayDefinitions.h"
+
 namespace GeoPhysics
 {
    // The argument of this attribute specifies the alignment for what the pointer points to.
    // This keyword can be added to a pointer typedef declaration to specify the alignment value of pointers declared for that pointer type.
    // These typedefs are required to tell the compiler (in addition to the #pragma simd aligned) that the arrays provided in input
    // and coming from a different translation unit have aligned memory allocation.
-#ifdef _MSC_VER
-   typedef __declspec(align(32)) double * Real_ptr;
-   typedef __declspec(align(32)) const double * const ConstReal_ptr;
-#elif __INTEL_COMPILER
-   // The __restrict__ has to be commented out due to a bug in the Intel compiler
-   typedef double * /*__restrict__*/ __attribute__((align_value(32))) Real_ptr;
-   typedef const double * const /*__restrict__*/ __attribute__((align_value(32))) ConstReal_ptr;
-#elif __GNUG__
-   typedef double * __restrict__ Real_ptr __attribute__((aligned(32)));
-   typedef const double * const __restrict__ ConstReal_ptr __attribute__((aligned(32)));
-#endif
+
 
    /*! \class Porosity
     * \brief Abstract class defining the algorithm to compute the porosity value
@@ -54,13 +46,13 @@ namespace GeoPhysics
        */
       Porosity();
       typedef DataAccess::Interface::PorosityModel Model;
-      
+
       /*!
        * \brief Create porosity model.
-       * 
+       *
        * Either SoilMechaniscs, Exponential or DoubleExponential class through Factory design pattern.
        * Intended to be used from SimpleLithology and CompoundLithology after mixing
-       * 
+       *
        * \param PorosityModel Model to compute porosity. Can be soil mechanics, single exponential or double exponential (October 2014).
        * \param depoPorosity Porosity at deposition [fraction of volume]
        * \param compactionIncr Compaction coefficient during loading phase for single exponential model [Pa-1]
@@ -85,12 +77,12 @@ namespace GeoPhysics
 
       /*!
        * \brief Compute the porosity function.
-       * 
+       *
        * \param ves Vertical Effective Stress in [Pa]
        * \param maxVes Maximum VES reached until current time. If equals to the ves, it is a loading phase in [Pa]
        * \param includeChemicalCompaction Is chemical compaction allowed?
        * \param chemicalCompactionTerm Value of chemical compaction property, ie volume of quartz cemented  [fraction of volume]
-       * 
+       *
        */
       double calculate( const double ves, const double maxVes, const bool includeChemicalCompaction, const double chemicalCompactionTerm ) const;
 
@@ -118,12 +110,12 @@ namespace GeoPhysics
       *
       * \pre arrays MUST BE ALIGNED
       */
-      void calculate( const unsigned int n,
-                      ConstReal_ptr ves,
-                      ConstReal_ptr maxVes,
-                      const bool includeChemicalCompaction,
-                      ConstReal_ptr chemicalCompactionTerm,
-                      Real_ptr porosities ) const;
+      void calculate( const unsigned int       n,
+                      ArrayDefs::ConstReal_ptr ves,
+                      ArrayDefs::ConstReal_ptr maxVes,
+                      const bool               includeChemicalCompaction,
+                      ArrayDefs::ConstReal_ptr chemicalCompactionTerm,
+                      ArrayDefs::Real_ptr      porosities ) const;
 
       /*!
       * \brief Get the porosity and its derivative at the current time [Pa-1] (vectorized version)
@@ -139,31 +131,31 @@ namespace GeoPhysics
       * \pre arrays MUST BE ALIGNED
       */
       void calculate( const unsigned int n,
-                      ConstReal_ptr ves,
-                      ConstReal_ptr maxVes,
+                      ArrayDefs::ConstReal_ptr ves,
+                      ArrayDefs::ConstReal_ptr maxVes,
                       const bool includeChemicalCompaction,
-                      ConstReal_ptr chemicalCompactionTerm,
-                      Real_ptr porosities,
-                      Real_ptr porosityDers ) const;
+                      ArrayDefs::ConstReal_ptr chemicalCompactionTerm,
+                      ArrayDefs::Real_ptr porosities,
+                      ArrayDefs::Real_ptr porosityDers ) const;
 
       /// @brief Overwrite default assginment operator to avoid bitwise copy
       Porosity& operator= (const Porosity& porosity);
       /// @brief Overwrite default copy constructor to avoid bitwise copy
       Porosity( const Porosity& porosity );
-      
+
       /*!
        * \brief Get the porosity model
        */
       Model getPorosityModel()    const;
-      
+
       /*!
        * \brief Get the porosity at deposition [fraction of volume]
        */
       double getSurfacePorosity() const;
-      
+
       /*!
        * \brief Get the full thickness value, i.e. the thickness of the solid material [m]
-       * 
+       *
        * \param maxVesValue Maximum VES reached until current time. If equals to the ves, it is a loading phase in [Pa]
        * \param thickness Current thickness of the layer [m]
        * \param densitydiff Difference between the density of the rock and the density of the fluid in porosity [kg/m3]
@@ -171,22 +163,22 @@ namespace GeoPhysics
        * \param overpressuredCompaction Is the basin overpressured?
        */
       double getFullCompThickness(const double maxVesValue, const double thickness, const double densitydiff, const double vesScaleFactor, const bool overpressuredCompaction) const;
-      
+
       /*!
        * \brief Get the compaction coefficient during loading phase for single exponential model [Pa-1] or the compaction coefficient for soil mechanics model [1]
        */
       double getCompactionCoefficient() const;
-      
+
       /*!
        * \brief Get the first compaction coefficient during loading phase for double exponential model [Pa-1]
        */
       double getCompactionCoefficientA() const;
-      
+
       /*!
        * \brief Get the second compaction coefficient during loading phase for double exponential model [Pa-1]
        */
       double getCompactionCoefficientB() const;
-      
+
       /*!
        * \brief Get the minimum porosity that the model can reach (for example 3%) [fraction of volume]
        */
@@ -194,10 +186,10 @@ namespace GeoPhysics
 
       /*! \class Algorithm
        * \brief Abstract class. Compute porosity.
-       * 
+       *
        * Allow to compute porosity whith one of the models: soil mechanics, single exponential or double exponential (October 2014).
-       * These algorithms are modeling mechanical compaction. Chemical compaction can also be added if relevant. 
-       * 
+       * These algorithms are modeling mechanical compaction. Chemical compaction can also be added if relevant.
+       *
        */
       class Algorithm
       {
@@ -209,7 +201,7 @@ namespace GeoPhysics
           * \brief Compute the porosity value [fraction of volume]
           */
          virtual double calculate(const double ves, const double maxVes,
-                                  const bool includeChemicalCompaction, 
+                                  const bool includeChemicalCompaction,
                                   const double chemicalCompactionTerm) const = 0;
 
          /*!
@@ -224,23 +216,23 @@ namespace GeoPhysics
          * \pre arrays MUST BE ALIGNED
          */
          virtual void calculate( const unsigned int n,
-                                 ConstReal_ptr ves,
-                                 ConstReal_ptr maxVes,
+                                 ArrayDefs::ConstReal_ptr ves,
+                                 ArrayDefs::ConstReal_ptr maxVes,
                                  const bool includeChemicalCompaction,
-                                 ConstReal_ptr chemicalCompactionTerm,
-                                 Real_ptr porosities ) const = 0;
+                                 ArrayDefs::ConstReal_ptr chemicalCompactionTerm,
+                                 ArrayDefs::Real_ptr porosities ) const = 0;
 
          /*!
          * \brief Return the porosity and its derivative [Pa-1] (vectorized version)
          * \pre arrays MUST BE ALIGNED
          */
          virtual void calculate( const unsigned int n,
-                                 ConstReal_ptr ves,
-                                 ConstReal_ptr maxVes,
+                                 ArrayDefs::ConstReal_ptr ves,
+                                 ArrayDefs::ConstReal_ptr maxVes,
                                  const bool includeChemicalCompaction,
-                                 ConstReal_ptr chemicalCompactionTerm,
-                                 Real_ptr porosities,
-                                 Real_ptr porosityDers ) const = 0;
+                                 ArrayDefs::ConstReal_ptr chemicalCompactionTerm,
+                                 ArrayDefs::Real_ptr porosities,
+                                 ArrayDefs::Real_ptr porosityDers ) const = 0;
 
          /*!
           * \brief Determine if the porosity model is incompressible.
@@ -254,12 +246,12 @@ namespace GeoPhysics
 
          /*!
           * \brief Return the porosity model
-          */ 
+          */
          virtual Model model() const = 0;
 
          /*!
           * \brief Return the solid thickness of the layer [m]
-          */ 
+          */
          virtual double  fullCompThickness(const double MaxVesValue,
                                            const double thickness,
                                            const double densitydiff,
@@ -268,26 +260,26 @@ namespace GeoPhysics
 
          /*!
           * \brief Return the compaction coefficient during loading phase for single exponential model [Pa-1] or the compaction coefficient for soil mechanics model [1]
-          */ 
+          */
          virtual double compactionCoefficient() const = 0;
-         
+
          /*!
           * \brief Return the first compaction coefficient during loading phase for double exponential model [Pa-1]
-          */ 
+          */
          virtual double compactionCoefficientA () const =0;
 
          /*!
           * \brief Return the second compaction coefficient during loading phase for double exponential model [Pa-1]
-          */ 
+          */
          virtual double compactionCoefficientB () const =0;
 
          /*!
           * \brief Return the minimum porosity [fraction of volume]
-          */ 
+          */
          double  minimumMechanicalPorosity( ) const;
-         
+
       protected:
-         
+
          const double m_minimumMechanicalPorosity;          /*!< Minimum porosity */
          const double m_minimumNumericalMechanicalPorosity; /*!< Minimum porosity, defined as Maximum(m_minimumMechanicalPorosity, MinimumPorosity) */
          const double m_depoPorosity;                       /*!< Porosity at deposition */
@@ -306,7 +298,7 @@ namespace GeoPhysics
        * \param algorithm. Model of mechanical compaction defining the computation of porosity
        */
       explicit Porosity(Algorithm * algorithm);
-      
+
       // The pointer pointing to the object that can do the computations.
       // It can be a shared pointer, because all its methods are constant.
       boost::shared_ptr< Algorithm > m_algorithm; /*!< Algorithm used to compute porosity */
@@ -356,12 +348,12 @@ namespace GeoPhysics
       ::getCompactionCoefficient() const{
       return m_algorithm->compactionCoefficient();
    }
-   
+
    inline double Porosity
          ::getCompactionCoefficientA() const{
          return m_algorithm->compactionCoefficientA();
       }
-   
+
    inline double Porosity
          ::getCompactionCoefficientB() const{
          return m_algorithm->compactionCoefficientB();
@@ -374,22 +366,22 @@ namespace GeoPhysics
 
    inline void Porosity
      ::calculate( const unsigned int n,
-                  ConstReal_ptr ves,
-                  ConstReal_ptr maxVes,
+                  ArrayDefs::ConstReal_ptr ves,
+                  ArrayDefs::ConstReal_ptr maxVes,
                   const bool includeChemicalCompaction,
-                  ConstReal_ptr chemicalCompactionTerm,
-                  Real_ptr porosities) const {
+                  ArrayDefs::ConstReal_ptr chemicalCompactionTerm,
+                  ArrayDefs::Real_ptr porosities) const {
      return m_algorithm->calculate(n,ves, maxVes, includeChemicalCompaction, chemicalCompactionTerm, porosities);
    }
 
    inline void Porosity
      ::calculate( const unsigned int n,
-                  ConstReal_ptr ves,
-                  ConstReal_ptr maxVes,
+                  ArrayDefs::ConstReal_ptr ves,
+                  ArrayDefs::ConstReal_ptr maxVes,
                   const bool includeChemicalCompaction,
-                  ConstReal_ptr chemicalCompactionTerm,
-                  Real_ptr porosities,
-                  Real_ptr porosityDers) const {
+                  ArrayDefs::ConstReal_ptr chemicalCompactionTerm,
+                  ArrayDefs::Real_ptr porosities,
+                  ArrayDefs::Real_ptr porosityDers) const {
      return m_algorithm->calculate(n,ves, maxVes, includeChemicalCompaction, chemicalCompactionTerm, porosities, porosityDers);
    }
 
@@ -400,4 +392,3 @@ namespace GeoPhysics
 
 }
 #endif
-

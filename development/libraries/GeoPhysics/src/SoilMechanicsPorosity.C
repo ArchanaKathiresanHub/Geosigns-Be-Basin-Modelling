@@ -34,11 +34,11 @@ namespace GeoPhysics
 
 
    void soilMechanicsPorosity::calculate( const unsigned int n,
-                                          ConstReal_ptr ves,
-                                          ConstReal_ptr maxVes,
+                                          ArrayDefs::ConstReal_ptr ves,
+                                          ArrayDefs::ConstReal_ptr maxVes,
                                           const bool includeChemicalCompaction,
-                                          ConstReal_ptr chemicalCompactionTerm,
-                                          Real_ptr porosities ) const
+                                          ArrayDefs::ConstReal_ptr chemicalCompactionTerm,
+                                          ArrayDefs::Real_ptr porosities ) const
    {
       assert( ((uintptr_t)(const void *)(ves) % 32) == 0 );
       assert( ((uintptr_t)(const void *)(maxVes) % 32) == 0 );
@@ -54,12 +54,12 @@ namespace GeoPhysics
 
 
    void soilMechanicsPorosity::calculate( const unsigned int n,
-                                          ConstReal_ptr ves,
-                                          ConstReal_ptr maxVes,
+                                          ArrayDefs::ConstReal_ptr ves,
+                                          ArrayDefs::ConstReal_ptr maxVes,
                                           const bool includeChemicalCompaction,
-                                          ConstReal_ptr chemicalCompactionTerm,
-                                          Real_ptr porosities,
-                                          Real_ptr porosityDers ) const
+                                          ArrayDefs::ConstReal_ptr chemicalCompactionTerm,
+                                          ArrayDefs::Real_ptr porosities,
+                                          ArrayDefs::Real_ptr porosityDers ) const
    {
       assert( ((uintptr_t)(const void *)(ves) % 32) == 0 );
       assert( ((uintptr_t)(const void *)(maxVes) % 32) == 0 );
@@ -74,7 +74,7 @@ namespace GeoPhysics
           porosityDers[i] = computeSingleValueDerivative( porosities[i], ves[i], maxVes[i], includeChemicalCompaction, chemicalCompactionTerm[i] );
       }
    }
-   
+
 
    double soilMechanicsPorosity::computeSingleValue( const double ves,
                                                      const double maxVes,
@@ -86,9 +86,9 @@ namespace GeoPhysics
       const bool loadingPhase = (ves >= maxVes);
 
       const double vesUsed = std::max(Ves0, loadingPhase ? ves : maxVes);
-      
+
       double voidRatio = epsilon100 - m_soilMechanicsCompactionCoefficient * std::log(vesUsed / Ves0);
-      
+
       if ( voidRatio > 0.0 )
       {
          poro = voidRatio / (1.0 + voidRatio);

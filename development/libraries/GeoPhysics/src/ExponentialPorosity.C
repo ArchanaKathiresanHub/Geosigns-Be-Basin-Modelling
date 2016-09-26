@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -60,11 +60,11 @@ namespace GeoPhysics
 
 
    void ExponentialPorosity::calculate( const unsigned int n,
-                                        ConstReal_ptr ves,
-                                        ConstReal_ptr maxVes,
+                                        ArrayDefs::ConstReal_ptr ves,
+                                        ArrayDefs::ConstReal_ptr maxVes,
                                         const bool includeChemicalCompaction,
-                                        ConstReal_ptr chemicalCompactionTerm,
-                                        Real_ptr porosities ) const
+                                        ArrayDefs::ConstReal_ptr chemicalCompactionTerm,
+                                        ArrayDefs::Real_ptr porosities ) const
    {
       assert( ((uintptr_t)(const void *)(ves) % 32) == 0 );
       assert( ((uintptr_t)(const void *)(maxVes) % 32) == 0 );
@@ -80,12 +80,12 @@ namespace GeoPhysics
 
 
    void ExponentialPorosity::calculate( const unsigned int n,
-                                        ConstReal_ptr ves,
-                                        ConstReal_ptr maxVes,
+                                        ArrayDefs::ConstReal_ptr ves,
+                                        ArrayDefs::ConstReal_ptr maxVes,
                                         const bool includeChemicalCompaction,
-                                        ConstReal_ptr chemicalCompactionTerm,
-                                        Real_ptr porosities,
-                                        Real_ptr porosityDers ) const
+                                        ArrayDefs::ConstReal_ptr chemicalCompactionTerm,
+                                        ArrayDefs::Real_ptr porosities,
+                                        ArrayDefs::Real_ptr porosityDers ) const
    {
       assert( ((uintptr_t)(const void *)(ves) % 32) == 0 );
       assert( ((uintptr_t)(const void *)(maxVes) % 32) == 0 );

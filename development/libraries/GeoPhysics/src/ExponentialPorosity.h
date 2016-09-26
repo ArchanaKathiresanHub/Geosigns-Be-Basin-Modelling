@@ -1,15 +1,16 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
 #ifndef _GEOPHYSICS__EXPONENTIAL_POROSITY_H_
 #define _GEOPHYSICS__EXPONENTIAL_POROSITY_H_
 
+#include "ArrayDefinitions.h"
 #include "Porosity.h"
 
 namespace GeoPhysics
@@ -22,7 +23,7 @@ namespace GeoPhysics
                            const double compactionIncr,
                            const double compactionDecr,
                            const bool   isLegacy);
-      
+
       /// Return porosity with exponential function
       virtual double calculate( const double ves,
                                 const double maxVes,
@@ -38,21 +39,21 @@ namespace GeoPhysics
       /// Return porosity (vectorized version)
       /// \pre arrays MUST BE ALIGNED
       virtual void calculate( const unsigned int n,
-                              ConstReal_ptr ves,
-                              ConstReal_ptr maxVes,
+                              ArrayDefs::ConstReal_ptr ves,
+                              ArrayDefs::ConstReal_ptr maxVes,
                               const bool includeChemicalCompaction,
-                              ConstReal_ptr chemicalCompactionTerm,
-                              Real_ptr porosities ) const;
+                              ArrayDefs::ConstReal_ptr chemicalCompactionTerm,
+                              ArrayDefs::Real_ptr porosities ) const;
 
       /// Return porosity and its derivative (vectorized version)
       /// \pre arrays MUST BE ALIGNED
       virtual void calculate( const unsigned int n,
-                              ConstReal_ptr ves,
-                              ConstReal_ptr maxVes,
+                              ArrayDefs::ConstReal_ptr ves,
+                              ArrayDefs::ConstReal_ptr maxVes,
                               const bool includeChemicalCompaction,
-                              ConstReal_ptr chemicalCompactionTerm,
-                              Real_ptr porosities,
-                              Real_ptr porosityDers ) const;
+                              ArrayDefs::ConstReal_ptr chemicalCompactionTerm,
+                              ArrayDefs::Real_ptr porosities,
+                              ArrayDefs::Real_ptr porosityDers ) const;
 
       /// \brief Determine if the porosity model is incompressible.
       virtual bool isIncompressible () const;
@@ -69,11 +70,11 @@ namespace GeoPhysics
 
       /// Return Compaction coefficients
       virtual double compactionCoefficient() const;
-      
-      /// Return Compaction coefficients 
+
+      /// Return Compaction coefficients
       virtual double compactionCoefficientA() const;
 
-      /// Return Compaction coefficients 
+      /// Return Compaction coefficients
       virtual double compactionCoefficientB() const;
 
    private:
@@ -81,13 +82,13 @@ namespace GeoPhysics
       ExponentialPorosity& operator= (const ExponentialPorosity&);
       /// @brief Overwrite default copy constructor
       ExponentialPorosity( const ExponentialPorosity& );
-      
+
       /// @brief Compute a single porosity value
       double computeSingleValue( const double ves,
                                  const double maxVes,
                                  const bool includeChemicalCompaction,
                                  const double chemicalCompactionTerm ) const;
-      
+
       /// @brief Compute a single porosity value
       double computeSingleValueDerivative( const double porosity,
                                            const double ves,

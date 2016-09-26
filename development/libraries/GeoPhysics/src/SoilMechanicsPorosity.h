@@ -10,6 +10,7 @@
 #ifndef _GEOPHYSICS__SOIL_MECHANICS_POROSITY_H_
 #define _GEOPHYSICS__SOIL_MECHANICS_POROSITY_H_
 
+#include "ArrayDefinitions.h"
 #include "Porosity.h"
 
 namespace GeoPhysics
@@ -37,21 +38,21 @@ namespace GeoPhysics
       /// Return porosity (vectorized version)
       /// \pre arrays MUST BE ALIGNED
       virtual void calculate( const unsigned int n,
-                              ConstReal_ptr ves,
-                              ConstReal_ptr maxVes,
+                              ArrayDefs::ConstReal_ptr ves,
+                              ArrayDefs::ConstReal_ptr maxVes,
                               const bool includeChemicalCompaction,
-                              ConstReal_ptr chemicalCompactionTerm,
-                              Real_ptr porosities ) const;
+                              ArrayDefs::ConstReal_ptr chemicalCompactionTerm,
+                              ArrayDefs::Real_ptr porosities ) const;
 
       /// Return porosity and its derivative (vectorized version)
       /// \pre arrays MUST BE ALIGNED
       virtual void calculate( const unsigned int n,
-                              ConstReal_ptr ves,
-                              ConstReal_ptr maxVes,
+                              ArrayDefs::ConstReal_ptr ves,
+                              ArrayDefs::ConstReal_ptr maxVes,
                               const bool includeChemicalCompaction,
-                              ConstReal_ptr chemicalCompactionTerm,
-                              Real_ptr porosities,
-                              Real_ptr porosityDers ) const;
+                              ArrayDefs::ConstReal_ptr chemicalCompactionTerm,
+                              ArrayDefs::Real_ptr porosities,
+                              ArrayDefs::Real_ptr porosityDers ) const;
 
       /// \brief Determine if the porosity model is incompressible.
       virtual bool isIncompressible () const;
@@ -59,13 +60,13 @@ namespace GeoPhysics
       /// Return the permeability model
       virtual Porosity::Model  model() const;
 
-      /// Return Compaction coefficients 
+      /// Return Compaction coefficients
       virtual double compactionCoefficient() const;
-      
-      /// Return Compaction coefficients 
+
+      /// Return Compaction coefficients
       virtual double compactionCoefficientA() const;
-                  
-      /// Return Compaction coefficients 
+
+      /// Return Compaction coefficients
       virtual double compactionCoefficientB() const;
 
    private:
@@ -73,13 +74,13 @@ namespace GeoPhysics
       soilMechanicsPorosity& operator= (const soilMechanicsPorosity&);
       /// @brief Overwrite default copy constructor
       soilMechanicsPorosity( const soilMechanicsPorosity& );
-      
+
       /// @brief Compute a single porosity value
       double computeSingleValue( const double ves,
                                  const double maxVes,
                                  const bool includeChemicalCompaction,
                                  const double chemicalCompactionTerm ) const;
-      
+
       /// @brief Compute a single porosity value
       double computeSingleValueDerivative( const double porosity,
                                            const double ves,
