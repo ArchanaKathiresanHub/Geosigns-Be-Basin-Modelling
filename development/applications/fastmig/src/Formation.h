@@ -63,7 +63,7 @@ namespace migration
       inline static Formation * CastToFormation (const Interface::Formation * formation);
 
       bool computePropertyMaps (Interface::GridMap * topDepthGridMap, const Interface::Snapshot * snapshot, bool lowResEqualsHighRes,
-                                bool isPressureRun, bool nonGeometricLoop, bool chemicalCompaction);
+         bool isPressureRun, bool nonGeometricLoop, bool chemicalCompaction);
 
       bool computeCapillaryPressureMaps (Interface::GridMap * topDepthGridMap, const Interface::Snapshot * snapshot);
 
@@ -93,7 +93,7 @@ namespace migration
       void setFiniteElementQuadraturePoint (int i, int j, int k, double iOffset, double jOffset, double kOffset);
       double getFiniteElementValue (int i, int j, int k, double iOffset, double jOffset, double kOffset, PropertyIndex propertyIndex);
       double getFiniteElementValue (int i, int j, int k, PropertyIndex propertyIndex);
-      void setFiniteElementDepths( int i, int j, int k, double * depths );
+      void setFiniteElementDepths (int i, int j, int k, double * depths);
 
       LocalFormationNode * getLocalFormationNode (int i, int j, int k) const;
       FormationNode * getFormationNode (int i, int j, int k);
@@ -103,8 +103,8 @@ namespace migration
       int getGridMapDepth (void) const;
 
       bool detectReservoir (Formation * topFormation, const double minLiquidColumnHeight, const double minVapourColumnHeight, const bool pressureRun, const Formation * topActiveFormation);
-      bool detectReservoirCrests();
-      bool getDetectedReservoir() const;
+      bool detectReservoirCrests ();
+      bool getDetectedReservoir () const;
       void setDetectedReservoir (bool detectedReservoir);
       void addDetectedReservoir (const Interface::Snapshot * start);
 
@@ -142,7 +142,7 @@ namespace migration
 
       bool retrievePropertyMaps (bool);
       bool restorePropertyMaps (bool);
-      void deleteFormationProperties();
+      void deleteFormationProperties ();
 
       bool clearNodeProperties (void);
       bool clearNodeReservoirProperties (void);
@@ -170,12 +170,12 @@ namespace migration
       const GridMap* getFormationPrimaryPropertyGridMap (const DataAccess::Interface::Property* prop, const Interface::Snapshot * snapshot) const;
 
       const GridMap* getSurfacePropertyGridMap (const DataAccess::Interface::Property* prop, const Interface::Snapshot * snapshot,
-                                                const Interface::Surface* surface) const;
+         const Interface::Surface* surface) const;
 
       bool isActive (const DataAccess::Interface::Snapshot * snapshot) const;
 
       bool computeAnalogFlowDirections (Formation * targetFormation, const Interface::Snapshot * begin,
-                                        const Interface::Snapshot * end);
+         const Interface::Snapshot * end);
       bool computeAnalogFlowDirections (int depthIndex, const Interface::Snapshot * begin, const Interface::Snapshot * end);
 
       bool computeAdjacentNodes (Formation * targetFormation, const Interface::Snapshot * begin, const Interface::Snapshot * end);
@@ -206,7 +206,7 @@ namespace migration
       Interface::GridMap* getGenexData () const { return m_genexData; }
 
       const Interface::GridMap * getPropertyGridMap (const string & propertyName,
-                                                     const Interface::Snapshot * snapshot) const;
+         const Interface::Snapshot * snapshot) const;
 
       inline bool performVerticalMigration (void) const;
       inline bool performHDynamicAndCapillary (void) const;
@@ -238,17 +238,17 @@ namespace migration
       Interface::GridMap* m_genexData;
 
       bool computeInterpolator (const string & propertyName, const Interface::Snapshot *intervalStart, const Interface::Snapshot *intervalEnd,
-                                Genex6::LinearGridInterpolator& interpolator);
+         Genex6::LinearGridInterpolator& interpolator);
       bool extractGenexDataInterval (const Interface::Snapshot *intervalStart, const Interface::Snapshot *intervalEnd,
-                                     Genex6::LinearGridInterpolator& thickness,
-                                     Genex6::LinearGridInterpolator& ves,
-                                     Genex6::LinearGridInterpolator& temperature,
-                                     Genex6::LinearGridInterpolator& hydrostaticPressure,
-                                     Genex6::LinearGridInterpolator& lithostaticPressure,
-                                     Genex6::LinearGridInterpolator& porePressure,
-                                     Genex6::LinearGridInterpolator& porosity,
-                                     Genex6::LinearGridInterpolator& permeability,
-                                     Genex6::LinearGridInterpolator& vre);
+         Genex6::LinearGridInterpolator& thickness,
+         Genex6::LinearGridInterpolator& ves,
+         Genex6::LinearGridInterpolator& temperature,
+         Genex6::LinearGridInterpolator& hydrostaticPressure,
+         Genex6::LinearGridInterpolator& lithostaticPressure,
+         Genex6::LinearGridInterpolator& porePressure,
+         Genex6::LinearGridInterpolator& porosity,
+         Genex6::LinearGridInterpolator& permeability,
+         Genex6::LinearGridInterpolator& vre);
 
       // Formation property pointer using the derived properties library
       DerivedProperties::FormationPropertyPtr m_formationPropertyPtr[NUMBEROFPROPERTYINDICES];

@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef _MIGRATION_DISTRIBUTE_LEAKORWASTE_H_
 #define _MIGRATION_DISTRIBUTE_LEAKORWASTE_H_
 
@@ -10,38 +20,45 @@
 using functions::MonotonicIncreasingPiecewiseLinearInvertableFunction;
 using functions::Tuple2;
 
-namespace migration { namespace distribute {
-
-class LeakOrWaste
+namespace migration
 {
-private:
+   namespace distribute
+   {
 
-   Leak m_leak;
-   Waste m_waste;
+      class LeakOrWaste
+      {
+      private:
 
-   bool m_leaking;
+         Leak m_leak;
+         Waste m_waste;
 
-public:
+         bool m_leaking;
 
-   LeakOrWaste(const double& fluidDensity, const double& sealFluidDensity, 
-      const double& maxSealPressure, const double& wasteLevel,  
-      const MonotonicIncreasingPiecewiseLinearInvertableFunction* levelToVolume);
+      public:
 
-   void distribute(const double& fluidVolume, double& fluidVolumeLeaked, 
-      double& fluidVolumeWasted) const;
+         LeakOrWaste (const double& fluidDensity, const double& sealFluidDensity,
+            const double& maxSealPressure, const double& wasteLevel,
+            const MonotonicIncreasingPiecewiseLinearInvertableFunction* levelToVolume);
 
-   const double& maxLevel() const { 
-      return m_leaking ? m_leak.maxLevel() : m_waste.maxLevel(); 
+         void distribute (const double& fluidVolume, double& fluidVolumeLeaked,
+            double& fluidVolumeWasted) const;
+
+         const double& maxLevel () const
+         {
+            return m_leaking ? m_leak.maxLevel () : m_waste.maxLevel ();
+         }
+         const double& maxVolume () const
+         {
+            return m_leaking ? m_leak.maxVolume () : m_waste.maxVolume ();
+         }
+         const Tuple2<double>& maxContent () const
+         {
+            return m_leaking ? m_leak.maxContent () : m_waste.maxContent ();
+         }
+         bool leaking () const { return m_leaking; }
+      };
+
    }
-   const double& maxVolume() const { 
-      return m_leaking ? m_leak.maxVolume() : m_waste.maxVolume();
-   }
-   const Tuple2<double>& maxContent() const { 
-      return m_leaking ? m_leak.maxContent() : m_waste.maxContent();
-   }
-   bool leaking() const { return m_leaking; }
-};
-
-} } // namespace migration::distribute
+} // namespace migration::distribute
 
 #endif

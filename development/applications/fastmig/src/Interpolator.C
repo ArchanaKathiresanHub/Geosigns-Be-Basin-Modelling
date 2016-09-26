@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 // Interpolation and Extrapolation in 1-D
 
 #include "Interpolator.h"
@@ -63,8 +73,8 @@ Interpolator::Interpolator (Interpolator::SorterType sorterType) : m_sorted (fal
 }
 
 // Destructor
-Interpolator::~Interpolator(void)
-{ 
+Interpolator::~Interpolator (void)
+{
 }
 
 // The method to add a function point to the table.
@@ -94,22 +104,22 @@ double Interpolator::compute (double x, Extrapolation type)
    // find the two adjacent points
    for (unsigned int i = 0; i < m_vectorXF.size (); i++)
    {
-      XF * point = & m_vectorXF[i];
+      XF * point = &m_vectorXF[i];
 
       if (point->x <= x)
       {
-	 pointLeft = point;
+         pointLeft = point;
       }
 
       if (point->x >= x)
       {
-	 pointRight = point;
-	 break;
+         pointRight = point;
+         break;
       }
    }
 
    assert (pointLeft || pointRight);
-   
+
    if (pointLeft == pointRight)
    {
       return pointLeft->f;
@@ -119,12 +129,12 @@ double Interpolator::compute (double x, Extrapolation type)
       // left extrapolation
       if (type == constant)
       {
-	 return pointRight->f;
+         return pointRight->f;
       }
       else
       {
-	 pointLeft = &m_vectorXF[0];
-	 pointRight = &m_vectorXF[1];
+         pointLeft = &m_vectorXF[0];
+         pointRight = &m_vectorXF[1];
       }
    }
    else if (!pointRight)
@@ -132,14 +142,14 @@ double Interpolator::compute (double x, Extrapolation type)
       // right extrapolation
       if (type == constant)
       {
-	 return pointLeft->f;
+         return pointLeft->f;
       }
       else
       {
-	 int size = m_vectorXF.size ();
+         int size = m_vectorXF.size ();
 
-	 pointLeft = &m_vectorXF[size - 2];
-	 pointRight = &m_vectorXF[size - 1];
+         pointLeft = &m_vectorXF[size - 2];
+         pointRight = &m_vectorXF[size - 1];
       }
    }
 
@@ -155,7 +165,7 @@ void Interpolator::print (void)
 {
    for (unsigned int i = 0; i < m_vectorXF.size (); i++)
    {
-      XF * point = & m_vectorXF[i];
+      XF * point = &m_vectorXF[i];
       point->print ();
       cerr << endl;
    }

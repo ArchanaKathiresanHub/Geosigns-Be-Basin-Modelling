@@ -45,7 +45,7 @@ namespace migration
    {
    public:
       /// Constructor
-      Migrator(const string & name);// , DataAccess::Interface::ObjectFactory* objectFactory);
+      Migrator (const string & name);// , DataAccess::Interface::ObjectFactory* objectFactory);
       virtual ~Migrator (void);
 
       bool saveTo (const std::string & outputFileName);
@@ -103,7 +103,7 @@ namespace migration
       /*
         double getMinOilColumnHeight (void) const;
         double getMinGasColumnHeight (void) const;
-      */
+        */
 
       GeoPhysics::ProjectHandle * getProjectHandle (void);
 
@@ -125,7 +125,7 @@ namespace migration
       /// Charge the specified reservoir with charge already in the traps and
       /// additionally expelled charge between the given snapshots.
       bool chargeReservoir (Reservoir * reservoir, Reservoir * reservoirAbove, Reservoir * reservoirBelow,
-                            const Interface::Snapshot * start, const Interface::Snapshot * end);
+         const Interface::Snapshot * start, const Interface::Snapshot * end);
 
       // Calculate flow at the top level of the basin for a given snapshot time.
       bool calculateSeepage (const Interface::Snapshot * end);
@@ -135,32 +135,32 @@ namespace migration
 
       /// Collect expelled charges into the given reservoir from the appropriate source rocks.
       bool collectAndMigrateExpelledCharges (Reservoir * reservoir, Reservoir * reservoirAbove, Reservoir * reservoirBelow,
-                                             const Interface::Snapshot * start, const Interface::Snapshot * end, Barrier * barrier);
+         const Interface::Snapshot * start, const Interface::Snapshot * end, Barrier * barrier);
 
       /// retrieve the reservoirs, for the specified formation if specified.
       virtual DataAccess::Interface::ReservoirList * getReservoirs (const Interface::Formation * formation = 0) const;
 
       void addTrapRecord (Reservoir * reservoir, TrapPropertiesRequest & tpRequest);
-		// add a detected reservoir to ResIoTbl and return the record itself
-		database::Record * addDetectedReservoirRecord (Interface::Formation * formation, const Interface::Snapshot * start);
-		void getMinimumColumnHeights ();
+      // add a detected reservoir to ResIoTbl and return the record itself
+      database::Record * addDetectedReservoirRecord (Interface::Formation * formation, const Interface::Snapshot * start);
+      void getMinimumColumnHeights ();
 
       database::Record * copyMigrationRecord (database::Record * oldRecord, const std::string & newMigrationProcess);
 
       void addMigrationRecord (const std::string & srcReservoirName, const std::string & srcFormationName,
-                               const std::string & dstReservoirName, MigrationRequest & mr);
+         const std::string & dstReservoirName, MigrationRequest & mr);
 
       database::Record * findMigrationRecord (const std::string & srcReservoirName, const std::string & srcFormationName,
-                                              const std::string & dstReservoirName,
-                                              MigrationRequest & mr);
+         const std::string & dstReservoirName,
+         MigrationRequest & mr);
 
       database::Record * createMigrationRecord (const std::string & srcReservoirName, const std::string & srcFormationName,
-                                                const std::string & dstReservoirName,
-                                                MigrationRequest & mr);
+         const std::string & dstReservoirName,
+         MigrationRequest & mr);
 
       bool retrieveFormationPropertyMaps (const Interface::Snapshot * end);
       bool restoreFormationPropertyMaps (const Interface::Snapshot * end);
-      bool deleteFormationPropertyMaps( );
+      bool deleteFormationPropertyMaps ();
 
       bool retrieveFormationCapillaryPressureMaps (const Interface::Snapshot * end);
       bool restoreFormationCapillaryPressureMaps (const Interface::Snapshot * end);
@@ -187,10 +187,10 @@ namespace migration
       void deleteExpelledChargeMaps (const Interface::Snapshot * snapshot);
 
       const Interface::GridMap * getPropertyGridMap (const std::string & propertyName,
-                                                     const Interface::Snapshot * snapshot,
-                                                     const Interface::Reservoir * reservoir,
-                                                     const Interface::Formation * formation,
-                                                     const Interface::Surface * surface);
+         const Interface::Snapshot * snapshot,
+         const Interface::Reservoir * reservoir,
+         const Interface::Formation * formation,
+         const Interface::Surface * surface);
 
       MigrationPropertyManager& getPropertyManager ();
 
@@ -204,13 +204,13 @@ namespace migration
       inline double getBlockingPorosity (void);
 
       const Interface::GridMap * getPropertyGridMap (const string & propertyName, const Interface::Snapshot * snapshot,
-                                                     const Interface::Reservoir * reservoir,
-                                                     const Interface::Formation * formation,
-                                                     const Interface::Surface * surface) const;
+         const Interface::Reservoir * reservoir,
+         const Interface::Formation * formation,
+         const Interface::Surface * surface) const;
 
    private:
       GeoPhysics::ProjectHandle* openProject (const std::string & fileName);
-      void sortReservoirs() const;
+      void sortReservoirs () const;
 
       mutable DataAccess::Interface::FormationList * m_formations;
       mutable DataAccess::Interface::ReservoirList * m_reservoirs;

@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "RequestHandling.h"
 #include "Formation.h"
 #include "Surface.h"
@@ -23,7 +33,7 @@ namespace migration
 
    Surface::Surface (Interface::ProjectHandle * projectHandle, Migrator * const migrator, database::Record * record)
       : Interface::Surface (projectHandle, record),
-        m_migrator (migrator)
+      m_migrator (migrator)
    {
    }
 
@@ -34,15 +44,15 @@ namespace migration
    const Surface * Surface::getTopSurface () const
    {
       const Interface::Formation * formation = getTopFormation ();
-      
-      return (const Surface *) (formation ? formation->getTopSurface () : 0);
+
+      return (const Surface *)(formation ? formation->getTopSurface () : 0);
    }
 
    const Surface * Surface::getBottomSurface () const
    {
       const Interface::Formation * formation = getBottomFormation ();
-      
-      return (const Surface *) (formation ? formation->getBottomSurface () : 0);
+
+      return (const Surface *)(formation ? formation->getBottomSurface () : 0);
    }
 
 }

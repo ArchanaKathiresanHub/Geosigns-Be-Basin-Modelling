@@ -71,12 +71,12 @@ namespace migration
       blockSizes[baseIndex] = 1;
       ++baseIndex;
 
-      offsets[baseIndex] = (int) ((long) (&req.reservoirIndex) - (long) (&req));
+      offsets[baseIndex] = (int)((long)(&req.reservoirIndex) - (long)(&req));
       types[baseIndex] = MPI_INT;
       blockSizes[baseIndex] = 1;
       ++baseIndex;
 
-      offsets[baseIndex] = (int) ((long) (&req.i) - (long) (&req));
+      offsets[baseIndex] = (int)((long)(&req.i) - (long)(&req));
       types[baseIndex] = MPI_INT;
       blockSizes[baseIndex] = 2;
       ++baseIndex;

@@ -24,14 +24,14 @@ namespace migration
          m_gridMap->retrieveData ();
       }
 
-         ~SmartGridMapRetrieval (void)
-         {
-            m_gridMap->restoreData (m_save);
-         }
+      ~SmartGridMapRetrieval (void)
+      {
+         m_gridMap->restoreData (m_save);
+      }
 
    private:
-         const GridMap * m_gridMap;
-         bool m_save;
+      const GridMap * m_gridMap;
+      bool m_save;
    };
 
 }

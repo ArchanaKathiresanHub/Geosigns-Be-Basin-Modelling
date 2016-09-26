@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "mpi.h"
 #include "overburden.h"
 #include "Interface/ProjectHandle.h"
@@ -11,26 +21,28 @@ using namespace DataAccess;
 
 using Interface::ProjectHandle;
 
-namespace migration {
-   namespace overburden {
-
+namespace migration
+{
+   namespace overburden
+   {
 
       template <typename PRED>
-      vector<const Formation*> getDownwardOverburdenFormationsIf(const 
-                                                                 Formation* formation, PRED pred)
+      vector<const Formation*> getDownwardOverburdenFormationsIf (const
+         Formation* formation, PRED pred)
       {
-         const ProjectHandle* projectHandle = formation->getProjectHandle();
-         Interface::FormationList* formations = projectHandle->getFormations();
+         const ProjectHandle* projectHandle = formation->getProjectHandle ();
+         Interface::FormationList* formations = projectHandle->getFormations ();
 
          vector<const Formation*> overburdenFormationsFromTop;
-         for (Interface::FormationList::const_iterator it = formations->begin();
-              it != formations->end(); ++it)
+         for (Interface::FormationList::const_iterator it = formations->begin ();
+            it != formations->end (); ++it)
          {
             const Formation * iteratorFormation = dynamic_cast <const Formation *> (*it);
             if (iteratorFormation == formation) break;
-            else {
-               if (pred(iteratorFormation))  
-                  overburdenFormationsFromTop.push_back(iteratorFormation);
+            else
+            {
+               if (pred (iteratorFormation))
+                  overburdenFormationsFromTop.push_back (iteratorFormation);
             }
          }
          delete formations;
@@ -39,45 +51,47 @@ namespace migration {
       }
 
       template <typename PRED>
-      vector<const Formation*> getUpwardOverburdenFormationsIf(const 
-                                                               Formation* formation, PRED pred)
+      vector<const Formation*> getUpwardOverburdenFormationsIf (const
+         Formation* formation, PRED pred)
       {
-         vector<const Formation*> overburdenFormationsFromTop = getDownwardOverburdenFormationsIf(
-                                                                                                  formation, pred);
+         vector<const Formation*> overburdenFormationsFromTop = getDownwardOverburdenFormationsIf (
+            formation, pred);
 
          vector<const Formation*> overburdenFormationsFromBase;
-         overburdenFormationsFromBase.reserve(overburdenFormationsFromTop.size());
-         for (vector<const Formation*>::reverse_iterator it = overburdenFormationsFromTop.rbegin(); 
-              it != overburdenFormationsFromTop.rend(); ++it)
-            overburdenFormationsFromBase.push_back(*it);
+         overburdenFormationsFromBase.reserve (overburdenFormationsFromTop.size ());
+         for (vector<const Formation*>::reverse_iterator it = overburdenFormationsFromTop.rbegin ();
+            it != overburdenFormationsFromTop.rend (); ++it)
+            overburdenFormationsFromBase.push_back (*it);
 
          return overburdenFormationsFromBase;
       }
 
-      struct AlwaysTrue {
+      struct AlwaysTrue
+      {
          bool operator()(const Formation* formation) { return true; }
       };
 
-      OverburdenFormations getOverburdenFormations(const Formation* formation,
-                                                   bool upward)
+      OverburdenFormations getOverburdenFormations (const Formation* formation,
+         bool upward)
       {
          if (upward)
-            return OverburdenFormations(getUpwardOverburdenFormationsIf(formation, AlwaysTrue()),true);
+            return OverburdenFormations (getUpwardOverburdenFormationsIf (formation, AlwaysTrue ()), true);
          else
-            return OverburdenFormations(getDownwardOverburdenFormationsIf(formation, AlwaysTrue()), false);
+            return OverburdenFormations (getDownwardOverburdenFormationsIf (formation, AlwaysTrue ()), false);
       }
 
       template <typename PRED>
-      vector<const Formation*> getOverburdenFormationsIf(const Formation* formation, PRED pred, 
-                                                         bool upward)
+      vector<const Formation*> getOverburdenFormationsIf (const Formation* formation, PRED pred,
+         bool upward)
       {
          if (upward)
-            return getUpwardOverburdenFormationsIf(formation, pred);
+            return getUpwardOverburdenFormationsIf (formation, pred);
          else
-            return getDownwardOverburdenFormationsIf(formation, pred);
+            return getDownwardOverburdenFormationsIf (formation, pred);
       }
 
-   } } // namespace migration::overburden
+   }
+} // namespace migration::overburden
 
 // Some templates from overburden.[Ch] must be instantiated:
 

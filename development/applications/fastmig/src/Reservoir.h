@@ -54,31 +54,31 @@ namespace migration
    /// It is constructed on top of the DataAccess::Reservoir class.
    class Reservoir : public Interface::Reservoir
    {
-      public:
+   public:
 
-	 /// This constructor is called by the object factory
+      /// This constructor is called by the object factory
       Reservoir (Interface::ProjectHandle * projectHandle, Migrator * const migrator, database::Record * record);
 
-	 /// Destructor
-	 virtual ~Reservoir (void);
+      /// Destructor
+      virtual ~Reservoir (void);
 
 
       /// Reservoir Properties
 
       /// Retain properties calculated during the previous snapshot interval that
-	 /// are required during the current snapshot interval.
-	 void retainPreviousProperties (void);
+      /// are required during the current snapshot interval.
+      void retainPreviousProperties (void);
       /// Reset all computed property values
-	 bool clearProperties (void);
+      bool clearProperties (void);
       /// Compute new input-based property values.
-	 bool computeProperties (void);
-	 /// reset properties from a previous timestep
-	 bool clearPreviousProperties (void);
+      bool computeProperties (void);
+      /// reset properties from a previous timestep
+      bool clearPreviousProperties (void);
       DerivedProperties::FormationPropertyPtr getVolumeProperty (const Formation * formation,
-                                                                 const string & propertyName,
-                                                                 const Interface::Snapshot * snapshot) const;
+         const string & propertyName,
+         const Interface::Snapshot * snapshot) const;
       DerivedProperties::FormationPropertyPtr getFormationPropertyPtr (const string & propertyName,
-                                                                       const Interface::Snapshot * snapshot) const;
+         const Interface::Snapshot * snapshot) const;
       bool computeDepthOffsets (const Interface::Snapshot * presentDay);
       bool computeNetToGross (void);
       bool isActive (const Interface::Snapshot * snapshot) const;
@@ -88,7 +88,7 @@ namespace migration
       /// save properties the migration module computed during the current snapshot interval
       bool saveComputedOutputProperties (const bool saveSnapshot);
 
-      
+
       /// Reservoir Charge
 
       double getTotalToBeStoredCharges (bool onBoundaryOnly = false);
@@ -109,9 +109,9 @@ namespace migration
       const Composition & getCrackingGain (void) const;
       double getTotalCrackingLoss (void) const;
       double getTotalCrackingGain (void) const;
-      #ifdef USEOTGC
+#ifdef USEOTGC
       double getTotalImmobiles (void);
-      #endif
+#endif
       bool computeFluxes (void);
       bool collectLeakedCharges (Reservoir * leakingReservoir, Barrier * barrier);
       bool collectExpelledCharges (const Formation * formation, unsigned int direction, Barrier * barrier);
@@ -147,6 +147,7 @@ namespace migration
       /// save Seepage amounts at the top formation of the basin
       bool saveSeepageProperties (const Interface::Snapshot * end);
 
+
       /// Trap Handling
 
       /// move the traps computed during the previous snapshot interval to the list of previous traps.
@@ -155,37 +156,37 @@ namespace migration
       void removePreviousTraps (void);
       /// Remove the traps in the list of traps.
       void removeTraps (void);
-	 /// save trap-related scalar properties
+      /// save trap-related scalar properties
       bool saveTrapProperties (const bool saveSnapshot);
-	 /// compute the traps of this reservoir
-	 bool computeTraps (void);
-	 void printInconsistentTrapVolumes (void);
-	 /// recompute the depth to volume functions if oil to gas cracking has been performed
-	 bool recomputeTrapDepthToVolumeFunctions (void);
-	 void processTrapProperties (TrapPropertiesRequest & tpRequest);
-	 bool crackChargesToBeMigrated (OilToGasCracker & otgc);
-	 bool fillAndSpill (void);
-	 void incrementChargeDistributionCount (void);
-	 void reportChargeDistributionCount (void);
-	 void broadcastTrapDiffusionStartTimes (void);
-	 void broadcastTrapPenetrationDistances (void);
-	 void broadcastTrapChargeProperties (void);
-	 void broadcastTrapFillDepthProperties (void);
+      /// compute the traps of this reservoir
+      bool computeTraps (void);
+      void printInconsistentTrapVolumes (void);
+      /// recompute the depth to volume functions if oil to gas cracking has been performed
+      bool recomputeTrapDepthToVolumeFunctions (void);
+      void processTrapProperties (TrapPropertiesRequest & tpRequest);
+      bool crackChargesToBeMigrated (OilToGasCracker & otgc);
+      bool fillAndSpill (void);
+      void incrementChargeDistributionCount (void);
+      void reportChargeDistributionCount (void);
+      void broadcastTrapDiffusionStartTimes (void);
+      void broadcastTrapPenetrationDistances (void);
+      void broadcastTrapChargeProperties (void);
+      void broadcastTrapFillDepthProperties (void);
       void accumulateErrorInPVT (double error);
       double getErrorPVT (void);
-      double getLossPVT (void);      
+      double getLossPVT (void);
 
 
       /// Migration Related
-         
+
       void setSourceFormation (const Formation * formation);
       void setSourceReservoir (const Reservoir * reservoir);
       const Formation * getSourceFormation (void);
       const Reservoir * getSourceReservoir (void);
-	 inline void setStart (const DataAccess::Interface::Snapshot * start);
-	 inline void setEnd (const DataAccess::Interface::Snapshot * end);
-	 inline const Interface::Snapshot * getStart (void);
-	 inline const Interface::Snapshot * getEnd (void);
+      inline void setStart (const DataAccess::Interface::Snapshot * start);
+      inline void setEnd (const DataAccess::Interface::Snapshot * end);
+      inline const Interface::Snapshot * getStart (void);
+      inline const Interface::Snapshot * getEnd (void);
       /// save HCpathways along the reservoir seal
       bool saveComputedPathways (const Interface::Snapshot *) const;
       /// compute the migration paths of this reservoir
@@ -196,14 +197,14 @@ namespace migration
 
       /// Parallelization
 
-	 void getValue (ColumnValueRequest & valueRequest, ColumnValueRequest & valueResponse);
-	 void setValue (ColumnValueRequest & valueRequest);
-	 void getValue (ColumnValueArrayRequest & valueArrayRequest, ColumnValueArrayRequest & valueArrayResponse);
-	 void setValue (ColumnValueArrayRequest & valueArrayRequest);
-	 void clearProxyProperties (ColumnValueRequest & valueRequest);
-	 void manipulateColumn (ColumnColumnRequest & columnRequest);
-	 void manipulateColumnComposition (ColumnCompositionRequest & compositionRequest);
-         void getColumnComposition (ColumnCompositionRequest & compositionRequest, ColumnCompositionRequest & compositionResponse);
+      void getValue (ColumnValueRequest & valueRequest, ColumnValueRequest & valueResponse);
+      void setValue (ColumnValueRequest & valueRequest);
+      void getValue (ColumnValueArrayRequest & valueArrayRequest, ColumnValueArrayRequest & valueArrayResponse);
+      void setValue (ColumnValueArrayRequest & valueArrayRequest);
+      void clearProxyProperties (ColumnValueRequest & valueRequest);
+      void manipulateColumn (ColumnColumnRequest & columnRequest);
+      void manipulateColumnComposition (ColumnCompositionRequest & compositionRequest);
+      void getColumnComposition (ColumnCompositionRequest & compositionRequest, ColumnCompositionRequest & compositionResponse);
       void collectMigrationRequest (MigrationRequest & request);
       void processMigrationRequests ();
       MigrationRequest * findMigrationRequest (MigrationRequest & request);
@@ -221,10 +222,9 @@ namespace migration
 
       /// get index of the reservoir in a list of reservoirs
       int getIndex (void);
-	 double getUndefinedValue (void);
+      double getUndefinedValue (void);
       bool saveGenexMaps (const string & speciesName, DataAccess::Interface::GridMap * aMap, const Formation * formation, const Snapshot * aSnapshot);
-
-
+      
 
    private:
 
@@ -269,8 +269,8 @@ namespace migration
       const Interface::Formation* getSeaBottomFormation (const Interface::Snapshot * snapshot) const;
       const Interface::Formation* getTopFormation (const Interface::Snapshot * snapshot) const;
       const Interface::GridMap * getPropertyGridMap (const string & propertyName, const Interface::Snapshot * snapshot,
-                                                     const Interface::Reservoir * reservoir, const Interface::Formation * formation,
-                                                     const Interface::Surface * surface) const;
+         const Interface::Reservoir * reservoir, const Interface::Formation * formation,
+         const Interface::Surface * surface) const;
 
 
       /// Reservoir Charge
@@ -283,10 +283,10 @@ namespace migration
       bool computeHydrocarbonWaterContactDepth (void);
       bool computeHydrocarbonWaterTemperature (void);
       bool diffusionLeakCharges (void);
-	 bool addChargesToBeMigrated (ComponentId componentId, const DataAccess::Interface::GridMap * gridMap, double fraction, Barrier * barrier);
-	 bool addChargesToBeMigrated (const DataAccess::Interface::GridMap * gridMap, double fraction, Barrier * barrier);
-	 bool subtractChargesToBeMigrated (ComponentId componentId, const DataAccess::Interface::GridMap * gridMap, double fraction, Barrier * barrier);
-	 bool checkChargesToBeMigrated (ComponentId componentId);
+      bool addChargesToBeMigrated (ComponentId componentId, const DataAccess::Interface::GridMap * gridMap, double fraction, Barrier * barrier);
+      bool addChargesToBeMigrated (const DataAccess::Interface::GridMap * gridMap, double fraction, Barrier * barrier);
+      bool subtractChargesToBeMigrated (ComponentId componentId, const DataAccess::Interface::GridMap * gridMap, double fraction, Barrier * barrier);
+      bool checkChargesToBeMigrated (ComponentId componentId);
       void collectAndSplitCharges (bool always = false);
 
 
@@ -324,9 +324,9 @@ namespace migration
       Trap * findTrap (int globalId);
       void addTrap (Trap * trap);
       void mergeSpillingTraps (void);
-      #ifdef MERGEUNDERSIZEDTRAPSAPRIORI
+#ifdef MERGEUNDERSIZEDTRAPSAPRIORI
       bool mergeUndersizedTraps (void);
-      #endif
+#endif
       bool determineTrapsToMerge (ConditionTest conditionTest);
       void absorbTraps (void);
       void removeUndersizedTraps (void);
@@ -342,64 +342,62 @@ namespace migration
       bool checkDistribution (void);
 
 
-
       /// Data Members
 
-     private:
+   private:
 
-         // Pointer to the migrator object
-         Migrator * const m_migrator;
+      // Pointer to the migrator object
+      Migrator * const m_migrator;
 
-	 /// The Traps we work on
-	 TrapVector m_traps;
+      /// The Traps we work on
+      TrapVector m_traps;
 
-	 // cached distances
-	 double m_neighbourDistances[8];
+      // cached distances
+      double m_neighbourDistances[8];
 
-	 /// the maximum number of traps at any processor
-	 unsigned int m_maximumTrapCount;
+      /// the maximum number of traps at any processor
+      unsigned int m_maximumTrapCount;
 
-	 /// the number of times distributeCharges was performed on a trap
-	 long m_chargeDistributionCount;
+      /// the number of times distributeCharges was performed on a trap
+      long m_chargeDistributionCount;
 
-	 /// The traps created during the previous interval
-	 TrapVector m_previousTraps;
+      /// The traps created during the previous interval
+      TrapVector m_previousTraps;
 
-	 /// The columns of the reservoir
-	 ColumnArray * m_columnArray;
+      /// The columns of the reservoir
+      ColumnArray * m_columnArray;
 
-	 /// start and end of the migration period.
-	 const DataAccess::Interface::Snapshot * m_start;
-	 const DataAccess::Interface::Snapshot * m_end;
+      /// start and end of the migration period.
+      const DataAccess::Interface::Snapshot * m_start;
+      const DataAccess::Interface::Snapshot * m_end;
 
-	 /// used in computation of the MigrationIoTbl
-	 const Formation * m_sourceFormation;
-	 const Reservoir * m_sourceReservoir;
+      /// used in computation of the MigrationIoTbl
+      const Formation * m_sourceFormation;
+      const Reservoir * m_sourceReservoir;
 
-	 Composition m_compositionBlocked;
+      Composition m_compositionBlocked;
 
-	 Composition m_crackingLoss;
-	 Composition m_crackingGain;
+      Composition m_crackingLoss;
+      Composition m_crackingGain;
 
-	 double m_lossPVT;
-	 double m_errorPVT;
+      double m_lossPVT;
+      double m_errorPVT;
 
-	 double m_biodegraded;
+      double m_biodegraded;
 
-	 bool m_lowResEqualsHighRes;
+      bool m_lowResEqualsHighRes;
 
-	 double m_undefinedValue;
+      double m_undefinedValue;
 
-    SurfaceGridMapContainer m_diffusionOverburdenGridMaps;
-    SurfaceGridMapContainer m_sealPressureLeakageGridMaps;
+      SurfaceGridMapContainer m_diffusionOverburdenGridMaps;
+      SurfaceGridMapContainer m_sealPressureLeakageGridMaps;
 
-	 MigrationRequestVector m_migrationRequests;
+      MigrationRequestVector m_migrationRequests;
 
-	 bool m_computeFluxesHasFinished;
+      bool m_computeFluxesHasFinished;
 
-    int m_index;
-
-  };
+      int m_index;
+   };
 }
 
 

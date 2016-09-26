@@ -624,17 +624,17 @@ namespace migration
    }
 
    void AllGatherFromAll (void * sendbuf, int sendcount, MPI_Datatype sendtype,
-                          void *recvbuf, int recvcount, MPI_Datatype recvtype)
+      void *recvbuf, int recvcount, MPI_Datatype recvtype)
    {
       MPI_Allgather (sendbuf, sendcount, sendtype,
-                     recvbuf, recvcount, recvtype, PETSC_COMM_WORLD);
+         recvbuf, recvcount, recvtype, PETSC_COMM_WORLD);
    }
 
    void RootGatherFromAll (void * sendbuf, int sendcount, MPI_Datatype sendtype,
-                           void *recvbuf, int recvcount, MPI_Datatype recvtype)
+      void *recvbuf, int recvcount, MPI_Datatype recvtype)
    {
       MPI_Gather (sendbuf, sendcount, sendtype,
-                  recvbuf, recvcount, recvtype, 0, PETSC_COMM_WORLD);
+         recvbuf, recvcount, recvtype, 0, PETSC_COMM_WORLD);
    }
 
    double MaximumAll (double myValue)
@@ -665,7 +665,7 @@ namespace migration
    /// Will finish after all processors have completed their phase.
    RequestHandling::~RequestHandling ()
    {
-      if ( s_instance )
+      if (s_instance)
       {
          delete s_instance;
          s_instance = 0;
@@ -674,7 +674,7 @@ namespace migration
 
    RequestHandling * RequestHandling::GetInstance ()
    {
-      if (!s_instance) 
+      if (!s_instance)
       {
          s_instance = new RequestHandling;
       }
@@ -722,13 +722,13 @@ namespace migration
    }
 
    void RequestHandling::HandleRequests (RequestMode mode, ColumnValueRequest * columnValueResponse, ColumnValueArrayRequest * valueArrayResponse, ColumnCompositionRequest * columnCompositionResponse,
-                                         FormationNodeValueRequest * formationNodeValueResponse, FormationNodeCompositionRequest * formationNodeCompositionResponse, 
-                                         FormationNodeThreeVectorRequest * formationNodeThreeVectorResponse, FormationNodeThreeVectorValueRequest * formationNodeThreeVectorValueResponse)
+      FormationNodeValueRequest * formationNodeValueResponse, FormationNodeCompositionRequest * formationNodeCompositionResponse,
+      FormationNodeThreeVectorRequest * formationNodeThreeVectorResponse, FormationNodeThreeVectorValueRequest * formationNodeThreeVectorValueResponse)
    {
       RequestHandling::GetInstance ()->handleRequests (mode, columnValueResponse, valueArrayResponse, columnCompositionResponse, formationNodeValueResponse,
-                                                       formationNodeCompositionResponse, formationNodeThreeVectorResponse, formationNodeThreeVectorValueResponse);
+         formationNodeCompositionResponse, formationNodeThreeVectorResponse, formationNodeThreeVectorValueResponse);
    }
-   
+
    /// initialize a new request handling phase.
    void RequestHandling::startRequestHandling (Migrator * requestHandler, const string& functionName)
    {
@@ -799,8 +799,8 @@ namespace migration
    /// In responding to incoming request, a processor should not send requests to other processors as this function is not
    /// reentrant.
    void RequestHandling::handleRequests (RequestMode mode, ColumnValueRequest * columnValueResponse, ColumnValueArrayRequest * valueArrayResponse, ColumnCompositionRequest * columnCompositionResponse,
-                                         FormationNodeValueRequest * formationNodeValueResponse, FormationNodeCompositionRequest * formationNodeCompositionResponse,
-                                         FormationNodeThreeVectorRequest * formationNodeThreeVectorResponse, FormationNodeThreeVectorValueRequest * formationNodeThreeVectorValueResponse)
+      FormationNodeValueRequest * formationNodeValueResponse, FormationNodeCompositionRequest * formationNodeCompositionResponse,
+      FormationNodeThreeVectorRequest * formationNodeThreeVectorResponse, FormationNodeThreeVectorValueRequest * formationNodeThreeVectorValueResponse)
    {
       assert (m_requestHandling);
       assert (proxyUseAllowed ());

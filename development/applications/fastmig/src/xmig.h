@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2010-2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 ///////////////////////////////////////////////////////////////////////////////
 //                                VERSION:1.0                                //
 ///////////////////////////////////////////////////////////////////////////////
@@ -11,7 +21,8 @@
 class XMig
 {
 public:
-   enum Phase {
+   enum Phase
+   {
       NO_PHASE = -1,
       NONE = -1,
       GAS_PHASE = 0,
@@ -22,7 +33,8 @@ public:
       NUM_PHASES = 2
    };
 
-   enum Component { 
+   enum Component
+   {
       C1_COMP_NUM = 0,
       C2_COMP_NUM = 1,
       C3_COMP_NUM = 2,
@@ -52,7 +64,8 @@ public:
 
    static const char * FAULT_NAME[];
 
-   typedef enum _FaultType {
+   typedef enum _FaultType
+   {
       NOFAULT = 0,
       SEAL = 1,
       PASS = 2,
@@ -63,14 +76,16 @@ public:
    } FaultType;
 
 
-   enum {
+   enum
+   {
       NEIGHBOUR_SEARCH = 1,
       MAXCELLSEARCH = 9
    };
 
-   typedef enum _UnitType {
-     METRIC = 0,
-     OILFIELD = 1
+   typedef enum _UnitType
+   {
+      METRIC = 0,
+      OILFIELD = 1
    } UnitType;
 
 

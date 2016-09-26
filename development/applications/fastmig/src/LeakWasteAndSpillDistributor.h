@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef _MIGRATION_DISTRIBUTE_LEAKWASTEANDSPILLDISTRIBUTOR_H_
 #define _MIGRATION_DISTRIBUTE_LEAKWASTEANDSPILLDISTRIBUTOR_H_
 
@@ -9,70 +19,71 @@
 
 using functions::MonotonicIncreasingPiecewiseLinearInvertableFunction;
 
-namespace migration { 
-
-class LeakWasteAndSpillDistributor: public Distributor
+namespace migration
 {
-private:
 
-   bool m_leaking;
-   bool m_wasting;
+   class LeakWasteAndSpillDistributor : public Distributor
+   {
+   private:
 
-   double m_sealFluidDensity; 
-   double m_fractureSealStrength; 
-   double m_wasteLevel;
-   
-   CapillarySealStrength m_capSealStrength;
+      bool m_leaking;
+      bool m_wasting;
 
-   const MonotonicIncreasingPiecewiseLinearInvertableFunction* m_levelToVolume;
+      double m_sealFluidDensity;
+      double m_fractureSealStrength;
+      double m_wasteLevel;
 
-   // Sometimes the levelToVolume function given to LeakWasteAndSpillDistributor doesn't 
-   // start at depth zero as it normally would, but at the depth below zero.  This happens
-   // when the crest column (and possibly some adjacent columns) have zero capacity. 
-   // Normally this is caused by a zero porosity.  But whatever the cause, LeakGas and other
-   // distribution implementations rely on m_levelToVolume->piece(0) == tuple(0.0,0.0).
-   // So in case m_levelToVolume->piece(0)[0] isn't 0.0, we replace m_levelToVolume with 
-   // our own version where all the depths are shifted:
-   double m_shift;
+      CapillarySealStrength m_capSealStrength;
 
-public:
+      const MonotonicIncreasingPiecewiseLinearInvertableFunction* m_levelToVolume;
 
-   LeakWasteAndSpillDistributor(const double& sealFluidDensity, const double& fractureSealStrength, 
-      const double& wasteLevel, const CapillarySealStrength& capSealStrength, 
-      const MonotonicIncreasingPiecewiseLinearInvertableFunction* levelToVolume);
+      // Sometimes the levelToVolume function given to LeakWasteAndSpillDistributor doesn't 
+      // start at depth zero as it normally would, but at the depth below zero.  This happens
+      // when the crest column (and possibly some adjacent columns) have zero capacity. 
+      // Normally this is caused by a zero porosity.  But whatever the cause, LeakGas and other
+      // distribution implementations rely on m_levelToVolume->piece(0) == tuple(0.0,0.0).
+      // So in case m_levelToVolume->piece(0)[0] isn't 0.0, we replace m_levelToVolume with 
+      // our own version where all the depths are shifted:
+      double m_shift;
 
-   LeakWasteAndSpillDistributor(const double& sealFluidDensity, const double& fractureSealStrength, 
-      const CapillarySealStrength& capSealStrength, const MonotonicIncreasingPiecewiseLinearInvertableFunction* 
-      levelToVolume);
+   public:
 
-   ~LeakWasteAndSpillDistributor();
+      LeakWasteAndSpillDistributor (const double& sealFluidDensity, const double& fractureSealStrength,
+         const double& wasteLevel, const CapillarySealStrength& capSealStrength,
+         const MonotonicIncreasingPiecewiseLinearInvertableFunction* levelToVolume);
 
-   void shiftToOrigin();
+      LeakWasteAndSpillDistributor (const double& sealFluidDensity, const double& fractureSealStrength,
+         const CapillarySealStrength& capSealStrength, const MonotonicIncreasingPiecewiseLinearInvertableFunction*
+         levelToVolume);
 
-   void distribute(const Composition& gas, const Composition& oil, const double& T_K, 
-      Composition& remainingGas, Composition& remainingOil, 
-      Composition& leakedGas, Composition& wastedGas, Composition& spilledGas, 
-      Composition& leakedOil, Composition& spilledOil, double& finalGasLevel, double& finalHCLevel) const;
+      ~LeakWasteAndSpillDistributor ();
 
-   bool leaking() const { return m_leaking; }
-   bool wasting() const { return m_wasting; }
+      void shiftToOrigin ();
 
-   double sealFluidDensity() const { return m_sealFluidDensity; } 
-   double fractureSealStrength() const { return m_fractureSealStrength; }
-   const CapillarySealStrength& capillarySealStrength() const { return m_capSealStrength; }
-   double wasteLevel() const { return m_wasteLevel; }
+      void distribute (const Composition& gas, const Composition& oil, const double& T_K,
+         Composition& remainingGas, Composition& remainingOil,
+         Composition& leakedGas, Composition& wastedGas, Composition& spilledGas,
+         Composition& leakedOil, Composition& spilledOil, double& finalGasLevel, double& finalHCLevel) const;
 
-   const MonotonicIncreasingPiecewiseLinearInvertableFunction* levelToVolume() const { return m_levelToVolume; }
+      bool leaking () const { return m_leaking; }
+      bool wasting () const { return m_wasting; }
 
-   void setLeaking(bool leaking) { m_leaking = leaking; }
-   void setWasting(bool wasting) { m_wasting = wasting; }
+      double sealFluidDensity () const { return m_sealFluidDensity; }
+      double fractureSealStrength () const { return m_fractureSealStrength; }
+      const CapillarySealStrength& capillarySealStrength () const { return m_capSealStrength; }
+      double wasteLevel () const { return m_wasteLevel; }
 
-   void setSealFluidDensity(const double& sealFluidDensity) { m_sealFluidDensity = sealFluidDensity; } 
-   void setFractureSealStrength(const double& fractureSealStrength) { m_fractureSealStrength = fractureSealStrength; }
-   void setWasteLevel(const double& wasteLevel) { m_wasteLevel = wasteLevel; }
+      const MonotonicIncreasingPiecewiseLinearInvertableFunction* levelToVolume () const { return m_levelToVolume; }
 
-   void setLevelToVolume(const MonotonicIncreasingPiecewiseLinearInvertableFunction* levelToVolume);
-};
+      void setLeaking (bool leaking) { m_leaking = leaking; }
+      void setWasting (bool wasting) { m_wasting = wasting; }
+
+      void setSealFluidDensity (const double& sealFluidDensity) { m_sealFluidDensity = sealFluidDensity; }
+      void setFractureSealStrength (const double& fractureSealStrength) { m_fractureSealStrength = fractureSealStrength; }
+      void setWasteLevel (const double& wasteLevel) { m_wasteLevel = wasteLevel; }
+
+      void setLevelToVolume (const MonotonicIncreasingPiecewiseLinearInvertableFunction* levelToVolume);
+   };
 
 } // namespace migration
 

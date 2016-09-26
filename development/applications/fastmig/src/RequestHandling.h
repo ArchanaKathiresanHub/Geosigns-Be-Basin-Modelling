@@ -18,7 +18,8 @@
 #include <string>
 using std::string;
 
-namespace migration {
+namespace migration
+{
    class Reservoir;
    class Migrator;
 
@@ -28,7 +29,8 @@ namespace migration {
 
    enum RequestMode { UNTILALLFINISHED, UNTILRESPONDED, UNTILOUTOFREQUESTS };
 
-   enum RequestId {
+   enum RequestId
+   {
       FINISHED, VALUEARRAYRESPONSE, VALUEARRAYREQUEST, COLUMNREQUEST,
       COLUMNVALUERESPONSE, COLUMNVALUEREQUEST, COLUMNRESETREQUEST, COLUMNCOMPOSITIONRESPONSE,
       COLUMNCOMPOSITIONREQUEST, TRAPPROPERTIESREQUEST, MIGRATIONREQUEST, CHARGESREQUEST,
@@ -107,8 +109,8 @@ namespace migration {
       static void HandleRequests (RequestMode mode, FormationNodeThreeVectorValueRequest * formationNodeThreeVectorValueResponse);
 
       static void HandleRequests (RequestMode mode, ColumnValueRequest * columnValueResponse, ColumnValueArrayRequest * valueArrayResponse, ColumnCompositionRequest * columnCompositionResponse,
-                                  FormationNodeValueRequest * formationNodeValueResponse, FormationNodeCompositionRequest * formationNodeCompositionResponse,
-                                  FormationNodeThreeVectorRequest * formationNodeThreeVectorResponse, FormationNodeThreeVectorValueRequest * formationNodeThreeVectorValueResponse);
+         FormationNodeValueRequest * formationNodeValueResponse, FormationNodeCompositionRequest * formationNodeCompositionResponse,
+         FormationNodeThreeVectorRequest * formationNodeThreeVectorResponse, FormationNodeThreeVectorValueRequest * formationNodeThreeVectorValueResponse);
 
       inline void handleRequests (RequestMode mode);
 
@@ -127,8 +129,8 @@ namespace migration {
       inline void handleRequests (RequestMode mode, FormationNodeThreeVectorValueRequest * formationNodeThreeVectorValueResponse);
 
       void handleRequests (RequestMode mode, ColumnValueRequest * columnValueResponse, ColumnValueArrayRequest * valueArrayResponse, ColumnCompositionRequest * columnCompositionResponse,
-                           FormationNodeValueRequest * formationNodeValueResponse, FormationNodeCompositionRequest * formationNodeCompositionResponse,
-                           FormationNodeThreeVectorRequest * formationNodeThreeVectorResponse, FormationNodeThreeVectorValueRequest * formationNodeThreeVectorValueResponse);
+         FormationNodeValueRequest * formationNodeValueResponse, FormationNodeCompositionRequest * formationNodeCompositionResponse,
+         FormationNodeThreeVectorRequest * formationNodeThreeVectorResponse, FormationNodeThreeVectorValueRequest * formationNodeThreeVectorValueResponse);
 
    protected:
       RequestHandling ();
@@ -200,7 +202,7 @@ namespace migration {
 
    bool RequestHandling::AllProcessorsFinished (bool finished)
    {
-      return  (AndAll ((int) finished) != 0);
+      return  (AndAll ((int)finished) != 0);
    }
 
    void RequestHandling::handleRequests (RequestMode mode)

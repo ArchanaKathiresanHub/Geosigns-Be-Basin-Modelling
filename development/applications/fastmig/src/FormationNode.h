@@ -108,10 +108,10 @@ namespace migration
       virtual inline void clearProperties (void);
 
       template <class T>
-         T getScalarValue (ValueSpec valueSpec);
+      T getScalarValue (ValueSpec valueSpec);
 
       template <class T>
-         T getCachedScalarValue (ValueSpec valueSpec, FormationNodeCacheBit cacheBit, T & value);
+      T getCachedScalarValue (ValueSpec valueSpec, FormationNodeCacheBit cacheBit, T & value);
 
       double getCachedDoubleValue (ValueSpec valueSpec, FormationNodeCacheBit cacheBit, double & value);
       double getDoubleValue (ValueSpec valueSpec);
@@ -276,8 +276,8 @@ namespace migration
 
       virtual FiniteElementMethod::ThreeVector getFiniteElementGrad (PropertyIndex propertyIndex);
 
-      void setFiniteElementDepths( double * depths );
-      bool setFiniteElement( FiniteElementMethod::FiniteElement& finiteElement );
+      void setFiniteElementDepths (double * depths);
+      bool setFiniteElement (FiniteElementMethod::FiniteElement& finiteElement);
 
       double getDepth (void);
 
@@ -364,7 +364,7 @@ namespace migration
 
       int m_adjacentNodeIndex;                 // index into m_cosines of current adjacent node to use in computeAdjacentNode ()
       int m_selectedDirectionIndex;            // index into NeighbourOffsets3D of current adjacent node to use in computeTargetFormationNode (),
-                                               // derived using m_adjacentNodeIndex
+      // derived using m_adjacentNodeIndex
       int m_tried;
 
       bool m_entered;                          // Whether computeTargetFormationNode () loops
@@ -376,10 +376,10 @@ namespace migration
       bool m_isCrestVapour;                    // true - if node is a crest for vapour
 
       bool m_isEndOfPath;                      // true - if node is end of path. May even be a leaking (or zero-thickness) node
-                                               // but it needs to be the end of the path to register it in the leaking reservoir.
+      // but it needs to be the end of the path to register it in the leaking reservoir.
 
       vector < IntDoublePair > *  m_cosines;     // cosines of angles between the analog flow direction and the feasible discretized flow directions  
-      
+
       boost::array<double, 2> m_verticalPermeability;
       boost::array<double, 2> m_capillaryEntryPressureLiquid;
       boost::array<double, 2> m_capillaryEntryPressureVapour;
@@ -387,7 +387,7 @@ namespace migration
       Composition * m_compositionToBeMigrated;
       FiniteElementMethod::ThreeVector * m_analogFlowDirection;
       LocalFormationNode * m_topFormationNode;
-      
+
       // we only need 8 depths (64 bytes), we can create finite elements (816 bytes) in the scope of the functions. 
       // In this way we save 752 bytes per grid node. 
       double * m_finiteElementsDepths;
@@ -502,13 +502,13 @@ namespace migration
       clearCache ();
       m_targetFormationNode = 0;
 
-      if ( m_compositionToBeMigrated )
+      if (m_compositionToBeMigrated)
       {
          delete m_compositionToBeMigrated;
          m_compositionToBeMigrated = 0;
       }
 
-      if ( m_analogFlowDirection )
+      if (m_analogFlowDirection)
       {
          delete m_analogFlowDirection;
          m_analogFlowDirection = 0;
