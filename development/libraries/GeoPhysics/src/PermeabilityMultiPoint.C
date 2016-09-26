@@ -27,6 +27,10 @@ namespace GeoPhysics
       assert( porositySamples.size() == permeabilitySamples.size());
       assert( porositySamples.size() > 0);
 
+#if 1
+      m_porosityPermeabilityInterpolant.setInterpolation ( porositySamples.size (), porositySamples.data (), permeabilitySamples.data ());
+      m_depoPermeability = m_porosityPermeabilityInterpolant.evaluate ( depoPorosity );
+#else
       // Scale the permeability values by log ( 10 ) so that this operation
       // does not need to be performed later when interpolating
       std::vector<double> scaledPermeabilitySamples ( permeabilitySamples );
@@ -38,6 +42,7 @@ namespace GeoPhysics
 
       // Need to divide by log ( 10 ) because interpolator has been scaled by log ( 10 ).
       m_depoPermeability = m_porosityPermeabilityInterpolant.evaluate ( depoPorosity ) / Log10;
+#endif
    }
 
    inline double PermeabilityMultiPoint::calculateSingleValue ( const double porosity ) const {
@@ -50,11 +55,16 @@ namespace GeoPhysics
    double PermeabilityMultiPoint::calculate( const double ves, const double maxVes, const double calculatedPorosity ) const
    {
 
+#if 1
+      double  val = exp ( Log10 * m_porosityPermeabilityInterpolant.evaluate ( calculatedPorosity ));
+      return std::min( val, MaxPermeability );
+#else
       // Added to prevent compiler warning about unused parameters.
       (void) ves;
       (void) maxVes;
 
       return calculateSingleValue ( calculatedPorosity );
+#endif
    }
 
    void PermeabilityMultiPoint::calculate ( const unsigned int       n,
@@ -89,6 +99,19 @@ namespace GeoPhysics
       (void) ves;
       (void) maxVes;
 
+
+#if 1
+      permeability = calculate ( ves, maxVes, calculatedPorosity );
+
+      if( permeability == MaxPermeability )
+      {
+         derivative = 0.0;
+      }
+      else
+      {
+         derivative = permeability * Log10 * porosityDerivativeWrtVes * m_porosityPermeabilityInterpolant.evaluateDerivative ( calculatedPorosity );
+      }
+#else
       permeability = calculateSingleValue ( calculatedPorosity );
 
       if ( permeability < MaxPermeability )
@@ -99,6 +122,7 @@ namespace GeoPhysics
       {
          derivative = 0.0;
       }
+#endif
 
    }
 

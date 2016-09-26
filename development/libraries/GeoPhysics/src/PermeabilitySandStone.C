@@ -30,10 +30,20 @@ PermeabilitySandStone::PermeabilitySandStone( double depoPorosity, double depoPe
    }
 
 
-double PermeabilitySandStone::calculate( const double ves, const double maxVes, const double calculatedPorosity) const
-{
+   double PermeabilitySandStone::calculate( const double ves, const double maxVes, const double calculatedPorosity) const
+   {
+#if 1
+      double deltaphi = calculatedPorosity - m_depoPorosity;
+      double m = 0.12 + 0.02 * m_permeabilityIncr;
+      double val = m_depoPermeability * exp(Log10 * m * deltaphi * 100.0);
+
+      if (val >= MaxPermeability ) val = MaxPermeability ;
+
+      return val;
+#else
    return calculateSingleValue ( calculatedPorosity );
-}
+#endif
+   }
 
    void PermeabilitySandStone::calculate ( const unsigned int       n,
                                            ArrayDefs::ConstReal_ptr ves,
@@ -62,8 +72,13 @@ void PermeabilitySandStone::calculateDerivative( const double ves,
    }
    else
    {
+#if 1
+      const double m = 0.12 + 0.02 * m_permeabilityIncr;
+      derivative = permeability * 100.0 * Log10 * m * porosityDerivativeWrtVes;
+#else
       // Use chainrule and multiply with derivative of porosity with respect to ves
       derivative = permeability * m_term * porosityDerivativeWrtVes;
+#endif
    }
 
 }
