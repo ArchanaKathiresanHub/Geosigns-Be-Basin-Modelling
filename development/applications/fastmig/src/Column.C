@@ -1611,18 +1611,9 @@ namespace migration
          const double liquidWeight = phaseCompositions[OIL].getWeight ();
          const double totalWeight = m_composition->getWeight ();
 
-         if (m_composition->isEmpty ())
-         {
-            if (!phaseCompositions[OIL].isEmpty () or !phaseCompositions[GAS].isEmpty ())
-               LogHandler (LogHandler::WARNING_SEVERITY) << "Warning: something is wrong with composition of seepage at i=" << getI () << ", j=" << getJ () <<
-               "\nTotal weight: " << totalWeight << "\nVapor weight: " << vapourWeight << "\nLiquid weight: " << liquidWeight;
-         }
-         else
-         {
-            if ((liquidWeight + vapourWeight - totalWeight) / totalWeight > 0.01)
-               LogHandler (LogHandler::WARNING_SEVERITY) << "Warning: something is wrong with composition of seepage at i=" << getI () << ", j=" << getJ () <<
-               "\nTotal weight: " << totalWeight << "\nVapor weight: " << vapourWeight << "\nLiquid weight: " << liquidWeight;
-         }
+         if ((liquidWeight + vapourWeight - totalWeight) / totalWeight > 0.01)
+            LogHandler (LogHandler::WARNING_SEVERITY) << "Warning: something is wrong with composition of seepage at i=" << getI () << ", j=" << getJ () <<
+            "\nTotal weight: " << totalWeight << "\nVapor weight: " << vapourWeight << "\nLiquid weight: " << liquidWeight;
 
          // m_composition will contain only the liquid phase now
          m_composition->reset ();
