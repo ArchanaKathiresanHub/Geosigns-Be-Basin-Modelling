@@ -1,3 +1,13 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "BasementLithology.h"
 
 #include <math.h>
@@ -99,23 +109,6 @@ void  BasementLithology::setLithoType() {
    } else {
       m_lithotype = UNKNOWN;
    }
-}
-
-
-double BasementLithology::thermCondPointHofmeister (const double inTemperature, const double inPressure) const  {
-   // Pa in GPa, K in Kelvin
-
-  double klat, krad;
-  const double val1 = - (4 * 1.28 + 1.0 / 3.0) * 0.00002;
-  const double val2 = 4.6 / 128.1;
-
-  const double pressure = inPressure * 0.001; // convert to GPa
-  const double temperature = inTemperature + 273.15; // convert C to K
-
-  klat = 4.70 * pow(298 / temperature, 0.25) * exp(val1 * (temperature - 298.0)) * (1.0 + val2 * pressure);
-  krad = 1.753E-02 + temperature * (-1.0365E-04 + temperature * (2.2451E-07 - 3.4071E-11 * temperature));
-
-  return klat + krad;
 }
 
 double BasementLithology::thermCondPointXu (const double inTemperature, const double inPressure) const  {
