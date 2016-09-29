@@ -18,8 +18,8 @@ if (BM_BUILD_HYPRE)
 
 add_external_project_to_repository(
       NAME PETSC
-      VERSION 3.5.4
-      ARCHIVE "${THIRD_PARTY_DIR}/sources/petsc-3.5.4.tar.gz"
+      VERSION ${PETSC_VERSION}
+      ARCHIVE "${THIRD_PARTY_DIR}/sources/petsc-${PETSC_VERSION}.tar.gz"
       ARCHIVE_MD5 "781af0eec1e821f82fb3ecc7a2dfda8e"
       DEPENDS_NAME "Hypre"
       DEPENDS_VER "2.9.1"
@@ -63,7 +63,7 @@ else ()
 
 add_external_project_to_repository(
       NAME PETSC
-      VERSION 3.5.4
+      VERSION ${PETSC_VERSION}
       ARCHIVE "${THIRD_PARTY_DIR}/sources/petsc-3.5.4.tar.gz"
       ARCHIVE_MD5 "781af0eec1e821f82fb3ecc7a2dfda8e"
       CONFIGURE_COMMAND 
@@ -107,7 +107,7 @@ add_external_package_info(
     CAPABILITY  PETScLib
     NAME         "PETSc"
     VENDOR       "Argonne National Laboratory"
-    VERSION      "3.5.4"
+    VERSION      "${PETSC_VERSION}"
     LICENSE_TYPE "Simplified BSD"
     LICENSE_FILE "${THIRD_PARTY_DIR}/licenses/Petsc-3.5.4.txt"
     URL          "http://www.mcs.anl.gov/petsc/"
@@ -122,15 +122,14 @@ add_external_package_info(
 )                   
 
 elseif (WIN32) # windows
-
-   set(PETSC_DEBUG "${PETSC_HOME}/PETSc/c-debug_icl_mkl" CACHE PATH "Debug path")
-   set(PETSC_RELEASE "${PETSC_HOME}/PETSc/c-opt_icl_mkl" CACHE PATH "Release path")
+   set(PETSC_DEBUG "${PETSC_HOME}/PETSc/debug" CACHE PATH "Debug path")
+   set(PETSC_RELEASE "${PETSC_HOME}/PETSc/release" CACHE PATH "Release path")
    set(PETSC_INCLUDE_DIRS "${PETSC_HOME}/PETSc/include")
    set(PETSC_LIBRARIES 
           "${BLAS_LIBRARIES}"
-          "${PETSC_HOME}/PETSc/externalpackages/lib/HYPRE.lib"
-          "${PETSC_HOME}/PETSc/externalpackages/lib/metis.lib"
-          "${PETSC_HOME}/PETSc/externalpackages/lib/parmetis.lib"
+#          "${PETSC_HOME}/PETSc/externalpackages/lib/HYPRE.lib"
+#          "${PETSC_HOME}/PETSc/externalpackages/lib/metis.lib"
+#          "${PETSC_HOME}/PETSc/externalpackages/lib/parmetis.lib"
           "${MPI_LIBRARIES}"
    )
 

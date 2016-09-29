@@ -13,6 +13,12 @@
 cmake_minimum_required(VERSION 3.2.1)
 cmake_policy(SET CMP0054 NEW)
 
+#Set 3rd party tools versions:
+set(PETSC_VERSION "3.5.4"  CACHE STRING "PETSc version")
+set(HDF5_VERSION  "1.8.17" CACHE STRING "HDF5 version")
+set(TSLIB_VERSION "7.4.2"  CACHE STRING "Geocosm library version")
+set(SWIG_VERSION  "3.0.10" CACHE STRING "The version number of the swig executable")
+
 #
 # Load system-dependent configuration
 #
@@ -45,14 +51,15 @@ set(THIRD_PARTY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty")
 #
 option( BM_CSHARP_API "Build the C sharp interface (Windows only)" OFF )
 option( BM_PARALLEL "Build the parallel cauldron applications" ON )
-option( BM_BUILD_PARAVIEW_PLUGIN "Also build the ParaView plugin to view cauldron projects in ParaView."  OFF)
 option( BM_BUILD_SERIAL_APPS "Also build serial version of apps" ON )
 option( BM_BUILD_DOCS "Build documentation" ON )
+option( BM_BUILD_PARAVIEW_PLUGIN "Also build the ParaView plugin to view cauldron projects in ParaView."  OFF)
 option( BM_BUILD_ENABLE_TESTING "Whether testing is enabled" ON )
 option( BM_CODE_COVERAGE_ENABLE "Enable code coverage" OFF )
 option( BM_INSTALL_BENCHMARK_SUITE "Install the cauldron benchmark suite" OFF )
 option( BM_USE_FLEXLM "Whether to require a license via FlexLM" OFF)
 option( BM_BUILD_4DVIEWER "Build the 4D viewer (Windows only, needs Qt4 and Open Inventor)" OFF)
+option(BM_EXTERNAL_COMPONENTS_REBUILD "Whether or not to rebuild external components" OFF)
 
 #
 # Variables concerning version numbers
@@ -69,7 +76,6 @@ set(BM_REVISION "0" CACHE STRING "Revision number (Used to number Windows DLLs)"
 #
 # Various configurable variables
 #
-
 set( BM_THIRD_PARTY_COMPONENT_LIST_FILE  "ThirdPartyComponentsList.xml" CACHE FILEPATH "File name of third party component list")
 
 set(BM_SSSDEV_INSTALL_DIR "${CMAKE_BINARY_DIR}/sssdev" CACHE PATH "sssdev installation path")
@@ -77,11 +83,10 @@ set(BM_TFS_BUILD_NUMBER "" CACHE STRING "TFS Build identifier (aka BuildDetail.B
 set(BM_TFS_SERVER_URL "" CACHE STRING "TFS Collection URL of Cauldron")
 set(BM_TFS_PROJECT_NAME "" CACHE STRING "TFS Project Name (i.e. 'Basin Modeling'")
 
-
+message(STATUS "Loading common configuration flags...")
 #
 # Common CMake configuration flags
 #
-
 option( BUILD_SHARED_LIBS "Build shared libraries" OFF )
 set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}" CACHE PATH "Installation prefix" )
 set(CMAKE_BUILD_TYPE "Release" CACHE STRING "CMake build type ('Release' or 'Debug' or 'MemCheck' or 'CodeCoverage')")
@@ -93,6 +98,7 @@ include(cmake/ConfigurationFlags.cmake)
 list(APPEND CMAKE_PREFIX_PATH "${CMAKE_CURRENT_SOURCE_DIR}")
 include(cmake/EnvSetup.cmake)
 init_environment()
+
 find_package(Compiler CONFIG)
 
 #
@@ -103,12 +109,10 @@ Project(BasinModeling)
 #
 # General Include files
 #
-
 include(cmake/BasinModelingUtilities.cmake)
 include(cmake/ExternalProject.cmake)
 include(FeatureSummary)
 include(cmake/WarningFlags.cmake)
-
 
 #
 # Detect and set the configuration of 3rd party components
@@ -119,7 +123,6 @@ configure_external_projects()
 #
 # Setting compile flags
 #
-
 if (NOT BM_USE_FLEXLM)
    message( CONFIG "Disable FLEXLM in code by adding -DDISABLE_FLEXLM")
    add_definitions(-DDISABLE_FLEXLM=1)
@@ -137,13 +140,12 @@ if(MSVC)
 
    message(STATUS "BM_WINDOWS_PLATFORM = ${BM_WINDOWS_PLATFORM}")
 
-   add_definitions( "-Dand=&&" "-Dor=||" "-Dnot=!" "-D_SCL_SECURE_NO_WARNINGS" "-D_CRT_SECURE_NO_WARNINGS" )
+   add_definitions( "-Dand=&&" "-Dor=||" "-Dnot=!" )#"-D_SCL_SECURE_NO_WARNINGS" "-D_CRT_SECURE_NO_WARNINGS" )
 #if (BUILD_SHARED_LIBS)
 #     configure_msvc_runtime("dynamic")
 #   else()
 #     configure_msvc_runtime("static")
 #   endif()
-
    if (NOT BUILD_SHARED_LIBS)
       add_definitions(-DCBMGENERICS_STATIC)
       add_definitions(-DUTILITIES_STATIC)
@@ -201,8 +203,6 @@ add_definitions(-DSVNREVISION="${BM_SVNREVISION}")
 
 #
 # Include 3rd party packages
-#
-
 if(BM_BUILD_ENABLE_TESTING)
    enable_testing()
    find_package(TestFramework REQUIRED CONFIG)

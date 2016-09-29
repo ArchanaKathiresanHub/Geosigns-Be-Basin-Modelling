@@ -65,15 +65,10 @@ if (UNIX)
 elseif(WIN32)
    set( BLAS_INCLUDE_DIRS )
    set( MKL_LIBRARIES
-          "${INTEL_MKL_ROOT}/libiomp5md.lib"
-          "${INTEL_MKL_ROOT}/libmmt.lib"
-          "${INTEL_MKL_ROOT}/libdecimal.lib"
-          "${INTEL_MKL_ROOT}/libirc.lib"
-          "${INTEL_MKL_ROOT}/svml_dispmt.lib"
-          "${INTEL_MKL_ROOT}/mkl_core.lib"
           "${INTEL_MKL_ROOT}/mkl_intel_lp64.lib"
           "${INTEL_MKL_ROOT}/mkl_intel_thread.lib"
-          "${INTEL_MKL_ROOT}/mkl_scalapack_lp64.lib"
+          "${INTEL_MKL_ROOT}/mkl_core.lib"
+          "${INTEL_MKL_ROOT}/libiomp5md.lib"
       )
    set( BLAS_FOUND ON )
 endif()

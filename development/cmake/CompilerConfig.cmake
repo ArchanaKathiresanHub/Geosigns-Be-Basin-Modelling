@@ -15,7 +15,7 @@ include(cmake/EnvSetup.cmake)
 
 set(INTEL_CXX_ROOT "INTEL_CXX_ROOT-NOTFOUND" CACHE PATH "Path to Intel's compiler collection")
 
-set(INTEL_MPI_VERSION "4.1.1.036" CACHE STRING "Intel MPI version")
+set(INTEL_MPI_VERSION "5.1.2.150" CACHE STRING "Intel MPI version")
 set(INTEL_MPI_ROOT "INTEL_MPI_ROOT-NOTFOUND" CACHE PATH "Path to Intel MPI library" )
 set(INTEL_MPI_FLAVOUR "opt" CACHE STRING "Intel MPI library type. Choose from: opt, opt_mt, dbg, dbg_mt, log, log_mt" )
 
@@ -252,6 +252,7 @@ if (UNIX)
    endif()
    
 elseif(WIN32)
+   message(STATUS "Set environment for VS2015...")
  
    # First detect the Compiler
    enable_language(CXX)
@@ -267,7 +268,7 @@ elseif(WIN32)
                 CAPABILITY MPIlib
                 NAME         "MPI"
                 VENDOR       "Microsoft"
-                VERSION      "HPC Pack 2012 R2"
+                VERSION      "${MPI_VERSION}"
                 LICENSE_TYPE ""
                 LICENSE_FILE "${MPI_ROOT}/License/note_mpi.txt"
                 URL          ""
@@ -280,11 +281,8 @@ elseif(WIN32)
                 CONTAINS_CRYPTO "No"
                 ECCN         "Unknown"
       )
-
-      set(MPI_FOUND TRUE)
-      set(MPI_INCLUDE_DIRS "${MPI_ROOT}/Inc" "${MPI_ROOT}/Inc/amd64")
-      set(MPI_LIBRARIES "${MPI_ROOT}/Lib/amd64/msmpi.lib" "${MPI_ROOT}/Lib/amd64/msmpifec.lib" "${MPI_ROOT}/Lib/amd64/msmpifmc.lib")
-
+      set(MPI_INCLUDE_DIRS "${MPI_ROOT}/Include" "${MPI_ROOT}/Include/x64")
+      set(MPI_LIBRARIES "${MPI_ROOT}/Lib/x64/msmpi.lib" "${MPI_ROOT}/Lib/x64/msmpifec.lib" "${MPI_ROOT}/Lib/x64/msmpifmc.lib")
    endif(BM_PARALLEL)
 
     #
@@ -305,12 +303,12 @@ elseif(WIN32)
        INCLUSION_TYPE "NA"
        USEABLE_STAND_ALONE "No"
        CONTAINS_CRYPTO "Unknown"
-       ECCN         "Unknown"
+       ECCN            "Unknown"
     )
 
    # to supress errors with multiple defined ceil/floor and so on in libmmt.lib
-   set( CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} /FORCE:MULTIPLE"  )
-
+   #set( CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} /FORCE:MULTIPLE"  )
+   add_definitions(-D_ENABLE_ATOMIC_ALIGNMENT_FIX)
 endif()
 
 
@@ -335,7 +333,7 @@ if (BM_PARALLEL)
       set(mpiName "OpenMPI")
    elseif (WIN32)
      set(mpiName "MicrosoftMPI")
-     set(mpiVersion "2012.R2")
+     set(mpiVersion "${MPI_VERSION}")
    elseif(MPI_NAME AND MPI_VERSION)
      set(mpiName "${MPI_NAME}")
      set(mpiVersion "${MPI_VERSION}")
@@ -347,5 +345,4 @@ if (BM_PARALLEL)
 
    set( MPI_NAME "${mpiName}" CACHE STRING "Name of the MPI implementation")
    set( MPI_VERSION "${mpiVersion}" CACHE STRING "Version of the MPI implementation")
-
 endif()

@@ -467,6 +467,13 @@
     </member>
     <member kind="function" virtualness="pure">
       <type>virtual double</type>
+      <name>seisVelocity</name>
+      <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
+      <anchor>af51248680f456a22926dc8eec8b0436f</anchor>
+      <arglist>(LithologyID id)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual double</type>
       <name>stpThermalConductivityCoeff</name>
       <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
       <anchor>a8b6609940c60e4b2a04fa4553edbfc55</anchor>
@@ -705,8 +712,8 @@
       <type>virtual ErrorHandler::ReturnCode</type>
       <name>saveMapToHDF</name>
       <anchorfile>classmbapi_1_1MapsManager.html</anchorfile>
-      <anchor>a0975d2314562894f689a61f8fe418cb2</anchor>
-      <arglist>(MapID id, const std::string &amp;fileName)=0</arglist>
+      <anchor>a5f5fc08fbeadbe95b2bacd9dc0773819</anchor>
+      <arglist>(MapID id, const std::string &amp;filePathName, const int mapSequenceNbr)=0</arglist>
     </member>
     <member kind="function" virtualness="pure">
       <type>virtual ErrorHandler::ReturnCode</type>
@@ -730,6 +737,20 @@
       <arglist>(MapID id, const std::vector&lt; double &gt; &amp;vin)=0</arglist>
     </member>
     <member kind="function" virtualness="pure">
+      <type>virtual double</type>
+      <name>mapGetValue</name>
+      <anchorfile>classmbapi_1_1MapsManager.html</anchorfile>
+      <anchor>a9b9a30c2466f3887138e04ce2aa07225</anchor>
+      <arglist>(MapID id, const unsigned int i, const unsigned int j)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ErrorHandler::ReturnCode</type>
+      <name>mapGetValues</name>
+      <anchorfile>classmbapi_1_1MapsManager.html</anchorfile>
+      <anchor>ae02feacf20e4e85f68e57539550a18be</anchor>
+      <arglist>(MapID id, std::vector&lt; double &gt; &amp;vout)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
       <type>virtual ErrorHandler::ReturnCode</type>
       <name>interpolateMap</name>
       <anchorfile>classmbapi_1_1MapsManager.html</anchorfile>
@@ -747,8 +768,22 @@
       <type>virtual MapID</type>
       <name>generateMap</name>
       <anchorfile>classmbapi_1_1MapsManager.html</anchorfile>
-      <anchor>a52e79e34028490e186fdae9c8703247d</anchor>
-      <arglist>(const std::string &amp;refferedTable, const std::string mapName, const std::vector&lt; double &gt; &amp;values)=0</arglist>
+      <anchor>aa81aabb6afdcb22bf60e4a850b5eaf7f</anchor>
+      <arglist>(const std::string &amp;refferedTable, const std::string mapName, const std::vector&lt; double &gt; &amp;values, int &amp;mapSequenceNbr, const std::string &amp;filePathName)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ErrorHandler::ReturnCode</type>
+      <name>inizializeMapWriter</name>
+      <anchorfile>classmbapi_1_1MapsManager.html</anchorfile>
+      <anchor>a58df3b6ac1d67348b8a27a8324d18700</anchor>
+      <arglist>(const std::string &amp;filePathName, const bool append)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ErrorHandler::ReturnCode</type>
+      <name>finalizeMapWriter</name>
+      <anchorfile>classmbapi_1_1MapsManager.html</anchorfile>
+      <anchor>adedf98ecf1dc62b3746ad13361460954</anchor>
+      <arglist>()=0</arglist>
     </member>
     <member kind="function" protection="protected">
       <type></type>
@@ -775,6 +810,13 @@
       <anchorfile>classmbapi_1_1Model.html</anchorfile>
       <anchor>af8b6e3860b38c4de16262d46eed03892</anchor>
       <arglist>(const std::string &amp;litName, const std::vector&lt; std::pair&lt; std::string, size_t &gt; &gt; &amp;layersName, const std::vector&lt; std::string &gt; &amp;alochtLitName, const std::vector&lt; std::pair&lt; std::string, std::string &gt; &gt; &amp;faultsName)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>checkPoint</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>a6bacb438f56529ee4864f04e64f58c72</anchor>
+      <arglist>(const double x, const double y, const double z, const std::string &amp;layerName)</arglist>
     </member>
     <member kind="function">
       <type></type>
@@ -890,6 +932,13 @@
     </member>
     <member kind="function">
       <type>ErrorHandler::ReturnCode</type>
+      <name>removeRecordFromTable</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>aef210720c8d033a0150c6b7c0dfadf38</anchor>
+      <arglist>(const std::string &amp;tableName, int ind)</arglist>
+    </member>
+    <member kind="function">
+      <type>ErrorHandler::ReturnCode</type>
       <name>addRowToTable</name>
       <anchorfile>classmbapi_1_1Model.html</anchorfile>
       <anchor>aaf9771356dc94cff7673c0c87408c729</anchor>
@@ -974,6 +1023,41 @@
     </member>
     <member kind="function">
       <type>ReturnCode</type>
+      <name>hiresGridArealSize</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>aed41fe750eaa042ef6a137a78a50eda4</anchor>
+      <arglist>(long &amp;sizeI, long &amp;sizeJ)</arglist>
+    </member>
+    <member kind="function">
+      <type>ReturnCode</type>
+      <name>subsampling</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>ada357e93a84a58220ca25b485797c3fa</anchor>
+      <arglist>(long &amp;di, long &amp;dj)</arglist>
+    </member>
+    <member kind="function">
+      <type>ReturnCode</type>
+      <name>setSubsampling</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>ad4ba50c2c83b7348dadbeaf2d532fab3</anchor>
+      <arglist>(long di, long dj)</arglist>
+    </member>
+    <member kind="function">
+      <type>ReturnCode</type>
+      <name>window</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>aaaf3c6debfdbd83ae3570a323b28d0cb</anchor>
+      <arglist>(long &amp;minWinI, long &amp;maxWinI, long &amp;minWinJ, long &amp;maxWinJ)</arglist>
+    </member>
+    <member kind="function">
+      <type>ReturnCode</type>
+      <name>setWindow</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>ae444fd77f2115fdcfb097481c2fccd29</anchor>
+      <arglist>(long minWinI, long maxWinI, long minWinJ, long maxWinJ)</arglist>
+    </member>
+    <member kind="function">
+      <type>ReturnCode</type>
       <name>arealSize</name>
       <anchorfile>classmbapi_1_1Model.html</anchorfile>
       <anchor>a65ce2138d1f29884606f4c1e5dd25afc</anchor>
@@ -999,6 +1083,13 @@
       <anchorfile>classmbapi_1_1Model.html</anchorfile>
       <anchor>a98543238d85dac3497d46e70e2fcb47c</anchor>
       <arglist>(const std::vector&lt; double &gt; &amp;rpInt, const std::vector&lt; double &gt; &amp;r13Int, std::vector&lt; double &gt; &amp;lf1CorrInt, std::vector&lt; double &gt; &amp;lf2CorrInt, std::vector&lt; double &gt; &amp;lf3CorrInt)</arglist>
+    </member>
+    <member kind="function" static="yes">
+      <type>static std::string</type>
+      <name>randomString</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>a7eed800ae3b6b378745929b34296e203</anchor>
+      <arglist>(size_t len)</arglist>
     </member>
     <member kind="variable" static="yes">
       <type>static const char *</type>
@@ -1432,6 +1523,20 @@
       <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
       <anchor>a74cb6cb331f1933ef049d730ac53e770</anchor>
       <arglist>(PrFaultCutID flID, const std::string &amp;newLithoName)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual std::string</type>
+      <name>twtGridName</name>
+      <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
+      <anchor>a28baf3e2359594bde08717410b509b9e</anchor>
+      <arglist>(LayerID id)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual double</type>
+      <name>twtValue</name>
+      <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
+      <anchor>ad2f557b8b16ec8684df2a80a55383bd2</anchor>
+      <arglist>(LayerID id)=0</arglist>
     </member>
     <member kind="function" protection="protected">
       <type></type>

@@ -45,14 +45,13 @@ if(UNIX)
 
    endif (LSF_INCLUDE_DIR AND LSF_LIB AND LSBATCH_LIB)
    
-else (UNIX) # WIN32
-
-   list(APPEND LSF_LIBS "${LSBATCH_LIB}" "${LSF_LIB}" "MsWSock.lib" "WS2_32.lib" "WSock32.lib" "adsiid.lib" "activeds.lib" "userenv.lib" "netapi32.lib" "mpr.lib")  
-   set (LSF_ENVDIR "${LSF_HOME}/conf" )
-   set (LSF_LICENSE_FILE_PATH "${THIRD_PARTY_DIR}/licenses/LSF-9.1.txt" CACHE STRING "LSF licence file" )
-   set (LSF_FOUND "Yes")
-   
-endif (UNIX)
+else(UNIX) # WIN32
+   if ( LSF_FOUND )
+      list(APPEND LSF_LIBS "${LSBATCH_LIB}" "${LSF_LIB}" "MsWSock.lib" "WS2_32.lib" "WSock32.lib" "adsiid.lib" "activeds.lib" "userenv.lib" "netapi32.lib" "mpr.lib")  
+      set(LSF_ENVDIR "${LSF_HOME}/conf" )
+      set(LSF_LICENSE_FILE_PATH "${THIRD_PARTY_DIR}/licenses/LSF-9.1.txt" CACHE STRING "LSF licence file" )   
+   endif()
+endif(UNIX)
 
 #Print status of LSF
 #MESSAGE( STATUS "LSF_FOUND "       ${LSF_FOUND} )
@@ -85,5 +84,4 @@ if (LSF_FOUND)
       CONTAINS_CRYPTO "No"
       ECCN         "Unknown"
    )
-
 endif(LSF_FOUND)

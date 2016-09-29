@@ -108,19 +108,18 @@ if (UNIX)
 elseif(WIN32)
 
     set(BOOST_ROOT "Boost-NOTFOUND" CACHE PATH "Location of the Boost C++ libraries")
-    if ( MSVC10 )
-        set(BOOST_LIB_POSTFIX "-msvc-10.0")
-    elseif(MSVC11)
+    if(MSVC11)
         set(BOOST_LIB_POSTFIX "-msvc-11.0")
     elseif(MSVC12)
         set(BOOST_LIB_POSTFIX "-msvc-12.0")
+    elseif(MSVC14)
+        set(BOOST_LIB_POSTFIX "-msvc-14.0")
     else()
         set(BOOST_LIB_POSTFIX "")
     endif()
 
     math(EXPR _64 "${CMAKE_SIZEOF_VOID_P} * 8")
     set(BOOST_LIBRARYDIR "${BOOST_ROOT}/lib${_64}${BOOST_LIB_POSTFIX}")
-
     if (NOT BUILD_SHARED_LIBS)
         set(Boost_USE_STATIC_LIBS        ON) # only find static libs
     endif()
