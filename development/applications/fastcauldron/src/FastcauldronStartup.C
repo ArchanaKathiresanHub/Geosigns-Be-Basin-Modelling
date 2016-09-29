@@ -39,14 +39,16 @@
 
 unsigned int FastcauldronStartup::s_instances = 0;
 
-FastcauldronStartup::FastcauldronStartup( int argc, char** argv, bool checkLicense, bool saveResults ) : 
-                                          m_checkLicense( checkLicense ), 
+FastcauldronStartup::FastcauldronStartup( int argc, char** argv, bool checkLicense, bool saveResults ) :
+                                          m_checkLicense( checkLicense ),
                                           m_prepareOk( false ),
                                           m_startUpOk( false ),
                                           m_saveResults( saveResults )
 {
    if ( s_instances == 0 )
    {
+      // Will be updated in prepare function, if FlexLM has been enabled.
+      m_canRunSaltModelling    = true;
       m_prepareOk              = prepare();
       m_factory                = new FastcauldronFactory;
       m_cauldron               = new AppCtx( argc, argv );
@@ -72,7 +74,7 @@ bool FastcauldronStartup::prepare()
 {
 
    // If FLEXLM is defined then this is updated within the FLEXLM section.
-   // The run should not abort if the ibs_cauldron_halo license cannot be 
+   // The run should not abort if the ibs_cauldron_halo license cannot be
    // checked-out instead a warning is issued.
    // Some OU's are no permitted to have access to the salt modelling functionality.
 
@@ -113,10 +115,10 @@ bool FastcauldronStartup::prepare()
    MPI_Bcast( &rc, 1, MPI_INT, 0, PETSC_COMM_WORLD );
    m_canRunSaltModelling = m_checkLicense ? determineSaltModellingCapability() : true;
 
-   if ( m_checkLicense && rc != EPTFLEXLM_OK &&  rc != EPTFLEXLM_WARN ) 
+   if ( m_checkLicense && rc != EPTFLEXLM_OK &&  rc != EPTFLEXLM_WARN )
    {
       m_errorMessage = "MeSsAgE ERROR FastcauldronStartup::prepare() failed";
-      return false; 
+      return false;
    }
 
 #else
@@ -229,7 +231,7 @@ void FastcauldronStartup::run()
    if ( m_prepareOk && m_startUpOk )
    {
       bool returnStatus = true;
-      // Calculate FCT 
+      // Calculate FCT
       FCTCalc fctCtx( m_cauldron );
 
       if ( m_cauldron->DoHighResDecompaction || m_cauldron->DoDecompaction )
@@ -317,7 +319,7 @@ void FastcauldronStartup::finalize( )
    bool displayEndTime = false;
 
    bool saveResults = m_prepareOk && m_startUpOk && m_runOk && m_saveResults;
- 
+
    FastcauldronSimulator::finalise( saveResults && m_solverHasConverged && ( m_cauldron->saveOnDarcyError( ) or not m_errorInDarcy ) );
 
    if ( m_cauldron ) displayEndTime = m_cauldron->debug1 or m_cauldron->verbose;
@@ -383,7 +385,7 @@ bool FastcauldronStartup::determineSaltModellingCapability()
             cout << endl << "@@@@@@@@@@@@@@@\n MeSsAgE WARNING: FlexLm license error: fastcauldron cannot start the salt modelling capabilities.\n Please contact your helpdesk.\n@@@@@@@@@@@@@@@" << endl;
             capable = 0;
          }
-         else 
+         else
          {
             capable = 1;
          }
