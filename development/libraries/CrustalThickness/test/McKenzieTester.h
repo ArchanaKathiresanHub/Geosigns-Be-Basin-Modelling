@@ -44,6 +44,9 @@ public:
 
 protected:
 
+   /// @brief Initialise all the required by the McKenzieCalculator
+   void initTestData();
+
    /// @brief Initialise the constants (to mimic configuration file)
    void initConstants( MockConfigFileParameterCtc& constants ) const;
 

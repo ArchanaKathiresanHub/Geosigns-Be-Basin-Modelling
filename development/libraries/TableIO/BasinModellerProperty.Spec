@@ -6142,29 +6142,6 @@ Identification      : HcLiquidBrineCapillaryEntryPressure
 
 #### Crustal Thickness Calculator input
 
-    Identification      : T0Ini
-    Description         : Age of onset of rifting
-    Type                : double
-    Unit of measurement : Ma
-
-    Identification      : T0IniGrid
-    Description         : Age of onset of rifting
-    Type                : string
-    Unit of measurement :
-    Error Field         : No
-
-    Identification      : TRIni
-    Description         : Age of ending of rifting
-    Type                : double
-    Unit of measurement : Ma
-    Default             : 
-
-    Identification      : TRIniGrid
-    Description         : Age of ending of rifting
-    Type                : string
-    Unit of measurement :
-    Error Field         : No
-
     Identification      : HCuIni
     Description         : Initial continental crustal thickness
     Type                : double
@@ -6220,11 +6197,25 @@ Identification      : HcLiquidBrineCapillaryEntryPressure
     Default             : 5
     Error Field         : No
 
-    Identification      : LastComputationAge
-    Description         : After this age, there is no more CTC output
+    Identification      : UpperLowerContinentalCrustRatio
+    Description         : Ratio which defines the spliting of the continental crust in its upper and lower part (r=Upper/Lower)
     Type                : double
     Unit of measurement :
-    Default             : 0.0
+    Default             : 0.5
+    Error Field         : No
+
+    Identification      : UpperLowerOceanicCrustRatio
+    Description         : Ratio which defines the spliting of the oceanic crust in its upper and lower part (r=Upper/Lower)
+    Type                : double
+    Unit of measurement :
+    Default             : 0.5
+    Error Field         : No
+
+    Identification      : TectonicFlag
+    Description         : Defines the tectonic context of the formation (Passive Margin, Active Rifting or Flexural Basin)
+    Type                : string
+    Unit of measurement :
+    Default             : ""
     Error Field         : No
 
 #### Crustal Thickness Calculator and Advanced Lithosphere Calculator output properties 
@@ -6880,23 +6871,25 @@ START-property-tables
 # Data for CrustalThicknessCalculator
 
     Identification : CTCIoTbl 
-    Description    : Table of user defined data for calculation of MOHO and basalt thickness
-    Column         : SurfaceName
-    Column         : T0Ini        
-    Column         : T0IniGrid
-    Column         : TRIni
-    Column         : TRIniGrid
+    Description    : Table of user defined global data for calculation of the CTC properties
     Column         : HCuIni
     Column         : HCuIniGrid
     Column         : HLMuIni
     Column         : HLMuIniGrid
-    Column         : HBu
-    Column         : HBuGrid
+    Column         : FilterHalfWidth
+    Column         : UpperLowerContinentalCrustRatio
+    Column         : UpperLowerOceanicCrustRatio
+    Header         : Crustal Thickness Calculator global input data
+
+    Identification : CTCRiftingHistoryIoTbl 
+    Description    : Table of user defined rifiting history data for calculation of the CTC properties
+    Column         : Age
+    Column         : TectonicFlag
     Column         : DeltaSL
     Column         : DeltaSLGrid
-    Column         : FilterHalfWidth
-    Column         : LastComputationAge
-    Header         : Crustal Thickness Calculator input data  
+    Column         : HBu
+    Column         : HBuGrid
+    Header         : Crustal Thickness Calculator rifting history input data
 
 # Boundary condition data -------------------------------------------------
     
@@ -8062,6 +8055,7 @@ START-application-class-properties
     Property : GenexHistoryLocationIoTbl
 # CrustalThicknessCalculator data
     Property : CTCIoTbl
+    Property : CTCRiftingHistoryIoTbl
 # Shale Gas properties
     Property : LangmuirAdsorptionCapacityIsothermSetIoTbl
     Property : LangmuirAdsorptionCapacityTOCFunctionIoTbl

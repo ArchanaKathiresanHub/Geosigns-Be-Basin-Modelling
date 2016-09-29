@@ -25,18 +25,18 @@ typedef formattingexception::GeneralException McKenzieException;
 
 TEST_F( McKenzieTester, exceptions )
 {
-   // first creation to initialize all variables
-   McKenzieCrustCalculatorPtr mcKenzieCalculator = createMcKenzieCalculator();
+   // first initialization of all variables
+   initTestData();
    m_constants.setWaterDensity( 2000 );
    m_constants.setBackstrippingMantleDensity( 2000 );
    m_inputData.setConstants( m_constants );
 
    // 1. Test that the constructor throws an exception when the mantle and water densities are equal
    //test if the exception is thrown
-   EXPECT_THROW( McKenzieCrustCalculator mcKenzieCalculator1( m_inputData, m_outputData, m_validator, nullptr, nullptr, nullptr ), std::invalid_argument );
+   EXPECT_THROW( McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator, nullptr, nullptr, nullptr ), std::invalid_argument );
    //test if the good exception is thrown
    try{
-      McKenzieCrustCalculator mcKenzieCalculator1( m_inputData, m_outputData, m_validator, nullptr, nullptr, nullptr );
+      McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator, nullptr, nullptr, nullptr );
       FAIL() << "Expected 'Mantle density is equal to the water density (both provided by the interface input), this will lead to divisions by 0' exception";
    }
    catch (const std::invalid_argument& ex) {
@@ -48,15 +48,13 @@ TEST_F( McKenzieTester, exceptions )
    }
 
    // 2. Test that the constructor throws an exception when dpeht of the basement is a null pointer
-   m_constants.setWaterDensity( 1030 );
-   m_constants.setBackstrippingMantleDensity( 3300 );
-   m_inputData.setConstants( m_constants );
+   initTestData();
    m_inputData.setDepthBasement( nullptr );
    //test if the exception is thrown
-   EXPECT_THROW( McKenzieCrustCalculator mcKenzieCalculator2( m_inputData, m_outputData, m_validator,nullptr, nullptr, nullptr ), std::invalid_argument );
+   EXPECT_THROW( McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator,nullptr, nullptr, nullptr ), std::invalid_argument );
    //test if the good exception is thrown
    try{
-      McKenzieCrustCalculator mcKenzieCalculator2( m_inputData, m_outputData, m_validator,nullptr, nullptr, nullptr );
+      McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator,nullptr, nullptr, nullptr );
       FAIL() << "Expected 'Basement depth provided by the interface input is a null pointer' exception";
    }
    catch (const std::invalid_argument& ex) {
@@ -68,14 +66,14 @@ TEST_F( McKenzieTester, exceptions )
    }
 
    // 3. Test that the constructor throws an exception when the model total lithospheric thickness is 0
-   m_inputData.setDepthBasement( m_depthBasement->getMockderivedSurfacePropertyPtr() );
+   initTestData();
    m_constants.setModelTotalLithoThickness( 0 );
    m_inputData.setConstants( m_constants );
    //test if the exception is thrown
-   EXPECT_THROW( McKenzieCrustCalculator mcKenzieCalculator3( m_inputData, m_outputData, m_validator,nullptr, nullptr, nullptr ), std::invalid_argument );
+   EXPECT_THROW( McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator,nullptr, nullptr, nullptr ), std::invalid_argument );
    //test if the good exception is thrown
    try{
-      McKenzieCrustCalculator mcKenzieCalculator3( m_inputData, m_outputData, m_validator,nullptr, nullptr, nullptr );
+      McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator,nullptr, nullptr, nullptr );
       FAIL() << "Expected 'Total lithosphere thickness provided by the interface input is equal to 0 and will lead to divisions by 0' exception";
    }
    catch (const std::invalid_argument& ex) {
@@ -88,13 +86,13 @@ TEST_F( McKenzieTester, exceptions )
 
    // 4. Test that the constructor throws an exception when the decay constant is 0
    //test if the exception is thrown
-   m_constants.setModelTotalLithoThickness( 92500 );
+   initTestData();
    m_constants.setDecayConstant( 0 );
    m_inputData.setConstants( m_constants );
-   EXPECT_THROW( McKenzieCrustCalculator mcKenzieCalculator4( m_inputData, m_outputData, m_validator,nullptr, nullptr, nullptr ), std::invalid_argument );
+   EXPECT_THROW( McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator,nullptr, nullptr, nullptr ), std::invalid_argument );
    //test if the good exception is thrown
    try{
-      McKenzieCrustCalculator mcKenzieCalculator4( m_inputData, m_outputData, m_validator,nullptr, nullptr, nullptr );
+      McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator,nullptr, nullptr, nullptr );
       FAIL() << "Expected 'Decay constant provided by the interface input is 0 and will lead to divisions by 0' exception";
    }
    catch (const std::invalid_argument& ex) {
@@ -106,14 +104,14 @@ TEST_F( McKenzieTester, exceptions )
    }
 
    // 5. Test that the constructor throws an exception when the McKenzie equation Tau variable is 0
-   m_constants.setDecayConstant( 10000 );
+   initTestData();
    m_constants.setTau( 0 );
    m_inputData.setConstants( m_constants );
    //test if the exception is thrown
-   EXPECT_THROW( McKenzieCrustCalculator mcKenzieCalculator5( m_inputData, m_outputData, m_validator,nullptr, nullptr, nullptr ), std::invalid_argument );
+   EXPECT_THROW( McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator,nullptr, nullptr, nullptr ), std::invalid_argument );
    //test if the good exception is thrown
    try{
-      McKenzieCrustCalculator mcKenzieCalculator5( m_inputData, m_outputData, m_validator,nullptr, nullptr, nullptr );
+      McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator,nullptr, nullptr, nullptr );
       FAIL() << "Expected 'Tau provided by the interface input is 0 and will lead to divisions by 0' exception";
    }
    catch (const std::invalid_argument& ex) {
@@ -124,15 +122,81 @@ TEST_F( McKenzieTester, exceptions )
       FAIL() << "Expected 'Tau provided by the interface input is 0 and will lead to divisions by 0' exception";
    }
 
-   // 5. Test that the constructor throws an exception when only one of the previous data input is a nullptr
-   m_constants.setTau( 42.9 );
-   m_inputData.setConstants( m_constants );
-   const DataAccess::Interface::SerialGridMap previousGrid( 0, 0, this->m_grid, 50, 1 );
+   // 5. Test that the constructor throws an exception when the continental crust ratio is outside the range [0,1]
+   initTestData();
+   m_inputData.setContinentalCrustRatio( 10 );
    //test if the exception is thrown
-   EXPECT_THROW( McKenzieCrustCalculator mcKenzieCalculator6( m_inputData, m_outputData, m_validator, nullptr, &previousGrid, &previousGrid ), std::invalid_argument );
+   EXPECT_THROW( McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator, nullptr, nullptr, nullptr ), std::invalid_argument );
    //test if the good exception is thrown
    try{
-      McKenzieCrustCalculator mcKenzieCalculator6( m_inputData, m_outputData, m_validator, nullptr, &previousGrid, &previousGrid );
+      McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator, nullptr, nullptr, nullptr );
+      FAIL() << "Expected 'The continental crust ratio (which defines the lower and upper continental crust) provided by the interface input is outisde the range [0,1]' exception";
+   }
+   catch (const std::invalid_argument& ex) {
+      EXPECT_EQ( "The continental crust ratio (which defines the lower and upper continental crust) provided by the interface input is outisde the range [0,1]",
+         std::string( ex.what() ) );
+   }
+   catch (...) {
+      FAIL() << "Expected 'The continental crust ratio (which defines the lower and upper continental crust) provided by the interface input is outisde the range [0,1]' exception";
+   }
+   initTestData();
+   m_inputData.setContinentalCrustRatio( -10 );
+   //test if the exception is thrown
+   EXPECT_THROW( McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator, nullptr, nullptr, nullptr ), std::invalid_argument );
+   //test if the good exception is thrown
+   try{
+      McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator, nullptr, nullptr, nullptr );
+      FAIL() << "Expected 'The continental crust ratio (which defines the lower and upper continental crust) provided by the interface input is outisde the range [0,1]' exception";
+   }
+   catch (const std::invalid_argument& ex) {
+      EXPECT_EQ( "The continental crust ratio (which defines the lower and upper continental crust) provided by the interface input is outisde the range [0,1]",
+         std::string( ex.what() ) );
+   }
+   catch (...) {
+      FAIL() << "Expected 'The continental crust ratio (which defines the lower and upper continental crust) provided by the interface input is outisde the range [0,1]' exception";
+   }
+
+   // 6. Test that the constructor throws an exception when the oceanic crust ratio is outside the range [0,1]
+   initTestData();
+   m_inputData.setOceanicCrustRatio( 10 );
+   //test if the exception is thrown
+   EXPECT_THROW( McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator, nullptr, nullptr, nullptr ), std::invalid_argument );
+   //test if the good exception is thrown
+   try{
+      McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator, nullptr, nullptr, nullptr );
+      FAIL() << "Expected 'The oceanic crust ratio (which defines the lower and upper oceanic crust) provided by the interface input is outisde the range [0,1]' exception";
+   }
+   catch (const std::invalid_argument& ex) {
+      EXPECT_EQ( "The oceanic crust ratio (which defines the lower and upper oceanic crust) provided by the interface input is outisde the range [0,1]",
+         std::string( ex.what() ) );
+   }
+   catch (...) {
+      FAIL() << "Expected 'The oceanic crust ratio (which defines the lower and upper oceanic crust) provided by the interface input is outisde the range [0,1]' exception";
+   }
+   initTestData();
+   m_inputData.setOceanicCrustRatio( -10 );
+   //test if the exception is thrown
+   EXPECT_THROW( McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator, nullptr, nullptr, nullptr ), std::invalid_argument );
+   //test if the good exception is thrown
+   try{
+      McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator, nullptr, nullptr, nullptr );
+      FAIL() << "Expected 'The oceanic crust ratio (which defines the lower and upper oceanic crust) provided by the interface input is outisde the range [0,1]' exception";
+   }
+   catch (const std::invalid_argument& ex) {
+      EXPECT_EQ( "The oceanic crust ratio (which defines the lower and upper oceanic crust) provided by the interface input is outisde the range [0,1]",
+         std::string( ex.what() ) );
+   }
+   catch (...) {
+      FAIL() << "Expected 'The oceanic crust ratio (which defines the lower and upper oceanic crust) provided by the interface input is outisde the range [0,1]' exception";
+   }
+
+   // 7. Test that the constructor throws an exception when only one of the previous data input is a nullptr
+   const DataAccess::Interface::SerialGridMap previousGrid( 0, 0, this->m_grid, 50, 1 );
+   //test if the exception is thrown
+   EXPECT_THROW( McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator, nullptr, &previousGrid, &previousGrid ), std::invalid_argument );
+   //test if the good exception is thrown
+   try{
+      McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator, nullptr, &previousGrid, &previousGrid );
       FAIL() << "Expected 'The previous thinning factor provided to the McKenzie calculator is a null pointer but some other previous data are not null'";
    }
    catch (const std::invalid_argument& ex) {
@@ -143,10 +207,10 @@ TEST_F( McKenzieTester, exceptions )
       FAIL() << "Expected 'The previous thinning factor provided to the McKenzie calculator is a null pointer but some other previous data are not null' exception";
    }
    //test if the exception is thrown
-   EXPECT_THROW( McKenzieCrustCalculator mcKenzieCalculator7( m_inputData, m_outputData, m_validator, &previousGrid, nullptr, &previousGrid ), std::invalid_argument );
+   EXPECT_THROW( McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator, &previousGrid, nullptr, &previousGrid ), std::invalid_argument );
    //test if the good exception is thrown
    try{
-      McKenzieCrustCalculator mcKenzieCalculator7( m_inputData, m_outputData, m_validator, &previousGrid, nullptr, &previousGrid );
+      McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator, &previousGrid, nullptr, &previousGrid );
       FAIL() << "Expected 'The previous continental crust thickness provided to the McKenzie calculator is a null pointer but some other previous data are not null' exception";
    }
    catch (const std::invalid_argument& ex) {
@@ -157,10 +221,10 @@ TEST_F( McKenzieTester, exceptions )
       FAIL() << "Expected 'The previous continental crust thickness provided to the McKenzie calculator is a null pointer but some other previous data are not null' exception";
    }
    //test if the exception is thrown
-   EXPECT_THROW( McKenzieCrustCalculator mcKenzieCalculator7( m_inputData, m_outputData, m_validator, &previousGrid, &previousGrid, nullptr ), std::invalid_argument );
+   EXPECT_THROW( McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator, &previousGrid, &previousGrid, nullptr ), std::invalid_argument );
    //test if the good exception is thrown
    try{
-      McKenzieCrustCalculator mcKenzieCalculator7( m_inputData, m_outputData, m_validator, &previousGrid, &previousGrid, nullptr );
+      McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator, &previousGrid, &previousGrid, nullptr );
       FAIL() << "Expected 'The previous oceanic crust thickness provided to the McKenzie calculator is a null pointer but some other previous data are not null' exception";
    }
    catch (const std::invalid_argument& ex) {
@@ -365,5 +429,15 @@ TEST_F( McKenzieTester, calculates_crustthicknesses )
    EXPECT_NEAR( 1205.32856121805, mcKenzieCalculator->calculateEffectiveCrustalThickness( 0               , 4017.76187072684, 30000, 100000 ), 1e-11 );
    EXPECT_NEAR( 38773.5364288915, mcKenzieCalculator->calculateEffectiveCrustalThickness( 38721.3625158480, 150,              40000, 115000 ), 1e-10 );
    EXPECT_NEAR( 32879.0012513424, mcKenzieCalculator->calculateEffectiveCrustalThickness( 31835.5229904728, 3000,             40000, 115000 ), 1e-10 );
+
+   // 7. lower and uper crusts
+   //double upperContinentalCrust = 0.0, lowerContinentalCrust = 0.0;
+   //mcKenzieCalculator->divideCrust( McKenzieCrustCalculator::CONTINENTAL, 1096.79311836947, upperContinentalCrust, lowerContinentalCrust );
+   //EXPECT_NEAR( ***, upperContinentalCrust, 1e-11 );
+   //EXPECT_NEAR( ***, lowerContinentalCrust, 1e-11 );
+   //double upperOceanicCrust = 0.0, lowerOceanicCrust = 0.0;
+   //mcKenzieCalculator->divideCrust( McKenzieCrustCalculator::OCEANIC, 4518.09157429785, upperOceanicCrust, lowerOceanicCrust );
+   //EXPECT_NEAR( ***, upperOceanicCrust, 1e-11 );
+   //EXPECT_NEAR( ***, lowerOceanicCrust, 1e-11 );
 }
 

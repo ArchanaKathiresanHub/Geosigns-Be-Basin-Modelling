@@ -30,8 +30,6 @@ public:
    /// @brief Produce the CrustalThicknessCalculator specific ProjectHandle
    virtual CrustalThicknessCalculator* produceProjectHandle( database::Database * database,
                                                              const string & name,  const string & accessMode);
-   /// @brief Produce the InterfaceInput
-   virtual DataAccess::Interface::CrustalThicknessData * produceCrustalThicknessData( DataAccess::Interface::ProjectHandle * projectHandle, database::Record * record );
 
    /// @brief Produce the fasctc PropertyValue
    virtual Ctc::PropertyValue * producePropertyValue( ProjectHandle * projectHandle, database::Record * record,

@@ -251,7 +251,11 @@ void InterfaceOutput::updatePossibleOutputsAtSnapshot( outputMaps id, const GeoP
         or id == slopePreMelt
         or id == slopePostMelt
         or id == interceptPostMelt
-        or id == TFMap) ){
+        or id == TFMap
+        or id == UpperContinentalCrustThickness
+        or id == LowerContinentalCrustThickness
+        or id == UpperOceanicCrustThickness
+        or id == LowerOceanicCrustThickness ) ){
       if (not pHandle->asSurfaceDepthHistory( theSnapshot->getTime() )){
          m_outputMapsMask[id] = false;
       }
@@ -292,10 +296,9 @@ void InterfaceOutput::setAllMapsToOutput( const bool flag ) {
 }
 
 //------------------------------------------------------------//
-bool InterfaceOutput::createSnapShotOutputMaps( GeoPhysics::ProjectHandle * pHandle, const Snapshot * theSnapshot, const Interface::Surface *theSurface, const bool debug ) {
+void InterfaceOutput::createSnapShotOutputMaps( GeoPhysics::ProjectHandle * pHandle, const Snapshot * theSnapshot, const Interface::Surface *theSurface, const bool debug ) {
    
    LogHandler( LogHandler::DEBUG_SEVERITY ) << "Create snaphot output maps @ snapshot " << theSnapshot->asString();
-   bool status = true;
    for( int i = 0; i < numberOfOutputMaps; ++ i ) {
       outputMaps id = (outputMaps)i;
       updatePossibleOutputsAtSnapshot( id, pHandle, theSnapshot, debug );
@@ -308,13 +311,11 @@ bool InterfaceOutput::createSnapShotOutputMaps( GeoPhysics::ProjectHandle * pHan
             LogHandler( LogHandler::DEBUG_SEVERITY ) << "   #for map " << outputMapsNames[i];
             m_outputMaps[i] = createSnapshotResultPropertyValueMap(pHandle, outputMapsNames[i], theSnapshot, theSurface );
          }
-         if( m_outputMaps[i] == 0 ) {
-            status = false;
-            break;
+         if( m_outputMaps[i] == nullptr ) {
+            throw std::runtime_error( "Cannot allocate output map " + outputMapsNames[i] );
          }
       }
    }
-   return status;
 }
 
 //------------------------------------------------------------//
@@ -366,7 +367,7 @@ void InterfaceOutput::disableOutput( ProjectHandle * pHandle, const Interface::S
 //------------------------------------------------------------//
 void InterfaceOutput::saveOutput( Interface::ProjectHandle * pHandle, bool isDebug, int outputOptions, const Snapshot * theSnapshot ) {
 
-   LogHandler( LogHandler::INFO_SEVERITY ) << "   ->Save maps to local disk";
+   LogHandler( LogHandler::INFO_SEVERITY ) << "   -> save maps to local disk";
    if( isDebug ) {
       if( outputOptions & XYZ ) {
          if( pHandle->getSize() > 1 ) {

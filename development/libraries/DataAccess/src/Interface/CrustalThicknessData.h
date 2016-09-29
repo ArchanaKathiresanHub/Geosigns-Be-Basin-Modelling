@@ -8,66 +8,62 @@
 // Do not distribute without written permission from Shell.
 //
 
-#ifndef _INTERFACE_CRUSTALTHICKNESS_DATA_H_
-#define _INTERFACE_CRUSTALTHICKNESS_DATA_H_
+#ifndef INTERFACE_CRUSTALTHICKNESS_DATA_H
+#define INTERFACE_CRUSTALTHICKNESS_DATA_H
 
-using namespace std;
+// std library
+#include <vector>
+#include <memory>
+
+// TableIO library
+#include "database.h"
 
 // DataAccess library
 #include "Interface/DAObject.h"
 #include "Interface/Interface.h"
+#include "Interface/GridMap.h"
+#include "Interface/ProjectHandle.h"
 
 namespace DataAccess
 {
    namespace Interface
    {
 
-      /// @class CrustalThicknessData The CTC interface
+      /// @class CrustalThicknessData The CTC interface which reads input data from the CTCIoTbl
       class CrustalThicknessData : public DAObject
       {
-	      public:
-	         CrustalThicknessData (ProjectHandle * projectHandle, database::Record * record);
-	         virtual ~CrustalThicknessData (void);
+         public:
+            CrustalThicknessData (ProjectHandle * projectHandle, database::Record * record);
+            virtual ~CrustalThicknessData (void);
 
-            /// @brief Return the rifting event starting time (T0)
-            virtual const double & getT0Ini(void) const;
-            /// @brief Return the rifitng event end time (TR)
-            virtual const double & getTRIni(void) const;
-            /// @brief Return the last age at which the CTC will create outputs
-            /// @details This represents the end of rifting and the beginning of the flexural basin
-            virtual const double & getLastComputationAge( void ) const;
+            /// @defgroup GeneralInputs
+            /// @brief Are defined in the project file via the UI
+            /// @{
             /// @brief Return the Initial Crustal Thickness
-            virtual const double & getHCuIni(void) const;
+            double getHCuIni() const;
             /// @brief Return the Initial mantle thickness
-            virtual const double & getHLMuIni(void) const;
-            /// @brief Return the Maximum Basaltic thickness
-            virtual const double & getHBu(void) const;
-            /// @brief Return the Sealevel adjustment
-            virtual const double & getDeltaSL(void) const;
+            double getHLMuIni() const;
             /// @brief Return the Filter width (half), this is the smoothing radius
-            virtual const int & getFilterHalfWidth(void) const;
-            /// @brief Return the name of a base of syn-rift 
-            virtual const string & getSurfaceName(void) const;
+            int getFilterHalfWidth() const;
+            /// @}
 
-	    /// @brief Return the (GridMap) value of one of this Crustal Thickness Calculator's attributes
-       /// @param attributeId The map ID
-	    virtual const Interface::GridMap * getMap (Interface::CTCMapAttributeId attributeId) const;
+            /// @defgroup DebugInputs
+            /// @brief Are defined in the project file manually (R&D only)
+            /// @{
+            /// @brief Return the ratio used to define the lower and upper part of the continental crust (r=upper/low)
+            double getUpperLowerContinentalCrustRatio() const;
+            /// @brief Return the ratio used to define the lower and upper part of the oceanic crust (r=upper/low)
+            double getUpperLowerOceanicCrustRatio() const;
+            /// @}
 
-	    /// @brief Load a CTC map
-       /// @param attributeId The map ID
-	    GridMap * loadMap (Interface::CTCMapAttributeId attributeId) const;
+            /// @brief Create a map for the corresponding attribute if it doesn't exist yet
+            GridMap const * getMap( const Interface::CTCMapAttributeId attributeId ) const;
 
-	    /// @brief Print the parameters of this Crustal Thickness Calculator
-	    virtual void printOn (ostream &) const;
-
-	    /// @brief Print the parameters of this Crustal Thickness Calculator
-	    virtual void asString (string &) const;
-
-	 private:
-	    static const char* s_MapAttributeNames[];   ///< The names of the CTC maps
+         private:
+            static const std::vector<std::string> s_MapAttributeNames;   ///< The names of the CTC maps from the CTCIoTbl
       };
    }
 }
 
 
-#endif // _INTERFACE_CRUSTALTHICKNESS_DATA_H_
+#endif // INTERFACE_CRUSTALTHICKNESS_DATA_H

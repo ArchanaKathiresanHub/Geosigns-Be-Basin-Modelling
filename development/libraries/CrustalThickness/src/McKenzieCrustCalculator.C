@@ -13,24 +13,30 @@
 // Geophysics library
 #include "GeoPhysicalConstants.h"
 
+// utilities library
+#include "NumericFunctions.h"
+
 McKenzieCrustCalculator::McKenzieCrustCalculator(
    const InterfaceInput&    inputData,
    AbstractInterfaceOutput& outputData,
    const AbstractValidator& validator,
+   const double age,
    const Interface::GridMap* previousThinningFactor,
    const Interface::GridMap* previousContinentalCrustThickness,
    const Interface::GridMap* previousOceanicCrustThickness ) :
       m_constants     ( inputData.getConstants()     ),
       m_depthBasement ( inputData.getDepthBasement() ),
-      m_T0Map         ( inputData.getT0Map()   ),
-      m_TRMap         ( inputData.getTRMap()   ),
-      m_HCuMap        ( inputData.getHCuMap()  ),
-      m_HBuMap        ( inputData.getHBuMap()  ),
-      m_HLMuMap       ( inputData.getHLMuMap() ),
+      m_HCuMap        ( inputData.getHCuMap()    ),
+      m_HBuMap        ( inputData.getHBuMap(age) ),
+      m_HLMuMap       ( inputData.getHLMuMap()   ),
+      m_riftStartAge  ( inputData.getRiftingStartAge(age) ),
+      m_riftEndAge    ( inputData.getRiftingEndAge  (age) ),
       m_firstI        ( inputData.firstI() ),
       m_firstJ        ( inputData.firstJ() ),
       m_lastI         ( inputData.lastI()  ),
       m_lastJ         ( inputData.lastJ()  ),
+      m_continentalCrustRatio( inputData.getContinentalCrustRatio() ),
+      m_oceanicCrustRatio    ( inputData.getOceanicCrustRatio()     ),
       m_previousThinningFactor           ( previousThinningFactor            ),
       m_previousContinentalCrustThickness( previousContinentalCrustThickness ),
       m_previousOceanicCrustThickness    ( previousOceanicCrustThickness     ),
@@ -54,6 +60,12 @@ McKenzieCrustCalculator::McKenzieCrustCalculator(
    else if (m_constants.getTau() == 0.0){
       throw std::invalid_argument( "Tau provided by the interface input is 0 and will lead to divisions by 0" );
    }
+   else if (not NumericFunctions::inRange(m_continentalCrustRatio, 0.0, 1.0)) {
+      throw std::invalid_argument( "The continental crust ratio (which defines the lower and upper continental crust) provided by the interface input is outisde the range [0,1]" );
+   }
+   else if (not NumericFunctions::inRange( m_oceanicCrustRatio, 0.0, 1.0 )) {
+      throw std::invalid_argument( "The oceanic crust ratio (which defines the lower and upper oceanic crust) provided by the interface input is outisde the range [0,1]" );
+   }
    //if one previous grid data is not nullptr then they all shouldn't be nullptr
    else if ( m_previousThinningFactor         != nullptr
       or m_previousContinentalCrustThickness  != nullptr
@@ -67,6 +79,21 @@ McKenzieCrustCalculator::McKenzieCrustCalculator(
       else if (m_previousOceanicCrustThickness == nullptr){
          throw std::invalid_argument( "The previous oceanic crust thickness provided to the McKenzie calculator is a null pointer but some other previous data are not null" );
       }
+   }
+   else if (m_riftStartAge<=0){
+      throw std::invalid_argument( "The beginning of the rifting event is inferior or equal to 0 for age " + std::to_string( age ) + "Ma");
+   }
+   else if (m_riftStartAge == DataAccess::Interface::DefaultUndefinedScalarValue){
+      throw std::invalid_argument( "The beginning of the rifting event is undefined for age " + std::to_string( age ) + "Ma" );
+   }
+   else if (m_riftEndAge<0){
+      throw std::invalid_argument( "The end of the rifting event is inferior to 0 for age " + std::to_string( age ) + "Ma");
+   }
+   else if (m_riftEndAge == DataAccess::Interface::DefaultUndefinedScalarValue){
+      throw std::invalid_argument( "The end of the rifting event is undefined for age " + std::to_string( age ) + "Ma" );
+   }
+   else if (m_riftEndAge >= m_riftStartAge){
+      throw std::invalid_argument( "The end of the rifting event is supperior or equal to its end for age " + std::to_string( age ) + "Ma");
    }
 };
 
@@ -93,22 +120,6 @@ void McKenzieCrustCalculator::checkInputValues (const unsigned int i, const unsi
       throw std::invalid_argument( "Maximum oceanic (basaltic) crust thickness is inferior to 0 for node ("
          + std::to_string( i ) + "," + std::to_string( j ) + ")" );
    }
-   if (m_T0Map.getValue( i, j ) <= 0
-      and m_T0Map.getValue( i, j ) != m_T0Map.getUndefinedValue()) {
-      throw std::invalid_argument( "The beginning of the rifting event is inferior or equal to 0 for node ("
-         + std::to_string( i ) + "," + std::to_string( j ) + ")" );
-   }
-   if (m_TRMap.getValue( i, j ) < 0
-      and m_TRMap.getValue( i, j ) != m_TRMap.getUndefinedValue()) {
-      throw std::invalid_argument( "The end of the rifting event is inferior to 0 for node ("
-         + std::to_string( i ) + "," + std::to_string( j ) + ")" );
-   }
-   if (m_TRMap.getValue( i, j ) >= m_T0Map.getValue( i, j )
-      and m_TRMap.getValue( i, j ) != m_TRMap.getUndefinedValue()
-      and m_T0Map.getValue( i, j ) != m_T0Map.getUndefinedValue()) {
-      throw std::invalid_argument( "The  beginning of the rifting event is supperior or equal to its end for node ("
-         + std::to_string( i ) + "," + std::to_string( j ) + ")" );
-   }
 }
 
 //------------------------------------------------------------//
@@ -126,7 +137,7 @@ double McKenzieCrustCalculator::calculateContinentalCrustDensity( const double i
 //------------------------------------------------------------//
 double McKenzieCrustCalculator::calculateAstenospherePotentialTemperature( const double maxOceanicCrustThickness ) const{
    // asthenosphere potential temperature
-   double potentialTempAstheno = m_constants.getB() + m_constants.getA() * sqrt( maxOceanicCrustThickness );
+   double potentialTempAstheno = m_constants.getB() + m_constants.getA() * std::sqrt( maxOceanicCrustThickness );
    return potentialTempAstheno;
 }
 
@@ -187,9 +198,8 @@ double McKenzieCrustCalculator::calculateTTScritical( const double TTSexhume, co
 //------------------------------------------------------------//
 double McKenzieCrustCalculator::calculateTTSOnsetLinearized( const double averageRiftTime,
                                                              const double thinningFactorOnsetLinearized ) const{
-   assert( thinningFactorOnsetLinearized != 0 );
-   const double r = (thinningFactorOnsetLinearized == 1.0 ? 1.0 : sin( M_PI
-      * (1 - thinningFactorOnsetLinearized) ) / (M_PI * (1 - thinningFactorOnsetLinearized)));
+   const double r = (thinningFactorOnsetLinearized == 1.0 ?
+      1.0 : sin( M_PI * (1 - thinningFactorOnsetLinearized) ) / (M_PI * (1 - thinningFactorOnsetLinearized)));
    const double expValue = 1 - exp( -15 * averageRiftTime / m_constants.getTau() );
    const double TTSOnsetLinearized = thinningFactorOnsetLinearized * m_constants.getInitialSubsidenceMax() + m_constants.getE0()
       * (r * (1 - exp( -averageRiftTime / m_constants.getTau() )) + (GeoPhysics::Pi2by8 * thinningFactorOnsetLinearized - r) * expValue);
@@ -291,14 +301,36 @@ double McKenzieCrustCalculator::calculateEffectiveCrustalThickness( const double
 }
 
 //------------------------------------------------------------//
+void McKenzieCrustCalculator::divideCrust(
+   CrustType type,
+   const double totalCrustThickness,
+   double& upperCrustThickness,
+   double& lowerCrustThickness ) const {
+   double ratio;
+   if (type == McKenzieCrustCalculator::CONTINENTAL){
+      ratio = m_continentalCrustRatio;
+   }
+   else if (type == McKenzieCrustCalculator::OCEANIC) {
+      ratio = m_oceanicCrustRatio;
+   }
+   else{
+      throw McKenzieException() << "Undefined crust type provided when dividing the crust in its lower and upper part";
+   }
+   const double factor = totalCrustThickness / (1 + ratio);
+   upperCrustThickness = ratio * factor;
+   lowerCrustThickness = factor;
+}
+
+//------------------------------------------------------------//
 void McKenzieCrustCalculator::compute(){
 
    // initialize all results to 0.0
-   double continentalCrustDensity       = 0.0, potentialTempAstheno          = 0.0, magmaticDensity                = 0.0;
-   double thinningFactorOnset           = 0.0, thinningFactorOnsetLinearized = 0.0, thinningFactorOnsetAtMaxBasalt = 0.0;
-   double TTSexhume                     = 0.0, TTScritical                   = 0.0, TTSOnsetLinearized             = 0.0, TTSexhumeSerpentinized     = 0.0;
-   double thicknessContinetalCrustOnset = 0.0, residualDepthAnomaly          = 0.0, thinningFactor                 = 0.0;
-   double continentalCrustalThickness   = 0.0, oceanicCrustalThickness       = 0.0, topOceanicCrust                = 0.0, effectiveCrustalThickness  = 0.0, moho = 0.0;
+   double continentalCrustDensity          = 0.0, potentialTempAstheno             = 0.0, magmaticDensity                = 0.0;
+   double thinningFactorOnset              = 0.0, thinningFactorOnsetLinearized    = 0.0, thinningFactorOnsetAtMaxBasalt = 0.0;
+   double TTSexhume                        = 0.0, TTScritical                      = 0.0, TTSOnsetLinearized             = 0.0, TTSexhumeSerpentinized       = 0.0;
+   double thicknessContinetalCrustOnset    = 0.0, residualDepthAnomaly             = 0.0, thinningFactor                 = 0.0;
+   double continentalCrustalThickness      = 0.0, oceanicCrustalThickness          = 0.0, topOceanicCrust                = 0.0, effectiveCrustalThickness    = 0.0, moho = 0.0;
+   double upperContinentalCrustalThickness = 0.0, lowerContinentalCrustalThickness = 0.0, upperOceanicCrustalThickness   = 0.0, lowerOceanicCrustalThickness = 0.0;
    LinearFunction linearFunction = LinearFunction();
 
    retrieveData();
@@ -308,14 +340,10 @@ void McKenzieCrustCalculator::compute(){
          const double initialContinentalCrustThickness   = m_HCuMap.getValue ( i, j );
          const double maxBasalticCrustThickness          = m_HBuMap.getValue ( i, j );
          const double initialLithosphericMantleThickness = m_HLMuMap.getValue( i, j );
-         const double startRift                          = m_T0Map.getValue  ( i, j );
-         const double endRift                            = m_TRMap.getValue  ( i, j );
          if (m_validator.isValid( i, j ) and
              initialContinentalCrustThickness   != m_HCuMap.getUndefinedValue()  and
              maxBasalticCrustThickness          != m_HBuMap.getUndefinedValue()  and
-             initialLithosphericMantleThickness != m_HLMuMap.getUndefinedValue() and
-             startRift                          != m_T0Map.getUndefinedValue()   and
-             endRift                            != m_TRMap.getUndefinedValue() )
+             initialLithosphericMantleThickness != m_HLMuMap.getUndefinedValue())
          {
             //crust densities and temperature
             continentalCrustDensity = calculateContinentalCrustDensity         ( initialContinentalCrustThickness );
@@ -329,7 +357,7 @@ void McKenzieCrustCalculator::compute(){
             thinningFactorOnsetLinearized  = calculateThinningFactorOnsetLinearized ( thinningFactorOnset );
 
             //McKenzie's Total Tectonic Subsidence (back calculated from linearized thinning factor)
-            const double averageRiftTime = (startRift + endRift) / 2.0;
+            const double averageRiftTime = (m_riftStartAge + m_riftEndAge) / 2.0;
             TTSexhume              = calculateTTSexhume             ( averageRiftTime );
             TTScritical            = calculateTTScritical           ( TTSexhume, maxBasalticCrustThickness, magmaticDensity );
             TTSOnsetLinearized     = calculateTTSOnsetLinearized    ( averageRiftTime, thinningFactorOnsetLinearized );
@@ -356,11 +384,12 @@ void McKenzieCrustCalculator::compute(){
                  depthBasement                     != m_depthBasement->getUndefinedValue() and
                  TTScritical >= TTSOnsetLinearized ) {
 
-               const double ITScorrected    = calculateITScorrected                ( ITS, previousTF );
                residualDepthAnomaly         = calculateResidualDepthAnomaly        ( TTScritical, TTS );
-               thinningFactor               = linearFunction.getCrustTF            ( ITScorrected );
+               thinningFactor               = linearFunction.getCrustTF            ( ITS );
                continentalCrustalThickness  = calculateContinentalCrustalThickness ( thinningFactor, previousContinentalCrustThickness );
-               oceanicCrustalThickness      = calculateOceanicCrustalThickness     ( ITScorrected, TTSexhume, linearFunction, previousOceanicCrustThickness );
+               oceanicCrustalThickness      = calculateOceanicCrustalThickness     ( ITS, TTSexhume, linearFunction, previousOceanicCrustThickness );
+               divideCrust( CONTINENTAL, continentalCrustalThickness, upperContinentalCrustalThickness, lowerContinentalCrustalThickness );
+               divideCrust( OCEANIC    , oceanicCrustalThickness    , upperOceanicCrustalThickness    , lowerOceanicCrustalThickness     );
                topOceanicCrust              = calculateTopOceanicCrust             ( continentalCrustalThickness, depthBasement );
                moho                         = calculateMoho                        ( topOceanicCrust, oceanicCrustalThickness );
                effectiveCrustalThickness    = calculateEffectiveCrustalThickness   ( continentalCrustalThickness,
@@ -368,13 +397,17 @@ void McKenzieCrustCalculator::compute(){
 
             }
             else{
-               residualDepthAnomaly         = Interface::DefaultUndefinedMapValue;
-               thinningFactor               = Interface::DefaultUndefinedMapValue;
-               continentalCrustalThickness  = Interface::DefaultUndefinedMapValue;
-               oceanicCrustalThickness      = Interface::DefaultUndefinedMapValue;
-               topOceanicCrust              = Interface::DefaultUndefinedMapValue;
-               moho                         = Interface::DefaultUndefinedMapValue;
-               effectiveCrustalThickness    = Interface::DefaultUndefinedMapValue;
+               residualDepthAnomaly             = Interface::DefaultUndefinedMapValue;
+               thinningFactor                   = Interface::DefaultUndefinedMapValue;
+               continentalCrustalThickness      = Interface::DefaultUndefinedMapValue;
+               oceanicCrustalThickness          = Interface::DefaultUndefinedMapValue;
+               upperContinentalCrustalThickness = Interface::DefaultUndefinedMapValue;
+               lowerContinentalCrustalThickness = Interface::DefaultUndefinedMapValue;
+               upperOceanicCrustalThickness     = Interface::DefaultUndefinedMapValue;
+               lowerOceanicCrustalThickness     = Interface::DefaultUndefinedMapValue;
+               topOceanicCrust                  = Interface::DefaultUndefinedMapValue;
+               moho                             = Interface::DefaultUndefinedMapValue;
+               effectiveCrustalThickness        = Interface::DefaultUndefinedMapValue;
             }
 
          }
@@ -394,36 +427,44 @@ void McKenzieCrustCalculator::compute(){
             linearFunction.setM1( Interface::DefaultUndefinedMapValue );
             linearFunction.setM2( Interface::DefaultUndefinedMapValue );
             linearFunction.setC2( Interface::DefaultUndefinedMapValue );
-            residualDepthAnomaly           = Interface::DefaultUndefinedMapValue;
-            thinningFactor                 = Interface::DefaultUndefinedMapValue;
-            continentalCrustalThickness    = Interface::DefaultUndefinedMapValue;
-            oceanicCrustalThickness        = Interface::DefaultUndefinedMapValue;
-            topOceanicCrust                = Interface::DefaultUndefinedMapValue;
-            moho                           = Interface::DefaultUndefinedMapValue;
-            effectiveCrustalThickness      = Interface::DefaultUndefinedMapValue;
+            residualDepthAnomaly             = Interface::DefaultUndefinedMapValue;
+            thinningFactor                   = Interface::DefaultUndefinedMapValue;
+            continentalCrustalThickness      = Interface::DefaultUndefinedMapValue;
+            oceanicCrustalThickness          = Interface::DefaultUndefinedMapValue;
+            upperContinentalCrustalThickness = Interface::DefaultUndefinedMapValue;
+            lowerContinentalCrustalThickness = Interface::DefaultUndefinedMapValue;
+            upperOceanicCrustalThickness     = Interface::DefaultUndefinedMapValue;
+            lowerOceanicCrustalThickness     = Interface::DefaultUndefinedMapValue;
+            topOceanicCrust                  = Interface::DefaultUndefinedMapValue;
+            moho                             = Interface::DefaultUndefinedMapValue;
+            effectiveCrustalThickness        = Interface::DefaultUndefinedMapValue;
          }
 
-         m_outputData.setMapValue( CrustalThicknessInterface::outputMaps::estimatedCrustDensityMap, i, j, continentalCrustDensity        );
-         m_outputData.setMapValue( CrustalThicknessInterface::outputMaps::basaltDensityMap,         i, j, magmaticDensity                );
-         m_outputData.setMapValue( CrustalThicknessInterface::outputMaps::PTaMap,                   i, j, potentialTempAstheno           );
-         m_outputData.setMapValue( CrustalThicknessInterface::outputMaps::TFOnsetMap,               i, j, thinningFactorOnset            );
-         m_outputData.setMapValue( CrustalThicknessInterface::outputMaps::TFOnsetMigMap,            i, j, thinningFactorOnsetAtMaxBasalt );
-         m_outputData.setMapValue( CrustalThicknessInterface::outputMaps::TFOnsetLinMap,            i, j, thinningFactorOnsetLinearized  );
-         m_outputData.setMapValue( CrustalThicknessInterface::outputMaps::WLSExhumeMap,             i, j, TTSexhume                      );
-         m_outputData.setMapValue( CrustalThicknessInterface::outputMaps::WLSCritMap,               i, j, TTScritical                    );
-         m_outputData.setMapValue( CrustalThicknessInterface::outputMaps::WLSOnsetMap,              i, j, TTSOnsetLinearized             );
-         m_outputData.setMapValue( CrustalThicknessInterface::outputMaps::WLSExhumeSerpMap,         i, j, TTSexhumeSerpentinized         );
-         m_outputData.setMapValue( CrustalThicknessInterface::outputMaps::thicknessCrustMeltOnset,  i, j, thicknessContinetalCrustOnset  );
-         m_outputData.setMapValue( CrustalThicknessInterface::outputMaps::slopePreMelt,             i, j, linearFunction.getM1()         );
-         m_outputData.setMapValue( CrustalThicknessInterface::outputMaps::slopePostMelt,            i, j, linearFunction.getM2()         );
-         m_outputData.setMapValue( CrustalThicknessInterface::outputMaps::interceptPostMelt,        i, j, linearFunction.getC2()         );
-         m_outputData.setMapValue( CrustalThicknessInterface::outputMaps::RDAadjustedMap,           i, j, residualDepthAnomaly           );
-         m_outputData.setMapValue( CrustalThicknessInterface::outputMaps::TFMap,                    i, j, thinningFactor                 );
-         m_outputData.setMapValue( CrustalThicknessInterface::outputMaps::thicknessCrustMap,        i, j, continentalCrustalThickness    );
-         m_outputData.setMapValue( CrustalThicknessInterface::outputMaps::thicknessBasaltMap,       i, j, oceanicCrustalThickness        );
-         m_outputData.setMapValue( CrustalThicknessInterface::outputMaps::topBasaltMap,             i, j, topOceanicCrust                );
-         m_outputData.setMapValue( CrustalThicknessInterface::outputMaps::mohoMap,                  i, j, moho                           );
-         m_outputData.setMapValue( CrustalThicknessInterface::outputMaps::ECTMap,                   i, j, effectiveCrustalThickness      );
+         m_outputData.setMapValue( CrustalThicknessInterface::outputMaps::estimatedCrustDensityMap,       i, j, continentalCrustDensity          );
+         m_outputData.setMapValue( CrustalThicknessInterface::outputMaps::basaltDensityMap,               i, j, magmaticDensity                  );
+         m_outputData.setMapValue( CrustalThicknessInterface::outputMaps::PTaMap,                         i, j, potentialTempAstheno             );
+         m_outputData.setMapValue( CrustalThicknessInterface::outputMaps::TFOnsetMap,                     i, j, thinningFactorOnset              );
+         m_outputData.setMapValue( CrustalThicknessInterface::outputMaps::TFOnsetMigMap,                  i, j, thinningFactorOnsetAtMaxBasalt   );
+         m_outputData.setMapValue( CrustalThicknessInterface::outputMaps::TFOnsetLinMap,                  i, j, thinningFactorOnsetLinearized    );
+         m_outputData.setMapValue( CrustalThicknessInterface::outputMaps::WLSExhumeMap,                   i, j, TTSexhume                        );
+         m_outputData.setMapValue( CrustalThicknessInterface::outputMaps::WLSCritMap,                     i, j, TTScritical                      );
+         m_outputData.setMapValue( CrustalThicknessInterface::outputMaps::WLSOnsetMap,                    i, j, TTSOnsetLinearized               );
+         m_outputData.setMapValue( CrustalThicknessInterface::outputMaps::WLSExhumeSerpMap,               i, j, TTSexhumeSerpentinized           );
+         m_outputData.setMapValue( CrustalThicknessInterface::outputMaps::thicknessCrustMeltOnset,        i, j, thicknessContinetalCrustOnset    );
+         m_outputData.setMapValue( CrustalThicknessInterface::outputMaps::slopePreMelt,                   i, j, linearFunction.getM1()           );
+         m_outputData.setMapValue( CrustalThicknessInterface::outputMaps::slopePostMelt,                  i, j, linearFunction.getM2()           );
+         m_outputData.setMapValue( CrustalThicknessInterface::outputMaps::interceptPostMelt,              i, j, linearFunction.getC2()           );
+         m_outputData.setMapValue( CrustalThicknessInterface::outputMaps::RDAadjustedMap,                 i, j, residualDepthAnomaly             );
+         m_outputData.setMapValue( CrustalThicknessInterface::outputMaps::TFMap,                          i, j, thinningFactor                   );
+         m_outputData.setMapValue( CrustalThicknessInterface::outputMaps::thicknessCrustMap,              i, j, continentalCrustalThickness      );
+         m_outputData.setMapValue( CrustalThicknessInterface::outputMaps::thicknessBasaltMap,             i, j, oceanicCrustalThickness          );
+         m_outputData.setMapValue( CrustalThicknessInterface::outputMaps::UpperContinentalCrustThickness, i, j, upperContinentalCrustalThickness );
+         m_outputData.setMapValue( CrustalThicknessInterface::outputMaps::LowerContinentalCrustThickness, i, j, lowerContinentalCrustalThickness );
+         m_outputData.setMapValue( CrustalThicknessInterface::outputMaps::UpperOceanicCrustThickness,     i, j, upperOceanicCrustalThickness     );
+         m_outputData.setMapValue( CrustalThicknessInterface::outputMaps::LowerOceanicCrustThickness,     i, j, lowerOceanicCrustalThickness     );
+         m_outputData.setMapValue( CrustalThicknessInterface::outputMaps::topBasaltMap,                   i, j, topOceanicCrust                  );
+         m_outputData.setMapValue( CrustalThicknessInterface::outputMaps::mohoMap,                        i, j, moho                             );
+         m_outputData.setMapValue( CrustalThicknessInterface::outputMaps::ECTMap,                         i, j, effectiveCrustalThickness        );
       }
    }
    restoreData();
@@ -432,8 +473,6 @@ void McKenzieCrustCalculator::compute(){
 
 //------------------------------------------------------------//
 void McKenzieCrustCalculator::retrieveData() {
-   m_T0Map.retrieveData  ();
-   m_TRMap.retrieveData  ();
    m_HCuMap.retrieveData ();
    m_HLMuMap.retrieveData();
    m_HBuMap.retrieveData ();
@@ -451,8 +490,6 @@ void McKenzieCrustCalculator::retrieveData() {
 
 //------------------------------------------------------------//
 void McKenzieCrustCalculator::restoreData() {
-   m_T0Map.restoreData  ();
-   m_TRMap.restoreData  ();
    m_HCuMap.restoreData ();
    m_HLMuMap.restoreData();
    m_HBuMap.restoreData ();

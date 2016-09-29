@@ -26,10 +26,10 @@ TotalTectonicSubsidenceCalculator::TotalTectonicSubsidenceCalculator(
       m_firstJ             ( inputData.firstJ() ),
       m_lastI              ( inputData.lastI()  ),
       m_lastJ              ( inputData.lastJ()  ),
-      m_age                ( age              ),
-      m_airCorrection      ( airCorrection    ),
-      m_previousTTS        ( previousTTS      ),
-      m_seeLevelAdjustment ( inputData.getDeltaSLMap() ),
+      m_age                ( age                ),
+      m_airCorrection      ( airCorrection      ),
+      m_previousTTS        ( previousTTS        ),
+      m_seaLevelAdjustment ( inputData.getDeltaSLMap( age ) ),
       m_surfaceDepthHistory( depthWaterBottom ),
       m_outputData         ( outputData       ),
       m_validator          ( validator        )
@@ -66,13 +66,11 @@ void TotalTectonicSubsidenceCalculator::compute(){
                incTS = TTS;
             }
             //3. Compute the see level adjusted TTS
-            const double seeLevelAdjustment = m_seeLevelAdjustment.getValue( i, j );
-            if ( seeLevelAdjustment != Interface::DefaultUndefinedMapValue ){
-               TTSadjusted = calculateTSadjusted( TTS, seeLevelAdjustment );
+            const double seaLevelAdjustment = m_seaLevelAdjustment.getValue( i, j );
+            if (seaLevelAdjustment != Interface::DefaultUndefinedMapValue){
+               TTSadjusted = calculateTSadjusted( TTS, seaLevelAdjustment );
                if (incTS != Interface::DefaultUndefinedMapValue){
-                  /// @todo will be modified with requirement 60262
-                  //incTSadjusted = calculateTSadjusted( incTS, seeLevelAdjustment );
-                  incTSadjusted = incTS;
+                  incTSadjusted = calculateTSadjusted( incTS, seaLevelAdjustment );
                }
                else {
                   incTSadjusted = Interface::DefaultUndefinedMapValue;
@@ -126,8 +124,8 @@ double TotalTectonicSubsidenceCalculator::calculateIncrementalTTS( const double 
 
 //------------------------------------------------------------//
 double TotalTectonicSubsidenceCalculator::calculateTSadjusted( const double TS,
-                                                                const double seeLevelAdjustment ) const{
-   const double result = TS - seeLevelAdjustment;
+                                                               const double seaLevelAdjustment ) const{
+   const double result = TS - seaLevelAdjustment;
    if (result < 0.0){
       return 0.0;
    }
@@ -138,7 +136,7 @@ double TotalTectonicSubsidenceCalculator::calculateTSadjusted( const double TS,
 
 //------------------------------------------------------------//
 void TotalTectonicSubsidenceCalculator::retrieveData(){
-   m_seeLevelAdjustment.retrieveData();
+   m_seaLevelAdjustment.retrieveData();
    if (m_previousTTS != nullptr) {
       m_previousTTS->retrieveData();
    }
@@ -146,7 +144,7 @@ void TotalTectonicSubsidenceCalculator::retrieveData(){
 
 //------------------------------------------------------------//
 void TotalTectonicSubsidenceCalculator::restoreData(){
-   m_seeLevelAdjustment.restoreData();
+   m_seaLevelAdjustment.restoreData();
    if (m_previousTTS != nullptr) {
       m_previousTTS->restoreData();
    }

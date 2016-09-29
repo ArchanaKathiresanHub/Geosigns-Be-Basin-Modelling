@@ -1,14 +1,15 @@
-#ifdef sgi
-   #ifdef _STANDARD_C_PLUS_PLUS
-      #include<iostream>
-      using namespace std;
-   #else // !_STANDARD_C_PLUS_PLUS
-      #include<iostream.h>
-   #endif // _STANDARD_C_PLUS_PLUS
-#else // !sgi
-   #include <iostream>
-   using namespace std;
-#endif // sgi
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
+#include <iostream>
+using namespace std;
 
 
 #include "Interface/AllochthonousLithology.h"
@@ -57,13 +58,12 @@
 #include "Interface/Snapshot.h"
 #include "Interface/SourceRock.h"
 #include "Interface/Surface.h"
-// #include "Interface/SurfaceDepthHistoryInstance.h"
-// #include "Interface/SurfaceTemperatureHistoryInstance.h"
 #include "Interface/TouchstoneMap.h"
 #include "Interface/Trap.h"
 #include "Interface/Trapper.h"
 #include "Interface/Migration.h"
 #include "Interface/CrustalThicknessData.h"
+#include "Interface/CrustalThicknessRiftingHistoryData.h"
 
 using namespace DataAccess;
 using namespace Interface;
@@ -336,6 +336,10 @@ SGDensitySample* ObjectFactory::produceSGDensitySample (ProjectHandle * projectH
    return new SGDensitySample ( projectHandle, record );
 }
 
-CrustalThicknessData* ObjectFactory::produceCrustalThicknessData (ProjectHandle * projectHandle, database::Record * record) {
-   return new CrustalThicknessData ( projectHandle, record );
+shared_ptr<const CrustalThicknessData> ObjectFactory::produceCrustalThicknessData( ProjectHandle * projectHandle, database::Record * record ) const {
+   return shared_ptr<const CrustalThicknessData>( new CrustalThicknessData( projectHandle, record ));
+}
+
+shared_ptr<const CrustalThicknessRiftingHistoryData> ObjectFactory::produceCrustalThicknessRiftingHistoryData( ProjectHandle * projectHandle, database::Record * record ) const {
+   return shared_ptr<const CrustalThicknessRiftingHistoryData>(new CrustalThicknessRiftingHistoryData( projectHandle, record ));
 }

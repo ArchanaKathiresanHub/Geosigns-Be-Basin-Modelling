@@ -31,13 +31,6 @@ CrustalThicknessCalculatorFactory::produceProjectHandle ( database::Database * d
    return new CrustalThicknessCalculator ( database, name, accessMode, this );
 }
 
-DataAccess::Interface::CrustalThicknessData *
-CrustalThicknessCalculatorFactory::produceCrustalThicknessData( DataAccess::Interface::ProjectHandle * projectHandle,
-                                                                database::Record * record)
-{
-   return new InterfaceInput(projectHandle, record);
-}
-
 Ctc::PropertyValue * CrustalThicknessCalculatorFactory::producePropertyValue( Interface::ProjectHandle *   projectHandle,
                                                                               database::Record *           record,
                                                                               const string &               name,

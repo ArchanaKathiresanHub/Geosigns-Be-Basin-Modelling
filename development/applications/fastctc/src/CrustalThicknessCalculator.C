@@ -21,8 +21,7 @@ using namespace database;
 
 // DataAccess library
 #include "Interface/CrustalThicknessData.h"
-#include "Interface/DistributedGridMap.h"
-#include "Interface/Formation.h"
+//#include "Interface/DistributedGridMap.h"
 #include "Interface/Interface.h"
 #include "Interface/PaleoProperty.h"
 #include "Interface/Property.h"
@@ -47,8 +46,6 @@ using namespace database;
 // utilitites
 #include "LogHandler.h"
 
-#include <typeinfo>       // operator typeid
-
 //------------------------------------------------------------//
 
 CrustalThicknessCalculator* CrustalThicknessCalculator::m_crustalThicknessCalculator = 0;
@@ -63,23 +60,24 @@ void displayTime( const double timeToDisplay, const char * msgToDisplay ) {
    int minutes = (int)((timeToDisplay - (hours * 3600.0)) / 60.0);
    int seconds = (int)(timeToDisplay - hours * 3600.0 - minutes * 60.0);
 
-   PetscPrintf( PETSC_COMM_WORLD, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n" );
-   PetscPrintf( PETSC_COMM_WORLD, "%s: %d hours %d minutes %d seconds\n", msgToDisplay, hours, minutes, seconds );
-
+   LogHandler( LogHandler::INFO_SEVERITY ) << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~";
+   LogHandler( LogHandler::INFO_SEVERITY ) << msgToDisplay << ": "
+      << hours   << " hours "
+      << minutes << " minutes "
+      << seconds << " seconds";
 }
 
 CrustalThicknessCalculator::CrustalThicknessCalculator( database::Database * database, const std::string & name, const std::string & accessMode, ObjectFactory* objectFactory )
-   : DataAccess::Mining::ProjectHandle( database, name, accessMode, objectFactory ) {
-
-   m_outputOptions                       = 0;
-   m_debug                               = false;
-   m_applySmoothing                      = true;
-   m_previousTTS                         = nullptr;
-   m_previousTF                          = nullptr;
-   m_previousContinentalCrustalThickness = nullptr;
-   m_previousOceanicCrustalThickness     = nullptr;
-   
-}
+   : DataAccess::Mining::ProjectHandle( database, name, accessMode, objectFactory ),
+     m_outputOptions                      (0      ),
+     m_debug                              (false  ),
+     m_applySmoothing                     (true   ),
+     m_inputData                          (nullptr),
+     m_previousTTS                        (nullptr),
+     m_previousTF                         (nullptr),
+     m_previousContinentalCrustalThickness(nullptr),
+     m_previousOceanicCrustalThickness    (nullptr)
+{}
  
 //------------------------------------------------------------//
 
@@ -102,32 +100,12 @@ CrustalThicknessCalculator* CrustalThicknessCalculator::CreateFrom( const string
 
 //------------------------------------------------------------//
 
-void CrustalThicknessCalculator::loadSnapshots( ) {
-
-   LogHandler( LogHandler::DEBUG_SEVERITY ) << "Loading snpashots from stratigraphy:";
-   Interface::FormationList* formations = getFormations();
-   Interface::FormationList::const_iterator formationIter;
-
-   m_snapshots.push_back( 0.0 ); // add present day
-   LogHandler( LogHandler::DEBUG_SEVERITY ) << "   #time 0.0Ma loaded";
-
-   for (formationIter = formations->begin(); formationIter != formations->end(); ++formationIter) {
-      const Interface::Formation * formation = (*formationIter);
-
-      if (formation != 0) {
-         const Interface::Surface * topSurface = formation->getBottomSurface();
-         m_snapshots.push_back( topSurface->getSnapshot()->getTime() );
-         LogHandler( LogHandler::DEBUG_SEVERITY ) << "   #time " << topSurface->getSnapshot()->getTime() << "Ma loaded";
-      }
-   }
-   delete formations;
-}
-
-//------------------------------------------------------------//
-
 void CrustalThicknessCalculator::initialise() {
 
    ///1. Initialise CTC instance
+   LogHandler( LogHandler::INFO_SEVERITY ) << "////////////////////";
+   LogHandler( LogHandler::INFO_SEVERITY ) << "/// Starting CTC activity";
+
    bool started = CrustalThicknessCalculator::getInstance().startActivity( CrustalThicknessCalculatorActivityName,
       CrustalThicknessCalculator::getInstance().getHighResolutionOutputGrid(),
       true );
@@ -136,30 +114,20 @@ void CrustalThicknessCalculator::initialise() {
    }
 
    ///2. Initialise GeoPhysics ProjectHandle
+   LogHandler( LogHandler::INFO_SEVERITY ) << "////////////////////";
+   LogHandler( LogHandler::INFO_SEVERITY ) << "/// Reading project file";
    started = GeoPhysics::ProjectHandle::initialise();
    if (!started) {
       throw CtcException() << "Can not start CrustalThicknessCalculator because geophysics project handle cannot be initialised.";
    }
 
    ///3. Initialise InterfaceInput
+   LogHandler( LogHandler::INFO_SEVERITY ) << "////////////////////";
+   LogHandler( LogHandler::INFO_SEVERITY ) << "/// Setting CTC input data";
    setFormationLithologies( false, true );
-   if (m_crustalThicknessData.size() != 1) {
-      if (m_crustalThicknessData.size() == 0) {
-         throw CtcException() << "The CrustalThicknessData table in the ProjectFile is empty.";
-      }
-      else {
-         throw CtcException() << "Too many records for CrustalThicknessData table in the ProjectFile.";
-      }
-   }
 
-   m_inputData = dynamic_cast<InterfaceInput *>(m_crustalThicknessData[0]);
-   if (!m_inputData)
-   {
-      throw CtcException() << "Could not create the input interface from crustal thickness data.";
-   }
-   m_inputData->loadInputDataAndConfigurationFile( "InterfaceData.cfg" );
-
-   updateValidNodes( m_inputData );
+   m_inputData = std::shared_ptr<InterfaceInput>(new InterfaceInput( m_tableCTC.data(), m_tableCTCRiftingHistory.data() ));
+   m_inputData->loadInputData( "InterfaceData.cfg" );
 
    ///4. Load smoothing radius
    m_applySmoothing = (m_inputData->getSmoothRadius() > 0);
@@ -171,12 +139,6 @@ void CrustalThicknessCalculator::initialise() {
       m_outputData.setAllMapsToOutput( true );
    }
 
-   ///6. Load snapshots from stratigraphy
-   loadSnapshots();
-   std::sort( m_snapshots.begin(), m_snapshots.end(), std::greater<int>() );
-   // we insert a 0 snapshot at the beginning because we need first to compute TTS at 0Ma
-   // then we compute everything else in the reverse order
-   m_snapshots.insert( m_snapshots.begin(), 0.0 );
 }
 
 //------------------------------------------------------------//
@@ -188,7 +150,7 @@ void CrustalThicknessCalculator::finalise ( const bool saveResults ) {
 
    if( saveResults ) {
       if( ! CrustalThicknessCalculator::getInstance ().mergeOutputFiles ()) {
-         PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Unable to merge output files\n");
+         LogHandler(LogHandler::ERROR_SEVERITY) << "Unable to merge output files";
       }
    }
    if ( saveResults && m_crustalThicknessCalculator->getRank() == 0 ) {
@@ -276,10 +238,16 @@ void CrustalThicknessCalculator::run() {
    std::shared_ptr<GridMap> prensentDayPressureTTS;
    std::shared_ptr<GridMap> presentDayTTS;
    Validator validator( *this );
+   std::vector< double > snapshotForLoop = m_inputData->copySnapshots();
+   // sort from start to end [250 220 ... 0]
+   // we insert a 0 snapshot at the beginning because we need first to compute TTS at 0Ma
+   // then we compute everything else in the reverse order [0 250 220 ... 0]
+   std::sort( snapshotForLoop.begin(), snapshotForLoop.end(), std::greater<int>() );
+   snapshotForLoop.insert( snapshotForLoop.begin(), 0.0 );
 
-   for (unsigned int k = 0; k < m_snapshots.size(); ++k) {
+   for (unsigned int k = 0; k < snapshotForLoop.size(); ++k) {
 
-      const double age = m_snapshots[k];
+      const double age = snapshotForLoop[k];
       if (k == 0 and age != 0.0){
          throw CtcException() << "Cannot compute initial total tectonic subsidence";
       }
@@ -299,8 +267,8 @@ void CrustalThicknessCalculator::run() {
             }
             LogHandler( LogHandler::INFO_SEVERITY ) << "/// Snapshot: " << age << "Ma";
          }
-
-         const Snapshot * theSnapshot = (const Snapshot *)findSnapshot( age );
+         updateValidNodes( age );
+         const Snapshot * theSnapshot = findSnapshot( age );
 
          /// 1. Load P/T data fot this snapshot
          m_inputData->loadTopAndBottomOfSediments( m_crustalThicknessCalculator, age, m_inputData->getBaseRiftSurfaceName() );
@@ -310,14 +278,12 @@ void CrustalThicknessCalculator::run() {
          m_inputData->loadPressureData( m_crustalThicknessCalculator, pressureProperty, age );
 
          /// 2. Create the maps for this snapshot
-         if (!m_outputData.createSnapShotOutputMaps( m_crustalThicknessCalculator, theSnapshot, m_inputData->getTopOfSedimentSurface(), m_debug )) {
-            throw CtcException() << "Cannot allocate output maps";
-         }
+         m_outputData.createSnapShotOutputMaps( m_crustalThicknessCalculator, theSnapshot, m_inputData->getTopOfSedimentSurface(), m_debug );
 
          retrieveData();
 
          /// 3. Compute the backstripped density and thickness, the backtrip and the compensation
-         LogHandler( LogHandler::INFO_SEVERITY ) << "   ->Computing Backstrip";
+         LogHandler( LogHandler::INFO_SEVERITY ) << "   -> computing Backstrip";
          DensityCalculator densityCalculator( *m_inputData, m_outputData, validator );
          densityCalculator.compute();
          if (!m_debug) m_outputData.disableDebugOutput( m_crustalThicknessCalculator, m_inputData->getBotOfSedimentSurface(), theSnapshot );
@@ -325,7 +291,7 @@ void CrustalThicknessCalculator::run() {
          /// 4. Compute the Total Tectonic Subsidence (only if we have a SDH at this snapshot)
          const Interface::Property* pressureInterfaceProperty = findProperty( "Pressure" );
          if (asSurfaceDepthHistory( age )){
-            LogHandler( LogHandler::INFO_SEVERITY ) << "   ->Computing Tectonic Subsidence";
+            LogHandler( LogHandler::INFO_SEVERITY ) << "   -> computing Tectonic Subsidence";
             TotalTectonicSubsidenceCalculator TTScalculator( *m_inputData, m_outputData, validator,
                age, densityCalculator.getAirCorrection(), m_previousTTS, m_seaBottomDepth );
             TTScalculator.compute();
@@ -349,14 +315,14 @@ void CrustalThicknessCalculator::run() {
          }
 
          /// 5. Compute the Paleowaterdepth
-         LogHandler( LogHandler::INFO_SEVERITY ) << "   ->Computing Paleowaterdepth";
+         LogHandler( LogHandler::INFO_SEVERITY ) << "   -> computing Paleowaterdepth";
          PaleowaterdepthCalculator PWDcalculator( *m_inputData, m_outputData, validator,
             presentDayTTS.get(), prensentDayPressureTTS.get(), currentPressureTTS );
          PWDcalculator.compute();
 
          // 6. Compute the PaleowaterdepthResidual (only if we have a SDH at this snapshot and if we are not at present day)
          if (asSurfaceDepthHistory( age ) and age!=0.0){
-            LogHandler( LogHandler::INFO_SEVERITY ) << "   ->Computing PaleowaterdepthResidual";
+            LogHandler( LogHandler::INFO_SEVERITY ) << "   -> computing PaleowaterdepthResidual";
             PaleowaterdepthResidualCalculator PWDRcalculator( *m_inputData, m_outputData, validator,
                age, m_seaBottomDepth );
             PWDRcalculator.compute();
@@ -364,16 +330,16 @@ void CrustalThicknessCalculator::run() {
 
          ///7. Computes the thinning factor and crustal thicknesse
          if (asSurfaceDepthHistory( age )){
-            LogHandler( LogHandler::INFO_SEVERITY ) << "   ->Computing Crustal Thicknesses";
-            McKenzieCrustCalculator mcKenzieCalculator( *m_inputData, m_outputData, validator, m_previousTF, m_previousContinentalCrustalThickness, m_previousOceanicCrustalThickness );
+            LogHandler( LogHandler::INFO_SEVERITY ) << "   -> computing Crustal Thicknesses";
+            McKenzieCrustCalculator mcKenzieCalculator( *m_inputData, m_outputData, validator, age, m_previousTF, m_previousContinentalCrustalThickness, m_previousOceanicCrustalThickness );
             mcKenzieCalculator.compute();
             m_previousTF                          = m_outputData.getMap( TFMap );
             m_previousContinentalCrustalThickness = m_outputData.getMap( thicknessCrustMap );
             m_previousOceanicCrustalThickness     = m_outputData.getMap( thicknessBasaltMap );
          }
 
-         ///8. Smooth the TTS and PWD map
-         if (m_applySmoothing) smoothOutputs();
+         ///8. Smooth the PWD and Curustal Thicknesses maps map
+         smoothOutputs();
 
          restoreData();
          m_outputData.saveOutput( m_crustalThicknessCalculator, m_debug, m_outputOptions, theSnapshot );
@@ -387,13 +353,13 @@ void CrustalThicknessCalculator::run() {
 
 //------------------------------------------------------------//
 
-void CrustalThicknessCalculator::updateValidNodes( const InterfaceInput* theInterfaceData ) {
-
-   addUndefinedAreas( &(theInterfaceData->getT0Map     ()) );
-   addUndefinedAreas( &(theInterfaceData->getTRMap     ()) );
-   addUndefinedAreas( &(theInterfaceData->getHCuMap    ()) );
-   addUndefinedAreas( &(theInterfaceData->getHLMuMap   ()) );
-   addUndefinedAreas( &(theInterfaceData->getDeltaSLMap()) );
+void CrustalThicknessCalculator::updateValidNodes( const double age ) {
+   LogHandler( LogHandler::INFO_SEVERITY ) << "   -> setting area of interest";
+   initialiseValidNodes(false);
+   addUndefinedAreas( &(m_inputData->getHCuMap    ()    ) );
+   addUndefinedAreas( &(m_inputData->getHLMuMap   ()    ) );
+   addUndefinedAreas( &(m_inputData->getHBuMap    (age) ) );
+   addUndefinedAreas( &(m_inputData->getDeltaSLMap(age) ) );
 }
 
 //------------------------------------------------------------//
@@ -401,9 +367,9 @@ void CrustalThicknessCalculator::updateValidNodes( const InterfaceInput* theInte
 bool CrustalThicknessCalculator::mergeOutputFiles ( ) {
 
 #ifdef _MSC_VER
-	return true;
+   return true;
 #else
-	if( ! H5_Parallel_PropertyList::isOneFilePerProcessEnabled() ) return true;
+   if( ! H5_Parallel_PropertyList::isOneFilePerProcessEnabled() ) return true;
 
    PetscBool noFileCopy = PETSC_FALSE;
 
@@ -427,7 +393,7 @@ bool CrustalThicknessCalculator::mergeOutputFiles ( ) {
       displayTime( merge_End_Time - merge_Start_Time, "Merging of output files" );
    }
    else {
-      PetscPrintf( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not copy the file %s.\n", filePathName.c_str() );
+      LogHandler(LogHandler::ERROR_SEVERITY) << "Could not copy the file " << filePathName;
    }
    return status;
 #endif
@@ -497,7 +463,7 @@ void CrustalThicknessCalculator::smoothOutputs() {
    if (m_applySmoothing) {
       std::vector<outputMaps> mapsToSmooth = { isostaticBathymetry, thicknessBasaltMap, thicknessCrustMap };
       MapSmoother mapSmoother( m_inputData->getSmoothRadius() );
-      LogHandler( LogHandler::INFO_SEVERITY ) << "   ->Applying spatial smoothing with radius set to " << m_inputData->getSmoothRadius() << " for maps:";
+      LogHandler( LogHandler::INFO_SEVERITY ) << "   -> applying spatial smoothing with radius set to " << m_inputData->getSmoothRadius() << " for maps:";
 
       for (size_t i = 0; i < mapsToSmooth.size(); i++){
          if (m_outputData.getOutputMask( mapsToSmooth[i] )){

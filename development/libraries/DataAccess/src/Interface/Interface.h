@@ -1,16 +1,20 @@
-#ifndef _INTERFACE_H_
-#define _INTERFACE_H_
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+#ifndef INTERFACE_H
+#define INTERFACE_H
 
 #include <vector>
 #include <string>
 using namespace std;
 
 #include <boost/shared_ptr.hpp>
-
-// V.R. Ambati (25/07/2011)
-// typedef's are not needed at the moment.
-//typedef int PetscInt;
-//typedef int PetscMPIInt;
 
 namespace ddd
 {
@@ -93,6 +97,7 @@ namespace DataAccess
       class Trapper;
       class Migration;
       class CrustalThicknessData;
+      class CrustalThicknessRiftingHistoryData;
 
 
       /// list type for the snapshots
@@ -338,9 +343,25 @@ namespace DataAccess
          AllochthonousLithologyDistributionMap = 0
       };
 
-      /// Attributes for which a (GridMap) value can be requested via getMap ().
+      /// @brief Attributes for which a (GridMap) value can be requested via getMap ()
+      /// @details To be requested from CrustalThicknessData object
       enum CTCMapAttributeId {
-         T0Ini = 0, TRIni, HCuIni, HLMuIni, HBu, DeltaSL
+         HCuIni, ///< The initial continental crust thickness map         [m]
+         HLMuIni ///< The initial lithospheric mantle crust thickness map [m]
+      };
+
+      /// @brief Attributes for which a (GridMap) value can be requested via getMap ()
+      /// @details To be requested from CrustalThicknessRiftingHistoryData object
+      enum CTCRiftingHistoryMapAttributeId {
+         HBu,     ///< The maximum oceanic crustal thickness map [m]
+         DeltaSL  ///< The sea level adjustment map              [m]
+      };
+
+      /// @brief Indicates what is the tectonic contexct at a specific snapshot
+      enum TectonicFlag {
+         ACTIVE_RIFTING, ///< Syn rift deposition
+         PASSIVE_MARGIN, ///< Post rift deposition
+         FLEXURAL_BASIN  ///< Subduction (subsidence is no more driven by rifting)
       };
 
       /// Indicates the amount of output required for a particular property.
@@ -596,15 +617,6 @@ namespace DataAccess
       class Trapper;
       class Migration;
 
-
-      /*
-      /// list type for FaultCollections
-      typedef vector<FaultCollection *> FaultCollectionList;
-
-      /// list type for Faults
-      typedef vector<Fault *> FaultList;
-      */
-
       /// mutable list type for the snapshots
       typedef vector<Snapshot *> MutableSnapshotList;
       /// mutable list type for the lithotypes
@@ -788,4 +800,4 @@ inline double DataAccess::Interface::AddConstant::operator ()( const double oper
 }
 
 
-#endif // _Interface_H_
+#endif // INTERFACE_H

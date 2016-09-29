@@ -191,7 +191,9 @@ const DataAccess::Interface::ApplicationGlobalOperations& ProjectHandle::getGlob
 }
 
 ProjectHandle::ProjectHandle( Database * tables, const string & name, const string & accessMode, ObjectFactory* objectFactory ) :
-   m_database( tables ), m_name( name ), m_accessMode( READWRITE ), m_activityOutputGrid( 0 ), m_mapPropertyValuesWriter( 0 ), m_primaryList( words, words + 12 )
+m_database( tables ), m_name( name ), m_accessMode( READWRITE ),
+m_tableCTC( *this ), m_tableCTCRiftingHistory( *this ),
+m_activityOutputGrid( 0 ), m_mapPropertyValuesWriter( 0 ), m_primaryList( words, words + 12 )
 {
    (void) accessMode; // ignore warning about unused parameter
 
@@ -242,9 +244,7 @@ ProjectHandle::ProjectHandle( Database * tables, const string & name, const stri
 
    loadBottomBoundaryConditions();
    loadLithoTypes();
-#if 0
-   loadSourceRocks ();
-#endif
+
    loadGrids();
    loadSurfaces();
    loadFormations();
@@ -261,16 +261,10 @@ ProjectHandle::ProjectHandle( Database * tables, const string & name, const stri
    numberInputValues();
    loadFluidTypes();
 
-#if 0
-   loadLithologyHeatCapacitySamples ();
-   loadLithologyThermalConductivitySamples ();
-#endif
-
    loadFluidDensitySamples();
    loadFluidThermalConductivitySamples();
    loadFluidHeatCapacitySamples();
 
-   //   loadBottomBoundaryConditions ();
    loadCrustFormation();
    loadMantleFormation();
    loadBasementSurfaces();
@@ -288,13 +282,6 @@ ProjectHandle::ProjectHandle( Database * tables, const string & name, const stri
    
    loadIgneousIntrusions();
    loadFaults();
-
-   /*
-   loadCrustThinningHistory ();
-   loadMantleThicknessHistory ();
-   loadHeatFlowHistory ();
-   loadConstrainedOverpressureIntervals ();
-   */
 
    loadRelatedProjects();
 
@@ -318,7 +305,6 @@ ProjectHandle::ProjectHandle( Database * tables, const string & name, const stri
    loadIrreducibleWaterSaturationSample();
    loadSGDensitySample();
 
-   loadCrustalThicknessData();
    loadPermafrostData();
 }
 
@@ -405,7 +391,6 @@ ProjectHandle::~ProjectHandle( void )
    deleteProperties();
    deletePropertyValues();
    deleteFluidTypes();
-   deleteCrustalThicknessData();
 
    deleteBiodegradationParameters();
    deleteFracturePressureFunctionParameters();
@@ -505,10 +490,7 @@ bool ProjectHandle::startActivity( const string & name, const Interface::Grid * 
    svnRevision = SVNREVISION;
 #endif
 
-   if ( getRank() == 0 )
-   {
-      cerr << endl << "Activity: " << name << ", Revision: " << svnRevision << endl << endl;
-   }
+   LogHandler( LogHandler::INFO_SEVERITY ) << "\n" << "Activity: " << name << ", Revision: " << svnRevision << "\n";
 
    checkForValidPartitioning( name, grid->numIGlobal(), grid->numJGlobal() ); // NOOP in case of serial data access
 
@@ -1797,33 +1779,6 @@ bool ProjectHandle::loadLithoTypes( void )
    }
    return true;
 }
-
-bool ProjectHandle::loadCrustalThicknessData( void )
-{
-   database::Table* CTCTbl = getTable( "CTCIoTbl" );
-   database::Table::iterator tblIter;
-
-   for ( tblIter = CTCTbl->begin(); tblIter != CTCTbl->end(); ++tblIter ) {
-      Record * CTCRecord = *tblIter;
-      m_crustalThicknessData.push_back( getFactory()->produceCrustalThicknessData( this, CTCRecord ) );
-   }
-   return true;
-}
-
-// Source rocks are now created in loadFormations.
-#if 0
-bool ProjectHandle::loadSourceRocks (void)
-{
-   database::Table* sourceRockTbl = getTable ("SourceRockLithoIoTbl");
-   database::Table::iterator tblIter;
-   for (tblIter = sourceRockTbl->begin (); tblIter != sourceRockTbl->end (); ++tblIter)
-   {
-      Record * sourceRockRecord = * tblIter;
-      m_sourceRocks.push_back (getFactory ()->produceSourceRock (this, sourceRockRecord));
-   }
-   return true;
-}
-#endif
 
 bool ProjectHandle::loadReservoirs( void )
 {
@@ -5288,19 +5243,6 @@ void ProjectHandle::deleteFluidTypes() {
    }
 
    m_fluidTypes.clear();
-}
-
-void ProjectHandle::deleteCrustalThicknessData() {
-
-   MutableCrustalThicknessDataList::const_iterator ctcIter;
-
-   for ( ctcIter = m_crustalThicknessData.begin(); ctcIter != m_crustalThicknessData.end(); ++ctcIter )
-   {
-      CrustalThicknessData* ctcData = *ctcIter;
-      delete ctcData;
-   }
-
-   m_crustalThicknessData.clear();
 }
 
 void ProjectHandle::deleteReservoirs( void )

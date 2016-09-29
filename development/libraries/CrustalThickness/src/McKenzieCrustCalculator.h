@@ -8,8 +8,8 @@
 // Do not distribute without written permission from Shell.
 //
 
-#ifndef _CRUSTALTHICKNESS_MCKENZIECRUSTCALCULATOR_H_
-#define _CRUSTALTHICKNESS_MCKENZIECRUSTCALCULATOR_H_
+#ifndef CRUSTALTHICKNESS_MCKENZIECRUSTCALCULATOR_H
+#define CRUSTALTHICKNESS_MCKENZIECRUSTCALCULATOR_H
 
 // utilitites library
 #include "FormattingException.h"
@@ -34,6 +34,11 @@ class McKenzieCrustCalculator {
    typedef formattingexception::GeneralException McKenzieException;
 
    public:
+
+      enum CrustType { ///< Defines the type of crust
+         CONTINENTAL,
+         OCEANIC
+      };
    
       /// @param[in] previousThinningFactor Can be nullptr if first rifting event
       /// @param[in] previousContinentalCrustThickness Can be nullptr if first rifting event
@@ -43,6 +48,7 @@ class McKenzieCrustCalculator {
       McKenzieCrustCalculator( const InterfaceInput&    inputData,
                                AbstractInterfaceOutput& outputData,
                                const AbstractValidator& validator,
+                               const double age,
                                const Interface::GridMap* previousThinningFactor,
                                const Interface::GridMap* previousContinentalCrustThickness,
                                const Interface::GridMap* previousOceanicCrustThickness );
@@ -136,6 +142,16 @@ class McKenzieCrustCalculator {
          const double oceanicCrustalThickness,
          const double initialContinentalCrustThickness,
          const double initialLithosphericMantleThickness ) const;
+      /// @brief Split the crust into its upper and lower part using the given ratio
+      /// @param[in] type The type of crust to divide (Oceanic or Continental), this defines the ratio r (=upper/lower)
+      /// @param[in] totalCrustThickness The total oceanic or continental crustal thickness  ( =lower+upper   )
+      /// @param[out] upperCrustThickness The upper oceanic or continental crustal thickness ( =r*total/(1+r) )
+      /// @param[out] lowerCrustThickness The lower oceanic or continental crustal thickness ( =total/(1+r)   )
+      void divideCrust(
+         CrustType type,
+         const double totalCrustThickness,
+         double& upperCrustThickness,
+         double& lowerCrustThickness ) const;
       /// @}
 
       /*! @brief Computes the following map properties:
@@ -153,7 +169,11 @@ class McKenzieCrustCalculator {
        *     - residual depth anomaly
        *     - thinning factor
        *     - continental crust thickness
+       *     - upper continental crust thickness
+       *     - lower continental crust thickness
        *     - oceanic crust thickness
+       *     - upper oceanic crust thickness
+       *     - lower oceanic crust thickness
        *     - top of the oceanic crust
        *     - moho
        *     - effective crustal thickness
@@ -189,11 +209,16 @@ class McKenzieCrustCalculator {
       /// @defgroup InputMaps
       /// Loaded from InterfaceInput
       /// @{
-      const GridMap& m_T0Map;        ///< Beginning of rifting event                 [Ma]
-      const GridMap& m_TRMap;        ///< End of rifting event                       [Ma]
       const GridMap& m_HCuMap;       ///< Initial continental crust thickness        [m]
       const GridMap& m_HBuMap;       ///< Maximum oceanic (basaltic) crust thickness [m]
       const GridMap& m_HLMuMap;      ///< Initial lithospheric mantle thickness      [m]
+      /// @}
+
+      /// @defgroup InputAges
+      /// Loaded from InterfaceInput
+      /// @{
+      const double m_riftStartAge; ///< Start age of the current rift [Ma]
+      const double m_riftEndAge;   ///< End age of the current rift   [Ma]
       /// @}
 
       /// @defgroup InputMapsRange
@@ -203,6 +228,13 @@ class McKenzieCrustCalculator {
       const unsigned int m_firstJ; ///< First j index on the map
       const unsigned int m_lastI;  ///< Last i index on the map
       const unsigned int m_lastJ;  ///< Last j index on the map
+      /// @}
+
+      /// @defgroup DebugR&DInputs
+      /// Loaded from InterfaceInput
+      /// @{
+      const double m_continentalCrustRatio; ///< Ratio which defines the spliting of the continental crust in its upper and lower part (r=Upper/Lower)
+      const double m_oceanicCrustRatio;     ///< Ratio which defines the spliting of the oceanic crust in its upper and lower part (r=Upper/Lower)
       /// @}
 
       /// @defgroup previousSnapshotValues

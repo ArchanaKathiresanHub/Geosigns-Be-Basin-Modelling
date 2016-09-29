@@ -57,10 +57,9 @@ class TotalTectonicSubsidenceCalculator {
       double calculateIncrementalTTS( const double TTS,
                                       const double previousTTS ) const;
 
-      /// @return The see level adjusted total or incremental tectonic subsidence
-      /// @todo to be modified in multifrifting requirement
+      /// @return The sea level adjusted total or incremental tectonic subsidence
       double calculateTSadjusted( const double TTS,
-                                  const double seeLevelAdjustment ) const;
+                                  const double seaLevelAdjustment ) const;
 
    private:
 
@@ -80,9 +79,9 @@ class TotalTectonicSubsidenceCalculator {
       const double m_age;           ///< Age of the snapshot at which the TTS is computed
       const double m_airCorrection; ///< The backstrip air correction to be used when the water bottom is above the see level 0m
 
-      const Interface::GridMap* m_previousTTS;          ///< The TTS at the previous time step (in descending order xxma-->0Ma)
-      const Interface::GridMap& m_seeLevelAdjustment;   ///< The see level adjustment [m]
-      const PolyFunction2DArray& m_surfaceDepthHistory; ///< The user defined paleobathymetrie (loaded from the project handle)
+      const Interface::GridMap* m_previousTTS;          ///< The TTS at the previous time step (in descending order xxma-->0Ma) [m]
+      const Interface::GridMap& m_seaLevelAdjustment;   ///< The sea level adjustment                                           [m]
+      const PolyFunction2DArray& m_surfaceDepthHistory; ///< The user defined paleobathymetrie (loaded from the project handle) [m]
 
       AbstractInterfaceOutput& m_outputData; ///< The global interface output object (contains the output maps)
       AbstractValidator&       m_validator;  ///< The validator to check if a node (i,j) is valid or not

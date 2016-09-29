@@ -26,6 +26,7 @@
 #include <string>
 #include <iostream>
 #include <iomanip>
+#include <limits>
 #include <boost/foreach.hpp>
 
 using namespace DataAccess;
@@ -451,7 +452,7 @@ boost::shared_ptr<CauldronIO::Geometry3D> ImportProjectHandle::createGeometry3D(
     // Find the total depth size & offset
     assert(depthFormations->at(0)->kStart == 0);
     size_t maxK = 0;
-    size_t minK = std::numeric_limits<size_t>::max();
+    size_t minK = (std::numeric_limits<size_t>::max)();
     for (size_t i = 0; i < depthFormations->size(); ++i)
     {
         boost::shared_ptr<CauldronIO::FormationInfo>& depthInfo = depthFormations->at(i);

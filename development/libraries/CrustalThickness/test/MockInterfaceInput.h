@@ -8,8 +8,8 @@
 // Do not distribute without written permission from Shell.
 //
 
-#ifndef _CRUSTALTHICKNESS_MOCKINTERFACEINPUT_H_
-#define _CRUSTALTHICKNESS_MOCKINTERFACEINPUT_H_
+#ifndef CRUSTALTHICKNESS_MOCKINTERFACEINPUT_H
+#define CRUSTALTHICKNESS_MOCKINTERFACEINPUT_H
 
 //Parent
 #include "../src/InterfaceInput.h"
@@ -31,8 +31,10 @@ class MockInterfaceInput : public InterfaceInput {
 
       /// @defgroup Sets
       /// @{
-      void setSmoothRadius( const unsigned int smoothRadius ) { m_smoothRadius = smoothRadius; }
-      void setFlexuralAge ( const double t_felxural         ) { m_t_felxural   = t_felxural;   }
+      void setSmoothRadius         ( const unsigned int smoothRadius    ) { m_smoothRadius                    = smoothRadius;          }
+      void setFlexuralAge          ( const double t_felxural            ) { m_t_felxural                      = t_felxural;            }
+      void setContinentalCrustRatio( const double continentalCrustRatio ) { m_continentalCrustRatio = continentalCrustRatio; }
+      void setOceanicCrustRatio( const double oceanicCrustRatio         ) { m_oceanicCrustRatio      = oceanicCrustRatio;    }
 
       void setConstants( const CrustalThickness::ConfigFileParameterCtc& constants ) { m_constants = constants; }
 

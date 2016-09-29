@@ -1,25 +1,17 @@
-//#include <values.h>
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 
-#ifdef _MSC_VER
-#include <limits.h>
-#else
 #include <limits>
-#endif
-
 #include <float.h>
-
-#ifdef sgi
-   #ifdef _STANDARD_C_PLUS_PLUS
-      #include<iostream>
-      using namespace std;
-   #else // !_STANDARD_C_PLUS_PLUS
-      #include<iostream.h>
-   #endif // _STANDARD_C_PLUS_PLUS
-#else // !sgi
-   #include <iostream>
-   using namespace std;
-#endif // sgi
-
+#include <iostream>
+using namespace std;
 
 #include "Trap.h"
 
@@ -59,7 +51,6 @@ PersistentTrap * Trap::findMatchingPersistentTrap (vector < PersistentTrap * >&p
       const Interface::Snapshot * snapshot, const Interface::Snapshot * previousSnapshot)
 {
    PersistentTrap * closestPersistentTrap = 0;
-   double closestDistance = std::numeric_limits<double>::max();
 
    assert (getSnapshot () == snapshot);
 
@@ -88,7 +79,7 @@ PersistentTrap * Trap::findClosestPersistentTrap (vector < PersistentTrap * >&pe
       const Interface::Snapshot * snapshot, const Interface::Snapshot * previousSnapshot)
 {
    PersistentTrap * closestPersistentTrap = 0;
-   double closestDistance = std::numeric_limits<double>::max();
+   double closestDistance = (std::numeric_limits<double>::max)();
 
    assert (getSnapshot () == snapshot);
 

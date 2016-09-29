@@ -42,10 +42,16 @@ PaleowaterdepthCalculator::PaleowaterdepthCalculator(
       throw PWDException() << "The present day total tectonic subsidence is a null pointer and is required by the Paleowaterdepth calculator";
    }
    else if (m_presentDayPressureMantle == nullptr){
-      throw PWDException() << "The present day bottom mantle pressure is a null pointer and is required by the Paleowaterdepth calculator";
+      LogHandler( LogHandler::INFO_SEVERITY ) << "     The Paleowaterdepth will not be thermally corrected as there is no present day bottom mantle pressure available";
    }
    else if (m_currentPressureMantle == nullptr){
-      throw PWDException() << "The current bottom mantle pressure is a null pointer and is required by the Paleowaterdepth calculator";
+      LogHandler( LogHandler::INFO_SEVERITY ) << "     The Paleowaterdepth will not be thermally corrected as there is no transient bottom mantle pressure available";
+   }
+   else if (m_presentDayPressureTTS == nullptr){
+      LogHandler( LogHandler::INFO_SEVERITY ) << "     The Paleowaterdepth will not be thermally corrected as there is no present day bottom TTS pressure available";
+   }
+   else if (m_currentPressureTTS == nullptr){
+      LogHandler( LogHandler::INFO_SEVERITY ) << "     The Paleowaterdepth will not be thermally corrected as there is no transient bottom TTS pressure available";
    }
 }
 
@@ -128,28 +134,34 @@ double PaleowaterdepthCalculator::calculatePWD( const double presentDayTTS,
 
 //------------------------------------------------------------//
 void PaleowaterdepthCalculator::retrieveData() {
-   if (m_presentDayPressureTTS){
+   if (m_presentDayPressureTTS!=nullptr){
       m_presentDayPressureTTS->retrieveData();
    }
-   if (m_currentPressureTTS){
+   if (m_currentPressureTTS != nullptr){
       m_currentPressureTTS->retrieveData();
    }
-   m_presentDayTTS           ->retrieveData();
-   m_presentDayPressureMantle->retrieveData();
-   m_currentPressureMantle   ->retrieveData();
-
+   if (m_presentDayPressureMantle != nullptr){
+      m_presentDayPressureMantle->retrieveData();
+   }
+   if (m_currentPressureMantle != nullptr){
+      m_currentPressureMantle->retrieveData();
+   }
+   m_presentDayTTS->retrieveData();
 }
 
 //------------------------------------------------------------//
 void PaleowaterdepthCalculator::restoreData() {
-   if (m_presentDayPressureTTS){
+   if (m_presentDayPressureTTS != nullptr){
       m_presentDayPressureTTS->restoreData();
    }
-   if (m_currentPressureTTS){
+   if (m_currentPressureTTS != nullptr){
       m_currentPressureTTS->restoreData();
    }
-   m_presentDayTTS           ->restoreData();
-   m_presentDayPressureMantle->restoreData();
-   m_currentPressureMantle   ->restoreData();
-
+   if (m_presentDayPressureMantle != nullptr){
+      m_presentDayPressureMantle->restoreData();
+   }
+   if (m_currentPressureMantle != nullptr){
+      m_currentPressureMantle->restoreData();
+   }
+   m_presentDayTTS->restoreData();
 }

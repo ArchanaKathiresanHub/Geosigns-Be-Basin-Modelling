@@ -8,8 +8,8 @@
 // Do not distribute without written permission from Shell.
 //
 
-#ifndef _FASTCTC_CRUSTALTHICKNESS_CALCULATOR_H
-#define _FASTCTC_CRUSTALTHICKNESS_CALCULATOR_H
+#ifndef FASTCTC_CRUSTALTHICKNESS_CALCULATOR_H
+#define FASTCTC_CRUSTALTHICKNESS_CALCULATOR_H
 
 // CrustalThickness library
 #include "InterfaceInput.h"
@@ -42,7 +42,6 @@ void displayTime( const double timeToDisplay, const char * msgToDisplay );
 class CrustalThicknessCalculator : public DataAccess::Mining::ProjectHandle {
 
    typedef formattingexception::GeneralException CtcException;
-   typedef std::vector<double> snapshotsList;
 
 public :
    CrustalThicknessCalculator( database::Database * database, const std::string & name, const std::string & accessMode, ObjectFactory* objectFactory );
@@ -94,10 +93,8 @@ private :
    bool   m_debug;            ///< Run the CTC in debug mode
    bool   m_applySmoothing;   ///< Smooth the WLS map
 
-   InterfaceInput* m_inputData;  ///< Interface for input data (user inputs adn configuration file)
-   InterfaceOutput m_outputData; ///< Interface for output data (maps)
-
-   snapshotsList m_snapshots; ///< The list of stratigraphic snapshots in reverse order surrounded by 0 snapshot (i.e. [0,150,110,50,...,0])
+   std::shared_ptr<InterfaceInput>  m_inputData;  ///< Interface for input data (user inputs and configuration file)
+   InterfaceOutput  m_outputData;                 ///< Interface for output data (maps)
 
    /// @defgroup PreviousIterationData
    /// @{
@@ -118,11 +115,9 @@ private :
    ///    -# smooth <SmoothingRadius> turns smoothing on and set the smoothing radius
    void setAdditionalOptionsFromCommandLine();
 
-   /// @brief Update geophysics ProjectHandle valid nodes using the CTC input maps
-   void updateValidNodes( const InterfaceInput* theInterfaceData );
-
-   /// @brief Loads the snapshots from the stratigraphy
-   void loadSnapshots();
+   /// @brief Update geophysics ProjectHandle valid nodes (area of interest) using the CTC input maps
+   /// @param[in] age The snapshot at which we define the area of interest
+   void updateValidNodes( const double age );
 
    /// @brief Retrieve the grid map data
    void retrieveData();

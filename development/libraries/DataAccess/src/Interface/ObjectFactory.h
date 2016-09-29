@@ -1,14 +1,22 @@
-#ifndef _INTERFACE_OBJECTFACTORY_H_
-#define _INTERFACE_OBJECTFACTORY_H_
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+#ifndef INTERFACE_OBJECTFACTORY_H
+#define INTERFACE_OBJECTFACTORY_H
 
+// std library
 #include <string>
-// #include <vector>
-
-// #include "hdf5.h"
+#include <memory>
+using namespace std;
 
 #include "PropertyAttribute.h"
 
-using namespace std;
 #include "Interface/Interface.h"
 
 namespace database
@@ -66,10 +74,6 @@ namespace DataAccess
          virtual MobileLayer * produceMobileLayer (ProjectHandle * projectHandle, database::Record * record);
          
          virtual PaleoProperty * producePaleoProperty (ProjectHandle * projectHandle, database::Record * record );
-
-#if 0
-         virtual PaleoFormationProperty * producePaleoFormationProperty (ProjectHandle * projectHandle, database::Record * record, const std::string& formationName );
-#endif
 
          virtual PaleoFormationProperty * producePaleoFormationProperty (ProjectHandle * projectHandle, database::Record * record, const Formation* formation );
          
@@ -162,9 +166,15 @@ namespace DataAccess
             
          virtual MapWriter* produceMapWriter (void);
          
-         virtual CrustalThicknessData* produceCrustalThicknessData (ProjectHandle * projectHandle, database::Record * record);
+         /// @defgroup FASTCTC
+         /// @{
+         /// @brief Produces the CTC data accessor for the CTCIoTbl record
+         shared_ptr<const CrustalThicknessData> produceCrustalThicknessData( ProjectHandle * projectHandle, database::Record * record ) const;
+         /// @brief Produces the CTC data accessor for the CTCRiftingHistoryIoTbl record
+         shared_ptr<const CrustalThicknessRiftingHistoryData> produceCrustalThicknessRiftingHistoryData( ProjectHandle * projectHandle, database::Record * record ) const;
+         /// @}
       };
    }
 }
 
-#endif // _IMPLEMENTATION_OBJECTFACTORY_H_
+#endif // INTERFACE_OBJECTFACTORY_H

@@ -8,8 +8,8 @@
 // Do not distribute without written permission from Shell.
 //
 
-#ifndef _CRUSTALTHICKNESS_PWDCALCULATOR_H_
-#define _CRUSTALTHICKNESS_PWDCALCULATOR_H_
+#ifndef CRUSTALTHICKNESS_PWDCALCULATOR_H
+#define CRUSTALTHICKNESS_PWDCALCULATOR_H
 
 // CrusltalThickness library
 #include "AbstractInterfaceOutput.h"
@@ -40,12 +40,12 @@ class PaleowaterdepthCalculator {
       /// @param currentPressureMantle The current snapshot pressure of the top mantle
       /// @param presentDayPressureTTS The present day pressure at the present day TTS depth
       /// @param currentPressureTTS The current snapshot pressure at the current snapshot TTS depth
-      PaleowaterdepthCalculator( const InterfaceInput&          inputData,
-                                 AbstractInterfaceOutput& outputData,
-                                 const AbstractValidator&       validator,
-                                 const Interface::GridMap*      presentDayTTS,
-                                 const Interface::GridMap*      presentDayPressureTTS = 0,
-                                 const Interface::GridMap*      currentPressureTTS    = 0 );
+      PaleowaterdepthCalculator( const InterfaceInput&     inputData,
+                                 AbstractInterfaceOutput&  outputData,
+                                 const AbstractValidator&  validator,
+                                 const Interface::GridMap* presentDayTTS,
+                                 const Interface::GridMap* presentDayPressureTTS = 0,
+                                 const Interface::GridMap* currentPressureTTS    = 0 );
 
       /// @details Restore presentDayPressureTTS and currentPressureTTS data if they are not nullptr
       ~PaleowaterdepthCalculator();

@@ -11,7 +11,9 @@
 #define _GEOPHYSICS__GEOPHYSICAL_CONSTANTS_H_
 
 // std library
+#ifndef _USE_MATH_DEFINES
 #define _USE_MATH_DEFINES
+#endif
 #include <math.h>
 #include <string>
 #include <cmath>

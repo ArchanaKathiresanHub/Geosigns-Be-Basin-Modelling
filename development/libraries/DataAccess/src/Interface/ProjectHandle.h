@@ -1,5 +1,14 @@
-#ifndef _INTERFACE_PROJECTHANDLE_H_
-#define _INTERFACE_PROJECTHANDLE_H_
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+#ifndef INTERFACE_PROJECTHANDLE_H
+#define INTERFACE_PROJECTHANDLE_H
 
 #include "hdf5.h"
 
@@ -17,6 +26,10 @@ using namespace std;
 
 #include "MessageHandler.h"
 #include "ApplicationGlobalOperations.h"
+
+// DataAccess library table classes
+#include "TableCTC.h"
+#include "TableCTCRiftingHistory.h"
 
 /*! \mainpage The Cauldron Distributed Data Access Framework
  * \section intro Introduction
@@ -610,7 +623,8 @@ namespace DataAccess
          MutablePaleoSurfacePropertyList   m_heatFlowHistory;
          MutablePaleoFormationPropertyList m_crustPaleoThicknesses;
          MutablePaleoFormationPropertyList m_mantlePaleoThicknesses;
-         MutableCrustalThicknessDataList   m_crustalThicknessData;
+         const TableCTC               m_tableCTC;
+         const TableCTCRiftingHistory m_tableCTCRiftingHistory;
 
          // Should really be a list of PaleoSurfaceProperty's, 
          // but there is no surface defined for the top surface.
@@ -771,7 +785,6 @@ namespace DataAccess
 
          bool loadFluidTypes();
 
-         bool loadCrustalThicknessData();
          void loadPermafrostData();
 
          void computeMantlePaleoThicknessHistory() const;
@@ -859,7 +872,6 @@ namespace DataAccess
          void deleteMantleFormation();
          void deleteBasementSurfaces();
 
-         void deleteCrustalThicknessData();
          void deleteHeatFlowHistory( void );
          void deleteCrustThinningHistory( void );
          void deleteMantleThicknessHistory( void );
@@ -912,4 +924,4 @@ namespace DataAccess
       };
    }
 }
-#endif // _INTERFACE_PROJECTHANDLE_H_
+#endif // INTERFACE_PROJECTHANDLE_H

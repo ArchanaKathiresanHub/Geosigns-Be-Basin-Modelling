@@ -34,6 +34,7 @@ set( all_headers
    src/PaleowaterdepthCalculator.h
    src/PaleowaterdepthResidualCalculator.h
    src/PropertyValue.h
+   src/RiftingEvent.h
    src/TotalTectonicSubsidenceCalculator.h
    src/Validator.h
 )
@@ -52,6 +53,7 @@ set( all_srcs
    src/PaleowaterdepthCalculator.C
    src/PaleowaterdepthResidualCalculator.C
    src/PropertyValue.C
+   src/RiftingEvent.C
    src/TotalTectonicSubsidenceCalculator.C
    src/Validator.C
 )
@@ -117,6 +119,8 @@ install(TARGETS CrustalThickness
 ################################################################
 ######################## UNIT TESTS ############################
 ################################################################
+# Most of the linked libraries in the unit tests are only required
+# because of the cross dependencies between our libraries
 
 set ( io_mockFiles
    test/MockConfigFileParameterCtc.h

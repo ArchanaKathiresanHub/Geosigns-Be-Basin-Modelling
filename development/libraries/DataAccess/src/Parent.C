@@ -58,5 +58,5 @@ Child * Parent::getChild (unsigned int index) const
    if (m_children)
       return (* m_children)[index];
    else
-      return 0;
+      return nullptr;
 }

@@ -96,7 +96,7 @@ public:
    /// @param[in] theSnapshot The snapshot corresponding to the maps
    /// @param[in] theSurface The stratigraphic surface corresponding to the maps
    /// @param[in] debug If true, then will create debug maps
-   bool createSnapShotOutputMaps( GeoPhysics::ProjectHandle * pHandle, const Snapshot* theSnapshot, const Interface::Surface *theSurface = nullptr,
+   void createSnapShotOutputMaps( GeoPhysics::ProjectHandle * pHandle, const Snapshot* theSnapshot, const Interface::Surface *theSurface = nullptr,
                                   const bool debug = false );
    /// @brief Create a map for the defined snapshot
    /// @param propertyName The name of the property corresponding to the map

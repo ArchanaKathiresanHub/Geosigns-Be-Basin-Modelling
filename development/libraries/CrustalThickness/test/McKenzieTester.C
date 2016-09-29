@@ -60,6 +60,20 @@ McKenzieTester::~McKenzieTester()
    delete m_previousOceanicCrustThickness;
 }
 
+void McKenzieTester::initTestData(){
+   m_outputData.clear();
+   initConstants( m_constants );
+   m_inputData.setConstants( m_constants );
+   m_inputData.setT0Map  ( m_T0Map   );
+   m_inputData.setTRMap  ( m_TRMap   );
+   m_inputData.setHCuMap ( m_HCuMap  );
+   m_inputData.setHBuMap ( m_HBuMap  );
+   m_inputData.setHLMuMap( m_HLMuMap );
+   m_inputData.setDepthBasement( m_depthBasement->getMockderivedSurfacePropertyPtr() );
+   m_inputData.setContinentalCrustRatio( 0.5 );
+   m_inputData.setOceanicCrustRatio    ( 0.7 );
+}
+
 void McKenzieTester::initConstants( MockConfigFileParameterCtc& constants ) const
 {
    constants.setWaterDensity               ( 1030    );
@@ -84,16 +98,7 @@ void McKenzieTester::initConstants( MockConfigFileParameterCtc& constants ) cons
 
 const McKenzieCrustCalculatorPtr McKenzieTester::createMcKenzieCalculator()
 {
-   m_outputData.clear();
-   initConstants( m_constants );
-   m_inputData.setConstants( m_constants );
-   m_inputData.setT0Map  ( m_T0Map   );
-   m_inputData.setTRMap  ( m_TRMap   );
-   m_inputData.setHCuMap ( m_HCuMap  );
-   m_inputData.setHBuMap ( m_HBuMap  );
-   m_inputData.setHLMuMap( m_HLMuMap );
-
-   m_inputData.setDepthBasement( m_depthBasement->getMockderivedSurfacePropertyPtr() );
+   initTestData();
    return McKenzieCrustCalculatorPtr(
       new McKenzieCrustCalculator( m_inputData,
                                    m_outputData,
