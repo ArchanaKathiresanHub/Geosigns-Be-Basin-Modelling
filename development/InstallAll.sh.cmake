@@ -45,18 +45,23 @@ miscDirectory=$targetDirectory/misc
 # Setting UMASK
 umask 0002
 
-#building the directory structure
-echo "Making target directory $targetDirectory"
-mkdir -p $targetDirectory
-
 if [ -d $mainBinaryDirectory ]; then
   echo "Main binary directory $mainBinaryDirectory already exists. Aborting installation..."
   exit 1
 fi
 
+#building the directory structure
+echo "Making target directory $targetDirectory"
+mkdir -p $mainBinaryDirectory
+if [  "x${cldgrp}" != "x" ]; then
+    echo "Setting correct permissions to $targetDirectory"
+    chgrp -R $cldgrp ${targetDirectory}
+    chmod g+rw ${targetDirectory}
+    chmod g+s $targetDirectory
+fi
+
 # Install results of main build
 echo "Installing binaries"
-install $installgrp --mode=775 -d $mainBinaryDirectory
 install $installgrp --mode=775 @CMAKE_INSTALL_PREFIX@/bin/* $mainBinaryDirectory
 
 # BPA expects the binaries to be in the LinuxRHEL64 folder. For BPA we pick the RHEL64 binaries
