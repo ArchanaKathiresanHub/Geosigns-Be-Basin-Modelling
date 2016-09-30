@@ -23,6 +23,9 @@
 /// \brief The namespace for the visualization IO library related classes
 namespace CauldronIO
 {
+    // From ProjectHandle.C 
+    const float DefaultUndefinedValue = 99999;
+
     /// \class CauldronIOException
     /// \brief The VisualizationIO exception class
     class CauldronIOException : public std::runtime_error
@@ -36,18 +39,18 @@ namespace CauldronIO
 
     /// type definitions
     typedef std::pair<  std::shared_ptr<const Formation>, std::shared_ptr<Volume> >     FormationVolume;
-    typedef std::vector<FormationVolume >                                                   FormationVolumeList;
-    typedef std::vector<std::shared_ptr<SnapShot > >                                      SnapShotList;
-    typedef std::vector<std::shared_ptr<Surface > >                                       SurfaceList;
-    typedef std::vector<std::shared_ptr<Volume > >                                        VolumeList;
-    typedef std::vector<std::shared_ptr<Trapper > >                                       TrapperList;
-    typedef std::vector<std::shared_ptr<const Property > >                                PropertyList;
-    typedef std::vector<std::shared_ptr<const Formation> >                                FormationList;
-    typedef std::vector<std::shared_ptr<const Reservoir> >                                ReservoirList;
+    typedef std::vector<FormationVolume >                                               FormationVolumeList;
+    typedef std::vector<std::shared_ptr<SnapShot > >                                    SnapShotList;
+    typedef std::vector<std::shared_ptr<Surface > >                                     SurfaceList;
+    typedef std::vector<std::shared_ptr<Trapper > >                                     TrapperList;
+    typedef std::vector<std::shared_ptr<const Property > >                              PropertyList;
+    typedef std::vector<std::shared_ptr<const Formation> >                              FormationList;
+    typedef std::vector<std::shared_ptr<const Reservoir> >                              ReservoirList;
     typedef std::pair<  std::shared_ptr<const Property>, std::shared_ptr<SurfaceData> > PropertySurfaceData;
     typedef std::pair<  std::shared_ptr<const Property>, std::shared_ptr<VolumeData> >  PropertyVolumeData;
-    typedef std::vector < PropertySurfaceData >                                             PropertySurfaceDataList;
-    typedef std::vector < PropertyVolumeData >                                              PropertyVolumeDataList;
+    typedef std::vector < PropertySurfaceData >                                         PropertySurfaceDataList;
+    typedef std::vector < PropertyVolumeData >                                          PropertyVolumeDataList;
+    typedef std::vector<std::shared_ptr<const Geometry2D> >                             GeometryList;
 
     /// \class Project
     /// \brief Highest level class containing all surface and volume data within a Cauldron project
@@ -68,16 +71,21 @@ namespace CauldronIO
         /// \brief Destructor
         ~Project();
 
-		/// \brief Adds a snapshot to the current project
+		/// \brief Adds a snapshot to the current project: exception thrown if it exists
 		void addSnapShot(std::shared_ptr<SnapShot>& snapShot);
-        /// \brief Adds a property to the current project
+        /// \brief Adds a property to the current project: exception thrown if it exists
         void addProperty(std::shared_ptr<const Property>& property);
-        /// \brief Adds a formation to the current project
+        /// \brief Adds a formation to the current project: exception thrown if it exists
         void addFormation(std::shared_ptr<const Formation>& formation);
-        /// \brief Adds a reservoir to the current project
+        /// \brief Adds a reservoir to the current project: exception thrown if it exists
         void addReservoir(std::shared_ptr<const Reservoir>& newReservoir);
-        /// \brief Retrieve all data in project
-        void retrieve();
+        /// \brief Adds a geometry to the current project: no exception thrown if it exists
+        /// Note: when a new surface or volume is added to the project without registering its geometry, this will fail...
+        ///     : consider to move this administration elsewhere, e.g. in the export(import)ToXML logic itself
+        void addGeometry(const std::shared_ptr<const Geometry2D>& geometry);
+        /// \brief Finds the index of this geometry in the list of geometries; throws an exception if index not found
+        /// \returns the index of this geometry in the list of geometries
+        size_t getGeometryIndex(const std::shared_ptr<const Geometry2D>& newGeometry) const;
         /// \brief Release all data in project
         void release();
 
@@ -95,6 +103,9 @@ namespace CauldronIO
         const SnapShotList& getSnapShots() const;
         /// \returns A list of all unique properties
         const PropertyList& getProperties() const;
+        /// \returns A list of all unique geometries
+        const GeometryList& getGeometries() const;
+
         /// \returns the property (if existing) for the given name
         std::shared_ptr<const Property> findProperty(std::string propertyName) const;
         /// \returns a list of all formations
@@ -119,6 +130,7 @@ namespace CauldronIO
         PropertyList m_propertyList;
         FormationList m_formationList;
         ReservoirList m_reservoirList;
+        GeometryList m_geometries;
         std::vector<std::string> m_surfaceNames;
         int m_xmlVersionMajor, m_xmlVersionMinor;
     };
@@ -342,16 +354,12 @@ namespace CauldronIO
         /// \brief Destructor
         ~Surface();
         
-        /// \brief assign the geometry
-        void setGeometry(std::shared_ptr<const Geometry2D>& geometry);
-        /// \brief assign the high-res geometry
-        void setHighResGeometry(std::shared_ptr<const Geometry2D>& geometry);
-        /// \returns the geometry; can be null
-        const std::shared_ptr<const Geometry2D>& getGeometry() const;
-        /// \returns the high-res geometry; can be null
-        const std::shared_ptr<const Geometry2D>& getHighResGeometry() const;
         /// \brief get the list of property-surfaceData pairs contained in this surface
         const PropertySurfaceDataList& getPropertySurfaceDataList() const;
+        /// \brief Method to replace a PropertySurfaceData object by another one in the list
+        /// \param[in] index Index in to the PropertySurfaceDataList
+        /// \param[in] index data the new PropertySurfaceData for that element
+        void replaceAt(size_t index, PropertySurfaceData& data);
         /// \brief Add a property-surfaceData pair to the list
         void addPropertySurfaceData( PropertySurfaceData& data);
         /// \returns true if this surface has a depth surface
@@ -384,8 +392,6 @@ namespace CauldronIO
         std::string m_name;
         std::string m_reservoirName;
         PropertySurfaceDataList m_propSurfaceList;
-        std::shared_ptr<const Geometry2D> m_geometry;
-        std::shared_ptr<const Geometry2D> m_highresgeometry;
     };
 
     class Geometry2D
@@ -398,7 +404,7 @@ namespace CauldronIO
         /// \param [in] deltaJ spacing in j-direction
         /// \param [in] minI map origin in i-direction
         /// \param [in] minJ map origin in j-direction
-        Geometry2D(size_t numI, size_t numJ, double deltaI, double deltaJ, double minI, double minJ);
+        Geometry2D(size_t numI, size_t numJ, double deltaI, double deltaJ, double minI, double minJ, bool cellCentered = false);
         /// \returns the local horizontal resolution
         size_t getNumI() const;
         /// \returns  the local vertical resolution
@@ -419,10 +425,16 @@ namespace CauldronIO
         virtual size_t getSize() const;
         /// \returns true if two geometries are equal
         bool operator==(const Geometry2D& other) const;
+        /// \returns true if properties are cell-centered
+        bool isCellCentered() const;
+        /// \brief mark this surface cell-centered
+        /// \param [in] cellCentered true if the surface should be cell-centered
+        void setCellCentered(bool cellCentered);
 
     protected:
         double m_deltaI, m_deltaJ, m_minI, m_minJ, m_maxI, m_maxJ;
         size_t m_numI, m_numJ;
+        bool m_isCellCentered;
     };
 
     class Geometry3D : public Geometry2D
@@ -438,7 +450,7 @@ namespace CauldronIO
         /// \param [in] minI the volume origin in i-dimension
         /// \param [in] minJ the volume origin in j-dimension
         Geometry3D(size_t numI, size_t numJ, size_t numK, size_t offsetK,
-            double deltaI, double deltaJ, double minI, double minJ);
+            double deltaI, double deltaJ, double minI, double minJ, bool cellCentered = false);
 
         /// \returns the number of k elements in this volume
         size_t getNumK() const;
@@ -469,7 +481,6 @@ namespace CauldronIO
         
         std::string dataSetName;
         std::string filepathName;
-        float undef;
         VisualizationIOData* parent;
         int indexMain; // index into allReadData
         int indexSub;  // index into propertyvalue array
@@ -483,14 +494,19 @@ namespace CauldronIO
     class VisualizationIOData
     {
     public:
-        /// \brief Retrieve the data: returns true on success
-        virtual bool retrieve() = 0;
+        /// \brief Retrieve the data: throws on failure. Note: The VisualizationIO_projectHandle implementation requires that HDF data is read before retrieve is called.
+        /// \brief See CauldronIO::VisualizationUtils::retrieveAllData.The VisualizationIO_native implementation can handle this itself.
+        virtual void retrieve() = 0;
         /// \brief Release memory; does not destroy the object; it can be retrieved again
         virtual void release() = 0;
         /// \brief Prefetch any data: load from disk, do not decompress yet (for this call retrieve)
         virtual void prefetch() = 0;
         /// \returns true if data is available
         virtual bool isRetrieved() const = 0;
+        
+        /// HDF support calls (relevant for VisualizationIO_projectHandle only)
+        /////////////////////////////////////
+        
         /// \returns a list of HDFinfo holding the data; can be null; ownership with this class
         virtual const std::vector < std::shared_ptr<HDFinfo> >& getHDFinfo() = 0;
         /// \brief Method to signal new HDF data has been loaded
@@ -504,13 +520,13 @@ namespace CauldronIO
     {
     public:
         /// \brief Create a surface-data object
-        SurfaceData(const std::shared_ptr<const Geometry2D>& geometry);
+        SurfaceData(const std::shared_ptr<const Geometry2D>& geometry, float minValue = DefaultUndefinedValue, float maxValue = DefaultUndefinedValue);
         ~SurfaceData();
 
         /// VisualizationIOData implementation
         //////////////////////////////////////////////////////////////////////////
         /// \brief Retrieve the data
-        virtual bool retrieve() = 0;
+        virtual void retrieve() = 0;
         /// \brief Release memory; does not destroy the object; it can be retrieved again
         virtual void release();
         /// \returns true if data is available
@@ -524,7 +540,7 @@ namespace CauldronIO
         const std::shared_ptr<const Geometry2D>& getGeometry() const;
         /// \brief Assign data to the map : geometry must have been assigned
         /// \param [in] data pointer to the xy data, ordered row-wise
-        /// \note data ownership is not transferred; data should be deleted by client if obsolete
+        /// \note data is copied so data ownership is not transferred; data should be deleted by client if obsolete
         void setData_IJ(float* data);
         /// \returns  true if data is represented per row
         bool canGetRow() const;
@@ -533,21 +549,22 @@ namespace CauldronIO
         /// \brief Gets the value at the specified grid coordinate
         /// \param [in] i row index
         /// \param [in] j column index
-        /// \returns
+        /// \returns value at the given coordinate
         float getValue(size_t i, size_t j) const;
         /// \brief Gets an entire row; can be null if this map is not row-ordered (or throw an exception)
         /// \param [in] j column index
-        /// \returns
+        /// \returns the row values for the given column
         const float* getRowValues(size_t j);
         /// \brief Gets an entire column; can be null if this map is not row-ordered (or throw an exception)
         /// \param [in] i row index
-        /// \returns
+        /// \returns the column values for the given row
         const float* getColumnValues(size_t i);
         /// \returns pointer to entire data 
         const float* getSurfaceValues();
-        /// \brief Convenience function to get an index into the 1D volume data 
+        /// \brief Convenience function to get an index into the flat surface data 
         /// \param [in] i row index
         /// \param [in] j column index
+        /// \returns the index into the 2D array
         inline size_t getMapIndex(size_t i, size_t j) const;
         /// \returns true if surface is constant
         bool isConstant() const;
@@ -556,28 +573,33 @@ namespace CauldronIO
         void setConstantValue(float constantValue);
         /// \returns the constant value
         float getConstantValue() const;
-        /// \returns true if grid coordinate is undefined
         /// \param [in] i row index
         /// \param [in] j column index
+        /// \returns true if grid coordinate is undefined
         bool isUndefined(size_t i, size_t j) const;
         /// \returns the undefined value
         float getUndefinedValue() const;
-        /// \brief Set the undefined value
-        /// \param [in] undefined the undefined value value
-        void setUndefinedValue(float undefined);
         /// \param [in] formation the formation to be associated with this map. Optional.
-        void setFormation(std::shared_ptr<const Formation>& formation);
+        void setFormation(const std::shared_ptr<const Formation>& formation);
         /// \returns the associated top formation for this map. Can be null
         const std::shared_ptr<const Formation>& getFormation() const;
         /// \brief Set the reservoir of this surface
         void setReservoir(std::shared_ptr<const Reservoir> reservoir);
         /// \brief Get the name of the reservoir associated with the surface. Optional.
         const std::shared_ptr<const Reservoir>& getReservoir() const;
+        /// \returns the minimum value of this surface
+        float getMinValue();
+        /// \returns the maximum value of this surface
+        float getMaxValue();
 
     private:
+        void updateMinMax();
+
         float* m_internalData;
-        float m_constantValue, m_undefinedValue;
-        bool m_isConstant, m_isCellCentered;
+        float m_constantValue;
+        bool m_isConstant;
+        bool m_updateMinMax;
+        float m_minValue, m_maxValue;
         void setData(float* data, bool setValue = false, float value = 0);
         std::shared_ptr<const Formation> m_formation;
         std::shared_ptr<const Reservoir> m_reservoir;
@@ -605,13 +627,19 @@ namespace CauldronIO
 
         /// \returns the SubsurfaceKind
         SubsurfaceKind getSubSurfaceKind() const;
-        /// \brief get the list of property-surfaceData pairs contained in this surface
-        const PropertyVolumeDataList& getPropertyVolumeDataList() const;
+        /// \brief get the list of property-volumeData pairs contained in this surface
+        PropertyVolumeDataList& getPropertyVolumeDataList();
+        //// \brief Removes a propertyvolume data from the list and disposes it        
+        void removeVolumeData(PropertyVolumeData& data);
         /// \brief Add a property-surfaceData pair to the list
         void addPropertyVolumeData(PropertyVolumeData& data);
+        /// \brief Method to replace a PropertyVolumeData object by another one in the list
+        /// \param[in] index Index in to the PropertyVolumeDataList
+        /// \param[in] index data the new PropertyVolumeData for that element
+        void replaceAt(size_t index, PropertyVolumeData& data);
         /// \returns true if this surface has a depth surface
         bool hasDepthVolume() const;
-        /// \returns the depth surface data; can be null
+        /// \returns the depth volume data; can be null
         std::shared_ptr<VolumeData> getDepthVolume() const;
 
         /// \brief Retrieve the data
@@ -630,7 +658,7 @@ namespace CauldronIO
     {
     public:
         /// \brief Create a surface-data object
-        VolumeData(const std::shared_ptr<Geometry3D>& geometry);
+        VolumeData(const std::shared_ptr<Geometry3D>& geometry, float minValue = DefaultUndefinedValue, float maxValue = DefaultUndefinedValue);
         ~VolumeData();
 
         /// \returns the geometry
@@ -654,8 +682,6 @@ namespace CauldronIO
         /// \param [in] k index in k-dimension
         /// \returns if value is undefined
         bool isUndefined(size_t i, size_t j, size_t k) const;
-        /// \brief Set the undefined value
-        void setUndefinedValue(float undefined);
         /// \returns the undefined value
         float getUndefinedValue() const;
         /// \returns true if surface is constant
@@ -702,10 +728,15 @@ namespace CauldronIO
         /// \param [in] k index in k-dimension
         size_t computeIndex_KIJ(size_t i, size_t j, size_t k) const;
 
+        /// \returns the minimum value of this volume
+        float getMinValue();
+        /// \returns the maximum value of this volume
+        float getMaxValue();
+
         /// VisualizationIOData implementation
         //////////////////////////////////////////////////////////////////////////
         /// \brief Retrieve the data, returns true on success
-        virtual bool retrieve() = 0;
+        virtual void retrieve() = 0;
         /// \brief Release memory; does not destroy the object; it can be retrieved again
         virtual void release();
         /// \returns true if data is available
@@ -716,11 +747,14 @@ namespace CauldronIO
         virtual const std::vector < std::shared_ptr<HDFinfo> >& getHDFinfo() = 0;
 
     private:
+        void updateMinMax();
         void setData(float* data, float** internalData, bool setValue = false, float value = 0);
         float* m_internalDataIJK;
         float* m_internalDataKIJ;
-        float m_constantValue, m_undefinedValue;
-        bool m_isConstant, m_isCellCentered;
+        float m_minValue, m_maxValue;
+        bool m_updateMinMax;
+        float m_constantValue;
+        bool m_isConstant;
         SubsurfaceKind m_subSurfaceKind;
         std::shared_ptr<const Property> m_property;
         std::shared_ptr<const Volume> m_depthVolume;

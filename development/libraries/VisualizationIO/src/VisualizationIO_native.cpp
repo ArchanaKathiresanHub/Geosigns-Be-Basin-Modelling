@@ -13,7 +13,8 @@
 
 using namespace CauldronIO;
 
-CauldronIO::MapNative::MapNative(const std::shared_ptr<const Geometry2D>& geometry) : SurfaceData(geometry)
+CauldronIO::MapNative::MapNative(const std::shared_ptr<const Geometry2D>& geometry, float minValue, float maxValue)
+    : SurfaceData(geometry, minValue, maxValue)
 {
     m_params = NULL;
     m_dataStore = NULL;
@@ -38,9 +39,9 @@ void CauldronIO::MapNative::prefetch()
     }
 }
 
-bool CauldronIO::MapNative::retrieve()
+void CauldronIO::MapNative::retrieve()
 {
-    if (isConstant()) return true;
+    if (isConstant()) return;
 
     prefetch();
 
@@ -52,8 +53,6 @@ bool CauldronIO::MapNative::retrieve()
 
     setData_IJ(data);
     delete[] data;
-
-    return true;
 }
 
 void CauldronIO::MapNative::setDataStore(DataStoreParams* params)
@@ -70,8 +69,8 @@ const DataStoreParams* CauldronIO::MapNative::getDataStoreParams() const
 //////////////////////////////////////////////////////////////////////////
 
 
-CauldronIO::VolumeDataNative::VolumeDataNative(const std::shared_ptr<Geometry3D>& geometry)
-    : VolumeData(geometry)
+CauldronIO::VolumeDataNative::VolumeDataNative(const std::shared_ptr<Geometry3D>& geometry, float minValue, float maxValue)
+    : VolumeData(geometry, minValue, maxValue)
 {
     m_dataIJK = false;
     m_dataKIJ = false;
@@ -111,9 +110,9 @@ void CauldronIO::VolumeDataNative::prefetch()
     }
 }
 
-bool CauldronIO::VolumeDataNative::retrieve()
+void CauldronIO::VolumeDataNative::retrieve()
 {
-    if (isConstant()) return true;
+    if (isConstant()) return;
 
     if (m_dataIJK)
     {
@@ -146,8 +145,6 @@ bool CauldronIO::VolumeDataNative::retrieve()
         setData_KIJ(data);
         delete[] data;
     }
-
-    return true;
 }
 
 void CauldronIO::VolumeDataNative::setDataStore(DataStoreParams* params, bool dataIJK)

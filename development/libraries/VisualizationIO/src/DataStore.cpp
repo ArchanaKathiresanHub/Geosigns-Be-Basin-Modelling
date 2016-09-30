@@ -135,14 +135,9 @@ void CauldronIO::DataStoreLoad::getVolume(pugi::xml_node ptree, std::shared_ptr<
         VolumeDataNative* volumeNative = dynamic_cast<VolumeDataNative*>(volumeData.get());
         assert(volumeNative);
 
-        // Extract some data
-        float undef = datastoreNode.attribute("undef").as_float();
-        volumeNative->setUndefinedValue(undef);
-
         DataStoreParamsNative* paramsNative = new DataStoreParamsNative();
         paramsNative->fileName = path;
 		paramsNative->fileName << datastoreNode.attribute("file").value();
-
 
         std::string compression = datastoreNode.attribute("compression").value();
         paramsNative->compressed = compression == "gzip";
@@ -167,9 +162,6 @@ void CauldronIO::DataStoreLoad::getSurface(pugi::xml_node ptree, std::shared_ptr
     MapNative* mapNative = dynamic_cast<MapNative*>(surfaceData.get());
     assert(mapNative); 
             
-    float undef = datastoreNode.attribute("undef").as_float();
-    mapNative->setUndefinedValue(undef);
-
     DataStoreParamsNative* paramsNative = new DataStoreParamsNative();
 	paramsNative->fileName = path;
     paramsNative->fileName << datastoreNode.attribute("file").value();
@@ -281,7 +273,6 @@ void CauldronIO::DataStoreSave::addSurface(const std::shared_ptr<SurfaceData>& s
 {
     pugi::xml_node subNode = node.append_child("datastore");
     subNode.append_attribute("file") = ibs::FilePath(m_fileName).fileName().c_str();
-    subNode.append_attribute("undef") = surfaceData->getUndefinedValue();
 
     MapNative* mapNative = dynamic_cast<MapNative*>(surfaceData.get());
 
@@ -343,7 +334,6 @@ void CauldronIO::DataStoreSave::writeVolumePart(pugi::xml_node volNode, bool com
 
     pugi::xml_node subNode = volNode.append_child("datastore");
     subNode.append_attribute("file") = ibs::FilePath(m_fileName).fileName().c_str();
-    subNode.append_attribute("undef") = volume->getUndefinedValue();
 
     if (compress)
         subNode.append_attribute("compression") = COMPRESSION_LZ4 ? "lz4" : "gzip";

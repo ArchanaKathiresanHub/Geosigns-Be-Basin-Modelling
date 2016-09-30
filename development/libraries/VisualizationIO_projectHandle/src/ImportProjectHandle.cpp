@@ -10,6 +10,8 @@
 
 #include "VisualizationIO_projectHandle.h"
 #include "VisualizationAPI.h"
+#include "VisualizationUtils.h"
+
 #include "Interface/ProjectHandle.h"
 #include "Interface/ObjectFactory.h"
 #include "Interface/Property.h"
@@ -86,6 +88,9 @@ void ImportProjectHandle::addSnapShots(std::shared_ptr<Interface::ProjectHandle>
 
         // Add to project
         m_project->addSnapShot(snapShotIO);
+
+        // TEMP!!!!
+        //return;
     }
 }
 
@@ -224,8 +229,8 @@ std::shared_ptr<CauldronIO::SnapShot> ImportProjectHandle::createSnapShotIO(std:
         trapperIO->setDepth((float)depth);
         trapperIO->setPosition((float)pointX, (float)pointY);
         trapperIO->setDownStreamTrapperID(downstreamTrapperID);
-        trapperIO->setOWC(OWC);
-        trapperIO->setGOC(GOC);
+        trapperIO->setOWC((float)OWC);
+        trapperIO->setGOC((float)GOC);
 
         snapShotIO->addTrapper(trapperIO);
     }
@@ -296,25 +301,10 @@ vector<std::shared_ptr<CauldronIO::Surface> > ImportProjectHandle::createSurface
 
         // Get the geometry data
         std::shared_ptr<const CauldronIO::Geometry2D> geometry;
-        if (surfaceIO)
-        {
-            if (propertyIO->isHighRes() && surfaceIO->getHighResGeometry())
-                geometry = surfaceIO->getHighResGeometry();
-            else if (!propertyIO->isHighRes() && surfaceIO->getGeometry())
-                geometry = surfaceIO->getGeometry();
-#if _DEBUG
-            if (geometry)
-            {
-                // Check geometry sizes
-                const DataAccess::Interface::GridMap* gridmap = propValue->getGridMap();
-                assert(gridmap->numI() == geometry->getNumI() && gridmap->numI() == geometry->getNumI());
-                gridmap->release();
-            }
-#endif
-        }
         if (!geometry)
         {
             // Get from the gridmap: this will load the gridmap :-(
+            // TODO: see if we can optimize this....
             const DataAccess::Interface::GridMap* gridmap = propValue->getGridMap();
             gridmap->retrieveData();
             // Set the geometry
@@ -322,6 +312,9 @@ vector<std::shared_ptr<CauldronIO::Surface> > ImportProjectHandle::createSurface
             gridmap->restoreData();
             gridmap->release();
         }
+
+        // Add the geometry to the project
+        m_project->addGeometry(geometry);
 
         // Create the surface data object
         std::shared_ptr<CauldronIO::SurfaceData> propertyMap = createMapIO(propValue, geometry);
@@ -358,12 +351,6 @@ vector<std::shared_ptr<CauldronIO::Surface> > ImportProjectHandle::createSurface
         // Set reservoir
         if (reservoir)
             propertyMap->setReservoir(reservoirIO);
-
-        // Set the geometry
-        if (propertyIO->isHighRes() && !surfaceIO->getHighResGeometry())
-            surfaceIO->setHighResGeometry(geometry);
-        if (!propertyIO->isHighRes() && !surfaceIO->getGeometry())
-            surfaceIO->setGeometry(geometry);
 
         // Add the property/surfaceData object
         CauldronIO::PropertySurfaceData propSurfaceData(propertyIO, propertyMap);
@@ -486,6 +473,9 @@ std::shared_ptr<CauldronIO::Geometry3D> ImportProjectHandle::createGeometry3D(co
 CauldronIO::PropertyVolumeData ImportProjectHandle::createPropertyVolumeData(std::shared_ptr<PropertyValueList> propValues,
     std::shared_ptr<CauldronIO::Geometry3D>& geometry3D, std::shared_ptr<CauldronIO::FormationInfoList> depthFormations)
 {
+    std::shared_ptr<const CauldronIO::Geometry2D> geometry = geometry3D;
+    m_project->addGeometry(geometry);
+
     CauldronIO::VolumeProjectHandle* volumeDataProjHandle = new CauldronIO::VolumeProjectHandle(geometry3D);
     std::shared_ptr<CauldronIO::VolumeData> volumeData(volumeDataProjHandle);
     
@@ -501,6 +491,9 @@ CauldronIO::PropertyVolumeData ImportProjectHandle::createPropertyVolumeData(std
 CauldronIO::PropertyVolumeData ImportProjectHandle::createPropertyVolumeData(const DataAccess::Interface::PropertyValue* propVal, 
     std::shared_ptr<CauldronIO::Geometry3D>& geometry3D, std::shared_ptr<CauldronIO::FormationInfo> formationInfo)
 {
+    std::shared_ptr<const CauldronIO::Geometry2D> geometry = geometry3D;
+    m_project->addGeometry(geometry);
+
     CauldronIO::VolumeProjectHandle* volumeDataProjHandle = new CauldronIO::VolumeProjectHandle(geometry3D);
     std::shared_ptr<CauldronIO::VolumeData> volumeData(volumeDataProjHandle);
 

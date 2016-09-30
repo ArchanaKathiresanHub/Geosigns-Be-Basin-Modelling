@@ -511,7 +511,7 @@ vector<int> UpdatePropertySurfaceData(shared_ptr<CauldronIO::Project> projectXml
 					indexWithUpdatedPropSurfaceData.push_back(static_cast<int>(i));
 					indexWithUpdatedPropSurfaceData.push_back(static_cast<int>(j));
 					const shared_ptr<Surface> surfaceExisting = projectXml->getSnapShots()[i]->getSurfaceList()[j];
-					shared_ptr<const Geometry2D> geo2DExisting = surfaceExisting->getGeometry();
+					shared_ptr<const Geometry2D> geo2DExisting = surfaceExisting->getPropertySurfaceDataList()[0].second->getGeometry();
 					shared_ptr<SurfaceData> valueMap(new MapNative(geo2DExisting));
 					size = static_cast<int>(geo2DExisting->getNumI()*geo2DExisting->getNumJ());
 					float *surfaceDataValue = new float[size];
@@ -755,6 +755,7 @@ void AddNewData(string xmlFileName)
 	shared_ptr<const Property> prop(new Property(propName, propName, propName, unit, FormationProperty, Continuous3DProperty));
 	shared_ptr<const Geometry2D> geometry(new Geometry2D(2, 2, 1, 1, 0, 0));
 	shared_ptr<SurfaceData> valueMap(new MapNative(geometry));
+    projectXml->addGeometry(geometry);
 	
 	//Preparing property surface data
 	float *data1 = new float[2 * 2];
@@ -766,7 +767,6 @@ void AddNewData(string xmlFileName)
 		
 	//Adding surface to Snapshot
 	shared_ptr<Surface> surface(new Surface(surfaceName, CauldronIO::SubsurfaceKind::Sediment));
-	surface->setGeometry(geometry);
 	PropertySurfaceData propSurface = PropertySurfaceData(prop, valueMap);
 	surface->addPropertySurfaceData(propSurface);
 	snapShot->addSurface(surface);
@@ -782,6 +782,7 @@ void AddNewData(string xmlFileName)
 	shared_ptr<const Property> prop2(new Property(projectXml->getProperties()[0]->getName(), projectXml->getProperties()[0]->getUserName(), projectXml->getProperties()[0]->getCauldronName(), projectXml->getProperties()[0]->getUnit(), projectXml->getProperties()[0]->getType(), projectXml->getProperties()[0]->getAttribute()));
 	const shared_ptr<Geometry3D> geo3d(new Geometry3D(1, 2, 3, 4, 1.1, 2.1, 0.5, 2.5));
 	shared_ptr<VolumeData> volData(new VolumeDataNative(geo3d));
+    projectXml->addGeometry(geo3d);
 	float data[6] = { 1.1f, 2.1f, 1.2f ,1.3f,2.2f,2.3f};
 	volData->setData_KIJ(data);
 	

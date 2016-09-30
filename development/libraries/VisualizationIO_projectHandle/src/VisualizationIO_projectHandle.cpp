@@ -29,24 +29,22 @@ CauldronIO::MapProjectHandle::~MapProjectHandle()
 
 void CauldronIO::MapProjectHandle::prefetch()
 {
-    if (isRetrieved()) return;
-    assert(m_propVal != NULL);
-    const DataAccess::Interface::GridMap* gridmap = m_propVal->getGridMap();
 }
 
-bool CauldronIO::MapProjectHandle::retrieve()
+void CauldronIO::MapProjectHandle::retrieve()
 {
-    if (isRetrieved()) return true;
+    if (isRetrieved()) return;
 
-    if (!signalNewHDFdata()) return false;
-
-    retrieveFromHDF();
-
-    return true;
+    if (!signalNewHDFdata())
+        throw CauldronIOException("Cannot retrieve data, HDF data not available");
+    else
+        retrieveFromHDF();
 }
 
 void CauldronIO::MapProjectHandle::release()
 {
+    if (!isRetrieved()) return;
+
     if (m_info.size() > 0)
     {
         for (int i = 0; i < m_info.size(); i++)
@@ -57,7 +55,6 @@ void CauldronIO::MapProjectHandle::release()
     }
     m_info.clear();
 
-    if (!isRetrieved()) return;
     SurfaceData::release();
 }
 
@@ -81,8 +78,6 @@ void CauldronIO::MapProjectHandle::retrieveFromHDF()
     assert(signalNewHDFdata());
     assert(m_info.size() == 1 && m_info[0]->getData() != NULL);
     float* hdfData = m_info[0]->getData(); 
-
-    setUndefinedValue(m_info[0]->undef);
 
     float constantValue;
     bool isConstant = true;
@@ -142,6 +137,8 @@ void CauldronIO::MapProjectHandle::setDataStore(const DataAccess::Interface::Pro
 
 bool CauldronIO::MapProjectHandle::signalNewHDFdata()
 {
+    if (m_info.size() == 0) return false;
+    
     for (int i = 0; i < m_info.size(); i++)
         if (m_info[i]->getData() == NULL) return false;
 
@@ -164,27 +161,29 @@ CauldronIO::VolumeProjectHandle::~VolumeProjectHandle()
 
 void CauldronIO::VolumeProjectHandle::prefetch()
 {
-    if (isRetrieved()) return;
+    // Unused...
 }
 
-bool CauldronIO::VolumeProjectHandle::retrieve()
+void CauldronIO::VolumeProjectHandle::retrieve()
 {
-    if (isRetrieved()) return true;
+    if (isRetrieved()) return;
 
     if (m_depthFormations && m_propValues)
     {
-        if (!signalNewHDFdata()) return false;
-        // Read from prefetched HDF
-        retrieveMultipleFromHDF();
+        if (!signalNewHDFdata())
+            throw CauldronIOException("Cannot retrieve data, HDF binary not read yet");
+        else
+            // Read from prefetched HDF
+            retrieveMultipleFromHDF();
     }
     else if (m_propVal != NULL)
     {
-        if (!signalNewHDFdata()) return false;
-        // Read from prefetched HDF
-        retrieveSingleFromHDF();
+        if (!signalNewHDFdata())
+            throw CauldronIOException("Cannot retrieve data, HDF binary not read yet");
+        else
+            // Read from prefetched HDF
+            retrieveSingleFromHDF();
     }
-
-    return true;
 }
 
 void CauldronIO::VolumeProjectHandle::release()
@@ -237,8 +236,6 @@ void CauldronIO::VolumeProjectHandle::retrieveMultipleFromHDF()
 {
     assert(signalNewHDFdata());
     assert(m_info.size() >= 1 && m_info[0]->getData() != NULL);
-
-    setUndefinedValue(m_info[0]->undef);
 
     // Detect a constant volume consisting of all constant subvolumes (bit extreme case though)
     float constantValue;
@@ -328,8 +325,6 @@ void CauldronIO::VolumeProjectHandle::retrieveSingleFromHDF()
     assert(m_info.size() == 1 && m_info[0]->getData() != NULL);
     float* hdfData = m_info[0]->getData();
 
-    setUndefinedValue(m_info[0]->undef);
-
     float constantValue;
     bool isConstant = true;
     bool firstConstant = true;
@@ -379,6 +374,8 @@ void CauldronIO::VolumeProjectHandle::setDataStore(std::shared_ptr<DataAccess::I
 
 bool CauldronIO::VolumeProjectHandle::signalNewHDFdata()
 {
+    if (m_info.size() == 0) return false;
+    
     for (int i = 0; i < m_info.size(); i++)
         if (m_info[i]->getData() == NULL) return false;
 

@@ -11,14 +11,18 @@
 #include "ImportExport.h"
 #include "ImportProjectHandle.h"
 #include "VisualizationIO_native.h"
+#include "VisualizationUtils.h"
 #include "Interface/ProjectHandle.h"
 #include "Interface/ObjectFactory.h"
 #include "FilePath.h"
+
 #include <boost/filesystem/path.hpp>
 #include <boost/lockfree/queue.hpp>
 #include <boost/atomic.hpp>
+
 #include <ctime>
 #include <cstring>
+
 #define verbose false
 
 /// \brief method to retrieve data on a separate thread
@@ -30,8 +34,7 @@ void retrieveDataQueue(std::vector < CauldronIO::VisualizationIOData* >* allData
         {
             CauldronIO::VisualizationIOData* data = allData->at(value);
             assert(!data->isRetrieved());
-            bool success = data->retrieve();
-            assert(success);
+            data->retrieve();
         }
     }
 
@@ -39,8 +42,7 @@ void retrieveDataQueue(std::vector < CauldronIO::VisualizationIOData* >* allData
     {
         CauldronIO::VisualizationIOData* data = allData->at(value);
         assert(!data->isRetrieved());
-        bool success = data->retrieve();
-        assert(success);
+        data->retrieve();
     }
 }
 
@@ -56,23 +58,29 @@ int main(int argc, char ** argv)
             << "  -convert <projectHandle> [<directory>] : converts the specified projectHandle to new native format, " << endl
             << "                                           output to directory if specified, otherwise same as input directory" << endl
             << " Options: " << endl
-            << " -threads=x                             : use x threads for compression during export or parallel importing" << endl;
+            << " -threads=x                              : use x threads for compression during export or parallel importing" << endl
+            << " -center                                 : cell-center all properties except depth" << endl;
         return 1;
     }
 
     string mode = argv[1];
 
-    // Check threads
+    // Check options
     int numThreads = 1;
-    if (std::string(argv[argc - 1]).find("threads") != std::string::npos)
+    bool center = false;
+    for (int i = 1; i < argc; i++)
     {
-        numThreads = std::atoi(argv[argc - 1] + 9);
-        numThreads = min(24, (int)max(1, (int)numThreads));
+        if (std::string(argv[i]).find("threads") != std::string::npos)
+        {
+            numThreads = std::atoi(argv[i] + 9);
+            numThreads = min(24, (int)max(1, (int)numThreads));
+        }
+        if (std::string(argv[i]).find("center") != std::string::npos)
+            center = true;
     }
 
     try
     {
-
         if (mode == "-import-native")
         {
             if (argc < 3)
@@ -167,7 +175,13 @@ int main(int argc, char ** argv)
                 // Retrieve data
                 cout << "Retrieving data" << endl;
                 start = clock();
-                project->retrieve();
+
+                for (const std::shared_ptr<CauldronIO::SnapShot>& snapShot : project->getSnapShots())
+                {
+                    CauldronIO::VisualizationUtils::retrieveAllData(snapShot, numThreads);
+                    snapShot->release();
+                }
+
                 timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
                 cout << "Finished retrieve in " << timeInSeconds << " seconds " << endl;
             }
@@ -182,13 +196,14 @@ int main(int argc, char ** argv)
                 if (argc > 3)
                 {
                     std::string argOutput(argv[3]);
-                    if (argOutput.find("threads") == std::string::npos)
+                    // Don't confuse with options
+                    if (argOutput.find("threads") == std::string::npos && argOutput.find("center") == std::string::npos)
                     {
                         absPath = ibs::FilePath(argOutput) << absPath.fileName();
                     }
                 }
 
-                CauldronIO::ImportExport::exportToXML(project, absPath.path(), numThreads);
+                CauldronIO::ImportExport::exportToXML(project, absPath.path(), numThreads, center);
                 timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
                 cout << "Wrote to new format in " << timeInSeconds << " seconds" << endl;
             }

@@ -42,7 +42,7 @@ namespace CauldronIO
         /// \brief Prefetch any data
         virtual void prefetch();
         /// \brief Override the retrieve method to load data from datastore
-        virtual bool retrieve();
+        virtual void retrieve();
         /// \brief Release memory; does not destroy the object; it can be retrieved again
         virtual void release();
         /// \returns a list of HDFinfo holding the data; can be null
@@ -72,7 +72,7 @@ namespace CauldronIO
         /// \brief Prefetch any data: not implemented by this class
         virtual void prefetch();
         /// \brief Override the retrieve method to load data from datastore
-        virtual bool retrieve();
+        virtual void retrieve();
         /// \brief Release memory; does not destroy the object; it can be retrieved again
         virtual void release();
         /// \returns a list of HDFinfo holding the data; can be null

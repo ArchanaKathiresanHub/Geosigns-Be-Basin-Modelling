@@ -83,3 +83,4 @@ namespace CauldronIO
 %template(PropertyVolumeData) std::pair<std::shared_ptr<const CauldronIO::Property>, std::shared_ptr<CauldronIO::VolumeData> >;
 %template(PropertyVolumeDataList) std::vector<CauldronIO::PropertyVolumeData > ;
 %template(HDFinfoList) std::vector<std::shared_ptr<CauldronIO::HDFinfo> >;
+%template(GeometryList) std::vector<std::shared_ptr<const CauldronIO::Geometry2D> >;

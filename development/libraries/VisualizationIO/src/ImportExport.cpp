@@ -10,6 +10,7 @@
 
 #include "ImportExport.h"
 #include "VisualizationIO_native.h"
+#include "VisualizationUtils.h"
 #include "DataStore.h"
 #include "FilePath.h"
 #include "FolderPath.h"
@@ -22,11 +23,9 @@
 #include <cstring>
 #include "hdf5.h"
 
-// From ProjectHandle.C : 
-const double DefaultUndefinedValue = 99999;
 using namespace CauldronIO;
 
-bool ImportExport::exportToXML(std::shared_ptr<Project>& project, const std::string& absPath, size_t numThreads)
+bool ImportExport::exportToXML(std::shared_ptr<Project>& project, const std::string& absPath, size_t numThreads, bool center)
 {
     // Create empty property tree object
     ibs::FilePath outputPath(absPath);
@@ -45,7 +44,7 @@ bool ImportExport::exportToXML(std::shared_ptr<Project>& project, const std::str
     pugi::xml_document doc;
     pugi::xml_node pt = doc.append_child("project");
 
-    ImportExport newExport(outputPath.filePath(), filenameNoExtension, numThreads);
+    ImportExport newExport(outputPath.filePath(), filenameNoExtension, numThreads, center);
 
     // Create xml property tree and write datastores
     newExport.addProject(pt, project);
@@ -61,6 +60,7 @@ void ImportExport::addProject(pugi::xml_node pt, std::shared_ptr<Project>& proje
 {
     ibs::FilePath fullPath(m_absPath);
     fullPath << m_relPath.path();
+    m_project = project;
 
     // Add general project description
     pt.append_child("name").text() = project->getName().c_str();
@@ -99,7 +99,7 @@ void ImportExport::addProject(pugi::xml_node pt, std::shared_ptr<Project>& proje
             reservoirNode.append_attribute("formation") = reservoir->getFormation()->getName().c_str();
         }
     }
-    
+
     // Write all snapshots
     const SnapShotList snapShotList = project->getSnapShots();
     m_append = detectAppend(project);
@@ -110,11 +110,21 @@ void ImportExport::addProject(pugi::xml_node pt, std::shared_ptr<Project>& proje
         pugi::xml_node node = snapShotNodes.append_child("snapshot");
         addSnapShot(snapShot, project, fullPath, node);
     }
+
+    // Write all geometries
+    if (project->getGeometries().size() > 0)
+    {
+        pugi::xml_node geometryNode = pt.append_child("geometries");
+        BOOST_FOREACH(const std::shared_ptr<const Geometry2D>& geometry, project->getGeometries())
+        {
+            addGeometryInfo2D(geometryNode, geometry);
+        }
+    }
 }
 
-CauldronIO::ImportExport::ImportExport(const ibs::FilePath& absPath, const ibs::FilePath& relPath, size_t numThreads) : m_absPath(absPath), m_relPath(relPath)
+CauldronIO::ImportExport::ImportExport(const ibs::FilePath& absPath, const ibs::FilePath& relPath, size_t numThreads, bool center) 
+    : m_absPath(absPath), m_relPath(relPath), m_numThreads(numThreads), m_center(center)
 {
-    m_numThreads = numThreads;
 }
 
 void CauldronIO::ImportExport::addProperty(pugi::xml_node node, const std::shared_ptr<const Property>& property) const
@@ -155,12 +165,6 @@ void CauldronIO::ImportExport::addSurface(DataStoreSave& dataStore, const std::s
     if (surfaceIO->getBottomFormation())
         ptree.append_attribute("bottom-formation") = surfaceIO->getBottomFormation()->getName().c_str();
 
-    // Write geometry
-    if (surfaceIO->getGeometry())
-        addGeometryInfo2D(ptree, surfaceIO->getGeometry(), "geometry");
-    if (surfaceIO->getHighResGeometry())
-        addGeometryInfo2D(ptree, surfaceIO->getHighResGeometry(), "geometry-highres");
-
     // Iterate over all contained valuemaps
     const PropertySurfaceDataList valueMaps = surfaceIO->getPropertySurfaceDataList();
 
@@ -178,8 +182,12 @@ void CauldronIO::ImportExport::addSurface(DataStoreSave& dataStore, const std::s
             if (surfaceData->getReservoir())
                 node.append_attribute("reservoir") = surfaceData->getReservoir()->getName().c_str();
 
-            bool isHighRes = surfaceIO->getHighResGeometry() && (*surfaceIO->getHighResGeometry().get() == *surfaceData->getGeometry().get());
-            node.append_attribute("high-res") = isHighRes;
+            // Write the geometry
+            node.append_attribute("geom-index") = (int)m_project->getGeometryIndex(surfaceData->getGeometry());
+
+            // Min/max values
+            node.append_attribute("min") = surfaceData->getMinValue();
+            node.append_attribute("max") = surfaceData->getMaxValue();
 
             if (surfaceData->isConstant())
                 node.append_attribute("constantvalue") = surfaceData->getConstantValue();
@@ -198,10 +206,7 @@ void CauldronIO::ImportExport::addVolume(DataStoreSave& dataStore, const std::sh
 
     if (volume->getPropertyVolumeDataList().size() > 0)
     {
-        // Set shared geometry
-        const std::shared_ptr<Geometry3D>& geometry = volume->getPropertyVolumeDataList().at(0).second->getGeometry();
-        addGeometryInfo2D(volNode, geometry, "geometry");
-        
+       
         pugi::xml_node propVolNodes = volNode.append_child("propertyvols");
         BOOST_FOREACH(const PropertyVolumeData& propVolume, volume->getPropertyVolumeDataList())
         {
@@ -214,7 +219,14 @@ void CauldronIO::ImportExport::addVolume(DataStoreSave& dataStore, const std::sh
             node.append_attribute("firstK") = (unsigned int)thisGeometry->getFirstK();
             node.append_attribute("numK") = (unsigned int)thisGeometry->getNumK();
 
-            size_t numBytes = geometry->getNumI()*geometry->getNumJ()*geometry->getNumK()*sizeof(float);
+            // Write the geometry
+            node.append_attribute("geom-index") = (int)m_project->getGeometryIndex(thisGeometry);
+
+            size_t numBytes = thisGeometry->getNumI()*thisGeometry->getNumJ()*thisGeometry->getNumK()*sizeof(float);
+
+            // Min/max values
+            node.append_attribute("min") = data->getMinValue();
+            node.append_attribute("max") = data->getMaxValue();
 
             if (data->isConstant())
             {
@@ -227,29 +239,18 @@ void CauldronIO::ImportExport::addVolume(DataStoreSave& dataStore, const std::sh
     }
 }
 
-void CauldronIO::ImportExport::addGeometryInfo2D(pugi::xml_node node, const std::shared_ptr<const Geometry2D>& geometry, const std::string& name) const
+void CauldronIO::ImportExport::addGeometryInfo2D(pugi::xml_node node, const std::shared_ptr<const Geometry2D>& geometry) const
 {
-    pugi::xml_node subNode = node.append_child(name.c_str());
+    pugi::xml_node subNode = node.append_child("geometry");
     subNode.append_attribute("numI"  ) = (unsigned int)geometry->getNumI();
     subNode.append_attribute("numJ"  ) = (unsigned int)geometry->getNumJ();
     subNode.append_attribute("minI"  ) = geometry->getMinI();
     subNode.append_attribute("minJ"  ) = geometry->getMinJ();
     subNode.append_attribute("deltaI") = geometry->getDeltaI();
     subNode.append_attribute("deltaJ") = geometry->getDeltaJ();
-}
 
-void CauldronIO::ImportExport::addGeometryInfo3D(pugi::xml_node node, const std::shared_ptr<const Geometry3D>& geometry) const
-{
-    pugi::xml_node subNode = node.append_child("geometry");
-    subNode.append_attribute("numI")   = (unsigned int)geometry->getNumI();
-    subNode.append_attribute("numJ")   = (unsigned int)geometry->getNumJ();
-    subNode.append_attribute("minI")   = geometry->getMinI();
-    subNode.append_attribute("minJ")   = geometry->getMinJ();
-    subNode.append_attribute("deltaI") = geometry->getDeltaI();
-    subNode.append_attribute("deltaJ") = geometry->getDeltaJ();
-
-    subNode.append_attribute("numK")   = (unsigned int)geometry->getNumK();
-    subNode.append_attribute("firstK") = (unsigned int)geometry->getFirstK();
+    if (geometry->isCellCentered())
+        subNode.append_attribute("cell-centered") = true;
 }
 
 void CauldronIO::ImportExport::addSnapShot(const std::shared_ptr<SnapShot>& snapShot, std::shared_ptr<Project>& project, ibs::FilePath fullPath, pugi::xml_node node)
@@ -273,7 +274,15 @@ void CauldronIO::ImportExport::addSnapShot(const std::shared_ptr<SnapShot>& snap
     node.append_attribute("isminor") = snapShot->isMinorShapshot();
 
     // Read all data into memory
-    retrieveAllData(snapShot);
+    CauldronIO::VisualizationUtils::retrieveAllData(snapShot, m_numThreads);
+    
+    // Cell center data if necessary
+    if (m_center)
+    {
+        CauldronIO::VisualizationUtils::cellCenterAllMaps(snapShot, m_project);
+        CauldronIO::VisualizationUtils::cellCenterVolume(snapShot->getVolume(), m_project);
+        CauldronIO::VisualizationUtils::cellCenterFormationVolumes(snapShot, m_project);
+    }
 
     // Add surfaces
     //////////////////////////////////////////////////////////////////////////
@@ -308,18 +317,22 @@ void CauldronIO::ImportExport::addSnapShot(const std::shared_ptr<SnapShot>& snap
         pugi::xml_node formVolumesNode = node.append_child("formvols");
         BOOST_FOREACH(FormationVolume& formVolume, formVolumes)
         {
-            // General properties
-            pugi::xml_node volNode = formVolumesNode.append_child("formvol");
+            // Only add a volume if it contains something
+            if (formVolume.second->getPropertyVolumeDataList().size() > 0)
+            {
+                // General properties
+                pugi::xml_node volNode = formVolumesNode.append_child("formvol");
 
-            const std::shared_ptr<Volume> subVolume = formVolume.second;
-            const std::shared_ptr<const Formation> subFormation = formVolume.first;
+                const std::shared_ptr<Volume> subVolume = formVolume.second;
+                const std::shared_ptr<const Formation> subFormation = formVolume.first;
 
-            // Add formation name
-            volNode.append_attribute("formation") = subFormation->getName().c_str();
+                // Add formation name
+                volNode.append_attribute("formation") = subFormation->getName().c_str();
 
-            // Add volume 
-            pugi::xml_node subvolNode = volNode.append_child("volume");
-            addVolume(volumeStore, subVolume, subvolNode);
+                // Add volume 
+                pugi::xml_node subvolNode = volNode.append_child("volume");
+                addVolume(volumeStore, subVolume, subvolNode);
+            }
         }
     }
 
@@ -333,7 +346,7 @@ void CauldronIO::ImportExport::addSnapShot(const std::shared_ptr<SnapShot>& snap
     for (int i = 0; i < volumeStore.getDataToCompressList().size(); i++)
         allData.push_back(volumeStore.getDataToCompressList().at(i));
 
-    boost::lockfree::queue<int> queue(128);
+    boost::lockfree::queue<int> queue(1024);
     boost::thread_group threads;
 
     // Add to queue
@@ -392,134 +405,6 @@ void CauldronIO::ImportExport::addSnapShot(const std::shared_ptr<SnapShot>& snap
     snapShot->release();
 }
 
-void CauldronIO::ImportExport::retrieveAllData(const std::shared_ptr<SnapShot>& snapShot)
-{
-    // Collect all data to retrieve
-    // TODO: check if this works correctly in "append" mode: in append mode it should not retrieve data that has not been added
-    std::vector < VisualizationIOData* > allReadData = snapShot->getAllRetrievableData();
-
-    // This is the queue of indices of data ready to be retrieved (and compressed?)
-    boost::lockfree::queue<int> queue(128);
-    boost::atomic<bool> done(false);
-    
-    // Retrieve in separate threads; the queue will be filled from the main thread
-    boost::thread_group threads;
-    for (int i = 0; i < m_numThreads - 1; ++i)
-        threads.add_thread(new boost::thread(CauldronIO::ImportExport::retrieveDataQueue, &allReadData, &queue, &done));
-    
-    // Read HDF data into memory on single main thread
-    prefetchHDFdata(allReadData, &queue);
-    done = true;
-    
-    // Single threaded: retrieve now
-    if (m_numThreads == 1)
-        retrieveDataQueue(&allReadData, &queue, &done);
-    threads.join_all();
-}
-
-void CauldronIO::ImportExport::prefetchHDFdata(std::vector< VisualizationIOData* > allReadData, boost::lockfree::queue<int>* queue)
-{
-    std::vector < std::vector < std::shared_ptr<HDFinfo> > > hdfInfoListList;
-    std::vector < std::string > hdffileNames;
-    
-    // Collect all hdfInfo
-    for (int i = 0; i < allReadData.size(); i++)
-    {
-        std::vector < std::shared_ptr<HDFinfo> > hdfInfo = allReadData[i]->getHDFinfo();
-        for (int j = 0; j < hdfInfo.size(); j++)
-        {
-            std::string filepathname = hdfInfo[j]->filepathName;
-
-            // Signal the index so we know when it is complete
-            hdfInfo[j]->indexMain = i;
-            
-            // See if this file is known
-            assert(filepathname.length() > 0);
-
-            bool exists = false;
-            for (std::string filename : hdffileNames)
-                exists |= filename == filepathname;
-            if (!exists)
-            {
-                hdffileNames.push_back(filepathname);
-                std::vector < std::shared_ptr<HDFinfo> > hdfInfoList;
-                hdfInfoListList.push_back(hdfInfoList);
-            }
-
-            // Add to correct list
-            for (int k = 0; k < hdffileNames.size(); ++k)
-            {
-                if (hdffileNames[k] == filepathname)
-                {
-                    hdfInfoListList[k].push_back(hdfInfo[j]);
-                    break;
-                }
-            }
-        }
-    }
-
-    for (int k = 0; k < hdfInfoListList.size(); ++k)
-        loadHDFdata(hdfInfoListList[k], queue);
-}
-
-void CauldronIO::ImportExport::loadHDFdata(std::vector< std::shared_ptr<HDFinfo> > hdfInfoList, boost::lockfree::queue<int>* queue)
-{
-    if (hdfInfoList.size() == 0) return;
-
-    std::string filename = hdfInfoList[0]->filepathName;
-
-    hid_t fileId = H5Fopen(filename.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT);
-    if (fileId <= -1)
-        throw CauldronIOException(std::string("Could not open HDF file: ") + filename);
-
-    for (int i = 0; i < hdfInfoList.size(); i++)
-    {
-        // Find the dataset
-        std::string datasetname = hdfInfoList[i]->dataSetName;
-        hid_t dataSetId = H5Dopen(fileId, datasetname.c_str(), H5P_DEFAULT);
-
-        if (dataSetId <= -1)
-            throw CauldronIOException(std::string("Could not open dataset: ") + datasetname);
-
-        hid_t dataTypeId = H5Tcopy(H5T_NATIVE_FLOAT);
-        H5T_class_t HDFclass = H5Tget_class(dataTypeId);
-        assert(HDFclass == H5T_FLOAT);
-
-        hid_t dataSpaceId = H5Dget_space(dataSetId);
-        assert(dataSpaceId >= 0);
-
-        hsize_t dimensions[3];
-        int rank = H5Sget_simple_extent_dims(dataSpaceId, dimensions, 0);
-
-        // Add a third dimension if needed
-        if (rank == 2) dimensions[2] = 1;
-
-        // undefined value : for maps and formations, it is always the same value (from: ProjectHandle.C, not Interface.h)
-        hdfInfoList[i]->undef = (float)DefaultUndefinedValue;
-
-        // Allocate memory
-        hdfInfoList[i]->setData(new float[dimensions[0] * dimensions[1] * dimensions[2]]);
-
-        // Read the data
-        herr_t status = H5Dread(dataSetId, dataTypeId, H5S_ALL, H5S_ALL, H5P_DEFAULT, (void*)hdfInfoList[i]->getData());
-
-        /// Signal the parent new data is there; 
-        /// it should return true if all data is now loaded
-        /// and then we should push a new (completed) index to the queue
-        bool complete = hdfInfoList[i]->parent->signalNewHDFdata();
-        if (complete)
-            queue->push(hdfInfoList[i]->indexMain);
-
-        if (status <= -1)
-            throw CauldronIOException("Error during hdf file read");
-
-        H5Tclose(dataTypeId);
-        H5Dclose(dataSetId);
-    }
-    
-    H5Fclose(fileId);
-}
-
 void CauldronIO::ImportExport::compressDataQueue(std::vector< std::shared_ptr < DataToCompress > > allData, boost::lockfree::queue<int>* queue)
 {
     int value;
@@ -527,28 +412,6 @@ void CauldronIO::ImportExport::compressDataQueue(std::vector< std::shared_ptr < 
     {
         std::shared_ptr<DataToCompress> data = allData.at(value);
         data->compress();
-    }
-}
-
-void CauldronIO::ImportExport::retrieveDataQueue(std::vector < VisualizationIOData* >* allData, boost::lockfree::queue<int>* queue, boost::atomic<bool>* done)
-{
-    int value;
-    while (!*done) {
-        while (queue->pop(value))
-        {
-            VisualizationIOData* data = allData->at(value);
-            assert(!data->isRetrieved());
-            bool success = data->retrieve();
-            assert(success);
-        }
-    }
-
-    while (queue->pop(value))
-    {
-        VisualizationIOData* data = allData->at(value);
-        assert(!data->isRetrieved());
-        bool success = data->retrieve();
-        assert(success);
     }
 }
 
@@ -595,7 +458,7 @@ std::shared_ptr<Project> CauldronIO::ImportExport::importFromXML(const std::stri
         throw CauldronIOException("Error during parsing xml file");
 
         
-    ImportExport importExport(ibs::FilePath(filename).filePath(), ibs::FilePath(""), 1);
+    ImportExport importExport(ibs::FilePath(filename).filePath(), ibs::FilePath(""), 1, false);
     std::shared_ptr<Project> project;
     
     try
@@ -624,6 +487,9 @@ std::string CauldronIO::ImportExport::getXMLIndexingFileName(const std::string& 
 std::shared_ptr<Project> CauldronIO::ImportExport::getProject(const pugi::xml_document& ptDoc)
 {
     pugi::xml_node pt = ptDoc.child("project");
+    if (!pt) 
+        throw CauldronIOException("Invalid xml file or format");
+
     std::string projectName = pt.child_value("name");
     std::string projectDescript = pt.child_value("description");
     std::string projectTeam = pt.child_value("team");
@@ -685,6 +551,18 @@ std::shared_ptr<Project> CauldronIO::ImportExport::getProject(const pugi::xml_do
             m_project->addReservoir(reservoir);
         }
     }
+
+    // Read all geometries
+    pugi::xml_node geometriesNode = pt.child("geometries");
+    if (!geometriesNode)
+    {
+        throw CauldronIOException("Cannot find any geometries, please reconvert your project to reflect latest xml format");
+    }
+    for (pugi::xml_node geometryNode = geometriesNode.child("geometry"); geometryNode; geometryNode = geometryNode.next_sibling("geometry"))
+    {
+        std::shared_ptr<const Geometry2D> geometry = getGeometry2D(geometryNode);
+        m_project->addGeometry(geometry);
+    }
     
     // Read all snapshots
     pugi::xml_node snapshotsNode = pt.child("snapshots");
@@ -718,17 +596,10 @@ std::shared_ptr<Project> CauldronIO::ImportExport::getProject(const pugi::xml_do
                 if (bottomFormationName)
                     bottomFormationIO = m_project->findFormation(bottomFormationName.value());
 
-                // Get geometry
-                std::shared_ptr<const Geometry2D> geometryHighRes = getGeometry2D(surfaceNode,"geometry-highres");
-                std::shared_ptr<const Geometry2D> geometry = getGeometry2D(surfaceNode, "geometry");
-                assert(geometry || geometryHighRes);
-
                 // Construct the surface
                 std::shared_ptr<Surface> surface(new Surface(surfaceName, surfaceKind)); 
                 if (topFormationIO) surface->setFormation(topFormationIO, true);
                 if (bottomFormationIO) surface->setFormation(bottomFormationIO, false);
-                if (geometryHighRes) surface->setHighResGeometry(geometryHighRes);
-                if (geometry) surface->setGeometry(geometry);
 
                 // Get all property surface data
                 pugi::xml_node propertyMapNodes = surfaceNode.child("propertymaps");
@@ -738,12 +609,24 @@ std::shared_ptr<Project> CauldronIO::ImportExport::getProject(const pugi::xml_do
                     std::shared_ptr<const Property> property = m_project->findProperty(propertyName);
                     assert(property);
 
-                    // High-res geometry?
-                    bool isHighRes = propertyMapNode.attribute("high-res").as_bool();
-                    const std::shared_ptr<const Geometry2D>& geometryPtr = isHighRes ? geometryHighRes : geometry;
+                    // Get the geometry
+                    size_t geometryIndex = (size_t)propertyMapNode.attribute("geom-index").as_int();
+                    std::shared_ptr<const Geometry2D> geometry = m_project->getGeometries().at(geometryIndex);
+
+                    // Get min/max value
+                    float minValue = DefaultUndefinedValue;
+                    float maxValue = DefaultUndefinedValue;
+
+                    pugi::xml_attribute minValueAttr = propertyMapNode.attribute("min");
+                    if (minValueAttr)
+                        minValue = minValueAttr.as_float();
+
+                    pugi::xml_attribute maxValueAttr = propertyMapNode.attribute("max");
+                    if (maxValueAttr)
+                        maxValue = maxValueAttr.as_float();
 
                     // Create the surface data
-                    std::shared_ptr<SurfaceData> surfaceData(new MapNative(geometryPtr));
+                    std::shared_ptr<SurfaceData> surfaceData(new MapNative(geometry, minValue, maxValue));
 
                     // Contains formation?
                     pugi::xml_attribute formationName = propertyMapNode.attribute("formation");
@@ -888,12 +771,9 @@ std::shared_ptr<const Reservoir> CauldronIO::ImportExport::getReservoir(pugi::xm
     return reservoir;
 }
 
-std::shared_ptr<const Geometry2D> CauldronIO::ImportExport::getGeometry2D(pugi::xml_node surfaceNode, const char* name) const
+std::shared_ptr<const Geometry2D> CauldronIO::ImportExport::getGeometry2D(pugi::xml_node geometryNode) const
 {
     std::shared_ptr<const Geometry2D> geometry;
-    pugi::xml_node geometryNode = surfaceNode.child(name);
-    if (!geometryNode)
-        return geometry;
 
     double minI, minJ, deltaI, deltaJ;
     size_t numI, numJ;
@@ -905,28 +785,15 @@ std::shared_ptr<const Geometry2D> CauldronIO::ImportExport::getGeometry2D(pugi::
     deltaI = geometryNode.attribute("deltaI").as_double();
     deltaJ = geometryNode.attribute("deltaJ").as_double();
 
-    return std::shared_ptr<const Geometry2D>(new Geometry2D(numI, numJ, deltaI, deltaJ, minI, minJ));
-}
+    // Cell-centered?
+    bool cellCentered = false;
+    pugi::xml_attribute isCellCenteredNode = geometryNode.attribute("cell-centered");
+    if (isCellCenteredNode)
+    {
+        cellCentered = isCellCenteredNode.as_bool();
+    }
 
-std::shared_ptr<Geometry3D> CauldronIO::ImportExport::getGeometry3D(pugi::xml_node volumeNode) const
-{
-    pugi::xml_node geometryNode = volumeNode.child("geometry");
-    if (!geometryNode)
-        throw CauldronIOException("Could not parse geometry");
-
-    double minI, minJ, deltaI, deltaJ;
-    size_t numI, numJ, numK, firstK;
-
-    numI = (size_t)geometryNode.attribute("numI").as_uint();
-    numJ = (size_t)geometryNode.attribute("numJ").as_uint();
-    numK = (size_t)geometryNode.attribute("numK").as_uint();
-    firstK = (size_t)geometryNode.attribute("firstK").as_uint();
-    minI = geometryNode.attribute("minI").as_double();
-    minJ = geometryNode.attribute("minJ").as_double();
-    deltaI = geometryNode.attribute("deltaI").as_double();
-    deltaJ = geometryNode.attribute("deltaJ").as_double();
-
-    return std::shared_ptr<Geometry3D>(new Geometry3D(numI, numJ, numK, firstK, deltaI, deltaJ, minI, minJ));
+    return std::shared_ptr<const Geometry2D>(new Geometry2D(numI, numJ, deltaI, deltaJ, minI, minJ, cellCentered));
 }
 
 std::shared_ptr<Volume> CauldronIO::ImportExport::getVolume(pugi::xml_node volumeNode, const ibs::FilePath& path)
@@ -935,20 +802,21 @@ std::shared_ptr<Volume> CauldronIO::ImportExport::getVolume(pugi::xml_node volum
 
     // Create the volume
     std::shared_ptr<Volume> volume(new Volume(surfaceKind));
-    
+
     // Get all property volume data
     pugi::xml_node propertyVolNodes = volumeNode.child("propertyvols");
     assert(propertyVolNodes);
-
-    // Get shared geometry
-    std::shared_ptr<const Geometry2D> geometry = getGeometry2D(volumeNode, "geometry");
 
     for (pugi::xml_node propertyVolNode = propertyVolNodes.child("propertyvol"); propertyVolNode; propertyVolNode = propertyVolNode.next_sibling("propertyvol"))
     {
         std::string propertyName = propertyVolNode.attribute("property").value();
         std::shared_ptr<const Property> property = m_project->findProperty(propertyName);
         assert(property);
-        
+
+        // Get the geometry
+        size_t geometryIndex = (size_t)propertyVolNode.attribute("geom-index").as_int();
+        std::shared_ptr<const Geometry2D> geometry = m_project->getGeometries().at(geometryIndex);
+
         // Get K range
         pugi::xml_attribute firstK_attrib = propertyVolNode.attribute("firstK");
         if (!firstK_attrib) throw CauldronIOException("Cannot find firstK attribute in property-volume");
@@ -957,10 +825,22 @@ std::shared_ptr<Volume> CauldronIO::ImportExport::getVolume(pugi::xml_node volum
         if (!numK_attrib) throw CauldronIOException("Cannot find numK attribute in property-volume");
         size_t numK = numK_attrib.as_uint();
 
+        // Get min/max value
+        float minValue = DefaultUndefinedValue;
+        float maxValue = DefaultUndefinedValue;
+
+        pugi::xml_attribute minValueAttr = propertyVolNode.attribute("min");
+        if (minValueAttr)
+            minValue = minValueAttr.as_float();
+
+        pugi::xml_attribute maxValueAttr = propertyVolNode.attribute("max");
+        if (maxValueAttr)
+            maxValue = maxValueAttr.as_float();
+
         // Create the VolumeData
         std::shared_ptr<Geometry3D> geometry3D(new Geometry3D(geometry->getNumI(), geometry->getNumJ(), numK, firstK, geometry->getDeltaI(),
             geometry->getDeltaJ(), geometry->getMinI(), geometry->getMinJ()));
-        std::shared_ptr<VolumeData> volData(new VolumeDataNative(geometry3D));
+        std::shared_ptr<VolumeData> volData(new VolumeDataNative(geometry3D, minValue, maxValue));
 
         // Get the datastore xml node or constantvalue
         pugi::xml_attribute constantVal = propertyVolNode.attribute("constantvalue");

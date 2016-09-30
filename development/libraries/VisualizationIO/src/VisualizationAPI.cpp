@@ -88,6 +88,12 @@ const PropertyList& CauldronIO::Project::getProperties() const
     return m_propertyList;
 }
 
+
+const GeometryList& CauldronIO::Project::getGeometries() const
+{
+    return m_geometries;
+}
+
 std::shared_ptr<const Property> CauldronIO::Project::findProperty(std::string propertyName) const
 {
     BOOST_FOREACH(const std::shared_ptr<const Property>& property, m_propertyList)
@@ -200,10 +206,28 @@ void CauldronIO::Project::addReservoir(std::shared_ptr<const Reservoir>& newRese
     m_reservoirList.push_back(newReservoir);
 }
 
-void CauldronIO::Project::retrieve()
+void CauldronIO::Project::addGeometry(const std::shared_ptr<const Geometry2D>& newGeometry)
 {
-    BOOST_FOREACH(std::shared_ptr<SnapShot>& snapShot, m_snapShotList)
-        snapShot->retrieve();
+    if (!newGeometry) throw CauldronIOException("Cannot add empty geometry");
+
+    // Check if exists
+    BOOST_FOREACH(const std::shared_ptr<const Geometry2D>& geometry, m_geometries)
+        if (*geometry == *newGeometry) return;
+
+    m_geometries.push_back(newGeometry);
+}
+
+size_t CauldronIO::Project::getGeometryIndex(const std::shared_ptr<const Geometry2D>& newGeometry) const
+{
+    if (!newGeometry) throw CauldronIOException("Cannot find empty geometry");
+
+    // Check if exists
+    for (int i = 0; i < m_geometries.size(); i++)
+    {
+        if (*m_geometries.at(i) == *newGeometry) return i;
+    }
+
+    throw CauldronIOException("Geometry not found");
 }
 
 void CauldronIO::Project::release()
@@ -257,6 +281,7 @@ void CauldronIO::SnapShot::addFormationVolume(FormationVolume& formVolume)
     m_formationVolumeList.push_back(formVolume);
 }
 
+
 void CauldronIO::SnapShot::addTrapper(std::shared_ptr<Trapper>& newTrapper)
 {
     if (!newTrapper) throw CauldronIOException("Cannot add empty trapper");
@@ -292,7 +317,6 @@ const std::shared_ptr<Volume>& CauldronIO::SnapShot::getVolume() const
     return m_volume;
 }
 
-
 const FormationVolumeList& CauldronIO::SnapShot::getFormationVolumeList() const
 {
     return m_formationVolumeList;
@@ -302,7 +326,6 @@ const TrapperList& CauldronIO::SnapShot::getTrapperList() const
 {
     return m_trapperList;
 }
-
 
 std::vector < VisualizationIOData* > CauldronIO::SnapShot::getAllRetrievableData() const
 {
@@ -476,32 +499,23 @@ CauldronIO::Surface::Surface(const std::string& name, SubsurfaceKind kind)
 CauldronIO::Surface::~Surface()
 {
     m_propSurfaceList.clear();
-    m_geometry.reset();
-}
-
-void CauldronIO::Surface::setGeometry(std::shared_ptr<const Geometry2D>& geometry)
-{
-    m_geometry = geometry;
-}
-
-void CauldronIO::Surface::setHighResGeometry(std::shared_ptr<const Geometry2D>& geometry)
-{
-    m_highresgeometry = geometry;
-}
-
-const std::shared_ptr<const Geometry2D>& CauldronIO::Surface::getGeometry() const
-{
-    return m_geometry;
-}
-
-const std::shared_ptr<const Geometry2D>& CauldronIO::Surface::getHighResGeometry() const
-{
-    return m_highresgeometry;
 }
 
 const PropertySurfaceDataList& CauldronIO::Surface::getPropertySurfaceDataList() const
 {
     return m_propSurfaceList;
+}
+
+
+void CauldronIO::Surface::replaceAt(size_t index, PropertySurfaceData& data)
+{
+    if (index > m_propSurfaceList.size()) throw CauldronIOException("Index outside bounds in replaceAt");
+    
+    // Dereference existing surface
+    m_propSurfaceList.at(index).second->release();
+    m_propSurfaceList.at(index).second.reset();
+
+    m_propSurfaceList.at(index) = data;
 }
 
 void CauldronIO::Surface::addPropertySurfaceData(PropertySurfaceData& newData)
@@ -585,7 +599,7 @@ bool CauldronIO::Surface::isRetrieved() const
 /// Geometry2D Implementation
 ///////////////////////////////////////
 
-CauldronIO::Geometry2D::Geometry2D(size_t numI, size_t numJ, double deltaI, double deltaJ, double minI, double minJ)
+CauldronIO::Geometry2D::Geometry2D(size_t numI, size_t numJ, double deltaI, double deltaJ, double minI, double minJ, bool cellCentered)
 {
     m_numI = numI;
     m_numJ = numJ;
@@ -595,6 +609,7 @@ CauldronIO::Geometry2D::Geometry2D(size_t numI, size_t numJ, double deltaI, doub
     m_minJ = minJ;
     m_maxI = minI + deltaI * numI;
     m_maxJ = minJ + deltaJ * numJ;
+    m_isCellCentered = cellCentered;
 }
 
 size_t CauldronIO::Geometry2D::getNumI() const
@@ -643,19 +658,31 @@ size_t CauldronIO::Geometry2D::getSize() const
 }
 
 
+bool CauldronIO::Geometry2D::isCellCentered() const
+{
+    return m_isCellCentered;
+}
+
+
+void CauldronIO::Geometry2D::setCellCentered(bool cellCentered)
+{
+    m_isCellCentered = cellCentered;
+}
+
 bool CauldronIO::Geometry2D::operator==(const Geometry2D& other) const
 {
     return
         m_numI == other.m_numI && m_numJ == other.m_numJ &&
         m_deltaI == other.m_deltaI && m_deltaJ == other.m_deltaJ &&
-        m_minI == other.m_minI && m_minJ == other.m_minJ;
+        m_minI == other.m_minI && m_minJ == other.m_minJ &&
+        m_isCellCentered == other.m_isCellCentered;
 }
 
 // Map implementation
 //////////////////////////////////////////////////////////////////////////
 
 
-CauldronIO::SurfaceData::SurfaceData(const std::shared_ptr<const Geometry2D>& geometry)
+CauldronIO::SurfaceData::SurfaceData(const std::shared_ptr<const Geometry2D>& geometry, float minValue, float maxValue)
 {
     // For performance reasons, we cache the data locally
     m_numI   = geometry->getNumI();
@@ -669,24 +696,37 @@ CauldronIO::SurfaceData::SurfaceData(const std::shared_ptr<const Geometry2D>& ge
     m_isConstant = false;
     m_retrieved = false;
     m_geometry = geometry;
+    m_minValue = minValue;
+    m_maxValue = maxValue;
+    m_updateMinMax = minValue == DefaultUndefinedValue; // if the min/max values are not set they need to be updated
 
     // Indexing into the map is unknown
     m_internalData = NULL;
+    
     m_reservoir.reset();
     m_formation.reset();
 }
 
+float CauldronIO::SurfaceData::getMinValue()
+{
+    if (m_updateMinMax)
+        updateMinMax();
+    return m_minValue;
+}
+
+float CauldronIO::SurfaceData::getMaxValue()
+{
+    if (m_updateMinMax)
+        updateMinMax();
+    return m_maxValue;
+}
+
 float CauldronIO::SurfaceData::getUndefinedValue() const
 {
-    return m_undefinedValue;
+    return DefaultUndefinedValue;
 }
 
-void CauldronIO::SurfaceData::setUndefinedValue(float undefined)
-{
-    m_undefinedValue = undefined;
-}
-
-void CauldronIO::SurfaceData::setFormation(std::shared_ptr<const Formation>& formation)
+void CauldronIO::SurfaceData::setFormation(const std::shared_ptr<const Formation>& formation)
 {
     m_formation = formation;
 }
@@ -765,6 +805,43 @@ void CauldronIO::SurfaceData::setData(float* data, bool setValue, float value)
     m_retrieved = true;
 }
 
+
+void CauldronIO::SurfaceData::updateMinMax()
+{
+    if (!isRetrieved()) throw CauldronIOException("Need to assign data first");
+
+    if (m_isConstant)
+    {
+        m_minValue = m_maxValue = m_constantValue;
+        m_updateMinMax = false;
+        return;
+    }
+
+    size_t allElements = m_numI * m_numJ;
+    float minValue = DefaultUndefinedValue;
+    float maxValue = DefaultUndefinedValue;
+
+    for (size_t i = 0; i < allElements; i++)
+    {
+        float val = m_internalData[i];
+        if (val != DefaultUndefinedValue)
+        {
+            if (minValue == DefaultUndefinedValue)
+                minValue = val;
+            else
+                minValue = min(minValue, val);
+            if (maxValue == DefaultUndefinedValue)
+                maxValue = val;
+            else
+                maxValue = max(maxValue, val);
+        }
+    }
+
+    m_minValue = minValue;
+    m_maxValue = maxValue;
+    m_updateMinMax = false;
+}
+
 bool CauldronIO::SurfaceData::canGetRow() const
 {
     return true;
@@ -779,9 +856,9 @@ bool CauldronIO::SurfaceData::canGetColumn() const
 bool CauldronIO::SurfaceData::isUndefined(size_t i, size_t j) const
 {
     if (!isRetrieved()) throw CauldronIOException("Need to assign data first");
-    if (m_isConstant) return m_constantValue == m_undefinedValue;
+    if (m_isConstant) return m_constantValue == DefaultUndefinedValue;
 
-    return m_internalData[getMapIndex(i, j)] == m_undefinedValue;
+    return m_internalData[getMapIndex(i, j)] == DefaultUndefinedValue;
 }
 
 float CauldronIO::SurfaceData::getValue(size_t i, size_t j) const
@@ -866,9 +943,30 @@ CauldronIO::SubsurfaceKind CauldronIO::Volume::getSubSurfaceKind() const
     return m_subSurfaceKind;
 }
 
-const PropertyVolumeDataList& CauldronIO::Volume::getPropertyVolumeDataList() const
+PropertyVolumeDataList& CauldronIO::Volume::getPropertyVolumeDataList() 
 {
     return m_propVolumeList;
+}
+
+void CauldronIO::Volume::removeVolumeData(PropertyVolumeData& data)
+{
+    for (size_t index = 0; index < m_propVolumeList.size(); index++)
+    {
+        if (m_propVolumeList.at(index).first == data.first)
+        {
+            data.second->release();
+            data.second.reset();
+            
+            if (index < m_propVolumeList.size() - 1)
+                m_propVolumeList.at(index) = m_propVolumeList.back();
+
+            m_propVolumeList.pop_back();
+
+            return;
+        }
+    }
+
+    throw CauldronIOException("Cannot find data to remove");
 }
 
 void CauldronIO::Volume::addPropertyVolumeData(PropertyVolumeData& newData)
@@ -877,6 +975,18 @@ void CauldronIO::Volume::addPropertyVolumeData(PropertyVolumeData& newData)
         if (data == newData) throw CauldronIOException("Cannot add property-volumeData twice");
 
     m_propVolumeList.push_back(newData);
+}
+
+
+void CauldronIO::Volume::replaceAt(size_t index, PropertyVolumeData& data)
+{
+    if (index > m_propVolumeList.size()) throw CauldronIOException("Index outside bounds in replaceAt");
+
+    // Dereference existing surface
+    m_propVolumeList.at(index).second->release();
+    m_propVolumeList.at(index).second.reset();
+
+    m_propVolumeList.at(index) = data;
 }
 
 bool CauldronIO::Volume::hasDepthVolume() const
@@ -918,17 +1028,9 @@ void CauldronIO::Volume::release()
 /////////////////////////////////////////////////////////////////////////////
 
 Geometry3D::Geometry3D(size_t numI, size_t numJ, size_t numK, size_t offsetK, double deltaI,
-    double deltaJ, double minI, double minJ) : Geometry2D(numI, numK, deltaI, deltaJ, minI, minJ)
+    double deltaJ, double minI, double minJ, bool cellCentered) : Geometry2D(numI, numJ, deltaI, deltaJ, minI, minJ, cellCentered)
 {
-    m_numI = numI;
-    m_numJ = numJ;
     m_numK = numK;
-    m_deltaI = deltaI;
-    m_deltaJ = deltaJ;
-    m_maxI = minI + deltaI * numI;
-    m_maxJ = minJ + deltaJ * numJ;
-    m_minI = minI;
-    m_minJ = minJ;
     m_firstK = offsetK;
 }
 
@@ -1114,13 +1216,16 @@ const std::shared_ptr<const Formation>& CauldronIO::Reservoir::getFormation() co
 /// VolumeData implementation
 //////////////////////////////////////////////////////////////////////////
 
-CauldronIO::VolumeData::VolumeData(const std::shared_ptr<Geometry3D>& geometry)
+CauldronIO::VolumeData::VolumeData(const std::shared_ptr<Geometry3D>& geometry, float minValue, float maxValue)
 {
     m_internalDataIJK = NULL;
     m_internalDataKIJ = NULL;
     m_isConstant = false;
     m_retrieved = false;
     m_geometry = geometry;
+    m_minValue = minValue;
+    m_maxValue = maxValue;
+    m_updateMinMax = minValue == DefaultUndefinedValue; // if the min/max values are not set they need to be updated
 
     updateGeometry();
 }
@@ -1141,17 +1246,13 @@ const std::shared_ptr<Geometry3D>& CauldronIO::VolumeData::getGeometry() const
 bool CauldronIO::VolumeData::isUndefined(size_t i, size_t j, size_t k) const
 {
     if (!isRetrieved()) throw CauldronIOException("Need to assign data first");
-    if (m_isConstant) return m_constantValue == m_undefinedValue;
-    if (m_internalDataIJK) return m_internalDataIJK[computeIndex_IJK(i, j, k)] == m_undefinedValue;
+    if (m_isConstant) return m_constantValue == DefaultUndefinedValue;
+    if (m_internalDataIJK) return m_internalDataIJK[computeIndex_IJK(i, j, k)] == DefaultUndefinedValue;
 
     assert(m_internalDataKIJ);
-    return m_internalDataKIJ[computeIndex_KIJ(i, j, k)] == m_undefinedValue;
+    return m_internalDataKIJ[computeIndex_KIJ(i, j, k)] == DefaultUndefinedValue;
 }
 
-void CauldronIO::VolumeData::setUndefinedValue(float undefined)
-{
-    m_undefinedValue = undefined;
-}
 
 float CauldronIO::VolumeData::getValue(size_t i, size_t j, size_t k) const
 {
@@ -1252,6 +1353,45 @@ void CauldronIO::VolumeData::updateGeometry()
     m_lastK = m_geometry->getLastK();
 }
 
+
+void CauldronIO::VolumeData::updateMinMax()
+{
+
+    if (!isRetrieved()) throw CauldronIOException("Need to assign data first");
+
+    if (m_isConstant)
+    {
+        m_minValue = m_maxValue = m_constantValue;
+        m_updateMinMax = false;
+        return;
+    }
+
+    size_t allElements = m_numI * m_numJ * m_numK;
+    float minValue = DefaultUndefinedValue;
+    float maxValue = DefaultUndefinedValue;
+    float* internaldata = m_internalDataIJK != NULL ? m_internalDataIJK : m_internalDataKIJ;
+    
+    for (size_t i = 0; i < allElements; i++)
+    {
+        float val = internaldata[i];
+        if (val != DefaultUndefinedValue)
+        {
+            if (minValue == DefaultUndefinedValue)
+                minValue = val;
+            else
+                minValue = min(minValue, val);
+            if (maxValue == DefaultUndefinedValue)
+                maxValue = val;
+            else
+                maxValue = max(maxValue, val);
+        }
+    }
+    
+    m_minValue = minValue;
+    m_maxValue = maxValue;
+    m_updateMinMax = false;
+}
+
 void CauldronIO::VolumeData::setData(float* data, float** internalData, bool setValue /*= false*/, float value /*= 0*/)
 {
     // If our data buffer exists, we will just reuse it. Otherwise, allocate
@@ -1297,6 +1437,20 @@ size_t CauldronIO::VolumeData::computeIndex_KIJ(size_t i, size_t j, size_t k) co
     return ((k - m_firstK) + i * m_numK + j * m_numI * m_numK);
 }
 
+float CauldronIO::VolumeData::getMinValue()
+{
+    if (m_updateMinMax)
+        updateMinMax();
+    return m_minValue;
+}
+
+float CauldronIO::VolumeData::getMaxValue()
+{
+    if (m_updateMinMax)
+        updateMinMax();
+    return m_maxValue;
+}
+
 float CauldronIO::VolumeData::getConstantValue() const
 {
     if (!isConstant())  throw CauldronIOException("Map does not have a constant value");
@@ -1304,9 +1458,9 @@ float CauldronIO::VolumeData::getConstantValue() const
 }
 
 
-bool CauldronIO::VolumeData::retrieve()
+void CauldronIO::VolumeData::retrieve()
 {
-    if (m_retrieved) return true;
+    if (m_retrieved) return;
     throw CauldronIOException("Not implemented");
 }
 
@@ -1336,7 +1490,7 @@ bool CauldronIO::VolumeData::hasDataKIJ() const
 
 float CauldronIO::VolumeData::getUndefinedValue() const
 {
-    return m_undefinedValue;
+    return DefaultUndefinedValue;
 }
 
 bool CauldronIO::VolumeData::isConstant() const

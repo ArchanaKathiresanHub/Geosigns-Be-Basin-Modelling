@@ -21,7 +21,8 @@
 #include <memory>
 
 #define xml_version_major 0
-#define xml_version_minor 1
+                             // version 1: initial version
+#define xml_version_minor 2  // version 2: changed geometry storage
 
 namespace CauldronIO
 {
@@ -33,13 +34,14 @@ namespace CauldronIO
         /// \param[in] project the project to export to XML
         /// \param[in] absPath the path with the xml file name 
         /// \param[in] numThreads number of threads (optional) used for compression
-        static bool exportToXML(std::shared_ptr<Project>& project, const std::string& absPath, size_t numThreads = 1);
+        /// \param[in] center if true, cell-center all properties except depth
+        static bool exportToXML(std::shared_ptr<Project>& project, const std::string& absPath, size_t numThreads = 1, bool center = false);
         /// \brief Creates a new Project from the supplied XML indexing file
         /// Throws a CauldronIOException on failure
         static std::shared_ptr<Project> importFromXML(const std::string& filename);
         /// \brief Returns a default XML indexing filename 
         static std::string getXMLIndexingFileName(const std::string& project3Dfilename);
-        
+       
     private:
 
         /// ImportExport supports the use case that there is an existing xml-project, to which data can be appended. In this case,
@@ -49,10 +51,8 @@ namespace CauldronIO
 
         // Method to compress blocks of data on a thread
         static void compressDataQueue(std::vector< std::shared_ptr < DataToCompress > > allData, boost::lockfree::queue<int>* queue);
-        // Method to retrieve data on a thread
-        static void retrieveDataQueue(std::vector < VisualizationIOData* >* allData, boost::lockfree::queue<int>* queue, boost::atomic<bool>* done);
 
-        ImportExport(const ibs::FilePath& absPath, const ibs::FilePath& relPath, size_t numThreads);
+        ImportExport(const ibs::FilePath& absPath, const ibs::FilePath& relPath, size_t numThreads, bool center);
         void addProject(pugi::xml_node pt, std::shared_ptr<Project>& project);
         void addProperty(pugi::xml_node node, const std::shared_ptr<const Property>& property) const;
         void addFormation(pugi::xml_node node, const std::shared_ptr<const Formation>& formation) const;
@@ -60,22 +60,18 @@ namespace CauldronIO
         std::shared_ptr<Formation> getFormation(pugi::xml_node formationNode) const;
         std::shared_ptr<Project> getProject(const pugi::xml_document& pt);
         std::shared_ptr<const Reservoir> getReservoir(pugi::xml_node reservoirNode) const;
-        std::shared_ptr<const Geometry2D> getGeometry2D(pugi::xml_node surfaceNode, const char* name) const;
-        std::shared_ptr<Geometry3D> getGeometry3D(pugi::xml_node volumeNode) const;
+        std::shared_ptr<const Geometry2D> getGeometry2D(pugi::xml_node surfaceNode) const;
         std::shared_ptr<Volume> getVolume(pugi::xml_node volumeNode, const ibs::FilePath& path);
         void addSurface(DataStoreSave& dataStore, const std::shared_ptr<Surface>& surfaceIO, pugi::xml_node ptree);
         void addVolume(DataStoreSave& dataStore, const std::shared_ptr<Volume>& volume, pugi::xml_node volNode);
-        void addGeometryInfo2D(pugi::xml_node node, const std::shared_ptr<const Geometry2D>& geometry, const std::string& name) const;
-        void addGeometryInfo3D(pugi::xml_node  tree, const std::shared_ptr<const Geometry3D>& geometry) const;
+        void addGeometryInfo2D(pugi::xml_node node, const std::shared_ptr<const Geometry2D>& geometry) const;
         void addSnapShot(const std::shared_ptr<SnapShot>& snapShot, std::shared_ptr<Project>& project, ibs::FilePath fullPath, pugi::xml_node node);
-        void retrieveAllData(const std::shared_ptr<SnapShot>& snapShot);
-        void prefetchHDFdata(std::vector< VisualizationIOData* > allReadData, boost::lockfree::queue<int>* queue);
-        void loadHDFdata(std::vector< std::shared_ptr<HDFinfo> > hdfInfoList, boost::lockfree::queue<int>* queue);
+        
         // member variables
 		ibs::FilePath m_absPath;
 		ibs::FilePath m_relPath;
         std::shared_ptr<Project> m_project;
-        bool m_append;
+        bool m_append, m_center;
         size_t m_numThreads;
     };
 }
