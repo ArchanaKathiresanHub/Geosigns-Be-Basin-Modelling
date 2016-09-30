@@ -210,6 +210,7 @@ int main (int argc, char ** argv)
    double snapshotTime = 0;
    bool basement = false;
 
+   //Legacy reference lithology types (versions before BPAinBPA2)
    litholog_id["Std. Sandstone"] = 0;
    litholog_id["SM. Sandstone"] = 0;
    litholog_id["Std. Shale"] = 10;
@@ -228,7 +229,6 @@ int main (int argc, char ** argv)
    litholog_id["Sylvite"] = 12;
    litholog_id["Std. Coal"] = 14;
    litholog_id["Std. Basalt"] = 16;
-   litholog_id["Crust"] = 16;
    litholog_id["Litho. Mantle"] = 16;
    litholog_id["Astheno. Mantle"] = 16;
    litholog_id["HEAT Sandstone"] = 0;
@@ -236,6 +236,35 @@ int main (int argc, char ** argv)
    litholog_id["HEAT Limestone"] = 7;
    litholog_id["HEAT Dolostone"] = 17;
    litholog_id["HEAT Chalk"] = 7;
+
+   //Both new and legacy reference lithology types
+   litholog_id["Crust"] = 16;
+
+   //New reference lithology types (from version BPAinBPA2)
+   litholog_id["Anhydrite"] = 13;
+   litholog_id["Chalk"] = 7;
+   litholog_id["Clay-rich shale"] = 10;
+   litholog_id["Coal"] = 14;
+   litholog_id["Limestone Grainstone (poorly cemented)"] = 17;
+   litholog_id["Dolostone Grainstone(poorly cemented)"] = 17;
+   litholog_id["Limestone Grainstone (well cemented)"] = 17;
+   litholog_id["Dolostone Grainstone(well cemented)"] = 17;
+   litholog_id["Diorite/Granodiorite (SI)"] = 16;
+   litholog_id["Gabbro/Dry basalt (SI)"] = 16;
+   litholog_id["Granite/Rhyolite (SI)"] = 16;
+   litholog_id["Gabbro/Wet basalt (SI)"] = 16;
+   litholog_id["Feldspar rich sandstone"] = 0;
+   litholog_id["Lime Mudstone"] = 8;
+   litholog_id["Dolomitic Mudstone"] = 17;
+   litholog_id["Halite"] = 12;
+   litholog_id["Lithic rich sandstone"] = 0;
+   litholog_id["Mantle"] = 16;
+   litholog_id["Marl"] = 7;
+   litholog_id["Siltstone"] = 1;
+   litholog_id["Smectite-rich shale"] = 10;
+   litholog_id["Typical sandstone"] = 0;
+   litholog_id["Potash (sylvite)"] = 12;
+   litholog_id["Well-sorted sandstone"] = 0;
 
    for (arg = 1; arg < argc; arg++)
    {
