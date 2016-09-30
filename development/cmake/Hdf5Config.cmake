@@ -20,7 +20,7 @@ if(UNIX)
    add_external_project_to_repository(
          NAME HDF5
          VERSION ${HDF5_VERSION}
-         ARCHIVE "${THIRD_PARTY_DIR}/sources/hdf5-1.8.11.tar.gz"
+         ARCHIVE "${THIRD_PARTY_DIR}/sources/hdf5-${HDF5_VERSION}.tar.gz"
          ARCHIVE_MD5 "d8e1475a6bfe7a8a20ca532985a75816"
          CONFIGURE_COMMAND "./configure" "--prefix={ROOT}"
          BUILD_COMMAND   "make"
