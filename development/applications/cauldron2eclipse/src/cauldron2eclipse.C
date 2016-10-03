@@ -236,6 +236,7 @@ int main (int argc, char ** argv)
    litholog_id["HEAT Limestone"] = 7;
    litholog_id["HEAT Dolostone"] = 17;
    litholog_id["HEAT Chalk"] = 7;
+   litholog_id["Standard Ice"] = 3;
 
    //Both new and legacy reference lithology types
    litholog_id["Crust"] = 16;
@@ -265,6 +266,7 @@ int main (int argc, char ** argv)
    litholog_id["Typical sandstone"] = 0;
    litholog_id["Potash (sylvite)"] = 12;
    litholog_id["Well-sorted sandstone"] = 0;
+   litholog_id["Ice"] = 3;
 
    for (arg = 1; arg < argc; arg++)
    {
