@@ -548,13 +548,16 @@ bool performPVT( double masses[ComponentManager::NumberOfOutputSpecies]
       phaseViscosities[phase] = 0;
    }
 
-   return pvtFlash::EosPack::getInstance().computeWithLumping( temperature + C2K
-                                                             , pressure * MPa2Pa
-                                                             , masses
-                                                             , phaseMasses
-                                                             , phaseDensities 
-                                                             , phaseViscosities
-                                                             );
+   if ( massTotal > g_ZeroMassLogThreshold )
+   {
+      return pvtFlash::EosPack::getInstance().computeWithLumping( temperature + C2K
+                                                                , pressure * MPa2Pa
+                                                                , masses
+                                                                , phaseMasses
+                                                                , phaseDensities 
+                                                                , phaseViscosities
+                                                                );
+   }
 }
 
 double ComputeVolume( double * masses, double density, int numberOfSpecies )
