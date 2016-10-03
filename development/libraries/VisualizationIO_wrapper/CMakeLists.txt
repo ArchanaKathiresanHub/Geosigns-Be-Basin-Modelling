@@ -40,7 +40,7 @@ swig_add_module( CauldronIO csharp src/Swig/VisualizationAPI.i
     ${CMAKE_CURRENT_BINARY_DIR}/version.rc
 )
 
-swig_link_libraries( CauldronIO VisualizationIO ${Boost_LIBRARIES} )
+swig_link_libraries( CauldronIO VisualizationIO DataModel DataAccess utilities SerialDataAccess FileSystem TableIO Serial_Hdf5 CBMGenerics ${HDF5_LIBRARIES} ${Boost_LIBRARIES} )
 
 SET_TARGET_PROPERTIES(CauldronIO PROPERTIES LINK_FLAGS "/FORCE:MULTIPLE")
 
