@@ -17,6 +17,9 @@ if (UNIX AND BM_ENABLE_WARNINGS)
       # Enable all warnings and do some static analysis
       add_definitions(-Wall -Wcheck)
 
+      # Disable remarks about automatic cpu dispatch
+      add_definitions(-diag-disable=cpu-dispatch)
+
       # Disable warning 2259: non-pointer conversion from "X" to "Y" may lose signficant bitss
       add_definitions(-diag-disable 2259)
 
