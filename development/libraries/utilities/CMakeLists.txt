@@ -11,6 +11,16 @@
 #########################################################################
 
 
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
+  set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -axCORE-AVX2 -qopenmp -simd")
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+# Vectorization is not enabled on Visual Studio
+#  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+endif()
+
+
 FILE( GLOB all_headers src/*.h )
 source_group(include FILES ${all_headers})
 
@@ -43,6 +53,11 @@ install(TARGETS utilities
 )
 
 ### Unit Tests
+
+# AlignedWorkSpaceArray tests
+add_gtest( NAME utilities::AlignedWorkSpaceArrays
+			SOURCES test/AlignedWorkSpaceArraysTest.C
+			LIBRARIES utilities)
 
 # PiecewiseInterpolator tests
 add_gtest( NAME utilities::PiecewiseInterpolator
