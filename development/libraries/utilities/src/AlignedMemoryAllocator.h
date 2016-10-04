@@ -95,11 +95,13 @@ struct AlignedMemoryAllocator {
    /// \pre The memory pointed to in buf was allocated using the allocate function above.
    static void free ( Type*& buf );
 
+#ifndef _WIN32
    /// \brief Free the memory allocated in the allocate function.
    ///
    /// \param [in out] buf The buffer to be freed.
    /// \pre The memory pointed to in buf was allocated using the allocate function above.
    static void free ( Type* __restrict__ & buf );
+#endif
 
 };
 
@@ -142,20 +144,16 @@ void AlignedMemoryAllocator<Type, Alignment>::free ( Type*& buf ) {
 }
 
 
+#ifndef _WIN32
 template<typename Type, const unsigned int Alignment>
 void AlignedMemoryAllocator<Type, Alignment>::free ( Type* __restrict__ & buf ) {
 
-#ifdef _WIN32
-   void* voidBuf = static_cast<void*>( buf );
-   _aligned_free ( voidBuf );
-   buf = nullptr;
-#else
    if ( buf != nullptr ) {
       std::free ( buf );
       buf = nullptr;
    }
-#endif
 }
+#endif
 
 
 
