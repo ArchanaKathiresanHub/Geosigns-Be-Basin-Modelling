@@ -392,12 +392,21 @@ namespace migration
 
       /// Methods used for seal failure calculations:
       bool computeDistributionParameters (const Interface::FracturePressureFunctionParameters*
-         parameters, const SurfaceGridMapContainer& fullOverburden, const Interface::Snapshot* snapshot);
-      bool computeSealPressureLeakParametersImpl (const Interface::FracturePressureFunctionParameters*
-         fracturePressureParameters, const SurfaceGridMapContainer& fullOverburden, const Snapshot* snapshot,
-         bool& sealPresent, double& fracPressure, double& sealFluidDensity, vector<translateProps::
-         CreateCapillaryLithoProp::output>& lithProps, vector<double>& lithFracs, CBMGenerics::capillarySealStrength::
-         MixModel& mixModel, double& permeability) const;
+         parameters, const SurfaceGridMapContainer& fullOverburden, const Interface::Snapshot* snapshot, const bool isLegacy);
+
+      bool computeSealPressureLeakParametersImpl(
+         const Interface::FracturePressureFunctionParameters* fracturePressureParameters,
+         const SurfaceGridMapContainer& fullOverburden,
+         const Snapshot* snapshot,
+         bool& sealPresent,
+         double& fracPressure,
+         double& sealFluidDensity,
+         vector< vector<translateProps::CreateCapillaryLithoProp::output> >& lithProps,
+         vector< vector<double> >& lithFracs,
+         vector<CBMGenerics::capillarySealStrength::MixModel>& mixModel,
+         vector<double>& permeability,
+         const bool isLegacy ) const;
+
       bool computeForFunctionOfLithostaticPressure (const SurfaceGridMapContainer& fullOverburden,
          const Formation* formation, const vector<double>& lithFracs, double& fracPressure) const;
 

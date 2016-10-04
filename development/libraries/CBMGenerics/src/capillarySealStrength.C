@@ -265,6 +265,7 @@ double capSealStrength_H2O_HC(const vector<LithoProp>& lithProps, const vector<d
    MixModel mixModel, const double& permeability, const double& density_H2O, 
    const double& density_HC, const double& T_K, const double& T_c_HC_K)
 {
+   //account for the different permeability and lithological parameters 
    double capPres_Air_Hg = capSealStrength_Air_Hg(lithProps, lithFracs, mixModel, permeability);
    double capTens_H2O_HC = capTension_H2O_HC(density_H2O, density_HC, T_K, T_c_HC_K);
    return capSealStrength_H2O_HC(capPres_Air_Hg, capTens_H2O_HC);
@@ -329,6 +330,28 @@ double computeCapillaryPressureData(const double& specificSurfArea, const double
    }
 
    return capPressure;
+}
+
+double computeBrooksCoreyCorrection( const double Sw, const double lambda )
+{
+   //Now these values are hard coded: it might change if required   
+   const double Adjustment = 1.0e-4;
+   const double Sir = 0.1;
+   double Sr;
+
+   if ( Sw <= Sir + Adjustment ) {
+      Sr = Adjustment / ( 1.0 - Sir );
+   }
+   else if ( Sw == 1.0 ) {
+      Sr = 1;
+   }
+   else {
+      Sr = ( Sw - Sir ) / ( 1.0 - Sir );
+   }
+
+   assert( 0 <= Sr && Sr <= 1 );
+
+   return pow( Sr, -lambda );
 }
  
 } // namespace capillarySealStrength

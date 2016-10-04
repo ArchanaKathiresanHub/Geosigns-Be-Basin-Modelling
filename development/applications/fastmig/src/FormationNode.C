@@ -839,7 +839,7 @@ namespace migration
    {
       if (!IsValid (this)) return true;
 
-      double cp_liquid, cp_vapour;
+      double pressureContrastVapor, pressureContrastLiquid;
 
       bool vapourFlag = false;
       bool liquidFlag = false;
@@ -857,26 +857,10 @@ namespace migration
             return true;
          }
 
-         // correction factor for capillary pressure in the reservoir: assume 30% water saturation
-         double lambdaPC = m_formation->getCompoundLithology (getI (), getJ ())->LambdaPc ();
-         // If the project file does not contain values for Lambda_Pc assign an 'avarage' value of 1.
-         if (lambdaPC == Interface::DefaultUndefinedMapValue or lambdaPC == Interface::DefaultUndefinedScalarValue)
-            lambdaPC = 1.0;
-
-         double resCorr = computeBrooksCoreyCorrection (0.3, lambdaPC);
-
-         // calculate overpressure difference
-         double dOverPressure;
-         if (pressureRun)
-            dOverPressure = topNode->m_overPressure - m_overPressure;
-         else
-            dOverPressure = 0.0;
-
-         // calculate actual capillary pressure sealing for gas
-         cp_vapour = topNode->m_capillaryEntryPressureVapour[0] - m_capillaryEntryPressureVapour[0] * resCorr;
-
+         // get the vapor pressure contrast 
+         pressureContrastVapor = getPressureContrast( topNode, GAS, pressureRun );
          // calculate maximum height of the hydrocarbons column for gas
-         m_heightVapour = (cp_vapour + dOverPressure) / ((m_waterDensity - m_vapourDensity) * CBMGenerics::Gravity);
+         m_heightVapour = pressureContrastVapor / ( ( m_waterDensity - m_vapourDensity ) * CBMGenerics::Gravity );
 
          // if actual height is greater than the user-defined minimum - raise potential reservoir flag
          if (m_heightVapour > minVapourColumnHeight)
@@ -884,14 +868,14 @@ namespace migration
             vapourFlag = true;
          }
 
-         // calculate actual capillary pressure sealing for oil
-         cp_liquid = topNode->m_capillaryEntryPressureLiquid[0] - m_capillaryEntryPressureLiquid[0] * resCorr;
+         // get the liquid pressure contrast 
+         pressureContrastLiquid = getPressureContrast( topNode, OIL, pressureRun );
 
          // calculate maximum height of the hydrocarbons column for oil
-         m_heightLiquid = (cp_liquid + dOverPressure) / ((m_waterDensity - m_liquidDensity) * CBMGenerics::Gravity);
+         m_heightLiquid = pressureContrastLiquid / ( ( m_waterDensity - m_liquidDensity ) * CBMGenerics::Gravity );
 
          // if actual height is greater than the user-defined minimum - raise potential reservoir flag
-         if (m_heightLiquid > minLiquidColumnHeight)
+         if ( m_heightLiquid > minLiquidColumnHeight )
          {
             liquidFlag = true;
          }
@@ -901,6 +885,43 @@ namespace migration
       setReservoirLiquid (liquidFlag);
 
       return (vapourFlag || liquidFlag);
+   }
+
+
+   //
+   // Calculate the pressure contrast between the seal and the reservoir formation, including the capillary pressure and the overpressure
+   //
+   double LocalFormationNode::getPressureContrast( const LocalFormationNode * topNode, const PhaseId phase, const bool pressureRun ) const
+   {
+      double capillaryPressureContrast;
+      // correction factor for capillary pressure in the reservoir: assume 30% water saturation
+      double lambdaPC = m_formation->getCompoundLithology( getI( ), getJ( ) )->LambdaPc( );
+      // If the project file does not contain values for Lambda_Pc assign an 'avarage' value of 1.
+      if ( lambdaPC == Interface::DefaultUndefinedMapValue or lambdaPC == Interface::DefaultUndefinedScalarValue )
+         lambdaPC = 1.0;
+
+      double resCorr = CBMGenerics::capillarySealStrength::computeBrooksCoreyCorrection( 0.3, lambdaPC );
+
+      // calculate overpressure difference
+      double dOverPressure;
+      if ( pressureRun )
+         dOverPressure = topNode->m_overPressure - m_overPressure;
+      else
+         dOverPressure = 0.0;
+
+      if ( phase == GAS )
+      {
+         // calculate actual capillary sealing pressure for vapour
+         capillaryPressureContrast = topNode->m_capillaryEntryPressureVapour[0] - m_capillaryEntryPressureVapour[0] * resCorr;
+      }
+      else
+      {
+         // calculate actual capillary sealing pressure  for liquid
+         capillaryPressureContrast = topNode->m_capillaryEntryPressureLiquid[0] - m_capillaryEntryPressureLiquid[0] * resCorr;
+      }
+
+      return capillaryPressureContrast + dOverPressure;
+
    }
 
    // Check if the node is a crest node for the phaseId, similarly to what is done in Reservoir::getAdjacentColumn

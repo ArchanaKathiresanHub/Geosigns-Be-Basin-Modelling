@@ -63,6 +63,7 @@ double computeCapillaryPressureData(const double& specificSurfArea, const double
                                     const double& geometricVariance, const double& porosity, 
                                     const double& wettingSaturation);
 
+double computeBrooksCoreyCorrection( const double Sw, const double lambda );
 } // namespace capillarySealStrength
 
 } // namespace CBMGenerics

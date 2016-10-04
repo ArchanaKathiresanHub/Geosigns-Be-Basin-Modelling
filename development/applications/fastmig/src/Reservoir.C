@@ -2745,6 +2745,8 @@ namespace migration
    {
       RequestHandle requestHandle (m_migrator, "computeDistributionParameters");
 
+      bool isLegacy = m_migrator->performLegacyMigration();
+
       const FracturePressureFunctionParameters *fracturePressureFunctionParameters =
          getProjectHandle ()->getFracturePressureFunctionParameters ();
 
@@ -2754,7 +2756,7 @@ namespace migration
          for (TrapVector::iterator trapIter = m_traps.begin (); trapIter != m_traps.end (); ++trapIter)
          {
             if (!(*trapIter)->computeDistributionParameters (fracturePressureFunctionParameters,
-               m_sealPressureLeakageGridMaps, m_end))
+               m_sealPressureLeakageGridMaps, m_end, isLegacy ) )
                return false;
          }
 

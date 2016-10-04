@@ -1469,8 +1469,10 @@ namespace migration
       // whether the seal is formed by the next formation.  In the last case, the first 
       // is the second formation of depths etc:
       begin = depths.begin (); end = depths.end ();
-      if (getCrestColumn ()->getTopDepthOffset () == 0.0)
+      if ( getCrestColumn()->getTopDepthOffset() == 0.0 )
+      {
          ++begin;
+      }
       assert (begin != end);
    }
 
@@ -1862,7 +1864,7 @@ namespace migration
    }
 
    bool Trap::computeDistributionParameters (const Interface::FracturePressureFunctionParameters*
-      parameters, const SurfaceGridMapContainer& fullOverburden, const Snapshot* snapshot)
+      parameters, const SurfaceGridMapContainer& fullOverburden, const Snapshot* snapshot, const bool isLegacy )
    {
       delete m_distributor;
       m_distributor = 0;
@@ -1871,20 +1873,31 @@ namespace migration
       bool sealPresent;
       double fracPressure;
       double sealFluidDensity;
-      vector<translateProps::CreateCapillaryLithoProp::output> lithProps;
-      vector<double> lithFracs;
-      CBMGenerics::capillarySealStrength::MixModel mixModel;
-      double permeability;
+      vector< vector<translateProps::CreateCapillaryLithoProp::output> > lithProps;
+      vector< vector<double> > lithFracs;
+      vector<CBMGenerics::capillarySealStrength::MixModel> mixModel;
+      vector<double> permeability;
 
       if (!computeSealPressureLeakParametersImpl (parameters, fullOverburden, snapshot, sealPresent,
-         fracPressure, sealFluidDensity, lithProps, lithFracs, mixModel, permeability))
+         fracPressure, sealFluidDensity, lithProps, lithFracs, mixModel, permeability, isLegacy ) )
          return false;
 
       setFracturePressure (fracPressure);
-      setSealPermeability (permeability);
+      setSealPermeability( 0 ); // we set a non-zero seal permeability only if the seal is present
 
       if (sealPresent)
       {
+         
+         if ( isLegacy )
+         {
+            setSealPermeability( permeability[0] );
+         }
+         else if ( permeability.size( ) == 2 )
+         {
+            //set the seal permeability only if a seal formation is present
+            setSealPermeability( permeability[1] );
+         }
+         
          if (!isUndersized ())
          {
             // The fracture seal strength is provided by the fracturePressure minus the pressure:
@@ -1937,9 +1950,21 @@ namespace migration
             // right now not available. So we create here a CapillarySealStrength object and provide this
             // object the parameters which we already do know. The CapillarySealStrength then calculates 
             // the capillary seal strength at the moment the missing data becomes available.
-            m_distributor = new LeakWasteAndSpillDistributor (sealFluidDensity, fracSealStrength,
-               CapillarySealStrength (lithProps, lithFracs, mixModel, permeability, sealFluidDensity),
-               m_levelToVolume);
+
+            // to compute leakage you need to compute the Brooks Corey correction. Retrive the lambda at the crest location and pass it to the distributor
+            double lambdaPC = Interface::DefaultUndefinedScalarValue;
+
+            const Formation * formation = dynamic_cast<const Formation *> ( getReservoir( )->getFormation( ) );
+            const GeoPhysics::CompoundLithology* compoundLithology = formation->getCompoundLithology( getCrestColumn( )->getI( ), getCrestColumn( )->getJ( ) );
+            if ( compoundLithology ) lambdaPC = compoundLithology->LambdaPc( );
+
+            // If the project file does not contain values for Lambda_Pc assign an 'avarage' value of 1.
+            if ( lambdaPC == Interface::DefaultUndefinedMapValue or lambdaPC == Interface::DefaultUndefinedScalarValue )
+               lambdaPC = 1.0;
+
+            m_distributor = new LeakWasteAndSpillDistributor( sealFluidDensity, fracSealStrength,
+               CapillarySealStrength( lithProps, lithFracs, mixModel, permeability, sealFluidDensity, lambdaPC, isLegacy ),
+               m_levelToVolume );
          }
          else
          {
@@ -1972,11 +1997,19 @@ namespace migration
       return true;
    }
 
-   bool Trap::computeSealPressureLeakParametersImpl (const Interface::FracturePressureFunctionParameters*
-      fracturePressureParameters, const SurfaceGridMapContainer& fullOverburden, const Snapshot* snapshot,
-      bool& sealPresent, double& fracPressure, double& sealFluidDensity, vector<translateProps::
-      CreateCapillaryLithoProp::output>& lithProps, vector<double>& lithFracs, CBMGenerics::capillarySealStrength::
-      MixModel& mixModel, double& permeability) const
+   bool Trap::computeSealPressureLeakParametersImpl(
+      const Interface::FracturePressureFunctionParameters* fracturePressureParameters,
+      const SurfaceGridMapContainer& fullOverburden,
+      const Snapshot* snapshot,
+      bool& sealPresent,
+      double& fracPressure,
+      double& sealFluidDensity,
+      vector< vector<translateProps::CreateCapillaryLithoProp::output> >& lithProps,
+      vector< vector<double> >& lithFracs,
+      vector<CBMGenerics::capillarySealStrength::MixModel>& mixModel,
+      vector<double>& permeability,
+      const bool isLegacy) const
+      // to implement //
    {
       const SurfaceGridMapContainer::discontinuous_properties & depths =
          fullOverburden.discontinuous (SurfaceGridMapContainer::DISCONTINUOUS_DEPTH);
@@ -2006,9 +2039,20 @@ namespace migration
       unsigned int i = getCrestColumn ()->getI ();
       unsigned int j = getCrestColumn ()->getJ ();
       vector < const Formation *>formations;
-      if (!overburden_MPI::getRelevantOverburdenFormations (begin, depths.end (), snapshot,
-         i, j, numeric_limits < double >::max (), 1, true, formations))
-         return false;
+
+      if ( isLegacy || getCrestColumn()->getTopDepthOffset() != 0.0 )
+      {
+         if ( !overburden_MPI::getRelevantOverburdenFormations( begin, depths.end( ), snapshot,
+            i, j, numeric_limits < double >::max( ), 1, true, formations ) )
+            return false;
+      }
+      else
+      {
+         //if offset is not present and is not legacy, get the reservoir (formations[0]) and the seal formation (formations[1])
+         if ( !overburden_MPI::getRelevantOverburdenFormations( depths.begin( ), depths.end( ), snapshot,
+            i, j, numeric_limits < double >::max( ), 2, true, formations ) )
+            return false;
+      }
 
       // It can happen there are no seal formations.  In that case return:
       sealPresent = formations.size () != 0;
@@ -2016,7 +2060,6 @@ namespace migration
          return true;
 
       vector < const Formation *>::const_iterator f = formations.begin ();
-
       SurfaceGridMapContainer::discontinuous_properties::const_iterator d = depths.begin ();
       SurfaceGridMapContainer::discontinuous_properties::const_iterator p = permeabilities.begin ();
       SurfaceGridMapContainer::constant_properties::const_iterator l0 = lithoType1Percents.begin ();
@@ -2027,19 +2070,23 @@ namespace migration
       // properties.  In most cases this will be the first GridMap, but in order to be safe,
       // we iterate until depths.end() (to prevent an eternal loop), even though we shouldn't get 
       // at depths.end():
-      while (d != depths.end ())
+
+      // the fracture pressure result
+      bool result = true;
+
+      while ( d != depths.end() )
       {
-         assert (d != depths.end ());
-         assert (p != permeabilities.end ());
-         assert (l0 != lithoType1Percents.end ());
+         assert( d != depths.end() );
+         assert( p != permeabilities.end() );
+         assert( l0 != lithoType1Percents.end() );
          // l1 and l2 may be empty, so no asserts for l1 and l2.
 
          // The formations of d, p and l0 should match:
-         assert ((*d).formation () == (*p).formation ());
-         assert ((*d).formation () == (*l0).first);
+         assert( ( *d ).formation() == ( *p ).formation() );
+         assert( ( *d ).formation() == ( *l0 ).first );
 
          // Check whether the formation of d, p and l0 is the seal formation:
-         if ((*d).formation () == *f)
+         if ( ( *d ).formation() == *f )
          {
 
             // The top of the one overburden formation must be larger than both 
@@ -2059,111 +2106,152 @@ namespace migration
             string name = (*f)->getName ();
             double snapshotAge = snapshot->getTime ();
 #endif
-            assert (!(*d).top ().valid () || getTopDepth () - (*d).top ()[functions::tuple (i, j)] > 0.0);
-
-            if (!(*d).base ().valid ())
+            //should always be valid for reservoir and seal;
+            if ( !( *d ).base().valid() )
             {
-               cerr << "Trap.C:1650: Exiting as no valid depth property found for base of formation: '" <<
-                  (*f)->getName () << "' at time: " << snapshot->getTime () << "." << endl;
-               cerr.flush ();
+               cerr << "Trap::computeSealPressureLeakParametersImpl : Exiting as no valid depth property found for base of formation: '" <<
+                  ( *f )->getName() << "' at time: " << snapshot->getTime() << "." << endl;
+               cerr.flush();
 
                return false;
             }
-            assert ((*d).base ()[functions::tuple (i, j)] - (*d).top ()[functions::tuple (i, j)] > 0.0);
 
-            // The right formation is found:
-            break;
+            //the formation has thickness at the specific i,j
+            assert( ( *d ).base()[functions::tuple( i, j )] - ( *d ).top()[functions::tuple( i, j )] > 0.0 );
+            assert( ( *f )->getLithoType1() );
+            assert( l0 != lithoType1Percents.end() );
+            assert( l0->first == *f );
+
+            // So we have found the right d, p, l0, and possibly l1 and l2 iterators if they 
+            // do exist.  Get the fractions of the LithoTypes:
+            vector<double> formLithFracs;
+
+            formLithFracs.push_back( 0.01 * ( *l0 ).second[functions::tuple( i, j )] );
+            if ( ( *f )->getLithoType2() && l1 != lithoType2Percents.end() && ( *l1 ).first == ( *f ) )
+               formLithFracs.push_back( 0.01 * ( *l1 ).second[functions::tuple( i, j )] );
+            if ( ( *f )->getLithoType3() && l2 != lithoType3Percents.end() && ( *l2 ).first == ( *f ) )
+               formLithFracs.push_back( 0.01 * ( *l2 ).second[functions::tuple( i, j )] );
+
+            // store the formation litho fraction
+            lithFracs.push_back( formLithFracs );
+
+            // For the capillary entry pressure, we need to know what mixing model to apply when calculating 
+            // the effective capillary parameters:
+            mixModel.push_back( ( *f )->getMixModel() );
+
+            // If the trap lies inside the formation the relevant permeability is the permeability 
+            // of the trap, else the permeability is the permeability of the base of the overburden 
+            // formation:
+
+            if ( getCrestColumn()->getTopDepthOffset() != 0.0 )
+               permeability.push_back( getCrestColumn()->getPermeability() );
+            else
+            {      
+               // Remove the following if when legacy is removed.
+               if ( isLegacy )
+               {
+                  if ( !( *p ).base( ).valid( ) )
+                  {
+                     cerr << "Trap::computeSealPressureLeakParametersImpl : Exiting as no valid permeability property found for base of formation: '" <<
+                        ( *f )->getName( ) << "' at time: " << snapshot->getTime( ) << "." << endl;
+                     cerr.flush( );
+
+                     return false;
+                  }
+                  else
+                     permeability.push_back(( *p ).base( )[functions::tuple( i, j )]);
+               }
+               else
+               {
+                  if ( *f == formations.front() && ( *p ).top().valid() )
+                  {
+                     //reservoir (in case the only valid formation is the reservoir only this is executed)
+                     permeability.push_back( ( *p ).top()[functions::tuple( i, j )] );
+                  }
+                  else if ( formations.size() == 2 && *f == formations.back() && ( *p ).base().valid() )
+                  {
+                     //seal
+                     permeability.push_back( ( *p ).base()[functions::tuple( i, j )] );
+                  }
+                  else
+                  {
+                     cerr << "Trap::computeSealPressureLeakParametersImpl : Exiting as no valid permeability property found for formation: '" <<
+                        ( *f )->getName() << "' at time: " << snapshot->getTime() << "." << endl;
+                     cerr.flush();
+                     return false;
+                  }
+               }
+            }
+
+            // Finally use the gathered information to calculate the capillary seal strength of gas and oil:
+            vector<translateProps::CreateCapillaryLithoProp::output> formlithProps;
+            translateProps::translate < translateProps::CreateCapillaryLithoProp >( *f,
+               translateProps::CreateCapillaryLithoProp(),
+               formlithProps );
+            lithProps.push_back( formlithProps );
+
+            // -- Fracture pressure calculations --//
+            // Compute sealFluidDensity, fracPressure and the fracture pressure only for the seal.
+            // Note that in legacy mode the reservoir formation is the seal
+            if ( ( *f ) == formations.back() )
+            {
+
+               // But as depth and temperatureC are of course continuous properties, we may get them from 
+               // the Trap:
+               double depth = getTopDepth();
+               double depthWrtSedimentSurface = getCrestColumn()->getOverburden();
+               double temperatureC = getTemperature();
+
+               // Get the water density:
+               const Interface::FluidType * fluidType = ( *f )->getFluidType();
+               sealFluidDensity = CBMGenerics::waterDensity::compute( fluidType->fluidDensityModel(),
+                  fluidType->density(), fluidType->salinity(),
+                  temperatureC, getPressure() );
+			   // Compute the fracture pressure:
+               fracPressure = numeric_limits < double >::max();
+
+               switch ( fracturePressureParameters->type() )
+               {
+               case Interface::None:
+                  break;
+               case Interface::FunctionOfDepthWrtSeaLevelSurface:
+                  fracPressure =
+                     CBMGenerics::fracturePressure::computeForFunctionOfDepthWrtSeaLevelSurface( fracturePressureParameters->
+                     coefficients(), depth );
+                  break;
+               case Interface::FunctionOfDepthWrtSedimentSurface:
+               {
+                                                                   fracPressure =
+                                                                      CBMGenerics::fracturePressure::computeForFunctionOfDepthWrtSedimentSurface( fracturePressureParameters->coefficients(),
+                                                                      depthWrtSedimentSurface,
+                                                                      getCrestColumn()->getSeaBottomPressure() );
+                                                                   break;
+               }
+               case Interface::FunctionOfLithostaticPressure:
+                  result = computeForFunctionOfLithostaticPressure( fullOverburden, *f, formLithFracs, fracPressure );
+                  break;
+               default:
+                  assert( 0 );
+               }
+
+               //the end of the formation vector is reached, no need to loop again
+               break;
+            }
+
+            // increment the formation iterator
+            ++f;
          }
 
          // If the formation of l1 and l2 matches that of d, go to the next l1 and l2:
-         if (l1 != lithoType2Percents.end () && (*l1).first == (*d).formation ())
+         if ( l1 != lithoType2Percents.end() && ( *l1 ).first == ( *d ).formation() )
             ++l1;
-         if (l2 != lithoType3Percents.end () && (*l2).first == (*d).formation ())
+         if ( l2 != lithoType3Percents.end() && ( *l2 ).first == ( *d ).formation() )
             ++l2;
          ++d;
          ++p;
          ++l0;
       }
-      assert (d != depths.end ());
 
-      assert ((*f)->getLithoType1 ());
-      assert (l0 != lithoType1Percents.end ());
-      assert (l0->first == *f);
-
-      // So we have found the right d, p, l0, and possibly l1 and l2 iterators if they 
-      // do exist.  Get the fractions of the LithoTypes:
-      lithFracs.push_back (0.01 * (*l0).second[functions::tuple (i, j)]);
-      if ((*f)->getLithoType2 () && l1 != lithoType2Percents.end () && (*l1).first == (*f))
-         lithFracs.push_back (0.01 * (*l1).second[functions::tuple (i, j)]);
-      if ((*f)->getLithoType3 () && l2 != lithoType3Percents.end () && (*l2).first == (*f))
-         lithFracs.push_back (0.01 * (*l2).second[functions::tuple (i, j)]);
-
-      // For the capillary entry pressure, we need to know what mixing model to apply when calculating 
-      // the effective capillary parameters:
-      mixModel = (*f)->getMixModel ();
-
-      // If the trap lies inside the formation the relevant permeability is the permeability 
-      // of the trap, else the permeability is the permeability of the base of the overburden 
-      // formation:
-      if (getCrestColumn ()->getTopDepthOffset () != 0.0)
-         permeability = getCrestColumn ()->getPermeability ();
-      else
-      {
-         if (!(*p).base ().valid ())
-         {
-            cerr << "Trap.C:1694: Exiting as no valid permeability property found for base of formation: '" <<
-               (*f)->getName () << "' at time: " << snapshot->getTime () << "." << endl;
-            cerr.flush ();
-
-            return false;
-         }
-         else
-            permeability = (*p).base ()[functions::tuple (i, j)];
-      }
-
-      // But as depth and temperatureC are of course continuous properties, we may get them from 
-      // the Trap:
-      double depth = getTopDepth ();
-      double depthWrtSedimentSurface = getCrestColumn ()->getOverburden ();
-      double temperatureC = getTemperature ();
-
-      // Casting to GeoPhysics::FluidType so that the phase-change implementation for brine density can be used
-      const GeoPhysics::FluidType * fluidType = dynamic_cast<const GeoPhysics::FluidType *> ((*f)->getFluidType ());
-      assert (fluidType);
-      sealFluidDensity = fluidType->density (temperatureC, getPressure ());
-
-      // Finally use the gathered information to calculate the capillary seal strength of gas and oil:
-      translateProps::translate < translateProps::CreateCapillaryLithoProp > (*f,
-         translateProps::CreateCapillaryLithoProp (),
-         lithProps);
-
-      // Compute the fracture pressure:
-      fracPressure = numeric_limits < double >::max ();
-      bool result = true;
-
-      switch (fracturePressureParameters->type ())
-      {
-      case Interface::None:
-         break;
-      case Interface::FunctionOfDepthWrtSeaLevelSurface:
-         fracPressure =
-            CBMGenerics::fracturePressure::computeForFunctionOfDepthWrtSeaLevelSurface (fracturePressureParameters->
-            coefficients (), depth);
-         break;
-      case Interface::FunctionOfDepthWrtSedimentSurface:
-      {
-         fracPressure =
-            CBMGenerics::fracturePressure::computeForFunctionOfDepthWrtSedimentSurface (fracturePressureParameters->coefficients (),
-            depthWrtSedimentSurface,
-            getCrestColumn ()->getSeaBottomPressure ());
-         break;
-      }
-      case Interface::FunctionOfLithostaticPressure:
-         result = computeForFunctionOfLithostaticPressure (fullOverburden, *f, lithFracs, fracPressure);
-         break;
-      default:
-         assert (0);
-      }
       return result;
    }
 

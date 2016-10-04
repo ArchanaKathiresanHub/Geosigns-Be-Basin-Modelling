@@ -224,6 +224,10 @@ namespace migration
          {
             for (unsigned int j = ptrVapourPcE->firstJ (true); j <= ptrVapourPcE->lastJ (true); ++j)
             {
+               bool isNotGhostOrOnBoundary = ( i >= m_formationNodeArray->firstILocal() and i <= m_formationNodeArray->lastILocal() and
+                  j >= m_formationNodeArray->firstJLocal() and j <= m_formationNodeArray->lastJLocal() and
+                  i < grid->numIGlobal() - 1 and j < grid->numJGlobal() - 1 );
+               
                double pressure = m_formationPropertyPtr[PRESSUREPROPERTY]->get (i, j, k);
                double temperature = m_formationPropertyPtr[TEMPERATUREPROPERTY]->get (i, j, k);
                double liquidDensity = m_formationPropertyPtr[LIQUIDDENSITYPROPERTY]->get (i, j, k);
@@ -244,16 +248,24 @@ namespace migration
                double hcTempValueVapour = pvtFlash::getCriticalTemperature (C1, 0);
                double hcTempValueLiquid = pvtFlash::getCriticalTemperature (C6_14SAT, 0);
 
-               const double capC1 = getCompoundLithology (i, j)->capC1 ();
-               const double capC2 = getCompoundLithology (i, j)->capC2 ();
 
-               double capSealStrength_Air_Hg = CBMGenerics::capillarySealStrength::capSealStrength_Air_Hg (capC1, capC2, vPermeability);
+               double capillaryEntryPressureLiquid = Interface::DefaultUndefinedMapValue;
+               double capillaryEntryPressureVapour = Interface::DefaultUndefinedMapValue;
 
-               double liquidIFT = CBMGenerics::capillarySealStrength::capTension_H2O_HC (waterDensity, liquidDensity, temperature + CBMGenerics::C2K, hcTempValueLiquid);
+               const GeoPhysics::CompoundLithology*  compoundLithology = getCompoundLithology( i, j );
+               if ( compoundLithology )
+               {
+                  const double capC1 = compoundLithology->capC1();
+                  const double capC2 = compoundLithology->capC2();
 
-               // Considers 180 deg. angle between H2O and HC (strictly speaking not true for oil)
-               double capillaryEntryPressureLiquid = CBMGenerics::capillarySealStrength::capSealStrength_H2O_HC (capSealStrength_Air_Hg, liquidIFT);
-               double capillaryEntryPressureVapour = capillaryEntryPressureLiquid + capillaryEntryPressureLiquidVapour (vPermeability, pressure, capC1, capC2);
+                  double capSealStrength_Air_Hg = CBMGenerics::capillarySealStrength::capSealStrength_Air_Hg( capC1, capC2, vPermeability );
+
+                  double liquidIFT = CBMGenerics::capillarySealStrength::capTension_H2O_HC( waterDensity, liquidDensity, temperature + CBMGenerics::C2K, hcTempValueLiquid );
+
+                  // Considers 180 deg. angle between H2O and HC (strictly speaking not true for oil)
+                  capillaryEntryPressureLiquid = CBMGenerics::capillarySealStrength::capSealStrength_H2O_HC( capSealStrength_Air_Hg, liquidIFT );
+                  capillaryEntryPressureVapour = capillaryEntryPressureLiquid + capillaryEntryPressureLiquidVapour( vPermeability, pressure, capC1, capC2 );
+               }
 
                if (capillaryEntryPressureLiquid == Interface::DefaultUndefinedMapValue or capillaryEntryPressureVapour == Interface::DefaultUndefinedMapValue)
                {
@@ -261,9 +273,7 @@ namespace migration
                   ptrLiquidPcE->set (i, j, (unsigned int)k, 0.0);
 
                   // If not a ghost node and not on last I or J row of the basin then assign the values to the local formation node
-                  if (i >= m_formationNodeArray->firstILocal () and i <= m_formationNodeArray->lastILocal () and
-                     j >= m_formationNodeArray->firstJLocal () and j <= m_formationNodeArray->lastJLocal () and
-                     i < grid->numIGlobal () - 1 and j < grid->numJGlobal () - 1)
+                  if ( isNotGhostOrOnBoundary )
                   {
                      // If at the top choose the formation node right below it. We will still calculate and save values for the top node,
                      // but these values will be stored in the arrays of the node below it.
@@ -281,9 +291,7 @@ namespace migration
                   ptrLiquidPcE->set (i, j, (unsigned int)k, capillaryEntryPressureLiquid);
 
                   // If not a ghost node and not on last I or J row of the basin then assign the values to the local formation node
-                  if (i >= m_formationNodeArray->firstILocal () and i <= m_formationNodeArray->lastILocal () and
-                     j >= m_formationNodeArray->firstJLocal () and j <= m_formationNodeArray->lastJLocal () and
-                     i < grid->numIGlobal () - 1 and j < grid->numJGlobal () - 1)
+                  if ( isNotGhostOrOnBoundary )
                   {
                      // If at the top choose the formation node right below it. We will still calculate and save values for the top node,
                      // but these values will be stored in the arrays of the node below it.
