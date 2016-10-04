@@ -565,7 +565,7 @@ namespace CauldronIO
         /// \param [in] i row index
         /// \param [in] j column index
         /// \returns the index into the 2D array
-        inline size_t getMapIndex(size_t i, size_t j) const;
+        size_t getMapIndex(size_t i, size_t j) const;
         /// \returns true if surface is constant
         bool isConstant() const;
         /// \brief Set a constant value for this surface
