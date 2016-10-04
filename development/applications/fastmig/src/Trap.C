@@ -2042,7 +2042,8 @@ namespace migration
 
       if ( isLegacy || getCrestColumn()->getTopDepthOffset() != 0.0 )
       {
-         if ( !overburden_MPI::getRelevantOverburdenFormations( begin, depths.end( ), snapshot,
+		  //if is legacy or there is offset, get only the seal formation (formations[0])
+		  if ( !overburden_MPI::getRelevantOverburdenFormations( begin, depths.end( ), snapshot,
             i, j, numeric_limits < double >::max( ), 1, true, formations ) )
             return false;
       }
@@ -2192,7 +2193,7 @@ namespace migration
 
             // -- Fracture pressure calculations --//
             // Compute sealFluidDensity, fracPressure and the fracture pressure only for the seal.
-            // Note that in legacy mode the reservoir formation is the seal
+            // Note that in case of legacy or offset formation[0] is the seal formation
             if ( ( *f ) == formations.back() )
             {
 
