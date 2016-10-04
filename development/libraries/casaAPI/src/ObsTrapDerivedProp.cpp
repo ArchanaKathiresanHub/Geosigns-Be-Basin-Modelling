@@ -373,12 +373,15 @@ double ObsTrapDerivedProp::calculateDerivedTrapProp( const std::vector<double> &
 
    if ( vals.size() < ComponentManager::NumberOfOutputSpecies + 4 ) return ret;
 
-   double massLiq = vals[ComponentManager::NumberOfOutputSpecies    ];
-   double massVap = vals[ComponentManager::NumberOfOutputSpecies + 1];
+   double phaseMasses[2];
+   phaseMasses[ComponentManager::Liquid] = vals[ComponentManager::NumberOfOutputSpecies    ];
+   phaseMasses[ComponentManager::Vapour] = vals[ComponentManager::NumberOfOutputSpecies + 1];
+
    double P       = vals[ComponentManager::NumberOfOutputSpecies + 2];
    double T       = vals[ComponentManager::NumberOfOutputSpecies + 3];
 
-   if ( massLiq + massVap < 1.0e-3 ) return ret; // not possible to calculate for zero mass of HC
+   // check if it is possible to calculate for zero mass of HC
+   if ( phaseMasses[ComponentManager::Liquid] + phaseMasses[ComponentManager::Vapour]  < 1.0e-3 ) return ret; 
 
    double masses[ComponentManager::NumberOfOutputSpecies];
    for ( int comp = 0; comp < ComponentManager::NumberOfOutputSpecies; ++comp ) { masses[comp] = vals[comp]; }
@@ -393,28 +396,18 @@ double ObsTrapDerivedProp::calculateDerivedTrapProp( const std::vector<double> &
    double densitiesST[  ComponentManager::NumberOfPhases][ComponentManager::NumberOfPhases];
    double viscositiesST[ComponentManager::NumberOfPhases][ComponentManager::NumberOfPhases];
 
+   
    // perform PVT under reservoir conditions
-   if ( !performPVT( masses, T, P, massesRC, densitiesRC, viscositiesRC ) )
-   {
-      throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Can not perform PVT calculation for reservoir conditions";
-   }
-
+   bool pvtRC = performPVT( masses, T, P, massesRC, densitiesRC, viscositiesRC );
+   
    // perform PVT's of reservoir condition phases under stock tank conditions
-   if ( !performPVT( massesRC[ComponentManager::Vapour], StockTankTemperatureC, StockTankPressureMPa,
-                     massesST[ComponentManager::Vapour], densitiesST[ComponentManager::Vapour], viscositiesST[ComponentManager::Vapour] 
-                   )
-      )
-   { 
-      throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Can not perform PVT calculation for vapour phase for surface conditions";
-   }
+   bool pvtRCVapour = performPVT( massesRC[ComponentManager::Vapour], StockTankTemperatureC, StockTankPressureMPa,
+                                  massesST[ComponentManager::Vapour], densitiesST[ComponentManager::Vapour], viscositiesST[ComponentManager::Vapour] 
+                                );
       
-   if ( !performPVT( massesRC[ComponentManager::Liquid], StockTankTemperatureC, StockTankPressureMPa,
-                     massesST[ComponentManager::Liquid], densitiesST[ComponentManager::Liquid], viscositiesST[ComponentManager::Liquid]
-                   )
-      )
-   {
-      throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Can not perform PVT calculation for liquid phase for surface conditions";
-   }
+   bool pvtRCLiquid = performPVT( massesRC[ComponentManager::Liquid], StockTankTemperatureC, StockTankPressureMPa,
+                                  massesST[ComponentManager::Liquid], densitiesST[ComponentManager::Liquid], viscositiesST[ComponentManager::Liquid]
+                                );
 
    bool stPhaseFound = false;
    bool rcPhaseFound = false;
@@ -460,58 +453,84 @@ double ObsTrapDerivedProp::calculateDerivedTrapProp( const std::vector<double> &
    // Volume, Density, Viscosity, and Mass properties for stock tank conditions
    if ( m_propName.find( "Density" ) != string::npos )
    {
-      ret = stPhaseFound ? densitiesST[rcPhase][stPhase]   : densitiesRC[rcPhase];
+      if ( stPhaseFound )
+      {
+         if ( rcPhase == ComponentManager::Vapour && pvtRCVapour || rcPhase == ComponentManager::Liquid && pvtRCLiquid )
+         {
+            ret = densitiesST[rcPhase][stPhase];
+         }
+      }
+      else if ( pvtRC && phaseMasses[rcPhase] > 0.0 ) { ret = densitiesRC[rcPhase]; }
    }
    else if ( m_propName.find( "Viscosity" ) != string::npos )
    {
-      ret = stPhaseFound ? viscositiesST[rcPhase][stPhase] : viscositiesRC[rcPhase];
+      if ( stPhaseFound )
+      {
+         if ( rcPhase == ComponentManager::Vapour && pvtRCVapour || rcPhase == ComponentManager::Liquid && pvtRCLiquid )
+         {
+            ret = viscositiesST[rcPhase][stPhase];
+         }
+      }
+      else if ( pvtRC && phaseMasses[rcPhase] > 0.0 ) { ret = viscositiesRC[rcPhase]; }
    }
    else if ( m_propName == "GOR" )
    {
-      rcPhase = ComponentManager::Liquid;
-      stPhase = ComponentManager::Liquid;
+      if ( pvtRCLiquid )
+      {
+        rcPhase = ComponentManager::Liquid;
+         stPhase = ComponentManager::Liquid;
 
-      double volumeSTOIIP = ComputeVolume( massesST[rcPhase][stPhase], densitiesST[rcPhase][stPhase], ComponentManager::NumberOfOutputSpecies );
+         double volumeSTOIIP = ComputeVolume( massesST[rcPhase][stPhase], densitiesST[rcPhase][stPhase], ComponentManager::NumberOfOutputSpecies );
 
-      rcPhase = ComponentManager::Liquid;
-      stPhase = ComponentManager::Vapour;
+         rcPhase = ComponentManager::Liquid;
+         stPhase = ComponentManager::Vapour;
 
-      double volumeSGIIP = ComputeVolume( massesST[rcPhase][stPhase], densitiesST[rcPhase][stPhase], ComponentManager::NumberOfOutputSpecies );
+         double volumeSGIIP = ComputeVolume( massesST[rcPhase][stPhase], densitiesST[rcPhase][stPhase], ComponentManager::NumberOfOutputSpecies );
 
-      if ( volumeSTOIIP != 0 ) { ret = volumeSGIIP / volumeSTOIIP; }
+         if ( volumeSTOIIP != 0 ) { ret = volumeSGIIP / volumeSTOIIP; }
+      }
    }
    else if ( m_propName == "CGR" )
    {
-      rcPhase = ComponentManager::Vapour;
-      stPhase = ComponentManager::Liquid;
+      if ( pvtRCVapour )
+      {
+         rcPhase = ComponentManager::Vapour;
+         stPhase = ComponentManager::Liquid;
 
-      double volumeCIIP = ComputeVolume( massesST[rcPhase][stPhase], densitiesST[rcPhase][stPhase], ComponentManager::NumberOfOutputSpecies );
+         double volumeCIIP = ComputeVolume( massesST[rcPhase][stPhase], densitiesST[rcPhase][stPhase], ComponentManager::NumberOfOutputSpecies );
 
-      rcPhase = ComponentManager::Vapour;
-      stPhase = ComponentManager::Vapour;
+         rcPhase = ComponentManager::Vapour;
+         stPhase = ComponentManager::Vapour;
 
-      double volumeFGIIP = ComputeVolume( massesST[rcPhase][stPhase], densitiesST[rcPhase][stPhase], ComponentManager::NumberOfOutputSpecies );
+         double volumeFGIIP = ComputeVolume( massesST[rcPhase][stPhase], densitiesST[rcPhase][stPhase], ComponentManager::NumberOfOutputSpecies );
 
-      if ( volumeFGIIP != 0.0 ) { ret = volumeCIIP / volumeFGIIP; }
+         if ( volumeFGIIP != 0.0 ) { ret = volumeCIIP / volumeFGIIP; }
+      }
    }
    else if ( m_propName == "OilAPI" )
    {
-      rcPhase = ComponentManager::Liquid;
-      stPhase = ComponentManager::Liquid;
-
-      if ( densitiesST[rcPhase][stPhase] != 0.0 )
+      if ( pvtRCLiquid )
       {
-         ret = 141.5 / ( 0.001 * densitiesST[rcPhase][stPhase] ) - 131.5;
+         rcPhase = ComponentManager::Liquid;
+         stPhase = ComponentManager::Liquid;
+
+         if ( densitiesST[rcPhase][stPhase] != 0.0 )
+         {
+            ret = 141.5 / ( 0.001 * densitiesST[rcPhase][stPhase] ) - 131.5;
+         }
       }
    }
    else if ( m_propName == "CondensateAPI" )
-   {
-      rcPhase = ComponentManager::Vapour;
-      stPhase = ComponentManager::Liquid;
-
-      if ( densitiesST[rcPhase][stPhase] != 0.0 )
+   { 
+      if ( pvtRCVapour )
       {
-         ret = 141.5 / ( 0.001 * densitiesST[rcPhase][stPhase] ) - 131.5;
+         rcPhase = ComponentManager::Vapour;
+         stPhase = ComponentManager::Liquid;
+
+         if ( densitiesST[rcPhase][stPhase] != 0.0 )
+         {
+            ret = 141.5 / ( 0.001 * densitiesST[rcPhase][stPhase] ) - 131.5;
+         }
       }
    }
    else { throw ErrorHandler::Exception( ErrorHandler::NotImplementedAPI ) << "Trap property " << m_propName << " is not implemented yet"; }
@@ -548,7 +567,7 @@ bool performPVT( double masses[ComponentManager::NumberOfOutputSpecies]
       phaseViscosities[phase] = 0;
    }
 
-   if ( massTotal > g_ZeroMassLogThreshold )
+   if ( massTotal > g_ZeroMassThreshold )
    {
       return pvtFlash::EosPack::getInstance().computeWithLumping( temperature + C2K
                                                                 , pressure * MPa2Pa
@@ -558,6 +577,7 @@ bool performPVT( double masses[ComponentManager::NumberOfOutputSpecies]
                                                                 , phaseViscosities
                                                                 );
    }
+   return false;
 }
 
 double ComputeVolume( double * masses, double density, int numberOfSpecies )
