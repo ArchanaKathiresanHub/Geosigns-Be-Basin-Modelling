@@ -65,14 +65,14 @@ void ibs::PiecewiseInterpolator::evaluate ( const unsigned int       size,
    if ( m_numberOfPoints == 2 ) {
       // Only a single panel
 
-      #pragma simd
+#pragma omp simd aligned (pnts, values )
       for ( unsigned int i = 0; i < size; ++i ) {
          values [ i ] = m_aCoeffs [ 0 ] + m_bCoeffs [ 0 ] * pnts [ i ];
       }
 
    } else {
 
-      // #pragma omp simd aligned ( pnts, values )
+#pragma omp simd aligned (pnts, values)
       for ( unsigned int i = 0; i < size; ++i ) {
          values [ i ] = evaluate ( pnts [ i ]);
       }
@@ -97,14 +97,14 @@ void ibs::PiecewiseInterpolator::evaluateDerivative ( const unsigned int       s
    if ( m_numberOfPoints == 2 ) {
       // Only a single panel
 
-      #pragma simd
+#pragma omp simd aligned (pnts, values)
       for ( unsigned int i = 0; i < size; ++i ) {
          values [ i ] = m_bCoeffs [ 0 ];
       }
 
    } else {
 
-      // #pragma omp simd aligned ( pnts, values )
+#pragma omp simd aligned (pnts, values)
       for ( unsigned int i = 0; i < size; ++i ) {
          values [ i ] = evaluateDerivative ( pnts [ i ]);
       }
@@ -135,7 +135,7 @@ void ibs::PiecewiseInterpolator::evaluate (  const unsigned int       size,
    if ( m_numberOfPoints == 2 ) {
       // Only a single panel
 
-      #pragma simd
+#pragma omp simd aligned (pnts, values, derivatives)
       for ( unsigned int i = 0; i < size; ++i ) {
          values [ i ] = m_aCoeffs [ 0 ] + m_bCoeffs [ 0 ] * pnts [ i ];
          derivatives [ i ] = m_bCoeffs [ 0 ];
@@ -143,7 +143,7 @@ void ibs::PiecewiseInterpolator::evaluate (  const unsigned int       size,
 
    } else {
 
-      #pragma simd
+#pragma omp simd aligned (pnts, values, derivatives)
       for ( unsigned int i = 0; i < size; ++i ) {
          evaluate ( pnts [ i ], values [ i ], derivatives [ i ]);
       }

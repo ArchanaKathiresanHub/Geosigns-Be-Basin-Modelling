@@ -12,7 +12,9 @@
 
 namespace ArrayDefs {
 
-   #define ARRAY_ALIGNMENT 32
+   /// \def ARRAY_ALIGNMENT
+   /// \brief The alignment, in bytes, required by arrays of the types below (Real_ptr and ConstReal_ptr)
+  #define ARRAY_ALIGNMENT 32
 
 #ifdef _MSC_VER
    typedef __declspec(align(ARRAY_ALIGNMENT)) double * Real_ptr;
@@ -22,8 +24,8 @@ namespace ArrayDefs {
    typedef double * /*__restrict__*/ __attribute__((align_value(ARRAY_ALIGNMENT))) Real_ptr;
    typedef const double * const /*__restrict__*/ __attribute__((align_value(ARRAY_ALIGNMENT))) ConstReal_ptr;
 #elif __GNUG__
-   typedef double * __restrict__ Real_ptr __attribute__((aligned(ARRAY_ALIGNMENT)));
-   typedef const double * const __restrict__ ConstReal_ptr __attribute__((aligned(ARRAY_ALIGNMENT)));
+   typedef double * __restrict__ Real_ptr /* __attribute__((aligned(ARRAY_ALIGNMENT))) */;
+   typedef const double * const __restrict__ ConstReal_ptr /* __attribute__((aligned(ARRAY_ALIGNMENT))) */;
 #endif
 
 }
