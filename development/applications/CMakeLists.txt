@@ -11,6 +11,7 @@
 #########################################################################
 
 if (BM_BUILD_SERIAL_APPS)
+   add_subdirectory(anonymizer)
 	add_subdirectory(eosptdiag)
 	add_subdirectory(EosPackDemo)
 	add_subdirectory(track1d)

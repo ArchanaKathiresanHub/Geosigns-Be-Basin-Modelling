@@ -1,0 +1,72 @@
+
+# Original coordinates (X,Y)
+335000 7795000
+
+# Coordinates shift (X,Y)
+-200520.5235 4131341.414
+
+# GridMapIoTbl::MapName
+"MAP-1342951888-4" "MapName000"
+"MAP-1342951930-4" "MapName002"
+"MAP-1342951934-4" "MapName004"
+"MAP-1342951938-4" "MapName006"
+"MAP-1342951942-4" "MapName007"
+"MAP-1342951946-4" "MapName009"
+"MAP-1342951950-4" "MapName010"
+"MAP-1342951954-4" "MapName012"
+"MAP-1342951958-4" "MapName014"
+"MAP-1342999130-4" "MapName001"
+"MAP-1342999138-4" "MapName003"
+"MAP-1342999140-4" "MapName005"
+"MAP-1342999144-4" "MapName008"
+"MAP-1342999148-4" "MapName011"
+"MAP-1342999150-4" "MapName013"
+"MAP-1342999152-4" "MapName015"
+
+# StratIoTbl::LayerName
+"Fm P2_Tranberg_Fan_SL" "LayerName004"
+"Fm_LK1_Kolje_Combined" "LayerName007"
+"Fm_N1" "LayerName000"
+"Fm_N2" "LayerName001"
+"Fm_N3" "LayerName002"
+"Fm_P1" "LayerName003"
+"Fm_UK1_Nygrunnen" "LayerName005"
+"Fm_UK2_UpKolmule" "LayerName006"
+
+# StratIoTbl::SurfaceName
+"1_Water_Bottom" "SurfaceName000"
+"2_1Ma_URU" "SurfaceName001"
+"3_2.5Ma_Top_Pliocene" "SurfaceName002"
+"4_23Ma_Top_Oligocene" "SurfaceName003"
+"5_55Ma_Base_Eocene" "SurfaceName004"
+"6_65Ma_Top_Cret_Tranberg" "SurfaceName005"
+"7_96Ma_Top_Kolmule" "SurfaceName006"
+"8_125Ma_Top_Kolje" "SurfaceName007"
+"9_BCU" "SurfaceName008"
+
+# LithotypeIoTbl::Lithotype
+"Astheno. Mantle" "Lithotype002"
+"Crust" "Crust"
+"LSB Chalk Hybrid LK03042015" "Lithotype006"
+"LSB Sand Hybrid 03042015" "Lithotype005"
+"LSB Shale Hybrid LK03042015" "Lithotype004"
+"Litho. Mantle" "Litho. Mantle"
+"Std. Basalt" "Lithotype003"
+
+# FluidtypeIoTbl::Fluidtype
+"Seawater_35kppm_LK21052013" "Fluidtype003"
+"Std. Hyper Saline Water" "Fluidtype002"
+"Std. Marine Water" "Fluidtype001"
+"Std. Water" "Fluidtype000"
+
+# File names
+"Inputs.HDF" "MapFile000.anonymized.HDF"
+
+# SourceRockLithoIoTbl::SourceRockType
+
+# LangmuirAdsorptionCapacityIsothermSetIoTbl::LangmuirName and LangmuirAdsorptionCapacityTOCFunctionIoTbl::LangmuirName
+
+# ReservoirIoTbl::ReservoirName
+
+# WellLocIoTbl::WellName
+"MyWell" "WellName000"
