@@ -73,12 +73,18 @@ namespace migration
 
          // If now only oil would have been spilled, the volume between gasVolume and 
          // wasteContent[1] is wasted:
-         if (gasVolumeLeaked == 0.0)
+         if (gasVolumeSpilled == 0.0)
          {
             gasVolumeWasted = gasVolume - wasteContent[1];
             return;
          }
+         else
+         {
+            gasVolumeWasted = gasVolume - wasteContent[1] - gasVolumeSpilled;
+            return;
+         }
 
+         // I think the comment below doesn't makle sense (KL, 05/10/2016)
          // In the other case, some gas will be leaked.  This indicates that the buoyancy 
          // of original the HC column actually exceeded the max buoyancy level.  So leaking takes 
          // precedence over wasting, and we can just return the results from m_leakGasOrSpillOil.distribute.
