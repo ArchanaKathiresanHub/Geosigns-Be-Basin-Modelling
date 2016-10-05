@@ -103,23 +103,6 @@ set(PETSC_LIBRARIES "petsc" ${BLAS_LIBRARIES} ${BM_DL_LIB})
 endif (BM_BUILD_HYPRE)
 
 
-add_external_package_info( 
-    CAPABILITY  PETScLib
-    NAME         "PETSc"
-    VENDOR       "Argonne National Laboratory"
-    VERSION      "${PETSC_VERSION}"
-    LICENSE_TYPE "Simplified BSD"
-    LICENSE_FILE "${THIRD_PARTY_DIR}/licenses/Petsc-3.5.4.txt"
-    URL          "http://www.mcs.anl.gov/petsc/"
-    DESCRIPTION  "Portable, Extensible Toolkit for Scientific Computation"
-    REQUIRED_AT  "Runtime"
-    COUNTRY_OF_ORIGIN "USA"
-    SHIPPED      "Yes"
-    INCLUSION_TYPE "Static Link"
-    USEABLE_STAND_ALONE "No"
-    CONTAINS_CRYPTO "No"
-    ECCN         "EAR99"
-)                   
 
 elseif (WIN32) # windows
    set(PETSC_DEBUG "${PETSC_HOME}/PETSc/debug" CACHE PATH "Debug path")
@@ -151,26 +134,25 @@ elseif (WIN32) # windows
    # linking, although everyone on the internet says its risky
    set(PETSC_LINK_FLAGS "/NODEFAULTLIB:LIBCMT /FORCE:MULTIPLE ${OpenMP_LINK_FLAGS}")
 
-   add_external_package_info( 
-          CAPABILITY  PETScLib
-          NAME         "PETSc for Windows"
-          VENDOR       "Microsoft Innovation Center Rapperswil"
-          VERSION      "3.5.2"
-          LICENSE_TYPE "Simplified BSD"
-          LICENSE_FILE ""
-          URL          "http://www.msic.ch/Software"
-          DESCRIPTION  "Portable, Extensible Toolkit for Scientific Computation"
-          REQUIRED_AT  "Runtime"
-          COUNTRY_OF_ORIGIN "USA"
-          SHIPPED      "Yes"
-          INCLUSION_TYPE "Static Link"
-          USEABLE_STAND_ALONE "No"
-          CONTAINS_CRYPTO "No"
-          ECCN         "EAR99"
-   )                   
-	
-
 endif ()
+
+add_external_package_info( 
+    CAPABILITY  PETScLib
+    NAME         "PETSc"
+    VENDOR       "Argonne National Laboratory"
+    VERSION      "${PETSC_VERSION}"
+    LICENSE_TYPE "Simplified BSD"
+    LICENSE_FILE "${THIRD_PARTY_DIR}/licenses/Petsc-3.5.4.txt"
+    URL          "http://www.mcs.anl.gov/petsc/"
+    DESCRIPTION  "Portable, Extensible Toolkit for Scientific Computation"
+    REQUIRED_AT  "Runtime"
+    COUNTRY_OF_ORIGIN "USA"
+    SHIPPED      "Yes"
+    INCLUSION_TYPE "Static Link"
+    USEABLE_STAND_ALONE "No"
+    CONTAINS_CRYPTO "No"
+    ECCN         "EAR99"
+)                   
 
 # Local Variables:
 # mode: cmake

@@ -409,6 +409,32 @@ double ObsTrapDerivedProp::calculateDerivedTrapProp( const std::vector<double> &
                                   massesST[ComponentManager::Liquid], densitiesST[ComponentManager::Liquid], viscositiesST[ComponentManager::Liquid]
                                 );
 
+   // check for undefined values for Densities
+   for ( int phase = 0; phase < ComponentManager::NumberOfPhases; ++phase )
+   {
+      if ( densitiesRC[phase] == 1000 ) // some magical value from EoSPack if we do not have this phase
+      {
+         densitiesRC[phase] = 0.0;
+         densitiesST[phase][ComponentManager::Liquid] = 0.0;
+         densitiesST[phase][ComponentManager::Vapour] = 0.0;
+
+         viscositiesRC[phase] = UndefinedDoubleValue;
+         viscositiesST[phase][ComponentManager::Liquid] = UndefinedDoubleValue;
+         viscositiesST[phase][ComponentManager::Vapour] = UndefinedDoubleValue;
+      }
+      else
+      {
+         for ( int stPhase = 0; stPhase < ComponentManager::NumberOfPhases; ++stPhase )
+         {
+            if ( densitiesST[phase][stPhase] == 1000 )
+            {
+               densitiesST[phase][stPhase] = 0.0;
+               viscositiesST[phase][stPhase] = UndefinedDoubleValue;
+            }
+         }
+      }
+   }
+
    bool stPhaseFound = false;
    bool rcPhaseFound = false;
 

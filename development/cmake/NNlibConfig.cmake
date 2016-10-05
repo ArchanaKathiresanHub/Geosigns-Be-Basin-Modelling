@@ -26,7 +26,7 @@ add_external_package_info(
        NAME     "nn"
        VENDOR   "Pavel Sakov and CSIRO"
        VERSION  "v. 1.86.0"
-       LICENSE_TYPE "GPL"
+       LICENSE_TYPE "BSD"
        LICENSE_FILE "${THIRD_PARTY_DIR}/NNlib/LICENSE_NN"
        URL      "https://github.com/sakov/nn-c"
        DESCRIPTION "Performs natural neighbours interpolation"
@@ -36,6 +36,6 @@ add_external_package_info(
        INCLUSION_TYPE "Static Link"
        USEABLE_STAND_ALONE "No"
        CONTAINS_CRYPTO "No"
-       ECCN         "BSD"
+       ECCN         "EAR99"
        ECCN_EVIDENCE "https://sps.sede-coe.pds.nl/CoE-II/Basin Modeling/Release documents/Export Classification Tracking/Clarification on licensing issues_nn_poly2tri.msg"
 )

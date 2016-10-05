@@ -19,7 +19,7 @@ include(cmake/AddPackage.cmake)
 message(STATUS "BLAS vendor is set to ${BLA_VENDOR}" )
 
 set(INTEL_MKL_ROOT "INTEL_MKL_ROOT-NOTFOUND" CACHE PATH "Path to Intel MKL" )
-set(INTEL_MKL_VERSION "11.0.2.02 20150120" CACHE STRING "Intel MKL version")
+set(INTEL_MKL_VERSION "11.3.1.150" CACHE STRING "Intel MKL version")
 
 if (UNIX)
    if ( BLA_VENDOR STREQUAL "MKL" )

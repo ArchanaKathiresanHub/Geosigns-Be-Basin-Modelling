@@ -71,7 +71,7 @@ if (LSF_FOUND)
       CAPABILITY LSF
       NAME    "LSF"
       VENDOR  "IBM"
-      VERSION "9.1.1"
+      VERSION "9.1.3"
       LICENSE_TYPE "Commercial"
       LICENSE_FILE "${LSF_LICENSE_FILE_PATH}"
       URL "http://www-03.ibm.com/systems/platformcomputing/products/lsf/index.html"
@@ -81,7 +81,7 @@ if (LSF_FOUND)
       SHIPPED      "Yes"
       INCLUSION_TYPE "Static Link"
       USEABLE_STAND_ALONE "No"
-      CONTAINS_CRYPTO "No"
+      CONTAINS_CRYPTO "May"
       ECCN         "Unknown"
    )
 endif(LSF_FOUND)
