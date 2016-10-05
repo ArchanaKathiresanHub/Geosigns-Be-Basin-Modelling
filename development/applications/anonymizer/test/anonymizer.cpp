@@ -45,7 +45,7 @@ bool compareTextFiles( const std::string & leftFileName,
       result = exec( dos2unixCommand.c_str() );
    }
    // Compare text files
-   const std::string command = "cmp " + leftFileName + " " + rightFileName;
+   const std::string command = "diff -bqw " + leftFileName + " " + rightFileName;
    const std::string result  = exec( command.c_str() );
    sameFile = result.empty();
 #endif
