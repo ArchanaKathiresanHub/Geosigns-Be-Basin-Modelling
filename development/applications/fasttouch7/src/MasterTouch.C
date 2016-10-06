@@ -74,9 +74,7 @@ bool MasterTouch::executeWrapper( const char * burHistFile, const string & filen
    rank << GetRank();
 
    int pid = fork();
-
-   int childsStatusMinimum = 1;
-   int childStatus = 1;
+   int childStatus = 0;
 
    if (pid == 0)
    {
@@ -164,7 +162,7 @@ bool MasterTouch::executeWrapper( const char * burHistFile, const string & filen
          oss << "warning: touchstoneWrapper terminated prematurely "<< std::strerror( errno );
          message( oss.str( ) );
          childStatus = -1;
-		 childStarted = true;
+		   childStarted = true;
       } 
       
       // if the child exited ok before starting the computations it is a bad child (an exception was thrown and caught in Touchstone.C)
@@ -173,17 +171,23 @@ bool MasterTouch::executeWrapper( const char * burHistFile, const string & filen
          oss << "warning: touchstoneWrapper thrown an exeception "<< std::strerror( errno );
          message( oss.str( ) );
          childStatus = -1;
-		 childStarted = true;
+		   childStarted = true;
       }
 	  
-      // sleep only after the checks ( waitpidReturnValue and childstate are are up to date in the checks above). 
+	  // in case of no active elements in the domain, no computations are performed and fractionCompleted == 1
+      else if ( waitpidReturnValue && fractionCompleted == 1.0 )
+      {
+         childStarted = true;
+      } 
+	  
+      // sleep only after the checks ( waitpidReturnValue and childstate are up to date in the checks above). 
       usleep( 5000 );	  
    } while ( !childStarted );
    
-   childsStatusMinimum = MinimumAll( childStatus );
+   currentMinimum = MinimumAll( childStatus );
    
-   // return false if childsStatusMinimum is < 0 
-   if (childsStatusMinimum < 0 ) return false; 
+   // return false if currentMinimum is < 0.0 
+   if (currentMinimum < 0.0 ) return false; 
          
    timeToComplete.start( );      
    
@@ -223,9 +227,9 @@ bool MasterTouch::executeWrapper( const char * burHistFile, const string & filen
    }
 
    // if one child cannot close or unlink the status file, re-start all childrens.
-   childsStatusMinimum = MinimumAll( childStatus );
+   currentMinimum = MinimumAll( childStatus );
 
-   return childsStatusMinimum < 0 ? false : true; 
+   return currentMinimum < 0.0 ? false : true; 
 
 }
 // PUBLIC METHODS
