@@ -30,7 +30,7 @@ set(BM_EXTERNAL_COMPONENTS_DIR "${CBM_HOME}/hpc-library" CACHE PATH "The path to
 set(BM_SSSDEV_INSTALL_DIR "/apps/sssdev/ibs" CACHE PATH "sssdev installation path")
 
 set(INTEL_CXX_ROOT "/glb/data/hpcrnd/easybuild/PRODUCTION/software/rhel/6/icc/2016.1.150-GCC-4.9.3-2.25/compilers_and_libraries_2016.1.150/linux" CACHE PATH "Path to Intel's compiler collection")
-set(INTEL_MPI_ROOT "glb/data/hpcrnd/easybuild/PRODUCTION/software/rhel/6/impi/5.1.2.150-iccifort-2016.1.150-GCC-4.9.3-2.25" CACHE PATH "Path to Intel MPI library" )
+set(INTEL_MPI_ROOT "/glb/data/hpcrnd/easybuild/PRODUCTION/software/rhel/6/impi/5.1.2.150-iccifort-2016.1.150-GCC-4.9.3-2.25" CACHE PATH "Path to Intel MPI library" )
 set(INTEL_MKL_ROOT "/glb/data/hpcrnd/easybuild/PRODUCTION/software/rhel/6/imkl/11.3.1.150-iimpi-2016.01-GCC-4.9.3-2.25/mkl" CACHE PATH "Path to Intel MKL" )
 
 option(BM_USE_INTEL_COMPILER "Whether to use the Intel compiler" ON)

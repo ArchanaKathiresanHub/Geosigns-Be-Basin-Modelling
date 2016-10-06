@@ -64,7 +64,7 @@ else ()
 add_external_project_to_repository(
       NAME PETSC
       VERSION ${PETSC_VERSION}
-      ARCHIVE "${THIRD_PARTY_DIR}/sources/petsc-3.5.4.tar.gz"
+      ARCHIVE "${THIRD_PARTY_DIR}/sources/petsc-${PETSC_VERSION}.tar.gz"
       ARCHIVE_MD5 "781af0eec1e821f82fb3ecc7a2dfda8e"
       CONFIGURE_COMMAND 
          "./configure" 
@@ -84,7 +84,7 @@ add_external_project_to_repository(
       INSTALL_COMMAND "make" "install"
       CONFIGURE_OPTIONS 
         COMPILER "{CurrentCompiler}"  "--with-cc={CC}" "--with-cxx={CXX}"
-        MPI      "{CurrentMPI}"  "--with-mpi=1"
+        MPI      "{CurrentMPI}"    "--with-mpi=1"
         SPEED    "Release"         "--COPTFLAGS=-O3" "--CXXOPTFLAGS=-O3" "--CFLAGS=-g -DPETSC_KERNEL_USE_UNROLL_2" "--CXXFLAGS=-g -DPETSC_KERNEL_USE_UNROLL_2" "--with-debugging=no"
         SPEED    "Debug"           "--COPTFLAGS=-O3" "--CXXOPTFLAGS=-O3" "--CFLAGS=-g -DPETSC_KERNEL_USE_UNROLL_2" "--CXXFLAGS=-g -DPETSC_KERNEL_USE_UNROLL_2" "--with-debugging=no"
         SPEED    "DebugAll"        "--with-debugging"
@@ -103,16 +103,12 @@ set(PETSC_LIBRARIES "petsc" ${BLAS_LIBRARIES} ${BM_DL_LIB})
 endif (BM_BUILD_HYPRE)
 
 
-
 elseif (WIN32) # windows
    set(PETSC_DEBUG "${PETSC_HOME}/PETSc/debug" CACHE PATH "Debug path")
    set(PETSC_RELEASE "${PETSC_HOME}/PETSc/release" CACHE PATH "Release path")
    set(PETSC_INCLUDE_DIRS "${PETSC_HOME}/PETSc/include")
    set(PETSC_LIBRARIES 
           "${BLAS_LIBRARIES}"
-#          "${PETSC_HOME}/PETSc/externalpackages/lib/HYPRE.lib"
-#          "${PETSC_HOME}/PETSc/externalpackages/lib/metis.lib"
-#          "${PETSC_HOME}/PETSc/externalpackages/lib/parmetis.lib"
           "${MPI_LIBRARIES}"
    )
 
