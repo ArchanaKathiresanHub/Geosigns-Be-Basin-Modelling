@@ -15,6 +15,8 @@
 #include "AlignedMemoryAllocator.h"
 #include "FormattingException.h"
 
+#pragma warning(disable:3180)
+
 //------------------------------------------------------------//
 
 ibs::PiecewiseInterpolator::PointerSort::PointerSort ( const double* xVals ) : m_xs ( xVals ) {
