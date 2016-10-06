@@ -81,7 +81,7 @@ namespace GeoPhysics
                                  const bool includeChemicalCompaction,
                                  const double chemicalCompactionTerm ) const;
 
-      /// @brief Compute a single porosity value
+      /// @brief Compute a single porosity derivative value
       double computeSingleValueDerivative( const double porosity,
                                            const double ves,
                                            const double maxVes,
@@ -91,7 +91,7 @@ namespace GeoPhysics
 
       const double m_soilMechanicsCompactionCoefficient; ///< The soil mechanics compaction coefficient
       const double m_depositionVoidRatio;                ///< The depositional void ration
-      const double m_percentagePorosityRebound;          ///< Age porosity regain
+      const double m_percentagePorosityRebound;          ///< Porosity regain percentage
    };
 
 

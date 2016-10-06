@@ -80,7 +80,7 @@ namespace GeoPhysics
                                  const bool includeChemicalCompaction,
                                  const double chemicalCompactionTerm ) const;
 
-      /// @brief Compute a single porosity value
+      /// @brief Compute a single porosity derivative value
       double computeSingleValueDerivative( const double porosity,
                                            const double ves,
                                            const double maxVes,

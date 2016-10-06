@@ -39,18 +39,16 @@ namespace GeoPhysics
                                                  const double vesScaleFactor,
                                                  const bool overpressuredCompaction) const
    {
-      double c1;
-      double c2;
       double solidThickness;
 
-      if (m_compactionIncr == 0 || densitydiff <= 0.0 ) {
+      if (m_compactionIncr == 0.0 || densitydiff <= 0.0 ) {
          solidThickness = thickness * (1.0 - m_depoPorosity);
       }
       else {
-         c1 = AccelerationDueToGravity * densitydiff * m_compactionIncr;
+         const double c1 = AccelerationDueToGravity * densitydiff * m_compactionIncr;
 
-         c2 = (1.0 - std::exp(-c1 * thickness)) * m_depoPorosity
-            * std::exp(-m_compactionIncr * maxVesValue);
+         const double c2 = (1.0 - std::exp(-c1 * thickness)) * m_depoPorosity
+                         * std::exp(-m_compactionIncr * maxVesValue);
 
          solidThickness = std::log(1.0 - c2) / c1 + thickness;
       }

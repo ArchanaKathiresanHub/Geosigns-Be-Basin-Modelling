@@ -212,7 +212,7 @@ namespace GeoPhysics
                                              const double chemicalCompactionTerm ) const = 0;
 
          /*!
-         * \brief Return the porosity [Pa-1] (vectorized version)
+         * \brief Return the porosity (vectorized version)
          * \pre arrays MUST BE ALIGNED
          */
          virtual void calculate( const unsigned int n,

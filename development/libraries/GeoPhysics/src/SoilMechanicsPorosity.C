@@ -103,12 +103,12 @@ namespace GeoPhysics
          const double phiMaxVes = poro;
          const double phiMinVes = voidRatio / (1.0 + voidRatio);
 
-         const double M = m_percentagePorosityRebound * (phiMaxVes - phiMinVes) / (maxVes - Ves0);
+         const double slope = m_percentagePorosityRebound * (phiMaxVes - phiMinVes) / (maxVes - Ves0);
 
-         const double C = ( (1.0 - m_percentagePorosityRebound) * phiMaxVes * maxVes
-                              - phiMaxVes * Ves0 + m_percentagePorosityRebound * phiMinVes * maxVes) / (maxVes - Ves0);
+         const double intercept = ( (1.0 - m_percentagePorosityRebound) * phiMaxVes * maxVes
+                                    - phiMaxVes * Ves0 + m_percentagePorosityRebound * phiMinVes * maxVes) / (maxVes - Ves0);
 
-         poro = M * ves + C;
+         poro = slope * ves + intercept;
       }
 
       // Force porosity to be in range 0.03 .. Surface_Porosity

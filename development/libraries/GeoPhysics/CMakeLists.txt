@@ -15,7 +15,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -axCORE-AVX2 -qopenmp -simd")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-# Vectorization is not enabled on Visual Studio
+# Vectorization is not enabled on Visual Studio so we don't add any compiler flag
 #  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 endif()
 
