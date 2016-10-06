@@ -25,7 +25,7 @@
 using namespace casa;
 
 //////////////////////////////////////////////////////////////////////////////////////////
-// Auxillary functions
+// Auxiliary functions
 //
 static void ExtractObservableValues( std::vector<double> & result, const RunCase * cs )
 {

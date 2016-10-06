@@ -131,8 +131,6 @@ namespace casa
 
    void TornadoSensitivityInfo::calculateAndAddValidRanges( const std::vector<double> & allPrmVals, const std::vector<double> & allObsVals )
    {
-      assert( allPrmVals.size() == allObsVals.size() );
-      
       if ( m_sensitivities.size() - m_validSensitivitiesPrmVals.size() != 1 )
       {
          throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Consitency broken in parameters sensitivity calculation";
@@ -172,7 +170,6 @@ namespace casa
       // last interval, up to the end
       if ( rngBeg < allPrmVals.size() )
       {
-         assert( rngEnd < allPrmVals.size() );
          m_validSensitivitiesPrmVals.back().push_back( allPrmVals[rngBeg] );
          m_validSensitivitiesPrmVals.back().push_back( allPrmVals[rngEnd] );
          m_validSensitivitiesObsVals.back().push_back( allObsVals[rngBeg] );

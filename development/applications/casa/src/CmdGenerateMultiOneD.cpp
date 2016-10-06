@@ -67,7 +67,7 @@ void CmdGenerateMultiOneD::printHelpPage( const char * cmdName )
    std::cout << "\n";
 }
 
-#if 0 // ecluded from the compilation as unneeded now, but it will be used in furture 
+#if 0 // excluded from the compilation as unneeded now, but it will be used in furture 
 static std::string generateTrack1DCommand( std::unique_ptr<casa::ScenarioAnalysis> & sa, const casa::RunCase * cs )
 {
    mbapi::Model   * mdl = cs->caseModel();
