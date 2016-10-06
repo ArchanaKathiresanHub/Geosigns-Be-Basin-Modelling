@@ -47,7 +47,10 @@ public:
    Anonymizer() : m_shiftCoord(true) {}
    
    // Default destructor
-   ~Anonymizer() {}
+   ~Anonymizer()
+   {
+      // Intentionally unimplemented
+   }
 
    // \brief Main function fo anonymize all project files in the provided input folder
    // \param projectFolder: folder containing project files
@@ -103,6 +106,9 @@ private:
    void update( const std::string & tableName,
                 const std::string & fieldName,
                 const std::map< std::string, std::string > & mapping );
+
+   // \brief Clear all useless tables in the project file
+   void clearTables();
    
    // \brief Clear the provided table
    // \param tableName: name of the table

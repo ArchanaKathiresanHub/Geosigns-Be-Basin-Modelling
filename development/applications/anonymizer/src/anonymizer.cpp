@@ -33,6 +33,8 @@ bool Anonymizer::run( const std::string & projectFolder )
 
       // Collecting filenames list
       boost::filesystem::directory_iterator it(path);
+      // The constructor directory_iterator() with no arguments always constructs an end iterator object,
+      // which shall be the only valid iterator for the end condition
       boost::filesystem::directory_iterator endit;
       std::vector< std::string > projectFileList;
       while( it != endit )
@@ -95,6 +97,7 @@ void Anonymizer::clearNameMappings()
    m_mapFileNames.clear();
    m_langmuirNames.clear();
    m_wellNames.clear();
+   m_reservoirNames.clear();
 }
 
 
@@ -135,7 +138,7 @@ void Anonymizer::read()
 
 void Anonymizer::renameMapFiles()
 {
-   // Renaming fault files
+   // Renaming all map files
    unsigned int counter = 0;
    for( auto & mapElem : m_mapFileNames )
    {
@@ -163,16 +166,21 @@ void Anonymizer::renameMapFiles()
 }
 
 
+void Anonymizer::clearTables()
+{
+   clearOutputTables();
+   clearTable("ProjectNotesIoTbl");
+   clearTable("RelatedProjectsIoTbl");
+   clearTable("BPANameMapping");
+   clearTable("FilterTimeDepthIoTbl");
+}
+
+
 void Anonymizer::write()
 {
-   // Clear all tables containing results
-   clearOutputTables();
+   clearTables();
 
    writeProjectIoTbl();
-   clearTable( "ProjectNotesIoTbl" );
-   clearTable( "RelatedProjectsIoTbl" );
-   clearTable( "BPANameMapping" );
-   clearTable( "FilterTimeDepthIoTbl" );
    update( "GridMapIoTbl", "MapName", m_gridMap );
    update( "GridMapIoTbl", "MapFileName", m_mapFileNames );
    writeStratIoTbl();
@@ -421,6 +429,7 @@ void Anonymizer::writeStratIoTbl()
    update( "StratIoTbl", "LayerName", m_layerNames );
    update( "StratIoTbl", "SurfaceName", m_surfaceNames );
    update( "StratIoTbl", "DepthGrid", m_gridMap );
+   update( "StratIoTbl", "ThicknessGrid", m_gridMap );
    update( "StratIoTbl", "Percent1Grid", m_gridMap );
    update( "StratIoTbl", "Percent2Grid", m_gridMap );
    update( "StratIoTbl", "SourceRockType1", m_sourceRockTypes );
@@ -616,7 +625,8 @@ void Anonymizer::shiftFaultCoordinates( const std::string & oldFileName,
    std::fstream oldFile( oldFileName, std::fstream::in );
    std::fstream newFile( newFileName, std::fstream::out );
 
-   double x, y;
+   double x = 0.0;
+   double y = 0.0;
    std::string line;
    while( std::getline(oldFile, line) )
    {
@@ -652,24 +662,24 @@ void Anonymizer::shiftHDFCoordinates( const std::string & fileName ) const
    herr_t status;
    
    // Open an existing dataset
-   hid_t dataset_id = H5Dopen2( fileId, "/origin in I dimension", H5P_DEFAULT);
+   hid_t datasetId = H5Dopen2( fileId, "/origin in I dimension", H5P_DEFAULT);
    // Read current value
-   status = H5Dread( dataset_id, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, &value);
+   status = H5Dread( datasetId, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, &value);
    // Write shifted value
    value -= m_coordShift[0];
-   status = H5Dwrite( dataset_id, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, &value);
+   status = H5Dwrite( datasetId, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, &value);
    // Close dataset
-   status = H5Dclose( dataset_id );
+   status = H5Dclose( datasetId );
 
    // Open an existing dataset
-   dataset_id = H5Dopen2( fileId, "/origin in J dimension", H5P_DEFAULT);
+   datasetId = H5Dopen2( fileId, "/origin in J dimension", H5P_DEFAULT);
    // Read current value
-   status = H5Dread( dataset_id, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, &value);
+   status = H5Dread( datasetId, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, &value);
    // Write shifted value
    value -= m_coordShift[1];
-   status = H5Dwrite( dataset_id, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, &value);
+   status = H5Dwrite( datasetId, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, &value);
    // Close dataset
-   status = H5Dclose( dataset_id );
+   status = H5Dclose( datasetId );
 
    H5Fclose ( fileId );
 }
