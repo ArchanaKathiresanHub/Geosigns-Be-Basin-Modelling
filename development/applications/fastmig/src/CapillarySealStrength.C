@@ -78,7 +78,7 @@ namespace migration {
                capSealStrength_H2O_HC = capSealStrength_H2O_HC_seal - capSealStrength_H2O_HC_reservoir * resCorr;
             }
          }
-         return capSealStrength_H2O_HC < 0 ? 0 : capSealStrength_H2O_HC;
+         return capSealStrength_H2O_HC < 0.0 ? 0.0 : capSealStrength_H2O_HC;
       }
    }
 

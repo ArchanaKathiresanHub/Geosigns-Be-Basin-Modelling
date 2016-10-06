@@ -1888,7 +1888,7 @@ namespace migration
       if (sealPresent)
       {
          
-         if ( isLegacy )
+         if ( isLegacy || getCrestColumn()->getTopDepthOffset() != 0.0 )
          {
             setSealPermeability( permeability[0] );
          }
@@ -2193,7 +2193,8 @@ namespace migration
 
             // -- Fracture pressure calculations --//
             // Compute sealFluidDensity, fracPressure and the fracture pressure only for the seal.
-            // Note that in case of legacy or offset formation[0] is the seal formation
+            // Note that in case of offset formation[0] is the reservoir formation. 
+			// This means that the fracture pressure is calculated for the reservoir formation.
             if ( ( *f ) == formations.back() )
             {
 
