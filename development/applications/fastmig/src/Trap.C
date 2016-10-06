@@ -1473,7 +1473,7 @@ namespace migration
       {
          ++begin;
       }
-      assert (begin != end);
+	  if (begin == end) LogHandler(LogHandler::ERROR_SEVERITY) << "The begin and the end of the depth overbuden array coincide in Trap::iterateToFirstOverburdenFormation";
    }
 
    bool Trap::computeDiffusionOverburden (const SurfaceGridMapContainer& fullOverburden,
