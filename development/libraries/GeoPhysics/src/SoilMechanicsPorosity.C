@@ -9,11 +9,11 @@
 //
 
 #include "SoilMechanicsPorosity.h"
-#include "FormattingException.h"
 #include "GeoPhysicalConstants.h"
 #include "NumericFunctions.h"
 
 #include <algorithm>
+#include <cassert>
 #include <cmath>
 #include <iostream>
 #include <iomanip>
@@ -39,10 +39,10 @@ namespace GeoPhysics
                                           ArrayDefs::ConstReal_ptr chemicalComp,
                                           ArrayDefs::Real_ptr porosities ) const
    {
-      if( ((uintptr_t)(const void *)(ves) % 32) != 0 ) throw formattingexception::GeneralException() << __FUNCTION__ << " unaligned memory";
-      if( ((uintptr_t)(const void *)(maxVes) % 32) != 0 ) throw formattingexception::GeneralException() << __FUNCTION__ << " unaligned memory";
-      if( ((uintptr_t)(const void *)(chemicalComp) % 32) != 0 ) throw formattingexception::GeneralException() << __FUNCTION__ << " unaligned memory";
-      if( ((uintptr_t)(const void *)(porosities) % 32) != 0 ) throw formattingexception::GeneralException() << __FUNCTION__ << " unaligned memory";
+      assert( ((uintptr_t)(const void *)(ves) % 32) == 0 );
+      assert( ((uintptr_t)(const void *)(maxVes) % 32) == 0 );
+      assert( ((uintptr_t)(const void *)(chemicalComp) % 32) == 0 );
+      assert( ((uintptr_t)(const void *)(porosities) % 32) == 0 );
 
       #pragma omp simd aligned (ves, maxVes, chemicalComp, porosities)
       for( size_t i = 0; i < n; ++i)
@@ -60,11 +60,11 @@ namespace GeoPhysics
                                           ArrayDefs::Real_ptr porosities,
                                           ArrayDefs::Real_ptr porosityDers ) const
    {
-      if( ((uintptr_t)(const void *)(ves) % 32) != 0 ) throw formattingexception::GeneralException() << __FUNCTION__ << " unaligned memory";
-      if( ((uintptr_t)(const void *)(maxVes) % 32) != 0 ) throw formattingexception::GeneralException() << __FUNCTION__ << " unaligned memory";
-      if( ((uintptr_t)(const void *)(chemicalComp) % 32) != 0 ) throw formattingexception::GeneralException() << __FUNCTION__ << " unaligned memory";
-      if( ((uintptr_t)(const void *)(porosities) % 32) != 0 ) throw formattingexception::GeneralException() << __FUNCTION__ << " unaligned memory";
-      if( ((uintptr_t)(const void *)(porosityDers) % 32) != 0 ) throw formattingexception::GeneralException() << __FUNCTION__ << " unaligned memory";
+      assert( ((uintptr_t)(const void *)(ves) % 32) == 0 );
+      assert( ((uintptr_t)(const void *)(maxVes) % 32) == 0 );
+      assert( ((uintptr_t)(const void *)(chemicalComp) % 32) == 0 );
+      assert( ((uintptr_t)(const void *)(porosities) % 32) == 0 );
+      assert( ((uintptr_t)(const void *)(porosityDers) % 32) == 0 );
 
       #pragma omp simd aligned (ves, maxVes, chemicalComp, porosities, porosityDers)
       for( size_t i = 0; i < n; ++i)
