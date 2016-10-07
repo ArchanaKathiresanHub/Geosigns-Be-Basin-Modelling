@@ -1,7 +1,6 @@
 #include "anonymizer.h"
 
 #include <algorithm>
-#include <cassert>
 #include <cstdarg>
 #include <fstream>
 #include <iomanip>
@@ -13,6 +12,7 @@
 #include "dataschema.h"
 #include "FilePath.h"
 #include "FolderPath.h"
+#include "FormattingException.h"
 
 #include "hdf5.h"
 #include "boost/filesystem.hpp"
@@ -152,7 +152,7 @@ void Anonymizer::renameMapFiles()
          throw std::runtime_error( errMsg.str().c_str() );
       }
       const std::string extension = oldFPath.fileNameExtension();
-      if( extension != "HDF" && extension != "FLT" )
+      if( extension != "HDF" && extension != "FLT" && extension != "TCF" )
       {
          std::stringstream errMsg;
          errMsg << "Unhandled file with '" << extension << "' extension";
@@ -356,13 +356,13 @@ void Anonymizer::update( const std::string & tableName,
                          const std::map< std::string, std::string > & mapping )
 {
    database::Table * table = m_db->getTable( tableName );
-   assert( table != nullptr );
+   if(table == nullptr) throw formattingexception::GeneralException() << __FUNCTION__ << " cannot find table " << tableName;
 
    int counter = 0;
    database::Table::iterator itEnd = table->end();
    for( database::Table::iterator it = table->begin(); it != itEnd; ++it, ++counter )
    {
-      assert( (*it)->getIndex(fieldName) >= 0 );
+      if( (*it)->getIndex(fieldName) < 0 ) throw formattingexception::GeneralException() << __FUNCTION__ << " invalid record";
       const std::string & entry = (*it)->getValue<std::string>(fieldName);
       if( entry.empty() ) continue;
       std::map< std::string, std::string >::const_iterator mapIt = mapping.find( entry );
@@ -583,7 +583,7 @@ void Anonymizer::shiftCoordinates()
       ibs::FilePath fPath = ibs::FilePath( m_projectFolder );
       fPath << s_anonymizedFolder << mapElem.second;
       const std::string extension = fPath.fileNameExtension();
-      assert( fPath.exists() );
+      if( !fPath.exists() ) throw formattingexception::GeneralException() << __FUNCTION__ << " cannot find file " << fPath.fullPath().path();
       if( extension == "HDF" )
       {
          shiftHDFCoordinates( fPath.fullPath().path() );
@@ -592,11 +592,11 @@ void Anonymizer::shiftCoordinates()
       {
          ibs::FilePath oldfPath = ibs::FilePath( m_projectFolder );
          oldfPath << mapElem.first;
-         assert( oldfPath.exists() );
+         if( !oldfPath.exists() ) throw formattingexception::GeneralException() << __FUNCTION__ << " cannot find file " << oldfPath.fullPath().path();
          shiftFaultCoordinates( oldfPath.fullPath().path(),
                                 fPath.fullPath().path() );
       }
-      else
+      else if( extension != "TCF" )
       {
          std::stringstream errMsg;
          errMsg << "Unhandled file with '" << extension << "' extension";
