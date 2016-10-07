@@ -8,8 +8,8 @@
 // Do not distribute without written permission from Shell.
 //
 
-#ifndef _GEOPHYSICS_BRINE_CONDUCTIVITY_H_
-#define _GEOPHYSICS_BRINE_CONDUCTIVITY_H_
+#ifndef GEOPHYSICS_BRINE_CONDUCTIVITY_H_
+#define GEOPHYSICS_BRINE_CONDUCTIVITY_H_
 
 #include <vector>
 #include "Interface/FluidType.h"
@@ -40,6 +40,7 @@ namespace GeoPhysics
       /// Extracts data from the project-file FltThCondIoTbl and puts it in array members
       void setTable (const ibs::Interpolator2d& thermalConductivityTbl);
 
+      /// Size of the brine thermal-conductivity table
       static const int s_thCondArraySize = 667;
 
    protected:

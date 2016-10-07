@@ -81,8 +81,7 @@ void GeoPhysics::FluidType::loadPropertyTables ()
    thermalConductivitySamples = m_projectHandle->getFluidThermalConductivitySampleList (m_projectHandle->findFluid (getThermalConductivityFluidName ()));
    if ((*thermalConductivitySamples).size () != GeoPhysics::BrineConductivity::s_thCondArraySize)
    {
-      std::cerr << "\nMeSsAgE ERROR  Size of FltThCondIoTbl in project file is not correct\n\n";
-      exit (1);
+      throw formattingexception::GeneralException() << "\nMeSsAgE ERROR  Size of FltThCondIoTbl in project file is not correct\n\n";
    }
 
    Interface::FluidHeatCapacitySampleList::const_iterator heatCapacitySampleIter;

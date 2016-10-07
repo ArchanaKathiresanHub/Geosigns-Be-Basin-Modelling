@@ -8,8 +8,8 @@
 // Do not distribute without written permission from Shell.
 //
 
-#ifndef _GEOPHYSICS_BRINE_PHASES_H_
-#define _GEOPHYSICS_BRINE_PHASES_H_
+#ifndef GEOPHYSICS_BRINE_PHASES_H_
+#define GEOPHYSICS_BRINE_PHASES_H_
 
 #include <cmath>
 #include <vector>

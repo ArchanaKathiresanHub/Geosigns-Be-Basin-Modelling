@@ -56,10 +56,9 @@ void GeoPhysics::BrineConductivity::setTable (const ibs::Interpolator2d& thermal
    }
 }
 
-double GeoPhysics::BrineConductivity::chooseRegion( const double temperature,
-					            const double pressure, const double salinity,
-					            const double higherTemperature,
-					            const double lowerTemperature ) const
+double GeoPhysics::BrineConductivity::chooseRegion( const double temperature, const double pressure,
+                                                    const double salinity, const double higherTemperature,
+                                                    const double lowerTemperature ) const
 {
    double newPressure    = pressure;
    double newTemperature = temperature;

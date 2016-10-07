@@ -351,11 +351,30 @@ void GeoPhysics::ProjectHandle::loadFluidPropertyTables () {
 
    Interface::MutableFluidTypeList::iterator fluidIter;
 
-   for ( fluidIter = m_fluidTypes.begin(); fluidIter != m_fluidTypes.end (); ++fluidIter ) {
-      GeoPhysics::FluidType* fluid = (GeoPhysics::FluidType*)(*fluidIter);
-      fluid->loadPropertyTables ();
+   try
+   {
+      for ( fluidIter = m_fluidTypes.begin(); fluidIter != m_fluidTypes.end (); ++fluidIter )
+      {
+         GeoPhysics::FluidType* fluid = (GeoPhysics::FluidType*)(*fluidIter);
+         fluid->loadPropertyTables ();
+      }
    }
-
+   catch ( formattingexception::GeneralException & ex )
+   {
+      if (getRank () == 0)
+      {
+         std::cerr << ex.what();
+      }
+      exit (1);
+   }
+   catch (...)
+   {
+      if (getRank () == 0)
+      {
+         std::cerr << "Fatal error when initialising log file(s).";
+      }
+      exit (1);
+   }
 }
 
 //------------------------------------------------------------//

@@ -62,12 +62,12 @@ int main(int argc, char** argv)
    }
    catch ( formattingexception::GeneralException & ex )
    {
-      std::cout << ex.what();
+      std::cerr << ex.what();
       return 1;
    }
    catch (...)
    {
-      std::cout << "Fatal error when initialising log file(s).";
+      std::cerr << "Fatal error when initialising log file(s).";
       return 1;
    }
 
@@ -86,7 +86,7 @@ int main(int argc, char** argv)
    }
    catch ( ... )
    {
-      std::cerr << "Unknown exception occured.\n";
+      LogHandler( LogHandler::FATAL_SEVERITY ) << "Unknown exception occured.\n";
       return 1;
    }
 
