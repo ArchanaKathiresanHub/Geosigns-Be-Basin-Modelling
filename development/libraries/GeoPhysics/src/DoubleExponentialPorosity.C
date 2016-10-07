@@ -12,6 +12,7 @@
 #include <algorithm>
 #include <cmath>
 
+#include "FormattingException.h"
 #include "NumericFunctions.h"
 #include "GeoPhysicalConstants.h"
 
@@ -39,18 +40,18 @@ namespace GeoPhysics
                                               ArrayDefs::ConstReal_ptr ves,
                                               ArrayDefs::ConstReal_ptr maxVes,
                                               const bool includeChemicalCompaction,
-                                              ArrayDefs::ConstReal_ptr chemicalCompactionTerm,
+                                              ArrayDefs::ConstReal_ptr chemicalComp,
                                               ArrayDefs::Real_ptr porosities ) const
    {
-      assert( ((uintptr_t)(const void *)(ves) % 32) == 0 );
-      assert( ((uintptr_t)(const void *)(maxVes) % 32) == 0 );
-      assert( ((uintptr_t)(const void *)(chemicalCompactionTerm) % 32) == 0 );
-      assert( ((uintptr_t)(const void *)(porosities) % 32) == 0 );
+      if( ((uintptr_t)(const void *)(ves) % 32) != 0 ) throw formattingexception::GeneralException() << __FUNCTION__ << " unaligned memory";
+      if( ((uintptr_t)(const void *)(maxVes) % 32) != 0 ) throw formattingexception::GeneralException() << __FUNCTION__ << " unaligned memory";
+      if( ((uintptr_t)(const void *)(chemicalComp) % 32) != 0 ) throw formattingexception::GeneralException() << __FUNCTION__ << " unaligned memory";
+      if( ((uintptr_t)(const void *)(porosities) % 32) != 0 ) throw formattingexception::GeneralException() << __FUNCTION__ << " unaligned memory";
 
       #pragma omp simd aligned (ves, maxVes, chemicalCompactionTerm, porosities)
       for( size_t i = 0; i < n; ++i)
       {
-         porosities[i] = computeSingleValue( ves[i], maxVes[i], includeChemicalCompaction, chemicalCompactionTerm[i] );
+         porosities[i] = computeSingleValue( ves[i], maxVes[i], includeChemicalCompaction, chemicalComp[i] );
       }
    }
 
@@ -59,21 +60,21 @@ namespace GeoPhysics
                                               ArrayDefs::ConstReal_ptr ves,
                                               ArrayDefs::ConstReal_ptr maxVes,
                                               const bool includeChemicalCompaction,
-                                              ArrayDefs::ConstReal_ptr chemicalCompactionTerm,
+                                              ArrayDefs::ConstReal_ptr chemicalComp,
                                               ArrayDefs::Real_ptr porosities,
                                               ArrayDefs::Real_ptr porosityDers ) const
    {
-      assert( ((uintptr_t)(const void *)(ves) % 32) == 0 );
-      assert( ((uintptr_t)(const void *)(maxVes) % 32) == 0 );
-      assert( ((uintptr_t)(const void *)(chemicalCompactionTerm) % 32) == 0 );
-      assert( ((uintptr_t)(const void *)(porosities) % 32) == 0 );
-      assert( ((uintptr_t)(const void *)(porosityDers) % 32) == 0 );
+      if( ((uintptr_t)(const void *)(ves) % 32) != 0 ) throw formattingexception::GeneralException() << __FUNCTION__ << " unaligned memory";
+      if( ((uintptr_t)(const void *)(maxVes) % 32) != 0 ) throw formattingexception::GeneralException() << __FUNCTION__ << " unaligned memory";
+      if( ((uintptr_t)(const void *)(chemicalComp) % 32) != 0 ) throw formattingexception::GeneralException() << __FUNCTION__ << " unaligned memory";
+      if( ((uintptr_t)(const void *)(porosities) % 32) != 0 ) throw formattingexception::GeneralException() << __FUNCTION__ << " unaligned memory";
+      if( ((uintptr_t)(const void *)(porosityDers) % 32) != 0 ) throw formattingexception::GeneralException() << __FUNCTION__ << " unaligned memory";
 
       #pragma omp simd aligned (ves, maxVes, chemicalCompactionTerm, porosities, porosityDers)
       for( size_t i = 0; i < n; ++i)
       {
-          porosities[i] = computeSingleValue( ves[i], maxVes[i], includeChemicalCompaction, chemicalCompactionTerm[i] );
-          porosityDers[i] = computeSingleValueDerivative( porosities[i], ves[i], maxVes[i], includeChemicalCompaction, chemicalCompactionTerm[i] );
+          porosities[i] = computeSingleValue( ves[i], maxVes[i], includeChemicalCompaction, chemicalComp[i] );
+          porosityDers[i] = computeSingleValueDerivative( porosities[i], ves[i], maxVes[i], includeChemicalCompaction, chemicalComp[i] );
       }
    }
 
