@@ -70,7 +70,7 @@ namespace GeoPhysics
       if( ((uintptr_t)(const void *)(chemicalComp) % 32) != 0 ) throw formattingexception::GeneralException() << __FUNCTION__ << " unaligned memory";
       if( ((uintptr_t)(const void *)(porosities) % 32) != 0 ) throw formattingexception::GeneralException() << __FUNCTION__ << " unaligned memory";
 
-      #pragma omp simd aligned (ves, maxVes, chemicalCompactionTerm, porosities)
+      #pragma omp simd aligned (ves, maxVes, chemicalComp, porosities)
       for( size_t i = 0; i < n; ++i)
       {
          porosities[i] = computeSingleValue( ves[i], maxVes[i], includeChemicalCompaction, chemicalComp[i] );
@@ -92,7 +92,7 @@ namespace GeoPhysics
       if( ((uintptr_t)(const void *)(porosities) % 32) != 0 ) throw formattingexception::GeneralException() << __FUNCTION__ << " unaligned memory";
       if( ((uintptr_t)(const void *)(porosityDers) % 32) != 0 ) throw formattingexception::GeneralException() << __FUNCTION__ << " unaligned memory";
 
-      #pragma omp simd aligned (ves, maxVes, chemicalCompactionTerm, porosities, porosityDers)
+      #pragma omp simd aligned (ves, maxVes, chemicalComp, porosities, porosityDers)
       for( size_t i = 0; i < n; ++i)
       {
           porosities[i] = computeSingleValue( ves[i], maxVes[i], includeChemicalCompaction, chemicalComp[i] );
