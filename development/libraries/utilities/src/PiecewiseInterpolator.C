@@ -15,7 +15,6 @@
 #include "AlignedMemoryAllocator.h"
 #include "FormattingException.h"
 
-#pragma warning(disable:3180)
 
 //------------------------------------------------------------//
 
@@ -43,10 +42,10 @@ ibs::PiecewiseInterpolator::~PiecewiseInterpolator () {
 void ibs::PiecewiseInterpolator::deleteCoefficients () {
 
   if ( m_xs != 0 ) {
-     AlignedMemoryAllocator<double,32>::free ( m_xs );
-     AlignedMemoryAllocator<double,32>::free ( m_ys );
-     AlignedMemoryAllocator<double,32>::free ( m_aCoeffs );
-     AlignedMemoryAllocator<double,32>::free ( m_bCoeffs );
+     AlignedMemoryAllocator<double,ARRAY_ALIGNMENT>::free ( m_xs );
+     AlignedMemoryAllocator<double,ARRAY_ALIGNMENT>::free ( m_ys );
+     AlignedMemoryAllocator<double,ARRAY_ALIGNMENT>::free ( m_aCoeffs );
+     AlignedMemoryAllocator<double,ARRAY_ALIGNMENT>::free ( m_bCoeffs );
   }
 
 }
@@ -185,11 +184,11 @@ void ibs::PiecewiseInterpolator::setInterpolation ( const unsigned int        ne
 
    m_numberOfPoints = newNumberOfPoints;
 
-   m_xs = AlignedMemoryAllocator<double,32>::allocate ( m_numberOfPoints );
-   m_ys = AlignedMemoryAllocator<double,32>::allocate ( m_numberOfPoints );
+   m_xs = AlignedMemoryAllocator<double,ARRAY_ALIGNMENT>::allocate ( m_numberOfPoints );
+   m_ys = AlignedMemoryAllocator<double,ARRAY_ALIGNMENT>::allocate ( m_numberOfPoints );
 
-   m_aCoeffs = AlignedMemoryAllocator<double,32>::allocate ( m_numberOfPoints - 1 );
-   m_bCoeffs = AlignedMemoryAllocator<double,32>::allocate ( m_numberOfPoints - 1 );
+   m_aCoeffs = AlignedMemoryAllocator<double,ARRAY_ALIGNMENT>::allocate ( m_numberOfPoints - 1 );
+   m_bCoeffs = AlignedMemoryAllocator<double,ARRAY_ALIGNMENT>::allocate ( m_numberOfPoints - 1 );
 
    // Sort the array index pointer based on the order of the x-values.
    std::sort ( pointer, pointer + m_numberOfPoints, comp );

@@ -15,62 +15,6 @@
 #include <cstdlib>
 #include <type_traits>
 
-#if 0
-namespace PRIVATE {
-
-   template<typename Type, const bool X>
-   struct PostAllocationConstruction;
-
-   template<typename Type>
-   struct PostAllocationConstruction <Type, true> {
-      inline static Type* construct ( const unsigned int n, void* buffer );
-      inline static void  destruct  ( const unsigned int n, Type* buffer );
-   };
-
-   template<typename Type>
-   struct PostAllocationConstruction <Type, false> {
-      inline static Type* construct ( const unsigned int n, void* buffer );
-      inline static void  destruct  ( const unsigned int n, Type* buffer );
-   };
-
-   template<typename Type>
-   Type* PostAllocationConstruction <Type, false>::construct ( const unsigned int n, void* buffer ) {
-
-      void* buf = buffer;
-
-      for ( unsigned int i = 0; i < n; ++i, buf += sizeof ( Type )) {
-         new ( buf ) Type ();
-      }
-
-      return static_cast<Type*>( buf );
-   }
-
-   template<typename Type>
-   void PostAllocationConstruction <Type, false>::destruct ( const unsigned int n, Type* buffer ) {
-
-      for ( unsigned int i = 0; i < n; ++i ) {
-         buffer [ i ].~Type ();
-      }
-
-   }
-
-   template<typename Type>
-   Type* PostAllocationConstruction <Type, true>::construct ( const unsigned int n, void* buffer ) {
-      // Added to prevent compiler warning about unused parameter.
-      (void) n;
-      return static_cast<Type*>( buffer );
-   }
-
-   template<typename Type>
-   void PostAllocationConstruction <Type, true>::destruct ( const unsigned int n, Type* buffer ) {
-      // Added to prevent compiler warning about unused parameter.
-      (void) n;
-      (void) buffer;
-   }
-
-
-}
-#endif
 
 /// \brief Simple allocator that allocates memory aligned on some address boundary.
 ///
@@ -154,7 +98,5 @@ void AlignedMemoryAllocator<Type, Alignment>::free ( Type* __restrict__ & buf ) 
    }
 }
 #endif
-
-
 
 #endif // ALIGNED_MEMORY_ALLOCATOR__H
