@@ -31,24 +31,53 @@
 #include <EPTFlexLm.h>
 #endif
 
-/// @brief Contains the sequence of operations that are required to initialise, run and finilize fastcauldron.
+/// @brief FastcauldronStartup contains the sequence of operations required to initialise, run and finalize fastcauldron.
+/// Here an application example:
+/// FastcauldronStartup fastcauldronStartup( argc, argv ); //where argc, argv are the command line parameters
+/// fastcauldronStartup.run(); //run fastcauldron and eventually save the results
+/// fastcauldronStartup.finalize(); // delete the factories used by fastcauldron
+/// bool returnStatus = fastcauldronStartup.getPrepareStatus() && fastcauldronStartup.getStartUpStatus() && fastcauldronStartup.getRunStatus(); // check all steps above have been completed successfully
+/// Here a unit test example:
+/// FastcauldronStartup fastcauldronStartup( argc, argv, true, false ); // do not save the results
+/// bool returnStatus = fastcauldronStartup.getPrepareStatus() && fastcauldronStartup.getStartUpStatus(); //check everything is ok in the startup and prepare phases
+/// ... perform the unit test ...
+/// fastcauldronStartup.finalize();
+
 class FastcauldronStartup
 {
 public :
 
+   /// @brief FastcauldronStartup constructor. The prepare and startup status are set internally
+   /// @param argc number of command line parameters 
+   /// @param argv command line parameters values
+   /// @param checkLicense flag to indicate if the check of the license is needed 
+   /// @param saveResults flag to indicate if the saving of the results is needed
    FastcauldronStartup( int argc, char** argv, bool checkLicense = true, bool saveResults = true );
+
+   /// @brief FastcauldronStartup destructor
    ~FastcauldronStartup();
+
+   /// @brief Run fastcauldron and save the results. The run status is set internally
    void run();
+
+   /// @brief Get the prepare status 
+   /// @return the prepare status
    bool getPrepareStatus()  { return m_prepareOk; };
+
+   /// @brief Get the startup status 
+   /// @return the startup status
    bool getStartUpStatus( ) { return m_startUpOk; };
+   
+   /// @brief Get the run status 
+   /// @return the run status
    bool getRunStatus()      { return m_runOk; };
 
-   // here we delete m_cauldron, m_factory. We do not want the destructor to do this job, because can be after PetscFinalize.
+   /// @brief Delete m_cauldron and m_factory.
    void finalize();         
 
 private:
 
-   // Disable default constructor (arguments must be provided to instantiate FastcauldronStartup) 
+   /// Disable default constructor (arguments must be provided to instantiate FastcauldronStartup) 
    FastcauldronStartup();
 
    /// @brief Setup FlexLM license if FlexLM library is available

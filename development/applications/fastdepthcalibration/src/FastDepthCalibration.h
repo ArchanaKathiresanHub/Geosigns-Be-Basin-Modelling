@@ -45,20 +45,17 @@ public:
    ~FastDepthCalibration();
 
    /// @brief Get the twt maps and the reference depth maps. Calculate the initial isoPacks or erosion maps
-   /// @return ErrorHandler::NoError on success, error code otherwise
-   ErrorHandler::ReturnCode calculateInitialMaps();
+   void calculateInitialMaps();
       
    /// @brief The calibration loop
-   /// @return ErrorHandler::NoError on success, error code otherwise
-   ErrorHandler::ReturnCode calibrateDepths();
+   void calibrateDepths();
 
-   /// @brief Write the final project and calibrated input files into the finalResultsFolder
-   /// @return ErrorHandler::NoError on success, error code otherwise
-   ErrorHandler::ReturnCode writeFinalProject();
+   /// @brief Write the final project and calibrated input files into the s_finalResultsFolder
+   void writeFinalProject();
 
 private:
 
-   // Disable the default constructor
+   /// Disable the default constructor
    FastDepthCalibration();
 
    /// @brief Run fastcauldron and truncate the depth to "snap" the the next depth to the provided twt
@@ -66,19 +63,16 @@ private:
    /// @param refDepths the depth of the top surface
    /// @param tarTwt the target twt to match
    /// @param newDepths the calibrated depth
-   /// @return ErrorHandler::NoError on success, error code otherwise
-   ErrorHandler::ReturnCode runFastCauldron( const std::string         & layerName,
-                                             const std::vector<double> & refDepths,
-                                             const std::vector<double> & tarTwt,
-                                             std::vector<double>       & newDepths );
+   void runFastCauldron( const std::string         & layerName,
+                         const std::vector<double> & refDepths,
+                         const std::vector<double> & tarTwt,
+                         std::vector<double>       & newDepths );
 
    /// @brief Clean specific project tables before FastDepthCalibration
-   /// @return ErrorHandler::NoError on success, error code otherwise
-   ErrorHandler::ReturnCode prepareProject( );
+   void prepareProject( );
 
    /// @brief Modify the StratIoTbl and GridMapIoTbl tables for the next calibration loop 
-   /// @return ErrorHandler::NoError on success, error code otherwise
-   ErrorHandler::ReturnCode modifyTables( const mbapi::StratigraphyManager::SurfaceID nextSurface );
+   void modifyTables( const mbapi::StratigraphyManager::SurfaceID nextSurface );
 
    /// @brief Fill in the vector v with the values of the GridMap grid at one specific depth level k
    /// @param grid the GridMap
@@ -96,16 +90,16 @@ private:
    /// @param caseProject the ibs::FilePath for the new case filename
    /// @param casePathResults the ibs::FilePath destination of the input maps
    /// @return ErrorHandler::NoError on success, error code otherwise
-   ErrorHandler::ReturnCode createCase( ibs::FolderPath & casePath,
-                                        ibs::FilePath   & caseProject,
-                                        ibs::FilePath   & casePathResults );
+   void createCase( ibs::FolderPath & casePath,
+                    ibs::FilePath   & caseProject,
+                    ibs::FilePath   & casePathResults );
 
-   // Here we could handle the case of missing TWT Maps before starting the calibration loop. These should simply fill the m_twtMaps data member 
-   // ErrorHandler::ReturnCode calculateMissingTWTSurfaces( );
+   // Here we could handle the case of missing TWT Maps before starting the calibration loop. It should simply fill the m_twtMaps data member 
+   // void calculateMissingTWTSurfaces( );
 
    // Here we could handle erosion before starting the calibration loop. Another m_erosionMaps data member should be created and filled up. 
    // This additional member can be used to generate the final depth maps in writeFinalProject() function 
-   // ErrorHandler::ReturnCode calculateErosionSurfaces( );
+   // void calculateErosionSurfaces( );
    
    // Data structures that belongs to the class instance
    std::string                                                          m_projectFileName;

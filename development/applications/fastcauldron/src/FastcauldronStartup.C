@@ -17,6 +17,7 @@
 #include "PressureSolver.h"
 #include "readproperties.h"
 #include "System.h"
+#include "FormattingException.h"
 
 //DataAccess library
 #include "Interface/Interface.h"
@@ -47,7 +48,7 @@ FastcauldronStartup::FastcauldronStartup( int argc, char** argv, bool checkLicen
 {
    if ( s_instances == 0 )
    {
-      // Will be updated in prepare function, if FlexLM has been enabled.
+      // In Linux it will be updated in the prepare function, if FlexLM has been enabled.
       m_canRunSaltModelling    = true;
       m_prepareOk              = prepare();
       m_factory                = new FastcauldronFactory;
@@ -56,18 +57,19 @@ FastcauldronStartup::FastcauldronStartup( int argc, char** argv, bool checkLicen
       m_errorInDarcy           = false;
       m_geometryHasConverged   = true;
       m_runOk                  = true;
-      s_instances              = s_instances + 1;
+      s_instances              += 1;
       m_startUpOk              = startup( argc, argv );
    }
    else
    {
-      if ( s_instances != 0 ) m_errorMessage = "MeSsAgE ERROR FastcauldronStartup already instantiated";
+	  throw formattingexception::GeneralException() << "FastcauldronStartup already instantiated";
    }
 };
 
 FastcauldronStartup::~FastcauldronStartup( )
 {
-   //No action taken by the destructor. We need to make sure that factories and other classes are deleted before PetscFinalize and not after by automatic destruction
+   //No action taken by the destructor. We need to make sure that factories and other classes are deleted before PetscFinalize and not by automatic destruction. 
+   //Factories and other classes are deleted in the finalize function.
 }
 
 bool FastcauldronStartup::prepare()

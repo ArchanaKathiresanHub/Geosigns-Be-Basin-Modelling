@@ -65,24 +65,12 @@ int main(int argc, char** argv)
       ierr = PetscOptionsGetInt(    PETSC_NULL, "-endSurface",       &optionEndSurface,       PETSC_NULL );     CHKERRQ( ierr );
       ierr = PetscOptionsGetString( PETSC_NULL, "-project",          projectName,             MAXLINESIZE, 0 ); CHKERRQ( ierr );
 
-      
+      // run fastdepthCalibration
       FastDepthCalibration fastDepthCalibration( projectName, optionReferenceSurface, optionEndSurface, argc, argv, rank );
-      
-      if ( ErrorHandler::NoError != fastDepthCalibration.calculateInitialMaps( ) )
-      {
-         throw T2Zexception( ) << "Error in calculateInitialMaps: " << ", " << fastDepthCalibration.errorMessage( );
-      }
+	  fastDepthCalibration.calculateInitialMaps();
+	  fastDepthCalibration.calibrateDepths();
+	  fastDepthCalibration.writeFinalProject();
 
-      if ( ErrorHandler::NoError != fastDepthCalibration.calibrateDepths( ) )
-      {
-         throw T2Zexception( ) << "Error in calibrateDepths: " << ", " << fastDepthCalibration.errorMessage( );
-      }
-
-      if ( ErrorHandler::NoError != fastDepthCalibration.writeFinalProject( ) )
-      {
-         throw T2Zexception( ) << "Error in writeFinalProject: " << ", " << fastDepthCalibration.errorMessage( );
-      }
-      
    }
    catch ( const ErrorHandler::Exception & ex )
    {
