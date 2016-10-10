@@ -21,7 +21,6 @@ McKenzieCrustCalculator::McKenzieCrustCalculator(
    AbstractInterfaceOutput& outputData,
    const AbstractValidator& validator,
    const double age,
-   const Interface::GridMap* previousThinningFactor,
    const Interface::GridMap* previousContinentalCrustThickness,
    const Interface::GridMap* previousOceanicCrustThickness ) :
       m_constants     ( inputData.getConstants()     ),
@@ -37,7 +36,6 @@ McKenzieCrustCalculator::McKenzieCrustCalculator(
       m_lastJ         ( inputData.lastJ()  ),
       m_continentalCrustRatio( inputData.getContinentalCrustRatio() ),
       m_oceanicCrustRatio    ( inputData.getOceanicCrustRatio()     ),
-      m_previousThinningFactor           ( previousThinningFactor            ),
       m_previousContinentalCrustThickness( previousContinentalCrustThickness ),
       m_previousOceanicCrustThickness    ( previousOceanicCrustThickness     ),
       m_outputData ( outputData  ),
@@ -60,37 +58,33 @@ McKenzieCrustCalculator::McKenzieCrustCalculator(
    else if (m_constants.getTau() == 0.0){
       throw std::invalid_argument( "Tau provided by the interface input is 0 and will lead to divisions by 0" );
    }
-   else if (not NumericFunctions::inRange(m_continentalCrustRatio, 0.0, 1.0)) {
-      throw std::invalid_argument( "The continental crust ratio (which defines the lower and upper continental crust) provided by the interface input is outisde the range [0,1]" );
+   else if (m_continentalCrustRatio < 0){
+      throw std::invalid_argument( "The continental crust ratio (which defines the lower and upper continental crust) provided by the interface input is negative" );
    }
-   else if (not NumericFunctions::inRange( m_oceanicCrustRatio, 0.0, 1.0 )) {
-      throw std::invalid_argument( "The oceanic crust ratio (which defines the lower and upper oceanic crust) provided by the interface input is outisde the range [0,1]" );
+   else if (m_oceanicCrustRatio < 0){
+      throw std::invalid_argument( "The oceanic crust ratio (which defines the lower and upper oceanic crust) provided by the interface input is negative" );
    }
    //if one previous grid data is not nullptr then they all shouldn't be nullptr
-   else if ( m_previousThinningFactor         != nullptr
-      or m_previousContinentalCrustThickness  != nullptr
-      or m_previousOceanicCrustThickness      != nullptr ){
-      if (m_previousThinningFactor == nullptr){
-         throw std::invalid_argument( "The previous thinning factor provided to the McKenzie calculator is a null pointer but some other previous data are not null" );
-      }
-      else if (m_previousContinentalCrustThickness == nullptr){
+   else if ( m_previousContinentalCrustThickness  != nullptr
+          or m_previousOceanicCrustThickness      != nullptr ){
+      if (m_previousContinentalCrustThickness == nullptr){
          throw std::invalid_argument( "The previous continental crust thickness provided to the McKenzie calculator is a null pointer but some other previous data are not null" );
       }
       else if (m_previousOceanicCrustThickness == nullptr){
          throw std::invalid_argument( "The previous oceanic crust thickness provided to the McKenzie calculator is a null pointer but some other previous data are not null" );
       }
    }
-   else if (m_riftStartAge<=0){
-      throw std::invalid_argument( "The beginning of the rifting event is inferior or equal to 0 for age " + std::to_string( age ) + "Ma");
-   }
-   else if (m_riftStartAge == DataAccess::Interface::DefaultUndefinedScalarValue){
+   if (m_riftStartAge == DataAccess::Interface::DefaultUndefinedScalarValue){
       throw std::invalid_argument( "The beginning of the rifting event is undefined for age " + std::to_string( age ) + "Ma" );
-   }
-   else if (m_riftEndAge<0){
-      throw std::invalid_argument( "The end of the rifting event is inferior to 0 for age " + std::to_string( age ) + "Ma");
    }
    else if (m_riftEndAge == DataAccess::Interface::DefaultUndefinedScalarValue){
       throw std::invalid_argument( "The end of the rifting event is undefined for age " + std::to_string( age ) + "Ma" );
+   }
+   else if (m_riftStartAge <= 0){
+      throw std::invalid_argument( "The beginning of the rifting event is inferior or equal to 0 for age " + std::to_string( age ) + "Ma");
+   }
+   else if (m_riftEndAge < 0){
+      throw std::invalid_argument( "The end of the rifting event is inferior to 0 for age " + std::to_string( age ) + "Ma");
    }
    else if (m_riftEndAge >= m_riftStartAge){
       throw std::invalid_argument( "The end of the rifting event is supperior or equal to its end for age " + std::to_string( age ) + "Ma");
@@ -214,8 +208,8 @@ double McKenzieCrustCalculator::calculateTTSexhumeSerpentinized( const double TT
 }
 
 //------------------------------------------------------------//
-double McKenzieCrustCalculator::calculateITScorrected( const double ITS, const double previousTF ) const{
-   return ITS * (1 - previousTF);
+double McKenzieCrustCalculator::calculateITScorrected( const double ITS, const double thinningFactor ) const{
+   return ITS * (1 - thinningFactor);
 }
 
 //------------------------------------------------------------//
@@ -372,13 +366,11 @@ void McKenzieCrustCalculator::compute(){
             // incTTS
             const double TTS = m_outputData.getMapValue( CrustalThicknessInterface::outputMaps::WLSadjustedMap               , i, j );
             const double ITS = m_outputData.getMapValue( CrustalThicknessInterface::outputMaps::incTectonicSubsidenceAdjusted, i, j );
-            const double previousTF                        = getPreviousTF( i, j );
             const double previousContinentalCrustThickness = getPreviousContinentalCrustThickness( i, j );
             const double previousOceanicCrustThickness     = getPreviousOceanicCrustThickness( i, j );
             const double depthBasement = m_depthBasement->get( i, j );
             if ( TTS                               != Interface::DefaultUndefinedMapValue  and
                  ITS                               != Interface::DefaultUndefinedMapValue  and
-                 previousTF                        != Interface::DefaultUndefinedMapValue  and
                  previousContinentalCrustThickness != Interface::DefaultUndefinedMapValue  and
                  previousOceanicCrustThickness     != Interface::DefaultUndefinedMapValue  and
                  depthBasement                     != m_depthBasement->getUndefinedValue() and
@@ -477,9 +469,6 @@ void McKenzieCrustCalculator::retrieveData() {
    m_HLMuMap.retrieveData();
    m_HBuMap.retrieveData ();
    m_depthBasement->retrieveData();
-   if (m_previousThinningFactor != nullptr){
-      m_previousThinningFactor->retrieveData();
-   }
    if (m_previousContinentalCrustThickness != nullptr){
       m_previousContinentalCrustThickness->retrieveData();
    }
@@ -494,25 +483,12 @@ void McKenzieCrustCalculator::restoreData() {
    m_HLMuMap.restoreData();
    m_HBuMap.restoreData ();
    m_depthBasement->restoreData();
-   if (m_previousThinningFactor != nullptr){
-      m_previousThinningFactor->restoreData();
-   }
    if (m_previousContinentalCrustThickness != nullptr){
       m_previousContinentalCrustThickness->restoreData();
    }
    if (m_previousOceanicCrustThickness != nullptr){
       m_previousOceanicCrustThickness->restoreData();
    }
-}
-
-//------------------------------------------------------------//
-double McKenzieCrustCalculator::getPreviousTF( const unsigned int i, const unsigned int j ) const{
-   // if no previous map then the previous TF is equal to 0
-   double previousTF = 0.0;
-   if (m_previousThinningFactor != nullptr){
-      previousTF = m_previousThinningFactor->getValue( i, j );
-   }
-   return previousTF;
 }
 
 //------------------------------------------------------------//

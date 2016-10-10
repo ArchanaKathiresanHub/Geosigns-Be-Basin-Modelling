@@ -11,6 +11,10 @@
 #ifndef CRUSTALTHICKNESS_MOCKINTERFACEINPUT_H
 #define CRUSTALTHICKNESS_MOCKINTERFACEINPUT_H
 
+// std library
+#include <memory>
+#include <vector>
+
 //Parent
 #include "../src/InterfaceInput.h"
 
@@ -19,33 +23,50 @@
 
 // DataAccess library
 #include "Interface/GridMap.h"
+#include "Interface/CrustalThicknessData.h"
+#include "Interface/CrustalThicknessRiftingHistoryData.h"
+
+using DataAccess::Interface::CrustalThicknessData;
+using DataAccess::Interface::CrustalThicknessRiftingHistoryData;
+
+typedef const std::shared_ptr < const CrustalThicknessData > ctcData;
+typedef const std::vector< std::shared_ptr<const CrustalThicknessRiftingHistoryData> > ctcRiftingHistoryData;
+
+typedef std::map<const double, std::shared_ptr<CrustalThickness::RiftingEvent>> riftingEvents;
 
 /// @class MockInterfaceInput Class which sets input data for fastctc unit tests
-///        Should be used only in unit tests
+///    This class should be used as a test feature for google tests
 class MockInterfaceInput : public InterfaceInput {
 
    public:
 
-      MockInterfaceInput() :InterfaceInput( nullptr, nullptr ){};
+      /// @brief Use this constructor to test the calculators more easily by setting inputs directly in the interface
+      /// @details The constructors specifies null pointers as the project handle and record, so only the functions which are not
+      ///    depending on them can be tested with this class
+      MockInterfaceInput()
+         :InterfaceInput
+         (
+            ctcData( new CrustalThicknessData( nullptr, nullptr ) ),
+            ctcRiftingHistoryData( 1, std::shared_ptr<const CrustalThicknessRiftingHistoryData>( new CrustalThicknessRiftingHistoryData( nullptr, nullptr ) ) )
+         ) {};
+
       virtual ~MockInterfaceInput() {};
 
-      /// @defgroup Sets
+      /// @defgroup Mutators
+      /// @brief Use it to quickly set input data in your unit tests
       /// @{
-      void setSmoothRadius         ( const unsigned int smoothRadius    ) { m_smoothRadius                    = smoothRadius;          }
-      void setFlexuralAge          ( const double t_felxural            ) { m_t_felxural                      = t_felxural;            }
-      void setContinentalCrustRatio( const double continentalCrustRatio ) { m_continentalCrustRatio = continentalCrustRatio; }
-      void setOceanicCrustRatio( const double oceanicCrustRatio         ) { m_oceanicCrustRatio      = oceanicCrustRatio;    }
+      void setSmoothRadius         ( const unsigned int smoothRadius    ) { m_smoothRadius           = smoothRadius;          }
+      void setFlexuralAge          ( const double age                   ) { m_flexuralAge            = age;                   }
+      void setContinentalCrustRatio( const double continentalCrustRatio ) { m_continentalCrustRatio  = continentalCrustRatio; }
+      void setOceanicCrustRatio    ( const double oceanicCrustRatio     ) { m_oceanicCrustRatio      = oceanicCrustRatio;     }
 
       void setConstants( const CrustalThickness::ConfigFileParameterCtc& constants ) { m_constants = constants; }
 
       void setBaseRiftSurfaceName( const string baseRiftName ) { m_baseRiftSurfaceName = baseRiftName; }
 
-      void  setT0Map     (const GridMap* map) { m_T0Map      = map; }
-      void  setTRMap     (const GridMap* map) { m_TRMap      = map; }
-      void  setHCuMap    (const GridMap* map) { m_HCuMap     = map; }
-      void  setHBuMap    (const GridMap* map) { m_HBuMap     = map; }
-      void  setHLMuMap   (const GridMap* map) { m_HLMuMap    = map; }
-      void  setDeltaSLMap(const GridMap* map) { m_DeltaSLMap = map; }
+      void  setHCuMap      (const GridMap* map  ) { m_HCuMap  = map;          }
+      void  setHLMuMap     (const GridMap* map  ) { m_HLMuMap = map;          }
+      void  setRiftingEvent(riftingEvents events) { m_riftingEvents = events; }
 
       void setPressureBasement          ( const DerivedProperties::SurfacePropertyPtr pressure) { m_pressureBasement           = pressure; }
       void setPressureWaterBottom       ( const DerivedProperties::SurfacePropertyPtr pressure) { m_pressureWaterBottom        = pressure; }
@@ -57,6 +78,7 @@ class MockInterfaceInput : public InterfaceInput {
       void setTopOfSedimentSurface(const Interface::Surface* surface) { m_topOfSedimentSurface    = surface; }
       void setBotOfSedimentSurface(const Interface::Surface* surface) { m_bottomOfSedimentSurface = surface; }
       /// @}
+
 
 };
 

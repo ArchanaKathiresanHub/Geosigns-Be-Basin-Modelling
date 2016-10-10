@@ -6201,14 +6201,14 @@ Identification      : HcLiquidBrineCapillaryEntryPressure
     Description         : Ratio which defines the spliting of the continental crust in its upper and lower part (r=Upper/Lower)
     Type                : double
     Unit of measurement :
-    Default             : 0.5
+    Default             : 1
     Error Field         : No
 
     Identification      : UpperLowerOceanicCrustRatio
     Description         : Ratio which defines the spliting of the oceanic crust in its upper and lower part (r=Upper/Lower)
     Type                : double
     Unit of measurement :
-    Default             : 0.5
+    Default             : 1
     Error Field         : No
 
     Identification      : TectonicFlag
@@ -6872,6 +6872,7 @@ START-property-tables
 
     Identification : CTCIoTbl 
     Description    : Table of user defined global data for calculation of the CTC properties
+    Column         : SurfaceName
     Column         : HCuIni
     Column         : HCuIniGrid
     Column         : HLMuIni

@@ -234,7 +234,6 @@ int main (int argc, char ** argv)
       finaliseCrustalThicknessCalculator( feature, ex.what(), factory );
       return 1;
    }
-   // @todo remove all these type of exceptions
    catch (CtcException& ex){
       LogHandler( LogHandler::ERROR_SEVERITY ) << "CTC COMPUTATION ERROR";
       finaliseCrustalThicknessCalculator( feature, ex.what(), factory );

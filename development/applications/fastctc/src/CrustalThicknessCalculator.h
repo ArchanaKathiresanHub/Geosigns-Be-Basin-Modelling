@@ -99,7 +99,6 @@ private :
    /// @defgroup PreviousIterationData
    /// @{
    GridMap* m_previousTTS;                         ///< The Total Tectonic Subsidence of the previous iteration (i.e. we are at snapshot 10Ma, the previous iteration was at 15Ma)
-   GridMap* m_previousTF;                          ///< The thinning factor of the previous iteration (i.e. we are at snapshot 10Ma, the previous iteration was at 15Ma)
    GridMap* m_previousContinentalCrustalThickness; ///< The continental crustal thickness of the previous iteration (i.e. we are at snapshot 10Ma, the previous iteration was at 15Ma)
    GridMap* m_previousOceanicCrustalThickness;     ///< The oceanic crustal thickness of the previous iteration (i.e. we are at snapshot 10Ma, the previous iteration was at 15Ma)
    /// @}

@@ -78,7 +78,7 @@ TEST_F( PWDRCalculatorTest, paleowaterdepth_residual )
       }
    }
    MockInterfaceInput inputData = MockInterfaceInput();
-   inputData.setT0Map( m_gridMap );
+   inputData.setHCuMap( m_gridMap );
 
    //age is 0Ma
    PaleowaterdepthResidualCalculator pwdrCalculator( inputData,
@@ -107,7 +107,7 @@ TEST_F( PWDRCalculatorTest, compute )
    }
 
    MockInterfaceInput inputData = MockInterfaceInput();
-   inputData.setT0Map( m_gridMap );
+   inputData.setHCuMap( m_gridMap );
 
    //Regular values (age is 0Ma)
    PaleowaterdepthResidualCalculator pwdrCalculator( inputData,

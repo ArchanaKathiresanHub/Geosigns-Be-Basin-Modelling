@@ -13,7 +13,6 @@
 
 // std library
 #include <vector>
-#include <memory>
 
 // DataAccess library
 #include "Interface/DAObject.h"
@@ -33,23 +32,17 @@ namespace DataAccess
             CrustalThicknessRiftingHistoryData( ProjectHandle * projectHandle, database::Record * record );
             virtual ~CrustalThicknessRiftingHistoryData();
 
-            /// @brief Return the maximum Basaltic thickness
-            double getHBu() const;
+            /// @return the tectonic flag as an enumeration
+            virtual TectonicFlag getTectonicFlag() const;
 
-            /// @brief Return the Sealevel adjustment
-            double getDeltaSL() const;
-
-            /// @ Return the tectonic flag as an enumeration
-            TectonicFlag getTectonicFlag() const;
-
-            /// @ Return the tectonic flag as a string
-            const std::string& getTectonicFlagName() const;
+            /// @return the tectonic flag as a string
+            virtual const std::string& getTectonicFlagName() const;
 
             /// @brief Create a map for the corresponding attribute if it doesn't exist yet
-            GridMap const * getMap( const Interface::CTCRiftingHistoryMapAttributeId attributeId ) const;
+            virtual GridMap const * getMap( const Interface::CTCRiftingHistoryMapAttributeId attributeId ) const;
 
          private:
-            static const std::vector<std::string> s_MapAttributeNames;   ///< The names of the CTC Rifting History maps from the CTCRiftingHistoryIoTbl
+            static const std::vector<std::string> s_MapAttributeNames; ///< The names of the CTC Rifting History maps from the CTCRiftingHistoryIoTbl
 
       };
    }

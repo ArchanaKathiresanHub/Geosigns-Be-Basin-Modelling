@@ -21,7 +21,6 @@ using namespace database;
 
 // DataAccess library
 #include "Interface/CrustalThicknessData.h"
-//#include "Interface/DistributedGridMap.h"
 #include "Interface/Interface.h"
 #include "Interface/PaleoProperty.h"
 #include "Interface/Property.h"
@@ -74,7 +73,6 @@ CrustalThicknessCalculator::CrustalThicknessCalculator( database::Database * dat
      m_applySmoothing                     (true   ),
      m_inputData                          (nullptr),
      m_previousTTS                        (nullptr),
-     m_previousTF                         (nullptr),
      m_previousContinentalCrustalThickness(nullptr),
      m_previousOceanicCrustalThickness    (nullptr)
 {}
@@ -238,7 +236,7 @@ void CrustalThicknessCalculator::run() {
    std::shared_ptr<GridMap> prensentDayPressureTTS;
    std::shared_ptr<GridMap> presentDayTTS;
    Validator validator( *this );
-   std::vector< double > snapshotForLoop = m_inputData->copySnapshots();
+   std::vector< const double > snapshotForLoop = m_inputData->copySnapshots();
    // sort from start to end [250 220 ... 0]
    // we insert a 0 snapshot at the beginning because we need first to compute TTS at 0Ma
    // then we compute everything else in the reverse order [0 250 220 ... 0]
@@ -252,7 +250,7 @@ void CrustalThicknessCalculator::run() {
          throw CtcException() << "Cannot compute initial total tectonic subsidence";
       }
 
-      if (age >= m_inputData->getFlexuralAge() or k == 0){
+      if ( (age >= m_inputData->getFlexuralAge() and age <= m_inputData->getFirstRiftAge()) or k == 0){
 
          /// @todo temporary log, will be modified with requirement 60263
          if (k == 0){
@@ -331,14 +329,13 @@ void CrustalThicknessCalculator::run() {
          ///7. Computes the thinning factor and crustal thicknesse
          if (asSurfaceDepthHistory( age )){
             LogHandler( LogHandler::INFO_SEVERITY ) << "   -> computing Crustal Thicknesses";
-            McKenzieCrustCalculator mcKenzieCalculator( *m_inputData, m_outputData, validator, age, m_previousTF, m_previousContinentalCrustalThickness, m_previousOceanicCrustalThickness );
+            McKenzieCrustCalculator mcKenzieCalculator( *m_inputData, m_outputData, validator, age, m_previousContinentalCrustalThickness, m_previousOceanicCrustalThickness );
             mcKenzieCalculator.compute();
-            m_previousTF                          = m_outputData.getMap( TFMap );
             m_previousContinentalCrustalThickness = m_outputData.getMap( thicknessCrustMap );
             m_previousOceanicCrustalThickness     = m_outputData.getMap( thicknessBasaltMap );
          }
 
-         ///8. Smooth the PWD and Curustal Thicknesses maps map
+         ///8. Smooth the PWD and Curustal Thicknesses maps
          smoothOutputs();
 
          restoreData();

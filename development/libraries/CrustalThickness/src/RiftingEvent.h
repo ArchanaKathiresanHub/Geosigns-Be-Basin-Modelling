@@ -41,18 +41,18 @@ namespace CrustalThickness{
 
       /// @defgroup Mutators
       /// @{
-      void setStartRiftAge( const double age      ) { m_startRiftAge = age; }
-      void setEndRiftAge  ( const double age      ) { m_endRiftAge   = age; }
-      void setRiftId      ( const unsigned int id ) { m_riftId       = id;  }
+      void setStartRiftAge( const double age      );
+      void setEndRiftAge  ( const double age      );
+      void setRiftId      ( const unsigned int id ) { m_riftId = id; }
       /// @}
 
    private:
 
       const TectonicFlag m_tectonicFlag;                    ///< The tectonic contexct (active, passive or flexural)
       GridMap const * const m_seaLevelAdjustment;           ///< The sea level adjustement (represents the dynanmic topography) [m]
-      GridMap const * const m_maximumOceanicCrustThickness; ///< The maximum oceanic crustal thickness [m]
-      double m_startRiftAge;                                ///< The begging of the rift [Ma]
-      double m_endRiftAge;                                  ///< The end of the rift [Ma]
+      GridMap const * const m_maximumOceanicCrustThickness; ///< The maximum oceanic crustal thickness                          [m]
+      double m_startRiftAge;                                ///< The begging of the rift                                        [Ma]
+      double m_endRiftAge;                                  ///< The end of the rift                                            [Ma]
       unsigned int m_riftId;                                ///< The rift ID to which belongs the rift event, one rift event belongs to only one rift and vice versa
 
    };

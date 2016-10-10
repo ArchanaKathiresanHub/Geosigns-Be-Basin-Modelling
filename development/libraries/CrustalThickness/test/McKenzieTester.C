@@ -14,16 +14,22 @@
 using namespace CrustalThicknessInterface;
 using namespace CrustalThickness;
 
+using CrustalThickness::UnitTests::McKenzieTester;
+
 McKenzieTester::McKenzieTester() :
    m_firstI( 0 ), m_firstJ( 0 ), m_lastI( 2 ), m_lastJ( 2 ),
    m_minI( 0.0 ), m_minJ( 0.0 ), m_maxI( 4.0 ), m_maxJ( 4.0 ),
    m_numI( 3 ), m_numJ( 3 ),
+   m_age( 10.0 ), m_startAge( 100 ), m_endAge( 60 ),
+   m_contRatio(0.5), m_oceaRatio( 0.7 ),
    m_constants(),
    m_inputData(),
    m_outputData( this->m_firstI, this->m_firstJ, this->m_lastI, this->m_lastJ ),
    m_validator()
 {
    m_grid    = new DataAccess::Interface::SerialGrid( this->m_minI, this->m_minJ, this->m_maxI, this->m_maxJ, this->m_numI, this->m_numJ );
+   //   - the sea level adjustement (not used in McKenzie's computations but needed to construct rifting events)
+   m_seaLevelAdjustment = new DataAccess::Interface::SerialGridMap( 0, 0, this->m_grid, 40000, 1 );
    //   - basement depth is 5000m
    m_depthBasement = new DataModel::MockDerivedSurfaceProperty( this->m_firstI, this->m_firstJ, this->m_firstI, this->m_firstJ,
       this->m_lastI, this->m_lastJ, this->m_lastI, this->m_lastJ, "depthBasement", "Depth", 10, 5000 );
@@ -33,14 +39,8 @@ McKenzieTester::McKenzieTester() :
    m_HBuMap  = new DataAccess::Interface::SerialGridMap( 0, 0, this->m_grid, 4000,   1 );
    //   - initial lithospheric mantle thickness is 115Km
    m_HLMuMap = new DataAccess::Interface::SerialGridMap( 0, 0, this->m_grid, 115000, 1 );
-   //   - rifting start is 100Ma
-   m_T0Map   = new DataAccess::Interface::SerialGridMap( 0, 0, this->m_grid, 100,    1 );
-   //   - rifting end is 60 Ma
-   m_TRMap   = new DataAccess::Interface::SerialGridMap( 0, 0, this->m_grid, 60,     1 );
    //   - previous continental crust thickness is 0
    m_previousContinentalCrustThickness = new DataAccess::Interface::SerialGridMap( 0, 0, this->m_grid, 40000, 1 );
-   //   - previous thinning factor is 0
-   m_previousThinningFactor            = new DataAccess::Interface::SerialGridMap( 0, 0, this->m_grid, 0,     1 );
    //   - previous oceanic crust thickness crust is 200
    m_previousOceanicCrustThickness     = new DataAccess::Interface::SerialGridMap( 0, 0, this->m_grid, 200,   1 );
 
@@ -49,29 +49,28 @@ McKenzieTester::McKenzieTester() :
 McKenzieTester::~McKenzieTester()
 {
    delete m_grid;
+   delete m_seaLevelAdjustment;
    delete m_depthBasement;
    delete m_HCuMap;
    delete m_HBuMap;
    delete m_HLMuMap;
-   delete m_T0Map;
-   delete m_TRMap;
    delete m_previousContinentalCrustThickness;
-   delete m_previousThinningFactor;
    delete m_previousOceanicCrustThickness;
 }
 
 void McKenzieTester::initTestData(){
    m_outputData.clear();
    initConstants( m_constants );
+   m_riftingEvents[m_age] = std::shared_ptr<RiftingEvent>( new RiftingEvent( DataAccess::Interface::PASSIVE_MARGIN, m_seaLevelAdjustment, m_HBuMap ) );
+   (m_riftingEvents[m_age])->setStartRiftAge( m_startAge );
+   (m_riftingEvents[m_age])->setEndRiftAge  ( m_endAge   );
+   m_inputData.setRiftingEvent( m_riftingEvents );
    m_inputData.setConstants( m_constants );
-   m_inputData.setT0Map  ( m_T0Map   );
-   m_inputData.setTRMap  ( m_TRMap   );
    m_inputData.setHCuMap ( m_HCuMap  );
-   m_inputData.setHBuMap ( m_HBuMap  );
    m_inputData.setHLMuMap( m_HLMuMap );
    m_inputData.setDepthBasement( m_depthBasement->getMockderivedSurfacePropertyPtr() );
-   m_inputData.setContinentalCrustRatio( 0.5 );
-   m_inputData.setOceanicCrustRatio    ( 0.7 );
+   m_inputData.setContinentalCrustRatio( m_contRatio );
+   m_inputData.setOceanicCrustRatio    ( m_oceaRatio );
 }
 
 void McKenzieTester::initConstants( MockConfigFileParameterCtc& constants ) const
@@ -103,7 +102,7 @@ const McKenzieCrustCalculatorPtr McKenzieTester::createMcKenzieCalculator()
       new McKenzieCrustCalculator( m_inputData,
                                    m_outputData,
                                    m_validator,
-                                   m_previousThinningFactor,
+                                   m_age,
                                    m_previousContinentalCrustThickness,
                                    m_previousOceanicCrustThickness )
                                    );

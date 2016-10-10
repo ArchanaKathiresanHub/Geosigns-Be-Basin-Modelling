@@ -49,7 +49,6 @@ class McKenzieCrustCalculator {
                                AbstractInterfaceOutput& outputData,
                                const AbstractValidator& validator,
                                const double age,
-                               const Interface::GridMap* previousThinningFactor,
                                const Interface::GridMap* previousContinentalCrustThickness,
                                const Interface::GridMap* previousOceanicCrustThickness );
       
@@ -111,7 +110,7 @@ class McKenzieCrustCalculator {
       /// @return The (thinning factor) corrected incremental tectonic subsidence
       /// @param[in] ITS The incremental tectonic subsidence
       /// @param[in] previousTF The previous thinning factor (0 if does not exists)
-      double calculateITScorrected( const double ITS, const double previousTF ) const;
+      double calculateITScorrected( const double ITS, const double thinningFactor ) const;
       /// @}
 
       /// @defgroup CrustCalculators
@@ -119,7 +118,7 @@ class McKenzieCrustCalculator {
       /// @return The continental crustal thickness at melt onset (melting point)
       /// @details The melting point represents the depth at which the oceanic crust (basalt) starts to be created
       double calculateContinentalCrustThicknessOnset( const double initialContinentalCrustThickness, const double TFOnsetLinearized ) const;
-      /// @return The residual depth anomaly between the seelevel adjusted total tectonic subsidence and the maximum total tectonic subsidence
+      /// @return The residual depth anomaly between the seaLevel adjusted total tectonic subsidence and the maximum total tectonic subsidence
       double calculateResidualDepthAnomaly( const double TTScritial, const double TTSadjusted ) const;
       /// @return The continental crustal thickness
       double calculateContinentalCrustalThickness( const double thinningFactor, const double previousContinentalCrustThickness ) const;
@@ -192,9 +191,6 @@ class McKenzieCrustCalculator {
       void retrieveData();
       /// @brief Restore input maps data
       void restoreData();
-      /// @brief Get the previous thinning factor value from its map (m_previousThinningFactor)
-      /// @return valued(i,j) if the map is not a nullptr, 0 if the map is a nullptr
-      double getPreviousTF( const unsigned int i, const unsigned int j ) const;
       /// @brief Get the previous thinning factor value from its map (m_previousContinentalCrustThickness)
       /// @return valued(i,j) if the map is not a nullptr, the initial continental crust thickness if the map is a nullptr
       double getPreviousContinentalCrustThickness( const unsigned int i, const unsigned int j ) const;
@@ -239,9 +235,8 @@ class McKenzieCrustCalculator {
 
       /// @defgroup previousSnapshotValues
       /// @{
-      const Interface::GridMap* m_previousThinningFactor;            ///< The thinning factor of the previous computation age
-      const Interface::GridMap* m_previousContinentalCrustThickness; ///< The continental crustal thickness of the previous computation age
-      const Interface::GridMap* m_previousOceanicCrustThickness;     ///< The oceanic crustal thickness of the previous computation age
+      const Interface::GridMap* m_previousContinentalCrustThickness; ///< The continental crustal thickness of the previous computation age [m]
+      const Interface::GridMap* m_previousOceanicCrustThickness;     ///< The oceanic crustal thickness of the previous computation age     [m]
       /// @}
 
       AbstractInterfaceOutput& m_outputData;  ///< The global interface output object (contains the output maps)

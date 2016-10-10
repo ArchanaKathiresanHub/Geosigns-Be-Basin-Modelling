@@ -10,6 +10,7 @@
 #include "../src/TotalTectonicSubsidenceCalculator.h"
 
 // CrustalThickness library test utilities
+#include "../src/RiftingEvent.h"
 #include "MockInterfaceInput.h"
 #include "MockInterfaceOutput.h"
 #include "MockValidator.h"
@@ -29,7 +30,8 @@ using namespace CrustalThickness;
 // Global validator
 MockValidator validator = MockValidator();
 
-// Create some data before tests
+/// @class TTSCalculatorTest Creates some data for the tests and define some functions to easily create the calculators
+///    This class should be used as a test feature for google tests
 class TTSCalculatorTest : public ::testing::Test
 {
 public:
@@ -39,11 +41,11 @@ public:
       m_numI( 2 ), m_numJ( 2 )
    {
       m_grid    = new DataAccess::Interface::SerialGrid( this->m_minI, this->m_minJ, this->m_maxI, this->m_maxJ, this->m_numI, this->m_numJ );
-      m_gridMap = new DataAccess::Interface::SerialGridMap( 0, 0, this->m_grid, 0, 1 );
-      m_previousTTS           = new DataAccess::Interface::SerialGridMap( 0, 0, this->m_grid, 300 );
+      m_gridMap               = new DataAccess::Interface::SerialGridMap( 0, 0, this->m_grid, 0, 1                                );
+      m_previousTTS           = new DataAccess::Interface::SerialGridMap( 0, 0, this->m_grid, 300                                 );
       m_previousTTSNDV        = new DataAccess::Interface::SerialGridMap( 0, 0, this->m_grid, Interface::DefaultUndefinedMapValue );
-      m_seeLevelAdjustment    = new DataAccess::Interface::SerialGridMap( 0, 0, this->m_grid, 20 );
-      m_seeLevelAdjustmentNDV = new DataAccess::Interface::SerialGridMap( 0, 0, this->m_grid, Interface::DefaultUndefinedMapValue );
+      m_seaLevelAdjustment    = new DataAccess::Interface::SerialGridMap( 0, 0, this->m_grid, 20                                  );
+      m_seaLevelAdjustmentNDV = new DataAccess::Interface::SerialGridMap( 0, 0, this->m_grid, Interface::DefaultUndefinedMapValue );
    }
 
    ~TTSCalculatorTest()
@@ -52,11 +54,11 @@ public:
       delete m_gridMap;
       delete m_previousTTS;
       delete m_previousTTSNDV;
-      delete m_seeLevelAdjustment;
-      delete m_seeLevelAdjustmentNDV;
+      delete m_seaLevelAdjustment;
+      delete m_seaLevelAdjustmentNDV;
    }
 
-   // Global grid size variables (no gosth nodes)
+   // global grid size variables (no gosth nodes)
    const unsigned int m_firstI;
    const unsigned int m_firstJ;
    const unsigned int m_lastI;
@@ -68,13 +70,14 @@ public:
    const unsigned int m_numI;
    const unsigned int m_numJ;
 
-   // grids
    const DataAccess::Interface::SerialGrid* m_grid;
-   const DataAccess::Interface::SerialGridMap* m_gridMap;
-   const DataAccess::Interface::SerialGridMap* m_previousTTS;
-   const DataAccess::Interface::SerialGridMap* m_previousTTSNDV;
-   const DataAccess::Interface::SerialGridMap* m_seeLevelAdjustment;
-   const DataAccess::Interface::SerialGridMap* m_seeLevelAdjustmentNDV;
+   const DataAccess::Interface::SerialGridMap* m_gridMap;               ///< A default gird map to be used in computations     (0 by default)
+   const DataAccess::Interface::SerialGridMap* m_previousTTS;           ///< The previous total tectonic subsidence            (300 by default)
+   const DataAccess::Interface::SerialGridMap* m_previousTTSNDV;        ///< The previous total tectonic subsidence set as NDV (NDV by default)
+   const DataAccess::Interface::SerialGridMap* m_seaLevelAdjustment;    ///< The sea level adjustment                          (20 by default)
+   const DataAccess::Interface::SerialGridMap* m_seaLevelAdjustmentNDV; ///< The sea level adjustment set as NDV               (NDV by default)
+
+   riftingEvents m_riftingEvents; ///< The list of rifting events
 
 };
 
@@ -92,8 +95,9 @@ TEST_F( TTSCalculatorTest, total_tectonic_subsidence )
    }
    MockInterfaceOutput outputData = MockInterfaceOutput( m_firstI, m_firstJ, m_lastI, m_lastJ );
    MockInterfaceInput inputData = MockInterfaceInput();
-   inputData.setT0Map( m_gridMap );
-   inputData.setDeltaSLMap( m_seeLevelAdjustment );
+   inputData.setHCuMap( m_gridMap );
+   m_riftingEvents[10] = std::shared_ptr<RiftingEvent>( new RiftingEvent( DataAccess::Interface::PASSIVE_MARGIN, m_seaLevelAdjustment, m_gridMap ) );
+   inputData.setRiftingEvent( m_riftingEvents );
 
    //aircorrection=1.5
    TotalTectonicSubsidenceCalculator ttsCalculator( inputData,
@@ -141,8 +145,9 @@ TEST_F( TTSCalculatorTest, compute )
       }
    }
    MockInterfaceInput inputData = MockInterfaceInput();
-   inputData.setDeltaSLMap( m_seeLevelAdjustment );
-   inputData.setT0Map( m_gridMap );
+   m_riftingEvents[10] = std::shared_ptr<RiftingEvent>( new RiftingEvent( DataAccess::Interface::PASSIVE_MARGIN, m_seaLevelAdjustment, m_gridMap ) );
+   inputData.setRiftingEvent( m_riftingEvents );
+   inputData.setHCuMap( m_gridMap );
    outputData.setMapValues( cumSedimentBackstrip, -100 );
 
    // 1. Test for real backstripvalues
@@ -167,10 +172,10 @@ TEST_F( TTSCalculatorTest, compute )
    EXPECT_EQ( 380, outputData.getMapValue( WLSadjustedMap, 0, 1 ) );
    EXPECT_EQ( 380, outputData.getMapValue( WLSadjustedMap, 1, 0 ) );
    EXPECT_EQ( 380, outputData.getMapValue( WLSadjustedMap, 1, 1 ) );
-   EXPECT_EQ( 100,  outputData.getMapValue( incTectonicSubsidenceAdjusted, 0, 0 ) );
-   EXPECT_EQ( 100,  outputData.getMapValue( incTectonicSubsidenceAdjusted, 0, 1 ) );
-   EXPECT_EQ( 100,  outputData.getMapValue( incTectonicSubsidenceAdjusted, 1, 0 ) );
-   EXPECT_EQ( 100,  outputData.getMapValue( incTectonicSubsidenceAdjusted, 1, 1 ) );
+   EXPECT_EQ( 80,  outputData.getMapValue( incTectonicSubsidenceAdjusted, 0, 0 ) );
+   EXPECT_EQ( 80,  outputData.getMapValue( incTectonicSubsidenceAdjusted, 0, 1 ) );
+   EXPECT_EQ( 80,  outputData.getMapValue( incTectonicSubsidenceAdjusted, 1, 0 ) );
+   EXPECT_EQ( 80,  outputData.getMapValue( incTectonicSubsidenceAdjusted, 1, 1 ) );
 
    // 2. Test that the incremental tectonic subsidence output is equal to the first TTS when there is not yet any previous TTS
    //aircorrection=1.5
@@ -194,10 +199,10 @@ TEST_F( TTSCalculatorTest, compute )
    EXPECT_EQ( 380, outputData.getMapValue( WLSadjustedMap, 0, 1 ) );
    EXPECT_EQ( 380, outputData.getMapValue( WLSadjustedMap, 1, 0 ) );
    EXPECT_EQ( 380, outputData.getMapValue( WLSadjustedMap, 1, 1 ) );
-   EXPECT_EQ( 400, outputData.getMapValue( incTectonicSubsidenceAdjusted, 0, 0 ) );
-   EXPECT_EQ( 400, outputData.getMapValue( incTectonicSubsidenceAdjusted, 0, 1 ) );
-   EXPECT_EQ( 400, outputData.getMapValue( incTectonicSubsidenceAdjusted, 1, 0 ) );
-   EXPECT_EQ( 400, outputData.getMapValue( incTectonicSubsidenceAdjusted, 1, 1 ) );
+   EXPECT_EQ( 380, outputData.getMapValue( incTectonicSubsidenceAdjusted, 0, 0 ) );
+   EXPECT_EQ( 380, outputData.getMapValue( incTectonicSubsidenceAdjusted, 0, 1 ) );
+   EXPECT_EQ( 380, outputData.getMapValue( incTectonicSubsidenceAdjusted, 1, 0 ) );
+   EXPECT_EQ( 380, outputData.getMapValue( incTectonicSubsidenceAdjusted, 1, 1 ) );
 
    // 3. Test that the incremental tectonic subsidence are NDV if the previous TTS is undefined
    //aircorrection=1.5
@@ -273,6 +278,8 @@ TEST_F( TTSCalculatorTest, compute )
    // 5. Test that the outputs are NDV when the depth water bottom is undefined
    //aircorrection=1.5
    validator.setIsValid( true );
+   m_riftingEvents[20] = std::shared_ptr<RiftingEvent>( new RiftingEvent( DataAccess::Interface::PASSIVE_MARGIN, m_seaLevelAdjustment, m_gridMap ) );
+   inputData.setRiftingEvent( m_riftingEvents );
    TotalTectonicSubsidenceCalculator ttsCalculator4( inputData,
       outputData,
       validator,
@@ -302,7 +309,8 @@ TEST_F( TTSCalculatorTest, compute )
 
    // 6. Test that the adjusted TTS are NDV when the see level adjustment is undefined
    //aircorrection=1.5
-   inputData.setDeltaSLMap( m_seeLevelAdjustmentNDV );
+   m_riftingEvents[10] = std::shared_ptr<RiftingEvent>( new RiftingEvent( DataAccess::Interface::PASSIVE_MARGIN, m_seaLevelAdjustmentNDV, m_gridMap ) );
+   inputData.setRiftingEvent( m_riftingEvents );
    TotalTectonicSubsidenceCalculator ttsCalculator5( inputData,
       outputData,
       validator,

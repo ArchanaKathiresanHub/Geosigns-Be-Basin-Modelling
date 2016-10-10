@@ -103,14 +103,14 @@ TEST_F( PWDCalculatorTest, exceptions ){
    MockConfigFileParameterCtc constants = MockConfigFileParameterCtc();
    constants.setWaterDensity( 3000 );
    constants.setBackstrippingMantleDensity( 3000 );
-   inputData.setT0Map( m_gridMap );
+   inputData.setHCuMap( m_gridMap );
    inputData.setConstants( constants );
    inputData.setPressureMantleAtPresentDay( m_presentDayPressureMantle->getMockderivedSurfacePropertyPtr() );
    inputData.setPressureMantle( m_currentPressureMantle->getMockderivedSurfacePropertyPtr() );
 
    // with wrong density values
    try{
-      PaleowaterdepthCalculator pwdCalculator3( inputData,
+      PaleowaterdepthCalculator pwdCalculator1( inputData,
          outputData,
          validator,
          m_gridMapPresentDayTTS );
@@ -127,7 +127,7 @@ TEST_F( PWDCalculatorTest, exceptions ){
    constants.setBackstrippingMantleDensity( 3000 );
    inputData.setConstants( constants );
    try{
-      PaleowaterdepthCalculator pwdCalculator4( inputData,
+      PaleowaterdepthCalculator pwdCalculator2( inputData,
          outputData,
          validator,
          nullptr );
@@ -138,37 +138,6 @@ TEST_F( PWDCalculatorTest, exceptions ){
    }
    catch (...) {
       FAIL() << "Expected 'The present day total tectonic subsidence is a null pointer and is required by the Paleowaterdepth calculator' exception";
-   }
-   // with present day mantle pressure = nullptr
-   inputData.setPressureMantleAtPresentDay( nullptr );
-   try{
-      PaleowaterdepthCalculator pwdCalculator4( inputData,
-         outputData,
-         validator,
-         m_gridMapPresentDayTTS );
-      FAIL() << "Expected 'The present day bottom mantle pressure is a null pointer and is required by the Paleowaterdepth calculator' exception";
-   }
-   catch (const PaleowaterdepthException& ex) {
-      EXPECT_EQ( "The present day bottom mantle pressure is a null pointer and is required by the Paleowaterdepth calculator", std::string( ex.what() ) );
-   }
-   catch (...) {
-      FAIL() << "Expected 'The present day bottom mantle pressure is a null pointer and is required by the Paleowaterdepth calculator' exception";
-   }
-   // with current amntle pressure = nullptr
-   inputData.setPressureMantleAtPresentDay( m_presentDayPressureMantle->getMockderivedSurfacePropertyPtr() );
-   inputData.setPressureMantle( nullptr );
-   try{
-      PaleowaterdepthCalculator pwdCalculator4( inputData,
-         outputData,
-         validator,
-         m_gridMapPresentDayTTS );
-      FAIL() << "Expected 'The current bottom mantle pressure is a null pointer and is required by the Paleowaterdepth calculator' exception";
-   }
-   catch (const PaleowaterdepthException& ex) {
-      EXPECT_EQ( "The current bottom mantle pressure is a null pointer and is required by the Paleowaterdepth calculator", std::string( ex.what() ) );
-   }
-   catch (...) {
-      FAIL() << "Expected 'The current bottom mantle pressure is a null pointer and is required by the Paleowaterdepth calculator' exception";
    }
 }
 
@@ -181,7 +150,7 @@ TEST_F( PWDCalculatorTest, paleowaterdepth )
    MockConfigFileParameterCtc constants = MockConfigFileParameterCtc();
    constants.setWaterDensity( 1000 );
    constants.setBackstrippingMantleDensity( 3000 );
-   inputData.setT0Map( m_gridMap );
+   inputData.setHCuMap( m_gridMap );
    inputData.setConstants( constants );
    inputData.setPressureMantleAtPresentDay( m_presentDayPressureMantle->getMockderivedSurfacePropertyPtr() );
    inputData.setPressureMantle( m_currentPressureMantle->getMockderivedSurfacePropertyPtr() );
@@ -217,7 +186,7 @@ TEST_F( PWDCalculatorTest, compute )
    MockConfigFileParameterCtc constants = MockConfigFileParameterCtc();
    constants.setWaterDensity( 1000 );
    constants.setBackstrippingMantleDensity( 3000 );
-   inputData.setT0Map( m_gridMap );
+   inputData.setHCuMap( m_gridMap );
    inputData.setConstants( constants );
    inputData.setPressureMantleAtPresentDay( m_presentDayPressureMantle->getMockderivedSurfacePropertyPtr() );
    inputData.setPressureMantle( m_currentPressureMantle->getMockderivedSurfacePropertyPtr() );

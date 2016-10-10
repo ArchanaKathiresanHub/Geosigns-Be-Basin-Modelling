@@ -18,8 +18,10 @@
 #include "cauldronschemafuncs.h"
 using namespace database;
 
+// DataAccess library
 using namespace DataAccess;
 using namespace Interface;
+
 
 const std::vector<std::string> CrustalThicknessRiftingHistoryData::s_MapAttributeNames = {
    "HBu", "DeltaSL"
@@ -32,16 +34,6 @@ CrustalThicknessRiftingHistoryData::CrustalThicknessRiftingHistoryData( ProjectH
 
 CrustalThicknessRiftingHistoryData::~CrustalThicknessRiftingHistoryData()
 {
-}
-
-double CrustalThicknessRiftingHistoryData::getHBu() const
-{
-   return database::getHBu( m_record );
-}
-
-double CrustalThicknessRiftingHistoryData::getDeltaSL() const
-{
-   return database::getDeltaSL( m_record );
 }
 
 TectonicFlag CrustalThicknessRiftingHistoryData::getTectonicFlag() const{
@@ -67,3 +59,4 @@ const std::string& CrustalThicknessRiftingHistoryData::getTectonicFlagName() con
 GridMap const * CrustalThicknessRiftingHistoryData::getMap( const Interface::CTCRiftingHistoryMapAttributeId attributeId ) const{
    return DAObject::getMap<const DataAccess::Interface::CTCRiftingHistoryMapAttributeId>( attributeId, s_MapAttributeNames );
 }
+

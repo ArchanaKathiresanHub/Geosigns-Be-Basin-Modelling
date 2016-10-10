@@ -141,6 +141,7 @@ public:
    /// @{
    double getRiftingStartAge   ( const double age ) const;
    double getRiftingEndAge     ( const double age ) const;
+   double getRiftId            ( const double age ) const;
    const GridMap& getHBuMap    ( const double age ) const;
    const GridMap& getDeltaSLMap( const double age ) const;
    /// @}
@@ -151,23 +152,21 @@ public:
    /// @}
 
    /// @defgroup GridUtilities
-   ///    Defined from m_T0Map
+   ///    Defined from m_HCuMap
    /// @{
-   unsigned firstI() const { return m_HCuMap->firstI(); }
-   unsigned firstJ() const { return m_HCuMap->firstJ(); }
-   unsigned lastI()  const { return m_HCuMap->lastI();  }
-   unsigned lastJ()  const { return m_HCuMap->lastJ();  }
+   unsigned int firstI() const { return m_HCuMap->firstI(); }
+   unsigned int firstJ() const { return m_HCuMap->firstJ(); }
+   unsigned int lastI()  const { return m_HCuMap->lastI();  }
+   unsigned int lastJ()  const { return m_HCuMap->lastJ();  }
    /// @}
 
-   std::vector<double> copySnapshots() const { return m_snapshots; }
+   std::vector<const double> copySnapshots() const { return m_snapshots; }
 
 protected:
 
-
-
    /// @defgroup Loaders
    /// @{
-      /// @brief Loads the snapshots from the stratigraphy
+      /// @brief Loads the snapshots from the stratigraphy via the crustal thickness history data
       void loadSnapshots();
       /// @throw InputException If the project handle is a null pointer or if the derived property manager cannot be retrieved
       void loadDerivedPropertyManager();
@@ -242,7 +241,7 @@ protected:
    const Surface * m_topOfMantle;             ///< The top mantle (bottom crust) surface
    const Surface * m_botOfMantle;             ///< The bottom mantle surface
 
-   std::vector<double > m_snapshots; ///< The list of stratigraphic snapshots in reverse order surrounded by 0 snapshot (i.e. [0,150,110,50,...,0])
+   std::vector<const double> m_snapshots; ///< The list of stratigraphic snapshots in reverse order surrounded by 0 snapshot (i.e. [0,150,110,50,...,0])
    /// @}
 
    /// @defgroup DerivedProperties
@@ -258,7 +257,7 @@ protected:
 
    CrustalThickness::ConfigFileParameterCtc m_constants; ///< Constants loaded from the configuration file
 
-   string m_baseRiftSurfaceName;  ///< Name of a base of syn-rift 
+   string m_baseRiftSurfaceName;  ///< Name of a base of syn-rift
 
 };
 

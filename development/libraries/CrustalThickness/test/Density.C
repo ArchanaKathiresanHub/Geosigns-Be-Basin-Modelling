@@ -62,7 +62,7 @@ public:
       delete m_depthWaterBottom;
    }
 
-   // Global grid size variables (no gosth nodes)
+   // global grid size variables (no gosth nodes)
    const unsigned int m_firstI;
    const unsigned int m_firstJ;
    const unsigned int m_lastI;
@@ -78,7 +78,7 @@ public:
    const DataAccess::Interface::SerialGrid* m_grid;
    const DataAccess::Interface::SerialGridMap* m_gridMap;
 
-   //derived properties
+   // derived properties
    const DataModel::MockDerivedSurfaceProperty* m_pressureBasement;
    const DataModel::MockDerivedSurfaceProperty* m_pressureWaterBottom;
    const DataModel::MockDerivedSurfaceProperty* m_depthBasement;
@@ -95,7 +95,7 @@ TEST_F( DensityCalculatorTest, exceptions )
    MockConfigFileParameterCtc constants;
    constants.setWaterDensity( 2000 );
    constants.setBackstrippingMantleDensity( 2000 );
-   inputData.setT0Map( m_gridMap );
+   inputData.setHCuMap( m_gridMap );
    inputData.setConstants( constants );
    inputData.setPressureBasement   ( m_pressureBasement->getMockderivedSurfacePropertyPtr()    );
    inputData.setPressureWaterBottom( m_pressureWaterBottom->getMockderivedSurfacePropertyPtr() );
@@ -200,7 +200,7 @@ TEST_F( DensityCalculatorTest, density_terms )
    MockConfigFileParameterCtc constants;
    constants.setWaterDensity( 1030 );
    constants.setBackstrippingMantleDensity( 3300 );
-   inputData.setT0Map( m_gridMap );
+   inputData.setHCuMap( m_gridMap );
    inputData.setConstants( constants );
    inputData.setPressureBasement   ( m_pressureBasement->getMockderivedSurfacePropertyPtr()    );
    inputData.setPressureWaterBottom( m_pressureWaterBottom->getMockderivedSurfacePropertyPtr() );
@@ -230,7 +230,7 @@ TEST_F( DensityCalculatorTest, backstriping )
    MockConfigFileParameterCtc constants;
    constants.setWaterDensity( 1030 );
    constants.setBackstrippingMantleDensity( 3300 );
-   inputData.setT0Map( m_gridMap );
+   inputData.setHCuMap( m_gridMap );
    inputData.setConstants( constants );
    inputData.setPressureBasement   ( m_pressureBasement->getMockderivedSurfacePropertyPtr()    );
    inputData.setPressureWaterBottom( m_pressureWaterBottom->getMockderivedSurfacePropertyPtr() );
@@ -281,7 +281,7 @@ TEST_F( DensityCalculatorTest, compute )
    MockConfigFileParameterCtc constants;
    constants.setWaterDensity( 1030 );
    constants.setBackstrippingMantleDensity( 3300 );
-   inputData.setT0Map( m_gridMap );
+   inputData.setHCuMap( m_gridMap );
    inputData.setConstants( constants );
    inputData.setPressureBasement   ( m_pressureBasement->getMockderivedSurfacePropertyPtr()    );
    inputData.setPressureWaterBottom( m_pressureWaterBottom->getMockderivedSurfacePropertyPtr() );

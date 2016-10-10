@@ -17,8 +17,6 @@ set(all_headers
    src/AbstractReservoir.h
    src/AbstractSnapshot.h
    src/AbstractSurface.h
-   #src/AbstractTableCTC.h
-   #src/AbstractTableCTCRiftingHistory.h
    src/PropertyAttribute.h
 )
 

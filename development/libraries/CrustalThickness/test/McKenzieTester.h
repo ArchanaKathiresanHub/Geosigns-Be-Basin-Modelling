@@ -34,66 +34,76 @@ using namespace CrustalThickness;
 
 typedef std::shared_ptr<McKenzieCrustCalculator> McKenzieCrustCalculatorPtr;
 
-/// @class McKenzieTester Creates some data for the tests and define some fuctions to easily create the calculators
-class McKenzieTester : public ::testing::Test
+namespace CrustalThickness
 {
-public:
+   namespace UnitTests
+   {
+      /// @class McKenzieTester Creates some data for the tests and define some functions to easily create the calculators
+      ///    This class should be used as a test feature for google tests
+      class McKenzieTester : public ::testing::Test
+      {
+      public:
 
-   McKenzieTester();
-   ~McKenzieTester();
+         /// @brief Creates a tester object which derives from google test framework
+         /// @details Initialize object members to their default values
+         McKenzieTester();
+         ~McKenzieTester();
 
-protected:
+      protected:
 
-   /// @brief Initialise all the required by the McKenzieCalculator
-   void initTestData();
+         /// @brief Initialise all the data required by the McKenzieCalculator
+         void initTestData();
 
-   /// @brief Initialise the constants (to mimic configuration file)
-   void initConstants( MockConfigFileParameterCtc& constants ) const;
+         /// @brief Initialise the constants (to mimic configuration file)
+         void initConstants( MockConfigFileParameterCtc& constants ) const;
 
-   /// @brief Create a McKenzie calculator
-   /// @details The outputData is filled with zeros
-   ///   The constants are defined by the initialisation function but can still be modified afterward if needed
-   /// @return A smart pointer to a McKenzieCrustCalculator object
-   const McKenzieCrustCalculatorPtr createMcKenzieCalculator();
+         /// @brief Create a McKenzie calculator
+         /// @details The outputData is filled with zeros
+         ///   The constants are defined by the initialisation function but can still be modified afterward if needed
+         /// @return A smart pointer to a new McKenzieCrustCalculator object
+         const McKenzieCrustCalculatorPtr createMcKenzieCalculator();
 
-   // Global grid size variables (no gosth nodes)
-   const unsigned int m_firstI;
-   const unsigned int m_firstJ;
-   const unsigned int m_lastI;
-   const unsigned int m_lastJ;
-   const double m_minI;
-   const double m_minJ;
-   const double m_maxI;
-   const double m_maxJ;
-   const unsigned int m_numI;
-   const unsigned int m_numJ;
+         // Global grid size variables (no gosth nodes)
+         const unsigned int m_firstI;
+         const unsigned int m_firstJ;
+         const unsigned int m_lastI;
+         const unsigned int m_lastJ;
+         const double m_minI;
+         const double m_minJ;
+         const double m_maxI;
+         const double m_maxJ;
+         const unsigned int m_numI;
+         const unsigned int m_numJ;
 
-   //// grids
-   const DataAccess::Interface::SerialGrid* m_grid;
-   DataAccess::Interface::SerialGridMap* m_HCuMap;                            ///< The map used to define the initial continental crustal thickness  (40Km by default  )
-   DataAccess::Interface::SerialGridMap* m_HBuMap;                            ///< The map used to define the maximum oceanic crustal thickness      (4Km by default   )
-   DataAccess::Interface::SerialGridMap* m_HLMuMap;                           ///< The map used to define initial lithospheric mantle thickness      (115Km by default )
-   DataAccess::Interface::SerialGridMap* m_T0Map;                             ///< The map used to define the end of rifting                         (100Ma by default )
-   DataAccess::Interface::SerialGridMap* m_TRMap;                             ///< The map used to define the end of rifting                         (60Ma by default  )
-   DataAccess::Interface::SerialGridMap* m_previousContinentalCrustThickness; ///< The map used to define the previous continental crustal thickness (40000m by default)
-   DataAccess::Interface::SerialGridMap* m_previousThinningFactor;            ///< The map used to define the previousthinning factor                (0 by default     )
-   DataAccess::Interface::SerialGridMap* m_previousOceanicCrustThickness;     ///< The map used to define the previous oceanic crustal thickness     (200m by default  )
+         double m_age;      ///< Age of computation for the McKenzie calculator       [Ma]
+         double m_startAge; ///< Starting age of the rift for the current computation [Ma]
+         double m_endAge;   ///< Ending age of the rift for the current computation   [Ma]
 
-   // derived properties
-   DataModel::MockDerivedSurfaceProperty* m_depthBasement; ///< Depth of the basement at 10Ma (5Km by default)
+         double m_contRatio; ///< Continental crust upper/lower crust ratio
+         double m_oceaRatio; ///< Oceanic crust upper/lower crust ratio
 
-   // configuration file constants
-   MockConfigFileParameterCtc m_constants;
+         // rifting events
+         riftingEvents m_riftingEvents;
 
-   // input data
-   MockInterfaceInput m_inputData;
+         const DataAccess::Interface::SerialGrid* m_grid;
+         DataAccess::Interface::SerialGridMap* m_seaLevelAdjustment;                ///< The map used to define the sea level adjustement                  (0m  by default   ) [m]
+         DataAccess::Interface::SerialGridMap* m_HCuMap;                            ///< The map used to define the initial continental crustal thickness  (40Km by default  ) [m]
+         DataAccess::Interface::SerialGridMap* m_HBuMap;                            ///< The map used to define the maximum oceanic crustal thickness      (4Km by default   ) [m]
+         DataAccess::Interface::SerialGridMap* m_HLMuMap;                           ///< The map used to define initial lithospheric mantle thickness      (115Km by default ) [m]
+         DataAccess::Interface::SerialGridMap* m_previousContinentalCrustThickness; ///< The map used to define the previous continental crustal thickness (40000m by default) [m]
+         DataAccess::Interface::SerialGridMap* m_previousOceanicCrustThickness;     ///< The map used to define the previous oceanic crustal thickness     (200m by default  ) [m]
 
-   // ouput data array
-   MockInterfaceOutput m_outputData;
+         DataModel::MockDerivedSurfaceProperty* m_depthBasement; ///< Depth of the basement at 10Ma (5Km by default) [m]
 
-   // global validator
-   MockValidator m_validator;
+         MockConfigFileParameterCtc m_constants; ///< Configuration file constants
 
-};
+         MockInterfaceInput  m_inputData;  ///< Input interface
+         MockInterfaceOutput m_outputData; ///< Outuput interface (data are stored in a 3d boost array)
+
+         MockValidator m_validator; ///< Global validator (does not depends on project handle)
+
+      };
+   }
+}
 
 #endif

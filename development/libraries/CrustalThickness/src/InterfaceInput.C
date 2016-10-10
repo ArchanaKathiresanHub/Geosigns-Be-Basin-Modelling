@@ -9,9 +9,6 @@
 //
 #include "InterfaceInput.h"
 
-// TableIO library
-#include "cauldronschemafuncs.h"
-
 // DataAccess library
 #include "Interface/CrustFormation.h"
 #include "Interface/Formation.h"
@@ -46,6 +43,7 @@ InterfaceInput::InterfaceInput( const std::shared_ptr< const CrustalThicknessDat
    m_crustalThicknessRiftingHistoryData( crustalThicknessRiftingHistoryData ),
    m_smoothRadius              (0  ),
    m_flexuralAge               (0.0),
+   m_firstRiftAge              (0.0),
    m_HCuMap                    (nullptr),
    m_HLMuMap                   (nullptr),
    m_continentalCrustRatio     (0.0),
@@ -73,7 +71,8 @@ InterfaceInput::InterfaceInput( const std::shared_ptr< const CrustalThicknessDat
    else{
       for (std::size_t i = 0; i < m_crustalThicknessRiftingHistoryData.size(); i++){
          if (m_crustalThicknessRiftingHistoryData[i] == nullptr){
-            throw std::invalid_argument( "One of the crustal thickness rifting event data provided to the CTC is corrupted" );
+            throw std::invalid_argument( "The crustal thickness rifting event data number " +
+               std::to_string(i) + " provided to the CTC is corrupted" );
          }
       }
    }
@@ -88,15 +87,15 @@ InterfaceInput::~InterfaceInput() {
 
 //------------------------------------------------------------//
 void InterfaceInput::loadInputData( const string & inFile ) {
-   ///1. Load parameters input data
-   LogHandler( LogHandler::INFO_SEVERITY ) << "   -> loading user input data from CTC Parameters Table";
-   loadCTCIoTblData();
-   ///2. Load history input data
-   LogHandler( LogHandler::INFO_SEVERITY ) << "   -> loading user input data from CTC Rifting History Table";
-   loadCTCRiftingHistoryIoTblData();
-   ///3. Load configuration file
+   ///1. Load configuration file
    LogHandler( LogHandler::INFO_SEVERITY ) << "   -> loading CTC configuration file";
    m_constants.loadConfigurationFileCtc( inFile );
+   ///2. Load parameters input data
+   LogHandler( LogHandler::INFO_SEVERITY ) << "   -> loading user input data from CTC Parameters Table";
+   loadCTCIoTblData();
+   ///3. Load history input data
+   LogHandler( LogHandler::INFO_SEVERITY ) << "   -> loading user input data from CTC Rifting History Table";
+   loadCTCRiftingHistoryIoTblData();
 }
 
 //------------------------------------------------------------//
@@ -105,26 +104,30 @@ void InterfaceInput::loadCTCIoTblData() {
    //UI inputs
    m_HCuMap       = m_crustalThicknessData->getMap (Interface::HCuIni );
    m_HLMuMap      = m_crustalThicknessData->getMap (Interface::HLMuIni);
-   m_smoothRadius = m_crustalThicknessData->getFilterHalfWidth();
+   const int smoothingRadius = m_crustalThicknessData->getFilterHalfWidth();
+   if (smoothingRadius < 0){
+      throw std::invalid_argument( "The smoothing radius is set to a negative value" );
+   }
+   else{
+      m_smoothRadius = unsigned int( smoothingRadius );
+   }
 
    //Debug R&D project file inputs
    m_continentalCrustRatio = m_crustalThicknessData->getUpperLowerContinentalCrustRatio();
    m_oceanicCrustRatio     = m_crustalThicknessData->getUpperLowerOceanicCrustRatio();
+   m_baseRiftSurfaceName   = m_crustalThicknessData->getSurfaceName();
 
-   if (m_HCuMap == nullptr or m_HLMuMap == nullptr) {
-      throw std::invalid_argument( "One of the input maps cannot be retreived by the interface input" );
+   if (m_HCuMap == nullptr){
+      throw std::invalid_argument( "The initial crustal thickness map maps cannot be retreived by the interface input" );
    }
-   //else if (m_baseRiftSurfaceName.empty()){
-   //   throw std::invalid_argument( "Could not retreive the base rift surface name" );
-   //}
-   else if (m_smoothRadius < 0.0){
-      throw std::invalid_argument( "The smoothing radius is set to a negative value" );
+   else if (m_HLMuMap == nullptr) {
+      throw std::invalid_argument( "The initial lithospheric mantle thickness map maps cannot be retreived by the interface input" );
    }
-   else if (not NumericFunctions::inRange( m_continentalCrustRatio, 0.0, 1.0 )) {
-      throw std::invalid_argument( "The continental crust ratio (which defines the lower and upper continental crust) is outside the range [0,1]" );
+   else if ( m_continentalCrustRatio < 0 ) {
+      throw std::invalid_argument( "The continental crust ratio (which defines the lower and upper continental crust) provided by the interface input is negative" );
    }
-   else if (not NumericFunctions::inRange( m_oceanicCrustRatio, 0.0, 1.0 )) {
-      throw std::invalid_argument( "The oceanic crust ratio (which defines the lower and upper oceanic crust) is outside the range [0,1]" );
+   else if ( m_oceanicCrustRatio < 0 ) {
+      throw std::invalid_argument( "The oceanic crust ratio (which defines the lower and upper oceanic crust) provided by the interface input is negative" );
    }
 
 }
@@ -147,9 +150,9 @@ void InterfaceInput::loadRiftingEvents(){
    for (size_t i = 0; i < m_snapshots.size(); i++) {
       const double age = m_snapshots[i];
       const std::shared_ptr<const CrustalThicknessRiftingHistoryData> data = m_crustalThicknessRiftingHistoryData[i];
-      LogHandler( LogHandler::DEBUG_SEVERITY ) << "      #" << std::setw( 15 ) << age << "Ma" << std::setw( 20 ) << data->getTectonicFlagName();
+      LogHandler( LogHandler::DEBUG_SEVERITY ) << "      #" << std::setw( 15 ) << age << "Ma" << std::setw( 20 ) << data->getTectonicFlagName();;
       GridMap const * const deltaSLMap( data->getMap( Interface::DeltaSL ));
-      GridMap const * const hBuMap( data->getMap( Interface::HBu ));
+      GridMap const * const hBuMap    ( data->getMap( Interface::HBu     ));
       m_riftingEvents[age] = std::shared_ptr<CrustalThickness::RiftingEvent>(
          new CrustalThickness::RiftingEvent( data->getTectonicFlag(), deltaSLMap, hBuMap )
       );
@@ -160,24 +163,73 @@ void InterfaceInput::loadRiftingEvents(){
 void InterfaceInput::analyseRiftingHistory(){
    analyseRiftingHistoryStartAge();
    analyseRiftingHistoryEndAge();
-   LogHandler( LogHandler::INFO_SEVERITY ) << "      #" << std::setw( 15 ) << "Snapshot"     << std::setw( 20 ) << "Tectonic Context"       << std::setw( 10 ) << "Rift ID"          << std::setw( 8 ) << "Start" << std::setw( 8 ) << "End";
-   LogHandler( LogHandler::INFO_SEVERITY ) << "      #" << std::setw( 15 ) << "[Ma]"         << std::setw( 20 ) << "[]"                     << std::setw( 10 ) << "[]"               << std::setw( 8 ) << "[Ma]"  << std::setw( 8 ) << "[Ma]";
+   LogHandler( LogHandler::INFO_SEVERITY ) << "      #"
+                                           << std::setw( 15 ) << "Snapshot"
+                                           << std::setw( 20 ) << "Tectonic Context"
+                                           << std::setw( 10 ) << "Rift ID"
+                                           << std::setw( 8  ) << "Start"
+                                           << std::setw( 8  ) << "End";
+   LogHandler( LogHandler::INFO_SEVERITY ) << "      #"
+                                           << std::setw( 15 ) << "[Ma]"
+                                           << std::setw( 20 ) << "[]"
+                                           << std::setw( 10 ) << "[]"
+                                           << std::setw( 8  ) << "[Ma]"
+                                           << std::setw( 8  ) << "[Ma]";
+   bool atLeastOneActiveEvent   = false;
+   bool atLeastOnePassiveEvent  = false;
+   bool atLeastOneFlexuralEvent = false;
    for (size_t i = 0; i < m_snapshots.size(); i++){
       const std::shared_ptr<const CrustalThickness::RiftingEvent> event = m_riftingEvents[m_snapshots[i]];
       const double start = m_riftingEvents[m_snapshots[i]]->getStartRiftAge();
-      const double end   = m_riftingEvents[m_snapshots[i]]->getEndRiftAge  ();
-      if (start != DataAccess::Interface::DefaultUndefinedScalarValue
-         and end != DataAccess::Interface::DefaultUndefinedScalarValue){
-         if (start <= end){
-            throw  std::invalid_argument( "The strat of the rifting event " + std::to_string( start )
-               + "Ma is anterior or equal to its end " + std::to_string( end ) + "Ma" );
+      const double end   = m_riftingEvents[m_snapshots[i]]->getEndRiftAge();
+      LogHandler( LogHandler::INFO_SEVERITY ) << "      #"
+                                              << std::setw( 15 ) << m_crustalThicknessRiftingHistoryData[i]->getTectonicFlagName()
+                                              << std::setw( 20 ) << event->getTectonicFlag()
+                                              << std::setw( 10 ) << event->getRiftId()
+                                              << std::setw( 8  ) << start
+                                              << std::setw( 8  ) << end;
+      // check that the timing is valid
+      if (start  != DataAccess::Interface::DefaultUndefinedScalarValue
+         and end != DataAccess::Interface::DefaultUndefinedScalarValue
+         and start <= end){
+         throw  std::invalid_argument( "The start of the rifting event " + std::to_string( start )
+            + "Ma is anterior or equal to its end " + std::to_string( end ) + "Ma" );
+      }
+      // if this is flexural check that there was no active or passive event before
+      if (event->getTectonicFlag() == DataAccess::Interface::FLEXURAL_BASIN){
+         if (atLeastOneActiveEvent){
+            throw std::invalid_argument( "An active rifting event is defined after a flexural event" );
+         }
+         else if (atLeastOnePassiveEvent){
+            throw std::invalid_argument( "A passive margin event is defined after a flexural event" );
+         }
+         else if (not atLeastOneFlexuralEvent){
+            atLeastOneFlexuralEvent = true;
          }
       }
-      // @todo print real name TF
-      LogHandler( LogHandler::INFO_SEVERITY ) << "      #" << std::setw( 15 ) << m_snapshots[i] << std::setw( 20 ) << event->getTectonicFlag() << std::setw( 10 ) << event->getRiftId() << std::setw( 8 ) << start   << std::setw( 8 ) << end;
+      else if (event->getTectonicFlag() == DataAccess::Interface::ACTIVE_RIFTING){
+         if (not atLeastOneActiveEvent){
+            atLeastOneActiveEvent = true;
+         }
+      }
+      else if (event->getTectonicFlag() == DataAccess::Interface::PASSIVE_MARGIN) {
+         if (not atLeastOnePassiveEvent){
+            atLeastOnePassiveEvent = true;
+         }
+      }
    }
    LogHandler( LogHandler::INFO_SEVERITY ) << "      #";
    LogHandler( LogHandler::INFO_SEVERITY ) << "      #" << "Flexural age " << m_flexuralAge;
+
+   // check that there is at least one active rifting event defined
+   if (not atLeastOneActiveEvent){
+      throw std::invalid_argument( "There is no active rifting event defined in the rifting history" );
+   }
+   // check that there is at least one flexural event defined
+   else if (not atLeastOneFlexuralEvent){
+      throw std::invalid_argument( "There is no flexural event defined in the rifting history" );
+   }
+
 }
 
 //------------------------------------------------------------//
@@ -218,7 +270,7 @@ void InterfaceInput::analyseRiftingHistoryStartAge(){
          // else this is not the first flexural event and there are no computations to be done at this age
          //    we set the start age of the event to undefined as it is not part of a rift
          else{
-            id = DataAccess::Interface::DefaultUndefinedScalarValue;
+            id = unsigned int (DataAccess::Interface::DefaultUndefinedMapValueInteger);
             start = DataAccess::Interface::DefaultUndefinedScalarValue;
          }
       }
@@ -334,6 +386,24 @@ double InterfaceInput::getRiftingEndAge( const double age ) const{
 }
 
 //------------------------------------------------------------//
+double InterfaceInput::getRiftId( const double age ) const{
+   auto iterator = m_riftingEvents.find( age );
+   double riftID = DataAccess::Interface::DefaultUndefinedScalarValue;
+   if (iterator != m_riftingEvents.end()){
+      if (iterator->second != nullptr){
+         riftID = iterator->second->getRiftId();
+      }
+      else{
+         throw std::runtime_error( "The rifting event defined at " + std::to_string( age ) + "Ma is corrupted" );
+      }
+   }
+   else{
+      throw std::runtime_error( "There is no rifting event defined at " + std::to_string( age ) + "Ma" );
+   }
+   return riftID;
+}
+
+//------------------------------------------------------------//
 const GridMap& InterfaceInput::getHBuMap( const double age ) const{
    auto iterator = m_riftingEvents.find( age );
    GridMap const * map = nullptr;
@@ -349,6 +419,7 @@ const GridMap& InterfaceInput::getHBuMap( const double age ) const{
       throw std::runtime_error( "There is no rifting event defined at " + std::to_string( age ) + "Ma" );
    }
    if (map == nullptr){
+      // should never happen as it is already tested in RiftingEvents
       throw std::runtime_error( "There is no maximum oceanic crustal thickness defined for the rifting event at " + std::to_string( age ) + "Ma" );
    }
    return *map;
@@ -370,27 +441,18 @@ const GridMap& InterfaceInput::getDeltaSLMap( const double age ) const{
       throw std::runtime_error( "There is no rifting event defined at " + std::to_string( age ) + "Ma" );
    }
    if (map == nullptr){
+      // should never happen as it is already tested in RiftingEvents
       throw std::runtime_error( "There is no sea lvel adjustment defined for the rifting event at " + std::to_string( age ) + "Ma" );
    }
    return *map;
 }
 
-
 //------------------------------------------------------------//
 void InterfaceInput::loadSnapshots() {
 
-   DataAccess::Interface::SnapshotList* snapshots = m_crustalThicknessData->getProjectHandle()->getSnapshots();
+   m_snapshots.clear();
+   m_snapshots = m_crustalThicknessData->getSnapshots();
 
-   LogHandler( LogHandler::DEBUG_SEVERITY ) << "Loading snpashots from stratigraphy:";
-   Interface::SnapshotList::const_iterator snaphotIter;
-
-   for (snaphotIter = snapshots->begin(); snaphotIter != snapshots->end(); ++snaphotIter) {
-      const DataAccess::Interface::Snapshot* snapshot = (*snaphotIter);
-      m_snapshots.push_back( snapshot->getTime() );
-      LogHandler( LogHandler::DEBUG_SEVERITY ) << "   #time " << snapshot->getTime() << "Ma loaded";
-   }
-
-   delete snapshots;
 }
 
 //------------------------------------------------------------//
@@ -479,7 +541,7 @@ void InterfaceInput::loadTopAndBottomOfSediments( GeoPhysics::ProjectHandle* pro
    LogHandler( LogHandler::DEBUG_SEVERITY ) << "   #Top sediment surface   "     << m_topOfSedimentSurface->getName();
    LogHandler( LogHandler::DEBUG_SEVERITY ) << "   #Bot sediment surface   "     << m_bottomOfSedimentSurface->getName();
    LogHandler( LogHandler::DEBUG_SEVERITY ) << "   #Top mantle surface     "     << m_topOfMantle->getName();
-   LogHandler( LogHandler::DEBUG_SEVERITY ) << "   #Bop mantle surface     "     << m_botOfMantle->getName();
+   LogHandler( LogHandler::DEBUG_SEVERITY ) << "   #Bot mantle surface     "     << m_botOfMantle->getName();
 
 }
 
@@ -622,7 +684,7 @@ GridMap* InterfaceInput::loadPropertyDataFromDepthMap( DataAccess::Mining::Proje
 //------------------------------------------------------------//
 const GridMap& InterfaceInput::getHCuMap() const {
    if (m_HCuMap == nullptr){
-      throw InputException() << "Undefined initial crust thickness map";
+      throw std::runtime_error( "Undefined initial crust thickness map" );
    }
    return *m_HCuMap;
 }
@@ -630,7 +692,7 @@ const GridMap& InterfaceInput::getHCuMap() const {
 //------------------------------------------------------------//
 const GridMap& InterfaceInput::getHLMuMap() const {
    if (m_HLMuMap == nullptr){
-      throw InputException() << "Undefined initial lithospheric mantle thickness map";
+      throw std::runtime_error( "Undefined initial lithospheric mantle thickness map" );
    }
    return *m_HLMuMap;
 }

@@ -14,6 +14,13 @@
 #include "cauldronschemafuncs.h"
 using namespace database;
 
+// utilities library
+#include "LogHandler.h"
+
+// DataAccess library
+#include "Interface/Formation.h"
+#include "Interface/Snapshot.h"
+#include "Interface/Surface.h"
 using namespace DataAccess;
 using namespace Interface;
 
@@ -31,16 +38,6 @@ CrustalThicknessData::~CrustalThicknessData ()
 {
 }
 
-double CrustalThicknessData::getHCuIni() const
-{
-   return database::getHCuIni (m_record);
-}
-
-double CrustalThicknessData::getHLMuIni() const
-{
-   return database::getHLMuIni (m_record);
-}
-
 int CrustalThicknessData::getFilterHalfWidth() const
 {
    return database::getFilterHalfWidth (m_record);
@@ -56,6 +53,33 @@ double CrustalThicknessData::getUpperLowerOceanicCrustRatio() const
    return database::getUpperLowerOceanicCrustRatio( m_record );
 }
 
+const std::string& CrustalThicknessData::getSurfaceName() const
+{
+   return database::getSurfaceName( m_record );
+}
+
 GridMap const * CrustalThicknessData::getMap( const DataAccess::Interface::CTCMapAttributeId attributeId ) const{
    return DAObject::getMap<const DataAccess::Interface::CTCMapAttributeId>( attributeId , s_MapAttributeNames );
+}
+
+const std::vector<const double>& CrustalThicknessData::getSnapshots() const {
+   std::vector<const double> snapshots;
+   LogHandler( LogHandler::DEBUG_SEVERITY ) << "Loading snpashots from stratigraphy:";
+   FormationList* formations = getProjectHandle()->getFormations();
+   FormationList::const_iterator formationIter;
+
+   snapshots.push_back( 0.0 ); // add present day
+   LogHandler( LogHandler::DEBUG_SEVERITY ) << "   #time 0.0Ma loaded";
+
+   for (formationIter = formations->begin(); formationIter != formations->end(); ++formationIter) {
+      const Interface::Formation * formation = (*formationIter);
+
+      if (formation != 0) {
+         const Surface * topSurface = formation->getBottomSurface();
+         snapshots.push_back( topSurface->getSnapshot()->getTime() );
+         LogHandler( LogHandler::DEBUG_SEVERITY ) << "   #time " << topSurface->getSnapshot()->getTime() << "Ma loaded";
+      }
+   }
+   delete formations;
+   return snapshots;
 }
