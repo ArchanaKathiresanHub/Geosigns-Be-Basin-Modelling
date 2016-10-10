@@ -1,3 +1,13 @@
+//                                                                      
+// Copyright (C) 2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef _INTERFACE_H_
 #define _INTERFACE_H_
 
