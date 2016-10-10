@@ -13,7 +13,8 @@ namespace FiniteElementMethod
 
    PropertiesToQuadPts::PropertiesToQuadPts( const Numerics::AlignedDenseMatrix & basisMat )
       : m_numProps( 0 ),
-        m_basisMat( basisMat )
+        m_basisMat( basisMat ),
+        m_cpuInfo( cpuInfo())
    {
       m_basisMatTranspose.resize ( m_basisMat.cols (), m_basisMat.rows ());
       Numerics::transpose ( m_basisMat, m_basisMatTranspose );

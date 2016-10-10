@@ -13,6 +13,7 @@
 
 #include <iostream>
 #include <string>
+#include "ArrayDefinitions.h"
 
 namespace Numerics {
 
@@ -138,7 +139,7 @@ namespace Numerics {
    private :
 
       /// \brief The 1d values array.
-      double* m_values;
+	   ArrayDefs::Real_ptr m_values;
 
       /// \brief The number of rows.
       int m_rows;

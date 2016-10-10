@@ -1,13 +1,9 @@
 #ifndef NUMERICS__SIMD_TRAITS__H
 #define NUMERICS__SIMD_TRAITS__H
 
-#ifdef __SSE2__
 #include <xmmintrin.h>
-#endif
-
-#ifdef __AVX__
 #include <immintrin.h>
-#endif
+
 
 namespace Numerics {
 
@@ -41,7 +37,6 @@ namespace Numerics {
 
    };
 
-#ifdef __SSE2__
    /// \brief Specialisation of SimdTraits for SSE instructions.
    template<>
    struct SimdTraits<SSE> {
@@ -61,10 +56,8 @@ namespace Numerics {
       static const int DoubleStride = Alignment / sizeof ( double );
 
    };
-#endif
 
 
-#ifdef __AVX__
    /// \brief Specialisation of SimdTraits for AVX instructions.
    template<>
    struct SimdTraits<AVX> {
@@ -104,15 +97,6 @@ namespace Numerics {
       static const int DoubleStride = Alignment / sizeof ( double );
 
    };
-#endif
-
-#ifdef _WIN32
-   /// \brief The maximum simd instruction capability.
-   static const SimdInstructionTechnology CurrentSimdTechnology = NO_SIMD;
-#else
-   /// \brief The maximum simd instruction capability.
-   static const SimdInstructionTechnology CurrentSimdTechnology = AVX;
-#endif
 
 
 } // end namespace Numerics

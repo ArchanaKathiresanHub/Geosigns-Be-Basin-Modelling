@@ -14,6 +14,7 @@
 #include <vector>
 #include "AlignedDenseMatrix.h"
 #include "BasisFunctionInterpolator.h"
+#include "CpuInfo.h"
 
 namespace FiniteElementMethod
 {
@@ -93,6 +94,9 @@ namespace FiniteElementMethod
 
       /// \brief Aligned matrix containing the properties computed on each quadrature point (#prop x #quad)
       Numerics::AlignedDenseMatrix m_propOnQuadMat;
+
+      /// \brif An instance to the CpuInfo class to get the information about the CPU
+      cpuInfo m_cpuInfo;
 
       /// \brief
       void addSingleProperty( const unsigned int propIdx,
@@ -183,7 +187,7 @@ namespace FiniteElementMethod
       m_propOnQuadMat.resize( m_basisMat.cols(), m_numProps );
 
       FiniteElementMethod::BasisFunctionInterpolator interpolator;
-      interpolator.compute ( m_basisMatTranspose, m_propOnDofsMat, m_propOnQuadMat );
+      interpolator.compute( m_basisMatTranspose, m_propOnDofsMat, m_propOnQuadMat, m_cpuInfo );
    }
 
 }

@@ -5,6 +5,8 @@
 #include "SimdTraits.h"
 #include "SimdInstruction.h"
 #include "MatMultDetails.h"
+#include "AlignedMemoryAllocator.h"
+#include "CpuInfo.h"
 
 #ifdef USE_BLAS_LIBRARY
 #ifdef __cplusplus
@@ -42,7 +44,7 @@ Numerics::AlignedDenseMatrix::AlignedDenseMatrix ( const AlignedDenseMatrix& mat
 Numerics::AlignedDenseMatrix::~AlignedDenseMatrix  () {
 
    if ( m_values != nullptr ) {
-      SimdInstruction<CurrentSimdTechnology>::free ( m_values );
+      AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::free ( m_values );
    }
 
 }
@@ -73,7 +75,7 @@ void Numerics::AlignedDenseMatrix::copy ( const AlignedDenseMatrix& mat ) {
 
 void Numerics::AlignedDenseMatrix::allocate () {
 
-   const int Alignment = SimdTraits<CurrentSimdTechnology>::Alignment;
+   const int Alignment = ARRAY_ALIGNMENT;
 
    if ( Alignment != 0 and m_rows % ( Alignment / sizeof ( double )) != 0 ) {
       m_leadingDimension = m_rows + Alignment / sizeof ( double ) - m_rows % ( Alignment / sizeof ( double ));
@@ -81,7 +83,7 @@ void Numerics::AlignedDenseMatrix::allocate () {
       m_leadingDimension = m_rows;
    }
 
-   m_values = SimdInstruction<CurrentSimdTechnology>::allocate ( m_leadingDimension * m_cols );
+   m_values = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( m_leadingDimension * m_cols );
 }
 
 void Numerics::AlignedDenseMatrix::resize ( const int m, const int n ) {
@@ -90,7 +92,7 @@ void Numerics::AlignedDenseMatrix::resize ( const int m, const int n ) {
       // Matrix has same size already, so nothing to do.
       return;
    } else if ( m_values != nullptr ) {
-      SimdInstruction<CurrentSimdTechnology>::free ( m_values );
+	   AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::free ( m_values );
    }
 
    m_rows = m;
@@ -195,21 +197,60 @@ void Numerics::matmult ( const MatrixTransposeType transposeA,
    }
 
    dgemm ( transChar [ transposeA ], transChar [ transposeB ],
-           m, n, k, alpha,
-           a.data (), a.leadingDimension (),
-           b.data (), b.leadingDimension (),
-           beta, c.data (), c.leadingDimension ());
+      m, n, k, alpha,
+      a.data (), a.leadingDimension (),
+      b.data (), b.leadingDimension (),
+      beta, c.data (), c.leadingDimension ());
 
 #else
-   if ( transposeA == NO_TRANSPOSE and transposeB == NO_TRANSPOSE ) {
-      details::matMatProd ( alpha, a, b, beta, c );
-   } else if ( transposeA == NO_TRANSPOSE and transposeB == TRANSPOSE ) {
-      details::matMatTransProd ( alpha, a, b, beta, c );
-   } else if ( transposeA == TRANSPOSE and transposeB == NO_TRANSPOSE ) {
-      details::matTransMatProd ( alpha, a, b, beta, c );
-   } else { // if ( transposeA == TRANSPOSE and transposeB == TRANSPOSE ) {
-      details::matTransMatTransProd ( alpha, a, b, beta, c );
+   cpuInfo cpuInfo;
+
+   if ( cpuInfo.supportAvx( ) )
+   {
+      if ( transposeA == NO_TRANSPOSE and transposeB == NO_TRANSPOSE ) {
+         details::MatDetails<SimdInstructionTechnology::AVX>::matMatProd( alpha, a, b, beta, c );
+      }
+      else if ( transposeA == NO_TRANSPOSE and transposeB == TRANSPOSE ) {
+         details::MatDetails<SimdInstructionTechnology::AVX>::matMatTransProd( alpha, a, b, beta, c );
+      }
+      else if ( transposeA == TRANSPOSE and transposeB == NO_TRANSPOSE ) {
+         details::MatDetails<SimdInstructionTechnology::AVX>::matTransMatProd( alpha, a, b, beta, c );
+      }
+      else { // if ( transposeA == TRANSPOSE and transposeB == TRANSPOSE ) {
+         details::MatDetails<SimdInstructionTechnology::AVX>::matTransMatTransProd( alpha, a, b, beta, c );
+      }
    }
+   else if ( cpuInfo.supportSse() )
+   {
+      if ( transposeA == NO_TRANSPOSE and transposeB == NO_TRANSPOSE ) {
+         details::MatDetails<SimdInstructionTechnology::SSE>::matMatProd( alpha, a, b, beta, c );
+      }
+      else if ( transposeA == NO_TRANSPOSE and transposeB == TRANSPOSE ) {
+         details::MatDetails<SimdInstructionTechnology::SSE>::matMatTransProd( alpha, a, b, beta, c );
+      }
+      else if ( transposeA == TRANSPOSE and transposeB == NO_TRANSPOSE ) {
+         details::MatDetails<SimdInstructionTechnology::SSE>::matTransMatProd( alpha, a, b, beta, c );
+      }
+      else { // if ( transposeA == TRANSPOSE and transposeB == TRANSPOSE ) {
+         details::MatDetails<SimdInstructionTechnology::SSE>::matTransMatTransProd( alpha, a, b, beta, c );
+      }
+   }
+   else 
+   {
+      if ( transposeA == NO_TRANSPOSE and transposeB == NO_TRANSPOSE ) {
+         details::MatDetails<SimdInstructionTechnology::NO_SIMD>::matMatProd( alpha, a, b, beta, c );
+      }
+      else if ( transposeA == NO_TRANSPOSE and transposeB == TRANSPOSE ) {
+         details::MatDetails<SimdInstructionTechnology::NO_SIMD>::matMatTransProd( alpha, a, b, beta, c );
+      }
+      else if ( transposeA == TRANSPOSE and transposeB == NO_TRANSPOSE ) {
+         details::MatDetails<SimdInstructionTechnology::NO_SIMD>::matTransMatProd( alpha, a, b, beta, c );
+      }
+      else { // if ( transposeA == TRANSPOSE and transposeB == TRANSPOSE ) {
+         details::MatDetails<SimdInstructionTechnology::NO_SIMD>::matTransMatTransProd( alpha, a, b, beta, c );
+      }
+   }
+
 #endif
 
 }

@@ -2,6 +2,7 @@
 #include "FiniteElementTypes.h"
 #include "AlignedDenseMatrix.h"
 #include "BasisFunctionInterpolator.h"
+#include "CpuInfo.h"
 #include <gtest/gtest.h>
 #include <algorithm>
 #include <cmath>
@@ -28,12 +29,14 @@ void doSimpleTest ( const int NumberOfQuadPoints,
    Numerics::AlignedDenseMatrix propertyVectors ( NumberOfDofs, NumberOfProperties );
    Numerics::AlignedDenseMatrix interpolatedProperties ( NumberOfQuadPoints, NumberOfProperties );
    FiniteElementMethod::BasisFunctionInterpolator interpolator;
+   cpuInfo cpuinfo;
+   
 
    basisFunctionsTranspose.fill ( value );
    propertyVectors.fill ( 1.0 / value );
    interpolatedProperties.fill ( 1.0 );
 
-   interpolator.compute ( basisFunctionsTranspose, propertyVectors, interpolatedProperties );
+   interpolator.compute( basisFunctionsTranspose, propertyVectors, interpolatedProperties, cpuinfo );
 
    for ( int i = 0; i < NumberOfQuadPoints; ++i ) {
 

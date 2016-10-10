@@ -22,6 +22,7 @@
 
 #include "AlignedDenseMatrix.h"
 #include "SimdInstruction.h"
+#include "CpuInfo.h"
 
 namespace FiniteElementMethod {
 
@@ -38,7 +39,8 @@ namespace FiniteElementMethod {
       /// \brief Interpolate all properties at all quadrature points at the same time.
       void compute ( const Numerics::AlignedDenseMatrix& basisFunctionsTranspose,
                      const Numerics::AlignedDenseMatrix& propertyVectors,
-                           Numerics::AlignedDenseMatrix& interpolatedProperties );
+                           Numerics::AlignedDenseMatrix& interpolatedProperties,
+                     const cpuInfo& cpuInfo );
 
       /// \brief Interpolate the properties at all quadrature points at the same time using a simple scheme.
       ///
@@ -49,7 +51,6 @@ namespace FiniteElementMethod {
 
    private :
 
-#if 0
 #ifndef _WIN32
 
       /// \brief An array of four vectors of doubles.
@@ -272,13 +273,10 @@ namespace FiniteElementMethod {
       Numerics::SimdInstruction<Numerics::AVX> instructions;
 #endif
 #endif
-#endif
-
    };
 
 }
 
-#if 0
 #ifndef _WIN32
 
 inline void FiniteElementMethod::BasisFunctionInterpolator::zero ( FourByFour& avx ) {
@@ -498,7 +496,6 @@ inline void FiniteElementMethod::BasisFunctionInterpolator::product ( FourByFour
    product ( a [ 3 ], b [ 3 ], c );
 }
 
-#endif
 #endif
 
 #endif // FINITE_ELEMENT_METHOD__BASIS_FUNCTION_INTERPOLATOR_H

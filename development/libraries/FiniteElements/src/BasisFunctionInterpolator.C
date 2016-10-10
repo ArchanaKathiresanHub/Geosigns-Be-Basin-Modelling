@@ -10,7 +10,7 @@
 #include "BasisFunctionInterpolator.h"
 #include "FormattingException.h"
 
-#if 0
+
 #ifndef _WIN32
 void FiniteElementMethod::BasisFunctionInterpolator::interpolatePropertiesMain ( const int NA, const int MA, const int MB,
                                                                                  const int colBlocks,
@@ -330,7 +330,6 @@ void FiniteElementMethod::BasisFunctionInterpolator::interpolatePropertiesRemain
 
 }
 #endif
-#endif
 
 
 void FiniteElementMethod::BasisFunctionInterpolator::simpleInterpolate ( const Numerics::AlignedDenseMatrix& basisFunctionsTranspose,
@@ -366,7 +365,8 @@ void FiniteElementMethod::BasisFunctionInterpolator::simpleInterpolate ( const N
 
 void FiniteElementMethod::BasisFunctionInterpolator::compute ( const Numerics::AlignedDenseMatrix& basisFunctionsTranspose,
                                                                const Numerics::AlignedDenseMatrix& propertyVectors,
-                                                                     Numerics::AlignedDenseMatrix& interpolatedProperties ) {
+                                                                     Numerics::AlignedDenseMatrix& interpolatedProperties,
+                                                               const cpuInfo& cpuInfo ) {
 
 
    if ( basisFunctionsTranspose.cols () != 8 or propertyVectors.rows () != 8 ) {
@@ -378,46 +378,54 @@ void FiniteElementMethod::BasisFunctionInterpolator::compute ( const Numerics::A
       throw formattingexception::GeneralException () << "Dimension mismatch";
    }
 
-#if 0
+#ifndef _WIN32
+   if ( cpuInfo.supportAvx( ) )
+   {
+      const double* bufAPos = basisFunctionsTranspose.data();
+      const double* bufBPos = propertyVectors.data();
+      double* bufCPos = interpolatedProperties.data();
 
-   const double* bufAPos = basisFunctionsTranspose.data ();
-   const double* bufBPos = propertyVectors.data ();
-   double* bufCPos = interpolatedProperties.data ();
+      const int LDA = basisFunctionsTranspose.leadingDimension();
+      const int LDB = propertyVectors.leadingDimension();
+      const int LDC = interpolatedProperties.leadingDimension();
 
-   const int LDA = basisFunctionsTranspose.leadingDimension ();
-   const int LDB = propertyVectors.leadingDimension ();
-   const int LDC = interpolatedProperties.leadingDimension ();
+      const int rowsA = basisFunctionsTranspose.rows();
+      const int colsA = basisFunctionsTranspose.cols();
+      const int colsB = propertyVectors.cols();
 
-   const int rowsA = basisFunctionsTranspose.rows ();
-   const int colsA = basisFunctionsTranspose.cols ();
-   const int colsB = propertyVectors.cols ();
+      int rowBlocks = ( rowsA - rowsA % 8 ) / 8;
+      int rowBlocksRemaining = ( ( rowsA - rowBlocks * 8 ) - ( rowsA - rowBlocks * 8 ) % 4 ) / 4;
+      int rowsRemaining = rowsA % 4;
+      int colBlocks = ( colsB - colsB % 4 ) / 4;
+      int colsRemaining = colsB % 4;
 
-   int rowBlocks = ( rowsA - rowsA % 8 ) / 8;
-   int rowBlocksRemaining = (( rowsA - rowBlocks * 8 ) - ( rowsA - rowBlocks * 8 ) % 4 ) / 4;
-   int rowsRemaining = rowsA % 4;
-   int colBlocks = ( colsB - colsB % 4 ) / 4;
-   int colsRemaining = colsB % 4;
+      // First compute the bulk of the values all values where: #rows mod 4 = 0 and #cols mod 4 = 0
+      interpolatePropertiesMain( rowsA, colsA, colsB,
+         colBlocks, rowBlocks, rowBlocksRemaining,
+         bufAPos, LDA, bufBPos, LDB, bufCPos, LDC );
 
-   // First compute the bulk of the values all values where: #rows mod 4 = 0 and #cols mod 4 = 0
-   interpolatePropertiesMain ( rowsA, colsA, colsB,
-                               colBlocks, rowBlocks, rowBlocksRemaining,
-                               bufAPos, LDA, bufBPos, LDB, bufCPos, LDC );
+      // Next compute values for the last columns. Ones that from #cols - #cols mod 4 + 1.
+      interpolatePropertiesRemainingColumns( rowsA, colsA, colsB,
+         rowBlocks, rowBlocksRemaining, colsRemaining,
+         bufAPos, LDA,
+         bufBPos, LDB,
+         bufCPos, LDC );
 
-   // Next compute values for the last columns. Ones that from #cols - #cols mod 4 + 1.
-   interpolatePropertiesRemainingColumns ( rowsA, colsA, colsB,
-                                           rowBlocks, rowBlocksRemaining, colsRemaining,
-                                           bufAPos, LDA,
-                                           bufBPos, LDB,
-                                           bufCPos, LDC );
-
-   // Next compute values for the last rows. Ones that from #rows - #rows mod 4 + 1.
-   interpolatePropertiesRemainingRows ( rowsA, colsA, colsB,
-                                        rowsRemaining,
-                                        basisFunctionsTranspose.data (), LDA,
-                                        propertyVectors.data (), LDB,
-                                        interpolatedProperties.data (), LDC );
+      // Next compute values for the last rows. Ones that from #rows - #rows mod 4 + 1.
+      interpolatePropertiesRemainingRows( rowsA, colsA, colsB,
+         rowsRemaining,
+         basisFunctionsTranspose.data(), LDA,
+         propertyVectors.data(), LDB,
+         interpolatedProperties.data(), LDC );
+   }
+   else
+   {
+      simpleInterpolate( basisFunctionsTranspose, propertyVectors, interpolatedProperties );
+   }
 #else
-   simpleInterpolate ( basisFunctionsTranspose, propertyVectors, interpolatedProperties );
+
+   simpleInterpolate( basisFunctionsTranspose, propertyVectors, interpolatedProperties );
+
 #endif
 
 }
