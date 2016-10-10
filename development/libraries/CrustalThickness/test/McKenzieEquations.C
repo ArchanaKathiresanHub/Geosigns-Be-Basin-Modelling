@@ -283,7 +283,6 @@ TEST_F( McKenzieTester, death_tests ){
    LinearFunction linearFunction;
    ASSERT_DEATH( mcKenzieCalculator->calculateContinentalCrustDensity( 0 ), "" );
    ASSERT_DEATH( mcKenzieCalculator->calculateThinningFactorOnset( 1238.98403752698, 0 ), "" );
-   ASSERT_DEATH( mcKenzieCalculator->calculateTTSOnsetLinearized( 80, 0 ), "" );
    ASSERT_DEATH( mcKenzieCalculator->defineLinearFunction( linearFunction, 4000, 3300,             0.77240632040, 5190.24172179322, 6097.83831174862 ), "" );
    ASSERT_DEATH( mcKenzieCalculator->defineLinearFunction( linearFunction, 4000, 2833.29679953964, 0.77240632040, 0,                6097.83831174862 ), "" );
    ASSERT_DEATH( mcKenzieCalculator->calculateEffectiveCrustalThickness( 1096.79311836947, 3518.09157429785, 40000, 0 ), "" );

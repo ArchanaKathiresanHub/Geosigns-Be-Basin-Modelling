@@ -176,11 +176,11 @@ TEST_F( InterfaceInputTester, loadCTCRiftingHistoryIoTbl_simpleRift_startPassive
    std::shared_ptr<InterfaceInput> interfaceInput = createInterfaceInput();
    interfaceInput->loadInputData( "InterfaceData.cfg" );
 
-   const std::vector<const double      > expectedStartAge = {   50,  50,      50,  50, m_nDVd,  m_nDVd };
-   const std::vector<const double      > expectedEndAge   = {   10,  10,      10,  10, m_nDVd,  m_nDVd };
-   const std::vector<const unsigned int> expectedriftID   = {    1,   1,       1,   1,      0,       0 };
-   const std::vector<const double      > expectedDeltaSL  = { 235,  300, -564.45, 235,      0, -562.45 };
-   const std::vector<const double      > expectedHBu      = { 578,    0,    7468, 5120,  3540,    7468 };
+   const std::vector<double      > expectedStartAge = {   50,  50,      50,  50, m_nDVd,  m_nDVd };
+   const std::vector<double      > expectedEndAge   = {   10,  10,      10,  10, m_nDVd,  m_nDVd };
+   const std::vector<unsigned int> expectedriftID   = {    1,   1,       1,   1,      0,       0 };
+   const std::vector<double      > expectedDeltaSL  = { 235,  300, -564.45, 235,      0, -562.45 };
+   const std::vector<double      > expectedHBu      = { 578,    0,    7468, 5120,  3540,    7468 };
 
    EXPECT_RIFT_EQ( 50, 0, expectedStartAge, expectedEndAge, expectedriftID, expectedDeltaSL, expectedHBu, interfaceInput );
 
@@ -193,11 +193,11 @@ TEST_F( InterfaceInputTester, loadCTCRiftingHistoryIoTbl_simpleRift_startActive 
    std::shared_ptr<InterfaceInput> interfaceInput = createInterfaceInput();
    interfaceInput->loadInputData( "InterfaceData.cfg" );
 
-   const std::vector<const double      > expectedStartAge( 6, 253.12 );
-   const std::vector<const double      > expectedEndAge  ( 6, 20     );
-   const std::vector<const unsigned int> expectedriftID  ( 6, 1      );
-   const std::vector<const double      > expectedDeltaSL  = { 235,  300, -564.45, 235,      0, -562.45 };
-   const std::vector<const double      > expectedHBu      = { 578,    0,    7468, 5120,  3540,    7468 };
+   const std::vector<double      > expectedStartAge( 6, 253.12 );
+   const std::vector<double      > expectedEndAge  ( 6, 20     );
+   const std::vector<unsigned int> expectedriftID  ( 6, 1      );
+   const std::vector<double      > expectedDeltaSL  = { 235,  300, -564.45, 235,      0, -562.45 };
+   const std::vector<double      > expectedHBu      = { 578,    0,    7468, 5120,  3540,    7468 };
 
 
    EXPECT_RIFT_EQ( 253.12, 0, expectedStartAge, expectedEndAge, expectedriftID, expectedDeltaSL, expectedHBu, interfaceInput );
@@ -210,11 +210,11 @@ TEST_F( InterfaceInputTester, loadCTCRiftingHistoryIoTbl_simpleRift_uniqueActive
    std::shared_ptr<InterfaceInput> interfaceInput = createInterfaceInput();
    interfaceInput->loadInputData( "InterfaceData.cfg" );
 
-   const std::vector<const double      > expectedStartAge = { m_nDVd, m_nDVd,  m_nDVd, m_nDVd, 253.12,  253.12 };
-   const std::vector<const double      > expectedEndAge   = { m_nDVd, m_nDVd,  m_nDVd, m_nDVd,    100,     100 };
-   const std::vector<const unsigned int> expectedriftID   = { m_nDVi, m_nDVi,  m_nDVi, m_nDVi,      1,       1 };
-   const std::vector<const double      > expectedDeltaSL  = {    235,    300, -564.45,    235,      0, -562.45 };
-   const std::vector<const double      > expectedHBu      = {    578,      0,    7468,   5120,   3540,    7468 };
+   const std::vector<double      > expectedStartAge = { m_nDVd, m_nDVd,  m_nDVd, m_nDVd, 253.12,  253.12 };
+   const std::vector<double      > expectedEndAge   = { m_nDVd, m_nDVd,  m_nDVd, m_nDVd,    100,     100 };
+   const std::vector<unsigned int> expectedriftID   = { m_nDVi, m_nDVi,  m_nDVi, m_nDVi,      1,       1 };
+   const std::vector<double      > expectedDeltaSL  = {    235,    300, -564.45,    235,      0, -562.45 };
+   const std::vector<double      > expectedHBu      = {    578,      0,    7468,   5120,   3540,    7468 };
 
    EXPECT_RIFT_EQ( 253.12, 100, expectedStartAge, expectedEndAge, expectedriftID, expectedDeltaSL, expectedHBu, interfaceInput );
 
@@ -226,11 +226,11 @@ TEST_F( InterfaceInputTester, loadCTCRiftingHistoryIoTbl_simpleRift_onlyActive )
    std::shared_ptr<InterfaceInput> interfaceInput = createInterfaceInput();
    interfaceInput->loadInputData( "InterfaceData.cfg" );
 
-   const std::vector<const double      > expectedStartAge( 6, 253.12 );
-   const std::vector<const double      > expectedEndAge  ( 6, 0      );
-   const std::vector<const unsigned int> expectedriftID  ( 6, 1      );
-   const std::vector<const double      > expectedDeltaSL  = {    235, 300, -564.45,    235,      0, -562.45 };
-   const std::vector<const double      > expectedHBu      = {    578,   0,    7468,    5120,  3540,    7468 };
+   const std::vector<double      > expectedStartAge( 6, 253.12 );
+   const std::vector<double      > expectedEndAge  ( 6, 0      );
+   const std::vector<unsigned int> expectedriftID  ( 6, 1      );
+   const std::vector<double      > expectedDeltaSL  = {    235, 300, -564.45,    235,      0, -562.45 };
+   const std::vector<double      > expectedHBu      = {    578,   0,    7468,    5120,  3540,    7468 };
 
    EXPECT_RIFT_EQ( 253.12, 0, expectedStartAge, expectedEndAge, expectedriftID, expectedDeltaSL, expectedHBu, interfaceInput );
 
@@ -242,11 +242,11 @@ TEST_F( InterfaceInputTester, loadCTCRiftingHistoryIoTbl_multiRift_startActive )
    std::shared_ptr<InterfaceInput> interfaceInput = createInterfaceInput();
    interfaceInput->loadInputData( "InterfaceData.cfg" );
 
-   const std::vector<const double      > expectedStartAge = { m_nDVd,  20,      20, 253.12, 253.12,  253.12 };
-   const std::vector<const double      > expectedEndAge   = { m_nDVd,  10,      10,     50,     50,      50 };
-   const std::vector<const unsigned int> expectedriftID   = { m_nDVi,   2,       2,      1,      1,       1 };
-   const std::vector<const double      > expectedDeltaSL  = {    235, 300, -564.45,    235,      0, -562.45 };
-   const std::vector<const double      > expectedHBu      = {    578,   0,    7468,    5120,  3540,    7468 };
+   const std::vector<double      > expectedStartAge = { m_nDVd,  20,      20, 253.12, 253.12,  253.12 };
+   const std::vector<double      > expectedEndAge   = { m_nDVd,  10,      10,     50,     50,      50 };
+   const std::vector<unsigned int> expectedriftID   = { m_nDVi,   2,       2,      1,      1,       1 };
+   const std::vector<double      > expectedDeltaSL  = {    235, 300, -564.45,    235,      0, -562.45 };
+   const std::vector<double      > expectedHBu      = {    578,   0,    7468,    5120,  3540,    7468 };
 
    EXPECT_RIFT_EQ( 253.12, 10, expectedStartAge, expectedEndAge, expectedriftID, expectedDeltaSL, expectedHBu, interfaceInput );
 
@@ -258,11 +258,11 @@ TEST_F( InterfaceInputTester, loadCTCRiftingHistoryIoTbl_multiRift_startPassive 
    std::shared_ptr<InterfaceInput> interfaceInput = createInterfaceInput();
    interfaceInput->loadInputData( "InterfaceData.cfg" );
 
-   const std::vector<const double      > expectedStartAge = { 20,    20,      20,  100,   100,  m_nDVd };
-   const std::vector<const double      > expectedEndAge   = { 10,    10,      10,   50,    50,  m_nDVd };
-   const std::vector<const unsigned int> expectedriftID   = {   2,    2,       2,    1,     1,       0 };
-   const std::vector<const double      > expectedDeltaSL  = { 235,  300, -564.45,  235,     0, -562.45 };
-   const std::vector<const double      > expectedHBu      = { 578,    0,    7468, 5120,  3540,    7468 };
+   const std::vector<double      > expectedStartAge = { 20,    20,      20,  100,   100,  m_nDVd };
+   const std::vector<double      > expectedEndAge   = { 10,    10,      10,   50,    50,  m_nDVd };
+   const std::vector<unsigned int> expectedriftID   = {   2,    2,       2,    1,     1,       0 };
+   const std::vector<double      > expectedDeltaSL  = { 235,  300, -564.45,  235,     0, -562.45 };
+   const std::vector<double      > expectedHBu      = { 578,    0,    7468, 5120,  3540,    7468 };
 
    EXPECT_RIFT_EQ( 100, 0, expectedStartAge, expectedEndAge, expectedriftID, expectedDeltaSL, expectedHBu, interfaceInput );
 

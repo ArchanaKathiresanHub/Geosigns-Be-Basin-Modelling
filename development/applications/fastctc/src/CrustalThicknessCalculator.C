@@ -236,7 +236,7 @@ void CrustalThicknessCalculator::run() {
    std::shared_ptr<GridMap> prensentDayPressureTTS;
    std::shared_ptr<GridMap> presentDayTTS;
    Validator validator( *this );
-   std::vector< const double > snapshotForLoop = m_inputData->copySnapshots();
+   std::vector< double > snapshotForLoop = m_inputData->copySnapshots();
    // sort from start to end [250 220 ... 0]
    // we insert a 0 snapshot at the beginning because we need first to compute TTS at 0Ma
    // then we compute everything else in the reverse order [0 250 220 ... 0]

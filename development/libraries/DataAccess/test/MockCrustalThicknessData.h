@@ -51,7 +51,7 @@ namespace DataAccess
                   return m_ctcIoTblMaps.find( attributeId )->second;
                }
                /// @brief Return the stratigraphic snapshots
-               virtual const std::vector<const double>& getSnapshots() const final
+               virtual std::vector<double> getSnapshots() const final
                {
                   return m_snapshots;
                }
@@ -94,7 +94,7 @@ namespace DataAccess
                   m_ctcIoTblMaps[attributeId] = map;
                }
                /// @brief Set the stratigraphic snapshots
-               void setSnapshots( std::vector<const double>& list )
+               void setSnapshots( const std::vector<double>& list )
                {
                   m_snapshots = list;
                }
@@ -124,7 +124,7 @@ namespace DataAccess
             double m_upperLowerContinentalCrustRatio; ///< The upper/lower contiental crust ratio
             double m_upperLowerOceanicCrustRatio;     ///< The upper/lower oceanic crust ratio
             std::string m_surfaceName;                ///< The base of the syn-rift
-            std::vector<const double> m_snapshots;    ///< The list of major stratigraphic snapshots
+            std::vector<double> m_snapshots;          ///< The list of major stratigraphic snapshots
             /// Stores the input maps (initial continental crust thickness and initial lithospheric mantle thickness)
             std::map< const Interface::CTCMapAttributeId, Interface::GridMap const * > m_ctcIoTblMaps;
 

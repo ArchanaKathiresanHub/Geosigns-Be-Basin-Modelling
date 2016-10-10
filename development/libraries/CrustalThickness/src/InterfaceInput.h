@@ -160,7 +160,7 @@ public:
    unsigned int lastJ()  const { return m_HCuMap->lastJ();  }
    /// @}
 
-   std::vector<const double> copySnapshots() const { return m_snapshots; }
+   std::vector<double> copySnapshots() const { return m_snapshots; }
 
 protected:
 
@@ -241,7 +241,7 @@ protected:
    const Surface * m_topOfMantle;             ///< The top mantle (bottom crust) surface
    const Surface * m_botOfMantle;             ///< The bottom mantle surface
 
-   std::vector<const double> m_snapshots; ///< The list of stratigraphic snapshots in reverse order surrounded by 0 snapshot (i.e. [0,150,110,50,...,0])
+   std::vector<double> m_snapshots; ///< The list of stratigraphic snapshots in reverse order surrounded by 0 snapshot (i.e. [0,150,110,50,...,0])
    /// @}
 
    /// @defgroup DerivedProperties

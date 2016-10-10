@@ -47,7 +47,7 @@ namespace DataAccess
             virtual GridMap const * getMap( const Interface::CTCMapAttributeId attributeId ) const;
             /// @brief Return the stratigraphic snapshots
             /// @details Detucted from the formations stored by the project handle
-            virtual const std::vector<const double>& getSnapshots() const;
+            virtual std::vector<double> getSnapshots() const;
             /// @}
 
             /// @defgroup DebugInputs

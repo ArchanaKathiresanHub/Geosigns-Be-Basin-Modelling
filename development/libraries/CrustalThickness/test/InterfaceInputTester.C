@@ -88,11 +88,11 @@ void InterfaceInputTester::updateData(){
 
 void InterfaceInputTester::EXPECT_RIFT_EQ( const double firstRiftAge,
                                            const double flexuralAge,
-                                           const std::vector< const double       >& expectedStartAge,
-                                           const std::vector< const double       >& expectedEndAge,
-                                           const std::vector< const unsigned int >& expectedriftID,
-                                           const std::vector< const double       >& expectedDeltaSL,
-                                           const std::vector< const double       >& expectedHBu,
+                                           const std::vector< double       >& expectedStartAge,
+                                           const std::vector< double       >& expectedEndAge,
+                                           const std::vector< unsigned int >& expectedriftID,
+                                           const std::vector< double       >& expectedDeltaSL,
+                                           const std::vector< double       >& expectedHBu,
                                            std::shared_ptr<InterfaceInput> interfaceInput ){
 
    assert( expectedStartAge.size() == m_snapshots.size()

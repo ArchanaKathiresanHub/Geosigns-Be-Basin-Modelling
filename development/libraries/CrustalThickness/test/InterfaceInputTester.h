@@ -72,11 +72,11 @@ namespace CrustalThickness
          /// @param[in] interfaceInput   The interface to test
          void EXPECT_RIFT_EQ( const double firstRiftAge,
                               const double flexuralAge,
-                              const std::vector< const double       >& expectedStartAge,
-                              const std::vector< const double       >& expectedEndAge,
-                              const std::vector< const unsigned int >& expectedriftID,
-                              const std::vector< const double       >& expectedDeltaSL,
-                              const std::vector< const double       >& expectedHBu,
+                              const std::vector< double       >& expectedStartAge,
+                              const std::vector< double       >& expectedEndAge,
+                              const std::vector< unsigned int >& expectedriftID,
+                              const std::vector< double       >& expectedDeltaSL,
+                              const std::vector< double       >& expectedHBu,
                               std::shared_ptr<InterfaceInput> interfaceInput );
 
       protected:
@@ -91,8 +91,6 @@ namespace CrustalThickness
          ///    Can be modified in the test fixtures (TEST_F)
          /// @{
          std::vector< DataAccess::Interface::TectonicFlag  > m_tectonicFalgs; ///< The list of tectonic flags
-         std::vector< DataAccess::Interface::SerialGridMap > m_HBu;           ///< The list of maximum oceanic crustal thicknesses [m]
-         std::vector< DataAccess::Interface::SerialGridMap > m_DeltaSL;       ///< The list of sea level adjustment                [m]
 
          int m_filterHalfWidth;                    ///< The smoothing radius
          double m_upperLowerContinentalCrustRatio; ///< The upper/lower continental crust ration
@@ -100,11 +98,13 @@ namespace CrustalThickness
          const double m_nDVd;                      ///< The no data value in double
          const unsigned int m_nDVi;                ///< The no data value in integer
 
-         DataAccess::Interface::SerialGrid m_grid;        ///< The main grid used in map construction
-         DataAccess::Interface::SerialGridMap* m_HLMuIni; ///< The initial lithospheric mantle thickness [m]
-         DataAccess::Interface::SerialGridMap* m_HCuIni;  ///< The initial continental crust thickness   [m]
+         DataAccess::Interface::SerialGrid m_grid;                      ///< The main grid used in map construction
+         std::vector< DataAccess::Interface::SerialGridMap > m_HBu;     ///< The list of maximum oceanic crustal thicknesses [m]
+         std::vector< DataAccess::Interface::SerialGridMap > m_DeltaSL; ///< The list of sea level adjustment                [m]
+         DataAccess::Interface::SerialGridMap* m_HLMuIni;               ///< The initial lithospheric mantle thickness       [m]
+         DataAccess::Interface::SerialGridMap* m_HCuIni;                ///< The initial continental crust thickness         [m]
 
-         std::vector<const double> m_snapshots; ///< The list of snapshots [Ma]
+         std::vector<double> m_snapshots; ///< The list of snapshots [Ma]
          /// @}
 
          /// @defgroup MockDataAccess

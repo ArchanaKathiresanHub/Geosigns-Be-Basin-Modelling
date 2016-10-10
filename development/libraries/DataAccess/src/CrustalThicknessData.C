@@ -62,8 +62,8 @@ GridMap const * CrustalThicknessData::getMap( const DataAccess::Interface::CTCMa
    return DAObject::getMap<const DataAccess::Interface::CTCMapAttributeId>( attributeId , s_MapAttributeNames );
 }
 
-const std::vector<const double>& CrustalThicknessData::getSnapshots() const {
-   std::vector<const double> snapshots;
+std::vector<double> CrustalThicknessData::getSnapshots() const {
+   std::vector<double> snapshots;
    LogHandler( LogHandler::DEBUG_SEVERITY ) << "Loading snpashots from stratigraphy:";
    FormationList* formations = getProjectHandle()->getFormations();
    FormationList::const_iterator formationIter;

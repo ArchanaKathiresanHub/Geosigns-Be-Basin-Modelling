@@ -109,7 +109,7 @@ void InterfaceInput::loadCTCIoTblData() {
       throw std::invalid_argument( "The smoothing radius is set to a negative value" );
    }
    else{
-      m_smoothRadius = unsigned int( smoothingRadius );
+      m_smoothRadius = (unsigned int)smoothingRadius;
    }
 
    //Debug R&D project file inputs
@@ -183,8 +183,8 @@ void InterfaceInput::analyseRiftingHistory(){
       const double start = m_riftingEvents[m_snapshots[i]]->getStartRiftAge();
       const double end   = m_riftingEvents[m_snapshots[i]]->getEndRiftAge();
       LogHandler( LogHandler::INFO_SEVERITY ) << "      #"
-                                              << std::setw( 15 ) << m_crustalThicknessRiftingHistoryData[i]->getTectonicFlagName()
-                                              << std::setw( 20 ) << event->getTectonicFlag()
+                                              << std::setw( 15 ) << m_snapshots[i]
+                                              << std::setw( 20 ) << m_crustalThicknessRiftingHistoryData[i]->getTectonicFlagName()
                                               << std::setw( 10 ) << event->getRiftId()
                                               << std::setw( 8  ) << start
                                               << std::setw( 8  ) << end;
@@ -270,7 +270,7 @@ void InterfaceInput::analyseRiftingHistoryStartAge(){
          // else this is not the first flexural event and there are no computations to be done at this age
          //    we set the start age of the event to undefined as it is not part of a rift
          else{
-            id = unsigned int (DataAccess::Interface::DefaultUndefinedMapValueInteger);
+            id = (unsigned int)DataAccess::Interface::DefaultUndefinedMapValueInteger;
             start = DataAccess::Interface::DefaultUndefinedScalarValue;
          }
       }
