@@ -436,7 +436,6 @@ double ObsTrapDerivedProp::calculateDerivedTrapProp( const std::vector<double> &
    }
 
    bool stPhaseFound = false;
-   bool rcPhaseFound = false;
 
    ComponentManager::PhaseId rcPhase;
    ComponentManager::PhaseId stPhase;
@@ -467,12 +466,10 @@ double ObsTrapDerivedProp::calculateDerivedTrapProp( const std::vector<double> &
    }
    else if ( m_propName.find( "Vapour" ) != string::npos )
    {
-      rcPhaseFound = true;
       rcPhase = ComponentManager::Vapour;
    }
    else if ( m_propName.find( "Liquid" ) != string::npos )
    {
-      rcPhaseFound = true;
       rcPhase = ComponentManager::Liquid;
    }
 
@@ -481,7 +478,7 @@ double ObsTrapDerivedProp::calculateDerivedTrapProp( const std::vector<double> &
    {
       if ( stPhaseFound )
       {
-         if ( rcPhase == ComponentManager::Vapour && pvtRCVapour || rcPhase == ComponentManager::Liquid && pvtRCLiquid )
+         if ( (rcPhase == ComponentManager::Vapour && pvtRCVapour) || (rcPhase == ComponentManager::Liquid && pvtRCLiquid) )
          {
             ret = densitiesST[rcPhase][stPhase];
          }
@@ -492,7 +489,7 @@ double ObsTrapDerivedProp::calculateDerivedTrapProp( const std::vector<double> &
    {
       if ( stPhaseFound )
       {
-         if ( rcPhase == ComponentManager::Vapour && pvtRCVapour || rcPhase == ComponentManager::Liquid && pvtRCLiquid )
+         if ( (rcPhase == ComponentManager::Vapour && pvtRCVapour) || (rcPhase == ComponentManager::Liquid && pvtRCLiquid) )
          {
             ret = viscositiesST[rcPhase][stPhase];
          }

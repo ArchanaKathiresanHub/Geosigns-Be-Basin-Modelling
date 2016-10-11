@@ -60,7 +60,7 @@ target_link_libraries(casaapi
 )
 
 if (LSF_HOME)
-   include_directories(${LSF_INCLUDE_DIR})
+   include_directories(SYSTEM ${LSF_INCLUDE_DIR})
    target_link_libraries(casaapi ${LSF_LIBS})
 endif(LSF_HOME)
 
