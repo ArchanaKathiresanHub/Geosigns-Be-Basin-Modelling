@@ -59,6 +59,7 @@ namespace GeoPhysics
                                           ArrayDefs::ConstReal_ptr calculatedPorosity,
                                           ArrayDefs::Real_ptr      permeabilities ) const {
 
+      #pragma omp simd aligned ( ves, maxVes, calculatedPorosity, permeabilities )
       for ( unsigned int i = 0; i < n; ++i ) {
          permeabilities [ i ] = calculate ( ves [ i ], maxVes [ i ], calculatedPorosity [ i ]);
       }
@@ -89,6 +90,73 @@ namespace GeoPhysics
       //
       // The ves can be negative during the Newton solve for the pressure
       // this is a temporary occurence.
+
+#if WHICH_IS_FASTER
+      if ( ves >= cutOff ) {
+
+         if ( Ves0 <= maxVes ) {
+            shalePermeabilityAndDerivative(ves, maxVes, permeability, derivative);
+
+            if( permeability > MaxPermeability )
+            {
+               permeability = MaxPermeability;
+               derivative   = 0.0;
+            }
+
+         } else {
+            permeability = shalePermeability( ves, maxVes );
+
+            if( permeability == MaxPermeability )
+            {
+               derivative = 0.0;
+            }
+            else
+            {
+               double unused = 0.0;
+               shalePermeabilityAndDerivative( ves, Ves0, unused, derivative);
+            }
+
+         }
+
+      } else {
+
+         if ( Ves0 <= maxVes ) {
+            double a = 0.0, b = 0.0;
+            shalePermeabilityAndDerivative(cutOff, maxVes, b, a);
+            permeability = a * (ves - cutOff) + b;
+
+            if( permeability > MaxPermeability )
+            {
+               permeability = MaxPermeability;
+               derivative   = 0.0;
+            }
+            else
+            {
+               double unused = 0.0;
+               shalePermeabilityAndDerivative(ves, maxVes, unused, derivative);
+            }
+
+         } else {
+            double a = 0.0, b = 0.0;
+            shalePermeabilityAndDerivative(cutOff, maxVes, b, a);
+            permeability = a * (ves - cutOff) + b;
+
+            if( permeability > MaxPermeability )
+            {
+               permeability = MaxPermeability;
+               derivative   = 0.0;
+            }
+            else
+            {
+               double unused = 0.0;
+               shalePermeabilityAndDerivative(cutOff, Ves0, unused, derivative);
+            }
+
+         }
+
+      }
+
+#else
       if (ves >= cutOff && Ves0 <= maxVes )
       {
          shalePermeabilityAndDerivative(ves, maxVes, permeability, derivative);
@@ -142,10 +210,13 @@ namespace GeoPhysics
             double unused = 0.0;
             shalePermeabilityAndDerivative(cutOff, Ves0, unused, derivative);
          }
+
       }
+
+#endif
    }
 
-   double PermeabilityMudStone::shalePermeability(  const double ves, const double maxVes) const
+   inline double PermeabilityMudStone::shalePermeability(  const double ves, const double maxVes) const
    {
      if (ves >= maxVes)
      {
@@ -157,12 +228,13 @@ namespace GeoPhysics
         return m_depoPermeability * fastPow(Ves0/(maxVes+Ves0), m_permeabilityIncr) *
                fastPow((maxVes+Ves0)/(ves+Ves0), m_permeabilityDecr);
      }
+
    }
 
-   void PermeabilityMudStone::shalePermeabilityAndDerivative( const double ves,
-                                                              const double maxVes,
-                                                              double & permeability,
-                                                              double & permeabilityDerivative ) const
+   inline void PermeabilityMudStone::shalePermeabilityAndDerivative( const double ves,
+                                                                     const double maxVes,
+                                                                     double & permeability,
+                                                                     double & permeabilityDerivative ) const
    {
       //assert (0 != (ves+Ves0));    // this assert should be active, but what if during pressure solving we fall in this case?
 
@@ -186,6 +258,7 @@ namespace GeoPhysics
                                                     ArrayDefs::Real_ptr      permeabilities,
                                                     ArrayDefs::Real_ptr      derivatives ) const {
 
+      #pragma omp simd aligned ( calculatedPorosity, porosityDerivativeWrtVes, permeabilities, derivatives )
       for ( unsigned int i = 0; i < n; ++i ) {
          calculateDerivative ( ves [ i ], maxVes [ i ],
                                calculatedPorosity [ i ], porosityDerivativeWrtVes [ i ],

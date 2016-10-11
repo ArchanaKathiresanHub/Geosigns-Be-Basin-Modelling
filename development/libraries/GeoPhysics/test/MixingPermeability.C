@@ -1,110 +1,202 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
 
 #include "../src/CompoundLithology.h"
+#include "../src/CompoundLithologyComposition.h"
 #include "../src/GeoPhysicsProjectHandle.h"
 #include "../src/GeoPhysicsObjectFactory.h"
+#include "../src/LithologyManager.h"
+#include "../src/MultiCompoundProperty.h"
+#include "../src/CompoundProperty.h"
 #include "../../utilities/src/FormattingException.h"
+#include "../src/PermeabilityMixer.h"
 
 #include <gtest/gtest.h>
+#include <stdlib.h>
 
 typedef formattingexception::GeneralException fastCauldronException;
 
 using namespace GeoPhysics;
 
 
-TEST(MixingPermeability, layered)
+double* doubleAlloc ( const int numberOfItems ) {
+   void* buf;
+   int error = posix_memalign ( &buf, 32, sizeof ( double ) * numberOfItems );
+   return static_cast<double*>(buf);
+}
+
+TEST(MixingPermeability, multiTest)
 {
-   // Values for [Std.Sandstone, Std. Siltstone, Std Shale]
+
    ObjectFactory factory;
    ObjectFactory* factoryptr = &factory;
    ProjectHandle* projectHandle = dynamic_cast< ProjectHandle* >(OpenCauldronProject("MixingPermeabilityProject.project3d", "r", factoryptr));
-   CompoundLithology myLitho (projectHandle);
-     
+   int NumberOflithologies;
+   int NumberOfIterations;
+   CompoundLithologyComposition composition;
+
+   const unsigned int Size = 100;
+
+   double* ves = doubleAlloc ( Size );
+   double* maxVes = doubleAlloc ( Size );
+   double* porosity = doubleAlloc ( Size );
+   double* chemicalCompaction = doubleAlloc ( Size );
+   double* porosityDerivative = doubleAlloc ( Size );
+   double* permeabilityNormal = doubleAlloc ( Size );
+   double* permeabilityPlane = doubleAlloc ( Size );
+   double* permeabilityDerivative = doubleAlloc ( Size );
+   CompoundProperty* mcps  = new CompoundProperty [ Size ];
+
+   PermeabilityMixer::PermeabilityWorkSpaceArrays workSpace ( Size );
+
+   double h = 1.0e7 / static_cast<double>(Size - 1);
+   double v = 0.0;
+   double mv = 0.0;
+
+   for ( int i = 0; i < Size; ++i, mv += h ) {
+      ves [ i ] = mv;
+      maxVes [ i ] = mv;
+      chemicalCompaction  [ i ] = 0.0;
+   }
+
+   for ( unsigned int whichLitho = 1; whichLitho <= 7; ++whichLitho ) {
+
+      switch ( whichLitho ) {
+        case 1: composition.setComposition ( "SM.Mudst.40%Clay" ,                 "",                 "", 100.0,  0.0,  0.0, "Layered", 0.0 ); NumberOflithologies = 1; break;
+        case 2: composition.setComposition ( "SM. Sandstone"    , "SM.Mudst.50%Clay", "SM.Mudst.60%Clay",  33.0, 33.0, 34.0, "Layered", 0.0 ); NumberOflithologies = 3; break;
+        case 3: composition.setComposition ( "SM. Sandstone"    , "SM.Mudst.40%Clay", "SM.Mudst.50%Clay",  33.0, 33.0, 34.0, "Layered", 0.0 ); NumberOflithologies = 3; break;
+        case 4: composition.setComposition ( "Std. Siltstone"   ,   "Std. Sandstone",       "Std. Shale",  33.0, 33.0, 34.0, "Layered", 0.0 ); NumberOflithologies = 3; break;
+        case 5: composition.setComposition ( "SM.Mudst.60%Clay" ,                 "",                 "", 100.0,  0.0,  0.0, "Layered", 0.0 ); NumberOflithologies = 1; break;
+        case 6: composition.setComposition ( "SM.Mudst.50%Clay" , "SM.Mudst.40%Clay",                 "",  67.0, 33.0,  0.0, "Layered", 0.0 ); NumberOflithologies = 2; break;
+        case 7: composition.setComposition ( "Std. Sandstone"   ,   "Std. Sandstone",                 "",  67.0, 33.0,  0.0, "Layered", 0.0 ); NumberOflithologies = 2; break;
+
+      default :
+         throw fastCauldronException () << " Incorrect lithology selection";
+      }
+
+      CompoundLithology* myLitho = projectHandle->getLithologyManager ().getCompoundLithology ( composition );
+      MultiCompoundProperty mcp ( NumberOflithologies, Size );
+
+      for ( unsigned int j = 0; j < Size; ++j ) {
+         myLitho->getPorosity ( ves [ j ], maxVes [ j ], false, chemicalCompaction [ j ], mcps [ j ]);
+
+         mcp.getSimpleData ( 0, j ) = mcps [ j ] ( 0 );
+
+         if ( NumberOflithologies > 1 ) {
+            mcp.getSimpleData ( 1, j ) = mcps [ j ] ( 1 );
+         }
+
+         if ( NumberOflithologies > 2 ) {
+            mcp.getSimpleData ( 2, j ) = mcps [ j ] ( 2 );
+         }
+
+         mcp.getMixedData ( j ) = mcps [ j ].mixedProperty ();
+      }
+
+      myLitho->calcBulkPermeabilityNP ( Size, ves, maxVes, mcp, permeabilityNormal, permeabilityPlane, workSpace );
+
+      for ( unsigned int i = 0; i < Size; ++i ) {
+         double permeabilityNormalScalar;
+         double permeabilityPlaneScalar;
+
+         myLitho->calcBulkPermeabilityNP ( ves [ i ], maxVes [ i ], mcps [ i ], permeabilityNormalScalar, permeabilityPlaneScalar );
+         EXPECT_NEAR ( permeabilityNormalScalar, permeabilityNormal [ i ], 1.0e-12 );
+         EXPECT_NEAR ( permeabilityPlaneScalar,  permeabilityPlane  [ i ], 1.0e-12 );
+      }
+
+   }
+
+
+}
+
+#if 1
+
+
+TEST(MixingPermeability, layered)
+{
+
    double permeabilityNormal;
    double permeabilityPlane;
-   double permVal[3] = { 1000.0, 50.0, 0.01 };
-   myLitho.addLithology(nullptr, 33);
-   myLitho.addLithology(nullptr, 33);
-   myLitho.addLithology(nullptr, 34);
-   myLitho.makeFault(false);
-   myLitho.setPermAnisotropy(1, 1, 1);
-   myLitho.setIsLegacy( false );
-   
+   std::tr1::array<double,3> permVal  = { 1000.0, 50.0, 0.01 };
+   std::tr1::array<double,3> permVal2 = { 1000.0, 50.0, 0.01 };
+
+   std::vector<double> anisoVec ( { 1.0, 1.0, 1.0 });
+   std::vector<double> percentVec ( { 33.0, 33.0, 34.0 } );
+
+   PermeabilityMixer mixer;
+   double layeringIndex;
+   bool isFault = false;
+
    // Layering Index = 1.0
-   myLitho.setMixModel("Layered", 1.0 );
-   myLitho.reSetValuesForPermMixing();
-   myLitho.mixPermeability(permVal, permeabilityNormal, permeabilityPlane);
+   layeringIndex = 1.0;
+   mixer.reset ( percentVec, anisoVec, false, layeringIndex, DataAccess::Interface::LAYERED, isFault );
+   mixer.mixPermeability(permVal2, permeabilityNormal, permeabilityPlane);
 
    EXPECT_NEAR(permeabilityNormal, 0.029405771117828047, 1E-14);
    EXPECT_NEAR(permeabilityPlane, 346.50340000000006, 1E-14);
 
 
    // Layering Index = 0.75
-   myLitho.setMixModel("Layered", 0.75);
-   myLitho.reSetValuesForPermMixing();
-   myLitho.mixPermeability(permVal, permeabilityNormal, permeabilityPlane);
+   layeringIndex = 0.75;
+   mixer.reset ( percentVec, anisoVec, false, layeringIndex, DataAccess::Interface::LAYERED, isFault );
+   mixer.mixPermeability(permVal2, permeabilityNormal, permeabilityPlane);
 
-   EXPECT_NEAR(permeabilityNormal, 0.050156900050643084, 1E-14);
-   EXPECT_NEAR(permeabilityPlane, 290.74013483978803, 1E-14);
+   EXPECT_NEAR(permeabilityNormal, 0.050156865731445413, 1E-14);
+   EXPECT_NEAR(permeabilityPlane, 290.74014752595969, 1E-14);
 
 
    // Layering Index = 0.5
-   myLitho.setMixModel("Layered", 0.5);
-   myLitho.reSetValuesForPermMixing();
-   myLitho.mixPermeability(permVal, permeabilityNormal, permeabilityPlane);
+   layeringIndex = 0.5;
+   mixer.reset ( percentVec, anisoVec, false, layeringIndex, DataAccess::Interface::LAYERED, isFault );
+   mixer.mixPermeability(permVal2, permeabilityNormal, permeabilityPlane);
 
-   EXPECT_NEAR(permeabilityNormal, 0.20328440266474265, 1E-14);
-   EXPECT_NEAR(permeabilityPlane, 229.58978928655733, 1E-14);
+   EXPECT_NEAR(permeabilityNormal, 0.20328466537757228, 1E-14);
+   EXPECT_NEAR(permeabilityPlane, 229.5897917682012, 1E-14);
 
 
    // Layering Index = 0.25
-   myLitho.setMixModel("Layered", 0.25);
-   myLitho.reSetValuesForPermMixing();
-   myLitho.mixPermeability(permVal, permeabilityNormal, permeabilityPlane);
+   layeringIndex = 0.25;
+   mixer.reset ( percentVec, anisoVec, false, layeringIndex, DataAccess::Interface::LAYERED, isFault );
+   mixer.mixPermeability(permVal2, permeabilityNormal, permeabilityPlane);
 
    EXPECT_NEAR(permeabilityNormal, 7.4243784490519342, 1E-14);
    EXPECT_NEAR(permeabilityPlane, 163.91600641858543, 1E-14);
 
 
    // Layering Index = 0
-   myLitho.setMixModel("Layered", 0.0);
-   myLitho.reSetValuesForPermMixing();
-   myLitho.mixPermeability(permVal, permeabilityNormal, permeabilityPlane);
+   layeringIndex = 0.0;
+   mixer.reset ( percentVec, anisoVec, false, layeringIndex, DataAccess::Interface::LAYERED, isFault );
+   mixer.mixPermeability(permVal2, permeabilityNormal, permeabilityPlane);
 
-   EXPECT_NEAR(permeabilityNormal, 96.638204738910616, 1E-14);
-   EXPECT_NEAR(permeabilityPlane,  96.638196293929724, 1E-14);
+   EXPECT_NEAR(permeabilityNormal, 96.638199108923132, 1E-14);
+   EXPECT_NEAR(permeabilityPlane,  96.638199108923175, 1E-14);
 
 }
 
 TEST(MixingPermeability, homogeneous)
 {
-   // Values for [Std.Sandstone, Std. Siltstone, Std Shale]
-   ObjectFactory factory;
-   ObjectFactory* factoryptr = &factory;
-   ProjectHandle* projectHandle = dynamic_cast<ProjectHandle*>(OpenCauldronProject("MixingPermeabilityProject.project3d", "r", factoryptr));
-   CompoundLithology myLitho(projectHandle);
+   std::vector<double> anisoVec ( { 1.0, 1.0, 1.0 });
+   std::vector<double> percentVec ( { 33.0, 33.0, 34.0 } );
+
+   bool isFault = false;
+   PermeabilityMixer mixer;
+   double layeringIndex = -9999.0;
 
    //Homogeneous case
    double permeabilityNormal;
    double permeabilityPlane;
-   double permVal[3] = { 1000.0, 50.0, 0.01 };
-   myLitho.addLithology(nullptr, 33);
-   myLitho.addLithology(nullptr, 33);
-   myLitho.addLithology(nullptr, 34);
-   myLitho.makeFault(false);
-   myLitho.setPermAnisotropy(1, 1, 1);
+   std::tr1::array<double,3> permVal = { 1000.0, 50.0, 0.01 };
+   std::tr1::array<double,3> permVal2 = { 1000.0, 50.0, 0.01 };
 
-   myLitho.setMixModel("Homogeneous", -9999);
-   myLitho.reSetValuesForPermMixing();
-   myLitho.mixPermeability(permVal, permeabilityNormal, permeabilityPlane);
+   mixer.reset ( percentVec, anisoVec, false, layeringIndex, DataAccess::Interface::HOMOGENEOUS, isFault );
+   mixer.mixPermeability(permVal2, permeabilityNormal, permeabilityPlane);
 
    EXPECT_NEAR(permeabilityNormal, 7.4243784490519342, 1E-14);
    EXPECT_NEAR(permeabilityPlane,  7.4243784490519342, 1E-14);
@@ -118,12 +210,15 @@ TEST(MixingPermeability, undefinedModel)
    ObjectFactory* factoryptr = &factory;
    ProjectHandle* projectHandle = dynamic_cast<ProjectHandle*>(OpenCauldronProject("MixingPermeabilityProject.project3d", "r", factoryptr));
    CompoundLithology myLitho(projectHandle);
+   PermeabilityMixer mixer;
+
+   std::vector<double> anisoVec ( { 1.0, 1.0, 1.0 });
+   std::vector<double> percentVec ( { 33.0, 33.0, 34.0 } );
 
    myLitho.addLithology(nullptr, 33);
    myLitho.addLithology(nullptr, 33);
    myLitho.addLithology(nullptr, 34);
    myLitho.makeFault(true);
-   myLitho.setPermAnisotropy(1, 1, 1);
 
    try
    {
@@ -145,23 +240,21 @@ TEST(MixingPermeability, undefinedModel)
 
 TEST(MixingPermeability, faultLithology)
 {
-   // Values for [Std.Sandstone, Std. Siltstone, Std Shale]
-   ObjectFactory factory;
-   ObjectFactory* factoryptr = &factory;
-   ProjectHandle* projectHandle = dynamic_cast<ProjectHandle*>(OpenCauldronProject("MixingPermeabilityProject.project3d", "r", factoryptr));
-   CompoundLithology myLitho(projectHandle);
+   PermeabilityMixer mixer;
+   bool isFault = true;
+   double layeringIndex = 0.0;
+
+   std::vector<double> anisoVec ( { 1.0, 1.0, 1.0 });
+   std::vector<double> percentVec ( { 33.0, 33.0, 34.0 } );
 
    //Fault lithology -> homogeneous case by default
    double permeabilityNormal;
    double permeabilityPlane;
-   double permVal[3] = { 1000.0, 50.0, 0.01 };
-   myLitho.addLithology(nullptr, 33);
-   myLitho.addLithology(nullptr, 33);
-   myLitho.addLithology(nullptr, 34);
-   myLitho.makeFault(true);
-   myLitho.setPermAnisotropy(1, 1, 1);
+   std::tr1::array<double,3> permVal = { 1000.0, 50.0, 0.01 };
+   std::tr1::array<double,3> permVal2 = { 1000.0, 50.0, 0.01 };
 
-   myLitho.mixPermeability(permVal, permeabilityNormal, permeabilityPlane);
+   mixer.reset ( percentVec, anisoVec, false, layeringIndex, DataAccess::Interface::HOMOGENEOUS, isFault );
+   mixer.mixPermeability(permVal2, permeabilityNormal, permeabilityPlane);
 
    EXPECT_NEAR(permeabilityNormal, 7.4243784490519342, 1E-14);
    EXPECT_NEAR(permeabilityPlane, 7.4243784490519342, 1E-14);
@@ -169,119 +262,99 @@ TEST(MixingPermeability, faultLithology)
 
 TEST(MixingPermeability, different_percentages)
 {
-   // Values for [Std.Sandstone, Std. Siltstone]
-   ObjectFactory factory;
-   ObjectFactory* factoryptr = &factory;
-   ProjectHandle* projectHandle = dynamic_cast<ProjectHandle*>(OpenCauldronProject("MixingPermeabilityProject.project3d", "r", factoryptr));
-   CompoundLithology myLitho1(projectHandle);
+   PermeabilityMixer mixer;
+   bool isFault = false;
+   double layeringIndex = 0.5;
 
-   
+   std::vector<double> anisoVec ( { 1.0, 1.0 });
+   std::vector<double> percentVec ( { 100.0, 0.0 } );
+   std::tr1::array<double,3> permVal12 = { 1000.0, 50.0, -99999 };
+
    double permeabilityNormal;
    double permeabilityPlane;
 
-   //Effectively, only one lithology 100% 0% 0% 
-   double permVal1[2] = { 1000.0, 50.0 };
-   myLitho1.addLithology(nullptr, 100);
-   myLitho1.addLithology(nullptr, 0);
-   myLitho1.makeFault(false);
-   myLitho1.setPermAnisotropy(1, 1, 1);
+   //Effectively, only one lithology 100% 0% 0%
+   std::tr1::array<double,3> permVal1 = { 1000.0, 50.0, -9999.0 };
 
-   myLitho1.setMixModel("Layered", 0.5);
-   myLitho1.reSetValuesForPermMixing();
-   myLitho1.mixPermeability(permVal1, permeabilityNormal, permeabilityPlane);
+   mixer.reset ( percentVec, anisoVec, false, layeringIndex, DataAccess::Interface::LAYERED, isFault );
+   mixer.mixPermeability(permVal12, permeabilityNormal, permeabilityPlane);
 
    EXPECT_NEAR(permeabilityNormal, 1000.0, 1E-14);
    EXPECT_NEAR(permeabilityPlane, 1000.0, 1E-14);
 
    //Only two lithologies 90% 10% 0%
-   CompoundLithology myLitho2(projectHandle);
 
-   double permVal2[2] = { 1000.0, 50.0 };
-   myLitho2.addLithology(nullptr, 90);
-   myLitho2.addLithology(nullptr, 10);
-   myLitho2.makeFault(false);
-   myLitho2.setPermAnisotropy(1, 1, 1);
+   std::tr1::array<double,3> permVal2 = { 1000.0, 50.0, -9999.0 };
 
-   myLitho2.setMixModel("Layered", 0.5);
-   myLitho2.reSetValuesForPermMixing();
-   myLitho2.mixPermeability(permVal2, permeabilityNormal, permeabilityPlane);
+   percentVec = { 90.0, 10.0 };
 
-   EXPECT_NEAR(permeabilityNormal, 622.06799340312455, 1E-14);
-   EXPECT_NEAR(permeabilityPlane, 873.20101710391941, 1E-14);
+   mixer.reset ( percentVec, anisoVec, false, layeringIndex, DataAccess::Interface::LAYERED, isFault );
+   mixer.mixPermeability(permVal12, permeabilityNormal, permeabilityPlane);
 
-   //Three lithologies 70% 20% 10% 
-   CompoundLithology myLitho3(projectHandle);
+   EXPECT_NEAR(permeabilityNormal, 622.06804487938086, 1E-14);
+   EXPECT_NEAR(permeabilityPlane, 873.20101826208634, 1E-14);
 
-   double permVal3[3] = { 1000.0, 50.0, 0.01 };
-   myLitho3.addLithology(nullptr, 70);
-   myLitho3.addLithology(nullptr, 20);
-   myLitho3.addLithology(nullptr, 10);
-   myLitho3.makeFault(false);
-   myLitho3.setPermAnisotropy(1, 1, 1);
+   //Three lithologies 70% 20% 10%
 
-   myLitho3.setMixModel("Layered", 0.5);
-   myLitho3.reSetValuesForPermMixing();
-   myLitho3.mixPermeability(permVal3, permeabilityNormal, permeabilityPlane);
+   std::tr1::array<double,3> permVal3 = { 1000.0, 50.0, 0.01 };
+   std::tr1::array<double,3> permVal13 = { 1000.0, 50.0, 0.01 };
 
-   EXPECT_NEAR(permeabilityNormal, 4.9076878781392184, 1E-14);
-   EXPECT_NEAR(permeabilityPlane, 620.11519892368403, 1E-14);
+   anisoVec = { 1.0, 1.0, 1.0 };
+   percentVec = { 70.0, 20.0, 10.0 };
+
+   mixer.reset ( percentVec, anisoVec, false, layeringIndex, DataAccess::Interface::LAYERED, isFault );
+   mixer.mixPermeability(permVal13, permeabilityNormal, permeabilityPlane);
+
+   EXPECT_NEAR(permeabilityNormal, 4.9076933527374793, 1E-14);
+   EXPECT_NEAR(permeabilityPlane, 620.11520100385258, 1E-14);
 
 }
 
+
 TEST(MixingPermeability, anisotropy)
 {
-   // Values for [Std.Sandstone, Std. Siltstone]
-   ObjectFactory factory;
-   ObjectFactory* factoryptr = &factory;
-   ProjectHandle* projectHandle = dynamic_cast<ProjectHandle*>(OpenCauldronProject("MixingPermeabilityProject.project3d", "r", factoryptr));
-   CompoundLithology myLitho(projectHandle);
+
+   PermeabilityMixer mixer;
+   bool isFault = false;
 
 
    double permeabilityNormal;
    double permeabilityPlane;
-  
-   double permVal[3] = { 1000.0, 50.0, 0.01 };
-   myLitho.addLithology(nullptr, 33);
-   myLitho.addLithology(nullptr, 33);
-   myLitho.addLithology(nullptr, 34);
-   myLitho.makeFault(false);
 
+   std::tr1::array<double,3> permVal = { 1000.0, 50.0, 0.01 };
+   std::tr1::array<double,3> permVal12 = { 1000.0, 50.0, 0.01 };
    // Anisotropy 0.1 0.1 0.1
-   myLitho.setPermAnisotropy(0.1, 0.1, 0.1);
+   std::vector<double> anisoVec ( { 0.1, 0.1, 0.1 });
+   std::vector<double> percentVec ( { 33.0, 33.0, 34.0 } );
 
-   myLitho.setMixModel("Layered", 1.0);
-   myLitho.reSetValuesForPermMixing();
-   myLitho.mixPermeability(permVal, permeabilityNormal, permeabilityPlane);
+   mixer.reset ( percentVec, anisoVec, false, 1.0, DataAccess::Interface::LAYERED, isFault );
+   mixer.mixPermeability(permVal12, permeabilityNormal, permeabilityPlane);
+
 
    EXPECT_NEAR(permeabilityNormal, 0.029405771117828047, 1E-14);
    EXPECT_NEAR(permeabilityPlane, 34.650340000000007, 1E-14);
 
    // Anisotropy 1 0.1 0.5
-   myLitho.setPermAnisotropy(1, 0.1, 0.5);
+   anisoVec = { 1.0, 0.1, 0.5 };
+   mixer.reset ( percentVec, anisoVec, false, 0.5, DataAccess::Interface::LAYERED, isFault );
+   mixer.mixPermeability(permVal12, permeabilityNormal, permeabilityPlane);
 
-   myLitho.setMixModel("Layered", 0.5);
-   myLitho.reSetValuesForPermMixing();
-   myLitho.mixPermeability(permVal, permeabilityNormal, permeabilityPlane);
 
-   EXPECT_NEAR(permeabilityNormal, 0.20328440266474265, 1E-14);
-   EXPECT_NEAR(permeabilityPlane, 198.03258466670627, 1E-14);
-   
+   EXPECT_NEAR(permeabilityNormal, 0.20328466537757228, 1E-14);
+   EXPECT_NEAR(permeabilityPlane, 198.03258557588396, 1E-14);
+
    // Anisotropy 1 0.1 0.5
-   myLitho.setPermAnisotropy(1, 0.1, 0.5);
-
-   myLitho.setMixModel("Homogeneous", -9998);
-   myLitho.reSetValuesForPermMixing();
-   myLitho.mixPermeability(permVal, permeabilityNormal, permeabilityPlane);
+   anisoVec = { 1.0, 0.1, 0.5 };
+   mixer.reset ( percentVec, anisoVec, false, 1.0, DataAccess::Interface::HOMOGENEOUS, isFault );
+   mixer.mixPermeability(permVal12, permeabilityNormal, permeabilityPlane);
 
    EXPECT_NEAR(permeabilityNormal, 7.4243784490519351, 1E-14);
    EXPECT_NEAR(permeabilityPlane, 2.7435311965820768, 1E-14);
 
    // Anisotropy 0 0 0 -> Failure
-   myLitho.setPermAnisotropy(0, 0, 0);
-
-   myLitho.setMixModel("Homogeneous", -9999);
-   myLitho.reSetValuesForPermMixing();
-   myLitho.mixPermeability(permVal, permeabilityNormal, permeabilityPlane);
+   anisoVec = { 0.0, 0.0, 0.0 };
+   mixer.reset ( percentVec, anisoVec, false, 1.0, DataAccess::Interface::HOMOGENEOUS, isFault );
+   mixer.mixPermeability(permVal12, permeabilityNormal, permeabilityPlane);
 
    EXPECT_NEAR(permeabilityNormal, 7.4243784490519351, 1E-14);
    EXPECT_NEAR(permeabilityPlane, 0.0, 1E-14);
@@ -290,80 +363,65 @@ TEST(MixingPermeability, anisotropy)
 
 TEST(MixingPermeability, layeredDerivative)
 {
-   // Values for [Std.Sandstone, Std. Siltstone, Std Shale]
-   ObjectFactory factory;
-   ObjectFactory* factoryptr = &factory;
-   ProjectHandle* projectHandle = dynamic_cast< ProjectHandle* >(OpenCauldronProject("MixingPermeabilityProject.project3d", "r", factoryptr));
-   CompoundLithology myLitho(projectHandle);
+   PermeabilityMixer mixer;
+   bool isFault = false;
 
    double permeabilityDerivativeNormal=0;
    double permeabilityDerivativePlane=0;
-   double permVal[3] = { 1000.0, 50.0, 0.01 };
-   
-   myLitho.addLithology(nullptr, 33);
-   myLitho.addLithology(nullptr, 33);
-   myLitho.addLithology(nullptr, 34);
-   myLitho.makeFault(false);
-   myLitho.setPermAnisotropy(1, 1, 1);
+   std::tr1::array<double,3> permVal = { 1000.0, 50.0, 0.01 };
+   std::vector<double> anisoVec ( { 1.0, 1.0, 1.0 });
+   std::vector<double> percentVec ( { 33.0, 33.0, 34.0 } );
 
    // Layering Index = 1.0
-   double permDerivativeVal1[3] = { -100.0, -1000.0, -10000.0 };
-   myLitho.setMixModel("Layered", 1.0);
-   myLitho.reSetValuesForPermMixing();
-   myLitho.mixPermeabilityDerivatives(permVal, permDerivativeVal1, permeabilityDerivativeNormal, permeabilityDerivativePlane);
+   std::tr1::array<double,3> permDerivativeVal1 ({ -100.0, -1000.0, -10000.0 });
+
+   mixer.reset ( percentVec, anisoVec, false, 1.0, DataAccess::Interface::LAYERED, isFault );
+   mixer.mixPermeabilityDerivatives (permVal, permDerivativeVal1, permeabilityDerivativeNormal, permeabilityDerivativePlane );
 
    EXPECT_NEAR(permeabilityDerivativeNormal, -2.9015326777039680e-011, 1E-20);
    EXPECT_NEAR(permeabilityDerivativePlane, -3.7137923779000009e-012, 1E-20);
 
    // Layering Index = 0.75
-   permeabilityDerivativeNormal = 0;
-   permeabilityDerivativePlane = 0;
-   double permDerivativeVal2[3] = { 1.0, 10.0, 100.0 };
-   myLitho.setMixModel("Layered", 0.75);
-   myLitho.reSetValuesForPermMixing();
-   myLitho.mixPermeabilityDerivatives(permVal, permDerivativeVal2, permeabilityDerivativeNormal, permeabilityDerivativePlane);
+   std::tr1::array<double,3> permDerivativeVal2 ({ 1.0, 10.0, 100.0 });
 
-   EXPECT_NEAR(permeabilityDerivativeNormal, 4.9315084589751653e-013, 1E-20);
-   EXPECT_NEAR(permeabilityDerivativePlane, 1.9070397604911900e-013, 1E-20);
+   mixer.reset ( percentVec, anisoVec, false, 0.75, DataAccess::Interface::LAYERED, isFault );
+   mixer.mixPermeabilityDerivatives (permVal, permDerivativeVal2, permeabilityDerivativeNormal, permeabilityDerivativePlane );
+
+   EXPECT_NEAR(permeabilityDerivativeNormal,4.9315071216575015e-13, 1E-20);
+   EXPECT_NEAR(permeabilityDerivativePlane, 1.9070393490911652e-13, 1E-20);
 
    // Layering Index = 0.5
-   permeabilityDerivativeNormal = 0;
-   permeabilityDerivativePlane = 0;
-   double permDerivativeVal3[3] = { 10.0, 100.0, 1000.0 };
-   myLitho.setMixModel("Layered", 0.5);
-   myLitho.reSetValuesForPermMixing();
-   myLitho.mixPermeabilityDerivatives(permVal, permDerivativeVal3, permeabilityDerivativeNormal, permeabilityDerivativePlane);
+   std::tr1::array<double,3> permDerivativeVal3 ({ 10.0, 100.0, 1000.0 });
 
-   EXPECT_NEAR(permeabilityDerivativeNormal, 1.8616674841483343e-011, 1E-20);
-   EXPECT_NEAR(permeabilityDerivativePlane, 9.5931561197248072e-012, 1E-20);
+   mixer.reset ( percentVec, anisoVec, false, 0.5, DataAccess::Interface::LAYERED, isFault );
+   mixer.mixPermeabilityDerivatives (permVal, permDerivativeVal3, permeabilityDerivativeNormal, permeabilityDerivativePlane );
+
+   EXPECT_NEAR(permeabilityDerivativeNormal, 1.8616683073217498e-11, 1E-20);
+   EXPECT_NEAR(permeabilityDerivativePlane, 9.5931574002593401e-12, 1E-20);
 
    // Layering Index = 0.25
-   permeabilityDerivativeNormal = 0;
-   permeabilityDerivativePlane = 0;
-   double permDerivativeVal4[3] = { 100.0, 1000.0, 10000.0 };
-   myLitho.setMixModel("Layered", 0.25);
-   myLitho.reSetValuesForPermMixing();
-   myLitho.mixPermeabilityDerivatives(permVal, permDerivativeVal4, permeabilityDerivativeNormal, permeabilityDerivativePlane);
+   std::tr1::array<double,3> permDerivativeVal4 ({ 100.0, 1000.0, 10000.0 });
+
+   mixer.reset ( percentVec, anisoVec, false, 0.25, DataAccess::Interface::LAYERED, isFault );
+   mixer.mixPermeabilityDerivatives (permVal, permDerivativeVal4, permeabilityDerivativeNormal, permeabilityDerivativePlane );
 
    EXPECT_NEAR(permeabilityDerivativeNormal, 2.4913279089200164e-009, 1E-20);
    EXPECT_NEAR(permeabilityDerivativePlane, 4.3021150943305947e-010, 1E-20);
 
    // Layering Index = 0
-   permeabilityDerivativeNormal = 0;
-   permeabilityDerivativePlane = 0;
-   double permDerivativeVal5[3] = { 1000.0, 10000.0, 100000.0 };
-   myLitho.setMixModel("Layered", 0.0);
-   myLitho.reSetValuesForPermMixing();
-   myLitho.mixPermeabilityDerivatives(permVal, permDerivativeVal5, permeabilityDerivativeNormal, permeabilityDerivativePlane);
+   std::tr1::array<double,3> permDerivativeVal5 ({ 1000.0, 10000.0, 100000.0 });
 
-   EXPECT_NEAR(permeabilityDerivativeNormal, 1.5229090426731439e-008, 1E-20);
-   EXPECT_NEAR(permeabilityDerivativePlane, 1.5229103603974345e-008, 1E-20);
+   mixer.reset ( percentVec, anisoVec, false, 0.0, DataAccess::Interface::LAYERED, isFault );
+   mixer.mixPermeabilityDerivatives (permVal, permDerivativeVal5, permeabilityDerivativeNormal, permeabilityDerivativePlane );
+
+   EXPECT_NEAR(permeabilityDerivativeNormal, 1.5229101977684013e-08, 1E-20);
+   EXPECT_NEAR(permeabilityDerivativePlane,  1.522910197768398e-08, 1E-20);
 
    // 0.0 derivative
-   double permDerivativeVal0[3] = { 0.0, 0.0, 0.0 };
-   myLitho.setMixModel("Layered", 1.0);
-   myLitho.reSetValuesForPermMixing();
-   myLitho.mixPermeabilityDerivatives(permVal, permDerivativeVal0, permeabilityDerivativeNormal, permeabilityDerivativePlane);
+   std::tr1::array<double,3> permDerivativeVal0 ({ 0.0, 0.0, 0.0 });
+
+   mixer.reset ( percentVec, anisoVec, false, 1.0, DataAccess::Interface::LAYERED, isFault );
+   mixer.mixPermeabilityDerivatives (permVal, permDerivativeVal0, permeabilityDerivativeNormal, permeabilityDerivativePlane );
 
    EXPECT_NEAR(permeabilityDerivativeNormal, 0.0, 1E-20);
    EXPECT_NEAR(permeabilityDerivativePlane, 0.0, 1E-20);
@@ -372,27 +430,25 @@ TEST(MixingPermeability, layeredDerivative)
 
 TEST(MixingPermeability, homogeneousDerivative)
 {
-   ObjectFactory factory;
-   ObjectFactory* factoryptr = &factory;
-   ProjectHandle* projectHandle = dynamic_cast<ProjectHandle*>(OpenCauldronProject("MixingPermeabilityProject.project3d", "r", factoryptr));
-   CompoundLithology myLitho(projectHandle);
+
+   PermeabilityMixer mixer;
+   bool isFault = false;
 
    double permeabilityDerivativeNormal = 0;
    double permeabilityDerivativePlane = 0;
-   double permVal[3] = { 1000.0, 50.0, 0.01 };
 
-   myLitho.addLithology(nullptr, 33);
-   myLitho.addLithology(nullptr, 33);
-   myLitho.addLithology(nullptr, 34);
-   myLitho.makeFault(false);
-   myLitho.setPermAnisotropy(1, 1, 1);
+   std::vector<double> anisoVec ( { 1.0, 1.0, 1.0 });
+   std::vector<double> percentVec ( { 33.0, 33.0, 34.0 } );
+   std::tr1::array<double,3> permVal ({ 1000.0, 50.0, 0.01 });
+   std::tr1::array<double,3> permDerivativeVal1 ({ 1.0, 10.0, 100.0 });
 
    // Layering Index = 1.0
-   double permDerivativeVal1[3] = { 1.0, 10.0, 100.0 };
-   myLitho.setMixModel("Homogeneous", -9999);
-   myLitho.mixPermeabilityDerivatives(permVal, permDerivativeVal1, permeabilityDerivativeNormal, permeabilityDerivativePlane);
+   mixer.reset ( percentVec, anisoVec, false, 1.0, DataAccess::Interface::HOMOGENEOUS, isFault );
+   mixer.mixPermeabilityDerivatives (permVal, permDerivativeVal1, permeabilityDerivativeNormal, permeabilityDerivativePlane );
 
    EXPECT_NEAR(permeabilityDerivativeNormal, 2.4913279089200166e-011, 1E-20);
    EXPECT_NEAR(permeabilityDerivativePlane, 2.4913279089200166e-011, 1E-20);
 
 }
+
+#endif

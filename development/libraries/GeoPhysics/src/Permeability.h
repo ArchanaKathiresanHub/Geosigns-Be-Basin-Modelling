@@ -51,6 +51,13 @@ namespace GeoPhysics
 
 
       /// \brief Compute the permeability for an array of values
+      ///
+      /// \param  [in] n                     The number of values in the array.
+      /// \param  [in] ves                   The ves values for which the permeability is to be calculated.
+      /// \param  [in] maxVes                The max-ves values for which the permeability is to be calculated.
+      /// \param  [in] calculatedPorosities  The porosity values for which the permeability is to be calculated.
+      /// \param [out] permeabilities        The calculated permeability values.
+      /// \pre The dimension of all vectors must be n.
       void calculate ( const unsigned int       n,
                        ArrayDefs::ConstReal_ptr ves,
                        ArrayDefs::ConstReal_ptr maxVes,
@@ -66,6 +73,15 @@ namespace GeoPhysics
                                        double& derivative ) const;
 
       /// \brief Compute the permeability and its derivative for an array of values.
+      ///
+      /// \param  [in] n                         The number of values in the array.
+      /// \param  [in] ves                       The ves values for which the permeability is to be calculated.
+      /// \param  [in] maxVes                    The max-ves values for which the permeability is to be calculated.
+      /// \param  [in] calculatedPorosities      The porosity values for which the permeability is to be calculated.
+      /// \param  [in] porosityDerivativeWrtVes  The derivative of the porosity for which the permeability is to be calculated.
+      /// \param [out] permeabilities            The calculated permeability values.
+      /// \param [out] derivatives               The calculated permeability derivative values.
+      /// \pre The dimension of all vectors must be n.
       void calculateDerivative ( const unsigned int       n,
                                  ArrayDefs::ConstReal_ptr ves,
                                  ArrayDefs::ConstReal_ptr maxVes,
@@ -101,6 +117,7 @@ namespace GeoPhysics
          /// \param  [in] maxVes                The max-ves values for which the permeability is to be calculated.
          /// \param  [in] calculatedPorosities  The porosity values for which the permeability is to be calculated.
          /// \param [out] permeabilities        The calculated permeability values.
+         /// \pre The dimension of all vectors must be n.
          virtual void calculate ( const unsigned int       n,
                                   ArrayDefs::ConstReal_ptr ves,
                                   ArrayDefs::ConstReal_ptr maxVes,

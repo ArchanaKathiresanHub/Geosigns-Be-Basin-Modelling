@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -24,23 +24,23 @@ namespace GeoPhysics {
 
       CompoundLithologyComposition ( const std::string& lithoName1,
                                      const std::string& lithoName2,
-                                     const std::string& lithoName3, 
+                                     const std::string& lithoName3,
                                      const double       p1,
                                      const double       p2,
-                                     const double       p3, 
+                                     const double       p3,
                                      const std::string& lithoMixModel,
-                                     const float        lithoLayeringIndex);
+                                     const double       lithoLayeringIndex);
 
-      
+
       ///Set lithology names, percentages and compound lithology mixing model
       void setComposition ( const std::string& lithoName1,
                             const std::string& lithoName2,
-                            const std::string& lithoName3, 
+                            const std::string& lithoName3,
                             const double       p1,
                             const double       p2,
-                            const double       p3, 
+                            const double       p3,
                             const std::string& lithoMixModel,
-                            const float        lithoLayeringIndex);
+                            const double       lithoLayeringIndex);
 
 
       const std::string& lithologyName ( const int whichSimpleLithology ) const;
@@ -49,7 +49,7 @@ namespace GeoPhysics {
 
       const std::string& mixingModel () const;
 
-      float layeringIndex() const;
+      double layeringIndex() const;
 
       const std::string& thermalModel () const;
 
@@ -66,7 +66,7 @@ namespace GeoPhysics {
       double      m_percent2;           //!< Percentage second lithology
       double      m_percent3;           //!< Percentage third lithology
       std::string m_mixModel;           //!< Mixing model
-      float       m_mixLayeringIndex;   //!< Layering Index, used to mix permeabilities
+      double      m_mixLayeringIndex;   //!< Layering Index, used to mix permeabilities
       std::string m_thermModel;
 
    };

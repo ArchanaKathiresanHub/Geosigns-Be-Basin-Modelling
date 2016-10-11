@@ -27,10 +27,6 @@ namespace GeoPhysics
       assert( porositySamples.size() == permeabilitySamples.size());
       assert( porositySamples.size() > 0);
 
-#if 1
-      m_porosityPermeabilityInterpolant.setInterpolation ( porositySamples.size (), porositySamples.data (), permeabilitySamples.data ());
-      m_depoPermeability = m_porosityPermeabilityInterpolant.evaluate ( depoPorosity );
-#else
       // Scale the permeability values by log ( 10 ) so that this operation
       // does not need to be performed later when interpolating
       std::vector<double> scaledPermeabilitySamples ( permeabilitySamples );
@@ -42,7 +38,6 @@ namespace GeoPhysics
 
       // Need to divide by log ( 10 ) because interpolator has been scaled by log ( 10 ).
       m_depoPermeability = m_porosityPermeabilityInterpolant.evaluate ( depoPorosity ) / Log10;
-#endif
    }
 
    inline double PermeabilityMultiPoint::calculateSingleValue ( const double porosity ) const {
@@ -55,16 +50,11 @@ namespace GeoPhysics
    double PermeabilityMultiPoint::calculate( const double ves, const double maxVes, const double calculatedPorosity ) const
    {
 
-#if 1
-      double  val = exp ( Log10 * m_porosityPermeabilityInterpolant.evaluate ( calculatedPorosity ));
-      return std::min( val, MaxPermeability );
-#else
       // Added to prevent compiler warning about unused parameters.
       (void) ves;
       (void) maxVes;
 
       return calculateSingleValue ( calculatedPorosity );
-#endif
    }
 
    void PermeabilityMultiPoint::calculate ( const unsigned int       n,
@@ -81,9 +71,9 @@ namespace GeoPhysics
       m_porosityPermeabilityInterpolant.evaluate ( n, calculatedPorosity, permeabilities );
 
       // Now compute the permeability.
-      #pragma simd
+      #pragma omp simd aligned ( permeabilities )
       for ( unsigned int i = 0; i < n; ++i ) {
-         permeabilities [ i ] = std::min ( MaxPermeability, exp ( permeabilities [ i ] ));
+         permeabilities [ i ] = permeabilities [ i ] < LogMaxPermeability ? exp ( permeabilities [ i ] ) : MaxPermeability;
       }
 
    }
@@ -99,19 +89,6 @@ namespace GeoPhysics
       (void) ves;
       (void) maxVes;
 
-
-#if 1
-      permeability = calculate ( ves, maxVes, calculatedPorosity );
-
-      if( permeability == MaxPermeability )
-      {
-         derivative = 0.0;
-      }
-      else
-      {
-         derivative = permeability * Log10 * porosityDerivativeWrtVes * m_porosityPermeabilityInterpolant.evaluateDerivative ( calculatedPorosity );
-      }
-#else
       permeability = calculateSingleValue ( calculatedPorosity );
 
       if ( permeability < MaxPermeability )
@@ -122,7 +99,6 @@ namespace GeoPhysics
       {
          derivative = 0.0;
       }
-#endif
 
    }
 
@@ -134,11 +110,26 @@ namespace GeoPhysics
                                                       ArrayDefs::Real_ptr      permeabilities,
                                                       ArrayDefs::Real_ptr      derivatives ) const {
 
+      // Added to prevent compiler warning about unused parameters.
+      (void) ves;
+      (void) maxVes;
+
       // Initialise permeabilities array with the log of the permeabilty.
       m_porosityPermeabilityInterpolant.evaluate ( n, calculatedPorosity, permeabilities, derivatives );
 
-      #pragma simd
+      #pragma omp simd aligned ( porosityDerivativeWrtVes, permeabilities, derivatives )
       for ( unsigned int i = 0; i < n; ++i ) {
+
+#if WHICH_IS_FASTER
+         if ( permeabilities [ i ] < LogMaxPermeability ) {
+            double perm = exp ( permeabilities [ i ]);
+            permeabilities [ i ] = perm;
+            derivatives [ i ] *= perm * porosityDerivativeWrtVes [ i ];
+         } else {
+            permeabilities [ i ] = MaxPermeability;
+            derivatives [ i ] = 0.0;
+         }
+#else
          double perm = exp ( permeabilities [ i ]);
 
          if ( perm < MaxPermeability ) {
@@ -148,6 +139,7 @@ namespace GeoPhysics
             permeabilities [ i ] = MaxPermeability;
             derivatives [ i ] = 0.0;
          }
+#endif
 
       }
 

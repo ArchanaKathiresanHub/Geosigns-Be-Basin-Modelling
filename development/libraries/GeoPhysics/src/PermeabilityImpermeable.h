@@ -19,10 +19,14 @@ namespace GeoPhysics
 class PermeabilityImpermeable: public Permeability::Algorithm
 {
 public:
+
+   /// \brief The permeability of impermeable lithologies.
+   static const double ImpermeablePermeability;
+
+
    PermeabilityImpermeable( double depoPermeability, Permeability::Model model)
       : m_depoPermeability(depoPermeability),
-        m_permeabilityValue ( 1.0e-9 )
-      , m_model(model)
+        m_model(model)
    {}
 
    virtual double calculate ( const double ves, const double maxVes, const double calculatedPorosity ) const
@@ -32,7 +36,7 @@ public:
       (void) ves;
       (void) maxVes;
       (void) calculatedPorosity;
-      return m_permeabilityValue;
+      return ImpermeablePermeability;
    }
 
    virtual void calculate ( const unsigned int       n,
@@ -47,8 +51,9 @@ public:
       (void) maxVes;
       (void) calculatedPorosity;
 
+      #pragma omp simd aligned ( permeabilities )
       for ( unsigned int i = 0; i < n; ++i ) {
-         permeabilities [ i ] = m_permeabilityValue;
+         permeabilities [ i ] = ImpermeablePermeability;
       }
 
    }
@@ -68,7 +73,7 @@ public:
       (void) calculatedPorosity;
       (void) porosityDerivativeWrtVes;
 
-      permeability = m_permeabilityValue;
+      permeability = ImpermeablePermeability;
       derivative = 0.0;
    }
 
@@ -88,8 +93,9 @@ public:
       (void) calculatedPorosity;
       (void) porosityDerivativeWrtVes;
 
+      #pragma omp simd aligned ( permeabilities, derivatives )
       for ( unsigned int i = 0; i < n; ++i ) {
-         permeabilities [ i ] = m_permeabilityValue;
+         permeabilities [ i ] = ImpermeablePermeability;
          derivatives [ i ] = 0.0;
       }
 
@@ -116,9 +122,6 @@ private:
    /// \brief The depositional permeability.
    const double m_depoPermeability;
 
-   /// \brief The permeability value.
-   const double m_permeabilityValue;
-
    /// \brief The permeability model.
    const Permeability::Model m_model;
 
@@ -127,5 +130,7 @@ private:
 
 
 }
+
+const double GeoPhysics::PermeabilityImpermeable::ImpermeablePermeability = 1.0e-9;
 
 #endif

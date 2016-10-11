@@ -29,20 +29,32 @@ PermeabilitySandStone::PermeabilitySandStone( double depoPorosity, double depoPe
       return std::min ( val, MaxPermeability );
    }
 
+   inline void PermeabilitySandStone::calculateSingleValue ( const double porosity,
+                                                             const double porosityDerivative,
+                                                             double&      permeability,
+                                                             double&      permeabilityDerivative ) const {
+
+      permeability = calculateSingleValue ( porosity );
+
+
+      if( permeability >= MaxPermeability )
+      {
+         permeabilityDerivative = 0.0;
+      }
+      else
+      {
+         // Use chainrule and multiply with derivative of porosity with respect to ves
+         permeabilityDerivative = permeability * m_term * porosityDerivative;
+      }
+
+   }
 
    double PermeabilitySandStone::calculate( const double ves, const double maxVes, const double calculatedPorosity) const
    {
-#if 1
-      double deltaphi = calculatedPorosity - m_depoPorosity;
-      double m = 0.12 + 0.02 * m_permeabilityIncr;
-      double val = m_depoPermeability * exp(Log10 * m * deltaphi * 100.0);
-
-      if (val >= MaxPermeability ) val = MaxPermeability ;
-
-      return val;
-#else
-   return calculateSingleValue ( calculatedPorosity );
-#endif
+      // Added to prevent some compiler warnings about unused parameters.
+      (void) ves;
+      (void) maxVes;
+      return calculateSingleValue ( calculatedPorosity );
    }
 
    void PermeabilitySandStone::calculate ( const unsigned int       n,
@@ -51,6 +63,11 @@ PermeabilitySandStone::PermeabilitySandStone( double depoPorosity, double depoPe
                                            ArrayDefs::ConstReal_ptr calculatedPorosity,
                                            ArrayDefs::Real_ptr      permeabilities ) const {
 
+      // Added to prevent some compiler warnings about unused parameters.
+      (void) ves;
+      (void) maxVes;
+
+      #pragma omp simd aligned (calculatedPorosity, permeabilities)
       for ( unsigned int i = 0; i < n; ++i ) {
          permeabilities [ i ] = calculateSingleValue ( calculatedPorosity [ i ]);
       }
@@ -64,23 +81,11 @@ void PermeabilitySandStone::calculateDerivative( const double ves,
                                                  double & permeability,
                                                  double & derivative ) const
 {
-   permeability = this->calculate( ves, maxVes, calculatedPorosity );
+   // Added to prevent some compiler warnings about unused parameters.
+   (void) ves;
+   (void) maxVes;
 
-   if( permeability >= MaxPermeability )
-   {
-      derivative = 0.0;
-   }
-   else
-   {
-#if 1
-      const double m = 0.12 + 0.02 * m_permeabilityIncr;
-      derivative = permeability * 100.0 * Log10 * m * porosityDerivativeWrtVes;
-#else
-      // Use chainrule and multiply with derivative of porosity with respect to ves
-      derivative = permeability * m_term * porosityDerivativeWrtVes;
-#endif
-   }
-
+   calculateSingleValue ( calculatedPorosity, porosityDerivativeWrtVes, permeability, derivative );
 }
 
    void PermeabilitySandStone::calculateDerivative ( const unsigned int       n,
@@ -91,11 +96,18 @@ void PermeabilitySandStone::calculateDerivative( const double ves,
                                                      ArrayDefs::Real_ptr      permeabilities,
                                                      ArrayDefs::Real_ptr      derivatives ) const {
 
+      // Added to prevent some compiler warnings about unused parameters.
+      (void) ves;
+      (void) maxVes;
+
+      #pragma omp simd aligned (calculatedPorosity, porosityDerivativeWrtVes, permeabilities, derivatives)
       for ( unsigned int i = 0; i < n; ++i ) {
-         calculateDerivative ( ves [ i ], maxVes [ i ],
-                               calculatedPorosity [ i ], porosityDerivativeWrtVes [ i ],
-                               permeabilities [ i ], derivatives [ i ]);
+         calculateSingleValue ( calculatedPorosity [ i ],
+                                porosityDerivativeWrtVes [ i ],
+                                permeabilities [ i ],
+                                derivatives [ i ]);
       }
+
    }
 
 double PermeabilitySandStone::depoPerm() const

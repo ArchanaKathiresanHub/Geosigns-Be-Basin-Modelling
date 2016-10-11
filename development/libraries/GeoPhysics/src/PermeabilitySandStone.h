@@ -58,7 +58,14 @@ namespace GeoPhysics
 
    private:
 
+      /// \brief Calculate the permeability for a single porosity value.
       double calculateSingleValue ( const double calculatedPorosity ) const;
+
+      /// \brief Calculate the permeability and its derivative for a single porosity value.
+      void calculateSingleValue ( const double porosity,
+                                  const double porosityDerivative,
+                                  double&      permeability,
+                                  double&      permeabilityDerivative ) const;
 
       /// @brief Overwrite default assginment operator
       PermeabilitySandStone& operator= (const PermeabilitySandStone&);

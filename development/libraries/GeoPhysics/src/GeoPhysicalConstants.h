@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -72,7 +72,7 @@ namespace GeoPhysics {
    /// \var NoFracturePressureValue
    /// The value to return for the fracture pressure if "None" has been selected.
    /// 100,000 MPa, the pore-pressure will never attain this value.
-   const double NoFracturePressureValue = 1.0e5; 
+   const double NoFracturePressureValue = 1.0e5;
 
    /// \var AccelerationDueToGravity
    /// Acceleration due to gravity in m/s^2, more accurate value: 9.80665 m /s^2.
@@ -156,9 +156,13 @@ namespace GeoPhysics {
    /// Constant used in computation of the Gardner velocity-density velocity algorithm.
    const double GardnerVelocityConstant = 309.4;
 
-   /// \var maxPermeability
+   /// \var MaxPermeability
    /// The maximum permeability, units are darcy
    const double MaxPermeability = 1000.0;
+
+   /// \var LogmaxPermeability
+   /// The natural log of maximum permeability.
+   const double LogMaxPermeability = std::log ( MaxPermeability );
 
    //------------------------------------------------------------//
    // Naming constants

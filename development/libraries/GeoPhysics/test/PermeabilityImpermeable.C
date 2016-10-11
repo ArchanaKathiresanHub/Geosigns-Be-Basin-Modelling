@@ -1,5 +1,8 @@
 #include "../src/PermeabilityImpermeable.h"
 
+#include "ArrayDefinitions.h"
+#include "AlignedMemoryAllocator.h"
+
 #include <iostream>
 #include <cstring>
 #include <cassert>
@@ -36,6 +39,26 @@ TEST_F( PermeabilityImpermeableTest, permeability )
    EXPECT_FLOAT_EQ( 1.0e-9, m_p.calculate( 1.0e+6, 2.0e+6, 0.3) );
 }
 
+TEST_F( PermeabilityImpermeableTest, permeabilityVector )
+{
+   //Input domain:
+   // ves >= 1.0e+5
+   // maxVes >= ves
+   // 0 <= calculatedPorosity < 1
+   double NullValue = 99999.0;
+   const unsigned int Size = 20;
+   ArrayDefs::Real_ptr permeability = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( Size );
+
+   m_p.calculate ( Size, nullptr, nullptr, nullptr, permeability );
+
+   for ( unsigned int i = 0; i < Size; ++i ) {
+      EXPECT_FLOAT_EQ ( m_p.calculate( NullValue, NullValue, NullValue ), permeability [ i ] );
+      EXPECT_FLOAT_EQ ( PermeabilityImpermeable::ImpermeablePermeability, permeability [ i ] );
+   }
+
+}
+
+
   //Input domain:
    // ves >= 1.0e+5
    // maxVes >= ves
@@ -50,7 +73,7 @@ TEST_F( PermeabilityImpermeableTest, permeabilityDerivativeAtmosphere )
 }
 
 TEST_F( PermeabilityImpermeableTest, permeabilityDerivativeUnderground )
-{ 
+{
    double permeability = NaN, derivative = NaN;
    m_p.calculateDerivative( 1.0e+6, 1.0e+6, 0.2, 0, permeability, derivative);
    EXPECT_FLOAT_EQ( 1e-9,  permeability );
@@ -83,4 +106,3 @@ TEST( PermeabilityImpermeable, model )
    EXPECT_EQ( IMPERMEABLE_PERMEABILITY ,  PermeabilityImpermeable(0.0, IMPERMEABLE_PERMEABILITY).model() );
    EXPECT_EQ( NONE_PERMEABILITY,          PermeabilityImpermeable(5.0, NONE_PERMEABILITY).model()        );
 }
-

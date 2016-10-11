@@ -358,6 +358,14 @@ double GeoPhysics::SimpleLithology::porosity(const double ves,
 
 }
 
+void GeoPhysics::SimpleLithology::porosity ( const unsigned int       size,
+                                             ArrayDefs::ConstReal_ptr ves,
+                                             ArrayDefs::ConstReal_ptr maxVes,
+                                             const bool               includeChemicalCompaction,
+                                             ArrayDefs::ConstReal_ptr chemicalCompactionTerm,
+                                             ArrayDefs::Real_ptr      porosity ) const {
+   m_porosity.calculate ( size, ves, maxVes, includeChemicalCompaction, chemicalCompactionTerm, porosity );
+}
 
 //------------------------------------------------------------//
 

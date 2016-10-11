@@ -10,6 +10,7 @@
 #                                                                       #
 #########################################################################
 
+
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
@@ -28,9 +29,11 @@ set(cross_platform_headers
       src/ChemicalCompactionCalculator.h
       src/DoubleExponentialPorosity.h
       src/ExponentialPorosity.h
+      src/MultiCompoundProperty.h
       src/Permeability.h
       src/Porosity.h
       src/PermeabilityImpermeable.h
+      src/PermeabilityMixer.h
       src/PermeabilityMudStone.h
       src/PermeabilityMultiPoint.h
       src/PermeabilitySandStone.h
@@ -82,8 +85,10 @@ set(cross_platform_srcs
       src/ChemicalCompactionCalculator.C
       src/DoubleExponentialPorosity.C
       src/ExponentialPorosity.C
+      src/MultiCompoundProperty.C
       src/Permeability.C
       src/Porosity.C
+      src/PermeabilityMixer.C
       src/PermeabilityMudStone.C
       src/PermeabilityMultiPoint.C
       src/PermeabilitySandStone.C
@@ -124,15 +129,15 @@ set(unix_only_srcs
    )
 
 set(unix_only_libs
-      LinearAlgebra 
-      Interpolation 
-      genex6 
-      genex6_kernel 
+      LinearAlgebra
+      Interpolation
+      genex6
+      genex6_kernel
       CrustalThickness
 )
 
 set(cross_platform_libs
-      utilities 
+      utilities
       FileSystem
       DataAccess
       TableIO
@@ -153,7 +158,7 @@ source_group(include FILES ${all_headers})
 source_group(source FILES ${all_srcs})
 
 
-add_library( GeoPhysics 
+add_library( GeoPhysics
 	${all_srcs}
 	${all_headers}
 )
@@ -163,7 +168,7 @@ if (UNIX)
 add_dependencies(GeoPhysics Boost)
 endif (UNIX)
 
-bm_include_libraries( 
+bm_include_libraries(
         DataModel
         ${all_dependent_libs}
 )
@@ -174,8 +179,8 @@ include_directories(
 target_link_libraries(GeoPhysics
       ${all_dependent_libs}
 )
-	
-install(TARGETS GeoPhysics	
+
+install(TARGETS GeoPhysics
 	RUNTIME DESTINATION bin
 	LIBRARY DESTINATION lib
 	ARCHIVE DESTINATION lib
@@ -208,17 +213,17 @@ add_gtest( NAME GeoPhysics::BrineViscosity
 )
 
 add_gtest( NAME GeoPhysics::ChemicalCompactionCalculator
-      SOURCES test/ChemicalCompactionCalculatorTest.C 
+      SOURCES test/ChemicalCompactionCalculatorTest.C
       LIBRARIES GeoPhysics SerialDataAccess
 )
 
 add_gtest( NAME GeoPhysics::DoubleExponentialPorosity
-      SOURCES test/DoubleExponentialPorosity.C 
+      SOURCES test/DoubleExponentialPorosity.C
       LIBRARIES GeoPhysics SerialDataAccess
 )
 
 add_gtest( NAME GeoPhysics::ExponentialPorosity
-      SOURCES test/ExponentialPorosity.C 
+      SOURCES test/ExponentialPorosity.C
       LIBRARIES GeoPhysics SerialDataAccess
 )
 
@@ -247,28 +252,33 @@ add_gtest( NAME GeoPhysics::PermeabilityMultiPoint
       LIBRARIES GeoPhysics SerialDataAccess
 )
 
+add_gtest( NAME GeoPhysics::PermeabilityMultiPointArrayTest
+      SOURCES test/PermeabilityMultiPointArrayTest.C
+      LIBRARIES GeoPhysics SerialDataAccess
+)
+
 add_gtest( NAME GeoPhysics::SchneiderCompactionCalculator
-      SOURCES test/SchneiderCompactionCalculatorTest.C 
+      SOURCES test/SchneiderCompactionCalculatorTest.C
       LIBRARIES GeoPhysics SerialDataAccess
 )
 
 add_gtest( NAME GeoPhysics::SeismicVelocityGardner
-      SOURCES test/SeismicVelocityGardner.C 
+      SOURCES test/SeismicVelocityGardner.C
       LIBRARIES GeoPhysics SerialDataAccess
 )
 
 add_gtest( NAME GeoPhysics::SeismicVelocityKennan
-      SOURCES test/SeismicVelocityKennan.C 
+      SOURCES test/SeismicVelocityKennan.C
       LIBRARIES GeoPhysics SerialDataAccess
 )
 
 add_gtest( NAME GeoPhysics::SeismicVelocityWyllie
-      SOURCES test/SeismicVelocityWyllie.C 
+      SOURCES test/SeismicVelocityWyllie.C
       LIBRARIES GeoPhysics SerialDataAccess
 )
 
 add_gtest( NAME GeoPhysics::SoilMechanicsPorosity
-      SOURCES test/SoilMechanicsPorosity.C 
+      SOURCES test/SoilMechanicsPorosity.C
       LIBRARIES GeoPhysics SerialDataAccess
 )
 
@@ -288,8 +298,13 @@ add_gtest( NAME GeoPhysics::VreArrheniusMethod
 )
 
 add_gtest( NAME GeoPhysics::WalderhaugCompactionCalculator
-      SOURCES test/WalderhaugCompactionCalculatorTest.C 
+      SOURCES test/WalderhaugCompactionCalculatorTest.C
       LIBRARIES GeoPhysics SerialDataAccess
+)
+
+add_gtest( NAME GeoPhysics::MultiCompoundPropertyTest
+      SOURCES test/MultiCompoundPropertyTest.C
+      LIBRARIES GeoPhysics SerialDataAccess utilities
 )
 
 

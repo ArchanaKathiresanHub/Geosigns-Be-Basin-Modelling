@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -23,12 +23,12 @@ GeoPhysics::CompoundLithologyComposition::CompoundLithologyComposition ():
 
 GeoPhysics::CompoundLithologyComposition::CompoundLithologyComposition ( const std::string& lithoName1,
                                                                          const std::string& lithoName2,
-                                                                         const std::string& lithoName3, 
+                                                                         const std::string& lithoName3,
                                                                          const double       p1,
                                                                          const double       p2,
-                                                                         const double       p3, 
+                                                                         const double       p3,
                                                                          const std::string& lithoMixModel,
-                                                                         const float        layeringIndex) {
+                                                                         const double       layeringIndex) {
 
    //WARNING: If this list is changed, the returnKeyString method should also be modified
    setComposition ( lithoName1, lithoName2, lithoName3, p1, p2, p3, lithoMixModel, layeringIndex );
@@ -39,12 +39,12 @@ GeoPhysics::CompoundLithologyComposition::CompoundLithologyComposition ( const s
 
 void GeoPhysics::CompoundLithologyComposition::setComposition ( const std::string& lithoName1,
                                                                 const std::string& lithoName2,
-                                                                const std::string& lithoName3, 
+                                                                const std::string& lithoName3,
                                                                 const double       p1,
                                                                 const double       p2,
-                                                                const double       p3, 
+                                                                const double       p3,
                                                                 const std::string& lithoMixModel,
-                                                                const float        layeringIndex) {
+                                                                const double       layeringIndex) {
 
 
   m_lythoType1 = lithoName1;
@@ -83,7 +83,7 @@ const std::string& GeoPhysics::CompoundLithologyComposition::lithologyName ( con
     return m_lythoType2;
   } else { // whichSimpleLithology == 3
     return m_lythoType3;
-  } 
+  }
 
 }
 
@@ -97,7 +97,7 @@ double GeoPhysics::CompoundLithologyComposition::lithologyFraction ( const int w
     return m_percent2;
   } else { // whichSimpleLithology == 3
     return m_percent3;
-  } 
+  }
 
 }
 
@@ -108,9 +108,10 @@ const std::string& GeoPhysics::CompoundLithologyComposition::mixingModel () cons
 }
 //------------------------------------------------------------//
 
-float GeoPhysics::CompoundLithologyComposition::layeringIndex() const {
-	return m_mixLayeringIndex ;
+double GeoPhysics::CompoundLithologyComposition::layeringIndex() const {
+   return m_mixLayeringIndex;
 }
+
 //------------------------------------------------------------//
 
 const std::string& GeoPhysics::CompoundLithologyComposition::thermalModel () const {
@@ -157,10 +158,9 @@ std::string GeoPhysics::CompoundLithologyComposition::returnKeyString () const{
 //------------------------------------------------------------//
 
 bool GeoPhysics::operator< (const CompoundLithologyComposition& lhs, const CompoundLithologyComposition& rhs) {
-  
+
   std::string rhs_string = rhs.returnKeyString();
   std::string lhs_string = lhs.returnKeyString();
 
   return ( (lhs_string < rhs_string) );
 }
-

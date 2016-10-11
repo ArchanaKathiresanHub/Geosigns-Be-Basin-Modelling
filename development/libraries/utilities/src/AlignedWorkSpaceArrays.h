@@ -14,10 +14,12 @@
 #include "ArrayDefinitions.h"
 #include "FormattingException.h"
 
+
 /// \brief Contains a set of arrays that can be used as work-space vectors in some calculations.
 ///
 /// For example, the mixing of the permeability will require the storage of the permeability for
 /// each of the individual lithologies prior to mixing.
+/// All values will be contiguous.
 template<const unsigned int GenericMaximumSize>
 class AlignedWorkSpaceArrays {
 

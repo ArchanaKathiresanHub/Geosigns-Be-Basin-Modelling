@@ -10,6 +10,9 @@
 
 #include "../src/PermeabilitySandStone.h"
 
+#include "ArrayDefinitions.h"
+#include "AlignedMemoryAllocator.h"
+
 #include <iostream>
 #include <iomanip>
 #include <cstring>
@@ -27,13 +30,13 @@ const double NaN = std::numeric_limits<double>::quiet_NaN();
 
 //Input domain: PermeabilitySandStone :: permeability
 // permeabilityIncr = 1.5
-// depositionalPermeability = 6000 mD  
+// depositionalPermeability = 6000 mD
 // depositionalPorosity = 39%, 41%, 42%, 48%, 50%, 60%, 70%
 
 // ves: invalid (-infinity, -1.0e+5) [1.0e+5, 0). valid = {0}, (0, 1.0e+5), [1.0e+5, infinity)
 // maxVes: invalid = (-infinity, 0), {0}, [0, ves).  valid = [ves, infinity)
 // calculatedPorosity: invalid = (-infinity, 0), (1, infinity). valid = {0}, (0, 1), {1}
- 
+
 TEST( PermeabilitySandStonePermeability, invalidVes )
 {
    // The weird/invalid cases
@@ -73,7 +76,7 @@ TEST( PermeabilitySandStonePermeability, validCases )
 
 //Input domain:
 // permeabilityIncr = 1.5
-// depositionalPermeability = 6000 mD  
+// depositionalPermeability = 6000 mD
 // depositionalPorosity = 39%, 41%, 42%, 48%, 50%, 60%, 70%
 
 // ves: invalid (-infinity, -1.0e+5) [1.0e+5, 0). valid = {0}, (0, 1.0e+5), [1.0e+5, infinity)
@@ -189,4 +192,36 @@ TEST( PermeabilitySandStone, model )
    EXPECT_EQ( SANDSTONE_PERMEABILITY, PermeabilitySandStone( 0.50, 6000, 1.5).model());
 }
 
+TEST ( PermeabilitySandStone, PermeabilityVector ) {
 
+   PermeabilitySandStone sandstonePerm ( 0.50, 6000, 1.5);
+
+   const unsigned int Size = 20;
+   ArrayDefs::Real_ptr ves = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( Size );
+   ArrayDefs::Real_ptr maxVes = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( Size );
+
+   ArrayDefs::Real_ptr porosity = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( Size );
+   ArrayDefs::Real_ptr permeability = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( Size );
+   double NullValue = 99999.0;
+
+   ves [ 0 ] = 0.0;
+   maxVes [ 0 ] = 0.0;;
+
+   for ( unsigned int i = 1; i < Size; ++i ) {
+      ves [ i ] = ves [ i - 1 ] + ( i < Size / 2 ? 5.0e5 : -2.5e5 );
+      maxVes [ i ] = maxVes [ i - 1 ] + 5.0e5;
+   }
+
+   double porosityStep = 0.5 / static_cast<double>(Size-1);
+
+   for ( unsigned int i = 0; i < Size; ++i ) {
+      porosity [ i ] = 0.1 + static_cast<double>(i) * porosityStep;
+   }
+
+   sandstonePerm.calculate ( Size, nullptr, nullptr, porosity, permeability );
+
+   for ( unsigned int i = 0; i < Size; ++i ) {
+      EXPECT_FLOAT_EQ ( sandstonePerm.calculate( NullValue, NullValue, porosity [ i ] ), permeability [ i ] );
+   }
+
+}
