@@ -17,7 +17,7 @@
 FILE( GLOB all_headers src/*.h )
 source_group(include FILES ${all_headers})
 
-FILE( GLOB all_srcs src/*.C)
+FILE( GLOB all_srcs src/*.cpp )
 source_group(source FILES ${all_srcs})
 
 add_library(CBMGenerics 
@@ -37,5 +37,5 @@ install(TARGETS CBMGenerics
 ### Unit Tests
 
 add_gtest( NAME CBMGenerics::Polyfunction 
-			SOURCES test/Polyfunction.C
+			SOURCES test/Polyfunction.cpp
 			LIBRARIES CBMGenerics)

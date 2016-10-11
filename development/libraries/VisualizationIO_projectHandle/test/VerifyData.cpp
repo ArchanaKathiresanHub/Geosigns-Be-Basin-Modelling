@@ -480,115 +480,115 @@ void Compare3dContinuousPropertyValues(std::shared_ptr<CauldronIO::Project> proj
 	cout << "3d continuous property value comparison done" << endl;
 }
 
-vector<int> UpdatePropertySurfaceData(shared_ptr<CauldronIO::Project> projectXml, shared_ptr<const Property> prop, int &size)
+vector<size_t> UpdatePropertySurfaceData( shared_ptr<CauldronIO::Project> projectXml, shared_ptr<const Property> prop, size_t & size )
 {
-	size_t nSnapshots = projectXml->getSnapShots().size();
-	vector<int> indexWithUpdatedPropSurfaceData;
-	//Adding PropertySurfaceData
+	size_t         nSnapshots = projectXml->getSnapShots().size();
+	vector<size_t> indexWithUpdatedPropSurfaceData;
+
+   size = 0;
+
+	// Adding PropertySurfaceData
 	bool modified = false;
-	for (size_t i = 0; i < nSnapshots; i++)
+	for ( size_t i = 0; i < nSnapshots && !modified; i++ )
 	{
 		size_t nSurfaces = projectXml->getSnapShots()[i]->getSurfaceList().size();
-		for (size_t j = 0; j < nSurfaces; j++)
+		for ( size_t j = 0; j < nSurfaces && !modified; j++ )
 		{
-			if ((projectXml->getSnapShots()[i]->getSurfaceList()[j]) && (projectXml->getSnapShots()[i]->getSurfaceList()[j]->getPropertySurfaceDataList().size()>0))
+			if ( projectXml->getSnapShots()[i]->getSurfaceList()[j] && 
+              projectXml->getSnapShots()[i]->getSurfaceList()[j]->getPropertySurfaceDataList().size() > 0 
+            )
 			{
 				size_t nPropSurfaceData = projectXml->getSnapShots()[i]->getSurfaceList()[j]->getPropertySurfaceDataList().size();
 				bool canAdd = true;
 
-				for (size_t k = 0; k < nPropSurfaceData; k++)
+				for ( size_t k = 0; k < nPropSurfaceData && canAdd; k++ )
 				{
 					PropertySurfaceData propSurface = projectXml->getSnapShots()[i]->getSurfaceList()[j]->getPropertySurfaceDataList()[k];
-					if (propSurface.first->getName() == prop->getName())
+					if ( propSurface.first->getName() == prop->getName() )
 					{
 						canAdd = false;
-						break;
 					}
-
 				}
-				if (canAdd == true)
+				if ( canAdd == true )
 				{
-					indexWithUpdatedPropSurfaceData.push_back(static_cast<int>(i));
-					indexWithUpdatedPropSurfaceData.push_back(static_cast<int>(j));
-					const shared_ptr<Surface> surfaceExisting = projectXml->getSnapShots()[i]->getSurfaceList()[j];
-					shared_ptr<const Geometry2D> geo2DExisting = surfaceExisting->getPropertySurfaceDataList()[0].second->getGeometry();
-					shared_ptr<SurfaceData> valueMap(new MapNative(geo2DExisting));
-					size = static_cast<int>(geo2DExisting->getNumI()*geo2DExisting->getNumJ());
-					float *surfaceDataValue = new float[size];
-					for (int p = 0; p < size; p++)
+					indexWithUpdatedPropSurfaceData.push_back( i );
+					indexWithUpdatedPropSurfaceData.push_back( j );
+					
+               shared_ptr<const Surface>    surfaceExisting = projectXml->getSnapShots()[i]->getSurfaceList()[j];
+					shared_ptr<const Geometry2D> geo2DExisting   = surfaceExisting->getPropertySurfaceDataList()[0].second->getGeometry();
+					shared_ptr<SurfaceData>      valueMap( new MapNative( geo2DExisting ) );
+
+               size = geo2DExisting->getNumI() * geo2DExisting->getNumJ();
+					float * surfaceDataValue = new float[size];
+					
+               for ( int p = 0; p < size; p++ )
 					{
 						surfaceDataValue[p] = 1.1f + p;
 					}
 					
-					PropertySurfaceData propSurfaceNew = PropertySurfaceData(prop, valueMap);
-					valueMap->setData_IJ(surfaceDataValue);
-					projectXml->getSnapShots()[i]->getSurfaceList()[j]->addPropertySurfaceData(propSurfaceNew);
+					PropertySurfaceData propSurfaceNew = PropertySurfaceData( prop, valueMap );
+					valueMap->setData_IJ( surfaceDataValue );
+					projectXml->getSnapShots()[i]->getSurfaceList()[j]->addPropertySurfaceData( propSurfaceNew );
 					modified = true;
-					break;
 				}
 			}
-		}
-		if (modified == true)
-		{
-			break;
 		}
 	}
 	return indexWithUpdatedPropSurfaceData;
 }
 
-vector<int> UpdatePropertyVolumeData(shared_ptr<CauldronIO::Project> projectXml, shared_ptr<const Property> prop, int &size)
+vector<size_t> UpdatePropertyVolumeData( shared_ptr<CauldronIO::Project> projectXml, shared_ptr<const Property> prop, size_t & size )
 {
 	size_t nSnapshots = projectXml->getSnapShots().size();
-	//Adding PropertyVolumeData
-	vector<int> indexAddedPropVolData;
-	bool modified = false;
-	for (size_t i = 0; i < nSnapshots; i++)
+
+	// Adding PropertyVolumeData
+	vector<size_t> indexAddedPropVolData;
+   size = 0;
+   bool modified = false;
+	for ( size_t i = 0; i < nSnapshots && !modified; i++ )
 	{
-		if (projectXml->getSnapShots()[i]->getFormationVolumeList().size()>0)
+		if ( projectXml->getSnapShots()[i]->getFormationVolumeList().size() > 0 )
 		{
-			size_t nFormationVolumes = projectXml->getSnapShots()[i]->getFormationVolumeList().size();
+			size_t                          nFormationVolumes   = projectXml->getSnapShots()[i]->getFormationVolumeList().size();
 			CauldronIO::FormationVolumeList formVolListExisting = projectXml->getSnapShots()[i]->getFormationVolumeList();
-			for (size_t j = 0; j < nFormationVolumes; j++)
+			for ( size_t j = 0; j < nFormationVolumes && !modified; j++ )
 			{
-				bool canAdd = true;
-				std::shared_ptr<CauldronIO::Volume> volExisting = formVolListExisting.at(j).second;
+				bool                                     canAdd                     = true;
+				std::shared_ptr<CauldronIO::Volume>      volExisting                = formVolListExisting.at(j).second;
 				const CauldronIO::PropertyVolumeDataList propVolumeDataListExisting = volExisting->getPropertyVolumeDataList();
-				size_t nPropVolData = propVolumeDataListExisting.size();
-				for (size_t k = 0; k < nPropVolData; k++)
+				size_t                                   nPropVolData               = propVolumeDataListExisting.size();
+
+            for ( size_t k = 0; k < nPropVolData && canAdd; k++ )
 				{
 					const CauldronIO::PropertyVolumeData propVolDataExisting = propVolumeDataListExisting.at(k);
-					if (propVolDataExisting.first->getName() == prop->getName())
+					if ( propVolDataExisting.first->getName() == prop->getName() )
 					{
 						canAdd = false;
-						break;
 					}
 				}
-				if (canAdd == true)
+
+				if ( canAdd == true )
 				{
-					indexAddedPropVolData.push_back(static_cast<int>(i));
-					indexAddedPropVolData.push_back(static_cast<int>(j));
+					indexAddedPropVolData.push_back( i );
+					indexAddedPropVolData.push_back( j );
+
 					const shared_ptr<Geometry3D> geo3dExisting = volExisting->getPropertyVolumeDataList().at(0).second->getGeometry();
-					shared_ptr<VolumeData> volDataNew(new VolumeDataNative(geo3dExisting));
-					size = static_cast<int>(geo3dExisting->getNumI() * geo3dExisting->getNumJ()*geo3dExisting->getNumK());
-					float *volumeDataValue = new float[size];
+					shared_ptr<VolumeData>       volDataNew( new VolumeDataNative( geo3dExisting ) );
+					size = geo3dExisting->getNumI() * geo3dExisting->getNumJ()*geo3dExisting->getNumK();
+
+               float * volumeDataValue = new float[size];
 					for (int p = 0; p < size; p++)
 					{
 						volumeDataValue[p] = 1.1f + p;
 					}
-					volDataNew->setData_KIJ(volumeDataValue);
+					volDataNew->setData_KIJ( volumeDataValue );
 
-					PropertyVolumeData propVolDataNew(prop, volDataNew);
-					volExisting->addPropertyVolumeData(propVolDataNew);
+					PropertyVolumeData propVolDataNew( prop, volDataNew );
+					volExisting->addPropertyVolumeData( propVolDataNew );
 
 					modified = true;
-					break;
 				}
-
 			}
-		}
-		if (modified == true)
-		{
-			break;
 		}
 	}
 	return indexAddedPropVolData;
@@ -600,7 +600,7 @@ void AddToExistingData(string xmlFileName)
 {
 	cout << "Starting import from XML" << endl;
 	shared_ptr<CauldronIO::Project> projectXml = CauldronIO::ImportExport::importFromXML(xmlFileName);
-	cout << "File read complete" << endl;
+	cerr << "File read complete" << endl;
 		
 	//Finding property which can be added with PropertySurfaceData
 	shared_ptr<const Property> prop;
@@ -612,120 +612,122 @@ void AddToExistingData(string xmlFileName)
 			break;
 		}
 	}
-	int sizeSurfaceData;
-	vector<int> indexWithUpdatedPropSurfaceData = UpdatePropertySurfaceData(projectXml,prop,sizeSurfaceData);
 	
-	float *surfaceDataValue = new float[sizeSurfaceData];
-	for (int i = 0; i < sizeSurfaceData; i++)
+   size_t sizeSurfaceData;
+	vector<size_t> indexWithUpdatedPropSurfaceData = UpdatePropertySurfaceData( projectXml, prop, sizeSurfaceData );
+	
+	float * surfaceDataValue = sizeSurfaceData > 0 ? new float[sizeSurfaceData] : nullptr;
+	for ( size_t i = 0; i < sizeSurfaceData; i++ )
 	{
 		surfaceDataValue[i] = 1.1f + i;
 	}
+
 	//Finding property which can be added with PropertyVolumeData
 	shared_ptr<const Property> prop2;
-	for (size_t i = 0; i < projectXml->getProperties().size(); i++)
+	for ( size_t i = 0; i < projectXml->getProperties().size(); i++ )
 	{
-		if ((projectXml->getProperties().at(i)->getAttribute() == Discontinuous3DProperty) && (projectXml->getProperties().at(i)->getName() != prop->getName()))
+		if ( projectXml->getProperties().at(i)->getAttribute() == Discontinuous3DProperty && 
+           projectXml->getProperties().at(i)->getName()      != prop->getName()
+         )
 		{
 			prop2 = projectXml->getProperties().at(i);
 			break;
 		}
 	}
 
-	int sizeVolumeData;
-	vector<int> indexAddedPropVolData = UpdatePropertyVolumeData(projectXml, prop2, sizeVolumeData);
-	float *volumeDataValue = new float[sizeVolumeData];
-	for (int i = 0; i < sizeVolumeData; i++)
+	size_t sizeVolumeData;
+	vector<size_t> indexAddedPropVolData = UpdatePropertyVolumeData( projectXml, prop2, sizeVolumeData );
+	
+   float * volumeDataValue = sizeVolumeData > 0 ? new float[sizeVolumeData] : nullptr;
+	for ( size_t i = 0; i < sizeVolumeData; i++ )
 	{
 		volumeDataValue[i] = 1.1f + i;
 	}
 	
 	//Exporting data
-	bool status = CauldronIO::ImportExport::exportToXML(projectXml, xmlFileName);
-	ASSERT_EQ(true, status);
+	bool status = CauldronIO::ImportExport::exportToXML( projectXml, xmlFileName );
+	ASSERT_EQ( true, status );
 
 	//Importing data to check if data has been added correctly
-	projectXml = CauldronIO::ImportExport::importFromXML(xmlFileName);
+	projectXml = CauldronIO::ImportExport::importFromXML( xmlFileName );
 	
-	if (indexWithUpdatedPropSurfaceData.size() > 0)
+	if ( indexWithUpdatedPropSurfaceData.size() > 0 )
 	{
-		//Retrieving the surface to which property surface data was added	
-		int index = indexWithUpdatedPropSurfaceData.at(0);
-		shared_ptr<SnapShot> snapShotNew = projectXml->getSnapShots()[index];
-		index = indexWithUpdatedPropSurfaceData.at(1);
-		shared_ptr<Surface> surfaceNew = snapShotNew->getSurfaceList().at(index);
-		size_t nPropSurfaceData = surfaceNew->getPropertySurfaceDataList().size();
-		//Comparing the property surface data which was added
-		for (size_t i = 0; i < nPropSurfaceData; i++)
+		// Retrieving the surface to which property surface data was added	
+		shared_ptr<SnapShot> snapShotNew = projectXml->getSnapShots().at(    indexWithUpdatedPropSurfaceData[0] );
+		shared_ptr<Surface> surfaceNew   = snapShotNew->getSurfaceList().at( indexWithUpdatedPropSurfaceData[1] );
+
+      size_t nPropSurfaceData = surfaceNew->getPropertySurfaceDataList().size();
+		// Comparing the property surface data which was added
+		for ( size_t i = 0; i < nPropSurfaceData; i++ )
 		{
-			PropertySurfaceData propSurfaceDataNew = surfaceNew->getPropertySurfaceDataList().at(i);
+			PropertySurfaceData propSurfaceDataNew = surfaceNew->getPropertySurfaceDataList().at( i );
 
-			if (prop->getName() == propSurfaceDataNew.first->getName())
+			if ( prop->getName() == propSurfaceDataNew.first->getName() )
 			{
-				shared_ptr<const Property> propNew = propSurfaceDataNew.first;
-				shared_ptr<SurfaceData> surfaceDataNew = propSurfaceDataNew.second;
+				shared_ptr<const Property> propNew        = propSurfaceDataNew.first;
+				shared_ptr<SurfaceData>    surfaceDataNew = propSurfaceDataNew.second;
 
-				EXPECT_EQ(prop->getName(), propNew->getName());
-				EXPECT_EQ(prop->getCauldronName(), propNew->getCauldronName());
-				EXPECT_EQ(prop->getAttribute(), propNew->getAttribute());
-				EXPECT_EQ(prop->getType(), propNew->getType());
-				EXPECT_EQ(prop->getUnit(), propNew->getUnit());
-				EXPECT_EQ(prop->getUserName(), propNew->getUserName());
+				EXPECT_EQ( prop->getName(),         propNew->getName() );
+				EXPECT_EQ( prop->getCauldronName(), propNew->getCauldronName() );
+				EXPECT_EQ( prop->getAttribute(),    propNew->getAttribute() );
+				EXPECT_EQ( prop->getType(),         propNew->getType() );
+				EXPECT_EQ( prop->getUnit(),         propNew->getUnit() );
+				EXPECT_EQ( prop->getUserName(),     propNew->getUserName() );
 				surfaceDataNew->retrieve();
-				int numI = static_cast<int>(surfaceDataNew->getGeometry()->getNumI());
-				int numJ = static_cast<int>(surfaceDataNew->getGeometry()->getNumJ());
-				index = 0;
-				for (int j = 0; j < numJ; j++)
+				size_t numI = surfaceDataNew->getGeometry()->getNumI();
+				size_t numJ = surfaceDataNew->getGeometry()->getNumJ();
+				size_t index = 0;
+				for ( size_t j = 0; j < numJ; j++ )
 				{
-					for (int k = 0; k < numI; k++)
+					for ( size_t k = 0; k < numI; k++ )
 					{
-						EXPECT_EQ(surfaceDataValue[index++], surfaceDataNew->getValue(k, j));
+						EXPECT_EQ( surfaceDataValue[index++], surfaceDataNew->getValue( k, j ) );
 						
 					}
 				}
 				break;
-
 			}
 		}
 	}
 	
-	if (indexAddedPropVolData.size() > 0)
+	if ( indexAddedPropVolData.size() > 0 )
 	{
-		//Retrieving volume data to which property volume data was added 
-		int index = indexAddedPropVolData.at(0);
-		shared_ptr<SnapShot> snapShotNew = projectXml->getSnapShots()[index];
-		index = indexAddedPropVolData.at(1);
-		std::shared_ptr<CauldronIO::Volume> volNew = snapShotNew->getFormationVolumeList().at(index).second;
+		// Retrieving volume data to which property volume data was added 
+		shared_ptr<SnapShot>           snapShotNew = projectXml->getSnapShots().at( indexAddedPropVolData[0] );
+		shared_ptr<CauldronIO::Volume> volNew      = snapShotNew->getFormationVolumeList().at( indexAddedPropVolData[1] ).second;
 
 		//Comparing and checking if the property volume data has been added correctly
 		size_t nPropVolData = volNew->getPropertyVolumeDataList().size();
-		for (size_t i = 0; i < nPropVolData; i++)
+		for ( size_t i = 0; i < nPropVolData; i++ )
 		{
-			PropertyVolumeData propVolDataNew = volNew->getPropertyVolumeDataList().at(i);
+			PropertyVolumeData propVolDataNew = volNew->getPropertyVolumeDataList().at( i );
 
 			if (propVolDataNew.first->getName() == prop2->getName())
 			{
-				shared_ptr<const Property> propNew = propVolDataNew.first;
-				shared_ptr<VolumeData> volDataNew = propVolDataNew.second;
+				shared_ptr<const Property> propNew    = propVolDataNew.first;
+				shared_ptr<VolumeData>     volDataNew = propVolDataNew.second;
 
-				EXPECT_EQ(prop2->getName(), propNew->getName());
-				EXPECT_EQ(prop2->getCauldronName(), propNew->getCauldronName());
-				EXPECT_EQ(prop2->getAttribute(), propNew->getAttribute());
-				EXPECT_EQ(prop2->getType(), propNew->getType());
-				EXPECT_EQ(prop2->getUnit(), propNew->getUnit());
-				EXPECT_EQ(prop2->getUserName(), propNew->getUserName());
+				EXPECT_EQ( prop2->getName(),         propNew->getName() );
+				EXPECT_EQ( prop2->getCauldronName(), propNew->getCauldronName() );
+				EXPECT_EQ( prop2->getAttribute(),    propNew->getAttribute() );
+				EXPECT_EQ( prop2->getType(),         propNew->getType() );
+				EXPECT_EQ( prop2->getUnit(),         propNew->getUnit() );
+				EXPECT_EQ( prop2->getUserName(),     propNew->getUserName() );
 				volDataNew->retrieve();
-				int numI = static_cast<int>(volDataNew->getGeometry()->getNumI());
-				int numJ = static_cast<int>(volDataNew->getGeometry()->getNumJ());
-				int numK = static_cast<int>(volDataNew->getGeometry()->getNumK());
-				int firstK = static_cast<int>(volDataNew->getGeometry()->getFirstK());
-				index = 0;
-				for (int p = 0; p < numJ; p++)
+
+            size_t numI   = volDataNew->getGeometry()->getNumI();
+				size_t numJ   = volDataNew->getGeometry()->getNumJ();
+				size_t numK   = volDataNew->getGeometry()->getNumK();
+				size_t firstK = volDataNew->getGeometry()->getFirstK();
+				size_t index  = 0;
+				for ( size_t p = 0; p < numJ; p++ )
 				{
-					for (int q = 0; q < numI; q++)
+					for ( size_t q = 0; q < numI; q++ )
 					{
-						for (int r = firstK; r < numK + firstK; r++)
+						for ( size_t r = firstK; r < numK + firstK; r++ )
 						{
-							EXPECT_EQ(volumeDataValue[index++], volDataNew->getValue(q, p, r));
+							EXPECT_EQ( volumeDataValue[index++], volDataNew->getValue( q, p, r ) );
 						}
 					}
 				}
@@ -733,6 +735,8 @@ void AddToExistingData(string xmlFileName)
 			}
 		}
 	}
+   if ( surfaceDataValue != nullptr ) { delete [] surfaceDataValue; }
+   if ( volumeDataValue  != nullptr ) { delete [] volumeDataValue;  }
 }
 
 //Function to add a new snapshot with binary data and check if it has been added correctly or not

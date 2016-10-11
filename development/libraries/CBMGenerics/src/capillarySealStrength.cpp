@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2012-2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "stdafx.h"
 
 #include "capillarySealStrength.h"
@@ -13,28 +23,32 @@ namespace CBMGenerics {
 
 namespace capillarySealStrength {
 
-void capParameters(const vector<LithoProp>& liths, const vector<double>& fracs, 
-   CBMGenerics::capillarySealStrength::MixModel mixModel, double& capC1, double& capC2)
+void capParameters( const vector<LithoProp>                      & liths
+                  , const vector<double>                         & fracs
+                  , CBMGenerics::capillarySealStrength::MixModel   mixModel
+                  , double                                       & capC1
+                  , double                                       & capC2
+                  )
 {
-   assert(liths.size() == fracs.size());
+   assert( liths.size() == fracs.size() );
 
    capC1 = 0.0; capC2 = 0.0;
    double minDepoPerm = numeric_limits<double>::max();
 
-   for (int l = 0; l < liths.size(); ++l)
+   for ( size_t l = 0; l < liths.size(); ++l )
    {
       double lithDepoPerm = liths[l].permeability;
       double lithCapC1 = liths[l].capC1;
       double lithCapC2 = liths[l].capC2;
 
-      if (mixModel == Layered)
+      if ( mixModel == Layered )
       {
          // Use the constants associated with the smallest depositional permeability:
-         if (fracs[l] > 0.0 && lithDepoPerm < minDepoPerm)
+         if ( fracs[l] > 0.0 && lithDepoPerm < minDepoPerm )
          {
             capC1 = lithCapC1;
             capC2 = lithCapC2;
-	    minDepoPerm = lithDepoPerm;
+            minDepoPerm = lithDepoPerm;
          }
       }
       else // Homogeneous
@@ -54,11 +68,11 @@ void capParameters(const vector<LithoProp>& liths, const vector<double>& fracs,
 ///                  Air_Hg
 ///
 
-double capSealStrength_Air_Hg(const double& capC1, const double& capC2, const double& permeability)
+double capSealStrength_Air_Hg( const double & capC1, const double & capC2, const double & permeability )
 {
-   double perm = std::max(permeability, 1e-9);
-   double capSealStrength = pow(perm, -capC1);
-   capSealStrength *= pow(10.0, -capC2);
+   double perm = std::max( permeability, 1e-9 );
+   double capSealStrength = pow( perm, -capC1 );
+   capSealStrength *= pow( 10.0, -capC2 );
 
    // Convert from MPa to Pa:
    capSealStrength *= 1e6;
@@ -68,12 +82,15 @@ double capSealStrength_Air_Hg(const double& capC1, const double& capC2, const do
 
 /// Put it all together:
 ///
-double capSealStrength_Air_Hg(const vector<LithoProp>& liths, const vector<double>& fracs, 
-   CBMGenerics::capillarySealStrength::MixModel mixModel, const double& permeability)
+double capSealStrength_Air_Hg( const vector<LithoProp>                      & liths
+                             , const vector<double>                         & fracs
+                             , CBMGenerics::capillarySealStrength::MixModel   mixModel
+                             , const double                                 & permeability
+                             )
 {
    double capC1, capC2;
-   capParameters(liths, fracs, mixModel, capC1, capC2);
-   return capSealStrength_Air_Hg(capC1, capC2, permeability);
+   capParameters( liths, fracs, mixModel, capC1, capC2 );
+   return capSealStrength_Air_Hg( capC1, capC2, permeability );
 }
 
 /// The interfacial tension between HC and water can be estimated using the Firoozabadi 
@@ -94,22 +111,19 @@ double capSealStrength_Air_Hg(const vector<LithoProp>& liths, const vector<doubl
 ///                    takes as input the componentWeights fractions).
 /// capTension_H2O_HC: the resultant hydroncarbon water interfacial tension
 
-double capTension_H2O_HC_FR(const double& density_H2O, const double& density_HC, const double& T_K,
-   const double& T_c_HC_K)
+double capTension_H2O_HC_FR( const double & density_H2O, const double & density_HC, const double & T_K, const double & T_c_HC_K )
 {
    // In the rather strange case of the density of HC larger than the density of H2O, 
    // HC's should sink.  So we can make capTension_H2O_HC infinite:
-   if (density_H2O <= density_HC)
-      return numeric_limits<double>::max();
-   double capTension_H2O_HC = 111.0 *
-     pow ( (density_H2O - density_HC) / 1000.0, 1.024) *
-     pow ( T_K / T_c_HC_K, -1.25);
+   if (density_H2O <= density_HC) { return numeric_limits<double>::max(); }
+
+   double capTension_H2O_HC = 111.0 * pow ( (density_H2O - density_HC ) / 1000.0, 1.024) *
+                                      pow ( T_K / T_c_HC_K, -1.25 );
    return capTension_H2O_HC;
 }
-double capTension_H2O_HC(const double& density_H2O, const double& density_HC, const double& T_K,
-   const double& T_c_HC_K) 
-{
 
+double capTension_H2O_HC(const double & density_H2O, const double & density_HC, const double & T_K,  const double& T_c_HC_K )
+{
    static const int PolyDegree = 11;
 
    // Coefficients of degree PolyDegree, = 11, polynomial:
@@ -127,16 +141,17 @@ double capTension_H2O_HC(const double& density_H2O, const double& density_HC, co
                                                        -2.055623747107917e+05,
                                                         3.188267261055797e+04,
                                                        -2.929063381534887e+03,
-                                                        1.345836979783050e+02};
-
+                                                        1.345836979783050e+02
+                                                     };
 
    // In the rather strange case of the density of HC larger than the density of H2O, 
    // HC's should sink.  So we can make capTension_H2O_HC infinite:
-   if (density_H2O <= density_HC) 
+   if ( density_H2O <= density_HC )
    {
       return numeric_limits<double>::max();
-   } else {
-
+   }
+   else
+   {
       double capTen_H2O_HC;
 
       const double tempR = T_c_HC_K / T_K;
@@ -246,17 +261,19 @@ double capTension_H2O_HC(const double& density_H2O, const double& density_HC, co
 ///                                         Air_Hg              H2O_HC
 ///
 
-double capSealStrength_H2O_HC(const double& capSealStrength_Air_Hg, const double& capTension_H2O_HC)
+double capSealStrength_H2O_HC( const double & capSealStrength_Air_Hg, const double & capTension_H2O_HC )
 {
-   if (capTension_H2O_HC != numeric_limits<double>::max()) {
+   if ( capTension_H2O_HC != numeric_limits<double>::max() )
+   {
       // capSealStrength_Air_Hg is large so use this succession:
       double capSealStrength_H2O_HC = capSealStrength_Air_Hg;
+
       capSealStrength_H2O_HC /= 367.70133;
       capSealStrength_H2O_HC *= capTension_H2O_HC;
+
       return capSealStrength_H2O_HC;
    }
-   else
-      return numeric_limits<double>::max();
+   return numeric_limits<double>::max();
 }
 
 /// Put it all together:
@@ -287,17 +304,17 @@ double capPressure( const unsigned int phaseId, const double& density_H2O,
                        geometricVariance, wettingSaturation,  porosity,  solidRockDensity );
 }
 
-double capPressure( const unsigned int phaseId, const double& capTens_H2O_HC,
-                    const double& specificSurfArea, const double& geometricVariance,
-                    const double& wettingSaturation, const double& porosity,  const double& solidRockDensity )
+double capPressure( const unsigned int /* phaseId */,     const double & capTens_H2O_HC,
+                    const double     & specificSurfArea,  const double & geometricVariance,
+                    const double     & wettingSaturation, const double & porosity,  const double & solidRockDensity )
 {
    return computeCapillaryPressureData( specificSurfArea, solidRockDensity, geometricVariance,
                                         porosity, wettingSaturation ) * capTens_H2O_HC * 0.001;
 }
 
-double computeCapillaryPressureData(const double& specificSurfArea, const double& solidRockDensity,
-                                    const double& geometricVariance, const double& porosity, 
-                                    const double& wettingSaturation)
+double computeCapillaryPressureData( const double & specificSurfArea,  const double & solidRockDensity,
+                                     const double & geometricVariance, const double & porosity, 
+                                     const double & wettingSaturation)
 {
    const double porosityThreshold = 1e-12;
 
