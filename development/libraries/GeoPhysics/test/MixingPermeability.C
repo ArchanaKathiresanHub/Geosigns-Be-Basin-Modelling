@@ -25,33 +25,27 @@ typedef formattingexception::GeneralException fastCauldronException;
 
 using namespace GeoPhysics;
 
-
-double* doubleAlloc ( const int numberOfItems ) {
-   void* buf;
-   int error = posix_memalign ( &buf, 32, sizeof ( double ) * numberOfItems );
-   return static_cast<double*>(buf);
-}
-
 TEST(MixingPermeability, multiTest)
 {
 
+#if 0
    ObjectFactory factory;
    ObjectFactory* factoryptr = &factory;
-   ProjectHandle* projectHandle = dynamic_cast< ProjectHandle* >(OpenCauldronProject("MixingPermeabilityProject.project3d", "r", factoryptr));
+   GeoPhysics::ProjectHandle* projectHandle = dynamic_cast< GeoPhysics::ProjectHandle* >(DataAccess::Interface::OpenCauldronProject("MixingPermeabilityProject.project3d", "r", factoryptr));
    int NumberOflithologies;
    int NumberOfIterations;
    CompoundLithologyComposition composition;
 
    const unsigned int Size = 100;
 
-   double* ves = doubleAlloc ( Size );
-   double* maxVes = doubleAlloc ( Size );
-   double* porosity = doubleAlloc ( Size );
-   double* chemicalCompaction = doubleAlloc ( Size );
-   double* porosityDerivative = doubleAlloc ( Size );
-   double* permeabilityNormal = doubleAlloc ( Size );
-   double* permeabilityPlane = doubleAlloc ( Size );
-   double* permeabilityDerivative = doubleAlloc ( Size );
+   double* ves = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( Size );
+   double* maxVes = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( Size );
+   double* porosity = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( Size );
+   double* chemicalCompaction = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( Size );
+   double* porosityDerivative = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( Size );
+   double* permeabilityNormal = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( Size );
+   double* permeabilityPlane = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( Size );
+   double* permeabilityDerivative = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( Size );
    CompoundProperty* mcps  = new CompoundProperty [ Size ];
 
    PermeabilityMixer::PermeabilityWorkSpaceArrays workSpace ( Size );
@@ -113,10 +107,18 @@ TEST(MixingPermeability, multiTest)
 
    }
 
+   AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::free ( ves );
+   AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::free ( maxVes );
+   AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::free ( porosity );
+   AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::free ( chemicalCompaction );
+   AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::free ( porosityDerivative );
+   AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::free ( permeabilityNormal );
+   AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::free ( permeabilityPlane );
+   AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::free ( permeabilityDerivative );
+   delete [] mcps;
+#endif
 
 }
-
-#if 1
 
 
 TEST(MixingPermeability, layered)
@@ -205,6 +207,7 @@ TEST(MixingPermeability, homogeneous)
 
 TEST(MixingPermeability, undefinedModel)
 {
+#if 0
    //Undefined model
    ObjectFactory factory;
    ObjectFactory* factoryptr = &factory;
@@ -235,6 +238,7 @@ TEST(MixingPermeability, undefinedModel)
       //If something else happen, then fail
       FAIL() << "MixModel not defined.' fastCauldronException";
    }
+#endif
 
 }
 
@@ -450,5 +454,3 @@ TEST(MixingPermeability, homogeneousDerivative)
    EXPECT_NEAR(permeabilityDerivativePlane, 2.4913279089200166e-011, 1E-20);
 
 }
-
-#endif
