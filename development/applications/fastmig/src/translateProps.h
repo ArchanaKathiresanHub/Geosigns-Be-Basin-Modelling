@@ -65,15 +65,6 @@ namespace migration
             lithProps.push_back (create (lithoType3));
       }
 
-      /*  #ifdef sun */
-      /*  template<> void translate<CreateCapillaryLithoProp>(const Formation* formation,  */
-      /*     CreateCapillaryLithoProp create,  */
-      /*     vector<CBMGenerics::capillarySealStrength::LithoProp>& lithProps); */
-      /*  template<> void translate<CreateLithHydraulicFracturingFrac>(const Formation* formation,  */
-      /*     CreateLithHydraulicFracturingFrac create,  */
-      /*     vector<double>& lithProps); */
-      /*  #endif */
-
    }
 } // namespace migration::translateProps
 

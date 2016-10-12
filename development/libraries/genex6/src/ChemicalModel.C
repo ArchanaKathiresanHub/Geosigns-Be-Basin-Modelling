@@ -907,24 +907,12 @@ void ChemicalModel::LoadElements(ifstream &ConfigurationFile)
    std::vector<std::string> theTokens;
    std::string delim = ",";
 
-   //getline(ConfigurationFile,line,'\n');//header
-#ifdef sun
-   static char buf[1<<14];
-   ConfigurationFile.getline (buf, 1<<14);
-   line = buf;
-#else
    std::getline (ConfigurationFile, line, '\n');
-#endif
+
    for(;;) {
-      //getline(ConfigurationFile,line,'\n');
-#ifdef sun
-      //static char buf[1<<14];
-      ConfigurationFile.getline (buf, 1<<14);
-      line = buf;
-#else
+
       std::getline (ConfigurationFile, line, '\n');
-#endif
-      
+     
       if(line==Genex6::CFG::EndOfTable || line.size() == 0) {
          break;
       }
@@ -946,24 +934,14 @@ void ChemicalModel::LoadSpecies(ifstream &ConfigurationFile)
    std::vector<std::string> theTokens;
    std::string delim = ",";
 
-   //std::getline(ConfigurationFile,line,'\n');//header
-#ifdef sun
-   static char buf[1<<14];
-   ConfigurationFile.getline (buf, 1<<14);
-   line = buf;
-#else
+
+
    std::getline (ConfigurationFile, line, '\n');
-#endif
+
    int numberOfSpeciesInConfigFile = 0; 
    for(;;) {
-      //std::getline(ConfigurationFile,line,'\n');
-#ifdef sun
-      //static char buf[1<<14];
-      ConfigurationFile.getline (buf, 1<<14);
-      line = buf;
-#else
       std::getline (ConfigurationFile, line, '\n');
-#endif
+
       if(line == Genex6::CFG::EndOfTable || line.size() == 0) {
          break;
       }
@@ -986,14 +964,7 @@ void ChemicalModel::LoadSpeciesComposition(ifstream &ConfigurationFile)
    std::vector<std::string> theTokens;
    std::string delim = ",";
    
-   //std::getline(ConfigurationFile,line,'\n');//header
-#ifdef sun
-   static char buf[1<<14];
-   ConfigurationFile.getline (buf, 1<<14);
-   line = buf;
-#else
    std::getline (ConfigurationFile, line, '\n');
-#endif
    ParseLine(line, delim, theTokens);
    
    int i, j;
@@ -1020,14 +991,9 @@ void ChemicalModel::LoadSpeciesComposition(ifstream &ConfigurationFile)
    theTokens.clear();
    //Process main body
    for(;;) {
-      //std::getline(ConfigurationFile,line,'\n');
-#ifdef sun
-      //static char buf[1<<14];
-      ConfigurationFile.getline (buf, 1<<14);
-      line = buf;
-#else
+
       std::getline (ConfigurationFile, line, '\n');
-#endif
+
       if(line == Genex6::CFG::EndOfTable || line.size() == 0) {
          break;
       }
@@ -1056,24 +1022,11 @@ void ChemicalModel::LoadSpeciesProperties(ifstream &ConfigurationFile)
    std::vector<std::string> theTokens;
    std::string delim = ",";
 
-   //std::getline(ConfigurationFile,line,'\n');//header
-#ifdef sun
-   static char buf[1<<14];
-   ConfigurationFile.getline (buf, 1<<14);
-   line = buf;
-#else
    std::getline (ConfigurationFile, line, '\n');
-#endif
    
    for(;;) {
-      //std::getline(ConfigurationFile,line,'\n');
-#ifdef sun
-      //static char buf[1<<14];
-      ConfigurationFile.getline (buf, 1<<14);
-      line = buf;
-#else
       std::getline (ConfigurationFile, line, '\n');
-#endif
+
       if(line == Genex6::CFG::EndOfTable || line.size() == 0)
       {
          break;
@@ -1123,25 +1076,11 @@ void ChemicalModel::LoadReactions(ifstream &ConfigurationFile)
    std::vector<std::string> theTokens;
    std::string delim = ",";
    
-   //std::getline(ConfigurationFile,line,'\n');//header
-#ifdef sun
-   static char buf[1<<14];
-   ConfigurationFile.getline (buf, 1<<14);
-   line = buf;
-#else
    std::getline (ConfigurationFile, line, '\n');
-#endif
-   
+
    for(;;) {
-      //std::getline(ConfigurationFile,line,'\n');
-#ifdef sun
-      //static char buf[1<<14];
-      ConfigurationFile.getline (buf, 1<<14);
-      line = buf;
-#else
       std::getline (ConfigurationFile, line, '\n');
-#endif
-      
+ 
       if(line == Genex6::CFG::EndOfTable || line.size() == 0) {
          break;
       }
@@ -1177,24 +1116,12 @@ void ChemicalModel::LoadReactionRatios(ifstream &ConfigurationFile)
    std::vector<std::string> theTokens;
    std::string delim = ",";
 
-   //std::getline(ConfigurationFile,line,'\n');//header
-#ifdef sun
-   static char buf[1<<14];
-   ConfigurationFile.getline (buf, 1<<14);
-   line = buf;
-#else
    std::getline (ConfigurationFile, line, '\n');
-#endif
-   
+
    for(;;) {
-      //std::getline(ConfigurationFile,line,'\n');
-#ifdef sun
-      static char buf[1<<14];
-      ConfigurationFile.getline (buf, 1<<14);
-      line = buf;
-#else
+
       std::getline (ConfigurationFile, line, '\n');
-#endif
+
       if(line == Genex6::CFG::EndOfTable || line.size() == 0) {
          break;
       }
@@ -1220,9 +1147,7 @@ ChemicalModel::ChemicalModel(const std::string &in_FulPathConfigurationFileName,
    for(int i = 0; i < m_speciesManager.getNumberOfSpecies (); ++ i) {
       m_theSpecies[i] = NULL;
    } 
-#ifdef sun
-   static char buf[1<<14];
-#endif
+
    ifstream theReactFile;
    
    theReactFile.open(in_FulPathConfigurationFileName.c_str());
@@ -1236,13 +1161,9 @@ ChemicalModel::ChemicalModel(const std::string &in_FulPathConfigurationFileName,
    //not needed for the new file structure
    //------------------------------------------------------------------------------------------------
    for(int i = 0; i < 2; ++ i) {
-      //std::getline(theReactFile,line,'\n');
-#ifdef sun
-      theReactFile.getline (buf, 1<<14);
-      line = buf;
-#else
+
       std::getline (theReactFile, line, '\n');
-#endif
+
       cout << line << endl;
       if(i == 0) {
          m_name = line;
@@ -1273,13 +1194,9 @@ ChemicalModel::ChemicalModel(const std::string &in_FulPathConfigurationFileName,
    SetTheElements(theReactFile);
    SetTheSpecies(theReactFile);
    //------------------------------------------------------------------------------------------------
-   //std::getline(theReactFile,line,'\n');
-#ifdef sun
-   theReactFile.getline (buf, 1<<14);
-   line = buf;
-#else
+   
    std::getline (theReactFile, line, '\n');
-#endif
+
    if(!line.empty()) {
       s_numberOfReactions = atoi(line.c_str());
    }
@@ -1296,14 +1213,9 @@ void ChemicalModel::SetTheElements(ifstream &theStream)
    clearElements();
    
    std::string line;
-   //std::getline(theStream,line,'\n');
-#ifdef sun
-   static char buf[1<<14];
-   theStream.getline (buf, 1<<14);
-   line = buf;
-#else
+
    std::getline (theStream, line, '\n');
-#endif
+
    cout << line << endl;
    
    std::vector<std::string> theTokens;
@@ -1342,14 +1254,8 @@ void ChemicalModel::SetTheSpecies(ifstream &theStream)
 
    for(int SpeciesId = 1; SpeciesId <= s_numberOfSpecies; ++ SpeciesId) {
       std::string line;
-      //std::getline(theStream,line,'\n');
-#ifdef sun
-      static char buf[1<<14];
-      theStream.getline (buf, 1<<14);
-      line = buf;
-#else
       std::getline (theStream, line, '\n');
-#endif
+
       cout << line << endl;
       std::vector<std::string> theTokens;
       std::string delim(",\n");
@@ -1450,14 +1356,8 @@ void ChemicalModel::SetTheReactions(ifstream &theStream)
 
    for(int i = 1; i <= s_numberOfReactions; ++ i) {
 
-      //std::getline(theStream,line,'\n');
-#ifdef sun
-      static char buf[1<<14];
-      theStream.getline (buf, 1<<14);
-      line = buf;
-#else
       std::getline (theStream, line, '\n');
-#endif
+
       //DEBUG std::cout<<"---------------Start of Reaction----------Number:"<<i<<std::endl;
       //DEBUG MAD
       cout << line << endl;

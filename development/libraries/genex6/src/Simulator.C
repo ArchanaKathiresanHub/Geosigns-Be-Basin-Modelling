@@ -291,14 +291,8 @@ void Simulator::LoadDataFromConfigurationFile()
    std::string line;
 
    while(!ConfigurationFile.eof() && finishReadingFile == false) {
-      //std::getline(ConfigurationFile,line,'\n');
-#ifdef sun
-      static char buf[1<<14];
-      ConfigurationFile.getline (buf, 1<<14);
-      line = buf;
-#else
+
       std::getline (ConfigurationFile, line, '\n');
-#endif
      
       if(line==Genex6::CFG::TableSimulatorProperties || line.find(Genex6::CFG::TableSimulatorProperties, 0) != std::string::npos) {
         LoadSimulatorProperties(ConfigurationFile);
@@ -356,14 +350,8 @@ void Simulator::LoadSimulatorProperties(ifstream &ConfigurationFile)
    std::string delim = ",";
    
    for(;;) {
-      //std::getline(ConfigurationFile,line,'\n');
-#ifdef sun
-      static char buf[1<<14];
-      ConfigurationFile.getline (buf, 1<<14);
-      line = buf;
-#else
+
       std::getline (ConfigurationFile, line, '\n');
-#endif
         
       if(line == Genex6::CFG::EndOfTable || line.size() == 0) {
          break;
@@ -426,14 +414,8 @@ void Simulator::LoadGeneralParameters(ifstream &ConfigurationFile)
 
    GeneralParametersHandler &theHandler = GeneralParametersHandler::getInstance();
    for(;;) {
-      //std::getline(ConfigurationFile,line,'\n');
-#ifdef sun
-      static char buf[1<<14];
-      ConfigurationFile.getline (buf, 1<<14);
-      line = buf;
-#else
+
       std::getline (ConfigurationFile, line, '\n');
-#endif
       
       if(line == Genex6::CFG::EndOfTable || line.size() == 0) {
          break;

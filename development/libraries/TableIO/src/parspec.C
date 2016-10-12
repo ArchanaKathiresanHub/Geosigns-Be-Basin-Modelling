@@ -46,14 +46,9 @@ bool loadSpecLine (ifstream & infile, string & line)
 {
    while (true)
    {
-#ifdef sun
-      char buf[1024];
 
-      infile.getline (buf, 1024);
-      line = buf;
-#else
       getline (infile, line, '\n');
-#endif
+
       lineno++;
       if (infile.eof ())
       {
