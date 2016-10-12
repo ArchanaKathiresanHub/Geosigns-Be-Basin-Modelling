@@ -1,9 +1,7 @@
 #include <assert.h>
-
 #include <iostream>
 #include <sstream>
 using namespace std;
-#define USESTANDARD
 
 #include "database.h"
 #include "cauldronschemafuncs.h"
@@ -118,11 +116,7 @@ void CrustalThicknessData::printOn (ostream & ostr) const
 
 void CrustalThicknessData::asString (string & str) const
 {
-#ifdef USESTANDARD
    ostringstream buf;
-#else
-   strstream buf;
-#endif
 
    buf << "Crustul Thickness Data:";
    buf << " t0 = " << getT0Ini();
@@ -130,8 +124,4 @@ void CrustalThicknessData::asString (string & str) const
    buf << endl;
    
    str = buf.str ();
-#ifndef USESTANDARD
-   buf.rdbuf ()->freeze (0);
-#endif
-
 }

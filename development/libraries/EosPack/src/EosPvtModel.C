@@ -669,10 +669,8 @@ void EosPvtModel::PrintInputData( int iSize )
 //
 // 1) Set the data in the flasher from the outside world
 */
-void EosPvtModel::ReadAllData( int iVersion, int *piFlasher, double *pdFlasher )
+void EosPvtModel::ReadAllData( int /*iVersion*/, int *piFlasher, double *pdFlasher )
 {
-   USE_PARAM_EOSPVT( iVersion );
-
    /* Set flasher terms */
    m_dEnorm            = pdFlasher[EOS_ENORM];
    m_dLnEnorm          = log( m_dEnorm );

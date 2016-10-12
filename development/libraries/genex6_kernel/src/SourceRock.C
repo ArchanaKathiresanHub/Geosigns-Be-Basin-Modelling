@@ -5,7 +5,6 @@
 
 #include<iostream>
 using namespace std;
-#define USESTANDARD
 
 #include <vector>
 

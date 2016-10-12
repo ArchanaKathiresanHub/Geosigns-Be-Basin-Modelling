@@ -1,29 +1,11 @@
 #ifndef POLYNOMIALS_H_
 #define POLYNOMIALS_H_
 
-#ifdef sgi
-#ifdef _STANDARD_C_PLUS_PLUS
 #include <iostream>
 #include <fstream>
 #include <iomanip>
 #include <sstream>
 using namespace std;
-#else // !_STANDARD_C_PLUS_PLUS
-#include <iostream.h>
-#include <fstream.h>
-#include <iomanip.h>
-#include<strstream.h>
-typedef strstream ostringstream;
-typedef istrstream istringstream;
-#endif // _STANDARD_C_PLUS_PLUS
-#else // !sgi
-#include <iostream>
-#include <fstream>
-#include <iomanip>
-#include <sstream>
-using namespace std;
-#endif // sgi
-
 
 #include <string>
 #include <vector>

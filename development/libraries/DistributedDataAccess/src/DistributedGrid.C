@@ -3,22 +3,9 @@
 #include <limits.h>
 #include <assert.h>
 
-#ifdef sgi
-   #ifdef _STANDARD_C_PLUS_PLUS
-      #include<iostream>
-      #include <sstream>
-      using namespace std;
-      #define USESTANDARD
-   #else // !_STANDARD_C_PLUS_PLUS
-      #include<iostream.h>
-      #include<strstream.h>
-   #endif // _STANDARD_C_PLUS_PLUS
-#else // !sgi
-   #include <iostream>
-   #include <sstream>
-   using namespace std;
-   #define USESTANDARD
-#endif // sgi
+#include <iostream>
+#include <sstream>
+using namespace std;
 
 #include "Interface/DistributedGrid.h"
 
@@ -649,11 +636,7 @@ const Vec & DistributedGrid::getVec (void) const
 
 void DistributedGrid::asString (string & str) const
 {
-#ifdef USESTANDARD
    ostringstream buf;
-#else
-   strstream buf;
-#endif
 
    buf << "Grid:";
    buf << " numI = " << numI () << ", numJ = " << numJ ();
@@ -661,9 +644,6 @@ void DistributedGrid::asString (string & str) const
    buf << ", deltaI = " << deltaI () << ", deltaJ = " << deltaJ () << endl;
 
    str = buf.str ();
-#ifndef USESTANDARD
-   buf.rdbuf ()->freeze (0);
-#endif
 }
 
 void DistributedGrid::printOn (ostream & ostr) const

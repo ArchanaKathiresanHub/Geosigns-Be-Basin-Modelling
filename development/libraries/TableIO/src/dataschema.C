@@ -1,25 +1,10 @@
 #include <stdlib.h>
 
-#ifdef sgi
-   #ifdef _STANDARD_C_PLUS_PLUS
-      #include <iostream>
-      #include <fstream>
-      #include <sstream>
-      #include <iomanip>
-      using namespace std;
-   #else // !_STANDARD_C_PLUS_PLUS
-      #include <iostream.h>
-      #include <fstream.h>
-      #include <strstream.h>
-      #include <iomanip.h>
-   #endif // _STANDARD_C_PLUS_PLUS
-#else // !sgi
-   #include <iostream>
-   #include <fstream>
-   #include <sstream>
-   #include <iomanip>
-   using namespace std;
-#endif // sgi
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <iomanip>
+using namespace std;
 
 #include "datautils.h"
 

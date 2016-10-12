@@ -1,6 +1,5 @@
 #include <iostream>
 using namespace std;
-#define USESTANDARD
 
 #include <algorithm>
 #include "database.h"

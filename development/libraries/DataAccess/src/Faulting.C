@@ -6,19 +6,8 @@
 #include "Interface/Faulting.h"
 #include "Interface/FaultElementCalculator.h"
 #include "Interface/FaultFileReaderFactory.h"
-
-#ifdef sgi
-#ifdef _STANDARD_C_PLUS_PLUS
-#include<sstream>
-using std::ostringstream;
-#else                           // !_STANDARD_C_PLUS_PLUS
-#include<strstream.h>
-typedef strstream ostringstream;
-#endif                          // _STANDARD_C_PLUS_PLUS
-#else                           // !sgi
 #include <sstream>
 using std::ostringstream;
-#endif                          // sgi
 
 using namespace DataAccess;
 using namespace Interface;

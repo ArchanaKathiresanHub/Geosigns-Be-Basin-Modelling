@@ -14,30 +14,12 @@
 #include "LimitedFixedOilMaxBuoyancyHCLevel.h"
 #include "Tuple2.h"
 #include <math.h>
+#include <iostream>
 
-#ifdef sgi
-#ifdef _STANDARD_C_PLUS_PLUS
-#include <iostream>
-#else // !_STANDARD_C_PLUS_PLUS
-#include<iostream.h>
-#endif // _STANDARD_C_PLUS_PLUS
-#else // !sgi
-#include <iostream>
-#endif // sgi
 
 #ifdef DEBUG_LEAKGAS
-#ifdef sgi
-#ifdef _STANDARD_C_PLUS_PLUS
-#include<sstream>
-using std::ostringstream;
-#else // !_STANDARD_C_PLUS_PLUS
-#include<strstream.h>
-typedef strstream ostringstream;
-#endif // _STANDARD_C_PLUS_PLUS
-#else // !sgi
 #include <sstream>
 using std::ostringstream;
-#endif // sgi
 #endif // DEBUG_LEAKGAS
 
 #ifdef DEBUG_LEAKGAS_2

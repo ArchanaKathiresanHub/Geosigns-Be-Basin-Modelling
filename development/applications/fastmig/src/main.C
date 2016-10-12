@@ -11,18 +11,8 @@
 #include <stdlib.h>
 
 #include "petsc.h"
-
-#ifdef sgi
-#ifdef _STANDARD_C_PLUS_PLUS
 #include <iostream>
 using namespace std;
-#else // !_STANDARD_C_PLUS_PLUS
-#include<iostream.h>
-#endif // _STANDARD_C_PLUS_PLUS
-#else // !sgi
-#include <iostream>
-using namespace std;
-#endif // sgi
 
 #include "Migrator.h"
 #include "ObjectFactory.h"

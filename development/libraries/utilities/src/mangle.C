@@ -6,7 +6,6 @@
 #endif
 
 #include <iostream>
-#define USESTANDARD
 
 #include "mangle.h"
 

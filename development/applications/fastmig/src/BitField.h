@@ -11,15 +11,7 @@
 #ifndef _BITFIELD_H
 #define _BITFIELD_H
 
-#ifdef sgi
-#ifdef _STANDARD_C_PLUS_PLUS
 #include <iostream>
-#else // !_STANDARD_C_PLUS_PLUS
-#include<iostream.h>
-#endif // _STANDARD_C_PLUS_PLUS
-#else // !sgi
-#include <iostream>
-#endif // sgi
 
 #include <assert.h>
 

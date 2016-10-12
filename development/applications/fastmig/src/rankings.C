@@ -8,22 +8,10 @@
 // Do not distribute without written permission from Shell.
 //
 
-#ifdef sgi
-#ifdef _STANDARD_C_PLUS_PLUS
-#include<iostream>
-#include <iomanip>
-using namespace std;
-#define USESTANDARD
-#else // !_STANDARD_C_PLUS_PLUS
-#include<iostream.h>
-#include <iomanip.h>
-#endif // _STANDARD_C_PLUS_PLUS
-#else // !sgi
+
 #include <iostream>
 #include <iomanip>
 using namespace std;
-#define USESTANDARD
-#endif // sgi
 
 #include <assert.h>
 #include <time.h>

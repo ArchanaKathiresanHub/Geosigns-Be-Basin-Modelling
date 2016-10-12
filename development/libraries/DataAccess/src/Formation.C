@@ -9,22 +9,9 @@
 //
 
 #include <assert.h>
-#ifdef sgi
-   #ifdef _STANDARD_C_PLUS_PLUS
-      #include<iostream>
-      #include <sstream>
-      using namespace std;
-      #define USESTANDARD
-   #else // !_STANDARD_C_PLUS_PLUS
-      #include<iostream.h>
-      #include<strstream.h>
-   #endif // _STANDARD_C_PLUS_PLUS
-#else // !sgi
-   #include <iostream>
-   #include <sstream>
-   using namespace std;
-   #define USESTANDARD
-#endif // sgi
+#include <iostream>
+#include <sstream>
+using namespace std;
 
 #include "mangle.h"
 
@@ -590,11 +577,8 @@ void Formation::printOn (ostream & ostr) const
 
 void Formation::asString (string & str) const
 {
-#ifdef USESTANDARD
+
    ostringstream buf;
-#else
-   strstream buf;
-#endif
 
    buf << "Formation";
    if (isSourceRock ())
@@ -621,9 +605,6 @@ void Formation::asString (string & str) const
    }
 
    str = buf.str ();
-#ifndef USESTANDARD
-   buf.rdbuf ()->freeze (0);
-#endif
 }
 
 bool FormationLessThan::operator ()( const Formation* f1,

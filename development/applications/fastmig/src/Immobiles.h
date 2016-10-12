@@ -12,16 +12,7 @@
 #define _MIGRATION_IMMOBILES_H_
 #ifdef USEOTGC
 
-#ifdef sgi
-#ifdef _STANDARD_C_PLUS_PLUS
 #include <iostream>
-#else // !_STANDARD_C_PLUS_PLUS
-#include<iostream.h>
-#endif // _STANDARD_C_PLUS_PLUS
-#else // !sgi
-#include <iostream>
-#endif // sgi
-
 #include <math.h>
 #include <stdlib.h>
 #include <assert.h>
