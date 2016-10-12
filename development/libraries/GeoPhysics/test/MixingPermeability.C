@@ -377,7 +377,7 @@ TEST(MixingPermeability, layeredDerivative)
    std::vector<double> percentVec ( { 33.0, 33.0, 34.0 } );
 
    // Layering Index = 1.0
-   GeoPhysics::PermeabilityMixer::FixedSizeArray permDerivativeVal1 ({ -100.0, -1000.0, -10000.0 });
+   GeoPhysics::PermeabilityMixer::FixedSizeArray permDerivativeVal1  = { -100.0, -1000.0, -10000.0 };
 
    mixer.reset ( percentVec, anisoVec, false, 1.0, DataAccess::Interface::LAYERED, isFault );
    mixer.mixPermeabilityDerivatives (permVal, permDerivativeVal1, permeabilityDerivativeNormal, permeabilityDerivativePlane );
@@ -386,7 +386,7 @@ TEST(MixingPermeability, layeredDerivative)
    EXPECT_NEAR(permeabilityDerivativePlane, -3.7137923779000009e-012, 1E-20);
 
    // Layering Index = 0.75
-   GeoPhysics::PermeabilityMixer::FixedSizeArray permDerivativeVal2 ({ 1.0, 10.0, 100.0 });
+   GeoPhysics::PermeabilityMixer::FixedSizeArray permDerivativeVal2  = { 1.0, 10.0, 100.0 };
 
    mixer.reset ( percentVec, anisoVec, false, 0.75, DataAccess::Interface::LAYERED, isFault );
    mixer.mixPermeabilityDerivatives (permVal, permDerivativeVal2, permeabilityDerivativeNormal, permeabilityDerivativePlane );
@@ -395,7 +395,7 @@ TEST(MixingPermeability, layeredDerivative)
    EXPECT_NEAR(permeabilityDerivativePlane, 1.9070393490911652e-13, 1E-20);
 
    // Layering Index = 0.5
-   GeoPhysics::PermeabilityMixer::FixedSizeArray permDerivativeVal3 ({ 10.0, 100.0, 1000.0 });
+   GeoPhysics::PermeabilityMixer::FixedSizeArray permDerivativeVal3  = { 10.0, 100.0, 1000.0 };
 
    mixer.reset ( percentVec, anisoVec, false, 0.5, DataAccess::Interface::LAYERED, isFault );
    mixer.mixPermeabilityDerivatives (permVal, permDerivativeVal3, permeabilityDerivativeNormal, permeabilityDerivativePlane );
@@ -404,7 +404,7 @@ TEST(MixingPermeability, layeredDerivative)
    EXPECT_NEAR(permeabilityDerivativePlane, 9.5931574002593401e-12, 1E-20);
 
    // Layering Index = 0.25
-   GeoPhysics::PermeabilityMixer::FixedSizeArray permDerivativeVal4 ({ 100.0, 1000.0, 10000.0 });
+   GeoPhysics::PermeabilityMixer::FixedSizeArray permDerivativeVal4 = { 100.0, 1000.0, 10000.0 };
 
    mixer.reset ( percentVec, anisoVec, false, 0.25, DataAccess::Interface::LAYERED, isFault );
    mixer.mixPermeabilityDerivatives (permVal, permDerivativeVal4, permeabilityDerivativeNormal, permeabilityDerivativePlane );
@@ -413,7 +413,7 @@ TEST(MixingPermeability, layeredDerivative)
    EXPECT_NEAR(permeabilityDerivativePlane, 4.3021150943305947e-010, 1E-20);
 
    // Layering Index = 0
-   GeoPhysics::PermeabilityMixer::FixedSizeArray permDerivativeVal5 ({ 1000.0, 10000.0, 100000.0 });
+   GeoPhysics::PermeabilityMixer::FixedSizeArray permDerivativeVal5  = { 1000.0, 10000.0, 100000.0 };
 
    mixer.reset ( percentVec, anisoVec, false, 0.0, DataAccess::Interface::LAYERED, isFault );
    mixer.mixPermeabilityDerivatives (permVal, permDerivativeVal5, permeabilityDerivativeNormal, permeabilityDerivativePlane );
@@ -422,7 +422,7 @@ TEST(MixingPermeability, layeredDerivative)
    EXPECT_NEAR(permeabilityDerivativePlane,  1.522910197768398e-08, 1E-20);
 
    // 0.0 derivative
-   GeoPhysics::PermeabilityMixer::FixedSizeArray permDerivativeVal0 ({ 0.0, 0.0, 0.0 });
+   GeoPhysics::PermeabilityMixer::FixedSizeArray permDerivativeVal0 = { 0.0, 0.0, 0.0 };
 
    mixer.reset ( percentVec, anisoVec, false, 1.0, DataAccess::Interface::LAYERED, isFault );
    mixer.mixPermeabilityDerivatives (permVal, permDerivativeVal0, permeabilityDerivativeNormal, permeabilityDerivativePlane );
@@ -443,8 +443,8 @@ TEST(MixingPermeability, homogeneousDerivative)
 
    std::vector<double> anisoVec ( { 1.0, 1.0, 1.0 });
    std::vector<double> percentVec ( { 33.0, 33.0, 34.0 } );
-   GeoPhysics::PermeabilityMixer::FixedSizeArray permVal ({ 1000.0, 50.0, 0.01 });
-   GeoPhysics::PermeabilityMixer::FixedSizeArray permDerivativeVal1 ({ 1.0, 10.0, 100.0 });
+   GeoPhysics::PermeabilityMixer::FixedSizeArray permVal = { 1000.0, 50.0, 0.01 };
+   GeoPhysics::PermeabilityMixer::FixedSizeArray permDerivativeVal1 = { 1.0, 10.0, 100.0 };
 
    // Layering Index = 1.0
    mixer.reset ( percentVec, anisoVec, false, 1.0, DataAccess::Interface::HOMOGENEOUS, isFault );
