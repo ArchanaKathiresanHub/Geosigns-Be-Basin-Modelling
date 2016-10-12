@@ -20,6 +20,9 @@ endif()
 
 include_directories(
    src/Swig
+)
+
+include_directories( SYSTEM
    ${HDF5_INCLUDE_DIRS}
 )
 

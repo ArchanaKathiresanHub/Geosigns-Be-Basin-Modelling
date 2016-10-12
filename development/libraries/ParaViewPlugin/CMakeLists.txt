@@ -11,7 +11,8 @@
 #########################################################################
 
 if (ParaView_FOUND)
-   include_directories(	 src ${HDF5_INCLUDE_DIRS})
+   include_directories(	src )
+   include_directories(	SYSTEM ${HDF5_INCLUDE_DIRS} )
    bm_include_libraries(DataModel DataAccess TableIO)
 
    add_paraview_plugin(ParaViewReader "1.0" 

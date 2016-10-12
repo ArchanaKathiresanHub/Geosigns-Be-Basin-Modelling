@@ -38,10 +38,13 @@ bm_include_libraries(
    FileSystem
 )
 
-include_directories(
+include_directories( 
+   src
+)
+
+include_directories( SYSTEM
    ${HDF5_INCLUDE_DIRS}
    ${NNLIB_INCLUDE_DIR}
-   src
 )
 
 target_link_libraries(cmbapi

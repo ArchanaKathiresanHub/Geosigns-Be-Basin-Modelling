@@ -24,6 +24,9 @@ add_definitions(-DUSEOTGC)
 
 include_directories(
     ${PROJECT_SOURCE_DIR}/libraries
+)
+
+include_directories( SYSTEM
 	${PETSC_INCLUDE_DIRS}
 	${HDF5_INCLUDE_DIRS}
 	${MPI_INCLUDE_DIRS}

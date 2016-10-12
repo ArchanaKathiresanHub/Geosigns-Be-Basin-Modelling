@@ -38,6 +38,9 @@ include_directories(
    src
    ${PROJECT_SOURCE_DIR}/applications/fastcauldron/src
    ${PROJECT_SOURCE_DIR}/libraries/cmbAPI/src
+)
+
+include_directories( SYSTEM
    ${HDF5_INCLUDE_DIRS}
    ${MPI_INCLUDE_DIRS}
    ${PETSC_INCLUDE_DIRS}

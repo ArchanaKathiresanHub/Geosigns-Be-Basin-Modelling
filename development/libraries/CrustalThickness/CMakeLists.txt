@@ -41,7 +41,7 @@ bm_include_libraries(
 	Serial_Hdf5
 )
 
-include_directories(
+include_directories( SYSTEM
 	${HDF5_INCLUDE_DIRS}
 )
 

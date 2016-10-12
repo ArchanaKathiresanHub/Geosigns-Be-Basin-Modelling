@@ -20,7 +20,7 @@ source_group(source FILES ${all_srcs})
 
 add_executable(fastgenex6 ${all_srcs} ${all_headers})
 
-include_directories(
+include_directories( SYSTEM
 	${HDF5_INCLUDE_DIRS}
 	${MPI_INCLUDE_DIRS}
 	${PETSC_INCLUDE_DIRS}

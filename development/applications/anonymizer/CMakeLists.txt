@@ -31,10 +31,9 @@ else (WIN32)
    add_dependencies(anonymizer TableIO)
 endif (UNIX)
 
-include_directories(
-   src
-   ${HDF5_INCLUDE_DIRS}
-)
+include_directories( src )
+
+include_directories( SYSTEM ${HDF5_INCLUDE_DIRS} )
 
 bm_include_libraries(
    TableIO

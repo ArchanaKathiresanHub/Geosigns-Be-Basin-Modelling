@@ -187,6 +187,9 @@ include_directories(
   ${PROJECT_SOURCE_DIR}/libraries/LinearAlgebra/src
   ${PROJECT_SOURCE_DIR}/libraries/Interpolation/src
   ${PROJECT_SOURCE_DIR}/libraries/FiniteElements/src
+)
+
+include_directories( SYSTEM
   ${HDF5_INCLUDE_DIRS}
 )
 

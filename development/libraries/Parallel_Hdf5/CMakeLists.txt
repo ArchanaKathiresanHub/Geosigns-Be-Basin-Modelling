@@ -38,7 +38,7 @@ if (BM_PARALLEL)
 		Utilities_Petsc
 	)
 
-	include_directories(
+	include_directories( SYSTEM
 		${HDF5_INCLUDE_DIRS}
 		${MPI_INCLUDE_DIRS}
 		${PETSC_INCLUDE_DIRS}

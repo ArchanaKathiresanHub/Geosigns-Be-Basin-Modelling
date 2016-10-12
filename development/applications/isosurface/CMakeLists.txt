@@ -14,7 +14,7 @@ add_executable(isosurface
 	src/isosurface.C
 )
 
-include_directories(
+include_directories( SYSTEM
 	${HDF5_INCLUDE_DIRS}
 )
 

@@ -31,7 +31,7 @@ bm_include_libraries(
 	EosPack
 )
 
-include_directories(
+include_directories( SYSTEM
 	${HDF5_INCLUDE_DIRS}
 )
 

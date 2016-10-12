@@ -152,9 +152,10 @@ macro(add_gtest )
    
    # Add the Google Mock and Google Test include directories
    get_property(incdirs TARGET ${execName} PROPERTY INCLUDE_DIRECTORIES)
+   target_include_directories( ${execName} SYSTEM PRIVATE "${TESTFRAMEWORK_INCLUDE_DIRS}" )
+   target_include_directories( ${execName} PRIVATE "${incdirs};${include_dirs}" )
    set_target_properties( ${execName} 
       PROPERTIES 
-                 INCLUDE_DIRECTORIES "${TESTFRAMEWORK_INCLUDE_DIRS};${incdirs};${include_dirs}"
                  COMPILE_FLAGS "${compileflags}"
                  LINK_FLAGS "${linkflags}"   )
 

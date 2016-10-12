@@ -65,8 +65,11 @@ if (BM_PARALLEL)
       )
    endif (UNIX)
 
-   include_directories( 
+   include_directories(
       src
+   )
+
+   include_directories( SYSTEM
       ${PETSC_INCLUDE_DIRS}
       ${HDF5_INCLUDE_DIRS}
       ${MPI_INCLUDE_DIRS}

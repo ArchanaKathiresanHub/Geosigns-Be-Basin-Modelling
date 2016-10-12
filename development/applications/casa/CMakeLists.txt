@@ -36,11 +36,12 @@ bm_include_libraries(
    utilities
 )
 
-include_directories(
+include_directories( utilities
+   ${CMAKE_CURRENT_BINARY_DIR} )
+
+include_directories( SYSTEM
    ${SUMPP_INCLUDE_DIR}
-   ${CMAKE_CURRENT_BINARY_DIR}
    ${NNLIB_INCLUDE_DIR}
-   utilities
 )
 
 target_link_libraries( casa

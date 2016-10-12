@@ -26,7 +26,7 @@ else()
   set(OIV_INCLUDE_DIR ${OIVHOME}/include)
 endif()
 
-include_directories(
+include_directories( SYSTEM
 	${OIV_INCLUDE_DIR}
 	${HDF5_INCLUDE_DIRS})
 

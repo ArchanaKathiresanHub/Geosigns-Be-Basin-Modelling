@@ -49,10 +49,9 @@ bm_include_libraries(
 	CBMGenerics
 )
 
-include_directories(
-	${HDF5_INCLUDE_DIRS}
-	${PROJECT_BINARY_DIR}/applications/cauldron2voxet
-)
+include_directories( ${PROJECT_BINARY_DIR}/applications/cauldron2voxet )
+
+include_directories( SYSTEM	${HDF5_INCLUDE_DIRS} )
 
 target_link_libraries(cauldron2voxet
 	DerivedProperties

@@ -14,7 +14,7 @@ add_executable(cauldron2eclipse
 	src/cauldron2eclipse.C
 )
 
-include_directories(
+include_directories( SYSTEM
 	${HDF5_INCLUDE_DIRS}
 )
 

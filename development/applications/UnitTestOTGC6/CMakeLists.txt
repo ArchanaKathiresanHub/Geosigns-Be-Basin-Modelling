@@ -15,7 +15,7 @@ add_executable(UnitTestOTGC6
 	src/main.C
 )
 
-include_directories(
+include_directories( SYSTEM
 	${HDF5_INCLUDE_DIRS}
 )
 

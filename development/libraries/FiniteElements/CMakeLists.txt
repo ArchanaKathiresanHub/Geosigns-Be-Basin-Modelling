@@ -21,7 +21,7 @@ add_library(FiniteElements
 	${all_headers}
 )
 
-include_directories ( ${EIGEN_INCLUDE_DIRS} )
+include_directories ( SYSTEM ${EIGEN_INCLUDE_DIRS} )
 
 bm_include_libraries(LinearAlgebra DataModel utilities FiniteElements)
 

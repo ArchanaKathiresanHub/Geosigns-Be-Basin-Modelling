@@ -22,6 +22,9 @@ add_definitions( "/bigobj" )
 
 include_directories(
    src/Swig
+)
+
+include_directories( SYSTEM
    ${SUMPP_INCLUDE_DIR}
    ${HDF5_INCLUDE_DIRS}
 )

@@ -41,7 +41,7 @@ bm_include_libraries(
 	calibration_kernel
 )
 
-include_directories(
+include_directories( SYSTEM
 	${HDF5_INCLUDE_DIRS}
 )
 

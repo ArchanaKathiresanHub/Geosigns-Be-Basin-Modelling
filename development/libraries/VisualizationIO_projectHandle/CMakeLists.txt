@@ -18,7 +18,7 @@ source_group("Source Files" FILES ${all_srcs})
 
 add_library(VisualizationIO_projectHandle ${all_srcs} ${all_headers})
 
-include_directories(
+include_directories( SYSTEM
 	${HDF5_INCLUDE_DIRS}
 )
 

@@ -172,7 +172,7 @@ bm_include_libraries(
         DataModel
         ${all_dependent_libs}
 )
-include_directories(
+include_directories( SYSTEM
 	${HDF5_INCLUDE_DIRS}
 )
 

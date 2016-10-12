@@ -27,7 +27,7 @@ if (BM_PARALLEL)
 	    add_dependencies(Utilities_Petsc PETSC)
 	endif (UNIX)
 
-	include_directories(
+	include_directories( SYSTEM
 		${PETSC_INCLUDE_DIRS}
 		${MPI_INCLUDE_DIRS}
 	)
