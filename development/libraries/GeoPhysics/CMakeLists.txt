@@ -227,6 +227,12 @@ add_gtest( NAME GeoPhysics::ExponentialPorosity
       LIBRARIES GeoPhysics SerialDataAccess
 )
 
+configure_file(
+   ${CMAKE_CURRENT_SOURCE_DIR}/test/MixingPermeabilityProject.project3d
+   MixingPermeabilityProject.project3d
+   COPYONLY
+)
+
 add_gtest( NAME GeoPhysics::MixingPermeability
    SOURCES test/MixingPermeability.C
    LIBRARIES GeoPhysics DataAccess SerialDataAccess
