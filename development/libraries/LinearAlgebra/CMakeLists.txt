@@ -10,10 +10,6 @@
 #                                                                       #
 #########################################################################
 
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx")
-endif()
-
 FILE( GLOB all_headers src/*.h )
 source_group(include FILES ${all_headers})
 

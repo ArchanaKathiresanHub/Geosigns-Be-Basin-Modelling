@@ -11,7 +11,7 @@
 #include "FormattingException.h"
 
 
-#ifndef _WIN32
+#ifdef __INTEL_COMPILER
 void FiniteElementMethod::BasisFunctionInterpolator::interpolatePropertiesMain ( const int NA, const int MA, const int MB,
                                                                                  const int colBlocks,
                                                                                  const int rowBlocks,
@@ -378,7 +378,7 @@ void FiniteElementMethod::BasisFunctionInterpolator::compute ( const Numerics::A
       throw formattingexception::GeneralException () << "Dimension mismatch";
    }
 
-#ifndef _WIN32
+#ifdef __INTEL_COMPILER
    if ( cpuInfo.supportAvx( ) )
    {
       const double* bufAPos = basisFunctionsTranspose.data();

@@ -204,7 +204,7 @@ void Numerics::matmult ( const MatrixTransposeType transposeA,
 
 #else
    cpuInfo cpuInfo;
-
+#ifdef __INTEL_COMPILER
    if ( cpuInfo.supportAvx( ) )
    {
       if ( transposeA == NO_TRANSPOSE and transposeB == NO_TRANSPOSE ) {
@@ -235,7 +235,8 @@ void Numerics::matmult ( const MatrixTransposeType transposeA,
          details::MatDetails<SimdInstructionTechnology::SSE>::matTransMatTransProd( alpha, a, b, beta, c );
       }
    }
-   else 
+   else
+#endif
    {
       if ( transposeA == NO_TRANSPOSE and transposeB == NO_TRANSPOSE ) {
          details::MatDetails<SimdInstructionTechnology::NO_SIMD>::matMatProd( alpha, a, b, beta, c );

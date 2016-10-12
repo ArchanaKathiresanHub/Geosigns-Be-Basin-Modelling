@@ -11,9 +11,7 @@
 #define FINITE_ELEMENT_METHOD__BASIS_FUNCTION_INTERPOLATOR_H
 
 // Access to STL
-#ifdef _WIN32
-#include <array>
-#else
+#ifdef __INTEL_COMPILER
 #include <tr1/array>
 #include <cmath>
 #include <xmmintrin.h>
@@ -51,7 +49,7 @@ namespace FiniteElementMethod {
 
    private :
 
-#ifndef _WIN32
+#ifdef __INTEL_COMPILER
 
       /// \brief An array of four vectors of doubles.
       typedef std::tr1::array<__m256d, 4> FourByFour;
@@ -277,7 +275,7 @@ namespace FiniteElementMethod {
 
 }
 
-#ifndef _WIN32
+#ifdef __INTEL_COMPILER
 
 inline void FiniteElementMethod::BasisFunctionInterpolator::zero ( FourByFour& avx ) {
    // Set all values to be zero.

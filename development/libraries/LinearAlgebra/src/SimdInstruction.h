@@ -19,7 +19,7 @@ namespace Numerics {
 
       /// \brief Required alignment for PackedDouble.
       static const int Alignment = Traits::Alignment;
-
+      
       /// \brief The number of doubles in the PackedDouble.
       static const int DoubleStride = Traits::DoubleStride;
 
@@ -62,7 +62,7 @@ namespace Numerics {
 
    };
 
-
+#ifdef __INTEL_COMPILER
    /// \brief Specialisation of SimdInstruction with SSE instruction set.
    template<>
    struct SimdInstruction<SSE> {
@@ -277,7 +277,7 @@ namespace Numerics {
       static PackedDouble mulAdd ( const PackedDouble& a, const PackedDouble& b, const PackedDouble& c );
 
    };
-
+#endif
 
 } // end namespace Numerics
 
@@ -333,10 +333,11 @@ Numerics::SimdInstruction<SimdTechnology>::mulAdd ( const PackedDouble& a, const
    return a * b + c;
 }
 
+
+#ifdef __INTEL_COMPILER
 //--------------------------------
 // SSE
 //--------------------------------
-
 
 inline double* Numerics::SimdInstruction<Numerics::SSE>::allocate ( const int numberOfDoubles ) {
    return AlignedMemoryAllocator<double, Alignment>::allocate ( numberOfDoubles );
@@ -460,6 +461,6 @@ Numerics::SimdInstruction<Numerics::AVXFMA>::mulAdd ( const PackedDouble& a, con
    return _mm256_fmadd_pd ( a, b, c );
 }
 
-
+#endif
 
 #endif // NUMERICS__SIMD_INSTRUCTION__H

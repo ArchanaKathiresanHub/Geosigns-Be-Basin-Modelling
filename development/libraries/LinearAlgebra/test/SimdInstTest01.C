@@ -27,6 +27,7 @@ TEST ( SimdInstrTests, NoSimdTest01 ) {
 
 }
 
+#ifdef __INTEL_COMPILER
 #ifdef __SSE__
 TEST ( SimdInstrTests, SseTest01 ) {
 
@@ -95,4 +96,5 @@ TEST ( SimdInstrTests, AvxTest01 ) {
    SimdInstruction::free ( a1 );
    delete [] a2;
 }
+#endif
 #endif

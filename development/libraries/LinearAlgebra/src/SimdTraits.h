@@ -25,7 +25,7 @@ namespace Numerics {
 
       /// \brief Indicate which SIMD instruction technology is being used.
       static const SimdInstructionTechnology SimdInstructionUsed = NO_SIMD;
-
+      
       /// \brief A single double.
       typedef double PackedDouble;
 
@@ -37,6 +37,7 @@ namespace Numerics {
 
    };
 
+#ifdef __INTEL_COMPILER
    /// \brief Specialisation of SimdTraits for SSE instructions.
    template<>
    struct SimdTraits<SSE> {
@@ -97,7 +98,7 @@ namespace Numerics {
       static const int DoubleStride = Alignment / sizeof ( double );
 
    };
-
+#endif
 
 } // end namespace Numerics
 
