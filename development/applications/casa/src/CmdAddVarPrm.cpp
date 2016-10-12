@@ -78,6 +78,8 @@ protected:
          throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Wrong format for variable parameters name: " << 
             tblColNames << ", it must be the following format: tblName:colName";
       }
+      m_tblName = lst[0];
+      m_colName = lst[1];
    }
 
    std::string m_tblName;
@@ -191,8 +193,13 @@ public:
          simpleRange.push_back( atof( prms[pos++].c_str() ) );
          simpleRange.push_back( atof( prms[pos++].c_str() ) );
       }
-      else // otherwise consider it as a map range
+      else
       {
+         if ( m_colName != "TocIniGrid" ) // otherwise consider it as a map range
+         {
+            LogHandler( LogHandler::WARNING_SEVERITY ) << "TOC range boundaries are not numeric. You should use " << m_tblName << 
+               ":TocIniGrid to define TOC maps range, but " << this->name() << " was given. Will treat the given range as a maps range";
+         }
          mapRange.push_back( prms[pos++] );
          mapRange.push_back( prms[pos++] );
       }
@@ -216,14 +223,18 @@ public:
    size_t expectedParametersNumber() const { return 4; } // layer_name, min, max, pdf
    size_t optionalParametersNumber() const { return 2; } // mixID, SR type
 
-   virtual std::string name() const { return "SourceRockLithoIoTbl:TocIni"; }
+   virtual std::string name() const 
+   {
+      std::string nm = m_tblName.empty() ? (m_tblName + ":" + m_colName) : "SourceRockLithoIoTbl:TocIni";
+      return nm; 
+   }
 
    virtual std::string description() const { return "the initial total organic content in source rock [ weight % ]"; }
 
    virtual std::string fullDescription() const
    {
       std::ostringstream oss;
-      oss << "    [varPrmName] \"SourceRockLithoIoTbl:TocIni\" [mixID] <layerName> [srTypeName] <minVal> <maxVal> <prmPDF>\n";
+      oss << "    [varPrmName] \"SourceRockLithoIoTbl:TocIni[Grid]\" [mixID] <layerName> [srTypeName] <minVal> <maxVal> <prmPDF>\n";
       oss << "    Where:\n";
       oss << "       varPrmName - user specified variable parameter name (Optional)\n";
       oss << "       mixID      - (Optional) \"StratIoTbl:SourceRockType1\" or \"StratIoTbl:SourceRockType2\". This parameter defines\n";
@@ -1513,7 +1524,7 @@ public:
    {
       m_prmType["TopCrustHeatProduction"    ] = new TopCrustHeatProduction();
       m_prmType["SourceRockType"            ] = new SourceRockType();
-      m_prmType["SourceRockTOC"             ] = new SourceRockTOC();
+      m_prmType["SourceRockTOC"             ] = new SourceRockTOC( "SourceRockLithoIoTbl:TocIni" );
       m_prmType["SourceRockHC"              ] = new SourceRockHC();
       m_prmType["SourceRockHI"              ] = new SourceRockHI();
       m_prmType["SourceRockPreasphActEnergy"] = new SourceRockPreasphActEnergy();
@@ -1541,13 +1552,15 @@ public:
       m_prmType["StratIoTbl:SourceRockType1"    ] = new SourceRockType( "StratIoTbl:SourceRockType1" );
       m_prmType["StratIoTbl:SourceRockType2"    ] = new SourceRockType( "StratIoTbl:SourceRockType2" );
 
-      m_prmType["SourceRockLithoIoTbl:TocIni"   ] = new SourceRockTOC( "SourceRockLithoIoTbl:TocIni" );
-      m_prmType["SourceRockLithoIoTbl:HiIni"    ] = new SourceRockHI(  "SourceRockLithoIoTbl:HiIni" );
-      m_prmType["SourceRockLithoIoTbl:HcIni"    ] = new SourceRockHC(  "SourceRockLithoIoTbl:HcIni" );
+      m_prmType["SourceRockLithoIoTbl:TocIni"    ] = new SourceRockTOC( "SourceRockLithoIoTbl:TocIni" );
+      m_prmType["SourceRockLithoIoTbl:TocIniGrid"] = new SourceRockTOC( "SourceRockLithoIoTbl:TocIniGrid" );
+
+      m_prmType["SourceRockLithoIoTbl:HiIni"     ] = new SourceRockHI(  "SourceRockLithoIoTbl:HiIni" );
+      m_prmType["SourceRockLithoIoTbl:HcIni"     ] = new SourceRockHC(  "SourceRockLithoIoTbl:HcIni" );
       m_prmType["SourceRockLithoIoTbl:PreAsphaltStartAct"] = new SourceRockPreasphActEnergy( "SourceRockLithoIoTbl:PreAsphaltStartAct" );
    }
 
-   ~PrmTypesFactory()
+~PrmTypesFactory()
    { 
       for ( std::map<std::string, PrmType*>::iterator it = m_prmType.begin(); it != m_prmType.end(); ++it ) { delete it->second; }
    };
