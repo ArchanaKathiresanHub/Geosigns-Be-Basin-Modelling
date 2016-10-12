@@ -230,6 +230,13 @@ add_gtest( NAME GeoPhysics::ExponentialPorosity
 add_gtest( NAME GeoPhysics::MixingPermeability
    SOURCES test/MixingPermeability.C
    LIBRARIES GeoPhysics DataAccess SerialDataAccess
+   ENV_VARS EOSPACKDIR=${CFGFLS}/eospack GENEX5DIR=${CFGFLS}/genex50 CTCDIR=${CFGFLS}/
+)
+
+add_gtest( NAME GeoPhysics::MultiMixingPermeability
+   SOURCES test/MultiMixingPermeability.C
+   LIBRARIES GeoPhysics DataAccess SerialDataAccess
+   ENV_VARS EOSPACKDIR=${CFGFLS}/eospack GENEX5DIR=${CFGFLS}/genex50 CTCDIR=${CFGFLS}/
 )
 
 add_gtest( NAME GeoPhysics::PermeabilityImpermeable
