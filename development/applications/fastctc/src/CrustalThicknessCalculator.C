@@ -335,7 +335,7 @@ void CrustalThicknessCalculator::run() {
             m_previousOceanicCrustalThickness     = m_outputData.getMap( thicknessBasaltMap );
          }
 
-         ///8. Smooth the PWD and Curustal Thicknesses maps
+         ///8. Smooth the PWD and Crustal Thicknesses maps
          smoothOutputs();
 
          restoreData();

@@ -24,6 +24,7 @@ namespace CrustalThicknessInterface {
    public:
 
       /// @param smoothingRadius The smoothing radius
+      /// @details Sets the error range epsilon to 1.0e-3
       MapSmoother( const unsigned int smoothingRadius );
       ~MapSmoother() {};
 
@@ -79,8 +80,16 @@ namespace CrustalThicknessInterface {
 
       /// @defgroup Maping
       /// @{
-      double * m_columnMap[2];        ///<Maping between (i,j) and the value of its column
-      int *    m_numberMapCollect[2]; ///<Maping between (i,j) and the number of cells of its column
+      double * m_columnMap[2];        ///< Maping between (i,j) and the value of its column
+      int *    m_numberMapCollect[2]; ///< Maping between (i,j) and the number of cells of its column
+      /// @}
+
+      /// @defgroup Errors
+      /// @{
+      /// \brief The error range for post-smoothing correction
+      /// \details If the smoothed value is between -epsilon and +epsilon
+      ///    then the smoothed value is set to 0
+      const double m_epsilon;
       /// @}
 
    };

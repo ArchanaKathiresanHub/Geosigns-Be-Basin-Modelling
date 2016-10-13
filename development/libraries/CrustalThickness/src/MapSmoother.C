@@ -11,6 +11,7 @@
 
 // utilitites
 #include "LogHandler.h"
+#include "NumericFunctions.h"
 
 using namespace DataAccess;
 using namespace Interface;
@@ -18,7 +19,8 @@ using namespace CrustalThicknessInterface;
 
 MapSmoother::MapSmoother( const unsigned int smoothingRadius ) :
    m_ghostNodes(true),
-   m_smoothingRadius( smoothingRadius )
+   m_smoothingRadius( smoothingRadius ),
+   m_epsilon(1.0e-3)
 {}
 
 //------------------------------------------------------------//
@@ -286,7 +288,14 @@ void MapSmoother::setSmoothedValues( GridMap * mapToSmooth ){
                num = 1;
             }
             double multVal = 1.0 / static_cast<double>(num);
-            mapToSmooth->setValue( i, j, val  * multVal );
+            double smoothedValue = val  * multVal;
+            // Correct from numerical errors during summation and subtraction of columns
+            // If the result is of the order of one millimeter or less, then we assume this value is due
+            // to numerical errors durring smoothing and we set it to zero
+            if (NumericFunctions::inRange( smoothedValue, -m_epsilon, m_epsilon )){
+               smoothedValue = 0.0;
+            }
+            mapToSmooth->setValue( i, j, smoothedValue );
          }
       }
    }
