@@ -373,14 +373,21 @@ double ComputeTrapPropertyValue( Mining::ProjectHandle      * projectHandle,
    }
 
    // perform PVT under reservoir conditions
-   performPVT( masses, trap->getTemperature(), trap->getPressure(), massesRC, densitiesRC, viscositiesRC );
+   bool pvtRC = performPVT( masses, trap->getTemperature(), trap->getPressure(), massesRC, densitiesRC, viscositiesRC );
+
+   double phaseMassesRC[2] = { 0.0, 0.0 };
+   for ( int comp = 0; pvtRC && comp < ComponentManager::NumberOfOutputSpecies; ++comp )
+   {
+      phaseMassesRC[ComponentManager::Vapour] += massesRC[ComponentManager::Vapour][comp];
+      phaseMassesRC[ComponentManager::Liquid] += massesRC[ComponentManager::Liquid][comp];
+   }
 
    // perform PVT's of reservoir condition phases under stock tank conditions
-   performPVT( massesRC[ComponentManager::Vapour], StockTankTemperature, StockTankPressure,
-               massesST[ComponentManager::Vapour], densitiesST[ComponentManager::Vapour], viscositiesST[ComponentManager::Vapour] );
+   bool pvtRCVapour = performPVT( massesRC[ComponentManager::Vapour], StockTankTemperature, StockTankPressure,
+                                  massesST[ComponentManager::Vapour], densitiesST[ComponentManager::Vapour], viscositiesST[ComponentManager::Vapour] );
 
-   performPVT( massesRC[ComponentManager::Liquid], StockTankTemperature, StockTankPressure,
-               massesST[ComponentManager::Liquid], densitiesST[ComponentManager::Liquid], viscositiesST[ComponentManager::Liquid] );
+   bool pvtRCLiquid = performPVT( massesRC[ComponentManager::Liquid], StockTankTemperature, StockTankPressure,
+                                  massesST[ComponentManager::Liquid], densitiesST[ComponentManager::Liquid], viscositiesST[ComponentManager::Liquid] );
 
    bool stPhaseFound = false;
    bool rcPhaseFound = false;
@@ -430,13 +437,27 @@ double ComputeTrapPropertyValue( Mining::ProjectHandle      * projectHandle,
    {
       value = ComputeVolume( massesST[rcPhase][stPhase], densitiesST[rcPhase][stPhase], ComponentManager::NumberOfOutputSpecies );
    }
-   else if ( stPhaseFound && propertyName.find( "Density" ) != string::npos )
+   else if ( propertyName.find( "Density" ) != string::npos )
    {
-      value = densitiesST[rcPhase][stPhase];
+      if ( stPhaseFound )
+      {
+         if ( (rcPhase == ComponentManager::Vapour && pvtRCVapour) || (rcPhase == ComponentManager::Liquid && pvtRCLiquid) )
+         {
+            value = densitiesST[rcPhase][stPhase];
+         }
+      }
+      else if ( pvtRC && phaseMassesRC[rcPhase] > 0.0 ) { value = densitiesRC[rcPhase]; }
    }
-   else if ( stPhaseFound && propertyName.find( "Viscosity" ) != string::npos )
+   else if ( propertyName.find( "Viscosity" ) != string::npos )
    {
-      value = viscositiesST[rcPhase][stPhase];
+      if ( stPhaseFound )
+      {
+         if ( (rcPhase == ComponentManager::Vapour && pvtRCVapour) || (rcPhase == ComponentManager::Liquid && pvtRCLiquid) )
+         {
+            value = viscositiesST[rcPhase][stPhase];
+         }
+      }
+      else if ( pvtRC && phaseMassesRC[rcPhase] > 0.0 ) { value = viscositiesRC[rcPhase]; }
    }
    else if ( stPhaseFound && propertyName.find( "Mass" ) != string::npos )
    {
@@ -450,14 +471,6 @@ double ComputeTrapPropertyValue( Mining::ProjectHandle      * projectHandle,
    else if ( rcPhaseFound && propertyName.find( "Volume" ) != string::npos )
    {
       value = ComputeVolume( massesRC[rcPhase], densitiesRC[rcPhase], ComponentManager::NumberOfOutputSpecies );
-   }
-   else if ( rcPhaseFound && propertyName.find( "Density" ) != string::npos )
-   {
-      value = densitiesRC[rcPhase];
-   }
-   else if ( rcPhaseFound && propertyName.find( "Viscosity" ) != string::npos )
-   {
-      value = viscositiesRC[rcPhase];
    }
    else if ( rcPhaseFound && propertyName.find( "Mass" ) != string::npos )
    {
