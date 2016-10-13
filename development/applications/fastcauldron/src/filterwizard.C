@@ -56,17 +56,6 @@ bool Filterwizard::IsBulkThCondCalculationNeeded()
 
 }
 
-bool Filterwizard::IsBulkPermeabilityCalculationNeeded(){
-
-   bool bCalculationNeeded = false;
-
-   bCalculationNeeded = timefilter->PropertyOutputOption[PERMEABILITYVEC];
-
-   return (bCalculationNeeded);
-
-}
-
-
 bool Filterwizard::IsDiffusivityCalculationNeeded()
 {
 
@@ -77,27 +66,6 @@ bool Filterwizard::IsDiffusivityCalculationNeeded()
    return (bCalculationNeeded);
 
 }
-bool Filterwizard::IsFissionTrackCalculationNeeded()
-{
-
-   bool bCalculationNeeded = false;
-
-   return (bCalculationNeeded);
-
-}
-
-
-bool Filterwizard::IsHeatFlowCalculationNeeded()
-{
-
-   bool bCalculationNeeded = false;
-
-   bCalculationNeeded = timefilter->PropertyOutputOption[HEAT_FLOW];
-
-   return (bCalculationNeeded);
-
-}
-
 
 bool Filterwizard::IsHeatFlow_CalculationNeeded()
 {
@@ -110,93 +78,12 @@ bool Filterwizard::IsHeatFlow_CalculationNeeded()
 
 }
 
-
-bool Filterwizard::IsMassFluxCalculationNeeded()
-{
-
-   bool bCalculationNeeded = false;
-
-   bCalculationNeeded = timefilter->PropertyOutputOption[MASSFLUX];
-
-   return (bCalculationNeeded);
-
-}
-
-
-bool Filterwizard::IsMassFlux_CalculationNeeded()
-{
-
-   bool bCalculationNeeded = false;
-
-   bCalculationNeeded = timefilter->PropertyOutputOption[MASSFLUX_];
-
-   return (bCalculationNeeded);
-
-}
-
-
-bool Filterwizard::IsPressureCalculationNeeded()
-{
-
-   bool bCalculationNeeded = false;
-
-   bCalculationNeeded =
-         ( timefilter->PropertyOutputOption[PRESSURE] ||
-	   timefilter->PropertyOutputOption[HYDROSTATICPRESSURE] ||
-	   timefilter->PropertyOutputOption[OVERPRESSURE] ||
-	   IsMassFluxCalculationNeeded() ||
-	   IsMassFlux_CalculationNeeded() );
-
-   return (bCalculationNeeded);
-
-}
-
-
 bool Filterwizard::IsSmectiteIlliteCalculationNeeded()
 {
 
    bool bCalculationNeeded = false;
 
    bCalculationNeeded = timefilter->PropertyOutputOption[ILLITEFRACTION];
-
-   return (bCalculationNeeded);
-
-}
-
-
-bool Filterwizard::IsTemperatureCalculationNeeded()
-{
-
-   bool bCalculationNeeded = false;
-
-   bCalculationNeeded = 
-     ( timefilter->PropertyOutputOption[TEMPERATURE] ||
-       IsHeatFlowCalculationNeeded() ||
-       IsHeatFlow_CalculationNeeded() ||
-       IsVreCalculationNeeded() ||
-       IsBiomarkersCalculationNeeded() ||
-       IsSmectiteIlliteCalculationNeeded() ||
-       IsFissionTrackCalculationNeeded() ||
-       IsBulkThCondCalculationNeeded());
-
-   return (bCalculationNeeded);
-
-}
-
-
-bool Filterwizard::IsVreCalculationNeeded()
-{
-
-   bool bCalculationNeeded = true;
-
-   return (bCalculationNeeded);
-
-}
-
-
-bool Filterwizard::IsXmigCalculationNeeded()
-{
-   bool bCalculationNeeded = false;
 
    return (bCalculationNeeded);
 
@@ -262,10 +149,6 @@ bool Filterwizard::InitDerivedCalculationsNeeded()
 
   return (bCalculationNeeded);
   
-}
-
-bool Filterwizard::fluidVelocityIsNeeded () const {
-  return timefilter->PropertyOutputOption[FLUID_VELOCITY] > NOOUTPUT;
 }
 
 bool Filterwizard::thicknessCalculationNeeded () const {

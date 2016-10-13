@@ -53,13 +53,6 @@ GenexResultManager::GenexResultManager()
        ""
    };
 
-#if 0
-   // Is this a fix for the compiler warning when using the Intel compiler?
-   // Add degree sign
-   tempResultUnits [0][0]=char ( 167 );
-   tempResultUnits [1][0]=char ( 167 );
-#endif 
-
    for(i = 0; tempResultUnits[i] != ""; ++i)  
    {
       m_ResultUnits[i] =  tempResultUnits[i];

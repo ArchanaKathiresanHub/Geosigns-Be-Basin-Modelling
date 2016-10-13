@@ -31,25 +31,3 @@ string generatePropertyFileName ( const string& outputDirectory,
   return fileName;
 
 }
-
-string generatePropertyGridName(string propertyName, string surfaceName,
-				string formationName, const double time) {
-
-  const int size = 150;
-  char buffer[size];
-
-  stringstream gridNameStr; //(buffer, size);
-
-  underscoreBlankSpace(surfaceName);
-  underscoreBlankSpace(formationName);
-  underscoreSlashCharacter(surfaceName);
-  underscoreSlashCharacter(formationName);
-
-  gridNameStr << propertyName << "_" << time << "_" 
-	      << surfaceName <<  "_" << formationName << '\0';
-
-  string gridName;
-  gridName += gridNameStr.str();
-  return gridName;
-
-}

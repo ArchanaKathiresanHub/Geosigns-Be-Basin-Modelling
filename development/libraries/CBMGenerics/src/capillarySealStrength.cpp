@@ -325,13 +325,7 @@ double computeCapillaryPressureData( const double & specificSurfArea,  const dou
    if (porosityUsed < porosityThreshold)
       porosityUsed = porosityThreshold;
 
-#if 0
-   if (phaseId == 1 /* OIL */ )
-      capPressure = 0.866;
-   else             /* GAS */
-      capPressure = 1.0;
-#endif
-   // cos( theta ) = cos(180) = -1
+
    capPressure = 1.0;
 
    // capPressure [Pa], int.tension [N/m], specificSurfArea [m2/kg],

@@ -114,20 +114,6 @@ void DensityCalculator::loadData( GeoPhysics::ProjectHandle* projectHandle, cons
 
    delete myFormations;
 }
-#if 0
-//------------------------------------------------------------//
-void DensityCalculator::setWaterBottomDepthMap( Interface::ProjectHandle* projectHandle ) {
-   
-   Interface::PaleoPropertyList * pList = projectHandle->getSurfaceDepthHistory();
-   
-   for( int i = 0; i < pList->size(); ++ i ) {
-      if( pList[i]->getSnapshot()->getTime() == 0 ) {
-         m_depthWaterBottomMap = pList[i]->getMap();
-         break;
-      }
-   }
-}
-#endif
 //------------------------------------------------------------//
 void DensityCalculator::retrieveData() {
 

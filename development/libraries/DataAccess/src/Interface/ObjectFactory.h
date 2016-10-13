@@ -67,10 +67,6 @@ virtual ~ObjectFactory () {}
 
 	    virtual PaleoProperty * producePaleoProperty (ProjectHandle * projectHandle, database::Record * record );
 
-#if 0
-	    virtual PaleoFormationProperty * producePaleoFormationProperty (ProjectHandle * projectHandle, database::Record * record, const std::string& formationName );
-#endif
-
 	    virtual PaleoFormationProperty * producePaleoFormationProperty (ProjectHandle * projectHandle, database::Record * record, const Formation* formation );
 
 	    virtual PaleoFormationProperty * producePaleoFormationProperty ( ProjectHandle * projectHandle,

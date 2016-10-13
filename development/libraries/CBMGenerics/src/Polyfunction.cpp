@@ -94,13 +94,6 @@ bool Polyfunction::AddPoint(double x, double y)
    {
       m_min = point;
    }
-#if 0
-   if (m_points.capacity () > 3 * m_points.size ())
-   {
-      cerr << "m_points.capacity () = " << m_points.capacity () << "!!" << endl;
-      cerr << "m_points.size () = " << m_points.size () << "!!" << endl;
-   }
-#endif
    return true;
 }
 

@@ -23,12 +23,6 @@ namespace DataAccess
 
          virtual ~LithologyThermalConductivitySample ();
 
-
-#if 0
-         /// Return constant pointer to the lithology to which the thermal-conductivity is associated.
-         virtual const LithoType* getLithoType () const;
-#endif
-
          /// \brief Rethrn the name of the lithology to which the sample is associated.
          const std::string& getLithologyName () const;
 

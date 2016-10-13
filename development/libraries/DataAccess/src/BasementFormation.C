@@ -41,21 +41,6 @@ const std::string BasementFormation::HomogeneousMixtureString = "Homogeneous";
 BasementFormation::BasementFormation (ProjectHandle * projectHandle, database::Record* record, const std::string& formationName, const std::string& lithologyName ) : 
    Formation (projectHandle, record), m_formationName ( formationName ), m_lithologyName ( lithologyName )
 {
-
-#if 0
-   m_top = 0;
-   m_bottom = 0;
-   m_lithoType1 = 0;
-   m_lithoType2 = 0;
-   m_lithoType3 = 0;
-   m_fluidType = 0;
-   m_allochthonousLithology = 0;
-   m_sourceRock = 0;
-#endif
-
-#if 0
-   cerr << "Added BasementFormation " << getName () << endl;
-#endif
    m_mangledName = utilities::mangle ( m_formationName );
 }
 

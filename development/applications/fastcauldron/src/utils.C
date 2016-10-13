@@ -22,47 +22,7 @@ PetscLogDouble StartTime, EndTime;
 PetscLogDouble CalculationTime;
 
 int X_loc = 1;
-
-void stripEndQuotes(string& str) {
-
-#if 0
-  string::size_type pos = str.find ("\"",0);
-  if (pos == 0) str.erase(0,1);
-  pos = str.find ("\"",0);
-  if (pos == str.length()-1) str.erase(pos,1);
-#endif
-}
-
-void ReallyStripEndQuotes(string& str) {
-
-  string::size_type pos = str.find ("\"",0);
-  if (pos == 0) str.erase(0,1);
-  pos = str.find ("\"",0);
-  if (pos == str.length()-1) str.erase(pos,1);
-}
-
-void underscoreBlankSpace(string& str) {
-
-  string::size_type pos;
-  for (pos=0; pos<str.length(); pos++) {
-    if (str[pos] == ' ') {
-      str[pos] = '_';
-    }
-  }
-
-}
  
-void underscoreSlashCharacter(string& str) {
-  
-  string::size_type pos;
-  for (pos=0; pos<str.length(); pos++) {
-    if (str[pos] == '/') {
-      str[pos] = '_';
-    }
-  }
-
-}
-
 void blankSpaceUnderscore(string& str) {
 
   string::size_type pos;
@@ -74,7 +34,6 @@ void blankSpaceUnderscore(string& str) {
 
 }
 
-
 void removeNonUsableCharacters ( const string& nonUsableString,
                                        string& usableString ) {
   
@@ -84,40 +43,6 @@ void removeNonUsableCharacters ( const string& nonUsableString,
 string removeNonUsableCharacters ( const string& nonUsableString ) {
 
   return utilities::mangle ( nonUsableString );
-}
-
-
-string Extract_Property_Name( const string& str ) 
-{
-
-  string A_String = str;
-
-  string::size_type pos = A_String.find ("@",0);
-  return A_String.substr(0,pos);
-
-}
-
-string Extract_Owner_Name( const string& str ) 
-{
-
-  string A_String = str;
-
-  string::size_type pos = A_String.find ("@",0);
-  return A_String.substr(++pos,A_String.length());
-
-}
-
-string Extract_Filename_Extension( const string& str ) {
-  
-  string filename  = str;
-  string extension = "";
-  string::size_type loc = filename.find (".",0);
-  if ( loc != string::npos )
-  {
-    extension = filename.substr( ++loc );
-  }
-  return extension;
-
 }
 
 void removeExtension(string& str) {
@@ -273,149 +198,6 @@ void displayProgress(const bool debug,
 
 }
 
-char* currentTimeStr () {
-
-   time_t timer;
-
-   time ( &timer );
-
-   return ctime ( & timer );
-}
-
-std::string currentTimeStr2 () {
-
-   std::stringstream buffer;
-
-   time_t timer;
-   tm* separatedTime;
-
-   time ( &timer );
-
-   separatedTime = localtime ( &timer );
-
-   switch ( separatedTime->tm_wday ) {
-
-     case 0:
-        buffer << "Sun";
-        break;
-
-     case 1:
-        buffer << "Mon";
-        break;
-
-     case 2:
-        buffer << "Tue";
-        break;
-
-     case 3:
-        buffer << "Wed";
-        break;
-
-     case 4:
-        buffer << "Thu";
-        break;
-
-     case 5:
-        buffer << "Fri";
-        break;
-
-     case 6:
-        buffer << "Sat";
-        break;
-
-   }
-
-   buffer << ", ";
-
-   if ( separatedTime->tm_mday < 10 ) {
-      buffer << '0' << setw ( 1 ) << separatedTime->tm_mday;
-   } else {
-      buffer << setw ( 2 ) << separatedTime->tm_mday;
-   }
-
-   buffer << ' ';
-
-   switch ( separatedTime->tm_mon ) {
-
-     case 0:
-        buffer << "Jan";
-        break;
-
-     case 1:
-        buffer << "Feb";
-        break;
-
-     case 2:
-        buffer << "Mar";
-        break;
-
-     case 3:
-        buffer << "Apr";
-        break;
-
-     case 4:
-        buffer << "May";
-        break;
-
-     case 5:
-        buffer << "Jun";
-        break;
-
-     case 6:
-        buffer << "Jul";
-        break;
-
-     case 7:
-        buffer << "Aug";
-        break;
-
-     case 8:
-        buffer << "Sep";
-        break;
-
-     case 9:
-        buffer << "Oct";
-        break;
-
-     case 10:
-        buffer << "Nov";
-        break;
-
-     case 11:
-        buffer << "Dec";
-        break;
-
-   }
-
-   buffer << ' ';
-
-   if ( separatedTime->tm_hour < 10 ) {
-      buffer << '0' << setw ( 1 ) << separatedTime->tm_hour;
-   } else {
-      buffer << setw ( 2 ) << separatedTime->tm_hour;
-   }
-
-   buffer << ':';
-
-   if ( separatedTime->tm_min < 10 ) {
-      buffer << '0' << setw ( 1 ) << separatedTime->tm_min;
-   } else {
-      buffer << setw ( 2 ) << separatedTime->tm_min;
-   }
-
-   buffer << ':';
-
-   if ( separatedTime->tm_sec < 10 ) {
-      buffer << '0' << setw ( 1 ) << separatedTime->tm_sec;
-   } else {
-      buffer << setw ( 2 ) << separatedTime->tm_sec;
-   }
-
-   return buffer.str ();
-}
-
-
-
 void Display_Temperature_Solver_Progress( const double Age, 
 					  const double Time_Step,
                                           const bool   newLine )
@@ -506,143 +288,6 @@ void displayComparisonProgress(int FileNumber, int TotalNumberOfFiles) {
 }
 
 
-void setSolverTolerance (       KSP&  linearSolver,
-			  const double newTolerance ) {
-
-  PetscReal relativeTolerance;
-  PetscReal absoluteTolerance;
-  PetscReal divergenceTolerance;
-  int       maximumIterations;
-//   KSP       solverKSP;
-
-//   SLESGetKSP ( linearSolver, &solverKSP );
-
-  //
-  // First get current default tolerances
-  //
-  KSPGetTolerances ( linearSolver, 
-                     &relativeTolerance, 
-                     &absoluteTolerance, 
-                     &divergenceTolerance, 
-                     &maximumIterations );
-
-  //
-  // Now set the Relative Tolerance to the new tolerance
-  //
-  KSPSetTolerances ( linearSolver,
-                     newTolerance,
-                     absoluteTolerance,
-                     divergenceTolerance,
-                     maximumIterations );
-
-}
-
-void setSolverMaxIterations (       KSP&  linearSolver,
-                              const int    newMaxIts ) {
-
-  PetscReal relativeTolerance;
-  PetscReal absoluteTolerance;
-  PetscReal divergenceTolerance;
-  int       maximumIterations;
-//   KSP       solverKSP;
-
-//   SLESGetKSP ( linearSolver, &solverKSP );
-
-  //
-  // First get current default tolerances
-  //
-  KSPGetTolerances ( linearSolver, 
-                     &relativeTolerance, 
-                     &absoluteTolerance, 
-                     &divergenceTolerance, 
-                     &maximumIterations );
-
-  //
-  // Now set the Relative Tolerance to the new tolerance
-  //
-  KSPSetTolerances ( linearSolver,
-                     relativeTolerance,
-                     absoluteTolerance,
-                     divergenceTolerance,
-                     newMaxIts );
-
-}
-
-void setLinearSolverType (       KSP&        linearSolver,
-                           const std::string& solverName ) {
-
-   KSPSetType ( linearSolver, const_cast<char*>(solverName.c_str ()));
-
-   // check the command line for any additional linear solver parameters.
-   // This may also disregard the linear solver type that is indicated in the parameter list.
-   KSPSetFromOptions ( linearSolver );
-}
-
-
-void setPreconditionerFillLevels (      KSP&  linearSolver,
-                                  const int    fillLevel ) {
-
-
-  PC pc;
-  PC subpc;
-  const char* pcType;
-
-  KSPGetPC ( linearSolver, &pc );
-  PCGetType ( pc, &pcType );
-
-  if ( string ( pcType ) == PCBJACOBI ) {
-     KSP* allSubSles;
-     int numberOfBlocks;
-     int whichBlock;
-
-     PCBJacobiGetSubKSP (pc, &numberOfBlocks, &whichBlock, &allSubSles );
-
-     KSPGetPC ( allSubSles[0], &subpc );
-
-     PCFactorSetLevels  ( subpc, fillLevel );
-//      PCILUSetLevels  ( subpc, fillLevel );
-     PCGetType ( subpc, &pcType );
-  }
-
-
-//    PC preconditioner;
-//    PC subPc;
-
-//    char* pcType;
-
-//    SLESGetPC ( linearSolver, &preconditioner );
-//    PCCompositeGetPC (preconditioner,0,&subPc);
-
-//    PCGetType ( subPc, &pcType );
-
-//    PetscPrintf ( PETSC_COMM_WORLD, " sub-pc type %s\n", pcType );
-
-//    PCILUSetFill ( subPc, fillLevel );
-
-
-
-   // check the command line for any additional linear solver parameters.
-   // This may also disregard the linear solver type that is indicated in the parameter list.
-//    SLESSetFromOptions ( linearSolver );
-}
-
-
-int getSolverMaxIterations ( KSP& linearSolver ) {
-
-  PetscReal relativeTolerance;
-  PetscReal absoluteTolerance;
-  PetscReal divergenceTolerance;
-  int       maximumIterations;
-
-  KSPGetTolerances ( linearSolver, 
-                     &relativeTolerance, 
-                     &absoluteTolerance, 
-                     &divergenceTolerance, 
-                     &maximumIterations );
-
-  return maximumIterations;
-}
-
 const std::string& getKspConvergedReasonImage ( const KSPConvergedReason reason ) {
 
    static std::map<KSPConvergedReason, std::string> stringReasons;
@@ -693,16 +338,6 @@ void getDateAndTime(char* str) {
   
 }
 
-string DoubleToString(const double D) {
-
-  char D_char[32];
-
-  sprintf(D_char,"%f",D);
-
-  return string(D_char);
-
-}
-
 string IntegerToString(const int I) {
 
   char I_char[32];
@@ -727,35 +362,6 @@ void Copy_String_To_Char( const string& str, char* char_array, const int char_le
   for ( pos = str.length(); pos < string::size_type ( char_length ); pos++) {
       char_array[ pos ] = '\0';
   }
-
-}
-
-int Convert_String_Argument_For_FORTRAN_Code ( int* Integer_Array, const char* Input_String )
-{
-  int I;
-  int Result = 0;              
-  int Length = strlen ( Input_String );
-
-  /* Check the input string is not too long for Fortran format */
-  if ( Length > 256 )
-  {
-    Result = 1;               
-    Length = -1;
-  }
-
-  for ( I = 0; I < 256; I++ )
-  {
-    if ( I <= Length )
-    {
-      Integer_Array [ I ] = Input_String [ I ];
-    }
-    else
-    {
-      Integer_Array [ I ] = ' ';
-    }
-  }
-
-  return Result;
 
 }
 
@@ -867,11 +473,6 @@ bool File_Exists ( const std::string& fileName ) {
 }
 
 
-bool removeFile ( const std::string& fileName ) {
-  return remove ( fileName.c_str ()) == 0;
-}
-
-
 std::string toLower ( const std::string& str ) {
 
     std::string strCpy( str );
@@ -879,34 +480,6 @@ std::string toLower ( const std::string& str ) {
     std::transform ( strCpy.begin(), strCpy.end(), strCpy.begin(), ::tolower );
     return strCpy;
 }
-
-double Double_Epsilon () {
-
-  static bool   First_Time = true;
-  static double Model_Epsilon_Value;
-
-  if ( First_Time ) {
-    
-    double T     = 1.0;
-    double Delta = 0.5;
-    double TT    = T + Delta;
-    
-    while ( T != TT ) {
-      Model_Epsilon_Value = Delta;
-      T = TT;
-      Delta = 0.5 * Delta;
-      TT = T + Delta;
-    } 
-
-    Model_Epsilon_Value = 4.0 * Model_Epsilon_Value;
-
-    First_Time = false;
-  } 
-
-  return Model_Epsilon_Value;
-
-}
-
 
 double Float_Epsilon () {
 
@@ -967,19 +540,6 @@ bool successfulExecution ( const bool localSuccessfulExecution ) {
                  MPI_INT, MPI_MIN, PETSC_COMM_WORLD );
 
   return ( globalSuccessfulExecutionInt > 0 );
-}
-
-
-double globalMinimum ( const double value ) {
-
-   double localValue = value;
-   double globalValue;
-
-   
-   MPI_Allreduce ( &localValue, &globalValue, 1, 
-                   MPI_DOUBLE, MPI_MIN, PETSC_COMM_WORLD );
-
-   return globalValue;
 }
 
 

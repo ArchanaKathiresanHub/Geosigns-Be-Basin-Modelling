@@ -131,12 +131,6 @@ namespace DataAccess
          /// Return the permeabilty recovery coefficient.
          virtual double getPermeabilityRecoveryCoefficient () const;
 
-#if 0
-         /// See comment for 'getPermeabilitySensitivityCoefficient'.
-         double getClayFraction () const;
-#endif
-
-
          /// Return the seismic velocity.
          virtual double getSeismicVelocity () const;
 
