@@ -1,5 +1,14 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
 #include "history.h"
-#include "globaldefs.h"
+#include "ConstantsFastcauldron.h"
 #include "utils.h"
 #include <math.h>
 
@@ -8,6 +17,15 @@
 #include "FilePath.h"
 
 #include "FastcauldronSimulator.h"
+
+// utilities library
+#include "ConstantsMathematics.h"
+using Utilities::Maths::MillyDarcyToM2;
+using Utilities::Maths::PaToMegaPa;
+// utilities library
+#include "ConstantsNumerical.h"
+using Utilities::Numerical::IbsNoDataValue;
+
 
 using namespace database;
 
@@ -176,7 +194,7 @@ void History::Save_Property ( const string &   property_name,
 
   double       Property_Value = 0.0;
   
-  if ( Current_Vector != Null ) {
+  if ( Current_Vector != nullptr ) {
      PetscBool validVector;
 
      VecValid ( *Current_Vector, &validVector );
@@ -195,7 +213,7 @@ void History::Save_Property ( const string &   property_name,
     } else {
 
       for ( indx = 0; indx < nodes.size(); indx++ ) {
-        Save_Property_Value_At_Node ( nodes [ indx ], IBSNULLVALUE, property_name );
+        Save_Property_Value_At_Node ( nodes [ indx ], IbsNoDataValue, property_name );
       }
 
     }
@@ -207,7 +225,7 @@ void History::Save_Property ( const string &   property_name,
       
       Current_Node = nodes [ indx ];
 
-      Save_Property_Value_At_Node ( Current_Node, IBSNULLVALUE, property_name );
+      Save_Property_Value_At_Node ( Current_Node, IbsNoDataValue, property_name );
 
     }
     
@@ -234,13 +252,13 @@ void History::Save_Property_Value_At_Node ( Node_Info *    node,
 
   }
   
-  if ( Property_Value != IBSNULLVALUE && (( *property_it ) == VES || ( *property_it ) == MAXVES )) {
+  if ( Property_Value != IbsNoDataValue && (( *property_it ) == VES || ( *property_it ) == MAXVES )) {
 
-    Property_Value = Property_Value * Pa_To_MPa;
+    Property_Value = Property_Value * PaToMegaPa;
 
   }
 
-  if (  Property_Value != IBSNULLVALUE && (( *property_it ) == PERMEABILITYVEC || ( *property_it ) == PERMEABILITYHVEC )) {
+  if (  Property_Value != IbsNoDataValue && (( *property_it ) == PERMEABILITYVEC || ( *property_it ) == PERMEABILITYHVEC )) {
     
     Property_Value = log10 ( Property_Value );
     
@@ -660,7 +678,7 @@ double History::Calculate_Interpolated_Value( Node_Info * node, PETSC_3D_Array& 
 
   for ( Node_Count = 0; Node_Count < 4; Node_Count++ )
   {
-    if ( Values [ Node_Count ] != IBSNULLVALUE ) 
+    if ( Values [ Node_Count ] != IbsNoDataValue ) 
     {
       Sum = Sum + Values [ Node_Count ] * node -> Fractions [ Node_Count ];
       Divisor = Divisor + 1;
@@ -673,7 +691,7 @@ double History::Calculate_Interpolated_Value( Node_Info * node, PETSC_3D_Array& 
   }
   else
   {
-    return IBSNULLVALUE;
+    return IbsNoDataValue;
   }
 
 }
@@ -697,7 +715,7 @@ void History::Save_Depositional_Property ( const string&      property_name,
     if ( appctx->timefilter.propertyIsSelected ( propertyId )) {
       Property_Value = Interpolate_Depositional_Property( layer, Current_Node );
     } else {
-      Property_Value = IBSNULLVALUE;
+      Property_Value = IbsNoDataValue;
     }
 
     Save_Property_Value_At_Node ( Current_Node, Property_Value, property_name );
@@ -767,7 +785,7 @@ double History::Calculate_Surface_Property( LayerProps * layer,
                                                            surfacePorosityCompound, 
                                                            Property_Value, 
                                                            Dummy_Value );
-    Property_Value = Property_Value / MILLIDARCYTOM2;
+    Property_Value = Property_Value / MillyDarcyToM2;
     
     break;
     
@@ -779,7 +797,7 @@ double History::Calculate_Surface_Property( LayerProps * layer,
                                                            surfacePorosityCompound, 
                                                            Dummy_Value,
                                                            Property_Value );
-    Property_Value = Property_Value / MILLIDARCYTOM2;
+    Property_Value = Property_Value / MillyDarcyToM2;
     
     break;
  

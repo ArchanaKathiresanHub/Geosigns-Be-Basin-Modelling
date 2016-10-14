@@ -25,17 +25,29 @@ add_library(CBMGenerics
    ${all_headers}
 )
 
+add_dependencies( CBMGenerics
+   utilities
+)
+
+bm_include_libraries( CBMGenerics
+   utilities
+)
+
+target_link_libraries( CBMGenerics
+   utilities
+)
+
 #Doc. generation is commented because most of the classes in CBMGeneric have no doxygen documentation and generate warnings
 #generate_dox( src/CBMGenerics.cfg )
 
 install(TARGETS CBMGenerics
-	RUNTIME DESTINATION bin
-	LIBRARY	DESTINATION lib
-	ARCHIVE DESTINATION lib
+   RUNTIME DESTINATION bin
+   LIBRARY	DESTINATION lib
+   ARCHIVE DESTINATION lib
 )
 
 ### Unit Tests
 
 add_gtest( NAME CBMGenerics::Polyfunction 
-			SOURCES test/Polyfunction.cpp
-			LIBRARIES CBMGenerics)
+           SOURCES test/Polyfunction.cpp
+           LIBRARIES CBMGenerics )

@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
 #include "Well.h"
 
 #include <string>
@@ -10,6 +19,14 @@ using namespace std;
 #include "CompoundProperty.h"
 
 #include "FastcauldronSimulator.h"
+
+// utilities library
+#include "ConstantsNumerical.h"
+using Utilities::Numerical::CauldronNoDataValue;
+using Utilities::Numerical::IbsNoDataValue;
+#include "ConstantsMathematics.h"
+using Utilities::Maths::MillyDarcyToM2;
+using Utilities::Maths::PaToMegaPa;
 
 Well::Well ( AppCtx* Application_Context ) {
 
@@ -295,7 +312,7 @@ void Well::Save_Well_Data( Location& needle, const string& Related_Project_Name 
 	needle.Z_Position = K;
 
         if ( vre == 0 ) {
-          nodeVRe = IBSNULLVALUE;
+          nodeVRe = IbsNoDataValue;
         } else {
           nodeVRe = Get_Well_Interpolated_Value( needle, *vre );
         }
@@ -312,7 +329,7 @@ void Well::Save_Well_Data( Location& needle, const string& Related_Project_Name 
         seaTemperature = FastcauldronSimulator::getInstance ().getSeaBottomTemperature ( needle.X_Position, needle.Y_Position, 0.0 );
 
         if ( HydraulicFracturingManager::getInstance ().fracturePressureSelection () == Interface::None ) {
-          nodeFracturePressure    = IBSNULLVALUE;
+          nodeFracturePressure    = IbsNoDataValue;
         } else {
           nodeFracturePressure    = HydraulicFracturingManager::getInstance ().fracturePressure ( currentLithology,
                                                                                                   currentFluid,
@@ -332,15 +349,15 @@ void Well::Save_Well_Data( Location& needle, const string& Related_Project_Name 
                                                    normalPerm,
                                                    tangentialPerm );
 
-        nodeNormalPermeability     = normalPerm / MILLIDARCYTOM2;
-        nodeTangentialPermeability = tangentialPerm / MILLIDARCYTOM2;            
+        nodeNormalPermeability     = normalPerm / MillyDarcyToM2;
+        nodeTangentialPermeability = tangentialPerm / MillyDarcyToM2;            
 
         if ( Basin_Model->DoDecompaction ) {
-          nodeTemperature = IBSNULLVALUE;
+          nodeTemperature = IbsNoDataValue;
           fluidDensity = currentLayer->fluid->getConstantDensity ();
-          fluidViscosity = IBSNULLVALUE;
-          nodeThermalConductivityNormal = IBSNULLVALUE;
-          nodeThermalConductivityTangential = IBSNULLVALUE;
+          fluidViscosity = IbsNoDataValue;
+          nodeThermalConductivityNormal = IbsNoDataValue;
+          nodeThermalConductivityTangential = IbsNoDataValue;
         } else {
           nodeTemperature = Get_Well_Interpolated_Value( needle, temperature );
           currentLithology -> calcBulkThermCondNP ( currentLayer->fluid,
@@ -364,8 +381,8 @@ void Well::Save_Well_Data( Location& needle, const string& Related_Project_Name 
 		       << setw ( width ) << nodePorePressure
 		       << setw ( width ) << nodeLithostaticPressure
 		       << setw ( width ) << nodeFracturePressure
-		       << setw ( width ) << nodeVes * Pa_To_MPa
-		       << setw ( width ) << nodeMaxVes * Pa_To_MPa
+		       << setw ( width ) << nodeVes * PaToMegaPa
+		       << setw ( width ) << nodeMaxVes * PaToMegaPa
 		       << setw ( width ) << nodePorosity.mixedProperty ()
 		       << setw ( width ) << log10 ( nodeNormalPermeability )
 		       << setw ( width ) << log10 ( nodeTangentialPermeability )
@@ -406,7 +423,7 @@ double Well::interpolateValue ( const Location& needle,
 
   for ( Node_Count = 0; Node_Count < 4; Node_Count++ )
   {
-    if ( values [ Node_Count ] != IBSNULLVALUE && values [ Node_Count ] != CAULDRONIBSNULLVALUE   ) 
+    if ( values [ Node_Count ] != IbsNoDataValue && values [ Node_Count ] != CauldronNoDataValue   ) 
     {
       Sum = Sum + values [ Node_Count ] * needle.Fractions [ Node_Count ];
       Divisor = Divisor + 1;
@@ -419,7 +436,7 @@ double Well::interpolateValue ( const Location& needle,
   }
   else
   {
-    return IBSNULLVALUE;
+    return IbsNoDataValue;
   }
 
 

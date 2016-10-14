@@ -68,6 +68,12 @@ using namespace FiniteElementMethod;
 
 #include "NumericFunctions.h"
 
+// utilities library
+#include "ConstantsNumerical.h"
+using Utilities::Numerical::CauldronNoDataValue;
+using Utilities::Numerical::IbsNoDataValue;
+#include "ConstantsMathematics.h"
+using Utilities::Maths::Zero;
 
 using Interface::X_COORD;
 using Interface::Y_COORD;
@@ -350,7 +356,7 @@ void LayerProps::initialise () {
                                                  getMaximumNumberOfElements (),
                                                  1 );
          DMCreateGlobalVector ( m_timeOfElementInvasionGrid.getDa (), &m_timeOfElementInvasionVec );
-         VecSet ( m_timeOfElementInvasionVec, CAULDRONIBSNULLVALUE );
+         VecSet ( m_timeOfElementInvasionVec, CauldronNoDataValue );
          PetscBlockVector<double> timeOfElementInvasion;
          timeOfElementInvasion.setVector (m_timeOfElementInvasionGrid, getTimeOfElementInvasionVec(), INSERT_VALUES );
       
@@ -407,8 +413,8 @@ void LayerProps::initialise () {
       presentDayThickness           = nullptr;
       depthGridMap                  = nullptr;
       depoage                       = -2.0;
-      TopSurface_DepoSeq            = int (IBSNULLVALUE);
-      Layer_Depo_Seq_Nb             = int (IBSNULLVALUE);
+      TopSurface_DepoSeq            = int (IbsNoDataValue);
+      Layer_Depo_Seq_Nb             = int (IbsNoDataValue);
       m_lithoMixModel               = "";
       fluid                         = nullptr;
       Calculate_Chemical_Compaction = false;
@@ -747,7 +753,7 @@ bool LayerProps::allocateNewVecs ( AppCtx* basinModel, const double Current_Time
     createVec ( Real_Thickness_Vector );
     createVec ( Solid_Thickness );
     createVec ( Depth );
-    setVec ( Depth, CAULDRONIBSNULLVALUE );
+    setVec ( Depth, CauldronNoDataValue );
 
     createVec ( OverPressure );
     createVec ( HydroStaticPressure );
@@ -839,7 +845,7 @@ void LayerProps::setNrOfActiveElements ( const int a_nrActElem ) {
 bool LayerProps::createVec(Vec& propertyVector){
 
    //cerr<<&propertyVector<<endl;
-  IBSASSERT(nullptr == propertyVector);
+  assert(nullptr == propertyVector);
   createCount++;
   int ierr = DMCreateGlobalVector(layerDA, &(propertyVector));
   CHKERRQ(ierr);
@@ -850,7 +856,7 @@ bool LayerProps::createVec(Vec& propertyVector){
 
 bool LayerProps::destroyDA(DM& propertyDA){
 
-  IBSASSERT(nullptr != propertyDA);
+  assert(nullptr != propertyDA);
   int ierr = DMDestroy( &propertyDA );
   CHKERRQ(ierr);
   propertyDA = nullptr;
@@ -861,7 +867,7 @@ bool LayerProps::destroyDA(DM& propertyDA){
 
 bool LayerProps::setVec(Vec& propertyVector, const double propertyValue){
 
-  IBSASSERT(nullptr != propertyVector);
+  assert(nullptr != propertyVector);
   int ierr = VecSet(propertyVector, propertyValue);
   CHKERRQ(ierr);
 
@@ -1039,8 +1045,8 @@ void LayerProps::nullify (){
    presentDayThickness           = nullptr;
    depthGridMap                  = nullptr;
    depoage                       = -2.0;
-   TopSurface_DepoSeq            = int(IBSNULLVALUE);
-   Layer_Depo_Seq_Nb             = int(IBSNULLVALUE);
+   TopSurface_DepoSeq            = int(IbsNoDataValue);
+   Layer_Depo_Seq_Nb             = int(IbsNoDataValue);
    m_lithoMixModel               = "";
    fluid                         = nullptr;
    Calculate_Chemical_Compaction = false;
@@ -1586,7 +1592,7 @@ void LayerProps::setFaultElementsMap ( AppCtx*         basinModel,
   DMDAGetCorners ( layerDA, &xStart, &yStart, &zStart, &xCount, &yCount, &zCount );
 
   DMCreateGlobalVector ( layerDA, &faultElements );
-  VecSet ( faultElements, CAULDRONIBSNULLVALUE );
+  VecSet ( faultElements, CauldronNoDataValue );
 
   faultElementsMap.Set_Global_Array( layerDA, faultElements, INSERT_VALUES );
 
@@ -1648,7 +1654,7 @@ void LayerProps::setErosionFactorMap ( AppCtx*         basinModel,
   DMDAGetCorners ( layerDA, &xStart, &yStart, &zStart, &xCount, &yCount, &zCount );
 
   DMCreateGlobalVector ( layerDA, &erosionFactor );
-  VecSet ( erosionFactor, CAULDRONIBSNULLVALUE );
+  VecSet ( erosionFactor, CauldronNoDataValue );
 
   erosionFactorMap.Set_Global_Array ( layerDA, erosionFactor, INSERT_VALUES, false );
 
@@ -1758,7 +1764,7 @@ void LayerProps::setAllochthonousLithologyMap ( AppCtx*         basinModel,
   DMDAGetCorners ( layerDA, &xStart, &yStart, &zStart, &xCount, &yCount, &zCount );
 
   DMCreateGlobalVector ( layerDA, &allochthonousLithologyMap );
-  VecSet ( allochthonousLithologyMap, CAULDRONIBSNULLVALUE );
+  VecSet ( allochthonousLithologyMap, CauldronNoDataValue );
 
   allochthonousLithologies.Set_Global_Array( layerDA, allochthonousLithologyMap, INSERT_VALUES );
 
@@ -1880,7 +1886,7 @@ void LayerProps::interpolateProperty ( AppCtx*               basinModel,
            if ( basinModel->nodeIsDefined ( I, J )) {
               propertyArray ( K, J, I ) = interpolator ( I, J, K );
            } else {
-              propertyArray ( K, J, I ) = CAULDRONIBSNULLVALUE;
+              propertyArray ( K, J, I ) = CauldronNoDataValue;
            }
 
         }
@@ -1965,7 +1971,7 @@ double LayerProps::estimateStandardPermeability () const {
 
    MPI_Allreduce ( &maximumPermeability, &globalMaximumPermeability, 1, MPI_DOUBLE, MPI_MAX, PETSC_COMM_WORLD );
 
-   return globalMaximumPermeability / GeoPhysics::MILLIDARCYTOM2;
+   return globalMaximumPermeability / Utilities::Maths::MillyDarcyToM2;
 }
 
 //------------------------------------------------------------//
@@ -2320,7 +2326,7 @@ void LayerProps::getGenexGenerated ( const int i,
 
          gen = m_genexData->getValue ( (unsigned int)i, (unsigned int)j, cmp );
 
-         if ( gen == CAULDRONIBSNULLVALUE or gen == IBSNULLVALUE ) {
+         if ( gen == CauldronNoDataValue or gen == IbsNoDataValue ) {
             generated ( species ) = 0.0;
          } else {
             generated ( species ) = gen;

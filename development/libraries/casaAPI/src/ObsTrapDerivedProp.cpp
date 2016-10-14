@@ -22,13 +22,19 @@
 
 // Utilities lib
 #include "NumericFunctions.h"
+#include "ConstantsMathematics.h"
+using Utilities::Maths::CelciusToKelvin;
+using Utilities::Maths::MegaPaToPa;
+#include "ConstantsPhysics.h"
+using Utilities::Physics::StockTankPressureMPa;
+using Utilities::Physics::StockTankTemperatureC;
 
 // EosPack
 #include "EosPack.h"
 
 // CBMGenerics
 #include "ComponentManager.h"
-#include "consts.h"
+
 using namespace CBMGenerics;
 
 // STL/C lib
@@ -592,8 +598,8 @@ bool performPVT( double masses[ComponentManager::NumberOfOutputSpecies]
 
    if ( massTotal > g_ZeroMassThreshold )
    {
-      return pvtFlash::EosPack::getInstance().computeWithLumping( temperature + C2K
-                                                                , pressure * MPa2Pa
+      return pvtFlash::EosPack::getInstance().computeWithLumping( temperature + CelciusToKelvin
+                                                                , pressure * MegaPaToPa
                                                                 , masses
                                                                 , phaseMasses
                                                                 , phaseDensities 

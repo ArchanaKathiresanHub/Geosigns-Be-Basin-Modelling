@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
 #include "PvtHcProperties.h"
 
 #include "EosPack.h"
@@ -14,6 +23,10 @@
 #include "LayerElement.h"
 #include "ElementContributions.h"
 
+
+// utilities library
+#include "ConstantsNumerical.h"
+using Utilities::Numerical::CauldronNoDataValue;
 
 OutputPropertyMap* allocatePvtHcPropertiesVolumeCalculator ( const PropertyList property, LayerProps* formation, const Interface::Snapshot* snapshot ) {
    return new DerivedOutputPropertyMap<PvtHcPropertiesVolumeCalculator>( property, formation, snapshot );
@@ -169,13 +182,13 @@ bool PvtHcPropertiesVolumeCalculator::operator ()( const OutputPropertyMap::Outp
                phaseViscosities *= 0.001;
 
                if ( phaseDensities ( pvtFlash::VAPOUR_PHASE ) == 1000.0 ) {
-                  phaseDensities ( pvtFlash::VAPOUR_PHASE ) = CAULDRONIBSNULLVALUE;
-                  phaseViscosities ( pvtFlash::VAPOUR_PHASE ) = CAULDRONIBSNULLVALUE;
+                  phaseDensities ( pvtFlash::VAPOUR_PHASE ) = CauldronNoDataValue;
+                  phaseViscosities ( pvtFlash::VAPOUR_PHASE ) = CauldronNoDataValue;
                }
 
                if ( phaseDensities ( pvtFlash::LIQUID_PHASE ) == 1000.0 ) {
-                  phaseDensities ( pvtFlash::LIQUID_PHASE ) = CAULDRONIBSNULLVALUE;
-                  phaseViscosities ( pvtFlash::LIQUID_PHASE ) = CAULDRONIBSNULLVALUE;
+                  phaseDensities ( pvtFlash::LIQUID_PHASE ) = CauldronNoDataValue;
+                  phaseViscosities ( pvtFlash::LIQUID_PHASE ) = CauldronNoDataValue;
                }
 
                hcDensityMaps [ 0 ]->setValue ( i, j, k, phaseDensities ( pvtFlash::VAPOUR_PHASE ));

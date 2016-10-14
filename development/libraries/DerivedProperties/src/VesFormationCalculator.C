@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
 #include "AbstractPropertyManager.h"
 #include "DerivedFormationProperty.h"
 #include "DerivedPropertyManager.h"
@@ -5,6 +14,9 @@
 #include "GeoPhysicalConstants.h"
 #include "VesFormationCalculator.h"
 #include "PropertyRetriever.h"
+
+// utilities library
+#include "ConstantsMathematics.h"
 
 DerivedProperties::VesFormationCalculator::VesFormationCalculator () {
    addPropertyName ( "Ves" );
@@ -42,7 +54,7 @@ void DerivedProperties::VesFormationCalculator::calculate ( DerivedProperties::A
             if ( propertyManager.getNodeIsValid ( i, j )) {
                 
                for ( unsigned int k = lithostaticPressure->firstK (); k <= lithostaticPressure->lastK (); ++k ) {
-                  ves->set ( i, j, k, ( lithostaticPressure->get ( i, j, k ) - porePressure->get ( i, j, k )) * GeoPhysics::MPa_To_Pa );
+                  ves->set ( i, j, k, ( lithostaticPressure->get ( i, j, k ) - porePressure->get ( i, j, k )) * Utilities::Maths::MegaPaToPa );
                }
 
             } else {

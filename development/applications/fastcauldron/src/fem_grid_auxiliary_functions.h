@@ -1,3 +1,13 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
+
 //------------------------------------------------------------//
 
 #ifndef __FEM_Grid_Auxiliary_Functions_HH__
@@ -9,19 +19,13 @@
 // #include "fluidprops.h"
 #include "GeoPhysicsFluidType.h"
 #include "propinterface.h"
-#include "globaldefs.h"
+#include "ConstantsFastcauldron.h"
 
 //------------------------------------------------------------//
 
 
 namespace Basin_Modelling {
 
-
-
-  //!
-  //!
-  //!
-  //!
   void Initialise_Top_Depth
      (       AppCtx*          Basin_Model,
        const double           Current_Time, 
@@ -70,9 +74,5 @@ namespace Basin_Modelling {
 
 } // end namespace Basin_Modelling
 
-
-//------------------------------------------------------------//
-
 #endif // __FEM_Grid_Auxiliary_Functions_HH__
 
-//------------------------------------------------------------//

@@ -1,3 +1,13 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
+
 #include "DarcyCalculations.h"
 
 #include "MpiFunctions.h"
@@ -17,6 +27,10 @@
 #include "MultiComponentFlowHandler.h"
 
 #include "Lithology.h"
+
+// utilities
+#include "ConstantsNumerical.h"
+using Utilities::Numerical::CauldronNoDataValue;
 
 //------------------------------------------------------------//
 
@@ -1572,7 +1586,7 @@ void DarcyCalculations::setTimeOfElementInvasion ( FormationSubdomainElementGrid
 
                if ( element.getLayerElement ().isActive ()) {
 
-                  if ( concentrations ( k, j, i ).sum () > HcConcentrationLowerLimit && timeOfInvasions ( k, j, i ) == CAULDRONIBSNULLVALUE ) {
+                  if ( concentrations ( k, j, i ).sum () > HcConcentrationLowerLimit && timeOfInvasions ( k, j, i ) == CauldronNoDataValue ) {
                      timeOfInvasions( k, j, i) =  endTime;
                   }
 

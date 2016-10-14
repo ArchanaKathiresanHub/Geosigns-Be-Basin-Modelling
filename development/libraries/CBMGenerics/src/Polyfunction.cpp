@@ -17,9 +17,6 @@
 
 using namespace std;
 
-//#include "globaldefs.h"
-//#include "utils.h"
-
 namespace CBMGenerics
 {
 

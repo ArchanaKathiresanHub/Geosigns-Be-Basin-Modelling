@@ -14,7 +14,7 @@
 
 #include "SpeciesState.h"
 #include "SimulatorState.h"
-#include "Constants.h"
+#include "ConstantsGenex.h"
 #include "Utilities.h"
 #include "FilePath.h"
 

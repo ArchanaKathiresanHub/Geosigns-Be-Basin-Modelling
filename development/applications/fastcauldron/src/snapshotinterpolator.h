@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
 #ifndef _SNAPSHOT_INTERPOLATOR_H_
 #define _SNAPSHOT_INTERPOLATOR_H_
 
@@ -13,7 +22,7 @@
 #include "snapshotdata.h"
 
 #include "utils.h"
-#include "globaldefs.h"
+#include "ConstantsFastcauldron.h"
 
 #include "FastcauldronSimulator.h"
 
@@ -24,6 +33,10 @@
 #include "Interface/Interface.h"
 #include "Interface/GridMap.h"
 #include "Interface/Interface.h"
+
+// utilities library
+#include "ConstantsNumerical.h"
+using Utilities::Numerical::CauldronNoDataValue;
 
 using namespace DataAccess;
 
@@ -302,7 +315,7 @@ void GenericSnapshotInterpolator<InterpolatorCalculator>::setDA ( const DM  newD
   localBuffer = new float [ localBufferSize ];
 
   for ( I = 0; I < interpolant.maximumNumberOfPanels (); I++ ) {
-    savedProperties [ I ] = Array<float>::create3d ( dimensionInfo.xm, dimensionInfo.ym, dimensionInfo.zm, CAULDRONIBSNULLVALUE );
+    savedProperties [ I ] = Array<float>::create3d ( dimensionInfo.xm, dimensionInfo.ym, dimensionInfo.zm, CauldronNoDataValue );
   }
 
 }

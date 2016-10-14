@@ -1,11 +1,19 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
 #include "OTGCNodeAdsorptionHistory.h"
 
 #include <iomanip>
 
 #include "Interface/SGDensitySample.h"
 
-#include "PhysicalConstants.h"
-#include "Constants.h"
+#include "ConstantsGenex.h"
 #include "ComponentManager.h"
 
 #include "Input.h"
@@ -13,6 +21,21 @@
 #include "SpeciesState.h"
 
 #include "EosPack.h"
+
+// utilitites library
+#include "ConstantsMathematics.h"
+using Utilities::Maths::CelciusToKelvin;
+using Utilities::Maths::CubicMetresToCubicFeet;
+using Utilities::Maths::CubicMetresToBarrel;
+using Utilities::Maths::GorConversionFactor;
+using Utilities::Maths::CgrConversionFactor;
+using Utilities::Maths::KilometreSquaredToAcres;
+using Utilities::Maths::KilogrammeToUSTon;
+#include "ConstantsNumerical.h"
+using Utilities::Numerical::CauldronNoDataValue;
+#include "ConstantsPhysics.h"
+using Utilities::Physics::StandardPressure;
+using Utilities::Physics::StandardTemperatureGenexK;
 
 Genex6::OTGCNodeAdsorptionHistory::OTGCNodeAdsorptionHistory ( const SpeciesManager&                      speciesManager,
                                                                DataAccess::Interface::ProjectHandle* projectHandle ) :
@@ -88,7 +111,7 @@ void Genex6::OTGCNodeAdsorptionHistory::collect ( Genex6::SourceRockNode* node )
       // Conversion to ft^3 -> ft^3/m^2.
       // Conversion to billion (1.0e9) ft^3 (divide by 1.0e9)
       // Conversion to bcf/km^2 multiply by (1.0e3)^2=1.0e6.
-      const double BCFGasVolumeConversionFactor = ( CubicMetresToCubicFeet * 1.0e6 / 1.0e9 ) / AcresPerKilometreSquared;
+      const double BCFGasVolumeConversionFactor = ( CubicMetresToCubicFeet * 1.0e6 / 1.0e9 ) / KilometreSquaredToAcres;
 
       // Convert the m^3/m^2 to billion cubic feet / km^2.
       // const double BCFGasVolumeConversionFactor = CubicMetresToCubicFeet / 1000.0;
@@ -102,7 +125,7 @@ void Genex6::OTGCNodeAdsorptionHistory::collect ( Genex6::SourceRockNode* node )
       // (kg/m^2)-> (kg/m^2)/density -> (kg/m^2).(m^3/kg) -> (m^3/m^2) (conversion m^3->barrel) -> barrel/m^2. 
       // barrel/m^2 (conversion to million barrels * 1.0e-6) MMbarrel/m^2 ( conversion to million-barrel/km^2 = / 1.0e-6)
       // This include other implicit scaling values (that have cancelled and so do not appear).
-      const double MBarrelsOilVolumeConversionFactor = CubicMetresToBarrel / AcresPerKilometreSquared; // * 1.0e-6 / 1.0e-6;
+      const double MBarrelsOilVolumeConversionFactor = CubicMetresToBarrel / KilometreSquaredToAcres; // * 1.0e-6 / 1.0e-6;
 
 
       HistoryItem* hist = new HistoryItem;
@@ -136,7 +159,7 @@ void Genex6::OTGCNodeAdsorptionHistory::collect ( Genex6::SourceRockNode* node )
       masses ( pvtFlash::COX ) = 0.0;
       masses ( pvtFlash::H2S ) = 0.0;
 
-      Genex6::PVTCalc::getInstance ().compute ( StandardTemperature, StandardPressure, masses, phaseMasses, densities, viscosities, true, gorm );
+      Genex6::PVTCalc::getInstance ().compute ( StandardTemperatureGenexK, StandardPressure, masses, phaseMasses, densities, viscosities, true, gorm );
 
       // Could optimise this a bit.
       gasRetainedBcf = phaseMasses.sum ( pvtFlash::VAPOUR_PHASE ) / densities ( pvtFlash::VAPOUR_PHASE );
@@ -148,7 +171,7 @@ void Genex6::OTGCNodeAdsorptionHistory::collect ( Genex6::SourceRockNode* node )
       masses = simulatorState->getLiquidComponents ();
       masses ( pvtFlash::COX ) = 0.0;
       masses ( pvtFlash::H2S ) = 0.0;
-      Genex6::PVTCalc::getInstance ().compute ( StandardTemperature, StandardPressure, masses, phaseMasses, densities, viscosities, true, gorm );
+      Genex6::PVTCalc::getInstance ().compute ( StandardTemperatureGenexK, StandardPressure, masses, phaseMasses, densities, viscosities, true, gorm );
 
       gasRetainedBcf += phaseMasses.sum ( pvtFlash::VAPOUR_PHASE ) / ( densities ( pvtFlash::VAPOUR_PHASE ));
       oilRetainedMbbl += phaseMasses.sum ( pvtFlash::LIQUID_PHASE ) / densities ( pvtFlash::LIQUID_PHASE );
@@ -167,7 +190,7 @@ void Genex6::OTGCNodeAdsorptionHistory::collect ( Genex6::SourceRockNode* node )
       hist->m_subSurfaceVapourDensity = simulatorState->getSubSurfaceDensities ()( pvtFlash::VAPOUR_PHASE );
 
       hist->m_time = nodeInput->GetTime ();
-      hist->m_temperature = nodeInput->GetTemperatureKelvin () - Genex6::Constants::s_TCabs;
+      hist->m_temperature = nodeInput->GetTemperatureKelvin () - CelciusToKelvin;
       hist->m_pressure = nodeInput->getPorePressure ();
       hist->m_porosity = nodeInput->getPorosity ();
       hist->m_permeability = nodeInput->getPermeability ();
@@ -223,12 +246,12 @@ void Genex6::OTGCNodeAdsorptionHistory::collect ( Genex6::SourceRockNode* node )
                                hist->m_retainedGorSr, hist->m_retainedCgrSr,
                                hist->m_retainedOilApiSr, hist->m_retainedCondensateApiSr );
 
-      if ( hist->m_retainedGorSr != Constants::UNDEFINEDVALUE ) {
-         hist->m_retainedGorSr = Genex6::Constants::GorConversionFactor * hist->m_retainedGorSr;
+      if ( hist->m_retainedGorSr != CauldronNoDataValue ) {
+         hist->m_retainedGorSr = GorConversionFactor * hist->m_retainedGorSr;
       }
 
-      if ( hist->m_retainedCgrSr != Constants::UNDEFINEDVALUE ) {
-         hist->m_retainedCgrSr = Genex6::Constants::CgrConversionFactor * hist->m_retainedCgrSr;
+      if ( hist->m_retainedCgrSr != CauldronNoDataValue ) {
+         hist->m_retainedCgrSr = CgrConversionFactor * hist->m_retainedCgrSr;
       }
 
       node->computeOverChargeFactor ( hist->m_overChargeFactor );

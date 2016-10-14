@@ -164,14 +164,6 @@ void FCTCalc::decompact(){
 
     writeCauldronSnapShotTime((*it)->time ());
 
-#if 0
-    if (cauldron->fileOutput == FCMAPandVOLUME) {
-      writeCauldronSnapShotTime((*it)->time ());
-    } else if (cauldron->fileOutput == FCMAP) {
-      writeCauldronSnapShotTime((*it)->time ());
-    }
-#endif
-
   }
   allSnapshots.clear();
 

@@ -19,7 +19,7 @@
 #include "BasisFunctionCache.h"
 
 #include "propinterface.h"
-#include "globaldefs.h"
+#include "ConstantsFastcauldron.h"
 #include "layer.h"
 
 #include "ComputationalDomain.h"

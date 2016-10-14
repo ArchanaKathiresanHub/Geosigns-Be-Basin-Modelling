@@ -1,5 +1,19 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
+
 #include "Input.h"
 #include "ComponentManager.h"
+
+// utilities library
+#include "ConstantsNumerical.h"
+using Utilities::Numerical::CauldronNoDataValue;
 
 namespace Genex6
 {
@@ -11,13 +25,13 @@ Input::Input(const double in_currentTime, const double in_temperature,
    m_endTemperature(in_temperature),
    m_pressure(in_pressure),
    m_thicknessScaleFactor(thicknessScaleFactor),
-   m_lithostaticPressure (Constants::UNDEFINEDVALUE),
-   m_hydrostaticPressure (Constants::UNDEFINEDVALUE),
-   m_startPorePressure (Constants::UNDEFINEDVALUE),
-   m_endPorePressure (Constants::UNDEFINEDVALUE),
-   m_porosity (Constants::UNDEFINEDVALUE),
-   m_permeability (Constants::UNDEFINEDVALUE),
-   m_vre (Constants::UNDEFINEDVALUE)
+   m_lithostaticPressure (CauldronNoDataValue),
+   m_hydrostaticPressure (CauldronNoDataValue),
+   m_startPorePressure   (CauldronNoDataValue),
+   m_endPorePressure     (CauldronNoDataValue),
+   m_porosity            (CauldronNoDataValue),
+   m_permeability        (CauldronNoDataValue),
+   m_vre                 (CauldronNoDataValue)
 {
 
 }
@@ -88,44 +102,44 @@ Input::Input(const double in_currentTime, const Input &First, const Input &Secon
    m_pressure        = First.GetPressure() + Dt * gradientPressure;
    m_thicknessScaleFactor = First.m_thicknessScaleFactor + Dt * gradientthicknessScaleFactor;
 
-   if ( First.m_lithostaticPressure == Constants::UNDEFINEDVALUE or Second.m_lithostaticPressure == Constants::UNDEFINEDVALUE ) {
-      m_lithostaticPressure = Constants::UNDEFINEDVALUE;
+   if ( First.m_lithostaticPressure == CauldronNoDataValue or Second.m_lithostaticPressure == CauldronNoDataValue ) {
+      m_lithostaticPressure = CauldronNoDataValue;
    } else {
       m_lithostaticPressure = First.m_lithostaticPressure + Dt * gradientLithostaticPressure;
    }
 
-   if ( First.m_hydrostaticPressure == Constants::UNDEFINEDVALUE or Second.m_hydrostaticPressure == Constants::UNDEFINEDVALUE ) {
-      m_hydrostaticPressure = Constants::UNDEFINEDVALUE;
+   if ( First.m_hydrostaticPressure == CauldronNoDataValue or Second.m_hydrostaticPressure == CauldronNoDataValue ) {
+      m_hydrostaticPressure = CauldronNoDataValue;
    } else {
       m_hydrostaticPressure = First.m_hydrostaticPressure + Dt * gradientHydrostaticPressure;
    }
 
-   if ( First.m_endPorePressure == Constants::UNDEFINEDVALUE or Second.m_endPorePressure == Constants::UNDEFINEDVALUE ) {
-      m_endPorePressure = Constants::UNDEFINEDVALUE;
+   if ( First.m_endPorePressure == CauldronNoDataValue or Second.m_endPorePressure == CauldronNoDataValue ) {
+      m_endPorePressure = CauldronNoDataValue;
    } else {
       m_endPorePressure = First.m_endPorePressure + Dt * gradientEndPorePressure;
    }
 
-   if ( First.m_startPorePressure == Constants::UNDEFINEDVALUE or Second.m_startPorePressure == Constants::UNDEFINEDVALUE ) {
-      m_startPorePressure = Constants::UNDEFINEDVALUE;
+   if ( First.m_startPorePressure == CauldronNoDataValue or Second.m_startPorePressure == CauldronNoDataValue ) {
+      m_startPorePressure = CauldronNoDataValue;
    } else {
       m_startPorePressure = First.m_startPorePressure + Dt * gradientStartPorePressure;
    }
 
-   if ( First.m_porosity == Constants::UNDEFINEDVALUE or Second.m_porosity == Constants::UNDEFINEDVALUE ) {
-      m_porosity = Constants::UNDEFINEDVALUE;
+   if ( First.m_porosity == CauldronNoDataValue or Second.m_porosity == CauldronNoDataValue ) {
+      m_porosity = CauldronNoDataValue;
    } else {
       m_porosity = First.m_porosity + Dt * gradientPorosity;
    }
 
-   if ( First.m_permeability == Constants::UNDEFINEDVALUE or Second.m_permeability == Constants::UNDEFINEDVALUE ) {
-      m_permeability = Constants::UNDEFINEDVALUE;
+   if ( First.m_permeability == CauldronNoDataValue or Second.m_permeability == CauldronNoDataValue ) {
+      m_permeability = CauldronNoDataValue;
    } else {
       m_permeability = First.m_permeability + Dt * gradientPermeability;
    }
 
-   if ( First.m_vre == Constants::UNDEFINEDVALUE or Second.m_vre == Constants::UNDEFINEDVALUE ) {
-      m_vre = Constants::UNDEFINEDVALUE;
+   if ( First.m_vre == CauldronNoDataValue or Second.m_vre == CauldronNoDataValue ) {
+      m_vre = CauldronNoDataValue;
    } else {
       m_vre = First.m_vre + Dt * gradientVre;
    }

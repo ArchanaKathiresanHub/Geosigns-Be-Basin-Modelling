@@ -43,7 +43,7 @@
 #include "Interface/MapWriter.h"
 
 #include "NumericFunctions.h"
-#include "globaldefs.h"
+#include "ConstantsFastcauldron.h"
 #include "FilePath.h"
 
 #include "EosPack.h"
@@ -78,7 +78,6 @@ FastcauldronSimulator::FastcauldronSimulator (database::Database * database, con
    m_lateralStressInterpolator = 0;
 
    m_mcfHandler = new MultiComponentFlowHandler;
-   m_relativePermeabilityType = DefaultRelativePermeabilityFunction;
 
    m_minimumHcSaturation = DefaultMinimumHcSaturation;
    m_minimumWaterSaturation = DefaultMinimumWaterSaturation;
@@ -2126,12 +2125,6 @@ MultiComponentFlowHandler& FastcauldronSimulator::getMcfHandler () {
 
 //------------------------------------------------------------//
 
-void FastcauldronSimulator::setRelativePermeabilityType ( const RelativePermeabilityType relPerm ) {
-   m_relativePermeabilityType = relPerm;
-}
-
-//------------------------------------------------------------//
-
 void FastcauldronSimulator::readCommandLineParametersEarlyStage( const int argc, char **argv ) {
 
    // Should move all command line parameters from appctx to fastcauldron-simulator.
@@ -2359,19 +2352,6 @@ void FastcauldronSimulator::readRelPermCommandLineParameters () {
    PetscOptionsGetReal   ( PETSC_NULL, "-hcliqexpo", &hcLiquidCurveExponent, &hcLiquidCurveExponentChanged );
 
    PetscOptionsHasName   ( PETSC_NULL, "-temisviscosity", &useTemisPackViscosities );
-
-
-   // if ( relPermMethodDescribed ) {
-   //    RelativePermeabilityType relativePermeabilityFunction;
-
-   //    relativePermeabilityFunction = RelativePermeabilityTypeValue ( relPermMethodName );
-
-   //    if ( relativePermeabilityFunction == UNKNOWN_RELATIVE_PERMEABILITY_FUNCTION ) {
-   //       relativePermeabilityFunction = DefaultRelativePermeabilityFunction;
-   //    }
-
-   //    setRelativePermeabilityType ( relativePermeabilityFunction );
-   // }
 
    if ( minimumHcSaturationChanged ) {
       m_minimumHcSaturation = minimumHcSaturation;

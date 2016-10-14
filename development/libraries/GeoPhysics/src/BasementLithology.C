@@ -10,15 +10,20 @@
 
 #include "BasementLithology.h"
 
-#include <math.h>
-#include <assert.h>
 #include "GeoPhysicalConstants.h"
 #include "Interface/LithologyHeatCapacitySample.h"
 #include "Interface/LithologyThermalConductivitySample.h"
 #include "InterfaceInput.h"
 
+// std library
+#include <math.h>
+#include <assert.h>
 #include <sstream>
 using std::stringstream;
+
+// utilities library
+#include "ConstantsMathematics.h"
+using Utilities::Maths::MegaPaToPa;
 
 using namespace GeoPhysics;
 using namespace CrustalThicknessInterface;
@@ -348,7 +353,7 @@ double BasementLithology::mantleHeatCapStandard (const double inTemperature) con
 double BasementLithology::crustDensityStandard(const double  inTemperature, const double inLithostaticPressure) const {
 
    // P in Pa, T in C
-   double standardDensity = m_constants.m_csRho * ((1.0 - m_constants.m_csA * inTemperature) + (m_constants.m_csB * inLithostaticPressure * MPa_To_Pa)); // kgm-3
+   double standardDensity = m_constants.m_csRho * ((1.0 - m_constants.m_csA * inTemperature) + (m_constants.m_csB * inLithostaticPressure * MegaPaToPa)); // kgm-3
 
    return standardDensity;
 }
@@ -356,7 +361,7 @@ double BasementLithology::crustDensityStandard(const double  inTemperature, cons
 double BasementLithology::mantleDensityStandard(const double  inTemperature, const double inLithostaticPressure) const {
 
    // P in Pa, T in C
-   double standardDensity = m_constants.m_mRho * ((1.0 - m_constants.m_mA * inTemperature) + (m_constants.m_mB * inLithostaticPressure * MPa_To_Pa)); // kgm-3
+   double standardDensity = m_constants.m_mRho * ((1.0 - m_constants.m_mA * inTemperature) + (m_constants.m_mB * inLithostaticPressure * MegaPaToPa)); // kgm-3
 
    return standardDensity;
 }
@@ -368,7 +373,7 @@ double BasementLithology::mantleThermCondHigh (const double  inTemperature, cons
    double value = inTemperature + 273.15;
    assert( value >= 0 );
 
-   double thermCond = 4.76861 * pow (273.15 / value, 0.3441) * (1 + 2.78482e-11 * inLithostaticPressure * MPa_To_Pa);
+   double thermCond = 4.76861 * pow (273.15 / value, 0.3441) * (1 + 2.78482e-11 * inLithostaticPressure * MegaPaToPa);
 
   return thermCond;
 }
@@ -397,7 +402,7 @@ double BasementLithology::mantleThermCondLow (const double  inTemperature, const
    double value = inTemperature + 273.15;
    assert( value >= 0 );
 
-   double thermCond = 4.2798 * pow( 273.15/value, 0.493 ) * (1 + 3.125e-11 * inLithostaticPressure * MPa_To_Pa);
+   double thermCond = 4.2798 * pow( 273.15/value, 0.493 ) * (1 + 3.125e-11 * inLithostaticPressure * MegaPaToPa);
 
   return thermCond;
 }
@@ -431,7 +436,7 @@ double BasementLithology::mantleDensityLow(const double  inTemperature, const do
 double BasementLithology::densityBasalt(const double  inTemperature, const double inLithostaticPressure) const {
 
    // P in Pa, T in C
-   double standardDensity = m_constants.m_bRho * (( 1 -  m_constants.m_bA * inTemperature ) + (  m_constants.m_bB * inLithostaticPressure * MPa_To_Pa)); // kgm-3
+   double standardDensity = m_constants.m_bRho * (( 1 -  m_constants.m_bA * inTemperature ) + (  m_constants.m_bB * inLithostaticPressure * MegaPaToPa)); // kgm-3
 
    return standardDensity;
 }

@@ -1,13 +1,22 @@
-#include   "BiomarkersCalculator.h"
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
+#include "BiomarkersCalculator.h"
 
-#include   "BiomarkersSimulator.h"
-#include   "BiomarkersOutput.h"
+#include "BiomarkersSimulator.h"
+#include "BiomarkersOutput.h"
 
-#include   "globaldefs.h"
-#include   "petscvec.h"
-#include   "PetscVectors.h"
-#include   "layer_iterators.h"
-#include   "property_manager.h"
+#include "ConstantsFastcauldron.h"
+#include "petscvec.h"
+#include "PetscVectors.h"
+#include "layer_iterators.h"
+#include "property_manager.h"
 #include "propinterface.h"
 #include "CalibrationNode.h"
 #include "NodeInput.h"
@@ -15,6 +24,10 @@
 #include "database.h"
 #include "cauldronschema.h"
 #include "cauldronschemafuncs.h"
+
+// utilities library
+#include "ConstantsNumerical.h"
+using Utilities::Numerical::CauldronNoDataValue;
 
 using namespace Basin_Modelling;
 
@@ -108,11 +121,11 @@ bool BiomarkersCalculator::computeSnapShotBiomarkers ( const double time, const 
 		PETSC_3D_Array layerTemperature ( Current_Layer -> layerDA, Current_Layer -> Current_Properties ( Basin_Modelling::Temperature ));
 
 		DMCreateGlobalVector(Current_Layer ->layerDA, &Current_Layer ->m_SteraneAromatisation);
-		VecSet(Current_Layer ->m_SteraneAromatisation,CAULDRONIBSNULLVALUE);
+		VecSet(Current_Layer ->m_SteraneAromatisation,CauldronNoDataValue);
 		DMCreateGlobalVector(Current_Layer ->layerDA, &Current_Layer ->m_SteraneIsomerisation);
-		VecSet(Current_Layer ->m_SteraneIsomerisation,CAULDRONIBSNULLVALUE);
+		VecSet(Current_Layer ->m_SteraneIsomerisation,CauldronNoDataValue);
 		DMCreateGlobalVector(Current_Layer ->layerDA, &Current_Layer ->m_HopaneIsomerisation);
-		VecSet(Current_Layer ->m_HopaneIsomerisation,CAULDRONIBSNULLVALUE);
+		VecSet(Current_Layer ->m_HopaneIsomerisation,CauldronNoDataValue);
 
 		double ***SteraneAromatisation;
                 double ***SteraneIsomerisation;

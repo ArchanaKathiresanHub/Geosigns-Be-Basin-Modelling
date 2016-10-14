@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
 #include "snapshotinterpolator.h"
 #include "array.h"
 
@@ -6,7 +15,7 @@
 #include "h5_types.h"
 #include "h5_file_types.h"
 
-#include "globaldefs.h"
+#include "ConstantsFastcauldron.h"
 #include "utils.h"
 
 

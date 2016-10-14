@@ -1,3 +1,13 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
+
 #include "HcFluidVelocityCalculator.h"
 #include "DerivedOutputPropertyMap.h"
 #include "PropertyManager.h"
@@ -12,351 +22,18 @@
 
 #include "Interface/RunParameters.h"
 
+
+// utilities library
+#include "ConstantsNumerical.h"
+using Utilities::Numerical::CauldronNoDataValue;
+#include "ConstantsMathematics.h"
+using Utilities::Maths::YearToSecond;
+
 using namespace FiniteElementMethod;
-
-
-// OutputPropertyMap* allocateHcFluidVelocityCalculator ( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot ) {
-//    return new DerivedOutputPropertyMap<HcFluidVelocityCalculator>( property, formation, surface, snapshot );
-// }
 
 OutputPropertyMap* allocateHcFluidVelocityVolumeCalculator ( const PropertyList property, LayerProps* formation, const Interface::Snapshot* snapshot ) {
    return new DerivedOutputPropertyMap<HcFluidVelocityVolumeCalculator>( property, formation, snapshot );
 }
-
-// HcFluidVelocityCalculator::HcFluidVelocityCalculator ( LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot ) :
-//    m_formation ( formation ), m_surface ( surface ), m_snapshot ( snapshot ) {
-
-//    m_depth = 0;
-//    m_temperature = 0;
-//    m_hydrostaticPressure = 0;
-//    m_overpressure = 0;
-//    m_ves = 0;
-//    m_maxVes = 0;
-//    m_chemicalCompaction = 0;
-//    m_isCalculated = false;
-//    m_fluid = 0;
-
-//    m_chemicalCompactionRequired = m_formation->hasChemicalCompaction () and 
-//                                   FastcauldronSimulator::getInstance ().getRunParameters ()->getChemicalCompaction ();
-
-
-//    if ( m_formation->getTopSurface () == surface ) {
-//       // Number-of-nodes = number-of-elements + 1.
-//       // But C array indexing starts a 0, so 1 must be subtracted.
-//       m_kIndex = (unsigned int)(m_formation->getMaximumNumberOfElements ()) - 1;
-
-//       // The top of the element is the bottom of the reference element, since depth is positive.
-//       m_zPosition = -1.0;
-//    } else if ( m_formation->getBottomSurface () == surface ) {
-//       m_kIndex = 0;
-
-//       // The bottom of the element is the top of the reference element, since depth is positive.
-//       m_zPosition = 1.0;
-//    } else {
-//       assert ( false );
-//       // Error
-//    }
-
-// }
-
-// bool HcFluidVelocityCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& properties, 
-//                                                  OutputPropertyMap::PropertyValueList&  propertyValues ) {
-
-//    using namespace Basin_Modelling;
-
-//    if ( m_isCalculated ) {
-//       return true;
-//    }
-
-//    const bool IncludeGhosts = true;
-//    const ElementList& elements = FastcauldronSimulator::getInstance ().getCauldron ()->mapElementList;
-
-//    unsigned int elementCount;
-//    unsigned int i;
-//    unsigned int j;
-//    int globalXNodes;
-//    int globalYNodes;
-//    int node;
-//    Interface::GridMap* fluidVelocityMapX;
-//    Interface::GridMap* fluidVelocityMapY;
-//    Interface::GridMap* fluidVelocityMapZ;
-//    CompoundLithology* lithology;
-
-
-//    ThreeVector fluidVelocity;
-//    ElementGeometryMatrix geometryMatrix;
-//    ElementVector hydrostaticPressure;
-//    ElementVector overpressure;
-//    ElementVector ves;
-//    ElementVector maxVes;
-//    ElementVector temperature;
-//    ElementVector chemCompaction;
-
-//    DAGetInfo( *FastcauldronSimulator::getInstance ().getCauldron ()->mapDA, 
-//               PETSC_NULL, &globalXNodes, &globalYNodes,
-//               PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, 
-//               PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL );
-
-//    if ( not m_depth->isCalculated ()) {
-
-//       if ( not m_depth->calculate ()) {
-//          return false;
-//       }
-
-//    }
-
-//    if ( not m_temperature->isCalculated ()) {
-
-//       if ( not m_temperature->calculate ()) {
-//          return false;
-//       }
-
-//    }
-
-//    if ( not m_hydrostaticPressure->isCalculated ()) {
-
-//       if ( not m_hydrostaticPressure->calculate ()) {
-//          return false;
-//       }
-
-//    }
-
-//    if ( not m_overpressure->isCalculated ()) {
-
-//       if ( not m_overpressure->calculate ()) {
-//          return false;
-//       }
-
-//    }
-
-//    if ( not m_ves->isCalculated ()) {
-
-//       if ( not m_ves->calculate ()) {
-//          return false;
-//       }
-
-//    }
-
-//    if ( not m_maxVes->isCalculated ()) {
-
-//       if ( not m_maxVes->calculate ()) {
-//          return false;
-//       } 
-
-//    }
-
-//    if ( m_chemicalCompactionRequired and not m_chemicalCompaction->isCalculated ()) {
-
-//       if ( not m_chemicalCompaction->calculate ()) {
-//          return false;
-//       } 
-
-//    }
-
-//    // Get all the properties required  for the calculation of the heat-flow.
-//    PETSC_3D_Array layerTemperature
-//       ( m_formation->layerDA,
-//         m_formation->Current_Properties ( Basin_Modelling::Temperature ),
-//         INSERT_VALUES, IncludeGhosts );
-
-//    PETSC_3D_Array layerDepth
-//       ( m_formation->layerDA,
-//         m_formation->Current_Properties ( Basin_Modelling::Depth ),
-//         INSERT_VALUES, IncludeGhosts );
-
-//    PETSC_3D_Array layerCurrentVES
-//       ( m_formation->layerDA, 
-//         m_formation->Current_Properties ( Basin_Modelling::VES_FP ),
-//         INSERT_VALUES, IncludeGhosts );
-
-//    PETSC_3D_Array layerCurrentMaxVES
-//       ( m_formation->layerDA, 
-//         m_formation->Current_Properties ( Basin_Modelling::Max_VES ),
-//         INSERT_VALUES, IncludeGhosts );
-
-//    PETSC_3D_Array layerCurrentChemicalCompaction
-//       ( m_formation->layerDA, 
-//         m_formation->Current_Properties ( Basin_Modelling::Chemical_Compaction ),
-//         INSERT_VALUES, IncludeGhosts );
-
-//    PETSC_3D_Array layerCurrentPo
-//       ( m_formation->layerDA, 
-//         m_formation->Current_Properties ( Basin_Modelling::Overpressure ),
-//         INSERT_VALUES, IncludeGhosts );
-
-//    PETSC_3D_Array layerCurrentPh
-//       ( m_formation->layerDA, 
-//         m_formation->Current_Properties ( Basin_Modelling::Hydrostatic_Pressure ),
-//         INSERT_VALUES, IncludeGhosts );
-
-//    // Retrieve the heat-flow result maps.
-//    fluidVelocityMapX = propertyValues [ 0 ]->getGridMap ();
-//    fluidVelocityMapX->retrieveData ();
-
-//    fluidVelocityMapY = propertyValues [ 1 ]->getGridMap ();
-//    fluidVelocityMapY->retrieveData ();
-
-//    fluidVelocityMapZ = propertyValues [ 2 ]->getGridMap ();
-//    fluidVelocityMapZ->retrieveData ();
-
-//    const double deltaX  = fluidVelocityMapX->deltaI ();
-//    const double deltaY  = fluidVelocityMapX->deltaJ ();
-//    const double originX = fluidVelocityMapX->minI ();
-//    const double originY = fluidVelocityMapX->minJ ();
-
-//    for ( elementCount = 0; elementCount < elements.size(); elementCount++ ) {
-
-//       if ( elements[elementCount].exists) {
-//          i = elements [ elementCount ].i [ 0 ];
-//          j = elements [ elementCount ].j [ 0 ];
-
-//          lithology = m_formation->getCompoundLithology ( i, j );
-
-//          if ( lithology != 0 ) {
-
-//             // Retrieve element data.
-//             for ( node = 1; node <= 8; ++node ) {
-//                int LidxZ = m_kIndex + (( node - 1 ) < 4 ? 1 : 0);
-//                int GidxY = elements [ elementCount ].j [( node - 1 ) % 4 ];
-//                int GidxX = elements [ elementCount ].i [( node - 1 ) % 4 ];
-
-//                geometryMatrix ( 1, node ) = originX + (deltaX * GidxX);
-//                geometryMatrix ( 2, node ) = originY + (deltaY * GidxY);
-//                geometryMatrix ( 3, node ) = layerDepth ( LidxZ, GidxY, GidxX );
-
-//                ves                 ( node ) = layerCurrentVES ( LidxZ, GidxY, GidxX );
-//                maxVes              ( node ) = layerCurrentMaxVES ( LidxZ, GidxY, GidxX );
-//                overpressure        ( node ) = layerCurrentPo ( LidxZ, GidxY, GidxX );
-//                hydrostaticPressure ( node ) = layerCurrentPh ( LidxZ, GidxY, GidxX );
-//                temperature         ( node ) = layerTemperature ( LidxZ, GidxY, GidxX );
-//                chemCompaction      ( node ) = layerCurrentChemicalCompaction ( LidxZ, GidxY, GidxX );
-//             }
-
-//             computeFluidVelocity ( 0.0, 0.0, m_zPosition,
-//                                    lithology,
-//                                    m_fluid,
-//                                    m_chemicalCompactionRequired,
-//                                    geometryMatrix,
-//                                    ves,
-//                                    maxVes,
-//                                    hydrostaticPressure,
-//                                    overpressure,
-//                                    temperature,
-//                                    chemCompaction,
-//                                    fluidVelocity );
-
-//             fluidVelocityMapX->setValue ( i, j, fluidVelocity ( 1 ));
-//             fluidVelocityMapY->setValue ( i, j, fluidVelocity ( 2 ));
-//             fluidVelocityMapZ->setValue ( i, j, fluidVelocity ( 3 ));
-
-//             // Fill other heat flow nodes if current (i,j) position is at end of array
-//             if ( i == (unsigned int )(globalXNodes) - 2 ) {
-//                fluidVelocityMapX->setValue ( i + 1, j, fluidVelocity ( 1 ));
-//                fluidVelocityMapY->setValue ( i + 1, j, fluidVelocity ( 2 ));
-//                fluidVelocityMapZ->setValue ( i + 1, j, fluidVelocity ( 3 ));
-//             }
-
-//             if ( grid.getNumberOfYElements ()) {
-//                fluidVelocityMapX->setValue ( i, j + 1, fluidVelocity ( 1 ));
-//                fluidVelocityMapY->setValue ( i, j + 1, fluidVelocity ( 2 ));
-//                fluidVelocityMapZ->setValue ( i, j + 1, fluidVelocity ( 3 ));
-//             }
-
-//             if ( i == (unsigned int)(globalXNodes) - 2 and grid.getNumberOfYElements ()) {
-//                fluidVelocityMapX->setValue ( i + 1, j + 1, fluidVelocity ( 1 ));
-//                fluidVelocityMapY->setValue ( i + 1, j + 1, fluidVelocity ( 2 ));
-//                fluidVelocityMapZ->setValue ( i + 1, j + 1, fluidVelocity ( 3 ));
-//             }
-
-//          }
-          
-//       }
-
-//    }
-
-//    fluidVelocityMapX->restoreData ();
-//    fluidVelocityMapY->restoreData ();
-//    fluidVelocityMapZ->restoreData ();
-
-//    m_isCalculated = true;
-//    return true;
-// }
-
-// void HcFluidVelocityCalculator::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
-
-
-//    const Interface::Formation* formation = m_formation;
-
-//    PropertyValue* vapourVelocityX;
-//    PropertyValue* vapourVelocityY;
-//    PropertyValue* vapourVelocityZ;
-
-//    PropertyValue* liquidVelocityX;
-//    PropertyValue* liquidVelocityY;
-//    PropertyValue* liquidVelocityZ;
-   
-
-//    vapourVelocityX = (PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "HCVapourVelocityX", 
-//                                                                                                      m_snapshot, 0,
-//                                                                                                      formation,
-//                                                                                                      m_surface ));
-
-//    vapourVelocityY = (PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "HCVapourVelocityY", 
-//                                                                                                      m_snapshot, 0,
-//                                                                                                      formation,
-//                                                                                                      m_surface ));
-
-//    vapourVelocityZ = (PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "HCVapourVelocityZ", 
-//                                                                                                      m_snapshot, 0,
-//                                                                                                      formation,
-//                                                                                                      m_surface ));
-
-
-//    liquidVelocityX = (PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "HCLiquidVelocityX", 
-//                                                                                                      m_snapshot, 0,
-//                                                                                                      formation,
-//                                                                                                      m_surface ));
-
-//    liquidVelocityY = (PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "HCLiquidVelocityY", 
-//                                                                                                      m_snapshot, 0,
-//                                                                                                      formation,
-//                                                                                                      m_surface ));
-
-//    liquidVelocityZ = (PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "HCLiquidVelocityZ", 
-//                                                                                                      m_snapshot, 0,
-//                                                                                                      formation,
-//                                                                                                      m_surface ));
-
-//    properties.push_back ( vapourVelocityX );
-//    properties.push_back ( vapourVelocityY );
-//    properties.push_back ( vapourVelocityZ );
-
-//    properties.push_back ( liquidVelocityX );
-//    properties.push_back ( liquidVelocityY );
-//    properties.push_back ( liquidVelocityZ );
-
-// }
-
-// bool HcFluidVelocityCalculator::initialise ( OutputPropertyMap::PropertyValueList& propertyValues ) {
-
-//    m_depth = PropertyManager::getInstance().findOutputPropertyMap ( "Depth", m_formation, m_surface, m_snapshot );
-//    m_temperature = PropertyManager::getInstance().findOutputPropertyMap ( "Temperature", m_formation, m_surface, m_snapshot );
-//    m_porePressure = PropertyManager::getInstance().findOutputPropertyMap ( "PorePressure", m_formation, m_surface, m_snapshot );
-//    m_ves = PropertyManager::getInstance().findOutputPropertyMap ( "Ves", m_formation, m_surface, m_snapshot );
-//    m_maxVes = PropertyManager::getInstance().findOutputPropertyMap ( "MaxVes", m_formation, m_surface, m_snapshot );
-
-//    if ( m_chemicalCompactionRequired ) {
-//       m_chemicalCompaction = PropertyManager::getInstance().findOutputPropertyMap ( "ChemicalCompaction", m_formation, m_surface, m_snapshot );
-//    } else {
-//       m_chemicalCompaction = 0;
-//    }
-
-//    m_fluid = m_formation->fluid;
-
-//    return m_depth != 0 and m_temperature != 0 and m_hydrostaticPressure != 0 and m_overpressure != 0 and 
-//           m_ves != 0 and m_maxVes != 0 and 
-//           ( m_chemicalCompactionRequired ? m_chemicalCompaction != 0 : true );
-// }
 
 
 
@@ -560,12 +237,12 @@ bool HcFluidVelocityVolumeCalculator::operator ()( const OutputPropertyMap::Outp
                      hcVapourVelocity *= lithology->relativePermeability ( Saturation::VAPOUR, saturation ) / ( porosity.mixedProperty () * saturation ( Saturation::VAPOUR ));
 
                      // Scale to mm/year from metres/sec.
-                     hcVapourVelocity *= 1000.0 * SecondsPerYear;
+                     hcVapourVelocity *= 1000.0 * YearToSecond;
 
                      vapourVelocityMagnitude = length ( hcVapourVelocity );
                   } else {
-                     hcVapourVelocity.fill ( CAULDRONIBSNULLVALUE );
-                     vapourVelocityMagnitude = CAULDRONIBSNULLVALUE;
+                     hcVapourVelocity.fill ( CauldronNoDataValue );
+                     vapourVelocityMagnitude = CauldronNoDataValue;
                   }
 
                   if ( saturation ( Saturation::LIQUID ) > 0.0 ) {
@@ -573,12 +250,12 @@ bool HcFluidVelocityVolumeCalculator::operator ()( const OutputPropertyMap::Outp
                      hcLiquidVelocity *= lithology->relativePermeability ( Saturation::LIQUID, saturation ) / ( porosity.mixedProperty () * saturation ( Saturation::LIQUID ));
 
                      // Scale to mm/year from metres/sec.
-                     hcLiquidVelocity *= 1000.0 * SecondsPerYear;
+                     hcLiquidVelocity *= 1000.0 * YearToSecond;
 
                      liquidVelocityMagnitude = length ( hcLiquidVelocity );
                   } else {
-                     hcLiquidVelocity.fill ( CAULDRONIBSNULLVALUE );
-                     liquidVelocityMagnitude = CAULDRONIBSNULLVALUE;
+                     hcLiquidVelocity.fill ( CauldronNoDataValue );
+                     liquidVelocityMagnitude = CauldronNoDataValue;
                   }
 
                   hcVapourMaps [ 0 ]->setValue ( i, j, k, hcVapourVelocity ( 1 ));
@@ -698,15 +375,15 @@ bool HcFluidVelocityVolumeCalculator::operator ()( const OutputPropertyMap::Outp
                   }
 
                } else {
-                  hcVapourMaps [ 0 ]->setValue ( i, j, k, CAULDRONIBSNULLVALUE );
-                  hcVapourMaps [ 1 ]->setValue ( i, j, k, CAULDRONIBSNULLVALUE );
-                  hcVapourMaps [ 2 ]->setValue ( i, j, k, CAULDRONIBSNULLVALUE );
-                  hcVapourMaps [ 3 ]->setValue ( i, j, k, CAULDRONIBSNULLVALUE );
+                  hcVapourMaps [ 0 ]->setValue ( i, j, k, CauldronNoDataValue );
+                  hcVapourMaps [ 1 ]->setValue ( i, j, k, CauldronNoDataValue );
+                  hcVapourMaps [ 2 ]->setValue ( i, j, k, CauldronNoDataValue );
+                  hcVapourMaps [ 3 ]->setValue ( i, j, k, CauldronNoDataValue );
 
-                  hcLiquidMaps [ 0 ]->setValue ( i, j, k, CAULDRONIBSNULLVALUE );
-                  hcLiquidMaps [ 1 ]->setValue ( i, j, k, CAULDRONIBSNULLVALUE );
-                  hcLiquidMaps [ 2 ]->setValue ( i, j, k, CAULDRONIBSNULLVALUE );
-                  hcLiquidMaps [ 3 ]->setValue ( i, j, k, CAULDRONIBSNULLVALUE );
+                  hcLiquidMaps [ 0 ]->setValue ( i, j, k, CauldronNoDataValue );
+                  hcLiquidMaps [ 1 ]->setValue ( i, j, k, CauldronNoDataValue );
+                  hcLiquidMaps [ 2 ]->setValue ( i, j, k, CauldronNoDataValue );
+                  hcLiquidMaps [ 3 ]->setValue ( i, j, k, CauldronNoDataValue );
                }
                
             }
@@ -714,15 +391,15 @@ bool HcFluidVelocityVolumeCalculator::operator ()( const OutputPropertyMap::Outp
          } else {
 
             for ( k = elements.firstK (); k <= elements.lastK (); ++k ) {
-               hcVapourMaps [ 0 ]->setValue ( i, j, k, CAULDRONIBSNULLVALUE );
-               hcVapourMaps [ 1 ]->setValue ( i, j, k, CAULDRONIBSNULLVALUE );
-               hcVapourMaps [ 2 ]->setValue ( i, j, k, CAULDRONIBSNULLVALUE );
-               hcVapourMaps [ 3 ]->setValue ( i, j, k, CAULDRONIBSNULLVALUE );
+               hcVapourMaps [ 0 ]->setValue ( i, j, k, CauldronNoDataValue );
+               hcVapourMaps [ 1 ]->setValue ( i, j, k, CauldronNoDataValue );
+               hcVapourMaps [ 2 ]->setValue ( i, j, k, CauldronNoDataValue );
+               hcVapourMaps [ 3 ]->setValue ( i, j, k, CauldronNoDataValue );
 
-               hcLiquidMaps [ 0 ]->setValue ( i, j, k, CAULDRONIBSNULLVALUE );
-               hcLiquidMaps [ 1 ]->setValue ( i, j, k, CAULDRONIBSNULLVALUE );
-               hcLiquidMaps [ 2 ]->setValue ( i, j, k, CAULDRONIBSNULLVALUE );
-               hcLiquidMaps [ 3 ]->setValue ( i, j, k, CAULDRONIBSNULLVALUE );
+               hcLiquidMaps [ 0 ]->setValue ( i, j, k, CauldronNoDataValue );
+               hcLiquidMaps [ 1 ]->setValue ( i, j, k, CauldronNoDataValue );
+               hcLiquidMaps [ 2 ]->setValue ( i, j, k, CauldronNoDataValue );
+               hcLiquidMaps [ 3 ]->setValue ( i, j, k, CauldronNoDataValue );
             }
          }
           

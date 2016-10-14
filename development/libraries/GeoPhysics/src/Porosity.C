@@ -18,6 +18,10 @@
 #include "Interface/Interface.h"
 #include "NumericFunctions.h"
 
+// utilities library
+#include "ConstantsPhysics.h"
+using Utilities::Physics::AccelerationDueToGravity;
+
 const double GeoPhysics::Porosity::SolidThicknessIterationTolerance = 0.00001;
 
 

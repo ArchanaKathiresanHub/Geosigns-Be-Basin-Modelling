@@ -55,6 +55,12 @@
 #include "errorhandling.h"
 #include "FilePath.h"
 
+// utilities library
+#include "ConstantsMathematics.h"
+using Utilities::Maths::MilliWattsToWatts;
+#include "ConstantsPhysics.h"
+using Utilities::Physics::AccelerationDueToGravity;
+
 using namespace DataAccess;
 using namespace CBMGenerics;
 

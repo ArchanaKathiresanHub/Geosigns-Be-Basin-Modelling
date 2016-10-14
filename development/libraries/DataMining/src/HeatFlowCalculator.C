@@ -162,8 +162,8 @@ double DataAccess::Mining::HeatFlowCalculator::compute ( const ElementPosition& 
       fluidDensity = fluid->density ( temperature, porePressure );
       heatCapacity = fluid->heatCapacity ( temperature, porePressure );
 
-      permeabilityN /= GeoPhysics::M2TOMILLIDARCY;
-      permeabilityH /= GeoPhysics::M2TOMILLIDARCY;
+      permeabilityN /= GeoPhysics::M2ToMillyDarcy;
+      permeabilityH /= GeoPhysics::M2ToMillyDarcy;
 
       gradOverpressure = finiteElement.interpolateGrad ( overpressureCoeffs );
       gradHydrostaticPressure = finiteElement.interpolateGrad ( hydrostaticPressureCoeffs );
@@ -185,7 +185,7 @@ double DataAccess::Mining::HeatFlowCalculator::compute ( const ElementPosition& 
       fluidVelocity ( 3 ) = fluidMobility ( 3, 1 ) * gradOverpressure ( 1 ) + fluidMobility ( 3, 2 ) * gradOverpressure ( 2 ) + fluidMobility ( 3, 3 ) * gradOverpressure ( 3 );
 
       // Convert to mm/y from m/s.
-      fluidVelocity *= -1000.0 * GeoPhysics::SecondsPerYear / porosity;
+      fluidVelocity *= -1000.0 * GeoPhysics::YearToSecond / porosity;
 
       advectionScaling = fluidDensity * heatCapacity * temperature;
 

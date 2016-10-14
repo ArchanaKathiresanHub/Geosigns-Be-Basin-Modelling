@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
 #include "ExplicitMultiComponentFlowSolver.h"
 
 #include <time.h>
@@ -35,6 +44,14 @@ using namespace DataAccess;
 #include "PoreVolumeInterpolatorCalculator.h"
 
 #include "BrooksCorey.h"
+
+// utilities library
+#include "ConstantsMathematics.h"
+using Utilities::Maths::MillyDarcyToM2;
+using Utilities::Maths::MillionYearToSecond;
+// utilities library
+#include "ConstantsPhysics.h"
+using Utilities::Physics::AccelerationDueToGravity;
 
 
 //------------------------------------------------------------//
@@ -146,7 +163,7 @@ ExplicitMultiComponentFlowSolver::ExplicitMultiComponentFlowSolver ()
    }
 
    // now scale the permeability maximum to SI units.
-   m_fluxPermeabilityMaximum *= MILLIDARCYTOM2;
+   m_fluxPermeabilityMaximum *= MillyDarcyToM2;
 
    m_maximumTimeStepSize = FastcauldronSimulator::getInstance ().getMcfHandler ().getMaximumTimeStepSize ();
 
@@ -390,13 +407,13 @@ void ExplicitMultiComponentFlowSolver::solve ( Subdomain&   subdomain,
 
          uniformFractionScaling = 1.0 / double ( uniformTimeStepCount );
          uniformDeltaTMa = ( startTime - endTime ) * uniformFractionScaling;
-         uniformDeltaTSec = GeoPhysics::SecondsPerMillionYears * uniformDeltaTMa;
+         uniformDeltaTSec = MillionYearToSecond * uniformDeltaTMa;
       } else {
          uniformTimeStepCount = 1;
 
          uniformFractionScaling = 1.0;
          uniformDeltaTMa = startTime - endTime;
-         uniformDeltaTSec = GeoPhysics::SecondsPerMillionYears * uniformDeltaTMa;
+         uniformDeltaTSec = MillionYearToSecond * uniformDeltaTMa;
       }
 
    }
@@ -435,7 +452,7 @@ void ExplicitMultiComponentFlowSolver::solve ( Subdomain&   subdomain,
    double lastOtgcStartTime;
 
    timeStepStartMa = startTime;
-   timeStepStartSec = startTime * GeoPhysics::SecondsPerMillionYears;
+   timeStepStartSec = startTime * MillionYearToSecond;
    lambdaStart = 0.0;
 
    transportedMasses.fill ( 0.0 );
@@ -586,7 +603,7 @@ void ExplicitMultiComponentFlowSolver::solve ( Subdomain&   subdomain,
             lambdaEnd = lambdaStart + fractionScaling;
          }
 
-         deltaTSec = deltaTMa * GeoPhysics::SecondsPerMillionYears;
+         deltaTSec = deltaTMa * MillionYearToSecond;
          timeStepEndMa  -= deltaTMa;
          timeStepEndSec -= deltaTSec;
 
@@ -1208,12 +1225,12 @@ double ExplicitMultiComponentFlowSolver::computeElementFaceFlux ( const Subdomai
    {
 
      case VolumeData::ShallowFace : 
-        pressureGradient = (( elementPressure - neighbourPressure ) / deltaX - phaseDensity * GRAVITY );
+        pressureGradient = (( elementPressure - neighbourPressure ) / deltaX - phaseDensity * AccelerationDueToGravity);
         permeabilityValue = permNormal;
         break;
 
      case VolumeData::DeepFace : 
-        pressureGradient = -(( neighbourPressure - elementPressure ) / deltaX - phaseDensity * GRAVITY );
+        pressureGradient = -(( neighbourPressure - elementPressure ) / deltaX - phaseDensity * AccelerationDueToGravity);
         permeabilityValue = permNormal;
         break;
 
@@ -1633,7 +1650,7 @@ void ExplicitMultiComponentFlowSolver::computeFluxTerms ( FormationSubdomainElem
 
                      if ( sumFluxes ( component ) > 0.0 ) {
                            elementTimeStep = FastcauldronSimulator::getInstance ().getMcfHandler ().adaptiveTimeStepFraction () * elementVolume * composition ( component ) / sumFluxes ( component );
-                        calculatedTimeStep = NumericFunctions::Minimum ( calculatedTimeStep, elementTimeStep  / GeoPhysics::SecondsPerMillionYears );
+                        calculatedTimeStep = NumericFunctions::Minimum ( calculatedTimeStep, elementTimeStep  / MillionYearToSecond );
                      }
 
                   }

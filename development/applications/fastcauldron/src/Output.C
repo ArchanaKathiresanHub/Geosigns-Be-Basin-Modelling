@@ -1,8 +1,21 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
+
 #include "Output.h"
 #include "layer_iterators.h"
 #include "utils.h"
 #include "timefilter.h"
 
+// utilities library
+#include "ConstantsNumerical.h"
+using Utilities::Numerical::CauldronNoDataValue;
 
 double getPropValOfFirstNodeOnSurface(DM a_DA,
                                       Vec* a_vec,
@@ -23,7 +36,7 @@ double getPropValOfFirstNodeOnSurface(DM a_DA,
               PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE, 
               PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE);
   
-  double returnValue = CAULDRONIBSNULLVALUE;
+  double returnValue = CauldronNoDataValue;
 
   
   //each process gets its first node (but only rank0 process writes the project-file)
@@ -35,9 +48,9 @@ double getPropValOfFirstNodeOnSurface(DM a_DA,
 
     PETSC_2D_Array x( a_DA, *a_vec, INSERT_VALUES, true );
 
-    if ( ! validNeedle ( xCnt, yCnt ) || x(yCnt,xCnt) == CAULDRONIBSNULLVALUE) 
+    if ( ! validNeedle ( xCnt, yCnt ) || x(yCnt,xCnt) == CauldronNoDataValue) 
     {
-       returnValue = CAULDRONIBSNULLVALUE;
+       returnValue = CauldronNoDataValue;
     } 
     else 
     {
@@ -59,9 +72,9 @@ double getPropValOfFirstNodeOnSurface(DM a_DA,
        zCnt = 0;
     }
 
-    if ( ! validNeedle ( xCnt, yCnt ) || x(zCnt,yCnt,xCnt) == CAULDRONIBSNULLVALUE) 
+    if ( ! validNeedle ( xCnt, yCnt ) || x(zCnt,yCnt,xCnt) == CauldronNoDataValue) 
     {
-       returnValue = CAULDRONIBSNULLVALUE;
+       returnValue = CauldronNoDataValue;
     } 
     else 
     {
@@ -103,9 +116,9 @@ void getPropValsOfFirstColumnInLayer(DM a_DA,
 
     PETSC_2D_Array x( a_DA, *a_vec, INSERT_VALUES, true );
 
-    if ( ! validNeedle ( xCnt, yCnt ) || x(yCnt,xCnt) == CAULDRONIBSNULLVALUE) 
+    if ( ! validNeedle ( xCnt, yCnt ) || x(yCnt,xCnt) == CauldronNoDataValue) 
     {
-       returnValList.push_back( CAULDRONIBSNULLVALUE ); 
+       returnValList.push_back( CauldronNoDataValue ); 
     } 
     else 
     {
@@ -119,9 +132,9 @@ void getPropValsOfFirstColumnInLayer(DM a_DA,
     
     for (int zCnt =  start[2]+count[2]-1 ; zCnt >= start[2]  ; --zCnt) 
     {
-       if ( ! validNeedle ( xCnt, yCnt ) || x(zCnt,yCnt,xCnt) == CAULDRONIBSNULLVALUE) 
+       if ( ! validNeedle ( xCnt, yCnt ) || x(zCnt,yCnt,xCnt) == CauldronNoDataValue) 
        {
-          returnValList.push_back( CAULDRONIBSNULLVALUE ); 
+          returnValList.push_back( CauldronNoDataValue ); 
        } 
        else 
        {

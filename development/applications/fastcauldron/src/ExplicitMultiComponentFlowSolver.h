@@ -1,5 +1,14 @@
-#ifndef _FASTCAULDRON__EXPLICIT_MULTI_COMPONENT_FLOW_SOLVER__H_
-#define _FASTCAULDRON__EXPLICIT_MULTI_COMPONENT_FLOW_SOLVER__H_
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
+#ifndef FASTCAULDRON__EXPLICIT_MULTI_COMPONENT_FLOW_SOLVER__H
+#define FASTCAULDRON__EXPLICIT_MULTI_COMPONENT_FLOW_SOLVER__H
 
 #include <map>
 #include <vector>
@@ -28,7 +37,7 @@
 
 #include "ghost_array.h"
 #include "ConstrainedArray.h"
-#include "globaldefs.h"
+#include "ConstantsFastcauldron.h"
 
 #include "property_manager.h"
 
@@ -472,4 +481,4 @@ private :
 };
 
 
-#endif // _FASTCAULDRON__EXPLICIT_MULTI_COMPONENT_FLOW_SOLVER__H_
+#endif // FASTCAULDRON__EXPLICIT_MULTI_COMPONENT_FLOW_SOLVER__H

@@ -13,7 +13,7 @@
 // Access to fastcauldron application classes
 #include "BoundaryId.h"
 #include "ghost_array.h"
-#include "globaldefs.h"
+#include "ConstantsFastcauldron.h"
 #include "layer.h"
 #include "LayerElement.h"
 

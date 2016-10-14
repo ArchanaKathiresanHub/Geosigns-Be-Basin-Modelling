@@ -9,11 +9,15 @@
 // 
 #include "BoundaryConditions.h"
 
+// utilities library
+#include "ConstantsNumerical.h"
+using Utilities::Numerical::CauldronNoDataValue;
+
 void BoundaryConditions::reset () {
 
    for ( int i = 0; i < NumberOfElementNodes; ++i ) {
       m_bcs [ i ] = Interior_Boundary;
-      m_bcValues [ i ] = CAULDRONIBSNULLVALUE;
+      m_bcValues [ i ] = CauldronNoDataValue;
    }
 
 }

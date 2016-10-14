@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
 #ifndef _PROPInterface_H_
 #define _PROPInterface_H_
 
@@ -12,7 +21,7 @@
 #include "GeoPhysicsFluidType.h"
 #include "CauldronGridDescription.h"
 
-#include "globaldefs.h"
+#include "ConstantsFastcauldron.h"
 #include "petscts.h"
 #include "petscdmda.h"
 #include "IBSinterpolator.h"
@@ -426,7 +435,6 @@ public:
 
    PetscBool IsCalculationCoupled;
    PetscBool readFCTCorrectionFactor;
-   OutputFormat fileOutput;
 
    /// Arrays of permafrost time steps and correspondent ages, when those time steps are being activated
    DoubleVector m_permafrostTimeSteps;

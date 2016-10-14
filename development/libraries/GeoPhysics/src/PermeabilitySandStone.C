@@ -11,8 +11,13 @@
 #include "PermeabilitySandStone.h"
 #include "GeoPhysicalConstants.h"
 
+// std library
 #include <algorithm>
 #include <cmath>
+
+// utilities library
+#include "ConstantsMathematics.h"
+using Utilities::Maths::Log10;
 
 namespace GeoPhysics
 {

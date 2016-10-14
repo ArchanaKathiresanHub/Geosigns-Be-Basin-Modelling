@@ -9,16 +9,17 @@
 //
 
 #include "Leak.h"
-#include "consts.h"
 
+// std library
 #include <iostream>
 #include <limits>
 #include <assert.h>
 #include <algorithm>
-
 using std::numeric_limits;
 using std::min;
-using CBMGenerics::Gravity;
+
+#include "ConstantsPhysics.h"
+using Utilities::Physics::AccelerationDueToGravity;
 
 namespace migration
 {
@@ -47,7 +48,7 @@ namespace migration
          // Calculate the maximum buoyancy level:
          double& maxBuoyancyLevel = m_maxBuoyancy[0];
          maxBuoyancyLevel = m_sealFluidDensity != m_fluidDensity ?
-            m_maxSealPressure / ((m_sealFluidDensity - m_fluidDensity) * Gravity) :
+            m_maxSealPressure / ((m_sealFluidDensity - m_fluidDensity) * AccelerationDueToGravity) :
             numeric_limits<double>::max ();
 
          if (maxBuoyancyLevel < 0)

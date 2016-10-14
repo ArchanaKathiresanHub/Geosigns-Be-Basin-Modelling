@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
 #include "mpi.h"
 #include "PoreVolumeInterpolatorCalculator.h"
 #include "Lithology.h"
@@ -9,7 +18,7 @@
 #include "property_manager.h"
 #include "ElementContributions.h"
 #include "LayerElement.h"
-#include "globaldefs.h"
+#include "ConstantsFastcauldron.h"
 
 
 void PoreVolumeInterpolatorCalculator::compute ( const SubdomainElement&  element,

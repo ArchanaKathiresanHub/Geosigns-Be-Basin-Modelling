@@ -1,4 +1,14 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
 
+// std library
 #include <string.h>
 #include <string>
 #include <vector>
@@ -19,6 +29,10 @@
 #include "ComponentManager.h"
 #include "GenexResultManager.h"
 #include "GeneralParametersHandler.h"
+
+// utilities
+#include "ConstantsMathematics.h"
+using Utilities::Maths::KiloJouleToJoule;
 
 namespace Genex6
 {
@@ -1277,12 +1291,12 @@ void ChemicalModel::SetTheSpecies(ifstream &theStream)
       int counter = 0;
       if(s_numberOfSpecies > 23) counter = 7; else counter = 6;
       //SpeciesProperties
-      double activationEnergy1 = Genex6::Constants::convert2Joule * atof(theTokens[counter ++].c_str()); // 7
-      double activationEnergy2 = Genex6::Constants::convert2Joule * atof(theTokens[counter ++].c_str()); // 8
+      double activationEnergy1 = KiloJouleToJoule * atof(theTokens[counter ++].c_str()); // 7
+      double activationEnergy2 = KiloJouleToJoule * atof(theTokens[counter ++].c_str()); // 8
       double entropy           = atof(theTokens[counter ++].c_str()); // 9
       double volume            = atof(theTokens[counter ++].c_str()); // 10
       double reactionOrder     = atof(theTokens[counter ++].c_str()); // 11
-      double diffusionEnergy1  = Genex6::Constants::convert2Joule*atof(theTokens[counter ++].c_str()); //12
+      double diffusionEnergy1  = KiloJouleToJoule*atof(theTokens[counter ++].c_str()); //12
       double diffusionEnergy2  = 0.0;     //generally not defined in sch files, implicitly changed at later stage
       double jumpLength        = atof(theTokens[counter + 3].c_str()); // 16
       double density           = atof(theTokens[counter + 4].c_str()); // 17

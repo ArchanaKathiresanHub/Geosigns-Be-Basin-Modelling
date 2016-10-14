@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 #include "PermeabilityCalculator.h"
 
 #include "Interface/ProjectHandle.h"
@@ -7,6 +16,10 @@
 #include "GeoPhysicalConstants.h"
 #include "CompoundLithology.h"
 #include "CompoundProperty.h"
+
+// utilities library
+#include "ConstantsMathematics.h"
+using Utilities::Maths::M2ToMillyDarcy;
 
 
 DataAccess::Mining::PermeabilityCalculator::PermeabilityCalculator ( const DomainPropertyCollection*            collection,
@@ -81,8 +94,8 @@ double DataAccess::Mining::PermeabilityCalculator::compute ( const ElementPositi
       lithology->getPorosity ( ves, maxVes, layerRequiresChemicalCompaction, chemicalCompaction, porosity );
       lithology->calcBulkPermeabilityNP ( ves, maxVes, porosity, permeabilityN, permeabilityP );
 
-      permeabilityN *= GeoPhysics::M2TOMILLIDARCY;
-      permeabilityP *= GeoPhysics::M2TOMILLIDARCY;
+      permeabilityN *= M2ToMillyDarcy;
+      permeabilityP *= M2ToMillyDarcy;
 
 #if 0
       permeabilityN = std::log10 ( permeabilityN );

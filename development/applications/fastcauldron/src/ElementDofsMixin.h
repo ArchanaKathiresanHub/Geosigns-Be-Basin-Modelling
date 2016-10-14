@@ -18,7 +18,7 @@
 #endif
 
 // Access to fastcauldron application code.
-#include "globaldefs.h"
+#include "ConstantsFastcauldron.h"
 
 
 /// \brief Class used to add general dof numbering to an element.

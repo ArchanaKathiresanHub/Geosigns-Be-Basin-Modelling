@@ -1,11 +1,20 @@
-#ifndef _GENERICS_H_
-#define _GENERICS_H_
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
+#ifndef GENERICS_H
+#define GENERICS_H
 
 #include <string>
 using namespace std;
 
 #include "ComponentManager.h"
-#include "consts.h"
+
 using namespace CBMGenerics;
 
 
@@ -26,5 +35,5 @@ extern const double StockTankTemperature;
 
 extern double Accumulate (double values[], int numberOfValues);
 
-#endif // _GENERICS_H_
+#endif // GENERICS_H
 

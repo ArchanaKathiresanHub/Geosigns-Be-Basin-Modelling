@@ -10,7 +10,7 @@ using namespace std;
 #include "UnitTestDataCreator.h"
 #include "Simulator.h"
 #include "SourceRockNode.h"
-#include "Constants.h"
+#include "ConstantsGenex.h"
 #include "GenexResultManager.h"
 
 void ConvertSch2CfgFile(const std::string &in_ConfigurationFilefullPath,

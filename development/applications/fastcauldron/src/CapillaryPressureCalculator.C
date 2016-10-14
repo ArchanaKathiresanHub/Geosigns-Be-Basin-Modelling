@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
 #include "CapillaryPressureCalculator.h"
 #include "CompoundLithology.h"
 #include "DerivedOutputPropertyMap.h"
@@ -15,7 +24,7 @@
 
 #include "Interface/RunParameters.h"
 #include "Interface/Interface.h"
-#include "consts.h"
+
 
 #include "timefilter.h"
 #include "BrooksCorey.h"
@@ -25,16 +34,9 @@
 using namespace FiniteElementMethod;
 using namespace pvtFlash;
 
-// OutputPropertyMap* allocateCapillaryPressureCalculator ( const ::PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot ) {
-//    return new DerivedOutputPropertyMap<CapillaryPressureCalculator>( property, formation, surface, snapshot );
-// }
-
 OutputPropertyMap* allocateCapillaryPressureVolumeCalculator ( const ::PropertyList property, LayerProps* formation, const Interface::Snapshot* snapshot ) {
    return new DerivedOutputPropertyMap<CapillaryPressureVolumeCalculator>( property, formation, snapshot );
 }
-
-
-
 
 //volume calculator 
 //constructor
@@ -268,122 +270,3 @@ bool CapillaryPressureVolumeCalculator::operator ()( const OutputPropertyMap::Ou
 
    return true;
 }
-
-
-// //map
-// CapillaryPressureCalculator::CapillaryPressureCalculator ( LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot ) :
-//    m_formation ( formation ), m_surface ( surface ), m_snapshot ( snapshot ) {
-//   m_isCalculated = false;
-// }
-
-
-// void CapillaryPressureCalculator::allocatePropertyValues ( OutputPropertyMap::PropertyValueList& properties ) {
-
-//  PropertyValue* phase;
-//  phase = (PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "CapillaryPressureLiquidWater", 
-//                                                                                               m_snapshot, 0,
-//                                                                                               m_formation,
-//                                                                                               m_formation->getMaximumNumberOfElements () + 1 ));
-//  properties.push_back ( phase );
-
- 
-//  phase = (PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "CapillaryPressureVapourWater", 
-//                                                                                               m_snapshot, 0,
-//                                                                                               m_formation,
-//                                                                                               m_formation->getMaximumNumberOfElements () + 1 )); 
-//  properties.push_back ( phase );
-  
-// }
-
-// CapillaryPressureCalculator::~CapillaryPressureCalculator() {
-// }
-
-// bool CapillaryPressureCalculator::initialise ( OutputPropertyMap::PropertyValueList& propertyValues ) {
-
-//    m_temperature = PropertyManager::getInstance().findOutputPropertyMap ( "Temperature", m_formation, m_surface, m_snapshot );
-//    m_pressure = PropertyManager::getInstance().findOutputPropertyMap ( "Pressure", m_formation, m_surface, m_snapshot );
-//    m_porosity = PropertyManager::getInstance().findOutputPropertyMap ( "Porosity", m_formation, m_surface, m_snapshot );
-//    m_lithologies = &m_formation->getCompoundLithologyArray ();
-//    m_fluid = m_formation->fluid;
-//    return true;
-// }
-
-// bool CapillaryPressureCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& properties, 
-//                                                OutputPropertyMap::PropertyValueList&  propertyValues )
-// {   
-// unsigned int i;
-//    unsigned int j;
-//    double capillaryPressure;
-//    double undefinedValue;
-//    double waterDensityValue = 0.0;
-//    double tempValue = 0.0;
-//    double pressValue = 0.0;
-//    double porosityValue;
-//    double hcDensityValue = 0.0;
-//    double hcViscosityValue;
-//    int hcPhase;
-//    double hcTempValue = 0.0;
-
-//    capPressureMap = propertyValues[0]->getGridMap ();
-//    capPressureMap->retrieveData ();
-//    undefinedValue = capPressureMap->getUndefinedValue ();
-
-//    for (i = capPressureMap->firstI (); i <= capPressureMap->lastI (); ++i)
-//    {
-
-//       for (j = capPressureMap->firstJ (); j <= capPressureMap->lastJ (); ++j)
-//       {
-
-//          if (FastcauldronSimulator::getInstance ().nodeIsDefined (i, j))
-//          {
-
-//             tempValue = (*m_temperature) (i, j);
-//             pressValue = (*m_pressure) (i, j);
-
-//             waterDensityValue = m_fluid->density (tempValue, pressValue);
-
-//             pvtFlash::EosPack::getInstance ().compute (tempValue + CBMGenerics::C2K,
-//                                                        pressValue * CBMGenerics::MPa2Pa, m_componentId, 
-//                                                        hcPhase, hcDensityValue, hcViscosityValue);
-
-//             if (waterDensityValue <= hcDensityValue)
-//             {
-//                cerr << "water density (" << waterDensityValue << ") <= " <<
-//                   pvtFlash::ComponentIdNames[m_componentId] << " density (" << hcDensityValue <<
-//                   " for temperature " << tempValue + CBMGenerics::C2K << " K" <<
-//                   ", pressure " << pressValue * CBMGenerics::MPa2Pa << " Pa" <<
-//                   ", in phase " << pvtFlash::PVTPhaseNames[hcPhase] << endl;
-//             }
-//             porosityValue = 0.01 * (*m_porosity) (i, j);
-
-//             hcTempValue = pvtFlash::getCriticalTemperature (m_componentId, 0);
-            
-//             capillaryPressure =
-//                (*m_lithologies) (i, j)->capillaryPressure (m_phaseId, waterDensityValue, hcDensityValue,
-//                                                            tempValue + CBMGenerics::C2K, hcTempValue, 
-//                                                            m_waterSaturation, porosityValue);
-//             if (isinf (capillaryPressure))
-//             {
-//                capillaryPressure = 1e24;
-//             }
-            
-//             capPressureMap->setValue (i, j, 0.12345);
-//          }
-//          else
-//          {
-//             capPressureMap->setValue (i, j, undefinedValue);
-//          }
-
-//       }
-//    }
-//    liquidWaterCapPressureMap->restoreData ();
-//    vapourWaterCapPressureMap->restoreData ();
-//    m_isCalculated = true;
-
-//    return true;
-   
-//}
-
-
-
-

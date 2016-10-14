@@ -12,12 +12,15 @@
 #include <cmath>
 #include "DiffusionCoefficient.h"
 #include "migration.h"
-#include "consts.h"
 
+// std library
 #include <iostream>
 #include <algorithm>
 
-using CBMGenerics::C2K;
+#include "ConstantsMathematics.h"
+using Utilities::Maths::CelciusToKelvin;
+#include "ConstantsPhysics.h"
+using Utilities::Physics::BoltzmannConstant;
 
 namespace migration {
 
@@ -35,7 +38,7 @@ namespace migration {
       double porosity = max(0.0001, porosityFrac);
 
       // Calculate the diffusion coefficient coef for this formation:
-      double temperatureK = temperatureC + C2K;
+      double temperatureK = temperatureC + CelciusToKelvin;
       double dc1 = m_diffusionFactor * exp(- m_activationTemperature / temperatureK);
       double coef = dc1 * pow(porosity, 2.2);
 
@@ -48,10 +51,10 @@ namespace migration {
       double porosity = max(0.0001, porosityFrac);
 
       // Calculate the diffusion coefficient coef for this formation:
-      double temperatureK = temperatureC + C2K;
-      double dc1 = CBMGenerics::BoltzmannConstant*temperatureK / (6.0 * M_PI * gasRadius * viscosity);
+      double temperatureK = temperatureC + CelciusToKelvin;
+      double dc1 = BoltzmannConstant*temperatureK / (6.0 * M_PI * gasRadius * viscosity);
       double coef = dc1 * pow(porosity, 2.2);
-	   
+
       return coef;
    }
 

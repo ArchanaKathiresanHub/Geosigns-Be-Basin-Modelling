@@ -1,9 +1,24 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
 #include "PrimaryOutputPropertyMap.h"
 #include "FastcauldronSimulator.h"
 #include "timefilter.h"
 #include "propinterface.h"
 
 #include "Interface/RunParameters.h"
+
+// utilities library
+#include "ConstantsNumerical.h"
+using Utilities::Numerical::CauldronNoDataValue;
+#include "ConstantsMathematics.h"
+using Utilities::Maths::MillyDarcyToM2;
 
 PrimaryOutputPropertyMap::PrimaryOutputPropertyMap ( const PropertyList         propertyName,
                                                            LayerProps*          formation,
@@ -103,7 +118,7 @@ bool PrimaryOutputPropertyMap::initialise () {
          if ( FastcauldronSimulator::getInstance ().nodeIsDefined ( i, j ) and propertyIsDefined ) {
             value = propertyVector [ m_kIndex ][ j ][ i ];
          } else {
-            value = CAULDRONIBSNULLVALUE;
+            value = CauldronNoDataValue;
          }
 
          propertyMap->setValue ( i, j, value );

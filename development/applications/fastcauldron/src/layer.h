@@ -23,7 +23,7 @@ using CBMGenerics::Polyfunction;
 #include "GeoPhysicsFluidType.h"
 #include "GeoPhysicsFormation.h"
 #include "filterwizard.h"
-#include "globaldefs.h"
+#include "ConstantsFastcauldron.h"
 #include "ghost_array.h"
 #include "PetscVectors.h"
 #include "CompoundLithologyArray.h"

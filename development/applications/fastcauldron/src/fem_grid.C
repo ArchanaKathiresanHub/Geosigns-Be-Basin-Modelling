@@ -37,7 +37,7 @@
 
 //------------------------------------------------------------//
 
-#include "globaldefs.h"
+#include "ConstantsFastcauldron.h"
 #include "utils.h"
 
 //------------------------------------------------------------//
@@ -100,6 +100,18 @@
 #include "PetscObjectsIO.h"
 
 using namespace GeoPhysics;
+
+//------------------------------------------------------------//
+
+// utilities library
+#include "ConstantsMathematics.h"
+using Utilities::Maths::Zero;
+using Utilities::Maths::PaToMegaPa;
+using Utilities::Maths::MillyDarcyToM2;
+#include "ConstantsNumerical.h"
+using Utilities::Numerical::CauldronNoDataValue;
+#include "ConstantsGeology.h"
+using Utilities::Geology::PresentDay;
 
 //------------------------------------------------------------//
 
@@ -1666,7 +1678,7 @@ bool Basin_Modelling::FEM_Grid::Step_Forward (       double& Previous_Time,
 
   majorSnapshotTimesUpdated = false;
 
-  if ( Current_Time == Present_Day ) {
+  if ( Current_Time == PresentDay ) {
     // We are done!
     return false;
   }
@@ -3272,7 +3284,7 @@ void Basin_Modelling::FEM_Grid::Compute_Temperature_Dependant_Properties ( const
 
         for ( K = Z_Count - 2; K >= 0; K-- ) {
 
-          if ( Current_Layer -> Current_Properties ( Basin_Modelling::Temperature, K, J, I ) == CAULDRONIBSNULLVALUE ) {
+          if ( Current_Layer -> Current_Properties ( Basin_Modelling::Temperature, K, J, I ) == CauldronNoDataValue ) {
 
             Estimated_Temperature = basinModel->Estimate_Temperature_At_Depth ( Current_Layer->Current_Properties ( Basin_Modelling::Depth, K, J, I ),
                                                                                 Surface_Temperature,
@@ -3779,11 +3791,11 @@ void Basin_Modelling::FEM_Grid::Print_Needle ( const double currentAge, const in
             buffer << setw ( 14 ) << Current_Layer -> Current_Properties ( Basin_Modelling::Hydrostatic_Pressure, K, J, I );
             buffer << setw ( 14 ) << Current_Layer -> Current_Properties ( Basin_Modelling::Lithostatic_Pressure, K, J, I );
             buffer << setw ( 14 ) << fracturePressure;
-            buffer << setw ( 14 ) << Current_Layer -> Current_Properties ( Basin_Modelling::VES_FP, K, J, I ) * Pa_To_MPa;
-            buffer << setw ( 14 ) << Current_Layer -> Current_Properties ( Basin_Modelling::Max_VES, K, J, I ) * Pa_To_MPa;
+            buffer << setw ( 14 ) << Current_Layer -> Current_Properties ( Basin_Modelling::VES_FP, K, J, I ) * PaToMegaPa;
+            buffer << setw ( 14 ) << Current_Layer -> Current_Properties ( Basin_Modelling::Max_VES, K, J, I ) * PaToMegaPa;
             buffer << setw ( 14 ) << Porosity.mixedProperty ();
-            buffer << setw ( 14 ) << log10 ( Permeability_Normal_Compound / MILLIDARCYTOM2 );
-            buffer << setw ( 15 ) << log10 ( Permeability_Plane_Compound / MILLIDARCYTOM2 );
+            buffer << setw ( 14 ) << log10 ( Permeability_Normal_Compound / MillyDarcyToM2 );
+            buffer << setw ( 15 ) << log10 ( Permeability_Plane_Compound / MillyDarcyToM2 );
             buffer << setw (  4 ) << ( Current_Layer->kind () == Interface::SEDIMENT_FORMATION ? int ( Current_Layer -> fracturedPermeabilityScaling ( I, J, K )) : -1 );
             buffer << setw (  4 ) << value;
             buffer << setw ( 14 ) << Current_Layer -> Current_Properties ( Basin_Modelling::Temperature, K, J, I );

@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
 #ifndef SMECTITEILLITE_SIMULATOR_H
 #define SMECTITEILLITE_SIMULATOR_H
 
@@ -41,7 +50,7 @@ private:
 	const double m_timeStepSize;
 
 	static const double s_GASCONSTANT;
-	static const double s_SECS_IN_MA; 
+	static const double s_MillionYearToSecond; 
 };
 }
 #endif

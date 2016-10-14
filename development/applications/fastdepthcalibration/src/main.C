@@ -17,6 +17,8 @@
 //utilities library
 #include "LogHandler.h"
 #include "FormattingException.h"
+#include "ConstantsNumerical.h"
+using Utilities::Numerical::MaxLineSize;
 
 static void abortOnBadAlloc()
 {
@@ -58,12 +60,12 @@ int main(int argc, char** argv)
       // read command line options
       int  optionReferenceSurface;
       int  optionEndSurface;
-      char projectName[MAXLINESIZE];
+      char projectName[MaxLineSize];
       int  ierr;
     
       ierr = PetscOptionsGetInt(    PETSC_NULL, "-referenceSurface", &optionReferenceSurface, PETSC_NULL );     CHKERRQ( ierr );
       ierr = PetscOptionsGetInt(    PETSC_NULL, "-endSurface",       &optionEndSurface,       PETSC_NULL );     CHKERRQ( ierr );
-      ierr = PetscOptionsGetString( PETSC_NULL, "-project",          projectName,             MAXLINESIZE, 0 ); CHKERRQ( ierr );
+      ierr = PetscOptionsGetString( PETSC_NULL, "-project",          projectName, MaxLineSize, 0         );     CHKERRQ( ierr );
 
       // run fastdepthCalibration
       FastDepthCalibration fastDepthCalibration( projectName, optionReferenceSurface, optionEndSurface, argc, argv, rank );

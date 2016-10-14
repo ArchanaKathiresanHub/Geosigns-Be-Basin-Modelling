@@ -21,6 +21,9 @@
 #include "Interface/Surface.h"
 #include "Interface/Snapshot.h"
 
+// utilities library
+#include "ConstantsPhysics.h"
+
 DerivedProperties::VesHighResFormationCalculator::VesHighResFormationCalculator( const GeoPhysics::ProjectHandle * projectHandle ) :
    m_projectHandle( projectHandle ),
    m_isCoupledMode( false ),
@@ -203,11 +206,11 @@ void DerivedProperties::VesHighResFormationCalculator::computeForSubsampledHydro
                   if ( densityDifference <= 0 && solidThickness > 0.0 && switchPermafrost )
                   {
                      // mobile layer cannot compress, but permafrost lithology has certain porosity that must be accounted in the calculation of ves
-                     vesHighResValue = vesHighResAboveValue + GeoPhysics::AccelerationDueToGravity * lithology->density( ) * solidThickness * ( 1.0 - surfacePorosity);
+                     vesHighResValue = vesHighResAboveValue + Utilities::Physics::AccelerationDueToGravity * lithology->density( ) * solidThickness * ( 1.0 - surfacePorosity);
                   }
                   else if( solidThickness > 0.0 )
                   {
-                     vesHighResValue = vesHighResAboveValue + GeoPhysics::AccelerationDueToGravity * densityDifference * solidThickness;
+                     vesHighResValue = vesHighResAboveValue + Utilities::Physics::AccelerationDueToGravity * densityDifference * solidThickness;
                   }
                   else
                   {

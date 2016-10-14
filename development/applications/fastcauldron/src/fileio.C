@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
 #include"fileio.h"
 
 #include <iomanip>
@@ -9,7 +18,7 @@ using namespace std;
 #include <sys/stat.h>  
 
 #include "utils.h"
-#include "globaldefs.h"
+#include "ConstantsFastcauldron.h"
 
 string generatePropertyFileName ( const string& outputDirectory, 
                                   const bool    isMinorSnapshot, 
@@ -31,3 +40,4 @@ string generatePropertyFileName ( const string& outputDirectory,
   return fileName;
 
 }
+

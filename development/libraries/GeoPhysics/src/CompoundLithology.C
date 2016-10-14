@@ -10,12 +10,20 @@
 
 #include "CompoundLithology.h"
 
+// std library
 #include <assert.h>
 #include <iostream>
 #include <sstream>
 #include <iomanip>
 #include <limits>
 #include <vector>
+
+// utilities library
+#include "ConstantsPhysics.h"
+using Utilities::Physics::AccelerationDueToGravity;
+#include "ConstantsMathematics.h"
+using Utilities::Maths::MillyDarcyToM2;
+using Utilities::Maths::MicroWattsToWatts;
 
 #include "FormattingException.h"
 #include "Interface/Interface.h"
@@ -532,7 +540,6 @@ bool GeoPhysics::CompoundLithology::allowableMixing() const {
 
       while (m_lithoComponents.end() != Simple_Lithologies) {
          std::cout << std::setw(20) << setiosflags(ios::left) << (*Simple_Lithologies)->getName() << resetiosflags(ios::left)
-            //            << std::setw ( 18 ) << PorosityModelTypeImage [(*Simple_Lithologies)->getPorosityModel ()]
             << std::setw(10) << (*Percentages) << std::endl;
 
          ++Simple_Lithologies;
@@ -1172,8 +1179,8 @@ void GeoPhysics::CompoundLithology::calcBulkPermeabilityNP ( const double       
       }
    }
 
-   permeabilityNormal *= MILLIDARCYTOM2;
-   permeabilityPlane *= MILLIDARCYTOM2;
+   permeabilityNormal *= MillyDarcyToM2;
+   permeabilityPlane *= MillyDarcyToM2;
 }
 
 //------------------------------------------------------------//
@@ -1197,7 +1204,7 @@ void GeoPhysics::CompoundLithology::calcBulkPermeabilityNP ( const unsigned int 
       m_lithoComponents [ 0 ]->permeability ( size, ves, maxVes, porosities.getSimpleData ( 0 ), permeabilityNormal );
 
       for ( unsigned int i = 0; i < size; ++i ) {
-         permeabilityNormal [ i ] *= MILLIDARCYTOM2;
+         permeabilityNormal [ i ] *= MillyDarcyToM2;
          permeabilityPlane [ i ] = permeabilityAnisotropy * permeabilityNormal [ i ];
       }
 

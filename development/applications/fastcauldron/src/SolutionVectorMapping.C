@@ -15,10 +15,14 @@
 // Access to fastcauldron application code.
 #include "ComputationalDomain.h"
 #include "FastcauldronSimulator.h"
-#include "globaldefs.h"
+#include "ConstantsFastcauldron.h"
 #include "NodalVolumeGrid.h"
 #include "PetscBlockVector.h"
 #include "StratigraphicColumn.h"
+
+// utilities library
+#include "ConstantsMathematics.h"
+using Utilities::Maths::MegaPaToPa;
 
 //------------------------------------------------------------//
 
@@ -26,7 +30,7 @@ SolutionVectorMapping::SolutionVectorMapping ( ComputationalDomain&             
                                                const Basin_Modelling::Fundamental_Property property ) : 
    m_computationalDomain ( domain ),
    m_property ( property ),
-   m_scalingFactor ( property == Basin_Modelling::Overpressure ? MPa_To_Pa : 1.0 ),
+   m_scalingFactor ( property == Basin_Modelling::Overpressure ? MegaPaToPa : 1.0 ),
    m_layerMappingNumbers ( domain.getStratigraphicColumn ().getNumberOfLayers ())
 {
 

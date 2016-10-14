@@ -15,7 +15,7 @@
 #include <vector>
 
 #include "timefilter.h"
-#include "globaldefs.h"
+#include "ConstantsFastcauldron.h"
 
 #include "PropertyOutputConstraints.h"
 
@@ -257,13 +257,6 @@ public :
    /// \brief Evaluate the lateral-stress-factor interpolator.
    double lateralStressFactor ( const double time ) const;
 
-
-   /// \brief Set the relative-permeability funtion type.
-   void setRelativePermeabilityType ( const RelativePermeabilityType relPerm );
-
-   /// \brief Get the relative-permeability funtion type.
-   RelativePermeabilityType getRelativePermeabilityType () const;
-
    double getMinimumHcSaturation () const;
 
    double getMaximumHcSaturation () const;
@@ -377,7 +370,6 @@ private :
 
 
    MultiComponentFlowHandler* m_mcfHandler;
-   RelativePermeabilityType   m_relativePermeabilityType;
    double                     m_minimumHcSaturation;
    double                     m_minimumWaterSaturation;
    double                     m_waterCurveExponent;
@@ -431,12 +423,6 @@ inline double FastcauldronSimulator::lateralStressFactor ( const double time ) c
       return m_lateralStressInterpolator->compute ( time, ibs::Interpolator::constant );
    }
 
-}
-
-//------------------------------------------------------------//
-
-inline RelativePermeabilityType FastcauldronSimulator::getRelativePermeabilityType () const {
-   return m_relativePermeabilityType;
 }
 
 //------------------------------------------------------------//

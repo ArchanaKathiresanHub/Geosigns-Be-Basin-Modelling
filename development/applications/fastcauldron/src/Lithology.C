@@ -1,3 +1,13 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
+
 #include "mpi.h"
 #include "Lithology.h"
 #include "BrooksCorey.h"
@@ -8,6 +18,12 @@
 
 #include "NumericFunctions.h"
 #include "FastcauldronSimulator.h"
+
+// utilities library
+#include "ConstantsNumerical.h"
+using Utilities::Numerical::IbsNoDataValue;
+#include "ConstantsMathematics.h"
+using Utilities::Maths::M2ToMillyDarcy;
 
 Lithology::Lithology ( GeoPhysics::ProjectHandle* projectHandle ) : GeoPhysics::CompoundLithology ( projectHandle ) {
    m_lithologyId = -9999;
@@ -62,7 +78,7 @@ double Lithology::relativePermeability ( const Saturation::Phase phase,
    
    if ( phase == Saturation::WATER ) {
 
-      if ( LambdaKr () == IBSNULLVALUE ) {
+      if ( LambdaKr () == IbsNoDataValue ) {
          // What should the correct values be here?
          // 1.0 here because we would like the brine-pressure solver to run normally.
          return 1.0;
@@ -72,7 +88,7 @@ double Lithology::relativePermeability ( const Saturation::Phase phase,
 
    } else if ( phase == Saturation::LIQUID || phase == Saturation::VAPOUR ) {
 
-      if ( LambdaKr () == IBSNULLVALUE ) {
+      if ( LambdaKr () == IbsNoDataValue ) {
          // What should the correct values be here?
          // 0.0 because we would like for there to be no transport in such lithologies (normally).
          return 0.0;
@@ -157,12 +173,12 @@ double Lithology::capillaryPressure ( const Saturation::Phase phase,
    double capillaryEntryPressure;
 
    if ( FastcauldronSimulator::getInstance ().useCalculatedCapillaryPressure ()) {
-      capillaryEntryPressure = BrooksCorey::computeCapillaryEntryPressure ( permeability * GeoPhysics::M2TOMILLIDARCY, capC1 (), tenPowerCapC2 ());
+      capillaryEntryPressure = BrooksCorey::computeCapillaryEntryPressure ( permeability * M2ToMillyDarcy, capC1 (), tenPowerCapC2 ());
    } else {
       capillaryEntryPressure = BrooksCorey::Pe;
    }
 
-   if ( LambdaPc () == IBSNULLVALUE ) {
+   if ( LambdaPc () == IbsNoDataValue ) {
       // What should the correct values be here?
       return capillaryEntryPressure;
       return BrooksCorey::Pe;

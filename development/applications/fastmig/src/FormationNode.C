@@ -37,7 +37,7 @@ using namespace std;
 #include "FiniteElement.h"
 
 #include "Interface/FluidType.h"
-#include "consts.h"
+
 #include "capillarySealStrength.h"
 
 
@@ -45,6 +45,11 @@ using namespace FiniteElementMethod;
 using namespace CBMGenerics;
 using namespace capillarySealStrength;
 
+// utilities library
+#include "ConstantsPhysics.h"
+using Utilities::Physics::AccelerationDueToGravity;
+#include "ConstantsMathematics.h"
+using Utilities::Maths::PaToMegaPa;
 
 //#define USECAPILLARYPRESSUREMAPS 1
 //#define GAS_DENSITY_FLOW_DIRECTION
@@ -860,7 +865,7 @@ namespace migration
          // get the vapor pressure contrast 
          pressureContrastVapor = getPressureContrast( topNode, GAS, pressureRun );
          // calculate maximum height of the hydrocarbons column for gas
-         m_heightVapour = pressureContrastVapor / ( ( m_waterDensity - m_vapourDensity ) * CBMGenerics::Gravity );
+         m_heightVapour = pressureContrastVapor / ( ( m_waterDensity - m_vapourDensity ) * AccelerationDueToGravity );
 
          // if actual height is greater than the user-defined minimum - raise potential reservoir flag
          if (m_heightVapour > minVapourColumnHeight)
@@ -872,7 +877,7 @@ namespace migration
          pressureContrastLiquid = getPressureContrast( topNode, OIL, pressureRun );
 
          // calculate maximum height of the hydrocarbons column for oil
-         m_heightLiquid = pressureContrastLiquid / ( ( m_waterDensity - m_liquidDensity ) * CBMGenerics::Gravity );
+         m_heightLiquid = pressureContrastLiquid / ( ( m_waterDensity - m_liquidDensity ) * AccelerationDueToGravity );
 
          // if actual height is greater than the user-defined minimum - raise potential reservoir flag
          if ( m_heightLiquid > minLiquidColumnHeight )
@@ -1129,14 +1134,14 @@ namespace migration
       else
       {
          ThreeVector pressureGrad = getFiniteElementGrad (PRESSUREPROPERTY);
-         pressureGrad += capPressureGrad * CBMGenerics::Pa2MPa;
+         pressureGrad += capPressureGrad * PaToMegaPa;
 
 #ifdef GAS_DENSITY_FLOW_DIRECTION
          double hc_density = m_vapourDensity;
 #else
          double hc_density = m_liquidDensity;
 #endif
-         double gravity = hc_density * CBMGenerics::Gravity * CBMGenerics::Pa2MPa;
+         double gravity = hc_density * AccelerationDueToGravity * PaToMegaPa;
 
          ThreeVector force;
          force (1) = -pressureGrad (1);

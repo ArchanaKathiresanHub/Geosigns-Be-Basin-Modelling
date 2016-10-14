@@ -1,3 +1,13 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
+
 #include "HeatFlowCalculator.h"
 #include "DerivedOutputPropertyMap.h"
 #include "PropertyManager.h"
@@ -8,6 +18,9 @@
 
 #include "Interface/RunParameters.h"
 
+// utilities library
+#include "ConstantsNumerical.h"
+using Utilities::Numerical::CauldronNoDataValue;
 
 using namespace FiniteElementMethod;
 
@@ -348,9 +361,9 @@ bool HeatFlowCalculator::operator ()( const OutputPropertyMap::OutputPropertyLis
                                  heatFlow );
 
             } else {
-               heatFlow ( 1 ) = CAULDRONIBSNULLVALUE;
-               heatFlow ( 2 ) = CAULDRONIBSNULLVALUE;
-               heatFlow ( 3 ) = CAULDRONIBSNULLVALUE;
+               heatFlow ( 1 ) = CauldronNoDataValue;
+               heatFlow ( 2 ) = CauldronNoDataValue;
+               heatFlow ( 3 ) = CauldronNoDataValue;
             }
 
             heatFlowMapX->setValue ( i, j, heatFlow ( 1 ));

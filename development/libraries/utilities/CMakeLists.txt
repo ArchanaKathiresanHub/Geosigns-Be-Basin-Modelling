@@ -28,17 +28,17 @@ FILE( GLOB all_srcs src/*.C )
 source_group(source FILES ${all_srcs})
 
 add_library(utilities
-	${all_srcs}
-	${all_headers}
+   ${all_srcs}
+   ${all_headers}
 )
 
 # under Linux we are building Boost that is why this target exist
 if (UNIX)
-add_dependencies(utilities Boost)
+   add_dependencies(utilities Boost)
 endif (UNIX)
 
 if (MSVC)
-	add_definitions( "-D_USE_MATH_DEFINES" )
+   add_definitions( "-D_USE_MATH_DEFINES" )
 endif(MSVC)
 
 
@@ -47,37 +47,37 @@ target_link_libraries(utilities
 )
 
 install(TARGETS utilities
-	RUNTIME DESTINATION bin
-	LIBRARY	DESTINATION lib
-	ARCHIVE DESTINATION lib
+   RUNTIME DESTINATION bin
+   LIBRARY	DESTINATION lib
+   ARCHIVE DESTINATION lib
 )
 
 ### Unit Tests
 
 # AlignedWorkSpaceArray tests
 add_gtest( NAME utilities::AlignedWorkSpaceArrays
-			SOURCES test/AlignedWorkSpaceArraysTest.C
-			LIBRARIES utilities)
+   SOURCES test/AlignedWorkSpaceArraysTest.C
+   LIBRARIES utilities)
 
 # PiecewiseInterpolator tests
 add_gtest( NAME utilities::PiecewiseInterpolator
-			SOURCES test/PiecewiseInterpolatorTest.C
-			LIBRARIES utilities)
+   SOURCES test/PiecewiseInterpolatorTest.C
+   LIBRARIES utilities)
 
 # PiecewiseInterpolator tests
 add_gtest( NAME utilities::PiecewiseInterpolatorDerivative
-			SOURCES test/PiecewiseInterpolatorDerivativeTest.C
-			LIBRARIES utilities)
+   SOURCES test/PiecewiseInterpolatorDerivativeTest.C
+   LIBRARIES utilities)
 
 
 # IBSInterpolator tests
 add_gtest( NAME utilities::IBSinterpolator
-			SOURCES test/IBSinterpolator.C
-			LIBRARIES utilities)
+   SOURCES test/IBSinterpolator.C
+   LIBRARIES utilities)
 
 add_gtest( NAME utilities::IBSinterpolator2d
-			SOURCES test/IBSinterpolator2d.C
-			LIBRARIES utilities)
+   SOURCES test/IBSinterpolator2d.C
+   LIBRARIES utilities)
 
 # LogHandler tests
 add_gtest( NAME utilities::LogHandlerCreate

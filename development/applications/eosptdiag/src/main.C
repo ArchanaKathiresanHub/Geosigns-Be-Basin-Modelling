@@ -14,10 +14,16 @@
 #include <time.h>
 
 #include "EosPack.h"
-#include "consts.h"
 #include "TrapperIoTableRec.h"
 #include "PTDiagramCalculator.h"
 #include "Interface/ObjectFactory.h"
+
+// utilities library
+#include "ConstantsMathematics.h"
+using Utilities::Maths::PaToMegaPa;
+using Utilities::Maths::MegaPaToPa;
+using Utilities::Maths::CelciusToKelvin;
+using Utilities::Maths::KelvinToCelcius;
 
 #define PTDIAG_VERSION "3.6"
 
@@ -353,8 +359,8 @@ int main( int argc, char ** argv )
       curRec.setAge( 0 );
       curRec.setTrapID( 0 );
       curRec.setReservoirName( compFileName.c_str() );
-      curRec.setPressure( pressure * CBMGenerics::Pa2MPa ); 
-      curRec.setTemperature( temperature + CBMGenerics::K2C ); // stock tank temperature in Celsius 
+      curRec.setPressure( pressure * PaToMegaPa ); 
+      curRec.setTemperature( temperature + KelvinToCelcius ); // stock tank temperature in Celsius 
 
       for ( int i = 0; i < NUM_COMP_TOT; ++i )
       {
@@ -439,7 +445,7 @@ PTDiagramCalculator * CreateDiagramAndSaveToMFile( TrapperIoTableRec & data, con
    diagBuilder->setNonLinSolverConvPrms( g_StopTol, g_MaxIters, g_NewtonRelCoef );
    diagBuilder->setTolValue( g_Tol );
    
-   if ( !g_tuneAB ) diagBuilder->findBubbleDewLines( data.temperature() + CBMGenerics::C2K, data.pressure() * CBMGenerics::MPa2Pa, std::vector<double>() );
+   if ( !g_tuneAB ) diagBuilder->findBubbleDewLines( data.temperature() + CelciusToKelvin, data.pressure() * MegaPaToPa, std::vector<double>() );
    
    clock_t cEnd = clock();
    double bubleDewSearchTime = (cEnd - cStart)/static_cast<double>(CLOCKS_PER_SEC);
@@ -529,7 +535,7 @@ PTDiagramCalculator * CreateDiagramAndSaveToMFile( TrapperIoTableRec & data, con
 
       for ( size_t j = 0; j < isoline.size(); ++j )
       {
-         ofs << isoline[j].second * CBMGenerics::Pa2MPa << " ";
+         ofs << isoline[j].second * PaToMegaPa << " ";
       }
       ofs << "\n" << "];\n\n";
       
@@ -751,7 +757,7 @@ static void dumpPTGrids( std::ofstream & ofs, std::unique_ptr<PTDiagramCalculato
    ofs << "gridP = [ ";
    for ( size_t i = 0; i < gridP.size(); ++i )
    {
-      ofs << gridP[i] * CBMGenerics::Pa2MPa << " ";
+      ofs << gridP[i] * PaToMegaPa << " ";
    }
    ofs << "];\n\n";
 }
@@ -829,8 +835,8 @@ static void dumpLiquidFractionArray( std::ofstream & ofs, std::unique_ptr<PTDiag
 
    if ( !g_DataOnly )
    {
-      double maxP = ceil(  std::max( gridP.back()  * CBMGenerics::Pa2MPa, data.pressure() ) );
-      double minP = floor( std::min( gridP.front() * CBMGenerics::Pa2MPa, data.pressure() ) );
+      double maxP = ceil(  std::max( gridP.back()  * PaToMegaPa, data.pressure() ) );
+      double minP = floor( std::min( gridP.front() * PaToMegaPa, data.pressure() ) );
 
       ofs << "for i = size( LiqFraction, 2 )-3:-1:1\n";
       ofs << "   if ( length( find( LiqFraction(:,i) != LiqFraction(1,i))) > 0 )\n";
@@ -1244,7 +1250,7 @@ static void generateLiquidVaporSeparationLine( std::ofstream & ofs, std::unique_
 
       for ( size_t j = 0; j < spsline.size(); ++j )
       {
-         ofs << spsline[j].second * CBMGenerics::Pa2MPa << " ";
+         ofs << spsline[j].second * PaToMegaPa << " ";
       }
       ofs << "\n" << "];\n\n";
       
@@ -1264,24 +1270,24 @@ static void dumpSpecialPoints( std::ofstream & ofs, std::unique_ptr<PTDiagramCal
 {
    // Point with trap condition could call axiss ajustmenst that is why we should draw it first
    ofs << "%Point for trap conditions\n"; 
-   ofs << "TrapCond = [" << (data.temperature() + CBMGenerics::C2K) << ", " << data.pressure() << "];\n";
+   ofs << "TrapCond = [" << (data.temperature() + CelciusToKelvin) << ", " << data.pressure() << "];\n";
    ofs << "\n";
 
    ofs << "%Point for surface conditions\n";
-   ofs << "SurfCond = [" << 273.15 + 15 << ", " << 101325.0 * CBMGenerics::Pa2MPa << "];\n";
+   ofs << "SurfCond = [" << 273.15 + 15 << ", " << 101325.0 * PaToMegaPa << "];\n";
    ofs << "\n";
 
    ofs << "%Critical point\n";
    ofs << "CritPoint = [" << diagBuilder->getCriticalPoint().first << ", " << 
-                             diagBuilder->getCriticalPoint().second * CBMGenerics::Pa2MPa << "];\n";
+                             diagBuilder->getCriticalPoint().second * PaToMegaPa << "];\n";
    ofs << "\n";
 
    ofs << "%Bubble/dew point for temperature in trap\n";
-   double T = data.temperature() + CBMGenerics::C2K;
+   double T = data.temperature() + CelciusToKelvin;
    double P;
    if ( diagBuilder->getBubblePressure( T, &P ) )
    {
-      ofs << "BubblePoint = [" << T << ", " << P * CBMGenerics::Pa2MPa << "];\n";
+      ofs << "BubblePoint = [" << T << ", " << P * PaToMegaPa << "];\n";
    }
    else 
    {
@@ -1291,12 +1297,12 @@ static void dumpSpecialPoints( std::ofstream & ofs, std::unique_ptr<PTDiagramCal
 
    const PTDiagramCalculator::TPPoint & cct = diagBuilder->getCricondenthermPoint();
    ofs << "%Cricondentherm point\n";
-   ofs << "CricondthermPoint = [" << cct.first << ", " << cct.second * CBMGenerics::Pa2MPa << "];\n";
+   ofs << "CricondthermPoint = [" << cct.first << ", " << cct.second * PaToMegaPa << "];\n";
    ofs << "\n";
 
    const PTDiagramCalculator::TPPoint & ccp = diagBuilder->getCricondenbarPoint();
    ofs << "%Cricondenbar point\n";
-   ofs << "CricondenbarPoint = [" << ccp.first << ", " << ccp.second * CBMGenerics::Pa2MPa << "];\n";
+   ofs << "CricondenbarPoint = [" << ccp.first << ", " << ccp.second * PaToMegaPa << "];\n";
    ofs << "\n";
 }
 

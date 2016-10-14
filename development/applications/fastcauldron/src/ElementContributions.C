@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
 #include "mpi.h"
 
 #include "ElementContributions.h"
@@ -16,7 +25,11 @@
 #include "FastcauldronSimulator.h"
 #include "layer.h"
 #include "Lithology.h"
-#include "globaldefs.h"
+#include "ConstantsFastcauldron.h"
+
+// utilities library
+#include "ConstantsPhysics.h"
+using Utilities::Physics::AccelerationDueToGravity;
 
 
 using namespace FiniteElementMethod;
@@ -628,7 +641,7 @@ FiniteElementMethod::ThreeVector computeMassFlux ( const LayerElement&  element,
    // }
 
    // Subtract the "buoyancy term"
-   flux ( 3 ) -= fluidDensity * GRAVITY;
+   flux ( 3 ) -= fluidDensity * AccelerationDueToGravity;
 
    // Now scale by the permeability tensor.
    flux = matrixVectorProduct ( permeability, flux );

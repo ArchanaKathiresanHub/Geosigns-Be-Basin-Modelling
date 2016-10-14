@@ -41,15 +41,18 @@
 #include "LinearGridInterpolator.h"
 #include "GeoPhysicsSourceRock.h"
 
-#include "consts.h"
-
+// std library
 #include <assert.h>
 #include <math.h>
-
 #include <iostream>
 #include <vector>
-
 using namespace std;
+
+// utilities library
+#include "ConstantsMathematics.h"
+using Utilities::Maths::CelciusToKelvin;
+using Utilities::Maths::MegaPaToPa;
+
 using namespace CBMGenerics;
 using namespace DataAccess;
 using namespace FiniteElementMethod;
@@ -260,7 +263,7 @@ namespace migration
 
                   double capSealStrength_Air_Hg = CBMGenerics::capillarySealStrength::capSealStrength_Air_Hg( capC1, capC2, vPermeability );
 
-                  double liquidIFT = CBMGenerics::capillarySealStrength::capTension_H2O_HC( waterDensity, liquidDensity, temperature + CBMGenerics::C2K, hcTempValueLiquid );
+                  double liquidIFT = CBMGenerics::capillarySealStrength::capTension_H2O_HC( waterDensity, liquidDensity, temperature + CelciusToKelvin, hcTempValueLiquid );
 
                   // Considers 180 deg. angle between H2O and HC (strictly speaking not true for oil)
                   capillaryEntryPressureLiquid = CBMGenerics::capillarySealStrength::capSealStrength_H2O_HC( capSealStrength_Air_Hg, liquidIFT );
@@ -396,8 +399,8 @@ namespace migration
                if (temperature != Interface::DefaultUndefinedMapValue and
                   pressure != Interface::DefaultUndefinedMapValue)
                {
-                  bool flashSuccess = pvtFlash::EosPack::getInstance ().computeWithLumping (temperature + CBMGenerics::C2K,
-                     pressure * CBMGenerics::MPa2Pa,
+                  bool flashSuccess = pvtFlash::EosPack::getInstance ().computeWithLumping (temperature + CelciusToKelvin,
+                     pressure * MegaPaToPa,
                      compMasses, phaseCompMasses,
                      phaseDensity, phaseViscosity);
 

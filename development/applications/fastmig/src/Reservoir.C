@@ -37,27 +37,30 @@
 #include "Interface/DiffusionLeakageParameters.h"
 #include "Interface/MapWriter.h"
 
-#include "consts.h"
-#include "Constants.h"
+
+#include "ConstantsGenex.h"
 #include "FormationPropertyAtSurface.h"
 
 #include "petscvec.h"
 #include "petscdmda.h"
 
-#define MAXDOUBLE std::numeric_limits<double>::max()
-
+// std library
 #include <vector>
 #include <assert.h>
 #include <math.h>
+#include<sstream>
+using namespace std;
+using std::ostringstream;
+extern ostringstream cerrstrstr;
+#define MAXDOUBLE std::numeric_limits<double>::max()
 
 //utilities library
 #include "LogHandler.h"
+#include "ConstantsPhysics.h"
+using Utilities::Physics::AccelerationDueToGravity;
+#include "ConstantsMathematics.h"
+using Utilities::Maths::PaToMegaPa;
 
-#include<sstream>
-using std::ostringstream;
-extern ostringstream cerrstrstr;
-
-using namespace std;
 using namespace CBMGenerics;
 
 using namespace DataAccess;
@@ -1573,7 +1576,7 @@ namespace migration
             for (unsigned int j = m_columnArray->firstJLocal (); j <= m_columnArray->lastJLocal (); ++j)
             {
                LocalColumn *column = getLocalColumn (i, j);
-               double hydrostaticPressure = column->getTopDepth () * Gravity * WaterDensity * Pa2MPa;
+               double hydrostaticPressure = column->getTopDepth () * AccelerationDueToGravity * WaterDensity * PaToMegaPa;
 
                column->setPressure (hydrostaticPressure);
             }

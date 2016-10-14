@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 #ifdef SEEK_SET
 #undef SEEK_SET
 #endif
@@ -6,7 +15,7 @@
 #include <iostream>
 using namespace std;
 
-//#include "globaldefs.h"
+//#include "ConstantsFastcauldron.h"
 
 //
 // The Petsc Vector class provides an interface giving access to DA global
@@ -535,16 +544,3 @@ void VecValid( Vec& vector, PetscBool * isValid ) {
 }
 //------------------------------------------------------------//
 
-// void View_Petsc_Vector ( Vec& vector ) {
-  
-//   PetscViewer viewer;
-
-//   PetscViewerDrawOpen(PETSC_COMM_WORLD,0,"",300,0,300,300,&viewer);
-
-//   VecView(vector,viewer);
-
-//   PetscViewerDestroy(viewer);
-  
-// } // end View_Petsc_Vector 
-
-//------------------------------------------------------------//

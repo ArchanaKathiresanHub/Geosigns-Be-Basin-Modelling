@@ -37,19 +37,24 @@
 #include "LeakAllGasAndOilDistributor.h"
 #include "SpillAllGasAndOilDistributor.h"
 #include "utils.h"
-#include "consts.h"
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
 
+// std library
 #include <assert.h>
 #include <algorithm>
 #include <vector>
 #include <sstream>
-using std::ostringstream;
-
-extern ostringstream cerrstrstr;
-
 using namespace std;
-using namespace CBMGenerics;
-
+using std::ostringstream;
+extern ostringstream cerrstrstr;
 #define MAXDOUBLE std::numeric_limits<double>::max()
 
 using Interface::Formation;
@@ -57,8 +62,15 @@ using Interface::Snapshot;
 using functions::Tuple2;
 using functions::tuple;
 
+// utilities library
+#include "ConstantsMathematics.h"
+using Utilities::Maths::PaToMegaPa;
+using Utilities::Maths::CelciusToKelvin;
+
 // #define DEBUG_TRAP
 // #define DEBUG_BIODEGRADATION
+using namespace CBMGenerics;
+
 
 namespace migration
 {
@@ -1902,10 +1914,10 @@ namespace migration
          {
             // The fracture seal strength is provided by the fracturePressure minus the pressure:
             double porePressure = getPressure ();
-            double fracSealStrength = fracPressure - porePressure / Pa2MPa;
+            double fracSealStrength = fracPressure - porePressure / PaToMegaPa;
 #if 0
             cerr << "trap = " << this << endl;
-            cerr << "porePressure = " << porePressure / Pa2MPa << endl;
+            cerr << "porePressure = " << porePressure / PaToMegaPa << endl;
             cerr << "fracPressure = " << fracPressure << endl;
             cerr << "fracSealStrength = " << fracSealStrength << endl;
 #endif
@@ -1915,7 +1927,7 @@ namespace migration
             if (GetRank () == 0)
             {
                cerr << "fracPressure = " << fracPressure <<
-                  " Pa, pressure = " << getPressure () * MPa2Pa <<
+                  " Pa, pressure = " << getPressure () * MegaPaToPa <<
                   " Pa, fracSealStrength = " << fracSealStrength << " Pa" << endl;
             }
 #endif
@@ -2321,7 +2333,7 @@ namespace migration
       double finalHCLevel;
 
       m_distributor->distribute (m_toBeDistributed[GAS], m_toBeDistributed[OIL],
-         getTemperature () + C2K, m_distributed[GAS], m_distributed[OIL], gasLeaked, gasWasted,
+         getTemperature () + CelciusToKelvin, m_distributed[GAS], m_distributed[OIL], gasLeaked, gasWasted,
          gasSpilled, oilLeaked, oilSpilledOrWasted, finalGasLevel, finalHCLevel);
 
 #ifdef DETAILED_MASS_BALANCE
@@ -3179,7 +3191,7 @@ namespace migration
       tpRequest.pressure = getPressure ();
       tpRequest.permeability = getPermeability ();
       tpRequest.sealPermeability = getSealPermeability ();
-      tpRequest.fracturePressure = getFracturePressure () * Pa2MPa;
+      tpRequest.fracturePressure = getFracturePressure () * PaToMegaPa;
       tpRequest.netToGross = getNetToGross () * Fraction2Percentage;
       tpRequest.fractureSealStrength = -1;
 
@@ -3188,7 +3200,7 @@ namespace migration
 
       tpRequest.fractureSealStrength = -1;
       if (leakDistributor && leakDistributor->fractureSealStrength () != numeric_limits<double>::max ())
-         tpRequest.fractureSealStrength = Pa2MPa * leakDistributor->fractureSealStrength ();
+         tpRequest.fractureSealStrength = PaToMegaPa * leakDistributor->fractureSealStrength ();
 
       tpRequest.goc = getFillDepth (GAS);
       tpRequest.owc = getFillDepth (OIL);
@@ -3204,16 +3216,16 @@ namespace migration
          if (leakDistributor && m_distributed[phase].getWeight () > 0.0)
          {
             double capillarySealStrength = leakDistributor->capillarySealStrength ().compute (m_distributed[phase],
-               gorm, getTemperature () + C2K);
+               gorm, getTemperature () + CelciusToKelvin);
             if (capillarySealStrength != numeric_limits<double>::max ())
-               tpRequest.cep[phase] = Pa2MPa * capillarySealStrength;
+               tpRequest.cep[phase] = PaToMegaPa * capillarySealStrength;
 
             double criticalTemperature =
-               leakDistributor->capillarySealStrength ().criticalTemperature (m_distributed[phase], gorm) - C2K;
+               leakDistributor->capillarySealStrength ().criticalTemperature (m_distributed[phase], gorm) - CelciusToKelvin;
             tpRequest.criticalTemperature[phase] = criticalTemperature;
 
             double interfacialTension = leakDistributor->capillarySealStrength ().interfacialTension (m_distributed[phase],
-               gorm, getTemperature () + C2K);
+               gorm, getTemperature () + CelciusToKelvin);
             tpRequest.interfacialTension[phase] = interfacialTension;
          }
          tpRequest.volume[phase] = getVolume ((PhaseId)phase);

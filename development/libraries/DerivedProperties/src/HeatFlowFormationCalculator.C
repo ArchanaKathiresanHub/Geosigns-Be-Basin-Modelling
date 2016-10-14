@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
 #include "AbstractPropertyManager.h"
 #include "DerivedPropertyManager.h"
 
@@ -9,6 +18,9 @@
 
 #include "HeatFlowFormationCalculator.h"
 #include "PropertyRetriever.h"
+
+// utilities
+#include "ConstantsMathematics.h"
 
 using namespace FiniteElementMethod;
 
@@ -481,7 +493,7 @@ void DerivedProperties::HeatFlowFormationCalculator::computeHeatFlow ( const boo
       // compute fluid Flux
 
       const double MaximumFlux     = 1.0e-9;
-      const double MaximumPermeability = 10.0 * GeoPhysics::MILLIDARCYTOM2;
+      const double MaximumPermeability = 10.0 * Utilities::Maths::MillyDarcyToM2;
       double permeabilityNormal;
       double permeabilityPlane;
   
@@ -503,9 +515,9 @@ void DerivedProperties::HeatFlowFormationCalculator::computeHeatFlow ( const boo
       matrixVectorProduct ( permeabilityTensor, gradOverpressure, fluidFlux );
    
       // Since pressure properties are stored in MPa units, we must convert to Pa to use in calculation.
-      fluidFlux ( 1 ) = -fluidFlux ( 1 ) * GeoPhysics::MPa_To_Pa;
-      fluidFlux ( 2 ) = -fluidFlux ( 2 ) * GeoPhysics::MPa_To_Pa;
-      fluidFlux ( 3 ) = -fluidFlux ( 3 ) * GeoPhysics::MPa_To_Pa;
+      fluidFlux ( 1 ) = -fluidFlux ( 1 ) * Utilities::Maths::MegaPaToPa;
+      fluidFlux ( 2 ) = -fluidFlux ( 2 ) * Utilities::Maths::MegaPaToPa;
+      fluidFlux ( 3 ) = -fluidFlux ( 3 ) * Utilities::Maths::MegaPaToPa;
       
       // Limit the fluid flux to some maximum value, if requested.
       for ( unsigned int i = 1; i <= 3; ++ i ) {

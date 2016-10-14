@@ -1,5 +1,15 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
 #include "C1AdsorptionSimulator.h"
 
+// std library
 #include <iostream>
 #include <iomanip>
 using namespace std;
@@ -9,11 +19,14 @@ using namespace std;
 #include "NumericFunctions.h"
 
 #include "EosPack.h"
-#include "PhysicalConstants.h"
-#include "Constants.h"
+#include "ConstantsGenex.h"
 
 #include "SpeciesState.h"
 #include "SpeciesManager.h"
+
+// utilitites library
+#include "ConstantsMathematics.h"
+using Utilities::Maths::CelciusToKelvin;
 
 using namespace CBMGenerics;
 
@@ -94,7 +107,7 @@ void Genex6::C1AdsorptionSimulator::compute ( const Input&              sourceRo
 
    double adsorptionCapacity;
    const double& temperatureKelvin = temperature;
-   const double  temperatureCelcius = temperature - Constants::s_TCabs;
+   const double  temperatureCelcius = temperature - CelciusToKelvin;
 
    //bool output = ( i == 0 and j == 0 );
    bool output = false;

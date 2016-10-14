@@ -1,4 +1,12 @@
-//#include <values.h>
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
 
 #ifdef _MSC_VER
 #include <limits.h>
@@ -22,6 +30,14 @@ using namespace std;
 #include "EosPack.h"
 
 #include "generics.h"
+
+// utilities library
+#include "ConstantsPhysics.h"
+using Utilities::Physics::AccelerationDueToGravity;
+#include "ConstantsMathematics.h"
+using Utilities::Maths::PaToMegaPa;
+using Utilities::Maths::MegaPaToPa;
+using Utilities::Maths::CelciusToKelvin;
 
 using namespace PersistentTraps;
 
@@ -286,13 +302,13 @@ void Trap::saveReservoirChargeProperties (database::Record * record,
    double buoyancy = 0;
    if (massTotal[ComponentManager::Vapour] > 1)
    {
-      buoyancy += (1000 - density[ComponentManager::Vapour]) * CBMGenerics::Gravity * (getGOC () - getDepth ());
+      buoyancy += (1000 - density[ComponentManager::Vapour]) * AccelerationDueToGravity * (getGOC () - getDepth ());
    }
    if (massTotal[ComponentManager::Liquid] > 1)
    {
-      buoyancy += (1000 - density[ComponentManager::Liquid]) * CBMGenerics::Gravity * (getOWC () - getGOC ());
+      buoyancy += (1000 - density[ComponentManager::Liquid]) * AccelerationDueToGravity * (getOWC () - getGOC ());
    }
-   database::setBuoyancy (record, buoyancy * CBMGenerics::Pa2MPa);
+   database::setBuoyancy (record, buoyancy * PaToMegaPa);
 }
 
 void Trap::saveStockTankChargeProperties (database::Record * record, int phaseRC, double masses[ComponentManager::NumberOfOutputSpecies], double density,  double viscosity)
@@ -449,7 +465,7 @@ bool Trap::performPVT (double masses[ComponentManager::NumberOfOutputSpecies], d
 
    if (massTotal > 100)
    {
-      performedPVT = pvtFlash::EosPack::getInstance().computeWithLumping (temperature + C2K, pressure * MPa2Pa, masses, phaseMasses, phaseDensities, phaseViscosities);
+      performedPVT = pvtFlash::EosPack::getInstance().computeWithLumping (temperature + CelciusToKelvin, pressure * MegaPaToPa, masses, phaseMasses, phaseDensities, phaseViscosities);
 
    }
 

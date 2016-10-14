@@ -1,3 +1,13 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
+
 #include "database.h"
 #include "cauldronschema.h"
 #include "cauldronschemafuncs.h"
@@ -26,7 +36,7 @@
 
 // CBMGenerics
 #include "ComponentManager.h"
-#include "consts.h"
+
 using namespace CBMGenerics;
 
 #include "NumericFunctions.h"
@@ -39,8 +49,11 @@ using namespace CBMGenerics;
 #include "DomainPropertyFactory.h"
 #include "DomainPropertyCollection.h"
 
-
+// utilities library
 #include "errorhandling.h"
+#include "ConstantsMathematics.h"
+using Utilities::Maths::CelciusToKelvin;
+using Utilities::Maths::MegaPaToPa;
 
 // STL
 #include <algorithm>
@@ -702,7 +715,7 @@ bool performPVT( double masses[ComponentManager::NumberOfOutputSpecies]
 
    if ( massTotal > 100 )
    {
-      performedPVT = pvtFlash::EosPack::getInstance().computeWithLumping( temperature + C2K, pressure * MPa2Pa, masses, phaseMasses, phaseDensities, phaseViscosities );
+      performedPVT = pvtFlash::EosPack::getInstance().computeWithLumping( temperature + CelciusToKelvin, pressure * MegaPaToPa, masses, phaseMasses, phaseDensities, phaseViscosities );
    }
 
    return performedPVT;

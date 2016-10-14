@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 #include "temperature_solver.h"
 
 #include "layer_iterators.h"
@@ -6,7 +15,7 @@
 #include "utils.h"
 #include "WallTime.h"
 
-#include "globaldefs.h"
+#include "ConstantsFastcauldron.h"
 #include "element_contributions.h"
 #include "FissionTrackCalculator.h"
 #include "CrustFormation.h"
@@ -26,6 +35,15 @@
 #include "LayerElement.h"
 #include "ElementContributions.h"
 #include "Lithology.h"
+
+// utilities library
+#include "ConstantsNumerical.h"
+using Utilities::Numerical::CauldronNoDataValue;
+#include "ConstantsMathematics.h"
+using Utilities::Maths::MicroWattsToWatts;
+using Utilities::Maths::MillionYearToSecond;
+using Utilities::Maths::NegOne;
+using Utilities::Maths::Zero;
 
 //------------------------------------------------------------//
 
@@ -119,7 +137,7 @@ void Temperature_Solver::Compute_Crust_Heat_Production ( )
            Z_Node_Count++;
 
 
-           Crust_Layer_Heat_Production_Array ( K, J, I ) = Crust_Heat_Production_Array ( K, J, I ) * GeoPhysics::MicroWattsToWatts;
+           Crust_Layer_Heat_Production_Array ( K, J, I ) = Crust_Heat_Production_Array ( K, J, I ) * MicroWattsToWatts;
       }
 
     }
@@ -205,7 +223,7 @@ void Temperature_Solver::computeHeatProduction ( const double previousTime,
 
          const bool   temperatureIsActive = currentLayer->Current_Properties.propertyIsActivated ( Basin_Modelling::Temperature );
          const bool   depthIsActive = currentLayer->Current_Properties.propertyIsActivated ( Basin_Modelling::Depth );
-         const double timeStep = ( previousTime - currentTime ) * Secs_IN_MA;
+         const double timeStep = ( previousTime - currentTime ) * MillionYearToSecond;
          double       heatProductionRateForIntrusion;
          double       heatCapacity;
 
@@ -244,7 +262,7 @@ void Temperature_Solver::computeHeatProduction ( const double previousTime,
                           << heatProduction << "  "
                           << intrusionTemperature << "  "
                           << currentLayer->Current_Properties ( Basin_Modelling::Temperature, 0, j, i ) << "  "
-                          << timeStep/Secs_IN_MA << "  "
+                          << timeStep/MillionYearToSecond << "  "
                           << endl;
                   }
                   #endif
@@ -1069,7 +1087,7 @@ void Temperature_Solver::getAlcBcsAndLithology ( const GeneralElement&     eleme
 
          if ( n > 3 ) {
 
-            if ( bottomBasaltDepth ( j, i ) == CAULDRONIBSNULLVALUE ) {
+            if ( bottomBasaltDepth ( j, i ) == CauldronNoDataValue ) {
                bottomBasaltDepth ( j, i ) = depth ( k, j, i );
             }
 
@@ -1085,7 +1103,7 @@ void Temperature_Solver::getAlcBcsAndLithology ( const GeneralElement&     eleme
             }
 
             // set constraied temperature only for the bottom basalt element
-         } else if (( bottomBasaltDepth( j, i ) == CAULDRONIBSNULLVALUE ) && 
+         } else if (( bottomBasaltDepth( j, i ) == CauldronNoDataValue ) && 
                     ( fc.getBasaltThickness( i, j, currentTime ) > 
                       fc.getBasaltThickness( i, j, previousTime )) &&
                     currentTime >  fc.getEndOfRiftEvent( layerElement.getIPosition (), layerElement.getJPosition ())) {

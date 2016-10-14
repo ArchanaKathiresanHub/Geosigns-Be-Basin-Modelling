@@ -39,6 +39,7 @@ set( all_headers,
      src/CompositeElementActivityPredicate.h
      src/ComputationalDomain.h
      src/ComputedPropertyValue.h
+     src/ConstantsFastcauldron.h
      src/ConstrainedArray.h
      src/CrustFormation.h
      src/DarcyCalculations.h
@@ -81,7 +82,6 @@ set( all_headers,
      src/GenericFortranMatrix.h
      src/GeometricLoopPressureSolver.h
      src/ghost_array.h
-     src/globaldefs.h
      src/HcFluidVelocityCalculator.h
      src/HeatFlowCalculator.h
      src/history.h
@@ -199,6 +199,7 @@ set( all_srcs_except_main
      src/ComponentConcentrationCalculator.C
      src/CompositeElementActivityPredicate.C
      src/ComputationalDomain.C
+     src/ConstantsFastcauldron.C
      src/CrustFormation.C
      src/DarcyCalculations.C
      src/DerivedOutputPropertyMapFactory.C
@@ -231,7 +232,6 @@ set( all_srcs_except_main
      src/FracturePressureVolumeCalculator.C
      src/GeometricLoopPressureSolver.C
      src/ghost_array.C
-     src/globaldefs.C
      src/HcFluidVelocityCalculator.C
      src/HeatFlowCalculator.C
      src/history.C

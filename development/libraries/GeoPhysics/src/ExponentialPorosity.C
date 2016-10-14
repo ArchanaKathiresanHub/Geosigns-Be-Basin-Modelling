@@ -9,13 +9,17 @@
 //
 #include "ExponentialPorosity.h"
 
+// std library
 #include <algorithm>
 #include <cassert>
 #include <cmath>
 
+// utilities library
+#include "ConstantsPhysics.h"
+using Utilities::Physics::AccelerationDueToGravity;
+
 #include "GeoPhysicalConstants.h"
 #include "NumericFunctions.h"
-
 
 namespace GeoPhysics
 {

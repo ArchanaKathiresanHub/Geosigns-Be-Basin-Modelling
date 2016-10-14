@@ -1,3 +1,13 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
+
 #include "AbstractPropertyManager.h"
 #include "DerivedPropertyManager.h"
 
@@ -8,6 +18,10 @@
 
 #include "FluidVelocityFormationCalculator.h"
 #include "PropertyRetriever.h"
+
+// utilities
+#include "ConstantsPhysics.h"
+#include "ConstantsMathematics.h"
 
 using namespace FiniteElementMethod;
 
@@ -324,20 +338,20 @@ void DerivedProperties::FluidVelocityFormationCalculator::computeFluidVelocity (
 
    const double fluidDensity = fluid->density( temperature, porePressure );
 
-   gradPorePressure ( 3 ) -= fluidDensity * GeoPhysics::AccelerationDueToGravity * GeoPhysics::Pa_To_MPa;
+   gradPorePressure ( 3 ) -= fluidDensity * Utilities::Physics::AccelerationDueToGravity * Utilities::Maths::PaToMegaPa;
 
    matrixVectorProduct ( permeabilityTensor, gradPorePressure, fluidFlux );
    
    // Since pressure properties are stored in MPa units, we must convert to Pa to use in calculation.
-   fluidFlux ( 1 ) = -fluidFlux ( 1 ) * GeoPhysics::MPa_To_Pa;
-   fluidFlux ( 2 ) = -fluidFlux ( 2 ) * GeoPhysics::MPa_To_Pa;
-   fluidFlux ( 3 ) = -fluidFlux ( 3 ) * GeoPhysics::MPa_To_Pa;
+   fluidFlux ( 1 ) = -fluidFlux ( 1 ) * Utilities::Maths::MegaPaToPa;
+   fluidFlux ( 2 ) = -fluidFlux ( 2 ) * Utilities::Maths::MegaPaToPa;
+   fluidFlux ( 3 ) = -fluidFlux ( 3 ) * Utilities::Maths::MegaPaToPa;
 
    // Convert to mm/year.
-   fluidVelocity ( 1 ) =  1000.0 * GeoPhysics::SecondsPerYear * fluidFlux ( 1 ) / porosity;
-   fluidVelocity ( 2 ) =  1000.0 * GeoPhysics::SecondsPerYear * fluidFlux ( 2 ) / porosity;
+   fluidVelocity ( 1 ) =  1000.0 * Utilities::Maths::YearToSecond * fluidFlux ( 1 ) / porosity;
+   fluidVelocity ( 2 ) =  1000.0 * Utilities::Maths::YearToSecond * fluidFlux ( 2 ) / porosity;
    // +ve to represent upwards, so scale by -1
-   fluidVelocity ( 3 ) = -1000.0 * GeoPhysics:: SecondsPerYear * fluidFlux ( 3 ) / porosity;
+   fluidVelocity ( 3 ) = -1000.0 * Utilities::Maths::YearToSecond * fluidFlux ( 3 ) / porosity;
 }
 
 void DerivedProperties::FluidVelocityFormationCalculator::fillBorders( unsigned int i, unsigned int j, unsigned int k,

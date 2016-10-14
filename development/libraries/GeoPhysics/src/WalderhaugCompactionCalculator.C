@@ -11,9 +11,15 @@
 
 #include "WalderhaugCompactionCalculator.h"
 #include "GeoPhysicalConstants.h"
+
+// std library
 #include <cmath>
 #include <cassert>
 #include <algorithm>
+
+// utilities library
+#include "ConstantsMathematics.h"
+using Utilities::Maths::MillionYearToSecond;
 
 namespace GeoPhysics{
 
@@ -29,7 +35,6 @@ WalderhaugCompactionCalculator::WalderhaugCompactionCalculator() :
   ChemicalCompactionCalculator(),
   m_constantCoef( MolarMassQuartz * m_coefA / DensityQuartz )
 {
-
    //----------Computation of the constant factor of the equation----------------------
    //constantCoef = M*a/V/rho
    //with M the molar mass of quartz [g/mol], a a constant coefficient [mol/s/cm2], V the unit volume = 1 [cm3], rho the density of quartz [g/cm3]
@@ -37,7 +42,6 @@ WalderhaugCompactionCalculator::WalderhaugCompactionCalculator() :
 
 WalderhaugCompactionCalculator::~WalderhaugCompactionCalculator()
 {
-	
 }
 
 void WalderhaugCompactionCalculator::computeOnTimeStep( Grid & grid )
@@ -63,10 +67,10 @@ void WalderhaugCompactionCalculator::computeOnTimeStep( Grid & grid )
    assert( ("Time step cannot be negative", timeStep >= 0) );
 
    // Computation should only be done on active nodes ie the nodes of the valid needles of the compactable layers
-   	// which are part of the below the sea bottom
-   	const int numberOfActiveNodes = grid.getNumberOfActiveNodes();
-   	const int * activeNodes       = grid.getActiveNodes();
-   	
+      // which are part of the below the sea bottom
+      const int numberOfActiveNodes = grid.getNumberOfActiveNodes();
+      const int * activeNodes       = grid.getActiveNodes();
+      
    // Path through all active nodes
    for ( int activeNodeIndex = 0; activeNodeIndex < numberOfActiveNodes; ++activeNodeIndex )
    {
@@ -79,7 +83,7 @@ void WalderhaugCompactionCalculator::computeOnTimeStep( Grid & grid )
       double currentTemperature = currentTemperatureGrid[refNode];// [degree Celsius]
       if( currentTemperature > m_limitTemp )
       {
-	currentTemperature = m_limitTemp;
+   currentTemperature = m_limitTemp;
       }
 
       //Cementation doesn't start before m_startTemperature = 80 degree Celsius
@@ -87,17 +91,17 @@ void WalderhaugCompactionCalculator::computeOnTimeStep( Grid & grid )
       {
          // Get the previous temperature and chemical comapction and the current porosity
          double previousTemperature              = previousTemperatureGrid[refNode];                   // [degree Celsius]
-	 if( previousTemperature > m_limitTemp )	 
-	 {
-	    previousTemperature = m_limitTemp;
-	 }
+    if( previousTemperature > m_limitTemp )    
+    {
+       previousTemperature = m_limitTemp;
+    }
          const double chemicalCompaction         = chemicalCompactionGrid[refNode];                    //[fraction of the unit volume]
          const double currentPorosity            = currentPorosityGrid[refNode];                       //[fraction of the unit volume] 
         
          // If it is the first time step where compaction occurs for this node, store the initial porosity
          if ( m_initialPorosity[refNode] < 0 )
          {
-        	assert( ( "The porosity cannot be zero", currentPorosity != 0) );
+           assert( ( "The porosity cannot be zero", currentPorosity != 0) );
             m_initialPorosity[refNode] = currentPorosity;
          }
          const double initialPorosity = m_initialPorosity[refNode];
@@ -107,15 +111,16 @@ void WalderhaugCompactionCalculator::computeOnTimeStep( Grid & grid )
          //with f the proportion of quartz in the rock, V the unit volume = 1 [cm3], C the coating factor, D the size of grains [cm]
          double cementedFraction = m_lithologyList[lithoID] * currentPorosity / initialPorosity;
 
+         // 2todo use log constant
          static const double ln10 = std::log( 10.0 );
          //If the temperatures are very close or equal, in order to avoid to divide by a nul number
          if ( std::fabs( currentTemperature - previousTemperature ) < 1e-10 )
          {
-            cementedFraction *= m_constantCoef * timeStep * Secs_IN_MA * exp( m_coefB * currentTemperature * ln10 );
+            cementedFraction *= m_constantCoef * timeStep * MillionYearToSecond * exp( m_coefB * currentTemperature * ln10 );
          }
          else
          {
-            cementedFraction *= m_constantCoef * timeStep * Secs_IN_MA;
+            cementedFraction *= m_constantCoef * timeStep * MillionYearToSecond;
             cementedFraction *= ( exp( m_coefB * currentTemperature * ln10 ) - exp( m_coefB * previousTemperature * ln10 ) );
             cementedFraction /= m_coefB * ln10 * ( currentTemperature - previousTemperature );
          }

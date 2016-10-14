@@ -1,13 +1,29 @@
-#ifndef _GENEX6__INPUT_H_
-#define _GENEX6__INPUT_H_
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
 
+#ifndef GENEX6__INPUT_H
+#define GENEX6__INPUT_H
+
+// std library
 #include <iostream>
 #include <fstream>
 #include <iomanip>
-#include "Constants.h"
 using namespace std;
 
-#include "Constants.h"
+// genex6 library
+#include "ConstantsGenex.h"
+
+// utilities library
+#include "ConstantsMathematics.h"
+using Utilities::Maths::CelciusToKelvin;
+
 namespace Genex6
 {
 class Input 
@@ -131,7 +147,7 @@ inline double Input::GetPressure() const
 }
 inline double Input::GetTemperatureKelvin() const
 {
-   return (m_endTemperature + Genex6::Constants::s_TCabs);
+   return (m_endTemperature + CelciusToKelvin);
 }
 inline double Input::GetThicknessScaleFactor()const
 {
@@ -143,7 +159,7 @@ inline double Input::getPreviousTemperatureCelsius() const
 }
 inline double Input::getPreviousTemperatureKelvin() const
 {
-   return  (m_startTemperature+Genex6::Constants::s_TCabs);
+   return  (m_startTemperature + CelciusToKelvin);
 }
 inline double Input::getLithostaticPressure () const {
    return m_lithostaticPressure;
@@ -182,4 +198,4 @@ inline unsigned int Input::getJ () const {
 }
 
 }
-#endif // _GENEX6__INPUT_H_
+#endif // GENEX6__INPUT_H

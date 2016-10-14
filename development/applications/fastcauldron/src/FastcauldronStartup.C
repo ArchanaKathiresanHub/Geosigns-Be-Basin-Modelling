@@ -13,7 +13,7 @@
 #include "MultiComponentFlowHandler.h"
 #include "StatisticsHandler.h"
 #include "filterwizard.h"
-#include "globaldefs.h"
+#include "ConstantsFastcauldron.h"
 #include "PressureSolver.h"
 #include "readproperties.h"
 #include "System.h"

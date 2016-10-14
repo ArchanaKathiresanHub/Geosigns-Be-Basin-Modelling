@@ -9,6 +9,7 @@
 //
 
 #include "mpi.h"
+#include <assert.h>
 
 #include "CrustFormation.h"
 #include "GeoPhysicsCrustFormation.h"
@@ -24,6 +25,12 @@
 #include "Interface/Snapshot.h"
 #include "Interface/Surface.h"
 
+// utilities library
+#include "ConstantsNumerical.h"
+using Utilities::Numerical::CauldronNoDataValue;
+using Utilities::Numerical::IbsNoDataValue;
+#include "ConstantsMathematics.h"
+using Utilities::Maths::Zero;
 
 CrustFormation::CrustFormation ( Interface::ProjectHandle * projectHandle, database::Record * record ) : 
    DataAccess::Interface::Formation ( projectHandle, record ),
@@ -44,14 +51,14 @@ CrustFormation::CrustFormation ( Interface::ProjectHandle * projectHandle, datab
    basaltThickness = 0;
    crustalThicknessMeltOnset = 0;
 
-   TopBasaltDepth = NULL;
-   BasaltThickness = NULL;
-   BottomBasaltDepth       = NULL;
-   ThicknessBasaltALC = NULL;
-   ThicknessCCrustALC = NULL;
-   SmCCrustThickness = NULL;
-   SmTopBasaltDepth = NULL;
-   SmBottomBasaltDepth = NULL;
+   TopBasaltDepth      = nullptr;
+   BasaltThickness     = nullptr;
+   BottomBasaltDepth   = nullptr;
+   ThicknessBasaltALC  = nullptr;
+   ThicknessCCrustALC  = nullptr;
+   SmCCrustThickness   = nullptr;
+   SmTopBasaltDepth    = nullptr;
+   SmBottomBasaltDepth = nullptr;
 
    initialiseBasementVecs();
    setBasementVectorList();
@@ -99,11 +106,11 @@ void CrustFormation::initialise () {
 void CrustFormation::cleanVectors() {
 
    if(((GeoPhysics::ProjectHandle*)(GeoPhysics::Formation::m_projectHandle))->isALC() ) {
-      setVec ( TopBasaltDepth, CAULDRONIBSNULLVALUE );
-      setVec ( BottomBasaltDepth, CAULDRONIBSNULLVALUE );
+      setVec ( TopBasaltDepth, CauldronNoDataValue );
+      setVec ( BottomBasaltDepth, CauldronNoDataValue );
       setVec ( ThicknessBasaltALC, Zero );
-      setVec ( SmTopBasaltDepth, CAULDRONIBSNULLVALUE );
-      setVec ( SmBottomBasaltDepth, CAULDRONIBSNULLVALUE );
+      setVec ( SmTopBasaltDepth, CauldronNoDataValue );
+      setVec ( SmBottomBasaltDepth, CauldronNoDataValue );
       
       previousBasaltMap = BasaltMap;
       BasaltMap.fill( false );
@@ -117,38 +124,38 @@ void CrustFormation::allocateBasementVecs() {
    const AppCtx* basinModel =  FastcauldronSimulator::getInstance ().getCauldron ();
 
    if( basinModel->isALC()) {
-      IBSASSERT(NULL == TopBasaltDepth);
+      assert(NULL == TopBasaltDepth);
       createCount++;
       int ierr = DMCreateGlobalVector( * basinModel->mapDA, &TopBasaltDepth );
-      setVec ( TopBasaltDepth, CAULDRONIBSNULLVALUE );
+      setVec ( TopBasaltDepth, CauldronNoDataValue );
 
-      IBSASSERT(NULL == BasaltThickness);
+      assert(NULL == BasaltThickness);
       createCount++;
       ierr = DMCreateGlobalVector( * basinModel->mapDA, &BasaltThickness );
 
-      IBSASSERT(NULL == BottomBasaltDepth);
+      assert(NULL == BottomBasaltDepth);
       createCount++;
       ierr = DMCreateGlobalVector( * basinModel->mapDA, &BottomBasaltDepth );
-      setVec ( BottomBasaltDepth, CAULDRONIBSNULLVALUE );
+      setVec ( BottomBasaltDepth, CauldronNoDataValue );
 
-      IBSASSERT( NULL == ThicknessBasaltALC );
+      assert( NULL == ThicknessBasaltALC );
       createCount++;
       ierr = DMCreateGlobalVector( * basinModel->mapDA, &ThicknessBasaltALC );
       setVec ( ThicknessBasaltALC, Zero );
 	  
-      IBSASSERT( NULL == ThicknessCCrustALC );
+      assert( NULL == ThicknessCCrustALC );
       createCount++;
       ierr = DMCreateGlobalVector( * basinModel->mapDA, &ThicknessCCrustALC );
 	  
-      IBSASSERT( NULL == SmCCrustThickness );
+      assert( NULL == SmCCrustThickness );
       createCount++;
       ierr = DMCreateGlobalVector( * basinModel->mapDA, &SmCCrustThickness );
 
-      IBSASSERT( NULL == SmTopBasaltDepth );
+      assert( NULL == SmTopBasaltDepth );
       createCount++;
       ierr = DMCreateGlobalVector( * basinModel->mapDA, &SmTopBasaltDepth );
 
-      IBSASSERT( NULL == SmBottomBasaltDepth );
+      assert( NULL == SmBottomBasaltDepth );
       createCount++;
       ierr = DMCreateGlobalVector( * basinModel->mapDA, &SmBottomBasaltDepth );
 
@@ -230,7 +237,7 @@ const CompoundLithology* CrustFormation::getLithology( const double aTime, const
       // aOffset is a relative depth of the middle point of element - so could be inside Crust or Mantle
       double basThickness = ((GeoPhysics::ProjectHandle*)(GeoPhysics::Formation::m_projectHandle))->getBasaltThickness(iPosition, jPosition, aTime);
       
-      if(basThickness != IBSNULLVALUE && basThickness != 0.0) {
+      if(basThickness != IbsNoDataValue && basThickness != 0.0) {
          if( aOffset >= ((GeoPhysics::ProjectHandle*)(GeoPhysics::Formation::m_projectHandle))->getContCrustThickness( iPosition, jPosition, aTime )) {
             isBasaltLayer = true;
             return m_basaltLithology(iPosition, jPosition);

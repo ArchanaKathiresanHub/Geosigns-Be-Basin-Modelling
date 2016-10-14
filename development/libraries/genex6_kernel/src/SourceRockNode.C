@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
 #include "SourceRockNode.h"
 #include "Input.h"
 #include "SimulatorState.h"
@@ -8,8 +17,15 @@
 #include "SpeciesResult.h"
 #include "Species.h"
 
+// std library
 #include <math.h>
 #include <cstdlib>
+
+// utilities library
+# include "ConstantsMathematics.h"
+using Utilities::Maths::CelciusToKelvin;
+#include "ConstantsNumerical.h"
+using Utilities::Numerical::CauldronNoDataValue;
 
 
 namespace Genex6
@@ -640,7 +656,7 @@ void SourceRockNode::computeHcVolumes ( double& gasVolume,
                                         double& condensateApi ) const {
 
    // Standard conditions.
-   double StandardTemperature = 15.5555556 + Genex6::Constants::s_TCabs; //Kelvin
+   double StandardTemperatureGenexK = 15.5555556 + CelciusToKelvin; //Kelvin
    double StandardPressure    = 101325.353; //Pa
 
    const Genex6::Input* lastInput = getLastInput ();
@@ -673,7 +689,7 @@ void SourceRockNode::computeHcVolumes ( double& gasVolume,
    masses ( pvtFlash::COX ) = 0.0;
    masses ( pvtFlash::H2S ) = 0.0;
 
-   Genex6::PVTCalc::getInstance ().compute ( StandardTemperature, StandardPressure, masses, phaseMasses, densities, viscosities );
+   Genex6::PVTCalc::getInstance ().compute ( StandardTemperatureGenexK, StandardPressure, masses, phaseMasses, densities, viscosities );
 
    freeGasVolume = phaseMasses.sum ( pvtFlash::VAPOUR_PHASE ) / densities ( pvtFlash::VAPOUR_PHASE );
    gasVolume = freeGasVolume;
@@ -685,23 +701,23 @@ void SourceRockNode::computeHcVolumes ( double& gasVolume,
       condensateApi = 141.5 / densities ( pvtFlash::LIQUID_PHASE ) * 1000.0 - 131.5;
 
       if ( condensateApi < 1.99 ) {
-         condensateApi = Constants::UNDEFINEDVALUE;
+         condensateApi = CauldronNoDataValue;
       }
 
    } else {
-      condensateApi = Constants::UNDEFINEDVALUE;
+      condensateApi = CauldronNoDataValue;
    }
 
    if ( freeGasVolume > 0.0 and densities ( pvtFlash::VAPOUR_PHASE ) != 1000.0 ) {
       cgr = condensateVolume / freeGasVolume;
    } else {
-      cgr = Constants::UNDEFINEDVALUE;
+      cgr = CauldronNoDataValue;
    }
 
    if ( lastInput != 0 and gasVolume > 0.0 ) {
       gasExpansionRatio = reservoirGasVolume / gasVolume;
    } else {
-      gasExpansionRatio = Constants::UNDEFINEDVALUE;
+      gasExpansionRatio = CauldronNoDataValue;
    }
 
    // Calculate surface volumes from liquid components.
@@ -710,7 +726,7 @@ void SourceRockNode::computeHcVolumes ( double& gasVolume,
    masses ( pvtFlash::COX ) = 0.0;
    masses ( pvtFlash::H2S ) = 0.0;
 
-   Genex6::PVTCalc::getInstance ().compute ( StandardTemperature, StandardPressure, masses, phaseMasses, densities, viscosities );
+   Genex6::PVTCalc::getInstance ().compute ( StandardTemperatureGenexK, StandardPressure, masses, phaseMasses, densities, viscosities );
 
    solutionGasVolume = phaseMasses.sum ( pvtFlash::VAPOUR_PHASE ) / densities ( pvtFlash::VAPOUR_PHASE );
    liquidOilVolume = phaseMasses.sum ( pvtFlash::LIQUID_PHASE ) / densities ( pvtFlash::LIQUID_PHASE );
@@ -722,17 +738,17 @@ void SourceRockNode::computeHcVolumes ( double& gasVolume,
       oilApi = 141.5 / densities ( pvtFlash::LIQUID_PHASE ) * 1000.0 - 131.5;
 
       if ( oilApi < 1.99 ) {
-         oilApi = Constants::UNDEFINEDVALUE;
+         oilApi = CauldronNoDataValue;
       }
 
    } else {
-      oilApi = Constants::UNDEFINEDVALUE;
+      oilApi = CauldronNoDataValue;
    }
 
    if ( liquidOilVolume > 0.0 and densities ( pvtFlash::LIQUID_PHASE ) != 1000.0 ) {
       gor = solutionGasVolume / liquidOilVolume;
    } else {
-      gor = Constants::UNDEFINEDVALUE;
+      gor = CauldronNoDataValue;
    }
 
 }
@@ -785,7 +801,7 @@ void SourceRockNode::computeOverChargeFactor ( double& overChargeFactor ) const 
    if ( thickness > 0.0 and porosity > 0.0 and iws < 1.0 ) {
       overChargeFactor = ( vapourVolume + liquidVolume ) / ( thickness * porosity * ( 1.0 - iws ));
    } else {
-      overChargeFactor = Constants::UNDEFINEDVALUE;
+      overChargeFactor = CauldronNoDataValue;
    }
 
 }

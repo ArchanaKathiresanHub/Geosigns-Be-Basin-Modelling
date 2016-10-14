@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 #ifndef _FASTCAULDRON__LITHOLOGY_H_
 #define _FASTCAULDRON__LITHOLOGY_H_
 
@@ -6,7 +15,7 @@
 #include "CompoundLithology.h"
 #include "PVTCalculator.h"
 #include "Saturation.h"
-#include "globaldefs.h"
+#include "ConstantsFastcauldron.h"
 
 class Lithology : public GeoPhysics::CompoundLithology {
 

@@ -11,8 +11,14 @@
 #include "PermeabilityMultiPoint.h"
 #include "GeoPhysicalConstants.h"
 
+// std library
 #include <cmath>
 #include <algorithm>
+
+// utilities library
+// utilities library
+#include "ConstantsMathematics.h"
+using Utilities::Maths::Log10;
 
 namespace GeoPhysics
 {

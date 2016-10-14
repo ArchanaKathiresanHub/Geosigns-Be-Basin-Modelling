@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
 #include "Simulator.h"
 #include "ChemicalModel.h"
 
@@ -6,15 +15,21 @@
 #include "SimulatorStateBase.h"
 #include "Species.h"
 
+#include "ConstantsGenex.h"
+#include "SpeciesManager.h"
+#include "GeneralParametersHandler.h"
+#include "ImmobileSpecies.h"
+
+// std library
 #include <cmath>
 #include <map>
 #include <string>
 #include <vector>
 #include <algorithm>
-#include "Constants.h"
-#include "SpeciesManager.h"
-#include "GeneralParametersHandler.h"
-#include "ImmobileSpecies.h"
+
+// utilities library
+#include "ConstantsPhysics.h"
+using Utilities::Physics::BoltzmannOverPlanckByMillionYear;
 
 
 namespace Genex6
@@ -470,7 +485,7 @@ void Simulator::PreprocessTimeStepComputation(const Input &theInput)
    //TK = TC(J) + TCabs
    s_TK = theInput.GetTemperatureKelvin();
 
-   s_FrequencyFactor = Genex6::Constants::s_BoltzmannOverPlanck * s_TK;
+   s_FrequencyFactor = BoltzmannOverPlanckByMillionYear * s_TK;
 
    s_kerogenTransformationRatio = m_currentState->ComputeKerogenTransformatioRatio ( getChemicalModel ().getSpeciesManager (),
                                                                                      m_simulationType);

@@ -1,9 +1,24 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
+
 #include "MaxVesCalculator.h"
 #include "DerivedOutputPropertyMap.h"
 #include "PropertyManager.h"
 #include "FastcauldronSimulator.h"
 
 #include "Interface/RunParameters.h"
+
+// utilities library
+#include "ConstantsNumerical.h"
+using Utilities::Numerical::CauldronNoDataValue;
+using Utilities::Numerical::IbsNoDataValue;
 
 OutputPropertyMap* allocateMaxVesCalculator ( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot ) {
    return new DerivedOutputPropertyMap<MaxVesCalculator>( property, formation, surface, snapshot );
@@ -71,7 +86,7 @@ bool MaxVesCalculator::operator ()( const OutputPropertyMap::OutputPropertyList&
                for ( k = int ( m_formation->getMaximumNumberOfElements ()) - 1; k >= 0; --k ) {
                   double thickness = ( useRealThickness ? m_formation->getRealThickness ( i, j, k, age ) :  m_formation->getSolidThickness ( i, j, k, age ));
 
-                  if ( thickness != IBSNULLVALUE and thickness > 0 ) {
+                  if ( thickness != IbsNoDataValue and thickness > 0 ) {
                      usableK = k + 1;
                      break;
                   }
@@ -170,7 +185,7 @@ bool MaxVesVolumeCalculator::operator ()( const OutputPropertyMap::OutputPropert
          } else {
 
             for ( k = propertyMap->firstK (); k <= propertyMap->lastK (); ++k ) {
-               propertyMap->setValue ( i, j, k, CAULDRONIBSNULLVALUE );
+               propertyMap->setValue ( i, j, k, CauldronNoDataValue );
             }
 
          }

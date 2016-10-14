@@ -23,16 +23,17 @@ add_executable(eosptdiag
 )
 
 bm_include_libraries(
-	DataModel
-	DataAccess
-	SerialDataAccess
-	TableIO
-	CBMGenerics
-	EosPack
+   DataModel
+   DataAccess
+   SerialDataAccess
+   TableIO
+   CBMGenerics
+   EosPack
+   utilities
 )
 
 include_directories( SYSTEM
-	${HDF5_INCLUDE_DIRS}
+   ${HDF5_INCLUDE_DIRS}
 )
 
 target_link_libraries(eosptdiag
@@ -41,6 +42,7 @@ target_link_libraries(eosptdiag
 	TableIO
 	CBMGenerics
 	EosPack
+   utilities
 	${HDF5_LIBRARIES}
 )
 

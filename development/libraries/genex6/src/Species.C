@@ -1,13 +1,27 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
 #include "Species.h"
 #include "ChemicalModel.h"
-#include "Constants.h"
+#include "ConstantsGenex.h"
 #include "SimulatorStateBase.h"
 #include "SpeciesState.h"
 #include "SpeciesProperties.h"
 #include "Element.h"
 
+// std library
 #include <math.h>
 #include <iomanip>
+
+// utilities library
+#include "ConstantsPhysics.h"
+using Utilities::Physics::IdealGasConstantGenex;
 
 #include "GenexResultManager.h" 
 #include "GeneralParametersHandler.h"
@@ -214,7 +228,7 @@ void Species::ComputeB0() const
 
    const double diffusionEnergy1 = m_theProps->GetDiffusionEnergy1();
    //FunB0 = (EdiffApparent - R * Tlab - Uj) * (1 - T0torbanite / Tlab) ^ 2
-   double ret = (diffusionEnergy1 - Genex6::Constants::R * Tlab - Uj) * pow((1.0 - T0torbanite / Tlab), 2.0);
+   double ret = (diffusionEnergy1 - IdealGasConstantGenex * Tlab - Uj) * pow((1.0 - T0torbanite / Tlab), 2.0);
    if (ret < 0.0) {
       ret = 0.0;
    }
@@ -410,18 +424,18 @@ double Species::ComputeArrheniusReactionRate2a( SimulatorStateBase &theSimulator
    //modify activation entropy
    if(m_id == m_theChemicalModel->getSpeciesManager ().getAsphaltenesId () || m_id == m_theChemicalModel->getSpeciesManager ().getResinsId ()) {
          ArrheniusReactionRate = s_FrequencyFactor * 
-            exp((- (ActU + s_Peff * volume) / s_TK + entropy + dSperCoke * (Coke2Concentration)) / Genex6::Constants::R);
+            exp((- (ActU + s_Peff * volume) / s_TK + entropy + dSperCoke * (Coke2Concentration)) / IdealGasConstantGenex);
    } else if(m_id == m_theChemicalModel->getSpeciesManager ().getC15plusAroId () || m_id == m_theChemicalModel->getSpeciesManager ().getC6to14AroId ()) {
       if(isGX5()){
          ArrheniusReactionRate = s_FrequencyFactor * 
-            exp((- (ActU + s_Peff * volume) / s_TK + entropy + dSperCoke * (Coke2Concentration)) / Genex6::Constants::R);
+            exp((- (ActU + s_Peff * volume) / s_TK + entropy + dSperCoke * (Coke2Concentration)) / IdealGasConstantGenex);
       } else {
          ArrheniusReactionRate = s_FrequencyFactor * 
-            exp((-(ActU + s_Peff * volume) / s_TK + entropy) / Genex6::Constants::R);
+            exp((-(ActU + s_Peff * volume) / s_TK + entropy) / IdealGasConstantGenex);
       }
    } else {
          ArrheniusReactionRate = s_FrequencyFactor * 
-            exp((-(ActU + s_Peff * volume) / s_TK + entropy) / Genex6::Constants::R);
+            exp((-(ActU + s_Peff * volume) / s_TK + entropy) / IdealGasConstantGenex);
    }
 
    if( isTSR() ) {
@@ -459,9 +473,9 @@ double Species::FunDiffusivityHybrid(const double s_FrequencyFactor, const doubl
 
    double returnValue = 0.0;
    if (T1 < s_TK) {
-      returnValue = s_FrequencyFactor * pow(jumplength, 2.0) * exp(-(Uj / s_TK + B0 / (s_TK - T1)) / Genex6::Constants::R);
+      returnValue = s_FrequencyFactor * pow(jumplength, 2.0) * exp(-(Uj / s_TK + B0 / (s_TK - T1)) / IdealGasConstantGenex);
    } else {
-      returnValue  = s_FrequencyFactor * pow(jumplength, 2.0) * exp(-(Uj / (Genex6::Constants::R * s_TK)));
+      returnValue  = s_FrequencyFactor * pow(jumplength, 2.0) * exp(-(Uj / (IdealGasConstantGenex * s_TK)));
       cout << "T1>TK in FunDiffusivityHybrid" << endl;
    }
    return returnValue;

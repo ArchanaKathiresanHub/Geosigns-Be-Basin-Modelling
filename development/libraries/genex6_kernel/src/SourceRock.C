@@ -1,13 +1,23 @@
-//#include <values.h>
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
+
+// std library
 #include <assert.h>
 #include <math.h>
 #include <stdlib.h>
+#include <vector>
+#include <iostream>
 
-#include<iostream>
 using namespace std;
 
-#include <vector>
-
+// DataAccess library
 #include "Interface/ProjectHandle.h"
 #include "Interface/Surface.h"
 #include "Interface/Snapshot.h"
@@ -33,6 +43,18 @@ using Interface::PropertyValueList;
 using Interface::AttributeValue;
 using Interface::LithoType;
 
+// utilities library
+# include "ConstantsMathematics.h"
+using Utilities::Maths::CgrConversionFactor;
+using Utilities::Maths::GorConversionFactor;
+using Utilities::Maths::KilogrammeToUSTon;
+using Utilities::Maths::CubicMetresToCubicFeet;
+using Utilities::Maths::CubicMetresToBarrel;
+using Utilities::Maths::CubicMetresToCubicFeet;
+using Utilities::Maths::MegaPaToPa;
+#include "ConstantsNumerical.h"
+using Utilities::Numerical::CauldronNoDataValue;
+
 #include "SourceRock.h"
 #include "LocalGridInterpolator.h"
 #include "LinearGridInterpolator.h"
@@ -42,7 +64,7 @@ using Interface::LithoType;
 #include "SimulatorState.h"
 #include "SourceRockNode.h"
 #include "Input.h"
-#include "Constants.h"
+#include "ConstantsGenex.h"
 #include "SpeciesResult.h"
 #include "Utilities.h"
 
@@ -2124,13 +2146,13 @@ void SourceRock::updateSnapShotOutputMaps(Genex6::SourceRockNode *theNode)
       const double meanBulkDensity = getProjectHandle ()->getSGDensitySample ()->getDensity ();
 
       // Converts m^3/m^3 to ft^3/ton.
-      const double SCFpTonGasVolumeConversionFactor = Genex6::Constants::CubicMetresToCubicFeet / ( Genex6::Constants::KilogrammeToUSTon * meanBulkDensity );
+      const double SCFpTonGasVolumeConversionFactor = CubicMetresToCubicFeet / ( KilogrammeToUSTon * meanBulkDensity );
 
       // Converts m^3/m^2 -> bcf/km^2
-      const double BCFpKm2GasVolumeConversionFactor = Genex6::Constants::CubicMetresToCubicFeet / 1.0e3; // = 1.0e6 * m^3->f^3 / 1.0e9.
+      const double BCFpKm2GasVolumeConversionFactor = CubicMetresToCubicFeet / 1.0e3; // = 1.0e6 * m^3->f^3 / 1.0e9.
 
       // Convert m^3/m^2 -> mega barrel/km^2.
-      const double OilVolumeConversionFactor = 1.0e6 * Genex6::Constants::CubicMetresToBarrel / 1.0e6;
+      const double OilVolumeConversionFactor = 1.0e6 * CubicMetresToBarrel / 1.0e6;
 
       double gasVolume;
       double oilVolume;
@@ -2154,7 +2176,7 @@ void SourceRock::updateSnapShotOutputMaps(Genex6::SourceRockNode *theNode)
       if ( m_retainedGor != 0 ) {
 
          if ( gor != 99999.0 ) {
-            m_retainedGor->setValue ( i, j, gor * Genex6::Constants::GorConversionFactor );
+            m_retainedGor->setValue ( i, j, gor * GorConversionFactor );
          } else {
             m_retainedGor->setValue ( i, j, 99999.0 );
          }
@@ -2164,7 +2186,7 @@ void SourceRock::updateSnapShotOutputMaps(Genex6::SourceRockNode *theNode)
       if ( m_retainedCgr != 0 ) {
 
          if ( cgr != 99999.0 ) {
-            m_retainedCgr->setValue ( i, j, cgr * Genex6::Constants::CgrConversionFactor );
+            m_retainedCgr->setValue ( i, j, cgr * CgrConversionFactor );
          } else {
             m_retainedCgr->setValue ( i, j, 99999.0 );
          }
@@ -2334,7 +2356,7 @@ bool SourceRock::computeSnapShot ( const double previousTime,
 
       bool useMaximumVes = isVESMaxEnabled();
       double maximumVes = getVESMax();
-      maximumVes *= Genex6::Constants::convertMpa2Pa;
+      maximumVes *= MegaPaToPa;
 
       if( calcErosion ) calcErosion->retrieveData();
 
@@ -2351,17 +2373,17 @@ bool SourceRock::computeSnapShot ( const double previousTime,
 
          double in_thicknessScaling = calcErosion ? calcErosion->get(( *itNode)->GetI(), (*itNode)->GetJ()) : 1.0;
 
-         double nodeHydrostaticPressure =  ( calcHP ?  1.0e6 * calcHP->get ((*itNode)->GetI(), (*itNode)->GetJ()) : Constants::UNDEFINEDVALUE );
+         double nodeHydrostaticPressure =  ( calcHP ?  1.0e6 * calcHP->get ((*itNode)->GetI(), (*itNode)->GetJ()) : CauldronNoDataValue );
 
-         double nodePorePressure = ( calcPressure ?  1.0e6 * calcPressure->get ((*itNode)->GetI(), (*itNode)->GetJ()) : Constants::UNDEFINEDVALUE );
+         double nodePorePressure = ( calcPressure ?  1.0e6 * calcPressure->get ((*itNode)->GetI(), (*itNode)->GetJ()) : CauldronNoDataValue );
 
-         double nodePorosity =  ( calcPorosity ? 0.01 * calcPorosity->get ((*itNode)->GetI(), (*itNode)->GetJ()) : Constants::UNDEFINEDVALUE );
+         double nodePorosity =  ( calcPorosity ? 0.01 * calcPorosity->get ((*itNode)->GetI(), (*itNode)->GetJ()) : CauldronNoDataValue );
 
-         double nodePermeability = ( calcPermeability ? calcPermeability->get ((*itNode)->GetI(), (*itNode)->GetJ()) : Constants::UNDEFINEDVALUE );
+         double nodePermeability = ( calcPermeability ? calcPermeability->get ((*itNode)->GetI(), (*itNode)->GetJ()) : CauldronNoDataValue );
 
          double nodeVre = calcVre->get((*itNode)->GetI(), (*itNode)->GetJ() );
 
-         double nodeLithostaticPressure =  ( calcLP ?  1.0e6 * calcLP->get ((*itNode)->GetI(), (*itNode)->GetJ()) : Constants::UNDEFINEDVALUE );
+         double nodeLithostaticPressure =  ( calcLP ?  1.0e6 * calcLP->get ((*itNode)->GetI(), (*itNode)->GetJ()) : CauldronNoDataValue );
 
          Genex6::Input *theInput = new Genex6::Input( previousTime, time,
                                                       in_Temp,
@@ -2473,7 +2495,7 @@ void SourceRock::computeTimeInstance ( const double &startTime,
 
    bool useMaximumVes = isVESMaxEnabled();
    double maximumVes = getVESMax();
-   maximumVes *= Genex6::Constants::convertMpa2Pa;
+   maximumVes *= MegaPaToPa;
 
    std::vector<Genex6::SourceRockNode*>::iterator itNode;
    
@@ -2486,12 +2508,12 @@ void SourceRock::computeTimeInstance ( const double &startTime,
       double in_startTemp = temperature->evaluateProperty( (*itNode)->GetI(), (*itNode)->GetJ(), startTime );
       double in_endTemp = temperature->evaluateProperty( (*itNode)->GetI(), (*itNode)->GetJ(), endTime );
 
-      double nodeLithostaticPressure = lithostaticPressure ? 1.0e6 * lithostaticPressure->evaluateProperty( (*itNode)->GetI(), (*itNode)->GetJ(), endTime ) : Constants::UNDEFINEDVALUE;
-      double nodeHydrostaticPressure = hydrostaticPressure ? 1.0e6 * hydrostaticPressure->evaluateProperty( (*itNode)->GetI(), (*itNode)->GetJ(), endTime ) : Constants::UNDEFINEDVALUE;
-      double startNodePorePressure = porePressure ? 1.0e6 * porePressure->evaluateProperty( (*itNode)->GetI(), (*itNode)->GetJ(), startTime ) : Constants::UNDEFINEDVALUE;
-      double endNodePorePressure = porePressure ?  1.0e6 * porePressure->evaluateProperty( (*itNode)->GetI(), (*itNode)->GetJ(), endTime ) : Constants::UNDEFINEDVALUE;
-      double nodePorosity = porosity ? 0.01 * porosity->evaluateProperty( (*itNode)->GetI(), (*itNode)->GetJ(), endTime ) : Constants::UNDEFINEDVALUE;
-      double nodePermeability = permeability ? permeability->evaluateProperty( (*itNode)->GetI(), (*itNode)->GetJ(), endTime ) : Constants::UNDEFINEDVALUE;
+      double nodeLithostaticPressure = lithostaticPressure ? 1.0e6 * lithostaticPressure->evaluateProperty( (*itNode)->GetI(), (*itNode)->GetJ(), endTime ) : CauldronNoDataValue;
+      double nodeHydrostaticPressure = hydrostaticPressure ? 1.0e6 * hydrostaticPressure->evaluateProperty( (*itNode)->GetI(), (*itNode)->GetJ(), endTime ) : CauldronNoDataValue;
+      double startNodePorePressure = porePressure ? 1.0e6 * porePressure->evaluateProperty( (*itNode)->GetI(), (*itNode)->GetJ(), startTime ) : CauldronNoDataValue;
+      double endNodePorePressure = porePressure ?  1.0e6 * porePressure->evaluateProperty( (*itNode)->GetI(), (*itNode)->GetJ(), endTime ) : CauldronNoDataValue;
+      double nodePorosity = porosity ? 0.01 * porosity->evaluateProperty( (*itNode)->GetI(), (*itNode)->GetJ(), endTime ) : CauldronNoDataValue;
+      double nodePermeability = permeability ? permeability->evaluateProperty( (*itNode)->GetI(), (*itNode)->GetJ(), endTime ) : CauldronNoDataValue;
       double nodeVre = vre->evaluateProperty ( (*itNode)->GetI(), (*itNode)->GetJ(), endTime );
 
       double in_thicknessScaling = thicknessScaling ? thicknessScaling->evaluateProperty( (*itNode)->GetI(), (*itNode)->GetJ(), endTime ) : 1.0;

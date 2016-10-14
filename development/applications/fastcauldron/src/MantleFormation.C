@@ -160,11 +160,11 @@ void MantleFormation::allocateBasementVecs( ) {
    const AppCtx* basinModel =  FastcauldronSimulator::getInstance ().getCauldron ();
 
    if( basinModel->isALC()) {
-      IBSASSERT(NULL == UpliftedOrigMantleDepth);
+      assert(NULL == UpliftedOrigMantleDepth);
       createCount++;    
       DMCreateGlobalVector( * basinModel->mapDA, &UpliftedOrigMantleDepth );
        
-      IBSASSERT( NULL == LithosphereThicknessMod );
+      assert( NULL == LithosphereThicknessMod );
       createCount++;
       DMCreateGlobalVector( * basinModel->mapDA, &LithosphereThicknessMod );
 

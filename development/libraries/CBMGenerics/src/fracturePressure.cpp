@@ -10,13 +10,18 @@
 #include "stdafx.h"
 
 #include "fracturePressure.h"
-#include "consts.h"
 
+// std library
 #include <assert.h>
 #include <limits>
 #include <cstring>
-
 using std::numeric_limits;
+
+// utilities library
+#include "ConstantsMathematics.h"
+using Utilities::Maths::MegaPaToPa;
+#include "ConstantsPhysics.h"
+using Utilities::Physics::PressureAtSeaLevel;
 
 namespace CBMGenerics
 {
@@ -85,7 +90,7 @@ namespace CBMGenerics
                            depthWrtSeaLevel + coefficients[0];
 
          // Convert from MPa to Pa:
-         return pressure * MPa2Pa;
+         return pressure * MegaPaToPa;
       }
 
       double computeForFunctionOfDepthWrtSedimentSurface( const vector<double> & coefficients
@@ -98,7 +103,7 @@ namespace CBMGenerics
                            depthWrtSedimentSurface + coefficients[0];
 
          // Convert from MPa to Pa:
-         return pressure * MPa2Pa + hydrostaticPressureAtSedimentSurface - PressureAtSeaLevel;
+         return pressure * MegaPaToPa + hydrostaticPressureAtSedimentSurface - PressureAtSeaLevel;
       }
 
       double computeForFunctionOfLithostaticPressure( const double & hydraulicFracture
@@ -109,7 +114,7 @@ namespace CBMGenerics
          double pressure = hydraulicFracture * ( lithostaticPressure - hydrostaticPressure ) + hydrostaticPressure;
 
          // Convert from MPa to Pa:
-         return pressure * MPa2Pa;
+         return pressure * MegaPaToPa;
       }
 
    } // namespace fracturePressure

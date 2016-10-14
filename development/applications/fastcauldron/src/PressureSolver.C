@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 #include "PressureSolver.h"
 
 #include "Interface/RunParameters.h"
@@ -28,6 +37,14 @@
 #include "BoundaryId.h"
 
 using namespace FiniteElementMethod;
+
+// utilities library
+#include "ConstantsMathematics.h"
+using Utilities::Maths::Zero;
+using Utilities::Maths::One;
+using Utilities::Maths::NegOne;
+#include "ConstantsNumerical.h"
+using Utilities::Numerical::CauldronNoDataValue;
 
 
 //------------------------------------------------------------//
@@ -442,7 +459,7 @@ void PressureSolver::setBasementDepths ( const double           Current_Time,
       } else {
  
         for ( K = Z_Start + Z_Count - 2; K >= 0; K-- ) {
-          Crust_Depth ( K, J, I ) = CAULDRONIBSNULLVALUE;
+          Crust_Depth ( K, J, I ) = CauldronNoDataValue;
         }
 
       }
@@ -484,7 +501,7 @@ void PressureSolver::setBasementDepths ( const double           Current_Time,
       } else {
  
         for ( K = Z_Top - 1; K >= 0; K-- ) {
-          Mantle_Depth ( K, J, I ) = CAULDRONIBSNULLVALUE;
+          Mantle_Depth ( K, J, I ) = CauldronNoDataValue;
         }
 
       }

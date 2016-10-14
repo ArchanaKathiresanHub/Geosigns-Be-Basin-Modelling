@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 #include "NonGeometricLoopPressureSolver.h"
 
 #include "FiniteElementTypes.h"
@@ -9,6 +18,17 @@
 #include "element_contributions.h"
 #include "layer_iterators.h"
 #include "fem_grid_auxiliary_functions.h"
+
+// utilities library
+#include "ConstantsNumerical.h"
+using Utilities::Numerical::CauldronNoDataValue;
+using Utilities::Numerical::IbsNoDataValue;
+#include "ConstantsMathematics.h"
+using Utilities::Maths::PaToMegaPa;
+using Utilities::Maths::MegaPaToPa;
+using Utilities::Maths::MillyDarcyToM2;
+#include "ConstantsPhysics.h"
+using Utilities::Physics::AccelerationDueToGravity;
 
 
 //------------------------------------------------------------//
@@ -90,7 +110,7 @@ void NonGeometricLoopPressureSolver::adjustSolidThickness ( const double relativ
             Computed_Solid_Thickness = Computed_Solid_Thickness + Current_Layer -> Current_Properties ( Basin_Modelling::Solid_Thickness, K, J, I );
             segmentFCT = Current_Layer->getSolidThickness ( I, J, K, 0.0 );
 
-            if ( segmentFCT != CAULDRONIBSNULLVALUE && segmentFCT != IBSNULLVALUE ) {
+            if ( segmentFCT != CauldronNoDataValue && segmentFCT != IbsNoDataValue ) {
               Initial_FCT = Initial_FCT + segmentFCT;
             }
 
@@ -113,7 +133,7 @@ void NonGeometricLoopPressureSolver::adjustSolidThickness ( const double relativ
             //
             //      i) 0.0 is probably the most intelligent value, because if there 
             //         is no computed_solid_thickness then there can be no error
-            //     ii) CAULDRONIBSNULLVALUE (=99999)
+            //     ii) CauldronNoDataValue (=99999)
             //    iii) nan/inf
             //     iv) some other value
             //
@@ -131,8 +151,8 @@ void NonGeometricLoopPressureSolver::adjustSolidThickness ( const double relativ
           }
 
         } else {
-	  FCTCorrection   ( J, I ) = CAULDRONIBSNULLVALUE;
-	  Thickness_Error ( J, I ) = CAULDRONIBSNULLVALUE;
+	  FCTCorrection   ( J, I ) = CauldronNoDataValue;
+	  Thickness_Error ( J, I ) = CauldronNoDataValue;
         }
 
       }
@@ -220,7 +240,7 @@ void NonGeometricLoopPressureSolver::computeSolidThickness ( const LayerProps_Pt
   //
   Fluid_Density = Current_Layer->fluid->density ( Temperature_Bottom, Pore_Pressure_Top );
   Hydrostatic_Pressure_Predicted = Hydrostatic_Pressure_Top
-                                   + 0.5 * GRAVITY * Real_Thickness * ( Fluid_Density_Top + Fluid_Density ) * Pa_To_MPa;
+                                   + 0.5 * AccelerationDueToGravity * Real_Thickness * ( Fluid_Density_Top + Fluid_Density ) * PaToMegaPa;
 
   Pore_Pressure_Predicted = Hydrostatic_Pressure_Predicted + Overpressure_Bottom;
 
@@ -230,7 +250,7 @@ void NonGeometricLoopPressureSolver::computeSolidThickness ( const LayerProps_Pt
   Fluid_Density = Current_Layer->fluid->density ( Temperature_Bottom, Pore_Pressure_Predicted );
 
   Hydrostatic_Pressure = Hydrostatic_Pressure_Top
-                         + 0.5 * GRAVITY * Real_Thickness * ( Fluid_Density_Top + Fluid_Density ) * Pa_To_MPa;
+                         + 0.5 * AccelerationDueToGravity * Real_Thickness * ( Fluid_Density_Top + Fluid_Density ) * PaToMegaPa;
 
   Pore_Pressure = Hydrostatic_Pressure + Overpressure_Bottom;
 
@@ -246,15 +266,15 @@ void NonGeometricLoopPressureSolver::computeSolidThickness ( const LayerProps_Pt
     // This should be okay, as both are almost linear throughout the height of the segment.
     //
     Lithostatic_Pressure = Lithostatic_Pressure_Top
-                           + 0.5 * GRAVITY * Real_Thickness * ( Bulk_Density_Top + Bulk_Density ) * Pa_To_MPa;
+                           + 0.5 * AccelerationDueToGravity * Real_Thickness * ( Bulk_Density_Top + Bulk_Density ) * PaToMegaPa;
 
     //
     // What to do here? Should we keep VES >= 0?
     //
     // Should we rely on the fracture pressure to keep VES to sensible values (ie nonnegative)?
     //
-    VES = ( Lithostatic_Pressure - Pore_Pressure ) * MPa_To_Pa;
-    VES     = NumericFunctions::Maximum ( 0.0, ( Lithostatic_Pressure - Pore_Pressure ) * MPa_To_Pa );
+    VES = ( Lithostatic_Pressure - Pore_Pressure ) * MegaPaToPa;
+    VES     = NumericFunctions::Maximum ( 0.0, ( Lithostatic_Pressure - Pore_Pressure ) * MegaPaToPa );
     Max_VES = NumericFunctions::Maximum (( 1.0 + lateralStressFactor ) * VES, Intermediate_Max_VES_Bottom );
 
     Porosity_Bottom = Current_Lithology->porosity ( VES, Max_VES, Include_Chemical_Compaction, Chemical_Compaction_Bottom );
@@ -286,21 +306,21 @@ void NonGeometricLoopPressureSolver::computeSolidThickness ( const LayerProps_Pt
 /*    if ( (Fluid_Density > Solid_Density) && ( Current_Layer->fluid->SwitchPermafrost() ) )  // NLSAY3: We assume the solid is ice in this case
     {
     Hydrostatic_Pressure = Hydrostatic_Pressure_Top
-                         + 0.5 * GRAVITY * Real_Thickness * ( Bulk_Density_Top + Bulk_Density ) * Pa_To_MPa;
+                         + 0.5 * GRAVITY * Real_Thickness * ( Bulk_Density_Top + Bulk_Density ) * PaToMegaPa;
     Pore_Pressure = Hydrostatic_Pressure + Overpressure_Bottom;
     }*/
 
 /*    if ( (Fluid_Density > Solid_Density) && ( Current_Layer->fluid->SwitchPermafrost() ) )  // NLSAY3: We assume the solid is ice in this case
     {
     Hydrostatic_Pressure = Hydrostatic_Pressure_Top
-                         + GRAVITY * Real_Thickness * ( Solid_Density ) * Pa_To_MPa;
+                         + GRAVITY * Real_Thickness * ( Solid_Density ) * PaToMegaPa;
     Pore_Pressure = Hydrostatic_Pressure + Overpressure_Bottom;
     }*/
 
   if ( (Fluid_Density > Solid_Density) && ( Current_Layer->fluid->SwitchPermafrost() ) )  // NLSAY3: We assume the solid is ice in this case
   {
     Hydrostatic_Pressure = Hydrostatic_Pressure_Top;
-       //                  + 0.5 * GRAVITY * ( Real_Thickness - Solid_Thickness ) * ( Fluid_Density_Top + Fluid_Density ) * Pa_To_MPa; // Second term should be 0 to be consistant.
+       //                  + 0.5 * GRAVITY * ( Real_Thickness - Solid_Thickness ) * ( Fluid_Density_Top + Fluid_Density ) * PaToMegaPa; // Second term should be 0 to be consistant.
     Pore_Pressure = Lithostatic_Pressure;
 // Pore_Pressure = Hydrostatic_Pressure + Overpressure_Bottom;
   }
@@ -403,7 +423,7 @@ void NonGeometricLoopPressureSolver::computeDependantPropertiesForLayer
         surfaceDepth   = FastcauldronSimulator::getInstance ().getSeaBottomDepth ( I, J, currentTime );
         depthTop       = currentlayerDepth ( zTopIndex, J, I );
 
-        if ( temperatureTop == CAULDRONIBSNULLVALUE ) {
+        if ( temperatureTop == CauldronNoDataValue ) {
           surfaceTemperature = FastcauldronSimulator::getInstance ().getSeaBottomTemperature ( I, J, currentTime );
           temperatureTop     = cauldron->Estimate_Temperature_At_Depth ( depthTop, surfaceTemperature, surfaceDepth );
         }
@@ -443,11 +463,11 @@ void NonGeometricLoopPressureSolver::computeDependantPropertiesForLayer
           // currentRealThickness  = currentlayerDepth ( currentTopmostActiveSegment + 1, J, I ) - 
           //                         currentlayerDepth ( currentTopmostActiveSegment,     J, I );
 
-          if ( previousRealThickness < 0.0 || previousRealThickness == IBSNULLVALUE ) {
+          if ( previousRealThickness < 0.0 || previousRealThickness == IbsNoDataValue ) {
             previousRealThickness = 0.0;
           }
 
-          if ( currentRealThickness < 0.0 || currentRealThickness == IBSNULLVALUE ) {
+          if ( currentRealThickness < 0.0 || currentRealThickness == IbsNoDataValue ) {
             currentRealThickness = 0.0;
           }
 
@@ -493,8 +513,8 @@ void NonGeometricLoopPressureSolver::computeDependantPropertiesForLayer
                                                     permeabilityNormalValue,
                                                     permeabilityPlaneValue );
 
-        layerPermeabilityNormal  ( Z_Start + Z_Count - 1, J, I ) = permeabilityNormalValue / MILLIDARCYTOM2;
-        layerPermeabilityPlane   ( Z_Start + Z_Count - 1, J, I ) = permeabilityPlaneValue  / MILLIDARCYTOM2;
+        layerPermeabilityNormal  ( Z_Start + Z_Count - 1, J, I ) = permeabilityNormalValue / MillyDarcyToM2;
+        layerPermeabilityPlane   ( Z_Start + Z_Count - 1, J, I ) = permeabilityPlaneValue  / MillyDarcyToM2;
 
         // Initialise properties on all inactive nodes and the top most 
         // active node to be the the value at the top of the layer.
@@ -527,7 +547,7 @@ void NonGeometricLoopPressureSolver::computeDependantPropertiesForLayer
                                                         includeChemicalCompaction,
                                                         chemicalCompactionBottom );
 
-          if ( temperatureBottom == CAULDRONIBSNULLVALUE ) {
+          if ( temperatureBottom == CauldronNoDataValue ) {
             temperatureBottom = cauldron->Estimate_Temperature_At_Depth ( Depth_Bottom, surfaceTemperature, surfaceDepth );
           }
 
@@ -571,24 +591,24 @@ void NonGeometricLoopPressureSolver::computeDependantPropertiesForLayer
                                                      permeabilityNormalValue,
                                                      permeabilityPlaneValue );
 
-          layerPermeabilityNormal  ( K, J, I ) = permeabilityNormalValue / MILLIDARCYTOM2;
-          layerPermeabilityPlane   ( K, J, I ) = permeabilityPlaneValue  / MILLIDARCYTOM2;
+          layerPermeabilityNormal  ( K, J, I ) = permeabilityNormalValue / MillyDarcyToM2;
+          layerPermeabilityPlane   ( K, J, I ) = permeabilityPlaneValue  / MillyDarcyToM2;
 
         }
 
       } else {
 
         for ( K = zTopIndex; K >= 0; K-- ) {
-          currentlayerDepth        ( K, J, I ) = CAULDRONIBSNULLVALUE;
-          layerFCT                 ( K, J, I ) = CAULDRONIBSNULLVALUE;
-          layerHydrostaticPressure ( K, J, I ) = CAULDRONIBSNULLVALUE;
-          layerLithostaticPressure ( K, J, I ) = CAULDRONIBSNULLVALUE;
-          layerPorePressure        ( K, J, I ) = CAULDRONIBSNULLVALUE;
-          layerPorosity            ( K, J, I ) = CAULDRONIBSNULLVALUE;
-          layerVES                 ( K, J, I ) = CAULDRONIBSNULLVALUE;
-          layerIntermediateMaxVES  ( K, J, I ) = CAULDRONIBSNULLVALUE;
-          layerPermeabilityNormal  ( K, J, I ) = CAULDRONIBSNULLVALUE;
-          layerPermeabilityPlane   ( K, J, I ) = CAULDRONIBSNULLVALUE;
+          currentlayerDepth        ( K, J, I ) = CauldronNoDataValue;
+          layerFCT                 ( K, J, I ) = CauldronNoDataValue;
+          layerHydrostaticPressure ( K, J, I ) = CauldronNoDataValue;
+          layerLithostaticPressure ( K, J, I ) = CauldronNoDataValue;
+          layerPorePressure        ( K, J, I ) = CauldronNoDataValue;
+          layerPorosity            ( K, J, I ) = CauldronNoDataValue;
+          layerVES                 ( K, J, I ) = CauldronNoDataValue;
+          layerIntermediateMaxVES  ( K, J, I ) = CauldronNoDataValue;
+          layerPermeabilityNormal  ( K, J, I ) = CauldronNoDataValue;
+          layerPermeabilityPlane   ( K, J, I ) = CauldronNoDataValue;
         }
 
       }
@@ -803,7 +823,7 @@ void NonGeometricLoopPressureSolver::initialisePressureProperties ( const double
           for ( K = Z_Start + Z_Count - 2; K >= 0; K-- ) {
             Real_Thickness = Current_Layer->getRealThickness ( I, J, K, Current_Time );
 
-            if ( Real_Thickness != IBSNULLVALUE ) {
+            if ( Real_Thickness != IbsNoDataValue ) {
               Depth ( K, J, I ) = Depth ( K + 1, J, I ) + Real_Thickness;
             } else {
               Depth ( K, J, I ) = Depth ( K + 1, J, I );

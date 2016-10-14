@@ -22,12 +22,15 @@
 
 #include "LithostaticPressureFormationCalculator.h"
 
+// std library
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <math.h>
 
-const double GRAVITY = 9.81;
+// utilities library
+#include "ConstantsPhysics.h"
+using Utilities::Physics::AccelerationDueToGravity;
 
 //------------------------------------------------------------//
 DensityCalculator::DensityCalculator() {
@@ -134,18 +137,18 @@ void DensityCalculator::restoreData() {
 //------------------------------------------------------------//
 void DensityCalculator::computeNode( unsigned int i, unsigned int j ) {
 
- 
+
    m_topBasementDepthValue = m_depthBasementMap->getValue (i, j) ;
    m_waterBottomDepthValue = m_depthWaterBottomMap->getValue (i, j);
 
    if((m_topBasementDepthValue != m_depthBasementMap->getUndefinedValue()) &&   
       (m_waterBottomDepthValue != m_depthWaterBottomMap->getUndefinedValue())) {
-   
+
       m_sedimentThickness = m_topBasementDepthValue - m_waterBottomDepthValue;
    } else {
       m_sedimentThickness = Interface::DefaultUndefinedMapValue; // or 0.0?  
    }
-   
+
    double pressureTopBasementValue = m_pressureBasement->get (i, j);
    double pressureWaterBottomValue = m_pressureWaterBottom->get (i, j);
 
@@ -157,9 +160,9 @@ void DensityCalculator::computeNode( unsigned int i, unsigned int j ) {
    
       // Integrated sediment density calculated across grid using pressure at WaterBottom and TopBasement surfaces
       if( m_sedimentThickness != 0.0 ) {
-         m_sedimentDensity = ((pressureTopBasementValue - pressureWaterBottomValue) * 1e6 ) / (GRAVITY * m_sedimentThickness);
-      } 
-   } 
+         m_sedimentDensity = ((pressureTopBasementValue - pressureWaterBottomValue) * 1e6 ) / (AccelerationDueToGravity * m_sedimentThickness);
+      }
+   }
 }
 //------------------------------------------------------------//
 double DensityCalculator::getTopBasementDepthValue() const {

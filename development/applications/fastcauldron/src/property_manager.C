@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
 //------------------------------------------------------------//
 
 #include <memory>
@@ -8,7 +17,7 @@
 #include "milestones.h"
 #include "utils.h"
 #include "fem_grid_auxiliary_functions.h"
-#include "globaldefs.h"
+#include "ConstantsFastcauldron.h"
 #include "ghost_array.h"
 #include "FastcauldronSimulator.h"
 
@@ -19,6 +28,17 @@
 #include "CompoundProperty.h"
 
 #include "Interface/RunParameters.h"
+
+//------------------------------------------------------------//
+
+// utilities library
+#include "ConstantsNumerical.h"
+using Utilities::Numerical::CauldronNoDataValue;
+#include "ConstantsMathematics.h"
+using Utilities::Maths::PaToMegaPa;
+using Utilities::Maths::MillyDarcyToM2;
+#include "ConstantsPhysics.h"
+using Utilities::Physics::AccelerationDueToGravity;
 
 //------------------------------------------------------------//
 
@@ -531,7 +551,7 @@ void Basin_Modelling::computeBulkDensityVectors ( AppCtx* Basin_Model ) {
 
     DMDAGetCorners ( currentLayer->layerDA, PETSC_NULL, PETSC_NULL, &zStart, PETSC_NULL, PETSC_NULL, &zCount );
     DMCreateGlobalVector ( currentLayer -> layerDA, &currentLayer -> BulkDensity );
-    VecSet ( currentLayer -> BulkDensity, CAULDRONIBSNULLVALUE );
+    VecSet ( currentLayer -> BulkDensity, CauldronNoDataValue );
     layerBulkDensity.Set_Global_Array ( currentLayer -> layerDA, 
                                         currentLayer -> BulkDensity );
 
@@ -637,10 +657,10 @@ void Basin_Modelling::computeThermalConductivityVectors ( AppCtx*        Basin_M
 
     DMDAGetCorners ( currentLayer->layerDA, PETSC_NULL, PETSC_NULL, &zStart, PETSC_NULL, PETSC_NULL, &zCount );
     DMCreateGlobalVector ( currentLayer -> layerDA, &currentLayer -> BulkTHCondN );
-    VecSet ( currentLayer -> BulkTHCondN, CAULDRONIBSNULLVALUE );
+    VecSet ( currentLayer -> BulkTHCondN, CauldronNoDataValue );
 
     DMCreateGlobalVector ( currentLayer -> layerDA, &currentLayer -> BulkTHCondP );
-    VecSet ( currentLayer -> BulkTHCondP, CAULDRONIBSNULLVALUE );
+    VecSet ( currentLayer -> BulkTHCondP, CauldronNoDataValue );
 
     layerThermalConductivityNormal.Set_Global_Array ( currentLayer -> layerDA, 
                                                       currentLayer -> BulkTHCondN );
@@ -759,7 +779,7 @@ void Basin_Modelling::computeThicknessVectors ( AppCtx*        Basin_Model ) {
     // Output of this vector depends on the layerDA which has the full 3D dimension.
     //
     DMCreateGlobalVector ( currentLayer -> layerDA, &currentLayer -> layerThickness );
-    VecSet ( currentLayer -> layerThickness, CAULDRONIBSNULLVALUE );
+    VecSet ( currentLayer -> layerThickness, CauldronNoDataValue );
 
     layerThickness.Set_Global_Array ( currentLayer -> layerDA, 
                                       currentLayer -> layerThickness );
@@ -873,8 +893,8 @@ void Basin_Modelling::computePermeabilityVectors ( AppCtx*        Basin_Model ) 
 //      DMCreateGlobalVector ( currentLayer -> layerDA, &currentLayer -> PermeabilityV );
 //      DMCreateGlobalVector ( currentLayer -> layerDA, &currentLayer -> PermeabilityH );
 
-    VecSet ( currentLayer -> PermeabilityV, CAULDRONIBSNULLVALUE );
-    VecSet ( currentLayer -> PermeabilityH, CAULDRONIBSNULLVALUE );
+    VecSet ( currentLayer -> PermeabilityV, CauldronNoDataValue );
+    VecSet ( currentLayer -> PermeabilityH, CauldronNoDataValue );
 
     layerNormalPermeability.Set_Global_Array ( currentLayer -> layerDA, 
                                                currentLayer -> PermeabilityV );
@@ -896,8 +916,8 @@ void Basin_Modelling::computePermeabilityVectors ( AppCtx*        Basin_Model ) 
 
             currentLithology->getPorosity ( VES, maxVES, includeChemicalCompactionTerm, layerChemicalCompaction ( K, J, I ), porosity );
             currentLithology->calcBulkPermeabilityNP ( VES, maxVES, porosity, normalPerm, tangentialPerm );
-            layerNormalPermeability     ( K, J, I )= normalPerm / MILLIDARCYTOM2;
-            layerTangentialPermeability ( K, J, I )= tangentialPerm / MILLIDARCYTOM2;            
+            layerNormalPermeability     ( K, J, I )= normalPerm / MillyDarcyToM2;
+            layerTangentialPermeability ( K, J, I )= tangentialPerm / MillyDarcyToM2;            
 	  }
 
         }
@@ -1189,7 +1209,7 @@ void Basin_Modelling::computeBasementLithostaticPressureForCurrentTimeStep ( App
                for (k = zCount-2; k >= 0 ; --k  ) {
                   density = currentLayer->getLithology ( i, j, k )->getSimpleLithology()->getDensity ( temp( k, j, i ), lithostaticPressure ( k + 1, j, i ) );
                   segmentThickness = depth ( k, j, i ) - depth  ( k + 1, j, i );
-                  lithostaticPressure ( k, j, i ) = lithostaticPressure ( k + 1, j, i ) + density * GRAVITY * Pa_To_MPa * segmentThickness;
+                  lithostaticPressure ( k, j, i ) = lithostaticPressure ( k + 1, j, i ) + density * AccelerationDueToGravity * PaToMegaPa * segmentThickness;
                }
 
             }
@@ -1297,7 +1317,7 @@ void Basin_Modelling::computeBasementLithostaticPressure ( AppCtx* basinModel,
                  for (k = zCount-2; k >= 0 ; --k  ) {
                     density = currentLayer->getLithology ( i, j, k )->getSimpleLithology()->getDensity ( temp( k, j, i ), lithostaticPressure ( k + 1, j, i ) );
                     segmentThickness = depth ( k, j, i ) - depth  ( k + 1, j, i );
-                    lithostaticPressure ( k, j, i ) = lithostaticPressure ( k + 1, j, i ) + density * GRAVITY * Pa_To_MPa * segmentThickness;
+                    lithostaticPressure ( k, j, i ) = lithostaticPressure ( k + 1, j, i ) + density * AccelerationDueToGravity * PaToMegaPa * segmentThickness;
                  }
 
               }
@@ -1336,7 +1356,7 @@ void Basin_Modelling::computeBasementLithostaticPressure ( AppCtx* basinModel,
                     segmentThickness = depth ( k, j, i ) - depth ( k + 1, j, i );
                     
                     // The intermediate nodal values for the litho-static pressure are not computed.
-                    lithostaticPressure ( k, j, i ) = lithostaticPressure ( k + 1, j, i ) + currentLayer->getLithology ( i, j )->density () * GRAVITY * Pa_To_MPa * segmentThickness;
+                    lithostaticPressure ( k, j, i ) = lithostaticPressure ( k + 1, j, i ) + currentLayer->getLithology ( i, j )->density () * AccelerationDueToGravity * PaToMegaPa * segmentThickness;
                  }
               }
               
