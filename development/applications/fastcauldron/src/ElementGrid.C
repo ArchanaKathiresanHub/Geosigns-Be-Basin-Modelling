@@ -124,22 +124,15 @@ void ElementGrid::construct ( const DataAccess::Interface::Grid* nodeGrid,
 //------------------------------------------------------------//
 
 bool ElementGrid::isPartOfStencil ( const int i,
-                                    const int j ) const {
+                                    const int j ) const 
+{
 
-   bool isValid;
+   bool isIinRange = NumericFunctions::inRange(i, firstI(), lastI());
+   bool isJinRange = NumericFunctions::inRange(j, firstJ(), lastJ());
+   bool isIonBoundary = (i == firstI(true) or i == lastI(true));
+   bool isJonBoundary = (j == firstJ(true) or j == lastJ(true));
 
-   if ( NumericFunctions::inRange ( i, firstI (), lastI ()) and
-        NumericFunctions::inRange ( j, firstJ (), lastJ ())) {
-      isValid = true;
-   } else if ( NumericFunctions::inRange ( i, firstI (), lastI ()) and ( j == firstJ ( true ) or j == lastJ ( true ))) {
-      isValid = true;
-   } else if ( NumericFunctions::inRange ( j, firstJ (), lastJ ()) and ( i == firstI ( true ) or i == lastI ( true ))) {
-      isValid = true;
-   } else {
-      isValid = false;
-   }
-
-   return isValid;
+   return  (isIinRange and isJinRange) or (isIinRange and isJonBoundary) or (isJinRange and isIonBoundary);
 }
 
 //------------------------------------------------------------//

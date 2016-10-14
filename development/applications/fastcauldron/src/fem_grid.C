@@ -2145,9 +2145,7 @@ bool Basin_Modelling::FEM_Grid::RecomputeJacobian ( const int iterationCount,
 
   if ( basinModel->allowPressureJacobianReuse ) {
 
-     if ( iterationCount <= 3 ) {
-        recompute = true;
-     } else if ( iterationCount % basinModel->pressureJacobianReuseCount == 0 ) {
+     if ( iterationCount <= 3 or iterationCount % basinModel->pressureJacobianReuseCount == 0) {
         recompute = true;
      } else {
         recompute = false;

@@ -1204,7 +1204,8 @@ double ExplicitMultiComponentFlowSolver::computeElementFaceFlux ( const Subdomai
    double pressureGradient = 0.0;
    double permeabilityValue = -1.0;
 
-   switch ( face ) {
+   switch ( face ) 
+   {
 
      case VolumeData::ShallowFace : 
         pressureGradient = (( elementPressure - neighbourPressure ) / deltaX - phaseDensity * GRAVITY );
@@ -1216,29 +1217,15 @@ double ExplicitMultiComponentFlowSolver::computeElementFaceFlux ( const Subdomai
         permeabilityValue = permNormal;
         break;
 
-     case VolumeData::Front : 
+     case VolumeData::Front: 
+	 case VolumeData::Back:
+	 case VolumeData::Left:
+	 case VolumeData::Right:
         pressureGradient = -( neighbourPressure - elementPressure ) / deltaX;
         permeabilityValue = permPlane;
         break;
-
-     case VolumeData::Back : 
-        pressureGradient = -( neighbourPressure - elementPressure ) / deltaX;
-        permeabilityValue = permPlane;
-        break;
-
-     case VolumeData::Left : 
-        pressureGradient = -( neighbourPressure - elementPressure ) / deltaX;
-        permeabilityValue = permPlane;
-        break;
-
-     case VolumeData::Right : 
-        pressureGradient = -( neighbourPressure - elementPressure ) / deltaX;
-        permeabilityValue = permPlane;
-        break;
-
      default :
         cout << " ERROR " << endl;
-
    }
 
    if ( m_limitFluxPermeability ) {

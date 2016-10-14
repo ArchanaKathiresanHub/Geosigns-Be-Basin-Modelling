@@ -135,10 +135,10 @@ static bool parseCmdLineArgs( int      argc
       }
       else if ( strncmp( argv[arg], "-debug",   max<size_t>( 2, strlen( argv[arg] ) ) ) == 0 ) { debug   = true; }
       else if ( strncmp( argv[arg], "-verbose", max<size_t>( 2, strlen( argv[arg] ) ) ) == 0 ) { verbose = true; }
-      else if ( strncmp( argv[arg], "-help",    max<size_t>( 2, strlen( argv[arg] ) ) ) == 0 ) { showUsage( argv[ 0 ], "Standard usage."  ); return false; }
-      else if ( strncmp( argv[arg], "-?",       max<size_t>( 2, strlen( argv[arg] ) ) ) == 0 ) { showUsage( argv[ 0 ], "Standard usage."  ); return false; }
-      else if ( strncmp( argv[arg], "-usage",   max<size_t>( 2, strlen( argv[arg] ) ) ) == 0 ) { showUsage( argv[ 0 ], "Standard usage."  ); return false; }
-      else                                                                             { showUsage( argv[ 0 ], "Unknown argument" ); return false; }
+      else if ( strncmp( argv[arg], "-help",    max<size_t>( 2, strlen( argv[arg] ) ) ) == 0 || 
+		        strncmp( argv[arg], "-?",       max<size_t>( 2, strlen( argv[arg] ) ) ) == 0 || 
+		        strncmp( argv[arg], "-usage",   max<size_t>( 2, strlen( argv[arg] ) ) ) == 0 )  { showUsage( argv[ 0 ], "Standard usage."  ); return false; }
+      else { showUsage( argv[ 0 ], "Unknown argument" ); return false; }
 
       if ( inputProjectFileName.empty()  ) { showUsage ( argv[ 0 ], "No project file specified"); return false; }
       if ( outputProjectFileName.empty() ) { outputProjectFileName = inputProjectFileName;  }

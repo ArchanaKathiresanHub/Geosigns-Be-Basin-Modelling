@@ -559,6 +559,7 @@ bool FastcauldronSimulator::setCalculationMode ( const CalculationMode mode, con
          break;
 
       case HYDROSTATIC_HIGH_RES_DECOMPACTION_MODE :
+	  case COUPLED_HIGH_RES_DECOMPACTION_MODE:
          started = startActivity ( HighResDecompactionRunStatusStr, getHighResolutionOutputGrid (), saveAsInputGrid, createResultsFile );
          break;
 
@@ -572,10 +573,6 @@ bool FastcauldronSimulator::setCalculationMode ( const CalculationMode mode, con
 
       case OVERPRESSURED_TEMPERATURE_MODE :
          started = startActivity ( OverpressuredTemperatureRunStatusStr, getLowResolutionOutputGrid (), saveAsInputGrid, createResultsFile );
-         break;
-
-      case COUPLED_HIGH_RES_DECOMPACTION_MODE :
-         started = startActivity ( HighResDecompactionRunStatusStr, getHighResolutionOutputGrid (), saveAsInputGrid, createResultsFile );
          break;
 
       case PRESSURE_AND_TEMPERATURE_MODE :
@@ -1080,14 +1077,9 @@ void FastcauldronSimulator::finalise ( const bool saveResults ) {
 
 //------------------------------------------------------------//
 
-void FastcauldronSimulator::correctTimeFilterDefaults () {
-
-   if ( getModellingMode () == Interface::MODE1D ) {
+void FastcauldronSimulator::correctTimeFilterDefaults () 
+{
       correctTimeFilterDefaults3D ();
-   } else {
-      correctTimeFilterDefaults3D ();
-   }
-
 }
 
 //------------------------------------------------------------//

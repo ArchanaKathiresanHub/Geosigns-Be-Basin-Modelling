@@ -572,8 +572,6 @@ void MultiComponentFlowHandler::initialise () {
 
    if ( iNodeWanted and jNodeWanted and not kNodeWanted ) {
       PetscPrintf ( PETSC_COMM_WORLD, " debugging output for needle: %i  %i.\n", m_debugINode, m_debugJNode );
-   } else if (  iNodeWanted and jNodeWanted and not kNodeWanted ) {
-      PetscPrintf ( PETSC_COMM_WORLD, " debugging output for node: %i  %i.\n", m_debugINode, m_debugJNode, m_debugKNode );
    }
 
    if ( maximumMcfTimeStepChanged ) {

@@ -34,24 +34,27 @@ bool migration::UnOrderedSorter (const XF& xf1, const XF& xf2)
 
 bool migration::AscendingSorter (const XF& xf1, const XF& xf2)
 {
-   if (xf1.getX () < xf2.getX ()) return true;
-   else if (xf1.getF () < xf2.getF ()) return true;
-   else return false;
+   if (xf1.getX () < xf2.getX () or xf1.getF() < xf2.getF())
+	   return true;
+   else 
+	   return false;
 }
 
 bool migration::DescendingSorter (const XF& xf1, const XF& xf2)
 {
-   if (xf1.getX () < xf2.getX ()) return true;
-   else if (xf1.getF () > xf2.getF ()) return true;
-   else return false;
+   if (xf1.getX () < xf2.getX () or xf1.getF() > xf2.getF()) 
+	   return true;
+   else 
+       return false;
 }
 
 
 bool migration::operator < (const XF& xf1, const XF& xf2)
 {
-   if (xf1.getX () < xf2.getX ()) return true;
-   else if (xf1.getF () < xf2.getF ()) return true;
-   else return false;
+   if (xf1.getX () < xf2.getX () or xf1.getF() < xf2.getF()) 
+	   return true;
+   else 
+	   return false;
 }
 
 Interpolator::Interpolator (Interpolator::SorterType sorterType) : m_sorted (false), m_vectorXF ()

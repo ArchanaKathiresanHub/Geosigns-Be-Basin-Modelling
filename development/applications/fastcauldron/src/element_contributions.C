@@ -1905,16 +1905,14 @@ void Basin_Modelling::applyDirichletBoundaryConditionsLinear ( const BoundaryCon
                                                                ElementMatrix&            Stiffness_Matrix,
                                                                ElementVector&            Load_Vector ) {
 
-  for ( int i = 1; i <= 8; ++i ) {
+  for ( int i = 1; i <= 8; ++i ) 
+  {
 
-     if ( bcs.getBoundaryCondition ( i - 1 ) == Surface_Boundary ) {
+     if ( bcs.getBoundaryCondition ( i - 1 ) == Surface_Boundary  or bcs.getBoundaryCondition(i - 1) == Interior_Constrained_Temperature )
+	 {
       Load_Vector ( i ) = Dirichlet_Boundary_Scaling * bcs.getBoundaryConditionValue ( i - 1 );
       Stiffness_Matrix ( i, i ) = Dirichlet_Boundary_Scaling;
-    } else if ( bcs.getBoundaryCondition ( i - 1 ) == Interior_Constrained_Temperature ) {
-      Load_Vector ( i ) = Dirichlet_Boundary_Scaling * bcs.getBoundaryConditionValue ( i - 1 );
-      Stiffness_Matrix ( i, i ) = Dirichlet_Boundary_Scaling;
-    }
-
+     } 
   }
 
 }

@@ -217,17 +217,9 @@ int main (int argc, char ** argv)
       {
          debug = true;
       }
-      else if (strncmp (argv[arg], "-help", Max (2, strlen (argv[arg]))) == 0)
-      {
-         showUsage (" Standard usage.");
-         return -1;
-      }
-      else if (strncmp (argv[arg], "-?", Max (2, strlen (argv[arg]))) == 0)
-      {
-         showUsage (" Standard usage.");
-         return -1;
-      }
-      else if (strncmp (argv[arg], "-usage", Max (2, strlen (argv[arg]))) == 0)
+      else if ((strncmp (argv[arg], "-help",  Max (2, strlen (argv[arg]))) == 0) || 
+	           (strncmp (argv[arg], "-?",     Max (2, strlen (argv[arg]))) == 0) || 
+			   (strncmp (argv[arg], "-usage", Max (2, strlen (argv[arg]))) == 0))
       {
          showUsage (" Standard usage.");
          return -1;
