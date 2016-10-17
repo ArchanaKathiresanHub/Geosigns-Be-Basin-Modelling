@@ -13,6 +13,7 @@
 
 #include "EosPack.h"
 #include "capillarySealStrength.h"
+#include "BrooksCorey.h"
 
 namespace migration {
 
@@ -73,7 +74,8 @@ namespace migration {
                   T_K, T_c_K );
 
                // compute the Brooks Corey correction in the reservoir
-               double resCorr = CBMGenerics::capillarySealStrength::computeBrooksCoreyCorrection( 0.3, m_lambdaPC );
+               GeoPhysics::BrooksCorey brooksCorey;
+               double resCorr = brooksCorey.computeBrooksCoreyCorrection( 0.3, m_lambdaPC );
 
                capSealStrength_H2O_HC = capSealStrength_H2O_HC_seal - capSealStrength_H2O_HC_reservoir * resCorr;
             }

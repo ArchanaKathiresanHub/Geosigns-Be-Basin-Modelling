@@ -26,15 +26,15 @@ add_library(CBMGenerics
 )
 
 add_dependencies( CBMGenerics
-   GeoPhysics utilities
+   utilities
 )
 
 bm_include_libraries( CBMGenerics
-   GeoPhysics utilities 
+   utilities 
 )
 
 target_link_libraries( CBMGenerics
-   GeoPhysics utilities
+   utilities
 )
 
 #Doc. generation is commented because most of the classes in CBMGeneric have no doxygen documentation and generate warnings

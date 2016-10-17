@@ -38,10 +38,7 @@ using namespace std;
 
 #include "Interface/FluidType.h"
 
-#include "capillarySealStrength.h"
-
 #include "BrooksCorey.cpp"
-
 
 using namespace FiniteElementMethod;
 using namespace CBMGenerics;
@@ -907,7 +904,8 @@ namespace migration
       if ( lambdaPC == Interface::DefaultUndefinedMapValue or lambdaPC == Interface::DefaultUndefinedScalarValue )
          lambdaPC = 1.0;
 
-      double resCorr = CBMGenerics::capillarySealStrength::computeBrooksCoreyCorrection( 0.3, lambdaPC );
+      GeoPhysics::BrooksCorey brooksCorey;
+      double resCorr = brooksCorey.computeBrooksCoreyCorrection( 0.3, lambdaPC );
 
       // calculate overpressure difference
       double dOverPressure;

@@ -57,8 +57,12 @@ namespace GeoPhysics
       double liquidVapourInterfacialTension(const double pressure);
 
       // =========== The Brooks-Corey capillary pressure function  ===========//
-      // Params: wetting saturation, connate/irreducible saturation, entry pressure, lambda (exponent)
+      // Params: wetting saturation, lambda (exponent), entry pressure
       double pc(const double Sw, const double lambda, const double pce = Pe);
+
+      // =========== The Brooks-Corey correction to the capillary-entry pressure ===========//
+      // Params: wetting saturation, lambda (exponent)
+      double computeBrooksCoreyCorrection(const double Sw, const double lambda);
 
       // ===========The Brooks-Corey relative permeability function ===========//
       //Brine relative permeability

@@ -50,38 +50,12 @@ namespace GeoPhysics
 
    double BrooksCorey::pc(const double Sw, const double lambda, const double pce)
    {
-
-      double Sr;
-
-      if (Sw <= Sir + Adjustment)
-      {
-         Sr = Adjustment / (1.0 - Sir);
-      }
-      else if (Sw == 1.0)
-      {
-         Sr = 1; // is this condition correct?
-      }
-      else
-      {
-         Sr = (Sw - Sir) / (1.0 - Sir);
-      }
-
       if (Sw == 1)
       {
          return pce; //  Pe = Pc(Sw==1) 
       }
 
-#if 0
-      if (Sw <= Sir)
-         return 0;
-      //effective saturation
-
-      double Sr = (Sw - Sir) / (1 - Sir);
-#endif
-
-      assert(0 <= Sr && Sr <= 1);
-
-      return pce * pow(Sr, -lambda);
+      return pce * computeBrooksCoreyCorrection(Sw, -lambda);
    }
 
    double BrooksCorey::krw(double Sw, double lambda)
@@ -101,28 +75,6 @@ namespace GeoPhysics
       {
          Swe = (Sw - Sir) / (1.0 - Sir - Sor);
       }
-
-#if 0
-      if (Sw < Sir)
-      {
-         return 0.0;
-      }
-
-
-      if (Sw > 1.0 - Sor)
-      {
-         return Krwor;
-      }
-
-      double Swe = (Sw - Sir) / (1 - Sir - Sor);
-#endif
-
-#if 0
-      if (0 > Swe or Swe > 1 or not (0 <= Swe && Swe <= 1))
-      {
-         cout << endl << endl << " krw " << Sw << "  " << Swe << "  " << lambda << endl << endl << flush;
-      }
-#endif
 
       assert(0 <= Swe && Swe <= 1);
 
@@ -147,21 +99,31 @@ namespace GeoPhysics
          Swe = (1.0 - Sw - Sor) / (1.0 - Sir - Sor);
       }
 
+      assert(0 <= Swe && Swe <= 1);
 
-#if 0
-      if (Sw <= Sir) return 1.0;
+      return Krocw * pow(Swe, lambda);
+   }
 
-      if (Sw > 1.0 - Sor)
+   double BrooksCorey::computeBrooksCoreyCorrection(const double Sw, const double lambda)
+   {
+      double Sr;
+
+      if (Sw <= GeoPhysics::BrooksCorey::Sir + GeoPhysics::BrooksCorey::Adjustment)
       {
-         return 0.0;
+         Sr = GeoPhysics::BrooksCorey::Adjustment / (1.0 - GeoPhysics::BrooksCorey::Sir);
+      }
+      else if (Sw == 1.0)
+      {
+         Sr = 1;
+      }
+      else
+      {
+         Sr = (Sw - GeoPhysics::BrooksCorey::Sir) / (1.0 - GeoPhysics::BrooksCorey::Sir);
       }
 
-      double Swe = (1 - Sw - Sor) / (1 - Sir - Sor);
+      assert(0 <= Sr && Sr <= 1);
 
-#endif
-
-      assert(0 <= Swe && Swe <= 1);
-      return Krocw * pow(Swe, lambda);
+      return pow(Sr, -lambda);
    }
 
 }

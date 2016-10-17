@@ -8,10 +8,7 @@
 // Do not distribute without written permission from Shell.
 //
 
-#include "stdafx.h"
-
 #include "capillarySealStrength.h"
-#include "BrooksCorey.h"
 
 #include <algorithm>
 #include <math.h>
@@ -342,28 +339,6 @@ double computeCapillaryPressureData( const double & specificSurfArea,  const dou
    }
 
    return capPressure;
-}
-
-double computeBrooksCoreyCorrection( const double Sw, const double lambda )
-{
-   //Now these values are hard coded: it might change if required   
-   //const double Adjustment = 1.0e-4;
-   //const double Sir = 0.1;
-   double Sr;
-
-   if ( Sw <= GeoPhysics::BrooksCorey::Sir + GeoPhysics::BrooksCorey::Adjustment ) {
-      Sr = GeoPhysics::BrooksCorey::Adjustment / ( 1.0 - GeoPhysics::BrooksCorey::Sir );
-   }
-   else if ( Sw == 1.0 ) {
-      Sr = 1;
-   }
-   else {
-      Sr = ( Sw - GeoPhysics::BrooksCorey::Sir ) / ( 1.0 - GeoPhysics::BrooksCorey::Sir );
-   }
-
-   assert( 0 <= Sr && Sr <= 1 );
-
-   return pow( Sr, -lambda );
 }
  
 } // namespace capillarySealStrength
