@@ -176,7 +176,7 @@ double Lithology::capillaryPressure ( const Saturation::Phase phase,
 
    if ( FastcauldronSimulator::getInstance ().useCalculatedCapillaryPressure ()) {
       GeoPhysics::BrooksCorey brooksCorey;
-      capillaryEntryPressure = brooksCorey.computeCapillaryEntryPressure ( permeability * M2TOMILLIDARCY, capC1 (), tenPowerCapC2 ());
+      capillaryEntryPressure = brooksCorey.computeCapillaryEntryPressure ( permeability * M2ToMillyDarcy, capC1 (), tenPowerCapC2 ());
    } else {
       capillaryEntryPressure = GeoPhysics::BrooksCorey::Pe;
    }
