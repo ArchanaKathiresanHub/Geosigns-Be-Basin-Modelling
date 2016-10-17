@@ -16,8 +16,8 @@ using namespace CauldronIO;
 CauldronIO::MapNative::MapNative(const std::shared_ptr<const Geometry2D>& geometry, float minValue, float maxValue)
     : SurfaceData(geometry, minValue, maxValue)
 {
-    m_params = NULL;
-    m_dataStore = NULL;
+    m_params = nullptr;
+    m_dataStore = nullptr;
 }
 
 CauldronIO::MapNative::~MapNative()
@@ -25,7 +25,7 @@ CauldronIO::MapNative::~MapNative()
     if (m_params)
     {
         delete m_params;
-        m_params = NULL;
+        m_params = nullptr;
     }
 }
 
@@ -49,7 +49,7 @@ void CauldronIO::MapNative::retrieve()
     float* data = m_dataStore->getData(size);
 
     delete m_dataStore;
-    m_dataStore = NULL;
+    m_dataStore = nullptr;
 
     setData_IJ(data);
     delete[] data;
@@ -74,10 +74,10 @@ CauldronIO::VolumeDataNative::VolumeDataNative(const std::shared_ptr<Geometry3D>
 {
     m_dataIJK = false;
     m_dataKIJ = false;
-    m_paramsIJK = NULL;
-    m_paramsKIJ = NULL;
-    m_dataStoreIJK = NULL;
-    m_dataStoreKIJ = NULL;
+    m_paramsIJK = nullptr;
+    m_paramsKIJ = nullptr;
+    m_dataStoreIJK = nullptr;
+    m_dataStoreKIJ = nullptr;
 }
 
 CauldronIO::VolumeDataNative::~VolumeDataNative()
@@ -85,12 +85,12 @@ CauldronIO::VolumeDataNative::~VolumeDataNative()
     if (m_paramsIJK)
     {
         delete m_paramsIJK;
-        m_paramsIJK = NULL;
+        m_paramsIJK = nullptr;
     }
     if (m_paramsKIJ)
     {
         delete m_paramsKIJ;
-        m_paramsKIJ = NULL;
+        m_paramsKIJ = nullptr;
     }
 }
 
@@ -123,7 +123,7 @@ void CauldronIO::VolumeDataNative::retrieve()
         
         // Close filehandles etc.
         delete m_dataStoreIJK;
-        m_dataStoreIJK = NULL;
+        m_dataStoreIJK = nullptr;
 
         // Geometry should already have been set
         setData_IJK(data);
@@ -139,7 +139,7 @@ void CauldronIO::VolumeDataNative::retrieve()
 
         // Close filehandles etc.
         delete m_dataStoreKIJ;
-        m_dataStoreKIJ = NULL;
+        m_dataStoreKIJ = nullptr;
 
         // Geometry should already have been set
         setData_KIJ(data);

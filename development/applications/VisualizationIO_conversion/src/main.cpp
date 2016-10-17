@@ -23,8 +23,6 @@
 #include <ctime>
 #include <cstring>
 
-#define verbose false
-
 /// \brief method to retrieve data on a separate thread
 void retrieveDataQueue(std::vector < CauldronIO::VisualizationIOData* >* allData, boost::lockfree::queue<int>* queue, boost::atomic<bool>* done)
 {
@@ -51,15 +49,16 @@ int main(int argc, char ** argv)
 {
     if (argc <= 1)
     {
-        cout << "Usage: VisualizationIO_convert [mode] [options] " << endl
-            << "  Modes: "
-            << "  -import-native <xml-file>              : loads xml reads all the data into memory" << endl
-            << "  -import-projectHandle <projectHandle>  : loads the specified projectHandle into memory" << endl
-            << "  -convert <projectHandle> [<directory>] : converts the specified projectHandle to new native format, " << endl
-            << "                                           output to directory if specified, otherwise same as input directory" << endl
-            << " Options: " << endl
-            << " -threads=x                              : use x threads for compression during export or parallel importing" << endl
-            << " -center                                 : cell-center all properties except depth" << endl;
+		cout << "Usage: VisualizationIO_convert [mode] [options] " << endl
+			<< "  Modes: "
+			<< "  -import-native <xml-file>              : loads xml reads all the data into memory" << endl
+			<< "  -import-projectHandle <projectHandle>  : loads the specified projectHandle into memory" << endl
+			<< "  -convert <projectHandle> [<directory>] : converts the specified projectHandle to new native format, " << endl
+			<< "                                           output to directory if specified, otherwise same as input directory" << endl
+			<< " Options: " << endl
+			<< " -threads=x                              : use x threads for compression during export or parallel importing" << endl
+			<< " -center                                 : cell-center all properties except depth" << endl
+			<< " -verbose								 : output debugging information" << endl;
         return 1;
     }
 
@@ -68,6 +67,7 @@ int main(int argc, char ** argv)
     // Check options
     int numThreads = 1;
     bool center = false;
+	bool verbose = false;
     for (int i = 1; i < argc; i++)
     {
         if (std::string(argv[i]).find("threads") != std::string::npos)
@@ -75,8 +75,14 @@ int main(int argc, char ** argv)
             numThreads = std::atoi(argv[i] + 9);
             numThreads = min(24, (int)max(1, (int)numThreads));
         }
-        if (std::string(argv[i]).find("center") != std::string::npos)
-            center = true;
+		if (std::string(argv[i]).find("center") != std::string::npos)
+		{
+			center = true;
+		}
+		if (std::string(argv[i]).find("verbose") != std::string::npos)
+		{
+			verbose = true;
+		}
     }
 
     try

@@ -88,9 +88,6 @@ void ImportProjectHandle::addSnapShots(std::shared_ptr<Interface::ProjectHandle>
 
         // Add to project
         m_project->addSnapShot(snapShotIO);
-
-        // TEMP!!!!
-        //return;
     }
 }
 
@@ -120,7 +117,11 @@ std::shared_ptr<CauldronIO::SnapShot> ImportProjectHandle::createSnapShotIO(std:
         snapShotIO->addSurface(surface);
 
     // Bail out if we don't have depthFormations
-    if (depthFormations->size() == 0) return snapShotIO;
+	if (depthFormations->size() == 0)
+	{
+		if (m_verbose) std::cout << "Snapshot does not contain depth-information" << std::endl;
+		return snapShotIO;
+	}
 
     // Add the volume
     //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -195,6 +196,11 @@ std::shared_ptr<CauldronIO::SnapShot> ImportProjectHandle::createSnapShotIO(std:
             CauldronIO::FormationVolume formVolume(formationIO, volume);
             snapShotIO->addFormationVolume(formVolume);
         }
+		else if (m_verbose)
+		{
+			cout << "No properties found for formation: " << formation->getName() << endl;
+		}
+
     }
         
     // Find trappers
@@ -300,18 +306,18 @@ vector<std::shared_ptr<CauldronIO::Surface> > ImportProjectHandle::createSurface
             surfaceIO = findSurface(surfaces, formationIO);
 
         // Get the geometry data
-        std::shared_ptr<const CauldronIO::Geometry2D> geometry;
-        if (!geometry)
-        {
-            // Get from the gridmap: this will load the gridmap :-(
-            // TODO: see if we can optimize this....
-            const DataAccess::Interface::GridMap* gridmap = propValue->getGridMap();
-            gridmap->retrieveData();
-            // Set the geometry
-            geometry.reset(new CauldronIO::Geometry2D(gridmap->numI(), gridmap->numJ(), gridmap->deltaI(), gridmap->deltaJ(), gridmap->minI(), gridmap->minJ()));
-            gridmap->restoreData();
-            gridmap->release();
-        }
+		// Get from the gridmap: this will load the gridmap :-(
+        // TODO: see if we can optimize this....
+        const DataAccess::Interface::GridMap* gridmap = propValue->getGridMap();
+		// Ignore this property value object if it has no gridmap
+		if (!gridmap) continue;
+
+        gridmap->retrieveData();
+        // Set the geometry
+		std::shared_ptr<const CauldronIO::Geometry2D> geometry(new CauldronIO::Geometry2D(gridmap->numI(), gridmap->numJ(), 
+			gridmap->deltaI(), gridmap->deltaJ(), gridmap->minI(), gridmap->minJ()));
+        gridmap->restoreData();
+        gridmap->release();
 
         // Add the geometry to the project
         m_project->addGeometry(geometry);
@@ -491,8 +497,7 @@ CauldronIO::PropertyVolumeData ImportProjectHandle::createPropertyVolumeData(std
 CauldronIO::PropertyVolumeData ImportProjectHandle::createPropertyVolumeData(const DataAccess::Interface::PropertyValue* propVal, 
     std::shared_ptr<CauldronIO::Geometry3D>& geometry3D, std::shared_ptr<CauldronIO::FormationInfo> formationInfo)
 {
-    std::shared_ptr<const CauldronIO::Geometry2D> geometry = geometry3D;
-    m_project->addGeometry(geometry);
+    m_project->addGeometry(geometry3D);
 
     CauldronIO::VolumeProjectHandle* volumeDataProjHandle = new CauldronIO::VolumeProjectHandle(geometry3D);
     std::shared_ptr<CauldronIO::VolumeData> volumeData(volumeDataProjHandle);

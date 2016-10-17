@@ -281,7 +281,9 @@ void CauldronIO::ImportExport::addSnapShot(const std::shared_ptr<SnapShot>& snap
     {
         CauldronIO::VisualizationUtils::cellCenterAllMaps(snapShot, m_project);
         CauldronIO::VisualizationUtils::cellCenterVolume(snapShot->getVolume(), m_project);
-        CauldronIO::VisualizationUtils::cellCenterFormationVolumes(snapShot, m_project);
+        
+		// This should be the slowest operation: parallellize
+		CauldronIO::VisualizationUtils::cellCenterFormationVolumes(snapShot, m_project, m_numThreads);
     }
 
     // Add surfaces

@@ -272,7 +272,7 @@ void CauldronIO::SnapShot::addSurface(std::shared_ptr<Surface>& newSurface)
     m_surfaceList.push_back(newSurface);
 }
 
-void CauldronIO::SnapShot::addFormationVolume(FormationVolume& formVolume)
+void CauldronIO::SnapShot::addFormationVolume(FormationVolume formVolume)
 {
     // Check if volume exists
     BOOST_FOREACH(FormationVolume& volume, m_formationVolumeList)
@@ -518,7 +518,7 @@ void CauldronIO::Surface::replaceAt(size_t index, PropertySurfaceData& data)
     m_propSurfaceList.at(index) = data;
 }
 
-void CauldronIO::Surface::addPropertySurfaceData(PropertySurfaceData& newData)
+void CauldronIO::Surface::addPropertySurfaceData(PropertySurfaceData newData)
 {
     BOOST_FOREACH(PropertySurfaceData& data, m_propSurfaceList)
         if (data == newData) throw CauldronIOException("Cannot add property-surfaceData twice");
@@ -826,14 +826,8 @@ void CauldronIO::SurfaceData::updateMinMax()
         float val = m_internalData[i];
         if (val != DefaultUndefinedValue)
         {
-            if (minValue == DefaultUndefinedValue)
-                minValue = val;
-            else
-                minValue = min(minValue, val);
-            if (maxValue == DefaultUndefinedValue)
-                maxValue = val;
-            else
-                maxValue = max(maxValue, val);
+			minValue = minValue == DefaultUndefinedValue ? val : min(minValue, val);
+			maxValue = maxValue == DefaultUndefinedValue ? val : max(maxValue, val);
         }
     }
 
@@ -969,7 +963,7 @@ void CauldronIO::Volume::removeVolumeData(PropertyVolumeData& data)
     throw CauldronIOException("Cannot find data to remove");
 }
 
-void CauldronIO::Volume::addPropertyVolumeData(PropertyVolumeData& newData)
+void CauldronIO::Volume::addPropertyVolumeData(PropertyVolumeData newData)
 {
     BOOST_FOREACH(PropertyVolumeData& data, m_propVolumeList)
         if (data == newData) throw CauldronIOException("Cannot add property-volumeData twice");
@@ -1376,14 +1370,8 @@ void CauldronIO::VolumeData::updateMinMax()
         float val = internaldata[i];
         if (val != DefaultUndefinedValue)
         {
-            if (minValue == DefaultUndefinedValue)
-                minValue = val;
-            else
-                minValue = min(minValue, val);
-            if (maxValue == DefaultUndefinedValue)
-                maxValue = val;
-            else
-                maxValue = max(maxValue, val);
+			minValue = minValue == DefaultUndefinedValue ? val : min(minValue, val);
+			maxValue = maxValue == DefaultUndefinedValue ? val : max(maxValue, val);
         }
     }
     
