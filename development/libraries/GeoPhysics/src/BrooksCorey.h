@@ -23,7 +23,7 @@ namespace GeoPhysics
    public:
 
       //the following is assumed to be fixed at the moment
-      static const double Sir;    // connnate saturation -- irreducible saturaiton
+      static const double Sir;    // connnate saturation -- irreducible saturation
       static const double Pe;     // entry pressure = 1 MPa
       static const double Sor;    // residual oil saturation
       static const double Krwor;  // end point relative permeability of Brine
