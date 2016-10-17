@@ -216,7 +216,7 @@ add_gtest( NAME GeoPhysics::BrineViscosity
 
 add_gtest( NAME GeoPhysics::BrooksCorey
 	        SOURCES test/PceTest.C
-			LIBRARIES GeoPhysics
+			LIBRARIES GeoPhysics SerialDataAccess
 )
 
 add_gtest( NAME GeoPhysics::ChemicalCompactionCalculator

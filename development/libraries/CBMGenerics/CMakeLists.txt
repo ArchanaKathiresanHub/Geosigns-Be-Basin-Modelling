@@ -50,4 +50,4 @@ install(TARGETS CBMGenerics
 
 add_gtest( NAME CBMGenerics::Polyfunction 
            SOURCES test/Polyfunction.cpp
-           LIBRARIES CBMGenerics GeoPhysics )
+           LIBRARIES CBMGenerics )
