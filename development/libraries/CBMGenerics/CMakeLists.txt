@@ -26,7 +26,7 @@ add_library(CBMGenerics
 )
 
 add_dependencies( CBMGenerics
-   utilities
+   GeoPhysics utilities
 )
 
 bm_include_libraries( CBMGenerics
@@ -34,7 +34,7 @@ bm_include_libraries( CBMGenerics
 )
 
 target_link_libraries( CBMGenerics
-   utilities
+   GeoPhysics utilities
 )
 
 #Doc. generation is commented because most of the classes in CBMGeneric have no doxygen documentation and generate warnings
@@ -50,4 +50,4 @@ install(TARGETS CBMGenerics
 
 add_gtest( NAME CBMGenerics::Polyfunction 
            SOURCES test/Polyfunction.cpp
-           LIBRARIES CBMGenerics )
+           LIBRARIES CBMGenerics GeoPhysics )
