@@ -83,7 +83,8 @@ double Lithology::relativePermeability ( const Saturation::Phase phase,
          // 1.0 here because we would like the brine-pressure solver to run normally.
          return 1.0;
       } else {
-         return BrooksCorey::krw ( saturation ( Saturation::WATER ), LambdaKr()); // water relative permeability
+         GeoPhysics::BrooksCorey brooksCorey;
+         return brooksCorey.krw ( saturation ( Saturation::WATER ), LambdaKr()); // water relative permeability
       }
 
    } else if ( phase == Saturation::LIQUID || phase == Saturation::VAPOUR ) {
@@ -96,7 +97,8 @@ double Lithology::relativePermeability ( const Saturation::Phase phase,
          // NOTE Sir (irreducible water) = 0.1 is fixed;
 
 #if 1
-         return BrooksCorey::kro ( saturation ( Saturation::WATER ), LambdaKr()); // Liquid and Vapour relative permeability
+         GeoPhysics::BrooksCorey brooksCorey;
+         return brooksCorey.kro ( saturation ( Saturation::WATER ), LambdaKr()); // Liquid and Vapour relative permeability
 #else
 
          if ( saturation ( phase ) < BrooksCorey::Sor ) {
@@ -173,17 +175,19 @@ double Lithology::capillaryPressure ( const Saturation::Phase phase,
    double capillaryEntryPressure;
 
    if ( FastcauldronSimulator::getInstance ().useCalculatedCapillaryPressure ()) {
-      capillaryEntryPressure = BrooksCorey::computeCapillaryEntryPressure ( permeability * M2ToMillyDarcy, capC1 (), tenPowerCapC2 ());
+      GeoPhysics::BrooksCorey brooksCorey;
+      capillaryEntryPressure = brooksCorey.computeCapillaryEntryPressure ( permeability * M2TOMILLIDARCY, capC1 (), tenPowerCapC2 ());
    } else {
-      capillaryEntryPressure = BrooksCorey::Pe;
+      capillaryEntryPressure = GeoPhysics::BrooksCorey::Pe;
    }
 
    if ( LambdaPc () == IbsNoDataValue ) {
       // What should the correct values be here?
       return capillaryEntryPressure;
-      return BrooksCorey::Pe;
+      return GeoPhysics::BrooksCorey::Pe;
    } else {
-      return BrooksCorey::pc ( saturation ( wettingPhase ), LambdaPc(), capillaryEntryPressure );
+      GeoPhysics::BrooksCorey brooksCorey;
+      return brooksCorey.pc ( saturation ( wettingPhase ), LambdaPc(), capillaryEntryPressure );
    }
 
 }

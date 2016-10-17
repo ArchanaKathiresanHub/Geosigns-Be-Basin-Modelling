@@ -40,6 +40,8 @@ using namespace std;
 
 #include "capillarySealStrength.h"
 
+#include "BrooksCorey.cpp"
+
 
 using namespace FiniteElementMethod;
 using namespace CBMGenerics;
@@ -1050,13 +1052,13 @@ namespace migration
    double LocalFormationNode::computeBrooksCoreyCorrection (double Sw, double lambda) const
    {
       //Now these values are hard coded: it might change if required   
-      const double Adjustment = 1.0e-4;
-      const double Sir = 0.1;
+      //const double Adjustment = 1.0e-4;
+      //const double Sir = 0.1;
       double Sr;
 
-      if (Sw <= Sir + Adjustment)
+      if (Sw <= GeoPhysics::BrooksCorey::Sir + GeoPhysics::BrooksCorey::Adjustment)
       {
-         Sr = Adjustment / (1.0 - Sir);
+         Sr = GeoPhysics::BrooksCorey::Adjustment / (1.0 - GeoPhysics::BrooksCorey::Sir);
       }
       else if (Sw == 1.0)
       {
@@ -1064,7 +1066,7 @@ namespace migration
       }
       else
       {
-         Sr = (Sw - Sir) / (1.0 - Sir);
+         Sr = (Sw - GeoPhysics::BrooksCorey::Sir) / (1.0 - GeoPhysics::BrooksCorey::Sir);
       }
 
       assert (0 <= Sr && Sr <= 1);

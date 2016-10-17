@@ -29,7 +29,6 @@ set( all_headers,
      src/BoundaryConditions.h
      src/BoundaryId.h
      src/BrineProperties.h
-     src/BrooksCorey.h
      src/BulkDensityCalculator.h
      src/CapillaryPressureCalculator.h
      src/ChemicalCompactionGrid.h
@@ -190,7 +189,6 @@ set( all_srcs_except_main
      src/BoundaryConditions.C
      src/BoundaryId.C
      src/BrineProperties.C
-     src/BrooksCorey.C
      src/BulkDensityCalculator.C
      src/CapillaryPressureCalculator.C
      src/ChemicalCompactionGrid.C
@@ -497,13 +495,6 @@ add_gtest( NAME "VectorInterpolator"
 add_gtest( NAME "MatrixInterpolator"
            SOURCES test/MatrixInterpolationTest.C
            LIBRARIES LinearAlgebra
-         )
-
-################ CAPILLARY PRESSURE UNIT TEST ##################
-#
-#
-add_gtest( NAME "BrooksCorey::computeCapillaryEntryPressure"
-	        SOURCES test/PceTest.C
          )
 
 ################## PETSC SOLVER UNIT TESTS #####################

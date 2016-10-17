@@ -180,7 +180,8 @@ bool CapillaryPressureVolumeCalculator::operator ()( const OutputPropertyMap::Ou
                   element.getLithology()->calcBulkPermeabilityNP ( ves, maxVes, porosity, permeabilityNormal, permeabilityPlane );
 
                   if ( FastcauldronSimulator::getInstance ().useCalculatedCapillaryPressure ()) {
-                     entryPressure = BrooksCorey::computeCapillaryEntryPressure ( permeabilityNormal, element.getLithology()->capC1 (), element.getLithology()->capC2 ());
+                     GeoPhysics::BrooksCorey brooksCorey;
+                     entryPressure = brooksCorey.computeCapillaryEntryPressure ( permeabilityNormal, element.getLithology()->capC1 (), element.getLithology()->capC2 ());
                   } else {
                      entryPressure = BrooksCorey::Pe;
                   }

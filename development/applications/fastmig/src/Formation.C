@@ -40,6 +40,7 @@
 
 #include "LinearGridInterpolator.h"
 #include "GeoPhysicsSourceRock.h"
+#include "BrooksCorey.h"
 
 // std library
 #include <assert.h>
@@ -310,7 +311,6 @@ namespace migration
          }
       }
 
-
       return true;
    }
 
@@ -321,10 +321,12 @@ namespace migration
       double pceog;
       double hgAigToLiquidVapourConversionFactor;
 
+      GeoPhysics::BrooksCorey brooksCorey;
+
       // Ratio of interfacial-tensions and cos(contact-angle).
-      hgAigToLiquidVapourConversionFactor = BrooksCorey::liquidVapourInterfacialTension (brinePressure) * BrooksCorey::CosLiquidVapourContactAngle /
-         //------------------------------------------------------------------------------------------//
-         (BrooksCorey::MercuryAirInterfacialTension * BrooksCorey::CosMercuryAirContactAngle);
+      hgAigToLiquidVapourConversionFactor = brooksCorey.liquidVapourInterfacialTension (brinePressure) * GeoPhysics::BrooksCorey::CosLiquidVapourContactAngle /
+         //---------------------------------------------------------------------------------------------------------------------------------------------//
+         (GeoPhysics::BrooksCorey::MercuryAirInterfacialTension * GeoPhysics::BrooksCorey::CosMercuryAirContactAngle);
 
       pceHgAir = CBMGenerics::capillarySealStrength::capSealStrength_Air_Hg (capC1, capC2, permeability);
       pceog = pceHgAir * hgAigToLiquidVapourConversionFactor;

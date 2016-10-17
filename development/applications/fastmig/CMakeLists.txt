@@ -37,7 +37,7 @@ bm_include_libraries(
 	DataAccess
 	DistributedDataAccess
 	DerivedProperties
-        FiniteElements
+    FiniteElements
 	GeoPhysics
 	Interpolation
 	LinearAlgebra
@@ -66,7 +66,7 @@ target_link_libraries(fastmig
 	Parallel_Hdf5
 	EosPack	
 	CBMGenerics
-        FiniteElements
+    FiniteElements
 	genex6
 	genex6_kernel
 	OTGC_kernel6

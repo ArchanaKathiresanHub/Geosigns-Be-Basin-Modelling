@@ -7,6 +7,7 @@
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
+
 #include "GeoPhysicsFormation.h"
 
 #include <cmath>

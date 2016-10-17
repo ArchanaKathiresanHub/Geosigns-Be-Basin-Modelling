@@ -20,7 +20,7 @@ source_group(include FILES ${all_headers})
 FILE( GLOB all_srcs src/*.cpp )
 source_group(source FILES ${all_srcs})
 
-add_library(CBMGenerics 
+add_library(CBMGenerics
    ${all_srcs}
    ${all_headers}
 )
@@ -36,6 +36,8 @@ bm_include_libraries( CBMGenerics
 target_link_libraries( CBMGenerics
    utilities
 )
+
+bm_include_libraries(GeoPhysics) 
 
 #Doc. generation is commented because most of the classes in CBMGeneric have no doxygen documentation and generate warnings
 #generate_dox( src/CBMGenerics.cfg )

@@ -26,6 +26,7 @@ set(cross_platform_headers
       src/BrineDensity.h
       src/BrineVelocity.h
       src/BrineViscosity.h
+	  src/BrooksCorey.h
       src/ChemicalCompactionCalculator.h
       src/DoubleExponentialPorosity.h
       src/ExponentialPorosity.h
@@ -82,6 +83,7 @@ set(cross_platform_srcs
       src/BrineDensity.C
       src/BrineVelocity.C
       src/BrineViscosity.C
+	  src/BrooksCorey.cpp
       src/ChemicalCompactionCalculator.C
       src/DoubleExponentialPorosity.C
       src/ExponentialPorosity.C
@@ -210,6 +212,11 @@ add_gtest( NAME GeoPhysics::BrineVelocity
 add_gtest( NAME GeoPhysics::BrineViscosity
       SOURCES test/BrineViscosity.C src/BrinePhases.C
       LIBRARIES GeoPhysics SerialDataAccess
+)
+
+add_gtest( NAME GeoPhysics::BrooksCorey
+	        SOURCES test/PceTest.C
+			LIBRARIES GeoPhysics
 )
 
 add_gtest( NAME GeoPhysics::ChemicalCompactionCalculator
