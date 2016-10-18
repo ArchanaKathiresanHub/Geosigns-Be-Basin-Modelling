@@ -38,7 +38,7 @@ using namespace std;
 
 #include "Interface/FluidType.h"
 
-#include "BrooksCorey.cpp"
+#include "BrooksCorey.h"
 
 using namespace FiniteElementMethod;
 using namespace CBMGenerics;
@@ -1046,31 +1046,6 @@ namespace migration
       else
          return m_isCrestLiquid;
    };
-
-   double LocalFormationNode::computeBrooksCoreyCorrection (double Sw, double lambda) const
-   {
-      //Now these values are hard coded: it might change if required   
-      //const double Adjustment = 1.0e-4;
-      //const double Sir = 0.1;
-      double Sr;
-
-      if (Sw <= GeoPhysics::BrooksCorey::Sir + GeoPhysics::BrooksCorey::Adjustment)
-      {
-         Sr = GeoPhysics::BrooksCorey::Adjustment / (1.0 - GeoPhysics::BrooksCorey::Sir);
-      }
-      else if (Sw == 1.0)
-      {
-         Sr = 1;
-      }
-      else
-      {
-         Sr = (Sw - GeoPhysics::BrooksCorey::Sir) / (1.0 - GeoPhysics::BrooksCorey::Sir);
-      }
-
-      assert (0 <= Sr && Sr <= 1);
-
-      return pow (Sr, -lambda);
-   }
 
    void LocalFormationNode::identifyAsReservoir (void)
    {
