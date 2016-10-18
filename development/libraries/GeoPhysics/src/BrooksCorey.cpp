@@ -55,7 +55,7 @@ namespace GeoPhysics
          return pce; //  Pe = Pc(Sw==1) 
       }
 
-      return pce * computeBrooksCoreyCorrection(Sw, -lambda);
+      return pce * computeBrooksCoreyCorrection(Sw, lambda);
    }
 
    double BrooksCorey::krw(double Sw, double lambda)
