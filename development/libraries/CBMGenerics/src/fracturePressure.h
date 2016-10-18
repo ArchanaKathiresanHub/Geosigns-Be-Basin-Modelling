@@ -11,8 +11,6 @@
 #ifndef _CBMGENERICS_FRACTUREPRESSURE_H_
 #define _CBMGENERICS_FRACTUREPRESSURE_H_
 
-#include "DllExport.h"
-
 #include <vector>
 
 using std::vector;
@@ -22,7 +20,7 @@ namespace CBMGenerics
    namespace fracturePressure
    {
 
-      enum CBMGENERICS_DLL_EXPORT FracturePressureFunctionType
+      enum FracturePressureFunctionType
       {
          None,
          FunctionOfDepthWrtSeaLevelSurface,

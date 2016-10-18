@@ -11,18 +11,16 @@
 #ifndef GENEXRESULTMANAGER_H
 #define GENEXRESULTMANAGER_H
 
-#include "DllExport.h"
-
 #include <string>
 #include <map>
 
 namespace CBMGenerics
 {
 
-class CBMGENERICS_DLL_EXPORT GenexResultManager
+class GenexResultManager
 {
 public:
-   enum CBMGENERICS_DLL_EXPORT ResultId
+   enum ResultId
    {
       ExpulsionApiInst = 0,          ExpulsionApiCum = 1,          ExpulsionCondensateGasRatioInst = 2, ExpulsionCondensateGasRatioCum = 3,
       ExpulsionGasOilRatioInst = 4,  ExpulsionGasOilRatioCum = 5,  ExpulsionGasWetnessInst = 6,         ExpulsionGasWetnessCum = 7,

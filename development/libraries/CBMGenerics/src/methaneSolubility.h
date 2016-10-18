@@ -11,8 +11,6 @@
 #ifndef _CBMGENERICS_METHANESOLUBILITY_H_
 #define _CBMGENERICS_METHANESOLUBILITY_H_
 
-#include "DllExport.h"
-
 namespace CBMGenerics { 
 
 namespace methaneSolubility {

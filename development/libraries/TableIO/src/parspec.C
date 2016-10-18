@@ -548,7 +548,7 @@ int main (int argc, char **argv)
    funcsSourceOut << "using namespace database;" << endl;
    funcsSourceOut << endl;
 
-   schemaHeaderOut << "   TABLEIO_DLL_EXPORT DataSchema * create" << schemaName << " (void);" << endl << endl;
+   schemaHeaderOut << "   DataSchema * create" << schemaName << " (void);" << endl << endl;
 
    sort (FieldList.begin (), FieldList.end (), FieldLess);
 
@@ -575,7 +575,7 @@ int main (int argc, char **argv)
       string tableName = *tblIter;
       string tableDescription = TableDescriptions[tableName];
 
-      schemaHeaderOut << "   TABLEIO_DLL_EXPORT void create" << tableName << "Definition (DataSchema * dataSchema);" << endl;
+      schemaHeaderOut << "   void create" << tableName << "Definition (DataSchema * dataSchema);" << endl;
 
       schemaSourceOut << "void database::create" << tableName << "Definition (DataSchema * dataSchema)" << endl;
       schemaSourceOut << "{" << endl;
@@ -741,12 +741,12 @@ int main (int argc, char **argv)
 
       funcsSourceOut << endl;
 
-      funcsHeaderOut << "   TABLEIO_DLL_EXPORT extern const " << fieldType << " & get" << cleanFieldName << " (Table * tbl, int i);" << endl;
-      funcsHeaderOut << "   TABLEIO_DLL_EXPORT extern const " << fieldType << " & get" << cleanFieldName << " (Record * record);" << endl <<
+      funcsHeaderOut << "   extern const " << fieldType << " & get" << cleanFieldName << " (Table * tbl, int i);" << endl;
+      funcsHeaderOut << "   extern const " << fieldType << " & get" << cleanFieldName << " (Record * record);" << endl <<
             endl;
-      funcsHeaderOut << "   TABLEIO_DLL_EXPORT extern void set" << cleanFieldName << " (Table * tbl, int i, const " << fieldType << " & my" <<
+      funcsHeaderOut << "   extern void set" << cleanFieldName << " (Table * tbl, int i, const " << fieldType << " & my" <<
             cleanFieldName << ");" << endl;
-      funcsHeaderOut << "   TABLEIO_DLL_EXPORT extern void set" << cleanFieldName << " (Record * record, const " << fieldType << " & my" <<
+      funcsHeaderOut << "   extern void set" << cleanFieldName << " (Record * record, const " << fieldType << " & my" <<
             cleanFieldName << ");" << endl << endl;
 
       funcsSourceOut << "const " << fieldType << " & database::get" << cleanFieldName << " (database::Table * tbl, int i)" << endl;

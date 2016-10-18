@@ -53,7 +53,7 @@ namespace mbapi
       /// @param fileName unique file name
       /// @param mapSequenceNbr the map sequence number in the project3d
       /// @return ErrorHandler::NoError on succes, or error code otherwise
-      virtual ErrorHandler::ReturnCode saveMapToHDF( MapID id, const std::string& filePathName, const int mapSequenceNbr ) = 0;
+      virtual ErrorHandler::ReturnCode saveMapToHDF( MapID id, const std::string& filePathName, size_t mapSequenceNbr ) = 0;
 
       /// @brief Get min/max map values range
       /// @param[in] id map ID
@@ -79,7 +79,7 @@ namespace mbapi
       /// @param[in] i position
       /// @param[in] j position
       /// @return the parameter value
-      virtual double mapGetValue( MapID id, const unsigned int i, const unsigned int j ) = 0;
+      virtual double mapGetValue( MapID id, size_t i, size_t j ) = 0;
 
       /// @brief Get the values contained in vin in the map
       /// @param[in] id map ID
@@ -129,7 +129,7 @@ namespace mbapi
       /// @param[in] values new map values
       /// @param[in] the file name of the  HDF file storing the map
       /// @return ErrorHandler::NoError on succes, or error code otherwise
-      virtual MapID generateMap( const std::string & refferedTable, const std::string mapName, const std::vector<double>& values, int & mapSequenceNbr, const std::string & filePathName ) = 0;
+      virtual MapID generateMap( const std::string & refferedTable, const std::string mapName, const std::vector<double>& values, size_t & mapSequenceNbr, const std::string & filePathName ) = 0;
 
       /// @brief inizialize the map writer to write 2D HDF maps
       /// @param[in] filePathName the file name 

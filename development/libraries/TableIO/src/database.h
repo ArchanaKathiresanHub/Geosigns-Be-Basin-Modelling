@@ -11,9 +11,7 @@
 
 #ifndef DATABASE_H
 #define DATABASE_H
-
-#include "stdafx.h"
-#include <stdlib.h>
+#include <cstdlib>
 
 #include <vector>
 #include <map>
@@ -29,8 +27,7 @@ using std::ostream;
 #include "dataschema.h"
 #include "datatype.h"
 
-#include <boost/shared_ptr.hpp>
-#include <boost/pointer_cast.hpp>
+#include <memory>
 
 namespace database
 {
@@ -38,13 +35,13 @@ namespace database
    class Table;
    class Record;
 
-   template < class Type > TABLEIO_DLL_EXPORT void checkType (     const Type        &a, const datatype::DataType type );
-   template <> TABLEIO_DLL_EXPORT void checkType < bool > (        const bool        &a, const datatype::DataType type );
-   template <> TABLEIO_DLL_EXPORT void checkType < int >(          const int         &a, const datatype::DataType type );
-   template <> TABLEIO_DLL_EXPORT void checkType < long >(         const long        &a, const datatype::DataType type );
-   template <> TABLEIO_DLL_EXPORT void checkType < float >(        const float       &a, const datatype::DataType type );
-   template <> TABLEIO_DLL_EXPORT void checkType < double >(       const double      &a, const datatype::DataType type );
-   template <> TABLEIO_DLL_EXPORT void checkType < std::string > ( const std::string &a, const datatype::DataType type );
+   template < class Type > void checkType (     const Type        &a, const datatype::DataType type );
+   template <> void checkType < bool > (        const bool        &a, const datatype::DataType type );
+   template <> void checkType < int >(          const int         &a, const datatype::DataType type );
+   template <> void checkType < long >(         const long        &a, const datatype::DataType type );
+   template <> void checkType < float >(        const float       &a, const datatype::DataType type );
+   template <> void checkType < double >(       const double      &a, const datatype::DataType type );
+   template <> void checkType < std::string > ( const std::string &a, const datatype::DataType type );
 
    /// Fields contain the values of a Record.
    /// This class is a template because we need a different Field class for different types,
@@ -62,8 +59,8 @@ namespace database
          const FieldDefinition & getFieldDefinition() const
          { return m_fieldDefinition; }
 
-         boost::shared_ptr<AbstractField> clone() const
-         { return boost::shared_ptr<AbstractField>( doClone() ); }
+         std::shared_ptr<AbstractField> clone() const
+         { return std::shared_ptr<AbstractField>( doClone() ); }
 
          virtual bool assignFromString (const std::string & word) = 0;
          virtual bool saveToStream (ostream & ofile, int &borrowed) = 0;
@@ -115,7 +112,7 @@ namespace database
 
    /// This class describes the entries of a Database Table.
    /// A Record consists of a number of Fields whose values can be set or retrieved.
-   class TABLEIO_DLL_EXPORT Record
+   class Record
    {
       public:
          /// print the record's content
@@ -132,27 +129,27 @@ namespace database
 
 
          template <typename Type>
-            void setValue (int index, const Type & value)
+            void setValue (size_t index, const Type & value)
             {
-               boost::dynamic_pointer_cast< Field < Type > >(getField (index))->setValue(value);
+               std::dynamic_pointer_cast< Field < Type > >(getField (index))->setValue(value);
             }
 
          template < class Type > 
             void setValue (const std::string & fieldName, const Type & value, int * cachedIndex = 0) const
             {
-               boost::dynamic_pointer_cast< Field < Type > >( getField (fieldName, cachedIndex) )->setValue(value);
+               std::dynamic_pointer_cast< Field < Type > >( getField (fieldName, cachedIndex) )->setValue(value);
             }
 
          template <typename Type>
-            const Type & getValue (int index) const
+            const Type & getValue (size_t index) const
             {
-               return boost::dynamic_pointer_cast< const Field < Type > >(getField (index))->getValue();
+               return std::dynamic_pointer_cast< const Field < Type > >(getField (index))->getValue();
             }
 
          template < class Type > 
             const Type & getValue (const std::string & fieldName, int * cachedIndex = 0) const
             {
-               return boost::dynamic_pointer_cast< const Field < Type > >( getField (fieldName, cachedIndex) )->getValue();
+               return std::dynamic_pointer_cast< const Field < Type > >( getField (fieldName, cachedIndex) )->getValue();
             }
 
          Record (const TableDefinition & tableDefinition, Table * table);
@@ -161,15 +158,15 @@ namespace database
       private:
          friend class Table;
 
-         typedef std::vector< boost::shared_ptr< AbstractField > > FieldList;
+         typedef std::vector< std::shared_ptr< AbstractField > > FieldList;
          typedef FieldList::iterator FieldListIterator;
 
          ~Record() {}
 
-         boost::shared_ptr<AbstractField> getField (int index) const
+         std::shared_ptr<AbstractField> getField (size_t index) const
          { return m_fields[index]; }
 
-         boost::shared_ptr<AbstractField> getField(const std::string & name, int * index) const;
+         std::shared_ptr<AbstractField> getField(const std::string & name, int * index) const;
 
          // Record (const TableDefinition & tableDefinition, Table * table);
          //      Record (Record & record);
@@ -200,7 +197,7 @@ namespace database
    typedef bool (*MergeFunc) (Record *, Record *);
 
    /// An object of this class contains a list of Records with the same TableDefinition
-   class TABLEIO_DLL_EXPORT Table
+   class Table
    {
       typedef std::vector < Record * >RecordList;
       typedef RecordList::iterator RecordListIterator;
@@ -312,7 +309,7 @@ namespace database
 
    /// A Database consists of a list of Tables as specified by the DataSchema
    /// it was created from.
-   class TABLEIO_DLL_EXPORT Database
+   class Database
    {
       typedef std::vector < Table * >TableList;
       typedef TableList::iterator TableListIterator;

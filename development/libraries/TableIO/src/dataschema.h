@@ -15,9 +15,8 @@
 // Note: Comments starting with '///' are suitable for parsing by 'doxygen' to produce readable documentation
 // in the form of html, latex or rtf files.
 
-#include "stdafx.h"
-#include <stdlib.h>
-#include <assert.h>
+#include <cstdlib>
+#include <cassert>
 
 #include <fstream>
 
@@ -35,7 +34,7 @@ namespace database
    /// Objects of this class define the properties of a Field object.
    /// FieldDefinition objects are not created directly, but through
    /// the TableDefinition::addFieldDefinition () function
-   class TABLEIO_DLL_EXPORT FieldDefinition
+   class FieldDefinition
    {
       friend class TableDefinition;
       friend class Record;
@@ -90,7 +89,7 @@ namespace database
 
    /// This class defines what the records of a Table that comforms to a TableDefinition look like.
    /// Objects of this class are created through the DataSchema::addTableDefinition () function.
-   class TABLEIO_DLL_EXPORT TableDefinition
+   class TableDefinition
    {
       typedef std::vector<FieldDefinition *> FieldDefinitionList;
       typedef FieldDefinitionList::const_iterator FieldDefinitionListIterator;
@@ -154,7 +153,7 @@ namespace database
 
    /// Objects of this class are used to specify the structure of a database.
    /// Objects of this class have a name, a description and a list of TableDefinitions.
-   class TABLEIO_DLL_EXPORT DataSchema
+   class DataSchema
    {
       typedef std::vector<TableDefinition *> TableDefinitionList;
       typedef TableDefinitionList::const_iterator TableDefinitionListIterator;

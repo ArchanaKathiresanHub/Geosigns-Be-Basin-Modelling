@@ -3,15 +3,9 @@
 // Neither the whole nor any part of this document may be copied, modified or distributed in any
 // form without the prior written consent of the copyright owner.
 
-#include <math.h>
-
 #include "EosUtils.h"
 
-/* Use intel math library */
-// #define EOS_INTEL
-#ifdef EOS_INTEL
-#include "C:/Program Files/Intel/MKL61/include/mkl.h"
-#endif
+#include <cmath>
 
 /// 
 /// \brief Back substitution routine  

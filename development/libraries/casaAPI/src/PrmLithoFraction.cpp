@@ -182,7 +182,7 @@ namespace casa
    PrmLithoFraction::PrmLithoFraction( mbapi::Model              & mdl
                                      , const std::string         & layerName
                                      , const std::vector<int>    & lithoFractionsInds
-                                     , const std::vector<double> & coordinates
+                                     , const std::vector<size_t> & coordinates
                                      )
                                      : m_parent( 0 )
                                      , m_layerName( layerName )
@@ -240,7 +240,7 @@ namespace casa
 
          // get the value of the second map
          value = mpMgr.mapGetValue( mSecondID, coordinates[0], coordinates[1] );
-         if ( UndefinedIDValue == value ) { throw ErrorHandler::Exception( mdl.errorCode() ) << mdl.errorMessage(); }
+         if ( UndefinedDoubleValue == value ) { throw ErrorHandler::Exception( mdl.errorCode() ) << mdl.errorMessage(); }
 
          // second lithoPercentage
          lithoPercentages[1] = value;

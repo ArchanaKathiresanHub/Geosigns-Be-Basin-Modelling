@@ -186,7 +186,8 @@ namespace database {
          modHeader.insert (pos + 1, ";! ");
          // cerr << "modHeader" << modHeader << endl;
       }
-      while ((pos = modHeader.find ("\n", pos + 4)) != string::npos && pos < modHeader.length () - 2);
+      while ( pos = static_cast<size_t>( modHeader.find( "\n", pos + 4) ) != string::npos &&
+		      pos < static_cast<int>( modHeader.length() ) - 2 );
 
       ofile << modHeader;
       if (modHeader[modHeader.length () - 1] != '\n')
@@ -768,7 +769,7 @@ namespace database {
       {
          FieldDefinition *fieldDef = m_tableDefinition.getFieldDefinition (i);
 
-         boost::shared_ptr<AbstractField> field;
+         std::shared_ptr<AbstractField> field;
 
          switch (fieldDef->dataType())
          {
@@ -819,7 +820,7 @@ namespace database {
       getTable ()->addRecord (this);
    }
 
-   boost::shared_ptr<AbstractField> Record::getField (const string & name, int *cachedIndex) const
+   std::shared_ptr<AbstractField> Record::getField (const string & name, int *cachedIndex) const
    {
       int hint = (cachedIndex ? *cachedIndex : -1);
 
@@ -828,9 +829,7 @@ namespace database {
       if (cachedIndex)
          *cachedIndex = index;
 
-      if (index == -1)
-         return boost::shared_ptr<AbstractField>();
-      return m_fields[index];
+      return index == -1 ? std::shared_ptr<AbstractField>() : m_fields[index];
    }
 
    template <> bool Field < bool >::saveToStream (ostream & ofile, int &borrowed)

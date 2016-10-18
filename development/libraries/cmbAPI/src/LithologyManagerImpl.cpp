@@ -365,7 +365,7 @@ struct RecordSorter
       assert( r1 != NULL && r2 != NULL );
 
       for ( size_t i = 0; i < m_fldIDs.size(); ++ i )
-      {  int id = m_fldIDs[i];
+      {  size_t id = m_fldIDs[i];
          switch ( m_fldTypes[i] )
          {
             case datatype::Bool:   { bool v = r1->getValue<bool>( id ); bool w = r2->getValue<bool>( id ); if ( v != w ) return v < w; } break;
@@ -384,7 +384,7 @@ struct RecordSorter
       return false;
    }
 
-   std::vector<int>                 m_fldIDs;
+   std::vector<size_t>              m_fldIDs;
    std::vector<datatype::DataType>  m_fldTypes;
    double                           m_eps;
 };

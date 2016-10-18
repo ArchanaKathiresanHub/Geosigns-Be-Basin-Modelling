@@ -1,10 +1,7 @@
-#include "stdafx.h"
-
 #include "polynomials.h"
 
 #include <limits>
-
-#include <math.h>
+#include <cmath>
 
 
 using namespace std;

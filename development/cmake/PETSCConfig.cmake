@@ -124,12 +124,6 @@ elseif (WIN32) # windows
    set(PETSC_ROOT "${PETSC_HOME}" CACHE PATH "Installation directory of PETSc")
    #find_library(PETSC_LIBRARIES "petsc" PATHS "${PETSC_LIBRARIES}" NO_DEFAULT_PATH )
 
-   # Because PETSc is is built with the static version of the Visual C Runtime
-   # library and other 3rd party libs (like HDF5) are compiled with the DLL
-   # version, all kinds of difficult linking problems arise. The following forces
-   # linking, although everyone on the internet says its risky
-   set(PETSC_LINK_FLAGS "/NODEFAULTLIB:LIBCMT /FORCE:MULTIPLE ${OpenMP_LINK_FLAGS}")
-
 endif ()
 
 add_external_package_info( 

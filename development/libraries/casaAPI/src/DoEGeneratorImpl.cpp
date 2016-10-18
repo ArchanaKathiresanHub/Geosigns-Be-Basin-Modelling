@@ -107,7 +107,7 @@ namespace casa
          if ( SpaceFilling == m_typeOfDoE ) // special case, can extend already existed set of cases
          {
             // collect number of existed SpaceFilling DoE cases:
-            unsigned int numOldRuns = expSet.size();
+            size_t numOldRuns = expSet.size();
             const std::vector< std::string > & expNames = doeCaseSet.experimentNames();
             for ( auto nm : expNames )
             {
@@ -119,7 +119,7 @@ namespace casa
             }
             doeCaseSet.filterByExperimentName( "" );
 
-            const SUMlib::HybridMC doe( selectedPrms, static_cast<unsigned int>( numOfOrdPrms ), numOldRuns, static_cast<unsigned int>( runsNum ) );
+            const SUMlib::HybridMC doe( selectedPrms, static_cast<unsigned int>( numOfOrdPrms ), static_cast<unsigned int>( numOldRuns ), static_cast<unsigned int>( runsNum ) );
             const bool replicate = false;
             doe.getCaseSet( pBounds, baseCase, replicate, sumCases );
          }

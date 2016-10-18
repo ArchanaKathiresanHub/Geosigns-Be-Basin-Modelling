@@ -36,8 +36,8 @@ namespace casa
       m_name = !name.empty() ? name : std::string( "" );
       m_pdf = pdfType ;
       m_baseValue.reset( new PrmLithoFraction( this, m_name, m_layerName, m_lithoFractionsInds, baseLithoFrac ) );
-      m_minValue.reset( new PrmLithoFraction( this, m_name, m_layerName, m_lithoFractionsInds, minLithoFrac ) );
-      m_maxValue.reset( new PrmLithoFraction( this, m_name, m_layerName, m_lithoFractionsInds, maxLithoFrac ) );
+      m_minValue.reset(  new PrmLithoFraction( this, m_name, m_layerName, m_lithoFractionsInds, minLithoFrac ) );
+      m_maxValue.reset(  new PrmLithoFraction( this, m_name, m_layerName, m_lithoFractionsInds, maxLithoFrac ) );
    }
 
    size_t VarPrmLithoFraction::dimension() const
@@ -77,7 +77,9 @@ namespace casa
       }
       else if ( vin.size() == 2 )
       {
-         prm.reset( new PrmLithoFraction( mdl, m_layerName, m_lithoFractionsInds, vin ) );      
+         std::vector<size_t> ij( 2, static_cast<size_t>( floor( vin[ 0 ] + 0.5 ) ) );
+         ij[1] = static_cast<size_t>( floor( vin[1] + 0.5 ) );
+         prm.reset( new PrmLithoFraction( mdl, m_layerName, m_lithoFractionsInds, ij ) );      
       }
       else
       {
@@ -150,7 +152,7 @@ namespace casa
       // generate the maps
       std::string  mapNameFirstLithoPercentage  = std::to_string( lid ) + "_percent_1";
       std::string  mapNameSecondLithoPercentage = std::to_string( lid ) + "_percent_2";
-      int mapSeqNbr = -1;
+      size_t mapSeqNbr = UndefinedIDValue;
 
       mbapi::MapsManager::MapID id = mapsMgr.generateMap( "StratIoTbl", mapNameFirstLithoPercentage, lf1CorrInt, mapSeqNbr,"" ); // use the default filename for the file storing the maps
       if ( UndefinedIDValue == id )

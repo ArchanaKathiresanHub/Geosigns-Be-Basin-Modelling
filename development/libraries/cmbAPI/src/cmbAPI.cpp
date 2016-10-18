@@ -644,7 +644,7 @@ struct RecordSorter
                if ( static_cast<int>( trapRecords.count( fieldDefinition ) ) == k )
                {
                   m_fldIDs.push_back( i );
-                  m_fldTypes.push_back( tblDef.getFieldDefinition( static_cast<int>(i) )->dataType() );
+                  m_fldTypes.push_back( tblDef.getFieldDefinition( i )->dataType() );
                }         
             }
          }
@@ -655,10 +655,10 @@ struct RecordSorter
       // cache fields index and data type 
       for ( size_t i = 0; i < tblDef.size(); ++i )
       {
-         if ( tblDef.getFieldDefinition( static_cast<int>( i ) )->dataType() == datatype::String )
+         if ( tblDef.getFieldDefinition( i )->dataType() == datatype::String )
          {
             m_fldIDs.push_back( i );
-            m_fldTypes.push_back( tblDef.getFieldDefinition( static_cast<int>( i ) )->dataType() );
+            m_fldTypes.push_back( tblDef.getFieldDefinition( i )->dataType() );
          }         
       }
       for ( size_t i = 0; i < tblDef.size(); ++i )
@@ -666,7 +666,7 @@ struct RecordSorter
          if ( tblDef.getFieldDefinition( static_cast<int>( i ) )->dataType() != datatype::String )
          {
             m_fldIDs.push_back( i );
-            m_fldTypes.push_back( tblDef.getFieldDefinition( static_cast<int>( i ) )->dataType() );
+            m_fldTypes.push_back( tblDef.getFieldDefinition( i )->dataType() );
          }         
       }
    }
@@ -680,7 +680,7 @@ struct RecordSorter
       assert( r1 != NULL && r2 != NULL );
 
       for ( size_t i = 0; i < m_fldIDs.size(); ++ i )
-      {  int id = m_fldIDs[i];
+      {  size_t id = m_fldIDs[i];
          switch ( m_fldTypes[i] )
          {
             case datatype::Bool:   { bool v = r1->getValue<bool>( id ); bool w = r2->getValue<bool>( id ); if ( v != w ) return v < w; } break;
@@ -699,7 +699,7 @@ struct RecordSorter
       return false;
    }
 
-   std::vector<int>                 m_fldIDs;
+   std::vector<size_t>              m_fldIDs;
    std::vector<datatype::DataType>  m_fldTypes;
    double                           m_eps;
 };

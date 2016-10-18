@@ -1,8 +1,6 @@
 #ifndef __WallTime_HH__
 #define __WallTime_HH__
 
-#include "stdafx.h"
-
 #if defined(_WIN32) || defined(_WIN64)
 #include <WinSock.h>
 #include <time.h>
@@ -26,7 +24,7 @@ namespace WallTime {
   /// \brief Provides classes enabling computation with times and durations.
 
   /// \brief Duration values.
-  class UTILITIES_DLL_EXPORT Duration {
+  class Duration {
 
   public :
 
@@ -88,12 +86,12 @@ namespace WallTime {
 
 
   /// \brief Holds time of day data.
-  class UTILITIES_DLL_EXPORT Time {
+  class Time {
 
   public :
 
     /// \brief Set the Time with a UNIX timeval.
-    void set ( const timeval& TV );
+    void set ( const timeval & TV );
 
     /// Return the Duration representation of a Time
     friend Duration toDuration ( const Time& T );

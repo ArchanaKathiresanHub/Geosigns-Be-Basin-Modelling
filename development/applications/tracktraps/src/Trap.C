@@ -8,13 +8,8 @@
 // Do not distribute without written permission from Shell.
 // 
 
-#ifdef _MSC_VER
-#include <limits.h>
-#else
 #include <limits>
-#endif
-
-#include <float.h>
+#include <cfloat>
 #include <iostream>
 using namespace std;
 

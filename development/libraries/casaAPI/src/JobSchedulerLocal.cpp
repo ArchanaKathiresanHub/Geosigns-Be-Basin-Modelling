@@ -271,7 +271,7 @@ SystemProcess::SystemProcess( const std::string & cwd
    else
    {
       DWORD err = GetLastError();
-      DEBUG( 1, "Couldn't start process, err %s\n", err );
+      DEBUG( 1, "Couldn't start process, err %d\n", err );
 
       hProcess = NULL;
       m_isOk = false;

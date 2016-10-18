@@ -17,8 +17,6 @@
 #define and &&
 #endif
 
-#include "DllExport.h"
-
 #include <string>
 #include <map>
 
@@ -26,7 +24,7 @@ namespace CBMGenerics
 {
    const double undefined = 99999;
 
-   class CBMGENERICS_DLL_EXPORT ComponentManager
+   class ComponentManager
    {
    public:
       enum SpeciesNamesId

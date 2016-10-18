@@ -133,7 +133,7 @@ namespace casa
       /// @{
       /// @brief Defines version of serialized object representation. Must be updated on each change in save()
       /// @return Actual version of serialized object representation
-      virtual unsigned int version() const { return 1; }
+      virtual unsigned int version() const { return 2; }
 
       /// @brief Save all object data to the given stream, that object could be later reconstructed from saved data
       /// @param sz Serializer stream
@@ -162,7 +162,7 @@ namespace casa
 
       std::vector<std::string>   m_name;             ///< name of the observable
 
-      std::vector<int>           m_posDataMiningTbl; ///< rows number in DataMiningIoTbl which corresponds composition of this observable
+      std::vector<size_t>        m_posDataMiningTbl; ///< rows number in DataMiningIoTbl which corresponds composition of this observable
 
       std::unique_ptr<ObsValue>  m_refValue;         ///< reference value
       std::unique_ptr<ObsValue>  m_devValue;         ///< standard deviation for reference value

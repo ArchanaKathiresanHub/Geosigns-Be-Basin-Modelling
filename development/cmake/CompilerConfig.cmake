@@ -307,8 +307,8 @@ elseif(WIN32)
     )
 
    # to supress errors with multiple defined ceil/floor and so on in libmmt.lib
-   #set( CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} /FORCE:MULTIPLE"  )
-   add_definitions(-D_ENABLE_ATOMIC_ALIGNMENT_FIX)
+   add_definitions( "-D_ENABLE_ATOMIC_ALIGNMENT_FIX /D_CRT_SECURE_NO_WARNINGS /wd4996" )
+   set( CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:MSVCRT" )
 endif()
 
 

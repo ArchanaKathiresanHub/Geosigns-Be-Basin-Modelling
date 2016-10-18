@@ -15,7 +15,10 @@
 #include "AlignedMemoryAllocator.h"
 #include "FormattingException.h"
 
+#ifdef __INTEL_COMPILER
 #pragma warning(disable:3180)
+#endif
+
 //------------------------------------------------------------//
 
 ibs::PiecewiseInterpolator::PointerSort::PointerSort ( const double* xVals ) : m_xs ( xVals ) {
@@ -267,7 +270,7 @@ void ibs::PiecewiseInterpolator::print ( std::ostream& o ) const {
   std::ios::fmtflags new_options = std::ios::scientific;
   std::ios::fmtflags old_options = o.flags ( new_options );
 
-  int Old_Precision = o.precision ( 10 );
+  std::streamsize Old_Precision = o.precision ( 10 );
 
   o << " permeability interpolator: " << std::endl << " There are " << m_numberOfPoints << " points "  << std::endl;
   o << std::endl << " m_xs | m_ys " << std::endl;

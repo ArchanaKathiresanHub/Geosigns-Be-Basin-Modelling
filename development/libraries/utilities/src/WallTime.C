@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "WallTime.h"
 
 #include <sstream>
@@ -198,9 +197,9 @@ std::ostream& operator<< ( std::ostream& o, const Duration& D ) {
   
   std::ios::fmtflags new_options = std::ios::fixed;
   std::ios::fmtflags old_options = o.flags ( new_options );
-  int Old_Width = o.width ( 8 );
+  std::streamsize Old_Width = o.width ( 8 );
   
-  int Old_Precision = o.precision ( 4 );
+  std::streamsize Old_Precision = o.precision ( 4 );
 
   o << D.durationValue;
 
@@ -323,7 +322,7 @@ std::ostream& WallTime::operator<< ( std::ostream& o, const Time& T ) {
   std::ios::fmtflags new_options = std::ios::fixed;
   std::ios::fmtflags old_options = o.flags ( new_options );
   
-  int Old_Precision = o.precision ( 4 );
+  std::streamsize Old_Precision = o.precision ( 4 );
 
   o << toDuration ( T );
 

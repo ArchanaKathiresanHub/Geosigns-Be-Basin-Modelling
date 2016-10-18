@@ -8,7 +8,6 @@
 // Do not distribute without written permission from Shell.
 //
 
-#include "stdafx.h"
 #include "ComponentManager.h"
 
 const char * CBMGenerics::ComponentManager::s_SpeciesNames[NumberOfOutputSpecies] = 

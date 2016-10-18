@@ -5,10 +5,9 @@
 #ifndef __readwriteobject__
 #define __readwriteobject__
 
-#include "DllExport.h"
 #include "h5_types.h"
 
-class SERIALHDF5_DLL_EXPORT ReadWriteObject
+class ReadWriteObject
 {
 public:
    // ctor / dtor
@@ -37,7 +36,7 @@ protected:
    void  *rBuffer;
 };
 
-class SERIALHDF5_DLL_EXPORT WriteObject : public ReadWriteObject
+class WriteObject : public ReadWriteObject
 {
 public:
    WriteObject (hid_t dataId, hid_t fileSpaceId, hid_t memSpaceId,
@@ -48,7 +47,7 @@ public:
    bool operator() (void);
 };
 
-class SERIALHDF5_DLL_EXPORT ReadObject : public ReadWriteObject
+class ReadObject : public ReadWriteObject
 {
 public:
    ReadObject (hid_t dataId, hid_t fileSpaceId, hid_t memSpaceId,

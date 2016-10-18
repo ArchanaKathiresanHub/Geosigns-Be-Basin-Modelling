@@ -11,8 +11,6 @@
 #ifndef _CBMGENERICS_POLYFUNCTION_H_
 #define _CBMGENERICS_POLYFUNCTION_H_
 
-#include "DllExport.h"
-
 #define NEWPOLYF
 
 #include <vector>
@@ -21,7 +19,7 @@ using namespace std;
 namespace CBMGenerics
 {
 
-class CBMGENERICS_DLL_EXPORT Polyfunction
+class Polyfunction
 {
 public:
 

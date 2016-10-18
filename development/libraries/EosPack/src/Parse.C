@@ -1,8 +1,6 @@
-#include "stdafx.h"
+#include "Parse.h"
 
 #include <list>
-
-#include "Parse.h"
 
 const std::string fileIO::Table::TABLE_NAME_PREFIX("Table:");
 const std::string fileIO::Table::TABLE_END        ("EndOfTable");

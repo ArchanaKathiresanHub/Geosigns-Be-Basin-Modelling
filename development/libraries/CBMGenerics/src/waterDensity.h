@@ -11,13 +11,11 @@
 #ifndef _CBMGENERICS_WATERDENSITY_H_
 #define _CBMGENERICS_WATERDENSITY_H_
 
-#include "DllExport.h"
-
 namespace CBMGenerics { 
 
 namespace waterDensity {
 
-enum CBMGENERICS_DLL_EXPORT FluidDensityModel {
+enum FluidDensityModel {
    Calculated,
    Constant,
    Table

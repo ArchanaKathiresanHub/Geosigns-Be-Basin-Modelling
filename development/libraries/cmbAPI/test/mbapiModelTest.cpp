@@ -279,7 +279,7 @@ TEST_F( mbapiModelTest, SourceRockHI_HCSettings )
                ASSERT_NEAR( hcSR,  0.801, eps );
                ASSERT_NEAR( hcSR2, 1.25, eps );
 
-               srMgr.setHCIni( 1.0, sid2 );
+               srMgr.setHCIni( sid2, 1.0 );
                ASSERT_EQ( ErrorHandler::NoError, srMgr.errorCode() );
                ASSERT_NEAR( srMgr.hiIni( sid2 ), 193.17523, eps );
             }
@@ -877,7 +877,7 @@ TEST_F( mbapiModelTest, MapsManagerNNInterpolation )
       // generate the maps
       std::string  correctFirstLithoFractionMap("5_percent_1");
       std::string  correctSecondLithoFractionMap("5_percent_2");
-      int mapSeqNbr = -1;
+      size_t mapSeqNbr = UndefinedIDValue;
 
       // first map, produce the map and update GridmapIoTbl
       mbapi::MapsManager::MapID id = mapsMgr.generateMap( "StratIoTbl", correctFirstLithoFractionMap, lf1CorrInt, mapSeqNbr, masterResults.path( ) );

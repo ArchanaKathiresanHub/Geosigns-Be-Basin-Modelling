@@ -41,10 +41,6 @@
 *  Source module is EosPvtModel.cpp                                  *
 *                                                                    *
 *********************************************************************/
-
-#include <iostream>
-#include "stdafx.h"
-
 #include "EosApplication.h"
 #include "EosPvtModel.h"
 #include "EosPvtTable.h"
@@ -56,11 +52,12 @@
 */
 //#include "Unit.h"
 
-#include <assert.h>
-#include <float.h>
-#include <math.h>
-#include <stdio.h>
+#include <cassert>
+#include <cfloat>
+#include <cmath>
+#include <cstdio>
 #include <algorithm>
+#include <iostream>
 
 /* Define whether to restore terms */
 #define EOS_NORESTORE 0

@@ -45,8 +45,6 @@ swig_add_module( CauldronIO csharp src/Swig/VisualizationAPI.i
 
 swig_link_libraries( CauldronIO VisualizationIO DataModel DataAccess utilities SerialDataAccess FileSystem TableIO Serial_Hdf5 CBMGenerics ${HDF5_LIBRARIES} ${Boost_LIBRARIES} )
 
-SET_TARGET_PROPERTIES(CauldronIO PROPERTIES LINK_FLAGS "/FORCE:MULTIPLE")
-
 # Before C# generation, remove all existing files. The directory should be empty before generation	
 add_custom_command( TARGET CauldronIO
    PRE_BUILD

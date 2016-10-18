@@ -1,4 +1,3 @@
-#include "stdafx.h"
 //
 // Classes with specific H5 file properties
 //

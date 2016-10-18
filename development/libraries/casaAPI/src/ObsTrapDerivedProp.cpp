@@ -170,7 +170,7 @@ ErrorHandler::ReturnCode ObsTrapDerivedProp::requestObservableInModel( mbapi::Mo
    {  // insert new row into the table
       if ( ErrorHandler::NoError != caldModel.addRowToTable( Observable::s_dataMinerTable ) ) return caldModel.errorCode();
 
-      int pos = static_cast<int>( tblSize ) + i;
+      size_t pos = static_cast<int>( tblSize ) + i;
       m_posDataMiningTbl.push_back( pos );
 
       // fill columns for the new row with values
@@ -201,13 +201,13 @@ ObsValue * ObsTrapDerivedProp::getFromModel( mbapi::Model & caldModel )
    for ( size_t i = 0; i < m_posDataMiningTbl.size(); ++i )
    {
       std::string propName;
-      if (      i <  ComponentManager::NumberOfOutputSpecies     ) { propName = ComponentManager::GetSpeciesName( i ) + g_PropCompSuffix; }
+      if (      i <  ComponentManager::NumberOfOutputSpecies     ) { propName = ComponentManager::GetSpeciesName( static_cast<int>(i) ) + g_PropCompSuffix; }
       else if ( i == ComponentManager::NumberOfOutputSpecies     ) { propName = "MassLiquid";  }
       else if ( i == ComponentManager::NumberOfOutputSpecies + 1 ) { propName = "MassVapour";  }
       else if ( i == ComponentManager::NumberOfOutputSpecies + 2 ) { propName = "Pressure";    }
       else if ( i == ComponentManager::NumberOfOutputSpecies + 3 ) { propName = "Temperature"; }
 
-      if ( m_posDataMiningTbl[i] < 0 )
+      if ( m_posDataMiningTbl[i] == UndefinedIDValue )
       {
          bool found = false;
          for ( size_t j = 0; j < tblSize && !found; ++j )
@@ -233,7 +233,7 @@ ObsValue * ObsTrapDerivedProp::getFromModel( mbapi::Model & caldModel )
             found = true;
             val[i] = caldModel.tableValueAsDouble( Observable::s_dataMinerTable, j, "Value" );
 
-            m_posDataMiningTbl[i] = static_cast<int>( j ); // fill the rest of the table as well data must be continuous
+            m_posDataMiningTbl[i] = j; // fill the rest of the table as well data must be continuous
             for ( size_t k = i+1; k < m_posDataMiningTbl.size(); ++k )
             {
                m_posDataMiningTbl[k] = m_posDataMiningTbl[k-1] + 1;
@@ -347,7 +347,20 @@ ObsTrapDerivedProp::ObsTrapDerivedProp( CasaDeserializer & dz, unsigned int objV
    ok = ok ? dz.load( m_propName, "propName"      ) : ok;
    ok = ok ? dz.load( m_simTime,  "simTime"       ) : ok;
    ok = ok ? dz.load( m_name,     "name"          ) : ok;
-   ok = ok ? dz.load( m_posDataMiningTbl, "posDataMiningTbl" ) : ok;
+   if ( objVer < 2 )
+   {
+      std::vector<int> pos;
+      ok = ok ? dz.load( pos, "posDataMiningTbl" ) : ok;
+      m_posDataMiningTbl.resize( pos.size() );
+      for ( size_t i = 0; i < pos.size(); ++i )
+      {
+         m_posDataMiningTbl[ i ] = static_cast<size_t>( pos[i] < 0 ? UndefinedIDValue : pos[i] );
+      }
+   }
+   else
+   {
+      ok = ok ? dz.load( m_posDataMiningTbl, "posDataMiningTbl" ) : ok;
+   }
 
    bool hasVal;
    

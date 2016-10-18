@@ -59,7 +59,7 @@ namespace mbapi
       virtual MapID copyMap( MapID id, const std::string & newMapName );
 
       // Save input map to the new HDF file. File with the given name should not exist before.
-      virtual ErrorHandler::ReturnCode saveMapToHDF( MapID id, const std::string & filePathName, const int mapSequenceNbr );
+      virtual ErrorHandler::ReturnCode saveMapToHDF( MapID id, const std::string & filePathName, size_t mapSequenceNbr );
 
       // Get min/max map values range
       virtual ErrorHandler::ReturnCode mapValuesRange( MapID id, double & minV, double & maxV );
@@ -74,7 +74,7 @@ namespace mbapi
       virtual ErrorHandler::ReturnCode mapGetValues( MapID id, std::vector<double>& vout );
 
       // Get the value from the map
-      virtual double mapGetValue( MapID id, const unsigned int i, const unsigned int j );
+      virtual double mapGetValue( MapID id, size_t i, size_t j );
 
       // Interpolate between 2 maps, coefficient in range [0:1]
       virtual ErrorHandler::ReturnCode interpolateMap( MapID id, MapID minId, MapID maxId, double coeff );
@@ -97,7 +97,7 @@ namespace mbapi
       virtual MapID generateMap( const std::string         & refferedTable
                                , const std::string           mapName
                                , const std::vector<double> & values
-                               , int                       & mapSequenceNbr
+                               , size_t                    & mapSequenceNbr
                                , const std::string         & filePathName
                                );
 

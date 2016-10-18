@@ -7,8 +7,6 @@
 // Do not distribute without written permission from Shell.
 //
 
-#include "stdafx.h"
-
 #include <iostream>
 #include <fstream>
 #include <iomanip>

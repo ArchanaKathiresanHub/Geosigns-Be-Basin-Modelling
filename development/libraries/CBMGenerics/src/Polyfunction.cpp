@@ -8,8 +8,6 @@
 // Do not distribute without written permission from Shell.
 //
 
-#include "stdafx.h"
-
 #include "Polyfunction.h"
 
 #include <iostream>

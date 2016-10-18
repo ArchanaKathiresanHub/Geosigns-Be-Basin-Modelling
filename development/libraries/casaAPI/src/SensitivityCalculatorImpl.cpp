@@ -351,7 +351,7 @@ namespace casa
          if ( !obv->isDouble() || !ob ) continue;
          for ( size_t j = 0; j < ob->dimension(); ++j )
          {
-            returnValue.push_back( TornadoSensitivityInfo( ob, j, obv->asDoubleArray()[j] ) );
+            returnValue.push_back( TornadoSensitivityInfo( ob, static_cast<int>( j ), obv->asDoubleArray()[j] ) );
          }
       }
 

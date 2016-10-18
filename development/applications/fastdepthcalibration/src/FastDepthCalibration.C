@@ -283,7 +283,8 @@ void FastDepthCalibration::calibrateDepths()
 
 		// Create the new map with the increased depths
 		m_correctedMapsNames[nextSurface] = mapName;
-		int mapsSequenceNbr = -1;
+		size_t mapsSequenceNbr = UndefinedIDValue;
+;
 		m_correctedMapsIDs[nextSurface] = mapsMgrLocalReloaded.generateMap("StratIoTbl", mapName, increasedDepths, mapsSequenceNbr, s_resultsFile);
 		if (UndefinedIDValue == m_correctedMapsIDs[nextSurface])
 		{
@@ -333,7 +334,7 @@ void FastDepthCalibration::calibrateDepths()
 
 		// Now write the corrected map (note that the project file path will be appended to the HDF map name,
 		// so we must be in the master path to do this operation!)
-		mapsSequenceNbr = -1;
+		mapsSequenceNbr = UndefinedIDValue;
 		if (UndefinedIDValue == mapsMgrLocalReloaded.generateMap("StratIoTbl", mapName, newDepths, mapsSequenceNbr, s_resultsFile))
 		{
 			throw T2Zexception() << " Cannot generate the map with corrected depths for the surface " << nextSurface;
@@ -403,7 +404,7 @@ void FastDepthCalibration::writeFinalProject()
 		{
 			LogHandler(LogHandler::INFO_SEVERITY) << " Appending isopack for surface " << s;
 		}
-		int mapsSequenceNbr = -1;
+		size_t mapsSequenceNbr = UndefinedIDValue;
 		for (size_t i = 0; i != m_depthsEndSurface.size(); ++i)
 		{
 			m_isoPacks[s][i] = m_depthsEndSurface[i] + m_isoPacks[s][i];

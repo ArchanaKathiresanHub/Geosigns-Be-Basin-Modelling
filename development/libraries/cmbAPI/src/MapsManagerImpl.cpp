@@ -158,7 +158,7 @@ MapsManager::MapID MapsManagerImpl::copyMap( MapID id, const std::string & newMa
 MapsManager::MapID MapsManagerImpl::generateMap( const std::string         & refferedTable
                                                , const std::string           mapName
                                                , const std::vector<double> & values
-                                               , int                       & mapSequenceNbr
+                                               , size_t                    & mapSequenceNbr
                                                , const std::string         & filePathName
                                                )
 {
@@ -211,7 +211,7 @@ MapsManager::MapID MapsManagerImpl::generateMap( const std::string         & ref
          newRec->setValue(              s_MapNameColName,     mapName );
          newRec->setValue<std::string>( s_MapTypeColName,     "HDF5" );
          newRec->setValue<std::string>( s_MapFileNameColName, mapFullPath.fileName() );
-         newRec->setValue<int>(         s_MapSeqNbrColName,   mapSequenceNbr );
+         newRec->setValue<int>(         s_MapSeqNbrColName,   static_cast<int>( mapSequenceNbr ) );
       }
       else
       {
@@ -330,7 +330,7 @@ ErrorHandler::ReturnCode MapsManagerImpl::mapGetValues( MapID id, std::vector<do
    return NoError;
 }
 
-double MapsManagerImpl::mapGetValue( MapID id, const unsigned int i, const unsigned int j )
+double MapsManagerImpl::mapGetValue( MapID id, size_t i, size_t j )
 {
    if ( errorCode() != NoError ) resetError();
 
@@ -338,14 +338,14 @@ double MapsManagerImpl::mapGetValue( MapID id, const unsigned int i, const unsig
 
    loadGridMap( id ); // check if map is loaded and load it if not loaded before
    m_mapObj[id]->retrieveData();
-   value = m_mapObj[id]->getValue( i, j );
+   value = m_mapObj[id]->getValue( static_cast<unsigned int>( i ), static_cast<unsigned int>( j ) );
    m_mapObj[id]->restoreData();
 
    return value;
 }
 
 // Save input map to the new HDF file. File with the given name should not exist before.
-ErrorHandler::ReturnCode MapsManagerImpl::saveMapToHDF( MapID id, const std::string & fileName, const int mapSequenceNbr )
+ErrorHandler::ReturnCode MapsManagerImpl::saveMapToHDF( MapID id, const std::string & fileName, size_t mapSequenceNbr )
 {
    if ( errorCode() != NoError ) resetError();
    try
@@ -393,7 +393,7 @@ ErrorHandler::ReturnCode MapsManagerImpl::saveMapToHDF( MapID id, const std::str
          throw Exception( OutOfRangeValue ) << "Could not inizialize the map writer ";
       }
 
-      bool writingSucceed = m_mapPropertyValuesWriter->writeInputMap( m_mapObj[id], mapSequenceNbr );
+      bool writingSucceed = m_mapPropertyValuesWriter->writeInputMap( m_mapObj[id], static_cast<int>( mapSequenceNbr ) );
       if ( !writingSucceed )
       {
          throw Exception( IoError ) << "Can not write the map " << m_mapName[id] << " to HDF ";
@@ -515,30 +515,30 @@ ErrorHandler::ReturnCode MapsManagerImpl::interpolateMap( MapID id, MapID minId,
    return NoError;
 }
 
-ErrorHandler::ReturnCode MapsManagerImpl::interpolateMap( 
-   const std::vector<double>& xin,
-   const std::vector<double>& yin,
-   const std::vector<double>& vin,
-   double xmin,
-   double xmax,
-   double ymin,
-   double ymax,
-   int numI,
-   int numJ,
-   std::vector<double>& xout,
-   std::vector<double>& yout,
-   std::vector<double>& vout )
+ErrorHandler::ReturnCode MapsManagerImpl::interpolateMap( const std::vector<double> & xin
+														, const std::vector<double> & yin
+														, const std::vector<double> & vin
+	                                                    , double                      xmin
+                                                        , double                      xmax
+                                                        , double                      ymin
+                                                        , double                      ymax
+                                                        , int                         numI
+                                                        , int                         numJ
+                                                        , std::vector<double>       & xout
+                                                        , std::vector<double>       & yout
+                                                        , std::vector<double>       & vout
+                                                        )
 {
    if ( errorCode() != NoError ) resetError();
    try
    {
-      int nin = xin.size();
-      point * pin = (point *)malloc( nin * sizeof( point ) );
-      point*  pout = NULL;
+      size_t  nin = xin.size();
+      point * pin = (point*)malloc( nin * sizeof( point ) );
+      point * pout = NULL;
       int     nout;
-      double wmin = 0;
+      double  wmin = 0;
 
-      for ( int i = 0; i != nin; ++i )
+      for ( size_t i = 0; i != nin; ++i )
       {
          pin[i].x = xin[i];
          pin[i].y = yin[i];
@@ -546,9 +546,9 @@ ErrorHandler::ReturnCode MapsManagerImpl::interpolateMap(
       }
 
       // generate the points, interpolate with NNlib
-      points_getrange( nin, pin, 1, &xmin, &xmax, &ymin, &ymax );
+      points_getrange( static_cast<int>( nin ), pin, 1, &xmin, &xmax, &ymin, &ymax );
       points_generate( xmin, xmax, ymin, ymax, numI, numJ, &nout, &pout );  
-      nnpi_interpolate_points( nin, pin, wmin, nout, pout );
+      nnpi_interpolate_points( static_cast<int>( nin ), pin, wmin, nout, pout );
 
       xout.resize( nout );
       yout.resize( nout );

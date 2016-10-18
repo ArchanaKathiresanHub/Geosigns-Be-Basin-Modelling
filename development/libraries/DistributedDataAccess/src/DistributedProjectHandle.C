@@ -7,9 +7,6 @@
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
-
-#include <stdafx.h>
-
 #include <sys/types.h>
 #include <sys/stat.h>
 
