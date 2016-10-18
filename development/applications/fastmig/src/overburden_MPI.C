@@ -18,6 +18,7 @@
 #include "Interface/PropertyValue.h"
 #include "Interface/GridMap.h"
 #include "Interface/Snapshot.h"
+#include "Interface/Surface.h"
 #include "Formation.h"
 
 #include <limits>
@@ -48,6 +49,8 @@ namespace migration
          vector<const Formation*>::const_iterator f = formations.begin ();
          for (; f != formations.end (); ++f)
          {
+            if ((*f)->getTopSurface()->getSnapshot()->getTime() < snapshot->getTime())
+               break;
             FormationSurfaceGridMaps gridMaps = (*f)->getFormationSurfaceGridMaps (prop,
                snapshot);
             results.push_back (gridMaps);

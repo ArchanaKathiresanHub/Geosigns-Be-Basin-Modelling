@@ -1139,6 +1139,9 @@ namespace migration
       for (overburden::OverburdenFormations::formations_type::const_iterator f = overburden.formations ().begin ();
          f != overburden.formations ().end (); ++f)
       {
+         if ((*f)->getTopSurface()->getSnapshot()->getTime() < getEnd()->getTime())
+            break;
+            
          // Create the following grid map only once:
          const GridMap* litho1PercentMap = (*f)->getLithoType1PercentageMap ();
          assert ((*f)->getLithoType1 () && litho1PercentMap);

@@ -483,8 +483,8 @@ DerivedProperties::FormationSurfacePropertyPtr DerivedProperties::AbstractProper
    else{
       // This error is commented because of a bug in fastmig
       // Should be reactivated after correction of BUG 56677
-      //throw AbstractPropertyException() << "Could not compute formation surface derived property " << property->getName() << " @ snapshot " << snapshot->getTime() << ":"
-      //   << " this property is not a 3D discontinuous property.";
+      throw AbstractPropertyException() << "Could not compute formation surface derived property " << property->getName() << " @ snapshot " << snapshot->getTime() << ":"
+         << " this property is not a 3D discontinuous property.";
    }
 
    return result;
