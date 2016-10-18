@@ -13,21 +13,21 @@
 
 set (voxetProjectFormatSources
 	${PROJECT_BINARY_DIR}/applications/cauldron2voxet/voxetschemafuncs.h
-	${PROJECT_BINARY_DIR}/applications/cauldron2voxet/voxetschemafuncs.C
+	${PROJECT_BINARY_DIR}/applications/cauldron2voxet/voxetschemafuncs.cpp
 	${PROJECT_BINARY_DIR}/applications/cauldron2voxet/voxetschema.h
-	${PROJECT_BINARY_DIR}/applications/cauldron2voxet/voxetschema.C
+	${PROJECT_BINARY_DIR}/applications/cauldron2voxet/voxetschema.cpp
 	)
 
 set( mainSources
-	src/cauldron2voxet.C
-	src/CauldronProperty.C
-	src/DepthInterpolator.C
-	src/GridDescription.C
-	src/LayerInterpolator.C
-	src/VoxetCalculator.C
-	src/VoxetDomainInterpolator.C
-	src/VoxetProjectHandle.C
-	src/VoxetPropertyGrid.C
+	src/cauldron2voxet.cpp
+	src/CauldronProperty.cpp
+	src/DepthInterpolator.cpp
+	src/GridDescription.cpp
+	src/LayerInterpolator.cpp
+	src/VoxetCalculator.cpp
+	src/VoxetDomainInterpolator.cpp
+	src/VoxetProjectHandle.cpp
+	src/VoxetPropertyGrid.cpp
     )
 
 add_executable( cauldron2voxet
