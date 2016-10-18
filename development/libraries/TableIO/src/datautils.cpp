@@ -1,11 +1,9 @@
-#include <string>
+#include "datautils.h"
 
+#include <string>
 #include <iostream>
 #include <iomanip>
 #include <algorithm>
-
-#include "datautils.h"
-
 using namespace std;
 
 bool loadLine (istream & infile, string & line, bool checkForHeaders)

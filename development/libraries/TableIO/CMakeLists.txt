@@ -17,16 +17,16 @@
 include_directories(src)
 
 set (generator_source_files
-  ${CMAKE_CURRENT_BINARY_DIR}/cauldronschema.C 
-  ${CMAKE_CURRENT_BINARY_DIR}/cauldronschemafuncs.C
+  ${CMAKE_CURRENT_BINARY_DIR}/cauldronschema.cpp 
+  ${CMAKE_CURRENT_BINARY_DIR}/cauldronschemafuncs.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/cauldronschema.h
   ${CMAKE_CURRENT_BINARY_DIR}/cauldronschemafuncs.h
   )
 
 add_library( TableIO
-	src/dataschema.C
-	src/database.C
-	src/datautils.C
+	src/dataschema.cpp
+	src/database.cpp
+	src/datautils.cpp
 	${generator_source_files}
 )
 
@@ -45,8 +45,8 @@ endif()
 
 if (NOT CMAKE_CROSSCOMPILING)
    add_executable( parspec 
-      src/parspec.C
-      src/datautils.C
+      src/parspec.cpp
+      src/datautils.cpp
    )
 endif()
 

@@ -1,19 +1,17 @@
-#include <algorithm> // contains std::sort
-#include <stdlib.h>
-#include <iostream>
-#include <fstream>
-#include <iomanip>
+#include "datautils.h"
 
-#include <assert.h>
+#include <cstdlib>
+#include <cassert>
+#include <ctype.h>
+#include <cstring>
+
 #include <vector>
 #include <map>
 #include <string>
-#include <ctype.h>
-using namespace std;
-
-#include <string.h>
-
-#include "datautils.h"
+#include <iostream>
+#include <fstream>
+#include <iomanip>
+#include <algorithm> // contains std::sort
 
 using namespace std;
 
@@ -316,9 +314,9 @@ int main (int argc, char **argv)
    string funcsSourceFile = schemaSourceFile + "funcs";
    string funcsHeaderFile = schemaHeaderFile + "funcs";
 
-   schemaSourceFile += ".C";
+   schemaSourceFile += ".cpp";
    schemaHeaderFile += ".h";
-   funcsSourceFile += ".C";
+   funcsSourceFile += ".cpp";
    funcsHeaderFile += ".h";
 
    schemaSourceOut.open (schemaSourceFile.c_str (), ios::out);
