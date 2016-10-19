@@ -66,7 +66,7 @@ swig_add_module( Cauldron csharp src/Swig/DotNetAPI.i
 )
 
 swig_link_libraries( Cauldron casaapi cmbapi Serial_Hdf5 TableIO DataModel SerialDataAccess DataAccess EosPack ${Boost_LIBRARIES} )
-SET_TARGET_PROPERTIES(Cauldron PROPERTIES LINK_FLAGS "/NODEFAULTLIB:MSVCRT")
+#SET_TARGET_PROPERTIES(Cauldron PROPERTIES LINK_FLAGS "/NODEFAULTLIB:MSVCRT")
 
 # Before C# generation, remove all existing files. The directory should be empty before generation	
 add_custom_command( TARGET Cauldron
