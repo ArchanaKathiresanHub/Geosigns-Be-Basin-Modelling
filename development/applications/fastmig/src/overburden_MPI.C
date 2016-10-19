@@ -49,7 +49,7 @@ namespace migration
          vector<const Formation*>::const_iterator f = formations.begin ();
          for (; f != formations.end (); ++f)
          {
-            if ((*f)->getTopSurface()->getSnapshot()->getTime() < snapshot->getTime())
+            if ((*f)->getBottomSurface()->getSnapshot()->getTime() < snapshot->getTime())
                break;
             FormationSurfaceGridMaps gridMaps = (*f)->getFormationSurfaceGridMaps (prop,
                snapshot);

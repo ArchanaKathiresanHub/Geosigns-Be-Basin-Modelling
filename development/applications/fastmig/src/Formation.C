@@ -807,9 +807,7 @@ namespace migration
 
       if (top)
       {
-
          index = top->getDepth () - 1;
-
       }
       else
       {
@@ -959,7 +957,10 @@ namespace migration
          }
          else
          {
-            DerivedProperties::FormationSurfacePropertyPtr theFormationProperty = m_migrator->getPropertyManager ().getFormationSurfaceProperty (prop, snapshot, this, surface);
+            DerivedProperties::FormationSurfacePropertyPtr theFormationProperty;
+
+            if (prop->getName() != "Depth" and prop->getName() != "DepthHighRes")
+               theFormationProperty = m_migrator->getPropertyManager ().getFormationSurfaceProperty (prop, snapshot, this, surface);
 
             if (theFormationProperty != 0)
             {
@@ -970,7 +971,10 @@ namespace migration
       }
       else
       {
-         DerivedProperties::FormationSurfacePropertyPtr theFormationProperty = m_migrator->getPropertyManager ().getFormationSurfaceProperty (prop, snapshot, this, surface);
+         DerivedProperties::FormationSurfacePropertyPtr theFormationProperty;
+
+         if (prop->getName() != "Depth" and prop->getName() != "DepthHighRes")
+            theFormationProperty = m_migrator->getPropertyManager ().getFormationSurfaceProperty (prop, snapshot, this, surface);
 
          if (theFormationProperty != 0)
          {

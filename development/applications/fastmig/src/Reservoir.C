@@ -1085,7 +1085,8 @@ namespace migration
       overburden::OverburdenFormations overburden (formations, true);
 
       // Add the formation overburdens:
-      overburden::OverburdenFormations overburdenFormations = overburden::getOverburdenFormations (dynamic_cast<Formation *> (const_cast<Interface::Formation*>(getFormation ())), true);
+      overburden::OverburdenFormations overburdenFormations = overburden::getOverburdenFormations
+         (dynamic_cast<Formation *> (const_cast<Interface::Formation*>(getFormation ())), true);
       overburden.append (overburdenFormations.formations ());
 
       // We need the depth for both diffusion leakage and seal pressure leakage.  (Note, we put depths 
@@ -1139,7 +1140,7 @@ namespace migration
       for (overburden::OverburdenFormations::formations_type::const_iterator f = overburden.formations ().begin ();
          f != overburden.formations ().end (); ++f)
       {
-         if ((*f)->getTopSurface()->getSnapshot()->getTime() < getEnd()->getTime())
+         if ((*f)->getBottomSurface()->getSnapshot()->getTime() < getEnd()->getTime())
             break;
             
          // Create the following grid map only once:
