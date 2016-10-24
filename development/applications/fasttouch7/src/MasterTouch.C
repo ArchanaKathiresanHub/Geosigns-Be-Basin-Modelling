@@ -30,15 +30,15 @@ using namespace Interface;
 #include <cerrno>
 #include <cstdlib>
 #include <libgen.h>
+#include <time.h>
 #include <sys/wait.h>
-#include <sys/types.h>
 #include <sys/stat.h>
 
 static const char * tempBurial  = "/tmp/BurialhistXXXXXX";
 static const char * tempResults = "/tmp/ResultsXXXXXX";
 static const char * tempStatus  = "/tmp/StatusXXXXXX";
 
-bool check_zombie( pid_t pid )
+bool MasterTouch::checkZombie( pid_t pid )
 {
 #ifdef _WIN32
    return false;
@@ -56,9 +56,7 @@ bool check_zombie( pid_t pid )
    char rstatc = 0;
 	
    fscanf( fpstat, "%d %30s %c", &rpid, rcmd, &rstatc ); 
-  	
    fclose(fpstat);
-   //cout <<" in check_zombie "<<endl;
    return rstatc == 'Z' ? true : false;
 #endif
 }
@@ -124,6 +122,11 @@ bool MasterTouch::executeWrapper( const char * burHistFile, const string & filen
    int childstate;
    utilities::TimeToComplete timeToComplete( 5, 30, minAllFractions, 0.01 );
    int fd = open( status, O_RDONLY| O_NONBLOCK );
+   timespec sleepTime;
+   timespec remainingTime;
+   
+   sleepTime.tv_sec =  0;
+   sleepTime.tv_nsec = 5000000L;
 
    ReportProgress( "Loading touchstone and creating the realizations, please wait ..." ); 
       
@@ -142,13 +145,14 @@ bool MasterTouch::executeWrapper( const char * burHistFile, const string & filen
       ostringstream oss;
 
       // if the child did not exit and computation started it is a good one
-      if ( !waitpidReturnValue && fractionCompleted > 0.0 )
+	  // in case of no active elements in the domain, no computations are performed and fractionCompleted == 1
+      if ( (!waitpidReturnValue && fractionCompleted > 0.0) || (waitpidReturnValue && fractionCompleted == 1.0)  )
       {
          childStarted = true;
       } 
       
       // if the child did not exit and is zombie it is a bad child
-      else if ( !waitpidReturnValue && fractionCompleted < 0.0 && check_zombie( pid ) )
+      else if ( !waitpidReturnValue && fractionCompleted < 0.0 && checkZombie( pid ) )
       {
          oss << "warning: touchstoneWrapper is zombie " << std::strerror( errno );
          message( oss.str( ) );
@@ -174,14 +178,8 @@ bool MasterTouch::executeWrapper( const char * burHistFile, const string & filen
 		   childStarted = true;
       }
 	  
-	  // in case of no active elements in the domain, no computations are performed and fractionCompleted == 1
-      else if ( waitpidReturnValue && fractionCompleted == 1.0 )
-      {
-         childStarted = true;
-      } 
-	  
       // sleep only after the checks ( waitpidReturnValue and childstate are up to date in the checks above). 
-      usleep( 5000 );	  
+      nanosleep( &sleepTime, &remainingTime  );	  
    } while ( !childStarted );
    
    currentMinimum = MinimumAll( childStatus );
@@ -209,7 +207,7 @@ bool MasterTouch::executeWrapper( const char * burHistFile, const string & filen
       }
 
 	   // sleep only after the check
-      usleep( 5000 );	
+      nanosleep( &sleepTime, &remainingTime  );		
    }       
    if ( close( fd ) < 0 )
    {
@@ -286,24 +284,24 @@ MasterTouch::MasterTouch( ProjectHandle & projectHandle )
    m_categories.push_back("Permeability Log10");
    
    //default indexing
-   m_categoriesMapping[m_categories[MACRO_PORO]]		= MACRO_PORO; 	// TSLIB_RC_MACRO_PORO;
-   m_categoriesMapping[m_categories[IGV]]		        = IGV; 			// TSLIB_RC_IGV;
-   m_categoriesMapping[m_categories[CMT_QRTZ]]  		= CMT_QRTZ; 	// TSLIB_RC_CMT_QRTZ;
-   m_categoriesMapping[m_categories[CORE_PORO]]   		= CORE_PORO; 	// TSLIB_RC_CORE_PORO;
-   m_categoriesMapping[m_categories[MICRO_PORO]]   	        = MICRO_PORO; 	// TSLIB_RC_MICRO_PORO;
-   m_categoriesMapping[m_categories[PERM]]   			= PERM; 			// TSLIB_RC_PERM;
-   m_categoriesMapping[m_categories[LOGPERM]]   		= LOGPERM; 		// TSLIB_RC_LOGPERM;
+   m_categoriesMapping[m_categories[MACRO_PORO]]		= MACRO_PORO;	
+   m_categoriesMapping[m_categories[IGV]]		        = IGV;	
+   m_categoriesMapping[m_categories[CMT_QRTZ]]  		= CMT_QRTZ;	
+   m_categoriesMapping[m_categories[CORE_PORO]]   		= CORE_PORO;	
+   m_categoriesMapping[m_categories[MICRO_PORO]]   	    = MICRO_PORO;
+   m_categoriesMapping[m_categories[PERM]]   			= PERM;		
+   m_categoriesMapping[m_categories[LOGPERM]]   		= LOGPERM;
      
    // Used snapshots
-   Interface::SnapshotList * MajorSnapshots = m_projectHandle.getSnapshots (Interface::MAJOR);
+   Interface::SnapshotList * majorSnapshots = m_projectHandle.getSnapshots (Interface::MAJOR);
    Interface::SnapshotList::iterator it;
 	
-   for (size_t majorSnapshotIndex = 0; majorSnapshotIndex < MajorSnapshots->size(); ++majorSnapshotIndex)
+   for (size_t majorSnapshotIndex = 0; majorSnapshotIndex < majorSnapshots->size(); ++majorSnapshotIndex)
    {
-      if ((*MajorSnapshots)[majorSnapshotIndex]->getUseInResQ())
+      if ((*majorSnapshots)[majorSnapshotIndex]->getUseInResQ())
       {
          m_usedSnapshotsIndex.push_back( majorSnapshotIndex );
-         m_usedSnapshotsAge.push_back( (*MajorSnapshots)[majorSnapshotIndex]->getTime() );
+         m_usedSnapshotsAge.push_back( (*majorSnapshots)[majorSnapshotIndex]->getTime() );
       }
    }
 	
@@ -314,7 +312,7 @@ MasterTouch::MasterTouch( ProjectHandle & projectHandle )
       m_usedSnapshotsAge.push_back( 0.0 );  
    }
    
-   delete MajorSnapshots;	
+   delete majorSnapshots;	
    
    //verbosity level
    PetscBool inputVerbose;
@@ -324,6 +322,31 @@ MasterTouch::MasterTouch( ProjectHandle & projectHandle )
    if (inputVerbose)
    {
       m_verboseLevel = verboseLevel;
+   }
+}
+
+/** The writeBurialHistoryToFile is responsable for writing the burial histories to file
+*/
+void MasterTouch::writeBurialHistoryToFile(const string & filename, const char * burhistFile, const int numActive)
+{
+   
+   LayerFaciesGridMap layerFaciesGridMap = m_fileLayerFaciesGridMap[filename]; 
+   WriteBurial writeBurial(burhistFile);
+   
+   // for each defined node on reservoir surface  
+   int firstI = m_projectHandle.getActivityOutputGrid()->firstI();
+   int firstJ = m_projectHandle.getActivityOutputGrid()->firstJ();
+   int lastI  = m_projectHandle.getActivityOutputGrid()->lastI();
+   int lastJ  = m_projectHandle.getActivityOutputGrid()->lastJ();
+	   	
+   writeBurial.writeIndexes(firstI, lastI, firstJ, lastJ, layerFaciesGridMap.size( ),numActive);
+   writeBurial.writeSnapshotsIndexes(m_usedSnapshotsIndex);
+			
+   //Second reading of the burial history			
+   LayerFaciesGridMap::iterator outIt;
+   for( outIt = layerFaciesGridMap.begin(); outIt != layerFaciesGridMap.end(); ++outIt )
+   {			
+      writeBurialHistory( (outIt->first).surface, writeBurial, &m_fileLayerFaciesGridMap[filename][outIt->first]);
    }
 }
 
@@ -348,45 +371,28 @@ bool MasterTouch::run()
    for ( it = m_fileLayerFaciesGridMap.begin(); it != m_fileLayerFaciesGridMap.end(); ++it )
    {		
       const string & filename = (it->first);   
-      LayerFaciesGridMap * layerFaciesGridMap = &(m_fileLayerFaciesGridMap[filename]);  
+      LayerFaciesGridMap  layerFaciesGridMap = m_fileLayerFaciesGridMap[filename];  
        
       // First reading of the burial history to count the total number of active timesteps in each layer. This is relativly fast.
       int numActive = 0;
       LayerFaciesGridMap::iterator outIt;
-      for( outIt = layerFaciesGridMap->begin(); outIt != layerFaciesGridMap->end(); ++outIt )
+      for( outIt = layerFaciesGridMap.begin(); outIt != layerFaciesGridMap.end(); ++outIt )
       {			
 	      numActive += countActive( (outIt->first).surface, &m_fileLayerFaciesGridMap[filename][outIt->first]);
       } 	
-      
+	  
       string progressString = "Starting TCF: ";
       progressString += filename;
       ReportProgress( progressString );
-		
-      //write burial histories for all layers and facies that uses that TCF file
-      char burhistFile[PATH_MAX];
-      strcpy(burhistFile,tempBurial);
-      mkstemp(burhistFile);
-   	
-      {
-         WriteBurial writeBurial(burhistFile);
-	   	
-         // for each defined node on reservoir surface  
-         int firstI = m_projectHandle.getActivityOutputGrid()->firstI();
-         int firstJ = m_projectHandle.getActivityOutputGrid()->firstJ();
-         int lastI  = m_projectHandle.getActivityOutputGrid()->lastI();
-         int lastJ  = m_projectHandle.getActivityOutputGrid()->lastJ();
-	   	
-         writeBurial.writeIndexes(firstI, lastI, firstJ, lastJ, layerFaciesGridMap->size( ),numActive);
-         writeBurial.writeSnapshotsIndexes(m_usedSnapshotsIndex);
-			
-         //Second reading of the burial history			
-         LayerFaciesGridMap::iterator outIt;
-         for( outIt = layerFaciesGridMap->begin(); outIt != layerFaciesGridMap->end(); ++outIt )
-         {			
-	          writeBurialHistory( (outIt->first).surface, writeBurial, &m_fileLayerFaciesGridMap[filename][outIt->first]);
-         }
-      }
-      
+
+	  //write burial histories for all layers and facies that uses that TCF file
+	  char burhistFile[PATH_MAX];
+	  strcpy(burhistFile, tempBurial);
+	  mkstemp(burhistFile);
+	  
+	  //write the burial history
+	  writeBurialHistoryToFile(filename, burhistFile, numActive);
+	  
       // run touchstone wrapper      
       // check if failure needs to be simulated
       char * touchstoneWrapperFailure = getenv ( "touchstoneWrapperFailure" );      
@@ -459,11 +465,8 @@ bool MasterTouch::addOutputFormat( const string & filename,
    propertyValueName += " ";
    propertyValueName += format;
 
-   char perc_str[5];
-   sprintf (perc_str, "%d", (int) percent);
-
    propertyValueName += " ";
-   propertyValueName += perc_str;
+   propertyValueName += to_string(percent);
    
    LayerInfo layer( surface, formation );
    
@@ -555,7 +558,7 @@ int MasterTouch::countActive( const Surface * surface, const faciesGridMap * fac
          if (facieGridMapisDefined) 
          {
             gridMapValue = faciesGridMap->GridMap->getValue((unsigned int) i, (unsigned int)j);
-            if (gridMapValue == 0) 
+            if (gridMapValue == 0.0) 
             {
                writeFlag = false ;
             } 
@@ -666,9 +669,9 @@ bool MasterTouch::calculate( const std::string & filename, const char * burhistF
       }
    
       //read touchstone categories
-      TouchstoneFiles ReadTouchstone(resultFile);
+      TouchstoneFiles readTouchstone(resultFile);
       std::vector<int> vec;
-      ReadTouchstone.readOrder(vec);
+      readTouchstone.readOrder(vec);
 		
       //as saved by the library
       for ( size_t ii = 0; ii < vec.size() - 1; ++ii ) m_categoriesMapping[m_categories[ii]] = vec[ii];
@@ -690,11 +693,11 @@ bool MasterTouch::calculate( const std::string & filename, const char * burhistF
                for( int j = firstJ; j <= lastJ; ++j )
                {         
                   size_t numTimeSteps = 0;
-                  ReadTouchstone.readNumTimeSteps(&numTimeSteps);
+                  readTouchstone.readNumTimeSteps(&numTimeSteps);
                
                   if (numTimeSteps > 0) 
                   { 
-                     for( size_t sn = 0; sn < m_usedSnapshotsIndex.size(); ++sn ) writeResultsToGrids( i, j, currentOutputs, ReadTouchstone, sn);  
+                     for( size_t sn = 0; sn < m_usedSnapshotsIndex.size(); ++sn ) writeResultsToGrids( i, j, currentOutputs, readTouchstone, sn);  
                   }
                }
             }
@@ -736,14 +739,14 @@ bool MasterTouch::calculate( const std::string & filename, const char * burhistF
  *  with that particular layer should be extracted before the next grid point's 
  *  results are processed
  */
-void MasterTouch::writeResultsToGrids( int i, int j, const CategoryMapInfoList & currentOutputs, TouchstoneFiles & ReadTouchstone, size_t sn)
+void MasterTouch::writeResultsToGrids( int i, int j, const CategoryMapInfoList & currentOutputs, TouchstoneFiles & readTouchstone, size_t sn)
 {
    const int numberOfTouchstoneProperties = 7;
    const int numberOfStatisticalOutputs   = 30;
    std::vector<double> outputProperties( numberOfTouchstoneProperties * numberOfStatisticalOutputs, 99999.0 );
   
    //Read results
-   ReadTouchstone.readArray(outputProperties);
+   readTouchstone.readArray(outputProperties);
 
    // loop through each combination of category and format choices
    // for the current layer    

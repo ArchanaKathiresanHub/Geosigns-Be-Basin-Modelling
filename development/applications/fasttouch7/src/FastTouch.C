@@ -121,10 +121,8 @@ bool FastTouch::addToComputationList (const TouchstoneMap * touchstoneMap)
 {
    string str;
    touchstoneMap->asString (str);
-   //cerr << "Adding " << str << "to computation list" << endl;
 
-   m_masterTouch.addOutputFormat( 
-                                 touchstoneMap->getTCFName (), touchstoneMap->getSurface (), touchstoneMap->getFormation (),
+   m_masterTouch.addOutputFormat(touchstoneMap->getTCFName (), touchstoneMap->getSurface (), touchstoneMap->getFormation (),
                                  touchstoneMap->getCategory (), touchstoneMap->getFormat (), static_cast<int>(touchstoneMap->getPercentage ()),
                                  touchstoneMap->getFaciesGridMap ( ), touchstoneMap->getFaciesNumber());
    return true;

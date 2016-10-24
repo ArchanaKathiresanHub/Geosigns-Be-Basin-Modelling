@@ -14,6 +14,8 @@
 #include "BurialHistory.h"
 #include "WriteBurial.h"
 
+#include <sys/types.h>
+
 static const int MAX_RUNS = 3;
 
 namespace DataAccess
@@ -133,13 +135,13 @@ namespace fasttouch
       bool restoreGridMaps(const CategoryMapInfoList & currentOutputs);
       bool executeWrapper( const char * burHistFile, const string & filename, const char * resultFile );
           
-      /** save ts results to ts output directory */
 
-      void writeBurialHistory(const DataAccess::Interface::Surface * surface, WriteBurial & writeBurial, const faciesGridMap * faciesGridMap);
-      
-      int countActive( const DataAccess::Interface::Surface * surface, const faciesGridMap * faciesGridMap);
-         
-      void writeResultsToGrids( int i, int j, const CategoryMapInfoList & currentOutputs, TouchstoneFiles & ReadTouchstone, size_t sn);
+      void writeBurialHistory(const DataAccess::Interface::Surface * surface, WriteBurial & writeBurial, const faciesGridMap * faciesGridMap);      
+      int countActive( const DataAccess::Interface::Surface * surface, const faciesGridMap * faciesGridMap);         
+      void writeResultsToGrids( int i, int j, const CategoryMapInfoList & currentOutputs, TouchstoneFiles & readTouchstone, size_t sn);
+	  
+	  bool checkZombie( pid_t pid );
+	  void writeBurialHistoryToFile(const string & filename, const char * burhistFile, const int numActive);
          
    public:
       MasterTouch( DataAccess::Interface::ProjectHandle & projectHandle);
