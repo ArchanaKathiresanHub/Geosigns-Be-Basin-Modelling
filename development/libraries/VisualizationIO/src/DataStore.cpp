@@ -19,7 +19,7 @@
 #include <boost/iostreams/device/file.hpp>
 #include <boost/foreach.hpp>
 
-#include "lz4/lz4.h"
+#include "lz4.h"
 
 #include <iostream>
 #include <fstream>

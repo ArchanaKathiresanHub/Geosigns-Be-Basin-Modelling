@@ -19,32 +19,36 @@ source_group("Source Files" FILES ${all_srcs})
 add_library(VisualizationIO_projectHandle ${all_srcs} ${all_headers})
 
 include_directories( SYSTEM
-	${HDF5_INCLUDE_DIRS}
+   ${HDF5_INCLUDE_DIRS}
+   ${PUGIXML_INCLUDE_DIR}
+   ${LZ_INCLUDE_DIR}
 )
 
 bm_include_libraries(
-	DataModel
-	DataAccess
+   DataModel
+   DataAccess
    utilities
-	SerialDataAccess
+   SerialDataAccess
    FileSystem 
-	DataAccess
+   DataAccess
    VisualizationIO
    VisualizationIO_projectHandle
-	TableIO
+   TableIO
 )
 
 target_link_libraries(VisualizationIO_projectHandle
-	DataModel
-	DataAccess
+   DataModel
+   DataAccess
    utilities
-	SerialDataAccess
+   SerialDataAccess
    FileSystem 
-	DataAccess
-	TableIO
+   DataAccess
+   TableIO
    VisualizationIO
-	${HDF5_LIBRARIES}
-	${Boost_LIBRARIES}
+   PugiXMLlib
+   LZlib
+   ${HDF5_LIBRARIES}
+   ${Boost_LIBRARIES}
 )
 
 # copy some unit test data

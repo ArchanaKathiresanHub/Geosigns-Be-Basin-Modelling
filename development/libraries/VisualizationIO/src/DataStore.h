@@ -17,7 +17,7 @@
 #include <boost/thread.hpp>
 #include <iostream>
 #include <fstream>
-#include "pugixml-1.7/pugixml.hpp"
+#include "pugixml.hpp"
 #include "FilePath.h"
 
 namespace CauldronIO

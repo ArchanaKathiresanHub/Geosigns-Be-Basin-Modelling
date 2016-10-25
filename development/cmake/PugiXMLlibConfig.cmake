@@ -10,51 +10,29 @@
 #                                                                       #
 #########################################################################
 
-FILE( GLOB all_headers src/*.h)
-source_group("Header Files" FILES ${all_headers})
+include(cmake/AddPackage.cmake)
 
-FILE( GLOB all_srcs src/*.cpp)
-source_group("Source Files" FILES ${all_srcs})
+set( PUGIXML_ROOT "${THIRD_PARTY_DIR}/pugixml-1.7" CACHE PATH "Path to Pugi XML sources" )
+set( PUGIXML_INCLUDE_DIR "${PUGIXML_ROOT}/include")
 
-add_library(VisualizationIO ${all_srcs} ${all_headers})
+set( PUGIXML_FOUND TRUE )
 
-include_directories( SYSTEM
-  ${HDF5_INCLUDE_DIRS}
-  ${PUGIXML_INCLUDE_DIR}
-  ${LZ_INCLUDE_DIR}
+add_subdirectory(${THIRD_PARTY_DIR}/pugixml-1.7 pugixml-1.7)
+
+add_external_package_info(
+       CAPABILITY PugiXML
+       NAME     "Pugixml"
+       VENDOR   ""
+       VERSION  "1.7"
+       LICENSE_TYPE "MIT"
+       LICENSE_FILE "${THIRD_PARTY_DIR}/licenses/pugixml-1.7.txt"
+       URL      "http://pugixml.org/"
+       DESCRIPTION "Pugixml is a light-weight C++ XML processing library"
+       REQUIRED_AT  "Runtime"
+       COUNTRY_OF_ORIGIN "EU"
+       SHIPPED      "Yes"
+       INCLUSION_TYPE "Static Link"
+       USEABLE_STAND_ALONE "No"
+       CONTAINS_CRYPTO "No"
+       ECCN         "Unknown"
 )
-
-bm_include_libraries(
-  DataModel
-  DataAccess
-  utilities
-  SerialDataAccess
-  FileSystem
-  DataAccess
-  TableIO
-  Serial_Hdf5
-  CBMGenerics
-)
-
-target_link_libraries(VisualizationIO
-  DataModel
-  DataAccess
-  utilities
-  SerialDataAccess
-  FileSystem
-  TableIO
-  Serial_Hdf5
-  CBMGenerics
-  PugiXMLlib
-  LZlib
-  ${HDF5_LIBRARIES}
-  ${Boost_LIBRARIES}
-)
-
-generate_dox( VisualizationIO.cfg )
-
-# Local Variables:
-# mode: cmake
-# cmake-tab-width: 4
-# tab-width: 4
-# End:

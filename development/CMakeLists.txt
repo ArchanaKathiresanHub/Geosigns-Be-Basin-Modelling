@@ -129,7 +129,7 @@ configure_external_projects()
 # Setting compile flags
 #
 if (NOT BM_USE_FLEXLM)
-   message( CONFIG "Disable FLEXLM in code by adding -DDISABLE_FLEXLM")
+   message( STATUS "Disable FLEXLM in code by adding -DDISABLE_FLEXLM" )
    add_definitions(-DDISABLE_FLEXLM=1)
 endif()
 
@@ -231,6 +231,8 @@ find_package(Touchstone REQUIRED CONFIG)
 find_package(SUMlib REQUIRED CONFIG)
 find_package(NNlib REQUIRED CONFIG)
 find_package(LSF REQUIRED CONFIG)
+find_package(PugiXMLlib REQUIRED CONFIG)
+find_package(LZlib REQUIRED CONFIG)
 
 if (UNIX)
    find_package(FlexLM REQUIRED CONFIG)

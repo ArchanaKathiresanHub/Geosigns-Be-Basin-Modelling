@@ -10,51 +10,29 @@
 #                                                                       #
 #########################################################################
 
-FILE( GLOB all_headers src/*.h)
-source_group("Header Files" FILES ${all_headers})
+include(cmake/AddPackage.cmake)
 
-FILE( GLOB all_srcs src/*.cpp)
-source_group("Source Files" FILES ${all_srcs})
+set( LZ_ROOT "${THIRD_PARTY_DIR}/lz4" CACHE PATH "Path to LZ4 sources" )
+set( LZ_INCLUDE_DIR "${LZ_ROOT}/include")
 
-add_library(VisualizationIO ${all_srcs} ${all_headers})
+set( LZ_FOUND TRUE )
 
-include_directories( SYSTEM
-  ${HDF5_INCLUDE_DIRS}
-  ${PUGIXML_INCLUDE_DIR}
-  ${LZ_INCLUDE_DIR}
+add_subdirectory(${THIRD_PARTY_DIR}/lz4 lz4)
+
+add_external_package_info(
+       CAPABILITY LZ
+       NAME     "LZ4"
+       VENDOR   "Yann Collet"
+       VERSION  "1.7.1"
+       LICENSE_TYPE "BSD"
+       LICENSE_FILE "${THIRD_PARTY_DIR}/licenses/lz4.txt"
+       URL      "http://lz4.github.io/lz4/"
+       DESCRIPTION "LZ4 is a lossless data compression algorithm"
+       REQUIRED_AT  "Runtime"
+       COUNTRY_OF_ORIGIN "EU"
+       SHIPPED      "Yes"
+       INCLUSION_TYPE "Static Link"
+       USEABLE_STAND_ALONE "No"
+       CONTAINS_CRYPTO "No"
+       ECCN         "Unknown"
 )
-
-bm_include_libraries(
-  DataModel
-  DataAccess
-  utilities
-  SerialDataAccess
-  FileSystem
-  DataAccess
-  TableIO
-  Serial_Hdf5
-  CBMGenerics
-)
-
-target_link_libraries(VisualizationIO
-  DataModel
-  DataAccess
-  utilities
-  SerialDataAccess
-  FileSystem
-  TableIO
-  Serial_Hdf5
-  CBMGenerics
-  PugiXMLlib
-  LZlib
-  ${HDF5_LIBRARIES}
-  ${Boost_LIBRARIES}
-)
-
-generate_dox( VisualizationIO.cfg )
-
-# Local Variables:
-# mode: cmake
-# cmake-tab-width: 4
-# tab-width: 4
-# End:

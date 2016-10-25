@@ -27,15 +27,15 @@ using namespace CauldronIO;
 
 bool ImportExport::exportToXML(std::shared_ptr<Project>& project, const std::string& absPath, size_t numThreads, bool center)
 {
-    // Create empty property tree object
-    ibs::FilePath outputPath(absPath);
-	ibs::FilePath folderPath = outputPath.filePath();
-	std::string filename = outputPath.fileName();
-	std::string filenameNoExtension = outputPath.fileNameNoExtension();
-	filenameNoExtension += "_vizIO_output";
-	folderPath << filenameNoExtension;
-		
-	// Create output directory if not existing
+   // Create empty property tree object
+   ibs::FilePath outputPath(absPath);
+   ibs::FilePath folderPath = outputPath.filePath();
+   std::string filename = outputPath.fileName();
+   std::string filenameNoExtension = outputPath.fileNameNoExtension();
+   filenameNoExtension += "_vizIO_output";
+   folderPath << filenameNoExtension;
+      
+   // Create output directory if not existing
     if (!folderPath.exists())
     {
         ibs::FolderPath(folderPath.path()).create();
@@ -282,8 +282,8 @@ void CauldronIO::ImportExport::addSnapShot(const std::shared_ptr<SnapShot>& snap
         CauldronIO::VisualizationUtils::cellCenterAllMaps(snapShot, m_project);
         CauldronIO::VisualizationUtils::cellCenterVolume(snapShot->getVolume(), m_project);
         
-		// This should be the slowest operation: parallellize
-		CauldronIO::VisualizationUtils::cellCenterFormationVolumes(snapShot, m_project, m_numThreads);
+      // This should be the slowest operation: parallellize
+      CauldronIO::VisualizationUtils::cellCenterFormationVolumes(snapShot, m_project, m_numThreads);
     }
 
     // Add surfaces

@@ -17,7 +17,7 @@
 #pragma warning (disable:488)
 #include <boost/lockfree/queue.hpp>
 #include <boost/atomic.hpp>
-#include "pugixml-1.7/pugixml.hpp"
+#include "pugixml.hpp"
 #include <memory>
 
 #define xml_version_major 0
