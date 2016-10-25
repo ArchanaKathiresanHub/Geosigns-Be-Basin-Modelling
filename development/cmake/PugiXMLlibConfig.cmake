@@ -17,7 +17,8 @@ set( PUGIXML_INCLUDE_DIR "${PUGIXML_ROOT}/include")
 
 set( PUGIXML_FOUND TRUE )
 
-add_subdirectory(${THIRD_PARTY_DIR}/pugixml-1.7 pugixml-1.7)
+# Add a subdirectory to the build in which to place the output files
+add_subdirectory(${THIRD_PARTY_DIR}/pugixml-1.7 PugiXMLlib)
 
 add_external_package_info(
        CAPABILITY PugiXML

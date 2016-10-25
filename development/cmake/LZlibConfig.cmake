@@ -17,7 +17,8 @@ set( LZ_INCLUDE_DIR "${LZ_ROOT}/include")
 
 set( LZ_FOUND TRUE )
 
-add_subdirectory(${THIRD_PARTY_DIR}/lz4 lz4)
+# Add a subdirectory to the build in which to place the output files
+add_subdirectory(${THIRD_PARTY_DIR}/lz4 LZlib)
 
 add_external_package_info(
        CAPABILITY LZ
