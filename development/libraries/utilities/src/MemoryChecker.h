@@ -1,5 +1,5 @@
-#ifndef FASTCAULDRON__MEMORY_CHECKER_H
-#define FASTCAULDRON__MEMORY_CHECKER_H
+#ifndef _MEMORY_CHECKER_H
+#define _MEMORY_CHECKER_H
 
 #include <boost/thread/thread.hpp>
 
@@ -59,4 +59,4 @@ private :
 
 };
 
-#endif // FASTCAULDRON__MEMORY_CHECKER_H
+#endif // _MEMORY_CHECKER_H

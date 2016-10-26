@@ -19,6 +19,7 @@ using namespace std;
 
 #include "migration.h"
 #include "rankings.h"
+#include "StatisticsHandler.h"
 
 using namespace migration;
 
@@ -50,6 +51,8 @@ string NumProcessorsArg;
 int main (int argc, char ** argv)
 {
    PetscInitialize (&argc, &argv, (char *)0, help);
+
+   StatisticsHandler::initialise();
 
    char * strI = getenv ("DebugPointI");
    char * strJ = getenv ("DebugPointJ");
@@ -262,7 +265,9 @@ int main (int argc, char ** argv)
       ReportProgress ("Did not save project file: ", outputFileName);
       ReportProgress ("Finished Simulation prematurely");
    }
-
+   
+   // Save the memory consumption before deleting migrator
+   StatisticsHandler::update();
    delete migrator;
    //delete objectFactory;
 
@@ -275,6 +280,18 @@ int main (int argc, char ** argv)
       EPTFlexLmTerminate();
    }
 #endif
+
+   // Print the memory consumption to standard out 
+   std::string statistics = StatisticsHandler::print( rank );
+
+   PetscPrintf(PETSC_COMM_WORLD, "<statistics>\n");
+   PetscSynchronizedFlush(PETSC_COMM_WORLD, PETSC_STDOUT);
+
+   PetscSynchronizedPrintf(PETSC_COMM_WORLD, statistics.c_str());
+   PetscSynchronizedFlush(PETSC_COMM_WORLD, PETSC_STDOUT);
+
+   PetscPrintf(PETSC_COMM_WORLD, "</statistics>\n");
+   PetscSynchronizedFlush(PETSC_COMM_WORLD, PETSC_STDOUT);
 
    PetscFinalize ();
 

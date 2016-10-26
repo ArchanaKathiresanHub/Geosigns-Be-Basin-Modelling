@@ -706,20 +706,16 @@ Basin_Modelling::FEM_Grid::~FEM_Grid () {
   // buffer << " Memory usage " << m_virtualMemoryUsage << "  " << m_residentMemoryUsage << " for rank " << FastcauldronSimulator::getInstance ().getRank () << endl;
   // PetscSynchronizedPrintf ( PETSC_COMM_WORLD, buffer.str ().c_str ());
 
-  buffer << "  <memory_usage>" << endl;
-  buffer << "    <rank> " << FastcauldronSimulator::getInstance ().getRank () << " </rank>" << endl;
-  buffer << "    <virtual> " << m_virtualMemoryUsage << " </virtual>" << endl;
-  buffer << "    <resident> " << m_residentMemoryUsage << " </resident>" << endl;
-  buffer << "  </memory_usage>" << endl;
+  std::string statistics = StatisticsHandler::print(FastcauldronSimulator::getInstance().getRank());
+  PetscPrintf(PETSC_COMM_WORLD, "<statistics>\n");
+  PetscSynchronizedFlush(PETSC_COMM_WORLD, PETSC_STDOUT);
 
-  PetscPrintf ( PETSC_COMM_WORLD, "<statistics>\n");
-  PetscSynchronizedFlush ( PETSC_COMM_WORLD, PETSC_STDOUT );
+  PetscSynchronizedPrintf(PETSC_COMM_WORLD, statistics.c_str());
+  PetscSynchronizedFlush(PETSC_COMM_WORLD, PETSC_STDOUT);
 
-  PetscSynchronizedPrintf ( PETSC_COMM_WORLD, buffer.str ().c_str ());
-  PetscSynchronizedFlush ( PETSC_COMM_WORLD, PETSC_STDOUT );
+  PetscPrintf(PETSC_COMM_WORLD, "</statistics>\n");
+  PetscSynchronizedFlush(PETSC_COMM_WORLD, PETSC_STDOUT);
 
-  PetscPrintf ( PETSC_COMM_WORLD, "</statistics>\n");
-  PetscSynchronizedFlush ( PETSC_COMM_WORLD, PETSC_STDOUT );
 #endif
 
   delete pressureSolver;

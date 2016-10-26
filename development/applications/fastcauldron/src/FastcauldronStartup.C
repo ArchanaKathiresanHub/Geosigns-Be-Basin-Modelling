@@ -16,7 +16,6 @@
 #include "ConstantsFastcauldron.h"
 #include "PressureSolver.h"
 #include "readproperties.h"
-#include "System.h"
 #include "FormattingException.h"
 
 //DataAccess library
@@ -306,7 +305,16 @@ void FastcauldronStartup::run()
          m_runOk = false;
       }
 
-      StatisticsHandler::print();
+      std::string statistics = StatisticsHandler::print(FastcauldronSimulator::getInstance().getRank());
+
+	  PetscPrintf(PETSC_COMM_WORLD, "<statistics>\n");
+	  PetscSynchronizedFlush(PETSC_COMM_WORLD, PETSC_STDOUT);
+
+	  PetscSynchronizedPrintf(PETSC_COMM_WORLD, statistics.c_str());
+	  PetscSynchronizedFlush(PETSC_COMM_WORLD, PETSC_STDOUT);
+
+	  PetscPrintf(PETSC_COMM_WORLD, "</statistics>\n");
+	  PetscSynchronizedFlush(PETSC_COMM_WORLD, PETSC_STDOUT);
    }
    else
    {

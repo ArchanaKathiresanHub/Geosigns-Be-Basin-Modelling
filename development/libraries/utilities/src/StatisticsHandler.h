@@ -1,7 +1,8 @@
-#ifndef _FASTCAULDRON__STATISTICS_HANDLER__H_
-#define _FASTCAULDRON__STATISTICS_HANDLER__H_
+#ifndef _STATISTICS_HANDLER__H_
+#define _STATISTICS_HANDLER__H_
 
 #include <iostream>
+#include <string>
 
 /// \brief Handles all statistics that are to be output at the need of a run.
 class StatisticsHandler {
@@ -17,7 +18,7 @@ public :
    /// \brief Print the current state.
    ///
    /// Will be output in xml-type format.
-   static void print ();
+   static std::string print ( const int rank );
 
 private :
 
@@ -27,4 +28,4 @@ private :
 };
 
 
-#endif // _FASTCAULDRON__STATISTICS_HANDLER__H_
+#endif // _STATISTICS_HANDLER__H_
