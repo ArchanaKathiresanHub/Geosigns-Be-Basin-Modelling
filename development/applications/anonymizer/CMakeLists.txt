@@ -33,7 +33,10 @@ endif (UNIX)
 
 include_directories( src )
 
-include_directories( SYSTEM ${HDF5_INCLUDE_DIRS} )
+include_directories( SYSTEM
+   ${HDF5_INCLUDE_DIRS}
+   ${PUGIXML_INCLUDE_DIR}
+)
 
 bm_include_libraries(
    TableIO
@@ -45,6 +48,7 @@ target_link_libraries(anonymizer
    TableIO
    FileSystem
    utilities
+   PugiXMLlib
    ${HDF5_LIBRARIES}
    ${Boost_LIBRARIES}
 )
@@ -90,7 +94,7 @@ configure_file(
 # Unit test
 add_gtest( NAME "Anonymizer"
            SOURCES src/anonymizer.cpp test/anonymizer.cpp
-           LIBRARIES TableIO FileSystem utilities ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
+           LIBRARIES TableIO FileSystem utilities PugiXMLlib ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
          )
 
 # Doxygen

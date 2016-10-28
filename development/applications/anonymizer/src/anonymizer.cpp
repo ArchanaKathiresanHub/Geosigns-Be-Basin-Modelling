@@ -73,6 +73,7 @@ bool Anonymizer::run( const std::string & projectFolder )
          read();
          renameMapFiles();
          if( m_shiftCoord ) shiftCoordinates();
+         processTouchstonFile();
          write();
       }
    }
@@ -152,7 +153,8 @@ void Anonymizer::renameMapFiles()
          throw std::runtime_error( errMsg.str().c_str() );
       }
       const std::string extension = oldFPath.fileNameExtension();
-      if( extension != "HDF" && extension != "FLT" && extension != "TCF" )
+      if( extension != "HDF" && extension != "FLT" &&
+          extension != "TCF" && extension != "ZYCFCUT" )
       {
          std::stringstream errMsg;
          errMsg << "Unhandled file with '" << extension << "' extension";
@@ -588,19 +590,14 @@ void Anonymizer::shiftCoordinates()
       {
          shiftHDFCoordinates( fPath.fullPath().path() );
       }
-      else if( extension == "FLT" )
+      else if( extension == "FLT" || extension == "ZYCFCUT" )
       {
          ibs::FilePath oldfPath = ibs::FilePath( m_projectFolder );
          oldfPath << mapElem.first;
          if( !oldfPath.exists() ) throw formattingexception::GeneralException() << __FUNCTION__ << " cannot find file " << oldfPath.fullPath().path();
          shiftFaultCoordinates( oldfPath.fullPath().path(),
-                                fPath.fullPath().path() );
-      }
-      else if( extension != "TCF" )
-      {
-         std::stringstream errMsg;
-         errMsg << "Unhandled file with '" << extension << "' extension";
-         throw std::runtime_error( errMsg.str().c_str() );
+                                fPath.fullPath().path(),
+                                extension == "ZYCFCUT" );
       }
    }
 }
@@ -620,25 +617,37 @@ void Anonymizer::shift( const std::string & tableName,
 
 
 void Anonymizer::shiftFaultCoordinates( const std::string & oldFileName,
-                                        const std::string & newFileName ) const
+                                        const std::string & newFileName,
+                                        const bool isZycor ) const
 {
    std::fstream oldFile( oldFileName, std::fstream::in );
    std::fstream newFile( newFileName, std::fstream::out );
 
+   int faultId = 0;
    double x = 0.0;
    double y = 0.0;
    std::string line;
    while( std::getline(oldFile, line) )
    {
       std::istringstream iss(line);
-      iss >> x >> y;
-      if( x != s_undefFault && y != s_undefFault )
+      std::ostringstream oss;
+      if( isZycor )
       {
+         iss >> x >> y >> faultId;
          x -= m_coordShift[0];
          y -= m_coordShift[1];
+         oss << std::setprecision(12) << x << " " << y << " " << faultId << std::endl;
       }
-      std::ostringstream oss;
-      oss << std::setprecision(12) << x << " " << y << std::endl;
+      else
+      {
+         iss >> x >> y;
+         if( x != s_undefFault && y != s_undefFault )
+         {
+            x -= m_coordShift[0];
+            y -= m_coordShift[1];
+         }
+         oss << std::setprecision(12) << x << " " << y << std::endl;
+      }
       newFile << oss.str();
    }
 
@@ -659,12 +668,11 @@ void Anonymizer::shiftHDFCoordinates( const std::string & fileName ) const
    }
    
    double value;
-   herr_t status;
    
    // Open an existing dataset
    hid_t datasetId = H5Dopen2( fileId, "/origin in I dimension", H5P_DEFAULT);
    // Read current value
-   status = H5Dread( datasetId, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, &value);
+   herr_t status = H5Dread( datasetId, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, &value);
    // Write shifted value
    value -= m_coordShift[0];
    status = H5Dwrite( datasetId, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, &value);
@@ -682,4 +690,74 @@ void Anonymizer::shiftHDFCoordinates( const std::string & fileName ) const
    status = H5Dclose( datasetId );
 
    H5Fclose ( fileId );
+}
+
+
+void Anonymizer::processTouchstonFile() const
+{
+   // Anonymizing Touchstone XML files
+   for( const auto & mapElem : m_mapFileNames )
+   {
+      ibs::FilePath fPath = ibs::FilePath( m_projectFolder );
+      fPath << s_anonymizedFolder << mapElem.second;
+      const std::string extension = fPath.fileNameExtension();
+      if( extension == "TCF" and fPath.exists() )
+      {
+          pugi::xml_document xml;
+          if( ! xml.load_file( fPath.fullPath().path().c_str() ) )
+          {
+             throw formattingexception::GeneralException() << __FUNCTION__ << " cannot open file " << fPath.fullPath().path();
+          }
+
+          bool status = true;
+          pugi::xml_node & root = xml.child("tns:tcfFile");
+          pugi::xml_node & header = root.child("tcfHeader");
+
+          pugi::xml_node & analysts = header.child("analysts");
+          updateXMLField( analysts, "contactPerson", "misterX", status );
+          updateXMLField( analysts, "petrographer", "misterY", status );
+          updateXMLField( analysts, "basinModeler", "misterZ", status );
+          
+          pugi::xml_node & geolInfo = header.child("geologicInformation");
+          updateXMLField( geolInfo, "basinName", "AnonymousBasin", status );
+          updateXMLField( geolInfo, "reservoirUnitName", "ReservoirUnit", status );
+
+          for( pugi::xml_node & sample : geolInfo.children("samplesSelectedForRun") )
+          {
+            updateXMLField( sample, "wellName", "Well", status );
+            updateXMLField( sample, "unitName", "ReservoirUnit", status );
+          }
+          
+          pugi::xml_node & sampleData = root.child("sampleData");
+          for( pugi::xml_node & data : sampleData.children("sampleMeasurements") )
+          {
+            status &= data.attribute("wellName").set_value("Well");
+            status &= data.attribute("unitName").set_value("ReservoirUnit");
+          }
+
+          updateXMLField( header, "runName", "AnonymousRun", status );
+
+          if( ! status )
+          {
+             throw formattingexception::GeneralException() << __FUNCTION__ << " XML fields update error";
+          }
+
+          if( ! xml.save_file( fPath.fullPath().path().c_str() ) )
+          {
+             throw formattingexception::GeneralException() << __FUNCTION__ << " cannot write file " << fPath.fullPath().path();
+          }
+      }
+   }
+}
+
+
+void Anonymizer::updateXMLField( pugi::xml_node & node,
+                                 const char* field,
+                                 const char* value,
+                                 bool & status ) const
+{
+   if( node.child(field).last_child().type() != pugi::node_null )
+   {
+      status &= node.child(field).last_child().set_value(value);
+   }
 }

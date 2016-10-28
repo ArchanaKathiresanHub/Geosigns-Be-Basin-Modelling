@@ -15,6 +15,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include "pugixml.hpp"
 
 namespace database
 {
@@ -150,10 +151,21 @@ private:
                const std::string & fieldNameY );
    
    // \brief Shift coordinates in fault files
-   void shiftFaultCoordinates( const std::string & oldFileName, const std::string & newFileName ) const;
+   void shiftFaultCoordinates( const std::string & oldFileName,
+                               const std::string & newFileName,
+                               const bool isZycor = false ) const;
    
    // \brief Shift coordinates in HDF file
    void shiftHDFCoordinates( const std::string & fileName ) const;
+   
+   // \brief Anonymize touchstone file
+   void processTouchstonFile() const;
+   
+   // \brief 
+   void updateXMLField( pugi::xml_node & node,
+                        const char* field,
+                        const char* value,
+                        bool & status ) const;
    
    // Project folder
    std::string m_projectFolder;

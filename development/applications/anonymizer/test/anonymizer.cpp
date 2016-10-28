@@ -20,7 +20,8 @@ namespace supportFunc
       std::shared_ptr<FILE> pipe(popen(cmd, "r"), pclose);
 #endif
       if (!pipe) throw std::runtime_error("popen() failed!");
-      while (!feof(pipe.get())) {
+      while (!feof(pipe.get()))
+      {
          if (fgets(buffer, 128, pipe.get()) != NULL)
             result += buffer;
       }
@@ -64,12 +65,10 @@ namespace supportFunc
       // Open file
       hid_t fileId = H5Fopen(fileName.c_str(), H5F_ACC_RDWR, H5P_DEFAULT);
 
-      herr_t status;
-
       // Open an existing dataset
       hid_t datasetId = H5Dopen2(fileId, "/origin in I dimension", H5P_DEFAULT);
       // Read current value
-      status = H5Dread(datasetId, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, &originI);
+      herr_t status = H5Dread(datasetId, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, &originI);
       // Close current dataset
       status = H5Dclose( datasetId );
 
