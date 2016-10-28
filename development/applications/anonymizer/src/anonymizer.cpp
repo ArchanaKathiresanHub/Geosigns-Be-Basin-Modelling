@@ -694,7 +694,7 @@ void Anonymizer::shiftHDFCoordinates( const std::string & fileName ) const
 
 
 void Anonymizer::processTouchstonFile() const
-{/*
+{
    // Anonymizing Touchstone XML files
    for( const auto & mapElem : m_mapFileNames )
    {
@@ -710,26 +710,26 @@ void Anonymizer::processTouchstonFile() const
           }
 
           bool status = true;
-          pugi::xml_node & root = xml.child("tns:tcfFile");
-          pugi::xml_node & header = root.child("tcfHeader");
+          pugi::xml_node root = xml.child("tns:tcfFile");
+          pugi::xml_node header = root.child("tcfHeader");
 
-          pugi::xml_node & analysts = header.child("analysts");
+          pugi::xml_node analysts = header.child("analysts");
           updateXMLField( analysts, "contactPerson", "misterX", status );
           updateXMLField( analysts, "petrographer", "misterY", status );
           updateXMLField( analysts, "basinModeler", "misterZ", status );
           
-          pugi::xml_node & geolInfo = header.child("geologicInformation");
+          pugi::xml_node geolInfo = header.child("geologicInformation");
           updateXMLField( geolInfo, "basinName", "AnonymousBasin", status );
           updateXMLField( geolInfo, "reservoirUnitName", "ReservoirUnit", status );
 
-          for( pugi::xml_node & sample : geolInfo.children("samplesSelectedForRun") )
+          for( pugi::xml_node sample : geolInfo.children("samplesSelectedForRun") )
           {
             updateXMLField( sample, "wellName", "Well", status );
             updateXMLField( sample, "unitName", "ReservoirUnit", status );
           }
           
-          pugi::xml_node & sampleData = root.child("sampleData");
-          for( pugi::xml_node & data : sampleData.children("sampleMeasurements") )
+          pugi::xml_node sampleData = root.child("sampleData");
+          for( pugi::xml_node data : sampleData.children("sampleMeasurements") )
           {
             status &= data.attribute("wellName").set_value("Well");
             status &= data.attribute("unitName").set_value("ReservoirUnit");
@@ -747,11 +747,11 @@ void Anonymizer::processTouchstonFile() const
              throw formattingexception::GeneralException() << __FUNCTION__ << " cannot write file " << fPath.fullPath().path();
           }
       }
-   }*/
+   }
 }
 
 
-void Anonymizer::updateXMLField( pugi::xml_node & node,
+void Anonymizer::updateXMLField( pugi::xml_node node,
                                  const char* field,
                                  const char* value,
                                  bool & status ) const

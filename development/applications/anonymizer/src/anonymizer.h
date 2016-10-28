@@ -162,7 +162,7 @@ private:
    void processTouchstonFile() const;
    
    // \brief 
-   void updateXMLField( pugi::xml_node & node,
+   void updateXMLField( pugi::xml_node node,
                         const char* field,
                         const char* value,
                         bool & status ) const;
