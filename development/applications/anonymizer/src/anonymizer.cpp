@@ -694,7 +694,7 @@ void Anonymizer::shiftHDFCoordinates( const std::string & fileName ) const
 
 
 void Anonymizer::processTouchstonFile() const
-{
+{/*
    // Anonymizing Touchstone XML files
    for( const auto & mapElem : m_mapFileNames )
    {
@@ -747,7 +747,7 @@ void Anonymizer::processTouchstonFile() const
              throw formattingexception::GeneralException() << __FUNCTION__ << " cannot write file " << fPath.fullPath().path();
           }
       }
-   }
+   }*/
 }
 
 
