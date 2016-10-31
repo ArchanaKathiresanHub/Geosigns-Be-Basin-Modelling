@@ -15,7 +15,7 @@ option(BM_ENABLE_WARNINGS "Whether to let the compiler emit all warnings" ON)
 if (UNIX AND BM_ENABLE_WARNINGS)
    if (BM_USE_INTEL_COMPILER)
       # Enable all warnings and do some static analysis
-      add_definitions(-w3 -Wcheck)
+      add_definitions(-w2 -Wcheck)
 
       # Disable warning     1: last line of file ends without a newline
       # Disable warning   304: access control not specified ("public" by default)
