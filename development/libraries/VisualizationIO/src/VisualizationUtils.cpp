@@ -39,8 +39,7 @@ void CauldronIO::VisualizationUtils::retrieveAllData(const std::shared_ptr<SnapS
 	// Single threaded: retrieve now
 	if (numThreads == 1)
 		retrieveDataQueue(&allReadData, &queue, &done);
-	else
-		threads.join_all();
+	threads.join_all();
 }
 
 void CauldronIO::VisualizationUtils::prefetchHDFdata(std::vector< VisualizationIOData* > allReadData, boost::lockfree::queue<int>* queue)
@@ -405,71 +404,16 @@ std::shared_ptr<VolumeData> VisualizationUtils::cellCenterVolumeData(const std::
 
 }
 
-void VisualizationUtils::mergeDataQueue(PropertyVolumeDataList* formVolumesToMerge, std::shared_ptr<VolumeData>* propVolumeDataCreated,
-	bool* propMerged, boost::lockfree::queue<int>* queue, std::shared_ptr<Project>& project, boost::atomic<bool>* done)
-{
-	int index;
-	while (!*done)
-	{
-		while (queue->pop(index))
-		{
-			if (formVolumesToMerge[index].size() > 0)
-			{
-				// Merge if possible
-				std::shared_ptr<VolumeData> volData = mergeVolumeDataList(formVolumesToMerge[index], project);
-
-				// Store the results
-				propVolumeDataCreated[index] = volData;
-				if (volData) propMerged[index] = true;
-			}
-		}
-	}
-
-	while (queue->pop(index))
-	{
-		if (formVolumesToMerge[index].size() > 0)
-		{
-			// Merge if possible
-			std::shared_ptr<VolumeData> volData = mergeVolumeDataList(formVolumesToMerge[index], project);
-
-			// Store the results
-			propVolumeDataCreated[index] = volData;
-			if (volData) propMerged[index] = true;
-		}
-	}
-}
-
-void VisualizationUtils::cellCenterFormationVolumes(const std::shared_ptr<SnapShot>& snapShot, std::shared_ptr<Project>& project, size_t numthreads)
+void VisualizationUtils::cellCenterFormationVolumes(const std::shared_ptr<SnapShot>& snapShot, std::shared_ptr<Project> project)
 {
 	auto& formationVolumeList = snapShot->getFormationVolumeList();
-	size_t numProperties = project->getProperties().size();
-	
-	// Here we store the properties that have been merged, so we can remove them
-	bool* propMerged = new bool[numProperties];
-
-	// Here we collect PropertyVolumeDataLists that can be merged
-	PropertyVolumeDataList* formVolumesToMerge = new PropertyVolumeDataList[numProperties];
-
-	// This is the list of new PropertyVolumeData that can be added to the volume of the snapshot
-	std::shared_ptr<VolumeData>* propVolumeDataCreated = new std::shared_ptr<VolumeData>[numProperties];
-
-	// This is the queue of indices ready 
-	boost::lockfree::queue<int> queue(128);
-	boost::atomic<bool> done(false);
-
-	// Merge data in separate threads
-	boost::thread_group threads;
-	for (int i = 0; i < numthreads - 1; ++i)
-		threads.add_thread(new boost::thread(CauldronIO::VisualizationUtils::mergeDataQueue, formVolumesToMerge, propVolumeDataCreated, propMerged, &queue, project, &done));
+	PropertyList propMerged;
 
 	// for each property, see if we can find the propertyvolumedata
-	for (size_t index = 0; index < numProperties; index++)
+	for (auto& prop : project->getProperties())
 	{
-		std::shared_ptr<const Property> prop = project->getProperties().at(index);
-		propMerged[index] = false;
-
+		PropertyVolumeDataList propVolumeList;
 		if (prop->getName() == "Depth") continue;
-		size_t added = 0;
 
 		// Loop over all formations
 		for (auto& formationVol : formationVolumeList)
@@ -480,60 +424,50 @@ void VisualizationUtils::cellCenterFormationVolumes(const std::shared_ptr<SnapSh
 				// Add if property matches
 				if (propVol.first == prop)
 				{
-					formVolumesToMerge[index].push_back(propVol);
-					added++;
+					propVolumeList.push_back(propVol);
 				}
 			}
 		}
 
-		if (added > 0) queue.push((int)index);
-	}
-	done = true;
+		if (propVolumeList.size() > 0)
+		{
+			// Merge if possible
+			std::shared_ptr<VolumeData> volData = mergeVolumeDataList(propVolumeList, project);
 
-	if (numthreads == 1)
-		mergeDataQueue(formVolumesToMerge, propVolumeDataCreated, propMerged, &queue, project, &done);
-	else
-		threads.join_all();
+			// Add to volume of snapshot
+			if (volData)
+			{
+				// Create a volume if not existing				
+				if (!snapShot->getVolume())
+				{
+					std::shared_ptr<Volume> volume(new Volume(None));
+					snapShot->setVolume(volume);
+				}
+
+				snapShot->getVolume()->addPropertyVolumeData(PropertyVolumeData(prop, volData));
+				propMerged.push_back(prop);
+			}
+		}
+	}
 
 	// Remove the formationVolumes of merged volumes
-	for (size_t index = 0; index < project->getProperties().size(); index++)
+	for (auto& prop : propMerged)
 	{
-		if (propMerged[index])
+		// Loop over all formations
+		for (auto& formationVol : formationVolumeList)
 		{
-			// Get the property and volumedata
-			std::shared_ptr<const Property> prop = project->getProperties().at(index);
-			std::shared_ptr<VolumeData> volData = propVolumeDataCreated[index];
-
-			// Create a volume if not existing				
-			if (!snapShot->getVolume())
+			// Loop over all propertyvolumedata for this formation
+			for (PropertyVolumeData& propVol : formationVol.second->getPropertyVolumeDataList())
 			{
-				std::shared_ptr<Volume> volume(new Volume(None));
-				snapShot->setVolume(volume);
-			}
-
-			// Add the merged volume to the snapshot's volume
-			snapShot->getVolume()->addPropertyVolumeData(PropertyVolumeData(prop, volData));
-
-			// Loop over all formations to remove this property
-			for (auto& formationVol : formationVolumeList)
-			{
-				// Loop over all propertyvolumedata for this formation
-				for (PropertyVolumeData& propVol : formationVol.second->getPropertyVolumeDataList())
+				// Add if property matches
+				if (propVol.first == prop)
 				{
-					// Remove if property matches
-					if (propVol.first == prop)
-					{
-						formationVol.second->removeVolumeData(propVol);
-						break;
-					}
+					formationVol.second->removeVolumeData(propVol);
+					break;
 				}
 			}
 		}
 	}
-
-	delete[] propMerged;
-	delete[] formVolumesToMerge;
-	delete[] propVolumeDataCreated;
 }
 
 std::shared_ptr<VolumeData> VisualizationUtils::mergeVolumeDataList(PropertyVolumeDataList& propVolumeList, std::shared_ptr<Project> project)
