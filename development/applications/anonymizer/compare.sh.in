@@ -1,0 +1,71 @@
+#!/bin/sh
+
+if [ $# -ne 2 ]; then
+  echo "ERROR: 2 inputs required, original and anonymized folders"
+  exit 1
+fi
+
+DIR_ORIG=$1
+DIR_ANON=$2
+
+# Check original output folder existence
+if [ ! -d "$DIR_ORIG" ]; then
+  echo "ERROR: $DIR_ORIG does not exist"
+  exit 1
+fi
+
+# Check anonymized output folder existence
+if [ ! -d "$DIR_ANON" ]; then
+  echo "ERROR: $DIR_ANON does not exist"
+  exit 1
+fi
+
+# Check that the second input is the anonymzed folder and swapping them if necessary
+if [ -z $(find $DIR_ANON -name "*namesMapping.txt" -print -quit) ]; then
+  tmp=$DIR_ORIG
+  DIR_ORIG=$DIR_ANON
+  DIR_ANON=$tmp
+fi
+
+# Loop over .h5 files
+FILES=$(find $(find $DIR_ANON -type d -name "*_CauldronOutputDir") -type f -name "*.h5" -printf "%f\n")
+NUM_FILES=$(find $(find $DIR_ANON -type d -name "*_CauldronOutputDir") -type f -name "*.h5" -printf "%f\n" | wc -l)
+echo -en "Files to be processed: "
+for f in $FILES;
+do
+  echo -en "\rFiles to be processed: $NUM_FILES    "
+  file1=$(find $DIR_ORIG -type d -name "*_CauldronOutputDir")/$f
+  file2=$(find $DIR_ANON -type d -name "*_CauldronOutputDir")/$f
+  # Loop over datasets, which means all properties of all formations
+  for p in $(h5dump -n $file2 | grep dataset | grep -o "/.*");
+  do
+    # current property name
+    property=$(echo $p | cut -d/ -f2)
+    # current anonymized formation name
+    formation_anon=$(echo $p | cut -d/ -f3)
+    # current original formation name
+    # we look for the original name from the anonymized key in the namesMapping.txt file, whitespaces are replaced with underscores
+    formation_orig=$(cat $(find $DIR_ANON -type f -name "*namesMapping.txt") | grep "\"$formation_anon\"" | cut -f2 -d"\"" | sed -r 's/[ ]+/_/g')
+    # Files comparison
+    out=$(h5diff -p 0.01 $file1 $file2 /$property/$formation_orig /$property/$formation_anon)
+    if [[ ! -z $(echo $out | grep "differences found") ]]; then
+      # Heatflow differences might need special care
+      if [[ ! -z $(echo $out | grep HeatFlow) ]]; then
+        out=$(h5diff -vr -p 0.01 --delta=1e-12 $file1 $file2 /$property/$formation_orig /$property/$formation_anon)
+      fi
+      if [ ! -z "$out" ]; then
+        echo "File: $f, property: $property, original name: $formation_orig, anonymized name: $formation_anon"
+        echo $out;
+      fi
+    else
+      if [ ! -z "$out" ]; then
+        echo "File: $f, property: $property, original name: $formation_orig, anonymized name: $formation_anon"
+        echo $out;
+      fi
+    fi
+  done
+  NUM_FILES=$((NUM_FILES-1))
+done
+
+echo -en "\rNo differences found!       "
+echo

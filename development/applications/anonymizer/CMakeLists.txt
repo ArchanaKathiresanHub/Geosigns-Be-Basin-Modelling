@@ -57,6 +57,17 @@ install(TARGETS anonymizer
    DESTINATION bin
 )
 
+if( UNIX )
+   # Copying comparison script to binary folder and setting permissions
+   configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/compare.sh.in
+                   ${CMAKE_CURRENT_SOURCE_DIR}/compare.sh
+                   @ONLY )
+   file( COPY ${CMAKE_CURRENT_SOURCE_DIR}/compare.sh
+         DESTINATION ${CMAKE_CURRENT_BINARY_DIR}
+         FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ )
+   file( REMOVE ${CMAKE_CURRENT_SOURCE_DIR}/compare.sh )
+endif()
+
 # Copy files for unit test
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/test_cbm00)
 # Original project file to be anonymized
