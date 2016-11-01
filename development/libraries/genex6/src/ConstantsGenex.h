@@ -18,7 +18,7 @@
 namespace Genex6
 {
 
-   /// @ Defines genex specif constants
+   /// @ Defines genex specific constants
    namespace Constants
    {
       /// @defgroup Simulations_type
@@ -52,42 +52,43 @@ namespace Genex6
       const double TimeStepFraction = 0.001;
       ///@}
 
-      /// @todo ask natalya about these ones
       /// @defgroup Diffusion_state_theory
       /// @{
-      constexpr double VAN_KREVELEN_HC_CORRECTOR = 0.5; 
-      constexpr double s_ActUMax                 = 1000000000000.0; 
-      constexpr double s_CminHC                  = 0.9999999; 
-      constexpr double s_HminHC                  = 0.0;
-      constexpr double s_DensMaxGas              = 10.0;
+      constexpr double VanKrevelenHCCorrector  = 0.5;             ///< Van Krevelen correction factor
+      constexpr double s_ActUMax               = 1000000000000.0; ///< The maximum activation energy
+      constexpr double CminHC                  = 0.9999999;       ///< The minimum number of carbon atoms in an hydrocarbone   (1)
+      constexpr double HminHC                  = 0.0;             ///< The minimum number of hydrogen atoms in an hydrocarbone (0)
+      constexpr double MaxGasDensity           = 10.0;            ///< The maximum gas density [kg.m-3]
       /// @}
 
       /// @defgroup formulaOfAsphaltene
       ///    Formula of asphaltene as f(preasphalt), (e.g. Durand-Souron '82)
       /// @{
-      constexpr double GOR_UPPERBOUND = 100000.0;
+      constexpr double GORUpperbound = 100000.0; ///< The maximum GOR
+
       //FunApi(DensOil)=APIC1/DensOil*APIC2-APIC3;
       constexpr double APIC1=141.5;
       constexpr double APIC2=1000.0; 
       constexpr double APIC3=131.5; 
 
-      constexpr double ZERO=0.000001;
-      // if(FlxvOil > 1E-39)
-      constexpr double FLXVOILZERO=1E-39;
-      //If CumvOil > 9.999946E-41
-      constexpr double CUMVOILZERO=9.999946E-41;
-      constexpr double CONVERSIONTOOILZERO= 1E-41;
+      //
+      constexpr double Zero=0.000001;                        ///< Zero in genex
+      constexpr double FluxVolumeOilZero=1E-39;              ///< Zero oil flux in genex
+      constexpr double CumulativeVolumeOilZero=9.999946E-41; ///< Zero oil volume in genex
 
       //formula volume, Van Krevelen, eqn. XVI,6, p.317
       //FormVol = FormVol1 + FormVol2 * Atom(IatomH, L) + FormVol3 * Atom(IatomO, L) - VolRing * Rc
       constexpr double FormVol1  = 9.9;
       constexpr double FormVol2  = 3.1;
       constexpr double FormVol3  = 3.75;
+
       //volume of rings, Van Krevelen and Chermin '54, VK eqn. XVI,4, p.317
       //VolRing = VolRing1 + VolRing2 * Atom(IatomH, L)
       constexpr double VolRing1  = 9.1;
       constexpr double VolRing2  = -3.65;
 
+      // Vitrinite reflectance values, from genex4
+      //    not used in genex 6 or genex 7 anymore since VRE_ini is set to 0.5
       constexpr double VRE1=0.4;
       constexpr double VRE2=0.5;
       constexpr double VRE3=0.6;
@@ -99,10 +100,10 @@ namespace Genex6
       
       /// \brief Folder structure
 #ifdef WIN32
-      const std::string folder_divider = "\\";
-#else // !WIN32
-      const std::string folder_divider = "/";
-#endif // WIN32
+      const std::string FolderDivider = "\\";
+#else
+      const std::string FolderDivider = "/";
+#endif
 
    }
 

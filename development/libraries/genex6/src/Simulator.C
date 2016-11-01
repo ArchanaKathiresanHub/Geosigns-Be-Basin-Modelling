@@ -76,7 +76,7 @@ ChemicalModel * Simulator::loadChemicalModel(const std::string in_fullPathToConf
                                              const bool inApproximateFlag)
 {
    m_simulationType = in_simulationType;
-   m_fullPathToConfigurationFileDirectory = in_fullPathToConfigurationFileDirectory + Genex6::Constants::folder_divider;
+   m_fullPathToConfigurationFileDirectory = in_fullPathToConfigurationFileDirectory + Genex6::Constants::FolderDivider;
    m_type = in_type;
    //build chemical model, get boundary conditions
    CreateInstance();
@@ -101,7 +101,7 @@ Simulator::Simulator(const std::string in_fullPathToConfigurationFileDirectory,
                      const double in_C15SatDiffusionEnergy,
                      const bool inApproximateFlag):
    m_simulationType(in_simulationType),
-   m_fullPathToConfigurationFileDirectory(in_fullPathToConfigurationFileDirectory + Genex6::Constants::folder_divider),
+   m_fullPathToConfigurationFileDirectory(in_fullPathToConfigurationFileDirectory + Genex6::Constants::FolderDivider),
    m_type(in_type)
 {
    s_cfgFileExtension = ".cfg";
@@ -613,7 +613,7 @@ double Simulator::CheckInitialHC(const double in_VRE, const double in_HC)
    double HCmin = theHandler.GetParameterById(GeneralParametersHandler::HCmin);
    double out_HC = in_HC;
   
-   if(fabs(in_VRE - Genex6::Constants::VRE2) > Genex6::Constants::ZERO) {
+   if(fabs(in_VRE - Genex6::Constants::VRE2) > Genex6::Constants::Zero) {
       out_HC = this->TransformHC(in_VRE, in_HC);
    }
    if(out_HC > HCmax) { out_HC = HCmax; }
@@ -696,15 +696,15 @@ double Simulator::TransformHC(const double in_VRE, const double in_HC)
 {
    double out_HC = in_HC;
 
-   if(fabs(in_VRE - Genex6::Constants::VRE1) < Genex6::Constants::ZERO) {
+   if(fabs(in_VRE - Genex6::Constants::VRE1) < Genex6::Constants::Zero) {
 
       out_HC = 1.0 / (((( 0.742501 * in_HC - 4.001215 ) * in_HC + 8.543431 ) * in_HC - 9.053234 ) * in_HC + 4.791546 );
 
-   } else if(fabs(in_VRE - Genex6::Constants::VRE3) < Genex6::Constants::ZERO) {
+   } else if(fabs(in_VRE - Genex6::Constants::VRE3) < Genex6::Constants::Zero) {
 
       out_HC = 1.0 / (((( -1.309574 * in_HC + 3.845736 ) * in_HC - 2.428247 ) * in_HC - 2.455886 ) * in_HC + 3.318530 );
 
-   } else if(fabs(in_VRE - Genex6::Constants::VRE4) < Genex6::Constants::ZERO) {
+   } else if(fabs(in_VRE - Genex6::Constants::VRE4) < Genex6::Constants::Zero) {
 
       out_HC = 1.0 / ((((  7.717693 * in_HC - 32.765333 ) * in_HC + 51.647141 ) * in_HC - 36.926169 ) * in_HC + 11.273280 );
 

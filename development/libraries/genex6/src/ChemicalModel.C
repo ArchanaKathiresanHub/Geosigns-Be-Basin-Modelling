@@ -1021,7 +1021,7 @@ void ChemicalModel::LoadSpeciesComposition(ifstream &ConfigurationFile)
       Species *theSpecies = this->GetByNameSpecies(theTokens[0]);
       for(i = 2, j = 0; i < tokenSize; ++ i, ++ j) {
          double compositionCode = atof(theTokens[i].c_str());
-         if(compositionCode > Genex6::Constants::ZERO) {
+         if(compositionCode > Genex6::Constants::Zero) {
             if(theElements[j] < 0) continue;
             Element *const theElem = this->GetElementByName(theElements[j]);
             theSpecies->UpdateCompositionByElement(theElem,compositionCode);

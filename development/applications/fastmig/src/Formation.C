@@ -1927,7 +1927,7 @@ namespace migration
    {
 
       const double depoTime = (getTopSurface () ? getTopSurface ()->getSnapshot ()->getTime () : 0);
-      bool sourceRockIsActive = (depoTime > startTime) || fabs (depoTime - startTime) < Genex6::Constants::ZERO;
+      bool sourceRockIsActive = (depoTime > startTime) || fabs (depoTime - startTime) < Genex6::Constants::Zero;
 
       if (sourceRockIsActive)
       {
@@ -1978,7 +1978,7 @@ namespace migration
 
             if (start->getTime () > startTime)
             {
-               if ((depoTime > start->getTime ()) || (fabs (depoTime - start->getTime ()) < Genex6::Constants::ZERO))
+               if ((depoTime > start->getTime ()) || (fabs (depoTime - start->getTime ()) < Genex6::Constants::Zero))
                {
 
                   start = (*snapshotIter);
@@ -2001,7 +2001,7 @@ namespace migration
    {
 
       const double depoTime = (getTopSurface () ? getTopSurface ()->getSnapshot ()->getTime () : 0);
-      bool sourceRockIsActive = (depoTime > start->getTime ()) || fabs (depoTime - start->getTime ()) < Genex6::Constants::ZERO;
+      bool sourceRockIsActive = (depoTime > start->getTime ()) || fabs (depoTime - start->getTime ()) < Genex6::Constants::Zero;
 
       if (sourceRockIsActive and m_isInitialised)
       {

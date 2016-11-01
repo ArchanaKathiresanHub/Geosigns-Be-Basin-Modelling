@@ -2290,7 +2290,7 @@ namespace migration
       PetscOptionsHasName (PETSC_NULL, "-debug", &printDebug);
 
       const double depoTime = formation->getTopSurface ()->getSnapshot ()->getTime ();
-      bool sourceRockIsActive = (depoTime > getStart ()->getTime ()) || fabs (depoTime - getStart ()->getTime ()) < Genex6::Constants::ZERO;
+      bool sourceRockIsActive = (depoTime > getStart ()->getTime ()) || fabs (depoTime - getStart ()->getTime ()) < Genex6::Constants::Zero;
 
       Formation * srFormation = const_cast<Formation *>(formation);
 

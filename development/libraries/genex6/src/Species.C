@@ -185,7 +185,7 @@ double Species::ComputeHCCorrector() const
 {
    double AtomH = GetCompositionByElement(m_theChemicalModel->getSpeciesManager ().getHydrogenId ());
    double AtomO = GetCompositionByElement(m_theChemicalModel->getSpeciesManager ().getOxygenId ());
-   double HC_Corr = AtomH + AtomO * Genex6::Constants::VAN_KREVELEN_HC_CORRECTOR;
+   double HC_Corr = AtomH + AtomO * Genex6::Constants::VanKrevelenHCCorrector;
 
    return  HC_Corr;
 }

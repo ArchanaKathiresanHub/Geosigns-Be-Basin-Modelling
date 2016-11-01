@@ -37,15 +37,15 @@ include_directories( SYSTEM
 )
 
 target_link_libraries(eosptdiag
-	DataAccess
-	SerialDataAccess
-	TableIO
-	CBMGenerics
-	EosPack
+   DataAccess
+   SerialDataAccess
+   TableIO
+   CBMGenerics
+   EosPack
    utilities
-	${HDF5_LIBRARIES}
+   ${HDF5_LIBRARIES}
 )
 
 install(TARGETS eosptdiag
-	RUNTIME DESTINATION bin
+   RUNTIME DESTINATION bin
 )

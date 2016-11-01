@@ -512,8 +512,8 @@ ChemicalModel * SourceRock::loadChemicalModel( const Interface::SourceRock * the
 }
 bool SourceRock::validateGuiValue(const double GuiValue, const double LowerBound,const double UpperBound)
 {
-   if(GuiValue > (LowerBound - Constants::ZERO) &&
-      GuiValue < (UpperBound + Constants::ZERO) &&
+   if(GuiValue > (LowerBound - Constants::Zero) &&
+      GuiValue < (UpperBound + Constants::Zero) &&
       GuiValue > 0.0) {
       return true; 
    }
@@ -836,7 +836,7 @@ bool SourceRock::preprocess ( const DataAccess::Interface::GridMap* validityMap,
       // here do all checking for h_c1 and h_c2 (zero, equal, positive and all everything...) ? Or not?
       // assume, that all to be done in BPA
          
-      if( fabs( Hc1 - Hc2 ) <= Constants::ZERO ) {
+      if( fabs( Hc1 - Hc2 ) <= Constants::Zero ) {
          if( !testPercentage ) {
             status = false;
             if (m_projectHandle->getRank () == 0 and printInitialisationDetails ) {
@@ -2685,7 +2685,7 @@ void SourceRock::computeSnapshotIntervals ()
          end = 0;
 
          if ((m_depositionTime > start->getTime ()) ||
-             (fabs (m_depositionTime - start->getTime ()) < Genex6::Constants::ZERO)) {
+             (fabs (m_depositionTime - start->getTime ()) < Genex6::Constants::Zero)) {
             start = *snapshotIter;
             end = *(snapshotIter + 1);
             SnapshotInterval *theInterval = new SnapshotInterval (start, end);
