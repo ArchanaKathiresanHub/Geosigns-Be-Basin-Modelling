@@ -85,6 +85,11 @@ if (BM_PARALLEL)
       LIBRARY DESTINATION lib
       ARCHIVE DESTINATION lib
    )
+   
+   # In LSF environment (on LSF cluster node, when build is running as a LSF job) mpirun is trying to use job settings
+   # tor run mpi unit tests. Sometime it fails because build job requested just 1 cpu. To prevent this we can specify
+   # machines file with localhost list only
+   configure_file(test/machines machines COPYONLY )
 
    add_gtest( NAME DistributedGridMap_MPInp4
               SOURCES test/DistributedGridMap.C
@@ -92,6 +97,7 @@ if (BM_PARALLEL)
               LIBRARIES Utilities_Petsc ${PETSC_LIBRARIES} DistributedDataAccess DataAccess
               LINK_FLAGS "${PETSC_LINK_FLAGS}"
               MPI_SIZE 4
+              MPIRUN_PRMS -machinefile machines
    )
 
    add_gtest( NAME DistributedGridMap_MPInp2
@@ -100,6 +106,7 @@ if (BM_PARALLEL)
               LIBRARIES Utilities_Petsc ${PETSC_LIBRARIES} DistributedDataAccess DataAccess
               LINK_FLAGS "${PETSC_LINK_FLAGS}"
               MPI_SIZE 2
+              MPIRUN_PRMS -machinefile machines
    )
 
    # MPI death tests need special care, separate binary is required
@@ -109,6 +116,7 @@ if (BM_PARALLEL)
               LIBRARIES Utilities_Petsc ${PETSC_LIBRARIES} DistributedDataAccess DataAccess
               LINK_FLAGS "${PETSC_LINK_FLAGS}"
               MPI_SIZE 2
+              MPIRUN_PRMS -machinefile machines
    )
 
    # MPI death tests need special care, separate binary is required
@@ -118,6 +126,7 @@ if (BM_PARALLEL)
               LIBRARIES Utilities_Petsc ${PETSC_LIBRARIES} DistributedDataAccess DataAccess
               LINK_FLAGS "${PETSC_LINK_FLAGS}"
               MPI_SIZE 2
+              MPIRUN_PRMS -machinefile machines
    )
 
    # MPI death tests need special care, separate binary is required
@@ -127,6 +136,7 @@ if (BM_PARALLEL)
               LIBRARIES Utilities_Petsc ${PETSC_LIBRARIES} DistributedDataAccess DataAccess
               LINK_FLAGS "${PETSC_LINK_FLAGS}"
               MPI_SIZE 2
+              MPIRUN_PRMS -machinefile machines
    )
 
    # MPI death tests need special care, separate binary is required
@@ -136,6 +146,7 @@ if (BM_PARALLEL)
               LIBRARIES Utilities_Petsc ${PETSC_LIBRARIES} DistributedDataAccess DataAccess
               LINK_FLAGS "${PETSC_LINK_FLAGS}"
               MPI_SIZE 2
+              MPIRUN_PRMS -machinefile machines
    )
 
    # MPI death tests need special care, separate binary is required
@@ -145,6 +156,7 @@ if (BM_PARALLEL)
               LIBRARIES Utilities_Petsc ${PETSC_LIBRARIES} DistributedDataAccess DataAccess
               LINK_FLAGS "${PETSC_LINK_FLAGS}"
               MPI_SIZE 2
+              MPIRUN_PRMS -machinefile machines
    )
 endif(BM_PARALLEL)
 
