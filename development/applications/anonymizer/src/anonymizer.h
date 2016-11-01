@@ -73,6 +73,11 @@ public:
    inline const std::map< std::string, std::string > &
    getMapFileNames() const { return m_mapFileNames; }
 
+#ifndef _WIN32
+   // \brief remove attributes from 2D output file (needs h5dump so it cannot run on Windows)
+   void removeAttributesFrom2DOutputFile( const std::string & fileName ) const;
+#endif
+
 private:
    // \brief Read the tables of the project file and creates original-to-anonymized names mapping
    void read();

@@ -761,3 +761,71 @@ void Anonymizer::updateXMLField( pugi::xml_node node,
       status &= node.child(field).last_child().set_value(value);
    }
 }
+
+
+// Support function to execute system commands
+std::string exec(const char* cmd)
+{
+   char buffer[128];
+   std::string result = "";
+#ifdef WIN32
+   std::shared_ptr<FILE> pipe(_popen(cmd, "r"), _pclose);
+#else
+   std::shared_ptr<FILE> pipe(popen(cmd, "r"), pclose);
+#endif
+   if (!pipe) throw std::runtime_error("popen() failed!");
+   while (!feof(pipe.get()))
+   {
+      if (fgets(buffer, 128, pipe.get()) != NULL)
+         result += buffer;
+   }
+   return result;
+}
+
+#ifndef _WIN32
+void Anonymizer::removeAttributesFrom2DOutputFile( const std::string & fileName ) const
+{
+   // Open file
+   hid_t fileId = H5Fopen( fileName.c_str(), H5F_ACC_RDWR, H5P_DEFAULT );
+   if( fileId < 0 )
+   {
+      std::stringstream errMsg;
+      errMsg << "Unable to open '" << fileName << "'";
+      throw std::runtime_error( errMsg.str().c_str() );
+   }
+
+   std::string diffCommand = "h5dump -n " + fileName + " | grep Layer | cut -d/ -f2";
+   const std::string result = exec(diffCommand.c_str());
+
+   std::istringstream f( result );
+   std::string dataset;
+   while (std::getline(f, dataset))
+   {
+      dataset = "/" + dataset;
+      // Open an existing dataset
+      hid_t datasetId = H5Dopen2( fileId, dataset.c_str(), H5P_DEFAULT);
+      // Clear value
+      herr_t status = H5Adelete(datasetId, "GridName");
+      status = H5Adelete(datasetId, "StratTopName");
+      // Close dataset
+      status = H5Dclose( datasetId );
+   }
+   
+   double value = 0.0;
+   // Open an existing dataset
+   hid_t datasetId = H5Dopen2( fileId, "/origin in I dimension", H5P_DEFAULT);
+   // Write value
+   herr_t status = H5Dwrite( datasetId, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, &value);
+   // Close dataset
+   status = H5Dclose( datasetId );
+
+   // Open an existing dataset
+   datasetId = H5Dopen2( fileId, "/origin in J dimension", H5P_DEFAULT);
+   // Write value
+   status = H5Dwrite( datasetId, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, &value);
+   // Close dataset
+   status = H5Dclose( datasetId );
+
+   H5Fclose ( fileId );
+}
+#endif
