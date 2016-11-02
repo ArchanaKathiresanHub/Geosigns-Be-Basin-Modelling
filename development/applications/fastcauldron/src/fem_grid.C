@@ -100,6 +100,7 @@
 #include "PetscObjectsIO.h"
 
 using namespace GeoPhysics;
+using namespace Utilities::CheckMemory;
 
 //------------------------------------------------------------//
 

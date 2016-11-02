@@ -1,105 +1,99 @@
 #include "System.h"
+#include "ConstantsNumerical.h"
 
 #ifndef _MSC_VER  //TODO_SK: this does not compile on Windows
-
 #include <sys/time.h>
 #include <sys/resource.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <stdio.h>
+#endif
 
-double GetResidentSetSize()
+using Utilities::Numerical::KiloBytesToMegaBytes;
+
+namespace Utilities
 {
-  static struct rusage temp;
+	namespace CheckMemory
+	{
 
-  getrusage(RUSAGE_SELF,&temp);
+#ifndef _MSC_VER  //TODO_SK: this does not compile on Windows
 
-  return ((double)temp.ru_maxrss) / 1024;
-  
-}
+		double getResidentSetSize()
+		{
+			static struct rusage temp;
 
-int GetCurrentLimit()
-{
+			getrusage(RUSAGE_SELF, &temp);
+
+			return ((double)temp.ru_maxrss) / KiloBytesToMegaBytes;
+
+		}
+
+		int getCurrentLimit()
+		{
 #if defined(PARCH_linux) || defined(PARCH_solaris)
-  static struct rlimit rlp;
-  getrlimit(RLIMIT_DATA,&rlp);
+			static struct rlimit rlp;
+			getrlimit(RLIMIT_DATA, &rlp);
 #else
-  static struct rlimit64 rlp;
-  getrlimit64(RLIMIT_DATA,&rlp);
+			static struct rlimit64 rlp;
+			getrlimit64(RLIMIT_DATA, &rlp);
 #endif
 
 
-  return (int) rlp.rlim_cur;
+			return (int)rlp.rlim_cur;
 
-}
+		}
 
-long GetPageSize()
-{
+		long getPageSize()
+		{
+			return sysconf(_SC_PAGESIZE);
+		}
 
-  return sysconf (_SC_PAGESIZE);
+		int getProcPID()
+		{
+			return (int)getpid();
+		}
 
-}
+		long getNumberOfCoresOnline() {
+			return sysconf(_SC_NPROCESSORS_ONLN);
+		}
 
-int GetProcPID()
-{
+		void getStatM(StatM& statm) {
 
-  return (int)getpid();
+			unsigned long dummy;
+			const char* statm_path = "/proc/self/statm";
 
-}
+			FILE *f = fopen(statm_path, "r");
 
+			if (!f) perror(statm_path);
 
-long getNumberOfCoresOnline () {
-   return sysconf (_SC_NPROCESSORS_ONLN);
-}
-
-int getPageSize () {
-   return getpagesize ();
-}
-
-void getStatM ( StatM& statm ) {
-
-   unsigned long dummy;
-   const char* statm_path = "/proc/self/statm";
-
-   FILE *f = fopen(statm_path,"r");
-
-   if(!f){
-      perror(statm_path);
-   }
-
-   if(7 != fscanf(f,"%ld %ld %ld %ld %ld %ld %ld",
-                  &statm.size,&statm.resident,&statm.share,&statm.text,&statm.lib,&statm.data,&statm.dt))
-   {
-   }
-   fclose(f);
-}
+			fscanf(f, "%ld %ld %ld %ld %ld %ld %ld", &statm.size, &statm.resident, &statm.share, &statm.text, &statm.lib, &statm.data, &statm.dt);
+			fclose(f);
+		}
 
 
 #else
 
-double GetResidentSetSize() { return 0; }
-int GetCurrentLimit() { return 0; }
-long GetPageSize() { return 0; }
-int GetProcPID() { return 0; }
+		double getResidentSetSize() { return 0; }
+		int getCurrentLimit() { return 0; }
+		long getPageSize() { return 0; }
+		int getProcPID() { return 0; }
 
-long getNumberOfCoresOnline () {
-   return 0;
-}
+		long getNumberOfCoresOnline()
+		{
+			return 0;
+		}
 
-int getPageSize () {
-   return 0;
-}
-
-void getStatM ( StatM& statm ) {
-   statm.size = 0;
-   statm.resident = 0;
-   statm.share = 0;
-   statm.text = 0;
-   statm.lib = 0;
-   statm.data = 0;
-   statm.dt = 0;
-
-}
-
-
+		void getStatM(StatM& statm) {
+			statm.size = 0;
+			statm.resident = 0;
+			statm.share = 0;
+			statm.text = 0;
+			statm.lib = 0;
+			statm.data = 0;
+			statm.dt = 0;
+		}
 #endif
+	}
+}
+
+

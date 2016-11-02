@@ -52,7 +52,7 @@ int main (int argc, char ** argv)
 {
    PetscInitialize (&argc, &argv, (char *)0, help);
 
-   StatisticsHandler::initialise();
+   Utilities::CheckMemory::StatisticsHandler::initialise();
 
    char * strI = getenv ("DebugPointI");
    char * strJ = getenv ("DebugPointJ");
@@ -267,7 +267,7 @@ int main (int argc, char ** argv)
    }
    
    // Save the memory consumption before deleting migrator
-   StatisticsHandler::update();
+   Utilities::CheckMemory::StatisticsHandler::update();
    delete migrator;
    //delete objectFactory;
 
@@ -282,7 +282,7 @@ int main (int argc, char ** argv)
 #endif
 
    // Print the memory consumption to standard out 
-   std::string statistics = StatisticsHandler::print( rank );
+   std::string statistics = Utilities::CheckMemory::StatisticsHandler::print( rank );
 
    PetscPrintf(PETSC_COMM_WORLD, "<statistics>\n");
    PetscSynchronizedFlush(PETSC_COMM_WORLD, PETSC_STDOUT);

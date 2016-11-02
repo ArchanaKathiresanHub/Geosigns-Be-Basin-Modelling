@@ -352,8 +352,8 @@ namespace migration
       int ToMegaBytes = 1048576;
       int pageSize = sysconf (_SC_PAGESIZE);
 
-      StatM statm;
-      getStatM ( statm );
+	  Utilities::CheckMemory::StatM statm;
+	  Utilities::CheckMemory::getStatM( statm );
       return ( statm.resident * pageSize) / ToMegaBytes; //resident not virtual 
    }
 #endif

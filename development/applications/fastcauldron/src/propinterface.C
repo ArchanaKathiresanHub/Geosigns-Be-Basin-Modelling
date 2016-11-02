@@ -294,7 +294,7 @@ void AppCtx::CheckForStartInDebugger(int *argc, char ***args)
   PetscBool Start_In_DDD      = PETSC_FALSE;
 
   string Debug_Command;
-  string Process_Id = IntegerToString( GetProcPID() );
+  string Process_Id = IntegerToString( Utilities::CheckMemory::getProcPID() );
 
   int  left    = *argc - 1;
   char **eargs = *args + 1;

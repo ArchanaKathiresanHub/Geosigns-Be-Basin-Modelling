@@ -27,7 +27,7 @@ static void abortOnBadAlloc () {
 
 int main(int argc, char** argv)
 {
-   MemoryChecker mc;
+   Utilities::CheckMemory::MemoryChecker mc;
    bool returnStatus = true;
    bool canRunSaltModelling = true;
 

@@ -20,6 +20,7 @@ using namespace std;
 #include "Interface/RunParameters.h"
 
 using namespace Basin_Modelling;
+using namespace Utilities::CheckMemory;
 
 #ifdef ABS
 #undef ABS

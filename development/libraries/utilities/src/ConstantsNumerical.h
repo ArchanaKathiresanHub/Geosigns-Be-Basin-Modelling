@@ -26,7 +26,8 @@ namespace Utilities
       constexpr int    MaxLineSize         = 512;
       /// \brief Genex positive no data value used accross all ibs libraries and applications
       constexpr double GenexNoDataValue    = 9999.0;
-
+	  /// \brief Positive value to convert kilobytes to megabytes
+	  constexpr double KiloBytesToMegaBytes = 1024;
    }
 }
 #endif

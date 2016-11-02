@@ -38,6 +38,7 @@
 #include "propinterface.h"
 
 unsigned int FastcauldronStartup::s_instances = 0;
+using namespace Utilities::CheckMemory;
 
 FastcauldronStartup::FastcauldronStartup( int argc, char** argv, bool checkLicense, bool saveResults ) :
                                           m_checkLicense( checkLicense ),

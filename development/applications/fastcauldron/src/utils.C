@@ -383,7 +383,7 @@ void StartTiming() {
 
 void monitorProcessMemorySize() {
 
-  double LocalSize = GetResidentSetSize(); //Mbytes
+  double LocalSize = Utilities::CheckMemory::getResidentSetSize(); //Mbytes
   double TotalSize;
   // PetscGlobalSum(&LocalSize,&TotalSize,PETSC_COMM_WORLD);
 
