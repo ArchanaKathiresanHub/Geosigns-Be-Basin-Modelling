@@ -1,15 +1,13 @@
 #include "anonymizer.h"
 #include <iostream>
 
+void printHelp();
+
 int main( int argc, char *argv[] )
 {
    if( argc != 3 )
    {
-      std::cerr << "Invalid usage:" << std::endl;
-      std::cerr << " -projectFolder <folder>" << std::endl;
-#ifndef _WIN32
-      std::cerr << " -clear2DAttributes <HDF file>" << std::endl;
-#endif
+      printHelp();
       return -1;
    }
    else
@@ -28,5 +26,19 @@ int main( int argc, char *argv[] )
          return 0;
       }
 #endif
+      else
+      {
+         printHelp();
+      }
    }
+}
+
+
+void printHelp()
+{
+   std::cerr << "Invalid usage:" << std::endl;
+   std::cerr << " -projectFolder <folder>" << std::endl;
+#ifndef _WIN32
+   std::cerr << " -clear2DAttributes <HDF file>" << std::endl;
+#endif
 }

@@ -763,23 +763,26 @@ void Anonymizer::updateXMLField( pugi::xml_node node,
 }
 
 
-// Support function to execute system commands
-std::string exec(const char* cmd)
+namespace supportFunctions
 {
-   char buffer[128];
-   std::string result = "";
-#ifdef WIN32
-   std::shared_ptr<FILE> pipe(_popen(cmd, "r"), _pclose);
-#else
-   std::shared_ptr<FILE> pipe(popen(cmd, "r"), pclose);
-#endif
-   if (!pipe) throw std::runtime_error("popen() failed!");
-   while (!feof(pipe.get()))
+   // Support function to execute system commands
+   std::string exec(const char* cmd)
    {
-      if (fgets(buffer, 128, pipe.get()) != NULL)
-         result += buffer;
+      char buffer[128];
+      std::string result = "";
+   #ifdef WIN32
+      std::shared_ptr<FILE> pipe(_popen(cmd, "r"), _pclose);
+   #else
+      std::shared_ptr<FILE> pipe(popen(cmd, "r"), pclose);
+   #endif
+      if (!pipe) throw std::runtime_error("popen() failed!");
+      while (!feof(pipe.get()))
+      {
+         if (fgets(buffer, 128, pipe.get()) != NULL)
+            result += buffer;
+      }
+      return result;
    }
-   return result;
 }
 
 #ifndef _WIN32
@@ -795,7 +798,7 @@ void Anonymizer::removeAttributesFrom2DOutputFile( const std::string & fileName 
    }
 
    std::string diffCommand = "h5dump -n " + fileName + " | grep Layer | cut -d/ -f2";
-   const std::string result = exec(diffCommand.c_str());
+   const std::string result = supportFunctions::exec(diffCommand.c_str());
 
    std::istringstream f( result );
    std::string dataset;

@@ -60,6 +60,9 @@ public:
    // Boolean flag for shifting coordinates
    bool m_shiftCoord;
 
+   // \brief Set flag for shifting coordinates
+   inline void setShiftCoordinatesFlag(const bool shift) { m_shiftCoord = shift; }
+
    // \brief Get original project file name
    inline const std::string & getOriginalFileName() const { return m_projectFile; }
 
