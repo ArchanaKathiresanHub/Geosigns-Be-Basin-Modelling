@@ -3378,10 +3378,8 @@ namespace migration
       if (tpr1->rank >= 0 && tpr2->rank < 0) return -1;
       if (tpr1->rank < 0 && tpr2->rank < 0) return 0;
 
-      if (weight1 > weight2) return -1;
-      else if (weight1 < weight2) return 1;
-      else if (tpr1->capacity > tpr2->capacity) return -1;
-      else if (tpr1->capacity < tpr2->capacity) return 1;
+      if (weight1 > weight2 or tpr1->capacity > tpr2->capacity) return -1;
+      else if (weight1 < weight2 or tpr1->capacity < tpr2->capacity) return 1;
       else return 0;
    }
 

@@ -298,7 +298,7 @@ namespace migration
 
          RequestHandling::SendFormationNodeValueRequest (valueRequest, valueResponse);
 
-         if (valueResponse.i >= 0 && valueResponse.j >= 0 && valueResponse.k >= 0) // may not have been calculated yet!!
+         if (valueResponse.i >= 0 and valueResponse.j >= 0 and valueResponse.k >= 0) // may not have been calculated yet!!
          {
             m_targetFormationNode = getFormation (valueResponse.formationIndex)->getFormationNode (valueResponse.i, valueResponse.j, valueResponse.k);
             if (m_targetFormationNode)
@@ -850,7 +850,7 @@ namespace migration
 
       m_heightLiquid = m_heightVapour = 0;
 
-      if (hasThickness () && !isImpermeable ())
+      if (hasThickness () and !isImpermeable ())
       {
          if (topNode->isImpermeable ())
          {
@@ -888,7 +888,7 @@ namespace migration
       setReservoirVapour (vapourFlag);
       setReservoirLiquid (liquidFlag);
 
-      return (vapourFlag || liquidFlag);
+      return (vapourFlag or liquidFlag);
    }
 
 
@@ -934,12 +934,12 @@ namespace migration
    {
 
       // if the node can not gas or oil, skip the calculations
-      if (phase == GAS && !getReservoirVapour ())
+      if (phase == GAS and !getReservoirVapour ())
       {
          m_isCrestVapour = false;
          return false;
       }
-      if (phase == OIL && !getReservoirLiquid ())
+      if (phase == OIL and !getReservoirLiquid ())
       {
          m_isCrestLiquid = false;
          return false;
@@ -978,7 +978,7 @@ namespace migration
          if (phase == GAS)
             isSealingNeighbourNode = (neighbourNode->getFaultStatus () == SEAL);
          else
-            isSealingNeighbourNode = (neighbourNode->getFaultStatus () == SEAL || neighbourNode->getFaultStatus () == SEALOIL);
+            isSealingNeighbourNode = (neighbourNode->getFaultStatus () == SEAL or neighbourNode->getFaultStatus () == SEALOIL);
 
          if (isSealingNeighbourNode)
          {
@@ -1004,9 +1004,9 @@ namespace migration
 
       // return true if the node is crest column AND can hold gas or oil 
       if (phase == GAS)
-         return (m_isCrestVapour && getReservoirVapour ());
+         return (m_isCrestVapour and getReservoirVapour ());
       else
-         return (m_isCrestLiquid && getReservoirLiquid ());
+         return (m_isCrestLiquid and getReservoirLiquid ());
 
    };
 
@@ -1068,7 +1068,7 @@ namespace migration
       int j = getJ ();
       int k = getK ();
 
-      if (performVerticalMigration () || hasNoThickness ())
+      if (performVerticalMigration () or hasNoThickness ())
       {
          // let's assume everything will go straight up in this case
          if (!m_analogFlowDirection) m_analogFlowDirection = new FiniteElementMethod::ThreeVector;
@@ -1095,7 +1095,7 @@ namespace migration
       capPressureGrad = getFiniteElementGrad (CAPILLARYENTRYPRESSURELIQUIDPROPERTY);
 #endif
 
-      if (!performHDynamicAndCapillary () || capPressureGrad (1) == Interface::DefaultUndefinedMapValue)
+      if (!performHDynamicAndCapillary () or capPressureGrad (1) == Interface::DefaultUndefinedMapValue)
       {
 
          ThreeVector vertical;
@@ -1138,7 +1138,7 @@ namespace migration
       m_hasNoThickness = true;
 
       int boi, toi;
-      for (toi = FirstTopNodeCorner, boi = FirstBottomNodeCorner; toi <= LastTopNodeCorner /* && boi <= LastBottomNodeCorner */; ++toi, ++boi)
+      for (toi = FirstTopNodeCorner, boi = FirstBottomNodeCorner; toi <= LastTopNodeCorner /* and boi <= LastBottomNodeCorner */; ++toi, ++boi)
       {
          double topDepth = m_formation->getPropertyValue (DEPTHPROPERTY, i + NodeCornerOffsets[toi][0], j + NodeCornerOffsets[toi][1], k + NodeCornerOffsets[toi][2]);
          double bottomDepth = m_formation->getPropertyValue (DEPTHPROPERTY, i + NodeCornerOffsets[boi][0], j + NodeCornerOffsets[boi][1], k + NodeCornerOffsets[boi][2]);
@@ -1183,14 +1183,14 @@ namespace migration
 
       // compare against ... nearest neighbour directions gridwise above and sideways
 
-      if (hasNoThickness () || getFaultStatus () == WASTE)
+      if (hasNoThickness () or getFaultStatus () == WASTE)
       {
          // it should just bypass this node upward as it either has no thickness or is a wasting node.
          m_selectedDirectionIndex = 0;
          return;
       }
 
-      if (!m_cosines || m_cosines->empty ())
+      if (!m_cosines or m_cosines->empty ())
          computeCosines ();
 
       if ((unsigned int)m_adjacentNodeIndex < (*m_cosines).size ())
@@ -1217,7 +1217,7 @@ namespace migration
 
       int diStart = 0;
 
-      if (getReservoirVapour () || getReservoirLiquid ())
+      if (getReservoirVapour () or getReservoirLiquid ())
       {
          // Only look laterally (grid-wise) for flow path continuations
          diStart += NumberOfUpwardNeighbourOffsets;
@@ -1240,13 +1240,13 @@ namespace migration
       {
          FormationNode * neighbourNode = getAdjacentFormationNode (di);
 
-         if (neighbourNode && neighbourNode->isImpermeable ())
+         if (neighbourNode and neighbourNode->isImpermeable ())
          {
             // path cannot go into an impermeable node
             continue;
          }
 
-         if ((getReservoirVapour () || getReservoirLiquid ()) && neighbourNode && neighbourNode->hasNoThickness ())
+         if ((getReservoirVapour () or getReservoirLiquid ()) and neighbourNode and neighbourNode->hasNoThickness ())
          {
             // cannot escape via a zero thickness node if we are in a reservoir
             continue;
@@ -1299,7 +1299,7 @@ namespace migration
             neighbourNodeDepth = getFiniteElementValue (iQP, jQP, kQP, DEPTHPROPERTY);
          }
 
-         if ((getReservoirVapour () || getReservoirLiquid ()) && neighbourNodeDepth >= m_depth)
+         if ((getReservoirVapour () or getReservoirLiquid ()) and neighbourNodeDepth >= m_depth)
          {
             // if we are in the reservoir area, only try to go upward (z-wise)
             continue;
@@ -1408,7 +1408,7 @@ namespace migration
       if (MaxTries < 0)
          MaxTries = Max (2, NumProcessors () + 8);
 
-      if (m_entered || ++m_tried > MaxTries)
+      if (m_entered or ( ++m_tried > MaxTries ) )
       {
          m_tried = 0;
          computeNextAdjacentNode (); // selects next adjacent formation node; changes output of getAdjacentFormationNode ()
@@ -1458,7 +1458,7 @@ namespace migration
    {
       // if this is a top node of the top active formation, m_targetFormationNode will be set, even if it has no thickness.
       // If it has thickness, m_targetFormatioNode should be set if target formation nodes have been computed
-      if (m_targetFormationNode || hasThickness ())
+      if (m_targetFormationNode or hasThickness ())
          return m_targetFormationNode;
       else if (m_topFormationNode)
          return m_topFormationNode->getTargetFormationNode ();
@@ -1490,9 +1490,9 @@ namespace migration
       if (hasThickness ())
       {
          impermeable =
-            (getVerticalPermeability () <= getBlockingPermeability () ||
-            getPorosity () <= getBlockingPorosity () ||
-            getFaultStatus () == SEAL ||
+            (getVerticalPermeability () <= getBlockingPermeability () or
+            getPorosity () <= getBlockingPorosity () or
+            getFaultStatus () == SEAL or
             getFaultStatus () == SEALOIL);
       }
       else if (m_topFormationNode)
@@ -1505,7 +1505,7 @@ namespace migration
 
    bool LocalFormationNode::hasNowhereToGo (void)
    {
-      if (isImpermeable () || getAdjacentFormationNode () == 0)
+      if (isImpermeable () or getAdjacentFormationNode () == 0)
       {
          return true;
       }
@@ -1517,7 +1517,7 @@ namespace migration
 
    bool LocalFormationNode::goesOutOfBounds (void)
    {
-      return (getAdjacentFormationNode () == 0 && m_selectedDirectionIndex >= 0 && m_selectedDirectionIndex < NumberOfNeighbourOffsetsUsed);
+      return (getAdjacentFormationNode () == 0 and m_selectedDirectionIndex >= 0 and m_selectedDirectionIndex < NumberOfNeighbourOffsetsUsed);
    }
 
    double LocalFormationNode::getDepth ()
@@ -1762,13 +1762,13 @@ namespace migration
    bool LocalFormationNode::getReservoirVapour (void)
    {
       // a node can only be a reservoir node if it has thickness
-      return m_isReservoirVapour && hasThickness ();
+      return m_isReservoirVapour and hasThickness ();
    }
 
    bool LocalFormationNode::getReservoirLiquid (void)
    {
       // a node can only be a reservoir node if it has thickness
-      return m_isReservoirLiquid && hasThickness ();
+      return m_isReservoirLiquid and hasThickness ();
    }
 
    bool LocalFormationNode::isEndOfPath (void)
@@ -1892,7 +1892,7 @@ namespace migration
             return Interface::DefaultUndefinedMapValue;
          }
 
-         if (minimumPropertyValue == Interface::DefaultUndefinedMapValue || propertyValue < minimumPropertyValue)
+         if (minimumPropertyValue == Interface::DefaultUndefinedMapValue or propertyValue < minimumPropertyValue)
          {
             minimumPropertyValue = propertyValue;
          }
@@ -2028,13 +2028,13 @@ namespace migration
 
    FormationNode * FormationNodeArray::getFormationNode (int i, int j, int k)
    {
-      if ((i < 0) || (j < 0) || (k < 0))
+      if ((i < 0) or (j < 0) or (k < 0))
          return 0;
 
-      if ((unsigned int)i >= m_numIGlobal || (unsigned int)j >= m_numJGlobal || (unsigned int)k >= m_depth)
+      if ((unsigned int)i >= m_numIGlobal or (unsigned int)j >= m_numJGlobal or (unsigned int)k >= m_depth)
          return 0;
 
-      if ((unsigned int)i >= m_firstILocal && (unsigned int)i <= m_lastILocal && (unsigned int)j >= m_firstJLocal && (unsigned int)j <= m_lastJLocal)
+      if ((unsigned int)i >= m_firstILocal and (unsigned int)i <= m_lastILocal and (unsigned int)j >= m_firstJLocal and (unsigned int)j <= m_lastJLocal)
       {
          return getLocalFormationNode (i, j, k);
       }
@@ -2046,11 +2046,11 @@ namespace migration
 
    LocalFormationNode * FormationNodeArray::getLocalFormationNode (int i, int j, int k)
    {
-      if ((i < 0) || (j < 0) || (k < 0)) return 0;
+      if ((i < 0) or (j < 0) or (k < 0)) return 0;
 
       LocalFormationNode * localFormationNode = 0;
 
-      if ((unsigned int)i >= m_firstILocal && (unsigned int)i <= m_lastILocal && (unsigned int)j >= m_firstJLocal && (unsigned int)j <= m_lastJLocal && (unsigned int)k < m_depth)
+      if ((unsigned int)i >= m_firstILocal and (unsigned int)i <= m_lastILocal and (unsigned int)j >= m_firstJLocal and (unsigned int)j <= m_lastJLocal and (unsigned int)k < m_depth)
       {
          FormationNode * formationNode = m_localFormationNodes[i - m_firstILocal][j - m_firstJLocal][k];
          assert (formationNode);
@@ -2063,12 +2063,12 @@ namespace migration
 
    ProxyFormationNode * FormationNodeArray::getProxyFormationNode (int i, int j, int k)
    {
-      if ((i < 0) || (j < 0) || (k < 0)) return 0;
+      if ((i < 0) or (j < 0) or (k < 0)) return 0;
 
       ProxyFormationNode * formationNode = 0;
 
-      if ((unsigned int)i < m_numIGlobal && (unsigned int)j < m_numJGlobal &&
-         !((unsigned int)i >= m_firstILocal && (unsigned int)i <= m_lastILocal && (unsigned int)j >= m_firstJLocal && (unsigned int)j <= m_lastJLocal) && k < (int)m_depth)
+      if ((unsigned int)i < m_numIGlobal and (unsigned int)j < m_numJGlobal and
+         !((unsigned int)i >= m_firstILocal and (unsigned int)i <= m_lastILocal and (unsigned int)j >= m_firstJLocal and (unsigned int)j <= m_lastJLocal) and k < (int)m_depth)
       {
          formationNode = m_proxyFormationNodes[k][IndexPair (i, j)];
          if (!formationNode)
@@ -2144,7 +2144,7 @@ namespace migration
 
    bool IsValid (FormationNode * formationNode)
    {
-      return (formationNode != 0 && formationNode->isValid ());
+      return (formationNode != 0 and formationNode->isValid ());
    }
 
    ostream & operator<< (ostream & stream, FormationNode &formationNode)

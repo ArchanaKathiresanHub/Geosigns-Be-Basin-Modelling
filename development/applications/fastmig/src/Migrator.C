@@ -303,9 +303,9 @@ bool Migrator::setUpBasinGeometry (void)
    if (!m_legacyMigration)
    {
       // From GeoPhysics::ProjectHandle
-      if (!m_projectHandle->initialise (true) ||
-         !m_projectHandle->setFormationLithologies (true, true) ||
-         !m_projectHandle->initialiseLayerThicknessHistory (!HydrostaticCalculation) || // Backstripping
+      if (!m_projectHandle->initialise (true) or
+         !m_projectHandle->setFormationLithologies (true, true) or
+         !m_projectHandle->initialiseLayerThicknessHistory (!HydrostaticCalculation) or // Backstripping
          !m_projectHandle->applyFctCorrections ())
          return false;
       else
@@ -313,7 +313,7 @@ bool Migrator::setUpBasinGeometry (void)
    }
    else
    {
-      if (!m_projectHandle->initialise (true) ||
+      if (!m_projectHandle->initialise (true) or
          !m_projectHandle->setFormationLithologies (true, true))
          return false;
       else
@@ -387,7 +387,7 @@ bool Migrator::getSeaBottomDepths (Interface::GridMap * topDepthGridMap, const I
       {
          double seaBottomDepth = m_projectHandle->getSeaBottomDepth (i, j, snapshot->getTime ());
 
-         if (seaBottomDepth == Interface::DefaultUndefinedMapValue || seaBottomDepth == Interface::DefaultUndefinedScalarValue)
+         if (seaBottomDepth == Interface::DefaultUndefinedMapValue or seaBottomDepth == Interface::DefaultUndefinedScalarValue)
          {
             topDepthGridMap->setValue (i, j, Interface::DefaultUndefinedMapValue);
          }
@@ -451,16 +451,16 @@ bool Migrator::performSnapshotMigration (const Interface::Snapshot * start, cons
 
          clearFormationNodeProperties ();
 
-         if (!computeFormationPropertyMaps (end, overPressureRun) ||
-            !retrieveFormationPropertyMaps (end) ||
-            !computeFormationNodeProperties (end) ||
-            !detectReservoirs (start, end, overPressureRun) ||
-            !computeSMFlowPaths (start, end) ||
-            !restoreFormationPropertyMaps (end) ||
-            !loadExpulsionMaps (start, end) ||
-            !chargeReservoirs (start, end) ||
-            !calculateSeepage (end) ||
-            !unloadExpulsionMaps (end) ||
+         if (!computeFormationPropertyMaps (end, overPressureRun) or
+            !retrieveFormationPropertyMaps (end) or
+            !computeFormationNodeProperties (end) or
+            !detectReservoirs (start, end, overPressureRun) or
+            !computeSMFlowPaths (start, end) or
+            !restoreFormationPropertyMaps (end) or
+            !loadExpulsionMaps (start, end) or
+            !chargeReservoirs (start, end) or
+            !calculateSeepage (end) or
+            !unloadExpulsionMaps (end) or
             !saveSMFlowPaths (start, end))
          {
             return false;
@@ -701,7 +701,7 @@ migration::Formation * Migrator::getTopSourceRockFormation (const Interface::Sna
    {
       Formation * formation = Formation::CastToFormation (*formationIter);
 
-      if (formation->isSourceRock () && formation->isActive (end))
+      if (formation->isSourceRock () and formation->isActive (end))
       {
          topSourceRockFormation = formation;
          break;
@@ -842,7 +842,7 @@ bool Migrator::detectReservoirs (const Interface::Snapshot * start, const Interf
 
    bool topSealFormationReached = false;
    for (reservoirFormation = bottomFormation, sealFormation = (Formation *)reservoirFormation->getTopFormation ();
-      sealFormation != 0 && !topSealFormationReached;
+      sealFormation != 0 and !topSealFormationReached;
       reservoirFormation = sealFormation, sealFormation = (Formation *)sealFormation->getTopFormation ())
    {
       //check if top seal formation is reached
@@ -852,7 +852,7 @@ bool Migrator::detectReservoirs (const Interface::Snapshot * start, const Interf
 
       //Assigns nodes of user-selected reservoirs as reservoir nodes, no need to identify the Reservoir here. Do this only for user-defined reservoirs
       std::unique_ptr<Interface::ReservoirList> alreadyReservoirFormation (getReservoirs (reservoirFormation));
-      if (!alreadyReservoirFormation->empty () && !reservoirFormation->getDetectedReservoir ())
+      if (!alreadyReservoirFormation->empty () and !reservoirFormation->getDetectedReservoir ())
       {
          reservoirFormation->identifyAsReservoir ();
          continue;
@@ -1113,7 +1113,7 @@ bool Migrator::chargeReservoir (migration::Reservoir * reservoir, migration::Res
    totalLeakedUpward -= totalLeakedOutward;
    if (GetRank () == 0) m_massBalance->subtractFromBalance ("Leaked upward from reservoir", totalLeakedUpward);
 
-   if (!m_legacyMigration && reservoir->isDiffusionOn ())
+   if (!m_legacyMigration and reservoir->isDiffusionOn ())
    {
       /// For each column in the trap set the diffusion starting time
       reservoir->broadcastTrapDiffusionStartTimes ();
@@ -1128,7 +1128,7 @@ bool Migrator::chargeReservoir (migration::Reservoir * reservoir, migration::Res
 
    if (GetRank () == 0)
    {
-      if (totalStoredInTraps > 0 && Abs (totalStoredInTraps - totalBroadcastFromTraps) / totalStoredInTraps > 0.01)
+      if (totalStoredInTraps > 0 and Abs (totalStoredInTraps - totalBroadcastFromTraps) / totalStoredInTraps > 0.01)
       {
          cerr << "Error: Difference between charge as stored in traps and charge as stored in columns is too large" << endl;
          cerr << "    Total stored in traps = " << totalStoredInTraps << endl;
@@ -1292,7 +1292,7 @@ bool Migrator::collectAndMigrateExpelledCharges (Reservoir * reservoir, Reservoi
 
       if (formationBelow)
          formationBelowBelow = formationBelow->getBottomFormation ();
-      if (withinRange || formationBelow == reservoir->getFormation () ||
+      if (withinRange or formationBelow == reservoir->getFormation () or
          formationBelowBelow == reservoir->getFormation ())
       {
          withinRange = true;
@@ -1304,15 +1304,15 @@ bool Migrator::collectAndMigrateExpelledCharges (Reservoir * reservoir, Reservoi
 
       unsigned int directionsToCollect = EXPELLEDNONE; // 0
 
-      if (formationBelow == reservoir->getFormation () || formationBelowBelow == reservoir->getFormation ())
+      if (formationBelow == reservoir->getFormation () or formationBelowBelow == reservoir->getFormation ())
       {
          // source rock at most 2 formations above reservoir
 
          // check if reservoirAbove is in the way of reservoir with respect to downward migration
-         if (!reservoirAbove ||
-            !reservoirAbove->isActive (end) ||
-            ((reservoirAbove->getFormation () != formationBelow &&
-            reservoirAbove->getFormation () != formationBelowBelow) &&
+         if (!reservoirAbove or
+            !reservoirAbove->isActive (end) or
+            ((reservoirAbove->getFormation () != formationBelow and
+            reservoirAbove->getFormation () != formationBelowBelow) and
             reservoirAbove->getFormation () != formation))
          {
             directionsToCollect |= EXPELLEDDOWNWARD;
@@ -1323,18 +1323,18 @@ bool Migrator::collectAndMigrateExpelledCharges (Reservoir * reservoir, Reservoi
          // reservoir in source rock
 
          // check if reservoirBelow is also in the source rock
-         if (!reservoirBelow || !reservoirBelow->isActive (end) || reservoirBelow->getFormation () != formation)
+         if (!reservoirBelow or !reservoirBelow->isActive (end) or reservoirBelow->getFormation () != formation)
          {
             directionsToCollect |= EXPELLEDDOWNWARD;
          }
          // check if reservoirAbove is also in the source rock
-         if (!reservoirAbove || !reservoirAbove->isActive (end) || reservoirAbove->getFormation () != formation)
+         if (!reservoirAbove or !reservoirAbove->isActive (end) or reservoirAbove->getFormation () != formation)
          {
             directionsToCollect |= EXPELLEDUPWARD;
          }
       }
-      else if (reservoirBelow &&
-         (formationBelow == reservoirBelow->getFormation () ||
+      else if (reservoirBelow and
+         (formationBelow == reservoirBelow->getFormation () or
          formationBelowBelow == reservoirBelow->getFormation ()))
       {
          // source rock just above reservoir below
@@ -1355,7 +1355,7 @@ bool Migrator::collectAndMigrateExpelledCharges (Reservoir * reservoir, Reservoi
 
       if (formation->isSourceRock ())
       {
-         if ((directionsToCollect & EXPELLEDUPWARD) && !m_verticalMigration)
+         if ((directionsToCollect & EXPELLEDUPWARD) and !m_verticalMigration)
          {
             formation->migrateExpelledChargesToReservoir (directionsToCollect, reservoir);
          }
@@ -1367,11 +1367,11 @@ bool Migrator::collectAndMigrateExpelledCharges (Reservoir * reservoir, Reservoi
          reservoir->migrateChargesToBeMigrated (formation, 0); // Lateral Migration
       }
 
-      if (barrier && (directionsToCollect & EXPELLEDUPWARD))
+      if (barrier and (directionsToCollect & EXPELLEDUPWARD))
          barrier->updateBlocking (formation, end);
 
-      if (reservoirBelow && reservoirBelow->isActive (end) &&
-         formationBelow == reservoirBelow->getFormation () &&
+      if (reservoirBelow and reservoirBelow->isActive (end) and
+         formationBelow == reservoirBelow->getFormation () and
          !performHDynamicAndCapillary ()) //as in sec-mig 
       {
          break;
@@ -1413,7 +1413,7 @@ bool Migrator::loadExpulsionMaps (const Interface::Snapshot * start, const Inter
    for (formationIter = formations->begin (); formationIter != formations->end (); ++formationIter)
    {
       Formation *formation = Formation::CastToFormation (*formationIter);
-      if (formation->isSourceRock () && formation->isActive (end))
+      if (formation->isSourceRock () and formation->isActive (end))
       {
          formation->loadExpulsionMaps (start, end);
       }
@@ -1430,7 +1430,7 @@ bool Migrator::unloadExpulsionMaps (const Interface::Snapshot * end)
    for (formationIter = formations->begin (); formationIter != formations->end (); ++formationIter)
    {
       Formation *formation = Formation::CastToFormation (*formationIter);
-      if (formation->isSourceRock () && formation->isActive (end))
+      if (formation->isSourceRock () and formation->isActive (end))
       {
          formation->unloadExpulsionMaps ();
       }
@@ -1716,9 +1716,9 @@ bool MigrationIoTblSorter (database::Record * recordL, database::Record * record
 
    ++calls;
 
-   if (recordL == 0 && recordR == 0)
+   if (recordL == 0 and recordR == 0)
    {
-      cerr << "recordL = 0 && recordR = 0 in iteration " << calls << endl;
+      cerr << "recordL = 0 and recordR = 0 in iteration " << calls << endl;
       return false;
    }
 
@@ -1833,7 +1833,7 @@ void Migrator::checkMigrationRecords (void)
       {
          cerr << "Error: MigrationIoTbl[" << index << "] = 0" << endl;
       }
-      else if (getSourceAge (*iter) < 0 || getDestinationAge (*iter) < 0)
+      else if (getSourceAge (*iter) < 0 or getDestinationAge (*iter) < 0)
       {
          cerr << "Age < 0" << endl;
       }
@@ -1855,95 +1855,74 @@ void Migrator::sanitizeMigrationRecords (void)
    database::Table::iterator nextIter;
 
    // cerr << "Start sanitizing MigrationIoTbl" << endl;
-   for (iter = m_migrationIoTbl->begin (); iter != m_migrationIoTbl->end (); iter = nextIter)
+   for (iter = m_migrationIoTbl->begin(); iter != m_migrationIoTbl->end(); iter = nextIter)
    {
       database::Record * record = *iter;
-      const string & migrationProcess = getMigrationProcess (record);
-      int sourceTrapId = getSourceTrapID (record);
-      int destinationTrapId = getDestinationTrapID (record);
+      const string & migrationProcess = getMigrationProcess(record);
+      int sourceTrapId = getSourceTrapID(record);
+      int destinationTrapId = getDestinationTrapID(record);
 
       if (migrationProcess == MigrationProcessNames[REMIGRATION])
       {
          if (destinationTrapId < 0)
          {
-            setMigrationProcess (record, MigrationProcessNames[REMIGRATIONLEAKAGE]);
-         }
-      }
-      else if (migrationProcess == MigrationProcessNames[REMIGRATIONLEAKAGE])
-      {
-      }
-      else if (migrationProcess == MigrationProcessNames[LEAKAGEFROMTRAP])
-      {
-         if (sourceTrapId < 0)
-         {
-            nextIter = m_migrationIoTbl->removeRecord (iter);
-            continue;
+            setMigrationProcess(record, MigrationProcessNames[REMIGRATIONLEAKAGE]);
          }
       }
       else if (migrationProcess == MigrationProcessNames[LEAKAGETOTRAP])
       {
          if (destinationTrapId < 0)
          {
-            setMigrationProcess (record, MigrationProcessNames[THROUGHLEAKAGE]);
+            setMigrationProcess(record, MigrationProcessNames[THROUGHLEAKAGE]);
          }
       }
       else if (migrationProcess == MigrationProcessNames[EXPULSION])
       {
          if (destinationTrapId < 0)
          {
-            setMigrationProcess (record, MigrationProcessNames[EXPULSIONLEAKAGE]);
+            setMigrationProcess(record, MigrationProcessNames[EXPULSIONLEAKAGE]);
          }
-      }
-      else if (migrationProcess == MigrationProcessNames[ABSORPTION])
-      {
-      }
-      else if (migrationProcess == MigrationProcessNames[EXPULSIONLEAKAGE])
-      {
       }
       else if (migrationProcess == MigrationProcessNames[SPILL])
       {
          if (sourceTrapId < 0)
          {
             // shouldn't happen!!!
-
-            nextIter = m_migrationIoTbl->removeRecord (iter);
+            nextIter = m_migrationIoTbl->removeRecord(iter);
             continue;
          }
          else if (sourceTrapId == destinationTrapId)
          {
-            nextIter = m_migrationIoTbl->removeRecord (iter);
+            nextIter = m_migrationIoTbl->removeRecord(iter);
             continue;
          }
          else if (destinationTrapId < 0)
          {
-            setMigrationProcess (record, MigrationProcessNames[SPILLUPOROUT]);
+            setMigrationProcess(record, MigrationProcessNames[SPILLUPOROUT]);
          }
       }
-      else if (migrationProcess == MigrationProcessNames[SPILLUPOROUT])
+      else if (migrationProcess == MigrationProcessNames[BIODEGRADATION] or
+         migrationProcess == MigrationProcessNames[DIFFUSION] or
+         migrationProcess == MigrationProcessNames[OILTOGASCRACKINGLOST] or
+         migrationProcess == MigrationProcessNames[OILTOGASCRACKINGGAINED] or
+         migrationProcess == MigrationProcessNames[LEAKAGEFROMTRAP] or
+         migrationProcess == MigrationProcessNames[SPILLUPOROUT])
       {
          if (sourceTrapId < 0)
          {
-            nextIter = m_migrationIoTbl->removeRecord (iter);
+            nextIter = m_migrationIoTbl->removeRecord(iter);
             continue;
          }
       }
-      else if (migrationProcess == MigrationProcessNames[THROUGHLEAKAGE])
+      // Processes for which nothing should be done
+      else if (migrationProcess == MigrationProcessNames[REMIGRATIONLEAKAGE] or
+               migrationProcess == MigrationProcessNames[ABSORPTION] or
+               migrationProcess == MigrationProcessNames[EXPULSIONLEAKAGE] or
+               migrationProcess == MigrationProcessNames[THROUGHLEAKAGE])
       {
-      }
-      else if (migrationProcess == MigrationProcessNames[BIODEGRADATION] ||
-         migrationProcess == MigrationProcessNames[DIFFUSION] ||
-         migrationProcess == MigrationProcessNames[OILTOGASCRACKINGLOST] ||
-         migrationProcess == MigrationProcessNames[OILTOGASCRACKINGGAINED])
-      {
-         if (sourceTrapId < 0)
-         {
-            nextIter = m_migrationIoTbl->removeRecord (iter);
-            continue;
-         }
       }
       nextIter = iter + 1;
    }
-   // cerr << "Finish sanitizing MigrationIoTbl" << endl;
 }
 
 void Migrator::clearMigrationRecordLists (void)
@@ -1965,12 +1944,12 @@ void Migrator::renumberMigrationRecordTrap (const Interface::Snapshot * snapshot
       for (iter = recordList.begin (); iter != recordList.end (); ++iter)
       {
          database::Record * record = *iter;
-         if (getSourceTrapID (record) == oldTrapNumber && m_projectHandle->findSnapshot (getSourceAge (record)) == snapshot)
+         if (getSourceTrapID (record) == oldTrapNumber and m_projectHandle->findSnapshot (getSourceAge (record)) == snapshot)
          {
             setSourceTrapID (record, newTrapNumber);
          }
 
-         if (getDestinationTrapID (record) == oldTrapNumber && m_projectHandle->findSnapshot (getDestinationAge (record)) == snapshot)
+         if (getDestinationTrapID (record) == oldTrapNumber and m_projectHandle->findSnapshot (getDestinationAge (record)) == snapshot)
          {
             setDestinationTrapID (record, newTrapNumber);
          }
@@ -1985,9 +1964,9 @@ const Interface::GridMap * Migrator::getPropertyGridMap (const string & property
    int selectionFlags = 0;
 
    if (reservoir) selectionFlags |= Interface::RESERVOIR;
-   if (formation && !surface) selectionFlags |= Interface::FORMATION;
-   if (surface && !formation) selectionFlags |= Interface::SURFACE;
-   if (formation && surface) selectionFlags |= Interface::FORMATIONSURFACE;
+   if (formation and !surface) selectionFlags |= Interface::FORMATION;
+   if (surface and !formation) selectionFlags |= Interface::SURFACE;
+   if (formation and surface) selectionFlags |= Interface::FORMATIONSURFACE;
 
    Interface::PropertyValueList * propertyValues = m_projectHandle->getPropertyValues (selectionFlags,
       m_projectHandle->findProperty (propertyName),
