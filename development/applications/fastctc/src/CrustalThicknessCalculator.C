@@ -232,8 +232,6 @@ void CrustalThicknessCalculator::deleteCTCPropertyValues()
 void CrustalThicknessCalculator::run() {
 
    Interface::IdentityFunctor identity;
-   GridMap* currentPressureTTS = nullptr;
-   std::shared_ptr<GridMap> prensentDayPressureTTS;
    std::shared_ptr<GridMap> presentDayTTS;
    Validator validator( *this );
    std::vector< double > snapshotForLoop = m_inputData->copySnapshots();
@@ -293,12 +291,10 @@ void CrustalThicknessCalculator::run() {
             TotalTectonicSubsidenceCalculator TTScalculator( *m_inputData, m_outputData, validator,
                age, densityCalculator.getAirCorrection(), m_previousTTS, m_seaBottomDepth );
             TTScalculator.compute();
-            currentPressureTTS = m_inputData->loadPropertyDataFromDepthMap( this, m_outputData.getMap( WLSMap ), pressureInterfaceProperty, theSnapshot );
             // This is just for the first step when we compute the TTS at 0Ma, then we go in the reverse order
             if (k == 0){
                assert( age == 0.0 );
                presentDayTTS          = std::shared_ptr<GridMap>( this->getFactory()->produceGridMap( nullptr, 0, m_outputData.getMap( WLSMap ), identity ) );
-               prensentDayPressureTTS = std::shared_ptr<GridMap>( this->getFactory()->produceGridMap( nullptr, 0, currentPressureTTS,            identity ) );
                // delete the record so it will not be save in TimeIoTbl
                m_recordLessMapPropertyValues.clear();
                restoreData();
@@ -308,14 +304,10 @@ void CrustalThicknessCalculator::run() {
                m_previousTTS = m_outputData.getMap( WLSMap );
             }
          }
-         else{
-            currentPressureTTS = nullptr;
-         }
 
          /// 5. Compute the Paleowaterdepth
          LogHandler( LogHandler::INFO_SEVERITY ) << "   -> computing Paleowaterdepth";
-         PaleowaterdepthCalculator PWDcalculator( *m_inputData, m_outputData, validator,
-            presentDayTTS.get(), prensentDayPressureTTS.get(), currentPressureTTS );
+         PaleowaterdepthCalculator PWDcalculator( *m_inputData, m_outputData, validator, presentDayTTS.get() );
          PWDcalculator.compute();
 
          // 6. Compute the PaleowaterdepthResidual (only if we have a SDH at this snapshot and if we are not at present day)

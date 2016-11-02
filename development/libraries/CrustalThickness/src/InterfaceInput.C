@@ -54,6 +54,7 @@ InterfaceInput::InterfaceInput( const std::shared_ptr< const CrustalThicknessDat
    m_botOfMantle               (nullptr),
    m_derivedManager            (nullptr),
    m_pressureBasement          (nullptr),
+   m_pressureBasementPresentDay(nullptr),
    m_pressureWaterBottom       (nullptr),
    m_pressureMantle            (nullptr),
    m_pressureMantleAtPresentDay(nullptr),
@@ -595,7 +596,8 @@ void InterfaceInput::loadPressureData( GeoPhysics::ProjectHandle* projectHandle,
    const Interface::Snapshot * presentDaySnapshot = projectHandle->findSnapshot( 0.0,         MINOR | MAJOR );
    try{
       // Find the pressure property of the bottom of sediment
-      m_pressureBasement = m_derivedManager->getSurfaceProperty( pressureProperty, currentSnapshot, m_bottomOfSedimentSurface );
+      m_pressureBasement           = m_derivedManager->getSurfaceProperty( pressureProperty, currentSnapshot,    m_bottomOfSedimentSurface );
+      m_pressureBasementPresentDay = m_derivedManager->getSurfaceProperty( pressureProperty, presentDaySnapshot, m_bottomOfSedimentSurface );
       // Find the pressure property of the top of sediment
       m_pressureWaterBottom = m_derivedManager->getSurfaceProperty( pressureProperty, currentSnapshot, m_topOfSedimentSurface );
       // Find the pressure property of the bottom of the mantle
@@ -609,75 +611,6 @@ void InterfaceInput::loadPressureData( GeoPhysics::ProjectHandle* projectHandle,
       LogHandler( LogHandler::FATAL_SEVERITY ) << "Could not load pressure data for property " << pressureProperty->getName() << " @ snapshot " << snapshotAge;
       throw;
    }
-
-}
-
-//------------------------------------------------------------//
-GridMap* InterfaceInput::loadPropertyDataFromDepthMap( DataAccess::Mining::ProjectHandle* handle,
-                                                       const GridMap* depthMap,
-                                                       const Interface::Property* property,
-                                                       const Interface::Snapshot* snapshot ){
-
-   if (handle == nullptr or depthMap == nullptr or property == nullptr or snapshot == nullptr){
-      throw InputException() << "Could not load property " << property->getName() << " from depth map @ snapshot " <<
-         snapshot->getTime() << " because one of the function inputs is a null pointer";
-   }
-   if (m_derivedManager == nullptr) loadDerivedPropertyManager();
-   GridMap* outputPropertyMap = m_crustalThicknessData->getFactory()->produceGridMap( 0, 0, handle->getActivityOutputGrid(), Interface::DefaultUndefinedMapValue, 1 );
-   if (outputPropertyMap == nullptr){
-      throw InputException() << "Could not create grid map to store property values";
-   }
-   outputPropertyMap->retrieveData();
-
-   ///1. Set the dataminer to the property we want to extract
-   DataAccess::Mining::DataMiner dataMiner( handle, *m_derivedManager );
-   std::vector<const Interface::Property*> propertySet;
-   propertySet.push_back( property );
-   handle->getDomainPropertyCollection()->setSnapshot( snapshot );
-   dataMiner.setProperties( propertySet );
-   ///2. Set the cauldron domain to the snapshot we want to extract
-   DataAccess::Mining::CauldronDomain cauldronDomain( handle );
-   cauldronDomain.setSnapshot( snapshot, *m_derivedManager );
-   ///3. Iniliasize list of elements and interpolated values
-   DataAccess::Mining::ElementPosition elementPosition;
-   std::vector<DataAccess::Mining::ElementPosition> elementPositionSequence;
-   std::vector<DataAccess::Mining::InterpolatedPropertyValues> interpolatedValues;
-   ///4. Find x,y,z position
-   std::map<unsigned int, map<unsigned int, size_t>> mapIJtoElement;
-   const unsigned int firstI = depthMap->firstI();
-   const unsigned int lastI  = depthMap->lastI();
-   const unsigned int firstJ = depthMap->firstJ();
-   const unsigned int lastJ  = depthMap->lastJ();
-   const double deltaX = depthMap->deltaI();
-   const double deltaY = depthMap->deltaJ();
-   double x, y, z;
-   for (unsigned int i = firstI; i <= lastI; i++){
-      for (unsigned int j = firstJ; j <= lastJ; j++){
-         if (handle->getNodeIsValid( i, j )){
-            x = depthMap->minI() + double( i ) * deltaX;
-            y = depthMap->minJ() + double( j ) * deltaY;
-            z = depthMap->getValue(i,j);
-            cauldronDomain.findLocation( x, y, z, elementPosition );
-            elementPositionSequence.push_back( elementPosition );
-            mapIJtoElement[i][j] = elementPositionSequence.size() - 1;
-         }
-      }
-   }
-   ///5. Interpolate property values for each x,y,z location
-   dataMiner.compute( elementPositionSequence, property, interpolatedValues );
-   ///6. Set values to grid map
-   for (unsigned int i = firstI; i <= lastI; i++){
-      for (unsigned int j = firstJ; j <= lastJ; j++){
-         if (handle->getNodeIsValid( i, j )){
-            outputPropertyMap->setValue( i, j, interpolatedValues[mapIJtoElement[i][j]].operator()( property ) );
-         }
-         else{
-            outputPropertyMap->setValue( i, j, Interface::DefaultUndefinedMapValue );
-         }
-      }
-   }
-   outputPropertyMap->restoreData();
-   return outputPropertyMap;
 
 }
 

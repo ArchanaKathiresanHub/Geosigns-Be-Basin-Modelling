@@ -95,16 +95,6 @@ public:
    /// @return The depth property
    const DataModel::AbstractProperty* loadDepthProperty( );
 
-   /// @brief Load a property at the defined snapshot for every point specified in the depth map
-   /// @param[in] handle The datamining project handle
-   /// @param[in] depthMap The depth map whcih defines the location of the points where we want to load the property
-   /// @param[in] property The property to load
-   /// @param[in] snapshot The snapshot at which we want to load the property
-   /// @return A grid map with the property values at the defined snapshot and depth
-   GridMap* loadPropertyDataFromDepthMap( DataAccess::Mining::ProjectHandle* handle,
-                                          const GridMap* depthMap,
-                                          const Interface::Property* property,
-                                          const Interface::Snapshot* snapshot );
    /// @}
 
    /// @defgroup Accessors
@@ -119,18 +109,19 @@ public:
    const CrustalThickness::ConfigFileParameterCtc& getConstants() const { return m_constants;           }
    const string& getBaseRiftSurfaceName()                         const { return m_baseRiftSurfaceName; }
 
-   const GridMap& getHCuMap    () const;
-   const GridMap& getHLMuMap   () const;
+   const GridMap& getHCuMap()  const;
+   const GridMap& getHLMuMap() const;
 
    double getContinentalCrustRatio() const { return m_continentalCrustRatio; };
    double getOceanicCrustRatio()     const { return m_oceanicCrustRatio;     };
 
-   DerivedProperties::SurfacePropertyPtr getPressureBasement           () const { return m_pressureBasement;           }
-   DerivedProperties::SurfacePropertyPtr getPressureWaterBottom        () const { return m_pressureWaterBottom;        }
-   DerivedProperties::SurfacePropertyPtr getPressureMantle             () const { return m_pressureMantle;             }
-   DerivedProperties::SurfacePropertyPtr getPressureMantleAtPresentDay () const { return m_pressureMantleAtPresentDay; }
-   DerivedProperties::SurfacePropertyPtr getDepthBasement              () const { return m_depthBasement;              }
-   DerivedProperties::SurfacePropertyPtr getDepthWaterBottom           () const { return m_depthWaterBottom;           }
+   DerivedProperties::SurfacePropertyPtr getPressureBasement            () const { return m_pressureBasement;           }
+   DerivedProperties::SurfacePropertyPtr getPressureBasementAtPresentDay() const { return m_pressureBasementPresentDay; }
+   DerivedProperties::SurfacePropertyPtr getPressureWaterBottom         () const { return m_pressureWaterBottom;        }
+   DerivedProperties::SurfacePropertyPtr getPressureMantle              () const { return m_pressureMantle;             }
+   DerivedProperties::SurfacePropertyPtr getPressureMantleAtPresentDay  () const { return m_pressureMantleAtPresentDay; }
+   DerivedProperties::SurfacePropertyPtr getDepthBasement               () const { return m_depthBasement;              }
+   DerivedProperties::SurfacePropertyPtr getDepthWaterBottom            () const { return m_depthWaterBottom;           }
 
    const Interface::Surface* getTopOfSedimentSurface() const { return m_topOfSedimentSurface;    }
    const Interface::Surface* getBotOfSedimentSurface() const { return m_bottomOfSedimentSurface; }
@@ -224,8 +215,8 @@ protected:
 
    std::map<const double, std::shared_ptr<CrustalThickness::RiftingEvent>> m_riftingEvents; /// All the rifting events mapped to their stratigraphic age
 
-   GridMap const * m_HCuMap;     ///< Initial continental crust thickness        [m]
-   GridMap const * m_HLMuMap;    ///< Initial lithospheric mantle thickness      [m]
+   GridMap const * m_HCuMap;     ///< Initial continental crust thickness   [m]
+   GridMap const * m_HLMuMap;    ///< Initial lithospheric mantle thickness [m]
    /// @}
 
    /// @defgroup Debug_ProjectFile_Data
@@ -248,6 +239,7 @@ protected:
    /// @{
    DerivedProperties::DerivedPropertyManager* m_derivedManager;        ///< The derived property manager (we have to use a pointer for forward declaration due to crossdependent libraries)
    DerivedProperties::SurfacePropertyPtr m_pressureBasement;           ///< The pressure of the basement at the current snapshot
+   DerivedProperties::SurfacePropertyPtr m_pressureBasementPresentDay; ///< The pressure of the basement at the present day
    DerivedProperties::SurfacePropertyPtr m_pressureWaterBottom;        ///< The pressure of the water bottom at the current snapshot
    DerivedProperties::SurfacePropertyPtr m_pressureMantle;             ///< The pressure of the bottom of mantle at the current snapshot
    DerivedProperties::SurfacePropertyPtr m_pressureMantleAtPresentDay; ///< The pressure of the bootom of mantle at the present day

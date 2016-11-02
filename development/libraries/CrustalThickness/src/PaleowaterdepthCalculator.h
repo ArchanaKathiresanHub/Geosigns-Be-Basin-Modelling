@@ -35,32 +35,27 @@ class PaleowaterdepthCalculator {
    public:
    
       /// @brief Constructs the PWD calculator in order to compute the paleowaterdepth
-      /// @details Retrieve presentDayPressureTTS and currentPressureTTS data if they are not nullptr
-      /// @param presentDayPressureMantle The present day pressure of the top mantle
-      /// @param currentPressureMantle The current snapshot pressure of the top mantle
-      /// @param presentDayPressureTTS The present day pressure at the present day TTS depth
-      /// @param currentPressureTTS The current snapshot pressure at the current snapshot TTS depth
+      /// @details Retrieve presentDayPressureBasement and currentPressureBasement data if they are not nullptr
+      /// @param[in] presentDayTTS The present day Total Tectonic Subsidence
       PaleowaterdepthCalculator( const InterfaceInput&     inputData,
                                  AbstractInterfaceOutput&  outputData,
                                  const AbstractValidator&  validator,
-                                 const Interface::GridMap* presentDayTTS,
-                                 const Interface::GridMap* presentDayPressureTTS = 0,
-                                 const Interface::GridMap* currentPressureTTS    = 0 );
+                                 const Interface::GridMap* presentDayTTS );
 
-      /// @details Restore presentDayPressureTTS and currentPressureTTS data if they are not nullptr
+      /// @details Restore presentDayPressureBasement and currentPressureBasement data if they are not nullptr
       ~PaleowaterdepthCalculator();
 
       /// @brief Computes the paleowaterdepth map
       void compute();
 
       /// @return The paleowaterdepth with the thermal correction
-      /// @details The thermal correction aims to equilibrate the pressure between the TTS and the Top Mantle
+      /// @details The thermal correction aims to equilibrate the pressure between the Basement and the bottom Mantle
       double calculatePWD( const double presentDayTTS,
                            const double backstrip,
                            const double presentDayPressureBotMantle,
-                           const double presentDayPressureTTS,
+                           const double presentDayPressureBasement,
                            const double currentPressureBotMantle,
-                           const double currentPressureTTS ) const;
+                           const double currentPressureBasement ) const;
 
       /// @return The paleowaterdepth without the thermal correction
       double calculatePWD( const double presentDayTTS,
@@ -84,11 +79,11 @@ class PaleowaterdepthCalculator {
       const double  m_mantleDensity; ///< The mantle density (is currently the same for lithospheric and asthenospheric mantle)
       const double  m_waterDensity;  ///< The water density
 
-      const DerivedProperties::SurfacePropertyPtr m_presentDayPressureMantle; ///< The present day pressure of the top mantle
-      const DerivedProperties::SurfacePropertyPtr m_currentPressureMantle;    ///< The current snapshot pressure of the top mantle
-      const Interface::GridMap* m_presentDayTTS;                              ///< The present day total tectonic subsidence (at 0.0Ma)
-      const Interface::GridMap* m_presentDayPressureTTS;                      ///< The present day pressure at the present day TTS depth
-      const Interface::GridMap* m_currentPressureTTS;                         ///< The current snapshot pressure at the current snapshot TTS depth
+      const DerivedProperties::SurfacePropertyPtr m_presentDayPressureMantle;   ///< The present day pressure of the top mantle
+      const DerivedProperties::SurfacePropertyPtr m_currentPressureMantle;      ///< The current snapshot pressure of the top mantle
+      const DerivedProperties::SurfacePropertyPtr m_presentDayPressureBasement; ///< The present day pressure at the present day basement depth
+      const DerivedProperties::SurfacePropertyPtr m_currentPressureBasement;    ///< The current snapshot pressure at the current snapshot basement depth
+      const Interface::GridMap* m_presentDayTTS;                                ///< The present day total tectonic subsidence
 
       AbstractInterfaceOutput& m_outputData; ///< The global interface output object (contains the output maps)
       const AbstractValidator& m_validator;  ///< The validator to check if a node (i,j) is valid or not
