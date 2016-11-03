@@ -280,8 +280,14 @@ namespace migration
       void reportLeakages (void);
       bool computeDistributionParameters (void);
       double biodegradeCharges (void);
+      
+      // Pasteurization functions. They must be exectuted in the following order:
       bool computeHydrocarbonWaterContactDepth (void);
       bool computeHydrocarbonWaterTemperature (void);
+      bool needToComputePasteurizationStatusFromScratch(void);
+      bool pasteurizationStatus(void);
+      bool setPasteurizationStatus(void);
+	  
       bool diffusionLeakCharges (void);
       bool addChargesToBeMigrated (ComponentId componentId, const DataAccess::Interface::GridMap * gridMap, double fraction, Barrier * barrier);
       bool addChargesToBeMigrated (const DataAccess::Interface::GridMap * gridMap, double fraction, Barrier * barrier);

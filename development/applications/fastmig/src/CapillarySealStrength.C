@@ -57,11 +57,11 @@ namespace migration {
       {
          if ( composition.getWeight( ) > 0.0 )
          {
-            double T_c_K = pvtFlash::criticalTemperatureAccordingToLiMixingRuleWithLumping( composition.
-               getWeights( ), gorm );
             if ( m_permeability.size( ) == 2 ) //both reservoir and seal formations are defined
             {
-
+               double T_c_K = pvtFlash::criticalTemperatureAccordingToLiMixingRuleWithLumping( composition.
+               getWeights( ), gorm );
+               
                double capSealStrength_H2O_HC_reservoir = 0;
                double capSealStrength_H2O_HC_seal = 0;
 

@@ -2678,9 +2678,11 @@ namespace migration
       {
          if (!m_migrator->performLegacyMigration ())
          {
-            if (!computeHydrocarbonWaterContactDepth ())
-               return false;
-            if (!computeHydrocarbonWaterTemperature ())
+            if (!computeHydrocarbonWaterContactDepth () or
+                !computeHydrocarbonWaterTemperature () or 
+                !needToComputePasteurizationStatusFromScratch() or
+                !pasteurizationStatus() or
+                !setPasteurizationStatus())
                return false;
          }
          m_biodegraded = biodegradeCharges ();
@@ -2811,6 +2813,78 @@ namespace migration
 
       return succeded;
    };
+   
+   bool Reservoir::needToComputePasteurizationStatusFromScratch()
+   {
+	   RequestHandling::StartRequestHandling(m_migrator, "needToComputePasteurizationStatusFromScratch");
+
+	   const BiodegradationParameters* biodegradationParameters =
+		   getProjectHandle()->getBiodegradationParameters();
+
+	   Biodegrade biodegrade(biodegradationParameters);
+
+	   // If the user has toggle on the pasteurization effect
+	   if (biodegrade.pasteurizationInd())
+	   {
+		   for (TrapVector::iterator trapIter = m_traps.begin(); trapIter != m_traps.end(); ++trapIter)
+		   {
+			   (*trapIter)->needToComputePasteurizationStatusFromScratch();
+		   }
+	   }
+	   RequestHandling::FinishRequestHandling();
+
+	   return true;
+   };
+
+
+   bool Reservoir::pasteurizationStatus()
+   {
+	   RequestHandling::StartRequestHandling(m_migrator, "pasteurizationStatus");
+
+	   const BiodegradationParameters* biodegradationParameters =
+		   getProjectHandle()->getBiodegradationParameters();
+
+	   Biodegrade biodegrade(biodegradationParameters);
+
+	   // If the user has toggle on the pasteurization effect
+	   if (biodegrade.pasteurizationInd())
+	   {
+		   for (TrapVector::iterator trapIter = m_traps.begin(); trapIter != m_traps.end(); ++trapIter)
+		   {
+			  (*trapIter)->pasteurizationStatus(biodegrade.maxBioTemp());
+		   }
+	   }
+
+	   RequestHandling::FinishRequestHandling();
+
+	   return true;
+   };
+
+
+   bool Reservoir::setPasteurizationStatus()
+   {
+	   RequestHandling::StartRequestHandling(m_migrator, "setPasteurizationStatus");
+
+	   const BiodegradationParameters* biodegradationParameters =
+		   getProjectHandle()->getBiodegradationParameters();
+
+	   Biodegrade biodegrade(biodegradationParameters);
+
+	   bool succeded = true;
+
+	   // If the user has toggle on the pasteurization effect
+	   if (biodegrade.pasteurizationInd())
+	   {
+		   for (TrapVector::iterator trapIter = m_traps.begin(); trapIter != m_traps.end(); ++trapIter)
+		   {
+			   succeded = (*trapIter)->setPasteurizationStatus(biodegrade.maxBioTemp());
+			   if (!succeded) break;
+		   }
+	   }
+	   RequestHandling::FinishRequestHandling();
+
+	   return succeded;
+   }; 
 
    double Reservoir::biodegradeCharges ()
    {

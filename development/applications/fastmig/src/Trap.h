@@ -354,22 +354,32 @@ namespace migration
       double biodegradeChargesLegacy (const double& timeInterval, const Biodegrade& biodegrade);
       double biodegradeChargesLegacy (const double& timeInterval, const Biodegrade& biodegrade, PhaseId phase);
 
-      /*!
-      * \brief Assesses if a trap is pasteurized or not
-      * \details This status is based on the status of the columns that composed the trap.
-      * If the status of the columns is flagged as pasteurized, then no biodegradation should happen in the trap.
-      * If the status of the columns is flagged as not-pasteurized, then biodegradation should occurs in the trap if the temperature allows it.
+	   /*!
+      * \brief Check if a trap has already pasteurized columns or not. 
+      * Loop over the interior of the trap and if pasteurized columns are present then is not needed to compute the pasteurization state from scratch.
+      */  
+	   void needToComputePasteurizationStatusFromScratch();                   
+	   
+	   /*!
+      * \brief If m_computePasteurizationStatusFromScratch is true set the pasteurization state for all column. 
+      * After this operation m_isPasteurized is set and we do not need to re-set the column state in setPasteurizationStatus
+      * Otherwise determine the type of columns present in the trap and let the next setPasteurizationStatus function doing the job of setting the column state. 
+      */
+	   void pasteurizationStatus(const double maxBiodegradationTemperature);    
+	   
+	   /*!
+      * \brief Handeling of particular cases:
       *
-      * Handeling of particular cases:
       *  A mix of pasteurized and neutral columns => the trap is pasteurized
       *     Rationale behind this: if the trap grows and (neutral) columns are added to the trap, those columns will be at a deeper depth and so already pasteurized
       *  A mix of NOT pasteurized and neutral columns => the trap is NOT pasteurized
       *  A mix of pasteurized and NOT pasteurized columns => the trap is NOT pasteurized
       *     Rationale behind this: merging of two traps, so the bacteria in one (not pasteurized) trap can migrate to the other (previously pasteurized) trap
 
-      * \return The pateurization status of the trap: TRUE = trap is pasteurized / FALSE = trap not pasteurized
+      * \return The pateurization status of the trap m_isPasteurized is set: TRUE = trap is pasteurized / FALSE = trap not pasteurized
       */
-      bool isPasteurized (const double maxBiodegradationTemperature);
+	   bool setPasteurizationStatus(const double maxBiodegradationTemperature); // set the pasteurization status of the trap
+
 
       /// If depths contains a vector of formations starting with the formation containing 
       /// this trap, return iterators pointing to the formations which constitute the 
@@ -531,6 +541,10 @@ namespace migration
       double m_fillDepth[NUM_PHASES];
       double m_hydrocarbonWaterContactDepth;
       double m_hydrocarbonWaterContactTemperature;
+      bool m_isPasteurized;
+      bool m_computePasteurizationStatusFromScratch;
+      bool m_includeNotPasteurizedColumn;
+      bool m_includePasteurizedColumn;
 #ifdef COMPUTECAPACITY
       double m_capacity;
 #endif
