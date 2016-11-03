@@ -27,7 +27,6 @@ static void abortOnBadAlloc () {
 
 int main(int argc, char** argv)
 {
-   Utilities::CheckMemory::MemoryChecker mc;
    bool returnStatus = true;
    bool canRunSaltModelling = true;
 
@@ -38,7 +37,8 @@ int main(int argc, char** argv)
    PetscInitialize (&argc, &argv, (char *) 0, PETSC_NULL);
    int rank;
    MPI_Comm_rank( PETSC_COMM_WORLD, &rank );
-
+   Utilities::CheckMemory::MemoryChecker mc(rank);
+   
    // Intitialise fastcauldron loger
    try
    {

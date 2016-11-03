@@ -33,8 +33,8 @@ namespace Utilities
 			/// \brief Constructor.
 			///
 			/// Start the thread that does the checking.
-			/// If the time between samples is outside of the range of minimum and maximum then it iwll be clipped to this range.
-			MemoryChecker(const unsigned int timeBetweenSamples = DefaultTimeBetweenSamples);
+			/// If the time between samples is outside of the range of minimum and maximum then it will be clipped to this range.
+			MemoryChecker(const int rank, const unsigned int timeBetweenSamples = DefaultTimeBetweenSamples);
 
 			/// \brief Destructor.
 			///
@@ -60,6 +60,9 @@ namespace Utilities
 
 			/// \brief The thread on which the memory check function is to be run.
 			boost::thread m_thread;
+
+			/// \brief The rank on which the checker is instantiated
+			int m_rank;
 
 		};
 	}

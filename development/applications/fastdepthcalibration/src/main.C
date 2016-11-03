@@ -30,13 +30,13 @@ int main(int argc, char** argv)
 {
    // If bad_alloc is raised during an allocation of memory then this function will be called.
    std::set_new_handler( abortOnBadAlloc );
-   Utilities::CheckMemory::MemoryChecker mc;
-
+  
    // Initialise Petsc and get rank & size of MPI
    PetscInitialize( &argc, &argv, (char *)0, PETSC_NULL );
 
    int rank;
    MPI_Comm_rank( PETSC_COMM_WORLD, &rank );
+   Utilities::CheckMemory::MemoryChecker mc(rank);
 
    try
    {
