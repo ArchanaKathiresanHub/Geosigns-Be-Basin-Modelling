@@ -73,32 +73,32 @@ file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/test_cbm00)
 # Original project file to be anonymized
 configure_file( 
       ${CMAKE_CURRENT_SOURCE_DIR}/test/cbm00/Wyllie.project3d
-      test_cbm00
+      ${CMAKE_CURRENT_BINARY_DIR}/test_cbm00
       COPYONLY
 )
 # Original map HDF file to be anonymized
 configure_file( 
       ${CMAKE_CURRENT_SOURCE_DIR}/test/cbm00/Inputs.HDF
-      test_cbm00
+      ${CMAKE_CURRENT_BINARY_DIR}/test_cbm00
       COPYONLY
 )
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/test_cbm00/anonymized2compare)
 # Anonymized project file to be used as comparison reference
 configure_file( 
       ${CMAKE_CURRENT_SOURCE_DIR}/test/cbm00/anonymized2compare/Project.anonymized.project3d
-      test_cbm00/anonymized2compare
+      ${CMAKE_CURRENT_BINARY_DIR}/test_cbm00/anonymized2compare
       COPYONLY
 )
 # Anonymized map HDF file to be used as comparison reference
 configure_file( 
       ${CMAKE_CURRENT_SOURCE_DIR}/test/cbm00/anonymized2compare/MapFile000.anonymized.HDF
-      test_cbm00/anonymized2compare
+      ${CMAKE_CURRENT_BINARY_DIR}/test_cbm00/anonymized2compare
       COPYONLY
 )
 # File containing names mapping (original-to-anonymized) to be used as comparison reference
 configure_file( 
       ${CMAKE_CURRENT_SOURCE_DIR}/test/cbm00/anonymized2compare/Wyllie.namesMapping.txt
-      test_cbm00/anonymized2compare
+      ${CMAKE_CURRENT_BINARY_DIR}/test_cbm00/anonymized2compare
       COPYONLY
 )
 
