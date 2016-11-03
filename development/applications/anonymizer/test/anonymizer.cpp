@@ -175,7 +175,7 @@ TEST( AnonymizerTest, test_cbm00 )
    outputFolder << anonymizer.s_anonymizedFolder;
    outputFolder.clean();
 
-   anonymizer.run( "test_cbm00" );
+   EXPECT_TRUE( anonymizer.run( "test_cbm00" ) );
 
    supportFunc::checkProjectFile(anonymizer, "test_cbm00");
    supportFunc::checkMapping(anonymizer, "test_cbm00");

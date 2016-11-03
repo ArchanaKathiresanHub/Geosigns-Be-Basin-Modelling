@@ -1,3 +1,13 @@
+//                                                                      
+// Copyright (C) 2012-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
+
 #include "anonymizer.h"
 
 #include <algorithm>
@@ -188,36 +198,29 @@ void Anonymizer::write()
    writeStratIoTbl();
 
    update( "BoundaryValuesIoTbl", "PropertyValueGrid", m_gridMap );
-
    update( "SurfaceTempIoTbl", "TemperatureGrid", m_gridMap );
    update( "SurfaceDepthIoTbl", "DepthGrid", m_gridMap );
    update( "MntlHeatFlowIoTbl", "HeatFlowGrid", m_gridMap );
    update( "BasementIoTbl", "TopCrustHeatProdGrid", m_gridMap );
-   
    update( "MobLayThicknIoTbl", "LayerName", m_layerNames );
    update( "MobLayThicknIoTbl", "ThicknessGrid", m_gridMap );
-
    update( "AllochthonLithoIoTbl", "LayerName", m_layerNames );
    update( "AllochthonLithoIoTbl", "Lithotype", m_lithoTypes );
    update( "AllochthonLithoDistribIoTbl", "LayerName", m_layerNames );
    update( "AllochthonLithoDistribIoTbl", "DistributionGrid", m_gridMap );
    update( "AllochthonLithoInterpIoTbl", "LayerName", m_layerNames );
-
    update( "CrustIoTbl", "ThicknessGrid", m_gridMap );
    update( "ContCrustalThicknessIoTbl", "ThicknessGrid", m_gridMap );
    update( "BasaltThicknessIoTbl", "BasaltThicknessGrid", m_gridMap );
    update( "BasaltThicknessIoTbl", "CrustThicknessMeltOnsetGrid", m_gridMap );
-
    writeLithotypeIoTbl();
    update( "LitThCondIoTbl", "Lithotype", m_lithoTypes );
    update( "LitHeatCapIoTbl", "Lithotype", m_lithoTypes );
-
    writeFluidtypeIoTbl();
    update( "FltThCondIoTbl", "Fluidtype", m_fluidTypes );
    update( "FltHeatCapIoTbl", "Fluidtype", m_fluidTypes );
    update( "FltDensityIoTbl", "Fluidtype", m_fluidTypes );
-   update( "FltViscoIoTbl", "Fluidtype", m_fluidTypes );
-   
+   update( "FltViscoIoTbl", "Fluidtype", m_fluidTypes );   
    update( "SourceRockLithoIoTbl", "LayerName", m_layerNames );
    update( "SourceRockLithoIoTbl", "SourceRockType", m_sourceRockTypes );
    update( "SourceRockLithoIoTbl", "TocIniGrid", m_gridMap );
@@ -238,7 +241,6 @@ void Anonymizer::write()
    update( "SourceRockLithoIoTbl", "NGenexTimeStepsGrid", m_gridMap );
    update( "SourceRockLithoIoTbl", "NGenexSlicesGrid", m_gridMap );
    update( "SourceRockLithoIoTbl", "AdsorptionCapacityFunctionName", m_langmuirNames );
-   
    update( "CTCIoTbl", "SurfaceName", m_surfaceNames );
    update( "CTCIoTbl", "T0IniGrid", m_gridMap );
    update( "CTCIoTbl", "TRIniGrid", m_gridMap );
@@ -246,7 +248,6 @@ void Anonymizer::write()
    update( "CTCIoTbl", "HLMuIniGrid", m_gridMap );
    update( "CTCIoTbl", "HBuGrid", m_gridMap );
    update( "CTCIoTbl", "DeltaSLGrid", m_gridMap );
-   
    update( "ReservoirIoTbl", "ReservoirName", m_reservoirNames );
    update( "ReservoirIoTbl", "FormationName", m_layerNames );
    update( "ReservoirIoTbl", "DepthOffsetGrid", m_gridMap );
@@ -255,46 +256,34 @@ void Anonymizer::write()
    update( "ReservoirIoTbl", "Percent1Grid", m_gridMap );
    update( "ReservoirIoTbl", "Percent2Grid", m_gridMap );
    update( "ReservoirIoTbl", "LayerFrequencyGrid", m_gridMap );
-   
    update( "DetectedReservoirIoTbl", "DepthOffsetGrid", m_gridMap );
    update( "DetectedReservoirIoTbl", "ThicknessGrid", m_gridMap );
    update( "DetectedReservoirIoTbl", "NetToGrossGrid", m_gridMap );
    update( "DetectedReservoirIoTbl", "Percent1Grid", m_gridMap );
    update( "DetectedReservoirIoTbl", "Percent2Grid", m_gridMap );
    update( "DetectedReservoirIoTbl", "LayerFrequencyGrid", m_gridMap );
-   
    update( "PalinspasticIoTbl", "DepthGrid", m_gridMap );
    update( "PalinspasticIoTbl", "FaultcutsMap", m_gridMap );
    update( "PalinspasticIoTbl", "SurfaceName", m_surfaceNames );
    update( "PalinspasticIoTbl", "BottomFormationName", m_layerNames );
-   
    update( "FaultcutIoTbl", "SurfaceName", m_gridMap );
    update( "PressureFaultcutIoTbl", "FaultcutsMap", m_gridMap );
-
    update( "GenexHistoryLocationIoTbl", "FormationName", m_layerNames );
-
    update( "AdsorptionHistoryIoTbl", "AdsorptionFormationName", m_layerNames );
-
    update( "DataMiningIoTbl", "FormationName", m_layerNames );
    update( "DataMiningIoTbl", "SurfaceName", m_surfaceNames );
    update( "DataMiningIoTbl", "ReservoirName", m_reservoirNames );
-
    update( "SourceRockPropIoTbl", "LayerName", m_layerNames );
    update( "SourceRockPropIoTbl", "MapFileName", m_mapFileNames );
-
    update( "ReservoirPropIoTbl", "ReservoirName", m_reservoirNames );
-   update( "ReservoirPropIoTbl", "MapFileName", m_mapFileNames );
-   
+   update( "ReservoirPropIoTbl", "MapFileName", m_mapFileNames );   
    update( "TouchstoneMapIoTbl", "TcfName", m_mapFileNames );
    update( "TouchstoneMapIoTbl", "FormationName", m_layerNames );
    update( "TouchstoneMapIoTbl", "SurfaceName", m_surfaceNames );
-
    update( "TwoWayTimeIoTbl", "TwoWayTimeGrid", m_gridMap );
-   update( "TwoWayTimeIoTbl", "SurfaceName", m_surfaceNames );
-   
+   update( "TwoWayTimeIoTbl", "SurfaceName", m_surfaceNames );   
    update( "WellLocIoTbl", "WellName", m_wellNames );
    clearTableField( "WellLocIoTbl", "Datum" );
-
    clearTableField( "FilterTimeDepthIoTbl", "SurfaceName" );
    clearTableField( "FilterTimeDepthIoTbl", "FormationName" );
    
@@ -442,7 +431,7 @@ void Anonymizer::writeStratIoTbl()
 
    int counter = 0;
    database::Table::iterator itEnd = table->end();
-   for( database::Table::iterator it = table->begin(); it != itEnd; ++it, ++counter )
+   for( database::Table::iterator it = table->begin(); it != itEnd; ++it )
    {
       database::Record * record = *it;
 
@@ -457,6 +446,8 @@ void Anonymizer::writeStratIoTbl()
       // Rename Fluidtype
       const std::string & fluid = record->getValue<std::string>( "Fluidtype" );
       if( !fluid.empty() ) record->setValue<std::string>( "Fluidtype", m_fluidTypes[ fluid ] );
+
+      ++counter;
    }
 }
 
@@ -770,11 +761,11 @@ namespace supportFunctions
    {
       char buffer[128];
       std::string result = "";
-   #ifdef WIN32
+#ifdef WIN32
       std::shared_ptr<FILE> pipe(_popen(cmd, "r"), _pclose);
-   #else
+#else
       std::shared_ptr<FILE> pipe(popen(cmd, "r"), pclose);
-   #endif
+#endif
       if (!pipe) throw std::runtime_error("popen() failed!");
       while (!feof(pipe.get()))
       {
