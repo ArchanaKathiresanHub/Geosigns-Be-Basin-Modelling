@@ -23,8 +23,7 @@ namespace Utilities
 		MemoryChecker::MemoryChecker(const int rank,const unsigned int timeBetweenSamples) :
 			m_timeBetweenSamples(NumericFunctions::Maximum(MinimumTimeBetweenSamples, NumericFunctions::Minimum(timeBetweenSamples, MaximumTimeBetweenSamples))),
 			m_exit(false),
-			m_thread(boost::bind(&checkMemory, this)),
-			m_rank(rank)
+			m_thread(boost::bind(&checkMemory, rank, this))
 		{
 			m_thread.detach();
 		}
@@ -47,7 +46,7 @@ namespace Utilities
 
 		}
 
-		void MemoryChecker::checkMemory(const MemoryChecker* mc) {
+		void MemoryChecker::checkMemory(const int rank, const MemoryChecker* mc) {
 
 #ifndef _MSC_VER
 			long nprocs = getNumberOfCoresOnline();
@@ -74,7 +73,7 @@ namespace Utilities
 			while (not mc->exitLoop()) {
 
 				if (mc->getMemoryUsed() > memoryPerProcess) {
-					std::cerr << " MeSsAgE WARNING: Current memory used in rank "<< m_rank <<" is " << mc->getMemoryUsed() << " MB, which exceeds the memory per process of " << memoryPerProcess << " MB" << std::endl;
+					std::cerr << " MeSsAgE WARNING: Current memory used in rank "<< rank <<" is " << mc->getMemoryUsed() << " MB, which exceeds the memory per process of " << memoryPerProcess << " MB" << std::endl;
 				}
 
 				boost::this_thread::sleep(boost::posix_time::seconds(mc->m_timeBetweenSamples));

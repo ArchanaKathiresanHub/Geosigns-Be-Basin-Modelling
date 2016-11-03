@@ -50,7 +50,7 @@ namespace Utilities
 			bool exitLoop() const;
 
 			/// \brief The function that is do be run on the thread.
-			static void checkMemory(const MemoryChecker* mc);
+		    static void checkMemory(const int rank, const MemoryChecker* mc);
 
 			/// \brief The delay time between samples.
 			const unsigned int m_timeBetweenSamples;
@@ -60,9 +60,6 @@ namespace Utilities
 
 			/// \brief The thread on which the memory check function is to be run.
 			boost::thread m_thread;
-
-			/// \brief The rank on which the checker is instantiated
-			int m_rank;
 
 		};
 	}
