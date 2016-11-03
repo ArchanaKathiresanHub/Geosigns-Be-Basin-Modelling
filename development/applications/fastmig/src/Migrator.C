@@ -1855,74 +1855,95 @@ void Migrator::sanitizeMigrationRecords (void)
    database::Table::iterator nextIter;
 
    // cerr << "Start sanitizing MigrationIoTbl" << endl;
-   for (iter = m_migrationIoTbl->begin(); iter != m_migrationIoTbl->end(); iter = nextIter)
+   for (iter = m_migrationIoTbl->begin (); iter != m_migrationIoTbl->end (); iter = nextIter)
    {
       database::Record * record = *iter;
-      const string & migrationProcess = getMigrationProcess(record);
-      int sourceTrapId = getSourceTrapID(record);
-      int destinationTrapId = getDestinationTrapID(record);
+      const string & migrationProcess = getMigrationProcess (record);
+      int sourceTrapId = getSourceTrapID (record);
+      int destinationTrapId = getDestinationTrapID (record);
 
       if (migrationProcess == MigrationProcessNames[REMIGRATION])
       {
          if (destinationTrapId < 0)
          {
-            setMigrationProcess(record, MigrationProcessNames[REMIGRATIONLEAKAGE]);
+            setMigrationProcess (record, MigrationProcessNames[REMIGRATIONLEAKAGE]);
+         }
+      }
+      else if (migrationProcess == MigrationProcessNames[REMIGRATIONLEAKAGE])
+      {
+      }
+      else if (migrationProcess == MigrationProcessNames[LEAKAGEFROMTRAP])
+      {
+         if (sourceTrapId < 0)
+         {
+            nextIter = m_migrationIoTbl->removeRecord (iter);
+            continue;
          }
       }
       else if (migrationProcess == MigrationProcessNames[LEAKAGETOTRAP])
       {
          if (destinationTrapId < 0)
          {
-            setMigrationProcess(record, MigrationProcessNames[THROUGHLEAKAGE]);
+            setMigrationProcess (record, MigrationProcessNames[THROUGHLEAKAGE]);
          }
       }
       else if (migrationProcess == MigrationProcessNames[EXPULSION])
       {
          if (destinationTrapId < 0)
          {
-            setMigrationProcess(record, MigrationProcessNames[EXPULSIONLEAKAGE]);
+            setMigrationProcess (record, MigrationProcessNames[EXPULSIONLEAKAGE]);
          }
+      }
+      else if (migrationProcess == MigrationProcessNames[ABSORPTION])
+      {
+      }
+      else if (migrationProcess == MigrationProcessNames[EXPULSIONLEAKAGE])
+      {
       }
       else if (migrationProcess == MigrationProcessNames[SPILL])
       {
          if (sourceTrapId < 0)
          {
             // shouldn't happen!!!
-            nextIter = m_migrationIoTbl->removeRecord(iter);
+
+            nextIter = m_migrationIoTbl->removeRecord (iter);
             continue;
          }
          else if (sourceTrapId == destinationTrapId)
          {
-            nextIter = m_migrationIoTbl->removeRecord(iter);
+            nextIter = m_migrationIoTbl->removeRecord (iter);
             continue;
          }
          else if (destinationTrapId < 0)
          {
-            setMigrationProcess(record, MigrationProcessNames[SPILLUPOROUT]);
+            setMigrationProcess (record, MigrationProcessNames[SPILLUPOROUT]);
          }
+      }
+      else if (migrationProcess == MigrationProcessNames[SPILLUPOROUT])
+      {
+         if (sourceTrapId < 0)
+         {
+            nextIter = m_migrationIoTbl->removeRecord (iter);
+            continue;
+         }
+      }
+      else if (migrationProcess == MigrationProcessNames[THROUGHLEAKAGE])
+      {
       }
       else if (migrationProcess == MigrationProcessNames[BIODEGRADATION] or
          migrationProcess == MigrationProcessNames[DIFFUSION] or
          migrationProcess == MigrationProcessNames[OILTOGASCRACKINGLOST] or
-         migrationProcess == MigrationProcessNames[OILTOGASCRACKINGGAINED] or
-         migrationProcess == MigrationProcessNames[LEAKAGEFROMTRAP] or
-         migrationProcess == MigrationProcessNames[SPILLUPOROUT])
+         migrationProcess == MigrationProcessNames[OILTOGASCRACKINGGAINED])
       {
          if (sourceTrapId < 0)
          {
-            nextIter = m_migrationIoTbl->removeRecord(iter);
+            nextIter = m_migrationIoTbl->removeRecord (iter);
             continue;
          }
       }
-      // Processes for which nothing should be done
-      else if (migrationProcess == MigrationProcessNames[REMIGRATIONLEAKAGE] or
-               migrationProcess == MigrationProcessNames[ABSORPTION] or
-               migrationProcess == MigrationProcessNames[EXPULSIONLEAKAGE] or
-               migrationProcess == MigrationProcessNames[THROUGHLEAKAGE])
-      {
-      }
       nextIter = iter + 1;
    }
+   // cerr << "Finish sanitizing MigrationIoTbl" << endl;
 }
 
 void Migrator::clearMigrationRecordLists (void)

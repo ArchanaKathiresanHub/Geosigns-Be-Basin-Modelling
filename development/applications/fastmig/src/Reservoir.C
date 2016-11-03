@@ -418,7 +418,7 @@ namespace migration
             break;
          }
 
-         if (trap && trap->contains (neighbourColumn))
+         if (trap and trap->contains (neighbourColumn))
          {
             continue;
          }
@@ -453,7 +453,7 @@ namespace migration
          else
          {
             assert (depth == neighbourDepth);
-            if (!adjacentColumn || adjacentColumn->isDeeperThan (neighbourColumn))
+            if (!adjacentColumn or adjacentColumn->isDeeperThan (neighbourColumn))
             {
                minGradient = 0;
                adjacentColumn = neighbourColumn;
@@ -578,7 +578,7 @@ namespace migration
       column->addFlux (weight);
 
       Column * adjacentColumn = column->getAdjacentColumn (phase);
-      while (adjacentColumn != 0 && adjacentColumn != column && IsValid (adjacentColumn))
+      while (adjacentColumn != 0 and adjacentColumn != column and IsValid (adjacentColumn))
       {
          if (adjacentColumn->isWasting (phase)) // everything leaks upward from here
             break;
@@ -605,8 +605,8 @@ namespace migration
    {
       LocalColumn * column = getLocalColumn (i, j);
 
-      if (!IsValid (column) || !column->isMinimum () ||
-         column->isWasting (phase) || column->isSealing (phase) ||
+      if (!IsValid (column) or !column->isMinimum () or
+         column->isWasting (phase) or column->isSealing (phase) or
          column->getTrap ())
       {
          return;
@@ -881,8 +881,8 @@ namespace migration
                double bottomSurfaceDepth = bottomSurfaceGridMap->get (i, j);
                double lowResTopSurfaceDepth = formationGridMap->get (i, j, depth - 1);
 
-               if (lowResTopSurfaceDepth == formationGridMap->getUndefinedValue () ||
-                  topSurfaceDepth == topSurfaceGridMap->getUndefinedValue () ||
+               if (lowResTopSurfaceDepth == formationGridMap->getUndefinedValue () or
+                  topSurfaceDepth == topSurfaceGridMap->getUndefinedValue () or
                   bottomSurfaceDepth == bottomSurfaceGridMap->getUndefinedValue ())
                {
                   column->setTopDepth (getUndefinedValue ());
@@ -1145,7 +1145,7 @@ namespace migration
             
          // Create the following grid map only once:
          const GridMap* litho1PercentMap = (*f)->getLithoType1PercentageMap ();
-         assert ((*f)->getLithoType1 () && litho1PercentMap);
+         assert ((*f)->getLithoType1 () and litho1PercentMap);
          lithoType1PercentGridMaps.push_back (make_pair (*f, SurfaceGridMap (litho1PercentMap,
             (unsigned int)0)));
 
@@ -1676,7 +1676,7 @@ namespace migration
                   for (int n = 0; n < NumNeighbours; ++n)
                   {
                      Column * neighbourColumn = getColumn (i + NeighbourOffsets2D[n][I], j + NeighbourOffsets2D[n][J]);
-                     if (IsValid (neighbourColumn) && neighbourColumn->getThickness () >= MinimumThickness)
+                     if (IsValid (neighbourColumn) and neighbourColumn->getThickness () >= MinimumThickness)
                      {
                         column->setSealing (GAS);
                         column->setSealing (OIL);
@@ -1753,7 +1753,7 @@ namespace migration
          for (unsigned int j = m_columnArray->firstJLocal (); j <= m_columnArray->lastJLocal (); ++j)
          {
             LocalColumn * column = getLocalColumn (i, j);
-            if (IsValid (column) && (column->getThickness () < MinimumThickness || column->getFaultStatus () != NOFAULT))
+            if (IsValid (column) and (column->getThickness () < MinimumThickness or column->getFaultStatus () != NOFAULT))
             {
                column->resetProxies ();
             }
@@ -1916,7 +1916,7 @@ namespace migration
 
       const Interface::Formation* topFormation = 0;
 
-      for (; topFormation == 0 && formation != 0; formation = formation->getTopFormation ())
+      for (; topFormation == 0 and formation != 0; formation = formation->getTopFormation ())
       {
 
          if (formation->getTopSurface ()->getSnapshot ()->getTime () >= snapshot->getTime ())
@@ -1959,7 +1959,7 @@ namespace migration
 
       const Interface::Formation* bottomFormation = 0;
 
-      for (; bottomFormation == 0 && formation != 0; formation = formation->getBottomFormation ())
+      for (; bottomFormation == 0 and formation != 0; formation = formation->getBottomFormation ())
       {
 
          if (formation->getBottomSurface ()->getSnapshot ()->getTime () >= snapshot->getTime ())
@@ -1999,9 +1999,9 @@ namespace migration
       int selectionFlags = 0;
 
       if (reservoir) selectionFlags |= Interface::RESERVOIR;
-      if (formation && !surface) selectionFlags |= Interface::FORMATION;
-      if (surface && !formation) selectionFlags |= Interface::SURFACE;
-      if (formation && surface) selectionFlags |= Interface::FORMATIONSURFACE;
+      if (formation and !surface) selectionFlags |= Interface::FORMATION;
+      if (surface and !formation) selectionFlags |= Interface::SURFACE;
+      if (formation and surface) selectionFlags |= Interface::FORMATIONSURFACE;
 
       PropertyValueList * propertyValues =
          m_projectHandle->getPropertyValues (selectionFlags,
@@ -2151,7 +2151,7 @@ namespace migration
             double formationTopDepth = formationTopDepthMap->get (i, j);
             double formationBottomDepth = formationBottomDepthMap->get (i, j);
 
-            if (formationTopDepth == formationTopDepthMap->getUndefinedValue () ||
+            if (formationTopDepth == formationTopDepthMap->getUndefinedValue () or
                formationBottomDepth == formationBottomDepthMap->getUndefinedValue ())
             {
                // use default values 0, 0
@@ -2290,7 +2290,7 @@ namespace migration
       PetscOptionsHasName (PETSC_NULL, "-debug", &printDebug);
 
       const double depoTime = formation->getTopSurface ()->getSnapshot ()->getTime ();
-      bool sourceRockIsActive = (depoTime > getStart ()->getTime ()) || fabs (depoTime - getStart ()->getTime ()) < Genex6::Constants::Zero;
+      bool sourceRockIsActive = (depoTime > getStart ()->getTime ()) or fabs (depoTime - getStart ()->getTime ()) < Genex6::Constants::Zero;
 
       Formation * srFormation = const_cast<Formation *>(formation);
 
@@ -2301,7 +2301,7 @@ namespace migration
             if (!formation->isPreprocessed ())
             {
                bool status = srFormation->preprocessSourceRock (getStart ()->getTime (), printDebug);
-               if (!status && GetRank () == 0)
+               if (!status and GetRank () == 0)
                {
                   LogHandler (LogHandler::ERROR_SEVERITY) << "Cannot preprocess " << formation->getName () << ", depoage= " << depoTime << " at " << getStart ()->getTime ();
                }
@@ -2368,7 +2368,7 @@ namespace migration
 
          if (genexFraction and startTime - endTime > 0)
          {
-            if (gridMapStart && gridMapEnd)
+            if (gridMapStart and gridMapEnd)
             {
                fractionToMigrate = (getStart ()->getTime () - getEnd ()->getTime ()) / (startTime - endTime);
                if (endTime == getEnd ()->getTime ())
@@ -2378,7 +2378,7 @@ namespace migration
             }
          }
 
-         if (gridMapStart && gridMapEnd)
+         if (gridMapStart and gridMapEnd)
          {
             if (GetRank () == 0 and  printDebug)
             {
@@ -2391,7 +2391,7 @@ namespace migration
          }
          else
          {
-            if (gridMapStart && !gridMapEnd)
+            if (gridMapStart and !gridMapEnd)
             {
                if (GetRank () == 0 and  printDebug)
                {
@@ -2401,7 +2401,7 @@ namespace migration
                   }
                }
             }
-            else if (!gridMapStart && gridMapEnd)
+            else if (!gridMapStart and gridMapEnd)
             {
                if (GetRank () == 0 and  printDebug)
                {
@@ -2495,10 +2495,10 @@ namespace migration
          {
             LocalColumn * column = getLocalColumn (i, j);
             LocalColumn * leakingColumn = leakingReservoir->getLocalColumn (i, j);
-            if (IsValid (column) && IsValid (leakingColumn) &&
+            if (IsValid (column) and IsValid (leakingColumn) and
                !leakingColumn->isOnBoundary ())
             {
-               if (barrier && barrier->isBlocking (i, j))
+               if (barrier and barrier->isBlocking (i, j))
                   addBlocked (leakingColumn->getComposition ());
                else
                   column->addCompositionToBeMigrated (leakingColumn->getComposition ());
@@ -2547,7 +2547,7 @@ namespace migration
          for (unsigned int j = m_columnArray->firstJLocal (); j <= m_columnArray->lastJLocal (); ++j)
          {
             LocalColumn * column = getLocalColumn (i, j);
-            if (IsValid (column) && (!onBoundaryOnly || column->isOnBoundary ()))
+            if (IsValid (column) and (!onBoundaryOnly or column->isOnBoundary ()))
             {
                total += column->getCompositionWeight ();
             }
@@ -2864,14 +2864,14 @@ namespace migration
       double maxFluxError = 0.05;
       char *envStr = getenv ("Diffusion_MaxFluxError");
 
-      if (envStr && strlen (envStr) != 0)
+      if (envStr and strlen (envStr) != 0)
          maxFluxError = atof (envStr);
 
       // maximum timestep
       double maxTimeStep = 50;
 
       envStr = getenv ("Diffusion_MaxTimeStep");
-      if (envStr && strlen (envStr) != 0)
+      if (envStr and strlen (envStr) != 0)
          maxTimeStep = atof (envStr);
 
       const DiffusionLeakageParameters *parameters = getProjectHandle ()->getDiffusionLeakageParameters ();
@@ -2905,7 +2905,7 @@ namespace migration
 
       for (trapIter = m_traps.begin (); trapIter != m_traps.end (); ++trapIter)
       {
-         if (always && !(*trapIter)->diffusionLeakageOccoured ())
+         if (always and !(*trapIter)->diffusionLeakageOccoured ())
             continue;
          else
             distributionFinished &= (*trapIter)->distributeCharges ();
@@ -2935,7 +2935,7 @@ namespace migration
 #ifdef MERGEUNDERSIZEDTRAPSAPRIORI
    static bool TrapIsUndersized (Column * columnA, Column * columnB)
    {
-      return (columnA->isUndersized () || columnB->isUndersized ());
+      return (columnA->isUndersized () or columnB->isUndersized ());
    }
 
    /// Try to merge traps that are too small with other traps to form traps that are not too small
@@ -2974,7 +2974,7 @@ namespace migration
          for (int phase = FIRST_PHASE; phase < NUM_PHASES; ++phase)
          {
             Column * spillBackColumn;
-            if (((spillBackColumn = crestColumn->getSpillBackTarget ((PhaseId)phase)) != 0) &&
+            if (((spillBackColumn = crestColumn->getSpillBackTarget ((PhaseId)phase)) != 0) and
                (*conditionTest) (crestColumn, spillBackColumn))
             {
                noTrapsToMerge = false;
@@ -3006,7 +3006,7 @@ namespace migration
 
    static bool TrapsAreSpilling (Column * columnA, Column * columnB)
    {
-      return (columnA->isSpilling () && columnB->isSpilling ());
+      return (columnA->isSpilling () and columnB->isSpilling ());
    }
 
    /// First we determine which traps need to merge into which and move the charge of the traps to be absorbed into the absorbing traps.
@@ -3124,7 +3124,7 @@ namespace migration
 
       for (trapIter = m_traps.begin (); trapIter != m_traps.end (); ++trapIter)
       {
-         if (always && !(*trapIter)->diffusionLeakageOccoured ())
+         if (always and !(*trapIter)->diffusionLeakageOccoured ())
             continue;
          else
             (*trapIter)->collectAndSplitCharges (always);
@@ -3176,7 +3176,7 @@ namespace migration
             {
                if (IsValid (column))
                {
-                  if (barrier && barrier->isBlocking (i, j))
+                  if (barrier and barrier->isBlocking (i, j))
                      addBlocked (componentId, gridMap->getValue (i, j) * fraction * getSurface (i, j));
                   else
                      column->addComponentToBeMigrated (componentId, gridMap->getValue (i, j) * fraction * getSurface (i, j));
@@ -3207,7 +3207,7 @@ namespace migration
                {
                   if (IsValid (column))
                   {
-                     if (barrier && barrier->isBlocking (i, j))
+                     if (barrier and barrier->isBlocking (i, j))
                      {
                         addBlocked ((ComponentId)componentId, value * fraction * getSurface (i, j));
                      }
@@ -3233,9 +3233,9 @@ namespace migration
          for (unsigned int j = m_columnArray->firstJLocal (); j <= m_columnArray->lastJLocal (); ++j)
          {
             LocalColumn * column = getLocalColumn (i, j);
-            if (IsValid (column) && gridMap->getValue (i, j) != gridMap->getUndefinedValue ())
+            if (IsValid (column) and gridMap->getValue (i, j) != gridMap->getUndefinedValue ())
             {
-               if (barrier && barrier->isBlocking (i, j))
+               if (barrier and barrier->isBlocking (i, j))
                   subtractBlocked (componentId, gridMap->getValue (i, j) * fraction * getSurface (i, j));
                else
                   column->subtractComponentToBeMigrated (componentId, gridMap->getValue (i, j) * fraction * getSurface (i, j));
@@ -3374,12 +3374,14 @@ namespace migration
       double weight1 = tpr1->composition.getWeight ();
       double weight2 = tpr2->composition.getWeight ();
 
-      if (tpr1->rank < 0 && tpr2->rank >= 0) return 1;
-      if (tpr1->rank >= 0 && tpr2->rank < 0) return -1;
-      if (tpr1->rank < 0 && tpr2->rank < 0) return 0;
+      if (tpr1->rank < 0 and tpr2->rank >= 0) return 1;
+      if (tpr1->rank >= 0 and tpr2->rank < 0) return -1;
+      if (tpr1->rank < 0 and tpr2->rank < 0) return 0;
 
-      if (weight1 > weight2 or tpr1->capacity > tpr2->capacity) return -1;
-      else if (weight1 < weight2 or tpr1->capacity < tpr2->capacity) return 1;
+      if (weight1 > weight2) return -1;
+      else if (weight1 < weight2) return 1;
+      else if (tpr1->capacity > tpr2->capacity) return -1;
+      else if (tpr1->capacity < tpr2->capacity) return 1;
       else return 0;
    }
 
@@ -3502,7 +3504,7 @@ namespace migration
 
             changeTrapPropertiesRequestId (tpRequests, maxNumberOfRequests, tpRequests[i].id, i + 1);
 
-            if (GetRank () == 0 && tpRequests[i].capacity >= minimumCapacity)
+            if (GetRank () == 0 and tpRequests[i].capacity >= minimumCapacity)
             {
                m_migrator->addTrapRecord (this, tpRequests[i]);
             }
@@ -3545,7 +3547,7 @@ namespace migration
          int originatingId = tpRequests[i].id;
          int currentId = tpRequests[i].id;
          double currentCapacity = tpRequests[i].capacity;
-         if (currentId < 0 || currentCapacity >= minimumCapacity)
+         if (currentId < 0 or currentCapacity >= minimumCapacity)
          {
             finalIds[i] = currentId;
             continue;
@@ -3565,7 +3567,7 @@ namespace migration
          // find out where the trap is spilling to if it is spilling
 
          bool finalIdFound = false;
-         while (++iteration < maxIterations && currentlySpilling && currentId > 0 && currentCapacity < minimumCapacity)
+         while (++iteration < maxIterations and currentlySpilling and currentId > 0 and currentCapacity < minimumCapacity)
          {
             unsigned int j;
             for (j = 0; j < maxNumberOfRequests; ++j)
@@ -3613,7 +3615,7 @@ namespace migration
             if (finalIdFound) break;
          }
 
-         if (currentId == tpRequests[i].id || currentCapacity < minimumCapacity) // Nothing came by, not spilling or too small.
+         if (currentId == tpRequests[i].id or currentCapacity < minimumCapacity) // Nothing came by, not spilling or too small.
          {
             currentId = NoTrapId;
 #ifdef SHOWTRAPELIMINATION
@@ -3681,7 +3683,7 @@ namespace migration
    /// report migration from an underling reservoir or from a source rock
    void Reservoir::reportVerticalMigration (Column * sourceColumn, Column * targetColumn, const Composition & composition)
    {
-      assert (m_sourceReservoir || m_sourceFormation);
+      assert (m_sourceReservoir or m_sourceFormation);
 
       MigrationRequest mr;
 
@@ -4005,7 +4007,7 @@ namespace migration
       PetscSynchronizedFlush (PETSC_COMM_WORLD, PETSC_STDOUT);
 #endif
 
-      if (useAllGather || GetRank () == 0)
+      if (useAllGather or GetRank () == 0)
       {
          globalMigrationRequestArray = new MigrationRequest[globalMaximumSize];
       }
@@ -4068,7 +4070,7 @@ namespace migration
       PetscPrintf (PETSC_COMM_WORLD, "Deleting...\n");
 #endif
 
-      if (useAllGather || GetRank () == 0)
+      if (useAllGather or GetRank () == 0)
          delete[] globalMigrationRequestArray;
 
       m_migrationRequests.clear ();

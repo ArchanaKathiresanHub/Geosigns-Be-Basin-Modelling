@@ -1408,7 +1408,7 @@ namespace migration
       if (MaxTries < 0)
          MaxTries = Max (2, NumProcessors () + 8);
 
-      if (m_entered or ( ++m_tried > MaxTries ) )
+      if (m_entered or ++m_tried > MaxTries)
       {
          m_tried = 0;
          computeNextAdjacentNode (); // selects next adjacent formation node; changes output of getAdjacentFormationNode ()
