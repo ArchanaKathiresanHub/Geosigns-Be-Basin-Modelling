@@ -1068,7 +1068,6 @@ void Basin_Modelling::FEM_Grid::Evolve_Pressure_Basin ( const int   Number_Of_Ge
   double Po_Norm;
 
   bool majorSnapshotTimesUpdated;
-  bool fracturingOccurredInPreviousTimeStep = false;
   bool fracturingOccurred;
   WallTime::Time startTime;
 
@@ -1125,8 +1124,6 @@ void Basin_Modelling::FEM_Grid::Evolve_Pressure_Basin ( const int   Number_Of_Ge
                                        true or FastcauldronSimulator::getInstance ().getMcfHandler ().numberOfActiveSubdomains () != 1 );
 
     Temperature_Calculator.Estimate_Temperature ( basinModel, Current_Time );
-
-    fracturingOccurredInPreviousTimeStep = fracturingOccurred;
 
     m_pressureComputationalDomain.resetAge ( Current_Time );
 
@@ -1374,7 +1371,6 @@ void Basin_Modelling::FEM_Grid::Evolve_Coupled_Basin ( const int   Number_Of_Geo
 
   bool majorSnapshotTimesUpdated;
   bool fracturingOccurred = false;
-  bool fracturingOccurredInPreviousTimeStep = false;
   WallTime::Time startTime;
 
   System_Assembly_Time      = 0.0;
@@ -1446,8 +1442,6 @@ void Basin_Modelling::FEM_Grid::Evolve_Coupled_Basin ( const int   Number_Of_Geo
                                       maximumNumberOfOverpressureIterations,
                                       Current_Time, Previous_Time - Current_Time,
                                       true or FastcauldronSimulator::getInstance ().getMcfHandler ().numberOfActiveSubdomains () != 1 );
-
-    fracturingOccurredInPreviousTimeStep = fracturingOccurred;
 
     m_pressureComputationalDomain.resetAge ( Current_Time );
     m_temperatureComputationalDomain.resetAge ( Current_Time );

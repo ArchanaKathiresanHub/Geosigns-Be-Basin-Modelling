@@ -14,7 +14,7 @@ find_package(OpenMP)
 
 set(suggestedOpenMPLinkFlags)
 if (BM_USE_INTEL_COMPILER AND NOT BUILD_SHARED_LIBS)
-  set(suggestedOpenMPLinkFlags "-openmp-link static")
+  set(suggestedOpenMPLinkFlags "-qopenmp-link static")
 endif()
 
 set(OpenMP_LINK_FLAGS "${suggestedOpenMPLinkFlags}" CACHE STRING "Extra flags to link with OpenMP library")

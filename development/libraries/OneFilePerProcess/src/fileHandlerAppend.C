@@ -47,7 +47,7 @@ void FileHandlerAppend::createGroup( const char* name ) {
 void FileHandlerAppend::writeAttributes( ) {
 
    if(! m_update ) {
-      bool status = readAttributes( getLocalDsetId(), getGlobalDsetId() ); 
+      herr_t status = readAttributes( getLocalDsetId(), getGlobalDsetId() ); 
       if( status < 0 ) {
          std::cout << " ERROR Cannot write attributes " << std::endl;
       }

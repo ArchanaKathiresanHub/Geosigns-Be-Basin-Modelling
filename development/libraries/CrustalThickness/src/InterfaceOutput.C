@@ -138,7 +138,7 @@ bool InterfaceOutput::saveXYZOutputMaps( Interface::ProjectHandle * projectHandl
          
          outputFileCrust.open (outputFileName.c_str ());
          if (outputFileCrust.fail ()) {
-            cout << "Could not open XYZ output file for map " << outputMapsNames[i] << endl;
+            cout << "Could not open XYZ output file for map " << outputMapsNames[k] << endl;
             continue;
          }
          m_outputMaps[k]->retrieveData();
@@ -182,7 +182,7 @@ bool InterfaceOutput::saveExcelSurfaceOutputMaps( Interface::ProjectHandle * pro
          
          outputFileCrust.open (outputFileName.c_str ());
          if (outputFileCrust.fail ()) {
-            cout << "Could not open XYZ output file for map " << outputMapsNames[i] << endl;
+            cout << "Could not open XYZ output file for map " << outputMapsNames[k] << endl;
             continue;
          }
          m_outputMaps[k]->retrieveData();
