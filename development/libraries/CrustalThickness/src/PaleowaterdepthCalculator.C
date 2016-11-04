@@ -118,7 +118,7 @@ double PaleowaterdepthCalculator::calculatePWD( const double presentDayTTS,
                                                 const double currentPressureBasement ) const {
    double PWD = presentDayTTS - backstrip;
    assert( m_mantleDensity != m_waterDensity );
-   //Pressure data available to equilibrate Basement and Mantle pressure
+   //Pressure data available to equilibrate Basement and Bottom Mantle pressure
    PWD -= ((presentDayPressureBotMantle - presentDayPressureBasement) - (currentPressureBotMantle - currentPressureBasement)) /
       (PhysicalConstants::AccelerationDueToGravity*(m_mantleDensity - m_waterDensity));
    return PWD;
