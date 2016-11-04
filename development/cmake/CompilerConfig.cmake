@@ -308,7 +308,8 @@ elseif(WIN32)
 
    # to supress errors with multiple defined ceil/floor and so on in libmmt.lib
    add_definitions( "-D_ENABLE_ATOMIC_ALIGNMENT_FIX /D_CRT_SECURE_NO_WARNINGS /wd4996" )
-   #set( CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:MSVCRT" )
+   # Avoiding warning "warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library"
+   set( CMAKE_EXE_LINKER_FLAGS_DEBUG  "${CMAKE_EXE_LINKER_FLAGS_DEBUG} /NODEFAULTLIB:MSVCRT" )
 endif()
 
 
