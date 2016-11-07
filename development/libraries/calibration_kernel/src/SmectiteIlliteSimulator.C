@@ -12,17 +12,20 @@
 #include "SmectiteIlliteSimulatorState.h"
 #include "LinearInterpolator.h"
 #include "SmectiteIlliteOutput.h"
+
+// std library
 #include <iostream>
 #include <fstream>
 #include <iomanip>
 #include <cmath>
 
+// utilities library
+#include "ConstantsPhysics.h"
+using Utilities::Physics::IdealGasConstantCalibration;
+
+
 namespace Calibration
 {
-
-   // Declare some static variables
-   const double SmectiteIlliteSimulator::s_GASCONSTANT = 8.3144;
-   const double SmectiteIlliteSimulator::s_MillionYearToSecond = 3.15576e13; 
 
 SmectiteIlliteSimulator:: SmectiteIlliteSimulator( const double &in_ActEnergy1,  
                                     const double &in_FreqFactor1,
@@ -60,8 +63,8 @@ void SmectiteIlliteSimulator::computeStateVariables(const double &temperatureEnd
    double temperature = 0.5 *(temperatureEnd + NodeSimulatorState.getReferenceTemperature());
    double timestepSize = NodeSimulatorState.getReferenceTime() - timeEnd;
 
-   double rate1 = exp (-m_ActEnergy1 / (s_GASCONSTANT * temperature));
-   double rate2 = exp (-m_ActEnergy2 / (s_GASCONSTANT * temperature));
+   double rate1 = exp (-m_ActEnergy1 / (IdealGasConstantCalibration * temperature));
+   double rate2 = exp (-m_ActEnergy2 / (IdealGasConstantCalibration * temperature));
 
    SimulatorStateVariables[SmectiteIlliteSimulatorState::STOTAL] += timestepSize * (m_FreqFactor2 * rate2 - m_FreqFactor1 * rate1);
    SimulatorStateVariables[SmectiteIlliteSimulatorState::TOTAL1] += rate1 * timestepSize * exp (SimulatorStateVariables[SmectiteIlliteSimulatorState::STOTAL]);

@@ -110,8 +110,8 @@ void DerivedProperties::PermeabilityFormationSurfaceCalculator::calculate ( Deri
                      (*lithologies)( i, j, currentTime )->calcBulkPermeabilityNP ( ves->getA ( i, j ), maxVes->getA ( i, j ), porosity, permNorm, permPlane );
 #endif                     
                      
-                     verticalPermeability->set ( i, j, permNorm / Utilities::Maths::MillyDarcyToM2 );
-                     horizontalPermeability->set ( i, j, permPlane / Utilities::Maths::MillyDarcyToM2 );
+                     verticalPermeability->set ( i, j, permNorm / Utilities::Maths::MilliDarcyToM2 );
+                     horizontalPermeability->set ( i, j, permPlane / Utilities::Maths::MilliDarcyToM2 );
                       
                } else {
                   verticalPermeability->set ( i, j, undefinedValue );

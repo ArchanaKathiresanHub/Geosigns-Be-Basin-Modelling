@@ -17,7 +17,7 @@ using namespace std;
 // utilities library
 #include "FormattingException.h"
 #include "ConstantsMathematics.h"
-using Utilities::Maths::MillyDarcyToM2;
+using Utilities::Maths::MilliDarcyToM2;
 
 GeoPhysics::PermeabilityMixer::PermeabilityMixer () :
    m_layeringIndex ( -1.0 ),
@@ -349,8 +349,8 @@ void GeoPhysics::PermeabilityMixer::mixPermeabilityDerivatives ( const FixedSize
       throw formattingexception::GeneralException () << "Undefined mixing model type";
    }
 
-   permeabilityDerivativeNormal *= MillyDarcyToM2;
-   permeabilityDerivativePlane *= MillyDarcyToM2;
+   permeabilityDerivativeNormal *= MilliDarcyToM2;
+   permeabilityDerivativePlane *= MilliDarcyToM2;
 
 }
 
@@ -439,10 +439,10 @@ inline void GeoPhysics::PermeabilityMixer::mixTwoLayeringIndexZero ( const unsig
    for ( unsigned int i = 0; i < size; ++i ) {
       k21 = std::cbrt ( permeabilities2 [ i ] / permeabilities1 [ i ]);
       normal = 1.0 + m_percentRatio2 * k21;
-      normal = normal * normal * normal * permeabilities1 [ i ] * m_percentPowerNormal * MillyDarcyToM2;
+      normal = normal * normal * normal * permeabilities1 [ i ] * m_percentPowerNormal * MilliDarcyToM2;
 
       plane = 1.0 + m_percentRatio2 * m_anisoRatioExp2 * k21;
-      plane = plane * plane * plane * m_percentPowerPlane * permeabilityAnisotropy1 * permeabilities1 [ i ] * MillyDarcyToM2;
+      plane = plane * plane * plane * m_percentPowerPlane * permeabilityAnisotropy1 * permeabilities1 [ i ] * MilliDarcyToM2;
    }
 
 }
@@ -476,10 +476,10 @@ inline void GeoPhysics::PermeabilityMixer::mixThreeLayeringIndexZero ( const uns
       k21 = std::cbrt ( permeabilities2 [ i ] / k1Inv );
       k31 = std::cbrt ( permeabilities3 [ i ] / k1Inv );
       normal = 1.0 + m_percentRatio2 * k21 + m_percentRatio3 * k31;
-      permeabilityNormal [ i ] = normal * normal * normal * permeabilities1 [ i ] * m_percentPowerNormal * MillyDarcyToM2;
+      permeabilityNormal [ i ] = normal * normal * normal * permeabilities1 [ i ] * m_percentPowerNormal * MilliDarcyToM2;
 
       plane = 1.0 + m_percentRatio2 * m_anisoRatioExp2 * k21 + m_percentRatio3 * m_anisoRatioExp3 * k31;
-      permeabilityPlane [ i ] = plane * plane * plane * m_percentPowerPlane * permeabilityAnisotropy1 * permeabilities1 [ i ] * MillyDarcyToM2;
+      permeabilityPlane [ i ] = plane * plane * plane * m_percentPowerPlane * permeabilityAnisotropy1 * permeabilities1 [ i ] * MilliDarcyToM2;
    }
 
 }
@@ -510,10 +510,10 @@ inline void GeoPhysics::PermeabilityMixer::mixTwoLayeringIndexOne ( const unsign
       permRatio21Exp = permRatio21;
 
       permeabilityNormal [ i ] = 1.0 / ( 1.0 + m_percentRatio2 * permRatio21 / ( permRatio21Exp * permRatio21Exp ));
-      permeabilityNormal [ i ] *= m_percentPowerNormal * permeabilities1 [ i ] * MillyDarcyToM2;
+      permeabilityNormal [ i ] *= m_percentPowerNormal * permeabilities1 [ i ] * MilliDarcyToM2;
 
       permeabilityPlane  [ i ] = 1.0 + m_percentRatio2 * m_anisoRatioExp2 * permRatio21Exp;
-      permeabilityPlane  [ i ] *= m_percentPowerPlane * permeabilityAnisotropy1 * permeabilities1 [ i ] * MillyDarcyToM2;
+      permeabilityPlane  [ i ] *= m_percentPowerPlane * permeabilityAnisotropy1 * permeabilities1 [ i ] * MilliDarcyToM2;
    }
 
 }
@@ -551,10 +551,10 @@ inline void GeoPhysics::PermeabilityMixer::mixThreeLayeringIndexOne ( const unsi
       permRatio31Exp = permRatio31;
 
       permeabilityNormal [ i ] = 1.0 / ( 1.0 + m_percentRatio2 * permRatio21 / ( permRatio21Exp * permRatio21Exp ) + m_percentRatio3 * permRatio31 / (permRatio31Exp * permRatio31Exp ));
-      permeabilityNormal [ i ] *= m_percentPowerNormal * permeabilities1 [ i ] * MillyDarcyToM2;
+      permeabilityNormal [ i ] *= m_percentPowerNormal * permeabilities1 [ i ] * MilliDarcyToM2;
 
       permeabilityPlane  [ i ] = 1.0 + m_percentRatio2 * m_anisoRatioExp2 * permRatio21Exp + m_percentRatio3 * m_anisoRatioExp3 * permRatio31Exp;
-      permeabilityPlane  [ i ] *= m_percentPowerPlane * permeabilityAnisotropy1 * permeabilities1 [ i ] * MillyDarcyToM2;
+      permeabilityPlane  [ i ] *= m_percentPowerPlane * permeabilityAnisotropy1 * permeabilities1 [ i ] * MilliDarcyToM2;
    }
 
 }
@@ -646,10 +646,10 @@ inline void GeoPhysics::PermeabilityMixer::mixTwoLayeringIndexGeneral ( const un
       permRatioExp = std::pow(permRatio, m_mixHorizonExp);
 
       permeabilityNormal [ i ] = std::pow ( 1.0 + m_percentRatio2 * permRatio / (permRatioExp * permRatioExp ), m_inverseMixVerticalExp );
-      permeabilityNormal [ i ] *= m_percentPowerNormal * permeabilities1 [ i ] * MillyDarcyToM2;
+      permeabilityNormal [ i ] *= m_percentPowerNormal * permeabilities1 [ i ] * MilliDarcyToM2;
 
       permeabilityPlane  [ i ] = std::pow( 1.0 + m_percentRatio2 * m_anisoRatioExp2 * permRatioExp,  m_inverseMixHorizonExp );
-      permeabilityPlane  [ i ] *= m_percentPowerPlane * permeabilityAnisotropy1 * permeabilities1 [ i ] * MillyDarcyToM2;
+      permeabilityPlane  [ i ] *= m_percentPowerPlane * permeabilityAnisotropy1 * permeabilities1 [ i ] * MilliDarcyToM2;
    }
 
 }
@@ -690,20 +690,20 @@ inline void GeoPhysics::PermeabilityMixer::mixThreeLayeringIndexGeneral ( const 
       // permeabilityNormal [ i ] += m_percentRatio2 * permRatio21 / (permRatio21Exp * permRatio21Exp );
       // permeabilityNormal [ i ] += m_percentRatio3 * permRatio31 / (permRatio31Exp * permRatio31Exp );
       // permeabilityNormal [ i ] = std::pow ( permeabilityNormal [ i ], m_inverseMixVerticalExp );
-      // permeabilityNormal [ i ] *= m_percentPowerNormal * permeabilities1 [ i ] * MillyDarcyToM2;
+      // permeabilityNormal [ i ] *= m_percentPowerNormal * permeabilities1 [ i ] * MilliDarcyToM2;
 
       // permeabilityPlane  [ i ] = 1.0;
       // permeabilityPlane  [ i ] += m_percentRatio2 * m_anisoRatioExp2 * permRatio21Exp;
       // permeabilityPlane  [ i ] += m_percentRatio3 * m_anisoRatioExp3 * permRatio31Exp;
       // permeabilityPlane  [ i ] = std::pow ( permeabilityPlane  [ i ], m_inverseMixHorizonExp );
-      // permeabilityPlane  [ i ] *= m_percentPowerPlane * permeabilityAnisotropy1 * permeabilities1 [ i ] * MillyDarcyToM2;
+      // permeabilityPlane  [ i ] *= m_percentPowerPlane * permeabilityAnisotropy1 * permeabilities1 [ i ] * MilliDarcyToM2;
 
 
       permeabilityNormal [ i ] = std::pow ( 1.0 + m_percentRatio2 * permRatio21 / (permRatio21Exp * permRatio21Exp ) + m_percentRatio3 * permRatio31 / (permRatio31Exp * permRatio31Exp ), m_inverseMixVerticalExp );
-      permeabilityNormal [ i ] *= m_percentPowerNormal * permeabilities1 [ i ] * MillyDarcyToM2;
+      permeabilityNormal [ i ] *= m_percentPowerNormal * permeabilities1 [ i ] * MilliDarcyToM2;
 
       permeabilityPlane  [ i ] = std::pow( 1.0 + m_percentRatio2 * m_anisoRatioExp2 * permRatio21Exp + m_percentRatio3 * m_anisoRatioExp3 * permRatio31Exp,  m_inverseMixHorizonExp );
-      permeabilityPlane  [ i ] *= m_percentPowerPlane * permeabilityAnisotropy1 * permeabilities1 [ i ] * MillyDarcyToM2;
+      permeabilityPlane  [ i ] *= m_percentPowerPlane * permeabilityAnisotropy1 * permeabilities1 [ i ] * MilliDarcyToM2;
 
    }
 
@@ -718,8 +718,8 @@ void GeoPhysics::PermeabilityMixer::mixPermeabilityArrayOneLitho ( const unsigne
    double permeabilityAnisotropy = m_anisotropies [ 0 ];
 
    for ( unsigned int i = 0; i < size; ++i ) {
-      permeabilityNormal [ i ] = permeabilities1 [ i ] * MillyDarcyToM2;
-      permeabilityPlane [ i ] = permeabilityAnisotropy * permeabilities1 [ i ] * MillyDarcyToM2;
+      permeabilityNormal [ i ] = permeabilities1 [ i ] * MilliDarcyToM2;
+      permeabilityPlane [ i ] = permeabilityAnisotropy * permeabilities1 [ i ] * MilliDarcyToM2;
    }
 
 }

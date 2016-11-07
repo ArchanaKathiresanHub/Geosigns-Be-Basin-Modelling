@@ -19,14 +19,6 @@
 
 namespace Calibration
 {
-   // Declare some static variables
-   const double BiomarkersSimulator::s_GASCONSTANT = 8.3144;
-   const double BiomarkerKineticsFunction::GASCONSTANT = 8.3144;
-
-   // Little silly since all these variables are constants and the same
-   const double AromatizationFunction::s_MillionYearToSecond = 3.15576e13; // sec/MA 
-   const double BiomarkersSimulator::s_MillionYearToSecond = 3.15576e13; // sec/MA 
-   const double IsomerizationFunction::s_MillionYearToSecond = 3.15576e13; // sec/MA 
 
 void BiomarkersSimulator::initializeState(const NodeInput &theInput, BiomarkersSimulatorState &NodeSimulatorState) const
 {

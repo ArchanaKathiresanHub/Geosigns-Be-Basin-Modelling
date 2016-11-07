@@ -493,7 +493,7 @@ void DerivedProperties::HeatFlowFormationCalculator::computeHeatFlow ( const boo
       // compute fluid Flux
 
       const double MaximumFlux     = 1.0e-9;
-      const double MaximumPermeability = 10.0 * Utilities::Maths::MillyDarcyToM2;
+      const double MaximumPermeability = 10.0 * Utilities::Maths::MilliDarcyToM2;
       double permeabilityNormal;
       double permeabilityPlane;
   

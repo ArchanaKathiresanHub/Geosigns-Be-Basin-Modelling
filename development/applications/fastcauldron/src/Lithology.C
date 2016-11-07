@@ -23,7 +23,7 @@
 #include "ConstantsNumerical.h"
 using Utilities::Numerical::IbsNoDataValue;
 #include "ConstantsMathematics.h"
-using Utilities::Maths::M2ToMillyDarcy;
+using Utilities::Maths::M2ToMilliDarcy;
 
 Lithology::Lithology ( GeoPhysics::ProjectHandle* projectHandle ) : GeoPhysics::CompoundLithology ( projectHandle ) {
    m_lithologyId = -9999;
@@ -176,7 +176,7 @@ double Lithology::capillaryPressure ( const Saturation::Phase phase,
 
    if ( FastcauldronSimulator::getInstance ().useCalculatedCapillaryPressure ()) {
       GeoPhysics::BrooksCorey brooksCorey;
-      capillaryEntryPressure = brooksCorey.computeCapillaryEntryPressure ( permeability * M2ToMillyDarcy, capC1 (), tenPowerCapC2 ());
+      capillaryEntryPressure = brooksCorey.computeCapillaryEntryPressure ( permeability * M2ToMilliDarcy, capC1 (), tenPowerCapC2 ());
    } else {
       capillaryEntryPressure = GeoPhysics::BrooksCorey::Pe;
    }

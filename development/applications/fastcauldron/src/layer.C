@@ -1971,7 +1971,7 @@ double LayerProps::estimateStandardPermeability () const {
 
    MPI_Allreduce ( &maximumPermeability, &globalMaximumPermeability, 1, MPI_DOUBLE, MPI_MAX, PETSC_COMM_WORLD );
 
-   return globalMaximumPermeability / Utilities::Maths::MillyDarcyToM2;
+   return globalMaximumPermeability / Utilities::Maths::MilliDarcyToM2;
 }
 
 //------------------------------------------------------------//

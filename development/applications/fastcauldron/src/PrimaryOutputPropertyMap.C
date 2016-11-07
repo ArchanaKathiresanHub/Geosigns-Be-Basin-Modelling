@@ -18,7 +18,7 @@
 #include "ConstantsNumerical.h"
 using Utilities::Numerical::CauldronNoDataValue;
 #include "ConstantsMathematics.h"
-using Utilities::Maths::MillyDarcyToM2;
+using Utilities::Maths::MilliDarcyToM2;
 
 PrimaryOutputPropertyMap::PrimaryOutputPropertyMap ( const PropertyList         propertyName,
                                                            LayerProps*          formation,

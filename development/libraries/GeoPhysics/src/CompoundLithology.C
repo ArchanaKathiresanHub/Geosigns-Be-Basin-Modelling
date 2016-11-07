@@ -22,7 +22,7 @@
 #include "ConstantsPhysics.h"
 using Utilities::Physics::AccelerationDueToGravity;
 #include "ConstantsMathematics.h"
-using Utilities::Maths::MillyDarcyToM2;
+using Utilities::Maths::MilliDarcyToM2;
 using Utilities::Maths::MicroWattsToWatts;
 
 #include "FormattingException.h"
@@ -1179,8 +1179,8 @@ void GeoPhysics::CompoundLithology::calcBulkPermeabilityNP ( const double       
       }
    }
 
-   permeabilityNormal *= MillyDarcyToM2;
-   permeabilityPlane *= MillyDarcyToM2;
+   permeabilityNormal *= MilliDarcyToM2;
+   permeabilityPlane *= MilliDarcyToM2;
 }
 
 //------------------------------------------------------------//
@@ -1204,7 +1204,7 @@ void GeoPhysics::CompoundLithology::calcBulkPermeabilityNP ( const unsigned int 
       m_lithoComponents [ 0 ]->permeability ( size, ves, maxVes, porosities.getSimpleData ( 0 ), permeabilityNormal );
 
       for ( unsigned int i = 0; i < size; ++i ) {
-         permeabilityNormal [ i ] *= MillyDarcyToM2;
+         permeabilityNormal [ i ] *= MilliDarcyToM2;
          permeabilityPlane [ i ] = permeabilityAnisotropy * permeabilityNormal [ i ];
       }
 

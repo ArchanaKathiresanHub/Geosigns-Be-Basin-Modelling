@@ -24,14 +24,14 @@ class BiomarkersSimulator
 public:
 
    BiomarkersSimulator( const double &HopIsoactenergy  = 168000.000000,
-                  const double &SteIsoactenergy  = 169000.000000,
-                  const double &SteAroactenergy  = 181400.000000,
-                  const double &HopIsofreqfactor = 810000000.000000,
-                  const double &SteIsofreqfactor = 486000000.000000,
-                  const double &SteArofreqfactor = 48499998720.000000,
-                  const double &HopIsogamma      = 1.564000,
-                  const double &SteIsogamma      = 1.174000,
-                  const double &in_timeStepSize  = 0.5):
+                        const double &SteIsoactenergy  = 169000.000000,
+                        const double &SteAroactenergy  = 181400.000000,
+                        const double &HopIsofreqfactor = 810000000.000000,
+                        const double &SteIsofreqfactor = 486000000.000000,
+                        const double &SteArofreqfactor = 48499998720.000000,
+                        const double &HopIsogamma      = 1.564000,
+                        const double &SteIsogamma      = 1.174000,
+                        const double &in_timeStepSize  = 0.5):
    m_Integrator(),
    m_HopaneIsoKineticsFunction(HopIsoactenergy),
    m_SteraneIsoKineticsFunction(SteIsoactenergy),
@@ -56,17 +56,15 @@ protected:
    void computeStateVariables(const double &temperatureEnd, const double &timeEnd, BiomarkersSimulatorState &NodeSimulatorState ) const;
 
 private:
-   const TrapezoidalIntegrator m_Integrator;
-   const BiomarkerKineticsFunction m_HopaneIsoKineticsFunction   ;
+   const TrapezoidalIntegrator     m_Integrator;
+   const BiomarkerKineticsFunction m_HopaneIsoKineticsFunction;
    const BiomarkerKineticsFunction m_SteraneIsoKineticsFunction;
    const BiomarkerKineticsFunction m_SteraneAroKineticsFunction;   
-   const AromatizationFunction      m_SteraneAromatizationFunction;   
-   const IsomerizationFunction      m_SteraneIsomerizationFunction;
-   const IsomerizationFunction      m_HopaneIsomerizationFunction;
+   const AromatizationFunction     m_SteraneAromatizationFunction;   
+   const IsomerizationFunction     m_SteraneIsomerizationFunction;
+   const IsomerizationFunction     m_HopaneIsomerizationFunction;
    const double m_timeStepSize;
 
-   static const double s_GASCONSTANT;
-   static const double s_MillionYearToSecond; // sec/MA 
 };
 
 }

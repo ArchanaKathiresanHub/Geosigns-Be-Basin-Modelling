@@ -10,7 +10,14 @@
 #ifndef BIOMARKERS_UTILITIES_H
 #define BIOMARKERS_UTILITIES_H
 
+// std library
 #include <cmath>
+
+// utilities library
+#include "ConstantsMathematics.h"
+using Utilities::Maths::MillionYearToSecond;
+#include "ConstantsPhysics.h"
+using Utilities::Physics::IdealGasConstantCalibration;
 
 namespace Calibration
 {
@@ -20,7 +27,7 @@ class AromatizationFunction
 public:
    AromatizationFunction(const double &frequencyFactor)
    {
-      m_frequencyFactor = frequencyFactor * s_MillionYearToSecond;
+      m_frequencyFactor = frequencyFactor * MillionYearToSecond;
    }
    ~AromatizationFunction(){}
    double operator()(const double &integral) const
@@ -29,7 +36,6 @@ public:
    }
 private:
    double m_frequencyFactor;
-   static const double s_MillionYearToSecond;
 };
 class IsomerizationFunction
 {
@@ -37,7 +43,7 @@ public:
    IsomerizationFunction(const double &gamma, const double &frequencyFactor):
    m_gamma(gamma)
    {
-      m_frequencyFactor = frequencyFactor * s_MillionYearToSecond;
+      m_frequencyFactor = frequencyFactor * MillionYearToSecond;
    }
    ~IsomerizationFunction(){}
    double operator()(const double &integral) const
@@ -47,7 +53,6 @@ public:
 private:
    double m_gamma;
    double m_frequencyFactor;
-   static const double s_MillionYearToSecond;
 };
 class BiomarkerKineticsFunction
 {
@@ -59,10 +64,9 @@ public:
    ~BiomarkerKineticsFunction(){}
    double operator()(const double &temperature) const
    {
-      return std::exp (-m_activationEnergy / (GASCONSTANT * temperature));
+      return std::exp (-m_activationEnergy / (IdealGasConstantCalibration * temperature));
    }
 private:
-   static const double GASCONSTANT;
    double m_activationEnergy;
 };
 class TrapezoidalIntegrator

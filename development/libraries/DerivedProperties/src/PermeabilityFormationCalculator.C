@@ -114,8 +114,8 @@ void DerivedProperties::PermeabilityFormationCalculator::calculate ( DerivedProp
                                                            chemicalCompactionRequired, chemicalCompactionValue, porosity );
                      (*lithologies)( i, j, currentAge )->calcBulkPermeabilityNP ( ves->getA ( i, j, k ), maxVes->getA ( i, j, k ), porosity, permNorm, permPlane );
                      
-                     verticalPermeability->set ( i, j, k, permNorm / Utilities::Maths::MillyDarcyToM2 );
-                     horizontalPermeability->set ( i, j, k, permPlane / Utilities::Maths::MillyDarcyToM2 );
+                     verticalPermeability->set ( i, j, k, permNorm / Utilities::Maths::MilliDarcyToM2 );
+                     horizontalPermeability->set ( i, j, k, permPlane / Utilities::Maths::MilliDarcyToM2 );
                      
                   }
                } else {

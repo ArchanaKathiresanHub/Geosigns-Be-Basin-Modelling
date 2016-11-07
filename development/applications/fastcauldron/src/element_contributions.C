@@ -36,7 +36,7 @@
 #include "ConstantsMathematics.h"
 using Utilities::Maths::MegaPaToPa;
 using Utilities::Maths::PaToMegaPa;
-using Utilities::Maths::MillyDarcyToM2;
+using Utilities::Maths::MilliDarcyToM2;
 using Utilities::Maths::YearToSecond;
 using Utilities::Maths::MillionYearToSecond;
 #include "ConstantsNumerical.h"
@@ -259,7 +259,7 @@ void Basin_Modelling::computeFluidFlux ( const bool               imposeFluxLimi
   /// This limits the permeability to be within a reasonable range. The soil mechanics sandstone
   /// has a particularly high permeability 10^8.6 milli-Darcy (almost 6 orders of magnitude higher
   /// than the standard exponential sandstone, for example).
-  const double MaximumPermeability = 10.0 * MillyDarcyToM2;
+  const double MaximumPermeability = 10.0 * MilliDarcyToM2;
 
   double permeabilityNormal;
   double permeabilityPlane;

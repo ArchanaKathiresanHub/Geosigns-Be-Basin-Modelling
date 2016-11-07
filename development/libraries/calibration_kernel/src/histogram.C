@@ -9,19 +9,22 @@
 // 
 #include "histogram.h"
 
+// std library
 #include <algorithm>
 #include <iostream>
 #include <iomanip>
 #include <cmath>
 #include <cassert>
 
+// utilities library
+#include "ConstantsNumerical.h"
+using Utilities::Numerical::IbsNoDataValue;
+
 namespace Calibration
 {
 
 namespace FissionTracks
 {
-   // Declare some static variable
-   const double Histogram::IbsNoDataValue = -9999;
 
 /// add to each bin value a fraction of corresponding source
 void Histogram::AddBinFractions (Histogram* source, float fraction)
@@ -289,9 +292,9 @@ bool JoinBins (Histogram* master, Histogram* slave, Histogram* masterRes, Histog
       // Binwidth is not the same for the bins, therefore it is not set.
 
       masterRes-> Initialize (((master)->BINSTART),
-                              Histogram::IbsNoDataValue, binNumRes);
+                              IbsNoDataValue, binNumRes);
       slaveRes -> Initialize (((master)->BINSTART),
-                              Histogram::IbsNoDataValue, binNumRes);
+                              IbsNoDataValue, binNumRes);
 
 
       // Do the join

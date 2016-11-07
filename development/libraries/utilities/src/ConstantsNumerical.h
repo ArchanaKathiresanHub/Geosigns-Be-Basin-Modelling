@@ -19,15 +19,13 @@ namespace Utilities
    namespace Numerical {
 
       /// \brief Negative no data value used accross all ibs libraries and applications
-      constexpr double IbsNoDataValue      = -9999;
+      constexpr double IbsNoDataValue       = -9999;
       /// \brief Positive no data value used accross all ibs libraries and applications
-      constexpr double CauldronNoDataValue = 99999;
+      constexpr double CauldronNoDataValue  = 99999;
       /// \brief The maximum number of characters allowed for a command line options
-      constexpr int    MaxLineSize         = 512;
+      constexpr int    MaxLineSize          = 512;
       /// \brief Genex positive no data value used accross all ibs libraries and applications
-      constexpr double GenexNoDataValue    = 9999.0;
-	  /// \brief Positive value to convert kilobytes to megabytes
-	  constexpr double KiloBytesToMegaBytes = 1024;
+      constexpr double GenexNoDataValue     = 9999.0;
    }
 }
 #endif

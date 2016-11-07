@@ -24,8 +24,8 @@ namespace Utilities
       /// List of constants to be used in unit conversions
       /// @{
       // Darcy conversion tools
-      constexpr double MillyDarcyToM2 = 0.9869233e-15;         ///< millyDarcy to squared meter conversion factor
-      constexpr double M2ToMillyDarcy = (1 / MillyDarcyToM2);  ///< squared meter to millyDarcy conversion factor
+      constexpr double MilliDarcyToM2 = 0.9869233e-15;         ///< millyDarcy to squared meter conversion factor
+      constexpr double M2ToMilliDarcy = (1 / MilliDarcyToM2);  ///< squared meter to millyDarcy conversion factor
 
       // Pressure conversion tools
       constexpr double PaToMegaPa = 1.0e-6; ///< Pascals to Mega Pascals conversion factor
@@ -56,10 +56,13 @@ namespace Utilities
       constexpr double KilogrammeToUSTon = 1.0 / 907.18474; ///< Kilograme to US ton conversion factor
 
       // Area conersion tools
-      constexpr double KilometreSquaredToAcres = 247.10538147; ///< squared kilometers to acres conversion factor
+      constexpr double KilometreSquaredToAcres = 247.10538147; ///< Squared kilometers to acres conversion factor
 
       // Statistic conversion tools
       constexpr double FractionToPercentage = 100; ///< Fraction to percentage conversion fasctor
+      
+      // Data conversion tools
+      constexpr double KiloBytesToMegaBytes = 1024; ///< Positive value to convert kilobytes to megabytes
       /// @}
 
       /// @defgroup Values

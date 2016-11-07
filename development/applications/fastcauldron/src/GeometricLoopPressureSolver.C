@@ -27,7 +27,7 @@ using Utilities::Numerical::IbsNoDataValue;
 #include "ConstantsMathematics.h"
 using Utilities::Maths::PaToMegaPa;
 using Utilities::Maths::MegaPaToPa;
-using Utilities::Maths::MillyDarcyToM2;
+using Utilities::Maths::MilliDarcyToM2;
 #include "ConstantsPhysics.h"
 using Utilities::Physics::AccelerationDueToGravity;
 
@@ -499,8 +499,8 @@ void GeometricLoopPressureSolver::computeDependantPropertiesForLayer
                                                     permeabilityNormalValue,
                                                     permeabilityPlaneValue );
 
-        layerPermeabilityNormal ( Z_Start + Z_Count - 1, J, I ) = permeabilityNormalValue / MillyDarcyToM2;
-        layerPermeabilityPlane  ( Z_Start + Z_Count - 1, J, I ) = permeabilityPlaneValue  / MillyDarcyToM2;
+        layerPermeabilityNormal ( Z_Start + Z_Count - 1, J, I ) = permeabilityNormalValue / MilliDarcyToM2;
+        layerPermeabilityPlane  ( Z_Start + Z_Count - 1, J, I ) = permeabilityPlaneValue  / MilliDarcyToM2;
 
         // Initialise properties on all inactive nodes and the top most 
         // active node to be the the value at the top of the layer.
@@ -597,8 +597,8 @@ void GeometricLoopPressureSolver::computeDependantPropertiesForLayer
                                                      permeabilityNormalValue,
                                                      permeabilityPlaneValue );
 
-          layerPermeabilityNormal  ( K, J, I ) = permeabilityNormalValue / MillyDarcyToM2;
-          layerPermeabilityPlane   ( K, J, I ) = permeabilityPlaneValue  / MillyDarcyToM2;
+          layerPermeabilityNormal  ( K, J, I ) = permeabilityNormalValue / MilliDarcyToM2;
+          layerPermeabilityPlane   ( K, J, I ) = permeabilityPlaneValue  / MilliDarcyToM2;
         }
 
       } else {

@@ -108,7 +108,7 @@ using namespace Utilities::CheckMemory;
 #include "ConstantsMathematics.h"
 using Utilities::Maths::Zero;
 using Utilities::Maths::PaToMegaPa;
-using Utilities::Maths::MillyDarcyToM2;
+using Utilities::Maths::MilliDarcyToM2;
 #include "ConstantsNumerical.h"
 using Utilities::Numerical::CauldronNoDataValue;
 #include "ConstantsGeology.h"
@@ -3785,8 +3785,8 @@ void Basin_Modelling::FEM_Grid::Print_Needle ( const double currentAge, const in
             buffer << setw ( 14 ) << Current_Layer -> Current_Properties ( Basin_Modelling::VES_FP, K, J, I ) * PaToMegaPa;
             buffer << setw ( 14 ) << Current_Layer -> Current_Properties ( Basin_Modelling::Max_VES, K, J, I ) * PaToMegaPa;
             buffer << setw ( 14 ) << Porosity.mixedProperty ();
-            buffer << setw ( 14 ) << log10 ( Permeability_Normal_Compound / MillyDarcyToM2 );
-            buffer << setw ( 15 ) << log10 ( Permeability_Plane_Compound / MillyDarcyToM2 );
+            buffer << setw ( 14 ) << log10 ( Permeability_Normal_Compound / MilliDarcyToM2 );
+            buffer << setw ( 15 ) << log10 ( Permeability_Plane_Compound / MilliDarcyToM2 );
             buffer << setw (  4 ) << ( Current_Layer->kind () == Interface::SEDIMENT_FORMATION ? int ( Current_Layer -> fracturedPermeabilityScaling ( I, J, K )) : -1 );
             buffer << setw (  4 ) << value;
             buffer << setw ( 14 ) << Current_Layer -> Current_Properties ( Basin_Modelling::Temperature, K, J, I );

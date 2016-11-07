@@ -1,4 +1,4 @@
-﻿//                                                                      
+//                                                                      
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
 // 
@@ -26,16 +26,18 @@ namespace Utilities
       constexpr double AccelerationDueToGravity        = 9.81;
       /// \brief Acceleration due to gravity used in genex application and libraries [M.S^-2]
       /// \details This values as been used to calibrate all others genex constants and equations
-      constexpr double AccelerationDueToGravityoGenex  = 9.807;
+      constexpr double AccelerationDueToGravityGenex  = 9.807;
       /// @}
 
       /// @defgroup Gas
       /// @{
       /// \brief The ideal gas constant [J.K^-1.mol^-1]
-      constexpr double IdealGasConstant       = 8.314472; 
+      constexpr double IdealGasConstant            = 8.314472;
+      /// \brief The ideal gas constant used in the calibration kernel [J.K^-1.mol^-1]
+      constexpr double IdealGasConstantCalibration = 8.3144; 
       /// \brief The ideal gas constant used in genex libraries and applications [J.K^-1.mol^-1]
       /// \details This values as been used to calibrate all others genex constants and equations
-      constexpr double IdealGasConstantGenex  = 8.314511;
+      constexpr double IdealGasConstantGenex       = 8.314511;
       /// \brief Radius of gas molecules {C1,C2,C3,C4,C5} [M]
       /// \details Molecular volumes and the Stokes-Einstein equation, 1970, Journal of Chemical Education 47, no. 4: 261
       constexpr double GasRadius[5] = { 1.89e-10, 2.21e-10, 2.46e-10, 2.66e-10, 2.84e-10 };
@@ -48,7 +50,7 @@ namespace Utilities
       /// \brief The Blotzmaan constant used in genex application and libraries [J.K^-1]
       /// \details This values as been used to calibrate all others genex constants and equations
       constexpr double BoltzmannConstantGenex = 1.3806503e-23;
-      /// \brief The Blotzmaan constant divided by the Plank constant and multiplied by the number of seconds in
+      /// \brief The Boltzmaan constant divided by the Plank constant and multiplied by the number of seconds in
       ///    one million year
       constexpr double BoltzmannOverPlanckByMillionYear = 6.571073735576960e+23;
       /// @}

@@ -14,7 +14,7 @@
 # include "ConstantsMathematics.h"
 using Utilities::Maths::MegaPaToPa;
 #include "ConstantsPhysics.h"
-using Utilities::Physics::AccelerationDueToGravityoGenex;
+using Utilities::Physics::AccelerationDueToGravityGenex;
 using Utilities::Physics::PressureAtSeaLevel;
 
 namespace Genex6
@@ -92,7 +92,7 @@ double UnitTestDataCreator::ComputePressure(const double in_time) const //FunPef
    //returnPressure = depth * m_overBurderDensity * Genex6::Constants::s_grav * m_Pfract;
    const double densWater = 1000;
 
-   returnPressure = depth * ( m_overBurderDensity  - densWater * m_PfSpecGrad) * AccelerationDueToGravityoGenex;
+   returnPressure = depth * ( m_overBurderDensity  - densWater * m_PfSpecGrad) * AccelerationDueToGravityGenex;
    if (returnPressure < PressureAtSeaLevel) {
       returnPressure = PressureAtSeaLevel;
    }

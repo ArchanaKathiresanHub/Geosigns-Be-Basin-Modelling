@@ -162,8 +162,8 @@ double DataAccess::Mining::HeatFlowCalculator::compute ( const ElementPosition& 
       fluidDensity = fluid->density ( temperature, porePressure );
       heatCapacity = fluid->heatCapacity ( temperature, porePressure );
 
-      permeabilityN /= GeoPhysics::M2ToMillyDarcy;
-      permeabilityH /= GeoPhysics::M2ToMillyDarcy;
+      permeabilityN /= GeoPhysics::M2ToMilliDarcy;
+      permeabilityH /= GeoPhysics::M2ToMilliDarcy;
 
       gradOverpressure = finiteElement.interpolateGrad ( overpressureCoeffs );
       gradHydrostaticPressure = finiteElement.interpolateGrad ( hydrostaticPressureCoeffs );

@@ -36,7 +36,7 @@
 using Utilities::Numerical::CauldronNoDataValue;
 #include "ConstantsMathematics.h"
 using Utilities::Maths::PaToMegaPa;
-using Utilities::Maths::MillyDarcyToM2;
+using Utilities::Maths::MilliDarcyToM2;
 #include "ConstantsPhysics.h"
 using Utilities::Physics::AccelerationDueToGravity;
 
@@ -916,8 +916,8 @@ void Basin_Modelling::computePermeabilityVectors ( AppCtx*        Basin_Model ) 
 
             currentLithology->getPorosity ( VES, maxVES, includeChemicalCompactionTerm, layerChemicalCompaction ( K, J, I ), porosity );
             currentLithology->calcBulkPermeabilityNP ( VES, maxVES, porosity, normalPerm, tangentialPerm );
-            layerNormalPermeability     ( K, J, I )= normalPerm / MillyDarcyToM2;
-            layerTangentialPermeability ( K, J, I )= tangentialPerm / MillyDarcyToM2;            
+            layerNormalPermeability     ( K, J, I )= normalPerm / MilliDarcyToM2;
+            layerTangentialPermeability ( K, J, I )= tangentialPerm / MilliDarcyToM2;            
 	  }
 
         }

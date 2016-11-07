@@ -25,7 +25,7 @@ using namespace std;
 using Utilities::Numerical::CauldronNoDataValue;
 using Utilities::Numerical::IbsNoDataValue;
 #include "ConstantsMathematics.h"
-using Utilities::Maths::MillyDarcyToM2;
+using Utilities::Maths::MilliDarcyToM2;
 using Utilities::Maths::PaToMegaPa;
 
 Well::Well ( AppCtx* Application_Context ) {
@@ -349,8 +349,8 @@ void Well::Save_Well_Data( Location& needle, const string& Related_Project_Name 
                                                    normalPerm,
                                                    tangentialPerm );
 
-        nodeNormalPermeability     = normalPerm / MillyDarcyToM2;
-        nodeTangentialPermeability = tangentialPerm / MillyDarcyToM2;            
+        nodeNormalPermeability     = normalPerm / MilliDarcyToM2;
+        nodeTangentialPermeability = tangentialPerm / MilliDarcyToM2;            
 
         if ( Basin_Model->DoDecompaction ) {
           nodeTemperature = IbsNoDataValue;

@@ -20,7 +20,7 @@
 
 // utilities library
 #include "ConstantsMathematics.h"
-using Utilities::Maths::MillyDarcyToM2;
+using Utilities::Maths::MilliDarcyToM2;
 using Utilities::Maths::PaToMegaPa;
 // utilities library
 #include "ConstantsNumerical.h"
@@ -785,7 +785,7 @@ double History::Calculate_Surface_Property( LayerProps * layer,
                                                            surfacePorosityCompound, 
                                                            Property_Value, 
                                                            Dummy_Value );
-    Property_Value = Property_Value / MillyDarcyToM2;
+    Property_Value = Property_Value / MilliDarcyToM2;
     
     break;
     
@@ -797,7 +797,7 @@ double History::Calculate_Surface_Property( LayerProps * layer,
                                                            surfacePorosityCompound, 
                                                            Dummy_Value,
                                                            Property_Value );
-    Property_Value = Property_Value / MillyDarcyToM2;
+    Property_Value = Property_Value / MilliDarcyToM2;
     
     break;
  

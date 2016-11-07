@@ -47,7 +47,7 @@ using namespace DataAccess;
 
 // utilities library
 #include "ConstantsMathematics.h"
-using Utilities::Maths::MillyDarcyToM2;
+using Utilities::Maths::MilliDarcyToM2;
 using Utilities::Maths::MillionYearToSecond;
 // utilities library
 #include "ConstantsPhysics.h"
@@ -163,7 +163,7 @@ ExplicitMultiComponentFlowSolver::ExplicitMultiComponentFlowSolver ()
    }
 
    // now scale the permeability maximum to SI units.
-   m_fluxPermeabilityMaximum *= MillyDarcyToM2;
+   m_fluxPermeabilityMaximum *= MilliDarcyToM2;
 
    m_maximumTimeStepSize = FastcauldronSimulator::getInstance ().getMcfHandler ().getMaximumTimeStepSize ();
 

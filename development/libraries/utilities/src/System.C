@@ -1,5 +1,14 @@
+//
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
 #include "System.h"
-#include "ConstantsNumerical.h"
+#include "ConstantsMathematics.h"
 
 #ifndef _MSC_VER  //TODO_SK: this does not compile on Windows
 #include <sys/time.h>
@@ -9,7 +18,7 @@
 #include <stdio.h>
 #endif
 
-using Utilities::Numerical::KiloBytesToMegaBytes;
+using Utilities::Maths::KiloBytesToMegaBytes;
 
 namespace Utilities
 {

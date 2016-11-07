@@ -19,7 +19,7 @@
 
 // utilities library
 #include "ConstantsMathematics.h"
-using Utilities::Maths::M2ToMillyDarcy;
+using Utilities::Maths::M2ToMilliDarcy;
 
 
 DataAccess::Mining::PermeabilityCalculator::PermeabilityCalculator ( const DomainPropertyCollection*            collection,
@@ -94,8 +94,8 @@ double DataAccess::Mining::PermeabilityCalculator::compute ( const ElementPositi
       lithology->getPorosity ( ves, maxVes, layerRequiresChemicalCompaction, chemicalCompaction, porosity );
       lithology->calcBulkPermeabilityNP ( ves, maxVes, porosity, permeabilityN, permeabilityP );
 
-      permeabilityN *= M2ToMillyDarcy;
-      permeabilityP *= M2ToMillyDarcy;
+      permeabilityN *= M2ToMilliDarcy;
+      permeabilityP *= M2ToMilliDarcy;
 
 #if 0
       permeabilityN = std::log10 ( permeabilityN );

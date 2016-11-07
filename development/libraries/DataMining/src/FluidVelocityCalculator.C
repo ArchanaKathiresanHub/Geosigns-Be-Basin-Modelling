@@ -25,7 +25,7 @@ using namespace std;
 
 // utilities library
 #include "ConstantsMathematics.h"
-using Utilities::Maths::M2ToMillyDarcy;
+using Utilities::Maths::M2ToMilliDarcy;
 using Utilities::Maths::YearToSecond;
 
 DataAccess::Mining::FluidVelocityCalculator::FluidVelocityCalculator ( const DomainPropertyCollection*            collection,
@@ -127,14 +127,14 @@ double DataAccess::Mining::FluidVelocityCalculator::compute ( const ElementPosit
    if( permeabilityH == Interface::DefaultUndefinedMapValue ) {
       return  Interface::DefaultUndefinedMapValue;
    } else {
-      permeabilityH /= M2ToMillyDarcy;
+      permeabilityH /= M2ToMilliDarcy;
    }
    
    permeabilityN = m_permeabilityN->compute ( position );
    if( permeabilityN ==  Interface::DefaultUndefinedMapValue ) {
       return  Interface::DefaultUndefinedMapValue;
    } else {
-      permeabilityN /= M2ToMillyDarcy;
+      permeabilityN /= M2ToMilliDarcy;
    }
    porosity = m_porosity->compute ( position );  
    if( porosity ==  Interface::DefaultUndefinedMapValue ) {
