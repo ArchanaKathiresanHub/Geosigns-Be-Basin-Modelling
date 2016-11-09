@@ -217,6 +217,7 @@ void InterfaceOutput::setMapsToOutput(const CrustalThicknessInterface::outputMap
 //------------------------------------------------------------//
 void InterfaceOutput::updatePossibleOutputsAtSnapshot( outputMaps id, const GeoPhysics::ProjectHandle * pHandle, const Snapshot * theSnapshot, const bool debug ) {
    
+   bool toBeOutput = false;
    // The TTS, Incremental TS, and McKenzie general properties are only ouput when we have an SDH
    if (  id == WLSMap
       or id == WLSadjustedMap
@@ -228,62 +229,57 @@ void InterfaceOutput::updatePossibleOutputsAtSnapshot( outputMaps id, const GeoP
       or id == topBasaltMap
       or id == mohoMap
       or id == ECTMap ){
-      if (not pHandle->asSurfaceDepthHistory( theSnapshot->getTime() )){
-         m_outputMapsMask[id] = false;
-      }
-      else{
-         m_outputMapsMask[id] = true;
-      }
-   }
-
-   // The McKenzie debug properties are only ouput when we have an SDH and in debug mode
-   if (debug
-      and (id == estimatedCrustDensityMap
-        or id == basaltDensityMap
-        or id == PTaMap
-        or id == TFOnsetMap
-        or id == TFOnsetMigMap
-        or id == TFOnsetLinMap
-        or id == WLSExhumeMap
-        or id == WLSCritMap
-        or id == WLSOnsetMap
-        or id == WLSExhumeSerpMap
-        or id == slopePreMelt
-        or id == slopePostMelt
-        or id == interceptPostMelt
-        or id == TFMap
-        or id == UpperContinentalCrustThickness
-        or id == LowerContinentalCrustThickness
-        or id == UpperOceanicCrustThickness
-        or id == LowerOceanicCrustThickness ) ){
-      if (not pHandle->asSurfaceDepthHistory( theSnapshot->getTime() )){
-         m_outputMapsMask[id] = false;
-      }
-      else{
-         m_outputMapsMask[id] = true;
+      if (pHandle->asSurfaceDepthHistory( theSnapshot->getTime() )){
+         toBeOutput = true;
       }
    }
 
    // The PWD is not output at 0.0Ma (it is equal to the water depth of the input stratigraphy)
-   else if (id == isostaticBathymetry){
-      if (theSnapshot->getTime() == 0.0)
-      {
-         m_outputMapsMask[id] = false;
-      }
-      else{
-         m_outputMapsMask[id] = true;
+   else if (id == isostaticBathymetry) {
+      if (not theSnapshot->getTime() == 0.0) {
+         toBeOutput = true;
       }
    }
+
    // The PWDR is only output when we have an SDH and never output at 0.0Ma (since we do not have a PWD at 0.0Ma)
-   else if (id == PaleowaterdepthResidual){
-      if (not pHandle->asSurfaceDepthHistory( theSnapshot->getTime() ) or theSnapshot->getTime() == 0.0)
-      {
-         m_outputMapsMask[id] = false;
-      }
-      else{
-         m_outputMapsMask[id] = true;
+   else if (id == PaleowaterdepthResidual) {
+      if (pHandle->asSurfaceDepthHistory( theSnapshot->getTime() ) and not theSnapshot->getTime() == 0.0) {
+         toBeOutput = true;
       }
    }
+
+   // The debug outputs
+   // The McKenzie debug properties are only ouput when we have an SDH and in debug mode
+   else if ( id == estimatedCrustDensityMap
+      or id == basaltDensityMap
+      or id == PTaMap
+      or id == TFOnsetMap
+      or id == TFOnsetMigMap
+      or id == TFOnsetLinMap
+      or id == WLSExhumeMap
+      or id == WLSCritMap
+      or id == WLSOnsetMap
+      or id == WLSExhumeSerpMap
+      or id == slopePreMelt
+      or id == slopePostMelt
+      or id == interceptPostMelt
+      or id == TFMap
+      or id == UpperContinentalCrustThickness
+      or id == LowerContinentalCrustThickness
+      or id == UpperOceanicCrustThickness
+      or id == LowerOceanicCrustThickness) {
+      if (debug and pHandle->asSurfaceDepthHistory( theSnapshot->getTime() )) {
+         toBeOutput = true;
+      }
+   }
+   // The response factor is only output in debug mode exept for present day
+   else if (id == ResponseFactor and not theSnapshot->getTime() == 0.0) {
+      if (debug){
+         toBeOutput = true;
+      }
+   }
+
+   m_outputMapsMask[id] = toBeOutput;
 }
 
 //------------------------------------------------------------//

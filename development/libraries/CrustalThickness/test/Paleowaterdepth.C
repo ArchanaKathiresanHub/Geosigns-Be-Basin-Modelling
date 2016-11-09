@@ -20,6 +20,7 @@
 
 // utility library
 #include "../../utilities/src/FormattingException.h"
+#include "../../utilities/test/GoogleTestMacros.h"
 
 // DataAccess libraries
 #include "../../SerialDataAccess/src/Interface/SerialGrid.h"
@@ -112,36 +113,21 @@ TEST_F( PWDCalculatorTest, exceptions ){
    inputData.setPressureMantle( m_currentPressureMantle->getMockderivedSurfacePropertyPtr() );
 
    // with wrong density values
-   try{
-      PaleowaterdepthCalculator pwdCalculator1( inputData,
-         outputData,
-         validator,
-         m_gridMapPresentDayTTS );
-      FAIL() << "Expected 'The water density is equal to the mantle density in the Paleowaterdepth calculator but they should be different' exception";
-   }
-   catch (const PaleowaterdepthException& ex) {
-      EXPECT_EQ( "The water density is equal to the mantle density in the Paleowaterdepth calculator but they should be different", std::string( ex.what() ) );
-   }
-   catch (...) {
-      FAIL() << "Expected 'The water density is equal to the mantle density in the Paleowaterdepth calculator but they should be different' exception";
-   }
+   std::invalid_argument exception1( "The water density is equal to the mantle density in the Paleowaterdepth calculator but they should be different" );
+   EXPECT_EXCEPTION_EQ( PaleowaterdepthCalculator pwdCalculator1( inputData,
+                                                                  outputData,
+                                                                  validator,
+                                                                  m_gridMapPresentDayTTS ); , exception1 )
+
    // with present day TTS = nullptr
    constants.setWaterDensity( 1000 );
    constants.setBackstrippingMantleDensity( 3000 );
    inputData.setConstants( constants );
-   try{
-      PaleowaterdepthCalculator pwdCalculator2( inputData,
-         outputData,
-         validator,
-         nullptr );
-      FAIL() << "Expected 'The present day total tectonic subsidence is a null pointer and is required by the Paleowaterdepth calculator' exception";
-   }
-   catch (const PaleowaterdepthException& ex) {
-      EXPECT_EQ( "The present day total tectonic subsidence is a null pointer and is required by the Paleowaterdepth calculator", std::string( ex.what() ) );
-   }
-   catch (...) {
-      FAIL() << "Expected 'The present day total tectonic subsidence is a null pointer and is required by the Paleowaterdepth calculator' exception";
-   }
+   std::invalid_argument exception2( "The present day total tectonic subsidence is a null pointer and is required by the Paleowaterdepth calculator" );
+   EXPECT_EXCEPTION_EQ( PaleowaterdepthCalculator pwdCalculator2( inputData,
+                                                                  outputData,
+                                                                  validator,
+                                                                  nullptr ); , exception2 )
 }
 
 ///1. Test the paleowaterdepth calculation
@@ -165,9 +151,12 @@ TEST_F( PWDCalculatorTest, paleowaterdepth )
       outputData,
       validator,
       m_gridMapPresentDayTTS );
-   EXPECT_NEAR( 800.203873598369, pwdCalculator1.calculatePWD( 1000, 200, 5000, 1000, 10000, 2000 ), 1e-12 );
-   EXPECT_NEAR( 3000.183486238530, pwdCalculator1.calculatePWD( 1000, -2000, 6000, 700, 9000, 100 ), 1e-11 );
-   EXPECT_NEAR( -0.089194699286, pwdCalculator1.calculatePWD( 0, 0, 4000, 350, 2000, 100 ), 1e-12 );
+   EXPECT_NEAR( -0.203873598369  , pwdCalculator1.calculateResponseFactor( 5000, 1000, 10000, 2000 ), 1e-12 );
+   EXPECT_NEAR( -0.183486238530  , pwdCalculator1.calculateResponseFactor( 6000,  700,  9000, 100  ), 1e-11 );
+   EXPECT_NEAR( 0.089194699286   , pwdCalculator1.calculateResponseFactor( 4000,  350,  2000, 100  ), 1e-12 );
+   EXPECT_NEAR( 800.203873598369 , pwdCalculator1.calculateThermallyCorrectedPWD( 1000,   200, -0.203873598369 ), 1e-12 );
+   EXPECT_NEAR( 3000.183486238530, pwdCalculator1.calculateThermallyCorrectedPWD( 1000, -2000, -0.183486238530 ), 1e-11 );
+   EXPECT_NEAR( -0.089194699286  , pwdCalculator1.calculateThermallyCorrectedPWD(    0,     0,  0.089194699286 ), 1e-12 );
 
    //Without pressure equilibirium
    inputData.setPressureBasementAtPresentDay( nullptr );
@@ -178,7 +167,7 @@ TEST_F( PWDCalculatorTest, paleowaterdepth )
       m_gridMapPresentDayTTS );
    EXPECT_EQ( 700, pwdCalculator2.calculatePWD( 500, -200 ) );
    EXPECT_EQ( 800, pwdCalculator2.calculatePWD( 1000, 200 ) );
-   EXPECT_EQ( 0, pwdCalculator2.calculatePWD( 0, 0 ) );
+   EXPECT_EQ(   0, pwdCalculator2.calculatePWD(    0,   0 ) );
 
 }
 
@@ -209,6 +198,10 @@ TEST_F( PWDCalculatorTest, compute )
    EXPECT_EQ( 800, outputData.getMapValue( isostaticBathymetry, 0, 1 ) );
    EXPECT_EQ( 800, outputData.getMapValue( isostaticBathymetry, 1, 0 ) );
    EXPECT_EQ( 800, outputData.getMapValue( isostaticBathymetry, 1, 1 ) );
+   EXPECT_EQ( 0, outputData.getMapValue( ResponseFactor, 0, 0 ) );
+   EXPECT_EQ( 0, outputData.getMapValue( ResponseFactor, 0, 1 ) );
+   EXPECT_EQ( 0, outputData.getMapValue( ResponseFactor, 1, 0 ) );
+   EXPECT_EQ( 0, outputData.getMapValue( ResponseFactor, 1, 1 ) );
 
    //With pressure equilibirium
    // and defined data
@@ -223,6 +216,11 @@ TEST_F( PWDCalculatorTest, compute )
    EXPECT_NEAR( 800.203873598369, outputData.getMapValue( isostaticBathymetry, 0, 1 ), 1e-12 );
    EXPECT_NEAR( 800.203873598369, outputData.getMapValue( isostaticBathymetry, 1, 0 ), 1e-12 );
    EXPECT_NEAR( 800.203873598369, outputData.getMapValue( isostaticBathymetry, 1, 1 ), 1e-12 );
+   EXPECT_NEAR( -0.203873598369, outputData.getMapValue( ResponseFactor, 0, 0 ), 1e-12 );
+   EXPECT_NEAR( -0.203873598369, outputData.getMapValue( ResponseFactor, 0, 1 ), 1e-12 );
+   EXPECT_NEAR( -0.203873598369, outputData.getMapValue( ResponseFactor, 1, 0 ), 1e-12 );
+   EXPECT_NEAR( -0.203873598369, outputData.getMapValue( ResponseFactor, 1, 1 ), 1e-12 );
+
    // and undefined data
    inputData.setPressureBasementAtPresentDay( m_presentDayPressureBasementNDV->getMockderivedSurfacePropertyPtr() );
    PaleowaterdepthCalculator pwdCalculator3( inputData,
@@ -234,6 +232,10 @@ TEST_F( PWDCalculatorTest, compute )
    EXPECT_EQ( 800, outputData.getMapValue( isostaticBathymetry, 0, 1 ) );
    EXPECT_EQ( 800, outputData.getMapValue( isostaticBathymetry, 1, 0 ) );
    EXPECT_EQ( 800, outputData.getMapValue( isostaticBathymetry, 1, 1 ) );
+   EXPECT_EQ( 0, outputData.getMapValue( ResponseFactor, 0, 0 ) );
+   EXPECT_EQ( 0, outputData.getMapValue( ResponseFactor, 0, 1 ) );
+   EXPECT_EQ( 0, outputData.getMapValue( ResponseFactor, 1, 0 ) );
+   EXPECT_EQ( 0, outputData.getMapValue( ResponseFactor, 1, 1 ) );
 
    //Undefined values
    // for TTS
@@ -247,6 +249,10 @@ TEST_F( PWDCalculatorTest, compute )
    EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( isostaticBathymetry, 0, 1 ) );
    EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( isostaticBathymetry, 1, 0 ) );
    EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( isostaticBathymetry, 1, 1 ) );
+   EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( ResponseFactor, 0, 0 ) );
+   EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( ResponseFactor, 0, 1 ) );
+   EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( ResponseFactor, 1, 0 ) );
+   EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( ResponseFactor, 1, 1 ) );
    // for backstrip
    PaleowaterdepthCalculator pwdCalculator5( inputData,
                                              outputData,
@@ -258,6 +264,10 @@ TEST_F( PWDCalculatorTest, compute )
    EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( isostaticBathymetry, 0, 1 ) );
    EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( isostaticBathymetry, 1, 0 ) );
    EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( isostaticBathymetry, 1, 1 ) );
+   EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( ResponseFactor, 0, 0 ) );
+   EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( ResponseFactor, 0, 1 ) );
+   EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( ResponseFactor, 1, 0 ) );
+   EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( ResponseFactor, 1, 1 ) );
    //for valid node
    outputData.setMapValues( cumSedimentBackstrip, -300 );
    validator.setIsValid( false );
@@ -266,4 +276,8 @@ TEST_F( PWDCalculatorTest, compute )
    EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( isostaticBathymetry, 0, 1 ) );
    EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( isostaticBathymetry, 1, 0 ) );
    EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( isostaticBathymetry, 1, 1 ) );
+   EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( ResponseFactor, 0, 0 ) );
+   EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( ResponseFactor, 0, 1 ) );
+   EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( ResponseFactor, 1, 0 ) );
+   EXPECT_EQ( Interface::DefaultUndefinedMapValue, outputData.getMapValue( ResponseFactor, 1, 1 ) );
 }

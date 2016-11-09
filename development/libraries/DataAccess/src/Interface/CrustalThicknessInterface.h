@@ -59,6 +59,7 @@ namespace CrustalThicknessInterface {
       LowerContinentalCrustThickness, // the lower part of the oceanic crust thickness                                                        [m]
       UpperOceanicCrustThickness,     // the upper part of the continental crust thickness                                                    [m]
       LowerOceanicCrustThickness,     // the lower part of the oceanic crust thickness                                                        [m]
+      ResponseFactor,                 // the response factor due to the pressure equilibrium bewteen the bottom mantle and basement           [m]
       numberOfOutputMaps
    };
 
@@ -97,7 +98,8 @@ namespace CrustalThicknessInterface {
       "UpperContinentalCrustThickness",        // the upper part of the continental crust thickness                                                    [m]
       "LowerContinentalCrustThickness",        // the lower part of the oceanic crust thickness                                                        [m]
       "UpperOceanicCrustThickness",            // the upper part of the continental crust thickness                                                    [m]
-      "LowerOceanicCrustThickness"             // the lower part of the oceanic crust thickness                                                        [m]
+      "LowerOceanicCrustThickness",            // the lower part of the oceanic crust thickness                                                        [m]
+      "ResponseFactor"                         // the response factor due to the pressure equilibrium bewteen the bottom mantle and basement           [m]
    };
 
    const std::string outputMapsUnits[CrustalThicknessInterface::numberOfOutputMaps] = {
@@ -136,6 +138,7 @@ namespace CrustalThicknessInterface {
       "m",     // the lower part of the oceanic crust thickness                                                        [m]
       "m",     // the upper part of the continental crust thickness                                                    [m]
       "m"      // the lower part of the oceanic crust thickness                                                        [m]
+      "m"      // the response factor due to the pressure equilibrium bewteen the bottom mantle and basement           [m]
    };
 
    inline outputMaps getPropertyId( const std::string & propertyName ){

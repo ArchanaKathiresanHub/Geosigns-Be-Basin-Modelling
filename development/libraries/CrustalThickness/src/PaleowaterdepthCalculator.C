@@ -10,6 +10,9 @@
 
 #include "PaleowaterdepthCalculator.h"
 
+// std library
+#include <exception>
+
 // utilities library
 #include "ConstantsPhysics.h"
 using Utilities::Physics::AccelerationDueToGravity;
@@ -35,10 +38,10 @@ PaleowaterdepthCalculator::PaleowaterdepthCalculator(
       m_validator                 ( validator  )
 {
    if (m_mantleDensity == m_waterDensity){
-      throw PWDException() << "The water density is equal to the mantle density in the Paleowaterdepth calculator but they should be different";
+      throw std::invalid_argument( "The water density is equal to the mantle density in the Paleowaterdepth calculator but they should be different" );
    }
    else if (m_presentDayTTS == nullptr) {
-      throw PWDException() << "The present day total tectonic subsidence is a null pointer and is required by the Paleowaterdepth calculator";
+      throw std::invalid_argument( "The present day total tectonic subsidence is a null pointer and is required by the Paleowaterdepth calculator" );
    }
    else if (m_presentDayPressureMantle == nullptr){
       LogHandler( LogHandler::INFO_SEVERITY ) << "      the Paleowaterdepth will not be thermally corrected as there is no present day bottom mantle pressure available";
@@ -61,7 +64,7 @@ PaleowaterdepthCalculator::~PaleowaterdepthCalculator(){}
 void PaleowaterdepthCalculator::compute(){
 
    unsigned int i, j;
-   double PWD;
+   double PWD = 0, responseFactor = 0;
    retrieveData();
 
    for ( i = m_firstI; i <= m_lastI; ++i ) {
@@ -83,12 +86,13 @@ void PaleowaterdepthCalculator::compute(){
                    currentPressureMantle      != m_currentPressureMantle     ->getUndefinedValue() and
                    currentPressureBasement    != m_currentPressureBasement   ->getUndefinedValue() )
                {
-                  PWD = calculatePWD( TTS,
-                                      backstrip,
-                                      presentDayPressureMantle,
-                                      presentDayPressureBasement,
-                                      currentPressureMantle,
-                                      currentPressureBasement );
+                  responseFactor = calculateResponseFactor( presentDayPressureMantle,
+                                                            presentDayPressureBasement,
+                                                            currentPressureMantle,
+                                                            currentPressureBasement );
+                  PWD = calculateThermallyCorrectedPWD( TTS,
+                                                        backstrip,
+                                                        responseFactor );
                }
                else{
                   PWD = calculatePWD( TTS, backstrip );
@@ -101,9 +105,11 @@ void PaleowaterdepthCalculator::compute(){
 
          }
          else{
-            PWD = Interface::DefaultUndefinedMapValue;
+            responseFactor = Interface::DefaultUndefinedMapValue;
+            PWD            = Interface::DefaultUndefinedMapValue;
          }
-         m_outputData.setMapValue( CrustalThicknessInterface::outputMaps::isostaticBathymetry, i, j, PWD );
+         m_outputData.setMapValue( CrustalThicknessInterface::outputMaps::isostaticBathymetry, i, j, PWD            );
+         m_outputData.setMapValue( CrustalThicknessInterface::outputMaps::ResponseFactor     , i, j, responseFactor );
       }
    }
 
@@ -111,18 +117,22 @@ void PaleowaterdepthCalculator::compute(){
 }
 
 //------------------------------------------------------------//
-double PaleowaterdepthCalculator::calculatePWD( const double presentDayTTS,
-                                                const double backstrip,
-                                                const double presentDayPressureBotMantle,
-                                                const double presentDayPressureBasement,
-                                                const double currentPressureBotMantle,
-                                                const double currentPressureBasement ) const {
-   double PWD = presentDayTTS - backstrip;
+double PaleowaterdepthCalculator::calculateResponseFactor( const double presentDayPressureBotMantle,
+                                                           const double presentDayPressureBasement,
+                                                           const double currentPressureBotMantle,
+                                                           const double currentPressureBasement ) const {
    assert( m_mantleDensity != m_waterDensity );
    //Pressure data available to equilibrate Basement and Bottom Mantle pressure
-   PWD -= ((presentDayPressureBotMantle - presentDayPressureBasement) - (currentPressureBotMantle - currentPressureBasement)) /
+   double responseFactor = ((presentDayPressureBotMantle - presentDayPressureBasement) - (currentPressureBotMantle - currentPressureBasement)) /
       (AccelerationDueToGravity*(m_mantleDensity - m_waterDensity));
-   return PWD;
+   return responseFactor;
+}
+
+//------------------------------------------------------------//
+double PaleowaterdepthCalculator::calculateThermallyCorrectedPWD( const double presentDayTTS,
+                                                                  const double backstrip,
+                                                                  const double responseFactor ) const {
+   return presentDayTTS - backstrip - responseFactor;
 }
 
 //------------------------------------------------------------//
@@ -133,7 +143,7 @@ double PaleowaterdepthCalculator::calculatePWD( const double presentDayTTS,
 
 //------------------------------------------------------------//
 void PaleowaterdepthCalculator::retrieveData() {
-   if (m_presentDayPressureBasement!=nullptr){
+   if (m_presentDayPressureBasement != nullptr){
       m_presentDayPressureBasement->retrieveData();
    }
    if (m_currentPressureBasement != nullptr){
