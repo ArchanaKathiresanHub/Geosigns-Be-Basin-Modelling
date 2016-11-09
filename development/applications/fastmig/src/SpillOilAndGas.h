@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef _MIGRATION_DISTRIBUTE_SPILLOILANDGAS_H_
 #define _MIGRATION_DISTRIBUTE_SPILLOILANDGAS_H_
 
@@ -9,26 +19,30 @@
 using functions::MonotonicIncreasingPiecewiseLinearInvertableFunction;
 using functions::Tuple2;
 
-namespace migration { namespace distribute {
-
-class SpillOilAndGas
+namespace migration
 {
-private:
+   namespace distribute
+   {
 
-   Spill m_spill;
+      class SpillOilAndGas
+      {
+      private:
 
-public:
+         Spill m_spill;
 
-   SpillOilAndGas(const MonotonicIncreasingPiecewiseLinearInvertableFunction* levelToVolume);
+      public:
 
-   void distribute(const double& gasVolume, const double& oilVolume, double& gasVolumeSpilled, 
-      double& oilVolumeSpilled) const;
+         SpillOilAndGas (const MonotonicIncreasingPiecewiseLinearInvertableFunction* levelToVolume);
 
-   const double& maxLevel() const { return m_spill.maxLevel(); }
-   const double& maxVolume() const { return m_spill.maxVolume(); }
-   const Tuple2<double>& maxContent() const { return m_spill.maxContent(); }
-};
+         void distribute (const double& gasVolume, const double& oilVolume, double& gasVolumeSpilled,
+            double& oilVolumeSpilled) const;
 
-} } // namespace migration::distribute
+         const double& maxLevel () const { return m_spill.maxLevel (); }
+         const double& maxVolume () const { return m_spill.maxVolume (); }
+         const Tuple2<double>& maxContent () const { return m_spill.maxContent (); }
+      };
+
+   }
+} // namespace migration::distribute
 
 #endif

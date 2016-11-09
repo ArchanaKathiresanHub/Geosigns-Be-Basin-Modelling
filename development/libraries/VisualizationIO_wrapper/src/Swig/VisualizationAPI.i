@@ -7,8 +7,7 @@
 %include "std_map.i"
 %include "std_pair.i"
 %include "typemaps.i"
-%include "boost_shared_ptr.i"
-
+%include "std_shared_ptr.i"
 
 /* Use an IntPtr for float* data */
 %typemap(ctype)  float * "float *"
@@ -45,6 +44,7 @@ namespace CauldronIO
 %shared_ptr(CauldronIO::Geometry2D)
 %shared_ptr(CauldronIO::Geometry3D)
 %shared_ptr(CauldronIO::Reservoir)
+%shared_ptr(CauldronIO::HDFinfo)
 
 %{
 /* Includes the header in the wrapper code */
@@ -52,6 +52,8 @@ namespace CauldronIO
 #include "VisualizationAPI.h"
 #include "VisualizationIO_native.h"
 #include "ImportExport.h"
+#include "FilePath.h"
+#include "FolderPath.h"
 %}
 
 %ignore CauldronIOException;
@@ -66,17 +68,19 @@ namespace CauldronIO
 %include "ImportExport.h"
 
 /* some templates */
-%template(SnapShotList) std::vector < boost::shared_ptr<CauldronIO::SnapShot > >;
-%template(FormationVolume) std::pair<boost::shared_ptr<const CauldronIO::Formation>, boost::shared_ptr<CauldronIO::Volume> >;
+%template(SnapShotList) std::vector < std::shared_ptr<CauldronIO::SnapShot > >;
+%template(FormationVolume) std::pair<std::shared_ptr<const CauldronIO::Formation>, std::shared_ptr<CauldronIO::Volume> >;
 %template(FormationVolumeList) std::vector< CauldronIO::FormationVolume >;
-%template(SurfaceList) std::vector<boost::shared_ptr<CauldronIO::Surface > > ;
-%template(VolumeList) std::vector<boost::shared_ptr<CauldronIO::Volume > > ;
-%template(TrapperList) std::vector<boost::shared_ptr<CauldronIO::Trapper > > ;
-%template(PropertyList) std::vector<boost::shared_ptr<const CauldronIO::Property > > ;
-%template(PropertySurfaceData) std::pair<boost::shared_ptr<const CauldronIO::Property>, boost::shared_ptr<CauldronIO::SurfaceData> >;
+%template(SurfaceList) std::vector<std::shared_ptr<CauldronIO::Surface > > ;
+%template(VolumeList) std::vector<std::shared_ptr<CauldronIO::Volume > > ;
+%template(TrapperList) std::vector<std::shared_ptr<CauldronIO::Trapper > > ;
+%template(PropertyList) std::vector<std::shared_ptr<const CauldronIO::Property > > ;
+%template(PropertySurfaceData) std::pair<std::shared_ptr<const CauldronIO::Property>, std::shared_ptr<CauldronIO::SurfaceData> >;
 %template(PropertySurfaceDataList) std::vector < CauldronIO::PropertySurfaceData > ;
-%template(ReservoirList) std::vector<boost::shared_ptr<const CauldronIO::Reservoir> >  ;
-%template(FormationList) std::vector<boost::shared_ptr<const CauldronIO::Formation> > ;
+%template(ReservoirList) std::vector<std::shared_ptr<const CauldronIO::Reservoir> >  ;
+%template(FormationList) std::vector<std::shared_ptr<const CauldronIO::Formation> > ;
 %template(SurfaceNameList) std::vector<std::string> ;
-%template(PropertyVolumeData) std::pair<boost::shared_ptr<const CauldronIO::Property>, boost::shared_ptr<CauldronIO::VolumeData> >;
-%template(PropertyVolumeDataList) std::vector < CauldronIO::PropertyVolumeData > ;
+%template(PropertyVolumeData) std::pair<std::shared_ptr<const CauldronIO::Property>, std::shared_ptr<CauldronIO::VolumeData> >;
+%template(PropertyVolumeDataList) std::vector<CauldronIO::PropertyVolumeData > ;
+%template(HDFinfoList) std::vector<std::shared_ptr<CauldronIO::HDFinfo> >;
+%template(GeometryList) std::vector<std::shared_ptr<const CauldronIO::Geometry2D> >;

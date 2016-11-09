@@ -76,7 +76,8 @@ int main( int argc, char ** argv )
 
    GeoPhysics::ObjectFactory* factory = new GeoPhysics::ObjectFactory;
    PropertiesCalculator propCalculator ( rank );
-       
+   propCalculator.startTimer();
+
    if( !propCalculator.parseCommandLine( argc, argv )) {
 
       PetscFinalize();
@@ -91,6 +92,15 @@ int main( int argc, char ** argv )
 
       return 1;
    }
+   if( propCalculator.convert() ) {
+      
+      propCalculator.convertToVisualizationIO();
+      propCalculator.finalise ( false );
+ 
+      PetscFinalize ();
+
+      return 0;
+   };
  
    ////////////////////////////////////////////
    ///3. Load data
@@ -115,16 +125,6 @@ int main( int argc, char ** argv )
       PetscFinalize ();
 
       return 1;
-   };
- 
-   if( propCalculator.convert() ) {
-      
-      propCalculator.convertToVisualizationIO();
-      propCalculator.finalise ( false );
- 
-      PetscFinalize ();
-
-      return 0;
    };
       
    SnapshotList snapshots;
@@ -153,7 +153,10 @@ int main( int argc, char ** argv )
    
    ////////////////////////////////////////////
    ///5. Save results
-   propCalculator.finalise ( true );
+
+   bool status = propCalculator.finalise ( true );
+
+   delete factory;
 
    PetscLogDouble sim_End_Time;
    PetscTime( &sim_End_Time );   
@@ -161,6 +164,6 @@ int main( int argc, char ** argv )
    displayTime( sim_End_Time - sim_Start_Time, "End of calculation" );
 
    PetscFinalize ();
-   return 0;
+   return status;
 }
 

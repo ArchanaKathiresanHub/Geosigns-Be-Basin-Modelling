@@ -65,7 +65,6 @@ namespace casa
       /// @return dimension of observable
       virtual size_t dimension() const { return m_x.size(); }
 
-
       /// @brief Does observable has a reference value (measurement)
       /// @return true if reference value was set, false otherwise
       virtual bool hasReferenceValue() const { return m_refValue.get() == NULL ? false : true; }
@@ -75,13 +74,13 @@ namespace casa
       virtual const ObsValue * referenceValue() const { return m_refValue.get(); }
 
       /// @brief Get standard deviations for the reference value
-      /// @return a standard deviation for reference value
-      virtual double stdDeviationForRefValue() const { return m_devValue; }
+      /// @return standard deviation for reference value
+      virtual const ObsValue * stdDeviationForRefValue( ) const { return m_devValue.get(); }
 
       /// @brief Set reference value
       /// @param refVal reference value itself
       /// @param stdDevVal standard deviation value for the reference value
-      virtual void setReferenceValue( ObsValue * refVal, double stdDevVal );
+      virtual void setReferenceValue( ObsValue * refVal, ObsValue * stdDevVal );
 
       /// @brief Get weighting coefficient for sensitivity analysis
       /// return weighting coefficient. This coefficient should be used in Pareto diagram calculation
@@ -90,6 +89,10 @@ namespace casa
       /// @brief Set weight coefficient for Sensitivity analysis
       /// @param w weight coefficient value
       virtual void setSAWeight( double w ) { m_saWeight = w;  }
+
+      /// @brief Get Cauldron property name
+      /// @return name of the property as a string
+      std::string propertyName() const { return m_propName; }
 
       /// @brief Get Z coordinates list
       /// @return array with Z coordinate of each observable point along well
@@ -124,7 +127,7 @@ namespace casa
       /// @brief Do observable validation for the given model
       /// @param caldModel reference to Cauldron model
       /// @return empty string if there is no any problems with this observable, or error message if well is outside of the project 
-      virtual std::string checkObservableForProject( mbapi::Model & caldModel );
+      virtual std::string checkObservableForProject( mbapi::Model & caldModel ) const;
 
       /// @brief Create new observable value from set of doubles. This method is used for data conversion between SUMlib and CASA
       /// @param[in,out] val iterator for double array
@@ -134,7 +137,7 @@ namespace casa
       /// @{
       /// @brief Defines version of serialized object representation. Must be updated on each change in save()
       /// @return Actual version of serialized object representation
-      virtual unsigned int version() const { return 0; }
+      virtual unsigned int version() const { return 1; }
 
       /// @brief Get type name of the serialaizable object, used in deserialization to create object with correct type
       /// @return object class name
@@ -166,7 +169,7 @@ namespace casa
       std::vector<int>          m_posDataMiningTbl; ///< row number in DataMiningIoTbl which corresponds this observable
 
       std::unique_ptr<ObsValue>   m_refValue;         ///< reference value
-      double                    m_devValue;         ///< standard deviation for reference value
+      std::unique_ptr<ObsValue>   m_devValue;         ///< standard deviation for reference value
 
       double                    m_saWeight;         ///< Observable weight for sensitivity analysis
       double                    m_uaWeight;         ///< Observable weight for uncertainty analysis

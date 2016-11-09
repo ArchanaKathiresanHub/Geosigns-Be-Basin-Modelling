@@ -1,21 +1,8 @@
 #include <assert.h>
 
-#ifdef sgi
-   #ifdef _STANDARD_C_PLUS_PLUS
-      #include<iostream>
-      #include <sstream>
-      using namespace std;
-      #define USESTANDARD
-   #else // !_STANDARD_C_PLUS_PLUS
-      #include<iostream.h>
-      #include<strstream.h>
-   #endif // _STANDARD_C_PLUS_PLUS
-#else // !sgi
-   #include <iostream>
-   #include <sstream>
-   using namespace std;
-   #define USESTANDARD
-#endif // sgi
+#include <iostream>
+#include <sstream>
+using namespace std;
 
 #include "mangle.h"
 
@@ -54,6 +41,12 @@ const string Reservoir::s_MapAttributeNames[] =
 const string & Reservoir::getName (void) const
 {
    return database::getReservoirName (m_record);
+}
+
+void Reservoir::setName (const string reservoirName)
+{
+   database::setReservoirName (m_record, reservoirName);
+   return;
 }
 
 const string & Reservoir::getMangledName (void) const
@@ -215,11 +208,7 @@ void Reservoir::printOn (ostream & ostr) const
 
 void Reservoir::asString (string & str) const
 {
-#ifdef USESTANDARD
    ostringstream buf;
-#else
-   strstream buf;
-#endif
 
    buf << "Reservoir:";
    buf << " name = " << getName ();
@@ -227,7 +216,4 @@ void Reservoir::asString (string & str) const
    buf << endl;
 
    str = buf.str ();
-#ifndef USESTANDARD
-   buf.rdbuf ()->freeze (0);
-#endif
 }

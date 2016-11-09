@@ -5,8 +5,6 @@
 #include "OutputUtilities.h"
 #include "AbstractPropertyManager.h"
 
-//#define D_DEBUG
-
 bool DerivedProperties::acquireProperties( GeoPhysics::ProjectHandle * projectHandle, const AbstractPropertyManager& propertyManager,
                                            PropertyList & properties, StringVector & propertyNames  ) {
 
@@ -51,10 +49,7 @@ bool DerivedProperties::acquireProperties( GeoPhysics::ProjectHandle * projectHa
       if ( isComputable ) {
          properties.push_back( property );
       } else {
-         //#ifdef D_DEBUG
          LogHandler( LogHandler::DEBUG_SEVERITY ) << "Could not find calculator for property named '" << *stringIter << "'";
-         //cout << "Could not find calculator for property named '" << *stringIter << "'" << endl;
-         //#endif
       }
 
    }
@@ -92,6 +87,7 @@ bool  DerivedProperties::acquireFormations( GeoPhysics::ProjectHandle * projectH
          const Formation * formation = *formationIter;
          formationSurfacePairs.push_back( FormationSurface( formation, static_cast<const Surface *>(0) ));
       }
+      delete formations;
    }
    return true;
 }
@@ -137,9 +133,26 @@ bool  DerivedProperties::acquireFormationSurfaces( GeoPhysics::ProjectHandle * p
          }
          formationSurfacePairs.push_back( FormationSurface( formation, surface ));
       }
+      delete formations;
    }
 
    return true;
+}
+
+//------------------------------------------------------------//
+
+void  DerivedProperties::removeProperties (  const Snapshot * snapshot, 
+                                             SnapshotFormationSurfaceOutputPropertyValueMap & allOutputPropertyValues ) {
+
+   SnapshotFormationSurfaceOutputPropertyValueMap::iterator propertyValueToRemove;
+   for( propertyValueToRemove = allOutputPropertyValues.begin(); propertyValueToRemove != allOutputPropertyValues.end(); ) {
+      if( propertyValueToRemove->first == snapshot ) {
+         allOutputPropertyValues.erase( propertyValueToRemove ++ );
+      } else {
+         
+         ++ propertyValueToRemove;
+      }
+   }
 }
 
 //------------------------------------------------------------//
@@ -160,16 +173,13 @@ void  DerivedProperties::outputSnapshotFormationData( GeoPhysics::ProjectHandle*
       OutputPropertyValuePtr propertyValue = allOutputPropertyValues[ snapshot ][ formationItem ][ property ];
 
       if ( propertyValue != 0 )  {
-         //#ifdef D_DEBUG     
          printDebugMsg ( " Output property avaiable for" , property, formation, surface,  snapshot );
-         //#endif
+
          createSnapshotResultPropertyValue ( projectHandle, propertyValue, snapshot, formation, surface );
       }
       else
       {
-         //#ifdef D_DEBUG     
          printDebugMsg ( " No property avaiable for" , property, formation, surface, snapshot );
-         //#endif
       }
    }
 }
@@ -193,17 +203,14 @@ OutputPropertyValuePtr  DerivedProperties::allocateOutputProperty ( DerivedPrope
             property->getPropertyAttribute () == DataModel::DISCONTINUOUS_3D_PROPERTY ) and 
           propertyManager.formationPropertyIsComputable ( property, snapshot, formation )) {
          
-         //#ifdef D_DEBUG
          printDebugMsg( "Allocating Formation", property, formation, 0, snapshot );
-         //#endif
          outputProperty = OutputPropertyValuePtr ( new FormationOutputPropertyValue ( propertyManager, property, snapshot, formation ));
       }     
       // check if the formation-map property is computable
       else if ( property->getPropertyAttribute () == DataModel::FORMATION_2D_PROPERTY and 
                 propertyManager.formationMapPropertyIsComputable ( property, snapshot, formation )) {
-         //#ifdef D_DEBUG
+
          printDebugMsg( "Allocating FM", property, formation, 0, snapshot );
-         //#endif
          outputProperty = OutputPropertyValuePtr ( new FormationMapOutputPropertyValue ( propertyManager, property, snapshot, formation ));
       }
    }
@@ -227,9 +234,7 @@ OutputPropertyValuePtr  DerivedProperties::allocateOutputProperty ( DerivedPrope
 
          if ( topSurface != 0 ) {
 
-            //#ifdef D_DEBUG
             printDebugMsg( "Allocating Surface", property, 0, topSurface, snapshot );
-            //#endif
             outputProperty = OutputPropertyValuePtr ( new SurfaceOutputPropertyValue ( propertyManager, property, snapshot, topSurface ));
          } else if ( bottomSurface != 0 ) {
             bool allowOutput = false;
@@ -238,9 +243,8 @@ OutputPropertyValuePtr  DerivedProperties::allocateOutputProperty ( DerivedPrope
                allowOutput = true;
             }
             if( allowOutput ) {
-               ///#ifdef D_DEBUG
-             printDebugMsg( "Allocating Surface", property, 0, bottomSurface, snapshot );
-             ///#endif
+
+               printDebugMsg( "Allocating Surface", property, 0, bottomSurface, snapshot );
                outputProperty = OutputPropertyValuePtr ( new SurfaceOutputPropertyValue ( propertyManager, property, snapshot, bottomSurface ));
             }
          }
@@ -251,14 +255,12 @@ OutputPropertyValuePtr  DerivedProperties::allocateOutputProperty ( DerivedPrope
                  ( bottomSurface != 0 and propertyManager.formationSurfacePropertyIsComputable ( property, snapshot, formation, bottomSurface ))))  {
 
          if ( topSurface != 0 ) {
-            //#ifdef D_DEBUG
+
             printDebugMsg( "Allocating FS", property, 0, topSurface, snapshot );
-            //#endif
             outputProperty = OutputPropertyValuePtr ( new FormationSurfaceOutputPropertyValue ( propertyManager, property, snapshot, formation, topSurface ));
          } else if ( bottomSurface != 0 ) {
-            //#ifdef D_DEBUG
+
             printDebugMsg( "Allocating FS", property, 0, bottomSurface, snapshot );
-            //#endif
             outputProperty = OutputPropertyValuePtr ( new FormationSurfaceOutputPropertyValue ( propertyManager, property, snapshot, formation, bottomSurface ));
          }
 
@@ -317,9 +319,8 @@ bool  DerivedProperties::createSnapshotResultPropertyValue (  GeoPhysics::Projec
  
    if( thePropertyValue != 0 ) {
 
-      // #ifdef D_DEBUG
-     printDebugMsg( "Saving ",  propertyValue->getProperty (), formation, surface, snapshot );
-     //#endif
+      printDebugMsg( "Saving ",  propertyValue->getProperty (), formation, surface, snapshot );
+
       GridMap * theMap = thePropertyValue->getGridMap();
 
       if( theMap != 0 ) {

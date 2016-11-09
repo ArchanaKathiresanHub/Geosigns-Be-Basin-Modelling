@@ -280,6 +280,11 @@ public:
   {
     return *m_topology;
   }
+
+  virtual const MeshType* getNewClone() const
+  {
+    return new GenericMesh<MeshType, GeometryType, TopologyType>(m_geometry, m_topology);
+  }
 };
 
 typedef GenericMesh<MiVolumeMeshCurvilinear, SnapshotGeometry, SnapshotTopology> SnapshotMesh;

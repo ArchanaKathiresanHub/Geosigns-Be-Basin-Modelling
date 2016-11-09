@@ -1,3 +1,13 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 /**
  * \file ChemicalCompactionSchneiderGrid.h
  * \brief ChemicalCompactionSchneiderGrid class which links SchneiderCompactionCalculator class to fem_grid objects.
@@ -32,6 +42,7 @@ public:
 	 * \param layerList: cont LayerList& the list of the layers in the basin
 	 */
 	ChemicalCompactionSchneiderGrid( DM* mapViewOfDomain,
+         const bool isLegacy,
 			const LayerList & layerList );
 
 	/*!
@@ -77,6 +88,10 @@ public:
 	 */
 	const double * getReferenceViscosity() const;
 
+   /*!
+   * \brief is the behaviour legacy or new rock property library feature?
+   */
+   virtual bool isLegacy() const;
 
 private:
 
@@ -94,7 +109,7 @@ private:
 		 * \brief Constructor of the class Properties.
 		 * Allocate the grid properties.
 		 */
-		Properties( const LayerProps & layer );
+		explicit Properties( const LayerProps & layer );
 
 		/*!
 		 * \brief Destructor of the class Properties.
@@ -127,7 +142,7 @@ private:
 	 * \brief Create an instance of the Properties class
 	 * \param layer: LayerProps the layer in which are the properties
 	 */
-	virtual Properties * getProperties( const LayerProps& layer );
+	virtual Properties * getProperties(const LayerProps& layer);
 
 	/*!
 	 * \brief Store the lithology parameters needed for the Schneider chemical compaction computation.
@@ -141,6 +156,11 @@ private:
 
 	std::vector < double > m_activationEnergy;    /*!< vector of activation energy for every lithology of the basin >*/
 	std::vector < double > m_referenceViscosity;  /*!< vector of reference viscosity for every lithology of the basin >*/
+
+   const bool m_isLegacy; /*!< Legacy behaviour for minimum porosity?
+                           * Flag for new rock property library (and new migration engine)
+                           * 0 is the revised minimum porosity behaviour and additional mixing models
+                           * 1 is simple minimum porosity behaviour and 2 mixing models*/
 };
 
 #endif

@@ -1,11 +1,21 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
 #include "snapshotdata.h"
 #include "petscts.h"
 
-#include "globaldefs.h"
+#include "ConstantsFastcauldron.h"
 #include "fileio.h"
 #include "cauldronschema.h"
 #include "cauldronschemafuncs.h"
 #include "utils.h"
+#include "FilePath.h"
 
 #include "FastcauldronSimulator.h"
 
@@ -596,8 +606,9 @@ void SnapshotData::deleteMinorSnapshotFiles ( const std::string& outputDirectory
   for ( ssIter = minorSnapshotTimes.rbegin (); ssIter != minorSnapshotTimes.rend (); ++ssIter ) {
 
     if ((*ssIter)->fileName () != "" ) {
-      fileName = outputDirectoryName + (*ssIter)->fileName ();
-      unlink ( fileName.c_str ());
+       ibs::FilePath fileName ( outputDirectoryName );
+       fileName << (*ssIter)->fileName ();
+       unlink ( fileName.cpath ());
     }
 
   }
@@ -619,8 +630,9 @@ void SnapshotData::deleteMajorSnapshotFiles ( const std::string& outputDirectory
   for ( ssIter = majorSnapshotTimes.rbegin (); ssIter != majorSnapshotTimes.rend (); ++ssIter ) {
 
     if ((*ssIter)->fileName () != "" ) {
-      fileName = outputDirectoryName + (*ssIter)->fileName ();
-      unlink ( fileName.c_str ());
+       ibs::FilePath fileName ( outputDirectoryName );
+       fileName << (*ssIter)->fileName ();
+       unlink ( fileName.cpath ());
     }
 
   }

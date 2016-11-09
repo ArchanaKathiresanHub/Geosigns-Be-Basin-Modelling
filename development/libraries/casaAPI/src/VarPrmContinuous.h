@@ -100,6 +100,14 @@ namespace casa
          return ret;
       }
 
+      /// @brief Average the values, interpolate for lithofractions and set the appropriate entries in the project3d file
+      /// @return new parameter for given set of values
+      virtual SharedParameterPtr makeThreeDFromOneD( mbapi::Model              & mdl ///< [in,out] the model where to set the new averaged parameter
+                                                   , const std::vector<double> & xin ///< the x coordinates of each 1D project 
+                                                   , const std::vector<double> & yin ///< the y coordinates of each 1D project 
+                                                   , const std::vector<SharedParameterPtr> & prmVec /// the optimal parameter value of each 1D project
+                                                   ) const = 0;
+
       /// @brief Convert Cauldron parameter values to SUMlib values for some variable parameters
       /// @param prm cauldron parameter with to this variable parameter corresponded type
       /// @return parameter values suitable for SUMlib

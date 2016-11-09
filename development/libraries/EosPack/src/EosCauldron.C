@@ -42,8 +42,6 @@
 *  Source module for Cauldron implementation is EosCauldron.cpp      *
 *                                                                    *
 *********************************************************************/
-#include "stdafx.h"
-
 #include <math.h>
 #include <stdlib.h>
 

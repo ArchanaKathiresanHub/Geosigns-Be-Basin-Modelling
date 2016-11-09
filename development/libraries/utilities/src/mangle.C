@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include <stdlib.h>
 
 #if !(defined (_WIN32) || defined (_WIN64))
@@ -6,7 +5,6 @@
 #endif
 
 #include <iostream>
-#define USESTANDARD
 
 #include "mangle.h"
 

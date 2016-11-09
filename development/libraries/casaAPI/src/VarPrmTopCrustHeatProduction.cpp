@@ -103,6 +103,25 @@ SharedParameterPtr VarPrmTopCrustHeatProduction::newParameterFromDoubles( std::v
    return newPrm;
 }
 
+SharedParameterPtr VarPrmTopCrustHeatProduction::newParameterFromModel( mbapi::Model & mdl, const std::vector<double> & /* vin */ ) const
+{
+   SharedParameterPtr prm( new PrmTopCrustHeatProduction( mdl ) );
+   prm->setParent( const_cast<VarPrmTopCrustHeatProduction *>( this ) );
+   return prm;
+}
+
+
+SharedParameterPtr VarPrmTopCrustHeatProduction::makeThreeDFromOneD( mbapi::Model                          & /* mdl     */
+                                                                   , const std::vector<double>             & /* xin     */
+                                                                   , const std::vector<double>             & /* yin     */
+                                                                   , const std::vector<SharedParameterPtr> & /* prmVeci */
+                                                                   ) const
+{
+   // Not yet implemented
+   throw ErrorHandler::Exception( ErrorHandler::NotImplementedAPI ) << "makeThreeDFromOneD method not yet implemented for VarPrmTopCrustHeatProduction";
+   return nullptr;
+}
+
 // Save all object data to the given stream, that object could be later reconstructed from saved data
 bool VarPrmTopCrustHeatProduction::save( CasaSerializer & sz, unsigned int version ) const
 {

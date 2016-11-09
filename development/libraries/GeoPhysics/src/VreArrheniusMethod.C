@@ -118,7 +118,8 @@ namespace GeoPhysics {
       assert( timeStep > 0.0 );
 
       const int numberOfActiveNodes = currentGrid.getNumberOfActiveNodes();
-      const int * activeNodes = currentGrid.getActiveNodes();
+      const int * activeNodes;
+      if ( numberOfActiveNodes > 0 ) activeNodes = currentGrid.getActiveNodes();
       for (int activeNode = 0; activeNode < numberOfActiveNodes; ++activeNode)
       {
          const int node = activeNodes[ activeNode ];

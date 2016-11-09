@@ -26,12 +26,6 @@ namespace DataAccess
          /// Return the name of the associated lithology.
          virtual const std::string& getLithologyName () const;
 
-
-#if 0
-         /// Return constant pointer to the lithology to which the heat capacity is associated.
-         virtual const LithoType* getLithoType () const;
-#endif
-
          /// Get temperature value of sample point.
          virtual double getTemperature () const;
 

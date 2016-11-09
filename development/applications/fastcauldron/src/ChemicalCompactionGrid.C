@@ -1,3 +1,13 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 /*
  * \file ChemicalCompactionGrid.C
  */
@@ -15,7 +25,7 @@
 using namespace std;
 
 ChemicalCompactionGrid :: ChemicalCompactionGrid(
-		DM* mapViewOfDomain,
+      DM* mapViewOfDomain,
 		const LayerList & layerList ):
 				m_size( getNumberOfNodes( mapViewOfDomain, layerList ) ),
 				m_chemicalCompaction( m_size ),
@@ -32,13 +42,14 @@ ChemicalCompactionGrid :: ChemicalCompactionGrid(
 
 ChemicalCompactionGrid :: ~ChemicalCompactionGrid()
 {
-
+   //Empty destructor
 }
 
 int ChemicalCompactionGrid :: getNumberOfNodes( DM * mapViewOfDomain, const LayerList & layerList )
 {
 	//Return the sum of number of nodes on compactable layers
-	int xm, ym;
+	int xm;
+   int ym;
 	DMDAGetCorners( *mapViewOfDomain, PETSC_NULL, PETSC_NULL, PETSC_NULL ,&xm, &ym, PETSC_NULL);
 
 	Basin_Modelling::Layer_Iterator layers;
@@ -64,12 +75,14 @@ int ChemicalCompactionGrid :: getNumberOfNodes( DM * mapViewOfDomain, const Laye
 }
 
 ChemicalCompactionGrid * ChemicalCompactionGrid :: create( const std::string & algorithmName,
+      const bool isLegacy,
 		DM* mapViewOfDomain,
 		const LayerList & layerList)
 {
 	if ( algorithmName == "Schneider" )
 	{
 		return new ChemicalCompactionSchneiderGrid ( mapViewOfDomain,
+            isLegacy,
 				layerList );
 	}
 	else if ( algorithmName == "Walderhaug" )
@@ -123,14 +136,14 @@ void ChemicalCompactionGrid :: getLithologyMap( std::vector<int>& lithoMap ) con
 }
 
 
-void ChemicalCompactionGrid :: addLayers( 
+bool ChemicalCompactionGrid :: addLayers( 
 		DM* mapViewOfDomain,
 		const LayerList & layerList,
 		const Boolean2DArray & isValidNeedle,
 		double previousTime,
 		double currentTime)
 {
-
+	bool runChemicalCompaction = false;
 	if( m_size == 0 )
 	{
 		m_size = getNumberOfNodes( mapViewOfDomain, layerList );
@@ -152,95 +165,97 @@ void ChemicalCompactionGrid :: addLayers(
 	);
 
 	int gridOffset = 0;
-	while ( ! layers.Iteration_Is_Done () )
+	while (!layers.Iteration_Is_Done())
 	{
-		const LayerProps & layer = *layers.Current_Layer ();
+		const LayerProps & layer = *layers.Current_Layer();
 
-		//If not a compactable layer, do not load the data
-		if( !((LayerProps*) &layer) -> Get_Chemical_Compaction_Mode() )
+		//If not a compactable layer, do not load the data, go to next layer
+		if (((LayerProps*)&layer)->Get_Chemical_Compaction_Mode())
 		{
-			layers++;
-			continue;
-		}
+			// Get the dimensions
+			int xs;
+			int ys;
+			int zs;
+			int xm;
+			int ym;
+			int zm;
 
+			DMDAGetCorners(layer.layerDA, &xs, &ys, &zs, &xm, &ym, &zm);
 
-		// Get the dimensions
-		int xs, ys, zs, xm, ym, zm;
-		DMDAGetCorners( layer.layerDA, &xs, &ys, &zs, &xm, &ym, &zm );
+			const int layerGridSize = xm*ym*zm;
 
-		const int layerGridSize = xm*ym*zm;
+			// Get pointers to properties
+			std::unique_ptr<Properties> properties(getProperties(layer));
 
-		// Get pointers to properties
-		std::unique_ptr<Properties> properties( getProperties(layer) );
-
-		double***depth;
-		DMDAVecGetArray(layer.layerDA,
-				layer. Current_Properties ( Basin_Modelling::Depth ),
+			double***depth;
+			DMDAVecGetArray(layer.layerDA,
+				layer.Current_Properties(Basin_Modelling::Depth),
 				&depth);
 
-		const int activeNodeOffset =  m_validNodes.size() ;
-		m_validNodes.resize( activeNodeOffset + layerGridSize );
+			const int activeNodeOffset = m_validNodes.size();
+			m_validNodes.resize(activeNodeOffset + layerGridSize);
 
-		int activeNode = activeNodeOffset;
-		assert( ("There cannot be more valid nodes than nodes in the grid",m_validNodes.size() <= m_size ) );
+			int activeNode = activeNodeOffset;
+			assert(("There cannot be more valid nodes than nodes in the grid", m_validNodes.size() <= m_size));
 
-		// Traverse the grid in the layer
-		for (int i = xs; i < xs+xm; i++)
-		{
-			for (int j = ys; j < ys+ym; j++)
+			// Traverse the grid in the layer
+			for (int i = xs; i < xs + xm; i++)
 			{
-
-				if (! isValidNeedle(i,j) )
-					continue; // then the node is inactive, and should therefore be ignored
-
-				changeLithoMap(layer, i, j, zs, zm, gridOffset, ym, xm, ys, xs);			       				
-				
-				for (int k = zs; k < zs+zm; k++)
+				for (int j = ys; j < ys + ym; j++)
 				{
-					int node = getNodeNumber( gridOffset, zm, ym, k-zs, j-ys, i-xs );
-
-					assert( ("Out of the m_validNodes array", activeNode < m_validNodes.size()) );
-					assert( ("Try to access a negative index of the m_validNodes array", activeNode >= 0) );
-					assert( ("Out of the m_chemicalCompaction array", node < m_size ) );
-					assert( ("Try to access a negative index of the m_chemicalCompaction array", node >= 0) );
-
-					double seaBottomDepth = FastcauldronSimulator::getInstance().getSeaBottomDepth( i, j, m_currentTime );
-
-					// If, during deposition, the node is at the surface then do not start the vre calculation.
-					if ( ( m_currentTime >= layer.depoage  ||
-							k > zs && layer.getSolidThickness ( i, j, k - 1, m_currentTime) <= 0.0
-					) && NumericFunctions::isEqual( depth[k][j][i], seaBottomDepth, 1.0e-06)
-					)
+					// if node is inactive, it should be ignored
+					if (isValidNeedle(i, j))
 					{
-						/* then the node is inactive */
-					}
-					else
-					{
-						m_validNodes[activeNode++] = node;
-						//Store the properties values in the grid
-						properties->storeProperties( i, j, k, node, this );
-					}
+						runChemicalCompaction = true;
+						changeLithoMap(layer, i, j, zs, zm, gridOffset, ym, xm, ys, xs);
 
+						for (int k = zs; k < zs + zm; k++)
+						{
+							int node = getNodeNumber(gridOffset, zm, ym, k - zs, j - ys, i - xs);
 
-				}  // for k
-			} // for j
-		} // for i
+							assert(("Out of the m_validNodes array", activeNode < m_validNodes.size()));
+							assert(("Try to access a negative index of the m_validNodes array", activeNode >= 0));
+							assert(("Out of the m_chemicalCompaction array", node < m_size));
+							assert(("Try to access a negative index of the m_chemicalCompaction array", node >= 0));
 
-		if( activeNode > 0 )
-		{
-			m_validNodes.resize( activeNode );
-		}
+							double seaBottomDepth = FastcauldronSimulator::getInstance().getSeaBottomDepth(i, j, m_currentTime);
 
-		assert( ("Size of the lithoMap and nodes should be the same ", m_size == m_lithoMap.size() ) );
+							// If, during deposition, the node is at the surface then do not start the chemical compaction calculation.
+							if ((m_currentTime >= layer.depoage ||
+								k > zs && layer.getSolidThickness(i, j, k - 1, m_currentTime) <= 0.0
+								) && NumericFunctions::isEqual(depth[k][j][i], seaBottomDepth, 1.0e-06)
+								)
+							{
+								/* then the node is inactive */
+							}
+							else
+							{
+								m_validNodes[activeNode] = node;
+								activeNode++;
+								//Store the properties values in the grid
+								properties->storeProperties(i, j, k, node, this);
+							}
+						} //end if valid node
+					}  // for k
+				} // for j
+			} // for i
 
-		DMDAVecRestoreArray(layer.layerDA,
-				layer. Current_Properties ( Basin_Modelling::Depth ),
+			if (activeNode > 0)
+			{
+				m_validNodes.resize(activeNode);
+			}
+
+			assert(("Size of the lithoMap and nodes should be the same ", m_size == m_lithoMap.size()));
+			DMDAVecRestoreArray(layer.layerDA,
+				layer.Current_Properties(Basin_Modelling::Depth),
 				&depth);
+			gridOffset += layerGridSize;
+		}
 
 		// Go to next layer
 		layers++;
-		gridOffset += layerGridSize;
 	}
+	return runChemicalCompaction;
 }
 
 void ChemicalCompactionGrid :: changeLithoMap( const LayerProps& layer, int i, int j, int zs, int zm, int gridOffset, int ym, int xm, int ys, int xs)
@@ -292,71 +307,68 @@ void ChemicalCompactionGrid :: exportToModel( const LayerList & layerList, const
 		const LayerProps& currentLayer = *layers.Current_Layer ();
 
 		//If not a compactable layer, do not restore the data
-		if( !currentLayer.Get_Chemical_Compaction_Mode () )
+		if (currentLayer.Get_Chemical_Compaction_Mode())
 		{
-			layers++;
-			continue;
-		}
-
-		double***depth;
-		DMDAVecGetArray(currentLayer.layerDA,
-				currentLayer. Current_Properties ( Basin_Modelling::Depth ),
+			double***depth;
+			DMDAVecGetArray(currentLayer.layerDA,
+				currentLayer.Current_Properties(Basin_Modelling::Depth),
 				&depth);
 
 
-		// Get the dimensions of the current layer
-		int xs, ys, zs, xm, ym, zm;
-		DMDAGetCorners(currentLayer.layerDA,&xs,&ys,&zs,&xm,&ym,&zm);
+			// Get the dimensions of the current layer
+			int xs, ys, zs, xm, ym, zm;
+			DMDAGetCorners(currentLayer.layerDA, &xs, &ys, &zs, &xm, &ym, &zm);
 
-		// determine its size
-		const int layerGridSize = xm * ym * zm;
+			// determine its size
+			const int layerGridSize = xm * ym * zm;
 
-		// Create a property vector for chemical compaction. This vector doesn't need to be a
-		// global vector since it doesn't need to know about ghost points
-		double *** chemicalCompaction;
-		DMDAVecGetArray(currentLayer. layerDA,
-				currentLayer. Current_Properties ( Basin_Modelling::Chemical_Compaction ),
+			// Create a property vector for chemical compaction. This vector doesn't need to be a
+			// global vector since it doesn't need to know about ghost points
+			double *** chemicalCompaction;
+			DMDAVecGetArray(currentLayer.layerDA,
+				currentLayer.Current_Properties(Basin_Modelling::Chemical_Compaction),
 				&chemicalCompaction);
 
-		for (int i = xs; i < xs + xm; i++)
-		{
-			for (int j = ys; j < ys + ym; j++)
+			for (int i = xs; i < xs + xm; i++)
 			{
-				if (! isValidNeedle(i,j))
-					continue;
-
-				for (int k = zs; k < zs + zm; k++)
+				for (int j = ys; j < ys + ym; j++)
 				{
-					int node = getNodeNumber( gridOffset, zm, ym, k-zs, j-ys, i-xs );
-
-					assert( ("Out of the m_chemicalCompaction array",node < m_size ) );
-					assert( ("Try to access a negative index of the m_chemicalCompaction array", node >= 0) );
-
-					double seaBottomDepth = FastcauldronSimulator::getInstance().getSeaBottomDepth( i, j, m_currentTime );
-
-					if ( ( m_currentTime >= currentLayer.depoage  ||
-							k > zs && currentLayer.getSolidThickness ( i, j, k - 1, m_currentTime) <= 0.0
-					) && NumericFunctions::isEqual( depth[k][j][i], seaBottomDepth, 1.0e-06 )
-					)
+					if (isValidNeedle(i, j))
 					{
-						/* then the node is inactive */
-					}
-					else
-					{
-						chemicalCompaction[k][j][i] = m_chemicalCompaction[ node ];
-					}
 
+						for (int k = zs; k < zs + zm; k++)
+						{
+							int node = getNodeNumber(gridOffset, zm, ym, k - zs, j - ys, i - xs);
 
+							assert(("Out of the m_chemicalCompaction array", node < m_size));
+							assert(("Try to access a negative index of the m_chemicalCompaction array", node >= 0));
+
+							double seaBottomDepth = FastcauldronSimulator::getInstance().getSeaBottomDepth(i, j, m_currentTime);
+
+							if ((m_currentTime >= currentLayer.depoage ||
+								k > zs && currentLayer.getSolidThickness(i, j, k - 1, m_currentTime) <= 0.0
+								) && NumericFunctions::isEqual(depth[k][j][i], seaBottomDepth, 1.0e-06)
+								)
+							{
+								/* then the node is inactive */
+							}
+							else
+							{
+								chemicalCompaction[k][j][i] = m_chemicalCompaction[node];
+							}
+
+						}
+					}
 				}
 			}
-		}
 
-		// Clear any old reference to the previous layer.
-		DMDAVecRestoreArray( currentLayer.layerDA,
-				currentLayer.Current_Properties ( Basin_Modelling::Chemical_Compaction ),
-				&chemicalCompaction );
-		// Go the next layer
-		gridOffset += layerGridSize;
+			// Clear any old reference to the previous layer.
+			DMDAVecRestoreArray(currentLayer.layerDA,
+				currentLayer.Current_Properties(Basin_Modelling::Chemical_Compaction),
+				&chemicalCompaction);
+			// Go the next layer
+			gridOffset += layerGridSize;
+		}
 		layers++;
 	}
 

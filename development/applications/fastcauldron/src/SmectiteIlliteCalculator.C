@@ -1,8 +1,17 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
 #include "SmectiteIlliteCalculator.h"
 #include "SmectiteIlliteSimulator.h"
 #include "SmectiteIlliteOutput.h"
 
-#include "globaldefs.h"
+#include "ConstantsFastcauldron.h"
 #include "petscvec.h"
 #include "PetscVectors.h"
 #include "layer_iterators.h"
@@ -14,6 +23,10 @@
 #include "database.h"
 #include "cauldronschema.h"
 #include "cauldronschemafuncs.h"
+
+// utilities library
+#include "ConstantsNumerical.h"
+using Utilities::Numerical::CauldronNoDataValue;
 
 using namespace Basin_Modelling;
 
@@ -98,7 +111,7 @@ bool SmectiteIlliteCalculator::computeSnapShotSmectiteIllite ( const double time
       PETSC_3D_Array layerTemperature ( Current_Layer -> layerDA, Current_Layer -> Current_Properties ( Basin_Modelling::Temperature ));
 
       DMCreateGlobalVector(Current_Layer ->layerDA, &Current_Layer ->m_IlliteFraction);
-      VecSet(Current_Layer ->m_IlliteFraction, CAULDRONIBSNULLVALUE);
+      VecSet(Current_Layer ->m_IlliteFraction, CauldronNoDataValue);
 
       double ***snapShotSmectiteIllite;
       DMDAVecGetArray(Current_Layer ->layerDA, Current_Layer ->m_IlliteFraction, &snapShotSmectiteIllite);

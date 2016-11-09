@@ -50,7 +50,6 @@ class BasementLithology : public SimpleLithology
    double heatCapBasalt (const double inTemperature) const;
    double thermCondBasalt (const double inTemperature) const;
 
-   double thermCondPointHofmeister(const double inTemperature, const double inPressure) const; 
    double thermCondPointXu(const double inTemperature, const double inPressure) const; 
    double thermCondPointWillis(const double inTemperature) const; 
 
@@ -66,7 +65,7 @@ class BasementLithology : public SimpleLithology
 
    void setBasementLithoProperties( ConfigFileParameterAlc & aBP );
 private:
- 
+
    typedef enum {CRUST, MANTLE, BASALT, UNKNOWN} BasementLithologyType;
 
    BasementLithologyType  m_lithotype;

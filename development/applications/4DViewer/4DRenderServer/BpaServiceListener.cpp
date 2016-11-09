@@ -10,7 +10,6 @@
 
 #include "BpaServiceListener.h"
 #include "BpaRenderAreaListener.h"
-#include "RenderService.h"
 
 #ifdef USE_H264
 #include <RenderArea.h>
@@ -22,24 +21,66 @@
 
 #include <iostream>
 
-BpaServiceListener::BpaServiceListener(RenderService* renderService)
-  : m_renderService(renderService)
+#include <boost/log/trivial.hpp>
+
+BpaServiceListener::BpaServiceListener(Scheduler& scheduler)
+  : m_scheduler(scheduler)
 {
-  //if(m_renderService != 0)
-  //  m_renderService->logMessage("BpaServiceListener instantiated");
 }
 
 BpaServiceListener::~BpaServiceListener()
 {
 }
 
-void BpaServiceListener::onInstantiatedRenderArea(RenderArea *renderArea)
+void BpaServiceListener::setDataDir(const std::string& dir)
 {
-  //if(m_renderService != 0)
-  //  m_renderService->logMessage("RenderArea instantiated");
-  std::cout << "onInstantiatedRenderArea(renderArea = " << renderArea->getId() << std::endl;
+  m_datadir = dir;
+}
 
-  renderArea->addListener(std::make_shared<BpaRenderAreaListener>(renderArea));
+bool BpaServiceListener::onPendingCreateRenderArea(
+  const std::string& renderAreaId,
+  unsigned int& width,
+  unsigned int& height,
+  Client* client,
+  ConnectionParameters* parameters)
+{
+  width = 1280;
+  height = 720;
+  BOOST_LOG_TRIVIAL(trace) << "about to create render area " << renderAreaId << "(" << width << " x " << height << ")";
+  return true;
+}
+
+bool BpaServiceListener::onPendingShareRenderArea(RenderArea* renderArea, Client* client, ConnectionParameters* parameters)
+{
+  BOOST_LOG_TRIVIAL(trace) << "about to share render area " << renderArea->getId();
+  return true;
+}
+
+void BpaServiceListener::onInstantiatedRenderArea(RenderArea* renderArea)
+{
+  BOOST_LOG_TRIVIAL(trace) << "instantiated render area " << renderArea->getId();
+
+  auto listener = std::make_shared<BpaRenderAreaListener>(*renderArea, m_scheduler);
+  listener->setDataDir(m_datadir);
+  renderArea->addListener(listener);
   renderArea->getTouchManager()->addDefaultRecognizers();
 }
 
+void BpaServiceListener::onDisposedRenderArea(const std::string& renderAreaId)
+{
+  BOOST_LOG_TRIVIAL(trace) << "disposed render area " << renderAreaId;
+}
+
+void BpaServiceListener::onConnectedClient(const std::string& clientId)
+{
+  BOOST_LOG_TRIVIAL(trace) << "client " << clientId << " connected";
+}
+
+void BpaServiceListener::onDisconnectedClient(const std::string& clientId)
+{
+  BOOST_LOG_TRIVIAL(trace) << "client " << clientId << " disconnected";
+}
+
+void BpaServiceListener::onMissingLicense(const std::string& renderAreaId, ConnectionParameters* parameters)
+{
+}

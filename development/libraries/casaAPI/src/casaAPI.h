@@ -55,6 +55,7 @@
 ///   - casa::RSProxy - for calculating coefficients for polynomial approximation of the response surface 
 ///   - casa::SensitivityCalculator - for calculating data for Tornado/Pareto diagrams
 ///   - casa::MonteCarloSolver - for performing Monte Carlo/Markov Chain Monte Carlo calculations
+///   - casa::OptimizationAlgorithm - for performing optimization using specified algorith with real model runs
 ///
 ///  The set of data classes includes:
 ///   - casa::VarParameter - @link CASA_VarParameterPage Base class for variable parameter description.@endlink It is inhereted by:
@@ -74,6 +75,7 @@
 ///     -# casa::PrmCrustThinning - @link CASA_CrustThinningPage Crust thinning parameter based on a sequence of arbitrary number of thinning events @endlink
 ///     -# casa::PrmPorosityModel - @link CASA_PorosityModelPage lithology porosity model parameters @endlink
 ///     -# casa::PrmSurfacePorosity - @link CASA_SurfacePorosityPage surface porosity of the lithology porosity model parameter @endlink
+///     -# casa::PrmCompactionCoefficient - @link CASA_CompactionCoefficientPage Lithology porosity model @endlink
 ///     -# casa::PrmLithoSTPThermalCond - @link CASA_LithoSTPThermalCondPage lithology STP (Standart Pressure Temperature) thermal conductivity coefficient parameter @endlink
 ///   - casa::Observable - base class which keeps a describtion of target value from simulation results. It also could include reference 
 ///                        value from measurements. casa::ScenarioAnalysis keeps one set of Observables in casa::ObsSpace container.
@@ -170,15 +172,15 @@ namespace casa
       /// @brief Add a parameter to variate source rock lithology initial TOC value @f$ [\%] @f$ in given range
       /// @return ErrorHandler::NoError on success or error code otherwise
       ErrorHandler::ReturnCode VarySourceRockTOC(
-            ScenarioAnalysis    & sa          ///< [in,out] scenario object reference. If any error, it will keep an error message
-          , const char          * name        ///< user specified name for variable parameter 
-          , const char          * layerName   ///< [in] layer name. If layer has mixing of source rocks, for all of them TOC will be changed
-          , int                   mixID       ///< [in] source rock mixing ID for stratigraphy table
-          , const char          * srTypeName  ///< [in] SR type name, if parameter defines a range variation for the specific SR type category
-          , double                minVal      ///< [in] the minimal range value 
-          , double                maxVal      ///< [in] the maximal range value 
-          , VarPrmContinuous::PDF rangeShape  /**< [in] defines a type of probability function for the parameter. If PDF needs some middle 
-                                                        parameter value it will be taken from the base case model */
+            ScenarioAnalysis               & sa          ///< [in,out] scenario object reference. If any error, it will keep an error message
+          , const char                     * name        ///< user specified name for variable parameter 
+          , const char                     * layerName   ///< [in] layer name. If layer has mixing of source rocks, for all of them TOC will be changed
+          , int                              mixID       ///< [in] source rock mixing ID for stratigraphy table
+          , const char                     * srTypeName  ///< [in] SR type name, if parameter defines a range variation for the specific SR type category
+          , const std::vector<double>      & dblRng      ///< [in] the minimal/maximal range values for simple range
+          , const std::vector<std::string> & mapRng      ///< [in] the minimal/maximal range values for maps range
+          , VarPrmContinuous::PDF            rangeShape  /**< [in] defines a type of probability function for the parameter. If PDF needs some middle 
+                                                               parameter value it will be taken from the base case model */
           );
 
       /// @brief Add a parameter to variate source rock lithology HI initial ratio value @f$ [kg/tonne] @f$ in given range
@@ -323,17 +325,32 @@ namespace casa
                                                         some middle parameter value it will be taken from the base case model */
           );
 
+      /// @brief Add variation of compaction coefficient 
+      /// @return ErrorHandler::NoError on success or error code otherwise
+      ErrorHandler::ReturnCode VaryCompactionCoefficient(
+         ScenarioAnalysis & sa ///< [in,out] casa::ScenarioAnalysis object, if any error, this object will keep an error message
+         , const std::string                                       & name          ///< user specified name for variable parameter 
+         , const std::vector<std::pair<std::string, size_t> >      & layersName    ///< [in] stratigraphy layers name list
+         , const std::vector<std::string>                          & alochtLitName ///< [in] alochton lithologies name list
+         , const std::vector<std::pair<std::string, std::string> > & faultsName    ///< [in] (mapfile,fault) names list
+         , const std::string                                       & litName       ///< [in] lithology name
+         , double                                                   minCompCoef    ///< [in] min range value for the compaction coefficient 
+         , double                                                   maxCompCoef    ///< [in] max range value for the compaction coefficient
+         , VarPrmContinuous::PDF pdfType           /**< [in] probability function type for the variable parameter. If PDF needs
+                                                   some middle parameter value it will be taken from the base case model */
+         );
+
       /// @brief Add variation of one or two lithofractions
       /// @return ErrorHandler::NoError on success or error code otherwise
       ErrorHandler::ReturnCode VaryLithoFraction(
-         ScenarioAnalysis                                         & sa ///< [in,out] casa::ScenarioAnalysis object, if any error, this object will keep an error message
-         , const std::string                                      & name               ///< user specified name for variable parameter 
-         , const std::string                                      & layerName          ///< [in] stratigraphic layer name 
-         , std::vector<int>                                       & lithoFractionsInds ///< [in] indexes of the lithofractions
-         , std::vector<double>                                    & minLithoFrac       ///< [in] min range value for the lithofractions
-         , std::vector<double>                                    & maxLithoFrac       ///< [in] max range value for the lithofractions
-         , casa::VarPrmContinuous::PDF 	                          pdfType            /**< [in] probability function types for the variable parameters. If PDFs need
-                                                        some middle parameters values they will be taken from the base case model */
+         ScenarioAnalysis              & sa ///< [in,out] casa::ScenarioAnalysis object, if any error, this object will keep an error message
+         , const std::string           & name               ///< user specified name for variable parameter 
+         , const std::string           & layerName          ///< [in] stratigraphic layer name 
+         , std::vector<int>              lithoFractionsInds ///< [in] indexes of the lithofractions
+         , std::vector<double>           minLithoFrac       ///< [in] min range value for the lithofractions
+         , std::vector<double>           maxLithoFrac       ///< [in] max range value for the lithofractions
+         , casa::VarPrmContinuous::PDF   pdfType            /**< [in] probability function types for the variable parameters. If PDFs need
+                                                                 some middle parameters values they will be taken from the base case model */
          );
 
       /// @brief Add permeability model parameters variation

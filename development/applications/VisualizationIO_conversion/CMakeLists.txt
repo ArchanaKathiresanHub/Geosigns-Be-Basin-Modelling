@@ -18,35 +18,42 @@ source_group("Source Files" FILES ${all_srcs})
 
 add_executable(VisualizationIO_convert ${all_srcs} ${all_headers})
 
-include_directories(
-	${HDF5_INCLUDE_DIRS}
+include_directories( SYSTEM
+   ${HDF5_INCLUDE_DIRS}
+   ${PUGIXML_INCLUDE_DIR}
+   ${LZ_INCLUDE_DIR}
 )
 
 bm_include_libraries(
-	DataModel
-	DataAccess
-	SerialDataAccess
-	DataAccess
-	TableIO
-    VisualizationIO
-    VisualizationIO_projectHandle
+   DataModel
+   DataAccess
+   SerialDataAccess
+   DataAccess
+   TableIO
+   FileSystem
+   utilities
+   VisualizationIO
+   VisualizationIO_projectHandle
 )
 
 target_link_libraries(
-    VisualizationIO_convert
-	DataModel
-	DataAccess
-	SerialDataAccess
-	DataAccess
-	TableIO
-    VisualizationIO
-    VisualizationIO_projectHandle
-	${HDF5_LIBRARIES}
-	${Boost_LIBRARIES}
+   VisualizationIO_convert
+   DataModel
+   DataAccess
+   SerialDataAccess
+   DataAccess
+   TableIO
+   FileSystem
+   VisualizationIO
+   VisualizationIO_projectHandle
+   PugiXMLlib
+   LZlib
+   ${HDF5_LIBRARIES}
+   ${Boost_LIBRARIES}
 )
 
 install(TARGETS VisualizationIO_convert
-	RUNTIME DESTINATION bin
+   RUNTIME DESTINATION bin
 )
 
 # Local Variables:

@@ -10,8 +10,9 @@
 
 #include "PaleowaterdepthCalculator.h"
 
-// utilities
-#include "PhysicalConstants.h"
+// utilities library
+#include "ConstantsPhysics.h"
+using Utilities::Physics::AccelerationDueToGravity;
 
 //------------------------------------------------------------//
 PaleowaterdepthCalculator::PaleowaterdepthCalculator(
@@ -120,7 +121,7 @@ double PaleowaterdepthCalculator::calculatePWD( const double presentDayTTS,
    assert( m_mantleDensity != m_waterDensity );
    //Pressure data available to equilibrate Basement and Bottom Mantle pressure
    PWD -= ((presentDayPressureBotMantle - presentDayPressureBasement) - (currentPressureBotMantle - currentPressureBasement)) /
-      (PhysicalConstants::AccelerationDueToGravity*(m_mantleDensity - m_waterDensity));
+      (AccelerationDueToGravity*(m_mantleDensity - m_waterDensity));
    return PWD;
 }
 

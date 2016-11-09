@@ -27,6 +27,7 @@ if (UNIX)
 add_dependencies(casaapi Boost)
 endif (UNIX)
 
+
 bm_include_libraries(
    CBMGenerics
    TableIO
@@ -35,12 +36,18 @@ bm_include_libraries(
    utilities
    DataModel
    DataAccess
+   EosPack
 )
 
 include_directories(
+   src
+)
+
+include_directories( SYSTEM
    ${SUMPP_INCLUDE_DIR}
    ${CMAKE_CURRENT_BINARY_DIR}
-   src
+   ${EIGEN_INCLUDE_DIRS}
+   ${NNLIB_INCLUDE_DIR}
 )
 
 target_link_libraries(casaapi
@@ -49,12 +56,14 @@ target_link_libraries(casaapi
    FileSystem
    utilities
    DataAccess
+   EosPack
    SUMlib
+   NNlib
    ${Boost_LIBRARIES}
 )
 
 if (LSF_HOME)
-   include_directories(${LSF_INCLUDE_DIR})
+   include_directories(SYSTEM ${LSF_INCLUDE_DIR})
    target_link_libraries(casaapi ${LSF_LIBS})
 endif(LSF_HOME)
 
@@ -140,3 +149,8 @@ add_gtest( NAME SensCalcTest
    SOURCES test/SensCalcTest.cpp
    LIBRARIES casaapi cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
 )
+# temporary disabled, under development
+#add_gtest( NAME LMOptimTest
+#   SOURCES test/LMOptimTest.cpp
+#   LIBRARIES casaapi cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
+#)

@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
 //------------------------------------------------------------//
 
 #ifndef __Element_Contributions_HH__
@@ -7,7 +16,7 @@
 
 #include "FiniteElementTypes.h"
 #include "BasisFunctionCache.h"
-#include "globaldefs.h"
+#include "ConstantsFastcauldron.h"
 #include "Quadrature.h"
 #include "HydraulicFracturingManager.h"
 #include "BoundaryConditions.h"

@@ -1,4 +1,3 @@
-#include "stdafx.h"
 //
 // Classes with specific H5 file properties
 //
@@ -59,13 +58,12 @@ hid_t H5_Base_File::createPropertyList (H5_PropertyList *userPropertyType)
    hPropertyListType = (userPropertyType ? userPropertyType->clone () 
                                          : hSerialPropertyType.clone ()); 
 
-   return hPropertyListType->createFilePropertyList ();
+   return hPropertyListType->createFilePropertyList ( false );
 }
-
-hid_t H5_Base_File::createDatasetPropertyList (H5_PropertyList *propertyType)
+hid_t H5_Base_File::createDatasetPropertyList (H5_PropertyList *propertyType )
 {
-   return (propertyType ? propertyType->createDatasetPropertyList ()
-                        : hPropertyListType->createDatasetPropertyList ());
+   return (propertyType ? propertyType->createDatasetPropertyList ( false )
+                        : hPropertyListType->createDatasetPropertyList ( false ));
 }
 
 hid_t H5_Base_File::openGroup (const char *name)
@@ -139,7 +137,7 @@ hid_t H5_Write_File::addDataset (const char *dataname, hid_t locId, hid_t type,
 {
    int numDimensions = space.numDimensions();
 
-   if( not m_useChunks or numDimensions < 3 or memspace == NULL ) {
+   if( not m_useChunks or memspace == NULL ) {
       return addDataset (dataname, locId, type, space, propertyList);
    }
    
@@ -165,7 +163,7 @@ hid_t H5_Write_File::addDataset (const char *dataname, hid_t locId, hid_t type,
    // chunk size must be the same for all ranks
    MPI_Allreduce ( (void *)dims, chunk, numDimensions, MPI_UNSIGNED_LONG_LONG, MPI_MIN, MPI_COMM_WORLD);
 
-   // H5Pset_cache //chunking cache size
+   // H5Pset_cache //chunking cache size. Works only for reading
 
    // H5Pset_layout(dcpl, H5D_CHUNKED);
    
@@ -290,6 +288,22 @@ void H5_Unique_File::openInMode (const char *filename)
 //
 // Read only File Methods
 //
+
+hid_t H5_ReadOnly_File::createPropertyList (H5_PropertyList *userPropertyType )
+{
+   // use user-specified property type or default (serial)
+   hPropertyListType = (userPropertyType ? userPropertyType->clone () 
+                                         : hSerialPropertyType.clone ()); 
+
+   return hPropertyListType->createFilePropertyList ( true );
+}
+
+hid_t H5_ReadOnly_File::createDatasetPropertyList (H5_PropertyList *propertyType )
+{
+   return (propertyType ? propertyType->createDatasetPropertyList ( true )
+                        : hPropertyListType->createDatasetPropertyList ( true ));
+}
+
 void H5_ReadOnly_File::openInMode (const char *filename)
 {
    // open file for reading
@@ -306,7 +320,7 @@ bool H5_ReadOnly_File::readDataset (hid_t dataId, void *buffer, H5_PropertyList 
 {
    // create read object
    ReadObject read (dataId, fileSpace, memSpace, 
-                    createDatasetPropertyList (pList), 
+                    createDatasetPropertyList ( pList ), 
                     buffer);
 
    // call safe readWrite

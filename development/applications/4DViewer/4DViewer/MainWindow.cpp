@@ -11,20 +11,22 @@
 #include "MainWindow.h"
 #include "OIVWidget.h"
 #include "GLInfoDialog.h"
-#include <Seismic.h>
+#include "SegYConversionDialog.h"
 
-#include <QtGui/QFileDialog>
-#include <QtGui/QMessageBox>
-#include <QtGui/QTreeWidget>
-#include <QtGui/QLabel>
+#include <Seismic.h>
+#include <CameraUtil.h>
+
+#include <QtWidgets/QFileDialog>
+#include <QtWidgets/QMessageBox>
+#include <QtWidgets/QTreeWidget>
+#include <QtWidgets/QLabel>
 #include <QtCore/QTime>
 
+#include <Inventor/ViewerComponents/SoCameraInteractor.h>
 #include <MeshVizXLM/mapping/MoMeshviz.h>
-#include <MeshViz/PoMeshViz.h>
+//#include <MeshViz/PoMeshViz.h>
 #include <VolumeViz/nodes/SoVolumeRendering.h>
 #include <IvTune/SoIvTune.h>
-
-#include <CameraUtil.h>
 
 namespace
 {
@@ -49,25 +51,16 @@ namespace
 
 void MainWindow::initOIV()
 {
-  char* features[] =
-  {
-    "OpenInventor",
-    "MeshVizXLM",
-    "VolumeViz"
-  };
-
-  //float oivVersion = SoDB::getLicensingVersionNumber();
-
   m_oivLicenseOK = true;
-  //for (int i = 0; i < 3; ++i)
-  //  if (SoDB::LicenseCheck(features[i], oivVersion, nullptr, true, nullptr) < 0)
-  //    m_oivLicenseOK = false;
 
   if (m_oivLicenseOK)
   {
-    MoMeshViz::init();
-    PoMeshViz::init();
+    std::cout << "Initializing VolumeViz..." << std::endl;
     SoVolumeRendering::init();
+    std::cout << "Initializing MeshViz..." << std::endl;
+    MoMeshViz::init();
+    std::cout << "done" << std::endl;
+    //PoMeshViz::init();
   }
 }
 
@@ -90,22 +83,18 @@ void MainWindow::loadProject(const QString& filename)
     QDir::setCurrent(fileInfo.absoluteDir().absolutePath());
   }
 
-  m_project = Project::load(filename.toStdString());
+  std::string file(filename.toStdString());
+  m_project = Project::load(file);
 
   setWindowFilePath(filename);
 
   if (m_oivLicenseOK)
   {
-    m_sceneGraphManager = std::make_shared<SceneGraphManager>();
+    m_sceneGraphManager = std::make_shared<SceneGraphManager>(m_scheduler);
     m_sceneGraphManager->setup(m_project);
 
-    m_examiner = new SceneExaminer(m_sceneGraphManager);
-
-    //auto dim = m_project->getProjectInfo().dimensions;
-    //const char* volumeFile = "v:\\data\\Barracuda_3Ddepth_Realized8bit.sgy";
-    //m_seismicScene = std::make_shared<SeismicScene>(volumeFile, dim.minX, dim.minY);
-    //m_examiner->addChild(m_seismicScene->getRoot());
-
+    m_examiner = new SceneExaminer;
+    m_examiner->setSceneGraphManager(m_sceneGraphManager);
     m_examiner->setModeChangedCallback(std::bind(&MainWindow::onModeChanged, this, std::placeholders::_1));
     m_examiner->setFenceAddedCallback(std::bind(&MainWindow::onFenceAdded, this, std::placeholders::_1));
     
@@ -113,7 +102,6 @@ void MainWindow::loadProject(const QString& filename)
     onModeChanged(m_examiner->getInteractionMode());
 
     m_ui.renderWidget->setSceneGraph(m_examiner.ptr());
-    //SoIvTune::start(m_examiner.ptr());
 
     m_ui.snapshotSlider->setMinimum(0);
     m_ui.snapshotSlider->setMaximum((int)m_project->getSnapshotCount() - 1);
@@ -328,8 +316,8 @@ void MainWindow::updateUI()
   m_ui.lineEditColorScaleMaxValue->setEnabled(false);
   m_ui.lineEditColorScaleMinValue->setText("0.0");
   m_ui.lineEditColorScaleMaxValue->setText("1.0");
-  m_ui.lineEditColorScaleMinValue->setValidator(new QDoubleValidator);
-  m_ui.lineEditColorScaleMaxValue->setValidator(new QDoubleValidator);
+  m_ui.lineEditColorScaleMinValue->setValidator(new QDoubleValidator(this));
+  m_ui.lineEditColorScaleMaxValue->setValidator(new QDoubleValidator(this));
 
   m_ui.checkBoxCellFilter->setEnabled(true);
   m_ui.checkBoxCellFilter->setCheckState(Qt::Unchecked);
@@ -339,37 +327,46 @@ void MainWindow::updateUI()
   m_ui.lineEditCellFilterMaxValue->setEnabled(false);
   m_ui.lineEditCellFilterMinValue->setText("0.0");
   m_ui.lineEditCellFilterMaxValue->setText("1.0");
-  m_ui.lineEditCellFilterMinValue->setValidator(new QDoubleValidator);
-  m_ui.lineEditCellFilterMaxValue->setValidator(new QDoubleValidator);
+  m_ui.lineEditCellFilterMinValue->setValidator(new QDoubleValidator(this));
+  m_ui.lineEditCellFilterMaxValue->setValidator(new QDoubleValidator(this));
 
   bool seismicEnabled = (bool)m_seismicScene;
   m_ui.checkBoxSliceInline->setEnabled(seismicEnabled);
   m_ui.checkBoxSliceCrossline->setEnabled(seismicEnabled);
-  m_ui.checkBoxSliceDepth->setEnabled(seismicEnabled);
   m_ui.sliderSliceInline->setEnabled(seismicEnabled);
   m_ui.sliderSliceCrossline->setEnabled(seismicEnabled);
-  m_ui.sliderSliceDepth->setEnabled(seismicEnabled);
 
   if (seismicEnabled)
   {
     m_ui.checkBoxSliceInline->setChecked(true);
     m_ui.checkBoxSliceCrossline->setChecked(true);
-    m_ui.checkBoxSliceDepth->setChecked(true);
 
-    SbVec3i32 voldim = m_seismicScene->getDimensions();
-    m_ui.sliderSliceInline->setMaximum(voldim[1] - 1);
-    m_ui.sliderSliceCrossline->setMaximum(voldim[2] - 1);
-    m_ui.sliderSliceDepth->setMaximum(voldim[0] - 1);
+    SbBox3f extent = m_seismicScene->getExtent();
+    SbVec3f size = extent.getSize();
+    m_ui.sliderSliceInline->setMaximum(size[1]);
+    m_ui.sliderSliceInline->setValue(size[1] / 2);
+    m_ui.sliderSliceCrossline->setMaximum(size[2]);
+    m_ui.sliderSliceCrossline->setValue(size[2] / 2);
+
+    m_ui.sliderInterpolatedSurfacePosition->setMaximum(100);
+
+    m_ui.lineEditColorMapMin->setText("-20000");
+    m_ui.lineEditColorMapMax->setText("20000");
+    m_ui.lineEditColorMapMin->setValidator(new QDoubleValidator(this));
+    m_ui.lineEditColorMapMax->setValidator(new QDoubleValidator(this));
   }
 }
 
 void MainWindow::connectSignals()
 {
   connect(m_ui.action_Open, SIGNAL(triggered()), this, SLOT(onActionOpenTriggered()));
+  connect(m_ui.action_ImportSeismic, SIGNAL(triggered()), this, SLOT(onActionImportSeismicTriggered()));
+  connect(m_ui.action_ExportSeismic, SIGNAL(triggered()), this, SLOT(onActionExportSeismicTriggered()));
   connect(m_ui.action_RenderAllSnapshots, SIGNAL(triggered()), this, SLOT(onActionRenderAllSnapshotsTriggered()));
   connect(m_ui.action_RenderAllSlices, SIGNAL(triggered()), this, SLOT(onActionRenderAllSlicesTriggered()));
   connect(m_ui.action_SwitchProperties, SIGNAL(triggered()), this, SLOT(onActionSwitchPropertiesTriggered()));
   connect(m_ui.action_OpenGLInfo, SIGNAL(triggered()), this, SLOT(onShowGLInfo()));
+  connect(m_ui.action_IvTune, SIGNAL(triggered()), this, SLOT(onShowIvTune()));
   connect(m_ui.action_ViewAll, SIGNAL(triggered()), this, SLOT(onActionViewAllTriggered()));
 
   QAction* actions[] =
@@ -421,11 +418,16 @@ void MainWindow::connectSignals()
   // Seismic
   connect(m_ui.checkBoxSliceInline, SIGNAL(toggled(bool)), this, SLOT(onSeismicSliceToggled(bool)));
   connect(m_ui.checkBoxSliceCrossline, SIGNAL(toggled(bool)), this, SLOT(onSeismicSliceToggled(bool)));
-  connect(m_ui.checkBoxSliceDepth, SIGNAL(toggled(bool)), this, SLOT(onSeismicSliceToggled(bool)));
 
   connect(m_ui.sliderSliceInline, SIGNAL(valueChanged(int)), this, SLOT(onSeismicSliceValueChanged(int)));
   connect(m_ui.sliderSliceCrossline, SIGNAL(valueChanged(int)), this, SLOT(onSeismicSliceValueChanged(int)));
-  connect(m_ui.sliderSliceDepth, SIGNAL(valueChanged(int)), this, SLOT(onSeismicSliceValueChanged(int)));
+
+  connect(m_ui.checkBoxInterpolatedSurface, SIGNAL(toggled(bool)), this, SLOT(onInterpolatedSurfaceToggled(bool)));
+  connect(m_ui.sliderInterpolatedSurfacePosition, SIGNAL(valueChanged(int)), this, SLOT(onInterpolatedSurfacePositionChanged(int)));
+
+  connect(m_ui.lineEditColorMapMin, SIGNAL(editingFinished()), this, SLOT(onSeismicColorScaleValueChanged()));
+  connect(m_ui.lineEditColorMapMax, SIGNAL(editingFinished()), this, SLOT(onSeismicColorScaleValueChanged()));
+  connect(m_ui.pushButtonLoadColorMap, SIGNAL(clicked()), this, SLOT(onLoadSeismicColorMapClicked()));
 }
 
 int MainWindow::getFaultIndex(const std::string& collectionName, const std::string& faultName) const
@@ -472,11 +474,47 @@ void MainWindow::onActionOpenTriggered()
   QString caption = "Open file";
   QString dir;
   QString filter = "Cauldron project (*.project3d *.xml)";
-  QString filename = QFileDialog::getOpenFileName(this, "Open file", dir, filter);
+  QString filename = QFileDialog::getOpenFileName(this, caption, dir, filter);
 
   if(!filename.isNull())
   {
     loadProject(filename);
+  }
+}
+
+void MainWindow::onActionImportSeismicTriggered()
+{
+  QString caption = "Import seismic";
+  QString dir;
+  QString filter = "Seismic data (*.ldm)";
+  QString filename = QFileDialog::getOpenFileName(this, caption, dir, filter);
+
+  if (!filename.isNull())
+  {
+    auto dim = m_project->getProjectInfo().dimensions;
+    auto ascii = filename.toUtf8();
+    const char* volumeFile = ascii.data();
+    m_seismicScene = std::make_shared<SeismicScene>(volumeFile, dim);
+    m_sceneGraphManager->addSeismicScene(m_seismicScene);
+
+    updateUI();
+  }
+}
+
+void MainWindow::onActionExportSeismicTriggered()
+{
+  QString caption = "Convert seismic";
+  QString dir;
+  QString filter = "SEGY files (*.sgy)";
+  QString selectedFilter;
+  //QString filename = QFileDialog::getSaveFileName(this, caption, dir, filter, &selectedFilter);
+  QString filename = QFileDialog::getOpenFileName(this, caption, dir, filter);
+
+  if (!filename.isNull())
+  {
+    SegYConversionDialog dlg(this);
+    dlg.setInputFileName(filename);
+    dlg.exec();
   }
 }
 
@@ -505,7 +543,7 @@ void MainWindow::onActionViewPresetTriggered()
   {
     if (sender() == actions[i])
     {
-      SoCamera* camera = m_sceneGraphManager->getCamera();
+      SoCamera* camera = m_examiner->getCameraInteractor()->getCamera();
       setViewPreset(camera, presets[i]);
       break;
     }
@@ -520,18 +558,16 @@ void MainWindow::onActionRenderAllSnapshotsTriggered()
   time.start();
 
   int maxTimeMs = 0;
-  for(int i=0; i <= m_ui.snapshotSlider->maximum(); ++i)
+  for (int i = m_ui.snapshotSlider->maximum(); i >= 0; --i)
   {
     std::cout << i << " ";
-
-    //m_ui.snapshotSlider->setValue(i);
-    //qApp->processEvents();
 
     QTime snapshotTime;
     snapshotTime.start();
     m_sceneGraphManager->setCurrentSnapshot(i);
     int t1 = snapshotTime.restart();
     m_ui.renderWidget->updateGL();
+	//m_ui.renderWidget->saveSnapshot(QString("snapshot%1.jpg").arg(i, 3, 10, QChar('0')));
     int t2 = snapshotTime.elapsed();
 
     int t = t1 + t2;
@@ -552,6 +588,13 @@ void MainWindow::onActionRenderAllSlicesTriggered()
 {
   QTime time;
   time.start();
+
+  for (float pos = 0.f; pos < 150.f; pos += .1f)
+  {
+    m_seismicScene->setInterpolatedSurfacePosition(pos);
+    m_ui.renderWidget->updateGL();
+  }
+  return;
 
   int maxTimeMs = 0;
   for(int i=0; i <= m_ui.sliderSliceI->maximum(); ++i)
@@ -685,9 +728,9 @@ void MainWindow::onCoordinateGridToggled(bool value)
 
 void MainWindow::onProjectionIndexChanged(int index)
 {
-  m_sceneGraphManager->setProjection(index == 0
-    ? SceneGraphManager::PerspectiveProjection 
-    : SceneGraphManager::OrthographicProjection);
+  m_examiner->setCameraMode(index == 0
+    ? SceneInteractor::PERSPECTIVE
+    : SceneInteractor::ORTHOGRAPHIC);
 
   m_ui.renderWidget->updateGL();
 }
@@ -864,7 +907,7 @@ void MainWindow::onItemDoubleClicked(QTreeWidgetItem* item, int column)
     if (name == "HeatFlow")
     {
       //std::string suffix[] = { "X", "Y", "Z" };
-      //const di::Property* props[3];
+       //const di::Property* props[3];
       //props[0] = m_projectHandle->findProperty(name + "X");
       //props[1] = m_projectHandle->findProperty(name + "Y");
       //props[2] = m_projectHandle->findProperty(name + "Z");
@@ -893,10 +936,15 @@ void MainWindow::onItemDoubleClicked(QTreeWidgetItem* item, int column)
 
 void MainWindow::onShowGLInfo()
 {
-  //exportData(m_projectHandle.get());
+  m_ui.renderWidget->saveSnapshot("snapshot.jpg");
 
   GLInfoDialog dlg(this);
   dlg.exec();
+}
+
+void MainWindow::onShowIvTune()
+{
+  SoIvTune::start(m_examiner.ptr());
 }
 
 void MainWindow::onTreeWidgetItemClicked(QTreeWidgetItem* item, int column)
@@ -974,8 +1022,6 @@ void MainWindow::onSeismicSliceToggled(bool value)
     type = SeismicScene::SliceInline;
   else if (checkBox == m_ui.checkBoxSliceCrossline)
     type = SeismicScene::SliceCrossline;
-  else if (checkBox == m_ui.checkBoxSliceDepth)
-    type = SeismicScene::SliceDepth;
 
   m_seismicScene->enableSlice(type, value);
 
@@ -992,12 +1038,55 @@ void MainWindow::onSeismicSliceValueChanged(int value)
     type = SeismicScene::SliceInline;
   else if (slider == m_ui.sliderSliceCrossline)
     type = SeismicScene::SliceCrossline;
-  else if (slider == m_ui.sliderSliceDepth)
-    type = SeismicScene::SliceDepth;
 
   m_seismicScene->setSlicePosition(type, value);
 
   m_ui.renderWidget->updateGL();
+}
+
+void MainWindow::onSeismicColorScaleValueChanged()
+{
+  double minVal = m_ui.lineEditColorMapMin->text().toDouble();
+  double maxVal = m_ui.lineEditColorMapMax->text().toDouble();
+
+  m_seismicScene->setDataRange(minVal, maxVal);
+
+  m_ui.renderWidget->updateGL();
+}
+
+void MainWindow::onLoadSeismicColorMapClicked()
+{
+  QString caption = "Open colormap";
+  QString dir;
+  QString filter = "Colormap files (*.cmap *.col *.am)";
+  QString filename = QFileDialog::getOpenFileName(this, caption, dir, filter);
+
+  if (!filename.isNull())
+  {
+    auto ascii = filename.toUtf8();
+    m_seismicScene->loadColorMap(ascii.data());
+    m_ui.renderWidget->updateGL();
+  }
+}
+
+void MainWindow::onInterpolatedSurfaceToggled(bool value)
+{
+  m_seismicScene->enableInterpolatedSurface(value);
+  m_ui.renderWidget->updateGL();
+}
+
+void MainWindow::onInterpolatedSurfacePositionChanged(int value)
+{
+  double relativePos = (double)value / (double)m_ui.sliderInterpolatedSurfacePosition->maximum();
+  double pos = relativePos * m_projectInfo.dimensions.numCellsK;
+  m_seismicScene->setInterpolatedSurfacePosition(pos);
+  m_ui.renderWidget->updateGL();
+}
+
+void MainWindow::timerEvent(QTimerEvent* event)
+{
+  if (m_scheduler.postProcess())
+    m_ui.renderWidget->updateGL();
 }
 
 MainWindow::MainWindow()
@@ -1044,6 +1133,11 @@ MainWindow::MainWindow()
   //viewer->setFramesPerSecondCallback(fpsCallback, this);
 
   connectSignals();
+
+  size_t numIoThreads = 1;
+  size_t numCpuThreads = 4;
+  m_scheduler.start(numIoThreads, numCpuThreads);
+  startTimer(0);
 }
 
 void MainWindow::viewAll()

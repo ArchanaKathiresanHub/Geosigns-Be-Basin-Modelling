@@ -21,10 +21,8 @@
 #include "CauldronApp.h"
 
 // STL
+#include <memory>
 #include <vector>
-
-// boost
-#include <boost/shared_ptr.hpp>
 
 /// @page CASA_ParameterPage Cauldron project parameter
 /// Parameter is some value (or possibly set of values) in project file which has an influence on simulation.
@@ -54,6 +52,10 @@ namespace casa
       /// @brief Get variable parameter which was used to create this parameter
       /// @return Pointer to the variable parameter
       virtual const VarParameter * parent() const = 0;
+
+      /// @brief Set variable parameter which was used to create this parameter
+      /// @param Pointer to the variable parameter
+      virtual void  setParent( const VarParameter * varPrm ) = 0;
 
       /// @brief Get the level of influence to cauldron applications pipeline for this parametr
       /// @return number which indicates which solver influence this parameter
@@ -113,6 +115,6 @@ namespace casa
    };
 }
 
-typedef boost::shared_ptr<casa::Parameter> SharedParameterPtr;
+typedef std::shared_ptr<casa::Parameter> SharedParameterPtr;
 
 #endif // CASA_API_PARAMETER_H

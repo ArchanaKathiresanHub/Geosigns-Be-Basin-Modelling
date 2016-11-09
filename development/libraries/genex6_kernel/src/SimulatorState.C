@@ -1,12 +1,27 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
 #include "SimulatorState.h"
 #include "SpeciesManager.h"
 #include "SpeciesProperties.h"
 #include "ChemicalModel.h"
 #include "GeneralParametersHandler.h"
+
+// std library
 #include <map>
 #include <math.h>
 #include <string.h>
 
+// utilities library
+#include "ConstantsNumerical.h"
+using Utilities::Numerical::GenexNoDataValue;
+using Utilities::Numerical::CauldronNoDataValue;
 
 using namespace CBMGenerics;
 namespace Genex6
@@ -122,8 +137,6 @@ void SimulatorState::SetSpeciesTimeStepVariablesToZero()
    s_SaturatesExpelledVolumeInst = 0.0;
 
    using namespace CBMGenerics;
-   GenexResultManager & theResultManager = GenexResultManager::getInstance();
-   
    int i, j;
 
    for(i = FIRST_RESULT_ID, j = 0; i < LAST_RESULT_ID; ++i, ++j) {
@@ -181,7 +194,7 @@ void SimulatorState::SetResultsToZero()
       m_SpeciesResults[i].clean();
    }
    for(i = 0; i < CBMGenerics::GenexResultManager::NumberOfResults; ++ i) {
-      m_ResultsByResultId[i] = Genex6::Constants::s_undefinedValue;
+      m_ResultsByResultId[i] = GenexNoDataValue;
    }
    m_TotalRetainedOM = m_MobilOMConc = 0.0;
 }
@@ -579,7 +592,7 @@ void SimulatorState::PostProcessTimeStepComputation ( SimulatorState * inSimulat
       double ExpulsionApiInst = 0.001;
       double DensOilInst = 0.0;
 
-      if(OilExpelledVolumeInst > Genex6::Constants::FLXVOILZERO) {	
+      if(OilExpelledVolumeInst > Genex6::Constants::FluxVolumeOilZero) {	
          DensOilInst   = OilExpelledMassInst / OilExpelledVolumeInst;
          ExpulsionApiInst = Genex6::Constants::APIC1 / DensOilInst * Genex6::Constants::APIC2 - Genex6::Constants::APIC3; 
       }
@@ -591,14 +604,14 @@ void SimulatorState::PostProcessTimeStepComputation ( SimulatorState * inSimulat
    //ExpulsionGasOilRatioInst is needed in ExpulsionCondensateGasRatioInst, which might be indepedently selected to be on
    //double ExpulsionGasOilRatioInst = 1e+20;
    //double ExpulsionGasOilRatioInst = 99999.0;
-   double ExpulsionGasOilRatioInst = Genex6::Constants::UNDEFINEDVALUE;
+   double ExpulsionGasOilRatioInst = CauldronNoDataValue;
    
-   if(OilExpelledVolumeInst > Genex6::Constants::FLXVOILZERO) {
+   if(OilExpelledVolumeInst > Genex6::Constants::FluxVolumeOilZero) {
      ExpulsionGasOilRatioInst = HcGasExpelledVolumeInst / OilExpelledVolumeInst;
      //ExpulsionGasOilRatioInst = log(HcGasExpelledVolumeInst / OilExpelledVolumeInst);
 
-     if(ExpulsionGasOilRatioInst > Genex6::Constants::GOR_UPPERBOUND) {
-        ExpulsionGasOilRatioInst =  Genex6::Constants::GOR_UPPERBOUND; 
+     if(ExpulsionGasOilRatioInst > Genex6::Constants::GORUpperbound) {
+        ExpulsionGasOilRatioInst =  Genex6::Constants::GORUpperbound; 
      }
    }
    if(theResultManager.IsResultRequired(GenexResultManager::ExpulsionGasOilRatioInst)) {
@@ -609,7 +622,7 @@ void SimulatorState::PostProcessTimeStepComputation ( SimulatorState * inSimulat
    if( theResultManager.IsResultRequired(GenexResultManager::ExpulsionApiCum)) {
       double ExpulsionApiCum = 0.001;
 
-      if(OilExpelledVolumeCum1 > Genex6::Constants::FLXVOILZERO) {
+      if(OilExpelledVolumeCum1 > Genex6::Constants::FluxVolumeOilZero) {
          double DensOilCum  = OilExpelledMassCum1 / OilExpelledVolumeCum1;
          ExpulsionApiCum = Genex6::Constants::APIC1 / DensOilCum * Genex6::Constants::APIC2 - Genex6::Constants::APIC3;
       }
@@ -620,12 +633,12 @@ void SimulatorState::PostProcessTimeStepComputation ( SimulatorState * inSimulat
    //ExpulsionGasOilRatioCum
    //ExpulsionGasOilRatioCum is needed in ExpulsionCondensateGasRatioCum, which might be indepedently selected to be on
    
-   double ExpulsionGasOilRatioCum = Genex6::Constants::UNDEFINEDVALUE;
-   if(OilExpelledVolumeCum1 > Genex6::Constants::CUMVOILZERO) {
+   double ExpulsionGasOilRatioCum = CauldronNoDataValue;
+   if(OilExpelledVolumeCum1 > Genex6::Constants::CumulativeVolumeOilZero) {
       ExpulsionGasOilRatioCum = HcGasExpelledVolumeCum1 / OilExpelledVolumeCum1 ; 
 
-      if(ExpulsionGasOilRatioCum > Genex6::Constants::GOR_UPPERBOUND) {
-          ExpulsionGasOilRatioCum = Genex6::Constants::GOR_UPPERBOUND; 
+      if(ExpulsionGasOilRatioCum > Genex6::Constants::GORUpperbound) {
+          ExpulsionGasOilRatioCum = Genex6::Constants::GORUpperbound; 
       }    
    }
    if(theResultManager.IsResultRequired(GenexResultManager::ExpulsionGasOilRatioCum)) {  
@@ -652,8 +665,8 @@ void SimulatorState::PostProcessTimeStepComputation ( SimulatorState * inSimulat
 
    //ExpulsionGasWetnessInst
    if(theResultManager.IsResultRequired( GenexResultManager::ExpulsionGasWetnessInst)) {
-      double ExpulsionGasWetnessInst = Genex6::Constants::UNDEFINEDVALUE;
-      if(HcGasExpelledVolumeInst > Genex6::Constants::CUMVOILZERO) {
+      double ExpulsionGasWetnessInst = CauldronNoDataValue;
+      if(HcGasExpelledVolumeInst > Genex6::Constants::CumulativeVolumeOilZero) {
 	      ExpulsionGasWetnessInst = WetGasExpelledVolumeInst / HcGasExpelledVolumeInst ;     
       }
       SetResult(GenexResultManager::ExpulsionGasWetnessInst, ExpulsionGasWetnessInst);
@@ -661,10 +674,10 @@ void SimulatorState::PostProcessTimeStepComputation ( SimulatorState * inSimulat
 
    //ExpulsionGasWetnessCum
    if( theResultManager.IsResultRequired(GenexResultManager::ExpulsionGasWetnessCum)) {
-      double ExpulsionGasWetnessCum = Genex6::Constants::UNDEFINEDVALUE;
+      double ExpulsionGasWetnessCum = CauldronNoDataValue;
 
 
-      if(HcGasExpelledVolumeCum1 > Genex6::Constants::CUMVOILZERO) {
+      if(HcGasExpelledVolumeCum1 > Genex6::Constants::CumulativeVolumeOilZero) {
 	      ExpulsionGasWetnessCum = WetGasExpelledVolumeCum1 / HcGasExpelledVolumeCum1;     
       }   
 
@@ -674,7 +687,7 @@ void SimulatorState::PostProcessTimeStepComputation ( SimulatorState * inSimulat
    //ExpulsionAromaticityInst, 
    if( theResultManager.IsResultRequired(GenexResultManager::ExpulsionAromaticityInst)) {
       double ExpulsionAromaticityInst = 0.0; 
-      if(SaturatesExpelledVolumeInst > Genex6::Constants::CUMVOILZERO) {
+      if(SaturatesExpelledVolumeInst > Genex6::Constants::CumulativeVolumeOilZero) {
 	      ExpulsionAromaticityInst = AromaticsExpelledVolumeInst / SaturatesExpelledVolumeInst;   
       }
       SetResult(GenexResultManager::ExpulsionAromaticityInst, ExpulsionAromaticityInst);
@@ -683,7 +696,7 @@ void SimulatorState::PostProcessTimeStepComputation ( SimulatorState * inSimulat
    if(theResultManager.IsResultRequired( GenexResultManager::ExpulsionAromaticityCum)) {
       //double ExpulsionAromaticityCum  = 1.0;
       double ExpulsionAromaticityCum  = 0.0;
-      if(SaturatesExpelledVolumeCum1 > Genex6::Constants::CUMVOILZERO) {
+      if(SaturatesExpelledVolumeCum1 > Genex6::Constants::CumulativeVolumeOilZero) {
 	      ExpulsionAromaticityCum = AromaticsExpelledVolumeCum1 / SaturatesExpelledVolumeCum1;   
       }  
       SetResult(GenexResultManager::ExpulsionAromaticityCum, ExpulsionAromaticityCum);
@@ -691,7 +704,7 @@ void SimulatorState::PostProcessTimeStepComputation ( SimulatorState * inSimulat
 
    //Kerogen Conversion Ratio
    if( theResultManager.IsResultRequired(GenexResultManager::KerogenConversionRatio)) {
-      double KerogenConversionRatio = Genex6::Constants::UNDEFINEDVALUE;
+      double KerogenConversionRatio = CauldronNoDataValue;
       if(m_thickness > 0.01) {
          double InitialKerogenMass, KerogenConc, preasphalteneConc;
 
@@ -905,14 +918,14 @@ void SimulatorState::PostProcessTimeStep(Species& theSpecies,  const double in_d
       AddGroupResult(GenexResultManager::OilGeneratedCum, value);
       AddGroupResult(GenexResultManager::OilGeneratedRate, generatedRate);
       AddGroupResult(GenexResultManager::OilExpelledCum, expelledMass);
-      AddGroupResult(GenexResultManager::OilExpelledRate, flux); 
+      AddGroupResult(GenexResultManager::OilExpelledRate, flux );//* in_dT); 
 
       ComponentManager & theComponentManager = ComponentManager::getInstance();
       if(theComponentManager.isSbearingHCsComponent(speciesManager.mapIdToComponentManagerSpecies (speciesId))) {
          AddGroupResult(GenexResultManager::SbearingHCsGeneratedCum,  value);
          AddGroupResult(GenexResultManager::SbearingHCsGeneratedRate, generatedRate);
          AddGroupResult(GenexResultManager::SbearingHCsExpelledCum,   expelledMass);
-         AddGroupResult(GenexResultManager::SbearingHCsExpelledRate,  flux);
+         AddGroupResult(GenexResultManager::SbearingHCsExpelledRate,  flux );
       }
 
       //should use a criterio here, tbd IsC614SaturatesAndAromatics, IsAromatics, IsSaturates
@@ -973,13 +986,12 @@ void SimulatorState::PostProcessTimeStep(Species& theSpecies,  const double in_d
    }
 }
 
-void SimulatorState::postProcessShaleGasTimeStep ( ChemicalModel *chemicalModel, const double deltaT, const bool printIt  ) {
+void SimulatorState::postProcessShaleGasTimeStep ( ChemicalModel *chemicalModel, const double deltaT ) {
 
    // The methods for computing some of the various values in this function can be 
    // found in the function called PostProcessTimeStepComputation in this class.
 
    const SpeciesManager& speciesManager = chemicalModel->getSpeciesManager ();
-   const Species** theSpecies = chemicalModel->GetSpecies();
    ComponentManager & theComponentManager = ComponentManager::getInstance();
 
    double expelledGasVolume = 0.0;
@@ -1081,66 +1093,66 @@ void SimulatorState::postProcessShaleGasTimeStep ( ChemicalModel *chemicalModel,
    // The second stage is to compute the more complex results.
 
    // Expulsion API cumulative.
-   if ( expelledOilVolume > Genex6::Constants::FLXVOILZERO ) {
+   if ( expelledOilVolume > Genex6::Constants::FluxVolumeOilZero ) {
 
       double oilDensity = getShaleGasResult ( GenexResultManager::OilExpelledCum ) / expelledOilVolume;
       double oilApi = Genex6::Constants::APIC1 / oilDensity * Genex6::Constants::APIC2 - Genex6::Constants::APIC3; 
 
       setShaleGasResult ( GenexResultManager::ExpulsionApiCum, oilApi );
    } else {
-      // Should the value be Genex6::Constants::UNDEFINEDVALUE here rather than 0.001?
+      // Should the value be CauldronNoDataValue here rather than 0.001?
       setShaleGasResult ( GenexResultManager::ExpulsionApiCum, 0.001 );
    }
 
-   if ( transientOilVolume > Genex6::Constants::FLXVOILZERO ) {
+   if ( transientOilVolume > Genex6::Constants::FluxVolumeOilZero ) {
 
       double oilDensity = transientOilMass / transientOilVolume;
       double oilApi = Genex6::Constants::APIC1 / oilDensity * Genex6::Constants::APIC2 - Genex6::Constants::APIC3; 
 
       setShaleGasResult ( GenexResultManager::ExpulsionApiInst, oilApi );
    } else {
-      // Should the value be Genex6::Constants::UNDEFINEDVALUE here rather than 0.001?
+      // Should the value be CauldronNoDataValue here rather than 0.001?
       setShaleGasResult ( GenexResultManager::ExpulsionApiInst, 0.001 );
    }
 
-   if ( cumulativeSaturatesVolume > Genex6::Constants::CUMVOILZERO ) {
+   if ( cumulativeSaturatesVolume > Genex6::Constants::CumulativeVolumeOilZero ) {
       setShaleGasResult ( GenexResultManager::ExpulsionAromaticityCum, cumulativeAromaticsVolume / cumulativeSaturatesVolume );
    } else {
-      setShaleGasResult ( GenexResultManager::ExpulsionAromaticityCum, Genex6::Constants::UNDEFINEDVALUE );
+      setShaleGasResult ( GenexResultManager::ExpulsionAromaticityCum, CauldronNoDataValue );
    }
 
-   if ( transientSaturatesVolume > 0.0 ) { //Genex6::Constants::CUMVOILZERO ) {
+   if ( transientSaturatesVolume > 0.0 ) { //Genex6::Constants::CumulativeVolumeOilZero ) {
       setShaleGasResult ( GenexResultManager::ExpulsionAromaticityInst, transientAromaticsVolume / transientSaturatesVolume );
    } else {
-      setShaleGasResult ( GenexResultManager::ExpulsionAromaticityInst, Genex6::Constants::UNDEFINEDVALUE );
+      setShaleGasResult ( GenexResultManager::ExpulsionAromaticityInst, CauldronNoDataValue );
    }
 
    if ( expelledOilVolume != 0.0 ) {
       double gor = expelledGasVolume / expelledOilVolume;
 
-      if ( gor > Genex6::Constants::GOR_UPPERBOUND ) {
-         gor = Genex6::Constants::GOR_UPPERBOUND;
+      if ( gor > Genex6::Constants::GORUpperbound ) {
+         gor = Genex6::Constants::GORUpperbound;
       }
 
       setShaleGasResult ( GenexResultManager::ExpulsionGasOilRatioCum, gor );
    } else {
-      setShaleGasResult ( GenexResultManager::ExpulsionGasOilRatioCum, Genex6::Constants::UNDEFINEDVALUE );
+      setShaleGasResult ( GenexResultManager::ExpulsionGasOilRatioCum, CauldronNoDataValue );
    }
 
    if ( transientOilVolume != 0.0 ) {
       double gor = transientGasVolume / transientOilVolume;
 
-      if ( gor > Genex6::Constants::GOR_UPPERBOUND ) {
-         gor = Genex6::Constants::GOR_UPPERBOUND;
+      if ( gor > Genex6::Constants::GORUpperbound ) {
+         gor = Genex6::Constants::GORUpperbound;
       }
 
       setShaleGasResult ( GenexResultManager::ExpulsionGasOilRatioInst, gor );
    } else {
-      setShaleGasResult ( GenexResultManager::ExpulsionGasOilRatioInst, Genex6::Constants::UNDEFINEDVALUE );
+      setShaleGasResult ( GenexResultManager::ExpulsionGasOilRatioInst, CauldronNoDataValue );
    }
 
    if ( getShaleGasResult ( GenexResultManager::ExpulsionGasOilRatioCum ) != 0.0 and
-        getShaleGasResult ( GenexResultManager::ExpulsionGasOilRatioCum ) != Genex6::Constants::UNDEFINEDVALUE ) {
+        getShaleGasResult ( GenexResultManager::ExpulsionGasOilRatioCum ) != CauldronNoDataValue ) {
       double cgr = 0.0;
 
       if ( getShaleGasResult ( GenexResultManager::ExpulsionGasOilRatioCum ) > 10000.0 ) {
@@ -1149,11 +1161,11 @@ void SimulatorState::postProcessShaleGasTimeStep ( ChemicalModel *chemicalModel,
 
       setShaleGasResult ( GenexResultManager::ExpulsionCondensateGasRatioCum, cgr );
    } else {
-      setShaleGasResult ( GenexResultManager::ExpulsionCondensateGasRatioCum, Genex6::Constants::UNDEFINEDVALUE );
+      setShaleGasResult ( GenexResultManager::ExpulsionCondensateGasRatioCum, CauldronNoDataValue );
    }
 
    if ( getShaleGasResult ( GenexResultManager::ExpulsionGasOilRatioInst ) != 0.0 and
-        getShaleGasResult ( GenexResultManager::ExpulsionGasOilRatioInst ) != Genex6::Constants::UNDEFINEDVALUE ) {
+        getShaleGasResult ( GenexResultManager::ExpulsionGasOilRatioInst ) != CauldronNoDataValue ) {
       double cgr = 0.0;
 
       if ( getShaleGasResult ( GenexResultManager::ExpulsionGasOilRatioInst ) > 10000.0 ) {
@@ -1162,19 +1174,19 @@ void SimulatorState::postProcessShaleGasTimeStep ( ChemicalModel *chemicalModel,
 
       setShaleGasResult ( GenexResultManager::ExpulsionCondensateGasRatioInst, cgr );
    } else {
-      setShaleGasResult ( GenexResultManager::ExpulsionCondensateGasRatioInst, Genex6::Constants::UNDEFINEDVALUE );
+      setShaleGasResult ( GenexResultManager::ExpulsionCondensateGasRatioInst, CauldronNoDataValue );
    }
 
-   if ( expelledGasVolume > Genex6::Constants::CUMVOILZERO ) {
+   if ( expelledGasVolume > Genex6::Constants::CumulativeVolumeOilZero ) {
       setShaleGasResult ( GenexResultManager::ExpulsionGasWetnessCum, expelledWetGasVolume / expelledGasVolume );
    } else {
-      setShaleGasResult ( GenexResultManager::ExpulsionGasWetnessCum, Genex6::Constants::UNDEFINEDVALUE );
+      setShaleGasResult ( GenexResultManager::ExpulsionGasWetnessCum, CauldronNoDataValue );
    }
 
-   if ( transientGasVolume > Genex6::Constants::CUMVOILZERO ) {
+   if ( transientGasVolume > Genex6::Constants::CumulativeVolumeOilZero ) {
       setShaleGasResult ( GenexResultManager::ExpulsionGasWetnessInst, transientWetGasVolume / transientGasVolume );
    } else {
-      setShaleGasResult ( GenexResultManager::ExpulsionGasWetnessInst, Genex6::Constants::UNDEFINEDVALUE );
+      setShaleGasResult ( GenexResultManager::ExpulsionGasWetnessInst, CauldronNoDataValue );
    }
 
    // The third step

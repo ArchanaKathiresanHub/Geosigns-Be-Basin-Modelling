@@ -39,8 +39,8 @@
       <type></type>
       <name>FolderPath</name>
       <anchorfile>classibs_1_1FolderPath.html</anchorfile>
-      <anchor>aa7c1fc0dbc9e8fa9a1709271ab5028b6</anchor>
-      <arglist>(const FolderPath &amp;fld)</arglist>
+      <anchor>a7acd23c3ba05cbd2376256ad1c0b7e8a</anchor>
+      <arglist>(const Path &amp;aPath)</arglist>
     </member>
     <member kind="function" virtualness="virtual">
       <type>virtual</type>
@@ -143,6 +143,13 @@
       <anchorfile>classibs_1_1Path.html</anchorfile>
       <anchor>a60747e1c2dfd3d78c11ef47ceb085c3d</anchor>
       <arglist>() const </arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>setPath</name>
+      <anchorfile>classibs_1_1Path.html</anchorfile>
+      <anchor>aec4d4a718edb0808b9ba88066f650cb1</anchor>
+      <arglist>()</arglist>
     </member>
     <member kind="function">
       <type>Path &amp;</type>

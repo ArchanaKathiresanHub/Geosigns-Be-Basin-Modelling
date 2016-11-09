@@ -12,17 +12,15 @@
 
 include(cmake/AddPackage.cmake)
 
-set (HDF5_VERSION  "1.8.11" CACHE STRING "HDF5 version")
 
 if(UNIX)
-
    set(HDF5_SOURCE_DIR "${CMAKE_BINARY_DIR}/hdf5" CACHE PATH "Source directory of HDF5")
 
 # parallel version
    add_external_project_to_repository(
          NAME HDF5
          VERSION ${HDF5_VERSION}
-         ARCHIVE "${THIRD_PARTY_DIR}/sources/hdf5-1.8.11.tar.gz"
+         ARCHIVE "${THIRD_PARTY_DIR}/sources/hdf5-${HDF5_VERSION}.tar.gz"
          ARCHIVE_MD5 "d8e1475a6bfe7a8a20ca532985a75816"
          CONFIGURE_COMMAND "./configure" "--prefix={ROOT}"
          BUILD_COMMAND   "make"
@@ -48,26 +46,16 @@ if(UNIX)
    set(HDF5_LIBRARIES "hdf5" "hdf5_hl" "z" ${BM_DL_LIB} )
   
 else() # WIN32
-
-   set (HDF5_ROOT "${THIRD_PARTY_DIR}/hdf5.win64-1.8.11/hdf5" CACHE PATH "Path to the HDF5 library")
-   set (HDF5_FOUND TRUE)
-   set (HDF5_INCLUDE_DIR ${HDF5_ROOT}/include)
-   set (HDF5_INCLUDE_DIRS ${HDF5_INCLUDE_DIR} ${MPI_INCLUDE_DIRS})
+#   find_package (HDF5 NAMES hdf5 COMPONENTS C static) 
    
-   set(HDF5_LIB_ROOT "${HDF5_ROOT}/lib")
-      if ( MSVC10 )
-          set(HDF5_postfix "-msvc10")
-      elseif(MSVC11)
-          set(HDF5_postfix "-msvc11")
-      elseif(MSVC12)
-          set(HDF5_postfix "-msvc12")
-      else()
-          message(WARNING "Your Visual Studio version is not yet supported.")
-      endif()
-   set (HDF5_LIBRARY ${HDF5_LIB_ROOT}${HDF5_postfix}/libhdf5.lib CACHE FILEPATH "Location of HDF5 library")
-   
-   list (APPEND HDF5_LIBRARIES ${HDF5_LIBRARY} ${MPI_LIBRARIES})
-   set(HDF5_SOURCE_DIR ${HDF5_ROOT} CACHE PATH "Source directory of HDF5")
+  set(HDF5_INCLUDE_DIR ${HDF5_ROOT}/include)
+  set(HDF5_INCLUDE_DIRS ${HDF5_INCLUDE_DIR} ${MPI_INCLUDE_DIRS})
+  
+  set(HDF5_LIB_ROOT "${HDF5_ROOT}/lib")
+  set(HDF5_LIBRARY ${HDF5_LIB_ROOT}/libhdf5.lib CACHE FILEPATH "Location of HDF5 library")
+  
+  list(APPEND HDF5_LIBRARIES ${HDF5_LIBRARY} ${MPI_LIBRARIES})
+  set( HDF5_SOURCE_DIR ${HDF5_INCLUDE_DIR}/.. CACHE PATH "Source directory of HDF5" )
 endif()
 
 add_external_package_info(
@@ -87,4 +75,4 @@ add_external_package_info(
       CONTAINS_CRYPTO "No"
       ECCN         "EAR99"
 )
-    
+  

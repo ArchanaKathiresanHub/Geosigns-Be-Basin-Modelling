@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
 #include "HydrostaticPressureFormationCalculator.h"
 
 #include "Interface/Surface.h"
@@ -9,6 +18,10 @@
 #include "GeoPhysicalConstants.h"
 #include "GeoPhysicalFunctions.h"
 #include "PropertyRetriever.h"
+
+// utilitites library
+#include "ConstantsPhysics.h"
+#include "ConstantsMathematics.h"
 
 DerivedProperties::HydrostaticPressureFormationCalculator::HydrostaticPressureFormationCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) :
    m_projectHandle ( projectHandle )
@@ -183,8 +196,6 @@ void DerivedProperties::HydrostaticPressureFormationCalculator::computeHydrostat
       
       const GeoPhysics::FluidType* fluid = dynamic_cast<const GeoPhysics::FluidType*>(currentFormation->getFluidType ());
       
-      double fluidDensityTop;
-      double fluidDensityBottom;
       double fluidDensity = 0;
       
       double thickness;
@@ -232,7 +243,7 @@ void DerivedProperties::HydrostaticPressureFormationCalculator::computeHydrostat
                   
                   thickness = depth->getA ( i, j, k - 1 ) - depth->getA ( i, j, k );
                   
-                  segmentPressure = thickness * fluidDensity * GeoPhysics::AccelerationDueToGravity * GeoPhysics::PascalsToMegaPascals;
+                  segmentPressure = thickness * fluidDensity * Utilities::Physics::AccelerationDueToGravity * Utilities::Maths::PaToMegaPa;
                   pressure = hydrostaticPressure->getA ( i, j, k ) + segmentPressure;
                   hydrostaticPressure->set ( i, j, k - 1, pressure );
                }
@@ -399,7 +410,7 @@ void DerivedProperties::HydrostaticPressureFormationCalculator::computeHydrostat
                   thickness = depth->getA ( i, j, k - 1 ) - depth->getA ( i, j, k );
                   fluidDensityBottom = ( fluid == 0 ? 0.0 : 
                                          fluid->density ( temperature->getA ( i, j, k - 1 ), porePressure->getA ( i, j, k - 1 )));
-                  segmentPressure = 0.5 * thickness * ( fluidDensityTop + fluidDensityBottom ) * GeoPhysics::AccelerationDueToGravity * GeoPhysics::PascalsToMegaPascals;
+                  segmentPressure = 0.5 * thickness * ( fluidDensityTop + fluidDensityBottom ) * Utilities::Physics::AccelerationDueToGravity * Utilities::Maths::PaToMegaPa;
                   
                   pressure = hydrostaticPressure->getA ( i, j, k ) + segmentPressure;
                   

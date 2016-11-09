@@ -21,7 +21,7 @@ add_library(Serial_Hdf5
 	${all_headers}
 )
 
-include_directories(${HDF5_INCLUDE_DIRS})
+include_directories( SYSTEM ${HDF5_INCLUDE_DIRS} )
 
 target_link_libraries(Serial_Hdf5 ${HDF5_LIBRARIES})
 

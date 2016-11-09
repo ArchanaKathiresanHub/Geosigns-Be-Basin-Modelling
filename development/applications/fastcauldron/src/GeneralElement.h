@@ -18,7 +18,7 @@
 #include "BaseElement.h"
 #include "BoundaryId.h"
 #include "ElementDofsMixin.h"
-#include "globaldefs.h"
+#include "ConstantsFastcauldron.h"
 
 
 /// \brief An element that is a part of a ComputationalDomain.

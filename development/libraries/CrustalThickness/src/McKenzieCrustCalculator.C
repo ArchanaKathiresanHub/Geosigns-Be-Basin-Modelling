@@ -10,11 +10,12 @@
 
 #include "McKenzieCrustCalculator.h"
 
-// Geophysics library
-#include "GeoPhysicalConstants.h"
-
 // utilities library
 #include "NumericFunctions.h"
+#include "ConstantsMathematics.h"
+using Utilities::Maths::Log10;
+using Utilities::Maths::Pi;
+using Utilities::Maths::Pi2by8;
 
 McKenzieCrustCalculator::McKenzieCrustCalculator(
    const InterfaceInput&    inputData,
@@ -178,7 +179,7 @@ double McKenzieCrustCalculator::calculateMagmaDensity( const double maxOceanicCr
 double McKenzieCrustCalculator::calculateTTSexhume( const double averageRiftTime ) const{
    const double expValue = 1 - exp( -15 * averageRiftTime / m_constants.getTau() );
    const double TTSexhume = m_constants.getInitialSubsidenceMax() + m_constants.getE0()
-      * ((1 - exp( -averageRiftTime / m_constants.getTau() )) + (GeoPhysics::Pi2by8 - 1) * expValue);
+      * ((1 - exp( -averageRiftTime / m_constants.getTau() )) + (Pi2by8 - 1) * expValue);
    return TTSexhume;
 }
 
@@ -193,10 +194,10 @@ double McKenzieCrustCalculator::calculateTTScritical( const double TTSexhume, co
 double McKenzieCrustCalculator::calculateTTSOnsetLinearized( const double averageRiftTime,
                                                              const double thinningFactorOnsetLinearized ) const{
    const double r = (thinningFactorOnsetLinearized == 1.0 ?
-      1.0 : sin( M_PI * (1 - thinningFactorOnsetLinearized) ) / (M_PI * (1 - thinningFactorOnsetLinearized)));
+      1.0 : sin( Pi * (1 - thinningFactorOnsetLinearized) ) / (Pi * (1 - thinningFactorOnsetLinearized)));
    const double expValue = 1 - exp( -15 * averageRiftTime / m_constants.getTau() );
    const double TTSOnsetLinearized = thinningFactorOnsetLinearized * m_constants.getInitialSubsidenceMax() + m_constants.getE0()
-      * (r * (1 - exp( -averageRiftTime / m_constants.getTau() )) + (GeoPhysics::Pi2by8 * thinningFactorOnsetLinearized - r) * expValue);
+      * (r * (1 - exp( -averageRiftTime / m_constants.getTau() )) + (Pi2by8 * thinningFactorOnsetLinearized - r) * expValue);
    return TTSOnsetLinearized;
 }
 

@@ -1,6 +1,7 @@
 #include "Interface/DistributedMapWriter.h"
 #include "Interface/DistributedGrid.h"
 #include "Interface/DistributedGridMap.h"
+#include "h5_parallel_file_types.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -46,7 +47,11 @@ DistributedMapWriter::DistributedMapWriter (void)
 
 bool DistributedMapWriter::open (const string & fileName, bool append)
 {
+#ifdef _WIN32
+   size_t slashPos = fileName.rfind( '\\' );
+#else
    size_t slashPos = fileName.rfind ('/');
+#endif
    if (slashPos != string::npos)
    {
       m_fileName = fileName.substr (slashPos + 1, string::npos);
@@ -78,7 +83,13 @@ bool DistributedMapWriter::open (const string & fileName, bool append)
 
    return opened;
 }
+void DistributedMapWriter::setChunking() {
 
+   if( m_outFile != 0 and H5_Parallel_PropertyList::isPrimaryPodEnabled () ) {
+      m_outFile->setChunking ( false ) ;//true );
+   }
+      
+}
 const string & DistributedMapWriter::getFileName (void)
 {
    return m_fileName;
@@ -135,7 +146,7 @@ bool DistributedMapWriter::writeMapToHDF (DM & da, Vec & vec, float time, double
       PetscVector_ReadWrite<double> writeObj;
       returnVal = writeObj.writeRawData (m_outFile, m_outFile->fileId (), dataSetName.c_str (),
                                          H5T_NATIVE_DOUBLE, localVecInfo, (void *) data);
-      delete[]data;
+      delete [] data;
    } else {
       float *data = new float[count[0] * count[1]];
       int writeIndex;
@@ -202,14 +213,60 @@ bool DistributedMapWriter::writeMapToHDF (DM & da, Vec & vec, float time, double
    return returnVal;
 }
 
-// Added by V.R. Ambati (13/07/2011):
-bool DistributedMapWriter::writeVolumeToHDF (GridMap * gridMap, const string & propertyName, const string & layerName)
+bool DistributedMapWriter::writeInputMap( GridMap * gridMap, int mapSeqNumber )
 {
-    bool status = writeVolumeToHDF (dynamic_cast<DistributedGridMap*> (gridMap)->getDA(), dynamic_cast<DistributedGridMap*> (gridMap)->getVec(), propertyName, layerName);
+   string dataSetName = std::string( LAYER_DATASET_PREFIX ) + ( mapSeqNumber < 10 ? "0" : "" ) + std::to_string( mapSeqNumber );
+
+   // get map info
+   DM & da = dynamic_cast<DistributedGridMap*>( gridMap )->getDA();
+   int start[2];
+   int count[2];
+
+   DMDAGetCorners( da, &start[0], &start[1], PETSC_IGNORE, &count[0], &count[1], PETSC_IGNORE );
+
+   // get the info about the total model
+   int size[2];
+   DMDAGetInfo( da, PETSC_IGNORE, &size[0], &size[1], PETSC_IGNORE, PETSC_IGNORE, PETSC_IGNORE, PETSC_IGNORE, PETSC_IGNORE, 
+                PETSC_IGNORE, PETSC_IGNORE, PETSC_IGNORE, PETSC_IGNORE, PETSC_IGNORE );
+
+   const Vec & vec = dynamic_cast<DistributedGridMap*>( gridMap )->getVec(); 
+
+   float * data = new float[ count[0] * count[1] ];
+      
+   PETSC_2D_Array x( da, vec, INSERT_VALUES, true );
+      
+   for ( int yCnt = start[1]; yCnt < (start[1] + count[1]); ++yCnt )
+   {
+      for ( int xCnt = start[0]; xCnt < (start[0] + count[0]); ++xCnt )
+      {
+         int writeIndex = (yCnt - start[1]) + ((xCnt - start[0]) * count[1]);           
+         data[writeIndex] = x( yCnt, xCnt );
+      }
+   }
+
+   DMDALocalInfo localVecInfo;
+   DMDAGetLocalInfo( da, &localVecInfo );
+   localVecInfo.dim = 2;
+
+   bool ok = m_writer->writeRawData( m_outFile, m_outFile->fileId(), dataSetName.c_str(), H5T_NATIVE_FLOAT, localVecInfo, data );
+   delete [] data;
+
+   if ( ok && mapSeqNumber == 0 ) // if this is a first map - write a description
+   {
+      ok = saveDescription( gridMap->getGrid() );
+   }
+   return ok;
+}
+
+
+// Added by V.R. Ambati (13/07/2011):
+bool DistributedMapWriter::writeVolumeToHDF (GridMap * gridMap, const string & propertyName, const string & layerName, const bool primaryFlag )
+{
+   bool status = writeVolumeToHDF (dynamic_cast<DistributedGridMap*> (gridMap)->getDA(), dynamic_cast<DistributedGridMap*> (gridMap)->getVec(), propertyName, layerName, primaryFlag );
     return status;
 }
 
-bool DistributedMapWriter::writeVolumeToHDF (DM & da, Vec & vec, const string & propertyName, const string & layerName)
+bool DistributedMapWriter::writeVolumeToHDF (DM & da, Vec & vec, const string & propertyName, const string & layerName, const bool primaryFlag )
 {
    if (!m_outFile) return false;
 
@@ -231,80 +288,12 @@ bool DistributedMapWriter::writeVolumeToHDF (DM & da, Vec & vec, const string & 
       return false;
    }
 
-   // write data 
-   PetscVector_ReadWrite<float> writeObj;
-   bool status = writeObj.write (m_outFile, propertyGroupId, layerName.c_str (), da, vec, petscD, H5T_NATIVE_FLOAT);
-   assert (status);
-   
-   H5Gclose (propertyGroupId);
-   delete petscD;
-
-   return status;
-}
-
-bool DistributedMapWriter::writePrimaryVolumeToHDF (GridMap * gridMap, const string & propertyName, double time, const string & layerName, 
-                                                    const bool useGroupName, const bool isPrimary )
-{
-   bool status = writePrimaryVolumeToHDF (dynamic_cast<DistributedGridMap*> (gridMap)->getDA(), dynamic_cast<DistributedGridMap*> (gridMap)->getVec(), propertyName, time, layerName, useGroupName, isPrimary );
-    return status;
-}
-
-bool DistributedMapWriter::writePrimaryVolumeToHDF (DM & da, Vec & vec,  const string & propertyName, double time, const string & layerName, const bool useGroupName, const bool isPrimary )
-{
-   if (!m_outFile) return false;
-
-   PetscDimensions *petscD = new Petsc_3D;
-   if (!petscD) return false;
-
-   MPI_Barrier (PETSC_COMM_WORLD);
-   
-   hid_t snapshotGroupId = H5P_DEFAULT;
-   std::ostringstream propertyGroupName;
-
-   if( useGroupName ) {
-      std::stringstream snapshotGroupName;
-      snapshotGroupName.setf (ios::fixed);
-      snapshotGroupName.precision (6);
-      
-      snapshotGroupName << "Time_" << time;
-      
-      snapshotGroupId = m_outFile->openGroup (snapshotGroupName.str ().c_str ());
-      
-      if (snapshotGroupId < 0)
-      {
-         snapshotGroupId = m_outFile->addGroup (snapshotGroupName.str ().c_str ());
-      }
-      
-      if (snapshotGroupId < 0)
-      {
-         delete petscD;
-         return false;
-      }
-      propertyGroupName << snapshotGroupName.str() << "/" << propertyName.c_str ();
-   } else {
-      propertyGroupName << "/" << propertyName.c_str ();
-   }
-   hid_t propertyGroupId = m_outFile->openGroup (propertyGroupName.str().c_str ());
-
-   if (propertyGroupId < 0)
-   {
-      propertyGroupId = m_outFile->addGroup (propertyGroupName.str().c_str ());
-   }
-
-   if (propertyGroupId < 0)
-   {
-      delete petscD;
-      return false;
-   }
-
-   // write data 
-
    bool status;
-   if( isPrimary ) {
+   // write data 
+   if( primaryFlag ) {
       hid_t dataType = H5T_NATIVE_DOUBLE;
       PetscVector_ReadWrite<double> writeObj;
       
-      m_outFile->setChunking( true );
       status = writeObj.write (m_outFile, propertyGroupId, layerName.c_str (), da, vec, petscD, dataType );
    } else {
       hid_t dataType = H5T_NATIVE_FLOAT;
@@ -315,10 +304,6 @@ bool DistributedMapWriter::writePrimaryVolumeToHDF (DM & da, Vec & vec,  const s
    assert (status);
 
    H5Gclose (propertyGroupId);
-
-   if( useGroupName ) {
-      H5Gclose (snapshotGroupId);
-   }
 
    delete petscD;
 

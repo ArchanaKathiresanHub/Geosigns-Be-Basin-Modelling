@@ -19,7 +19,7 @@ namespace Numerics {
 
       /// \brief Required alignment for PackedDouble.
       static const int Alignment = Traits::Alignment;
-
+      
       /// \brief The number of doubles in the PackedDouble.
       static const int DoubleStride = Traits::DoubleStride;
 
@@ -62,9 +62,7 @@ namespace Numerics {
 
    };
 
-
-
-#ifdef __SSE__
+#ifdef __INTEL_COMPILER
    /// \brief Specialisation of SimdInstruction with SSE instruction set.
    template<>
    struct SimdInstruction<SSE> {
@@ -133,11 +131,9 @@ namespace Numerics {
       static PackedDouble mulAdd ( const PackedDouble& a, const PackedDouble& b, const PackedDouble& c );
 
    };
-#endif
 
 
 
-#ifdef __AVX__
    /// \brief Specialisation of SimdInstruction with AVX instruction set.
    template<>
    struct SimdInstruction<AVX> {
@@ -208,8 +204,80 @@ namespace Numerics {
       static PackedDouble mulAdd ( const PackedDouble& a, const PackedDouble& b, const PackedDouble& c );
 
    };
-#endif
 
+
+
+   /// \brief Specialisation of SimdInstruction with AVX-FMA instruction set.
+   template<>
+   struct SimdInstruction<AVXFMA> {
+
+      /// \brief Instantiation of SimdTraits with the AVX-FMA configuration.
+      typedef SimdTraits<AVXFMA> Traits;
+
+      /// \brief The simd data-type for AVX-FMA.
+      typedef Traits::PackedDouble PackedDouble;
+
+      /// \brief Required alignment for AVX PackedDouble.
+      static const int Alignment = Traits::Alignment;
+
+      /// \brief The number of doubles in the AVX PackedDouble.
+      static const int DoubleStride = Traits::DoubleStride;
+
+      /// \brief Allocate an array of size numberOfDoubles.
+      ///
+      /// For AVX the memory allocated will be aligned on a 32 byte address boundary.
+      /// \param [in] numberOfDoubles The number of double required.
+      /// \pre numberOfDoubles > 0.
+      /// \post If it was possible to allocate memory with the required alignment then
+      /// this buffer will be returned otherwise a null pointer will be returned.
+      static double* allocate ( const int numberOfDoubles );
+
+      /// \brief Deallocate a buffer of double.
+      ///
+      /// The memory freed here should have been allocated with the allocate function.
+      /// \param [inout] buf The buffer that is to be freed.
+      /// \pre The buffer must have been allocated using the allocate function defined in this class.
+      static void free ( double*& buf );
+
+      /// \brief Fill a PackedDouble with a single value.
+      ///
+      /// res(i)=a, where i = 0, 1, 2, 3
+      static PackedDouble set1 ( const double a );
+
+      /// \brief Store valued from the PackedDouble of b to memory pointed to in a.
+      ///
+      /// The memory in b must have the correct alignment.
+      /// It must be aligned on the address specified in the variable Alignment defined above.
+      ///
+      /// a[i] = b[i], for i = 1, 2, 3, 4
+      /// \pre The memory pointed to in a must be alligned on a 32 byte address boundary.
+      static void store ( double* a, const PackedDouble& b );
+
+      /// \brief Store valued from the PackedDouble of b to memory pointed to in a.
+      ///
+      /// The memory in b need not have the correct alignment.
+      /// It can be aligned on any address.
+      ///
+      /// a[i] = b[i], for i = 1, 2, 3, 4
+      static void storeu ( double* a, const PackedDouble& b );
+
+      /// \brief Add two packed doubles together.
+      ///
+      /// res(i)=a(i)+b(i), where i = 0, 1, 2, 3
+      static PackedDouble add ( const PackedDouble& a, const PackedDouble& b );
+
+      /// \brief Multiply two packed doubles together.
+      ///
+      /// res(i)=a(i)*b(i), where i = 0, 1, 2, 3
+      static PackedDouble mul ( const PackedDouble& a, const PackedDouble& b );
+
+      /// \brief Multiply two packed doubles together and add to another.
+      ///
+      /// res(i)=a(i)*b(i)+c(i), where i = 0, 1, 2, 3
+      static PackedDouble mulAdd ( const PackedDouble& a, const PackedDouble& b, const PackedDouble& c );
+
+   };
+#endif
 
 } // end namespace Numerics
 
@@ -265,11 +333,12 @@ Numerics::SimdInstruction<SimdTechnology>::mulAdd ( const PackedDouble& a, const
    return a * b + c;
 }
 
+
+#ifdef __INTEL_COMPILER
 //--------------------------------
 // SSE
 //--------------------------------
 
-#ifdef __SSE__
 inline double* Numerics::SimdInstruction<Numerics::SSE>::allocate ( const int numberOfDoubles ) {
    return AlignedMemoryAllocator<double, Alignment>::allocate ( numberOfDoubles );
 }
@@ -305,13 +374,13 @@ inline Numerics::SimdInstruction<Numerics::SSE>::PackedDouble
 Numerics::SimdInstruction<Numerics::SSE>::mulAdd ( const PackedDouble& a, const PackedDouble& b, const PackedDouble& c ) {
    return _mm_add_pd ( c, _mm_mul_pd ( a, b ));
 }
-#endif
+
 
 //--------------------------------
 // AVX
 //--------------------------------
 
-#ifdef __AVX__
+
 inline double* Numerics::SimdInstruction<Numerics::AVX>::allocate ( const int numberOfDoubles ) {
    return AlignedMemoryAllocator<double, Alignment>::allocate ( numberOfDoubles );
 }
@@ -325,11 +394,11 @@ Numerics::SimdInstruction<Numerics::AVX>::set1 ( const double a ) {
    return _mm256_set1_pd ( a );
 }
 
-inline void Numerics::SimdInstruction<AVX>::store ( double* a, const PackedDouble& b ) {
+inline void Numerics::SimdInstruction<Numerics::AVX>::store ( double* a, const PackedDouble& b ) {
    _mm256_store_pd ( a, b );
 }
 
-inline void Numerics::SimdInstruction<AVX>::storeu ( double* a, const PackedDouble& b ) {
+inline void Numerics::SimdInstruction<Numerics::AVX>::storeu ( double* a, const PackedDouble& b ) {
    _mm256_storeu_pd ( a, b );
 }
 
@@ -347,8 +416,51 @@ inline Numerics::SimdInstruction<Numerics::AVX>::PackedDouble
 Numerics::SimdInstruction<Numerics::AVX>::mulAdd ( const PackedDouble& a, const PackedDouble& b, const PackedDouble& c ) {
    return _mm256_add_pd ( c, _mm256_mul_pd ( a, b ));
 }
+
+
+//--------------------------------
+// AVX-FMA
+//--------------------------------
+
+
+
+inline double* Numerics::SimdInstruction<Numerics::AVXFMA>::allocate ( const int numberOfDoubles ) {
+   return AlignedMemoryAllocator<double, Alignment>::allocate ( numberOfDoubles );
+}
+
+inline void Numerics::SimdInstruction<Numerics::AVXFMA>::free ( double*& buf ) {
+   AlignedMemoryAllocator<double, Alignment>::free ( buf );
+}
+
+inline Numerics::SimdInstruction<Numerics::AVXFMA>::PackedDouble
+Numerics::SimdInstruction<Numerics::AVXFMA>::set1 ( const double a ) {
+   return _mm256_set1_pd ( a );
+}
+
+inline void Numerics::SimdInstruction<Numerics::AVXFMA>::store ( double* a, const PackedDouble& b ) {
+   _mm256_store_pd ( a, b );
+}
+
+inline void Numerics::SimdInstruction<Numerics::AVXFMA>::storeu ( double* a, const PackedDouble& b ) {
+   _mm256_storeu_pd ( a, b );
+}
+
+inline Numerics::SimdInstruction<Numerics::AVXFMA>::PackedDouble
+Numerics::SimdInstruction<Numerics::AVXFMA>::add ( const PackedDouble& a, const PackedDouble& b ) {
+   return _mm256_add_pd ( a, b );
+}
+
+inline Numerics::SimdInstruction<Numerics::AVXFMA>::PackedDouble
+Numerics::SimdInstruction<Numerics::AVXFMA>::mul ( const PackedDouble& a, const PackedDouble& b ) {
+   return _mm256_mul_pd ( a, b );
+}
+
+inline Numerics::SimdInstruction<Numerics::AVXFMA>::PackedDouble
+Numerics::SimdInstruction<Numerics::AVXFMA>::mulAdd ( const PackedDouble& a, const PackedDouble& b, const PackedDouble& c ) {
+   // comptute a * b + c
+   return _mm256_fmadd_pd ( a, b, c );
+}
+
 #endif
-
-
 
 #endif // NUMERICS__SIMD_INSTRUCTION__H

@@ -8,7 +8,7 @@
 #include "EosUtils.h"
 #include "EosWater.h"
 
-#include <math.h>
+#include <cmath>
 
 // Construct the water data structure
 //

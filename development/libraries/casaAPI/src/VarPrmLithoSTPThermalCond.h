@@ -23,12 +23,12 @@ namespace casa
    {
    public:
       /// @brief Create a new variable parameter
-      VarPrmLithoSTPThermalCond( const char * lithoName ///< name of the lithology for the parameter variation
-                               , double baseValue       ///< base value of parameter
-                               , double minValue        ///< minimal value for the variable parameter range
-                               , double maxValue        ///< maximal value for the variable parameter range
-                               , PDF pdfType = Block    ///< type of PDF shape for the variable parameter
-                               , const char * name = 0  ///< user specified parameter name
+      VarPrmLithoSTPThermalCond( const char * lithoName       ///< name of the lithology for the parameter variation
+                               , double       baseValue       ///< base value of parameter
+                               , double       minValue        ///< minimal value for the variable parameter range
+                               , double       maxValue        ///< maximal value for the variable parameter range
+                               , PDF          pdfType = Block ///< type of PDF shape for the variable parameter
+                               , const char * name = 0        ///< user specified parameter name
                                );
 
       /// @brief Destructor
@@ -46,6 +46,19 @@ namespace casa
       /// @param[in,out] vals iterator which points to the first sub-parameter value
       /// @return new casa::PrmLithoSTPThermalCond parameter
       virtual SharedParameterPtr newParameterFromDoubles( std::vector<double>::const_iterator & vals ) const;
+
+      /// @brief Create parameter by reading the values stored in the project file
+      /// @param[in] mdl the model where the parameters values should be read
+      /// @return the new parameter read from the model
+      virtual SharedParameterPtr newParameterFromModel( mbapi::Model & mdl, const std::vector<double> & vin ) const;
+
+      /// @brief Average the values, interpolate for lithofractions and set the appropriate entries in the project3d file
+      /// @return new parameter for given set of values
+      virtual SharedParameterPtr makeThreeDFromOneD( mbapi::Model              & mdl ///< [in,out] the model where to set the new averaged parameter
+                                                   , const std::vector<double> & xin ///< the x coordinates of each 1D project 
+                                                   , const std::vector<double> & yin ///< the y coordinates of each 1D project 
+                                                   , const std::vector<SharedParameterPtr> & prmVec /// the optimal parameter value of each 1D project
+                                                   ) const;
 
       /// @{
       /// @brief Defines version of serialized object representation. Must be updated on each change in save()

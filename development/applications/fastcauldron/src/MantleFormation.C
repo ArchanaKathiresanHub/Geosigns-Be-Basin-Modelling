@@ -1,3 +1,13 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "MantleFormation.h"
 
 #include "FastcauldronSimulator.h"
@@ -56,7 +66,7 @@ void MantleFormation::cleanVectors() {
 void MantleFormation::initialise () {
 
    layername             = Interface::MantleFormation::getName ();
-   lithoMixModel         = Interface::MantleFormation::getMixModelStr ();
+   m_lithoMixModel         = Interface::MantleFormation::getMixModelStr ();
    m_presentDayThickness = Interface::MantleFormation::getInputThicknessMap ();
    depthGridMap          = Interface::MantleFormation::getTopSurface ()->getInputDepthMap ();
 
@@ -101,7 +111,8 @@ bool MantleFormation::setLithologiesFromStratTable () {
                 
       CompoundLithologyComposition lc ( DataAccess::Interface::ALCBasalt, "",  "",
                                         100.0, 0.0, 0.0,
-                                        DataAccess::Interface::MantleFormation::getMixModelStr () );
+                                        DataAccess::Interface::MantleFormation::getMixModelStr (),
+                                        DataAccess::Interface::MantleFormation::getLayeringIndex());
 
       lc.setThermalModel( m_projectHandle->getMantlePropertyModel() );
       
@@ -149,11 +160,11 @@ void MantleFormation::allocateBasementVecs( ) {
    const AppCtx* basinModel =  FastcauldronSimulator::getInstance ().getCauldron ();
 
    if( basinModel->isALC()) {
-      IBSASSERT(NULL == UpliftedOrigMantleDepth);
+      assert(NULL == UpliftedOrigMantleDepth);
       createCount++;    
       DMCreateGlobalVector( * basinModel->mapDA, &UpliftedOrigMantleDepth );
        
-      IBSASSERT( NULL == LithosphereThicknessMod );
+      assert( NULL == LithosphereThicknessMod );
       createCount++;
       DMCreateGlobalVector( * basinModel->mapDA, &LithosphereThicknessMod );
 

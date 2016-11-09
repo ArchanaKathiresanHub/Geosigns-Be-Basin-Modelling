@@ -1,5 +1,14 @@
-#ifndef _FASTCAULDRON__ELEMENT_CONTRIBUTIONS__H_
-#define _FASTCAULDRON__ELEMENT_CONTRIBUTIONS__H_
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
+#ifndef FASTCAULDRON__ELEMENT_CONTRIBUTIONS__H
+#define FASTCAULDRON__ELEMENT_CONTRIBUTIONS__H
 
 #include "FiniteElement.h"
 #include "FiniteElementTypes.h"
@@ -9,7 +18,7 @@
 
 #include "BoundaryId.h"
 
-#include "globaldefs.h"
+#include "ConstantsFastcauldron.h"
 
 
 /// \brief Extract the coefficients for the property.
@@ -201,4 +210,4 @@ double centreOfElement ( const LayerElement& element );
 
 double centreOfElement ( const FiniteElementMethod::ElementGeometryMatrix& geometryMatrix );
 
-#endif // _FASTCAULDRON__ELEMENT_CONTRIBUTIONS__H_
+#endif // FASTCAULDRON__ELEMENT_CONTRIBUTIONS__H

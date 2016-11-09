@@ -21,6 +21,10 @@ add_library(cmbapi
 	${all_headers}
 )
 
+if (UNIX)
+add_dependencies(cmbapi NNlib)
+endif (UNIX)
+
 bm_include_libraries(
    genex6
    genex6_kernel
@@ -34,9 +38,13 @@ bm_include_libraries(
    FileSystem
 )
 
-include_directories(
-   ${HDF5_INCLUDE_DIRS}
+include_directories( 
    src
+)
+
+include_directories( SYSTEM
+   ${HDF5_INCLUDE_DIRS}
+   ${NNLIB_INCLUDE_DIR}
 )
 
 target_link_libraries(cmbapi
@@ -51,6 +59,7 @@ target_link_libraries(cmbapi
    genex6_kernel
    EosPack
    FileSystem
+   NNlib
    ${Boost_LIBRARIES}
 )
 
@@ -71,6 +80,10 @@ configure_file(test/DupLithologyTesting.project3d DupLithologyTesting.project3d 
 configure_file(../casaAPI/test/Ottoland.project3d Ottoland.project3d COPYONLY )
 configure_file( test/MapsTesting.project3d MapsTesting.project3d COPYONLY )
 configure_file( test/Inputs.HDF Inputs.HDF COPYONLY )
+configure_file( test/NNTesting.project3d NNTesting.project3d COPYONLY )
+configure_file( test/NNInt NNInt COPYONLY )
+configure_file( test/NNInputLithofractions NNInputLithofractions COPYONLY )
+configure_file( test/NNbt NNbt COPYONLY )
 
 
 add_gtest( NAME mbapiModelTest

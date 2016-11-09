@@ -1,4 +1,3 @@
-#include "stdafx.h"
 //
 // Classes to read and write buffer data
 // from a hd5f file

@@ -43,10 +43,10 @@ bool copyFile( const std::string & dstPath, const std::string & curPath )
 }
 
 
-bool mergeFiles ( FileHandler * aFileHandler ) {
+bool mergeFiles ( FileHandler * aFileHandler, const bool appendRank ) {
 
    if( aFileHandler != NULL ) {
-      bool status = aFileHandler->mergeFiles();
+      bool status = aFileHandler->mergeFiles( appendRank );
       
       delete aFileHandler;
       return status;

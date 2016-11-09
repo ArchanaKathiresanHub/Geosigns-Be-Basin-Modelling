@@ -67,6 +67,10 @@ double Genex6::LangmuirAdsorptionFunction::compute ( const unsigned int i,
    if ( species != CBMGenerics::ComponentManager::C1 ) {
       return 0.0;
    }
+   // Added to prevent a compiler warning about unused parameter.
+   (void) i;
+   (void) j;
+   (void) toc;
 
    m_temperatureInRange.setTemperature ( temperature );
    LangmuirAdsorptionIsothermIntervalVector::const_iterator interval = std::find_if ( m_isothermIntervals.begin (), m_isothermIntervals.end (), m_temperatureInRange );
@@ -89,6 +93,10 @@ double Genex6::LangmuirAdsorptionFunction::computeVL ( const unsigned int i,
    if ( species != CBMGenerics::ComponentManager::C1 ) {
       return 0.0;
    }
+   // Added to prevent a compiler warning about unused parameter.
+   (void) i;
+   (void) j;
+   (void) toc;
 
    m_temperatureInRange.setTemperature ( temperature );
    LangmuirAdsorptionIsothermIntervalVector::const_iterator interval = std::find_if ( m_isothermIntervals.begin (), m_isothermIntervals.end (), m_temperatureInRange );

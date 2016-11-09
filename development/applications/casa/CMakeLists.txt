@@ -36,10 +36,12 @@ bm_include_libraries(
    utilities
 )
 
-include_directories(
+include_directories( utilities
+   ${CMAKE_CURRENT_BINARY_DIR} )
+
+include_directories( SYSTEM
    ${SUMPP_INCLUDE_DIR}
-   ${CMAKE_CURRENT_BINARY_DIR}
-   utilities
+   ${NNLIB_INCLUDE_DIR}
 )
 
 target_link_libraries( casa
@@ -52,6 +54,7 @@ target_link_libraries( casa
    TableIO
    utilities
    SUMlib
+   NNlib
    ${HDF5_LIBRARIES}
    ${Boost_LIBRARIES}
    ${LSF_LIBS}

@@ -1,3 +1,13 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "GeoPhysicsMantleFormation.h"
 
 #include <cmath>
@@ -47,7 +57,8 @@ bool GeoPhysics::GeoPhysicsMantleFormation::setLithologiesFromStratTable () {
 
    CompoundLithologyComposition lc ( lithoName1, "",  "",
                                      100.0, 0.0, 0.0,
-                                     DataAccess::Interface::MantleFormation::getMixModelStr () );
+                                     DataAccess::Interface::MantleFormation::getMixModelStr (),
+                                     DataAccess::Interface::MantleFormation::getLayeringIndex());
 
    if( dynamic_cast<GeoPhysics::ProjectHandle*>(m_projectHandle)->isALC() ) {
       lc.setThermalModel( m_projectHandle->getMantlePropertyModel());

@@ -1,20 +1,17 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include <assert.h>
-#ifdef sgi
-   #ifdef _STANDARD_C_PLUS_PLUS
-      #include<iostream>
-      #include <sstream>
-      using namespace std;
-      #define USESTANDARD
-   #else // !_STANDARD_C_PLUS_PLUS
-      #include<iostream.h>
-      #include<strstream.h>
-   #endif // _STANDARD_C_PLUS_PLUS
-#else // !sgi
-   #include <iostream>
-   #include <sstream>
-   using namespace std;
-   #define USESTANDARD
-#endif // sgi
+#include <iostream>
+#include <sstream>
+using namespace std;
 
 #include "mangle.h"
 
@@ -552,6 +549,10 @@ const std::string& Formation::getMixModelStr (void) const {
    return database::getMixModel(m_record);
 }
 
+float Formation::getLayeringIndex(void) const {
+   return database::getLayeringIndex(m_record);
+}
+
 const FluidType* Formation::getFluidType () const
 {
    if ( m_fluidType == 0 ) {
@@ -576,11 +577,8 @@ void Formation::printOn (ostream & ostr) const
 
 void Formation::asString (string & str) const
 {
-#ifdef USESTANDARD
+
    ostringstream buf;
-#else
-   strstream buf;
-#endif
 
    buf << "Formation";
    if (isSourceRock ())
@@ -607,9 +605,6 @@ void Formation::asString (string & str) const
    }
 
    str = buf.str ();
-#ifndef USESTANDARD
-   buf.rdbuf ()->freeze (0);
-#endif
 }
 
 bool FormationLessThan::operator ()( const Formation* f1,

@@ -1,3 +1,12 @@
+//
+// Copyright (C) 2012-2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 #ifndef OIVWIDGET_H_INCLUDED
 #define OIVWIDGET_H_INCLUDED
 
@@ -35,6 +44,8 @@ class OIVWidget : public QGLWidget
  public:
 
   OIVWidget(QWidget* parent=0, Qt::WindowFlags f=0);
+
+  void saveSnapshot(const QString& filename);
 
   void setSceneGraph(SoNode* root);
 };

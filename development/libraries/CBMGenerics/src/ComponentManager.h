@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2012-2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef COMPONENTMANAGER_H
 #define COMPONENTMANAGER_H
 
@@ -7,8 +17,6 @@
 #define and &&
 #endif
 
-#include "DllExport.h"
-
 #include <string>
 #include <map>
 
@@ -16,7 +24,7 @@ namespace CBMGenerics
 {
    const double undefined = 99999;
 
-   class CBMGENERICS_DLL_EXPORT ComponentManager
+   class ComponentManager
    {
    public:
       enum SpeciesNamesId
@@ -62,7 +70,7 @@ namespace CBMGenerics
 
       int GetSpeciedIdByEnum ( const SpeciesNamesId id ) const;
 
-      const std::string GetSpeciesName( int speciesIndex ) const;
+      static std::string GetSpeciesName( int speciesIndex );
       const std::string GetPhaseName( int phaseIndex ) const;
 
       /// \brief Return the name of the species.

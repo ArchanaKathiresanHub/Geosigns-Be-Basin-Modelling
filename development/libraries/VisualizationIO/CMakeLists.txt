@@ -10,32 +10,48 @@
 #                                                                       #
 #########################################################################
 
-FILE( GLOB all_headers src/*.h src/pugixml-1.7/*.hpp)
+FILE( GLOB all_headers src/*.h)
 source_group("Header Files" FILES ${all_headers})
 
-FILE( GLOB all_srcs src/*.cpp src/pugixml-1.7/*.cpp)
+FILE( GLOB all_srcs src/*.cpp)
 source_group("Source Files" FILES ${all_srcs})
 
 add_library(VisualizationIO ${all_srcs} ${all_headers})
 
-include_directories(
-	${HDF5_INCLUDE_DIRS}
+include_directories( SYSTEM
+  ${HDF5_INCLUDE_DIRS}
+  ${PUGIXML_INCLUDE_DIR}
+  ${LZ_INCLUDE_DIR}
 )
 
 bm_include_libraries(
+  DataModel
+  DataAccess
+  utilities
+  SerialDataAccess
+  FileSystem
+  DataAccess
+  TableIO
+  Serial_Hdf5
+  CBMGenerics
 )
 
 target_link_libraries(VisualizationIO
+  DataModel
+  DataAccess
+  utilities
+  SerialDataAccess
+  FileSystem
+  TableIO
+  Serial_Hdf5
+  CBMGenerics
+  PugiXMLlib
+  LZlib
   ${HDF5_LIBRARIES}
   ${Boost_LIBRARIES}
 )
 
 generate_dox( VisualizationIO.cfg )
-
-add_gtest( NAME CauldronIO::Project
-           SOURCES test/Project.cpp test/DataStore.cpp
-           LIBRARIES VisualizationIO
-)
 
 # Local Variables:
 # mode: cmake

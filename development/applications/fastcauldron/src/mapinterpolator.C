@@ -1,12 +1,27 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
+
 #include "mapinterpolator.h"
 
-#include "globaldefs.h"
+#include "ConstantsFastcauldron.h"
 
 #include <iomanip>
 #include "utils.h"
 
 #include "GeoPhysicalConstants.h"
 using namespace GeoPhysics;
+
+// utilities library
+#include "ConstantsNumerical.h"
+using Utilities::Numerical::CauldronNoDataValue;
+using Utilities::Numerical::IbsNoDataValue;
 
 MapInterpolator::MapInterpolator () {
 }
@@ -92,7 +107,7 @@ void MapInterpolator::interpolateFromLowResolutionMap ( DM    lowResDA,
   setReferenceArray ( xSubsamplingRatio, xReferenceArray );
   setReferenceArray ( ySubsamplingRatio, yReferenceArray );
 
-  VecSet ( highResVec, CAULDRONIBSNULLVALUE );
+  VecSet ( highResVec, CauldronNoDataValue );
 
   DMDAGetLocalInfo ( highResDA, &highResInfo );
   DMDAGetLocalInfo ( lowResDA,  &lowResInfo );
@@ -155,7 +170,7 @@ void MapInterpolator::interpolateFromLowResolutionMap ( DM    lowResDA,
         getProperty ( lowResProperty, lowResI, lowResJ, K, nodalPropertyVector );
 
         if ( containsNullValue ( nodalPropertyVector )) {
-          highResProperty ( K, highResJ, highResI ) = CAULDRONIBSNULLVALUE;
+          highResProperty ( K, highResJ, highResI ) = CauldronNoDataValue;
         } else {
           highResProperty ( K, highResJ, highResI ) = innerProduct ( basisVector, nodalPropertyVector );
         }
@@ -274,7 +289,7 @@ bool MapInterpolator::containsNullValue ( const double* property ) const {
 
   for ( I = 0; I < 4; I++ ) {
 
-    if ( property [ I ] == IBSNULLVALUE || property [ I ] == CAULDRONIBSNULLVALUE ) {
+    if ( property [ I ] == IbsNoDataValue || property [ I ] == CauldronNoDataValue ) {
       return true;
     }
 

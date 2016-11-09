@@ -1,7 +1,16 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 #include "Species.h"
 #include "SpeciesProperties.h"
 #include "SpeciesManager.h"
-#include "Constants.h"
+#include "ConstantsGenex.h"
 #include "GeneralParametersHandler.h"
 
 namespace Genex6
@@ -101,7 +110,7 @@ void SpeciesProperties::Update()
    static double OmaxHC = theHandler.GetParameterById(GeneralParametersHandler::OmaxHC);
 
    //(Atom(IatomC, L) > CminHC And Atom(IatomH, L) > HminHC And Atom(IatomO, L) < OmaxHC)
-   if(AtomC > Genex6::Constants::s_CminHC && AtomH > Genex6::Constants::s_HminHC && AtomO < OmaxHC) {
+   if(AtomC > Genex6::Constants::CminHC && AtomH > Genex6::Constants::HminHC && AtomO < OmaxHC) {
       m_HC = true;
    } else {
       m_HC = false;
@@ -110,10 +119,10 @@ void SpeciesProperties::Update()
    //FunCritOil = (Act(6, L) < ActUMax And Atom(IatomC, L) > CminHC And Atom(IatomH, L) > HminHC _
    //              And Atom(IatomO, L) < OmaxHC And Dens(L) > DensMaxGas)
    if(m_diffusionEnergy1 < Genex6::Constants::s_ActUMax 
-      && AtomC > Genex6::Constants::s_CminHC 
-      && AtomH > Genex6::Constants::s_HminHC 
+      && AtomC > Genex6::Constants::CminHC 
+      && AtomH > Genex6::Constants::HminHC 
       && AtomO < OmaxHC 
-      && m_density > Genex6::Constants::s_DensMaxGas) {
+      && m_density > Genex6::Constants::MaxGasDensity) {
       m_Oil = true;
    } else {
       m_Oil = false;
@@ -122,10 +131,10 @@ void SpeciesProperties::Update()
    //FunCritHCgas = (Act(6, L) < ActUMax And Atom(IatomC, L) > CminHC And Atom(IatomH, L) > HminHC _
    //                And Atom(IatomO, L) < OmaxHC And Dens(L) < DensMaxGas)
    if(m_diffusionEnergy1 < Genex6::Constants::s_ActUMax 
-      && AtomC > Genex6::Constants::s_CminHC 
-      && AtomH > Genex6::Constants::s_HminHC 
+      && AtomC > Genex6::Constants::CminHC 
+      && AtomH > Genex6::Constants::HminHC 
       && AtomO < OmaxHC 
-      && m_density < Genex6::Constants::s_DensMaxGas) {
+      && m_density < Genex6::Constants::MaxGasDensity) {
       m_HCgas = true;
    } else {
       m_HCgas = false;

@@ -14,7 +14,7 @@
 #include <numeric>
 
 #include "FastcauldronSimulator.h"
-#include "globaldefs.h"
+#include "ConstantsFastcauldron.h"
 
 VtkMeshWriter::VtkMeshWriter () :
    m_size ( FastcauldronSimulator::getInstance ().getSize ()),

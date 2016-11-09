@@ -1,23 +1,116 @@
 var theRenderArea = null;
+var canvasDiv = null;
 var bandwidthDiv = null;
 var fpsDiv = null;
 var dataSize = 0;
-var fps = 0;		
+var fps = 0;
 var resizeTimer = null;
-var leftMargin = 330;
-var bottomMargin = 20;
 var timestamp = 0;
-
+var uiElements = null;
 var logMessages = true;
+
+function collectUIElements()
+{
+    var formationsDiv = document.getElementById("formationsList");
+    var formationCheckBoxes = formationsDiv.getElementsByTagName("input");
+
+    var surfacesDiv = document.getElementById("surfacesList");
+    var surfaceCheckBoxes = surfacesDiv.getElementsByTagName("input");
+
+    var reservoirsDiv = document.getElementById("reservoirsList");
+    var reservoirCheckBoxes = reservoirsDiv.getElementsByTagName("input");
+
+    var faultsDiv = document.getElementById("faultsList");
+    var faultsCheckBoxes = faultsDiv.getElementsByTagName("input");
+
+    var flowLinesDiv = document.getElementById("flowLinesList");
+    var flowLinesCheckBoxes = flowLinesDiv.getElementsByTagName("input");
+
+    var propertiesDiv = document.getElementById("propertiesList");
+    var propertyRadioButtons = propertiesDiv.getElementsByTagName("input");
+
+    uiElements = {
+        timeSlider: document.getElementById("timeSlider"),
+        formationCheckBoxes: formationCheckBoxes,
+        surfaceCheckBoxes: surfaceCheckBoxes,
+        reservoirCheckBoxes: reservoirCheckBoxes,
+        faultsCheckBoxes: faultsCheckBoxes,
+        flowLinesCheckBoxes: flowLinesCheckBoxes,
+        propertyRadioButtons: propertyRadioButtons,
+        checkBoxAllFormations: document.getElementById("checkBoxAllFormations"),
+        checkBoxAllSurfaces: document.getElementById("checkBoxAllSurfaces"),
+        checkBoxAllReservoirs: document.getElementById("checkBoxAllReservoirs"),
+        checkBoxAllFaults: document.getElementById("checkBoxAllFaults"),
+        checkBoxAllFlowLines: document.getElementById("checkBoxAllFlowLines"),
+        checkBoxDrawTraps: document.getElementById("checkBoxDrawTraps"),
+        checkBoxDrawTrapOutlines: document.getElementById("checkBoxDrawTrapOutlines"),
+        checkBoxDrawFluidContacts: document.getElementById("checkBoxDrawFluidContacts"),
+        radioButtonDrainageAreaNone: document.getElementById("radioButtonDrainageAreaNone"),
+        radioButtonDrainageAreaFluid: document.getElementById("radioButtonDrainageAreaFluid"),
+        radioButtonDrainageAreaGas: document.getElementById("radioButtonDrainageAreaGas"),
+        sliderFlowLinesLeakageStep: document.getElementById("sliderFlowLinesLeakageStep"),
+        sliderFlowLinesLeakageThreshold: document.getElementById("sliderFlowLinesLeakageThreshold"),
+        sliderFlowLinesExpulsionStep: document.getElementById("sliderFlowLinesExpulsionStep"),
+        sliderFlowLinesExpulsionThreshold: document.getElementById("sliderFlowLinesExpulsionThreshold"),
+        sliderVerticalScale: document.getElementById("sliderVerticalScale"),
+        sliderTransparency: document.getElementById("sliderTransparency"),
+        checkBoxDrawFaces: document.getElementById("checkBoxDrawFaces"),
+        checkBoxDrawEdges: document.getElementById("checkBoxDrawEdges"),
+        checkBoxDrawGrid: document.getElementById("checkBoxDrawGrid"),
+        checkBoxDrawCompass: document.getElementById("checkBoxDrawCompass"),
+        checkBoxDrawText: document.getElementById("checkBoxDrawText"),
+        checkBoxPerspective: document.getElementById("checkBoxPerspective"),
+        sliceICheckBox: document.getElementById("sliceICheckBox"),
+        sliceJCheckBox: document.getElementById("sliceJCheckBox"),
+        sliceISlider: document.getElementById("sliceISlider"),
+        sliceJSlider: document.getElementById("sliceJSlider"),
+        fenceCheckBoxes: {},
+        selectColorScaleMapping: document.getElementById('selectColorScaleMapping'),
+        selectColorScaleRange: document.getElementById('selectColorScaleRange'),
+        editColorScaleMinValue: document.getElementById('editColorScaleMinValue'),
+        editColorScaleMaxValue: document.getElementById('editColorScaleMaxValue'),
+        checkBoxCellFilter: document.getElementById("checkBoxCellFilter"),
+        editCellFilterMinValue: document.getElementById("editCellFilterMinValue"),
+        editCellFilterMaxValue: document.getElementById("editCellFilterMaxValue"),
+        checkBoxSeismicSliceInline: document.getElementById("sliceInlineCheckBox"),
+        checkBoxSeismicSliceCrossline: document.getElementById("sliceCrosslineCheckBox"),
+        checkBoxInterpolatedSurface: document.getElementById("interpolatedSurfaceCheckBox"),
+        sliderSeismicSliceInline: document.getElementById("sliceInlineSlider"),
+        sliderSeismicSliceCrossline: document.getElementById("sliceCrosslineSlider"),
+        sliderInterpolatedSurface: document.getElementById("interpolatedSurfaceSlider"),
+        editSeismicRangeMinValue: document.getElementById("seismicRangeMinValue"),
+        editSeismicRangeMaxValue: document.getElementById("seismicRangeMaxValue"),
+        sliderStillQuality: document.getElementById("sliderStillQuality"),
+        sliderInteractiveQuality: document.getElementById("sliderInteractiveQuality"),
+        sliderMaxFPS: document.getElementById("sliderMaxFPS")
+    };
+}
+
+function checkPropertyRadioButton(propertyId)
+{
+  // check radio button for current property
+  if(propertyId >= 0)
+  {
+    var derivedPropertyBaseId = 65536;
+    var index = propertyId;
+    if(propertyId >= derivedPropertyBaseId)
+    {
+      var derivedPropertyIndex = propertyId - derivedPropertyBaseId;
+      index = uiElements.propertyRadioButtons.length - 3 + derivedPropertyIndex;
+    }
+
+    uiElements.propertyRadioButtons[index].checked = true;
+  }
+}
 
 function sendMsg(msg)
 {
-    var msgStr = JSON.stringify(msg, null, 4);
-    
-    if(logMessages)
-	console.log(msgStr);
-    
-    theRenderArea.sendMessage(msgStr);
+  var msgStr = JSON.stringify(msg, null, 4);
+
+  if(logMessages)
+    console.log(msgStr);
+
+  theRenderArea.sendMessage(msgStr);
 }
 
 function showTab(index)
@@ -37,10 +130,11 @@ function showTab(index)
     tabs[1-index].className="tab";
 }
 
-function createCheckBoxDiv(name, objectId, checked, changedHandler)
+function createCheckBoxDiv(name, checkBoxId, objectId, checked, changedHandler)
 {
     var cb = document.createElement("input");
     cb.type="checkbox";
+    cb.id = checkBoxId;
     cb.name=name;
     cb.checked=checked;
     cb.style.marginLeft="20px";
@@ -81,7 +175,7 @@ function initFormations(names)
     var formationsDiv = document.getElementById("formationsList");
 
     for(var i=0; i < names.length; ++i)
-        formationsDiv.appendChild(createCheckBoxDiv(names[i], i, true, onFormationCheckBoxChanged));
+        formationsDiv.appendChild(createCheckBoxDiv(names[i], "formation_" + i, i, true, onFormationCheckBoxChanged));
 }
 
 function initSurfaces(names)
@@ -89,7 +183,7 @@ function initSurfaces(names)
     var surfacesDiv = document.getElementById("surfacesList");
 
     for(var i=0; i < names.length; ++i)
-        surfacesDiv.appendChild(createCheckBoxDiv(names[i], i, false, onSurfaceCheckBoxChanged));
+        surfacesDiv.appendChild(createCheckBoxDiv(names[i], "surface_" + i, i, false, onSurfaceCheckBoxChanged));
 }
 
 function initReservoirs(names)
@@ -97,7 +191,7 @@ function initReservoirs(names)
     var reservoirsDiv = document.getElementById("reservoirsList");
 
     for(var i=0; i < names.length; ++i)
-        reservoirsDiv.appendChild(createCheckBoxDiv(names[i], i, false, onReservoirCheckBoxChanged));
+        reservoirsDiv.appendChild(createCheckBoxDiv(names[i], "reservoir_" + i, i, false, onReservoirCheckBoxChanged));
 }
 
 function initFaults(collections)
@@ -115,7 +209,9 @@ function initFaults(collections)
         collDiv.appendChild(document.createTextNode(collection.name));
 
         for(var j=0; j < collection.faults.length; ++j)
-            collDiv.appendChild(createCheckBoxDiv(collection.faults[j], objectId++, false, onFaultCheckBoxChanged));
+            collDiv.appendChild(createCheckBoxDiv(collection.faults[j], "fault_" + objectId, objectId, false, onFaultCheckBoxChanged));
+
+        objectId++;
 
         collectionsDiv.appendChild(collDiv);
     }
@@ -126,7 +222,7 @@ function initFlowLines(names)
     var flowLinesDiv = document.getElementById("flowLinesList");
 
     for(var i=0; i < names.length; ++i)
-        flowLinesDiv.appendChild(createCheckBoxDiv(names[i], i, false, onFlowLinesCheckBoxChanged));
+        flowLinesDiv.appendChild(createCheckBoxDiv(names[i], "flowlines_" + i, i, false, onFlowLinesCheckBoxChanged));
 }
 
 function initProperties(names)
@@ -139,6 +235,22 @@ function initProperties(names)
 
     for(var i=0; i < names.length; ++i)
         propertiesList.appendChild(createRadioButtonDiv("properties", names[i], i, onPropertyRadioButtonClicked));
+
+    var derivedPropertyBaseId = 65536;
+    var derivedProperties =
+    [
+      "FormationId",
+      "PersistentTrapId",
+      "FluidContacts"
+    ];
+
+    for(var i=0; i < derivedProperties.length; ++i)
+      propertiesList.appendChild(
+        createRadioButtonDiv(
+          "properties",
+          derivedProperties[i],
+          derivedPropertyBaseId + i,
+          onPropertyRadioButtonClicked));
 }
 
 function initUI(projectInfo)
@@ -150,12 +262,14 @@ function initUI(projectInfo)
     initFlowLines(projectInfo.flowLines);
     initProperties(projectInfo.properties);
 
-    var sliceI = document.getElementById("sliceISlider");
+    collectUIElements();
+
+    var sliceI = uiElements.sliceISlider;// document.getElementById("sliceISlider");
     sliceI.min = 0;
     sliceI.max = projectInfo.numI - 2;
     sliceI.step = 1;
 
-    var sliceJ = document.getElementById("sliceJSlider");
+    var sliceJ = uiElements.sliceJSlider;// document.getElementById("sliceJSlider");
     sliceJ.min = 0;
     sliceJ.max = projectInfo.numJ - 2;
     sliceJ.step = 1;
@@ -166,12 +280,110 @@ function initUI(projectInfo)
     timeSlider.step = 1;
     timeSlider.value = 0;
 
+    // seismic interpolated surface slider
+    var surfaceSlider = document.getElementById("interpolatedSurfaceSlider");
+    surfaceSlider.min = 0.0;
+    surfaceSlider.max = projectInfo.numK;
+
+    uiElements.sliderFlowLinesLeakageThreshold.maxPower = 9.0;
+    uiElements.sliderFlowLinesExpulsionThreshold.maxPower = 9.0;
     // Init JPEG quality
-    onQualitySliderChanged(document.getElementById("qualitySlider").valueAsNumber);
-    onInteractiveQualitySliderChanged(document.getElementById("iqualitySlider").valueAsNumber);
+    onQualitySliderChanged(uiElements.sliderStillQuality.valueAsNumber);
+    onInteractiveQualitySliderChanged(uiElements.sliderInteractiveQuality.valueAsNumber);
     // Init H264 quality
     //onBandwidthSliderChanged(document.getElementById("bandwidthSlider").valueAsNumber * 8192);
-    onMaxFPSSliderChanged(document.getElementById("maxfpsSlider").valueAsNumber);
+    onMaxFPSSliderChanged(uiElements.sliderMaxFPS.valueAsNumber);
+}
+
+function initSeismicUI(seismicInfo)
+{
+    var inlineSlider = document.getElementById("sliceInlineSlider");
+    inlineSlider.min = seismicInfo.extent.min[1];
+    inlineSlider.max = seismicInfo.extent.max[1];
+
+    var crosslineSlider = document.getElementById("sliceCrosslineSlider");
+    crosslineSlider.min = seismicInfo.extent.min[2];
+    crosslineSlider.max = seismicInfo.extent.max[2];
+}
+
+function setExponentialSliderValue(elem, value)
+{
+  elem.value = elem.max * Math.log10(value) / elem.maxPower;
+}
+
+function initViewState(viewState)
+{
+    for(var i=0; i < uiElements.formationCheckBoxes.length; ++i)
+        uiElements.formationCheckBoxes[i].checked = viewState.formationVisibility[i];
+
+    for(var i=0; i < uiElements.surfaceCheckBoxes.length; ++i)
+        uiElements.surfaceCheckBoxes[i].checked = viewState.surfaceVisibility[i];
+
+    for(var i=0; i < uiElements.reservoirCheckBoxes.length; ++i)
+        uiElements.reservoirCheckBoxes[i].checked = viewState.reservoirVisibility[i];
+
+    uiElements.timeSlider.value = viewState.snapshotIndex;
+
+    checkPropertyRadioButton(viewState.propertyId);
+
+    uiElements.checkBoxDrawTraps.checked = viewState.showTraps;
+    uiElements.checkBoxDrawTrapOutlines.checked = viewState.showTrapOutlines;
+
+    switch(viewState.drainageAreaType)
+    {
+      case 0: uiElements.radioButtonDrainageAreaNone.checked = true; break;
+      case 1: uiElements.radioButtonDrainageAreaFluid.checked = true; break;
+      case 2: uiElements.radioButtonDrainageAreaGas.checked = true; break;
+    }
+
+    uiElements.sliderFlowLinesExpulsionStep.value = viewState.flowLinesExpulsionStep;
+    setExponentialSliderValue(uiElements.sliderFlowLinesExpulsionThreshold, viewState.flowLinesExpulsionThreshold);
+    uiElements.sliderFlowLinesLeakageStep.value = viewState.flowLinesLeakageStep;
+    setExponentialSliderValue(uiElements.sliderFlowLinesLeakageThreshold, viewState.flowLinesLeakageThreshold);
+
+    uiElements.sliderVerticalScale.value = viewState.verticalScale;
+    uiElements.sliderTransparency.value = viewState.transparency * uiElements.sliderTransparency.max;
+
+    uiElements.checkBoxDrawFaces.checked = viewState.showFaces;
+    uiElements.checkBoxDrawEdges.checked = viewState.showEdges;
+    uiElements.checkBoxDrawGrid.checked = viewState.showGrid;
+    uiElements.checkBoxDrawCompass.checked = viewState.showCompass;
+    uiElements.checkBoxDrawText.checked = viewState.showText;
+
+    uiElements.sliceICheckBox.checked = viewState.sliceEnabled[0];
+    uiElements.sliceJCheckBox.checked = viewState.sliceEnabled[1];
+    uiElements.sliceISlider.value = viewState.slicePosition[0];
+    uiElements.sliceJSlider.value = viewState.slicePosition[1];
+
+    for(var i=0; i < viewState.fences.length; ++i)
+      addFenceEntry(viewState.fences[i].id, viewState.fences[i].visible);
+
+    uiElements.selectColorScaleMapping.selectedIndex = viewState.colorScaleMapping;
+    uiElements.selectColorScaleRange.selectedIndex = viewState.colorScaleRange;
+    uiElements.editColorScaleMinValue.value = viewState.colorScaleMinValue;
+    uiElements.editColorScaleMaxValue.value = viewState.colorScaleMaxValue;
+
+    uiElements.checkBoxCellFilter.checked = viewState.cellFilterEnabled;
+    uiElements.editCellFilterMinValue.value = viewState.cellFilterMinValue;
+    uiElements.editCellFilterMaxValue.value = viewState.cellFilterMaxValue;
+}
+
+function initSeismicState(seismicState)
+{
+    uiElements.checkBoxSeismicSliceInline.checked = seismicState.seismicInlineSliceEnabled;
+    uiElements.checkBoxSeismicSliceCrossline.checked = seismicState.seismicCrosslineSliceEnabled;
+    uiElements.checkBoxInterpolatedSurface.checked = seismicState.seismicInterpolatedSurfaceEnabled;
+    uiElements.sliderSeismicSliceInline.value = seismicState.seismicInlineSlicePosition;
+    uiElements.sliderSeismicSliceCrossline.value = seismicState.seismicCrosslineSlicePosition;
+    uiElements.sliderInterpolatedSurface.value = seismicState.seismicInterpolatedSurfacePosition;
+    uiElements.editSeismicRangeMinValue.value = seismicState.seismicDataRangeMinValue;
+    uiElements.editSeismicRangeMaxValue.value = seismicState.seismicDataRangeMaxValue;
+}
+
+function initAreaState(areaState)
+{
+    uiElements.sliderStillQuality.value = areaState.stillQuality;
+    uiElements.sliderInteractiveQuality.value = areaState.interactiveQuality;
 }
 
 function onCheckBoxAllFormationsChanged(elem)
@@ -264,10 +476,10 @@ function onFormationCheckBoxChanged(elem, objectId)
     console.log("formation " + elem.name + " enabled = " + elem.checked);
 
     var msg = {
-            cmd: "EnableFormation", 
+            cmd: "EnableFormation",
             params: {
                 formationId: objectId,
-                enabled: elem.checked 
+                enabled: elem.checked
             }
         };
 
@@ -279,10 +491,10 @@ function onSurfaceCheckBoxChanged(elem, objectId)
     console.log("surface " + elem.name + " enabled = " + elem.checked);
 
     var msg = {
-            cmd: "EnableSurface", 
+            cmd: "EnableSurface",
             params: {
                 surfaceId: objectId,
-                enabled: elem.checked 
+                enabled: elem.checked
             }
         };
 
@@ -337,10 +549,10 @@ function onFenceCheckBoxChanged(elem, objectId)
     console.log("fence " + elem.name + " enabled = " + elem.checked);
 
     var msg = {
-            cmd: "EnableFence", 
+            cmd: "EnableFence",
             params: {
                 fenceId: objectId,
-                enabled: elem.checked 
+                enabled: elem.checked
             }
         };
 
@@ -396,8 +608,8 @@ function onFlowLinesThresholdSliderChanged(elem)
         ? "FlowLinesLeakage"
         : "FlowLinesExpulsion";
 
-    var maxPower = 9.0;
-    var thresholdVal = Math.pow(10, maxPower * .01 * elem.valueAsNumber);
+    var power = (elem.maxPower * elem.valueAsNumber) / elem.max;
+    var thresholdVal = Math.pow(10, power);
 
     var msg = {
         cmd: "SetFlowLinesThreshold",
@@ -407,7 +619,7 @@ function onFlowLinesThresholdSliderChanged(elem)
         }
     }
 
-    theRenderArea.sendMessage(JSON.stringify(msg));
+    sendMsg(msg);
 }
 
 function onDrainageAreaRadioClicked(elem)
@@ -569,24 +781,10 @@ function onShowTrapOutlinesChanged(elem)
     sendMsg(msg);
 }
 
-function onShowFluidContactsChanged(elem)
-{
-    var showContacts = elem.checked;
-
-    var msg = {
-        cmd: "ShowFluidContacts",
-        params: {
-            show: showContacts
-        }
-    }
-
-    sendMsg(msg);
-}
-
 function onPerspectiveChanged(elem)
 {
-    var projection = elem.checked 
-        ? "Perspective" 
+    var projection = elem.checked
+        ? "Perspective"
         : "Orthographic";
 
     var msg = {
@@ -605,7 +803,7 @@ function onTimeSliderChanged(elem)
 
     var msg = {
         cmd: "SetCurrentSnapshot",
-        params: { 
+        params: {
             index: elem.valueAsNumber
         }
     }
@@ -742,9 +940,9 @@ function onMaxFPSSliderChanged(value)
 
 function resizeCanvas()
 {
-    var w = window.innerWidth - leftMargin;
-    var h = window.innerHeight - bottomMargin;
-    theRenderArea.requestRenderAreaSize(w, h);
+    var w = canvasDiv.clientWidth;
+    var h = canvasDiv.clientHeight;
+    //theRenderArea.requestRenderAreaSize(w, h);
     theRenderArea.resizeRenderAreaContainer(w, h);
 }
 
@@ -772,24 +970,384 @@ function logPickResult(pickResult)
     if(pickResult.type == "trap")
         console.log("Picked trap id = " + pickResult.trapID);
     else
-        console.log("Picked " + pickResult.type + " \"" + pickResult.name 
+        console.log("Picked " + pickResult.type + " \"" + pickResult.name
             + "\" [" + pickResult.i + ", " + pickResult.j + ", " + pickResult.k + "] "
             + "property value " + pickResult.propertyValue);
 }
 
-function onFenceAdded(fenceId)
+function addFenceEntry(fenceId, visible)
 {
-    var fencesDiv = document.getElementById("fences");
-    var name = "Fence " + fenceId;
+  var fencesDiv = document.getElementById("fences");
+  var name = "Fence " + fenceId;
+  var id = "fence_" + fenceId;
+  var div = createCheckBoxDiv(name, id, fenceId, visible, onFenceCheckBoxChanged);
+  fencesDiv.appendChild(div);
 
-    fencesDiv.appendChild(
-        createCheckBoxDiv(name, fenceId, true, onFenceCheckBoxChanged));
+  // retrieve the checkbox inside the div
+  uiElements.fenceCheckBoxes[fenceId] = document.getElementById(id);
 }
+
+// -----------------------------------------------------------------------------
+// Events
+// -----------------------------------------------------------------------------
+var eventHandler = {
+
+  fenceAdded: function(params)
+  {
+    addFenceEntry(params.fenceId, true);
+  },
+
+    pointPicked: function(params)
+{
+    logPickResult(params.pickResult);
+},
+
+    projectLoaded: function(params)
+{
+    theRenderArea.projectInfo = params.projectInfo;
+    initUI(params.projectInfo);
+
+    if(params.seismicInfo)
+{
+    initSeismicUI(params.seismicInfo);
+    initSeismicState(params.seismicState);
+}
+    initViewState(params.viewState);
+    initAreaState(params.areaState);
+
+    uiElements.checkBoxPerspective.checked = (params.projection === "perspective");
+},
+
+  connectionCountChanged: function(params)
+  {
+      var title = "BPA 4D Viewer";
+
+      if(params.count > 1)
+          title += " (" + params.count + ")";
+
+      document.title = title;
+   },
+
+  formationEnabled: function(params)
+  {
+    uiElements.formationCheckBoxes[params.formationId].checked = params.enabled;
+  },
+
+  allFormationsEnabled: function(params)
+  {
+    for(var i=0; i < uiElements.formationCheckBoxes.length; ++i)
+      uiElements.formationCheckBoxes[i].checked = params.enabled;
+
+    uiElements.checkBoxAllFormations.checked = params.enabled;
+  },
+
+  surfaceEnabled: function(params)
+  {
+    uiElements.surfaceCheckBoxes[params.surfaceId].checked = params.enabled;
+  },
+
+  allSurfacesEnabled: function(params)
+  {
+    for(var i=0; i < uiElements.surfaceCheckBoxes.length; ++i)
+      uiElements.surfaceCheckBoxes[i].checked = params.enabled;
+
+    uiElements.checkBoxAllSurfaces.checked = params.enabled;
+  },
+
+  reservoirEnabled: function(params)
+  {
+    uiElements.reservoirCheckBoxes[params.reservoirId].checked = params.enabled;
+  },
+
+  allReservoirsEnabled: function(params)
+  {
+    for(var i=0; i < uiElements.reservoirCheckBoxes.length; ++i)
+      uiElements.reservoirCheckBoxes[i].checked = params.enabled;
+
+    uiElements.checkBoxAllReservoirs.checked = params.enabled;
+  },
+
+  faultEnabled: function(params)
+  {
+    uiElements.faultCheckBoxes[params.faultId].checked = params.enabled;
+  },
+
+  allFaultsEnabled: function(params)
+  {
+    for(var i=0; i < uiElements.faultCheckBoxes.length; ++i)
+      uiElements.faultCheckBoxes[i].checked = params.enabled;
+
+    uiElements.checkBoxAllFaults.checked = params.enabled;
+  },
+
+  flowLinesEnabled: function(params)
+  {
+    uiElements.flowLinesCheckBoxes[params.flowLinesId].checked = params.enabled;
+  },
+
+  allFlowLinesEnabled: function(params)
+  {
+    for(var i=0; i < uiElements.flowLinesCheckBoxes.length; ++i)
+      uiElements.flowLinesCheckBoxes[i].checked = params.enabled;
+
+    uiElements.checkBoxAllFlowLines.checked = params.enabled;
+  },
+
+  sliceEnabled: function(params)
+  {
+    var checkboxes = [
+      uiElements.sliceICheckBox,
+      uiElements.sliceJCheckBox
+    ];
+
+    checkboxes[params.slice].checked = params.enabled;
+  },
+
+  slicePositionChanged: function(params)
+  {
+    var sliders = [
+      uiElements.sliceISlider,
+      uiElements.sliceJSlider
+    ];
+
+    sliders[params.slice].value = params.position;
+  },
+
+  fenceEnabled: function(params)
+  {
+    uiElements.fenceCheckBoxes[params.fenceId].checked = params.enabled;
+  },
+
+  currentPropertyChanged: function(params)
+  {
+    checkPropertyRadioButton(params.propertyId);
+  },
+
+  verticalScaleChanged: function(params)
+  {
+    uiElements.sliderVerticalScale.value = params.scale;
+  },
+
+  transparencyChanged: function(params)
+  {
+    uiElements.sliderTransparency.value =
+      params.transparency * uiElements.sliderTransparency.max;
+  },
+
+  renderStyleChanged: function(params)
+  {
+    uiElements.checkBoxDrawFaces.checked = params.drawFaces;
+    uiElements.checkBoxDrawEdges.checked = params.drawEdges;
+  },
+
+  coordinateGridEnabled: function(params)
+  {
+    uiElements.checkBoxDrawGrid.checked = params.show;
+  },
+
+  compassEnabled: function(params)
+  {
+    uiElements.checkBoxDrawCompass.checked = params.show;
+  },
+
+  textEnabled: function(params)
+  {
+    uiElements.checkBoxDrawText.checked = params.show;
+  },
+
+  trapsEnabled: function(params)
+  {
+    uiElements.checkBoxDrawTraps.checked = params.show;
+  },
+
+  trapOutlinesEnabled: function(params)
+  {
+    uiElements.checkBoxDrawTrapOutlines.checked = params.show;
+  },
+
+  flowLinesStepChanged: function(params)
+  {
+    var slider = (params.type === "FlowLinesExpulsion")
+      ? uiElements.sliderFlowLinesExpulsionStep
+      : uiElements.sliderFlowLinesLeakageStep;
+
+    slider.value = params.step;
+  },
+
+  flowLinesThresholdChanged: function(params)
+  {
+    var slider = (params.type === "FlowLinesExpulsion")
+      ? uiElements.sliderFlowLinesExpulsionThreshold
+      : uiElements.sliderFlowLinesLeakageThreshold;
+
+    setExponentialSliderValue(slider, params.threshold);
+  },
+
+  drainageAreaOutlinesEnabled: function(params)
+  {
+    if(params.type === "DrainageAreaFluid")
+      uiElements.radioButtonDrainageAreaFluid.checked = true;
+    else if(params.type === "DrainageAreaGas")
+      uiElements.radioButtonDrainageAreaGas.checked = true;
+    else
+      uiElements.radioButtonDrainageAreaNone.checked = true;
+  },
+
+  projectionChanged: function(params)
+  {
+    uiElements.checkBoxPerspective.checked = (params.type === "Perspective");
+  },
+
+  currentSnapshotChanged: function(params)
+  {
+    uiElements.timeSlider.value = params.index;
+  },
+
+  colorScaleParamsChanged: function(params)
+  {
+    uiElements.selectColorScaleMapping.selectedIndex =
+      (params.mapping == "linear") ? 0 : 1;
+    uiElements.selectColorScaleRange.selectedIndex =
+      (params.range == "auto") ? 0 : 1;
+
+    uiElements.editColorScaleMinValue.value = params.minval;
+    uiElements.editColorScaleMaxValue.value = params.maxval;
+  },
+
+  cellFilterEnabled: function(params)
+  {
+    uiElements.checkBoxCellFilter.checked = params.enabled;
+  },
+
+  cellFilterRangeChanged: function(params)
+  {
+    uiElements.editCellFilterMinValue.value = params.minval;
+    uiElements.editCellFilterMaxValue.value = params.maxval;
+  },
+
+  seismicSliceEnabled: function(params)
+  {
+    var checkboxes = [
+      uiElements.checkBoxSeismicSliceInline,
+      uiElements.checkBoxSeismicSliceCrossline
+    ];
+
+    checkboxes[params.index].checked = params.enabled;
+  },
+
+  seismicSlicePositionChanged: function(params)
+  {
+    var sliders = [
+      uiElements.sliderSeismicSliceInline,
+      uiElements.sliderSeismicSliceCrossline
+    ];
+
+    sliders[params.index].value = params.position;
+  },
+
+  interpolatedSurfaceEnabled: function(params)
+  {
+    uiElements.checkBoxInterpolatedSurface.checked = params.enabled;
+  },
+
+  interpolatedSurfacePositionChanged: function(params)
+  {
+    uiElements.sliderInterpolatedSurface.value = params.position;
+  },
+
+  seismicDataRangeChanged: function(params)
+  {
+    uiElements.editSeismicRangeMinValue.value = params.minValue;
+    uiElements.editSeismicRangeMaxValue.value = params.maxValue;
+  },
+
+  stillQualityChanged: function(params)
+  {
+    uiElements.sliderStillQuality.value = params.quality;
+  },
+
+  interactiveQualityChanged: function(params)
+  {
+    uiElements.sliderInteractiveQuality.value = params.quality;
+  }
+};
 
 function handleEvent(e)
 {
-    if(e.type == "fenceAdded")
-        onFenceAdded(e.params.fenceId);
+  if(eventHandler[e.type])
+    eventHandler[e.type](e.params);
+  else
+    console.log("unknown event: " + e.type);
+}
+
+function onSeismicSlicePositionChanged(index, elem)
+{
+    console.log("seismic slice " + index + " position = " + elem.value);
+
+    var msg = {
+        cmd: "SetSeismicSlicePosition",
+        params: {
+            index: index,
+            position: elem.valueAsNumber
+        }
+    };
+
+    sendMsg(msg);
+}
+
+function onSeismicSliceCheckBoxChanged(index, elem)
+{
+    console.log("seismic slice " + index + " enabled = " + elem.checked);
+
+    var msg = {
+        cmd: "EnableSeismicSlice",
+        params: {
+            index: index,
+            enabled: elem.checked
+        }
+    }
+
+    sendMsg(msg);
+}
+
+function onInterpolatedSurfaceCheckBoxChanged(elem)
+{
+    var msg = {
+        cmd: "EnableInterpolatedSurface",
+        params: {
+            enabled: elem.checked
+        }
+    }
+
+    sendMsg(msg);
+}
+
+function onInterpolatedSurfacePositionChanged(elem)
+{
+    var msg = {
+        cmd: "SetInterpolatedSurfacePosition",
+        params: {
+            position: elem.valueAsNumber
+        }
+    }
+
+    sendMsg(msg);
+}
+
+function onSeismicRangeChanged()
+{
+    var minValue = parseFloat(uiElements.editSeismicRangeMinValue.value);
+    var maxValue = parseFloat(uiElements.editSeismicRangeMaxValue.value);
+
+    var msg = {
+        cmd: "SetSeismicDataRange",
+        params: {
+            minValue: minValue,
+            maxValue: maxValue
+        }
+    }
+
+    sendMsg(msg);
 }
 
 function receivedMessage(message)
@@ -798,17 +1356,7 @@ function receivedMessage(message)
     	console.log(message);
 
     var msgObj = JSON.parse(message);
-    if(msgObj.projectInfo)
-    {
-    	theRenderArea.projectInfo = msgObj.projectInfo;
-        initUI(msgObj.projectInfo);
-    }
-    else if(msgObj.pickResult)
-    {
-        logPickResult(msgObj.pickResult);
-    }
-    else if(msgObj.event)
-    {
+    if (msgObj.event) {
         handleEvent(msgObj.event);
     }
 }
@@ -824,7 +1372,7 @@ function measurebandwithandfps()
 
 function generateGUID()
 {
-    var guid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) 
+    var guid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c)
 	{
 	    var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
 	    return v.toString(16);
@@ -870,8 +1418,9 @@ function websocketURL()
     return url;
 }
 
-function init() 
-{ 
+function init()
+{
+    canvasDiv = document.getElementById("CanvasDiv");
     window.canvas = document.getElementById("TheCanvas");
     window.canvas.addEventListener("click", function(event)
     {
@@ -889,19 +1438,18 @@ function init()
         sendMsg(msg);
     });
 
-    //$(window).resize(onWindowResize);
+    window.onresize = resizeCanvas;//onWindowResize;
 
-    // This function is called immediately after the page is loaded. Initialization of 
-    // the renderArea. "TheCanvas" refers to the id of the canvas. 
-    theRenderArea = new RemoteVizRenderArea(
-        "TheCanvas",
-    	window.innerWidth - leftMargin, 
-    	window.innerHeight - bottomMargin);
+    var containerWidth  = canvasDiv.clientWidth;
+    var containerHeight = canvasDiv.clientHeight;
 
+    // This function is called immediately after the page is loaded. Initialization of
+    // the renderArea. "TheCanvas" refers to the id of the canvas.
+    theRenderArea = new RemoteVizRenderArea("TheCanvas", containerWidth, containerHeight);
     theRenderArea.addReceivedImageListener(receivedImage);
     theRenderArea.addMessageListener(receivedMessage);
 
-    // Connects to the service. The IP address and the port refer to those of the service 
+    // Connects to the service. The IP address and the port refer to those of the service
     // (see main.cpp). "Model" refers to the name of the requested renderArea.
     var url = websocketURL();// + generateGUID();
     theRenderArea.connectTo(url);
@@ -911,51 +1459,4 @@ function init()
 
     // Calls a function or executes a code snippet repeatedly to refresh the bandwidth and the fps
     window.setInterval("measurebandwithandfps()",1000);
-    //node = document.getElementById('bandwidthfps');
-}
-
-function cwidth(){
-    // call when changing the canvas width
-    if ($("#cwidth").val() != ""){
-	document.getElementById("TheCanvas").style.width = $("#cwidth").val();
-	theRenderArea.resizeRenderAreaContainer($("#cwidth").val(), $("#cheight").val());
-    }
-}
-
-function cheight(){
-    // call when changing the canvas height
-    if ($("#cheight").val() != ""){
-	document.getElementById("TheCanvas").style.height = $("#cheight").val();
-	theRenderArea.resizeRenderAreaContainer($("#cwidth").val(), $("#cheight").val());
-    }
-}
-
-function rwidth(){
-    // call when changing the renderArea width
-    if ($("#rwidth").val() != "")
-    {
-        var msg = {
-            cmd: "SetWidth",
-            params: {
-                width: $("#rwidth").val()
-            }
-        }
-
-	   sendMsg(msg);
-    }
-}
-
-function rheight(){
-    // call when changing the renderArea height
-    if ($("#rheight").val() != "")
-    {
-        var msg = {
-            cmd: "SetHeight",
-            params: {
-                height: $("#rheight").val()
-            }
-        }
-	   
-        sendMsg(msg);
-    }
 }

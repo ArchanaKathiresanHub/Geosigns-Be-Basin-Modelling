@@ -2,24 +2,9 @@
 #include <unistd.h>
 #endif
 #include <assert.h>
-
-#ifdef sgi
-   #ifdef _STANDARD_C_PLUS_PLUS
-      #include<iostream>
-      #include <sstream>
-      using namespace std;
-      #define USESTANDARD
-   #else // !_STANDARD_C_PLUS_PLUS
-      #include<iostream.h>
-      #include<strstream.h>
-   #endif // _STANDARD_C_PLUS_PLUS
-#else // !sgi
-   #include <iostream>
-   #include <sstream>
-   using namespace std;
-   #define USESTANDARD
-#endif // sgi
-
+#include <iostream>
+#include <sstream>
+using namespace std;
 
 #include <string>
 using namespace std;
@@ -536,11 +521,7 @@ void InputValue::printOn (ostream & ostr) const
 
 void InputValue::asString (string & str) const
 {
-#ifdef USESTANDARD
    ostringstream buf;
-#else
-   strstream buf;
-#endif
 
    buf << "MappedInputValue:";
    buf << " ReferredBy = " << getReferredBy (m_record);
@@ -553,9 +534,6 @@ void InputValue::asString (string & str) const
    buf << endl;
 
    str = buf.str ();
-#ifndef USESTANDARD
-   buf.rdbuf ()->freeze (0);
-#endif
 }
 
 static bool copyFile (const string & inputFileName, const string & outputFileName)

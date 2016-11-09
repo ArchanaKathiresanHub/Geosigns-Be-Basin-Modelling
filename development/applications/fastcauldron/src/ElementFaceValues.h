@@ -29,33 +29,17 @@ public :
    /// \brief Multiply the face values by a scalar.
    ElementFaceValues& operator*=( const double scalar );
 
+   /// \brief Sum of all values greater than 0.
+   double sumGt0() const;
+
    /// \brief Set all entries to zero.
    void zero ();
-
-   /// Return the string representation of the element-face-values.
-   std::string image () const;
-
-   /// \brief Sum all values.
-   double sum () const;
-
-   /// \brief Sum abs of all values.
-   double sumAbs () const;
-
-   /// \brief Sum of all values greater than 0.
-   double sumGt0 () const;
-
-   /// \brief Sum of all values less than 0.
-   double sumLt0 () const;
 
 private :
 
    double m_values [ NumberOfFaces ];
 
 };
-
-ElementFaceValues operator+( const ElementFaceValues& left, const ElementFaceValues& right );
-
-ElementFaceValues operator-( const ElementFaceValues& left, const ElementFaceValues& right );
 
 
 typedef PetscBlockVector<ElementFaceValues> ElementFaceValueVector;

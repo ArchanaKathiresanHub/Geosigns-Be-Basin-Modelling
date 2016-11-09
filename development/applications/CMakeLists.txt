@@ -11,6 +11,7 @@
 #########################################################################
 
 if (BM_BUILD_SERIAL_APPS)
+   add_subdirectory(anonymizer)
 	add_subdirectory(eosptdiag)
 	add_subdirectory(EosPackDemo)
 	add_subdirectory(track1d)
@@ -19,6 +20,10 @@ if (BM_BUILD_SERIAL_APPS)
 	add_subdirectory(prograde)
    add_subdirectory(projdiff)
 endif (BM_BUILD_SERIAL_APPS)
+
+if (BM_BUILD_4DVIEWER)
+   add_subdirectory(4DViewer)
+endif (BM_BUILD_4DVIEWER)
 
 # Applications that can only be built on Unix at the moment.
 if (UNIX)
@@ -29,7 +34,8 @@ if (UNIX)
 		add_subdirectory(fastctc)
 		add_subdirectory(fastproperties)
 		add_subdirectory(TsLibDemo)
-        add_subdirectory(fasttouch7)
+		add_subdirectory(fasttouch7)
+		add_subdirectory(fastdepthcalibration)
 	endif()
 	if (BM_BUILD_SERIAL_APPS)
 		add_subdirectory(upcauldron)
@@ -61,8 +67,8 @@ else ()
    add_subdirectory(fastproperties)
    add_subdirectory(hpc)
    add_subdirectory(tracktraps)
-   add_subdirectory(4DViewer)
    add_subdirectory(VisualizationIO_conversion)
+   add_subdirectory(fastdepthcalibration)
 endif ()
 
 # Local Variables:

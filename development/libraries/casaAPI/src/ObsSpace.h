@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2012-2014 Shell International Exploration & Production.
+// Copyright (C) 2012-2016 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -39,6 +39,10 @@ namespace casa
       /// @brief Get number of observables defined in ObsSpace
       /// @return total number of observables in set
       virtual size_t size() const = 0;
+
+      /// @brief Dimension of observables space
+      /// @return total observables space dimension
+      virtual size_t dimension() const = 0;
 
       /// @brief Get i-th observable
       /// @param i observable number

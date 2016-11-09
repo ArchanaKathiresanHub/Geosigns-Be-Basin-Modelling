@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
 //------------------------------------------------------------//
 
 #include "element_contributions.h"
@@ -6,7 +15,7 @@
 
 #include "BasisFunction.h"
 #include "FiniteElement.h"
-#include "globaldefs.h"
+#include "ConstantsFastcauldron.h"
 #include "utils.h"
 #include "Lithology.h"
 #include "PVTCalculator.h"
@@ -21,6 +30,17 @@
 //------------------------------------------------------------//
 
 #include "Lithology.h"
+
+//------------------------------------------------------------//
+
+#include "ConstantsMathematics.h"
+using Utilities::Maths::MegaPaToPa;
+using Utilities::Maths::PaToMegaPa;
+using Utilities::Maths::MilliDarcyToM2;
+using Utilities::Maths::YearToSecond;
+using Utilities::Maths::MillionYearToSecond;
+#include "ConstantsNumerical.h"
+using Utilities::Numerical::CauldronNoDataValue;
 
 using namespace FiniteElementMethod;
 
@@ -195,10 +215,10 @@ void Basin_Modelling::computeFluidMobilityTerms ( const bool                Has_
    setTensor ( Permeability_Normal, Permeability_Plane, Jacobian, Fluid_Mobility );
    matrixVectorProduct ( Fluid_Mobility, gradOverpressure, Fluid_Velocity );
 
-   // Need to scale the Fluid Velocity by MPa_To_Pa here, because the overpressure value
-   // has been scaled by Pa_To_MPa for the fluid_density function (because it is a function
+   // Need to scale the Fluid Velocity by MegaPaToPa here, because the overpressure value
+   // has been scaled by PaToMegaPa for the fluid_density function (because it is a function
    // of pressure in MPa)
-   Fluid_Velocity *= MPa_To_Pa;
+   Fluid_Velocity *= MegaPaToPa;
 }
 
 //------------------------------------------------------------//
@@ -239,7 +259,7 @@ void Basin_Modelling::computeFluidFlux ( const bool               imposeFluxLimi
   /// This limits the permeability to be within a reasonable range. The soil mechanics sandstone
   /// has a particularly high permeability 10^8.6 milli-Darcy (almost 6 orders of magnitude higher
   /// than the standard exponential sandstone, for example).
-  const double MaximumPermeability = 10.0 * MILLIDARCYTOM2;
+  const double MaximumPermeability = 10.0 * MilliDarcyToM2;
 
   double permeabilityNormal;
   double permeabilityPlane;
@@ -275,9 +295,9 @@ void Basin_Modelling::computeFluidFlux ( const bool               imposeFluxLimi
   matrixVectorProduct ( permeabilityTensor, gradOverpressure, fluidFlux );
 
   // Since pressure properties are stored in MPa units, we must convert to Pa to use in calculation.
-  fluidFlux ( 1 ) = -fluidFlux ( 1 ) * MPa_To_Pa;
-  fluidFlux ( 2 ) = -fluidFlux ( 2 ) * MPa_To_Pa;
-  fluidFlux ( 3 ) = -fluidFlux ( 3 ) * MPa_To_Pa;
+  fluidFlux ( 1 ) = -fluidFlux ( 1 ) * MegaPaToPa;
+  fluidFlux ( 2 ) = -fluidFlux ( 2 ) * MegaPaToPa;
+  fluidFlux ( 3 ) = -fluidFlux ( 3 ) * MegaPaToPa;
 
   // Limit the fluid flux to some maximum value, if requested.
   if ( imposeFluxLimit ) {
@@ -383,9 +403,9 @@ void Basin_Modelling::computeFluidVelocity
     //
     // This is only temporary until I sort out the whole degenerate segment thing!
     //
-    fluidVelocity ( 1 ) = CAULDRONIBSNULLVALUE;
-    fluidVelocity ( 2 ) = CAULDRONIBSNULLVALUE;
-    fluidVelocity ( 3 ) = CAULDRONIBSNULLVALUE;
+    fluidVelocity ( 1 ) = CauldronNoDataValue;
+    fluidVelocity ( 2 ) = CauldronNoDataValue;
+    fluidVelocity ( 3 ) = CauldronNoDataValue;
     return;
   } else if ( fluid == 0 or lithology->surfacePorosity () == 0.0 ) {
     fluidVelocity ( 1 ) = 0.0;
@@ -404,14 +424,14 @@ void Basin_Modelling::computeFluidVelocity
   VES         = FiniteElementMethod::innerProduct ( currentElementVES, basis );
   maxVES      = FiniteElementMethod::innerProduct ( currentElementMaxVES, basis );
   chemicalCompactionTerm = FiniteElementMethod::innerProduct ( currentElementChemicalCompaction, basis );
-  hydrostaticPressure    = FiniteElementMethod::innerProduct ( currentElementPh,  basis ) * MPa_To_Pa;;
-  overpressure           = FiniteElementMethod::innerProduct ( currentElementPo, basis  ) * MPa_To_Pa;
+  hydrostaticPressure    = FiniteElementMethod::innerProduct ( currentElementPh,  basis ) * MegaPaToPa;;
+  overpressure           = FiniteElementMethod::innerProduct ( currentElementPo, basis  ) * MegaPaToPa;
 
   lithology->getPorosity ( VES, maxVES, includeChemicalCompaction, chemicalCompactionTerm, currentCompoundPorosity );
   porosity = currentCompoundPorosity.mixedProperty ();
  
 
-  porePressure = ( overpressure + hydrostaticPressure ) * Pa_To_MPa;
+  porePressure = ( overpressure + hydrostaticPressure ) * PaToMegaPa;
   fluidViscosity = fluid->viscosity ( temperature, porePressure );
   relativePermeability = fluid->relativePermeability ( temperature, porePressure ) * currentElementRelativePermeability;
 
@@ -437,10 +457,10 @@ void Basin_Modelling::computeFluidVelocity
                      fluidFlux );
 
   // Convert to mm/year.
-  fluidVelocity ( 1 ) =  1000.0 * SecondsPerYear * fluidFlux ( 1 ) / porosity;
-  fluidVelocity ( 2 ) =  1000.0 * SecondsPerYear * fluidFlux ( 2 ) / porosity;
+  fluidVelocity ( 1 ) =  1000.0 * YearToSecond * fluidFlux ( 1 ) / porosity;
+  fluidVelocity ( 2 ) =  1000.0 * YearToSecond * fluidFlux ( 2 ) / porosity;
   // +ve to represent upwards, so scale by -1
-  fluidVelocity ( 3 ) = -1000.0 * SecondsPerYear * fluidFlux ( 3 ) / porosity;
+  fluidVelocity ( 3 ) = -1000.0 * YearToSecond * fluidFlux ( 3 ) / porosity;
 
 }
 
@@ -527,9 +547,9 @@ void Basin_Modelling::computeHeatFlow
     //
     // This is only temporary until I sort out the whole degenerate segment thing!
     //
-    heatFlow ( 1 ) = CAULDRONIBSNULLVALUE;
-    heatFlow ( 2 ) = CAULDRONIBSNULLVALUE;
-    heatFlow ( 3 ) = CAULDRONIBSNULLVALUE;
+    heatFlow ( 1 ) = CauldronNoDataValue;
+    heatFlow ( 2 ) = CauldronNoDataValue;
+    heatFlow ( 3 ) = CauldronNoDataValue;
     return;
   }
 
@@ -682,7 +702,7 @@ void Basin_Modelling::assembleElementTemperatureResidual ( const bool           
   if ( timeStep == 0.0 ) {
     timeStepInv  = 0.0;
   } else {
-    timeStepInv  = 1.0 / ( timeStep * Secs_IN_MA );
+    timeStepInv  = 1.0 / ( timeStep * MillionYearToSecond );
   } 
 
   NumericFunctions::Quadrature::QuadratureArray X_Quadrature_Points;
@@ -970,7 +990,7 @@ void Basin_Modelling::assembleElementTemperatureStiffnessMatrix ( const bool    
   if ( timeStep == 0.0 ) {
     timeStepInv  = 0.0;
   } else {
-    timeStepInv  = 1.0 / ( timeStep * Secs_IN_MA );
+    timeStepInv  = 1.0 / ( timeStep * MillionYearToSecond );
   } 
 
   NumericFunctions::Quadrature::QuadratureArray X_Quadrature_Points;
@@ -1129,8 +1149,6 @@ void Basin_Modelling::assembleElementTemperatureStiffnessMatrix ( const bool    
                                                  PreviousLithoPressure,
                                                  Previous_Bulk_Density_X_Capacity );
 
-        // Load_Terms = Current_Bulk_Density_X_Capacity * Previous_Temperature * timeStepInv;
-
         double t1 = Current_Bulk_Density_X_Capacity / ( 1.0 - Current_Porosity ) * ( Current_Porosity - Previous_Porosity );
         double t2 = ( 2.0 * Current_Bulk_Density_X_Capacity - Previous_Bulk_Density_X_Capacity );
         double t3 = Previous_Bulk_Density_X_Capacity * Previous_Temperature;
@@ -1277,7 +1295,7 @@ void Basin_Modelling::assembleElementPressureSystem ( const BasisFunctionCache& 
    const double Thickness_Tolerance = 1.0e-6;
 
    // Would it be better to multiply the equation by the delta t rather than divide by it?
-   const double timeStepInv = 1.0 / ( timeStep * Secs_IN_MA );
+   const double timeStepInv = 1.0 / ( timeStep * MillionYearToSecond );
 
    NumericFunctions::Quadrature::QuadratureArray X_Quadrature_Points;
    NumericFunctions::Quadrature::QuadratureArray X_Quadrature_Weights;
@@ -1328,23 +1346,20 @@ void Basin_Modelling::assembleElementPressureSystem ( const BasisFunctionCache& 
    const bool   Has_Fractured = ( fractureModel == Interface::NON_CONSERVATIVE_TOTAL ? false : ( fractureScaling > 0.0 ) );
 
    // For the ice sheet with Permafrost taking in account, we do not want to "compute" the overpressure in the ice lithology - we want to impose it.
+#if 0
+   // Remove #if 0 after release
    if ( isIceSheetLayer ) { 
-      cout << "WARNING NOT YET IMPLEMENTED " << endl;
+      applyDirichletBoundaryConditionsNewton ( bcs,
+                                               Dirichlet_Scaling_Value,
+                                               MegaPaToPa,
+                                               Current_Po,
+                                               elementJacobian,
+                                               elementResidual );
 
-      // for ( I = 1; I <= 8; I++ ) {
-      //    ///
-      //    /// Only set the diagonal to a Dirichlet node if the node is not included AND the segment is not degenerate
-      //    ///
-      //    if ( ! Included_Nodes ( I ) && ( fabs ( geometryMatrix ( 3, ( I - 1 ) % 4 + 1 ) - geometryMatrix ( 3, ( I - 1 ) % 4 + 5 ) ) > 0.001 ) ) {
-      //       elementJacobian ( I, I ) = Dirichlet_Scaling_Value;
-      //    }
-      // }
-
-      // Apply_Dirichlet_Boundary_Conditions_Newton ( BCs, Dirichlet_Boundary_Values, Dirichlet_Scaling_Value,
-      //                                              Current_Po, elementJacobian, elementResidual );
-      // return;
+      return;
    }
-
+#endif
+   
    double usedWaterSaturation         = includeWaterSaturation ? currentSaturation ( Saturation::WATER )  : 1.0;
    double usedPreviousWaterSaturation = includeWaterSaturation ? previousSaturation ( Saturation::WATER ) : 1.0;
 
@@ -1384,11 +1399,11 @@ void Basin_Modelling::assembleElementPressureSystem ( const BasisFunctionCache& 
             double previousMaxVes = FiniteElementMethod::innerProduct ( Basis, Previous_Element_Max_VES );
             double currentMaxVes  = FiniteElementMethod::innerProduct ( Basis, Current_Element_Max_VES );
 
-            double previousHydrostaticPressure = FiniteElementMethod::innerProduct ( Basis, Previous_Ph ) * MPa_To_Pa;
-            double currentHydrostaticPressure  = FiniteElementMethod::innerProduct ( Basis, Current_Ph ) * MPa_To_Pa;
+            double previousHydrostaticPressure = FiniteElementMethod::innerProduct ( Basis, Previous_Ph ) * MegaPaToPa;
+            double currentHydrostaticPressure  = FiniteElementMethod::innerProduct ( Basis, Current_Ph ) * MegaPaToPa;
 
-            double previousOverpressure = FiniteElementMethod::innerProduct ( Basis, Previous_Po ) * MPa_To_Pa;
-            double currentOverpressure  = FiniteElementMethod::innerProduct ( Basis, Current_Po ) * MPa_To_Pa;
+            double previousOverpressure = FiniteElementMethod::innerProduct ( Basis, Previous_Po ) * MegaPaToPa;
+            double currentOverpressure  = FiniteElementMethod::innerProduct ( Basis, Current_Po ) * MegaPaToPa;
 
             double previousPorePressure = previousHydrostaticPressure + previousOverpressure;
             double currentPorePressure  = currentHydrostaticPressure  + currentOverpressure;
@@ -1404,12 +1419,12 @@ void Basin_Modelling::assembleElementPressureSystem ( const BasisFunctionCache& 
             lithology->getPorosity ( currentVes, currentMaxVes, includeChemicalCompaction, Current_Chemical_Compaction_Term, currentCompoundPorosity );
             double currentPorosity = currentCompoundPorosity.mixedProperty ();
 
-            double previousFluidDensity = Fluid->density ( previousTemperature, Pa_To_MPa * previousPorePressure );
-            double currentFluidDensity  = Fluid->density ( currentTemperature,  Pa_To_MPa * currentPorePressure );
+            double previousFluidDensity = Fluid->density ( previousTemperature, PaToMegaPa * previousPorePressure );
+            double currentFluidDensity  = Fluid->density ( currentTemperature,  PaToMegaPa * currentPorePressure );
 
-            double fluidViscosity       = Fluid->viscosity ( currentTemperature, Pa_To_MPa * currentPorePressure );
+            double fluidViscosity       = Fluid->viscosity ( currentTemperature, PaToMegaPa * currentPorePressure );
 
-            double currentRelativePermeability = relativePermeability * Fluid->relativePermeability( currentTemperature, Pa_To_MPa * currentPorePressure );
+            double currentRelativePermeability = relativePermeability * Fluid->relativePermeability( currentTemperature, PaToMegaPa * currentPorePressure );
 
             //
             // Now compute each of the terms in the PDE
@@ -1483,7 +1498,7 @@ void Basin_Modelling::assembleElementPressureSystem ( const BasisFunctionCache& 
             //----------------------------//
 
             //
-            // The fluid density derivative is scaled by Pa_To_MPa because the fluid density function 
+            // The fluid density derivative is scaled by PaToMegaPa because the fluid density function 
             // requires the pressure to be in MPa. The pressure that is computed here is in Pa.
             //
 
@@ -1494,7 +1509,7 @@ void Basin_Modelling::assembleElementPressureSystem ( const BasisFunctionCache& 
 
             const double dPhiDP( dPhiDves * dVesDp );
 
-            double dRhoDP = Pa_To_MPa * Fluid->computeDensityDerivativeWRTPressure ( currentTemperature, Pa_To_MPa * currentPorePressure );
+            double dRhoDP = PaToMegaPa * Fluid->computeDensityDerivativeWRTPressure ( currentTemperature, PaToMegaPa * currentPorePressure );
 
             double bulkFluidDensityDerivative = dRhoDP * usedWaterSaturation * currentPorosity / ( 1.0 - currentPorosity ) +
                                                 currentFluidDensity * usedWaterSaturation / ( 1.0 - currentPorosity ) * dPhiDP +
@@ -1513,7 +1528,7 @@ void Basin_Modelling::assembleElementPressureSystem ( const BasisFunctionCache& 
    // The -ve sign 
    applyDirichletBoundaryConditionsNewton ( bcs,
                                             Dirichlet_Scaling_Value,
-                                            MPa_To_Pa,
+                                            MegaPaToPa,
                                             Current_Po,
                                             elementJacobian,
                                             elementResidual );
@@ -1556,7 +1571,7 @@ void Basin_Modelling::assembleElementTemperatureSystem ( const bool             
   if ( timeStep == 0.0 ) {
     timeStepInv  = 0.0;
   } else {
-    timeStepInv  = 1.0 / ( timeStep * Secs_IN_MA );
+    timeStepInv  = 1.0 / ( timeStep * MillionYearToSecond );
   } 
 
   NumericFunctions::Quadrature::QuadratureArray xQuadraturePoints;
@@ -1910,16 +1925,14 @@ void Basin_Modelling::applyDirichletBoundaryConditionsLinear ( const BoundaryCon
                                                                ElementMatrix&            Stiffness_Matrix,
                                                                ElementVector&            Load_Vector ) {
 
-  for ( int i = 1; i <= 8; ++i ) {
+  for ( int i = 1; i <= 8; ++i ) 
+  {
 
-     if ( bcs.getBoundaryCondition ( i - 1 ) == Surface_Boundary ) {
+     if ( bcs.getBoundaryCondition ( i - 1 ) == Surface_Boundary  or bcs.getBoundaryCondition(i - 1) == Interior_Constrained_Temperature )
+	 {
       Load_Vector ( i ) = Dirichlet_Boundary_Scaling * bcs.getBoundaryConditionValue ( i - 1 );
       Stiffness_Matrix ( i, i ) = Dirichlet_Boundary_Scaling;
-    } else if ( bcs.getBoundaryCondition ( i - 1 ) == Interior_Constrained_Temperature ) {
-      Load_Vector ( i ) = Dirichlet_Boundary_Scaling * bcs.getBoundaryConditionValue ( i - 1 );
-      Stiffness_Matrix ( i, i ) = Dirichlet_Boundary_Scaling;
-    }
-
+     } 
   }
 
 }

@@ -24,6 +24,9 @@ add_definitions(-DUSEOTGC)
 
 include_directories(
     ${PROJECT_SOURCE_DIR}/libraries
+)
+
+include_directories( SYSTEM
 	${PETSC_INCLUDE_DIRS}
 	${HDF5_INCLUDE_DIRS}
 	${MPI_INCLUDE_DIRS}
@@ -34,7 +37,7 @@ bm_include_libraries(
 	DataAccess
 	DistributedDataAccess
 	DerivedProperties
-        FiniteElements
+    FiniteElements
 	GeoPhysics
 	Interpolation
 	LinearAlgebra
@@ -63,7 +66,7 @@ target_link_libraries(fastmig
 	Parallel_Hdf5
 	EosPack	
 	CBMGenerics
-        FiniteElements
+    FiniteElements
 	genex6
 	genex6_kernel
 	OTGC_kernel6

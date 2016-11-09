@@ -90,7 +90,14 @@ namespace mbapi {
       /// Global constants definition
       static const char * s_ResultsFolderSuffix; ///< defines Cauldron results folder name suffix
       /// @}
- 
+
+      /// @{
+      /// Static methods
+      /// @brief Generates random string with the given leng
+      /// @return string which consists of random low/uppercase characters and numbers
+      static std::string randomString( size_t len );
+      /// @}
+
       /// @{
       /// Constructors/destructor
 
@@ -110,7 +117,7 @@ namespace mbapi {
       /// @brief Compare projects and return all differences found
       /// @return full list of differences as a string
       std::string compareProject( Model & mdl1                                  ///< the model to compare with
-                                , const std::set<std::string> & compareTblsList ///< list of tables to compare, if only some of the table should be compared
+                                , const std::set<std::string> & compareTblsList ///< list of tables to compare, empty to compare all tables
                                 , const std::set<std::string> & ignoreTblsList  ///< list of tables to ignore them during comparison
                                 , double relTol                                 ///< relative tolerance value to compare float point values
                                 );
@@ -189,16 +196,22 @@ namespace mbapi {
       ErrorHandler::ReturnCode setTableValue( const std::string & tableName, size_t rowNumber, const std::string & propName, double propValue );
 
       /// @brief Set value in the table
-      /// @param tableName name of the table in project file
-      /// @param rowNumber row number in the table
-      /// @param propName name of the column
-      /// @param propValue value to be set in the table
       /// @return ErrorHandler::NoError on success, error code otherwise
-      ErrorHandler::ReturnCode setTableValue( const std::string & tableName, size_t rowNumber, const std::string & propName, const std::string & propValue );
+      ErrorHandler::ReturnCode setTableValue( const std::string & tableName  ///< name of the table in project file
+                                            , size_t              rowNumber  ///< row number in the table
+                                            , const std::string & propName   ///< name of the column
+                                            , const std::string & propValue  ///< value to be set in the table
+                                            );
 
       /// @brief Delete all rows in given table
       /// @return ErrorHandler::NoError on success, error code otherwise
       ErrorHandler::ReturnCode clearTable( const std::string & tableName );
+
+      /// @brief Remove a record from a table
+      /// @param tableName name of the table in project file
+      /// @param ind the record to remove
+      /// @return ErrorHandler::NoError on success, error code otherwise
+      ErrorHandler::ReturnCode removeRecordFromTable( const std::string & tableName, int ind );
 
       /// @brief Add a new row
       /// @param tableName name of the table in project file
@@ -218,8 +231,9 @@ namespace mbapi {
       ///        If file exist, it will be overwritten
       ///
       /// @param projectFileName the name for the Cauldron project file
+      /// @param copyFiles if copyFiles is false - results files will be linked where it is possible otherwise they will be copied
       /// @return NoError in case of success, error code otherwise.
-      ReturnCode saveModelToProjectFile( const char * projectFileName );
+      ReturnCode saveModelToProjectFile( const char * projectFileName, bool copyFiles = false );
 
       /// @brief Get project file name
       /// @return project file name or empty string if project wasn't loaded or saved before
@@ -264,21 +278,81 @@ namespace mbapi {
       /// @return ErrorHandler::NoError on success, or error code otherwise
       ReturnCode origin( double & x, double & y );
 
+      /// @brief Get dimensions of hi resolution grid
+      /// @param[out] grid dimension in I direction
+      /// @param[out] grid dimension in J direction
+      /// @return ErrorHandler::NoError on success or error code otherwise
+      ReturnCode hiresGridArealSize( long & sizeI, long & sizeJ );
+
+      /// @brief Get grid subsampling for the model
+      /// @param[out] di grid subsampling step in I direction
+      /// @param[out] dj grid subsampling step in J direction
+      /// @return ErrorHandler::NoError on success, or error code otherwise
+      ReturnCode subsampling( long & di, long & dj );
+
+      /// @brief Set grid subsampling for the model
+      /// @param di grid subsampling step in I direction
+      /// @param dj grid subsampling step in J direction
+      /// @return ErrorHandler::NoError on success, or error code otherwise
+      ReturnCode setSubsampling( long di, long dj );
+
+      /// @brief Get model window position
+      /// @param[out] minWinI window start postion in I direction
+      /// @param[out] maxWinI window end   postion in I direction
+      /// @param[out] minWinJ window start postion in J direction
+      /// @param[out] maxWinJ window end   postion in J direction
+      /// @return ErrorHandler::NoError on success, or error code otherwise
+      ReturnCode window( long & minWinI, long & maxWinI, long & minWinJ, long & maxWinJ );
+ 
+      /// @brief Define model window position
+      /// @param minWinI window start postion in I direction
+      /// @param maxWinI window end   postion in I direction
+      /// @param minWinJ window start postion in J direction
+      /// @param maxWinJ window end   postion in J direction
+      /// @return ErrorHandler::NoError on success, or error code otherwise
+      ReturnCode setWindow( long minWinI, long maxWinI, long minWinJ, long maxWinJ );
+      
       /// @brief Get basin model areal dimenstions
       /// @param[out] dimX length [m] of the model along X axis
       /// @param[out] dimY length [m] of the model along Y axis
       /// @return ErrorHandler::NoError on success, or error code otherwise
       ReturnCode arealSize( double & dimX, double & dimY );
 
-      /// @brief Get the window extansion for multi1D projects
+      /// @brief Get the window extension for multi1D projects
       /// @param[out] x first x coordinate of the well
       /// @param[out] y first y coordinate of the well
       /// @param[out] xMin minimum x node
       /// @param[out] xMax maximum x node
       /// @param[out] yMin minimum y node
       /// @param[out] yMax maximum y node
+      /// @param[out] xc window center x coordinate
+      /// @param[out] yc window center y coordinate
       /// @return ErrorHandler::NoError on success, or error code otherwise
-      ReturnCode windowSize( double x, double y, int & xMin, int & xMax, int & yMin, int & yMax );
+      ReturnCode windowSize( double x, double y, int & xMin, int & xMax, int & yMin, int & yMax, double & xc, double & yc );
+
+      // Natural neighbour interpolation of the lithofractions
+
+      /// @brief Transform lithofractions, set up interpolation points at the edge of the domain and interpolate
+      /// @return ErrorHandler::NoError on success, or error code otherwise
+      ReturnCode interpolateLithoFractions( const std::vector<double> & xin    ///< [in]  x coordinates of the wells 
+                                          , const std::vector<double> & yin    ///< [in]  y coordinates of the wells
+                                          , const std::vector<double> & lf1    ///< [in]  first litofraction
+                                          , const std::vector<double> & lf2    ///< [in]  second litofraction
+                                          , const std::vector<double> & lf3    ///< [in]  third litofraction
+                                          , std::vector<double>       & xInt   ///< [out] x coordinates of the interpolated points
+                                          , std::vector<double>       & yInt   ///< [out] y coordinates of the interpolated points
+                                          , std::vector<double>       & rpInt  ///< [out] interpolated values
+                                          , std::vector<double>       & r13Int ///< [out] interpolated values
+                                          );
+
+      /// @brief Correct and back-transform rp and r13 to real lithofraction values
+      /// @return ErrorHandler::NoError on success, or error code otherwise
+      ReturnCode backTransformLithoFractions( const std::vector<double> & rpInt      ///< [in]  interpolated values
+                                            , const std::vector<double> & r13Int     ///< [in]  interpolated values 
+                                            , std::vector<double>       & lf1CorrInt ///< [out] corrected interpolated first lithofraction
+                                            , std::vector<double>       & lf2CorrInt ///< [out] corrected interpolated second lithofraction
+                                            , std::vector<double>       & lf3CorrInt ///< [out] corrected interpolated third lithofraction
+                                            );
 
       ///@}
 
@@ -291,6 +365,17 @@ namespace mbapi {
             , const std::vector<std::string>                          & alochtLitName ///< list of layers with alochtonous lithologies
             , const std::vector<std::pair<std::string, std::string> > & faultsName    ///< list of pairs map name - fault cut name
                                             );
+
+
+      /// @brief determine if a particular point lies within the layer
+      /// @return true is comprised, false otherwise
+      bool checkPoint( const double x, const double y, const double z, const std::string & layerName );
+
+
+      /// @brief get the depth values of one specific surface
+      /// @return true is the grid values could be retrived, false otherwise
+      bool getGridMapDepthValues( const mbapi::StratigraphyManager::SurfaceID s, std::vector<double> & v );
+
    private:
       /// @{
       /// Implementation part

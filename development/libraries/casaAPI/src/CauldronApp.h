@@ -33,6 +33,7 @@
 
 namespace casa
 {
+   /// @brief define application sequence number in applications pipeline
    typedef enum
    {
       PTSolver          = 0, ///< fastcauldron option -temperature/-overpressure/-itcoupled

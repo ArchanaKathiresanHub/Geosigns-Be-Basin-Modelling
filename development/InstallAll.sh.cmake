@@ -14,14 +14,12 @@ set -e
 
 # search for the correct group
 cldgrp=`groups 2> /dev/null` || true
-  if [[ "$cldgrp" =~ "g_psaz00" ]];then
-    cldgrp="g_psaz00"
-  else
-    if [[ "$cldgrp" =~ "cauldron" ]];then
-      cldgrp='cauldron developers@PDS.LOCAL'
-    else
-      cldgrp=""
-    fi
+if [[ "$cldgrp" =~ "g_psaz00" ]];then
+   cldgrp="g_psaz00"
+   installgrp="--group=$cldgrp"
+else
+   cldgrp=""
+   installgrp=""
 fi
 
 # Check whether we don't add too many versions. 
@@ -47,23 +45,28 @@ miscDirectory=$targetDirectory/misc
 # Setting UMASK
 umask 0002
 
-#building the directory structure
-echo "Making target directory $targetDirectory"
-mkdir -p $targetDirectory
-
 if [ -d $mainBinaryDirectory ]; then
   echo "Main binary directory $mainBinaryDirectory already exists. Aborting installation..."
   exit 1
 fi
 
+#building the directory structure
+echo "Making target directory $targetDirectory"
+mkdir -p $mainBinaryDirectory
+if [  "x${cldgrp}" != "x" ]; then
+    echo "Setting correct permissions to $targetDirectory"
+    chgrp -R $cldgrp ${targetDirectory}
+    chmod g+rw ${targetDirectory}
+    chmod g+s $targetDirectory
+fi
+
 # Install results of main build
 echo "Installing binaries"
-install -d $mainBinaryDirectory
-install @CMAKE_INSTALL_PREFIX@/bin/* $mainBinaryDirectory
+install $installgrp --mode=775 @CMAKE_INSTALL_PREFIX@/bin/* $mainBinaryDirectory
 
 # BPA expects the binaries to be in the LinuxRHEL64 folder. For BPA we pick the RHEL64 binaries
 if [ -e /apps/sss/share/getos2 ]; then
-  if /apps/sss/share/getos2 | grep -q LinuxRHEL64_x86_64_64 ; then
+  if /apps/sss/share/getos2 | grep -q LinuxRHEL64_x86_64_66 ; then
     pushd $targetDirectory > /dev/null
     ln -s @CSCE_PLATFORM@ LinuxRHEL64
     popd > /dev/null
@@ -85,26 +88,27 @@ else
    # permissions for everyone to read and execute the shared-libraries.
    tar --no-same-permissions -xf @CMAKE_CURRENT_SOURCE_DIR@/../3rdparty/sources/geocosm.tar -C $miscDirectory
    pushd $miscDirectory > /dev/null
-      echo " - Geocosm's 3rd party components:"
-      pushd geocosm/3rdparty > /dev/null
-         echo "    - Unpacking Xerces archive"
-         tar --no-same-permissions -xf Xerces.tar
-         echo "    - Unpacking Codesynthesis XSD archive"
-         tar --no-same-permissions -xf xsd.tar
-      popd > /dev/null
+   echo " - Geocosm's 3rd party components:"
+   pushd geocosm/3rdparty > /dev/null
+   echo "    - Unpacking Xerces archive"
+   tar --no-same-permissions -xf Xerces.tar
+   echo "    - Unpacking Codesynthesis XSD archive"
+   tar --no-same-permissions -xf xsd.tar
    popd > /dev/null
+   popd > /dev/null
+
+   if [ "x${cldgrp}" != "x" ]; then
+      echo " - Changing group to $cldgrp"
+      chgrp -R "${cldgrp}" $targetDirectory/misc
+   fi
+
+   echo " - Changing mode to g+w"
+   chmod -R g+w $targetDirectory/misc
 fi
 
 echo "Configuring installation"
 echo " - Marking installation as successful"
 touch $miscDirectory/successfully_installed
 
-if [ "$cldgrp" ];then
-  echo " - Changing group to $cldgrp"
-  chgrp -R "${cldgrp}" $targetDirectory
-fi
-
-echo " - Changing mode to g+w"
-chmod -R g+w $targetDirectory
 
 echo "DONE"

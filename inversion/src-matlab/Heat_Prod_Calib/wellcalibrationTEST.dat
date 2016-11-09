@@ -1,6 +1,0 @@
-#wellname X Y Z temp heat_min heat_max heat_initial
-# do not use tab for spacing
-0_G_12  617869  6627144 2766    Temperature 113  2.0 5.0 3.89
-0_SAV-44    615070  6657014 2815    Temperature 134  6.0 8.5 7.98
-0_VS_13 602712  6656459 2707    Temperature 120   5.0 6.5 5.65
-Verkhane-Saly-18   602612   6650361 2762    Temperature 117   3.5 5.0 4.505

@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 #include "PressureSolver.h"
 
 #include "Interface/RunParameters.h"
@@ -28,6 +37,14 @@
 #include "BoundaryId.h"
 
 using namespace FiniteElementMethod;
+
+// utilities library
+#include "ConstantsMathematics.h"
+using Utilities::Maths::Zero;
+using Utilities::Maths::One;
+using Utilities::Maths::NegOne;
+#include "ConstantsNumerical.h"
+using Utilities::Numerical::CauldronNoDataValue;
 
 
 //------------------------------------------------------------//
@@ -61,14 +78,15 @@ double PressureSolver::NewtonSolverTolerances [ NumberOfOptimisationLevels ][ 3 
 
 PressureSolver::PressureSolver(AppCtx *appl) : cauldron ( appl ) {
   initialiseFctCorrection();
-  basisFunctions = 0;
+  basisFunctions = nullptr;
 }
 
 
 PressureSolver::~PressureSolver() {
 
-   if ( basisFunctions != 0 ) {
+   if ( basisFunctions != nullptr ) {
       delete basisFunctions;
+      basisFunctions = nullptr;
    }
 
 }
@@ -285,13 +303,13 @@ PetscScalar PressureSolver::maximumPressureDifference2 () {
     maxK = -1;
 
 
-    if ( Layers.Layer_Above () == 0 ) {
+    if ( Layers.Layer_Above () == nullptr ) {
       layerAbove = currentLayer;
     } else {
       layerAbove = Layers.Layer_Above ();
     }
 
-    if ( Layers.Layer_Below () == 0 ) {
+    if ( Layers.Layer_Below () == nullptr ) {
       layerBelow = currentLayer;
     } else {
       layerBelow = Layers.Layer_Below ();
@@ -365,7 +383,7 @@ PetscScalar PressureSolver::maximumPressureDifference2 () {
                                 currentPressure ( maxK, maxJ, maxI ),
                                 previousPressure ( maxK, maxJ, maxI ));
 
-      PetscSynchronizedFlush ( PETSC_COMM_WORLD );
+      PetscSynchronizedFlush ( PETSC_COMM_WORLD, PETSC_STDOUT );
     }
 
     Layers++;
@@ -441,7 +459,7 @@ void PressureSolver::setBasementDepths ( const double           Current_Time,
       } else {
  
         for ( K = Z_Start + Z_Count - 2; K >= 0; K-- ) {
-          Crust_Depth ( K, J, I ) = CAULDRONIBSNULLVALUE;
+          Crust_Depth ( K, J, I ) = CauldronNoDataValue;
         }
 
       }
@@ -483,7 +501,7 @@ void PressureSolver::setBasementDepths ( const double           Current_Time,
       } else {
  
         for ( K = Z_Top - 1; K >= 0; K-- ) {
-          Mantle_Depth ( K, J, I ) = CAULDRONIBSNULLVALUE;
+          Mantle_Depth ( K, J, I ) = CauldronNoDataValue;
         }
 
       }
@@ -677,12 +695,9 @@ void PressureSolver::getBoundaryConditions ( const GeneralElement& element,
       {
          bcs.setBoundaryConditions ( n, Interior_Constrained_Overpressure, constrainedOverPressureValue );
       }
-      else if ( layerNodeK == numberOfDepthElements - 1 and 
-                fracturePressureExceeded ( n + 1 ) > 0.0 and
-                elementAbove != 0 and 
-                elementAbove->getLayerElement ().getLithology ()->surfacePorosity () == 0.0 )
+      else if ( ( layerNodeK == numberOfDepthElements - 1 and fracturePressureExceeded ( n + 1 ) > 0.0 and elementAbove != nullptr and  elementAbove->getLayerElement ().getLithology ()->surfacePorosity () == 0.0 ) or
+		        ( hfm.isNonConservativeFractureModel()    and currentLayer->nodeIsTemporarilyDirichlet( nodeI, nodeJ, layerNodeK ) ) ) 
       {
-
          // Need elemnt boundary conditions in order to eliminate this check for surface porosity == 0.
          double hydrostaticPressure = currentLayer->Current_Properties( Basin_Modelling::Hydrostatic_Pressure,
                                                                         layerNodeK, nodeJ, nodeI );
@@ -696,25 +711,6 @@ void PressureSolver::getBoundaryConditions ( const GeneralElement& element,
                                                           currentLayer->Current_Properties ( Basin_Modelling::Lithostatic_Pressure, layerNodeK, nodeJ, nodeI ));
          bcs.setBoundaryConditions ( n, Interior_Constrained_Overpressure,
                                      NumericFunctions::Maximum ( fracturePressure - hydrostaticPressure, 0.0 ));
-
-      }
-      else if ( HydraulicFracturingManager::getInstance ().isNonConservativeFractureModel () and
-                currentLayer->nodeIsTemporarilyDirichlet ( nodeI, nodeJ, layerNodeK ))
-      {
-         
-         double hydrostaticPressure = currentLayer->Current_Properties ( Basin_Modelling::Hydrostatic_Pressure,
-                                                                         layerNodeK, nodeJ, nodeI );
-
-         double fracturePressure = hfm.fracturePressure ( elementLithology,
-                                                          currentLayer->fluid,
-                                                          fc.getSeaBottomTemperature ( nodeI, nodeJ, currentTime ),
-                                                          fc.getSeaBottomDepth ( nodeI, nodeJ, currentTime ),
-                                                          currentLayer->Current_Properties ( Basin_Modelling::Depth, layerNodeK, nodeJ, nodeI ),
-                                                          hydrostaticPressure,
-                                                          currentLayer->Current_Properties ( Basin_Modelling::Lithostatic_Pressure, layerNodeK, nodeJ, nodeI ));
-         bcs.setBoundaryConditions ( n, Interior_Constrained_Overpressure,
-                                     NumericFunctions::Maximum ( fracturePressure - hydrostaticPressure, 0.0 ));
-
 
       }
       else if ( isIceSheetLayer )
@@ -895,7 +891,7 @@ void PressureSolver::assembleSystem ( const ComputationalDomain& computationalDo
 
   elementContributionsTime = 0.0;
 
-  if ( basisFunctions == 0 ) {
+  if ( basisFunctions == nullptr ) {
      basisFunctions = new FiniteElementMethod::BasisFunctionCache ( Plane_Quadrature_Degree, Plane_Quadrature_Degree, Depth_Quadrature_Degree );
   }
 

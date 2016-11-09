@@ -352,38 +352,18 @@ void CrustalThicknessCalculator::updateValidNodes( const double age ) {
 }
 
 //------------------------------------------------------------//
-
-bool CrustalThicknessCalculator::mergeOutputFiles ( ) {
+bool CrustalThicknessCalculator::mergeOutputFiles() {
 
 #ifdef _MSC_VER
    return true;
 #else
-   if( ! H5_Parallel_PropertyList::isOneFilePerProcessEnabled() ) return true;
+   if (getModellingMode() == Interface::MODE1D) return true;
 
-   PetscBool noFileCopy = PETSC_FALSE;
+   ibs::FilePath localPath( getProjectPath() );
+   localPath << getOutputDir();
 
-   PetscOptionsHasName( PETSC_NULL, "-nocopy", &noFileCopy );
+   const bool status = H5_Parallel_PropertyList::mergeOutputFiles( CrustalThicknessCalculatorActivityName, localPath.path() );
 
-   PetscLogDouble merge_Start_Time;
-   PetscTime( &merge_Start_Time );
-
-   string fileName = CrustalThicknessCalculatorActivityName + "_Results.HDF";
-   string filePathName = getProjectPath() + "/" + getOutputDir() + "/" + fileName;
-
-   bool status = mergeFiles( allocateFileHandler( PETSC_COMM_WORLD, filePathName, H5_Parallel_PropertyList::getTempDirName(), (noFileCopy ? CREATE : REUSE) ) );
-
-   if (status) {
-      status = H5_Parallel_PropertyList::copyMergedFile( filePathName );
-   }
-   if (status) {
-      PetscLogDouble merge_End_Time;
-      PetscTime( &merge_End_Time );
-
-      displayTime( merge_End_Time - merge_Start_Time, "Merging of output files" );
-   }
-   else {
-      LogHandler(LogHandler::ERROR_SEVERITY) << "Could not copy the file " << filePathName;
-   }
    return status;
 #endif
 }

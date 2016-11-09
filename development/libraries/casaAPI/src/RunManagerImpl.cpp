@@ -24,6 +24,8 @@
 #include "JobSchedulerLocal.h"
 #include "JobSchedulerLSF.h"
 
+#include "LogHandler.h"
+
 #ifndef _WIN32
 #include <sys/stat.h>
 #endif
@@ -46,18 +48,19 @@ const char * RunManager::s_jobsIDListFileName       = "casa_jobs_list.txt";
 // RunManager / RunManagerImpl methods definition
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 CauldronApp * RunManager::createApplication( ApplicationType        appType
-                                        , int                    cpus
-                                        , size_t                 runTimeLimit
-                                        , CauldronApp::ShellType sh
-                                        , std::string            cmdLine )
+                                           , int                    cpus
+                                           , size_t                 runTimeLimit
+                                           , CauldronApp::ShellType sh
+                                           , std::string            cmdLine 
+                                           )
 {
    std::unique_ptr<CauldronApp> app;
    switch ( appType )
    {
-      case fastcauldron: app.reset( new CauldronApp( sh, "fastcauldron", true  ) ); break;
-      case fastgenex6:   app.reset( new CauldronApp( sh, "fastgenex6",   true  ) ); break;
-      case fastmig:      app.reset( new CauldronApp( sh, "fastmig",      true  ) ); break;
-      case fastctc:      app.reset( new CauldronApp( sh, "fastctc",      true  ) ); break;
+      case fastcauldron: app.reset( new CauldronApp( sh, "fastcauldron", cpus > 1 ? true : false ) ); break;
+      case fastgenex6:   app.reset( new CauldronApp( sh, "fastgenex6",   cpus > 1 ? true : false ) ); break;
+      case fastmig:      app.reset( new CauldronApp( sh, "fastmig",      cpus > 1 ? true : false ) ); break;
+      case fastctc:      app.reset( new CauldronApp( sh, "fastctc",      cpus > 1 ? true : false ) ); break;
       case datadriller:  app.reset( new CauldronApp( sh, "datadriller",  false ) ); break;
       case tracktraps:   app.reset( new CauldronApp( sh, "tracktraps",   false ) ); break;
       case track1d:      app.reset( new CauldronApp( sh, "track1d",      false ) ); break;
@@ -95,6 +98,7 @@ RunManagerImpl::RunManagerImpl( const std::string & clusterName ) : m_maxPending
 ///////////////////////////////////////////////////////////////////////////////
 RunManagerImpl::~RunManagerImpl()
 {
+   for ( auto app : m_appList ) { delete app; }
 }
 
 // Add application to the list of simulators for pipeline calculation definitions
@@ -150,11 +154,14 @@ ErrorHandler::ReturnCode RunManagerImpl::scheduleCase(RunCase & newRun, const st
       size_t depOnID = m_cases.size() + 1; // define dependency ID outside of scheduled cases to use it as a flag also (size_t can't be negative)
 
       // run over previously added jobs to detect runs with the same parameters
-      for ( size_t cs = 0; ( cs < m_cases.size() - 1 ) && depOnID > m_cases.size(); ++cs )
+      if ( m_appList[i]->appSolverDependencyLevel() < Postprocessing )
       {
-         if ( newRun.isEqual( *(m_cases[cs]), m_appList[i]->appSolverDependencyLevel() ) ) // compare parameters value taking in account dep. level
+         for ( size_t cs = 0; ( cs < m_cases.size() - 1 ) && depOnID > m_cases.size(); ++cs )
          {
-            depOnID = cs; // this case, up to this application, is the same as cs, results could be just copied
+            if ( newRun.isEqual( *(m_cases[cs]), m_appList[i]->appSolverDependencyLevel() ) ) // compare parameters value taking in account dep. level
+            {
+               depOnID = cs; // this case, up to this application, is the same as cs, results could be just copied
+            }  
          }
       }
 
@@ -194,6 +201,7 @@ ErrorHandler::ReturnCode RunManagerImpl::scheduleCase(RunCase & newRun, const st
                                                  , oss.str()                    // job name
                                                  , m_appList[i]->cpus()         // number of CPUs for this job
                                                  , m_appList[i]->runTimeLimit() // run time limit
+                                                 , scenarioID
                                                  );
 
       // put job to the queue for the current case
@@ -291,14 +299,13 @@ void RunManagerImpl::collectStatistics( size_t & pFinished, size_t & pPending, s
       std::string curStrTime( ctime( &curTm ) );
       curStrTime.resize( curStrTime.size() - 1 ); // "remove ending \n"
 
-      std::cout << curStrTime << ": ";
-      // run over all cases, make a pause, get a Twix
-      std::cout << "total: "       << total     << 
-                   ", finished: "  << finished  << 
-                   ", failed: "    << failed    << 
-                   ", pending: "   << pending   << 
-                   ", running: "   << running   << 
-                   ", not submitted yet: " << toBeSubmitted << std::endl;
+      LogHandler( LogHandler::INFO_SEVERITY ) << curStrTime <<
+                                                 ": total: "     << total     << 
+                                                 ", finished: "  << finished  << 
+                                                 ", failed: "    << failed    << 
+                                                 ", pending: "   << pending   << 
+                                                 ", running: "   << running   << 
+                                                 ", not submitted yet: " << toBeSubmitted;
    }
 
    pToBeSubmitted = toBeSubmitted;
@@ -329,7 +336,7 @@ bool RunManagerImpl::isAllDone() const
 
 ///////////////////////////////////////////////////////////////////////////////
 // Execute all scheduled cases. Very loooong cycle
-ErrorHandler::ReturnCode RunManagerImpl::runScheduledCases( bool /* asyncRun */)
+ErrorHandler::ReturnCode RunManagerImpl::runScheduledCases( int updateStateTimeInterval )
 {
    try 
    {
@@ -415,11 +422,17 @@ ErrorHandler::ReturnCode RunManagerImpl::runScheduledCases( bool /* asyncRun */)
          }
 
          collectStatistics( prevFinished, prevPending, prevRunning, prevToBeSubmitted );
-         m_jobSched->sleep(); // wait a bit till go to the next loop
+         m_jobSched->sleep( updateStateTimeInterval ); // wait a bit till go to the next loop
 
       } while ( !isAllDone() ); // loop till all will be finished
    }
-   catch ( Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
+   catch ( Exception & ex )
+   {
+      // We need to kill all job before exit with exception
+      stopAllSubmittedJobs();
+
+      return reportError( ex.errorCode(), ex.what() ); 
+   }
    
    return NoError;
 }
@@ -462,21 +475,28 @@ ErrorHandler::ReturnCode RunManagerImpl::stopAllSubmittedJobs()
       {
          JobScheduler::JobState jobState = m_jobSched->jobState( m_jobs[i][j] );
 
-         switch ( jobState )
+         try
          {
-            case JobScheduler::NotSubmittedYet:
-            case JobScheduler::JobFailed: 
-            case JobScheduler::JobFinished:
-               break; // job is not in queue - do nothing
+            switch ( jobState )
+            {
+               case JobScheduler::NotSubmittedYet:
+               case JobScheduler::JobFailed: 
+               case JobScheduler::JobFinished:
+                  break; // job is not in queue - do nothing
 
-            case JobScheduler::JobPending:
-            case JobScheduler::JobRunning:
-               m_jobSched->stopJob( m_jobs[i][j] );         // kill the job
-               m_cases[i]->setRunStatus( RunCase::Failed ); // invalidate case
-               ret = RunManagerAborted;
-               break;
+               case JobScheduler::JobPending:
+               case JobScheduler::JobRunning:
+                  m_jobSched->stopJob( m_jobs[i][j] );         // kill the job
+                  m_cases[i]->setRunStatus( RunCase::Failed ); // invalidate case
+                  ret = RunManagerAborted;
+                  break;
 
-            default: break;
+               default: break;
+            }
+         }
+         catch( Exception & ex )
+         {
+            LogHandler( LogHandler::DEBUG_SEVERITY ) << "Job id: " << m_jobs[i][j] << " failed to stop due to error: " << ex.what();
          }
       }
    }
@@ -566,6 +586,7 @@ void RunManagerImpl::restoreCaseStatus( RunCase * cs )
                                                        , oss.str()                    // job name
                                                        , m_appList[i]->cpus()         // number of CPUs for this job
                                                        , m_appList[i]->runTimeLimit() // run time limit
+                                                       , ""
                                                        );
 
             // put job to the queue for the current case
@@ -575,6 +596,34 @@ void RunManagerImpl::restoreCaseStatus( RunCase * cs )
    }
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// Clean application pipeline, jobs and recreate job scheduler. Keep all RunManager settings
+void RunManagerImpl::resetState( bool cleanApps )
+{
+   // save some settings of current state
+   std::string clusterName = m_jobSched->clusterName();
+
+   std::string       resourcReq;
+   JobSchedulerLSF * jsc = dynamic_cast<JobSchedulerLSF*>( m_jobSched.get() );
+   if ( jsc ) { resourcReq = jsc->resourceRequirements(); }
+
+   // re create instance of job scheduler
+   createJobScheduler( clusterName );
+   if ( !resourcReq.empty() ) { setResourceRequirements( resourcReq ); }
+
+   // delete apps list
+   if ( cleanApps )
+   {
+      for ( auto app : m_appList ) { delete app; }
+      m_appList.clear();
+   }
+
+   // clean queues
+   m_jobs.clear();
+   m_cases.clear();
+   m_depOnJob.clear();
+}
+ 
 // Serialize object to the given stream
 bool RunManagerImpl::save( CasaSerializer & sz, unsigned int /* fileVersion */ ) const
 {
@@ -667,7 +716,8 @@ void RunManagerImpl::createJobScheduler( const std::string & clusterName )
    else                          { m_jobSched.reset( new JobSchedulerLSF( clusterName ) ); }
 #endif
    // delete file with jobs list if exist
-   ibs::FilePath jobsIDFile( std::string( "./" ) + s_jobsIDListFileName );
+   ibs::FilePath jobsIDFile( "." ); 
+   jobsIDFile << s_jobsIDListFileName;
    if ( jobsIDFile.exists() ) { jobsIDFile.remove(); }
 }
  

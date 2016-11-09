@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef FASTMIG__OBJECT_FACTORY_H
 #define FASTMIG__OBJECT_FACTORY_H
 
@@ -30,31 +40,32 @@ namespace migration
    {
    public:
 
-      ObjectFactory(Migrator * migrator):
-         m_migrator(migrator)
-      {}
+      ObjectFactory (Migrator * migrator) :
+         m_migrator (migrator)
+      {
+      }
 
-         virtual DataAccess::Interface::Reservoir * produceReservoir (DataAccess::Interface::ProjectHandle * projectHandle,
-                                                                      database::Record * record);
+      virtual DataAccess::Interface::Reservoir * produceReservoir (DataAccess::Interface::ProjectHandle * projectHandle,
+         database::Record * record);
 
-         virtual DataAccess::Interface::Formation * produceFormation (DataAccess::Interface::ProjectHandle * projectHandle,
-                                                                      database::Record * record);
+      virtual DataAccess::Interface::Formation * produceFormation (DataAccess::Interface::ProjectHandle * projectHandle,
+         database::Record * record);
 
-         virtual DataAccess::Interface::Surface * produceSurface (DataAccess::Interface::ProjectHandle * projectHandle,
-                                                                  database::Record * record);
+      virtual DataAccess::Interface::Surface * produceSurface (DataAccess::Interface::ProjectHandle * projectHandle,
+         database::Record * record);
 
    private:
 
-         DataAccess::Interface::Reservoir * produceMigrationReservoir (DataAccess::Interface::ProjectHandle * projectHandle,
-                                                                       database::Record * record);
+      DataAccess::Interface::Reservoir * produceMigrationReservoir (DataAccess::Interface::ProjectHandle * projectHandle,
+         database::Record * record);
 
-         DataAccess::Interface::Formation * produceMigrationFormation (DataAccess::Interface::ProjectHandle * projectHandle,
-                                                                       database::Record * record);
+      DataAccess::Interface::Formation * produceMigrationFormation (DataAccess::Interface::ProjectHandle * projectHandle,
+         database::Record * record);
 
-         DataAccess::Interface::Surface * produceMigrationSurface (DataAccess::Interface::ProjectHandle * projectHandle,
-                                                                   database::Record * record);
+      DataAccess::Interface::Surface * produceMigrationSurface (DataAccess::Interface::ProjectHandle * projectHandle,
+         database::Record * record);
 
-         Migrator * const m_migrator;
+      Migrator * const m_migrator;
    };
 }
 

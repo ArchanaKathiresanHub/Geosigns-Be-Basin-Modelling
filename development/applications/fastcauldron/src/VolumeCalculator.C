@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
 #include "VolumeCalculator.h"
 
 #include "EosPack.h"
@@ -13,6 +22,9 @@
 #include "LayerElement.h"
 #include "ElementContributions.h"
 
+// utilities library
+#include "ConstantsNumerical.h"
+using Utilities::Numerical::CauldronNoDataValue;
 
 
 OutputPropertyMap* allocateVolumeCalculator ( const PropertyList property, LayerProps* formation, const Interface::Snapshot* snapshot ) {
@@ -177,13 +189,13 @@ bool VolumeCalculator::operator ()( const OutputPropertyMap::OutputPropertyList&
                if ( phaseDensities ( pvtFlash::VAPOUR_PHASE ) != 1000.0 ) {
                   phaseVolume ( pvtFlash::VAPOUR_PHASE ) = phaseComposition.sum ( pvtFlash::VAPOUR_PHASE ) / phaseDensities ( pvtFlash::VAPOUR_PHASE );
                } else {
-                  phaseVolume ( pvtFlash::VAPOUR_PHASE ) = CAULDRONIBSNULLVALUE;
+                  phaseVolume ( pvtFlash::VAPOUR_PHASE ) = CauldronNoDataValue;
                }
 
                if ( phaseDensities ( pvtFlash::LIQUID_PHASE ) != 1000.0 ) {
                   phaseVolume ( pvtFlash::LIQUID_PHASE ) = phaseComposition.sum ( pvtFlash::LIQUID_PHASE ) / phaseDensities ( pvtFlash::LIQUID_PHASE );
                } else {
-                  phaseVolume ( pvtFlash::LIQUID_PHASE ) = CAULDRONIBSNULLVALUE;
+                  phaseVolume ( pvtFlash::LIQUID_PHASE ) = CauldronNoDataValue;
                }
 
                hcVolumeMaps [ 0 ]->setValue ( i, j, k, phaseVolume ( pvtFlash::VAPOUR_PHASE ));

@@ -28,7 +28,8 @@ namespace casa
          if ( refVal )
          {
             const std::vector<double> & rv = refVal->asDoubleArray();
-            rmse = (rv[0] - value()) / (m_parent->stdDeviationForRefValue() > 0.0 ? m_parent->stdDeviationForRefValue() : (0.1 * rv[0]));
+            rmse = (rv[0] - value()) / (m_parent->stdDeviationForRefValue()->asDoubleArray( true )[0] > 0.0 ? 
+                                        m_parent->stdDeviationForRefValue()->asDoubleArray( true )[0]       : (0.1 * rv[0]));
          }
       }
       return rmse * rmse;

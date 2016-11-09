@@ -1,5 +1,14 @@
-#ifndef _GENEX6_KERNEL__SIMULATORSTATE_H_
-#define _GENEX6_KERNEL__SIMULATORSTATE_H_
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+#ifndef GENEX6_KERNEL__SIMULATORSTATE_H
+#define GENEX6_KERNEL__SIMULATORSTATE_H
 
 #include <string>
 #include <map>
@@ -10,7 +19,7 @@ using namespace std;
 
 #include "SpeciesResult.h"
 #include "SpeciesManager.h"
-#include "Constants.h"
+#include "ConstantsGenex.h"
 #include "SimulatorStateBase.h"
 #include "Species.h"
 #include "GenexResultManager.h"
@@ -136,7 +145,7 @@ public:
    /// \brief Update state after a shale-gas time-step.
    ///
    /// Computes the compound results.
-   void postProcessShaleGasTimeStep ( ChemicalModel *chemicalMode, const double in_dT, const bool printIt );
+   void postProcessShaleGasTimeStep ( ChemicalModel *chemicalMode, const double in_dT );
 
    void ComputeFirstTimeInstance(ChemicalModel *theChmod);
 
@@ -542,4 +551,4 @@ inline const SpeciesManager * SimulatorState::getSpeciesManager () const {
 }
 
 }
-#endif // _GENEX6_KERNEL__SIMULATOR_STATE_H_
+#endif // GENEX6_KERNEL__SIMULATOR_STATE_H

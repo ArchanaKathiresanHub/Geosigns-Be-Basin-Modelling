@@ -1,24 +1,25 @@
+//
+// Copyright (C) 2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include <stdlib.h>
 
 #include "petsc.h"
-
-#ifdef sgi
-#ifdef _STANDARD_C_PLUS_PLUS
 #include <iostream>
 using namespace std;
-#else // !_STANDARD_C_PLUS_PLUS
-#include<iostream.h>
-#endif // _STANDARD_C_PLUS_PLUS
-#else // !sgi
-#include <iostream>
-using namespace std;
-#endif // sgi
 
 #include "Migrator.h"
 #include "ObjectFactory.h"
 
 #include "migration.h"
 #include "rankings.h"
+#include "StatisticsHandler.h"
 
 using namespace migration;
 
@@ -49,10 +50,12 @@ string NumProcessorsArg;
 /// Main routine
 int main (int argc, char ** argv)
 {
-   PetscInitialize (&argc, &argv, (char *) 0, help);
+   PetscInitialize (&argc, &argv, (char *)0, help);
 
-   char * strI = getenv ("DebugPointI"); 
-   char * strJ = getenv ("DebugPointJ"); 
+   Utilities::CheckMemory::StatisticsHandler::initialise();
+
+   char * strI = getenv ("DebugPointI");
+   char * strJ = getenv ("DebugPointJ");
 
    if (strI && strJ)
    {
@@ -145,16 +148,16 @@ int main (int argc, char ** argv)
 #endif
 
    int rank = 99999;
-   MPI_Comm_rank(PETSC_COMM_WORLD, &rank);
-   
-   
+   MPI_Comm_rank (PETSC_COMM_WORLD, &rank);
+
+
 #ifdef FLEXLM
    int rc = EPTFLEXLM_OK;
-  
+
    char feature[EPTFLEXLM_MAX_FEATURE_LEN];
    char version[EPTFLEXLM_MAX_VER_LEN];
    char errmessage[EPTFLEXLM_MAX_MESS_LEN];
-   
+
    // FlexLM license handling only for node with rank = 0
    if( rank == 0 )
    {
@@ -181,20 +184,20 @@ int main (int argc, char ** argv)
          fprintf(stderr,"\n@@@@@@@@@@@@@@@\n FlexLm license error: fastcauldron cannot start.\n Please contact your helpdesk\n@@@@@@@@@@@@@@@\n");
       }
    }
-   
+
    MPI_Bcast ( &rc, 1, MPI_INT, 0, PETSC_COMM_WORLD);
-   
+
 #endif
-   
+
 #ifdef FLEXLM
    if( rc != EPTFLEXLM_OK && rc != EPTFLEXLM_WARN)
    {
       //FlexLM license check in only for node with rank = 0
       if( rank == 0 )
       {
-	 // FlexLm license check in, close down and enable logging
-	 EPTFlexLmCheckIn( feature );
-	 EPTFlexLmTerminate();
+         // FlexLm license check in, close down and enable logging
+         EPTFlexLmCheckIn( feature );
+         EPTFlexLmTerminate();
       }
       // Close PetSc
       PetscFinalize ();
@@ -207,14 +210,14 @@ int main (int argc, char ** argv)
    Migrator * migrator = 0;
 
    //ObjectFactory* objectFactory = new ObjectFactory();
-   
+
    StartTime ();
 
    if (status)
    {
       ReportProgress ("Reading Project File: ", inputFileName);
-      migrator = new Migrator(inputFileName);
-         status = (migrator != 0);
+      migrator = new Migrator (inputFileName);
+      status = (migrator != 0);
    }
 
    if (status)
@@ -242,13 +245,13 @@ int main (int argc, char ** argv)
    {
       if (GetRank () == 0)
       {
-	 migrator->sanitizeMigrationRecords ();
-	 migrator->checkMigrationRecords ();
-	 migrator->sortMigrationRecords ();
-	 migrator->checkMigrationRecords ();
-	 migrator->uniqueMigrationRecords ();
-	 migrator->checkMigrationRecords ();
-	 status = migrator->saveTo (outputFileName);
+         migrator->sanitizeMigrationRecords ();
+         migrator->checkMigrationRecords ();
+         migrator->sortMigrationRecords ();
+         migrator->checkMigrationRecords ();
+         migrator->uniqueMigrationRecords ();
+         migrator->checkMigrationRecords ();
+         status = migrator->saveTo (outputFileName);
       }
    }
 
@@ -262,7 +265,9 @@ int main (int argc, char ** argv)
       ReportProgress ("Did not save project file: ", outputFileName);
       ReportProgress ("Finished Simulation prematurely");
    }
-
+   
+   // Save the memory consumption before deleting migrator
+   Utilities::CheckMemory::StatisticsHandler::update();
    delete migrator;
    //delete objectFactory;
 
@@ -275,7 +280,19 @@ int main (int argc, char ** argv)
       EPTFlexLmTerminate();
    }
 #endif
-   
+
+   // Print the memory consumption to standard out 
+   std::string statistics = Utilities::CheckMemory::StatisticsHandler::print( rank );
+
+   PetscPrintf(PETSC_COMM_WORLD, "<statistics>\n");
+   PetscSynchronizedFlush(PETSC_COMM_WORLD, PETSC_STDOUT);
+
+   PetscSynchronizedPrintf(PETSC_COMM_WORLD, statistics.c_str());
+   PetscSynchronizedFlush(PETSC_COMM_WORLD, PETSC_STDOUT);
+
+   PetscPrintf(PETSC_COMM_WORLD, "</statistics>\n");
+   PetscSynchronizedFlush(PETSC_COMM_WORLD, PETSC_STDOUT);
+
    PetscFinalize ();
 
    return status ? 0 : -1;

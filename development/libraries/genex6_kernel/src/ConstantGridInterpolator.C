@@ -10,8 +10,7 @@ Genex6::ConstantGridInterpolator::~ConstantGridInterpolator() {
 }
 
 double Genex6::ConstantGridInterpolator::evaluateProperty ( const int &I, 
-                                                            const int &J, 
-                                                            const double &in_timeInstance) const {
+                                                            const int &J ) const {
    return m_data->getValue ( (unsigned int)I, (unsigned int)J );
 }
 

@@ -1,10 +1,7 @@
-#include "stdafx.h"
-
 #include "polynomials.h"
 
 #include <limits>
-
-#include <math.h>
+#include <cmath>
 
 
 using namespace std;
@@ -451,11 +448,7 @@ void polynomials::parse::ParsePiecewisePolynomial (std::vector<Token> theTokens,
 void  polynomials::parse::GetTokens(const std::string& func, std::vector<Token> & theTokens )
 {
 
-#ifdef sgi
-   istringstream ins(func.c_str(),func.size());
-#else
    istringstream ins(func);
-#endif
    
    list<Token> tokList;
    for(;;)

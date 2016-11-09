@@ -1,7 +1,16 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 #include <stdlib.h>
 
 #include "ReactionRatio.h"
-#include "Constants.h"
+#include "ConstantsGenex.h"
 #include "GeneralParametersHandler.h"
 #include "Species.h"
 namespace Genex6

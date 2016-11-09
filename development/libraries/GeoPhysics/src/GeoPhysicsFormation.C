@@ -1,3 +1,13 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "GeoPhysicsFormation.h"
 
 #include <cmath>
@@ -201,7 +211,7 @@ bool GeoPhysics::Formation::setLithologiesFromStratTable () {
 
                   CompoundLithologyComposition lc ( lithoName1,           lithoName2,           lithoName3,
                                                     lithologyPercentage1, lithologyPercentage2, lithologyPercentage3,
-                                                    getMixModelStr ());
+                                                    getMixModelStr (), getLayeringIndex());
 
                   pMixedLitho = ((GeoPhysics::ProjectHandle*)(m_projectHandle))->getLithologyManager ().getCompoundLithology ( lc );
 
@@ -273,16 +283,10 @@ bool GeoPhysics::Formation::setLithologiesFromStratTable () {
 
          CompoundLithologyComposition lc ( OneDHiatusLithologyName, "", "",
                                            100.0, 0.0, 0.0,
-                                           getMixModelStr ());
+                                           getMixModelStr (), getLayeringIndex());
 
          pMixedLitho = ((GeoPhysics::ProjectHandle*)(m_projectHandle))->getLithologyManager ().getCompoundLithology ( lc );
-
-         // Why rank == 1 in this statement?
-//          createdLithologies = successfulExecution (  pMixedLitho != 0 or rank == 1 );
          createdLithologies = pMixedLitho != 0;
-
-//       } else if ( noDefinedLithologyValue ) {
-//          pMixedLitho = 0;
       } else if ( NumericFunctions::Minimum3 ( lithologyPercentage1, lithologyPercentage2, lithologyPercentage3 ) < -LithologyTolerance or 
                   NumericFunctions::Maximum3 ( lithologyPercentage1, lithologyPercentage2, lithologyPercentage3 ) > 100.0 + LithologyTolerance or
                   not NumericFunctions::isEqual ( lithologyPercentage1 + lithologyPercentage2 + lithologyPercentage3, 100.0, LithologyTolerance )) {
@@ -303,14 +307,10 @@ bool GeoPhysics::Formation::setLithologiesFromStratTable () {
       } else {
          CompoundLithologyComposition lc ( lithoName1,           lithoName2,           lithoName3,
                                            lithologyPercentage1, lithologyPercentage2, lithologyPercentage3,
-                                           getMixModelStr ());
+                                           getMixModelStr (), getLayeringIndex() );
 
          pMixedLitho = ((GeoPhysics::ProjectHandle*)(m_projectHandle))->getLithologyManager ().getCompoundLithology ( lc );
-
-         // Why rank == 1 in this statement?
          createdLithologies = pMixedLitho != 0;
-//          createdLithologies = successfulExecution (  pMixedLitho != 0 or rank == 1 );
-
       }
 
       if ( createdLithologies ) {
@@ -335,6 +335,10 @@ bool GeoPhysics::Formation::setLithologiesFromStratTable () {
    if ( lithoMap3 != 0 ) {
       lithoMap3->restoreData ( false, true );
    }
+   
+   if ( lithoMap1 ) lithoMap1->release();
+   if ( lithoMap2 ) lithoMap2->release();
+   if ( lithoMap3 ) lithoMap3->release();
 
    return createdLithologies;
 }
@@ -517,6 +521,7 @@ void GeoPhysics::Formation::determineMinMaxThickness () {
             m_maximumDepositedThickness = NumericFunctions::Maximum ( m_maximumDepositedThickness, gridMapMaximum );
 
             gridMap->restoreData ( false );
+            gridMap->release();
          }
 
       }

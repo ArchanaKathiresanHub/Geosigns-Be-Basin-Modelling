@@ -75,6 +75,10 @@ namespace ibs
       /// @return full path
       Path fullPath() const;
 
+      /// @brief Set the specified path as current path
+      /// @return the new Path 
+      bool setPath();
+
       /// @brief Add to path new element divided by path separator
       /// @param pathEl the new element of the path to be added
       /// @return Path object itself

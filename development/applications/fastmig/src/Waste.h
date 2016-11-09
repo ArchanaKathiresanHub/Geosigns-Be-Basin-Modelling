@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2010-2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef _MIGRATION_DISTRIBUTE_WASTE_H_
 #define _MIGRATION_DISTRIBUTE_WASTE_H_
 
@@ -7,26 +17,30 @@
 using functions::MonotonicIncreasingPiecewiseLinearInvertableFunction;
 using functions::Tuple2;
 
-namespace migration { namespace distribute {
-
-class Waste
+namespace migration
 {
-private:
+   namespace distribute
+   {
 
-   Tuple2<double> m_maxContent;
+      class Waste
+      {
+      private:
 
-public:
+         Tuple2<double> m_maxContent;
 
-   Waste(const double& wasteLevel, const MonotonicIncreasingPiecewiseLinearInvertableFunction* 
-      levelToVolume);
+      public:
 
-   void distribute(const double& fluidVolume, double& fluidWasted) const;
+         Waste (const double& wasteLevel, const MonotonicIncreasingPiecewiseLinearInvertableFunction*
+            levelToVolume);
 
-   const double& maxLevel() const { return m_maxContent[0]; }
-   const double& maxVolume() const { return m_maxContent[1]; }
-   const Tuple2<double>& maxContent() const { return m_maxContent; }
-};
+         void distribute (const double& fluidVolume, double& fluidWasted) const;
 
-} } // namespace migration::distribute
+         const double& maxLevel () const { return m_maxContent[0]; }
+         const double& maxVolume () const { return m_maxContent[1]; }
+         const Tuple2<double>& maxContent () const { return m_maxContent; }
+      };
+
+   }
+} // namespace migration::distribute
 
 #endif

@@ -27,6 +27,7 @@
 
 #include "PrmPorosityModel.h"
 #include "PrmSurfacePorosity.h"
+#include "PrmCompactionCoefficient.h"
 #include "PrmPermeabilityModel.h"
 #include "PrmLithoSTPThermalCond.h"
 
@@ -48,6 +49,7 @@
 #include "VarPrmPermeabilityModel.h"
 #include "VarPrmLithoSTPThermalCond.h"
 #include "VarPrmLithoFraction.h"
+#include "VarPrmCompactionCoefficient.h"
 
 // Standard C lib
 #include <cmath>
@@ -65,16 +67,21 @@ static size_t findMixingIDForLithologyInLayer( const char * layerName, const std
    {
       mbapi::StratigraphyManager & smgr = sa.baseCase().stratigraphyManager();
       mbapi::StratigraphyManager::LayerID lyd = smgr.layerID( layerName );
+      
       if ( UndefinedIDValue == lyd )
       {
          throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "No such layer: " << layerName << " in stratigraphy table";
       }
+
       std::vector<std::string> lithLst;
       std::vector<double>      percLst;
-      if ( ErrorHandler::NoError != smgr.layerLithologiesList( lyd, lithLst, percLst ) )
+      std::vector<std::string> percMaps;
+      
+      if ( ErrorHandler::NoError != smgr.layerLithologiesList( lyd, lithLst, percLst, percMaps ) )
       {
          throw ErrorHandler::Exception( smgr.errorCode() ) << smgr.errorMessage();
       }
+      
       for ( size_t i = 0; i < lithLst.size(); ++i )
       {
          if ( lithLst[i] == lithoName )
@@ -84,6 +91,7 @@ static size_t findMixingIDForLithologyInLayer( const char * layerName, const std
          }
       }
    }
+
    return mixID;
 }
 
@@ -122,7 +130,7 @@ ErrorHandler::ReturnCode VaryTopCrustHeatProduction( ScenarioAnalysis           
       mbapi::Model & mdl = sa.baseCase();
       
       casa::PrmTopCrustHeatProduction prm( mdl );
-      if ( mdl.errorCode() != ErrorHandler::NoError ) return sa.moveError( mdl );
+      if ( mdl.errorCode() != ErrorHandler::NoError ) { return sa.moveError( mdl ); }
 
       if ( dblRng.size() == 2 )
       {
@@ -157,7 +165,7 @@ ErrorHandler::ReturnCode VaryTopCrustHeatProduction( ScenarioAnalysis           
       }
       else
       {
-         ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Radiogenic heat production IP must be defined by simple range of" <<
+         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Radiogenic heat production IP must be defined by simple range of" <<
             " two double values or by map range with two map names";
       }
 
@@ -175,14 +183,14 @@ ErrorHandler::ReturnCode VaryTopCrustHeatProduction( ScenarioAnalysis           
 }
 
 // Add a parameter to variate source rock lithology TOC value @f$ [%%] @f$ in given range
-ErrorHandler::ReturnCode VarySourceRockTOC( ScenarioAnalysis    & sa
-                                          , const char          * name
-                                          , const char          * layerName
-                                          , int                   mixID
-                                          , const char          * srTypeName
-                                          , double                minVal
-                                          , double                maxVal
-                                          , VarPrmContinuous::PDF rangeShape
+ErrorHandler::ReturnCode VarySourceRockTOC( ScenarioAnalysis               & sa
+                                          , const char                     * name
+                                          , const char                     * layerName
+                                          , int                              mixID
+                                          , const char                     * srTypeName
+                                          , const std::vector<double>      & dblRngIn
+                                          , const std::vector<std::string> & mapRngIn
+                                          , VarPrmContinuous::PDF            rangeShape
                                           )
 {
    try
@@ -190,23 +198,55 @@ ErrorHandler::ReturnCode VarySourceRockTOC( ScenarioAnalysis    & sa
       std::string srtName = srTypeName ? srTypeName : "";
       VarSpaceImpl & varPrmsSet = dynamic_cast< VarSpaceImpl & >( sa.varSpace() );
 
+      std::vector<double>      dblRng( dblRngIn.begin(), dblRngIn.end() );
+      std::vector<std::string> mapRng( mapRngIn.begin(), mapRngIn.end() );
+
       // Get base value of parameter from the Model
       mbapi::Model & mdl = sa.baseCase();
 
       casa::PrmSourceRockTOC prm( mdl, layerName, srTypeName, mixID );
-      if ( mdl.errorCode() != ErrorHandler::NoError ) return sa.moveError( mdl );
+      if ( mdl.errorCode() != ErrorHandler::NoError ) { return sa.moveError( mdl ); } 
 
-      const std::vector<double> & baseValue = prm.asDoubleArray();
-      assert( baseValue.size() == 1 );
-
-      if ( baseValue[0] < minVal || baseValue[0] > maxVal )
+      if ( dblRng.size() == 2 )
       {
-         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Value of parameter in base case is outside of the given range";
+         double baseValue = prm.value();
+
+         if ( baseValue < dblRng[0] || baseValue > dblRng[1] )
+         {
+            throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Value of TOC parameter in base case is outside of the given range";
+         }
+         dblRng.push_back( baseValue );
+      }
+      else if ( mapRng.size() == 2 )
+      {
+         std::string baseValue = prm.mapName();
+         if ( baseValue.empty() )
+         {
+            throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Base case has no map defined for initial TOC parameter "
+                                       << (name ? std::string( name ) : ( std::string( layerName ) + "(" + std::to_string( mixID ) + ")" ));
+         }
+         mapRng.push_back( baseValue );
+
+         // check are other 2 maps exist in maps list
+         mbapi::MapsManager & mm = mdl.mapsManager();
+         for ( size_t k = 0; k < 2; ++k )
+         {
+            mbapi::MapsManager::MapID mid = mm.findID( mapRng[k] );
+            if ( UndefinedIDValue == mid )
+            {
+               throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Base case project has no map " << mapRng[k] << " defined";
+            }
+         }
+      }
+      else
+      {
+         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Initial TOC IP must be defined by simple range of" <<
+            " two double values or by map range with two map names";
       }
 
       bool alreadyAdded = false;
 
-      // check is the variable parameters set already has TOC parameter
+      // check if the variable parameters set already has TOC parameter
       if ( !srtName.empty() )
       {
          for ( size_t i = 0; i < varPrmsSet.size() && !alreadyAdded; ++i )
@@ -218,24 +258,32 @@ ErrorHandler::ReturnCode VarySourceRockTOC( ScenarioAnalysis    & sa
                if ( name && prm->name()[0].compare( name ) ) // if name is given and name is different - error
                {
                   throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Different name for the same TOC variable parameter. Given: " 
-                     << name << ", expected : " << prm->name()[0];
+                                                                                 << name << ", expected : " << prm->name()[0];
                }
                alreadyAdded = true;
-               prm->addSourceRockTypeRange( srTypeName, baseValue[0], minVal, maxVal, rangeShape );
+               SharedParameterPtr minVal( new PrmSourceRockTOC( prm, (dblRng.size() == 3 ? dblRng[0] : -1.0), layerName, 
+                                                                     (mapRng.size() == 3 ? mapRng[0] : std::string("")), srTypeName, mixID ) );
+
+               SharedParameterPtr maxVal( new PrmSourceRockTOC( prm, (dblRng.size() == 3 ? dblRng[1] :  1.0), layerName, 
+                                                                     (mapRng.size() == 3 ? mapRng[1] : std::string("")), srTypeName, mixID ) );
+
+               SharedParameterPtr basVal( new PrmSourceRockTOC( prm, (dblRng.size() == 3 ? dblRng[2] :  0.0), layerName, 
+                                                                     (mapRng.size() == 3 ? mapRng[2] : std::string("")), srTypeName, mixID ) );
+               prm->addSourceRockTypeRange( srTypeName, basVal, minVal, maxVal, rangeShape );
             }
          }
       }
+
       if ( !alreadyAdded )
       {
          std::unique_ptr<VarPrmSourceRockTOC> newPrm( new VarPrmSourceRockTOC( layerName
-                                                                       , baseValue[0]
-                                                                       , minVal
-                                                                       , maxVal
-                                                                       , rangeShape
-                                                                       , name
-                                                                       , srTypeName
-                                                                       , mixID
-                                                                       ) );
+                                                                             , dblRng
+                                                                             , mapRng
+                                                                             , rangeShape
+                                                                             , name
+                                                                             , srTypeName
+                                                                             , mixID
+                                                                             ) );
          // check if there is SourceRockType category parameter
          if ( !srtName.empty() )
          {
@@ -328,7 +376,11 @@ ErrorHandler::ReturnCode VarySourceRockHI( ScenarioAnalysis    & sa
             }
 
             alreadyAdded = true;
-            hiPrm->addSourceRockTypeRange( srTypeName, baseValue[0], minVal, maxVal, rangeShape );
+            SharedParameterPtr minValPrm( new PrmSourceRockHI( hiPrm, minVal,       layerName, srTypeName, mixID ) );
+            SharedParameterPtr maxValPrm( new PrmSourceRockHI( hiPrm, maxVal,       layerName, srTypeName, mixID ) );
+            SharedParameterPtr basValPrm( new PrmSourceRockHI( hiPrm, baseValue[0], layerName, srTypeName, mixID ) );
+
+            hiPrm->addSourceRockTypeRange( srTypeName, basValPrm, minValPrm, maxValPrm, rangeShape );
          }
       }
 
@@ -434,7 +486,11 @@ ErrorHandler::ReturnCode VarySourceRockHC( ScenarioAnalysis    & sa
             }
 
             alreadyAdded = true;
-            hcPrm->addSourceRockTypeRange( srTypeName, baseValue[0], minVal, maxVal, rangeShape );
+            SharedParameterPtr minValPrm( new PrmSourceRockHC( hcPrm, minVal,       layerName, srTypeName, mixID ) );
+            SharedParameterPtr maxValPrm( new PrmSourceRockHC( hcPrm, maxVal,       layerName, srTypeName, mixID ) );
+            SharedParameterPtr basValPrm( new PrmSourceRockHC( hcPrm, baseValue[0], layerName, srTypeName, mixID ) );
+
+            hcPrm->addSourceRockTypeRange( srTypeName, basValPrm, minValPrm, maxValPrm, rangeShape );
          }
       }
       // add variable parameter to VarSpace
@@ -537,7 +593,12 @@ ErrorHandler::ReturnCode VarySourceRockPreAsphaltActEnergy( ScenarioAnalysis    
                      "variable parameter. Given: " << name << ", expected : " << prm->name()[0];
                }
                alreadyAdded = true;
-               prm->addSourceRockTypeRange( srTypeName, baseValue[0], minVal, maxVal, rangeShape );
+               
+               SharedParameterPtr minValPrm( new PrmSourceRockPreAsphaltStartAct( prm, minVal,       layerName, srTypeName, mixID ) );
+               SharedParameterPtr maxValPrm( new PrmSourceRockPreAsphaltStartAct( prm, maxVal,       layerName, srTypeName, mixID ) );
+               SharedParameterPtr basValPrm( new PrmSourceRockPreAsphaltStartAct( prm, baseValue[0], layerName, srTypeName, mixID ) );
+
+               prm->addSourceRockTypeRange( srTypeName, basValPrm, minValPrm, maxValPrm, rangeShape );
             }
          }
       }
@@ -898,7 +959,7 @@ ErrorHandler::ReturnCode VarySurfacePorosity( ScenarioAnalysis & sa
 {
    try
    {
-      VarSpace & varPrmsSet = sa.varSpace();
+      VarSpaceImpl & varPrmsSet = dynamic_cast< VarSpaceImpl & >( sa.varSpace() );
 
       // calculate base value as middle of range first
 
@@ -914,6 +975,35 @@ ErrorHandler::ReturnCode VarySurfacePorosity( ScenarioAnalysis & sa
       ErrorHandler::Exception ex( ErrorHandler::OutOfRangeValue );
       if ( baseSurfPor < minSurfPor || baseSurfPor > maxSurfPor ) { throw ex << "Surface porosity in the base case is outside of the given range"; }
 
+      // Check if the parameter space has a layer where the compaction coefficient was defined for a soil mechanics model. 
+      // In this case display an error message and exit.
+      mbapi::LithologyManager & mgr = mdl.lithologyManager();
+
+      mbapi::LithologyManager::LithologyID lid = mgr.findID( litName );
+      if ( lid == UndefinedIDValue ) { throw ErrorHandler::Exception( mgr.errorCode() ) << mgr.errorMessage(); }
+
+      mbapi::LithologyManager::PorosityModel porModel = mbapi::LithologyManager::PorUnknown;
+      std::vector<double> porModelPrms;
+
+      if ( ErrorHandler::NoError != mgr.porosityModel( lid, porModel, porModelPrms ) )
+      {
+         throw ErrorHandler::Exception( mgr.errorCode() ) << mgr.errorMessage();
+      }
+
+      if ( porModel == mbapi::LithologyManager::PorSoilMechanics )
+      {
+         for ( size_t i = 0; i < varPrmsSet.size(); ++i )
+         {
+            VarPrmCompactionCoefficient * prm = dynamic_cast<VarPrmCompactionCoefficient *>( varPrmsSet[i] );
+            if ( !prm ) continue;
+            else if ( prm->lithoNames()[0].compare( litName ) )
+            {
+               throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << " Surface porosity for soil mechanics cannot be created "
+                  << "because the compaction coefficient has been already defined as variable parameter for lithology  " << prm->lithoNames()[0];
+            }
+         }
+      }
+
       // check - if not only lithology was specified, create a copy of corresponded lithology and update all refernces to it
       if ( !layersName.empty() || !allochtLitName.empty() || !faultsName.empty() )
       {
@@ -921,29 +1011,119 @@ ErrorHandler::ReturnCode VarySurfacePorosity( ScenarioAnalysis & sa
 
          if ( newLitNames.empty() ) { throw ErrorHandler::Exception( mdl.errorCode() ) << mdl.errorMessage(); }
 
-         if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmSurfacePorosity( newLitNames, baseSurfPor, minSurfPor, maxSurfPor, pdfType, name ) ) )
+         if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmSurfacePorosity( newLitNames
+                                                                                         , baseSurfPor
+                                                                                         , minSurfPor
+                                                                                         , maxSurfPor
+                                                                                         , pdfType
+                                                                                         , name 
+                                                                                         ) ) )
          {
             throw ErrorHandler::Exception( varPrmsSet.errorCode() ) << varPrmsSet.errorMessage();
          }
       }
    }
-   catch( const ErrorHandler::Exception & ex )
-   {
-      return sa.reportError( ex.errorCode(), ex.what() );
-   }
+   catch( const ErrorHandler::Exception & ex ) { return sa.reportError( ex.errorCode(), ex.what() ); }
 
    return ErrorHandler::NoError;
 }
 
-ErrorHandler::ReturnCode VaryLithoFraction(
-   ScenarioAnalysis                                   & sa
-   , const std::string                                & name
-   , const std::string                                & layerName
-   , std::vector<int>                                 & lithoFractionsInds
-   , std::vector<double>                              & minLithoFrac
-   , std::vector<double>                              & maxLithoFrac
-   , casa::VarPrmContinuous::PDF 	                    pdfType
-   )
+// Add variation of porosity model parameters 
+ErrorHandler::ReturnCode VaryCompactionCoefficient( ScenarioAnalysis                                        & sa
+                                                  , const std::string                                       & name
+                                                  , const std::vector<std::pair<std::string, size_t> >      & layersName
+                                                  , const std::vector<std::string>                          & allochtLitName
+                                                  , const std::vector<std::pair<std::string, std::string> > & faultsName
+                                                  , const std::string                                       & litName
+                                                  , double                                                    minCompCoef
+                                                  , double                                                    maxCompCoef
+                                                  , VarPrmContinuous::PDF                                     pdfType
+                                                  )
+{
+   try
+   {
+      VarSpaceImpl & varPrmsSet = dynamic_cast< VarSpaceImpl & >( sa.varSpace() );
+
+      // calculate base value as middle of range first
+      double baseCompCoef = 0.5 * ( minCompCoef + maxCompCoef );
+
+      // Get base value of parameter from the Model
+      mbapi::Model & mdl = sa.baseCase();
+
+      casa::PrmCompactionCoefficient prm( mdl, litName );
+      baseCompCoef = prm.asDoubleArray()[0];
+
+      // check ranges and base value
+      if ( minCompCoef > baseCompCoef || baseCompCoef > maxCompCoef )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Compaction coefficient in the base case is outside of the given range";
+      }
+
+      // get the porosity model for the asked layer name
+      mbapi::LithologyManager & mgr = mdl.lithologyManager();
+
+      // Check if the parameter space has a layer where the surface porosity was defined for a soil mechanics model. 
+      // In this case display an error message and exit.
+      mbapi::LithologyManager::LithologyID lid = mgr.findID( litName );
+      if ( lid == UndefinedIDValue )
+      {
+         throw ErrorHandler::Exception( mgr.errorCode() ) << mgr.errorMessage();
+      }
+
+      mbapi::LithologyManager::PorosityModel porModel = mbapi::LithologyManager::PorUnknown;
+      std::vector<double> porModelPrms;
+
+      if ( ErrorHandler::NoError != mgr.porosityModel( lid, porModel, porModelPrms ) )
+      {
+         throw ErrorHandler::Exception( mgr.errorCode() ) << mgr.errorMessage();
+      }
+
+      if ( porModel == mbapi::LithologyManager::PorSoilMechanics )
+      {
+         for ( size_t i = 0; i < varPrmsSet.size(); ++i )
+         {
+            VarPrmSurfacePorosity * prm = dynamic_cast<VarPrmSurfacePorosity *>( varPrmsSet[i] );
+            if ( !prm ) continue;
+            else if ( prm->lithoNames()[0].compare( litName ) )
+            {
+               throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << " Compaction coefficient for soil mechanics cannot be created "
+                            << "because surface porosity has been already defined as variable parameter for lithology  " << prm->lithoNames()[0];
+            }            
+         }
+      }
+     
+      // check - if not only lithology was specified, create a copy of corresponded lithology and update all references to it
+      if ( !layersName.empty() || !allochtLitName.empty() || !faultsName.empty() )
+      {
+         const std::vector<std::string> & newLitNames = mdl.copyLithology( litName, layersName, allochtLitName, faultsName );
+
+         if ( newLitNames.empty() ) { throw ErrorHandler::Exception( mdl.errorCode() ) << mdl.errorMessage(); }
+
+         if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmCompactionCoefficient( newLitNames
+                                                                                               , baseCompCoef
+                                                                                               , minCompCoef
+                                                                                               , maxCompCoef
+                                                                                               , pdfType
+                                                                                               , name 
+                                                                                               ) ) )
+         {
+            throw ErrorHandler::Exception( varPrmsSet.errorCode() ) << varPrmsSet.errorMessage();
+         }
+      }
+   }
+   catch ( const ErrorHandler::Exception & ex ) { return sa.reportError( ex.errorCode(), ex.what() ); }
+
+   return ErrorHandler::NoError;
+}
+
+ErrorHandler::ReturnCode VaryLithoFraction( ScenarioAnalysis            & sa
+                                          , const std::string           & name
+                                          , const std::string           & layerName
+                                          , std::vector<int>              lithoFractionsInds
+                                          , std::vector<double>           minLithoFrac
+                                          , std::vector<double>           maxLithoFrac
+                                          , casa::VarPrmContinuous::PDF   pdfType
+                                          )
 {
    try
    {
@@ -969,40 +1149,55 @@ ErrorHandler::ReturnCode VaryLithoFraction(
       std::vector<double> baseLithoFractions = prm.asDoubleArray();
 
       // If only one lithofraction was given, the last lithofraction does not vary
-      if ( minLithoFrac.size() == 1 )
+      if ( minLithoFrac.size() == 1 && !baseLithoFractions.empty( ) )
       {
          minLithoFrac.push_back( baseLithoFractions.back() );
          maxLithoFrac.push_back( baseLithoFractions.back() );
       }
 
+      // the map case
+      if ( baseLithoFractions.empty( ) )
+      {
+         baseLithoFractions.push_back( ( minLithoFrac[0] + maxLithoFrac[0] ) * 0.5 );
+         if ( minLithoFrac.size() == 1 )
+         {
+            minLithoFrac.push_back( baseLithoFractions.back( ) );
+            maxLithoFrac.push_back( baseLithoFractions.back( ) );
+         }
+         baseLithoFractions.push_back( ( minLithoFrac[1] + maxLithoFrac[1] ) * 0.5 );
+      }
       // Check ranges and the base value
       ErrorHandler::Exception ex( ErrorHandler::OutOfRangeValue );
 
-      if ( baseLithoFractions[0] < minLithoFrac[0] || baseLithoFractions[0] > maxLithoFrac[0] )
+      if ( std::ceil( baseLithoFractions[0] * 1000 ) * 0.001 < minLithoFrac[0] || std::floor( baseLithoFractions[0] * 1000 ) * 0.001> maxLithoFrac[0] )
       {
          throw ex << "The percentage of the lithology " << lithoFractionsInds[0] << " for the layer " << layerName << " in the base case: " <<
-                      baseLithoFractions[0] << " is outside of the given range : [" << minLithoFrac[0] << ":" << maxLithoFrac[0] << "]" ;
+                       baseLithoFractions[0] << " is outside of the given range : [" << minLithoFrac[0] << ":" << maxLithoFrac[0] << "]";
       }
 
-      if ( baseLithoFractions[1] < minLithoFrac[1] || baseLithoFractions[1] > maxLithoFrac[1] )
-      {
-         throw ex << "The ratio of the lithology " << lithoFractionsInds[1] << " for the layer " << layerName << " in the base case: " <<
-                     baseLithoFractions[1] << " is outside of the given range : [" << minLithoFrac[1] << ":" << maxLithoFrac[1] << "]" ;
-      }
+      if ( std::ceil(baseLithoFractions[1] * 1000 ) * 0.001 < minLithoFrac[1] || std::floor( baseLithoFractions[1] * 1000) * 0.001 > maxLithoFrac[1] )
+       {
+          throw ex << "The ratio of the lithology " << lithoFractionsInds[1] << " for the layer " << layerName << " in the base case: " <<
+                       baseLithoFractions[1] << " is outside of the given range : [" << minLithoFrac[1] << ":" << maxLithoFrac[1] << "]";
+       }
 
       // add the variable lithofraction parameter to varPrmsSet 
       if ( !layerName.empty() )
       {
-         if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmLithoFraction( layerName, lithoFractionsInds, baseLithoFractions, minLithoFrac, maxLithoFrac, pdfType, name ) ) )
+         if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmLithoFraction( layerName
+                                                                                       , lithoFractionsInds
+                                                                                       , baseLithoFractions
+                                                                                       , minLithoFrac
+                                                                                       , maxLithoFrac
+                                                                                       , pdfType
+                                                                                       , name 
+                                                                                       ) ) )
          {
             throw ErrorHandler::Exception( varPrmsSet.errorCode() ) << varPrmsSet.errorMessage();
          }
       }
    }
-   catch ( const ErrorHandler::Exception & ex )
-   {
-      return sa.reportError( ex.errorCode(), ex.what() );
-   }
+   catch ( const ErrorHandler::Exception & ex ) { return sa.reportError( ex.errorCode(), ex.what() ); }
 
    return ErrorHandler::NoError;
 }

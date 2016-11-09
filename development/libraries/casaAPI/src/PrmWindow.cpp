@@ -54,10 +54,11 @@ PrmWindow::PrmWindow( int xMin, int xMax, int yMin, int yMax )
                     , m_xMax( xMax )
                     , m_yMin( yMin )
                     , m_yMax( yMax )
-                    , m_name( "ProjectWindow" ) { ; }
+                    , m_name( "ProjectWindow" )
+                    { ; }
 
 // Set this parameter value in Cauldron model
-ErrorHandler::ReturnCode PrmWindow::setInModel( mbapi::Model & caldModel, size_t caseID )
+ErrorHandler::ReturnCode PrmWindow::setInModel( mbapi::Model & caldModel, size_t /*caseID*/ )
 {
    try
    {

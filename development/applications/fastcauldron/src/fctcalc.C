@@ -20,6 +20,7 @@ using namespace std;
 #include "Interface/RunParameters.h"
 
 using namespace Basin_Modelling;
+using namespace Utilities::CheckMemory;
 
 #ifdef ABS
 #undef ABS
@@ -163,14 +164,6 @@ void FCTCalc::decompact(){
     MPI_Barrier(PETSC_COMM_WORLD);
 
     writeCauldronSnapShotTime((*it)->time ());
-
-#if 0
-    if (cauldron->fileOutput == FCMAPandVOLUME) {
-      writeCauldronSnapShotTime((*it)->time ());
-    } else if (cauldron->fileOutput == FCMAP) {
-      writeCauldronSnapShotTime((*it)->time ());
-    }
-#endif
 
   }
   allSnapshots.clear();

@@ -31,24 +31,30 @@
 #include "Tuple2.h"
 #include "depthToVolume.h"
 #include "Interface/FluidType.h"
+#include "GeoPhysicsFluidType.h"
 #include "translateProps.h"
 #include "LeakWasteAndSpillDistributor.h"
 #include "LeakAllGasAndOilDistributor.h"
 #include "SpillAllGasAndOilDistributor.h"
 #include "utils.h"
-#include "consts.h"
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
 
+// std library
 #include <assert.h>
 #include <algorithm>
 #include <vector>
 #include <sstream>
-using std::ostringstream;
-
-extern ostringstream cerrstrstr;
-
 using namespace std;
-using namespace CBMGenerics;
-
+using std::ostringstream;
+extern ostringstream cerrstrstr;
 #define MAXDOUBLE std::numeric_limits<double>::max()
 
 using Interface::Formation;
@@ -56,8 +62,15 @@ using Interface::Snapshot;
 using functions::Tuple2;
 using functions::tuple;
 
+// utilities library
+#include "ConstantsMathematics.h"
+using Utilities::Maths::PaToMegaPa;
+using Utilities::Maths::CelciusToKelvin;
+
 // #define DEBUG_TRAP
 // #define DEBUG_BIODEGRADATION
+using namespace CBMGenerics;
+
 
 namespace migration
 {
@@ -72,7 +85,8 @@ namespace migration
       m_drainageAreaId (UnknownTrapId),
       m_diffusionStartTime (-1),
       m_diffusionOverburdenProps (0),
-      m_hydrocarbonWaterContactDepth (-199999)
+      m_hydrocarbonWaterContactDepth (-199999),
+      m_isPasteurized (false)
    {
       column->setTrap (this);
       m_reservoir = column->getReservoir ();
@@ -100,14 +114,10 @@ namespace migration
          m_toBeDistributed[phase].setDensity (0);
 
          m_fillDepth[phase] = column->getTopDepth ();
-
-         m_diffusionLeaked[phase].reset ();
-         m_diffusionLeaked[phase].setDensity (0);
       }
 
-      m_leakedBeforeDiffusion.reset ();
-      m_leakedBeforeDiffusion.setDensity (0);
-
+      m_diffusionLeaked = 0;
+      m_leakedBeforeDiffusion = 0;
       m_sealPermeability = -1;
       m_fracturePressure = -1;
 
@@ -168,6 +178,16 @@ namespace migration
 
       delete m_levelToVolume;
       delete m_distributor;
+      if (m_diffusionLeaked)
+      {
+         delete[] m_diffusionLeaked;
+         m_diffusionLeaked = 0;
+      }
+      if (m_leakedBeforeDiffusion)
+      {
+         delete  m_leakedBeforeDiffusion;
+         m_leakedBeforeDiffusion = 0;
+      }
    }
 
    size_t Trap::getSize (void)
@@ -677,7 +697,9 @@ namespace migration
          Column * perimeterColumn = *iter;
          if (column == perimeterColumn)
             return;
-         if (perimeterColumn->isSealing () || (!column->isSealing () && perimeterColumn->isDeeperThan (column)))
+         if ((perimeterColumn->isSealing () and column->isSealing () and perimeterColumn->isDeeperThan (column)) or
+            (!perimeterColumn->isSealing () and !column->isSealing () and perimeterColumn->isDeeperThan (column)) or
+            (perimeterColumn->isSealing () and !column->isSealing ()))
          {
             break;
          }
@@ -1038,23 +1060,10 @@ namespace migration
       return m_toBeDistributed[phase].getWeight ();
    }
 
-   double Trap::getSealPressureLeakages (void) const
-   {
-      double loss = 0.0;
-      for (int phase = FIRST_PHASE; phase < NUM_PHASES; ++phase)
-      {
-         loss += getSealPressureLeakages ((PhaseId)phase);
-      }
-      return loss;
-   }
-
-   double Trap::getSealPressureLeakages (PhaseId phase) const
-   {
-      return m_sealPressureLeaked[phase].getWeight ();
-   }
 
    double Trap::getDiffusionLeakages (void) const
    {
+      if (!m_diffusionLeaked) return 0.0;
       return m_diffusionLeaked[GAS].getWeight ();
    }
 
@@ -1154,7 +1163,7 @@ namespace migration
 
    bool Trap::diffusionLeakageOccoured () const
    {
-
+      if (!m_diffusionLeaked) return false;
 
       double diffusedWeight = 0;
 
@@ -1253,9 +1262,9 @@ namespace migration
 
    double Trap::biodegradeCharges (const double& timeInterval, const Biodegrade& biodegrade)
    {
-
-      if (m_toBeDistributed[GAS].isEmpty () && m_toBeDistributed[OIL].isEmpty ())
-         return 0;
+       // Flashing at this point is not needed because was done in computeHydrocarbonWaterContactDepth()
+	   
+	   if ((m_toBeDistributed[GAS].isEmpty() && m_toBeDistributed[OIL].isEmpty()) || m_isPasteurized) return 0.0; // if a trap is pasteurized => no biodegradation, return 0
 
       assert (!m_toBeDistributed[GAS].isEmpty () || !m_toBeDistributed[OIL].isEmpty ());
 
@@ -1268,19 +1277,10 @@ namespace migration
       Composition biodegradedGas;
       Composition biodegradedOil;
 
-      double volumeFractionOfGasBiodegraded = 0.0;
-      double volumeFractionOfOilBiodegraded = 0.0;
-      computePhaseVolumeProportionInBiodegradadedZone (timeInterval, volumeFractionOfGasBiodegraded, volumeFractionOfOilBiodegraded, biodegrade);
-
-      // If the user has toggle on the pasteurization effect
-      if (biodegrade.pasteurizationInd ())
-      {
-         // Assesses pasteurization and states if a trap is or not pasteurized
-         if (isPasteurized (biodegrade.maxBioTemp ()))
-         {
-            return 0.0; // if a trap is pasteurized => no biodegradation, return 0
-         }
-      }
+	  // compute the volume proportions
+	  double volumeFractionOfGasBiodegraded = 0.0;
+	  double volumeFractionOfOilBiodegraded = 0.0;
+	  computePhaseVolumeProportionInBiodegradadedZone(timeInterval, volumeFractionOfGasBiodegraded, volumeFractionOfOilBiodegraded, biodegrade);
 
       // Compute biodegradation for the GAS phase
       if (volumeFractionOfGasBiodegraded > 0.0)
@@ -1318,148 +1318,168 @@ namespace migration
       return biodegraded.getWeight ();
    }
 
-   bool Trap::isPasteurized (const double maxBiodegradationTemperature)
+   void Trap::needToComputePasteurizationStatusFromScratch()
    {
+   
 #ifdef DEBUG_BIODEGRADATION
-      cerr << endl << "==== Compute pasteurization status ====" << endl;
-      // Count the number of columns for each different status
-      int countNotPasteurized = 0;
-      int countNeutral = 0;
-      int countPasteurized = 0;
+	   cerr << endl << "==== Compute pasteurization status ====" << endl;
+	   // Count the number of columns for each different status
+	   int countNotPasteurized = 0;
+	   int countNeutral = 0;
+	   int countPasteurized = 0;
 #endif
 
-      // Evaluation of the state of the columns
-      // Loop to check if some columns are already identified as pasteurized in the trap. If yes, no need to re-compute the pasteurization status
-      bool needToComputeColumnPasteurizationStatus = true;
-      ConstColumnIterator iter;
-      for (iter = m_interior.begin (); iter != m_interior.end (); ++iter)
-      {
-         Column * column = *iter;
+	   // Evaluation of the state of the columns
+	   // Loop to check if some columns are already identified as pasteurized in the trap. If yes, no need to re-compute the pasteurization status
+	   m_computePasteurizationStatusFromScratch = true;
+	   ConstColumnIterator iter;
+	   for (iter = m_interior.begin(); iter != m_interior.end(); ++iter)
+	   {
+		   Column * column = *iter;
 
 #ifdef DEBUG_BIODEGRADATION
-         if (column->getPasteurizationStatus() == -1)
-            countNotPasteurized++;
-         if (column->getPasteurizationStatus() == 0)
-            countNeutral++;
-         if (column->getPasteurizationStatus() == 1)
-            countPasteurized++;
+		   if (column->getPasteurizationStatus() == -1)
+			   countNotPasteurized++;
+		   if (column->getPasteurizationStatus() == 0)
+			   countNeutral++;
+		   if (column->getPasteurizationStatus() == 1)
+			   countPasteurized++;
 #endif
 
-         // If at least one column of the trap is identify as pasteurized, it means that this trap already existed at the previous snapshot,
-         // and that there is no need to assess again the pasteurization status. The trap will be pasteurized, except if it merges with a not-pasteurized trap.
-         if (column->getPasteurizationStatus () == 1)
-         {
-            needToComputeColumnPasteurizationStatus = false;
-            break;
-         }
-      }
+		   // If at least one column of the trap is identify as pasteurized, it means that this trap already existed at the previous snapshot,
+		   // and that there is no need to assess again the pasteurization status. The trap will be pasteurized, except if it merges with a not-pasteurized trap.
+		   if (column->getPasteurizationStatus() == 1)
+		   {
+			   m_computePasteurizationStatusFromScratch = false;
+			   break;
+		   }
+	   }
 #ifdef DEBUG_BIODEGRADATION
-      cerr << "Number of not-Pasteurized / neutral / Pasteurized columns: " << countNotPasteurized << ", " << countNeutral << ", " << countPasteurized << endl;
-      cerr << "Need to compute the pasteurization status ? " << needToComputeColumnPasteurizationStatus << endl;
-#endif
+	   cerr << "Number of not-Pasteurized / neutral / Pasteurized columns: " << countNotPasteurized << ", " << countNeutral << ", " << countPasteurized << endl;
+	   cerr << "Need to compute the pasteurization status ? " << needToComputeColumnPasteurizationStatus << endl;
+#endif   
+   };
 
+   void Trap::pasteurizationStatus(const double maxBiodegradationTemperature)
+   {
+	   // Need to define the status of columns according to the temperature at the OWC (new trap or existing trap with not-pasteurized columns)
+	   if (m_computePasteurizationStatusFromScratch == true)
+	   {
+	      ConstColumnIterator iter;
+		   if (m_hydrocarbonWaterContactTemperature >= maxBiodegradationTemperature) // Trap pasteurized if temperature higher or equal to the maximum temperature allowed for biodegradation 
+		   {
+			   for (iter = m_interior.begin(); iter != m_interior.end(); ++iter)
+			   {
+				   Column * column = *iter;
+				   column->setPasteurizationStatus(1); // columns pasteurized
+			   }
+			   m_isPasteurized = true;
+		   }
+		   else // Trap not-pasteurized
+		   {
+			   for (iter = m_interior.begin(); iter != m_interior.end(); ++iter)
+			   {
+				   Column * column = *iter;
+				   column->setPasteurizationStatus(-1); // columns not-pasteurized
+			   }
+			   m_isPasteurized = false;
+		   }
+	   }
+	   else
+	   {
+		   // Loop to check what kind of columns are present in the trap: pasteurized and/or not-pasteurized
+		   // Remark: as their name is a clear indication, neutral columns won't change the behavior of the trap
+		   m_includeNotPasteurizedColumn = false;
+		   m_includePasteurizedColumn = false;
+		   ConstColumnIterator iter;
 
-      // Need to define the status of columns according to the temperature at the OWC (new trap or existing trap with not-pasteurized columns)
-      if (needToComputeColumnPasteurizationStatus == true)
-      {
-         if (m_hydrocarbonWaterContactTemperature >= maxBiodegradationTemperature) // Trap pasteurized if temperature higher or equal to the maximum temperature allowed for biodegradation 
-         {
-            for (iter = m_interior.begin (); iter != m_interior.end (); ++iter)
-            {
-               Column * column = *iter;
-               column->setPasteurizationStatus (1); // columns pasteurized
-            }
-         }
-         else // Trap not-pasteurized
-         {
-            for (iter = m_interior.begin (); iter != m_interior.end (); ++iter)
-            {
-               Column * column = *iter;
-               column->setPasteurizationStatus (-1); // columns not-pasteurized
-            }
-         }
-      }
+		   for (iter = m_interior.begin(); iter != m_interior.end(); ++iter)
+		   {
+			   Column * column = *iter;
+			   // Break the loop if the predominant kind of column have already been found (pasteurized and not-pasteurized)
+			   // Indeed, if those two kinds of columns have already been found inside the trap, the behaviour of the trap is already known (see next section)
+			   if (m_includeNotPasteurizedColumn == true && m_includePasteurizedColumn == true)
+				   break;
 
-      // Loop to check what kind of columns are present in the trap: pasteurized and/or not-pasteurized
-      // Remark: as their name is a clear indication, neutral columns won't change the behavior of the trap
-      bool includeNotPasteurizedColumn = false;
-      bool includePasteurizedColumn = false;
+			   // Check if the trap includes not-pasteurized column
+			   if (column->getPasteurizationStatus() == -1)
+			   {
+				   m_includeNotPasteurizedColumn = true;
+				   continue;
+			   }
+			   // Check if the trap includes pasteurized column
+			   if (column->getPasteurizationStatus() == 1)
+			   {
+				   m_includePasteurizedColumn = true;
+				   continue;
+			   }
+		   }
+	   }
+   }
 
-      for (iter = m_interior.begin (); iter != m_interior.end (); ++iter)
-      {
-         Column * column = *iter;
+   bool Trap::setPasteurizationStatus(const double maxBiodegradationTemperature)
+   {
+	   if (m_computePasteurizationStatusFromScratch == false)
+	   {
+		   ConstColumnIterator iter;
+		   // Give the expected behavior of the trap according to the kind of columns that it possesses
+		   // 1) If the trap includes only NOT-pasteurized columns (and possibly neutral columns) => the trap is NOT pasteurized
+		   if (m_includeNotPasteurizedColumn == true && m_includePasteurizedColumn == false)
+		   {
+			   for (iter = m_interior.begin(); iter != m_interior.end(); ++iter)
+			   {
+				   Column * column = *iter;
+				   column->setPasteurizationStatus(-1);   //set all the columns of this trap as not-pasteurized
+			   }
+			   m_isPasteurized = false;
+			   return true;
+		   }
 
-         // Break the loop if the predominant kind of column have already been found (pasteurized and not-pasteurized)
-         // Indeed, if those two kinds of columns have already been found inside the trap, the behaviour of the trap is already known (see next section)
-         if (includeNotPasteurizedColumn == true && includePasteurizedColumn == true)
-            break;
+		   // 2) If the trap includes only pasteurized columns (and possibly neutral columns) => the trap is pasteurized
+		   // Rationale behind this: if the trap grows and (neutral) columns are added to the trap, those columns will be at a deeper depth and so already pasteurized
+		   if (m_includeNotPasteurizedColumn == false && m_includePasteurizedColumn == true)
+		   {
+			   for (iter = m_interior.begin(); iter != m_interior.end(); ++iter)
+			   {
+				   Column * column = *iter;
+				   column->setPasteurizationStatus(1);   //set all the columns of this trap as pasteurized
+			   }
+			   m_isPasteurized = true;
+			   return true;
+		   }
 
-         // Check if the trap includes not-pasteurized column
-         if (column->getPasteurizationStatus () == -1)
-         {
-            includeNotPasteurizedColumn = true;
-            continue;
-         }
-         // Check if the trap includes pasteurized column
-         if (column->getPasteurizationStatus () == 1)
-         {
-            includePasteurizedColumn = true;
-            continue;
-         }
-      }
+		   // 3) If the trap is a mix of pasteurized and not-pasteurized columns => the trap is not-pasteurized if the temperature is below the pasteurization temperature
+		   // Rationale behind this: merging of two traps, so the bacteria in one (not pasteurized) trap can migrate to the other (previously pasteurized) trap
+		   if (m_includeNotPasteurizedColumn == true && m_includePasteurizedColumn == true)
+		   {
+			   // The temperature at the OWC is not high enough at this snapshot to pasteurized the trap
+			   if (m_hydrocarbonWaterContactTemperature <= maxBiodegradationTemperature)
+			   {
+				   for (iter = m_interior.begin(); iter != m_interior.end(); ++iter)
+				   {
+					   Column * column = *iter;
+					   column->setPasteurizationStatus(-1);   //set all the columns of this trap as not-pasteurized
+				   }
+				   m_isPasteurized = false;
+				   return true;
+			   }
+			   else // The temperature at this snapshot is too high and pasteurized the trap
+			   {
+				   for (iter = m_interior.begin(); iter != m_interior.end(); ++iter)
+				   {
+					   Column * column = *iter;
+					   column->setPasteurizationStatus(1);   //set all the columns of this trap as pasteurized
+				   }
+				   m_isPasteurized = true;
+				   return true;
+			   }
+		   }
 
-      // Give the expected behavior of the trap according to the kind of columns that it possesses
-      // 1) If the trap includes only NOT-pasteurized columns (and possibly neutral columns) => the trap is NOT pasteurized
-      if (includeNotPasteurizedColumn == true && includePasteurizedColumn == false)
-      {
-         for (iter = m_interior.begin (); iter != m_interior.end (); ++iter)
-         {
-            Column * column = *iter;
-            column->setPasteurizationStatus (-1);   //set all the columns of this trap as not-pasteurized
-         }
-         return false;
-      }
+		   // No reason to reach this point of the function, so the "return false" is just an extra security
+		   return false;
+	   }
 
-      // 2) If the trap includes only pasteurized columns (and possibly neutral columns) => the trap is pasteurized
-      // Rationale behind this: if the trap grows and (neutral) columns are added to the trap, those columns will be at a deeper depth and so already pasteurized
-      if (includeNotPasteurizedColumn == false && includePasteurizedColumn == true)
-      {
-         for (iter = m_interior.begin (); iter != m_interior.end (); ++iter)
-         {
-            Column * column = *iter;
-            column->setPasteurizationStatus (1);   //set all the columns of this trap as pasteurized
-         }
-         return true;
-      }
-
-      // 3) If the trap is a mix of pasteurized and not-pasteurized columns => the trap is not-pasteurized if the temperature is below the pasteurization temperature
-      // Rationale behind this: merging of two traps, so the bacteria in one (not pasteurized) trap can migrate to the other (previously pasteurized) trap
-      if (includeNotPasteurizedColumn == true && includePasteurizedColumn == true)
-      {
-         // The temperature at the OWC is not high enough at this snapshot to pasteurized the trap
-         if (m_hydrocarbonWaterContactTemperature <= maxBiodegradationTemperature)
-         {
-            for (iter = m_interior.begin (); iter != m_interior.end (); ++iter)
-            {
-               Column * column = *iter;
-               column->setPasteurizationStatus (-1);   //set all the columns of this trap as not-pasteurized
-            }
-            return false;
-         }
-         else // The temperature at this snapshot is too high and pasteurized the trap
-         {
-            for (iter = m_interior.begin (); iter != m_interior.end (); ++iter)
-            {
-               Column * column = *iter;
-               column->setPasteurizationStatus (1);   //set all the columns of this trap as pasteurized
-            }
-            return true;
-         }
-
-      }
-
-      // No reason to reach this point of the function, so the "return false" is just an extra security
-      return false;
+	   return true;
    }
 
    /// If depths contains a vector of formations starting with the formation containing 
@@ -1473,9 +1493,11 @@ namespace migration
       // whether the seal is formed by the next formation.  In the last case, the first 
       // is the second formation of depths etc:
       begin = depths.begin (); end = depths.end ();
-      if (getCrestColumn ()->getTopDepthOffset () == 0.0)
+      if ( getCrestColumn()->getTopDepthOffset() == 0.0 )
+      {
          ++begin;
-      assert (begin != end);
+      }
+	  if (begin == end) LogHandler(LogHandler::ERROR_SEVERITY) << "The begin and the end of the depth overbuden array coincide in Trap::iterateToFirstOverburdenFormation";
    }
 
    bool Trap::computeDiffusionOverburden (const SurfaceGridMapContainer& fullOverburden,
@@ -1531,10 +1553,10 @@ namespace migration
          return true;
       }
 
-      const Interface::FluidType* parameters = formations[0]->getFluidType ();
-      assert (parameters);
-      sealFluidDensity = CBMGenerics::waterDensity::compute (parameters->fluidDensityModel (),
-         parameters->density (), parameters->salinity (), getTemperature (), getPressure ());
+      // Casting to GeoPhysics::FluidType so that the phase-change implementation for brine density can be used
+      const GeoPhysics::FluidType* fluidType = dynamic_cast<const GeoPhysics::FluidType *> (formations[0]->getFluidType ());
+      assert (fluidType);
+      sealFluidDensity = fluidType->density (getTemperature (), getPressure ());
       return true;
    }
 
@@ -1830,6 +1852,15 @@ namespace migration
 
       assert (diffusionLeaks.size () <= solubilities.size ());
 
+      // if not present create a new m_diffusionLeaked
+      if (!m_diffusionLeaked) m_diffusionLeaked = new Composition[2];
+
+      m_diffusionLeaked[GAS].reset ();
+      m_diffusionLeaked[GAS].setDensity (0);
+
+      m_diffusionLeaked[OIL].reset ();
+      m_diffusionLeaked[OIL].setDensity (0);
+
       m_distributed[GAS].computeDiffusionLeakages (diffusionStartTime, intervalStartTime, intervalEndTime, solubilities, getSurface (GAS), diffusionLeaks,
          computeGorm (m_distributed[GAS], m_distributed[OIL]), &m_distributed[GAS], &m_diffusionLeaked[GAS]);
 
@@ -1857,7 +1888,7 @@ namespace migration
    }
 
    bool Trap::computeDistributionParameters (const Interface::FracturePressureFunctionParameters*
-      parameters, const SurfaceGridMapContainer& fullOverburden, const Snapshot* snapshot)
+      parameters, const SurfaceGridMapContainer& fullOverburden, const Snapshot* snapshot, const bool isLegacy )
    {
       delete m_distributor;
       m_distributor = 0;
@@ -1866,28 +1897,39 @@ namespace migration
       bool sealPresent;
       double fracPressure;
       double sealFluidDensity;
-      vector<translateProps::CreateCapillaryLithoProp::output> lithProps;
-      vector<double> lithFracs;
-      CBMGenerics::capillarySealStrength::MixModel mixModel;
-      double permeability;
+      vector< vector<translateProps::CreateCapillaryLithoProp::output> > lithProps;
+      vector< vector<double> > lithFracs;
+      vector<CBMGenerics::capillarySealStrength::MixModel> mixModel;
+      vector<double> permeability;
 
       if (!computeSealPressureLeakParametersImpl (parameters, fullOverburden, snapshot, sealPresent,
-         fracPressure, sealFluidDensity, lithProps, lithFracs, mixModel, permeability))
+         fracPressure, sealFluidDensity, lithProps, lithFracs, mixModel, permeability, isLegacy ) )
          return false;
 
       setFracturePressure (fracPressure);
-      setSealPermeability (permeability);
+      setSealPermeability( 0 ); // we set a non-zero seal permeability only if the seal is present
 
       if (sealPresent)
       {
+         
+         if ( isLegacy || getCrestColumn()->getTopDepthOffset() != 0.0 )
+         {
+            setSealPermeability( permeability[0] );
+         }
+         else if ( permeability.size( ) == 2 )
+         {
+            //set the seal permeability only if a seal formation is present
+            setSealPermeability( permeability[1] );
+         }
+         
          if (!isUndersized ())
          {
             // The fracture seal strength is provided by the fracturePressure minus the pressure:
             double porePressure = getPressure ();
-            double fracSealStrength = fracPressure - porePressure / Pa2MPa;
+            double fracSealStrength = fracPressure - porePressure / PaToMegaPa;
 #if 0
             cerr << "trap = " << this << endl;
-            cerr << "porePressure = " << porePressure / Pa2MPa << endl;
+            cerr << "porePressure = " << porePressure / PaToMegaPa << endl;
             cerr << "fracPressure = " << fracPressure << endl;
             cerr << "fracSealStrength = " << fracSealStrength << endl;
 #endif
@@ -1897,7 +1939,7 @@ namespace migration
             if (GetRank () == 0)
             {
                cerr << "fracPressure = " << fracPressure <<
-                  " Pa, pressure = " << getPressure () * MPa2Pa <<
+                  " Pa, pressure = " << getPressure () * MegaPaToPa <<
                   " Pa, fracSealStrength = " << fracSealStrength << " Pa" << endl;
             }
 #endif
@@ -1932,9 +1974,21 @@ namespace migration
             // right now not available. So we create here a CapillarySealStrength object and provide this
             // object the parameters which we already do know. The CapillarySealStrength then calculates 
             // the capillary seal strength at the moment the missing data becomes available.
-            m_distributor = new LeakWasteAndSpillDistributor (sealFluidDensity, fracSealStrength,
-               CapillarySealStrength (lithProps, lithFracs, mixModel, permeability, sealFluidDensity),
-               m_levelToVolume);
+
+            // to compute leakage you need to compute the Brooks Corey correction. Retrive the lambda at the crest location and pass it to the distributor
+            double lambdaPC = Interface::DefaultUndefinedScalarValue;
+
+            const Formation * formation = dynamic_cast<const Formation *> ( getReservoir( )->getFormation( ) );
+            const GeoPhysics::CompoundLithology* compoundLithology = formation->getCompoundLithology( getCrestColumn( )->getI( ), getCrestColumn( )->getJ( ) );
+            if ( compoundLithology ) lambdaPC = compoundLithology->LambdaPc( );
+
+            // If the project file does not contain values for Lambda_Pc assign an 'avarage' value of 1.
+            if ( lambdaPC == Interface::DefaultUndefinedMapValue or lambdaPC == Interface::DefaultUndefinedScalarValue )
+               lambdaPC = 1.0;
+
+            m_distributor = new LeakWasteAndSpillDistributor( sealFluidDensity, fracSealStrength,
+               CapillarySealStrength( lithProps, lithFracs, mixModel, permeability, sealFluidDensity, lambdaPC, isLegacy ),
+               m_levelToVolume );
          }
          else
          {
@@ -1967,11 +2021,19 @@ namespace migration
       return true;
    }
 
-   bool Trap::computeSealPressureLeakParametersImpl (const Interface::FracturePressureFunctionParameters*
-      fracturePressureParameters, const SurfaceGridMapContainer& fullOverburden, const Snapshot* snapshot,
-      bool& sealPresent, double& fracPressure, double& sealFluidDensity, vector<translateProps::
-      CreateCapillaryLithoProp::output>& lithProps, vector<double>& lithFracs, CBMGenerics::capillarySealStrength::
-      MixModel& mixModel, double& permeability) const
+   bool Trap::computeSealPressureLeakParametersImpl(
+      const Interface::FracturePressureFunctionParameters* fracturePressureParameters,
+      const SurfaceGridMapContainer& fullOverburden,
+      const Snapshot* snapshot,
+      bool& sealPresent,
+      double& fracPressure,
+      double& sealFluidDensity,
+      vector< vector<translateProps::CreateCapillaryLithoProp::output> >& lithProps,
+      vector< vector<double> >& lithFracs,
+      vector<CBMGenerics::capillarySealStrength::MixModel>& mixModel,
+      vector<double>& permeability,
+      const bool isLegacy) const
+      // to implement //
    {
       const SurfaceGridMapContainer::discontinuous_properties & depths =
          fullOverburden.discontinuous (SurfaceGridMapContainer::DISCONTINUOUS_DEPTH);
@@ -2001,9 +2063,21 @@ namespace migration
       unsigned int i = getCrestColumn ()->getI ();
       unsigned int j = getCrestColumn ()->getJ ();
       vector < const Formation *>formations;
-      if (!overburden_MPI::getRelevantOverburdenFormations (begin, depths.end (), snapshot,
-         i, j, numeric_limits < double >::max (), 1, true, formations))
-         return false;
+
+      if ( isLegacy || getCrestColumn()->getTopDepthOffset() != 0.0 )
+      {
+		  //if is legacy or there is offset, get only the seal formation (formations[0])
+		  if ( !overburden_MPI::getRelevantOverburdenFormations( begin, depths.end( ), snapshot,
+            i, j, numeric_limits < double >::max( ), 1, true, formations ) )
+            return false;
+      }
+      else
+      {
+         //if offset is not present and is not legacy, get the reservoir (formations[0]) and the seal formation (formations[1])
+         if ( !overburden_MPI::getRelevantOverburdenFormations( depths.begin( ), depths.end( ), snapshot,
+            i, j, numeric_limits < double >::max( ), 2, true, formations ) )
+            return false;
+      }
 
       // It can happen there are no seal formations.  In that case return:
       sealPresent = formations.size () != 0;
@@ -2011,7 +2085,6 @@ namespace migration
          return true;
 
       vector < const Formation *>::const_iterator f = formations.begin ();
-
       SurfaceGridMapContainer::discontinuous_properties::const_iterator d = depths.begin ();
       SurfaceGridMapContainer::discontinuous_properties::const_iterator p = permeabilities.begin ();
       SurfaceGridMapContainer::constant_properties::const_iterator l0 = lithoType1Percents.begin ();
@@ -2022,19 +2095,23 @@ namespace migration
       // properties.  In most cases this will be the first GridMap, but in order to be safe,
       // we iterate until depths.end() (to prevent an eternal loop), even though we shouldn't get 
       // at depths.end():
-      while (d != depths.end ())
+
+      // the fracture pressure result
+      bool result = true;
+
+      while ( d != depths.end() )
       {
-         assert (d != depths.end ());
-         assert (p != permeabilities.end ());
-         assert (l0 != lithoType1Percents.end ());
+         assert( d != depths.end() );
+         assert( p != permeabilities.end() );
+         assert( l0 != lithoType1Percents.end() );
          // l1 and l2 may be empty, so no asserts for l1 and l2.
 
          // The formations of d, p and l0 should match:
-         assert ((*d).formation () == (*p).formation ());
-         assert ((*d).formation () == (*l0).first);
+         assert( ( *d ).formation() == ( *p ).formation() );
+         assert( ( *d ).formation() == ( *l0 ).first );
 
          // Check whether the formation of d, p and l0 is the seal formation:
-         if ((*d).formation () == *f)
+         if ( ( *d ).formation() == *f )
          {
 
             // The top of the one overburden formation must be larger than both 
@@ -2054,113 +2131,153 @@ namespace migration
             string name = (*f)->getName ();
             double snapshotAge = snapshot->getTime ();
 #endif
-            assert (!(*d).top ().valid () || getTopDepth () - (*d).top ()[functions::tuple (i, j)] > 0.0);
-
-            if (!(*d).base ().valid ())
+            //should always be valid for reservoir and seal;
+            if ( !( *d ).base().valid() )
             {
-               cerr << "Trap.C:1650: Exiting as no valid depth property found for base of formation: '" <<
-                  (*f)->getName () << "' at time: " << snapshot->getTime () << "." << endl;
-               cerr.flush ();
+               cerr << "Trap::computeSealPressureLeakParametersImpl : Exiting as no valid depth property found for base of formation: '" <<
+                  ( *f )->getName() << "' at time: " << snapshot->getTime() << "." << endl;
+               cerr.flush();
 
                return false;
             }
-            assert ((*d).base ()[functions::tuple (i, j)] - (*d).top ()[functions::tuple (i, j)] > 0.0);
 
-            // The right formation is found:
-            break;
+            //the formation has thickness at the specific i,j
+            assert( ( *d ).base()[functions::tuple( i, j )] - ( *d ).top()[functions::tuple( i, j )] > 0.0 );
+            assert( ( *f )->getLithoType1() );
+            assert( l0 != lithoType1Percents.end() );
+            assert( l0->first == *f );
+
+            // So we have found the right d, p, l0, and possibly l1 and l2 iterators if they 
+            // do exist.  Get the fractions of the LithoTypes:
+            vector<double> formLithFracs;
+
+            formLithFracs.push_back( 0.01 * ( *l0 ).second[functions::tuple( i, j )] );
+            if ( ( *f )->getLithoType2() && l1 != lithoType2Percents.end() && ( *l1 ).first == ( *f ) )
+               formLithFracs.push_back( 0.01 * ( *l1 ).second[functions::tuple( i, j )] );
+            if ( ( *f )->getLithoType3() && l2 != lithoType3Percents.end() && ( *l2 ).first == ( *f ) )
+               formLithFracs.push_back( 0.01 * ( *l2 ).second[functions::tuple( i, j )] );
+
+            // store the formation litho fraction
+            lithFracs.push_back( formLithFracs );
+
+            // For the capillary entry pressure, we need to know what mixing model to apply when calculating 
+            // the effective capillary parameters:
+            mixModel.push_back( ( *f )->getMixModel() );
+
+            // If the trap lies inside the formation the relevant permeability is the permeability 
+            // of the trap, else the permeability is the permeability of the base of the overburden 
+            // formation:
+
+            if ( getCrestColumn()->getTopDepthOffset() != 0.0 )
+               permeability.push_back( getCrestColumn()->getPermeability() );
+            else
+            {      
+               // Remove the following if when legacy will be removed.
+               if ( isLegacy )
+               {
+                  if ( !( *p ).base( ).valid( ) )
+                  {
+                     cerr << "Trap::computeSealPressureLeakParametersImpl : Exiting as no valid permeability property found for base of formation: '" <<
+                        ( *f )->getName( ) << "' at time: " << snapshot->getTime( ) << "." << endl;
+                     cerr.flush( );
+
+                     return false;
+                  }
+                  else
+                     permeability.push_back(( *p ).base( )[functions::tuple( i, j )]);
+               }
+               else
+               {
+                  if ( *f == formations.front() && ( *p ).top().valid() )
+                  {
+                     //reservoir (in case the only valid formation is the reservoir only this is executed)
+                     permeability.push_back( ( *p ).top()[functions::tuple( i, j )] );
+                  }
+                  else if ( formations.size() == 2 && *f == formations.back() && ( *p ).base().valid() )
+                  {
+                     //seal
+                     permeability.push_back( ( *p ).base()[functions::tuple( i, j )] );
+                  }
+                  else
+                  {
+                     cerr << "Trap::computeSealPressureLeakParametersImpl : Exiting as no valid permeability property found for formation: '" <<
+                        ( *f )->getName() << "' at time: " << snapshot->getTime() << "." << endl;
+                     cerr.flush();
+                     return false;
+                  }
+               }
+            }
+
+            // Finally use the gathered information to calculate the capillary seal strength of gas and oil:
+            vector<translateProps::CreateCapillaryLithoProp::output> formlithProps;
+            translateProps::translate < translateProps::CreateCapillaryLithoProp >( *f,
+               translateProps::CreateCapillaryLithoProp(),
+               formlithProps );
+            lithProps.push_back( formlithProps );
+
+            // -- Fracture pressure calculations --//
+            // Compute sealFluidDensity, fracPressure and the fracture pressure only for the seal.
+            // Note that in case of offset formation[0] is the reservoir formation. 
+			// This means that the fracture pressure is calculated for the reservoir formation.
+            if ( ( *f ) == formations.back() )
+            {
+
+               // But as depth and temperatureC are of course continuous properties, we may get them from 
+               // the Trap:
+               double depth = getTopDepth();
+               double depthWrtSedimentSurface = getCrestColumn()->getOverburden();
+               double temperatureC = getTemperature();
+
+               // Get the water density:
+               const Interface::FluidType * fluidType = ( *f )->getFluidType();
+               sealFluidDensity = CBMGenerics::waterDensity::compute( fluidType->fluidDensityModel(),
+                  fluidType->density(), fluidType->salinity(),
+                  temperatureC, getPressure() );
+			   // Compute the fracture pressure:
+               fracPressure = numeric_limits < double >::max();
+
+               switch ( fracturePressureParameters->type() )
+               {
+               case Interface::None:
+                  break;
+               case Interface::FunctionOfDepthWrtSeaLevelSurface:
+                  fracPressure =
+                     CBMGenerics::fracturePressure::computeForFunctionOfDepthWrtSeaLevelSurface( fracturePressureParameters->
+                     coefficients(), depth );
+                  break;
+               case Interface::FunctionOfDepthWrtSedimentSurface:
+               {
+                  fracPressure =
+                     CBMGenerics::fracturePressure::computeForFunctionOfDepthWrtSedimentSurface( fracturePressureParameters->coefficients(),
+                     depthWrtSedimentSurface,
+                     getCrestColumn()->getSeaBottomPressure() );
+                  break;
+               }
+               case Interface::FunctionOfLithostaticPressure:
+                  result = computeForFunctionOfLithostaticPressure( fullOverburden, *f, formLithFracs, fracPressure );
+                  break;
+               default:
+                  assert( 0 );
+               }
+
+               //the end of the formation vector is reached, no need to loop again
+               break;
+            }
+
+            // increment the formation iterator
+            ++f;
          }
 
          // If the formation of l1 and l2 matches that of d, go to the next l1 and l2:
-         if (l1 != lithoType2Percents.end () && (*l1).first == (*d).formation ())
+         if ( l1 != lithoType2Percents.end() && ( *l1 ).first == ( *d ).formation() )
             ++l1;
-         if (l2 != lithoType3Percents.end () && (*l2).first == (*d).formation ())
+         if ( l2 != lithoType3Percents.end() && ( *l2 ).first == ( *d ).formation() )
             ++l2;
          ++d;
          ++p;
          ++l0;
       }
-      assert (d != depths.end ());
 
-      assert ((*f)->getLithoType1 ());
-      assert (l0 != lithoType1Percents.end ());
-      assert (l0->first == *f);
-
-      // So we have found the right d, p, l0, and possibly l1 and l2 iterators if they 
-      // do exist.  Get the fractions of the LithoTypes:
-      lithFracs.push_back (0.01 * (*l0).second[functions::tuple (i, j)]);
-      if ((*f)->getLithoType2 () && l1 != lithoType2Percents.end () && (*l1).first == (*f))
-         lithFracs.push_back (0.01 * (*l1).second[functions::tuple (i, j)]);
-      if ((*f)->getLithoType3 () && l2 != lithoType3Percents.end () && (*l2).first == (*f))
-         lithFracs.push_back (0.01 * (*l2).second[functions::tuple (i, j)]);
-
-      // For the capillary entry pressure, we need to know what mixing model to apply when calculating 
-      // the effective capillary parameters:
-      mixModel = (*f)->getMixModel ();
-
-      // If the trap lies inside the formation the relevant permeability is the permeability 
-      // of the trap, else the permeability is the permeability of the base of the overburden 
-      // formation:
-      if (getCrestColumn ()->getTopDepthOffset () != 0.0)
-         permeability = getCrestColumn ()->getPermeability ();
-      else
-      {
-         if (!(*p).base ().valid ())
-         {
-            cerr << "Trap.C:1694: Exiting as no valid permeability property found for base of formation: '" <<
-               (*f)->getName () << "' at time: " << snapshot->getTime () << "." << endl;
-            cerr.flush ();
-
-            return false;
-         }
-         else
-            permeability = (*p).base ()[functions::tuple (i, j)];
-      }
-
-      // But as depth and temperatureC are of course continuous properties, we may get them from 
-      // the Trap:
-      double depth = getTopDepth ();
-      double depthWrtSedimentSurface = getCrestColumn ()->getOverburden ();
-      double temperatureC = getTemperature ();
-
-      // Get the water density:
-      const Interface::FluidType * fluidType = (*f)->getFluidType ();
-
-      sealFluidDensity = CBMGenerics::waterDensity::compute (fluidType->fluidDensityModel (),
-         fluidType->density (), fluidType->salinity (),
-         temperatureC, getPressure ());
-
-      // Finally use the gathered information to calculate the capillary seal strength of gas and oil:
-      translateProps::translate < translateProps::CreateCapillaryLithoProp > (*f,
-         translateProps::CreateCapillaryLithoProp (),
-         lithProps);
-
-      // Compute the fracture pressure:
-      fracPressure = numeric_limits < double >::max ();
-      bool result = true;
-
-      switch (fracturePressureParameters->type ())
-      {
-      case Interface::None:
-         break;
-      case Interface::FunctionOfDepthWrtSeaLevelSurface:
-         fracPressure =
-            CBMGenerics::fracturePressure::computeForFunctionOfDepthWrtSeaLevelSurface (fracturePressureParameters->
-            coefficients (), depth);
-         break;
-      case Interface::FunctionOfDepthWrtSedimentSurface:
-      {
-         fracPressure =
-            CBMGenerics::fracturePressure::computeForFunctionOfDepthWrtSedimentSurface (fracturePressureParameters->coefficients (),
-            depthWrtSedimentSurface,
-            getCrestColumn ()->getSeaBottomPressure ());
-         break;
-      }
-      case Interface::FunctionOfLithostaticPressure:
-         result = computeForFunctionOfLithostaticPressure (fullOverburden, *f, lithFracs, fracPressure);
-         break;
-      default:
-         assert (0);
-      }
       return result;
    }
 
@@ -2205,7 +2322,7 @@ namespace migration
       if (getWasteDepth (GAS) != WasteDepth)
       {
          double wasteLevel = getWasteDepth (GAS) - getTopDepth ();
-         if (wasteLevel <= m_levelToVolume->invert (numeric_limits<double>::max ()))
+         if (wasteLevel < m_levelToVolume->invert (numeric_limits<double>::max ()))
          {
             m_distributor->setWasteLevel (wasteLevel);
             m_distributor->setWasting (true);
@@ -2222,13 +2339,13 @@ namespace migration
       Composition oilSpilledOrWasted;
 
       //add what was leaked before the diffusion event, do not update m_compositionState
-      getCrestColumn ()->getComposition ().add (m_leakedBeforeDiffusion);
+      if (m_leakedBeforeDiffusion) getCrestColumn ()->getComposition ().add (*m_leakedBeforeDiffusion);
 
       double finalGasLevel;
       double finalHCLevel;
 
       m_distributor->distribute (m_toBeDistributed[GAS], m_toBeDistributed[OIL],
-         getTemperature () + C2K, m_distributed[GAS], m_distributed[OIL], gasLeaked, gasWasted,
+         getTemperature () + CelciusToKelvin, m_distributed[GAS], m_distributed[OIL], gasLeaked, gasWasted,
          gasSpilled, oilLeaked, oilSpilledOrWasted, finalGasLevel, finalHCLevel);
 
 #ifdef DETAILED_MASS_BALANCE
@@ -2819,7 +2936,10 @@ namespace migration
    {
       // store what was leaked before diffusion
       LocalColumn * crestColumn = getCrestColumn ();
-      m_leakedBeforeDiffusion.add (crestColumn->getComposition ());
+      if (!m_leakedBeforeDiffusion) m_leakedBeforeDiffusion = new Composition;
+
+      m_leakedBeforeDiffusion->setDensity (0);
+      m_leakedBeforeDiffusion->add (crestColumn->getComposition ());
 
       // reset crest column composition
       crestColumn->getComposition ().reset ();
@@ -3083,7 +3203,7 @@ namespace migration
       tpRequest.pressure = getPressure ();
       tpRequest.permeability = getPermeability ();
       tpRequest.sealPermeability = getSealPermeability ();
-      tpRequest.fracturePressure = getFracturePressure () * Pa2MPa;
+      tpRequest.fracturePressure = getFracturePressure () * PaToMegaPa;
       tpRequest.netToGross = getNetToGross () * Fraction2Percentage;
       tpRequest.fractureSealStrength = -1;
 
@@ -3092,7 +3212,7 @@ namespace migration
 
       tpRequest.fractureSealStrength = -1;
       if (leakDistributor && leakDistributor->fractureSealStrength () != numeric_limits<double>::max ())
-         tpRequest.fractureSealStrength = Pa2MPa * leakDistributor->fractureSealStrength ();
+         tpRequest.fractureSealStrength = PaToMegaPa * leakDistributor->fractureSealStrength ();
 
       tpRequest.goc = getFillDepth (GAS);
       tpRequest.owc = getFillDepth (OIL);
@@ -3108,16 +3228,16 @@ namespace migration
          if (leakDistributor && m_distributed[phase].getWeight () > 0.0)
          {
             double capillarySealStrength = leakDistributor->capillarySealStrength ().compute (m_distributed[phase],
-               gorm, getTemperature () + C2K);
+               gorm, getTemperature () + CelciusToKelvin);
             if (capillarySealStrength != numeric_limits<double>::max ())
-               tpRequest.cep[phase] = Pa2MPa * capillarySealStrength;
+               tpRequest.cep[phase] = PaToMegaPa * capillarySealStrength;
 
             double criticalTemperature =
-               leakDistributor->capillarySealStrength ().criticalTemperature (m_distributed[phase], gorm) - C2K;
+               leakDistributor->capillarySealStrength ().criticalTemperature (m_distributed[phase], gorm) - CelciusToKelvin;
             tpRequest.criticalTemperature[phase] = criticalTemperature;
 
             double interfacialTension = leakDistributor->capillarySealStrength ().interfacialTension (m_distributed[phase],
-               gorm, getTemperature () + C2K);
+               gorm, getTemperature () + CelciusToKelvin);
             tpRequest.interfacialTension[phase] = interfacialTension;
          }
          tpRequest.volume[phase] = getVolume ((PhaseId)phase);

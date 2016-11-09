@@ -1,21 +1,8 @@
 #include <assert.h>
 
-#ifdef sgi
-   #ifdef _STANDARD_C_PLUS_PLUS
-      #include<iostream>
-      #include <sstream>
-      using namespace std;
-      #define USESTANDARD
-   #else // !_STANDARD_C_PLUS_PLUS
-      #include<iostream.h>
-      #include<strstream.h>
-   #endif // _STANDARD_C_PLUS_PLUS
-#else // !sgi
-   #include <iostream>
-   #include <sstream>
-   using namespace std;
-   #define USESTANDARD
-#endif // sgi
+#include <iostream>
+#include <sstream>
+using namespace std;
 
 #include "Interface/Property.h"
 #include "Interface/ProjectHandle.h"
@@ -101,29 +88,13 @@ void Property::printOn (ostream & ostr) const
 
 void Property::asString (string & str) const
 {
-#ifdef USESTANDARD
+
    ostringstream buf;
-#else
-   strstream buf;
-#endif
 
    buf << "Property: ";
    buf << " name = " << getName ();
    buf << ", unit = " << getUnit ();
    buf << ", type = " << (getType () == FORMATIONPROPERTY ? "FORMATIONPROPERTY" : "RESERVOIRPROPERTY");
 
-//    buf << ", type = ";
-//    switch ( getType ()) {
-//      case FORMATIONPROPERTY : buf << "FORMATIONPROPERTY"; break;
-//      case SURFACEPROPERTY   : buf << "SURFACEPROPERTY"; break;
-//      case RESERVOIRPROPERTY : buf << "RESERVOIRPROPERTY"; break;
-//    }
-
-
-//    << (getType () == FORMATIONPROPERTY ? "FORMATIONPROPERTY" : ( getType () == SURFACEPROPERTY ? "SURFACEPROPERTY" : "RESERVOIRPROPERTY" )) << " " << int ( getType ());
-
    str = buf.str ();
-#ifndef USESTANDARD
-   buf.rdbuf ()->freeze (0);
-#endif
 }

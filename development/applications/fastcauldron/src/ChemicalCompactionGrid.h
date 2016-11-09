@@ -1,3 +1,13 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 /*
  * \file ChemicalCompactionGrid.h
  */
@@ -70,6 +80,7 @@ public:
 	 * \param algorithmName: const std::string &  Name of the algorithm
 	 */
 	static ChemicalCompactionGrid * create( const std::string & algorithmName,
+         const bool isLegacy,
 			DM* mapViewOfDomain,
 			const LayerList & layerList );
 
@@ -174,15 +185,17 @@ public:
 	 */
 	virtual const double * getClayCoatingFactor() const { return 0; }
 
-	/*!
+   /*!
 	 * \brief Go through the basin and get all the needed data.
 	 * The differences between the algorithms are averload in each derived class through the class Properties.
 	 *
+    * \return "true" iff chemical compaction is active on a valid node
+    * 
 	 * \param layerList: LayerList& the list of Layers in the basin
 	 * \param isValisNeedle: Boolean2DArray& the array giving if a node is active or not
 	 * \param areLithologiesChanged: bool By default is false, if the lithology map change, is true
 	 */
-	void addLayers( DM* mapViewOfDomain,
+	bool addLayers( DM* mapViewOfDomain,
 			const LayerList & layerList,
 			const Boolean2DArray & isValidNeedle,
 			double previousTime,
@@ -230,7 +243,10 @@ protected:
 		 * \brief Destructor of the class Properties.
 		 * Desallocate the grid properties.
 		 */
-		virtual ~Properties(){};
+		virtual ~Properties()
+		{
+		   //Empty here but defined in the derived classes
+		};
 
 		/*!
 		 * \brief Store the current values of the properties in order to compute chemical compaction

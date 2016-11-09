@@ -1,5 +1,3 @@
-#include <stdafx.h>
-
 #include <sys/types.h>
 #include <sys/stat.h>
 
@@ -51,89 +49,89 @@ GridMap * ProjectHandle::loadGridMap (const Parent * parent, unsigned int childI
    hid_t dataTypeId = -1;
    hid_t dataSpaceId = -1;
 
-   if ((fileId = H5Fopen (filePathName.c_str (), H5F_ACC_RDONLY, H5P_DEFAULT)) >= 0)
+   if ((fileId = H5Fopen(filePathName.c_str(), H5F_ACC_RDONLY, H5P_DEFAULT)) >= 0)
    {
-      if ((dataSetId = H5Dopen (fileId, dataSetName.c_str (), H5P_DEFAULT)) >= 0)
-      {
-	 dataTypeId = H5Tcopy (H5T_NATIVE_FLOAT);
-	 H5T_class_t HDFclass = H5Tget_class (dataTypeId);
+       if ((dataSetId = H5Dopen(fileId, dataSetName.c_str(), H5P_DEFAULT)) >= 0)
+       {
+           dataTypeId = H5Tcopy(H5T_NATIVE_FLOAT);
+           H5T_class_t HDFclass = H5Tget_class(dataTypeId);
 
-	 assert (HDFclass == H5T_FLOAT);
+           assert(HDFclass == H5T_FLOAT);
 
-	 if ((dataSpaceId = H5Dget_space (dataSetId)) >= 0)
-	 {
-	    hsize_t dimensions[3];
-	    int rank = H5Sget_simple_extent_dims (dataSpaceId, dimensions, 0);
+           if ((dataSpaceId = H5Dget_space(dataSetId)) >= 0)
+           {
+               hsize_t dimensions[3];
+               int rank = H5Sget_simple_extent_dims(dataSpaceId, dimensions, 0);
 
-	    if (rank == 2) dimensions[2] = 1;
+               if (rank == 2) dimensions[2] = 1;
 
-	    double undefinedValue;
-	    if (rank == 3)
-	    {
-	       undefinedValue = DefaultUndefinedValue; // not in the file!!!
-	    }
-	    else
-	    {
-	       undefinedValue = GetUndefinedValue (fileId);
-	    }
+               double undefinedValue;
+               if (rank == 3)
+               {
+                   undefinedValue = DefaultUndefinedValue; // not in the file!!!
+               }
+               else
+               {
+                   undefinedValue = GetUndefinedValue(fileId);
+               }
 
-	    const Grid *grid = findGrid (dimensions[0], dimensions[1]);
+               const Grid *grid = findGrid(dimensions[0], dimensions[1]);
 
-	    if (grid)
-	    {
+               if (grid)
+               {
 
-	       float ***array = Array < float >::create3d (dimensions[0], dimensions[1], dimensions[2]);
+                   float ***array = Array < float >::create3d(dimensions[0], dimensions[1], dimensions[2]);
 
-	       // This only works because, due to the implementation of Array<>::create3d (),
-	       // &array[0][0][0] points to the appropriate 1D array.
-	       herr_t status = H5Dread (dataSetId, dataTypeId, H5S_ALL, H5S_ALL, H5P_DEFAULT, &array[0][0][0]);
+                   // This only works because, due to the implementation of Array<>::create3d (),
+                   // &array[0][0][0] points to the appropriate 1D array.
+                   herr_t status = H5Dread(dataSetId, dataTypeId, H5S_ALL, H5S_ALL, H5P_DEFAULT, &array[0][0][0]);
 
-	       if (status >= 0)
-	       {
-		  const Grid *theActivityOutputGrid = getActivityOutputGrid ();
+                   if (status >= 0)
+                   {
+                       const Grid *theActivityOutputGrid = getActivityOutputGrid();
 
-		  if (theActivityOutputGrid == 0 || grid == theActivityOutputGrid)
-		  {
-		     gridMap = getFactory ()->produceGridMap (parent, childIndex, grid, undefinedValue, (unsigned int) dimensions[2], array);
-		  }
-		  else
-		  {
-		     gridMap = getFactory ()->produceGridMap (0, 0, grid, undefinedValue, (unsigned int) dimensions[2], array);
+                       if (theActivityOutputGrid == 0 || grid == theActivityOutputGrid)
+                       {
+                           gridMap = getFactory()->produceGridMap(parent, childIndex, grid, undefinedValue, (unsigned int)dimensions[2], array);
+                       }
+                       else
+                       {
+                           gridMap = getFactory()->produceGridMap(0, 0, grid, undefinedValue, (unsigned int)dimensions[2], array);
 
-		     GridMap * gridMapInActivityOutputGrid =
-			getFactory ()->produceGridMap (parent, childIndex, theActivityOutputGrid, undefinedValue, (unsigned int) dimensions[2]);
+                           GridMap * gridMapInActivityOutputGrid =
+                               getFactory()->produceGridMap(parent, childIndex, theActivityOutputGrid, undefinedValue, (unsigned int)dimensions[2]);
 
-		     bool ret = gridMap->convertToGridMap (gridMapInActivityOutputGrid);
+                           bool ret = gridMap->convertToGridMap(gridMapInActivityOutputGrid);
 
-		     delete gridMap;
-		     gridMap = 0;
+                           delete gridMap;
+                           gridMap = 0;
 
-		     if (ret)
-		     {
-			//if the transformation was sucessful return the map otherwise 0. it should throw here...
-			gridMap = gridMapInActivityOutputGrid;
-		     }
-		  }
-	       }
-	       Array < float >::delete3d (array);
+                           if (ret)
+                           {
+                               //if the transformation was sucessful return the map otherwise 0. it should throw here...
+                               gridMap = gridMapInActivityOutputGrid;
+                           }
+                       }
+                   }
+                   Array < float >::delete3d(array);
 
-	       H5Sclose (dataSpaceId);
-	    }
-	    else
-	    {
-	       cerr << "ERROR: Could not find grid with dimensions " << dimensions[0]
-		  << " x " << dimensions[1] << endl;
-	    }
-	 }
-	 H5Tclose (dataTypeId);
-	 H5Dclose (dataSetId);
-      }
-      else
-      {
-	 cerr << "ERROR: Could not open dataset " << dataSetName
-	    << " in file " << filePathName << endl;
-      }
-      H5Fclose (fileId);
+                   H5Sclose(dataSpaceId);
+               }
+               else
+               {
+                   cerr << "ERROR: Could not find grid with dimensions " << dimensions[0]
+                       << " x " << dimensions[1] << endl;
+               }
+           }
+           H5Tclose(dataTypeId);
+           H5Dclose(dataSetId);
+       }
+       else
+       {
+           cerr << "ERROR: Could not open dataset " << dataSetName
+               << " in file " << filePathName << endl;
+       }
+       H5Fclose(fileId);
    }
    else
    {
@@ -168,13 +166,17 @@ void ProjectHandle::barrier () const {
 }
 
 void ProjectHandle::getMinValue ( double * localMin, double * globalMin ) const {
-   // Do nothing.
+
+   if( localMin != 0 and globalMin != 0 ) {
+      * globalMin = * localMin;
+   }
 }
 
 void ProjectHandle::getMaxValue ( double * localMax, double * globalMax ) const {
 
-   // Do nothing.
-
+   if( localMax != 0 and globalMax != 0 ) {
+      * globalMax = * localMax;
+   }
 }
 
 

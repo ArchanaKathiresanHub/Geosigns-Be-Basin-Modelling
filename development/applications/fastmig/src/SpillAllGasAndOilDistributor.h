@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef _MIGRATION_DISTRIBUTE_SPILLALLGASANDOILDISTRIBUTOR_H_
 #define _MIGRATION_DISTRIBUTE_SPILLALLGASANDOILDISTRIBUTOR_H_
 
@@ -13,9 +23,10 @@ using functions::MonotonicIncreasingPiecewiseLinearInvertableFunction;
 
 using std::numeric_limits;
 
-namespace migration { 
+namespace migration
+{
 
-   class SpillAllGasAndOilDistributor: public Distributor
+   class SpillAllGasAndOilDistributor : public Distributor
    {
    private:
 
@@ -23,28 +34,29 @@ namespace migration {
 
    public:
 
-      SpillAllGasAndOilDistributor(const MonotonicIncreasingPiecewiseLinearInvertableFunction* levelToVolume);
+      SpillAllGasAndOilDistributor (const MonotonicIncreasingPiecewiseLinearInvertableFunction* levelToVolume);
 
-      void distribute(const Composition& gas, const Composition& oil, const double& T_K, 
-                      Composition& remainingGas, Composition& remainingOil, 
-                      Composition& leakedGas, Composition& wastedGas, Composition& spilledGas, 
-                      Composition& leakedOil, Composition& spilledOil, double& finalGasLevel, double& finalHCLevel) const;
+      void distribute (const Composition& gas, const Composition& oil, const double& T_K,
+         Composition& remainingGas, Composition& remainingOil,
+         Composition& leakedGas, Composition& wastedGas, Composition& spilledGas,
+         Composition& leakedOil, Composition& spilledOil, double& finalGasLevel, double& finalHCLevel) const;
 
-      bool leaking() const { return true; }
-      bool wasting() const { return false; }
+      bool leaking () const { return true; }
+      bool wasting () const { return false; }
 
-      double sealFluidDensity() const { return 0.0; } 
-      double fracturePressure() const { return 0.0; }
-      double wasteLevel() const { return numeric_limits<double>::max(); }
+      double sealFluidDensity () const { return 0.0; }
+      double fracturePressure () const { return 0.0; }
+      double wasteLevel () const { return numeric_limits<double>::max (); }
 
-      const MonotonicIncreasingPiecewiseLinearInvertableFunction* levelToVolume() const { return m_levelToVolume; }
+      const MonotonicIncreasingPiecewiseLinearInvertableFunction* levelToVolume () const { return m_levelToVolume; }
 
-      void setLeaking(bool leaking) { }
-      void setWasting(bool wasting) { }
+      void setLeaking (bool leaking) {}
+      void setWasting (bool wasting) {}
 
-      void setWasteLevel(const double& wasteLevel) { }
-      void setLevelToVolume(const MonotonicIncreasingPiecewiseLinearInvertableFunction* levelToVolume) { 
-         m_levelToVolume = levelToVolume; 
+      void setWasteLevel (const double& wasteLevel) {}
+      void setLevelToVolume (const MonotonicIncreasingPiecewiseLinearInvertableFunction* levelToVolume)
+      {
+         m_levelToVolume = levelToVolume;
       }
    };
 

@@ -1,9 +1,23 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "PermeabilityCalculator.h"
 #include "DerivedOutputPropertyMap.h"
 #include "PropertyManager.h"
 #include "FastcauldronSimulator.h"
 
 #include "Interface/RunParameters.h"
+
+// utilities library
+#include "ConstantsMathematics.h"
+using Utilities::Maths::MilliDarcyToM2;
 
 OutputPropertyMap* allocatePermeabilityCalculator ( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot ) {
    return new DerivedOutputPropertyMap<PermeabilityCalculator>( property, formation, surface, snapshot );
@@ -94,8 +108,8 @@ bool PermeabilityCalculator::operator ()( const OutputPropertyMap::OutputPropert
 
             m_formation->getLithology ( i, j )->getPorosity ((*m_ves)( i, j ), (*m_maxVes)( i, j ), m_chemicalCompactionRequired, chemicalCompactionValue, porosity );
             m_formation->getLithology ( i, j )->calcBulkPermeabilityNP ((*m_ves)( i, j ), (*m_maxVes)( i, j ), porosity, permNorm, permPlane );
-            verticalPermeabilityMap->setValue ( i, j, permNorm / MILLIDARCYTOM2 );
-            horizontalPermeabilityMap->setValue ( i, j, permPlane / MILLIDARCYTOM2 );
+            verticalPermeabilityMap->setValue ( i, j, permNorm / MilliDarcyToM2 );
+            horizontalPermeabilityMap->setValue ( i, j, permPlane / MilliDarcyToM2 );
          } else {
             verticalPermeabilityMap->setValue ( i, j, undefinedValue );
             horizontalPermeabilityMap->setValue ( i, j, undefinedValue );
@@ -254,8 +268,8 @@ bool PermeabilityVolumeCalculator::operator ()( const OutputPropertyMap::OutputP
                                                                             porosity,
                                                                             permNorm,
                                                                             permPlane );
-               verticalPermeabilityMap->setValue ( i, j, k, permNorm / MILLIDARCYTOM2 );
-               horizontalPermeabilityMap->setValue ( i, j, k, permPlane / MILLIDARCYTOM2 );
+               verticalPermeabilityMap->setValue ( i, j, k, permNorm / MilliDarcyToM2 );
+               horizontalPermeabilityMap->setValue ( i, j, k, permPlane / MilliDarcyToM2 );
             }
 
          } else {

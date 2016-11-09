@@ -10,6 +10,7 @@ double ImmobileSpeciesValues::s_mappingToSpeciesManager [ NUM_IMMOBILES ];
 // Default values for density of immobile species.
 double ImmobileSpeciesValues::s_densities [ NUM_IMMOBILES ] = { 1264.05, 1247.43, 2323.59, 2245.05, 2159.056 };
 
+
 ImmobileSpeciesValues::ImmobileSpeciesValues () {
 
    unsigned int i;

@@ -1,20 +1,17 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include <assert.h>
-#ifdef sgi
-   #ifdef _STANDARD_C_PLUS_PLUS
-      #include<iostream>
-      #include <sstream>
-      using namespace std;
-      #define USESTANDARD
-   #else // !_STANDARD_C_PLUS_PLUS
-      #include<iostream.h>
-      #include<strstream.h>
-   #endif // _STANDARD_C_PLUS_PLUS
-#else // !sgi
-   #include <iostream>
-   #include <sstream>
-   using namespace std;
-   #define USESTANDARD
-#endif // sgi
+#include <iostream>
+#include <sstream>
+using namespace std;
 
 #include "mangle.h"
 
@@ -44,21 +41,6 @@ const std::string BasementFormation::HomogeneousMixtureString = "Homogeneous";
 BasementFormation::BasementFormation (ProjectHandle * projectHandle, database::Record* record, const std::string& formationName, const std::string& lithologyName ) : 
    Formation (projectHandle, record), m_formationName ( formationName ), m_lithologyName ( lithologyName )
 {
-
-#if 0
-   m_top = 0;
-   m_bottom = 0;
-   m_lithoType1 = 0;
-   m_lithoType2 = 0;
-   m_lithoType3 = 0;
-   m_fluidType = 0;
-   m_allochthonousLithology = 0;
-   m_sourceRock = 0;
-#endif
-
-#if 0
-   cerr << "Added BasementFormation " << getName () << endl;
-#endif
    m_mangledName = utilities::mangle ( m_formationName );
 }
 
@@ -213,6 +195,10 @@ const std::string& BasementFormation::getMixModelStr (void) const {
 const FluidType* BasementFormation::getFluidType (void) const
 {
    return 0;
+}
+
+float BasementFormation::getLayeringIndex(void) const {
+   return -9999;
 }
 
 int BasementFormation::getDepositionSequence () const {

@@ -1,8 +1,20 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
 #include "VreOutputGrid.h"
 #include "VreGrid.h"
 #include "layer_iterators.h"
 
-   
+// utilities library
+#include "ConstantsNumerical.h"
+using Utilities::Numerical::CauldronNoDataValue;
+
 VreOutputGrid::VreOutputGrid( DM * mapViewOfDomain, const LayerList & allLayers )
    : m_vitriniteReflectance( getNumberOfNodes( mapViewOfDomain, allLayers) )
 {
@@ -53,7 +65,7 @@ void VreOutputGrid :: exportToModel( const LayerList & allLayers, const Boolean2
       }
 
       // Set the default value on the entire vector
-      VecSet(currentLayer ->Vre, CAULDRONIBSNULLVALUE);
+      VecSet(currentLayer ->Vre, CauldronNoDataValue);
 
       // Get a proxy to the vr values in this layer.
       double *** vre;

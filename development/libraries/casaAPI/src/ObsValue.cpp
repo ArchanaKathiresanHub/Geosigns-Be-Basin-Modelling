@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2012-2014 Shell International Exploration & Production.
+// Copyright (C) 2012-2016 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -15,6 +15,7 @@
 
 #include "ObsValueDoubleArray.h"
 #include "ObsValueDoubleScalar.h"
+#include "ObsValueTransformable.h"
 
 casa::ObsValue * casa::ObsValue::load( CasaDeserializer & dz, const char * objName )
 {
@@ -29,8 +30,9 @@ casa::ObsValue * casa::ObsValue::load( CasaDeserializer & dz, const char * objNa
          << "ObsValue deserialization error, expected observable with name: " << objName
          << ", but stream gave object with name: " << on;
    }
-   if (      ot == "ObsValueDoubleArray" ) { return new ObsValueDoubleArray(  dz, vr ); }
-   else if ( ot == "ObsValueDoubleScalar") { return new ObsValueDoubleScalar( dz, vr ); }
+   if (      ot == "ObsValueDoubleArray"  ) { return new ObsValueDoubleArray(   dz, vr ); }
+   else if ( ot == "ObsValueDoubleScalar" ) { return new ObsValueDoubleScalar(  dz, vr ); }
+   else if ( ot == "ObsValueTransformable") { return new ObsValueTransformable( dz, vr ); }
    else
    {
       throw ErrorHandler::Exception( ErrorHandler::DeserializationError )

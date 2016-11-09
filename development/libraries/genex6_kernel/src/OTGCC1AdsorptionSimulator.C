@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
 #include "OTGCC1AdsorptionSimulator.h"
 
 #include <iostream>
@@ -8,8 +17,7 @@ using namespace std;
 
 #include "NumericFunctions.h"
 
-#include "PhysicalConstants.h"
-#include "Constants.h"
+#include "ConstantsGenex.h"
 #include "ChemicalModel.h"
 
 #include "SimulatorState.h"
@@ -20,6 +28,10 @@ using namespace std;
 #include "ImmobileSpecies.h"
 
 #include "PVTCalculator.h"
+
+// utilitites library
+#include "ConstantsMathematics.h"
+using Utilities::Maths::CelciusToKelvin;
 
 using namespace CBMGenerics;
 
@@ -190,7 +202,7 @@ void Genex6::OTGCC1AdsorptionSimulator::compute ( const Genex6::Input&          
    double effectivePorosity;
 
    const double& temperatureKelvin = temperature;
-   const double  temperatureCelsius = temperature - Genex6::Constants::s_TCabs;
+   const double  temperatureCelsius = temperature - CelciusToKelvin;
 
    double expelled;
    double liquidVolume = 0.0;
@@ -401,7 +413,6 @@ void Genex6::OTGCC1AdsorptionSimulator::compute ( const Genex6::Input&          
 
    // Set the new masses back to the species-state and the immobile-species-state.
    for ( speciesConcentrationIter = retainedSpeciesConcentrations.begin (); speciesConcentrationIter != retainedSpeciesConcentrations.end (); ++speciesConcentrationIter ) {
-      SpeciesState* speciesState;
 
       const std::string& speciesName = speciesConcentrationIter->first;
       double speciesMass = speciesConcentrationIter->second;
@@ -418,7 +429,6 @@ void Genex6::OTGCC1AdsorptionSimulator::compute ( const Genex6::Input&          
          // Get all the mobile species for later pvt-flash computation.
          componentMasses ( pvtId ) = speciesMass;
          // speciesState = simulatorState->GetSpeciesStateById ( speciesId );
-         speciesState = simulatorState->GetSpeciesStateById ( m_speciesManager.mapPvtComponentsToId ( pvtId ));
 
          if ( output ) {
             cout << "  mob retained: " << setw ( 25 ) << speciesMass;

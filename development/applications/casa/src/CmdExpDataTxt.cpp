@@ -24,6 +24,51 @@
 
 using namespace casa;
 
+//////////////////////////////////////////////////////////////////////////////////////////
+// Auxiliary functions
+//
+static void ExtractObservableValues( std::vector<double> & result, const RunCase * cs )
+{
+   // go over all observables and calculate PrxVal for each observable
+   for ( size_t j = 0; j < cs->observablesNumber(); ++j )
+   {
+      const casa::ObsValue * obv = cs->obsValue( j );
+
+      if ( !obv->isDouble() ) continue;
+
+      const std::vector<double> & vals = obv->asDoubleArray();
+      result.insert( result.end(), vals.begin(), vals.end() );
+   }
+}
+
+static void ExtractParametersValues( std::vector<double> & result, const RunCase * cs )
+{
+   for ( size_t j = 0; j < cs->parametersNumber(); ++j )
+   {
+      const casa::Parameter * prm = cs->parameter( j ).get();
+
+      if ( !prm || !prm->parent() ) continue;
+
+      switch ( prm->parent()->variationType() )
+      {
+         case casa::VarParameter::Continuous:
+         case casa::VarParameter::Discrete:
+            {
+               const std::vector<double> & vals = prm->asDoubleArray();
+               result.insert( result.end(), vals.begin(), vals.end() );
+            }
+            break;
+
+         case casa::VarParameter::Categorical:
+            result.push_back( prm->asInteger() );
+            break;
+         
+         default: assert( false ); break;
+      }
+   }
+}
+/////////////////////////////////////////////////////////////////////////////////////////
+
 CmdExpDataTxt::CmdExpDataTxt( CasaCommander & parent, const std::vector< std::string > & cmdPrms ) : CasaCmd( parent, cmdPrms )
 {
    if ( m_prms.size() < 2 )
@@ -44,14 +89,7 @@ CmdExpDataTxt::CmdExpDataTxt( CasaCommander & parent, const std::vector< std::st
    {
       if ( m_prms.size() > 2 ) { m_expList = CfgFileParser::list2array( m_prms[1], ',' ); }
    }
-   else if ( m_whatToSave == "ProxyEvalObservables" )
-   {
-      if ( m_prms.size() > 2 ) { m_expList = CfgFileParser::list2array( m_prms[2], ',' ); }
-      if ( m_prms.size() > 3 ) { m_proxyName = m_prms[3]; }
-
-      if ( m_proxyName.empty() ) throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "No proxy name was given";
-   }
-   else if ( m_whatToSave == "ProxyQC" )
+   else if ( m_whatToSave == "ProxyEvalObservables" || m_whatToSave == "ProxyQC" )
    {
       if ( m_prms.size() > 2 ) { m_expList = CfgFileParser::list2array( m_prms[2], ',' ); }
       if ( m_prms.size() > 3 ) { m_proxyName = m_prms[3]; }
@@ -60,6 +98,7 @@ CmdExpDataTxt::CmdExpDataTxt( CasaCommander & parent, const std::vector< std::st
    }
    else if ( m_whatToSave == "MCResults" )
    {
+      // no parameters to be parsed 
       ;
    }
    else { throw ErrorHandler::Exception( ErrorHandler::RSProxyError ) << "Unknown command parameter: " <<  m_whatToSave; }
@@ -102,22 +141,21 @@ void CmdExpDataTxt::printHelpPage( const char * cmdName )
 
 void CmdExpDataTxt::saveResults( const std::vector< std::vector<double> > & res )
 {
-   std::ofstream m_ofs;
+   std::ofstream ofs;
 
-   m_ofs.open( m_dataFileName.c_str(), std::ios_base::out | std::ios_base::trunc );
+   ofs.open( m_dataFileName.c_str(), std::ios_base::out | std::ios_base::trunc );
 
-   if ( m_ofs.fail() ) throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Can not open file for writing: " << m_dataFileName;
-
+   if ( ofs.fail() ) throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Can not open file for writing: " << m_dataFileName;
 
    for ( size_t i = 0; i < res.size(); ++i )
    {
       for ( size_t j = 0; j < res[i].size(); ++j )
       {
-         m_ofs << std::scientific << std::setprecision( 8 )  << std::setfill( '0' ) << res[i][j] << " ";
+         ofs << std::scientific << std::setprecision( 8 )  << std::setfill( '0' ) << res[i][j] << " ";
       }
-      m_ofs << std::endl;
+      ofs << std::endl;
    }
-   m_ofs.close();
+   ofs.close();
 }
 
 
@@ -139,25 +177,7 @@ void CmdExpDataTxt::exportParameters( std::unique_ptr<casa::ScenarioAnalysis> & 
          results.push_back( std::vector<double>() );
 
          // go over all parameters 
-         for ( size_t j = 0; j < doeCaseSet[c]->parametersNumber(); ++j )
-         {
-            const casa::Parameter * prm = doeCaseSet[c]->parameter( j ).get();
-
-            switch ( prm->parent()->variationType() )
-            {
-               case casa::VarParameter::Continuous:
-               case casa::VarParameter::Discrete:
-                  {
-                     const std::vector<double> & vals = prm->asDoubleArray();
-                     results.back().insert( results.back().end(), vals.begin(), vals.end() );
-                  }
-                  break;
-
-               case casa::VarParameter::Categorical:
-                  results.back().push_back( prm->asInteger() );
-                  break;
-            }
-         }
+         ExtractParametersValues( results.back(), doeCaseSet.runCase( c ) ); 
       }
    }
    saveResults( results );
@@ -181,15 +201,7 @@ void CmdExpDataTxt::exportRunCaseObs( std::unique_ptr<casa::ScenarioAnalysis> & 
          results.push_back( std::vector<double>() );
 
          // go over all observables and extract values 
-         for ( size_t j = 0; j < doeCaseSet[c]->observablesNumber(); ++j )
-         {
-            const casa::ObsValue * obsSim = doeCaseSet[c]->obsValue( j );
-
-            if ( !obsSim->isDouble() ) continue;
-
-            const std::vector<double> & valsSim = obsSim->asDoubleArray();
-            results.back().insert( results.back().end(), valsSim.begin(), valsSim.end() );
-         }
+         ExtractObservableValues( results.back(), doeCaseSet.runCase( c ) );
       }
    }
    saveResults( results );
@@ -228,15 +240,7 @@ void CmdExpDataTxt::exportEvalObserv( std::unique_ptr<casa::ScenarioAnalysis> & 
          }
 
          // go over all observables and calculate PrxVal for each observable
-         for ( size_t j = 0; j < rcs[i]->observablesNumber(); ++j )
-         {
-            const casa::ObsValue * obsPrx = rcs[i]->obsValue( j );
-
-            if ( !obsPrx->isDouble() ) continue;
-
-            const std::vector<double> & valsPrx = obsPrx->asDoubleArray();
-            results[i].insert( results[i].end(), valsPrx.begin(), valsPrx.end() );
-         }
+         ExtractObservableValues( results[i], rcs[i] );
          ++i;
       }
    }
@@ -322,35 +326,9 @@ void CmdExpDataTxt::exportMCResults( std::unique_ptr<casa::ScenarioAnalysis> & s
       rsmpl.push_back(mcSamples[i].first); //sample RMSE
 
       // sample parameters set
-      for ( size_t j = 0; j < mcSamples[i].second->parametersNumber(); ++j )
-      {
-         SharedParameterPtr prm = mcSamples[i].second->parameter( j );
-
-         switch( prm->parent()->variationType() )
-         {
-            case VarParameter::Continuous:
-            case VarParameter::Discrete:
-               {
-                  const std::vector<double> & prmVals = prm->asDoubleArray();
-                  for ( size_t k = 0; k < prmVals.size(); ++k ) { rsmpl.push_back( prmVals[k] ); }
-               }
-               break;
-
-            case VarParameter::Categorical:  rsmpl.push_back( static_cast<double>( prm->asInteger() ) );  break;
-            default: assert( false ); break;
-         }
-      }
-      // observables values set
-      for ( size_t j = 0; j < mcSamples[i].second->observablesNumber(); ++j )
-      {
-         ObsValue * obv = mcSamples[i].second->obsValue( j );
-
-         if ( obv && obv->isDouble() )
-         {
-            const std::vector<double> & vals = obv->asDoubleArray();
-            for ( size_t k = 0; k < vals.size(); ++k ) rsmpl.push_back( vals[k] );
-         }
-      }
+      ExtractParametersValues( rsmpl, mcSamples[i].second );
+      // extract observables values set
+      ExtractObservableValues( rsmpl, mcSamples[i].second );
    }
    saveResults( results );
 }

@@ -7,6 +7,7 @@ TEST ( SimdTraitTests, NoSimdTest ) {
    EXPECT_EQ ( true, sizeof ( Numerics::SimdTraits<Numerics::NO_SIMD>::PackedDouble ) == sizeof (double));
 }
 
+#ifdef __INTEL_COMPILER
 #ifdef __SSE__
 TEST ( SimdTraitTests, SseTest ) {
    EXPECT_EQ ( true, Numerics::SimdTraits<Numerics::SSE>::Alignment == 2 * sizeof (double));
@@ -21,4 +22,5 @@ TEST ( SimdTraitTests, AvxTest ) {
    EXPECT_EQ ( true, Numerics::SimdTraits<Numerics::AVX>::DoubleStride == 4 );
    EXPECT_EQ ( true, sizeof ( Numerics::SimdTraits<Numerics::AVX>::PackedDouble ) == 4 * sizeof (double));
 }
+#endif
 #endif

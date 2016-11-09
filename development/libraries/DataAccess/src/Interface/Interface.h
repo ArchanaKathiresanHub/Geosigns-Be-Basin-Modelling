@@ -259,6 +259,8 @@ namespace DataAccess
 
       };
 
+      /// \brief Indicates the model method of mixing the lithologies in a layer.
+      enum MixModelType { UNDEFINED, HOMOGENEOUS, LAYERED };
 
       /// Specifies whether a Property applies to formations, reservoirs or traps.
       enum PropertyType { FORMATIONPROPERTY, RESERVOIRPROPERTY, TRAPPROPERTY };
@@ -269,7 +271,7 @@ namespace DataAccess
          BASEMENT_FORMATION  /**< A formation from the basement, not from the stratigraphy table. */
       };
 
-      /// Indicates the type of surface. 
+      /// Indicates the type of surface.
       enum SurfaceKind {
          SEDIMENT_SURFACE, /**< A surface indicated in the stratigraphy table. */
          BASEMENT_SURFACE  /**< A surface that is a part of the basement and not from the stratigraphy table. */
@@ -303,7 +305,7 @@ namespace DataAccess
          Density, HeatProd, SurfacePorosity, CompacCoefES,CompacCoefESA, CompacCoefESB, CompacCoefSC, CompacCoefFM, StpThCond,
          ThCondAnisotropy, DepoPerm, PermDecrStressCoef, PermIncrRelaxCoef, PermAnisotropy,
          SeisVelocity, NExponentVelocity, CapC1, CapC2, Compaction_Coefficient_SM, HydraulicFracturingPercent,
-         ReferenceSolidViscosity, ActivationEnergy, MinimumPorosity, 
+         ReferenceSolidViscosity, ActivationEnergy, MinimumPorosity,
          // Ints
          UserDefined, Number_Of_Data_Points
       };

@@ -3,22 +3,9 @@
 #include <limits.h>
 #include <assert.h>
 
-#ifdef sgi
-   #ifdef _STANDARD_C_PLUS_PLUS
-      #include<iostream>
-      #include <sstream>
-      using namespace std;
-      #define USESTANDARD
-   #else // !_STANDARD_C_PLUS_PLUS
-      #include<iostream.h>
-      #include<strstream.h>
-   #endif // _STANDARD_C_PLUS_PLUS
-#else // !sgi
-   #include <iostream>
-   #include <sstream>
-   using namespace std;
-   #define USESTANDARD
-#endif // sgi
+#include <iostream>
+#include <sstream>
+using namespace std;
 
 #include "Interface/DistributedGrid.h"
 
@@ -109,7 +96,7 @@ DistributedGrid::DistributedGrid (double minI, double minJ,
    }
 
 
-   DMDACreate2d ( PETSC_COMM_WORLD, DMDA_BOUNDARY_NONE, DMDA_BOUNDARY_NONE, DMDA_STENCIL_BOX,
+   DMDACreate2d ( PETSC_COMM_WORLD, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DMDA_STENCIL_BOX,
                   numIGlobal (), numJGlobal (), 
                   numICores, numJCores, 1, 1, 
                   PETSC_NULL, PETSC_NULL, &m_localInfo.da );
@@ -129,7 +116,7 @@ DistributedGrid::DistributedGrid (const Grid * referenceGrid, double minI, doubl
 
    calculateNums(referenceGrid);
 
-   DMDACreate2d (PETSC_COMM_WORLD, DMDA_BOUNDARY_NONE, DMDA_BOUNDARY_NONE, DMDA_STENCIL_BOX,
+   DMDACreate2d (PETSC_COMM_WORLD, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DMDA_STENCIL_BOX,
                  numIGlobal (), numJGlobal (),
                  referenceGrid->numProcsI (), referenceGrid->numProcsJ (), 1, 1,
                  numsI (), numsJ (), &m_localInfo.da);
@@ -649,11 +636,7 @@ const Vec & DistributedGrid::getVec (void) const
 
 void DistributedGrid::asString (string & str) const
 {
-#ifdef USESTANDARD
    ostringstream buf;
-#else
-   strstream buf;
-#endif
 
    buf << "Grid:";
    buf << " numI = " << numI () << ", numJ = " << numJ ();
@@ -661,9 +644,6 @@ void DistributedGrid::asString (string & str) const
    buf << ", deltaI = " << deltaI () << ", deltaJ = " << deltaJ () << endl;
 
    str = buf.str ();
-#ifndef USESTANDARD
-   buf.rdbuf ()->freeze (0);
-#endif
 }
 
 void DistributedGrid::printOn (ostream & ostr) const

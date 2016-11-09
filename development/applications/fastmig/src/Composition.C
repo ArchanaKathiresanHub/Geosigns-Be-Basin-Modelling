@@ -12,18 +12,23 @@
 #include "EosPack.h"
 #include "migration.h"
 #include "rankings.h"
-#include "consts.h"
+
 
 #ifdef DEBUG_PVT
 #include "waterDensity.h"
 #endif
 
+// std library
 #include <assert.h>
 #include <iostream>
-
 #include <vector>
-
 using namespace std;
+
+#include "ConstantsPhysics.h"
+using Utilities::Physics::GasRadius;
+#include "ConstantsMathematics.h"
+using Utilities::Maths::MegaPaToPa;
+using Utilities::Maths::CelciusToKelvin;
 
 using namespace migration;
 using namespace CBMGenerics;
@@ -225,7 +230,7 @@ void Composition::computeDiffusionLeakages(const double& diffusionStartTime, con
       if (molarFraction == 0.0)
          continue;
 
-      double gasRadius = CBMGenerics::gasRadii[index];
+      double gasRadius = GasRadius[index];
 
       diffusionLeaks[index]->compute (diffusionStartTime, intervalStartTime, intervalEndTime, getWeight (componentId), molarFraction,
                                       solubilities[index], surfaceArea, lost, gasRadius);
@@ -285,11 +290,11 @@ void Composition::computePVT (double temperature, double pressure, Composition *
       return;
    }
 
-   bool flashed = pvtFlash::EosPack::getInstance().computeWithLumping (temperature + C2K, pressure * MPa2Pa, inputComponents, outputComponents, outputDensities, outputViscosities);
+   bool flashed = pvtFlash::EosPack::getInstance().computeWithLumping (temperature + CelciusToKelvin, pressure * MegaPaToPa, inputComponents, outputComponents, outputDensities, outputViscosities);
 #if 1
    if (!flashed)
    {
-      cerr << "PVT FAILED: T = " << temperature + C2K << " K, P = " << pressure * MPa2Pa << " Pa, Components = ";
+      cerr << "PVT FAILED: T = " << temperature + CelciusToKelvin << " K, P = " << pressure * MegaPaToPa << " Pa, Components = ";
 
       for (unsigned int comp = 0; comp < NumComponents; comp++)
       {

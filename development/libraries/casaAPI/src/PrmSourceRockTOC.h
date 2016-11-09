@@ -48,15 +48,25 @@ namespace casa
       PrmSourceRockTOC( mbapi::Model & mdl, const char * layerName, const char * srType = 0, int mixID = 1 );
 
       /// @brief Constructor, creates the parameter object for the given parameter value and layer name
-      /// @param parent pointer to a variable parameter which created this one
-      /// @param val value of the parameter
-      /// @param layerName layer name
-      /// @param srType    source rock type name
-      /// @param mixID     source rock mixing ID for stratigraphy layer
-      PrmSourceRockTOC( const VarPrmSourceRockTOC * parent, double val, const char * layerName, const char * srType = 0, int mixID = 1 );
+      PrmSourceRockTOC( const VarPrmSourceRockTOC * parent       /// pointer to a variable parameter which created this one
+                      , double                      val          /// value of the parameter
+                      , const char                * layerName    /// layer name
+                      , const std::string         & mapName = "" /// name of the TOC map
+                      , const char                * srType = 0   /// source rock type name
+                      , int                         mixID  = 1   /// source rock mixing ID for stratigraphy layer
+                      );
 
       /// @brief Destructor
       virtual ~PrmSourceRockTOC();
+
+      /// @brief Get map name 
+      /// @return map name
+      std::string mapName() const { return m_mapName; }
+
+      /// @brief Define min/max maps name to interpolate between them on setInModel request
+      /// @param minMap low range map
+      /// @param maxMap high range map
+      void defineMapsRange( const std::string & minMap, const std::string & maxMap ) { m_minMapName = minMap; m_maxMapName = maxMap; }
 
       /// @brief Are two parameters equal?
       /// @param prm Parameter object to compare with
@@ -78,7 +88,7 @@ namespace casa
       /// @brief Defines version of serialized object representation. Must be updated on each change in save()
       /// @return Actual version of serialized object representation
       //  Version 1: - added mixing ID and source rock type name
-      virtual unsigned int version() const { return 0; }
+      virtual unsigned int version() const { return 1; }
 
       /// @brief Save all object data to the given stream, that object could be later reconstructed from saved data
       /// @param sz Serializer stream
@@ -97,7 +107,10 @@ namespace casa
       /// @}
 
    protected:
-   };
+      std::string           m_mapName;           ///< map name (if no interpolation is needed)
+      std::string           m_minMapName;        ///< low range map name if TOC is defined by 2D map
+      std::string           m_maxMapName;        ///< high range map name if TOS is defined by 2D map
+ };
 
 }
 

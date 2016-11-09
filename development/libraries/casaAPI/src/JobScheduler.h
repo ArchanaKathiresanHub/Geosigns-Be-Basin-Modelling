@@ -56,7 +56,8 @@ namespace casa
                           , const std::string & scriptName
                           , const std::string & jobName
                           , int                 cpus
-                          , size_t              runTimeLim ) = 0;
+                          , size_t              runTimeLim
+                          , const std::string & scenarioID ) = 0;
 
       // Restore job state by analysing output files
       virtual JobState restoreJobState( const std::string & cwd, const std::string & scriptName, const std::string & jobName );
@@ -77,8 +78,9 @@ namespace casa
       virtual bool cpusNumberByScheduler() = 0;
 
       // Wait a bit (~10 sec) before asking about job state again
-      // for the LOCAL cluster - do nothing
-      virtual void sleep() = 0;
+      // for the LOCAL cluster - do noting
+      // secs -1 - use default value for scheduler, 0 or positive number seconds to sleep
+      virtual void sleep( int secs = -1 ) = 0;
 
       static JobScheduler *  load( CasaDeserializer & dz, const char * objName );
 

@@ -1,5 +1,0 @@
-        subroutine PCExoticSetType(pc, type ,ierr)
-       PC pc ! PC
-       PCExoticType type ! PCExoticType
-       integer ierr
-       end subroutine

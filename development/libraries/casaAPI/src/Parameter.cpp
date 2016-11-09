@@ -27,6 +27,7 @@
 #include "PrmLithoSTPThermalCond.h"
 #include "PrmWindow.h"
 #include "PrmLithoFraction.h"
+#include "PrmCompactionCoefficient.h"
 
 casa::Parameter * casa::Parameter::load( CasaDeserializer & dz, const char * objName )
 {
@@ -55,6 +56,7 @@ casa::Parameter * casa::Parameter::load( CasaDeserializer & dz, const char * obj
    else if ( ot == "PrmLithoSTPThermalCond"          ) { return new PrmLithoSTPThermalCond(          dz, vr ); }
    else if ( ot == "PrmWindow"                       ) { return new PrmWindow(                       dz, vr ); }
    else if ( ot == "PrmLithoFraction"                ) { return new PrmLithoFraction(                dz, vr ); }
+   else if ( ot == "PrmCompactionCoefficient"        ) { return new PrmCompactionCoefficient(        dz, vr ); }
    else
    {
       throw ErrorHandler::Exception( ErrorHandler::DeserializationError )

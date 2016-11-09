@@ -14,12 +14,13 @@
 #include "ui_MainWindow.h"
 
 #include <Project.h>
+#include <Scheduler.h>
 #include <SceneGraphManager.h>
 #include <SceneExaminer.h>
 
 #include <Inventor/misc/SoRef.h>
 
-#include <QtGui/QMainWindow>
+#include <QtWidgets/QMainWindow>
 
 class SceneGraph;
 class SeismicScene;
@@ -38,6 +39,8 @@ class MainWindow : public QMainWindow
   QLabel* m_dimensionsLabel;
   QLabel* m_timeLabel;
   QLabel* m_fpsLabel;
+
+  Scheduler m_scheduler;
 
   std::shared_ptr<Project> m_project;
   std::shared_ptr<SceneGraphManager> m_sceneGraphManager;
@@ -74,6 +77,10 @@ class MainWindow : public QMainWindow
 private slots:
 
   void onActionOpenTriggered();
+
+  void onActionImportSeismicTriggered();
+
+  void onActionExportSeismicTriggered();
 
   void onActionRenderAllSnapshotsTriggered();
 
@@ -131,6 +138,8 @@ private slots:
 
   void onShowGLInfo();
 
+  void onShowIvTune();
+
   void onTreeWidgetItemClicked(QTreeWidgetItem* item, int column);
 
   void onFenceListItemClicked(QListWidgetItem* item);
@@ -138,6 +147,18 @@ private slots:
   void onSeismicSliceToggled(bool value);
 
   void onSeismicSliceValueChanged(int value);
+
+  void onSeismicColorScaleValueChanged();
+
+  void onLoadSeismicColorMapClicked();
+
+  void onInterpolatedSurfaceToggled(bool value);
+
+  void onInterpolatedSurfacePositionChanged(int value);
+
+protected:
+
+  void timerEvent(QTimerEvent* event) override;
 
 public:
 

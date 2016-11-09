@@ -28,46 +28,46 @@ START-properties
 
     Identification      : Description
     Description         : string to further specify a project, lithotype, etc.
-    Unit of measurement : 
+    Unit of measurement :
     Type                : string
     Error Field         : No
 
     Identification      : Label
     Description         : A piece of text attached to a measurement
                           in any calibration data type
-    Unit of measurement : 
+    Unit of measurement :
     Type                : string
     Error Field         : No
 
     Identification      : DefinedBy
     Description         : Person that defined the lithotype, etc.
-    Unit of measurement : 
+    Unit of measurement :
     Type                : string
     Error Field         : No
 
     Identification      : Selected
     Description         : Whether or not it is selected
-    Unit of measurement : 
+    Unit of measurement :
     Type                : boolean
     Default             : 0
     Error Field         : No
 
     Identification      : UserDefined
     Description         : May be updated by the local user if 1
-    Unit of measurement : 
+    Unit of measurement :
     Type                : boolean
     Default             : 0
     Error Field         : No
 
     Identification      : DefinitionDate
     Description         : date at which the the lithtotype etc is created
-    Unit of measurement : 
+    Unit of measurement :
     Type                : string
     Error Field         : No
 
     Identification      : LastChangedBy
     Description         : Person that last changed the lithotype, etc.
-    Unit of measurement : 
+    Unit of measurement :
     Type                : string
     Error Field         : No
 
@@ -122,7 +122,7 @@ START-properties
     Identification      : PropertyClass
     Description         : Type of property {Physical, Formation, FormationTop,
                           FormationBottom, Source rock}
-    Unit of measurement :  
+    Unit of measurement :
     Type                : string
     Error Field         : No
 
@@ -896,16 +896,26 @@ START-properties
     Identification      : Lithotype3
     Description         : name of third rock type used to identify a set of
                           material properties of that rock type
-    Unit of measurement :  
+    Unit of measurement :
     Type                : string
     Error Field         : No
 
     Identification      : MixModel
     Description         : Model used for mixing the different lithotypes to a
-                          lithology; either "Homogeneous" or "Layered", could
-                          be extended number of cycles (when layered)
-    Unit of measurement : 
+                          lithology; either "Homogeneous" or "Layered", when
+                          "Layered", use generalized mean whith parameter
+                          LayeringIndex as exponent
+    Unit of measurement :
     Type                : string
+    Error Field         : No
+
+    Identification      : LayeringIndex
+    Description         : Exponent used for mixing
+                          If MixModel is "Layered", should be between 0 and 1
+                          If MixModel is "Homogeneous" should be NoDataValue
+    Unit of measurement : 
+    Type                : float
+    Default             : 1
     Error Field         : No
 
     Identification      : SourceRock
@@ -1374,7 +1384,7 @@ START-properties
     Description         : Formation thickness 
     Unit of measurement : m
     Type                : float
-    Default				: -9999
+    Default             : -9999
     Error Field         : Yes
 
     Identification      : SpillDepth
@@ -3094,6 +3104,14 @@ START-properties
     Property I/O        : No
     Default             : 0
 
+    Identification      : PaleoSeeps
+    Description         : Calculation of seepage at paleo times
+    Type                : integer
+    Error Field         : No
+    Time dependent      : No
+    Property I/O        : No
+    Default             : 0
+
     Identification      : Legacy
     Description         : Whether to run BPA-compatible migration mode
     Type                : integer
@@ -4507,7 +4525,7 @@ Identification      : HcLiquidBrineCapillaryEntryPressure
     Description         : offset depth from the top of a formation 
     Unit of measurement : m
     Type                : double
-    Default				: -9999
+    Default             : -9999
     Error Field         : Yes
 
     Identification      : DepthOffsetGrid
@@ -4519,7 +4537,7 @@ Identification      : HcLiquidBrineCapillaryEntryPressure
     Description         : Net to Gross Percentage  
     Unit of measurement : percent
     Type                : double
-    Default		: -9999
+    Default             : -9999
     Error Field         : No
 
     Identification      : NetToGrossGrid
@@ -4531,7 +4549,7 @@ Identification      : HcLiquidBrineCapillaryEntryPressure
     Description         : microtraps density at the top of the reservoir 
     Unit of measurement : m3/m2
     Type                : double
-    Default		: -9999
+    Default             : -9999
     Error Field         : Yes
 
     Identification      : LeakProperty
@@ -4544,14 +4562,14 @@ Identification      : HcLiquidBrineCapillaryEntryPressure
     Description         : rate at which the oil/gas is leaking. 
     Unit of measurement : kg/m2/ma
     Type                : double
-    Default		: -9999
+    Default             : -9999
     Error Field         : No
 
     Identification      : LayerFrequency 
     Description         : Sand/Shale Layer Frequency  
     Unit of measurement : km 
     Type                : double 
-    Default		: -9999
+    Default             : -9999
     Error Field         : Yes
 
     Identification      : LayerFrequencyGrid
@@ -6545,6 +6563,7 @@ START-property-tables
     Column         : VerticalSecondaryMigration
     Column         : HydrodynamicCapillaryPressure
     Column         : ReservoirDetection
+    Column         : PaleoSeeps
     Column         : Legacy
     Column         : HeatFlowSolution
     Column         : PrefSnapstep
@@ -6724,6 +6743,7 @@ START-property-tables
     Column         : Lithotype3
     Column         : Percent3
     Column         : MixModel
+    Column         : LayeringIndex
     Column         : Fluidtype
     Column         : TempGradient
     Column         : SourceRock

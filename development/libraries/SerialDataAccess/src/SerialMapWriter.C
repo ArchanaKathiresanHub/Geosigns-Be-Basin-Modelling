@@ -55,8 +55,11 @@ bool SerialMapWriter::open (const string & fileName, bool append)
 
    if (m_fileHandle < 0)
       return false;
-   
-   size_t slashPos = fileName.rfind ('/');
+#ifdef _WIN32
+   size_t slashPos = fileName.rfind ('\\');
+#else
+   size_t slashPos = fileName.rfind( '/' );
+#endif
    if (slashPos != string::npos)
    {
       m_fileName = fileName.substr (slashPos + 1, string::npos);
@@ -91,30 +94,46 @@ bool SerialMapWriter::writeMapToHDF (GridMap * gridMap, float time, double depoA
 
    // create dataset name
    string dataSetName = LAYER_DATASET_PREFIX + propertyGrid;
+   bool newDataset = true;
+   returnVal = writeMapData( dataSetName, gridMap, newDataset );
 
-   writeMapData (dataSetName, gridMap);
+   if ( newDataset )
+   {
+      returnVal = writeAttribute( dataSetName, PROPERTY_NAME_ATTRIBUTE, H5T_C_S1, 3, (void *)tmpString.c_str( ) );
 
-   returnVal = writeAttribute (dataSetName, PROPERTY_NAME_ATTRIBUTE, H5T_C_S1, 3, (void *) tmpString.c_str ());
+      returnVal = writeAttribute( dataSetName, GRID_NAME_ATTRIBUTE, H5T_C_S1,
+         propertyGrid.length( ), (void *)propertyGrid.c_str( ) );
 
-   returnVal = writeAttribute (dataSetName, GRID_NAME_ATTRIBUTE, H5T_C_S1,
-                               propertyGrid.length (), (void *) propertyGrid.c_str ());
+      tmpString = "IMAGE";
+      returnVal = writeAttribute( dataSetName, "CLASS", H5T_C_S1, 6, (void *)tmpString.c_str( ) );
+      returnVal = writeAttribute( dataSetName, STRATTOP_AGE_ATTRIBUTE, H5T_NATIVE_FLOAT, 1, &time );
 
-   tmpString = "IMAGE";
-   returnVal = writeAttribute (dataSetName, "CLASS", H5T_C_S1, 6, (void *) tmpString.c_str ());
+      tmpString = "RDO";
+      returnVal = writeAttribute( dataSetName, STRATTOP_PROPERTY_ATTRIBUTE, H5T_C_S1, 3, (void *)tmpString.c_str( ) );
+   }
 
-   float fdepoAge = float (depoAge);
-
-   Write1DDataSet (1, STRATTOP_AGE_DATASET_NAME, H5T_NATIVE_FLOAT, &fdepoAge);
-
-   returnVal = writeAttribute (dataSetName, STRATTOP_AGE_ATTRIBUTE, H5T_NATIVE_FLOAT, 1, &time);
-
-   tmpString = "RDO";
-   returnVal = writeAttribute (dataSetName, STRATTOP_PROPERTY_ATTRIBUTE, H5T_C_S1, 3, (void *) tmpString.c_str ());
+   float fdepoAge = float( depoAge );
+   Write1DDataSet( 1, STRATTOP_AGE_DATASET_NAME, H5T_NATIVE_FLOAT, &fdepoAge );
 
    return returnVal;
 }
 
-bool SerialMapWriter::writeMapData (const string & dataSetName, const GridMap * gridMap)
+bool SerialMapWriter::writeInputMap( GridMap * gridMap, int mapSeqNumber )
+{
+   string dataSetName = std::string( LAYER_DATASET_PREFIX ) + (mapSeqNumber < 10 ? "0" : "" ) + std::to_string( mapSeqNumber );
+   bool newDataset = true;
+   bool ok = writeMapData( dataSetName, gridMap, newDataset );
+
+   ok = ok && newDataset; // this map must be written always as a new dataset!
+
+   if ( ok && mapSeqNumber == 0 ) // if this is a first map - write a description
+   {
+      ok = saveDescription( gridMap->getGrid() );
+   }
+   return ok;
+}
+
+bool SerialMapWriter::writeMapData( const string & dataSetName, const GridMap * gridMap, bool & newDataset )
 {
    int numI = gridMap->getGrid ()->numI ();
    int numJ = gridMap->getGrid ()->numJ ();
@@ -125,24 +144,18 @@ bool SerialMapWriter::writeMapData (const string & dataSetName, const GridMap * 
    {
       for (int j = 0; j < numJ; ++j)
       {
-	 dataArray[i * numJ + j] = gridMap->getValue ((unsigned int) i, (unsigned int) j, (unsigned int) 0); 
+         dataArray[i * numJ + j] = gridMap->getValue ((unsigned int) i, (unsigned int) j, (unsigned int) 0); 
       }
    }
 
-   HDF5::writeData2D (m_fileHandle, numI, numJ, dataSetName.c_str (), H5T_NATIVE_FLOAT, dataArray);
+   HDF5::writeData2D( m_fileHandle, numI, numJ, dataSetName.c_str( ), H5T_NATIVE_FLOAT, dataArray, newDataset );
 
    delete [] dataArray;
 
    return true;
 }
 
-bool SerialMapWriter::writeVolumeToHDF (GridMap * gridMap, const string & propertyName, const string & layerName)
-{
-   // not yet implemented
-   return false;
-}
-
-bool SerialMapWriter::writePrimaryVolumeToHDF (GridMap * gridMap, const string & propertyName, double time, const string & layerName, const bool useGroupName, const bool isPrimary )
+bool SerialMapWriter::writeVolumeToHDF (GridMap * gridMap, const string & propertyName, const string & layerName, const bool isPrimary )
 {
    // not yet implemented
    return false;

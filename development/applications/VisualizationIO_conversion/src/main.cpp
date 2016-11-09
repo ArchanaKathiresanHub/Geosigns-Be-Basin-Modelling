@@ -11,31 +11,82 @@
 #include "ImportExport.h"
 #include "ImportProjectHandle.h"
 #include "VisualizationIO_native.h"
+#include "VisualizationUtils.h"
 #include "Interface/ProjectHandle.h"
 #include "Interface/ObjectFactory.h"
+#include "FilePath.h"
+
 #include <boost/filesystem/path.hpp>
+#include <boost/lockfree/queue.hpp>
+#include <boost/atomic.hpp>
+
 #include <ctime>
 #include <cstring>
-#define verbose false
+
+/// \brief method to retrieve data on a separate thread
+void retrieveDataQueue(std::vector < CauldronIO::VisualizationIOData* >* allData, boost::lockfree::queue<int>* queue, boost::atomic<bool>* done)
+{
+    int value;
+    while (!*done) {
+        while (queue->pop(value))
+        {
+            CauldronIO::VisualizationIOData* data = allData->at(value);
+            assert(!data->isRetrieved());
+            data->retrieve();
+        }
+    }
+
+    while (queue->pop(value))
+    {
+        CauldronIO::VisualizationIOData* data = allData->at(value);
+        assert(!data->isRetrieved());
+        data->retrieve();
+    }
+}
 
 /// \brief Small wrapper application for the VisualizationIO libraries
 int main(int argc, char ** argv)
 {
     if (argc <= 1)
     {
-        cout << "Usage: VisualizationIO_convert [ -import-native <xml-file> | -import-projectHandle <projectHandle> | -convert <projectHandle> [-threads=x] ]" << endl
-            << " -import-native       : loads xml reads all the data into memory" << endl
-            << " -import-projectHandle: loads the specified projectHandle into memory" << endl
-            << " -convert             : converts the specified projectHandle to new native format" << endl
-            << " -threads=x           : use x threads for compression during export" << endl;
+		cout << "Usage: VisualizationIO_convert [mode] [options] " << endl
+			<< "  Modes: "
+			<< "  -import-native <xml-file>              : loads xml reads all the data into memory" << endl
+			<< "  -import-projectHandle <projectHandle>  : loads the specified projectHandle into memory" << endl
+			<< "  -convert <projectHandle> [<directory>] : converts the specified projectHandle to new native format, " << endl
+			<< "                                           output to directory if specified, otherwise same as input directory" << endl
+			<< " Options: " << endl
+			<< " -threads=x                              : use x threads for compression during export or parallel importing" << endl
+			<< " -center                                 : cell-center all properties except depth" << endl
+			<< " -verbose								 : output debugging information" << endl;
         return 1;
     }
 
     string mode = argv[1];
 
+    // Check options
+    int numThreads = 1;
+    bool center = false;
+	bool verbose = false;
+    for (int i = 1; i < argc; i++)
+    {
+        if (std::string(argv[i]).find("threads") != std::string::npos)
+        {
+            numThreads = std::atoi(argv[i] + 9);
+            numThreads = min(24, (int)max(1, (int)numThreads));
+        }
+		if (std::string(argv[i]).find("center") != std::string::npos)
+		{
+			center = true;
+		}
+		if (std::string(argv[i]).find("verbose") != std::string::npos)
+		{
+			verbose = true;
+		}
+    }
+
     try
     {
-
         if (mode == "-import-native")
         {
             if (argc < 3)
@@ -49,7 +100,7 @@ int main(int argc, char ** argv)
             float timeInSeconds;
 
             cout << "Starting import from XML" << endl;
-            boost::shared_ptr<CauldronIO::Project> project = CauldronIO::ImportExport::importFromXML(xmlName);
+            shared_ptr<CauldronIO::Project> project = CauldronIO::ImportExport::importFromXML(xmlName);
 
             timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
             cout << "Finished import in " << timeInSeconds << " seconds " << endl;
@@ -57,7 +108,37 @@ int main(int argc, char ** argv)
             // Retrieve data
             cout << "Retrieving data" << endl;
             start = clock();
-            project->retrieve();
+
+            for (shared_ptr<CauldronIO::SnapShot> snapShot : project->getSnapShots())
+            {
+                std::vector < CauldronIO::VisualizationIOData* > allReadData = snapShot->getAllRetrievableData();
+
+                std::cout << "Retrieving snapshot " << snapShot->getAge() << " with " << numThreads << " threads" << endl;
+
+                boost::lockfree::queue<int> queue(128);
+                boost::atomic<bool> done(false);
+
+                // Retrieve in separate threads
+                boost::thread_group threads;
+                for (int i = 0; i < numThreads - 1; ++i)
+                    threads.add_thread(new boost::thread(retrieveDataQueue, &allReadData, &queue, &done));
+
+                // Load the data on the main thread
+                for (int i = 0; i < allReadData.size(); i++)
+                {
+                    allReadData[i]->prefetch();
+                    queue.push(i);
+                }
+                done = true;
+
+                // Single threaded: retrieve now
+                if (numThreads == 1)
+                    retrieveDataQueue(&allReadData, &queue, &done);
+                threads.join_all();
+
+                snapShot->release();
+            }
+
             timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
             cout << "Finished retrieve in " << timeInSeconds << " seconds " << endl;
 
@@ -77,8 +158,8 @@ int main(int argc, char ** argv)
 
             // Try to open the projectHandle
             cout << "Opening project handle " << endl;
-            boost::shared_ptr<DataAccess::Interface::ObjectFactory> factory(new DataAccess::Interface::ObjectFactory());
-            boost::shared_ptr<DataAccess::Interface::ProjectHandle> projectHandle(DataAccess::Interface::OpenCauldronProject(projectFileName, "r", factory.get()));
+            shared_ptr<DataAccess::Interface::ObjectFactory> factory(new DataAccess::Interface::ObjectFactory());
+            shared_ptr<DataAccess::Interface::ProjectHandle> projectHandle(DataAccess::Interface::OpenCauldronProject(projectFileName, "r", factory.get()));
             if (!projectHandle)
             {
                 cerr << "Could not open the project handle" << endl;
@@ -87,9 +168,11 @@ int main(int argc, char ** argv)
             timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
             cout << "Finished opening project handle in " << timeInSeconds << " seconds " << endl;
 
+            shared_ptr<CauldronIO::Project> project;
+            
             // Import from ProjectHandle
             cout << "Importing from project handle (requires reading depth formations)" << endl;
-            boost::shared_ptr<CauldronIO::Project> project = ImportProjectHandle::createFromProjectHandle(projectHandle, verbose);
+            project = ImportProjectHandle::createFromProjectHandle(projectHandle, verbose);
             timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
             cout << "Finished import in " << timeInSeconds << " seconds " << endl;
 
@@ -98,32 +181,35 @@ int main(int argc, char ** argv)
                 // Retrieve data
                 cout << "Retrieving data" << endl;
                 start = clock();
-                project->retrieve();
+
+                for (const std::shared_ptr<CauldronIO::SnapShot>& snapShot : project->getSnapShots())
+                {
+                    CauldronIO::VisualizationUtils::retrieveAllData(snapShot, numThreads);
+                    snapShot->release();
+                }
+
                 timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
                 cout << "Finished retrieve in " << timeInSeconds << " seconds " << endl;
             }
-            else
+            else // mode is convert
             {
                 // Export to native format: it will retrieve data when needed
                 cout << "Writing to new format" << endl;
                 start = clock();
 
-                // Construct output path
-                boost::filesystem::path relPath(projectFileName);
-                relPath = relPath.stem().string() + "_vizIO_output";
-                boost::filesystem::path absPath(projectFileName);
-                absPath.remove_filename();
-                std::string indexingXMLname = CauldronIO::ImportExport::getXMLIndexingFileName(projectFileName);
-
-                // Check threads
-                int numThreads = 1;
-                if (argc >= 4)
+                // Check for explicit output path (should be argument 3)
+                ibs::FilePath absPath(projectFileName);
+                if (argc > 3)
                 {
-                    numThreads = std::atoi(argv[3] + 9);
-                    numThreads = min(24, (int)max(1, (int)numThreads));
+                    std::string argOutput(argv[3]);
+                    // Don't confuse with options
+                    if (argOutput.find("threads") == std::string::npos && argOutput.find("center") == std::string::npos)
+                    {
+                        absPath = ibs::FilePath(argOutput) << absPath.fileName();
+                    }
                 }
 
-                CauldronIO::ImportExport::exportToXML(project, absPath.string(), relPath.string(), indexingXMLname, numThreads);
+                CauldronIO::ImportExport::exportToXML(project, absPath.path(), numThreads, center);
                 timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
                 cout << "Wrote to new format in " << timeInSeconds << " seconds" << endl;
             }

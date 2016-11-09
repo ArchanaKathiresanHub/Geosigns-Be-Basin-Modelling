@@ -29,7 +29,6 @@ set( all_headers,
      src/BoundaryConditions.h
      src/BoundaryId.h
      src/BrineProperties.h
-     src/BrooksCorey.h
      src/BulkDensityCalculator.h
      src/CapillaryPressureCalculator.h
      src/ChemicalCompactionGrid.h
@@ -39,6 +38,7 @@ set( all_headers,
      src/CompositeElementActivityPredicate.h
      src/ComputationalDomain.h
      src/ComputedPropertyValue.h
+     src/ConstantsFastcauldron.h
      src/ConstrainedArray.h
      src/CrustFormation.h
      src/DarcyCalculations.h
@@ -81,7 +81,6 @@ set( all_headers,
      src/GenericFortranMatrix.h
      src/GeometricLoopPressureSolver.h
      src/ghost_array.h
-     src/globaldefs.h
      src/HcFluidVelocityCalculator.h
      src/HeatFlowCalculator.h
      src/history.h
@@ -100,7 +99,6 @@ set( all_headers,
      src/MatrixInterpolator.h
      src/MatrixNonZeroCalculator.h
      src/MaxVesCalculator.h
-     src/MemoryChecker.h
      src/Mesh3DIndex.h
      src/milestones.h
      src/MultiComponentFlowHandler.h
@@ -151,12 +149,10 @@ set( all_headers,
      src/SourceRocksTemporalInterpolator.h
      src/SourceTermInterpolatorCalculator.h
      src/SourceTermTemporalInterpolator.h
-     src/StatisticsHandler.h
      src/StratigraphicColumn.h
      src/StratigraphicGrids.h
      src/SubdomainElement.h
      src/Subdomain.h
-     src/System.h
      src/TemperatureForVreInputGrid.h
      src/temperature_solver.h
      src/TemporalPropertyInterpolator.h
@@ -190,7 +186,6 @@ set( all_srcs_except_main
      src/BoundaryConditions.C
      src/BoundaryId.C
      src/BrineProperties.C
-     src/BrooksCorey.C
      src/BulkDensityCalculator.C
      src/CapillaryPressureCalculator.C
      src/ChemicalCompactionGrid.C
@@ -199,6 +194,7 @@ set( all_srcs_except_main
      src/ComponentConcentrationCalculator.C
      src/CompositeElementActivityPredicate.C
      src/ComputationalDomain.C
+     src/ConstantsFastcauldron.C
      src/CrustFormation.C
      src/DarcyCalculations.C
      src/DerivedOutputPropertyMapFactory.C
@@ -231,7 +227,6 @@ set( all_srcs_except_main
      src/FracturePressureVolumeCalculator.C
      src/GeometricLoopPressureSolver.C
      src/ghost_array.C
-     src/globaldefs.C
      src/HcFluidVelocityCalculator.C
      src/HeatFlowCalculator.C
      src/history.C
@@ -249,7 +244,6 @@ set( all_srcs_except_main
      src/mapinterpolator.C
      src/MatrixNonZeroCalculator.C
      src/MaxVesCalculator.C
-     src/MemoryChecker.C
      src/Mesh3DIndex.C
      src/milestones.C
      src/MultiComponentFlowHandler.C
@@ -295,11 +289,9 @@ set( all_srcs_except_main
      src/SourceRocksTemporalInterpolator.C
      src/SourceTermInterpolatorCalculator.C
      src/SourceTermTemporalInterpolator.C
-     src/StatisticsHandler.C
      src/StratigraphicColumn.C
      src/StratigraphicGrids.C
      src/Subdomain.C
-     src/System.C
      src/TemperatureForVreInputGrid.C
      src/temperature_solver.C
      src/TemporalPropertyInterpolator.C
@@ -358,6 +350,9 @@ endif (UNIX)
 include_directories(
    src
    ${PROJECT_SOURCE_DIR}/libraries
+)
+
+include_directories( SYSTEM
 	${HDF5_INCLUDE_DIRS}
 	${MPI_INCLUDE_DIRS}
 	${PETSC_INCLUDE_DIRS}
@@ -458,7 +453,7 @@ if (BM_USE_FLEXLM)
    target_link_libraries(FastcauldronApplication ${FLEXLM_LIBRARIES})
 endif(BM_USE_FLEXLM)
 
-install(TARGETS fastcauldron
+install(TARGETS fastcauldron linearSolver
 	RUNTIME DESTINATION bin
 )
 
@@ -494,13 +489,6 @@ add_gtest( NAME "VectorInterpolator"
 add_gtest( NAME "MatrixInterpolator"
            SOURCES test/MatrixInterpolationTest.C
            LIBRARIES LinearAlgebra
-         )
-
-################ CAPILLARY PRESSURE UNIT TEST ##################
-#
-#
-add_gtest( NAME "BrooksCorey::computeCapillaryEntryPressure"
-	        SOURCES test/PceTest.C
          )
 
 ################## PETSC SOLVER UNIT TESTS #####################

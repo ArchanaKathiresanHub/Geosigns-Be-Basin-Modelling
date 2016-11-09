@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 #include "LithologyManager.h"
 #include "PiecewiseInterpolator.h"
 
@@ -40,7 +49,7 @@ GeoPhysics::CompoundLithology* GeoPhysics::LithologyManager::getCompoundLitholog
     bool   mixedSuccessfully;
 
     compoundLithology = dynamic_cast<GeoPhysics::ObjectFactory*>(m_projectHandle->getFactory ())->produceCompoundLithology ( m_projectHandle );
-    compoundLithology->setMixModel( composition.mixingModel());
+    compoundLithology->setMixModel( composition.mixingModel(), composition.layeringIndex());
 
     for ( I = 1; I <= MaximumNumberOfLithologies; I++ ) {
 
@@ -90,7 +99,7 @@ GeoPhysics::CompoundLithology* GeoPhysics::LithologyManager::getCompoundLitholog
 
   CompoundLithologyComposition composition;
 
-  composition.setComposition ( simpleLithologyName, "", "", 100.0, 0.0, 0.0, "Homogeneous" );
+  composition.setComposition ( simpleLithologyName, "", "", 100.0, 0.0, 0.0, "Homogeneous", -9999 );
   return getCompoundLithology ( composition );
 
 }
@@ -211,7 +220,7 @@ GeoPhysics::CompoundLithology* GeoPhysics::LithologyManager::getCompoundFaultLit
     bool mixedSuccessfully;
 
     faultLithology = dynamic_cast<GeoPhysics::ObjectFactory*>(m_projectHandle->getFactory ())->produceCompoundLithology ( m_projectHandle );
-    faultLithology->setMixModel( faultComposition.mixingModel());
+    faultLithology->setMixModel( faultComposition.mixingModel(), faultComposition.layeringIndex());
 
     for ( I = 1; I <= MaximumNumberOfLithologies; I++ ) {
 
@@ -283,7 +292,7 @@ GeoPhysics::CompoundLithology* GeoPhysics::LithologyManager::getCompoundFaultLit
          simpleFaultLithology = (SimpleLithology*)(((GeoPhysics::ObjectFactory*)(m_projectHandle->getFactory ()))->produceLithoType ( simpleLithology, faultLithologyName ));
          simpleLithologies.push_back ( simpleFaultLithology );
 
-         faultComposition.setComposition ( faultLithologyName, "", "", 100.0, 0.0, 0.0, "Homogeneous" );
+         faultComposition.setComposition ( faultLithologyName, "", "", 100.0, 0.0, 0.0, "Homogeneous", -9999 );
          compoundFaultLithology = getCompoundLithology ( faultComposition );
       } else {
          compoundFaultLithology = 0;
@@ -375,7 +384,8 @@ void GeoPhysics::LithologyManager::generateCompoundFaultLithologyComposition ( c
                                     composition.lithologyFraction ( 1 ),
                                     composition.lithologyFraction ( 2 ),
                                     composition.lithologyFraction ( 3 ),
-                                    composition.mixingModel ());
+                                    composition.mixingModel (),
+                                    composition.layeringIndex());
 
 
 }

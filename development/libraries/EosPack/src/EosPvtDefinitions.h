@@ -6,8 +6,6 @@
 #ifndef EOS_PVT_DEFINITIONS_H
 #define EOS_PVT_DEFINITIONS_H
 
-#define USE_PARAM_EOSPVT( x ) ( (void)( x ) ) /*!< to supress warning about unused parameters */
-
 /* Fortran offset */
 #define EOS_FORTRAN 1            /*!< (0 || 1) Controls whether FORTRAN indicing used in indirection */
 

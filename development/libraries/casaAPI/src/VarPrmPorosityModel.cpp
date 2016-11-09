@@ -198,6 +198,26 @@ SharedParameterPtr VarPrmPorosityModel::newParameterFromDoubles( std::vector<dou
    return prm;
 }
 
+SharedParameterPtr VarPrmPorosityModel::newParameterFromModel( mbapi::Model & mdl, const std::vector<double> & /* vin */ ) const
+{
+   SharedParameterPtr prm( new PrmPorosityModel( mdl, m_lithoName.c_str( ) ) );
+   prm->setParent( const_cast<VarPrmPorosityModel *>( this ) );
+   return prm;
+}
+
+
+SharedParameterPtr VarPrmPorosityModel::makeThreeDFromOneD( mbapi::Model                          & /* mdl */
+                                                          , const std::vector<double>             & /* xin */
+                                                          , const std::vector<double>             & /* yin */ 
+                                                          , const std::vector<SharedParameterPtr> & /* prmVec */
+                                                          ) const
+{
+   // Not yet implemented
+   throw ErrorHandler::Exception( ErrorHandler::NotImplementedAPI ) << "makeThreeDFromOneD method not yet implemented for VarPrmPorosityModel";
+   return nullptr;
+}
+
+
 bool VarPrmPorosityModel::save( CasaSerializer & sz, unsigned int version ) const 
 { 
    // save base class data

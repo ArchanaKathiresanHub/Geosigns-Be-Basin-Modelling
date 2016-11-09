@@ -58,7 +58,7 @@ namespace casa
       }
 
       /// @brief Get parent observable which define type of observable
-      virtual const Observable * observable() const { return m_parent; }
+      virtual const Observable * parent() const { return m_parent; }
  
       /// @brief Calculate Mean Squared Error for the observable value if reference value was specified
       /// @return Mean Squared Error
@@ -66,7 +66,7 @@ namespace casa
      
       // The following methods are used for testing  
       virtual bool isDouble() const { return true; }
-      virtual std::vector<double> asDoubleArray() const { return m_value; }
+      virtual std::vector<double> asDoubleArray( bool transformed = true ) const { return transformed ? m_value : m_value; }
 
       /// @{
       /// @brief Defines version of serialized object representation. Must be updated on each change in save()

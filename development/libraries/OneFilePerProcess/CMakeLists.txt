@@ -22,11 +22,14 @@ add_library(OneFilePerProcess
 	${all_headers}
 )
 
-include_directories( 
+include_directories(
 	src
-        ${MPI_INCLUDE_DIRS}
-        ${HDF5_INCLUDE_DIRS}
-        ${HDF5_SOURCE_DIR}/src
+)
+
+include_directories( SYSTEM
+  ${MPI_INCLUDE_DIRS}
+  ${HDF5_INCLUDE_DIRS}
+  ${HDF5_SOURCE_DIR}/src
 )
 
 target_link_libraries(OneFilePerProcess
@@ -38,6 +41,15 @@ if (UNIX)
 add_dependencies(OneFilePerProcess HDF5)
 endif (UNIX)
 
+if (UNIX)
+   # In LSF environment (on LSF cluster node, when build is running as a LSF job) mpirun is trying to use job settings
+   # to run mpi unit tests. Sometime it fails because build job requested just 1 cpu. To prevent this we can specify
+   # machines file with localhost list only
+   configure_file(test/machines machines COPYONLY )
+   set( MACHINE_FILE -machinefile machines)
+endif (UNIX)
+                                    
+            
 add_gtest( NAME OneFilePerProcess::rewriteFileName
            SOURCES test/RewriteFileName.C
            LIBRARIES OneFilePerProcess
@@ -52,10 +64,12 @@ add_gtest( NAME OneFilePerProcess::HDF5VirtualFileDriver-MPIPROCS=2
            SOURCES test/HDF5VirtualFileDriver.C
            LIBRARIES OneFilePerProcess
            MPI_SIZE 2
+           MPIRUN_PRMS ${MACHINE_FILE}
 )
 add_gtest( NAME OneFilePerProcess::h5mergeTest-MPIPROCS=2
            SOURCES test/readDataset.C
            LIBRARIES OneFilePerProcess
            MPI_SIZE 2
+           MPIRUN_PRMS ${MACHINE_FILE}
 )
 

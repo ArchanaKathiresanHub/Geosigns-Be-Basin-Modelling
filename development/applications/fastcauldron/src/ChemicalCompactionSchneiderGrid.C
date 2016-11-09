@@ -1,3 +1,13 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 /*
  * \file ChemicalCompactionSchneiderGrid.C
  */
@@ -6,18 +16,20 @@
 #include "../../../libraries/GeoPhysics/src/SchneiderCompactionCalculator.h"
 
 ChemicalCompactionSchneiderGrid :: ChemicalCompactionSchneiderGrid( DM* mapViewOfDomain,
-		const LayerList & layerList ) :
+      const bool isLegacy,
+      const LayerList & layerList ) :
 		ChemicalCompactionGrid( mapViewOfDomain, layerList ),
 		m_currentTemperature ( getNumberOfNodes( mapViewOfDomain, layerList) ),
 		m_porosity ( getNumberOfNodes( mapViewOfDomain, layerList) ),
-		m_ves ( getNumberOfNodes( mapViewOfDomain, layerList) )
+		m_ves ( getNumberOfNodes( mapViewOfDomain, layerList) ),
+      m_isLegacy(isLegacy)
 {
 
 }
 
 ChemicalCompactionSchneiderGrid :: ~ChemicalCompactionSchneiderGrid()
 {
-	
+	//Empty desctructor
 }
 
 ChemicalCompactionCalculator* ChemicalCompactionSchneiderGrid::createChemicalCompaction()
@@ -91,6 +103,11 @@ ChemicalCompactionSchneiderGrid :: Properties::~Properties()
 void ChemicalCompactionSchneiderGrid :: Properties :: storeProperties( int i, int j, int k, int node, ChemicalCompactionGrid* grid )
 {
 	ChemicalCompactionSchneiderGrid* schneiderGrid = dynamic_cast<ChemicalCompactionSchneiderGrid*>(grid);
+
+	schneiderGrid->m_porosity.resize(grid->getSize());
+	schneiderGrid->m_currentTemperature.resize(grid->getSize());
+	schneiderGrid->m_ves.resize(grid->getSize());
+
 	schneiderGrid->m_porosity[node]            = m_porosity( k, j, i );
 	schneiderGrid->m_currentTemperature[node]  = m_temperature[k][j][i];
 	if( m_layer->isChemicalCompactionVesValueIsDefined() )
@@ -127,5 +144,9 @@ const double * ChemicalCompactionSchneiderGrid::getReferenceViscosity() const
 	return &m_referenceViscosity[0];
 }
 
+bool ChemicalCompactionSchneiderGrid::isLegacy() const
+{
+   return m_isLegacy; 
+}
 
 

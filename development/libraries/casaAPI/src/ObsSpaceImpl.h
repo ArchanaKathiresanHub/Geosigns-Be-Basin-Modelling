@@ -41,6 +41,9 @@ public:
    // Get number of variable parameters defined in ObsSpace
    virtual size_t size() const { return m_obsSet.size(); } 
 
+   // Dimension of observables space
+   virtual size_t dimension() const { size_t dim = 0; for ( const auto obs : m_obsSet ) dim += obs->dimension(); return dim; };
+
    // get i-th observable
    Observable * operator[] ( size_t i ) const { return m_obsSet[ i ]; }
 

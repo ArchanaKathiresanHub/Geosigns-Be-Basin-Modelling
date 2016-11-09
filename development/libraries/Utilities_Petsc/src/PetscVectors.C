@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 #ifdef SEEK_SET
 #undef SEEK_SET
 #endif
@@ -6,7 +15,7 @@
 #include <iostream>
 using namespace std;
 
-//#include "globaldefs.h"
+//#include "ConstantsFastcauldron.h"
 
 //
 // The Petsc Vector class provides an interface giving access to DA global
@@ -23,10 +32,10 @@ PETSC_3D_Array::PETSC_3D_Array ()
 : Petsc_Array ()
 {
 
-  Global_Distributed_Array  = 0;
-  Global_Distributed_Vector = 0;
-  Local_Distributed_Vector  = 0;
-  Distributed_Data          = 0;
+  Global_Distributed_Array  = nullptr;
+  Global_Distributed_Vector = nullptr;
+  Local_Distributed_Vector  = nullptr;
+  Distributed_Data          = nullptr;
   Data_Not_Restored         = false;
   iIt = jIt = kIt = minI = minJ = minK = maxI = maxJ = maxK = numK = numJ = 0;
 
@@ -199,10 +208,10 @@ void PETSC_3D_Array::inc (void)
 PETSC_2D_Array::PETSC_2D_Array ()  
 : Petsc_Array ()
 {
-  Global_Distributed_Array  = 0;
-  Global_Distributed_Vector = 0;
-  Local_Distributed_Vector  = 0;
-  Distributed_Data          = 0;
+  Global_Distributed_Array  = nullptr;
+  Global_Distributed_Vector = nullptr;
+  Local_Distributed_Vector  = nullptr;
+  Distributed_Data          = nullptr;
   Data_Not_Restored         = false;
 
   iIt = jIt = minI = minJ = maxI = maxJ = numJ = 0;
@@ -362,10 +371,10 @@ void PETSC_2D_Array::inc (void)
 PETSC_1D_Array::PETSC_1D_Array ()  
 : Petsc_Array ()
 {
-  Global_Distributed_Array  = 0;
-  Global_Distributed_Vector = 0;
-  Local_Distributed_Vector  = 0;
-  Distributed_Data          = 0;
+  Global_Distributed_Array  = nullptr;
+  Global_Distributed_Vector = nullptr;
+  Local_Distributed_Vector  = nullptr;
+  Distributed_Data          = nullptr;
   Data_Not_Restored         = false;
 
   iIt = minI = maxI = 0;
@@ -522,7 +531,7 @@ void Destroy_Petsc_Vector ( Vec& vector ) {
    if ( IsValid ) {
       
       VecDestroy ( &vector );
-      vector = 0;
+      vector = nullptr;
    }
    
 } // end Destroy_Petsc_Vector 
@@ -530,21 +539,8 @@ void Destroy_Petsc_Vector ( Vec& vector ) {
 //------------------------------------------------------------//
 void VecValid( Vec& vector, PetscBool * isValid ) {
    
-   * isValid = ( vector != 0 ? PETSC_TRUE : PETSC_FALSE );
+   * isValid = ( vector != nullptr ? PETSC_TRUE : PETSC_FALSE );
 
 }
 //------------------------------------------------------------//
 
-// void View_Petsc_Vector ( Vec& vector ) {
-  
-//   PetscViewer viewer;
-
-//   PetscViewerDrawOpen(PETSC_COMM_WORLD,0,"",300,0,300,300,&viewer);
-
-//   VecView(vector,viewer);
-
-//   PetscViewerDestroy(viewer);
-  
-// } // end View_Petsc_Vector 
-
-//------------------------------------------------------------//

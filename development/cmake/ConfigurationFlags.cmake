@@ -13,7 +13,7 @@
 if (UNIX)
    set(preciseFpModel)
    if (BM_USE_INTEL_COMPILER)
-      set(preciseFpModel "-fp-model precise")
+     set(preciseFpModel "-fp-model precise")
    endif()
    set(cxxVersion "-std=c++11")
    MESSAGE(STATUS "CXX version is set to ${cxxVersion}")
@@ -24,7 +24,7 @@ if (UNIX)
 
    #Debug
    set(CMAKE_C_FLAGS_DEBUG"-g -O0 ${preciseFpModel}" CACHE STRING "List of C compiler flags for a Debug build")
-   set(CMAKE_CXX_FLAGS_DEBUG "-g -O0 ${preciseFpModel} ${cxxVersion}" CACHE STRING "List of C++ compiler flags for a Debug build")
+   set(CMAKE_CXX_FLAGS_DEBUG "-g -O0  ${preciseFpModel} ${cxxVersion}" CACHE STRING "List of C++ compiler flags for a Debug build")
 
    #Debug All
    set(CMAKE_C_FLAGS_DEBUGALL "-g -O0 -DGLIBCXX_DEBUG ${preciseFpModel}" CACHE STRING "List of C compiler flags for a DebugAll build")
@@ -52,4 +52,3 @@ if (UNIX)
    endif()
 
 endif()
-

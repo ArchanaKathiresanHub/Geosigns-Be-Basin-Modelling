@@ -43,6 +43,11 @@ namespace DataModel {
       /// return the topmost grid coordinate value
       virtual double maxJ () const = 0;
 
+      /// return the rightmost grid coordinate value
+      virtual int numIGlobal (void) const = 0;
+
+      /// return the topmost grid coordinate value
+      virtual int numJGlobal (void) const = 0;
 
    };
 

@@ -32,7 +32,7 @@ namespace casa
       virtual ~ObsValue() { ; }
 
       /// @brief Get parent observable which define type of observable
-      virtual const Observable * observable() const = 0;
+      virtual const Observable * parent() const = 0;
 
       /// @brief Calculate Root Mean Squared Error for the observable value if reference value was specified
       /// MSE is calculated using this formula:
@@ -45,9 +45,10 @@ namespace casa
       /// @return true if it can be represented as array of doubles, false otherwise
       virtual bool isDouble() const = 0;
 
-      /// @brief  Converts this object to a double array.
+      /// @brief Converts this object to a double array.
+      /// @param transformed if false this function returns the orginal set of boservable values, otherwise transformed 
       /// @return array of doubles which represent value of this observable
-      virtual std::vector<double> asDoubleArray() const = 0;
+      virtual std::vector<double> asDoubleArray( bool transformed = true ) const = 0;
 
       /// @brief Create a new observable value instance and deserialize it from the given stream
       /// @param dz input stream

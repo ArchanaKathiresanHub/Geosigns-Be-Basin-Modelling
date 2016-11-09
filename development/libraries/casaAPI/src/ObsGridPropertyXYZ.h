@@ -77,12 +77,12 @@ namespace casa
 
       /// @brief Get standard deviations for the reference value
       /// @return a standard deviation for reference value
-      virtual double stdDeviationForRefValue() const { return m_devValue; }
+      virtual const ObsValue * stdDeviationForRefValue( ) const { return m_devValue.get( ); }
 
       /// @brief Set reference value
       /// @param refVal reference value itself
       /// @param stdDevVal standard deviation value for the reference value
-      virtual void setReferenceValue( ObsValue * refVal, double stdDevVal );
+      virtual void setReferenceValue( ObsValue * refVal, ObsValue * stdDevVal );
 
       /// @brief Get weighting coefficient for sensitivity analysis
       /// return weighting coefficient. This coefficient should be used in Pareto diagram calculation
@@ -100,6 +100,22 @@ namespace casa
       /// return weighting coefficient. This coefficient should be used for RMSE calculation in Monte Carlo simulation
       virtual double uaWeight() const { return m_uaWeight; }
 
+      /// @brief Get Cauldron property name
+      /// @return name of the property as a string
+      std::string propertyName() { return m_propName; }
+
+      /// @brief Get Z coordinates list
+      /// @return array with Z coordinate of the observable point 
+      std::vector<double> depth() const { return std::vector<double>( 1, m_z ); }
+
+      /// @brief Get X coordinates list
+      /// @return array with X coordinate of the observable point
+      std::vector<double> xCoords() const { return std::vector<double>( 1, m_x ); }
+
+       /// @brief Get Y coordinates list
+       /// @return array with Y coordinate of the observable point
+       std::vector<double> yCoords() const { return std::vector<double>( 1, m_y ); }
+
       /// @brief Update Model to be sure that requested property will be saved at requested time
       /// @param caldModel Cauldron model
       /// @return NoError in case of success, or error code otherwise, error message will be set in caldModel.
@@ -113,7 +129,7 @@ namespace casa
       /// @brief Do observable validation for the given model
       /// @param caldModel reference to Cauldron model
       /// @return empty string if there is no any problems with this observable, or error message if point is outside of the project 
-      virtual std::string checkObservableForProject( mbapi::Model & caldModel );
+      virtual std::string checkObservableForProject( mbapi::Model & caldModel ) const;
 
       /// @brief Create new observable value from set of doubles. This method is used for data conversion between SUMlib and CASA
       /// @param[in,out] val iterator for double array
@@ -123,7 +139,7 @@ namespace casa
       /// @{
       /// @brief Defines version of serialized object representation. Must be updated on each change in save()
       /// @return Actual version of serialized object representation
-      virtual unsigned int version() const { return 0; }
+      virtual unsigned int version() const { return 1; }
 
       /// @brief Save all object data to the given stream, that object could be later reconstructed from saved data
       /// @param sz Serializer stream
@@ -155,7 +171,7 @@ namespace casa
       int                      m_posDataMiningTbl; ///< row number in DataMiningIoTbl which corresponds this observable
 
       std::unique_ptr<ObsValue>  m_refValue;         ///< reference value
-      double                   m_devValue;         ///< standard deviation for reference value
+      std::unique_ptr<ObsValue>  m_devValue;         ///< standard deviation for reference value
 
       double                   m_saWeight;         ///< Observable weight for sensitivity analysis
       double                   m_uaWeight;         ///< Observable weight for uncertainty analysis

@@ -60,7 +60,7 @@ void NodalGrid::construct ( const DataAccess::Interface::Grid* nodeGrid,
       m_yPartitioning [ i ] = static_cast<int> ( nodeGrid->numsJ ()[ i ]);
    }
 
-   DMDACreate2d ( PETSC_COMM_WORLD, DMDA_BOUNDARY_NONE, DMDA_BOUNDARY_NONE, DMDA_STENCIL_BOX,
+   DMDACreate2d ( PETSC_COMM_WORLD, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DMDA_STENCIL_BOX,
                   totalNumberOfXNodes,
                   totalNumberOfYNodes,
                   m_numberOfXProcessors,

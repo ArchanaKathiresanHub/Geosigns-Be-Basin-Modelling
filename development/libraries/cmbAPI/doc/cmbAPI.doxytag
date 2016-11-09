@@ -2,22 +2,12 @@
 <tagfile>
   <compound kind="file">
     <name>casaAPI.h</name>
-    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
     <filename>casaAPI_8h</filename>
   </compound>
   <compound kind="file">
-    <name>CasaDeserializer.h</name>
-    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
-    <filename>CasaDeserializer_8h</filename>
-  </compound>
-  <compound kind="file">
-    <name>CasaSerializer.h</name>
-    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
-    <filename>CasaSerializer_8h</filename>
-  </compound>
-  <compound kind="file">
     <name>CauldronApp.h</name>
-    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
     <filename>CauldronApp_8h</filename>
   </compound>
   <compound kind="file">
@@ -34,15 +24,16 @@
     <includes id="MapsManager_8h" name="MapsManager.h" local="yes" imported="no">MapsManager.h</includes>
     <includes id="UndefinedValues_8h" name="UndefinedValues.h" local="yes" imported="no">UndefinedValues.h</includes>
     <class kind="class">mbapi::Model</class>
+    <namespace>mbapi</namespace>
   </compound>
   <compound kind="file">
     <name>DataDigger.h</name>
-    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
     <filename>DataDigger_8h</filename>
   </compound>
   <compound kind="file">
     <name>DoEGenerator.h</name>
-    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
     <filename>DoEGenerator_8h</filename>
   </compound>
   <compound kind="file">
@@ -57,20 +48,21 @@
     <filename>FluidManager_8h</filename>
     <includes id="ErrorHandler_8h" name="ErrorHandler.h" local="yes" imported="no">ErrorHandler.h</includes>
     <class kind="class">mbapi::FluidManager</class>
+    <namespace>mbapi</namespace>
   </compound>
   <compound kind="file">
     <name>JobScheduler.h</name>
-    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
     <filename>JobScheduler_8h</filename>
   </compound>
   <compound kind="file">
     <name>JobSchedulerLocal.h</name>
-    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
     <filename>JobSchedulerLocal_8h</filename>
   </compound>
   <compound kind="file">
     <name>JobSchedulerLSF.h</name>
-    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
     <filename>JobSchedulerLSF_8h</filename>
   </compound>
   <compound kind="file">
@@ -79,6 +71,7 @@
     <filename>LithologyManager_8h</filename>
     <includes id="ErrorHandler_8h" name="ErrorHandler.h" local="yes" imported="no">ErrorHandler.h</includes>
     <class kind="class">mbapi::LithologyManager</class>
+    <namespace>mbapi</namespace>
   </compound>
   <compound kind="file">
     <name>MapsManager.h</name>
@@ -86,131 +79,157 @@
     <filename>MapsManager_8h</filename>
     <includes id="ErrorHandler_8h" name="ErrorHandler.h" local="yes" imported="no">ErrorHandler.h</includes>
     <class kind="class">mbapi::MapsManager</class>
+    <namespace>mbapi</namespace>
   </compound>
   <compound kind="file">
     <name>MonteCarloSolver.h</name>
-    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
     <filename>MonteCarloSolver_8h</filename>
   </compound>
   <compound kind="file">
     <name>Observable.h</name>
-    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
     <filename>Observable_8h</filename>
   </compound>
   <compound kind="file">
     <name>ObsGridPropertyWell.h</name>
-    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
     <filename>ObsGridPropertyWell_8h</filename>
   </compound>
   <compound kind="file">
     <name>ObsGridPropertyXYZ.h</name>
-    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
     <filename>ObsGridPropertyXYZ_8h</filename>
   </compound>
   <compound kind="file">
     <name>ObsSourceRockMapProp.h</name>
-    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
     <filename>ObsSourceRockMapProp_8h</filename>
   </compound>
   <compound kind="file">
     <name>ObsSpace.h</name>
-    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
     <filename>ObsSpace_8h</filename>
   </compound>
   <compound kind="file">
+    <name>ObsTrapDerivedProp.h</name>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
+    <filename>ObsTrapDerivedProp_8h</filename>
+  </compound>
+  <compound kind="file">
     <name>ObsTrapProp.h</name>
-    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
     <filename>ObsTrapProp_8h</filename>
   </compound>
   <compound kind="file">
     <name>ObsValue.h</name>
-    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
     <filename>ObsValue_8h</filename>
   </compound>
   <compound kind="file">
     <name>ObsValueDoubleArray.h</name>
-    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
     <filename>ObsValueDoubleArray_8h</filename>
   </compound>
   <compound kind="file">
     <name>ObsValueDoubleScalar.h</name>
-    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
     <filename>ObsValueDoubleScalar_8h</filename>
   </compound>
   <compound kind="file">
+    <name>ObsValueTransformable.h</name>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
+    <filename>ObsValueTransformable_8h</filename>
+  </compound>
+  <compound kind="file">
     <name>Parameter.h</name>
-    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
     <filename>Parameter_8h</filename>
   </compound>
   <compound kind="file">
+    <name>PrmCompactionCoefficient.h</name>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
+    <filename>PrmCompactionCoefficient_8h</filename>
+  </compound>
+  <compound kind="file">
     <name>PrmCrustThinning.h</name>
-    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
     <filename>PrmCrustThinning_8h</filename>
   </compound>
   <compound kind="file">
+    <name>PrmLithoFraction.h</name>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
+    <filename>PrmLithoFraction_8h</filename>
+  </compound>
+  <compound kind="file">
     <name>PrmLithologyProp.h</name>
-    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
     <filename>PrmLithologyProp_8h</filename>
   </compound>
   <compound kind="file">
     <name>PrmLithoSTPThermalCond.h</name>
-    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
     <filename>PrmLithoSTPThermalCond_8h</filename>
   </compound>
   <compound kind="file">
     <name>PrmOneCrustThinningEvent.h</name>
-    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
     <filename>PrmOneCrustThinningEvent_8h</filename>
   </compound>
   <compound kind="file">
     <name>PrmPermeabilityModel.h</name>
-    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
     <filename>PrmPermeabilityModel_8h</filename>
   </compound>
   <compound kind="file">
     <name>PrmPorosityModel.h</name>
-    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
     <filename>PrmPorosityModel_8h</filename>
   </compound>
   <compound kind="file">
     <name>PrmSourceRockHC.h</name>
-    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
     <filename>PrmSourceRockHC_8h</filename>
   </compound>
   <compound kind="file">
     <name>PrmSourceRockHI.h</name>
-    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
     <filename>PrmSourceRockHI_8h</filename>
   </compound>
   <compound kind="file">
     <name>PrmSourceRockPreAsphaltStartAct.h</name>
-    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
     <filename>PrmSourceRockPreAsphaltStartAct_8h</filename>
   </compound>
   <compound kind="file">
     <name>PrmSourceRockProp.h</name>
-    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
     <filename>PrmSourceRockProp_8h</filename>
   </compound>
   <compound kind="file">
     <name>PrmSourceRockTOC.h</name>
-    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
     <filename>PrmSourceRockTOC_8h</filename>
   </compound>
   <compound kind="file">
     <name>PrmSourceRockType.h</name>
-    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
     <filename>PrmSourceRockType_8h</filename>
   </compound>
   <compound kind="file">
     <name>PrmSurfacePorosity.h</name>
-    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
     <filename>PrmSurfacePorosity_8h</filename>
   </compound>
   <compound kind="file">
     <name>PrmTopCrustHeatProduction.h</name>
-    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
     <filename>PrmTopCrustHeatProduction_8h</filename>
+  </compound>
+  <compound kind="file">
+    <name>PrmWindow.h</name>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
+    <filename>PrmWindow_8h</filename>
   </compound>
   <compound kind="file">
     <name>PropertyManager.h</name>
@@ -218,66 +237,42 @@
     <filename>PropertyManager_8h</filename>
     <includes id="ErrorHandler_8h" name="ErrorHandler.h" local="yes" imported="no">ErrorHandler.h</includes>
     <class kind="class">mbapi::PropertyManager</class>
+    <namespace>mbapi</namespace>
   </compound>
   <compound kind="file">
     <name>RSProxy.h</name>
-    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
     <filename>RSProxy_8h</filename>
   </compound>
   <compound kind="file">
     <name>RSProxySet.h</name>
-    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
     <filename>RSProxySet_8h</filename>
   </compound>
   <compound kind="file">
     <name>RunCase.h</name>
-    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
     <filename>RunCase_8h</filename>
   </compound>
   <compound kind="file">
     <name>RunCaseSet.h</name>
-    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
     <filename>RunCaseSet_8h</filename>
   </compound>
   <compound kind="file">
     <name>RunManager.h</name>
-    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
     <filename>RunManager_8h</filename>
   </compound>
   <compound kind="file">
     <name>ScenarioAnalysis.h</name>
-    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
     <filename>ScenarioAnalysis_8h</filename>
   </compound>
   <compound kind="file">
     <name>SensitivityCalculator.h</name>
-    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
     <filename>SensitivityCalculator_8h</filename>
-  </compound>
-  <compound kind="file">
-    <name>SimpleBin.h</name>
-    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
-    <filename>SimpleBin_8h</filename>
-  </compound>
-  <compound kind="file">
-    <name>SimpleBinDeserializer.h</name>
-    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
-    <filename>SimpleBinDeserializer_8h</filename>
-  </compound>
-  <compound kind="file">
-    <name>SimpleBinSerializer.h</name>
-    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
-    <filename>SimpleBinSerializer_8h</filename>
-  </compound>
-  <compound kind="file">
-    <name>SimpleTxtDeserializer.h</name>
-    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
-    <filename>SimpleTxtDeserializer_8h</filename>
-  </compound>
-  <compound kind="file">
-    <name>SimpleTxtSerializer.h</name>
-    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
-    <filename>SimpleTxtSerializer_8h</filename>
   </compound>
   <compound kind="file">
     <name>SnapshotManager.h</name>
@@ -285,6 +280,7 @@
     <filename>SnapshotManager_8h</filename>
     <includes id="ErrorHandler_8h" name="ErrorHandler.h" local="yes" imported="no">ErrorHandler.h</includes>
     <class kind="class">mbapi::SnapshotManager</class>
+    <namespace>mbapi</namespace>
   </compound>
   <compound kind="file">
     <name>SourceRockManager.h</name>
@@ -292,6 +288,7 @@
     <filename>SourceRockManager_8h</filename>
     <includes id="ErrorHandler_8h" name="ErrorHandler.h" local="yes" imported="no">ErrorHandler.h</includes>
     <class kind="class">mbapi::SourceRockManager</class>
+    <namespace>mbapi</namespace>
   </compound>
   <compound kind="file">
     <name>StratigraphyManager.h</name>
@@ -299,11 +296,17 @@
     <filename>StratigraphyManager_8h</filename>
     <includes id="ErrorHandler_8h" name="ErrorHandler.h" local="yes" imported="no">ErrorHandler.h</includes>
     <class kind="class">mbapi::StratigraphyManager</class>
+    <namespace>mbapi</namespace>
   </compound>
   <compound kind="file">
     <name>SUMlibUtils.h</name>
-    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
     <filename>SUMlibUtils_8h</filename>
+  </compound>
+  <compound kind="file">
+    <name>TornadoSensitivityInfo.h</name>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
+    <filename>TornadoSensitivityInfo_8h</filename>
   </compound>
   <compound kind="file">
     <name>UndefinedValues.h</name>
@@ -368,97 +371,107 @@
   </compound>
   <compound kind="file">
     <name>VarParameter.h</name>
-    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
     <filename>VarParameter_8h</filename>
   </compound>
   <compound kind="file">
     <name>VarPrmCategorical.h</name>
-    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
     <filename>VarPrmCategorical_8h</filename>
   </compound>
   <compound kind="file">
+    <name>VarPrmCompactionCoefficient.h</name>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
+    <filename>VarPrmCompactionCoefficient_8h</filename>
+  </compound>
+  <compound kind="file">
     <name>VarPrmContinuous.h</name>
-    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
     <filename>VarPrmContinuous_8h</filename>
   </compound>
   <compound kind="file">
     <name>VarPrmCrustThinning.h</name>
-    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
     <filename>VarPrmCrustThinning_8h</filename>
   </compound>
   <compound kind="file">
     <name>VarPrmDiscrete.h</name>
-    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
     <filename>VarPrmDiscrete_8h</filename>
   </compound>
   <compound kind="file">
+    <name>VarPrmLithoFraction.h</name>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
+    <filename>VarPrmLithoFraction_8h</filename>
+  </compound>
+  <compound kind="file">
     <name>VarPrmLithologyProp.h</name>
-    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
     <filename>VarPrmLithologyProp_8h</filename>
   </compound>
   <compound kind="file">
     <name>VarPrmLithoSTPThermalCond.h</name>
-    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
     <filename>VarPrmLithoSTPThermalCond_8h</filename>
   </compound>
   <compound kind="file">
     <name>VarPrmOneCrustThinningEvent.h</name>
-    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
     <filename>VarPrmOneCrustThinningEvent_8h</filename>
   </compound>
   <compound kind="file">
     <name>VarPrmPermeabilityModel.h</name>
-    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
     <filename>VarPrmPermeabilityModel_8h</filename>
   </compound>
   <compound kind="file">
     <name>VarPrmPorosityModel.h</name>
-    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
     <filename>VarPrmPorosityModel_8h</filename>
   </compound>
   <compound kind="file">
     <name>VarPrmSourceRockHC.h</name>
-    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
     <filename>VarPrmSourceRockHC_8h</filename>
   </compound>
   <compound kind="file">
     <name>VarPrmSourceRockHI.h</name>
-    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
     <filename>VarPrmSourceRockHI_8h</filename>
   </compound>
   <compound kind="file">
     <name>VarPrmSourceRockPreAsphaltStartAct.h</name>
-    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
     <filename>VarPrmSourceRockPreAsphaltStartAct_8h</filename>
   </compound>
   <compound kind="file">
     <name>VarPrmSourceRockProp.h</name>
-    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
     <filename>VarPrmSourceRockProp_8h</filename>
   </compound>
   <compound kind="file">
     <name>VarPrmSourceRockTOC.h</name>
-    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
     <filename>VarPrmSourceRockTOC_8h</filename>
   </compound>
   <compound kind="file">
     <name>VarPrmSourceRockType.h</name>
-    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
     <filename>VarPrmSourceRockType_8h</filename>
   </compound>
   <compound kind="file">
     <name>VarPrmSurfacePorosity.h</name>
-    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
     <filename>VarPrmSurfacePorosity_8h</filename>
   </compound>
   <compound kind="file">
     <name>VarPrmTopCrustHeatProduction.h</name>
-    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
     <filename>VarPrmTopCrustHeatProduction_8h</filename>
   </compound>
   <compound kind="file">
     <name>VarSpace.h</name>
-    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
+    <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/doc/casaAPI.doxytag:E:/Build/cld-dev/development/libraries/casaAPI/src/</path>
     <filename>VarSpace_8h</filename>
   </compound>
   <compound kind="class">
@@ -803,6 +816,13 @@
     </member>
     <member kind="function" virtualness="pure">
       <type>virtual double</type>
+      <name>seisVelocity</name>
+      <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
+      <anchor>af51248680f456a22926dc8eec8b0436f</anchor>
+      <arglist>(LithologyID id)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual double</type>
       <name>stpThermalConductivityCoeff</name>
       <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
       <anchor>a8b6609940c60e4b2a04fa4553edbfc55</anchor>
@@ -964,6 +984,13 @@
     </member>
     <member kind="function" virtualness="pure">
       <type>virtual double</type>
+      <name>seisVelocity</name>
+      <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
+      <anchor>af51248680f456a22926dc8eec8b0436f</anchor>
+      <arglist>(LithologyID id)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual double</type>
       <name>stpThermalConductivityCoeff</name>
       <anchorfile>classmbapi_1_1LithologyManager.html</anchorfile>
       <anchor>a8b6609940c60e4b2a04fa4553edbfc55</anchor>
@@ -1020,8 +1047,8 @@
       <type>virtual ErrorHandler::ReturnCode</type>
       <name>saveMapToHDF</name>
       <anchorfile>classmbapi_1_1MapsManager.html</anchorfile>
-      <anchor>a0975d2314562894f689a61f8fe418cb2</anchor>
-      <arglist>(MapID id, const std::string &amp;fileName)=0</arglist>
+      <anchor>ade04c6bd30c603c5f8458de6944df8a7</anchor>
+      <arglist>(MapID id, const std::string &amp;filePathName, size_t mapSequenceNbr)=0</arglist>
     </member>
     <member kind="function" virtualness="pure">
       <type>virtual ErrorHandler::ReturnCode</type>
@@ -1039,10 +1066,59 @@
     </member>
     <member kind="function" virtualness="pure">
       <type>virtual ErrorHandler::ReturnCode</type>
+      <name>mapSetValues</name>
+      <anchorfile>classmbapi_1_1MapsManager.html</anchorfile>
+      <anchor>ae729950be2bb684068a04405abc845bb</anchor>
+      <arglist>(MapID id, const std::vector&lt; double &gt; &amp;vin)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual double</type>
+      <name>mapGetValue</name>
+      <anchorfile>classmbapi_1_1MapsManager.html</anchorfile>
+      <anchor>ae02529e764f2883d89375e3122b120e1</anchor>
+      <arglist>(MapID id, size_t i, size_t j)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ErrorHandler::ReturnCode</type>
+      <name>mapGetValues</name>
+      <anchorfile>classmbapi_1_1MapsManager.html</anchorfile>
+      <anchor>ae02feacf20e4e85f68e57539550a18be</anchor>
+      <arglist>(MapID id, std::vector&lt; double &gt; &amp;vout)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ErrorHandler::ReturnCode</type>
       <name>interpolateMap</name>
       <anchorfile>classmbapi_1_1MapsManager.html</anchorfile>
       <anchor>a6e3c8f2159eeb49d655b624968a8fb2b</anchor>
       <arglist>(MapID id, MapID minId, MapID maxId, double coeff)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ErrorHandler::ReturnCode</type>
+      <name>interpolateMap</name>
+      <anchorfile>classmbapi_1_1MapsManager.html</anchorfile>
+      <anchor>a9181bd8aa3e9c9ab0c6a4a634e1405db</anchor>
+      <arglist>(const std::vector&lt; double &gt; &amp;xin, const std::vector&lt; double &gt; &amp;yin, const std::vector&lt; double &gt; &amp;vin, double xmin, double xmax, double ymin, double ymax, int numI, int numJ, std::vector&lt; double &gt; &amp;xout, std::vector&lt; double &gt; &amp;yout, std::vector&lt; double &gt; &amp;vout)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual MapID</type>
+      <name>generateMap</name>
+      <anchorfile>classmbapi_1_1MapsManager.html</anchorfile>
+      <anchor>a6bedd304b85021252c2906ca580dfbb4</anchor>
+      <arglist>(const std::string &amp;refferedTable, const std::string mapName, const std::vector&lt; double &gt; &amp;values, size_t &amp;mapSequenceNbr, const std::string &amp;filePathName)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ErrorHandler::ReturnCode</type>
+      <name>inizializeMapWriter</name>
+      <anchorfile>classmbapi_1_1MapsManager.html</anchorfile>
+      <anchor>a58df3b6ac1d67348b8a27a8324d18700</anchor>
+      <arglist>(const std::string &amp;filePathName, const bool append)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ErrorHandler::ReturnCode</type>
+      <name>finalizeMapWriter</name>
+      <anchorfile>classmbapi_1_1MapsManager.html</anchorfile>
+      <anchor>adedf98ecf1dc62b3746ad13361460954</anchor>
+      <arglist>()=0</arglist>
     </member>
     <member kind="function" protection="protected">
       <type></type>
@@ -1083,8 +1159,8 @@
       <type>virtual ErrorHandler::ReturnCode</type>
       <name>saveMapToHDF</name>
       <anchorfile>classmbapi_1_1MapsManager.html</anchorfile>
-      <anchor>a0975d2314562894f689a61f8fe418cb2</anchor>
-      <arglist>(MapID id, const std::string &amp;fileName)=0</arglist>
+      <anchor>ade04c6bd30c603c5f8458de6944df8a7</anchor>
+      <arglist>(MapID id, const std::string &amp;filePathName, size_t mapSequenceNbr)=0</arglist>
     </member>
     <member kind="function" virtualness="pure">
       <type>virtual ErrorHandler::ReturnCode</type>
@@ -1102,10 +1178,59 @@
     </member>
     <member kind="function" virtualness="pure">
       <type>virtual ErrorHandler::ReturnCode</type>
+      <name>mapSetValues</name>
+      <anchorfile>classmbapi_1_1MapsManager.html</anchorfile>
+      <anchor>ae729950be2bb684068a04405abc845bb</anchor>
+      <arglist>(MapID id, const std::vector&lt; double &gt; &amp;vin)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual double</type>
+      <name>mapGetValue</name>
+      <anchorfile>classmbapi_1_1MapsManager.html</anchorfile>
+      <anchor>ae02529e764f2883d89375e3122b120e1</anchor>
+      <arglist>(MapID id, size_t i, size_t j)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ErrorHandler::ReturnCode</type>
+      <name>mapGetValues</name>
+      <anchorfile>classmbapi_1_1MapsManager.html</anchorfile>
+      <anchor>ae02feacf20e4e85f68e57539550a18be</anchor>
+      <arglist>(MapID id, std::vector&lt; double &gt; &amp;vout)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ErrorHandler::ReturnCode</type>
       <name>interpolateMap</name>
       <anchorfile>classmbapi_1_1MapsManager.html</anchorfile>
       <anchor>a6e3c8f2159eeb49d655b624968a8fb2b</anchor>
       <arglist>(MapID id, MapID minId, MapID maxId, double coeff)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ErrorHandler::ReturnCode</type>
+      <name>interpolateMap</name>
+      <anchorfile>classmbapi_1_1MapsManager.html</anchorfile>
+      <anchor>a9181bd8aa3e9c9ab0c6a4a634e1405db</anchor>
+      <arglist>(const std::vector&lt; double &gt; &amp;xin, const std::vector&lt; double &gt; &amp;yin, const std::vector&lt; double &gt; &amp;vin, double xmin, double xmax, double ymin, double ymax, int numI, int numJ, std::vector&lt; double &gt; &amp;xout, std::vector&lt; double &gt; &amp;yout, std::vector&lt; double &gt; &amp;vout)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual MapID</type>
+      <name>generateMap</name>
+      <anchorfile>classmbapi_1_1MapsManager.html</anchorfile>
+      <anchor>a6bedd304b85021252c2906ca580dfbb4</anchor>
+      <arglist>(const std::string &amp;refferedTable, const std::string mapName, const std::vector&lt; double &gt; &amp;values, size_t &amp;mapSequenceNbr, const std::string &amp;filePathName)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ErrorHandler::ReturnCode</type>
+      <name>inizializeMapWriter</name>
+      <anchorfile>classmbapi_1_1MapsManager.html</anchorfile>
+      <anchor>a58df3b6ac1d67348b8a27a8324d18700</anchor>
+      <arglist>(const std::string &amp;filePathName, const bool append)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ErrorHandler::ReturnCode</type>
+      <name>finalizeMapWriter</name>
+      <anchorfile>classmbapi_1_1MapsManager.html</anchorfile>
+      <anchor>adedf98ecf1dc62b3746ad13361460954</anchor>
+      <arglist>()=0</arglist>
     </member>
     <member kind="function" protection="protected">
       <type></type>
@@ -1134,228 +1259,18 @@
       <arglist>(const std::string &amp;litName, const std::vector&lt; std::pair&lt; std::string, size_t &gt; &gt; &amp;layersName, const std::vector&lt; std::string &gt; &amp;alochtLitName, const std::vector&lt; std::pair&lt; std::string, std::string &gt; &gt; &amp;faultsName)</arglist>
     </member>
     <member kind="function">
-      <type></type>
-      <name>Model</name>
+      <type>bool</type>
+      <name>checkPoint</name>
       <anchorfile>classmbapi_1_1Model.html</anchorfile>
-      <anchor>afcb6731981102f5177cc9de2b8c92f84</anchor>
-      <arglist>()</arglist>
+      <anchor>a6bacb438f56529ee4864f04e64f58c72</anchor>
+      <arglist>(const double x, const double y, const double z, const std::string &amp;layerName)</arglist>
     </member>
     <member kind="function">
-      <type></type>
-      <name>~Model</name>
+      <type>bool</type>
+      <name>getGridMapDepthValues</name>
       <anchorfile>classmbapi_1_1Model.html</anchorfile>
-      <anchor>adc1adf8fcebeefa658cf0aa1f6cb407c</anchor>
-      <arglist>()</arglist>
-    </member>
-    <member kind="function">
-      <type>std::string</type>
-      <name>compareProject</name>
-      <anchorfile>classmbapi_1_1Model.html</anchorfile>
-      <anchor>ab195105149d6f9e12a8a50435bccd515</anchor>
-      <arglist>(Model &amp;mdl1, const std::set&lt; std::string &gt; &amp;compareTblsList, const std::set&lt; std::string &gt; &amp;ignoreTblsList, double relTol)</arglist>
-    </member>
-    <member kind="function">
-      <type>std::string</type>
-      <name>mergeProject</name>
-      <anchorfile>classmbapi_1_1Model.html</anchorfile>
-      <anchor>a512649906008f4a28735a48c8bfed1a7</anchor>
-      <arglist>(Model &amp;mdl1, const std::set&lt; std::string &gt; &amp;procesTblsList, const std::vector&lt; std::vector&lt; std::string &gt; &gt; &amp;flitList, size_t &amp;dlRecNum, size_t &amp;cpRecNum)</arglist>
-    </member>
-    <member kind="function">
-      <type>Model &amp;</type>
-      <name>operator=</name>
-      <anchorfile>classmbapi_1_1Model.html</anchorfile>
-      <anchor>a7afc9b40340967e4d03724ce98f02de9</anchor>
-      <arglist>(const Model &amp;otherModel)</arglist>
-    </member>
-    <member kind="function">
-      <type>ErrorHandler::ReturnCode</type>
-      <name>tableSort</name>
-      <anchorfile>classmbapi_1_1Model.html</anchorfile>
-      <anchor>a9888ebb6f5146eb5e61faa87d36a9e54</anchor>
-      <arglist>(const std::string &amp;tblName, const std::vector&lt; std::string &gt; &amp;colsName)</arglist>
-    </member>
-    <member kind="function">
-      <type>std::vector&lt; std::string &gt;</type>
-      <name>tablesList</name>
-      <anchorfile>classmbapi_1_1Model.html</anchorfile>
-      <anchor>ae542e860b4334c9eb286323fcd90c1a6</anchor>
-      <arglist>()</arglist>
-    </member>
-    <member kind="function">
-      <type>std::vector&lt; std::string &gt;</type>
-      <name>tableColumnsList</name>
-      <anchorfile>classmbapi_1_1Model.html</anchorfile>
-      <anchor>ac1e71be07092eab702c59b1f97ee867d</anchor>
-      <arglist>(const std::string &amp;tableName, std::vector&lt; datatype::DataType &gt; &amp;colDataTypes)</arglist>
-    </member>
-    <member kind="function">
-      <type>int</type>
-      <name>tableSize</name>
-      <anchorfile>classmbapi_1_1Model.html</anchorfile>
-      <anchor>abfbcac1ce060100240c7f866623ae1ce</anchor>
-      <arglist>(const std::string &amp;tableName)</arglist>
-    </member>
-    <member kind="function">
-      <type>long</type>
-      <name>tableValueAsInteger</name>
-      <anchorfile>classmbapi_1_1Model.html</anchorfile>
-      <anchor>ae26a07b62306ed91296314afddf2a5ed</anchor>
-      <arglist>(const std::string &amp;tableName, size_t rowNumber, const std::string &amp;propName)</arglist>
-    </member>
-    <member kind="function">
-      <type>double</type>
-      <name>tableValueAsDouble</name>
-      <anchorfile>classmbapi_1_1Model.html</anchorfile>
-      <anchor>a5f2f95770cc1f10b998df635ebe2cea6</anchor>
-      <arglist>(const std::string &amp;tableName, size_t rowNumber, const std::string &amp;propName)</arglist>
-    </member>
-    <member kind="function">
-      <type>std::string</type>
-      <name>tableValueAsString</name>
-      <anchorfile>classmbapi_1_1Model.html</anchorfile>
-      <anchor>a4f1c412e4cb1fafdb7fdfa7f1873ac26</anchor>
-      <arglist>(const std::string &amp;tableName, size_t rowNumber, const std::string &amp;propName)</arglist>
-    </member>
-    <member kind="function">
-      <type>ErrorHandler::ReturnCode</type>
-      <name>setTableValue</name>
-      <anchorfile>classmbapi_1_1Model.html</anchorfile>
-      <anchor>abb3282fff42e86f1020e43fc5428bd2f</anchor>
-      <arglist>(const std::string &amp;tableName, size_t rowNumber, const std::string &amp;propName, long propValue)</arglist>
-    </member>
-    <member kind="function">
-      <type>ErrorHandler::ReturnCode</type>
-      <name>setTableValue</name>
-      <anchorfile>classmbapi_1_1Model.html</anchorfile>
-      <anchor>a22f296c6c078f49330595f8d7fffab9a</anchor>
-      <arglist>(const std::string &amp;tableName, size_t rowNumber, const std::string &amp;propName, double propValue)</arglist>
-    </member>
-    <member kind="function">
-      <type>ErrorHandler::ReturnCode</type>
-      <name>setTableValue</name>
-      <anchorfile>classmbapi_1_1Model.html</anchorfile>
-      <anchor>ac46f778da1248f27d4c3fcd364a6f5ba</anchor>
-      <arglist>(const std::string &amp;tableName, size_t rowNumber, const std::string &amp;propName, const std::string &amp;propValue)</arglist>
-    </member>
-    <member kind="function">
-      <type>ErrorHandler::ReturnCode</type>
-      <name>clearTable</name>
-      <anchorfile>classmbapi_1_1Model.html</anchorfile>
-      <anchor>aeee1f28764016d5dab8bdbdfd15024f7</anchor>
-      <arglist>(const std::string &amp;tableName)</arglist>
-    </member>
-    <member kind="function">
-      <type>ErrorHandler::ReturnCode</type>
-      <name>addRowToTable</name>
-      <anchorfile>classmbapi_1_1Model.html</anchorfile>
-      <anchor>aaf9771356dc94cff7673c0c87408c729</anchor>
-      <arglist>(const std::string &amp;tableName)</arglist>
-    </member>
-    <member kind="function">
-      <type>ReturnCode</type>
-      <name>loadModelFromProjectFile</name>
-      <anchorfile>classmbapi_1_1Model.html</anchorfile>
-      <anchor>af7e0371a14c1f46601a91940e2b47686</anchor>
-      <arglist>(const char *projectFileName)</arglist>
-    </member>
-    <member kind="function">
-      <type>ReturnCode</type>
-      <name>saveModelToProjectFile</name>
-      <anchorfile>classmbapi_1_1Model.html</anchorfile>
-      <anchor>a248aa16548ae2a96bfde997bdf4f5020</anchor>
-      <arglist>(const char *projectFileName)</arglist>
-    </member>
-    <member kind="function">
-      <type>std::string</type>
-      <name>projectFileName</name>
-      <anchorfile>classmbapi_1_1Model.html</anchorfile>
-      <anchor>a912fec559a672a5625a029eea2278a22</anchor>
-      <arglist>()</arglist>
-    </member>
-    <member kind="function">
-      <type>StratigraphyManager &amp;</type>
-      <name>stratigraphyManager</name>
-      <anchorfile>classmbapi_1_1Model.html</anchorfile>
-      <anchor>aef1d7eed9bb7ffc57c45aef11189b328</anchor>
-      <arglist>()</arglist>
-    </member>
-    <member kind="function">
-      <type>LithologyManager &amp;</type>
-      <name>lithologyManager</name>
-      <anchorfile>classmbapi_1_1Model.html</anchorfile>
-      <anchor>a9b8e78c29f28ed7417276ade6daed53d</anchor>
-      <arglist>()</arglist>
-    </member>
-    <member kind="function">
-      <type>FluidManager &amp;</type>
-      <name>fluidManager</name>
-      <anchorfile>classmbapi_1_1Model.html</anchorfile>
-      <anchor>aec526a95704d18f08a349524e189f6ac</anchor>
-      <arglist>()</arglist>
-    </member>
-    <member kind="function">
-      <type>SourceRockManager &amp;</type>
-      <name>sourceRockManager</name>
-      <anchorfile>classmbapi_1_1Model.html</anchorfile>
-      <anchor>a79698cf186a078e74e6d809ad48fdd11</anchor>
-      <arglist>()</arglist>
-    </member>
-    <member kind="function">
-      <type>SnapshotManager &amp;</type>
-      <name>snapshotManager</name>
-      <anchorfile>classmbapi_1_1Model.html</anchorfile>
-      <anchor>aeb77b55bf5ba0bb2eba709a92d366393</anchor>
-      <arglist>()</arglist>
-    </member>
-    <member kind="function">
-      <type>PropertyManager &amp;</type>
-      <name>propertyManager</name>
-      <anchorfile>classmbapi_1_1Model.html</anchorfile>
-      <anchor>a8bc2f524b4271bb406d057140efffed3</anchor>
-      <arglist>()</arglist>
-    </member>
-    <member kind="function">
-      <type>MapsManager &amp;</type>
-      <name>mapsManager</name>
-      <anchorfile>classmbapi_1_1Model.html</anchorfile>
-      <anchor>a084516d88abc0ee0955037e26a42902f</anchor>
-      <arglist>()</arglist>
-    </member>
-    <member kind="function">
-      <type>ReturnCode</type>
-      <name>origin</name>
-      <anchorfile>classmbapi_1_1Model.html</anchorfile>
-      <anchor>a840578561e2be0c6e3e069f004061073</anchor>
-      <arglist>(double &amp;x, double &amp;y)</arglist>
-    </member>
-    <member kind="function">
-      <type>ReturnCode</type>
-      <name>arealSize</name>
-      <anchorfile>classmbapi_1_1Model.html</anchorfile>
-      <anchor>a65ce2138d1f29884606f4c1e5dd25afc</anchor>
-      <arglist>(double &amp;dimX, double &amp;dimY)</arglist>
-    </member>
-    <member kind="function">
-      <type>ReturnCode</type>
-      <name>windowSize</name>
-      <anchorfile>classmbapi_1_1Model.html</anchorfile>
-      <anchor>a6f6ee226ed3299ad5b1577a37f72d93e</anchor>
-      <arglist>(double x, double y, int &amp;xMin, int &amp;xMax, int &amp;yMin, int &amp;yMax)</arglist>
-    </member>
-    <member kind="variable" static="yes">
-      <type>static const char *</type>
-      <name>s_ResultsFolderSuffix</name>
-      <anchorfile>classmbapi_1_1Model.html</anchorfile>
-      <anchor>a71c3c2e8cc5660bf24b6ba4df4d823b0</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="variable" static="yes">
-      <type>static const char *</type>
-      <name>s_ResultsFolderSuffix</name>
-      <anchorfile>classmbapi_1_1Model.html</anchorfile>
-      <anchor>a71c3c2e8cc5660bf24b6ba4df4d823b0</anchor>
-      <arglist></arglist>
+      <anchor>a93630d47ecee471d5c3404b9cbf9ddfa</anchor>
+      <arglist>(const mbapi::StratigraphyManager::SurfaceID s, std::vector&lt; double &gt; &amp;v)</arglist>
     </member>
     <member kind="function">
       <type></type>
@@ -1471,6 +1386,13 @@
     </member>
     <member kind="function">
       <type>ErrorHandler::ReturnCode</type>
+      <name>removeRecordFromTable</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>aef210720c8d033a0150c6b7c0dfadf38</anchor>
+      <arglist>(const std::string &amp;tableName, int ind)</arglist>
+    </member>
+    <member kind="function">
+      <type>ErrorHandler::ReturnCode</type>
       <name>addRowToTable</name>
       <anchorfile>classmbapi_1_1Model.html</anchorfile>
       <anchor>aaf9771356dc94cff7673c0c87408c729</anchor>
@@ -1487,8 +1409,8 @@
       <type>ReturnCode</type>
       <name>saveModelToProjectFile</name>
       <anchorfile>classmbapi_1_1Model.html</anchorfile>
-      <anchor>a248aa16548ae2a96bfde997bdf4f5020</anchor>
-      <arglist>(const char *projectFileName)</arglist>
+      <anchor>a7833ea4d4ddefc75f4c87b273c473716</anchor>
+      <arglist>(const char *projectFileName, bool copyFiles=false)</arglist>
     </member>
     <member kind="function">
       <type>std::string</type>
@@ -1555,6 +1477,41 @@
     </member>
     <member kind="function">
       <type>ReturnCode</type>
+      <name>hiresGridArealSize</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>aed41fe750eaa042ef6a137a78a50eda4</anchor>
+      <arglist>(long &amp;sizeI, long &amp;sizeJ)</arglist>
+    </member>
+    <member kind="function">
+      <type>ReturnCode</type>
+      <name>subsampling</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>ada357e93a84a58220ca25b485797c3fa</anchor>
+      <arglist>(long &amp;di, long &amp;dj)</arglist>
+    </member>
+    <member kind="function">
+      <type>ReturnCode</type>
+      <name>setSubsampling</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>ad4ba50c2c83b7348dadbeaf2d532fab3</anchor>
+      <arglist>(long di, long dj)</arglist>
+    </member>
+    <member kind="function">
+      <type>ReturnCode</type>
+      <name>window</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>aaaf3c6debfdbd83ae3570a323b28d0cb</anchor>
+      <arglist>(long &amp;minWinI, long &amp;maxWinI, long &amp;minWinJ, long &amp;maxWinJ)</arglist>
+    </member>
+    <member kind="function">
+      <type>ReturnCode</type>
+      <name>setWindow</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>ae444fd77f2115fdcfb097481c2fccd29</anchor>
+      <arglist>(long minWinI, long maxWinI, long minWinJ, long maxWinJ)</arglist>
+    </member>
+    <member kind="function">
+      <type>ReturnCode</type>
       <name>arealSize</name>
       <anchorfile>classmbapi_1_1Model.html</anchorfile>
       <anchor>a65ce2138d1f29884606f4c1e5dd25afc</anchor>
@@ -1564,8 +1521,316 @@
       <type>ReturnCode</type>
       <name>windowSize</name>
       <anchorfile>classmbapi_1_1Model.html</anchorfile>
-      <anchor>a6f6ee226ed3299ad5b1577a37f72d93e</anchor>
-      <arglist>(double x, double y, int &amp;xMin, int &amp;xMax, int &amp;yMin, int &amp;yMax)</arglist>
+      <anchor>a869464c8f8d9c2e963a914b6a8dadee8</anchor>
+      <arglist>(double x, double y, int &amp;xMin, int &amp;xMax, int &amp;yMin, int &amp;yMax, double &amp;xc, double &amp;yc)</arglist>
+    </member>
+    <member kind="function">
+      <type>ReturnCode</type>
+      <name>interpolateLithoFractions</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>a89f5ab4699e8362ae599bdcf264ad1c8</anchor>
+      <arglist>(const std::vector&lt; double &gt; &amp;xin, const std::vector&lt; double &gt; &amp;yin, const std::vector&lt; double &gt; &amp;lf1, const std::vector&lt; double &gt; &amp;lf2, const std::vector&lt; double &gt; &amp;lf3, std::vector&lt; double &gt; &amp;xInt, std::vector&lt; double &gt; &amp;yInt, std::vector&lt; double &gt; &amp;rpInt, std::vector&lt; double &gt; &amp;r13Int)</arglist>
+    </member>
+    <member kind="function">
+      <type>ReturnCode</type>
+      <name>backTransformLithoFractions</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>a98543238d85dac3497d46e70e2fcb47c</anchor>
+      <arglist>(const std::vector&lt; double &gt; &amp;rpInt, const std::vector&lt; double &gt; &amp;r13Int, std::vector&lt; double &gt; &amp;lf1CorrInt, std::vector&lt; double &gt; &amp;lf2CorrInt, std::vector&lt; double &gt; &amp;lf3CorrInt)</arglist>
+    </member>
+    <member kind="function" static="yes">
+      <type>static std::string</type>
+      <name>randomString</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>a7eed800ae3b6b378745929b34296e203</anchor>
+      <arglist>(size_t len)</arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const char *</type>
+      <name>s_ResultsFolderSuffix</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>a71c3c2e8cc5660bf24b6ba4df4d823b0</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable" static="yes">
+      <type>static const char *</type>
+      <name>s_ResultsFolderSuffix</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>a71c3c2e8cc5660bf24b6ba4df4d823b0</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="function" static="yes">
+      <type>static std::string</type>
+      <name>randomString</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>a7eed800ae3b6b378745929b34296e203</anchor>
+      <arglist>(size_t len)</arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>Model</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>afcb6731981102f5177cc9de2b8c92f84</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type></type>
+      <name>~Model</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>adc1adf8fcebeefa658cf0aa1f6cb407c</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>std::string</type>
+      <name>compareProject</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>ab195105149d6f9e12a8a50435bccd515</anchor>
+      <arglist>(Model &amp;mdl1, const std::set&lt; std::string &gt; &amp;compareTblsList, const std::set&lt; std::string &gt; &amp;ignoreTblsList, double relTol)</arglist>
+    </member>
+    <member kind="function">
+      <type>std::string</type>
+      <name>mergeProject</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>a512649906008f4a28735a48c8bfed1a7</anchor>
+      <arglist>(Model &amp;mdl1, const std::set&lt; std::string &gt; &amp;procesTblsList, const std::vector&lt; std::vector&lt; std::string &gt; &gt; &amp;flitList, size_t &amp;dlRecNum, size_t &amp;cpRecNum)</arglist>
+    </member>
+    <member kind="function">
+      <type>Model &amp;</type>
+      <name>operator=</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>a7afc9b40340967e4d03724ce98f02de9</anchor>
+      <arglist>(const Model &amp;otherModel)</arglist>
+    </member>
+    <member kind="function">
+      <type>ErrorHandler::ReturnCode</type>
+      <name>tableSort</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>a9888ebb6f5146eb5e61faa87d36a9e54</anchor>
+      <arglist>(const std::string &amp;tblName, const std::vector&lt; std::string &gt; &amp;colsName)</arglist>
+    </member>
+    <member kind="function">
+      <type>std::vector&lt; std::string &gt;</type>
+      <name>tablesList</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>ae542e860b4334c9eb286323fcd90c1a6</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>std::vector&lt; std::string &gt;</type>
+      <name>tableColumnsList</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>ac1e71be07092eab702c59b1f97ee867d</anchor>
+      <arglist>(const std::string &amp;tableName, std::vector&lt; datatype::DataType &gt; &amp;colDataTypes)</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
+      <name>tableSize</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>abfbcac1ce060100240c7f866623ae1ce</anchor>
+      <arglist>(const std::string &amp;tableName)</arglist>
+    </member>
+    <member kind="function">
+      <type>long</type>
+      <name>tableValueAsInteger</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>ae26a07b62306ed91296314afddf2a5ed</anchor>
+      <arglist>(const std::string &amp;tableName, size_t rowNumber, const std::string &amp;propName)</arglist>
+    </member>
+    <member kind="function">
+      <type>double</type>
+      <name>tableValueAsDouble</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>a5f2f95770cc1f10b998df635ebe2cea6</anchor>
+      <arglist>(const std::string &amp;tableName, size_t rowNumber, const std::string &amp;propName)</arglist>
+    </member>
+    <member kind="function">
+      <type>std::string</type>
+      <name>tableValueAsString</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>a4f1c412e4cb1fafdb7fdfa7f1873ac26</anchor>
+      <arglist>(const std::string &amp;tableName, size_t rowNumber, const std::string &amp;propName)</arglist>
+    </member>
+    <member kind="function">
+      <type>ErrorHandler::ReturnCode</type>
+      <name>setTableValue</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>abb3282fff42e86f1020e43fc5428bd2f</anchor>
+      <arglist>(const std::string &amp;tableName, size_t rowNumber, const std::string &amp;propName, long propValue)</arglist>
+    </member>
+    <member kind="function">
+      <type>ErrorHandler::ReturnCode</type>
+      <name>setTableValue</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>a22f296c6c078f49330595f8d7fffab9a</anchor>
+      <arglist>(const std::string &amp;tableName, size_t rowNumber, const std::string &amp;propName, double propValue)</arglist>
+    </member>
+    <member kind="function">
+      <type>ErrorHandler::ReturnCode</type>
+      <name>setTableValue</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>ac46f778da1248f27d4c3fcd364a6f5ba</anchor>
+      <arglist>(const std::string &amp;tableName, size_t rowNumber, const std::string &amp;propName, const std::string &amp;propValue)</arglist>
+    </member>
+    <member kind="function">
+      <type>ErrorHandler::ReturnCode</type>
+      <name>clearTable</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>aeee1f28764016d5dab8bdbdfd15024f7</anchor>
+      <arglist>(const std::string &amp;tableName)</arglist>
+    </member>
+    <member kind="function">
+      <type>ErrorHandler::ReturnCode</type>
+      <name>removeRecordFromTable</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>aef210720c8d033a0150c6b7c0dfadf38</anchor>
+      <arglist>(const std::string &amp;tableName, int ind)</arglist>
+    </member>
+    <member kind="function">
+      <type>ErrorHandler::ReturnCode</type>
+      <name>addRowToTable</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>aaf9771356dc94cff7673c0c87408c729</anchor>
+      <arglist>(const std::string &amp;tableName)</arglist>
+    </member>
+    <member kind="function">
+      <type>ReturnCode</type>
+      <name>loadModelFromProjectFile</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>af7e0371a14c1f46601a91940e2b47686</anchor>
+      <arglist>(const char *projectFileName)</arglist>
+    </member>
+    <member kind="function">
+      <type>ReturnCode</type>
+      <name>saveModelToProjectFile</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>a7833ea4d4ddefc75f4c87b273c473716</anchor>
+      <arglist>(const char *projectFileName, bool copyFiles=false)</arglist>
+    </member>
+    <member kind="function">
+      <type>std::string</type>
+      <name>projectFileName</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>a912fec559a672a5625a029eea2278a22</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>StratigraphyManager &amp;</type>
+      <name>stratigraphyManager</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>aef1d7eed9bb7ffc57c45aef11189b328</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>LithologyManager &amp;</type>
+      <name>lithologyManager</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>a9b8e78c29f28ed7417276ade6daed53d</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>FluidManager &amp;</type>
+      <name>fluidManager</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>aec526a95704d18f08a349524e189f6ac</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>SourceRockManager &amp;</type>
+      <name>sourceRockManager</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>a79698cf186a078e74e6d809ad48fdd11</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>SnapshotManager &amp;</type>
+      <name>snapshotManager</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>aeb77b55bf5ba0bb2eba709a92d366393</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>PropertyManager &amp;</type>
+      <name>propertyManager</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>a8bc2f524b4271bb406d057140efffed3</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>MapsManager &amp;</type>
+      <name>mapsManager</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>a084516d88abc0ee0955037e26a42902f</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>ReturnCode</type>
+      <name>origin</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>a840578561e2be0c6e3e069f004061073</anchor>
+      <arglist>(double &amp;x, double &amp;y)</arglist>
+    </member>
+    <member kind="function">
+      <type>ReturnCode</type>
+      <name>hiresGridArealSize</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>aed41fe750eaa042ef6a137a78a50eda4</anchor>
+      <arglist>(long &amp;sizeI, long &amp;sizeJ)</arglist>
+    </member>
+    <member kind="function">
+      <type>ReturnCode</type>
+      <name>subsampling</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>ada357e93a84a58220ca25b485797c3fa</anchor>
+      <arglist>(long &amp;di, long &amp;dj)</arglist>
+    </member>
+    <member kind="function">
+      <type>ReturnCode</type>
+      <name>setSubsampling</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>ad4ba50c2c83b7348dadbeaf2d532fab3</anchor>
+      <arglist>(long di, long dj)</arglist>
+    </member>
+    <member kind="function">
+      <type>ReturnCode</type>
+      <name>window</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>aaaf3c6debfdbd83ae3570a323b28d0cb</anchor>
+      <arglist>(long &amp;minWinI, long &amp;maxWinI, long &amp;minWinJ, long &amp;maxWinJ)</arglist>
+    </member>
+    <member kind="function">
+      <type>ReturnCode</type>
+      <name>setWindow</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>ae444fd77f2115fdcfb097481c2fccd29</anchor>
+      <arglist>(long minWinI, long maxWinI, long minWinJ, long maxWinJ)</arglist>
+    </member>
+    <member kind="function">
+      <type>ReturnCode</type>
+      <name>arealSize</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>a65ce2138d1f29884606f4c1e5dd25afc</anchor>
+      <arglist>(double &amp;dimX, double &amp;dimY)</arglist>
+    </member>
+    <member kind="function">
+      <type>ReturnCode</type>
+      <name>windowSize</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>a869464c8f8d9c2e963a914b6a8dadee8</anchor>
+      <arglist>(double x, double y, int &amp;xMin, int &amp;xMax, int &amp;yMin, int &amp;yMax, double &amp;xc, double &amp;yc)</arglist>
+    </member>
+    <member kind="function">
+      <type>ReturnCode</type>
+      <name>interpolateLithoFractions</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>a89f5ab4699e8362ae599bdcf264ad1c8</anchor>
+      <arglist>(const std::vector&lt; double &gt; &amp;xin, const std::vector&lt; double &gt; &amp;yin, const std::vector&lt; double &gt; &amp;lf1, const std::vector&lt; double &gt; &amp;lf2, const std::vector&lt; double &gt; &amp;lf3, std::vector&lt; double &gt; &amp;xInt, std::vector&lt; double &gt; &amp;yInt, std::vector&lt; double &gt; &amp;rpInt, std::vector&lt; double &gt; &amp;r13Int)</arglist>
+    </member>
+    <member kind="function">
+      <type>ReturnCode</type>
+      <name>backTransformLithoFractions</name>
+      <anchorfile>classmbapi_1_1Model.html</anchorfile>
+      <anchor>a98543238d85dac3497d46e70e2fcb47c</anchor>
+      <arglist>(const std::vector&lt; double &gt; &amp;rpInt, const std::vector&lt; double &gt; &amp;r13Int, std::vector&lt; double &gt; &amp;lf1CorrInt, std::vector&lt; double &gt; &amp;lf2CorrInt, std::vector&lt; double &gt; &amp;lf3CorrInt)</arglist>
     </member>
   </compound>
   <compound kind="class">
@@ -1861,6 +2126,13 @@
       <arglist>() const =0</arglist>
     </member>
     <member kind="function" virtualness="pure">
+      <type>virtual std::string</type>
+      <name>referenceID</name>
+      <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
+      <anchor>af4d7b1b8e269caeb43cc628283d79cde</anchor>
+      <arglist>() const =0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
       <type>virtual LayerID</type>
       <name>createNewLayer</name>
       <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
@@ -1906,8 +2178,8 @@
       <type>virtual ErrorHandler::ReturnCode</type>
       <name>layerLithologiesList</name>
       <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
-      <anchor>a1b19b2f0373285b8dfd7c909dc9944f0</anchor>
-      <arglist>(LayerID id, std::vector&lt; std::string &gt; &amp;lithoList, std::vector&lt; double &gt; &amp;lithoPercent)=0</arglist>
+      <anchor>a3a718349249b3ec178d86db00267ab87</anchor>
+      <arglist>(LayerID id, std::vector&lt; std::string &gt; &amp;lithoList, std::vector&lt; double &gt; &amp;lithoPercent, std::vector&lt; std::string &gt; &amp;lithoPercMap)=0</arglist>
     </member>
     <member kind="function" virtualness="pure">
       <type>virtual ErrorHandler::ReturnCode</type>
@@ -1922,6 +2194,13 @@
       <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
       <anchor>ab5b7608a217dea56fc9c8946dcd44d36</anchor>
       <arglist>(const std::string &amp;lithoName)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ErrorHandler::ReturnCode</type>
+      <name>setLayerLithologiesPercentageMaps</name>
+      <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
+      <anchor>a7dcc03aff9dd2bc319765ca3d1773e0d</anchor>
+      <arglist>(LayerID id, const std::string &amp;mapNameFirstLithoPercentage, const std::string mapNameSecondLithoPercentage)=0</arglist>
     </member>
     <member kind="function" virtualness="pure">
       <type>virtual ReturnCode</type>
@@ -2048,6 +2327,20 @@
       <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
       <anchor>a74cb6cb331f1933ef049d730ac53e770</anchor>
       <arglist>(PrFaultCutID flID, const std::string &amp;newLithoName)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual std::string</type>
+      <name>twtGridName</name>
+      <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
+      <anchor>a28baf3e2359594bde08717410b509b9e</anchor>
+      <arglist>(LayerID id)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual double</type>
+      <name>twtValue</name>
+      <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
+      <anchor>ad2f557b8b16ec8684df2a80a55383bd2</anchor>
+      <arglist>(LayerID id)=0</arglist>
     </member>
     <member kind="function" protection="protected">
       <type></type>
@@ -2085,6 +2378,13 @@
       <arglist>() const =0</arglist>
     </member>
     <member kind="function" virtualness="pure">
+      <type>virtual std::string</type>
+      <name>referenceID</name>
+      <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
+      <anchor>af4d7b1b8e269caeb43cc628283d79cde</anchor>
+      <arglist>() const =0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
       <type>virtual LayerID</type>
       <name>createNewLayer</name>
       <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
@@ -2130,8 +2430,8 @@
       <type>virtual ErrorHandler::ReturnCode</type>
       <name>layerLithologiesList</name>
       <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
-      <anchor>a1b19b2f0373285b8dfd7c909dc9944f0</anchor>
-      <arglist>(LayerID id, std::vector&lt; std::string &gt; &amp;lithoList, std::vector&lt; double &gt; &amp;lithoPercent)=0</arglist>
+      <anchor>a3a718349249b3ec178d86db00267ab87</anchor>
+      <arglist>(LayerID id, std::vector&lt; std::string &gt; &amp;lithoList, std::vector&lt; double &gt; &amp;lithoPercent, std::vector&lt; std::string &gt; &amp;lithoPercMap)=0</arglist>
     </member>
     <member kind="function" virtualness="pure">
       <type>virtual ErrorHandler::ReturnCode</type>
@@ -2146,6 +2446,13 @@
       <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
       <anchor>ab5b7608a217dea56fc9c8946dcd44d36</anchor>
       <arglist>(const std::string &amp;lithoName)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual ErrorHandler::ReturnCode</type>
+      <name>setLayerLithologiesPercentageMaps</name>
+      <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
+      <anchor>a7dcc03aff9dd2bc319765ca3d1773e0d</anchor>
+      <arglist>(LayerID id, const std::string &amp;mapNameFirstLithoPercentage, const std::string mapNameSecondLithoPercentage)=0</arglist>
     </member>
     <member kind="function" virtualness="pure">
       <type>virtual ReturnCode</type>
@@ -2273,6 +2580,20 @@
       <anchor>a74cb6cb331f1933ef049d730ac53e770</anchor>
       <arglist>(PrFaultCutID flID, const std::string &amp;newLithoName)=0</arglist>
     </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual std::string</type>
+      <name>twtGridName</name>
+      <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
+      <anchor>a28baf3e2359594bde08717410b509b9e</anchor>
+      <arglist>(LayerID id)=0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual double</type>
+      <name>twtValue</name>
+      <anchorfile>classmbapi_1_1StratigraphyManager.html</anchorfile>
+      <anchor>ad2f557b8b16ec8684df2a80a55383bd2</anchor>
+      <arglist>(LayerID id)=0</arglist>
+    </member>
     <member kind="function" protection="protected">
       <type></type>
       <name>StratigraphyManager</name>
@@ -2307,14 +2628,6 @@
     <class kind="class">mbapi::SnapshotManager</class>
     <class kind="class">mbapi::SourceRockManager</class>
     <class kind="class">mbapi::StratigraphyManager</class>
-  </compound>
-  <compound kind="namespace">
-    <name>sumext</name>
-    <filename>namespacesumext.html</filename>
-  </compound>
-  <compound kind="namespace">
-    <name>SUMlib</name>
-    <filename>namespaceSUMlib.html</filename>
   </compound>
   <compound kind="page">
     <name>CASA_API_Descr</name>
@@ -2384,6 +2697,11 @@
     <filename>CASA_ObsSpacePage</filename>
   </compound>
   <compound kind="page">
+    <name>CASA_ObservableTrapDerivedPropPage</name>
+    <title>Any trap property which could be extracted by datadriller after migration calculation.</title>
+    <filename>CASA_ObservableTrapDerivedPropPage</filename>
+  </compound>
+  <compound kind="page">
     <name>CASA_ObservableTrapPropPage</name>
     <title>Any trap property which could be extracted by datadriller after migration calculation.</title>
     <filename>CASA_ObservableTrapPropPage</filename>
@@ -2394,9 +2712,19 @@
     <filename>CASA_ParameterPage</filename>
   </compound>
   <compound kind="page">
+    <name>CASA_CompactionCoefficientPage</name>
+    <title>Lithology porosity model</title>
+    <filename>CASA_CompactionCoefficientPage</filename>
+  </compound>
+  <compound kind="page">
     <name>CASA_CrustThinningPage</name>
     <title>Multi event crust thinning parameter</title>
     <filename>CASA_CrustThinningPage</filename>
+  </compound>
+  <compound kind="page">
+    <name>CASA_LithoFractionPage</name>
+    <title>lithofraction model</title>
+    <filename>CASA_LithoFractionPage</filename>
   </compound>
   <compound kind="page">
     <name>CASA_LithologyPropPage</name>
@@ -2422,7 +2750,7 @@
     <docanchor file="CASA_PermeabilityModelPage" title="None/Impermeable models means tiny constant permeability">PermeabilityModelPrmInpermeableSec</docanchor>
     <docanchor file="CASA_PermeabilityModelPage" title="Permeability model for sandstone">PermeabilityModelPrmSandstoneSec</docanchor>
     <docanchor file="CASA_PermeabilityModelPage" title="Permeability model for mudstone">PermeabilityModelPrmMudstoneSec</docanchor>
-    <docanchor file="LithologyManagerPage" title="Permeability model is described by a Permeability vs Porosity profile">MultiPointPermModelSubSec</docanchor>
+    <docanchor file="CASA_PermeabilityModelPage" title="Permeability model is described by a Permeability vs Porosity profile">MultiPointPermModelSec</docanchor>
   </compound>
   <compound kind="page">
     <name>CASA_PorosityModelPage</name>
@@ -2463,6 +2791,11 @@
     <name>CASA_TopCrustHeatProductionPage</name>
     <title>Top crust heat production rate parameter</title>
     <filename>CASA_TopCrustHeatProductionPage</filename>
+  </compound>
+  <compound kind="page">
+    <name>CASA_Window</name>
+    <title>windowed projects</title>
+    <filename>CASA_Window</filename>
   </compound>
   <compound kind="page">
     <name>CASA_RSProxyPage</name>
@@ -2541,6 +2874,7 @@
     <docanchor file="LithologyManagerPage" title="None model means tiny constant permeability">NonePermModelSubSec</docanchor>
     <docanchor file="LithologyManagerPage" title="Permeability for sandstone">SandPermModelSubSec</docanchor>
     <docanchor file="LithologyManagerPage" title="Permeability for mudstone">MudPermModelSubSec</docanchor>
+    <docanchor file="LithologyManagerPage">MultiPointPermModelSubSec</docanchor>
   </compound>
   <compound kind="page">
     <name>MapsManagerPage</name>

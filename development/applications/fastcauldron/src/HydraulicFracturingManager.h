@@ -1,9 +1,18 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
 #ifndef _HydraulicFracturingManager_H_
 #define _HydraulicFracturingManager_H_
 
 #include <string>
 
-#include "globaldefs.h"
+#include "ConstantsFastcauldron.h"
 
 #include "GeoPhysicsFluidType.h"
 
@@ -114,6 +123,7 @@ public :
 
   static HydraulicFracturingManager& getInstance ();
 
+  static void deleteInstance();
 
   void setAppCtx ( const AppCtx* newAppCtx );
 

@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 #ifndef _FASTCAULDRON__LAYER_H_
 #define _FASTCAULDRON__LAYER_H_
 
@@ -14,7 +23,7 @@ using CBMGenerics::Polyfunction;
 #include "GeoPhysicsFluidType.h"
 #include "GeoPhysicsFormation.h"
 #include "filterwizard.h"
-#include "globaldefs.h"
+#include "ConstantsFastcauldron.h"
 #include "ghost_array.h"
 #include "PetscVectors.h"
 #include "CompoundLithologyArray.h"
@@ -96,6 +105,8 @@ public:
    bool allocateNewVecs ( AppCtx* basinModel, const double Current_Time );
 
    void initialiseTemperature( AppCtx* basinModel, const double Current_Time );
+
+   void initialisePreviousFluidPressures( AppCtx* basinModel, const double Current_Time );
 
    double calcDiffDensity ( const unsigned int i, const unsigned int j ) const;
 
@@ -345,8 +356,8 @@ public:
    /// \brief Copy current computed saturations to previous.
    void copySaturations ();
 
-  string           lithoMixModel;
-
+  string           m_lithoMixModel;
+  float       m_lithoLayeringIndex;
 
   string           depthgridfilename;
   int              depthgridfileseqnr;
@@ -376,7 +387,6 @@ public:
   Vec Depth;
 
   Vec              Lithology_ID;
-  Vec              NodeHeatProd;
   Vec              BulkDensXHeatCapacity;
   Vec              BulkTHCondN;
   Vec              BulkTHCondP;

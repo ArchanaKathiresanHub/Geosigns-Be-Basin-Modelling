@@ -18,7 +18,7 @@ source_group(source FILES ${all_srcs})
 
 add_definitions(-DSUMLIB_EXPORT)
 
-include_directories(
+include_directories( SYSTEM
       ${SUMPP_INCLUDE_DIR}
       ${Boost_INCLUDE_DIRS}
 )

@@ -46,7 +46,7 @@ namespace casa
          // go through all run cases and request observables
          for ( size_t rc = 0; rc < rcSet.size(); ++rc )
          {
-            if ( NoError != requestObservables( obs, rcSet[rc] ) ) throw Exception( errorCode() ) << errorMessage();
+            if ( NoError != requestObservables( obs, rcSet[rc].get() ) ) throw Exception( errorCode() ) << errorMessage();
          }
       }
       catch ( const ErrorHandler::Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
@@ -90,7 +90,7 @@ namespace casa
       rcs.filterByExperimentName( "" );
       for ( size_t c = 0; c < runCaseSet.size(); ++c )
       {
-         if ( NoError != collectRunResults( obs, runCaseSet[c] ) ) return errorCode();
+         if ( NoError != collectRunResults( obs, runCaseSet[c].get() ) ) return errorCode();
       }
       return NoError;
    }

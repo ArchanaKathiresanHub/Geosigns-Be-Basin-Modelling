@@ -21,7 +21,7 @@ class ElementThicknessActivityPredicate : public ElementActivityPredicate {
 
 public :
 
-   /// \bref Determine the activity of the element.
+   /// \brief Determine the activity of the element.
    virtual bool isActive ( const LayerElement& element ) const;
 
 };

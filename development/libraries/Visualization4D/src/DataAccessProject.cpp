@@ -222,6 +222,7 @@ void DataAccessProject::init()
 
   m_projectInfo.dimensions.numCellsI = loresGrid->numI() - 1;
   m_projectInfo.dimensions.numCellsJ = loresGrid->numJ() - 1;
+  m_projectInfo.dimensions.numCellsK = 0; // will be initialized later
   m_projectInfo.dimensions.numCellsIHiRes = hiresGrid->numI() - 1;
   m_projectInfo.dimensions.numCellsJHiRes = hiresGrid->numJ() - 1;
   m_projectInfo.dimensions.deltaX = loresGrid->deltaI();
@@ -254,6 +255,8 @@ void DataAccessProject::init()
     fmt.numCellsK = depthValue->getGridMap()->getDepth() - 1;
     fmt.isSourceRock = formation->isSourceRock();
     m_projectInfo.formations.push_back(fmt);
+
+    m_projectInfo.dimensions.numCellsK += fmt.numCellsK;
 
     if (formation->isSourceRock())
     {
@@ -350,7 +353,48 @@ void DataAccessProject::init()
     const int allTypes = di::MAP | di::VOLUME;
     if (item->hasPropertyValues(allFlags, 0, 0, 0, 0, allTypes))
     {
-      Property prop = { item->getName(), item->getUnit() };
+      Property prop;
+      prop.name = item->getName();
+      prop.unit = item->getUnit();
+    
+      switch (item->getPropertyAttribute())
+      {
+      case DataModel::CONTINUOUS_3D_PROPERTY:
+        prop.attrib = Property::Attrib_Continuous3D;
+        break;
+      case DataModel::DISCONTINUOUS_3D_PROPERTY:
+        prop.attrib = Property::Attrib_Discontinuous3D;
+        break;
+      case DataModel::SURFACE_2D_PROPERTY:
+        prop.attrib = Property::Attrib_Surface2D;
+        break;
+      case DataModel::FORMATION_2D_PROPERTY:
+        prop.attrib = Property::Attrib_Formation2D;
+        break;
+      case DataModel::TRAP_PROPERTY:
+        prop.attrib = Property::Attrib_Trap;
+        break;
+      default:
+        prop.attrib = Property::Attrib_Unknown;
+        break;
+      }
+
+      switch (item->getType())
+      {
+      case di::FORMATIONPROPERTY:
+        prop.type = Property::Type_Formation;
+        break;
+      case di::RESERVOIR:
+        prop.type = Property::Type_Reservoir;
+        break;
+      case di::TRAPPROPERTY:
+        prop.type = Property::Type_Trap;
+        break;
+      default:
+        prop.type = Property::Type_Unknown;
+        break;
+      }
+
       m_projectInfo.properties.push_back(prop);
 
       m_properties.push_back(item);
@@ -371,6 +415,52 @@ DataAccessProject::DataAccessProject(const std::string& path)
     throw std::runtime_error("Could not open project");
 
   init();
+}
+
+void DataAccessProject::testIO()
+{
+  double lastAge = 0;
+  std::unique_ptr<di::PropertyValueList> pvlist(m_projectHandle->getPropertyValues());
+
+  std::sort(pvlist->begin(), pvlist->end(),
+    [](const di::PropertyValue* lhs, const di::PropertyValue* rhs)
+  {
+    double t1 = lhs->getSnapshot()->getTime();
+    double t2 = rhs->getSnapshot()->getTime();
+
+    if (t1 != t2)
+      return t1 < t2;
+
+    int storage1 = (int)lhs->getStorage();
+    int storage2 = (int)rhs->getStorage();
+    if (storage1 != storage2)
+      return storage1 < storage2;
+
+    int type1 = (int)lhs->getProperty()->getType();
+    int type2 = (int)rhs->getProperty()->getType();
+
+    if (type1 != type2)
+      return type1 < type2;
+
+    int attr1 = (int)lhs->getProperty()->getPropertyAttribute();
+    int attr2 = (int)rhs->getProperty()->getPropertyAttribute();
+
+    if (attr1 != attr2)
+      return attr1 < attr2;
+
+    std::string name1 = lhs->getProperty()->getName();
+    std::string name2 = rhs->getProperty()->getName();
+    return name1 < name2;
+  });
+
+  for (auto pv : *pvlist)
+  {
+    double age = pv->getSnapshot()->getTime();
+    assert(age >= lastAge);
+    lastAge = age;
+    auto gridMap = pv->getGridMap();
+    gridMap->release();
+  }
 }
 
 DataAccessProject::~DataAccessProject()

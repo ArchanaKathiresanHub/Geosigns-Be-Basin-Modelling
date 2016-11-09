@@ -1,5 +1,15 @@
-#ifndef _GENEX6__CHEMICALMODEL_H_
-#define _GENEX6__CHEMICALMODEL_H_
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
+
+#ifndef GENEX6__CHEMICALMODEL_H
+#define GENEX6__CHEMICALMODEL_H
 
 #include <vector>
 #include <string>
@@ -9,7 +19,7 @@
 #include <iomanip>
 
 #include "SpeciesManager.h"
-#include "Constants.h"
+#include "ConstantsGenex.h"
 #include "ImmobileSpecies.h"
 
 namespace Genex6

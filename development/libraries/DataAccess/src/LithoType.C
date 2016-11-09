@@ -1,20 +1,18 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include <assert.h>
-#ifdef sgi
-   #ifdef _STANDARD_C_PLUS_PLUS
-      #include<iostream>
-      #include <sstream>
-      using namespace std;
-      #define USESTANDARD
-   #else // !_STANDARD_C_PLUS_PLUS
-      #include<iostream.h>
-      #include<strstream.h>
-   #endif // _STANDARD_C_PLUS_PLUS
-#else // !sgi
-   #include <iostream>
-   #include <sstream>
-   using namespace std;
-   #define USESTANDARD
-#endif // sgi
+
+#include <iostream>
+#include <sstream>
+using namespace std;
 
 #include "database.h"
 #include "cauldronschemafuncs.h"
@@ -25,6 +23,7 @@ using namespace database;
 #include "Interface/LithologyHeatCapacitySample.h"
 #include "Interface/LithologyThermalConductivitySample.h"
 #include "Interface/ProjectHandle.h"
+#include "Interface/RunParameters.h"
 
 using namespace DataAccess;
 using namespace Interface;
@@ -286,6 +285,10 @@ const std::string& LithoType::getPixmap () const {
    return database::getPixmap ( m_record );
 }
 
+bool LithoType::getLegacy() const {
+   return m_projectHandle->getRunParameters()->getLegacy( );
+}
+
 void LithoType::printOn (ostream & ostr) const
 {
    string str;
@@ -295,18 +298,12 @@ void LithoType::printOn (ostream & ostr) const
 
 void LithoType::asString (string & str) const
 {
-#ifdef USESTANDARD
    ostringstream buf;
-#else
-   strstream buf;
-#endif
 
    buf << "LithoType:";
    buf << " name = " << getName ();
    buf << endl;
 
    str = buf.str ();
-#ifndef USESTANDARD
-   buf.rdbuf ()->freeze (0);
-#endif
+
 }

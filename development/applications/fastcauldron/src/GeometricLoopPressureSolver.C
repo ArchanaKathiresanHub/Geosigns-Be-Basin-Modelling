@@ -20,6 +20,17 @@
 #include "layer_iterators.h"
 #include "fem_grid_auxiliary_functions.h"
 
+// utilities library
+#include "ConstantsNumerical.h"
+using Utilities::Numerical::CauldronNoDataValue;
+using Utilities::Numerical::IbsNoDataValue;
+#include "ConstantsMathematics.h"
+using Utilities::Maths::PaToMegaPa;
+using Utilities::Maths::MegaPaToPa;
+using Utilities::Maths::MilliDarcyToM2;
+#include "ConstantsPhysics.h"
+using Utilities::Physics::AccelerationDueToGravity;
+
 GeometricLoopPressureSolver::GeometricLoopPressureSolver ( AppCtx* appl ) : PressureSolver ( appl ) {}
 
 GeometricLoopPressureSolver::~GeometricLoopPressureSolver() {}
@@ -173,8 +184,8 @@ void GeometricLoopPressureSolver::adjustSolidThickness ( const double relativeTh
           }
 
         } else {
-           FCTCorrection   ( J, I ) = CAULDRONIBSNULLVALUE;
-           Thickness_Error ( J, I ) = CAULDRONIBSNULLVALUE;
+           FCTCorrection   ( J, I ) = CauldronNoDataValue;
+           Thickness_Error ( J, I ) = CauldronNoDataValue;
         }
 
       }
@@ -295,14 +306,14 @@ void GeometricLoopPressureSolver::computeRealThickness ( const LayerProps_Ptr cu
 
     Bulk_Density = Porosity_Bottom * Fluid_Density + ( 1.0 - Porosity_Bottom ) * Solid_Density;
 
-    // NLSAY3: We assume the solid is ice in this case
-    // for the else case     H * Fluid_Density * GRAVITY * Pa_To_MPa     should be 0 to be consistant.
+    // We assume the solid is ice in this case
+    // for the else case     H * Fluid_Density * GRAVITY * PaToMegaPa     should be 0 to be consistant.
     if ( not ( (Fluid_Density > Solid_Density) && currentLayer->fluid->SwitchPermafrost() ) )
     {
-      Hydrostatic_Pressure = Hydrostatic_Pressure + Segment_Real_Thickness * Fluid_Density * GRAVITY * Pa_To_MPa;
+      Hydrostatic_Pressure = Hydrostatic_Pressure + Segment_Real_Thickness * Fluid_Density * AccelerationDueToGravity * PaToMegaPa;
     }
 
-    Lithostatic_Pressure = Lithostatic_Pressure + Segment_Real_Thickness * Bulk_Density  * GRAVITY * Pa_To_MPa;
+    Lithostatic_Pressure = Lithostatic_Pressure + Segment_Real_Thickness * Bulk_Density  * AccelerationDueToGravity * PaToMegaPa;
 
     Max_VES      = ( Intermediate_Max_VES_Top * ( Number_Of_Segments - I ) + Intermediate_Max_VES_Bottom * I ) / Number_Of_Segments;
 
@@ -315,7 +326,7 @@ void GeometricLoopPressureSolver::computeRealThickness ( const LayerProps_Ptr cu
       Pore_Pressure_Bottom = NumericFunctions::Minimum ( Hydrostatic_Pressure + Overpressure, Lithostatic_Pressure );
     }
 
-    VES = ( Lithostatic_Pressure - Pore_Pressure_Bottom ) * MPa_To_Pa;
+    VES = ( Lithostatic_Pressure - Pore_Pressure_Bottom ) * MegaPaToPa;
 
     Max_VES = NumericFunctions::Maximum ( Max_VES, VES );
 
@@ -410,7 +421,7 @@ void GeometricLoopPressureSolver::computeDependantPropertiesForLayer
         solidDensity       = currentLithology->density();
         temperatureTop     = layerTemperature ( zTopIndex, J, I );
 
-        if ( temperatureTop == CAULDRONIBSNULLVALUE ) {
+        if ( temperatureTop == CauldronNoDataValue ) {
           temperatureTop = cauldron->Estimate_Temperature_At_Depth ( depthTop, surfaceTemperature, surfaceDepth );
         }
 
@@ -439,11 +450,11 @@ void GeometricLoopPressureSolver::computeDependantPropertiesForLayer
           previousSolidThickness = currentLayer->Previous_Properties ( Basin_Modelling::Solid_Thickness, currentTopmostActiveSegment, J, I );
           currentSolidThickness  = currentLayer->Current_Properties  ( Basin_Modelling::Solid_Thickness, currentTopmostActiveSegment, J, I );
     
-          if ( previousSolidThickness == IBSNULLVALUE ) {
+          if ( previousSolidThickness == IbsNoDataValue ) {
             previousSolidThickness = 0.0;
           }
 
-          if ( currentSolidThickness == IBSNULLVALUE ) {
+          if ( currentSolidThickness == IbsNoDataValue ) {
             currentSolidThickness = 0.0;
           }
 
@@ -488,8 +499,8 @@ void GeometricLoopPressureSolver::computeDependantPropertiesForLayer
                                                     permeabilityNormalValue,
                                                     permeabilityPlaneValue );
 
-        layerPermeabilityNormal ( Z_Start + Z_Count - 1, J, I ) = permeabilityNormalValue / MILLIDARCYTOM2;
-        layerPermeabilityPlane  ( Z_Start + Z_Count - 1, J, I ) = permeabilityPlaneValue  / MILLIDARCYTOM2;
+        layerPermeabilityNormal ( Z_Start + Z_Count - 1, J, I ) = permeabilityNormalValue / MilliDarcyToM2;
+        layerPermeabilityPlane  ( Z_Start + Z_Count - 1, J, I ) = permeabilityPlaneValue  / MilliDarcyToM2;
 
         // Initialise properties on all inactive nodes and the top most 
         // active node to be the the value at the top of the layer.
@@ -510,7 +521,7 @@ void GeometricLoopPressureSolver::computeDependantPropertiesForLayer
           intermediateMaxVESBottom = maxVES ( K, J, I );
           solidThickness  = currentLayer->Current_Properties ( Basin_Modelling::Solid_Thickness, K, J, I );
 
-          if ( solidThickness == IBSNULLVALUE ) {
+          if ( solidThickness == IbsNoDataValue ) {
             solidThickness = 0.0;
           }
 
@@ -525,15 +536,15 @@ void GeometricLoopPressureSolver::computeDependantPropertiesForLayer
           porosityBottom     = layerPorosity ( K, J, I );
           chemicalCompactionBottom = layerChemicalCompaction ( K, J, I );
 
-          if ( porosityBottom == 0.0 || porosityBottom == CAULDRONIBSNULLVALUE ) {
+          if ( porosityBottom == 0.0 || porosityBottom == CauldronNoDataValue ) {
             porosityBottom = porosityTop;
           }
 
-          if ( temperatureBottom == CAULDRONIBSNULLVALUE ) {
+          if ( temperatureBottom == CauldronNoDataValue ) {
             temperatureBottom = cauldron->Estimate_Temperature_At_Depth ( depthTop + realThickness, surfaceTemperature, surfaceDepth );
           }
 
-          if ( temperatureTop == CAULDRONIBSNULLVALUE ) {
+          if ( temperatureTop == CauldronNoDataValue ) {
             temperatureTop = cauldron->Estimate_Temperature_At_Depth ( depthTop, surfaceTemperature, surfaceDepth );
           }
 
@@ -586,22 +597,22 @@ void GeometricLoopPressureSolver::computeDependantPropertiesForLayer
                                                      permeabilityNormalValue,
                                                      permeabilityPlaneValue );
 
-          layerPermeabilityNormal  ( K, J, I ) = permeabilityNormalValue / MILLIDARCYTOM2;
-          layerPermeabilityPlane   ( K, J, I ) = permeabilityPlaneValue  / MILLIDARCYTOM2;
+          layerPermeabilityNormal  ( K, J, I ) = permeabilityNormalValue / MilliDarcyToM2;
+          layerPermeabilityPlane   ( K, J, I ) = permeabilityPlaneValue  / MilliDarcyToM2;
         }
 
       } else {
 
         for ( int K = zTopIndex; K >= 0; --K ) {
-          layerDepth                ( K, J, I ) = CAULDRONIBSNULLVALUE;
-          hydrostaticPressure       ( K, J, I ) = CAULDRONIBSNULLVALUE;
-          lithostaticPressure       ( K, J, I ) = CAULDRONIBSNULLVALUE;
-          porePressure              ( K, J, I ) = CAULDRONIBSNULLVALUE;
-          layerPorosity             ( K, J, I ) = CAULDRONIBSNULLVALUE;
-          VES                       ( K, J, I ) = CAULDRONIBSNULLVALUE;
-          intermediateMaxVES        ( K, J, I ) = CAULDRONIBSNULLVALUE;
-          layerPermeabilityNormal   ( K, J, I ) = CAULDRONIBSNULLVALUE;
-          layerPermeabilityPlane    ( K, J, I ) = CAULDRONIBSNULLVALUE;
+          layerDepth                ( K, J, I ) = CauldronNoDataValue;
+          hydrostaticPressure       ( K, J, I ) = CauldronNoDataValue;
+          lithostaticPressure       ( K, J, I ) = CauldronNoDataValue;
+          porePressure              ( K, J, I ) = CauldronNoDataValue;
+          layerPorosity             ( K, J, I ) = CauldronNoDataValue;
+          VES                       ( K, J, I ) = CauldronNoDataValue;
+          intermediateMaxVES        ( K, J, I ) = CauldronNoDataValue;
+          layerPermeabilityNormal   ( K, J, I ) = CauldronNoDataValue;
+          layerPermeabilityPlane    ( K, J, I ) = CauldronNoDataValue;
         }
 
       }
@@ -762,7 +773,7 @@ void GeometricLoopPressureSolver::initialisePressureProperties ( const double pr
             if ( K != lastZ - 1 ) {
               Solid_Thickness_Value = currentLayer->getSolidThickness ( I, J, K, currentTime );
 
-              if ( Solid_Thickness_Value != IBSNULLVALUE ) {
+              if ( Solid_Thickness_Value != IbsNoDataValue ) {
                 Solid_Thickness ( K, J, I ) = Solid_Thickness_Value;
               } else {
                 Solid_Thickness ( K, J, I ) = 0.0;

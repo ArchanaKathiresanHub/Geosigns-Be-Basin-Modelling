@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef _MIGRATION_SURFACE_H_
 #define _MIGRATION_SURFACE_H_
 
@@ -37,18 +47,18 @@ namespace migration
    /// It is constructed on top of the DataAccess::formation class.
    class Surface : public Interface::Surface
    {
-      public:
-	 /// This constructor is called by the object factory
+   public:
+      /// This constructor is called by the object factory
       Surface (Interface::ProjectHandle * projectHandle, Migrator * const migrator, database::Record * record);
 
-	 /// Destructor
-	 virtual ~Surface (void);
+      /// Destructor
+      virtual ~Surface (void);
 
-	 const Surface * getTopSurface () const;
-	 const Surface * getBottomSurface () const;
+      const Surface * getTopSurface () const;
+      const Surface * getBottomSurface () const;
 
    private:
-         Migrator * const m_migrator;
+      Migrator * const m_migrator;
    };
 }
 

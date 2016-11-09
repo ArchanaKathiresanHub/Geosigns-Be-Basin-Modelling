@@ -1,5 +1,21 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
 #include "UnitTestDataCreator.h"
-#include "Constants.h"
+#include "ConstantsGenex.h"
+
+// utilities library
+# include "ConstantsMathematics.h"
+using Utilities::Maths::MegaPaToPa;
+#include "ConstantsPhysics.h"
+using Utilities::Physics::AccelerationDueToGravityGenex;
+using Utilities::Physics::PressureAtSeaLevel;
 
 namespace Genex6
 {
@@ -20,7 +36,7 @@ UnitTestDataCreator::UnitTestDataCreator(const int   in_numberOfTimesteps,
    m_temperatureGradient(in_temperatureGradient),
    m_surfaceTemperature(in_surfaceTemperature),
    m_overBurderDensity(in_overBurderDensity),
-   m_maximumPeff(in_maximumPeff * Genex6::Constants::convertMpa2Pa),
+   m_maximumPeff(in_maximumPeff * MegaPaToPa ),
    m_PfSpecGrad(in_PfSpecGrad),
    m_openConditions(in_OpenConditions)
 {
@@ -76,9 +92,9 @@ double UnitTestDataCreator::ComputePressure(const double in_time) const //FunPef
    //returnPressure = depth * m_overBurderDensity * Genex6::Constants::s_grav * m_Pfract;
    const double densWater = 1000;
 
-   returnPressure = depth * ( m_overBurderDensity  - densWater * m_PfSpecGrad) * Genex6::Constants::s_grav;
-   if (returnPressure < Genex6::Constants::s_patmos) {
-      returnPressure = Genex6::Constants::s_patmos;
+   returnPressure = depth * ( m_overBurderDensity  - densWater * m_PfSpecGrad) * AccelerationDueToGravityGenex;
+   if (returnPressure < PressureAtSeaLevel) {
+      returnPressure = PressureAtSeaLevel;
    }
    if (returnPressure > m_maximumPeff) {
       returnPressure = m_maximumPeff;

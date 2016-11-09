@@ -22,7 +22,7 @@
 #include "GeoPhysicsFluidType.h"
 #include "CauldronGridDescription.h"
 
-#include "globaldefs.h"
+#include "ConstantsFastcauldron.h"
 #include "petscts.h"
 #include "petscdmda.h"
 #include "IBSinterpolator.h"
@@ -196,6 +196,7 @@ public:
    bool setProjectFileName (const string & projectFileName);
 
    string getOutputDirectory ();
+   string getOutputPath ();
    bool makeOutputDirectory ();
 
    const string& getFastCauldronProjectFileName () const
@@ -435,7 +436,6 @@ public:
 
    PetscBool IsCalculationCoupled;
    PetscBool readFCTCorrectionFactor;
-   OutputFormat fileOutput;
 
    /// Arrays of permafrost time steps and correspondent ages, when those time steps are being activated
    DoubleVector m_permafrostTimeSteps;

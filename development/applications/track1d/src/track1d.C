@@ -491,6 +491,8 @@ int main( int argc, char ** argv )
 
       }
 
+      delete allProperties;
+
    }
 
    if ( listSnapshots )
@@ -509,6 +511,7 @@ int main( int argc, char ** argv )
          cout <<setprecision(oldPrecision);
       }
       cout << endl;
+      delete mySnapshots;
    }
 
    if ( listStratigraphy )
@@ -548,6 +551,7 @@ int main( int argc, char ** argv )
          }
       }
       cout << endl;
+      delete myFormations;
    }
 
    if ( listProperties || listSnapshots || listStratigraphy )
@@ -611,6 +615,7 @@ int main( int argc, char ** argv )
          const Formation * formation = *formationIter;
          formationSurfacePairs.push_back( FormationSurface( formation, SubSurface( static_cast<const Surface *>(0), -1 ) ) );
       }
+      delete formations;
    }
 
    DoublePairVector::iterator coordinatePairIter;
@@ -994,6 +999,7 @@ bool acquireSnapshots( ProjectHandle * projectHandle, SnapshotList & snapshots, 
    {
       SnapshotList * allSnapshots = projectHandle->getSnapshots();
       snapshots = *allSnapshots;
+      delete allSnapshots;
       return true;
    }
    else
@@ -1041,6 +1047,7 @@ bool acquireSnapshots( ProjectHandle * projectHandle, SnapshotList & snapshots, 
                         if ( debug && snapshot ) cerr << "adding range snapshot " << snapshot->getTime() << endl;
                      }
                   }
+                  delete allSnapshots;
                }
             }
             firstAge = secondAge = -1;

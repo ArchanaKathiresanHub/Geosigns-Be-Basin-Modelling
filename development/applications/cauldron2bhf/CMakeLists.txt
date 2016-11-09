@@ -14,7 +14,7 @@ add_executable(cauldron2bhf
 	src/cauldron2bhf.C
 )
 
-include_directories(
+include_directories( SYSTEM
 	${HDF5_INCLUDE_DIRS}
 )
 

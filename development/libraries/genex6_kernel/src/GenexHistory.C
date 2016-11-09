@@ -1,15 +1,27 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
 #include "GenexHistory.h"
 
 #include <iomanip>
 
-#include "PhysicalConstants.h"
-#include "Constants.h"
+#include "ConstantsGenex.h"
 #include "ComponentManager.h"
 
 #include "Input.h"
 #include "SimulatorState.h"
 
 #include "EosPack.h"
+
+// utilitites library
+#include "ConstantsMathematics.h"
+using Utilities::Maths::CelciusToKelvin;
 
 Genex6::GenexHistory::GenexHistory ( const SpeciesManager&                      speciesManager,
                                      DataAccess::Interface::ProjectHandle* projectHandle ) :
@@ -95,7 +107,7 @@ void Genex6::GenexHistory::collect ( Genex6::SourceRockNode* node ) {
    if ( nodeInput != 0 and simulatorState != 0 ) {
 
       hist->m_time = nodeInput->GetTime ();
-      hist->m_temperature = nodeInput->GetTemperatureKelvin () - Genex6::Constants::s_TCabs;
+      hist->m_temperature = nodeInput->GetTemperatureKelvin () - CelciusToKelvin;
       hist->m_vre = nodeInput->getVre ();
       hist->m_pressure = nodeInput->getPorePressure ();
       hist->m_ves = nodeInput->GetPressure ();

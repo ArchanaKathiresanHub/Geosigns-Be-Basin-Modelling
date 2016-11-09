@@ -53,6 +53,10 @@ namespace mbapi {
       // returns array with IDs of surfaces defined in the model
       virtual std::vector<SurfaceID> surfacesIDs() const; 
 
+      // Get the referenced table
+      // returns the table name as a string
+      virtual std::string referenceID() const;
+
       // Create new layer
       // returns ID of the new Stratigraphy
       virtual LayerID createNewLayer();
@@ -87,7 +91,7 @@ namespace mbapi {
       // lithoList on exit it contains the list of lithologies for the given layer
       // lithoPercent on exit it contains percentage of each lithology in a mix
       // return ErrorHandler::NoError on success, or error code otherwise
-      virtual ErrorHandler::ReturnCode layerLithologiesList( LayerID id, std::vector<std::string> & lithoList, std::vector<double> & lithoPercent );
+      virtual ErrorHandler::ReturnCode layerLithologiesList( LayerID id, std::vector<std::string> & lithoList, std::vector<double> & lithoPercent, std::vector<std::string> & lithoPercMap );
 
       // Set lithologies and their percenatges for the given layer
       // return ErrorHandler::NoError on success, or error code otherwise
@@ -107,6 +111,13 @@ namespace mbapi {
       // lithName name of lithology type
       // return list of layers ID
       virtual std::vector<LayerID> findLayersForLithology( const std::string & lithoName );
+
+      /// @brief For a given layer set the new lithofraction map names in the StratIoTbl
+      /// @param[in] lid layer ID
+      /// @param[in] the name of the first lithology percentage map
+      /// @param[in] the name of the second lithology percentage map
+      /// @return NoError on success or NonexistingID on error
+      virtual ErrorHandler::ReturnCode setLayerLithologiesPercentageMaps( LayerID id, const std::string & mapNameFirstLithoPercentage, const std::string mapNameSecondLithoPercentage );
 
 
       // Layer -> Source rock type relation methods
@@ -205,16 +216,29 @@ namespace mbapi {
       // return ErrorHandler::NoError on success, error code otherwise
       virtual ReturnCode setFaultCutLithology( PrFaultCutID flID, const std::string & newLithoName );
 
+      /// Get the map name of the measured twt at the top surface
+      /// id layer id
+      /// return the twt map name for the layer on success, empty string otherwise
+      virtual std::string twtGridName( LayerID id );
+
+      /// Get the value of the measured twt at the top surface
+      /// id layer id
+      /// the measured twt value on success, UndefinedDoubleValue otherwise
+      virtual double twtValue( LayerID id );
+  
    private:
       static const char * s_stratigraphyTableName;
       static const char * s_layerNameFieldName;
       static const char * s_depoAgeFieldName;
+      static const char * s_depoSequence;
       static const char * s_lithoType1FiledName;
       static const char * s_lithoType2FiledName;
       static const char * s_lithoType3FiledName;
       static const char * s_lithoTypePercent1FiledName;
       static const char * s_lithoTypePercent2FiledName;
       static const char * s_lithoTypePercent3FiledName;
+      static const char * s_lithoTypePercent1GridFiledName;
+      static const char * s_lithoTypePercent2GridFiledName;
       static const char * s_isSourceRockFieldName;
       static const char * s_sourceRockType1FieldName;
       static const char * s_sourceRockType2FieldName;
@@ -227,6 +251,12 @@ namespace mbapi {
       static const char * s_FaultcutsMapFieldName;
       static const char * s_FaultNameFieldName;
       static const char * s_FaultLithologyFieldName;
+      static const char * s_twoWayTimeTableName;
+      static const char * s_twoWayTimeGridFiledName;
+
+      static const char * s_twoWayTimeFiledName;
+      static const char * s_surfaceNameFieldName;
+      static const char * s_depthGridFiledName;
                                 
 
       database::Database * m_db;         // cauldron project database

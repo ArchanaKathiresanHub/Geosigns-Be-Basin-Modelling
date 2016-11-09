@@ -10,15 +10,15 @@ using namespace std;
 #include "UnitTestDataCreator.h"
 #include "Simulator.h"
 #include "SourceRockNode.h"
-#include "Constants.h"
+#include "ConstantsGenex.h"
 #include "GenexResultManager.h"
 
 void ConvertSch2CfgFile(const std::string &in_ConfigurationFilefullPath,
                         const std::string &in_type,
-   	                    const double in_HC,
-   	                    const double in_SC,
+                        const double in_HC,
+                        const double in_SC,
                         const double in_SO4,
-   	                    const double in_Emean, 
+                        const double in_Emean,
                         bool PreprocessChemicalModel,
                         bool simulateGX5);
 
@@ -204,7 +204,7 @@ int main(int argc, char *argv[])
       theNode->CreateTestingPTHistory(theUnitTestDataCreator);
    }
  
-   cout << "Configuration File: " << sourceRockConfigurationFilePath << Genex6::Constants::folder_divider << 
+   cout << "Configuration File: " << sourceRockConfigurationFilePath << Genex6::Constants::FolderDivider << 
       in_sourceRockType << endl;
    
    cout << "HC = " << in_HC << endl;
@@ -228,7 +228,7 @@ int main(int argc, char *argv[])
      theFile << "Test" << testNumber << "_" << in_sourceRockType << "_HC_" << in_HC; 
      theFile << "_Emean_" << in_Emean << ".csv";
      std::string benchmarkName = theFile.str();
-     std::string benchmarkFullPathName = benchmarkTestsFilePathOutput + Genex6::Constants::folder_divider + 
+     std::string benchmarkFullPathName = benchmarkTestsFilePathOutput + Genex6::Constants::FolderDivider + 
      benchmarkName;
    */         
    //Benchmark output for POC
@@ -244,10 +244,8 @@ void ConvertSch2CfgFile(const std::string &in_ConfigurationFilefullPath,
                         const double in_SO4,
                         const double in_Emean, bool PreprocessChemicalModel, bool simulateGX5)
 {
-   //Annette
-   const std::string FullPathSchFileName = in_ConfigurationFilefullPath + Genex6::Constants::folder_divider + 
+   const std::string FullPathSchFileName = in_ConfigurationFilefullPath + Genex6::Constants::FolderDivider + 
       in_type + ".sch";
-   //Annette
 
    int simulation_type = (simulateGX5 ? Genex6::Constants::SIMGENEX | Genex6::Constants::SIMGENEX5 : 
                           Genex6::Constants::SIMGENEX);
@@ -257,13 +255,9 @@ void ConvertSch2CfgFile(const std::string &in_ConfigurationFilefullPath,
 
    std::string newCfgFile;
    if(PreprocessChemicalModel) {
-      //Annette
-      newCfgFile = in_ConfigurationFilefullPath + Genex6::Constants::folder_divider + in_type + "PreprocessTrue.cfg";
-      //Annette
+      newCfgFile = in_ConfigurationFilefullPath + Genex6::Constants::FolderDivider + in_type + "PreprocessTrue.cfg";
    } else {
-	//Annette
-      newCfgFile = in_ConfigurationFilefullPath + Genex6::Constants::folder_divider + in_type + ".cfg";
-	  //Annette
+      newCfgFile = in_ConfigurationFilefullPath + Genex6::Constants::FolderDivider + in_type + ".cfg";
    }
    theSimulator->PrintConfigurationFile(newCfgFile, PreprocessChemicalModel);
 }

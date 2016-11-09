@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2010-2015 Shell International Exploration & Production.
+// Copyright (C) 2010-2016 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -37,24 +37,30 @@
 #include "Interface/DiffusionLeakageParameters.h"
 #include "Interface/MapWriter.h"
 
-#include "consts.h"
-#include "Constants.h"
+
+#include "ConstantsGenex.h"
 #include "FormationPropertyAtSurface.h"
 
 #include "petscvec.h"
 #include "petscdmda.h"
 
-#define MAXDOUBLE std::numeric_limits<double>::max()
-
+// std library
 #include <vector>
 #include <assert.h>
 #include <math.h>
-
 #include<sstream>
+using namespace std;
 using std::ostringstream;
 extern ostringstream cerrstrstr;
+#define MAXDOUBLE std::numeric_limits<double>::max()
 
-using namespace std;
+//utilities library
+#include "LogHandler.h"
+#include "ConstantsPhysics.h"
+using Utilities::Physics::AccelerationDueToGravity;
+#include "ConstantsMathematics.h"
+using Utilities::Maths::PaToMegaPa;
+
 using namespace CBMGenerics;
 
 using namespace DataAccess;
@@ -75,10 +81,10 @@ namespace migration
 
    Reservoir::Reservoir (ProjectHandle * projectHandle, Migrator * const migrator, database::Record * record)
       : Interface::Reservoir (projectHandle, record),
-        m_start (0),
-        m_end (0),
-        m_migrator (migrator),
-        m_index (-1)
+      m_start (0),
+      m_end (0),
+      m_migrator (migrator),
+      m_index (-1)
    {
       m_chargeDistributionCount = 0;
       m_columnArray = 0;
@@ -107,15 +113,15 @@ namespace migration
    void Reservoir::createColumns (void)
    {
       m_columnArray = new ColumnArray (this,
-                                       getGrid ()->numIGlobal (), getGrid ()->numJGlobal (),
-                                       getGrid ()->firstI (), getGrid ()->lastI (),
-                                       getGrid ()->firstJ (), getGrid ()->lastJ ());
-	}
+         getGrid ()->numIGlobal (), getGrid ()->numJGlobal (),
+         getGrid ()->firstI (), getGrid ()->lastI (),
+         getGrid ()->firstJ (), getGrid ()->lastJ ());
+   }
 
 
-	void Reservoir::destroyColumns (void)
-	{
-		if (m_columnArray)
+   void Reservoir::destroyColumns (void)
+   {
+      if (m_columnArray)
       {
          delete m_columnArray;
          m_columnArray = 0;
@@ -124,10 +130,10 @@ namespace migration
 
    int Reservoir::getIndex (void)
    {
-         m_index = m_migrator->getIndex (this);
+      m_index = m_migrator->getIndex (this);
       return m_index;
    }
-   
+
    void Reservoir::retainPreviousTraps (void)
    {
       TrapVector::iterator trapIter;
@@ -194,7 +200,7 @@ namespace migration
          {
             for (unsigned int j = m_columnArray->firstJLocal (); j <= m_columnArray->lastJLocal (); ++j)
             {
-               computeAdjacentColumn ((PhaseId) phase, i, j);
+               computeAdjacentColumn ((PhaseId)phase, i, j);
             }
          }
       }
@@ -223,7 +229,7 @@ namespace migration
             {
                for (unsigned int j = m_columnArray->firstJLocal (); j <= m_columnArray->lastJLocal (); ++j)
                {
-                  allComputed &= computeTargetColumn ((PhaseId) phase, i, j);
+                  allComputed &= computeTargetColumn ((PhaseId)phase, i, j);
                }
             }
          }
@@ -247,7 +253,7 @@ namespace migration
          {
             for (unsigned int j = m_columnArray->firstJLocal (); j <= m_columnArray->lastJLocal (); ++j)
             {
-               computeTrapTop ((PhaseId) phase, i, j);
+               computeTrapTop ((PhaseId)phase, i, j);
             }
          }
       }
@@ -275,7 +281,7 @@ namespace migration
             {
                for (unsigned int j = m_columnArray->firstJLocal (); j <= m_columnArray->lastJLocal (); ++j)
                {
-                  computeFlux ((PhaseId) phase, i, j);
+                  computeFlux ((PhaseId)phase, i, j);
                }
             }
          }
@@ -361,8 +367,8 @@ namespace migration
       else
          return column->computeTargetColumn (phase);
    }
-   
-// compute the column to which column (i,j) spills to
+
+   // compute the column to which column (i,j) spills to
    bool Reservoir::computeAdjacentColumn (PhaseId phase, unsigned int i, unsigned int j)
    {
       LocalColumn *column = getLocalColumn (i, j);
@@ -394,7 +400,7 @@ namespace migration
       Column * adjacentColumn = column;
 
       // Try to avoid going through a sealing column
-      if (trap and column->isSealing(phase))
+      if (trap and column->isSealing (phase))
       {
          adjacentColumn = avoidSealingColumn (phase, column, trap);
          return (adjacentColumn ? adjacentColumn : column);
@@ -412,7 +418,7 @@ namespace migration
             break;
          }
 
-         if (trap && trap->contains (neighbourColumn))
+         if (trap and trap->contains (neighbourColumn))
          {
             continue;
          }
@@ -447,7 +453,7 @@ namespace migration
          else
          {
             assert (depth == neighbourDepth);
-            if (!adjacentColumn || adjacentColumn->isDeeperThan (neighbourColumn))
+            if (!adjacentColumn or adjacentColumn->isDeeperThan (neighbourColumn))
             {
                minGradient = 0;
                adjacentColumn = neighbourColumn;
@@ -476,21 +482,21 @@ namespace migration
             nonSealingAdjacentColumn = findNonSealingColumn (kappa, n, phase, column, trap);
 
             if (IsValid (nonSealingAdjacentColumn) and nonSealingAdjacentColumn->getTopDepth () < lowerDepth and
-                !nonSealingAdjacentColumn->isSealing (phase) and (trap ? !trap->contains (nonSealingAdjacentColumn) : true))
+               !nonSealingAdjacentColumn->isSealing (phase) and (trap ? !trap->contains (nonSealingAdjacentColumn) : true))
             {
                columnToReturn = nonSealingAdjacentColumn;
                lowerDepth = nonSealingAdjacentColumn->getTopDepth ();
             }
          }
 
-            if (++kappa > MaximumNeighbourOffset)
-               return columnToReturn;
+         if (++kappa > MaximumNeighbourOffset)
+            return columnToReturn;
       }
       while (!columnToReturn);
 
       return columnToReturn;
    }
-   
+
    // Decomposing the neighbour space to cases
    Column * Reservoir::findNonSealingColumn (int kappa, int n, PhaseId phase, Column * column, Trap * trap)
    {
@@ -505,7 +511,7 @@ namespace migration
       nonSealingAdjacentColumn = getColumn (column->getI () + kappa * NeighbourOffsets2D[n][I], column->getJ () + kappa * NeighbourOffsets2D[n][J]);
 
       if (IsValid (nonSealingAdjacentColumn) and nonSealingAdjacentColumn->getTopDepth () < lowerDepth and
-          !nonSealingAdjacentColumn->isSealing (phase) and (trap ? !trap->contains (nonSealingAdjacentColumn) : true))
+         !nonSealingAdjacentColumn->isSealing (phase) and (trap ? !trap->contains (nonSealingAdjacentColumn) : true))
       {
          columnToReturn = nonSealingAdjacentColumn;
          lowerDepth = nonSealingAdjacentColumn->getTopDepth ();
@@ -518,31 +524,31 @@ namespace migration
       case 2:
       case 5:
       case 7:
+      {
+         // Checking neighbours off the diagonal but for which both DeltaI and DeltaJ are non-zero
+         for (; kappa > 1; --kappa)
          {
-            // Checking neighbours off the diagonal but for which both DeltaI and DeltaJ are non-zero
-            for ( ; kappa > 1 ; --kappa)
+            nonSealingAdjacentColumn = getColumn (column->getI () + (kappa - 1) * NeighbourOffsets2D[n][I], column->getJ () + originalKappa * NeighbourOffsets2D[n][J]);
+
+            if (IsValid (nonSealingAdjacentColumn) and nonSealingAdjacentColumn->getTopDepth () < lowerDepth and
+               !nonSealingAdjacentColumn->isSealing (phase) and (trap ? !trap->contains (nonSealingAdjacentColumn) : true))
             {
-               nonSealingAdjacentColumn = getColumn (column->getI () + (kappa-1) * NeighbourOffsets2D[n][I], column->getJ () + originalKappa * NeighbourOffsets2D[n][J]);
-
-               if (IsValid (nonSealingAdjacentColumn) and nonSealingAdjacentColumn->getTopDepth () < lowerDepth and
-                   !nonSealingAdjacentColumn->isSealing (phase) and (trap ? !trap->contains (nonSealingAdjacentColumn) : true))
-               {
-                  columnToReturn = nonSealingAdjacentColumn;
-                  lowerDepth = nonSealingAdjacentColumn->getTopDepth ();
-               }
-               
-               nonSealingAdjacentColumn = getColumn (column->getI () + originalKappa * NeighbourOffsets2D[n][I], column->getJ () + (kappa-1) * NeighbourOffsets2D[n][J]);
-
-               if (IsValid (nonSealingAdjacentColumn) and nonSealingAdjacentColumn->getTopDepth () < lowerDepth and
-                   !nonSealingAdjacentColumn->isSealing (phase) and (trap ? !trap->contains (nonSealingAdjacentColumn) : true))
-               {
-                  columnToReturn = nonSealingAdjacentColumn;
-                  lowerDepth = nonSealingAdjacentColumn->getTopDepth ();
-               }
+               columnToReturn = nonSealingAdjacentColumn;
+               lowerDepth = nonSealingAdjacentColumn->getTopDepth ();
             }
-            break;
+
+            nonSealingAdjacentColumn = getColumn (column->getI () + originalKappa * NeighbourOffsets2D[n][I], column->getJ () + (kappa - 1) * NeighbourOffsets2D[n][J]);
+
+            if (IsValid (nonSealingAdjacentColumn) and nonSealingAdjacentColumn->getTopDepth () < lowerDepth and
+               !nonSealingAdjacentColumn->isSealing (phase) and (trap ? !trap->contains (nonSealingAdjacentColumn) : true))
+            {
+               columnToReturn = nonSealingAdjacentColumn;
+               lowerDepth = nonSealingAdjacentColumn->getTopDepth ();
+            }
          }
-         // These are the orthogonal cases
+         break;
+      }
+      // These are the orthogonal cases
       case 1:
       case 3:
       case 4:
@@ -572,7 +578,7 @@ namespace migration
       column->addFlux (weight);
 
       Column * adjacentColumn = column->getAdjacentColumn (phase);
-      while (adjacentColumn != 0 && adjacentColumn != column && IsValid (adjacentColumn))
+      while (adjacentColumn != 0 and adjacentColumn != column and IsValid (adjacentColumn))
       {
          if (adjacentColumn->isWasting (phase)) // everything leaks upward from here
             break;
@@ -599,9 +605,9 @@ namespace migration
    {
       LocalColumn * column = getLocalColumn (i, j);
 
-      if (!IsValid (column) || !column->isMinimum () ||
-          column->isWasting (phase) || column->isSealing (phase) ||
-          column->getTrap ())
+      if (!IsValid (column) or !column->isMinimum () or
+         column->isWasting (phase) or column->isSealing (phase) or
+         column->getTrap ())
       {
          return;
       }
@@ -750,7 +756,7 @@ namespace migration
 
       // And if the type of fracturePressureFunctionParameters is given by Interface::
       // FunctionOfLithostaticPressure, also the hydrostatic and lithostatic pressures are needed.  
-      const FracturePressureFunctionParameters* 
+      const FracturePressureFunctionParameters*
          fracturePressureFunctionParameters = getProjectHandle ()->getFracturePressureFunctionParameters ();
       if (!fracturePressureFunctionParameters)
          return false;
@@ -792,13 +798,13 @@ namespace migration
       {
          cerr << "ERROR: " << getName () <<
             "::computing of reservoir depths failed, could not find the formation depth map at " << getEnd ()->getTime () << endl;
-	 cerr.flush ();
+         cerr.flush ();
          return false;
       }
 
       unsigned int depth = formationGridMap->lengthK ();
       assert (depth > 1);
-     
+
       formationGridMap->retrieveData ();
 
       if (lowResEqualsHighRes ())
@@ -812,11 +818,11 @@ namespace migration
                double topIndex = (depth - 1) - column->getTopDepthOffset () * (depth - 1);
                double bottomIndex = column->getBottomDepthOffset () * (depth - 1);
 
-               topIndex = Max ((double) 0, topIndex);
-               topIndex = Min ((double) depth - 1, topIndex);
+               topIndex = Max ((double)0, topIndex);
+               topIndex = Min ((double)depth - 1, topIndex);
 
-               bottomIndex = Max ((double) 0, bottomIndex);
-               bottomIndex = Min ((double) depth - 1, bottomIndex);
+               bottomIndex = Max ((double)0, bottomIndex);
+               bottomIndex = Min ((double)depth - 1, bottomIndex);
 
                double topValue = formationGridMap->interpolate (i, j, topIndex);
                double bottomValue = formationGridMap->interpolate (i, j, bottomIndex);
@@ -832,9 +838,10 @@ namespace migration
                   assert (topValue == getUndefinedValue ());
                   bottomValue = getUndefinedValue ();
                }
-               column->setBottomDepth (bottomValue);
 
-            assert(column->getTopDepth() <= column->getBottomDepth()); // The top depth of the column needs to be shallower than the bottom depth
+               if (bottomValue < topValue)
+                  bottomValue = topValue;
+               column->setBottomDepth (bottomValue);
             }
          }
       }
@@ -847,7 +854,7 @@ namespace migration
          {
             cerr << "ERROR: " << getName () <<
                "::computing of reservoir depths failed, could not find the DepthHighRes map for surface "
-                 << getFormation ()->getTopSurface ()->getName () << " or higher at age " << getEnd ()->getTime () << endl;
+               << getFormation ()->getTopSurface ()->getName () << " or higher at age " << getEnd ()->getTime () << endl;
             cerr.flush ();
             return false;
          }
@@ -856,7 +863,7 @@ namespace migration
          {
             cerr << "ERROR: " << getName () <<
                "::computing of reservoir depths failed, could not find the DepthHighRes map for surface " <<
-	       getFormation ()->getBottomSurface ()->getName () << " or lower at age " << getEnd ()->getTime () << endl;
+               getFormation ()->getBottomSurface ()->getName () << " or lower at age " << getEnd ()->getTime () << endl;
             cerr.flush ();
             return false;
          }
@@ -874,13 +881,12 @@ namespace migration
                double bottomSurfaceDepth = bottomSurfaceGridMap->get (i, j);
                double lowResTopSurfaceDepth = formationGridMap->get (i, j, depth - 1);
 
-               if (lowResTopSurfaceDepth == formationGridMap->getUndefinedValue () ||
-                   topSurfaceDepth == topSurfaceGridMap->getUndefinedValue () ||
-                   bottomSurfaceDepth == bottomSurfaceGridMap->getUndefinedValue ())
+               if (lowResTopSurfaceDepth == formationGridMap->getUndefinedValue () or
+                  topSurfaceDepth == topSurfaceGridMap->getUndefinedValue () or
+                  bottomSurfaceDepth == bottomSurfaceGridMap->getUndefinedValue ())
                {
                   column->setTopDepth (getUndefinedValue ());
                   column->setBottomDepth (getUndefinedValue ());
-               assert(column->getTopDepth() <= column->getBottomDepth()); // The top depth of the column needs to be shallower than the bottom depth
                }
                else
                {
@@ -894,10 +900,12 @@ namespace migration
                      (1 - column->getBottomDepthOffset ()) * bottomSurfaceDepth;
 
                   bottomValue = Min (bottomValue, bottomSurfaceDepth);
+
+                  if (bottomValue < topValue)
+                     bottomValue = topValue;
                   column->setBottomDepth (bottomValue);
 
                   assert (column->isValid ());
-               assert (column->getTopDepth() <= column->getBottomDepth()); // The top depth of the column needs to be shallower than the bottom depth
                }
             }
          }
@@ -914,29 +922,31 @@ namespace migration
    /// Additional overburdens are calculated in adaptOverburdens ().
    bool Reservoir::computeOverburdens (void)
    {
- 
+
       DerivedProperties::SurfacePropertyPtr gridMap = getSeaBottomProperty (depthPropertyName (), getEnd ());
 
-   if ( gridMap == 0 ) 
-   {
+      if (gridMap == 0)
+      {
          // If there is no surface property, use formation property
          DerivedProperties::FormationPropertyPtr gridFormMap = getSeaBottomFormationProperty (depthPropertyName (), getEnd ());
          const Interface::Formation* seaFormation = getSeaBottomFormation (getEnd ());
 
          gridMap = DerivedProperties::SurfacePropertyPtr (new DerivedProperties::FormationPropertyAtSurface (gridFormMap, seaFormation->getTopSurface ()));
-         if (gridMap == 0) {
+         if (gridMap == 0)
+         {
             return false;
          }
       }
 
       gridMap->retrieveData ();
 
-   for (unsigned int i = m_columnArray->firstILocal (); i <= m_columnArray->lastILocal (); ++i) 
-   {
-      for (unsigned int j = m_columnArray->firstJLocal (); j <= m_columnArray->lastJLocal (); ++j) 
+      for (unsigned int i = m_columnArray->firstILocal (); i <= m_columnArray->lastILocal (); ++i)
       {
+         for (unsigned int j = m_columnArray->firstJLocal (); j <= m_columnArray->lastJLocal (); ++j)
+         {
             LocalColumn * column = getLocalColumn (i, j);
-            if (IsValid (column)) {
+            if (IsValid (column))
+            {
                column->setOverburden (column->getTopDepth () - gridMap->get (i, j));
             }
          }
@@ -982,23 +992,26 @@ namespace migration
    {
       DerivedProperties::SurfacePropertyPtr gridMap = getTopSurfaceProperty (depthPropertyName (), getEnd ());
 
-      if (gridMap == 0) {
+      if (gridMap == 0)
+      {
          DerivedProperties::FormationPropertyPtr gridFormMap = getTopFormationProperty (depthPropertyName (), getEnd ());
          gridMap = DerivedProperties::SurfacePropertyPtr (new DerivedProperties::FormationPropertyAtSurface (gridFormMap, getTopFormation (getEnd ())->getTopSurface ()));
 
-         if (gridMap == 0) {
-            if (GetRank ()) {
-               cout << "Cannot allocate " << depthPropertyName () << " FormationPropertyAtSurface " << getEnd ()->getTime () << endl;
+         if (gridMap == 0)
+         {
+            if (GetRank ())
+            {
+               LogHandler (LogHandler::ERROR_SEVERITY) << "Cannot allocate " << depthPropertyName () << " FormationPropertyAtSurface " << getEnd ()->getTime ();
             }
             return false;
          }
-      
+
       }
 
       double gridUndefinedValue = gridMap->getUndefinedValue ();
 
       gridMap->retrieveData ();
-   
+
       for (unsigned int i = m_columnArray->firstILocal (); i <= m_columnArray->lastILocal (); ++i)
       {
          for (unsigned int j = m_columnArray->firstJLocal (); j <= m_columnArray->lastJLocal (); ++j)
@@ -1015,7 +1028,7 @@ namespace migration
                {
                   reservoirDepthOffset = column->getTopDepth () - formationTopDepth;
                   reservoirDepthOffset = Max (0.0, reservoirDepthOffset);
-               } 
+               }
                column->setOverburden (column->getOverburden () + reservoirDepthOffset);
             }
          }
@@ -1072,7 +1085,8 @@ namespace migration
       overburden::OverburdenFormations overburden (formations, true);
 
       // Add the formation overburdens:
-      overburden::OverburdenFormations overburdenFormations = overburden::getOverburdenFormations (dynamic_cast<Formation *> (const_cast<Interface::Formation*>(getFormation ())), true);
+      overburden::OverburdenFormations overburdenFormations = overburden::getOverburdenFormations
+         (dynamic_cast<Formation *> (const_cast<Interface::Formation*>(getFormation ())), true);
       overburden.append (overburdenFormations.formations ());
 
       // We need the depth for both diffusion leakage and seal pressure leakage.  (Note, we put depths 
@@ -1082,9 +1096,9 @@ namespace migration
       const Property* depthProp = lowResEqualsHighRes () ?
          projectHandle->findProperty ("Depth") :
          projectHandle->findProperty ("DepthHighRes");
-   
+
       vector<FormationSurfaceGridMaps> depthGridMaps = overburden_MPI::getFormationSurfaceGridMaps (
-                                                                                                    overburden.formations (), depthProp, getEnd ());
+         overburden.formations (), depthProp, getEnd ());
 
       // If diffusion leakages is included, initialize m_diffusionOverburdenGridMaps with 
       // the necessary grid maps:
@@ -1092,17 +1106,17 @@ namespace migration
       if (isDiffusionOn () and !m_migrator->performLegacyMigration ())
       {
          vector<SurfaceGridMapFormations> temperatureGridMaps = overburden_MPI::getAdjacentSurfaceGridMapFormations (
-                                                                                                                     overburden, "Temperature", getEnd ());
+            overburden, "Temperature", getEnd ());
          vector<FormationSurfaceGridMaps> porosityGridMaps = overburden_MPI::getFormationSurfaceGridMaps (
-                                                                                                          overburden.formations (), "Porosity", getEnd ());
-                                                                                                          
-         vector<FormationSurfaceGridMaps> brineViscosityGridMaps = overburden_MPI::getFormationSurfaceGridMaps(
-                                                                                                               overburden.formations(), "BrineViscosity", getEnd());
+            overburden.formations (), "Porosity", getEnd ());
+
+         vector<FormationSurfaceGridMaps> brineViscosityGridMaps = overburden_MPI::getFormationSurfaceGridMaps (
+            overburden.formations (), "BrineViscosity", getEnd ());
 
          m_diffusionOverburdenGridMaps.setDiscontinuous (SurfaceGridMapContainer::DISCONTINUOUS_DEPTH, depthGridMaps);
          m_diffusionOverburdenGridMaps.setContinuous (SurfaceGridMapContainer::CONTINUOUS_TEMPERATURE, temperatureGridMaps);
          m_diffusionOverburdenGridMaps.setDiscontinuous (SurfaceGridMapContainer::DISCONTINUOUS_POROSITY, porosityGridMaps);
-         m_diffusionOverburdenGridMaps.setDiscontinuous(SurfaceGridMapContainer::DISCONTINUOUS_BRINEVISCOSITY, brineViscosityGridMaps); 
+         m_diffusionOverburdenGridMaps.setDiscontinuous (SurfaceGridMapContainer::DISCONTINUOUS_BRINEVISCOSITY, brineViscosityGridMaps);
       }
 
       // Include the grid maps for seal failure. Seal failure is always on.  We need the grid maps 
@@ -1112,7 +1126,7 @@ namespace migration
       // seal formation.  And at this moment in time, it is not clear what the seal formation is, 
       // so we read in all formations:
       vector<FormationSurfaceGridMaps> permeabilityGridMaps = overburden_MPI::getFormationSurfaceGridMaps (
-                                                                                                           overburden.formations (), "Permeability", getEnd ());
+         overburden.formations (), "Permeability", getEnd ());
 
       m_sealPressureLeakageGridMaps.setDiscontinuous (SurfaceGridMapContainer::DISCONTINUOUS_DEPTH, depthGridMaps);
       m_sealPressureLeakageGridMaps.setDiscontinuous (SurfaceGridMapContainer::DISCONTINUOUS_PERMEABILITY, permeabilityGridMaps);
@@ -1124,39 +1138,44 @@ namespace migration
       SurfaceGridMapContainer::constant_properties lithoType3PercentGridMaps;
 
       for (overburden::OverburdenFormations::formations_type::const_iterator f = overburden.formations ().begin ();
-           f != overburden.formations ().end (); ++f)
+         f != overburden.formations ().end (); ++f)
       {
+         if ((*f)->getBottomSurface()->getSnapshot()->getTime() < getEnd()->getTime())
+            break;
+            
          // Create the following grid map only once:
          const GridMap* litho1PercentMap = (*f)->getLithoType1PercentageMap ();
-         assert ((*f)->getLithoType1 () && litho1PercentMap);
+         assert ((*f)->getLithoType1 () and litho1PercentMap);
          lithoType1PercentGridMaps.push_back (make_pair (*f, SurfaceGridMap (litho1PercentMap,
-                                                                             (unsigned int) 0)));
+            (unsigned int)0)));
 
-         if ((*f)->getLithoType2 ()) {
+         if ((*f)->getLithoType2 ())
+         {
             // Make sure (*f)->getLithoType2PercentageMap() is consistent with (*f)->getLithoType2(). 
             // If (*f)->getLithoType2() exists, so does (*f)->getLithoType2PercentageMap():
             const GridMap* litho2PercentMap = (*f)->getLithoType2PercentageMap ();
             assert (litho2PercentMap);
             lithoType2PercentGridMaps.push_back (make_pair (*f, SurfaceGridMap (litho2PercentMap,
-                                                                                (unsigned int) 0)));
+               (unsigned int)0)));
          }
 
-         if ((*f)->getLithoType3 ()) {
+         if ((*f)->getLithoType3 ())
+         {
             // Check also for consistency of (*f)->getLithoType2PercentageMap() and (*f)->getLithoType2():
             const GridMap* litho3PercentMap = (*f)->getLithoType3PercentageMap ();
             assert (litho3PercentMap);
             lithoType3PercentGridMaps.push_back (make_pair (*f, SurfaceGridMap (litho3PercentMap,
-                                                                                (unsigned int) 0)));
+               (unsigned int)0)));
          }
       }
 
       // Include all percentage maps, even if they are empty:
       m_sealPressureLeakageGridMaps.setConstants (SurfaceGridMapContainer::CONSTANT_LITHOTYPE1PERCENT,
-                                                  lithoType1PercentGridMaps);
+         lithoType1PercentGridMaps);
       m_sealPressureLeakageGridMaps.setConstants (SurfaceGridMapContainer::CONSTANT_LITHOTYPE2PERCENT,
-                                                  lithoType2PercentGridMaps);
+         lithoType2PercentGridMaps);
       m_sealPressureLeakageGridMaps.setConstants (SurfaceGridMapContainer::CONSTANT_LITHOTYPE3PERCENT,
-                                                  lithoType3PercentGridMaps);
+         lithoType3PercentGridMaps);
 
       return true;
    }
@@ -1174,7 +1193,7 @@ namespace migration
             {
                for (int phase = FIRST_PHASE; phase < NUM_PHASES; ++phase)
                {
-                  totalMass += column->getChargeQuantity ((PhaseId) phase);
+                  totalMass += column->getChargeQuantity ((PhaseId)phase);
                }
             }
          }
@@ -1185,11 +1204,38 @@ namespace migration
       return SumAll (totalMass);
    }
 
+   void Reservoir::putSeepsInColumns (const Formation * seepsFormation)
+   {
+      // index of top formation nodes in seepsFormation (top in stratigraphy as well)
+      int k = seepsFormation->getNodeDepth () - 1;
+
+      for (int i = (int)m_columnArray->firstILocal (); i <= (int) m_columnArray->lastILocal (); ++i)
+      {
+         for (int j = (int) m_columnArray->firstJLocal (); j <= (int) m_columnArray->lastJLocal (); ++j)
+         {
+            Column * seepColumn = getColumn ((unsigned int) i, (unsigned int) j);
+            if (!seepColumn)
+               continue;
+
+            LocalFormationNode * localFormationNode = seepsFormation->getLocalFormationNode (i, j, k);
+            if (!IsValid (localFormationNode))
+               continue;
+
+            Composition composition = localFormationNode->getComposition ();
+
+            seepColumn->addComposition (composition);
+         }
+      }
+
+      return;
+   }
+
    bool Reservoir::saveComputedInputProperties (const bool saveSnapshot)
    {
       bool result = true;
 
-      if (saveSnapshot) {
+      if (saveSnapshot)
+      {
          result &= saveComputedProperty ("ResRockTop", TOPDEPTH);
          result &= saveComputedProperty ("ResRockBottom", BOTTOMDEPTH);
          result &= saveComputedProperty ("ResRockThickness", THICKNESS);
@@ -1206,7 +1252,8 @@ namespace migration
    bool Reservoir::saveComputedOutputProperties (const bool saveSnapshot)
    {
       bool result = true;
-      if (saveSnapshot) {
+      if (saveSnapshot)
+      {
 
          result &= saveComputedProperty ("ResRockTrapId", GLOBALTRAPID);
          result &= saveComputedProperty ("ResRockLeakage", LEAKAGEQUANTITY);
@@ -1216,31 +1263,34 @@ namespace migration
 #endif
          result &= saveComputedProperty ("ResRockFlux", FLUX);
          result &= saveComputedProperty ("ResRockFlow", FLOW);
-      
+
          int phase;
          for (phase = FIRST_PHASE; phase < NUM_PHASES; ++phase)
          {
             string propName = "ResRockDrainageId";
             propName += PhaseNames[phase];
-         
-            result &= saveComputedProperty (propName + "Phase", DRAINAGEAREAID, (PhaseId) phase);
+
+            result &= saveComputedProperty (propName + "Phase", DRAINAGEAREAID, (PhaseId)phase);
          }
-      
+
          for (phase = FIRST_PHASE; phase < NUM_PHASES; ++phase)
          {
             string propName = "ResRockFill";
             propName += PhaseNames[phase];
-         
-            result &= saveComputedProperty (propName + "PhaseDensity", LATERALCHARGEDENSITY, (PhaseId) phase);
-            result &= saveComputedProperty (propName + "PhaseQuantity", CHARGEQUANTITY, (PhaseId) phase);
+
+            result &= saveComputedProperty (propName + "PhaseDensity", LATERALCHARGEDENSITY, (PhaseId)phase);
+            result &= saveComputedProperty (propName + "PhaseQuantity", CHARGEQUANTITY, (PhaseId)phase);
          }
 
-         for (phase = FIRST_PHASE; phase < NUM_PHASES; ++phase)
+         if (!m_migrator->performLegacyMigration ())
          {
-            string propName = "ResRockFlowDirection";
-            propName += PhaseNames[phase];
+            for (phase = FIRST_PHASE; phase < NUM_PHASES; ++phase)
+            {
+               string propName = "ResRockFlowDirection";
+               propName += PhaseNames[phase];
 
-            result &= saveComputedProperty (propName + "IJ", FLOWDIRECTIONIJ, (PhaseId) phase);
+               result &= saveComputedProperty (propName + "IJ", FLOWDIRECTIONIJ, (PhaseId)phase);
+            }
          }
       }
       return result;
@@ -1279,6 +1329,58 @@ namespace migration
       return true;
    }
 
+   bool Reservoir::saveSeepageProperties (const Interface::Snapshot * end)
+   {
+      RequestHandling::StartRequestHandling (m_migrator, "saveSeepageProperties");
+
+      // Need pressures and temperatures at the top of the basin to flash the seeping HCs
+      computeTemperatures ();
+      computePressures ();
+
+      PropertyValue * propertyValue_Gas = getProjectHandle ()->createMapPropertyValue ("SeepageBasinTop_Gas", end, this, 0, 0);
+      PropertyValue * propertyValue_Oil = getProjectHandle ()->createMapPropertyValue ("SeepageBasinTop_Oil", end, this, 0, 0);
+      assert (propertyValue_Gas);
+      assert (propertyValue_Oil);
+
+      GridMap * gridMap_Gas = propertyValue_Gas->getGridMap ();
+      GridMap * gridMap_Oil = propertyValue_Oil->getGridMap ();
+      assert (gridMap_Gas);
+      assert (gridMap_Oil);
+
+      gridMap_Gas->retrieveData ();
+      gridMap_Oil->retrieveData ();
+
+      // Using formation to assign temperature and pressure to the columns at the basin top
+      const Formation * formation = dynamic_cast<const Formation *>(getFormation ());
+      assert (formation);
+      int k = formation->getNodeDepth () - 1;
+
+      for (unsigned int i = m_columnArray->firstILocal (); i <= m_columnArray->lastILocal (); ++i)
+      {
+         for (unsigned int j = m_columnArray->firstJLocal (); j <= m_columnArray->lastJLocal (); ++j)
+         {
+            LocalColumn * column = getLocalColumn (i, j);
+
+            if (column)
+            {// Order is important here. Gas needs to be set before oil
+               gridMap_Gas->setValue (i, j, column->getValue (SEEPAGEQUANTITY, GAS));
+               gridMap_Oil->setValue (i, j, column->getValue (SEEPAGEQUANTITY, OIL));
+            }
+            else
+            {
+               gridMap_Gas->setValue (i, j, gridMap_Gas->getUndefinedValue ());
+               gridMap_Oil->setValue (i, j, gridMap_Oil->getUndefinedValue ());
+            }
+         }
+      }
+      gridMap_Gas->restoreData ();
+      gridMap_Oil->restoreData ();
+
+      RequestHandling::FinishRequestHandling ();
+
+      return true;
+   }
+
    bool Reservoir::saveComputedPathways (const Interface::Snapshot * end) const
    {
       ((Interface::Snapshot *) end)->setAppendFile (true);
@@ -1299,18 +1401,18 @@ namespace migration
       {
          for (unsigned int j = m_columnArray->firstJLocal (); j <= m_columnArray->lastJLocal (); ++j)
          {
-            for (unsigned int k = 0; k < nodeDepth; ++k)
+            for (unsigned int k = 0; k < (unsigned int) nodeDepth; ++k)
             {
-               int gridMapValue;
+               double gridMapValue;
                Column * adjacentColumn = getColumn (i, j)->getAdjacentColumn (GAS);
                if (!adjacentColumn)
                   gridMapValue = 0.0;
                else
                   gridMapValue =
-                     10 * ((int) (adjacentColumn->getJ ()) - (int) j) +     // J
-                     1 * ((int) (adjacentColumn->getI ()) - (int) i);      // I
+                  10 * ((int)(adjacentColumn->getJ ()) - (int)j) +     // J
+                  1 * ((int)(adjacentColumn->getI ()) - (int)i);      // I
 
-               gridMap->setValue (i, j, k, (double) gridMapValue);
+               gridMap->setValue (i, j, k, gridMapValue);
             }
          }
       }
@@ -1324,27 +1426,28 @@ namespace migration
 
       DerivedProperties::FormationPropertyPtr gridMap = getFormationPropertyPtr ("Porosity", getEnd ());
 
-      if (gridMap == 0) {
+      if (gridMap == 0)
+      {
          return false;
       }
 
       unsigned int depth = gridMap->lengthK ();
       assert (depth > 1);
 
-      gridMap->retrieveData ();  
+      gridMap->retrieveData ();
       for (unsigned int i = m_columnArray->firstILocal (); i <= m_columnArray->lastILocal (); ++i)
       {
          for (unsigned int j = m_columnArray->firstJLocal (); j <= m_columnArray->lastJLocal (); ++j)
          {
             LocalColumn * column = getLocalColumn (i, j);
             double index = (depth - 1) - column->getTopDepthOffset () * (depth - 1);
-            index = Max ((double) 0, index);
-            index = Min ((double) depth - 1, index);
-         
+            index = Max ((double)0, index);
+            index = Min ((double)depth - 1, index);
+
             column->setPorosity (gridMap->interpolate (i, j, index) * Percentage2Fraction);
          }
       }
-      gridMap->restoreData ();   
+      gridMap->restoreData ();
       return true;
    }
 
@@ -1353,49 +1456,51 @@ namespace migration
 
       DerivedProperties::FormationPropertyPtr gridMap = getFormationPropertyPtr ("Permeability", getEnd ());
 
-      if (gridMap == 0) {
+      if (gridMap == 0)
+      {
          return false;
       }
 
       unsigned int depth = gridMap->lengthK ();
       assert (depth > 1);
-   
-      gridMap->retrieveData ();        
+
+      gridMap->retrieveData ();
       for (unsigned int i = m_columnArray->firstILocal (); i <= m_columnArray->lastILocal (); ++i)
       {
          for (unsigned int j = m_columnArray->firstJLocal (); j <= m_columnArray->lastJLocal (); ++j)
          {
             LocalColumn * column = getLocalColumn (i, j);
             double index = (depth - 1) - column->getTopDepthOffset () * (depth - 1);
-            index = Max ((double) 0, index);
-            index = Min ((double) depth - 1, index);
-         
+            index = Max ((double)0, index);
+            index = Min ((double)depth - 1, index);
+
             column->setPermeability (gridMap->interpolate (i, j, index));
          }
       }
-      gridMap->restoreData ();         
+      gridMap->restoreData ();
       return true;
    }
 
    bool Reservoir::computeTemperatures (void)
    {
       DerivedProperties::FormationPropertyPtr gridMap = getFormationPropertyPtr ("Temperature", getEnd ());
-      if (gridMap == 0) {
+      if (gridMap == 0)
+      {
          return false;
       }
 
       unsigned int depth = gridMap->lengthK ();
       assert (depth > 1);
-   
-      gridMap->retrieveData (); 
+
+      gridMap->retrieveData ();
       for (unsigned int i = m_columnArray->firstILocal (); i <= m_columnArray->lastILocal (); ++i)
       {
          for (unsigned int j = m_columnArray->firstJLocal (); j <= m_columnArray->lastJLocal (); ++j)
          {
             LocalColumn * column = getLocalColumn (i, j);
             double index = (depth - 1) - column->getTopDepthOffset () * (depth - 1);
-            index = Max ((double) 0, index);
-            index = Min ((double) depth - 1, index);
+            index = Max ((double)0, index);
+            index = Min ((double)depth - 1, index);
 
             column->setTemperature (gridMap->interpolate (i, j, index));
          }
@@ -1404,31 +1509,32 @@ namespace migration
 
       return true;
    }
-   
-   bool Reservoir::computeViscosities(void) 
+
+   bool Reservoir::computeViscosities (void)
    {
-      DerivedProperties::FormationPropertyPtr gridMap = getFormationPropertyPtr("BrineViscosity", getEnd());
-      if (gridMap == 0) {
+      DerivedProperties::FormationPropertyPtr gridMap = getFormationPropertyPtr ("BrineViscosity", getEnd ());
+      if (gridMap == 0)
+      {
          return false;
       }
 
-      unsigned int depth = gridMap->lengthK();
-      assert(depth > 1);
+      unsigned int depth = gridMap->lengthK ();
+      assert (depth > 1);
 
-      gridMap->retrieveData();
-      for (unsigned int i = m_columnArray->firstILocal(); i <= m_columnArray->lastILocal(); ++i)
+      gridMap->retrieveData ();
+      for (unsigned int i = m_columnArray->firstILocal (); i <= m_columnArray->lastILocal (); ++i)
       {
-         for (unsigned int j = m_columnArray->firstJLocal(); j <= m_columnArray->lastJLocal(); ++j)
+         for (unsigned int j = m_columnArray->firstJLocal (); j <= m_columnArray->lastJLocal (); ++j)
          {
-            LocalColumn * column = getLocalColumn(i, j);
-            double index = (depth - 1) - column->getTopDepthOffset() * (depth - 1);
-            index = Max((double)0, index);
-            index = Min((double)depth - 1, index);
+            LocalColumn * column = getLocalColumn (i, j);
+            double index = (depth - 1) - column->getTopDepthOffset () * (depth - 1);
+            index = Max ((double)0, index);
+            index = Min ((double)depth - 1, index);
 
-            column->setViscosity(gridMap->interpolate(i, j, index));
+            column->setViscosity (gridMap->interpolate (i, j, index));
          }
       }
-      gridMap->restoreData();
+      gridMap->restoreData ();
 
       return true;
 
@@ -1450,21 +1556,22 @@ namespace migration
                LocalColumn *column = getLocalColumn (i, j);
                double index = (depth - 1) - column->getTopDepthOffset () * (depth - 1);
 
-               index = Max ((double) 0, index);
-               index = Min ((double) depth - 1, index);
+               index = Max ((double)0, index);
+               index = Min ((double)depth - 1, index);
 
                column->setPressure (gridMap->interpolate (i, j, index));
             }
          }
          gridMap->restoreData ();
       }
-      else {
+      else
+      {
          if (GetRank () == 0)
          {
             cerr << "WARNING: 3D property 'Pressure' does not exist for Formation "
-                 << getFormation ()->getName () << " at snapshot " << getEnd ()->getTime ()
-                 << "," << endl
-                 << "\t using fallback values" << endl;
+               << getFormation ()->getName () << " at snapshot " << getEnd ()->getTime ()
+               << "," << endl
+               << "\t using fallback values" << endl;
             cerr.flush ();
          }
 
@@ -1473,7 +1580,7 @@ namespace migration
             for (unsigned int j = m_columnArray->firstJLocal (); j <= m_columnArray->lastJLocal (); ++j)
             {
                LocalColumn *column = getLocalColumn (i, j);
-               double hydrostaticPressure = column->getTopDepth () * Gravity * WaterDensity * Pa2MPa;
+               double hydrostaticPressure = column->getTopDepth () * AccelerationDueToGravity * WaterDensity * PaToMegaPa;
 
                column->setPressure (hydrostaticPressure);
             }
@@ -1487,13 +1594,14 @@ namespace migration
 
       DerivedProperties::FormationPropertyPtr gridMap = getFormationPropertyPtr ("HydroStaticPressure", getEnd ());
 
-      if (gridMap == 0) {
+      if (gridMap == 0)
+      {
          return false;
       }
 
       unsigned int depth = gridMap->lengthK ();
       assert (depth > 1);
-   
+
       gridMap->retrieveData ();
       for (unsigned int i = m_columnArray->firstILocal (); i <= m_columnArray->lastILocal (); ++i)
       {
@@ -1501,23 +1609,24 @@ namespace migration
          {
             LocalColumn * column = getLocalColumn (i, j);
             double index = (depth - 1) - column->getTopDepthOffset () * (depth - 1);
-            index = Max ((double) 0, index);
-            index = Min ((double) depth - 1, index);
+            index = Max ((double)0, index);
+            index = Min ((double)depth - 1, index);
 
             column->setHydrostaticPressure (gridMap->interpolate (i, j, index));
          }
 
       }
       gridMap->restoreData ();
-   
+
       return true;
    }
- 
+
    bool Reservoir::computeLithostaticPressures (void)
    {
       DerivedProperties::FormationPropertyPtr gridMap = getFormationPropertyPtr ("LithoStaticPressure", getEnd ());
 
-      if (gridMap == 0) {
+      if (gridMap == 0)
+      {
          return false;
       }
 
@@ -1531,8 +1640,8 @@ namespace migration
          {
             LocalColumn * column = getLocalColumn (i, j);
             double index = (depth - 1) - column->getTopDepthOffset () * (depth - 1);
-            index = Max ((double) 0, index);
-            index = Min ((double) depth - 1, index);
+            index = Max ((double)0, index);
+            index = Min ((double)depth - 1, index);
 
             column->setLithostaticPressure (gridMap->interpolate (i, j, index));
          }
@@ -1567,7 +1676,7 @@ namespace migration
                   for (int n = 0; n < NumNeighbours; ++n)
                   {
                      Column * neighbourColumn = getColumn (i + NeighbourOffsets2D[n][I], j + NeighbourOffsets2D[n][J]);
-                     if (IsValid (neighbourColumn) && neighbourColumn->getThickness () >= MinimumThickness)
+                     if (IsValid (neighbourColumn) and neighbourColumn->getThickness () >= MinimumThickness)
                      {
                         column->setSealing (GAS);
                         column->setSealing (OIL);
@@ -1644,7 +1753,7 @@ namespace migration
          for (unsigned int j = m_columnArray->firstJLocal (); j <= m_columnArray->lastJLocal (); ++j)
          {
             LocalColumn * column = getLocalColumn (i, j);
-            if (IsValid (column) && (column->getThickness () < MinimumThickness || column->getFaultStatus () != NOFAULT))
+            if (IsValid (column) and (column->getThickness () < MinimumThickness or column->getFaultStatus () != NOFAULT))
             {
                column->resetProxies ();
             }
@@ -1668,24 +1777,24 @@ namespace migration
       int depthIndex = formation->getNodeDepth () - 1;
 
       // Grid is different for nodes and columns: one more column in the x and y direction.
-      for (unsigned int i = m_columnArray->firstILocal (); i <= Min((int) m_columnArray->lastILocal (), getGrid ()->numIGlobal () - 2); ++i)
+      for (unsigned int i = m_columnArray->firstILocal (); i <= Min (m_columnArray->lastILocal (), (unsigned int) getGrid ()->numIGlobal () - 2); ++i)
       {
-         for (unsigned int j = m_columnArray->firstJLocal (); j <= Min((int) m_columnArray->lastJLocal (), getGrid ()->numJGlobal () - 2) ; ++j)
+         for (unsigned int j = m_columnArray->firstJLocal (); j <= Min (m_columnArray->lastJLocal (), (unsigned int) getGrid ()->numJGlobal () - 2); ++j)
          {
             LocalColumn * column = getLocalColumn (i, j);
             // Skip invalid, sealing and already wasting columns
             if (IsValid (column) and
-                !column->isSealing (GAS) and !column->isSealing (OIL) and
-                !column->isWasting (GAS) and !column->isWasting (OIL))
+               !column->isSealing (GAS) and !column->isSealing (OIL) and
+               !column->isWasting (GAS) and !column->isWasting (OIL))
             {
                int depth = depthIndex;
-               LocalFormationNode * formationNode = formation->getLocalFormationNode (i,j,depth);
+               LocalFormationNode * formationNode = formation->getLocalFormationNode ((int)i, (int)j, depth);
 
                // Move to deeper elements until a non-zero-thickness element is found
                while (!formationNode->hasThickness () and depth > 0)
                {
                   --depth;
-                  formationNode = formation->getLocalFormationNode (i,j,depth);
+                  formationNode = formation->getLocalFormationNode ((int)i, (int)j, depth);
                }
 
                assert (formationNode->hasThickness () or depth == 0);
@@ -1695,10 +1804,10 @@ namespace migration
                   column->resetProxies ();
 
                   if (!formationNode->getReservoirVapour ())
-                     column->setWasting(GAS);
+                     column->setWasting (GAS);
 
                   if (!formationNode->getReservoirLiquid ())
-                     column->setWasting(OIL);
+                     column->setWasting (OIL);
                }
             }
          }
@@ -1728,7 +1837,8 @@ namespace migration
       return m_sourceReservoir;
    }
 
-   const Interface::Formation* Reservoir::getSeaBottomFormation (const Interface::Snapshot * snapshot) const {
+   const Interface::Formation* Reservoir::getSeaBottomFormation (const Interface::Snapshot * snapshot) const
+   {
 
       FormationList * formations = m_projectHandle->getFormations (snapshot);
 
@@ -1737,10 +1847,12 @@ namespace migration
 
       const Interface::Formation* topFormation = 0;
 
-      for (size_t i = 0; i < formations->size (); ++i) {
+      for (size_t i = 0; i < formations->size (); ++i)
+      {
          // continue downward until a gridMap is returned
 
-         if ((*formations)[i]->getTopSurface ()->getSnapshot ()->getTime () <= snapshot->getTime ()) {
+         if ((*formations)[i]->getTopSurface ()->getSnapshot ()->getTime () <= snapshot->getTime ())
+         {
             topFormation = (*formations)[i];
          }
 
@@ -1749,14 +1861,15 @@ namespace migration
       return topFormation;
    }
 
-   DerivedProperties::SurfacePropertyPtr Reservoir::getSeaBottomProperty (const string & propertyName, const Interface::Snapshot * snapshot) const {
+   DerivedProperties::SurfacePropertyPtr Reservoir::getSeaBottomProperty (const string & propertyName, const Interface::Snapshot * snapshot) const
+   {
 
       const DataAccess::Interface::Property* property = m_projectHandle->findProperty (propertyName);
 
       const Interface::Formation* seaFormation = getSeaBottomFormation (snapshot);
 
       DerivedProperties::SurfacePropertyPtr theProperty = m_migrator->getPropertyManager ().getSurfaceProperty (property, snapshot,
-                                                                                                                (seaFormation ? seaFormation->getTopSurface () : 0));
+         (seaFormation ? seaFormation->getTopSurface () : 0));
 
 #ifdef DEBUG   
       if( GetRank() == 0 ) {
@@ -1772,7 +1885,8 @@ namespace migration
 
    }
 
-   DerivedProperties::FormationPropertyPtr Reservoir::getSeaBottomFormationProperty (const string & propertyName, const Interface::Snapshot * snapshot) const {
+   DerivedProperties::FormationPropertyPtr Reservoir::getSeaBottomFormationProperty (const string & propertyName, const Interface::Snapshot * snapshot) const
+   {
 
       const DataAccess::Interface::Property* property = m_projectHandle->findProperty (propertyName);
 
@@ -1784,7 +1898,8 @@ namespace migration
    }
 
    DerivedProperties::FormationPropertyPtr Reservoir::getFormationPropertyPtr (const string &              propertyName,
-                                                                               const Interface::Snapshot * snapshot) const {
+      const Interface::Snapshot * snapshot) const
+   {
 
       const DataAccess::Interface::Property* property = m_projectHandle->findProperty (propertyName);
 
@@ -1793,18 +1908,21 @@ namespace migration
       return theProperty;
    }
 
-   const Interface::Formation* Reservoir::getTopFormation (const Interface::Snapshot * snapshot) const{
+   const Interface::Formation* Reservoir::getTopFormation (const Interface::Snapshot * snapshot) const
+   {
 
       const Formation * formation = dynamic_cast<const Formation *>(getFormation ());
       assert (formation != 0);
 
       const Interface::Formation* topFormation = 0;
 
-      for (; topFormation == 0 && formation != 0; formation = formation->getTopFormation ()) {
+      for (; topFormation == 0 and formation != 0; formation = formation->getTopFormation ())
+      {
 
-         if (formation->getTopSurface ()->getSnapshot ()->getTime () >= snapshot->getTime ()) {
+         if (formation->getTopSurface ()->getSnapshot ()->getTime () >= snapshot->getTime ())
+         {
             topFormation = formation;
-         } 
+         }
       }
       return topFormation;
 
@@ -1813,9 +1931,9 @@ namespace migration
    DerivedProperties::FormationPropertyPtr Reservoir::getTopFormationProperty (const string & propertyName, const Snapshot * snapshot) const
    {
       const DataAccess::Interface::Property* property = m_projectHandle->findProperty (propertyName);
- 
+
       const Interface::Formation* topFormation = getTopFormation (snapshot);
- 
+
       DerivedProperties::FormationPropertyPtr theProperty = m_migrator->getPropertyManager ().getFormationProperty (property, snapshot, topFormation);
 
       return theProperty;
@@ -1828,7 +1946,7 @@ namespace migration
       const Interface::Formation* topFormation = getTopFormation (snapshot);
 
       DerivedProperties::SurfacePropertyPtr theProperty = m_migrator->getPropertyManager ().getSurfaceProperty (property, snapshot, topFormation ? topFormation->getTopSurface () : 0);
-  
+
       return theProperty;
    }
 
@@ -1841,11 +1959,13 @@ namespace migration
 
       const Interface::Formation* bottomFormation = 0;
 
-      for (; bottomFormation == 0 && formation != 0; formation = formation->getBottomFormation ()) {
+      for (; bottomFormation == 0 and formation != 0; formation = formation->getBottomFormation ())
+      {
 
-         if (formation->getBottomSurface ()->getSnapshot ()->getTime () >= snapshot->getTime ()) {
+         if (formation->getBottomSurface ()->getSnapshot ()->getTime () >= snapshot->getTime ())
+         {
             bottomFormation = formation;
-         } 
+         }
       }
 
       DerivedProperties::SurfacePropertyPtr theProperty = m_migrator->getPropertyManager ().getSurfaceProperty (property, snapshot, (bottomFormation ? bottomFormation->getBottomSurface () : 0));
@@ -1853,17 +1973,19 @@ namespace migration
       return theProperty;
    }
 
-   DerivedProperties::FormationPropertyPtr Reservoir::getVolumeProperty ( const Formation * formation,
-                                                                          const string & propertyName,
-                                                                          const Interface::Snapshot * snapshot ) const {
+   DerivedProperties::FormationPropertyPtr Reservoir::getVolumeProperty (const Formation * formation,
+      const string & propertyName,
+      const Interface::Snapshot * snapshot) const
+   {
 
-      const DataAccess::Interface::Property* property = m_projectHandle->findProperty ( propertyName );
+      const DataAccess::Interface::Property* property = m_projectHandle->findProperty (propertyName);
 
       DerivedProperties::FormationPropertyPtr result;
 
 
-      if ( property != 0 ) {
-         result = m_migrator->getPropertyManager ().getFormationProperty ( property, snapshot, formation );
+      if (property != 0)
+      {
+         result = m_migrator->getPropertyManager ().getFormationProperty (property, snapshot, formation);
       }
 
       return result;
@@ -1871,21 +1993,21 @@ namespace migration
 
 
    const GridMap * Reservoir::getPropertyGridMap (const string & propertyName,
-                                                  const Snapshot * snapshot,
-                                                  const Interface::Reservoir * reservoir, const Interface::Formation * formation, const Interface::Surface * surface) const
+      const Snapshot * snapshot,
+      const Interface::Reservoir * reservoir, const Interface::Formation * formation, const Interface::Surface * surface) const
    {
       int selectionFlags = 0;
 
       if (reservoir) selectionFlags |= Interface::RESERVOIR;
-      if (formation && !surface) selectionFlags |= Interface::FORMATION;
-      if (surface && !formation) selectionFlags |= Interface::SURFACE;
-      if (formation && surface) selectionFlags |= Interface::FORMATIONSURFACE;
+      if (formation and !surface) selectionFlags |= Interface::FORMATION;
+      if (surface and !formation) selectionFlags |= Interface::SURFACE;
+      if (formation and surface) selectionFlags |= Interface::FORMATIONSURFACE;
 
       PropertyValueList * propertyValues =
          m_projectHandle->getPropertyValues (selectionFlags,
-                                             m_projectHandle->findProperty (propertyName),
-                                             snapshot, reservoir, formation, surface,
-                                             Interface::MAP);
+         m_projectHandle->findProperty (propertyName),
+         snapshot, reservoir, formation, surface,
+         Interface::MAP);
 
       if (propertyValues->size () != 1)
       {
@@ -1963,12 +2085,12 @@ namespace migration
    /// See whether distribution has finished on all processors
    bool Reservoir::allProcessorsFinished (bool finished)
    {
-      return (AndAll ((int) finished) != 0);
+      return (AndAll ((int)finished) != 0);
    }
 
    int Reservoir::computeMaximumTrapCount (bool countUndersized)
    {
-      int numberOfTraps = (int) m_traps.size ();
+      int numberOfTraps = (int)m_traps.size ();
       if (!countUndersized)
       {
          TrapVector::iterator trapIter;
@@ -1992,7 +2114,7 @@ namespace migration
          if (GetRank () == 0)
          {
             cerr << "WARNING: property value '" << depthPropertyName () << "' does not exist for top surface of formation "
-                 << getFormation ()->getName () << " at snapshot " << presentDay->getTime () <<
+               << getFormation ()->getName () << " at snapshot " << presentDay->getTime () <<
                ",\n\tcannot compute depth offsets for reservoir " << getName () << endl;
             cerr.flush ();
          }
@@ -2004,7 +2126,7 @@ namespace migration
          if (GetRank () == 0)
          {
             cerr << "WARNING: property value '" << depthPropertyName () << "' does not exist for bottom surface of formation "
-                 << getFormation ()->getName () << " at snapshot " << presentDay->getTime () <<
+               << getFormation ()->getName () << " at snapshot " << presentDay->getTime () <<
                ",\n\tcannot compute depth offsets for reservoir " << getName () << endl;
             cerr.flush ();
          }
@@ -2029,8 +2151,8 @@ namespace migration
             double formationTopDepth = formationTopDepthMap->get (i, j);
             double formationBottomDepth = formationBottomDepthMap->get (i, j);
 
-            if (formationTopDepth == formationTopDepthMap->getUndefinedValue () || 
-                formationBottomDepth == formationBottomDepthMap->getUndefinedValue ())
+            if (formationTopDepth == formationTopDepthMap->getUndefinedValue () or
+               formationBottomDepth == formationBottomDepthMap->getUndefinedValue ())
             {
                // use default values 0, 0
                continue;
@@ -2110,7 +2232,7 @@ namespace migration
       if (getActivityMode () == "NeverActive") return false; // not active anyway
 
       const Formation * formation = dynamic_cast<const Formation *>(getFormation ());
-      const Surface * topSurface = (const Surface *) formation->getTopSurface ();
+      const Surface * topSurface = (const Surface *)formation->getTopSurface ();
       const Snapshot * depoSnapshot = topSurface->getSnapshot ();
 
       if (depoSnapshot->getTime () < snapshot->getTime ()) return false; // not active anyway
@@ -2162,42 +2284,49 @@ namespace migration
       PetscBool genexMinorSnapshots;
       PetscBool genexFraction;
       PetscBool printDebug;
-   
+
       PetscOptionsHasName (PETSC_NULL, "-genex", &genexMinorSnapshots);
       PetscOptionsHasName (PETSC_NULL, "-genexf", &genexFraction);
       PetscOptionsHasName (PETSC_NULL, "-debug", &printDebug);
 
       const double depoTime = formation->getTopSurface ()->getSnapshot ()->getTime ();
-      bool sourceRockIsActive = (depoTime > getStart ()->getTime ()) || fabs (depoTime - getStart ()->getTime ()) < Genex6::Constants::ZERO;
+      bool sourceRockIsActive = (depoTime > getStart ()->getTime ()) or fabs (depoTime - getStart ()->getTime ()) < Genex6::Constants::Zero;
 
       Formation * srFormation = const_cast<Formation *>(formation);
 
-      if (genexMinorSnapshots) {
-         if (sourceRockIsActive) {
-            if (!formation->isPreprocessed ()) {
+      if (genexMinorSnapshots)
+      {
+         if (sourceRockIsActive)
+         {
+            if (!formation->isPreprocessed ())
+            {
                bool status = srFormation->preprocessSourceRock (getStart ()->getTime (), printDebug);
-               if (!status && GetRank () == 0) {
-                  cout << "Cannot preprocess " << formation->getName () << ", depoage= " << depoTime << " at " << getStart ()->getTime () << endl;
+               if (!status and GetRank () == 0)
+               {
+                  LogHandler (LogHandler::ERROR_SEVERITY) << "Cannot preprocess " << formation->getName () << ", depoage= " << depoTime << " at " << getStart ()->getTime ();
                }
-            
+
             }
             bool status = srFormation->calculateGenexTimeInterval (getStart (), getEnd (), printDebug);
-         
-            if (status) {
+
+            if (status)
+            {
                double fraction = (direction == EXPELLEDUPANDDOWNWARD ? 1.0 : 0.5);
 
                addChargesToBeMigrated (formation->getGenexData (), fraction, barrier);
 
             }
-            else {
-               if (GetRank () == 0) {
-                  cout << "Cannot calculate genex " << getName () << ", depoage= " << depoTime << " at " << getStart ()->getTime () << endl;
+            else
+            {
+               if (GetRank () == 0)
+               {
+                  LogHandler (LogHandler::ERROR_SEVERITY) << "Cannot calculate genex " << getName () << ", depoage= " << depoTime << " at " << getStart ()->getTime ();
                }
 
             }
             return status;
-         } 
-         return true; 
+         }
+         return true;
       }
 
       for (int componentId = FIRST_COMPONENT; componentId < NUM_COMPONENTS; ++componentId)
@@ -2216,69 +2345,85 @@ namespace migration
          // so we make sure that these variables are assigned real paleo times.
          double startTime = -1.0, endTime = -1.0, fractionToMigrate = 1.0;
 
-         if (gridMapStart) {
+         if (gridMapStart)
+         {
             startTime = getStart ()->getTime ();
          }
-         else  if (genexFraction) {
+         else  if (genexFraction)
+         {
             const Snapshot * startSnapshot = m_projectHandle->findPreviousSnapshot (getStart ()->getTime ());
             startTime = startSnapshot->getTime ();
             gridMapStart = getPropertyGridMap (propertyName, startSnapshot, 0, formation, 0);
          }
-         if (gridMapEnd) {
+         if (gridMapEnd)
+         {
             endTime = getEnd ()->getTime ();
          }
-         else if (genexFraction) {
+         else if (genexFraction)
+         {
             const Snapshot * endSnapshot = m_projectHandle->findNextSnapshot (getEnd ()->getTime ());
             endTime = endSnapshot->getTime ();
             gridMapEnd = getPropertyGridMap (propertyName, endSnapshot, 0, formation, 0);
          }
-      
-         if( genexFraction and startTime - endTime > 0 ) {
-            if( gridMapStart && gridMapEnd ) {
-               fractionToMigrate = (getStart()->getTime() - getEnd()->getTime()) / (startTime - endTime );
-            if( endTime == getEnd ()->getTime() ) 
+
+         if (genexFraction and startTime - endTime > 0)
+         {
+            if (gridMapStart and gridMapEnd)
             {
+               fractionToMigrate = (getStart ()->getTime () - getEnd ()->getTime ()) / (startTime - endTime);
+               if (endTime == getEnd ()->getTime ())
+               {
                   //fractionToMigrate =  the rest
                }
             }
-         } 
+         }
 
-         if (gridMapStart && gridMapEnd) {
-            if (GetRank () == 0 and  printDebug) {
-               if (propertyName == "asphaltenesExpelledCumulative") {
+         if (gridMapStart and gridMapEnd)
+         {
+            if (GetRank () == 0 and  printDebug)
+            {
+               if (propertyName == "asphaltenesExpelledCumulative")
+               {
                   cout << formation->getName () << ": " << propertyName << ": Start = " << startTime << "(" << getStart ()->getTime () << "), End = " << endTime
-                       << "(" << getEnd ()->getTime () << "),fraction = " << fractionToMigrate << endl;
+                     << "(" << getEnd ()->getTime () << "),fraction = " << fractionToMigrate << endl;
                }
             }
          }
-         else {
-            if (gridMapStart && !gridMapEnd) {
-               if (GetRank () == 0 and  printDebug) {
-                  if (propertyName == "asphaltenesExpelledCumulative") {
+         else
+         {
+            if (gridMapStart and !gridMapEnd)
+            {
+               if (GetRank () == 0 and  printDebug)
+               {
+                  if (propertyName == "asphaltenesExpelledCumulative")
+                  {
                      cout << formation->getName () << ": " << propertyName << ": only start " << startTime << " and no " << getEnd ()->getTime () << " depotime = " << depoTime << endl;
                   }
                }
             }
-            else if (!gridMapStart && gridMapEnd) {
-               if (GetRank () == 0 and  printDebug) {
-                  if (propertyName == "asphaltenesExpelledCumulative") {
+            else if (!gridMapStart and gridMapEnd)
+            {
+               if (GetRank () == 0 and  printDebug)
+               {
+                  if (propertyName == "asphaltenesExpelledCumulative")
+                  {
                      cout << formation->getName () << ": " << propertyName << ": only end " << endTime << " and no " << getStart ()->getTime () << " depotime = " << depoTime << endl;
                   }
                }
             }
-         }           
+         }
 
          if (gridMapEnd)
          {
             gridMapEnd->retrieveData ();
-            addChargesToBeMigrated ((ComponentId) componentId, gridMapEnd, fraction * fractionToMigrate, barrier);
-            gridMapEnd->restoreData ();        
-         } 
-      
+            addChargesToBeMigrated ((ComponentId)componentId, gridMapEnd, fraction * fractionToMigrate, barrier);
+            gridMapEnd->restoreData ();
+         }
+
          if (gridMapStart)
          {
             gridMapStart->retrieveData ();
-            subtractChargesToBeMigrated ((ComponentId) componentId, gridMapStart, fraction * fractionToMigrate, barrier);
+            subtractChargesToBeMigrated ((ComponentId)componentId, gridMapStart, fraction * fractionToMigrate, barrier);
             gridMapStart->restoreData ();
          }
       }
@@ -2287,39 +2432,41 @@ namespace migration
    }
 
 
-   bool Reservoir::saveGenexMaps (const string & speciesName, DataAccess::Interface::GridMap * aMap, const Formation * formation, const Snapshot * aSnapshot) {
+   bool Reservoir::saveGenexMaps (const string & speciesName, DataAccess::Interface::GridMap * aMap, const Formation * formation, const Snapshot * aSnapshot)
+   {
 
       const Interface::Surface   * topMap = formation->getTopSurface ();
       const string topSurfaceName = topMap->getName ();
-   
-      float time = (float) aSnapshot->getTime ();
+
+      float time = (float)aSnapshot->getTime ();
 
       const string extensionString = ".HDF";
-      Interface::MapWriter * mapWriter = m_projectHandle->getFactory()->produceMapWriter();
-   
-         const string dirToOutput = m_projectHandle->getProjectName () + "_CauldronOutputDir/";
+      Interface::MapWriter * mapWriter = m_projectHandle->getFactory ()->produceMapWriter ();
 
-         //        string outputFileName = projectHandle->getProjectName() + "_" + outputMapsNames[i] + string(ageString) + extensionString;
-         string outputFileName = dirToOutput + formation->getName () + "_" + speciesName + "_" + aSnapshot->asString () + extensionString;
-   
-         // Put 0 as a DataSetName to make comparison with regression tests results easier. Also 0 should be there if we want to re-use the map in fastcauldron
-         string dataSetName = speciesName; //"0"; //outputMapsNames[i];
-         dataSetName += "_";
-         dataSetName += aSnapshot->asString ();
-         dataSetName += "_";
-         dataSetName += topSurfaceName;
-   
-         mapWriter->open (outputFileName, false);
-         mapWriter->saveDescription (m_projectHandle->getActivityOutputGrid ());
-   
-         mapWriter->writeMapToHDF (aMap, time, time, dataSetName, topSurfaceName);
-         mapWriter->close ();
-   
-         if (GetRank () == 0) {
-            cout << "Map " << speciesName << " at " << time << " is saved into " << outputFileName << endl;
-         }
-         delete mapWriter;
-         return true;
+      const string dirToOutput = m_projectHandle->getProjectName () + "_CauldronOutputDir/";
+
+      // string outputFileName = projectHandle->getProjectName() + "_" + outputMapsNames[i] + string(ageString) + extensionString;
+      string outputFileName = dirToOutput + formation->getName () + "_" + speciesName + "_" + aSnapshot->asString () + extensionString;
+
+      // Put 0 as a DataSetName to make comparison with regression tests results easier. Also 0 should be there if we want to re-use the map in fastcauldron
+      string dataSetName = speciesName; //"0"; //outputMapsNames[i];
+      dataSetName += "_";
+      dataSetName += aSnapshot->asString ();
+      dataSetName += "_";
+      dataSetName += topSurfaceName;
+
+      mapWriter->open (outputFileName, false);
+      mapWriter->saveDescription (m_projectHandle->getActivityOutputGrid ());
+
+      mapWriter->writeMapToHDF (aMap, time, time, dataSetName, topSurfaceName);
+      mapWriter->close ();
+
+      if (GetRank () == 0)
+      {
+         cout << "Map " << speciesName << " at " << time << " is saved into " << outputFileName << endl;
+      }
+      delete mapWriter;
+      return true;
    }
 
    void Reservoir::deleteExpelledChargeMaps (const Formation * formation)
@@ -2348,10 +2495,10 @@ namespace migration
          {
             LocalColumn * column = getLocalColumn (i, j);
             LocalColumn * leakingColumn = leakingReservoir->getLocalColumn (i, j);
-            if (IsValid (column) && IsValid (leakingColumn) &&
-                !leakingColumn->isOnBoundary ())
+            if (IsValid (column) and IsValid (leakingColumn) and
+               !leakingColumn->isOnBoundary ())
             {
-               if (barrier && barrier->isBlocking (i, j))
+               if (barrier and barrier->isBlocking (i, j))
                   addBlocked (leakingColumn->getComposition ());
                else
                   column->addCompositionToBeMigrated (leakingColumn->getComposition ());
@@ -2400,7 +2547,7 @@ namespace migration
          for (unsigned int j = m_columnArray->firstJLocal (); j <= m_columnArray->lastJLocal (); ++j)
          {
             LocalColumn * column = getLocalColumn (i, j);
-            if (IsValid (column) && (!onBoundaryOnly || column->isOnBoundary ()))
+            if (IsValid (column) and (!onBoundaryOnly or column->isOnBoundary ()))
             {
                total += column->getCompositionWeight ();
             }
@@ -2484,19 +2631,6 @@ namespace migration
       return SumAll (total);
    }
 
-   double Reservoir::getTotalSealPressureLeakedCharges (void)
-   {
-      double total = 0;
-
-      TrapVector::iterator trapIter;
-      for (trapIter = m_traps.begin (); trapIter != m_traps.end (); ++trapIter)
-      {
-         total += (*trapIter)->getSealPressureLeakages ();
-      }
-
-      return SumAll (total);
-   }
-
    double Reservoir::getTotalBiodegradedCharges (void)
    {
       double total = m_biodegraded;
@@ -2542,12 +2676,14 @@ namespace migration
       m_biodegraded = 0;
       if (isBioDegradationOn ())
       {
-         if (!m_migrator->performLegacyMigration())
+         if (!m_migrator->performLegacyMigration ())
          {
-         if (!computeHydrocarbonWaterContactDepth ())
-            return false;
-         if (!computeHydrocarbonWaterTemperature ())
-            return false;
+            if (!computeHydrocarbonWaterContactDepth () or
+                !computeHydrocarbonWaterTemperature () or 
+                !needToComputePasteurizationStatusFromScratch() or
+                !pasteurizationStatus() or
+                !setPasteurizationStatus())
+               return false;
          }
          m_biodegraded = biodegradeCharges ();
       }
@@ -2559,7 +2695,8 @@ namespace migration
 
          mergeSpillingTraps ();
          processMigrationRequests ();
-      } while (!allProcessorsFinished (distributionHasFinished ()));
+      }
+      while (!allProcessorsFinished (distributionHasFinished ()));
 
       // Optimization for May 2016 Release
       if (isDiffusionOn () and !m_migrator->performLegacyMigration ())
@@ -2617,6 +2754,8 @@ namespace migration
    {
       RequestHandle requestHandle (m_migrator, "computeDistributionParameters");
 
+      bool isLegacy = m_migrator->performLegacyMigration();
+
       const FracturePressureFunctionParameters *fracturePressureFunctionParameters =
          getProjectHandle ()->getFracturePressureFunctionParameters ();
 
@@ -2626,7 +2765,7 @@ namespace migration
          for (TrapVector::iterator trapIter = m_traps.begin (); trapIter != m_traps.end (); ++trapIter)
          {
             if (!(*trapIter)->computeDistributionParameters (fracturePressureFunctionParameters,
-                                                             m_sealPressureLeakageGridMaps, m_end))
+               m_sealPressureLeakageGridMaps, m_end, isLegacy ) )
                return false;
          }
 
@@ -2639,8 +2778,8 @@ namespace migration
    {
       RequestHandling::StartRequestHandling (m_migrator, "computeHydrocarbonWaterContactDepth");
       bool succeded;
-   
-      if (m_traps.size() > 0) 
+
+      if (m_traps.size () > 0)
          succeded = false;
       else
          succeded = true;
@@ -2659,8 +2798,8 @@ namespace migration
    {
       RequestHandling::StartRequestHandling (m_migrator, "computeHydrocarbonWaterTemperature");
       bool succeded;
-      
-      if (m_traps.size() > 0) 
+
+      if (m_traps.size () > 0)
          succeded = false;
       else
          succeded = true;
@@ -2674,6 +2813,78 @@ namespace migration
 
       return succeded;
    };
+   
+   bool Reservoir::needToComputePasteurizationStatusFromScratch()
+   {
+	   RequestHandling::StartRequestHandling(m_migrator, "needToComputePasteurizationStatusFromScratch");
+
+	   const BiodegradationParameters* biodegradationParameters =
+		   getProjectHandle()->getBiodegradationParameters();
+
+	   Biodegrade biodegrade(biodegradationParameters);
+
+	   // If the user has toggle on the pasteurization effect
+	   if (biodegrade.pasteurizationInd())
+	   {
+		   for (TrapVector::iterator trapIter = m_traps.begin(); trapIter != m_traps.end(); ++trapIter)
+		   {
+			   (*trapIter)->needToComputePasteurizationStatusFromScratch();
+		   }
+	   }
+	   RequestHandling::FinishRequestHandling();
+
+	   return true;
+   };
+
+
+   bool Reservoir::pasteurizationStatus()
+   {
+	   RequestHandling::StartRequestHandling(m_migrator, "pasteurizationStatus");
+
+	   const BiodegradationParameters* biodegradationParameters =
+		   getProjectHandle()->getBiodegradationParameters();
+
+	   Biodegrade biodegrade(biodegradationParameters);
+
+	   // If the user has toggle on the pasteurization effect
+	   if (biodegrade.pasteurizationInd())
+	   {
+		   for (TrapVector::iterator trapIter = m_traps.begin(); trapIter != m_traps.end(); ++trapIter)
+		   {
+			  (*trapIter)->pasteurizationStatus(biodegrade.maxBioTemp());
+		   }
+	   }
+
+	   RequestHandling::FinishRequestHandling();
+
+	   return true;
+   };
+
+
+   bool Reservoir::setPasteurizationStatus()
+   {
+	   RequestHandling::StartRequestHandling(m_migrator, "setPasteurizationStatus");
+
+	   const BiodegradationParameters* biodegradationParameters =
+		   getProjectHandle()->getBiodegradationParameters();
+
+	   Biodegrade biodegrade(biodegradationParameters);
+
+	   bool succeded = true;
+
+	   // If the user has toggle on the pasteurization effect
+	   if (biodegrade.pasteurizationInd())
+	   {
+		   for (TrapVector::iterator trapIter = m_traps.begin(); trapIter != m_traps.end(); ++trapIter)
+		   {
+			   succeded = (*trapIter)->setPasteurizationStatus(biodegrade.maxBioTemp());
+			   if (!succeded) break;
+		   }
+	   }
+	   RequestHandling::FinishRequestHandling();
+
+	   return succeded;
+   }; 
 
    double Reservoir::biodegradeCharges ()
    {
@@ -2681,27 +2892,27 @@ namespace migration
 
       double biodegraded = 0;
 
-      const BiodegradationParameters* biodegradationParameters = 
-         getProjectHandle()->getBiodegradationParameters();
-      double timeInterval = m_start->getTime() - m_end->getTime();
+      const BiodegradationParameters* biodegradationParameters =
+         getProjectHandle ()->getBiodegradationParameters ();
+      double timeInterval = m_start->getTime () - m_end->getTime ();
 
-      if (timeInterval >= 30 and !m_migrator->performLegacyMigration())
+      if (timeInterval >= 30 and !m_migrator->performLegacyMigration ())
       {
-         getProjectHandle()->getMessageHandler().print("WARNING: The time interval between the two snapshots ");
-         getProjectHandle()->getMessageHandler().print(m_start->getTime());
-         getProjectHandle()->getMessageHandler().print(" Ma and ");
-         getProjectHandle()->getMessageHandler().print(m_end->getTime());
-         getProjectHandle()->getMessageHandler().printLine(" Ma involving biodegradation is bigger than 30 Ma, the biodegradation results can be questionable due to the large time interval");
+         getProjectHandle ()->getMessageHandler ().print ("WARNING: The time interval between the two snapshots ");
+         getProjectHandle ()->getMessageHandler ().print (m_start->getTime ());
+         getProjectHandle ()->getMessageHandler ().print (" Ma and ");
+         getProjectHandle ()->getMessageHandler ().print (m_end->getTime ());
+         getProjectHandle ()->getMessageHandler ().printLine (" Ma involving biodegradation is bigger than 30 Ma, the biodegradation results can be questionable due to the large time interval");
       }
-      Biodegrade biodegrade(biodegradationParameters);
+      Biodegrade biodegrade (biodegradationParameters);
 
-      if (m_migrator->performLegacyMigration())
+      if (m_migrator->performLegacyMigration ())
       {
          for (TrapVector::iterator trapIter = m_traps.begin (); trapIter != m_traps.end (); ++trapIter)
          {
             biodegraded += (*trapIter)->biodegradeChargesLegacy (timeInterval, biodegrade);
          }
-      } 
+      }
       else
       {
          for (TrapVector::iterator trapIter = m_traps.begin (); trapIter != m_traps.end (); ++trapIter)
@@ -2716,7 +2927,7 @@ namespace migration
 
    bool Reservoir::isDiffusionOn (void)
    {
-	return Interface::Reservoir::isDiffusionOn ();
+      return Interface::Reservoir::isDiffusionOn ();
    }
 
    bool Reservoir::diffusionLeakCharges ()
@@ -2727,14 +2938,14 @@ namespace migration
       double maxFluxError = 0.05;
       char *envStr = getenv ("Diffusion_MaxFluxError");
 
-      if (envStr && strlen (envStr) != 0)
+      if (envStr and strlen (envStr) != 0)
          maxFluxError = atof (envStr);
 
       // maximum timestep
       double maxTimeStep = 50;
 
       envStr = getenv ("Diffusion_MaxTimeStep");
-      if (envStr && strlen (envStr) != 0)
+      if (envStr and strlen (envStr) != 0)
          maxTimeStep = atof (envStr);
 
       const DiffusionLeakageParameters *parameters = getProjectHandle ()->getDiffusionLeakageParameters ();
@@ -2745,15 +2956,15 @@ namespace migration
       for (trapIter = m_traps.begin (); trapIter != m_traps.end (); ++trapIter)
       {
          if (!(*trapIter)->computeDiffusionOverburden (m_diffusionOverburdenGridMaps, getEnd (),
-                                                       parameters->maximumSealThickness (),
-                                                       numeric_limits < int >::max ()))
+            parameters->maximumSealThickness (),
+            numeric_limits < int >::max ()))
             return false;
       }
 
       for (trapIter = m_traps.begin (); trapIter != m_traps.end (); ++trapIter)
       {
          (*trapIter)->diffusionLeakCharges (m_start->getTime (), m_end->getTime (), getProjectHandle ()->
-                                            getDiffusionLeakageParameters (), maxTimeStep, maxFluxError);
+            getDiffusionLeakageParameters (), maxTimeStep, maxFluxError);
       }
 
       return true;
@@ -2768,7 +2979,7 @@ namespace migration
 
       for (trapIter = m_traps.begin (); trapIter != m_traps.end (); ++trapIter)
       {
-         if (always && !(*trapIter)->diffusionLeakageOccoured ())
+         if (always and !(*trapIter)->diffusionLeakageOccoured ())
             continue;
          else
             distributionFinished &= (*trapIter)->distributeCharges ();
@@ -2798,7 +3009,7 @@ namespace migration
 #ifdef MERGEUNDERSIZEDTRAPSAPRIORI
    static bool TrapIsUndersized (Column * columnA, Column * columnB)
    {
-      return (columnA->isUndersized () || columnB->isUndersized ());
+      return (columnA->isUndersized () or columnB->isUndersized ());
    }
 
    /// Try to merge traps that are too small with other traps to form traps that are not too small
@@ -2816,7 +3027,8 @@ namespace migration
          noTrapsWereMerged = determineTrapsToMerge (TrapIsUndersized);
          absorbTraps ();
          completeTrapExtensions ();
-      } while (!allProcessorsFinished (noTrapsWereMerged));
+      }
+      while (!allProcessorsFinished (noTrapsWereMerged));
 
       return true;
    }
@@ -2836,8 +3048,8 @@ namespace migration
          for (int phase = FIRST_PHASE; phase < NUM_PHASES; ++phase)
          {
             Column * spillBackColumn;
-            if (((spillBackColumn = crestColumn->getSpillBackTarget ((PhaseId) phase)) != 0) &&
-                (*conditionTest) (crestColumn, spillBackColumn))
+            if (((spillBackColumn = crestColumn->getSpillBackTarget ((PhaseId)phase)) != 0) and
+               (*conditionTest) (crestColumn, spillBackColumn))
             {
                noTrapsToMerge = false;
 
@@ -2868,7 +3080,7 @@ namespace migration
 
    static bool TrapsAreSpilling (Column * columnA, Column * columnB)
    {
-      return (columnA->isSpilling () && columnB->isSpilling ());
+      return (columnA->isSpilling () and columnB->isSpilling ());
    }
 
    /// First we determine which traps need to merge into which and move the charge of the traps to be absorbed into the absorbing traps.
@@ -2882,24 +3094,24 @@ namespace migration
    }
 
    /// Transfer interiors of traps to be absorbed to the absorbing traps.
-   void Reservoir::absorbTraps(void)
+   void Reservoir::absorbTraps (void)
    {
       RequestHandling::StartRequestHandling (m_migrator, "absorbTraps");
-         TrapVector::iterator trapIter;
-         for (trapIter = m_traps.begin(); trapIter != m_traps.end(); )
+      TrapVector::iterator trapIter;
+      for (trapIter = m_traps.begin (); trapIter != m_traps.end ();)
+      {
+         Trap * trap = *trapIter;
+         if (trap->isToBeAbsorbed ())
          {
-            Trap * trap = *trapIter;
-            if (trap->isToBeAbsorbed())
-            {
-               trap->beAbsorbed();
+            trap->beAbsorbed ();
 
-               delete trap;
-               trapIter = m_traps.erase(trapIter);
-               continue;
-            }
-            ++trapIter;
+            delete trap;
+            trapIter = m_traps.erase (trapIter);
+            continue;
          }
-         RequestHandling::FinishRequestHandling();
+         ++trapIter;
+      }
+      RequestHandling::FinishRequestHandling ();
    }
 
    void Reservoir::completeTrapExtensions (void)
@@ -2986,7 +3198,7 @@ namespace migration
 
       for (trapIter = m_traps.begin (); trapIter != m_traps.end (); ++trapIter)
       {
-         if (always && !(*trapIter)->diffusionLeakageOccoured())
+         if (always and !(*trapIter)->diffusionLeakageOccoured ())
             continue;
          else
             (*trapIter)->collectAndSplitCharges (always);
@@ -3008,12 +3220,12 @@ namespace migration
             {
                for (int phase = FIRST_PHASE; phase < NUM_PHASES; ++phase)
                {
-                  if (column->getFinalTargetColumn ((PhaseId) phase) != column)
+                  if (column->getFinalTargetColumn ((PhaseId)phase) != column)
                   {
                      if (column->containsComposition ())
                      {
                         cerr << GetRankString () << ":: ERROR: " << column << " contains charge ("
-                             << column->getCompositionWeight () << ") but shouldn't" << endl;
+                           << column->getCompositionWeight () << ") but shouldn't" << endl;
                         cerr.flush ();
                         result = false;
                      }
@@ -3038,7 +3250,7 @@ namespace migration
             {
                if (IsValid (column))
                {
-                  if (barrier && barrier->isBlocking (i, j))
+                  if (barrier and barrier->isBlocking (i, j))
                      addBlocked (componentId, gridMap->getValue (i, j) * fraction * getSurface (i, j));
                   else
                      column->addComponentToBeMigrated (componentId, gridMap->getValue (i, j) * fraction * getSurface (i, j));
@@ -3053,22 +3265,29 @@ namespace migration
    {
       gridMap->retrieveData ();
 
-      for (unsigned int componentId = FIRST_COMPONENT; componentId < NUM_COMPONENTS; ++componentId) {
+      for (unsigned int componentId = FIRST_COMPONENT; componentId < NUM_COMPONENTS; ++componentId)
+      {
          if (!ComponentsUsed[componentId]) continue;
-               
-         for (unsigned int i = m_columnArray->firstILocal (); i <= m_columnArray->lastILocal (); ++i) {
-            for (unsigned int j = m_columnArray->firstJLocal (); j <= m_columnArray->lastJLocal (); ++j) {
+
+         for (unsigned int i = m_columnArray->firstILocal (); i <= m_columnArray->lastILocal (); ++i)
+         {
+            for (unsigned int j = m_columnArray->firstJLocal (); j <= m_columnArray->lastJLocal (); ++j)
+            {
 
                LocalColumn * column = getLocalColumn (i, j);
                double value = gridMap->getValue (i, j, componentId);
 
-               if (value != gridMap->getUndefinedValue ())  {
-                  if (IsValid (column)) {
-                     if (barrier && barrier->isBlocking (i, j)) {
-                        addBlocked ((ComponentId) componentId, value * fraction * getSurface (i, j));
+               if (value != gridMap->getUndefinedValue ())
+               {
+                  if (IsValid (column))
+                  {
+                     if (barrier and barrier->isBlocking (i, j))
+                     {
+                        addBlocked ((ComponentId)componentId, value * fraction * getSurface (i, j));
                      }
-                     else {
-                        column->addComponentToBeMigrated ((ComponentId) componentId, value * fraction * getSurface (i, j));
+                     else
+                     {
+                        column->addComponentToBeMigrated ((ComponentId)componentId, value * fraction * getSurface (i, j));
                      }
                   }
                }
@@ -3088,9 +3307,9 @@ namespace migration
          for (unsigned int j = m_columnArray->firstJLocal (); j <= m_columnArray->lastJLocal (); ++j)
          {
             LocalColumn * column = getLocalColumn (i, j);
-            if (IsValid (column) && gridMap->getValue (i, j) != gridMap->getUndefinedValue ())
+            if (IsValid (column) and gridMap->getValue (i, j) != gridMap->getUndefinedValue ())
             {
-               if (barrier && barrier->isBlocking (i, j))
+               if (barrier and barrier->isBlocking (i, j))
                   subtractBlocked (componentId, gridMap->getValue (i, j) * fraction * getSurface (i, j));
                else
                   column->subtractComponentToBeMigrated (componentId, gridMap->getValue (i, j) * fraction * getSurface (i, j));
@@ -3113,7 +3332,7 @@ namespace migration
                if (column->getComponentToBeMigrated (componentId) < 0)
                {
                   cerr << "Error in " << column << " of Reservoir " << getName () << " at age " << getEnd ()->getTime ()
-                       << ": expelled weight of " << ComponentNames[componentId] << " is negative (" << column->getComponent (componentId) << ")" << endl;
+                     << ": expelled weight of " << ComponentNames[componentId] << " is negative (" << column->getComponent (componentId) << ")" << endl;
                   result = false;
                }
             }
@@ -3199,7 +3418,7 @@ namespace migration
    void Reservoir::addTrap (Trap * trap)
    {
       m_traps.push_back (trap);
-      trap->setLocalId ((int) m_traps.size ());
+      trap->setLocalId ((int)m_traps.size ());
    }
 
    void Reservoir::processTrapProperties (TrapPropertiesRequest & tpRequest)
@@ -3224,14 +3443,14 @@ namespace migration
 
    static int TrapPropertiesCompare (const void * elem1, const void * elem2)
    {
-      const TrapPropertiesRequest * tpr1 = (const TrapPropertiesRequest *) elem1;
-      const TrapPropertiesRequest * tpr2 = (const TrapPropertiesRequest *) elem2;
+      const TrapPropertiesRequest * tpr1 = (const TrapPropertiesRequest *)elem1;
+      const TrapPropertiesRequest * tpr2 = (const TrapPropertiesRequest *)elem2;
       double weight1 = tpr1->composition.getWeight ();
       double weight2 = tpr2->composition.getWeight ();
 
-      if (tpr1->rank < 0 && tpr2->rank >= 0) return 1;
-      if (tpr1->rank >= 0 && tpr2->rank < 0) return -1;
-      if (tpr1->rank < 0 && tpr2->rank < 0) return 0;
+      if (tpr1->rank < 0 and tpr2->rank >= 0) return 1;
+      if (tpr1->rank >= 0 and tpr2->rank < 0) return -1;
+      if (tpr1->rank < 0 and tpr2->rank < 0) return 0;
 
       if (weight1 > weight2) return -1;
       else if (weight1 < weight2) return 1;
@@ -3239,7 +3458,7 @@ namespace migration
       else if (tpr1->capacity < tpr2->capacity) return 1;
       else return 0;
    }
-   
+
    void Reservoir::collectTrapProperties (TrapPropertiesRequest * tpRequests, unsigned int maxNumberOfRequests)
    {
       RequestHandling::StartRequestHandling (m_migrator, "collectTrapProperties");
@@ -3261,27 +3480,28 @@ namespace migration
    /// save the trap properties to the TrapIoTbl
    bool Reservoir::saveTrapProperties (const bool saveSnapshot)
    {
-      if (saveSnapshot) {
+      if (saveSnapshot)
+      {
          unsigned int maxLocalNumberOfTraps = computeMaximumTrapCount (true);
          TrapPropertiesRequest * trapsIn = new TrapPropertiesRequest[maxLocalNumberOfTraps];
-      
+
          collectTrapProperties (trapsIn, maxLocalNumberOfTraps);
-      
+
          unsigned int maxGlobalNumberOfTraps = maxLocalNumberOfTraps * NumProcessors ();
          TrapPropertiesRequest * trapsOut = new TrapPropertiesRequest[maxGlobalNumberOfTraps];
-      
+
          // collect trap info from all processors and sort it according to charge content
          AllGatherFromAll (trapsIn, maxLocalNumberOfTraps, TrapPropertiesType,
-                           trapsOut, maxLocalNumberOfTraps, TrapPropertiesType);
-      
+            trapsOut, maxLocalNumberOfTraps, TrapPropertiesType);
+
          delete[] trapsIn;
-      
+
          // sort the traps according to the weight of their content, largest weight first
          qsort (trapsOut, maxGlobalNumberOfTraps, sizeof (TrapPropertiesRequest), TrapPropertiesCompare);
-      
+
          populateMigrationTables (trapsOut, maxGlobalNumberOfTraps);
          eliminateUndersizedTraps (trapsOut, maxGlobalNumberOfTraps);
-      
+
          delete[] trapsOut;
       }
       return true;
@@ -3320,7 +3540,7 @@ namespace migration
             {
                // map each number to another number that we are not going to use later
                m_migrator->renumberMigrationRecordTrap (getEnd (), tpRequests[i].id,
-                                                        tpRequests[i].id + trapNumberOffset);
+                  tpRequests[i].id + trapNumberOffset);
             }
 
             int oldId = tpRequests[i].id;
@@ -3343,7 +3563,7 @@ namespace migration
             if (tpRequests[i].rank == GetRank ()) // locally available trap
             {
                // id change with trapNumberOffset has not been applied to the traps themselves
-               Trap * trap = findTrap (tpRequests[i].id - trapNumberOffset); 
+               Trap * trap = findTrap (tpRequests[i].id - trapNumberOffset);
                assert (trap);
 
                trapList.push_back (trap);
@@ -3358,7 +3578,7 @@ namespace migration
 
             changeTrapPropertiesRequestId (tpRequests, maxNumberOfRequests, tpRequests[i].id, i + 1);
 
-            if (GetRank () == 0 && tpRequests[i].capacity >= minimumCapacity)
+            if (GetRank () == 0 and tpRequests[i].capacity >= minimumCapacity)
             {
                m_migrator->addTrapRecord (this, tpRequests[i]);
             }
@@ -3401,7 +3621,7 @@ namespace migration
          int originatingId = tpRequests[i].id;
          int currentId = tpRequests[i].id;
          double currentCapacity = tpRequests[i].capacity;
-         if (currentId < 0 || currentCapacity >= minimumCapacity)
+         if (currentId < 0 or currentCapacity >= minimumCapacity)
          {
             finalIds[i] = currentId;
             continue;
@@ -3421,7 +3641,7 @@ namespace migration
          // find out where the trap is spilling to if it is spilling
 
          bool finalIdFound = false;
-         while (++iteration < maxIterations && currentlySpilling && currentId > 0 && currentCapacity < minimumCapacity)
+         while (++iteration < maxIterations and currentlySpilling and currentId > 0 and currentCapacity < minimumCapacity)
          {
             unsigned int j;
             for (j = 0; j < maxNumberOfRequests; ++j)
@@ -3469,7 +3689,7 @@ namespace migration
             if (finalIdFound) break;
          }
 
-         if (currentId == tpRequests[i].id || currentCapacity < minimumCapacity) // Nothing came by, not spilling or too small.
+         if (currentId == tpRequests[i].id or currentCapacity < minimumCapacity) // Nothing came by, not spilling or too small.
          {
             currentId = NoTrapId;
 #ifdef SHOWTRAPELIMINATION
@@ -3537,7 +3757,7 @@ namespace migration
    /// report migration from an underling reservoir or from a source rock
    void Reservoir::reportVerticalMigration (Column * sourceColumn, Column * targetColumn, const Composition & composition)
    {
-      assert (m_sourceReservoir || m_sourceFormation);
+      assert (m_sourceReservoir or m_sourceFormation);
 
       MigrationRequest mr;
 
@@ -3556,7 +3776,7 @@ namespace migration
       mr.process = (m_sourceReservoir) ?
          ((mr.destination.trapId == NoTrapId) ? THROUGHLEAKAGE : LEAKAGETOTRAP) :
          ((mr.destination.trapId == NoTrapId) ? EXPULSIONLEAKAGE : EXPULSION);
-   
+
       collectMigrationRequest (mr);
    }
 
@@ -3578,7 +3798,7 @@ namespace migration
       mr.destination.y = Interface::DefaultUndefinedScalarValue;
       mr.destination.trapId = targetColumn->getGlobalTrapId ();
       assert (mr.destination.trapId > 0);
-   
+
       collectMigrationRequest (mr);
    }
 
@@ -3600,7 +3820,7 @@ namespace migration
       mr.destination.trapId = NoTrapId;
       mr.destination.x = Interface::DefaultUndefinedScalarValue;
       mr.destination.y = Interface::DefaultUndefinedScalarValue;
-   
+
       collectMigrationRequest (mr);
    }
 
@@ -3622,7 +3842,7 @@ namespace migration
       mr.destination.trapId = targetColumn->getGlobalTrapId ();
 
       mr.process = (mr.destination.trapId == NoTrapId) ? SPILLUPOROUT : SPILL;
-   
+
       collectMigrationRequest (mr);
    }
 
@@ -3643,7 +3863,7 @@ namespace migration
       mr.destination.x = Interface::DefaultUndefinedScalarValue;
       mr.destination.y = Interface::DefaultUndefinedScalarValue;
       mr.destination.trapId = NoTrapId;
-   
+
       collectMigrationRequest (mr);
    }
 
@@ -3664,7 +3884,7 @@ namespace migration
       mr.destination.x = Interface::DefaultUndefinedScalarValue;
       mr.destination.y = Interface::DefaultUndefinedScalarValue;
       mr.destination.trapId = NoTrapId;
-   
+
       collectMigrationRequest (mr);
    }
 
@@ -3685,7 +3905,7 @@ namespace migration
       mr.destination.x = Interface::DefaultUndefinedScalarValue;
       mr.destination.y = Interface::DefaultUndefinedScalarValue;
       mr.destination.trapId = trapId;
-   
+
       collectMigrationRequest (mr);
    }
 
@@ -3706,7 +3926,7 @@ namespace migration
       mr.destination.x = Interface::DefaultUndefinedScalarValue;
       mr.destination.y = Interface::DefaultUndefinedScalarValue;
       mr.destination.trapId = NoTrapId;
-   
+
       collectMigrationRequest (mr);
    }
 
@@ -3727,21 +3947,21 @@ namespace migration
       case BIODEGRADATION:
       case OILTOGASCRACKINGLOST:
       case OILTOGASCRACKINGGAINED:
-         {
-            m_migrator->addMigrationRecord (m_sourceReservoir ? m_sourceReservoir->getName () : string (""),
-                                            m_sourceFormation ? m_sourceFormation->getName () : string (""),
-                                            getName (), mr);
+      {
+         m_migrator->addMigrationRecord (m_sourceReservoir ? m_sourceReservoir->getName () : string (""),
+            m_sourceFormation ? m_sourceFormation->getName () : string (""),
+            getName (), mr);
 
-            return true;
-            break;
-         }
+         return true;
+         break;
+      }
       case ABSORPTION:
-	 return true;
-	 break;
+         return true;
+         break;
       case NUMBEROFPROCESSES:
       case NOPROCESS:
-	 return false;
-	 break;
+         return false;
+         break;
       }
       return false;
    }
@@ -3763,18 +3983,18 @@ namespace migration
       case BIODEGRADATION:
       case OILTOGASCRACKINGLOST:
       case OILTOGASCRACKINGGAINED:
-	 return true;
-	 break;
+         return true;
+         break;
       case ABSORPTION:
-         {
-            m_migrator->renumberMigrationRecordTrap (getEnd (), mr.source.trapId, mr.destination.trapId);
-            return true;
-            break;
-         }
+      {
+         m_migrator->renumberMigrationRecordTrap (getEnd (), mr.source.trapId, mr.destination.trapId);
+         return true;
+         break;
+      }
       case NUMBEROFPROCESSES:
       case NOPROCESS:
-	 return false;
-	 break;
+         return false;
+         break;
       }
       return false;
    }
@@ -3813,7 +4033,7 @@ namespace migration
    /// send all collected migration requests to processor 0 to be added to the MigrationIoTbl
    void Reservoir::processMigrationRequests (void)
    {
-      int localSize = (int) m_migrationRequests.size ();
+      int localSize = (int)m_migrationRequests.size ();
 
       // determine maximum number of requests per processor
       int localMaximumSize = MaximumAll (localSize);
@@ -3858,36 +4078,36 @@ namespace migration
       // #define DEBUG_GATHER
 #ifdef DEBUG_GATHER
       PetscPrintf (PETSC_COMM_WORLD, "%d: Collecting...\n", GetRank());
-      PetscSynchronizedFlush (PETSC_COMM_WORLD);
+      PetscSynchronizedFlush (PETSC_COMM_WORLD, PETSC_STDOUT);
 #endif
 
-      if (useAllGather || GetRank () == 0)
+      if (useAllGather or GetRank () == 0)
       {
          globalMigrationRequestArray = new MigrationRequest[globalMaximumSize];
       }
 
 #ifdef DEBUG_GATHER
       PetscSynchronizedPrintf (PETSC_COMM_WORLD, "%d: Gathering... %d (%d) elements\n", GetRank (), localSize, localMaximumSize);
-      PetscSynchronizedFlush (PETSC_COMM_WORLD);
+      PetscSynchronizedFlush (PETSC_COMM_WORLD, PETSC_STDOUT);
 #endif
 
       if (useAllGather)
       {
 #ifdef DEBUG_GATHER
          PetscSynchronizedPrintf (PETSC_COMM_WORLD, "%d: Using AllGatherFromAll...\n", GetRank());
-         PetscSynchronizedFlush (PETSC_COMM_WORLD);
+         PetscSynchronizedFlush (PETSC_COMM_WORLD, PETSC_STDOUT);
 #endif
          AllGatherFromAll (localMigrationRequestArray, localMaximumSize, MigrationType,
-                           globalMigrationRequestArray, localMaximumSize, MigrationType);
+            globalMigrationRequestArray, localMaximumSize, MigrationType);
       }
       else
       {
 #ifdef DEBUG_GATHER
          PetscSynchronizedPrintf (PETSC_COMM_WORLD, "%d: Using RootGatherFromAll...\n", GetRank());
-         PetscSynchronizedFlush (PETSC_COMM_WORLD);
+         PetscSynchronizedFlush (PETSC_COMM_WORLD, PETSC_STDOUT);
 #endif
          RootGatherFromAll (localMigrationRequestArray, localMaximumSize, MigrationType,
-                            globalMigrationRequestArray, localMaximumSize, MigrationType);
+            globalMigrationRequestArray, localMaximumSize, MigrationType);
       }
 
 #ifdef DEBUG_GATHER
@@ -3924,7 +4144,7 @@ namespace migration
       PetscPrintf (PETSC_COMM_WORLD, "Deleting...\n");
 #endif
 
-      if (useAllGather || GetRank () == 0)
+      if (useAllGather or GetRank () == 0)
          delete[] globalMigrationRequestArray;
 
       m_migrationRequests.clear ();
@@ -3968,7 +4188,7 @@ namespace migration
    void Reservoir::manipulateColumnComposition (ColumnCompositionRequest & compositionRequest)
    {
       getLocalColumn (compositionRequest.i, compositionRequest.j)->manipulateComposition (compositionRequest.valueSpec,
-                                                                                          compositionRequest.phase, compositionRequest.composition);
+         compositionRequest.phase, compositionRequest.composition);
    }
 
    void Reservoir::getColumnComposition (ColumnCompositionRequest & compositionRequest, ColumnCompositionRequest & compositionResponse)
@@ -3977,6 +4197,6 @@ namespace migration
       compositionResponse.valueSpec = compositionRequest.valueSpec;
 
       getLocalColumn (compositionRequest.i, compositionRequest.j)->getComposition (compositionRequest.valueSpec,
-                                                                                   compositionRequest.phase, compositionResponse.composition);
+         compositionRequest.phase, compositionResponse.composition);
    }
 }

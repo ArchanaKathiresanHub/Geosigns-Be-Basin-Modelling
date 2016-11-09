@@ -40,9 +40,10 @@ namespace casa
                                             , double              y             ///< Y-th grid coordinate [m]
                                             , const char        * resName       ///< reservoir name
                                             , const char        * propName      ///< name of the trap property
-                                            , double              simTime = 0.0 ///< simulation time [Ma]
+                                            , double              simTime       ///< simulation time [Ma]
+                                            , bool                logTrans      ///< should we transform observable to log scale?
                                             , const std::string & name = ""     ///< user specified name for observable
-                                            ) { return new ObsTrapProp( x, y, resName, propName, simTime, name ); }
+                                            ) { return new ObsTrapProp( x, y, resName, propName, simTime, logTrans, name ); }
 
       /// @brief Create observable for the given grid property for specified grid position
       ObsTrapProp( double              x         ///< X-th grid coordinate [m]
@@ -50,6 +51,7 @@ namespace casa
                  , const char        * resName   ///< reservoir name
                  , const char        * propName  ///< name of the property
                  , double              simTime   ///< simulation time [Ma]
+                 , bool                logTrans  ///< should we transform observable to log scale?
                  , const std::string & name = "" ///< user specified name for observable
                  );
 
@@ -73,14 +75,21 @@ namespace casa
       /// @return reference value
       virtual const ObsValue * referenceValue() const { return m_refValue.get(); }
 
+      /// @brief Make observable transformation to present trap property value to the user. This observable should be treated differently 
+      ///        when it is aproximated by a response surface and when it is presented to the user.
+      /// @param val Original observable value comes from a run case or from MonteCarlo
+      /// @return The new Observable value object which will keep the transformed observable value. This object must be destroyed
+      ///         by calling function.
+      virtual ObsValue * transform( const ObsValue * val ) const;
+
       /// @brief Get standard deviations for the reference value
       /// @return a standard deviation for reference value
-      virtual double stdDeviationForRefValue() const { return m_devValue; }
+      virtual const ObsValue * stdDeviationForRefValue() const { return m_devValue.get(); }
 
       /// @brief Set reference value
       /// @param refVal reference value itself
       /// @param stdDevVal standard deviation value for the reference value
-      virtual void setReferenceValue( ObsValue * refVal, double stdDevVal );
+      virtual void setReferenceValue( ObsValue * refVal, ObsValue * stdDevVal );
 
       /// @brief Get weighting coefficient for sensitivity analysis
       /// return weighting coefficient. This coefficient should be used in Pareto diagram calculation
@@ -111,7 +120,7 @@ namespace casa
       /// @brief Do observable validation for the given model
       /// @param caldModel reference to Cauldron model
       /// @return empty string if there is no any problems with this observable, or error message if trap is outside of the project 
-      virtual std::string checkObservableForProject( mbapi::Model & caldModel );
+      virtual std::string checkObservableForProject( mbapi::Model & caldModel ) const;
 
       /// @brief Create new observable value from set of doubles. This method is used for data conversion between SUMlib and CASA
       /// @param[in,out] val iterator for double array
@@ -121,7 +130,7 @@ namespace casa
       /// @{
       /// @brief Defines version of serialized object representation. Must be updated on each change in save()
       /// @return Actual version of serialized object representation
-      virtual unsigned int version() const { return 0; }
+      virtual unsigned int version() const { return 2; }
 
       /// @brief Save all object data to the given stream, that object could be later reconstructed from saved data
       /// @param sz Serializer stream
@@ -152,11 +161,13 @@ namespace casa
 
       int                      m_posDataMiningTbl; ///< row number in DataMiningIoTbl which corresponds this observable
 
-      std::unique_ptr<ObsValue>  m_refValue;         ///< reference value
-      double                   m_devValue;         ///< standard deviation for reference value
+      std::unique_ptr<ObsValue> m_refValue;        ///< reference value
+      std::unique_ptr<ObsValue> m_devValue;        ///< standard deviation for reference value
 
       double                   m_saWeight;         ///< Observable weight for sensitivity analysis
       double                   m_uaWeight;         ///< Observable weight for uncertainty analysis
+
+      bool                     m_logTransf;        ///< do logarithmic transformation (needed for for Volumes/Mass)
 
    private:
 

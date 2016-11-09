@@ -120,6 +120,9 @@ namespace DataAccess
          /// Indicates whether to use the simulator in BPA compatible mode
          virtual bool getLegacy () const;
 
+         /// Indicates whether to calculate seeps at paleo-times on top of present day.
+         virtual bool getPaleoSeeps () const;
+
          /// Indicates whether to use secondary migration blocking
          virtual bool getBlockingInd () const;
 

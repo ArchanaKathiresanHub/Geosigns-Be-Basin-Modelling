@@ -23,27 +23,29 @@ add_executable(eosptdiag
 )
 
 bm_include_libraries(
-	DataModel
-	DataAccess
-	SerialDataAccess
-	TableIO
-	CBMGenerics
-	EosPack
+   DataModel
+   DataAccess
+   SerialDataAccess
+   TableIO
+   CBMGenerics
+   EosPack
+   utilities
 )
 
-include_directories(
-	${HDF5_INCLUDE_DIRS}
+include_directories( SYSTEM
+   ${HDF5_INCLUDE_DIRS}
 )
 
 target_link_libraries(eosptdiag
-	DataAccess
-	SerialDataAccess
-	TableIO
-	CBMGenerics
-	EosPack
-	${HDF5_LIBRARIES}
+   DataAccess
+   SerialDataAccess
+   TableIO
+   CBMGenerics
+   EosPack
+   utilities
+   ${HDF5_LIBRARIES}
 )
 
 install(TARGETS eosptdiag
-	RUNTIME DESTINATION bin
+   RUNTIME DESTINATION bin
 )

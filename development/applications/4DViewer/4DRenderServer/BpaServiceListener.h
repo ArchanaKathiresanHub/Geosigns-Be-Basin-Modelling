@@ -22,38 +22,41 @@
 class BpaRenderAreaListener;
 class SceneGraph;
 class Device;
-class RenderService;
+class Scheduler;
 
 using namespace RemoteViz::Rendering;
 
 class BpaServiceListener : public ServiceListener
 {
-  RenderService* m_renderService;
+  Scheduler& m_scheduler;
+  std::string m_datadir;
 
 public:
 
-	explicit BpaServiceListener(RenderService* renderService=0);
+  explicit BpaServiceListener(Scheduler& scheduler);
 
-	~BpaServiceListener();
+  ~BpaServiceListener();
 
-  //virtual bool onPendingCreateRenderArea(
-  //  const std::string& renderAreaId, 
-  //  unsigned int& width, 
-  //  unsigned int& height, 
-  //  Device* device, 
-  //  ConnectionParameters* parameters);
+  void setDataDir(const std::string& dir);
 
-  //virtual bool onPendingShareRenderArea(RenderArea* renderArea, Device* device, ConnectionParameters* parameters);
+  bool onPendingCreateRenderArea(
+    const std::string& renderAreaId, 
+    unsigned int& width, 
+    unsigned int& height, 
+    Client* client, 
+    ConnectionParameters* parameters) override;
 
-  virtual void onInstantiatedRenderArea(RenderArea *renderArea);
+  bool onPendingShareRenderArea(RenderArea* renderArea, Client* client, ConnectionParameters* parameters) override;
 
-  //virtual void onDisposedRenderArea(const std::string& renderAreaId);
+  void onInstantiatedRenderArea(RenderArea *renderArea) override;
 
-  //virtual void onConnectedDevice(const std::string& deviceId);
+  void onDisposedRenderArea(const std::string& renderAreaId) override;
 
-  //virtual void onDisconnectedDevice(const std::string& deviceId);
+  void onConnectedClient(const std::string& clientId) override;
 
-  //virtual void onMissingLicense(const std::string& renderAreaId, ConnectionParameters* parameters);
+  void onDisconnectedClient(const std::string& clientId) override;
+
+  void onMissingLicense(const std::string& renderAreaId, ConnectionParameters* parameters) override;
 
 };
 

@@ -10,32 +10,8 @@
 #                                                                       #
 #########################################################################
 
-include( cmake/AddPackage.cmake)
-
-
-# Add Boost as an external project
-add_external_project_to_repository(
-      NAME Eigen
-      VERSION 3.2.5
-      ARCHIVE "${THIRD_PARTY_DIR}/sources/eigen-3.2.5.tar.gz"
-      ARCHIVE_MD5 "8cc513ac6ec687117acadddfcacf551b"
-      CONFIGURE_COMMAND "${CMAKE_COMMAND}" "-E" "echo" "Eigen doesn't need to be configured."
-      BUILD_COMMAND   "${CMAKE_COMMAND}" "-E" "echo" "Eigen doesn't need to be built."
-      INSTALL_COMMAND "${CMAKE_COMMAND}" "-E" "copy_directory" "{SRCBUILD}/Eigen" "{ROOT}/include/eigen3/Eigen"
-      CONFIGURE_OPTIONS 
-        COMPILER "{CurrentCompiler}" 
-        MPI      "{CurrentMPI}"
-        SPEED    "Release"
-        SPEED    "Debug"
-        SPEED    "DebugAll"
-        SPEED    "MemCheck"
-        SPEED    "CodeCoverage"
-        OS       "{CurrentPlatform}"
-        LINK     "Dynamic"
-        LINK     "Static"
-)
-
-set(EIGEN_INCLUDE_DIRS "${Eigen_ROOT}/include")
+set(Eigen_ROOT "${THIRD_PARTY_DIR}/Eigen-3.2.8" CACHE PATH "Path to Eigen include files" )
+set(EIGEN_INCLUDE_DIRS "${Eigen_ROOT}" "${Eigen_ROOT}/eigen3")
 
 # Definining EIGEN_MPL2_ONLY is crucial for use within Shell, because this
 # ensures that only codes is used with MPL2 and possible more permissive
@@ -60,4 +36,5 @@ add_external_package_info(
    ECCN         "EAR99"
    ECCN_EVIDENCE "https://sps.sede-coe.pds.nl/CoE-II/Basin Modeling/Release documents/Export Classification Tracking/License and ECCN of Eigen (a C++ linear algebra library).msg"
 )
+
 

@@ -1,18 +1,7 @@
 #include <math.h>
 #include "Interface/IBSFaultFileReader.h"
-
-#ifdef sgi
-#ifdef _STANDARD_C_PLUS_PLUS
-#include<sstream>
-using std::stringstream;
-#else                           // !_STANDARD_C_PLUS_PLUS
-#include<strstream.h>
-typedef strstream stringstream;
-#endif                          // _STANDARD_C_PLUS_PLUS
-#else                           // !sgi
 #include <sstream>
 using std::stringstream;
-#endif                          // sgi
 
 using namespace DataAccess;
 using namespace Interface;

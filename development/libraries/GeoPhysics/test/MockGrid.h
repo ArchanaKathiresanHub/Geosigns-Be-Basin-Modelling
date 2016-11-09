@@ -1,3 +1,13 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 /**
  * \file SchmeiderCompactionCalculatorTest.C
  * \brief Test the SchneiderCompactionCalculator class
@@ -30,7 +40,8 @@ public:
          const int * lithoMap,
          const int numberLithologies,
          const double * activationEnergy,
-         const double * referenceViscosity
+         const double * referenceViscosity,
+         const bool isLegacy
    );//For Schneider chemical compaction
 
    inline MockGrid ( const int size,
@@ -142,6 +153,10 @@ public:
     */
    inline const double * getClayCoatingFactor() const { return m_coatingClay; }
 
+   /*!
+   * \brief is the behaviour legacy or new rock property library feature? 
+   */
+   inline bool isLegacy() const { return m_isLegacy; }
 
 
 private:
@@ -163,6 +178,7 @@ private:
    //For Schneider model
    const double * m_activationEnergy;
    const double * m_referenceViscosity;
+   const bool     m_isLegacy;
 
    //For Walderhaug model
    const double * m_fractionQuartz;
@@ -188,7 +204,8 @@ inline MockGrid::MockGrid(
       const int * lithoMap,
       const int numberLithologies,
       const double * activationEnergy,
-      const double * referenceViscosity ) :
+      const double * referenceViscosity,
+      const bool isLegacy ):
 			              m_size( size ),
 			              m_previousTime( previousTime ),
 			              m_currentTime( currentTime ),
@@ -200,7 +217,8 @@ inline MockGrid::MockGrid(
 			              m_validNodes( validNodes ),
 			              m_numberLithologies( numberLithologies ),
 			              m_activationEnergy( activationEnergy ),
-			              m_referenceViscosity( referenceViscosity )
+                       m_referenceViscosity( referenceViscosity ),
+                       m_isLegacy( isLegacy )
 {
    m_lithoMap.insert( m_lithoMap.end(), lithoMap, lithoMap + size );
 }
@@ -234,7 +252,8 @@ inline MockGrid::MockGrid( const int size,
 			         m_numberLithologies( numberLithologies ),
 			         m_fractionQuartz( fractionQuartz ),
 			         m_grainSize( grainSize ),
-			         m_coatingClay( coatingClay )
+                  m_coatingClay( coatingClay ),
+                  m_isLegacy( false )
 {
    m_lithoMap.insert( m_lithoMap.end(), lithoMap, lithoMap + size );
 }

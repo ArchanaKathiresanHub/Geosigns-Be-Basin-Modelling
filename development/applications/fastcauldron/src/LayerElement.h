@@ -1,5 +1,15 @@
-#ifndef _FASTCAULDRON__VOLUME_ELEMENT__H_
-#define _FASTCAULDRON__VOLUME_ELEMENT__H_
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
+
+#ifndef FASTCAULDRON__VOLUME_ELEMENT__H
+#define FASTCAULDRON__VOLUME_ELEMENT__H
 
 #include <string>
 
@@ -11,7 +21,7 @@
 #include "Nodal3DIndexArray.h"
 
 #include "BoundaryId.h"
-#include "globaldefs.h"
+#include "ConstantsFastcauldron.h"
 
 /// Some forward declarations of types.
 class LayerProps;
@@ -487,4 +497,4 @@ inline const LayerElement* LayerElement::getNeighbour ( const VolumeData::Bounda
 }
 
 
-#endif // _FASTCAULDRON__VOLUME_ELEMENT__H_
+#endif // FASTCAULDRON__VOLUME_ELEMENT__H

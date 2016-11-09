@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2012-2014 Shell International Exploration & Production.
+// Copyright (C) 2012-2016 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -8,10 +8,11 @@
 // Do not distribute without written permission from Shell.
 // 
 
-/// @file ObsTrapProp.C
+/// @file ObsTrapProp.cpp
 
 // CASA API
 #include "ObsValueDoubleScalar.h"
+#include "ObsValueTransformable.h"
 #include "ObsTrapProp.h"
 
 // CMB API
@@ -29,11 +30,12 @@ namespace casa
 {
 
 // Create observable for the given trap property for specified areal position
-ObsTrapProp::ObsTrapProp( double x
-                        , double y
-                        , const char * resName
-                        , const char * propName
-                        , double simTime
+ObsTrapProp::ObsTrapProp( double              x
+                        , double              y
+                        , const char        * resName
+                        , const char        * propName
+                        , double              simTime
+                        , bool                logTrans
                         , const std::string & name
                         )
                         : m_x( x )
@@ -42,9 +44,9 @@ ObsTrapProp::ObsTrapProp( double x
                         , m_propName( propName )
                         , m_simTime( simTime )
                         , m_posDataMiningTbl( -1 )
-                        , m_devValue( 0.0 )
                         , m_saWeight( 1.0 )
                         , m_uaWeight( 1.0 )
+                        , m_logTransf( logTrans )
 
 {
    // check input values
@@ -67,16 +69,29 @@ ObsTrapProp::~ObsTrapProp() {;}
 std::vector<std::string> ObsTrapProp::name() const { return m_name; }
         
 // Get standard deviations for the reference value
-void ObsTrapProp::setReferenceValue( ObsValue * obsVal, double devVal )
+void ObsTrapProp::setReferenceValue( ObsValue * obsVal, ObsValue * devVal )
 {
    assert( obsVal != NULL );
    assert( dynamic_cast<ObsValueDoubleScalar*>( obsVal ) != NULL );
-   assert( devVal >= 0.0 );
+
+   assert( devVal != NULL );
+   assert( dynamic_cast<ObsValueDoubleScalar*>( devVal ) != NULL );
 
    m_refValue.reset( obsVal );
-   m_devValue = devVal;
+   m_devValue.reset( devVal );
 }
  
+
+ObsValue * ObsTrapProp::transform( const ObsValue * val ) const
+{
+   double ret = val->asDoubleArray()[0];
+
+   if ( m_logTransf ) { ret = ret <= -5 ? 0.0 : pow( 10, ret ); } // set threshold for 1.e-5
+
+   return ObsValueDoubleScalar::createNewInstance( this, ret );
+}
+
+
 // Update Model to be sure that requested property will be saved at the requested time
 ErrorHandler::ReturnCode ObsTrapProp::requestObservableInModel( mbapi::Model & caldModel )
 {
@@ -103,40 +118,37 @@ ObsValue * ObsTrapProp::getFromModel( mbapi::Model & caldModel )
 {
    double val = UndefinedDoubleValue;
    double eps = 1.e-5;
-   
+ 
+   const std::string & msg = checkObservableForProject( caldModel );
+   if ( !msg.empty() ) { return new ObsValueDoubleScalar( this, val ); }
+  
    if ( m_posDataMiningTbl < 0 )
-   {
+   {  // search in table for correct position
       size_t tblSize = caldModel.tableSize( Observable::s_dataMinerTable );
       bool found = false;
       for ( size_t i = 0; i < tblSize && !found; ++i )
       {
          double obTime = caldModel.tableValueAsDouble( Observable::s_dataMinerTable, i, "Time" );
-         if ( caldModel.errorCode() == ErrorHandler::NoError && NumericFunctions::isEqual( obTime, m_simTime, eps ) )
-         {
-            double xCrd = caldModel.tableValueAsDouble( Observable::s_dataMinerTable, i, "XCoord" );
-            if ( caldModel.errorCode() == ErrorHandler::NoError && NumericFunctions::isEqual( xCrd, m_x, eps ) )
-            {
-               double yCrd = caldModel.tableValueAsDouble( Observable::s_dataMinerTable, i, "YCoord" );
-               if ( caldModel.errorCode() == ErrorHandler::NoError && NumericFunctions::isEqual( yCrd, m_y, eps ) )
-               {
-                  double zCrd = caldModel.tableValueAsDouble( Observable::s_dataMinerTable, i, "ZCoord" );
-                  if ( caldModel.errorCode() == ErrorHandler::NoError && NumericFunctions::isEqual( zCrd, UndefinedDoubleValue, eps ) )
-                  {
-                     const std::string & resName = caldModel.tableValueAsString( Observable::s_dataMinerTable, i, "ReservoirName" );
-                     if ( caldModel.errorCode() == ErrorHandler::NoError && m_resName == resName )
-                     {
-                        const std::string & propName = caldModel.tableValueAsString( Observable::s_dataMinerTable, i, "PropertyName" );
-                        if ( caldModel.errorCode() == ErrorHandler::NoError && m_propName == propName )
-                        {
-                           found = true;
-                           val = caldModel.tableValueAsDouble( Observable::s_dataMinerTable, i, "Value" );
-                           m_posDataMiningTbl = static_cast<int>( i );
-                        }
-                     }
-                  }
-               }
-            }
-         }
+         if ( caldModel.errorCode() != ErrorHandler::NoError || !NumericFunctions::isEqual( obTime, m_simTime, eps ) ) { continue; }
+
+         double xCrd = caldModel.tableValueAsDouble( Observable::s_dataMinerTable, i, "XCoord" );
+         if ( caldModel.errorCode() != ErrorHandler::NoError || !NumericFunctions::isEqual( xCrd, m_x, eps ) ) { continue; }
+
+         double yCrd = caldModel.tableValueAsDouble( Observable::s_dataMinerTable, i, "YCoord" );
+         if ( caldModel.errorCode() != ErrorHandler::NoError || !NumericFunctions::isEqual( yCrd, m_y, eps ) ) { continue; }
+
+         double zCrd = caldModel.tableValueAsDouble( Observable::s_dataMinerTable, i, "ZCoord" );
+         if ( caldModel.errorCode() != ErrorHandler::NoError || !NumericFunctions::isEqual( zCrd, UndefinedDoubleValue, eps ) ) { continue; }
+
+         const std::string & resName = caldModel.tableValueAsString( Observable::s_dataMinerTable, i, "ReservoirName" );
+         if ( caldModel.errorCode() != ErrorHandler::NoError || m_resName != resName ) { continue; }
+
+         const std::string & propName = caldModel.tableValueAsString( Observable::s_dataMinerTable, i, "PropertyName" );
+         if ( caldModel.errorCode() != ErrorHandler::NoError || m_propName != propName ) { continue; }
+
+         found = true;
+         val = caldModel.tableValueAsDouble( Observable::s_dataMinerTable, i, "Value" );
+         m_posDataMiningTbl = static_cast<int>( i );
       }
    }
    else
@@ -153,12 +165,22 @@ ObsValue * ObsTrapProp::getFromModel( mbapi::Model & caldModel )
       if ( m_propName.substr( 0, 6 ) == "Volume" || m_propName.substr( 0, 4 ) == "Mass" ) { val = 0.0; } // no trap at this place - no HC
    }
 
-   return new ObsValueDoubleScalar( this, val );
+   if ( m_logTransf && UndefinedDoubleValue != val )
+   {
+      if ( val < 0.0 )
+      {
+         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << 
+            "TrapProp observable value for " << m_propName << " is negative: " << val << ", can not make logarithmic transformation";
+      }  
+      return ObsValueTransformable::createNewInstance( this, std::vector<double>( 1, log10( val < eps ? eps : val ) ) ); // set threshold for 1.e-5
+   }
+
+   return ObsValueDoubleScalar::createNewInstance(  this, val );
 }
 
 
 // Check well against project coordinates
-std::string ObsTrapProp::checkObservableForProject( mbapi::Model & caldModel )
+std::string ObsTrapProp::checkObservableForProject( mbapi::Model & caldModel ) const
 {
    std::ostringstream oss;
 
@@ -181,7 +203,11 @@ std::string ObsTrapProp::checkObservableForProject( mbapi::Model & caldModel )
 // Create this observable value from double array (converting data from SUMlib for response surface evaluation
 ObsValue * ObsTrapProp::createNewObsValueFromDouble( std::vector<double>::const_iterator & val ) const
 {
-   return new ObsValueDoubleScalar( this, *val++ );
+   double dval = *val++;
+   
+   if ( m_logTransf ) return  ObsValueTransformable::createNewInstance( this, std::vector<double>( 1, dval ) );
+
+   return ObsValueDoubleScalar::createNewInstance(  this, dval );
 }
 
 bool ObsTrapProp::save( CasaSerializer & sz, unsigned int /* version */) const
@@ -205,10 +231,14 @@ bool ObsTrapProp::save( CasaSerializer & sz, unsigned int /* version */) const
    ok = ok ? sz.save( hasRefVal, "HasRefValue" ) : ok;
    if ( hasRefVal ) { ok = ok ? sz.save( *(m_refValue.get()), "refValue" ) : ok; }
    
-   ok = ok ? sz.save( m_devValue, "devValue" ) : ok;
+   bool hasDevVal = m_devValue.get() ? true : false;
+   ok = ok ? sz.save( hasDevVal, "HasDevVal" ) : ok;
+   if ( hasDevVal ) { ok = ok ? sz.save( *(m_devValue.get()), "devValue" ) : ok; }
 
    ok = ok ? sz.save( m_saWeight, "saWeight" ) : ok;
    ok = ok ? sz.save( m_uaWeight, "uaWeight" ) : ok;
+
+   ok = ok ? sz.save( m_logTransf, "logTransf" ) : ok;
 
    return ok;
 }
@@ -238,15 +268,39 @@ ObsTrapProp::ObsTrapProp( CasaDeserializer & dz, unsigned int objVer )
    ok = ok ? dz.load( m_name,      "name"         ) : ok;
    ok = ok ? dz.load( m_posDataMiningTbl, "posDataMiningTbl" ) : ok;
 
-   bool hasRefVal;
-   ok = ok ? dz.load( hasRefVal, "HasRefValue" ) : ok;
+   bool hasVal;
+   ok = ok ? dz.load( hasVal, "HasRefValue" ) : ok;
 
-   if ( hasRefVal ) { m_refValue.reset( ObsValue::load( dz, "refValue" ) ); }
+   if ( hasVal ) { m_refValue.reset( ObsValue::load( dz, "refValue" ) ); }
 
-   ok = ok ? dz.load( m_devValue, "devValue" ) : ok;
+   if ( objVer == 0 )
+   {
+      double val;
+      ok = ok ? dz.load( val, "devValue" ) : ok;
+      if ( ok ) { m_devValue.reset( new  ObsValueDoubleScalar( this, val ) ); }
+   }
+   else
+   {
+      ok = ok ? dz.load( hasVal, "HasDevVal" ) : ok;
+      if ( hasVal ) { m_devValue.reset( ObsValue::load( dz, "devValue" ) ); }
+   }
+
    ok = ok ? dz.load( m_saWeight, "saWeight" ) : ok;
    ok = ok ? dz.load( m_uaWeight, "uaWeight" ) : ok;
    
+   if ( objVer > 1 )
+   {
+      ok = ok ? dz.load( m_logTransf, "logTransf" ) : ok;
+   }
+   else
+   {
+      if ( m_propName.find( "Mass" ) != std::string::npos || m_propName.find( "Volume" ) != std::string::npos )
+      {
+         m_logTransf = true;
+      }
+      else { m_logTransf = false; }
+   }
+
    if ( !ok )
    {
       throw ErrorHandler::Exception( ErrorHandler::DeserializationError )
@@ -254,5 +308,4 @@ ObsTrapProp::ObsTrapProp( CasaDeserializer & dz, unsigned int objVer )
    }
 }
 
-}
-
+}; // namespace casa

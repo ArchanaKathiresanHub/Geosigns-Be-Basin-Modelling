@@ -28,9 +28,6 @@ VarPrmSourceRockProp::VarPrmSourceRockProp()
 }
 
 VarPrmSourceRockProp::VarPrmSourceRockProp( const char * layerName
-                                          , double       baseValue
-                                          , double       minValue
-                                          , double       maxValue
                                           , PDF          pdfType
                                           , const char * name
                                           , const char * srTypeName
@@ -40,20 +37,8 @@ VarPrmSourceRockProp::VarPrmSourceRockProp( const char * layerName
                                           , m_mixID( mixID )
                                           , m_srTypeName( srTypeName ? srTypeName : "" )
 {
-   m_pdf = pdfType;
+   m_pdf  = pdfType;
    m_name = name && strlen( name ) > 0 ? std::string( name ) : std::string( "" );
-
-   assert( minValue <= baseValue && maxValue >= baseValue );
-
-   // if this parameter is intendent to be dependend on source rock type, store range in map
-   if ( !m_srTypeName.empty() )
-   {
-      std::vector<double> vec;
-      vec.push_back( minValue );
-      vec.push_back( maxValue );
-      vec.push_back( baseValue );
-      m_name2range[ m_srTypeName ] = vec;
-   }
 }
 
 
@@ -65,11 +50,14 @@ SharedParameterPtr VarPrmSourceRockProp::newParameterFromDoubles( std::vector<do
 
    double prmV = *vals++; // in [-1:0:1] range
 
-   // 0.0 is the base value for [-1:1] range
-   prmV = prmV < 0.0 ? minProp  + (prmV + 1.0) * (baseProp - minProp) : // [minV, baseV] range
-                       baseProp + prmV * ( maxProp  - baseProp);  // [baseV, maxV] range
-
-   // scale prmV from [-1:1] to the current Prop range - [minProp:maxProp]
+   // scale to range [-1:0:1] if variable parameter has more than 1 range
+   if ( m_name2range.size() > 1 ) 
+   {  
+      // scale prmV from [-1:1] to the current Prop range - [minProp:maxProp]
+      // 0.0 is the base value for [-1:1] range
+      prmV = prmV < 0.0 ? minProp  + (prmV + 1.0) * (baseProp - minProp) : // [minV, baseV] range
+                          baseProp + prmV * ( maxProp  - baseProp);  // [baseV, maxV] range
+   }
 
    if ( minProp > prmV || prmV > maxProp )
    {
@@ -77,10 +65,28 @@ SharedParameterPtr VarPrmSourceRockProp::newParameterFromDoubles( std::vector<do
          m_layerName << ": " << prmV << " falls out of range: [" << minProp << ":" << maxProp << "]";
    }
 
-   SharedParameterPtr prm( createNewPrm( prmV ) );
+   SharedParameterPtr prm( createNewPrm( prmV, m_srTypeName ) );
 
    return prm;
 }
+
+SharedParameterPtr VarPrmSourceRockProp::newParameterFromModel( mbapi::Model & mdl, const std::vector<double> & /* vin */ ) const
+{
+   SharedParameterPtr prm( createNewPrmFromModel( mdl ) );
+   prm->setParent( const_cast<VarPrmSourceRockProp *>( this ) );
+   return prm;
+}
+
+SharedParameterPtr VarPrmSourceRockProp::makeThreeDFromOneD( mbapi::Model                          & /* mdl    */
+                                                           , const std::vector<double>             & /* xin    */
+                                                           , const std::vector<double>             & /* yin    */
+                                                           , const std::vector<SharedParameterPtr> & /* prmVec */ ) const
+{
+   // Not yet implemented
+   throw ErrorHandler::Exception( ErrorHandler::NotImplementedAPI ) << "makeThreeDFromOneD method not yet implemented for VarPrmSourceRockProp";
+   return nullptr;
+}
+
 
 std::vector<double> VarPrmSourceRockProp::asDoubleArray( const SharedParameterPtr prm ) const 
 {
@@ -95,47 +101,45 @@ std::vector<double> VarPrmSourceRockProp::asDoubleArray( const SharedParameterPt
 
    if ( !m_name.empty() && !tocPrm->sourceRockTypeName().empty() && m_name2range.count( tocPrm->sourceRockTypeName() ) > 0 )
    {  
-      const std::vector<double> & rng = m_name2range.find( tocPrm->sourceRockTypeName() )->second;
-      minV = rng[0];
-      maxV = rng[1];
-      basV = rng[2];
+      const std::vector<SharedParameterPtr> & rng = m_name2range.find( tocPrm->sourceRockTypeName() )->second;
+      minV = dynamic_cast<PrmSourceRockProp*>( rng[0].get() )->value();
+      maxV = dynamic_cast<PrmSourceRockProp*>( rng[1].get() )->value();
+      basV = dynamic_cast<PrmSourceRockProp*>( rng[2].get() )->value();
    }
 
    std::vector<double> ret;
-   // scale to range [-1:0:1]
-   ret.push_back( tocVal < basV ? -1.0 + (tocVal - minV)/(basV-minV) * (0.0 - (-1.0)) :
-                                   0.0 + (tocVal - basV)/(maxV-basV) * (1.0 - 0.0 ) );
+   if ( m_name2range.size() > 1 )
+   {  // scale to range [-1:0:1] if variable parameter has more than 1 range
+      ret.push_back( tocVal < basV ? -1.0 + (tocVal - minV)/(basV-minV) * (0.0 - (-1.0)) :
+                                      0.0 + (tocVal - basV)/(maxV-basV) * (1.0 - 0.0 ) );
+   }
+   else { ret.push_back( tocVal ); } // if just one simple range without source rock type parameter - do not scale it
+
    return ret;
 }
 
-void VarPrmSourceRockProp::addSourceRockTypeRange( const char * srTypeName, double baseVal, double minVal, double maxVal, PDF pdfType )
-{
-   if ( !srTypeName )
-   {
-      throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Empty source rock type name for new " << m_propName << 
-         " range for: " << name();
-   }
+void VarPrmSourceRockProp::addSourceRockTypeRange( const char         * srTypeName
+                                                 , SharedParameterPtr   baseVal   
+                                                 , SharedParameterPtr   minVal    
+                                                 , SharedParameterPtr   maxVal    
+                                                 , PDF                  pdfType   
+                                                 )
+{  
+   ErrorHandler::Exception ex( ErrorHandler::OutOfRangeValue );
 
-   if ( m_name2range.empty() )
-   {
-      throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << m_propName << " parameter was defined before without dependency on " <<
-         "source rock type, you can't mix dependent and independent Prop" << name();
-   }
+   if ( !srTypeName ) { throw ex << "Empty source rock type name for new " << m_propName << " range for: " << name(); }
 
    if ( m_name2range.count( std::string( srTypeName ) ) )
    {
-      throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Duplicate source rock type name: " << srTypeName << 
-         " for new " << m_propName << " range for: " << name();
+      throw ex << "Duplicate source rock type name: " << srTypeName << " for new " << m_propName << " range for: " << name();
    }
 
    if ( pdfType != m_pdf )
    {
-      throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Different PDF for source rock type name: " << srTypeName << 
-         " for new " << m_propName << " range for: " << name();
+      throw ex << "Different PDF for source rock type name: " << srTypeName << " for new " << m_propName << " range for: " << name();
    }
 
-   assert( minVal <= baseVal && maxVal >= baseVal );
-   std::vector<double> vec;
+   std::vector<SharedParameterPtr> vec;
 
    vec.push_back( minVal );
    vec.push_back( maxVal );
@@ -155,12 +159,18 @@ bool VarPrmSourceRockProp::serializeCommonPart( CasaSerializer & sz, unsigned in
 
    size_t numRanges = m_name2range.size();
    ok = ok ? sz.save( numRanges, "numPropRanges" ) : ok;
-   for ( std::map<std::string, std::vector<double> >::const_iterator it = m_name2range.begin(); it != m_name2range.end(); ++it )
+   for ( auto it = m_name2range.begin(); it != m_name2range.end(); ++it )
    {
       const std::string & key = it->first;
-      const std::vector<double> & vec = it->second;
+      const std::vector<SharedParameterPtr> & vec = it->second;
+
       ok = ok ? sz.save( key, "srTypeNameKey"    ) : ok;
-      ok = ok ? sz.save( vec, "valPropRange"     ) : ok;
+      if ( key != m_srTypeName ) // this set of min/max/base values alrady saved in VarPrmContinuous serialization
+      {
+         ok = ok ? sz.save( *(vec[0].get()), "minValPropRange" ) : ok;
+         ok = ok ? sz.save( *(vec[1].get()), "maxValPropRange" ) : ok;
+         ok = ok ? sz.save( *(vec[2].get()), "basValPropRange" ) : ok;
+      }
    } 
    
    ok = ok ? sz.save( m_propName, "propName"     ) : ok;
@@ -182,14 +192,57 @@ bool VarPrmSourceRockProp::deserializeCommonPart( CasaDeserializer & dz, unsigne
    for ( size_t i = 0; ok && i < numRanges; ++i )
    {
       std::string         key;
-      std::vector<double> vec;   // load min, max & base range values
 
       ok = ok ? dz.load( key, "srTypeNameKey" ) : ok;
-      ok = ok ? dz.load( vec, "valPropRange"  ) : ok;
+      
+      std::vector<SharedParameterPtr > vec;   // load min, max & base range values
 
+      if ( objVer > 0 ) // load ranges as min/max/base parameters objects
+      {
+         if ( key != m_srTypeName )
+         {
+            for ( size_t j = 0; j < 3 && ok; ++j )
+            {
+               switch( j ) 
+               {
+                  case 0: vec.push_back( SharedParameterPtr( Parameter::load( dz, "minValPropRange" ) ) ); break;
+                  case 1: vec.push_back( SharedParameterPtr( Parameter::load( dz, "maxValPropRange" ) ) ); break;
+                  case 2: vec.push_back( SharedParameterPtr( Parameter::load( dz, "basValPropRange" ) ) ); break;
+               }
+               ok = vec.back() ? true : false;
+            }
+         }
+         else
+         {
+            vec.push_back( m_minValue );
+            vec.push_back( m_maxValue );
+            vec.push_back( m_baseValue );
+         }
+      }
+      else // load old style min/max/base range as double values
+      {
+         std::vector<double> dvec;   // load min, max & base range values
+         ok = ok ? dz.load( dvec, "valPropRange"  ) : ok;
+
+         if ( ok )
+         {
+            if ( key != m_srTypeName )
+            {
+               for ( auto v : dvec ) { vec.push_back( SharedParameterPtr( createNewPrm( v, key ) ) ); }
+            }
+            else
+            {
+               vec.push_back( m_minValue );
+               vec.push_back( m_maxValue );
+               vec.push_back( m_baseValue );
+            }
+         }
+      }
       if ( ok ) { m_name2range[key] = vec; } // add property range
    }
+
    ok = ok ? dz.load( m_propName, "propName"    ) : ok;
+   
    return ok;
 }
 
@@ -215,14 +268,14 @@ void VarPrmSourceRockProp::onCategoryChosen( const Parameter * prm )
       throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Unknown source rock type in dependent " << m_propName << 
          " parameter: " <<  srName << " for the layer: " << lrName;
    }
-   const std::vector<double> & vec = m_name2range[srName];
+   const std::vector<SharedParameterPtr> & vec = m_name2range[srName];
 
    // Switch to the new range
    m_srTypeName = srName;
 
-   dynamic_cast<PrmSourceRockProp*>( m_minValue.get( ) )->update( vec[0], srName );
-   dynamic_cast<PrmSourceRockProp*>( m_maxValue.get( ) )->update( vec[1], srName );
-   dynamic_cast<PrmSourceRockProp*>( m_baseValue.get() )->update( vec[2], srName );
+   m_minValue  = vec[0];
+   m_maxValue  = vec[1];
+   m_baseValue = vec[2];
 }
 
 

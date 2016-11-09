@@ -1,4 +1,3 @@
-#include "stdafx.h"
 //
 // Creates H5 compound types for Cauldron
 //

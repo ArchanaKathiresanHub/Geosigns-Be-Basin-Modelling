@@ -11,9 +11,9 @@ public:
    H5_PropertyList* clone() const
    { return new H5_Parallel_PropertyList(*this); }
 
-   virtual hid_t createFilePropertyList() const ;
+   virtual hid_t createFilePropertyList( const bool readOnly ) const ;
 
-   virtual hid_t createDatasetPropertyList() const;
+   virtual hid_t createDatasetPropertyList( const bool readOnly ) const;
          
    static bool setOneFilePerProcessOption() ;
 
@@ -34,6 +34,10 @@ public:
    {  s_primaryPod = oneFilePerProcess; }
    
    static bool copyMergedFile( const std::string & fileName, const bool rank = true );
+
+   static bool mergeOutputFiles ( const string & activityName, const std::string & localPath );
+
+   static bool removeOutputFile ( const string & filePathName );
 private:
    static bool s_oneFilePerProcess;
    static bool s_primaryPod;

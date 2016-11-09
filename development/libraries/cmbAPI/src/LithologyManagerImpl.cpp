@@ -46,6 +46,7 @@ const char * LithologyManagerImpl::s_ccbDblExponentialFieldName = "CompacCoefESB
 const char * LithologyManagerImpl::s_ccSoilMechanicsFieldName   = "Compaction_Coefficient_SM";
 const char * LithologyManagerImpl::s_minPorosityFieldName       = "MinimumPorosity";
 const char * LithologyManagerImpl::s_stpThermalCondFieldName    = "StpThCond";
+const char * LithologyManagerImpl::s_seisVelocityFieldName      = "SeisVelocity";
 
 // Permeability model
 const char * LithologyManagerImpl::s_permeabilityModelFieldName      = "PermMixModel";
@@ -276,7 +277,8 @@ ErrorHandler::ReturnCode LithologyManagerImpl::deleteLithology( LithologyID id )
          {
             std::vector<std::string> lithoNamesLst;
             std::vector<double>      lithoPerct;
-            m_stMgr->layerLithologiesList( layIDs[i], lithoNamesLst, lithoPerct );
+            std::vector<std::string> percMaps;
+            m_stMgr->layerLithologiesList( layIDs[i], lithoNamesLst, lithoPerct, percMaps );
             std::vector<std::string>::iterator it = std::find( lithoNamesLst.begin(), lithoNamesLst.end(), lithoName );
             if ( it != lithoNamesLst.end() ) // this lithology is referenced in stratigraphy, return error
             {
@@ -363,7 +365,7 @@ struct RecordSorter
       assert( r1 != NULL && r2 != NULL );
 
       for ( size_t i = 0; i < m_fldIDs.size(); ++ i )
-      {  int id = m_fldIDs[i];
+      {  size_t id = m_fldIDs[i];
          switch ( m_fldTypes[i] )
          {
             case datatype::Bool:   { bool v = r1->getValue<bool>( id ); bool w = r2->getValue<bool>( id ); if ( v != w ) return v < w; } break;
@@ -382,7 +384,7 @@ struct RecordSorter
       return false;
    }
 
-   std::vector<int>                 m_fldIDs;
+   std::vector<size_t>              m_fldIDs;
    std::vector<datatype::DataType>  m_fldTypes;
    double                           m_eps;
 };
@@ -437,7 +439,8 @@ ErrorHandler::ReturnCode LithologyManagerImpl::cleanDuplicatedLithologies()
             {
                std::vector<std::string> lithoNamesLst;
                std::vector<double>      lithoPerct;
-               m_stMgr->layerLithologiesList( layIDs[j], lithoNamesLst, lithoPerct );
+               std::vector<std::string> percMaps;
+               m_stMgr->layerLithologiesList( layIDs[j], lithoNamesLst, lithoPerct, percMaps );
                bool isReplaced = false;
                for ( size_t k = 0; k < lithoNamesLst.size(); ++k )
                {
@@ -894,6 +897,28 @@ ErrorHandler::ReturnCode LithologyManagerImpl::setPermeabilityModel( LithologyID
    catch ( const Exception & e ) { return reportError( e.errorCode(), e.what() ); }
 
    return NoError;
+}
+
+double LithologyManagerImpl::seisVelocity( LithologyID id )
+{
+   double val = UndefinedDoubleValue;
+
+   if ( errorCode( ) != NoError ) resetError( );
+   try
+   {
+      // if table does not exist - report error
+      if ( !m_lithIoTbl ) { throw Exception( NonexistingID ) << s_lithoTypesTableName << " table could not be found in project"; }
+
+      database::Record * rec = m_lithIoTbl->getRecord( static_cast<int>( id ) );
+      if ( !rec ) { throw Exception( NonexistingID ) << "No lithology type with such ID: " << id; }
+
+      val = rec->getValue<double>( s_seisVelocityFieldName );
+   }
+   catch ( const Exception & e )
+   {
+      reportError( e.errorCode( ), e.what( ) );
+   }
+   return val;
 }
  
 // Set lithology STP thermal conductivity coefficient

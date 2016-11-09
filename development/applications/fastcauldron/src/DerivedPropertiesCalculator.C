@@ -5,6 +5,7 @@
 
 #include "LogHandler.h"
 #include "FastcauldronFactory.h"
+#include "FilePath.h"
 #include "Interface/SimulationDetails.h"
 #include "Interface/MapWriter.h"
 
@@ -21,7 +22,7 @@ DerivedPropertiesCalculator::DerivedPropertiesCalculator( AppCtx * aAppctx, cons
     m_decompactionMode  = false;
     m_opTemperatureMode = false;
     m_hydrostaticTemperatureMode = false;
-    
+
     m_rank = m_simulator->getRank();
     m_debug = false;
 
@@ -32,7 +33,7 @@ DerivedPropertiesCalculator::DerivedPropertiesCalculator( AppCtx * aAppctx, cons
 //------------------------------------------------------------//
 
 DerivedPropertiesCalculator::~DerivedPropertiesCalculator() {
-   
+
    if(  m_propertyManager != 0 ) {
 
       delete m_propertyManager;
@@ -58,37 +59,38 @@ bool DerivedPropertiesCalculator::compute() {
    }
    // 2D Map file can still be "read-only" opened - reopen it in append mode
    string fileName = m_simulator-> getActivityName();
-   
+
    fileName += "_Results.HDF";
-   string filePathName =  m_simulator->getFullOutputDir () + "/" + fileName;
-   
+   ibs::FilePath filePathName ( m_simulator->getFullOutputDir () );
+   filePathName << fileName;
+
    m_simulator->getMapPropertyValuesWriter( )->close();
-   m_simulator->getMapPropertyValuesWriter( )->open( filePathName, true ); 
- 
+   m_simulator->getMapPropertyValuesWriter( )->open( filePathName.cpath(), true );
+
    GeoPhysics::ProjectHandle * projectHandle = dynamic_cast < GeoPhysics::ProjectHandle* >(m_simulator);
 
    database::Record * tempRecord = m_simulator->addCurrentSimulationDetails();
 
    // add FracturePressure explicitly as it has the same name as trap property
-   Interface::Property * fracturePressure = projectHandle->getFactory()->produceProperty( projectHandle, 0, "FracturePressure",   "FracturePressure",   "MPa", 
+   Interface::Property * fracturePressure = projectHandle->getFactory()->produceProperty( projectHandle, 0, "FracturePressure",   "FracturePressure",   "MPa",
                                                                                           FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY );
    projectHandle->addPropertyToFront( fracturePressure );
    m_simulator->connectOutputProperty( fracturePressure );
- 
+
    m_propertyManager = new DerivedPropertyManager ( m_simulator, m_debug );
 
    m_opTemperatureMode = ( m_simulator->getCalculationMode() == OVERPRESSURED_TEMPERATURE_MODE );
    m_hydrostaticTemperatureMode = ( m_simulator->getCalculationMode() ==  HYDROSTATIC_TEMPERATURE_MODE );
 
    m_simulator->removeRecordlessDerivedPropertyValues();
- 
+
    projectHandle->sortSnapshots();
-   
+
    if( m_debug and m_rank == 0 ) {
       projectHandle->printSnapshotTable();
    }
    m_decompactionMode = ( m_simulator->getCalculationMode () == COUPLED_HIGH_RES_DECOMPACTION_MODE or
-                          m_simulator->getCalculationMode () == HYDROSTATIC_HIGH_RES_DECOMPACTION_MODE or 
+                          m_simulator->getCalculationMode () == HYDROSTATIC_HIGH_RES_DECOMPACTION_MODE or
                           m_simulator->getCalculationMode () == HYDROSTATIC_DECOMPACTION_MODE );
 
    if ( m_opTemperatureMode ) {
@@ -102,7 +104,7 @@ bool DerivedPropertiesCalculator::compute() {
        m_simulator->setOutputPropertyOption( HORIZONTALPERMEABILITY, Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
        m_simulator->setOutputPropertyOption( THCONDVEC, Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
        m_simulator->setOutputPropertyOption( DIFFUSIVITYVEC, Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
- 
+
        m_simulator->setOutputPropertyOption( DEPTH, Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
        m_simulator->setOutputPropertyOption( VES, Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
        m_simulator->setOutputPropertyOption( MAXVES, Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
@@ -110,7 +112,7 @@ bool DerivedPropertiesCalculator::compute() {
        m_simulator->setOutputPropertyOption( OVERPRESSURE, Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
        m_simulator->setOutputPropertyOption( FAULTELEMENTS, Interface::SEDIMENTS_ONLY_OUTPUT );
    }
-    
+
    SnapshotList snapshots = *( m_simulator->getSnapshots( Interface::MAJOR ));
    sort( snapshots.begin(), snapshots.end(), snapshotSorter );
 
@@ -128,24 +130,23 @@ bool DerivedPropertiesCalculator::compute() {
    bool status = calculateProperties ( formationsSurfaceItems, snapshots, propertiesItems, allOutputPropertyValues );
 
    m_simulator->removeCurrentSimulationDetails( tempRecord );
- 
+
    m_simulator->getMapPropertyValuesWriter( )->close();
 
    return status;
 }
 //------------------------------------------------------------//
 
-bool DerivedPropertiesCalculator::calculateProperties ( FormationSurfaceVector& formationItems, SnapshotList & snapshots, 
+bool DerivedPropertiesCalculator::calculateProperties ( FormationSurfaceVector& formationItems, SnapshotList & snapshots,
                                                         DataAccess::Interface::PropertyList & properties,
                                                         SnapshotFormationSurfaceOutputPropertyValueMap & allOutputPropertyValues ) {
 
    // clean mpaCache which can hold read-only opened files
    m_simulator->mapFileCacheDestructor();
 
-   const string outputDirName = m_simulator->getFullOutputDir () + "/";
    struct stat fileStatus;
    int fileError;
-  
+
    SnapshotList::iterator snapshotIter;
    FormationSurfaceVector::iterator formationIter;
 
@@ -153,10 +154,10 @@ bool DerivedPropertiesCalculator::calculateProperties ( FormationSurfaceVector& 
    PetscLogDouble Start_Saving_Time = 0;
    PetscLogDouble Start_Time;
    PetscLogDouble End_Time;
-   
+
    const bool append = true;
    PetscTime( & Start_Saving_Time );
-  
+
    for ( snapshotIter = snapshots.begin(); snapshotIter != snapshots.end(); ++snapshotIter ) {
 
       PetscTime( &Start_Time );
@@ -166,20 +167,23 @@ bool DerivedPropertiesCalculator::calculateProperties ( FormationSurfaceVector& 
          continue;
       }
       if ( snapshot->getFileName () != "" ) {
-         
+
+         ibs::FilePath outputFileName ( m_simulator->getFullOutputDir () );
+         outputFileName << snapshot->getFileName ();
+
          ostringstream buff;
          if( H5_Parallel_PropertyList::isOneFilePerProcessEnabled() ) {
-            buff << H5_Parallel_PropertyList::getTempDirName() << outputDirName << snapshot->getFileName () << "_" << m_rank;
+            buff << H5_Parallel_PropertyList::getTempDirName() << outputFileName.cpath() << "_" << m_rank;
          } else {
-            buff << outputDirName << snapshot->getFileName ();
-         }           
+            buff << outputFileName.cpath();
+         }
          string fileName = buff.str();
-         
+
          fileError = stat ( fileName.c_str(), &fileStatus );
          if( fileError < 0 ) {
             printf( "Error in %s: %s\n", fileName.c_str(), strerror( errno ));
          }
-         
+
          ((Snapshot *)snapshot)->setAppendFile ( not fileError ); //append );//not fileError );
       }
       for ( formationIter = formationItems.begin();  formationIter != formationItems.end(); ++formationIter ) {
@@ -197,10 +201,10 @@ bool DerivedPropertiesCalculator::calculateProperties ( FormationSurfaceVector& 
          DerivedProperties::outputSnapshotFormationData( m_simulator, snapshot, * formationIter, properties, allOutputPropertyValues );
       }
       PetscTime( &Start_Time );
-     
+
       Display_Merging_Progress( snapshot->getFileName (), Start_Saving_Time, "Saving " );
 
-      m_simulator->continueActivity(); 
+      m_simulator->continueActivity();
 
       PetscTime( &End_Time );
       Accumulated_Saving_Time += ( End_Time - Start_Time );
@@ -215,18 +219,18 @@ bool DerivedPropertiesCalculator::calculateProperties ( FormationSurfaceVector& 
 
 //------------------------------------------------------------//
 
-void DerivedPropertiesCalculator::allocateAllProperties( const FormationSurfaceVector & formationSurfacePairs, 
-                                                         DataAccess::Interface::PropertyList properties, 
-                                                         const SnapshotList & snapshots, 
+void DerivedPropertiesCalculator::allocateAllProperties( const FormationSurfaceVector & formationSurfacePairs,
+                                                         DataAccess::Interface::PropertyList properties,
+                                                         const SnapshotList & snapshots,
                                                          SnapshotFormationSurfaceOutputPropertyValueMap & allOutputPropertyValues) {
-   
+
    SnapshotList::const_iterator snapshotIter;
    Interface::PropertyList::const_iterator propertyIter;
    FormationSurfaceVector::const_iterator formationSurfaceIter;
 
    for ( snapshotIter = snapshots.begin(); snapshotIter != snapshots.end(); ++snapshotIter ) {
       const Interface::Snapshot * snapshot = *snapshotIter;
-  
+
       if( snapshot->getTime() > m_appctx->Age_Of_Basin () ) {
          continue;
       }
@@ -242,19 +246,19 @@ void DerivedPropertiesCalculator::allocateAllProperties( const FormationSurfaceV
                continue;
             }
          }
-         
+
          for ( propertyIter = properties.begin(); propertyIter != properties.end(); ++propertyIter ) {
 
             const Interface::Property * property = *propertyIter;
 
            if( allowOutput( property->getName(), formation, surface )) {
               OutputPropertyValuePtr outputProperty =  DerivedProperties::allocateOutputProperty ( * m_propertyManager, property, snapshot, *formationSurfaceIter );
-              
+
               if ( outputProperty != 0 ) {
                 allOutputPropertyValues [ snapshot ][ *formationSurfaceIter ][ property ] = outputProperty;
               }
            }
-           
+
          }
       }
    }
@@ -262,7 +266,7 @@ void DerivedPropertiesCalculator::allocateAllProperties( const FormationSurfaceV
 }
 //------------------------------------------------------------//
 
-bool DerivedPropertiesCalculator::allowOutput ( const string & propertyName, 
+bool DerivedPropertiesCalculator::allowOutput ( const string & propertyName,
                                                 const Interface::Formation * formation, const Interface::Surface * surface ) const {
 
    if(( propertyName == "BrineDensity" or  propertyName == "BrineViscosity" ) and surface != 0 ) {
@@ -271,10 +275,10 @@ bool DerivedPropertiesCalculator::allowOutput ( const string & propertyName,
    if( m_decompactionMode and ( propertyName == "BulkDensity" ) and surface == 0 ) {
       return false;
    }
-   bool basementFormation = ( dynamic_cast<const GeoPhysics::Formation*>( formation ) != 0 and 
+   bool basementFormation = ( dynamic_cast<const GeoPhysics::Formation*>( formation ) != 0 and
                               dynamic_cast<const GeoPhysics::Formation*>( formation )->kind () == DataAccess::Interface::BASEMENT_FORMATION );
 
-   // The top of the crust is a part of the sediment 
+   // The top of the crust is a part of the sediment
    if( basementFormation and surface != 0 and ( propertyName == "Depth" or propertyName == "Temperature" ) ) {
       if( dynamic_cast<const GeoPhysics::Formation*>( formation )->isCrust() ) {
          if( formation->getTopSurface() and ( formation->getTopSurface() == surface )) {
@@ -282,18 +286,18 @@ bool DerivedPropertiesCalculator::allowOutput ( const string & propertyName,
          }
       }
    }
-   
+
    const string outputPropertyName = PropertyManager::getInstance ().findOutputPropertyName( propertyName );
    OutputOption option = m_appctx->timefilter.getPropertyOutputOption( outputPropertyName );
    Interface::PropertyOutputOption fastcauldronOption = m_simulator->getOutputPropertyOption ( outputPropertyName );
-   
+
    if( fastcauldronOption == Interface::NO_OUTPUT and option == NOOUTPUT ) {
       return false;
    }
    if( basementFormation ) {
       if( fastcauldronOption < Interface::SEDIMENTS_AND_BASEMENT_OUTPUT or option < SEDIMENTSPLUSBASEMENT ) {
          return false;
-      } 
+      }
    }
 
    return true;
@@ -305,10 +309,8 @@ void DerivedPropertiesCalculator::acquirePropertyNames( const PropListVec& prope
 
    PropListVec::const_iterator propIter;
 
-   //m_propertyNames.push_back( "Temperature" );
-   // m_propertyNames.push_back( "ThCond" );
-#if 1
    string pname;
+
    for ( propIter = propertyNames.begin(); propIter != propertyNames.end(); ++ propIter ) {
       pname = PropertyManager::getInstance ().findPropertyName( propertyListName ( * propIter ));
       m_propertyNames.push_back( PropertyManager::getInstance ().findPropertyName( propertyListName ( * propIter )) );
@@ -319,10 +321,9 @@ void DerivedPropertiesCalculator::acquirePropertyNames( const PropListVec& prope
       m_propertyNames.push_back( "BrineDensity" );
       m_propertyNames.push_back( "BrineViscosity" );
    }
-#endif
 
    // remove duplicated names
-   std::sort( m_propertyNames.begin(), m_propertyNames.end() ); 
+   std::sort( m_propertyNames.begin(), m_propertyNames.end() );
    m_propertyNames.erase( std::unique( m_propertyNames.begin(), m_propertyNames.end(), DerivedProperties::isEqualPropertyName ), m_propertyNames.end() );
 }
 

@@ -14,6 +14,7 @@
 #include "../src/PrmPermeabilityModel.h"
 #include "../src/PrmLithoSTPThermalCond.h"
 #include "../src/PrmLithoFraction.h"
+#include "../src/PrmCompactionCoefficient.h"
 
 #include "../src/VarPrmSourceRockTOC.h"
 #include "../src/VarPrmSourceRockHI.h"
@@ -28,6 +29,7 @@
 #include "../src/VarPrmPermeabilityModel.h"
 #include "../src/VarPrmLithoSTPThermalCond.h"
 #include "../src/VarPrmLithoFraction.h"
+#include "../src/VarPrmCompactionCoefficient.h"
 
 #include <memory>
 //#include <cmath>
@@ -49,11 +51,13 @@ public:
    static const char * m_testProject;
    static const char * m_testProjectCatPrms;
    static const char * m_testProjectLithology;
+   static const char * m_testProjectLithologySoilmechanics;
 };
 
-const char * BLRSTest::m_testProject          = "Ottoland.project3d";
-const char * BLRSTest::m_testProjectCatPrms   = "OttolandCatPrms.project3d";
-const char * BLRSTest::m_testProjectLithology = "LithologyTesting.project3d";
+const char * BLRSTest::m_testProject                       = "Ottoland.project3d";
+const char * BLRSTest::m_testProjectCatPrms                = "OttolandCatPrms.project3d";
+const char * BLRSTest::m_testProjectLithology              = "LithologyTesting.project3d";
+const char * BLRSTest::m_testProjectLithologySoilmechanics = "NVG_Project.project3d";
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // Test how ones can add variable parameter TopCrustHeatProduction to scenario analysis
@@ -100,7 +104,9 @@ TEST_F( BLRSTest, VarySourceRockTOCSimpleTest )
    ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( m_testProject ) );
 
    // set the parameter
-   ASSERT_EQ( ErrorHandler::NoError, VarySourceRockTOC( sc, 0, "Lower Jurassic", 1, 0, 0.0, 30.0, VarPrmContinuous::Block ) );
+   std::vector<double> dblRng( 2, 0.0 );
+   dblRng[1] = 30.0;
+   ASSERT_EQ( ErrorHandler::NoError, VarySourceRockTOC( sc, 0, "Lower Jurassic", 1, 0, dblRng, vector<string>(), VarPrmContinuous::Block ) );
      
    // get varspace 
    casa::VarSpaceImpl & varPrms = dynamic_cast<casa::VarSpaceImpl&>( sc.varSpace() );
@@ -147,28 +153,33 @@ TEST_F( BLRSTest, VarySourceRockTOCDepOnSrourceRockTypeTest )
    ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( m_testProjectCatPrms ) );
 
    // !!! set the parameter which depends on SourceRockType parameter. Must be en error because categorical parameter wasn't defined before
-   ASSERT_EQ( ErrorHandler::OutOfRangeValue, VarySourceRockTOC( sc, 0, layerName, 1, srList[0].c_str(), 1.0, 15.0, pdft ) );
-
+   std::vector<double> dblRng( 2, 1.0 );
+   dblRng[1] = 15.0;
+   ASSERT_EQ( ErrorHandler::OutOfRangeValue, VarySourceRockTOC( sc, 0, layerName, 1, srList[0].c_str(), dblRng, vector<string>(), pdft) );
+ 
    // define new categorilcal variable parameter
    ASSERT_EQ( ErrorHandler::NoError, VarySourceRockType( sc, 0, layerName, 1, srList, srWeights ) );
 
    // Add variable TOC parameter with 3 different TOC ranges
+   vector<double> tocRng( 2, 0.0 );
    for ( size_t i = 0; i < srList.size(); ++i )
    {
+      tocRng[0] = valRgs[i][0];
+      tocRng[1] = valRgs[i][2];
       if ( i == 1 )
       {
          // !!! check for the different name for the same layer/mixing ID for TOC
          ASSERT_EQ( ErrorHandler::OutOfRangeValue, VarySourceRockTOC( sc, "lowerJurTOC2", layerName, 1, srList[i].c_str(), 
-                                                                                           valRgs[i][0], valRgs[i][2],  pdft ) );
+                                                                      tocRng, vector<string>(), pdft ) );
       }
       // set the parameter which depends on SourceRockType parameter
-      ASSERT_EQ( ErrorHandler::NoError, VarySourceRockTOC( sc, "lowerJurTOC", layerName, 1, srList[i].c_str(), valRgs[i][0], valRgs[i][2], pdft ) );
+      ASSERT_EQ( ErrorHandler::NoError, VarySourceRockTOC( sc, "lowerJurTOC", layerName, 1, srList[i].c_str(), tocRng, vector<string>(), pdft ) );
    }
-
+   tocRng[0] = 10.0; 
+   tocRng[1] = 90.0;
    // !!! add unexistent category - expecting some error
-   ASSERT_EQ( ErrorHandler::UndefinedValue, VarySourceRockTOC( sc, "lowerJurTOC", layerName, 1, 
-            "Type III MesoPaleozoic Vitrinitic Coals (Kinetics)", 10.0, 90.0, pdft ) );
-
+   ASSERT_EQ( ErrorHandler::UndefinedValue, VarySourceRockTOC( sc, "lowerJurTOC", layerName, 1, "Type III MesoPaleozoic Vitrinitic Coals (Kinetics)",
+                                                               tocRng, vector<string>(), pdft ) );
 
    // get varspace 
    casa::VarSpaceImpl & varPrms = dynamic_cast<casa::VarSpaceImpl&>( sc.varSpace() );
@@ -578,6 +589,9 @@ TEST_F( BLRSTest, VarySourceRockTypeTest )
 
    VarPrmContinuous::PDF pdft = VarPrmContinuous::Block;
    const char * layerName = "Lower Jurassic";
+   vector<double> tocRng( 2, 0.0 );
+   tocRng[0] = 1.0;
+   tocRng[1] = 15.0;
 
    // check order of variable parameters for Source Rock Type. User can't add any source rock variable parameter before 
    // source rock type categorical parameter
@@ -592,7 +606,7 @@ TEST_F( BLRSTest, VarySourceRockTypeTest )
       // set one of the Source Rock parameter
       switch( i )
       {
-         case 0: ASSERT_EQ( ErrorHandler::NoError, VarySourceRockTOC(                 sc, 0, layerName, 1, 0, 1.0,   15.0,  pdft ) ); break;
+         case 0: ASSERT_EQ( ErrorHandler::NoError, VarySourceRockTOC(    sc, 0, layerName, 1, 0, tocRng, vector<string>(),  pdft ) ); break;
          case 1: ASSERT_EQ( ErrorHandler::NoError, VarySourceRockHI(                  sc, 0, layerName, 1, 0, 371.0, 571.0, pdft ) ); break;
          case 2: ASSERT_EQ( ErrorHandler::NoError, VarySourceRockHC(                  sc, 0, layerName, 1, 0, 0.5,   1.75,  pdft ) ); break;
          case 3: ASSERT_EQ( ErrorHandler::NoError, VarySourceRockPreAsphaltActEnergy( sc, 0, layerName, 1, 0, 208.0, 212.0, pdft ) ); break;
@@ -760,10 +774,11 @@ TEST_F( BLRSTest, VarySurfacePorosity )
       mbapi::StratigraphyManager::LayerID lid = strMgr.layerID( layLst[i].first );
       ASSERT_NE( UndefinedIDValue, lid );
 
-      std::vector<std::string> lithoList;
-      std::vector<double>      lithoPercent;
+      std::vector<std::string>      lithoList;
+      std::vector<double>           lithoPercent;
+      std::vector<std::string>      lithoMaps;
 
-      ASSERT_EQ( ErrorHandler::NoError, strMgr.layerLithologiesList( lid, lithoList, lithoPercent ) );
+      ASSERT_EQ( ErrorHandler::NoError, strMgr.layerLithologiesList( lid, lithoList, lithoPercent, lithoMaps ) );
       newLitList.push_back( lithoList[layLst[i].second] );
    }            
 
@@ -775,8 +790,164 @@ TEST_F( BLRSTest, VarySurfacePorosity )
          ASSERT_NE( newLitList[i], newLitList[j] );
       }
    }
+
+   // load a project with soil mechanics model used 
+   ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( m_testProjectLithologySoilmechanics ) );
+
+   layLst.clear();
+   layLst.push_back( std::pair<std::string, size_t>( "Bergen",    0 ) );
+   layLst.push_back( std::pair<std::string, size_t>( "Stavanger", 0 ) );
+   layLst.push_back( std::pair<std::string, size_t>( "Paleocene", 0 ) );
+
+   // vary surface porosity
+   ASSERT_EQ( ErrorHandler::NoError, casa::BusinessLogicRulesSet::VarySurfacePorosity( sc, "SoilMechanicsTest", layLst
+      , std::vector<std::string>( )
+      , std::vector<std::pair<std::string, std::string> >( )
+      , "SM.Mudstone.40%Clay"
+      , 50.0, 70.0
+      , VarPrmContinuous::Block ) );
+
+   // vary compaction coefficient, an error must be issued
+   ASSERT_EQ( ErrorHandler::OutOfRangeValue, casa::BusinessLogicRulesSet::VaryCompactionCoefficient( sc, "SoilMechanicsTest", layLst
+      , std::vector<std::string>( )
+      , std::vector<std::pair<std::string, std::string> >( )
+      , "SM.Mudstone.40%Clay"
+      , 0.04,  0.7
+      , VarPrmContinuous::Block ) );
+
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
+// Compaction coefficient for all porosity models tests
+TEST_F( BLRSTest, VaryCompactionCoefficient )
+{
+   ScenarioAnalysis sc;
+   ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( m_testProject ) );
+
+   size_t numLithologies = sc.baseCase( ).lithologyManager( ).lithologiesIDs( ).size( );
+
+   std::vector<std::pair<std::string, size_t> >  layLst;
+
+   layLst.push_back( std::pair<std::string, size_t>( "Triassic", 1 ) );
+   layLst.push_back( std::pair<std::string, size_t>( "Permian", 0 ) );
+   layLst.push_back( std::pair<std::string, size_t>( "Upper Carboniferous", 1 ) );
+
+   // the first one - try to give range where base value is outside
+   ASSERT_EQ( ErrorHandler::OutOfRangeValue, casa::BusinessLogicRulesSet::VaryCompactionCoefficient( sc, "CompCoefTest", layLst
+      , std::vector<std::string>( )
+      , std::vector<std::pair<std::string, std::string> >( )
+      , "Std. Sandstone"
+      , 5.0, 10.0
+      , VarPrmContinuous::Block ) );
+
+   layLst[0].first = "Triassics"; //define wrong name for the layer
+   // and expect another error
+   ASSERT_EQ( ErrorHandler::NonexistingID, casa::BusinessLogicRulesSet::VaryCompactionCoefficient( sc, "CompCoefTest", layLst
+      , std::vector<std::string>( )
+      , std::vector<std::pair<std::string, std::string> >( )
+      , "Std. Sandstone"
+      , 1.0, 10.0
+      , VarPrmContinuous::Block ) );
+   // define wrong mixing id
+   layLst[0].first = "Triassic";
+   layLst[0].second = 0;
+   // and expect another error
+   ASSERT_EQ( ErrorHandler::NonexistingID, casa::BusinessLogicRulesSet::VaryCompactionCoefficient( sc, "CompCoefTest", layLst
+      , std::vector<std::string>( )
+      , std::vector<std::pair<std::string, std::string> >( )
+      , "Std. Sandstone"
+      , 1.0, 10.0
+      , VarPrmContinuous::Block ) );
+
+   layLst[0].second = 1;
+   ASSERT_EQ( ErrorHandler::NoError, casa::BusinessLogicRulesSet::VaryCompactionCoefficient( sc, "CompCoefTest", layLst
+      , std::vector<std::string>( )
+      , std::vector<std::pair<std::string, std::string> >( )
+      , "Std. Sandstone"
+      , 1.0, 10.0
+      , VarPrmContinuous::Block ) );
+
+   ASSERT_EQ( sc.baseCase( ).lithologyManager( ).lithologiesIDs( ).size( ) - numLithologies, 3U ); //one new lithology 
+
+   // get varspace 
+   casa::VarSpaceImpl & varPrms = dynamic_cast<casa::VarSpaceImpl&>( sc.varSpace( ) );
+
+   // check how the parameter was set
+   ASSERT_EQ( varPrms.size( ), 1U );
+
+   const VarPrmCompactionCoefficient * p1c = dynamic_cast<const VarPrmCompactionCoefficient*>( varPrms.continuousParameter( 0 ) );
+   ASSERT_TRUE( p1c != NULL ); // do we have required the parameter in the list?
+
+   const std::vector<double> & minV = p1c->minValue( )->asDoubleArray( );
+   const std::vector<double> & maxV = p1c->maxValue( )->asDoubleArray( );
+   const std::vector<double> & baseV = p1c->baseValue( )->asDoubleArray( );
+
+   ASSERT_EQ( minV.size( ), 1U );
+   ASSERT_EQ( maxV.size( ), 1U );
+   ASSERT_EQ( baseV.size( ), 1U );
+
+   // does it range have given min value
+   ASSERT_NEAR( minV[0], 1.0, eps );
+
+   // does it range have given max value
+   ASSERT_NEAR( maxV[0], 10.0, eps );
+
+   // does it have base values from project?
+   ASSERT_NEAR( baseV[0], 3.22, eps );
+
+   // do we have copy of lithology for the given layers?
+   mbapi::Model & mdl = sc.baseCase( );
+   mbapi::StratigraphyManager & strMgr = mdl.stratigraphyManager( );
+
+   std::vector<std::string> newLitList;
+
+   for ( size_t i = 0; i < layLst.size( ); ++i )
+   {
+      mbapi::StratigraphyManager::LayerID lid = strMgr.layerID( layLst[i].first );
+      ASSERT_NE( UndefinedIDValue, lid );
+
+      std::vector<std::string>      lithoList;
+      std::vector<double>           lithoPercent;
+      std::vector<std::string>      lithoMaps;
+
+      ASSERT_EQ( ErrorHandler::NoError, strMgr.layerLithologiesList( lid, lithoList, lithoPercent, lithoMaps ) );
+      newLitList.push_back( lithoList[layLst[i].second] );
+   }
+
+   // check that all lithology names are unique
+   for ( size_t i = 0; i < newLitList.size( ); ++i )
+   {
+      for ( size_t j = i + 1; j < newLitList.size( ); ++j )
+      {
+         ASSERT_NE( newLitList[i], newLitList[j] );
+      }
+   }
+
+   // load a project with soil mechanics model used 
+   ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( m_testProjectLithologySoilmechanics ) );
+
+   layLst.clear( );
+   layLst.push_back( std::pair<std::string, size_t>( "Bergen", 0 ) );
+   layLst.push_back( std::pair<std::string, size_t>( "Stavanger", 0 ) );
+   layLst.push_back( std::pair<std::string, size_t>( "Paleocene", 0 ) );
+
+   // vary compaction coefficient
+   ASSERT_EQ( ErrorHandler::NoError, casa::BusinessLogicRulesSet::VaryCompactionCoefficient( sc, "SoilMechanicsTest", layLst
+      , std::vector<std::string>( )
+      , std::vector<std::pair<std::string, std::string> >( )
+      , "SM.Mudstone.40%Clay"
+      , 0.04, 0.70
+      , VarPrmContinuous::Block ) );
+
+   // vary surface porosity, an error must be issued
+   ASSERT_EQ( ErrorHandler::OutOfRangeValue, casa::BusinessLogicRulesSet::VarySurfacePorosity( sc, "SoilMechanicsTest", layLst
+      , std::vector<std::string>( )
+      , std::vector<std::pair<std::string, std::string> >( )
+      , "SM.Mudstone.40%Clay"
+      , 50.0, 70.0
+      , VarPrmContinuous::Block ) );
+
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // Test how ones can add variate one crust thinning event parameters
@@ -907,10 +1078,11 @@ TEST_F( BLRSTest, VaryPorosityExponentialModelParameters )
    mbapi::StratigraphyManager::LayerID lid = strMgr.layerID( "Permian" );
    ASSERT_NE( UndefinedIDValue, lid );
 
-   std::vector<std::string> lithoList;
-   std::vector<double>      lithoPercent;
+   std::vector<std::string>      lithoList;
+   std::vector<double>           lithoPercent;
+   std::vector<std::string>      lithoMaps;
 
-   ASSERT_EQ( ErrorHandler::NoError, strMgr.layerLithologiesList( lid, lithoList, lithoPercent ) );
+   ASSERT_EQ( ErrorHandler::NoError, strMgr.layerLithologiesList( lid, lithoList, lithoPercent, lithoMaps ) );
    // check that lithology was copied
    ASSERT_NE( lithoList[0].rfind( "_CASA" ), std::string::npos );
    ASSERT_EQ( lithoList[0].find( sandLithology ), 0U );

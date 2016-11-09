@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 //------------------------------------------------------------//
 
 #ifndef __Property_Manager_HH__
@@ -12,7 +21,7 @@
 //------------------------------------------------------------//
 
 #include "FiniteElementTypes.h"
-#include "globaldefs.h"
+#include "ConstantsFastcauldron.h"
 
 #include "Mesh3DIndex.h"
 #include "Nodal3DIndexArray.h"

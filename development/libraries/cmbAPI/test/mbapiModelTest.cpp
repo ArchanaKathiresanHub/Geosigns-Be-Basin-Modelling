@@ -28,6 +28,7 @@ public:
    static const char * m_lithologyTestProject;
    static const char * m_dupLithologyTestProject;
    static const char * m_mapsTestProject;
+   static const char * m_nnTestProject;
 };
 
 const char * mbapiModelTest::m_sourceRockTestProject   = "SourceRockTesting.project3d";
@@ -35,6 +36,7 @@ const char * mbapiModelTest::m_lithologyTestProject    = "LithologyTesting.proje
 const char * mbapiModelTest::m_testProject             = "Project.project3d";
 const char * mbapiModelTest::m_mapsTestProject         = "MapsTesting.project3d";
 const char * mbapiModelTest::m_dupLithologyTestProject = "DupLithologyTesting.project3d";
+const char * mbapiModelTest::m_nnTestProject           = "NNTesting.project3d";
 
 bool mbapiModelTest::compareFiles( const char * projFile1, const char * projFile2 )
 {
@@ -277,7 +279,7 @@ TEST_F( mbapiModelTest, SourceRockHI_HCSettings )
                ASSERT_NEAR( hcSR,  0.801, eps );
                ASSERT_NEAR( hcSR2, 1.25, eps );
 
-               srMgr.setHCIni( 1.0, sid2 );
+               srMgr.setHCIni( sid2, 1.0 );
                ASSERT_EQ( ErrorHandler::NoError, srMgr.errorCode() );
                ASSERT_NEAR( srMgr.hiIni( sid2 ), 193.17523, eps );
             }
@@ -728,13 +730,13 @@ TEST_F( mbapiModelTest, MapsManagerCopyMapTest )
    ASSERT_NEAR( minV, 2288.0 * coeff, eps );
    ASSERT_NEAR( maxV, 3000.0, eps );
 
+
+   // If a file already exist the maps will be appended to that file
+   ASSERT_EQ( ErrorHandler::OutOfRangeValue, mm.saveMapToHDF( nid, "/tmp/Inputs.HDF", 0 ) ); // attempt to save in a place different from the project location should fail
+
+   ASSERT_EQ( ErrorHandler::NoError, mm.saveMapToHDF( nid, "" , 0) ); // file name will be generated from map name
+   ASSERT_EQ( true, ibs::FilePath( mapName + "_copy.HDF" ).exists() ); // file was written
    
-   ASSERT_EQ( ErrorHandler::OutOfRangeValue, mm.saveMapToHDF( nid, "Inputs.HDF" ) ); // attempt to save in already existed file should fail
-   ASSERT_EQ( ErrorHandler::OutOfRangeValue, mm.saveMapToHDF( nid, "/tmp/Inputs.HDF" ) ); // attempt to save in a place different from the project location should fail
-
-   ASSERT_EQ( ErrorHandler::NoError, mm.saveMapToHDF( nid, "" ) ); // file name will be generated from map name
-   ASSERT_EQ( true, ibs::FilePath( mapName+"_copy.HDF" ).exists() ); // file was written
-
    ASSERT_EQ( ErrorHandler::NoError, testModel.saveModelToProjectFile( "MapsTest1.project3d" ) );
    {
       mbapi::Model tmpModel;
@@ -748,7 +750,7 @@ TEST_F( mbapiModelTest, MapsManagerCopyMapTest )
    }
    ibs::FilePath( "MapsTest1.project3d" ).remove();
 
-   ASSERT_EQ( ErrorHandler::NoError, mm.saveMapToHDF( nid, "Test.HDF" ) ); // file name will be generated from map name
+   ASSERT_EQ( ErrorHandler::NoError, mm.saveMapToHDF( nid, "Test.HDF", 0 ) ); // file name will be generated from map name
    ASSERT_EQ( true, ibs::FilePath( "Test.HDF" ).exists() ); // file was written
    
    ASSERT_EQ( ErrorHandler::NoError, testModel.saveModelToProjectFile( "MapsTest2.project3d" ) );
@@ -765,3 +767,141 @@ TEST_F( mbapiModelTest, MapsManagerCopyMapTest )
    ibs::FilePath( "MapsTest2.project3d" ).remove();
 }
 
+TEST_F( mbapiModelTest, MapsManagerNNInterpolation )
+{ 
+   // set the folder where to save the files
+   ibs::FilePath    masterResults( "." );
+   std::string      casaResultsFile( "CasaModel_Results.HDF" );
+   masterResults << casaResultsFile;
+
+   // clean any previous runs result
+   if ( masterResults.exists( ) ) { masterResults.remove( ); }
+   if ( ibs::FilePath( "NNTesting2.project3d" ).exists( ) ) { ibs::FilePath( "NNTesting2.project3d" ).remove( ); }
+   
+   // load test project
+   mbapi::Model testModel;
+   ASSERT_EQ( ErrorHandler::NoError, testModel.loadModelFromProjectFile( m_nnTestProject ) );
+
+   // read lithofractions from file
+   std::ifstream NNInputLithofractions( "NNInputLithofractions" );
+   double xTemp;
+   double yTemp;
+   double lf1Temp;
+   double lf2Temp;
+   double lf3Temp;
+   std::vector<double> xin;
+   std::vector<double> yin;
+   std::vector<double> lf1;
+   std::vector<double> lf2;
+   std::vector<double> lf3;
+
+   while ( NNInputLithofractions.good( ) )
+   {
+      NNInputLithofractions >> xTemp;
+      NNInputLithofractions >> yTemp;
+      NNInputLithofractions >> lf1Temp;
+      NNInputLithofractions >> lf2Temp;
+      NNInputLithofractions >> lf3Temp;
+      xin.push_back( xTemp );
+      yin.push_back( yTemp );
+      lf1.push_back( lf1Temp );
+      lf2.push_back( lf2Temp );
+      lf3.push_back( lf3Temp );
+   }
+   NNInputLithofractions.close( );
+
+   std::vector<double> xout;
+   std::vector<double> yout;
+   std::vector<double> rpInt;
+   std::vector<double> r13Int;
+
+   testModel.interpolateLithoFractions( xin, yin, lf1, lf2, lf3, xout, yout, rpInt, r13Int );
+
+   // check the number of points is correct
+   ASSERT_EQ( xout.size(),   6527U );
+   ASSERT_EQ( yout.size(),   6527U );
+   ASSERT_EQ( rpInt.size(),  6527U );
+   ASSERT_EQ( r13Int.size(), 6527U );
+
+   // check the interpolated values are equal to those generated by the original prototype
+   std::ifstream NNInt( "NNInt" );
+   double rpTemp;
+   double r13Temp;
+   for ( size_t i = 0; i < xout.size(); ++i )
+   {
+      NNInt >> xTemp;
+      NNInt >> yTemp;
+      NNInt >> rpTemp;
+      NNInt >> r13Temp;
+      ASSERT_NEAR( xTemp, xout[i], eps );
+      ASSERT_NEAR( yTemp, yout[i], eps );
+      ASSERT_NEAR( rpTemp, rpInt[i], eps );
+      ASSERT_NEAR( r13Temp, r13Int[i], eps );
+   }
+   NNInt.close( );
+
+   // back transform the lithofractions
+   std::vector<double> lf1CorrInt;
+   std::vector<double> lf2CorrInt;
+   std::vector<double> lf3CorrInt;
+   testModel.backTransformLithoFractions( rpInt, r13Int, lf1CorrInt, lf2CorrInt, lf3CorrInt );
+
+   // check the back transformation is correct, as in the original prototype
+   std::ifstream NNbt( "NNbt" );
+   double lf1CorrTemp;
+   double lf2CorrTemp;
+   for ( size_t i = 0; i < lf1CorrInt.size(); ++i )
+   {
+      NNbt >> lf1CorrTemp;
+      NNbt >> lf2CorrTemp;
+      ASSERT_NEAR( lf1CorrTemp, lf1CorrInt[i], 1e-4 );
+      ASSERT_NEAR( lf2CorrTemp, lf2CorrInt[i], 1e-4 );
+   }
+   NNbt.close( );
+   
+   // save the backtransformed lithofractions in a temporary model
+   ASSERT_EQ( ErrorHandler::NoError, testModel.saveModelToProjectFile( "NNTesting2.project3d" ) );
+   {
+      mbapi::Model tmpModel;
+      tmpModel.loadModelFromProjectFile( "NNTesting2.project3d" );
+
+      // get the maps manager
+      mbapi::MapsManager & mapsMgr = tmpModel.mapsManager( );
+
+      // get the stratigraphy manager
+      mbapi::StratigraphyManager & strMgr = tmpModel.stratigraphyManager( );
+
+      // get the layer ID
+      mbapi::StratigraphyManager::LayerID lid = strMgr.layerID( "Rotliegend" );
+
+      // generate the maps
+      std::string  correctFirstLithoFractionMap("5_percent_1");
+      std::string  correctSecondLithoFractionMap("5_percent_2");
+      size_t mapSeqNbr = UndefinedIDValue;
+
+      // first map, produce the map and update GridmapIoTbl
+      mbapi::MapsManager::MapID id = mapsMgr.generateMap( "StratIoTbl", correctFirstLithoFractionMap, lf1CorrInt, mapSeqNbr, masterResults.path( ) );
+      ASSERT_NE( id, UndefinedIDValue );
+
+      // second map, produce the map and update GridmapIoTbl
+      id = mapsMgr.generateMap( "StratIoTbl", correctSecondLithoFractionMap, lf2CorrInt, mapSeqNbr, masterResults.path( ) );
+      ASSERT_NE( id, UndefinedIDValue );
+
+      ASSERT_EQ( ErrorHandler::NoError, strMgr.setLayerLithologiesPercentageMaps( lid, correctFirstLithoFractionMap, correctSecondLithoFractionMap ) );
+
+      const std::vector<mbapi::MapsManager::MapID> & tids = tmpModel.mapsManager( ).mapsIDs( );
+      ASSERT_EQ( tids.size( ), 28U );
+      
+      ASSERT_EQ( tmpModel.tableValueAsString( "GridMapIoTbl", 26, "MapName" ), std::string( correctFirstLithoFractionMap ) );
+      ASSERT_EQ( tmpModel.tableValueAsString( "GridMapIoTbl", 27, "MapName" ), std::string( correctSecondLithoFractionMap ) );
+
+      ASSERT_EQ( tmpModel.tableValueAsString( "GridMapIoTbl", 26, "MapFileName" ), casaResultsFile );
+      ASSERT_EQ( tmpModel.tableValueAsString( "GridMapIoTbl", 27, "MapFileName" ), casaResultsFile );
+
+      ASSERT_EQ( tmpModel.tableValueAsString( "StratIoTbl", 5, "Percent1Grid" ), correctFirstLithoFractionMap  );
+      ASSERT_EQ( tmpModel.tableValueAsString( "StratIoTbl", 5, "Percent2Grid" ), correctSecondLithoFractionMap );
+   }
+   
+   ibs::FilePath( "NNTesting2.project3d" ).remove( );
+   masterResults.remove( );
+}

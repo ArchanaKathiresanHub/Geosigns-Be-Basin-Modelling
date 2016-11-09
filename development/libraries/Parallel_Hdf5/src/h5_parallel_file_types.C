@@ -11,7 +11,6 @@
 #include "h5merge.h"
 #endif
 
-
 bool        H5_Parallel_PropertyList :: s_oneFilePerProcess = false;
 bool        H5_Parallel_PropertyList :: s_primaryPod = false;
 
@@ -20,7 +19,7 @@ std::string H5_Parallel_PropertyList :: s_temporaryDirName;
 MPI_Info    H5_Parallel_PropertyList :: s_mpiInfo = MPI_INFO_NULL;
 
 
-hid_t H5_Parallel_PropertyList :: createFilePropertyList() const 
+hid_t H5_Parallel_PropertyList :: createFilePropertyList( const bool readOnly ) const 
 {
    hid_t plist = H5Pcreate (H5P_FILE_ACCESS);
    
@@ -34,20 +33,43 @@ hid_t H5_Parallel_PropertyList :: createFilePropertyList() const
    } 
    else 
    {
-      H5Pset_fapl_mpio (plist, PETSC_COMM_WORLD, s_mpiInfo);  
+      if( not readOnly ) {
+         H5Pset_fapl_mpio (plist, PETSC_COMM_WORLD, s_mpiInfo);  
+
+         if( s_primaryPod ) {
+            // Disable cache
+            // set B-tree to roughly same size as 'stripe size' (default stripe size 1Mb)
+            // https://www.nersc.gov/users/training/online-tutorials/introduction-to-scientific-i-o/?start=5
+            // hsize_t btree_ik = 10880; //(chunkSize - 4096) / 96;
+            // H5Pset_istore_k(plist, btree_ik);
+            
+            // disable cache evictions
+            H5AC_cache_config_t mdc_config;
+            memset(&mdc_config, 0, sizeof(mdc_config));
+            mdc_config.version = H5AC__CURR_CACHE_CONFIG_VERSION;
+            H5Pget_mdc_config(plist, &mdc_config);
+            mdc_config.evictions_enabled = 0;
+            mdc_config.flash_incr_mode = H5C_flash_incr__off;
+            mdc_config.incr_mode = H5C_incr__off;
+            mdc_config.decr_mode = H5C_decr__off;
+            H5Pset_mdc_config(plist, &mdc_config);
+         }
+      }
    }
+   
+
 #else
-	  H5Pset_fapl_mpio (plist, PETSC_COMM_WORLD, s_mpiInfo);  
+   H5Pset_fapl_mpio (plist, PETSC_COMM_WORLD, s_mpiInfo);  
 #endif
    return plist;
 }
 
-hid_t H5_Parallel_PropertyList :: createDatasetPropertyList() const
+hid_t H5_Parallel_PropertyList :: createDatasetPropertyList( const bool readOnly ) const
 {
    // set parallel read/write on file
    hid_t pList = H5P_DEFAULT;
    
-   if( not s_oneFilePerProcess ) 
+   if( not s_oneFilePerProcess and not readOnly ) 
    {
       pList = H5Pcreate (H5P_DATASET_XFER);
       H5Pset_dxpl_mpio (pList, H5FD_MPIO_COLLECTIVE);
@@ -80,11 +102,43 @@ bool H5_Parallel_PropertyList :: setOneFilePerProcessOption( )
       if( temporaryDirName[0] == 0 ) {
          if( primaryPod ) {
             PetscPrintf ( PETSC_COMM_WORLD, "PrimaryPod directory is not defined. Please specify a shared dir name.\n" );           
-         } else {
+            setPrimaryPod ( PETSC_FALSE );
+       } else {
             tmpDir = getenv( "TMPDIR" );
          }
       } else {
-         tmpDir = temporaryDirName;
+         if( primaryPod ) {
+            // Create a temporary dir unique name and broadcast it
+            int rank;
+            
+            MPI_Comm_rank(PETSC_COMM_WORLD, &rank);
+            int tempLen = 0;
+            if( rank == 0 ) {
+               char templateName[] = "ProjectXXXXXX";
+               char * tempName = 0;
+               
+               tempName = mktemp(templateName);
+               
+               if( tempName != 0 ) {
+                  strcat( temporaryDirName, "/" );
+                  strcat( temporaryDirName, tempName );
+                  tmpDir = temporaryDirName;
+                  tempLen = strlen( temporaryDirName ) + strlen( templateName );
+              } 
+            }
+
+            MPI_Bcast( &tempLen, 1, MPI_INT, 0, PETSC_COMM_WORLD );
+            if( tempLen > 0 ) {
+               MPI_Bcast( temporaryDirName, tempLen, MPI_CHAR, 0, PETSC_COMM_WORLD );
+               tmpDir = temporaryDirName;
+            } else {
+               setPrimaryPod ( PETSC_FALSE );
+               tmpDir = 0;
+               PetscPrintf ( PETSC_COMM_WORLD, "Temporary dir cannot be created.\n" );    
+            }       
+         } else {
+            tmpDir = temporaryDirName;
+         }
       }
       
       if( tmpDir == NULL ) {
@@ -131,6 +185,7 @@ bool H5_Parallel_PropertyList :: copyMergedFile( const std::string & filePathNam
           }
        }
    }
+
    return status;
 #endif
 }
@@ -154,5 +209,76 @@ void H5_Parallel_PropertyList ::  setOneNodeCollectiveBufferingOption()
       MPI_Info_set (s_mpiInfo, "cb_nodes", "1");
    }
 }
+bool H5_Parallel_PropertyList ::mergeOutputFiles ( const string & activityName, const std::string & localPath ) {
+
+   if( not H5_Parallel_PropertyList::isOneFilePerProcessEnabled() and not H5_Parallel_PropertyList::isPrimaryPodEnabled ()) {
+      return true;
+   }
+
+#ifdef _MSC_VER
+   return true;
+#else
+   int rank;
+   MPI_Comm_rank(PETSC_COMM_WORLD, &rank);
+
+   PetscBool noFileCopy = PETSC_FALSE;
+   PetscOptionsHasName( PETSC_NULL, "-nocopy", &noFileCopy );
+   PetscBool noFileRemove = PETSC_FALSE;
+   PetscOptionsHasName( PETSC_NULL, "-noremove", &noFileRemove );
+
+   string fileName = activityName + "_Results.HDF" ; 
+   ibs::FilePath filePathName( localPath );
+   filePathName << fileName;
+ 
+   bool status;
+
+   if( not  H5_Parallel_PropertyList::isPrimaryPodEnabled () ) {
+      PetscPrintf ( PETSC_COMM_WORLD, "Merging of output files.\n" );
+      status = mergeFiles ( allocateFileHandler( PETSC_COMM_WORLD, filePathName.path(), H5_Parallel_PropertyList::getTempDirName(),( noFileCopy ? CREATE : REUSE )));
+      
+      if( !noFileCopy and status ) {
+         status = H5_Parallel_PropertyList::copyMergedFile( filePathName.path() );
+      } 
+   } else {
+      if( not noFileCopy ) {
+         PetscPrintf ( PETSC_COMM_WORLD, "Copying of output files from Lustre to TCS storage.\n" );
+         
+         status = H5_Parallel_PropertyList::copyMergedFile( filePathName.path(), false );
+         if( status and rank == 0  and not noFileRemove ) {
+            // remove the file
+            removeOutputFile ( filePathName.cpath () );
+
+            // remove the directory
+            removeOutputFile ( localPath );
+
+            // remove the temporary directory
+            removeOutputFile ( std::string("") );
+         }      
+      }
+   }
+   MPI_Barrier( PETSC_COMM_WORLD );
+   
+   if( !status ) {
+      PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not merge/copy the file %s.\n", filePathName.cpath() );
+   }
+   
+   return status;
+#endif
+}
+
+bool H5_Parallel_PropertyList ::removeOutputFile ( const string & filePathName ) {
+
+   ibs::FilePath fileName(H5_Parallel_PropertyList::getTempDirName() );
+   fileName << filePathName;
+  
+   int status = std::remove( fileName.cpath() ); 
+   if (status == -1) {
+      PetscPrintf ( PETSC_COMM_WORLD, " %s  MeSsAgE WARNING  Unable to remove the file, because '%s' \n", filePathName.c_str (), std::strerror(errno) );
+      return false;
+   }
+   return true;
+}  
+
+
 
 

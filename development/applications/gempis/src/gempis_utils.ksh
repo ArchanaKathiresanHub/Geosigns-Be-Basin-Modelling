@@ -1093,7 +1093,7 @@ build_gempis_wrapper()
     verbose "Building gempis wrapper script $myfile."
 
     # define execution bash shell header
-    echo "#!/bin/bash" > $myfile
+    echo "#!/bin/bash -lx" > $myfile
     [ $? -ne 0 ] && terminate ERROR "Cannot create gempis wrapper script 
     $myfile. 
     Permission denied."

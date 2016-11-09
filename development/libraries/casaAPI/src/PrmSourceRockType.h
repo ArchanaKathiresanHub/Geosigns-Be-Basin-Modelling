@@ -54,10 +54,10 @@ namespace casa
       PrmSourceRockType( mbapi::Model & mdl, const std::string & layerName, int mixID = 1 );
 
       /// @brief Constructor. Creates the parameter to variate source rock types for the given layer
-      PrmSourceRockType( const VarPrmSourceRockType            * parent     ///< pointer to a variable parameter which created this one
-                       , const std::string                     & layerName  ///< stratigraphy layer name
-                       , const std::string                     & srTypeName ///< name of the source rock type
-                       , int                                     mixID      ///< 1 or 2 - source rock mixing ID
+      PrmSourceRockType( const VarParameter * parent     ///< pointer to a variable parameter which created this one
+                       , const std::string  & layerName  ///< stratigraphy layer name
+                       , const std::string  & srTypeName ///< name of the source rock type
+                       , int                  mixID      ///< 1 or 2 - source rock mixing ID
                       );
 
       /// @brief Destructor
@@ -70,6 +70,10 @@ namespace casa
       /// @brief Get variable parameter which was used to create this parameter
       /// @return Pointer to the variable parameter
       virtual const VarParameter * parent() const { return m_parent; }
+
+      /// @brief Set variable parameter which was used to create this parameter
+      /// @param Pointer to the variable parameter
+      virtual void setParent( const VarParameter * varPrm )  { m_parent = varPrm; }
 
       /// @brief Get the level of influence to cauldron applications pipeline for this parametr
       /// @return number which indicates which solver influence this parameter
@@ -132,12 +136,12 @@ namespace casa
       /// @}
 
    protected:
-      const VarPrmSourceRockType           * m_parent;    ///< variable parameter which was used to create this one
-      std::string                            m_name;      ///< name of the parameter
+      const VarParameter * m_parent;    ///< variable parameter which was used to create this one
+      std::string          m_name;      ///< name of the parameter
       
-      std::string                            m_layerName; ///< layer name with source rock
-      std::string                            m_srtName;   ///< source rock type name
-      int                                    m_mixID;     ///< which source rock in the mix should be affected
+      std::string          m_layerName; ///< layer name with source rock
+      std::string          m_srtName;   ///< source rock type name
+      int                  m_mixID;     ///< which source rock in the mix should be affected
    };
 }
 

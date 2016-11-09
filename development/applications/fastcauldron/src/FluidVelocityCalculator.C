@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
 #include "FluidVelocityCalculator.h"
 #include "DerivedOutputPropertyMap.h"
 #include "PropertyManager.h"
@@ -11,7 +20,9 @@
 
 #include "Interface/RunParameters.h"
 
-
+// utilities library
+#include "ConstantsNumerical.h"
+using Utilities::Numerical::CauldronNoDataValue;
 
 using namespace FiniteElementMethod;
 
@@ -288,9 +299,9 @@ bool FluidVelocityCalculator::operator ()( const OutputPropertyMap::OutputProper
                                       relativePermeability,
                                       fluidVelocity );
             } else {
-               fluidVelocity ( 1 ) = CAULDRONIBSNULLVALUE;
-               fluidVelocity ( 2 ) = CAULDRONIBSNULLVALUE;
-               fluidVelocity ( 3 ) = CAULDRONIBSNULLVALUE;
+               fluidVelocity ( 1 ) = CauldronNoDataValue;
+               fluidVelocity ( 2 ) = CauldronNoDataValue;
+               fluidVelocity ( 3 ) = CauldronNoDataValue;
             }
 
             fluidVelocityMapX->setValue ( i, j, fluidVelocity ( 1 ));

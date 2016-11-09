@@ -36,7 +36,10 @@ public:
    virtual ErrorHandler::ReturnCode addParameter( VarParameter * prm );
 
    // Get number of variable parameters defined in VarSpace
-   virtual size_t size() const { return m_prms.size(); } 
+   virtual size_t size() const { return m_prms.size(); }
+
+   // Get tot parameters space dimension
+   virtual size_t dimension() const { size_t dim = 0; for ( const auto prm : m_prms ) { dim += prm->dimension(); } return dim; }
 
    // Get number of continuous parameters defined in VarSpace
    virtual size_t numberOfContPrms() const { return m_cntPrms.size(); } 

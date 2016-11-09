@@ -66,6 +66,27 @@ public:
    /// @brief Print short description of all available commands
    static void printHelpPage( const std::string & cmdName );
 
+   // commands name
+   static const char * s_CNAddCldApp;
+   static const char * s_CNBaseProject;
+   static const char * s_CNAddObservable;
+   static const char * s_CNScenarioID;
+   static const char * s_CNAddVarPrm;
+   static const char * s_CNExpDataTxt;
+   static const char * s_CNGenerateBMCase;
+   static const char * s_CNCalibrateProject;
+   static const char * s_CNRun;
+   static const char * s_CNRunBaseCase;
+   static const char * s_CNRunReload;
+   static const char * s_CNPlotMC;
+   static const char * s_CNPlotP10P90;
+   static const char * s_CNPlotPareto;
+   static const char * s_CNPlotTornado;
+   static const char * s_CNGenerateMultiOneD;
+   static const char * s_CNImportOneDResults;
+   static const char * s_CNSetFilterOneDResults;
+   static const char * s_CNGenerateThreeDFromOneD;
+
 private:
    std::vector< SharedCmdPtr>  m_cmds;          ///< Queue of commands
    VerboseLevel                m_msgLvl;        ///< How talkative should be CASADemo app

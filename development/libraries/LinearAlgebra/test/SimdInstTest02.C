@@ -67,6 +67,7 @@ TEST ( SimdInstrTests, NoSimdTest02 ) {
 
 }
 
+#ifdef __INTEL_COMPILER
 #ifdef __SSE__
 TEST ( SimdInstrTests, SseTest02 ) {
 
@@ -155,4 +156,5 @@ TEST ( SimdInstrTests, AvxTest02 ) {
    EXPECT_EQ ( a[2], muladd );
    EXPECT_EQ ( a[3], muladd );
 }
+#endif
 #endif

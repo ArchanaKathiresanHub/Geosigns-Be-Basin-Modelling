@@ -18,15 +18,25 @@ bool HDF5::writeData1D (hid_t fileHandle, long size, const char * datasetName, h
    hid_t dataspace = H5Screate_simple (rank, dims, 0);
 
    herr_t status = 0;
+   hid_t dataset = 0;
+
+   htri_t datasetExists = H5Lexists( fileHandle, datasetName, H5P_DEFAULT );
+
    // Create a dataset
-   hid_t dataset = H5Dcreate (fileHandle,
+   if ( datasetExists == 0 )
+   {
+    dataset = H5Dcreate (fileHandle,
                               datasetName,
                               dataType,
                               dataspace,
                               H5P_DEFAULT,
                               H5P_DEFAULT,
-                              H5P_DEFAULT);
-
+                              H5P_DEFAULT );
+   }
+   else
+   {
+    dataset = H5Dopen( fileHandle, datasetName, H5P_DEFAULT );
+   }
 
    if (dataset != -1)
    {
@@ -47,7 +57,7 @@ bool HDF5::writeData1D (hid_t fileHandle, long size, const char * datasetName, h
    return (status >= 0);
 }
 
-bool HDF5::writeData2D (hid_t fileHandle, long sizeI, long sizeJ, const char * datasetName, hid_t dataType, const void * data)
+bool HDF5::writeData2D( hid_t fileHandle, long sizeI, long sizeJ, const char * datasetName, hid_t dataType, const void * data, bool & newDataset )
 {
    if (sizeI <= 0 || sizeJ <= 0)
       return false;
@@ -62,16 +72,28 @@ bool HDF5::writeData2D (hid_t fileHandle, long sizeI, long sizeJ, const char * d
    hid_t dataspace = H5Screate_simple (rank, dims, 0);
    
    herr_t status = 0;
+   hid_t dataset = 0;
+
+   htri_t datasetExists = H5Lexists( fileHandle, datasetName, H5P_DEFAULT );
 
    // Create a dataset
-   hid_t dataset = H5Dcreate (fileHandle,
-                              datasetName,
-                              dataType,
-                              dataspace,
-                              H5P_DEFAULT,
-                              H5P_DEFAULT,
-                              H5P_DEFAULT);
-
+   if ( datasetExists == 0 )
+   {
+      dataset = H5Dcreate( fileHandle,
+         datasetName,
+         dataType,
+         dataspace,
+         H5P_DEFAULT,
+         H5P_DEFAULT,
+         H5P_DEFAULT );
+      
+      newDataset = true;
+   } 
+   else
+   {
+      dataset = H5Dopen( fileHandle, datasetName, H5P_DEFAULT );
+      newDataset = false;
+   }
 
    if (dataset != -1)
    {

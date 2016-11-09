@@ -17,9 +17,15 @@
 #include "SpeciesResult.h"
 #include "Species.h"
 
+// std library
 #include <math.h>
 #include <cstdlib>
 
+// utilities library
+#include "ConstantsMathematics.h"
+using Utilities::Maths::CelciusToKelvin;
+#include "ConstantsNumerical.h"
+using Utilities::Numerical::CauldronNoDataValue;
 #include "StringHandler.h"
 
 namespace Genex6
@@ -34,9 +40,9 @@ SourceRockNode::SourceRockNode(const double in_thickness, const double in_TOC,
    m_InorganicDensity(in_InorganicDensity),
    m_I(in_I),
    m_J(in_J),
-   m_currentState(0),
    m_f1 (in_f1),
-   m_f2 (in_f2)
+   m_f2 (in_f2),
+   m_currentState(0)
 {
    m_mixedSimulatorState = 0;
 }
@@ -128,10 +134,8 @@ const Input *SourceRockNode::getLastInput() const
 
 bool SourceRockNode::RequestComputation ( int numberOfSourceRock, Simulator & theSimulator )
 {
-   SimulatorState * theState = ( numberOfSourceRock < m_theSimulatorStates.size() ?  m_theSimulatorStates[numberOfSourceRock] : 0 );
+   SimulatorState * theState = ( numberOfSourceRock < ( static_cast<int>( m_theSimulatorStates.size() )) ?  m_theSimulatorStates[numberOfSourceRock] : 0 );
       
-   const SpeciesManager& speciesManager = theSimulator.getSpeciesManager ();
-
    std::vector<Input*>::iterator itInput;
    bool isInitialTimeStep = true;
 
@@ -161,8 +165,7 @@ bool SourceRockNode::RequestComputation ( int numberOfSourceRock, Simulator & th
 }
 
 
-void SourceRockNode::updateAdsorptionOutput ( const Simulator&           genexSimulator,
-                                              const AdsorptionSimulator& adsorptionSimulator ) {
+void SourceRockNode::updateAdsorptionOutput ( const AdsorptionSimulator& adsorptionSimulator ) {
    /*
    const SpeciesManager& speciesManager = genexSimulator.getSpeciesManager ();
 
@@ -224,7 +227,7 @@ int SourceRockNode::CreateSimulatorState(int numberOfSourceRock, const double cu
 
    assert( theState != 0 );
    
-   if( m_theSimulatorStates.size() != numberOfSourceRock ) {
+   if(( static_cast<int>( m_theSimulatorStates.size() )) != numberOfSourceRock ) {
       cout<<"Number of Source Rock is wrong in CreateSimulatorState...Aborting...";
       return FAIL;
    }
@@ -270,8 +273,6 @@ void SourceRockNode::RequestComputationUnitTest(Simulator & theSimulator)
 {
    // SR rock mixing is not supported
 
-   const SpeciesManager& speciesManager = theSimulator.getChemicalModel ().getSpeciesManager ();
-
    std::vector<Input*>::iterator itInput; 
 
    for(itInput = m_theInput.begin(); itInput != m_theInput.end(); ++ itInput) {
@@ -306,11 +307,9 @@ int SourceRockNode::RequestComputation1D(int numberOfSourceRock, Simulator *theS
                                          const int numberOfSnapshots, const double depositionAge)
 {
 
-   SimulatorState * theState = ( numberOfSourceRock < m_theSimulatorStates.size() ?  m_theSimulatorStates[numberOfSourceRock] : 0 );
+   SimulatorState * theState = ( numberOfSourceRock < static_cast<int>( m_theSimulatorStates.size() ) ?  m_theSimulatorStates[numberOfSourceRock] : 0 );
   
-   const SpeciesManager& speciesManager = theSimulator->getChemicalModel ().getSpeciesManager ();
-
-	cout<<"1D MODE-GENEX5KERNEL"<<endl;
+   cout<<"1D MODE-GENEX5KERNEL"<<endl;
    if(m_theInput.size() > static_cast<unsigned int>(numberOfSnapshots)) {
       cout<<"Input sizes are incompatible...Aborting...";
       return FAIL;
@@ -657,7 +656,7 @@ void SourceRockNode::computeHcVolumes ( double& gasVolume,
                                         double& condensateApi ) const {
 
    // Standard conditions.
-   double StandardTemperature = 15.5555556 + Genex6::Constants::s_TCabs; //Kelvin
+   double StandardTemperatureGenexK = 15.5555556 + CelciusToKelvin; //Kelvin
    double StandardPressure    = 101325.353; //Pa
 
    const Genex6::Input* lastInput = getLastInput ();
@@ -690,7 +689,7 @@ void SourceRockNode::computeHcVolumes ( double& gasVolume,
    masses ( pvtFlash::COX ) = 0.0;
    masses ( pvtFlash::H2S ) = 0.0;
 
-   Genex6::PVTCalc::getInstance ().compute ( StandardTemperature, StandardPressure, masses, phaseMasses, densities, viscosities );
+   Genex6::PVTCalc::getInstance ().compute ( StandardTemperatureGenexK, StandardPressure, masses, phaseMasses, densities, viscosities );
 
    freeGasVolume = phaseMasses.sum ( pvtFlash::VAPOUR_PHASE ) / densities ( pvtFlash::VAPOUR_PHASE );
    gasVolume = freeGasVolume;
@@ -702,23 +701,23 @@ void SourceRockNode::computeHcVolumes ( double& gasVolume,
       condensateApi = 141.5 / densities ( pvtFlash::LIQUID_PHASE ) * 1000.0 - 131.5;
 
       if ( condensateApi < 1.99 ) {
-         condensateApi = Constants::UNDEFINEDVALUE;
+         condensateApi = CauldronNoDataValue;
       }
 
    } else {
-      condensateApi = Constants::UNDEFINEDVALUE;
+      condensateApi = CauldronNoDataValue;
    }
 
    if ( freeGasVolume > 0.0 and densities ( pvtFlash::VAPOUR_PHASE ) != 1000.0 ) {
       cgr = condensateVolume / freeGasVolume;
    } else {
-      cgr = Constants::UNDEFINEDVALUE;
+      cgr = CauldronNoDataValue;
    }
 
    if ( lastInput != 0 and gasVolume > 0.0 ) {
       gasExpansionRatio = reservoirGasVolume / gasVolume;
    } else {
-      gasExpansionRatio = Constants::UNDEFINEDVALUE;
+      gasExpansionRatio = CauldronNoDataValue;
    }
 
    // Calculate surface volumes from liquid components.
@@ -727,7 +726,7 @@ void SourceRockNode::computeHcVolumes ( double& gasVolume,
    masses ( pvtFlash::COX ) = 0.0;
    masses ( pvtFlash::H2S ) = 0.0;
 
-   Genex6::PVTCalc::getInstance ().compute ( StandardTemperature, StandardPressure, masses, phaseMasses, densities, viscosities );
+   Genex6::PVTCalc::getInstance ().compute ( StandardTemperatureGenexK, StandardPressure, masses, phaseMasses, densities, viscosities );
 
    solutionGasVolume = phaseMasses.sum ( pvtFlash::VAPOUR_PHASE ) / densities ( pvtFlash::VAPOUR_PHASE );
    liquidOilVolume = phaseMasses.sum ( pvtFlash::LIQUID_PHASE ) / densities ( pvtFlash::LIQUID_PHASE );
@@ -739,17 +738,17 @@ void SourceRockNode::computeHcVolumes ( double& gasVolume,
       oilApi = 141.5 / densities ( pvtFlash::LIQUID_PHASE ) * 1000.0 - 131.5;
 
       if ( oilApi < 1.99 ) {
-         oilApi = Constants::UNDEFINEDVALUE;
+         oilApi = CauldronNoDataValue;
       }
 
    } else {
-      oilApi = Constants::UNDEFINEDVALUE;
+      oilApi = CauldronNoDataValue;
    }
 
    if ( liquidOilVolume > 0.0 and densities ( pvtFlash::LIQUID_PHASE ) != 1000.0 ) {
       gor = solutionGasVolume / liquidOilVolume;
    } else {
-      gor = Constants::UNDEFINEDVALUE;
+      gor = CauldronNoDataValue;
    }
 
 }
@@ -802,7 +801,7 @@ void SourceRockNode::computeOverChargeFactor ( double& overChargeFactor ) const 
    if ( thickness > 0.0 and porosity > 0.0 and iws < 1.0 ) {
       overChargeFactor = ( vapourVolume + liquidVolume ) / ( thickness * porosity * ( 1.0 - iws ));
    } else {
-      overChargeFactor = Constants::UNDEFINEDVALUE;
+      overChargeFactor = CauldronNoDataValue;
    }
 
 }

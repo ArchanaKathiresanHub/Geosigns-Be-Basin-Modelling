@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 #include "GeoPhysicsCrustFormation.h"
 
 #include <cmath>
@@ -15,12 +24,6 @@
 #include "LithologyManager.h"
 
 #include "NumericFunctions.h"
-
-#if 0
-#ifdef DISTRIBUTED 
-#include "MpiFunctions.h"
-#endif
-#endif
 
 using namespace DataAccess;
 
@@ -56,7 +59,8 @@ bool GeoPhysics::GeoPhysicsCrustFormation::setLithologiesFromStratTable () {
 
    CompoundLithologyComposition lc ( lithoName1,           "",  "",
                                      100.0, 0.0, 0.0,
-                                     DataAccess::Interface::CrustFormation::getMixModelStr () );
+                                     DataAccess::Interface::CrustFormation::getMixModelStr (),
+                                     DataAccess::Interface::CrustFormation::getLayeringIndex());
 
    if( dynamic_cast<GeoPhysics::ProjectHandle*>(m_projectHandle)->isALC() ) {
       lc.setThermalModel( m_projectHandle->getCrustPropertyModel() );
@@ -75,8 +79,8 @@ bool GeoPhysics::GeoPhysicsCrustFormation::setLithologiesFromStratTable () {
 
 void GeoPhysics::GeoPhysicsCrustFormation::determineMinMaxThickness () {
 
-   double gridMapMaximum;
-   double gridMapMinimum;
+   double gridMapMaximum = 0.0;
+   double gridMapMinimum = 0.0;
 
    if ( GeoPhysics::Formation::m_projectHandle->getBottomBoundaryConditions () == DataAccess::Interface::MANTLE_HEAT_FLOW ) {
 
@@ -111,6 +115,7 @@ void GeoPhysics::GeoPhysicsCrustFormation::determineMinMaxThickness () {
 
          thicknessMap->restoreData ( false );
       }
+      delete crustThicknesses;
    } else {
       Interface::PaleoFormationPropertyList* crustThicknesses = Interface::CrustFormation::getPaleoThicknessHistory ();
       Interface::PaleoFormationPropertyList::const_iterator thicknessIter;
@@ -138,15 +143,11 @@ void GeoPhysics::GeoPhysicsCrustFormation::determineMinMaxThickness () {
             for ( j = thicknessMap->firstJ (); j <= thicknessMap->lastJ (); ++j ) {
                if ( project->getNodeIsValid ( i, j )) {
                   ectValue = project->getCrustThickness ( i, j, age ); //effective crustal thickness in this case
-                  // gridMapMaximumLocal = PetscMax ( gridMapMaximumLocal, ectValue );
-                  // gridMapMinimumLocal = PetscMin ( gridMapMinimumLocal, ectValue );
                   gridMapMaximumLocal = NumericFunctions::Maximum ( gridMapMaximumLocal, ectValue );
                   gridMapMinimumLocal = NumericFunctions::Minimum ( gridMapMinimumLocal, ectValue );
                }
             }
          }
-         // MPI_Allreduce (&gridMapMaximumLocal, &gridMapMaximum, 1, MPI_DOUBLE, MPI_MAX, PETSC_COMM_WORLD);
-         // MPI_Allreduce (&gridMapMinimumLocal, &gridMapMinimum, 1, MPI_DOUBLE, MPI_MIN, PETSC_COMM_WORLD);
           m_projectHandle->getMinValue ( &gridMapMinimumLocal, &gridMapMinimum );
           m_projectHandle->getMaxValue ( &gridMapMaximumLocal, &gridMapMaximum );
 
@@ -157,7 +158,7 @@ void GeoPhysics::GeoPhysicsCrustFormation::determineMinMaxThickness () {
 
          thicknessMap->restoreData ( false );
       }
-      //   cout << "min = " <<  m_minimumDepositedThickness << "; max= " << m_maximumDepositedThickness << endl;
+
       if( getInitialCrustalThickness() < 0 ) {
          setInitialCrustalThickness( m_maximumDepositedThickness );
          if( m_projectHandle->getRank() == 0 ) {
@@ -252,15 +253,6 @@ bool GeoPhysics::GeoPhysicsCrustFormation::determineCrustThinningRatio () {
       delete crustThicknesses;
 
       m_crustThinningRatio = m_projectHandle->getGlobalOperations ().maximum ( m_crustThinningRatio );
-
-
-#if 0
-#ifdef DISTRIBUTED 
-      // Now find the maximum of all crust-thinning ratios on all processes.
-      m_crustThinningRatio = MpiFunctions::Maximum ( PETSC_COMM_WORLD, m_crustThinningRatio );
-#endif
-#endif
-
   }
 
    return status;

@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef _MIGRATION_OILTOGASCRACKER_H_
 #define _MIGRATION_OILTOGASCRACKER_H_
 
@@ -8,27 +18,27 @@ namespace Genex6
 {
    class Simulator;
 }
-namespace migration {
-
-class Immobiles;
-class Composition;
-
-class OilToGasCracker
+namespace migration
 {
-public:
-   OilToGasCracker (bool containSuplhur = false);
-   virtual ~OilToGasCracker (void);
+   class Immobiles;
+   class Composition;
 
-   void compute (Composition & saraIn, Immobiles &immobilesIn,
-	 double startTime, double endTime,
-	 double startPressure, double endPressure,
-	 double startTemperature, double endTemperature,
-	 Composition & saraOut, Immobiles &immobilesOut);
-private:
-   Genex6::Simulator *m_theSimulator;
+   class OilToGasCracker
+   {
+   public:
+      OilToGasCracker (bool containSuplhur = false);
+      virtual ~OilToGasCracker (void);
 
-   bool ComponentsUsedInOTGC[migration::NumComponents];
-};
+      void compute (const Composition & saraIn, Immobiles &immobilesIn,
+         double startTime, double endTime,
+         double startPressure, double endPressure,
+         double startTemperature, double endTemperature,
+         Composition & saraOut, Immobiles &immobilesOut);
+   private:
+      Genex6::Simulator *m_theSimulator;
+
+      bool ComponentsUsedInOTGC[migration::NumComponents];
+   };
 
 } // namespace migration
 #endif

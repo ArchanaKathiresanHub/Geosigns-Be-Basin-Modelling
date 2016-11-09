@@ -1,3 +1,13 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
+
 #include "AbstractPropertyManager.h"
 #include "DerivedFormationProperty.h"
 #include "DerivedPropertyManager.h"
@@ -11,6 +21,9 @@
 
 #include "PermeabilityFormationCalculator.h"
 #include "PropertyRetriever.h"
+
+// utilities library
+#include "ConstantsMathematics.h"
 
 DerivedProperties::PermeabilityFormationCalculator::PermeabilityFormationCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) : m_projectHandle ( projectHandle ) {
 
@@ -101,8 +114,8 @@ void DerivedProperties::PermeabilityFormationCalculator::calculate ( DerivedProp
                                                            chemicalCompactionRequired, chemicalCompactionValue, porosity );
                      (*lithologies)( i, j, currentAge )->calcBulkPermeabilityNP ( ves->getA ( i, j, k ), maxVes->getA ( i, j, k ), porosity, permNorm, permPlane );
                      
-                     verticalPermeability->set ( i, j, k, permNorm / GeoPhysics::MILLIDARCYTOM2 );
-                     horizontalPermeability->set ( i, j, k, permPlane / GeoPhysics::MILLIDARCYTOM2 );
+                     verticalPermeability->set ( i, j, k, permNorm / Utilities::Maths::MilliDarcyToM2 );
+                     horizontalPermeability->set ( i, j, k, permPlane / Utilities::Maths::MilliDarcyToM2 );
                      
                   }
                } else {

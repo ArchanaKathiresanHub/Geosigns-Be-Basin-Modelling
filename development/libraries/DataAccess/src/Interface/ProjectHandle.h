@@ -100,7 +100,7 @@ namespace DataAccess
          /// Get a handle to the Table with the given name
          database::Table * getTable( const string & tableName ) const;
 
- 
+
          /// return the ObjectFactory
          ObjectFactory * getFactory( void ) const;
 
@@ -155,7 +155,7 @@ namespace DataAccess
          /// Returns the Grid of the output GridMaps that were not produced by either a migration run or
          /// a high resolution decompaction run. This grid is a subgrid of the high resolution output grid.
          virtual const Grid * getLowResolutionOutputGrid( void ) const;
-         
+
          /// print the snapshot table
          void printSnapshotTable () const;
          /// sort the snapshots
@@ -303,7 +303,7 @@ namespace DataAccess
             const Snapshot * snapshot, unsigned int id, unsigned int persistentId ) const;
 
          // return a list of Trapper objects based on the given arguments.
-         // if an argument equals 0, it is used as a wildcard.  
+         // if an argument equals 0, it is used as a wildcard.
          virtual TrapperList* getTrappers(const Reservoir* reservoir,
            const Snapshot* snapshot, unsigned int id, unsigned int persistentId) const;
 
@@ -345,7 +345,7 @@ namespace DataAccess
          /// 	                         FORMATIONSURFACE = a surface property that is not continuous over the surface.
          /// 	                         RESERVOIR = properties which apply to a reservoir and are therefore 2D.
          /// @param property
-         /// @param[in] snapshot properties belonging to this snapshot. If not specified, return 
+         /// @param[in] snapshot properties belonging to this snapshot. If not specified, return
          ///            properties for all snapshots.
          /// @param[in] reservoir properties belonging to this reservoir.
          /// @param[in] formation properties belonging to this formation.
@@ -409,7 +409,10 @@ namespace DataAccess
             const Surface * surface = 0, int propertyTypes = MAP | VOLUME );
 
          void deletePropertyValues( void );
- 
+         void deleteRecordLessMapPropertyValues( void );
+         void deleteRecordLessVolumePropertyValues( void );
+         unsigned int deletePropertiesValuesMaps ( const Snapshot * snapshot );
+
          /// return a list of PropertyValues based on the given arguments.
          /// if an argument equals 0, it is used as a wildcard
          virtual bool hasPropertyValues( int selectionFlags,
@@ -556,7 +559,7 @@ namespace DataAccess
 
          /// Set whether or not to model permafrost
          void setPermafrost( const bool aPermafrost );
-         
+
          /// Return whether or not it is the beginning of an igneous intrusion
          double getPreviousIgneousIntrusionTime( const double Current_Time );
 
@@ -565,13 +568,13 @@ namespace DataAccess
 
          /// get primary properties map writer
          MapWriter * getMapPropertyValuesWriter();
-         
+
          /// get primary properties flag
          bool isPrimaryDouble() const;
 
          /// set primary properties flag
          void setPrimaryDouble( const bool primaryFlag );
-        
+
          const string & getActivityName( void ) const;
 
          bool isPrimaryProperty( const string propertyName ) const;
@@ -626,7 +629,7 @@ namespace DataAccess
          const TableCTC               m_tableCTC;
          const TableCTCRiftingHistory m_tableCTCRiftingHistory;
 
-         // Should really be a list of PaleoSurfaceProperty's, 
+         // Should really be a list of PaleoSurfaceProperty's,
          // but there is no surface defined for the top surface.
          MutablePaleoPropertyList m_surfaceDepthHistory;
          MutablePaleoPropertyList m_surfaceTemperatureHistory;
@@ -794,8 +797,6 @@ namespace DataAccess
          bool initializeMapPropertyValuesWriter( const bool append = false );
          bool finalizeMapPropertyValuesWriter( void );
 
-         bool initializePrimaryPropertyValuesWriter( const bool append = false );
-
          bool saveCreatedMapPropertyValues( void );
 
          //1DComponent
@@ -908,7 +909,7 @@ namespace DataAccess
       private:
          static float GetUndefinedValue( hid_t fileId );
          double m_previousIgneousIntrusionTime;
-         
+
          /// \brief Allocate architecture related clases.
          ///
          /// E.g. Message-handler, global-operations.

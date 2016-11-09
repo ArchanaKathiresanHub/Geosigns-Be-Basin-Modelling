@@ -41,12 +41,15 @@ TEST_F( RSProxyTest, Prm2Obs1Proxy1Test )
    VarSpace      & vrs = sc.varSpace();
    ObsSpaceImpl  & obs = dynamic_cast<ObsSpaceImpl&>( sc.obsSpace() );
 
-   ASSERT_EQ( ErrorHandler::NoError, vrs.addParameter( new VarPrmSourceRockTOC( "Lower Jurassic", 10.0, 5.0, 15.0, VarPrmContinuous::Block ) ) );
+   std::vector<double> dblRng( 3, 5.0 );
+   dblRng[1] = 15.0;
+   dblRng[2] = 10.0;
+   ASSERT_EQ( ErrorHandler::NoError, vrs.addParameter( new VarPrmSourceRockTOC( "Lower Jurassic", dblRng, std::vector<std::string>() ) ) );
    
-   std::vector<double> dblRng( 1, 0.1 );
-   dblRng.push_back( 4.9 );
-   dblRng.push_back( 2.5 );
-   ASSERT_EQ( ErrorHandler::NoError, vrs.addParameter( new VarPrmTopCrustHeatProduction( dblRng, std::vector<std::string>(), VarPrmContinuous::Block ) ) );
+   dblRng[0] = 0.1;
+   dblRng[1] = 4.9;
+   dblRng[2] = 2.5;
+   ASSERT_EQ( ErrorHandler::NoError, vrs.addParameter( new VarPrmTopCrustHeatProduction( dblRng, std::vector<std::string>() ) ) );
 
    ASSERT_EQ( ErrorHandler::NoError, obs.addObservable( ObsGridPropertyXYZ::createNewInstance( 460001.0, 6750001.0, 2751.0, "Temperature", 0.01 ) ) );
    ASSERT_EQ( ErrorHandler::NoError, obs.addObservable( ObsGridPropertyXYZ::createNewInstance( 460001.0, 6750001.0, 2730.0, "Vr", 0.002 ) ) );
@@ -61,7 +64,7 @@ TEST_F( RSProxyTest, Prm2Obs1Proxy1Test )
    RunCaseSetImpl & rcs = dynamic_cast<RunCaseSetImpl&>( sc.doeCaseSet() );
    for ( size_t i = 0; i < rcs.size(); ++i ) 
    {
-      RunCaseImpl * rc = dynamic_cast<RunCaseImpl*>( rcs[ i ] );
+      RunCaseImpl * rc = dynamic_cast<RunCaseImpl*>( rcs[ i ].get() );
 
       proxyRC.push_back( rc ); // collect run cases for proxy calculation
 
@@ -142,7 +145,7 @@ TEST_F( RSProxyTest, Prm2Obs1Proxy1Test )
    std::vector<double> prmVals(2);
 
    // set case parameters, just some arbitrary values inside corresponded ranges
-   prmVals[0] = (10.16 - 10.0)/(15.0-10.0); // scale to range [baseVal:maxVal] for [-1:0:1] range
+   prmVals[0] = 10.16; 
    prmVals[1] = 1.970;
 
    std::vector<double>::const_iterator vit = prmVals.begin();

@@ -13,12 +13,12 @@
 
 PropertyValue::PropertyValue ( Interface::ProjectHandle * projectHandle,
                                database::Record * record,
-                               const string & name, 
+                               const string & name,
                                const Interface::Property * property,
                                const Interface::Snapshot * snapshot,
                                const Interface::Reservoir * reservoir,
                                const Interface::Formation * formation,
-                               const Interface::Surface * surface, 
+                               const Interface::Surface * surface,
                                const Interface::PropertyStorage storage ) :
    Interface::PropertyValue ( projectHandle, record, name, property, snapshot, reservoir, formation, surface, storage ) {
    m_allowOutput = true;
@@ -64,14 +64,14 @@ bool PropertyValue::outputIsRequested () const {
          }
 
          switch ( option ) {
-           case Interface::SOURCE_ROCK_ONLY_OUTPUT : requested = theFormation->isSourceRock (); break; 
+           case Interface::SOURCE_ROCK_ONLY_OUTPUT : requested = theFormation->isSourceRock (); break;
            case Interface::SEDIMENTS_ONLY_OUTPUT   : requested = theFormation->kind () == Interface::SEDIMENT_FORMATION; break;
            case Interface::SEDIMENTS_AND_BASEMENT_OUTPUT : requested = true; break;
            default : requested = false;
          }
 
       }
-      
+
    }
 
    return requested;
@@ -87,33 +87,16 @@ bool PropertyValue::saveMapToFile ( Interface::MapWriter & mapWriter, const bool
 
 }
 
-bool PropertyValue::saveVolumeToFile ( Interface::MapWriter & mapWriter ) {
+bool PropertyValue::saveVolumeToFile ( Interface::MapWriter & mapWriter, const bool isPrimary ) {
 
    if ( outputIsRequested ()) {
-      return Interface::PropertyValue::saveVolumeToFile ( mapWriter );
+      return Interface::PropertyValue::saveVolumeToFile ( mapWriter, isPrimary );
    } else {
       return true;
-   } 
-}
-
-bool PropertyValue::savePrimaryVolumeToFile ( Interface::MapWriter & mapWriter, const bool groupName ) {
-
-   bool status = true;
-
-   if ( FastcauldronSimulator::getInstance ().isPrimaryDouble() and outputIsRequested ()) { 
-      status = Interface::PropertyValue::savePrimaryVolumeToFile ( mapWriter, 
-                                                                   not FastcauldronSimulator::getInstance ().isPrimaryDouble() );
-   } 
-   return status;
+   }
 }
 
 database::Record * PropertyValue::createTimeIoRecord (database::Table * timeIoTbl, Interface::ModellingMode theMode) {
-
-//    cout << " property-value: " << getName () << "  " 
-//         << ( getFormation () == 0 ? " NO-FORMATION " : getFormation ()->getName ()) << "  "
-//         << ( getSurface () == 0 ? " NO-SURFACE " : getSurface ()->getName ()) << "  "
-//         << getSnapshot ()->getTime () 
-//         << endl;
 
    database::Record* record = 0;
    if ( FastcauldronSimulator::getInstance ().getModellingMode () == Interface::MODE3D ) {

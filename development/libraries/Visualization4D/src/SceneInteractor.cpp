@@ -9,6 +9,7 @@
 #include <Inventor/gestures/events/SoRotateGestureEvent.h>
 #include <Inventor/gestures/events/SoDoubleTapGestureEvent.h>
 #include <Inventor/nodes/SoDirectionalLight.h>
+#include <Inventor/nodes/SoPointLight.h>
 #include <Inventor/nodes/SoSwitch.h>
 #include <Inventor/nodes/SoTransformSeparator.h>
 #include <Inventor/nodes/SoRotation.h>
@@ -28,6 +29,17 @@ SceneInteractor::SceneInteractor()
   SoOrthographicCamera* orthoCamera = new SoOrthographicCamera();
   m_orthoInteractor = SoCameraInteractor::getNewInstance(orthoCamera);
 
+  perspCamera->orientation.connectFrom(&orthoCamera->orientation);
+  orthoCamera->orientation.connectFrom(&perspCamera->orientation);
+  perspCamera->position.connectFrom(&orthoCamera->position);
+  orthoCamera->position.connectFrom(&perspCamera->position);
+  perspCamera->nearDistance.connectFrom(&orthoCamera->nearDistance);
+  orthoCamera->nearDistance.connectFrom(&perspCamera->nearDistance);
+  perspCamera->farDistance.connectFrom(&orthoCamera->farDistance);
+  orthoCamera->farDistance.connectFrom(&perspCamera->farDistance);
+  perspCamera->focalDistance.connectFrom(&orthoCamera->focalDistance);
+  orthoCamera->focalDistance.connectFrom(&perspCamera->focalDistance);
+
   // Camera switch
   m_cameraSwitch = new SoSwitch();
   
@@ -39,6 +51,9 @@ SceneInteractor::SceneInteractor()
   SoTransformSeparator* transformSeparator = new SoTransformSeparator();
   transformSeparator->addChild(m_headlightRot.ptr());
   transformSeparator->addChild(new SoDirectionalLight());
+  //auto light = new SoPointLight;
+  //light->location.connectFrom(&perspCamera->position);
+  //transformSeparator->addChild(light);
 
   m_headlightSwitch = new SoSwitch();
   m_headlightSwitch->addChild(transformSeparator);
@@ -81,14 +96,12 @@ SceneInteractor::viewAll(const SbViewportRegion &viewport)
   m_cameraInteractor->viewAll(this, viewport);
 }
 
-SoCameraInteractor*
-SceneInteractor::getCameraInteractor()
+SoCameraInteractor* SceneInteractor::getCameraInteractor()
 {
   return m_cameraInteractor;
 }
 
-void
-SceneInteractor::setCameraMode(SceneInteractor::CameraMode mode)
+void SceneInteractor::setCameraMode(SceneInteractor::CameraMode mode)
 {
   if (mode == SceneInteractor::PERSPECTIVE)
   {
@@ -103,8 +116,7 @@ SceneInteractor::setCameraMode(SceneInteractor::CameraMode mode)
   m_headlightRot->rotation.connectFrom(&m_cameraInteractor->getCamera()->orientation);
 }
 
-SceneInteractor::CameraMode
-SceneInteractor::getCameraMode()
+SceneInteractor::CameraMode SceneInteractor::getCameraMode()
 {
   int activatedCamera = m_cameraSwitch->whichChild.getValue();
 

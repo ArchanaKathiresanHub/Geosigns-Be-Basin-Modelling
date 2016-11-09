@@ -8,6 +8,7 @@
 // Do not distribute without written permission from Shell.
 //
 
+// std library
 #include <string.h>
 #include <string>
 #include <vector>
@@ -29,7 +30,9 @@
 #include "GenexResultManager.h"
 #include "GeneralParametersHandler.h"
 
-// utilitites
+// utilities library
+#include "ConstantsMathematics.h"
+using Utilities::Maths::KiloJouleToJoule;
 #include "StringHandler.h"
 
 namespace Genex6
@@ -130,8 +133,8 @@ const Species** ChemicalModel::GetSpecies() const
 }
 void ChemicalModel::AddElement(Element *theElement)
 {
-   std::vector<Element*>::size_type index = m_theElements.size();
-   
+   int index = m_theElements.size();
+
    if(index > m_speciesManager.getNumberOfElements ()) {
       cout << "Warning!! Too big number of elements." << endl;
    }
@@ -769,12 +772,12 @@ void ChemicalModel::SetTheOutputSpecies()
 }
 void ChemicalModel::PrintConfigurationFileEntities(ofstream &outfile)
 {
-   unsigned int id;
    outfile << "Table:[Elements]" << endl;
    outfile << "ElementName,AtomWeight" << endl;
 
    std::vector<Element*>::size_type sz = m_theElements.size();
-   for(id = 0; id < sz; ++ id) {
+
+   for( unsigned int id = 0; id < sz; ++ id ) {
       m_theElements[id]->OutputOnFile(outfile);
    }
    outfile << "[EndOfTable]" << endl;
@@ -783,7 +786,7 @@ void ChemicalModel::PrintConfigurationFileEntities(ofstream &outfile)
    outfile << "Table:[Species]" << endl;
    outfile << "SpeciesId,SpeciesName" << endl;
 
-   for(id = 0; id < m_speciesManager.getNumberOfSpecies (); ++ id) {
+   for(int id = 0; id < m_speciesManager.getNumberOfSpecies (); ++ id) {
       if(m_theSpecies[id] != NULL) {
          outfile << id + 1 << "," << m_theSpecies[id]->GetName() << endl;
       }
@@ -793,7 +796,7 @@ void ChemicalModel::PrintConfigurationFileEntities(ofstream &outfile)
    outfile << endl;
    outfile << "Table:[SpeciesCompositionByName]" << endl;
    outfile << "SpeciesName,CompositionCode,CompositionFactorC, CompositionFactorH, CompositionFactorO, CompositionFactorN, CompositionFactorS" << endl;
-   for(id = 0; id < m_speciesManager.getNumberOfSpecies (); ++ id) {
+   for(int id = 0; id < m_speciesManager.getNumberOfSpecies (); ++ id) {
       if(m_theSpecies[id] != NULL) {
          m_theSpecies[id]->OutputCompositionOnFile(outfile);
       }
@@ -803,7 +806,7 @@ void ChemicalModel::PrintConfigurationFileEntities(ofstream &outfile)
    outfile << endl;
    outfile << "Table:[SpeciesPropertiesByName]" << endl;
    outfile << "SpeciesName,Weight,Density,activationEnergy1,activationEnergy2,entropy,volume,reactionOrder,diffusionEnergy1,diffusionEnergy2,jumpLength, B0,aromaticity" << endl;
-   for(id = 0; id < m_speciesManager.getNumberOfSpecies (); ++ id) {
+   for(int id = 0; id < m_speciesManager.getNumberOfSpecies (); ++ id) {
       if(m_theSpecies[id] != NULL) {
          m_theSpecies[id]->OutputPropertiesOnFile(outfile);
       }
@@ -919,24 +922,12 @@ void ChemicalModel::LoadElements(ifstream &ConfigurationFile)
    std::vector<std::string> theTokens;
    std::string delim = ",";
 
-   //getline(ConfigurationFile,line,'\n');//header
-#ifdef sun
-   static char buf[1<<14];
-   ConfigurationFile.getline (buf, 1<<14);
-   line = buf;
-#else
    std::getline (ConfigurationFile, line, '\n');
-#endif
+
    for(;;) {
-      //getline(ConfigurationFile,line,'\n');
-#ifdef sun
-      //static char buf[1<<14];
-      ConfigurationFile.getline (buf, 1<<14);
-      line = buf;
-#else
+
       std::getline (ConfigurationFile, line, '\n');
-#endif
-      
+     
       if(line==Genex6::CFG::EndOfTable || line.size() == 0) {
          break;
       }
@@ -958,24 +949,14 @@ void ChemicalModel::LoadSpecies(ifstream &ConfigurationFile)
    std::vector<std::string> theTokens;
    std::string delim = ",";
 
-   //std::getline(ConfigurationFile,line,'\n');//header
-#ifdef sun
-   static char buf[1<<14];
-   ConfigurationFile.getline (buf, 1<<14);
-   line = buf;
-#else
+
+
    std::getline (ConfigurationFile, line, '\n');
-#endif
+
    int numberOfSpeciesInConfigFile = 0; 
    for(;;) {
-      //std::getline(ConfigurationFile,line,'\n');
-#ifdef sun
-      //static char buf[1<<14];
-      ConfigurationFile.getline (buf, 1<<14);
-      line = buf;
-#else
       std::getline (ConfigurationFile, line, '\n');
-#endif
+
       if(line == Genex6::CFG::EndOfTable || line.size() == 0) {
          break;
       }
@@ -998,27 +979,21 @@ void ChemicalModel::LoadSpeciesComposition(ifstream &ConfigurationFile)
    std::vector<std::string> theTokens;
    std::string delim = ",";
    
-   //std::getline(ConfigurationFile,line,'\n');//header
-#ifdef sun
-   static char buf[1<<14];
-   ConfigurationFile.getline (buf, 1<<14);
-   line = buf;
-#else
    std::getline (ConfigurationFile, line, '\n');
-#endif
    StringHandler::parseLine(line, delim, theTokens);
    
-   unsigned int i, j;
+   int i, j;
    int theElements[m_speciesManager.numberOfElements];
 
+   int tokenSize = theTokens.size();
    for(i = 0; i < m_speciesManager.getNumberOfElements (); ++ i) {
       theElements[i] = -1;
    }
-   if(theTokens.size() - 2 > m_speciesManager.getNumberOfElements ()) {
+   if(tokenSize - 2 > m_speciesManager.getNumberOfElements ()) {
       cout << "Warning!! Wrong number of elements in Species composition." << endl;
    }
    //Process header
-   for(i = 2, j = 0; i < theTokens.size(); ++ i, ++ j) {
+   for(i = 2, j = 0; i < tokenSize; ++ i, ++ j) {
       //CompositionFactorC -->extract "C" into Element
       char elementFromHeader = theTokens[i][theTokens[i].size()-1];
       std::string Element(1,elementFromHeader);
@@ -1031,28 +1006,23 @@ void ChemicalModel::LoadSpeciesComposition(ifstream &ConfigurationFile)
    theTokens.clear();
    //Process main body
    for(;;) {
-      //std::getline(ConfigurationFile,line,'\n');
-#ifdef sun
-      //static char buf[1<<14];
-      ConfigurationFile.getline (buf, 1<<14);
-      line = buf;
-#else
+
       std::getline (ConfigurationFile, line, '\n');
-#endif
+
       if(line == Genex6::CFG::EndOfTable || line.size() == 0) {
          break;
       }
       
       StringHandler::parseLine(line, delim, theTokens);
       
-      if(theTokens.size() - 2 > m_speciesManager.getNumberOfElements ()) {
+      if(tokenSize - 2 > m_speciesManager.getNumberOfElements ()) {
          cout << "Warning!! Wrong number of elements in Species composition." << endl;
       }
       
       Species *theSpecies = this->GetByNameSpecies(theTokens[0]);
-      for(i = 2, j = 0; i < theTokens.size(); ++ i, ++ j) {
+      for(i = 2, j = 0; i < tokenSize; ++ i, ++ j) {
          double compositionCode = atof(theTokens[i].c_str());
-         if(compositionCode > Genex6::Constants::ZERO) {
+         if(compositionCode > Genex6::Constants::Zero) {
             if(theElements[j] < 0) continue;
             Element *const theElem = this->GetElementByName(theElements[j]);
             theSpecies->UpdateCompositionByElement(theElem,compositionCode);
@@ -1067,24 +1037,11 @@ void ChemicalModel::LoadSpeciesProperties(ifstream &ConfigurationFile)
    std::vector<std::string> theTokens;
    std::string delim = ",";
 
-   //std::getline(ConfigurationFile,line,'\n');//header
-#ifdef sun
-   static char buf[1<<14];
-   ConfigurationFile.getline (buf, 1<<14);
-   line = buf;
-#else
    std::getline (ConfigurationFile, line, '\n');
-#endif
    
    for(;;) {
-      //std::getline(ConfigurationFile,line,'\n');
-#ifdef sun
-      //static char buf[1<<14];
-      ConfigurationFile.getline (buf, 1<<14);
-      line = buf;
-#else
       std::getline (ConfigurationFile, line, '\n');
-#endif
+
       if(line == Genex6::CFG::EndOfTable || line.size() == 0)
       {
          break;
@@ -1134,25 +1091,11 @@ void ChemicalModel::LoadReactions(ifstream &ConfigurationFile)
    std::vector<std::string> theTokens;
    std::string delim = ",";
    
-   //std::getline(ConfigurationFile,line,'\n');//header
-#ifdef sun
-   static char buf[1<<14];
-   ConfigurationFile.getline (buf, 1<<14);
-   line = buf;
-#else
    std::getline (ConfigurationFile, line, '\n');
-#endif
-   
+
    for(;;) {
-      //std::getline(ConfigurationFile,line,'\n');
-#ifdef sun
-      //static char buf[1<<14];
-      ConfigurationFile.getline (buf, 1<<14);
-      line = buf;
-#else
       std::getline (ConfigurationFile, line, '\n');
-#endif
-      
+ 
       if(line == Genex6::CFG::EndOfTable || line.size() == 0) {
          break;
       }
@@ -1188,24 +1131,12 @@ void ChemicalModel::LoadReactionRatios(ifstream &ConfigurationFile)
    std::vector<std::string> theTokens;
    std::string delim = ",";
 
-   //std::getline(ConfigurationFile,line,'\n');//header
-#ifdef sun
-   static char buf[1<<14];
-   ConfigurationFile.getline (buf, 1<<14);
-   line = buf;
-#else
    std::getline (ConfigurationFile, line, '\n');
-#endif
-   
+
    for(;;) {
-      //std::getline(ConfigurationFile,line,'\n');
-#ifdef sun
-      static char buf[1<<14];
-      ConfigurationFile.getline (buf, 1<<14);
-      line = buf;
-#else
+
       std::getline (ConfigurationFile, line, '\n');
-#endif
+
       if(line == Genex6::CFG::EndOfTable || line.size() == 0) {
          break;
       }
@@ -1231,9 +1162,7 @@ ChemicalModel::ChemicalModel(const std::string &in_FulPathConfigurationFileName,
    for(int i = 0; i < m_speciesManager.getNumberOfSpecies (); ++ i) {
       m_theSpecies[i] = NULL;
    } 
-#ifdef sun
-   static char buf[1<<14];
-#endif
+
    ifstream theReactFile;
    
    theReactFile.open(in_FulPathConfigurationFileName.c_str());
@@ -1247,13 +1176,9 @@ ChemicalModel::ChemicalModel(const std::string &in_FulPathConfigurationFileName,
    //not needed for the new file structure
    //------------------------------------------------------------------------------------------------
    for(int i = 0; i < 2; ++ i) {
-      //std::getline(theReactFile,line,'\n');
-#ifdef sun
-      theReactFile.getline (buf, 1<<14);
-      line = buf;
-#else
+
       std::getline (theReactFile, line, '\n');
-#endif
+
       cout << line << endl;
       if(i == 0) {
          m_name = line;
@@ -1284,13 +1209,9 @@ ChemicalModel::ChemicalModel(const std::string &in_FulPathConfigurationFileName,
    SetTheElements(theReactFile);
    SetTheSpecies(theReactFile);
    //------------------------------------------------------------------------------------------------
-   //std::getline(theReactFile,line,'\n');
-#ifdef sun
-   theReactFile.getline (buf, 1<<14);
-   line = buf;
-#else
+   
    std::getline (theReactFile, line, '\n');
-#endif
+
    if(!line.empty()) {
       s_numberOfReactions = atoi(line.c_str());
    }
@@ -1307,14 +1228,9 @@ void ChemicalModel::SetTheElements(ifstream &theStream)
    clearElements();
    
    std::string line;
-   //std::getline(theStream,line,'\n');
-#ifdef sun
-   static char buf[1<<14];
-   theStream.getline (buf, 1<<14);
-   line = buf;
-#else
+
    std::getline (theStream, line, '\n');
-#endif
+
    cout << line << endl;
    
    std::vector<std::string> theTokens;
@@ -1353,14 +1269,8 @@ void ChemicalModel::SetTheSpecies(ifstream &theStream)
 
    for(int SpeciesId = 1; SpeciesId <= s_numberOfSpecies; ++ SpeciesId) {
       std::string line;
-      //std::getline(theStream,line,'\n');
-#ifdef sun
-      static char buf[1<<14];
-      theStream.getline (buf, 1<<14);
-      line = buf;
-#else
       std::getline (theStream, line, '\n');
-#endif
+
       cout << line << endl;
       std::vector<std::string> theTokens;
       std::string delim(",\n");
@@ -1382,12 +1292,12 @@ void ChemicalModel::SetTheSpecies(ifstream &theStream)
       int counter = 0;
       if(s_numberOfSpecies > 23) counter = 7; else counter = 6;
       //SpeciesProperties
-      double activationEnergy1 = Genex6::Constants::convert2Joule * atof(theTokens[counter ++].c_str()); // 7
-      double activationEnergy2 = Genex6::Constants::convert2Joule * atof(theTokens[counter ++].c_str()); // 8
+      double activationEnergy1 = KiloJouleToJoule * atof(theTokens[counter ++].c_str()); // 7
+      double activationEnergy2 = KiloJouleToJoule * atof(theTokens[counter ++].c_str()); // 8
       double entropy           = atof(theTokens[counter ++].c_str()); // 9
       double volume            = atof(theTokens[counter ++].c_str()); // 10
       double reactionOrder     = atof(theTokens[counter ++].c_str()); // 11
-      double diffusionEnergy1  = Genex6::Constants::convert2Joule*atof(theTokens[counter ++].c_str()); //12
+      double diffusionEnergy1  = KiloJouleToJoule*atof(theTokens[counter ++].c_str()); //12
       double diffusionEnergy2  = 0.0;     //generally not defined in sch files, implicitly changed at later stage
       double jumpLength        = atof(theTokens[counter + 3].c_str()); // 16
       double density           = atof(theTokens[counter + 4].c_str()); // 17
@@ -1461,14 +1371,8 @@ void ChemicalModel::SetTheReactions(ifstream &theStream)
 
    for(int i = 1; i <= s_numberOfReactions; ++ i) {
 
-      //std::getline(theStream,line,'\n');
-#ifdef sun
-      static char buf[1<<14];
-      theStream.getline (buf, 1<<14);
-      line = buf;
-#else
       std::getline (theStream, line, '\n');
-#endif
+
       //DEBUG std::cout<<"---------------Start of Reaction----------Number:"<<i<<std::endl;
       //DEBUG MAD
       cout << line << endl;

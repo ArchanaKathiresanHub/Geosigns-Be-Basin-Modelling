@@ -91,7 +91,7 @@ bm_include_libraries(
 #What is that?
 remove_definitions(-fPIC)
 
-include_directories(
+include_directories( SYSTEM
    ${HDF5_INCLUDE_DIRS}
 )
 

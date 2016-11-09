@@ -10,7 +10,6 @@ FiniteElementMethod::BasisFunctionCache::BasisFunctionCache ( const int xPointCo
    ElementVector phi;
    BasisFunction evaluateBasisFunctions;
    
-   int i;
    int quadCount;
 
 

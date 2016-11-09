@@ -16,15 +16,17 @@
 #include "DoubleExponentialPorosity.h"
 #include "GeoPhysicalConstants.h"
 #include "Interface/Interface.h"
+#include "NumericFunctions.h"
+
+// utilities library
+#include "ConstantsPhysics.h"
+using Utilities::Physics::AccelerationDueToGravity;
 
 const double GeoPhysics::Porosity::SolidThicknessIterationTolerance = 0.00001;
 
 
 namespace GeoPhysics
 {
-
-
-
    Porosity
       ::Porosity(Algorithm * algorithm)
       :m_algorithm(algorithm)
@@ -46,21 +48,22 @@ namespace GeoPhysics
       double compactionDecr,
       double compactionDecrA,
       double compactionDecrB,
-      double soilMechanicsCompactionCoefficient)
+      double soilMechanicsCompactionCoefficient,
+      bool   isLegacy)
    {
       
-	  switch (porosityModel)
+     switch (porosityModel)
       {
       case DataAccess::Interface::EXPONENTIAL_POROSITY:
-         return Porosity(new ExponentialPorosity(depoPorosity, minimumMechanicalPorosity, compactionIncr, compactionDecr));
+         return Porosity(new ExponentialPorosity(depoPorosity, minimumMechanicalPorosity, compactionIncr, compactionDecr, isLegacy));
       case DataAccess::Interface::SOIL_MECHANICS_POROSITY:
          return Porosity(new soilMechanicsPorosity(depoPorosity, minimumMechanicalPorosity, soilMechanicsCompactionCoefficient, depoPorosity/(1-depoPorosity)));
       case DataAccess::Interface::DOUBLE_EXPONENTIAL_POROSITY:
-         return Porosity(new DoubleExponentialPorosity(depoPorosity, minimumMechanicalPorosity, compactionIncrA, compactionIncrB, compactionDecrA, compactionDecrB));
+         return Porosity(new DoubleExponentialPorosity(depoPorosity, minimumMechanicalPorosity, compactionIncrA, compactionIncrB, compactionDecrA, compactionDecrB, isLegacy));
       default:
          assert(false);
       }
-	  
+     
       return Porosity(0);
    }
 
@@ -76,13 +79,14 @@ namespace GeoPhysics
    {}
    
    Porosity::Algorithm::Algorithm(double depoPorosity, double minimumMechanicalPorosity):
-		m_depoPorosity(depoPorosity),
-		m_minimumMechanicalPorosity(minimumMechanicalPorosity)
+      m_minimumMechanicalPorosity( minimumMechanicalPorosity ),
+      m_minimumNumericalMechanicalPorosity( NumericFunctions::Maximum(m_minimumMechanicalPorosity, MinimumPorosityNonLegacy) ),
+      m_depoPorosity( depoPorosity ),
+      m_minimumNumericalDepoPorosity( NumericFunctions::Maximum( m_depoPorosity, MinimumPorosityNonLegacy ) )
    {
-	   
    }
 
-   double Porosity::Algorithm::fullCompThickness(const double MaxVesValue, const double thickness, const double densitydiff, const double vesScaleFactor, const bool overpressuredCompaction) const {
+   double Porosity::Algorithm::fullCompThickness(const double maxVesValue, const double thickness, const double densitydiff, const double vesScaleFactor, const bool overpressuredCompaction) const {
 
       double solidThickness;
 
@@ -92,14 +96,14 @@ namespace GeoPhysics
          solidThickness = 0.0;
       } else {
 
-         const bool IncludeChemicalCompaction = false;
+         const bool includeChemicalCompaction = false;
 
          // If we are initialising the model for an Overpressure run
          // then we assume some overpressure. An amount that equates to VES = 0.5 * ( Pl - Ph )
          const double vesScaling = (overpressuredCompaction ? vesScaleFactor : 1.0);
 
-         double vesTop = MaxVesValue;
-         double porosityTop = calculate(vesTop, vesTop, IncludeChemicalCompaction, 0.0);
+         double vesTop = maxVesValue;
+         double porosityTop = calculate(vesTop, vesTop, includeChemicalCompaction, 0.0);
          double vesBottom;
          double porosityBottom;
          double computedSolidThickness;
@@ -109,8 +113,8 @@ namespace GeoPhysics
          computedSolidThickness = thickness * (1.0 - porosityTop);
 
          do {
-            vesBottom = MaxVesValue + vesScaling * AccelerationDueToGravity * densitydiff * computedSolidThickness;
-            porosityBottom = calculate( vesBottom, vesBottom, IncludeChemicalCompaction, 0.0 );
+            vesBottom = maxVesValue + vesScaling * AccelerationDueToGravity * densitydiff * computedSolidThickness;
+            porosityBottom = calculate( vesBottom, vesBottom, includeChemicalCompaction, 0.0 );
             computedRealThickness = 0.5 * computedSolidThickness * (1.0 / (1.0 - porosityTop) + 1.0 / (1.0 - porosityBottom));
             computedSolidThickness = computedSolidThickness * (thickness / computedRealThickness);
          } while ( std::abs ( thickness - computedRealThickness ) >= thickness * Porosity::SolidThicknessIterationTolerance && iteration++ <= 10);
@@ -119,15 +123,5 @@ namespace GeoPhysics
       }
 
       return solidThickness;
-   }
-
-   double Porosity::Algorithm::minimumMechanicalPorosity( ) const
-   {
-	   return m_minimumMechanicalPorosity;
-   }
-
-   double Porosity::Algorithm::surfacePorosity() const
-   {
-      return m_depoPorosity;
    }
 }

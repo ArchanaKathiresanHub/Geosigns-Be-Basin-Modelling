@@ -26,6 +26,9 @@ namespace DataAccess
 	    /// Return the name of this Reservoir
 	    const string & getName (void) const;
 
+            /// Set the name of a new reservoir
+            void setName (const string reservoirName);
+
 	    /// Return the minimum capacity for the traps of this Reservoir
 	    double getTrapCapacity (void) const;
 

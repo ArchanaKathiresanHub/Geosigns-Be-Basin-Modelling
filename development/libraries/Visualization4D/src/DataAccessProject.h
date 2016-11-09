@@ -96,6 +96,8 @@ public:
 
   explicit DataAccessProject(const std::string& path);
 
+  void testIO();
+
   virtual ~DataAccessProject();
 
   virtual ProjectInfo getProjectInfo() const;

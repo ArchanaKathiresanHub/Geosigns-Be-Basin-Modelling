@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -25,7 +25,7 @@
 
 namespace GeoPhysics {
 
-   /// A simple-lithology object extends the DAL::LithoType, adding functionality 
+   /// A simple-lithology object extends the DAL::LithoType, adding functionality
    /// to enable the calculation of various geo-physical quantities.
    class SimpleLithology : public DataAccess::Interface::LithoType {
 
@@ -61,10 +61,10 @@ namespace GeoPhysics {
 
       /// Return compaction coefficient for single exponential model.
       double getCompCoeff() const;
-      
+
       /// Return compaction coefficient A for double exponential model.
       double getCompCoeffA() const;
-      
+
       /// Return compaction coefficient B for double exponential model.
       double getCompCoeffB() const;
 
@@ -106,10 +106,10 @@ namespace GeoPhysics {
 
       /// Return the geometric variance of the grain size distribution.
       double getGeometricVariance () const;
-  
+
       virtual double getDensity( double t, double p ) const { (void) t; (void) p; return m_density; }
       virtual double getBasaltDensity( double t, double p ) const { (void) t; (void) p; return m_density; }
-      
+
       /// Return the C1 - capillary entry pressure coefficient
       double getCapC1() const;
 
@@ -136,6 +136,13 @@ namespace GeoPhysics {
       double permeability(const double ves,
          const double maxVes,
          const double calculatedPorosity) const;
+
+      /// Compute the permeability.
+      void permeability ( const unsigned int       size,
+                          ArrayDefs::ConstReal_ptr ves,
+                          ArrayDefs::ConstReal_ptr maxVes,
+                          ArrayDefs::ConstReal_ptr porosity,
+                          ArrayDefs::Real_ptr      permeability ) const;
 
       /// Compte the derivative of the permeability function.
       void permeabilityDerivative(const double  ves,
@@ -177,6 +184,14 @@ namespace GeoPhysics {
          const double maxVes,
          const bool   includeChemicalCompaction,
          const double chemicalCompaction) const;
+
+      /// Compute the porosity.
+      void porosity ( const unsigned int       size,
+                      ArrayDefs::ConstReal_ptr ves,
+                      ArrayDefs::ConstReal_ptr maxVes,
+                      const bool               includeChemicalCompaction,
+                      ArrayDefs::ConstReal_ptr chemicalCompactionTerm,
+                      ArrayDefs::Real_ptr      porosity ) const;
 
       /// Return the reference effective stress.
       ///
@@ -357,6 +372,15 @@ inline double GeoPhysics::SimpleLithology::getLambdaKr() const {
 inline double GeoPhysics::SimpleLithology::permeability(const double ves, const double maxVes, const double calculatedPorosity) const
 {
    return m_permeability.calculate(ves, maxVes, calculatedPorosity);
+}
+
+
+inline void GeoPhysics::SimpleLithology::permeability ( const unsigned int       size,
+                                                        ArrayDefs::ConstReal_ptr ves,
+                                                        ArrayDefs::ConstReal_ptr maxVes,
+                                                        ArrayDefs::ConstReal_ptr porosity,
+                                                        ArrayDefs::Real_ptr      permeability ) const {
+   m_permeability.calculate(size, ves, maxVes, porosity, permeability );
 }
 
 /// Compte the derivative of the permeability function.

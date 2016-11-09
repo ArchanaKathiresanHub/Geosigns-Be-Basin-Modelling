@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
 #include "AbstractPropertyManager.h"
 #include "DerivedFormationProperty.h"
 #include "DerivedPropertyManager.h"
@@ -14,6 +23,10 @@
 
 #include "LithostaticPressureFormationCalculator.h"
 #include "PropertyRetriever.h"
+
+// utilitites library
+#include "ConstantsPhysics.h"
+#include "ConstantsMathematics.h"
 
 DerivedProperties::LithostaticPressureFormationCalculator::LithostaticPressureFormationCalculator ( const GeoPhysics::ProjectHandle* projectHandle ) : m_projectHandle ( projectHandle ) {
    addPropertyName ( "LithoStaticPressure" );
@@ -75,7 +88,7 @@ void DerivedProperties::LithostaticPressureFormationCalculator::calculate ( Deri
                 
                for ( unsigned int k = ves->firstK (); k <= ves->lastK (); ++k ) {
                  
-                  lithostaticPressure->set ( i, j, k, ( ves->getA ( i, j, k ) * GeoPhysics::PascalsToMegaPascals + porePressure->getA ( i, j, k )));
+                  lithostaticPressure->set ( i, j, k, ( ves->getA ( i, j, k ) * Utilities::Maths::PaToMegaPa + porePressure->getA ( i, j, k )));
                }
             } else {
                for ( unsigned int k = ves->firstK (); k <= ves->lastK (); ++k ) {
@@ -203,7 +216,7 @@ void DerivedProperties::LithostaticPressureFormationCalculator::calculateForBase
                   }
                   segmentThickness = depth->getA ( i, j, k - 1 ) - depth->getA ( i, j, k );
 
-                  segmentPressure = segmentThickness * density * GeoPhysics::AccelerationDueToGravity * GeoPhysics::PascalsToMegaPascals;
+                  segmentPressure = segmentThickness * density * Utilities::Physics::AccelerationDueToGravity * Utilities::Maths::PaToMegaPa;
 
                   pressure = lithostaticPressure->getA ( i, j, k ) + segmentPressure;
                   lithostaticPressure->set ( i, j, k - 1, pressure );

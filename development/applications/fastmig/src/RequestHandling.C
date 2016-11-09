@@ -320,7 +320,95 @@ namespace migration
    }
    //-------------------------------------------------------------------------------------------------------------//
 
-   /// 8. send a FormationNodeThreeVectorRequest request
+   /// 8. send a FormationNodeCompositionRequest request  
+   void RequestHandling::SendFormationNodeCompositionRequest (FormationNodeCompositionRequest & formationNodeCompositionRequest, FormationNodeCompositionRequest & formationNodeCompositionResponse)
+   {
+      int rank = GetRank (formationNodeCompositionRequest.i, formationNodeCompositionRequest.j);
+
+      assert (RequestHandling::ProxyUseAllowed ());
+
+      formationNodeCompositionRequest.messageId = ++messageId;
+
+#ifdef USELOGSTREAM
+      logstream << GetRankString () << ": " << "SendFormationNodeCompositionRequest (" << rank << ", " <<
+         formationNodeCompositionRequest.messageId << ", " << ValueSpecNames[formationNodeCompositionRequest.valueSpec] << ", " << formationNodeCompositionRequest.formationIndex << ", " <<
+         formationNodeCompositionRequest.i << ", " << formationNodeCompositionRequest.j << ", " << formationNodeCompositionRequest.k << ")" << endl;
+      logstream.flush ();
+#endif
+
+      MPI_Bsend (&formationNodeCompositionRequest, 1, FormationNodeCompositionType, rank, FORMATIONNODECOMPOSITIONREQUEST, PETSC_COMM_WORLD);
+      if (formationNodeCompositionRequest.valueSpec > SET)
+      {
+         HandleRequests (UNTILOUTOFREQUESTS);
+         return;
+      }
+      else
+      {
+         HandleRequests (UNTILRESPONDED, &formationNodeCompositionResponse);
+      }
+   }
+
+   void RequestHandling::handleFormationNodeCompositionRequest (const int & source)
+   {
+      FormationNodeCompositionRequest formationNodeCompositionRequest;
+      FormationNodeCompositionRequest formationNodeCompositionResponse;
+
+      MPI_Status recvStatus;
+      MPI_Recv (&formationNodeCompositionRequest, 1, FormationNodeCompositionType, source, FORMATIONNODECOMPOSITIONREQUEST, PETSC_COMM_WORLD, &recvStatus);
+
+#ifdef USELOGSTREAM
+      logstream << GetRankString () << ": " << "handleFormationNodeCompositionRequest (" << source << ", " << formationNodeCompositionRequest.messageId << ", " <<
+         ValueSpecNames[formationNodeCompositionRequest.valueSpec] <<
+         ", " << formationNodeCompositionRequest.formationIndex << ", " <<
+         formationNodeCompositionRequest.i << ", " << formationNodeCompositionRequest.j << ", " << formationNodeCompositionRequest.k << ")" << endl;
+      logstream.flush ();
+#endif
+
+      if (formationNodeCompositionRequest.valueSpec > SET)
+      {
+         m_requestHandler->getFormation (formationNodeCompositionRequest.formationIndex)->manipulateFormationNodeComposition (formationNodeCompositionRequest);
+      }
+      else
+      {
+         FormationNodeCompositionRequest formationNodeCompositionResponse;
+#if 0
+         cerr << GetRankString () << ": " << m_requestHandler->getFormation (formationNodeCompositionRequest.formationIndex)->getName () << " (" << formationNodeCompositionRequest.formationIndex << ")"
+            "->handleFormationNodeCompositionRequest (" << ValueSpecNames[formationNodeCompositionRequest.valueSpec] << ")" << endl;
+#endif
+         m_requestHandler->getFormation (formationNodeCompositionRequest.formationIndex)->getFormationNodeComposition (formationNodeCompositionRequest, formationNodeCompositionResponse);
+
+         formationNodeCompositionResponse.messageId = ++messageId;
+
+#ifdef USELOGSTREAM
+         logstream << GetRankString () << ": " << "sendFormationNodeCompositionResponse (" << source << ", " << formationNodeCompositionResponse.messageId << ", " <<
+            ValueSpecNames[formationNodeCompositionResponse.valueSpec] <<
+            ", " << formationNodeCompositionResponse.formationIndex << ", " <<
+            formationNodeCompositionResponse.i << ", " << formationNodeCompositionResponse.j << ", " << formationNodeCompositionResponse.k << ")" << endl;
+         logstream.flush ();
+#endif
+
+         MPI_Bsend (&formationNodeCompositionResponse, 1, FormationNodeCompositionType, source, FORMATIONNODECOMPOSITIONRESPONSE, PETSC_COMM_WORLD);
+      }
+   }
+
+   void RequestHandling::handleFormationNodeCompositionResponse (const int & source, FormationNodeCompositionRequest * formationNodeCompositionResponse)
+   {
+      MPI_Status recvStatus;
+
+      assert (formationNodeCompositionResponse);
+      MPI_Recv (formationNodeCompositionResponse, 1, FormationNodeCompositionType, source, FORMATIONNODECOMPOSITIONRESPONSE, PETSC_COMM_WORLD, &recvStatus);
+
+#ifdef USELOGSTREAM
+      logstream << GetRankString () << ": " << "handleFormationNodeCompositionResponse (" << source << ", " << formationNodeCompositionResponse->messageId << ", " <<
+         ValueSpecNames[formationNodeValueResponse->valueSpec] <<
+         ", " << formationNodeValueResponse->formationIndex << ", " <<
+         formationNodeCompositionResponse->i << ", " << formationNodeCompositionResponse->j << ", " << formationNodeCompositionResponse->k << ")" << endl;
+      logstream.flush ();
+#endif
+   }
+   //-------------------------------------------------------------------------------------------------------------//
+
+   /// 9. send a FormationNodeThreeVectorRequest request
    void RequestHandling::SendFormationNodeThreeVectorRequest (FormationNodeThreeVectorRequest & formationNodeThreeVectorRequest, FormationNodeThreeVectorRequest & formationNodeThreeVectorResponse)
    {
       int rank = GetRank (formationNodeThreeVectorRequest.i, formationNodeThreeVectorRequest.j);
@@ -389,7 +477,7 @@ namespace migration
 
    //-------------------------------------------------------------------------------------------------------------//
 
-   /// 9. Send a FormationNodeThreeVectorValueRequest: from a three vector (e.g. a set of quadrature points) returns a value (e.g. the depth at that particular set of quadrature points)
+   /// 10. Send a FormationNodeThreeVectorValueRequest: from a three vector (e.g. a set of quadrature points) returns a value (e.g. the depth at that particular set of quadrature points)
 
    void RequestHandling::SendFormationNodeThreeVectorValueRequest (FormationNodeThreeVectorValueRequest & formationNodeThreeVectorValueRequest, FormationNodeThreeVectorValueRequest & formationNodeThreeVectorValueResponse)
    {
@@ -432,7 +520,7 @@ namespace migration
 
    //-------------------------------------------------------------------------------------------------------------//
 
-   /// 10. send a value request to another processor
+   /// 11. send a value request to another processor
    void RequestHandling::SendRequest (ColumnValueArrayRequest & valueArrayRequest, ColumnValueArrayRequest & valueArrayResponse)
    {
       int rank = GetRank (valueArrayRequest.i, valueArrayRequest.j);
@@ -479,7 +567,7 @@ namespace migration
 
    //-------------------------------------------------------------------------------------------------------------//
 
-   /// 11. send Finished
+   /// 12. send Finished
    /// inform other processors that it has completed its request handling phase.
    void RequestHandling::sendFinished (void)
    {
@@ -536,17 +624,17 @@ namespace migration
    }
 
    void AllGatherFromAll (void * sendbuf, int sendcount, MPI_Datatype sendtype,
-                          void *recvbuf, int recvcount, MPI_Datatype recvtype)
+      void *recvbuf, int recvcount, MPI_Datatype recvtype)
    {
       MPI_Allgather (sendbuf, sendcount, sendtype,
-                     recvbuf, recvcount, recvtype, PETSC_COMM_WORLD);
+         recvbuf, recvcount, recvtype, PETSC_COMM_WORLD);
    }
 
    void RootGatherFromAll (void * sendbuf, int sendcount, MPI_Datatype sendtype,
-                           void *recvbuf, int recvcount, MPI_Datatype recvtype)
+      void *recvbuf, int recvcount, MPI_Datatype recvtype)
    {
       MPI_Gather (sendbuf, sendcount, sendtype,
-                  recvbuf, recvcount, recvtype, 0, PETSC_COMM_WORLD);
+         recvbuf, recvcount, recvtype, 0, PETSC_COMM_WORLD);
    }
 
    double MaximumAll (double myValue)
@@ -577,56 +665,68 @@ namespace migration
    /// Will finish after all processors have completed their phase.
    RequestHandling::~RequestHandling ()
    {
+      if (s_instance)
+      {
+         delete s_instance;
+         s_instance = 0;
+      }
    }
 
-    RequestHandling * RequestHandling::GetInstance ()
+   RequestHandling * RequestHandling::GetInstance ()
    {
-		if (!s_instance) 
-		{
-			s_instance = new RequestHandling;
-		}
+      if (!s_instance)
+      {
+         s_instance = new RequestHandling;
+      }
       return s_instance;
    }
 
    void RequestHandling::HandleRequests (RequestMode mode)
    {
-		RequestHandling::GetInstance ()->handleRequests (mode);
+      RequestHandling::GetInstance ()->handleRequests (mode);
    }
 
    void RequestHandling::HandleRequests (RequestMode mode, ColumnValueRequest * columnValueResponse)
    {
-      RequestHandling::GetInstance ()->handleRequests (mode, columnValueResponse, 0, 0, 0, 0, 0);
+      RequestHandling::GetInstance ()->handleRequests (mode, columnValueResponse, 0, 0, 0, 0, 0, 0);
    }
 
    void RequestHandling::HandleRequests (RequestMode mode, ColumnCompositionRequest * columnCompositionResponse)
    {
-      RequestHandling::GetInstance ()->handleRequests (mode, 0, 0, columnCompositionResponse, 0, 0, 0);
+      RequestHandling::GetInstance ()->handleRequests (mode, 0, 0, columnCompositionResponse, 0, 0, 0, 0);
    }
 
    void RequestHandling::HandleRequests (RequestMode mode, ColumnValueArrayRequest * columnValueArrayResponse)
    {
-      RequestHandling::GetInstance ()->handleRequests (mode, 0, columnValueArrayResponse, 0, 0, 0, 0);
+      RequestHandling::GetInstance ()->handleRequests (mode, 0, columnValueArrayResponse, 0, 0, 0, 0, 0);
    }
 
    void RequestHandling::HandleRequests (RequestMode mode, FormationNodeValueRequest * formationNodeValueResponse)
    {
-      RequestHandling::GetInstance ()->handleRequests (mode, 0, 0, 0, formationNodeValueResponse, 0, 0);
+      RequestHandling::GetInstance ()->handleRequests (mode, 0, 0, 0, formationNodeValueResponse, 0, 0, 0);
+   }
+
+   void RequestHandling::HandleRequests (RequestMode mode, FormationNodeCompositionRequest * formationNodeCompositionResponse)
+   {
+      RequestHandling::GetInstance ()->handleRequests (mode, 0, 0, 0, 0, formationNodeCompositionResponse, 0, 0);
    }
 
    void RequestHandling::HandleRequests (RequestMode mode, FormationNodeThreeVectorRequest * formationNodeThreeVectorResponse)
    {
-      RequestHandling::GetInstance ()->handleRequests (mode, 0, 0, 0, 0, formationNodeThreeVectorResponse, 0);
+      RequestHandling::GetInstance ()->handleRequests (mode, 0, 0, 0, 0, 0, formationNodeThreeVectorResponse, 0);
    }
 
    void RequestHandling::HandleRequests (RequestMode mode, FormationNodeThreeVectorValueRequest * formationNodeThreeVectorValueResponse)
    {
-      RequestHandling::GetInstance ()->handleRequests (mode, 0, 0, 0, 0, 0, formationNodeThreeVectorValueResponse);
+      RequestHandling::GetInstance ()->handleRequests (mode, 0, 0, 0, 0, 0, 0, formationNodeThreeVectorValueResponse);
    }
 
    void RequestHandling::HandleRequests (RequestMode mode, ColumnValueRequest * columnValueResponse, ColumnValueArrayRequest * valueArrayResponse, ColumnCompositionRequest * columnCompositionResponse,
-                                         FormationNodeValueRequest * formationNodeValueResponse, FormationNodeThreeVectorRequest * formationNodeThreeVectorResponse, FormationNodeThreeVectorValueRequest * formationNodeThreeVectorValueResponse)
+      FormationNodeValueRequest * formationNodeValueResponse, FormationNodeCompositionRequest * formationNodeCompositionResponse,
+      FormationNodeThreeVectorRequest * formationNodeThreeVectorResponse, FormationNodeThreeVectorValueRequest * formationNodeThreeVectorValueResponse)
    {
-      RequestHandling::GetInstance ()->handleRequests (mode, columnValueResponse, valueArrayResponse, columnCompositionResponse, formationNodeValueResponse, formationNodeThreeVectorResponse, formationNodeThreeVectorValueResponse);
+      RequestHandling::GetInstance ()->handleRequests (mode, columnValueResponse, valueArrayResponse, columnCompositionResponse, formationNodeValueResponse,
+         formationNodeCompositionResponse, formationNodeThreeVectorResponse, formationNodeThreeVectorValueResponse);
    }
 
    /// initialize a new request handling phase.
@@ -699,12 +799,12 @@ namespace migration
    /// In responding to incoming request, a processor should not send requests to other processors as this function is not
    /// reentrant.
    void RequestHandling::handleRequests (RequestMode mode, ColumnValueRequest * columnValueResponse, ColumnValueArrayRequest * valueArrayResponse, ColumnCompositionRequest * columnCompositionResponse,
-                                         FormationNodeValueRequest * formationNodeValueResponse, FormationNodeThreeVectorRequest * formationNodeThreeVectorResponse, FormationNodeThreeVectorValueRequest * formationNodeThreeVectorValueResponse)
+      FormationNodeValueRequest * formationNodeValueResponse, FormationNodeCompositionRequest * formationNodeCompositionResponse,
+      FormationNodeThreeVectorRequest * formationNodeThreeVectorResponse, FormationNodeThreeVectorValueRequest * formationNodeThreeVectorValueResponse)
    {
-
       assert (m_requestHandling);
       assert (proxyUseAllowed ());
-      //cout << "the NumProcessors is " << NumProcessors() << endl;
+
       if (mode == UNTILALLFINISHED && m_finished >= NumProcessors ()) return;
 
       // Disallow sending requests to other processors
@@ -765,6 +865,14 @@ namespace migration
             checkForMoreMessages = false;
             break;
 
+         case FORMATIONNODECOMPOSITIONRESPONSE:
+            // another processor responded to a request from me.
+            handleFormationNodeCompositionResponse (source, formationNodeCompositionResponse);
+
+            // this is the response I was waiting for
+            checkForMoreMessages = false;
+            break;
+
          case COLUMNCOMPOSITIONRESPONSE:
             // another processor responded to a request from me.
             handleColumnCompositionResponse (source, columnCompositionResponse);
@@ -800,6 +908,11 @@ namespace migration
          case FORMATIONNODEVALUEREQUEST:
             // another processor sent me a request, respond if necessary.
             handleFormationNodeValueRequest (source);
+            break;
+
+         case FORMATIONNODECOMPOSITIONREQUEST:
+            // another processor sent me a request, respond if necessary.
+            handleFormationNodeCompositionRequest (source);
             break;
 
          case FORMATIONNODETHREEVECTORREQUEST:

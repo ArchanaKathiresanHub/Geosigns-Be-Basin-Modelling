@@ -1,19 +1,17 @@
-#ifdef sgi
-#ifdef _STANDARD_C_PLUS_PLUS
-#include<iostream>
-#include <iomanip>
-using namespace std;
-#define USESTANDARD
-#else // !_STANDARD_C_PLUS_PLUS
-#include<iostream.h>
-#include <iomanip.h>
-#endif // _STANDARD_C_PLUS_PLUS
-#else // !sgi
+//
+// Copyright (C) 2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
+
 #include <iostream>
 #include <iomanip>
 using namespace std;
-#define USESTANDARD
-#endif // sgi
 
 #include <assert.h>
 #include <time.h>
@@ -35,7 +33,7 @@ namespace migration
 int migration::NumProcessors (void)
 {
    static int numProcessors = -1;
-   if (numProcessors  < 0)
+   if (numProcessors < 0)
    {
       MPI_Comm_size (PETSC_COMM_WORLD, &numProcessors);
    }
@@ -46,7 +44,7 @@ int migration::NumProcessors (void)
 int migration::GetRank (void)
 {
    static int rank = -1;
-   if (rank  < 0)
+   if (rank < 0)
    {
       int mpiRank;
       MPI_Comm_rank (PETSC_COMM_WORLD, &mpiRank);
@@ -54,6 +52,14 @@ int migration::GetRank (void)
    }
 
    return rank;
+}
+
+void migration::deleteRanks ()
+{
+   if (Ranks)
+   {
+      Array<int>::delete2d (Ranks);
+   }
 }
 
 void migration::Serialize (void)
@@ -119,21 +125,21 @@ void migration::ReportProgress (const string & str1, const string & str2, const 
 
       while (len < 32)
       {
-	 cout << " ";
-	 ++len;
+         cout << " ";
+         ++len;
       }
 
       if (age >= 0)
       {
-	 cout << "Snapshot: " << setfill (' ') << setw (6) << age << " Ma   ";
+         cout << "Snapshot: " << setfill (' ') << setw (6) << age << " Ma   ";
       }
       else
       {
-	 while (len < 54)
-	 {
-	    cout << " ";
-	    ++len;
-	 }
+         while (len < 54)
+         {
+            cout << " ";
+            ++len;
+         }
       }
 
       cout << "Time: " << setw (4) << setfill (' ') << time / 60 << ":" << setw (2) << setfill ('0') << time % 60 << endl;
@@ -155,9 +161,9 @@ string & migration::GetRankString (void)
    static string rankString = "";
    if (rankString == "")
    {
-      for (int rank = GetRank () - 1; rank >=0; --rank)
+      for (int rank = GetRank () - 1; rank >= 0; --rank)
       {
-	 rankString += "    ";
+         rankString += "    ";
       }
       char tmp[4];
       sprintf (tmp, "%d", GetRank ());
@@ -202,33 +208,33 @@ bool migration::ComputeRanks (const DataAccess::Interface::Grid * grid)
 #ifndef _MSC_VER
    gethostname (hostname, 128);
 #else
-   strcpy(hostname,"undefined");
+   strcpy (hostname, "undefined");
 #endif
    PetscSynchronizedPrintf (PETSC_COMM_WORLD, "Rank: %2d, Host: %s, I: %3d - %3d, J: %3d - %3d\n", GetRank (), hostname, sendbuf[0], sendbuf[1], sendbuf[2], sendbuf[3]);
-   PetscSynchronizedFlush (PETSC_COMM_WORLD);
+   PetscSynchronizedFlush (PETSC_COMM_WORLD, PETSC_STDOUT);
 
    MPI_Allgather (sendbuf, 4, MPI_INT, rcvbuf, 4, MPI_INT, PETSC_COMM_WORLD);
    Ranks = Array<int>::create2d (numI, numJ);
 
    int rank, i, j;
-   
+
    for (i = 0; i < numI; ++i)
    {
       for (j = 0; j < numJ; ++j)
       {
-	 Ranks[i][j] = -1;
+         Ranks[i][j] = -1;
       }
    }
 
    for (rank = 0; rank < NumProcessors (); ++rank)
    {
-      for (i = rcvbuf[rank * 4 + 0]; i<= rcvbuf[rank * 4 + 1]; ++i)
+      for (i = rcvbuf[rank * 4 + 0]; i <= rcvbuf[rank * 4 + 1]; ++i)
       {
-	 for (j = rcvbuf[rank * 4 + 2]; j <= rcvbuf[rank * 4 + 3]; ++j)
-	 {
-	    assert (Ranks[i][j] == -1);
-	    Ranks[i][j] = rank;
-	 }
+         for (j = rcvbuf[rank * 4 + 2]; j <= rcvbuf[rank * 4 + 3]; ++j)
+         {
+            assert (Ranks[i][j] == -1);
+            Ranks[i][j] = rank;
+         }
       }
    }
 
@@ -236,7 +242,7 @@ bool migration::ComputeRanks (const DataAccess::Interface::Grid * grid)
    {
       for (j = 0; j < numJ; ++j)
       {
-	 assert (Ranks[i][j] != -1);
+         assert (Ranks[i][j] != -1);
       }
    }
 

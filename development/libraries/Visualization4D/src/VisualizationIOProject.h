@@ -20,7 +20,7 @@
 
 class VisualizationIOProject : public Project
 {
-  boost::shared_ptr<CauldronIO::Project> m_project;
+  std::shared_ptr<CauldronIO::Project> m_project;
 
   ProjectInfo m_projectInfo;
   

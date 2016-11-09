@@ -19,7 +19,7 @@ include(cmake/AddPackage.cmake)
 message(STATUS "BLAS vendor is set to ${BLA_VENDOR}" )
 
 set(INTEL_MKL_ROOT "INTEL_MKL_ROOT-NOTFOUND" CACHE PATH "Path to Intel MKL" )
-set(INTEL_MKL_VERSION "11.0.2.02 20150120" CACHE STRING "Intel MKL version")
+set(INTEL_MKL_VERSION "11.3.1.150" CACHE STRING "Intel MKL version")
 
 if (UNIX)
    if ( BLA_VENDOR STREQUAL "MKL" )
@@ -29,9 +29,10 @@ if (UNIX)
          set( MKL_LIBRARIES
             "-Wl,--start-group"
             "-Wl,${INTEL_MKL_ROOT}/lib/intel64/libmkl_intel_lp64.a"
-            "-Wl,${INTEL_MKL_ROOT}/lib/intel64/libmkl_sequential.a"
             "-Wl,${INTEL_MKL_ROOT}/lib/intel64/libmkl_core.a"
-           "-Wl,--end-group" 
+            "-Wl,${INTEL_MKL_ROOT}/lib/intel64/libmkl_sequential.a"
+            "-Wl,${INTEL_MKL_ROOT}/lib/intel64/libmkl_blacs_lp64.a"
+            "-Wl,--end-group" 
          )
          set( BLAS_FOUND ON )
          set( BLAS_ROOT "${INTEL_MKL_ROOT}" CACHE PATH "Path to BLAS library" )
@@ -64,15 +65,10 @@ if (UNIX)
 elseif(WIN32)
    set( BLAS_INCLUDE_DIRS )
    set( MKL_LIBRARIES
-          "${INTEL_MKL_ROOT}/libiomp5md.lib"
-          "${INTEL_MKL_ROOT}/libmmt.lib"
-          "${INTEL_MKL_ROOT}/libdecimal.lib"
-          "${INTEL_MKL_ROOT}/libirc.lib"
-          "${INTEL_MKL_ROOT}/svml_dispmt.lib"
-          "${INTEL_MKL_ROOT}/mkl_core.lib"
           "${INTEL_MKL_ROOT}/mkl_intel_lp64.lib"
           "${INTEL_MKL_ROOT}/mkl_intel_thread.lib"
-          "${INTEL_MKL_ROOT}/mkl_scalapack_lp64.lib"
+          "${INTEL_MKL_ROOT}/mkl_core.lib"
+          "${INTEL_MKL_ROOT}/libiomp5md.lib"
       )
    set( BLAS_FOUND ON )
 endif()

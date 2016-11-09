@@ -68,7 +68,7 @@ void Genex6::SourceRockAdsorptionHistory::save ()
       if (!m_projectHandle->makeOutputDir ())
          return;
       
-      ibs::FilePath filePath( m_projectHandle->getFullOutputDir () );
+      ibs::FilePath filePath( m_projectHandle->getOutputDir () );
       filePath << fileName;
 
       std::ofstream historyFile (filePath.cpath (), std::ios::out);

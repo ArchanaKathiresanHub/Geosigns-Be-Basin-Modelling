@@ -52,7 +52,7 @@ namespace casa
       /// @brief Define scenario ID
       /// @param scID id for scenario
       /// @return ErrorHandler::NoError on success or error code otherwise
-      ErrorHandler::ReturnCode defineScenarioID( const char * scID );
+      ReturnCode defineScenarioID( const char * scID );
 
       /// @brief Return scenario ID
       /// @return scenario ID
@@ -61,12 +61,12 @@ namespace casa
       /// @brief Define a base case for scenario analysis
       /// @param bcModel Cauldron model loaded into memory
       /// @return ErrorHandler::NoError on success or error code otherwise
-      ErrorHandler::ReturnCode defineBaseCase( const mbapi::Model & bcModel );
+      ReturnCode defineBaseCase( const mbapi::Model & bcModel );
       
       /// @brief Define a base case for scenario analysis.
       /// @param projectFileName name of the Cauldron project file. File will be loaded to memory as mbapi::Model
       /// @return ErrorHandler::NoError on success or error code otherwise
-      ErrorHandler::ReturnCode defineBaseCase( const char * projectFileName );
+      ReturnCode defineBaseCase( const char * projectFileName );
 
       /// @brief Return a base case project name
       /// @return project file name for the base case of scenario analysis
@@ -83,12 +83,12 @@ namespace casa
       /// @brief Set path where SA will generate a bunch of cases. By default it is the current folder
       /// @param pathToCaseSet
       /// @return ErrorHandler::NoError on success, or ErrorHandler::WrongPath if SA can't create folders/files using this path
-      ErrorHandler::ReturnCode setScenarioLocation( const char * pathToCaseSet );
+      ReturnCode setScenarioLocation( const char * pathToCaseSet );
 
       /// @brief Restore path where SA generated a bunch of cases
       /// @param pathToCaseSet
       /// @return ErrorHandler::NoError on success, or ErrorHandler::WrongPath if SA can't create folders/files using this path
-      ErrorHandler::ReturnCode restoreScenarioLocation( const char * pathToCaseSet );
+      ReturnCode restoreScenarioLocation( const char * pathToCaseSet );
 
       /// @brief Get path where SA generats a bunch of cases
       /// @return path to the top folder where generated cases are located
@@ -116,11 +116,32 @@ namespace casa
       /// @param expLabel name of the case set which will be generated
       /// @return ErrorHandler::NoError in case of success, or error code otherwise
       ErrorHandler::ReturnCode extractOneDProjects( const std::string & expLabel );
+
+      /// @brief Imports the 1D results after the optimization 
+      /// @param expLabel name of the cases where the extraction should take place
+      /// @return ErrorHandler::NoError in case of success, or error code otherwise
+      ErrorHandler::ReturnCode importOneDResults( const std::string & expLabel );
+
+      /// @brief Set the filter algorithm 
+      /// @param filterAlgorithm the name of the filtering algorithm to use
+      /// @return ErrorHandler::NoError in case of success, or error code otherwise
+      ErrorHandler::ReturnCode setFilterOneDResults( const std::string & filterAlgorithm );
+
+      /// @brief Generate a 3D project from 1D results using appropriate parameter averages
+      /// @param expLabel name of the cases where the averages should take place
+      /// @return ErrorHandler::NoError in case of success, or error code otherwise
+      ErrorHandler::ReturnCode generateThreeDFromOneD( const std::string & expLabel );
       
-      /// @brief Create copy of the base case model and set all variable parameters value defined for each case
+      /// @brief Create copy of the base case model and set all variable parameters value defined for each case. Each call of
+      ///        this function increase scenario iteration number.
       /// @param cs casa::RunCaseSet object
       /// @return ErrorHandler::NoError
       ErrorHandler::ReturnCode applyMutations( RunCaseSet & cs );
+
+      /// @brief Get scenario iteration number. Iteration number is used to avoid overalpping projects folder.
+      ///        Each new projects generation is performed under the new "Iteration_<ItNum>" folder
+      /// @return current scenario iteration number
+      size_t scenarioIteration() const;
 
       /// @brief Validate Cauldron models for consistency and valid parameters range. This function should be 
       ///         called after ScenarioAnalysis::applyMutations()
@@ -132,8 +153,10 @@ namespace casa
       /// @return reference to the instance of run manager
       RunManager & runManager();
       
-      /// @brief Reset RunManager to empty state
-      void resetRunManager();
+      /// @brief Reset RunManager to empty state. Clean application pipepline and jobs but keep settings 
+      ///        like cluster name and Cauldron version
+      /// @param cleanApps if set to yes, function also will clean application pipeline
+      void resetRunManager( bool cleanApps = true );
 
       /// @brief Get data digger associated with this scenario analysis
       /// @return reference to the instance of data digger
@@ -146,25 +169,22 @@ namespace casa
       /// @brief Add the new response surface polynomial approximation to scenario analysis. If
       ///        list of DoE experiments is not empty - calculate proxy for corresponded cases set
       /// @return ErrorHandler::NoError on success, error code otherwise
-      ErrorHandler::ReturnCode addRSAlgorithm( const char                     * name            ///< proxy name
-                                             , int                              order           /*! order of polynomial approximation. Possible values are -1, 0, 1, 2, 3.
-                                                                                                If parameter value is set to -1 it switch on the automatic search for the order
-                                                                                                of polynomial approximation. In this mode the proxy tries to find the optimal 
-                                                                                                polynomial up to third order. Internally,a polynomial representation
-                                                                                                is set to 0 order first. Next, this representation is improved by carefully 
-                                                                                                adding or removing polynomial terms one by one, until no (significant) improvement 
-                                                                                                can be found. To avoid over-fitting, 75% of the added cases are randomly selected 
-                                                                                                and used for proxy building. The other 25% are used as internal blind tests. As a
-                                                                                                further improvement, the autosearch method repeats the random case selection 10 
-                                                                                                times, to guarantee that sufficiently many, different blind tests are used. */
-                                             , RSProxy::RSKrigingType           krType          ///< do we need Kriging interpolation, and which one?
-                                             , const std::vector<std::string> & doeList         ///< list of DoE experiments name to calculate polynomial coefficients
-                                             , double                           targetR2 = 0.95 /*! A target value can be set for the so-called adjusted R2 that is an (adjusted) 
-                                                                                                indicator for the quality of the polynomial fit. This value must range between 0 
-                                                                                                (very poor target) and 1 (highest target). Note that a high regression quality 
-                                                                                                does not automatically imply a good predictability.
-                                                                                                Note: this parameter is taking in account only when automatic search for polynomial 
-                                                                                                order is set. */
+      ReturnCode addRSAlgorithm( const char                     * name            ///< proxy name
+                               , int                              order           /*! order of polynomial approximation.
+                               Possible values are -1, 0, 1, 2, 3. If parameter value is set to -1 it switch on the automatic
+                               search for the order of polynomial approximation. In this mode the proxy tries to find the optimal
+                               polynomial up to third order. Internally, a polynomial representation is set to 0 order first. Next,
+                               this representation is improved by carefully adding or removing polynomial terms one by one, until
+                               no (significant) improvement can be found. To avoid over-fitting, 75% of the added cases are randomly
+                               selected and used for proxy building. The other 25% are used as internal blind tests. As a further
+                               improvement, the autosearch method repeats the random case selection 10 times, to guarantee that
+                               sufficiently many, different blind tests are used. */
+                               , RSProxy::RSKrigingType           krType          ///< do we need Kriging interpolation, and which one?
+                               , const std::vector<std::string> & doeList         ///< list of DoE experiments name to calculate polynomial coefficients
+                               , double                           targetR2 = 0.95 /*! A target value can be set for the so-called adjusted R2 that is an
+                               (adjusted) indicator for the quality of the polynomial fit. This value must range between 0 (very poor target) and 1 
+                               (highest target). Note that a high regression quality does not automatically imply a good predictability.
+                               Note: this parameter is taking in account only when automatic search for polynomial order is set. */
                                              );
       
       /// @brief Get response surface proxies list of this scenario.
@@ -181,25 +201,35 @@ namespace casa
       
       /// @brief Define type of Monte Carlo algorithm which will be used in this scenario analysis      
       /// @return ErrorHandler::NoError on success or error code otherwise
-      ErrorHandler::ReturnCode setMCAlgorithm( MonteCarloSolver::Algorithm               algo                                   /**< Monte Carlo algorithm type */
-                                             , MonteCarloSolver::KrigingType             interp = MonteCarloSolver::NoKriging   /**< Do we need Kriging interpolation? If yes, the 
-                                                                                                                                     response surface proxy must also use it. */
-                                             , MonteCarloSolver::PriorDistribution       priorDist = MonteCarloSolver::NoPrior  /**< How to use variable parameter PDF. If it is set
-                                                                                                                                     to NoPrior, uniform block PDF is assumed. */
-                                             , MonteCarloSolver::MeasurementDistribution measureDist = MonteCarloSolver::Normal /**< How measurements are distributed */
-                                             );
+      ReturnCode setMCAlgorithm( MonteCarloSolver::Algorithm               algo                                   /**< Monte Carlo algorithm type */
+                               , MonteCarloSolver::KrigingType             interp = MonteCarloSolver::NoKriging   /**< Do we need Kriging 
+                                                                           interpolation? If yes, the response surface proxy must also use it. */
+                               , MonteCarloSolver::PriorDistribution       priorDist = MonteCarloSolver::NoPrior  /**< How to use variable
+                                                                           parameter PDF. If it is set to NoPrior, uniform block PDF is assumed. */
+                               , MonteCarloSolver::MeasurementDistribution measureDist = MonteCarloSolver::Normal /**< How measurements are 
+                                                                           distributed */
+                               );
       
       /// @brief Get Monte Carlo solver
       /// @return reference to Monte Carlo solver. If MC solver algorithm wasn't defined befor by ScenarioAnalysis::setMCAlgorithm(), it
       ///         will be set up to MC with no Kriging by default.
       MonteCarloSolver & mcSolver();
 
+      /// @brief Run given optimization algorithm and store calibration results to the given projet file
+      /// @return ErrorHandler::NoError on success, error code otherwise
+      ReturnCode calibrateProjectUsingOptimizationAlgorithm( const std::string & cbProjectName       ///< file name to save calibrated project
+                                                           , const std::string & optimAlg            ///< name of the optimization algorith
+                                                           , const std::string & transformation      ///< the paramter transformation type (none/log10)
+                                                           , const double        relativeReduction   ///< stop tolerance for optimization algorithm
+                                                           , bool                keepHistory = false ///< do/do not delete all optimization steps projects
+                                                           );
+
       /// @brief After the Monte Carlo simulation it creates project file with parameters set which corresponds to the
       ///        Monte Carlo sampling point with minimal RMSE
       /// @param projFileName name of the project file for best matched case project file
       /// @param mcSampleNum Monte Carlo sample number to be exported as calibrated project
       /// @return ErrorHandler::NoError on success or error code otherwise
-      ErrorHandler::ReturnCode saveCalibratedCase( const char * projFileName, size_t mcSampleNum );
+      ReturnCode saveCalibratedCase( const char * projFileName, size_t mcSampleNum );
 
       /// @brief Get serialization version number
       // History:
@@ -213,12 +243,14 @@ namespace casa
       // version 7: Added scenario ID
       // version 8: Added source rock type mixing ID, different TOC ranges for source rock category parameter
       // version 9: Reset all other objects versions to 0 due to backware uncompatibility with curent state
-      int version() { return 9; }
+      // version 10: add m_xcoordOneD and  m_ycoordOneD - x,y coordinates of the extracted wells for multi 1D 
+ 
+      int version() { return 11; }
 
       /// @brief Save scenario to the file
       /// @param fileName - name of the file for scenario to be saved in
       /// @param fileType - "bin"/"txt" - how to save scenario - in binary or in text
-      ErrorHandler::ReturnCode saveScenario( const char * fileName, const char * fileType );
+      ReturnCode saveScenario( const char * fileName, const char * fileType );
 
       /// @brief  Create new ScenarioAnaylysis object and read all data from the given file
       /// @param  fileName name of the file.
@@ -227,7 +259,7 @@ namespace casa
       static ScenarioAnalysis * loadScenario( const char * fileName, const char * fileType );
 
       /// @brief  Create new ScenarioAnaylysis object and read all data from the given memory stream
-      /// @param  buf memory where the state file was loaded
+      /// @param  stateFileBuf memory where the state file was loaded
       /// @param  bufSize size of the buffer
       /// @param  fileType "bin"/"txt" file type
       /// @return null if it fails, else the new casa::ScenarioAnalysis object.

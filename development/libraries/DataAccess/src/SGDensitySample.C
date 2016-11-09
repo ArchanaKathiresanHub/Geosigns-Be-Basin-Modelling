@@ -1,4 +1,3 @@
-#include <stdafx.h>
 #include "Interface/SGDensitySample.h"
 
 #include "cauldronschemafuncs.h"

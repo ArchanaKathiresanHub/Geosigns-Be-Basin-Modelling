@@ -1,21 +1,8 @@
 #include <assert.h>
 
-#ifdef sgi
-   #ifdef _STANDARD_C_PLUS_PLUS
-      #include<iostream>
-      #include <sstream>
-      using namespace std;
-      #define USESTANDARD
-   #else // !_STANDARD_C_PLUS_PLUS
-      #include<iostream.h>
-      #include<strstream.h>
-   #endif // _STANDARD_C_PLUS_PLUS
-#else // !sgi
-   #include <iostream>
-   #include <sstream>
-   using namespace std;
-   #define USESTANDARD
-#endif // sgi
+#include <iostream>
+#include <sstream>
+using namespace std;
 
 #include "database.h"
 #include "cauldronschemafuncs.h"
@@ -147,6 +134,10 @@ bool RunParameters::getReservoirDetection () const {
    return database::getReservoirDetection ( m_record ) != 0;
 }
 
+bool RunParameters::getPaleoSeeps () const {
+   return database::getPaleoSeeps ( m_record ) != 0;
+}
+
 bool RunParameters::getLegacy () const {
    return database::getLegacy ( m_record ) != 0;
 }
@@ -227,18 +218,10 @@ void RunParameters::printOn (ostream & ostr) const {
 
 void RunParameters::asString ( std::string & str ) const {
 
-#ifdef USESTANDARD
    ostringstream buf;
-#else
-   strstream buf;
-#endif
 
    buf << "RunParameters:";
    buf << endl;
 
    str = buf.str ();
-#ifndef USESTANDARD
-   buf.rdbuf ()->freeze (0);
-#endif
-
 }

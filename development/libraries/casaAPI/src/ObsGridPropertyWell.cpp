@@ -12,6 +12,7 @@
 
 // CASA API
 #include "ObsValueDoubleArray.h"
+#include "ObsValueDoubleScalar.h"
 #include "ObsGridPropertyWell.h"
 
 // CMB API
@@ -39,7 +40,6 @@ ObsGridPropertyWell::ObsGridPropertyWell( const std::vector<double> & x
                                         , m_propName( propName )
                                         , m_simTime( simTime )
                                         , m_posDataMiningTbl( x.size(), -1 )
-                                        , m_devValue( 0.0 )
                                         , m_saWeight( 1.0 )
                                         , m_uaWeight( 1.0 )
 {
@@ -74,15 +74,18 @@ std::vector< std::string > ObsGridPropertyWell::name() const
    return m_name;
 }
 
+
 // Get standard deviations for the reference value
-void ObsGridPropertyWell::setReferenceValue( ObsValue * obsVal, double devVal )
+void ObsGridPropertyWell::setReferenceValue( ObsValue * obsVal, ObsValue * devVal )
 {
    assert( obsVal != NULL );
    assert( dynamic_cast<ObsValueDoubleArray*>( obsVal ) != NULL );
-   assert( devVal >= 0.0 );
+
+   assert( devVal != NULL );
+   assert( dynamic_cast<ObsValueDoubleArray*>( devVal ) != NULL );
 
    m_refValue.reset( obsVal );
-   m_devValue = devVal;
+   m_devValue.reset( devVal );
 }
  
 // Update Model to be sure that requested property will be saved at the requested time
@@ -116,6 +119,10 @@ ErrorHandler::ReturnCode ObsGridPropertyWell::requestObservableInModel( mbapi::M
 ObsValue * ObsGridPropertyWell::getFromModel( mbapi::Model & caldModel )
 {
    std::vector<double> vals( m_posDataMiningTbl.size(), UndefinedDoubleValue );
+
+   const std::string & msg = checkObservableForProject( caldModel );
+   if (!msg.empty()) { return new ObsValueDoubleArray( this, vals ); }
+
    const double eps = 1.e-5;
 
    for ( size_t i = 0; i < m_posDataMiningTbl.size(); ++i )
@@ -167,7 +174,7 @@ ObsValue * ObsGridPropertyWell::getFromModel( mbapi::Model & caldModel )
 }
 
 // Check well against project coordinates
-std::string ObsGridPropertyWell::checkObservableForProject( mbapi::Model & caldModel ) 
+std::string ObsGridPropertyWell::checkObservableForProject( mbapi::Model & caldModel ) const 
 {
    std::ostringstream oss;
 
@@ -223,7 +230,9 @@ bool ObsGridPropertyWell::save( CasaSerializer & sz, unsigned int /* version */ 
    ok = ok ? sz.save( hasRefVal, "HasRefValue" ) : ok;
    if ( hasRefVal ) { ok = ok ? sz.save( *(m_refValue.get()), "refValue" ) : ok; }
 
-   ok = ok ? sz.save( m_devValue, "devValue" ) : ok;
+   bool hasDevVal = m_devValue.get( ) ? true : false;
+   ok = ok ? sz.save( hasDevVal, "HasDevVal" ) : ok;
+   if ( hasDevVal ) { ok = ok ? sz.save( *( m_devValue.get( ) ), "devValue" ) : ok; }
 
    ok = ok ? sz.save( m_saWeight, "saWeight" ) : ok;
    ok = ok ? sz.save( m_uaWeight, "uaWeight" ) : ok;
@@ -264,7 +273,19 @@ ObsGridPropertyWell::ObsGridPropertyWell( CasaDeserializer & dz, unsigned int ob
 
    if ( hasRefVal ) { m_refValue.reset( ObsValue::load( dz, "refValue" ) ); }
 
-   ok = ok ? dz.load( m_devValue, "devValue" ) : ok;
+   if ( objVer == 0 )
+   { 
+      double val;
+      ok = ok ? dz.load( val, "devValue" ) : ok;
+      if ( ok ) { m_devValue.reset( new  ObsValueDoubleScalar( this, val ) ); }
+   }
+   else
+   {
+      bool hasDevVal;
+      ok = ok ? dz.load( hasDevVal, "HasDevVal" ) : ok;
+      if ( hasDevVal ) { m_devValue.reset( ObsValue::load( dz, "devValue" ) ); }
+   }
+
    ok = ok ? dz.load( m_saWeight, "saWeight" ) : ok;
    ok = ok ? dz.load( m_uaWeight, "uaWeight" ) : ok;
 

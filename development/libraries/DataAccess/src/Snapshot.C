@@ -1,23 +1,10 @@
 #include <assert.h>
-#ifdef sgi
-   #ifdef _STANDARD_C_PLUS_PLUS
-      #include<iostream>
-      #include <sstream>
-      #include <iomanip>
-      using namespace std;
-      #define USESTANDARD
-   #else // !_STANDARD_C_PLUS_PLUS
-      #include<iostream.h>
-      #include<strstream.h>
-      #include <iomanip.h>
-   #endif // _STANDARD_C_PLUS_PLUS
-#else // !sgi
-   #include <iostream>
-   #include <sstream>
-   #include <iomanip>
-   #define USESTANDARD
-   using namespace std;
-#endif // sgi
+#include <iostream>
+#include <sstream>
+#include <iomanip>
+
+using namespace std;
+
 
 #include "database.h"
 #include "cauldronschemafuncs.h"
@@ -65,11 +52,8 @@ const string & Snapshot::getFileName (bool setIfNecessary) const
    if (fileName != "") return fileName;
 
    // generate file name
-#ifdef USESTANDARD
    ostringstream buf;
-#else
-   strstream buf;
-#endif
+
    buf.setf (ios::fixed);
    buf.precision (6);
 
@@ -116,38 +100,23 @@ bool Snapshot::getAppendFile () const {
 
 void Snapshot::asString (string & str) const
 {
-#ifdef USESTANDARD
    ostringstream buf;
-#else
-   strstream buf;
-#endif
 
    buf << "Snapshot: ";
    buf << setprecision (10) << getTime ();
    buf << endl;
 
    str = buf.str ();
-#ifndef USESTANDARD
-   buf.rdbuf ()->freeze (0);
-#endif
 }
 
 const string & Snapshot::asString (void) const
 {
    static string str;
-#ifdef USESTANDARD
    ostringstream buf;
-#else
-   strstream buf;
-#endif
 
    buf << setprecision (10) << getTime ();
 
    str = buf.str ();
-
-#ifndef USESTANDARD
-   buf.rdbuf ()->freeze (0);
-#endif
 
    return str;
 }

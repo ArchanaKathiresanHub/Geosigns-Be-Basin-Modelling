@@ -57,16 +57,26 @@ namespace casa
 
       /// @brief Constructor. Create parameter by reading parameter value from the given model
       /// @param mdl Cauldron model interface object to get the percentages of each lithology
-      /// @param the layer name
-      /// @param the lithofractions indexes to calculate
+      /// @param layerName the layer name
+      /// @param lithoFractionsInds the lithofractions indexes to calculate
       PrmLithoFraction( mbapi::Model & mdl, const std::string & layerName, const std::vector<int> & lithoFractionsInds );
 
+      /// @brief Constructor. Create parameter by reading parameter value from the given model and at specific i and j locations
+      PrmLithoFraction( mbapi::Model              & mdl                 ///< Cauldron model interface object to get the percentages of each lithology
+                      , const std::string         & layerName           ///< the layer name
+                      , const std::vector<int>    & lithoFractionsInds  ///< the lithofractions indexes to calculate
+                      , const std::vector<size_t> & coordinates         ///< the i, j positions in the model grid
+                      );
+
       /// @brief Constructor. Create parameter object from the given parameter value
-      /// @param parent pointer to a variable parameter which created this one
-      /// @param the layer name
-      /// @param the indexes of the lithofractions
-      /// @param the lithofractions
-      PrmLithoFraction( const VarPrmLithoFraction * parent, const std::string & name, const std::string & layerName, const std::vector<int> & lithoFractionsInds, const std::vector<double> & lithoFractions );
+      PrmLithoFraction( const VarPrmLithoFraction * parent,                             ///< parent variable parameter which created this one
+                        const std::string         & name,                               ///< parameter name
+                        const std::string         & layerName,                          ///< the layer name
+                        const std::vector<int>    & lithoFractionsInds,                 ///< the indexes of the lithofractions
+                        const std::vector<double> & lithoFractions,                     ///< the lithofractions
+                        const std::string         & m_mapNameFirstLithoPercentage = "", ///< the name of the first lithofraction map
+                        const std::string         & m_mapNameSecondLithoPercentage = "" ///< the name of the second lithofraction map
+                      );
 
       /// @brief Destructor
       virtual ~PrmLithoFraction() { ; }
@@ -109,10 +119,14 @@ namespace casa
       /// @return Pointer to the variable parameter
       virtual const VarParameter * parent() const { return m_parent; }
 
+      /// @brief Set variable parameter which was used to create this parameter
+      /// @param Pointer to the variable parameter
+      virtual void  setParent( const VarParameter * varPrm )  { m_parent =  varPrm; }
+
       /// @{
       /// @brief Defines version of serialized object representation. Must be updated on each change in save()
       /// @return Actual version of serialized object representation
-      virtual unsigned int version() const { return 0; }
+      virtual unsigned int version() const { return 1; }
 
       /// @brief Save all object data to the given stream, that object could be later reconstructed from saved data
       /// @param sz Serializer stream
@@ -124,6 +138,11 @@ namespace casa
       /// @return object class name
       virtual const char * typeName() const { return "PrmLithoFraction"; }
 
+      /// @brief Get the layer name 
+      /// @return the layer name
+      virtual std::string layerName( ) const { return m_layerName; }
+      /// @}
+
       /// @brief Create a new parameter instance by deserializing it from the given stream
       /// @param dz input stream
       /// @param objVer version of object representation in stream
@@ -131,11 +150,14 @@ namespace casa
       /// @}
 
    protected:
-      const VarParameter *                     m_parent;             ///< variable parameter which was used to create this one
-      std::string                              m_name;               ///< name of the parameter
-      std::string                              m_layerName;          ///< stratigraphic layer name 
-      std::vector<int>                         m_lithoFractionsInds; ///< indexes of the lithofractions
-      std::vector<double>                      m_lithoFractions;     ///< lithofractions values
+      const VarParameter *                     m_parent;                             ///< variable parameter which was used to create this one
+      std::string                              m_name;                               ///< name of the parameter
+      std::string                              m_layerName;                          ///< stratigraphic layer name 
+      std::vector<int>                         m_lithoFractionsInds;                 ///< indexes of the lithofractions
+      std::vector<double>                      m_lithoFractions;                     ///< lithofractions values
+
+      std::string                              m_mapNameFirstLithoPercentage;        ///< name of the first lithopercentage
+      std::string                              m_mapNameSecondLithoPercentage;       ///< name of the second lithopercentage
    };
 }
 

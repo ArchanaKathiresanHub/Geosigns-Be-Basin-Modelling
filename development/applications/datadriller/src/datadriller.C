@@ -1,3 +1,13 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
+
 #include "database.h"
 #include "cauldronschema.h"
 #include "cauldronschemafuncs.h"
@@ -26,7 +36,7 @@
 
 // CBMGenerics
 #include "ComponentManager.h"
-#include "consts.h"
+
 using namespace CBMGenerics;
 
 #include "NumericFunctions.h"
@@ -39,8 +49,11 @@ using namespace CBMGenerics;
 #include "DataMiningObjectFactory.h"
 #include "DomainPropertyCollection.h"
 
-
+// utilities library
 #include "errorhandling.h"
+#include "ConstantsMathematics.h"
+using Utilities::Maths::CelciusToKelvin;
+using Utilities::Maths::MegaPaToPa;
 
 // STL
 #include <algorithm>
@@ -135,10 +148,10 @@ static bool parseCmdLineArgs( int      argc
       }
       else if ( strncmp( argv[arg], "-debug",   max<size_t>( 2, strlen( argv[arg] ) ) ) == 0 ) { debug   = true; }
       else if ( strncmp( argv[arg], "-verbose", max<size_t>( 2, strlen( argv[arg] ) ) ) == 0 ) { verbose = true; }
-      else if ( strncmp( argv[arg], "-help",    max<size_t>( 2, strlen( argv[arg] ) ) ) == 0 ) { showUsage( argv[ 0 ], "Standard usage."  ); return false; }
-      else if ( strncmp( argv[arg], "-?",       max<size_t>( 2, strlen( argv[arg] ) ) ) == 0 ) { showUsage( argv[ 0 ], "Standard usage."  ); return false; }
-      else if ( strncmp( argv[arg], "-usage",   max<size_t>( 2, strlen( argv[arg] ) ) ) == 0 ) { showUsage( argv[ 0 ], "Standard usage."  ); return false; }
-      else                                                                             { showUsage( argv[ 0 ], "Unknown argument" ); return false; }
+      else if ( strncmp( argv[arg], "-help",    max<size_t>( 2, strlen( argv[arg] ) ) ) == 0 || 
+		        strncmp( argv[arg], "-?",       max<size_t>( 2, strlen( argv[arg] ) ) ) == 0 || 
+		        strncmp( argv[arg], "-usage",   max<size_t>( 2, strlen( argv[arg] ) ) ) == 0 )  { showUsage( argv[ 0 ], "Standard usage."  ); return false; }
+      else { showUsage( argv[ 0 ], "Unknown argument" ); return false; }
 
       if ( inputProjectFileName.empty()  ) { showUsage ( argv[ 0 ], "No project file specified"); return false; }
       if ( outputProjectFileName.empty() ) { outputProjectFileName = inputProjectFileName;  }
@@ -249,11 +262,16 @@ int main( int argc, char ** argv )
 
                unsigned int i, j;
                if ( !grid->getGridPoint( x, y, i, j ) ) throw RecordException( "Illegal (XCoord, YCoord) pair: (%, %)", x, y );
-
+                            
                ElementPosition element;
                
                if ( z != Interface::DefaultUndefinedScalarValue ) // if z is given - look for the property at X,Y,Z point
                {
+                  if ( z <= 0 && propertyName == "TwoWayTime" ) // in case of TwoWayTime property and z <=0 set the value to 0
+                  {
+                     database::setValue( record, 0 );
+                     continue;
+                  }
                   if ( !domain.findLocation( x, y, z, element ) ) throw RecordException ("Illegal point coordinates:", x, y, z);
                }
 
@@ -368,14 +386,21 @@ double ComputeTrapPropertyValue( Mining::ProjectHandle      * projectHandle,
    }
 
    // perform PVT under reservoir conditions
-   performPVT( masses, trap->getTemperature(), trap->getPressure(), massesRC, densitiesRC, viscositiesRC );
+   bool pvtRC = performPVT( masses, trap->getTemperature(), trap->getPressure(), massesRC, densitiesRC, viscositiesRC );
+
+   double phaseMassesRC[2] = { 0.0, 0.0 };
+   for ( int comp = 0; pvtRC && comp < ComponentManager::NumberOfOutputSpecies; ++comp )
+   {
+      phaseMassesRC[ComponentManager::Vapour] += massesRC[ComponentManager::Vapour][comp];
+      phaseMassesRC[ComponentManager::Liquid] += massesRC[ComponentManager::Liquid][comp];
+   }
 
    // perform PVT's of reservoir condition phases under stock tank conditions
-   performPVT( massesRC[ComponentManager::Vapour], StockTankTemperature, StockTankPressure,
-               massesST[ComponentManager::Vapour], densitiesST[ComponentManager::Vapour], viscositiesST[ComponentManager::Vapour] );
+   bool pvtRCVapour = performPVT( massesRC[ComponentManager::Vapour], StockTankTemperature, StockTankPressure,
+                                  massesST[ComponentManager::Vapour], densitiesST[ComponentManager::Vapour], viscositiesST[ComponentManager::Vapour] );
 
-   performPVT( massesRC[ComponentManager::Liquid], StockTankTemperature, StockTankPressure,
-               massesST[ComponentManager::Liquid], densitiesST[ComponentManager::Liquid], viscositiesST[ComponentManager::Liquid] );
+   bool pvtRCLiquid = performPVT( massesRC[ComponentManager::Liquid], StockTankTemperature, StockTankPressure,
+                                  massesST[ComponentManager::Liquid], densitiesST[ComponentManager::Liquid], viscositiesST[ComponentManager::Liquid] );
 
    bool stPhaseFound = false;
    bool rcPhaseFound = false;
@@ -425,13 +450,27 @@ double ComputeTrapPropertyValue( Mining::ProjectHandle      * projectHandle,
    {
       value = ComputeVolume( massesST[rcPhase][stPhase], densitiesST[rcPhase][stPhase], ComponentManager::NumberOfOutputSpecies );
    }
-   else if ( stPhaseFound && propertyName.find( "Density" ) != string::npos )
+   else if ( propertyName.find( "Density" ) != string::npos )
    {
-      value = densitiesST[rcPhase][stPhase];
+      if ( stPhaseFound )
+      {
+         if ( (rcPhase == ComponentManager::Vapour && pvtRCVapour) || (rcPhase == ComponentManager::Liquid && pvtRCLiquid) )
+         {
+            value = densitiesST[rcPhase][stPhase];
+         }
+      }
+      else if ( pvtRC && phaseMassesRC[rcPhase] > 0.0 ) { value = densitiesRC[rcPhase]; }
    }
-   else if ( stPhaseFound && propertyName.find( "Viscosity" ) != string::npos )
+   else if ( propertyName.find( "Viscosity" ) != string::npos )
    {
-      value = viscositiesST[rcPhase][stPhase];
+      if ( stPhaseFound )
+      {
+         if ( (rcPhase == ComponentManager::Vapour && pvtRCVapour) || (rcPhase == ComponentManager::Liquid && pvtRCLiquid) )
+         {
+            value = viscositiesST[rcPhase][stPhase];
+         }
+      }
+      else if ( pvtRC && phaseMassesRC[rcPhase] > 0.0 ) { value = viscositiesRC[rcPhase]; }
    }
    else if ( stPhaseFound && propertyName.find( "Mass" ) != string::npos )
    {
@@ -445,14 +484,6 @@ double ComputeTrapPropertyValue( Mining::ProjectHandle      * projectHandle,
    else if ( rcPhaseFound && propertyName.find( "Volume" ) != string::npos )
    {
       value = ComputeVolume( massesRC[rcPhase], densitiesRC[rcPhase], ComponentManager::NumberOfOutputSpecies );
-   }
-   else if ( rcPhaseFound && propertyName.find( "Density" ) != string::npos )
-   {
-      value = densitiesRC[rcPhase];
-   }
-   else if ( rcPhaseFound && propertyName.find( "Viscosity" ) != string::npos )
-   {
-      value = viscositiesRC[rcPhase];
    }
    else if ( rcPhaseFound && propertyName.find( "Mass" ) != string::npos )
    {
@@ -586,7 +617,8 @@ double ComputeTrapPropertyValue( Mining::ProjectHandle      * projectHandle,
       const Interface::Property * reservoirProperty = projectHandle->findProperty( "ResRockPorosity" );
       if ( property )
       {
-         DerivedProperties::ReservoirPropertyPtr reservoirPropertyGridMap = GetPropertyGridMap( projectHandle, propertyManager, reservoirProperty, snapshot, reservoir );
+         DerivedProperties::ReservoirPropertyPtr reservoirPropertyGridMap = 
+            GetPropertyGridMap( projectHandle, propertyManager, reservoirProperty, snapshot, reservoir );
          // const Interface::GridMap * reservoirPropertyGridMap = GetPropertyGridMap( projectHandle, reservoirProperty, snapshot, reservoir );
 
          if ( reservoirPropertyGridMap ) {
@@ -596,6 +628,19 @@ double ComputeTrapPropertyValue( Mining::ProjectHandle      * projectHandle,
          // reservoirPropertyGridMap->release ();
       }
    }
+   else if ( propertyName.rfind( "TrappedAmount" ) != std::string::npos )
+   {
+      bool found = false;
+      for ( int i = 0; i < ComponentManager::NumberOfOutputSpecies && !found; ++i )
+      {
+         if ( !propertyName.compare( 0, propertyName.length() - 13, ComponentManager::GetSpeciesName( i ) ) )
+         {
+            value = masses[i];
+            found = true;
+         }
+      }
+      if ( !found ) { throw RecordException ("PropertyName % not yet implemented:", propertyName); }
+   }
    else
    {
       throw RecordException ("PropertyName % not yet implemented:", propertyName);
@@ -604,11 +649,12 @@ double ComputeTrapPropertyValue( Mining::ProjectHandle      * projectHandle,
    return value;
 }
 
-static DerivedProperties::ReservoirPropertyPtr GetPropertyGridMap ( Mining::ProjectHandle*                     projectHandle,
-                                                                    DerivedProperties::DerivedPropertyManager& propertyManager,
-                                                                    const Interface::Property*                 property,
-                                                                    const Interface::Snapshot*                 snapshot,
-                                                                       const Interface::Reservoir*                reservoir ) {
+static DerivedProperties::ReservoirPropertyPtr GetPropertyGridMap ( Mining::ProjectHandle*                     projectHandle
+                                                                  , DerivedProperties::DerivedPropertyManager& propertyManager
+                                                                  , const Interface::Property*                 property
+                                                                  , const Interface::Snapshot*                 snapshot
+                                                                  , const Interface::Reservoir*                reservoir
+                                                                  ) {
 
    DerivedProperties::ReservoirPropertyPtr result;
 
@@ -669,7 +715,7 @@ bool performPVT( double masses[ComponentManager::NumberOfOutputSpecies]
 
    if ( massTotal > 100 )
    {
-      performedPVT = pvtFlash::EosPack::getInstance().computeWithLumping( temperature + C2K, pressure * MPa2Pa, masses, phaseMasses, phaseDensities, phaseViscosities );
+      performedPVT = pvtFlash::EosPack::getInstance().computeWithLumping( temperature + CelciusToKelvin, pressure * MegaPaToPa, masses, phaseMasses, phaseDensities, phaseViscosities );
    }
 
    return performedPVT;

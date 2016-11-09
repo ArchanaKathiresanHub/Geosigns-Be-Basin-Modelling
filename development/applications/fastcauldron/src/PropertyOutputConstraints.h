@@ -1,10 +1,19 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
 #ifndef _FASTCAULDRON_PROPERTY_OUTPUT_CONSTRAINTS_H_
 #define _FASTCAULDRON_PROPERTY_OUTPUT_CONSTRAINTS_H_
 
 #include <iostream>
 
 #include "timefilter.h"
-#include "globaldefs.h"
+#include "ConstantsFastcauldron.h"
 
 #include "Interface/Interface.h"
 using namespace DataAccess;

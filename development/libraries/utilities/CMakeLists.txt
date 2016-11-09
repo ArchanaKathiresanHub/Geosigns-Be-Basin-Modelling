@@ -11,6 +11,19 @@
 #########################################################################
 
 ################################################################
+##################### SET COMPILER FLAGS #######################
+################################################################
+
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
+  set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -axCORE-AVX2 -qopenmp -simd")
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+# Vectorization is not enabled on Visual Studio
+#  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+endif()
+
+################################################################
 ######################### SET TARGETS ##########################
 ################################################################
 
@@ -20,9 +33,9 @@ source_group(include FILES ${all_headers})
 FILE( GLOB all_srcs src/*.C )
 source_group(source FILES ${all_srcs})
 
-add_library(utilities 
-	${all_srcs}
-	${all_headers}
+add_library(utilities
+   ${all_srcs}
+   ${all_headers}
 )
 
 ################################################################
@@ -35,7 +48,7 @@ if (UNIX)
 endif (UNIX)
 
 if (MSVC)
-	add_definitions( "-D_USE_MATH_DEFINES" )
+   add_definitions( "-D_USE_MATH_DEFINES" )
 endif(MSVC)
 
 
@@ -44,9 +57,9 @@ target_link_libraries(utilities
 )
 
 install(TARGETS utilities
-	RUNTIME DESTINATION bin
-	LIBRARY	DESTINATION lib
-	ARCHIVE DESTINATION lib
+   RUNTIME DESTINATION bin
+   LIBRARY	DESTINATION lib
+   ARCHIVE DESTINATION lib
 )
 
 ################################################################
@@ -54,14 +67,30 @@ install(TARGETS utilities
 ################################################################
 
 ######################
+# AlignedWorkSpaceArray tests
+add_gtest( NAME utilities::AlignedWorkSpaceArrays
+   SOURCES test/AlignedWorkSpaceArraysTest.C
+   LIBRARIES utilities)
+
+######################
+# PiecewiseInterpolator tests
+add_gtest( NAME utilities::PiecewiseInterpolator
+   SOURCES test/PiecewiseInterpolatorTest.C
+   LIBRARIES utilities)
+
+add_gtest( NAME utilities::PiecewiseInterpolatorDerivative
+   SOURCES test/PiecewiseInterpolatorDerivativeTest.C
+   LIBRARIES utilities)
+
+######################
 # IBSInterpolator tests
 add_gtest( NAME utilities::IBSinterpolator
-			SOURCES test/IBSinterpolator.C
-			LIBRARIES utilities)
- 			
+   SOURCES test/IBSinterpolator.C
+   LIBRARIES utilities)
+
 add_gtest( NAME utilities::IBSinterpolator2d
-			SOURCES test/IBSinterpolator2d.C
-			LIBRARIES utilities)
+   SOURCES test/IBSinterpolator2d.C
+   LIBRARIES utilities)
 
 ######################
 # LogHandler tests

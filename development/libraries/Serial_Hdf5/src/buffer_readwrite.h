@@ -6,11 +6,10 @@
 #ifndef __buffer_readwrite__
 #define __buffer_readwrite__
 
-#include "DllExport.h"
 #include "h5_file_types.h"
 #include "buffer.h"
 
-class SERIALHDF5_DLL_EXPORT Buffer_ReadWrite
+class Buffer_ReadWrite
 {
 public:
    // ctor / dtor

@@ -24,8 +24,8 @@ add_subdirectory(${THIRD_PARTY_DIR}/SUMlib SUMlib)
 add_external_package_info(
        CAPABILITY SUMlib
        NAME     "Stochastic Uncertainty Manager. SUM++"
-       VENDOR   "Shell"
-       VERSION  "18.02.2014"
+       VENDOR   "Shell Global Solutions International B.V."
+       VERSION  "2015.2"
        LICENSE_TYPE "Shell propriety package. Confidential"
        LICENSE_FILE "${THIRD_PARTY_DIR}/SUMlib/COPYING"
        URL      ""

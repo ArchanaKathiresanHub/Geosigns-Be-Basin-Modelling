@@ -1,7 +1,18 @@
+//
+// Copyright (C) 2012-2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 #include "OIVWidget.h"
 
 #include <QtGui/QMouseEvent>
 
+#include <Inventor/SoSceneManager.h>
+#include <Inventor/SoOffscreenRenderer.h>
 #include <Inventor/ViewerComponents/SoRenderAreaCore.h>
 #include <Inventor/devices/SoGLContext.h>
 #include <Inventor/events/SoMouseButtonEvent.h>
@@ -72,6 +83,18 @@ namespace
 
     return oivEvent;
   }
+
+  void requestRedraw(void* userData)
+  {
+    OIVWidget* widget = reinterpret_cast<OIVWidget*>(userData);
+    widget->updateGL();
+  }
+
+  void renderCallback(void* userData, SoSceneManager* /*mgr*/)
+  {
+    SoRenderAreaCore* area = reinterpret_cast<SoRenderAreaCore*>(userData);
+    area->render();
+  }
 }
 
 void OIVWidget::initializeGL()
@@ -84,7 +107,8 @@ void OIVWidget::initializeGL()
   m_glcontext->bind();
   
   m_renderArea = new SoRenderAreaCore(m_glcontext.ptr());
-  //m_renderArea->setSceneGraph(m_examiner.ptr());
+  m_renderArea->setRedrawRequestCallback(requestRedraw, this);
+  m_renderArea->getSceneManager()->setRenderCallback(renderCallback, m_renderArea.ptr());
 }
 
 void OIVWidget::resizeGL(int width, int height)
@@ -160,8 +184,24 @@ OIVWidget::OIVWidget(QWidget* parent, Qt::WindowFlags flags)
   setFocusPolicy(Qt::StrongFocus);
 }
 
+void OIVWidget::saveSnapshot(const QString& filename)
+{
+  SbViewportRegion vpregion(width(), height());
+  vpregion.setPixelsPerInch(72.f);
+
+  SoOffscreenRenderer renderer(vpregion);
+  renderer.setBackgroundColor(SbColor(0.f, 0.f, 0.f));
+
+  SoNode* root = m_renderArea->getSceneGraph();
+  if (renderer.render(root))
+  {
+	SbString file(filename.toStdString());
+	const float quality = 0.75f;
+	renderer.writeToJPEG(file, quality);
+  }
+}
+
 void OIVWidget::setSceneGraph(SoNode* root)
 {
   m_renderArea->setSceneGraph(root);
- 
 }

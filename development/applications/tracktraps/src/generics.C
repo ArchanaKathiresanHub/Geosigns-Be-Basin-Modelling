@@ -31,10 +31,6 @@ const string StockTankPhaseNames[ComponentManager::NumberOfPhases][ComponentMana
    { "SolutionGas", "StockTankOil" }
 };
 
-const double UndefinedValue = -9999;
-const double StockTankPressure = 101325.0 * 1e-6;
-const double StockTankTemperature = 15.0;
-
 double Accumulate (double values[], int numberOfValues)
 {
    int i;

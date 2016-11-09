@@ -53,7 +53,7 @@ bm_include_libraries(
 	utilities
 )
 
-include_directories(
+include_directories( SYSTEM
 	${HDF5_INCLUDE_DIRS}
 )
 

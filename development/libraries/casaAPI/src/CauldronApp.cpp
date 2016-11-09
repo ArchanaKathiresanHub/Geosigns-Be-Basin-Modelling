@@ -13,6 +13,7 @@
 
 // CASA API
 #include "FilePath.h"
+#include "FolderPath.h"
 #include "CauldronApp.h"
 #include "CauldronEnvConfig.h"
 
@@ -65,7 +66,6 @@ namespace casa
       switch ( m_sh )
       {
       case cmd:
-         m_appName += ".exe"; // on windows all applications have .exe suffix
          miscPath= "%CAULDRON_MISC_PATH%";
          break;
 
@@ -79,18 +79,7 @@ namespace casa
       m_version   = env( "CAULDRON_VERSION" )    ? env( "CAULDRON_VERSION" )    : DEFAULT_VERSION;  // default is the ver. of the build itself
       m_rootPath  = env( "IBS_ROOT" )            ? env( "IBS_ROOT" )            : IBS_INSTALL_PATH; // path to IBS folder
       m_mpirunCmd = env( "CAULDRON_MPIRUN_CMD" ) ? env( "CAULDRON_MPIRUN_CMD" ) : "";                 //
-
-      if ( m_mpirunCmd.empty() )
-      {
-         ibs::FilePath mpiWrapCmd( ibs::Path::applicationFullPath() );
-         mpiWrapCmd << MPIRUN_CMD;
-         m_mpirunCmd = mpiWrapCmd.exists() ? mpiWrapCmd.path() : MPIRUN_CMD;
          
-#ifndef _WIN32
-         m_mpirunCmd += " -env I_MPI_DEBUG 5";
-#endif
-      }
-
       // do some tunning depends on application name
       if ( m_appName == "fastcauldron" )
       {
@@ -145,7 +134,7 @@ namespace casa
       {
          pushDefaultEnv( "CTCDIR",     (ibs::FolderPath( miscPath )             ).path() );
          pushDefaultEnv( "EOSPACKDIR", (ibs::FolderPath( miscPath ) << "eospack").path() );
-         m_outputOpt = "| sed '1,4d' > track1d_results.csv";
+         m_outputOpt = "-save track1d_results.csv";
          m_appDepLevel = Postprocessing;
       }
       else if ( m_appName == "casa" )
@@ -196,15 +185,20 @@ namespace casa
 
       if ( m_clearSnapshots )
       {
-         oss << "\nrm -rf " << ibs::FilePath( inProjectFile ).fileNameNoExtension() << mbapi::Model::s_ResultsFolderSuffix << "/Time*.h5\n\n";
+         switch ( m_sh )
+         {
+         case bash: oss << "\nrm -rf " << ibs::FilePath( inProjectFile ).fileNameNoExtension( ) << mbapi::Model::s_ResultsFolderSuffix << "/Time*.h5\n\n"; break;
+         case cmd:  oss << "\ndel " << ibs::FilePath( inProjectFile ).fileNameNoExtension( ) << mbapi::Model::s_ResultsFolderSuffix << "\\*Time*.h5\n\n"; break;
+         }         
       }
 
       // if application is parallel, add mpirun dirrective with options
       if ( m_parallel )
       {
-         oss << m_mpirunCmd;
+         if ( m_mpirunCmd.empty() ) { oss  << "${APP_BIN_PATH}/" << MPIRUN_CMD; }
+         else                       { oss << m_mpirunCmd;                       }
 #ifndef _WIN32
-         oss << " -outfile-pattern '" + m_appName + "-output-rank-%r.log' ";
+         oss << " -env I_MPI_DEBUG 5 -outfile-pattern '" + m_appName + "-output-rank-%r.log' ";
 #endif
 
 #ifndef _WIN32
@@ -230,7 +224,15 @@ namespace casa
          oss << " " << m_inputOpt << " " << inProjectFile;
       }
 
-      if (      m_appName.substr( 0, 7 ) == "track1d" ) { oss << " " << m_outputOpt; }
+      if ( m_appName.substr( 0, 7 ) == "track1d" ) 
+      {
+         bool hasSaveOpt = false;
+         for ( size_t i = 0; i < m_optionsList.size() && !hasSaveOpt; ++i )
+         {
+            if ( m_optionsList[i].find( "-save" ) != std::string::npos ) { hasSaveOpt = true; }
+         }
+         if ( !hasSaveOpt ) { oss << " " << m_outputOpt; }
+      }
       else if ( m_appName.substr( 0, 4 ) == "casa"    ) { ; }
       else if ( !outProjectFile.empty()               ) { oss << " " << m_outputOpt << " " << outProjectFile; }
 
@@ -396,11 +398,14 @@ namespace casa
    // print the defined set of environment variables to stream
    void CauldronApp::dumpEnv( std::ostream & oss )
    {
-      ibs::Path appPath( m_version );  // version could be set as a full path to the application executable
-      ibs::Path miscPath( appPath );
-
-      appPath << m_appName;
-      
+      ibs::FilePath appPath( m_version );  // version could be set as a full path to the application executable
+      ibs::FolderPath miscPath( appPath.path() );
+#ifdef _WIN32
+      std::string osAppName = m_appName + ".exe";
+#else
+      std::string osAppName = m_appName;
+#endif 
+      appPath << osAppName;
       switch ( m_sh )
       {
       case bash:
@@ -414,9 +419,11 @@ namespace casa
             // compute path to the application
             oss << "os1=`/apps/sss/share/getos2` || { echo 'Warning: Could not determine OS version. Are we in Shell Linux?'; os1='.'; }\n"
                 << "os2=`/apps/sss/share/getos2 --os --ver` || { echo 'Warning: Could not determine OS version. Are we in Shell Linux?'; os2='.'; }\n"
-                << "APP=" << m_rootPath << '/' << m_version << "/${os1}/bin/" << m_appName << '\n'
-                << "if [ ! -e $APP ]; then\n"
-                << "   APP=" << m_rootPath << '/' << m_version << "/${os2}/bin/" << m_appName << '\n'
+                << "APP=\"" << m_rootPath << '/' << m_version << "/${os1}/bin/" << osAppName << "\"" << '\n'
+                << "APP_BIN_PATH=\"" << m_rootPath << '/' << m_version << "/${os1}/bin/\"" << '\n'
+                << "if [ ! -e $APP ]; then" << '\n'
+                << "   APP=\"" << m_rootPath << '/' << m_version << "/${os2}/bin/" << osAppName << "\"" << '\n'
+                << "   APP_BIN_PATH=\"" << m_rootPath << '/' << m_version << "/${os2}/bin/\"" << '\n'
                 << "fi\n";
          }
          else
@@ -424,19 +431,20 @@ namespace casa
             miscPath << ".." << "misc";
             if ( !miscPath.exists() )
             {
-               miscPath = appPath;
-               miscPath.cutLast(); // cut application name
+               miscPath = appPath.filePath();
                miscPath << ".." << ".." << "misc";
 
             }
             oss << "CAULDRON_MISC_PATH=" << miscPath.fullPath().path() << "\n";
             oss << "APP=" << appPath.path() << '\n';
+            oss << "APP_BIN_PATH=\"" << appPath.filePath() << "\"\n";
          }
 
          oss << "if [ ! -e $APP ]; then\n"
             << "   echo Could not find application executable\n"
             << "   exit 1\n"
-            << "fi\n";
+            << "fi\n\n";
+           
          break;
 
       case cmd:
@@ -446,14 +454,14 @@ namespace casa
          if ( !appPath.exists() )
          {
             // compute path to the application
-            oss << "set APP=" << (ibs::FilePath( m_rootPath ) << m_version << "bin" << m_appName).path();
+            oss << "set APP=" << ( ibs::FilePath( m_rootPath ) << m_version << "bin" << osAppName ).path( );
          }
          else
          {
             miscPath << ".." << "misc";
             if ( !miscPath.exists() )
             {
-               miscPath = appPath;
+               miscPath = appPath.filePath();
                miscPath << ".." << ".." << "misc";
             }
             oss << "set CAULDRON_MISC_PATH=" << miscPath.path() << "\n";

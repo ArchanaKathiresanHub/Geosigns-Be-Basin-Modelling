@@ -55,6 +55,12 @@
 #include "errorhandling.h"
 #include "FilePath.h"
 
+// utilities library
+#include "ConstantsMathematics.h"
+using Utilities::Maths::MilliWattsToWatts;
+#include "ConstantsPhysics.h"
+using Utilities::Physics::AccelerationDueToGravity;
+
 using namespace DataAccess;
 using namespace CBMGenerics;
 
@@ -275,7 +281,7 @@ bool GeoPhysics::ProjectHandle::setFormationLithologies ( const bool canRunGeomo
    if ( canRunGeomorph ) {
 
       // Initialise the allochthonous lithology manager interpolators.
-      m_allochthonousLithologyManager->initialiseInterpolators ( getDataBase (), getFullOutputDir () + '/' );
+      m_allochthonousLithologyManager->initialiseInterpolators ( getDataBase (), getOutputDir() ) ;
 
       // No more interpolation data can be added after this point.
       //   1. The interpolators are sorted into age-order, oldest first.
@@ -320,11 +326,30 @@ void GeoPhysics::ProjectHandle::loadFluidPropertyTables () {
 
    Interface::MutableFluidTypeList::iterator fluidIter;
 
-   for ( fluidIter = m_fluidTypes.begin(); fluidIter != m_fluidTypes.end (); ++fluidIter ) {
-      GeoPhysics::FluidType* fluid = (GeoPhysics::FluidType*)(*fluidIter);
-      fluid->loadPropertyTables ();
+   try
+   {
+      for ( fluidIter = m_fluidTypes.begin(); fluidIter != m_fluidTypes.end (); ++fluidIter )
+      {
+         GeoPhysics::FluidType* fluid = (GeoPhysics::FluidType*)(*fluidIter);
+         fluid->loadPropertyTables ();
+      }
    }
-
+   catch ( formattingexception::GeneralException & ex )
+   {
+      if (getRank () == 0)
+      {
+         std::cerr << ex.what();
+      }
+      exit (1);
+   }
+   catch (...)
+   {
+      if (getRank () == 0)
+      {
+         std::cerr << "Fatal error when initialising log file(s).";
+      }
+      exit (1);
+   }
 }
 
 //------------------------------------------------------------//
@@ -511,7 +536,7 @@ void GeoPhysics::ProjectHandle::addMantleUndefinedAreas ( const Interface::Mantl
       for ( heatFlowIter = heatFlowMaps->begin (); heatFlowIter != heatFlowMaps->end (); ++heatFlowIter ) {
          addUndefinedAreas ( dynamic_cast<const Interface::GridMap*>((*heatFlowIter)->getMap ( Interface::HeatFlowHistoryInstanceHeatFlowMap )));
       }
-
+      delete heatFlowMaps;
    }
 
 }
@@ -522,53 +547,79 @@ void GeoPhysics::ProjectHandle::addFormationUndefinedAreas ( const Interface::Fo
 
    if ( formation != 0 and formation->kind () == Interface::SEDIMENT_FORMATION ) {
 
-      // Add undefined areas from lithology maps.
-      addUndefinedAreas ( dynamic_cast<const Interface::GridMap*>(formation->getLithoType1PercentageMap ()));
-      addUndefinedAreas ( dynamic_cast<const Interface::GridMap*>(formation->getLithoType2PercentageMap ()));
-      addUndefinedAreas ( dynamic_cast<const Interface::GridMap*>(formation->getLithoType3PercentageMap ()));
+      const Interface::GridMap * LithoType1PercentageMap = dynamic_cast<const Interface::GridMap*>( formation->getLithoType1PercentageMap( ) );
+      const Interface::GridMap * LithoType2PercentageMap = dynamic_cast<const Interface::GridMap*>( formation->getLithoType2PercentageMap( ) );
+      const Interface::GridMap * LithoType3PercentageMap = dynamic_cast<const Interface::GridMap*>( formation->getLithoType3PercentageMap( ) );
+      addUndefinedAreas( LithoType1PercentageMap );
+      addUndefinedAreas( LithoType2PercentageMap );
+      addUndefinedAreas( LithoType3PercentageMap );
 
-      addUndefinedAreas ( dynamic_cast<const Interface::GridMap*>(formation->getInputThicknessMap ()));
 
-      if ( formation->isSourceRock ()) {
-         addUndefinedAreas ( dynamic_cast<const Interface::GridMap*>(formation->getSourceRock1 ()->getMap ( Interface::TocIni )));
+      const Interface::GridMap * InputThicknessMap = dynamic_cast<const Interface::GridMap*> ( formation->getInputThicknessMap( ) );
+      addUndefinedAreas( InputThicknessMap );
+
+      if ( formation->isSourceRock ()) 
+      {
+         const Interface::GridMap* SourceRock1 = dynamic_cast<const Interface::GridMap*>( formation->getSourceRock1( )->getMap( Interface::TocIni )  );
+         addUndefinedAreas( SourceRock1);
+         if ( SourceRock1 ) SourceRock1->release( );
       }
 
       if ( formation->isMobileLayer ()) {
          // Add undefined areas from mobile-layer maps.
          Interface::MobileLayerList::const_iterator mobIt;
-         Interface::MobileLayerList* mobileLayers = formation->getMobileLayers ();
+         Interface::MobileLayerList* mobileLayers(formation->getMobileLayers( ));
 
-         for ( mobIt = mobileLayers->begin (); mobIt != mobileLayers->end (); ++mobIt ) {
-            addUndefinedAreas ( dynamic_cast<const Interface::GridMap*>((*mobIt)->getMap ( Interface::MobileLayerThicknessMap )));
+         for ( mobIt = mobileLayers->begin (); mobIt != mobileLayers->end (); ++mobIt ) 
+         {
+            const Interface::GridMap* mobLayerThickness = dynamic_cast<const Interface::GridMap*>( ( *mobIt )->getMap( Interface::MobileLayerThicknessMap ) );
+            addUndefinedAreas( mobLayerThickness );
+            if ( mobLayerThickness ) mobLayerThickness->release( );
          }
-
-         delete mobileLayers;
+         if ( mobileLayers ) delete mobileLayers;
       }
 
       if ( formation->hasAllochthonousLithology ()) {
          // Add undefined areas from allochthonous-distributions.
          Interface::AllochthonousLithologyDistributionList::const_iterator allochIt;
-         Interface::AllochthonousLithologyDistributionList* allochthonousDistributions = formation->getAllochthonousLithology ()->getAllochthonousLithologyDistributions ();
-
-         for ( allochIt = allochthonousDistributions->begin (); allochIt != allochthonousDistributions->end (); ++ allochIt ) {
-            addUndefinedAreas ( dynamic_cast<const Interface::GridMap*>((*allochIt)->getMap ( Interface::AllochthonousLithologyDistributionMap )));
+         Interface::AllochthonousLithologyDistributionList * allochthonousDistributions( formation->getAllochthonousLithology()->getAllochthonousLithologyDistributions() );
+         
+         for ( allochIt = allochthonousDistributions->begin (); allochIt != allochthonousDistributions->end (); ++ allochIt ) 
+         {
+            const Interface::GridMap * allochthonousLithologyDistributionMap = dynamic_cast<const Interface::GridMap*> ( ( *allochIt )->getMap( Interface::AllochthonousLithologyDistributionMap ) );
+            addUndefinedAreas( allochthonousLithologyDistributionMap );
+            if ( allochthonousLithologyDistributionMap ) allochthonousLithologyDistributionMap->release( );
          }
-
-         delete allochthonousDistributions;
+         if ( allochthonousDistributions ) delete allochthonousDistributions;
       }
 
       // Add undefined areas from reservoirs maps.
       Interface::ReservoirList::const_iterator resIt;
-      Interface::ReservoirList* reservoirs = formation->getReservoirs ();
+      Interface::ReservoirList * reservoirs(formation->getReservoirs( ));
 
-      for ( resIt = reservoirs->begin (); resIt != reservoirs->end (); ++resIt ) {
-         addUndefinedAreas ( dynamic_cast<const Interface::GridMap*>((*resIt)->getMap ( Interface::DepthOffset )));
-         addUndefinedAreas ( dynamic_cast<const Interface::GridMap*>((*resIt)->getMap ( Interface::ReservoirThickness )));
-         addUndefinedAreas ( dynamic_cast<const Interface::GridMap*>((*resIt)->getMap ( Interface::NetToGross )));
-         addUndefinedAreas ( dynamic_cast<const Interface::GridMap*>((*resIt)->getMap ( Interface::LayerFrequency )));
+      for ( resIt = reservoirs->begin (); resIt != reservoirs->end (); ++resIt ) 
+      {
+         const Interface::GridMap * depthOffsetMap        = dynamic_cast<const Interface::GridMap*>( ( *resIt )->getMap( Interface::DepthOffset ) );
+         const Interface::GridMap * reservoirThicknessMap = dynamic_cast<const Interface::GridMap*>(( *resIt )->getMap( Interface::ReservoirThickness ));
+         const Interface::GridMap * netToGrossMap         = dynamic_cast<const Interface::GridMap*>( ( *resIt )->getMap( Interface::NetToGross ) );
+         const Interface::GridMap * layerFrequencyMap     = dynamic_cast<const Interface::GridMap*>( ( *resIt )->getMap( Interface::LayerFrequency ) );
+
+         addUndefinedAreas( depthOffsetMap);
+         addUndefinedAreas( reservoirThicknessMap);
+         addUndefinedAreas( netToGrossMap);
+         addUndefinedAreas( layerFrequencyMap);
+
+         if ( depthOffsetMap        ) depthOffsetMap->release( );
+         if ( reservoirThicknessMap ) reservoirThicknessMap->release( );
+         if ( netToGrossMap         ) netToGrossMap->release( );
+         if ( layerFrequencyMap     ) layerFrequencyMap->release( );
       }
-
       delete reservoirs;
+
+
+      if ( LithoType1PercentageMap ) LithoType1PercentageMap->release();
+      if ( LithoType2PercentageMap ) LithoType2PercentageMap->release();
+      if ( LithoType3PercentageMap ) LithoType3PercentageMap->release();
    }
 
 }
@@ -724,24 +775,31 @@ bool GeoPhysics::ProjectHandle::initialiseValidNodes ( const bool readSizeFromVo
    addMantleUndefinedAreas ( getMantleFormation ());
 
    // Add undefined areas from surface-depth maps.
-   Interface::PaleoPropertyList* surfaceDepthMaps = getSurfaceDepthHistory ();
+   Interface::PaleoPropertyList * surfaceDepthMaps = getSurfaceDepthHistory ();
    Interface::PaleoPropertyList::const_iterator surfaceDepthIter;
 
-   for ( surfaceDepthIter = surfaceDepthMaps->begin (); surfaceDepthIter != surfaceDepthMaps->end (); ++surfaceDepthIter ) {
-      addUndefinedAreas ( dynamic_cast<const Interface::GridMap*>((*surfaceDepthIter)->getMap ( Interface::SurfaceDepthHistoryInstanceMap )));
+   for ( surfaceDepthIter = surfaceDepthMaps->begin (); surfaceDepthIter != surfaceDepthMaps->end (); ++surfaceDepthIter ) 
+   {
+      const Interface::GridMap * surfaceDepthHistoryMap = dynamic_cast<const Interface::GridMap *>(( *surfaceDepthIter )->getMap( Interface::SurfaceDepthHistoryInstanceMap ) );
+      addUndefinedAreas( surfaceDepthHistoryMap);
+      if ( surfaceDepthHistoryMap ) surfaceDepthHistoryMap->release();
    }
 
-   delete surfaceDepthMaps;
+   if ( surfaceDepthMaps ) delete surfaceDepthMaps;
+
 
    // Add undefined areas from surface-temperature maps.
-   Interface::PaleoPropertyList* surfaceTemperatureMaps = getSurfaceTemperatureHistory ();
+   Interface::PaleoPropertyList * surfaceTemperatureMaps(getSurfaceTemperatureHistory( ));
    Interface::PaleoPropertyList::const_iterator surfaceTemperatureIter;
 
-   for ( surfaceTemperatureIter = surfaceTemperatureMaps->begin (); surfaceTemperatureIter != surfaceTemperatureMaps->end (); ++surfaceTemperatureIter ) {
-      addUndefinedAreas ( dynamic_cast<const Interface::GridMap*>((*surfaceTemperatureIter)->getMap ( Interface::SurfaceTemperatureHistoryInstanceMap )));
+   for ( surfaceTemperatureIter = surfaceTemperatureMaps->begin (); surfaceTemperatureIter != surfaceTemperatureMaps->end (); ++surfaceTemperatureIter ) 
+   {
+      const Interface::GridMap * surfaceTemperatureHistoryMap = dynamic_cast<const Interface::GridMap *>(( *surfaceTemperatureIter )->getMap( Interface::SurfaceTemperatureHistoryInstanceMap ));
+      addUndefinedAreas( surfaceTemperatureHistoryMap );
+      if ( surfaceTemperatureHistoryMap ) surfaceTemperatureHistoryMap->release();
    }
+   if ( surfaceTemperatureMaps ) delete surfaceTemperatureMaps;
 
-   delete surfaceTemperatureMaps;
 
    if ( readSizeFromVolumeData ) {
       // Since the input depends on some results, these need to be 
@@ -765,8 +823,15 @@ bool GeoPhysics::ProjectHandle::initialiseValidNodes ( const bool readSizeFromVo
 
       const Interface::PropertyValue* ves = *vesValueList->begin ();
 
-      if ( ves != 0 and ves->getGridMap () != 0 ) {
-         addUndefinedAreas ( dynamic_cast<const Interface::GridMap*>(ves->getGridMap ()));
+      
+      if ( ves != 0 and ves->getGridMap () != 0 )
+      {
+         const Interface::GridMap* vesGridMap = ves->getGridMap( );
+         if ( vesGridMap )
+         {
+            addUndefinedAreas( dynamic_cast<const Interface::GridMap*>( ves->getGridMap() ) );
+            vesGridMap->release();
+         }
       }
 
       delete vesValueList;
@@ -889,6 +954,7 @@ bool GeoPhysics::ProjectHandle::createSeaBottomTemperature () {
          }
 
          surfaceTemperatureMap->restoreData ( false, true );
+         surfaceTemperatureMap->release();
       }
 
       delete surfaceTemperatureHistory;
@@ -948,6 +1014,7 @@ bool GeoPhysics::ProjectHandle::createPaleoBathymetry () {
          }
 
          surfaceDepthMap->restoreData ( false, true );
+         surfaceDepthMap->release();
       }
 
       delete surfaceDepthHistory;
@@ -997,6 +1064,7 @@ bool GeoPhysics::ProjectHandle::createMantleHeatFlow () {
          }
 
          heatFlowMap->restoreData ( false, true );
+         heatFlowMap->release();
       }
 
       delete heatFlowHistory;
@@ -1031,12 +1099,14 @@ bool GeoPhysics::ProjectHandle::createBasaltThicknessAndECT () {
          if( getRank() == 0 ) {
             cerr << " MeSsAgE ERROR BasaltThickness map is not defined." << endl;
          }
+         delete crustThicknesses;
          return false;
       }
       if( crustMeltOnsetMap == 0 ) {
          if( getRank() == 0 ) {
             cerr << " MeSsAgE ERROR Crustal thickness at melt onset  map is not defined." << endl;
          }
+         delete crustThicknesses;
          return false;
       }
 
@@ -1045,6 +1115,7 @@ bool GeoPhysics::ProjectHandle::createBasaltThicknessAndECT () {
          if( getRank() == 0 ) {
             cerr << " MeSsAgE ERROR Initial Lithosperic Mantle Thickness map is negative." << endl;
          }
+         delete crustThicknesses;
          return false;
       }
 
@@ -1163,6 +1234,7 @@ bool GeoPhysics::ProjectHandle::createBasaltThicknessAndECT () {
          getMessageHandler ().printLine ( " MeSsAgE ERROR  Crust or basalt has some non-positive thickness values." );
          getMessageHandler ().printLine ( " MeSsAgE ERROR  For correct execution all crust thickness values must be positive." );
       }
+      delete crustThicknesses;
       return globalStatus;
    }
    return true;
@@ -1543,6 +1615,7 @@ bool GeoPhysics::ProjectHandle::determinePermafrost ( std::vector<double>& timeS
             std::reverse( permafrostAges.begin(), permafrostAges.end() );
             std::reverse( timeSteps.begin(), timeSteps.end() );
          }
+         delete surfaceTemperatureHistory;
       } 
       setPermafrost( isPermafrost );    
    }
@@ -2256,13 +2329,13 @@ double GeoPhysics::ProjectHandle::getBasaltInMantleThickness ( const unsigned in
 bool GeoPhysics::ProjectHandle::compFCThicknessHistories ( const unsigned int i,
                                                            const unsigned int j,
                                                            const bool     overpressureCalculation,
-                                                                 GeoPhysics::Formation* formation,
-                                                                 int& nrActUnc, 
-                                                                 FloatStack &uncMaxVes, 
-                                                                 FloatStack &uncThickness ) {
+                                                           GeoPhysics::Formation* formation,
+                                                           int& nrActUnc, 
+                                                           FloatStack &uncMaxVes, 
+                                                           FloatStack &uncThickness ) {
 
    // we have 3 possible types of layer: 1: a mobile layer, 2: a normal
-   // sedemented layer or 3: an erosion (layer).
+   // sedimented layer or 3: an erosion (layer).
 
    if ( formation->isMobileLayer () or formation->getIsIgneousIntrusion ()) {
       // mobile layer or igneous intrusion!!
@@ -2302,21 +2375,36 @@ bool GeoPhysics::ProjectHandle::updateMobileLayerOrIgneousIntrusionMaxVes ( cons
   bool result = true;
   double segmentThickness;
   double dummy;
-  double diffdensity;
+  double diffdensity = 0.0;
 
   int segment;
 
   const CompoundLithology* lithology = formation->getCompoundLithology ( i, j );
   const GeoPhysics::FluidType* fluid = dynamic_cast<const GeoPhysics::FluidType*>( formation->getFluidType ());
 
-  for ( segment = formation->getMaximumNumberOfElements() - 1; segment >= 0; --segment ) {
+  for ( segment = formation->getMaximumNumberOfElements() - 1; segment >= 0; --segment )
+  {
 
       segmentThickness = formation->getSolidThickness ( i, j, (unsigned int)(segment)).MaxY (dummy);
       assert( segmentThickness != Interface::DefaultUndefinedScalarValue );
 
-      if ( fluid != 0  ) {
+      if ( fluid != 0  ) 
+      {
          diffdensity = lithology->density () - fluid->getConstantDensity ();
-      } else {
+         
+         bool switchPermaFrost = fluid->SwitchPermafrost( );
+         double surfacePorosity = lithology->surfacePorosity( );
+
+         // Fluid is denser than rock and the permafrost switch is on
+         if ( diffdensity <= 0 && switchPermaFrost )
+         {
+            maxVes += AccelerationDueToGravity *  lithology->density() * segmentThickness * ( 1.0 - surfacePorosity );
+            return result;
+         }
+         else if ( diffdensity <= 0 ) diffdensity = 0.0;         
+      } 
+      else 
+      {
          diffdensity = lithology->density ();
       }
 
@@ -2591,33 +2679,39 @@ bool GeoPhysics::ProjectHandle::compactLayerThicknessHistory ( const unsigned in
 //------------------------------------------------------------//
 
 bool GeoPhysics::ProjectHandle::calcFullCompactedThickness ( const unsigned int i,
-                                                             const unsigned int j,
-                                                             const bool     overpressureCalculation,
-                                                                   GeoPhysics::Formation* formation,
-                                                             const double compThickness,
-                                                                   double &uncMaxVes,
-                                                             double &fullCompThickness,
-                                                             double age ) {
+   const unsigned int j,
+   const bool     overpressureCalculation,
+   GeoPhysics::Formation* formation,
+   const double compThickness,
+   double &uncMaxVes,
+   double &fullCompThickness,
+   double age ) {
 
-  bool result = true;
+   bool result = true;
 
-  double diffdensity;
+   const CompoundLithology* lithology = formation->getCompoundLithologyArray()( i, j, age );
+   const GeoPhysics::FluidType* fluid = dynamic_cast<const GeoPhysics::FluidType*>( formation->getFluidType() );
 
-  const CompoundLithology* lithology = formation->getCompoundLithologyArray ()( i, j, age ); 
-  const GeoPhysics::FluidType* fluid = dynamic_cast<const GeoPhysics::FluidType*>( formation->getFluidType ());
+   double fluidDensity = 0.0;
+   double lithologyDensity = lithology->density();
+   double densityDifference = 0.0;
 
-  if ( fluid != 0 ) {
-     diffdensity = lithology->density () - fluid->getConstantDensity ();
-  } else {
-     diffdensity = lithology->density ();
-  }
+   if ( fluid != 0 )
+   {
+      fluidDensity = fluid->getConstantDensity( );
+      if ( lithologyDensity > fluidDensity ) densityDifference = lithologyDensity - fluidDensity;
+   }
+   else
+   {
+      densityDifference = lithologyDensity;
+   }
 
   fullCompThickness = lithology->hydrostatFullCompThickness ( uncMaxVes, 
                                                               compThickness, 
-                                                              diffdensity,
+                                                              densityDifference,
                                                               overpressureCalculation );
 
-  uncMaxVes += AccelerationDueToGravity * diffdensity * fullCompThickness;
+  uncMaxVes += AccelerationDueToGravity * densityDifference * fullCompThickness;
 
   return result;
 }
@@ -2671,6 +2765,7 @@ bool GeoPhysics::ProjectHandle::applyFctCorrections () {
          }
 
          fctMap->restoreData ( false, true );
+         fctMap->release();
       }
    }
 

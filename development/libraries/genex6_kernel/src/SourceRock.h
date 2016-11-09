@@ -205,7 +205,7 @@ protected:
 
    void updateSnapShotOutputMaps(Genex6::SourceRockNode *theNode);
 
-   void saveSnapShotOutputMaps(const Interface::Snapshot *theSnapshot);
+   void saveSnapShotOutputMaps();
 
    bool validateGuiValue(const double GuiValue, const double LowerBound, const double UpperBound);
 

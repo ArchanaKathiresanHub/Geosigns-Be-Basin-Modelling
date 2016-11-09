@@ -10,8 +10,8 @@
 
 void error(const char *msg)
 {
-    perror(msg);
-    exit(0);
+   perror(msg);
+   exit(0);
 }
 
 int pfd[2];
@@ -53,12 +53,12 @@ int main(int argc, char *argv[])
       // connect to the server (mpi_recv) process to pass data to that was read from the pipe
       sockfd = socket (AF_INET, SOCK_STREAM, 0);
       if (sockfd < 0)
-	 error ("ERROR opening socket");
+         error ("ERROR opening socket");
       server = gethostbyname (argv[1]);
       if (server == NULL)
       {
-	 fprintf (stderr, "ERROR, no such host\n");
-	 exit (0);
+         fprintf (stderr, "ERROR, no such host\n");
+         exit (0);
       }
       bzero ((char *) &serv_addr, sizeof (serv_addr));
       serv_addr.sin_family = AF_INET;
@@ -66,31 +66,31 @@ int main(int argc, char *argv[])
       serv_addr.sin_port = htons (portno);
       if (connect (sockfd, (struct sockaddr *) &serv_addr, sizeof (serv_addr)) < 0)
       {
-	 error ("ERROR while connecting");
+         error ("ERROR while connecting");
       }
 
       // pass on the output from the target command (mpirun ...) to the server (mpi_recv).
       int read_status, write_status;
       while ((read_status = read(pfd[0], &buf, 1)) > 0 && (write_status = write(sockfd, &buf, 1)) > 0);
       // kill processes after the read or the write fails.
-      
+
       // probably only necessary after the write fails as this would mean that mpi_recv was killed
       // Let's also try to kill the lsf job
       if (write_status <= 0)
       {
-	 char * jobid = getenv ("LSB_JOBID");
-	 if (jobid != 0)
-	 {
-	    char kill_cmd[128];
-	    sprintf (kill_cmd, "bkill %s", jobid);
-	    system (kill_cmd);
-	    sleep (5);
-	 }
+         char * jobid = getenv ("LSB_JOBID");
+         if (jobid != 0)
+         {
+            char kill_cmd[128];
+            sprintf (kill_cmd, "bkill %s", jobid);
+            system (kill_cmd);
+            sleep (5);
+         }
 
-	 // kill the child process after the read or the write fails.
-	 kill (cpid, SIGTERM);
+         // kill the child process after the read or the write fails.
+         kill (cpid, SIGTERM);
       }
-      
+
    }
    else // child
    {
@@ -107,7 +107,7 @@ int main(int argc, char *argv[])
       int i;
       for (i = 3; i < argc; ++i)
       {
-	 args[i-3] = argv[i];
+         args[i-3] = argv[i];
       }
       args[i-3] = NULL;
 

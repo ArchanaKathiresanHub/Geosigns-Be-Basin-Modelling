@@ -52,7 +52,7 @@ namespace casa
 
       /// @brief Constructor. Create parameter object from the given parameter value
       /// @param parent pointer to a variable parameter which created this one
-      /// @param lithoName lithology name
+      /// @param lithosName lithology name
       /// @param surfPor value for surface porosity
       PrmSurfacePorosity( const VarPrmSurfacePorosity * parent, const std::vector<std::string> & lithosName, double surfPor );
 

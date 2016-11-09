@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2014 Shell International Exploration & Production.
+// Copyright (C) 2014-2016 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -8,8 +8,8 @@
 // Do not distribute without written permission from Shell.
 //
 
-#ifndef _GEOPHYSICS_BRINE_CONDUCTIVITY_H_
-#define _GEOPHYSICS_BRINE_CONDUCTIVITY_H_
+#ifndef GEOPHYSICS_BRINE_CONDUCTIVITY_H_
+#define GEOPHYSICS_BRINE_CONDUCTIVITY_H_
 
 #include <vector>
 #include "Interface/FluidType.h"
@@ -40,6 +40,9 @@ namespace GeoPhysics
       /// Extracts data from the project-file FltThCondIoTbl and puts it in array members
       void setTable (const ibs::Interpolator2d& thermalConductivityTbl);
 
+      /// Size of the brine thermal-conductivity table
+      static const int s_thCondArraySize = 667;
+
    protected:
       /// Uses bi-linear interpolation to return the value of thermal conductivity using the table provided in Sengers et al. (1984)
       /// \pre Requires the values of T,P to be within the allowed ranges.
@@ -60,7 +63,7 @@ namespace GeoPhysics
    private:
       /// Size and elements of the 2D table from Sengers et al. Thermal conductivity
       /// values are actually implemented as a 1D array to facilitate interpolation.
-      static const int s_tempArraySize = 23, s_presArraySize = 29, s_thCondArraySize = 667;
+      static const int s_tempArraySize = 23, s_presArraySize = 29;
 
       /// The 2D thermal-conductivity table will be handled using these arrays.
       std::vector<double> m_tempArray;

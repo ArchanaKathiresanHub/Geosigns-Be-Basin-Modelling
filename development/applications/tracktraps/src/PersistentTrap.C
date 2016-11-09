@@ -1,18 +1,8 @@
 //#include <values.h>
 #include <limits.h>
 #include <float.h>
-
 #include <vector>
-
-#ifdef sgi
-   #ifdef _STANDARD_C_PLUS_PLUS
-      #include <iostream>
-   #else // !_STANDARD_C_PLUS_PLUS
-      #include<iostream.h>
-   #endif // _STANDARD_C_PLUS_PLUS
-#else // !sgi
-   #include <iostream>
-#endif // sgi
+#include <iostream>
 
 using namespace std;
 

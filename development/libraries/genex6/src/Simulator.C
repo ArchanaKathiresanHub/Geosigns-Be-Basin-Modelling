@@ -15,16 +15,21 @@
 #include "SimulatorStateBase.h"
 #include "Species.h"
 
+#include "ConstantsGenex.h"
+#include "SpeciesManager.h"
+#include "GeneralParametersHandler.h"
+#include "ImmobileSpecies.h"
+
+// std library
 #include <cmath>
 #include <map>
 #include <string>
 #include <vector>
 #include <algorithm>
-#include "Constants.h"
-#include "SpeciesManager.h"
-#include "GeneralParametersHandler.h"
-#include "ImmobileSpecies.h"
 
+// utilities library
+#include "ConstantsPhysics.h"
+using Utilities::Physics::BoltzmannOverPlanckByMillionYear;
 #include "StringHandler.h"
 
 namespace Genex6
@@ -71,7 +76,7 @@ ChemicalModel * Simulator::loadChemicalModel(const std::string in_fullPathToConf
                                              const bool inApproximateFlag)
 {
    m_simulationType = in_simulationType;
-   m_fullPathToConfigurationFileDirectory = in_fullPathToConfigurationFileDirectory + Genex6::Constants::folder_divider;
+   m_fullPathToConfigurationFileDirectory = in_fullPathToConfigurationFileDirectory + Genex6::Constants::FolderDivider;
    m_type = in_type;
    //build chemical model, get boundary conditions
    CreateInstance();
@@ -96,7 +101,7 @@ Simulator::Simulator(const std::string in_fullPathToConfigurationFileDirectory,
                      const double in_C15SatDiffusionEnergy,
                      const bool inApproximateFlag):
    m_simulationType(in_simulationType),
-   m_fullPathToConfigurationFileDirectory(in_fullPathToConfigurationFileDirectory + Genex6::Constants::folder_divider),
+   m_fullPathToConfigurationFileDirectory(in_fullPathToConfigurationFileDirectory + Genex6::Constants::FolderDivider),
    m_type(in_type)
 {
    s_cfgFileExtension = ".cfg";
@@ -301,14 +306,8 @@ void Simulator::LoadDataFromConfigurationFile()
    std::string line;
 
    while(!ConfigurationFile.eof() && finishReadingFile == false) {
-      //std::getline(ConfigurationFile,line,'\n');
-#ifdef sun
-      static char buf[1<<14];
-      ConfigurationFile.getline (buf, 1<<14);
-      line = buf;
-#else
+
       std::getline (ConfigurationFile, line, '\n');
-#endif
      
       if(line==Genex6::CFG::TableSimulatorProperties || line.find(Genex6::CFG::TableSimulatorProperties, 0) != std::string::npos) {
         LoadSimulatorProperties(ConfigurationFile);
@@ -366,14 +365,8 @@ void Simulator::LoadSimulatorProperties(ifstream &ConfigurationFile)
    std::string delim = ",";
    
    for(;;) {
-      //std::getline(ConfigurationFile,line,'\n');
-#ifdef sun
-      static char buf[1<<14];
-      ConfigurationFile.getline (buf, 1<<14);
-      line = buf;
-#else
+
       std::getline (ConfigurationFile, line, '\n');
-#endif
         
       if(line == Genex6::CFG::EndOfTable || line.size() == 0) {
          break;
@@ -436,14 +429,8 @@ void Simulator::LoadGeneralParameters(ifstream &ConfigurationFile)
 
    GeneralParametersHandler &theHandler = GeneralParametersHandler::getInstance();
    for(;;) {
-      //std::getline(ConfigurationFile,line,'\n');
-#ifdef sun
-      static char buf[1<<14];
-      ConfigurationFile.getline (buf, 1<<14);
-      line = buf;
-#else
+
       std::getline (ConfigurationFile, line, '\n');
-#endif
       
       if(line == Genex6::CFG::EndOfTable || line.size() == 0) {
          break;
@@ -498,7 +485,7 @@ void Simulator::PreprocessTimeStepComputation(const Input &theInput)
    //TK = TC(J) + TCabs
    s_TK = theInput.GetTemperatureKelvin();
 
-   s_FrequencyFactor = Genex6::Constants::s_BoltzmannOverPlanck * s_TK;
+   s_FrequencyFactor = BoltzmannOverPlanckByMillionYear * s_TK;
 
    s_kerogenTransformationRatio = m_currentState->ComputeKerogenTransformatioRatio ( getChemicalModel ().getSpeciesManager (),
                                                                                      m_simulationType);
@@ -517,7 +504,7 @@ void Simulator::PreprocessTimeStepComputation(const Input &theInput)
    m_currentState->setTotalOilForTSR ( 0.0 );
 }
 
-void Simulator::ProcessTimeStepComputation( const Input &theSourceRockInput ) 
+void Simulator::ProcessTimeStepComputation() 
 {
    const double T1 = (m_simulationType & Genex6::Constants::SIMGENEX ? 
                       s_kerogenTransformationRatio : m_currentState->getMaxPrecokeTransfRatio());
@@ -533,13 +520,7 @@ void Simulator::ProcessTimeStepComputation( const Input &theSourceRockInput )
                                        s_DiffusionConcDependence,
                                        s_VogelFulcherTemperature,
                                        m_openConditions); 
-   /*
-   SubProcessSimulatorList::iterator processIterator;
 
-   for ( processIterator = m_subProcesses.begin (); processIterator != m_subProcesses.end (); ++processIterator ) {
-      (*processIterator)->compute ( theSourceRockInput, m_currentState );
-   }
-   */
 }
 void Simulator::PrintBenchmarkOutput(ofstream &outputTestingSetFile) const 
 {                                  
@@ -632,7 +613,7 @@ double Simulator::CheckInitialHC(const double in_VRE, const double in_HC)
    double HCmin = theHandler.GetParameterById(GeneralParametersHandler::HCmin);
    double out_HC = in_HC;
   
-   if(fabs(in_VRE - Genex6::Constants::VRE2) > Genex6::Constants::ZERO) {
+   if(fabs(in_VRE - Genex6::Constants::VRE2) > Genex6::Constants::Zero) {
       out_HC = this->TransformHC(in_VRE, in_HC);
    }
    if(out_HC > HCmax) { out_HC = HCmax; }
@@ -650,7 +631,7 @@ void Simulator::advanceSimulatorState(const Input &theInput)
    }
 
    PreprocessTimeStepComputation(theInput);
-   ProcessTimeStepComputation ( theInput );  //updates the current state
+   ProcessTimeStepComputation ();  //updates the current state
    //data of m_currentState updated, now update explicitly the reference time, put here for clarity
    computeToc ( theInput );
    m_currentState->SetReferenceTime(theInput.GetTime());	//update timeStep number as well
@@ -715,15 +696,15 @@ double Simulator::TransformHC(const double in_VRE, const double in_HC)
 {
    double out_HC = in_HC;
 
-   if(fabs(in_VRE - Genex6::Constants::VRE1) < Genex6::Constants::ZERO) {
+   if(fabs(in_VRE - Genex6::Constants::VRE1) < Genex6::Constants::Zero) {
 
       out_HC = 1.0 / (((( 0.742501 * in_HC - 4.001215 ) * in_HC + 8.543431 ) * in_HC - 9.053234 ) * in_HC + 4.791546 );
 
-   } else if(fabs(in_VRE - Genex6::Constants::VRE3) < Genex6::Constants::ZERO) {
+   } else if(fabs(in_VRE - Genex6::Constants::VRE3) < Genex6::Constants::Zero) {
 
       out_HC = 1.0 / (((( -1.309574 * in_HC + 3.845736 ) * in_HC - 2.428247 ) * in_HC - 2.455886 ) * in_HC + 3.318530 );
 
-   } else if(fabs(in_VRE - Genex6::Constants::VRE4) < Genex6::Constants::ZERO) {
+   } else if(fabs(in_VRE - Genex6::Constants::VRE4) < Genex6::Constants::Zero) {
 
       out_HC = 1.0 / ((((  7.717693 * in_HC - 32.765333 ) * in_HC + 51.647141 ) * in_HC - 36.926169 ) * in_HC + 11.273280 );
 

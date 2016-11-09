@@ -30,15 +30,15 @@ using namespace Interface;
 #include <cerrno>
 #include <cstdlib>
 #include <libgen.h>
+#include <time.h>
 #include <sys/wait.h>
-#include <sys/types.h>
 #include <sys/stat.h>
 
 static const char * tempBurial  = "/tmp/BurialhistXXXXXX";
 static const char * tempResults = "/tmp/ResultsXXXXXX";
 static const char * tempStatus  = "/tmp/StatusXXXXXX";
 
-bool check_zombie( pid_t pid )
+bool MasterTouch::checkZombie( pid_t pid )
 {
 #ifdef _WIN32
    return false;
@@ -56,9 +56,7 @@ bool check_zombie( pid_t pid )
    char rstatc = 0;
 	
    fscanf( fpstat, "%d %30s %c", &rpid, rcmd, &rstatc ); 
-  	
    fclose(fpstat);
-   //cout <<" in check_zombie "<<endl;
    return rstatc == 'Z' ? true : false;
 #endif
 }
@@ -68,44 +66,43 @@ bool MasterTouch::executeWrapper( const char * burHistFile, const string & filen
    char status[PATH_MAX];
    strcpy( status, tempStatus );
    mkstemp( status );
-   
    mkfifo( status, 0777 );
-   
-   //convert GetRank( ) value to ostringstream
+
    ostringstream rank;
    rank << GetRank();
-	
+
    int pid = fork();
+   int childStatus = 0;
 
    if (pid == 0)
-   {	
+   {
       const char * wrapperName = "touchstoneWrapper";
-				
+
       errno = 0;
       ibs::Path pathToWrapper = ibs::Path::applicationFullPath();
       pathToWrapper << wrapperName;
-      
+
       // create a temporary file in the current directory to store the standard output (e.g. the warning messages from Matlab)
       string wrapperOut("./wrapperStandardOutput_");
       wrapperOut += rank.str( );
       //read and write permissions for the user, read permission for the group  
-      mode_t mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH; 
+      mode_t mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;
       // copy standard output (1) to file
-      int fd=open(wrapperOut.c_str(), O_WRONLY| O_CREAT| O_TRUNC, mode);      
+      int fd=open(wrapperOut.c_str(),O_WRONLY| O_CREAT| O_TRUNC, mode);
       dup2(fd,1);
       close(fd);
 
       if ( pathToWrapper.exists() )
       {
          execl( pathToWrapper.path().c_str(), wrapperName,
-                burHistFile , filename.c_str() , resultFile , status, (rank.str( )).c_str(),  
-                static_cast<const char *>(0) );
+            burHistFile, filename.c_str() , resultFile , status, (rank.str()).c_str(),
+            static_cast<const char *>(0) );
 
          if (errno != 0)
-         { 
+         {
             std::ostringstream oss;
-            oss << "error: Could not run TouchstoneWrapper '" << pathToWrapper.path() 
-                << "  Error code " << errno << ":  " << std::strerror(errno);
+            oss << "error: Could not run TouchstoneWrapper '" << pathToWrapper.path()
+               << "  Error code " << errno << ":  " << std::strerror(errno);
             message( oss.str());
          }
       }
@@ -113,61 +110,126 @@ bool MasterTouch::executeWrapper( const char * burHistFile, const string & filen
       {
          message( (std::string( "error: could not find TouchstoneWrapper at: ") + pathToWrapper.path()).c_str() );
       }
-      exit(0);		
-   } 	
-   else 	
-   { 
-      double fractionCompleted = 0.0;    
-      utilities::TimeToComplete timeToComplete( 30, 300, 0.1, 0.1 );
-      timeToComplete.start(); 
-      int childstate; 		
-		
-      int fd    = open( status, O_RDONLY );
-      int flags = fcntl( fd, F_GETFL );
-      fcntl( fd, F_SETFL, flags | O_NONBLOCK ); 
-		
-			
-      while ( !waitpid( pid, &childstate, WNOHANG ) ) 
-      {	
-         bool childStartedCalculation = fractionCompleted > 0 ? true : false;
-         usleep( 500 );		
-         if ( read( fd, &fractionCompleted, sizeof( fractionCompleted ) ) == sizeof( fractionCompleted) )
-         {
-            string reported = timeToComplete.report( MinimumAll( fractionCompleted ) );
-            if ( !reported.empty()) ReportProgress( reported );
-         }
-         else
-         {
-            if ( !WIFEXITED(childstate) && !childStartedCalculation && check_zombie(pid) ) 
-            { 
-               ostringstream oss;
-               oss << "warning: touchstoneWrapper is zombie " << std::strerror(errno);
-               message( oss.str() );
-               return false;
-            } 
-         }
+      exit( 0 );
+   }
 
-      }
-				
-      if ( close( fd ) < 0 )
-      {
-         ostringstream oss;
-         oss << "error: Could not close status file, error code " << std::strerror(errno);
-         message( oss.str() );
-      }
-	  	
-      if ( unlink( status ) < 0 )
-      {
-         ostringstream oss;
-         oss << "error: Could not unlink status file, error code " << std::strerror(errno);
-         message( oss.str() );
-      }
-			
-   } 
+   double fractionCompleted = -10.0;
+   double temFraction = -10.0;
+   double minAllFractions  = 0.01;
+   double currentMinimum = 0.0;
+   bool childStarted = false;
+   int byteRead;
+   int childstate;
+   utilities::TimeToComplete timeToComplete( 5, 30, minAllFractions, 0.01 );
+   int fd = open( status, O_RDONLY| O_NONBLOCK );
+   timespec sleepTime;
+   timespec remainingTime;
    
-   return true; 
-}
+   sleepTime.tv_sec =  0;
+   sleepTime.tv_nsec = 5000000L;
 
+   ReportProgress( "Loading touchstone and creating the realizations, please wait ..." ); 
+      
+   // here we check several behaviours that can happen in the loading phase. 
+   // If one child is bad we re-start all childrens. 
+   do
+   {
+      // read the fractionCompleted first
+      byteRead = read( fd, &temFraction, sizeof( temFraction ) );
+      if ( byteRead == sizeof( temFraction ) ) fractionCompleted = temFraction;
+      
+      // get the waitpidReturnValue and the childstate
+      bool waitpidReturnValue = waitpid( pid, &childstate, WNOHANG );
+
+      // the message string stream
+      ostringstream oss;
+
+      // if the child did not exit and computation started it is a good one
+	  // in case of no active elements in the domain, no computations are performed and fractionCompleted == 1
+      if ( (!waitpidReturnValue && fractionCompleted > 0.0) || (waitpidReturnValue && fractionCompleted == 1.0)  )
+      {
+         childStarted = true;
+      } 
+      
+      // if the child did not exit and is zombie it is a bad child
+      else if ( !waitpidReturnValue && fractionCompleted < 0.0 && checkZombie( pid ) )
+      {
+         oss << "warning: touchstoneWrapper is zombie " << std::strerror( errno );
+         message( oss.str( ) );
+         childStatus = -1;
+		   childStarted = true;
+      } 
+
+      // if the child exited badly before starting the computations it is a bad child
+      else if ( waitpidReturnValue && fractionCompleted < 0.0 && !WIFEXITED( childstate ))
+      {
+         oss << "warning: touchstoneWrapper terminated prematurely "<< std::strerror( errno );
+         message( oss.str( ) );
+         childStatus = -1;
+		   childStarted = true;
+      } 
+      
+      // if the child exited ok before starting the computations it is a bad child (an exception was thrown and caught in Touchstone.C)
+      else if ( waitpidReturnValue && fractionCompleted < 0.0 && WIFEXITED( childstate ))
+      {
+         oss << "warning: touchstoneWrapper thrown an exeception "<< std::strerror( errno );
+         message( oss.str( ) );
+         childStatus = -1;
+		   childStarted = true;
+      }
+	  
+      // sleep only after the checks ( waitpidReturnValue and childstate are up to date in the checks above). 
+      nanosleep( &sleepTime, &remainingTime  );	  
+   } while ( !childStarted );
+   
+   currentMinimum = MinimumAll( childStatus );
+   
+   // return false if currentMinimum is < 0.0 
+   if (currentMinimum < 0.0 ) return false; 
+         
+   timeToComplete.start( );      
+   
+   // Progress is reported only by Rank 0, we need to keep Rank 0 in the loop even if its child exited. 
+   // One way to do this is to exit the while loop only if the child did not exit AND we are done in all ranks (currentMinimum < 1.0)
+   while ( !waitpid( pid, &childstate, WNOHANG ) || currentMinimum < 1.0 )
+   {
+      // read the fractionCompleted first. Calling MinimumAll requires all MPI processes to sync all times. This is expensive so we call it every 0.005 sec
+      byteRead = read( fd, &temFraction, sizeof( temFraction ) );
+      if ( byteRead == sizeof( temFraction ) ) fractionCompleted = temFraction;
+
+      currentMinimum = MinimumAll( fractionCompleted );
+      
+      if ( currentMinimum > minAllFractions )
+      {
+         minAllFractions = currentMinimum;
+         string reported = timeToComplete.report( minAllFractions );
+         if (!reported.empty()) ReportProgress( reported );
+      }
+
+	   // sleep only after the check
+      nanosleep( &sleepTime, &remainingTime  );		
+   }       
+   if ( close( fd ) < 0 )
+   {
+      ostringstream oss;
+      oss << "error: Could not close status file, error code " << std::strerror(errno);
+      message( oss.str() );       
+      childStatus = -1;
+   }   
+   if ( unlink( status ) < 0 )
+   {
+      ostringstream oss;
+      oss << "error: Could not unlink status file, error code " << std::strerror(errno);
+      message( oss.str() );
+      childStatus = -1;
+   }
+
+   // if one child cannot close or unlink the status file, re-start all childrens.
+   currentMinimum = MinimumAll( childStatus );
+
+   return currentMinimum < 0.0 ? false : true; 
+
+}
 // PUBLIC METHODS
 //
 /// The job of the constructor is to open the ResQ library and initialise
@@ -222,24 +284,24 @@ MasterTouch::MasterTouch( ProjectHandle & projectHandle )
    m_categories.push_back("Permeability Log10");
    
    //default indexing
-   m_categoriesMapping[m_categories[MACRO_PORO]]		= MACRO_PORO; 	// TSLIB_RC_MACRO_PORO;
-   m_categoriesMapping[m_categories[IGV]]		        = IGV; 			// TSLIB_RC_IGV;
-   m_categoriesMapping[m_categories[CMT_QRTZ]]  		= CMT_QRTZ; 	// TSLIB_RC_CMT_QRTZ;
-   m_categoriesMapping[m_categories[CORE_PORO]]   		= CORE_PORO; 	// TSLIB_RC_CORE_PORO;
-   m_categoriesMapping[m_categories[MICRO_PORO]]   	        = MICRO_PORO; 	// TSLIB_RC_MICRO_PORO;
-   m_categoriesMapping[m_categories[PERM]]   			= PERM; 			// TSLIB_RC_PERM;
-   m_categoriesMapping[m_categories[LOGPERM]]   		= LOGPERM; 		// TSLIB_RC_LOGPERM;
+   m_categoriesMapping[m_categories[MACRO_PORO]]		= MACRO_PORO;	
+   m_categoriesMapping[m_categories[IGV]]		        = IGV;	
+   m_categoriesMapping[m_categories[CMT_QRTZ]]  		= CMT_QRTZ;	
+   m_categoriesMapping[m_categories[CORE_PORO]]   		= CORE_PORO;	
+   m_categoriesMapping[m_categories[MICRO_PORO]]   	    = MICRO_PORO;
+   m_categoriesMapping[m_categories[PERM]]   			= PERM;		
+   m_categoriesMapping[m_categories[LOGPERM]]   		= LOGPERM;
      
    // Used snapshots
-   Interface::SnapshotList * MajorSnapshots = m_projectHandle.getSnapshots (Interface::MAJOR);
+   Interface::SnapshotList * majorSnapshots = m_projectHandle.getSnapshots (Interface::MAJOR);
    Interface::SnapshotList::iterator it;
 	
-   for (size_t majorSnapshotIndex = 0; majorSnapshotIndex < MajorSnapshots->size(); ++majorSnapshotIndex)
+   for (size_t majorSnapshotIndex = 0; majorSnapshotIndex < majorSnapshots->size(); ++majorSnapshotIndex)
    {
-      if ((*MajorSnapshots)[majorSnapshotIndex]->getUseInResQ())
+      if ((*majorSnapshots)[majorSnapshotIndex]->getUseInResQ())
       {
          m_usedSnapshotsIndex.push_back( majorSnapshotIndex );
-         m_usedSnapshotsAge.push_back( (*MajorSnapshots)[majorSnapshotIndex]->getTime() );
+         m_usedSnapshotsAge.push_back( (*majorSnapshots)[majorSnapshotIndex]->getTime() );
       }
    }
 	
@@ -250,7 +312,7 @@ MasterTouch::MasterTouch( ProjectHandle & projectHandle )
       m_usedSnapshotsAge.push_back( 0.0 );  
    }
    
-   delete MajorSnapshots;	
+   delete majorSnapshots;	
    
    //verbosity level
    PetscBool inputVerbose;
@@ -260,6 +322,31 @@ MasterTouch::MasterTouch( ProjectHandle & projectHandle )
    if (inputVerbose)
    {
       m_verboseLevel = verboseLevel;
+   }
+}
+
+/** The writeBurialHistoryToFile is responsable for writing the burial histories to file
+*/
+void MasterTouch::writeBurialHistoryToFile(const string & filename, const char * burhistFile, const int numActive)
+{
+   
+   LayerFaciesGridMap layerFaciesGridMap = m_fileLayerFaciesGridMap[filename]; 
+   WriteBurial writeBurial(burhistFile);
+   
+   // for each defined node on reservoir surface  
+   int firstI = m_projectHandle.getActivityOutputGrid()->firstI();
+   int firstJ = m_projectHandle.getActivityOutputGrid()->firstJ();
+   int lastI  = m_projectHandle.getActivityOutputGrid()->lastI();
+   int lastJ  = m_projectHandle.getActivityOutputGrid()->lastJ();
+	   	
+   writeBurial.writeIndexes(firstI, lastI, firstJ, lastJ, layerFaciesGridMap.size( ),numActive);
+   writeBurial.writeSnapshotsIndexes(m_usedSnapshotsIndex);
+			
+   //Second reading of the burial history			
+   LayerFaciesGridMap::iterator outIt;
+   for( outIt = layerFaciesGridMap.begin(); outIt != layerFaciesGridMap.end(); ++outIt )
+   {			
+      writeBurialHistory( (outIt->first).surface, writeBurial, &m_fileLayerFaciesGridMap[filename][outIt->first]);
    }
 }
 
@@ -284,37 +371,28 @@ bool MasterTouch::run()
    for ( it = m_fileLayerFaciesGridMap.begin(); it != m_fileLayerFaciesGridMap.end(); ++it )
    {		
       const string & filename = (it->first);   
-      LayerFaciesGridMap * layerFaciesGridMap = &(m_fileLayerFaciesGridMap[filename]);   
-      
+      LayerFaciesGridMap  layerFaciesGridMap = m_fileLayerFaciesGridMap[filename];  
+       
+      // First reading of the burial history to count the total number of active timesteps in each layer. This is relativly fast.
+      int numActive = 0;
+      LayerFaciesGridMap::iterator outIt;
+      for( outIt = layerFaciesGridMap.begin(); outIt != layerFaciesGridMap.end(); ++outIt )
+      {			
+	      numActive += countActive( (outIt->first).surface, &m_fileLayerFaciesGridMap[filename][outIt->first]);
+      } 	
+	  
       string progressString = "Starting TCF: ";
       progressString += filename;
       ReportProgress( progressString );
-		
-      //write burial histories for all layers and facies that uses that TCF file
-      char burhistFile[PATH_MAX];
-      strcpy(burhistFile,tempBurial);
-      mkstemp(burhistFile);
-   	
-      {
-         WriteBurial writeBurial(burhistFile);
-	   	
-         // for each defined node on reservoir surface  
-         int firstI = m_projectHandle.getActivityOutputGrid()->firstI();
-         int firstJ = m_projectHandle.getActivityOutputGrid()->firstJ();
-         int lastI  = m_projectHandle.getActivityOutputGrid()->lastI();
-         int lastJ  = m_projectHandle.getActivityOutputGrid()->lastJ();
-	   	
-         writeBurial.writeIndexes(firstI, lastI, firstJ, lastJ, layerFaciesGridMap->size( ));
-         writeBurial.writeSnapshotsIndexes(m_usedSnapshotsIndex);
-			
-         //for each Layer			
-         LayerFaciesGridMap::iterator outIt;
-         for( outIt = layerFaciesGridMap->begin(); outIt != layerFaciesGridMap->end(); ++outIt )
-         {			
-	    writeBurialHistory( (outIt->first).surface, writeBurial, &m_fileLayerFaciesGridMap[filename][outIt->first]);
-         }
-      }
-      
+
+	  //write burial histories for all layers and facies that uses that TCF file
+	  char burhistFile[PATH_MAX];
+	  strcpy(burhistFile, tempBurial);
+	  mkstemp(burhistFile);
+	  
+	  //write the burial history
+	  writeBurialHistoryToFile(filename, burhistFile, numActive);
+	  
       // run touchstone wrapper      
       // check if failure needs to be simulated
       char * touchstoneWrapperFailure = getenv ( "touchstoneWrapperFailure" );      
@@ -332,14 +410,7 @@ bool MasterTouch::run()
          calculated =  calculate(filename, burhistFile);
          }
   
-         if (calculated) 
-         {
-         		
-            progressString = "Finished TCF: ";
-            progressString += filename;
-            ReportProgress( progressString );
-         
-         } else 
+         if (!calculated) 
          {
             std::ostringstream oss;
             oss << "warning: MasterTouch::calculate is restarted on MPI process " << GetRank( ) << " after " << runs <<" runs";
@@ -347,16 +418,19 @@ bool MasterTouch::run()
          }		
       }
 
-      while(MinimumAll(10)<10);	 
-         
+      while(MinimumAll(10)<10);
+                    
       if (!calculated) 
       {
          failure = true;
          break;
       }
+      
+      progressString = "Finished TCF: ";
+      progressString += filename;
+      ReportProgress( progressString ); 
    }        
   
-   
    return (!failure);
    
 }  
@@ -391,11 +465,8 @@ bool MasterTouch::addOutputFormat( const string & filename,
    propertyValueName += " ";
    propertyValueName += format;
 
-   char perc_str[5];
-   sprintf (perc_str, "%d", (int) percent);
-
    propertyValueName += " ";
-   propertyValueName += perc_str;
+   propertyValueName += to_string(percent);
    
    LayerInfo layer( surface, formation );
    
@@ -453,6 +524,66 @@ bool MasterTouch::addOutputFormat( const string & filename,
    
    return true;
 }
+/** This function counts all active timesteps in the active region **/
+int MasterTouch::countActive( const Surface * surface, const faciesGridMap * faciesGridMap)
+{
+
+   // for each defined node on reservoir surface  
+   int firstI = m_projectHandle.getActivityOutputGrid()->firstI();
+   int firstJ = m_projectHandle.getActivityOutputGrid()->firstJ();
+   int lastI  = m_projectHandle.getActivityOutputGrid()->lastI();
+   int lastJ  = m_projectHandle.getActivityOutputGrid()->lastJ();
+      
+   bool facieGridMapisDefined = false;
+   bool writeFlag = true;
+   double gridMapValue = -1.0;
+   int numActive = 0;
+	
+   // if a facies is not defined, the entire surface belongs to the TCF   
+   if (faciesGridMap->GridMap) 
+   {
+      facieGridMapisDefined = true;
+      faciesGridMap->GridMap->retrieveData(false);
+   }
+  
+   // retrive burial history 	  
+   BurialHistory burialHistory(surface, m_projectHandle);
+       
+   // write Burial History	
+   for ( int i = firstI; i <= lastI; ++i )
+   {
+      for( int j = firstJ; j <= lastJ; ++j )
+      {
+         // write burial histories only for selected areas, for areas with gridMapValue == 0 do not write burial histories. Perform this check only if facieGridMapisDefined    
+         if (facieGridMapisDefined) 
+         {
+            gridMapValue = faciesGridMap->GridMap->getValue((unsigned int) i, (unsigned int)j);
+            if (gridMapValue == 0.0) 
+            {
+               writeFlag = false ;
+            } 
+            else
+            {
+               writeFlag = (gridMapValue == faciesGridMap->faciesNumber);
+            }
+         }
+		 				 				   
+        if (!writeFlag) continue;
+   
+        const std::vector<BurialHistoryTimeStep> & burHistTimesteps = burialHistory.returnAsArray( i, j, true );
+      
+        for ( size_t bt = 0; bt < burHistTimesteps.size(); ++bt )
+        {
+          if (burHistTimesteps[bt].temperature == Interface::DefaultUndefinedMapValue ) continue;
+          numActive += 1;
+        }
+      }
+   }
+
+   if (faciesGridMap->GridMap) faciesGridMap->GridMap->restoreData(false,false);
+   
+   return numActive; 
+}
 
 /** This function writes burial histories to file for a formation **/
 
@@ -468,7 +599,7 @@ void MasterTouch::writeBurialHistory( const Surface * surface, WriteBurial & wri
    bool facieGridMapisDefined = false;
    bool writeFlag = true;
    double gridMapValue = -1.0;
-	
+   
    // if a facies is not defined, all surface belongs to the TCF   
    if (faciesGridMap->GridMap) 
    {
@@ -538,9 +669,9 @@ bool MasterTouch::calculate( const std::string & filename, const char * burhistF
       }
    
       //read touchstone categories
-      TouchstoneFiles ReadTouchstone(resultFile);
+      TouchstoneFiles readTouchstone(resultFile);
       std::vector<int> vec;
-      ReadTouchstone.readOrder(vec);
+      readTouchstone.readOrder(vec);
 		
       //as saved by the library
       for ( size_t ii = 0; ii < vec.size() - 1; ++ii ) m_categoriesMapping[m_categories[ii]] = vec[ii];
@@ -562,11 +693,11 @@ bool MasterTouch::calculate( const std::string & filename, const char * burhistF
                for( int j = firstJ; j <= lastJ; ++j )
                {         
                   size_t numTimeSteps = 0;
-                  ReadTouchstone.readNumTimeSteps(&numTimeSteps);
+                  readTouchstone.readNumTimeSteps(&numTimeSteps);
                
                   if (numTimeSteps > 0) 
                   { 
-                     for( size_t sn = 0; sn < m_usedSnapshotsIndex.size(); ++sn ) writeResultsToGrids( i, j, currentOutputs, ReadTouchstone, sn);  
+                     for( size_t sn = 0; sn < m_usedSnapshotsIndex.size(); ++sn ) writeResultsToGrids( i, j, currentOutputs, readTouchstone, sn);  
                   }
                }
             }
@@ -608,14 +739,14 @@ bool MasterTouch::calculate( const std::string & filename, const char * burhistF
  *  with that particular layer should be extracted before the next grid point's 
  *  results are processed
  */
-void MasterTouch::writeResultsToGrids( int i, int j, const CategoryMapInfoList & currentOutputs, TouchstoneFiles & ReadTouchstone, size_t sn)
+void MasterTouch::writeResultsToGrids( int i, int j, const CategoryMapInfoList & currentOutputs, TouchstoneFiles & readTouchstone, size_t sn)
 {
    const int numberOfTouchstoneProperties = 7;
    const int numberOfStatisticalOutputs   = 30;
    std::vector<double> outputProperties( numberOfTouchstoneProperties * numberOfStatisticalOutputs, 99999.0 );
   
    //Read results
-   ReadTouchstone.readArray(outputProperties);
+   readTouchstone.readArray(outputProperties);
 
    // loop through each combination of category and format choices
    // for the current layer    

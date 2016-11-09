@@ -1,11 +1,27 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
+
 #include "FracturePressureCalculator.h"
-#include <vector>
 
 #include "Interface/Interface.h"
 
 #include "GeoPhysicalConstants.h"
 #include "GeoPhysicalFunctions.h"
 #include "NumericFunctions.h"
+
+// std library
+#include <vector>
+
+// utilities library
+#include "ConstantsPhysics.h"
+using Utilities::Physics::AtmosphericPressureMpa;
 
 GeoPhysics::FracturePressureCalculator::FracturePressureCalculator ( DataAccess::Interface::ProjectHandle* projectHandle ) {
 
@@ -69,7 +85,7 @@ double GeoPhysics::FracturePressureCalculator::fracturePressure  ( const Compoun
          if ( depth > 0.0 ) {
             // Subtract the surface-pressure since it has already been included in 
             // the hydrostatic pressure and the constant 'a' term.
-            constantTerm = m_a + pressureAtSeaBottom - AtmosphericPressure;
+            constantTerm = m_a + pressureAtSeaBottom - AtmosphericPressureMpa;
          } else {
             constantTerm = m_a;
          }
@@ -141,7 +157,7 @@ double GeoPhysics::FracturePressureCalculator::fracturePressure ( const Compound
                                          sedimentSurfaceHydrostaticPressure );
             // Subtract the surface-pressure since it has already been included in 
             // the hydrostatic pressure and the constant 'a' term.
-            constantTerm = m_a + sedimentSurfaceHydrostaticPressure - AtmosphericPressure;
+            constantTerm = m_a + sedimentSurfaceHydrostaticPressure - AtmosphericPressureMpa;
          } else {
             constantTerm = m_a;
          }

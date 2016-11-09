@@ -9,7 +9,7 @@
 //
 
 #include <limits>
-#include <float.h>
+#include <cfloat>
 #include <iostream>
 using namespace std;
 
@@ -25,6 +25,18 @@ using namespace std;
 #include "EosPack.h"
 
 #include "generics.h"
+
+// utilities library
+#include "ConstantsPhysics.h"
+using Utilities::Physics::AccelerationDueToGravity;
+using Utilities::Physics::StockTankPressureMPa;
+using Utilities::Physics::StockTankTemperatureC;
+#include "ConstantsMathematics.h"
+using Utilities::Maths::PaToMegaPa;
+using Utilities::Maths::MegaPaToPa;
+using Utilities::Maths::CelciusToKelvin;
+#include "ConstantsNumerical.h"
+using Utilities::Numerical::IbsNoDataValue;
 
 using namespace PersistentTraps;
 
@@ -224,14 +236,14 @@ void Trap::saveReservoirChargeProperties (database::Record * record,
    cep = database::getCEPGas (getRecord ());
    if (cep < 0)
    {
-      cep = UndefinedValue;
+      cep = IbsNoDataValue;
    }
    database::setCEPVapour (record, cep);
 
    cep = database::getCEPOil (getRecord ());
    if (cep < 0)
    {
-      cep = UndefinedValue;
+      cep = IbsNoDataValue;
    }
    database::setCEPLiquid (record, cep);
 
@@ -239,14 +251,14 @@ void Trap::saveReservoirChargeProperties (database::Record * record,
    ct = database::getCriticalTemperatureGas (getRecord ());
    if (ct < 0)
    {
-      ct = UndefinedValue;
+      ct = IbsNoDataValue;
    }
    database::setCriticalTemperatureVapour (record, ct);
 
    ct = database::getCriticalTemperatureOil (getRecord ());
    if (ct < 0)
    {
-      ct = UndefinedValue;
+      ct = IbsNoDataValue;
    }
    database::setCriticalTemperatureLiquid (record, ct);
 
@@ -254,14 +266,14 @@ void Trap::saveReservoirChargeProperties (database::Record * record,
    it = database::getInterfacialTensionGas (getRecord ());
    if (it < 0)
    {
-      it = UndefinedValue;
+      it = IbsNoDataValue;
    }
    database::setInterfacialTensionVapour (record, it);
 
    it = database::getInterfacialTensionOil (getRecord ());
    if (it < 0)
    {
-      it = UndefinedValue;
+      it = IbsNoDataValue;
    }
    database::setInterfacialTensionLiquid (record, it);
 
@@ -281,20 +293,20 @@ void Trap::saveReservoirChargeProperties (database::Record * record,
       record->setValue (MassPrefix + ComponentManager::getInstance ().GetPhaseName (phaseRC), massTotal[phaseRC] > 1 ? massTotal[phaseRC] : 0);
 
       record->setValue (VolumePrefix + ComponentManager::getInstance ().GetPhaseName (phaseRC), massTotal[phaseRC] > 1 ? massTotal[phaseRC] / density[phaseRC] : 0);
-      record->setValue (DensityPrefix + ComponentManager::getInstance ().GetPhaseName (phaseRC), massTotal[phaseRC] > 1 ? density[phaseRC] : UndefinedValue);
-      record->setValue (ViscosityPrefix + ComponentManager::getInstance ().GetPhaseName (phaseRC), massTotal[phaseRC] > 1 ? viscosity[phaseRC] : UndefinedValue);
+      record->setValue (DensityPrefix + ComponentManager::getInstance ().GetPhaseName (phaseRC), massTotal[phaseRC] > 1 ? density[phaseRC] : IbsNoDataValue);
+      record->setValue (ViscosityPrefix + ComponentManager::getInstance ().GetPhaseName (phaseRC), massTotal[phaseRC] > 1 ? viscosity[phaseRC] : IbsNoDataValue);
    }
 
    double buoyancy = 0;
    if (massTotal[ComponentManager::Vapour] > 1)
    {
-      buoyancy += (1000 - density[ComponentManager::Vapour]) * CBMGenerics::Gravity * (getGOC () - getDepth ());
+      buoyancy += (1000 - density[ComponentManager::Vapour]) * AccelerationDueToGravity * (getGOC () - getDepth ());
    }
    if (massTotal[ComponentManager::Liquid] > 1)
    {
-      buoyancy += (1000 - density[ComponentManager::Liquid]) * CBMGenerics::Gravity * (getOWC () - getGOC ());
+      buoyancy += (1000 - density[ComponentManager::Liquid]) * AccelerationDueToGravity * (getOWC () - getGOC ());
    }
-   database::setBuoyancy (record, buoyancy * CBMGenerics::Pa2MPa);
+   database::setBuoyancy (record, buoyancy * PaToMegaPa);
 }
 
 void Trap::saveStockTankChargeProperties (database::Record * record, int phaseRC, double masses[ComponentManager::NumberOfOutputSpecies], double density,  double viscosity)
@@ -303,7 +315,7 @@ void Trap::saveStockTankChargeProperties (database::Record * record, int phaseRC
    double densitiesST[ComponentManager::NumberOfPhases];
    double phaseMassesST[ComponentManager::NumberOfPhases][ComponentManager::NumberOfOutputSpecies];
 
-   performPVT (masses, StockTankTemperature, StockTankPressure,
+   performPVT (masses, StockTankTemperatureC, StockTankPressureMPa,
 	 phaseMassesST, densitiesST, viscositiesST);
 
    int phaseST;
@@ -317,7 +329,7 @@ void Trap::saveStockTankChargeProperties (database::Record * record, int phaseRC
 
    if (phaseRC == ComponentManager::Vapour)
    {
-      double cgr = UndefinedValue;
+      double cgr = IbsNoDataValue;
       if (phaseMassSTTotal[ComponentManager::Vapour] > 1)
       {
 	 cgr = 0;
@@ -334,8 +346,8 @@ void Trap::saveStockTankChargeProperties (database::Record * record, int phaseRC
 
    if (phaseRC == ComponentManager::Liquid)
    {
-      double gor = UndefinedValue;
-      double oilAPI = UndefinedValue;
+      double gor = IbsNoDataValue;
+      double oilAPI = IbsNoDataValue;
 
       if (phaseMassSTTotal[ComponentManager::Liquid] > 1)
       {
@@ -360,8 +372,8 @@ void Trap::saveStockTankChargeProperties (database::Record * record, int phaseRC
       record->setValue (StockTankPhaseNames[phaseRC][phaseST] + MassPrefix, phaseMassSTTotal > 1 ? phaseMassSTTotal : 0);
 
       record->setValue (StockTankPhaseNames[phaseRC][phaseST] + VolumePrefix, phaseMassSTTotal > 1 ? phaseMassSTTotal / densitiesST[phaseST] : 0);
-      record->setValue (StockTankPhaseNames[phaseRC][phaseST] + DensityPrefix, phaseMassSTTotal > 1 ? densitiesST[phaseST] : UndefinedValue);
-      record->setValue (StockTankPhaseNames[phaseRC][phaseST] + ViscosityPrefix, phaseMassSTTotal > 1 ? viscositiesST[phaseST] : UndefinedValue);
+      record->setValue (StockTankPhaseNames[phaseRC][phaseST] + DensityPrefix, phaseMassSTTotal > 1 ? densitiesST[phaseST] : IbsNoDataValue);
+      record->setValue (StockTankPhaseNames[phaseRC][phaseST] + ViscosityPrefix, phaseMassSTTotal > 1 ? viscositiesST[phaseST] : IbsNoDataValue);
 
       int comp;
       for (comp = 0; comp < ComponentManager::NumberOfOutputSpecies; ++comp)
@@ -451,7 +463,7 @@ bool Trap::performPVT (double masses[ComponentManager::NumberOfOutputSpecies], d
 
    if (massTotal > 100)
    {
-      performedPVT = pvtFlash::EosPack::getInstance().computeWithLumping (temperature + C2K, pressure * MPa2Pa, masses, phaseMasses, phaseDensities, phaseViscosities);
+      performedPVT = pvtFlash::EosPack::getInstance().computeWithLumping (temperature + CelciusToKelvin, pressure * MegaPaToPa, masses, phaseMasses, phaseDensities, phaseViscosities);
 
    }
 

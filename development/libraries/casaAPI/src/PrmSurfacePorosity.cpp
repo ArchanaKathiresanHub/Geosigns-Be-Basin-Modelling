@@ -131,8 +131,8 @@ ErrorHandler::ReturnCode PrmSurfacePorosity::setInModel( mbapi::Model & caldMode
 // Validate all porosity model parameters
 std::string PrmSurfacePorosity::validate( mbapi::Model & caldModel )
 {
-   std::ostringstream oss;
-   mbapi::LithologyManager            & mgr = caldModel.lithologyManager();
+   std::ostringstream        oss;
+   mbapi::LithologyManager & mgr = caldModel.lithologyManager();
 
    for ( size_t i = 0; i < m_lithosName.size(); ++i )
    {
@@ -165,6 +165,7 @@ std::string PrmSurfacePorosity::validate( mbapi::Model & caldModel )
                       " is different from the parameter value: "  << SMsp2cc( m_val ) << ", they are related through a clay fraction and can't be defined" 
                       << " independently." << std::endl;
             }
+            break;
 
          case mbapi::LithologyManager::PorExponential:
          case mbapi::LithologyManager::PorDoubleExponential:

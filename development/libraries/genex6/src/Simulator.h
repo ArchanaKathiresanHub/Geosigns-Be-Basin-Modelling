@@ -125,7 +125,7 @@ public:
 protected:
 
    void PreprocessTimeStepComputation(const Input &theSourceRockInput);
-   void ProcessTimeStepComputation ( const Input &theSourceRockInput );
+   void ProcessTimeStepComputation ();
 
    /// Compute the toc after time-step.
    void computeToc ( const Input &theInput );

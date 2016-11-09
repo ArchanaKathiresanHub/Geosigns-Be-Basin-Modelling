@@ -12,6 +12,7 @@
 #include "GeoPhysicalConstants.h"
 
 #include <cmath>
+#include <algorithm>
 
 namespace GeoPhysics
 {
@@ -24,22 +25,25 @@ namespace GeoPhysics
 
    double PermeabilityMudStone::calculate( const double ves, const double maxVes, const double calculatedPorosity) const
    {
+      // Added to prevent a compiler warning about an unused parameter.
+      (void) calculatedPorosity;
+
       const double cutOff = 0.0;
       double val = 0.0;
 
-      // The reason for the check (ves > cutoff) is to prevent the possibility of a nan or an inf 
+      // The reason for the check (ves > cutoff) is to prevent the possibility of a nan or an inf
       // being returned from this permeability function.
       //
       // It does not appear in the other permeability functions (e.g Sandstone permeability)
       // because they do not depend directly on the ves. They are either a constant value
       // (None or Impermeable) or depend on the porosity (Sandstone or Multipoint).
       //
-      // The ves can be negative during the Newton solve for the pressure 
+      // The ves can be negative during the Newton solve for the pressure
       // this is a temporary occurence.
-      if ( ves >= cutOff) 
+      if ( ves >= cutOff)
       {
         return std::min( MaxPermeability, shalePermeability (ves, maxVes) );
-      } 
+      }
       else
       {
         double a = 0.0, b = 0.0;
@@ -49,6 +53,20 @@ namespace GeoPhysics
       }
    }
 
+   void PermeabilityMudStone::calculate ( const unsigned int       n,
+                                          ArrayDefs::ConstReal_ptr ves,
+                                          ArrayDefs::ConstReal_ptr maxVes,
+                                          ArrayDefs::ConstReal_ptr calculatedPorosity,
+                                          ArrayDefs::Real_ptr      permeabilities ) const {
+
+      #pragma omp simd aligned ( ves, maxVes, calculatedPorosity, permeabilities )
+      for ( unsigned int i = 0; i < n; ++i ) {
+         permeabilities [ i ] = calculate ( ves [ i ], maxVes [ i ], calculatedPorosity [ i ]);
+      }
+
+   }
+
+
    void PermeabilityMudStone::calculateDerivative( const double ves,
                                                    const double maxVes,
                                                    const double calculatedPorosity,
@@ -56,17 +74,89 @@ namespace GeoPhysics
                                                    double & permeability,
                                                    double & derivative ) const
    {
+
+      // Added to prevent a compiler warning about unused parameters.
+      (void) calculatedPorosity;
+      (void) porosityDerivativeWrtVes;
+
       const double cutOff = 0.0;
 
-      // The reason for the check (ves >= cutoff) is to prevent the possibility of a nan or an inf 
+      // The reason for the check (ves >= cutoff) is to prevent the possibility of a nan or an inf
       // being returned from this permeability function.
       //
       // It does not appear in the other permeability functions (e.g Sandstone permeability)
       // because they do not depend directly on the ves. They are either a constant value
       // (None or Impermeable) or depend on the porosity (Sandstone or Multipoint).
       //
-      // The ves can be negative during the Newton solve for the pressure 
+      // The ves can be negative during the Newton solve for the pressure
       // this is a temporary occurence.
+
+#if WHICH_IS_FASTER
+      if ( ves >= cutOff ) {
+
+         if ( Ves0 <= maxVes ) {
+            shalePermeabilityAndDerivative(ves, maxVes, permeability, derivative);
+
+            if( permeability > MaxPermeability )
+            {
+               permeability = MaxPermeability;
+               derivative   = 0.0;
+            }
+
+         } else {
+            permeability = shalePermeability( ves, maxVes );
+
+            if( permeability == MaxPermeability )
+            {
+               derivative = 0.0;
+            }
+            else
+            {
+               double unused = 0.0;
+               shalePermeabilityAndDerivative( ves, Ves0, unused, derivative);
+            }
+
+         }
+
+      } else {
+
+         if ( Ves0 <= maxVes ) {
+            double a = 0.0, b = 0.0;
+            shalePermeabilityAndDerivative(cutOff, maxVes, b, a);
+            permeability = a * (ves - cutOff) + b;
+
+            if( permeability > MaxPermeability )
+            {
+               permeability = MaxPermeability;
+               derivative   = 0.0;
+            }
+            else
+            {
+               double unused = 0.0;
+               shalePermeabilityAndDerivative(ves, maxVes, unused, derivative);
+            }
+
+         } else {
+            double a = 0.0, b = 0.0;
+            shalePermeabilityAndDerivative(cutOff, maxVes, b, a);
+            permeability = a * (ves - cutOff) + b;
+
+            if( permeability > MaxPermeability )
+            {
+               permeability = MaxPermeability;
+               derivative   = 0.0;
+            }
+            else
+            {
+               double unused = 0.0;
+               shalePermeabilityAndDerivative(cutOff, Ves0, unused, derivative);
+            }
+
+         }
+
+      }
+
+#else
       if (ves >= cutOff && Ves0 <= maxVes )
       {
          shalePermeabilityAndDerivative(ves, maxVes, permeability, derivative);
@@ -120,41 +210,63 @@ namespace GeoPhysics
             double unused = 0.0;
             shalePermeabilityAndDerivative(cutOff, Ves0, unused, derivative);
          }
+
       }
+
+#endif
    }
 
-   double PermeabilityMudStone::shalePermeability(  const double ves, const double maxVes) const
+   inline double PermeabilityMudStone::shalePermeability(  const double ves, const double maxVes) const
    {
-     if (ves >= maxVes) 
+     if (ves >= maxVes)
      {
        return m_depoPermeability * fastPow(Ves0/(ves+Ves0), m_permeabilityIncr);
-     } 
-     else 
+     }
+     else
      {
         //assert (0 != (ves+Ves0));    // this assert should be active, but what if during pressure solving we fall in this case?
         return m_depoPermeability * fastPow(Ves0/(maxVes+Ves0), m_permeabilityIncr) *
                fastPow((maxVes+Ves0)/(ves+Ves0), m_permeabilityDecr);
      }
+
    }
 
-   void PermeabilityMudStone::shalePermeabilityAndDerivative( const double ves,
-                                                              const double maxVes,
-                                                              double & permeability,
-                                                              double & permeabilityDerivative ) const
+   inline void PermeabilityMudStone::shalePermeabilityAndDerivative( const double ves,
+                                                                     const double maxVes,
+                                                                     double & permeability,
+                                                                     double & permeabilityDerivative ) const
    {
       //assert (0 != (ves+Ves0));    // this assert should be active, but what if during pressure solving we fall in this case?
 
       permeability = shalePermeability(ves, maxVes);
 
-      if (ves >= maxVes) 
+      if (ves >= maxVes)
       {
          permeabilityDerivative = -permeability * m_permeabilityIncr / (Ves0 + ves);
-      } 
+      }
       else
       {
          permeabilityDerivative = -permeability * m_permeabilityDecr / (Ves0 + ves);
       }
    }
+
+   void PermeabilityMudStone::calculateDerivative ( const unsigned int       n,
+                                                    ArrayDefs::ConstReal_ptr ves,
+                                                    ArrayDefs::ConstReal_ptr maxVes,
+                                                    ArrayDefs::ConstReal_ptr calculatedPorosity,
+                                                    ArrayDefs::ConstReal_ptr porosityDerivativeWrtVes,
+                                                    ArrayDefs::Real_ptr      permeabilities,
+                                                    ArrayDefs::Real_ptr      derivatives ) const {
+
+      #pragma omp simd aligned ( calculatedPorosity, porosityDerivativeWrtVes, permeabilities, derivatives )
+      for ( unsigned int i = 0; i < n; ++i ) {
+         calculateDerivative ( ves [ i ], maxVes [ i ],
+                               calculatedPorosity [ i ], porosityDerivativeWrtVes [ i ],
+                               permeabilities [ i ], derivatives [ i ]);
+      }
+
+   }
+
 
    double PermeabilityMudStone::depoPerm() const
    {
@@ -173,7 +285,7 @@ namespace GeoPhysics
          // A favourite setting of m_permeabilityIncr is 1.5. It is the PermIncrRelaxCoef property of a lithology.
          return x * std::sqrt(x);
       }
-      else 
+      else
       {
          return std::pow(x, y);
       }

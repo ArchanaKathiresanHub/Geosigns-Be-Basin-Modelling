@@ -22,20 +22,22 @@ add_library(genex6
 )
 
 bm_include_libraries(
-	CBMGenerics 
-	EosPack 
-	utilities
+   CBMGenerics 
+   EosPack 
+   utilities
+   LinearAlgebra
 )
 
 target_link_libraries(genex6
-	CBMGenerics
-	utilities
-	EosPack
+   CBMGenerics
+   utilities
+   EosPack
+   LinearAlgebra
 )
 
 install(TARGETS genex6
-	RUNTIME DESTINATION bin
-	LIBRARY DESTINATION lib
-	ARCHIVE DESTINATION lib
+   RUNTIME DESTINATION bin
+   LIBRARY DESTINATION lib
+   ARCHIVE DESTINATION lib
 )
 

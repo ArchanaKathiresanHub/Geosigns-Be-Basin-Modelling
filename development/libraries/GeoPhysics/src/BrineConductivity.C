@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2014 Shell International Exploration & Production.
+// Copyright (C) 2014-2016 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -56,11 +56,9 @@ void GeoPhysics::BrineConductivity::setTable (const ibs::Interpolator2d& thermal
    }
 }
 
-double GeoPhysics::BrineConductivity::chooseRegion( const double temperature,
-					            const double pressure,
-                                                    const double salinity,
-					            const double higherTemperature,
-					            const double lowerTemperature ) const
+double GeoPhysics::BrineConductivity::chooseRegion( const double temperature, const double pressure,
+                                                    const double salinity, const double higherTemperature,
+                                                    const double lowerTemperature ) const
 {
    double newPressure    = pressure;
    double newTemperature = temperature;

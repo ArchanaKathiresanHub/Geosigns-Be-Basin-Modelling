@@ -35,22 +35,11 @@ private:
 public:
   bool IsBiomarkersCalculationNeeded();
   bool IsBulkThCondCalculationNeeded();
-  bool IsBulkPermeabilityCalculationNeeded();
   bool IsDiffusivityCalculationNeeded();
-  bool IsFissionTrackCalculationNeeded();
-  bool IsHeatFlowCalculationNeeded();
   bool IsHeatFlow_CalculationNeeded();
-  bool IsMassFluxCalculationNeeded();
-  bool IsMassFlux_CalculationNeeded();
-  bool IsPressureCalculationNeeded();
   bool IsSmectiteIlliteCalculationNeeded();
-  bool IsTemperatureCalculationNeeded();
-  bool IsVreCalculationNeeded();
-  bool IsXmigCalculationNeeded();
   bool InitDerivedCalculationsNeeded();
-  bool fluidVelocityIsNeeded () const;
   bool thicknessCalculationNeeded () const;
-
 };
 
 #endif /* _FILTERWIZARD_H_ */

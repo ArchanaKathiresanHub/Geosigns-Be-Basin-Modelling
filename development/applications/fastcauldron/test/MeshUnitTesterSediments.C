@@ -62,17 +62,13 @@ TEST ( DofCountingUnitTest, SedimentMesh ) {
 
    // Declaration block required so as to finalise all fastcauldron objects before calling PetscFinalise.
    {
-      bool canRunSaltModelling = false;
-      std::string errorMessage;
-      FastcauldronFactory* factory = new FastcauldronFactory;
-      AppCtx *appctx = new AppCtx (argc, argv);
-      HydraulicFracturingManager::getInstance ().setAppCtx ( appctx );
+      FastcauldronStartup fastcauldronStartup( argc, argv, false, false );
+      bool returnStatus = fastcauldronStartup.getPrepareStatus( ) && fastcauldronStartup.getStartUpStatus( );
 
-      int returnStatus = FastcauldronStartup::startup ( argc, argv, appctx, factory, canRunSaltModelling, errorMessage );
 
-      EXPECT_EQ ( returnStatus, 0 );
+      EXPECT_EQ( returnStatus, true );
 
-      if ( returnStatus == 0 ) {
+      if ( returnStatus ) {
          // The computational domain consists only of sediments: 0 .. n - 3
          // the last 2 layers on the array are for the cryst and mantle.
          ComputationalDomain domain ( *FastcauldronSimulator::getInstance ().getCauldron ()->layers [ 0 ],
@@ -104,9 +100,7 @@ TEST ( DofCountingUnitTest, SedimentMesh ) {
          ASSERT_TRUE ( mut.compareFiles ( validFileName, testFileName ));
       }
 
-      FastcauldronSimulator::finalise ( false );
-      delete factory;
-      delete appctx;
+      fastcauldronStartup.finalize( );
    }
 
    PetscFinalize ();

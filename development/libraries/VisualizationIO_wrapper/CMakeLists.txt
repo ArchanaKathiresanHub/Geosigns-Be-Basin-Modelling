@@ -20,10 +20,17 @@ endif()
 
 include_directories(
    src/Swig
+)
+
+include_directories( SYSTEM
    ${HDF5_INCLUDE_DIRS}
+   ${PUGIXML_INCLUDE_DIR}
+   ${LZ_INCLUDE_DIR}
 )
 
 bm_include_libraries( 
+   FileSystem
+   utilities
    VisualizationIO
 )
 
@@ -31,16 +38,14 @@ set(CMAKE_SWIG_OUTDIR ${CMAKE_CURRENT_BINARY_DIR}/csharp)
 
 set_source_files_properties( src/Swig/VisualizationAPI.i
     PROPERTIES SWIG_FLAGS "-namespace;Shell.BasinModeling.CauldronIO"
-	CPLUSPLUS ON
+    CPLUSPLUS ON
 )
 
 swig_add_module( CauldronIO csharp src/Swig/VisualizationAPI.i
     ${CMAKE_CURRENT_BINARY_DIR}/version.rc
 )
 
-swig_link_libraries( CauldronIO VisualizationIO ${Boost_LIBRARIES} )
-
-SET_TARGET_PROPERTIES(CauldronIO PROPERTIES LINK_FLAGS "/FORCE:MULTIPLE")
+swig_link_libraries( CauldronIO VisualizationIO DataModel DataAccess utilities SerialDataAccess FileSystem TableIO Serial_Hdf5 CBMGenerics PugiXMLlib LZlib ${HDF5_LIBRARIES} ${Boost_LIBRARIES} )
 
 # Before C# generation, remove all existing files. The directory should be empty before generation	
 add_custom_command( TARGET CauldronIO

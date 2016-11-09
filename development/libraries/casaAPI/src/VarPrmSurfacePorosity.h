@@ -58,6 +58,7 @@ namespace casa
    protected:
 
       virtual PrmLithologyProp * createNewPrm( double val ) const;
+      virtual PrmLithologyProp * createNewPrmFromModel( mbapi::Model & mdl ) const; // creates PrmLithologyProp parameter object instance from the model
    };
 }
 

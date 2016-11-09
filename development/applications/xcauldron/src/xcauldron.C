@@ -1,4 +1,5 @@
 #include <cassert>
+#include <unistd.h>
 
 #include <string>
 #include <string.h>

@@ -35,7 +35,7 @@
 /// the quantiles. In other words MCMC algorithm generates parameter vectors during sampling only in the areas
 /// of the response surface, which match the reference value of the observables.
 ///
-/// @TODO Describe Monte Carlo based local solver
+/// @todo Describe Monte Carlo based local solver
 ///
 /// SUMlib uses a regression technique (Singular Value Decomposition) to determine a polynomial expression for each observable. This implies
 /// that, generally, the polynomial does not exactly fit the simulated observable output for the run cases. In other words, the polynomial contains

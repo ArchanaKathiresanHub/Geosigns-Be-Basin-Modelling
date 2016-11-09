@@ -1,9 +1,16 @@
+//
+// Copyright (C) 2012-2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef _CBMGENERICS_CAPILLARYSEALSTRENGTH_H_
 #define _CBMGENERICS_CAPILLARYSEALSTRENGTH_H_
 
-#include "DllExport.h"
-
-#include "stdafx.h"
 #include <vector>
 
 using std::vector;
@@ -12,12 +19,12 @@ namespace CBMGenerics {
 
 namespace capillarySealStrength {
 
-enum CBMGENERICS_DLL_EXPORT MixModel {
+enum MixModel {
    Homogeneous,
    Layered
 };
 
-struct CBMGENERICS_DLL_EXPORT LithoProp {
+struct LithoProp {
 
    LithoProp(const double& permeability_, const double& capC1_, const double& capC2_):
       permeability(permeability_), capC1(capC1_), capC2(capC2_)

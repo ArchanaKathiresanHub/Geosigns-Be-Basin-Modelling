@@ -167,6 +167,8 @@ macro( add_external_project_to_repository )
    )
    set(multiValueArgs 
          PATCH_COMMAND
+         DEPENDS_NAME
+         DEPENDS_VER
          CONFIGURE_COMMAND 
          BUILD_COMMAND 
          INSTALL_COMMAND
@@ -184,10 +186,22 @@ macro( add_external_project_to_repository )
    set( extProj_ROOT "${BM_EXTERNAL_COMPONENTS_DIR}/${extProj_NAME}/${extProj_VERSION}/${BM_EXTERNAL_COMPONENTS_FLAVOUR}")
    set( extProj_rebuild ${BM_EXTERNAL_COMPONENTS_REBUILD})
 
+   # The current external project depends on other external projects?
+   if ( NOT ${extProj_DEPENDS_NAME} STREQUAL "" )
+      set( extProj_hasDeps ON )
+      message(STATUS "External component ${extProj_NAME} depends on ${extProj_DEPENDS_NAME} ${extProj_DEPENDS_VER}")
+   else()
+      set( extProj_hasDeps OFF )
+   endif()
+
    if ( BM_EXTERNAL_COMPONENTS_REBUILD )
       message(STATUS "External component ${extProj_NAME} will be (re)built")
    elseif (NOT BM_EXTERNAL_COMPONENTS_REBUILD AND NOT EXISTS ${extProj_ROOT} AND NOT ${extProj_NAME}_ROOT)
       message(STATUS "External component ${extProj_NAME} will be built temporarily")
+      set( extProj_ROOT "${BM_EXTERNAL_COMPONENTS_TMPDIR}/${extProj_NAME}")
+      set( extProj_rebuild ON)
+   elseif ( extProj_hasDeps AND NOT EXISTS ${BM_EXTERNAL_COMPONENTS_DIR}/${extProj_DEPENDS_NAME}/${extProj_DEPENDS_VER}/${BM_EXTERNAL_COMPONENTS_FLAVOUR} )
+      message(STATUS "External component ${extProj_NAME} will be built temporarily because its dependency (${extProj_DEPENDS_NAME} ${extProj_DEPENDS_VER}) has to be rebuilt")
       set( extProj_ROOT "${BM_EXTERNAL_COMPONENTS_TMPDIR}/${extProj_NAME}")
       set( extProj_rebuild ON)
    else()
@@ -298,6 +312,7 @@ macro( add_external_project_to_repository )
 
       # Add the extProj as external project for the current extProj configuration
       ExternalProject_Add( ${extProj_NAME}
+         DEPENDS         "${extProj_DEPENDS_NAME}"
          PREFIX          "${extProj_ROOT}"
          URL             "${extProj_ARCHIVE}"
          URL_MD5         "${extProj_ARCHIVE_MD5}"
@@ -353,7 +368,7 @@ macro( add_external_project_to_repository )
          else()
             if (EXISTS "${extProj_PostbuildSrc}")
                # Install source tarball to the directories defined by YIELD_SOURCE during CMake configuration
-               message(STATUS "Installing source of ${extProj_NAME}  from ${extProj_srcdir} to directory ${${extProj_NAME}_SOURCE_DIR}")
+               message(STATUS "Installing source of ${extProj_NAME}")
                execute_process(  
                      COMMAND "${CMAKE_COMMAND}" "-E" "make_directory" "${${extProj_NAME}_SOURCE_DIR}"
                )

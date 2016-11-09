@@ -72,7 +72,7 @@ void DerivedProperties::DepthHighResFormationCalculator::calculate(       Abstra
 {
    try
    {
-      const GeoPhysics::Formation * const currentFormation = dynamic_cast<const GeoPhysics::Formation * const>( formation );
+      const GeoPhysics::Formation * const currentFormation = dynamic_cast<const GeoPhysics::Formation *>( formation );
       assert( currentFormation != 0 );
 
       if( currentFormation->getBottomSurface()->getSnapshot()->getTime() <= snapshot->getTime() )
@@ -447,7 +447,17 @@ void DerivedProperties::DepthHighResFormationCalculator::computeForSubsampledRun
                depthHighResAboveValue = depthHighRes->getA(i, j, lastK);
                const GeoPhysics::CompoundLithology * lithology = formation->getCompoundLithology(i, j);
                assert( lithology != 0 );
-               densityDifference = lithology->density() - constFluidDensity;
+
+               // the density difference cannot be less than 0
+               if ( lithology->density() > constFluidDensity ) 
+               {
+                  densityDifference = lithology->density() - constFluidDensity;
+               }
+               else
+               {
+                  densityDifference = 0.0;
+               }
+
                const double oneMinusSurfacePorosity = 1.0 - lithology->surfacePorosity();
                
                // Loop index is shifted up by 1.

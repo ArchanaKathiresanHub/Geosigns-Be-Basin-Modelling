@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
 #include "AbstractPropertyManager.h"
 #include "DerivedSurfaceProperty.h"
 #include "DerivedPropertyManager.h"
@@ -6,6 +15,10 @@
 #include "VesSurfaceCalculator.h"
 
 #include "PropertyRetriever.h"
+
+
+// utilities library
+#include "ConstantsMathematics.h"
 
 DerivedProperties::VesSurfaceCalculator::VesSurfaceCalculator () {
    addPropertyName ( "Ves" );
@@ -39,7 +52,7 @@ void DerivedProperties::VesSurfaceCalculator::calculate ( DerivedProperties::Abs
          for ( unsigned int j = lithostaticPressure->firstJ ( true ); j <= lithostaticPressure->lastJ ( true ); ++j ) {
 
             if( lithostaticPressure->get ( i, j ) != undefinedValue && porePressure->get ( i, j ) != porePressure->getUndefinedValue () ) {
-               ves->set ( i, j, ( lithostaticPressure->get ( i, j ) - porePressure->get ( i, j )) * GeoPhysics::MPa_To_Pa );
+               ves->set ( i, j, ( lithostaticPressure->get ( i, j ) - porePressure->get ( i, j )) * Utilities::Maths::MegaPaToPa );
             } else {
                ves->set ( i, j, undefinedValue );
             }

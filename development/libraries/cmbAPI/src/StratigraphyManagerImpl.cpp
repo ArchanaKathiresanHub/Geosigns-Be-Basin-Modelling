@@ -30,6 +30,7 @@ namespace mbapi
 
 const char * StratigraphyManagerImpl::s_stratigraphyTableName           = "StratIoTbl";
 const char * StratigraphyManagerImpl::s_layerNameFieldName              = "LayerName";
+const char * StratigraphyManagerImpl::s_surfaceNameFieldName            = "SurfaceName";
 const char * StratigraphyManagerImpl::s_depoAgeFieldName                = "DepoAge";
 const char * StratigraphyManagerImpl::s_lithoType1FiledName             = "Lithotype1";
 const char * StratigraphyManagerImpl::s_lithoType2FiledName             = "Lithotype2";
@@ -37,6 +38,8 @@ const char * StratigraphyManagerImpl::s_lithoType3FiledName             = "Litho
 const char * StratigraphyManagerImpl::s_lithoTypePercent1FiledName      = "Percent1";
 const char * StratigraphyManagerImpl::s_lithoTypePercent2FiledName      = "Percent2";
 const char * StratigraphyManagerImpl::s_lithoTypePercent3FiledName      = "Percent3";
+const char * StratigraphyManagerImpl::s_lithoTypePercent1GridFiledName  = "Percent1Grid";
+const char * StratigraphyManagerImpl::s_lithoTypePercent2GridFiledName =  "Percent2Grid";
 const char * StratigraphyManagerImpl::s_isSourceRockFieldName           = "SourceRock";
 const char * StratigraphyManagerImpl::s_sourceRockType1FieldName        = "SourceRockType1";
 const char * StratigraphyManagerImpl::s_sourceRockType2FieldName        = "SourceRockType2";
@@ -49,6 +52,11 @@ const char * StratigraphyManagerImpl::s_pressureFaultCutTableName       = "Press
 const char * StratigraphyManagerImpl::s_FaultcutsMapFieldName           = "FaultcutsMap";
 const char * StratigraphyManagerImpl::s_FaultNameFieldName              = "FaultName";
 const char * StratigraphyManagerImpl::s_FaultLithologyFieldName         = "FaultLithology";
+
+const char * StratigraphyManagerImpl::s_twoWayTimeTableName             = "TwoWayTimeIoTbl";
+const char * StratigraphyManagerImpl::s_twoWayTimeGridFiledName         = "TwoWayTimeGrid";
+const char * StratigraphyManagerImpl::s_twoWayTimeFiledName             = "TwoWayTime";
+const char * StratigraphyManagerImpl::s_depthGridFiledName              = "DepthGrid";
  
 // Constructor
 StratigraphyManagerImpl::StratigraphyManagerImpl()
@@ -105,6 +113,13 @@ std::vector<StratigraphyManager::SurfaceID> StratigraphyManagerImpl::surfacesIDs
    for ( size_t i = 0; i < ids.size(); ++i ) ids[i] = static_cast<SurfaceID>(i);
 
    return ids;
+}
+
+// Get the referenced table
+// returns the table name as a string
+std::string StratigraphyManagerImpl::referenceID( ) const
+{
+   return m_stratIoTbl->getTableDefinition( ).name( );
 }
 
 // Create new layer
@@ -179,7 +194,7 @@ std::string StratigraphyManagerImpl::surfaceName( StratigraphyManager::LayerID i
       {
          throw Exception( NonexistingID ) << "No layer with ID: " << id << " in stratigraphy table";
       }
-      sfName = rec->getValue<std::string>( s_layerNameFieldName );
+      sfName = rec->getValue<std::string>( s_surfaceNameFieldName );
    }
    catch ( const Exception & e ) { reportError( e.errorCode(), e.what() ); }
 
@@ -216,7 +231,7 @@ double StratigraphyManagerImpl::eldestLayerAge()
 }
 
 // Get all lithologies associated with the given layer and percentage of each lithology in a mix
-ErrorHandler::ReturnCode StratigraphyManagerImpl::layerLithologiesList( LayerID id, std::vector<std::string> & lithoList, std::vector<double> & lithoPercent )
+ErrorHandler::ReturnCode StratigraphyManagerImpl::layerLithologiesList( LayerID id, std::vector<std::string> & lithoList, std::vector<double> & lithoPercent, std::vector<std::string> & lithoPercMap )
 {
    if ( errorCode() != NoError ) resetError();
 
@@ -240,14 +255,18 @@ ErrorHandler::ReturnCode StratigraphyManagerImpl::layerLithologiesList( LayerID 
       // get 1st lithology
       std::string lithoName = rec->getValue<std::string>( s_lithoType1FiledName        );
       double      perc      = rec->getValue<double>(      s_lithoTypePercent1FiledName );
+      std::string lithoPerc = rec->getValue<std::string>( s_lithoTypePercent1GridFiledName );
       lithoList.push_back( lithoName );
       lithoPercent.push_back( perc );
+      lithoPercMap.push_back( lithoPerc );
 
       // get 2nd lithology
       lithoName = rec->getValue<std::string>( s_lithoType2FiledName        );
       perc      = rec->getValue<double>(      s_lithoTypePercent2FiledName );
+      lithoPerc = rec->getValue<std::string>( s_lithoTypePercent2GridFiledName );
       lithoList.push_back( lithoName );
       lithoPercent.push_back( perc );
+      lithoPercMap.push_back( lithoPerc );
 
       // get 3d lithology
       lithoName = rec->getValue<std::string>( s_lithoType3FiledName        );
@@ -284,17 +303,20 @@ ErrorHandler::ReturnCode StratigraphyManagerImpl::setLayerLithologiesList( Layer
       // set 1st lithology
       rec->setValue<std::string>( s_lithoType1FiledName,        lithoList[0]    );
       rec->setValue<double>(      s_lithoTypePercent1FiledName, lithoPercent[0] );
+      rec->setValue<std::string>( s_lithoTypePercent1GridFiledName, "" );
 
       // set 2nd lithology
       if ( lithoList.size() > 1 )
       {
          rec->setValue<std::string>( s_lithoType2FiledName,        lithoList[1] );
          rec->setValue<double>(      s_lithoTypePercent2FiledName, lithoPercent[1] );
+         rec->setValue<std::string>( s_lithoTypePercent2GridFiledName, "" );
       }
       else
       {
          rec->setValue<std::string>( s_lithoType2FiledName,        ""  );
          rec->setValue<double>(      s_lithoTypePercent2FiledName, 0.0 );
+         rec->setValue<std::string>( s_lithoTypePercent2GridFiledName, "" );
       }
 
       // set 3d lithology
@@ -314,6 +336,34 @@ ErrorHandler::ReturnCode StratigraphyManagerImpl::setLayerLithologiesList( Layer
    return NoError;
 }
 
+// Set the lithology percentages maps
+ErrorHandler::ReturnCode StratigraphyManagerImpl::setLayerLithologiesPercentageMaps( LayerID id, const std::string & mapNameFirstLithoPercentage, const std::string mapNameSecondLithoPercentage )
+{
+   if ( errorCode() != NoError ) resetError();
+
+   try
+   {
+      // if table does not exist - report error
+      if ( !m_stratIoTbl )
+      {
+         throw Exception( NonexistingID ) << s_stratigraphyTableName << " table could not be found in project";
+      }
+
+      database::Record * rec = m_stratIoTbl->getRecord( static_cast<int>( id ) );
+      if ( !rec )
+      {
+         throw Exception( NonexistingID ) << "No layer with ID: " << id << " in stratigraphy table";
+      }
+
+      // set the percentage grid maps
+      rec->setValue<std::string>( s_lithoTypePercent1GridFiledName, mapNameFirstLithoPercentage );
+      rec->setValue<std::string>( s_lithoTypePercent2GridFiledName, mapNameSecondLithoPercentage );
+   }
+   catch ( const Exception & e ) { return reportError( e.errorCode(), e.what() ); }
+
+   return NoError;
+}
+
 // Collect layers where the given lithology is referenced
 std::vector<StratigraphyManager::LayerID> StratigraphyManagerImpl::findLayersForLithology( const std::string & lithoName )
 {
@@ -324,8 +374,9 @@ std::vector<StratigraphyManager::LayerID> StratigraphyManagerImpl::findLayersFor
    {
       std::vector<std::string> lithNames;
       std::vector<double>      lithPerc;
+      std::vector<std::string> percMaps;
       
-      if ( layerLithologiesList( ids[i], lithNames, lithPerc ) != NoError ) continue;
+      if ( layerLithologiesList( ids[i], lithNames, lithPerc, percMaps ) != NoError ) continue;
       
       bool found = false;
       for ( size_t j = 0; j < lithNames.size() && !found; ++j )
@@ -807,6 +858,78 @@ ErrorHandler::ReturnCode StratigraphyManagerImpl::setFaultCutLithology( PrFaultC
    catch ( const Exception & e ) { return reportError( e.errorCode(), e.what() ); }
 
    return NoError;
+}
+
+
+std::string StratigraphyManagerImpl::twtGridName( LayerID id )
+{
+   if ( errorCode( ) != NoError ) resetError( );
+
+   try
+   {
+      // get pointer to the table
+      database::Table * table = m_db->getTable( s_twoWayTimeTableName );
+
+      // if table does not exist - report error
+      if ( !table ) { throw Exception( NonexistingID ) << s_twoWayTimeTableName << " table could not be found in project"; }
+
+      // 
+      std::string topSurface = surfaceName( id );
+      std::string twtGrid("");
+
+      for ( size_t i = 0; i < table->size(); ++i )
+      {
+         database::Record * rec = table->getRecord( static_cast<int>( i ) );
+         if ( !rec ) { throw Exception( NonexistingID ) << "No twt record found for id: " << i; }
+
+         std::string twtSurface = rec->getValue<std::string>( "SurfaceName" );
+         if ( twtSurface == topSurface  )
+         {
+            twtGrid = rec->getValue<std::string>( s_twoWayTimeGridFiledName );
+            break;
+         }
+      }
+      return twtGrid;
+   }
+   catch ( const Exception & e ) { reportError( e.errorCode( ), e.what( ) ); }
+
+   return "";
+}
+
+double StratigraphyManagerImpl::twtValue( LayerID id )
+{
+
+   if ( errorCode() != NoError ) resetError();
+
+   try
+   {
+      // get pointer to the table
+      database::Table * table = m_db->getTable( s_twoWayTimeTableName );
+
+      // if table does not exist - report error
+      if ( !table ) { throw Exception( NonexistingID ) << s_twoWayTimeTableName << " table could not be found in project"; }
+
+      // 
+      std::string topSurface = surfaceName( id );
+      std::string twtSurface( "" );
+      double twtVal = UndefinedDoubleValue;
+
+      for ( size_t i = 0; i < table->size(); ++i )
+      {
+         database::Record * rec = table->getRecord( static_cast<int>( i ) );
+         if ( !rec ) { throw Exception( NonexistingID ) << "No twt record found for id: " << i; }
+         std::string twtSurface = rec->getValue<std::string>( "SurfaceName" );
+         if ( twtSurface.compare( topSurface ) )
+         {
+            twtVal = rec->getValue<double>( s_twoWayTimeFiledName );
+            break;
+         }
+      }
+      return twtVal;
+   }
+   catch ( const Exception & e ) { reportError( e.errorCode(), e.what() ); }
+
+   return UndefinedDoubleValue;
 }
     
 }

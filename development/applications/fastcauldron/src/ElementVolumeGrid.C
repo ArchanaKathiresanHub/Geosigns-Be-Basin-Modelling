@@ -72,7 +72,7 @@ void ElementVolumeGrid::construct ( const ElementGrid& grid,
       m_yPartitioning [ i ] = grid.getYPartitioning ()[ i ];
    }
 
-   DMDACreate3d ( PETSC_COMM_WORLD, DMDA_BOUNDARY_NONE, DMDA_BOUNDARY_NONE, DMDA_BOUNDARY_NONE, DMDA_STENCIL_STAR,
+   DMDACreate3d ( PETSC_COMM_WORLD, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DMDA_STENCIL_STAR,
                   grid.getNumberOfXElements (),
                   grid.getNumberOfYElements (),
                   numberOfZElements,
@@ -119,7 +119,7 @@ void ElementVolumeGrid::resizeInZDirection ( const int numberOfZElements ) {
 
       DMDestroy ( &m_localInfo.da );
 
-      DMDACreate3d ( PETSC_COMM_WORLD, DMDA_BOUNDARY_NONE, DMDA_BOUNDARY_NONE, DMDA_BOUNDARY_NONE, DMDA_STENCIL_STAR,
+      DMDACreate3d ( PETSC_COMM_WORLD, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DMDA_STENCIL_STAR,
                      getNumberOfXElements (),
                      getNumberOfYElements (),
                      numberOfZElements,
@@ -161,26 +161,13 @@ bool ElementVolumeGrid::isPartOfStencil ( const int i,
                                           const int j,
                                           const int k ) const {
 
-   bool isValid = true;
+   bool isIinRange = NumericFunctions::inRange(i, firstI(), lastI());
+   bool isJinRange = NumericFunctions::inRange(j, firstJ(), lastJ());
+   bool isKinRange = NumericFunctions::inRange(k, firstK(), lastK());
+   bool isIonBoundary = (i == firstI(true) or i == lastI(true));
+   bool isJonBoundary = (j == firstJ(true) or j == lastJ(true));
 
-   if ( NumericFunctions::inRange ( i, firstI (), lastI ()) and
-        NumericFunctions::inRange ( j, firstJ (), lastJ ()) and
-        NumericFunctions::inRange ( k, firstK (), lastK ())) {
-      isValid = true;
-   } else if ( NumericFunctions::inRange ( i, firstI (), lastI ()) and 
-               ( j == firstJ ( true ) or j == lastJ ( true ))) {
-
-      isValid = true;
-
-   } else if ( NumericFunctions::inRange ( j, firstJ (), lastJ ()) and 
-               ( i == firstI ( true ) or i == lastI ( true ))) {
-
-      isValid = true;
-   } else {
-      isValid = false;
-   }
-
-   return isValid;
+   return  (isIinRange and isJinRange and isKinRange) or (isIinRange and isJonBoundary) or (isJinRange and isIonBoundary);
 }
 
 //------------------------------------------------------------//

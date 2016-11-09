@@ -60,15 +60,15 @@ namespace Shell.BasinModeling.Cauldron.Test
       [ClassInitialize()]
       public static void casaAPIInitialize(TestContext testContext)
       {
-         s_tornadoSensVals = new double[,] { { 56.9761183202679,  78.7675848282301, -39.8905326989529, 37.4800375702763 },
-                                             { 83.3959559081421,  117.590958040096, -39.921468587791,  37.5152214857655 },
-                                             { 90.8163782325751,  128.501934539077, -39.9374756844599, 37.5295925431513 },
-                                             { 102.402683371851,  145.667139493962, -39.9485602691141, 37.5427543330524 },
-                                             { 114.912094737518,  164.383385141402, -39.9471678687579, 37.5483568307296 },
-                                             { 0.433424616828938, 0.57428645069342, -36.451486625877,  34.5147514924337 },
-                                             { 0.719827865463825, 1.20840726003787, -33.2245783532828, 32.5385566980164 },
-                                             { 1.6627423539092,   33.7258061561916, -11.195096737769,  16.9305869513553 },
-                                             { 6.66252437185891,  110.051092887016, -16.10117231224,   18.8421478561432 }
+         s_tornadoSensVals = new double[,] { { 938.056207044973,   774.530289958, 13.8050391091801, -7.86912540787465 },
+                                             { 2736.86328913469,  2690.100632245,  6.7636472092802, -7.88819910623228 },
+                                             {  3107.5807962337,  3055.811030419,  9.6680017772506, -11.4628735269273 },
+                                             {  3513.6237933331,  3527.630746258, -5.2423942781047,   3.3428064420950 },
+                                             {  4195.2467722494,  4061.475197488, 10.9473164108952,  -8.9937994631101 },
+                                             {     4.6439350000,     4.643935000,  0,                 0               },
+                                             {     4.6439350000,     4.643935000,  0,                 0               },
+                                             { 33926.2916696985, 32555.638842331,  2.27361743957069, -1.71679648219193},
+                                             {  6252.5669336311,  5910.099202033,  2.95799521811843, -2.30205870213079}
                                            };
 
          s_observablesName = new string[] { @"Temperature(460001,6.75e+06,1293,0)"
@@ -92,31 +92,31 @@ namespace Shell.BasinModeling.Cauldron.Test
                                                  , @"TopCrustHeatProdRate [\mu W/m^3]"
                                                  };
 
-         s_paretoSensValues = new double[] { 79.5068460513933, 7.57026021533152, 7.09413596688527, 3.8752513382104, 1.52132627716224, 0.432180151017226 };
+         s_paretoSensValues = new double[] { 24.56711, 22.66290, 20.25829, 15.49220, 14.82233,  2.19715 };
 
          s_paretoIPNames = new string[] { @"TopCrustHeatProdRate [\mu W/m^3]"
-                                        , @"EventStartTime [Ma]"
-                                        , @"InitialCrustThickness [m]"
                                         , @"CrustThinningFactor [m/m]"
-                                        , @"Lower Jurassic TOC [%]"
+                                        , @"EventStartTime [Ma]"
                                         , @"EventDuration [Ma]"
+                                        , @"Lower Jurassic TOC [%]"
+                                        , @"InitialCrustThickness [m]"
                                        };
 
-         s_paretoCyclicSensValues = new double[,] { { 79.1660749598523, 7.54919365058352, 7.03655848450819, 4.15736152313869, 1.66057196183064, 0.430239420086683 },
-                                                    { 79.3384479056503, 7.55971389424283, 7.06475291766308, 4.01406069921233, 1.591816015768,   0.431208567463474 },
-                                                    { 79.4239851661058, 7.56502218704875, 7.07934832858845, 3.94333300619245, 1.55660959485788, 0.431701717206694 },
-                                                    { 79.474272845272,  7.56818678516592, 7.08822495752887, 3.90194760660633, 1.53537511111083, 0.431992694316026 },
-                                                    { 79.5068460513933, 7.57026021533152, 7.09413596688527, 3.8752513382104,  1.52132627716224, 0.432180151017226 },
-                                                   };
+         s_paretoCyclicSensValues = new double[,] { {  24.5383, 22.6555, 19.5884, 16.5954, 14.5813, 2.04104 },
+                                                    {  24.5176, 22.6309, 19.987,  15.6891, 15.0512, 2.12426 },
+                                                    {  24.5324, 22.6385, 20.1405, 15.2782, 15.248,  2.16245 },
+                                                    {  24.5508, 22.651,  20.2158, 15.4089, 14.9898, 2.18381 },
+                                                    {  24.5671, 22.6629, 20.2583, 15.4922, 14.8223, 2.19715 }
+                                                  };
 
 
 
          s_paretoCyclicIPName = new string[,] { 
-           { @"TopCrustHeatProdRate [\mu W/m^3]", @"EventStartTime [Ma]", @"InitialCrustThickness [m]", @"CrustThinningFactor [m/m]", @"Lower Jurassic TOC [%]", @"EventDuration [Ma]" },
-           { @"TopCrustHeatProdRate [\mu W/m^3]", @"EventStartTime [Ma]", @"InitialCrustThickness [m]", @"CrustThinningFactor [m/m]", @"Lower Jurassic TOC [%]", @"EventDuration [Ma]" },
-           { @"TopCrustHeatProdRate [\mu W/m^3]", @"EventStartTime [Ma]", @"InitialCrustThickness [m]", @"CrustThinningFactor [m/m]", @"Lower Jurassic TOC [%]", @"EventDuration [Ma]" },
-           { @"TopCrustHeatProdRate [\mu W/m^3]", @"EventStartTime [Ma]", @"InitialCrustThickness [m]", @"CrustThinningFactor [m/m]", @"Lower Jurassic TOC [%]", @"EventDuration [Ma]" },
-           { @"TopCrustHeatProdRate [\mu W/m^3]", @"EventStartTime [Ma]", @"InitialCrustThickness [m]", @"CrustThinningFactor [m/m]", @"Lower Jurassic TOC [%]", @"EventDuration [Ma]" },
+           { @"TopCrustHeatProdRate [\mu W/m^3]", @"CrustThinningFactor [m/m]", @"EventStartTime [Ma]", @"Lower Jurassic TOC [%]", @"EventDuration [Ma]",     @"InitialCrustThickness [m]" },
+           { @"TopCrustHeatProdRate [\mu W/m^3]", @"CrustThinningFactor [m/m]", @"EventStartTime [Ma]", @"Lower Jurassic TOC [%]", @"EventDuration [Ma]",     @"InitialCrustThickness [m]" },
+           { @"TopCrustHeatProdRate [\mu W/m^3]", @"CrustThinningFactor [m/m]", @"EventStartTime [Ma]", @"EventDuration [Ma]",     @"Lower Jurassic TOC [%]", @"InitialCrustThickness [m]" },
+           { @"TopCrustHeatProdRate [\mu W/m^3]", @"CrustThinningFactor [m/m]", @"EventStartTime [Ma]", @"EventDuration [Ma]",     @"Lower Jurassic TOC [%]", @"InitialCrustThickness [m]" },
+           { @"TopCrustHeatProdRate [\mu W/m^3]", @"CrustThinningFactor [m/m]", @"EventStartTime [Ma]", @"EventDuration [Ma]",     @"Lower Jurassic TOC [%]", @"InitialCrustThickness [m]" }
          };
 
          s_sa = ScenarioAnalysis.loadScenario(s_serialisedStateFileName, "txt");
@@ -214,10 +214,10 @@ namespace Shell.BasinModeling.Cauldron.Test
                // check results
                if (!s_isDebug)
                {
-                  Assert.IsTrue(Math.Abs(minPrmAbsSens - s_tornadoSensVals[i,0]) < 1e-3, "Wrong min absolute value for the first parameter in the Tornado diagram data");
-                  Assert.IsTrue(Math.Abs(maxPrmAbsSens - s_tornadoSensVals[i,1]) < 1e-3, "Wrong max absolute value for the first parameter in the Tornado diagram data");
-                  Assert.IsTrue(Math.Abs(minPrmRelSens - s_tornadoSensVals[i,2]) < 1e-3, "Wrong min relative value for the first parameter in the Tornado diagram data");
-                  Assert.IsTrue(Math.Abs(maxPrmRelSens - s_tornadoSensVals[i,3]) < 1e-3, "Wrong max relative value for the first parameter in the Tornado diagram data");
+                  Assert.AreEqual(s_tornadoSensVals[i, 0], minPrmAbsSens, 1e-3, "Wrong min absolute value for the first parameter in the Tornado diagram data");
+                  Assert.AreEqual(s_tornadoSensVals[i, 1], maxPrmAbsSens, 1e-3, "Wrong max absolute value for the first parameter in the Tornado diagram data");
+                  Assert.AreEqual(s_tornadoSensVals[i, 2], minPrmRelSens, 1e-3, "Wrong min relative value for the first parameter in the Tornado diagram data");
+                  Assert.AreEqual(s_tornadoSensVals[i, 3], maxPrmRelSens, 1e-3, "Wrong max relative value for the first parameter in the Tornado diagram data");
                   Assert.AreEqual<string>(name, s_mostInfluentialPrmName[i], "Wrong first parameter name in Tornado diagram data");
                   Assert.AreEqual<int>(subPrmNum, 0, "Wrong sub-parameter id for the first parameter in the Tornado diagram data");
                }
@@ -255,7 +255,7 @@ namespace Shell.BasinModeling.Cauldron.Test
             
             if (!s_isDebug)
             {
-               Assert.IsTrue(Math.Abs(prmSens - s_paretoSensValues[i]) < eps);
+               Assert.AreEqual(prmSens, s_paretoSensValues[i], reps);
                Assert.AreEqual(s_paretoIPNames[i], prmName);
             }
             else
@@ -335,7 +335,7 @@ namespace Shell.BasinModeling.Cauldron.Test
             {
                for (int i = 0; i < paretoDataVW.m_vprmPtr.Count; ++i)
                {
-                  Assert.IsTrue(Math.Abs(sensDataVW[i] - s_paretoCyclicSensValues[p,i]) < eps);
+                  Assert.AreEqual(sensDataVW[i], s_paretoCyclicSensValues[p,i], reps);
                   Assert.AreEqual(prmNamesVW[i], s_paretoCyclicIPName[p,i]);
                }
             }

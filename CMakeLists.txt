@@ -66,22 +66,12 @@ set( CPACK_SOURCE_IGNORE_FILES
       "/geocase/BB/"
       "/geocase/misc/GospelScriptFiles/"
 
-      # Packages for the Windows build.
-      "/3rdparty/hdf5.win64-1.8.11/"
-      "/3rdparty/sources/hdf5.win64.1.8.11-full.zip"
-      "/3rdparty/MicrosoftMPI-HPC-Pack-2012-R2/"
-      "/3rdparty/PETSc_Windows-3.4.4/"
-      "/3rdparty/swigwin-3.0.2/"
-      "/3rdparty/xerces-c-3.1.0-x86_64-windows-vc-9.0.zip"
-      "/3rdparty/xsd-3.3.0-i686-windows.zip"
-
       # These versions of 3rd party libs are not being used
       "/3rdparty/sources/eigen-3.2.2.tar.gz"
       "/3rdparty/sources/petsc-3.4.5.tar.gz"
       
       # There is no need to redistribute Geocosm stuff
       "/3rdparty/sources/geocosm.tar"
-      "/3rdparty/sources/tslibredist_2014-07-14_7-4-2-4651_ForShell.zip"
       "/3rdparty/sources/tslibredist_2014-09-03_7-4-2-4680.zip"
 
       # Other non-relevant stuff

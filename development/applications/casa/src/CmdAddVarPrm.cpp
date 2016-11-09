@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2012-2015 Shell International Exploration & Production.
+// Copyright (C) 2012-2016 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -78,6 +78,8 @@ protected:
          throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Wrong format for variable parameters name: " << 
             tblColNames << ", it must be the following format: tblName:colName";
       }
+      m_tblName = lst[0];
+      m_colName = lst[1];
    }
 
    std::string m_tblName;
@@ -177,14 +179,32 @@ public:
                                   , const std::vector<std::string>        & prms
                                   ) const
    {
+      std::vector<double>         simpleRange;
+      std::vector<std::string>    mapRange;
+      
       size_t pos = 1;
       std::string                 srtMix = prms.size() > 5 ? ( prms[pos++] ) : "";
       std::string                 layerName = prms[pos++];
       std::string                 srType = prms.size() > 6 ? ( prms[pos++] ) : "";
-      double                      minVal = atof(    prms[pos++].c_str() );
-      double                      maxVal = atof(    prms[pos++].c_str() );
-      casa::VarPrmContinuous::PDF ppdf   = Str2pdf( prms[pos++] );
 
+      // if parameters - 2 doubles - it is a simple range
+      if ( CfgFileParser::isNumericPrm( prms[pos] ) && CfgFileParser::isNumericPrm( prms[pos+1] ) )
+      {
+         simpleRange.push_back( atof( prms[pos++].c_str() ) );
+         simpleRange.push_back( atof( prms[pos++].c_str() ) );
+      }
+      else
+      {
+         if ( m_colName != "TocIniGrid" ) // otherwise consider it as a map range
+         {
+            LogHandler( LogHandler::WARNING_SEVERITY ) << "TOC range boundaries are not numeric. You should use " << m_tblName << 
+               ":TocIniGrid to define TOC maps range, but " << this->name() << " was given. Will treat the given range as a maps range";
+         }
+         mapRange.push_back( prms[pos++] );
+         mapRange.push_back( prms[pos++] );
+      }
+      
+      casa::VarPrmContinuous::PDF ppdf   = Str2pdf( prms[pos++] );
       int mixID = srtMix.empty() ? 1 : atoi( srtMix.substr( srtMix.size() - 1 ).c_str() );
 
       if ( ErrorHandler::NoError != casa::BusinessLogicRulesSet::VarySourceRockTOC( *sa.get()
@@ -192,8 +212,8 @@ public:
                                                                                   , layerName.c_str()
                                                                                   , mixID
                                                                                   , ( srType.empty() ? 0 : srType.c_str() )
-                                                                                  , minVal
-                                                                                  , maxVal
+                                                                                  , simpleRange 
+                                                                                  , mapRange 
                                                                                   , ppdf ) )
       {
          throw ErrorHandler::Exception( sa->errorCode() ) << sa->errorMessage();
@@ -203,14 +223,18 @@ public:
    size_t expectedParametersNumber() const { return 4; } // layer_name, min, max, pdf
    size_t optionalParametersNumber() const { return 2; } // mixID, SR type
 
-   virtual std::string name() const { return "SourceRockLithoIoTbl:TocIni"; }
+   virtual std::string name() const 
+   {
+      std::string nm = m_tblName.empty() ? (m_tblName + ":" + m_colName) : "SourceRockLithoIoTbl:TocIni";
+      return nm; 
+   }
 
    virtual std::string description() const { return "the initial total organic content in source rock [ weight % ]"; }
 
    virtual std::string fullDescription() const
    {
       std::ostringstream oss;
-      oss << "    [varPrmName] \"SourceRockLithoIoTbl:TocIni\" [mixID] <layerName> [srTypeName] <minVal> <maxVal> <prmPDF>\n";
+      oss << "    [varPrmName] \"SourceRockLithoIoTbl:TocIni[Grid]\" [mixID] <layerName> [srTypeName] <minVal> <maxVal> <prmPDF>\n";
       oss << "    Where:\n";
       oss << "       varPrmName - user specified variable parameter name (Optional)\n";
       oss << "       mixID      - (Optional) \"StratIoTbl:SourceRockType1\" or \"StratIoTbl:SourceRockType2\". This parameter defines\n";
@@ -218,8 +242,8 @@ public:
       oss << "       layerName  - source rock layer name\n";
       oss << "       srType     - (Optional) if source rock type name. If TOC value is dependent on Categorical Source Rock Type parameter\n";
       oss << "                    this value will be used to connect and establish this dependency.\n";
-      oss << "       minVal     - the parameter minimal range value\n";
-      oss << "       maxVal     - the parameter maximal range value\n";
+      oss << "       minVal     - the parameter minimal range value (double value or a map name)\n";
+      oss << "       maxVal     - the parameter maximal range value (double value or a map name)\n";
       oss << "       prmPDF     - the parameter probability density function type\n";
       oss << "\n";
 
@@ -230,7 +254,10 @@ public:
    {
       std::ostringstream oss;
       oss << "    #                              type         layerName        minVal  maxVal   prmPDF\n";
-      oss << "    "<< cmdName << " \"Lower Jurasic TOC\" \"" << name() << "\" \"Lower Jurassic\"  0.5    1.0  \"Block\"\n";
+      oss << "    "<< cmdName << " \"Lower Jurasic TOC\" \"" << name() << "\" \"Lower Jurassic\"  0.5    1.0  \"Block\"\n\n";
+      oss << "    #                              type         layerName          minMap         maxMap   prmPDF\n";
+      oss << "    "<< cmdName << " \"Lower Jurasic TOC\" \"" << name() << "\" \"Lower Jurassic\"  \"MinMapName\"   \"MaxMapName\"  \"Block\"\n";
+
       oss << "\n    # Example with source rock mixing, TOC Value is set for the second SR in the mix for the Spekk layer\n";
 
       oss << "    "<< cmdName << " \"SpekkTOC\" \"" << name() << "\" \"StratIoTbl:SourceRockType2\" \"Spekk\" 0.5 1.0 \"Block\"\n";
@@ -889,6 +916,122 @@ public:
 };
 
 ////////////////////////////////////////////////////////////////
+// Compaction Coefficient parameter
+////////////////////////////////////////////////////////////////
+//
+class CompactionCoefficient : public PrmType
+{
+public:
+   CompactionCoefficient( const std::string & prmTypeName = "" ) : PrmType( prmTypeName ) { ; }
+   virtual ~CompactionCoefficient( ) { ; }
+
+   virtual void addParameterObject( std::unique_ptr<casa::ScenarioAnalysis> & sa
+      , const std::string                     & name
+      , const std::vector<std::string>        & prms
+      ) const
+   {
+      size_t pos = 1;
+
+      const std::vector<std::string>            & layersName = CfgFileParser::list2array( prms[pos++], ',' );
+      std::vector<std::pair<std::string, size_t> > layersList;
+      if ( !layersName.empty( ) )
+      {
+         for ( size_t i = 0; i < layersName.size( ); ++i )
+         {
+            const std::vector<std::string> & curLay = CfgFileParser::list2array( layersName[i], ':' );
+            if ( curLay.size( ) != 2 )
+            {
+               throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Layer name must be defined as \"LayerName\":\"Lithotype1\"" <<
+                  ", but it is defined as: " << layersName[i];
+            }
+
+            size_t mixID = atoi( curLay[1].substr( curLay[1].size( ) - 1 ).c_str( ) );
+            if ( mixID > 3 )
+            {
+               throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Lithotype could be only 1,2 or 3, but given:" << curLay[1];
+            }
+            layersList.push_back( std::pair<std::string, size_t>( curLay[0], mixID - 1 ) );
+         }
+      }
+
+      const std::vector<std::string> & allochtonLithologiesName = CfgFileParser::list2array( prms[pos++], ',' );
+      const std::vector<std::string> & faultsMapList = CfgFileParser::list2array( prms[pos++], ',' );
+      std::vector<std::pair< std::string, std::string> >           faultsName;
+
+      if ( !faultsMapList.empty( ) )
+      {
+         for ( size_t i = 0; i < faultsMapList.size( ); ++i )
+         {
+            const std::vector<std::string> & vec = CfgFileParser::list2array( faultsMapList[i], ':' );
+            if ( vec.size( ) != 2 )
+            {
+               throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Fault name must be defined as \"MapName\":\"FaultCutName\"" <<
+                  ", but it is defined as: " << faultsMapList[i];
+            }
+            faultsName.push_back( std::pair<std::string, std::string>( vec[0], vec[1] ) );
+         }
+      }
+
+      const std::string & lithoName = prms[pos++];
+
+      double minCompCoef = atof( prms[pos++].c_str( ) );
+      double maxCompCoef = atof( prms[pos++].c_str( ) );
+
+      casa::VarPrmContinuous::PDF pdfType = Str2pdf( prms.back( ) );
+
+      if ( ErrorHandler::NoError != casa::BusinessLogicRulesSet::VaryCompactionCoefficient( *sa.get( )
+                                                                                          , name
+                                                                                          , layersList
+                                                                                          , allochtonLithologiesName
+                                                                                          , faultsName
+                                                                                          , lithoName
+                                                                                          , minCompCoef
+                                                                                          , maxCompCoef
+                                                                                          , pdfType
+                                                                                          )
+         ) { throw ErrorHandler::Exception( sa->errorCode( ) ) << sa->errorMessage( ); }
+   }
+
+   size_t expectedParametersNumber( ) const { return 7; } // lay_names, aloch_names, fault_names, lit_name, comp_coef mn/mx, pdf
+   size_t optionalParametersNumber( ) const { return 0; }
+
+   virtual std::string name( ) const { return "LithotypeIoTbl:CompactionCoefficient"; }
+
+   virtual std::string description( ) const
+   {
+      return "a variation of compaction coefficient parameter for the given formation, alochton litholog or fault lithologies";
+   }
+
+   virtual std::string fullDescription( ) const
+   {
+      std::ostringstream oss;
+      oss << "    [varPrmName] \"" << name( ) << "\" <layName> <alochtLithName> <faultName>  <minCompCoef> <maxCompCoef> <prmPDF>\n";
+      oss << "    Where:\n";
+      oss << "       varPrmName     - user specified variable parameter name (Optional)\n";
+      oss << "       layName        - array of layers name\n";
+      oss << "       alochtLithName - array of allochton lithologies name\n";
+      oss << "       faultName      - array of faults name\n";
+      oss << "       litName        - lithology name\n";
+      oss << "       minCompCoef    - compaction coefficient - minimal range value\n";
+      oss << "       maxCompCoef    - compaction coefficient - maximal range value\n";
+      oss << "       prmPDF         - the parameter probability density function type\n";
+      oss << "\n";
+      return oss.str( );
+   }
+
+   virtual std::string usingExample( const char * cmdName ) const
+   {
+      std::ostringstream oss;
+      oss << "    #       VarPrmName      LayLst      AlochtLithLst          FaultsLst      LithName       CompactCoef   Parameter PDF\n";
+      oss << "    " << cmdName << "  \"" << name( ) << "\"   [\"Permian\",\"Tertiary\"] [\"Permian\"]   [\"MAP-1234\":\"Faultcut1\",\"MAP-234\":\"Faultcut1\"] \"Std. Sandstone\"  \"Soil_Mechanics\"   10     30   \"Normal\"\n";
+      oss << "    Example 2:\n";
+      oss << "    #       VarPrmName                LayLst  AlochtLithLst  FaultsLst  LithName CompactCoef   Parameter PDF\n";
+      oss << "    " << cmdName << " \"" << name( ) << "\" []     []      []  \"SM.Mudstone40%Clay\"  10 30  \"Block\"\n";
+      return oss.str( );
+   }
+};
+
+////////////////////////////////////////////////////////////////
 // Lithofraction parameter
 ////////////////////////////////////////////////////////////////
 //
@@ -1381,7 +1524,7 @@ public:
    {
       m_prmType["TopCrustHeatProduction"    ] = new TopCrustHeatProduction();
       m_prmType["SourceRockType"            ] = new SourceRockType();
-      m_prmType["SourceRockTOC"             ] = new SourceRockTOC();
+      m_prmType["SourceRockTOC"             ] = new SourceRockTOC( "SourceRockLithoIoTbl:TocIni" );
       m_prmType["SourceRockHC"              ] = new SourceRockHC();
       m_prmType["SourceRockHI"              ] = new SourceRockHI();
       m_prmType["SourceRockPreasphActEnergy"] = new SourceRockPreasphActEnergy();
@@ -1391,9 +1534,10 @@ public:
       m_prmType["PermeabilityModel"         ] = new PermeabilityModel();
       m_prmType["STPThermalCondCoeff"       ] = new STPThermalCondCoeff();
       
-      m_prmType["LithotypeIoTbl:PermMixModel"   ] = new PermeabilityModel(      "LithotypeIoTbl:PermMixModel"     );
-      m_prmType["LithotypeIoTbl:Porosity_Model" ] = new PorosityModel(          "LithotypeIoTbl:Porosity_Model"   );
-      m_prmType["LithotypeIoTbl:SurfacePorosity"] = new SurfacePorosity(        "LithotypeIoTbl::SurfacePorosity" );
+      m_prmType["LithotypeIoTbl:PermMixModel"   ]   = new PermeabilityModel(      "LithotypeIoTbl:PermMixModel"     );
+      m_prmType["LithotypeIoTbl:Porosity_Model" ]   = new PorosityModel(          "LithotypeIoTbl:Porosity_Model"   );
+      m_prmType["LithotypeIoTbl:SurfacePorosity"]   = new SurfacePorosity(        "LithotypeIoTbl::SurfacePorosity" );
+      m_prmType["LithotypeIoTbl:CompacCoefficient"] = new CompactionCoefficient( "LithotypeIoTbl:CompacCoefficient" );
 
       m_prmType["StratIoTbl:Percent1"] = new LithoFraction( "StratIoTbl:Percent1" );
       m_prmType["StratIoTbl:Percent2"] = new LithoFraction( "StratIoTbl:Percent2" );
@@ -1408,13 +1552,15 @@ public:
       m_prmType["StratIoTbl:SourceRockType1"    ] = new SourceRockType( "StratIoTbl:SourceRockType1" );
       m_prmType["StratIoTbl:SourceRockType2"    ] = new SourceRockType( "StratIoTbl:SourceRockType2" );
 
-      m_prmType["SourceRockLithoIoTbl:TocIni"   ] = new SourceRockTOC( "SourceRockLithoIoTbl:TocIni" );
-      m_prmType["SourceRockLithoIoTbl:HiIni"    ] = new SourceRockHI(  "SourceRockLithoIoTbl:HiIni" );
-      m_prmType["SourceRockLithoIoTbl:HcIni"    ] = new SourceRockHC(  "SourceRockLithoIoTbl:HcIni" );
+      m_prmType["SourceRockLithoIoTbl:TocIni"    ] = new SourceRockTOC( "SourceRockLithoIoTbl:TocIni" );
+      m_prmType["SourceRockLithoIoTbl:TocIniGrid"] = new SourceRockTOC( "SourceRockLithoIoTbl:TocIniGrid" );
+
+      m_prmType["SourceRockLithoIoTbl:HiIni"     ] = new SourceRockHI(  "SourceRockLithoIoTbl:HiIni" );
+      m_prmType["SourceRockLithoIoTbl:HcIni"     ] = new SourceRockHC(  "SourceRockLithoIoTbl:HcIni" );
       m_prmType["SourceRockLithoIoTbl:PreAsphaltStartAct"] = new SourceRockPreasphActEnergy( "SourceRockLithoIoTbl:PreAsphaltStartAct" );
    }
 
-   ~PrmTypesFactory()
+~PrmTypesFactory()
    { 
       for ( std::map<std::string, PrmType*>::iterator it = m_prmType.begin(); it != m_prmType.end(); ++it ) { delete it->second; }
    };

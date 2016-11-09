@@ -35,8 +35,15 @@ namespace casa
    public:
 
       // Constructor / Destructor
-      RSProxyImpl( const std::string & rspName, const VarSpace & varSp, const ObsSpace & obsSp,
-                   size_t rsOrder = 1, RSKrigingType rsKrig = NoKriging, bool autoSearch = false, double targedR2 = 0.95, double confLevel = 0.5 );
+      RSProxyImpl( const std::string & rspName
+                 , const VarSpace    & varSp
+                 , const ObsSpace    & obsSp
+                 , size_t              rsOrder    = 1
+                 , RSKrigingType       rsKrig     = NoKriging
+                 , bool                autoSearch = false
+                 , double              targedR2   = 0.95
+                 , double              confLevel  = 0.5
+                 );
 
       virtual ~RSProxyImpl();
 

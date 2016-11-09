@@ -1,6 +1,5 @@
 #include <iostream>
 using namespace std;
-#define USESTANDARD
 
 #include <algorithm>
 #include "database.h"
@@ -105,10 +104,10 @@ bool GenexSimulator::run()
    PetscLogDouble run_Start_Time;
    PetscTime(&run_Start_Time);
 
+#if 0
    std::vector<Interface::SourceRock*>::iterator sourceRockIter;
    Interface::Formation * theFormation;
 
-#if 0
    for (sourceRockIter = m_sourceRocks.begin(); sourceRockIter != m_sourceRocks.end(); ++ sourceRockIter) { 
       SourceRock * sr = dynamic_cast<Genex6::SourceRock *>( *sourceRockIter );
       
@@ -261,8 +260,8 @@ void GenexSimulator::setRequestedOutputProperties()
             }
          }
 
-      } else if (( propertyName == theResultManager.GetResultName(GenexResultManager::HcGasExpelledCum)) ||
-                 ( propertyName == theResultManager.GetResultName(GenexResultManager::OilExpelledCum)) &&
+      } else if ((( propertyName == theResultManager.GetResultName(GenexResultManager::HcGasExpelledCum)) or
+                  ( propertyName == theResultManager.GetResultName(GenexResultManager::OilExpelledCum))) and
                  modellingMode == theModellingMode) {
 
          if( isPropertyRegistered(propertyName)) {
@@ -367,37 +366,17 @@ void GenexSimulator::deleteSourceRockPropertyValues()
    }
 
 }
-
 bool GenexSimulator::mergeOutputFiles ( ) {
 
-   if( ! H5_Parallel_PropertyList::isOneFilePerProcessEnabled() || 
-       getModellingMode () == Interface::MODE1D ) return true;
-
+   if( getModellingMode () == Interface::MODE1D ) return true;
 #ifdef _MSC_VER
    return true;
 #else
-
-   PetscBool noFileCopy = PETSC_FALSE;
-   PetscOptionsHasName( PETSC_NULL, "-nocopy", &noFileCopy );
-
-   string fileName = GenexActivityName + "_Results.HDF" ; 
-   ibs::FilePath filePathName( getProjectPath () );
-   filePathName << getOutputDir () << fileName;
-
-   PetscPrintf ( PETSC_COMM_WORLD, "Merging of output files.\n" );
-  
-   bool status = mergeFiles ( allocateFileHandler( PETSC_COMM_WORLD, filePathName.path(), H5_Parallel_PropertyList::getTempDirName(),( noFileCopy ? CREATE : REUSE )));
-
-   if( status ) {
-      status = H5_Parallel_PropertyList::copyMergedFile( filePathName.path() );
-   } 
-   
-   if( !status ) {
-      PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not merge the file %s.\n", filePathName.cpath() );
-   }
+   ibs::FilePath localPath  ( getProjectPath () );
+   localPath <<  getOutputDir ();
+   const bool status = H5_Parallel_PropertyList ::mergeOutputFiles ( GenexActivityName, localPath.path() );
 
    return status;
 #endif
 }
-
 

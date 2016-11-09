@@ -1,3 +1,13 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
+
 #include "FluidVelocityCalculator.h"
 
 #include <iostream>
@@ -12,6 +22,11 @@ using namespace std;
 #include "GeoPhysicalConstants.h"
 #include "CompoundLithology.h"
 #include "ElementFunctions.h"
+
+// utilities library
+#include "ConstantsMathematics.h"
+using Utilities::Maths::M2ToMilliDarcy;
+using Utilities::Maths::YearToSecond;
 
 DataAccess::Mining::FluidVelocityCalculator::FluidVelocityCalculator ( const DomainPropertyCollection*            collection,
                                                                        DerivedProperties::DerivedPropertyManager& propertyManager,
@@ -112,14 +127,14 @@ double DataAccess::Mining::FluidVelocityCalculator::compute ( const ElementPosit
    if( permeabilityH == Interface::DefaultUndefinedMapValue ) {
       return  Interface::DefaultUndefinedMapValue;
    } else {
-      permeabilityH /= GeoPhysics::M2TOMILLIDARCY;
+      permeabilityH /= M2ToMilliDarcy;
    }
    
    permeabilityN = m_permeabilityN->compute ( position );
    if( permeabilityN ==  Interface::DefaultUndefinedMapValue ) {
       return  Interface::DefaultUndefinedMapValue;
    } else {
-      permeabilityN /= GeoPhysics::M2TOMILLIDARCY;
+      permeabilityN /= M2ToMilliDarcy;
    }
    porosity = m_porosity->compute ( position );  
    if( porosity ==  Interface::DefaultUndefinedMapValue ) {
@@ -159,7 +174,7 @@ double DataAccess::Mining::FluidVelocityCalculator::compute ( const ElementPosit
    fluidVelocity ( 3 ) = fluidMobility ( 3, 1 ) * gradOverpressure ( 1 ) + fluidMobility ( 3, 2 ) * gradOverpressure ( 2 ) + fluidMobility ( 3, 3 ) * gradOverpressure ( 3 );
 
    // Convert to mm/y from m/s.
-   fluidVelocity *= -1000.0 * GeoPhysics::SecondsPerYear / porosity;
+   fluidVelocity *= -1000.0 * YearToSecond / porosity;
 
    switch ( m_calculation ) {
      case X : calculationResult = fluidVelocity ( 1 ); break;

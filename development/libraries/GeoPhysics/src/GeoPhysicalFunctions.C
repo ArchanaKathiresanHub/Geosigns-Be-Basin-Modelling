@@ -1,6 +1,27 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
+
 #include "GeoPhysicalFunctions.h"
 
 #include "GeoPhysicalConstants.h"
+
+// utilities library
+#include "ConstantsPhysics.h"
+using Utilities::Physics::AtmosphericPressureMpa;
+using Utilities::Physics::AccelerationDueToGravity;
+using Utilities::Physics::StandardWaterDensity;
+#include "ConstantsMathematics.h"
+using Utilities::Maths::PaToMegaPa;
+
+
+
 
 void GeoPhysics::computeHydrostaticPressure  ( const FluidType*  fluid,
                                                const double      seaTemperature,
@@ -23,19 +44,19 @@ void GeoPhysics::computeHydrostaticPressure  ( const FluidType*  fluid,
     // the integration here uses the true fluid density, whereas the simple 
     // integration (used previously) uses a standard density (=1000 kg/m^3)
     //
-    K1 = H * fluid->density ( seaTemperature, AtmosphericPressure ) * AccelerationDueToGravity * PascalsToMegaPascals;
-    K2 = H * fluid->density ( seaTemperature, AtmosphericPressure + 0.5 * K1 ) * AccelerationDueToGravity * PascalsToMegaPascals;
-    K3 = H * fluid->density ( seaTemperature, AtmosphericPressure + 0.5 * K2 ) * AccelerationDueToGravity * PascalsToMegaPascals;
-    K4 = H * fluid->density ( seaTemperature, AtmosphericPressure + K3 ) * AccelerationDueToGravity * PascalsToMegaPascals;
+    K1 = H * fluid->density ( seaTemperature, AtmosphericPressureMpa ) * AccelerationDueToGravity * PaToMegaPa;
+    K2 = H * fluid->density ( seaTemperature, AtmosphericPressureMpa + 0.5 * K1 ) * AccelerationDueToGravity * PaToMegaPa;
+    K3 = H * fluid->density ( seaTemperature, AtmosphericPressureMpa + 0.5 * K2 ) * AccelerationDueToGravity * PaToMegaPa;
+    K4 = H * fluid->density ( seaTemperature, AtmosphericPressureMpa + K3 ) * AccelerationDueToGravity * PaToMegaPa;
 
-    hydrostaticPressure = AtmosphericPressure + ( K1 + 2.0 * ( K2 + K3 ) + K4 ) / 6.0;
+    hydrostaticPressure = AtmosphericPressureMpa + ( K1 + 2.0 * ( K2 + K3 ) + K4 ) / 6.0;
 
   } else if (( fluid == 0 ) && ( seaBottomDepth > 0.0 )) {
-    hydrostaticPressure = AtmosphericPressure + StandardWaterDensity 
-                               * AccelerationDueToGravity * seaBottomDepth * PascalsToMegaPascals;
+    hydrostaticPressure = AtmosphericPressureMpa + StandardWaterDensity 
+                               * AccelerationDueToGravity * seaBottomDepth * PaToMegaPa;
 
   } else {
-    hydrostaticPressure = AtmosphericPressure;
+    hydrostaticPressure = AtmosphericPressureMpa;
   }
 
 }
@@ -58,14 +79,14 @@ void GeoPhysics::computeHydrostaticPressureSimpleDensity  ( const FluidType*  fl
     // integration (used previously) uses a standard density (=1000 kg/m^3)
     //
   
-    hydrostaticPressure = AtmosphericPressure +  seaBottomDepth * fluidDensity * AccelerationDueToGravity * PascalsToMegaPascals; 
+    hydrostaticPressure = AtmosphericPressureMpa +  seaBottomDepth * fluidDensity * AccelerationDueToGravity * PaToMegaPa; 
 
   } else if (( fluid == 0 ) && ( seaBottomDepth > 0.0 )) {
-    hydrostaticPressure = AtmosphericPressure + StandardWaterDensity 
-                               * AccelerationDueToGravity * seaBottomDepth * PascalsToMegaPascals;
+    hydrostaticPressure = AtmosphericPressureMpa + StandardWaterDensity 
+                               * AccelerationDueToGravity * seaBottomDepth * PaToMegaPa;
 
   } else {
-    hydrostaticPressure = AtmosphericPressure;
+    hydrostaticPressure = AtmosphericPressureMpa;
   }
 
 }

@@ -24,7 +24,7 @@ add_executable(${target_name}
 # IMPORTANT: remove -rdynamic from CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS
 set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "")
 
-include_directories(
+include_directories( SYSTEM
 	${XERCES_INCLUDE_DIRS}
 	${XSD_INCLUDE_DIRS}
 	${TS7_INCLUDE_DIRS}

@@ -87,6 +87,7 @@ macro(add_gtest )
    set(compileflags)# The set of compilator flags
    set(linkflags)   # The set of linker flags
    set(mpiSize)     # The number of MPI processes
+   set(mpirunPrms)  # Additional mpirun options
    set(include_dirs)# Additional include directories
    set(environment_vars)#List of variables in format VAR=VAL
 
@@ -108,6 +109,8 @@ macro(add_gtest )
          set(parameterName include_dirs)
       elseif(param STREQUAL ENV_VARS)
          set(parameterName environment_vars)        
+      elseif(param STREQUAL MPIRUN_PRMS)
+         set(parameterName mpirunPrms)
       else()
          list(APPEND ${parameterName} ${param})
       endif()
@@ -152,9 +155,10 @@ macro(add_gtest )
    
    # Add the Google Mock and Google Test include directories
    get_property(incdirs TARGET ${execName} PROPERTY INCLUDE_DIRECTORIES)
+   target_include_directories( ${execName} SYSTEM PRIVATE "${TESTFRAMEWORK_INCLUDE_DIRS}" )
+   target_include_directories( ${execName} PRIVATE "${incdirs};${include_dirs}" )
    set_target_properties( ${execName} 
       PROPERTIES 
-                 INCLUDE_DIRECTORIES "${TESTFRAMEWORK_INCLUDE_DIRS};${incdirs};${include_dirs}"
                  COMPILE_FLAGS "${compileflags}"
                  LINK_FLAGS "${linkflags}"   )
 
@@ -168,7 +172,7 @@ macro(add_gtest )
            set( mpiCommand ${mpiCommand} ":" )
         endif()
 
-        set( mpiCommand ${mpiCommand} -n 1 $<TARGET_FILE:${execName}> --gtest_output=xml:${BM_UNIT_TEST_OUTPUT_DIR}/${execName}-${rank}-junit.xml )
+        set( mpiCommand ${mpiCommand} -n 1  ${mpirunPrms}  $<TARGET_FILE:${execName}> --gtest_output=xml:${BM_UNIT_TEST_OUTPUT_DIR}/${execName}-${rank}-junit.xml )
      endforeach()
 
      add_test(NAME "UNIT-TEST-${testName}" COMMAND ${mpiCommand} )

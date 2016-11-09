@@ -230,12 +230,21 @@ namespace mbapi {
                                              ) = 0;
       /// @}
 
+      // Seismic velocity
+      /// @{
+
+
+      /// @brief For a referenced lithology, get the value of the seismic velocity
+      /// @return the value of the seismic velocity
+      virtual double seisVelocity( LithologyID id ) = 0;
+
+      /// @}
+
       // Thermal conductivity model parameters
       /// @{
 
       /// @brief Get lithology STP (Standart Temperature Pressure) thermal conductivity [W/m/K]
       /// @param[in] id lithology ID
-      /// @param[out] stpThermCond 
       /// @return the STP thermal conductivity value on success or UndefinedDoubleValue on error
       virtual double stpThermalConductivityCoeff( LithologyID id ) = 0;
 

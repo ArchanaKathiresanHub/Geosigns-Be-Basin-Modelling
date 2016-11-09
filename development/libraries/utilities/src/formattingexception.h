@@ -20,14 +20,28 @@ namespace formattingexception {
 class GeneralException : public std::exception
 {
 public:
-   GeneralException();
-   GeneralException(const GeneralException & other);
+   GeneralException() {};
+   
+   GeneralException( const GeneralException & other ) : std::exception( other )
+                                                      , m_message(other.m_message.str())
+                                                      , m_formatted()
+   {}
 
-   GeneralException & operator=( const GeneralException & other);
+   GeneralException & operator = ( const GeneralException & other )
+   {
+      m_message.str( other.m_message.str() );
+      m_formatted.clear();
+      return *this;
+   }
 
    // Overriding std::exception functions
-   virtual ~GeneralException() throw () ;
-   virtual const char * what() const throw ()  ;
+   virtual ~GeneralException() throw () {};
+
+   virtual const char * what() const throw () 
+   {
+      m_formatted = m_message.str();
+      return m_formatted.empty() ? "Unknown exception" : m_formatted.c_str();
+   }
 
    // Allow nice notation
    template <typename T> GeneralException & operator << (const T & x )
@@ -42,14 +56,18 @@ public:
       return *this;
    }
 
-private:
+protected:
    std::ostringstream m_message;
    mutable std::string m_formatted;
 };
 
 template <typename T>
-struct BaseException : GeneralException
+class BaseException : public GeneralException
 {
+public:
+   
+   using GeneralException::what;
+
    template <typename U> T & operator<< (const U & x) 
    {
       return static_cast<T &>( GeneralException::operator<<( x ) );

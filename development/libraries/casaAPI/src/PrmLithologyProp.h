@@ -48,6 +48,10 @@ namespace casa
       /// @return Pointer to the variable parameter
       virtual const VarParameter * parent() const { return m_parent; }
 
+      /// @brief Set variable parameter which was used to create this parameter
+      /// @param Pointer to the variable parameter
+      virtual void setParent( const VarParameter * varPrm )  { m_parent = varPrm; }
+
       /// @brief Get the level of influence to cauldron applications pipeline for this parametr
       /// @return number which indicates which solver influence this parameter
       virtual AppPipelineLevel appSolverDependencyLevel() const  { return PTSolver; }                  
@@ -90,6 +94,7 @@ namespace casa
       PrmLithologyProp();
 
       /// @brief Constructor
+      /// @param parent variable parameter which created this one
       /// @param lithoName lithology name
       /// @param val lithology property value
       PrmLithologyProp( const VarParameter * parent, const std::vector<std::string> & lithoName, double val );

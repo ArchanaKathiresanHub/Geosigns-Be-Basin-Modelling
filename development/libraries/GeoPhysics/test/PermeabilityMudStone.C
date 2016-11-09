@@ -9,6 +9,8 @@
 //
 
 #include "../src/PermeabilityMudStone.h"
+#include "ArrayDefinitions.h"
+#include "AlignedMemoryAllocator.h"
 
 #include <iostream>
 #include <iomanip>
@@ -126,7 +128,7 @@ TEST( PermeabilityMudStonePermeabilityDerivative, invalidNegativePorosity)
 }
 
 TEST( PermeabilityMudStonePermeabilityDerivative, invalidZeroPorosity)
-{       
+{
    double permeability = NaN, derivative = NaN;
    PermeabilityMudStone( 10, 1.5, 0.01).calculateDerivative( 1.0e+5, 1.0e+5, 0.0, 0, permeability, derivative);
    EXPECT_DOUBLE_EQ( 3.53553390593273775266, permeability );
@@ -187,3 +189,38 @@ TEST( PermeabilityMudStone, model)
 }
 
 
+
+
+TEST ( PermeabilityMudStone, PermeabilityVector ) {
+
+   PermeabilityMudStone mudstonePermeability ( 50, 1.5, 0.01 );
+
+   const unsigned int Size = 20;
+   ArrayDefs::Real_ptr ves = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( Size );
+   ArrayDefs::Real_ptr maxVes = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( Size );
+   ArrayDefs::Real_ptr porosity = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( Size );
+   ArrayDefs::Real_ptr permeability = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( Size );
+
+   double NullValue = 99999.0;
+
+   ves [ 0 ] = 0.0;
+   maxVes [ 0 ] = 0.0;;
+
+   for ( unsigned int i = 1; i < Size; ++i ) {
+      ves [ i ] = ves [ i - 1 ] + ( i < Size / 2 ? 5.0e5 : -2.5e5 );
+      maxVes [ i ] = maxVes [ i - 1 ] + 5.0e5;
+   }
+
+   double porosityStep = 0.5 / static_cast<double>(Size-1);
+
+   for ( unsigned int i = 0; i < Size; ++i ) {
+      porosity [ i ] = NullValue;//0.1 + static_cast<double>(i) * porosityStep;
+   }
+
+   mudstonePermeability.calculate ( Size, ves, maxVes, porosity, permeability );
+
+   for ( unsigned int i = 0; i < Size; ++i ) {
+      EXPECT_FLOAT_EQ ( mudstonePermeability.calculate( ves [ i ], maxVes [ i ], porosity [ i ] ), permeability [ i ] );
+   }
+
+}

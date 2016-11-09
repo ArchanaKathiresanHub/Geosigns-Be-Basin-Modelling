@@ -10,7 +10,7 @@
 #ifndef FASTCAULDRON__BOUNDARY_CONDITIONS__H
 #define FASTCAULDRON__BOUNDARY_CONDITIONS__H
 
-#include "globaldefs.h"
+#include "ConstantsFastcauldron.h"
 
 /// \brief Class containing the boundary conditions and their values.
 class BoundaryConditions {
@@ -21,7 +21,7 @@ public :
    void reset ();
 
    /// \brief Set the boundary condition and its value for a node.
-   void setBoundaryConditions ( const int                 node, 
+   void setBoundaryConditions ( const int                 node,
                                 const Boundary_Conditions bc,
                                 const double              bcValue );
 

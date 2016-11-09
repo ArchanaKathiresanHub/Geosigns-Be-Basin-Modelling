@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef _MIGRATION_RANKINGS_H_
 #define _MIGRATION_RANKINGS_H_
 
@@ -25,7 +35,8 @@ namespace migration
    int GetRank (void);
    string & GetRankString (void);
    int GetRank (int i, int j);
-   
+   void deleteRanks ();
+
    void Serialize (void);
    void Deserialize (void);
 

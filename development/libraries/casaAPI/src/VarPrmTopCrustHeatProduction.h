@@ -24,10 +24,10 @@ namespace casa
    public:
       /// @brief Construct variable parameter for the top crust heat production rate
       ///        It takes 2 ranges as parameters but only one should be not empty
-      VarPrmTopCrustHeatProduction( const std::vector<double>      & dblRng   ///< simple range of double values [min,max,base]
-                                  , const std::vector<std::string> & mapRng   ///< maps range [min map, max map, base map]
-                                  , PDF                              pdfType  ///< type of probabiltiy density function for this variable parameter
-                                  , const char                     * name = 0 ///< user specified parameter name 
+      VarPrmTopCrustHeatProduction( const std::vector<double>      & dblRng           ///< simple range of double values [min,max,base]
+                                  , const std::vector<std::string> & mapRng           ///< maps range [min map, max map, base map]
+                                  , PDF                              pdfType = Block  ///< type of probabiltiy density function for this variable parameter
+                                  , const char                     * name = 0         ///< user specified parameter name 
                                   );
 
       /// @brief Destructor
@@ -46,6 +46,18 @@ namespace casa
       /// @return new casa::PrmTopCrustHeatProduction  parameter
       virtual SharedParameterPtr newParameterFromDoubles( std::vector<double>::const_iterator & vals ) const;
 
+      /// @brief Create parameter by reading the values stored in the project file
+      /// @param[in] mdl the model where the parameters values should be read
+      /// @return the new parameter read from the model
+      virtual SharedParameterPtr newParameterFromModel( mbapi::Model & mdl, const std::vector<double> & vin ) const;
+
+      /// @brief Average the values, interpolate for lithofractions and set the appropriate entries in the project3d file
+      /// @return new parameter for given set of values
+      virtual SharedParameterPtr makeThreeDFromOneD( mbapi::Model              & mdl ///< [in,out] model where to set the new averaged parameter
+                                                   , const std::vector<double> & xin                ///< the x coordinates of each 1D project 
+                                                   , const std::vector<double> & yin                ///< the y coordinates of each 1D project 
+                                                   , const std::vector<SharedParameterPtr> & prmVec ///< optimal parameter value of each 1D project
+                                                   ) const;
       /// @{
       /// @brief Defines version of serialized object representation. Must be updated on each change in save()
       /// @return Actual version of serialized object representation

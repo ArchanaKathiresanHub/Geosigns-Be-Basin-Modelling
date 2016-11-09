@@ -58,23 +58,19 @@ TEST ( DofCountingUnitTest, HoleySedimentMesh01 ) {
 
    // Declaration block required so as to finalise all fastcauldron objects before calling PetscFinalise.
    {
-      bool canRunSaltModelling = false;
-      std::string errorMessage;
-      FastcauldronFactory* factory = new FastcauldronFactory;
-      AppCtx *appctx = new AppCtx (argc, argv);
-      HydraulicFracturingManager::getInstance ().setAppCtx ( appctx );
+      FastcauldronStartup fastcauldronStartup( argc, argv, false, false );
+      bool returnStatus = fastcauldronStartup.getPrepareStatus() && fastcauldronStartup.getStartUpStatus();
+   
+      EXPECT_EQ( returnStatus, true );
 
-      int returnStatus = FastcauldronStartup::startup ( argc, argv, appctx, factory, canRunSaltModelling, errorMessage );
-
-      EXPECT_EQ ( returnStatus, 0 );
-
-      if ( returnStatus == 0 ) {
+      if ( returnStatus )
+      {
          // The computational domain consists only of sediments: 0 .. n - 3
          // the last 2 layers on the array are for the cryst and mantle.
-         ComputationalDomain domain ( *FastcauldronSimulator::getInstance ().getCauldron ()->layers [ 0 ],
-                                      *FastcauldronSimulator::getInstance ().getCauldron ()->layers [ FastcauldronSimulator::getInstance ().getCauldron ()->layers.size () - 3 ],
-                                      CompositeElementActivityPredicate ().compose ( ElementActivityPredicatePtr ( new ElementThicknessActivityPredicate ))
-                                                                          .compose ( ElementActivityPredicatePtr ( new ElementNonZeroPorosityActivityPredicate )));
+         ComputationalDomain domain( *FastcauldronSimulator::getInstance().getCauldron()->layers[0],
+            *FastcauldronSimulator::getInstance().getCauldron()->layers[FastcauldronSimulator::getInstance().getCauldron()->layers.size() - 3],
+            CompositeElementActivityPredicate().compose( ElementActivityPredicatePtr( new ElementThicknessActivityPredicate ) )
+            .compose( ElementActivityPredicatePtr( new ElementNonZeroPorosityActivityPredicate ) ) );
          VtkMeshWriter vktWriter;
          MeshUnitTester mut;
 
@@ -85,15 +81,13 @@ TEST ( DofCountingUnitTest, HoleySedimentMesh01 ) {
          testFileName = "test_seds_holes01_0.vtk";
          validFileName = "valid_seds_holes01_0.vtk";
          currentTime = 0.0;
-         mut.setTime ( currentTime );
-         domain.resetAge ( currentTime );
-         vktWriter.save ( domain, testFileName );
-         ASSERT_TRUE ( mut.compareFiles ( validFileName, testFileName ));
+         mut.setTime( currentTime );
+         domain.resetAge( currentTime );
+         vktWriter.save( domain, testFileName );
+         ASSERT_TRUE( mut.compareFiles( validFileName, testFileName ) );
       }
 
-      FastcauldronSimulator::finalise ( false );
-      delete factory;
-      delete appctx;
+      fastcauldronStartup.finalize( );
    }
 
    PetscFinalize ();

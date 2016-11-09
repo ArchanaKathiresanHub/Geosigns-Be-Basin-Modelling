@@ -21,12 +21,12 @@ namespace GeoPhysics
 Permeability
    :: Permeability(  double permAniso, Algorithm * algorithm)
    : m_algorithm(algorithm)
-   , m_permeabilityAniso(permAniso)                               
+   , m_permeabilityAniso(permAniso)
 {}
 
 Permeability Permeability::create(
          Model permeabilityModel, double permAniso,
-         double depoPorosityPercentage, double depoPermeability, 
+         double depoPorosityPercentage, double depoPermeability,
          double permeabilityIncr, double permeabilityDecr,
          const std::string & porosityMultiPointSamplesString,
          const std::string & permeabilityMultiPointSamplesString,
@@ -42,9 +42,9 @@ Permeability Permeability::create(
      case DataAccess::Interface::MUDSTONE_PERMEABILITY:
         return Permeability( permAniso,new PermeabilityMudStone(depoPermeability, permeabilityIncr, permeabilityDecr));
 
-     case DataAccess::Interface::MULTIPOINT_PERMEABILITY: 
+     case DataAccess::Interface::MULTIPOINT_PERMEABILITY:
         {
-           std::vector<double> porositySamples 
+           std::vector<double> porositySamples
               = parseCoefficientsFromString( porosityMultiPointSamplesString   );
            std::vector<double> permeabilitySamples
               = parseCoefficientsFromString( permeabilityMultiPointSamplesString  );

@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
 #ifndef CALIBRATION_HISTOGRAM_H
 #define CALIBRATION_HISTOGRAM_H
 
@@ -20,7 +29,7 @@ class Histogram
    
  public:
    //public constants
-   static const double IBSNULLVALUE;
+   static const double IbsNoDataValue;
 
 
 public:
@@ -36,8 +45,6 @@ public:
    void CopyBin( const std::vector<double>& newbin );
    
    void CopyContentsTo (Histogram* dest);
-   
-   //void FillHistogramTbl( HistogramTbl_c HistogramTbl );
    
    bool FindAndIncrementBin( float binVal );
    

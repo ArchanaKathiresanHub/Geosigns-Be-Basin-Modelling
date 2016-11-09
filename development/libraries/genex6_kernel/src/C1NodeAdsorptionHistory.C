@@ -1,13 +1,25 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
 #include "C1NodeAdsorptionHistory.h"
 
 #include <iomanip>
 
-#include "PhysicalConstants.h"
-#include "Constants.h"
+#include "ConstantsGenex.h"
 
 #include "Input.h"
 #include "SimulatorState.h"
 #include "SpeciesState.h"
+
+// utilitites library
+#include "ConstantsMathematics.h"
+using Utilities::Maths::CelciusToKelvin;
 
 Genex6::C1NodeAdsorptionHistory::C1NodeAdsorptionHistory ( const SpeciesManager&                 speciesManager,
                                                            DataAccess::Interface::ProjectHandle* projectHandle ) :
@@ -36,7 +48,7 @@ void Genex6::C1NodeAdsorptionHistory::collect ( Genex6::SourceRockNode* node ) {
       Genex6::SpeciesState* c1State = simulatorState->GetSpeciesStateById ( getSpeciesManager ().getC1Id ());
 
       hist->m_time = nodeInput->GetTime ();
-      hist->m_temperature = nodeInput->GetTemperatureKelvin () - Genex6::Constants::s_TCabs;
+      hist->m_temperature = nodeInput->GetTemperatureKelvin () - CelciusToKelvin;
       hist->m_pressure = nodeInput->getPorePressure ();
       hist->m_porosity = nodeInput->getPorosity ();
       hist->m_c1adsorped = c1State->getAdsorpedMol ();

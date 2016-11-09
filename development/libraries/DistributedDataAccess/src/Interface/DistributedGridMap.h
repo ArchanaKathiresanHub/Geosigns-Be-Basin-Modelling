@@ -96,7 +96,7 @@ namespace DataAccess
       /// restore data according to specifications
       bool restoreData (bool save = true, bool withGhosts = false) const;
          
-      /// return true
+      /// return whether the map is in ascending order or not
       bool isAscendingOrder() const;
 
       /// Return the Petsc Vec
@@ -270,12 +270,6 @@ namespace DataAccess
       bool transformHighRes2LowRes (GridMap *mapB) const;
       ///Transforms a low res local grid map to a high res local grid map 
       bool transformLowRes2HighRes (GridMap *mapB) const;
-      //utility for transformLowRes2HighRes
-      /*bool findLowResElementCoordinates(const int HighResI, const int HighResJ, const int depth,
-                                           const GridMap *lowResMap,  const Grid *lowResGrid,  
-                                           const Grid *HighResGrid, 
-                                           int lowResElementCoordinates[], int lowResElementCoordinatesInHighRes[],
-                                           double nodalValuesInLowResElement[], bool useGhostNodesInLowRes);*/
       bool findLowResElementCoordinates( const unsigned int HighResI,
                                          const unsigned int HighResJ,
                                          const unsigned int depth,
@@ -296,10 +290,14 @@ namespace DataAccess
                                       const GridMap * lowResMap,
                                       const Grid * lowResGrid,
                                       const Grid * highResGrid );
+
+      /// Clean object memory
+      void cleanup(void);
+
       };
 
       typedef GridMap LocalGridMap;
    }
 }
 
-#endif                          // _PARALLELDATAACCESS_LOCALGRIDMAP_H_
+#endif   // _PARALLELDATAACCESS_LOCALGRIDMAP_H_

@@ -42,8 +42,7 @@ namespace casa
       /// @brief Constructor. Create parameter from variation of variable parameter
       /// @param parent pointer to a variable parameter which created this one
       /// @param val value of top crust heat production rate @f$ [ \mu W/m^3] @f$
-      /// @param minMapName minimal map name if top crust heat production rate is defined as a map
-      /// @param minMapName maximal map name if top crust heat production rate is defined as a map
+      /// @param mapName map name if top crust heat production rate is defined as a map
       PrmTopCrustHeatProduction( const VarPrmTopCrustHeatProduction * parent, double val, std::string mapName = "" );
 
       /// @brief Destructor
@@ -56,6 +55,10 @@ namespace casa
       /// @brief Get variable parameter which was used to create this parameter
       /// @return Pointer to the variable parameter
       virtual const VarParameter * parent() const { return m_parent; }
+
+      /// @brief Set variable parameter which was used to create this parameter
+      /// @param Pointer to the variable parameter
+      virtual void setParent( const VarParameter * varPrm ) { m_parent = varPrm; }
 
       /// @brief Get the level of influence to cauldron applications pipeline for this parametr
       /// @return number which indicates which solver influence this parameter
@@ -81,7 +84,7 @@ namespace casa
       /// @return map name
       std::string mapName() const { return m_mapName; }
 
-      /// @brief Define min/max maps name to interpolate between them on setInModel reques
+      /// @brief Define min/max maps name to interpolate between them on setInModel request
       /// @param minMap low range map
       /// @param maxMap high range map
       void defineMapsRange( const std::string & minMap, const std::string & maxMap ) { m_minMapName = minMap; m_maxMapName = maxMap; }

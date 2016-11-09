@@ -47,6 +47,10 @@ namespace mbapi {
       /// @return array with IDs of surfaces defined in the model
       virtual std::vector<SurfaceID> surfacesIDs() const = 0; 
 
+      /// @brief Get the referenced table
+      /// @returns the table name as a string
+      virtual std::string referenceID( ) const = 0;
+
       /// @brief Create new layer
       /// @return ID of the new Stratigraphy
       virtual LayerID createNewLayer() = 0;
@@ -79,9 +83,10 @@ namespace mbapi {
       /// @brief Get all lithologies associated with the given layer and percentage of each lithology in a mix
       /// @return ErrorHandler::NoError on success, or error code otherwise
       virtual ErrorHandler::ReturnCode layerLithologiesList(
-              LayerID id                            ///< [in] id layer ID
-            , std::vector<std::string> & lithoList  ///< [out] lithoList on exit it contains the list of lithologies for the given layer
-            , std::vector<double> & lithoPercent    ///< [out] lithoPercent on exit it contains percentage of each lithology in a mix
+              LayerID id                                   ///< [in] id layer ID
+            , std::vector<std::string> & lithoList         ///< [out] lithoList on exit it contains the list of lithologies for the given layer
+            , std::vector<double> & lithoPercent           ///< [out] lithoPercent on exit it contains percentage of each lithology in a mix
+            , std::vector<std::string> & lithoPercMap      ///< [out] lithoPercMap on exit it contains the names of the percentage maps
                                                            ) = 0;
       
       /// @brief set lithologies and their percenatges for the given layer
@@ -93,10 +98,17 @@ namespace mbapi {
                                                               ) = 0;
 
       /// @brief Collect layers where the given lithology is referenced
-      /// @param lithName name of lithology type
+      /// @param lithoName name of lithology type
       /// @return list of layers ID
       virtual std::vector<LayerID> findLayersForLithology( const std::string & lithoName ) = 0;
 
+      /// @brief For a given layer set the new lithofraction map names in the StratIoTbl
+      /// @param[in] id layer ID
+      /// @param[in] mapNameFirstLithoPercentage the name of the first lithology percentage map
+      /// @param[in] mapNameSecondLithoPercentage the name of the second lithology percentage map
+      /// @return NoError on success or NonexistingID on error
+      virtual ErrorHandler::ReturnCode setLayerLithologiesPercentageMaps( LayerID id, const std::string & mapNameFirstLithoPercentage, const std::string mapNameSecondLithoPercentage ) = 0;
+      
       /// @brief Bind layer with top and bottom surfaces. Layer set itself as top/bottom layer for surface also
       /// @param[in] lid layer ID
       /// @param[in] usid up surface id
@@ -167,7 +179,7 @@ namespace mbapi {
 
       /// @brief Set H/C value for source rock mix for the given layer
       /// @param lid layer ID
-      /// @param srmHI H/C value for source rock mix
+      /// @param srmHC H/C value for source rock mix
       /// @return ErrorHandler::NoError on success or error code if mixing is not turned off or other error happened
       virtual ReturnCode setSourceRockMixHC( LayerID lid, double srmHC ) = 0;
 
@@ -202,6 +214,20 @@ namespace mbapi {
       /// @param newLithoName new lithology name
       /// @return ErrorHandler::NoError on success, error code otherwise
       virtual ReturnCode setFaultCutLithology( PrFaultCutID flID, const std::string & newLithoName ) = 0;
+      /// @}
+ 
+      /// @{ Get the maps names for the measured twt and the measured twt 
+
+      /// @brief Get the map name of the measured twt at the top surface
+      /// @param id layer id
+      /// @return the twt map name for the layer on success, empty string otherwise
+      virtual std::string twtGridName( LayerID id ) = 0;
+
+      /// @brief Get the value of the measured twt at the top surface
+      /// @param id layer id
+      /// @return the measured twt value on success, UndefinedDoubleValue otherwise
+      virtual double twtValue( LayerID id ) = 0;
+
       /// @}
  
    protected:

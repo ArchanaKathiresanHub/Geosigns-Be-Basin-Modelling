@@ -14,16 +14,7 @@
 
 #include <string.h>
 #include <string>
-
-#ifdef sgi
-   #ifdef _STANDARD_C_PLUS_PLUS
-      #include <iostream>
-   #else // !_STANDARD_C_PLUS_PLUS
-      #include<iostream.h>
-   #endif // _STANDARD_C_PLUS_PLUS
-#else // !sgi
-   #include <iostream>
-#endif // sgi
+#include <iostream>
 
 using namespace std;
 

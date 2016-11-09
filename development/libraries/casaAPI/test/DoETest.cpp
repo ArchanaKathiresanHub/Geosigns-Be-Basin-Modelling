@@ -97,10 +97,15 @@ TEST_F( DoETest, Tornado2Prms )
    casa::VarSpace     & varPrms = sc->varSpace();
    casa::RunCaseSet   & doeCaseSet = sc->doeCaseSet();
 
-   ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmSourceRockTOC( "Lower Jurassic", tocLowJur, m_minTOC, m_maxTOC, VarPrmContinuous::Block ) ) );
-   std::vector<double> dblRng( 1, m_minTCHP );
-   dblRng.push_back( m_maxTCHP );
-   dblRng.push_back( tchp );
+   std::vector<double> dblRng( 3, m_minTOC );
+   dblRng[1] = m_maxTOC;
+   dblRng[2] = tocLowJur;
+
+   ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmSourceRockTOC( "Lower Jurassic", dblRng, vector<string>() ) ) );
+
+   dblRng[0] = m_minTCHP;
+   dblRng[1] = m_maxTCHP;
+   dblRng[2] = tchp;
 
    ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmTopCrustHeatProduction( dblRng, vector<string>(), VarPrmContinuous::Block ) ) );
 
@@ -149,11 +154,16 @@ TEST_F( DoETest, BoxBehnken2Prms )
    casa::VarSpace     & varPrms = sc.varSpace();
    casa::RunCaseSet   & doeCaseSet = sc.doeCaseSet();
 
-   ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmSourceRockTOC( "Lower Jurassic", tocLowJur, m_minTOC, m_maxTOC, VarPrmContinuous::Block ) ) );
+   std::vector<double> dblRng( 3, m_minTOC );
+   dblRng[1] = m_maxTOC;
+   dblRng[2] = tocLowJur;
 
-   std::vector<double> dblRng( 1, m_minTCHP );
-   dblRng.push_back( m_maxTCHP );
-   dblRng.push_back( tchp );
+   ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmSourceRockTOC( "Lower Jurassic", dblRng, vector<string>() ) ) );
+
+   dblRng[0] = m_minTCHP;
+   dblRng[1] = m_maxTCHP;
+   dblRng[2] = tchp;
+
    ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmTopCrustHeatProduction( dblRng, vector<string>(), VarPrmContinuous::Block ) ) );
 
    doe.generateDoE( varPrms, doeCaseSet );
@@ -201,11 +211,16 @@ TEST_F( DoETest, FullFactorial2Prms )
    casa::VarSpace     & varPrms = sc.varSpace();
    casa::RunCaseSet   & doeCaseSet = sc.doeCaseSet();
 
-   ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmSourceRockTOC( "Lower Jurassic", tocLowJur, m_minTOC, m_maxTOC, VarPrmContinuous::Block ) ) );
-   
-   std::vector<double> dblRng( 1, m_minTCHP );
-   dblRng.push_back( m_maxTCHP );
-   dblRng.push_back( tchp );
+   std::vector<double> dblRng( 3, m_minTOC );
+   dblRng[1] = m_maxTOC;
+   dblRng[2] = tocLowJur;
+
+   ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmSourceRockTOC( "Lower Jurassic", dblRng, vector<string>() ) ) );
+
+   dblRng[0] = m_minTCHP;
+   dblRng[1] = m_maxTCHP;
+   dblRng[2] = tchp;
+
    ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmTopCrustHeatProduction( dblRng, vector<string>(), VarPrmContinuous::Block ) ) );
 
    doe.generateDoE( varPrms, doeCaseSet );
@@ -253,11 +268,16 @@ TEST_F( DoETest, PlackettBurman2Prms )
    casa::VarSpace     & varPrms = sc.varSpace();
    casa::RunCaseSet   & doeCaseSet = sc.doeCaseSet();
 
-   ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmSourceRockTOC( "Lower Jurassic", tocLowJur, m_minTOC, m_maxTOC, VarPrmContinuous::Block ) ) );
+   std::vector<double> dblRng( 3, m_minTOC );
+   dblRng[1] = m_maxTOC;
+   dblRng[2] = tocLowJur;
 
-   std::vector<double> dblRng( 1, m_minTCHP );
-   dblRng.push_back( m_maxTCHP );
-   dblRng.push_back( tchp );
+   ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmSourceRockTOC( "Lower Jurassic", dblRng, vector<string>() ) ) );
+
+   dblRng[0] = m_minTCHP;
+   dblRng[1] = m_maxTCHP;
+   dblRng[2] = tchp;
+
    ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmTopCrustHeatProduction( dblRng, vector<string>(), VarPrmContinuous::Block ) ) );
 
    doe.generateDoE( varPrms, doeCaseSet );
@@ -304,11 +324,16 @@ TEST_F( DoETest, PlackettBurmanMirror2Prms )
    casa::VarSpace     & varPrms = sc.varSpace();
    casa::RunCaseSet   & doeCaseSet = sc.doeCaseSet();
 
-   ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmSourceRockTOC( "Lower Jurassic", tocLowJur, m_minTOC, m_maxTOC, VarPrmContinuous::Block ) ) );
+   std::vector<double> dblRng( 3, m_minTOC );
+   dblRng[1] = m_maxTOC;
+   dblRng[2] = tocLowJur;
 
-   std::vector<double> dblRng( 1, m_minTCHP );
-   dblRng.push_back( m_maxTCHP );
-   dblRng.push_back( tchp );
+   ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmSourceRockTOC( "Lower Jurassic", dblRng, vector<string>() ) ) );
+
+   dblRng[0] = m_minTCHP;
+   dblRng[1] = m_maxTCHP;
+   dblRng[2] = tchp;
+
    ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmTopCrustHeatProduction( dblRng, vector<string>(), VarPrmContinuous::Block ) ) );
 
    doe.generateDoE( varPrms, doeCaseSet );
@@ -355,11 +380,16 @@ TEST_F( DoETest, SpaceFilling2Prms )
    casa::VarSpace     & varPrms = sc.varSpace();
    casa::RunCaseSet   & doeCaseSet = sc.doeCaseSet();
 
-   ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmSourceRockTOC( "Lower Jurassic", tocLowJur, m_minTOC, m_maxTOC, VarPrmContinuous::Block ) ) );
+   std::vector<double> dblRng( 3, m_minTOC );
+   dblRng[1] = m_maxTOC;
+   dblRng[2] = tocLowJur;
 
-   std::vector<double> dblRng( 1, m_minTCHP );
-   dblRng.push_back( m_maxTCHP );
-   dblRng.push_back( tchp );
+   ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmSourceRockTOC( "Lower Jurassic", dblRng, vector<string>() ) ) );
+
+   dblRng[0] = m_minTCHP;
+   dblRng[1] = m_maxTCHP;
+   dblRng[2] = tchp;
+
    ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmTopCrustHeatProduction( dblRng, vector<string>(), VarPrmContinuous::Block ) ) );
 
    doe.generateDoE( varPrms, doeCaseSet, 10 );
@@ -402,11 +432,16 @@ TEST_F( DoETest, LatinHypercube2Prms )
    casa::VarSpace     & varPrms = sc.varSpace();
    casa::RunCaseSet   & doeCaseSet = sc.doeCaseSet();
 
-   ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmSourceRockTOC( "Lower Jurassic", tocLowJur, m_minTOC, m_maxTOC, VarPrmContinuous::Block ) ) );
+   std::vector<double> dblRng( 3, m_minTOC );
+   dblRng[1] = m_maxTOC;
+   dblRng[2] = tocLowJur;
 
-   std::vector<double> dblRng( 1, m_minTCHP );
-   dblRng.push_back( m_maxTCHP );
-   dblRng.push_back( tchp );
+   ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmSourceRockTOC( "Lower Jurassic", dblRng, vector<string>() ) ) );
+
+   dblRng[0] = m_minTCHP;
+   dblRng[1] = m_maxTCHP;
+   dblRng[2] = tchp;
+
    ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmTopCrustHeatProduction( dblRng, vector<string>(), VarPrmContinuous::Block ) ) );
 
    doe.generateDoE( varPrms, doeCaseSet, 10 );
@@ -441,11 +476,16 @@ TEST_F( DoETest, AllVarPrmsTornadoTest )
    casa::RunCaseSet   & doeCaseSet = sc.doeCaseSet();
 
    // add 3 parameters
-   ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmSourceRockTOC( "Lower Jurassic", m_midTOC, m_minTOC, m_maxTOC, VarPrmContinuous::Block ) ) );
+   std::vector<double> dblRng( 3, m_minTOC );
+   dblRng[1] = m_maxTOC;
+   dblRng[2] = m_midTOC;
 
-   std::vector<double> dblRng( 1, m_minTCHP );
-   dblRng.push_back( m_maxTCHP );
-   dblRng.push_back( m_midTCHP );
+   ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmSourceRockTOC( "Lower Jurassic", dblRng, vector<string>() ) ) );
+
+   dblRng[0] = m_minTCHP;
+   dblRng[1] = m_maxTCHP;
+   dblRng[2] = m_midTCHP;
+
    ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmTopCrustHeatProduction( dblRng, vector<string>(), VarPrmContinuous::Block ) ) );
 
    ASSERT_EQ( ErrorHandler::NoError, varPrms.addParameter( new VarPrmOneCrustThinningEvent( m_midInitialCrustThickness, m_minInitialCrustThickness, m_maxInitialCrustThickness,

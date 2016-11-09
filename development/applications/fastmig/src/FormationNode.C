@@ -37,21 +37,26 @@ using namespace std;
 #include "FiniteElement.h"
 
 #include "Interface/FluidType.h"
-#include "consts.h"
-#include "capillarySealStrength.h"
 
+#include "BrooksCorey.h"
 
 using namespace FiniteElementMethod;
 using namespace CBMGenerics;
 using namespace capillarySealStrength;
 
+// utilities library
+#include "ConstantsPhysics.h"
+using Utilities::Physics::AccelerationDueToGravity;
+#include "ConstantsMathematics.h"
+using Utilities::Maths::PaToMegaPa;
 
 //#define USECAPILLARYPRESSUREMAPS 1
 //#define GAS_DENSITY_FLOW_DIRECTION
 
 #define OFFSETOFF(attribute) ((int) ((long) (&attribute) - (long) (this)))
 
-namespace migration {
+namespace migration
+{
 #ifdef USELOGSTREAM
    extern ofstream logstream;
 #endif
@@ -81,7 +86,7 @@ namespace migration {
 
    /// constructor
    ProxyFormationNode::ProxyFormationNode (unsigned int i, unsigned int j, int k, Formation * formation) :
-      FormationNode (i, j, k, formation)
+      FormationNode (i, j, k, formation), m_compositionToBeMigrated (0), m_analogFlowDirection (0)
    {
       clearProperties ();
       clearReservoirProperties ();
@@ -90,6 +95,17 @@ namespace migration {
    /// Destructor
    ProxyFormationNode::~ProxyFormationNode (void)
    {
+      if (m_compositionToBeMigrated)
+      {
+         delete m_compositionToBeMigrated;
+         m_compositionToBeMigrated = 0;
+      }
+
+      if (m_analogFlowDirection)
+      {
+         delete m_analogFlowDirection;
+         m_analogFlowDirection = 0;
+      }
    }
 
    void ProxyFormationNode::clearCache ()
@@ -99,17 +115,17 @@ namespace migration {
 
    bool ProxyFormationNode::isCached (FormationNodeCacheBit bit) const
    {
-      return m_cachedValues.valueIsTrue ((unsigned int) bit);
+      return m_cachedValues.valueIsTrue ((unsigned int)bit);
    }
 
    void ProxyFormationNode::setCached (FormationNodeCacheBit bit) const
    {
-      m_cachedValues.setValue ((unsigned int) bit, true);
+      m_cachedValues.setValue ((unsigned int)bit, true);
    }
 
    void ProxyFormationNode::resetCached (FormationNodeCacheBit bit) const
    {
-      m_cachedValues.setValue ((unsigned int) bit, false);
+      m_cachedValues.setValue ((unsigned int)bit, false);
    }
 
    bool ProxyFormationNode::computeTargetFormationNode (void)
@@ -137,7 +153,7 @@ namespace migration {
 
       RequestHandling::SendFormationNodeValueRequest (valueRequest, valueResponse);
 
-      return static_cast<T>((int) valueResponse.value);
+      return static_cast<T>((int)valueResponse.value);
    }
 
    template <class T>
@@ -158,7 +174,7 @@ namespace migration {
       if (!isCached (cacheBit))
       {
          value = getDoubleValue (valueSpec);
-         setCached(cacheBit);
+         setCached (cacheBit);
       }
       return value;
    }
@@ -175,6 +191,40 @@ namespace migration {
       return valueResponse.value;
    }
 
+   Composition & ProxyFormationNode::getComposition (void)
+   {
+      FormationNodeCompositionRequest chargesRequest;
+      FormationNodeCompositionRequest chargesResponse;
+
+      chargesRequest.i = getI ();
+      chargesRequest.j = getJ ();
+      chargesRequest.k = getK ();
+
+      chargesRequest.formationIndex = m_formation->getIndex ();
+      chargesRequest.valueSpec = GETCHARGES;
+
+      RequestHandling::SendFormationNodeCompositionRequest (chargesRequest, chargesResponse);
+      m_compositionToBeMigrated = &chargesResponse.composition;
+      return *m_compositionToBeMigrated;
+   }
+
+   void ProxyFormationNode::addComposition (const Composition & composition)
+   {
+      FormationNodeCompositionRequest chargesRequest;
+      FormationNodeCompositionRequest chargesResponse;
+
+      chargesRequest.i = getI ();
+      chargesRequest.j = getJ ();
+      chargesRequest.k = getK ();
+
+      chargesRequest.formationIndex = m_formation->getIndex ();
+
+      chargesRequest.valueSpec = ADDCOMPOSITIONTOBEMIGRATED;
+
+      chargesRequest.composition = composition;
+
+      RequestHandling::SendFormationNodeCompositionRequest (chargesRequest, chargesResponse);
+   }
 
    bool ProxyFormationNode::isValid (void)
    {
@@ -219,17 +269,17 @@ namespace migration {
    //use getCachedDoubleValue for doubles 
    double ProxyFormationNode::getDepth ()
    {
-      return getCachedDoubleValue(DEPTH, DEPTHCACHE, m_depth);
+      return getCachedDoubleValue (DEPTH, DEPTHCACHE, m_depth);
    }
 
    double ProxyFormationNode::getHeightVapour ()
    {
-      return getCachedDoubleValue(HEIGHTVAPOUR, HEIGHTVAPOURCACHE, m_heightVapour);
+      return getCachedDoubleValue (HEIGHTVAPOUR, HEIGHTVAPOURCACHE, m_heightVapour);
    }
 
    double ProxyFormationNode::getHeightLiquid ()
    {
-      return getCachedDoubleValue(HEIGHTLIQUID, HEIGHTLIQUIDCACHE, m_heightLiquid);
+      return getCachedDoubleValue (HEIGHTLIQUID, HEIGHTLIQUIDCACHE, m_heightLiquid);
    }
 
    FaultStatus ProxyFormationNode::getFaultStatus ()
@@ -239,7 +289,7 @@ namespace migration {
 
    FormationNode * ProxyFormationNode::getTargetFormationNode (void)
    {
-      if (!isCached ((FormationNodeCacheBit) (TARGETFORMATIONNODECACHE)))
+      if (!isCached ((FormationNodeCacheBit)(TARGETFORMATIONNODECACHE)))
       {
          FormationNodeValueRequest valueRequest;
          FormationNodeValueRequest valueResponse;
@@ -248,12 +298,12 @@ namespace migration {
 
          RequestHandling::SendFormationNodeValueRequest (valueRequest, valueResponse);
 
-         if (valueResponse.i >= 0 && valueResponse.j >= 0 && valueResponse.k >= 0) // may not have been calculated yet!!
+         if (valueResponse.i >= 0 and valueResponse.j >= 0 and valueResponse.k >= 0) // may not have been calculated yet!!
          {
             m_targetFormationNode = getFormation (valueResponse.formationIndex)->getFormationNode (valueResponse.i, valueResponse.j, valueResponse.k);
             if (m_targetFormationNode)
             {
-               setCached ((FormationNodeCacheBit) (TARGETFORMATIONNODECACHE));
+               setCached ((FormationNodeCacheBit)(TARGETFORMATIONNODECACHE));
             }
          }
       }
@@ -263,7 +313,8 @@ namespace migration {
 
    ThreeVector & ProxyFormationNode::getAnalogFlowDirection (void)
    {
-      if (!isCached ((FormationNodeCacheBit) (ANALOGFLOWDIRECTIONCACHE)))
+      if (!m_analogFlowDirection) m_analogFlowDirection = new FiniteElementMethod::ThreeVector;
+      if (!isCached ((FormationNodeCacheBit)(ANALOGFLOWDIRECTIONCACHE)))
       {
          FormationNodeThreeVectorRequest threeVectorRequest;
          FormationNodeThreeVectorRequest threeVectorResponse;
@@ -272,10 +323,12 @@ namespace migration {
 
          RequestHandling::SendFormationNodeThreeVectorRequest (threeVectorRequest, threeVectorResponse);
 
-         m_analogFlowDirection = threeVectorResponse.values;
-         setCached ((FormationNodeCacheBit) (ANALOGFLOWDIRECTIONCACHE));
+
+         (*m_analogFlowDirection) = threeVectorResponse.values;
+         setCached ((FormationNodeCacheBit)(ANALOGFLOWDIRECTIONCACHE));
       }
-      return m_analogFlowDirection;
+
+      return (*m_analogFlowDirection);
    }
 
    ThreeVector ProxyFormationNode::getFiniteElementGrad (PropertyIndex propertyIndex)
@@ -355,9 +408,10 @@ namespace migration {
 
    /// Constructor
    LocalFormationNode::LocalFormationNode (unsigned int i, unsigned int j, int k, Formation * formation) :
-      FormationNode (i, j, k, formation), m_compositionToBeMigrated (0), m_topFormationNode (0), m_targetFormationNode (0), m_selectedDirectionIndex (-1),
+      FormationNode (i, j, k, formation), m_topFormationNode (0), m_targetFormationNode (0), m_selectedDirectionIndex (-1),
       m_depth (Interface::DefaultUndefinedMapValue), m_horizontalPermeability (-1), m_porosity (-1), m_pressure (-1), m_temperature (-1), m_adjacentNodeIndex (0),
-      m_entered (false), m_tried (0), m_hasNoThickness (false), m_cosines (0), m_isCrestLiquid (true), m_isCrestVapour (true), m_isEndOfPath (false)
+      m_entered (false), m_tried (0), m_hasNoThickness (false), m_cosines (0), m_isCrestLiquid (true), m_isCrestVapour (true), m_isEndOfPath (false),
+      m_compositionToBeMigrated (0), m_analogFlowDirection (0), m_finiteElementsDepths (0)
    {
       m_verticalPermeability[0] = -1.0;
       m_verticalPermeability[1] = -1.0;
@@ -375,6 +429,32 @@ namespace migration {
    /// Destructor
    LocalFormationNode::~LocalFormationNode (void)
    {
+
+      if (m_compositionToBeMigrated)
+      {
+         delete m_compositionToBeMigrated;
+         m_compositionToBeMigrated = 0;
+      }
+
+      if (m_cosines)
+      {
+         delete m_cosines;
+         m_cosines = 0;
+      }
+
+      if (m_analogFlowDirection)
+      {
+         delete m_analogFlowDirection;
+         m_analogFlowDirection = 0;
+
+      }
+
+      if (m_finiteElementsDepths)
+      {
+         delete[] m_finiteElementsDepths;
+         m_finiteElementsDepths = 0;
+      }
+
    }
 
    bool LocalFormationNode::isValid (void)
@@ -386,9 +466,9 @@ namespace migration {
    {
       m_isReservoirVapour = false;
       m_isReservoirLiquid = false;
-      m_isCrestVapour     = true;
-      m_isCrestLiquid     = true;
-      m_isEndOfPath    = false;
+      m_isCrestVapour = true;
+      m_isCrestLiquid = true;
+      m_isEndOfPath = false;
 
       m_heightLiquid = m_heightVapour = 0;
    }
@@ -418,7 +498,30 @@ namespace migration {
       m_tried = 0;
       m_hasNoThickness = false;
 
-      if (m_cosines) m_cosines->clear ();
+      if (m_compositionToBeMigrated)
+      {
+         delete m_compositionToBeMigrated;
+         m_compositionToBeMigrated = 0;
+      }
+
+      if (m_cosines)
+      {
+         delete m_cosines;
+         m_cosines = 0;
+      }
+
+      if (m_analogFlowDirection)
+      {
+         delete m_analogFlowDirection;
+         m_analogFlowDirection = 0;
+
+      }
+
+      if (m_finiteElementsDepths)
+      {
+         delete[] m_finiteElementsDepths;
+         m_finiteElementsDepths = 0;
+      }
 
       clearReservoirProperties ();
    }
@@ -440,8 +543,6 @@ namespace migration {
       {
          // undefined node, not to be used in flow path calculations
          m_depth = Interface::DefaultUndefinedMapValue;
-         m_analogFlowDirection.zero ();
-
          return;
       }
 
@@ -449,7 +550,6 @@ namespace migration {
       m_depth = getFiniteElementValue (0.0, 0.0, 0.0, DEPTHPROPERTY);
 
       const GeoPhysics::FluidType * fluid = (GeoPhysics::FluidType *) (m_formation->getFluidType ());
-
       m_waterDensity = fluid->density (m_temperature, m_pressure);
    }
 
@@ -476,7 +576,7 @@ namespace migration {
    void LocalFormationNode::setValue (FormationNodeValueRequest & request)
    {
       switch (request.valueSpec)
-      {   
+      {
 #ifdef REGISTERPROXIES
       case REGISTER:
          addProxy ((int) request.value);
@@ -602,7 +702,7 @@ namespace migration {
          response.j = getJ ();
          response.k = getK ();
          response.formationIndex = getFormation ()->getIndex ();
-         response.value = getFiniteElementMinimumValue ((PropertyIndex) (int) request.value);
+         response.value = getFiniteElementMinimumValue ((PropertyIndex)(int)request.value);
          break;
       default:
          cerr << "ERROR: illegal request: " << request.valueSpec << endl;
@@ -610,12 +710,42 @@ namespace migration {
       }
    }
 
+   void LocalFormationNode::manipulateComposition (ValueSpec valueSpec, int phase, Composition & composition)
+   {
+      switch (valueSpec)
+      {
+      case ADDCOMPOSITIONTOBEMIGRATED:
+         addComposition (composition);
+         break;
+      default:
+         assert (0);
+      }
+   }
+
+   void LocalFormationNode::getComposition (ValueSpec valueSpec, int phase, Composition & composition)
+   {
+      switch (valueSpec)
+      {
+      case GETCHARGES:
+         composition = getComposition ();
+         break;
+      default:
+         assert (0);
+      }
+   }
+
+   migration::Composition & LocalFormationNode::getComposition (void)
+   {
+      if (!m_compositionToBeMigrated) m_compositionToBeMigrated = new Composition;
+      return *m_compositionToBeMigrated;
+   }
+
    void LocalFormationNode::getThreeVectorValue (FormationNodeThreeVectorValueRequest & request, FormationNodeThreeVectorValueRequest & response)
    {
       switch (request.valueSpec)
       {
       case GETFINITEELEMENTVALUE:
-         response.value = getFiniteElementValue (request.values[0], request.values[1], request.values[2], (PropertyIndex) (int) request.value);
+         response.value = getFiniteElementValue (request.values[0], request.values[1], request.values[2], (PropertyIndex)(int)request.value);
          break;
       default:
          cerr << "ERROR: illegal request: " << request.valueSpec << endl;
@@ -633,22 +763,22 @@ namespace migration {
          response.i = getI ();
          response.j = getJ ();
          response.k = getK ();
-         response.values[0] = m_analogFlowDirection (1);
-         response.values[1] = m_analogFlowDirection (2);
-         response.values[2] = m_analogFlowDirection (3);
+         response.values[0] = (*m_analogFlowDirection)  (1);
+         response.values[1] = (*m_analogFlowDirection) (2);
+         response.values[2] = (*m_analogFlowDirection) (3);
          break;
       case GETFINITEELEMENTGRAD:
-         {
-            response.i = getI ();
-            response.j = getJ ();
-            response.k = getK ();
-            response.formationIndex = getFormation ()->getIndex ();
-            ThreeVector grad = getFiniteElementGrad ((PropertyIndex) (int) (request.values[0]));
-            response.values[0] = grad (1);
-            response.values[1] = grad (2);
-            response.values[2] = grad (3);
-         }
-         break;
+      {
+         response.i = getI ();
+         response.j = getJ ();
+         response.k = getK ();
+         response.formationIndex = getFormation ()->getIndex ();
+         ThreeVector grad = getFiniteElementGrad ((PropertyIndex)(int)(request.values[0]));
+         response.values[0] = grad (1);
+         response.values[1] = grad (2);
+         response.values[2] = grad (3);
+      }
+      break;
       default:
          cerr << "ERROR: illegal request: " << request.valueSpec << endl;
          assert (false);
@@ -696,8 +826,13 @@ namespace migration {
    void LocalFormationNode::addChargeToBeMigrated (int componentId, double weight)
    {
       if (!m_compositionToBeMigrated) m_compositionToBeMigrated = new Composition;
+      m_compositionToBeMigrated->add ((ComponentId)componentId, weight);
+   }
 
-      m_compositionToBeMigrated->add ((ComponentId) componentId, weight);
+   void LocalFormationNode::addComposition (const Composition & composition)
+   {
+      if (!m_compositionToBeMigrated) m_compositionToBeMigrated = new Composition;
+      m_compositionToBeMigrated->add (composition);
    }
 
    //
@@ -708,14 +843,14 @@ namespace migration {
    {
       if (!IsValid (this)) return true;
 
-      double cp_liquid, cp_vapour;
+      double pressureContrastVapor, pressureContrastLiquid;
 
       bool vapourFlag = false;
       bool liquidFlag = false;
 
       m_heightLiquid = m_heightVapour = 0;
 
-      if (hasThickness () && !isImpermeable ())
+      if (hasThickness () and !isImpermeable ())
       {
          if (topNode->isImpermeable ())
          {
@@ -726,70 +861,92 @@ namespace migration {
             return true;
          }
 
-            // correction factor for capillary pressure in the reservoir: assume 30% water saturation
-            double lambdaPC = m_formation->getCompoundLithology (getI (), getJ ())->LambdaPc ();
-            // If the project file does not contain values for Lambda_Pc assign an 'avarage' value of 1.
-            if (lambdaPC == Interface::DefaultUndefinedMapValue or lambdaPC == Interface::DefaultUndefinedScalarValue)
-               lambdaPC = 1.0;
+         // get the vapor pressure contrast 
+         pressureContrastVapor = getPressureContrast( topNode, GAS, pressureRun );
+         // calculate maximum height of the hydrocarbons column for gas
+         m_heightVapour = pressureContrastVapor / ( ( m_waterDensity - m_vapourDensity ) * AccelerationDueToGravity );
 
-            double resCorr = computeBrooksCoreyCorrection (0.3, lambdaPC);
+         // if actual height is greater than the user-defined minimum - raise potential reservoir flag
+         if (m_heightVapour > minVapourColumnHeight)
+         {
+            vapourFlag = true;
+         }
 
-            // calculate overpressure difference
-            double dOverPressure;
-            if (pressureRun)
-               dOverPressure = topNode->m_overPressure - m_overPressure;
-            else
-               dOverPressure = 0.0;
+         // get the liquid pressure contrast 
+         pressureContrastLiquid = getPressureContrast( topNode, OIL, pressureRun );
 
-            // calculate actual capillary pressure sealing for gas
-            cp_vapour = topNode->m_capillaryEntryPressureVapour[0] - m_capillaryEntryPressureVapour[0] * resCorr;
+         // calculate maximum height of the hydrocarbons column for oil
+         m_heightLiquid = pressureContrastLiquid / ( ( m_waterDensity - m_liquidDensity ) * AccelerationDueToGravity );
 
-            // calculate maximum height of the hydrocarbons column for gas
-            m_heightVapour = (cp_vapour + dOverPressure) / ((m_waterDensity - m_vapourDensity) * CBMGenerics::Gravity);
-
-            // if actual height is greater than the user-defined minimum - raise potential reservoir flag
-            if (m_heightVapour > minVapourColumnHeight)
-            {
-               vapourFlag = true;
-            }
-
-            // calculate actual capillary pressure sealing for oil
-            cp_liquid = topNode->m_capillaryEntryPressureLiquid[0] - m_capillaryEntryPressureLiquid[0] * resCorr;
-
-            // calculate maximum height of the hydrocarbons column for oil
-            m_heightLiquid = (cp_liquid + dOverPressure) / ((m_waterDensity - m_liquidDensity) * CBMGenerics::Gravity);
-
-            // if actual height is greater than the user-defined minimum - raise potential reservoir flag
-            if (m_heightLiquid > minLiquidColumnHeight)
-            {
-               liquidFlag = true;
-            }
+         // if actual height is greater than the user-defined minimum - raise potential reservoir flag
+         if ( m_heightLiquid > minLiquidColumnHeight )
+         {
+            liquidFlag = true;
+         }
       }
 
       setReservoirVapour (vapourFlag);
       setReservoirLiquid (liquidFlag);
 
-      return (vapourFlag || liquidFlag);
+      return (vapourFlag or liquidFlag);
+   }
+
+
+   //
+   // Calculate the pressure contrast between the seal and the reservoir formation, including the capillary pressure and the overpressure
+   //
+   double LocalFormationNode::getPressureContrast( const LocalFormationNode * topNode, const PhaseId phase, const bool pressureRun ) const
+   {
+      double capillaryPressureContrast;
+      // correction factor for capillary pressure in the reservoir: assume 30% water saturation
+      double lambdaPC = m_formation->getCompoundLithology( getI( ), getJ( ) )->LambdaPc( );
+      // If the project file does not contain values for Lambda_Pc assign an 'avarage' value of 1.
+      if ( lambdaPC == Interface::DefaultUndefinedMapValue or lambdaPC == Interface::DefaultUndefinedScalarValue )
+         lambdaPC = 1.0;
+
+      GeoPhysics::BrooksCorey brooksCorey;
+      double resCorr = brooksCorey.computeBrooksCoreyCorrection( 0.3, lambdaPC );
+
+      // calculate overpressure difference
+      double dOverPressure;
+      if ( pressureRun )
+         dOverPressure = topNode->m_overPressure - m_overPressure;
+      else
+         dOverPressure = 0.0;
+
+      if ( phase == GAS )
+      {
+         // calculate actual capillary sealing pressure for vapour
+         capillaryPressureContrast = topNode->m_capillaryEntryPressureVapour[0] - m_capillaryEntryPressureVapour[0] * resCorr;
+      }
+      else
+      {
+         // calculate actual capillary sealing pressure  for liquid
+         capillaryPressureContrast = topNode->m_capillaryEntryPressureLiquid[0] - m_capillaryEntryPressureLiquid[0] * resCorr;
+      }
+
+      return capillaryPressureContrast + dOverPressure;
+
    }
 
    // Check if the node is a crest node for the phaseId, similarly to what is done in Reservoir::getAdjacentColumn
-   bool LocalFormationNode::detectReservoirCrests(PhaseId phase)
+   bool LocalFormationNode::detectReservoirCrests (PhaseId phase)
    {
 
       // if the node can not gas or oil, skip the calculations
-      if (phase == GAS && !getReservoirVapour())
+      if (phase == GAS and !getReservoirVapour ())
       {
          m_isCrestVapour = false;
          return false;
       }
-      if (phase == OIL && !getReservoirLiquid ())
+      if (phase == OIL and !getReservoirLiquid ())
       {
          m_isCrestLiquid = false;
          return false;
       }
 
       // if node is not valid, skip the calculations
-      if (!IsValid (this)) 
+      if (!IsValid (this))
       {
          if (phase == GAS)
             m_isCrestVapour = false;
@@ -799,7 +956,7 @@ namespace migration {
       }
 
       //Calculations performed as in Reservoir::getAdjacentColumn. m_isCrestGas and m_isCrestOil are set true in the constructor. 
-		//if the neighbours nodes are zero thickness nodes does not matter, the highest depth is always taken
+      //if the neighbours nodes are zero thickness nodes does not matter, the highest depth is always taken
       int top = m_formation->getGridMapDepth () - 1;
 
       for (int n = 0; n < NumNeighbours; ++n)
@@ -817,11 +974,11 @@ namespace migration {
          }
 
          bool isSealingNeighbourNode = false;
-      
+
          if (phase == GAS)
             isSealingNeighbourNode = (neighbourNode->getFaultStatus () == SEAL);
          else
-            isSealingNeighbourNode = (neighbourNode->getFaultStatus() == SEAL ||  neighbourNode->getFaultStatus() == SEALOIL);
+            isSealingNeighbourNode = (neighbourNode->getFaultStatus () == SEAL or neighbourNode->getFaultStatus () == SEALOIL);
 
          if (isSealingNeighbourNode)
          {
@@ -847,70 +1004,48 @@ namespace migration {
 
       // return true if the node is crest column AND can hold gas or oil 
       if (phase == GAS)
-         return (m_isCrestVapour && getReservoirVapour());
+         return (m_isCrestVapour and getReservoirVapour ());
       else
-         return (m_isCrestLiquid && getReservoirLiquid());
+         return (m_isCrestLiquid and getReservoirLiquid ());
 
    };
 
    /// compareDepths returns -1 if this is shallower, 0 if equally deep and 1 if this is deeper
    /// Also used to break the tie between columns with equal top depth
    /// Does not take into account whether columns are sealing or wasting
-   int LocalFormationNode::compareDepths(FormationNode * node, bool useTieBreaker)
+   int LocalFormationNode::compareDepths (FormationNode * node, bool useTieBreaker)
    {
       // top depth of the current node and node 
-      Formation * formation = getFormation();
-      double depth = formation->getPropertyValue(DEPTHPROPERTY, getI(), getJ(), getK());
-      double nodedepth = formation->getPropertyValue(DEPTHPROPERTY, node->getI(), node->getJ(), getK());
+      Formation * formation = getFormation ();
+      double depth = formation->getPropertyValue (DEPTHPROPERTY, getI (), getJ (), getK ());
+      double nodedepth = formation->getPropertyValue (DEPTHPROPERTY, node->getI (), node->getJ (), getK ());
 
       if (depth < nodedepth) return -1;
       if (depth > nodedepth) return 1;
 
       if (useTieBreaker)
       {
-         if (getI() + getJ() > node->getI() + node->getJ()) return -1;
-         if (getI() + getJ() < node->getI() + node->getJ()) return 1;
+         if (getI () + getJ () > node->getI () + node->getJ ()) return -1;
+         if (getI () + getJ () < node->getI () + node->getJ ()) return 1;
 
-         if (getI() > node->getI()) return -1;
-         if (getI() < node->getI()) return 1;
-         if (getJ() > node->getJ()) return -1;
-         if (getJ() < node->getJ()) return 1;
+         if (getI () > node->getI ()) return -1;
+         if (getI () < node->getI ()) return 1;
+         if (getJ () > node->getJ ()) return -1;
+         if (getJ () < node->getJ ()) return 1;
 
-         assert(this == node);
+         assert (this == node);
       }
 
       return 0;
    }
 
-   bool LocalFormationNode::getIsCrest (PhaseId phase) 
+   bool LocalFormationNode::getIsCrest (PhaseId phase)
    {
       if (phase == GAS)
          return m_isCrestVapour;
       else
          return m_isCrestLiquid;
    };
-   
-   double LocalFormationNode::computeBrooksCoreyCorrection (double Sw, double lambda) const
-   {
-      //Now these values are hard coded: it might change if required   
-      const double Adjustment = 1.0e-4;
-      const double Sir = 0.1;
-      double Sr;
-
-      if (Sw <= Sir + Adjustment) {
-         Sr = Adjustment / (1.0 - Sir);
-      }
-      else if (Sw == 1.0) {
-         Sr = 1;
-      }
-      else {
-         Sr = (Sw - Sir) / (1.0 - Sir);
-      }
-
-      assert (0 <= Sr && Sr <= 1);
-
-      return pow (Sr, -lambda);
-   }
 
    void LocalFormationNode::identifyAsReservoir (void)
    {
@@ -933,18 +1068,24 @@ namespace migration {
       int j = getJ ();
       int k = getK ();
 
-      if (performVerticalMigration () || hasNoThickness ())
+      if (performVerticalMigration () or hasNoThickness ())
       {
          // let's assume everything will go straight up in this case
-         m_analogFlowDirection.zero ();
-         m_analogFlowDirection (3) = -1.0;
+         if (!m_analogFlowDirection) m_analogFlowDirection = new FiniteElementMethod::ThreeVector;
+         (*m_analogFlowDirection).zero ();
+         (*m_analogFlowDirection) (3) = -1.0;
 
          return;
       }
 
       Matrix3x3 permeabilityTensor;
 
-      getFiniteElement ().setTensor (1.0, getHorizontalPermeability () / getVerticalPermeability (), permeabilityTensor);
+      FiniteElement finiteElement;
+
+      setFiniteElement (finiteElement);
+
+      // setTensor does not modify any private member of finiteElement
+      finiteElement.setTensor (1.0, getHorizontalPermeability () / getVerticalPermeability (), permeabilityTensor);
 
       ThreeVector capPressureGrad;
 
@@ -954,38 +1095,38 @@ namespace migration {
       capPressureGrad = getFiniteElementGrad (CAPILLARYENTRYPRESSURELIQUIDPROPERTY);
 #endif
 
-      if (!performHDynamicAndCapillary () || capPressureGrad (1) == Interface::DefaultUndefinedMapValue)
+      if (!performHDynamicAndCapillary () or capPressureGrad (1) == Interface::DefaultUndefinedMapValue)
       {
 
          ThreeVector vertical;
 
          vertical.zero ();
          vertical (3) = -1.0;
-
-         matrixVectorProduct (permeabilityTensor, vertical, m_analogFlowDirection);
+         if (!m_analogFlowDirection) m_analogFlowDirection = new FiniteElementMethod::ThreeVector;
+         matrixVectorProduct (permeabilityTensor, vertical, *m_analogFlowDirection);
       }
 
       else
       {
          ThreeVector pressureGrad = getFiniteElementGrad (PRESSUREPROPERTY);
-         pressureGrad += capPressureGrad * CBMGenerics::Pa2MPa;
+         pressureGrad += capPressureGrad * PaToMegaPa;
 
 #ifdef GAS_DENSITY_FLOW_DIRECTION
          double hc_density = m_vapourDensity;
 #else
          double hc_density = m_liquidDensity;
 #endif
-         double gravity = hc_density * CBMGenerics::Gravity * CBMGenerics::Pa2MPa;
+         double gravity = hc_density * AccelerationDueToGravity * PaToMegaPa;
 
          ThreeVector force;
          force (1) = -pressureGrad (1);
          force (2) = -pressureGrad (2);
          force (3) = -pressureGrad (3) + gravity;
-
-         matrixVectorProduct (permeabilityTensor, force, m_analogFlowDirection);
+         if (!m_analogFlowDirection) m_analogFlowDirection = new FiniteElementMethod::ThreeVector;
+         matrixVectorProduct (permeabilityTensor, force, *m_analogFlowDirection);
       }
 
-      normalise (m_analogFlowDirection);
+      normalise (*m_analogFlowDirection);
    }
 
    void LocalFormationNode::determineThicknessProperties (void)
@@ -997,7 +1138,7 @@ namespace migration {
       m_hasNoThickness = true;
 
       int boi, toi;
-      for (toi = FirstTopNodeCorner, boi = FirstBottomNodeCorner; toi <= LastTopNodeCorner /* && boi <= LastBottomNodeCorner */; ++toi, ++boi)
+      for (toi = FirstTopNodeCorner, boi = FirstBottomNodeCorner; toi <= LastTopNodeCorner /* and boi <= LastBottomNodeCorner */; ++toi, ++boi)
       {
          double topDepth = m_formation->getPropertyValue (DEPTHPROPERTY, i + NodeCornerOffsets[toi][0], j + NodeCornerOffsets[toi][1], k + NodeCornerOffsets[toi][2]);
          double bottomDepth = m_formation->getPropertyValue (DEPTHPROPERTY, i + NodeCornerOffsets[boi][0], j + NodeCornerOffsets[boi][1], k + NodeCornerOffsets[boi][2]);
@@ -1011,7 +1152,7 @@ namespace migration {
    }
 
    void LocalFormationNode::computeNextAdjacentNode (void)
-   {      
+   {
       FormationNode * adjacentNode = getAdjacentFormationNode (m_selectedDirectionIndex);
 
       if (hasThickness ())
@@ -1042,17 +1183,17 @@ namespace migration {
 
       // compare against ... nearest neighbour directions gridwise above and sideways
 
-      if (hasNoThickness () || getFaultStatus () == WASTE)
+      if (hasNoThickness () or getFaultStatus () == WASTE)
       {
          // it should just bypass this node upward as it either has no thickness or is a wasting node.
          m_selectedDirectionIndex = 0;
          return;
       }
 
-      if (!m_cosines || m_cosines->empty ())
+      if (!m_cosines or m_cosines->empty ())
          computeCosines ();
 
-      if ((unsigned int) m_adjacentNodeIndex < (*m_cosines).size ())
+      if ((unsigned int)m_adjacentNodeIndex < (*m_cosines).size ())
       {
          m_selectedDirectionIndex = (*m_cosines)[m_adjacentNodeIndex].first;
       }
@@ -1076,7 +1217,7 @@ namespace migration {
 
       int diStart = 0;
 
-      if (getReservoirVapour () || getReservoirLiquid ())
+      if (getReservoirVapour () or getReservoirLiquid ())
       {
          // Only look laterally (grid-wise) for flow path continuations
          diStart += NumberOfUpwardNeighbourOffsets;
@@ -1088,7 +1229,10 @@ namespace migration {
       double dxSquare = dx * dx;
       double dySquare = dy * dy;
 
-      if (!m_cosines) m_cosines = new vector < IntDoublePair >;
+      if (!m_cosines)
+      {
+         m_cosines = new vector < IntDoublePair >;
+      }
 
       ThreeVector analogFDnode = getAnalogFlowDirection ();
 
@@ -1096,13 +1240,13 @@ namespace migration {
       {
          FormationNode * neighbourNode = getAdjacentFormationNode (di);
 
-         if (neighbourNode && neighbourNode->isImpermeable ())
+         if (neighbourNode and neighbourNode->isImpermeable ())
          {
             // path cannot go into an impermeable node
             continue;
          }
 
-         if ((getReservoirVapour () || getReservoirLiquid ()) && neighbourNode && neighbourNode->hasNoThickness ())
+         if ((getReservoirVapour () or getReservoirLiquid ()) and neighbourNode and neighbourNode->hasNoThickness ())
          {
             // cannot escape via a zero thickness node if we are in a reservoir
             continue;
@@ -1155,7 +1299,7 @@ namespace migration {
             neighbourNodeDepth = getFiniteElementValue (iQP, jQP, kQP, DEPTHPROPERTY);
          }
 
-         if ((getReservoirVapour () || getReservoirLiquid ()) && neighbourNodeDepth >= m_depth)
+         if ((getReservoirVapour () or getReservoirLiquid ()) and neighbourNodeDepth >= m_depth)
          {
             // if we are in the reservoir area, only try to go upward (z-wise)
             continue;
@@ -1209,25 +1353,25 @@ namespace migration {
 
             // diagonals are not always diagonals
             double diagonalSquared = (Abs (NeighbourOffsets3D[di][0]) * dxSquare +
-                                      Abs (NeighbourOffsets3D[di][1]) * dySquare + Square (neighbourDepth - myDepth));
+               Abs (NeighbourOffsets3D[di][1]) * dySquare + Square (neighbourDepth - myDepth));
             double diagonal = sqrt (diagonalSquared);
 
             double neighbourDiagonalSquared = (Abs (NeighbourOffsets3D[di][0]) * dxSquare +
-                                               Abs (NeighbourOffsets3D[di][1]) * dySquare + Square (neighbourNeighbourDepth - neighbourDepth));
+               Abs (NeighbourOffsets3D[di][1]) * dySquare + Square (neighbourNeighbourDepth - neighbourDepth));
             double neighbourDiagonal = sqrt (neighbourDiagonalSquared);
 
             // get the analog flow direction of the neighbour node.
             ThreeVector neighbourAnalogFlowDirection = m_formation->getAnalogFlowDirection (iNeighbour, jNeighbour, kNeighbour);
 
             /// compound analog flow direction is weighted sum of this node's analog flow direction of (i, j, k) and neighbour node's analog flow direction
-            compoundAnalogFlowDirection = m_analogFlowDirection * diagonal + neighbourAnalogFlowDirection * neighbourDiagonal;
+            compoundAnalogFlowDirection = (*m_analogFlowDirection) * diagonal + neighbourAnalogFlowDirection * neighbourDiagonal;
 
             normalise (compoundAnalogFlowDirection);
          }
          else
          {
             // neighbour node is undefined or invalid, compound analog flow direction equals analog flow direction of current element.
-            compoundAnalogFlowDirection = m_analogFlowDirection;
+            compoundAnalogFlowDirection = *m_analogFlowDirection;
          }
 
          double cosine = innerProduct (compoundAnalogFlowDirection, normalizedDiscretizedFlowDirection);
@@ -1264,12 +1408,12 @@ namespace migration {
       if (MaxTries < 0)
          MaxTries = Max (2, NumProcessors () + 8);
 
-      if (m_entered || ++m_tried > MaxTries)
-       {
-          m_tried = 0;
-          computeNextAdjacentNode (); // selects next adjacent formation node; changes output of getAdjacentFormationNode ()
-          return false;
-       }
+      if (m_entered or ++m_tried > MaxTries)
+      {
+         m_tried = 0;
+         computeNextAdjacentNode (); // selects next adjacent formation node; changes output of getAdjacentFormationNode ()
+         return false;
+      }
 
       if (hasNowhereToGo ())
       {
@@ -1299,8 +1443,8 @@ namespace migration {
 
       // this may still return 0!!!
       return m_formation->getFormationNode (getI () + NeighbourOffsets3D[directionIndex][0],
-                                            getJ () + NeighbourOffsets3D[directionIndex][1],
-                                            getK () + NeighbourOffsets3D[directionIndex][2]);
+         getJ () + NeighbourOffsets3D[directionIndex][1],
+         getK () + NeighbourOffsets3D[directionIndex][2]);
    }
 
    int LocalFormationNode::getAdjacentFormationNodeGridOffset (int dimension)
@@ -1314,7 +1458,7 @@ namespace migration {
    {
       // if this is a top node of the top active formation, m_targetFormationNode will be set, even if it has no thickness.
       // If it has thickness, m_targetFormatioNode should be set if target formation nodes have been computed
-      if (m_targetFormationNode || hasThickness ())
+      if (m_targetFormationNode or hasThickness ())
          return m_targetFormationNode;
       else if (m_topFormationNode)
          return m_topFormationNode->getTargetFormationNode ();
@@ -1346,10 +1490,10 @@ namespace migration {
       if (hasThickness ())
       {
          impermeable =
-            (getVerticalPermeability () <= getBlockingPermeability () ||
-             getPorosity () <= getBlockingPorosity () ||
-             getFaultStatus () == SEAL ||
-             getFaultStatus () == SEALOIL);
+            (getVerticalPermeability () <= getBlockingPermeability () or
+            getPorosity () <= getBlockingPorosity () or
+            getFaultStatus () == SEAL or
+            getFaultStatus () == SEALOIL);
       }
       else if (m_topFormationNode)
          impermeable = m_topFormationNode->isImpermeable ();
@@ -1361,7 +1505,7 @@ namespace migration {
 
    bool LocalFormationNode::hasNowhereToGo (void)
    {
-      if (isImpermeable () || getAdjacentFormationNode () == 0)
+      if (isImpermeable () or getAdjacentFormationNode () == 0)
       {
          return true;
       }
@@ -1373,7 +1517,7 @@ namespace migration {
 
    bool LocalFormationNode::goesOutOfBounds (void)
    {
-      return (getAdjacentFormationNode () == 0 && m_selectedDirectionIndex >= 0 && m_selectedDirectionIndex < NumberOfNeighbourOffsetsUsed);
+      return (getAdjacentFormationNode () == 0 and m_selectedDirectionIndex >= 0 and m_selectedDirectionIndex < NumberOfNeighbourOffsetsUsed);
    }
 
    double LocalFormationNode::getDepth ()
@@ -1508,10 +1652,10 @@ namespace migration {
    {
       if (hasThickness ())
          return * ((double *) ((char *) this + offset))
-         else if (m_topFormationNode)
-            return m_topFormationNode->getValueAtOffset (offset);
-         else
-            return Interface::DefaultUndefinedMapValue;
+      else if (m_topFormationNode)
+      return m_topFormationNode->getValueAtOffset (offset);
+      else
+         return Interface::DefaultUndefinedMapValue;
    }
 #endif
 
@@ -1618,13 +1762,13 @@ namespace migration {
    bool LocalFormationNode::getReservoirVapour (void)
    {
       // a node can only be a reservoir node if it has thickness
-      return m_isReservoirVapour && hasThickness ();
+      return m_isReservoirVapour and hasThickness ();
    }
 
    bool LocalFormationNode::getReservoirLiquid (void)
    {
       // a node can only be a reservoir node if it has thickness
-      return m_isReservoirLiquid && hasThickness ();
+      return m_isReservoirLiquid and hasThickness ();
    }
 
    bool LocalFormationNode::isEndOfPath (void)
@@ -1656,16 +1800,41 @@ namespace migration {
 
    ThreeVector & LocalFormationNode::getAnalogFlowDirection (void)
    {
-      return m_analogFlowDirection;
+      if (!m_analogFlowDirection) m_analogFlowDirection = new FiniteElementMethod::ThreeVector;
+      return *m_analogFlowDirection;
    }
 
-   FiniteElement & LocalFormationNode::getFiniteElement (void)
+   void LocalFormationNode::setFiniteElementDepths (double * depths)
    {
-      return m_finiteElement;
+      if (!m_finiteElementsDepths) m_finiteElementsDepths = new double[NumberOfNodeCorners];
+      for (int i = 0; i < NumberOfNodeCorners; ++i)
+         m_finiteElementsDepths[i] = depths[i];
+   }
+
+   bool LocalFormationNode::setFiniteElement (FiniteElementMethod::FiniteElement& finiteElement)
+   {
+
+      // now is time to calculate the finite element
+      bool returnValue = true;
+      double dx = m_formation->getDeltaI ();
+      double dy = m_formation->getDeltaJ ();
+      int oi;
+
+      if (!m_finiteElementsDepths) m_formation->computeFiniteElement (getI (), getJ (), getK ());
+
+      for (oi = 0; oi < NumberOfNodeCorners; ++oi)
+      {
+         if (m_finiteElementsDepths[oi] == Interface::DefaultUndefinedMapValue) returnValue = false;
+         finiteElement.setGeometryPoint (oi + 1, NodeCornerOffsets[oi][0] * dx, NodeCornerOffsets[oi][1] * dy, m_finiteElementsDepths[oi]);
+      }
+      finiteElement.setQuadraturePoint (0.0, 0.0, 0.0);
+
+      return returnValue;
    }
 
    double LocalFormationNode::getFiniteElementValue (double iOffset, double jOffset, double kOffset, PropertyIndex propertyIndex)
    {
+      FiniteElement finiteElement;
       //Check the node
       if (!hasThickness ())
       {
@@ -1676,7 +1845,8 @@ namespace migration {
       }
       else
       {
-         getFiniteElement ().setQuadraturePoint (iOffset, jOffset, kOffset);
+         if (!setFiniteElement (finiteElement)) return Interface::DefaultUndefinedMapValue;
+         finiteElement.setQuadraturePoint (iOffset, jOffset, kOffset);
       }
 
       //Calculate the property
@@ -1696,7 +1866,7 @@ namespace migration {
          valueVector (oi + 1) = propertyValue;
       }
 
-      return getFiniteElement ().interpolate (valueVector);
+      return finiteElement.interpolate (valueVector);
    }
 
    double LocalFormationNode::getFiniteElementMinimumValue (PropertyIndex propertyIndex)
@@ -1722,7 +1892,7 @@ namespace migration {
             return Interface::DefaultUndefinedMapValue;
          }
 
-         if (minimumPropertyValue == Interface::DefaultUndefinedMapValue || propertyValue < minimumPropertyValue)
+         if (minimumPropertyValue == Interface::DefaultUndefinedMapValue or propertyValue < minimumPropertyValue)
          {
             minimumPropertyValue = propertyValue;
          }
@@ -1735,14 +1905,16 @@ namespace migration {
    ThreeVector LocalFormationNode::getFiniteElementGrad (PropertyIndex propertyIndex)
    {
       ElementVector valueVector;
+      FiniteElement finiteElement;
+      setFiniteElement (finiteElement);
 
       int oi;
       for (oi = 0; oi < NumberOfNodeCorners; ++oi)
       {
          double propertyValue = m_formation->getPropertyValue (propertyIndex,
-                                                               getI () + NodeCornerOffsets[oi][0],
-                                                               getJ () + NodeCornerOffsets[oi][1],
-                                                               getK () + NodeCornerOffsets[oi][2]);
+            getI () + NodeCornerOffsets[oi][0],
+            getJ () + NodeCornerOffsets[oi][1],
+            getK () + NodeCornerOffsets[oi][2]);
          if (propertyValue == Interface::DefaultUndefinedMapValue)
          {
             // undefined node
@@ -1756,7 +1928,7 @@ namespace migration {
          valueVector (oi + 1) = propertyValue;
       }
 
-      return getFiniteElement ().interpolateGrad (valueVector);
+      return finiteElement.interpolateGrad (valueVector);
    }
 
 #ifdef USEPROPERTYVALUES
@@ -1772,10 +1944,10 @@ namespace migration {
 #endif
 
    FormationNodeArray::FormationNodeArray (Formation * formation,
-                                           int numIGlobal, int numJGlobal,
-                                           int firstILocal, int lastILocal,
-                                           int firstJLocal, int lastJLocal,
-                                           int depth) :
+      int numIGlobal, int numJGlobal,
+      int firstILocal, int lastILocal,
+      int firstJLocal, int lastJLocal,
+      int depth) :
       m_formation (formation),
       m_numIGlobal (numIGlobal), m_numJGlobal (numJGlobal),
       m_firstILocal (firstILocal),
@@ -1856,13 +2028,13 @@ namespace migration {
 
    FormationNode * FormationNodeArray::getFormationNode (int i, int j, int k)
    {
-      if ((i < 0) || (j < 0) || (k < 0))
+      if ((i < 0) or (j < 0) or (k < 0))
          return 0;
 
-      if ((unsigned int) i >= m_numIGlobal || (unsigned int) j >= m_numJGlobal || (unsigned int) k >= m_depth)
+      if ((unsigned int)i >= m_numIGlobal or (unsigned int)j >= m_numJGlobal or (unsigned int)k >= m_depth)
          return 0;
 
-      if ((unsigned int) i >= m_firstILocal && (unsigned int) i <= m_lastILocal && (unsigned int) j >= m_firstJLocal && (unsigned int) j <= m_lastJLocal)
+      if ((unsigned int)i >= m_firstILocal and (unsigned int)i <= m_lastILocal and (unsigned int)j >= m_firstJLocal and (unsigned int)j <= m_lastJLocal)
       {
          return getLocalFormationNode (i, j, k);
       }
@@ -1874,11 +2046,11 @@ namespace migration {
 
    LocalFormationNode * FormationNodeArray::getLocalFormationNode (int i, int j, int k)
    {
-      if ((i < 0) || (j < 0) || (k < 0)) return 0;
+      if ((i < 0) or (j < 0) or (k < 0)) return 0;
 
       LocalFormationNode * localFormationNode = 0;
 
-      if ((unsigned int) i >= m_firstILocal && (unsigned int) i <= m_lastILocal && (unsigned int) j >= m_firstJLocal && (unsigned int) j <= m_lastJLocal && (unsigned int) k < m_depth)
+      if ((unsigned int)i >= m_firstILocal and (unsigned int)i <= m_lastILocal and (unsigned int)j >= m_firstJLocal and (unsigned int)j <= m_lastJLocal and (unsigned int)k < m_depth)
       {
          FormationNode * formationNode = m_localFormationNodes[i - m_firstILocal][j - m_firstJLocal][k];
          assert (formationNode);
@@ -1891,12 +2063,12 @@ namespace migration {
 
    ProxyFormationNode * FormationNodeArray::getProxyFormationNode (int i, int j, int k)
    {
-      if ((i < 0) || (j < 0) || (k < 0)) return 0;
+      if ((i < 0) or (j < 0) or (k < 0)) return 0;
 
       ProxyFormationNode * formationNode = 0;
 
-      if ((unsigned int) i < m_numIGlobal && (unsigned int) j < m_numJGlobal &&
-          !((unsigned int) i >= m_firstILocal && (unsigned int) i <= m_lastILocal && (unsigned int) j >= m_firstJLocal && (unsigned int) j <= m_lastJLocal) && k < (int) m_depth)
+      if ((unsigned int)i < m_numIGlobal and (unsigned int)j < m_numJGlobal and
+         !((unsigned int)i >= m_firstILocal and (unsigned int)i <= m_lastILocal and (unsigned int)j >= m_firstJLocal and (unsigned int)j <= m_lastJLocal) and k < (int)m_depth)
       {
          formationNode = m_proxyFormationNodes[k][IndexPair (i, j)];
          if (!formationNode)
@@ -1972,7 +2144,7 @@ namespace migration {
 
    bool IsValid (FormationNode * formationNode)
    {
-      return (formationNode != 0 && formationNode->isValid ());
+      return (formationNode != 0 and formationNode->isValid ());
    }
 
    ostream & operator<< (ostream & stream, FormationNode &formationNode)
@@ -1989,13 +2161,13 @@ namespace migration {
       else
       {
          stream << formationNode->getFormation ()->getName ()
-                << " ("
-                << formationNode->getI ()
-                << ", "
-                << formationNode->getJ ()
-                << ", "
-                << formationNode->getK ()
-                << ")";
+            << " ("
+            << formationNode->getI ()
+            << ", "
+            << formationNode->getJ ()
+            << ", "
+            << formationNode->getK ()
+            << ")";
       }
       return stream;
    }

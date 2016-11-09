@@ -1,20 +1,27 @@
-#ifndef _UTILITIES__PIECEWISE_INTERPOLATOR_H_
-#define _UTILITIES__PIECEWISE_INTERPOLATOR_H_
+//
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+#ifndef UTILITIES__PIECEWISE_INTERPOLATOR_H
+#define UTILITIES__PIECEWISE_INTERPOLATOR_H
 
 #include <iostream>
 #include <vector>
 #include <string>
 
+#include "ArrayDefinitions.h"
+
 namespace ibs {
 
-   /// A simple piece-wise linear interpolator.
-   /// The data must be added to the interpolator before calculation 
-   /// can proceed.
-   // Not currently working for cubic-spline, although all the code is
-   // there, it has not been tested.
+   /// \brief A simple continuous piece-wise linear interpolator.
    class PiecewiseInterpolator {
 
-      /// Class used to sort porosit and permeability values.
+      /// \brief Class used to sort porosit and permeability values.
       ///
       /// It does not sort the values directly but is used to sort an index pointer array.
       class PointerSort {
@@ -24,8 +31,8 @@ namespace ibs {
          /// Constructor with the array to be sorted.
          PointerSort ( const double* xVals );
 
-         bool operator ()( const int p1, 
-                           const int p2 ) const;
+         bool operator ()( const unsigned int p1,
+                           const unsigned int p2 ) const;
 
       private :
 
@@ -35,79 +42,94 @@ namespace ibs {
 
    public :
 
-      /// Which kind of interpolation, linear or cubic.
-      enum InterpolationMethod { PIECEWISE_LINEAR, CUBIC_SPLINE };
-
-
       PiecewiseInterpolator ();
 
       ~PiecewiseInterpolator ();
 
-      /// Set the values for the interpolator.
+      /// \brief Set the values for the interpolator.
       ///
       /// The data will copied and sorted into ascending order of porosities.
-      void setInterpolation ( const InterpolationMethod newInterpolationMethod,
-                              const int                 newNumberOfPoints,
+      void setInterpolation ( const unsigned int        newNumberOfPoints,
                               const double*             newPorosities,
                               const double*             newPermeabilities );
 
-      /// Compute the interpolation coefficients, based on the data set.
-      void computeCoefficients ();
-
-      /// Evaluate the interpolator at the point.
+      /// \brief Evaluate the interpolator at the point.
+      ///
+      /// \param [in] value The point at which the interpolator is to be evalauted.
       double evaluate ( const double value ) const;
 
-      /// Evaluate the derivative of the interpolator at the point.
+      /// \brief Evaluate the interpolator for an array of values.
+      ///
+      /// \param  [in] size   The number of points at which the interpolator is to be evalauted.
+      /// \param  [in] pnts   The points at which the interpolator is to be evalauted.
+      /// \param [out] values The values of the interpolator at the provided points.
+      void evaluate ( const unsigned int       size,
+                      ArrayDefs::ConstReal_ptr pnts,
+                      ArrayDefs::Real_ptr      values ) const;
+
+      /// \brief Evaluate the derivative of the interpolator at the point.
+      ///
+      /// \param [in] value The point at which the interpolator is to be evalauted.
       double evaluateDerivative ( const double value ) const;
 
+      /// \brief Evaluate the derivative of the interpolator for an array of values.
+      ///
+      /// \param  [in] size   The number of points at which the interpolator derivative is to be evalauted.
+      /// \param  [in] pnts   The points at which the interpolator derivative is to be evalauted.
+      /// \param [out] values The values of the interpolator derivative at the provided points.
+      void evaluateDerivative ( const unsigned int       size,
+                                ArrayDefs::ConstReal_ptr pnts,
+                                ArrayDefs::Real_ptr      values ) const;
+
+      /// \brief Evaluate both the interpolator and its derivative for a scalar value.
+      ///
+      /// \param [in]  x          The point at which the interpolator is to be evalauted.
+      /// \param [out] values     The value of the interpolator at the provided point.
+      /// \param [out] derivative The value of the interpolator derivative at the provided point.
+      void evaluate ( const double x,
+                      double&      value,
+                      double&      derivative ) const;
+
+      /// \brief Evaluate both the interpolator and its derivative for an array of values.
+      ///
+      /// \param  [in] size       The number of points at which the interpolator is to be evalauted.
+      /// \param  [in] pnts       The points at which the interpolator is to be evalauted.
+      /// \param [out] values     The values of the interpolator at the provided points.
+      /// \param [out] derivative The values of the interpolator derivative at the provided points.
+      void evaluate ( const unsigned int       size,
+                      ArrayDefs::ConstReal_ptr pnts,
+                      ArrayDefs::Real_ptr      values,
+                      ArrayDefs::Real_ptr      derivatives ) const;
+
+      /// \brief Writes a string representation of the interpolator to the stream.
       void print ( std::ostream& o ) const;
 
-      /// Return a string representation of the interpolator.
+      /// \brief Return a string representation of the interpolator.
       std::string image () const;
 
+      /// \brief Assignment operator
       PiecewiseInterpolator& operator=( const PiecewiseInterpolator& newInterpolator );
-
-      friend bool operator== ( const PiecewiseInterpolator& interp1, 
-                               const PiecewiseInterpolator& interp2 );
 
 
    private :
 
+      /// \brief Compute the interpolation coefficients, based on the data set.
+      ///
+      /// All member varibales must be set before calling this function.
+      void computeCoefficients ();
+
+      /// \brief Deallocate the arrays used in interpolator and set them to null.
       void deleteCoefficients ();
 
-      /// Find ni which panel, if any, the point lies.
-      int findPanel ( const double value ) const;
-
-      void computePiecewiseLinearCoefficients ();
-
-      void computeCubicSplineCoefficients ();
-
-      double evaluatePiecewiseLinear ( const double value ) const;
-
-      double evaluateCubicSpline     ( const double value ) const;
-
-      double evaluatePiecewiseLinearDerivative ( const double value ) const;
-
-      double evaluateCubicSplineDerivative     ( const double value ) const;
+      /// \brief Find in which panel, if any, the point lies.
+      unsigned int findPanel ( const double value ) const;
 
       /// The number of points in the interpolant.
-      int m_numberOfPoints;
-
-      /// The interpolation method used in this interpolator.
-      InterpolationMethod m_method;
+      unsigned int m_numberOfPoints;
 
       /// The coefficients of the interpolant.
       double* m_aCoeffs;
       double* m_bCoeffs;
-      double* m_cCoeffs;
-      double* m_dCoeffs;
-
-      // Coefficients for the extrapolation method.
-      double m_m0;
-      double m_c0;
-
-      double m_mN;
-      double m_cN;
 
       /// The locally stored x-points.
       double* m_xs;
@@ -115,15 +137,14 @@ namespace ibs {
       /// The locally stored y-points.
       double* m_ys;
 
-   }; 
+   };
 
 }
 
 
-inline bool ibs::PiecewiseInterpolator::PointerSort::operator ()( const int p1, 
-                                                                  const int p2 ) const {
+inline bool ibs::PiecewiseInterpolator::PointerSort::operator ()( const unsigned int p1,
+                                                                  const unsigned int p2 ) const {
    return m_xs [ p1 ] < m_xs [ p2 ];
 }
 
-
-#endif // _UTILITIES__PIECEWISE_INTERPOLATOR_H_
+#endif // UTILITIES__PIECEWISE_INTERPOLATOR_H

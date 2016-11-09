@@ -11,85 +11,123 @@
 #include <limits>
 
 #include "VisualizationIO_projectHandle.h"
+#include "FilePath.h"
+#include "Interface/Property.h"
 
 using namespace DataAccess;
 using namespace DataAccess::Interface;
 
-CauldronIO::MapProjectHandle::MapProjectHandle(boost::shared_ptr<const CauldronIO::Geometry2D>& geometry) : SurfaceData(geometry)
+CauldronIO::MapProjectHandle::MapProjectHandle(std::shared_ptr<const CauldronIO::Geometry2D>& geometry) : SurfaceData(geometry)
 {
     m_propVal = NULL;
 }
 
+CauldronIO::MapProjectHandle::~MapProjectHandle()
+{
+    release();
+}
 
 void CauldronIO::MapProjectHandle::prefetch()
 {
-    if (isRetrieved()) return;
-    assert(m_propVal != NULL);
-    const DataAccess::Interface::GridMap* gridmap = m_propVal->getGridMap();
 }
 
 void CauldronIO::MapProjectHandle::retrieve()
 {
     if (isRetrieved()) return;
 
-    assert(m_propVal != NULL);
-    const DataAccess::Interface::GridMap* gridmap = m_propVal->getGridMap();
-
-    gridmap->retrieveData();
-    setUndefinedValue((float)gridmap->getUndefinedValue());
-
-    if (gridmap->isConstant())
-    {
-        setConstantValue((float)gridmap->getConstantValue());
-    }
+    if (!signalNewHDFdata())
+        throw CauldronIOException("Cannot retrieve data, HDF data not available");
     else
-    {
-        float constantValue;
-        bool isConstant = true;
-        bool firstConstant = true;
-        float* mapData = new float[m_numI*m_numJ];
-        size_t index = 0;
-
-        // Verify sizes
-        assert(gridmap->numI() == m_numI && gridmap->numJ() == m_numJ);
-
-        for (unsigned int j = 0; j < m_numJ; ++j)
-        { 
-            for (unsigned int i = 0; i < m_numI; ++i)
-            {
-                // Store row first
-                float val = (float)gridmap->getValue(i, j);
-                mapData[index++] = val;
-
-                if (firstConstant)
-                {
-                    constantValue = val;
-                    firstConstant = false;
-                }
-                if (isConstant) isConstant = val == constantValue;
-
-            }
-        }
-
-        if (!isConstant)
-            setData_IJ(mapData);
-        else
-            setConstantValue(constantValue);
-        
-        delete[] mapData;
-    }
-    gridmap->restoreData( );
-
-    gridmap->release();
-
-    m_retrieved = true;
+        retrieveFromHDF();
 }
-
 
 void CauldronIO::MapProjectHandle::release()
 {
     if (!isRetrieved()) return;
+
+    if (m_info.size() > 0)
+    {
+        for (int i = 0; i < m_info.size(); i++)
+        {
+            if (m_info[i]->getData() != NULL)
+                delete[] m_info[i]->getData();
+        }
+    }
+    m_info.clear();
+
     SurfaceData::release();
+}
+
+std::shared_ptr<CauldronIO::HDFinfo > CauldronIO::MapProjectHandle::getHDFinfoForPropVal(const DataAccess::Interface::PropertyValue* propVal)
+{
+    std::shared_ptr<CauldronIO::HDFinfo > info(new CauldronIO::HDFinfo());
+    string filename, datasetname, fulloutputdir;
+    propVal->getHDFinfo(filename, datasetname, fulloutputdir);
+
+    ibs::FilePath filePathName(fulloutputdir);
+    filePathName << filename;
+
+    info->dataSetName = datasetname;
+    info->filepathName = filePathName.path();
+
+    return info;
+}
+
+void CauldronIO::MapProjectHandle::retrieveFromHDF()
+{
+    assert(signalNewHDFdata());
+    assert(m_info.size() == 1 && m_info[0]->getData() != NULL);
+    float* hdfData = m_info[0]->getData(); 
+
+    float constantValue;
+    bool isConstant = true;
+    bool firstConstant = true;
+    float* mapData = new float[m_numI * m_numJ];
+    size_t index = 0;
+
+    for (unsigned int j = 0; j < m_numJ; ++j)
+    {
+        for (unsigned int i = 0; i < m_numI; ++i)
+        {
+            // Store row first; indexing in HDF data is columnfirst (j + i * m_numJ)
+            float val = hdfData[j + i * m_numJ];
+            mapData[index++] = val;
+
+            if (firstConstant)
+            {
+                constantValue = val;
+                firstConstant = false;
+            }
+
+            if (isConstant) isConstant = val == constantValue;
+        }
+    }
+
+    if (!isConstant)
+        setData_IJ(mapData);
+    else
+        setConstantValue(constantValue);
+
+    delete[] mapData;
+
+    m_retrieved = true;
+}
+
+const std::vector < std::shared_ptr<CauldronIO::HDFinfo> >& CauldronIO::MapProjectHandle::getHDFinfo()
+{
+    if (m_info.size() > 0)
+        return m_info;
+
+    if (m_propVal != NULL)
+    {
+        std::shared_ptr <CauldronIO::HDFinfo > info = MapProjectHandle::getHDFinfoForPropVal(m_propVal);
+        info->parent = this;
+        info->indexSub = -1;
+        info->setData(NULL);
+        m_info.push_back(info);
+    }
+    
+    return m_info;
 }
 
 void CauldronIO::MapProjectHandle::setDataStore(const DataAccess::Interface::PropertyValue* propVal)
@@ -97,7 +135,17 @@ void CauldronIO::MapProjectHandle::setDataStore(const DataAccess::Interface::Pro
     m_propVal = propVal;
 }
 
-CauldronIO::VolumeProjectHandle::VolumeProjectHandle(const boost::shared_ptr<Geometry3D>& geometry)
+bool CauldronIO::MapProjectHandle::signalNewHDFdata()
+{
+    if (m_info.size() == 0) return false;
+    
+    for (int i = 0; i < m_info.size(); i++)
+        if (m_info[i]->getData() == NULL) return false;
+
+    return true;
+}
+
+CauldronIO::VolumeProjectHandle::VolumeProjectHandle(const std::shared_ptr<Geometry3D>& geometry)
     : VolumeData(geometry)
 {
     m_propVal = NULL;
@@ -106,93 +154,125 @@ CauldronIO::VolumeProjectHandle::VolumeProjectHandle(const boost::shared_ptr<Geo
     m_depthFormations.reset();
 }
 
+CauldronIO::VolumeProjectHandle::~VolumeProjectHandle()
+{
+    release();
+}
+
 void CauldronIO::VolumeProjectHandle::prefetch()
 {
-    if (isRetrieved()) return;
-
-    if (m_depthFormations && m_propValues)
-    {
-        assert(m_propVal == NULL && m_depthInfo == NULL);
-        // Get data
-        for (size_t i = 0; i < m_propValues->size(); ++i)
-            const GridMap* gridMap = m_propValues->at(i)->getGridMap();
-    }
-    else if (m_propVal != NULL)
-    {
-        assert(!m_depthFormations && !m_propValues);
-        const GridMap* gridMap = m_propVal->getGridMap();
-    }
+    // Unused...
 }
 
 void CauldronIO::VolumeProjectHandle::retrieve()
 {
     if (isRetrieved()) return;
-    
+
     if (m_depthFormations && m_propValues)
     {
-        assert(m_propVal == NULL && m_depthInfo == NULL);
-        retrieveMultipleFormations();
+        if (!signalNewHDFdata())
+            throw CauldronIOException("Cannot retrieve data, HDF binary not read yet");
+        else
+            // Read from prefetched HDF
+            retrieveMultipleFromHDF();
     }
     else if (m_propVal != NULL)
     {
-        assert(!m_depthFormations && !m_propValues);
-        retrieveSingleFormation();
+        if (!signalNewHDFdata())
+            throw CauldronIOException("Cannot retrieve data, HDF binary not read yet");
+        else
+            // Read from prefetched HDF
+            retrieveSingleFromHDF();
     }
 }
 
 void CauldronIO::VolumeProjectHandle::release()
 {
+    if (m_info.size() > 0)
+    {
+        for (int i = 0; i < m_info.size(); i++)
+        {
+            if (m_info[i]->getData() != NULL)
+                delete[] m_info[i]->getData();
+        }
+    }
+    m_info.clear();
+
     if (!isRetrieved()) return;
     VolumeData::release();
 }
 
-void CauldronIO::VolumeProjectHandle::retrieveMultipleFormations()
+const std::vector < std::shared_ptr<CauldronIO::HDFinfo> >& CauldronIO::VolumeProjectHandle::getHDFinfo() 
 {
+    if (m_info.size() > 0)
+        return m_info;
+
+    if (m_depthFormations && m_propValues)
+    {
+        assert(m_propVal == NULL && m_depthInfo == NULL);
+        for (int i = 0; i < m_propValues->size(); i++)
+        {
+            std::shared_ptr <CauldronIO::HDFinfo > info = MapProjectHandle::getHDFinfoForPropVal(m_propValues->at(i));
+            info->parent = this;
+            info->indexSub = i;
+            info->setData(NULL);
+            m_info.push_back(info);
+        }
+    }
+    else if (m_propVal != NULL)
+    {
+        assert(!m_depthFormations && !m_propValues);
+        std::shared_ptr <CauldronIO::HDFinfo > info = MapProjectHandle::getHDFinfoForPropVal(m_propVal);
+        info->parent = this;
+        info->indexSub = -1;
+        info->setData(NULL);
+        m_info.push_back(info);
+    }
+
+    return m_info;
+}
+
+void CauldronIO::VolumeProjectHandle::retrieveMultipleFromHDF()
+{
+    assert(signalNewHDFdata());
+    assert(m_info.size() >= 1 && m_info[0]->getData() != NULL);
+
     // Detect a constant volume consisting of all constant subvolumes (bit extreme case though)
     float constantValue;
     bool isConstant = true;
     bool firstConstant = true;
-
-    const PropertyValue* propVal = m_propValues->at(0);
-    const GridMap* propGridMap = propVal->getGridMap();
-    propGridMap->retrieveData();
-
-    setUndefinedValue((float)propGridMap->getUndefinedValue());
-
     float* inputData = new float[m_numI * m_numJ * m_numK];
-    
+
     // Make sure all k-range is accounted for
     size_t detected_minK = 16384;
     size_t detected_maxK = 0;
 
-    // Verify sizes
-    assert(propGridMap->numI() == m_numI && propGridMap->numJ() == m_numJ );
-    propGridMap->restoreData();
-
     // Get data
-    for (size_t i = 0; i < m_propValues->size(); ++i)
+    for (size_t i = 0; i < m_info.size(); ++i)
     {
-        const GridMap* gridMap = m_propValues->at(i)->getGridMap();
-        gridMap->retrieveData();
-     
-        boost::shared_ptr<CauldronIO::FormationInfo> depthInfo = findDepthInfo(m_depthFormations, m_propValues->at(i)->getFormation());
+        shared_ptr<HDFinfo>& info = m_info[i];
+        float* hdfData = info->getData(); // we don't need to dispose it here
 
-        // Get the volume data for this formation
-        assert(gridMap->firstI() == 0 && gridMap->firstJ() == 0 && gridMap->firstK() == 0);
+        std::shared_ptr<CauldronIO::FormationInfo> depthInfo = findDepthInfo(m_depthFormations, m_propValues->at(i)->getFormation());
+        size_t thisNumK = 1 + depthInfo->kEnd - depthInfo->kStart;
 
-        for (unsigned int k = 0; k <= gridMap->lastK(); ++k)
+        for (size_t k = 0; k <thisNumK; ++k)
         {
-            size_t kIndex = depthInfo->reverseDepth ? depthInfo->kEnd - (size_t)k : depthInfo->kStart + (size_t)k;
-            size_t index = computeIndex_IJK(0, 0, kIndex);
+            size_t hdfKIndex = (thisNumK - 1) - k;  /// in the HDF file, depth is always inverse to k index
+            /// in a SerialGridmap, depth is aligned (=increasing) with k index
+            /// in a DistributedGridmap, depth is inverse to k index
+            size_t kIndex = depthInfo->reverseDepth ? depthInfo->kEnd - k : depthInfo->kStart + k;
+            size_t index = computeIndex_IJK(0, 0, kIndex);  // this will account for an offset (kStart), but will not inverse anything
+            // in a single volume, it will not have any effect
 
             detected_maxK = max(detected_maxK, kIndex);
             detected_minK = min(detected_minK, kIndex);
 
-            for (unsigned int j = 0; j <= gridMap->lastJ(); ++j)
+            for (unsigned int j = 0; j < m_numJ; ++j)
             {
-                for (unsigned int i = 0; i <= gridMap->lastI(); ++i)
+                for (unsigned int i = 0; i < m_numI; ++i)
                 {
-                    float val = (float)gridMap->getValue(i, j, k);
+                    float val = hdfData[hdfKIndex + thisNumK * j + i * thisNumK * m_numJ];
                     inputData[index++] = val;
 
                     if (firstConstant)
@@ -204,13 +284,10 @@ void CauldronIO::VolumeProjectHandle::retrieveMultipleFormations()
                 }
             }
         }
-        gridMap->restoreData();
-
-        gridMap->release();
     }
 
-    // Verify full coverage of data
-    //////////////////////////////
+    // Verify full coverage of data: check for missing end or beginning of this volume
+    /////////////////////////////////////////////////////////////////////////////////////
     if (!isConstant)
     {
         // Correct if only first k index is wrong
@@ -242,78 +319,76 @@ void CauldronIO::VolumeProjectHandle::retrieveMultipleFormations()
     delete[] inputData;
 }
 
-void CauldronIO::VolumeProjectHandle::retrieveSingleFormation()
+void CauldronIO::VolumeProjectHandle::retrieveSingleFromHDF()
 {
-    // Find the depth information
-    size_t depthK = 1 + m_depthInfo->kEnd - m_depthInfo->kStart;
+    assert(signalNewHDFdata());
+    assert(m_info.size() == 1 && m_info[0]->getData() != NULL);
+    float* hdfData = m_info[0]->getData();
 
-    // Set the values
-    const GridMap* gridMap = m_propVal->getGridMap();
-    setUndefinedValue((float)gridMap->getUndefinedValue());
+    float constantValue;
+    bool isConstant = true;
+    bool firstConstant = true;
+    float* inputData = new float[m_numI * m_numJ * m_numK];
 
-    if (gridMap->isConstant())
+    for (unsigned int k = 0; k < m_numK; ++k)
     {
-        setConstantValue((float)gridMap->getConstantValue());
-    }
-    else
-    {
-        float constantValue;
-        bool isConstant = true;
-        bool firstConstant = true;
+        size_t hdfKIndex = (m_numK - 1) - k;  /// in the HDF file, depth is always inverse to k index
+                                              /// in a serialdataaccess gridmap, depth is aligned (=increasing) with k index
+                                              /// in a distributeddataaccess gridmap, depth is inverse to k index
+        size_t kIndex = m_depthInfo->reverseDepth ? m_depthInfo->kEnd - (size_t)k : m_depthInfo->kStart + (size_t)k;
+        size_t index = computeIndex_IJK(0, 0, kIndex);  // this will account for an offset (kStart), but will not inverse anything
+                                                        // in a single volume, it will not have any effect
 
-        float* inputData = new float[m_numI * m_numJ * m_numK];
-
-        // Get the volume data for this formation
-        assert(gridMap->firstI() == 0 && gridMap->firstJ() == 0 && gridMap->firstK() == 0);
-
-        for (unsigned int k = 0; k <= gridMap->lastK(); ++k)
+        for (unsigned int j = 0; j < m_numJ; ++j)
         {
-            size_t kIndex = m_depthInfo->reverseDepth ? m_depthInfo->kEnd - (size_t)k : m_depthInfo->kStart + (size_t)k;
-            size_t index = computeIndex_IJK(0, 0, kIndex);
-
-            for (unsigned int j = 0; j <= gridMap->lastJ(); ++j)
+            for (unsigned int i = 0; i < m_numI; ++i)
             {
-                for (unsigned int i = 0; i <= gridMap->lastI(); ++i)
-                {
-                    float val = (float)gridMap->getValue(i, j, k);
-                    inputData[index++] = val;
+                float val = hdfData[hdfKIndex + m_numK * j + i * m_numK * m_numJ];
+                inputData[index++] = val;
 
-                    if (firstConstant)
-                    {
-                        constantValue = val;
-                        firstConstant = false;
-                    }
-                    if (isConstant) isConstant = val == constantValue;
+                if (firstConstant)
+                {
+                    constantValue = val;
+                    firstConstant = false;
                 }
+                if (isConstant) isConstant = val == constantValue;
             }
         }
-
-        // Assign the data
-        if (!isConstant)
-            setData_IJK(inputData);
-        else
-            setConstantValue(constantValue);
-        delete[] inputData;
     }
 
-    gridMap->release();
-    m_retrieved = true;
+    // Assign the data
+    if (!isConstant)
+        setData_IJK(inputData);
+    else
+        setConstantValue(constantValue);
+    delete[] inputData;
 }
 
-void CauldronIO::VolumeProjectHandle::setDataStore(boost::shared_ptr<DataAccess::Interface::PropertyValueList> propValues,
-        boost::shared_ptr<CauldronIO::FormationInfoList> depthFormations)
+void CauldronIO::VolumeProjectHandle::setDataStore(std::shared_ptr<DataAccess::Interface::PropertyValueList> propValues,
+        std::shared_ptr<CauldronIO::FormationInfoList> depthFormations)
 {
     m_propValues = propValues;
     m_depthFormations = depthFormations;
 }
 
-void CauldronIO::VolumeProjectHandle::setDataStore(const DataAccess::Interface::PropertyValue* propVal, boost::shared_ptr<CauldronIO::FormationInfo> depthFormation)
+
+bool CauldronIO::VolumeProjectHandle::signalNewHDFdata()
+{
+    if (m_info.size() == 0) return false;
+    
+    for (int i = 0; i < m_info.size(); i++)
+        if (m_info[i]->getData() == NULL) return false;
+
+    return true;
+}
+
+void CauldronIO::VolumeProjectHandle::setDataStore(const DataAccess::Interface::PropertyValue* propVal, std::shared_ptr<CauldronIO::FormationInfo> depthFormation)
 {
     m_propVal = propVal;
     m_depthInfo = depthFormation;
 }
 
-boost::shared_ptr<CauldronIO::FormationInfo> CauldronIO::VolumeProjectHandle::findDepthInfo(boost::shared_ptr<CauldronIO::FormationInfoList> depthFormations, const DataAccess::Interface::Formation* formation)
+std::shared_ptr<CauldronIO::FormationInfo> CauldronIO::VolumeProjectHandle::findDepthInfo(std::shared_ptr<CauldronIO::FormationInfoList> depthFormations, const DataAccess::Interface::Formation* formation)
 {
     for (size_t i = 0; i < depthFormations->size(); ++i)
     {
@@ -321,9 +396,4 @@ boost::shared_ptr<CauldronIO::FormationInfo> CauldronIO::VolumeProjectHandle::fi
     }
 
     throw CauldronIO::CauldronIOException("Cannot find depth formation for requested formation");
-}
-
-bool CauldronIO::FormationInfo::compareFormations(boost::shared_ptr<CauldronIO::FormationInfo> info1, boost::shared_ptr<CauldronIO::FormationInfo> info2)
-{
-    return info1->depthStart < info2->depthStart;
 }

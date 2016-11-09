@@ -41,10 +41,6 @@
 *  Source module is EosPvtModel.cpp                                  *
 *                                                                    *
 *********************************************************************/
-
-#include <iostream>
-#include "stdafx.h"
-
 #include "EosApplication.h"
 #include "EosPvtModel.h"
 #include "EosPvtTable.h"
@@ -56,11 +52,12 @@
 */
 //#include "Unit.h"
 
-#include <assert.h>
-#include <float.h>
-#include <math.h>
-#include <stdio.h>
+#include <cassert>
+#include <cfloat>
+#include <cmath>
+#include <cstdio>
 #include <algorithm>
+#include <iostream>
 
 /* Define whether to restore terms */
 #define EOS_NORESTORE 0
@@ -669,10 +666,8 @@ void EosPvtModel::PrintInputData( int iSize )
 //
 // 1) Set the data in the flasher from the outside world
 */
-void EosPvtModel::ReadAllData( int iVersion, int *piFlasher, double *pdFlasher )
+void EosPvtModel::ReadAllData( int /*iVersion*/, int *piFlasher, double *pdFlasher )
 {
-   USE_PARAM_EOSPVT( iVersion );
-
    /* Set flasher terms */
    m_dEnorm            = pdFlasher[EOS_ENORM];
    m_dLnEnorm          = log( m_dEnorm );

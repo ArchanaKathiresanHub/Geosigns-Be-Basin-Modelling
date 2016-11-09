@@ -57,6 +57,6 @@ void DataAccess::Interface::DistributedMessageHandler::synchronisedNewLine () co
 
 
 void DataAccess::Interface::DistributedMessageHandler::flush () const {
-   PetscSynchronizedFlush ( PETSC_COMM_WORLD );
+   PetscSynchronizedFlush ( PETSC_COMM_WORLD, PETSC_STDOUT );
 }
 

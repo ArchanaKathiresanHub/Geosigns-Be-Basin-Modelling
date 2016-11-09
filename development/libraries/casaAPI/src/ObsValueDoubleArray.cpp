@@ -27,12 +27,12 @@ namespace casa
    
          if ( refVal )
          {
-            const std::vector<double> & rv = refVal->asDoubleArray();
+            const std::vector<double> & rv = refVal->asDoubleArray( true );
             assert( rv.size() == m_value.size() );
 
             for ( size_t i = 0; i < rv.size(); ++i )
             {
-               double sigma = ( m_parent->stdDeviationForRefValue() > 0.0 ? m_parent->stdDeviationForRefValue() : (0.1 * rv[i]) );
+               double sigma = ( m_parent->stdDeviationForRefValue( )->asDoubleArray( )[i] > 0.0 ? m_parent->stdDeviationForRefValue( )->asDoubleArray( )[i] : ( 0.1 * rv[i] ) );
 
                double v = ( rv[i] - m_value[i] ) / sigma;
                rmse += v * v;

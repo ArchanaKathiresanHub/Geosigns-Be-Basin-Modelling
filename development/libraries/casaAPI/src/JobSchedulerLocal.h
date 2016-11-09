@@ -38,7 +38,8 @@ namespace casa
                           , const std::string & scriptName
                           , const std::string & jobName
                           , int                 cpus
-                          , size_t              runTimeLim );
+                          , size_t              runTimeLim 
+                          , const std::string & scenarioID );
 
       // run job
       virtual JobState runJob( JobID job );
@@ -57,7 +58,8 @@ namespace casa
 
       // Wait a bit (~10 sec) before asking about job state again
       // for the LOCAL cluster - do nothing
-      virtual void sleep();
+      // secs -1 - use default value for scheduler, 0 or positive number seconds to sleep
+      virtual void sleep( int secs = -1 );
 
       // version of serialized object representation
       virtual unsigned int version() const { return 0; }

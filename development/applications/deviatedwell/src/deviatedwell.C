@@ -200,17 +200,9 @@ int main (int argc, char ** argv) {
       {
         interVerticalElementBoundary = false;
       }
-      else if (strncmp (argv[arg], "-help", NumericFunctions::Maximum<size_t> (2, strlen (argv[arg]))) == 0)
-      {
-         showUsage ( argv[ 0 ], " Standard usage.");
-         return -1;
-      }
-      else if (strncmp (argv[arg], "-?", NumericFunctions::Maximum<size_t> (2, strlen (argv[arg]))) == 0)
-      {
-         showUsage ( argv[ 0 ], " Standard usage.");
-         return -1;
-      }
-      else if (strncmp (argv[arg], "-usage", NumericFunctions::Maximum<size_t> (2, strlen (argv[arg]))) == 0)
+      else if ((strncmp (argv[arg], "-help", NumericFunctions::Maximum<size_t> (2, strlen(argv[arg]))) == 0) ||
+		       (strncmp(argv[arg], "-?",     NumericFunctions::Maximum<size_t> (2, strlen(argv[arg]))) == 0) ||
+		       (strncmp(argv[arg], "-usage", NumericFunctions::Maximum<size_t> (2, strlen(argv[arg]))) == 0))
       {
          showUsage ( argv[ 0 ], " Standard usage.");
          return -1;

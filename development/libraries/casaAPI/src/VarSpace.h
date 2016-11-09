@@ -37,9 +37,14 @@ namespace casa
       /// @return NoError on success or error code if such parameter is already added to the set
       virtual ErrorHandler::ReturnCode addParameter( VarParameter * prm ) = 0;
 
-      /// @brief Get number of variable parameters defined in VarSpace
+      /// @brief Get number of variable parameters defined in VarSpace. Some parameters could have
+      ///        dimension more then 1
       /// @return total number of parameters in set
       virtual size_t size() const = 0;
+
+      /// @brief Dimension of parameter space
+      /// @return total parameters space dimension
+      virtual size_t dimension() const = 0;
 
       /// @brief Get number of continuous parameters defined in VarSpace
       /// @return number of continuous parameters

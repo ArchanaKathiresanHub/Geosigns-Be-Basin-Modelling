@@ -39,13 +39,13 @@ using namespace Interface;
 
 
 static char * argv0 = 0;
-static void showUsage (const char * message = 0);
+static void showUsage(const char * message = 0);
 
 const double stPressure = 0.101325;	// Stock tank pressure
 const double stTemperature = 15.0;	// Stock tank temperature
 
-const char *HLineA = "Age   |Trap|Approx |Approx |Trap  |Trap   |OWC |OWC  |GWC/|GWC/ |Approx |Approx   |Spill|Spill |Trap |Trap |Trap |Trap    |Gas   |Oil   |Oil   |Oil    |Gas   |Gas     \n";  
-const char *HLineB = "      |Id  |North  |East   |Height|Height |    |     |GOC |GOC  |WC Area|WC Area  |Depth|Depth |Temp |Temp |Press|Press   |I.T.  |I.T.  |Vol   |Vol    |Vol   |Vol     \n"; 
+const char *HLineA = "Age   |Trap|Approx |Approx |Trap  |Trap   |OWC |OWC  |GWC/|GWC/ |Approx |Approx   |Spill|Spill |Trap |Trap |Trap |Trap    |Gas   |Oil   |Oil   |Oil    |Gas   |Gas     \n";
+const char *HLineB = "      |Id  |North  |East   |Height|Height |    |     |GOC |GOC  |WC Area|WC Area  |Depth|Depth |Temp |Temp |Press|Press   |I.T.  |I.T.  |Vol   |Vol    |Vol   |Vol     \n";
 const char *HLineC = "Ma    |    |      m|      m|     m|     ft|   m|   ft|   m|   ft|    km2|     acre|    m|    ft|    C|    F|  MPa|    psia|   N/m|   N/m|10^6m3|10^6BBL|10^6m3|10^6ft3 \n";
 const char *HLineD = "------|----|-------|-------|------|-------|----|-----|----|-----|-------|---------|-----|------|-----|-----|-----|--------|------|------|------|-------|------|------- \n";
 
@@ -112,81 +112,81 @@ const char *E_LineDB = "-------|-------|-----|-----|-----|-----|-----|-----|----
 bool verbose = false;
 bool debug = false;
 
-bool processReservoir (ProjectHandle *projectHandle,  const Reservoir * reservoir, SnapshotList * snapshotList);
-string createLogFileName (ProjectHandle * projectHandle,  const Reservoir * reservoir);
+bool processReservoir(ProjectHandle *projectHandle, const Reservoir * reservoir, SnapshotList * snapshotList);
+string createLogFileName(ProjectHandle * projectHandle, const Reservoir * reservoir);
 
-double meters2feet (double meters)
+double meters2feet(double meters)
 {
    return 3.28084 * meters;
 }
 
-double meters2kilometers (double meters)
+double meters2kilometers(double meters)
 {
    return 1e-3 * meters;
 }
 
-double squaremeters2squarekilometers (double squaremeters)
+double squaremeters2squarekilometers(double squaremeters)
 {
    return 1e-6 * squaremeters;
 }
 
-double squaremeters2acres (double squaremeters)
+double squaremeters2acres(double squaremeters)
 {
    return 0.000247 * squaremeters;
 }
 
-double celsius2fahrenheit (double celsius)
+double celsius2fahrenheit(double celsius)
 {
    return celsius * 1.8 + 32;
 }
 
-double celsius2kelvin (double celsius)
+double celsius2kelvin(double celsius)
 {
-   return celsius +273.15;
+   return celsius + 273.15;
 }
 
-double megapascal2psi (double mp)
+double megapascal2psi(double mp)
 {
    return 145.03774389728312 * mp;
 }
 
-double megapascal2pascal (double mp)
+double megapascal2pascal(double mp)
 {
    return 1e6 * mp;
 }
 
-double cubicmeters2barrels (double cm)
+double cubicmeters2barrels(double cm)
 {
    return 6.289811 * cm;
 }
 
-double cubicmeters2standardcubicfeet (double cm)
+double cubicmeters2standardcubicfeet(double cm)
 {
    return 35.3146624 * cm;
 }
 
-void getFormattedString (double value, char *format, char *destString)
+void getFormattedString(double value, char *format, char *destString)
 {
-   if (value < 0.0)
-      strcpy (destString, "N/A");
+   if( value < 0.0 )
+      strcpy(destString, "N/A");
    else
-      sprintf (destString, format, value);
+      sprintf(destString, format, value);
 }
 
-double percentage (double component, double total)
+double percentage(double component, double total)
 {
-   if (total < 10)
+   if( total < 10 )
       return 0.0;
    else
       return (component / total) * 100;
 }
 
 
-int main (int argc, char ** argv)
+int main(int argc, char ** argv)
 {
    string projectFileName;
 
-   if ((argv0 = strrchr (argv[0], '/')) != 0)
+   if( (argv0 = strrchr(argv[0], '/')) != 0 )
    {
       ++argv0;
    }
@@ -196,342 +196,347 @@ int main (int argc, char ** argv)
    }
 
    int arg;
-   for (arg = 1; arg < argc; arg++)
+   for( arg = 1; arg < argc; arg++ )
    {
-      if (strncmp (argv[arg], "-debug", Max (2, strlen (argv[arg]))) == 0)
+      if( strncmp(argv[arg], "-debug", Max(2, strlen(argv[arg]))) == 0 )
       {
          debug = true;
       }
-      else if (strncmp (argv[arg], "-verbose", Max (2, strlen (argv[arg]))) == 0)
+      else if( strncmp(argv[arg], "-verbose", Max(2, strlen(argv[arg]))) == 0 )
       {
          verbose = true;
       }
-      else if (strncmp (argv[arg], "-", 1) != 0)
+      else if( strncmp(argv[arg], "-", 1) != 0 )
       {
-	 projectFileName = argv[arg];
+         projectFileName = argv[arg];
       }
       else
       {
-         showUsage ();
+         showUsage();
          return -1;
       }
    }
 
-   if (projectFileName == "")
+   if( projectFileName == "" )
    {
-      showUsage ("No project file specified");
+      showUsage("No project file specified");
       return -1;
    }
 
 #if 0
    ofstream outputFile;
 
-   outputFile.open (outputFileName.c_str ());
-   if (outputFile.fail ())
+   outputFile.open(outputFileName.c_str());
+   if( outputFile.fail() )
       return -1;
 #endif
 
    ObjectFactory* factory = new ObjectFactory();
-   ProjectHandle *projectHandle = OpenCauldronProject (projectFileName, "r", factory);
+   ProjectHandle *projectHandle = OpenCauldronProject(projectFileName, "r", factory);
 
-   if (projectHandle == 0)
+   if( projectHandle == 0 )
    {
       cerr << "Could not open project file " << projectFileName << endl;
       return -1;
    }
 
-   SnapshotList * snapshotList = projectHandle->getSnapshots ();
+   SnapshotList * snapshotList = projectHandle->getSnapshots();
 
-   if (!snapshotList)
+   if( !snapshotList )
    {
       cerr << "Project " << projectFileName << " does not contain any snapshots" << endl;
       return -1;
    }
 
-   ReservoirList * reservoirList = projectHandle->getReservoirs ();
+   ReservoirList * reservoirList = projectHandle->getReservoirs();
    ReservoirList::iterator iter;
-   for (iter = reservoirList->begin (); iter != reservoirList->end (); ++iter)
+   for( iter = reservoirList->begin(); iter != reservoirList->end(); ++iter )
    {
-      if (!processReservoir (projectHandle, * iter, snapshotList))
+      if( !processReservoir(projectHandle, *iter, snapshotList) )
       {
-	 cerr << argv0 << ": Could not produce a log file for reservoir " << (* iter)->getName () << endl;
-	 return -1;
+         cerr << argv0 << ": Could not produce a log file for reservoir " << (*iter)->getName() << endl;
+         return -1;
       }
    }
 
    delete factory;
+   delete snapshotList;
+   delete reservoirList;
    return 0;
 }
 
-bool processReservoir (ProjectHandle * projectHandle,  const Reservoir * reservoir, SnapshotList * snapshotList)
+bool processReservoir(ProjectHandle * projectHandle, const Reservoir * reservoir, SnapshotList * snapshotList)
 {
    const double undefinedValue = -1;
 
    const int CBM_NumComponents = CBMGenerics::ComponentManager::NumberOfSpecies; //CBMGenerics::ComponentManager::NumberOfSpeciesToFlash;
    const int CBM_NumPhases = CBMGenerics::ComponentManager::NumberOfPhases;
 
-   if (verbose || debug) cout << "Reservoir: " << reservoir->getName () << endl;
-   string filePath = createLogFileName (projectHandle, reservoir);
+   if( verbose || debug ) cout << "Reservoir: " << reservoir->getName() << endl;
+   string filePath = createLogFileName(projectHandle, reservoir);
 
-   if (verbose) cout << "Producing log file " << filePath << endl;
+   if( verbose ) cout << "Producing log file " << filePath << endl;
 
-   FILE * fp = fopen (filePath.c_str (), "w");
-   if (fp == 0)
+   FILE * fp = fopen(filePath.c_str(), "w");
+   if( fp == 0 )
    {
-      perror (filePath.c_str ());
+      perror(filePath.c_str());
       return false;
    }
 
-   fprintf (fp, HLineA);
-   fprintf (fp, HLineB);
-   fprintf (fp, HLineC);
-   fprintf (fp, HLineD);
+   fprintf(fp, HLineA);
+   fprintf(fp, HLineB);
+   fprintf(fp, HLineC);
+   fprintf(fp, HLineD);
 
    SnapshotList::reverse_iterator snapshotIter;
-   for (snapshotIter = snapshotList->rbegin (); snapshotIter != snapshotList->rend (); ++snapshotIter)
+   for( snapshotIter = snapshotList->rbegin(); snapshotIter != snapshotList->rend(); ++snapshotIter )
    {
-      const Snapshot * snapshot = * snapshotIter;
+      const Snapshot * snapshot = *snapshotIter;
 
-      if (verbose)
+      if( verbose )
       {
-	 cout << "\tproducing snapshot " << snapshot->getTime () << endl;
+         cout << "\tproducing snapshot " << snapshot->getTime() << endl;
       }
 
-      TrapList * trapList = projectHandle->getTraps (reservoir, snapshot, 0);
+      TrapList * trapList = projectHandle->getTraps(reservoir, snapshot, 0);
 
       TrapList::iterator trapIter;
-      for (trapIter = trapList->begin (); trapIter != trapList->end (); ++trapIter)
+      for( trapIter = trapList->begin(); trapIter != trapList->end(); ++trapIter )
       {
-	 const Trap * trap = * trapIter;
+         const Trap * trap = *trapIter;
 
-	 double trapX, trapY;
-	 trap->getPosition (trapX, trapY);
+         double trapX, trapY;
+         trap->getPosition(trapX, trapY);
 
-	 fprintf (fp, "%6.1lf|%4d|%7.0lf|%7.0lf|%6.0lf|%7.0lf|%4.0lf|%5.0lf|%4.0lf|%5.0lf|"
-	       "%7.0lf|%9.0lf|%5.0lf|%6.0lf|%5.0lf|%5.0lf|%5.0lf|%8.0lf|%6.0lf|%6.0lf|%6.0lf|%7.0lf|%6.0lf|%7.0lf\n",
-	       snapshot->getTime (), trap->getId (), trapY, trapX,
-	       trap->getDepth (), meters2feet (trap->getDepth ()),
-	       trap->getOWC (), meters2feet (trap->getOWC ()),
-	       trap->getGOC (), meters2feet (trap->getGOC ()),
-	       squaremeters2squarekilometers (trap->getWCSurface ()),
-	       squaremeters2acres (trap->getWCSurface ()),
-	       trap->getSpillDepth (), meters2feet (trap->getSpillDepth ()),
-	       trap->getTemperature (), celsius2fahrenheit (trap->getTemperature ()),
-	       trap->getPressure (), megapascal2psi (trap->getPressure ()),
-	       undefinedValue /* interfacial tension of gas */,
-	       undefinedValue /* interfacial tension of oil */,
-	       trap->getVolume (Oil) / 1e6, cubicmeters2barrels (trap->getVolume (Oil) / 1e6),
-	       trap->getVolume (Gas) / 1e6, cubicmeters2standardcubicfeet (trap->getVolume (Gas) / 1e6));
+         fprintf(fp, "%6.1lf|%4d|%7.0lf|%7.0lf|%6.0lf|%7.0lf|%4.0lf|%5.0lf|%4.0lf|%5.0lf|"
+            "%7.0lf|%9.0lf|%5.0lf|%6.0lf|%5.0lf|%5.0lf|%5.0lf|%8.0lf|%6.0lf|%6.0lf|%6.0lf|%7.0lf|%6.0lf|%7.0lf\n",
+            snapshot->getTime(), trap->getId(), trapY, trapX,
+            trap->getDepth(), meters2feet(trap->getDepth()),
+            trap->getOWC(), meters2feet(trap->getOWC()),
+            trap->getGOC(), meters2feet(trap->getGOC()),
+            squaremeters2squarekilometers(trap->getWCSurface()),
+            squaremeters2acres(trap->getWCSurface()),
+            trap->getSpillDepth(), meters2feet(trap->getSpillDepth()),
+            trap->getTemperature(), celsius2fahrenheit(trap->getTemperature()),
+            trap->getPressure(), megapascal2psi(trap->getPressure()),
+            undefinedValue /* interfacial tension of gas */,
+            undefinedValue /* interfacial tension of oil */,
+            trap->getVolume(Oil) / 1e6, cubicmeters2barrels(trap->getVolume(Oil) / 1e6),
+            trap->getVolume(Gas) / 1e6, cubicmeters2standardcubicfeet(trap->getVolume(Gas) / 1e6));
       }
+      delete trapList;
    }
-   fprintf (fp, HLineD);
+   fprintf(fp, HLineD);
 
-   fprintf (fp, "\n\n");
+   fprintf(fp, "\n\n");
 
-   fprintf (fp, HLineA1);
-   fprintf (fp, HLineB1);
-   fprintf (fp, HLineC1);
-   fprintf (fp, HLineD1);
+   fprintf(fp, HLineA1);
+   fprintf(fp, HLineB1);
+   fprintf(fp, HLineC1);
+   fprintf(fp, HLineD1);
 
-   for (snapshotIter = snapshotList->rbegin (); snapshotIter != snapshotList->rend (); ++snapshotIter)
+   for( snapshotIter = snapshotList->rbegin(); snapshotIter != snapshotList->rend(); ++snapshotIter )
    {
-      const Snapshot * snapshot = * snapshotIter;
+      const Snapshot * snapshot = *snapshotIter;
 
-      TrapList * trapList = projectHandle->getTraps (reservoir, snapshot, 0);
+      TrapList * trapList = projectHandle->getTraps(reservoir, snapshot, 0);
 
       TrapList::iterator trapIter;
-      for (trapIter = trapList->begin (); trapIter != trapList->end (); ++trapIter)
+      for( trapIter = trapList->begin(); trapIter != trapList->end(); ++trapIter )
       {
-	 const Trap * trap = * trapIter;
+         const Trap * trap = *trapIter;
 
-	 fprintf (fp, "%6.1lf|%4d|%10.2le|%5.1lf|%5.1lf|%8.0lf|%8.0lf\n",
-	       snapshot->getTime (), trap->getId (), undefinedValue /* seal permeability */,
-	       undefinedValue /* trap->getC1 () */, undefinedValue /* trap->getC2 () */,
-	       undefinedValue /* trap->getSealStrength (Gas) */, undefinedValue /* trap->getSealStrength (Oil) */);
+         fprintf(fp, "%6.1lf|%4d|%10.2le|%5.1lf|%5.1lf|%8.0lf|%8.0lf\n",
+            snapshot->getTime(), trap->getId(), undefinedValue /* seal permeability */,
+            undefinedValue /* trap->getC1 () */, undefinedValue /* trap->getC2 () */,
+            undefinedValue /* trap->getSealStrength (Gas) */, undefinedValue /* trap->getSealStrength (Oil) */);
 
       }
+      delete trapList;
    }
 
-   fprintf (fp, HLineD1);
+   fprintf(fp, HLineD1);
 
-   fprintf (fp, "\n\n");
+   fprintf(fp, "\n\n");
 
-   fprintf (fp, HLineAA);
-   fprintf (fp, HLineAB);
-   fprintf (fp, HLineBA);
-   fprintf (fp, HLineBB);
-   fprintf (fp, HLineCA);
-   fprintf (fp, HLineCB);
-   fprintf (fp, HLineDA);
-   fprintf (fp, HLineDB);
+   fprintf(fp, HLineAA);
+   fprintf(fp, HLineAB);
+   fprintf(fp, HLineBA);
+   fprintf(fp, HLineBB);
+   fprintf(fp, HLineCA);
+   fprintf(fp, HLineCB);
+   fprintf(fp, HLineDA);
+   fprintf(fp, HLineDB);
 
-   for (snapshotIter = snapshotList->rbegin (); snapshotIter != snapshotList->rend (); ++snapshotIter)
+   for( snapshotIter = snapshotList->rbegin(); snapshotIter != snapshotList->rend(); ++snapshotIter )
    {
       int componentId;
       int phaseId;
 
-      const Snapshot * snapshot = * snapshotIter;
+      const Snapshot * snapshot = *snapshotIter;
 
-      TrapList * trapList = projectHandle->getTraps (reservoir, snapshot, 0);
+      TrapList * trapList = projectHandle->getTraps(reservoir, snapshot, 0);
 
       TrapList::iterator trapIter;
-      for (trapIter = trapList->begin (); trapIter != trapList->end (); ++trapIter)
+      for( trapIter = trapList->begin(); trapIter != trapList->end(); ++trapIter )
       {
-	 const Trap * trap = * trapIter;
+         const Trap * trap = *trapIter;
 
-	 double inputMasses[CBM_NumComponents];
-	 double outputMasses[CBM_NumPhases][CBM_NumComponents];
-	 double outputDensities[CBM_NumPhases];
-	 double outputViscosities[CBM_NumPhases];
+         double inputMasses[CBM_NumComponents];
+         double outputMasses[CBM_NumPhases][CBM_NumComponents];
+         double outputDensities[CBM_NumPhases];
+         double outputViscosities[CBM_NumPhases];
 
-	 for (componentId = 0; componentId < CBM_NumComponents; ++componentId)
-	 {
-	    inputMasses[componentId] = trap->getMass ((ComponentId) componentId);
-	 }
+         for( componentId = 0; componentId < CBM_NumComponents; ++componentId )
+         {
+            inputMasses[componentId] = trap->getMass((ComponentId)componentId);
+         }
 
-	 bool flashed = pvtFlash::EosPack::getInstance().computeWithLumping (celsius2kelvin (trap->getTemperature ()),
-	       megapascal2pascal (trap->getPressure ()),
-	      inputMasses, outputMasses, outputDensities, outputViscosities);
+         bool flashed = pvtFlash::EosPack::getInstance().computeWithLumping(celsius2kelvin(trap->getTemperature()),
+            megapascal2pascal(trap->getPressure()),
+            inputMasses, outputMasses, outputDensities, outputViscosities);
 
-	 if (flashed)
-	 {
-	    double phaseMasses[CBM_NumPhases];
+         if( flashed )
+         {
+            double phaseMasses[CBM_NumPhases];
 
-	    for (phaseId = 0; phaseId < CBM_NumPhases; ++phaseId)
-	    {
-	       phaseMasses[phaseId] = 0;
-	       for (componentId = 0; componentId < CBM_NumComponents; ++componentId)
-	       {
-		  phaseMasses[phaseId] += outputMasses[phaseId][componentId];
-	       }
-	    }
+            for( phaseId = 0; phaseId < CBM_NumPhases; ++phaseId )
+            {
+               phaseMasses[phaseId] = 0;
+               for( componentId = 0; componentId < CBM_NumComponents; ++componentId )
+               {
+                  phaseMasses[phaseId] += outputMasses[phaseId][componentId];
+               }
+            }
 
-	    char gasViscString[32], oilViscString[32];
+            char gasViscString[32], oilViscString[32];
 
-	    getFormattedString (outputViscosities[Gas], "%1.2le", gasViscString);
-	    getFormattedString (outputViscosities[Oil], "%1.2le", oilViscString);
+            getFormattedString(outputViscosities[Gas], "%1.2le", gasViscString);
+            getFormattedString(outputViscosities[Oil], "%1.2le", oilViscString);
 
-	    char gasDensityString[32], gasGravityString[32], oilDensityString[32], oilGravityString[32];
+            char gasDensityString[32], gasGravityString[32], oilDensityString[32], oilGravityString[32];
 
-	    getFormattedString (outputDensities [Gas], "%6.1lf", gasDensityString);
-	    getFormattedString (outputDensities [Oil], "%6.1lf", oilDensityString);
-	    getFormattedString (0.001 * outputDensities [Gas], "%6.3lf", gasGravityString);
-	    getFormattedString (0.001 * outputDensities [Oil], "%6.3lf", oilGravityString);
+            getFormattedString(outputDensities[Gas], "%6.1lf", gasDensityString);
+            getFormattedString(outputDensities[Oil], "%6.1lf", oilDensityString);
+            getFormattedString(0.001 * outputDensities[Gas], "%6.3lf", gasGravityString);
+            getFormattedString(0.001 * outputDensities[Oil], "%6.3lf", oilGravityString);
 
-	    float num, deno, gasGorm, oilGorm;
-	    char gasGormString[32], oilGormString[32];
+            float num, deno, gasGorm, oilGorm;
+            char gasGormString[32], oilGormString[32];
 
-	    num = outputMasses[Gas][C1] + outputMasses[Gas][C2] + outputMasses[Gas][C3] + outputMasses[Gas][C4] + outputMasses[Gas][C5];
+            num = outputMasses[Gas][C1] + outputMasses[Gas][C2] + outputMasses[Gas][C3] + outputMasses[Gas][C4] + outputMasses[Gas][C5];
 
-	    deno = outputMasses[Gas][C6_14SAT] + outputMasses[Gas][C6_14ARO] +
-	       outputMasses[Gas][C15_SAT] + outputMasses[Gas][C15_ARO] +
+            deno = outputMasses[Gas][C6_14SAT] + outputMasses[Gas][C6_14ARO] +
+               outputMasses[Gas][C15_SAT] + outputMasses[Gas][C15_ARO] +
                outputMasses[Gas][C15_SATS] + outputMasses[Gas][C15_AROS] + outputMasses[Gas][C6_14AROS] + outputMasses[Gas][C6_14SATS] + outputMasses[Gas][C15_AT] + outputMasses[Gas][LSC] +
                outputMasses[Gas][C6_14DBT] + outputMasses[Gas][C6_14BT] + outputMasses[Gas][C6_14BP] +
-	       outputMasses[Gas][RESINS] +
-	       outputMasses[Gas][ASPHALTENES];
+               outputMasses[Gas][RESINS] +
+               outputMasses[Gas][ASPHALTENES];
 
-	    gasGorm = (deno) ? num / deno : -1;
-	    getFormattedString (1000 * gasGorm, "%8.1lf", gasGormString);
+            gasGorm = (deno) ? num / deno : -1;
+            getFormattedString(1000 * gasGorm, "%8.1lf", gasGormString);
 
-	    num = outputMasses[Oil][C1] + outputMasses[Oil][C2] + outputMasses[Oil][C3] + outputMasses[Oil][C4] + outputMasses[Oil][C5];
+            num = outputMasses[Oil][C1] + outputMasses[Oil][C2] + outputMasses[Oil][C3] + outputMasses[Oil][C4] + outputMasses[Oil][C5];
 
-	    deno = outputMasses[Oil][C6_14SAT] + outputMasses[Oil][C6_14ARO] +
-	       outputMasses[Oil][C15_SAT] + outputMasses[Oil][C15_ARO] +
+            deno = outputMasses[Oil][C6_14SAT] + outputMasses[Oil][C6_14ARO] +
+               outputMasses[Oil][C15_SAT] + outputMasses[Oil][C15_ARO] +
                outputMasses[Oil][C15_SATS] + outputMasses[Oil][C15_AROS] + outputMasses[Oil][C6_14AROS] + outputMasses[Oil][C6_14SATS] + outputMasses[Oil][C15_AT] + outputMasses[Oil][LSC] +
                outputMasses[Oil][C6_14DBT] + outputMasses[Oil][C6_14BT] + outputMasses[Oil][C6_14BP] +
-	       outputMasses[Oil][RESINS] + 
-	       outputMasses[Oil][ASPHALTENES];
+               outputMasses[Oil][RESINS] +
+               outputMasses[Oil][ASPHALTENES];
 
-	    oilGorm = (deno) ? num / deno : -1;
-	    getFormattedString (1000 * oilGorm, "%7.1f", oilGormString);
+            oilGorm = (deno) ? num / deno : -1;
+            getFormattedString(1000 * oilGorm, "%7.1f", oilGormString);
 
-	    fprintf (fp, "%6.1lf|%4d|%6s|%6s|%8s|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|"
-		  "%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%7s|%6s|%6s|%8s|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|"
-		  "%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%s\n",
-		  snapshot->getTime (), trap->getId (), 
-		  oilDensityString, oilGravityString, oilViscString,
-		  percentage (outputMasses[Oil][C1], phaseMasses[Oil]),
-		  percentage (outputMasses[Oil][C2], phaseMasses[Oil]),
-		  percentage (outputMasses[Oil][C3], phaseMasses[Oil]),
-		  percentage (outputMasses[Oil][C4], phaseMasses[Oil]),
-		  percentage (outputMasses[Oil][C5], phaseMasses[Oil]),
-		  percentage (outputMasses[Oil][N2], phaseMasses[Oil]),
-		  percentage (outputMasses[Oil][COX], phaseMasses[Oil]),
-		  percentage (outputMasses[Oil][H2S], phaseMasses[Oil]),
-		  percentage (outputMasses[Oil][C6_14SAT], phaseMasses[Oil]),
-		  percentage (outputMasses[Oil][C6_14ARO], phaseMasses[Oil]),
-		  percentage (outputMasses[Oil][C15_SAT], phaseMasses[Oil]),
-		  percentage (outputMasses[Oil][C15_ARO], phaseMasses[Oil]),
+            fprintf(fp, "%6.1lf|%4d|%6s|%6s|%8s|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|"
+               "%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%7s|%6s|%6s|%8s|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|"
+               "%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%s\n",
+               snapshot->getTime(), trap->getId(),
+               oilDensityString, oilGravityString, oilViscString,
+               percentage(outputMasses[Oil][C1], phaseMasses[Oil]),
+               percentage(outputMasses[Oil][C2], phaseMasses[Oil]),
+               percentage(outputMasses[Oil][C3], phaseMasses[Oil]),
+               percentage(outputMasses[Oil][C4], phaseMasses[Oil]),
+               percentage(outputMasses[Oil][C5], phaseMasses[Oil]),
+               percentage(outputMasses[Oil][N2], phaseMasses[Oil]),
+               percentage(outputMasses[Oil][COX], phaseMasses[Oil]),
+               percentage(outputMasses[Oil][H2S], phaseMasses[Oil]),
+               percentage(outputMasses[Oil][C6_14SAT], phaseMasses[Oil]),
+               percentage(outputMasses[Oil][C6_14ARO], phaseMasses[Oil]),
+               percentage(outputMasses[Oil][C15_SAT], phaseMasses[Oil]),
+               percentage(outputMasses[Oil][C15_ARO], phaseMasses[Oil]),
 
-		  percentage (outputMasses[Oil][LSC], phaseMasses[Oil]),
-		  percentage (outputMasses[Oil][C15_AT], phaseMasses[Oil]),
-		  percentage (outputMasses[Oil][C15_AROS], phaseMasses[Oil]),
-		  percentage (outputMasses[Oil][C15_SATS], phaseMasses[Oil]),
-		  percentage (outputMasses[Oil][C6_14BT], phaseMasses[Oil]),
-		  percentage (outputMasses[Oil][C6_14DBT], phaseMasses[Oil]),
-		  percentage (outputMasses[Oil][C6_14BP], phaseMasses[Oil]),
-		  percentage (outputMasses[Oil][C6_14SATS], phaseMasses[Oil]),
-		  percentage (outputMasses[Oil][C6_14AROS], phaseMasses[Oil]),
+               percentage(outputMasses[Oil][LSC], phaseMasses[Oil]),
+               percentage(outputMasses[Oil][C15_AT], phaseMasses[Oil]),
+               percentage(outputMasses[Oil][C15_AROS], phaseMasses[Oil]),
+               percentage(outputMasses[Oil][C15_SATS], phaseMasses[Oil]),
+               percentage(outputMasses[Oil][C6_14BT], phaseMasses[Oil]),
+               percentage(outputMasses[Oil][C6_14DBT], phaseMasses[Oil]),
+               percentage(outputMasses[Oil][C6_14BP], phaseMasses[Oil]),
+               percentage(outputMasses[Oil][C6_14SATS], phaseMasses[Oil]),
+               percentage(outputMasses[Oil][C6_14AROS], phaseMasses[Oil]),
 
-		  percentage (outputMasses[Oil][RESINS], phaseMasses[Oil]),
-		  percentage (outputMasses[Oil][ASPHALTENES], phaseMasses[Oil]),
-		  oilGormString,
-		  gasDensityString, gasGravityString, gasViscString,
-		  percentage (outputMasses[Gas][C1], phaseMasses[Gas]),
-		  percentage (outputMasses[Gas][C2], phaseMasses[Gas]),
-		  percentage (outputMasses[Gas][C3], phaseMasses[Gas]),
-		  percentage (outputMasses[Gas][C4], phaseMasses[Gas]),
-		  percentage (outputMasses[Gas][C5], phaseMasses[Gas]),
-		  percentage (outputMasses[Gas][N2], phaseMasses[Gas]),
-		  percentage (outputMasses[Gas][COX], phaseMasses[Gas]),
-		  percentage (outputMasses[Gas][H2S], phaseMasses[Gas]),
-		  percentage (outputMasses[Gas][C6_14SAT], phaseMasses[Gas]),
-		  percentage (outputMasses[Gas][C6_14ARO], phaseMasses[Gas]),
-		  percentage (outputMasses[Gas][C15_SAT], phaseMasses[Gas]),
-		  percentage (outputMasses[Gas][C15_ARO], phaseMasses[Gas]),
+               percentage(outputMasses[Oil][RESINS], phaseMasses[Oil]),
+               percentage(outputMasses[Oil][ASPHALTENES], phaseMasses[Oil]),
+               oilGormString,
+               gasDensityString, gasGravityString, gasViscString,
+               percentage(outputMasses[Gas][C1], phaseMasses[Gas]),
+               percentage(outputMasses[Gas][C2], phaseMasses[Gas]),
+               percentage(outputMasses[Gas][C3], phaseMasses[Gas]),
+               percentage(outputMasses[Gas][C4], phaseMasses[Gas]),
+               percentage(outputMasses[Gas][C5], phaseMasses[Gas]),
+               percentage(outputMasses[Gas][N2], phaseMasses[Gas]),
+               percentage(outputMasses[Gas][COX], phaseMasses[Gas]),
+               percentage(outputMasses[Gas][H2S], phaseMasses[Gas]),
+               percentage(outputMasses[Gas][C6_14SAT], phaseMasses[Gas]),
+               percentage(outputMasses[Gas][C6_14ARO], phaseMasses[Gas]),
+               percentage(outputMasses[Gas][C15_SAT], phaseMasses[Gas]),
+               percentage(outputMasses[Gas][C15_ARO], phaseMasses[Gas]),
 
-		  percentage (outputMasses[Gas][LSC], phaseMasses[Gas]),
-		  percentage (outputMasses[Gas][C15_AT], phaseMasses[Gas]),
-		  percentage (outputMasses[Gas][C15_AROS], phaseMasses[Gas]),
-		  percentage (outputMasses[Gas][C15_SATS], phaseMasses[Gas]),
-		  percentage (outputMasses[Gas][C6_14BT], phaseMasses[Gas]),
-		  percentage (outputMasses[Gas][C6_14DBT], phaseMasses[Gas]),
-		  percentage (outputMasses[Gas][C6_14BP], phaseMasses[Gas]),
-		  percentage (outputMasses[Gas][C6_14SATS], phaseMasses[Gas]),
-		  percentage (outputMasses[Gas][C6_14AROS], phaseMasses[Gas]),
+               percentage(outputMasses[Gas][LSC], phaseMasses[Gas]),
+               percentage(outputMasses[Gas][C15_AT], phaseMasses[Gas]),
+               percentage(outputMasses[Gas][C15_AROS], phaseMasses[Gas]),
+               percentage(outputMasses[Gas][C15_SATS], phaseMasses[Gas]),
+               percentage(outputMasses[Gas][C6_14BT], phaseMasses[Gas]),
+               percentage(outputMasses[Gas][C6_14DBT], phaseMasses[Gas]),
+               percentage(outputMasses[Gas][C6_14BP], phaseMasses[Gas]),
+               percentage(outputMasses[Gas][C6_14SATS], phaseMasses[Gas]),
+               percentage(outputMasses[Gas][C6_14AROS], phaseMasses[Gas]),
 
 
-		  percentage (outputMasses[Gas][RESINS], phaseMasses[Gas]),
-		  percentage (outputMasses[Gas][ASPHALTENES], phaseMasses[Gas]),
-		  gasGormString);
-	 }
+               percentage(outputMasses[Gas][RESINS], phaseMasses[Gas]),
+               percentage(outputMasses[Gas][ASPHALTENES], phaseMasses[Gas]),
+               gasGormString);
+         }
       }
+      delete trapList;
    }
 
-   fprintf (fp, HLineDA);
-   fprintf (fp, HLineDB);
+   fprintf(fp, HLineDA);
+   fprintf(fp, HLineDB);
 
-   fprintf (fp,
-	 "\nPVT parameters used for phase properties and volumes "
-	 "are at reservoir conditions.\n");
+   fprintf(fp,
+      "\nPVT parameters used for phase properties and volumes "
+      "are at reservoir conditions.\n");
 
-   fprintf (fp, "\n\n");
+   fprintf(fp, "\n\n");
 
-   fprintf (fp, "[FASTRACK_CAULDRON3D_BEGIN_RC]\n");
+   fprintf(fp, "[FASTRACK_CAULDRON3D_BEGIN_RC]\n");
 
-   fprintf (fp, RC_LineA);
-   fprintf (fp, RC_LineAA);
-   fprintf (fp, RC_LineAB);
-   fprintf (fp, RC_LineB);
-   fprintf (fp, RC_LineBA);
-   fprintf (fp, RC_LineBB);
-   fprintf (fp, GAS_RC_LineC);
-   fprintf (fp, GAS_RC_LineCA);
-   fprintf (fp, GAS_RC_LineCB);
+   fprintf(fp, RC_LineA);
+   fprintf(fp, RC_LineAA);
+   fprintf(fp, RC_LineAB);
+   fprintf(fp, RC_LineB);
+   fprintf(fp, RC_LineBA);
+   fprintf(fp, RC_LineBB);
+   fprintf(fp, GAS_RC_LineC);
+   fprintf(fp, GAS_RC_LineCA);
+   fprintf(fp, GAS_RC_LineCB);
 
-   fprintf (fp, RC_LineD);
-   fprintf (fp, RC_LineDA);
-   fprintf (fp, RC_LineDB);
+   fprintf(fp, RC_LineD);
+   fprintf(fp, RC_LineDA);
+   fprintf(fp, RC_LineDB);
 
 
    {
@@ -540,112 +545,113 @@ bool processReservoir (ProjectHandle * projectHandle,  const Reservoir * reservo
 
       const Snapshot * snapshot = (*snapshotList)[0];
 
-      TrapList * trapList = projectHandle->getTraps (reservoir, snapshot, 0);
+      TrapList * trapList = projectHandle->getTraps(reservoir, snapshot, 0);
 
       TrapList::iterator trapIter;
-      for (trapIter = trapList->begin (); trapIter != trapList->end (); ++trapIter)
+      for( trapIter = trapList->begin(); trapIter != trapList->end(); ++trapIter )
       {
-	 const Trap * trap = * trapIter;
+         const Trap * trap = *trapIter;
 
-	 double inputMasses[CBM_NumComponents];
-	 double outputMasses[CBM_NumPhases][CBM_NumComponents];
-	 double outputDensities[CBM_NumPhases];
-	 double outputViscosities[CBM_NumPhases];
+         double inputMasses[CBM_NumComponents];
+         double outputMasses[CBM_NumPhases][CBM_NumComponents];
+         double outputDensities[CBM_NumPhases];
+         double outputViscosities[CBM_NumPhases];
 
-	 for (componentId = 0; componentId < CBM_NumComponents; ++componentId)
-	 {
-	    inputMasses[componentId] = trap->getMass ((ComponentId) componentId);
-	 }
+         for( componentId = 0; componentId < CBM_NumComponents; ++componentId )
+         {
+            inputMasses[componentId] = trap->getMass((ComponentId)componentId);
+         }
 
-	 bool flashed = pvtFlash::EosPack::getInstance().computeWithLumping (celsius2kelvin (trap->getTemperature ()),
-	       megapascal2pascal (trap->getPressure ()),
-	       inputMasses, outputMasses, outputDensities, outputViscosities);
+         bool flashed = pvtFlash::EosPack::getInstance().computeWithLumping(celsius2kelvin(trap->getTemperature()),
+            megapascal2pascal(trap->getPressure()),
+            inputMasses, outputMasses, outputDensities, outputViscosities);
 
-	 if (flashed)
-	 {
-	    double phaseMasses[CBM_NumPhases];
+         if( flashed )
+         {
+            double phaseMasses[CBM_NumPhases];
 
-	    for (phaseId = 0; phaseId < CBM_NumPhases; ++phaseId)
-	    {
-	       phaseMasses[phaseId] = 0;
-	       for (componentId = 0; componentId < CBM_NumComponents; ++componentId)
-	       {
-		  phaseMasses[phaseId] += outputMasses[phaseId][componentId];
-	       }
-	    }
+            for( phaseId = 0; phaseId < CBM_NumPhases; ++phaseId )
+            {
+               phaseMasses[phaseId] = 0;
+               for( componentId = 0; componentId < CBM_NumComponents; ++componentId )
+               {
+                  phaseMasses[phaseId] += outputMasses[phaseId][componentId];
+               }
+            }
 
-	    double trapX, trapY;
-	    trap->getPosition (trapX, trapY);
+            double trapX, trapY;
+            trap->getPosition(trapX, trapY);
 
-	    fprintf (fp, "%4d|%8.0lf|%8.0lf|%8.0lf|%5.0lf|%7.0lf|",
-		  trap->getId (), trapY, trapX, projectHandle->getHighResolutionOutputGrid ()->deltaI (), trap->getTemperature (), trap->getPressure ());
+            fprintf(fp, "%4d|%8.0lf|%8.0lf|%8.0lf|%5.0lf|%7.0lf|",
+               trap->getId(), trapY, trapX, projectHandle->getHighResolutionOutputGrid()->deltaI(), trap->getTemperature(), trap->getPressure());
 
-	    double oilVolume = 0;
-	    if (phaseMasses[Oil] > 0 && outputDensities[Oil] > 0)
-	       oilVolume = phaseMasses[Oil] / outputDensities[Oil];
+            double oilVolume = 0;
+            if( phaseMasses[Oil] > 0 && outputDensities[Oil] > 0 )
+               oilVolume = phaseMasses[Oil] / outputDensities[Oil];
 
-	    double gasVolume = 0;
-	    if (phaseMasses[Gas] > 0 && outputDensities[Gas] > 0)
-	       gasVolume = phaseMasses[Gas] / outputDensities[Gas];
+            double gasVolume = 0;
+            if( phaseMasses[Gas] > 0 && outputDensities[Gas] > 0 )
+               gasVolume = phaseMasses[Gas] / outputDensities[Gas];
 
-	    char gasDensityString[32], oilDensityString[32];
+            char gasDensityString[32], oilDensityString[32];
 
-	    getFormattedString (outputDensities [Gas], "%1.2le", gasDensityString);
-	    getFormattedString (outputDensities [Oil], "%1.2le", oilDensityString);
+            getFormattedString(outputDensities[Gas], "%1.2le", gasDensityString);
+            getFormattedString(outputDensities[Oil], "%1.2le", oilDensityString);
 
-	    char gasViscString[32], oilViscString[32];
+            char gasViscString[32], oilViscString[32];
 
-	    getFormattedString (outputViscosities[Gas], "%1.2le", gasViscString);
-	    getFormattedString (outputViscosities[Oil], "%1.2le", oilViscString);
+            getFormattedString(outputViscosities[Gas], "%1.2le", gasViscString);
+            getFormattedString(outputViscosities[Oil], "%1.2le", oilViscString);
 
-	    fprintf (fp, "%10.2lf|%11.2lf|%7s|%7s|%8s|%8s|",
-		  oilVolume / 1e6, gasVolume / 1e6, oilDensityString, gasDensityString, oilViscString, gasViscString);
+            fprintf(fp, "%10.2lf|%11.2lf|%7s|%7s|%8s|%8s|",
+               oilVolume / 1e6, gasVolume / 1e6, oilDensityString, gasDensityString, oilViscString, gasViscString);
 
-	    fprintf (fp, "%8.1lf|%8.1lf|%8.1lf|%9.1lf|",
-		  trap->getDepth (), trap->getOWC (), trap->getGOC (), squaremeters2squarekilometers (trap->getWCSurface ()));
+            fprintf(fp, "%8.1lf|%8.1lf|%8.1lf|%9.1lf|",
+               trap->getDepth(), trap->getOWC(), trap->getGOC(), squaremeters2squarekilometers(trap->getWCSurface()));
 
-	    double porosity = -1;
-	    double perm = -1;
-	    double net_gross = 100;
-	    double oilsat = 100;
-	    double gassat = 100;
+            double porosity = -1;
+            double perm = -1;
+            double net_gross = 100;
+            double oilsat = 100;
+            double gassat = 100;
 
-	    char porosityString[32];
-	    getFormattedString(porosity, "%6.1lf", porosityString);
+            char porosityString[32];
+            getFormattedString(porosity, "%6.1lf", porosityString);
 
-	    char permString[32];
-	    getFormattedString(perm, "%6.1lf", permString);
+            char permString[32];
+            getFormattedString(perm, "%6.1lf", permString);
 
-	    fprintf (fp, "%6s|%6s|%6.1lf|%6.1lf|%6.1lf\n",
-		  porosityString, permString, net_gross, oilsat, gassat);
-	 }
+            fprintf(fp, "%6s|%6s|%6.1lf|%6.1lf|%6.1lf\n",
+               porosityString, permString, net_gross, oilsat, gassat);
+         }
       }
+      delete trapList;
    }
 
-   fprintf (fp, RC_LineD);
-   fprintf (fp, RC_LineDA);
-   fprintf (fp, RC_LineDB);
+   fprintf(fp, RC_LineD);
+   fprintf(fp, RC_LineDA);
+   fprintf(fp, RC_LineDB);
 
-   fprintf (fp, "[FASTRACK_CAULDRON3D_END_RC]\n");
-   fprintf (fp, "NB: -1.0  values stands for \"undef\"\n");
+   fprintf(fp, "[FASTRACK_CAULDRON3D_END_RC]\n");
+   fprintf(fp, "NB: -1.0  values stands for \"undef\"\n");
 
 
-   fprintf (fp, "\n\n");
-   fprintf (fp, "[FASTRACK_CAULDRON3D_BEGIN_RC OIL FIELD UNITS]\n");
+   fprintf(fp, "\n\n");
+   fprintf(fp, "[FASTRACK_CAULDRON3D_BEGIN_RC OIL FIELD UNITS]\n");
 
-   fprintf (fp, RC_LineA);
-   fprintf (fp, RC_LineAA);
-   fprintf (fp, RC_LineAB);
-   fprintf (fp, RC_LineB);
-   fprintf (fp, RC_LineBA);
-   fprintf (fp, RC_LineBB);
-   fprintf (fp, OIL_RC_LineC);
-   fprintf (fp, OIL_RC_LineCA);
-   fprintf (fp, OIL_RC_LineCB);
+   fprintf(fp, RC_LineA);
+   fprintf(fp, RC_LineAA);
+   fprintf(fp, RC_LineAB);
+   fprintf(fp, RC_LineB);
+   fprintf(fp, RC_LineBA);
+   fprintf(fp, RC_LineBB);
+   fprintf(fp, OIL_RC_LineC);
+   fprintf(fp, OIL_RC_LineCA);
+   fprintf(fp, OIL_RC_LineCB);
 
-   fprintf (fp, RC_LineD);
-   fprintf (fp, RC_LineDA);
-   fprintf (fp, RC_LineDB);
+   fprintf(fp, RC_LineD);
+   fprintf(fp, RC_LineDA);
+   fprintf(fp, RC_LineDB);
 
    {
       int componentId;
@@ -653,318 +659,112 @@ bool processReservoir (ProjectHandle * projectHandle,  const Reservoir * reservo
 
       const Snapshot * snapshot = (*snapshotList)[0];
 
-      TrapList * trapList = projectHandle->getTraps (reservoir, snapshot, 0);
+      TrapList * trapList = projectHandle->getTraps(reservoir, snapshot, 0);
 
       TrapList::iterator trapIter;
-      for (trapIter = trapList->begin (); trapIter != trapList->end (); ++trapIter)
+      for( trapIter = trapList->begin(); trapIter != trapList->end(); ++trapIter )
       {
-	 const Trap * trap = * trapIter;
+         const Trap * trap = *trapIter;
 
-	 double inputMasses[CBM_NumComponents];
-	 double outputMasses[CBM_NumPhases][CBM_NumComponents];
-	 double outputDensities[CBM_NumPhases];
-	 double outputViscosities[CBM_NumPhases];
+         double inputMasses[CBM_NumComponents];
+         double outputMasses[CBM_NumPhases][CBM_NumComponents];
+         double outputDensities[CBM_NumPhases];
+         double outputViscosities[CBM_NumPhases];
 
-	 for (componentId = 0; componentId < CBM_NumComponents; ++componentId)
-	 {
-	    inputMasses[componentId] = trap->getMass ((ComponentId) componentId);
-	 }
+         for( componentId = 0; componentId < CBM_NumComponents; ++componentId )
+         {
+            inputMasses[componentId] = trap->getMass((ComponentId)componentId);
+         }
 
-	 bool flashed = pvtFlash::EosPack::getInstance().computeWithLumping (celsius2kelvin (trap->getTemperature ()),
-	       megapascal2pascal (trap->getPressure ()),
-	       inputMasses, outputMasses, outputDensities, outputViscosities);
+         bool flashed = pvtFlash::EosPack::getInstance().computeWithLumping(celsius2kelvin(trap->getTemperature()),
+            megapascal2pascal(trap->getPressure()),
+            inputMasses, outputMasses, outputDensities, outputViscosities);
 
-	 if (flashed)
-	 {
-	    double phaseMasses[CBM_NumPhases];
+         if( flashed )
+         {
+            double phaseMasses[CBM_NumPhases];
 
-	    for (phaseId = 0; phaseId < CBM_NumPhases; ++phaseId)
-	    {
-	       phaseMasses[phaseId] = 0;
-	       for (componentId = 0; componentId < CBM_NumComponents; ++componentId)
-	       {
-		  phaseMasses[phaseId] += outputMasses[phaseId][componentId];
-	       }
-	    }
+            for( phaseId = 0; phaseId < CBM_NumPhases; ++phaseId )
+            {
+               phaseMasses[phaseId] = 0;
+               for( componentId = 0; componentId < CBM_NumComponents; ++componentId )
+               {
+                  phaseMasses[phaseId] += outputMasses[phaseId][componentId];
+               }
+            }
 
-	    double trapX, trapY;
-	    trap->getPosition (trapX, trapY);
+            double trapX, trapY;
+            trap->getPosition(trapX, trapY);
 
-	    fprintf (fp, "%4d|%8.0lf|%8.0lf|%8.0lf|%5.0lf|%7.0lf|",
-		  trap->getId (), meters2feet (trapY), meters2feet (trapX), meters2feet (projectHandle->getHighResolutionOutputGrid ()->deltaI ()),
-		  celsius2fahrenheit (trap->getTemperature ()), megapascal2psi (trap->getPressure ()));
+            fprintf(fp, "%4d|%8.0lf|%8.0lf|%8.0lf|%5.0lf|%7.0lf|",
+               trap->getId(), meters2feet(trapY), meters2feet(trapX), meters2feet(projectHandle->getHighResolutionOutputGrid()->deltaI()),
+               celsius2fahrenheit(trap->getTemperature()), megapascal2psi(trap->getPressure()));
 
-	    double oilVolume = 0;
-	    if (phaseMasses[Oil] > 0 && outputDensities[Oil] > 0)
-	       oilVolume = phaseMasses[Oil] / outputDensities[Oil];
+            double oilVolume = 0;
+            if( phaseMasses[Oil] > 0 && outputDensities[Oil] > 0 )
+               oilVolume = phaseMasses[Oil] / outputDensities[Oil];
 
-	    double gasVolume = 0;
-	    if (phaseMasses[Gas] > 0 && outputDensities[Gas] > 0)
-	       gasVolume = phaseMasses[Gas] / outputDensities[Gas];
+            double gasVolume = 0;
+            if( phaseMasses[Gas] > 0 && outputDensities[Gas] > 0 )
+               gasVolume = phaseMasses[Gas] / outputDensities[Gas];
 
-	    char gasDensityString[32], oilDensityString[32];
+            char gasDensityString[32], oilDensityString[32];
 
-	    getFormattedString (outputDensities [Gas], "%1.2le", gasDensityString);
-	    getFormattedString (outputDensities [Oil], "%1.2le", oilDensityString);
+            getFormattedString(outputDensities[Gas], "%1.2le", gasDensityString);
+            getFormattedString(outputDensities[Oil], "%1.2le", oilDensityString);
 
-	    char gasViscString[32], oilViscString[32];
+            char gasViscString[32], oilViscString[32];
 
-	    getFormattedString (outputViscosities[Gas], "%1.2le", gasViscString);
-	    getFormattedString (outputViscosities[Oil], "%1.2le", oilViscString);
+            getFormattedString(outputViscosities[Gas], "%1.2le", gasViscString);
+            getFormattedString(outputViscosities[Oil], "%1.2le", oilViscString);
 
-	    fprintf (fp, "%10.2lf|%11.2lf|%7s|%7s|%8s|%8s|",
-		  cubicmeters2barrels (oilVolume / 1e6), cubicmeters2standardcubicfeet (gasVolume / 1e6), oilDensityString, gasDensityString, oilViscString, gasViscString);
+            fprintf(fp, "%10.2lf|%11.2lf|%7s|%7s|%8s|%8s|",
+               cubicmeters2barrels(oilVolume / 1e6), cubicmeters2standardcubicfeet(gasVolume / 1e6), oilDensityString, gasDensityString, oilViscString, gasViscString);
 
-	    fprintf (fp, "%8.1lf|%8.1lf|%8.1lf|%9.1lf|",
-		  meters2feet (trap->getDepth ()), meters2feet (trap->getOWC ()), meters2feet (trap->getGOC ()), squaremeters2acres (trap->getWCSurface ()));
+            fprintf(fp, "%8.1lf|%8.1lf|%8.1lf|%9.1lf|",
+               meters2feet(trap->getDepth()), meters2feet(trap->getOWC()), meters2feet(trap->getGOC()), squaremeters2acres(trap->getWCSurface()));
 
-	    double porosity = -1;
-	    double perm = -1;
-	    double net_gross = 100;
-	    double oilsat = 100;
-	    double gassat = 100;
+            double porosity = -1;
+            double perm = -1;
+            double net_gross = 100;
+            double oilsat = 100;
+            double gassat = 100;
 
-	    char porosityString[32];
-	    getFormattedString(porosity, "%6.1lf", porosityString);
+            char porosityString[32];
+            getFormattedString(porosity, "%6.1lf", porosityString);
 
-	    char permString[32];
-	    getFormattedString(perm, "%6.1lf", permString);
+            char permString[32];
+            getFormattedString(perm, "%6.1lf", permString);
 
-	    fprintf (fp, "%6s|%6s|%6.1lf|%6.1lf|%6.1lf\n",
-		  porosityString, permString, net_gross, oilsat, gassat);
-	 }
+            fprintf(fp, "%6s|%6s|%6.1lf|%6.1lf|%6.1lf\n",
+               porosityString, permString, net_gross, oilsat, gassat);
+         }
       }
+      delete trapList;
    }
 
-   fprintf (fp, RC_LineD);
-   fprintf (fp, RC_LineDA);
-   fprintf (fp, RC_LineDB);
+   fprintf(fp, RC_LineD);
+   fprintf(fp, RC_LineDA);
+   fprintf(fp, RC_LineDB);
 
-   fprintf (fp, "\n\n");
+   fprintf(fp, "\n\n");
 
-   fprintf (fp, "[FASTRACK_CAULDRON3D_END_RC OIL FIELD UNIT]\n");
-   fprintf (fp, "NB: -1.0  values stands for \"undef\"\n");
-
-
-   fprintf (fp, "\n\n\n\n\n");
-   fprintf (fp, "[FASTRACK_CAULDRON3D_BEGIN_ST]\n");
-
-   fprintf (fp, ST_LineA);
-   fprintf (fp, ST_LineAB);
-   fprintf (fp, ST_LineB);
-   fprintf (fp, ST_LineBB);
-   fprintf (fp, GAS_ST_LineC);
-   fprintf (fp, GAS_ST_LineCB);
-   
-   fprintf (fp, ST_LineD);
-   fprintf (fp, ST_LineDB);
-
-   {
-      int componentId;
-      int phaseId;
-
-      char * format = "%4d|%8.0lf|%8.0lf|%8.0lf|%10.1lf|%11.1lf|%7s|%6s|%7s|%8s|%8s|%6.1lf|%6.1lf|%6.1lf|%6.1lf|";
-
-      const Snapshot * snapshot = (*snapshotList)[0];
-
-      TrapList * trapList = projectHandle->getTraps (reservoir, snapshot, 0);
-
-      TrapList::iterator trapIter;
-      for (trapIter = trapList->begin (); trapIter != trapList->end (); ++trapIter)
-      {
-	 bool flashed;
-	 const Trap * trap = * trapIter;
-
-	 double inputMasses[CBM_NumComponents];
-
-	 double outputMasses[CBM_NumPhases][CBM_NumComponents];
-	 double outputDensities[CBM_NumPhases];
-	 double outputViscosities[CBM_NumPhases];
-
-	 double stOutputMasses[CBM_NumPhases][CBM_NumComponents];
-	 double stOutputDensities[CBM_NumPhases];
-	 double stOutputViscosities[CBM_NumPhases];
-
-	 for (componentId = 0; componentId < CBM_NumComponents; ++componentId)
-	 {
-	    inputMasses[componentId] = trap->getMass ((ComponentId) componentId);
-	 }
-
-	 // flash everything at reservoir conditions
-	 flashed = pvtFlash::EosPack::getInstance().computeWithLumping (celsius2kelvin (trap->getTemperature ()),
-	       megapascal2pascal (trap->getPressure ()),
-	       inputMasses, outputMasses, outputDensities, outputViscosities);
-
-	 if (!flashed) continue;
-
-	 // flash everything at stock tank conditions
-	 flashed = pvtFlash::EosPack::getInstance().computeWithLumping (celsius2kelvin (stTemperature),
-	       megapascal2pascal (stPressure),
-	       inputMasses, stOutputMasses, stOutputDensities, stOutputViscosities);
-
-	 if (!flashed) continue;
-
-	 double gasInputMasses[CBM_NumComponents];
-	 double gasOutputMasses[CBM_NumPhases][CBM_NumComponents];
-	 double gasOutputDensities[CBM_NumPhases];
-	 double gasOutputViscosities[CBM_NumPhases];
-
-	 for (componentId = 0; componentId < CBM_NumComponents; ++componentId)
-	 {
-	    gasInputMasses[componentId] = outputMasses[Gas][componentId];
-	 }
-
-	 // flash reservoir gas at stock tank conditions
-	 flashed = pvtFlash::EosPack::getInstance().computeWithLumping (celsius2kelvin (stTemperature),
-	       megapascal2pascal (stPressure),
-	       gasInputMasses, gasOutputMasses, gasOutputDensities, gasOutputViscosities);
-
-	 if (!flashed) continue;
-
-	 double oilInputMasses[CBM_NumComponents];
-	 double oilOutputMasses[CBM_NumPhases][CBM_NumComponents];
-	 double oilOutputDensities[CBM_NumPhases];
-	 double oilOutputViscosities[CBM_NumPhases];
-
-	 for (componentId = 0; componentId < CBM_NumComponents; ++componentId)
-	 {
-	    oilInputMasses[componentId] = outputMasses[Oil][componentId];
-	 }
-
-	 // flash reservoir oil at stock tank conditions
-	 flashed = pvtFlash::EosPack::getInstance().computeWithLumping (celsius2kelvin (stTemperature),
-	       megapascal2pascal (stPressure),
-	       oilInputMasses, oilOutputMasses, oilOutputDensities, oilOutputViscosities);
-
-	 if (!flashed) continue;
-
-	 double phaseMasses[CBM_NumPhases];
-	 double gasPhaseMasses[CBM_NumPhases];
-	 double oilPhaseMasses[CBM_NumPhases];
-	 double stPhaseMasses[CBM_NumPhases];
-
-	 for (phaseId = 0; phaseId < CBM_NumPhases; ++phaseId)
-	 {
-	    phaseMasses[phaseId] = 0;
-	    gasPhaseMasses[phaseId] = 0;
-	    oilPhaseMasses[phaseId] = 0;
-	    stPhaseMasses[phaseId] = 0;
-
-	    for (componentId = 0; componentId < CBM_NumComponents; ++componentId)
-	    {
-	       phaseMasses[phaseId] += outputMasses[phaseId][componentId];
-	       gasPhaseMasses[phaseId] += gasOutputMasses[phaseId][componentId];
-	       oilPhaseMasses[phaseId] += oilOutputMasses[phaseId][componentId];
-	       stPhaseMasses[phaseId] += stOutputMasses[phaseId][componentId];
-	    }
-	 }
-
-	 double trapX, trapY;
-	 trap->getPosition (trapX, trapY);
-
-	 double oilVolume = 0;
-	 double API = -1;
-	 if (stPhaseMasses[Oil] > 0 && stOutputDensities[Oil] > 0)
-	 {
-	    oilVolume = stPhaseMasses[Oil] / stOutputDensities[Oil];
-	    API = 141.5/(0.001*stOutputDensities[Oil]) -131.5;
-	 }
-
-	 double gasVolume = 0;
-	 if (phaseMasses[Gas] > 0 && outputDensities[Gas] > 0)
-	 {
-	    gasVolume = stPhaseMasses[Gas] / stOutputDensities[Gas];
-	 }
-
-	 char oilDensityString[32], gasDensityString[32];
-	 getFormattedString(stOutputDensities[Oil], "%7.1lf", oilDensityString);
-	 getFormattedString(stOutputDensities[Gas], "%7.1lf", gasDensityString);
-
-	 char APIString[32];
-	 getFormattedString(API, "%6.1lf", APIString);
-
-	 char oilViscString[32], gasViscString[32];
-	 getFormattedString(stOutputViscosities[Oil], "%1.2le", oilViscString);
-	 getFormattedString(stOutputViscosities[Gas], "%1.2le", gasViscString);
-
-	 fprintf (fp, format, 
-	       trap->getId (), trapY, trapX, projectHandle->getHighResolutionOutputGrid ()->deltaI (),
-	       oilVolume / 1e6, gasVolume / 1e6,
-	       oilDensityString, APIString, gasDensityString, oilViscString, gasViscString, 
-	       percentage (stOutputMasses[Oil][N2], stPhaseMasses[Oil]),
-	       percentage (stOutputMasses[Oil][COX], stPhaseMasses[Oil]),
-	       percentage (stOutputMasses[Gas][N2], stPhaseMasses[Gas]),
-	       percentage (stOutputMasses[Gas][COX], stPhaseMasses[Gas]));
+   fprintf(fp, "[FASTRACK_CAULDRON3D_END_RC OIL FIELD UNIT]\n");
+   fprintf(fp, "NB: -1.0  values stands for \"undef\"\n");
 
 
-	 double condensate = 0;
-	 if (gasPhaseMasses[Oil] > 0 && gasOutputDensities[Oil] > 0)
-	    condensate = gasPhaseMasses[Oil] / gasOutputDensities[Oil];
+   fprintf(fp, "\n\n\n\n\n");
+   fprintf(fp, "[FASTRACK_CAULDRON3D_BEGIN_ST]\n");
 
-	 double gas = 0;
-	 if (gasPhaseMasses[Gas] > 0 && gasOutputDensities[Gas] > 0)
-	    gas = gasPhaseMasses[Gas] / gasOutputDensities[Gas];
+   fprintf(fp, ST_LineA);
+   fprintf(fp, ST_LineAB);
+   fprintf(fp, ST_LineB);
+   fprintf(fp, ST_LineBB);
+   fprintf(fp, GAS_ST_LineC);
+   fprintf(fp, GAS_ST_LineCB);
 
-	 double cgr = 0;
-	 double bg = 0;
-
-	 if (condensate > 0 && gas > 0)
-	 {
-	    cgr = condensate / gas;
-	    bg = phaseMasses[Gas] / outputDensities[Gas] / gas;
-	 }
-	 else
-	 {
-	    cgr = -1;
-	    bg = -1;
-	 }
-
-	 char cgrString[32];
-	 getFormattedString((cgr * 1000.0), "%11.2le", cgrString);
-
-
-	 gas = 0;
-	 if (oilPhaseMasses[Gas] > 0 && oilOutputDensities[Gas] > 0)
-	    gas = oilPhaseMasses[Gas] / oilOutputDensities[Gas];
-
-	 double oil = 0;
-	 double gor = 0;
-	 double bo = 0;
-	 if (oilPhaseMasses[Oil] > 0 && oilOutputDensities[Oil] > 0)
-	 {
-	    oil = oilPhaseMasses[Oil] / oilOutputDensities[Oil];
-	    bo = phaseMasses[Oil] / outputDensities[Oil] / oil;
-	    gor = gas  / oil;
-	 }
-
-	 char gorString[32], bgString[32], boString[32];
-	 getFormattedString(gor, "%10.2le", gorString);
-	 getFormattedString(bg, "%10.2le", bgString);
-	 getFormattedString(bo, "%10.2le", boString);
-
-	 fprintf (fp, "%11s|%10s|%10s|%10s\n",
-	       cgrString, gorString, bgString, boString); 
-      }
-   }
-
-   fprintf (fp, ST_LineD);
-   fprintf (fp, ST_LineDB);
-
-   fprintf (fp, "[FASTRACK_CAULDRON3D_END_ST]\n");
-   fprintf (fp, "NB: -1.0 values stands for \"undef\"\n");
-
-   fprintf (fp, "\n\n");
-   fprintf (fp, "[FASTRACK_CAULDRON3D_BEGIN_ST OIL FIELD UNITS]\n");
-
-   fprintf (fp, ST_LineA);
-   fprintf (fp, ST_LineAB);
-   fprintf (fp, ST_LineB);
-   fprintf (fp, ST_LineBB);
-   fprintf (fp, OIL_ST_LineC);
-   fprintf (fp, OIL_ST_LineCB);
-   
-   fprintf (fp, ST_LineD);
-   fprintf (fp, ST_LineDB);
+   fprintf(fp, ST_LineD);
+   fprintf(fp, ST_LineDB);
 
    {
       int componentId;
@@ -974,208 +774,417 @@ bool processReservoir (ProjectHandle * projectHandle,  const Reservoir * reservo
 
       const Snapshot * snapshot = (*snapshotList)[0];
 
-      TrapList * trapList = projectHandle->getTraps (reservoir, snapshot, 0);
+      TrapList * trapList = projectHandle->getTraps(reservoir, snapshot, 0);
 
       TrapList::iterator trapIter;
-      for (trapIter = trapList->begin (); trapIter != trapList->end (); ++trapIter)
+      for( trapIter = trapList->begin(); trapIter != trapList->end(); ++trapIter )
       {
-	 bool flashed;
-	 const Trap * trap = * trapIter;
+         bool flashed;
+         const Trap * trap = *trapIter;
 
-	 double inputMasses[CBM_NumComponents];
+         double inputMasses[CBM_NumComponents];
 
-	 double outputMasses[CBM_NumPhases][CBM_NumComponents];
-	 double outputDensities[CBM_NumPhases];
-	 double outputViscosities[CBM_NumPhases];
+         double outputMasses[CBM_NumPhases][CBM_NumComponents];
+         double outputDensities[CBM_NumPhases];
+         double outputViscosities[CBM_NumPhases];
 
-	 double stOutputMasses[CBM_NumPhases][CBM_NumComponents];
-	 double stOutputDensities[CBM_NumPhases];
-	 double stOutputViscosities[CBM_NumPhases];
+         double stOutputMasses[CBM_NumPhases][CBM_NumComponents];
+         double stOutputDensities[CBM_NumPhases];
+         double stOutputViscosities[CBM_NumPhases];
 
-	 for (componentId = 0; componentId < CBM_NumComponents; ++componentId)
-	 {
-	    inputMasses[componentId] = trap->getMass ((ComponentId) componentId);
-	 }
+         for( componentId = 0; componentId < CBM_NumComponents; ++componentId )
+         {
+            inputMasses[componentId] = trap->getMass((ComponentId)componentId);
+         }
 
-	 // flash everything at reservoir conditions
-	 flashed = pvtFlash::EosPack::getInstance().computeWithLumping (celsius2kelvin (trap->getTemperature ()),
-	       megapascal2pascal (trap->getPressure ()),
-	       inputMasses, outputMasses, outputDensities, outputViscosities);
+         // flash everything at reservoir conditions
+         flashed = pvtFlash::EosPack::getInstance().computeWithLumping(celsius2kelvin(trap->getTemperature()),
+            megapascal2pascal(trap->getPressure()),
+            inputMasses, outputMasses, outputDensities, outputViscosities);
 
-	 if (!flashed) continue;
+         if( !flashed ) continue;
 
-	 // flash everything at stock tank conditions
-	 flashed = pvtFlash::EosPack::getInstance().computeWithLumping (celsius2kelvin (stTemperature),
-	       megapascal2pascal (stPressure),
-	       inputMasses, stOutputMasses, stOutputDensities, stOutputViscosities);
+         // flash everything at stock tank conditions
+         flashed = pvtFlash::EosPack::getInstance().computeWithLumping(celsius2kelvin(stTemperature),
+            megapascal2pascal(stPressure),
+            inputMasses, stOutputMasses, stOutputDensities, stOutputViscosities);
 
-	 if (!flashed) continue;
+         if( !flashed ) continue;
 
-	 double gasInputMasses[CBM_NumComponents];
-	 double gasOutputMasses[CBM_NumPhases][CBM_NumComponents];
-	 double gasOutputDensities[CBM_NumPhases];
-	 double gasOutputViscosities[CBM_NumPhases];
+         double gasInputMasses[CBM_NumComponents];
+         double gasOutputMasses[CBM_NumPhases][CBM_NumComponents];
+         double gasOutputDensities[CBM_NumPhases];
+         double gasOutputViscosities[CBM_NumPhases];
 
-	 for (componentId = 0; componentId < CBM_NumComponents; ++componentId)
-	 {
-	    gasInputMasses[componentId] = outputMasses[Gas][componentId];
-	 }
+         for( componentId = 0; componentId < CBM_NumComponents; ++componentId )
+         {
+            gasInputMasses[componentId] = outputMasses[Gas][componentId];
+         }
 
-	 // flash reservoir gas at stock tank conditions
-	 flashed = pvtFlash::EosPack::getInstance().computeWithLumping (celsius2kelvin (stTemperature),
-	       megapascal2pascal (stPressure),
-	       gasInputMasses, gasOutputMasses, gasOutputDensities, gasOutputViscosities);
+         // flash reservoir gas at stock tank conditions
+         flashed = pvtFlash::EosPack::getInstance().computeWithLumping(celsius2kelvin(stTemperature),
+            megapascal2pascal(stPressure),
+            gasInputMasses, gasOutputMasses, gasOutputDensities, gasOutputViscosities);
 
-	 if (!flashed) continue;
+         if( !flashed ) continue;
 
-	 double oilInputMasses[CBM_NumComponents];
-	 double oilOutputMasses[CBM_NumPhases][CBM_NumComponents];
-	 double oilOutputDensities[CBM_NumPhases];
-	 double oilOutputViscosities[CBM_NumPhases];
+         double oilInputMasses[CBM_NumComponents];
+         double oilOutputMasses[CBM_NumPhases][CBM_NumComponents];
+         double oilOutputDensities[CBM_NumPhases];
+         double oilOutputViscosities[CBM_NumPhases];
 
-	 for (componentId = 0; componentId < CBM_NumComponents; ++componentId)
-	 {
-	    oilInputMasses[componentId] = outputMasses[Oil][componentId];
-	 }
+         for( componentId = 0; componentId < CBM_NumComponents; ++componentId )
+         {
+            oilInputMasses[componentId] = outputMasses[Oil][componentId];
+         }
 
-	 // flash reservoir oil at stock tank conditions
-	 flashed = pvtFlash::EosPack::getInstance().computeWithLumping (celsius2kelvin (stTemperature),
-	       megapascal2pascal (stPressure),
-	       oilInputMasses, oilOutputMasses, oilOutputDensities, oilOutputViscosities);
+         // flash reservoir oil at stock tank conditions
+         flashed = pvtFlash::EosPack::getInstance().computeWithLumping(celsius2kelvin(stTemperature),
+            megapascal2pascal(stPressure),
+            oilInputMasses, oilOutputMasses, oilOutputDensities, oilOutputViscosities);
 
-	 if (!flashed) continue;
+         if( !flashed ) continue;
 
-	 double phaseMasses[CBM_NumPhases];
-	 double gasPhaseMasses[CBM_NumPhases];
-	 double oilPhaseMasses[CBM_NumPhases];
-	 double stPhaseMasses[CBM_NumPhases];
+         double phaseMasses[CBM_NumPhases];
+         double gasPhaseMasses[CBM_NumPhases];
+         double oilPhaseMasses[CBM_NumPhases];
+         double stPhaseMasses[CBM_NumPhases];
 
-	 for (phaseId = 0; phaseId < CBM_NumPhases; ++phaseId)
-	 {
-	    phaseMasses[phaseId] = 0;
-	    gasPhaseMasses[phaseId] = 0;
-	    oilPhaseMasses[phaseId] = 0;
-	    stPhaseMasses[phaseId] = 0;
+         for( phaseId = 0; phaseId < CBM_NumPhases; ++phaseId )
+         {
+            phaseMasses[phaseId] = 0;
+            gasPhaseMasses[phaseId] = 0;
+            oilPhaseMasses[phaseId] = 0;
+            stPhaseMasses[phaseId] = 0;
 
-	    for (componentId = 0; componentId < CBM_NumComponents; ++componentId)
-	    {
-	       phaseMasses[phaseId] += outputMasses[phaseId][componentId];
-	       gasPhaseMasses[phaseId] += gasOutputMasses[phaseId][componentId];
-	       oilPhaseMasses[phaseId] += oilOutputMasses[phaseId][componentId];
-	       stPhaseMasses[phaseId] += stOutputMasses[phaseId][componentId];
-	    }
-	 }
+            for( componentId = 0; componentId < CBM_NumComponents; ++componentId )
+            {
+               phaseMasses[phaseId] += outputMasses[phaseId][componentId];
+               gasPhaseMasses[phaseId] += gasOutputMasses[phaseId][componentId];
+               oilPhaseMasses[phaseId] += oilOutputMasses[phaseId][componentId];
+               stPhaseMasses[phaseId] += stOutputMasses[phaseId][componentId];
+            }
+         }
 
-	 double trapX, trapY;
-	 trap->getPosition (trapX, trapY);
+         double trapX, trapY;
+         trap->getPosition(trapX, trapY);
 
-	 double oilVolume = 0;
-	 double API = -1;
-	 if (stPhaseMasses[Oil] > 0 && stOutputDensities[Oil] > 0)
-	 {
-	    oilVolume = stPhaseMasses[Oil] / stOutputDensities[Oil];
-	    API = 141.5/(0.001*stOutputDensities[Oil]) -131.5;
-	 }
+         double oilVolume = 0;
+         double API = -1;
+         if( stPhaseMasses[Oil] > 0 && stOutputDensities[Oil] > 0 )
+         {
+            oilVolume = stPhaseMasses[Oil] / stOutputDensities[Oil];
+            API = 141.5 / (0.001*stOutputDensities[Oil]) - 131.5;
+         }
 
-	 double gasVolume = 0;
-	 if (phaseMasses[Gas] > 0 && outputDensities[Gas] > 0)
-	 {
-	    gasVolume = stPhaseMasses[Gas] / stOutputDensities[Gas];
-	 }
+         double gasVolume = 0;
+         if( phaseMasses[Gas] > 0 && outputDensities[Gas] > 0 )
+         {
+            gasVolume = stPhaseMasses[Gas] / stOutputDensities[Gas];
+         }
 
-	 char oilDensityString[32], gasDensityString[32];
-	 getFormattedString(stOutputDensities[Oil], "%7.3lf", oilDensityString);
-	 getFormattedString(stOutputDensities[Gas], "%7.3lf", gasDensityString);
+         char oilDensityString[32], gasDensityString[32];
+         getFormattedString(stOutputDensities[Oil], "%7.1lf", oilDensityString);
+         getFormattedString(stOutputDensities[Gas], "%7.1lf", gasDensityString);
 
-	 char APIString[32];
-	 getFormattedString(API, "%6.1lf", APIString);
+         char APIString[32];
+         getFormattedString(API, "%6.1lf", APIString);
 
-	 char oilViscString[32], gasViscString[32];
-	 getFormattedString(stOutputViscosities[Oil], "%1.2le", oilViscString);
-	 getFormattedString(stOutputViscosities[Gas], "%1.2le", gasViscString);
+         char oilViscString[32], gasViscString[32];
+         getFormattedString(stOutputViscosities[Oil], "%1.2le", oilViscString);
+         getFormattedString(stOutputViscosities[Gas], "%1.2le", gasViscString);
 
-	 fprintf (fp, format, 
-	       trap->getId (), meters2feet (trapY), meters2feet (trapX), meters2feet (projectHandle->getHighResolutionOutputGrid ()->deltaI ()),
-	       cubicmeters2barrels (oilVolume / 1e6), cubicmeters2standardcubicfeet (gasVolume / 1e6),
-	       oilDensityString, APIString, gasDensityString, oilViscString, gasViscString, 
-	       percentage (stOutputMasses[Oil][N2], stPhaseMasses[Oil]),
-	       percentage (stOutputMasses[Oil][COX], stPhaseMasses[Oil]),
-	       percentage (stOutputMasses[Gas][N2], stPhaseMasses[Gas]),
-	       percentage (stOutputMasses[Gas][COX], stPhaseMasses[Gas]));
+         fprintf(fp, format,
+            trap->getId(), trapY, trapX, projectHandle->getHighResolutionOutputGrid()->deltaI(),
+            oilVolume / 1e6, gasVolume / 1e6,
+            oilDensityString, APIString, gasDensityString, oilViscString, gasViscString,
+            percentage(stOutputMasses[Oil][N2], stPhaseMasses[Oil]),
+            percentage(stOutputMasses[Oil][COX], stPhaseMasses[Oil]),
+            percentage(stOutputMasses[Gas][N2], stPhaseMasses[Gas]),
+            percentage(stOutputMasses[Gas][COX], stPhaseMasses[Gas]));
 
 
-	 double condensate = 0;
-	 if (gasPhaseMasses[Oil] > 0 && gasOutputDensities[Oil] > 0)
-	    condensate = gasPhaseMasses[Oil] / gasOutputDensities[Oil];
+         double condensate = 0;
+         if( gasPhaseMasses[Oil] > 0 && gasOutputDensities[Oil] > 0 )
+            condensate = gasPhaseMasses[Oil] / gasOutputDensities[Oil];
 
-	 double gas = 0;
-	 if (gasPhaseMasses[Gas] > 0 && gasOutputDensities[Gas] > 0)
-	    gas = gasPhaseMasses[Gas] / gasOutputDensities[Gas];
+         double gas = 0;
+         if( gasPhaseMasses[Gas] > 0 && gasOutputDensities[Gas] > 0 )
+            gas = gasPhaseMasses[Gas] / gasOutputDensities[Gas];
 
-	 double cgr = 0;
-	 double bg = 0;
+         double cgr = 0;
+         double bg = 0;
 
-	 if (condensate > 0 && gas > 0)
-	 {
-	    cgr = condensate / gas;
-	    bg = phaseMasses[Gas] / outputDensities[Gas] / gas;
-	 }
-	 else
-	 {
-	    cgr = -1;
-	    bg = -1;
-	 }
+         if( condensate > 0 && gas > 0 )
+         {
+            cgr = condensate / gas;
+            bg = phaseMasses[Gas] / outputDensities[Gas] / gas;
+         }
+         else
+         {
+            cgr = -1;
+            bg = -1;
+         }
 
-	 cgr *= 1000 *cubicmeters2barrels (1) / cubicmeters2standardcubicfeet (1);
-	 char cgrString[32];
-	 getFormattedString((cgr * 1000.0), "%11.2le", cgrString);
+         char cgrString[32];
+         getFormattedString((cgr * 1000.0), "%11.2le", cgrString);
 
-	 gas = 0;
-	 if (oilPhaseMasses[Gas] > 0 && oilOutputDensities[Gas] > 0)
-	    gas = oilPhaseMasses[Gas] / oilOutputDensities[Gas];
 
-	 double oil = 0;
-	 double gor = 0;
-	 double bo = 0;
-	 if (oilPhaseMasses[Oil] > 0 && oilOutputDensities[Oil] > 0)
-	 {
-	    oil = oilPhaseMasses[Oil] / oilOutputDensities[Oil];
-	    bo = phaseMasses[Oil] / outputDensities[Oil] / oil;
-	    gor = gas  / oil;
-	 }
+         gas = 0;
+         if( oilPhaseMasses[Gas] > 0 && oilOutputDensities[Gas] > 0 )
+            gas = oilPhaseMasses[Gas] / oilOutputDensities[Gas];
 
-	 gor *= cubicmeters2standardcubicfeet (1) / cubicmeters2barrels (1);
-	 char gorString[32], bgString[32], boString[32];
-	 getFormattedString(gor, "%10.2le", gorString);
-	 getFormattedString(bg, "%10.2le", bgString);
-	 getFormattedString(bo, "%10.2le", boString);
+         double oil = 0;
+         double gor = 0;
+         double bo = 0;
+         if( oilPhaseMasses[Oil] > 0 && oilOutputDensities[Oil] > 0 )
+         {
+            oil = oilPhaseMasses[Oil] / oilOutputDensities[Oil];
+            bo = phaseMasses[Oil] / outputDensities[Oil] / oil;
+            gor = gas / oil;
+         }
 
-	 fprintf (fp, "%11s|%10s|%10s|%10s\n",
-	       cgrString, gorString, bgString, boString); 
+         char gorString[32], bgString[32], boString[32];
+         getFormattedString(gor, "%10.2le", gorString);
+         getFormattedString(bg, "%10.2le", bgString);
+         getFormattedString(bo, "%10.2le", boString);
+
+         fprintf(fp, "%11s|%10s|%10s|%10s\n",
+            cgrString, gorString, bgString, boString);
       }
+      delete trapList;
+   }
+
+   fprintf(fp, ST_LineD);
+   fprintf(fp, ST_LineDB);
+
+   fprintf(fp, "[FASTRACK_CAULDRON3D_END_ST]\n");
+   fprintf(fp, "NB: -1.0 values stands for \"undef\"\n");
+
+   fprintf(fp, "\n\n");
+   fprintf(fp, "[FASTRACK_CAULDRON3D_BEGIN_ST OIL FIELD UNITS]\n");
+
+   fprintf(fp, ST_LineA);
+   fprintf(fp, ST_LineAB);
+   fprintf(fp, ST_LineB);
+   fprintf(fp, ST_LineBB);
+   fprintf(fp, OIL_ST_LineC);
+   fprintf(fp, OIL_ST_LineCB);
+
+   fprintf(fp, ST_LineD);
+   fprintf(fp, ST_LineDB);
+
+   {
+      int componentId;
+      int phaseId;
+
+      char * format = "%4d|%8.0lf|%8.0lf|%8.0lf|%10.1lf|%11.1lf|%7s|%6s|%7s|%8s|%8s|%6.1lf|%6.1lf|%6.1lf|%6.1lf|";
+
+      const Snapshot * snapshot = (*snapshotList)[0];
+
+      TrapList * trapList = projectHandle->getTraps(reservoir, snapshot, 0);
+
+      TrapList::iterator trapIter;
+      for( trapIter = trapList->begin(); trapIter != trapList->end(); ++trapIter )
+      {
+         bool flashed;
+         const Trap * trap = *trapIter;
+
+         double inputMasses[CBM_NumComponents];
+
+         double outputMasses[CBM_NumPhases][CBM_NumComponents];
+         double outputDensities[CBM_NumPhases];
+         double outputViscosities[CBM_NumPhases];
+
+         double stOutputMasses[CBM_NumPhases][CBM_NumComponents];
+         double stOutputDensities[CBM_NumPhases];
+         double stOutputViscosities[CBM_NumPhases];
+
+         for( componentId = 0; componentId < CBM_NumComponents; ++componentId )
+         {
+            inputMasses[componentId] = trap->getMass((ComponentId)componentId);
+         }
+
+         // flash everything at reservoir conditions
+         flashed = pvtFlash::EosPack::getInstance().computeWithLumping(celsius2kelvin(trap->getTemperature()),
+            megapascal2pascal(trap->getPressure()),
+            inputMasses, outputMasses, outputDensities, outputViscosities);
+
+         if( !flashed ) continue;
+
+         // flash everything at stock tank conditions
+         flashed = pvtFlash::EosPack::getInstance().computeWithLumping(celsius2kelvin(stTemperature),
+            megapascal2pascal(stPressure),
+            inputMasses, stOutputMasses, stOutputDensities, stOutputViscosities);
+
+         if( !flashed ) continue;
+
+         double gasInputMasses[CBM_NumComponents];
+         double gasOutputMasses[CBM_NumPhases][CBM_NumComponents];
+         double gasOutputDensities[CBM_NumPhases];
+         double gasOutputViscosities[CBM_NumPhases];
+
+         for( componentId = 0; componentId < CBM_NumComponents; ++componentId )
+         {
+            gasInputMasses[componentId] = outputMasses[Gas][componentId];
+         }
+
+         // flash reservoir gas at stock tank conditions
+         flashed = pvtFlash::EosPack::getInstance().computeWithLumping(celsius2kelvin(stTemperature),
+            megapascal2pascal(stPressure),
+            gasInputMasses, gasOutputMasses, gasOutputDensities, gasOutputViscosities);
+
+         if( !flashed ) continue;
+
+         double oilInputMasses[CBM_NumComponents];
+         double oilOutputMasses[CBM_NumPhases][CBM_NumComponents];
+         double oilOutputDensities[CBM_NumPhases];
+         double oilOutputViscosities[CBM_NumPhases];
+
+         for( componentId = 0; componentId < CBM_NumComponents; ++componentId )
+         {
+            oilInputMasses[componentId] = outputMasses[Oil][componentId];
+         }
+
+         // flash reservoir oil at stock tank conditions
+         flashed = pvtFlash::EosPack::getInstance().computeWithLumping(celsius2kelvin(stTemperature),
+            megapascal2pascal(stPressure),
+            oilInputMasses, oilOutputMasses, oilOutputDensities, oilOutputViscosities);
+
+         if( !flashed ) continue;
+
+         double phaseMasses[CBM_NumPhases];
+         double gasPhaseMasses[CBM_NumPhases];
+         double oilPhaseMasses[CBM_NumPhases];
+         double stPhaseMasses[CBM_NumPhases];
+
+         for( phaseId = 0; phaseId < CBM_NumPhases; ++phaseId )
+         {
+            phaseMasses[phaseId] = 0;
+            gasPhaseMasses[phaseId] = 0;
+            oilPhaseMasses[phaseId] = 0;
+            stPhaseMasses[phaseId] = 0;
+
+            for( componentId = 0; componentId < CBM_NumComponents; ++componentId )
+            {
+               phaseMasses[phaseId] += outputMasses[phaseId][componentId];
+               gasPhaseMasses[phaseId] += gasOutputMasses[phaseId][componentId];
+               oilPhaseMasses[phaseId] += oilOutputMasses[phaseId][componentId];
+               stPhaseMasses[phaseId] += stOutputMasses[phaseId][componentId];
+            }
+         }
+
+         double trapX, trapY;
+         trap->getPosition(trapX, trapY);
+
+         double oilVolume = 0;
+         double API = -1;
+         if( stPhaseMasses[Oil] > 0 && stOutputDensities[Oil] > 0 )
+         {
+            oilVolume = stPhaseMasses[Oil] / stOutputDensities[Oil];
+            API = 141.5 / (0.001*stOutputDensities[Oil]) - 131.5;
+         }
+
+         double gasVolume = 0;
+         if( phaseMasses[Gas] > 0 && outputDensities[Gas] > 0 )
+         {
+            gasVolume = stPhaseMasses[Gas] / stOutputDensities[Gas];
+         }
+
+         char oilDensityString[32], gasDensityString[32];
+         getFormattedString(stOutputDensities[Oil], "%7.3lf", oilDensityString);
+         getFormattedString(stOutputDensities[Gas], "%7.3lf", gasDensityString);
+
+         char APIString[32];
+         getFormattedString(API, "%6.1lf", APIString);
+
+         char oilViscString[32], gasViscString[32];
+         getFormattedString(stOutputViscosities[Oil], "%1.2le", oilViscString);
+         getFormattedString(stOutputViscosities[Gas], "%1.2le", gasViscString);
+
+         fprintf(fp, format,
+            trap->getId(), meters2feet(trapY), meters2feet(trapX), meters2feet(projectHandle->getHighResolutionOutputGrid()->deltaI()),
+            cubicmeters2barrels(oilVolume / 1e6), cubicmeters2standardcubicfeet(gasVolume / 1e6),
+            oilDensityString, APIString, gasDensityString, oilViscString, gasViscString,
+            percentage(stOutputMasses[Oil][N2], stPhaseMasses[Oil]),
+            percentage(stOutputMasses[Oil][COX], stPhaseMasses[Oil]),
+            percentage(stOutputMasses[Gas][N2], stPhaseMasses[Gas]),
+            percentage(stOutputMasses[Gas][COX], stPhaseMasses[Gas]));
+
+
+         double condensate = 0;
+         if( gasPhaseMasses[Oil] > 0 && gasOutputDensities[Oil] > 0 )
+            condensate = gasPhaseMasses[Oil] / gasOutputDensities[Oil];
+
+         double gas = 0;
+         if( gasPhaseMasses[Gas] > 0 && gasOutputDensities[Gas] > 0 )
+            gas = gasPhaseMasses[Gas] / gasOutputDensities[Gas];
+
+         double cgr = 0;
+         double bg = 0;
+
+         if( condensate > 0 && gas > 0 )
+         {
+            cgr = condensate / gas;
+            bg = phaseMasses[Gas] / outputDensities[Gas] / gas;
+         }
+         else
+         {
+            cgr = -1;
+            bg = -1;
+         }
+
+         cgr *= 1000 * cubicmeters2barrels(1) / cubicmeters2standardcubicfeet(1);
+         char cgrString[32];
+         getFormattedString((cgr * 1000.0), "%11.2le", cgrString);
+
+         gas = 0;
+         if( oilPhaseMasses[Gas] > 0 && oilOutputDensities[Gas] > 0 )
+            gas = oilPhaseMasses[Gas] / oilOutputDensities[Gas];
+
+         double oil = 0;
+         double gor = 0;
+         double bo = 0;
+         if( oilPhaseMasses[Oil] > 0 && oilOutputDensities[Oil] > 0 )
+         {
+            oil = oilPhaseMasses[Oil] / oilOutputDensities[Oil];
+            bo = phaseMasses[Oil] / outputDensities[Oil] / oil;
+            gor = gas / oil;
+         }
+
+         gor *= cubicmeters2standardcubicfeet(1) / cubicmeters2barrels(1);
+         char gorString[32], bgString[32], boString[32];
+         getFormattedString(gor, "%10.2le", gorString);
+         getFormattedString(bg, "%10.2le", bgString);
+         getFormattedString(bo, "%10.2le", boString);
+
+         fprintf(fp, "%11s|%10s|%10s|%10s\n",
+            cgrString, gorString, bgString, boString);
+      }
+      delete trapList;
    }
 
 
-   fprintf (fp, ST_LineD);
-   fprintf (fp, ST_LineDB);
+   fprintf(fp, ST_LineD);
+   fprintf(fp, ST_LineDB);
 
-   fprintf (fp, "[FASTRACK_CAULDRON3D_END_ST OIL FIELD UNITS]\n");
-   fprintf (fp, "NB: -1.0 values stands for \"undef\"\n");
-   
-   fprintf (fp, "\n\n\n\n\n");
-   fprintf (fp, E_LineA);
-   fprintf (fp, E_LineAA);
-   fprintf (fp, E_LineAB);
-   fprintf (fp, E_LineB);
-   fprintf (fp, E_LineBA);
-   fprintf (fp, E_LineBB);
-   fprintf (fp, E_LineC);
-   fprintf (fp, E_LineCA);
-   fprintf (fp, E_LineCB);
+   fprintf(fp, "[FASTRACK_CAULDRON3D_END_ST OIL FIELD UNITS]\n");
+   fprintf(fp, "NB: -1.0 values stands for \"undef\"\n");
 
-   fprintf (fp, E_LineD);
-   fprintf (fp, E_LineDA);
-   fprintf (fp, E_LineDB);
+   fprintf(fp, "\n\n\n\n\n");
+   fprintf(fp, E_LineA);
+   fprintf(fp, E_LineAA);
+   fprintf(fp, E_LineAB);
+   fprintf(fp, E_LineB);
+   fprintf(fp, E_LineBA);
+   fprintf(fp, E_LineBB);
+   fprintf(fp, E_LineC);
+   fprintf(fp, E_LineCA);
+   fprintf(fp, E_LineCB);
+
+   fprintf(fp, E_LineD);
+   fprintf(fp, E_LineDA);
+   fprintf(fp, E_LineDB);
 
    {
       int componentId;
@@ -1183,217 +1192,218 @@ bool processReservoir (ProjectHandle * projectHandle,  const Reservoir * reservo
 
       const Snapshot * snapshot = (*snapshotList)[0];
 
-      TrapList * trapList = projectHandle->getTraps (reservoir, snapshot, 0);
+      TrapList * trapList = projectHandle->getTraps(reservoir, snapshot, 0);
 
       TrapList::iterator trapIter;
-      for (trapIter = trapList->begin (); trapIter != trapList->end (); ++trapIter)
+      for( trapIter = trapList->begin(); trapIter != trapList->end(); ++trapIter )
       {
-	 bool flashed;
-	 const Trap * trap = * trapIter;
+         bool flashed;
+         const Trap * trap = *trapIter;
 
 
-	 double inputMasses[CBM_NumComponents];
-	 double outputMasses[CBM_NumPhases][CBM_NumComponents];
-	 double outputDensities[CBM_NumPhases];
-	 double outputViscosities[CBM_NumPhases];
+         double inputMasses[CBM_NumComponents];
+         double outputMasses[CBM_NumPhases][CBM_NumComponents];
+         double outputDensities[CBM_NumPhases];
+         double outputViscosities[CBM_NumPhases];
 
-	 for (componentId = 0; componentId < CBM_NumComponents; ++componentId)
-	 {
-	    inputMasses[componentId] = trap->getMass ((ComponentId) componentId);
-	 }
+         for( componentId = 0; componentId < CBM_NumComponents; ++componentId )
+         {
+            inputMasses[componentId] = trap->getMass((ComponentId)componentId);
+         }
 
-	 // flash everything at reservoir conditions
-	 flashed = pvtFlash::EosPack::getInstance().computeWithLumping (celsius2kelvin (trap->getTemperature ()),
-	       megapascal2pascal (trap->getPressure ()),
-	       inputMasses, outputMasses, outputDensities, outputViscosities);
+         // flash everything at reservoir conditions
+         flashed = pvtFlash::EosPack::getInstance().computeWithLumping(celsius2kelvin(trap->getTemperature()),
+            megapascal2pascal(trap->getPressure()),
+            inputMasses, outputMasses, outputDensities, outputViscosities);
 
-	 if (!flashed) continue;
+         if( !flashed ) continue;
 
-	 double phaseMasses[CBM_NumPhases];
-	 for (phaseId = 0; phaseId < CBM_NumPhases; ++ phaseId)
-	 {
-	    phaseMasses[phaseId] = 0;
-	    for (componentId = 0; componentId < CBM_NumComponents; ++componentId)
-	    {
-	       phaseMasses[phaseId] += outputMasses[phaseId][componentId];
-	    }
+         double phaseMasses[CBM_NumPhases];
+         for( phaseId = 0; phaseId < CBM_NumPhases; ++phaseId )
+         {
+            phaseMasses[phaseId] = 0;
+            for( componentId = 0; componentId < CBM_NumComponents; ++componentId )
+            {
+               phaseMasses[phaseId] += outputMasses[phaseId][componentId];
+            }
 
-	    if (phaseMasses[phaseId] <= 0) continue;
+            if( phaseMasses[phaseId] <= 0 ) continue;
 
-	    double stInputMasses[CBM_NumComponents];
-	    double stOutputMasses[CBM_NumPhases][CBM_NumComponents];
-	    double stOutputDensities[CBM_NumPhases];
-	    double stOutputViscosities[CBM_NumPhases];
+            double stInputMasses[CBM_NumComponents];
+            double stOutputMasses[CBM_NumPhases][CBM_NumComponents];
+            double stOutputDensities[CBM_NumPhases];
+            double stOutputViscosities[CBM_NumPhases];
 
-	    for (componentId = 0; componentId < CBM_NumComponents; ++componentId)
-	    {
-	       stInputMasses[componentId] = outputMasses[phaseId][componentId];
-	    }
+            for( componentId = 0; componentId < CBM_NumComponents; ++componentId )
+            {
+               stInputMasses[componentId] = outputMasses[phaseId][componentId];
+            }
 
-	    // flash everything at reservoir conditions
-	    flashed = pvtFlash::EosPack::getInstance().computeWithLumping (celsius2kelvin (stTemperature),
-		  megapascal2pascal (stPressure),
-		  stInputMasses, stOutputMasses, stOutputDensities, stOutputViscosities);
+            // flash everything at reservoir conditions
+            flashed = pvtFlash::EosPack::getInstance().computeWithLumping(celsius2kelvin(stTemperature),
+               megapascal2pascal(stPressure),
+               stInputMasses, stOutputMasses, stOutputDensities, stOutputViscosities);
 
-	    if (!flashed) continue;
+            if( !flashed ) continue;
 
-	    char * HCPhase = (char *) (phaseId == Oil ? "OIL" : "GAS");
+            char * HCPhase = (char *)(phaseId == Oil ? "OIL" : "GAS");
 
 
 
-	    double stPhaseMasses[CBM_NumPhases];
-	    int stPhaseId;
-	    for (stPhaseId = 0; stPhaseId < CBM_NumPhases; ++stPhaseId)
-	    {
-	       stPhaseMasses[stPhaseId] = 0;
-	       for (componentId = 0; componentId < CBM_NumComponents; ++componentId)
-	       {
-		  stPhaseMasses[stPhaseId] += stOutputMasses[stPhaseId][componentId];
-		  assert (stPhaseMasses[stPhaseId] >= stOutputMasses[stPhaseId][componentId]);
-	       }
-	    }
+            double stPhaseMasses[CBM_NumPhases];
+            int stPhaseId;
+            for( stPhaseId = 0; stPhaseId < CBM_NumPhases; ++stPhaseId )
+            {
+               stPhaseMasses[stPhaseId] = 0;
+               for( componentId = 0; componentId < CBM_NumComponents; ++componentId )
+               {
+                  stPhaseMasses[stPhaseId] += stOutputMasses[stPhaseId][componentId];
+                  assert(stPhaseMasses[stPhaseId] >= stOutputMasses[stPhaseId][componentId]);
+               }
+            }
 
-	    if (debug)
-	    {
-	       double stInputMass = 0;
+            if( debug )
+            {
+               double stInputMass = 0;
 
-	       for (int c = 0; c < CBM_NumComponents; ++c)
-	       {
-		  stInputMass += stInputMasses[c];
-	       }
+               for( int c = 0; c < CBM_NumComponents; ++c )
+               {
+                  stInputMass += stInputMasses[c];
+               }
 
-	       cout << "Trap = " << trap->getId () << ", RC " << HCPhase << " = " << stInputMass
-		  << " => ST GAS = " << stPhaseMasses[Gas]
-		  << ", ST OIL = " << stPhaseMasses[Oil] << endl;
-	    }
+               cout << "Trap = " << trap->getId() << ", RC " << HCPhase << " = " << stInputMass
+                  << " => ST GAS = " << stPhaseMasses[Gas]
+                  << ", ST OIL = " << stPhaseMasses[Oil] << endl;
+            }
 
-	    double gasVolume = 0;
-	    if (stOutputDensities[Gas] > 0)
-	    {
-	       gasVolume = stPhaseMasses[Gas] / stOutputDensities[Gas] / 1e6;
-	    }
+            double gasVolume = 0;
+            if( stOutputDensities[Gas] > 0 )
+            {
+               gasVolume = stPhaseMasses[Gas] / stOutputDensities[Gas] / 1e6;
+            }
 
-	    double oilVolume = 0;
-	    if (stOutputDensities[Oil] > 0)
-	    {
-	       oilVolume = stPhaseMasses[Oil] / stOutputDensities[Oil] / 1e6;
-	    }
+            double oilVolume = 0;
+            if( stOutputDensities[Oil] > 0 )
+            {
+               oilVolume = stPhaseMasses[Oil] / stOutputDensities[Oil] / 1e6;
+            }
 
-	    double API = -1;
+            double API = -1;
 
-	    if (stOutputDensities[Oil] > 0)
-	    {
-	       API = 141.5 / (0.001 * stOutputDensities[Oil]) - 131.5;
-	    }
+            if( stOutputDensities[Oil] > 0 )
+            {
+               API = 141.5 / (0.001 * stOutputDensities[Oil]) - 131.5;
+            }
 
-	    char APIString[32], oilDensityString[32], oilGravityString[32],
-		 gasDensityString[32], gasGravityString[32];
+            char APIString[32], oilDensityString[32], oilGravityString[32],
+               gasDensityString[32], gasGravityString[32];
 
-	    getFormattedString (stOutputDensities[Oil], "%7.1lf",
-		  oilDensityString);
-	    getFormattedString (0.001 * stOutputDensities[Oil], "%7.1lf",
-		  oilGravityString);
-	    getFormattedString (stOutputDensities[Gas], "%7.1lf",
-		  gasDensityString);
-	    getFormattedString (0.001 * stOutputDensities[Gas], "%7.1lf",
-		  gasGravityString);
-	    getFormattedString (API, "%6.1lf", APIString);
+            getFormattedString(stOutputDensities[Oil], "%7.1lf",
+               oilDensityString);
+            getFormattedString(0.001 * stOutputDensities[Oil], "%7.1lf",
+               oilGravityString);
+            getFormattedString(stOutputDensities[Gas], "%7.1lf",
+               gasDensityString);
+            getFormattedString(0.001 * stOutputDensities[Gas], "%7.1lf",
+               gasGravityString);
+            getFormattedString(API, "%6.1lf", APIString);
 
-	    double cvOilVolume = cubicmeters2barrels (oilVolume);
-	    double cvGasVolume = cubicmeters2standardcubicfeet (gasVolume);
+            double cvOilVolume = cubicmeters2barrels(oilVolume);
+            double cvGasVolume = cubicmeters2standardcubicfeet(gasVolume);
 
-	 double trapX, trapY;
-	 trap->getPosition (trapX, trapY);
+            double trapX, trapY;
+            trap->getPosition(trapX, trapY);
 
-	 fprintf (fp,
-	       "%4d|%7.0lf|%7.0lf|%8s|%6.0lf|%7.0lf|%8.0lf|%8.0lf|%7s|%7s|%6s|%5.2lf|%5.2lf|%5.2lf|"
-	       "%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%7s|"
-	       "%7s|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|"
-	       "%5.2lf|%5.2lf|%5.2lf\n", trap->getId (), trapY, trapX, HCPhase, oilVolume,
-	       cvOilVolume, gasVolume, cvGasVolume, oilDensityString, oilGravityString,
-	       APIString,
-	       percentage (stOutputMasses[Oil][C1], stPhaseMasses[Oil]),
-	       percentage (stOutputMasses[Oil][C2], stPhaseMasses[Oil]),
-	       percentage (stOutputMasses[Oil][C3], stPhaseMasses[Oil]),
-	       percentage (stOutputMasses[Oil][C4], stPhaseMasses[Oil]),
-	       percentage (stOutputMasses[Oil][C5], stPhaseMasses[Oil]),
-	       percentage (stOutputMasses[Oil][N2], stPhaseMasses[Oil]),
-	       percentage (stOutputMasses[Oil][COX], stPhaseMasses[Oil]),
-	       percentage (outputMasses[Oil][H2S], phaseMasses[Oil]),
-	       percentage (stOutputMasses[Oil][C6_14SAT], stPhaseMasses[Oil]),
-	       percentage (stOutputMasses[Oil][C6_14ARO], stPhaseMasses[Oil]),
-	       percentage (stOutputMasses[Oil][C15_SAT], stPhaseMasses[Oil]),
-	       percentage (stOutputMasses[Oil][C15_ARO], stPhaseMasses[Oil]),
-	       percentage (outputMasses[Oil][LSC], phaseMasses[Oil]),
-	       percentage (outputMasses[Oil][C15_AT], phaseMasses[Oil]),
-	       percentage (outputMasses[Oil][C15_AROS], phaseMasses[Oil]),
-	       percentage (outputMasses[Oil][C15_SATS], phaseMasses[Oil]),
-	       percentage (outputMasses[Oil][C6_14BT], phaseMasses[Oil]),
-	       percentage (outputMasses[Oil][C6_14DBT], phaseMasses[Oil]),
-	       percentage (outputMasses[Oil][C6_14BP], phaseMasses[Oil]),
-	       percentage (outputMasses[Oil][C6_14SATS], phaseMasses[Oil]),
-	       percentage (outputMasses[Oil][C6_14AROS], phaseMasses[Oil]),
-	       percentage (stOutputMasses[Oil][RESINS], stPhaseMasses[Oil]),
-	       percentage (stOutputMasses[Oil][ASPHALTENES], stPhaseMasses[Oil]),
-	       gasDensityString, gasGravityString,
-	       percentage (stOutputMasses[Gas][C1], stPhaseMasses[Gas]),
-	       percentage (stOutputMasses[Gas][C2], stPhaseMasses[Gas]),
-	       percentage (stOutputMasses[Gas][C3], stPhaseMasses[Gas]),
-	       percentage (stOutputMasses[Gas][C4], stPhaseMasses[Gas]),
-	       percentage (stOutputMasses[Gas][C5], stPhaseMasses[Gas]),
-	       percentage (stOutputMasses[Gas][N2], stPhaseMasses[Gas]),
-	       percentage (stOutputMasses[Gas][COX], stPhaseMasses[Gas]),
-               percentage (outputMasses[Gas][H2S], phaseMasses[Gas]),
-	       percentage (stOutputMasses[Gas][C6_14SAT], stPhaseMasses[Gas]),
-	       percentage (stOutputMasses[Gas][C6_14ARO], stPhaseMasses[Gas]),
-	       percentage (stOutputMasses[Gas][C15_SAT], stPhaseMasses[Gas]),
-	       percentage (stOutputMasses[Gas][C15_ARO], stPhaseMasses[Gas]),
-	       percentage (outputMasses[Gas][LSC], phaseMasses[Gas]),
-	       percentage (outputMasses[Gas][C15_AT], phaseMasses[Gas]),
-	       percentage (outputMasses[Gas][C15_AROS], phaseMasses[Gas]),
-	       percentage (outputMasses[Gas][C15_SATS], phaseMasses[Gas]),
-	       percentage (outputMasses[Gas][C6_14BT], phaseMasses[Gas]),
-	       percentage (outputMasses[Gas][C6_14DBT], phaseMasses[Gas]),
-	       percentage (outputMasses[Gas][C6_14BP], phaseMasses[Gas]),
-	       percentage (outputMasses[Gas][C6_14SATS], phaseMasses[Gas]),
-	       percentage (outputMasses[Gas][C6_14AROS], phaseMasses[Gas]),
-	       percentage (stOutputMasses[Gas][RESINS], stPhaseMasses[Gas]),
-	       percentage (stOutputMasses[Gas][ASPHALTENES], stPhaseMasses[Gas]));
-	 }
+            fprintf(fp,
+               "%4d|%7.0lf|%7.0lf|%8s|%6.0lf|%7.0lf|%8.0lf|%8.0lf|%7s|%7s|%6s|%5.2lf|%5.2lf|%5.2lf|"
+               "%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%7s|"
+               "%7s|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|"
+               "%5.2lf|%5.2lf|%5.2lf\n", trap->getId(), trapY, trapX, HCPhase, oilVolume,
+               cvOilVolume, gasVolume, cvGasVolume, oilDensityString, oilGravityString,
+               APIString,
+               percentage(stOutputMasses[Oil][C1], stPhaseMasses[Oil]),
+               percentage(stOutputMasses[Oil][C2], stPhaseMasses[Oil]),
+               percentage(stOutputMasses[Oil][C3], stPhaseMasses[Oil]),
+               percentage(stOutputMasses[Oil][C4], stPhaseMasses[Oil]),
+               percentage(stOutputMasses[Oil][C5], stPhaseMasses[Oil]),
+               percentage(stOutputMasses[Oil][N2], stPhaseMasses[Oil]),
+               percentage(stOutputMasses[Oil][COX], stPhaseMasses[Oil]),
+               percentage(outputMasses[Oil][H2S], phaseMasses[Oil]),
+               percentage(stOutputMasses[Oil][C6_14SAT], stPhaseMasses[Oil]),
+               percentage(stOutputMasses[Oil][C6_14ARO], stPhaseMasses[Oil]),
+               percentage(stOutputMasses[Oil][C15_SAT], stPhaseMasses[Oil]),
+               percentage(stOutputMasses[Oil][C15_ARO], stPhaseMasses[Oil]),
+               percentage(outputMasses[Oil][LSC], phaseMasses[Oil]),
+               percentage(outputMasses[Oil][C15_AT], phaseMasses[Oil]),
+               percentage(outputMasses[Oil][C15_AROS], phaseMasses[Oil]),
+               percentage(outputMasses[Oil][C15_SATS], phaseMasses[Oil]),
+               percentage(outputMasses[Oil][C6_14BT], phaseMasses[Oil]),
+               percentage(outputMasses[Oil][C6_14DBT], phaseMasses[Oil]),
+               percentage(outputMasses[Oil][C6_14BP], phaseMasses[Oil]),
+               percentage(outputMasses[Oil][C6_14SATS], phaseMasses[Oil]),
+               percentage(outputMasses[Oil][C6_14AROS], phaseMasses[Oil]),
+               percentage(stOutputMasses[Oil][RESINS], stPhaseMasses[Oil]),
+               percentage(stOutputMasses[Oil][ASPHALTENES], stPhaseMasses[Oil]),
+               gasDensityString, gasGravityString,
+               percentage(stOutputMasses[Gas][C1], stPhaseMasses[Gas]),
+               percentage(stOutputMasses[Gas][C2], stPhaseMasses[Gas]),
+               percentage(stOutputMasses[Gas][C3], stPhaseMasses[Gas]),
+               percentage(stOutputMasses[Gas][C4], stPhaseMasses[Gas]),
+               percentage(stOutputMasses[Gas][C5], stPhaseMasses[Gas]),
+               percentage(stOutputMasses[Gas][N2], stPhaseMasses[Gas]),
+               percentage(stOutputMasses[Gas][COX], stPhaseMasses[Gas]),
+               percentage(outputMasses[Gas][H2S], phaseMasses[Gas]),
+               percentage(stOutputMasses[Gas][C6_14SAT], stPhaseMasses[Gas]),
+               percentage(stOutputMasses[Gas][C6_14ARO], stPhaseMasses[Gas]),
+               percentage(stOutputMasses[Gas][C15_SAT], stPhaseMasses[Gas]),
+               percentage(stOutputMasses[Gas][C15_ARO], stPhaseMasses[Gas]),
+               percentage(outputMasses[Gas][LSC], phaseMasses[Gas]),
+               percentage(outputMasses[Gas][C15_AT], phaseMasses[Gas]),
+               percentage(outputMasses[Gas][C15_AROS], phaseMasses[Gas]),
+               percentage(outputMasses[Gas][C15_SATS], phaseMasses[Gas]),
+               percentage(outputMasses[Gas][C6_14BT], phaseMasses[Gas]),
+               percentage(outputMasses[Gas][C6_14DBT], phaseMasses[Gas]),
+               percentage(outputMasses[Gas][C6_14BP], phaseMasses[Gas]),
+               percentage(outputMasses[Gas][C6_14SATS], phaseMasses[Gas]),
+               percentage(outputMasses[Gas][C6_14AROS], phaseMasses[Gas]),
+               percentage(stOutputMasses[Gas][RESINS], stPhaseMasses[Gas]),
+               percentage(stOutputMasses[Gas][ASPHALTENES], stPhaseMasses[Gas]));
+         }
       }
+      delete trapList;
    }
 
-   fprintf (fp, E_LineD);
-   fprintf (fp, E_LineDA);
-   fprintf (fp, E_LineDB);
+   fprintf(fp, E_LineD);
+   fprintf(fp, E_LineDA);
+   fprintf(fp, E_LineDB);
 
-   fprintf (fp, "\nPVT parameters used for phase properties and volumes are at stock tank conditions.\n");
-   fprintf (fp, "Stock tank conditions: %4.1lfC, %lf Pa.\n", stTemperature, stPressure);
+   fprintf(fp, "\nPVT parameters used for phase properties and volumes are at stock tank conditions.\n");
+   fprintf(fp, "Stock tank conditions: %4.1lfC, %lf Pa.\n", stTemperature, stPressure);
 
-   fclose (fp);
+   fclose(fp);
 
    return true;
 }
 
-string createLogFileName (ProjectHandle * projectHandle,  const Reservoir * reservoir)
+string createLogFileName(ProjectHandle * projectHandle, const Reservoir * reservoir)
 {
-   string filePath = projectHandle->getName ();
-   size_t tailPos = filePath.rfind (".project3d");
-   if (tailPos != string::npos)
+   string filePath = projectHandle->getName();
+   size_t tailPos = filePath.rfind(".project3d");
+   if( tailPos != string::npos )
    {
-      filePath.erase (tailPos, string::npos);
+      filePath.erase(tailPos, string::npos);
    }
    filePath += "_";
-   filePath += reservoir->getName ();
+   filePath += reservoir->getName();
    filePath += ".log";
 
    return filePath;
 }
 
-void showUsage (const char * message)
+void showUsage(const char * message)
 {
    cerr << endl;
-   if (message)
+   if( message )
    {
       cerr << argv0 << ": " << message << endl;
    }
@@ -1401,6 +1411,6 @@ void showUsage (const char * message)
    cerr << "Usage: " << argv0
       << " [-verbose] projectfile"
       << endl;
-   exit (-1);
+   exit(-1);
 }
 

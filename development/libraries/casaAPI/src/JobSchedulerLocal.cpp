@@ -271,7 +271,7 @@ SystemProcess::SystemProcess( const std::string & cwd
    else
    {
       DWORD err = GetLastError();
-      DEBUG( 1, "Couldn't start process, err %s\n", err );
+      DEBUG( 1, "Couldn't start process, err %d\n", err );
 
       hProcess = NULL;
       m_isOk = false;
@@ -475,6 +475,7 @@ JobScheduler::JobID JobSchedulerLocal::addJob( const std::string & cwd
                                              , const std::string & jobName
                                              , int                 cpus
                                              , size_t              runTimeLim
+                                             , const std::string & /* scenarioID */ // not used yet
                                              )
 {
    ibs::FilePath scriptStatFile( scriptName + ".failed" );
@@ -559,9 +560,10 @@ std::string JobSchedulerLocal::schedulerJobID( JobID id )
 }
 
 
-void JobSchedulerLocal::sleep()
+void JobSchedulerLocal::sleep( int secs )
 {
-   Wait( 10 );
+   if (      secs < 0 ) { Wait( 10 );   }
+   else if ( secs > 0 ) { Wait( secs ); }
 }
 
 // get number of running jobs

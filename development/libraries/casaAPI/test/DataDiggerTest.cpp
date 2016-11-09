@@ -34,8 +34,8 @@ TEST_F( DataDiggerTest, GetIJKObservable )
    obs.addObservable( ObsGridPropertyXYZ::createNewInstance( 460001.0, 6750001.0, 2730.0, "Vr", 0.002 ) );
 
    // add new case and set case project path
-   std::vector<RunCase*> rcv;
-   RunCaseImpl * rc = new RunCaseImpl();
+   std::vector<std::shared_ptr<RunCase>> rcv;
+   std::shared_ptr<RunCaseImpl>  rc( new RunCaseImpl( ) );
    rcv.push_back( rc );
    rc->setProjectPath( "./OttolandWithGenex.project3d" );
    rc->loadProject();

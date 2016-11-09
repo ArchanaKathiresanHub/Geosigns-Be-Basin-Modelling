@@ -19,6 +19,19 @@ namespace DerivedProperties {
    // Forward declaration of PropertyManager
    class AbstractPropertyManager;
 
+   class Elt2dIndices
+   {
+   public:
+      
+      bool exists;
+      int i[4];
+      int j[4];
+      
+      bool nodeDefined[4];
+   };
+
+   typedef std::vector < Elt2dIndices > ElementList;
+
    /// \brief Calculates a derived property or set of properties.
    class FormationPropertyCalculator : public PropertyCalculator {
 
@@ -37,8 +50,9 @@ namespace DerivedProperties {
                                   const DataModel::AbstractSnapshot*  snapshot,
                                   const DataModel::AbstractFormation* formation ) const;
 
+      virtual void setUp2dEltMapping( AbstractPropertyManager& propManager, const FormationPropertyPtr aProperty, ElementList & mapElementList ) const;
 
-   };
+    };
 
 
    typedef boost::shared_ptr<const FormationPropertyCalculator> FormationPropertyCalculatorPtr;

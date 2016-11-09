@@ -19,7 +19,7 @@
 
 //------------------------------------------------------------//
 
-#include "globaldefs.h"
+#include "ConstantsFastcauldron.h"
 #include "history.h"
 #include "propinterface.h"
 #include "snapshotdata.h"

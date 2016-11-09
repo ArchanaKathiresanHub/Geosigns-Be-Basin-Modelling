@@ -436,16 +436,8 @@ public:
    /// \param pVolume        indicator for whether densities or volumes returned
    /// \param pMolar         output is to be molar
    /// \param pMolarDensity  keep molar output as molar densities, otherwise convert to mass
-   virtual void WriteOutputData( int *pDrv, int *pGetV, int *pGetT, int *pGetH, int *pGetM, int *pVolume, int *pMolar, int *pMolarDensity )
+   virtual void WriteOutputData( int* /* pDrv */, int * /*pGetV*/, int * /*pGetT*/, int * /*pGetH*/, int * /*pGetM*/, int * /*pVolume*/, int * /*pMolar*/, int * /*pMolarDensity*/ )
    {
-      USE_PARAM_EOSPVT( pDrv );
-      USE_PARAM_EOSPVT( pGetV );
-      USE_PARAM_EOSPVT( pGetT );
-      USE_PARAM_EOSPVT( pGetH );
-      USE_PARAM_EOSPVT( pGetM );
-      USE_PARAM_EOSPVT( pVolume );
-      USE_PARAM_EOSPVT( pMolar );
-      USE_PARAM_EOSPVT( pMolarDensity );
    }
 
    /// \brief Write Control Data -  Get control terms for flasher
@@ -471,18 +463,8 @@ public:
    /// \param pPseudoProperties Indicates whether pseudo phase properties to be generated for Application
    ///
    // 1) Access and return data
-   virtual void WriteControlData( int *pType, int *pSaved, int *pNobj, int *pFlash, int *pProp, int *pBubble, int *pWater, int *pInit, int *pBubbleDew, int *pPseudoProperties )
+   virtual void WriteControlData( int * /*pType*/, int * /*pSaved*/, int * /*pNobj*/, int * /*pFlash*/, int * /*pProp*/, int * /*pBubble*/, int * /*pWater*/, int * /*pInit*/, int * /*pBubbleDew*/, int * /*pPseudoProperties*/ )
    {
-      USE_PARAM_EOSPVT( pType );
-      USE_PARAM_EOSPVT( pSaved );
-      USE_PARAM_EOSPVT( pNobj );
-      USE_PARAM_EOSPVT( pFlash );
-      USE_PARAM_EOSPVT( pProp );
-      USE_PARAM_EOSPVT( pBubble );
-      USE_PARAM_EOSPVT( pWater );
-      USE_PARAM_EOSPVT( pInit );
-      USE_PARAM_EOSPVT( pBubbleDew );
-      USE_PARAM_EOSPVT( pPseudoProperties );
    }
 
    /// \brief Load grid block properties into temporary vectors 
@@ -500,22 +482,9 @@ public:
    /// \param pPhases     Pointer to phase indicator (2 phase, etc.) to be loaded
    /// \param pIsothermal If temperature data is present then returns that this is not isothermal.
    /// \param pMolar      Indicates that the returned data is in terms of mole fractions
-   virtual void WriteData( int iM, int i1, int i2, int iGetK, int isSalt, double *pP, double *pT, 
-                           double *pZ, double *pSplit, double *pValueK, int *pPhases, int *pIsothermal, int *pMolar )
+   virtual void WriteData( int /*iM*/, int /*i1*/, int /*i2*/, int /*iGetK*/, int /*isSalt*/, double * /*pP*/, double * /*pT*/,
+                           double * /*pZ*/, double * /*pSplit*/, double * /*pValueK*/, int * /*pPhases*/, int * /*pIsothermal*/, int * /*pMolar*/ )
    {
-      USE_PARAM_EOSPVT( iM );
-      USE_PARAM_EOSPVT( i1 );
-      USE_PARAM_EOSPVT( i2 );
-      USE_PARAM_EOSPVT( iGetK );
-      USE_PARAM_EOSPVT( isSalt );
-      USE_PARAM_EOSPVT( pP );
-      USE_PARAM_EOSPVT( pT );
-      USE_PARAM_EOSPVT( pZ );
-      USE_PARAM_EOSPVT( pSplit );
-      USE_PARAM_EOSPVT( pValueK );
-      USE_PARAM_EOSPVT( pPhases );
-      USE_PARAM_EOSPVT( pIsothermal );
-      USE_PARAM_EOSPVT( pMolar );
    }
 
    /// \brief Load grid block properties into temporary vectors for grading 
@@ -527,15 +496,8 @@ public:
    /// \param pZ          Composition, only loaded at initial node
    /// \param pIsothermal Indicator whether the temperature array has been specified
    /// \param pMolar      Indicator as to whether molar or mass values being returned
-   virtual void WriteGradingData( int iDirection, double *pD, double *pP, double *pT, double *pZ, int *pIsothermal, int *pMolar )
+   virtual void WriteGradingData( int /*iDirection*/, double * /*pD*/, double * /*pP*/, double * /*pT*/, double * /*pZ*/, int * /*pIsothermal*/, int * /*pMolar*/ )
    {
-      USE_PARAM_EOSPVT( iDirection );
-      USE_PARAM_EOSPVT( pD );
-      USE_PARAM_EOSPVT( pP );
-      USE_PARAM_EOSPVT( pT );
-      USE_PARAM_EOSPVT( pZ );
-      USE_PARAM_EOSPVT( pIsothermal );
-      USE_PARAM_EOSPVT( pMolar );
    }
 
    /// \brief Writes the gas oil contact. Returns GOC. If one is not present returns a number higher than highest entry
@@ -546,21 +508,16 @@ public:
    /// \param pY     Gas composition to be output
    /// \param pZx    Oil Z factor
    /// \param pDZxda Derivative of oil z factor
-   virtual void WriteSeparatorInfo( double *pY, double *pZx, double *pDZxda )
+   virtual void WriteSeparatorInfo( double * /*pY*/, double * /*pZx*/, double * /*pDZxda*/ )
    {
-      USE_PARAM_EOSPVT( pY );
-      USE_PARAM_EOSPVT( pZx );
-      USE_PARAM_EOSPVT( pDZxda );
    }
 
    /// \brief Routine to load separator derivatives
    /// 
    /// \param iPhase Index of phase to be returned
    /// \param pDX    Pointer to derivative to be stored
-   virtual void WriteSeparatorDrv( int iPhase, double *pDX )
+   virtual void WriteSeparatorDrv( int /*iPhase*/, double * /*pDX*/ )
    { 
-      USE_PARAM_EOSPVT( iPhase ); 
-      USE_PARAM_EOSPVT( pDX ); 
    }
 
    /// \brief Write separator data to application structures
@@ -569,12 +526,8 @@ public:
    /// \param iFeed  Index of the feed stream
    /// \param pInlet (constant) Inlet for this flash
    /// \param pFeed  (constant) The actual feeds
-   virtual void WriteSeparatorData( int iM, int iFeed, int *pInlet, double *pFeed )
+   virtual void WriteSeparatorData( int /*iM*/, int /*iFeed*/, int * /*pInlet*/, double * /*pFeed*/ )
    {
-      USE_PARAM_EOSPVT( iM );
-      USE_PARAM_EOSPVT( iFeed );
-      USE_PARAM_EOSPVT( pInlet );
-      USE_PARAM_EOSPVT( pFeed );
    }
 
    /// \brief Routine to change volume control as we step through separator calculations
@@ -584,17 +537,15 @@ public:
    ///       EOS_VOLUME     Volumes only
    ///       EOS_SEPARATOR  Total moles/mass only
    ///       EOS_STOCK_TANK Volumes and total moles/mass
-   virtual void ReadVolumeControl( int iTVolume )
+   virtual void ReadVolumeControl( int /*iTVolume*/ )
    { 
-      USE_PARAM_EOSPVT( iTVolume );
    }
 
    /// \brief Routine to change minimum allowed pressure
    ///
    /// \param dMinP Minimum allowed pressure
-   virtual void ReadMinimumPressure( double dMinP )
+   virtual void ReadMinimumPressure( double /*dMinP*/ )
    {
-      USE_PARAM_EOSPVT( dMinP ); 
    }
 
    /// \brief Read separator data to Application structures
@@ -606,15 +557,8 @@ public:
    /// \param pDQv   Derivatives of phase surface volumes
    /// \param pQm    Phase surface mass
    /// \param pComp  Phase surface compositions
-   virtual void ReadSeparatorData( int iM, int iFeed, int iDrv, double *pQv, double *pDQv, double *pQm, double *pComp )
+   virtual void ReadSeparatorData( int /*iM*/, int /*iFeed*/, int /*iDrv*/, double * /*pQv*/, double * /*pDQv*/, double * /*pQm*/, double * /*pComp*/ )
    {
-      USE_PARAM_EOSPVT( iM );
-      USE_PARAM_EOSPVT( iFeed );
-      USE_PARAM_EOSPVT( iDrv );
-      USE_PARAM_EOSPVT( pQv );
-      USE_PARAM_EOSPVT( pDQv );
-      USE_PARAM_EOSPVT( pQm );
-      USE_PARAM_EOSPVT( pComp );
    }
 
    /// \brief Routine to store phase properties into application permanent arrays 
@@ -644,29 +588,10 @@ public:
    /// \param pP      (constant) Pointer to bubble or dew point from flasher
    /// \param pDP     (constant) Pointer to derivatives of pP
    /// \param pMwx    (constant) Pointer to molecular weight from flasher
-   virtual void ReadData( int iPhaseId, int iM, int iNc, int *pPhases, double *pX, double *pDX, double *pMx, double *pDMx, 
-                          double *pZx, double *pDZx, double *pMux, double *pDMux, double *pIfx, double *pDIfx, double *pHx, 
-                          double *pDHx, double *pP, double *pDP, double *pMwx )
+   virtual void ReadData( int /*iPhaseId*/, int /*iM*/, int /*iNc*/, int * /*pPhases*/, double * /*pX*/, double * /*pDX*/, double * /*pMx*/, double * /*pDMx*/,
+                          double * /*pZx*/, double * /*pDZx*/, double * /*pMux*/, double * /*pDMux*/, double * /*pIfx*/, double * /*pDIfx*/, double * /*pHx*/,
+                          double * /*pDHx*/, double * /*pP*/, double * /*pDP*/, double * /*pMwx*/ )
    {
-      USE_PARAM_EOSPVT( iPhaseId );
-      USE_PARAM_EOSPVT( iM );
-      USE_PARAM_EOSPVT( iNc );
-      USE_PARAM_EOSPVT( pPhases );
-      USE_PARAM_EOSPVT( pX );
-      USE_PARAM_EOSPVT( pDX );
-      USE_PARAM_EOSPVT( pMx );
-      USE_PARAM_EOSPVT( pDMx );
-      USE_PARAM_EOSPVT( pZx );
-      USE_PARAM_EOSPVT( pDZx );
-      USE_PARAM_EOSPVT( pMux );
-      USE_PARAM_EOSPVT( pDMux );
-      USE_PARAM_EOSPVT( pIfx );
-      USE_PARAM_EOSPVT( pDIfx );
-      USE_PARAM_EOSPVT( pHx );
-      USE_PARAM_EOSPVT( pDHx );
-      USE_PARAM_EOSPVT( pP );
-      USE_PARAM_EOSPVT( pDP );
-      USE_PARAM_EOSPVT( pMwx );
    }
 
    /// \brief Routine to store phase properties into Application permanent arrays when a phase is not present
@@ -680,11 +605,8 @@ public:
    ///                  EOS_SINGLE_PHASE_OIL - Phase is a liquid
    ///                  EOS_SINGLE_PHASE_GAS - Phase is a gas
    ///                  Not used for an aqueous phase load
-   virtual void ReadNull( int iPhaseId, int iM, int *pPhases )
+   virtual void ReadNull( int /*iPhaseId*/, int /*iM*/, int * /*pPhases*/ )
    {
-      USE_PARAM_EOSPVT( iPhaseId );
-      USE_PARAM_EOSPVT( iM );
-      USE_PARAM_EOSPVT( pPhases );
    }
 
 
@@ -705,15 +627,8 @@ public:
    /// \param pSplit  (constant) Phase split from the flasher.  Overloaded with bubble or dew point for a bubble point calculation
    /// \param pPhases (constant) Current phase indicator from flasher; see above
    /// \param pValueK (constant) Current estimate of K values
-   virtual void ReadFlashResults( int iS, int iM, int iSet, int iReset, double *pSplit, int *pPhases, double *pValueK )
+   virtual void ReadFlashResults( int /*iS*/, int /*iM*/, int /*iSet*/, int /*iReset*/, double * /*pSplit*/, int * /*pPhases*/, double * /*pValueK*/ )
    {
-      USE_PARAM_EOSPVT( iS );
-      USE_PARAM_EOSPVT( iM );
-      USE_PARAM_EOSPVT( iSet );
-      USE_PARAM_EOSPVT( iReset );
-      USE_PARAM_EOSPVT( pSplit );
-      USE_PARAM_EOSPVT( pPhases );
-      USE_PARAM_EOSPVT( pValueK );
    }
 
    /// \brief Load grading results into permanent arrays 
@@ -730,29 +645,16 @@ public:
    /// \param pZ           (constant) Composition of reference phase
    /// \param pX           (constant) Composition of oil phase, either reference phase or at dew point
    /// \param pY           (constant) Composition of gas phase, either reference phase or at bubble point
-   virtual void ReadGradingData( double dDepth, double dTemperature, double dPressure, double dPx, double dPy, 
-                                 double dRox, double dRoy, double dHx, double dHy, double *pZ, double *pX, double *pY )
+   virtual void ReadGradingData( double /*dDepth*/, double /*dTemperature*/, double /*dPressure*/, double /*dPx*/, double /*dPy*/,
+                                 double /*dRox*/, double /*dRoy*/, double /*dHx*/, double /*dHy*/, double * /*pZ*/, double * /*pX*/, double * /*pY*/ )
    {
-      USE_PARAM_EOSPVT( dDepth );
-      USE_PARAM_EOSPVT( dTemperature );
-      USE_PARAM_EOSPVT( dPressure );
-      USE_PARAM_EOSPVT( dPx );
-      USE_PARAM_EOSPVT( dPy );
-      USE_PARAM_EOSPVT( dRox );
-      USE_PARAM_EOSPVT( dRoy );
-      USE_PARAM_EOSPVT( dHx );
-      USE_PARAM_EOSPVT( dHy );
-      USE_PARAM_EOSPVT( pZ );
-      USE_PARAM_EOSPVT( pX );
-      USE_PARAM_EOSPVT( pY );
    }
 
    /// \brief Reads the gas oil contact 
    ///
    /// \param dGOCT Gas oil contact computed by flasher
-   virtual void ReadGOC( double dGOCT )
+   virtual void ReadGOC( double /*dGOCT*/ )
    { 
-      USE_PARAM_EOSPVT( dGOCT ); 
    }
 
    /// \brief Print application Input Data used for debugging purposes
@@ -773,19 +675,15 @@ public:
    /// \param iTo   Phase indicator on which to perform conversion
    ///              EOS_FL_1P, EOS_FL_1P_CV, or EOS_FL_1P_NCV General input on to Application
    ///              EOS_FL_BP, EOS_FL_BP_CV, or EOS_FL_BP_NCV General input on from Application
-   virtual void ModifyBubble( int iType, int iFrom, int iTo )
+   virtual void ModifyBubble( int /*iType*/, int /*iFrom*/, int /*iTo*/ )
    {
-      USE_PARAM_EOSPVT( iType );
-      USE_PARAM_EOSPVT( iFrom );
-      USE_PARAM_EOSPVT( iTo );
    }
 
    /// \brief Routine to modify phase property indicators 
    ///
    /// \param iDoAll Indicator as to whether to modify all phase indicators or only the current flash
-   virtual void ModifyPhaseIndicator( int iDoAll )
+   virtual void ModifyPhaseIndicator( int /*iDoAll*/ )
    { 
-      USE_PARAM_EOSPVT( iDoAll ); 
    }
 
    /// \brief Check to see which grid blocks to do stability test 
@@ -797,9 +695,8 @@ public:
    /// 6) Else block is either EOS_FL_1P_NCV or EOS_FL_2P_NCV
    ///
    /// \param dEnorm TODO Document parameter
-   virtual void ModifyPhaseIdentification( double dEnorm )
+   virtual void ModifyPhaseIdentification( double /*dEnorm*/ )
    { 
-      USE_PARAM_EOSPVT( dEnorm ); 
    }
 
    /// \brief Check to see which grid blocks to do stability test 
@@ -809,9 +706,9 @@ public:
    /// 4) Else block is EOS_FL_1P_NCV
    ///
    /// \param dEnorm TODO Document parameter
-   virtual void ModifyOnePhaseIdentification( double dEnorm )
+   virtual void ModifyOnePhaseIdentification( double /*dEnorm*/ )
    { 
-      USE_PARAM_EOSPVT( dEnorm ); 
+
    }
 
    /// \brief Routine to load liquids from previous separator into the current and add in any additional feed
@@ -823,10 +720,8 @@ public:
    /// \param iMVL       Slice length
    ///
    /// \return the length of the slice
-   virtual int  SetSlice( int iTestPhase, int iMVL )
+   virtual int  SetSlice( int /*iTestPhase*/, int /*iMVL*/ )
    { 
-      USE_PARAM_EOSPVT( iTestPhase ); 
-      USE_PARAM_EOSPVT( iMVL ); 
       return ( 0 ); 
    }
 
@@ -836,10 +731,8 @@ public:
    /// \param iTestPhase Phase indicator for which to check if anything more present for calculations
    ///
    /// \return 1 if anything aan de beurt, 0 otherwise
-   virtual int Aandebeurt( int iM, int iTestPhase )
+   virtual int Aandebeurt( int /*iM*/, int /*iTestPhase*/ )
    { 
-      USE_PARAM_EOSPVT( iM ); 
-      USE_PARAM_EOSPVT( iTestPhase ); 
       return ( 0 ); 
    }
 
@@ -855,9 +748,8 @@ public:
    ///                     EOS_INIT_DOWN  - go down one step
    ///
    /// \return the index of the next separator
-   virtual int SetSeparator( int iDirection )
+   virtual int SetSeparator( int /*iDirection*/ )
    { 
-      USE_PARAM_EOSPVT( iDirection ); 
       return ( 0 ); 
    }
 
@@ -869,9 +761,8 @@ public:
    ///                   EOS_INIT_DOWN  - Increment pointer to a lower number
    ///
    /// \return 1 if there is another entry in table
-   virtual int SetTableEntry( int iDirection )
+   virtual int SetTableEntry( int /*iDirection*/ )
    { 
-      USE_PARAM_EOSPVT( iDirection ); 
       return ( 0 );
    }
 
@@ -886,10 +777,8 @@ public:
    /// \param iN     Length of calculations
    /// \param pFinal On input the end of the temporary memory. On output the new end
    ///
-   virtual void SetPointers( int iN, double **pFinal )
+   virtual void SetPointers( int /*iN*/, double ** /*pFinal*/ )
    { 
-      USE_PARAM_EOSPVT( iN ); 
-      USE_PARAM_EOSPVT( pFinal ); 
    }
 
    /// \brief Reset the slice back to the beginning of objects

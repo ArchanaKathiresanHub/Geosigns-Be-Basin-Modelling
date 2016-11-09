@@ -1,9 +1,18 @@
- 
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef _FASTCAULDRON__HISTORY_H_
 #define _FASTCAULDRON__HISTORY_H_
 
 #include "propinterface.h"
-#include "globaldefs.h"
+#include "ConstantsFastcauldron.h"
 
 #include <sstream>
 #include <fstream>
@@ -65,7 +74,7 @@ public:
 
    void Locate_Point ( const double X_Coord, const double Y_Coord, Node_Info * &node );
    void Save_Property ( const string&      property_name,
-                        const PropertyList propertyId,
+                        const enum::PropertyList propertyId,
                         LayerProps*        layer,
                         const int          K,
                         Node_Container&    nodes );
@@ -78,7 +87,7 @@ public:
                                         PETSC_3D_Array& property );
 
    void Save_Depositional_Property ( const string&      property_name,
-                                     const PropertyList propertyId,
+                                     const enum::PropertyList propertyId,
                                      LayerProps*        layer,
                                      Node_Container&    nodes );
 

@@ -52,7 +52,8 @@ GeoPhysics::SimpleLithology::SimpleLithology(Interface::ProjectHandle * projectH
    0.1 * 1.0E-08 * this->getExponentialCompactionCoefficient(),
    0.1 * 1.0E-08 * this->getExponentialCompactionCoefficientA(),
    0.1 * 1.0E-08 * this->getExponentialCompactionCoefficientB(),
-   this->getSoilMechanicsCompactionCoefficient()
+   this->getSoilMechanicsCompactionCoefficient(),
+   Interface::LithoType::getLegacy()
    ))
 {
    m_lithoname = Interface::LithoType::getName();
@@ -104,13 +105,14 @@ GeoPhysics::SimpleLithology::SimpleLithology(Interface::ProjectHandle * projectH
    loadPropertyTables();
 }
 
-GeoPhysics::SimpleLithology::SimpleLithology ( const SimpleLithology& litho ) : 
+GeoPhysics::SimpleLithology::SimpleLithology ( const SimpleLithology& litho ) :
    Interface::LithoType ( litho.getProjectHandle(), litho.getRecord ()),
    m_thermCondTbl ( litho.m_thermCondTbl ),
    m_density ( litho.m_density ),
 
    m_heatproduction ( litho.m_heatproduction ),
    m_seismicvelocity ( litho.m_seismicvelocity ),
+   m_nExponentVelocity ( litho.m_nExponentVelocity ),
 
    m_thermalcondaniso ( litho.m_thermalcondaniso ),
    m_thermalconductivityval ( litho.m_thermalconductivityval ),
@@ -152,12 +154,13 @@ GeoPhysics::SimpleLithology::SimpleLithology ( const SimpleLithology& litho ) :
                                    0.1 * 1.0E-8 * litho.getExponentialCompactionCoefficient ( ),
                                    0.1 * 1.0E-8 * litho.getExponentialCompactionCoefficientA ( ),
                                    0.1 * 1.0E-8 * litho.getExponentialCompactionCoefficientB ( ),
-                                   litho.getSoilMechanicsCompactionCoefficient ( ))),
+                                   litho.getSoilMechanicsCompactionCoefficient ( ),
+                                   Interface::LithoType::getLegacy() ) ),
 
    m_lithoname ( litho.m_lithoname ),
    m_thermalcondmodel ( litho.m_thermalcondmodel ),
    m_heatcapmodel ( litho.m_heatcapmodel )
-   
+
 {
 }
 
@@ -355,6 +358,14 @@ double GeoPhysics::SimpleLithology::porosity(const double ves,
 
 }
 
+void GeoPhysics::SimpleLithology::porosity ( const unsigned int       size,
+                                             ArrayDefs::ConstReal_ptr ves,
+                                             ArrayDefs::ConstReal_ptr maxVes,
+                                             const bool               includeChemicalCompaction,
+                                             ArrayDefs::ConstReal_ptr chemicalCompactionTerm,
+                                             ArrayDefs::Real_ptr      porosity ) const {
+   m_porosity.calculate ( size, ves, maxVes, includeChemicalCompaction, chemicalCompactionTerm, porosity );
+}
 
 //------------------------------------------------------------//
 
@@ -388,4 +399,3 @@ const std::string GeoPhysics::SimpleLithology::getThermalCondModelName() const {
    }
    return model;
 }
-

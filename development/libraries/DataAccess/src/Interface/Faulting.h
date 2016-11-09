@@ -119,15 +119,6 @@ namespace DataAccess
 
          FaultStatus getStatus (const Snapshot * snapshot) const;
          const std::string & getStatusName (const Snapshot * snapshot) const;
-#if 0
-         ///
-         /// Set all the elements that the fault intersect with the correct fault lithology.
-         /// This is done for each fault event defined in the fault.
-         ///
-         void setBasinFault (const GridDescription & grid,
-                             LithologyManager * LM, Basin_Modelling::Layer_Iterator & faultedLayers) const;
-#endif
-
 
          OverpressureFaultEventIterator beginOverpressureEvents () const;
 

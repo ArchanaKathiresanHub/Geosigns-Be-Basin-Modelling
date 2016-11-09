@@ -131,7 +131,7 @@ ErrorHandler::ReturnCode PrmTopCrustHeatProduction::setInModel( mbapi::Model & c
             mbapi::MapsManager::MapID cmID = mpMgr.copyMap( mID, newMapName );
             if ( UndefinedIDValue == cmID )
             {
-               ErrorHandler::Exception( ErrorHandler::IoError ) << "Copy radiogenic heat production rate map " << mapName << " failed";
+               throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Copy radiogenic heat production rate map " << mapName << " failed";
             }
 
             // extract min/max values from the map
@@ -151,7 +151,7 @@ ErrorHandler::ReturnCode PrmTopCrustHeatProduction::setInModel( mbapi::Model & c
             }
 
             // save map to separate HDF file
-            if ( ErrorHandler::NoError != mpMgr.saveMapToHDF( cmID, mapName + s_mapFileSuffix ) )
+            if ( ErrorHandler::NoError != mpMgr.saveMapToHDF( cmID, mapName + s_mapFileSuffix, 0 ) )
             {
                throw ErrorHandler::Exception( cldModel.errorCode() ) << cldModel.errorMessage(); 
             }
@@ -171,7 +171,7 @@ ErrorHandler::ReturnCode PrmTopCrustHeatProduction::setInModel( mbapi::Model & c
             throw ErrorHandler::Exception( cldModel.errorCode() ) << cldModel.errorMessage();
          }
       }
-      else // interpolation between range maps 
+      else // interpolation between two min/max maps 
       {
          if ( m_minMapName.empty() && m_maxMapName.empty() ) // no interpolation needed, just set map name
          {
@@ -199,7 +199,7 @@ ErrorHandler::ReturnCode PrmTopCrustHeatProduction::setInModel( mbapi::Model & c
 
             if ( UndefinedIDValue == cmID )
             {
-               ErrorHandler::Exception( ErrorHandler::IoError ) << "Copy radiogenic heat production rate map " << m_mapName << " failed";
+               throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Copy radiogenic heat production rate map " << m_mapName << " failed";
             }
 
             // value interval for maps range case is [-1:0:1] but min/max maps are set for [-1:0] or [0:1] interval
@@ -209,7 +209,7 @@ ErrorHandler::ReturnCode PrmTopCrustHeatProduction::setInModel( mbapi::Model & c
             }
             
             // Save new map to file
-            if ( ErrorHandler::NoError != mpMgr.saveMapToHDF( cmID, m_mapName + s_mapFileSuffix ) )
+            if ( ErrorHandler::NoError != mpMgr.saveMapToHDF( cmID, m_mapName + s_mapFileSuffix, 0 ) )
             {
                throw ErrorHandler::Exception( cldModel.errorCode() ) << cldModel.errorMessage();
             }
@@ -385,7 +385,10 @@ bool PrmTopCrustHeatProduction::operator == ( const Parameter & prm ) const
    const PrmTopCrustHeatProduction * pp = dynamic_cast<const PrmTopCrustHeatProduction *>( &prm );
    if ( !pp ) return false;
    
-   return NumericFunctions::isEqual( m_value, pp->m_value, 1.e-6 ) ? true : false;
+   if ( !NumericFunctions::isEqual( m_value, pp->m_value, 1.e-6 ) ) return false;
+   if ( m_mapName != pp->m_mapName                                ) return false;
+
+   return true;
 }
 
 

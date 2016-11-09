@@ -254,7 +254,7 @@ void ComputationalDomain::numberDepthIndices ( const bool verbose ) {
 
       buffer << " numberDepthIndices " << activeSegments << "  " << inactiveSegments << std::endl;
       PetscSynchronizedPrintf ( PETSC_COMM_WORLD, buffer.str ().c_str ());
-      PetscSynchronizedFlush ( PETSC_COMM_WORLD );
+      PetscSynchronizedFlush ( PETSC_COMM_WORLD, PETSC_STDOUT );
 
       if ( fc.getCauldron ()->debug1 ) {
          double globalStencilWidth;
@@ -674,7 +674,7 @@ void ComputationalDomain::determineActiveNodes ( const bool verbose ) {
 
       buffer << " There are " << m_rank << ":  " << activeNodeCount << " active nodes, "  << inactiveNodes << " inactive nodes." << endl;
       PetscSynchronizedPrintf ( PETSC_COMM_WORLD, buffer.str ().c_str ());
-      PetscSynchronizedFlush ( PETSC_COMM_WORLD );
+      PetscSynchronizedFlush ( PETSC_COMM_WORLD, PETSC_STDOUT );
    }
 
    // Collect the number of active nodes from all processors.
@@ -705,7 +705,7 @@ void ComputationalDomain::determineActiveNodes ( const bool verbose ) {
              << endl << flush;
 
       PetscSynchronizedPrintf ( PETSC_COMM_WORLD, buffer.str ().c_str ());
-      PetscSynchronizedFlush ( PETSC_COMM_WORLD );
+      PetscSynchronizedFlush ( PETSC_COMM_WORLD, PETSC_STDOUT );
    }
 
    activeNodes.restoreVector ( NO_UPDATE );
@@ -726,7 +726,7 @@ void ComputationalDomain::numberLocalToGlobalMapping () {
       localInds [ i ] = m_localStartDofNumber + i;
    }
 
-   ISLocalToGlobalMappingCreate ( PETSC_COMM_WORLD, getLocalNumberOfActiveNodes (), localInds.data (), PETSC_COPY_VALUES, &m_local2global );
+   ISLocalToGlobalMappingCreate ( PETSC_COMM_WORLD, 1, getLocalNumberOfActiveNodes (), localInds.data (), PETSC_COPY_VALUES, &m_local2global );
 }
 
 //------------------------------------------------------------//

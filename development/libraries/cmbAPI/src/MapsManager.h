@@ -38,7 +38,7 @@ namespace mbapi
       virtual std::vector<MapID> mapsIDs() const = 0; 
 
       /// @brief Search for map record which has given name 
-      /// @param name map name
+      /// @param mName map name
       /// @return ID of found input map on success or UndefinedIDValue otherwise
       virtual MapID findID( const std::string & mName ) = 0;
 
@@ -51,8 +51,9 @@ namespace mbapi
       /// @brief Save input map to the new HDF file. File with the given name should not exist before.
       /// @param id map ID
       /// @param fileName unique file name
+      /// @param mapSequenceNbr the map sequence number in the project3d
       /// @return ErrorHandler::NoError on succes, or error code otherwise
-      virtual ErrorHandler::ReturnCode saveMapToHDF( MapID id, const std::string & fileName ) = 0;
+      virtual ErrorHandler::ReturnCode saveMapToHDF( MapID id, const std::string& filePathName, size_t mapSequenceNbr ) = 0;
 
       /// @brief Get min/max map values range
       /// @param[in] id map ID
@@ -63,9 +64,28 @@ namespace mbapi
 
       /// @brief Scale input map to the new value range: [min,max] -> [min*coeff, newMaxV*coeff]
       /// @param[in] id map ID
-      /// @param[out] maxV new maximal value in the map
+      /// @param[in] coeff map scaler
       /// @return ErrorHandler::NoError on success, or error code otherwise
       virtual ErrorHandler::ReturnCode scaleMap( MapID id, double coeff ) = 0;
+
+      /// @brief Set the values contained in vin in the map
+      /// @param[in] id map ID
+      /// @param[in] vin the values to set
+      /// @return ErrorHandler::NoError on success, or error code otherwise
+      virtual ErrorHandler::ReturnCode mapSetValues( MapID id, const std::vector<double>& vin ) = 0;
+
+      /// @brief Get a value contained in the map
+      /// @param[in] id map ID
+      /// @param[in] i position
+      /// @param[in] j position
+      /// @return the parameter value
+      virtual double mapGetValue( MapID id, size_t i, size_t j ) = 0;
+
+      /// @brief Get the values contained in vin in the map
+      /// @param[in] id map ID
+      /// @param[out] vout the local (partitioned) values of the map
+      /// @return ErrorHandler::NoError on success, or error code otherwise
+      virtual ErrorHandler::ReturnCode mapGetValues( MapID id, std::vector<double>& vout ) = 0;
 
       /// @brief Create map by interpolating between 2 maps 
       /// @param id new map id
@@ -74,6 +94,52 @@ namespace mbapi
       /// @param coeff coefficient in range [0:1]
       /// @return NoError on success or error code otherwise
       virtual ErrorHandler::ReturnCode interpolateMap( MapID id, MapID minId, MapID maxId, double coeff ) = 0;
+
+      /// @brief Interpolate input values using the natural neighbour algorithm
+      /// @param[in]  xin x coordinates of the input values
+      /// @param[in]  yin y coordinates of the input values
+      /// @param[in]  vin input values
+      /// @param[in]  xmin minimum x value of the interpolation window
+      /// @param[in]  xmax maximum x value of the interpolation window
+      /// @param[in]  ymin minimum y value of the interpolation window
+      /// @param[in]  ymax maximum y value of the interpolation window
+      /// @param[in]  numI number of interpolated points in the x direction
+      /// @param[in]  numJ number of interpolated points in the y direction
+      /// @param[out] xout x coordinates of the interpolated values
+      /// @param[out] yout y coordinates of the interpolated values
+      /// @param[out] vout interpolated values
+      /// @return NoError on success or error code otherwise
+      virtual ErrorHandler::ReturnCode interpolateMap( 
+         const std::vector<double>& xin,
+         const std::vector<double>& yin,
+         const std::vector<double>& vin,
+         double xmin,
+         double xmax,
+         double ymin,
+         double ymax,
+         int numI,
+         int numJ,
+         std::vector<double>& xout,
+         std::vector<double>& yout,
+         std::vector<double>& vout ) = 0;
+
+      /// @brief Generate a new map in the GridMapIoTbl
+      /// @param[in] refferedTable the name of the table refferenced this map
+      /// @param[in] mapName the name of the map
+      /// @param[in] values new map values
+      /// @param[in] the file name of the  HDF file storing the map
+      /// @return ErrorHandler::NoError on succes, or error code otherwise
+      virtual MapID generateMap( const std::string & refferedTable, const std::string mapName, const std::vector<double>& values, size_t & mapSequenceNbr, const std::string & filePathName ) = 0;
+
+      /// @brief inizialize the map writer to write 2D HDF maps
+      /// @param[in] filePathName the file name 
+      /// @param[in] append the mode of writing
+      /// @return ErrorHandler::NoError on success, or error code otherwise
+      virtual ErrorHandler::ReturnCode inizializeMapWriter( const std::string & filePathName, const bool append ) = 0;
+
+      /// @brief finalize the map writer to write 2D maps in the HDF file
+      /// @return ErrorHandler::NoError on success, or error code otherwise
+      virtual ErrorHandler::ReturnCode finalizeMapWriter( ) = 0;
 
       /// @}
 

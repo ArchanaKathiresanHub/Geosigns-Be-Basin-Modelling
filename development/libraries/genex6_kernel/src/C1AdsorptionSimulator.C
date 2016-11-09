@@ -1,5 +1,15 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
 #include "C1AdsorptionSimulator.h"
 
+// std library
 #include <iostream>
 #include <iomanip>
 using namespace std;
@@ -9,11 +19,14 @@ using namespace std;
 #include "NumericFunctions.h"
 
 #include "EosPack.h"
-#include "PhysicalConstants.h"
-#include "Constants.h"
+#include "ConstantsGenex.h"
 
 #include "SpeciesState.h"
 #include "SpeciesManager.h"
+
+// utilitites library
+#include "ConstantsMathematics.h"
+using Utilities::Maths::CelciusToKelvin;
 
 using namespace CBMGenerics;
 
@@ -81,7 +94,6 @@ void Genex6::C1AdsorptionSimulator::compute ( const Input&              sourceRo
                                       
    unsigned int k;
 
-   double LithoPressurePhaseDensity [ pvtFlash::N_PHASES ];
    double molarPhaseViscosity  [ pvtFlash::N_PHASES ];
    double molarComponentMasses [ pvtFlash::NUM_COMPONENTS ];
    double molarPhaseComponentMasses [ pvtFlash::N_PHASES ][ pvtFlash::NUM_COMPONENTS ];
@@ -92,11 +104,10 @@ void Genex6::C1AdsorptionSimulator::compute ( const Input&              sourceRo
 
    const double temperature = sourceRockInput.GetTemperatureKelvin ();
    const double porePressure = NumericFunctions::Maximum <double>( SurfacePressure, sourceRockInput.getPorePressure ());
-   const double porosity = sourceRockInput.getPorosity ();
 
    double adsorptionCapacity;
    const double& temperatureKelvin = temperature;
-   const double  temperatureCelcius = temperature - Constants::s_TCabs;
+   const double  temperatureCelcius = temperature - CelciusToKelvin;
 
    //bool output = ( i == 0 and j == 0 );
    bool output = false;
@@ -104,9 +115,6 @@ void Genex6::C1AdsorptionSimulator::compute ( const Input&              sourceRo
    double freeGasMol;
    double adsorpedGasMol;
    double expelledGas;
-   double porosityCapacity;
-   double c1MolarVolume;
-   double excessCapacityMol;
    double expelledGasMol;
    double gasCapacity;
    double gasCapacityMol;
@@ -123,9 +131,6 @@ void Genex6::C1AdsorptionSimulator::compute ( const Input&              sourceRo
 
    molarPhaseDensity [ 0 ] = 0.0;
    molarPhaseDensity [ 1 ] = 0.0;
-
-   LithoPressurePhaseDensity [ 0 ] = 0.0;
-   LithoPressurePhaseDensity [ 1 ] = 0.0;
 
    SpeciesState* c1State = simulatorState->GetSpeciesStateById ( m_speciesManager.getC1Id ());
 
@@ -174,15 +179,9 @@ void Genex6::C1AdsorptionSimulator::compute ( const Input&              sourceRo
 
    c1State->setAdsorptionCapacity ( gasCapacity );
 
-   // Molar Volume at subsurface conditions
-   c1MolarVolume  = 1.0e-3 * molarPhaseComponentMasses [ 0 ][ pvtFlash::C1 ] / molarPhaseDensity [ 0 ]; // m3 / mol
-
    // Convert to moles/m3
    expelledGasMol = expelledGas * 1000.0 / molarComponentMasses [ pvtFlash::C1 ]; // In kg * 1000 / m3 / g / mol = mol / m3 
    gasCapacityMol = gasCapacity * 42.306553; // In mol / m3 
-   porosityCapacity = porosity / c1MolarVolume;
-
-   excessCapacityMol = gasCapacityMol - adsorpedGasMol;
 
    if ( gasCapacityMol >= adsorpedGasMol ) {
 
@@ -242,6 +241,13 @@ void Genex6::C1AdsorptionSimulator::compute ( const Input&              sourceRo
    }
 
 #if 0
+
+   // Molar Volume at subsurface conditions
+   double c1MolarVolume  = 1.0e-3 * molarPhaseComponentMasses [ 0 ][ pvtFlash::C1 ] / molarPhaseDensity [ 0 ]; // m3 / mol
+   const double porosity = sourceRockInput.getPorosity ();
+   double porosityCapacity = porosity / c1MolarVolume;
+
+   double excessCapacityMol = gasCapacityMol - adsorpedGasMol;
    if ( excessCapacityMol > 0.0 ) {
 
       if ( excessCapacityMol >= expelledGasMol ) {
@@ -332,5 +338,6 @@ Genex6::AdsorptionSimulator* Genex6::allocateC1AdsorptionSimulator ( DataAccess:
                                                                      const SpeciesManager& speciesManager,
                                                                      const bool applyAdsorption,
                                                                      const bool isManaged ) {
+   ( void ) applyAdsorption;
    return new Genex6::C1AdsorptionSimulator ( speciesManager, projectHandle, isManaged );
 }

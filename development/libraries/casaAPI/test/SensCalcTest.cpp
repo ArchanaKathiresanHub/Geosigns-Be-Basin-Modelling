@@ -2,7 +2,8 @@
 #include "../src/casaAPI.h"
 
 #include <memory>
-//#include <cmath>
+#include <cstdlib>
+#include <sstream>
 
 #include <gtest/gtest.h>
 
@@ -16,6 +17,12 @@ public:
    {       
       eps = 1.0e-3;
       m_validationMode = false;
+      
+      const char * envVal = getenv( "VALIDATE_UNIT_TEST" );
+      if ( envVal )
+      {
+         m_validationMode = true;
+      }
 
       m_sc.reset( casa::ScenarioAnalysis::loadScenario( "Ottoland_casa_state.txt", "txt" ) );
 
@@ -25,6 +32,8 @@ public:
       }
    }
 
+   double reldif( double a, double b ) { return  abs( (a-b) / ( abs(a+b) > 1.e-8 ? (a+b) : 1.0 ) ); }
+
    ~SensCalcTest() {;}
 
    std::unique_ptr<casa::ScenarioAnalysis> m_sc;
@@ -33,18 +42,17 @@ public:
    double eps;
 };
 
-double tornadoSensVals[9][4] = { 
-   { 55.6078,     81.0514,  -42.0209, 41.7564 },
-   { 81.258,      121.177,  -42.0117, 41.7914 },
-   { 88.4597,     132.449,  -42.0283, 41.7914 },
-   { 99.6968,     150.208,  -42.0177, 41.8049 },
-   { 111.823,     169.604,  -41.9781, 41.8438 },
-   { 0.431208,    0.599471, -34.0939, 41.1183 },
-   { 0.711283,    1.32084,  -26.7844, 43.1506 },
-   { 6.81877e-06, 161.83,   -2.03658, 89.2981 },
-   { 0.0623489,   221.102,  -8.02639, 64.1602 }
+double tornadoSensVals[9][4] = {
+   { 740.957,    756.707,   18.9239,    20.687   },
+   { 2656.62,    2710.678, -5.63549,   26.2149  },
+   { 3066.6799,  3110.96,   6.6427,     22.5001  },
+   { 3492.27,    3548.34,   6.20708,    36.8933  },
+   { 4126.85,    4187.42,   37.0541,    47.6717  },
+   { 4.64393,    4.64393,   0,          0        },
+   { 4.64393,    4.64393,   0,          0        },
+   { 33124.23,   33002.2,  -0.323937, -0.648485 },
+   { 6041,       6013.68,  -0.379981, -0.76045  }
 };
-
 
 const char * observablesName[] = { "Temperature(460001,6.75e+06,1293,0)"
                                  , "Temperature(460001,6.75e+06,2129,0)"
@@ -79,6 +87,10 @@ TEST_F( SensCalcTest, SensitivityCalculatorTornadoTest )
    std::vector<TornadoSensitivityInfo> tornadoData = sensCalc.calculateTornado( m_sc->doeCaseSet(), doeNames );
    ASSERT_EQ( tornadoData.size(), 9U ); // number of observables
 
+   std::ostringstream sensValsOut;
+   std::ostringstream prmNamesOut;
+   std::ostringstream obsNamesOut;
+
    for ( size_t i = 0; i < tornadoData.size(); ++i ) // do test only for 1 observable
    {
       const Observable * obs = tornadoData[i].observable();
@@ -92,9 +104,14 @@ TEST_F( SensCalcTest, SensitivityCalculatorTornadoTest )
       {
          ASSERT_TRUE( obsName.compare( observablesName[i] ) == 0 );
       }
-      else { std::cerr << "\"" << obsName << "\" "; }
+      else
+      {
+         if ( i == 0 ) { obsNamesOut << "\nconst char * observablesName[] = {\n"; }
+         obsNamesOut << "\"" << obsName << "\"" << ( i < tornadoData.size() - 1 ? "," : "" ) << "\n";
+      }
 
       const std::vector<std::string> & prmNames = tornadoData[i].varParametersNameList();
+
 
       for ( size_t j = 0; j < 1; ++j ) // compare only one set of parameters sensitivities in this test
       {
@@ -109,35 +126,59 @@ TEST_F( SensCalcTest, SensitivityCalculatorTornadoTest )
          // check results
          if ( !m_validationMode )
          {
-            ASSERT_NEAR( minPrmAbsSens, tornadoSensVals[i][0], eps );
-            ASSERT_NEAR( maxPrmAbsSens, tornadoSensVals[i][1], eps );
-            ASSERT_NEAR( minPrmRelSens, tornadoSensVals[i][2], eps );
-            ASSERT_NEAR( maxPrmRelSens, tornadoSensVals[i][3], eps );
+            ASSERT_TRUE( reldif( minPrmAbsSens, tornadoSensVals[i][0] ) < eps );
+            ASSERT_TRUE( reldif( maxPrmAbsSens, tornadoSensVals[i][1] ) < eps );
+            ASSERT_TRUE( reldif( minPrmRelSens, tornadoSensVals[i][2] ) < eps );
+            ASSERT_TRUE( reldif( maxPrmRelSens, tornadoSensVals[i][3] ) < eps );
             ASSERT_TRUE( name.compare( mostInfluentialPrmName[i] ) == 0 );
             ASSERT_EQ( subPrmNum, 0 );
          }
          else
          {
-            std::cerr << "{ " << minPrmAbsSens << ", " << maxPrmAbsSens << ", " << minPrmRelSens << ", " << maxPrmRelSens << " } " <<
-               "\"" << name << "\", " << subPrmNum << std::endl;
+            if ( i == 0 && j == 0 )
+            {
+               sensValsOut << "\ndouble tornadoSensVals[" << tornadoData.size() << "][4] = { \n";
+               prmNamesOut << "\nconst char * mostInfluentialPrmName[] = {\n";
+            }
+            sensValsOut << "   { " << std::scientific << 
+                                   minPrmAbsSens << ", " << maxPrmAbsSens << ", " << minPrmRelSens << ", " << maxPrmRelSens << 
+                             " }" << ( i < tornadoData.size() - 1 ? "," : "" ) << "\n";
+            prmNamesOut << "\"" << name << "\"" << ( i < tornadoData.size() - 1 ? "," : "" ) << "\n";
+
+            if ( i == tornadoData.size() - 1 && j == 0 )
+            {
+               sensValsOut << "};\n";
+               prmNamesOut << "};\n";
+            }
          }
       }
+      if ( m_validationMode && i == tornadoData.size() - 1 ) { obsNamesOut << "};\n"; }
    }
+
+   if ( m_validationMode ) { std::cerr << sensValsOut.str() << obsNamesOut.str() <<  prmNamesOut.str(); }
 }
 
 
-double paretoSensValues[] = { 79.6204, 7.57774, 7.11666, 3.78362, 1.46877, 0.43279  };
+double paretoSensValues[] = { 24.6649, 22.7412, 20.3575, 15.7707, 14.2258, 2.2399 } ;
 
-const char * paretoIPNames[] = { "TopCrustHeatProdRate [\\mu W/m^3]"
-                               , "EventStartTime [Ma]"
-                               , "InitialCrustThickness [m]"
-                               , "CrustThinningFactor [m/m]"
-                               , "Lower Jurassic TOC [%]"
-                               , "EventDuration [Ma]"
-                              };
+
+const char * paretoIPNames[] = {
+      "TopCrustHeatProdRate [\\mu W/m^3]",
+      "CrustThinningFactor [m/m]",
+      "EventStartTime [Ma]",
+      "EventDuration [Ma]",
+      "Lower Jurassic TOC [%]",
+      "InitialCrustThickness [m]"
+};
+
+
+
 
 TEST_F( SensCalcTest, SensitivityCalculatorParetoTest )
 {
+   std::ostringstream prmVals;
+   std::ostringstream prmNames;
+
    ASSERT_EQ( ErrorHandler::NoError, m_sc->errorCode() );
 
    const casa::RSProxy * secOrdProx = m_sc->rsProxySet().rsProxy( "SecondOrder" );
@@ -148,6 +189,12 @@ TEST_F( SensCalcTest, SensitivityCalculatorParetoTest )
    casa::ParetoSensitivityInfo paretoData;
 
    ASSERT_EQ( ErrorHandler::NoError, sensCalc.calculatePareto( secOrdProx, paretoData ) );
+
+   if ( m_validationMode )
+   {
+      prmVals  << "\ndouble paretoSensValues[] = { ";
+      prmNames << "\nconst char * paretoIPNames[] = {\n";
+   }
 
    for ( size_t i = 0; i < paretoData.m_vprmPtr.size(); ++i )
    {
@@ -163,27 +210,32 @@ TEST_F( SensCalcTest, SensitivityCalculatorParetoTest )
       }
       else
       {
-         std::cerr << prmSens << ", \"" << prmName << "\"" << std::endl;
+         prmVals  << prmSens << (i == (paretoData.m_vprmPtr.size()-1) ? "" : ", "); 
+         prmNames << "   \"" << prmName << "\"" << (i == (paretoData.m_vprmPtr.size()-1) ? "" : ", ") << "\n";
       }
+   }
+   if ( m_validationMode ) 
+   {
+      prmVals  << " };\n";
+      prmNames << " };\n";
+      std::cerr << prmVals.str() << prmNames.str();
    }
 }
 
-
-double paretoCyclicSensValues[5][6] = { { 79.1661, 7.54919, 7.03656, 4.15736, 1.66057, 0.430239 },
-                                        { 79.3384, 7.55971, 7.06475, 4.01406, 1.59182, 0.431209 },
-                                        { 79.424,  7.56502, 7.07935, 3.94333, 1.55661, 0.431702 },
-                                        { 79.4743, 7.56819, 7.08822, 3.90195, 1.53538, 0.431993 },
-                                        { 79.5068, 7.57026, 7.09414, 3.87525, 1.52133, 0.43218  },
-                                      };
-
-const char * paretoCyclicIPName[5][6] = { 
- { "TopCrustHeatProdRate [\\mu W/m^3]", "EventStartTime [Ma]", "InitialCrustThickness [m]", "CrustThinningFactor [m/m]", "Lower Jurassic TOC [%]", "EventDuration [Ma]" },
- { "TopCrustHeatProdRate [\\mu W/m^3]", "EventStartTime [Ma]", "InitialCrustThickness [m]", "CrustThinningFactor [m/m]", "Lower Jurassic TOC [%]", "EventDuration [Ma]" },
- { "TopCrustHeatProdRate [\\mu W/m^3]", "EventStartTime [Ma]", "InitialCrustThickness [m]", "CrustThinningFactor [m/m]", "Lower Jurassic TOC [%]", "EventDuration [Ma]" },
- { "TopCrustHeatProdRate [\\mu W/m^3]", "EventStartTime [Ma]", "InitialCrustThickness [m]", "CrustThinningFactor [m/m]", "Lower Jurassic TOC [%]", "EventDuration [Ma]" },
- { "TopCrustHeatProdRate [\\mu W/m^3]", "EventStartTime [Ma]", "InitialCrustThickness [m]", "CrustThinningFactor [m/m]", "Lower Jurassic TOC [%]", "EventDuration [Ma]" },
+double paretoCyclicSensValues[5][6] = {
+     {  24.5383, 22.6555, 19.5884, 16.5954, 14.5813, 2.04104 },
+     {  24.5176, 22.6309, 19.987,  15.6891, 15.0512, 2.12426 },
+     {  24.5324, 22.6385, 20.1405, 15.2782, 15.248,  2.16245 },
+     {  24.5508, 22.651,  20.2158, 15.4089, 14.9898, 2.18381 },
+     {  24.5671, 22.6629, 20.2583, 15.4922, 14.8223, 2.19715 }
 };
-
+const char * paretoCyclicIPName[5][6] = {
+      { "TopCrustHeatProdRate [\\mu W/m^3]", "CrustThinningFactor [m/m]", "EventStartTime [Ma]", "Lower Jurassic TOC [%]", "EventDuration [Ma]", "InitialCrustThickness [m]" },
+      { "TopCrustHeatProdRate [\\mu W/m^3]", "CrustThinningFactor [m/m]", "EventStartTime [Ma]", "Lower Jurassic TOC [%]", "EventDuration [Ma]", "InitialCrustThickness [m]" },
+      { "TopCrustHeatProdRate [\\mu W/m^3]", "CrustThinningFactor [m/m]", "EventStartTime [Ma]", "EventDuration [Ma]", "Lower Jurassic TOC [%]", "InitialCrustThickness [m]" },
+      { "TopCrustHeatProdRate [\\mu W/m^3]", "CrustThinningFactor [m/m]", "EventStartTime [Ma]", "EventDuration [Ma]", "Lower Jurassic TOC [%]", "InitialCrustThickness [m]" },
+      { "TopCrustHeatProdRate [\\mu W/m^3]", "CrustThinningFactor [m/m]", "EventStartTime [Ma]", "EventDuration [Ma]", "Lower Jurassic TOC [%]", "InitialCrustThickness [m]" }
+};
 
 TEST_F( SensCalcTest, SensitivityCalculatorCyclicParetoTest )
 {
@@ -219,6 +271,12 @@ TEST_F( SensCalcTest, SensitivityCalculatorCyclicParetoTest )
       prmNamesEQW.push_back( prm->name()[prmSubId] );
       sensDataEQW.push_back( paretoDataEQW.getSensitivity( prm, prmSubId ) );
    }
+
+   std::ostringstream cyclSensVal;
+   std::ostringstream cyclSensNam;
+
+   cyclSensVal << "double paretoCyclicSensValues[5][6] = {\n";
+   cyclSensNam << "const char * paretoCyclicIPName[5][6] = {\n";
 
    //////////////////////////////////////////
    // Create set of 5 pareto charts with weights variation
@@ -260,13 +318,20 @@ TEST_F( SensCalcTest, SensitivityCalculatorCyclicParetoTest )
       }
       else
       {
-         std::cerr << "{";
-         for ( size_t i = 0; i < paretoDataVW.m_vprmPtr.size(); ++i ) { std::cerr << (i == 0 ? " " : ", ") << sensDataVW[i]; }
-         std::cerr << " };" << std::endl;
+         cyclSensVal << "  { ";
+         for ( size_t i = 0; i < paretoDataVW.m_vprmPtr.size(); ++i ) { cyclSensVal << (i == 0 ? " " : ", ") << sensDataVW[i]; }
+         cyclSensVal << " }" << (p == 4 ? "" : ",") << "\n";
 
-         std::cerr << "{";
-         for ( size_t i = 0; i < paretoDataVW.m_vprmPtr.size(); ++i ) { std::cerr << (i == 0 ? " " : ", ") << "\"" << prmNamesVW[i] << "\""; }
-         std::cerr << " };" << std::endl;
+         cyclSensNam << "   {";
+         for ( size_t i = 0; i < paretoDataVW.m_vprmPtr.size(); ++i ) { cyclSensNam << (i == 0 ? " " : ", ") << "\"" << prmNamesVW[i] << "\""; }
+         cyclSensNam << " }" << (p == 4 ? "" : ",") << "\n";
       }
+   }
+   if ( m_validationMode )
+   {  
+      cyclSensVal << "};\n";
+      cyclSensNam << "};\n";
+
+      std::cerr << cyclSensVal.str() << cyclSensNam.str();
    }
 }

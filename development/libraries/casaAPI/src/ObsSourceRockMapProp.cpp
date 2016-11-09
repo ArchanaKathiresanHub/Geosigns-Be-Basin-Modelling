@@ -38,7 +38,6 @@ ObsSourceRockMapProp::ObsSourceRockMapProp( double              x
                                           , m_propName( propName )
                                           , m_simTime( simTime )
                                           , m_posDataMiningTbl( -1 )
-                                          , m_devValue( 0.0 )
                                           , m_saWeight( 1.0 )
                                           , m_uaWeight( 1.0 )
 
@@ -69,15 +68,18 @@ ObsSourceRockMapProp::~ObsSourceRockMapProp() {;}
 std::vector<std::string> ObsSourceRockMapProp::name() const { return m_name; }
 
 // Get standard deviations for the reference value
-void ObsSourceRockMapProp::setReferenceValue( ObsValue * obsVal, double devVal )
+void ObsSourceRockMapProp::setReferenceValue( ObsValue * obsVal, ObsValue * devVal )
 {
    assert( obsVal != NULL );
    assert( dynamic_cast<ObsValueDoubleScalar*>( obsVal ) != NULL );
-   assert( devVal >= 0.0 );
+
+   assert( devVal != NULL );
+   assert( dynamic_cast<ObsValueDoubleScalar*>( devVal ) != NULL );
 
    m_refValue.reset( obsVal );
-   m_devValue = devVal;
+   m_devValue.reset( devVal );
 }
+
 
 // Update Model to be sure that requested property will be saved at the requested time
 ErrorHandler::ReturnCode ObsSourceRockMapProp::requestObservableInModel( mbapi::Model & cldModel )
@@ -108,6 +110,9 @@ ObsValue * ObsSourceRockMapProp::getFromModel( mbapi::Model & caldModel )
 {
    double val = UndefinedDoubleValue;
    double eps = 1.e-5;
+
+   const std::string & msg = checkObservableForProject( caldModel );
+   if ( !msg.empty() ) { return new ObsValueDoubleScalar( this, val ); }
 
    if ( m_posDataMiningTbl < 0 )
    {
@@ -155,7 +160,7 @@ ObsValue * ObsSourceRockMapProp::getFromModel( mbapi::Model & caldModel )
 }
 
 // Check well against project coordinates
-std::string ObsSourceRockMapProp::checkObservableForProject( mbapi::Model & caldModel )
+std::string ObsSourceRockMapProp::checkObservableForProject( mbapi::Model & caldModel ) const
 {
    std::ostringstream oss;
 
@@ -202,8 +207,10 @@ bool ObsSourceRockMapProp::save( CasaSerializer & sz, unsigned int /* version */
    ok = ok ? sz.save( hasRefVal, "HasRefValue" ) : ok;
    if ( hasRefVal ) { ok = ok ? sz.save( *(m_refValue.get()), "refValue" ) : ok; }
 
-   ok = ok ? sz.save( m_devValue, "devValue" ) : ok;
-
+   bool hasDevVal = m_devValue.get( ) ? true : false;
+   ok = ok ? sz.save( hasDevVal, "HasDevVal" ) : ok;
+   if ( hasDevVal ) { ok = ok ? sz.save( *( m_devValue.get( ) ), "devValue" ) : ok; }
+   
    ok = ok ? sz.save( m_saWeight, "saWeight" ) : ok;
    ok = ok ? sz.save( m_uaWeight, "uaWeight" ) : ok;
 
@@ -241,7 +248,19 @@ ObsSourceRockMapProp::ObsSourceRockMapProp( CasaDeserializer & dz, unsigned int 
 
    if ( hasRefVal ) { m_refValue.reset( ObsValue::load( dz, "refValue" ) ); }
 
-   ok = ok ? dz.load( m_devValue, "devValue" ) : ok;
+   if ( objVer == 0 )
+   {
+      double val;
+      ok = ok ? dz.load( val, "devValue" ) : ok;
+      if ( ok ) { m_devValue.reset( new  ObsValueDoubleScalar( this, val ) ); }  
+   }
+   else
+   {
+      bool hasDevVal;
+      ok = ok ? dz.load( hasDevVal, "HasDevVal" ) : ok;
+      if ( hasDevVal ) { m_devValue.reset( ObsValue::load( dz, "devValue" ) ); }
+   }
+
    ok = ok ? dz.load( m_saWeight, "saWeight" ) : ok;
    ok = ok ? dz.load( m_uaWeight, "uaWeight" ) : ok;
 

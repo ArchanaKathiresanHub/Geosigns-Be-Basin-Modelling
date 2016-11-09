@@ -75,10 +75,10 @@ namespace migration
       /// reset properties from a previous timestep
       bool clearPreviousProperties (void);
       DerivedProperties::FormationPropertyPtr getVolumeProperty (const Formation * formation,
-                                                                 const string & propertyName,
-                                                                 const Interface::Snapshot * snapshot) const;
+         const string & propertyName,
+         const Interface::Snapshot * snapshot) const;
       DerivedProperties::FormationPropertyPtr getFormationPropertyPtr (const string & propertyName,
-                                                                       const Interface::Snapshot * snapshot) const;
+         const Interface::Snapshot * snapshot) const;
       bool computeDepthOffsets (const Interface::Snapshot * presentDay);
       bool computeNetToGross (void);
       bool isActive (const Interface::Snapshot * snapshot) const;
@@ -93,7 +93,6 @@ namespace migration
 
       double getTotalToBeStoredCharges (bool onBoundaryOnly = false);
       double getTotalChargesToBeMigrated (void);
-      double getTotalSealPressureLeakedCharges (void);
       double getTotalBiodegradedCharges (void);
       double getTotalDiffusionLeakedCharges (void);
       double getTotalToBeDistributedCharges (void);
@@ -110,9 +109,9 @@ namespace migration
       const Composition & getCrackingGain (void) const;
       double getTotalCrackingLoss (void) const;
       double getTotalCrackingGain (void) const;
-      #ifdef USEOTGC
+#ifdef USEOTGC
       double getTotalImmobiles (void);
-      #endif
+#endif
       bool computeFluxes (void);
       bool collectLeakedCharges (Reservoir * leakingReservoir, Barrier * barrier);
       bool collectExpelledCharges (const Formation * formation, unsigned int direction, Barrier * barrier);
@@ -143,6 +142,10 @@ namespace migration
       Column * getAdjacentColumn (PhaseId phase, Column * column, Trap * trap = 0);
       LocalColumn * getLocalColumn (unsigned int i, unsigned int j) const;
       Column * getColumn (unsigned int i, unsigned int j) const;
+      /// transfer the calculated seepage amounts from nodes to columns
+      void putSeepsInColumns (const Formation * seepsFormation);
+      /// save Seepage amounts at the top formation of the basin
+      bool saveSeepageProperties (const Interface::Snapshot * end);
 
 
       /// Trap Handling
@@ -171,7 +174,7 @@ namespace migration
       void broadcastTrapFillDepthProperties (void);
       void accumulateErrorInPVT (double error);
       double getErrorPVT (void);
-      double getLossPVT (void);      
+      double getLossPVT (void);
 
 
       /// Migration Related
@@ -214,15 +217,14 @@ namespace migration
       /// Surface of a column
       double getSurface (unsigned int i, unsigned int j) const;
 
-      
+
       /// Miscellaneous
 
       /// get index of the reservoir in a list of reservoirs
       int getIndex (void);
       double getUndefinedValue (void);
       bool saveGenexMaps (const string & speciesName, DataAccess::Interface::GridMap * aMap, const Formation * formation, const Snapshot * aSnapshot);
-
-
+      
 
    private:
 
@@ -267,10 +269,10 @@ namespace migration
       const Interface::Formation* getSeaBottomFormation (const Interface::Snapshot * snapshot) const;
       const Interface::Formation* getTopFormation (const Interface::Snapshot * snapshot) const;
       const Interface::GridMap * getPropertyGridMap (const string & propertyName, const Interface::Snapshot * snapshot,
-                                                     const Interface::Reservoir * reservoir, const Interface::Formation * formation,
-                                                     const Interface::Surface * surface) const;
-      
-      
+         const Interface::Reservoir * reservoir, const Interface::Formation * formation,
+         const Interface::Surface * surface) const;
+
+
       /// Reservoir Charge
 
       bool distributionHasFinished (void);
@@ -278,8 +280,14 @@ namespace migration
       void reportLeakages (void);
       bool computeDistributionParameters (void);
       double biodegradeCharges (void);
+      
+      // Pasteurization functions. They must be exectuted in the following order:
       bool computeHydrocarbonWaterContactDepth (void);
       bool computeHydrocarbonWaterTemperature (void);
+      bool needToComputePasteurizationStatusFromScratch(void);
+      bool pasteurizationStatus(void);
+      bool setPasteurizationStatus(void);
+	  
       bool diffusionLeakCharges (void);
       bool addChargesToBeMigrated (ComponentId componentId, const DataAccess::Interface::GridMap * gridMap, double fraction, Barrier * barrier);
       bool addChargesToBeMigrated (const DataAccess::Interface::GridMap * gridMap, double fraction, Barrier * barrier);
@@ -322,9 +330,9 @@ namespace migration
       Trap * findTrap (int globalId);
       void addTrap (Trap * trap);
       void mergeSpillingTraps (void);
-      #ifdef MERGEUNDERSIZEDTRAPSAPRIORI
+#ifdef MERGEUNDERSIZEDTRAPSAPRIORI
       bool mergeUndersizedTraps (void);
-      #endif
+#endif
       bool determineTrapsToMerge (ConditionTest conditionTest);
       void absorbTraps (void);
       void removeUndersizedTraps (void);
@@ -332,15 +340,14 @@ namespace migration
       int computeMaximumTrapCount (bool countUndersized = true);
       inline unsigned int getMaximumTrapCount (void);
 
-      
+
       /// Miscellaneous
-      
+
       inline bool lowResEqualsHighRes (void) const;
       bool allProcessorsFinished (bool finished);
       bool checkDistribution (void);
 
-      
-      
+
       /// Data Members
 
    private:
@@ -396,7 +403,6 @@ namespace migration
       bool m_computeFluxesHasFinished;
 
       int m_index;
-
    };
 }
 
@@ -445,4 +451,3 @@ const DataAccess::Interface::Snapshot * migration::Reservoir::getEnd (void)
 }
 
 #endif // _MIGRATION_RESERVOIR_H_
-

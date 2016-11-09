@@ -3,6 +3,8 @@
 
 #include <MeshVizXLM/mesh/cell/MiCellFilterIjk.h>
 
+#include <memory>
+
 template<class T>
 class MiDataSetIjk;
 
@@ -11,7 +13,7 @@ class PropertyValueCellFilter : public MiCellFilterIjk
 	double m_minValue;
 	double m_maxValue;
 
-	const MiDataSetIjk<double>* m_dataSet;
+	std::shared_ptr<MiDataSetIjk<double>> m_dataSet;
     size_t m_timestamp;
 
 public:
@@ -22,7 +24,7 @@ public:
 
     virtual size_t getTimeStamp() const;
 
-	void setDataSet(const MiDataSetIjk<double>* dataSet);
+	void setDataSet(std::shared_ptr<MiDataSetIjk<double>> dataSet);
 
 	void setRange(double minValue, double maxValue);
 

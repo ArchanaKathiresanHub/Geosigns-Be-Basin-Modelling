@@ -1,8 +1,21 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
 #include "VitriniteReflectanceCalculator.h"
 #include "timefilter.h"
 #include "DerivedOutputPropertyMap.h"
 #include "PropertyManager.h"
 #include "FastcauldronSimulator.h"
+
+// utilities library
+#include "ConstantsNumerical.h"
+using Utilities::Numerical::IbsNoDataValue;
 
 OutputPropertyMap* allocateVitriniteReflectanceCalculator ( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot ) {
    return new DerivedOutputPropertyMap<VitriniteReflectanceCalculator>( property, formation, surface, snapshot );
@@ -78,7 +91,7 @@ bool VitriniteReflectanceCalculator::operator ()( const OutputPropertyMap::Outpu
                for ( k = int ( m_formation->getMaximumNumberOfElements ()) - 1; k >= 0; --k ) {
                  solidThickness = m_formation->getSolidThickness ( i, j, k, age );
 
-                  if ( solidThickness != IBSNULLVALUE and solidThickness > 0 ) {
+                  if ( solidThickness != IbsNoDataValue and solidThickness > 0 ) {
 
                      // The node at the top of the top-most active segment is sought.
                      usableK = k + 1;

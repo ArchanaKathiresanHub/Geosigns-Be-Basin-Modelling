@@ -14,6 +14,9 @@
 
 #include "Interface/SimulationDetails.h"
 #include "h5_parallel_file_types.h"
+#include "Interface/OutputProperty.h"
+#include "Interface/RunParameters.h"
+#include "GeoPhysicsFormation.h"
 #include "PropertiesCalculator.h"
 #include "FilePath.h"
 
@@ -38,6 +41,7 @@ PropertiesCalculator::PropertiesCalculator( int aRank ) {
    m_rank = aRank;
 
    m_debug            = false;
+   m_copy             = false;
    m_basement         = false; 
    m_all2Dproperties  = false;
    m_all3Dproperties  = false;
@@ -48,12 +52,14 @@ PropertiesCalculator::PropertiesCalculator( int aRank ) {
    m_primaryPod       = false;
    m_extract2D        = false;
    m_no3Dproperties   = false;
+   m_projectProperties = false;
 
    m_snapshotsType = MAJOR;
 
    m_projectFileName = "";
    m_simulationMode  = "";
    m_activityName    = "";
+   m_decompactionMode = false;
 
    m_projectHandle   = 0; 
    m_propertyManager = 0;
@@ -86,13 +92,29 @@ DerivedPropertyManager * PropertiesCalculator::getPropertyManager() const {
 }
 //------------------------------------------------------------//
 
-void  PropertiesCalculator::finalise ( bool isComplete ) {
+bool  PropertiesCalculator::finalise ( bool isComplete ) {
 
-   m_projectHandle->setSimulationDetails ( "fastproperties", "Default", "" );
-   m_projectHandle->finishActivity ( isComplete );
+   PetscLogDouble Start_Time;
+   PetscTime( &Start_Time );
+   
+  // set false as there is no need to save any properties - all are saved
+   m_projectHandle->finishActivity ( false );
 
-   if( isComplete && m_rank == 0 ) {
-      char outputFileName[128];
+   bool status = true;
+   if( isComplete ) {
+      if( ! copyFiles ()) {
+         PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Unable to copy output files\n");
+         
+         status = false;
+      }
+   }
+   
+   if( isComplete and status and m_rank == 0 ) {
+      displayProgress( "Project file", Start_Time, "Start saving " );
+  
+      m_projectHandle->setSimulationDetails ( "fastproperties", "Default", "" );
+    
+      char outputFileName[ PETSC_MAX_PATH_LEN ];
       outputFileName[0] = '\0';
       
       PetscBool isDefined = PETSC_FALSE;
@@ -102,13 +124,16 @@ void  PropertiesCalculator::finalise ( bool isComplete ) {
       } else {
          m_projectHandle->saveToFile(m_projectFileName);
       }
+      displayProgress( "", Start_Time, "Saving is finished for ProjectFile " );
    }
-
+   
    delete m_propertyManager;
    m_propertyManager = 0;
 
    delete m_projectHandle;
    m_projectHandle = 0;
+
+   return status;
 }
 
 //------------------------------------------------------------//
@@ -119,7 +144,7 @@ bool PropertiesCalculator::CreateFrom ( DataAccess::Interface::ObjectFactory* fa
       m_projectHandle = ( GeoPhysics::ProjectHandle* )( OpenCauldronProject( m_projectFileName, "r", factory ) );
 
       if(  m_projectHandle != 0 ) {
-         m_propertyManager = new DerivedPropertyManager ( m_projectHandle, m_debug );
+         m_propertyManager = new DerivedPropertyManager ( m_projectHandle, false, m_debug );
       }
    }
    if(  m_projectHandle == 0 ||  m_propertyManager == 0 ) {
@@ -184,34 +209,33 @@ bool PropertiesCalculator::showLists() {
 void PropertiesCalculator::convertToVisualizationIO( )  {
 
    if( m_convert ) {
-      PetscBool onlyPrimary = PETSC_FALSE;
-      PetscOptionsHasName( PETSC_NULL, "-primaryDouble", &onlyPrimary );
- 
       cout << "Converting to visualization format.." << endl;
 
       PetscLogDouble Start_Time;
       PetscLogDouble End_Time;
       PetscTime( &Start_Time );
+      clock_t start = clock();
+      float timeInSeconds;
 
-      boost::shared_ptr<DataAccess::Interface::ObjectFactory> factory(new DataAccess::Interface::ObjectFactory());
-      boost::shared_ptr<DataAccess::Interface::ProjectHandle> projectHandle(DataAccess::Interface::OpenCauldronProject(m_projectFileName, "r", factory.get()));
+      std::shared_ptr<DataAccess::Interface::ObjectFactory> factory(new DataAccess::Interface::ObjectFactory());
+      std::shared_ptr<DataAccess::Interface::ProjectHandle> projectHandle(DataAccess::Interface::OpenCauldronProject(m_projectFileName, "r", factory.get()));
 
-      if( onlyPrimary ) {
-         if( m_primaryPod ) {
-            H5_Parallel_PropertyList::setOneFilePerProcessOption( );
-         }
-      }
-     
-      boost::shared_ptr<CauldronIO::Project> project = ImportProjectHandle::createFromProjectHandle(projectHandle, false );
+      timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
+      cout << "Finished opening project handle in " << timeInSeconds << " seconds " << endl;
+    
+      std::shared_ptr<CauldronIO::Project> project = ImportProjectHandle::createFromProjectHandle(projectHandle, false );
+      timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
+      cout << "Finished import in " << timeInSeconds << " seconds " << endl;
 
-      boost::filesystem::path relPath(m_projectFileName);
-      relPath = relPath.stem().string() + "_vizIO_output";
-      boost::filesystem::path absPath(projectHandle->getFullOutputDir () + "/" + m_projectFileName);
-      absPath.remove_filename();
-      std::string indexingXMLname = CauldronIO::ImportExport::getXMLIndexingFileName(m_projectFileName);
+	  ibs::FilePath absPath(projectHandle->getFullOutputDir());
+	  absPath << m_projectFileName;
       
-      project->retrieve();
-      CauldronIO::ImportExport::exportToXML(project, absPath.string(), relPath.string(), indexingXMLname, true);
+      cout << "Writing to new format" << endl;
+      start = clock();
+      CauldronIO::ImportExport::exportToXML(project, absPath.path(), 1);
+
+      timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
+      cout << "Wrote to new format in " << timeInSeconds << " seconds" << endl;
  
       PetscTime( &End_Time );
       displayTime( End_Time - Start_Time, "Total time: ");
@@ -225,7 +249,8 @@ void PropertiesCalculator::calculateProperties( FormationSurfaceVector& formatio
       return;
    }
    
-   SnapshotList::iterator snapshotIter;
+   SnapshotList::reverse_iterator snapshotIter;
+
    PropertyList::iterator propertyIter;
    FormationSurfaceVector::iterator formationIter;
 
@@ -242,10 +267,12 @@ void PropertiesCalculator::calculateProperties( FormationSurfaceVector& formatio
    struct stat fileStatus;
    int fileError;
     
-   for ( snapshotIter = snapshots.begin(); snapshotIter != snapshots.end(); ++snapshotIter )
+   for ( snapshotIter = snapshots.rbegin(); snapshotIter != snapshots.rend(); ++snapshotIter )
    {
       const Interface::Snapshot * snapshot = *snapshotIter;
 
+      displayProgress( snapshot->getFileName (), m_startTime, "Start computing " );
+ 
       if ( snapshot->getFileName () != "" ) {
          ibs::FilePath fileName( m_projectHandle->getFullOutputDir () );
          fileName << snapshot->getFileName ();
@@ -258,7 +285,14 @@ void PropertiesCalculator::calculateProperties( FormationSurfaceVector& formatio
       {
          const Formation * formation = ( *formationIter ).first;
          const Surface   * surface   = ( *formationIter ).second;
-
+         const Interface::Snapshot * bottomSurfaceSnapshot = ( formation->getBottomSurface() != 0 ? formation->getBottomSurface()->getSnapshot() : 0 );
+         
+         if( snapshot->getTime() != 0.0 and surface == 0 and bottomSurfaceSnapshot != 0 ) {
+            const double depoAge = bottomSurfaceSnapshot->getTime();
+            if ( snapshot->getTime() > depoAge or fabs( snapshot->getTime() - depoAge ) < snapshot->getTime() * 1e-9 ) {
+               continue;
+            }
+         }
 
          for ( propertyIter = properties.begin(); propertyIter != properties.end(); ++propertyIter )
          {
@@ -270,59 +304,153 @@ void PropertiesCalculator::calculateProperties( FormationSurfaceVector& formatio
                continue;
             }
              
-            OutputPropertyValuePtr outputProperty = DerivedProperties::allocateOutputProperty ( * m_propertyManager, property, snapshot, * formationIter );
-  
-            if ( outputProperty != 0 ) {
-               if( m_debug && m_rank == 0 ) {
-                  LogHandler( LogHandler::INFO_SEVERITY) << "Snapshot: " << snapshot->getTime() << 
-                     " allocate " << property->getName() << " " << ( formation != 0 ? formation->getName() : "" ) << " " <<
-                     ( surface != 0 ? surface->getName() : "" );
-               }
-               allOutputPropertyValues [ snapshot ][ * formationIter ][ property ] = outputProperty;
+            if ( not m_projectProperties or ( m_projectProperties and allowOutput( property->getCauldronName(), formation, surface ))) {
+               OutputPropertyValuePtr outputProperty = DerivedProperties::allocateOutputProperty ( * m_propertyManager, property, snapshot, * formationIter );
+               
+               if ( outputProperty != 0 ) {
+                  if( m_debug && m_rank == 0 ) {
+                     LogHandler( LogHandler::INFO_SEVERITY) << "Snapshot: " << snapshot->getTime() << 
+                        " allocate " << property->getName() << " " << ( formation != 0 ? formation->getName() : "" ) << " " <<
+                        ( surface != 0 ? surface->getName() : "" );
+                  }
+                  allOutputPropertyValues [ snapshot ][ * formationIter ][ property ] = outputProperty;
+              }
+               else{
+                  if( m_debug && m_rank == 0 ) {
+                     LogHandler( LogHandler::INFO_SEVERITY ) << "Could not calculate derived property " << property->getName()
+                                                             << " @ snapshot " << snapshot->getTime() << "Ma for formation " <<  
+                        ( formation != 0 ? formation->getName() : "" ) << " " <<  ( surface != 0 ? surface->getName() : "" ) << ".";
+                  }
+               } 
             }
-            else{
-               if( m_debug && m_rank == 0 ) {
-                  LogHandler( LogHandler::INFO_SEVERITY ) << "Could not calculate derived property " << property->getName()
-                                                          << " @ snapshot " << snapshot->getTime() << "Ma for formation " <<  
-                     ( formation != 0 ? formation->getName() : "" ) << " " <<  ( surface != 0 ? surface->getName() : "" ) << ".";
-               }
-            } 
+         }
+         DerivedProperties::outputSnapshotFormationData( m_projectHandle, snapshot, * formationIter, properties, allOutputPropertyValues );
+      }
+      
+      removeProperties( snapshot, allOutputPropertyValues );
+      m_propertyManager->removeProperties( snapshot );
+
+      displayProgress( snapshot->getFileName (), m_startTime, "Start saving " );
+      
+      m_projectHandle->continueActivity();
+      
+      displayProgress( snapshot->getFileName (), m_startTime, "Saving is finished for " );
+ 
+      //     m_projectHandle->deleteRecordLessMapPropertyValues();
+      //     m_projectHandle->deleteRecordLessVolumePropertyValues();
+
+      m_projectHandle->deletePropertiesValuesMaps ( snapshot );
+   }
+ 
+   PetscLogDouble End_Time;
+   PetscTime( &End_Time );
+   displayTime( End_Time - m_startTime, "Total derived properties saving: ");
+}
+//------------------------------------------------------------//
+
+PropertyOutputOption PropertiesCalculator::checkTimeFilter3D ( const string & name ) const {
+
+   if ( name == "AllochthonousLithology" or  name == "Lithology" or name == "BrineDensity" or name == "BrineViscosity" ) {
+      return Interface::SEDIMENTS_ONLY_OUTPUT;
+   }
+   if ( name == "FracturePressure" ) {
+      if ( m_projectHandle->getRunParameters ()->getFractureType () == "None" ) {
+         return Interface::NO_OUTPUT;
+      }
+   }   
+   if ( name == "FaultElements" ) {
+      if ( m_projectHandle->getBasinHasActiveFaults ()) {
+         return Interface::SEDIMENTS_ONLY_OUTPUT;
+      } else {
+         return Interface::NO_OUTPUT;
+      } 
+   }
+   if ( name == "HorizontalPermeability" ) {
+      
+      const Interface::OutputProperty* permeability = m_projectHandle->findTimeOutputProperty ( "PermeabilityVec" );
+      const Interface::PropertyOutputOption permeabilityOption = ( permeability == 0 ? Interface::NO_OUTPUT : permeability->getOption ());
+      const Interface::OutputProperty* hpermeability = m_projectHandle->findTimeOutputProperty ( "HorizontalPermeability" );
+      const Interface::PropertyOutputOption hpermeabilityOption = ( hpermeability == 0 ? Interface::NO_OUTPUT : hpermeability->getOption ());
+      
+      if( hpermeabilityOption  == Interface::NO_OUTPUT and permeability != 0 ) {
+         return permeabilityOption;
+      } 
+      if( permeability == 0 ) {
+         return hpermeabilityOption;
+      }
+   }
+   
+   const Interface::OutputProperty * property = m_projectHandle->findTimeOutputProperty( name );
+
+   if( property != 0 ) {
+      if( m_simulationMode == "HydrostaticDecompaction" and name == "LithoStaticPressure" and 
+          property->getOption () == Interface::SEDIMENTS_AND_BASEMENT_OUTPUT ) {
+         return Interface::SEDIMENTS_ONLY_OUTPUT;
+      }
+     if( name == "HydroStaticPressure" and 
+         property->getOption () == Interface::SEDIMENTS_AND_BASEMENT_OUTPUT ) {
+        return Interface::SEDIMENTS_ONLY_OUTPUT;
+     }
+      
+     return property->getOption ();
+   } 
+   
+   return Interface::NO_OUTPUT;
+}
+
+//------------------------------------------------------------//
+
+bool PropertiesCalculator::allowOutput ( const string & propertyName3D, 
+                                         const Interface::Formation * formation, const Interface::Surface * surface ) const {
+
+
+   string propertyName = propertyName3D;
+   size_t len = 4;
+   size_t pos = propertyName.find( "Vec2" );
+   if( pos != string::npos ) {
+      propertyName.replace( pos, len, "Vec" );
+   } else {
+      pos = propertyName.find( "HeatFlow" );
+      if( pos != string::npos ) {
+         propertyName = "HeatFlow";
+      } else {
+         pos = propertyName.find( "FluidVelocity" );
+         if( pos != string::npos ) {
+            propertyName = "FluidVelocity";
+         }
+      }
+   }  
+
+   if(( propertyName == "BrineDensity" or  propertyName == "BrineViscosity" ) and surface != 0 ) {
+      return false;
+   }
+   if( m_decompactionMode and ( propertyName == "BulkDensity" ) and surface == 0 ) {
+      return false;
+   }
+    
+   bool basementFormation = formation->kind () == DataAccess::Interface::BASEMENT_FORMATION;
+   
+   // The top of the crust is a part of the sediment 
+   if( basementFormation and surface != 0 and ( propertyName == "Depth" or propertyName == "Temperature" ) ) {
+      if( dynamic_cast<const GeoPhysics::Formation*>( formation )->isCrust() ) {
+         if( formation->getTopSurface() and ( formation->getTopSurface() == surface )) {
+            return true;
          }
       }
    }
+   PropertyOutputOption outputOption = checkTimeFilter3D ( propertyName );
 
-   if( zeroSnapshotAdded ) {
-      snapshots.pop_back(); // to remove the explicitly added snapshot age 0
+   if( outputOption == Interface::NO_OUTPUT ) {
+      return false;
+   }
+   if( basementFormation ) {
+      if( outputOption < Interface::SEDIMENTS_AND_BASEMENT_OUTPUT ) { 
+         return false;
+      } 
    }
 
-   PetscLogDouble Accumulated_Saving_Time = 0;
-   PetscLogDouble Start_Saving_Time = 0;
-   PetscLogDouble Start_Time;
-   PetscLogDouble End_Time;
+   return true;
    
-   PetscTime( & Start_Saving_Time );
-
-   for ( snapshotIter = snapshots.begin(); snapshotIter != snapshots.end(); ++snapshotIter )
-   {
-      PetscTime( &Start_Time );
-      const Interface::Snapshot * snapshot = *snapshotIter;
-      for ( formationIter = formationItems.begin();  formationIter != formationItems.end(); ++formationIter )
-      {
-         const Interface::Formation * formation = ( *formationIter ).first;
-         const Interface::Surface   * surface   = ( *formationIter ).second;
-         
-         DerivedProperties::outputSnapshotFormationData( m_projectHandle, snapshot, * formationIter, properties, allOutputPropertyValues );
-      }
-      PetscTime( &Start_Time );
-     
-      displayProgress( snapshot->getFileName (), Start_Saving_Time, "Saving " );
-
-      m_projectHandle->continueActivity();
-
-      PetscTime( &End_Time );
-      Accumulated_Saving_Time += ( End_Time - Start_Time );
-   }
-   displayTime( Accumulated_Saving_Time, "Total derived properties saving: ");
 }
 
 //------------------------------------------------------------//
@@ -333,6 +461,7 @@ bool PropertiesCalculator::acquireSnapshots( SnapshotList & snapshots )
    {
       SnapshotList * allSnapshots = m_projectHandle->getSnapshots( m_snapshotsType );
       snapshots = *allSnapshots;
+      delete allSnapshots;
       return true;
    }
    else
@@ -380,6 +509,7 @@ bool PropertiesCalculator::acquireSnapshots( SnapshotList & snapshots )
                         if ( m_debug && snapshot && m_rank == 0 ) LogHandler( LogHandler::INFO_SEVERITY ) << "adding range snapshot " << snapshot->getTime();
                      }
                   }
+                  delete allSnapshots;
                }
             }
             firstAge = secondAge = -1;
@@ -428,11 +558,15 @@ void PropertiesCalculator::acquireProperties( PropertyList & properties ) {
 //------------------------------------------------------------//
 void PropertiesCalculator::acquireFormationsSurfaces( FormationSurfaceVector& formationSurfaceItems ) {
 
+   bool load3d = false;
    if( m_formationNames.size() != 0 or m_all3Dproperties  ) {
       DerivedProperties::acquireFormations( m_projectHandle, formationSurfaceItems, m_formationNames, m_basement );
+      load3d = true;
    }
    if(  m_all2Dproperties  ) {
-      DerivedProperties::acquireFormations( m_projectHandle, formationSurfaceItems, m_formationNames, m_basement);
+      if( not load3d ) {
+         DerivedProperties::acquireFormations( m_projectHandle, formationSurfaceItems, m_formationNames, m_basement);
+      }
       DerivedProperties::acquireFormationSurfaces( m_projectHandle, formationSurfaceItems, m_formationNames, true, m_basement );
       DerivedProperties::acquireFormationSurfaces( m_projectHandle, formationSurfaceItems, m_formationNames, false, m_basement );
 
@@ -528,6 +662,8 @@ void PropertiesCalculator::printListSnapshots ()  {
          cout <<setprecision(oldPrecision);
       }
       cout << endl;
+
+      delete mySnapshots;
    }
 }
 //------------------------------------------------------------//
@@ -572,6 +708,8 @@ void PropertiesCalculator::printListStratigraphy () {
          }
       }
       cout << endl;
+
+      delete myFormations;
    }
 
 
@@ -664,7 +802,103 @@ bool PropertiesCalculator::setFastcauldronActivityName() {
    } else {
       m_activityName = "Fastproperties";
    }
+   m_decompactionMode = ( m_activityName == "HydrostaticDecompaction" ) or ( m_activityName == "HighResDecompaction");
+
    return true;
+}
+//------------------------------------------------------------//
+bool PropertiesCalculator::copyFiles( ) {
+
+   if ( not H5_Parallel_PropertyList::isPrimaryPodEnabled () or 
+        ( H5_Parallel_PropertyList::isPrimaryPodEnabled () and not m_copy )) {
+      return true;
+   }
+
+   int rank;
+   MPI_Comm_rank(PETSC_COMM_WORLD, &rank);
+
+   if( rank != 0 ) return true;
+
+   PetscBool noFileRemove = PETSC_FALSE;
+   PetscOptionsHasName( PETSC_NULL, "-noremove", &noFileRemove );
+   
+   PetscLogDouble StartMergingTime;
+   PetscTime(&StartMergingTime);
+   bool status = true;
+   
+   const std::string& directoryName = m_projectHandle->getOutputDir ();
+   
+   PetscPrintf ( PETSC_COMM_WORLD, "Copy output files ...\n" ); 
+   
+   SnapshotList * snapshots = m_projectHandle->getSnapshots( MAJOR | MINOR );
+   SnapshotList::iterator snapshotIter;
+      
+   for ( snapshotIter = snapshots->begin(); snapshotIter != snapshots->end(); ++snapshotIter ) {
+      const Interface::Snapshot * snapshot = *snapshotIter;
+      
+      if ( snapshot->getFileName () == "" ) {
+         continue;
+      }
+      ibs::FilePath filePathName( m_projectHandle->getProjectPath () );
+      filePathName << directoryName << snapshot->getFileName ();
+      
+      displayProgress( snapshot->getFileName (), StartMergingTime, "Copy " );
+
+      status = H5_Parallel_PropertyList::copyMergedFile( filePathName.path(), false );
+      
+      // delete the file in the shared scratch
+      if( status and not noFileRemove ) {
+         ibs::FilePath fileName(H5_Parallel_PropertyList::getTempDirName() );
+         fileName << filePathName.cpath ();
+         
+         int status = std::remove( fileName.cpath() ); //c_str ());
+         if (status == -1)
+            cerr << fileName.cpath() << " MeSsAgE WARNING  Unable to remove snapshot file, because '" 
+                 << std::strerror(errno) << "'" << endl;
+      }  
+   }
+
+   string fileName = m_activityName + "_Results.HDF" ; 
+   ibs::FilePath filePathName( m_projectHandle->getProjectPath () );
+   filePathName <<  directoryName << fileName;
+   
+   displayProgress( fileName, StartMergingTime, "Copy " );
+   
+   status = H5_Parallel_PropertyList::copyMergedFile( filePathName.path(), false );
+   
+   // remove the file from the shared scratch
+   if( status and  not noFileRemove ) {
+
+    ibs::FilePath fileName(H5_Parallel_PropertyList::getTempDirName() );
+      fileName << filePathName.cpath ();
+      int status = std::remove( fileName.cpath() );
+      
+      if (status == -1) {
+         cerr << fileName.cpath () << " MeSsAgE WARNING  Unable to remove file, because '" 
+              << std::strerror(errno) << "'" << endl;
+      }
+
+     // remove the output directory from the shared scratch
+      ibs::FilePath dirName(H5_Parallel_PropertyList::getTempDirName() );
+      dirName << directoryName;
+
+      displayProgress( dirName.path(), StartMergingTime, "Removing remote output directory " );
+      status = std::remove( dirName.cpath() );
+         
+      if (status == -1)
+         cerr << dirName.cpath () << " MeSsAgE WARNING  Unable to remove the directory, because '" 
+              << std::strerror(errno) << "'" << endl;
+   }  
+
+   if( status ) {
+      displayTime( StartMergingTime, "Total merging time: " );
+   } else {
+      PetscPrintf ( PETSC_COMM_WORLD, "  MeSsAgE ERROR Could not merge the file %s.\n", filePathName.cpath() );               
+   }
+
+   delete snapshots;
+
+   return status;  
 }
 //------------------------------------------------------------//
 
@@ -734,6 +968,10 @@ bool PropertiesCalculator::parseCommandLine( int argc, char ** argv ) {
       {
          m_all3Dproperties = true;
       }
+      else if ( strncmp( argv[ arg ], "-project-properties", Max( 12, (int)strlen( argv[ arg ] ) ) ) == 0 )
+      {
+         m_projectProperties = true;
+      }
       else if ( strncmp( argv[ arg ], "-list-properties", Max( 7, (int)strlen( argv[ arg ] ) ) ) == 0 )
       {
          m_listProperties = true;
@@ -754,6 +992,13 @@ bool PropertiesCalculator::parseCommandLine( int argc, char ** argv ) {
             return false;
          }
          m_projectFileName = argv[ ++arg ];
+      }
+      else if ( strncmp( argv[ arg ], "-copy", Max( 4, (int)strlen( argv[ arg ] ) ) ) == 0 )
+      {
+         m_copy = true;
+      }
+      else if ( strncmp( argv[ arg ], "-noremove", Max( 4, (int)strlen( argv[ arg ] ) ) ) == 0 )
+      {
       }
       else if ( strncmp( argv[ arg ], "-debug", Max( 2, (int)strlen( argv[ arg ] ) ) ) == 0 )
       {
@@ -813,7 +1058,7 @@ bool PropertiesCalculator::parseCommandLine( int argc, char ** argv ) {
          LogHandler(LogHandler::ERROR_SEVERITY) << "Unknown or ambiguous option: " << argv[ arg ];
          showUsage( argv[ 0 ] );
 
-         //   return false;
+         return false;
       }
    }
 
@@ -824,6 +1069,13 @@ bool PropertiesCalculator::parseCommandLine( int argc, char ** argv ) {
 
       return false;
    }
+   if( m_projectProperties ) {
+      m_all3Dproperties = true;
+      m_all2Dproperties = true;
+      m_extract2D = true;
+      m_basement = true;
+   }
+
    if( m_convert ) {
       int numberOfRanks;
       
@@ -835,7 +1087,11 @@ bool PropertiesCalculator::parseCommandLine( int argc, char ** argv ) {
    }
   return true;
 }
+//------------------------------------------------------------//
+void PropertiesCalculator::startTimer() {
+   PetscTime( &m_startTime );
 
+}
 //------------------------------------------------------------//
 
 bool PropertiesCalculator::convert() const {
@@ -855,25 +1111,31 @@ void PropertiesCalculator::showUsage( const char* command, const char* message )
       }
       
       cout << "Usage (case sensitive!!): " << command << endl << endl
-           << "\t[-properties name1,name2...]                       properties to produce output for" << endl
-           << "\t[-ages age1[-age2],...]                            select snapshot ages using single values and/or ranges" << endl << endl
-           << "\t[-formations formation1,formation2...]             produce output for the given formations" << endl
-           << "\t                                                   the four options above can include Crust or Mantle" << endl << endl
-           << "\t[-basement]                                        produce output for the basement as well," << endl
-           << "\t                                                   only needed if none of the three options above have been specified" << endl << endl
-           << "\t[-project] projectname                             name of 3D Cauldron project file to produce output for" << endl
-           << "\t[-save filename]                                   name of file to save output (*.csv format) table to, otherwise save to stdout" << endl
-           << "\t[-verbosity level]                                 verbosity level of the log file(s): minimal|normal|detailed|diagnostic. Default value is 'normal'." << endl
+           << "\t[-properties name1,name2...]               properties to produce output for" << endl
+           << "\t[-ages age1[-age2],...]                    select snapshot ages using single values and/or ranges" << endl << endl
+           << "\t[-formations formation1,formation2...]     produce output for the given formations" << endl
+           << "\t                                           the four options above can include Crust or Mantle" << endl << endl
+           << "\t[-basement]                                produce output for the basement as well," << endl
+           << "\t                                           only needed if none of the three options above have been specified" << endl << endl
+           << "\t[-project] projectname                     name of 3D Cauldron project file to produce output for" << endl
+           << "\t[-save filename]                           name of file to save output (*.csv format) table to, otherwise save to stdout" << endl
+           << "\t[-verbosity level]                         verbosity level of the log file(s): minimal|normal|detailed|diagnostic. Default value is 'normal'." << endl
            << endl
-           << "\t[-all-3D-properties]                               produce output for all 3D properties" << endl
-           << "\t[-all-2D-properties]                               produce output for all 2D primary properties" << endl
-           << "\t[-extract2D]                                       produce output for all 2D properties (use with -all-2D-properties)" << endl
-           << "\t[-list-properties]                                 print a list of available properties and exit" << endl
-           << "\t[-list-snapshots]                                  print a list of available snapshots and exit" << endl
-           << "\t[-list-stratigraphy]                               print a list of available surfaces and formations and exit" << endl << endl
-           << "\t[-convert]                                         convert the data to visialization format. (run on 1 core)" << endl << endl
-           << "\t[-primaryPod <dir>]                                use if the fastcauldron data are stored in the shared <dir> on the cluster" << endl << endl
-           << "\t[-help]                                            print this message and exit" << endl << endl;
+           << "\t[-all-3D-properties]                       produce output for all 3D properties" << endl
+           << "\t[-all-2D-properties]                       produce output for all 2D primary properties" << endl
+           << "\t[-project-properties]                      produce output for the properties selected for output in the project file" << endl
+           << "\t[-extract2D]                               produce output for all 2D properties (use with -all-2D-properties)" << endl
+           << "\t[-list-properties]                         print a list of available properties and exit" << endl
+           << "\t[-list-snapshots]                          print a list of available snapshots and exit" << endl
+           << "\t[-list-stratigraphy]                       print a list of available surfaces and formations and exit" << endl << endl
+           << "\t[-convert]                                 convert the data to visialization format. (run on 1 core)" << endl << endl
+           << "\t[-help]                                    print this message and exit" << endl << endl
+           << "Options for shared cluster storage:" << endl << endl
+           << "\t[-primaryPod <dir>]                        use if the fastcauldron data are stored in the shared <dir> on the cluster" << endl << endl
+           << "\t[-copy]                                    use in combination with -primaryPod. Copy the results to the local dir and " << endl
+           << "\t                                           remove them from the shared dir on the cluster" << endl << endl
+           << "\t[-noremove]                                use in combination with -primaryPod and -copy. Don't remove results from " << endl
+           << "\t                                           the shared dir on the cluster" << endl << endl;
       cout << "If names in an argument list contain spaces, put the list between double or single quotes, e.g:"
            << "\t-formations \"Dissolved Salt,Al Khalata\"" << endl;
       cout << "Bracketed options are optional and options may be abbreviated" << endl << endl;

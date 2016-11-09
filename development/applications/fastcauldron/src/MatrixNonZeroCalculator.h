@@ -12,7 +12,7 @@
 
 // Access to fastcauldron application code.
 #include "ComputationalDomain.h"
-#include "globaldefs.h"
+#include "ConstantsFastcauldron.h"
 
 /// \brief Class used to compute the number of non-zeros in the sparse matrix.
 ///

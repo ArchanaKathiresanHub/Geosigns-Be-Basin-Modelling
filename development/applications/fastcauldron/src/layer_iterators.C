@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
 //------------------------------------------------------------//
 
 #include "layer_iterators.h"
@@ -38,7 +47,7 @@ Basin_Modelling::Layer_Iterator::Layer_Iterator
 
 Basin_Modelling::Layer_Iterator::~Layer_Iterator () {
 
-  if ( Iterated_Layers != Null ) {
+  if ( Iterated_Layers != nullptr ) {
     delete [] Iterated_Layers;
   } // end if
 
@@ -180,17 +189,12 @@ void Basin_Modelling::Layer_Iterator::Initialise_Iterator
 
   int  Layer_Index;
 
-//    if ( Iterated_Layers == Null ) {
-//      Total_Number_Of_Layers = Basin_Layers.size ();
-//      Iterated_Layers = new LayerProps_Ptr [ Total_Number_Of_Layers ];
-//    } // end if
-
   //
   //
   // Here should only deallocate if the Total_Number_Of_Layers /= Basin_Layers.size ()
   // as the total number of layers CANNOT change within a run!
   //
-  if ( Iterated_Layers != 0 ) {
+  if ( Iterated_Layers != nullptr ) {
     delete [] Iterated_Layers;
   } // end if
 

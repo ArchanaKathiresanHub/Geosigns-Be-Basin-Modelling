@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2010-2015 Shell International Exploration & Production.
+// Copyright (C) 2010-2016 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -12,6 +12,11 @@
 #define _MIGRATION_H
 
 #include "ComponentManager.h"
+
+#ifndef WIN32
+#include "System.h"
+#include <unistd.h>
+#endif
 
 #include <vector>
 using namespace std;
@@ -59,7 +64,7 @@ namespace migration
       ISUNDERSIZED, ISSPILLING, ISSEALING, ISWASTING, PASTEURIZATIONSTATUS, OWCTEMPERATURE, ISTRAPFLAG, SUPPORTEDCHARGEHEIGHT,
       CAPILLARYSEALPRESSURE, CAPILLARYRESERVOIRPRESSURE, CAPILLARYTHRESHOLDPRESSURE,
       ADJACENTCOLUMN, TARGETCOLUMN, SPILLTARGET, TRAPSPILLCOLUMN,
-      DRAINAGEAREAID, GLOBALTRAPID, LEAKAGEQUANTITY, FILLDEPTH, PENETRATIONDISTANCE, DIFFUSIONSTARTTIME,
+      DRAINAGEAREAID, GLOBALTRAPID, LEAKAGEQUANTITY, SEEPAGEQUANTITY, FILLDEPTH, PENETRATIONDISTANCE, DIFFUSIONSTARTTIME,
       CHARGEDENSITY, LATERALCHARGEDENSITY, CHARGEQUANTITY, GETCHARGES,
       TARGETFORMATIONNODE, ANALOGFLOWDIRECTION, DEPTH, ISVALID, ISIMPERMEABLE, HASNOTHICKNESS, HASNOWHERETOGO, GOESOUTOFBOUNDS, RESERVOIR,
       ISRESERVOIRVAPOUR, ISRESERVOIRLIQUID, ISENDOFPATH, HEIGHTVAPOUR, HEIGHTLIQUID,
@@ -95,7 +100,7 @@ namespace migration
    {
       TOPDEPTHCACHE = 0, BOTTOMDEPTHCACHE, TOPDEPTHOFFSETCACHE, NETTOGROSSCACHE, POROSITYCACHE, IMMOBILESVOLUMECACHE,
       PERMEABILITYCACHE, FAULTSTATUSCACHE, COLUMNSTATUSCACHE, PASTEURIZATIONSTATUSCACHE,
-      BASEADJACENTCOLUMNCACHE, GASADJACENTCOLUMNCACHE = BASEADJACENTCOLUMNCACHE, OILADJACENTCOLUMNCACHE, 
+      BASEADJACENTCOLUMNCACHE, GASADJACENTCOLUMNCACHE = BASEADJACENTCOLUMNCACHE, OILADJACENTCOLUMNCACHE,
       BASETARGETCOLUMNCACHE, GASTARGETCOLUMNCACHE = BASETARGETCOLUMNCACHE, OILTARGETCOLUMNCACHE,
       BASESEALINGCOLUMNCACHE, GASSEALINGCOLUMNCACHE = BASESEALINGCOLUMNCACHE, OILSEALINGCOLUMNCACHE,
       BASETRAPFLAGCOLUMNCACHE, GASTRAPFLAGCOLUMNCACHE = BASETRAPFLAGCOLUMNCACHE, OILTRAPFLAGCOLUMNCACHE,
@@ -146,18 +151,18 @@ namespace migration
    const int LastTopNodeCorner = 3;
 
    const int NodeCornerOffsets[NumberOfNodeCorners][3] =
-      { { 0, 0, 1 }, { 1, 0, 1 }, { 1, 1, 1 }, { 0, 1, 1 }, { 0, 0, 0 }, { 1, 0, 0 }, { 1, 1, 0 }, { 0, 1, 0 } };
+   { { 0, 0, 1 }, { 1, 0, 1 }, { 1, 1, 1 }, { 0, 1, 1 }, { 0, 0, 0 }, { 1, 0, 0 }, { 1, 1, 0 }, { 0, 1, 0 } };
 
    const int NeighbourOffsets2D[8][2] =
    {
       { -1, -1 },
-         { -1, 0 },
-         { -1, 1 },
-         { 0, -1 },
-         { 0, 1 },
-         { 1, -1 },
-         { 1, 0 },
-         { 1, 1 }
+      { -1, 0 },
+      { -1, 1 },
+      { 0, -1 },
+      { 0, 1 },
+      { 1, -1 },
+      { 1, 0 },
+      { 1, 1 }
    };
 
    const int NumberOfNeighbourOffsets = 26;
@@ -186,38 +191,38 @@ namespace migration
    const int NeighbourOffsetIndices[3][3] =
    {
       { 0, 1, 2 },
-         { 3, -1, 4 },
+      { 3, -1, 4 },
       { 5, 6, 7 }
    };
 
    const int DiagonalNeighbourOffsets[4][2] =
    {
       { -1, -1 },
-         { -1, 1 },
-         { 1, -1 },
-         { 1, 1 }
+      { -1, 1 },
+      { 1, -1 },
+      { 1, 1 }
    };
 
    const int DiagonalNeighbourOffsetIndices[3][3] =
    {
-         { 0, -1, 1 },
-         { -1, -1, -1 },
-         { 2, -1, 3 }
+      { 0, -1, 1 },
+      { -1, -1, -1 },
+      { 2, -1, 3 }
    };
 
    const int OrthogonalNeighbourOffsets[4][2] =
    {
-         { -1, 0 },
-         { 0, -1 },
-         { 0, 1 },
-         { 1, 0 },
+      { -1, 0 },
+      { 0, -1 },
+      { 0, 1 },
+      { 1, 0 },
    };
 
    const int OrthogonalNeighbourOffsetIndices[3][3] =
    {
-         { -1, 0, -1 },
-         { 1, -1, 2 },
-         { -1, 3, -1 }
+      { -1, 0, -1 },
+      { 1, -1, 2 },
+      { -1, 3, -1 }
    };
 
    const int I = 0;
@@ -227,8 +232,8 @@ namespace migration
    const int NumDiagonalNeighbours = 4;
    const int NumOrthogonalNeighbours = 4;
    const int MaximumNeighbourOffset = 10; // (MaximumNeighbourOffset - 1) is the maximum number of columns allowed
-                                          // between the original and the one under consideration when trying to find
-                                          // a suitable column to divert HCs that have ended up in a sealing column.
+   // between the original and the one under consideration when trying to find
+   // a suitable column to divert HCs that have ended up in a sealing column.
 
    const int NoTrapId = -10;
    const int UnknownTrapId = -5;
@@ -254,7 +259,8 @@ namespace migration
    // Must correspond to the FaultStatus in (Distributed)DataAccess
    const int NumFaults = 6;
 
-   enum FaultStatus {
+   enum FaultStatus
+   {
       NOFAULT = 0, SEAL, PASS, WASTE, SEALOIL, PASSOIL, NUM_FAULTS = NumFaults
    };
 
@@ -293,16 +299,16 @@ namespace migration
    extern bool MigrationErrorFound;
 
    extern const char * BooleanNames[];
-   
+
 #ifdef USEOTGC
    enum ImmobilesId
    {
-		precoke,
-		coke1,
-		Hetero1,
-		coke2,
-		CokeS,
-                
+      precoke,
+      coke1,
+      Hetero1,
+      coke2,
+      CokeS,
+
       NUM_IMMOBILES = 5
    };
 
@@ -336,9 +342,21 @@ namespace migration
    }
 
    bool DebugColumn (Column * column);
-   
+
    //Specify the simulation details
    static const std::string simulationModeStr[4] = { "VerticalSecondaryMigration", "HydrodynamicCapillaryPressure", "ReservoirDetection", "InclinedStratigraphy" };
-   
+
+#ifndef WIN32
+   inline unsigned long getMemoryUsed ()  
+   { 
+      int ToMegaBytes = 1048576;
+      int pageSize = sysconf (_SC_PAGESIZE);
+
+	  Utilities::CheckMemory::StatM statm;
+	  Utilities::CheckMemory::getStatM( statm );
+      return ( statm.resident * pageSize) / ToMegaBytes; //resident not virtual 
+   }
+#endif
+
 }
 #endif // _MIGRATION_H

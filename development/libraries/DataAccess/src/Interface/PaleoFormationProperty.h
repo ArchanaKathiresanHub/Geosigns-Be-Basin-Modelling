@@ -15,10 +15,6 @@ namespace DataAccess
       {
       public:
 
-#if 0
-         PaleoFormationProperty (ProjectHandle * projectHandle, database::Record * record, const string& initialName );
-#endif
-
          PaleoFormationProperty (ProjectHandle * projectHandle, database::Record * record, const Formation* formation );
 
          PaleoFormationProperty ( ProjectHandle * projectHandle,

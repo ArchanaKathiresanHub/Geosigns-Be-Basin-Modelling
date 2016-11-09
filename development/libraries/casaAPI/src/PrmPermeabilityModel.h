@@ -97,7 +97,7 @@ namespace mbapi
 ///  -# @f$ C_{sensitivity} @f$ permeability sensitivity coefficient []
 ///  -# @f$ C_{recovery} @f$ permeability recovery coefficient []
 ///
-/// @section MultiPointPermModelSubSec Permeability model is described by a Permeability vs Porosity profile
+/// @section MultiPointPermModelSec Permeability model is described by a Permeability vs Porosity profile
 /// in <b>Multipoint</b> permeability model is a simple table of porosity and @f$ (log10) @f$ permeability values. This allows the user to 
 /// input any porosity-permeability relationship. Cauldron contains default permeability trends for the 40, 50 and 60 [%] clay fraction shales.
 /// These are shown in Figure @ref perm_vs_por
@@ -166,6 +166,10 @@ namespace casa
       /// @brief Get variable parameter which was used to create this parameter
       /// @return Pointer to the variable parameter
       virtual const VarParameter * parent() const { return m_parent; }
+
+      /// @brief Set variable parameter which was used to create this parameter
+      /// @param Pointer to the variable parameter
+      virtual void setParent( const VarParameter * varPrm )  { m_parent = varPrm; }
 
       /// @brief Get the level of influence to cauldron applications pipeline for this parametr
       /// @return number which indicates which solver influence this parameter

@@ -1,17 +1,8 @@
 #ifndef _INTERFACE_ALLOCHTHONOUS_LITHOLOGY_INTERPOLATION_H_
 #define _INTERFACE_ALLOCHTHONOUS_LITHOLOGY_INTERPOLATION_H_
 
-#ifdef sgi
-   #ifdef _STANDARD_C_PLUS_PLUS
-      #include<iostream>
-      using namespace std;
-   #else // !_STANDARD_C_PLUS_PLUS
-      #include<iostream.h>
-   #endif // _STANDARD_C_PLUS_PLUS
-#else // !sgi
-   #include <iostream>
-   using namespace std;
-#endif // sgi
+#include <iostream>
+using namespace std;
 
 #include <string>
 using namespace std;

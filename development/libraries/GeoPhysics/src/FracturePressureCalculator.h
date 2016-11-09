@@ -1,5 +1,14 @@
-#ifndef _GEOPHYSICS__FRACTURE_PRESSURE_CALCULATOR_H_
-#define _GEOPHYSICS__FRACTURE_PRESSURE_CALCULATOR_H_
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+#ifndef GEOPHYSICS__FRACTURE_PRESSURE_CALCULATOR_H
+#define GEOPHYSICS__FRACTURE_PRESSURE_CALCULATOR_H
 
 #include "Interface/ProjectHandle.h"
 #include "Interface/FracturePressureFunctionParameters.h"
@@ -60,7 +69,7 @@ namespace GeoPhysics {
    private :
 
       /// Depth function coefficients.
-      /// There are initialised with CAULDRONIBSNULLVALUE and are only set if there
+      /// There are initialised with CauldronNoDataValue and are only set if there
       /// is a depth function selected in the project file.
       /// pf = a + b z + c z^2 + d z^3.
       double m_a;

@@ -1,3 +1,13 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef _INTERFACE_LITHOTYPE_H_
 #define _INTERFACE_LITHOTYPE_H_
 
@@ -121,12 +131,6 @@ namespace DataAccess
          /// Return the permeabilty recovery coefficient.
          virtual double getPermeabilityRecoveryCoefficient () const;
 
-#if 0
-         /// See comment for 'getPermeabilitySensitivityCoefficient'.
-         double getClayFraction () const;
-#endif
-
-
          /// Return the seismic velocity.
          virtual double getSeismicVelocity () const;
 
@@ -174,6 +178,10 @@ namespace DataAccess
 
          /// Return the pixmap.
          virtual const std::string& getPixmap () const;
+
+         
+         /// Is the behaviour legacy (1) or new rock property feature (0)?
+         virtual bool getLegacy() const;
 
          /// Return the temperature of the sill intrusion when intruded
          virtual double getIgneousIntrusionTemperature () const;

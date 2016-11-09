@@ -13,6 +13,7 @@
 
 #include "defines.h"
 #include "Project.h"
+#include "Scheduler.h"
 #include "Traps.h"
 
 #include <map>
@@ -33,6 +34,16 @@ class ColorMap;
 class PropertyValueCellFilter;
 class FaultMesh;
 class OutlineBuilder;
+class SeismicScene;
+
+struct LoadFormationMeshTask;
+struct LoadReservoirMeshTask;
+struct LoadSurfaceMeshTask;
+struct LoadFormationPropertyTask;
+struct LoadReservoirPropertyTask;
+struct LoadSurfacePropertyTask;
+struct ExtractFormationSkinTask;
+struct ExtractReservoirSkinTask;
 
 class SbViewportRegion;
 class SoPickedPoint;
@@ -61,142 +72,124 @@ class MoMaterial;
 class MoDataBinding;
 class MoColorMapping;
 class MoMesh;
-class MoScalarSetIj;
-class MoScalarSetIjk;
+class MoScalarSet;
 class MoVec3SetIjk;
 class MoMeshSkin;
 class MoMeshSlab;
 class MoMeshSurface;
 class MoMeshFenceSlice;
-class MoCellFilter;
+class MiCellFilterIjk;
+class MiSkinExtractIjk;
+class MexSurfaceMeshUnstructured;
 
-template<class T>
-class MiDataSetIjk;
-template<class T>
-class MiDataSetIj;
-template<class T>
-class MiDataSetI;
+template<class T> class MiDataSetIjk;
+template<class T> class MiDataSetIj;
+template<class T> class MiDataSetI;
 
 struct SnapshotInfo
 {
   struct Chunk
   {
-    int minK;
-    int maxK;
+    int minK = 0;
+    int maxK = 0;
 
-    MoMeshSkin* skin;
+    std::shared_ptr<MiSkinExtractIjk> extractor;
 
-    Chunk(int kmin, int kmax, MoMeshSkin* meshSkin = 0)
-      : minK(kmin)
-      , maxK(kmax)
-      , skin(meshSkin)
-    {
-    }
+    SoSeparator* root = nullptr;
+    MoMesh* mesh = nullptr;
+    MoScalarSet* scalarSet = nullptr;
+    MoMeshSurface* skin = nullptr;
   };
 
   struct Surface
   {
-    int id;
+    int id = 0;
+    int propertyId = -1;
 
-    SoSeparator* root;
-    MoMesh* mesh;
-    MoScalarSetIj* scalarSet;
-    MoMeshSurface* surfaceMesh;
+    std::shared_ptr<Task> loadSurfaceMeshTask;
+    std::shared_ptr<Task> loadSurfacePropertyTask;
+
+    SoSeparator* root = nullptr;
+    MoMesh* mesh = nullptr;
+    MoScalarSet* scalarSet = nullptr;
+    MoMeshSurface* surfaceMesh = nullptr;
+
     std::shared_ptr<MiSurfaceMeshCurvilinear> meshData;
     std::shared_ptr<MiDataSetIj<double> > propertyData;
 
-    Surface()
-      : id(0)
-      , root(0)
-      , mesh(0)
-      , scalarSet(0)
-      , surfaceMesh(0)
+    void clear();
+  };
+
+  struct PropertyOutline
+  {
+    int propertyId = -1;
+
+    SoSeparator* root = nullptr;
+    SoBaseColor* color = nullptr;
+    SoIndexedLineSet* lines = nullptr;
+
+    void clear()
     {
+      root = nullptr;
+      color = nullptr;
+      lines = nullptr;
     }
   };
 
   struct Reservoir
   {
-    int id;
+    int id = 0;
+    int propertyId = -1;
+    std::shared_ptr<MiSkinExtractIjk> extractor;
 
-    SoSeparator* root;
-    MoMesh* mesh;
-    MoScalarSetIjk* scalarSet;
-    MoMeshSkin* skin;
+    std::shared_ptr<Task> loadReservoirMeshTask;
+    std::shared_ptr<Task> loadReservoirPropertyTask;
+    std::shared_ptr<Task> extractReservoirSkinTask;
 
-    SoIndexedLineSet* trapOutlines;
-    SoIndexedLineSet* drainageAreaOutlinesFluid;
-    SoIndexedLineSet* drainageAreaOutlinesGas;
+    SoSeparator* root = nullptr;
+    MoMesh* mesh = nullptr;
+    MoScalarSet* scalarSet = nullptr;
+    MoMeshSurface* skin = nullptr;
+    SoGroup* outlineGroup = nullptr;
+
+    //PropertyOutline trapOutlines;
+    //PropertyOutline drainageAreaOutlinesFluid;
+    //PropertyOutline drainageAreaOutlinesGas;
+    SoIndexedLineSet* trapOutlines = nullptr;
+    SoIndexedLineSet* drainageAreaOutlinesFluid = nullptr;
+    SoIndexedLineSet* drainageAreaOutlinesGas = nullptr;
 
     std::shared_ptr<MiVolumeMeshCurvilinear> meshData;
     std::shared_ptr<MiDataSetIjk<double> > propertyData;
-    std::weak_ptr<MiDataSetIjk<double> > trapIdPropertyData;
 
     Traps traps;
 
-    void clear()
-    {
-      root = 0;
-      mesh = 0;
-      scalarSet = 0;
-      skin = 0;
-      trapOutlines = 0;
-      drainageAreaOutlinesFluid = 0;
-      drainageAreaOutlinesGas = 0;
-
-      meshData.reset();
-      propertyData.reset();
-
-      traps = Traps();
-    }
-
-    Reservoir()
-      : id(0)
-    {
-      clear();
-    }
+    void clear();
   };
 
   struct Fault
   {
-    int id;
-    int minK;
-    int maxK;
+    int id = 0;
+    int minK = 0;
+    int maxK = 0;
 
-    SoSeparator* root;
-    MoMesh* mesh;
-    MoMeshSurface* surfaceMesh;
+    SoSeparator* root = nullptr;
+    MoMesh* mesh = nullptr;
+    MoMeshSurface* surfaceMesh = nullptr;
 
     std::shared_ptr<FaultMesh> meshData;
-
-    Fault()
-      : id(0)
-      , root(0)
-      , mesh(0)
-      , surfaceMesh(0)
-    {
-    }
   };
 
   struct FlowLines
   {
-    int id;
-    int startK;
+    int id = 0;
+    int startK = 0;
 
-    SoSeparator* root;
-    SoBaseColor* color;
-    SoLineSet*   lines;
+    SoSeparator* root  = nullptr;
+    SoBaseColor* color = nullptr;
+    SoLineSet*   lines = nullptr;
 
     std::shared_ptr<MiDataSetIj<double> > expulsionData;
-
-    FlowLines()
-      : id(0)
-      , startK(0)
-      , root(0)
-      , color(0)
-      , lines(0)
-    {
-    }
 
     void clear()
     {
@@ -208,33 +201,62 @@ struct SnapshotInfo
     }
   };
 
+  struct Slice
+  {
+    int axis = 0;
+    int position = 0;
+
+    std::shared_ptr<MiSkinExtractIjk> extractor;
+
+    SoSeparator* root = nullptr;
+    MoMesh* mesh = nullptr;
+    MoScalarSet* scalarSet = nullptr;
+    MoMeshSurface* skin = nullptr;
+
+    void clear()
+    {
+      extractor.reset();
+
+      root = nullptr;
+      mesh = nullptr;
+      scalarSet = nullptr;
+      skin = nullptr;
+    }
+  };
+
+  struct Fence
+  {
+	int id = 0;
+	size_t timestamp = 0;
+
+	SoSwitch* root = nullptr;
+	MoMeshFenceSlice* slice = nullptr;
+  };
+
   size_t index; // index in snapshot list
   double time;
 
-  int currentPropertyId;
+  // Reservoirs and surfaces have per-object propertyId
+  int formationPropertyId;
 
   double minZ; // = max depth (negative)
   double maxZ;
 
-  SoSeparator* root;
-  SoSeparator* formationsRoot;
+  std::shared_ptr<Task> loadFormationMeshTask;
+  std::shared_ptr<Task> loadFormationPropertyTask;
+  std::shared_ptr<Task> extractFormationSkinTask;
+
+  std::shared_ptr<MiVolumeMeshCurvilinear> meshData;
+  std::shared_ptr<MiDataSetIjk<double>> scalarDataSet;
+  std::shared_ptr<PropertyValueCellFilter> propertyValueCellFilter;
+  std::shared_ptr<MiDataSetIjk<double>> flowDirScalarSet;
+  std::shared_ptr<MiDataSetIjk<MbVec3<double>>> flowDirVectorSet;
+
+  SoRef<SoGroup> root;
+  SoGroup* formationsRoot;
 
   MoMesh* mesh;
-  std::shared_ptr<MiVolumeMeshCurvilinear> meshData;
-
-  MoScalarSetIjk* scalarSet;
-  std::shared_ptr<MiDataSetIjk<double> > scalarDataSet;
-
-  MoVec3SetIjk* flowDirSet;
-  std::shared_ptr<MiDataSetIjk<double> > flowDirScalarSet;
-  std::shared_ptr<MiDataSetIjk<MbVec3<double> > > flowDirVectorSet;
-
-  SoSwitch* sliceSwitch[3];
-  MoMeshSlab* slice[3];
-
-  SoSwitch* cellFilterSwitch;
-  MoCellFilter* cellFilter;
-  std::shared_ptr<PropertyValueCellFilter> propertyValueCellFilter;
+  MoScalarSet* scalarSet;
 
   SoGroup* chunksGroup;
   SoGroup* flowLinesGroup;
@@ -242,6 +264,7 @@ struct SnapshotInfo
   SoGroup* reservoirsGroup;
   SoGroup* faultsGroup;
   SoGroup* slicesGroup;
+  SoGroup* fencesGroup;
 
   std::vector<Project::SnapshotFormation> formations; 
 
@@ -250,17 +273,23 @@ struct SnapshotInfo
   std::vector<Reservoir> reservoirs;
   std::vector<Fault> faults;
   std::vector<FlowLines> flowlines;
+  std::vector<Fence> fences;
+  Slice slices[2];
 
   size_t formationsTimeStamp;
   size_t surfacesTimeStamp;
   size_t reservoirsTimeStamp;
   size_t faultsTimeStamp;
   size_t flowLinesTimeStamp;
+  size_t slicesTimeStamp;
+  size_t fencesTimeStamp;
+  size_t cellFilterTimeStamp;
+  size_t seismicPlaneSliceTimeStamp;
 
   SnapshotInfo();
 };
 
-class SceneGraphManager
+class SceneGraphManager : public TaskSource
 {
 public:
 
@@ -291,6 +320,7 @@ public:
       Surface,
       Reservoir,
       Slice,
+      Fence,
       Trap,
       Unknown
     } type = Unknown;
@@ -298,7 +328,7 @@ public:
     SbVec3f position = SbVec3f(0.f, 0.f, 0.f);
 
     // Only valid in case type is not Trap
-    size_t i=0, j=0, k=0;
+    MbVec3ui cellIndex;
     std::string name;
     double propertyValue = 99999.0;
 
@@ -325,6 +355,61 @@ public:
     double maxValue = 1.0;
   };
 
+  struct FenceParams
+  {
+	int id;
+	bool visible;
+	size_t timestamp;
+	std::vector<SbVec3f> points;
+  };
+
+  struct SliceParams
+  {
+    size_t position[3];
+    bool   enabled[3];
+  };
+
+  struct CellFilterParams
+  {
+    bool enabled = false;
+    double minValue = 0.0;
+    double maxValue = 1.0;
+  };
+
+  struct ViewState
+  {
+	int snapshotIndex = 0;
+    int propertyId = FormationIdPropertyId;
+
+    bool showFaces = true;
+    bool showEdges = true;
+    bool showGrid = false;
+    bool showCompass = true;
+    bool showText = true;
+    bool showTraps = false;
+    bool showTrapOutlines = false;
+
+    DrainageAreaType drainageAreaType = DrainageAreaNone;
+    int flowLinesExpulsionStep = 1;
+    int flowLinesLeakageStep = 1;
+    double flowLinesExpulsionThreshold = 0.0;
+    double flowLinesLeakageThreshold = 0.0;
+
+    float verticalScale = 1.f;
+    float transparency = 0.f;
+
+    std::vector<bool> formationVisibility;
+    std::vector<bool> surfaceVisibility;
+    std::vector<bool> reservoirVisibility;
+    std::vector<bool> faultVisibility;
+    std::vector<bool> flowLinesVisibility;
+	std::vector<FenceParams> fences;
+
+    SliceParams sliceParams;
+    ColorScaleParams colorScaleParams;
+    CellFilterParams cellFilterParams;
+  };
+
   // Derived property ids. These properties are built at runtime
   // based on one or more base properties from the data set.
   static const int DerivedPropertyBaseId      = 0x10000;
@@ -334,6 +419,8 @@ public:
 
 private:
 
+  Scheduler& m_scheduler;
+
   std::shared_ptr<Project> m_project;
   Project::ProjectInfo m_projectInfo;
 
@@ -342,50 +429,16 @@ private:
 
   std::shared_ptr<OutlineBuilder> m_outlineBuilder;
 
-  // ----------------------------------------
-  // View state
-  int m_currentPropertyId;
-
-  bool m_showGrid;
-  bool m_showCompass;
-  bool m_showText;
-  bool m_showTraps;
-  bool m_showTrapOutlines;
-
-  DrainageAreaType m_drainageAreaType;
-  int m_flowLinesExpulsionStep;
-  int m_flowLinesLeakageStep;
-  double m_flowLinesExpulsionThreshold;
-  double m_flowLinesLeakageThreshold;
-
-  float m_verticalScale;
-  ProjectionType m_projectionType;
-
-  std::vector<bool> m_formationVisibility;
-  std::vector<bool> m_surfaceVisibility;
-  std::vector<bool> m_reservoirVisibility;
-  std::vector<bool> m_faultVisibility;
-  std::vector<bool> m_flowLinesVisibility;
-
-  size_t m_slicePosition[3];
-  bool   m_sliceEnabled[3];
-
-  ColorScaleParams m_colorScaleParams;
-
-  bool m_cellFilterEnabled;
-  double m_cellFilterMinValue;
-  double m_cellFilterMaxValue;
-  // ----------------------------------------
+  ViewState m_viewState;
 
   size_t m_formationsTimeStamp;
   size_t m_surfacesTimeStamp;
   size_t m_reservoirsTimeStamp;
   size_t m_faultsTimeStamp;
   size_t m_flowLinesTimeStamp;
-
-  SoPerspectiveCamera*  m_perspectiveCamera;
-  SoOrthographicCamera* m_orthographicCamera;
-  SoSwitch*             m_cameraSwitch;
+  size_t m_slicesTimeStamp;
+  size_t m_fencesTimeStamp;
+  size_t m_cellFilterTimeStamp;
 
   SoGroup*        m_root;
   SoShapeHints*   m_formationShapeHints;
@@ -421,20 +474,10 @@ private:
   SoSwitch*       m_pickTextSwitch;
   SoSwitch*       m_compassSwitch;
 
+  SoSwitch*       m_seismicSwitch;
   SoSwitch*       m_snapshotsSwitch;
 
-  struct FenceSlice
-  {
-    int id;
-    bool visible;
-    std::vector<SbVec3f> points;
-
-    SoSwitch* fenceSwitch;
-    MoMeshFenceSlice* fence;
-  };
-
-  std::vector<FenceSlice> m_fences;
-  SoRef<SoGroup>  m_fencesGroup;
+  std::shared_ptr<SeismicScene> m_seismicScene;
 
   static void mousePressedCallback(void* userData, SoEventCallback* node);
   static void mouseMovedCallback(void* userData, SoEventCallback* node);
@@ -443,23 +486,26 @@ private:
   void onMouseMoved(SoEventCallback* node);
 
   int getSurfaceId(MoMeshSurface* surface) const;
-  int getFormationId(/*MoMeshSkin* skin, */size_t k) const;
-  int getReservoirId(MoMeshSkin* skin) const;
+  int getFormationId(size_t k) const;
+  int getReservoirId(MoMeshSurface* skin) const;
 
-  void updateCoordinateGrid();
-  void updateSnapshotMesh();
-  void updateSnapshotFormations();
-  void updateSnapshotSurfaces();
-  void updateSnapshotReservoirs();
+  bool updateSnapshotMesh();
+  bool updateSnapshotFormations();
+  bool updateSnapshotSurfaces();
+  bool updateSnapshotReservoirs();
   void updateSnapshotTraps();
+  void updateSnapshotOutlines();
   void updateSnapshotFaults();
   void updateSnapshotProperties();
   void updateSnapshotSlices();
   void updateSnapshotFlowLines();
-  void updateSnapshotCellFilter();
-  void updateColorMap();
-  void updateText();
+  void updateSnapshotFences();
   void updateSnapshot();
+
+  void updateCoordinateGrid();
+  void updateColorMap();
+  void updateLegend();
+  void updateText();
 
   void showPickResult(const PickResult& pickResult);
 
@@ -474,9 +520,34 @@ private:
     int k0,
     int k1);
 
-  std::shared_ptr<MiDataSetIjk<double> > createFormationProperty(
-    const SnapshotInfo& snapshot,
-    int propertyId);
+  void setFormationProperty(SnapshotInfo& snapshot, int propertyId, std::shared_ptr<MiDataSetIjk<double>> dataSet);
+
+  void onTaskCompleted(std::shared_ptr<LoadFormationMeshTask> task);
+  void onTaskCompleted(std::shared_ptr<LoadReservoirMeshTask> task);
+  void onTaskCompleted(std::shared_ptr<LoadSurfaceMeshTask> task);
+  void onTaskCompleted(std::shared_ptr<LoadFormationPropertyTask> task);
+  void onTaskCompleted(std::shared_ptr<LoadReservoirPropertyTask> task);
+  void onTaskCompleted(std::shared_ptr<LoadSurfacePropertyTask> task);
+  void onTaskCompleted(std::shared_ptr<ExtractFormationSkinTask> task);
+  void onTaskCompleted(std::shared_ptr<ExtractReservoirSkinTask> task);
+
+  std::shared_ptr<Task> loadFormationMesh(size_t snapshotIndex);
+  std::shared_ptr<Task> loadReservoirMesh(size_t snapshotIndex, int reservoirId);
+  std::shared_ptr<Task> loadSurfaceMesh(size_t snapshotIndex, int surfaceId);
+  std::shared_ptr<Task> loadFormationProperty(size_t snapshotIndex, int propertyId);
+  std::shared_ptr<Task> loadReservoirProperty(size_t snapshotIndex, int reservoirId, int propertyId);
+  std::shared_ptr<Task> loadSurfaceProperty(size_t snapshotIndex, int surfaceId, int propertyId);
+  std::shared_ptr<Task> extractFormationSkin(
+    size_t snapshotIndex, 
+    size_t formationsTimeStamp,
+    const std::vector<std::tuple<int, int>>& ranges,
+    std::shared_ptr<MiVolumeMeshCurvilinear> mesh, 
+    std::shared_ptr<MiDataSetIjk<double>> dataSet,
+    std::shared_ptr<MiCellFilterIjk> cellFilter);
+  std::shared_ptr<Task> extractReservoirSkin(
+    size_t snapshotIndex,
+    int reservoirId,
+    std::shared_ptr<MiVolumeMeshCurvilinear> mesh);
 
   std::shared_ptr<MiDataSetIjk<double> > createReservoirProperty(
     const SnapshotInfo& snapshot, 
@@ -485,17 +556,15 @@ private:
 
 public:
 
-  SceneGraphManager();
+  SceneGraphManager(Scheduler& scheduler);
 
   SoNode* getRoot() const;
 
   PickResult processPickedPoint(const SoPickedPoint* point);
 
+  const ViewState& getViewState() const;
+
   void setCurrentSnapshot(size_t index);
-
-  SoCamera* getCamera() const;
-
-  void setProjection(ProjectionType type);
 
   void setVerticalScale(float scale);
 
@@ -559,7 +628,11 @@ public:
 
   void setCellFilterRange(double minValue, double maxValue);
 
+  void addSeismicScene(std::shared_ptr<SeismicScene> seismicScene);
+
   void setup(std::shared_ptr<Project> project);
+
+  void onTaskCompleted(std::shared_ptr<Task> task) override;
 };
 
 #endif

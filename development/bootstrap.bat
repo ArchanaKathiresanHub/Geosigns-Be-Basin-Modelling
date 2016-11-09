@@ -13,12 +13,9 @@ echo -------------------------------------------------
 goto exit
 
 :l1
-set HDF5_ROOT=%TOP_LEVEL_DIR%\..\3rdparty\hdf5.win64\hdf5
 
-"C:\Program Files (x86)\CMake\bin\cmake.exe" -G "Visual Studio 12 Win64" %TOP_LEVEL_DIR% ^
-	-DCMAKE_INSTALL_PREFIX=%CD%
-
-"C:\Program Files (x86)\CMake\bin\cmake-gui.exe" -H%TOP_LEVEL_DIR% -B%CD%
+c:\Apps\3rdparty\cmake-3.6.2\bin\cmake.exe -G"Visual Studio 14 Win64" %TOP_LEVEL_DIR% -DCMAKE_INSTALL_PREFIX=%CD%
+c:\Apps\3rdparty\cmake-3.6.2\bin\cmake-gui.exe -H%TOP_LEVEL_DIR% -B%CD%
 
 :exit
 pause

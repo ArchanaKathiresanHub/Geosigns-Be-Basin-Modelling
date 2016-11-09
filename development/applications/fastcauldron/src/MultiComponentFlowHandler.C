@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 #include "MultiComponentFlowHandler.h"
 
 #include "Quadrature.h"
@@ -5,7 +14,7 @@
 
 #include "RunParameters.h"
 #include "FastcauldronSimulator.h"
-#include "globaldefs.h"
+#include "ConstantsFastcauldron.h"
 #include "layer.h"
 #include "Interface/RunParameters.h"
 
@@ -572,8 +581,6 @@ void MultiComponentFlowHandler::initialise () {
 
    if ( iNodeWanted and jNodeWanted and not kNodeWanted ) {
       PetscPrintf ( PETSC_COMM_WORLD, " debugging output for needle: %i  %i.\n", m_debugINode, m_debugJNode );
-   } else if (  iNodeWanted and jNodeWanted and not kNodeWanted ) {
-      PetscPrintf ( PETSC_COMM_WORLD, " debugging output for node: %i  %i.\n", m_debugINode, m_debugJNode, m_debugKNode );
    }
 
    if ( maximumMcfTimeStepChanged ) {

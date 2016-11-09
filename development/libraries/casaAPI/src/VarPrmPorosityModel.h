@@ -64,6 +64,18 @@ namespace casa
       /// @return new parameter for given set of values
       virtual SharedParameterPtr newParameterFromDoubles( std::vector<double>::const_iterator & vals ) const;
 
+      /// @brief Create parameter by reading the values stored in the project file
+      /// @param[in] mdl the model where the parameters values should be read
+      /// @return the new parameter read from the model
+      virtual SharedParameterPtr newParameterFromModel( mbapi::Model & mdl, const std::vector<double> & vin ) const;
+
+      /// @brief Average the values, interpolate for lithofractions and set the appropriate entries in the project3d file
+      /// @return new parameter for given set of values
+      virtual SharedParameterPtr makeThreeDFromOneD( mbapi::Model              & mdl ///< [in,out] the model where to set the new averaged parameter
+                                                   , const std::vector<double> & xin ///< the x coordinates of each 1D project 
+                                                   , const std::vector<double> & yin ///< the y coordinates of each 1D project 
+                                                   , const std::vector<SharedParameterPtr> & prmVec /// the optimal parameter value of each 1D project
+                                                   ) const;
       /// @{
       /// @brief Defines version of serialized object representation. Must be updated on each change in save()
       /// @return Actual version of serialized object representation

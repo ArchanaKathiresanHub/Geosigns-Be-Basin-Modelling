@@ -1,15 +1,15 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file VarPrmPermeabilityModel.h
-/// @brief This file keeps API implementation for handling variation of permeability model parameters for the given layer 
+/// @brief This file keeps API implementation for handling variation of permeability model parameters for the given layer
 
 // CASA
 #include "VarPrmPermeabilityModel.h"
@@ -37,20 +37,19 @@ static std::vector<double> ReinterpolatePermProf( const std::set<double> & commo
 
    size_t numPoints = (vals.size() - (PrmPermeabilityModel::MPProfileNumPoints + 1) )/2;
    double * por_perm = new double[ numPoints * 2 ];
-     
+
    for ( size_t i = 0; i < numPoints; ++i )
    {
       por_perm[i]             = vals[PrmPermeabilityModel::MPProfileNumPoints + 1 + i*2];
       por_perm[numPoints + i] = vals[PrmPermeabilityModel::MPProfileNumPoints + 1 + i*2 + 1];
    }
-   pwInterp.setInterpolation( ibs::PiecewiseInterpolator::PIECEWISE_LINEAR, static_cast<int>( numPoints ), por_perm, por_perm + numPoints ); 
-   pwInterp.computeCoefficients();
+   pwInterp.setInterpolation( static_cast<int>( numPoints ), por_perm, por_perm + numPoints );
 
    std::vector<double> reintVals;
    for ( std::set<double>::const_iterator it = commonGrid.begin(); it != commonGrid.end(); ++it )
    {
       reintVals.push_back( *it );
-      reintVals.push_back( pwInterp.evaluate( *it ) ); 
+      reintVals.push_back( pwInterp.evaluate( *it ) );
    }
 
    delete [] por_perm;
@@ -59,7 +58,9 @@ static std::vector<double> ReinterpolatePermProf( const std::set<double> & commo
 }
 
 // Calculate base case permeability with porosity profile as average between minmial and maximal curves
-std::vector<double> VarPrmPermeabilityModel::createBaseCaseMPModelPrms( const std::vector<double> & minModelPrms, const std::vector<double> & maxModelPrms )
+std::vector<double> VarPrmPermeabilityModel::createBaseCaseMPModelPrms( const std::vector<double> & minModelPrms
+                                                                      , const std::vector<double> & maxModelPrms
+                                                                      )
 {
    // create unique sorted porosity set values
    std::set<double> sortedPorosityValsSet;
@@ -100,19 +101,19 @@ std::vector<double> VarPrmPermeabilityModel::createBaseCaseMPModelPrms( const st
 
 
 VarPrmPermeabilityModel::VarPrmPermeabilityModel( const char                                 *  lithoName
-                                                , PrmPermeabilityModel::PermeabilityModelType   mdlType 
+                                                , PrmPermeabilityModel::PermeabilityModelType   mdlType
                                                 , const std::vector<double>                   & baseModelPrms
-                                                , const std::vector<double>                   & minModelPrms 
-                                                , const std::vector<double>                   & maxModelPrms  
+                                                , const std::vector<double>                   & minModelPrms
+                                                , const std::vector<double>                   & maxModelPrms
                                                 , PDF                                           prmPDF
                                                 , const char                                  * name
-                                                ) 
+                                                )
 {
    m_pdf       = prmPDF;
    m_mdlType   = mdlType;
    m_lithoName = lithoName;
    m_name      = name && strlen( name ) > 0 ? std::string( name ) : std::string( "" );
-      
+
    if ( PrmPermeabilityModel::None == mdlType || PrmPermeabilityModel::Impermeable == mdlType )
    {
       throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "It is not possible to variate permeability model parameters for impermeable lithology";
@@ -127,11 +128,11 @@ VarPrmPermeabilityModel::VarPrmPermeabilityModel( const char                    
    {
       // create unique sorted porosity set values
       std::set<double> sortedPorosityValsSet;
-      
+
       for ( size_t i = PrmPermeabilityModel::MPProfileNumPoints + 1; i < baseModelPrms.size(); i += 2 ) sortedPorosityValsSet.insert( baseModelPrms[i] );
       for ( size_t i = PrmPermeabilityModel::MPProfileNumPoints + 1; i < minModelPrms.size();  i += 2 ) sortedPorosityValsSet.insert( minModelPrms[i]  );
       for ( size_t i = PrmPermeabilityModel::MPProfileNumPoints + 1; i < maxModelPrms.size();  i += 2 ) sortedPorosityValsSet.insert( maxModelPrms[i]  );
-      
+
       // interpolate base values to the common grid
       const std::vector<double> & bsReinterp = ReinterpolatePermProf( sortedPorosityValsSet, baseModelPrms );
       std::vector<double> bsmp( baseModelPrms.begin(), ( baseModelPrms.begin() + PrmPermeabilityModel::MPProfileNumPoints + 1 ) );
@@ -170,7 +171,7 @@ VarPrmPermeabilityModel::VarPrmPermeabilityModel( const char                    
 
    m_minValue.reset( minPrm.release() );
    m_maxValue.reset( maxPrm.release() );
-   m_baseValue.reset( basPrm.release() ); 
+   m_baseValue.reset( basPrm.release() );
 }
 
 VarPrmPermeabilityModel::~VarPrmPermeabilityModel()
@@ -180,7 +181,7 @@ VarPrmPermeabilityModel::~VarPrmPermeabilityModel()
 std::vector<std::string> VarPrmPermeabilityModel::name() const
 {
    std::vector<std::string> ret;
-   
+
    if ( m_name.empty() )
    {
       switch ( m_mdlType )
@@ -203,7 +204,7 @@ std::vector<std::string> VarPrmPermeabilityModel::name() const
             ret[PrmPermeabilityModel::SensitivityCoeff] = m_lithoName + ". Sensitivity coeff. []";
             ret[PrmPermeabilityModel::RecoverCoeff]     = m_lithoName + ". Recovery coeff. []";
             break;
-            
+
          case PrmPermeabilityModel::Multipoint:
             ret.resize( PrmPermeabilityModel::AnisotropicCoeff + 1 );
             ret[PrmPermeabilityModel::AnisotropicCoeff] = m_lithoName + ". Anisotropic coeff. [kv/kh]";
@@ -235,13 +236,13 @@ std::vector<std::string> VarPrmPermeabilityModel::name() const
             ret[PrmPermeabilityModel::SensitivityCoeff] = m_name + "_sensCof";
             ret[PrmPermeabilityModel::RecoverCoeff]     = m_name + "_recvCof";
             break;
-            
+
          case PrmPermeabilityModel::Multipoint:
             ret.resize( PrmPermeabilityModel::AnisotropicCoeff + 1 );
             ret[PrmPermeabilityModel::AnisotropicCoeff] = m_name + "_ansCoef";
             ret.push_back( m_name + "_intCoef" );
             break;
-      
+
          default: throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Unknown permeability model ID: " << m_mdlType;
       }
       if ( ret.size() > 0 ) ret[0] = m_name;
@@ -250,7 +251,7 @@ std::vector<std::string> VarPrmPermeabilityModel::name() const
 	return ret;
 }
 
-size_t VarPrmPermeabilityModel::dimension() const 
+size_t VarPrmPermeabilityModel::dimension() const
 {
    switch ( m_mdlType )
    {
@@ -277,7 +278,7 @@ SharedParameterPtr VarPrmPermeabilityModel::newParameterFromDoubles( std::vector
 
       if ( (minV[i] - std::fabs(minV[i]) * 1e-10) > valsP.back() || valsP.back() > (maxV[i] + std::fabs(maxV[i]) * 1.e-10) )
       {
-         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Variation of PermeabilityModel parameter " << valsP.back() << 
+         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Variation of PermeabilityModel parameter " << valsP.back() <<
                " is out of range: [" << minV[i] << ":" << maxV[i] << "]";
       }
    }
@@ -286,7 +287,7 @@ SharedParameterPtr VarPrmPermeabilityModel::newParameterFromDoubles( std::vector
    if ( PrmPermeabilityModel::Multipoint == m_mdlType )
    {
       double interpPos = valsP.back(); // last one parameter is in [0:1] range
-      
+
       // adjust interpPos according to base 0.5 value
       const PrmPermeabilityModel * minPrm = dynamic_cast< const PrmPermeabilityModel *>( interpPos > 0.5 ? m_baseValue.get() : m_minValue.get()  );
       const PrmPermeabilityModel * maxPrm = dynamic_cast< const PrmPermeabilityModel *>( interpPos > 0.5 ? m_maxValue.get()  : m_baseValue.get() );
@@ -307,8 +308,27 @@ SharedParameterPtr VarPrmPermeabilityModel::newParameterFromDoubles( std::vector
    return prm;
 }
 
-bool VarPrmPermeabilityModel::save( CasaSerializer & sz, unsigned int version ) const 
-{ 
+SharedParameterPtr VarPrmPermeabilityModel::newParameterFromModel( mbapi::Model & mdl, const std::vector<double> & /*vin*/ ) const
+{
+   SharedParameterPtr prm( new PrmPermeabilityModel( mdl, m_lithoName.c_str( ) ) );
+   prm->setParent( const_cast<VarPrmPermeabilityModel*>( this ) );
+   return prm;
+}
+
+SharedParameterPtr VarPrmPermeabilityModel::makeThreeDFromOneD( mbapi::Model                          & /* mdl    */
+                                                              , const std::vector<double>             & /* xin    */
+                                                              , const std::vector<double>             & /* yin    */
+                                                              , const std::vector<SharedParameterPtr> & /* prmVec */
+                                                              ) const
+{
+   // Not yet implemented
+   throw ErrorHandler::Exception( ErrorHandler::NotImplementedAPI ) << "makeThreeDFromOneD method not yet implemented for VarPrmPermeabilityModel";
+   return nullptr;
+}
+
+
+bool VarPrmPermeabilityModel::save( CasaSerializer & sz, unsigned int version ) const
+{
    // save base class data
    bool ok = VarPrmContinuous::save( sz, version );
 
@@ -319,13 +339,13 @@ bool VarPrmPermeabilityModel::save( CasaSerializer & sz, unsigned int version ) 
 }
 
 // Constructor from input stream
-VarPrmPermeabilityModel::VarPrmPermeabilityModel( CasaDeserializer & dz, unsigned int objVer ) 
+VarPrmPermeabilityModel::VarPrmPermeabilityModel( CasaDeserializer & dz, unsigned int objVer )
 {
    bool ok = VarPrmContinuous::deserializeCommonPart( dz, objVer );
-   
+
    int mdlTypeSaved;
    ok = ok ? dz.load( mdlTypeSaved, "PorModelType" ) : ok;
-   
+
    if ( ok ) m_mdlType = static_cast<PrmPermeabilityModel::PermeabilityModelType>( mdlTypeSaved );
 
    ok = ok ? dz.load( m_lithoName,  "LithologyName"  ) : ok;

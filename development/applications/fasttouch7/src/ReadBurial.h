@@ -19,10 +19,10 @@ class ReadBurial
  public:
    ReadBurial(const char * filename);
    //read methods
-   void readIndexes(int * firstI, int * lastI, int * firstJ, int * lastJ, int * numLayers) ;
+   void readIndexes(int * firstI, int * lastI, int * firstJ, int * lastJ, int * numLayers, int * numActive) ;
    void readSnapshotsIndexes(std::vector<size_t> & usedSnapshotsIndexes); 
    void readNumTimeStepsID( size_t * numTimeSteps, int * iD) ;
-   void readBurialHistory(std::vector<Geocosm::TsLib::burHistTimestep> & burHistTimesteps, size_t numTimeSteps); 	
+   int readBurialHistory(std::vector<Geocosm::TsLib::burHistTimestep> & burHistTimesteps, size_t numTimeSteps); 	
 };
 
 #endif

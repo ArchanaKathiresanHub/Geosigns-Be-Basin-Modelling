@@ -42,7 +42,6 @@ namespace casa
       PrmWindow( mbapi::Model & mdl );
 
       /// @brief Constructor. Create parameter from min/max window values
-      /// @param prmValues array of values: 
       /// @param xMin minimum node in x direction
       /// @param xMax maximum node in x direction
       /// @param yMin minimum node in y direction
@@ -59,6 +58,10 @@ namespace casa
       /// @brief Get variable parameter which was used to create this parameter
       /// @return Pointer to the variable parameter
       virtual const VarParameter * parent() const { return 0; }
+
+      /// @brief Set variable parameter which was used to create this parameter
+      /// @param Pointer to the variable parameter
+      virtual void setParent( const VarParameter * /*varPrm*/ ) { ; }
 
       /// @brief Get the level of influence to cauldron applications pipeline for this parametr
       /// @return number which indicates which solver influence this parameter
@@ -112,13 +115,11 @@ namespace casa
       /// @}
 
    private:
-      std::string          m_name;            ///< name of the parameter
-      
       int                  m_xMin;
 	   int                  m_xMax;
 	   int                  m_yMin;
 	   int                  m_yMax;
-	  
+      std::string          m_name;            ///< name of the parameter
    };
 }
 #endif // CASA_API_PARAMETER_WINDOW_H

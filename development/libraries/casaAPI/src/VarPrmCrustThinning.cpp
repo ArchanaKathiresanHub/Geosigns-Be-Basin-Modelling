@@ -138,8 +138,26 @@ SharedParameterPtr VarPrmCrustThinning::newParameterFromDoubles( std::vector<dou
    }
 
    SharedParameterPtr prm( new PrmCrustThinning( this, prmV, m_mapsName ) );
-
    return prm;
+}
+
+SharedParameterPtr VarPrmCrustThinning::newParameterFromModel( mbapi::Model & mdl, const std::vector<double> & /*vin*/ ) const
+{
+   SharedParameterPtr prm( new PrmCrustThinning( mdl ) );
+   prm->setParent( const_cast<VarPrmCrustThinning *>( this ) );
+   return prm;
+}
+
+SharedParameterPtr VarPrmCrustThinning::makeThreeDFromOneD( mbapi::Model                          & // mdl
+                                                          , const std::vector<double>             & // xin
+                                                          , const std::vector<double>             & // yin
+                                                          , const std::vector<SharedParameterPtr> & // prmVec
+                                                          ) const
+{
+   // Not yet implemented
+   throw ErrorHandler::Exception( ErrorHandler::NotImplementedAPI ) << "makeThreeDFromOneD method not yet implemented for VarPrmCrustThinning";
+   
+   return nullptr;
 }
 
 // Save all object data to the given stream, that object could be later reconstructed from saved data

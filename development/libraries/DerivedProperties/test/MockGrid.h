@@ -60,6 +60,11 @@ namespace DataModel {
       /// return the topmost grid coordinate value
       virtual double maxJ () const;
 
+      /// return the rightmost grid coordinate value
+      virtual int numIGlobal (void) const;
+
+      /// return the topmost grid coordinate value
+      virtual int numJGlobal (void) const;
 
    private :
 
@@ -132,6 +137,14 @@ inline double DataModel::MockGrid::maxI () const {
 
 inline double DataModel::MockGrid::maxJ () const {
    return OriginY + ( m_lastJ [ 1 ] - m_firstJ [ 1 ]) * DeltaY;
+}
+
+inline int DataModel::MockGrid::numIGlobal () const {
+   return maxI();
+}
+
+inline int DataModel::MockGrid::numJGlobal () const {
+   return maxJ();
 }
 
 

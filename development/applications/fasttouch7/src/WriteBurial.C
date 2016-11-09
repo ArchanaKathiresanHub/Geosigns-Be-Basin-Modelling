@@ -8,9 +8,9 @@ WriteBurial::WriteBurial(const char * filename)
 
 //write functions
 
-void WriteBurial::writeIndexes(int firstI, int lastI, int firstJ, int lastJ, int numLayers) 
+void WriteBurial::writeIndexes(int firstI, int lastI, int firstJ, int lastJ, int numLayers, int numActive) 
 {
-   m_filename << firstI << lastI << firstJ << lastJ << numLayers; 
+   m_filename << firstI << lastI << firstJ << lastJ << numLayers << numActive; 
 }
 
 void WriteBurial::writeSnapshotsIndexes(const std::vector<size_t> & usedSnapshotsIndexes) 
@@ -37,8 +37,8 @@ void WriteBurial::writeBurialHistory(const std::vector<BurialHistoryTimeStep > &
    size = 0;
    }
    
-   m_filename << iD;
-   m_filename << size;
+   m_filename << iD;   //the  global i j position
+   m_filename << size; //the number of time steps to read
    
    for ( size_t bt = 0; bt < size; ++bt )
    {

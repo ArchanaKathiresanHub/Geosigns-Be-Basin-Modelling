@@ -78,14 +78,36 @@ public:
 
   struct Property
   {
+    enum Attribute
+    {
+      Attrib_Continuous3D,
+      Attrib_Discontinuous3D,
+      Attrib_Surface2D,
+      Attrib_Formation2D,
+      Attrib_Trap,
+      Attrib_Unknown
+    };
+
+    enum Type
+    {
+      Type_Reservoir,
+      Type_Formation,
+      Type_Trap,
+      Type_Unknown
+    };
+
     std::string name;
     std::string unit;
+
+    Attribute attrib;
+    Type type;
   };
 
   struct Dimensions
   {
     int numCellsI;
     int numCellsJ;
+    int numCellsK;
     int numCellsIHiRes;
     int numCellsJHiRes;
 

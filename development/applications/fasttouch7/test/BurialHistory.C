@@ -9,6 +9,7 @@ TEST (WriteReadBurialHistory,WriteReadBurialHistory)
 	int firstJ=0;
 	int lastJ=10;
 	int numLayers=1;
+	int numActive=2;
 	int iD = 0;
 		
 	//here write burial history, this is a burHistTimestep struct defined in BurialHistoryGeneric.h
@@ -31,13 +32,13 @@ TEST (WriteReadBurialHistory,WriteReadBurialHistory)
 		
 	//write burial history
 	WriteBurial WriteBurial("BurialHistory");
-	WriteBurial.writeIndexes(firstI, lastI, firstJ, lastJ, numLayers);
+	WriteBurial.writeIndexes(firstI, lastI, firstJ, lastJ, numLayers, numActive);
 	WriteBurial.writeBurialHistory(burHistTimesteps, iD, true) ;
 	}
 	
 	//read  Burial History, into the wrapper burHistTimesteps is of Geocosm::TsLib::burHistTimestep type
 	ReadBurial ReadBurial("BurialHistory");
-   ReadBurial.readIndexes(&firstI, &lastI, &firstJ, &lastJ, &numLayers);
+   ReadBurial.readIndexes(&firstI, &lastI, &firstJ, &lastJ, &numLayers,&numActive);
    ReadBurial.readNumTimeStepsID(&numTimeSteps, &iD);
    
    std::vector<Geocosm::TsLib::burHistTimestep> burHistTimesteps(numTimeSteps) ;
@@ -50,6 +51,7 @@ TEST (WriteReadBurialHistory,WriteReadBurialHistory)
 	EXPECT_EQ(10, lastJ);
 	EXPECT_EQ(1, numLayers);
 	EXPECT_EQ(2, numTimeSteps);
+	EXPECT_EQ(2, numActive);
 
 	EXPECT_DOUBLE_EQ(0.0, burHistTimesteps[0].time);
 	EXPECT_DOUBLE_EQ(0.0, burHistTimesteps[0].temperature);

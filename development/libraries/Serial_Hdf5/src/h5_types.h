@@ -5,7 +5,6 @@
 #ifndef __H5_TYPES__
 #define __H5_TYPES__
 
-#include "DllExport.h"
 #include "hdf5.h"
 
 #include <cstdlib>
@@ -20,7 +19,7 @@ const int MAX_DIMS = 4;
 // Dimensions
 //
 template <class SizeType>
-class SERIALHDF5_DLL_EXPORT H5_Dimensions
+class H5_Dimensions
 {
 public:
    // ctor / dtor
@@ -107,7 +106,7 @@ private:
 //
 // H5_FixedSpace
 //
-class SERIALHDF5_DLL_EXPORT H5_FixedSpace
+class H5_FixedSpace
 {
 public:
    typedef H5_Dimensions<hsize_t>  Dimensions;
@@ -147,7 +146,7 @@ private:
    hid_t          createSpaceId (const Dimensions *dims);
 };
 
-class SERIALHDF5_DLL_EXPORT H5_Type
+class H5_Type
 {
 public:   
    // ctor / dtor

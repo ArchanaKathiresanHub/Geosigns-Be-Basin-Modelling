@@ -118,4 +118,14 @@ Path Path::fullPath() const
    return Path( boost::filesystem::absolute( boost::filesystem::path( m_path ) ).string() );
 }
 
+bool Path::setPath( )
+{
+   bool status = false;
+#ifdef _WIN32
+   if ( SetCurrentDirectory( fullPath().cpath() ) ) status = true;
+#else
+   if ( chdir( fullPath( ).cpath( ) ) == 0 ) status = true;
+#endif
+   return status;
+}
 }

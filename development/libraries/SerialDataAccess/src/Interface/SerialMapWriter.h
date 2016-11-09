@@ -18,74 +18,79 @@ namespace DataAccess
       /// This class is used for writing GridMaps to file
       class SerialMapWriter: public MapWriter
       {
-	 public:
+      public:
 
-		SerialMapWriter(void);
-	    
-		~SerialMapWriter ();
+         SerialMapWriter();
 
-	    /// open a file
-	    bool open (const string & fileName, bool append = false);
+         ~SerialMapWriter();
 
-	    /// close a file
-	    bool close ();
+         /// open a file
+         bool open( const string & fileName, bool append = false );
 
-	    /// return the filename without the leading directories
-	    const string & getFileName (void);
+         /// close a file
+         bool close();
 
-	    /// write a 2D gridmap to a file
-	    bool writeMapToHDF (GridMap * gridMap, float time, double depoAge,
-                                const string & propertyGrid, const string & surfaceName, const bool saveAsPrimary = false);
+         /// return the filename without the leading directories
+         const string & getFileName();
 
-	    /// write a 2D gridmap to a file
-	    bool writeMapToHDF (GridMap * gridMap, float time, double depoAge,
-                                const string & propertyGrid);
+         /// write a 2D gridmap to a file
+         bool writeMapToHDF( GridMap      * gridMap
+                           , float          time
+                           , double         depoAge
+                           , const string & propertyGrid
+                           , const string & surfaceName
+                           , const bool     saveAsPrimary = false
+                           );
 
-	    bool writeMapData (const string & dataSetName, const GridMap * gridMap);
+         /// write a 2D gridmap to a file
+         bool writeMapToHDF( GridMap * gridMap, float time, double depoAge, const string & propertyGrid );
 
-	    /// write a 3D gridmap to a file, not yet implemented
-	    bool writeVolumeToHDF (GridMap * gridMap, const string & propertyName, const string & layerName);
+         /// Write input map to a file. In this case we do not need layer name, property name and other stuff
+         bool writeInputMap( GridMap * gridMap, int mapSeqNumber );
 
-         bool writePrimaryVolumeToHDF (GridMap * gridMap, const string & propertyName, double time, const string & layerName, 
-                                       const bool useGroupName = true, const bool isPrimary = false );
+         bool writeMapData( const string & dataSetName, const GridMap * gridMap, bool & newDataset );
 
-	    //bool write2DDataSet (const string & dataSetName, float *data, int *start, int *count, int *size);
+         /// write a 3D gridmap to a file, not yet implemented
+         bool writeVolumeToHDF( GridMap * gridMap, const string & propertyName, const string & layerName, const bool isPrimary = false );
 
-	    bool Write1DDataSet (const long size, const string & dataSetName, const hid_t dataType, const void *data);
+         //bool write2DDataSet (const string & dataSetName, float *data, int *start, int *count, int *size);
 
-	    bool writeAttribute (const string & dataSetName, const char *attributeName,
-		  const hid_t attributeType, const hsize_t dims, void *data);
+         bool Write1DDataSet( const long size, const string & dataSetName, const hid_t dataType, const void *data );
 
-	    /// save a grid description to file
-	    bool saveDescription (const Grid * grid);
-	 protected:
+         bool writeAttribute( const string & dataSetName, const char *attributeName, const hid_t attributeType, const hsize_t dims, void *data );
 
-	 private:
-	    static const char *VERSION_DATASET_NAME;
-	    static const char *NULL_VALUE_NAME;
-	    static const char *NR_I_DATASET_NAME;
-	    static const char *NR_J_DATASET_NAME;
-	    static const char *ORIGIN_I_DATASET_NAME;
-	    static const char *ORIGIN_J_DATASET_NAME;
-	    static const char *DELTA_I_DATASET_NAME;
-	    static const char *DELTA_J_DATASET_NAME;
-	    static const char *PROJECT_DATASET_NAME;
-	    static const char *PROJECT_COMMENT_DATASET_NAME;
-	    static const char *PROJECT_MISC_COMMENT_DATASET_NAME;
-	    static const char *PROJECT_PILOT_FILE_DATASET_NAME;
-	    static const char *STRATTOP_AGE_DATASET_NAME;
-	    static const char *LAYER_DATASET_PREFIX;
-	    static const char *MAX_K_DATASET_NAME;
+         /// save a grid description to file
+         bool saveDescription (const Grid * grid);
 
-	    static const char *GRID_NAME_ATTRIBUTE;
-	    static const char *PROPERTY_NAME_ATTRIBUTE;
-	    static const char *STRATTOP_AGE_ATTRIBUTE;
-	    static const char *STRATTOP_NAME_ATTRIBUTE;
-	    static const char *STRATTOP_PROPERTY_ATTRIBUTE;
+         void setChunking() {}
+      protected:
 
-	    string m_fileName;
+      private:
+         static const char *VERSION_DATASET_NAME;
+         static const char *NULL_VALUE_NAME;
+         static const char *NR_I_DATASET_NAME;
+         static const char *NR_J_DATASET_NAME;
+         static const char *ORIGIN_I_DATASET_NAME;
+         static const char *ORIGIN_J_DATASET_NAME;
+         static const char *DELTA_I_DATASET_NAME;
+         static const char *DELTA_J_DATASET_NAME;
+         static const char *PROJECT_DATASET_NAME;
+         static const char *PROJECT_COMMENT_DATASET_NAME;
+         static const char *PROJECT_MISC_COMMENT_DATASET_NAME;
+         static const char *PROJECT_PILOT_FILE_DATASET_NAME;
+         static const char *STRATTOP_AGE_DATASET_NAME;
+         static const char *LAYER_DATASET_PREFIX;
+         static const char *MAX_K_DATASET_NAME;
 
-	    hid_t m_fileHandle;
+         static const char *GRID_NAME_ATTRIBUTE;
+         static const char *PROPERTY_NAME_ATTRIBUTE;
+         static const char *STRATTOP_AGE_ATTRIBUTE;
+         static const char *STRATTOP_NAME_ATTRIBUTE;
+         static const char *STRATTOP_PROPERTY_ATTRIBUTE;
+
+         string m_fileName;
+
+         hid_t m_fileHandle;
       };
    }
 }

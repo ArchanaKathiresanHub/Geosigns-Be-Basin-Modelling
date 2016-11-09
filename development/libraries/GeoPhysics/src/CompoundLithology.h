@@ -15,12 +15,17 @@
 #include <vector>
 #include "EosPack.h"
 
+#include "ArrayDefinitions.h"
 #include "CompoundLithologyComposition.h"
 #include "CompoundProperty.h"
 #include "GeoPhysicsFluidType.h"
 #include "Interface/Interface.h"
 #include "SeismicVelocity.h"
 #include "SimpleLithology.h"
+#include "MultiCompoundProperty.h"
+
+#include "PermeabilityMixer.h"
+#include "AlignedWorkSpaceArrays.h"
 
 namespace GeoPhysics {
    class ProjectHandle;
@@ -32,6 +37,9 @@ namespace GeoPhysics {
    class CompoundLithology {
 
    public:
+
+      /// \brief Create typedef for the workspace of vectors used in intermediate permeability calculation.
+      typedef PermeabilityMixer::PermeabilityWorkSpaceArrays PermeabilityWorkSpaceArrays;
 
       CompoundLithology(GeoPhysics::ProjectHandle* projectHandle);
 
@@ -98,14 +106,14 @@ namespace GeoPhysics {
       double geometricVariance() const;
 
       double hydrostatFullCompThickness(const double maxVes,
-         const double thickness,
-         const double densitydiff,
-         const bool   overpressuredCompaction) const;
+                                        const double thickness,
+                                        const double densitydiff,
+                                        const bool   overpressuredCompaction) const;
 
       /// Return whether or not the lithology is in-compressible.
       bool isIncompressible() const;
 
-      /// Return whether or not the basement lithology  
+      /// Return whether or not the basement lithology
       bool isBasement() const;
 
       /// Compute the porosity.
@@ -123,17 +131,14 @@ namespace GeoPhysics {
       /// Re-calculate the compound-lithology properties after a simple-lithology has been added.
       bool reCalcProperties();
 
-      // not sure if this is needed.
-      void reSetBehaviorForHysteresis();
+      /// Set the layer mixing model and layering index.
+      void setMixModel(const std::string& mixmodel, double layeringIndex);
 
-      /// Set the layer mixing model.
-      void setMixModel(const std::string& mixmodel);
+      /// Return the solid seismic-velocity value for the compound-lithology.
+      double seismicVelocitySolid() const;
 
-	  /// Return the solid seismic-velocity value for the compound-lithology.
-	  double seismicVelocitySolid() const;
-
-	  /// Return the SeismicVelocity object for the compound-lithology.
-	  const SeismicVelocity& seismicVelocity() const;
+      /// Return the SeismicVelocity object for the compound-lithology.
+      const SeismicVelocity& seismicVelocity() const;
 
       /// Return the thermal-conductivity anisotropy.
       double thermalcondaniso() const;
@@ -150,16 +155,16 @@ namespace GeoPhysics {
       /// Calculate the bulk-density times heat-capacity.
       // Should this be a lithology function?
       void calcBulkDensXHeatCapacity(const FluidType* fluid,
-         const double  Porosity,
-         const double  Pressure,
-         const double  Temperature,
-         const double  LithoPressure,
-         double& BulkDensXHeatCapacity) const;
+                                     const double  Porosity,
+                                     const double  Pressure,
+                                     const double  Temperature,
+                                     const double  LithoPressure,
+                                     double& BulkDensXHeatCapacity) const;
 
       /// \brief Compute the density of the lithology.
       ///
-      /// The lithologies "Crust", "Litho. Mantle" and ALCBasalt can only appear 
-      /// in the basement. In ALC mode the density of these lithologies depends on 
+      /// The lithologies "Crust", "Litho. Mantle" and ALCBasalt can only appear
+      /// in the basement. In ALC mode the density of these lithologies depends on
       /// temperature and lithostatic-pressure.
       double computeDensity ( const double temperature,
                               const double lithoPressure ) const;
@@ -198,51 +203,51 @@ namespace GeoPhysics {
       /// Calculate the bulk thermal-conductivity.
       // Should this be a lithology function?
       void calcBulkThermCondNP(const FluidType* fluid,
-         const double  Porosity,
-         const double  Temperature,
-         const double  PorePressue,
-         double& BulkTHCondN,
-         double& BulkTHCondP) const;
+                               const double  Porosity,
+                               const double  Temperature,
+                               const double  PorePressue,
+                               double& BulkTHCondN,
+                               double& BulkTHCondP) const;
 
-      /// thermal permeability for basement lithology								   	
+      /// thermal permeability for basement lithology
       void calcBulkThermCondNPBasement(const FluidType* fluid,
-         double Porosity, double Temperature, double LithoPressure,
-         double &BulkTHCondN, double &BulkTHCondP) const;
+                                       double Porosity, double Temperature, double LithoPressure,
+                                       double &BulkTHCondN, double &BulkTHCondP) const;
 
-      /// thermal permeability for ALC Basalt  lithology								   	
+      /// thermal permeability for ALC Basalt  lithology
       void calcBulkThermCondNPBasalt( double Temperature, double LithoPressure, double &BulkTHCondN, double &BulkTHCondP) const;
 
       /// Calculate the bulk heat-production.
       void calcBulkHeatProd(const double Porosity, double &BulkHeatProd) const;
 
       double computeSegmentThickness(const double topMaxVes,
-         const double bottomMaxVes,
-         const double densityDifference,
-         const double solidThickness) const;
+                                     const double bottomMaxVes,
+                                     const double densityDifference,
+                                     const double solidThickness) const;
 
       double computeSegmentThickness(const double topMaxVes,
-         const double bottomMaxVes,
-         const double topVes,
-         const double bottomVes,
-         const double densityDifference,
-         const double solidThickness) const;
+                                     const double bottomMaxVes,
+                                     const double topVes,
+                                     const double bottomVes,
+                                     const double densityDifference,
+                                     const double solidThickness) const;
 
       /// \brief Compute capillary pressure.
       double capillaryPressure(const pvtFlash::PVTPhase phase,
-         const double             densityBrine,
-         const double             densityHc,
-         const double             saturationBrine,
-         const double             saturationHc,
-         const double             porosity) const;
+                               const double             densityBrine,
+                               const double             densityHc,
+                               const double             saturationBrine,
+                               const double             saturationHc,
+                               const double             porosity) const;
 
       // compute capillary pressure
       double capillaryPressure(const unsigned int phaseId,
-         const double& density_H2O,
-         const double& density_HC,
-         const double& T_K,
-         const double& T_c_HC_K,
-         const double& wettingSaturation,
-         const double& porosity) const;
+                               const double& density_H2O,
+                               const double& density_HC,
+                               const double& T_K,
+                               const double& T_c_HC_K,
+                               const double& wettingSaturation,
+                               const double& porosity) const;
 
       // compute capillary entry pressure coefficients
       void mixCapillaryEntryPressureCofficients();
@@ -253,9 +258,9 @@ namespace GeoPhysics {
       const string getThermalModel() const;
 
       double computePorosityDerivativeWRTVes(const double ves,
-         const double maxVes,
-         const bool   includeChemicalCompaction,
-         const double chemicalCompactionTerm) const;
+                                             const double maxVes,
+                                             const bool   includeChemicalCompaction,
+                                             const double chemicalCompactionTerm) const;
 
 
       /// Return the reference-effective-stress.
@@ -301,62 +306,101 @@ namespace GeoPhysics {
       double fracturedPermeabilityScaling() const;
 
       bool hasHydraulicallyFractured(const double hydrostaticPressure,
-         const double porePressure,
-         const double lithostaticPressure) const;
+                                     const double porePressure,
+                                     const double lithostaticPressure) const;
 
       /// Compute the lithology-dependant fracture pressure.
       double fracturePressure(const double hydrostaticPressure,
-         const double lithostaticPressure) const;
+                              const double lithostaticPressure) const;
 
       /// Compute the compound-porosity value.
       ///
       /// This compute the individual, simple-lithology porosities and the mixed value.
       void getPorosity(const double            ves,
-         const double            maxVes,
-         const bool              includeChemicalCompaction,
-         const double            chemicalCompactionTerm,
-         CompoundProperty& Porosity) const;
+                       const double            maxVes,
+                       const bool              includeChemicalCompaction,
+                       const double            chemicalCompactionTerm,
+                             CompoundProperty& Porosity) const;
 
-      /// \brief Compute the permeability.
+      /// \brief Compute the compound-porosity for an array of values.
       ///
-      /// Without the need of the porosity. It is computed 
-      /// as a part of the permeability calculation.
-      void getPermeability(const double            ves,
-         const double            maxVes,
-         const bool              includeChemicalCompaction,
-         const double            chemicalCompactionValue,
-         double&           permeabilityNormal,
-         double&           permeabilityPlane) const;
+      /// \param  [in] size                      The number of values in the array.
+      /// \param  [in] ves                       The ves values for which the porosity is to be calculated.
+      /// \param  [in] maxVes                    The max-ves values for which the porosity is to be calculated.
+      /// \param  [in] includeChemicalCompaction Indicate whether or not chemical compaction is to be included.
+      /// \param  [in] maxVes                    The chemical compaction values for which the porosity is to be calculated.
+      /// \param [out] porosities                The mixed porosity values.
+      void getPorosity ( const unsigned int       size,
+                         ArrayDefs::ConstReal_ptr ves,
+                         ArrayDefs::ConstReal_ptr maxVes,
+                         const bool               includeChemicalCompaction,
+                         ArrayDefs::ConstReal_ptr chemicalCompactionTerm,
+                         ArrayDefs::Real_ptr      porosity ) const;
+
+      /// \brief Compute the compound-porosity for an array of values.
+      ///
+      /// \param  [in] size                      The number of values in the array.
+      /// \param  [in] ves                       The ves values for which the porosity is to be calculated.
+      /// \param  [in] maxVes                    The max-ves values for which the porosity is to be calculated.
+      /// \param  [in] includeChemicalCompaction Indicate whether or not chemical compaction is to be included.
+      /// \param  [in] maxVes                    The chemical compaction values for which the porosity is to be calculated.
+      /// \param [out] porosities                The calculated single and mixed porosity values.
+      void getPorosity ( const unsigned int       size,
+                         ArrayDefs::ConstReal_ptr ves,
+                         ArrayDefs::ConstReal_ptr maxVes,
+                         const bool               includeChemicalCompaction,
+                         ArrayDefs::ConstReal_ptr chemicalCompactionTerm,
+                         MultiCompoundProperty&   porosities ) const;
 
       /// Calculate the permeability value using the compound porosity.
       void calcBulkPermeabilityNP(const double            ves,
-         const double            maxVes,
-         const CompoundProperty& Porosity,
-         double&           Permeability_Normal,
-         double&           Permeability_Plane) const;
+                                  const double            maxVes,
+                                  const CompoundProperty& Porosity,
+                                  double&           Permeability_Normal,
+                                  double&           Permeability_Plane) const;
+
+      /// \brief Calculate the permeability value using the compound porosity.
+      ///
+      /// \param  [in] size               The number of values in the array.
+      /// \param  [in] ves                The ves values for which the porosity is to be calculated.
+      /// \param  [in] maxVes             The max-ves values for which the porosity is to be calculated.
+      /// \param  [in] porosities         The porosity calcualted at the ves and max-ves values.
+      /// \param [out] permeabilityNormal The permeability calculated in the vertical direction.
+      /// \param [out] permeabilityPlane  The permeability calculated in the horizontal direction.
+      /// \param [in,out] workSpace       A set of work-space vectors used to store intermediate results.
+      /// \pre The dimension of all vectors is the same and is parameter size.
+      void calcBulkPermeabilityNP ( const unsigned int           size,
+                                    ArrayDefs::ConstReal_ptr     ves,
+                                    ArrayDefs::ConstReal_ptr     maxVes,
+                                    const MultiCompoundProperty& porosities,
+                                    ArrayDefs::Real_ptr          permeabilityNormal,
+                                    ArrayDefs::Real_ptr          permeabilityPlane,
+                                    PermeabilityWorkSpaceArrays& workSpace ) const;
+
 
       /// Calculate the permeability value using the simple porosity.
       void calcBulkPermeabilityNP(const double            ves,
-         const double            maxVes,
-         const double            porosity,
-         double&           permeabilityNormal,
-         double&           permeabilityPlane) const;
+                                  const double            maxVes,
+                                  const double            porosity,
+                                  double&           permeabilityNormal,
+                                  double&           permeabilityPlane) const;
+
 
       /// Calculate the permeability-derivative value with respect to ves using the compound porosity.
       /// It returns derivatives computed both in normal and plane direction
       // The handled mixing modes are HOMOGENEOUS and LAYERED
       void calcBulkPermeabilityNPDerivativeWRTVes(const double            ves,
-         const double            maxVes,
-         const CompoundProperty& Porosity,
-         const double            porosityDerivativeWrtVes,
-         double&                 Permeability_Derivative_Normal,
-         double&                 Permeability_Derivative_Plane) const;
+                                                  const double            maxVes,
+                                                  const CompoundProperty& Porosity,
+                                                  const double            porosityDerivativeWrtVes,
+                                                  double&                 Permeability_Derivative_Normal,
+                                                  double&                 Permeability_Derivative_Plane) const;
 
       /// Integrate the chemical-compaction terms.
       double integrateChemicalCompaction(const double Time_Step,
-         const double ves,
-         const double Porosity,
-         const double Temperature) const;
+                                         const double ves,
+                                         const double Porosity,
+                                         const double Temperature) const;
 
       /// Indicate that this lithology is used as a fault lithology.
       void makeFault(const bool newFaultValue);
@@ -364,19 +408,26 @@ namespace GeoPhysics {
       /// Return whether of not this lithology is a fault.
       bool isFault() const;
 
+      /// Set the value of m_isLegacy to determine which behaviour to use for
+      ///    1.Mixing of lithologies
+      ///    2.Minimum porosity behaviour
+      void setIsLegacy( bool isLegacy );
+
+      void setMinimumPorosity(DataAccess::Interface::PorosityModel porosityModel, double  surfaceVoidRatio, double soilMechanicsCompactionCoefficient);
+
    protected:
 
 	   void setChemicalCompactionTerms(const double rockViscosity,
 		   const double activationEnergy);
 
 	   double exponentialDecompactionFunction(const double ves) const;
-      
+
       /// Decide whether or not you can mix the lithologies depending on the porosity models
-      /// Return true if mixing is ok return false otherwise 
+      /// Return true if mixing is ok return false otherwise
       bool allowableMixing() const;
 
       void mixSurfacePorosity(DataAccess::Interface::PorosityModel porosityModel, double & surfacePorosity, double & surfaceVoidRatio);
-      
+
       // Decide which porosity model should be used, choose the model with the main percentage
       /// According to allowableMixing() function, the chosen model is also the only with non nul percentage
       void mixPorosityModel(DataAccess::Interface::PorosityModel & porosityModel);
@@ -387,8 +438,6 @@ namespace GeoPhysics {
     		  double & compactiondecrA,
     		  double & compactiondecrB,
     		  double & soilMechanicsCompactionCoefficient);
-
-      void setMinimumPorosity(DataAccess::Interface::PorosityModel porosityModel, double  surfaceVoidRatio, double soilMechanicsCompactionCoefficient);
 
       void setMinimumExponentialPorosity();
 
@@ -401,8 +450,8 @@ namespace GeoPhysics {
       double           m_density;
       double           m_depositionalPermeability;
       double           m_heatProduction;
-	   double           m_seismicVelocitySolid;
-	   double           m_nExponentVelocity;
+      double           m_seismicVelocitySolid;
+      double           m_nExponentVelocity;
       double           m_permeabilityincr;
       double           m_permeabilitydecr;
       double           m_thermalConductivityValue;
@@ -430,14 +479,15 @@ namespace GeoPhysics {
       double m_quartzGrainSize;
       double m_quartzFraction;
       double m_coatingClayFactor;
-      // For sill intrusion 
+      // For sill intrusion
       double m_igneousIntrusionTemperature;
 
-      typedef enum { UNDEFINED, HOMOGENEOUS, LAYERED } MixModelType;
-      MixModelType m_mixmodeltype;
+      DataAccess::Interface::MixModelType m_mixmodeltype; //!< Mixing model: used to mix permeability
 
-      typedef enum { NO_PERM_BEHAVIOR, SAND_BEHAVIOR, SHALE_BEHAVIOR } HysteresisBehaviour;
-      HysteresisBehaviour m_hysteresisbehaviour;
+      double m_layeringIndex;//!< Permeability layering index used to compute permeability mixing
+
+      // typedef std::vector<double> anisotropyContainer;
+      // anisotropyContainer m_componentAnisotropy;
 
       typedef std::vector<SimpleLithology*> compContainer;
       compContainer m_lithoComponents;
@@ -450,7 +500,7 @@ namespace GeoPhysics {
       /// but the thermal conductivity may still be layered.
       bool m_isFaultLithology;
 
-      /// Holds the porosities of the individual simple lithologies, evaluated at a ves that the 
+      /// Holds the porosities of the individual simple lithologies, evaluated at a ves that the
       /// compound lithology has the minimum porosity.
       CompoundProperty minimumCompoundPorosity;
 
@@ -471,6 +521,38 @@ namespace GeoPhysics {
       SeismicVelocity m_seismicVelocity;
 
       bool m_isBasementLithology;
+
+      bool m_isLegacy; /*!< Legacy behaviour for minimum porosity?
+                        *Flag for new rock property library( and new migration engine )
+                        * 0 is the revised minimum porosity behaviour and additional mixing models
+                        * 1 is simple minimum porosity behaviour and 2 mixing models */
+
+      double m_mixHorizonExp;//!< Permeability horizontal mixing exponent , equals (1-m_mixVerticalExp)/2 */
+      double m_inverseMixHorizonExp;/// 1 / m_mixHorizonExp
+
+      double m_mixVerticalExp;//!< Permeability vertical mixing exponent, equals 1-2*m_mixHorizonExp */
+      double m_inverseMixVerticalExp; /// 1 / m_mixVerticalExp
+
+      double m_percentRatio2;//!< Value saved to simplify the computation of permeability
+                             //!<  equals percentlitho2/percentlitho1 */
+
+      double m_percentPowerPlane;//!< Value saved to simplify the computation of permeability
+                                 //!< Equals percentlitho1^m_mixHorizonExponent
+
+      double m_percentPowerNormal;//!< Value saved to simplify the computation of permeability
+                                  //!< Equals percentlitho1^m_mixVerticalExponent
+
+      double m_anisoRatioExp2;//!< Value saved to simplify the computation of permeability
+                              //!< Equals anisolitho2/anisolitho1
+
+      double m_percentRatio3;//!< Value saved to simplify the computation of permeability
+                             //!< Equals percentlitho3/percentlitho1
+
+      double m_anisoRatioExp3;//!< Value saved to simplify the computation of permeability
+                              //!< Equals anisolitho3/anisolitho1
+
+      /// \brief Performs mixing of permeability values.
+      PermeabilityMixer m_permeabilityMixer;
 
    };
 
@@ -608,5 +690,10 @@ inline double GeoPhysics::CompoundLithology::quartzFraction() const{
 
 inline double GeoPhysics::CompoundLithology::igneousIntrusionTemperature() const{
    return m_igneousIntrusionTemperature;
+}
+
+inline void GeoPhysics::CompoundLithology::setIsLegacy( bool isLegacy )
+{
+   m_isLegacy = isLegacy;
 }
 #endif // _GEOPHYSICS__COMPOUND_LITHOLOGY_H_

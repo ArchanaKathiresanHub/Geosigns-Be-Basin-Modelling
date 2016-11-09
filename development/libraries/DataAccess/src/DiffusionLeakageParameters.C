@@ -1,5 +1,6 @@
+#if (defined (_WIN32) || defined (_WIN64))
 #define NOMINMAX
-#include <stdafx.h>
+#endif
 
 #include "Interface/DiffusionLeakageParameters.h"
 #include "cauldronschemafuncs.h"

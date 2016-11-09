@@ -7,9 +7,6 @@
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
-
-#include <stdafx.h>
-
 #include <sys/types.h>
 #include <sys/stat.h>
 
@@ -67,14 +64,18 @@ void ProjectHandle::mapFileCacheConstructor (void)
 }
 void ProjectHandle::mapFileCacheDestructor (void)
 {
-    for (int i = 0; i < 4; ++i) 
-    {
-        if (static_cast<struct MapFileCache * > (m_mapFileCache) [i].fileName != "")
-        {
+   if( m_mapFileCache != nullptr ) {
+      for (int i = 0; i < 4; ++i) 
+      {
+         if (static_cast<struct MapFileCache * > (m_mapFileCache) [i].fileName != "")
+         {
             static_cast<struct MapFileCache * > (m_mapFileCache) [i].gridMapFile.close ();
             static_cast<struct MapFileCache * > (m_mapFileCache) [i].fileName = "";
-        }
-    }
+         }
+      }
+      delete[] static_cast<struct MapFileCache * > (m_mapFileCache);
+      m_mapFileCache = nullptr;
+   }
 }
 
 void ProjectHandle::checkForValidPartitioning (const string & name, int M, int N) const
@@ -86,10 +87,6 @@ void ProjectHandle::checkForValidPartitioning (const string & name, int M, int N
    {
       scalingFactor = 1;
    }
-
-#if 0
-   PetscPrintf (PETSC_COMM_WORLD, "\nScalingFactor for %s = %d\n", name.c_str(), scalingFactor);
-#endif
 
    int M_ = M / scalingFactor;
    int N_ = N / scalingFactor;
@@ -120,7 +117,7 @@ void ProjectHandle::checkForValidPartitioning (const string & name, int M, int N
 
       if (name == "Unknown")
       {
-	 PetscPrintf(PETSC_COMM_WORLD, "\tPlease note that these numbers may still be too high (application-dependent)!\n");
+    PetscPrintf(PETSC_COMM_WORLD, "\tPlease note that these numbers may still be too high (application-dependent)!\n");
       }
       PetscPrintf(PETSC_COMM_WORLD, "\nExiting ...\n\n");
       
@@ -137,10 +134,6 @@ void ProjectHandle::allocateArchitectureRelatedParameters () {
 GridMap * ProjectHandle::loadGridMap (const Parent * parent, unsigned int childIndex,
                                       const string & filePathName, const string & dataSetName)
 {
-#if 0
-   cerr << ddd::GetRankString () << ": loadGridMap (" << dataSetName << ") started" << endl;
-#endif
-
    H5Eset_auto (NULL, NULL, NULL);
 
    hid_t dataSetId = -1;
@@ -157,7 +150,7 @@ GridMap * ProjectHandle::loadGridMap (const Parent * parent, unsigned int childI
       
    }
    else if (filePathName.find ("Genex5_Results") != string::npos ||
-	 filePathName.find ("Genex6_Results") != string::npos)
+    filePathName.find ("Genex6_Results") != string::npos)
    {
       mapFileCachePtr = & static_cast<struct MapFileCache * > (m_mapFileCache) [genex];
    }
@@ -178,22 +171,9 @@ GridMap * ProjectHandle::loadGridMap (const Parent * parent, unsigned int childI
       mapFileCache.rank = -1;   // needs to be invalidated
       if (mapFileCache.fileName != "")
       {
-#if 0
-	 if (ddd::GetRank () == 0)
-	 {
-	    cerr << "Closing file: " << mapFileCache.fileName << endl;
-	 }
-#endif
          mapFileCache.gridMapFile.close ();
          mapFileCache.fileName = "";
       }
-      
-#if 0
-      if (ddd::GetRank () == 0)
-      {
-	 cerr << "Opening file: " << filePathName << endl;
-      }
-#endif
 
       H5_Parallel_PropertyList propertyList;
 
@@ -202,13 +182,6 @@ GridMap * ProjectHandle::loadGridMap (const Parent * parent, unsigned int childI
          cerr << "ERROR in ProjectHandle::loadGridMap (): Could not open " << filePathName << endl;
          return 0;
       }
-
-#if 0
-      if (ddd::GetRank () == 0)
-      {
-	 cerr << "Opened file: " << filePathName << endl;
-      }
-#endif
 
       mapFileCache.fileName = filePathName;
    }

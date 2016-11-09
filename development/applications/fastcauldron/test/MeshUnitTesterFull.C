@@ -61,21 +61,17 @@ TEST ( DofCountingUnitTest, FullMesh ) {
 
    // Declaration block required so as to finalise all fastcauldron objects before calling PetscFinalise.
    {
-      bool canRunSaltModelling = false;
-      std::string errorMessage;
-      FastcauldronFactory* factory = new FastcauldronFactory;
-      AppCtx *appctx = new AppCtx (argc, argv);
-      HydraulicFracturingManager::getInstance ().setAppCtx ( appctx );
+      FastcauldronStartup fastcauldronStartup( argc, argv, false, false );
+      bool returnStatus = fastcauldronStartup.getPrepareStatus() && fastcauldronStartup.getStartUpStatus();
 
-      int returnStatus = FastcauldronStartup::startup ( argc, argv, appctx, factory, canRunSaltModelling, errorMessage );
+      EXPECT_EQ( returnStatus, true );
 
-      EXPECT_EQ ( returnStatus, 0 );
-
-      if ( returnStatus == 0 ) {
+      if ( returnStatus )
+      {
          // The computational domain consists of both sediments and basement: 0 .. n - 1
-         ComputationalDomain domain ( *FastcauldronSimulator::getInstance ().getCauldron ()->layers [ 0 ],
-                                      *FastcauldronSimulator::getInstance ().getCauldron ()->layers [ FastcauldronSimulator::getInstance ().getCauldron ()->layers.size () - 1 ],
-                                      CompositeElementActivityPredicate ().compose ( ElementActivityPredicatePtr ( new ElementThicknessActivityPredicate )));
+         ComputationalDomain domain( *FastcauldronSimulator::getInstance().getCauldron()->layers[0],
+            *FastcauldronSimulator::getInstance().getCauldron()->layers[FastcauldronSimulator::getInstance().getCauldron()->layers.size() - 1],
+            CompositeElementActivityPredicate().compose( ElementActivityPredicatePtr( new ElementThicknessActivityPredicate ) ) );
          VtkMeshWriter vktWriter;
          MeshUnitTester mut;
 
@@ -87,24 +83,22 @@ TEST ( DofCountingUnitTest, FullMesh ) {
          testFileName = "test_noholes_with_mantle_10.vtk";
          validFileName = "valid_noholes_with_mantle_10.vtk";
          currentTime = 10.0;
-         mut.setTime ( currentTime );
-         domain.resetAge ( currentTime );
-         vktWriter.save ( domain, testFileName );
-         ASSERT_TRUE ( mut.compareFiles ( validFileName, testFileName ));
+         mut.setTime( currentTime );
+         domain.resetAge( currentTime );
+         vktWriter.save( domain, testFileName );
+         ASSERT_TRUE( mut.compareFiles( validFileName, testFileName ) );
 
          // Second test is for time = 0Ma.
          testFileName = "test_noholes_with_mantle_0.vtk";
          validFileName = "valid_noholes_with_mantle_0.vtk";
          currentTime = 0.0;
-         mut.setTime ( currentTime );
-         domain.resetAge ( currentTime );
-         vktWriter.save ( domain, testFileName );
-         ASSERT_TRUE ( mut.compareFiles ( validFileName, testFileName ));
+         mut.setTime( currentTime );
+         domain.resetAge( currentTime );
+         vktWriter.save( domain, testFileName );
+         ASSERT_TRUE( mut.compareFiles( validFileName, testFileName ) );
       }
 
-      FastcauldronSimulator::finalise ( false );
-      delete factory;
-      delete appctx;
+      fastcauldronStartup.finalize( );
    }
 
    PetscFinalize ();

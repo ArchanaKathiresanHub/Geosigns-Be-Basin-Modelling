@@ -1,4 +1,13 @@
- //------------------------------------------------------------//
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+//------------------------------------------------------------//
 
 #include "HydraulicFracturingManager.h"
 
@@ -15,6 +24,13 @@
 
 #include "GeoPhysicalFunctions.h"
 #include "GeoPhysicsFluidType.h"
+
+//------------------------------------------------------------//
+
+// utilities library
+#include "ConstantsNumerical.h"
+using Utilities::Numerical::CauldronNoDataValue;
+using Utilities::Numerical::IbsNoDataValue;
 
 //------------------------------------------------------------//
 
@@ -54,6 +70,12 @@ HydraulicFracturingManager& HydraulicFracturingManager::getInstance () {
   }
 
   return *s_hydraulicFracturingManagerInstance;
+}
+
+void HydraulicFracturingManager::deleteInstance() 
+{
+   if ( s_hydraulicFracturingManagerInstance ) delete s_hydraulicFracturingManagerInstance;
+   s_hydraulicFracturingManagerInstance = 0;
 }
 
 //------------------------------------------------------------//
@@ -123,7 +145,7 @@ bool HydraulicFracturingManager::setModel ( const int newModel ) {
 
   bool result = true;
 
-  if ( newModel == IBSNULLVALUE or newModel == CAULDRONIBSNULLVALUE ) {
+  if ( newModel == IbsNoDataValue or newModel == CauldronNoDataValue ) {
     m_fractureModel = DefaultFractureModel;
   } else if ( inRange ( newModel, 1, NumberOfFractureModels )) {
     m_fractureModel = Interface::FracturePressureModel ( newModel );
@@ -329,7 +351,7 @@ void HydraulicFracturingManager::checkForFracturing ( LayerProps*           theL
                                                         hydrostaticPressure,
                                                         lithostaticPressure );
 
-          if ( computedFracturePressure == CAULDRONIBSNULLVALUE || computedFracturePressure == NoFracturePressureValue ) {
+          if ( computedFracturePressure == CauldronNoDataValue || computedFracturePressure == NoFracturePressureValue ) {
             theLayer->fracturedPermeabilityScaling ( i, j, k ) = 0.0;
             nodeHasFractured = false;
           } else {

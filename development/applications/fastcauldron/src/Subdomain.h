@@ -1,3 +1,12 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
 #ifndef _FASTCAULDRON__SUBDOMAIN__H_
 #define _FASTCAULDRON__SUBDOMAIN__H_
 
@@ -9,7 +18,7 @@
 #include "ElementVolumeGrid.h"
 #include "FormationMapping.h"
 #include "FormationSubdomainElementGrid.h"
-#include "globaldefs.h"
+#include "ConstantsFastcauldron.h"
 #include "layer.h"
 #include "NodalVolumeGrid.h"
 #include "StratigraphicColumn.h"

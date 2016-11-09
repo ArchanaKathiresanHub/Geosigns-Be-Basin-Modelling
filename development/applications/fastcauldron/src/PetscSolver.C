@@ -25,6 +25,19 @@ PetscSolver :: PetscSolver(double newTolerance, int newMaxIterations)
          );
 }
 
+void PetscSolver::setSolverPrefix ( const std::string& solverPrefix ) {
+
+   PC preconditioner;
+
+   KSPGetPC ( m_solver, &preconditioner );
+
+   if ( preconditioner != nullptr ) {
+      PCSetOptionsPrefix ( preconditioner, solverPrefix.c_str ());
+   }
+   
+   KSPSetOptionsPrefix ( m_solver, solverPrefix.c_str ());
+}
+
 void PetscSolver::loadCmdLineOptions()
 {
    KSPSetFromOptions ( m_solver );
@@ -91,7 +104,7 @@ void PetscSolver :: setMaxIterations( int maxIterations)
 
 void PetscSolver :: solve( const Mat & A, const Vec & b, Vec & x, int * iterations , KSPConvergedReason * reason , double * residualNorm )
 {
-   KSPSetOperators( m_solver, A, A, SAME_NONZERO_PATTERN );
+   KSPSetOperators( m_solver, A, A );
 
    VecSet( x, 0.0 );
    KSPSolve( m_solver, b, x );

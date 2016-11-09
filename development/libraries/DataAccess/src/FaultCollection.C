@@ -1,22 +1,7 @@
 #include <assert.h>
-#ifdef sgi
-#ifdef _STANDARD_C_PLUS_PLUS
-#include<iostream>
-#include <sstream>
-using namespace std;
-
-#define USESTANDARD
-#else                           // !_STANDARD_C_PLUS_PLUS
-#include<iostream.h>
-#include<strstream.h>
-#endif                          // _STANDARD_C_PLUS_PLUS
-#else                           // !sgi
 #include <iostream>
 #include <sstream>
 using namespace std;
-
-#define USESTANDARD
-#endif                          // sgi
 
 #include "Interface/FaultCollection.h"
 #include "Interface/Faulting.h"
@@ -70,9 +55,6 @@ const string & FaultCollection::getName (void) const
 
 void FaultCollection::addFormation (const Formation * formation)
 {
-#if 0
-   cerr << "Adding Formation " << formation->getName () << " to FaultCollection " << m_name << endl;
-#endif
    m_formations.push_back (formation);
 }
 
@@ -94,10 +76,6 @@ void FaultCollection::addFault (const std::string & faultName, const PointSequen
    {
       Fault *newFault = new Fault (faultName, faultLine);
 
-#if 0
-      cerr << getName () << ": adding fault: " << faultName << endl;
-#endif
-
       m_faults[faultName] = newFault;
    }
    else
@@ -117,9 +95,6 @@ void FaultCollection::addEvent (const std::string & faultName, const Snapshot * 
    {
       Fault * fault = (*selectedFault).second;
       fault->addEvent (snapshot, status);
-#if 0
-      cerr << "added event " << status << "(" << snapshot->getTime () << ") to fault: " << endl << * fault << endl;
-#endif
    }
    else
    {
@@ -147,9 +122,6 @@ void FaultCollection::addOverpressureEvent (const std::string & faultName,
    {
       Fault * fault = (*selectedFault).second;
       fault->addOverpressureEvent (snapshot, faultLithology, usedInOverpressure );
-#if 0
-      cerr << "added event " << status << "(" << snapshot->getTime () << ") to fault: " << endl << * fault << endl;
-#endif
    }
    else
    {

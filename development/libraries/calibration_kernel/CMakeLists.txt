@@ -21,12 +21,15 @@ add_library(calibration_kernel
    ${all_headers}
 )
 
-bm_include_libraries( CBMGenerics )
+bm_include_libraries( 
+   CBMGenerics
+   utilities
+)
 
 install(TARGETS calibration_kernel
-	RUNTIME DESTINATION bin
-	LIBRARY DESTINATION lib
-	ARCHIVE DESTINATION lib
+   RUNTIME DESTINATION bin
+   LIBRARY DESTINATION lib
+   ARCHIVE DESTINATION lib
 )
 
 generate_dox( src/calibration_kernel.cfg )

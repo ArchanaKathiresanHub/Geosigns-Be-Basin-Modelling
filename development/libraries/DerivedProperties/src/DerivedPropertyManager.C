@@ -37,7 +37,9 @@
 #include "BrineDensityCalculator.h"
 #include "BrineViscosityCalculator.h"
 #include "BulkDensityFormationCalculator.h"
+#include "FluidVelocityFormationCalculator.h"
 #include "FracturePressureFormationCalculator.h"
+#include "HeatFlowFormationCalculator.h"
 #include "HydrostaticPressureFormationCalculator.h"
 #include "LithostaticPressureFormationCalculator.h"
 #include "OverpressureFormationCalculator.h"
@@ -65,9 +67,10 @@
 typedef formattingexception::GeneralException DerivedPropertyManagerException;
 
 DerivedProperties::DerivedPropertyManager::DerivedPropertyManager ( GeoPhysics::ProjectHandle* projectHandle,
+                                                                    const bool                 loadAllProperties,
                                                                     const bool                 debug ) : m_projectHandle ( projectHandle ) {
 
-   m_loadAllProperties = true;
+   m_loadAllProperties = loadAllProperties;
    loadPrimaryFormationPropertyCalculators        ( debug );
    loadPrimarySurfacePropertyCalculators          ( debug );
    loadPrimaryFormationSurfacePropertyCalculators ( debug );
@@ -248,6 +251,18 @@ void DerivedProperties::DerivedPropertyManager::loadDerivedFormationPropertyCalc
    }
    
    formationPropertyCalculator = FormationPropertyCalculatorPtr ( new VelocityFormationCalculator );
+
+   if ( canAddDerivedFormationPropertyCalculator ( formationPropertyCalculator )) {
+      addFormationPropertyCalculator ( formationPropertyCalculator, 0, debug );
+   }
+
+   formationPropertyCalculator = FormationPropertyCalculatorPtr ( new HeatFlowFormationCalculator ( m_projectHandle ));
+
+   if ( canAddDerivedFormationPropertyCalculator ( formationPropertyCalculator )) {
+      addFormationPropertyCalculator ( formationPropertyCalculator, 0, debug );
+   }
+
+   formationPropertyCalculator = FormationPropertyCalculatorPtr ( new FluidVelocityFormationCalculator ( m_projectHandle ));
 
    if ( canAddDerivedFormationPropertyCalculator ( formationPropertyCalculator )) {
       addFormationPropertyCalculator ( formationPropertyCalculator, 0, debug );

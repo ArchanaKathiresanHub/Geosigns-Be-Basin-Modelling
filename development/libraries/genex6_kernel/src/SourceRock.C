@@ -1,14 +1,23 @@
-//#include <values.h>
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
+
+// std library
 #include <assert.h>
 #include <math.h>
 #include <stdlib.h>
-
-#include<iostream>
-using namespace std;
-#define USESTANDARD
-
 #include <vector>
+#include <iostream>
 
+using namespace std;
+
+// DataAccess library
 #include "Interface/ProjectHandle.h"
 #include "Interface/Surface.h"
 #include "Interface/Snapshot.h"
@@ -34,6 +43,18 @@ using Interface::PropertyValueList;
 using Interface::AttributeValue;
 using Interface::LithoType;
 
+// utilities library
+# include "ConstantsMathematics.h"
+using Utilities::Maths::CgrConversionFactor;
+using Utilities::Maths::GorConversionFactor;
+using Utilities::Maths::KilogrammeToUSTon;
+using Utilities::Maths::CubicMetresToCubicFeet;
+using Utilities::Maths::CubicMetresToBarrel;
+using Utilities::Maths::CubicMetresToCubicFeet;
+using Utilities::Maths::MegaPaToPa;
+#include "ConstantsNumerical.h"
+using Utilities::Numerical::CauldronNoDataValue;
+
 #include "SourceRock.h"
 #include "LocalGridInterpolator.h"
 #include "LinearGridInterpolator.h"
@@ -43,7 +64,7 @@ using Interface::LithoType;
 #include "SimulatorState.h"
 #include "SourceRockNode.h"
 #include "Input.h"
-#include "Constants.h"
+#include "ConstantsGenex.h"
 #include "SpeciesResult.h"
 #include "Utilities.h"
 
@@ -491,8 +512,8 @@ ChemicalModel * SourceRock::loadChemicalModel( const Interface::SourceRock * the
 }
 bool SourceRock::validateGuiValue(const double GuiValue, const double LowerBound,const double UpperBound)
 {
-   if(GuiValue > (LowerBound - Constants::ZERO) &&
-      GuiValue < (UpperBound + Constants::ZERO) &&
+   if(GuiValue > (LowerBound - Constants::Zero) &&
+      GuiValue < (UpperBound + Constants::Zero) &&
       GuiValue > 0.0) {
       return true; 
    }
@@ -815,7 +836,7 @@ bool SourceRock::preprocess ( const DataAccess::Interface::GridMap* validityMap,
       // here do all checking for h_c1 and h_c2 (zero, equal, positive and all everything...) ? Or not?
       // assume, that all to be done in BPA
          
-      if( fabs( Hc1 - Hc2 ) <= Constants::ZERO ) {
+      if( fabs( Hc1 - Hc2 ) <= Constants::Zero ) {
          if( !testPercentage ) {
             status = false;
             if (m_projectHandle->getRank () == 0 and printInitialisationDetails ) {
@@ -1299,9 +1320,9 @@ bool SourceRock::process()
    LinearGridInterpolator *VESInterpolator  = new LinearGridInterpolator;
    LinearGridInterpolator *TempInterpolator = new LinearGridInterpolator;
    LinearGridInterpolator *vreInterpolator  = new LinearGridInterpolator;
+   LinearGridInterpolator *porePressureInterpolator = new LinearGridInterpolator;
 
    LinearGridInterpolator *ThicknessScalingInterpolator = 0;
-   LinearGridInterpolator *porePressureInterpolator = 0;
    LinearGridInterpolator *lithostaticPressureInterpolator = 0;
    LinearGridInterpolator *hydrostaticPressureInterpolator = 0;
    LinearGridInterpolator *porosityInterpolator            = 0;
@@ -1339,10 +1360,14 @@ bool SourceRock::process()
       DerivedProperties::FormationSurfacePropertyPtr startVr = m_propertyManager->getFormationSurfaceProperty ( property, intervalStart,  m_formation, m_formation->getTopSurface () );
       DerivedProperties::FormationSurfacePropertyPtr endVr   = m_propertyManager->getFormationSurfaceProperty ( property, intervalEnd,  m_formation, m_formation->getTopSurface () );
 
+      property = m_propertyManager->getProperty ( "Pressure" );
+      DerivedProperties::SurfacePropertyPtr startPressure = m_propertyManager->getSurfaceProperty ( property, intervalStart, m_formation->getTopSurface () );
+      DerivedProperties::SurfacePropertyPtr endPressure   = m_propertyManager->getSurfaceProperty ( property, intervalEnd, m_formation->getTopSurface () );
 
       if( startTemp == 0 or endTemp == 0 or
           startVes == 0 or endVes == 0 or
-          startVr == 0 or endVr == 0  ) {
+          startVr == 0 or endVr == 0 or
+          startPressure == 0 or endPressure == 0 ) {
 
          if ( m_projectHandle->getRank () == 0 ) {
             if ( startTemp == 0 ) {
@@ -1368,10 +1393,18 @@ bool SourceRock::process()
             if ( endVes == 0 ) {
                cout << "Missing end Ves map for snapshot " << intervalEnd->getTime () << endl;
             }
+
+            if ( startPressure == 0 ) {
+               cout << " Missing pressure map for snapshot " << intervalStart->getTime () << endl;
+            }
+      
+            if ( endPressure == 0 ) {
+               cout << " Missing pressure map for snapshot " << intervalEnd->getTime () << endl;
+            }
          }
          
          status = false;
-            break;
+         break;
       }
 
       startTemp->retrieveData();
@@ -1383,9 +1416,13 @@ bool SourceRock::process()
       startVr->retrieveData();
       endVr->retrieveData();
 
+      startPressure->retrieveData();
+      endPressure->retrieveData();
+
       TempInterpolator ->compute(intervalStart, startTemp,  intervalEnd, endTemp);
       VESInterpolator->compute( intervalStart, startVes, intervalEnd, endVes );
       vreInterpolator->compute (intervalStart, startVr,  intervalEnd, endVr );
+      porePressureInterpolator->compute(intervalStart, startPressure, intervalEnd, endPressure ); 
 
       startTemp->restoreData();
       endTemp->restoreData();
@@ -1395,6 +1432,9 @@ bool SourceRock::process()
 
       startVr->restoreData();
       endVr->restoreData();
+
+      startPressure->restoreData();
+      endPressure->restoreData();
 
       if( doApplyAdsorption () ) {
          property = m_propertyManager->getProperty ( "LithoStaticPressure" );
@@ -1413,15 +1453,10 @@ bool SourceRock::process()
          DerivedProperties::FormationSurfacePropertyPtr startPermeability = m_propertyManager->getFormationSurfaceProperty ( property, intervalStart, m_formation, m_formation->getTopSurface () );
          DerivedProperties::FormationSurfacePropertyPtr endPermeability   = m_propertyManager->getFormationSurfaceProperty ( property, intervalEnd, m_formation, m_formation->getTopSurface () );
          
-         property = m_propertyManager->getProperty ( "Pressure" );
-         DerivedProperties::SurfacePropertyPtr startPressure = m_propertyManager->getSurfaceProperty ( property, intervalStart, m_formation->getTopSurface () );
-         DerivedProperties::SurfacePropertyPtr endPressure   = m_propertyManager->getSurfaceProperty ( property, intervalEnd, m_formation->getTopSurface () );
-         
          if( startLP == 0 or endLP == 0 or
              startHP == 0 or endHP == 0 or
              startPorosity == 0 or endPorosity == 0 or
-             startPermeability == 0 or endPermeability == 0 or
-             startPressure == 0 or endPressure == 0 ) {
+             startPermeability == 0 or endPermeability == 0 ) {
             
             status = false;
             
@@ -1458,15 +1493,6 @@ bool SourceRock::process()
                if ( endPermeability == 0 ) {
                   cout << " Missing permeability map for snapshot " << intervalEnd->getTime () << endl;
                }
-               
-               if ( startPressure == 0 ) {
-                  cout << " Missing pressure map for snapshot " << intervalStart->getTime () << endl;
-               }
-               
-               if ( endPressure == 0 ) {
-                  cout << " Missing pressure map for snapshot " << intervalEnd->getTime () << endl;
-               }
-               
             }
             
             break;
@@ -1475,23 +1501,13 @@ bool SourceRock::process()
          hydrostaticPressureInterpolator = new LinearGridInterpolator;
          porosityInterpolator = new LinearGridInterpolator;
          permeabilityInterpolator = new LinearGridInterpolator;
-         porePressureInterpolator = new LinearGridInterpolator;
-         
-         
-         startPressure->retrieveData();
-         endPressure->retrieveData();
-
-         porePressureInterpolator->compute(intervalStart, startPressure, intervalEnd, endPressure ); 
-
-         startPressure->restoreData();
-         endPressure->restoreData();
 
          lithostaticPressureInterpolator->compute(intervalStart, startLP, intervalEnd, endLP ); 
          hydrostaticPressureInterpolator->compute(intervalStart, startHP, intervalEnd, endHP ); 
          porosityInterpolator->compute(intervalStart, startPorosity, intervalEnd, endPorosity ); 
          permeabilityInterpolator->compute(intervalStart, startPermeability, intervalEnd, endPermeability ); 
       }
-      
+
       property = m_propertyManager->getProperty ( "ErosionFactor" );
       
       DerivedProperties::FormationMapPropertyPtr thicknessScalingAtStart = m_propertyManager->getFormationMapProperty ( property, intervalStart, m_formation );
@@ -1899,7 +1915,7 @@ void SourceRock::createSnapShotOutputMaps(const Snapshot *theSnapshot)
 
 }
 
-void SourceRock::saveSnapShotOutputMaps(const Snapshot *theSnapshot)
+void SourceRock::saveSnapShotOutputMaps()
 {
    std::map<std::string, GridMap*>::iterator it;
    std::map < CBMGenerics::ComponentManager::SpeciesNamesId, Interface::GridMap* >::iterator adsorpedIt;
@@ -2057,8 +2073,6 @@ void SourceRock::updateSnapShotOutputMaps(Genex6::SourceRockNode *theNode)
    std::map<std::string, GridMap*>::iterator it;
    std::map<std::string, GridMap*>::iterator snapshotMapContainerEnd = m_theSnapShotOutputMaps.end();
  
-   double sulphurExpelledMass  = 0.0;
- 
    const unsigned int i = theNode->GetI ();
    const unsigned int j = theNode->GetJ ();
 
@@ -2132,20 +2146,13 @@ void SourceRock::updateSnapShotOutputMaps(Genex6::SourceRockNode *theNode)
       const double meanBulkDensity = getProjectHandle ()->getSGDensitySample ()->getDensity ();
 
       // Converts m^3/m^3 to ft^3/ton.
-      const double SCFpTonGasVolumeConversionFactor = Genex6::Constants::CubicMetresToCubicFeet / ( Genex6::Constants::KilogrammeToUSTon * meanBulkDensity );
+      const double SCFpTonGasVolumeConversionFactor = CubicMetresToCubicFeet / ( KilogrammeToUSTon * meanBulkDensity );
 
       // Converts m^3/m^2 -> bcf/km^2
-      const double BCFpKm2GasVolumeConversionFactor = Genex6::Constants::CubicMetresToCubicFeet / 1.0e3; // = 1.0e6 * m^3->f^3 / 1.0e9.
+      const double BCFpKm2GasVolumeConversionFactor = CubicMetresToCubicFeet / 1.0e3; // = 1.0e6 * m^3->f^3 / 1.0e9.
 
       // Convert m^3/m^2 -> mega barrel/km^2.
-      const double OilVolumeConversionFactor = 1.0e6 * Genex6::Constants::CubicMetresToBarrel / 1.0e6;
-
-      const Genex6::Input* nodeInputData = theNode->getLastInput ();
-
-      double thicknessScaling = ( nodeInputData == 0 ? 1.0 : nodeInputData->GetThicknessScaleFactor ());
-
-      //     SimulatorState& simulatorState = dynamic_cast<SimulatorState&>( theNode->getPrincipleSimulatorState () ); // GetSimulatorState()
-
+      const double OilVolumeConversionFactor = 1.0e6 * CubicMetresToBarrel / 1.0e6;
 
       double gasVolume;
       double oilVolume;
@@ -2169,7 +2176,7 @@ void SourceRock::updateSnapShotOutputMaps(Genex6::SourceRockNode *theNode)
       if ( m_retainedGor != 0 ) {
 
          if ( gor != 99999.0 ) {
-            m_retainedGor->setValue ( i, j, gor * Genex6::Constants::GorConversionFactor );
+            m_retainedGor->setValue ( i, j, gor * GorConversionFactor );
          } else {
             m_retainedGor->setValue ( i, j, 99999.0 );
          }
@@ -2179,7 +2186,7 @@ void SourceRock::updateSnapShotOutputMaps(Genex6::SourceRockNode *theNode)
       if ( m_retainedCgr != 0 ) {
 
          if ( cgr != 99999.0 ) {
-            m_retainedCgr->setValue ( i, j, cgr * Genex6::Constants::CgrConversionFactor );
+            m_retainedCgr->setValue ( i, j, cgr * CgrConversionFactor );
          } else {
             m_retainedCgr->setValue ( i, j, 99999.0 );
          }
@@ -2349,7 +2356,7 @@ bool SourceRock::computeSnapShot ( const double previousTime,
 
       bool useMaximumVes = isVESMaxEnabled();
       double maximumVes = getVESMax();
-      maximumVes *= Genex6::Constants::convertMpa2Pa;
+      maximumVes *= MegaPaToPa;
 
       if( calcErosion ) calcErosion->retrieveData();
 
@@ -2366,17 +2373,17 @@ bool SourceRock::computeSnapShot ( const double previousTime,
 
          double in_thicknessScaling = calcErosion ? calcErosion->get(( *itNode)->GetI(), (*itNode)->GetJ()) : 1.0;
 
-         double nodeHydrostaticPressure =  ( calcHP ?  1.0e6 * calcHP->get ((*itNode)->GetI(), (*itNode)->GetJ()) : Constants::UNDEFINEDVALUE );
+         double nodeHydrostaticPressure =  ( calcHP ?  1.0e6 * calcHP->get ((*itNode)->GetI(), (*itNode)->GetJ()) : CauldronNoDataValue );
 
-         double nodePorePressure = ( calcPressure ?  1.0e6 * calcPressure->get ((*itNode)->GetI(), (*itNode)->GetJ()) : Constants::UNDEFINEDVALUE );
+         double nodePorePressure = ( calcPressure ?  1.0e6 * calcPressure->get ((*itNode)->GetI(), (*itNode)->GetJ()) : CauldronNoDataValue );
 
-         double nodePorosity =  ( calcPorosity ? 0.01 * calcPorosity->get ((*itNode)->GetI(), (*itNode)->GetJ()) : Constants::UNDEFINEDVALUE );
+         double nodePorosity =  ( calcPorosity ? 0.01 * calcPorosity->get ((*itNode)->GetI(), (*itNode)->GetJ()) : CauldronNoDataValue );
 
-         double nodePermeability = ( calcPermeability ? calcPermeability->get ((*itNode)->GetI(), (*itNode)->GetJ()) : Constants::UNDEFINEDVALUE );
+         double nodePermeability = ( calcPermeability ? calcPermeability->get ((*itNode)->GetI(), (*itNode)->GetJ()) : CauldronNoDataValue );
 
          double nodeVre = calcVre->get((*itNode)->GetI(), (*itNode)->GetJ() );
 
-         double nodeLithostaticPressure =  ( calcLP ?  1.0e6 * calcLP->get ((*itNode)->GetI(), (*itNode)->GetJ()) : Constants::UNDEFINEDVALUE );
+         double nodeLithostaticPressure =  ( calcLP ?  1.0e6 * calcLP->get ((*itNode)->GetI(), (*itNode)->GetJ()) : CauldronNoDataValue );
 
          Genex6::Input *theInput = new Genex6::Input( previousTime, time,
                                                       in_Temp,
@@ -2418,8 +2425,7 @@ bool SourceRock::computeSnapShot ( const double previousTime,
          }
 
          if ( not isInitialTimeStep and doApplyAdsorption () ) {
-            (*itNode)->getPrincipleSimulatorState ().postProcessShaleGasTimeStep ( m_theChemicalModel, previousTime - time,
-                                                                                     (*itNode)->GetI() == 0 and (*itNode)->GetJ() == 0 );
+            (*itNode)->getPrincipleSimulatorState ().postProcessShaleGasTimeStep ( m_theChemicalModel, previousTime - time );
          }
 
          if ( not isInitialTimeStep ) {
@@ -2427,7 +2433,7 @@ bool SourceRock::computeSnapShot ( const double previousTime,
          }
 
          if ( doOutputAdsorptionProperties ()) {
-            (*itNode)->updateAdsorptionOutput ( *m_theSimulator, *getAdsorptionSimulator() );
+            (*itNode)->updateAdsorptionOutput ( *getAdsorptionSimulator() );
           }
 
          updateSnapShotOutputMaps((*itNode));
@@ -2435,7 +2441,7 @@ bool SourceRock::computeSnapShot ( const double previousTime,
 
       }
 
-      saveSnapShotOutputMaps(theSnapshot);
+      saveSnapShotOutputMaps();
 
       calcVes->restoreData();
       calcTemp->restoreData();
@@ -2489,7 +2495,7 @@ void SourceRock::computeTimeInstance ( const double &startTime,
 
    bool useMaximumVes = isVESMaxEnabled();
    double maximumVes = getVESMax();
-   maximumVes *= Genex6::Constants::convertMpa2Pa;
+   maximumVes *= MegaPaToPa;
 
    std::vector<Genex6::SourceRockNode*>::iterator itNode;
    
@@ -2502,12 +2508,12 @@ void SourceRock::computeTimeInstance ( const double &startTime,
       double in_startTemp = temperature->evaluateProperty( (*itNode)->GetI(), (*itNode)->GetJ(), startTime );
       double in_endTemp = temperature->evaluateProperty( (*itNode)->GetI(), (*itNode)->GetJ(), endTime );
 
-      double nodeLithostaticPressure = lithostaticPressure ? 1.0e6 * lithostaticPressure->evaluateProperty( (*itNode)->GetI(), (*itNode)->GetJ(), endTime ) : Constants::UNDEFINEDVALUE;
-      double nodeHydrostaticPressure = hydrostaticPressure ? 1.0e6 * hydrostaticPressure->evaluateProperty( (*itNode)->GetI(), (*itNode)->GetJ(), endTime ) : Constants::UNDEFINEDVALUE;
-      double startNodePorePressure = porePressure ? 1.0e6 * porePressure->evaluateProperty( (*itNode)->GetI(), (*itNode)->GetJ(), startTime ) : Constants::UNDEFINEDVALUE;
-      double endNodePorePressure = porePressure ?  1.0e6 * porePressure->evaluateProperty( (*itNode)->GetI(), (*itNode)->GetJ(), endTime ) : Constants::UNDEFINEDVALUE;
-      double nodePorosity = porosity ? 0.01 * porosity->evaluateProperty( (*itNode)->GetI(), (*itNode)->GetJ(), endTime ) : Constants::UNDEFINEDVALUE;
-      double nodePermeability = permeability ? permeability->evaluateProperty( (*itNode)->GetI(), (*itNode)->GetJ(), endTime ) : Constants::UNDEFINEDVALUE;
+      double nodeLithostaticPressure = lithostaticPressure ? 1.0e6 * lithostaticPressure->evaluateProperty( (*itNode)->GetI(), (*itNode)->GetJ(), endTime ) : CauldronNoDataValue;
+      double nodeHydrostaticPressure = hydrostaticPressure ? 1.0e6 * hydrostaticPressure->evaluateProperty( (*itNode)->GetI(), (*itNode)->GetJ(), endTime ) : CauldronNoDataValue;
+      double startNodePorePressure = porePressure ? 1.0e6 * porePressure->evaluateProperty( (*itNode)->GetI(), (*itNode)->GetJ(), startTime ) : CauldronNoDataValue;
+      double endNodePorePressure = porePressure ?  1.0e6 * porePressure->evaluateProperty( (*itNode)->GetI(), (*itNode)->GetJ(), endTime ) : CauldronNoDataValue;
+      double nodePorosity = porosity ? 0.01 * porosity->evaluateProperty( (*itNode)->GetI(), (*itNode)->GetJ(), endTime ) : CauldronNoDataValue;
+      double nodePermeability = permeability ? permeability->evaluateProperty( (*itNode)->GetI(), (*itNode)->GetJ(), endTime ) : CauldronNoDataValue;
       double nodeVre = vre->evaluateProperty ( (*itNode)->GetI(), (*itNode)->GetJ(), endTime );
 
       double in_thicknessScaling = thicknessScaling ? thicknessScaling->evaluateProperty( (*itNode)->GetI(), (*itNode)->GetJ(), endTime ) : 1.0;
@@ -2679,7 +2685,7 @@ void SourceRock::computeSnapshotIntervals ()
          end = 0;
 
          if ((m_depositionTime > start->getTime ()) ||
-             (fabs (m_depositionTime - start->getTime ()) < Genex6::Constants::ZERO)) {
+             (fabs (m_depositionTime - start->getTime ()) < Genex6::Constants::Zero)) {
             start = *snapshotIter;
             end = *(snapshotIter + 1);
             SnapshotInterval *theInterval = new SnapshotInterval (start, end);

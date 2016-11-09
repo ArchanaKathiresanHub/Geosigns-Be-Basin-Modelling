@@ -11,7 +11,6 @@
 #include <algorithm>
 #include <math.h>
 #include <limits.h>
-#include <assert.h>
 
 #include <iomanip>
 #include <limits>
@@ -31,14 +30,7 @@ using namespace Interface;
 
 DistributedGridMap::~DistributedGridMap (void)
 {
-   restoreData (false, false);
-
-   VecDestroy (&m_vecGlobal);
-
-   if (m_depth != 1)
-   {
-      DMDestroy (&m_localInfo.da);
-   }
+   cleanup();
 }
 
 /// Create a GridMap from the given grid with the given value to be used for undefined values.
@@ -50,7 +42,8 @@ DistributedGridMap::DistributedGridMap( const Grid * grid,
       m_undefinedValue (undefinedValue),
       m_averageValue (m_undefinedValue),
       m_depth (depth),
-      m_retrieved (false)
+      m_retrieved (false),
+      m_vecLocal(nullptr)
 {
    initialize ();
    PetscScalar initialValue = m_undefinedValue;
@@ -69,7 +62,8 @@ DistributedGridMap::DistributedGridMap( const Parent * owner,
       m_averageValue (m_undefinedValue),
       m_depth (depth),
       m_grid (grid),
-      m_retrieved (false)
+      m_retrieved (false),
+      m_vecLocal(nullptr)
 {
    initialize ();
    PetscScalar initialValue = value;
@@ -87,7 +81,8 @@ DistributedGridMap::DistributedGridMap( const Parent * owner,
       m_undefinedValue (undefinedValue),
       m_averageValue (m_undefinedValue),
       m_depth (depth),
-      m_retrieved (false)
+      m_retrieved (false),
+      m_vecLocal(nullptr)
 {
    initialize ();
 
@@ -122,7 +117,8 @@ DistributedGridMap::DistributedGridMap( const Parent * owner,
       m_undefinedValue (operand1->getUndefinedValue ()),
       m_averageValue (m_undefinedValue),
       m_depth (operand1->getDepth ()),
-      m_retrieved (false)
+      m_retrieved (false),
+      m_vecLocal(nullptr)
 {
    initialize ();
 
@@ -131,15 +127,39 @@ DistributedGridMap::DistributedGridMap( const Parent * owner,
    operand1->retrieveData ();
    operand2->retrieveData ();
 
-   assert (numI () == operand1->numI ());
-   assert (numJ () == operand1->numJ ());
+   if( numI() != operand1->numI() )
+   {
+      cleanup();
+      throw formattingexception::GeneralException() << "DistributedGridMap: numI() != operand1->numI()";
+   }
+   if( numJ() != operand1->numJ() )
+   {
+      cleanup();
+      throw formattingexception::GeneralException() << "DistributedGridMap: numJ() != operand1->numJ()";
+   }
 
-   assert (getDepth () == operand1->getDepth ());
+   if( getDepth() != operand1->getDepth() )
+   {
+      cleanup();
+      throw formattingexception::GeneralException() << "DistributedGridMap: getDepth() != operand1->getDepth()";
+   }
 
-   assert (numI () == operand2->numI ());
-   assert (numJ () == operand2->numJ ());
+   if( numI() != operand2->numI() )
+   {
+      cleanup();
+      throw formattingexception::GeneralException() << "DistributedGridMap: numI() != operand2->numI()";
+   }
+   if( numJ() != operand2->numJ() )
+   {
+      cleanup();
+      throw formattingexception::GeneralException() << "DistributedGridMap: numJ() != operand2->numJ()";
+   }
 
-   assert (getDepth () == operand2->getDepth ());
+   if( getDepth() != operand2->getDepth() )
+   {
+      cleanup();
+      throw formattingexception::GeneralException() << "DistributedGridMap: getDepth() != operand2->getDepth()";
+   }
 
    const unsigned int iLast = lastI();
    const unsigned int jLast = lastJ();
@@ -178,7 +198,8 @@ DistributedGridMap::DistributedGridMap( const Parent * owner,
    m_undefinedValue (operand1->getUndefinedValue ()), 
    m_averageValue (m_undefinedValue),
    m_depth (operand1->getDepth ()),
-   m_retrieved (false)
+   m_retrieved (false),
+   m_vecLocal(nullptr)
 {
    initialize ();
 
@@ -187,15 +208,39 @@ DistributedGridMap::DistributedGridMap( const Parent * owner,
    operand1->retrieveData ();
    operand2->retrieveData ();
 
-   assert (numI () == operand1->numI ());
-   assert (numJ () == operand1->numJ ());
+   if( numI() != operand1->numI() )
+   {
+      cleanup();
+      throw formattingexception::GeneralException() << "DistributedGridMap: numI() != operand1->numI()";
+   }
+   if( numJ() != operand1->numJ() )
+   {
+      cleanup();
+      throw formattingexception::GeneralException() << "DistributedGridMap: numJ() != operand1->numJ()";
+   }
 
-   assert (getDepth () == operand1->getDepth ());
+   if( getDepth() != operand1->getDepth() )
+   {
+      cleanup();
+      throw formattingexception::GeneralException() << "DistributedGridMap: getDepth() != operand1->getDepth()";
+   }
 
-   assert (numI () == operand2->numI ());
-   assert (numJ () == operand2->numJ ());
+   if( numI() != operand2->numI() )
+   {
+      cleanup();
+      throw formattingexception::GeneralException() << "DistributedGridMap: numI() != operand2->numI()";
+   }
+   if( numJ() != operand2->numJ() )
+   {
+      cleanup();
+      throw formattingexception::GeneralException() << "DistributedGridMap: numJ() != operand2->numJ()";
+   }
 
-   assert (getDepth () == operand2->getDepth ());
+   if( getDepth() != operand2->getDepth() )
+   {
+      cleanup();
+      throw formattingexception::GeneralException() << "DistributedGridMap: getDepth() != operand2->getDepth()";
+   }
 
    const unsigned int iLast = lastI();
    const unsigned int jLast = lastJ();
@@ -233,7 +278,8 @@ DistributedGridMap::DistributedGridMap( const Parent * owner,
       m_undefinedValue (operand->getUndefinedValue ()),
       m_averageValue (m_undefinedValue),
       m_depth (operand->getDepth ()),
-      m_retrieved (false)
+      m_retrieved (false),
+      m_vecLocal(nullptr)
 {
    initialize ();
 
@@ -241,10 +287,22 @@ DistributedGridMap::DistributedGridMap( const Parent * owner,
 
    operand->retrieveData ();
 
-   assert (numI () == operand->numI ());
-   assert (numJ () == operand->numJ ());
+   if( numI() != operand->numI() )
+   {
+      cleanup();
+      throw formattingexception::GeneralException() << "DistributedGridMap: numI() != operand->numI()";
+   }
+   if( numJ() != operand->numJ() )
+   {
+      cleanup();
+      throw formattingexception::GeneralException() << "DistributedGridMap: numJ() != operand->numJ()";
+   }
 
-   assert (getDepth () == operand->getDepth ());
+   if( getDepth() != operand->getDepth() )
+   {
+      cleanup();
+      throw formattingexception::GeneralException() << "DistributedGridMap: getDepth() != operand->getDepth()";
+   }
 
    const unsigned int iLast = lastI();
    const unsigned int jLast = lastJ();
@@ -281,7 +339,8 @@ DistributedGridMap::DistributedGridMap( const Parent * owner,
       m_undefinedValue (operand->getUndefinedValue ()),
       m_averageValue (m_undefinedValue),
       m_depth (operand->getDepth ()),
-      m_retrieved (false)
+      m_retrieved (false),
+      m_vecLocal(nullptr)
 {
    initialize ();
 
@@ -289,10 +348,22 @@ DistributedGridMap::DistributedGridMap( const Parent * owner,
 
    operand->retrieveData ();
 
-   assert (numI () == operand->numI ());
-   assert (numJ () == operand->numJ ());
+   if( numI() != operand->numI() )
+   {
+      cleanup();
+      throw formattingexception::GeneralException() << "DistributedGridMap: numI() != operand->numI()";
+   }
+   if( numJ() != operand->numJ() )
+   {
+      cleanup();
+      throw formattingexception::GeneralException() << "DistributedGridMap: numJ() != operand->numJ()";
+   }
 
-   assert (getDepth () == operand->getDepth ());
+   if( getDepth() != operand->getDepth() )
+   {
+      cleanup();
+      throw formattingexception::GeneralException() << "DistributedGridMap: getDepth() != operand->getDepth()";
+   }
 
    const unsigned int iLast = lastI();
    const unsigned int jLast = lastJ();
@@ -328,7 +399,7 @@ void DistributedGridMap::initialize (void)
    }
    else
    {
-      DMDACreate3d (PETSC_COMM_WORLD, DMDA_BOUNDARY_NONE, DMDA_BOUNDARY_NONE, DMDA_BOUNDARY_NONE, DMDA_STENCIL_BOX,
+      DMDACreate3d (PETSC_COMM_WORLD, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DMDA_STENCIL_BOX,
                     dynamic_cast<const DistributedGrid * > (m_grid)->numIGlobal (), dynamic_cast<const DistributedGrid * > (m_grid)->numJGlobal (), m_depth,
                     dynamic_cast<const DistributedGrid * > (m_grid)->numProcsI (), dynamic_cast<const DistributedGrid * > (m_grid)->numProcsJ (), 1,
                     1, 1,
@@ -381,16 +452,6 @@ bool DistributedGridMap::restoreData (bool save, bool withGhosts) const
 {
    if (!m_retrieved)
       return false;
-
-   if (m_depth > 1)
-   {
-      DMDAVecRestoreArray (m_localInfo.da, m_withGhosts ? m_vecLocal : m_vecGlobal, (void *) &m_values);
-   }
-   else
-   {
-      DMDAVecRestoreArray (m_localInfo.da, m_withGhosts ? m_vecLocal : m_vecGlobal, (void *) &m_values[0]);
-      Array < double **>::delete1d (m_values);
-   }
    
    if( save && m_withGhosts && withGhosts )
    {
@@ -409,7 +470,17 @@ bool DistributedGridMap::restoreData (bool save, bool withGhosts) const
       PetscMPIInt mpiSize = 0;
       ierr = MPI_Comm_size( PETSC_COMM_WORLD, &mpiSize ); CHKERRQ(ierr);
       if( not (globalReady == 0 || globalReady == mpiSize) )
-         throw formattingexception::GeneralException() << __FUNCTION__ << " is causing hanging MPI communications.";
+         throw formattingexception::GeneralException() << "DistributedGridMap::restoreData is causing hanging MPI communications.";
+   }
+
+   if (m_depth > 1)
+   {
+      DMDAVecRestoreArray (m_localInfo.da, m_withGhosts ? m_vecLocal : m_vecGlobal, (void *) &m_values);
+   }
+   else
+   {
+      DMDAVecRestoreArray (m_localInfo.da, m_withGhosts ? m_vecLocal : m_vecGlobal, (void *) &m_values[0]);
+      Array < double **>::delete1d (m_values);
    }
    
    if (save && m_modified)
@@ -424,7 +495,6 @@ bool DistributedGridMap::restoreData (bool save, bool withGhosts) const
          }
          else
          {
-            // DALocalToGlobal (m_localInfo.da, m_vecLocal, INSERT_VALUES, m_vecGlobal);
             DMLocalToGlobalBegin (m_localInfo.da, m_vecLocal, INSERT_VALUES, m_vecGlobal);
             DMLocalToGlobalEnd (m_localInfo.da, m_vecLocal, INSERT_VALUES, m_vecGlobal);
          }
@@ -474,13 +544,15 @@ double DistributedGridMap::maxJ (void) const
 
 unsigned int DistributedGridMap::numI (void) const
 {
-   assert (m_retrieved);
+   if( !m_retrieved )
+      throw formattingexception::GeneralException() << "DistributedGridMap::numI() map not retrieved";
    return m_withGhosts ? m_localInfo.gxm : m_localInfo.xm;
 }
 
 unsigned int DistributedGridMap::numJ (void) const
 {
-   assert (m_retrieved);
+   if( !m_retrieved )
+      throw formattingexception::GeneralException() << "DistributedGridMap::numJ() map not retrieved";
    return m_withGhosts ? m_localInfo.gym : m_localInfo.ym;
 }
 
@@ -921,7 +993,7 @@ double const * const * const * DistributedGridMap::getValues (void) const
 // throws an error when called.
 bool DistributedGridMap::saveHDF5 (const std::string & fileName) const
 {
-   throw "bool GridMap::saveHDF5 (const string & fileName) const is not implemented in the distributed version.";
+   throw formattingexception::GeneralException() << __FUNCTION__ << " is not implemented in " << __FILE__;
 }
 
 void DistributedGridMap::printOn (std::ostream & ostr) const
@@ -958,7 +1030,8 @@ void DistributedGridMap::printOn (std::ostream & ostr) const
 
 void DistributedGridMap::printOn (MPI_Comm comm) const
 {
-   assert (m_retrieved);
+   if( !m_retrieved )
+      throw formattingexception::GeneralException() << "DistributedGridMap::printOn() map not retrieved";
    unsigned int i, j, k;
 
    const Grid *grid = (Grid *) getGrid ();
@@ -1002,7 +1075,7 @@ void DistributedGridMap::printOn (MPI_Comm comm) const
    }
    PetscSynchronizedPrintf (comm, "\n");
 
-   PetscSynchronizedFlush (comm);
+   PetscSynchronizedFlush (comm, PETSC_STDOUT);
 
 }
 ///map interpolation functionality
@@ -1017,12 +1090,12 @@ bool DistributedGridMap::convertToGridMap(GridMap *mapB) const
    {
       ret = transformHighRes2LowRes(mapB);
    }
-   else       	
+   else
    {
       ret = transformLowRes2HighRes(mapB);
    }
 
-   return ret;	
+   return ret;
 }
 
 bool DistributedGridMap::transformHighRes2LowRes(GridMap *mapB) const 
@@ -1060,10 +1133,10 @@ bool DistributedGridMap::transformHighRes2LowRes(GridMap *mapB) const
          }
          else
          {
-            cerr << "conversion from lowres (" << indexImapB << ", " << indexJmapB <<
-               ") to highres (" << indexImapA << ", " << indexJmapA << ") failed unexpectedly" << endl;
-            ret = false;
-            break;
+            std::ostringstream msg;
+            msg << "conversion from lowres (" << std::to_string(indexImapB) << ", " << std::to_string(indexJmapB) <<
+                  ") to highres (" << std::to_string(indexImapA) << ", " << std::to_string(indexJmapA) << ") failed unexpectedly";
+            throw formattingexception::GeneralException() << msg.str();
          }
       }
    }
@@ -1156,8 +1229,6 @@ bool DistributedGridMap::transformLowRes2HighRes(GridMap *mapB) const
       }
    }
 
-   //mapB->printOn (PETSC_COMM_WORLD);
-
    mapA->restoreData(true, true);
    mapB->restoreData();
 
@@ -1245,4 +1316,18 @@ bool DistributedGridMap::isHighResNodeInLowResGrid( const unsigned int & HighRes
    unsigned int lowResI, lowResJ;
 
    return (highResGrid->convertToGrid( (*lowResGrid), HighResI, HighResJ, lowResI, lowResJ));
+}
+
+
+
+void DistributedGridMap::cleanup (void)
+{
+   restoreData (false, false);
+
+   VecDestroy (&m_vecGlobal);
+
+   if (m_depth != 1)
+   {
+      DMDestroy (&m_localInfo.da);
+   }
 }

@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef _MIGRATION_DISTRIBUTE_LEAK_H_
 #define _MIGRATION_DISTRIBUTE_LEAK_H_
 
@@ -7,7 +17,10 @@
 using functions::MonotonicIncreasingPiecewiseLinearInvertableFunction;
 using functions::Tuple2;
 
-namespace migration { namespace distribute {
+namespace migration
+{
+   namespace distribute
+   {
 
       class Leak
       {
@@ -25,22 +38,23 @@ namespace migration { namespace distribute {
 
       public:
 
-         Leak(const double& fluidDensity, const double& sealFluidDensity, const double& maxSealPressure,  
-              const MonotonicIncreasingPiecewiseLinearInvertableFunction* levelToVolume);
+         Leak (const double& fluidDensity, const double& sealFluidDensity, const double& maxSealPressure,
+            const MonotonicIncreasingPiecewiseLinearInvertableFunction* levelToVolume);
 
-         void distribute(const double& fluidVolume, double& fluidVolumeLeaked) const;
+         void distribute (const double& fluidVolume, double& fluidVolumeLeaked) const;
 
-         double& getFluidDensity() { return m_fluidDensity; }
+         double& getFluidDensity () { return m_fluidDensity; }
 
-         const double& fluidDensity() const { return m_fluidDensity; }
-         const double& sealFluidDensity() const { return m_sealFluidDensity; }
-         const double& maxSealPressure() const { return m_maxSealPressure; }
+         const double& fluidDensity () const { return m_fluidDensity; }
+         const double& sealFluidDensity () const { return m_sealFluidDensity; }
+         const double& maxSealPressure () const { return m_maxSealPressure; }
 
-         const double& maxLevel() const { return m_maxBuoyancy[0]; }
-         const double& maxVolume() const { return m_maxBuoyancy[1]; }
-         const Tuple2<double>& maxContent() const { return m_maxBuoyancy; }
+         const double& maxLevel () const { return m_maxBuoyancy[0]; }
+         const double& maxVolume () const { return m_maxBuoyancy[1]; }
+         const Tuple2<double>& maxContent () const { return m_maxBuoyancy; }
       };
 
-   } } // namespace migration::distribute
+   }
+} // namespace migration::distribute
 
 #endif

@@ -22,14 +22,7 @@ source_group(ui FILES ${all_ui})
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
-find_package(Qt4 4.8.4 REQUIRED QtGui QtCore QtOpenGL)
-
-set(OIVHOME $ENV{OIVHOME})
-set(OIVARCH $ENV{OIVARCH})
-
-set(OIV_INCLUDE_DIR ${OIVHOME}/include)
-set(OIV_LIB_DIR_REL ${OIVHOME}/arch-Windows-x86_64-msvc12-Release/lib)
-set(OIV_LIB_DIR_DBG ${OIVHOME}/arch-Windows-x86_64-msvc12-Debug/lib)
+find_package(Qt5 5.6 REQUIRED Gui Core OpenGL)
 
 link_directories( ${OIV_LIB_DIR_REL} ${OIV_LIB_DIR_DBG})
 
@@ -59,9 +52,9 @@ target_link_libraries(4DViewer
    Visualization4D
    ${HDF5_LIBRARIES}
    ${Boost_LIBRARIES}
-   Qt4::QtGui
-   Qt4::QtCore
-   Qt4::QtOpenGL
+   Qt5::Gui
+   Qt5::Core
+   Qt5::OpenGL
 )
 
 install( TARGETS 4DViewer
