@@ -1788,9 +1788,9 @@ bool ProjectHandle::loadLithoTypes( void )
    for ( tblIter = lithoTypeTbl->begin(); tblIter != lithoTypeTbl->end(); ++tblIter )
    {
       Record * lithoTypeRecord = *tblIter;
-      m_lithoTypes.push_back( getFactory()->produceLithoType( this, lithoTypeRecord ) );
+         m_lithoTypes.push_back( getFactory()->produceLithoType( this, lithoTypeRecord ) );
 
-      if ( getLithotype( lithoTypeRecord ) == "Crust" ) {
+      if ( getLithotype( lithoTypeRecord ) == DataAccess::Interface::CrustLithologyName) {
          crustLithoType = lithoTypeRecord;
       }
    }
