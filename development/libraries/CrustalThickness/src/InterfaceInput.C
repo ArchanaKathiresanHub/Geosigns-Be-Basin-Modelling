@@ -514,7 +514,7 @@ void InterfaceInput::loadTopAndBottomOfSediments( GeoPhysics::ProjectHandle* pro
 
 
    // - MANTLE -
-   const Interface::CrustFormation * formationMantle = projectHandle->getCrustFormation();
+   const Interface::MantleFormation * formationMantle = projectHandle->getMantleFormation();
    if (formationMantle == nullptr) {
       throw InputException() << "Could not find Mantle formation at the age " << currentSnapshot->getTime();
    }

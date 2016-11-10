@@ -56,7 +56,7 @@ public :
    static CrustalThicknessCalculator* CreateFrom( const string& inputFileName, ObjectFactory* factory );
 
    /// @brief Initialise the CTC instance, projecthandle, interface input and interface output
-   void initialise();
+   void initialiseCTC();
 
    /// @brief Finish any activity and deallocate the singleton object
    /// @param saveResults Specify if the results must be saved in HDF file or not

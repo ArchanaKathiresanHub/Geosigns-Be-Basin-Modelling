@@ -224,7 +224,7 @@ int main (int argc, char ** argv)
       CrustalThicknessCalculator::getInstance().deleteCTCPropertyValues();
       LogHandler( LogHandler::INFO_SEVERITY ) << "_______________________________________________________";
       LogHandler( LogHandler::INFO_SEVERITY ) << "_____________________INITIALIZE CTC____________________";
-      CrustalThicknessCalculator::getInstance().initialise();
+      CrustalThicknessCalculator::getInstance().initialiseCTC();
       LogHandler( LogHandler::INFO_SEVERITY ) << "_______________________________________________________";
       LogHandler( LogHandler::INFO_SEVERITY ) << "_________________________RUN CTC_______________________";
       CrustalThicknessCalculator::getInstance().run();

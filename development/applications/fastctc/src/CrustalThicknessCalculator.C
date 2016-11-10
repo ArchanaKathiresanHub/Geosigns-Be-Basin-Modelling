@@ -42,6 +42,9 @@ using namespace database;
 #include "h5_parallel_file_types.h"
 #include "h5merge.h"
 
+// File system library
+#include "FilePath.h"
+
 // utilitites
 #include "LogHandler.h"
 
@@ -98,7 +101,7 @@ CrustalThicknessCalculator* CrustalThicknessCalculator::CreateFrom( const string
 
 //------------------------------------------------------------//
 
-void CrustalThicknessCalculator::initialise() {
+void CrustalThicknessCalculator::initialiseCTC() {
 
    ///1. Initialise CTC instance
    LogHandler( LogHandler::INFO_SEVERITY ) << "////////////////////";
@@ -282,7 +285,7 @@ void CrustalThicknessCalculator::run() {
          LogHandler( LogHandler::INFO_SEVERITY ) << "   -> computing Backstrip";
          DensityCalculator densityCalculator( *m_inputData, m_outputData, validator );
          densityCalculator.compute();
-         if (!m_debug) m_outputData.disableDebugOutput( m_crustalThicknessCalculator, m_inputData->getBotOfSedimentSurface(), theSnapshot );
+         if (not m_debug) m_outputData.disableDebugOutput( m_crustalThicknessCalculator, m_inputData->getBotOfSedimentSurface(), theSnapshot );
 
          /// 4. Compute the Total Tectonic Subsidence (only if we have a SDH at this snapshot)
          const Interface::Property* pressureInterfaceProperty = findProperty( "Pressure" );

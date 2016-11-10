@@ -131,7 +131,7 @@ bool InterfaceOutput::saveXYZOutputMaps( Interface::ProjectHandle * projectHandl
          
          outputFileCrust.open (outputFileName.c_str ());
          if (outputFileCrust.fail ()) {
-            LogHandler( LogHandler::ERROR_SEVERITY ) << "Could not open XYZ output file for map " << outputMapsNames[i];
+            LogHandler( LogHandler::ERROR_SEVERITY ) << "Could not open XYZ output file for map " << outputMapsNames[k];
             continue;
          }
          m_outputMaps[k]->retrieveData();
@@ -172,7 +172,7 @@ bool InterfaceOutput::saveExcelSurfaceOutputMaps( Interface::ProjectHandle * pro
          
          outputFileCrust.open (outputFileName.c_str ());
          if (outputFileCrust.fail ()) {
-            LogHandler( LogHandler::ERROR_SEVERITY ) << "Could not open XYZ output file for map " << outputMapsNames[i];
+            LogHandler( LogHandler::ERROR_SEVERITY ) << "Could not open XYZ output file for map " << outputMapsNames[k];
             continue;
          }
          m_outputMaps[k]->retrieveData();
@@ -217,7 +217,7 @@ void InterfaceOutput::setMapsToOutput(const CrustalThicknessInterface::outputMap
 //------------------------------------------------------------//
 void InterfaceOutput::updatePossibleOutputsAtSnapshot( outputMaps id, const GeoPhysics::ProjectHandle * pHandle, const Snapshot * theSnapshot, const bool debug ) {
    
-   bool toBeOutput = false;
+   bool toBeOutput = true;
    // The TTS, Incremental TS, and McKenzie general properties are only ouput when we have an SDH
    if (  id == WLSMap
       or id == WLSadjustedMap
@@ -229,22 +229,22 @@ void InterfaceOutput::updatePossibleOutputsAtSnapshot( outputMaps id, const GeoP
       or id == topBasaltMap
       or id == mohoMap
       or id == ECTMap ){
-      if (pHandle->asSurfaceDepthHistory( theSnapshot->getTime() )){
-         toBeOutput = true;
+      if (not pHandle->asSurfaceDepthHistory( theSnapshot->getTime() )){
+         toBeOutput = false;
       }
    }
 
    // The PWD is not output at 0.0Ma (it is equal to the water depth of the input stratigraphy)
    else if (id == isostaticBathymetry) {
-      if (not theSnapshot->getTime() == 0.0) {
-         toBeOutput = true;
+      if (theSnapshot->getTime() == 0.0) {
+         toBeOutput = false;
       }
    }
 
    // The PWDR is only output when we have an SDH and never output at 0.0Ma (since we do not have a PWD at 0.0Ma)
    else if (id == PaleowaterdepthResidual) {
-      if (pHandle->asSurfaceDepthHistory( theSnapshot->getTime() ) and not theSnapshot->getTime() == 0.0) {
-         toBeOutput = true;
+      if (not pHandle->asSurfaceDepthHistory( theSnapshot->getTime() ) or theSnapshot->getTime() == 0.0) {
+         toBeOutput = false;
       }
    }
 
@@ -268,17 +268,17 @@ void InterfaceOutput::updatePossibleOutputsAtSnapshot( outputMaps id, const GeoP
       or id == LowerContinentalCrustThickness
       or id == UpperOceanicCrustThickness
       or id == LowerOceanicCrustThickness) {
-      if (debug and pHandle->asSurfaceDepthHistory( theSnapshot->getTime() )) {
-         toBeOutput = true;
+      if (not debug or not pHandle->asSurfaceDepthHistory( theSnapshot->getTime() )) {
+         toBeOutput = false;
       }
    }
    // The response factor is only output in debug mode exept for present day
-   else if (id == ResponseFactor and not theSnapshot->getTime() == 0.0) {
-      if (debug){
-         toBeOutput = true;
+   else if (id == ResponseFactor) {
+      if (not debug or theSnapshot->getTime() == 0.0){
+         toBeOutput = false;
       }
    }
-
+   
    m_outputMapsMask[id] = toBeOutput;
 }
 
@@ -352,10 +352,6 @@ void InterfaceOutput::disableOutput( ProjectHandle * pHandle, const Interface::S
       else{
          LogHandler( LogHandler::ERROR_SEVERITY ) << "Cannot disable output '" << name << "' at snapshot " << theSnapshot->getTime();
       }
-   }
-   else{
-      LogHandler( LogHandler::ERROR_SEVERITY ) << "Cannot disable output '" << name << "' at snapshot " << theSnapshot->getTime() <<
-         " because the property value does not exist.";
    }
    delete propVals;
 }

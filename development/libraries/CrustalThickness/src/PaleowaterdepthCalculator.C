@@ -16,6 +16,8 @@
 // utilities library
 #include "ConstantsPhysics.h"
 using Utilities::Physics::AccelerationDueToGravity;
+#include "ConstantsMathematics.h"
+using Utilities::Maths::MegaPaToPa;
 
 //------------------------------------------------------------//
 PaleowaterdepthCalculator::PaleowaterdepthCalculator(
@@ -123,7 +125,7 @@ double PaleowaterdepthCalculator::calculateResponseFactor( const double presentD
                                                            const double currentPressureBasement ) const {
    assert( m_mantleDensity != m_waterDensity );
    //Pressure data available to equilibrate Basement and Bottom Mantle pressure
-   double responseFactor = ((presentDayPressureBotMantle - presentDayPressureBasement) - (currentPressureBotMantle - currentPressureBasement)) /
+   double responseFactor = ((presentDayPressureBotMantle - presentDayPressureBasement) - (currentPressureBotMantle - currentPressureBasement)) * MegaPaToPa /
       (AccelerationDueToGravity*(m_mantleDensity - m_waterDensity));
    return responseFactor;
 }

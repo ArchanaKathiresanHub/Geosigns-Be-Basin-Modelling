@@ -50,11 +50,11 @@ public:
       m_gridMapPresentDayTTS            = new DataAccess::Interface::SerialGridMap( 0, 0, this->m_grid, 1000 );
       m_gridMapPresentDayTTSNDV         = new DataAccess::Interface::SerialGridMap( 0, 0, this->m_grid, Interface::DefaultUndefinedMapValue );
       
-      m_currentPressureBasement       = new DataModel::MockDerivedSurfaceProperty( this->m_firstI, this->m_firstJ, this->m_firstI, this->m_firstJ, this->m_lastI, this->m_lastJ, this->m_lastI, this->m_lastJ, "Mantle", "Pressure", 10, 2000  );
-      m_presentDayPressureBasement    = new DataModel::MockDerivedSurfaceProperty( this->m_firstI, this->m_firstJ, this->m_firstI, this->m_firstJ, this->m_lastI, this->m_lastJ, this->m_lastI, this->m_lastJ, "Mantle", "Pressure", 0,  1000  );
+      m_currentPressureBasement       = new DataModel::MockDerivedSurfaceProperty( this->m_firstI, this->m_firstJ, this->m_firstI, this->m_firstJ, this->m_lastI, this->m_lastJ, this->m_lastI, this->m_lastJ, "Mantle", "Pressure", 10, 100  );
+      m_presentDayPressureBasement    = new DataModel::MockDerivedSurfaceProperty( this->m_firstI, this->m_firstJ, this->m_firstI, this->m_firstJ, this->m_lastI, this->m_lastJ, this->m_lastI, this->m_lastJ, "Mantle", "Pressure", 0,  200.01  );
       m_presentDayPressureBasementNDV = new DataModel::MockDerivedSurfaceProperty( this->m_firstI, this->m_firstJ, this->m_firstI, this->m_firstJ, this->m_lastI, this->m_lastJ, this->m_lastI, this->m_lastJ, "Mantle", "Pressure", 0, Interface::DefaultUndefinedMapValue );
-      m_currentPressureMantle         = new DataModel::MockDerivedSurfaceProperty( this->m_firstI, this->m_firstJ, this->m_firstI, this->m_firstJ, this->m_lastI, this->m_lastJ, this->m_lastI, this->m_lastJ, "Mantle", "Pressure", 10, 10000 );
-      m_presentDayPressureMantle      = new DataModel::MockDerivedSurfaceProperty( this->m_firstI, this->m_firstJ, this->m_firstI, this->m_firstJ, this->m_lastI, this->m_lastJ, this->m_lastI, this->m_lastJ, "Mantle", "Pressure", 0,  5000  );
+      m_currentPressureMantle         = new DataModel::MockDerivedSurfaceProperty( this->m_firstI, this->m_firstJ, this->m_firstI, this->m_firstJ, this->m_lastI, this->m_lastJ, this->m_lastI, this->m_lastJ, "Mantle", "Pressure", 10, 400 );
+      m_presentDayPressureMantle      = new DataModel::MockDerivedSurfaceProperty( this->m_firstI, this->m_firstJ, this->m_firstI, this->m_firstJ, this->m_lastI, this->m_lastJ, this->m_lastI, this->m_lastJ, "Mantle", "Pressure", 0,  500  );
    }
 
    ~PWDCalculatorTest()
@@ -151,12 +151,16 @@ TEST_F( PWDCalculatorTest, paleowaterdepth )
       outputData,
       validator,
       m_gridMapPresentDayTTS );
-   EXPECT_NEAR( -0.203873598369  , pwdCalculator1.calculateResponseFactor( 5000, 1000, 10000, 2000 ), 1e-12 );
-   EXPECT_NEAR( -0.183486238530  , pwdCalculator1.calculateResponseFactor( 6000,  700,  9000, 100  ), 1e-11 );
-   EXPECT_NEAR( 0.089194699286   , pwdCalculator1.calculateResponseFactor( 4000,  350,  2000, 100  ), 1e-12 );
-   EXPECT_NEAR( 800.203873598369 , pwdCalculator1.calculateThermallyCorrectedPWD( 1000,   200, -0.203873598369 ), 1e-12 );
-   EXPECT_NEAR( 3000.183486238530, pwdCalculator1.calculateThermallyCorrectedPWD( 1000, -2000, -0.183486238530 ), 1e-11 );
-   EXPECT_NEAR( -0.089194699286  , pwdCalculator1.calculateThermallyCorrectedPWD(    0,     0,  0.089194699286 ), 1e-12 );
+   // realistic value
+   EXPECT_NEAR( -0.509683995922, pwdCalculator1.calculateResponseFactor( 500, 200.01, 400, 100 ), 1e-12 );
+   // some extrem values
+   EXPECT_NEAR( -183486.238532  , pwdCalculator1.calculateResponseFactor( 6000,  700,  9000, 100  ), 1e-6 );
+   EXPECT_NEAR( 89194.699286    , pwdCalculator1.calculateResponseFactor( 4000,  350,  2000, 100  ), 1e-6 );
+   // realistic value
+   EXPECT_NEAR( 800.509683995922, pwdCalculator1.calculateThermallyCorrectedPWD( 1000,   200, -0.509683995922 ), 1e-6 );
+   // some extrem values
+   EXPECT_NEAR( 186486.238532 , pwdCalculator1.calculateThermallyCorrectedPWD( 1000, -2000, -183486.238532 ), 1e-6 );
+   EXPECT_NEAR( -89194.699286 , pwdCalculator1.calculateThermallyCorrectedPWD(    0,     0,   89194.699286 ), 1e-6 );
 
    //Without pressure equilibirium
    inputData.setPressureBasementAtPresentDay( nullptr );
@@ -212,14 +216,14 @@ TEST_F( PWDCalculatorTest, compute )
                                              validator,
                                              m_gridMapPresentDayTTS );
    pwdCalculator2.compute();
-   EXPECT_NEAR( 800.203873598369, outputData.getMapValue( isostaticBathymetry, 0, 0 ), 1e-12 );
-   EXPECT_NEAR( 800.203873598369, outputData.getMapValue( isostaticBathymetry, 0, 1 ), 1e-12 );
-   EXPECT_NEAR( 800.203873598369, outputData.getMapValue( isostaticBathymetry, 1, 0 ), 1e-12 );
-   EXPECT_NEAR( 800.203873598369, outputData.getMapValue( isostaticBathymetry, 1, 1 ), 1e-12 );
-   EXPECT_NEAR( -0.203873598369, outputData.getMapValue( ResponseFactor, 0, 0 ), 1e-12 );
-   EXPECT_NEAR( -0.203873598369, outputData.getMapValue( ResponseFactor, 0, 1 ), 1e-12 );
-   EXPECT_NEAR( -0.203873598369, outputData.getMapValue( ResponseFactor, 1, 0 ), 1e-12 );
-   EXPECT_NEAR( -0.203873598369, outputData.getMapValue( ResponseFactor, 1, 1 ), 1e-12 );
+   EXPECT_NEAR( 800.509683995922, outputData.getMapValue( isostaticBathymetry, 0, 0 ), 1e-12 );
+   EXPECT_NEAR( 800.509683995922, outputData.getMapValue( isostaticBathymetry, 0, 1 ), 1e-12 );
+   EXPECT_NEAR( 800.509683995922, outputData.getMapValue( isostaticBathymetry, 1, 0 ), 1e-12 );
+   EXPECT_NEAR( 800.509683995922, outputData.getMapValue( isostaticBathymetry, 1, 1 ), 1e-6 );
+   EXPECT_NEAR( -0.509683995922, outputData.getMapValue( ResponseFactor, 0, 0 ), 1e-12 );
+   EXPECT_NEAR( -0.509683995922, outputData.getMapValue( ResponseFactor, 0, 1 ), 1e-12 );
+   EXPECT_NEAR( -0.509683995922, outputData.getMapValue( ResponseFactor, 1, 0 ), 1e-12 );
+   EXPECT_NEAR( -0.509683995922, outputData.getMapValue( ResponseFactor, 1, 1 ), 1e-12 );
 
    // and undefined data
    inputData.setPressureBasementAtPresentDay( m_presentDayPressureBasementNDV->getMockderivedSurfacePropertyPtr() );
