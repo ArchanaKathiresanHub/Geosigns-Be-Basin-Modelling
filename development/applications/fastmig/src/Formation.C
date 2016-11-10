@@ -1310,8 +1310,7 @@ namespace migration
          //add a record to the reservoir list
          database::Record * record = m_migrator->addDetectedReservoirRecord (this, start);
          Reservoir* reservoir = (Reservoir*)m_projectHandle->addDetectedReservoirs (record, this);
-         // Offsets and net to gross
-         reservoir->computeDepthOffsets (m_projectHandle->findSnapshot (0.));
+         // Net to gross
          reservoir->computeNetToGross ();
          m_detectedReservoir = true;
       }
@@ -1369,9 +1368,12 @@ namespace migration
             assert (reservoir);
 
             double formationThickness = getDepth (i, j, 0) - getDepth (i, j, depthIndex + 1);
+			
+			// if offset is not used or the mode is non legacy, topOffsetThickness == 0
+			double topOffsetThickness = reservoir->getLocalColumn(i, j)->getTopDepthOffset() * formationThickness;
 
             if (getLocalFormationNode (i, j, depthIndex)->hasThickness () and
-               ((reservoir->getLocalColumn (i, j)->getTopDepthOffset () * formationThickness + getDepth (i, j, depthIndex + 1)) < getDepth (i, j, depthIndex) or depthIndex == 0)) // Top node is flagged
+               (topOffsetThickness + getDepth (i, j, depthIndex + 1)) < getDepth (i, j, depthIndex) or depthIndex == 0) // Top node is flagged
             {
                getLocalFormationNode (i, j, depthIndex)->identifyAsReservoir ();
             }
@@ -1379,7 +1381,7 @@ namespace migration
             {
                int depth = depthIndex;
                while (depth > 0 and
-                  (getDepth (i, j, depth) < (reservoir->getLocalColumn (i, j)->getTopDepthOffset () * formationThickness + getDepth (i, j, depthIndex + 1))
+                  (getDepth (i, j, depth) < (topOffsetThickness + getDepth (i, j, depthIndex + 1))
                   or !getLocalFormationNode (i, j, depth)->hasThickness ()))
                {
                   --depth;

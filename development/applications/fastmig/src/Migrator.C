@@ -192,13 +192,13 @@ bool Migrator::compute (void)
 
    if (!m_legacyMigration)
    {
-      createFormationNodes ();
-      computeFormationPropertyMaps (m_projectHandle->getSnapshots ()->front (), overPressureRun);
+      createFormationNodes();
+      if (!computeFormationPropertyMaps(m_projectHandle->getSnapshots()->front(), overPressureRun)) return false;
    }
 
-   // compute the positions of the reservoirs within the formations
-   computeDepthOffsets ();
-   computeNetToGross ();
+   //By default the m_topDepthOffset= m_bottomDepthOffset = 0 
+   if (!computeDepthOffsets()) return false;
+   if (!computeNetToGross()) return false;
 
    // delete the maps created for computeDepthOffsets and computeNetToGross
    m_propertyManager->removeProperties (m_projectHandle->getSnapshots ()->front ());
@@ -501,13 +501,13 @@ bool Migrator::computeDepthOffsets ()
 
    Interface::ReservoirList::iterator reservoirIter;
 
-   for (reservoirIter = reservoirs->begin (); reservoirIter != reservoirs->end (); ++reservoirIter)
+   for (reservoirIter = reservoirs->begin(); reservoirIter != reservoirs->end(); ++reservoirIter)
    {
-      Reservoir * reservoir = (Reservoir *)* reservoirIter;
+	   Reservoir * reservoir = (Reservoir *)* reservoirIter;
 
-      assert (reservoir);
+	   assert(reservoir);
 
-      reservoir->computeDepthOffsets (m_projectHandle->findSnapshot (0.));
+	   if (!reservoir->computeDepthOffsets(m_projectHandle->findSnapshot(0.))) return false;
    }
 
    return true;
@@ -526,7 +526,7 @@ bool Migrator::computeNetToGross (void)
 
       assert (reservoir);
 
-      reservoir->computeNetToGross ();
+	  if (!reservoir->computeNetToGross ()) return false;
    }
    return true;
 }

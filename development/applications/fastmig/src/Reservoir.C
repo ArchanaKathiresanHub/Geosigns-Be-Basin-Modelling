@@ -2142,6 +2142,18 @@ namespace migration
       if (thicknessMap) thicknessMap->retrieveData ();
 
 
+	  //By default the m_topDepthOffset= m_bottomDepthOffset = 0
+	  if (!m_migrator->performLegacyMigration() && (depthOffsetMap || thicknessMap ))
+	  {
+		  if ( GetRank() == 0 )
+		  {
+			  cerr << "ERROR: depth offset maps and offset thickness maps cannot be used in non legacy migration " << endl;
+			  cerr.flush();
+		  }
+		  return false;
+	  }
+
+
       for (unsigned int i = m_columnArray->firstILocal (); i <= m_columnArray->lastILocal (); ++i)
       {
          for (unsigned int j = m_columnArray->firstJLocal (); j <= m_columnArray->lastJLocal (); ++j)
