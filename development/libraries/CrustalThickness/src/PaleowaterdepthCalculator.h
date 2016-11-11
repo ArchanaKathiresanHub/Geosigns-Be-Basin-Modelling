@@ -77,10 +77,10 @@ class PaleowaterdepthCalculator {
       const double  m_mantleDensity; ///< The mantle density (is currently the same for lithospheric and asthenospheric mantle) [kg.m-3]
       const double  m_waterDensity;  ///< The water density                                                                     [kg.m-3]
 
-      const DerivedProperties::SurfacePropertyPtr m_presentDayPressureMantle;   ///< The present day pressure of the top mantle                           [Pa]
-      const DerivedProperties::SurfacePropertyPtr m_currentPressureMantle;      ///< The current snapshot pressure of the top mantle                      [Pa]
-      const DerivedProperties::SurfacePropertyPtr m_presentDayPressureBasement; ///< The present day pressure at the present day basement depth           [Pa]
-      const DerivedProperties::SurfacePropertyPtr m_currentPressureBasement;    ///< The current snapshot pressure at the current snapshot basement depth [Pa]
+      const DerivedProperties::SurfacePropertyPtr m_presentDayPressureMantle;   ///< The present day pressure of the top mantle                           [MPa]
+      const DerivedProperties::SurfacePropertyPtr m_currentPressureMantle;      ///< The current snapshot pressure of the top mantle                      [MPa]
+      const DerivedProperties::SurfacePropertyPtr m_presentDayPressureBasement; ///< The present day pressure at the present day basement depth           [MPa]
+      const DerivedProperties::SurfacePropertyPtr m_currentPressureBasement;    ///< The current snapshot pressure at the current snapshot basement depth [MPa]
       const Interface::GridMap* m_presentDayTTS;                                ///< The present day total tectonic subsidence                            [m]
 
       AbstractInterfaceOutput& m_outputData; ///< The global interface output object (contains the output maps)

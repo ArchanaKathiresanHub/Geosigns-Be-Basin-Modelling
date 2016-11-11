@@ -46,16 +46,16 @@ PaleowaterdepthCalculator::PaleowaterdepthCalculator(
       throw std::invalid_argument( "The present day total tectonic subsidence is a null pointer and is required by the Paleowaterdepth calculator" );
    }
    else if (m_presentDayPressureMantle == nullptr){
-      LogHandler( LogHandler::INFO_SEVERITY ) << "      the Paleowaterdepth will not be thermally corrected as there is no present day bottom mantle pressure available";
+      LogHandler( LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS ) << "the Paleowaterdepth will not be thermally corrected as there is no present day bottom mantle pressure available";
    }
    else if (m_currentPressureMantle == nullptr){
-      LogHandler( LogHandler::INFO_SEVERITY ) << "      the Paleowaterdepth will not be thermally corrected as there is no transient bottom mantle pressure available";
+      LogHandler( LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS ) << "the Paleowaterdepth will not be thermally corrected as there is no transient bottom mantle pressure available";
    }
    else if (m_presentDayPressureBasement == nullptr){
-      LogHandler( LogHandler::INFO_SEVERITY ) << "      the Paleowaterdepth will not be thermally corrected as there is no present day basement pressure available";
+      LogHandler( LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS ) << "the Paleowaterdepth will not be thermally corrected as there is no present day basement pressure available";
    }
    else if (m_currentPressureBasement == nullptr){
-      LogHandler( LogHandler::INFO_SEVERITY ) << "      the Paleowaterdepth will not be thermally corrected as there is no transient basement pressure available";
+      LogHandler( LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_DETAILS ) << "the Paleowaterdepth will not be thermally corrected as there is no transient basement pressure available";
    }
 }
 

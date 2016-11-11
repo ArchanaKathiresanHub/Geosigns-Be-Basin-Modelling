@@ -118,6 +118,14 @@ add_gtest( NAME utilities::LogHandlerMinimal
    SOURCES test/LogHandlerMinimal.C test/LogHandlerUnitTester.h
    LIBRARIES utilities)
 
+add_gtest( NAME utilities::LogHandlerStyles
+   SOURCES test/LogHandlerStyles.C test/LogHandlerUnitTester.h
+   LIBRARIES utilities)
+
+add_gtest( NAME utilities::LogHandlerTime
+   SOURCES test/LogHandlerTime.C test/LogHandlerUnitTester.h
+   LIBRARIES utilities)
+
 ######################
 # StringHandler tests
 add_gtest( NAME utilities::StringHandler

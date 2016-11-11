@@ -23,10 +23,17 @@
 #include <boost/log/utility/setup/console.hpp>
 #include <boost/log/utility/setup/common_attributes.hpp>
 
+// std library
+#include <algorithm>
+
+//------------------------------------------------------------//
+
 // Initialise singleton token
 bool LogHandler::s_logIsCreated = false;
 // Initialise log file name
 std::string LogHandler::s_logName;
+
+//------------------------------------------------------------//
 
 LogHandler::LogHandler( const std::string & logName, const VerbosityLevel verbosity, int mpiRank ){
 
@@ -36,7 +43,8 @@ LogHandler::LogHandler( const std::string & logName, const VerbosityLevel verbos
    std::string mpiRankString = mpiRankConverter.str();
    std::string fullLogName = logName + "_" + mpiRankString + ".log";
 
-   m_severity = INFO_SEVERITY;
+   m_severity = LogHandler::INFO_SEVERITY;
+   m_style    = LogHandler::DEFAULT;
    if (!s_logIsCreated){
       s_logName = fullLogName;
 
@@ -86,14 +94,87 @@ LogHandler::LogHandler( const std::string & logName, const VerbosityLevel verbos
    }
 }
 
+//------------------------------------------------------------//
+
 LogHandler::LogHandler( const SeverityLevel severity ){
    m_severity = severity;
+   m_style = LogHandler::DEFAULT;
 }
+
+//------------------------------------------------------------//
+
+LogHandler::LogHandler( const SeverityLevel severity, const Style style ) {
+   m_severity = severity;
+   m_style    = style;
+}
+
+//------------------------------------------------------------//
+
+void LogHandler::applyStyle() {
+   std::ostringstream ossFormatted;
+   const std::streamoff size = m_oss.tellp();
+   const std::streamsize maxSizeTitle = 80;
+   const std::streamsize maxSizeSection = 30;
+   switch (m_style)
+   {
+      case LogHandler::DEFAULT:
+         return;
+         break;
+      case LogHandler::TITLE:
+      {
+         LogHandler( LogHandler::INFO_SEVERITY ) << std::string( maxSizeTitle, '_' );
+         const std::string beforeTitle( std::max( int( maxSizeTitle - size ) / 2, 0 ), '_' );
+         ossFormatted << beforeTitle;
+         ossFormatted << m_oss.str();
+         const std::string afterTitle( std::max( int( maxSizeTitle - size - (maxSizeTitle - size) / 2 ), 0 ), '_' );
+         ossFormatted << afterTitle;
+         break;
+      }
+      case LogHandler::SECTION:
+         LogHandler( LogHandler::INFO_SEVERITY ) << std::string( maxSizeSection, '/' );
+         ossFormatted << "/// " << m_oss.str();
+         break;
+      case LogHandler::SUBSECTION:
+         ossFormatted << "/// " << m_oss.str();
+         break;
+      case LogHandler::COMPUTATION_STEP:
+         ossFormatted << "   -> " << m_oss.str();
+         break;
+      case LogHandler::COMPUTATION_SUBSTEP:
+         ossFormatted << "      # " << m_oss.str();
+         break;
+      case LogHandler::COMPUTATION_DETAILS:
+         ossFormatted << "        " << m_oss.str();
+         break;
+      default:
+         return;
+         break;
+   }
+   m_oss.str( ossFormatted.str() );
+}
+
+//------------------------------------------------------------//
+
+void LogHandler::displayTime( const SeverityLevel severity, const double timeToDisplay, const char * msgToDisplay ) {
+
+   const int hours   = (int)(timeToDisplay / 3600.0);
+   const int minutes = (int)((timeToDisplay - (hours * 3600.0)) / 60.0);
+   const int seconds = (int)(timeToDisplay - hours * 3600.0 - minutes * 60.0);
+
+   LogHandler( severity ) << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~";
+   LogHandler( severity ) << msgToDisplay << ": "
+      << hours   << " hours "
+      << minutes << " minutes "
+      << seconds << " seconds";
+}
+
+//------------------------------------------------------------//
 
 LogHandler::~LogHandler(){
    if (!m_oss.str().empty()){
       try{
          if (s_logIsCreated) {
+            applyStyle();
             switch (m_severity)
             {
             case LogHandler::DEBUG_SEVERITY:     BOOST_LOG_TRIVIAL( debug )   << "MeSsAgE DEBUG    " << m_oss.str(); break;

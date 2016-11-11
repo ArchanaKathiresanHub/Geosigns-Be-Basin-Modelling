@@ -1,4 +1,4 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
 // 
@@ -8,8 +8,8 @@
 // Do not distribute without written permission from Shell.
 //
 
-#ifndef _CRUSTALTHICKNESS_LINEARFUNCTION_H_
-#define _CRUSTALTHICKNESS_LINEARFUNCTION_H_
+#ifndef CRUSTALTHICKNESS_LINEARFUNCTION_H
+#define CRUSTALTHICKNESS_LINEARFUNCTION_H
 
 /// @class LinearFunction A linear function used by the CTC McKenzieCalculator
 class LinearFunction {
@@ -56,8 +56,8 @@ class LinearFunction {
 
    private:
    
-      double m_TTS_crit;    ///< The critical total tectonic subsidence
-      double m_TTS_onset;   ///< The total tectonic subsidence at melting point
+      double m_TTS_crit;  ///< The critical total tectonic subsidence         [m]
+      double m_TTS_onset; ///< The total tectonic subsidence at melting point [m]
       
       /// @defgroup Thinning factor coefficients
       /// @{

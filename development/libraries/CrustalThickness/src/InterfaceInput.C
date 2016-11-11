@@ -89,13 +89,13 @@ InterfaceInput::~InterfaceInput() {
 //------------------------------------------------------------//
 void InterfaceInput::loadInputData( const string & inFile ) {
    ///1. Load configuration file
-   LogHandler( LogHandler::INFO_SEVERITY ) << "   -> loading CTC configuration file";
+   LogHandler( LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_STEP ) << "loading CTC configuration file";
    m_constants.loadConfigurationFileCtc( inFile );
    ///2. Load parameters input data
-   LogHandler( LogHandler::INFO_SEVERITY ) << "   -> loading user input data from CTC Parameters Table";
+   LogHandler( LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_STEP ) << "loading user input data from CTC Parameters Table";
    loadCTCIoTblData();
    ///3. Load history input data
-   LogHandler( LogHandler::INFO_SEVERITY ) << "   -> loading user input data from CTC Rifting History Table";
+   LogHandler( LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_STEP ) << "loading user input data from CTC Rifting History Table";
    loadCTCRiftingHistoryIoTblData();
 }
 
@@ -147,11 +147,11 @@ void InterfaceInput::loadRiftingEvents(){
       throw std::runtime_error( "The number of snpashots (" + std::to_string( m_snapshots.size() )
          + ") differ from the number of rifting events (" + std::to_string( m_crustalThicknessRiftingHistoryData.size() ) + ")" );
    }
-   LogHandler( LogHandler::DEBUG_SEVERITY ) << "      #" << std::setw( 15 ) << "Snapshot" << std::setw( 20 ) << "Tectonic Context";
+   LogHandler( LogHandler::DEBUG_SEVERITY, LogHandler::COMPUTATION_SUBSTEP ) << std::setw( 15 ) << "Snapshot" << std::setw( 20 ) << "Tectonic Context";
    for (size_t i = 0; i < m_snapshots.size(); i++) {
       const double age = m_snapshots[i];
       const std::shared_ptr<const CrustalThicknessRiftingHistoryData> data = m_crustalThicknessRiftingHistoryData[i];
-      LogHandler( LogHandler::DEBUG_SEVERITY ) << "      #" << std::setw( 15 ) << age << "Ma" << std::setw( 20 ) << data->getTectonicFlagName();;
+      LogHandler( LogHandler::DEBUG_SEVERITY, LogHandler::COMPUTATION_SUBSTEP ) << std::setw( 15 ) << age << "Ma" << std::setw( 20 ) << data->getTectonicFlagName();;
       GridMap const * const deltaSLMap( data->getMap( Interface::DeltaSL ));
       GridMap const * const hBuMap    ( data->getMap( Interface::HBu     ));
       m_riftingEvents[age] = std::shared_ptr<CrustalThickness::RiftingEvent>(
@@ -164,18 +164,18 @@ void InterfaceInput::loadRiftingEvents(){
 void InterfaceInput::analyseRiftingHistory(){
    analyseRiftingHistoryStartAge();
    analyseRiftingHistoryEndAge();
-   LogHandler( LogHandler::INFO_SEVERITY ) << "      #"
-                                           << std::setw( 15 ) << "Snapshot"
-                                           << std::setw( 20 ) << "Tectonic Context"
-                                           << std::setw( 10 ) << "Rift ID"
-                                           << std::setw( 8  ) << "Start"
-                                           << std::setw( 8  ) << "End";
-   LogHandler( LogHandler::INFO_SEVERITY ) << "      #"
-                                           << std::setw( 15 ) << "[Ma]"
-                                           << std::setw( 20 ) << "[]"
-                                           << std::setw( 10 ) << "[]"
-                                           << std::setw( 8  ) << "[Ma]"
-                                           << std::setw( 8  ) << "[Ma]";
+   LogHandler( LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP )
+      << std::setw( 15 ) << "Snapshot"
+      << std::setw( 20 ) << "Tectonic Context"
+      << std::setw( 10 ) << "Rift ID"
+      << std::setw( 8  ) << "Start"
+      << std::setw( 8  ) << "End";
+   LogHandler( LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP )
+      << std::setw( 15 ) << "[Ma]"
+      << std::setw( 20 ) << "[]"
+      << std::setw( 10 ) << "[]"
+      << std::setw( 8  ) << "[Ma]"
+      << std::setw( 8  ) << "[Ma]";
    bool atLeastOneActiveEvent   = false;
    bool atLeastOnePassiveEvent  = false;
    bool atLeastOneFlexuralEvent = false;
@@ -183,12 +183,12 @@ void InterfaceInput::analyseRiftingHistory(){
       const std::shared_ptr<const CrustalThickness::RiftingEvent> event = m_riftingEvents[m_snapshots[i]];
       const double start = m_riftingEvents[m_snapshots[i]]->getStartRiftAge();
       const double end   = m_riftingEvents[m_snapshots[i]]->getEndRiftAge();
-      LogHandler( LogHandler::INFO_SEVERITY ) << "      #"
-                                              << std::setw( 15 ) << m_snapshots[i]
-                                              << std::setw( 20 ) << m_crustalThicknessRiftingHistoryData[i]->getTectonicFlagName()
-                                              << std::setw( 10 ) << event->getRiftId()
-                                              << std::setw( 8  ) << start
-                                              << std::setw( 8  ) << end;
+      LogHandler( LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP )
+         << std::setw( 15 ) << m_snapshots[i]
+         << std::setw( 20 ) << m_crustalThicknessRiftingHistoryData[i]->getTectonicFlagName()
+         << std::setw( 10 ) << event->getRiftId()
+         << std::setw( 8  ) << start
+         << std::setw( 8  ) << end;
       // check that the timing is valid
       if (start  != DataAccess::Interface::DefaultUndefinedScalarValue
          and end != DataAccess::Interface::DefaultUndefinedScalarValue
@@ -219,8 +219,8 @@ void InterfaceInput::analyseRiftingHistory(){
          }
       }
    }
-   LogHandler( LogHandler::INFO_SEVERITY ) << "      #";
-   LogHandler( LogHandler::INFO_SEVERITY ) << "      #" << "Flexural age " << m_flexuralAge;
+   LogHandler( LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP ) << "";
+   LogHandler( LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP ) << "Flexural age " << m_flexuralAge;
 
    // check that there is at least one active rifting event defined
    if (not atLeastOneActiveEvent){

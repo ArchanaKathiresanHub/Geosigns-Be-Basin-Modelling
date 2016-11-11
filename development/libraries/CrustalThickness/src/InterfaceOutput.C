@@ -103,7 +103,7 @@ bool InterfaceOutput::saveOutputMaps( Interface::ProjectHandle * projectHandle, 
          mapWriter->writeMapToHDF (m_outputMaps[i], time, time, dataSetName, topCrustSurfaceName); 
          mapWriter->close();
 
-         LogHandler( LogHandler::INFO_SEVERITY ) << "Map " << outputMapsNames[i] << " is saved into " << outputFileName << ".";
+         LogHandler( LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP ) << "Map " << outputMapsNames[i] << " saved into " << outputFileName << ".";
       }
    }
    delete mapWriter;
@@ -145,7 +145,7 @@ bool InterfaceOutput::saveXYZOutputMaps( Interface::ProjectHandle * projectHandl
          }
          m_outputMaps[k]->restoreData();
          outputFileCrust.close();
-         LogHandler( LogHandler::INFO_SEVERITY ) << "Map " << outputMapsNames[k] << " is saved into " << outputFileName << ".";
+         LogHandler( LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP ) << "Map " << outputMapsNames[k] << " saved into " << outputFileName << ".";
       }
    }
    return true; 
@@ -194,7 +194,7 @@ bool InterfaceOutput::saveExcelSurfaceOutputMaps( Interface::ProjectHandle * pro
          }
          m_outputMaps[k]->restoreData();
          outputFileCrust.close();
-         LogHandler( LogHandler::INFO_SEVERITY ) << "Map " << outputMapsNames[k] << " is saved into " << outputFileName;
+         LogHandler( LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP ) << "Map " << outputMapsNames[k] << " saved into " << outputFileName;
       }
    }
    return true; 
@@ -359,7 +359,7 @@ void InterfaceOutput::disableOutput( ProjectHandle * pHandle, const Interface::S
 //------------------------------------------------------------//
 void InterfaceOutput::saveOutput( Interface::ProjectHandle * pHandle, bool isDebug, int outputOptions, const Snapshot * theSnapshot ) {
 
-   LogHandler( LogHandler::INFO_SEVERITY ) << "   -> save maps to local disk";
+   LogHandler( LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_STEP ) << "save maps to local disk";
    if( isDebug ) {
       if( outputOptions & XYZ ) {
          if( pHandle->getSize() > 1 ) {

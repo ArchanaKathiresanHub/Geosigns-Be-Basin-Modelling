@@ -222,11 +222,9 @@ int main (int argc, char ** argv)
    ///3. Run CTC
    try {
       CrustalThicknessCalculator::getInstance().deleteCTCPropertyValues();
-      LogHandler( LogHandler::INFO_SEVERITY ) << "_______________________________________________________";
-      LogHandler( LogHandler::INFO_SEVERITY ) << "_____________________INITIALIZE CTC____________________";
+      LogHandler( LogHandler::INFO_SEVERITY, LogHandler::TITLE ) << "INITIALIZE CTC";
       CrustalThicknessCalculator::getInstance().initialiseCTC();
-      LogHandler( LogHandler::INFO_SEVERITY ) << "_______________________________________________________";
-      LogHandler( LogHandler::INFO_SEVERITY ) << "_________________________RUN CTC_______________________";
+      LogHandler( LogHandler::INFO_SEVERITY, LogHandler::TITLE ) << "RUN CTC";
       CrustalThicknessCalculator::getInstance().run();
    }
    catch (std::invalid_argument& ex){
@@ -252,7 +250,7 @@ int main (int argc, char ** argv)
 
    PetscLogDouble sim_End_Time;
    PetscTime( &sim_End_Time );
-   displayTime( sim_End_Time - sim_Start_Time, "End of simulation" );
+   LogHandler::displayTime( LogHandler::INFO_SEVERITY, sim_End_Time - sim_Start_Time, "End of simulation" );
 
 #ifdef FLEXLM
    //FlexLM license check in only for node with rank = 0
@@ -265,12 +263,11 @@ int main (int argc, char ** argv)
 
    ////////////////////////////////////////////
    ///4. Save results
-   LogHandler( LogHandler::INFO_SEVERITY ) << "_______________________________________________________";
-   LogHandler( LogHandler::INFO_SEVERITY ) << "____________________SAVE CTC OUTPUTS___________________";
+   LogHandler( LogHandler::INFO_SEVERITY, LogHandler::TITLE ) << "SAVE CTC OUTPUTS";
    CrustalThicknessCalculator::finalise(true);
 
    PetscTime( &sim_End_Time );
-   displayTime( sim_End_Time - sim_Start_Time, "Total time" );
+   LogHandler::displayTime( LogHandler::INFO_SEVERITY, sim_End_Time - sim_Start_Time, "Total time" );
      
    delete factory;
 
