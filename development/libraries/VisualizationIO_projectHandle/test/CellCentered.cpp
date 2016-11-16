@@ -52,7 +52,8 @@ TEST( Utilities, CellCenterData )
 
 	//create a volume
 	std::shared_ptr<Volume> volume(new Volume(None));
-	volume->addPropertyVolumeData(PropertyVolumeData(prop, volumeData));
+	PropertyVolumeData propVolData(prop, volumeData);
+	volume->addPropertyVolumeData(propVolData);
 
 	// CELL center the volume
 	VisualizationUtils::cellCenterVolume(volume, project);
@@ -76,7 +77,8 @@ TEST( Utilities, CellCenterData )
 	surfData->setData_IJ(mapData);
 
 	std::shared_ptr<Surface> surface(new Surface("surface", None));
-	surface->addPropertySurfaceData(PropertySurfaceData(prop, surfData));
+	PropertySurfaceData propSurfData(prop, surfData);
+	surface->addPropertySurfaceData(propSurfData);
 	snap->addSurface(surface);
 
 	// CELL center map
@@ -118,15 +120,21 @@ TEST( Utilities, CellCenterData )
 	project->addFormation(formation3);
 
 	std::shared_ptr<Volume> volume1(new Volume(None));
-	volume1->addPropertyVolumeData(PropertyVolumeData(prop, volumeData1));
+	PropertyVolumeData pvd1(prop, volumeData1);
+	volume1->addPropertyVolumeData(pvd1);
 	std::shared_ptr<Volume> volume2(new Volume(None));
-	volume2->addPropertyVolumeData(PropertyVolumeData(prop, volumeData2));
+	PropertyVolumeData pvd2(prop, volumeData2);
+	volume2->addPropertyVolumeData(pvd2);
 	std::shared_ptr<Volume> volume3(new Volume(None));
-	volume3->addPropertyVolumeData(PropertyVolumeData(prop, volumeData3));
+	PropertyVolumeData pvd3(prop, volumeData3);
+	volume3->addPropertyVolumeData(pvd3);
 
-	snap->addFormationVolume(FormationVolume(formation1, volume1));
-	snap->addFormationVolume(FormationVolume(formation2, volume2));
-	snap->addFormationVolume(FormationVolume(formation3, volume3));
+	FormationVolume fv1(formation1, volume1);
+	snap->addFormationVolume(fv1);
+	FormationVolume fv2(formation2, volume2);
+	snap->addFormationVolume(fv2);
+	FormationVolume fv3(formation3, volume3);
+	snap->addFormationVolume(fv3);
 
 	// Cell center the formation volume
 	VisualizationUtils::cellCenterFormationVolumes(snap, project);

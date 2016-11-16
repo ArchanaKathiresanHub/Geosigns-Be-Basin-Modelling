@@ -10,6 +10,7 @@
 
 #include "VisualizationIO_native.h"
 #include "VisualizationUtils.h"
+#include "DataStore.h"
 #include <assert.h>
 #include "hdf5.h"
 #include <boost/thread.hpp>
@@ -218,15 +219,13 @@ std::shared_ptr<CauldronIO::SurfaceData> VisualizationUtils::cellCenterMap(const
 
 	// check if ordered by row
 	assert(map->canGetRow());
-	const float* inputRow1;
-	const float* inputRow2;
 
-	inputRow2 = map->getRowValues(0);
+	const float* inputRow2 = map->getRowValues(0);
 	size_t outputIndex = 0;
 
 	for (int j = 0; j < numJ - 1; j++)
 	{
-		inputRow1 = inputRow2;
+		const float* inputRow1 = inputRow2;
 		inputRow2 = map->getRowValues(j + 1);
 
 		for (int i = 0; i < numI - 1; i++)
@@ -512,7 +511,8 @@ void VisualizationUtils::cellCenterFormationVolumes(const std::shared_ptr<SnapSh
 			}
 
 			// Add the merged volume to the snapshot's volume
-			snapShot->getVolume()->addPropertyVolumeData(PropertyVolumeData(prop, volData));
+			PropertyVolumeData propVolData(prop, volData);
+			snapShot->getVolume()->addPropertyVolumeData(propVolData);
 
 			// Loop over all formations to remove this property
 			for (auto& formationVol : formationVolumeList)
@@ -648,14 +648,11 @@ void VisualizationUtils::computeVolumeData(std::shared_ptr<VolumeData> volData, 
 	size_t numI = geometry->getNumI();
 	size_t numJ = geometry->getNumJ();
 
-	const float* surface1;
-	const float* surface2;
-
-	surface2 = volData->getSurface_IJ(geometry->getFirstK());
+	const float* surface2 = volData->getSurface_IJ(geometry->getFirstK());
 
 	for (size_t k = geometry->getFirstK(); k < geometry->getLastK(); k++)
 	{
-		surface1 = surface2;
+		const float* surface1 = surface2;
 		surface2 = volData->getSurface_IJ(k + 1);
 		const float* row12 = surface1;
 		const float* row22 = surface2;
@@ -713,6 +710,160 @@ void VisualizationUtils::getFilterFunc(const std::shared_ptr<const Property>& pr
 	{
 		filter = VisualizationUtils::getFlowIJK;
 		filterUndef = VisualizationUtils::getFlowIJK;
+	}
+}
+
+void VisualizationUtils::replaceExistingProperties(const std::shared_ptr<SnapShot>& snapShot, std::shared_ptr<const Project>& projectToExtend)
+{
+	// Find the snapshot
+	std::shared_ptr<CauldronIO::SnapShot> snapShotToExtend;
+	for (auto& thisSnapShot : projectToExtend->getSnapShots())
+	{
+		if (thisSnapShot->getAge() == snapShot->getAge())
+		{
+			snapShotToExtend = thisSnapShot;
+			break;
+		}
+	}
+
+	if (!snapShotToExtend) return;
+
+	// Check the volume
+	replaceVolume(snapShot->getVolume(), snapShotToExtend->getVolume());
+
+	// Check the formation volumes
+	for (auto& currentFormVolume : snapShot->getFormationVolumeList())
+	{
+		for (auto& formVolumeToExtend : snapShotToExtend->getFormationVolumeList())
+		{
+			// Check if formations match
+			if (*currentFormVolume.first == *formVolumeToExtend.first)
+			{
+				replaceVolume(currentFormVolume.second, formVolumeToExtend.second);
+				break;
+			}
+		}
+	}
+
+	// Check the surfaces
+	for (auto& surface : snapShot->getSurfaceList())
+	{
+		for (auto& surfaceToExtend : snapShotToExtend->getSurfaceList())
+		{
+			if (*surface == *surfaceToExtend)
+			{
+				// Check the propertySurface data 
+				for (size_t i = 0; i <  surface->getPropertySurfaceDataList().size(); ++i)
+				{
+					auto& propSurfaceData = surface->getPropertySurfaceDataList().at(i);
+					
+					for (auto& propSurfaceDataToExtend : surfaceToExtend->getPropertySurfaceDataList())
+					{
+						// Compare properties and geometries
+						if ((*propSurfaceData.first == *propSurfaceDataToExtend.first) &&
+							 *propSurfaceData.second->getGeometry() == *propSurfaceDataToExtend.second->getGeometry())
+						{
+							// Also check formations
+							auto& formation1 = propSurfaceData.second->getFormation();
+							auto& formation2 = propSurfaceDataToExtend.second->getFormation();
+
+							if (!formation1 && formation2) continue;
+							if (formation1 && !formation2) continue;
+							if (formation1 && formation2 && !(*formation1 == *formation2)) continue;
+
+							// replace Surface at i
+							PropertySurfaceData surfData(propSurfaceData.first, createReferenceSurfData(propSurfaceDataToExtend.second));
+							surface->replaceAt(i, surfData);
+							break;
+						}
+					}
+				}
+
+				break;
+			}
+		}
+		
+	}
+}
+
+std::shared_ptr<CauldronIO::SurfaceData> VisualizationUtils::createReferenceSurfData(const std::shared_ptr<CauldronIO::SurfaceData>& surfaceData)
+{
+	MapNative* nativeSurface = dynamic_cast<MapNative*>(surfaceData.get());
+	assert(nativeSurface);
+
+	std::shared_ptr<ReferenceMap> refMap(new ReferenceMap(surfaceData->getGeometry(), surfaceData->getMinValue(), surfaceData->getMaxValue()));
+
+	// Copy the formation
+	if (surfaceData->getFormation()) refMap->setFormation(surfaceData->getFormation());
+
+	// Check if constant
+	if (surfaceData->isConstant())
+	{
+		refMap->setConstantValue(surfaceData->getConstantValue());
+		return refMap;
+	}
+
+	const DataStoreParams* params = nativeSurface->getDataStoreParams();
+	assert(params);
+	refMap->setDataStore(params);
+
+	return refMap;
+}
+
+std::shared_ptr<CauldronIO::VolumeData> VisualizationUtils::createReferenceVolData(const std::shared_ptr<CauldronIO::VolumeData>& volData)
+{
+	VolumeDataNative* nativeVolume = dynamic_cast<VolumeDataNative*>(volData.get());
+	assert(nativeVolume);
+
+	std::shared_ptr<ReferenceVolume> refVolume(new ReferenceVolume(volData->getGeometry(), volData->getMinValue(), volData->getMaxValue()));
+
+	// Check if constant
+	if (volData->isConstant())
+	{
+		refVolume->setConstantValue(volData->getConstantValue());
+		return refVolume;
+	}
+	
+	if (nativeVolume->getDataStoreParamsIJK())
+	{
+		refVolume->setDataStore(nativeVolume->getDataStoreParamsIJK(), true);
+	}
+	if (nativeVolume->getDataStoreParamsKIJ())
+	{
+		refVolume->setDataStore(nativeVolume->getDataStoreParamsKIJ(), false);
+	}
+	
+	return refVolume;
+}
+
+void VisualizationUtils::replaceVolume(const std::shared_ptr<Volume>& currentVolume, const std::shared_ptr<Volume>& volumeToExtend)
+{
+	if (!currentVolume || !volumeToExtend) return;
+	
+	// Loop over current propertyvolumes and try to find equivalents
+	for (size_t i = 0; i < currentVolume->getPropertyVolumeDataList().size(); ++i)
+	{
+		auto& currentPropVol = currentVolume->getPropertyVolumeDataList().at(i);
+		const Geometry2D* currentGeometry = currentPropVol.second->getGeometry().get();
+
+		// This is not working yet for cell centered properties
+		if (currentGeometry->isCellCentered()) continue;
+
+		for (auto& propVolToExtend : volumeToExtend->getPropertyVolumeDataList())
+		{
+			// NOTE: do not compare 3D extends, these are not correct yet at this point,
+			// but will be adjusted when actual data is read. Therefore, that comparison would fail now
+			const Geometry2D* geometryToExtend = propVolToExtend.second->getGeometry().get();
+
+			// See if property & geometry matches
+			if (*propVolToExtend.first == *currentPropVol.first && *geometryToExtend == *currentGeometry)
+			{
+				// ** Replace it **
+				PropertyVolumeData newPropVol(propVolToExtend.first, createReferenceVolData(propVolToExtend.second));
+				currentVolume->replaceAt(i, newPropVol);
+				break;
+			}
+		}
 	}
 }
 

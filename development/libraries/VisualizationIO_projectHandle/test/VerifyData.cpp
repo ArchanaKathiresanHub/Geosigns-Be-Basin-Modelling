@@ -50,7 +50,7 @@ public:
 
 };
 
-void CompareSnapshots(std::shared_ptr<CauldronIO::Project> projectXml, std::unique_ptr<DataAccess::Interface::ProjectHandle> &projectP3d)
+void compareSnapshots(std::shared_ptr<CauldronIO::Project> projectXml, std::unique_ptr<DataAccess::Interface::ProjectHandle> &projectP3d)
 {
 	//Comparing Snapshot information
 	DataAccess::Interface::SnapshotList *snapShotListP3d = projectP3d->getSnapshots(DataAccess::Interface::MINOR | DataAccess::Interface::MAJOR);
@@ -104,7 +104,7 @@ void CompareSnapshots(std::shared_ptr<CauldronIO::Project> projectXml, std::uniq
 	}
 }
 
-void CompareFormations(std::shared_ptr<CauldronIO::Project> projectXml, std::unique_ptr<DataAccess::Interface::ProjectHandle> &projectP3d)
+void compareFormations(std::shared_ptr<CauldronIO::Project> projectXml, std::unique_ptr<DataAccess::Interface::ProjectHandle> &projectP3d)
 {
 	//Comparing Formation information
 	DataAccess::Interface::FormationList *formationListP3d = projectP3d->getFormations(0, true);
@@ -124,7 +124,7 @@ void CompareFormations(std::shared_ptr<CauldronIO::Project> projectXml, std::uni
 
 }
 
-void CompareReservoirs(std::shared_ptr<CauldronIO::Project> projectXml, std::unique_ptr<DataAccess::Interface::ProjectHandle> &projectP3d)
+void compareReservoirs(std::shared_ptr<CauldronIO::Project> projectXml, std::unique_ptr<DataAccess::Interface::ProjectHandle> &projectP3d)
 {
 	//Comparing Reservoir in formation
 	DataAccess::Interface::ReservoirList *reservoirListP3d = projectP3d->getReservoirs(0);
@@ -148,7 +148,7 @@ void CompareReservoirs(std::shared_ptr<CauldronIO::Project> projectXml, std::uni
 
 }
 
-void CompareProperties(std::shared_ptr<CauldronIO::Project> projectXml, std::unique_ptr<DataAccess::Interface::ProjectHandle> &projectP3d)
+void compareProperties(std::shared_ptr<CauldronIO::Project> projectXml, std::unique_ptr<DataAccess::Interface::ProjectHandle> &projectP3d)
 {
 	//Comparing Properties information
 	DataAccess::Interface::PropertyList *propListP3d = projectP3d->getProperties();
@@ -170,7 +170,7 @@ void CompareProperties(std::shared_ptr<CauldronIO::Project> projectXml, std::uni
 	}
 }
 
-void Compare2dPropertyValues(std::shared_ptr<CauldronIO::Project> projectXml, std::unique_ptr<DataAccess::Interface::ProjectHandle> &projectP3d)
+void compare2dPropertyValues(std::shared_ptr<CauldronIO::Project> projectXml, std::unique_ptr<DataAccess::Interface::ProjectHandle> &projectP3d)
 {
 	DataAccess::Interface::PropertyValueList *propValueListP3d = projectP3d->getPropertyValues();
 	size_t sizeP3d = propValueListP3d->size();
@@ -254,7 +254,7 @@ void Compare2dPropertyValues(std::shared_ptr<CauldronIO::Project> projectXml, st
 	cout << "2d property value comparison done" << endl;
 }
 
-std::map<string, int> CreateFormationMap(std::shared_ptr<CauldronIO::Project> projectXml)
+std::map<string, int> createFormationMap(std::shared_ptr<CauldronIO::Project> projectXml)
 {
 	//Map to store formation names and kStart to perform depth conversions for 3D continuous property values
 	std::map<string, int> formationMapXml;
@@ -268,14 +268,14 @@ std::map<string, int> CreateFormationMap(std::shared_ptr<CauldronIO::Project> pr
 	return formationMapXml;
 }
 
-void Compare3dDiscontinuousPropertyValues(std::shared_ptr<CauldronIO::Project> projectXml, std::unique_ptr<DataAccess::Interface::ProjectHandle> &projectP3d)
+void compare3dDiscontinuousPropertyValues(std::shared_ptr<CauldronIO::Project> projectXml, std::unique_ptr<DataAccess::Interface::ProjectHandle> &projectP3d)
 {
 	DataAccess::Interface::PropertyValueList *propValueListP3d = projectP3d->getPropertyValues();
 	size_t sizeP3d = propValueListP3d->size();
 	size_t nSnapShotsXml = projectXml->getSnapShots().size();
 
 	//Map to store formation names and kStart to perform depth conversions for 3D continuous property values
-	std::map<string, int> formationMapXml = CreateFormationMap(projectXml);
+	std::map<string, int> formationMapXml = createFormationMap(projectXml);
 
 	//Used as string separator in maps for keys
 	string sep = "$#!";
@@ -375,7 +375,7 @@ void Compare3dDiscontinuousPropertyValues(std::shared_ptr<CauldronIO::Project> p
 	cout << "3d discontinuous property value comparison done" << endl;
 }
 
-void Compare3dContinuousPropertyValues(std::shared_ptr<CauldronIO::Project> projectXml, std::unique_ptr<DataAccess::Interface::ProjectHandle> &projectP3d)
+void compare3dContinuousPropertyValues(std::shared_ptr<CauldronIO::Project> projectXml, std::unique_ptr<DataAccess::Interface::ProjectHandle> &projectP3d)
 {
 	
 	DataAccess::Interface::PropertyValueList *propValueListP3d = projectP3d->getPropertyValues();
@@ -385,7 +385,7 @@ void Compare3dContinuousPropertyValues(std::shared_ptr<CauldronIO::Project> proj
 	string sep = "$#!";
 
 	//Map to store formation names and kStart to perform depth conversions for 3D continuous property values
-	std::map<string, int> formationMapXml = CreateFormationMap(projectXml);
+	std::map<string, int> formationMapXml = createFormationMap(projectXml);
 
 	//Map to store 3D continuous property values and their indices
 	std::map <string, vector<int>> propValue3DMapContinuousP3d;
@@ -480,7 +480,7 @@ void Compare3dContinuousPropertyValues(std::shared_ptr<CauldronIO::Project> proj
 	cout << "3d continuous property value comparison done" << endl;
 }
 
-vector<int> UpdatePropertySurfaceData(shared_ptr<CauldronIO::Project> projectXml, shared_ptr<const Property> prop, int &size)
+vector<int> updatePropertySurfaceData(shared_ptr<CauldronIO::Project> projectXml, shared_ptr<const Property> prop, int &size)
 {
 	size_t nSnapshots = projectXml->getSnapShots().size();
 	vector<int> indexWithUpdatedPropSurfaceData;
@@ -536,7 +536,7 @@ vector<int> UpdatePropertySurfaceData(shared_ptr<CauldronIO::Project> projectXml
 	return indexWithUpdatedPropSurfaceData;
 }
 
-vector<int> UpdatePropertyVolumeData(shared_ptr<CauldronIO::Project> projectXml, shared_ptr<const Property> prop, int &size)
+vector<int> updatePropertyVolumeData(shared_ptr<CauldronIO::Project> projectXml, shared_ptr<const Property> prop, int &size)
 {
 	size_t nSnapshots = projectXml->getSnapShots().size();
 	//Adding PropertyVolumeData
@@ -596,7 +596,7 @@ vector<int> UpdatePropertyVolumeData(shared_ptr<CauldronIO::Project> projectXml,
 }
 
 //Function to update property value in an existing snapshot and check if it has been updated correctly
-void AddToExistingData(string xmlFileName)
+void addToExistingData(string xmlFileName)
 {
 	cout << "Starting import from XML" << endl;
 	shared_ptr<CauldronIO::Project> projectXml = CauldronIO::ImportExport::importFromXML(xmlFileName);
@@ -613,7 +613,7 @@ void AddToExistingData(string xmlFileName)
 		}
 	}
 	int sizeSurfaceData = 0;
-	vector<int> indexWithUpdatedPropSurfaceData = UpdatePropertySurfaceData(projectXml,prop,sizeSurfaceData);
+	vector<int> indexWithUpdatedPropSurfaceData = updatePropertySurfaceData(projectXml,prop,sizeSurfaceData);
 	
 	float *surfaceDataValue = sizeSurfaceData > 0 ? new float[sizeSurfaceData] : nullptr;
 	for (int i = 0; i < sizeSurfaceData; i++)
@@ -632,7 +632,7 @@ void AddToExistingData(string xmlFileName)
 	}
 
 	int sizeVolumeData = 0;
-	vector<int> indexAddedPropVolData = UpdatePropertyVolumeData(projectXml, prop2, sizeVolumeData);
+	vector<int> indexAddedPropVolData = updatePropertyVolumeData(projectXml, prop2, sizeVolumeData);
 	float *volumeDataValue = sizeVolumeData > 0 ? new float[sizeVolumeData] : nullptr;
 	for (int i = 0; i < sizeVolumeData; i++)
 	{
@@ -640,7 +640,8 @@ void AddToExistingData(string xmlFileName)
 	}
 	
 	//Exporting data
-	bool status = CauldronIO::ImportExport::exportToXML(projectXml, xmlFileName);
+	shared_ptr<CauldronIO::Project> projectExisting;
+	bool status = CauldronIO::ImportExport::exportToXML(projectXml, projectExisting, xmlFileName);
 	ASSERT_EQ(true, status);
 
 	//Importing data to check if data has been added correctly
@@ -734,7 +735,7 @@ void AddToExistingData(string xmlFileName)
 }
 
 //Function to add a new snapshot with binary data and check if it has been added correctly or not
-void AddNewData(string xmlFileName)
+void addNewData(string xmlFileName)
 {
 	//Import from XML
 	cout << "Starting import from XML" << endl;
@@ -794,7 +795,8 @@ void AddNewData(string xmlFileName)
 	projectXml->addSnapShot(snapShot);
 
 	//Exporting data
-	bool status = CauldronIO::ImportExport::exportToXML(projectXml, xmlFileName);
+	shared_ptr<CauldronIO::Project> projectExisting;
+	bool status = CauldronIO::ImportExport::exportToXML(projectXml, projectExisting, xmlFileName);
 	ASSERT_EQ(true, status);
 
 	//Importing data to check if data is added correctly
@@ -948,7 +950,7 @@ bool copyDir(boost::filesystem::path const & source, boost::filesystem::path con
 }
 
 //Function to create temporary copy of dataset
-string CreateTemporaryDataset(string xmlFileName)
+string createTemporaryDataset(string xmlFileName)
 {
 	boost::filesystem::path originalPath(xmlFileName);
 	boost::filesystem::path destPath = originalPath.parent_path();
@@ -996,7 +998,8 @@ int convertToXML(string filePathP3d, DataAccess::Interface::ObjectFactory *facto
 	// Construct output path
 	ibs::FilePath absPath(filePathP3d);
 	int numThreads = 1;
-	bool status = CauldronIO::ImportExport::exportToXML(project, absPath.path(), numThreads);
+	shared_ptr<CauldronIO::Project> existingProject;
+	bool status = CauldronIO::ImportExport::exportToXML(project, existingProject, absPath.path(), numThreads);
 	if (status == true)
 	{
 		cout << "Wrote to xml format " << endl;
@@ -1017,7 +1020,7 @@ TEST_F(CompareTest, CompareData1)
 	string fileNameP3d = filePathP3d.filename().string();
 
 	cout << "Creating temporary copy of data" << endl;
-	string testDataPath = CreateTemporaryDataset(filePathP3d.string());
+	string testDataPath = createTemporaryDataset(filePathP3d.string());
 	ASSERT_NE("error", testDataPath);
 	boost::filesystem::path newFilePathP3d(testDataPath);
 	newFilePathP3d /= fileNameP3d;
@@ -1040,13 +1043,13 @@ TEST_F(CompareTest, CompareData1)
 	//Comparing Project information
 	EXPECT_EQ(projectP3d->getModellingMode(), projectXml->getModelingMode());
 	
-	CompareSnapshots(projectXml, projectP3d);
-	CompareFormations(projectXml, projectP3d);
-	CompareReservoirs(projectXml, projectP3d);
-	CompareProperties(projectXml, projectP3d);
-	Compare2dPropertyValues(projectXml, projectP3d);
-	Compare3dDiscontinuousPropertyValues(projectXml, projectP3d);
-	Compare3dContinuousPropertyValues(projectXml, projectP3d);
+	compareSnapshots(projectXml, projectP3d);
+	compareFormations(projectXml, projectP3d);
+	compareReservoirs(projectXml, projectP3d);
+	compareProperties(projectXml, projectP3d);
+	compare2dPropertyValues(projectXml, projectP3d);
+	compare3dDiscontinuousPropertyValues(projectXml, projectP3d);
+	compare3dContinuousPropertyValues(projectXml, projectP3d);
 	
 	newFilePathP3d = testDataPath;
 
@@ -1061,7 +1064,7 @@ TEST_F(CompareTest, CheckAddToExisting1)
 	string fileNameP3d = filePathP3d.filename().string();
 
 	cout << "Creating temporary copy of data" << endl;
-	string testDataPath = CreateTemporaryDataset(filePathP3d.string());
+	string testDataPath = createTemporaryDataset(filePathP3d.string());
 	ASSERT_NE("error", testDataPath);
 	boost::filesystem::path newFilePathP3d(testDataPath);
 	newFilePathP3d /= fileNameP3d;
@@ -1073,7 +1076,7 @@ TEST_F(CompareTest, CheckAddToExisting1)
 	newFilePathXml /= fileNameXml;
 	
 	cout << "Adding data to existing snapshot" << endl;
-	AddToExistingData(newFilePathXml.string());
+	addToExistingData(newFilePathXml.string());
 	newFilePathP3d = testDataPath;
 
 	cout << "Deleting temporary copy of data" << endl;
@@ -1088,7 +1091,7 @@ TEST_F(CompareTest, CheckAddNew1)
 	string fileNameP3d = filePathP3d.filename().string();
 
 	cout << "Creating temporary copy of data" << endl;
-	string testDataPath = CreateTemporaryDataset(filePathP3d.string());
+	string testDataPath = createTemporaryDataset(filePathP3d.string());
 	ASSERT_NE("error", testDataPath);
 	boost::filesystem::path newFilePathP3d(testDataPath);
 	newFilePathP3d /= fileNameP3d;
@@ -1100,7 +1103,7 @@ TEST_F(CompareTest, CheckAddNew1)
 	newFilePathXml /= fileNameXml;
 
 	cout << "Adding new data" << endl;
-	AddNewData(newFilePathXml.string());
+	addNewData(newFilePathXml.string());
 	
 	newFilePathP3d = testDataPath;
 

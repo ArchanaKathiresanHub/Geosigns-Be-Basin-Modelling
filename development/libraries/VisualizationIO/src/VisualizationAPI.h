@@ -105,6 +105,8 @@ namespace CauldronIO
         const PropertyList& getProperties() const;
         /// \returns A list of all unique geometries
         const GeometryList& getGeometries() const;
+		/// \returns true if the project descriptions are equal
+		bool operator==(const Project& other) const;
 
         /// \returns the property (if existing) for the given name
         std::shared_ptr<const Property> findProperty(std::string propertyName) const;
@@ -158,7 +160,7 @@ namespace CauldronIO
  	    /// \brief Add a volume to the snapshot; ownership is transfered
         void setVolume(std::shared_ptr<Volume>& volume);
         /// \brief Add a discontinuous volume to the snapshot; ownership is transfered
-        void addFormationVolume(FormationVolume formVolume);
+        void addFormationVolume(FormationVolume& formVolume);
         /// \brief Add a trapper to the snapshot; ownership is transfered
         void addTrapper(std::shared_ptr<Trapper>& trapper);
 
@@ -361,7 +363,7 @@ namespace CauldronIO
         /// \param[in] index data the new PropertySurfaceData for that element
         void replaceAt(size_t index, PropertySurfaceData& data);
         /// \brief Add a property-surfaceData pair to the list
-        void addPropertySurfaceData( PropertySurfaceData data);
+        void addPropertySurfaceData( PropertySurfaceData& data);
         /// \returns true if this surface has a depth surface
         bool hasDepthSurface() const; 
         /// \returns the depth surface data; can be null
@@ -384,8 +386,10 @@ namespace CauldronIO
         void release();
         /// \returns true if data is available
         bool isRetrieved() const;
+		/// \returns true if two Surfaces are equal: note: the PropertySurfaceDataList is not compared 
+		bool operator==(const Surface& other) const;
 
-    private:
+	private:
         SubsurfaceKind m_subSurfaceKind;
         std::shared_ptr<const Formation> m_Topformation;
         std::shared_ptr<const Formation> m_Bottomformation;
@@ -521,7 +525,7 @@ namespace CauldronIO
     public:
         /// \brief Create a surface-data object
         SurfaceData(const std::shared_ptr<const Geometry2D>& geometry, float minValue = DefaultUndefinedValue, float maxValue = DefaultUndefinedValue);
-        ~SurfaceData();
+        virtual ~SurfaceData();
 
         /// VisualizationIOData implementation
         //////////////////////////////////////////////////////////////////////////
@@ -632,7 +636,7 @@ namespace CauldronIO
         //// \brief Removes a propertyvolume data from the list and disposes it        
         void removeVolumeData(PropertyVolumeData& data);
         /// \brief Add a property-surfaceData pair to the list
-        void addPropertyVolumeData(PropertyVolumeData data);
+        void addPropertyVolumeData(PropertyVolumeData& data);
         /// \brief Method to replace a PropertyVolumeData object by another one in the list
         /// \param[in] index Index in to the PropertyVolumeDataList
         /// \param[in] index data the new PropertyVolumeData for that element
@@ -659,7 +663,7 @@ namespace CauldronIO
     public:
         /// \brief Create a surface-data object
         VolumeData(const std::shared_ptr<Geometry3D>& geometry, float minValue = DefaultUndefinedValue, float maxValue = DefaultUndefinedValue);
-        ~VolumeData();
+        virtual ~VolumeData();
 
         /// \returns the geometry
         const std::shared_ptr<Geometry3D>& getGeometry() const;

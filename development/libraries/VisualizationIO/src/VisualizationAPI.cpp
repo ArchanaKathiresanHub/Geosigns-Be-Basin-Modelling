@@ -77,6 +77,16 @@ CauldronIO::ModellingMode CauldronIO::Project::getModelingMode() const
     return m_mode;
 }
 
+bool CauldronIO::Project::operator==(const Project& other) const
+{
+	return
+		m_mode == other.m_mode &&
+		m_version == other.m_version &&
+		m_team == other.m_team &&
+		m_description == other.m_description &&
+		m_name == other.m_name;
+}
+
 const SnapShotList& CauldronIO::Project::getSnapShots() const
 {
     return m_snapShotList;
@@ -272,7 +282,7 @@ void CauldronIO::SnapShot::addSurface(std::shared_ptr<Surface>& newSurface)
     m_surfaceList.push_back(newSurface);
 }
 
-void CauldronIO::SnapShot::addFormationVolume(FormationVolume formVolume)
+void CauldronIO::SnapShot::addFormationVolume(FormationVolume& formVolume)
 {
     // Check if volume exists
     BOOST_FOREACH(FormationVolume& volume, m_formationVolumeList)
@@ -518,7 +528,7 @@ void CauldronIO::Surface::replaceAt(size_t index, PropertySurfaceData& data)
     m_propSurfaceList.at(index) = data;
 }
 
-void CauldronIO::Surface::addPropertySurfaceData(PropertySurfaceData newData)
+void CauldronIO::Surface::addPropertySurfaceData(PropertySurfaceData& newData)
 {
     BOOST_FOREACH(PropertySurfaceData& data, m_propSurfaceList)
         if (data == newData) throw CauldronIOException("Cannot add property-surfaceData twice");
@@ -594,6 +604,28 @@ bool CauldronIO::Surface::isRetrieved() const
     }
 
     return true;
+}
+
+
+bool CauldronIO::Surface::operator==(const Surface& other) const
+{
+	if (this->getName() != other.getName()) return false;
+	if (this->getSubSurfaceKind() != other.getSubSurfaceKind()) return false;
+
+	auto& bottomFormation1 = this->getBottomFormation();
+	auto& bottomFormation2 = other.getBottomFormation();
+	auto& topFormation1 = this->getTopFormation();
+	auto& topFormation2 = other.getTopFormation();
+
+	if (bottomFormation1 && !bottomFormation2) return false;
+	if (topFormation1 && !topFormation2) return false;
+
+	if (bottomFormation1 && bottomFormation2)
+		if (!(*bottomFormation1 == *bottomFormation2)) return false;
+	if (topFormation1 && topFormation2)
+		if (!(*topFormation1 == *topFormation2)) return false;
+
+	return true;
 }
 
 /// Geometry2D Implementation
@@ -897,7 +929,7 @@ const float* CauldronIO::SurfaceData::getSurfaceValues()
 
 size_t CauldronIO::SurfaceData::getMapIndex(size_t i, size_t j) const
 {
-    assert(i >= 0 && i < m_numI && j >= 0 && j < m_numJ);
+    assert(i < m_numI && j < m_numJ);
     return m_numI * j + i;
 }
 
@@ -963,7 +995,7 @@ void CauldronIO::Volume::removeVolumeData(PropertyVolumeData& data)
     throw CauldronIOException("Cannot find data to remove");
 }
 
-void CauldronIO::Volume::addPropertyVolumeData(PropertyVolumeData newData)
+void CauldronIO::Volume::addPropertyVolumeData(PropertyVolumeData& newData)
 {
     BOOST_FOREACH(PropertyVolumeData& data, m_propVolumeList)
         if (data == newData) throw CauldronIOException("Cannot add property-volumeData twice");
@@ -1413,14 +1445,14 @@ void CauldronIO::VolumeData::setData(float* data, float** internalData, bool set
 
 size_t CauldronIO::VolumeData::computeIndex_IJK(size_t i, size_t j, size_t k) const
 {
-    assert(i >= 0 && i < m_numI && j >= 0 && j < m_numJ && k >= m_firstK && k < m_numK + m_firstK);
+    assert(i < m_numI && j < m_numJ && k >= m_firstK && k < m_numK + m_firstK);
 
     return (i + j * m_numI + (k - m_firstK) * m_numI * m_numJ);
 }
 
 size_t CauldronIO::VolumeData::computeIndex_KIJ(size_t i, size_t j, size_t k) const
 {
-    assert(i >= 0 && i < m_numI && j >= 0 && j < m_numJ && k >= m_firstK && k < m_numK + m_firstK);
+    assert(i < m_numI && j < m_numJ && k >= m_firstK && k < m_numK + m_firstK);
 
     return ((k - m_firstK) + i * m_numK + j * m_numI * m_numK);
 }

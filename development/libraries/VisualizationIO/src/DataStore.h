@@ -31,22 +31,16 @@ namespace CauldronIO
     class Geometry2D;
     class Geometry3D;
 
-    /// \brief Little struct to hold parameters to retrieve data 
-    struct DataStoreParams
+	/// \brief Little struct to hold parameters to retrieve data 
+	struct DataStoreParams
     {
-       DataStoreParams() {;}
-    };
-
-    /// \brief Native implementation
-    struct DataStoreParamsNative : DataStoreParams
-    {
-        ibs::FilePath fileName;
+		DataStoreParams() : fileName("") { ; }
+		
+		ibs::FilePath fileName;
         size_t offset;
         size_t size;
         bool compressed;
         bool compressed_lz4;
-        
-        DataStoreParamsNative() : fileName( "" ) {;}
     };
 
     /// \brief Little class to load data from binary storage
@@ -73,7 +67,7 @@ namespace CauldronIO
 
     private:
         std::ifstream m_file_in;
-        DataStoreParamsNative* m_params;
+        DataStoreParams* m_params;
         char* m_data_uncompressed;
     };
 

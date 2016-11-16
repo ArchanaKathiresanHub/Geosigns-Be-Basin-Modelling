@@ -35,11 +35,13 @@ namespace CauldronIO
 %shared_ptr(CauldronIO::VolumeData)
 %shared_ptr(CauldronIO::SurfaceData)
 %shared_ptr(CauldronIO::VisualizationIOData)
+%shared_ptr(CauldronIO::ReferenceVolume)
 %shared_ptr(CauldronIO::Formation)
 %shared_ptr(CauldronIO::Property)
 %shared_ptr(CauldronIO::Project)
 %shared_ptr(CauldronIO::Trapper)
 %shared_ptr(CauldronIO::MapNative)
+%shared_ptr(CauldronIO::ReferenceMap)
 %shared_ptr(CauldronIO::VolumeDataNative)
 %shared_ptr(CauldronIO::Geometry2D)
 %shared_ptr(CauldronIO::Geometry3D)
@@ -62,6 +64,8 @@ namespace CauldronIO
 %rename ("Equals") CauldronIO::Formation::operator==(const Formation& other) const;
 %rename ("Equals") CauldronIO::Geometry2D::operator==(const Geometry2D& other) const;
 %rename ("Equals") CauldronIO::Geometry3D::operator==(const Geometry3D& other) const;
+%rename ("Equals") CauldronIO::Project::operator==(const Project& other) const;
+%rename ("Equals") CauldronIO::Surface::operator==(const Surface& other) const;
 %include "VisualizationAPIFwDecl.h"
 %include "VisualizationAPI.h"
 %include "VisualizationIO_native.h"

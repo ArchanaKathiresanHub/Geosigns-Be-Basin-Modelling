@@ -25,7 +25,8 @@
 
 using namespace CauldronIO;
 
-bool ImportExport::exportToXML(std::shared_ptr<Project>& project, const std::string& absPath, size_t numThreads, bool center)
+bool ImportExport::exportToXML(std::shared_ptr<Project>& project, const std::shared_ptr<Project>& projectExisting,
+	const std::string& absPath, size_t numThreads, bool center)
 {
    // Create empty property tree object
    ibs::FilePath outputPath(absPath);
@@ -47,7 +48,7 @@ bool ImportExport::exportToXML(std::shared_ptr<Project>& project, const std::str
     ImportExport newExport(outputPath.filePath(), filenameNoExtension, numThreads, center);
 
     // Create xml property tree and write datastores
-    newExport.addProject(pt, project);
+    newExport.addProject(pt, project, projectExisting);
 
     // Write property tree to XML file
     ibs::FilePath xmlFileName(outputPath.filePath());
@@ -56,11 +57,12 @@ bool ImportExport::exportToXML(std::shared_ptr<Project>& project, const std::str
     return doc.save_file(xmlFileName.cpath());
 }
 
-void ImportExport::addProject(pugi::xml_node pt, std::shared_ptr<Project>& project)
+void ImportExport::addProject(pugi::xml_node pt, std::shared_ptr<Project>& project, const std::shared_ptr<Project>& projectExisting)
 {
     ibs::FilePath fullPath(m_absPath);
     fullPath << m_relPath.path();
     m_project = project;
+	m_projectExisting = projectExisting;
 
     // Add general project description
     pt.append_child("name").text() = project->getName().c_str();
@@ -68,7 +70,9 @@ void ImportExport::addProject(pugi::xml_node pt, std::shared_ptr<Project>& proje
     pt.append_child("modelingmode").text() = (int)project->getModelingMode();
     pt.append_child("team").text() = project->getTeam().c_str();
     pt.append_child("programversion").text() = project->getProgramVersion().c_str();
-    pt.append_child("outputpath").text() = m_relPath.cpath();
+   
+
+	pt.append_child("outputpath").text() = m_relPath.cpath();
     
     pugi::xml_node ptxml = pt.append_child("xml-version");
     ptxml.append_attribute("major") = xml_version_major;
@@ -108,7 +112,7 @@ void ImportExport::addProject(pugi::xml_node pt, std::shared_ptr<Project>& proje
     BOOST_FOREACH(const std::shared_ptr<SnapShot>& snapShot, snapShotList)
     {
         pugi::xml_node node = snapShotNodes.append_child("snapshot");
-        addSnapShot(snapShot, project, fullPath, node);
+        addSnapShot(snapShot, fullPath, node);
     }
 
     // Write all geometries
@@ -189,10 +193,21 @@ void CauldronIO::ImportExport::addSurface(DataStoreSave& dataStore, const std::s
             node.append_attribute("min") = surfaceData->getMinValue();
             node.append_attribute("max") = surfaceData->getMaxValue();
 
-            if (surfaceData->isConstant())
-                node.append_attribute("constantvalue") = surfaceData->getConstantValue();
-            else
-                dataStore.addSurface(surfaceData, node);
+			// Check for reference volume
+			ReferenceMap* refMap = dynamic_cast<ReferenceMap*>(surfaceData.get());
+
+			if (surfaceData->isConstant())
+			{
+				node.append_attribute("constantvalue") = surfaceData->getConstantValue();
+			}
+			else if (refMap != nullptr)
+			{
+				addReferenceData(node, refMap->getDataStoreParams(), false, false);
+			}
+			else
+			{
+				dataStore.addSurface(surfaceData, node);
+			}
         }
     }
 }
@@ -228,15 +243,52 @@ void CauldronIO::ImportExport::addVolume(DataStoreSave& dataStore, const std::sh
             node.append_attribute("min") = data->getMinValue();
             node.append_attribute("max") = data->getMaxValue();
 
+			// Check for reference volume
+			ReferenceVolume* refVolume = dynamic_cast<ReferenceVolume*>(data.get());
+
             if (data->isConstant())
             {
                 node.append_attribute("constantvalue") = data->getConstantValue();
-                continue;
             }
-
-            dataStore.addVolume(data, node, numBytes);
+			else if (refVolume) //TODO: relative path of existing project needs to be added to filename
+			{
+				if (refVolume->getDataStoreParamsIJK())
+				{
+					const DataStoreParams* params = refVolume->getDataStoreParamsIJK();
+					addReferenceData(node, params, true, false);
+				}
+				if (refVolume->getDataStoreParamsKIJ())
+				{
+					const DataStoreParams* params = refVolume->getDataStoreParamsKIJ();
+					addReferenceData(node, params, false, true);
+				}
+			}
+			else
+			{
+				dataStore.addVolume(data, node, numBytes);
+			}
         }
     }
+}
+
+void CauldronIO::ImportExport::addReferenceData(pugi::xml_node &node, const DataStoreParams* params, bool dataIJK, bool dataKIJ) const
+{
+	pugi::xml_node subNode = node.append_child("datastore");
+	subNode.append_attribute("file") = params->fileName.path().c_str();
+
+	if (params->compressed)
+		subNode.append_attribute("compression") = params->compressed_lz4 ? "lz4" : "gzip";
+	else
+		subNode.append_attribute("compression") = "none";
+
+	subNode.append_attribute("partialpath") = false;
+	
+	if (dataIJK || dataKIJ)
+	{
+		subNode.append_attribute("dataIJK") = dataIJK;
+	}
+	subNode.append_attribute("size") = (unsigned int)params->size;
+	subNode.append_attribute("offset") = (unsigned int)params->offset;
 }
 
 void CauldronIO::ImportExport::addGeometryInfo2D(pugi::xml_node node, const std::shared_ptr<const Geometry2D>& geometry) const
@@ -253,7 +305,7 @@ void CauldronIO::ImportExport::addGeometryInfo2D(pugi::xml_node node, const std:
         subNode.append_attribute("cell-centered") = true;
 }
 
-void CauldronIO::ImportExport::addSnapShot(const std::shared_ptr<SnapShot>& snapShot, std::shared_ptr<Project>& project, ibs::FilePath fullPath, pugi::xml_node node)
+void CauldronIO::ImportExport::addSnapShot(const std::shared_ptr<SnapShot>& snapShot, ibs::FilePath fullPath, pugi::xml_node node)
 {
     std::ostringstream ss;
     ss << std::fixed << std::setprecision(6);
@@ -273,7 +325,13 @@ void CauldronIO::ImportExport::addSnapShot(const std::shared_ptr<SnapShot>& snap
     node.append_attribute("kind") = snapShot->getKind();
     node.append_attribute("isminor") = snapShot->isMinorShapshot();
 
-    // Read all data into memory
+	// If there is an existing project
+	if (m_projectExisting)
+	{
+		VisualizationUtils::replaceExistingProperties(snapShot, m_projectExisting);
+	}
+
+    // Read all data into memory: if there is an existing project, this is too late...
     CauldronIO::VisualizationUtils::retrieveAllData(snapShot, m_numThreads);
     
     // Cell center data if necessary
@@ -432,11 +490,14 @@ bool CauldronIO::ImportExport::detectAppend(std::shared_ptr<Project>& project)
         }
 
         const std::shared_ptr<Volume>& volume = snapShot->getVolume();
-        BOOST_FOREACH(const PropertyVolumeData& volumeData, volume->getPropertyVolumeDataList())
-        {
-            if (dynamic_cast<VolumeDataNative*>(volumeData.second.get()) != NULL) return true;
-            return false;
-        }
+		if (volume)
+		{
+			BOOST_FOREACH(const PropertyVolumeData& volumeData, volume->getPropertyVolumeDataList())
+			{
+				if (dynamic_cast<VolumeDataNative*>(volumeData.second.get()) != NULL) return true;
+				return false;
+			}
+		}
     }
 
     // This should not happen
@@ -496,8 +557,9 @@ std::shared_ptr<Project> CauldronIO::ImportExport::getProject(const pugi::xml_do
     std::string projectDescript = pt.child_value("description");
     std::string projectTeam = pt.child_value("team");
     std::string projectVersion = pt.child_value("programversion");
-    std::string outputPath = pt.child_value("outputpath");
-    ModellingMode mode = (ModellingMode)pt.child("modelingmode").text().as_int();
+	std::string outputPath = pt.child_value("outputpath");
+    
+	ModellingMode mode = (ModellingMode)pt.child("modelingmode").text().as_int();
 
     // Check XML versions
     // dataXmlVersion > xml_version : actual data generated with code newer than this code, requires forward compatibility
@@ -522,7 +584,14 @@ std::shared_ptr<Project> CauldronIO::ImportExport::getProject(const pugi::xml_do
         throw CauldronIOException("Xml format not backward compatible"); // we should try to fix that when the time comes
 
     ibs::FilePath fullOutputPath(m_absPath);
-    fullOutputPath << outputPath;
+	if (m_absPath.path() != ".")
+	{
+		fullOutputPath << outputPath;
+	}
+	else
+	{
+		fullOutputPath = ibs::FilePath(outputPath);
+	}
 
     // Create the project
     m_project.reset(new Project(projectName, projectDescript, projectTeam, projectVersion, mode, dataXmlVersionMajor, dataXmlVersionMinor));
