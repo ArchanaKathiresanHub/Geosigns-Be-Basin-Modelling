@@ -2140,8 +2140,6 @@ namespace migration
       if (depthOffsetMap) depthOffsetMap->retrieveData ();
       if (thicknessMap) thicknessMap->retrieveData ();
 
-      double x = 3.0;
-
 	  //By default the m_topDepthOffset= m_bottomDepthOffset = 0
 	  if (!m_migrator->performLegacyMigration() and (depthOffsetMap or thicknessMap))
 	  {

@@ -206,7 +206,7 @@ int main (int argc, char ** argv)
    }
 #endif
 
-   // Intitialise fastcauldron loger
+   // Intitialise fastmig logger
    try
    {
       PetscBool log = PETSC_FALSE;
@@ -224,7 +224,7 @@ int main (int argc, char ** argv)
       }
       else
       {
-         LogHandler( "fastcauldron", LogHandler::DETAILED_LEVEL, rank );
+         LogHandler( "fastmig", LogHandler::DETAILED_LEVEL, rank );
       }
    }
    catch ( formattingexception::GeneralException & ex )
