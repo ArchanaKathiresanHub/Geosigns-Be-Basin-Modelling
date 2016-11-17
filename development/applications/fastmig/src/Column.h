@@ -127,10 +127,14 @@ namespace migration
 
       virtual Column * getTrapSpillColumn (void) = 0;
 
-      virtual void addComposition (const Composition & composition) = 0;
-      virtual void addLeakComposition (Composition & composition) = 0;
-      virtual void addWasteComposition (Composition & composition) = 0;
-      virtual void addSpillComposition (Composition & composition) = 0;
+	  // Buffer the compositions of target, spilling, wasting column and undersized traps in local buffers. 
+	  // These local buffers will be sorted by global positions in the 2D grid and then the compositions added sequentially. 
+	  // this is to guarantee determinism in parallel runs, where the addition used to be done in the order of the first arriving MPI process 
+	  // (truncation error accumulated and gave different phase distribution under certain conditions)
+	  virtual void addTargetCompositionToBuffer(PhaseId phase, int position, Composition & composition) = 0;
+	  virtual void addWasteCompositionToBuffer(PhaseId phase, int position, Composition & composition) = 0;
+      virtual void addSpillCompositionToBuffer(PhaseId phase, int position, Composition & composition) = 0;
+	  virtual void addMergingCompositionToBuffer(int position, Composition & composition) = 0;
 
       virtual void addToYourTrap (unsigned int i, unsigned int j) = 0;
 
@@ -224,10 +228,10 @@ namespace migration
       void registerWithLocal (void);
       void deregisterWithLocal (void);
 
-      virtual void addComposition (const Composition & composition);
-      virtual void addLeakComposition (Composition & composition);
-      virtual void addWasteComposition (Composition & composition);
-      virtual void addSpillComposition (Composition & composition);
+	  virtual void addTargetCompositionToBuffer(PhaseId phase, int position, Composition & composition);
+	  virtual void addWasteCompositionToBuffer(PhaseId phase, int position, Composition & composition);
+	  virtual void addSpillCompositionToBuffer(PhaseId phase, int position, Composition & composition);
+	  virtual void addMergingCompositionToBuffer(int position, Composition & composition);
 
       virtual void addToYourTrap (unsigned int i, unsigned int j);
 
@@ -431,10 +435,8 @@ namespace migration
       inline void resetComposition (void);
 
       virtual void resetCompositionState ();
-      virtual void addComposition (const Composition & composition);
-      virtual void addLeakComposition (Composition & composition);
-      virtual void addWasteComposition (Composition & composition);
-      virtual void addSpillComposition (Composition & composition);
+      void addComposition (const Composition & composition);
+      void addLeakComposition (Composition & composition);
 
       void flashChargesToBeMigrated (Composition * compositionsOut);
       void computePVT (Composition * compositionsOut);
@@ -481,6 +483,7 @@ namespace migration
       virtual double getChargeQuantity (PhaseId phase);
 
       void manipulateComposition (ValueSpec valueSpec, int phase, Composition & composition);
+	  void manipulateCompositionPosition(ValueSpec valueSpec, int phase, int position, Composition & composition);
       void getComposition (ValueSpec valueSpec, int phase, Composition & composition);
 
       inline double getComponent (ComponentId componentId);
@@ -492,7 +495,19 @@ namespace migration
       void resetProxy (int rank);
       void resetProxies (void);
 
+	  virtual void addTargetCompositionToBuffer(PhaseId phase, int position, Composition & composition);
+	  virtual void addWasteCompositionToBuffer(PhaseId phase, int position, Composition & composition);
+	  virtual void addSpillCompositionToBuffer(PhaseId phase, int position, Composition & composition);
+	  virtual void addMergingCompositionToBuffer(int position, Composition & composition);
+
+	  // the local buffers are sorted and added to m_composition
+	  void addTargetBuffer();
+	  void addWasteBuffer();
+	  void addSpillBuffer();
+	  void addMergedBuffer();
+
    private:
+
       /// net/gross fractions of the reservoir
       double m_netToGross;
       /// reservoir top offset from the top of the formation, fraction of the present day thickness
@@ -553,6 +568,13 @@ namespace migration
 
       vector<int> m_proxies;
 
+	  std::vector<std::pair<int, Composition>>  m_vaporTargetBuffer;
+	  std::vector<std::pair<int, Composition>>  m_liquidTargetBuffer;
+	  std::vector<std::pair<int, Composition>>  m_vaporWasteBuffer;
+	  std::vector<std::pair<int, Composition>>  m_liquidWasteBuffer;
+	  std::vector<std::pair<int, Composition>>  m_vaporSpillBuffer;
+	  std::vector<std::pair<int, Composition>>  m_liquidSpillBuffer;
+	  std::vector<std::pair<int, Composition>>  m_mergingBuffer;
    };
 
    class ColumnArray
@@ -595,9 +617,18 @@ namespace migration
       int m_numberOfProxyColumns;
    };
 
-
    ostream & operator<< (ostream & stream, Column & column);
    ostream & operator<< (ostream & stream, Column * column);
+
+   // Sorter functor
+   class bufferCompositionSorter
+   {
+   public:
+	   bool operator() (const std::pair<int, Composition>& lhs, const std::pair<int, Composition>& rhs)
+	   {
+		   return lhs.first < rhs.first;
+	   }
+   };
 }
 
 

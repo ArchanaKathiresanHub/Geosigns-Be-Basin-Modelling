@@ -1208,8 +1208,10 @@ namespace migration
    /// resets the target column of its own crest column to the crest column of the trap it merges with
    void Trap::migrateTo (Column * column)
    {
+	  int numI = getReservoir()->getGrid()->numIGlobal();
+	  int position = getCrestColumn()->getI() + getCrestColumn()->getJ() * numI;
       moveBackToCrestColumn ();
-      column->addComposition (getCrestColumn ()->getComposition ());
+      column->addMergingCompositionToBuffer(position, getCrestColumn ()->getComposition ());
       m_reservoir->reportTrapAbsorption (this, column, getCrestColumn ()->getComposition ());
       getCrestColumn ()->resetComposition ();
    }
@@ -2376,6 +2378,11 @@ namespace migration
       assert(fabs(m_volumeBalance->balance()) < 10.0);
 #endif
 
+
+	  //trap position for buffered addition
+	  int numI = getReservoir()->getGrid()->numIGlobal();
+	  int position = getCrestColumn()->getI() + getCrestColumn()->getJ() * numI;
+
       if (!gasLeaked.isEmpty () || !oilLeaked.isEmpty ())
       {
          gasLeaked.add (oilLeaked);
@@ -2384,7 +2391,7 @@ namespace migration
 
       if (!gasWasted.isEmpty ())
       {
-         getWasteColumn (GAS)->addWasteComposition (gasWasted);
+         getWasteColumn (GAS)->addWasteCompositionToBuffer(GAS, position, gasWasted);
          m_reservoir->reportWaste (this, getWasteColumn (GAS), gasWasted);
       }
 
@@ -2392,14 +2399,14 @@ namespace migration
       {
          if (getWasteColumn (OIL))
          {
-            getWasteColumn (OIL)->addWasteComposition (oilSpilledOrWasted);
+            getWasteColumn (OIL)->addWasteCompositionToBuffer(OIL, position, oilSpilledOrWasted);
             m_reservoir->reportWaste (this, getWasteColumn (OIL), oilSpilledOrWasted);
          }
          else
          {
             Column* targetColumn = getFinalSpillTarget (OIL);
 
-            targetColumn->addSpillComposition (oilSpilledOrWasted);
+            targetColumn->addSpillCompositionToBuffer (OIL, position, oilSpilledOrWasted);
             m_reservoir->reportSpill (this, targetColumn, oilSpilledOrWasted);
             getSpillTarget ()->addMigrated (OIL, oilSpilledOrWasted.getWeight ());
             setSpilling ();
@@ -2410,7 +2417,7 @@ namespace migration
       {
          Column* targetColumn = getFinalSpillTarget (GAS);
 
-         targetColumn->addSpillComposition (gasSpilled);
+         targetColumn->addSpillCompositionToBuffer (GAS, position, gasSpilled);
          m_reservoir->reportSpill (this, targetColumn, gasSpilled);
          getSpillTarget ()->addMigrated (GAS, gasSpilled.getWeight ());
          setSpilling ();

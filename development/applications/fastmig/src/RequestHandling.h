@@ -36,7 +36,8 @@ namespace migration
       COLUMNCOMPOSITIONREQUEST, TRAPPROPERTIESREQUEST, MIGRATIONREQUEST, CHARGESREQUEST,
       FORMATIONNODEVALUERESPONSE, FORMATIONNODEVALUEREQUEST, FORMATIONNODECOMPOSITIONRESPONSE,
       FORMATIONNODECOMPOSITIONREQUEST, FORMATIONNODETHREEVECTORRESPONSE,
-      FORMATIONNODETHREEVECTORREQUEST, FORMATIONNODETHREEVECTORVALUEREQUEST, FORMATIONNODETHREEVECTORVALUERESPONSE
+      FORMATIONNODETHREEVECTORREQUEST, FORMATIONNODETHREEVECTORVALUEREQUEST, FORMATIONNODETHREEVECTORVALUERESPONSE,
+	  COLUMNCOMPOSITIONPOSITIONREQUEST
    };
 
 
@@ -82,6 +83,8 @@ namespace migration
       static void SendFormationNodeThreeVectorValueRequest (FormationNodeThreeVectorValueRequest & formationNodeThreeVectorValueRequest, FormationNodeThreeVectorValueRequest & formationNodeThreeVectorValueResponse);
 
       static void SendRequest (ColumnCompositionRequest & chargesRequest, ColumnCompositionRequest & chargesResponse);
+
+	  static void SendRequest(ColumnCompositionPositionRequest & chargesRequest, ColumnCompositionPositionRequest & chargesResponse);
 
       static void SendProxyReset (int rank, ColumnValueRequest & resetRequest);
 
@@ -160,6 +163,7 @@ namespace migration
       void handleValueArrayResponse (const int & source, ColumnValueArrayRequest * valueArrayResponse);
 
       void handleColumnValueRequest (const int & source);
+	  void handleColumnCompositionPositionRequest(const int & source);
       void handleColumnResetRequest (const int & source);
       void handleTrapPropertiesRequest (const int & source);
 

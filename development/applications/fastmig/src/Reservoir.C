@@ -1213,7 +1213,7 @@ namespace migration
       {
          for (int j = (int) m_columnArray->firstJLocal (); j <= (int) m_columnArray->lastJLocal (); ++j)
          {
-            Column * seepColumn = getColumn ((unsigned int) i, (unsigned int) j);
+			LocalColumn * seepColumn =dynamic_cast<LocalColumn*> (getColumn ((unsigned int) i, (unsigned int) j));
             if (!seepColumn)
                continue;
 
@@ -2537,8 +2537,19 @@ namespace migration
             }
          }
       }
-
       RequestHandling::FinishRequestHandling ();
+
+
+	  RequestHandling::StartRequestHandling(m_migrator, "addTargetBuffer");
+	  for (unsigned int i = m_columnArray->firstILocal(); i <= m_columnArray->lastILocal(); ++i)
+	  {
+		  for (unsigned int j = m_columnArray->firstJLocal(); j <= m_columnArray->lastJLocal(); ++j)
+		  {
+			  LocalColumn * column = getLocalColumn(i, j);
+			  column->addTargetBuffer();
+		  }
+	  }
+	  RequestHandling::FinishRequestHandling();
 
       processMigrationRequests ();
 
@@ -2986,9 +2997,7 @@ namespace migration
    {
       bool distributionFinished = true;
       RequestHandling::StartRequestHandling (m_migrator, "distributeCharges");
-
       TrapVector::iterator trapIter;
-
       for (trapIter = m_traps.begin (); trapIter != m_traps.end (); ++trapIter)
       {
          if (always and !(*trapIter)->diffusionLeakageOccoured ())
@@ -2996,8 +3005,31 @@ namespace migration
          else
             distributionFinished &= (*trapIter)->distributeCharges ();
       }
-
       RequestHandling::FinishRequestHandling ();
+
+	  RequestHandling::StartRequestHandling(m_migrator, "addSpillBuffer");
+	  for (unsigned int i = m_columnArray->firstILocal(); i <= m_columnArray->lastILocal(); ++i)
+	  {
+		  for (unsigned int j = m_columnArray->firstJLocal(); j <= m_columnArray->lastJLocal(); ++j)
+		  {
+			  LocalColumn * column = getLocalColumn(i, j);
+			  column->addSpillBuffer();
+		  }
+	  }
+	  RequestHandling::FinishRequestHandling();
+
+
+	  RequestHandling::StartRequestHandling(m_migrator, "addWasteBuffer");
+	  for (unsigned int i = m_columnArray->firstILocal(); i <= m_columnArray->lastILocal(); ++i)
+	  {
+		  for (unsigned int j = m_columnArray->firstJLocal(); j <= m_columnArray->lastJLocal(); ++j)
+		  {
+			  LocalColumn * column = getLocalColumn(i, j);
+			  column->addWasteBuffer();
+		  }
+	  }
+	  RequestHandling::FinishRequestHandling();
+
 
       return distributionFinished;
    }
@@ -3086,6 +3118,18 @@ namespace migration
          }
       }
       RequestHandling::FinishRequestHandling ();
+
+
+	  RequestHandling::StartRequestHandling(m_migrator, "addMergedBuffer");
+	  for (unsigned int i = m_columnArray->firstILocal(); i <= m_columnArray->lastILocal(); ++i)
+	  {
+		  for (unsigned int j = m_columnArray->firstJLocal(); j <= m_columnArray->lastJLocal(); ++j)
+		  {
+			  LocalColumn * column = getLocalColumn(i, j);
+			  column->addMergedBuffer();
+		  }
+	  }
+	  RequestHandling::FinishRequestHandling();
 
       return noTrapsToMerge;
    }
@@ -4201,6 +4245,12 @@ namespace migration
    {
       getLocalColumn (compositionRequest.i, compositionRequest.j)->manipulateComposition (compositionRequest.valueSpec,
          compositionRequest.phase, compositionRequest.composition);
+   }
+
+   void Reservoir::manipulateColumnCompositionPosition(ColumnCompositionPositionRequest & compositionPositionRequest)
+   {
+	   getLocalColumn(compositionPositionRequest.i, compositionPositionRequest.j)->manipulateCompositionPosition(compositionPositionRequest.valueSpec,
+		   compositionPositionRequest.phase, compositionPositionRequest.position, compositionPositionRequest.composition);
    }
 
    void Reservoir::getColumnComposition (ColumnCompositionRequest & compositionRequest, ColumnCompositionRequest & compositionResponse)

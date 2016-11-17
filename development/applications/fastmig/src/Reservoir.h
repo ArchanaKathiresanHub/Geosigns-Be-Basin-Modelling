@@ -204,6 +204,7 @@ namespace migration
       void clearProxyProperties (ColumnValueRequest & valueRequest);
       void manipulateColumn (ColumnColumnRequest & columnRequest);
       void manipulateColumnComposition (ColumnCompositionRequest & compositionRequest);
+	  void manipulateColumnCompositionPosition(ColumnCompositionPositionRequest & compositionPositionRequest);
       void getColumnComposition (ColumnCompositionRequest & compositionRequest, ColumnCompositionRequest & compositionResponse);
       void collectMigrationRequest (MigrationRequest & request);
       void processMigrationRequests ();
