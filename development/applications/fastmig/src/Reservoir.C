@@ -2105,7 +2105,6 @@ namespace migration
 
    bool Reservoir::computeDepthOffsets (const Snapshot * presentDay)
    {
-
       DerivedProperties::SurfacePropertyPtr formationTopDepthMap = getTopSurfaceProperty (depthPropertyName (), presentDay);
       DerivedProperties::SurfacePropertyPtr formationBottomDepthMap = getBottomSurfaceProperty (depthPropertyName (), presentDay);
 
@@ -2141,18 +2140,16 @@ namespace migration
       if (depthOffsetMap) depthOffsetMap->retrieveData ();
       if (thicknessMap) thicknessMap->retrieveData ();
 
+      double x = 3.0;
 
 	  //By default the m_topDepthOffset= m_bottomDepthOffset = 0
-	  if (!m_migrator->performLegacyMigration() && (depthOffsetMap || thicknessMap ))
+	  if (!m_migrator->performLegacyMigration() and (depthOffsetMap or thicknessMap))
 	  {
-		  if ( GetRank() == 0 )
-		  {
-			  cerr << "ERROR: depth offset maps and offset thickness maps cannot be used in non legacy migration " << endl;
-			  cerr.flush();
-		  }
-		  return false;
+        LogHandler (LogHandler::WARNING_SEVERITY) << "Reservoir " << getName() << ": Offset and/or thickness maps for reservoirs cannot be used in non-legacy mode.\nThese inputs will be ignored in this run.";
+		  	  
+        depthOffsetMap = nullptr;
+        thicknessMap   = nullptr;
 	  }
-
 
       for (unsigned int i = m_columnArray->firstILocal (); i <= m_columnArray->lastILocal (); ++i)
       {

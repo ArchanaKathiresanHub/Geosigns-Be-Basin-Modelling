@@ -206,6 +206,38 @@ int main (int argc, char ** argv)
    }
 #endif
 
+   // Intitialise fastcauldron loger
+   try
+   {
+      PetscBool log = PETSC_FALSE;
+      PetscOptionsHasName( PETSC_NULL, "-verbosity", &log );
+      if ( log )
+      {
+         char verbosity[11];
+         PetscOptionsGetString( PETSC_NULL, "-verbosity", verbosity, 11, 0 );
+         if      ( !strcmp( verbosity, "quiet"      ))  { LogHandler( "fastcauldron", LogHandler::QUIET_LEVEL,      rank ); }
+         else if ( !strcmp( verbosity, "minimal"    ) ) { LogHandler( "fastcauldron", LogHandler::MINIMAL_LEVEL   , rank ); }
+         else if ( !strcmp( verbosity, "normal"     ) ) { LogHandler( "fastcauldron", LogHandler::NORMAL_LEVEL    , rank ); }
+         else if ( !strcmp( verbosity, "detailed"   ) ) { LogHandler( "fastcauldron", LogHandler::DETAILED_LEVEL  , rank ); }
+         else if ( !strcmp( verbosity, "diagnostic" ) ) { LogHandler( "fastcauldron", LogHandler::DIAGNOSTIC_LEVEL, rank ); }
+         else throw formattingexception::GeneralException() << "Unknown <" << verbosity << "> option for -verbosity command line parameter.";
+      }
+      else
+      {
+         LogHandler( "fastcauldron", LogHandler::DETAILED_LEVEL, rank );
+      }
+   }
+   catch ( formattingexception::GeneralException & ex )
+   {
+      std::cerr << ex.what();
+      return 1;
+   }
+   catch (...)
+   {
+      std::cerr << "Fatal error when initialising log file(s).";
+      return 1;
+   }
+
    bool status = true;
    Migrator * migrator = 0;
 
