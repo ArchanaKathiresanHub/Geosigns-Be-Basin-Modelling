@@ -225,7 +225,7 @@ public:
 
    virtual std::string name() const 
    {
-      std::string nm = m_tblName.empty() ? (m_tblName + ":" + m_colName) : "SourceRockLithoIoTbl:TocIni";
+      std::string nm = !m_tblName.empty() ? (m_tblName + ":" + m_colName) : "SourceRockLithoIoTbl:TocIni";
       return nm; 
    }
 

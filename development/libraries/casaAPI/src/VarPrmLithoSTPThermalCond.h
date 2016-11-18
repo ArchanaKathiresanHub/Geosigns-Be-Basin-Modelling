@@ -42,6 +42,7 @@ namespace casa
       /// @return dimension of variable parameter
       virtual size_t dimension() const { return 1; }
 
+      using VarPrmContinuous::newParameterFromDoubles;
       /// @brief Create parameter from set of doubles. This method is used to convert data between CASA and SUMlib
       /// @param[in,out] vals iterator which points to the first sub-parameter value
       /// @return new casa::PrmLithoSTPThermalCond parameter

@@ -45,6 +45,7 @@ namespace casa
       /// @return dimension of variable parameter
       virtual size_t dimension() const;
 
+      using VarPrmContinuous::newParameterFromDoubles;
       /// @brief Create parameter from set of doubles. This method is used to convert data between CASA and SUMlib
       /// @param[in,out] vals iterator which points to the first parameter value.
       /// @return new parameter for given set of values
@@ -57,12 +58,12 @@ namespace casa
       virtual SharedParameterPtr newParameterFromModel( mbapi::Model & mdl, const std::vector<double> & vin ) const;
 
       /// @brief Average the values, interpolate for lithofractions and set the appropriate entries in the project3d file
-      /// @param[in] mdl the model where to set the new averaged parameter
-      /// @param[in] xin the vector which stores the x coordinates of each 1D project 
-      /// @param[in] yin the vector which stores the y coordinates of each 1D project 
-      /// @param[in] prmVec the vector that stores the optimal parameter value of each 1D project
       /// @return new parameter for given set of values
-      virtual SharedParameterPtr makeThreeDFromOneD( mbapi::Model & mdl, const std::vector<double>& xin, const std::vector<double>& yin, const std::vector<SharedParameterPtr>& prmVec ) const;
+      virtual SharedParameterPtr makeThreeDFromOneD( mbapi::Model                & mdl     /// the model to set the new averaged parameter
+                                                   , const std::vector<double>   & xin     /// the vector to store 1D projects x coordinates  
+                                                   , const std::vector<double>   & yin     /// the vector to store 1D projects y coordinates 
+                                                   , const std::vector<SharedParameterPtr> & prmVec  /// the vector to stores the optimal parameter value of each 1D project
+                                                   ) const;
 
       /// @{
       /// @brief Defines version of serialized object representation. Must be updated on each change in save()
