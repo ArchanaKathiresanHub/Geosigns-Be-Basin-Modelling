@@ -1,52 +1,35 @@
+//
+// Copyright (C) 2012-2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
+// std library
 #include <assert.h>
 #include <iostream>
 #include <sstream>
-using namespace std;
-
 #include <string>
 using namespace std;
 
+// TableIO library
 #include "database.h"
 #include "cauldronschemafuncs.h"
-
 using namespace database;
 
+// DataAccess library
 #include "Interface/Grid.h"
 #include "Interface/ProjectHandle.h"
 #include "Interface/Reservoir.h"
 #include "Interface/Snapshot.h"
 #include "Interface/Trapper.h"
-
 using namespace DataAccess;
 using namespace Interface;
 
-static const char * ComponentNames[] =
-{
-	"asphaltenes", 
-	"resins",
-	"C15Aro",
-	"C15Sat",
-	"C6_14Aro",
-	"C6_14Sat",
-	"C5",
-	"C4",
-	"C3",
-	"C2",
-	"C1",
-	"COx",
-	"N2",
-	"H2S",
-	"LSC",
-	"C15AT",
-	"C6_14BT",
-	"C6_14DBT",
-	"C6_14BP",
-	"C15AroS",
-	"C15SatS",
-	"C6_14SatS",
-	"C6_14AroS"
-};
-
+static const char** ComponentNames = CBMGenerics::ComponentManager::getInstance().getSpeciesNameInputList();
 
 const string PhaseNames[] =
 { 
@@ -173,17 +156,17 @@ double Trapper::getMass (PhaseId rcPhaseId, PhaseId stPhaseId, ComponentId compo
 
 double Trapper::getMass (PhaseId rcPhaseId, ComponentId componentId) const
 {
-   return getMass (rcPhaseId, Gas, componentId) +
-          getMass (rcPhaseId, Oil, componentId);
+   return getMass (rcPhaseId, PhaseId::GAS, componentId) +
+          getMass (rcPhaseId, PhaseId::OIL, componentId);
 }
 
 /// return the mass of the given component in this Trapper
 double Trapper::getMass (ComponentId componentId) const
 {
-   return getMass (Gas, Gas, componentId) +
-          getMass (Gas, Oil, componentId) +
-          getMass (Oil, Gas, componentId) +
-          getMass (Oil, Oil, componentId);
+   return getMass (PhaseId::GAS, PhaseId::GAS, componentId) +
+          getMass (PhaseId::GAS, PhaseId::OIL, componentId) +
+          getMass (PhaseId::OIL, PhaseId::GAS, componentId) +
+          getMass (PhaseId::OIL, PhaseId::OIL, componentId);
 }
 
 /// return the mass of the given component in this Trapper

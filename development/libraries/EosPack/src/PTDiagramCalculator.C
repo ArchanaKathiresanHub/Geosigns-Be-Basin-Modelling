@@ -65,7 +65,7 @@ PTDiagramCalculator::PTDiagramCalculator( DiagramType typeOfDiagram, const std::
    m_diagType = typeOfDiagram;
    m_masses   = massFraction;
 
-   assert( m_masses.size() == CBMGenerics::ComponentManager::NumberOfSpecies );
+   assert( m_masses.size() == ComponentId::NUMBER_OF_SPECIES );
 
    // create default grid for temperature and pressure
    generatePTGrid( g_MinimalPressure, g_MaximalPressure, g_MinimalTemperature, g_MaximalTemperature );
@@ -173,10 +173,10 @@ void PTDiagramCalculator::extendTGrid( int steps )
 int PTDiagramCalculator::getMassFractions( double p, double t, const std::vector<double> & composition, double massFraction[2] )
 {
    // Get acronims of some constants
-   const int iNc     = CBMGenerics::ComponentManager::NumberOfSpecies;
-   const int iNp     = CBMGenerics::ComponentManager::NumberOfPhases;
-   const int iLiquid = CBMGenerics::ComponentManager::Liquid;
-   const int iVapour = CBMGenerics::ComponentManager::Vapour;
+   const int iNc     = ComponentId::NUMBER_OF_SPECIES;
+   const int iNp     = PhaseId::NUMBER_OF_PHASES;
+   const int iLiquid = PhaseId::LIQUID;
+   const int iVapour = PhaseId::VAPOUR;
    
    // arrays for passing to flasher
    double masses[iNc];
@@ -372,8 +372,8 @@ bool PTDiagramCalculator::doBisectionForContourLineSearch( int p1, int t1, int p
 
 bool PTDiagramCalculator::doBisectionForContourLineSearch( double p1, double t1, double p2, double t2, double frac, double & foundP, double & foundT )
 {
-   const int iLiquid = CBMGenerics::ComponentManager::Liquid;
-   const int iVapour = CBMGenerics::ComponentManager::Vapour;
+   const int iLiquid = PhaseId::LIQUID;
+   const int iVapour = PhaseId::VAPOUR;
 
    double phaseFrac[2];
 
@@ -390,8 +390,8 @@ bool PTDiagramCalculator::doBisectionForContourLineSearch( double p1, double t1,
 bool PTDiagramCalculator::doBisectionForContourLineSearch( double p1, double t1, double p2, double t2, int phase1, int phase2, double frac1, double frac2, 
                                                            double frac, double & foundP, double & foundT )
 {
-   const int iLiquid = CBMGenerics::ComponentManager::Liquid;
-   const int iVapour = CBMGenerics::ComponentManager::Vapour;
+   const int iLiquid = PhaseId::LIQUID;
+   const int iVapour = PhaseId::VAPOUR;
 
    // flasher failed for some reason, can't calculate bubble/dew point, or we do not have phase transition for (P1,T1)->(P2,T2)
    if ( unknown == phase1 || unknown == phase2 ) { return false; } 
@@ -612,8 +612,8 @@ void PTDiagramCalculator::findBubbleDewLines( double compT, double compP, const 
    m_c0p5Line.clear();
    m_spsLine.clear();
 
-   const int iLiquid = CBMGenerics::ComponentManager::Liquid;
-   const int iVapour = CBMGenerics::ComponentManager::Vapour;
+   const int iLiquid = PhaseId::LIQUID;
+   const int iVapour = PhaseId::VAPOUR;
 
    // starting tracing Bubble/Dew point curve
    double foundT;
@@ -1292,7 +1292,7 @@ bool PTDiagramCalculator::traceContourLine( double val, TPLine & isoline, bool f
                case 2: phase[i] = getMassFractions( maxP, maxT, m_masses, phaseFrac ); break;
                case 3: phase[i] = getMassFractions( minP, maxT, m_masses, phaseFrac ); break;
             }
-            fracVals[i] = phaseFrac[CBMGenerics::ComponentManager::Liquid];
+            fracVals[i] = phaseFrac[PhaseId::LIQUID];
             ++m_isoBisecIters;            
          }
       }
@@ -1971,7 +1971,7 @@ int PTDiagramCalculator::getPhase( size_t p, size_t t )
       phase = getMassFractions( m_gridP[p], m_gridT[t], m_masses, phaseFrac );
       ++m_bdBisecIters;
 
-      m_liqFrac[p][t] = phaseFrac[CBMGenerics::ComponentManager::Liquid];
+      m_liqFrac[p][t] = phaseFrac[PhaseId::LIQUID];
    }
    else
    {

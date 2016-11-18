@@ -54,6 +54,11 @@
 #include "MultiPropertyTemporalInterpolator.h"
 #include "SourceRocksTemporalInterpolator.h"
 
+// CBMGenerics library
+#include "ComponentManager.h"
+typedef CBMGenerics::ComponentManager::SpeciesNamesId ComponentId;
+typedef CBMGenerics::ComponentManager::PhaseId PhaseId;
+
 
 /// \brief Class for solving the multi-component multi-phase flow equations.
 ///
@@ -153,7 +158,7 @@ private :
 
    // Transport components for en element.
    void transportComponents ( const SubdomainElement&       element,
-                              const pvtFlash::PVTPhase      phase,
+                              const PhaseId                 phase,
                               const ElementFaceValueVector& elementFluxes,
                               const PhaseCompositionArray&  phaseComposition,
                                     PVTComponents&          computedConcentrations,
@@ -183,7 +188,7 @@ private :
 
    /// Compute numerical flux function across face.
    void computeNumericalFlux ( const SubdomainElement&   element,
-                               const pvtFlash::PVTPhase  phase,
+                               const PhaseId             phase,
                                const double              elementFlux,
                                const double              neighbourFlux,
                                const double              elementPhaseCompositionSum,
@@ -210,7 +215,7 @@ private :
                                    const double                              lambda,
                                    const bool                                print ) const;
 
-   void computeFluxForPhase ( const pvtFlash::PVTPhase                  phase,
+   void computeFluxForPhase ( const PhaseId                             phase,
                               const SubdomainElement&                   element,
                               const FaceAreaTemporalInterpolator&       faceAreaInterpolator,
                                     FiniteElementMethod::FiniteElement& finiteElement,

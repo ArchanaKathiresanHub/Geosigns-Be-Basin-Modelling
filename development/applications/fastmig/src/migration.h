@@ -8,10 +8,12 @@
 // Do not distribute without written permission from Shell.
 //
 
-#ifndef _MIGRATION_H
-#define _MIGRATION_H
+#ifndef MIGRATION_H
+#define MIGRATION_H
 
+// CBMGenerics library
 #include "ComponentManager.h"
+typedef CBMGenerics::ComponentManager::SpeciesNamesId ComponentId;
 
 #ifndef WIN32
 #include "System.h"
@@ -275,22 +277,20 @@ namespace migration
    const unsigned int EXPELLEDDOWNWARD = 0x2;
    const unsigned int EXPELLEDUPANDDOWNWARD = EXPELLEDUPWARD | EXPELLEDDOWNWARD;
 
-   const unsigned int NumComponents = CBMGenerics::ComponentManager::NumberOfSpecies;
-   const unsigned int NumPhases = CBMGenerics::ComponentManager::NumberOfPhases;
+   const unsigned int NumComponents = ComponentId::NUMBER_OF_SPECIES;
+   const unsigned int NumPhases = CBMGenerics::ComponentManager::PhaseId::NUMBER_OF_PHASES;
 
    enum PhaseId
    {
       NO_PHASE = -1, FIRST_PHASE = 0, GAS = 0, OIL = 1, LAST_PHASE = NumPhases - 1, NUM_PHASES = NumPhases
    };
 
-   extern const char * ComponentNames[];
 #ifdef USEOTGC
    extern const char * ImmobileNames[];
    extern const double ImmobileDensities[];
 #endif
 
    extern const char * ExpulsionDirectionNames[];
-   extern const char * TableComponentNames[];
    extern const bool   ComponentsUsed[];
    extern const char * PhaseNames[];
    extern const double DefaultChargeDensities[];
@@ -359,4 +359,4 @@ namespace migration
 #endif
 
 }
-#endif // _MIGRATION_H
+#endif // MIGRATION_H

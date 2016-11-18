@@ -84,7 +84,7 @@ namespace migration
 
       // Initializing other data members for Windows build
 
-      for (size_t i = 0; i != NUM_COMPONENTS; ++i)
+      for (size_t i = 0; i != ComponentId::NUMBER_OF_SPECIES; ++i)
          m_expulsionGridMaps[i] = NULL;
    }
 
@@ -249,8 +249,8 @@ namespace migration
                double waterDensity = fluid->density (temperature, pressure);
 
                // Critical temperatures and c1, c2 are independent of the exact position of the node inside the formation.
-               double hcTempValueVapour = pvtFlash::getCriticalTemperature (C1, 0);
-               double hcTempValueLiquid = pvtFlash::getCriticalTemperature (C6_14SAT, 0);
+               double hcTempValueVapour = pvtFlash::getCriticalTemperature (ComponentId::C1, 0);
+               double hcTempValueLiquid = pvtFlash::getCriticalTemperature (ComponentId::C6_MINUS_14SAT, 0);
 
 
                double capillaryEntryPressureLiquid = Interface::DefaultUndefinedMapValue;
@@ -368,19 +368,19 @@ namespace migration
       m_formationPropertyPtr[VAPOURDENSITYPROPERTY] = ptrVapourDensity;
       m_formationPropertyPtr[LIQUIDDENSITYPROPERTY] = ptrLiquidDensity;
 
-      double compMasses[CBMGenerics::ComponentManager::NumberOfSpecies];
-      double phaseCompMasses[CBMGenerics::ComponentManager::NumberOfPhases][CBMGenerics::ComponentManager::NumberOfSpecies];
-      double phaseDensity[CBMGenerics::ComponentManager::NumberOfPhases] = { 0 };
-      double phaseViscosity[CBMGenerics::ComponentManager::NumberOfPhases] = { 0 };
+      double compMasses[ComponentId::NUMBER_OF_SPECIES];
+      double phaseCompMasses[Phase::NUMBER_OF_PHASES][ComponentId::NUMBER_OF_SPECIES];
+      double phaseDensity   [Phase::NUMBER_OF_PHASES] = { 0 };
+      double phaseViscosity [Phase::NUMBER_OF_PHASES] = { 0 };
 
       // Using the PropertyRetriever class which ensures the retrieval and later on the restoration of property pointers
       DerivedProperties::PropertyRetriever pressurePropertyRetriever (m_formationPropertyPtr[PRESSUREPROPERTY]);
       DerivedProperties::PropertyRetriever temperaturePropertyRetriever (m_formationPropertyPtr[TEMPERATUREPROPERTY]);
 
-      for (int nc = 0; nc != CBMGenerics::ComponentManager::NumberOfSpecies; ++nc)
+      for (int nc = 0; nc != ComponentId::NUMBER_OF_SPECIES; ++nc)
       {
 
-         if (nc == CBMGenerics::ComponentManager::C1 or nc == CBMGenerics::ComponentManager::C6Minus14Sat)
+         if (nc == CBMGenerics::ComponentManager::C1 or nc == CBMGenerics::ComponentManager::C6_MINUS_14SAT)
             compMasses[nc] = 1;
          else
             compMasses[nc] = 0;
@@ -408,14 +408,14 @@ namespace migration
 
                   // If there's only vapour phase the Liquid density will be 1000. We should then use vapour density
                   // in the subsequent calculations of buoyancy and the resulting flow directions 
-                  if (phaseDensity[CBMGenerics::ComponentManager::Liquid] == 1000.0)
-                     phaseDensity[CBMGenerics::ComponentManager::Liquid] = phaseDensity[CBMGenerics::ComponentManager::Vapour];
+                  if (phaseDensity[Phase::LIQUID] == 1000.0)
+                     phaseDensity[Phase::LIQUID] = phaseDensity[Phase::VAPOUR];
 
-                  if (phaseDensity[CBMGenerics::ComponentManager::Vapour] == 1000.0)
-                     phaseDensity[CBMGenerics::ComponentManager::Vapour] = phaseDensity[CBMGenerics::ComponentManager::Liquid];
+                  if (phaseDensity[Phase::VAPOUR] == 1000.0)
+                     phaseDensity[Phase::VAPOUR] = phaseDensity[Phase::LIQUID];
 
-                  ptrVapourDensity->set (i, j, (unsigned int)k, phaseDensity[CBMGenerics::ComponentManager::Vapour]);
-                  ptrLiquidDensity->set (i, j, (unsigned int)k, phaseDensity[CBMGenerics::ComponentManager::Liquid]);
+                  ptrVapourDensity->set (i, j, (unsigned int)k, phaseDensity[Phase::VAPOUR]);
+                  ptrLiquidDensity->set (i, j, (unsigned int)k, phaseDensity[Phase::LIQUID]);
 
                   // If not a ghost node and not on last I or J row of the basin and
                   // not a top node then assign the value to the local formation node
@@ -427,8 +427,8 @@ namespace migration
                      if (!formationNode)
                         continue;
 
-                     formationNode->setVapourDensity (phaseDensity[CBMGenerics::ComponentManager::Vapour]);
-                     formationNode->setLiquidDensity (phaseDensity[CBMGenerics::ComponentManager::Liquid]);
+                     formationNode->setVapourDensity (phaseDensity[Phase::VAPOUR]);
+                     formationNode->setLiquidDensity (phaseDensity[Phase::LIQUID]);
                   }
                }
             }
@@ -1399,11 +1399,11 @@ namespace migration
 
    void Formation::loadExpulsionMaps (const Interface::Snapshot * begin, const Interface::Snapshot * end)
    {
-      for (int componentId = FIRST_COMPONENT; componentId < NUM_COMPONENTS; ++componentId)
+      for (int componentId = ComponentId::FIRST_COMPONENT; componentId < ComponentId::NUMBER_OF_SPECIES; ++componentId)
       {
          if (!ComponentsUsed[componentId]) continue;
 
-         string propertyName = ComponentNames[componentId];
+         string propertyName = CBMGenerics::ComponentManager::getInstance().getSpeciesName( componentId );
          propertyName += "ExpelledCumulative";
 
          const GridMap * gridMapEnd = getPropertyGridMap (propertyName, end);
@@ -1438,7 +1438,7 @@ namespace migration
    /// remove the expulsion gridmaps
    void Formation::unloadExpulsionMaps ()
    {
-      for (int componentId = FIRST_COMPONENT; componentId < NUM_COMPONENTS; ++componentId)
+      for (int componentId = ComponentId::FIRST_COMPONENT; componentId < ComponentId::NUMBER_OF_SPECIES; ++componentId)
       {
          if (!ComponentsUsed[componentId])
             continue;
@@ -1609,7 +1609,7 @@ namespace migration
 
                // calculate the composition to migrate
                Composition composition;
-               for (int componentId = FIRST_COMPONENT; componentId < NUM_COMPONENTS; ++componentId)
+               for (int componentId = ComponentId::FIRST_COMPONENT; componentId < ComponentId::NUMBER_OF_SPECIES; ++componentId)
                {
                   if (!ComponentsUsed[componentId])
                      continue;
@@ -1726,7 +1726,7 @@ namespace migration
                leakingComposition = leakingColumn->getComposition ();
 
                // calculate the composition to migrate
-               for (int componentId = FIRST_COMPONENT; componentId < NUM_COMPONENTS; ++componentId)
+               for (int componentId = ComponentId::FIRST_COMPONENT; componentId < ComponentId::NUMBER_OF_SPECIES; ++componentId)
                {
                   if (!ComponentsUsed[componentId])
                      continue;
@@ -1811,7 +1811,7 @@ namespace migration
 
                // calculate the composition to migrate
                Composition composition;
-               for (int componentId = FIRST_COMPONENT; componentId < NUM_COMPONENTS; ++componentId)
+               for (int componentId = ComponentId::FIRST_COMPONENT; componentId < ComponentId::NUMBER_OF_SPECIES; ++componentId)
                {
                   if (!ComponentsUsed[componentId])
                      continue;
@@ -1898,7 +1898,7 @@ namespace migration
                leakingComposition = leakingColumn->getComposition ();
 
                // calculate the composition to migrate
-               for (int componentId = FIRST_COMPONENT; componentId < NUM_COMPONENTS; ++componentId)
+               for (int componentId = ComponentId::FIRST_COMPONENT; componentId < ComponentId::NUMBER_OF_SPECIES; ++componentId)
                {
                   if (!ComponentsUsed[componentId])
                      continue;
@@ -1940,7 +1940,7 @@ namespace migration
 
          if (m_genexData == 0)
          {
-            m_genexData = m_projectHandle->getFactory ()->produceGridMap (0, 0, m_projectHandle->getActivityOutputGrid (), 99999.0, NUM_COMPONENTS);
+            m_genexData = m_projectHandle->getFactory ()->produceGridMap (0, 0, m_projectHandle->getActivityOutputGrid (), 99999.0, ComponentId::NUMBER_OF_SPECIES);
          }
          const GeoPhysics::GeoPhysicsSourceRock * sourceRock = dynamic_cast<const GeoPhysics::GeoPhysicsSourceRock *>(getSourceRock1 ());
          GeoPhysics::GeoPhysicsSourceRock * sourceRock1 = const_cast<GeoPhysics::GeoPhysicsSourceRock *>(sourceRock);

@@ -105,12 +105,12 @@ static DerivedProperties::ReservoirPropertyPtr GetPropertyGridMap ( Mining::Proj
                                                                     const Interface::Snapshot*                 snapshot,
                                                                     const Interface::Reservoir*                reservoir );
 
-static bool performPVT( double masses[ComponentManager::NumberOfOutputSpecies]
+static bool performPVT( double masses[ComponentManager::NUMBER_OF_SPECIES]
                       , double temperature
                       , double pressure
-                      , double phaseMasses[ComponentManager::NumberOfPhases][ComponentManager::NumberOfOutputSpecies]
-                      , double phaseDensities[ComponentManager::NumberOfPhases]
-                      , double phaseViscosities[ComponentManager::NumberOfPhases]
+                      , double phaseMasses     [ComponentManager::NUMBER_OF_PHASES][ComponentManager::NUMBER_OF_SPECIES]
+                      , double phaseDensities  [ComponentManager::NUMBER_OF_PHASES]
+                      , double phaseViscosities[ComponentManager::NUMBER_OF_PHASES]
                       );
 
 static double Accumulate( double values[], int numberOfValues );
@@ -368,39 +368,39 @@ double ComputeTrapPropertyValue( Mining::ProjectHandle      * projectHandle,
 {
    double value = Interface::DefaultUndefinedScalarValue;
 
-   double masses[ComponentManager::NumberOfOutputSpecies];
+   double masses[ComponentManager::NUMBER_OF_SPECIES];
 
    // reservoir condition phases
-   double massesRC[     ComponentManager::NumberOfPhases][ComponentManager::NumberOfOutputSpecies];
-   double densitiesRC[  ComponentManager::NumberOfPhases];
-   double viscositiesRC[ComponentManager::NumberOfPhases];
+   double massesRC[     ComponentManager::NUMBER_OF_PHASES][ComponentManager::NUMBER_OF_SPECIES];
+   double densitiesRC[  ComponentManager::NUMBER_OF_PHASES];
+   double viscositiesRC[ComponentManager::NUMBER_OF_PHASES];
 
    // stock tank phases of reservoir condition phases
-   double massesST[     ComponentManager::NumberOfPhases][ComponentManager::NumberOfPhases][ComponentManager::NumberOfOutputSpecies];
-   double densitiesST[  ComponentManager::NumberOfPhases][ComponentManager::NumberOfPhases];
-   double viscositiesST[ComponentManager::NumberOfPhases][ComponentManager::NumberOfPhases];
+   double massesST[     ComponentManager::NUMBER_OF_PHASES][ComponentManager::NUMBER_OF_PHASES][ComponentManager::NUMBER_OF_SPECIES];
+   double densitiesST[  ComponentManager::NUMBER_OF_PHASES][ComponentManager::NUMBER_OF_PHASES];
+   double viscositiesST[ComponentManager::NUMBER_OF_PHASES][ComponentManager::NUMBER_OF_PHASES];
 
-   for ( int comp = 0; comp < ComponentManager::NumberOfOutputSpecies; ++comp)
+   for ( int comp = 0; comp < ComponentManager::NUMBER_OF_SPECIES; ++comp)
    {
-      masses[comp] = trap->getMass( (Interface::ComponentId)(comp) );
+      masses[comp] = trap->getMass( ComponentManager::SpeciesNamesId( comp ) );
    }
 
    // perform PVT under reservoir conditions
    bool pvtRC = performPVT( masses, trap->getTemperature(), trap->getPressure(), massesRC, densitiesRC, viscositiesRC );
 
    double phaseMassesRC[2] = { 0.0, 0.0 };
-   for ( int comp = 0; pvtRC && comp < ComponentManager::NumberOfOutputSpecies; ++comp )
+   for ( int comp = 0; pvtRC && comp < ComponentManager::NUMBER_OF_SPECIES; ++comp )
    {
-      phaseMassesRC[ComponentManager::Vapour] += massesRC[ComponentManager::Vapour][comp];
-      phaseMassesRC[ComponentManager::Liquid] += massesRC[ComponentManager::Liquid][comp];
+      phaseMassesRC[ComponentManager::VAPOUR] += massesRC[ComponentManager::VAPOUR][comp];
+      phaseMassesRC[ComponentManager::LIQUID] += massesRC[ComponentManager::LIQUID][comp];
    }
 
    // perform PVT's of reservoir condition phases under stock tank conditions
-   bool pvtRCVapour = performPVT( massesRC[ComponentManager::Vapour], StockTankTemperature, StockTankPressure,
-                                  massesST[ComponentManager::Vapour], densitiesST[ComponentManager::Vapour], viscositiesST[ComponentManager::Vapour] );
+   bool pvtRCVapour = performPVT( massesRC[ComponentManager::VAPOUR], StockTankTemperature, StockTankPressure,
+                                  massesST[ComponentManager::VAPOUR], densitiesST[ComponentManager::VAPOUR], viscositiesST[ComponentManager::VAPOUR] );
 
-   bool pvtRCLiquid = performPVT( massesRC[ComponentManager::Liquid], StockTankTemperature, StockTankPressure,
-                                  massesST[ComponentManager::Liquid], densitiesST[ComponentManager::Liquid], viscositiesST[ComponentManager::Liquid] );
+   bool pvtRCLiquid = performPVT( massesRC[ComponentManager::LIQUID], StockTankTemperature, StockTankPressure,
+                                  massesST[ComponentManager::LIQUID], densitiesST[ComponentManager::LIQUID], viscositiesST[ComponentManager::LIQUID] );
 
    bool stPhaseFound = false;
    bool rcPhaseFound = false;
@@ -413,48 +413,48 @@ double ComputeTrapPropertyValue( Mining::ProjectHandle      * projectHandle,
    if ( propertyName.find( "FGIIP" ) != string::npos )
    {
       stPhaseFound = true;
-      rcPhase = ComponentManager::Vapour;
-      stPhase = ComponentManager::Vapour;
+      rcPhase = ComponentManager::VAPOUR;
+      stPhase = ComponentManager::VAPOUR;
    }
    else if (propertyName.find( "CIIP" ) != string::npos )
    {
       stPhaseFound = true;
-      rcPhase = ComponentManager::Vapour;
-      stPhase = ComponentManager::Liquid;
+      rcPhase = ComponentManager::VAPOUR;
+      stPhase = ComponentManager::LIQUID;
    }
    else if (propertyName.find( "SGIIP" ) != string::npos )
    {
       stPhaseFound = true;
-      rcPhase = ComponentManager::Liquid;
-      stPhase = ComponentManager::Vapour;
+      rcPhase = ComponentManager::LIQUID;
+      stPhase = ComponentManager::VAPOUR;
    }
    else if ( propertyName.find( "STOIIP" ) != string::npos )
    {
       stPhaseFound = true;
-      rcPhase = ComponentManager::Liquid;
-      stPhase = ComponentManager::Liquid;
+      rcPhase = ComponentManager::LIQUID;
+      stPhase = ComponentManager::LIQUID;
    }
    else if ( propertyName.find( "Vapour" ) != string::npos )
    {
       rcPhaseFound = true;
-      rcPhase = ComponentManager::Vapour;
+      rcPhase = ComponentManager::VAPOUR;
    }
    else if ( propertyName.find( "Liquid" ) != string::npos )
    {
       rcPhaseFound = true;
-      rcPhase = ComponentManager::Liquid;
+      rcPhase = ComponentManager::LIQUID;
    }
 
    // Volume, Density, Viscosity, and Mass properties for stock tank conditions
    if ( stPhaseFound && propertyName.find( "Volume" ) != string::npos )
    {
-      value = ComputeVolume( massesST[rcPhase][stPhase], densitiesST[rcPhase][stPhase], ComponentManager::NumberOfOutputSpecies );
+      value = ComputeVolume( massesST[rcPhase][stPhase], densitiesST[rcPhase][stPhase], ComponentManager::NUMBER_OF_SPECIES );
    }
    else if ( propertyName.find( "Density" ) != string::npos )
    {
       if ( stPhaseFound )
       {
-         if ( (rcPhase == ComponentManager::Vapour && pvtRCVapour) || (rcPhase == ComponentManager::Liquid && pvtRCLiquid) )
+         if ( (rcPhase == ComponentManager::VAPOUR && pvtRCVapour) || (rcPhase == ComponentManager::LIQUID && pvtRCLiquid) )
          {
             value = densitiesST[rcPhase][stPhase];
          }
@@ -465,7 +465,7 @@ double ComputeTrapPropertyValue( Mining::ProjectHandle      * projectHandle,
    {
       if ( stPhaseFound )
       {
-         if ( (rcPhase == ComponentManager::Vapour && pvtRCVapour) || (rcPhase == ComponentManager::Liquid && pvtRCLiquid) )
+         if ( (rcPhase == ComponentManager::VAPOUR && pvtRCVapour) || (rcPhase == ComponentManager::LIQUID && pvtRCLiquid) )
          {
             value = viscositiesST[rcPhase][stPhase];
          }
@@ -474,7 +474,7 @@ double ComputeTrapPropertyValue( Mining::ProjectHandle      * projectHandle,
    }
    else if ( stPhaseFound && propertyName.find( "Mass" ) != string::npos )
    {
-      value = Accumulate( massesST[rcPhase][stPhase], ComponentManager::NumberOfOutputSpecies );
+      value = Accumulate( massesST[rcPhase][stPhase], ComponentManager::NUMBER_OF_SPECIES );
       if ( value < 1 )
       {
          value = 0;
@@ -483,11 +483,11 @@ double ComputeTrapPropertyValue( Mining::ProjectHandle      * projectHandle,
    // Volume, Density, Viscosity, and Mass properties for reservoir conditions
    else if ( rcPhaseFound && propertyName.find( "Volume" ) != string::npos )
    {
-      value = ComputeVolume( massesRC[rcPhase], densitiesRC[rcPhase], ComponentManager::NumberOfOutputSpecies );
+      value = ComputeVolume( massesRC[rcPhase], densitiesRC[rcPhase], ComponentManager::NUMBER_OF_SPECIES );
    }
    else if ( rcPhaseFound && propertyName.find( "Mass" ) != string::npos )
    {
-      value = Accumulate( massesRC[rcPhase], ComponentManager::NumberOfOutputSpecies );
+      value = Accumulate( massesRC[rcPhase], ComponentManager::NUMBER_OF_SPECIES );
       if ( value < 1 )
       {
          value = 0;
@@ -498,15 +498,15 @@ double ComputeTrapPropertyValue( Mining::ProjectHandle      * projectHandle,
       ComponentManager::PhaseId rcPhase;
       ComponentManager::PhaseId stPhase;
 
-      rcPhase = ComponentManager::Vapour;
-      stPhase = ComponentManager::Liquid;
+      rcPhase = ComponentManager::VAPOUR;
+      stPhase = ComponentManager::LIQUID;
 
-      double volumeCIIP = ComputeVolume( massesST[rcPhase][stPhase], densitiesST[rcPhase][stPhase], ComponentManager::NumberOfOutputSpecies );
+      double volumeCIIP = ComputeVolume( massesST[rcPhase][stPhase], densitiesST[rcPhase][stPhase], ComponentManager::NUMBER_OF_SPECIES );
 
-      rcPhase = ComponentManager::Vapour;
-      stPhase = ComponentManager::Vapour;
+      rcPhase = ComponentManager::VAPOUR;
+      stPhase = ComponentManager::VAPOUR;
 
-      double volumeFGIIP = ComputeVolume( massesST[rcPhase][stPhase], densitiesST[rcPhase][stPhase], ComponentManager::NumberOfOutputSpecies );
+      double volumeFGIIP = ComputeVolume( massesST[rcPhase][stPhase], densitiesST[rcPhase][stPhase], ComponentManager::NUMBER_OF_SPECIES );
 
       if (volumeFGIIP != 0)
       {
@@ -518,15 +518,15 @@ double ComputeTrapPropertyValue( Mining::ProjectHandle      * projectHandle,
       ComponentManager::PhaseId rcPhase;
       ComponentManager::PhaseId stPhase;
 
-      rcPhase = ComponentManager::Liquid;
-      stPhase = ComponentManager::Liquid;
+      rcPhase = ComponentManager::LIQUID;
+      stPhase = ComponentManager::LIQUID;
 
-      double volumeSTOIIP = ComputeVolume( massesST[rcPhase][stPhase], densitiesST[rcPhase][stPhase], ComponentManager::NumberOfOutputSpecies );
+      double volumeSTOIIP = ComputeVolume( massesST[rcPhase][stPhase], densitiesST[rcPhase][stPhase], ComponentManager::NUMBER_OF_SPECIES );
 
-      rcPhase = ComponentManager::Liquid;
-      stPhase = ComponentManager::Vapour;
+      rcPhase = ComponentManager::LIQUID;
+      stPhase = ComponentManager::VAPOUR;
 
-      double volumeSGIIP = ComputeVolume( massesST[rcPhase][stPhase], densitiesST[rcPhase][stPhase], ComponentManager::NumberOfOutputSpecies );
+      double volumeSGIIP = ComputeVolume( massesST[rcPhase][stPhase], densitiesST[rcPhase][stPhase], ComponentManager::NUMBER_OF_SPECIES );
 
       if ( volumeSTOIIP != 0 )
       {
@@ -535,16 +535,16 @@ double ComputeTrapPropertyValue( Mining::ProjectHandle      * projectHandle,
    }
    else if ( propertyName == "OilAPI" )
    {
-      if ( densitiesST[ComponentManager::Liquid][ComponentManager::Liquid] != 0 )
+      if ( densitiesST[ComponentManager::LIQUID][ComponentManager::LIQUID] != 0 )
       {
-         value = 141.5/(0.001*densitiesST[ComponentManager::Liquid][ComponentManager::Liquid]) - 131.5;
+         value = 141.5/(0.001*densitiesST[ComponentManager::LIQUID][ComponentManager::LIQUID]) - 131.5;
       }
    }
    else if ( propertyName == "CondensateAPI" )
    {
-      if ( densitiesST[ComponentManager::Vapour][ComponentManager::Liquid] != 0 )
+      if ( densitiesST[ComponentManager::VAPOUR][ComponentManager::LIQUID] != 0 )
       {
-         value = 141.5/(0.001*densitiesST[ComponentManager::Vapour][ComponentManager::Liquid]) - 131.5;
+         value = 141.5/(0.001*densitiesST[ComponentManager::VAPOUR][ComponentManager::LIQUID]) - 131.5;
       }
    }
    // GasWetnessFGIIP and GasWetnessSGIIP
@@ -631,9 +631,9 @@ double ComputeTrapPropertyValue( Mining::ProjectHandle      * projectHandle,
    else if ( propertyName.rfind( "TrappedAmount" ) != std::string::npos )
    {
       bool found = false;
-      for ( int i = 0; i < ComponentManager::NumberOfOutputSpecies && !found; ++i )
+      for ( int i = 0; i < ComponentManager::NUMBER_OF_SPECIES && !found; ++i )
       {
-         if ( !propertyName.compare( 0, propertyName.length() - 13, ComponentManager::GetSpeciesName( i ) ) )
+         if ( !propertyName.compare( 0, propertyName.length() - 13, ComponentManager::getInstance().getSpeciesName( i ) ) )
          {
             value = masses[i];
             found = true;
@@ -686,28 +686,28 @@ const Interface::GridMap * GetPropertyGridMap( Mining::ProjectHandle      * proj
    return gridMap;
 }
 
-bool performPVT( double masses[ComponentManager::NumberOfOutputSpecies]
+bool performPVT( double masses[ComponentManager::NUMBER_OF_SPECIES]
                , double temperature
                , double pressure
-               , double phaseMasses[ComponentManager::NumberOfPhases][ComponentManager::NumberOfOutputSpecies]
-               , double phaseDensities[ComponentManager::NumberOfPhases]
-               , double phaseViscosities[ComponentManager::NumberOfPhases]
+               , double phaseMasses[ComponentManager::NUMBER_OF_PHASES][ComponentManager::NUMBER_OF_SPECIES]
+               , double phaseDensities[ComponentManager::NUMBER_OF_PHASES]
+               , double phaseViscosities[ComponentManager::NUMBER_OF_PHASES]
                )
 {
    bool performedPVT = false;
    double massTotal = 0;
 
-   for ( int comp = 0; comp < ComponentManager::NumberOfOutputSpecies; ++comp )
+   for ( int comp = 0; comp < ComponentManager::NUMBER_OF_SPECIES; ++comp )
    {
       massTotal += masses[comp];
 
-      for ( int phase = 0; phase < ComponentManager::NumberOfPhases; ++phase )
+      for ( int phase = 0; phase < ComponentManager::NUMBER_OF_PHASES; ++phase )
       {
          phaseMasses[phase][comp] = 0;
       }
    }
 
-   for ( int phase = 0; phase < ComponentManager::NumberOfPhases; ++phase )
+   for ( int phase = 0; phase < ComponentManager::NUMBER_OF_PHASES; ++phase )
    {
       phaseDensities[phase] = 0;
       phaseViscosities[phase] = 0;

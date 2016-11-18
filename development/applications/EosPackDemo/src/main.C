@@ -1,14 +1,24 @@
+// Copyright (C) 2010-2015 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
+// std library
 #include <iostream>
 #include <fstream>
 #include <iomanip>
 #include <sstream>
+#include <string.h>
 using namespace std;
 
-#include <string.h>
 
 #include "EosPack.h"
 
-const char * composFileName = NULL;
+const char * composFileName = nullptr;
 
 bool calcGorm   = false;
 bool calcProp   = false;
@@ -26,9 +36,9 @@ void ParseArgs( int argc, char * argv[] )
    }
 }
 
-void ReadComposition( double compMasses[CBMGenerics::ComponentManager::NumberOfOutputSpecies], double & pressure, double & temperature, double & gorm )
+void ReadComposition( double compMasses[ComponentId::NUMBER_OF_SPECIES], double & pressure, double & temperature, double & gorm )
 {
-   const int NUM_COMP_TOT = CBMGenerics::ComponentManager::NumberOfOutputSpecies;
+   const int NUM_COMP_TOT = ComponentId::NUMBER_OF_SPECIES;
 
    if ( composFileName )
    {
@@ -65,17 +75,17 @@ void ReadComposition( double compMasses[CBMGenerics::ComponentManager::NumberOfO
    }
 }
 
-int CalcAll( double compMasses[CBMGenerics::ComponentManager::NumberOfOutputSpecies], double pressure, double temperature, double gorm )
+int CalcAll( double compMasses[ComponentId::NUMBER_OF_SPECIES], double pressure, double temperature, double gorm )
 {
    CBMGenerics::ComponentManager& theComponentManager = CBMGenerics::ComponentManager::getInstance();
-   const int NUM_COMP     = CBMGenerics::ComponentManager::NumberOfSpeciesToFlash;
-   const int NUM_COMP_TOT = CBMGenerics::ComponentManager::NumberOfOutputSpecies;
+   const int NUM_COMP     = ComponentId::NUMBER_OF_SPECIES_TO_FLASH;
+   const int NUM_COMP_TOT = ComponentId::NUMBER_OF_SPECIES;
 
    bool   isGormPrescribed = false;
 
-   double phaseCompMasses[pvtFlash::N_PHASES][NUM_COMP_TOT];
-   double phaseDensity[pvtFlash::N_PHASES];
-   double phaseViscosity[pvtFlash::N_PHASES];
+   double phaseCompMasses[pvtFlash::numberOfPhases][NUM_COMP_TOT];
+   double phaseDensity   [pvtFlash::numberOfPhases];
+   double phaseViscosity [pvtFlash::numberOfPhases];
 
    isGormPrescribed = gorm < 0 ? false : true;
 
@@ -84,7 +94,7 @@ int CalcAll( double compMasses[CBMGenerics::ComponentManager::NumberOfOutputSpec
    double totMass = 0;
    for (int i = 0; i < NUM_COMP_TOT; ++i)
    {
-      cout << "mass " << setw(12) << theComponentManager.GetSpeciesName (i) << ": " << setw(14) << compMasses[i] << "\n";
+      cout << "mass " << setw(12) << theComponentManager.getSpeciesName (i) << ": " << setw(14) << compMasses[i] << "\n";
       totMass += compMasses[i];
    }
 
@@ -135,8 +145,8 @@ int CalcAll( double compMasses[CBMGenerics::ComponentManager::NumberOfOutputSpec
 
    for ( int i = 0; i < NUM_COMP; ++i )
    {
-      cout << "mass " << setw(12) << theComponentManager.GetSpeciesName (i) << " [gasphase]: " << setw(12) << phaseCompMasses[0][i] << " --- "
-           << "mass " << setw(12) << theComponentManager.GetSpeciesName (i) << " [oilphase]: " << setw(12) << phaseCompMasses[1][i] << "\n";
+      cout << "mass " << setw(12) << theComponentManager.getSpeciesName (i) << " [gasphase]: " << setw(12) << phaseCompMasses[0][i] << " --- "
+           << "mass " << setw(12) << theComponentManager.getSpeciesName (i) << " [oilphase]: " << setw(12) << phaseCompMasses[1][i] << "\n";
    }
 
 
@@ -185,7 +195,7 @@ int CalcAll( double compMasses[CBMGenerics::ComponentManager::NumberOfOutputSpec
 
          double testMW = pvtFlash::EosPack::getInstance().getMolWeightLumped( i, testGorm );
 
-         cout << "Mol weight(0, unlumpgorm, lumpgorm, testgorm): " << setw(12) << theComponentManager.GetSpeciesName(i) << " (" << setw(2) << i << ") = ";
+         cout << "Mol weight(0, unlumpgorm, lumpgorm, testgorm): " << setw(12) << theComponentManager.getSpeciesName(i) << " (" << setw(2) << i << ") = ";
 
          cout << setw(10) << compMolWeight0 << ", " << setw(10) << compMolWeight  << ", ";
          cout << setw(10) << compMolWeightV << ", " << setw(10) << compMolWeightL << ", " << setw(10) << testMW << "\n";
@@ -214,7 +224,7 @@ int CalcAll( double compMasses[CBMGenerics::ComponentManager::NumberOfOutputSpec
 
 int main (int nArg, char *pszArgs[] )
 {
-   const int NUM_COMP_TOT = CBMGenerics::ComponentManager::NumberOfOutputSpecies;
+   const int NUM_COMP_TOT = ComponentId::NUMBER_OF_SPECIES;
 
    double pressure;             //[Pa]               
    double temperature;          //[K]=[Celsius+273.15]
@@ -230,9 +240,9 @@ int main (int nArg, char *pszArgs[] )
    }
    else
    {
-      double phaseCompMasses[pvtFlash::N_PHASES][NUM_COMP_TOT];
-      double phaseDensity[pvtFlash::N_PHASES];
-      double phaseViscosity[pvtFlash::N_PHASES];
+      double phaseCompMasses[pvtFlash::numberOfPhases][NUM_COMP_TOT];
+      double phaseDensity   [pvtFlash::numberOfPhases];
+      double phaseViscosity [pvtFlash::numberOfPhases];
 
       if ( calcGorm )
       {

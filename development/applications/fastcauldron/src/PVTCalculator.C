@@ -1,3 +1,12 @@
+//
+// Copyright (C) 2012-2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 #include "PVTCalculator.h"
 
 #include <sstream>
@@ -91,27 +100,27 @@ double PVTComponents::sumRatios ( const PVTComponents& divisors ) const {
    return result;
 }
 
-double PVTComponents::sum ( const pvtFlash::PVTPhase phase ) const {
+double PVTComponents::sum ( const PhaseId phase ) const {
 
    double result = 0.0;
    int i;
 
-   if ( phase == pvtFlash::VAPOUR_PHASE ) {
+   if ( phase == PhaseId::VAPOUR ) {
 
 #ifdef USE_MKL_VML
       // sum of absolute (!) values
       result = cblas_dasum( pvtFlash::C1 - pvtFlash::C5 + 1, &m_components[pvtFlash::C5], 1 );
 #else
-      for ( i = pvtFlash::C5; i <= pvtFlash::C1; ++i ) {
+      for ( i = ComponentId::C5; i <= ComponentId::C1; ++i ) {
          result += m_components [ i ];
       }
 #endif
    } else {
 
 #ifdef USE_MKL_VML
-      result = cblas_dasum( pvtFlash::C6_14SAT - pvtFlash::ASPHALTENES + 1, &m_components[pvtFlash::ASPHALTENES], 1 );
+      result = cblas_dasum( pvtFlash::C6Minus14Sat - pvtFlash::asphaltene + 1, &m_components[pvtFlash::asphaltene], 1 );
 #else
-      for ( i = pvtFlash::ASPHALTENES; i <= pvtFlash::C6_14SAT; ++i ) {
+      for ( i = ComponentId::ASPHALTENE; i <= ComponentId::C6_MINUS_14SAT; ++i ) {
          result += m_components [ i ];
       }
 #endif
@@ -257,7 +266,7 @@ std::string PVTComponents::image ( const bool reverseOrder ) const {
          position = i;
       }
 
-      buffer << "( " << std::setw ( 11 ) << pvtFlash::ComponentIdNames [ position ] << " = " << std::setw ( 13 ) << m_components [ position ] << " )";
+      buffer << "( " << std::setw ( 11 ) << CBMGenerics::ComponentManager::getInstance().getSpeciesName( position ) << " = " << std::setw ( 13 ) << m_components [ position ] << " )";
 
       if ( i < NumberOfPVTComponents - 1 ) {
          buffer << ", ";
@@ -388,7 +397,7 @@ PVTComponents maximum ( const PVTComponents& left,
    int i;
 
    for ( i = 0; i < NumberOfPVTComponents; ++i ) {
-      pvtFlash::ComponentId id = static_cast<pvtFlash::ComponentId>( i );
+      ComponentId id = static_cast<ComponentId>( i );
       result ( id ) = NumericFunctions::Maximum<double>( left ( id ), right ( id ));
    }
 
@@ -404,7 +413,7 @@ PVTComponents maximum ( const PVTComponents& left,
    int i;
 
    for ( i = 0; i < NumberOfPVTComponents; ++i ) {
-      pvtFlash::ComponentId id = static_cast<pvtFlash::ComponentId>( i );
+      ComponentId id = static_cast<ComponentId>( i );
       result ( id ) = NumericFunctions::Maximum<double>( left ( id ), right );
    }
 
@@ -415,12 +424,12 @@ PVTComponents maximum ( const PVTComponents& left,
 
 double minimum ( const PVTComponents& cmps ) {
 
-   pvtFlash::ComponentId id;
+   ComponentId id;
    int i;
-   double val = cmps ( static_cast<pvtFlash::ComponentId>( 0 ));
+   double val = cmps ( static_cast<ComponentId>( 0 ));
 
    for ( i = 1; i < NumberOfPVTComponents; ++i ) {
-      pvtFlash::ComponentId id = static_cast<pvtFlash::ComponentId>( i );
+      ComponentId id = static_cast<ComponentId>( i );
       val = NumericFunctions::Minimum<double>( val, cmps ( id ));
    }
 
@@ -431,13 +440,13 @@ double minimum ( const PVTComponents& cmps ) {
 
 double minimum ( const PVTPhaseComponents& cmps ) {
 
-   pvtFlash::ComponentId id = static_cast<pvtFlash::ComponentId>( 0 );
+   ComponentId id = static_cast<ComponentId>( 0 );
    int i;
-   double val = NumericFunctions::Minimum<double>( cmps ( pvtFlash::VAPOUR_PHASE, id ), cmps ( pvtFlash::LIQUID_PHASE, id ));
+   double val = NumericFunctions::Minimum<double>( cmps ( PhaseId::VAPOUR, id ), cmps ( PhaseId::LIQUID, id ));
 
    for ( i = 1; i < NumberOfPVTComponents; ++i ) {
-      id = static_cast<pvtFlash::ComponentId>( i );
-      val = NumericFunctions::Minimum3<double>( val, cmps ( pvtFlash::VAPOUR_PHASE, id ), cmps ( pvtFlash::LIQUID_PHASE, id ));
+      id = static_cast<ComponentId>( i );
+      val = NumericFunctions::Minimum3<double>( val, cmps ( PhaseId::VAPOUR, id ), cmps ( PhaseId::LIQUID, id ));
    }
 
    return val;
@@ -489,7 +498,7 @@ void PVTPhaseComponents::zero () {
 
 }
 
-double PVTPhaseComponents::sum ( const pvtFlash::PVTPhase phase ) const {
+double PVTPhaseComponents::sum ( const PhaseId phase ) const {
 
    double result;
 
@@ -514,7 +523,7 @@ PVTPhaseComponents& PVTPhaseComponents::operator=( const PVTPhaseComponents& com
 #ifdef USE_MKL_VML
    int i;
 
-   for ( i = 0; i < pvtFlash::N_PHASES; ++i ) {
+   for ( i = 0; i < pvtFlash::numberOfPhases; ++i ) {
       cblas_dcopy( NumberOfPVTComponents, &components.m_masses[ i ][ 0 ], 1, &m_masses[ i ][ 0 ], 1 );
    }
 #else
@@ -535,7 +544,7 @@ PVTPhaseComponents& PVTPhaseComponents::operator+=( const PVTPhaseComponents& co
    int i;
 
    //cblas_daxpy( n, a, x, 1, y, 1 ) : y = a * x + y 
-   for ( i = 0; i < pvtFlash::N_PHASES; ++ i ) {
+   for ( i = 0; i < pvtFlash::numberOfPhases; ++ i ) {
       cblas_daxpy( NumberOfPVTComponents, 1.0, &components.m_masses[ i ][ 0 ], 1, &m_masses[ i ][ 0 ], 1 );
    }
 #else
@@ -568,8 +577,8 @@ PVTPhaseComponents& PVTPhaseComponents::operator*= ( const PVTComponents& compon
    int i;
 
    for ( i = 0; i < NumberOfPVTComponents; ++i ) {
-      m_masses [ 0 ][ i ] *= components ( pvtFlash::ComponentId ( i ));
-      m_masses [ 1 ][ i ] *= components ( pvtFlash::ComponentId ( i ));
+      m_masses [ 0 ][ i ] *= components ( ComponentId ( i ));
+      m_masses [ 1 ][ i ] *= components ( ComponentId ( i ));
    }
 #endif
    return *this;
@@ -607,8 +616,8 @@ PVTPhaseComponents& PVTPhaseComponents::operator/= ( const PVTComponents& compon
    int i;
 
    for ( i = 0; i < NumberOfPVTComponents; ++i ) {
-      m_masses [ 0 ][ i ] /= components ( pvtFlash::ComponentId ( i ));
-      m_masses [ 1 ][ i ] /= components ( pvtFlash::ComponentId ( i ));
+      m_masses [ 0 ][ i ] /= components ( ComponentId ( i ));
+      m_masses [ 1 ][ i ] /= components ( ComponentId ( i ));
    }
 #endif
 
@@ -619,18 +628,18 @@ PVTPhaseComponents& PVTPhaseComponents::operator/= ( const PVTPhaseValues& phase
 
 #ifdef USE_MKL_VML
 
-   const double vaporValue  = 1.0 / phases ( pvtFlash::VAPOUR_PHASE );
-   const double liquidValue = 1.0 / phases ( pvtFlash::LIQUID_PHASE );
+   const double vaporValue  = 1.0 / phases ( PhaseId::VAPOUR );
+   const double liquidValue = 1.0 / phases ( PhaseId::LIQUID );
    
-   cblas_dscal ( NumberOfPVTComponents, vaporValue,  &m_masses[ pvtFlash::VAPOUR_PHASE ][ 0 ], 1 );
-   cblas_dscal ( NumberOfPVTComponents, liquidValue, &m_masses[ pvtFlash::LIQUID_PHASE ][ 0 ], 1 );
+   cblas_dscal ( NumberOfPVTComponents, vaporValue,  &m_masses[ PhaseId::VAPOUR ][ 0 ], 1 );
+   cblas_dscal ( NumberOfPVTComponents, liquidValue, &m_masses[ PhaseId::LIQUID ][ 0 ], 1 );
 
 #else
    int i;
 
    for ( i = 0; i < NumberOfPVTComponents; ++i ) {
-      m_masses [ pvtFlash::VAPOUR_PHASE ][ i ] /= phases ( pvtFlash::VAPOUR_PHASE );
-      m_masses [ pvtFlash::LIQUID_PHASE ][ i ] /= phases ( pvtFlash::LIQUID_PHASE );
+      m_masses [ PhaseId::VAPOUR ][ i ] /= phases ( PhaseId::VAPOUR );
+      m_masses [ PhaseId::LIQUID ][ i ] /= phases ( PhaseId::LIQUID );
    }
 #endif
 
@@ -641,17 +650,17 @@ void PVTPhaseComponents::sum ( PVTPhaseValues& phases ) const {
 
 #ifdef USE_MKL_VML
    // sum of absolute (!) values
-   phases ( pvtFlash::LIQUID_PHASE ) = cblas_dasum( NumberOfPVTComponents, & m_masses[ pvtFlash::LIQUID_PHASE ][0], 1 );
-   phases ( pvtFlash::VAPOUR_PHASE ) = cblas_dasum( NumberOfPVTComponents, & m_masses[ pvtFlash::VAPOUR_PHASE ][0], 1 );
+   phases ( PhaseId::LIQUID ) = cblas_dasum( NumberOfPVTComponents, & m_masses[ PhaseId::LIQUID ][0], 1 );
+   phases ( PhaseId::VAPOUR ) = cblas_dasum( NumberOfPVTComponents, & m_masses[ PhaseId::VAPOUR ][0], 1 );
 #else
    int j;
 
-   phases ( pvtFlash::VAPOUR_PHASE ) = m_masses [ pvtFlash::VAPOUR_PHASE ][ 0 ];
-   phases ( pvtFlash::LIQUID_PHASE ) = m_masses [ pvtFlash::LIQUID_PHASE ][ 0 ];
+   phases ( PhaseId::VAPOUR ) = m_masses [ PhaseId::VAPOUR ][ 0 ];
+   phases ( PhaseId::LIQUID ) = m_masses [ PhaseId::LIQUID ][ 0 ];
 
    for ( j = 1; j < NumberOfPVTComponents; ++j ) {
-      phases ( pvtFlash::VAPOUR_PHASE ) += m_masses [ pvtFlash::VAPOUR_PHASE ][ j ];
-      phases ( pvtFlash::LIQUID_PHASE ) += m_masses [ pvtFlash::LIQUID_PHASE ][ j ];
+      phases ( PhaseId::VAPOUR ) += m_masses [ PhaseId::VAPOUR ][ j ];
+      phases ( PhaseId::LIQUID ) += m_masses [ PhaseId::LIQUID ][ j ];
    }
 #endif
 }
@@ -661,12 +670,12 @@ void PVTPhaseComponents::sumProduct ( const PVTComponents&  scalars,
 
    int j;
 
-   phases ( pvtFlash::VAPOUR_PHASE ) = scalars.m_components [ 0 ] * m_masses [ pvtFlash::VAPOUR_PHASE ][ 0 ];
-   phases ( pvtFlash::LIQUID_PHASE ) = scalars.m_components [ 0 ] * m_masses [ pvtFlash::LIQUID_PHASE ][ 0 ];
+   phases ( PhaseId::VAPOUR ) = scalars.m_components [ 0 ] * m_masses [ PhaseId::VAPOUR ][ 0 ];
+   phases ( PhaseId::LIQUID ) = scalars.m_components [ 0 ] * m_masses [ PhaseId::LIQUID ][ 0 ];
 
    for ( j = 1; j < NumberOfPVTComponents; ++j ) {
-      phases ( pvtFlash::VAPOUR_PHASE ) += scalars.m_components [ j ] * m_masses [ pvtFlash::VAPOUR_PHASE ][ j ];
-      phases ( pvtFlash::LIQUID_PHASE ) += scalars.m_components [ j ] * m_masses [ pvtFlash::LIQUID_PHASE ][ j ];
+      phases ( PhaseId::VAPOUR ) += scalars.m_components [ j ] * m_masses [ PhaseId::VAPOUR ][ j ];
+      phases ( PhaseId::LIQUID ) += scalars.m_components [ j ] * m_masses [ PhaseId::LIQUID ][ j ];
    }
 
 }
@@ -681,12 +690,12 @@ void PVTPhaseComponents::sum ( PVTComponents& components ) const {
    int j;
 
    for ( j = 0; j < NumberOfPVTComponents; ++j ) {
-      components ( pvtFlash::ComponentId ( j )) = m_masses [ 0 ][ j ] + m_masses [ 1 ][ j ];
+      components ( ComponentId ( j )) = m_masses [ 0 ][ j ] + m_masses [ 1 ][ j ];
    }
 #endif
 }
 
-void PVTPhaseComponents::setPhaseComponents ( const pvtFlash::PVTPhase phase,
+void PVTPhaseComponents::setPhaseComponents ( const PhaseId phase,
                                               const PVTComponents&    components ) {
 
 
@@ -696,13 +705,13 @@ void PVTPhaseComponents::setPhaseComponents ( const pvtFlash::PVTPhase phase,
    int j;
 
    for ( j = 0; j < NumberOfPVTComponents; ++j ) {
-      m_masses [ phase ][ j ] = components ( pvtFlash::ComponentId ( j ));
+      m_masses [ phase ][ j ] = components ( ComponentId ( j ));
    }
 #endif
 
 }
 
-void PVTPhaseComponents::getPhaseComponents ( const pvtFlash::PVTPhase phase,
+void PVTPhaseComponents::getPhaseComponents ( const PhaseId phase,
                                                     PVTComponents&    components ) const {
 
 
@@ -712,12 +721,12 @@ void PVTPhaseComponents::getPhaseComponents ( const pvtFlash::PVTPhase phase,
    int j;
 
    for ( j = 0; j < NumberOfPVTComponents; ++j ) {
-      components ( pvtFlash::ComponentId ( j )) = m_masses [ phase ][ j ];
+      components ( ComponentId ( j )) = m_masses [ phase ][ j ];
    }
 #endif
 }
 
-PVTComponents PVTPhaseComponents::getPhaseComponents ( const pvtFlash::PVTPhase phase ) const {
+PVTComponents PVTPhaseComponents::getPhaseComponents ( const PhaseId phase ) const {
 
    PVTComponents components;
 
@@ -752,7 +761,7 @@ std::string PVTPhaseComponents::image ( const bool reverseOrder ) const {
          position = i;
       }
 
-      buffer << "( " << std::setw ( 11 ) << pvtFlash::ComponentIdNames [ position ] << " = " << std::setw ( 13 ) << m_masses [ 0 ][ position ] << " )";
+      buffer << "( " << std::setw ( 11 ) << CBMGenerics::ComponentManager::getInstance().getSpeciesName( position ) << " = " << std::setw ( 13 ) << m_masses [ 0 ][ position ] << " )";
 
       if ( i < NumberOfPVTComponents - 1 ) {
          buffer << ", ";
@@ -775,7 +784,7 @@ std::string PVTPhaseComponents::image ( const bool reverseOrder ) const {
          position = i;
       }
 
-      buffer << "( " << std::setw ( 11 ) << pvtFlash::ComponentIdNames [ position ] << " = " << std::setw ( 13 ) << m_masses [ 1 ][ position ] << " )";
+      buffer << "( " << std::setw ( 11 ) << CBMGenerics::ComponentManager::getInstance().getSpeciesName( position ) << " = " << std::setw ( 13 ) << m_masses [ 1 ][ position ] << " )";
 
       if ( i < NumberOfPVTComponents - 1 ) {
          buffer << ", ";
@@ -798,7 +807,7 @@ void PVTPhaseValues::zero () {
 
    int i;
 
-   for ( i = 0; i < pvtFlash::N_PHASES; ++i ) {
+   for ( i = 0; i < pvtFlash::numberOfPhases; ++i ) {
       m_values [ i ] = 0.0;
    }
 
@@ -839,8 +848,8 @@ PVTPhaseValues maximum ( const PVTPhaseValues& values,
 
    PVTPhaseValues result;
 
-   result ( pvtFlash::VAPOUR_PHASE ) = NumericFunctions::Maximum<double>( values ( pvtFlash::VAPOUR_PHASE ), scalar );
-   result ( pvtFlash::LIQUID_PHASE ) = NumericFunctions::Maximum<double>( values ( pvtFlash::LIQUID_PHASE ), scalar );
+   result ( PhaseId::VAPOUR ) = NumericFunctions::Maximum<double>( values ( PhaseId::VAPOUR ), scalar );
+   result ( PhaseId::LIQUID ) = NumericFunctions::Maximum<double>( values ( PhaseId::LIQUID ), scalar );
 
    return result;
 }
@@ -850,8 +859,8 @@ PVTPhaseValues maximum ( const PVTPhaseValues& values1,
 
    PVTPhaseValues result;
 
-   result ( pvtFlash::VAPOUR_PHASE ) = NumericFunctions::Maximum<double>( values1 ( pvtFlash::VAPOUR_PHASE ), values2 ( pvtFlash::LIQUID_PHASE ));
-   result ( pvtFlash::LIQUID_PHASE ) = NumericFunctions::Maximum<double>( values1 ( pvtFlash::LIQUID_PHASE ), values2 ( pvtFlash::LIQUID_PHASE ));
+   result ( PhaseId::VAPOUR ) = NumericFunctions::Maximum<double>( values1 ( PhaseId::VAPOUR ), values2 ( PhaseId::LIQUID ));
+   result ( PhaseId::LIQUID ) = NumericFunctions::Maximum<double>( values1 ( PhaseId::LIQUID ), values2 ( PhaseId::LIQUID ));
 
    return result;
 }
@@ -864,34 +873,34 @@ PVTCalc::PVTCalc () {
    int i;
 
    for ( i = 0; i < NumberOfPVTComponents; ++i ) {
-      m_molarMass ( pvtFlash::ComponentId ( i )) = 0.0;
+      m_molarMass ( ComponentId ( i )) = 0.0;
    }
 
 
    // The default molar masses.
-   m_molarMass ( pvtFlash::ASPHALTENES ) = 7.979050e+02;
-   m_molarMass (      pvtFlash::RESINS ) = 6.105592e+02;
-   m_molarMass (     pvtFlash::C15_ARO ) = 4.633910e+02;
-   m_molarMass (     pvtFlash::C15_SAT ) = 2.646560e+02;
-   m_molarMass (    pvtFlash::C6_14ARO ) = 1.564148e+02;
-   m_molarMass (    pvtFlash::C6_14SAT ) = 1.025200e+02;
-   m_molarMass (          pvtFlash::C5 ) = 7.215064e+01;
-   m_molarMass (          pvtFlash::C4 ) = 5.812370e+01;
-   m_molarMass (          pvtFlash::C3 ) = 4.409676e+01;
-   m_molarMass (          pvtFlash::C2 ) = 3.006982e+01;
-   m_molarMass (          pvtFlash::C1 ) = 1.604288e+01;
-   m_molarMass (         pvtFlash::COX ) = 4.400980e+01;
-   m_molarMass (          pvtFlash::N2 ) = 2.801352e+01;
-   m_molarMass (         pvtFlash::H2S ) = 3.4080000+01;
-   m_molarMass (         pvtFlash::LSC ) = 2.646560e+02;
-   m_molarMass (      pvtFlash::C15_AT ) = 2.646560e+02;
-   m_molarMass (     pvtFlash::C6_14BT ) = 1.564147e+02;
-   m_molarMass (    pvtFlash::C6_14DBT ) = 1.564147e+02;
-   m_molarMass (     pvtFlash::C6_14BP ) = 1.564147e+02;
-   m_molarMass (    pvtFlash::C15_AROS ) = 2.646560e+02;
-   m_molarMass (    pvtFlash::C15_SATS ) = 2.646560e+02;
-   m_molarMass (   pvtFlash::C6_14SATS ) = 1.564147e+02;
-   m_molarMass (   pvtFlash::C6_14AROS ) = 1.564147e+02;
+   m_molarMass ( ComponentId::ASPHALTENE       ) = 7.979050e+02;
+   m_molarMass ( ComponentId::RESIN            ) = 6.105592e+02;
+   m_molarMass ( ComponentId::C15_PLUS_ARO     ) = 4.633910e+02;
+   m_molarMass ( ComponentId::C15_PLUS_SAT     ) = 2.646560e+02;
+   m_molarMass ( ComponentId::C6_MINUS_14ARO   ) = 1.564148e+02;
+   m_molarMass ( ComponentId::C6_MINUS_14SAT   ) = 1.025200e+02;
+   m_molarMass ( ComponentId::C5               ) = 7.215064e+01;
+   m_molarMass ( ComponentId::C4               ) = 5.812370e+01;
+   m_molarMass ( ComponentId::C3               ) = 4.409676e+01;
+   m_molarMass ( ComponentId::C2               ) = 3.006982e+01;
+   m_molarMass ( ComponentId::C1               ) = 1.604288e+01;
+   m_molarMass ( ComponentId::COX              ) = 4.400980e+01;
+   m_molarMass ( ComponentId::N2               ) = 2.801352e+01;
+   m_molarMass ( ComponentId::H2S              ) = 3.4080000+01;
+   m_molarMass ( ComponentId::LSC              ) = 2.646560e+02;
+   m_molarMass ( ComponentId::C15_PLUS_AT      ) = 2.646560e+02;
+   m_molarMass ( ComponentId::C6_MINUS_14BT    ) = 1.564147e+02;
+   m_molarMass ( ComponentId::C6_MINUS_14DBT   ) = 1.564147e+02;
+   m_molarMass ( ComponentId::C6_MINUS_14BP    ) = 1.564147e+02;
+   m_molarMass ( ComponentId::C15_PLUS_ARO_S   ) = 2.646560e+02;
+   m_molarMass ( ComponentId::C15_PLUS_SAT_S   ) = 2.646560e+02;
+   m_molarMass ( ComponentId::C6_MINUS_14SAT_S ) = 1.564147e+02;
+   m_molarMass ( ComponentId::C6_MINUS_14ARO_S ) = 1.564147e+02;
 
    
 
@@ -901,12 +910,12 @@ PVTComponents PVTCalc::computeMolarMass ( const PVTComponents& weights ) const {
 
    PVTComponents molarMass;
    double gorm = computeGorm ( weights );
-   pvtFlash::ComponentId component;
+   ComponentId component;
 
    int i;
 
    for ( i = 0; i < NumberOfPVTComponents; ++i ) {
-      component = pvtFlash::ComponentId ( i );
+      component = ComponentId ( i );
       //molarMass ( component ) = pvtFlash::EosPack::getInstance ().getMolWeight ( i, gorm );
 	  molarMass ( component ) = pvtFlash::EosPack::getInstance ().getMolWeightLumped ( i, gorm );
    }
@@ -921,7 +930,7 @@ PVTPhaseValues PVTCalc::computeCriticalTemperature ( const PVTPhaseComponents& c
 
    PVTPhaseValues critialTemperature;
    PVTPhaseValues norm;
-   pvtFlash::ComponentId component;
+   ComponentId component;
    double gorm = ( gormIsPrescribed ? prescribedGorm : computeGorm ( composition ));
    double lambda;
 
@@ -935,10 +944,10 @@ PVTPhaseValues PVTCalc::computeCriticalTemperature ( const PVTPhaseComponents& c
    norm.zero ();
 
    for ( i = 0; i < NumberOfPVTComponents; ++i ) {
-      component = pvtFlash::ComponentId ( i );
+      component = ComponentId ( i );
 
-      if ( composition ( pvtFlash::VAPOUR_PHASE, component ) == 0.0 and
-           composition ( pvtFlash::LIQUID_PHASE, component ) == 0.0 ) {
+      if ( composition ( PhaseId::VAPOUR, component ) == 0.0 and
+           composition ( PhaseId::LIQUID, component ) == 0.0 ) {
          continue;
       }
 
@@ -946,13 +955,13 @@ PVTPhaseValues PVTCalc::computeCriticalTemperature ( const PVTPhaseComponents& c
       componentMolarWeight         = pvtFlash::EosPack::getInstance ().getMolWeightLumped ( i, gorm );
       componentCriticalTemperature = pvtFlash::EosPack::getInstance ().getCriticalTemperatureLumped ( i, gorm );
 
-      lambda = composition ( pvtFlash::VAPOUR_PHASE, component ) * componentCriticalVolume / componentMolarWeight;
-      critialTemperature ( pvtFlash::VAPOUR_PHASE ) += lambda * componentCriticalTemperature;
-      norm ( pvtFlash::VAPOUR_PHASE ) += lambda;
+      lambda = composition ( PhaseId::VAPOUR, component ) * componentCriticalVolume / componentMolarWeight;
+      critialTemperature ( PhaseId::VAPOUR ) += lambda * componentCriticalTemperature;
+      norm ( PhaseId::VAPOUR ) += lambda;
 
-      lambda = composition ( pvtFlash::LIQUID_PHASE, component ) * componentCriticalVolume / componentMolarWeight;
-      critialTemperature ( pvtFlash::LIQUID_PHASE ) += lambda * componentCriticalTemperature;
-      norm ( pvtFlash::LIQUID_PHASE ) += lambda;
+      lambda = composition ( PhaseId::LIQUID, component ) * componentCriticalVolume / componentMolarWeight;
+      critialTemperature ( PhaseId::LIQUID ) += lambda * componentCriticalTemperature;
+      norm ( PhaseId::LIQUID ) += lambda;
    }   
 
    // assert(norm > 0.0);
@@ -969,7 +978,7 @@ double PVTCalc::computeCriticalTemperature ( const PVTComponents& composition,
    double norm;
    double gorm = ( gormIsPrescribed ? prescribedGorm : computeGorm ( composition ));
    double lambda;
-   pvtFlash::ComponentId component;
+   ComponentId component;
 
    double componentCriticalVolume;
    double componentMolarWeight;
@@ -981,7 +990,7 @@ double PVTCalc::computeCriticalTemperature ( const PVTComponents& composition,
    norm = 0.0;
 
    for ( i = 0; i < NumberOfPVTComponents; ++i ) {
-      component = pvtFlash::ComponentId ( i );
+      component = ComponentId ( i );
 
       if ( composition ( component ) == 0.0 ) {
          continue;
@@ -1041,23 +1050,23 @@ bool PVTCalc::compute ( const double               temperature,
 double PVTCalc::computeGorm ( const PVTComponents& weights ) const {
 
   double denom = 0.0;
-  denom += weights(pvtFlash::C6_14ARO);
-  denom += weights(pvtFlash::C6_14SAT);
-  denom += weights(pvtFlash::C15_ARO);
-  denom += weights(pvtFlash::C15_SAT);
-  denom += weights(pvtFlash::RESINS);
-  denom += weights(pvtFlash::ASPHALTENES);
+  denom += weights(ComponentId::C6_MINUS_14ARO);
+  denom += weights(ComponentId::C6_MINUS_14SAT);
+  denom += weights(ComponentId::C15_PLUS_ARO  );
+  denom += weights(ComponentId::C15_PLUS_SAT  );
+  denom += weights(ComponentId::RESIN         );
+  denom += weights(ComponentId::ASPHALTENE    );
   
-  denom += weights(pvtFlash::LSC);
-  denom += weights(pvtFlash::C15_AT);
-  denom += weights(pvtFlash::C15_AROS);
-  denom += weights(pvtFlash::C15_SATS);
+  denom += weights(ComponentId::LSC           );
+  denom += weights(ComponentId::C15_PLUS_AT   );
+  denom += weights(ComponentId::C15_PLUS_ARO_S);
+  denom += weights(ComponentId::C15_PLUS_SAT_S);
   
-  denom += weights(pvtFlash::C6_14BT);
-  denom += weights(pvtFlash::C6_14DBT);
-  denom += weights(pvtFlash::C6_14BP);
-  denom += weights(pvtFlash::C6_14SATS);
-  denom += weights(pvtFlash::C6_14AROS);
+  denom += weights(ComponentId::C6_MINUS_14BT   );
+  denom += weights(ComponentId::C6_MINUS_14DBT  );
+  denom += weights(ComponentId::C6_MINUS_14BP   );
+  denom += weights(ComponentId::C6_MINUS_14SAT_S);
+  denom += weights(ComponentId::C6_MINUS_14ARO_S);
   
   //assert(denom >= 0.0);
   
@@ -1067,13 +1076,13 @@ double PVTCalc::computeGorm ( const PVTComponents& weights ) const {
   }
   
   double num = 0.0;
-  num += weights(pvtFlash::C1);
-  num += weights(pvtFlash::C2);
-  num += weights(pvtFlash::C3);
-  num += weights(pvtFlash::C4);
-  num += weights(pvtFlash::C5);
+  num += weights(ComponentId::C1);
+  num += weights(ComponentId::C2);
+  num += weights(ComponentId::C3);
+  num += weights(ComponentId::C4);
+  num += weights(ComponentId::C5);
   
-  num += weights(pvtFlash::H2S);
+  num += weights( ComponentId::H2S);
 
   //what about N2
   
@@ -1090,14 +1099,14 @@ double PVTCalc::computeGorm ( const PVTComponents& vapour,
    double liquidMass = 0.0;
    double gorm;
 
-   for ( i = pvtFlash::ASPHALTENES; i <= pvtFlash::C6_14SAT; ++i ) {
-      liquidMass += vapour ( pvtFlash::ComponentId ( i )) + liquid ( pvtFlash::ComponentId ( i ));
+   for ( i = ComponentId::ASPHALTENE; i <= ComponentId::C6_MINUS_14SAT; ++i ) {
+      liquidMass += vapour ( ComponentId ( i )) + liquid ( ComponentId ( i ));
    }
 
-   for ( i = pvtFlash::LSC; i <= pvtFlash::C6_14AROS; ++i )
-	 {
-	   liquidMass += vapour ( pvtFlash::ComponentId ( i )) + liquid ( pvtFlash::ComponentId ( i ));
-	 }
+   for ( i = ComponentId::LSC; i <= ComponentId::C6_MINUS_14ARO_S; ++i )
+   {
+     liquidMass += vapour ( ComponentId ( i )) + liquid ( ComponentId ( i ));
+   }
    //what about N2 
 
    
@@ -1105,10 +1114,10 @@ double PVTCalc::computeGorm ( const PVTComponents& vapour,
       gorm = 1.0e80;
    } else {
 
-      for ( i = pvtFlash::C5; i <= pvtFlash::C1; ++i ) {
-         vapourMass += vapour ( pvtFlash::ComponentId ( i )) + liquid ( pvtFlash::ComponentId ( i ));
+      for ( i = ComponentId::C5; i <= ComponentId::C1; ++i ) {
+         vapourMass += vapour ( ComponentId ( i )) + liquid ( ComponentId ( i ));
       }
-	  vapourMass +=  vapour ( pvtFlash::ComponentId (pvtFlash::H2S));
+      vapourMass +=  vapour ( ComponentId ( ComponentId::H2S));
 
       gorm = vapourMass / liquidMass;
    }
@@ -1123,14 +1132,14 @@ double PVTCalc::computeGorm ( const PVTPhaseComponents& phaseComponents ) const 
    double liquidMass = 0.0;
    double gorm;
 
-   for ( i = pvtFlash::ASPHALTENES; i <= pvtFlash::C6_14SAT; ++i ) {
-      liquidMass += phaseComponents ( pvtFlash::VAPOUR_PHASE, pvtFlash::ComponentId ( i )) +
-                    phaseComponents ( pvtFlash::LIQUID_PHASE, pvtFlash::ComponentId ( i ));
+   for ( i = ComponentId::ASPHALTENE; i <= ComponentId::C6_MINUS_14SAT; ++i ) {
+      liquidMass += phaseComponents ( PhaseId::VAPOUR, ComponentId ( i )) +
+                    phaseComponents ( PhaseId::LIQUID, ComponentId ( i ));
    }
-   for ( i = pvtFlash::LSC; i <= pvtFlash::C6_14AROS; ++i )
+   for ( i = ComponentId::LSC; i <= ComponentId::C6_MINUS_14ARO_S; ++i )
    {
-      liquidMass += phaseComponents ( pvtFlash::VAPOUR_PHASE, pvtFlash::ComponentId ( i )) +
-                    phaseComponents ( pvtFlash::LIQUID_PHASE, pvtFlash::ComponentId ( i )); 
+      liquidMass += phaseComponents ( PhaseId::VAPOUR, ComponentId ( i )) +
+                    phaseComponents ( PhaseId::LIQUID, ComponentId ( i )); 
    }
 
     //what about N2 
@@ -1139,12 +1148,12 @@ double PVTCalc::computeGorm ( const PVTPhaseComponents& phaseComponents ) const 
       gorm = 1.0e80;
    } else {
 
-      for ( i = pvtFlash::C5; i <= pvtFlash::C1; ++i ) {
-         vapourMass += phaseComponents ( pvtFlash::VAPOUR_PHASE, pvtFlash::ComponentId ( i )) +
-                       phaseComponents ( pvtFlash::LIQUID_PHASE, pvtFlash::ComponentId ( i ));
+      for ( i = ComponentId::C5; i <= ComponentId::C1; ++i ) {
+         vapourMass += phaseComponents ( PhaseId::VAPOUR, ComponentId ( i )) +
+                       phaseComponents ( PhaseId::LIQUID, ComponentId ( i ));
       }
-	  //H2S
-	  vapourMass += phaseComponents ( pvtFlash::VAPOUR_PHASE, pvtFlash::ComponentId (pvtFlash::H2S));
+      //H2S
+      vapourMass += phaseComponents ( PhaseId::VAPOUR, ComponentId (ComponentId::H2S));
       gorm = vapourMass / liquidMass;
    }
 
@@ -1156,12 +1165,12 @@ PVTComponents operator* ( const PVTPhaseComponents& cmps,
 
    PVTComponents result;
 
-   pvtFlash::ComponentId id;
+   ComponentId id;
    int i;
 
    for ( i = 0; i < NumberOfPVTComponents; ++i ) {
-      id = pvtFlash::ComponentId ( i );
-      result ( id ) = phases ( pvtFlash::VAPOUR_PHASE ) * cmps.m_masses [ 0 ][ i ] + phases ( pvtFlash::LIQUID_PHASE ) * cmps.m_masses [ 1 ][ i ];
+      id = ComponentId ( i );
+      result ( id ) = phases ( PhaseId::VAPOUR ) * cmps.m_masses [ 0 ][ i ] + phases ( PhaseId::LIQUID ) * cmps.m_masses [ 1 ][ i ];
    }
 
    return result;

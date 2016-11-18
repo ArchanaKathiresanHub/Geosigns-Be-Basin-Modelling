@@ -1,3 +1,14 @@
+//
+// Copyright (C) 2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
+// std library
 #include <iostream>
 #include <iomanip>
 #include <fstream>
@@ -30,6 +41,10 @@ using namespace std;
 #include "Interface/PropertyValue.h"
 #include "Interface/ProjectHandle.h"
 #include "Interface/SimulationDetails.h"
+
+// CBMGenerics library
+#include "ComponentManager.h"
+typedef CBMGenerics::ComponentManager::SpeciesNamesId ComponentId;
 
 #include "DerivedPropertyManager.h"
 
@@ -642,8 +657,8 @@ void addDefaultProperties ( const Mining::ProjectHandle* projectHandle,
    properties.push_back ( projectHandle->findProperty ( "BasinTemperatureGradient" ));
    properties.push_back ( projectHandle->findProperty ( "BasementHeatFlow" ));
 
-   for ( i = 0; i < pvtFlash::NUM_COMPONENTS; ++i ) {
-      properties.push_back ( projectHandle->findProperty ( pvtFlash::ComponentIdNames [ i ] + "Concentration" ));
+   for ( i = 0; i < ComponentId::NUMBER_OF_SPECIES; ++i ) {
+      properties.push_back ( projectHandle->findProperty ( CBMGenerics::ComponentManager::getInstance().getSpeciesName( i ) + "Concentration" ) );
    }
 
    properties.push_back ( projectHandle->findProperty ( "WaterSaturation" ));

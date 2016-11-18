@@ -288,7 +288,7 @@ private:
    double m_CumQuantitiesById[NumberOfResults];
 
    double m_intervalCumulativeQuantities [ NumberOfResults ];
-   double m_intervalCumulativeSpecies [ CBMGenerics::ComponentManager::NumberOfOutputSpecies ];
+   double m_intervalCumulativeSpecies [ ComponentId::NUMBER_OF_SPECIES ];
 
    double m_TotalRetainedOM;
    double m_MobilOMConc;

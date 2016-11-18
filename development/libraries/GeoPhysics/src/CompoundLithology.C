@@ -1650,12 +1650,12 @@ double GeoPhysics::CompoundLithology::mixModulusSolid() const
 
 //------------------------------------------------------------//
 
-double GeoPhysics::CompoundLithology::capillaryPressure(const pvtFlash::PVTPhase phase,
-                                                        const double             densityBrine,
-                                                        const double             densityHc,
-                                                        const double             saturationBrine,
-                                                        const double             saturationHc,
-                                                        const double             porosity) const {
+double GeoPhysics::CompoundLithology::capillaryPressure(const PhaseId phase,
+                                                        const double  densityBrine,
+                                                        const double  densityHc,
+                                                        const double  saturationBrine,
+                                                        const double  saturationHc,
+                                                        const double  porosity) const {
 
    double result = 99999.0;
 

@@ -146,11 +146,9 @@ PropertyManager::PropertyManager () {
    m_propertyName2OutputName [ "CapillaryPressureOil100" ] = "CapillaryPressureOil100"; 
    m_propertyName2OutputName [ "CapillaryPressureOil0" ]   = "CapillaryPressureOil0"; 
 
-   
-   //for(i = 0; i < CBMGenerics::ComponentManager::NumberOfSpeciesToFlash; ++i)
    for(i = 0; i < NumberOfPVTComponents; ++i)
    {
-      const string propertyName = CBMGenerics::ComponentManager::getInstance ().GetSpeciesName ( i ) + "Concentration";
+      const string propertyName = CBMGenerics::ComponentManager::getInstance ().getSpeciesName ( i ) + "Concentration";
       m_propertyName2OutputName [ propertyName ] = propertyName;
    }
 

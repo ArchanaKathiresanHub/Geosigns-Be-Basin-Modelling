@@ -1,3 +1,12 @@
+//
+// Copyright (C) 2012-2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 #include "../src/EosPackCAPI.h"
 #include "../src/EosPack.h"
 #include "PVTCfgFileMgr.h"
@@ -26,40 +35,40 @@ TEST_F( EosPackTest, InitialisationOfKValues )
 
    double pressure    = 39958145.0;  // in Pa
    double temperature = 353.50111;   // in K
-   double compMasses[CBMGenerics::ComponentManager::NumberOfOutputSpecies];
+   double compMasses[ComponentId::NUMBER_OF_SPECIES];
 
-   compMasses [ ASPHALTENES ] = 5.9322774e-05;
-   compMasses [      RESINS ] = 0.00010834321;
-   compMasses [     C15_ARO ] = 0.0046930211;
-   compMasses [     C15_SAT ] = 0.015339124;
-   compMasses [    C6_14ARO ] = 0.053148382;
-   compMasses [    C6_14SAT ] = 0.073486113;
-   compMasses [          C5 ] = 0.016210614;
-   compMasses [          C4 ] = 0.02930958;
-   compMasses [          C3 ] = 0.044801003;
-   compMasses [          C2 ] = 0.066723203;
-   compMasses [          C1 ] = 0.67665664;
-   compMasses [         COX ] = 0;
-   compMasses [          N2 ] = 0.019464658;
-   compMasses [         H2S ] = 0;
-   compMasses [         LSC ] = 0;
-   compMasses [      C15_AT ] = 0;
-   compMasses [     C6_14BT ] = 0;
-   compMasses [    C6_14DBT ] = 0;
-   compMasses [     C6_14BP ] = 0;
-   compMasses [    C15_AROS ] = 0;
-   compMasses [    C15_SATS ] = 0;
-   compMasses [   C6_14SATS ] = 0;
-   compMasses [   C6_14AROS ] = 0;
+   compMasses [ ComponentId::ASPHALTENE       ] = 5.9322774e-05;
+   compMasses [ ComponentId::RESIN            ] = 0.00010834321;
+   compMasses [ ComponentId::C15_PLUS_ARO     ] = 0.0046930211;
+   compMasses [ ComponentId::C15_PLUS_SAT     ] = 0.015339124;
+   compMasses [ ComponentId::C6_MINUS_14ARO   ] = 0.053148382;
+   compMasses [ ComponentId::C6_MINUS_14SAT   ] = 0.073486113;
+   compMasses [ ComponentId::C5               ] = 0.016210614;
+   compMasses [ ComponentId::C4               ] = 0.02930958;
+   compMasses [ ComponentId::C3               ] = 0.044801003;
+   compMasses [ ComponentId::C2               ] = 0.066723203;
+   compMasses [ ComponentId::C1               ] = 0.67665664;
+   compMasses [ ComponentId::COX              ] = 0;
+   compMasses [ ComponentId::N2               ] = 0.019464658;
+   compMasses [ ComponentId::H2S              ] = 0;
+   compMasses [ ComponentId::LSC              ] = 0;
+   compMasses [ ComponentId::C15_PLUS_AT      ] = 0;
+   compMasses [ ComponentId::C6_MINUS_14BT    ] = 0;
+   compMasses [ ComponentId::C6_MINUS_14DBT   ] = 0;
+   compMasses [ ComponentId::C6_MINUS_14BP    ] = 0;
+   compMasses [ ComponentId::C15_PLUS_ARO_S   ] = 0;
+   compMasses [ ComponentId::C15_PLUS_SAT_S   ] = 0;
+   compMasses [ ComponentId::C6_MINUS_14SAT_S ] = 0;
+   compMasses [ ComponentId::C6_MINUS_14ARO_S ] = 0;
 
 
-   double phaseMasses[CBMGenerics::ComponentManager::NumberOfPhases][CBMGenerics::ComponentManager::NumberOfOutputSpecies];
+   double phaseMasses[PhaseId::NUMBER_OF_PHASES][ComponentId::NUMBER_OF_SPECIES];
 
-   double phaseDensity[CBMGenerics::ComponentManager::NumberOfPhases];
-   double phaseViscosity[CBMGenerics::ComponentManager::NumberOfPhases];
+   double phaseDensity[PhaseId::NUMBER_OF_PHASES];
+   double phaseViscosity[PhaseId::NUMBER_OF_PHASES];
 
-   double kValuesComputed  [ CBMGenerics::ComponentManager::NumberOfSpeciesToFlash ];
-   double kValuesExpected [ CBMGenerics::ComponentManager::NumberOfSpeciesToFlash ];
+   double kValuesComputed  [ ComponentId::NUMBER_OF_SPECIES_TO_FLASH ];
+   double kValuesExpected [ ComponentId::NUMBER_OF_SPECIES_TO_FLASH ];
    double gorm = 0.0; // Initialised to stop the compiler from complaining.
                       // This is okay because isGormPrescribed is defined false, any gorm value will not be used.
    bool isGormPrescribed = false;
@@ -95,7 +104,7 @@ TEST_F( EosPackTest, InitialisationOfKValues )
    kValuesExpected [ 13 ] = 1.53531376868468827e+00;
 
    // The kvalues computed should be equal to those in the expected array.
-   for ( int i = 0; i < CBMGenerics::ComponentManager::NumberOfSpeciesToFlash; ++i ) {
+   for ( int i = 0; i < ComponentId::NUMBER_OF_SPECIES_TO_FLASH; ++i ) {
       EXPECT_NEAR( kValuesExpected [ i ], kValuesComputed [ i ],  kValuesExpected [ i ] * ComparisonTolerance );
    }
 }
@@ -112,11 +121,11 @@ TEST_F( EosPackTest, FlashVapour)
     computeStruct.isGormPrescribed = false;
     EosPackComputeWithLumping( &computeStruct );
 
-    double sumVapour = std::accumulate( computeStruct.phaseCompMasses + VAPOUR_PHASE       * NUM_COMPONENTS,
-                                        computeStruct.phaseCompMasses + (VAPOUR_PHASE + 1 )* NUM_COMPONENTS,
+    double sumVapour = std::accumulate( computeStruct.phaseCompMasses + PhaseId::VAPOUR       * ComponentId::NUMBER_OF_SPECIES,
+                                        computeStruct.phaseCompMasses + (PhaseId::VAPOUR + 1 )* ComponentId::NUMBER_OF_SPECIES,
                                         0.0 );
-    double sumLiquid = std::accumulate( computeStruct.phaseCompMasses + LIQUID_PHASE       * NUM_COMPONENTS,
-                                        computeStruct.phaseCompMasses + (LIQUID_PHASE + 1 )* NUM_COMPONENTS,
+    double sumLiquid = std::accumulate( computeStruct.phaseCompMasses + PhaseId::LIQUID       * ComponentId::NUMBER_OF_SPECIES,
+                                        computeStruct.phaseCompMasses + (PhaseId::LIQUID + 1 )* ComponentId::NUMBER_OF_SPECIES,
                                         0.0 );
     EXPECT_NEAR( sumVapour, 7426542, 1e-6 ); // Vapour mass not as expected
     EXPECT_NEAR( sumLiquid, 0, 1e-6);        // Liquid mass not as expected
@@ -134,11 +143,11 @@ TEST_F( EosPackTest, FlashLiquid )
     computeStruct.isGormPrescribed = false;
     EosPackComputeWithLumping( &computeStruct);
     
-    double sumVapour = std::accumulate( computeStruct.phaseCompMasses + VAPOUR_PHASE       * NUM_COMPONENTS,
-                                        computeStruct.phaseCompMasses + (VAPOUR_PHASE + 1 )* NUM_COMPONENTS,
+    double sumVapour = std::accumulate( computeStruct.phaseCompMasses + PhaseId::VAPOUR       * ComponentId::NUMBER_OF_SPECIES,
+                                        computeStruct.phaseCompMasses + (PhaseId::VAPOUR + 1 )* ComponentId::NUMBER_OF_SPECIES,
                                         0.0 );
-    double sumLiquid = std::accumulate( computeStruct.phaseCompMasses + LIQUID_PHASE       * NUM_COMPONENTS,
-                                        computeStruct.phaseCompMasses + (LIQUID_PHASE + 1 )* NUM_COMPONENTS,
+    double sumLiquid = std::accumulate( computeStruct.phaseCompMasses + PhaseId::LIQUID       * ComponentId::NUMBER_OF_SPECIES,
+                                        computeStruct.phaseCompMasses + (PhaseId::LIQUID + 1 )* ComponentId::NUMBER_OF_SPECIES,
                                         0.0 );
     EXPECT_NEAR( sumVapour, 0, 1e-6 );       // Vapour mass not as expected
     EXPECT_NEAR( sumLiquid, 7426542, 1e-6 ); // Liquid mass not as expected
@@ -155,11 +164,11 @@ TEST_F( EosPackTest, FlashVapourLiquidWarmer)
    computeStruct.isGormPrescribed = false;
    EosPackComputeWithLumping( &computeStruct );
 
-   double sumVapour = std::accumulate( computeStruct.phaseCompMasses + VAPOUR_PHASE       * NUM_COMPONENTS,
-                                       computeStruct.phaseCompMasses + (VAPOUR_PHASE + 1 )* NUM_COMPONENTS,
+   double sumVapour = std::accumulate( computeStruct.phaseCompMasses + PhaseId::VAPOUR       * ComponentId::NUMBER_OF_SPECIES,
+                                       computeStruct.phaseCompMasses + (PhaseId::VAPOUR + 1 )* ComponentId::NUMBER_OF_SPECIES,
                                        0.0 );
-   double sumLiquid = std::accumulate( computeStruct.phaseCompMasses + LIQUID_PHASE       * NUM_COMPONENTS,
-                                       computeStruct.phaseCompMasses + (LIQUID_PHASE + 1 )* NUM_COMPONENTS,
+   double sumLiquid = std::accumulate( computeStruct.phaseCompMasses + PhaseId::LIQUID       * ComponentId::NUMBER_OF_SPECIES,
+                                       computeStruct.phaseCompMasses + (PhaseId::LIQUID + 1 )* ComponentId::NUMBER_OF_SPECIES,
                                        0.0 );
    EXPECT_NEAR( sumVapour,  7400659.1, 1e-1 );   // Vapour mass not as expected
    EXPECT_NEAR( sumLiquid ,  25882.915, 1e-3 ); // Liquid mass not as expected
@@ -176,11 +185,11 @@ TEST_F( EosPackTest, FlashVapourLiquid)
    computeStruct.isGormPrescribed = false;
    EosPackComputeWithLumping( &computeStruct );
     
-   double sumVapour = std::accumulate( computeStruct.phaseCompMasses + VAPOUR_PHASE       * NUM_COMPONENTS,
-                                       computeStruct.phaseCompMasses + (VAPOUR_PHASE + 1 )* NUM_COMPONENTS,
+   double sumVapour = std::accumulate( computeStruct.phaseCompMasses + PhaseId::VAPOUR       * ComponentId::NUMBER_OF_SPECIES,
+                                       computeStruct.phaseCompMasses + (PhaseId::VAPOUR + 1 )* ComponentId::NUMBER_OF_SPECIES,
                                        0.0 );
-   double sumLiquid = std::accumulate( computeStruct.phaseCompMasses + LIQUID_PHASE       * NUM_COMPONENTS,
-                                       computeStruct.phaseCompMasses + (LIQUID_PHASE + 1 )* NUM_COMPONENTS,
+   double sumLiquid = std::accumulate( computeStruct.phaseCompMasses + PhaseId::LIQUID       * ComponentId::NUMBER_OF_SPECIES,
+                                       computeStruct.phaseCompMasses + (PhaseId::LIQUID + 1 )* ComponentId::NUMBER_OF_SPECIES,
                                        0.0 );
    EXPECT_NEAR( sumVapour, 851393.6564469377, 1e-6  ); // Vapour mass not as expected
    EXPECT_NEAR( sumLiquid, 6575148.3435530625, 1e-6 ); // Liquid mass not as expected
@@ -188,27 +197,27 @@ TEST_F( EosPackTest, FlashVapourLiquid)
 
 TEST_F( EosPackTest, FlashVapourLiquidUsingArrays )
 {
-   double masses[NUM_COMPONENTS];
-   double phaseMasses[NUM_COMPONENTS * N_PHASES];
-   double phaseDensity[N_PHASES];
-   double phaseViscosity[N_PHASES];
+   double masses[ComponentId::NUMBER_OF_SPECIES];
+   double phaseMasses[ComponentId::NUMBER_OF_SPECIES * numberOfPhases];
+   double phaseDensity[numberOfPhases];
+   double phaseViscosity[numberOfPhases];
 
    initializeCompositionMasses( masses );
 
    EosPackComputeWithLumpingArr( 373.15, 1e6, masses, false, 0.0, phaseMasses, phaseDensity, phaseViscosity );
 
-   double totPhaseMass[N_PHASES];
+   double totPhaseMass[numberOfPhases];
 
-   for ( int i = 0; i < N_PHASES; ++i )
+   for ( int i = 0; i < numberOfPhases; ++i )
    {
       totPhaseMass[i] = 0.0;
-      for ( int j = 0; j < NUM_COMPONENTS; ++j )
+      for ( int j = 0; j < ComponentId::NUMBER_OF_SPECIES; ++j )
       {
-         totPhaseMass[i] += phaseMasses[i * NUM_COMPONENTS + j];
+         totPhaseMass[i] += phaseMasses[i * ComponentId::NUMBER_OF_SPECIES + j];
       }
    }
-   double sumVapour = totPhaseMass[VAPOUR_PHASE];
-   double sumLiquid = totPhaseMass[LIQUID_PHASE];
+   double sumVapour = totPhaseMass[PhaseId::VAPOUR];
+   double sumLiquid = totPhaseMass[PhaseId::LIQUID];
 
    EXPECT_NEAR( sumVapour, 851393.6564469377, 1e-6 );  // Vapour mass not as expected
    EXPECT_NEAR( sumLiquid, 6575148.3435530625, 1e-6 ); // Liquid mass not as expected
@@ -216,8 +225,8 @@ TEST_F( EosPackTest, FlashVapourLiquidUsingArrays )
 
 TEST_F( EosPackTest, GormCalculation)
 {
-   double compos[NUM_COMPONENTS];
-   for (int i = 0; i < NUM_COMPONENTS; ++i )
+   double compos[ComponentId::NUMBER_OF_SPECIES];
+   for (int i = 0; i < ComponentId::NUMBER_OF_SPECIES; ++i )
    {
       compos[i] = 1;
    }
@@ -228,53 +237,53 @@ TEST_F( EosPackTest, GormCalculation)
 
 TEST_F( EosPackTest, GetMolWeight  )
 {
-   EXPECT_NEAR( GetMolWeight( ASPHALTENES, 0.0 ),   795.12, 1.e-5 );
-   EXPECT_NEAR( GetMolWeight( RESINS     , 0.0 ),   618.35, 1.e-5 );
-   EXPECT_NEAR( GetMolWeight( C15_ARO    , 0.0 ),   474.52, 1.e-5 );
-   EXPECT_NEAR( GetMolWeight( C15_SAT    , 0.0 ),   281.85, 1.e-5 );
-   EXPECT_NEAR( GetMolWeight( C6_14ARO   , 0.0 ),   158.47, 1.e-5 );
-   EXPECT_NEAR( GetMolWeight( C6_14SAT   , 0.0 ),   103.09, 1.e-5 );
-   EXPECT_NEAR( GetMolWeight( C5         , 0.0 ), 72.15064, 1.e-5 );
-   EXPECT_NEAR( GetMolWeight( C4         , 0.0 ),  58.1237, 1.e-5 );
-   EXPECT_NEAR( GetMolWeight( C3         , 0.0 ), 44.09676, 1.e-5 );
-   EXPECT_NEAR( GetMolWeight( C2         , 0.0 ), 30.06982, 1.e-5 );
-   EXPECT_NEAR( GetMolWeight( C1         , 0.0 ), 16.04288, 1.e-5 );
-   EXPECT_NEAR( GetMolWeight( COX        , 0.0 ),  44.0098, 1.e-5 );
-   EXPECT_NEAR( GetMolWeight( N2         , 0.0 ), 28.01352, 1.e-5 );
-   EXPECT_NEAR( GetMolWeight( H2S        , 0.0 ),    34.08, 1.e-5 );
-   EXPECT_NEAR( GetMolWeight( LSC        , 0.0 ),   281.85, 1.e-5 );
-   EXPECT_NEAR( GetMolWeight( C15_AT     , 0.0 ),   281.85, 1.e-5 );
-   EXPECT_NEAR( GetMolWeight( C6_14BT    , 0.0 ),   158.47, 1.e-5 );
-   EXPECT_NEAR( GetMolWeight( C6_14DBT   , 0.0 ),   158.47, 1.e-5 );
-   EXPECT_NEAR( GetMolWeight( C6_14BP    , 0.0 ),   158.47, 1.e-5 );
-   EXPECT_NEAR( GetMolWeight( C15_AROS   , 0.0 ),   281.85, 1.e-5 );
-   EXPECT_NEAR( GetMolWeight( C15_SATS   , 0.0 ),   281.85, 1.e-5 );
-   EXPECT_NEAR( GetMolWeight( C6_14SATS  , 0.0 ),   158.47, 1.e-5 );
-   EXPECT_NEAR( GetMolWeight( C6_14AROS  , 0.0 ),   158.47, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( ComponentId::ASPHALTENE       , 0.0 ),   795.12, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( ComponentId::RESIN            , 0.0 ),   618.35, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( ComponentId::C15_PLUS_ARO     , 0.0 ),   474.52, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( ComponentId::C15_PLUS_SAT     , 0.0 ),   281.85, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( ComponentId::C6_MINUS_14ARO   , 0.0 ),   158.47, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( ComponentId::C6_MINUS_14SAT   , 0.0 ),   103.09, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( ComponentId::C5               , 0.0 ), 72.15064, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( ComponentId::C4               , 0.0 ),  58.1237, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( ComponentId::C3               , 0.0 ), 44.09676, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( ComponentId::C2               , 0.0 ), 30.06982, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( ComponentId::C1               , 0.0 ), 16.04288, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( ComponentId::COX              , 0.0 ),  44.0098, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( ComponentId::N2               , 0.0 ), 28.01352, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( ComponentId::H2S              , 0.0 ),    34.08, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( ComponentId::LSC              , 0.0 ),   281.85, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( ComponentId::C15_PLUS_AT      , 0.0 ),   281.85, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( ComponentId::C6_MINUS_14BT    , 0.0 ),   158.47, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( ComponentId::C6_MINUS_14DBT   , 0.0 ),   158.47, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( ComponentId::C6_MINUS_14BP    , 0.0 ),   158.47, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( ComponentId::C15_PLUS_ARO_S   , 0.0 ),   281.85, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( ComponentId::C15_PLUS_SAT_S   , 0.0 ),   281.85, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( ComponentId::C6_MINUS_14SAT_S , 0.0 ),   158.47, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( ComponentId::C6_MINUS_14ARO_S , 0.0 ),   158.47, 1.e-5 );
    
-   EXPECT_NEAR( GetMolWeight( ASPHALTENES, 2.3 ),  801.5255, 1.e-5 );
-   EXPECT_NEAR( GetMolWeight( RESINS     , 2.3 ), 600.43116, 1.e-5 );
-   EXPECT_NEAR( GetMolWeight( C15_ARO    , 2.3 ),  448.9233, 1.e-5 );
-   EXPECT_NEAR( GetMolWeight( C15_SAT    , 2.3 ),  242.3038, 1.e-5 );
-   EXPECT_NEAR( GetMolWeight( C6_14ARO   , 2.3 ), 153.74304, 1.e-5 );
-   EXPECT_NEAR( GetMolWeight( C6_14SAT   , 2.3 ),   101.779, 1.e-5 );
-   EXPECT_NEAR( GetMolWeight( C5         , 2.3 ),  72.15064, 1.e-5 );
-   EXPECT_NEAR( GetMolWeight( C4         , 2.3 ),   58.1237, 1.e-5 );
-   EXPECT_NEAR( GetMolWeight( C3         , 2.3 ),  44.09676, 1.e-5 );
-   EXPECT_NEAR( GetMolWeight( C2         , 2.3 ),  30.06982, 1.e-5 );
-   EXPECT_NEAR( GetMolWeight( C1         , 2.3 ),  16.04288, 1.e-5 );
-   EXPECT_NEAR( GetMolWeight( COX        , 2.3 ),   44.0098, 1.e-5 );
-   EXPECT_NEAR( GetMolWeight( N2         , 2.3 ),  28.01352, 1.e-5 );
-   EXPECT_NEAR( GetMolWeight( H2S        , 2.3 ),     34.08, 1.e-5 );
-   EXPECT_NEAR( GetMolWeight( LSC        , 2.3 ),  242.3038, 1.e-5 );
-   EXPECT_NEAR( GetMolWeight( C15_AT     , 2.3 ),  242.3038, 1.e-5 );
-   EXPECT_NEAR( GetMolWeight( C6_14BT    , 2.3 ), 153.74304, 1.e-5 );
-   EXPECT_NEAR( GetMolWeight( C6_14DBT   , 2.3 ), 153.74304, 1.e-5 );
-   EXPECT_NEAR( GetMolWeight( C6_14BP    , 2.3 ), 153.74304, 1.e-5 );
-   EXPECT_NEAR( GetMolWeight( C15_AROS   , 2.3 ),  242.3038, 1.e-5 );
-   EXPECT_NEAR( GetMolWeight( C15_SATS   , 2.3 ),  242.3038, 1.e-5 );
-   EXPECT_NEAR( GetMolWeight( C6_14SATS  , 2.3 ), 153.74304, 1.e-5 );
-   EXPECT_NEAR( GetMolWeight( C6_14AROS  , 2.3 ), 153.74304, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( ComponentId::ASPHALTENE       , 2.3 ),  801.5255, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( ComponentId::RESIN            , 2.3 ), 600.43116, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( ComponentId::C15_PLUS_ARO     , 2.3 ),  448.9233, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( ComponentId::C15_PLUS_SAT     , 2.3 ),  242.3038, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( ComponentId::C6_MINUS_14ARO   , 2.3 ), 153.74304, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( ComponentId::C6_MINUS_14SAT   , 2.3 ),   101.779, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( ComponentId::C5               , 2.3 ),  72.15064, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( ComponentId::C4               , 2.3 ),   58.1237, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( ComponentId::C3               , 2.3 ),  44.09676, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( ComponentId::C2               , 2.3 ),  30.06982, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( ComponentId::C1               , 2.3 ),  16.04288, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( ComponentId::COX              , 2.3 ),   44.0098, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( ComponentId::N2               , 2.3 ),  28.01352, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( ComponentId::H2S              , 2.3 ),     34.08, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( ComponentId::LSC              , 2.3 ),  242.3038, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( ComponentId::C15_PLUS_AT      , 2.3 ),  242.3038, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( ComponentId::C6_MINUS_14BT    , 2.3 ), 153.74304, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( ComponentId::C6_MINUS_14DBT   , 2.3 ), 153.74304, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( ComponentId::C6_MINUS_14BP    , 2.3 ), 153.74304, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( ComponentId::C15_PLUS_ARO_S   , 2.3 ),  242.3038, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( ComponentId::C15_PLUS_SAT_S   , 2.3 ),  242.3038, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( ComponentId::C6_MINUS_14SAT_S , 2.3 ), 153.74304, 1.e-5 );
+   EXPECT_NEAR( GetMolWeight( ComponentId::C6_MINUS_14ARO_S , 2.3 ), 153.74304, 1.e-5 );
 }
 
 ///////////////////////////////////////////////////////////
@@ -282,29 +291,29 @@ TEST_F( EosPackTest, GetMolWeight  )
 ///////////////////////////////////////////////////////////
 void EosPackTest::initializeCompositionMasses( double masses[] )
 {
-   masses[ASPHALTENES] = 1158;
-   masses[RESINS     ] = 21116;
-   masses[C15_ARO    ] = 2021;
-   masses[C15_SAT    ] = 19731;
-   masses[C6_14ARO   ] = 339;
-   masses[C6_14SAT   ] = 6328815;
-   masses[C5         ] = 103238;
-   masses[C4         ] = 187596;
-   masses[C3         ] = 215881;
-   masses[C2         ] = 232280;
-   masses[C1         ] = 308969;
-   masses[COX        ] = 0;
-   masses[N2         ] = 5398;
-   masses[H2S        ] = 0;
-   masses[LSC        ] = 0;
-   masses[C15_AT     ] = 0;
-   masses[C6_14BT    ] = 0;
-   masses[C6_14DBT   ] = 0;
-   masses[C6_14BP    ] = 0;
-   masses[C15_AROS   ] = 0;
-   masses[C15_SATS   ] = 0;
-   masses[C6_14SATS  ] = 0;
-   masses[C6_14AROS  ] = 0;
+   masses[ ComponentId::ASPHALTENE       ] = 1158;
+   masses[ ComponentId::RESIN            ] = 21116;
+   masses[ ComponentId::C15_PLUS_ARO     ] = 2021;
+   masses[ ComponentId::C15_PLUS_SAT     ] = 19731;
+   masses[ ComponentId::C6_MINUS_14ARO   ] = 339;
+   masses[ ComponentId::C6_MINUS_14SAT   ] = 6328815;
+   masses[ ComponentId::C5               ] = 103238;
+   masses[ ComponentId::C4               ] = 187596;
+   masses[ ComponentId::C3               ] = 215881;
+   masses[ ComponentId::C2               ] = 232280;
+   masses[ ComponentId::C1               ] = 308969;
+   masses[ ComponentId::COX              ] = 0;
+   masses[ ComponentId::N2               ] = 5398;
+   masses[ ComponentId::H2S              ] = 0;
+   masses[ ComponentId::LSC              ] = 0;
+   masses[ ComponentId::C15_PLUS_AT      ] = 0;
+   masses[ ComponentId::C6_MINUS_14BT    ] = 0;
+   masses[ ComponentId::C6_MINUS_14DBT   ] = 0;
+   masses[ ComponentId::C6_MINUS_14BP    ] = 0;
+   masses[ ComponentId::C15_PLUS_ARO_S   ] = 0;
+   masses[ ComponentId::C15_PLUS_SAT_S   ] = 0;
+   masses[ ComponentId::C6_MINUS_14SAT_S ] = 0;
+   masses[ ComponentId::C6_MINUS_14ARO_S ] = 0;
 }
 
 

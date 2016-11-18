@@ -1,5 +1,14 @@
-#ifndef _FASTCAULDRON__DARCY_CALCULATIONS__H_
-#define _FASTCAULDRON__DARCY_CALCULATIONS__H_
+//
+// Copyright (C) 2012-2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+#ifndef FASTCAULDRON__DARCY_CALCULATIONS__H
+#define FASTCAULDRON__DARCY_CALCULATIONS__H
 
 #include "petsc.h"
 #include "petscmat.h"
@@ -20,6 +29,11 @@
 
 #include "PetscBlockVector.h"
 #include "ghost_array.h"
+
+// CBMGenerics library
+#include "ComponentManager.h"
+typedef CBMGenerics::ComponentManager::PhaseId PhaseId;
+typedef CBMGenerics::ComponentManager::SpeciesNamesId ComponentId;
 
 class DarcyCalculations {
 
@@ -136,8 +150,8 @@ public :
 private :
 
 
-   static const pvtFlash::PVTPhase RedundantPhase  = pvtFlash::VAPOUR_PHASE;
-   static const pvtFlash::PVTPhase DesignatedPhase = pvtFlash::LIQUID_PHASE;
+   static const PhaseId RedundantPhase  = PhaseId::VAPOUR;
+   static const PhaseId DesignatedPhase = PhaseId::LIQUID;
 
    /// \brief Initialise the simulator for secondary cracking.
    void initialiseOtgcSimulator ();
@@ -296,4 +310,4 @@ private :
 
 }; 
 
-#endif // _FASTCAULDRON__DARCY_CALCULATIONS__H_
+#endif // FASTCAULDRON__DARCY_CALCULATIONS__H

@@ -47,8 +47,6 @@
 #include "CompoundLithology.h"
 #include "Lithology.h"
 
-#include "ComponentManager.h"
-
 #include "GeoPhysicalConstants.h"
 #include "GeoPhysicsSourceRock.h"
 #include "GeoPhysicsFormation.h"
@@ -65,8 +63,9 @@
 using namespace DataAccess;
 using namespace FiniteElementMethod;
 
-
-#include "NumericFunctions.h"
+// CBMGenerics library
+#include "ComponentManager.h"
+typedef CBMGenerics::ComponentManager::SpeciesNamesId ComponentId;
 
 // utilities library
 #include "ConstantsNumerical.h"
@@ -74,6 +73,7 @@ using Utilities::Numerical::CauldronNoDataValue;
 using Utilities::Numerical::IbsNoDataValue;
 #include "ConstantsMathematics.h"
 using Utilities::Maths::Zero;
+#include "NumericFunctions.h"
 
 using Interface::X_COORD;
 using Interface::Y_COORD;
@@ -445,39 +445,38 @@ void LayerProps::initialise () {
   }
 
    int cmp;
-   pvtFlash::ComponentId species;
+   ComponentId species;
    
-   //for ( cmp = 0; cmp < CBMGenerics::ComponentManager::NumberOfSpeciesToFlash; ++cmp ) {
    for ( cmp = 0; cmp < NumberOfPVTComponents; ++cmp ) {
-      species = pvtFlash::ComponentId ( cmp );
+      species = ComponentId ( cmp );
       // Which value to use for the gorm?
       //m_molarMass ( species ) = pvtFlash::EosPack::getInstance ().getMolWeight ( cmp, 1.0 );
-	  m_molarMass ( species ) = pvtFlash::EosPack::getInstance ().getMolWeightLumped( cmp, 1.0 );
+     m_molarMass ( species ) = pvtFlash::EosPack::getInstance ().getMolWeightLumped( cmp, 1.0 );
    }
 
-   m_molarMass ( pvtFlash::ASPHALTENES ) = 7.979050e+02;
-   m_molarMass (      pvtFlash::RESINS ) = 6.105592e+02;
-   m_molarMass (     pvtFlash::C15_ARO ) = 4.633910e+02;
-   m_molarMass (     pvtFlash::C15_SAT ) = 2.646560e+02;
-   m_molarMass (    pvtFlash::C6_14ARO ) = 1.564148e+02;
-   m_molarMass (    pvtFlash::C6_14SAT ) = 1.025200e+02;
-   m_molarMass (          pvtFlash::C5 ) = 7.215064e+01;
-   m_molarMass (          pvtFlash::C4 ) = 5.812370e+01;
-   m_molarMass (          pvtFlash::C3 ) = 4.409676e+01;
-   m_molarMass (          pvtFlash::C2 ) = 3.006982e+01;
-   m_molarMass (          pvtFlash::C1 ) = 1.604288e+01;
-   m_molarMass (         pvtFlash::COX ) = 4.400980e+01;
-   m_molarMass (          pvtFlash::N2 ) = 2.801352e+01;
-   m_molarMass (         pvtFlash::H2S ) = 3.407999e+01;
-   m_molarMass (         pvtFlash::LSC ) = 2.646560e+02;
-   m_molarMass (      pvtFlash::C15_AT ) = 2.646560e+02;
-   m_molarMass (     pvtFlash::C6_14BT ) = 1.564147e+02;
-   m_molarMass (    pvtFlash::C6_14DBT ) = 1.564147e+02;
-   m_molarMass (     pvtFlash::C6_14BP ) = 1.564147e+02;
-   m_molarMass (    pvtFlash::C15_AROS ) = 2.646560e+02;
-   m_molarMass (    pvtFlash::C15_SATS ) = 2.646560e+02;
-   m_molarMass (   pvtFlash::C6_14SATS ) = 1.564147e+02;
-   m_molarMass (   pvtFlash::C6_14AROS ) = 1.564147e+02;
+   m_molarMass ( ComponentId::ASPHALTENE    ) = 7.979050e+02;
+   m_molarMass ( ComponentId::RESIN         ) = 6.105592e+02;
+   m_molarMass ( ComponentId::C15_PLUS_ARO    ) = 4.633910e+02;
+   m_molarMass ( ComponentId::C15_PLUS_SAT    ) = 2.646560e+02;
+   m_molarMass ( ComponentId::C6_MINUS_14ARO  ) = 1.564148e+02;
+   m_molarMass ( ComponentId::C6_MINUS_14SAT  ) = 1.025200e+02;
+   m_molarMass ( ComponentId::C5            ) = 7.215064e+01;
+   m_molarMass ( ComponentId::C4            ) = 5.812370e+01;
+   m_molarMass ( ComponentId::C3            ) = 4.409676e+01;
+   m_molarMass ( ComponentId::C2            ) = 3.006982e+01;
+   m_molarMass ( ComponentId::C1            ) = 1.604288e+01;
+   m_molarMass ( ComponentId::COX           ) = 4.400980e+01;
+   m_molarMass ( ComponentId::N2            ) = 2.801352e+01;
+   m_molarMass ( ComponentId::H2S           ) = 3.407999e+01;
+   m_molarMass ( ComponentId::LSC           ) = 2.646560e+02;
+   m_molarMass ( ComponentId::C15_PLUS_AT     ) = 2.646560e+02;
+   m_molarMass ( ComponentId::C6_MINUS_14BT   ) = 1.564147e+02;
+   m_molarMass ( ComponentId::C6_MINUS_14DBT  ) = 1.564147e+02;
+   m_molarMass ( ComponentId::C6_MINUS_14BP   ) = 1.564147e+02;
+   m_molarMass ( ComponentId::C15_PLUS_ARO_S   ) = 2.646560e+02;
+   m_molarMass ( ComponentId::C15_PLUS_SAT_S   ) = 2.646560e+02;
+   m_molarMass ( ComponentId::C6_MINUS_14SAT_S ) = 1.564147e+02;
+   m_molarMass ( ComponentId::C6_MINUS_14ARO_S ) = 1.564147e+02;
  
    if ( isSourceRock ()) {
       initialiseSourceRockProperties ( false );
@@ -1129,7 +1128,6 @@ void LayerProps::initialiseSourceRockProperties ( const bool printInitialisation
                                                                                           FastcauldronSimulator::getInstance ().getLowResolutionOutputGrid (),
                                                                                           99999.0,
                                                                                           NumberOfPVTComponents);
-                                                                                          // CBMGenerics::ComponentManager::NumberOfOutputSpecies );
 
       for ( i = FastcauldronSimulator::getInstance ().firstI (); i <= FastcauldronSimulator::getInstance ().lastI (); ++i ) {
 
@@ -2314,14 +2312,14 @@ void LayerProps::getGenexGenerated ( const int i,
    if ( isSourceRock ()) {
       unsigned int cmp;
       unsigned int id;
-      pvtFlash::ComponentId species;
+      ComponentId species;
       double gen;
 
       const GeoPhysics::GeoPhysicsSourceRock* sourceRock = (GeoPhysics::GeoPhysicsSourceRock*)(getSourceRock1 ());
       const Genex6::SpeciesManager& speciesManager = sourceRock->getSpeciesManager ();
 
       for ( cmp = 0; cmp < NumberOfPVTComponents; ++cmp ) {
-         species = pvtFlash::ComponentId ( cmp );
+         species = ComponentId ( cmp );
          id = speciesManager.mapPvtComponentsToId ( species );
 
          gen = m_genexData->getValue ( (unsigned int)i, (unsigned int)j, cmp );

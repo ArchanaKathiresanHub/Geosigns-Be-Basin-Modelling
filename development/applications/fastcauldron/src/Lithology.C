@@ -25,16 +25,20 @@ using Utilities::Numerical::IbsNoDataValue;
 #include "ConstantsMathematics.h"
 using Utilities::Maths::M2ToMilliDarcy;
 
+// CBMGenerics library
+#include "ComponentManager.h"
+typedef CBMGenerics::ComponentManager::PhaseId PhaseId;
+
 Lithology::Lithology ( GeoPhysics::ProjectHandle* projectHandle ) : GeoPhysics::CompoundLithology ( projectHandle ) {
    m_lithologyId = -9999;
 
    m_contactAngle.zero ();
 
-   m_contactAngle ( pvtFlash::VAPOUR_PHASE ) =  0.0;
-   m_contactAngle ( pvtFlash::LIQUID_PHASE ) = 30.0 / 180.0 * M_PI;
+   m_contactAngle ( PhaseId::VAPOUR ) =  0.0;
+   m_contactAngle ( PhaseId::LIQUID ) = 30.0 / 180.0 * M_PI;
 
-   m_cosContactAngle ( pvtFlash::VAPOUR_PHASE ) = std::cos ( m_contactAngle ( pvtFlash::VAPOUR_PHASE ));
-   m_cosContactAngle ( pvtFlash::LIQUID_PHASE ) = std::cos ( m_contactAngle ( pvtFlash::LIQUID_PHASE ));
+   m_cosContactAngle ( PhaseId::VAPOUR ) = std::cos ( m_contactAngle ( PhaseId::VAPOUR ));
+   m_cosContactAngle ( PhaseId::LIQUID ) = std::cos ( m_contactAngle ( PhaseId::LIQUID ));
 }
 
 //------------------------------------------------------------//
@@ -195,7 +199,7 @@ double Lithology::capillaryPressure ( const Saturation::Phase phase,
 //------------------------------------------------------------//
 
 #if 0
-double Lithology::capillaryPressure ( const pvtFlash::PVTPhase phase,
+double Lithology::capillaryPressure ( const PhaseId phase,
                                       const double             temperature,
                                       const double             criticalTemperature,
                                       const double             hcPhaseSaturation,

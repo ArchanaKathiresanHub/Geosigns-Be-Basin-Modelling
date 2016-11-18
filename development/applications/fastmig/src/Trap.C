@@ -27,7 +27,6 @@
 #include "capillarySealStrength.h"
 #include "fracturePressure.h"
 #include "waterDensity.h"
-#include "ComponentManager.h"
 #include "Tuple2.h"
 #include "depthToVolume.h"
 #include "Interface/FluidType.h"
@@ -37,15 +36,6 @@
 #include "LeakAllGasAndOilDistributor.h"
 #include "SpillAllGasAndOilDistributor.h"
 #include "utils.h"
-//                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
-// All rights reserved.
-// 
-// Developed under license for Shell by PDS BV.
-// 
-// Confidential and proprietary source code of Shell.
-// Do not distribute without written permission from Shell.
-// 
 
 // std library
 #include <assert.h>
@@ -1167,11 +1157,11 @@ namespace migration
 
       double diffusedWeight = 0;
 
-      diffusedWeight = m_diffusionLeaked[GAS].getWeight (C1) +
-         m_diffusionLeaked[GAS].getWeight (C2) +
-         m_diffusionLeaked[GAS].getWeight (C3) +
-         m_diffusionLeaked[GAS].getWeight (C4) +
-         m_diffusionLeaked[GAS].getWeight (C5);
+      diffusedWeight = m_diffusionLeaked[GAS].getWeight (ComponentId::C1) +
+                       m_diffusionLeaked[GAS].getWeight (ComponentId::C2) +
+                       m_diffusionLeaked[GAS].getWeight (ComponentId::C3) +
+                       m_diffusionLeaked[GAS].getWeight (ComponentId::C4) +
+                       m_diffusionLeaked[GAS].getWeight (ComponentId::C5);
 
       if (diffusedWeight > 0) return true;
       else
@@ -1194,8 +1184,8 @@ namespace migration
       }
 
 #ifndef INCLUDE_COX
-      assert (m_toBeDistributed[GAS].getWeight (pvtFlash::COX) == 0.0);
-      assert (m_toBeDistributed[OIL].getWeight (pvtFlash::COX) == 0.0);
+      assert (m_toBeDistributed[GAS].getWeight (ComponentId::COX) == 0.0);
+      assert (m_toBeDistributed[OIL].getWeight (ComponentId::COX) == 0.0);
 #endif
 
       if (requiresPVT ())
@@ -1775,7 +1765,7 @@ namespace migration
 
       for (c = 0; c < size; ++c)
       {
-         totalWeight += getWeight (GAS, (ComponentId)(pvtFlash::C1 - c));
+         totalWeight += getWeight (GAS, (ComponentId)(ComponentId::C1 - c));
       }
 
       if (totalWeight < 1)
@@ -3250,7 +3240,7 @@ namespace migration
          tpRequest.volume[phase] = getVolume ((PhaseId)phase);
       }
 
-      for (int component = FIRST_COMPONENT; component < NUM_COMPONENTS; ++component)
+      for (int component = ComponentId::FIRST_COMPONENT; component < ComponentId::NUMBER_OF_SPECIES; ++component)
       {
          tpRequest.composition.set ((ComponentId)component, getWeight ((ComponentId)component));
       }

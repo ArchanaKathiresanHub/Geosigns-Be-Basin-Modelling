@@ -122,7 +122,7 @@ void GeoPhysics::GeoPhysicsSourceRock::collectIntervalResults ( Interface::GridM
 #if 0
          if ( print ) {
             std::cout << " species: " 
-                      << ComponentManager::getInstance ().GetSpeciesName ( k ) << "  " 
+                      << ComponentManager::getInstance ().getSpeciesName ( k ) << "  " 
                       << k << "  " 
                       << genexData->getValue ( i, j, k ) << "  "
                       << (*itNode)->getPrincipleSimulatorState ().getIntervalSpeciesCumulative ( ComponentManager::SpeciesNamesId ( k )) << "  "
@@ -142,7 +142,7 @@ void GeoPhysics::GeoPhysicsSourceRock::fillResultMap ( const ComponentManager::S
                                                        Interface::GridMap*               map ) const {
 
 
-   const std::string& speciesName = ComponentManager::getInstance ().GetSpeciesName ( name );
+   const std::string& speciesName = ComponentManager::getInstance ().getSpeciesName ( name );
 
    std::vector<Genex6::SourceRockNode*>::const_iterator itNode;
 
@@ -166,7 +166,7 @@ void GeoPhysics::GeoPhysicsSourceRock::fillResultMap ( const ComponentManager::S
 
 #if 0
          if ( print ) {
-            cout << " filled result map:  " << ComponentManager::getInstance ().GetSpeciesName ( name ) << "  " << result.GetExpelledMass () << endl;
+            cout << " filled result map:  " << ComponentManager::getInstance ().getSpeciesName ( name ) << "  " << result.GetExpelledMass () << endl;
          }
 #endif
 

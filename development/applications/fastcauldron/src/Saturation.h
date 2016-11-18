@@ -1,11 +1,26 @@
-#ifndef _FASTCAULDRON__SATURATION_H_
-#define _FASTCAULDRON__SATURATION_H_
+//
+// Copyright (C) 2012-2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+#ifndef FASTCAULDRON__SATURATION_H
+#define FASTCAULDRON__SATURATION_H
 
+// std library
 #include <string>
 
+// Eospack library
 #include "EosPack.h"
 
 #include "PVTCalculator.h"
+
+// CBMGenerics library
+#include "ComponentManager.h"
+typedef CBMGenerics::ComponentManager::PhaseId PhaseId;
 
 class Saturation {
 
@@ -23,7 +38,7 @@ public :
    static const std::string& PhaseImage ( const Phase p );
 
    /// \brief Converts pvt-flash pahse enumeration into a Saturation phase enumeration.
-   static Phase convert ( const pvtFlash::PVTPhase phase );
+   static Phase convert ( const PhaseId phase );
 
    Saturation ();
 
@@ -97,4 +112,4 @@ inline double& Saturation::operator()( Phase p ) {
 }
 
 
-#endif // _FASTCAULDRON__SATURATION_H_
+#endif // FASTCAULDRON__SATURATION_H

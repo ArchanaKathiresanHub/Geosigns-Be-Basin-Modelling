@@ -44,6 +44,10 @@
 #include "petscvec.h"
 #include "petscdmda.h"
 
+// CBMGenerics library
+#include "ComponentManager.h"
+typedef CBMGenerics::ComponentManager::SpeciesNamesId ComponentId;
+
 // std library
 #include <vector>
 #include <assert.h>
@@ -2336,11 +2340,11 @@ namespace migration
          return true;
       }
 
-      for (int componentId = FIRST_COMPONENT; componentId < NUM_COMPONENTS; ++componentId)
+      for (int componentId = ComponentId::FIRST_COMPONENT; componentId < ComponentId::NUMBER_OF_SPECIES; ++componentId)
       {
          if (!ComponentsUsed[componentId]) continue;
 
-         string propertyName = ComponentNames[componentId];
+         string propertyName = CBMGenerics::ComponentManager::getInstance().getSpeciesName( componentId );
          propertyName += "ExpelledCumulative";
 
          const GridMap * gridMapEnd = getPropertyGridMap (propertyName, getEnd (), 0, formation, 0);
@@ -2478,11 +2482,11 @@ namespace migration
 
    void Reservoir::deleteExpelledChargeMaps (const Formation * formation)
    {
-      for (int componentId = FIRST_COMPONENT; componentId < NUM_COMPONENTS; ++componentId)
+      for (int componentId = ComponentId::FIRST_COMPONENT; componentId < ComponentId::NUMBER_OF_SPECIES; ++componentId)
       {
          if (!ComponentsUsed[componentId]) continue;
 
-         string propertyName = ComponentNames[componentId];
+         string propertyName = CBMGenerics::ComponentManager::getInstance().getSpeciesName( componentId );
          propertyName += "ExpelledCumulative";
 
          const GridMap * gridMapStart = getPropertyGridMap (propertyName, getStart (), 0, formation, 0);
@@ -3316,7 +3320,7 @@ namespace migration
    {
       gridMap->retrieveData ();
 
-      for (unsigned int componentId = FIRST_COMPONENT; componentId < NUM_COMPONENTS; ++componentId)
+      for (unsigned int componentId = ComponentId::FIRST_COMPONENT; componentId < ComponentId::NUMBER_OF_SPECIES; ++componentId)
       {
          if (!ComponentsUsed[componentId]) continue;
 
@@ -3383,7 +3387,7 @@ namespace migration
                if (column->getComponentToBeMigrated (componentId) < 0)
                {
                   cerr << "Error in " << column << " of Reservoir " << getName () << " at age " << getEnd ()->getTime ()
-                     << ": expelled weight of " << ComponentNames[componentId] << " is negative (" << column->getComponent (componentId) << ")" << endl;
+                     << ": expelled weight of " << CBMGenerics::ComponentManager::getInstance().getSpeciesName( componentId ) << " is negative (" << column->getComponent (componentId) << ")" << endl;
                   result = false;
                }
             }

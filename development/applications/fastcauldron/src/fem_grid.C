@@ -116,6 +116,10 @@ using Utilities::Geology::PresentDay;
 
 //------------------------------------------------------------//
 
+// CBMGenerics library
+#include "ComponentManager.h"
+typedef CBMGenerics::ComponentManager::SpeciesNamesId ComponentId;
+
 //
 // How to handle the PETSc Matrix allocation. Has the bug been
 // fixed in the CBM version of the allocation function.
@@ -3795,19 +3799,19 @@ void Basin_Modelling::FEM_Grid::Print_Needle ( const double currentAge, const in
             if ( includedInDarcySimulation and Current_Layer->kind () == Interface::SEDIMENT_FORMATION ) {
 
                if ( K == Z_Start + Z_Count - 1 ) {
-                  buffer << setw ( 14 ) << saturations ( K - 1, elementJ, elementI )( Saturation::WATER );
-                  buffer << setw ( 14 ) << saturations ( K - 1, elementJ, elementI )( Saturation::LIQUID );
-                  buffer << setw ( 14 ) << saturations ( K - 1, elementJ, elementI )( Saturation::VAPOUR );
-                  buffer << setw ( 14 ) << saturations ( K - 1, elementJ, elementI )( Saturation::IMMOBILE );
-                  buffer << setw ( 14 ) << concentrations ( K - 1, elementJ, elementI )( pvtFlash::C1 );
-                  buffer << setw ( 14 ) << concentrations ( K - 1, elementJ, elementI )( pvtFlash::C2 );
-                  buffer << setw ( 14 ) << concentrations ( K - 1, elementJ, elementI )( pvtFlash::C3 );
-                  buffer << setw ( 14 ) << concentrations ( K - 1, elementJ, elementI )( pvtFlash::C4 );
-                  buffer << setw ( 14 ) << concentrations ( K - 1, elementJ, elementI )( pvtFlash::C5 );
-                  buffer << setw ( 14 ) << concentrations ( K - 1, elementJ, elementI )( pvtFlash::C6_14SAT );
-                  buffer << setw ( 14 ) << concentrations ( K - 1, elementJ, elementI )( pvtFlash::C6_14ARO );
-                  buffer << setw ( 14 ) << concentrations ( K - 1, elementJ, elementI )( pvtFlash::C15_SAT );
-                  buffer << setw ( 14 ) << concentrations ( K - 1, elementJ, elementI )( pvtFlash::C15_ARO );
+                  buffer << setw ( 14 ) << saturations ( K - 1, elementJ, elementI )( Saturation::WATER              );
+                  buffer << setw ( 14 ) << saturations ( K - 1, elementJ, elementI )( Saturation::LIQUID             );
+                  buffer << setw ( 14 ) << saturations ( K - 1, elementJ, elementI )( Saturation::VAPOUR             );
+                  buffer << setw ( 14 ) << saturations ( K - 1, elementJ, elementI )( Saturation::IMMOBILE           );
+                  buffer << setw ( 14 ) << concentrations ( K - 1, elementJ, elementI )( ComponentId::C1             );
+                  buffer << setw ( 14 ) << concentrations ( K - 1, elementJ, elementI )( ComponentId::C2             );
+                  buffer << setw ( 14 ) << concentrations ( K - 1, elementJ, elementI )( ComponentId::C3             );
+                  buffer << setw ( 14 ) << concentrations ( K - 1, elementJ, elementI )( ComponentId::C4             );
+                  buffer << setw ( 14 ) << concentrations ( K - 1, elementJ, elementI )( ComponentId::C5             );
+                  buffer << setw ( 14 ) << concentrations ( K - 1, elementJ, elementI )( ComponentId::C6_MINUS_14SAT );
+                  buffer << setw ( 14 ) << concentrations ( K - 1, elementJ, elementI )( ComponentId::C6_MINUS_14ARO );
+                  buffer << setw ( 14 ) << concentrations ( K - 1, elementJ, elementI )( ComponentId::C15_PLUS_SAT   );
+                  buffer << setw ( 14 ) << concentrations ( K - 1, elementJ, elementI )( ComponentId::C15_PLUS_ARO   );
                } else {
 
                   PVTComponents composition = concentrations ( K, elementJ, elementI );
@@ -3827,37 +3831,37 @@ void Basin_Modelling::FEM_Grid::Print_Needle ( const double currentAge, const in
                                                               phaseViscosities.m_values );
 
 
-                  buffer << setw ( 14 ) << saturations ( K, elementJ, elementI )( Saturation::WATER );
-                  buffer << setw ( 14 ) << saturations ( K, elementJ, elementI )( Saturation::LIQUID );
-                  buffer << setw ( 14 ) << saturations ( K, elementJ, elementI )( Saturation::VAPOUR );
+                  buffer << setw ( 14 ) << saturations ( K, elementJ, elementI )( Saturation::WATER    );
+                  buffer << setw ( 14 ) << saturations ( K, elementJ, elementI )( Saturation::LIQUID   );
+                  buffer << setw ( 14 ) << saturations ( K, elementJ, elementI )( Saturation::VAPOUR   );
                   buffer << setw ( 14 ) << saturations ( K, elementJ, elementI )( Saturation::IMMOBILE );
 
-                  buffer << setw ( 14 ) << concentrations ( K, elementJ, elementI )( pvtFlash::C1 );
-                  buffer << setw ( 14 ) << concentrations ( K, elementJ, elementI )( pvtFlash::C2 );
-                  buffer << setw ( 14 ) << concentrations ( K, elementJ, elementI )( pvtFlash::C3 );
-                  buffer << setw ( 14 ) << concentrations ( K, elementJ, elementI )( pvtFlash::C4 );
-                  buffer << setw ( 14 ) << concentrations ( K, elementJ, elementI )( pvtFlash::C5 );
-                  buffer << setw ( 14 ) << concentrations ( K, elementJ, elementI )( pvtFlash::C6_14SAT );
-                  buffer << setw ( 14 ) << concentrations ( K, elementJ, elementI )( pvtFlash::C6_14ARO );
-                  buffer << setw ( 14 ) << concentrations ( K, elementJ, elementI )( pvtFlash::C15_SAT );
-                  buffer << setw ( 14 ) << concentrations ( K, elementJ, elementI )( pvtFlash::C15_ARO );
-                  buffer << setw ( 14 ) << concentrations ( K, elementJ, elementI )( pvtFlash::RESINS );
-                  buffer << setw ( 14 ) << concentrations ( K, elementJ, elementI )( pvtFlash::ASPHALTENES );
+                  buffer << setw ( 14 ) << concentrations ( K, elementJ, elementI )( ComponentId::C1             );
+                  buffer << setw ( 14 ) << concentrations ( K, elementJ, elementI )( ComponentId::C2             );
+                  buffer << setw ( 14 ) << concentrations ( K, elementJ, elementI )( ComponentId::C3             );
+                  buffer << setw ( 14 ) << concentrations ( K, elementJ, elementI )( ComponentId::C4             );
+                  buffer << setw ( 14 ) << concentrations ( K, elementJ, elementI )( ComponentId::C5             );
+                  buffer << setw ( 14 ) << concentrations ( K, elementJ, elementI )( ComponentId::C6_MINUS_14SAT );
+                  buffer << setw ( 14 ) << concentrations ( K, elementJ, elementI )( ComponentId::C6_MINUS_14ARO );
+                  buffer << setw ( 14 ) << concentrations ( K, elementJ, elementI )( ComponentId::C15_PLUS_SAT   );
+                  buffer << setw ( 14 ) << concentrations ( K, elementJ, elementI )( ComponentId::C15_PLUS_ARO   );
+                  buffer << setw ( 14 ) << concentrations ( K, elementJ, elementI )( ComponentId::RESIN          );
+                  buffer << setw ( 14 ) << concentrations ( K, elementJ, elementI )( ComponentId::ASPHALTENE     );
 
-                  buffer << setw ( 14 ) << phaseDensities ( pvtFlash::VAPOUR_PHASE );
-                  buffer << setw ( 14 ) << phaseDensities ( pvtFlash::LIQUID_PHASE );
-                  buffer << setw ( 14 ) << phaseViscosities ( pvtFlash::VAPOUR_PHASE );
-                  buffer << setw ( 14 ) << phaseViscosities ( pvtFlash::LIQUID_PHASE );
+                  buffer << setw ( 14 ) << phaseDensities   ( PhaseId::VAPOUR );
+                  buffer << setw ( 14 ) << phaseDensities   ( PhaseId::LIQUID );
+                  buffer << setw ( 14 ) << phaseViscosities ( PhaseId::VAPOUR );
+                  buffer << setw ( 14 ) << phaseViscosities ( PhaseId::LIQUID );
 
-                  c1Sum += concentrations ( K, elementJ, elementI )( pvtFlash::C1 );
-                  c2Sum += concentrations ( K, elementJ, elementI )( pvtFlash::C2 );
-                  c3Sum += concentrations ( K, elementJ, elementI )( pvtFlash::C3 );
-                  c4Sum += concentrations ( K, elementJ, elementI )( pvtFlash::C4 );
-                  c5Sum += concentrations ( K, elementJ, elementI )( pvtFlash::C5 );
-                  c6AroSum += concentrations ( K, elementJ, elementI )( pvtFlash::C6_14ARO );
-                  c6SatSum += concentrations ( K, elementJ, elementI )( pvtFlash::C6_14SAT );
-                  c15AroSum += concentrations ( K, elementJ, elementI )( pvtFlash::C15_ARO );
-                  c15SatSum += concentrations ( K, elementJ, elementI )( pvtFlash::C15_SAT );
+                  c1Sum     += concentrations ( K, elementJ, elementI )( ComponentId::C1             );
+                  c2Sum     += concentrations ( K, elementJ, elementI )( ComponentId::C2             );
+                  c3Sum     += concentrations ( K, elementJ, elementI )( ComponentId::C3             );
+                  c4Sum     += concentrations ( K, elementJ, elementI )( ComponentId::C4             );
+                  c5Sum     += concentrations ( K, elementJ, elementI )( ComponentId::C5             );
+                  c6AroSum  += concentrations ( K, elementJ, elementI )( ComponentId::C6_MINUS_14ARO );
+                  c6SatSum  += concentrations ( K, elementJ, elementI )( ComponentId::C6_MINUS_14SAT );
+                  c15AroSum += concentrations ( K, elementJ, elementI )( ComponentId::C15_PLUS_ARO   );
+                  c15SatSum += concentrations ( K, elementJ, elementI )( ComponentId::C15_PLUS_SAT   );
 
                   double phiAbove = Current_Lithology->porosity ( Current_Layer->Current_Properties ( Basin_Modelling::VES_FP, K + 1, J, I ),
                                                                   Current_Layer->Current_Properties ( Basin_Modelling::Max_VES, K + 1, J, I ), false, 0.0 );
@@ -3872,15 +3876,15 @@ void Basin_Modelling::FEM_Grid::Print_Needle ( const double currentAge, const in
 
                   double thickness = 0.5 * ( depthAbove + depthBelow );
 
-                  c1Sum2 += concentrations ( K, elementJ, elementI )( pvtFlash::C1 ) * averagePorosity * thickness;
-                  c2Sum2 += concentrations ( K, elementJ, elementI )( pvtFlash::C2 ) * averagePorosity * thickness;
-                  c3Sum2 += concentrations ( K, elementJ, elementI )( pvtFlash::C3 ) * averagePorosity * thickness;
-                  c4Sum2 += concentrations ( K, elementJ, elementI )( pvtFlash::C4 ) * averagePorosity * thickness;
-                  c5Sum2 += concentrations ( K, elementJ, elementI )( pvtFlash::C5 ) * averagePorosity * thickness;
-                  c6AroSum2 += concentrations ( K, elementJ, elementI )( pvtFlash::C6_14ARO ) * averagePorosity * thickness;
-                  c6SatSum2 += concentrations ( K, elementJ, elementI )( pvtFlash::C6_14SAT ) * averagePorosity * thickness;
-                  c15AroSum2 += concentrations ( K, elementJ, elementI )( pvtFlash::C15_ARO ) * averagePorosity * thickness;
-                  c15SatSum2 += concentrations ( K, elementJ, elementI )( pvtFlash::C15_SAT ) * averagePorosity * thickness;
+                  c1Sum2     += concentrations ( K, elementJ, elementI )( ComponentId::C1             ) * averagePorosity * thickness;
+                  c2Sum2     += concentrations ( K, elementJ, elementI )( ComponentId::C2             ) * averagePorosity * thickness;
+                  c3Sum2     += concentrations ( K, elementJ, elementI )( ComponentId::C3             ) * averagePorosity * thickness;
+                  c4Sum2     += concentrations ( K, elementJ, elementI )( ComponentId::C4             ) * averagePorosity * thickness;
+                  c5Sum2     += concentrations ( K, elementJ, elementI )( ComponentId::C5             ) * averagePorosity * thickness;
+                  c6AroSum2  += concentrations ( K, elementJ, elementI )( ComponentId::C6_MINUS_14ARO ) * averagePorosity * thickness;
+                  c6SatSum2  += concentrations ( K, elementJ, elementI )( ComponentId::C6_MINUS_14SAT ) * averagePorosity * thickness;
+                  c15AroSum2 += concentrations ( K, elementJ, elementI )( ComponentId::C15_PLUS_ARO   ) * averagePorosity * thickness;
+                  c15SatSum2 += concentrations ( K, elementJ, elementI )( ComponentId::C15_PLUS_SAT   ) * averagePorosity * thickness;
 
                }
 

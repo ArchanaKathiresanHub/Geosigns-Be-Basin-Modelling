@@ -1,7 +1,18 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
 #ifndef EOS_PACK_C_API_H
 #define EOS_PACK_C_API_H
 
 #include "ComponentManager.h"
+typedef CBMGenerics::ComponentManager::PhaseId PhaseId;
+typedef CBMGenerics::ComponentManager::SpeciesNamesId ComponentId;
 
 /// \file EosPackCAPI.h
 /// \brief Provides backward compatibility with C like API to EosPack library
@@ -13,10 +24,10 @@ namespace pvtFlash
    public:
       double temperature;
       double pressure;
-      double compMasses[CBMGenerics::ComponentManager::NumberOfOutputSpecies];
-      double phaseCompMasses[CBMGenerics::ComponentManager::NumberOfPhases * CBMGenerics::ComponentManager::NumberOfOutputSpecies];
-      double phaseDensity[CBMGenerics::ComponentManager::NumberOfPhases];
-      double phaseViscosity[CBMGenerics::ComponentManager::NumberOfPhases];
+      double compMasses     [ComponentId::NUMBER_OF_SPECIES];
+      double phaseCompMasses[PhaseId::NUMBER_OF_PHASES * ComponentId::NUMBER_OF_SPECIES];
+      double phaseDensity   [PhaseId::NUMBER_OF_PHASES];
+      double phaseViscosity [PhaseId::NUMBER_OF_PHASES];
       bool isGormPrescribed;
       double gorm;        
    };

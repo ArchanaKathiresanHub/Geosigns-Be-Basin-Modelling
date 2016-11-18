@@ -1,3 +1,12 @@
+//
+// Copyright (C) 2012-2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 #include <gtest/gtest.h>
 
 #include "../src/LookUpDirectory.h"
@@ -81,38 +90,38 @@ TEST( TSRlookupTest, GetTableName )
    TSR_Tables::LookUpDirectory tables;
   
    double cauldronSalinity = 0.01;
-   TSR_Tables::TSR_Table oneTable = tables.getTableName( cauldronSalinity, pvtFlash::H2S );
+   TSR_Tables::TSR_Table oneTable = tables.getTableName( cauldronSalinity, ComponentId::H2S );
    EXPECT_EQ ( TSR_Tables::H2S_H2Om, oneTable );
 
-   oneTable = tables.getTableName( cauldronSalinity, pvtFlash::COX );
+   oneTable = tables.getTableName( cauldronSalinity, ComponentId::COX );
    EXPECT_EQ ( TSR_Tables::CO2_H2Om, oneTable );
 
    cauldronSalinity = 0.1;
-   oneTable = tables.getTableName( cauldronSalinity, pvtFlash::H2S );
+   oneTable = tables.getTableName( cauldronSalinity, ComponentId::H2S );
    EXPECT_EQ ( TSR_Tables::H2S_H2O_NaCl1m, oneTable );
 
-   oneTable = tables.getTableName( cauldronSalinity, pvtFlash::COX );
+   oneTable = tables.getTableName( cauldronSalinity, ComponentId::COX );
    EXPECT_EQ ( TSR_Tables::CO2_H2O_NaCl1m, oneTable );
  
    cauldronSalinity = 0.15;
-   oneTable = tables.getTableName( cauldronSalinity, pvtFlash::H2S );
+   oneTable = tables.getTableName( cauldronSalinity, ComponentId::H2S );
    EXPECT_EQ ( TSR_Tables::H2S_H2O_NaCl2m, oneTable );
 
-   oneTable = tables.getTableName( cauldronSalinity, pvtFlash::COX );
+   oneTable = tables.getTableName( cauldronSalinity, ComponentId::COX );
    EXPECT_EQ ( TSR_Tables::CO2_H2O_NaCl2m, oneTable );
  
    cauldronSalinity = 0.25;
-   oneTable = tables.getTableName( cauldronSalinity, pvtFlash::H2S );
+   oneTable = tables.getTableName( cauldronSalinity, ComponentId::H2S );
    EXPECT_EQ ( TSR_Tables::H2S_H2O_NaCl4m, oneTable );
 
-   oneTable = tables.getTableName( cauldronSalinity, pvtFlash::COX );
+   oneTable = tables.getTableName( cauldronSalinity, ComponentId::COX );
    EXPECT_EQ ( TSR_Tables::CO2_H2O_NaCl4m, oneTable );
 
    cauldronSalinity = 0.4;
-   oneTable = tables.getTableName( cauldronSalinity, pvtFlash::H2S );
+   oneTable = tables.getTableName( cauldronSalinity, ComponentId::H2S );
    EXPECT_EQ ( TSR_Tables::H2S_H2O_NaCl6m, oneTable );
   
-   oneTable = tables.getTableName( cauldronSalinity, pvtFlash::COX );
+   oneTable = tables.getTableName( cauldronSalinity, ComponentId::COX );
    EXPECT_EQ ( TSR_Tables::CO2_H2O_NaCl6m, oneTable );
 }
 
@@ -123,11 +132,11 @@ TEST( TSRlookupTest, GetValueForSalinity )
    double oneValue;
    double cauldronSalinity = 0.01;
 
-   bool result = tables.getValueForSalinity ( cauldronSalinity, pvtFlash::H2S, 1, 0, oneValue );
+   bool result = tables.getValueForSalinity ( cauldronSalinity, ComponentId::H2S, 1, 0, oneValue );
    EXPECT_DOUBLE_EQ ( 0.0031675776551219623, oneValue );
    EXPECT_TRUE (  result );
 
-   result = tables.getValueForSalinity ( cauldronSalinity, pvtFlash::COX, 1, 0, oneValue );
+   result = tables.getValueForSalinity ( cauldronSalinity, ComponentId::COX, 1, 0, oneValue );
    EXPECT_DOUBLE_EQ ( 0.0013333701143596641, oneValue );
    EXPECT_TRUE (  result );
 }

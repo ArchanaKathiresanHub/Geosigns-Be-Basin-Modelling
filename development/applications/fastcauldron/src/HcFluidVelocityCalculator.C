@@ -220,11 +220,11 @@ bool HcFluidVelocityVolumeCalculator::operator ()( const OutputPropertyMap::Outp
                   // Convert to correct units.
                   hcViscosity *= 0.001;
 #else
-                  hcDensity ( pvtFlash::VAPOUR_PHASE ) = m_pvtProperties->getVolumeValue ( i, j, k, 0 );
-                  hcDensity ( pvtFlash::LIQUID_PHASE ) = m_pvtProperties->getVolumeValue ( i, j, k, 1 );
+                  hcDensity ( PhaseId::VAPOUR ) = m_pvtProperties->getVolumeValue ( i, j, k, 0 );
+                  hcDensity ( PhaseId::LIQUID ) = m_pvtProperties->getVolumeValue ( i, j, k, 1 );
 
-                  hcViscosity ( pvtFlash::VAPOUR_PHASE ) = m_pvtProperties->getVolumeValue ( i, j, k, 2 );
-                  hcViscosity ( pvtFlash::LIQUID_PHASE ) = m_pvtProperties->getVolumeValue ( i, j, k, 3 );
+                  hcViscosity ( PhaseId::VAPOUR ) = m_pvtProperties->getVolumeValue ( i, j, k, 2 );
+                  hcViscosity ( PhaseId::LIQUID ) = m_pvtProperties->getVolumeValue ( i, j, k, 3 );
 #endif
 
                   lithology->getPorosity ( ves, maxVes, false, 0.0, porosity );
@@ -233,7 +233,7 @@ bool HcFluidVelocityVolumeCalculator::operator ()( const OutputPropertyMap::Outp
                   fe.setTensor ( permNormal, permPlane, permeability );
 
                   if ( saturation ( Saturation::VAPOUR ) > 0.0 ) {
-                     hcVapourVelocity = computeMassFlux ( element, fe, porePressureCoeffs, permeability, hcDensity ( pvtFlash::VAPOUR_PHASE ), hcViscosity ( pvtFlash::VAPOUR_PHASE ));
+                     hcVapourVelocity = computeMassFlux ( element, fe, porePressureCoeffs, permeability, hcDensity ( PhaseId::VAPOUR ), hcViscosity ( PhaseId::VAPOUR ));
                      hcVapourVelocity *= lithology->relativePermeability ( Saturation::VAPOUR, saturation ) / ( porosity.mixedProperty () * saturation ( Saturation::VAPOUR ));
 
                      // Scale to mm/year from metres/sec.
@@ -246,7 +246,7 @@ bool HcFluidVelocityVolumeCalculator::operator ()( const OutputPropertyMap::Outp
                   }
 
                   if ( saturation ( Saturation::LIQUID ) > 0.0 ) {
-                     hcLiquidVelocity = computeMassFlux ( element, fe, porePressureCoeffs, permeability, hcDensity ( pvtFlash::LIQUID_PHASE ), hcViscosity ( pvtFlash::LIQUID_PHASE ));
+                     hcLiquidVelocity = computeMassFlux ( element, fe, porePressureCoeffs, permeability, hcDensity ( PhaseId::LIQUID ), hcViscosity ( PhaseId::LIQUID ));
                      hcLiquidVelocity *= lithology->relativePermeability ( Saturation::LIQUID, saturation ) / ( porosity.mixedProperty () * saturation ( Saturation::LIQUID ));
 
                      // Scale to mm/year from metres/sec.

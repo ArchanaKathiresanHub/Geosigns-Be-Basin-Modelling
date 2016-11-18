@@ -55,7 +55,7 @@ namespace migration
 
       for (int i = 0; i < migration::NumComponents; ++i)
       {
-         if (strcmp (ComponentNames[i], "H2S") == 0)
+         if (strcmp ( CBMGenerics::ComponentManager::getInstance().getSpeciesNameList()[i], "H2S") == 0)
          {
             ComponentsUsedInOTGC[i] = true;
          }
@@ -90,7 +90,7 @@ namespace migration
             double weight = saraIn.getWeight ((ComponentId)componentId);
 
             totalWeight += weight;
-            concentrationsByName[ComponentNames[componentId]] = weight;
+            concentrationsByName[CBMGenerics::ComponentManager::getInstance().getSpeciesName( componentId )] = weight;
          }
 
          for (unsigned int immobileId = 0; immobileId < NumImmobiles; ++immobileId)
@@ -124,7 +124,7 @@ namespace migration
          {
             if (!ComponentsUsedInOTGC[componentId]) continue;
 
-            itC it = concentrationsByName.find (ComponentNames[componentId]);
+            itC it = concentrationsByName.find ( CBMGenerics::ComponentManager::getInstance().getSpeciesName(componentId));
 
             double weightOut = (it == itOutEnd) ? 0.0 : (it->second * totalWeight);
 

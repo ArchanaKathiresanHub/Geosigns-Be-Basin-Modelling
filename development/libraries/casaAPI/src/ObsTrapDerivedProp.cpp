@@ -47,12 +47,12 @@ static const double g_ZeroMassLogThreshold = -5.0;  // if ( log10( mass ) < Zero
 static const double g_ZeroMassThreshold    = pow( 10.0, g_ZeroMassThreshold );
 
 // Some auxillary functions
-static bool performPVT( double masses[ComponentManager::NumberOfOutputSpecies]
+static bool performPVT( double masses[ComponentManager::NUMBER_OF_SPECIES]
                       , double temperature
                       , double pressure
-                      , double phaseMasses[ComponentManager::NumberOfPhases][ComponentManager::NumberOfOutputSpecies]
-                      , double phaseDensities[ComponentManager::NumberOfPhases]
-                      , double phaseViscosities[ComponentManager::NumberOfPhases]
+                      , double phaseMasses[ComponentManager::NUMBER_OF_PHASES][ComponentManager::NUMBER_OF_SPECIES]
+                      , double phaseDensities[ComponentManager::NUMBER_OF_PHASES]
+                      , double phaseViscosities[ComponentManager::NUMBER_OF_PHASES]
                       );
 
 static double ComputeVolume( double * masses, double density, int numberOfSpecies );
@@ -97,7 +97,7 @@ ObsTrapDerivedProp::~ObsTrapDerivedProp() {;}
 // Get name of the observable
 std::vector<std::string> ObsTrapDerivedProp::name() const { return m_name; }
 
-size_t ObsTrapDerivedProp::dimensionUntransformed() const { return ComponentManager::NumberOfOutputSpecies + 4; }
+size_t ObsTrapDerivedProp::dimensionUntransformed() const { return ComponentManager::NUMBER_OF_SPECIES + 4; }
 
 // Convert composition and P/T to trap property
 ObsValue * ObsTrapDerivedProp::transform( const ObsValue * val ) const
@@ -114,10 +114,10 @@ ObsValue * ObsTrapDerivedProp::transform( const ObsValue * val ) const
    for ( auto it : values ) { if ( it == UndefinedDoubleValue ) { allDefined = false; break; } }
 
    double ret = UndefinedDoubleValue;
-   if ( allDefined && values.size() == ComponentManager::NumberOfOutputSpecies + 4 )
+   if ( allDefined && values.size() == ComponentManager::NUMBER_OF_SPECIES + 4 )
    {
       // do back transform from log10
-      for ( size_t i = 0; i < ComponentManager::NumberOfOutputSpecies + 2; ++i )
+      for ( size_t i = 0; i < ComponentManager::NUMBER_OF_SPECIES + 2; ++i )
       {
          if ( m_logTransf )
          {
@@ -153,9 +153,9 @@ ErrorHandler::ReturnCode ObsTrapDerivedProp::requestObservableInModel( mbapi::Mo
 
    std::vector<std::string> propList;
 
-   for ( int i = 0; i < ComponentManager::NumberOfOutputSpecies; ++i )
+   for ( int i = 0; i < ComponentManager::NUMBER_OF_SPECIES; ++i )
    {
-      propList.push_back( ComponentManager::GetSpeciesName( i ) + g_PropCompSuffix );
+      propList.push_back( ComponentManager::getInstance().getSpeciesName( i ) + g_PropCompSuffix );
    }
    propList.push_back( "MassLiquid" );
    propList.push_back( "MassVapour" );
@@ -201,11 +201,11 @@ ObsValue * ObsTrapDerivedProp::getFromModel( mbapi::Model & caldModel )
    for ( size_t i = 0; i < m_posDataMiningTbl.size(); ++i )
    {
       std::string propName;
-      if (      i <  ComponentManager::NumberOfOutputSpecies     ) { propName = ComponentManager::GetSpeciesName( static_cast<int>(i) ) + g_PropCompSuffix; }
-      else if ( i == ComponentManager::NumberOfOutputSpecies     ) { propName = "MassLiquid";  }
-      else if ( i == ComponentManager::NumberOfOutputSpecies + 1 ) { propName = "MassVapour";  }
-      else if ( i == ComponentManager::NumberOfOutputSpecies + 2 ) { propName = "Pressure";    }
-      else if ( i == ComponentManager::NumberOfOutputSpecies + 3 ) { propName = "Temperature"; }
+      if (      i <  ComponentManager::NUMBER_OF_SPECIES     ) { propName = ComponentManager::getInstance().getSpeciesName( static_cast<int>(i) ) + g_PropCompSuffix; }
+      else if ( i == ComponentManager::NUMBER_OF_SPECIES     ) { propName = "MassLiquid";  }
+      else if ( i == ComponentManager::NUMBER_OF_SPECIES + 1 ) { propName = "MassVapour";  }
+      else if ( i == ComponentManager::NUMBER_OF_SPECIES + 2 ) { propName = "Pressure";    }
+      else if ( i == ComponentManager::NUMBER_OF_SPECIES + 3 ) { propName = "Temperature"; }
 
       if ( m_posDataMiningTbl[i] == UndefinedIDValue )
       {
@@ -246,7 +246,7 @@ ObsValue * ObsTrapDerivedProp::getFromModel( mbapi::Model & caldModel )
       }
    }
 
-   for ( size_t i = 0; i < ComponentManager::NumberOfOutputSpecies + 2; ++i )
+   for ( size_t i = 0; i < ComponentManager::NUMBER_OF_SPECIES + 2; ++i )
    {
       if ( m_logTransf )
       { // do log10 transform for masses
@@ -285,8 +285,8 @@ std::string ObsTrapDerivedProp::checkObservableForProject( mbapi::Model & caldMo
 // Create this observable value from double array (converting data from SUMlib for response surface evaluation
 ObsValue * ObsTrapDerivedProp::createNewObsValueFromDouble( std::vector<double>::const_iterator & val ) const
 {  
-   std::vector<double> values( val, val + ComponentManager::NumberOfOutputSpecies + 4 );
-   val += ComponentManager::NumberOfOutputSpecies + 4;
+   std::vector<double> values( val, val + ComponentManager::NUMBER_OF_SPECIES + 4 );
+   val += ComponentManager::NUMBER_OF_SPECIES + 4;
 
    return ObsValueTransformable::createNewInstance( this, values );
 }
@@ -390,60 +390,60 @@ double ObsTrapDerivedProp::calculateDerivedTrapProp( const std::vector<double> &
 {
    double ret = UndefinedDoubleValue;
 
-   if ( vals.size() < ComponentManager::NumberOfOutputSpecies + 4 ) return ret;
+   if ( vals.size() < ComponentManager::NUMBER_OF_SPECIES + 4 ) return ret;
 
    double phaseMasses[2];
-   phaseMasses[ComponentManager::Liquid] = vals[ComponentManager::NumberOfOutputSpecies    ];
-   phaseMasses[ComponentManager::Vapour] = vals[ComponentManager::NumberOfOutputSpecies + 1];
+   phaseMasses[ComponentManager::LIQUID] = vals[ComponentManager::NUMBER_OF_SPECIES    ];
+   phaseMasses[ComponentManager::VAPOUR] = vals[ComponentManager::NUMBER_OF_SPECIES + 1];
 
-   double P       = vals[ComponentManager::NumberOfOutputSpecies + 2];
-   double T       = vals[ComponentManager::NumberOfOutputSpecies + 3];
+   double P       = vals[ComponentManager::NUMBER_OF_SPECIES + 2];
+   double T       = vals[ComponentManager::NUMBER_OF_SPECIES + 3];
 
    // check if it is possible to calculate for zero mass of HC
-   if ( phaseMasses[ComponentManager::Liquid] + phaseMasses[ComponentManager::Vapour]  < 1.0e-3 ) return ret; 
+   if ( phaseMasses[ComponentManager::LIQUID] + phaseMasses[ComponentManager::VAPOUR]  < 1.0e-3 ) return ret; 
 
-   double masses[ComponentManager::NumberOfOutputSpecies];
-   for ( int comp = 0; comp < ComponentManager::NumberOfOutputSpecies; ++comp ) { masses[comp] = vals[comp]; }
+   double masses[ComponentManager::NUMBER_OF_SPECIES];
+   for ( int comp = 0; comp < ComponentManager::NUMBER_OF_SPECIES; ++comp ) { masses[comp] = vals[comp]; }
 
    // reservoir condition phases
-   double massesRC[     ComponentManager::NumberOfPhases][ComponentManager::NumberOfOutputSpecies];
-   double densitiesRC[  ComponentManager::NumberOfPhases];
-   double viscositiesRC[ComponentManager::NumberOfPhases];
+   double massesRC[     ComponentManager::NUMBER_OF_PHASES][ComponentManager::NUMBER_OF_SPECIES];
+   double densitiesRC[  ComponentManager::NUMBER_OF_PHASES];
+   double viscositiesRC[ComponentManager::NUMBER_OF_PHASES];
 
    // stock tank phases of reservoir condition phases
-   double massesST[     ComponentManager::NumberOfPhases][ComponentManager::NumberOfPhases][ComponentManager::NumberOfOutputSpecies];
-   double densitiesST[  ComponentManager::NumberOfPhases][ComponentManager::NumberOfPhases];
-   double viscositiesST[ComponentManager::NumberOfPhases][ComponentManager::NumberOfPhases];
+   double massesST[     ComponentManager::NUMBER_OF_PHASES][ComponentManager::NUMBER_OF_PHASES][ComponentManager::NUMBER_OF_SPECIES];
+   double densitiesST[  ComponentManager::NUMBER_OF_PHASES][ComponentManager::NUMBER_OF_PHASES];
+   double viscositiesST[ComponentManager::NUMBER_OF_PHASES][ComponentManager::NUMBER_OF_PHASES];
 
    
    // perform PVT under reservoir conditions
    bool pvtRC = performPVT( masses, T, P, massesRC, densitiesRC, viscositiesRC );
    
    // perform PVT's of reservoir condition phases under stock tank conditions
-   bool pvtRCVapour = performPVT( massesRC[ComponentManager::Vapour], StockTankTemperatureC, StockTankPressureMPa,
-                                  massesST[ComponentManager::Vapour], densitiesST[ComponentManager::Vapour], viscositiesST[ComponentManager::Vapour] 
+   bool pvtRCVapour = performPVT( massesRC[ComponentManager::VAPOUR], StockTankTemperatureC, StockTankPressureMPa,
+                                  massesST[ComponentManager::VAPOUR], densitiesST[ComponentManager::VAPOUR], viscositiesST[ComponentManager::VAPOUR] 
                                 );
       
-   bool pvtRCLiquid = performPVT( massesRC[ComponentManager::Liquid], StockTankTemperatureC, StockTankPressureMPa,
-                                  massesST[ComponentManager::Liquid], densitiesST[ComponentManager::Liquid], viscositiesST[ComponentManager::Liquid]
+   bool pvtRCLiquid = performPVT( massesRC[ComponentManager::LIQUID], StockTankTemperatureC, StockTankPressureMPa,
+                                  massesST[ComponentManager::LIQUID], densitiesST[ComponentManager::LIQUID], viscositiesST[ComponentManager::LIQUID]
                                 );
 
    // check for undefined values for Densities
-   for ( int phase = 0; phase < ComponentManager::NumberOfPhases; ++phase )
+   for ( int phase = 0; phase < ComponentManager::NUMBER_OF_PHASES; ++phase )
    {
       if ( densitiesRC[phase] == 1000 ) // some magical value from EoSPack if we do not have this phase
       {
          densitiesRC[phase] = 0.0;
-         densitiesST[phase][ComponentManager::Liquid] = 0.0;
-         densitiesST[phase][ComponentManager::Vapour] = 0.0;
+         densitiesST[phase][ComponentManager::LIQUID] = 0.0;
+         densitiesST[phase][ComponentManager::VAPOUR] = 0.0;
 
          viscositiesRC[phase] = UndefinedDoubleValue;
-         viscositiesST[phase][ComponentManager::Liquid] = UndefinedDoubleValue;
-         viscositiesST[phase][ComponentManager::Vapour] = UndefinedDoubleValue;
+         viscositiesST[phase][ComponentManager::LIQUID] = UndefinedDoubleValue;
+         viscositiesST[phase][ComponentManager::VAPOUR] = UndefinedDoubleValue;
       }
       else
       {
-         for ( int stPhase = 0; stPhase < ComponentManager::NumberOfPhases; ++stPhase )
+         for ( int stPhase = 0; stPhase < ComponentManager::NUMBER_OF_PHASES; ++stPhase )
          {
             if ( densitiesST[phase][stPhase] == 1000 )
             {
@@ -462,34 +462,34 @@ double ObsTrapDerivedProp::calculateDerivedTrapProp( const std::vector<double> &
    if ( m_propName.find( "FGIIP" ) != string::npos )
    {
       stPhaseFound = true;
-      rcPhase = ComponentManager::Vapour;
-      stPhase = ComponentManager::Vapour;
+      rcPhase = ComponentManager::VAPOUR;
+      stPhase = ComponentManager::VAPOUR;
    }
    else if (m_propName.find( "CIIP" ) != string::npos )
    {
       stPhaseFound = true;
-      rcPhase = ComponentManager::Vapour;
-      stPhase = ComponentManager::Liquid;
+      rcPhase = ComponentManager::VAPOUR;
+      stPhase = ComponentManager::LIQUID;
    }
    else if (m_propName.find( "SGIIP" ) != string::npos )
    {
       stPhaseFound = true;
-      rcPhase = ComponentManager::Liquid;
-      stPhase = ComponentManager::Vapour;
+      rcPhase = ComponentManager::LIQUID;
+      stPhase = ComponentManager::VAPOUR;
    }
    else if ( m_propName.find( "STOIIP" ) != string::npos )
    {
       stPhaseFound = true;
-      rcPhase = ComponentManager::Liquid;
-      stPhase = ComponentManager::Liquid;
+      rcPhase = ComponentManager::LIQUID;
+      stPhase = ComponentManager::LIQUID;
    }
    else if ( m_propName.find( "Vapour" ) != string::npos )
    {
-      rcPhase = ComponentManager::Vapour;
+      rcPhase = ComponentManager::VAPOUR;
    }
    else if ( m_propName.find( "Liquid" ) != string::npos )
    {
-      rcPhase = ComponentManager::Liquid;
+      rcPhase = ComponentManager::LIQUID;
    }
 
    // Volume, Density, Viscosity, and Mass properties for stock tank conditions
@@ -497,7 +497,7 @@ double ObsTrapDerivedProp::calculateDerivedTrapProp( const std::vector<double> &
    {
       if ( stPhaseFound )
       {
-         if ( (rcPhase == ComponentManager::Vapour && pvtRCVapour) || (rcPhase == ComponentManager::Liquid && pvtRCLiquid) )
+         if ( (rcPhase == ComponentManager::VAPOUR && pvtRCVapour) || (rcPhase == ComponentManager::LIQUID && pvtRCLiquid) )
          {
             ret = densitiesST[rcPhase][stPhase];
          }
@@ -508,7 +508,7 @@ double ObsTrapDerivedProp::calculateDerivedTrapProp( const std::vector<double> &
    {
       if ( stPhaseFound )
       {
-         if ( (rcPhase == ComponentManager::Vapour && pvtRCVapour) || (rcPhase == ComponentManager::Liquid && pvtRCLiquid) )
+         if ( (rcPhase == ComponentManager::VAPOUR && pvtRCVapour) || (rcPhase == ComponentManager::LIQUID && pvtRCLiquid) )
          {
             ret = viscositiesST[rcPhase][stPhase];
          }
@@ -519,15 +519,15 @@ double ObsTrapDerivedProp::calculateDerivedTrapProp( const std::vector<double> &
    {
       if ( pvtRCLiquid )
       {
-        rcPhase = ComponentManager::Liquid;
-         stPhase = ComponentManager::Liquid;
+        rcPhase = ComponentManager::LIQUID;
+         stPhase = ComponentManager::LIQUID;
 
-         double volumeSTOIIP = ComputeVolume( massesST[rcPhase][stPhase], densitiesST[rcPhase][stPhase], ComponentManager::NumberOfOutputSpecies );
+         double volumeSTOIIP = ComputeVolume( massesST[rcPhase][stPhase], densitiesST[rcPhase][stPhase], ComponentManager::NUMBER_OF_SPECIES );
 
-         rcPhase = ComponentManager::Liquid;
-         stPhase = ComponentManager::Vapour;
+         rcPhase = ComponentManager::LIQUID;
+         stPhase = ComponentManager::VAPOUR;
 
-         double volumeSGIIP = ComputeVolume( massesST[rcPhase][stPhase], densitiesST[rcPhase][stPhase], ComponentManager::NumberOfOutputSpecies );
+         double volumeSGIIP = ComputeVolume( massesST[rcPhase][stPhase], densitiesST[rcPhase][stPhase], ComponentManager::NUMBER_OF_SPECIES );
 
          if ( volumeSTOIIP != 0 ) { ret = volumeSGIIP / volumeSTOIIP; }
       }
@@ -536,15 +536,15 @@ double ObsTrapDerivedProp::calculateDerivedTrapProp( const std::vector<double> &
    {
       if ( pvtRCVapour )
       {
-         rcPhase = ComponentManager::Vapour;
-         stPhase = ComponentManager::Liquid;
+         rcPhase = ComponentManager::VAPOUR;
+         stPhase = ComponentManager::LIQUID;
 
-         double volumeCIIP = ComputeVolume( massesST[rcPhase][stPhase], densitiesST[rcPhase][stPhase], ComponentManager::NumberOfOutputSpecies );
+         double volumeCIIP = ComputeVolume( massesST[rcPhase][stPhase], densitiesST[rcPhase][stPhase], ComponentManager::NUMBER_OF_SPECIES );
 
-         rcPhase = ComponentManager::Vapour;
-         stPhase = ComponentManager::Vapour;
+         rcPhase = ComponentManager::VAPOUR;
+         stPhase = ComponentManager::VAPOUR;
 
-         double volumeFGIIP = ComputeVolume( massesST[rcPhase][stPhase], densitiesST[rcPhase][stPhase], ComponentManager::NumberOfOutputSpecies );
+         double volumeFGIIP = ComputeVolume( massesST[rcPhase][stPhase], densitiesST[rcPhase][stPhase], ComponentManager::NUMBER_OF_SPECIES );
 
          if ( volumeFGIIP != 0.0 ) { ret = volumeCIIP / volumeFGIIP; }
       }
@@ -553,8 +553,8 @@ double ObsTrapDerivedProp::calculateDerivedTrapProp( const std::vector<double> &
    {
       if ( pvtRCLiquid )
       {
-         rcPhase = ComponentManager::Liquid;
-         stPhase = ComponentManager::Liquid;
+         rcPhase = ComponentManager::LIQUID;
+         stPhase = ComponentManager::LIQUID;
 
          if ( densitiesST[rcPhase][stPhase] != 0.0 )
          {
@@ -566,8 +566,8 @@ double ObsTrapDerivedProp::calculateDerivedTrapProp( const std::vector<double> &
    { 
       if ( pvtRCVapour )
       {
-         rcPhase = ComponentManager::Vapour;
-         stPhase = ComponentManager::Liquid;
+         rcPhase = ComponentManager::VAPOUR;
+         stPhase = ComponentManager::LIQUID;
 
          if ( densitiesST[rcPhase][stPhase] != 0.0 )
          {
@@ -583,27 +583,27 @@ double ObsTrapDerivedProp::calculateDerivedTrapProp( const std::vector<double> &
 }
 
 
-bool performPVT( double masses[ComponentManager::NumberOfOutputSpecies]
+bool performPVT( double masses[ComponentManager::NUMBER_OF_SPECIES]
                , double temperature
                , double pressure
-               , double phaseMasses[ComponentManager::NumberOfPhases][ComponentManager::NumberOfOutputSpecies]
-               , double phaseDensities[ComponentManager::NumberOfPhases]
-               , double phaseViscosities[ComponentManager::NumberOfPhases]
+               , double phaseMasses[ComponentManager::NUMBER_OF_PHASES][ComponentManager::NUMBER_OF_SPECIES]
+               , double phaseDensities[ComponentManager::NUMBER_OF_PHASES]
+               , double phaseViscosities[ComponentManager::NUMBER_OF_PHASES]
                )
 {
    double massTotal = 0.0;
 
-   for ( int comp = 0; comp < ComponentManager::NumberOfOutputSpecies; ++comp )
+   for ( int comp = 0; comp < ComponentManager::NUMBER_OF_SPECIES; ++comp )
    {
       massTotal += masses[comp];
 
-      for ( int phase = 0; phase < ComponentManager::NumberOfPhases; ++phase )
+      for ( int phase = 0; phase < ComponentManager::NUMBER_OF_PHASES; ++phase )
       {
          phaseMasses[phase][comp] = 0;
       }
    }
 
-   for ( int phase = 0; phase < ComponentManager::NumberOfPhases; ++phase )
+   for ( int phase = 0; phase < ComponentManager::NUMBER_OF_PHASES; ++phase )
    {
       phaseDensities[phase] = 0;
       phaseViscosities[phase] = 0;

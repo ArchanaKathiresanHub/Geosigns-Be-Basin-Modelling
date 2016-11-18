@@ -16,8 +16,6 @@ using namespace std;
 
 #include "Interface/SGDensitySample.h"
 
-#include "NumericFunctions.h"
-
 #include "EosPack.h"
 #include "ConstantsGenex.h"
 
@@ -25,20 +23,26 @@ using namespace std;
 #include "SpeciesManager.h"
 
 // utilitites library
+#include "NumericFunctions.h"
 #include "ConstantsMathematics.h"
 using Utilities::Maths::CelciusToKelvin;
+
+// CBMGenerics library
+#include "ComponentManager.h"
+typedef CBMGenerics::ComponentManager::SpeciesNamesId ComponentId;
+typedef CBMGenerics::ComponentManager::PhaseId PhaseId;
 
 using namespace CBMGenerics;
 
 const double Genex6::C1AdsorptionSimulator::AdsorptionPorosityThreshold = 0.1;
 
 const std::string Genex6::C1AdsorptionSimulator::s_nullString = "";
-const std::string Genex6::C1AdsorptionSimulator::s_c1Name = ComponentManager::getInstance ().GetSpeciesName ( ComponentManager::C1 );
-const std::string Genex6::C1AdsorptionSimulator::s_c1AdsorpedName = ComponentManager::getInstance ().GetSpeciesName ( ComponentManager::C1 ) + "Adsorped";
-const std::string Genex6::C1AdsorptionSimulator::s_c1ExpelledName = ComponentManager::getInstance ().GetSpeciesName ( ComponentManager::C1 ) + "AdsorpedExpelled";
-const std::string Genex6::C1AdsorptionSimulator::s_c1FreeName = ComponentManager::getInstance ().GetSpeciesName ( ComponentManager::C1 ) + "AdsorpedFree";
+const std::string Genex6::C1AdsorptionSimulator::s_c1Name         = ComponentManager::getInstance ().getSpeciesName ( ComponentManager::C1 );
+const std::string Genex6::C1AdsorptionSimulator::s_c1AdsorpedName = ComponentManager::getInstance ().getSpeciesName ( ComponentManager::C1 ) + "Adsorped";
+const std::string Genex6::C1AdsorptionSimulator::s_c1ExpelledName = ComponentManager::getInstance ().getSpeciesName ( ComponentManager::C1 ) + "AdsorpedExpelled";
+const std::string Genex6::C1AdsorptionSimulator::s_c1FreeName     = ComponentManager::getInstance ().getSpeciesName ( ComponentManager::C1 ) + "AdsorpedFree";
 
-const bool Genex6::C1AdsorptionSimulator::s_speciesIsSimulated  [ ComponentManager::NumberOfOutputSpecies ] =
+const bool Genex6::C1AdsorptionSimulator::s_speciesIsSimulated  [ ComponentManager::NUMBER_OF_SPECIES ] =
    { false, // asphaltene
      false, // resin
      false, // C15PlusAro
@@ -54,14 +58,14 @@ const bool Genex6::C1AdsorptionSimulator::s_speciesIsSimulated  [ ComponentManag
      false, // N2
      false, // H2S
      false, // LSC
-     false, // C15_AT
-     false, // C6_14BT
-     false, // C6_14DBT
-     false, // C6_14BP
-     false, // C15_AROS
-     false, // C15_SATS
-     false, // C6_14SATS
-     false  // C6_14AROS 
+     false, // C15PlusAT
+     false, // C6Minus14BT
+     false, // C6Minus14DBT
+     false, // C6Minus14BP
+     false, // C15PlusAroS
+     false, // C15PlusSatS
+     false, // C6Minus14SatS
+     false  // C6Minus14AroS 
    };
 
 Genex6::C1AdsorptionSimulator::C1AdsorptionSimulator ( const SpeciesManager&                      speciesManager,
@@ -94,10 +98,10 @@ void Genex6::C1AdsorptionSimulator::compute ( const Input&              sourceRo
                                       
    unsigned int k;
 
-   double molarPhaseViscosity  [ pvtFlash::N_PHASES ];
-   double molarComponentMasses [ pvtFlash::NUM_COMPONENTS ];
-   double molarPhaseComponentMasses [ pvtFlash::N_PHASES ][ pvtFlash::NUM_COMPONENTS ];
-   double molarPhaseDensity [ pvtFlash::N_PHASES ];
+   double molarPhaseViscosity  [PhaseId::NUMBER_OF_PHASES];
+   double molarComponentMasses [ComponentId::NUMBER_OF_SPECIES ];
+   double molarPhaseComponentMasses [PhaseId::NUMBER_OF_PHASES][ComponentId::NUMBER_OF_SPECIES ];
+   double molarPhaseDensity [PhaseId::NUMBER_OF_PHASES];
 
    const unsigned int i = sourceRockInput.getI ();
    const unsigned int j = sourceRockInput.getJ ();
@@ -123,7 +127,7 @@ void Genex6::C1AdsorptionSimulator::compute ( const Input&              sourceRo
    double adsorpedTransient = 0.0;
    double desorpedTransient = 0.0;
 
-   for ( k = 0; k < pvtFlash::NUM_COMPONENTS; ++k ) {
+   for ( k = 0; k < ComponentId::NUMBER_OF_SPECIES; ++k ) {
       molarComponentMasses [ k ] = 0.0;
       molarPhaseComponentMasses [ 0 ][ k ] = 0.0;
       molarPhaseComponentMasses [ 1 ][ k ] = 0.0;
@@ -134,14 +138,14 @@ void Genex6::C1AdsorptionSimulator::compute ( const Input&              sourceRo
 
    SpeciesState* c1State = simulatorState->GetSpeciesStateById ( m_speciesManager.getC1Id ());
 
-   molarComponentMasses [ pvtFlash::C1 ] = 16.043; // In g/mol.
+   molarComponentMasses [ ComponentId::C1 ] = 16.043; // In g/mol.
 
    // Standard Conditions
    // Temperature = 288.70556 K
    // Pressure = 101.325 kPa
 
-   molarComponentMasses [ pvtFlash::COX ] = 0.0;
-   molarComponentMasses [ pvtFlash::H2S ] = 0.0;
+   molarComponentMasses [ ComponentId::COX ] = 0.0;
+   molarComponentMasses [ ComponentId::H2S ] = 0.0;
 
    pvtFlash::EosPack::getInstance ().computeWithLumping ( temperatureKelvin, porePressure, molarComponentMasses, molarPhaseComponentMasses, molarPhaseDensity, molarPhaseViscosity );
 
@@ -180,7 +184,7 @@ void Genex6::C1AdsorptionSimulator::compute ( const Input&              sourceRo
    c1State->setAdsorptionCapacity ( gasCapacity );
 
    // Convert to moles/m3
-   expelledGasMol = expelledGas * 1000.0 / molarComponentMasses [ pvtFlash::C1 ]; // In kg * 1000 / m3 / g / mol = mol / m3 
+   expelledGasMol = expelledGas * 1000.0 / molarComponentMasses [ ComponentId::C1 ]; // In kg * 1000 / m3 / g / mol = mol / m3 
    gasCapacityMol = gasCapacity * 42.306553; // In mol / m3 
 
    if ( gasCapacityMol >= adsorpedGasMol ) {
@@ -199,11 +203,11 @@ void Genex6::C1AdsorptionSimulator::compute ( const Input&              sourceRo
       if ( gasCapacityMol > adsorpedGasMol ) {
          // Now re-adsorp some of the retained gas.
          double retained = c1State->getRetained ();
-         double retainedMols = 1000.0 * retained / thickness / molarComponentMasses [ pvtFlash::C1 ];
+         double retainedMols = 1000.0 * retained / thickness / molarComponentMasses [ ComponentId::C1 ];
          double readsorpedMols =  NumericFunctions::Minimum<double>( retainedMols, gasCapacityMol - adsorpedGasMol );
 
          retainedMols -= readsorpedMols;
-         retained = retainedMols / 1000.0 * thickness * molarComponentMasses [ pvtFlash::C1 ];
+         retained = retainedMols / 1000.0 * thickness * molarComponentMasses [ ComponentId::C1 ];
          adsorpedGasMol += readsorpedMols;
 
          if ( output ) {
@@ -243,7 +247,7 @@ void Genex6::C1AdsorptionSimulator::compute ( const Input&              sourceRo
 #if 0
 
    // Molar Volume at subsurface conditions
-   double c1MolarVolume  = 1.0e-3 * molarPhaseComponentMasses [ 0 ][ pvtFlash::C1 ] / molarPhaseDensity [ 0 ]; // m3 / mol
+   double c1MolarVolume  = 1.0e-3 * molarPhaseComponentMasses [ 0 ][ ComponentId::C1 ] / molarPhaseDensity [ 0 ]; // m3 / mol
    const double porosity = sourceRockInput.getPorosity ();
    double porosityCapacity = porosity / c1MolarVolume;
 
@@ -284,9 +288,9 @@ void Genex6::C1AdsorptionSimulator::compute ( const Input&              sourceRo
 #endif
 
    c1State->setAdsorpedMol ( adsorpedGasMol );
-   c1State->setAdsorpedMass ( adsorpedGasMol * thickness / 1000.0 * molarComponentMasses [ pvtFlash::C1 ]);
-   c1State->setTransientAdsorpedMass ( adsorpedTransient * thickness / 1000.0 * molarComponentMasses [ pvtFlash::C1 ]);
-   c1State->setTransientDesorpedMass ( desorpedTransient * thickness / 1000.0 * molarComponentMasses [ pvtFlash::C1 ]);
+   c1State->setAdsorpedMass ( adsorpedGasMol * thickness / 1000.0 * molarComponentMasses [ ComponentId::C1 ]);
+   c1State->setTransientAdsorpedMass ( adsorpedTransient * thickness / 1000.0 * molarComponentMasses [ ComponentId::C1 ]);
+   c1State->setTransientDesorpedMass ( desorpedTransient * thickness / 1000.0 * molarComponentMasses [ ComponentId::C1 ]);
    c1State->setDesorpedMol ( desorpedTransient + c1State->getDesorpedMol ());
    c1State->setFreeMol ( freeGasMol );
    c1State->setExpelledMol ( c1State->getExpelledMol () + expelledGasMol );

@@ -8,7 +8,6 @@
 // Do not distribute without written permission from Shell.
 //
 
-#include <assert.h>
 #include "Column.h"
 #ifdef USEOTGC
 #include "OilToGasCracker.h"
@@ -22,17 +21,21 @@
 
 #include "array.h"
 
+// std library
+#include <assert.h>
 #include <iostream>
 #include <vector>
 #include <algorithm>
-
-//utilities library
-#include "LogHandler.h"
-
+#include <sstream>
+using std::ostringstream;
 using namespace std;
 
-#include<sstream>
-using std::ostringstream;
+// utilities library
+#include "LogHandler.h"
+
+// CBMGenerics library
+#include "ComponentManager.h"
+typedef CBMGenerics::ComponentManager::SpeciesNamesId ComponentId;
 
 namespace migration
 {

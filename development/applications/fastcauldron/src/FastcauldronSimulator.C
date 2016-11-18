@@ -1196,7 +1196,7 @@ void FastcauldronSimulator::correctTimeFilterDefaults3D () {
          property->setOption ( Interface::SEDIMENTS_ONLY_OUTPUT );
       }
 
-      if ( CBMGenerics::ComponentManager::getInstance ().GetSpeciesIdByName ( name ) != -1 ) {
+      if ( CBMGenerics::ComponentManager::getInstance ().getSpeciesIdByName ( name ) != -1 ) {
          property->setOption ( Interface::SOURCE_ROCK_ONLY_OUTPUT );
       }
 
@@ -1366,12 +1366,9 @@ void FastcauldronSimulator::correctTimeFilterDefaults3D () {
       m_timeOutputProperties.push_back ( getFactory ()->produceOutputProperty ( this, getModellingMode (), Interface::SEDIMENTS_ONLY_OUTPUT, "FCTCorrection" ));
    }
 
-   //for ( i = 0; i < CBMGenerics::ComponentManager::NumberOfSpeciesToFlash; ++i ) {
    for ( i = 0; i < NumberOfPVTComponents; ++i ) {
       newProperty = getFactory ()->produceOutputProperty (this, getModellingMode (), Interface::SEDIMENTS_ONLY_OUTPUT,
-                                                          CBMGenerics::ComponentManager::getInstance ().GetSpeciesName ( i ) + "Concentration" );
-      // newProperty = getFactory ()->produceOutputProperty (this, getModellingMode (), Interface::SEDIMENTS_ONLY_OUTPUT,
-      //                                                     pvtFlash::ComponentIdNames [ i ] + "Concentration" );
+                                                          CBMGenerics::ComponentManager::getInstance ().getSpeciesName ( i ) + "Concentration" );
       newProperty->setOption ( Interface::SEDIMENTS_ONLY_OUTPUT );
       m_timeOutputProperties.push_back ( newProperty );
    }
@@ -1632,13 +1629,12 @@ void FastcauldronSimulator::correctTimeFilterDefaults3D () {
 
    // The genex species output names do not appear in the project file filter-time-io table.
    // So create them here.
-   for (i = 0; i < ComponentManager::NumberOfOutputSpecies; ++i)
+   for (i = 0; i < ComponentManager::NUMBER_OF_SPECIES; ++i)
    {
       m_timeOutputProperties.push_back (getFactory ()->produceOutputProperty ( this,
                                                                                getModellingMode (),
                                                                                Interface::SOURCE_ROCK_ONLY_OUTPUT,
-                                                                               theComponentManager.GetSpeciesOutputPropertyName( i )));
-
+                                                                               theComponentManager.getSpeciesOutputPropertyName( i )));
    }
 
    for (i = 0; i < GenexResultManager::NumberOfResults; ++i)

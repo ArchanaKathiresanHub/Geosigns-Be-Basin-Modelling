@@ -1,51 +1,36 @@
-#include <assert.h>
+//
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 
-#include<iostream>
+// std library
+#include <assert.h>
+#include <iostream>
 #include <sstream>
 #include <string>
 using namespace std;
 
+// TableIO library
 #include "database.h"
 #include "cauldronschemafuncs.h"
-
 using namespace database;
 
+// DataAccess library
 #include "Interface/Formation.h"
 #include "Interface/ProjectHandle.h"
 #include "Interface/Reservoir.h"
 #include "Interface/Snapshot.h"
 #include "Interface/Migration.h"
 #include "Interface/Trapper.h"
-
 using namespace DataAccess;
 using namespace Interface;
 
-static const char * ComponentNames[] =
-{
-	"asphaltenes", 
-	"resins",
-	"C15Aro",
-	"C15Sat",
-	"C6_14Aro",
-	"C6_14Sat",
-	"C5",
-	"C4",
-	"C3",
-	"C2",
-	"C1",
-	"COx",
-	"N2",
-	"H2S",
-	"LSC",
-	"C15AT",
-	"C6_14BT",
-	"C6_14DBT",
-	"C6_14BP",
-	"C15AroS",
-	"C15SatS",
-	"C6_14SatS",
-	"C6_14AroS"
-};
+static const char ** ComponentNames = CBMGenerics::ComponentManager::getInstance().getSpeciesNameInputList();
 
 Migration::Migration (ProjectHandle * projectHandle, Record * record) : DAObject (projectHandle, record)
 {

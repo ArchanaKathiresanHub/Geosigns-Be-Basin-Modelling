@@ -1,3 +1,12 @@
+//
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 #include "Interface/BiodegradationParameters.h"
 
 #include "cauldronschemafuncs.h"
@@ -24,19 +33,19 @@ double BiodegradationParameters::maxBioTemp() const
 BioConsts BiodegradationParameters::bioConsts() const
 {
   vector<double> bioConsts;
-  bioConsts.push_back( database::getasphaltenes_BioFactor(m_record) );
-  bioConsts.push_back( database::getresins_BioFactor(m_record) );
-  bioConsts.push_back( database::getC15Aro_BioFactor(m_record) );
-  bioConsts.push_back( database::getC15Sat_BioFactor(m_record) );
-  bioConsts.push_back( database::getC6_14Aro_BioFactor(m_record) );
-  bioConsts.push_back( database::getC6_14Sat_BioFactor(m_record) );
-  bioConsts.push_back( database::getC5_BioFactor(m_record) );
-  bioConsts.push_back( database::getC4_BioFactor(m_record) );
-  bioConsts.push_back( database::getC3_BioFactor(m_record) );
-  bioConsts.push_back( database::getC2_BioFactor(m_record) );
-  bioConsts.push_back( database::getC1_BioFactor(m_record) );
-  bioConsts.push_back( database::getCOx_BioFactor(m_record) );
-  bioConsts.push_back( database::getN2_BioFactor(m_record) );
+  bioConsts.push_back( database::getasphaltenes_BioFactor (m_record) );
+  bioConsts.push_back( database::getresins_BioFactor      (m_record) );
+  bioConsts.push_back( database::getC15Aro_BioFactor      (m_record) );
+  bioConsts.push_back( database::getC15Sat_BioFactor      (m_record) );
+  bioConsts.push_back( database::getC6_14Aro_BioFactor    (m_record) );
+  bioConsts.push_back( database::getC6_14Sat_BioFactor    (m_record) );
+  bioConsts.push_back( database::getC5_BioFactor          (m_record) );
+  bioConsts.push_back( database::getC4_BioFactor          (m_record) );
+  bioConsts.push_back( database::getC3_BioFactor          (m_record) );
+  bioConsts.push_back( database::getC2_BioFactor          (m_record) );
+  bioConsts.push_back( database::getC1_BioFactor          (m_record) );
+  bioConsts.push_back( database::getCOx_BioFactor         (m_record) );
+  bioConsts.push_back( database::getN2_BioFactor          (m_record) );
 
   return BioConsts( database::getTempConstant(m_record), bioConsts ); 
 }
@@ -67,4 +76,4 @@ bool BiodegradationParameters::pasteurizationInd() const
    return database::getPasteurizationInd(m_record);
 }
 
-} } // namespace DataAccess::Implementation
+} } // namespace DataAccess::Interface

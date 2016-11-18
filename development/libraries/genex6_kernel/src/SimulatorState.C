@@ -1415,7 +1415,7 @@ void SimulatorState::resetIntervalCumulative () {
    m_intervalCumulativeQuantities [SaturatesExpelledVolumeCum] = 0.0;
    m_intervalCumulativeQuantities [WetGasExpelledVolumeCum] = 0.0;
 
-   for ( i = 0; i < CBMGenerics::ComponentManager::NumberOfOutputSpecies; ++i ) {
+   for ( i = 0; i < ComponentId::NUMBER_OF_SPECIES; ++i ) {
       m_intervalCumulativeSpecies [ i ] = 0.0;
    } 
 

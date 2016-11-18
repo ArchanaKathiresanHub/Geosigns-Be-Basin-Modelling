@@ -17,19 +17,24 @@
 #include <sstream>
 #endif
 
+// std library
+#include <stdlib.h>
 #include <iostream>
 #include <fstream>
 #include <algorithm>
 using namespace std;
 
-#include <stdlib.h>
-
 #include "petsc.h"
 
+// TableIO library
 #include "database.h"
 #include "cauldronschema.h"
 #include "cauldronschemafuncs.h"
 using namespace database;
+
+// CBMGenerics library
+#include "ComponentManager.h"
+typedef CBMGenerics::ComponentManager::SpeciesNamesId ComponentId;
 
 #include "Migrator.h"
 #include "Reservoir.h"
@@ -1390,11 +1395,11 @@ void Migrator::deleteExpelledChargeMaps (const Interface::Snapshot * snapshot)
       const Interface::Formation * formation = *formationIter;
       if (formation->isSourceRock ())
       {
-         for (int componentId = pvtFlash::FIRST_COMPONENT; componentId < pvtFlash::NUM_COMPONENTS; ++componentId)
+         for (int componentId = ComponentId::FIRST_COMPONENT; componentId < ComponentId::NUMBER_OF_SPECIES; ++componentId)
          {
             if (!ComponentsUsed[componentId]) continue;
 
-            string propertyName = ComponentNames[componentId];
+            string propertyName = CBMGenerics::ComponentManager::getInstance().getSpeciesName( componentId );
             propertyName += "ExpelledCumulative";
 
             const Interface::GridMap * gridMapStart = getPropertyGridMap (propertyName, snapshot, 0, formation, 0);
@@ -1510,8 +1515,8 @@ void Migrator::addTrapRecord (migration::Reservoir * reservoir, migration::TrapP
    for (unsigned int i = 0; i < NumComponents; ++i)
    {
       string fieldName = "Mass";
-      fieldName += TableComponentNames[i];
-      trapIoRecord->setValue (fieldName, tpRequest.composition.getWeight ((pvtFlash::ComponentId) i));
+      fieldName += CBMGenerics::ComponentManager::getInstance().getSpeciesInputName(i);
+      trapIoRecord->setValue (fieldName, tpRequest.composition.getWeight ((ComponentId) i));
    }
 }
 
@@ -1610,7 +1615,7 @@ database::Record * Migrator::copyMigrationRecord (database::Record * oldRecord, 
    for (unsigned int component = 0; component < NumComponents; ++component)
    {
       string fieldName = "Mass";
-      fieldName += TableComponentNames[component];
+      fieldName += CBMGenerics::ComponentManager::getInstance().getSpeciesInputName( component );
 
       double mass = oldRecord->getValue<double> (fieldName);
       newRecord->setValue (fieldName, mass);
@@ -1641,10 +1646,10 @@ void Migrator::addMigrationRecord (const string & srcReservoirName, const string
    for (unsigned int component = 0; component < NumComponents; ++component)
    {
       string fieldName = "Mass";
-      fieldName += TableComponentNames[component];
+      fieldName += CBMGenerics::ComponentManager::getInstance().getSpeciesInputName( component );
 
       double mass = (newlyCreated ? 0 : record->getValue<double> (fieldName));
-      mass += mr.composition.getWeight ((pvtFlash::ComponentId) component);
+      mass += mr.composition.getWeight ((ComponentId) component);
 
       record->setValue (fieldName, mass);
    }
@@ -1801,7 +1806,7 @@ bool MigrationIoTblMerge (database::Record * recordL, database::Record * recordR
    for (unsigned int component = 0; component < NumComponents; ++component)
    {
       string fieldName = "Mass";
-      fieldName += TableComponentNames[component];
+      fieldName += CBMGenerics::ComponentManager::getInstance().getSpeciesInputName( component );
 
       double massL = recordL->getValue<double> (fieldName);
       double massR = recordR->getValue<double> (fieldName);

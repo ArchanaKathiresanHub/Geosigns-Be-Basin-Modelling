@@ -240,17 +240,17 @@ namespace BasinModelingLinkTest
          CauldronAPI.SetPvtPropertiesConfigFile(m_cfgFile);
 
          double[] masses         = new double[(int)ComponentId.NUM_COMPONENTS];
-         double[] phaseMasses    = new double[(int)ComponentId.NUM_COMPONENTS * (int)CauldronAPI.N_PHASES];
-         double[] phaseDensity   = new double[(int)CauldronAPI.N_PHASES];
-         double[] phaseViscosity = new double[(int)CauldronAPI.N_PHASES];
+         double[] phaseMasses    = new double[(int)ComponentId.NUM_COMPONENTS * (int)CauldronAPI.numberOfPhases];
+         double[] phaseDensity   = new double[(int)CauldronAPI.numberOfPhases];
+         double[] phaseViscosity = new double[(int)CauldronAPI.numberOfPhases];
 
          InitializeCompositionMasses(masses);
 
          CauldronAPI.EosPackComputeWithLumpingArr(373.15, 1e6, masses, false, 0.0, phaseMasses, phaseDensity, phaseViscosity);
 
-         double[] totPhaseMass = new double[(int)CauldronAPI.N_PHASES];
+         double[] totPhaseMass = new double[(int)CauldronAPI.numberOfPhases];
 
-         for (int i = 0; i < (int)CauldronAPI.N_PHASES; ++i)
+         for (int i = 0; i < (int)CauldronAPI.numberOfPhases; ++i)
          {
             totPhaseMass[i] = 0.0;
             for (int j = 0; j < (int)ComponentId.NUM_COMPONENTS; ++j)

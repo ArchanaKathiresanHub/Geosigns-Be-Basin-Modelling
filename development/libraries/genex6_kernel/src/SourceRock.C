@@ -1881,7 +1881,7 @@ void SourceRock::createSnapShotOutputMaps(const Snapshot *theSnapshot)
 
          if ( species != ComponentManager::UNKNOWN ) {
 
-            theMap = createSnapshotResultPropertyValueMap ( ComponentManager::getInstance().GetSpeciesName ( species ) + "Retained",
+            theMap = createSnapshotResultPropertyValueMap ( ComponentManager::getInstance().getSpeciesName ( species ) + "Retained",
                                                             theSnapshot );
 
             if ( theMap != 0 ) {
@@ -2082,16 +2082,16 @@ void SourceRock::updateSnapShotOutputMaps(Genex6::SourceRockNode *theNode)
    SimulatorState& theSimulatorState = theNode->getPrincipleSimulatorState();
    m_theSimulator->setChemicalModel( m_theChemicalModel ); 
 
-   for (speciesIndex = 0; speciesIndex < ComponentManager::NumberOfOutputSpecies; ++ speciesIndex) {
-      it = m_theSnapShotOutputMaps.find(theManager.GetSpeciesOutputPropertyName(speciesIndex, doOutputAdsorptionProperties ()));
+   for (speciesIndex = 0; speciesIndex < ComponentManager::NUMBER_OF_SPECIES; ++ speciesIndex) {
+      it = m_theSnapShotOutputMaps.find(theManager.getSpeciesOutputPropertyName(speciesIndex, doOutputAdsorptionProperties ()));
       
       if(it != snapshotMapContainerEnd) {               
-         specId = m_theSimulator->GetSpeciesIdByName(theManager.GetSpeciesName(speciesIndex));
+         specId = m_theSimulator->GetSpeciesIdByName(theManager.getSpeciesName(speciesIndex));
 
          if( specId < 0 ) { // to support both GX5 and GX6 config files
 
             // if(m_projectHandle->getRank() == 0) {
-            //    cout<<"Genex6 Simulator does not support species:"<<theManager.GetSpeciesName(speciesIndex)<<endl;
+            //    cout<<"Genex6 Simulator does not support species:"<<theManager.getSpeciesName(speciesIndex)<<endl;
             // } 
 
          } else {

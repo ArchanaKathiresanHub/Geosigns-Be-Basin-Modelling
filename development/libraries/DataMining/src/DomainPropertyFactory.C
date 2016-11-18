@@ -27,6 +27,7 @@
 #include "PermeabilityCalculator.h"
 
 using namespace CBMGenerics;
+typedef CBMGenerics::ComponentManager::SpeciesNamesId ComponentId;
 
 static const char * s_SurfacePropList[] =
 {
@@ -118,9 +119,9 @@ namespace DataAccess { namespace Mining
       ComponentManager   & theComponentManager = ComponentManager::getInstance();
       GenexResultManager & theResultManager    = GenexResultManager::getInstance();
 
-      for ( unsigned int i = 0; i < ComponentManager::NumberOfOutputSpecies; ++i )
+      for ( unsigned int i = 0; i < ComponentManager::NUMBER_OF_SPECIES; ++i )
       {
-         property = m_projectHandle->findProperty( theComponentManager.GetSpeciesOutputPropertyName( i ) );
+         property = m_projectHandle->findProperty( theComponentManager.getSpeciesOutputPropertyName( i ) );
          if ( not containsAllocator( property ) )
          {
             m_allocators [ property ] = produceSurfacePropertyAllocator( handle, property );
@@ -176,9 +177,9 @@ namespace DataAccess { namespace Mining
       }
 
       // add concentrations for HC species
-      for ( unsigned int i = 0; i < pvtFlash::NUM_COMPONENTS; ++i )
+      for ( unsigned int i = 0; i < ComponentId::NUMBER_OF_SPECIES; ++i )
       {
-         property = m_projectHandle->findProperty( pvtFlash::ComponentIdNames[ i ] + "Concentration" );
+         property = m_projectHandle->findProperty( ComponentManager::getInstance().getSpeciesName( i ) + "Concentration" );
          m_allocators [ property ] = produceFormationConstantPropertyAllocator ( handle, property );
       }
 

@@ -27,6 +27,7 @@ include_directories( SYSTEM
 bm_include_libraries(
    DataModel
    DataAccess
+   CBMGenerics
    utilities
    SerialDataAccess
    FileSystem 

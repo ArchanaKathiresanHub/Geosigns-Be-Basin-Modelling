@@ -1,3 +1,14 @@
+//
+// Copyright (C) 2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
+// std library
 #include <stdlib.h>
 #include <unistd.h>
 #include <math.h>
@@ -14,6 +25,10 @@
 #include <fstream>
 #include <sstream>
 
+#include <string>
+#include <vector>
+using namespace std;
+
 // DataAccess API includes
 #include "Interface/Interface.h"
 #include "Interface/ProjectHandle.h"
@@ -24,15 +39,15 @@
 #include "Interface/Formation.h"
 #include "Interface/Reservoir.h"
 #include "Interface/Grid.h"
-
-#include "EosPack.h"
-
-#include <string>
-#include <vector>
-using namespace std;
-
 using namespace DataAccess;
 using namespace Interface;
+
+// CBMGenerics library
+#include "ComponentManager.h"
+typedef CBMGenerics::ComponentManager::SpeciesNamesId ComponentId;
+typedef CBMGenerics::ComponentManager::PhaseId PhaseId;
+
+#include "EosPack.h"
 
 #define Max(a,b)        (a > b ? a : b)
 #define Min(a,b)        (a < b ? a : b)
@@ -269,8 +284,8 @@ bool processReservoir(ProjectHandle * projectHandle, const Reservoir * reservoir
 {
    const double undefinedValue = -1;
 
-   const int CBM_NumComponents = CBMGenerics::ComponentManager::NumberOfSpecies; //CBMGenerics::ComponentManager::NumberOfSpeciesToFlash;
-   const int CBM_NumPhases = CBMGenerics::ComponentManager::NumberOfPhases;
+   const int CBM_NumComponents = CBMGenerics::ComponentManager::NUMBER_OF_SPECIES; //CBMGenerics::ComponentManager::NumberOfSpeciesToFlash;
+   const int CBM_NumPhases = CBMGenerics::ComponentManager::NUMBER_OF_PHASES;
 
    if( verbose || debug ) cout << "Reservoir: " << reservoir->getName() << endl;
    string filePath = createLogFileName(projectHandle, reservoir);
@@ -322,8 +337,8 @@ bool processReservoir(ProjectHandle * projectHandle, const Reservoir * reservoir
             trap->getPressure(), megapascal2psi(trap->getPressure()),
             undefinedValue /* interfacial tension of gas */,
             undefinedValue /* interfacial tension of oil */,
-            trap->getVolume(Oil) / 1e6, cubicmeters2barrels(trap->getVolume(Oil) / 1e6),
-            trap->getVolume(Gas) / 1e6, cubicmeters2standardcubicfeet(trap->getVolume(Gas) / 1e6));
+            trap->getVolume(PhaseId::OIL) / 1e6, cubicmeters2barrels(trap->getVolume(PhaseId::OIL) / 1e6),
+            trap->getVolume(PhaseId::GAS) / 1e6, cubicmeters2standardcubicfeet(trap->getVolume(PhaseId::GAS) / 1e6));
       }
       delete trapList;
    }
@@ -412,39 +427,45 @@ bool processReservoir(ProjectHandle * projectHandle, const Reservoir * reservoir
 
             char gasViscString[32], oilViscString[32];
 
-            getFormattedString(outputViscosities[Gas], "%1.2le", gasViscString);
-            getFormattedString(outputViscosities[Oil], "%1.2le", oilViscString);
+            getFormattedString(outputViscosities[PhaseId::GAS], "%1.2le", gasViscString);
+            getFormattedString(outputViscosities[PhaseId::OIL], "%1.2le", oilViscString);
 
             char gasDensityString[32], gasGravityString[32], oilDensityString[32], oilGravityString[32];
 
-            getFormattedString(outputDensities[Gas], "%6.1lf", gasDensityString);
-            getFormattedString(outputDensities[Oil], "%6.1lf", oilDensityString);
-            getFormattedString(0.001 * outputDensities[Gas], "%6.3lf", gasGravityString);
-            getFormattedString(0.001 * outputDensities[Oil], "%6.3lf", oilGravityString);
+            getFormattedString(outputDensities[PhaseId::GAS], "%6.1lf", gasDensityString);
+            getFormattedString(outputDensities[PhaseId::OIL], "%6.1lf", oilDensityString);
+            getFormattedString(0.001 * outputDensities[PhaseId::GAS], "%6.3lf", gasGravityString);
+            getFormattedString(0.001 * outputDensities[PhaseId::OIL], "%6.3lf", oilGravityString);
 
             float num, deno, gasGorm, oilGorm;
             char gasGormString[32], oilGormString[32];
 
-            num = outputMasses[Gas][C1] + outputMasses[Gas][C2] + outputMasses[Gas][C3] + outputMasses[Gas][C4] + outputMasses[Gas][C5];
+            num = outputMasses[PhaseId::GAS][ComponentId::C1] + outputMasses[PhaseId::GAS][ComponentId::C2] + outputMasses[PhaseId::GAS][ComponentId::C3] + outputMasses[PhaseId::GAS][ComponentId::C4] + outputMasses[PhaseId::GAS][ComponentId::C5];
 
-            deno = outputMasses[Gas][C6_14SAT] + outputMasses[Gas][C6_14ARO] +
-               outputMasses[Gas][C15_SAT] + outputMasses[Gas][C15_ARO] +
-               outputMasses[Gas][C15_SATS] + outputMasses[Gas][C15_AROS] + outputMasses[Gas][C6_14AROS] + outputMasses[Gas][C6_14SATS] + outputMasses[Gas][C15_AT] + outputMasses[Gas][LSC] +
-               outputMasses[Gas][C6_14DBT] + outputMasses[Gas][C6_14BT] + outputMasses[Gas][C6_14BP] +
-               outputMasses[Gas][RESINS] +
-               outputMasses[Gas][ASPHALTENES];
+            deno = outputMasses[PhaseId::GAS][ComponentId::C6_MINUS_14SAT  ] + outputMasses[PhaseId::GAS][ComponentId::C6_MINUS_14ARO  ] +
+                   outputMasses[PhaseId::GAS][ComponentId::C15_PLUS_SAT    ] + outputMasses[PhaseId::GAS][ComponentId::C15_PLUS_ARO    ] +
+                   outputMasses[PhaseId::GAS][ComponentId::C15_PLUS_SAT_S  ] + outputMasses[PhaseId::GAS][ComponentId::C15_PLUS_ARO_S  ] +
+                   outputMasses[PhaseId::GAS][ComponentId::C6_MINUS_14ARO_S] + outputMasses[PhaseId::GAS][ComponentId::C6_MINUS_14SAT_S] +
+                   outputMasses[PhaseId::GAS][ComponentId::C15_PLUS_AT     ] + outputMasses[PhaseId::GAS][ComponentId::LSC             ] +
+                   outputMasses[PhaseId::GAS][ComponentId::C6_MINUS_14DBT  ] + outputMasses[PhaseId::GAS][ComponentId::C6_MINUS_14BT   ] +
+                   outputMasses[PhaseId::GAS][ComponentId::C6_MINUS_14BP   ] +
+                   outputMasses[PhaseId::GAS][ComponentId::RESIN           ] +
+                   outputMasses[PhaseId::GAS][ComponentId::ASPHALTENE];
 
             gasGorm = (deno) ? num / deno : -1;
             getFormattedString(1000 * gasGorm, "%8.1lf", gasGormString);
 
-            num = outputMasses[Oil][C1] + outputMasses[Oil][C2] + outputMasses[Oil][C3] + outputMasses[Oil][C4] + outputMasses[Oil][C5];
+            num = outputMasses[PhaseId::OIL][ComponentId::C1] + outputMasses[PhaseId::OIL][ComponentId::C2] + outputMasses[PhaseId::OIL][ComponentId::C3] + outputMasses[PhaseId::OIL][ComponentId::C4] + outputMasses[PhaseId::OIL][ComponentId::C5];
 
-            deno = outputMasses[Oil][C6_14SAT] + outputMasses[Oil][C6_14ARO] +
-               outputMasses[Oil][C15_SAT] + outputMasses[Oil][C15_ARO] +
-               outputMasses[Oil][C15_SATS] + outputMasses[Oil][C15_AROS] + outputMasses[Oil][C6_14AROS] + outputMasses[Oil][C6_14SATS] + outputMasses[Oil][C15_AT] + outputMasses[Oil][LSC] +
-               outputMasses[Oil][C6_14DBT] + outputMasses[Oil][C6_14BT] + outputMasses[Oil][C6_14BP] +
-               outputMasses[Oil][RESINS] +
-               outputMasses[Oil][ASPHALTENES];
+            deno = outputMasses[PhaseId::OIL][ComponentId::C6_MINUS_14SAT    ] + outputMasses[PhaseId::OIL][ComponentId::C6_MINUS_14ARO  ] +
+                   outputMasses[PhaseId::OIL][ComponentId::C15_PLUS_SAT      ] + outputMasses[PhaseId::OIL][ComponentId::C15_PLUS_ARO    ] +
+                   outputMasses[PhaseId::OIL][ComponentId::C15_PLUS_SAT_S    ] + outputMasses[PhaseId::OIL][ComponentId::C15_PLUS_ARO_S  ] +
+                   outputMasses[PhaseId::OIL][ComponentId::C6_MINUS_14ARO_S  ] + outputMasses[PhaseId::OIL][ComponentId::C6_MINUS_14SAT_S] +
+                   outputMasses[PhaseId::OIL][ComponentId::C15_PLUS_AT       ] + outputMasses[PhaseId::OIL][ComponentId::LSC             ] +
+                   outputMasses[PhaseId::OIL][ComponentId::C6_MINUS_14DBT    ] + outputMasses[PhaseId::OIL][ComponentId::C6_MINUS_14BT   ] +
+                   outputMasses[PhaseId::OIL][ComponentId::C6_MINUS_14BP     ] +
+                   outputMasses[PhaseId::OIL][ComponentId::RESIN             ] +
+                   outputMasses[PhaseId::OIL][ComponentId::ASPHALTENE];
 
             oilGorm = (deno) ? num / deno : -1;
             getFormattedString(1000 * oilGorm, "%7.1f", oilGormString);
@@ -454,59 +475,59 @@ bool processReservoir(ProjectHandle * projectHandle, const Reservoir * reservoir
                "%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%5.2lf|%s\n",
                snapshot->getTime(), trap->getId(),
                oilDensityString, oilGravityString, oilViscString,
-               percentage(outputMasses[Oil][C1], phaseMasses[Oil]),
-               percentage(outputMasses[Oil][C2], phaseMasses[Oil]),
-               percentage(outputMasses[Oil][C3], phaseMasses[Oil]),
-               percentage(outputMasses[Oil][C4], phaseMasses[Oil]),
-               percentage(outputMasses[Oil][C5], phaseMasses[Oil]),
-               percentage(outputMasses[Oil][N2], phaseMasses[Oil]),
-               percentage(outputMasses[Oil][COX], phaseMasses[Oil]),
-               percentage(outputMasses[Oil][H2S], phaseMasses[Oil]),
-               percentage(outputMasses[Oil][C6_14SAT], phaseMasses[Oil]),
-               percentage(outputMasses[Oil][C6_14ARO], phaseMasses[Oil]),
-               percentage(outputMasses[Oil][C15_SAT], phaseMasses[Oil]),
-               percentage(outputMasses[Oil][C15_ARO], phaseMasses[Oil]),
+               percentage(outputMasses[PhaseId::OIL][ComponentId::C1            ], phaseMasses[PhaseId::OIL]),
+               percentage(outputMasses[PhaseId::OIL][ComponentId::C2            ], phaseMasses[PhaseId::OIL]),
+               percentage(outputMasses[PhaseId::OIL][ComponentId::C3            ], phaseMasses[PhaseId::OIL]),
+               percentage(outputMasses[PhaseId::OIL][ComponentId::C4            ], phaseMasses[PhaseId::OIL]),
+               percentage(outputMasses[PhaseId::OIL][ComponentId::C5            ], phaseMasses[PhaseId::OIL]),
+               percentage(outputMasses[PhaseId::OIL][ComponentId::N2            ], phaseMasses[PhaseId::OIL]),
+               percentage(outputMasses[PhaseId::OIL][ComponentId::COX           ], phaseMasses[PhaseId::OIL]),
+               percentage(outputMasses[PhaseId::OIL][ComponentId::H2S           ], phaseMasses[PhaseId::OIL]),
+               percentage(outputMasses[PhaseId::OIL][ComponentId::C6_MINUS_14SAT], phaseMasses[PhaseId::OIL]),
+               percentage(outputMasses[PhaseId::OIL][ComponentId::C6_MINUS_14ARO], phaseMasses[PhaseId::OIL]),
+               percentage(outputMasses[PhaseId::OIL][ComponentId::C15_PLUS_SAT  ], phaseMasses[PhaseId::OIL]),
+               percentage(outputMasses[PhaseId::OIL][ComponentId::C15_PLUS_ARO  ], phaseMasses[PhaseId::OIL]),
 
-               percentage(outputMasses[Oil][LSC], phaseMasses[Oil]),
-               percentage(outputMasses[Oil][C15_AT], phaseMasses[Oil]),
-               percentage(outputMasses[Oil][C15_AROS], phaseMasses[Oil]),
-               percentage(outputMasses[Oil][C15_SATS], phaseMasses[Oil]),
-               percentage(outputMasses[Oil][C6_14BT], phaseMasses[Oil]),
-               percentage(outputMasses[Oil][C6_14DBT], phaseMasses[Oil]),
-               percentage(outputMasses[Oil][C6_14BP], phaseMasses[Oil]),
-               percentage(outputMasses[Oil][C6_14SATS], phaseMasses[Oil]),
-               percentage(outputMasses[Oil][C6_14AROS], phaseMasses[Oil]),
+               percentage(outputMasses[PhaseId::OIL][ComponentId::LSC             ], phaseMasses[PhaseId::OIL]),
+               percentage(outputMasses[PhaseId::OIL][ComponentId::C15_PLUS_AT     ], phaseMasses[PhaseId::OIL]),
+               percentage(outputMasses[PhaseId::OIL][ComponentId::C15_PLUS_ARO_S  ], phaseMasses[PhaseId::OIL]),
+               percentage(outputMasses[PhaseId::OIL][ComponentId::C15_PLUS_SAT_S  ], phaseMasses[PhaseId::OIL]),
+               percentage(outputMasses[PhaseId::OIL][ComponentId::C6_MINUS_14BT   ], phaseMasses[PhaseId::OIL]),
+               percentage(outputMasses[PhaseId::OIL][ComponentId::C6_MINUS_14DBT  ], phaseMasses[PhaseId::OIL]),
+               percentage(outputMasses[PhaseId::OIL][ComponentId::C6_MINUS_14BP   ], phaseMasses[PhaseId::OIL]),
+               percentage(outputMasses[PhaseId::OIL][ComponentId::C6_MINUS_14SAT_S], phaseMasses[PhaseId::OIL]),
+               percentage(outputMasses[PhaseId::OIL][ComponentId::C6_MINUS_14ARO_S], phaseMasses[PhaseId::OIL]),
 
-               percentage(outputMasses[Oil][RESINS], phaseMasses[Oil]),
-               percentage(outputMasses[Oil][ASPHALTENES], phaseMasses[Oil]),
+               percentage(outputMasses[PhaseId::OIL][ComponentId::RESIN     ], phaseMasses[PhaseId::OIL]),
+               percentage(outputMasses[PhaseId::OIL][ComponentId::ASPHALTENE], phaseMasses[PhaseId::OIL]),
                oilGormString,
                gasDensityString, gasGravityString, gasViscString,
-               percentage(outputMasses[Gas][C1], phaseMasses[Gas]),
-               percentage(outputMasses[Gas][C2], phaseMasses[Gas]),
-               percentage(outputMasses[Gas][C3], phaseMasses[Gas]),
-               percentage(outputMasses[Gas][C4], phaseMasses[Gas]),
-               percentage(outputMasses[Gas][C5], phaseMasses[Gas]),
-               percentage(outputMasses[Gas][N2], phaseMasses[Gas]),
-               percentage(outputMasses[Gas][COX], phaseMasses[Gas]),
-               percentage(outputMasses[Gas][H2S], phaseMasses[Gas]),
-               percentage(outputMasses[Gas][C6_14SAT], phaseMasses[Gas]),
-               percentage(outputMasses[Gas][C6_14ARO], phaseMasses[Gas]),
-               percentage(outputMasses[Gas][C15_SAT], phaseMasses[Gas]),
-               percentage(outputMasses[Gas][C15_ARO], phaseMasses[Gas]),
+               percentage(outputMasses[PhaseId::GAS][ComponentId::C1            ], phaseMasses[PhaseId::GAS]),
+               percentage(outputMasses[PhaseId::GAS][ComponentId::C2            ], phaseMasses[PhaseId::GAS]),
+               percentage(outputMasses[PhaseId::GAS][ComponentId::C3            ], phaseMasses[PhaseId::GAS]),
+               percentage(outputMasses[PhaseId::GAS][ComponentId::C4            ], phaseMasses[PhaseId::GAS]),
+               percentage(outputMasses[PhaseId::GAS][ComponentId::C5            ], phaseMasses[PhaseId::GAS]),
+               percentage(outputMasses[PhaseId::GAS][ComponentId::N2            ], phaseMasses[PhaseId::GAS]),
+               percentage(outputMasses[PhaseId::GAS][ComponentId::COX           ], phaseMasses[PhaseId::GAS]),
+               percentage(outputMasses[PhaseId::GAS][ComponentId::H2S           ], phaseMasses[PhaseId::GAS]),
+               percentage(outputMasses[PhaseId::GAS][ComponentId::C6_MINUS_14SAT], phaseMasses[PhaseId::GAS]),
+               percentage(outputMasses[PhaseId::GAS][ComponentId::C6_MINUS_14ARO], phaseMasses[PhaseId::GAS]),
+               percentage(outputMasses[PhaseId::GAS][ComponentId::C15_PLUS_SAT  ], phaseMasses[PhaseId::GAS]),
+               percentage(outputMasses[PhaseId::GAS][ComponentId::C15_PLUS_ARO  ], phaseMasses[PhaseId::GAS]),
 
-               percentage(outputMasses[Gas][LSC], phaseMasses[Gas]),
-               percentage(outputMasses[Gas][C15_AT], phaseMasses[Gas]),
-               percentage(outputMasses[Gas][C15_AROS], phaseMasses[Gas]),
-               percentage(outputMasses[Gas][C15_SATS], phaseMasses[Gas]),
-               percentage(outputMasses[Gas][C6_14BT], phaseMasses[Gas]),
-               percentage(outputMasses[Gas][C6_14DBT], phaseMasses[Gas]),
-               percentage(outputMasses[Gas][C6_14BP], phaseMasses[Gas]),
-               percentage(outputMasses[Gas][C6_14SATS], phaseMasses[Gas]),
-               percentage(outputMasses[Gas][C6_14AROS], phaseMasses[Gas]),
+               percentage(outputMasses[PhaseId::GAS][ComponentId::LSC             ], phaseMasses[PhaseId::GAS]),
+               percentage(outputMasses[PhaseId::GAS][ComponentId::C15_PLUS_AT     ], phaseMasses[PhaseId::GAS]),
+               percentage(outputMasses[PhaseId::GAS][ComponentId::C15_PLUS_ARO_S  ], phaseMasses[PhaseId::GAS]),
+               percentage(outputMasses[PhaseId::GAS][ComponentId::C15_PLUS_SAT_S  ], phaseMasses[PhaseId::GAS]),
+               percentage(outputMasses[PhaseId::GAS][ComponentId::C6_MINUS_14BT   ], phaseMasses[PhaseId::GAS]),
+               percentage(outputMasses[PhaseId::GAS][ComponentId::C6_MINUS_14DBT  ], phaseMasses[PhaseId::GAS]),
+               percentage(outputMasses[PhaseId::GAS][ComponentId::C6_MINUS_14BP   ], phaseMasses[PhaseId::GAS]),
+               percentage(outputMasses[PhaseId::GAS][ComponentId::C6_MINUS_14SAT_S], phaseMasses[PhaseId::GAS]),
+               percentage(outputMasses[PhaseId::GAS][ComponentId::C6_MINUS_14ARO_S], phaseMasses[PhaseId::GAS]),
 
 
-               percentage(outputMasses[Gas][RESINS], phaseMasses[Gas]),
-               percentage(outputMasses[Gas][ASPHALTENES], phaseMasses[Gas]),
+               percentage(outputMasses[PhaseId::GAS][ComponentId::RESIN     ], phaseMasses[PhaseId::GAS]),
+               percentage(outputMasses[PhaseId::GAS][ComponentId::ASPHALTENE], phaseMasses[PhaseId::GAS]),
                gasGormString);
          }
       }
@@ -586,22 +607,22 @@ bool processReservoir(ProjectHandle * projectHandle, const Reservoir * reservoir
                trap->getId(), trapY, trapX, projectHandle->getHighResolutionOutputGrid()->deltaI(), trap->getTemperature(), trap->getPressure());
 
             double oilVolume = 0;
-            if( phaseMasses[Oil] > 0 && outputDensities[Oil] > 0 )
-               oilVolume = phaseMasses[Oil] / outputDensities[Oil];
+            if( phaseMasses[PhaseId::OIL] > 0 && outputDensities[PhaseId::OIL] > 0 )
+               oilVolume = phaseMasses[PhaseId::OIL] / outputDensities[PhaseId::OIL];
 
             double gasVolume = 0;
-            if( phaseMasses[Gas] > 0 && outputDensities[Gas] > 0 )
-               gasVolume = phaseMasses[Gas] / outputDensities[Gas];
+            if( phaseMasses[PhaseId::GAS] > 0 && outputDensities[PhaseId::GAS] > 0 )
+               gasVolume = phaseMasses[PhaseId::GAS] / outputDensities[PhaseId::GAS];
 
             char gasDensityString[32], oilDensityString[32];
 
-            getFormattedString(outputDensities[Gas], "%1.2le", gasDensityString);
-            getFormattedString(outputDensities[Oil], "%1.2le", oilDensityString);
+            getFormattedString(outputDensities[PhaseId::GAS], "%1.2le", gasDensityString);
+            getFormattedString(outputDensities[PhaseId::OIL], "%1.2le", oilDensityString);
 
             char gasViscString[32], oilViscString[32];
 
-            getFormattedString(outputViscosities[Gas], "%1.2le", gasViscString);
-            getFormattedString(outputViscosities[Oil], "%1.2le", oilViscString);
+            getFormattedString(outputViscosities[PhaseId::GAS], "%1.2le", gasViscString);
+            getFormattedString(outputViscosities[PhaseId::OIL], "%1.2le", oilViscString);
 
             fprintf(fp, "%10.2lf|%11.2lf|%7s|%7s|%8s|%8s|",
                oilVolume / 1e6, gasVolume / 1e6, oilDensityString, gasDensityString, oilViscString, gasViscString);
@@ -701,22 +722,22 @@ bool processReservoir(ProjectHandle * projectHandle, const Reservoir * reservoir
                celsius2fahrenheit(trap->getTemperature()), megapascal2psi(trap->getPressure()));
 
             double oilVolume = 0;
-            if( phaseMasses[Oil] > 0 && outputDensities[Oil] > 0 )
-               oilVolume = phaseMasses[Oil] / outputDensities[Oil];
+            if( phaseMasses[PhaseId::OIL] > 0 && outputDensities[PhaseId::OIL] > 0 )
+               oilVolume = phaseMasses[PhaseId::OIL] / outputDensities[PhaseId::OIL];
 
             double gasVolume = 0;
-            if( phaseMasses[Gas] > 0 && outputDensities[Gas] > 0 )
-               gasVolume = phaseMasses[Gas] / outputDensities[Gas];
+            if( phaseMasses[PhaseId::GAS] > 0 && outputDensities[PhaseId::GAS] > 0 )
+               gasVolume = phaseMasses[PhaseId::GAS] / outputDensities[PhaseId::GAS];
 
             char gasDensityString[32], oilDensityString[32];
 
-            getFormattedString(outputDensities[Gas], "%1.2le", gasDensityString);
-            getFormattedString(outputDensities[Oil], "%1.2le", oilDensityString);
+            getFormattedString(outputDensities[PhaseId::GAS], "%1.2le", gasDensityString);
+            getFormattedString(outputDensities[PhaseId::OIL], "%1.2le", oilDensityString);
 
             char gasViscString[32], oilViscString[32];
 
-            getFormattedString(outputViscosities[Gas], "%1.2le", gasViscString);
-            getFormattedString(outputViscosities[Oil], "%1.2le", oilViscString);
+            getFormattedString(outputViscosities[PhaseId::GAS], "%1.2le", gasViscString);
+            getFormattedString(outputViscosities[PhaseId::OIL], "%1.2le", oilViscString);
 
             fprintf(fp, "%10.2lf|%11.2lf|%7s|%7s|%8s|%8s|",
                cubicmeters2barrels(oilVolume / 1e6), cubicmeters2standardcubicfeet(gasVolume / 1e6), oilDensityString, gasDensityString, oilViscString, gasViscString);
@@ -818,7 +839,7 @@ bool processReservoir(ProjectHandle * projectHandle, const Reservoir * reservoir
 
          for( componentId = 0; componentId < CBM_NumComponents; ++componentId )
          {
-            gasInputMasses[componentId] = outputMasses[Gas][componentId];
+            gasInputMasses[componentId] = outputMasses[PhaseId::GAS][componentId];
          }
 
          // flash reservoir gas at stock tank conditions
@@ -835,7 +856,7 @@ bool processReservoir(ProjectHandle * projectHandle, const Reservoir * reservoir
 
          for( componentId = 0; componentId < CBM_NumComponents; ++componentId )
          {
-            oilInputMasses[componentId] = outputMasses[Oil][componentId];
+            oilInputMasses[componentId] = outputMasses[PhaseId::OIL][componentId];
          }
 
          // flash reservoir oil at stock tank conditions
@@ -871,46 +892,46 @@ bool processReservoir(ProjectHandle * projectHandle, const Reservoir * reservoir
 
          double oilVolume = 0;
          double API = -1;
-         if( stPhaseMasses[Oil] > 0 && stOutputDensities[Oil] > 0 )
+         if( stPhaseMasses[PhaseId::OIL] > 0 && stOutputDensities[PhaseId::OIL] > 0 )
          {
-            oilVolume = stPhaseMasses[Oil] / stOutputDensities[Oil];
-            API = 141.5 / (0.001*stOutputDensities[Oil]) - 131.5;
+            oilVolume = stPhaseMasses[PhaseId::OIL] / stOutputDensities[PhaseId::OIL];
+            API = 141.5 / (0.001*stOutputDensities[PhaseId::OIL]) - 131.5;
          }
 
          double gasVolume = 0;
-         if( phaseMasses[Gas] > 0 && outputDensities[Gas] > 0 )
+         if( phaseMasses[PhaseId::GAS] > 0 && outputDensities[PhaseId::GAS] > 0 )
          {
-            gasVolume = stPhaseMasses[Gas] / stOutputDensities[Gas];
+            gasVolume = stPhaseMasses[PhaseId::GAS] / stOutputDensities[PhaseId::GAS];
          }
 
          char oilDensityString[32], gasDensityString[32];
-         getFormattedString(stOutputDensities[Oil], "%7.1lf", oilDensityString);
-         getFormattedString(stOutputDensities[Gas], "%7.1lf", gasDensityString);
+         getFormattedString(stOutputDensities[PhaseId::OIL], "%7.1lf", oilDensityString);
+         getFormattedString(stOutputDensities[PhaseId::GAS], "%7.1lf", gasDensityString);
 
          char APIString[32];
          getFormattedString(API, "%6.1lf", APIString);
 
          char oilViscString[32], gasViscString[32];
-         getFormattedString(stOutputViscosities[Oil], "%1.2le", oilViscString);
-         getFormattedString(stOutputViscosities[Gas], "%1.2le", gasViscString);
+         getFormattedString(stOutputViscosities[PhaseId::OIL], "%1.2le", oilViscString);
+         getFormattedString(stOutputViscosities[PhaseId::GAS], "%1.2le", gasViscString);
 
          fprintf(fp, format,
             trap->getId(), trapY, trapX, projectHandle->getHighResolutionOutputGrid()->deltaI(),
             oilVolume / 1e6, gasVolume / 1e6,
             oilDensityString, APIString, gasDensityString, oilViscString, gasViscString,
-            percentage(stOutputMasses[Oil][N2], stPhaseMasses[Oil]),
-            percentage(stOutputMasses[Oil][COX], stPhaseMasses[Oil]),
-            percentage(stOutputMasses[Gas][N2], stPhaseMasses[Gas]),
-            percentage(stOutputMasses[Gas][COX], stPhaseMasses[Gas]));
+            percentage(stOutputMasses[PhaseId::OIL][ComponentId::N2],  stPhaseMasses[PhaseId::OIL]),
+            percentage(stOutputMasses[PhaseId::OIL][ComponentId::COX], stPhaseMasses[PhaseId::OIL]),
+            percentage(stOutputMasses[PhaseId::GAS][ComponentId::N2],  stPhaseMasses[PhaseId::GAS]),
+            percentage(stOutputMasses[PhaseId::GAS][ComponentId::COX], stPhaseMasses[PhaseId::GAS]));
 
 
          double condensate = 0;
-         if( gasPhaseMasses[Oil] > 0 && gasOutputDensities[Oil] > 0 )
-            condensate = gasPhaseMasses[Oil] / gasOutputDensities[Oil];
+         if( gasPhaseMasses[PhaseId::OIL] > 0 && gasOutputDensities[PhaseId::OIL] > 0 )
+            condensate = gasPhaseMasses[PhaseId::OIL] / gasOutputDensities[PhaseId::OIL];
 
          double gas = 0;
-         if( gasPhaseMasses[Gas] > 0 && gasOutputDensities[Gas] > 0 )
-            gas = gasPhaseMasses[Gas] / gasOutputDensities[Gas];
+         if( gasPhaseMasses[PhaseId::GAS] > 0 && gasOutputDensities[PhaseId::GAS] > 0 )
+            gas = gasPhaseMasses[PhaseId::GAS] / gasOutputDensities[PhaseId::GAS];
 
          double cgr = 0;
          double bg = 0;
@@ -918,7 +939,7 @@ bool processReservoir(ProjectHandle * projectHandle, const Reservoir * reservoir
          if( condensate > 0 && gas > 0 )
          {
             cgr = condensate / gas;
-            bg = phaseMasses[Gas] / outputDensities[Gas] / gas;
+            bg = phaseMasses[PhaseId::GAS] / outputDensities[PhaseId::GAS] / gas;
          }
          else
          {
@@ -931,16 +952,16 @@ bool processReservoir(ProjectHandle * projectHandle, const Reservoir * reservoir
 
 
          gas = 0;
-         if( oilPhaseMasses[Gas] > 0 && oilOutputDensities[Gas] > 0 )
-            gas = oilPhaseMasses[Gas] / oilOutputDensities[Gas];
+         if( oilPhaseMasses[PhaseId::GAS] > 0 && oilOutputDensities[PhaseId::GAS] > 0 )
+            gas = oilPhaseMasses[PhaseId::GAS] / oilOutputDensities[PhaseId::GAS];
 
          double oil = 0;
          double gor = 0;
          double bo = 0;
-         if( oilPhaseMasses[Oil] > 0 && oilOutputDensities[Oil] > 0 )
+         if( oilPhaseMasses[PhaseId::OIL] > 0 && oilOutputDensities[PhaseId::OIL] > 0 )
          {
-            oil = oilPhaseMasses[Oil] / oilOutputDensities[Oil];
-            bo = phaseMasses[Oil] / outputDensities[Oil] / oil;
+            oil = oilPhaseMasses[PhaseId::OIL] / oilOutputDensities[PhaseId::OIL];
+            bo = phaseMasses[PhaseId::OIL] / outputDensities[PhaseId::OIL] / oil;
             gor = gas / oil;
          }
 
@@ -1026,7 +1047,7 @@ bool processReservoir(ProjectHandle * projectHandle, const Reservoir * reservoir
 
          for( componentId = 0; componentId < CBM_NumComponents; ++componentId )
          {
-            gasInputMasses[componentId] = outputMasses[Gas][componentId];
+            gasInputMasses[componentId] = outputMasses[PhaseId::GAS][componentId];
          }
 
          // flash reservoir gas at stock tank conditions
@@ -1043,7 +1064,7 @@ bool processReservoir(ProjectHandle * projectHandle, const Reservoir * reservoir
 
          for( componentId = 0; componentId < CBM_NumComponents; ++componentId )
          {
-            oilInputMasses[componentId] = outputMasses[Oil][componentId];
+            oilInputMasses[componentId] = outputMasses[PhaseId::OIL][componentId];
          }
 
          // flash reservoir oil at stock tank conditions
@@ -1079,46 +1100,46 @@ bool processReservoir(ProjectHandle * projectHandle, const Reservoir * reservoir
 
          double oilVolume = 0;
          double API = -1;
-         if( stPhaseMasses[Oil] > 0 && stOutputDensities[Oil] > 0 )
+         if( stPhaseMasses[PhaseId::OIL] > 0 && stOutputDensities[PhaseId::OIL] > 0 )
          {
-            oilVolume = stPhaseMasses[Oil] / stOutputDensities[Oil];
-            API = 141.5 / (0.001*stOutputDensities[Oil]) - 131.5;
+            oilVolume = stPhaseMasses[PhaseId::OIL] / stOutputDensities[PhaseId::OIL];
+            API = 141.5 / (0.001*stOutputDensities[PhaseId::OIL]) - 131.5;
          }
 
          double gasVolume = 0;
-         if( phaseMasses[Gas] > 0 && outputDensities[Gas] > 0 )
+         if( phaseMasses[PhaseId::GAS] > 0 && outputDensities[PhaseId::GAS] > 0 )
          {
-            gasVolume = stPhaseMasses[Gas] / stOutputDensities[Gas];
+            gasVolume = stPhaseMasses[PhaseId::GAS] / stOutputDensities[PhaseId::GAS];
          }
 
          char oilDensityString[32], gasDensityString[32];
-         getFormattedString(stOutputDensities[Oil], "%7.3lf", oilDensityString);
-         getFormattedString(stOutputDensities[Gas], "%7.3lf", gasDensityString);
+         getFormattedString(stOutputDensities[PhaseId::OIL], "%7.3lf", oilDensityString);
+         getFormattedString(stOutputDensities[PhaseId::GAS], "%7.3lf", gasDensityString);
 
          char APIString[32];
          getFormattedString(API, "%6.1lf", APIString);
 
          char oilViscString[32], gasViscString[32];
-         getFormattedString(stOutputViscosities[Oil], "%1.2le", oilViscString);
-         getFormattedString(stOutputViscosities[Gas], "%1.2le", gasViscString);
+         getFormattedString(stOutputViscosities[PhaseId::OIL], "%1.2le", oilViscString);
+         getFormattedString(stOutputViscosities[PhaseId::GAS], "%1.2le", gasViscString);
 
          fprintf(fp, format,
             trap->getId(), meters2feet(trapY), meters2feet(trapX), meters2feet(projectHandle->getHighResolutionOutputGrid()->deltaI()),
             cubicmeters2barrels(oilVolume / 1e6), cubicmeters2standardcubicfeet(gasVolume / 1e6),
             oilDensityString, APIString, gasDensityString, oilViscString, gasViscString,
-            percentage(stOutputMasses[Oil][N2], stPhaseMasses[Oil]),
-            percentage(stOutputMasses[Oil][COX], stPhaseMasses[Oil]),
-            percentage(stOutputMasses[Gas][N2], stPhaseMasses[Gas]),
-            percentage(stOutputMasses[Gas][COX], stPhaseMasses[Gas]));
+            percentage(stOutputMasses[PhaseId::OIL][ComponentId::N2], stPhaseMasses[PhaseId::OIL]),
+            percentage(stOutputMasses[PhaseId::OIL][ComponentId::COX], stPhaseMasses[PhaseId::OIL]),
+            percentage(stOutputMasses[PhaseId::GAS][ComponentId::N2], stPhaseMasses[PhaseId::GAS]),
+            percentage(stOutputMasses[PhaseId::GAS][ComponentId::COX], stPhaseMasses[PhaseId::GAS]));
 
 
          double condensate = 0;
-         if( gasPhaseMasses[Oil] > 0 && gasOutputDensities[Oil] > 0 )
-            condensate = gasPhaseMasses[Oil] / gasOutputDensities[Oil];
+         if( gasPhaseMasses[PhaseId::OIL] > 0 && gasOutputDensities[PhaseId::OIL] > 0 )
+            condensate = gasPhaseMasses[PhaseId::OIL] / gasOutputDensities[PhaseId::OIL];
 
          double gas = 0;
-         if( gasPhaseMasses[Gas] > 0 && gasOutputDensities[Gas] > 0 )
-            gas = gasPhaseMasses[Gas] / gasOutputDensities[Gas];
+         if( gasPhaseMasses[PhaseId::GAS] > 0 && gasOutputDensities[PhaseId::GAS] > 0 )
+            gas = gasPhaseMasses[PhaseId::GAS] / gasOutputDensities[PhaseId::GAS];
 
          double cgr = 0;
          double bg = 0;
@@ -1126,7 +1147,7 @@ bool processReservoir(ProjectHandle * projectHandle, const Reservoir * reservoir
          if( condensate > 0 && gas > 0 )
          {
             cgr = condensate / gas;
-            bg = phaseMasses[Gas] / outputDensities[Gas] / gas;
+            bg = phaseMasses[PhaseId::GAS] / outputDensities[PhaseId::GAS] / gas;
          }
          else
          {
@@ -1139,16 +1160,16 @@ bool processReservoir(ProjectHandle * projectHandle, const Reservoir * reservoir
          getFormattedString((cgr * 1000.0), "%11.2le", cgrString);
 
          gas = 0;
-         if( oilPhaseMasses[Gas] > 0 && oilOutputDensities[Gas] > 0 )
-            gas = oilPhaseMasses[Gas] / oilOutputDensities[Gas];
+         if( oilPhaseMasses[PhaseId::GAS] > 0 && oilOutputDensities[PhaseId::GAS] > 0 )
+            gas = oilPhaseMasses[PhaseId::GAS] / oilOutputDensities[PhaseId::GAS];
 
          double oil = 0;
          double gor = 0;
          double bo = 0;
-         if( oilPhaseMasses[Oil] > 0 && oilOutputDensities[Oil] > 0 )
+         if( oilPhaseMasses[PhaseId::OIL] > 0 && oilOutputDensities[PhaseId::OIL] > 0 )
          {
-            oil = oilPhaseMasses[Oil] / oilOutputDensities[Oil];
-            bo = phaseMasses[Oil] / outputDensities[Oil] / oil;
+            oil = oilPhaseMasses[PhaseId::OIL] / oilOutputDensities[PhaseId::OIL];
+            bo = phaseMasses[PhaseId::OIL] / outputDensities[PhaseId::OIL] / oil;
             gor = gas / oil;
          }
 
@@ -1246,7 +1267,7 @@ bool processReservoir(ProjectHandle * projectHandle, const Reservoir * reservoir
 
             if( !flashed ) continue;
 
-            char * HCPhase = (char *)(phaseId == Oil ? "OIL" : "GAS");
+            char * HCPhase = (char *)(phaseId == PhaseId::OIL ? "OIL" : "GAS");
 
 
 
@@ -1272,39 +1293,39 @@ bool processReservoir(ProjectHandle * projectHandle, const Reservoir * reservoir
                }
 
                cout << "Trap = " << trap->getId() << ", RC " << HCPhase << " = " << stInputMass
-                  << " => ST GAS = " << stPhaseMasses[Gas]
-                  << ", ST OIL = " << stPhaseMasses[Oil] << endl;
+                  << " => ST GAS = " << stPhaseMasses[PhaseId::GAS]
+                  << ", ST OIL = " << stPhaseMasses[PhaseId::OIL] << endl;
             }
 
             double gasVolume = 0;
-            if( stOutputDensities[Gas] > 0 )
+            if( stOutputDensities[PhaseId::GAS] > 0 )
             {
-               gasVolume = stPhaseMasses[Gas] / stOutputDensities[Gas] / 1e6;
+               gasVolume = stPhaseMasses[PhaseId::GAS] / stOutputDensities[PhaseId::GAS] / 1e6;
             }
 
             double oilVolume = 0;
-            if( stOutputDensities[Oil] > 0 )
+            if( stOutputDensities[PhaseId::OIL] > 0 )
             {
-               oilVolume = stPhaseMasses[Oil] / stOutputDensities[Oil] / 1e6;
+               oilVolume = stPhaseMasses[PhaseId::OIL] / stOutputDensities[PhaseId::OIL] / 1e6;
             }
 
             double API = -1;
 
-            if( stOutputDensities[Oil] > 0 )
+            if( stOutputDensities[PhaseId::OIL] > 0 )
             {
-               API = 141.5 / (0.001 * stOutputDensities[Oil]) - 131.5;
+               API = 141.5 / (0.001 * stOutputDensities[PhaseId::OIL]) - 131.5;
             }
 
             char APIString[32], oilDensityString[32], oilGravityString[32],
                gasDensityString[32], gasGravityString[32];
 
-            getFormattedString(stOutputDensities[Oil], "%7.1lf",
+            getFormattedString(stOutputDensities[PhaseId::OIL], "%7.1lf",
                oilDensityString);
-            getFormattedString(0.001 * stOutputDensities[Oil], "%7.1lf",
+            getFormattedString(0.001 * stOutputDensities[PhaseId::OIL], "%7.1lf",
                oilGravityString);
-            getFormattedString(stOutputDensities[Gas], "%7.1lf",
+            getFormattedString(stOutputDensities[PhaseId::GAS], "%7.1lf",
                gasDensityString);
-            getFormattedString(0.001 * stOutputDensities[Gas], "%7.1lf",
+            getFormattedString(0.001 * stOutputDensities[PhaseId::GAS], "%7.1lf",
                gasGravityString);
             getFormattedString(API, "%6.1lf", APIString);
 
@@ -1321,53 +1342,53 @@ bool processReservoir(ProjectHandle * projectHandle, const Reservoir * reservoir
                "%5.2lf|%5.2lf|%5.2lf\n", trap->getId(), trapY, trapX, HCPhase, oilVolume,
                cvOilVolume, gasVolume, cvGasVolume, oilDensityString, oilGravityString,
                APIString,
-               percentage(stOutputMasses[Oil][C1], stPhaseMasses[Oil]),
-               percentage(stOutputMasses[Oil][C2], stPhaseMasses[Oil]),
-               percentage(stOutputMasses[Oil][C3], stPhaseMasses[Oil]),
-               percentage(stOutputMasses[Oil][C4], stPhaseMasses[Oil]),
-               percentage(stOutputMasses[Oil][C5], stPhaseMasses[Oil]),
-               percentage(stOutputMasses[Oil][N2], stPhaseMasses[Oil]),
-               percentage(stOutputMasses[Oil][COX], stPhaseMasses[Oil]),
-               percentage(outputMasses[Oil][H2S], phaseMasses[Oil]),
-               percentage(stOutputMasses[Oil][C6_14SAT], stPhaseMasses[Oil]),
-               percentage(stOutputMasses[Oil][C6_14ARO], stPhaseMasses[Oil]),
-               percentage(stOutputMasses[Oil][C15_SAT], stPhaseMasses[Oil]),
-               percentage(stOutputMasses[Oil][C15_ARO], stPhaseMasses[Oil]),
-               percentage(outputMasses[Oil][LSC], phaseMasses[Oil]),
-               percentage(outputMasses[Oil][C15_AT], phaseMasses[Oil]),
-               percentage(outputMasses[Oil][C15_AROS], phaseMasses[Oil]),
-               percentage(outputMasses[Oil][C15_SATS], phaseMasses[Oil]),
-               percentage(outputMasses[Oil][C6_14BT], phaseMasses[Oil]),
-               percentage(outputMasses[Oil][C6_14DBT], phaseMasses[Oil]),
-               percentage(outputMasses[Oil][C6_14BP], phaseMasses[Oil]),
-               percentage(outputMasses[Oil][C6_14SATS], phaseMasses[Oil]),
-               percentage(outputMasses[Oil][C6_14AROS], phaseMasses[Oil]),
-               percentage(stOutputMasses[Oil][RESINS], stPhaseMasses[Oil]),
-               percentage(stOutputMasses[Oil][ASPHALTENES], stPhaseMasses[Oil]),
+               percentage(stOutputMasses[PhaseId::OIL][ComponentId::C1], stPhaseMasses[PhaseId::OIL]),
+               percentage(stOutputMasses[PhaseId::OIL][ComponentId::C2], stPhaseMasses[PhaseId::OIL]),
+               percentage(stOutputMasses[PhaseId::OIL][ComponentId::C3], stPhaseMasses[PhaseId::OIL]),
+               percentage(stOutputMasses[PhaseId::OIL][ComponentId::C4], stPhaseMasses[PhaseId::OIL]),
+               percentage(stOutputMasses[PhaseId::OIL][ComponentId::C5], stPhaseMasses[PhaseId::OIL]),
+               percentage(stOutputMasses[PhaseId::OIL][ComponentId::N2], stPhaseMasses[PhaseId::OIL]),
+               percentage(stOutputMasses[PhaseId::OIL][ComponentId::COX], stPhaseMasses[PhaseId::OIL]),
+               percentage(outputMasses[PhaseId::OIL][ComponentId::H2S], phaseMasses[PhaseId::OIL]),
+               percentage(stOutputMasses[PhaseId::OIL][ComponentId::C6_MINUS_14SAT], stPhaseMasses[PhaseId::OIL]),
+               percentage(stOutputMasses[PhaseId::OIL][ComponentId::C6_MINUS_14ARO], stPhaseMasses[PhaseId::OIL]),
+               percentage(stOutputMasses[PhaseId::OIL][ComponentId::C15_PLUS_SAT], stPhaseMasses[PhaseId::OIL]),
+               percentage(stOutputMasses[PhaseId::OIL][ComponentId::C15_PLUS_ARO], stPhaseMasses[PhaseId::OIL]),
+               percentage(outputMasses[PhaseId::OIL][ComponentId::LSC], phaseMasses[PhaseId::OIL]),
+               percentage(outputMasses[PhaseId::OIL][ComponentId::C15_PLUS_AT], phaseMasses[PhaseId::OIL]),
+               percentage(outputMasses[PhaseId::OIL][ComponentId::C15_PLUS_ARO_S], phaseMasses[PhaseId::OIL]),
+               percentage(outputMasses[PhaseId::OIL][ComponentId::C15_PLUS_SAT_S], phaseMasses[PhaseId::OIL]),
+               percentage(outputMasses[PhaseId::OIL][ComponentId::C6_MINUS_14BT], phaseMasses[PhaseId::OIL]),
+               percentage(outputMasses[PhaseId::OIL][ComponentId::C6_MINUS_14DBT], phaseMasses[PhaseId::OIL]),
+               percentage(outputMasses[PhaseId::OIL][ComponentId::C6_MINUS_14BP], phaseMasses[PhaseId::OIL]),
+               percentage(outputMasses[PhaseId::OIL][ComponentId::C6_MINUS_14SAT_S], phaseMasses[PhaseId::OIL]),
+               percentage(outputMasses[PhaseId::OIL][ComponentId::C6_MINUS_14ARO_S], phaseMasses[PhaseId::OIL]),
+               percentage(stOutputMasses[PhaseId::OIL][ComponentId::RESIN], stPhaseMasses[PhaseId::OIL]),
+               percentage(stOutputMasses[PhaseId::OIL][ComponentId::ASPHALTENE], stPhaseMasses[PhaseId::OIL]),
                gasDensityString, gasGravityString,
-               percentage(stOutputMasses[Gas][C1], stPhaseMasses[Gas]),
-               percentage(stOutputMasses[Gas][C2], stPhaseMasses[Gas]),
-               percentage(stOutputMasses[Gas][C3], stPhaseMasses[Gas]),
-               percentage(stOutputMasses[Gas][C4], stPhaseMasses[Gas]),
-               percentage(stOutputMasses[Gas][C5], stPhaseMasses[Gas]),
-               percentage(stOutputMasses[Gas][N2], stPhaseMasses[Gas]),
-               percentage(stOutputMasses[Gas][COX], stPhaseMasses[Gas]),
-               percentage(outputMasses[Gas][H2S], phaseMasses[Gas]),
-               percentage(stOutputMasses[Gas][C6_14SAT], stPhaseMasses[Gas]),
-               percentage(stOutputMasses[Gas][C6_14ARO], stPhaseMasses[Gas]),
-               percentage(stOutputMasses[Gas][C15_SAT], stPhaseMasses[Gas]),
-               percentage(stOutputMasses[Gas][C15_ARO], stPhaseMasses[Gas]),
-               percentage(outputMasses[Gas][LSC], phaseMasses[Gas]),
-               percentage(outputMasses[Gas][C15_AT], phaseMasses[Gas]),
-               percentage(outputMasses[Gas][C15_AROS], phaseMasses[Gas]),
-               percentage(outputMasses[Gas][C15_SATS], phaseMasses[Gas]),
-               percentage(outputMasses[Gas][C6_14BT], phaseMasses[Gas]),
-               percentage(outputMasses[Gas][C6_14DBT], phaseMasses[Gas]),
-               percentage(outputMasses[Gas][C6_14BP], phaseMasses[Gas]),
-               percentage(outputMasses[Gas][C6_14SATS], phaseMasses[Gas]),
-               percentage(outputMasses[Gas][C6_14AROS], phaseMasses[Gas]),
-               percentage(stOutputMasses[Gas][RESINS], stPhaseMasses[Gas]),
-               percentage(stOutputMasses[Gas][ASPHALTENES], stPhaseMasses[Gas]));
+               percentage(stOutputMasses[PhaseId::GAS][ComponentId::C1], stPhaseMasses[PhaseId::GAS]),
+               percentage(stOutputMasses[PhaseId::GAS][ComponentId::C2], stPhaseMasses[PhaseId::GAS]),
+               percentage(stOutputMasses[PhaseId::GAS][ComponentId::C3], stPhaseMasses[PhaseId::GAS]),
+               percentage(stOutputMasses[PhaseId::GAS][ComponentId::C4], stPhaseMasses[PhaseId::GAS]),
+               percentage(stOutputMasses[PhaseId::GAS][ComponentId::C5], stPhaseMasses[PhaseId::GAS]),
+               percentage(stOutputMasses[PhaseId::GAS][ComponentId::N2], stPhaseMasses[PhaseId::GAS]),
+               percentage(stOutputMasses[PhaseId::GAS][ComponentId::COX], stPhaseMasses[PhaseId::GAS]),
+               percentage(outputMasses[PhaseId::GAS][ComponentId::H2S], phaseMasses[PhaseId::GAS]),
+               percentage(stOutputMasses[PhaseId::GAS][ComponentId::C6_MINUS_14SAT], stPhaseMasses[PhaseId::GAS]),
+               percentage(stOutputMasses[PhaseId::GAS][ComponentId::C6_MINUS_14ARO], stPhaseMasses[PhaseId::GAS]),
+               percentage(stOutputMasses[PhaseId::GAS][ComponentId::C15_PLUS_SAT], stPhaseMasses[PhaseId::GAS]),
+               percentage(stOutputMasses[PhaseId::GAS][ComponentId::C15_PLUS_ARO], stPhaseMasses[PhaseId::GAS]),
+               percentage(outputMasses[PhaseId::GAS][ComponentId::LSC], phaseMasses[PhaseId::GAS]),
+               percentage(outputMasses[PhaseId::GAS][ComponentId::C15_PLUS_AT], phaseMasses[PhaseId::GAS]),
+               percentage(outputMasses[PhaseId::GAS][ComponentId::C15_PLUS_ARO_S], phaseMasses[PhaseId::GAS]),
+               percentage(outputMasses[PhaseId::GAS][ComponentId::C15_PLUS_SAT_S], phaseMasses[PhaseId::GAS]),
+               percentage(outputMasses[PhaseId::GAS][ComponentId::C6_MINUS_14BT], phaseMasses[PhaseId::GAS]),
+               percentage(outputMasses[PhaseId::GAS][ComponentId::C6_MINUS_14DBT], phaseMasses[PhaseId::GAS]),
+               percentage(outputMasses[PhaseId::GAS][ComponentId::C6_MINUS_14BP], phaseMasses[PhaseId::GAS]),
+               percentage(outputMasses[PhaseId::GAS][ComponentId::C6_MINUS_14SAT_S], phaseMasses[PhaseId::GAS]),
+               percentage(outputMasses[PhaseId::GAS][ComponentId::C6_MINUS_14ARO_S], phaseMasses[PhaseId::GAS]),
+               percentage(stOutputMasses[PhaseId::GAS][ComponentId::RESIN], stPhaseMasses[PhaseId::GAS]),
+               percentage(stOutputMasses[PhaseId::GAS][ComponentId::ASPHALTENE], stPhaseMasses[PhaseId::GAS]));
          }
       }
       delete trapList;

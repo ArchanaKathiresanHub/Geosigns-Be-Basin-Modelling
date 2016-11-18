@@ -8,12 +8,19 @@
 // Do not distribute without written permission from Shell.
 //
 
-#ifndef _GEOPHYSICS__COMPOUND_LITHOLOGY_H_
-#define _GEOPHYSICS__COMPOUND_LITHOLOGY_H_
+#ifndef GEOPHYSICS__COMPOUND_LITHOLOGY_H
+#define GEOPHYSICS__COMPOUND_LITHOLOGY_H
 
+//std library
 #include <string>
 #include <vector>
+
+// Eospack library
 #include "EosPack.h"
+
+// CBMGenerics library
+#include "ComponentManager.h"
+typedef CBMGenerics::ComponentManager::PhaseId PhaseId;
 
 #include "ArrayDefinitions.h"
 #include "CompoundLithologyComposition.h"
@@ -233,12 +240,12 @@ namespace GeoPhysics {
                                      const double solidThickness) const;
 
       /// \brief Compute capillary pressure.
-      double capillaryPressure(const pvtFlash::PVTPhase phase,
-                               const double             densityBrine,
-                               const double             densityHc,
-                               const double             saturationBrine,
-                               const double             saturationHc,
-                               const double             porosity) const;
+      double capillaryPressure(const PhaseId phase,
+                               const double  densityBrine,
+                               const double  densityHc,
+                               const double  saturationBrine,
+                               const double  saturationHc,
+                               const double  porosity) const;
 
       // compute capillary pressure
       double capillaryPressure(const unsigned int phaseId,

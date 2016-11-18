@@ -8,8 +8,13 @@
 // Do not distribute without written permission from Shell.
 //
 
-#ifndef _MIGRATION_FORMATION_H_
-#define _MIGRATION_FORMATION_H_
+#ifndef MIGRATION_FORMATION_H
+#define MIGRATION_FORMATION_H
+
+// CBMGenerics library
+#include "ComponentManager.h"
+typedef CBMGenerics::ComponentManager::SpeciesNamesId ComponentId;
+typedef CBMGenerics::ComponentManager::PhaseId Phase;
 
 namespace database
 {
@@ -253,7 +258,7 @@ namespace migration
       // Formation property pointer using the derived properties library
       DerivedProperties::FormationPropertyPtr m_formationPropertyPtr[NUMBEROFPROPERTYINDICES];
 
-      GridMap * m_expulsionGridMaps[NUM_COMPONENTS];
+      GridMap * m_expulsionGridMaps[ComponentId::NUMBER_OF_SPECIES];
       int m_index;
 
       // is a detected reservoir formation
@@ -352,4 +357,4 @@ namespace migration
 
 }
 
-#endif // _MIGRATION_FORMATION_H_
+#endif // MIGRATION_FORMATION_H

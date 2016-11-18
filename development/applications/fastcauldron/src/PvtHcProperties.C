@@ -163,7 +163,7 @@ bool PvtHcPropertiesVolumeCalculator::operator ()( const OutputPropertyMap::Outp
 
                // Get components that are to be flashed.
                for ( c = 0; c < NumberOfPVTComponents; ++c ) {
-                  pvtFlash::ComponentId pvtComponent = pvtFlash::ComponentId ( c );
+                  ComponentId pvtComponent = ComponentId ( c );
                   massConcentration ( pvtComponent ) = layerMolarConcentrations ( k, j, i )( pvtComponent );
                }
 
@@ -181,78 +181,78 @@ bool PvtHcPropertiesVolumeCalculator::operator ()( const OutputPropertyMap::Outp
                // Convert to correct units.
                phaseViscosities *= 0.001;
 
-               if ( phaseDensities ( pvtFlash::VAPOUR_PHASE ) == 1000.0 ) {
-                  phaseDensities ( pvtFlash::VAPOUR_PHASE ) = CauldronNoDataValue;
-                  phaseViscosities ( pvtFlash::VAPOUR_PHASE ) = CauldronNoDataValue;
+               if ( phaseDensities ( PhaseId::VAPOUR ) == 1000.0 ) {
+                  phaseDensities  ( PhaseId::VAPOUR ) = CauldronNoDataValue;
+                  phaseViscosities( PhaseId::VAPOUR ) = CauldronNoDataValue;
                }
 
-               if ( phaseDensities ( pvtFlash::LIQUID_PHASE ) == 1000.0 ) {
-                  phaseDensities ( pvtFlash::LIQUID_PHASE ) = CauldronNoDataValue;
-                  phaseViscosities ( pvtFlash::LIQUID_PHASE ) = CauldronNoDataValue;
+               if ( phaseDensities ( PhaseId::LIQUID ) == 1000.0 ) {
+                  phaseDensities  ( PhaseId::LIQUID ) = CauldronNoDataValue;
+                  phaseViscosities( PhaseId::LIQUID ) = CauldronNoDataValue;
                }
 
-               hcDensityMaps [ 0 ]->setValue ( i, j, k, phaseDensities ( pvtFlash::VAPOUR_PHASE ));
-               hcDensityMaps [ 1 ]->setValue ( i, j, k, phaseDensities ( pvtFlash::LIQUID_PHASE ));
+               hcDensityMaps [ 0 ]->setValue ( i, j, k, phaseDensities ( PhaseId::VAPOUR ));
+               hcDensityMaps [ 1 ]->setValue ( i, j, k, phaseDensities ( PhaseId::LIQUID ));
 
-               hcViscosityMaps [ 0 ]->setValue ( i, j, k, phaseViscosities ( pvtFlash::VAPOUR_PHASE ));
-               hcViscosityMaps [ 1 ]->setValue ( i, j, k, phaseViscosities ( pvtFlash::LIQUID_PHASE ));
+               hcViscosityMaps [ 0 ]->setValue ( i, j, k, phaseViscosities ( PhaseId::VAPOUR ));
+               hcViscosityMaps [ 1 ]->setValue ( i, j, k, phaseViscosities ( PhaseId::LIQUID ));
 
                // If last element in row or column or ... then copy value to fill array.
                // Since arrays are the same size as the number of nodes.
                if ( i == grid.getNumberOfXElements () - 1 ) {
-                  hcDensityMaps [ 0 ]->setValue ( i + 1, j, k, phaseDensities ( pvtFlash::VAPOUR_PHASE ));
-                  hcDensityMaps [ 1 ]->setValue ( i + 1, j, k, phaseDensities ( pvtFlash::LIQUID_PHASE ));
+                  hcDensityMaps [ 0 ]->setValue ( i + 1, j, k, phaseDensities ( PhaseId::VAPOUR ));
+                  hcDensityMaps [ 1 ]->setValue ( i + 1, j, k, phaseDensities ( PhaseId::LIQUID ));
 
-                  hcViscosityMaps [ 0 ]->setValue ( i + 1, j, k, phaseViscosities ( pvtFlash::VAPOUR_PHASE ));
-                  hcViscosityMaps [ 1 ]->setValue ( i + 1, j, k, phaseViscosities ( pvtFlash::LIQUID_PHASE ));
+                  hcViscosityMaps [ 0 ]->setValue ( i + 1, j, k, phaseViscosities ( PhaseId::VAPOUR ));
+                  hcViscosityMaps [ 1 ]->setValue ( i + 1, j, k, phaseViscosities ( PhaseId::LIQUID ));
                }
 
                if ( j == grid.getNumberOfYElements () - 1 ) {
-                  hcDensityMaps [ 0 ]->setValue ( i, j + 1, k, phaseDensities ( pvtFlash::VAPOUR_PHASE ));
-                  hcDensityMaps [ 1 ]->setValue ( i, j + 1, k, phaseDensities ( pvtFlash::LIQUID_PHASE ));
+                  hcDensityMaps [ 0 ]->setValue ( i, j + 1, k, phaseDensities ( PhaseId::VAPOUR ));
+                  hcDensityMaps [ 1 ]->setValue ( i, j + 1, k, phaseDensities ( PhaseId::LIQUID ));
 
-                  hcViscosityMaps [ 0 ]->setValue ( i, j + 1, k, phaseViscosities ( pvtFlash::VAPOUR_PHASE ));
-                  hcViscosityMaps [ 1 ]->setValue ( i, j + 1, k, phaseViscosities ( pvtFlash::LIQUID_PHASE ));
+                  hcViscosityMaps [ 0 ]->setValue ( i, j + 1, k, phaseViscosities ( PhaseId::VAPOUR ));
+                  hcViscosityMaps [ 1 ]->setValue ( i, j + 1, k, phaseViscosities ( PhaseId::LIQUID ));
                }
 
                if ( k == grid.getNumberOfZElements () - 1 ) {
-                  hcDensityMaps [ 0 ]->setValue ( i, j, k + 1, phaseDensities ( pvtFlash::VAPOUR_PHASE ));
-                  hcDensityMaps [ 1 ]->setValue ( i, j, k + 1, phaseDensities ( pvtFlash::LIQUID_PHASE ));
+                  hcDensityMaps [ 0 ]->setValue ( i, j, k + 1, phaseDensities ( PhaseId::VAPOUR ));
+                  hcDensityMaps [ 1 ]->setValue ( i, j, k + 1, phaseDensities ( PhaseId::LIQUID ));
 
-                  hcViscosityMaps [ 0 ]->setValue ( i, j, k + 1, phaseViscosities ( pvtFlash::VAPOUR_PHASE ));
-                  hcViscosityMaps [ 1 ]->setValue ( i, j, k + 1, phaseViscosities ( pvtFlash::LIQUID_PHASE ));
+                  hcViscosityMaps [ 0 ]->setValue ( i, j, k + 1, phaseViscosities ( PhaseId::VAPOUR ));
+                  hcViscosityMaps [ 1 ]->setValue ( i, j, k + 1, phaseViscosities ( PhaseId::LIQUID ));
                }
 
                if ( i == grid.getNumberOfXElements () - 1 and j == grid.getNumberOfYElements () - 1 ) {
-                  hcDensityMaps [ 0 ]->setValue ( i + 1, j + 1, k, phaseDensities ( pvtFlash::VAPOUR_PHASE ));
-                  hcDensityMaps [ 1 ]->setValue ( i + 1, j + 1, k, phaseDensities ( pvtFlash::LIQUID_PHASE ));
+                  hcDensityMaps [ 0 ]->setValue ( i + 1, j + 1, k, phaseDensities ( PhaseId::VAPOUR ));
+                  hcDensityMaps [ 1 ]->setValue ( i + 1, j + 1, k, phaseDensities ( PhaseId::LIQUID ));
 
-                  hcViscosityMaps [ 0 ]->setValue ( i + 1, j + 1, k, phaseViscosities ( pvtFlash::VAPOUR_PHASE ));
-                  hcViscosityMaps [ 1 ]->setValue ( i + 1, j + 1, k, phaseViscosities ( pvtFlash::LIQUID_PHASE ));
+                  hcViscosityMaps [ 0 ]->setValue ( i + 1, j + 1, k, phaseViscosities ( PhaseId::VAPOUR ));
+                  hcViscosityMaps [ 1 ]->setValue ( i + 1, j + 1, k, phaseViscosities ( PhaseId::LIQUID ));
                }
 
                if ( i == grid.getNumberOfXElements () - 1 and k == grid.getNumberOfZElements () - 1 ) {
-                  hcDensityMaps [ 0 ]->setValue ( i + 1, j, k + 1, phaseDensities ( pvtFlash::VAPOUR_PHASE ));
-                  hcDensityMaps [ 1 ]->setValue ( i + 1, j, k + 1, phaseDensities ( pvtFlash::LIQUID_PHASE ));
+                  hcDensityMaps [ 0 ]->setValue ( i + 1, j, k + 1, phaseDensities ( PhaseId::VAPOUR ));
+                  hcDensityMaps [ 1 ]->setValue ( i + 1, j, k + 1, phaseDensities ( PhaseId::LIQUID ));
 
-                  hcViscosityMaps [ 0 ]->setValue ( i + 1, j, k + 1, phaseViscosities ( pvtFlash::VAPOUR_PHASE ));
-                  hcViscosityMaps [ 1 ]->setValue ( i + 1, j, k + 1, phaseViscosities ( pvtFlash::LIQUID_PHASE ));
+                  hcViscosityMaps [ 0 ]->setValue ( i + 1, j, k + 1, phaseViscosities ( PhaseId::VAPOUR ));
+                  hcViscosityMaps [ 1 ]->setValue ( i + 1, j, k + 1, phaseViscosities ( PhaseId::LIQUID ));
                }
 
                if ( j == grid.getNumberOfYElements () - 1 and k == grid.getNumberOfZElements () - 1 ) {
-                  hcDensityMaps [ 0 ]->setValue ( i, j + 1, k + 1, phaseDensities ( pvtFlash::VAPOUR_PHASE ));
-                  hcDensityMaps [ 1 ]->setValue ( i, j + 1, k + 1, phaseDensities ( pvtFlash::LIQUID_PHASE ));
+                  hcDensityMaps [ 0 ]->setValue ( i, j + 1, k + 1, phaseDensities ( PhaseId::VAPOUR ));
+                  hcDensityMaps [ 1 ]->setValue ( i, j + 1, k + 1, phaseDensities ( PhaseId::LIQUID ));
 
-                  hcViscosityMaps [ 0 ]->setValue ( i, j + 1, k + 1, phaseViscosities ( pvtFlash::VAPOUR_PHASE ));
-                  hcViscosityMaps [ 1 ]->setValue ( i, j + 1, k + 1, phaseViscosities ( pvtFlash::LIQUID_PHASE ));
+                  hcViscosityMaps [ 0 ]->setValue ( i, j + 1, k + 1, phaseViscosities ( PhaseId::VAPOUR ));
+                  hcViscosityMaps [ 1 ]->setValue ( i, j + 1, k + 1, phaseViscosities ( PhaseId::LIQUID ));
                }
 
                if ( i == grid.getNumberOfXElements () - 1 and j == grid.getNumberOfYElements () - 1 and k == grid.getNumberOfZElements () - 1 ) {
-                  hcDensityMaps [ 0 ]->setValue ( i + 1, j + 1, k + 1, phaseDensities ( pvtFlash::VAPOUR_PHASE ));
-                  hcDensityMaps [ 1 ]->setValue ( i + 1, j + 1, k + 1, phaseDensities ( pvtFlash::LIQUID_PHASE ));
+                  hcDensityMaps [ 0 ]->setValue ( i + 1, j + 1, k + 1, phaseDensities ( PhaseId::VAPOUR ));
+                  hcDensityMaps [ 1 ]->setValue ( i + 1, j + 1, k + 1, phaseDensities ( PhaseId::LIQUID ));
 
-                  hcViscosityMaps [ 0 ]->setValue ( i + 1, j + 1, k + 1, phaseViscosities ( pvtFlash::VAPOUR_PHASE ));
-                  hcViscosityMaps [ 1 ]->setValue ( i + 1, j + 1, k + 1, phaseViscosities ( pvtFlash::LIQUID_PHASE ));
+                  hcViscosityMaps [ 0 ]->setValue ( i + 1, j + 1, k + 1, phaseViscosities ( PhaseId::VAPOUR ));
+                  hcViscosityMaps [ 1 ]->setValue ( i + 1, j + 1, k + 1, phaseViscosities ( PhaseId::LIQUID ));
                }
 
             }

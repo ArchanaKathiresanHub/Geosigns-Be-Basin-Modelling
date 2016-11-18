@@ -18,8 +18,7 @@ using namespace std;
 using namespace CBMGenerics;
 
 
-extern const double MolarWeights[ComponentManager::NumberOfOutputSpecies];
-extern const string TableSpeciesNames[ComponentManager::NumberOfSpecies];
+extern const double MolarWeights[ComponentManager::NUMBER_OF_SPECIES];
 
 extern const string CEPPrefix;
 extern const string MassPrefix;
@@ -27,7 +26,7 @@ extern const string VolumePrefix;
 extern const string DensityPrefix;
 extern const string ViscosityPrefix;
 
-extern const string StockTankPhaseNames[ComponentManager::NumberOfPhases][ComponentManager::NumberOfPhases];
+extern const string StockTankPhaseNames[ComponentManager::NUMBER_OF_PHASES][ComponentManager::NUMBER_OF_PHASES];
 
 extern const double UndefinedValue;
 extern const double StockTankPressure;

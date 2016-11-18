@@ -53,7 +53,6 @@ using Utilities::Maths::MillionYearToSecond;
 #include "ConstantsPhysics.h"
 using Utilities::Physics::AccelerationDueToGravity;
 
-
 //------------------------------------------------------------//
 
 ExplicitMultiComponentFlowSolver::ExplicitMultiComponentFlowSolver ()
@@ -466,7 +465,7 @@ void ExplicitMultiComponentFlowSolver::solve ( Subdomain&   subdomain,
       for ( j = phaseComposition.firstJ ( true ); j <= phaseComposition.lastJ ( true ); ++j ) {
 
          for ( k = phaseComposition.firstK (); k <= phaseComposition.lastK (); ++k ) {
-            kValues ( ii, j, k )( static_cast< pvtFlash::ComponentId >(0)) = -1.0;
+            kValues ( ii, j, k )( static_cast< ComponentId >(0)) = -1.0;
          }
 
       }
@@ -903,16 +902,16 @@ void ExplicitMultiComponentFlowSolver::computePressure ( Subdomain&             
 
 //------------------------------------------------------------//
 
-void ExplicitMultiComponentFlowSolver::computeNumericalFlux ( const SubdomainElement& element,
-                                                              const pvtFlash::PVTPhase  phase,
-                                                              const double            elementFlux,
-                                                              const double            neighbourFlux,
+void ExplicitMultiComponentFlowSolver::computeNumericalFlux ( const SubdomainElement&   element,
+                                                              const PhaseId             phase,
+                                                              const double              elementFlux,
+                                                              const double              neighbourFlux,
                                                               const double              elementPhaseCompositionSum,
                                                               const PVTPhaseComponents& elementComposition,
                                                               const PVTPhaseComponents& neighbourComposition,
-                                                                    PVTComponents&    flux,
-                                                                    double&           transportedMassesIn,
-                                                                    double&           transportedMassesOut ) {
+                                                                    PVTComponents&      flux,
+                                                                    double&             transportedMassesIn,
+                                                                    double&             transportedMassesOut ) {
 
    //
    // Upwinding flux function.
@@ -930,7 +929,7 @@ void ExplicitMultiComponentFlowSolver::computeNumericalFlux ( const SubdomainEle
          double scalar = -elementFlux / elementPhaseCompositionSum;
 
          for ( c = 0; c < NumberOfPVTComponents; ++c ) {
-            pvtFlash::ComponentId component = static_cast<pvtFlash::ComponentId>( c );
+            ComponentId component = static_cast<ComponentId>( c );
             flux ( component ) = scalar * elementComposition ( phase, component ) * m_defaultMolarMasses  ( component );
          }
 
@@ -955,7 +954,7 @@ void ExplicitMultiComponentFlowSolver::computeNumericalFlux ( const SubdomainEle
          double scalar = neighbourFlux / sum;
 
          for ( c = 0; c < NumberOfPVTComponents; ++c ) {
-            pvtFlash::ComponentId component = static_cast<pvtFlash::ComponentId>( c );
+            ComponentId component = static_cast<ComponentId>( c );
             flux ( component ) += scalar * neighbourComposition ( phase, component ) * m_defaultMolarMasses  ( component );
          }
 
@@ -971,7 +970,7 @@ void ExplicitMultiComponentFlowSolver::computeNumericalFlux ( const SubdomainEle
 //------------------------------------------------------------//
 
 void ExplicitMultiComponentFlowSolver::transportComponents ( const SubdomainElement&       element,
-                                                             const pvtFlash::PVTPhase      phase,
+                                                             const PhaseId                 phase,
                                                              const ElementFaceValueVector& elementFluxes,
                                                              const PhaseCompositionArray&  phaseComposition,
                                                                    PVTComponents&          computedConcentrations,
@@ -1108,7 +1107,7 @@ void ExplicitMultiComponentFlowSolver::transportComponents ( FormationSubdomainE
                massTransportedOut = 0.0;
 
                transportComponents ( element,
-                                     pvtFlash::VAPOUR_PHASE,
+                                     PhaseId::VAPOUR,
                                      gasFluxes,
                                      phaseComposition,
                                      computedConcentrations ( i, j, elementK ),
@@ -1116,7 +1115,7 @@ void ExplicitMultiComponentFlowSolver::transportComponents ( FormationSubdomainE
                                      massTransportedOut );
 
                transportComponents ( element,
-                                     pvtFlash::LIQUID_PHASE,
+                                     PhaseId::LIQUID,
                                      oilFluxes,
                                      phaseComposition,
                                      computedConcentrations ( i, j, elementK ),
@@ -1277,7 +1276,7 @@ double ExplicitMultiComponentFlowSolver::computeElementFaceFlux ( const Subdomai
 
 //------------------------------------------------------------//
 
-void ExplicitMultiComponentFlowSolver::computeFluxForPhase ( const pvtFlash::PVTPhase                  phase,
+void ExplicitMultiComponentFlowSolver::computeFluxForPhase ( const PhaseId                             phase,
                                                              const SubdomainElement&                   element,
                                                              const FaceAreaTemporalInterpolator&       faceAreaInterpolator,
                                                                    FiniteElementMethod::FiniteElement& finiteElement,
@@ -1516,15 +1515,15 @@ void ExplicitMultiComponentFlowSolver::computeFluxTerms ( FormationSubdomainElem
             phaseComponents.sum ( phaseMolarConcentrations );
 
             if ( vapourRelativePermeability > 0.0 ) {
-               gasMassDensity = phaseDensities ( i, j, elementK )( pvtFlash::VAPOUR_PHASE );
+               gasMassDensity = phaseDensities ( i, j, elementK )( PhaseId::VAPOUR );
 
-               if ( phaseMolarConcentrations ( pvtFlash::VAPOUR_PHASE ) != 0.0 ) {
+               if ( phaseMolarConcentrations ( PhaseId::VAPOUR ) != 0.0 ) {
 
                   for ( c = 0; c < NumberOfPVTComponents; ++c ) {
-                     pvtFlash::ComponentId component = static_cast<pvtFlash::ComponentId>( c );
+                     ComponentId component = static_cast<ComponentId>( c );
 
                      // fractions (phase-component-moles per total-phase-component-moles).
-                     phaseComponents ( pvtFlash::VAPOUR_PHASE, component ) /= phaseMolarConcentrations ( pvtFlash::VAPOUR_PHASE );
+                     phaseComponents ( PhaseId::VAPOUR, component ) /= phaseMolarConcentrations ( PhaseId::VAPOUR );
                   }
 
                }
@@ -1532,12 +1531,12 @@ void ExplicitMultiComponentFlowSolver::computeFluxTerms ( FormationSubdomainElem
                vapourMolarMass = 0.0;
 
                for ( c = 0; c < NumberOfPVTComponents; ++c ) {
-                  pvtFlash::ComponentId component = static_cast<pvtFlash::ComponentId>( c );
+                  ComponentId component = static_cast<ComponentId>( c );
 
-                  vapourMolarMass += phaseComponents ( pvtFlash::VAPOUR_PHASE, component ) * m_defaultMolarMasses ( component );
+                  vapourMolarMass += phaseComponents ( PhaseId::VAPOUR, component ) * m_defaultMolarMasses ( component );
                }
 
-               computeFluxForPhase ( pvtFlash::VAPOUR_PHASE,
+               computeFluxForPhase ( PhaseId::VAPOUR,
                                      element,
                                      faceAreaInterpolator,
                                      finiteElement,
@@ -1561,15 +1560,15 @@ void ExplicitMultiComponentFlowSolver::computeFluxTerms ( FormationSubdomainElem
 
 
             if ( liquidRelativePermeability > 0.0 ) {
-               oilMassDensity = phaseDensities ( i, j, elementK )( pvtFlash::LIQUID_PHASE );
+               oilMassDensity = phaseDensities ( i, j, elementK )( PhaseId::LIQUID );
 
-               if ( phaseMolarConcentrations ( pvtFlash::LIQUID_PHASE ) != 0.0 ) {
+               if ( phaseMolarConcentrations ( PhaseId::LIQUID ) != 0.0 ) {
 
                   for ( c = 0; c < NumberOfPVTComponents; ++c ) {
-                     pvtFlash::ComponentId component = static_cast<pvtFlash::ComponentId>( c );
+                     ComponentId component = static_cast<ComponentId>( c );
                      
                      // fractions (phase-component-moles per total-phase-component-moles).
-                     phaseComponents ( pvtFlash::LIQUID_PHASE, component ) /= phaseMolarConcentrations ( pvtFlash::LIQUID_PHASE );
+                     phaseComponents ( PhaseId::LIQUID, component ) /= phaseMolarConcentrations ( PhaseId::LIQUID );
                   }
 
                }
@@ -1578,18 +1577,18 @@ void ExplicitMultiComponentFlowSolver::computeFluxTerms ( FormationSubdomainElem
                liquidMolarMass = 0.0;
 
                for ( c = 0; c < NumberOfPVTComponents; ++c ) {
-                  pvtFlash::ComponentId component = static_cast<pvtFlash::ComponentId>( c );
+                  ComponentId component = static_cast<ComponentId>( c );
 
-                     liquidMolarMass += phaseComponents ( pvtFlash::LIQUID_PHASE, component ) * m_defaultMolarMasses ( component );
+                     liquidMolarMass += phaseComponents ( PhaseId::LIQUID, component ) * m_defaultMolarMasses ( component );
                }
 
 
 
-               computeFluxForPhase ( pvtFlash::LIQUID_PHASE,
+               computeFluxForPhase ( PhaseId::LIQUID,
                                      element,
-                                        faceAreaInterpolator,
+                                     faceAreaInterpolator,
                                      finiteElement,
-                                        phaseMolarConcentrations,
+                                     phaseMolarConcentrations,
                                      subdomainLiquidPressure,
                                      depth,
                                      porePressure,
@@ -1599,10 +1598,10 @@ void ExplicitMultiComponentFlowSolver::computeFluxTerms ( FormationSubdomainElem
                                      phaseDensities ( i, j, elementK ),
                                      phaseViscosities ( i, j, elementK ),
                                      elementSaturation,
-                                        liquidRelativePermeability,
+                                     liquidRelativePermeability,
                                      elementPermeabilityN,
                                      elementPermeabilityH,
-                                        permeabilityInterpolator,
+                                     permeabilityInterpolator,
                                      elementOilFlux );
 
                }
@@ -1618,8 +1617,8 @@ void ExplicitMultiComponentFlowSolver::computeFluxTerms ( FormationSubdomainElem
 #if 0
                PVTPhaseValues fluxOut;
 
-               fluxOut ( pvtFlash::LIQUID_PHASE ) = liquidFluxOut;
-               fluxOut ( pvtFlash::VAPOUR_PHASE ) = vapourFluxOut;
+               fluxOut ( PhaseId::LIQUID ) = liquidFluxOut;
+               fluxOut ( PhaseId::VAPOUR ) = vapourFluxOut;
 #endif
 
                if ( vapourFluxOut == 0.0 and liquidFluxOut == 0.0 ) {
@@ -1638,15 +1637,15 @@ void ExplicitMultiComponentFlowSolver::computeFluxTerms ( FormationSubdomainElem
 #endif
 
                   for ( c = 0; c < NumberOfPVTComponents; ++c ) {
-                     pvtFlash::ComponentId component = static_cast<pvtFlash::ComponentId>( c );
+                     ComponentId component = static_cast<ComponentId>( c );
                      // To be entirely correct we should multiply by the molar-masses here.
                      // But then in the loop below (computing the time-step size) we also have to scale by the molar-masses, they cancel out.
                      // So we do neither, to save on some flops.
-                     sumFluxes ( component ) = phaseComponents ( pvtFlash::LIQUID_PHASE, component ) * liquidFluxOut + phaseComponents ( pvtFlash::VAPOUR_PHASE, component ) * vapourFluxOut;
+                     sumFluxes ( component ) = phaseComponents ( PhaseId::LIQUID, component ) * liquidFluxOut + phaseComponents ( PhaseId::VAPOUR, component ) * vapourFluxOut;
                   }
 
                   for ( c = 0; c < NumberOfPVTComponents; ++c ) {
-                     pvtFlash::ComponentId component = static_cast<pvtFlash::ComponentId>( c );
+                     ComponentId component = static_cast<ComponentId>( c );
 
                      if ( sumFluxes ( component ) > 0.0 ) {
                            elementTimeStep = FastcauldronSimulator::getInstance ().getMcfHandler ().adaptiveTimeStepFraction () * elementVolume * composition ( component ) / sumFluxes ( component );
@@ -2440,7 +2439,7 @@ void ExplicitMultiComponentFlowSolver::averageGlobalSaturation ( Subdomain& subd
    if ( elementContainsHc ) {
 
       for ( int c = 0; c < NumberOfPVTComponents; ++c ) {
-         pvtFlash::ComponentId component = static_cast<pvtFlash::ComponentId>( c );
+         ComponentId component = static_cast<ComponentId>( c );
          phaseMolarMass += composition ( component ) * m_defaultMolarMasses ( component );
          }
 

@@ -209,13 +209,13 @@ void GenexSimulator::setRequestedSpeciesOutputProperties()
    using namespace CBMGenerics;
    ComponentManager & theManager = ComponentManager::getInstance();
 
-   for (int i = 0; i < ComponentManager::NumberOfOutputSpecies; ++i ) {
+   for (int i = 0; i < ComponentManager::NUMBER_OF_SPECIES; ++i ) {
       if(!theManager.isSulphurComponent(i)) {
-         m_expelledToCarrierBedProperties.push_back ( theManager.GetSpeciesOutputPropertyName ( i, false ));
-         m_expelledToSourceRockProperties.push_back ( theManager.GetSpeciesOutputPropertyName ( i, true ));
+         m_expelledToCarrierBedProperties.push_back ( theManager.getSpeciesOutputPropertyName ( i, false ));
+         m_expelledToSourceRockProperties.push_back ( theManager.getSpeciesOutputPropertyName ( i, true ));
       } 
-      m_expelledToCarrierBedPropertiesS.push_back ( theManager.GetSpeciesOutputPropertyName ( i, false ));
-      m_expelledToSourceRockPropertiesS.push_back ( theManager.GetSpeciesOutputPropertyName ( i, true ));
+      m_expelledToCarrierBedPropertiesS.push_back ( theManager.getSpeciesOutputPropertyName ( i, false ));
+      m_expelledToSourceRockPropertiesS.push_back ( theManager.getSpeciesOutputPropertyName ( i, true ));
    }
 
    sort ( m_expelledToSourceRockProperties.begin (), m_expelledToSourceRockProperties.end ());
@@ -286,12 +286,12 @@ void GenexSimulator::registerProperties()
    
    int i;
 
-   for (i = 0; i < ComponentManager::NumberOfOutputSpecies; ++i ) {
-      m_registeredProperties.push_back(theManager.GetSpeciesOutputPropertyName ( i, false ));
+   for (i = 0; i < ComponentManager::NUMBER_OF_SPECIES; ++i ) {
+      m_registeredProperties.push_back(theManager.getSpeciesOutputPropertyName ( i, false ));
    }
 
-   for (i = 0; i < ComponentManager::NumberOfOutputSpecies; ++i ) {
-      m_registeredProperties.push_back(theManager.GetSpeciesOutputPropertyName ( i, true ));
+   for (i = 0; i < ComponentManager::NUMBER_OF_SPECIES; ++i ) {
+      m_registeredProperties.push_back(theManager.getSpeciesOutputPropertyName ( i, true ));
    }
 
    for(i = 0; i < GenexResultManager::NumberOfResults; ++ i) {
@@ -299,12 +299,12 @@ void GenexSimulator::registerProperties()
    }  
    
    // Adding all possible species that can be used in the adsorption process.
-   for (i = 0; i < ComponentManager::NumberOfOutputSpecies; ++i)
+   for (i = 0; i < ComponentManager::NUMBER_OF_SPECIES; ++i)
    {
-      m_registeredProperties.push_back ( theManager.GetSpeciesName ( i ) + "Retained" );
-      m_registeredProperties.push_back ( theManager.GetSpeciesName ( i ) + "Adsorped" );
-      m_registeredProperties.push_back ( theManager.GetSpeciesName ( i ) + "AdsorpedExpelled" );
-      m_registeredProperties.push_back ( theManager.GetSpeciesName ( i ) + "AdsorpedFree" );
+      m_registeredProperties.push_back ( theManager.getSpeciesName ( i ) + "Retained" );
+      m_registeredProperties.push_back ( theManager.getSpeciesName ( i ) + "Adsorped" );
+      m_registeredProperties.push_back ( theManager.getSpeciesName ( i ) + "AdsorpedExpelled" );
+      m_registeredProperties.push_back ( theManager.getSpeciesName ( i ) + "AdsorpedFree" );
    }
 
    // Should these properties be part of the genex-result manager?

@@ -73,7 +73,7 @@ Genex6::GenexHistory::HistoryItem::HistoryItem () {
    m_HC = 0;
    m_OC = 0;
    
-   for(i = 0; i <  CBMGenerics::ComponentManager::NumberOfOutputSpecies; ++ i ) {
+   for(i = 0; i <  ComponentId::NUMBER_OF_SPECIES; ++ i ) {
       m_speciesGeneratedRate[i] = 0;
       m_speciesGeneratedCum[i] = 0;
       m_speciesExpelledRate[i] = 0;
@@ -91,7 +91,7 @@ Genex6::GenexHistory::HistoryItem::HistoryItem () {
 void Genex6::GenexHistory::mapComponentManagerSpeciesIdToOutputOrder () {
    int i;
 
-   for( i = 0; i < CBMGenerics::ComponentManager::NumberOfOutputSpecies; ++ i ) {
+   for( i = 0; i < ComponentId::NUMBER_OF_SPECIES; ++ i ) {
       SpeciesOutputOrder[SpeciesOutputId[i]] = i;
    }
 }
@@ -114,7 +114,7 @@ void Genex6::GenexHistory::collect ( Genex6::SourceRockNode* node ) {
       hist->m_ves = nodeInput->GetPressure ();
       hist->m_toc = simulatorState->getCurrentToc ();
  
-      for ( int id = 0; id < pvtFlash::NUM_COMPONENTS; ++id ) {
+      for ( int id = 0; id < ComponentId::NUMBER_OF_SPECIES; ++id ) {
 
          CBMGenerics::ComponentManager::SpeciesNamesId componentManagerId = CBMGenerics::ComponentManager::SpeciesNamesId ( id );
 
@@ -190,9 +190,9 @@ void Genex6::GenexHistory::writeComponentsNames ( std::ostream& str ) {
 
    CBMGenerics::ComponentManager::SpeciesNamesId componentManagerId;
 
-   for ( int id = 0; id < pvtFlash::NUM_COMPONENTS; ++id ) {
+   for ( int id = 0; id < ComponentId::NUMBER_OF_SPECIES; ++id ) {
       componentManagerId = CBMGenerics::ComponentManager::SpeciesNamesId ( id );  
-      str << setw ( 30 ) << pvtFlash::ComponentIdNames [  Genex6::SpeciesOutputId[componentManagerId] ];
+      str << setw ( 30 ) << CBMGenerics::ComponentManager::getInstance().getSpeciesNameHistory( Genex6::SpeciesOutputId[componentManagerId] );
    }
 }
 
@@ -228,16 +228,16 @@ void Genex6::GenexHistory::write ( std::ostream& str ) {
        << setw ( 21 ) << " "
        << setw ( 21 ) << " ";
 
-   writeHeaderName( str, pvtFlash::NUM_COMPONENTS, "Species Generated Rate" );
+   writeHeaderName( str, ComponentId::NUMBER_OF_SPECIES, "Species Generated Rate" );
    writeHeaderName( str, NumberOfGroups, "Fraction Generated Rate" );
 
-   writeHeaderName( str, pvtFlash::NUM_COMPONENTS, "Species Generated Cumulative" );
+   writeHeaderName( str, ComponentId::NUMBER_OF_SPECIES, "Species Generated Cumulative" );
    writeHeaderName( str, NumberOfGroups, "Fraction Generated Cumulative" );
 
-   writeHeaderName( str, pvtFlash::NUM_COMPONENTS, "Species Expelled Rate" );
+   writeHeaderName( str, ComponentId::NUMBER_OF_SPECIES, "Species Expelled Rate" );
    writeHeaderName( str, NumberOfGroups, "Fraction Expelled Rate" );
 
-   writeHeaderName( str, pvtFlash::NUM_COMPONENTS, "Species Expelled Cumulative" );
+   writeHeaderName( str, ComponentId::NUMBER_OF_SPECIES, "Species Expelled Cumulative" );
    writeHeaderName( str, NumberOfGroups, "Fraction Expelled Cumulative" );
 
    str << setw ( 30 ) << "Kerogen Conversion Ratio";
@@ -320,22 +320,22 @@ void Genex6::GenexHistory::write ( std::ostream& str ) {
        << setw ( 21 ) << "MPa";
 
    //------- Generated Rate -------//
-   for ( id = 0; id < pvtFlash::NUM_COMPONENTS + NumberOfGroups; ++id ) {
+   for ( id = 0; id < ComponentId::NUMBER_OF_SPECIES + NumberOfGroups; ++id ) {
       str << setw ( 30 ) << "kg/m2/Ma";
    }
 
    //------- Generated Cumulative -------//
-   for ( id = 0; id < pvtFlash::NUM_COMPONENTS + NumberOfGroups; ++id ) {
+   for ( id = 0; id < ComponentId::NUMBER_OF_SPECIES + NumberOfGroups; ++id ) {
       str << setw ( 30 ) << "kg/m2";
    }
 
    //------- Expelled Rate -------//
-   for ( id = 0; id < pvtFlash::NUM_COMPONENTS + NumberOfGroups; ++id ) {
+   for ( id = 0; id < ComponentId::NUMBER_OF_SPECIES + NumberOfGroups; ++id ) {
       str << setw ( 30 ) << "kg/m2/Ma";
    }
 
    //------- Expelled Cumulative -------//
-   for ( id = 0; id < pvtFlash::NUM_COMPONENTS + NumberOfGroups; ++id ) {
+   for ( id = 0; id < ComponentId::NUMBER_OF_SPECIES + NumberOfGroups; ++id ) {
       str << setw ( 30 ) << "kg/m2";
    }
 
@@ -374,28 +374,28 @@ void Genex6::GenexHistory::write ( std::ostream& str ) {
           << std::setw ( 21 ) << hist->m_pressure
           << std::setw ( 21 ) << hist->m_ves;
  
-      for ( id = 0; id < pvtFlash::NUM_COMPONENTS; ++id ) {
+      for ( id = 0; id < ComponentId::NUMBER_OF_SPECIES; ++id ) {
          str << setw ( 30 ) << hist->m_speciesGeneratedRate [ id ];
       }
       for ( id = 0; id < NumberOfGroups; ++id ) {
          str << setw ( 30 ) << hist->m_fractionGeneratedRate [ id ];
       }
 
-      for ( id = 0; id < pvtFlash::NUM_COMPONENTS; ++id ) {
+      for ( id = 0; id < ComponentId::NUMBER_OF_SPECIES; ++id ) {
          str << setw ( 30 ) << hist->m_speciesGeneratedCum [ id ];
       }
       for ( id = 0; id < NumberOfGroups; ++id ) {
          str << setw ( 30 ) << hist->m_fractionGeneratedCum [ id ];
       }
 
-      for ( id = 0; id < pvtFlash::NUM_COMPONENTS; ++id ) {
+      for ( id = 0; id < ComponentId::NUMBER_OF_SPECIES; ++id ) {
          str << setw ( 30 ) << hist->m_speciesExpelledRate [ id ];
       }
       for ( id = 0; id < NumberOfGroups; ++id ) {
          str << setw ( 30 ) << hist->m_fractionExpelledRate [ id ];
       }
 
-      for ( id = 0; id < pvtFlash::NUM_COMPONENTS; ++id ) {
+      for ( id = 0; id < ComponentId::NUMBER_OF_SPECIES; ++id ) {
          str << setw ( 30 ) << hist->m_speciesExpelledCum [ id ];
       }
       for ( id = 0; id < NumberOfGroups; ++id ) {

@@ -1,12 +1,27 @@
-#ifndef _GENEX6__SPECIES_MANAGER_H_
-#define _GENEX6__SPECIES_MANAGER_H_
+//
+// Copyright (C) 2012-2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+#ifndef GENEX6__SPECIES_MANAGER_H
+#define GENEX6__SPECIES_MANAGER_H
 
+// std library
 #include <iostream>
 #include <string>
 
+// Eospack library
 #include "EosPack.h"
-#include "ComponentManager.h"
 
+// CBMGenerics library
+#include "ComponentManager.h"
+typedef CBMGenerics::ComponentManager::SpeciesNamesId ComponentId;
+
+// utilities library
 #include "NumericFunctions.h"
 
 namespace Genex6
@@ -169,10 +184,10 @@ namespace Genex6
       ///
       /// id must be in range 1 .. speciesManager.numberOfSpecies.
       /// If there is no corresponding pvt-species-id then pvtFlash::UNKNOWN will be returned.
-      pvtFlash::ComponentId mapIdToPvtComponents ( const int id ) const;
+      ComponentId mapIdToPvtComponents ( const int id ) const;
 
       /// \brief Maps the pvt-flash::component-id to the species-manager-id.
-      int mapPvtComponentsToId ( const pvtFlash::ComponentId component ) const;
+      int mapPvtComponentsToId ( const ComponentId component ) const;
 
       /// \brief Maps the species-manager-id to the component-manager::species-names-id.
       ///
@@ -224,8 +239,8 @@ namespace Genex6
       // Id's for species.
       int Lkerogen;
       int Lpreasphalt;
-      int Lasphaltenes;
-      int Lresins;
+      int Lasphaltene;
+      int Lresin;
       int Lprecoke;
       int Lcoke1;
       int Lcoke2;
@@ -263,9 +278,9 @@ namespace Genex6
       /// \brief Mapping from the species-id to pvt-species-id.
       ///
       /// If there is no corresponding pvt-species-id then UNKNOWN will be used.
-      pvtFlash::ComponentId s_mappingToPvtComponents [ numberOfSpecies + 1 ];
+      ComponentId s_mappingToPvtComponents [ numberOfSpecies + 1 ];
 
-      int s_mappingFromPvtComponents [ pvtFlash::NUM_COMPONENTS ];
+      int s_mappingFromPvtComponents [ ComponentId::NUMBER_OF_SPECIES ];
 
       /// \brief Mapping from the species-id to component-manager-species-id.
       ///
@@ -273,7 +288,7 @@ namespace Genex6
       CBMGenerics::ComponentManager::SpeciesNamesId s_mappingToComponentManagerSpecies [ numberOfSpecies + 1 ];
 
       /// \brief Mapping from the component-manager-species-id to species-id.
-      int s_mappingFromComponentManagerSpecies [ CBMGenerics::ComponentManager::NumberOfSpecies ];
+      int s_mappingFromComponentManagerSpecies [ ComponentId::NUMBER_OF_SPECIES ];
 
       std::string s_idNames [ numberOfSpecies + 2 ];
 
@@ -300,19 +315,19 @@ inline int Genex6::SpeciesManager::getNumberOfElements () const {
 }
 
 
-inline pvtFlash::ComponentId Genex6::SpeciesManager::mapIdToPvtComponents ( const int id ) const {
+inline ComponentId Genex6::SpeciesManager::mapIdToPvtComponents ( const int id ) const {
 
    if ( NumericFunctions::inRange ( id, 1, getNumberOfSpecies ())) {
       return s_mappingToPvtComponents [ id - 0 ];
    } else {
-      return pvtFlash::UNKNOWN;
+      return ComponentId::UNKNOWN;
    }
 
 }
 
-inline int Genex6::SpeciesManager::mapPvtComponentsToId ( const pvtFlash::ComponentId component ) const {
+inline int Genex6::SpeciesManager::mapPvtComponentsToId ( const ComponentId component ) const {
 
-   if ( component != pvtFlash::UNKNOWN ) {
+   if ( component != ComponentId::UNKNOWN ) {
       return s_mappingFromPvtComponents [ static_cast<int>(component)];
    } else {
       return -1;
@@ -373,11 +388,11 @@ inline int Genex6::SpeciesManager::getPreasphaltId () const {
 }
 
 inline int Genex6::SpeciesManager::getAsphaltenesId () const {
-   return Lasphaltenes;
+   return Lasphaltene;
 }
 
 inline int Genex6::SpeciesManager::getResinsId () const {
-   return Lresins;
+   return Lresin;
 }
 
 inline int Genex6::SpeciesManager::getPrecokeId () const {
@@ -499,6 +514,4 @@ inline const std::string& Genex6::SpeciesManager::getSpeciesName ( const int id 
 }
 
 
-//------------------------------------------------------------//
-
-#endif // _GENEX6__SPECIES_MANAGER_H_
+#endif // GENEX6__SPECIES_MANAGER_H

@@ -1,8 +1,25 @@
-#ifndef _GENEX6_KERNEL__PVT_CALCULATOR_H_
-#define _GENEX6_KERNEL__PVT_CALCULATOR_H_
+//
+// Copyright (C) 2012-2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+#ifndef GENEX6_KERNEL__PVT_CALCULATOR_H
+#define GENEX6_KERNEL__PVT_CALCULATOR_H
 
+// std library
 #include <string>
+
+// Eospack library
 #include "EosPack.h"
+
+// CBMGenerics library
+#include "ComponentManager.h"
+typedef CBMGenerics::ComponentManager::PhaseId PhaseId;
+typedef CBMGenerics::ComponentManager::SpeciesNamesId ComponentId;
 
 namespace Genex6 {
 
@@ -20,10 +37,10 @@ namespace Genex6 {
       PVTComponents ();
 
       /// \brief Accessor.
-      double  operator ()( const pvtFlash::ComponentId id ) const;
+      double  operator ()( const ComponentId id ) const;
 
       /// \brief Accessor.
-      double& operator ()( const pvtFlash::ComponentId id );
+      double& operator ()( const ComponentId id );
 
       /// \brief Set all concentrations to zero.
       void zero ();
@@ -48,7 +65,7 @@ namespace Genex6 {
 
       friend class PVTCalc;
 
-      double m_components [ pvtFlash::NUM_COMPONENTS ];
+      double m_components [ComponentId::NUMBER_OF_SPECIES];
 
    };
 
@@ -61,28 +78,28 @@ namespace Genex6 {
       PVTComponentMasses ();
 
       /// \brief Accessor.
-      double  operator ()( const pvtFlash::PVTPhase    phase,
-                           const pvtFlash::ComponentId id ) const;
+      double  operator ()( const PhaseId     phase,
+                           const ComponentId id ) const;
 
       /// \brief Accessor.
-      double& operator ()( const pvtFlash::PVTPhase    phase,
-                           const pvtFlash::ComponentId id );
+      double& operator ()( const PhaseId     phase,
+                           const ComponentId id );
 
       /// \brief Set all consentrations to zero.
       void zero ();
 
       /// \brief Summ all concentrations of a particular phase.
-      double sum ( const pvtFlash::PVTPhase phase ) const;
+      double sum ( const PhaseId phase ) const;
 
       /// \brief Increment the concentrations.
       PVTComponentMasses& operator+=( const PVTComponentMasses& components );
 
       /// \brief Get the concentrations for a particular phase.
-      void getPhaseComponents ( const pvtFlash::PVTPhase phase,
-                                      PVTComponents&     components ) const;
+      void getPhaseComponents ( const PhaseId        phase,
+                                      PVTComponents& components ) const;
 
       /// \brief Get the concentrations for a particular phase.
-      PVTComponents getPhaseComponents ( const pvtFlash::PVTPhase phase ) const;
+      PVTComponents getPhaseComponents ( const PhaseId phase ) const;
 
       /// \brief Return the string representation of the concentrations.
       std::string image () const;
@@ -91,7 +108,7 @@ namespace Genex6 {
 
       friend class PVTCalc;
 
-      double m_masses [ pvtFlash::N_PHASES ][ CBMGenerics::ComponentManager::NumberOfOutputSpecies ];
+      double m_masses [ PhaseId::NUMBER_OF_PHASES][ ComponentId::NUMBER_OF_SPECIES ];
 
    };
 
@@ -103,10 +120,10 @@ namespace Genex6 {
       PVTPhaseValues ();
 
       /// \brief Accessor.
-      double  operator ()( const pvtFlash::PVTPhase phase ) const;
+      double  operator ()( const PhaseId phase ) const;
 
       /// \brief Accessor.
-      double& operator ()( const pvtFlash::PVTPhase phase );
+      double& operator ()( const PhaseId phase );
 
       /// \brief Set phases to zero.
       void zero ();
@@ -119,7 +136,7 @@ namespace Genex6 {
 
       friend class PVTCalc;
 
-      double m_values [ pvtFlash::N_PHASES ];
+      double m_values [PhaseId::NUMBER_OF_PHASES];
 
    };
 
@@ -155,31 +172,31 @@ namespace Genex6 {
 //------------------------------------------------------------//
 
 
-inline double Genex6::PVTComponents::operator ()( const pvtFlash::ComponentId id ) const {
+inline double Genex6::PVTComponents::operator ()( const ComponentId id ) const {
    return m_components [ id ];
 }
 
-inline double& Genex6::PVTComponents::operator ()( const pvtFlash::ComponentId id ) {
+inline double& Genex6::PVTComponents::operator ()( const ComponentId id ) {
    return m_components [ id ];
 }
 
-inline double Genex6::PVTComponentMasses::operator ()( const pvtFlash::PVTPhase    phase,
-                                                       const pvtFlash::ComponentId id ) const {
+inline double Genex6::PVTComponentMasses::operator ()( const PhaseId     phase,
+                                                       const ComponentId id ) const {
    return m_masses [ phase ][ id ];
 }
 
-inline double& Genex6::PVTComponentMasses::operator ()( const pvtFlash::PVTPhase    phase,
-                                                        const pvtFlash::ComponentId id ) {
+inline double& Genex6::PVTComponentMasses::operator ()( const PhaseId     phase,
+                                                        const ComponentId id ) {
    return m_masses [ phase ][ id ];
 }
 
-inline double Genex6::PVTPhaseValues::operator ()( const pvtFlash::PVTPhase phase ) const {
+inline double Genex6::PVTPhaseValues::operator ()( const PhaseId phase ) const {
    return m_values [ phase ];
 }
 
-inline double& Genex6::PVTPhaseValues::operator ()( const pvtFlash::PVTPhase phase ) {
+inline double& Genex6::PVTPhaseValues::operator ()( const PhaseId phase ) {
    return m_values [ phase ];
 }
 
 
-#endif // _GENEX6_KERNEL__PVT_CALCULATOR_H_
+#endif // GENEX6_KERNEL__PVT_CALCULATOR_H

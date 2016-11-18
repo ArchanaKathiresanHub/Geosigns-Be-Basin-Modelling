@@ -205,7 +205,7 @@ bool FluidPropertyVolumeCalculator::operator ()( const OutputPropertyMap::Output
                         // Get components that are to be flashed.
                         for ( unsigned int c = 0; c < NumberOfPVTComponents; ++c )
                            {
-                              pvtFlash::ComponentId pvtComponent = pvtFlash::ComponentId ( c );
+                              ComponentId pvtComponent = ComponentId ( c );
                               massConcentration ( pvtComponent ) = layerMolarConcentrations ( k, j, i )( pvtComponent );
                            }
                         
@@ -223,8 +223,8 @@ bool FluidPropertyVolumeCalculator::operator ()( const OutputPropertyMap::Output
                         //=============Standard P/T  conditions ==============//
                         
 
-                        vapourComponents = phaseComposition.getPhaseComponents(pvtFlash::VAPOUR_PHASE );
-                        liquidComponents = phaseComposition.getPhaseComponents(pvtFlash::LIQUID_PHASE );
+                        vapourComponents = phaseComposition.getPhaseComponents(PhaseId::VAPOUR );
+                        liquidComponents = phaseComposition.getPhaseComponents(PhaseId::LIQUID );
 
                         pvtFlash::EosPack::getInstance ().computeWithLumping ( standardTemperature, standardPressure,
                                                                                vapourComponents.m_components,
@@ -233,24 +233,24 @@ bool FluidPropertyVolumeCalculator::operator ()( const OutputPropertyMap::Output
                                                                                phaseViscosities.m_values );
 
                         //Vapour Gas ?
-                        if ( phaseDensities ( pvtFlash::VAPOUR_PHASE ) == 1000.0 ) {
+                        if ( phaseDensities ( PhaseId::VAPOUR ) == 1000.0 ) {
                            // If there is no vapour then pvt returns 1000 for the density.
                            freeGasVolume = 0.0;
                         } else {
-                           freeGasVolume = phaseComposition.sum ( pvtFlash::VAPOUR_PHASE ) / phaseDensities ( pvtFlash::VAPOUR_PHASE );
+                           freeGasVolume = phaseComposition.sum ( PhaseId::VAPOUR ) / phaseDensities ( PhaseId::VAPOUR );
                         }
 
-                        if ( phaseDensities ( pvtFlash::LIQUID_PHASE ) == 1000.0 ) {
+                        if ( phaseDensities ( PhaseId::LIQUID ) == 1000.0 ) {
                            // If there is no liquid then pvt returns 1000 for the density.
                            condensateVolume = 0.0;
                         } else {
-                           condensateVolume = phaseComposition.sum ( pvtFlash::LIQUID_PHASE ) / phaseDensities ( pvtFlash::LIQUID_PHASE );
+                           condensateVolume = phaseComposition.sum ( PhaseId::LIQUID ) / phaseDensities ( PhaseId::LIQUID );
                         }
                         
                         //CondensateAPI
-                        if ( phaseDensities ( pvtFlash::LIQUID_PHASE ) != 1000.0 )
+                        if ( phaseDensities ( PhaseId::LIQUID ) != 1000.0 )
                         {
-                           condensateApi = 141.5 / phaseDensities ( pvtFlash::LIQUID_PHASE ) * 1000.0 - 131.5;
+                           condensateApi = 141.5 / phaseDensities ( PhaseId::LIQUID ) * 1000.0 - 131.5;
                               
                            if ( condensateApi < 1.99 )
                            {
@@ -285,24 +285,24 @@ bool FluidPropertyVolumeCalculator::operator ()( const OutputPropertyMap::Output
                                                                                phaseViscosities.m_values );
 
                         //Liquid Gas ??
-                        if ( phaseDensities ( pvtFlash::VAPOUR_PHASE ) == 1000.0 ) {
+                        if ( phaseDensities ( PhaseId::VAPOUR ) == 1000.0 ) {
                            // If there is no vapour then pvt returns 1000 for the density.
                            solutionGasVolume = 0.0;
                         } else {
-                           solutionGasVolume = phaseComposition.sum ( pvtFlash::VAPOUR_PHASE ) / phaseDensities ( pvtFlash::VAPOUR_PHASE );
+                           solutionGasVolume = phaseComposition.sum ( PhaseId::VAPOUR ) / phaseDensities ( PhaseId::VAPOUR );
                         }
 
-                        if ( phaseDensities ( pvtFlash::LIQUID_PHASE ) == 1000.0 ) {
+                        if ( phaseDensities ( PhaseId::LIQUID ) == 1000.0 ) {
                            // If there is no liquid then pvt returns 1000 for the density.
                            liquidOilVolume = 0.0;
                         } else {
-                           liquidOilVolume = phaseComposition.sum ( pvtFlash::LIQUID_PHASE ) / phaseDensities ( pvtFlash::LIQUID_PHASE );
+                           liquidOilVolume = phaseComposition.sum ( PhaseId::LIQUID ) / phaseDensities ( PhaseId::LIQUID );
                         }
                         
                         //OilAPI 
-                        if ( phaseDensities ( pvtFlash::LIQUID_PHASE ) != 1000.0 )
+                        if ( phaseDensities ( PhaseId::LIQUID ) != 1000.0 )
                         {
-                           oilApi = 141.5 / phaseDensities ( pvtFlash::LIQUID_PHASE ) * 1000.0 - 131.5;
+                           oilApi = 141.5 / phaseDensities ( PhaseId::LIQUID ) * 1000.0 - 131.5;
                            
                            if ( oilApi < 1.99 )
                            {

@@ -1,3 +1,12 @@
+//
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
 #ifndef _GENEX6_KERNEL__OTGC_C1_ADSORPTION_SIMULATOR_H_
 #define _GENEX6_KERNEL__OTGC_C1_ADSORPTION_SIMULATOR_H_
 
@@ -69,7 +78,7 @@ namespace Genex6 {
 
       static const double AdsorptionPorosityThreshold;
 
-      static const bool s_speciesIsSimulated  [ CBMGenerics::ComponentManager::NumberOfOutputSpecies ];
+      static const bool s_speciesIsSimulated  [ ComponentId::NUMBER_OF_SPECIES ];
 
       static const std::string s_c1Name;
       static const std::string s_nullString;

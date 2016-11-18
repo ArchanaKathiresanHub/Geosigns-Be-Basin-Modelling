@@ -8,19 +8,14 @@
 // Do not distribute without written permission from Shell.
 //
 
-#ifndef _INTERFACE_H_
-#define _INTERFACE_H_
+#ifndef INTERFACE_H
+#define INTERFACE_H
 
 #include <vector>
 #include <string>
 using namespace std;
 
 #include <boost/shared_ptr.hpp>
-
-// V.R. Ambati (25/07/2011)
-// typedef's are not needed at the moment.
-//typedef int PetscInt;
-//typedef int PetscMPIInt;
 
 namespace ddd
 {
@@ -225,44 +220,6 @@ namespace DataAccess
       const int MINOR = 0x2;
 
       enum InputValueType { PropertyMap, FaultMap };
-
-      /// Ids for the gas and oil phase
-      enum PhaseId {
-         Gas = 0, Oil, NumPhases
-      };
-
-      /// Ids for all the hydrocarbon components used.
-      enum ComponentId
-      {
-         FIRST_COMPONENT = 0,
-         ASPHALTENES = 0,
-         RESINS = 1,
-         C15_ARO = 2,
-         C15_SAT = 3,
-         C6_14ARO = 4,
-         C6_14SAT = 5,
-         C5 = 6,
-         C4 = 7,
-         C3 = 8,
-         C2 = 9,
-         C1 = 10,
-         COX = 11,
-         N2 = 12,
-         H2S = 13,
-         LSC = 14,
-         C15_AT = 15,
-         C6_14BT = 16,
-         C6_14DBT = 17,
-         C6_14BP = 18,
-         C15_AROS = 19,
-         C15_SATS = 20,
-         C6_14SATS = 21,
-         C6_14AROS = 22,
-         LAST_COMPONENT = 22,
-         UNKNOWN = 23,
-         NUM_COMPONENTS = 23
-
-      };
 
       /// \brief Indicates the model method of mixing the lithologies in a layer.
       enum MixModelType { UNDEFINED, HOMOGENEOUS, LAYERED };
@@ -608,15 +565,6 @@ namespace DataAccess
       class Trapper;
       class Migration;
 
-
-      /*
-      /// list type for FaultCollections
-      typedef vector<FaultCollection *> FaultCollectionList;
-
-      /// list type for Faults
-      typedef vector<Fault *> FaultList;
-      */
-
       /// mutable list type for the snapshots
       typedef vector<Snapshot *> MutableSnapshotList;
       /// mutable list type for the lithotypes
@@ -798,4 +746,4 @@ inline double DataAccess::Interface::AddConstant::operator ()( const double oper
 }
 
 
-#endif // _Interface_H_
+#endif // Interface_H

@@ -42,7 +42,7 @@ target_link_libraries( CBMGenerics
 
 install(TARGETS CBMGenerics
    RUNTIME DESTINATION bin
-   LIBRARY	DESTINATION lib
+   LIBRARY DESTINATION lib
    ARCHIVE DESTINATION lib
 )
 

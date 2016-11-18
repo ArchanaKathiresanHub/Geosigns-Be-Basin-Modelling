@@ -676,8 +676,8 @@ bool ChemicalModel::Validate() const
    }
 #endif
    
-   for(i = 0, speciesId = 1; i < ComponentManager::NumberOfOutputSpecies; ++i, ++ speciesId) {
-      Species *theSpecies = (GetByNameSpecies(theManager.GetSpeciesName(i)));  
+   for(i = 0, speciesId = 1; i < ComponentManager::NUMBER_OF_SPECIES; ++i, ++ speciesId) {
+      Species *theSpecies = (GetByNameSpecies(theManager.getSpeciesName(i)));  
 
       // status = (theSpecies == 0) ? false : theSpecies->validate();
       if( theSpecies != 0 ) { // to support GX5 and GX6 configuration files (different species)
@@ -761,8 +761,8 @@ void ChemicalModel::SetTheOutputSpecies()
 {
    using namespace CBMGenerics;
    ComponentManager & theManager = ComponentManager::getInstance();
-   for(int i = 0; i < ComponentManager::NumberOfOutputSpecies; ++i) {
-      Species *theSpecies = GetByNameSpecies(theManager.GetSpeciesName(i));
+   for(int i = 0; i < ComponentManager::NUMBER_OF_SPECIES; ++i) {
+      Species *theSpecies = GetByNameSpecies(theManager.getSpeciesName(i));
       if(theSpecies) {
          theSpecies->OutputResults(true);
       }
