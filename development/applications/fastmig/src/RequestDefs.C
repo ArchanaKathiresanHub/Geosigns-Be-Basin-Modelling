@@ -38,7 +38,7 @@ namespace migration
       ColumnValueArrayRequest cva;
       ColumnColumnRequest c2;
       ColumnCompositionRequest cc;
-	  ColumnCompositionPositionRequest ccp;
+      ColumnCompositionPositionRequest ccp;
       TrapPropertiesRequest tp;
       MigrationRequest m;
 
@@ -169,43 +169,43 @@ namespace migration
       MPI_Type_create_struct (index, blockSizes, offsets, types, &ColumnCompositionType);
       MPI_Type_commit (&ColumnCompositionType);
 
-	  //*****************************************
-	  // ColumnCompositionPositionRequest
-	  index = baseIndex;
-	  MPI_Get_address(&ccp, &baseAddress);
+      //*****************************************
+      // ColumnCompositionPositionRequest
+      index = baseIndex;
+      MPI_Get_address(&ccp, &baseAddress);
 
-	  MPI_Get_address(&ccp.phase, &offsetAddress);
-	  offsets[index] = offsetAddress - baseAddress;
-	  types[index] = MPI_INT;
-	  blockSizes[index] = 1;
-	  ++index;
+      MPI_Get_address(&ccp.phase, &offsetAddress);
+      offsets[index] = offsetAddress - baseAddress;
+      types[index] = MPI_INT;
+      blockSizes[index] = 1;
+      ++index;
 
-	  MPI_Get_address(&ccp.position, &offsetAddress);
-	  offsets[index] = offsetAddress - baseAddress;
-	  types[index] = MPI_INT;
-	  blockSizes[index] = 1;
-	  ++index;
+      MPI_Get_address(&ccp.position, &offsetAddress);
+      offsets[index] = offsetAddress - baseAddress;
+      types[index] = MPI_INT;
+      blockSizes[index] = 1;
+      ++index;
 
-	  MPI_Get_address(&ccp.composition.m_components, &offsetAddress);
-	  offsets[index] = offsetAddress - baseAddress;
-	  types[index] = MPI_DOUBLE;
-	  blockSizes[index] = NUM_COMPONENTS;
-	  ++index;
+      MPI_Get_address(&ccp.composition.m_components, &offsetAddress);
+      offsets[index] = offsetAddress - baseAddress;
+      types[index] = MPI_DOUBLE;
+      blockSizes[index] = NUM_COMPONENTS;
+      ++index;
 
-	  MPI_Get_address(&ccp.composition.m_density, &offsetAddress);
-	  offsets[index] = offsetAddress - baseAddress;
-	  types[index] = MPI_DOUBLE;
-	  blockSizes[index] = 1;
-	  ++index;
+      MPI_Get_address(&ccp.composition.m_density, &offsetAddress);
+      offsets[index] = offsetAddress - baseAddress;
+      types[index] = MPI_DOUBLE;
+      blockSizes[index] = 1;
+      ++index;
 
-	  MPI_Get_address(&ccp.composition.m_viscosity, &offsetAddress);
-	  offsets[index] = offsetAddress - baseAddress;
-	  types[index] = MPI_DOUBLE;
-	  blockSizes[index] = 1;
-	  ++index;
+      MPI_Get_address(&ccp.composition.m_viscosity, &offsetAddress);
+      offsets[index] = offsetAddress - baseAddress;
+      types[index] = MPI_DOUBLE;
+      blockSizes[index] = 1;
+      ++index;
 
-	  MPI_Type_create_struct(index, blockSizes, offsets, types, &ColumnCompositionPositionType);
-	  MPI_Type_commit(&ColumnCompositionPositionType);
+      MPI_Type_create_struct(index, blockSizes, offsets, types, &ColumnCompositionPositionType);
+      MPI_Type_commit(&ColumnCompositionPositionType);
 
       //*****************************************
       // TrapPropertiesRequest
@@ -255,13 +255,13 @@ namespace migration
 
       MPI_Get_address (&m, &baseAddress);
 
-	  MPI_Get_address(&m.reservoirIndex, &offsetAddress);
-	  offsets[index] = offsetAddress - baseAddress;
-	  types[index] = MPI_INT;
-	  blockSizes[index] = 1;
-	  ++index;
+      MPI_Get_address(&m.reservoirIndex, &offsetAddress);
+      offsets[index] = offsetAddress - baseAddress;
+      types[index] = MPI_INT;
+      blockSizes[index] = 1;
+      ++index;
 	  
-	  MPI_Get_address (&m.process, &offsetAddress);
+      MPI_Get_address (&m.process, &offsetAddress);
       offsets[index] = offsetAddress - baseAddress;
       types[index] = MPI_INT;
       blockSizes[index] = 1;
