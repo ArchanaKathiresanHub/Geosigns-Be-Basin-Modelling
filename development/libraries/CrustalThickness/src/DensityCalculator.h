@@ -24,42 +24,45 @@
 
 // DataAccess library
 #include "Interface/CrustalThicknessInterface.h"
-
 using namespace DataAccess;
 
-/// @class DensityCalculator The density calcultor used during the CTC backstriping
-class DensityCalculator {
+namespace CrustalThickness
+{
+   /// @class DensityCalculator The density calcultor used during the CTC backstriping
+   class DensityCalculator {
 
-   typedef formattingexception::GeneralException DensityException;
+      typedef formattingexception::GeneralException DensityException;
 
-public:
+   public:
 
-   DensityCalculator( const InterfaceInput&    inputData,
-                      AbstractInterfaceOutput& outputData,
-                      const AbstractValidator& validator );
-   ~DensityCalculator() {};
+      DensityCalculator( const InterfaceInput&    inputData,
+         AbstractInterfaceOutput& outputData,
+         const AbstractValidator& validator );
+      ~DensityCalculator() {
+         // Empty constructor (comment removes SonarQube issue)
+      };
 
-   /// @brief Computes the semdiments density, the sediments thickness, the backstrip and the compensation maps
-   void compute();
+      /// @brief Computes the semdiments density, the sediments thickness, the backstrip and the compensation maps
+      void compute();
 
-   /// @brief Perfrom the backstriping at node (i,j)
-   /// @details Update the variable class members
-   void calculate( const double topBasementDepthValue,
-                   const double waterBottomDepthValue,
-                   const double pressureTopBasementValue,
-                   const double pressureWaterBottomValue );
+      /// @brief Perfrom the backstriping at node (i,j)
+      /// @details Update the variable class members
+      void calculate( const double topBasementDepthValue,
+         const double waterBottomDepthValue,
+         const double pressureTopBasementValue,
+         const double pressureWaterBottomValue );
 
-   /// @defgroup Accessors
-   /// Used in unit tests
-   /// @{
-   double getBackstrip()         const { return m_backstrip;         };
-   double getSedimentThickness() const { return m_sedimentThickness; };
-   double getSedimentDensity()   const { return m_sedimentDensity;   };
-   double getCompensation()      const { return m_compensation;      };
-   double getDensityTerm()       const { return m_densityTerm;       };
-   double getAirCorrection()     const { return m_airCorrection;     };
-   /// @}
-      
+      /// @defgroup Accessors
+      /// Used in unit tests
+      /// @{
+      double getBackstrip()         const { return m_backstrip; };
+      double getSedimentThickness() const { return m_sedimentThickness; };
+      double getSedimentDensity()   const { return m_sedimentDensity; };
+      double getCompensation()      const { return m_compensation; };
+      double getDensityTerm()       const { return m_densityTerm; };
+      double getAirCorrection()     const { return m_airCorrection; };
+      /// @}
+
 
    private:
 
@@ -100,7 +103,7 @@ public:
       DerivedProperties::SurfacePropertyPtr m_depthBasement;       ///< The depth of the basement at the current snapshot
       DerivedProperties::SurfacePropertyPtr m_depthWaterBottom;    ///< The depth of the water bottom at the current snapshot
       /// @}
-   
+
       /// @defgroup Variables
       /// @{
       double m_sedimentDensity;   ///< The density of the entire stack of sediments
@@ -108,9 +111,11 @@ public:
       double m_backstrip;         ///< The backstrip (https://en.wikipedia.org/wiki/Back-stripping)
       double m_compensation;      ///< The compensation
       /// @}
-   
+
       AbstractInterfaceOutput& m_outputData; ///< The global interface output object (contains the output maps)
       const AbstractValidator&  m_validator; ///< The validator to check if a node (i,j) is valid or not
-};
+   };
+
+} // End namespace CrustalThickness
 #endif
 

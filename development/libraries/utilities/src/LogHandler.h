@@ -161,8 +161,14 @@ private:
    /// @brief Overwrite default assginment operator
    LogHandler & operator = ( const LogHandler & );
 
+   /// @brief Overwrite default move assginment operator
+   LogHandler & operator = ( LogHandler && );
+
    /// @brief Overwrite default copy constructor
    LogHandler( const LogHandler & );
+
+   /// @brief Overwrite default move copy constructor
+   LogHandler( LogHandler && );
 
    /// @brief Apply the current style to the current osstream
    void applyStyle();

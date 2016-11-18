@@ -71,11 +71,13 @@ CrustalThicknessCalculator::CrustalThicknessCalculator( database::Database * dat
 //------------------------------------------------------------//
 
 CrustalThicknessCalculator::~CrustalThicknessCalculator () {
+   // No need to delete m_inputData as it is a shared pointer
+   // No need to delete maps as they will be automatically deleted by the DataAccess library
 }
 
 //------------------------------------------------------------//
 
-CrustalThicknessCalculator* CrustalThicknessCalculator::CreateFrom( const string& inputFileName, ObjectFactory* factory ) {
+CrustalThicknessCalculator* CrustalThicknessCalculator::createFrom( const string& inputFileName, ObjectFactory* factory ) {
 
 
    if ( m_crustalThicknessCalculator == 0 ) {
@@ -138,12 +140,13 @@ void CrustalThicknessCalculator::finalise ( const bool saveResults ) {
       if( ! CrustalThicknessCalculator::getInstance ().mergeOutputFiles ()) {
          LogHandler(LogHandler::ERROR_SEVERITY) << "Unable to merge output files";
       }
-   }
-   if ( saveResults && m_crustalThicknessCalculator->getRank() == 0 ) {
-      if( m_outputFileName.length() == 0 ) {
-         m_crustalThicknessCalculator->saveToFile(m_projectFileName);
-      } else {
-         m_crustalThicknessCalculator->saveToFile(m_outputFileName);
+      if (m_crustalThicknessCalculator->getRank() == 0) {
+         if ( m_outputFileName.empty() ) {
+            m_crustalThicknessCalculator->saveToFile( m_outputFileName );
+         }
+         else {
+            m_crustalThicknessCalculator->saveToFile( m_projectFileName );
+         }
       }
    }
    delete m_crustalThicknessCalculator;
@@ -264,7 +267,7 @@ void CrustalThicknessCalculator::run() {
 
          /// 3. Compute the backstripped density and thickness, the backtrip and the compensation
          LogHandler( LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_STEP ) << "computing Backstrip";
-         DensityCalculator densityCalculator( *m_inputData, m_outputData, validator );
+         CrustalThickness::DensityCalculator densityCalculator( *m_inputData, m_outputData, validator );
          densityCalculator.compute();
          if (not m_debug) m_outputData.disableDebugOutput( m_crustalThicknessCalculator, m_inputData->getBotOfSedimentSurface(), theSnapshot );
 
@@ -272,7 +275,7 @@ void CrustalThicknessCalculator::run() {
          const Interface::Property* pressureInterfaceProperty = findProperty( "Pressure" );
          if (asSurfaceDepthHistory( age )){
             LogHandler( LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_STEP ) << "computing Tectonic Subsidence";
-            TotalTectonicSubsidenceCalculator TTScalculator( *m_inputData, m_outputData, validator,
+            CrustalThickness::TotalTectonicSubsidenceCalculator TTScalculator( *m_inputData, m_outputData, validator,
                age, densityCalculator.getAirCorrection(), m_previousTTS, m_seaBottomDepth );
             TTScalculator.compute();
             // This is just for the first step when we compute the TTS at 0Ma, then we go in the reverse order
@@ -291,13 +294,13 @@ void CrustalThicknessCalculator::run() {
 
          /// 5. Compute the Paleowaterdepth
          LogHandler( LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_STEP ) << "computing Paleowaterdepth";
-         PaleowaterdepthCalculator PWDcalculator( *m_inputData, m_outputData, validator, presentDayTTS.get() );
+         CrustalThickness::PaleowaterdepthCalculator PWDcalculator( *m_inputData, m_outputData, validator, presentDayTTS.get() );
          PWDcalculator.compute();
 
          // 6. Compute the PaleowaterdepthResidual (only if we have a SDH at this snapshot and if we are not at present day)
          if (asSurfaceDepthHistory( age ) and age!=0.0){
             LogHandler( LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_STEP ) << "computing PaleowaterdepthResidual";
-            PaleowaterdepthResidualCalculator PWDRcalculator( *m_inputData, m_outputData, validator,
+            CrustalThickness::PaleowaterdepthResidualCalculator PWDRcalculator( *m_inputData, m_outputData, validator,
                age, m_seaBottomDepth );
             PWDRcalculator.compute();
          }
@@ -305,7 +308,7 @@ void CrustalThicknessCalculator::run() {
          ///7. Computes the thinning factor and crustal thicknesse
          if (asSurfaceDepthHistory( age )){
             LogHandler( LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_STEP ) << "computing Crustal Thicknesses";
-            McKenzieCrustCalculator mcKenzieCalculator( *m_inputData, m_outputData, validator, age, m_previousContinentalCrustalThickness, m_previousOceanicCrustalThickness );
+            CrustalThickness::McKenzieCrustCalculator mcKenzieCalculator( *m_inputData, m_outputData, validator, age, m_previousContinentalCrustalThickness, m_previousOceanicCrustalThickness );
             mcKenzieCalculator.compute();
             m_previousContinentalCrustalThickness = m_outputData.getMap( thicknessCrustMap  );
             m_previousOceanicCrustalThickness     = m_outputData.getMap( thicknessBasaltMap );

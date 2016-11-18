@@ -21,21 +21,22 @@
 
 //DataAccess library
 #include "Interface/GridMap.h"
-
 using namespace DataAccess;
 
-/// @class PaleowaterdepthCalculator The PWD calculator
-class PaleowaterdepthCalculator {
+namespace CrustalThickness
+{
+   /// @class PaleowaterdepthCalculator The PWD calculator
+   class PaleowaterdepthCalculator {
 
    public:
-   
+
       /// @brief Constructs the PWD calculator in order to compute the paleowaterdepth
       /// @details Retrieve presentDayPressureBasement and currentPressureBasement data if they are not nullptr
       /// @param[in] presentDayTTS The present day Total Tectonic Subsidence
       PaleowaterdepthCalculator( const InterfaceInput&     inputData,
-                                 AbstractInterfaceOutput&  outputData,
-                                 const AbstractValidator&  validator,
-                                 const Interface::GridMap* presentDayTTS );
+         AbstractInterfaceOutput&  outputData,
+         const AbstractValidator&  validator,
+         const Interface::GridMap* presentDayTTS );
 
       /// @details Restore presentDayPressureBasement and currentPressureBasement data if they are not nullptr
       ~PaleowaterdepthCalculator();
@@ -45,19 +46,19 @@ class PaleowaterdepthCalculator {
 
       /// @return The response factor used during the thermally corrected paleowaterdepth computation
       double calculateResponseFactor( const double presentDayPressureBotMantle,
-                                      const double presentDayPressureBasement,
-                                      const double currentPressureBotMantle,
-                                      const double currentPressureBasement ) const;
+         const double presentDayPressureBasement,
+         const double currentPressureBotMantle,
+         const double currentPressureBasement ) const;
 
       /// @return The paleowaterdepth with the thermal correction
       /// @details The thermal correction aims to equilibrate the pressure between the Basement and the bottom Mantle
       double calculateThermallyCorrectedPWD( const double presentDayTTS,
-                                             const double backstrip,
-                                             const double responseFactor ) const;
+         const double backstrip,
+         const double responseFactor ) const;
 
       /// @return The paleowaterdepth without the thermal correction
       double calculatePWD( const double presentDayTTS,
-                           const double backstrip ) const;
+         const double backstrip ) const;
 
    private:
 
@@ -85,6 +86,7 @@ class PaleowaterdepthCalculator {
 
       AbstractInterfaceOutput& m_outputData; ///< The global interface output object (contains the output maps)
       const AbstractValidator& m_validator;  ///< The validator to check if a node (i,j) is valid or not
-};
+   };
+} // End namespace CrustalThickness
 #endif
 

@@ -1,4 +1,4 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
 // 
@@ -28,21 +28,23 @@
 
 using namespace DataAccess;
 
-/// @class TotalTectonicSubsidenceCalculator The TTS calculator
-class TotalTectonicSubsidenceCalculator {
+namespace  CrustalThickness
+{
+   /// @class TotalTectonicSubsidenceCalculator The TTS calculator
+   class TotalTectonicSubsidenceCalculator {
 
-   typedef GeoPhysics::Local2DArray <CBMGenerics::Polyfunction> PolyFunction2DArray;
+      typedef GeoPhysics::Local2DArray <CBMGenerics::Polyfunction> PolyFunction2DArray;
 
    public:
-   
+
       /// @brief Constructs the TTS calculator in order to compute the total tectonic subsidence
       TotalTectonicSubsidenceCalculator( InterfaceInput&            inputData,
-                                         AbstractInterfaceOutput&   outputData,
-                                         AbstractValidator&         validator,
-                                         const double               age,
-                                         const double               airCorrection,
-                                         const Interface::GridMap*  previousTTS,
-                                         const PolyFunction2DArray& depthWaterBottom);
+         AbstractInterfaceOutput&   outputData,
+         AbstractValidator&         validator,
+         const double               age,
+         const double               airCorrection,
+         const Interface::GridMap*  previousTTS,
+         const PolyFunction2DArray& depthWaterBottom );
 
       ~TotalTectonicSubsidenceCalculator() {};
 
@@ -51,15 +53,15 @@ class TotalTectonicSubsidenceCalculator {
 
       /// @return The total tectonic subsidence
       double calculateTTS( const double waterBottom,
-                           const double backstrip ) const;
+         const double backstrip ) const;
 
       /// @return The incremental total tectonic subsidence
       double calculateIncrementalTTS( const double TTS,
-                                      const double previousTTS ) const;
+         const double previousTTS ) const;
 
       /// @return The sea level adjusted total or incremental tectonic subsidence
       double calculateTSadjusted( const double TTS,
-                                  const double seaLevelAdjustment ) const;
+         const double seaLevelAdjustment ) const;
 
    private:
 
@@ -85,6 +87,7 @@ class TotalTectonicSubsidenceCalculator {
 
       AbstractInterfaceOutput& m_outputData; ///< The global interface output object (contains the output maps)
       AbstractValidator&       m_validator;  ///< The validator to check if a node (i,j) is valid or not
-};
+   };
+} // End namespace  CrustalThickness
 #endif
 

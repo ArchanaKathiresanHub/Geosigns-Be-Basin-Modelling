@@ -8,6 +8,7 @@
 // Do not distribute without written permission from Shell.
 //
 #include "../src/PaleowaterdepthResidualCalculator.h"
+using namespace CrustalThickness;
 
 // CrustalThickness library test utilities
 #include "MockInterfaceInput.h"

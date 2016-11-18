@@ -53,7 +53,7 @@ public :
    /// @brief Open the project file
    /// @param inputFileName The file name of the project file such as project.project3d
    /// @ param factory The object factory
-   static CrustalThicknessCalculator* CreateFrom( const string& inputFileName, ObjectFactory* factory );
+   static CrustalThicknessCalculator* createFrom( const string& inputFileName, ObjectFactory* factory );
 
    /// @brief Initialise the CTC instance, projecthandle, interface input and interface output
    void initialiseCTC();
@@ -87,7 +87,7 @@ private :
    static string m_projectFileName;   ///< The input project file name, and output project file name by default
    static string m_outputFileName;    ///< The output project file name, specified via command line under -save
 
-   LinearFunction m_LF; ///< The linear function object used by the CTC
+   CrustalThickness::LinearFunction m_LF; ///< The linear function object used by the CTC
 
    int    m_outputOptions;    ///< The output option is the combination the output options defined in the command line (xyz, sur, hdf)
    bool   m_debug;            ///< Run the CTC in debug mode

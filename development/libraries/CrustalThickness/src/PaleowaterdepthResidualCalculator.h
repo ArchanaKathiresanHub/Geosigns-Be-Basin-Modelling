@@ -24,21 +24,23 @@
 
 using namespace DataAccess;
 
-/// @class PaleowaterdepthResidualCalculator The PWDR calculator
-class PaleowaterdepthResidualCalculator {
+namespace CrustalThickness
+{
+   /// @class PaleowaterdepthResidualCalculator The PWDR calculator
+   class PaleowaterdepthResidualCalculator {
 
-   typedef GeoPhysics::Local2DArray <CBMGenerics::Polyfunction> PolyFunction2DArray;
+      typedef GeoPhysics::Local2DArray <CBMGenerics::Polyfunction> PolyFunction2DArray;
 
    public:
-   
+
       /// @brief Constructs the PWDR calculator in order to compute the paleowaterdepth residual
       /// @param surfaceDepthHistory The user defined paleobathymetrie (loaded from the project handle)
       PaleowaterdepthResidualCalculator( InterfaceInput&            inputData,
-                                         AbstractInterfaceOutput&   outputData,
-                                         AbstractValidator&         validator,
-                                         const double               age,
-                                         const PolyFunction2DArray& surfaceDepthHistory
-                                         );
+         AbstractInterfaceOutput&   outputData,
+         AbstractValidator&         validator,
+         const double               age,
+         const PolyFunction2DArray& surfaceDepthHistory
+      );
 
       ~PaleowaterdepthResidualCalculator() {};
 
@@ -47,7 +49,7 @@ class PaleowaterdepthResidualCalculator {
 
       /// @return The paleowaterdepth residual
       double calculatePWDR( const double  PWD,
-                            const double  surfaceDepthHistory ) const;
+         const double  surfaceDepthHistory ) const;
 
    private:
 
@@ -62,6 +64,7 @@ class PaleowaterdepthResidualCalculator {
 
       AbstractInterfaceOutput& m_outputData; ///< The global interface output object (contains the output maps)
       AbstractValidator&       m_validator;  ///< The validator to check if a node (i,j) is valid or not
-};
+   };
+} // End namespace  CrustalThickness
 #endif
 

@@ -27,11 +27,13 @@
 using namespace DataAccess;
 using Interface::GridMap;
 
-/// @class McKenzieCrustCalculator The calculator used to compute the thinning factor, crustal thicknesses
-///    and other crustal properties from the McKenzie equations
-class McKenzieCrustCalculator {
+namespace  CrustalThickness
+{
+   /// @class McKenzieCrustCalculator The calculator used to compute the thinning factor, crustal thicknesses
+   ///    and other crustal properties from the McKenzie equations
+   class McKenzieCrustCalculator {
 
-   typedef formattingexception::GeneralException McKenzieException;
+      typedef formattingexception::GeneralException McKenzieException;
 
    public:
 
@@ -39,19 +41,19 @@ class McKenzieCrustCalculator {
          CONTINENTAL,
          OCEANIC
       };
-   
+
       /// @param[in] previousThinningFactor Can be nullptr if first rifting event
       /// @param[in] previousContinentalCrustThickness Can be nullptr if first rifting event
       /// @param[in] previousOceanicCrustThickness Can be nullptr if first rifting event
       /// @throw std::invalid_argument If the inputData provided has no basement depth defined (nullptr)
       ///    or invalid constants
       McKenzieCrustCalculator( const InterfaceInput&    inputData,
-                               AbstractInterfaceOutput& outputData,
-                               const AbstractValidator& validator,
-                               const double age,
-                               const Interface::GridMap* previousContinentalCrustThickness,
-                               const Interface::GridMap* previousOceanicCrustThickness );
-      
+         AbstractInterfaceOutput& outputData,
+         const AbstractValidator& validator,
+         const double age,
+         const Interface::GridMap* previousContinentalCrustThickness,
+         const Interface::GridMap* previousOceanicCrustThickness );
+
       ~McKenzieCrustCalculator() {};
 
       /// @brief Define the linear function to invert from TTS (total tectonic subsidence) to TF (thinning factor) for the (i,j) node
@@ -64,7 +66,7 @@ class McKenzieCrustCalculator {
          const double thinningFactorOnsetLinearized,
          const double TTSOnsetLinearized,
          const double TTScritical
-         ) const;
+      ) const;
 
       /// @defgroup CrustPropertiesCalculators
       /// @{
@@ -103,7 +105,7 @@ class McKenzieCrustCalculator {
       /// @return The linearized total tectonic subsidence at melt onset
       /// @details The McKenzie technique requires to use a linear relationship between the thinning factor (TF) and the total tectonic subsidence (TTS)
       ///          This is beacuse McKenzie the function f(TTS)=TF needs to be bijective
-      double calculateTTSOnsetLinearized( const double averageRiftTime, const double thinningFactorOnsetLinearized) const;
+      double calculateTTSOnsetLinearized( const double averageRiftTime, const double thinningFactorOnsetLinearized ) const;
       /// @return The total tectonic subsidence at exhume point after serpentinization of the mantle
       /// @details This corresponds to a maximum basalt thickness of 2Km, so the subsidence correction can be approximated to 681.6394
       double calculateTTSexhumeSerpentinized( const double TTSexhume ) const;
@@ -242,6 +244,7 @@ class McKenzieCrustCalculator {
       AbstractInterfaceOutput& m_outputData;  ///< The global interface output object (contains the output maps)
       const AbstractValidator& m_validator;   ///< The validator to check if a node (i,j) is valid or not
 
-};
+   };
+} // End namespace CrustalThickness
 #endif
 

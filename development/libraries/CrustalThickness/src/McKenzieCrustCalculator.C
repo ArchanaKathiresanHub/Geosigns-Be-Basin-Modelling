@@ -9,6 +9,7 @@
 //
 
 #include "McKenzieCrustCalculator.h"
+using namespace  CrustalThickness;
 
 // utilities library
 #include "NumericFunctions.h"

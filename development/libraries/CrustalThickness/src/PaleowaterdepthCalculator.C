@@ -9,6 +9,7 @@
 //
 
 #include "PaleowaterdepthCalculator.h"
+using namespace CrustalThickness;
 
 // std library
 #include <exception>
@@ -60,7 +61,9 @@ PaleowaterdepthCalculator::PaleowaterdepthCalculator(
 }
 
 //------------------------------------------------------------//
-PaleowaterdepthCalculator::~PaleowaterdepthCalculator(){}
+PaleowaterdepthCalculator::~PaleowaterdepthCalculator(){
+   // Empty constructor (comment removes SonarQube issue)
+}
 
 //------------------------------------------------------------//
 void PaleowaterdepthCalculator::compute(){

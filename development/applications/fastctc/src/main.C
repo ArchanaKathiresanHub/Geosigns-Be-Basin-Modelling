@@ -38,42 +38,47 @@
 #include <EPTFlexLm.h>
 #endif
 
-//------------------------------------------------------------//
-void showUsage () {
-   cout << endl;
+namespace Fastctc
+{
 
-   cout << "Usage: " << endl
-        << "\t-project projectname       Name of the project file"                                                                                        << endl
-        << "\t[-debug]                   Output all map properties. Use in combination with -hdf or/and -xyz or/and -sur to output into individual files" << endl
-        << "\t[-nosmooth]                Don't smooth the result maps, equivalent to -smooth 0"                                                           << endl
-        << "\t[-smooth <radius>]         Smooth the result maps using the defined <radius>. Default value: 5"                                             << endl
-        << "\t[-save filename]           Name of output project file"                                                                                     << endl
-        << "\t[-xyz]                     Output selected maps also in XYZ format"                                                                         << endl
-        << "\t[-sur]                     Use only in combination with -debug. Output selected maps in SUR format (to visualize surface chart in Excel)"   << endl
-        << "\t[-hdf]                     Use only in combination with -debug. Output all maps in separate HDF files."                                     << endl
-        << "\t[-help]                    Shows this help message and exit."                                                                               << endl << endl;
-}
+   //------------------------------------------------------------//
+   void showUsage() {
+      cout << endl;
 
-//------------------------------------------------------------//
-void finaliseCrustalThicknessCalculator ( char* feature, const char* errorMessage = "" , CrustalThicknessCalculatorFactory* factory = 0 ) {
-
-   LogHandler( LogHandler::ERROR_SEVERITY ) << errorMessage;
-
-   CrustalThicknessCalculator::finalise (false);
-
-   if ( factory != nullptr ) {
-      delete factory;
+      cout << "Usage: " << endl
+         << "\t-project projectname       Name of the project file" << endl
+         << "\t[-debug]                   Output all map properties. Use in combination with -hdf or/and -xyz or/and -sur to output into individual files" << endl
+         << "\t[-nosmooth]                Don't smooth the result maps, equivalent to -smooth 0" << endl
+         << "\t[-smooth <radius>]         Smooth the result maps using the defined <radius>. Default value: 5" << endl
+         << "\t[-save filename]           Name of output project file" << endl
+         << "\t[-xyz]                     Output selected maps also in XYZ format" << endl
+         << "\t[-sur]                     Use only in combination with -debug. Output selected maps in SUR format (to visualize surface chart in Excel)" << endl
+         << "\t[-hdf]                     Use only in combination with -debug. Output all maps in separate HDF files." << endl
+         << "\t[-help]                    Shows this help message and exit." << endl << endl;
    }
+
+   //------------------------------------------------------------//
+   void finaliseCrustalThicknessCalculator( char* feature, const char* errorMessage = "", CrustalThicknessCalculatorFactory* factory = 0 ) {
+
+      LogHandler( LogHandler::ERROR_SEVERITY ) << errorMessage;
+
+      CrustalThicknessCalculator::finalise( false );
+
+      if (factory != nullptr) {
+         delete factory;
+      }
 
 #ifdef FLEXLM
-   if( ddd::GetRank() == 0 ) {
-      EPTFlexLmCheckIn( feature );
-      EPTFlexLmTerminate();
-   }
+      if (ddd::GetRank() == 0) {
+         EPTFlexLmCheckIn( feature );
+         EPTFlexLmTerminate();
+      }
 #endif
 
-   PetscFinalize ();
-}
+      PetscFinalize();
+   }
+
+} // end namespace Fastctc
 
 //------------------------------------------------------------//
 int main (int argc, char ** argv)
@@ -184,7 +189,7 @@ int main (int argc, char ** argv)
    
    PetscOptionsHasName (PETSC_NULL, "-help", &isDefined);
    if (isDefined) {
-      showUsage ();
+      Fastctc::showUsage ();
       PetscFinalize ();
       return -1;
    }
@@ -197,7 +202,7 @@ int main (int argc, char ** argv)
 
    if (!isDefined)  {
       LogHandler( LogHandler::ERROR_SEVERITY ) << "ERROR Error when reading the project file";
-      showUsage ();
+      Fastctc::showUsage ();
       PetscFinalize ();
       return -1;
    }
@@ -205,18 +210,18 @@ int main (int argc, char ** argv)
    PetscLogDouble sim_Start_Time;
    PetscTime( &sim_Start_Time );
 
-   if (!CrustalThicknessCalculator::CreateFrom( inputFileName, factory )) {
+   if (!CrustalThicknessCalculator::createFrom( inputFileName, factory )) {
       LogHandler( LogHandler::ERROR_SEVERITY ) << "Can not open the project file";
-      showUsage ();
+      Fastctc::showUsage ();
       PetscFinalize ();
       return -1;
-   };
+   }
 
    if( !CrustalThicknessCalculator::getInstance().parseCommandLine()) {
       LogHandler( LogHandler::ERROR_SEVERITY ) << "Could not parse command line";
-      finaliseCrustalThicknessCalculator(feature, "", factory);
+      Fastctc::finaliseCrustalThicknessCalculator(feature, "", factory);
       return -1;
-   };
+   }
    
    ////////////////////////////////////////////
    ///3. Run CTC
@@ -229,22 +234,22 @@ int main (int argc, char ** argv)
    }
    catch (std::invalid_argument& ex){
       LogHandler( LogHandler::ERROR_SEVERITY ) << "CTC INPUT ERROR";
-      finaliseCrustalThicknessCalculator( feature, ex.what(), factory );
+      Fastctc::finaliseCrustalThicknessCalculator( feature, ex.what(), factory );
       return 1;
    }
    catch (CtcException& ex){
       LogHandler( LogHandler::ERROR_SEVERITY ) << "CTC COMPUTATION ERROR";
-      finaliseCrustalThicknessCalculator( feature, ex.what(), factory );
+      Fastctc::finaliseCrustalThicknessCalculator( feature, ex.what(), factory );
       return 1;
    }
    catch (std::runtime_error& ex){
       LogHandler( LogHandler::ERROR_SEVERITY ) << "CTC COMPUTATION ERROR";
-      finaliseCrustalThicknessCalculator( feature, ex.what(), factory );
+      Fastctc::finaliseCrustalThicknessCalculator( feature, ex.what(), factory );
       return 1;
    }
    catch (...) {
       LogHandler( LogHandler::FATAL_SEVERITY ) << "CTC FATAL ERROR";
-      finaliseCrustalThicknessCalculator(feature, "CTC fatal error", factory);
+      Fastctc::finaliseCrustalThicknessCalculator(feature, "CTC fatal error", factory);
       return 1;
    }
 

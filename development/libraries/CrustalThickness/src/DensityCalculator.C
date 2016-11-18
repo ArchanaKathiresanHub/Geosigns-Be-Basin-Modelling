@@ -8,6 +8,7 @@
 // Do not distribute without written permission from Shell.
 //
 #include "DensityCalculator.h"
+using namespace CrustalThickness;
 
 // std library
 #include <math.h>

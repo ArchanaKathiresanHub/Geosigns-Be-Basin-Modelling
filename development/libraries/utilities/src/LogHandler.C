@@ -113,8 +113,8 @@ LogHandler::LogHandler( const SeverityLevel severity, const Style style ) {
 void LogHandler::applyStyle() {
    std::ostringstream ossFormatted;
    const std::streamoff size = m_oss.tellp();
-   const std::streamsize maxSizeTitle = 80;
-   const std::streamsize maxSizeSection = 30;
+   const std::size_t maxSizeTitle = 80;
+   const std::size_t maxSizeSection = 30;
    switch (m_style)
    {
       case LogHandler::DEFAULT:
@@ -157,9 +157,9 @@ void LogHandler::applyStyle() {
 
 void LogHandler::displayTime( const SeverityLevel severity, const double timeToDisplay, const char * msgToDisplay ) {
 
-   const int hours   = (int)(timeToDisplay / 3600.0);
-   const int minutes = (int)((timeToDisplay - (hours * 3600.0)) / 60.0);
-   const int seconds = (int)(timeToDisplay - hours * 3600.0 - minutes * 60.0);
+   const int hours   = static_cast<int>(timeToDisplay / 3600.0);
+   const int minutes = static_cast<int>((timeToDisplay - (hours * 3600.0)) / 60.0);
+   const int seconds = static_cast<int>(timeToDisplay - hours * 3600.0 - minutes * 60.0);
 
    LogHandler( severity ) << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~";
    LogHandler( severity ) << msgToDisplay << ": "

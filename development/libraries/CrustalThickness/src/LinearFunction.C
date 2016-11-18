@@ -9,6 +9,7 @@
 //
 
 #include "LinearFunction.h"
+using namespace CrustalThickness;
 
 // utilities library
 #include "LogHandler.h"

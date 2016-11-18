@@ -8,6 +8,7 @@
 // Do not distribute without written permission from Shell.
 //
 #include "../src/LinearFunction.h"
+using namespace CrustalThickness;
 
 // utilities library
 #include "LogHandler.h"

@@ -452,9 +452,7 @@ void ProjectHandle::splitName( void )
 
 bool ProjectHandle::saveToFile( const string & fileName )
 {
-   // #ifdef DISTRIBUTED
-   //    if (getRank () == 0)
-   // #endif
+
    if ( getRank() == 0 )
    {
       m_database->saveToFile( fileName );
