@@ -56,6 +56,10 @@
 
 
 %{
+// Interface for CBMGenerics library
+#include "../../../CBMGenerics/src/ComponentManager.h"
+using namespace CBMGenerics;
+
 // Interface to DataModel
 #include "../../../DataModel/src/PropertyAttribute.h"
 #include "../../../DataModel/src/AbstractFormation.h"
@@ -221,6 +225,9 @@
 #include "../../../casaAPI/src/VarSpace.h"
 #include "../../../casaAPI/src/VarSpaceImpl.h"
 #include "../../../casaAPI/src/VarPrmContinuous.h"
+#include "../../../casaAPI/src/VarPrmCategorical.h"
+#include "../../../casaAPI/src/VarPrmDiscrete.h"
+#include "../../../casaAPI/src/VarPrmCrustThinning.h"
 #include "../../../casaAPI/src/VarPrmOneCrustThinningEvent.h"
 #include "../../../casaAPI/src/VarPrmTopCrustHeatProduction.h"
 #include "../../../casaAPI/src/VarPrmSourceRockProp.h"
@@ -268,8 +275,10 @@ CSHARP_ARRAYS(char, byte)
 // CASA ScenarioAnalysis.h:loadScenario()
 %apply char INPUT[] { const char * stateFileBuf }
 
-%rename(ComponentId2) DataAccess::Interface::ComponentId;
 %rename(PhaseId2) pvtFlash::PhaseId;
+
+// Interface for CBMGenerics library
+%include "../../../CBMGenerics/src/ComponentManager.h"
 
 // Interface to DataModel
 %include "../../../DataModel/src/PropertyAttribute.h"
@@ -439,6 +448,9 @@ CSHARP_ARRAYS(char, byte)
 %include "../../../casaAPI/src/VarSpace.h"
 %include "../../../casaAPI/src/VarSpaceImpl.h"
 %include "../../../casaAPI/src/VarPrmContinuous.h"
+%include "../../../casaAPI/src/VarPrmCategorical.h"
+%include "../../../casaAPI/src/VarPrmDiscrete.h"
+%include "../../../casaAPI/src/VarPrmCrustThinning.h"
 %include "../../../casaAPI/src/VarPrmOneCrustThinningEvent.h"
 %include "../../../casaAPI/src/VarPrmTopCrustHeatProduction.h"
 %include "../../../casaAPI/src/VarPrmSourceRockProp.h"

@@ -239,23 +239,23 @@ namespace BasinModelingLinkTest
       {
          CauldronAPI.SetPvtPropertiesConfigFile(m_cfgFile);
 
-         double[] masses         = new double[(int)ComponentId.NUM_COMPONENTS];
-         double[] phaseMasses    = new double[(int)ComponentId.NUM_COMPONENTS * (int)CauldronAPI.numberOfPhases];
-         double[] phaseDensity   = new double[(int)CauldronAPI.numberOfPhases];
-         double[] phaseViscosity = new double[(int)CauldronAPI.numberOfPhases];
+         double[] masses = new double[(int)ComponentManager.SpeciesNamesId.NUMBER_OF_SPECIES];
+         double[] phaseMasses    = new double[(int)ComponentManager.SpeciesNamesId.NUMBER_OF_SPECIES * (int)ComponentManager.PhaseId.NUMBER_OF_PHASES];
+         double[] phaseDensity   = new double[(int)ComponentManager.PhaseId.NUMBER_OF_PHASES];
+         double[] phaseViscosity = new double[(int)ComponentManager.PhaseId.NUMBER_OF_PHASES];
 
          InitializeCompositionMasses(masses);
 
          CauldronAPI.EosPackComputeWithLumpingArr(373.15, 1e6, masses, false, 0.0, phaseMasses, phaseDensity, phaseViscosity);
 
-         double[] totPhaseMass = new double[(int)CauldronAPI.numberOfPhases];
+         double[] totPhaseMass = new double[(int)ComponentManager.PhaseId.NUMBER_OF_PHASES];
 
-         for (int i = 0; i < (int)CauldronAPI.numberOfPhases; ++i)
+         for (int i = 0; i < (int)ComponentManager.PhaseId.NUMBER_OF_PHASES; ++i)
          {
             totPhaseMass[i] = 0.0;
-            for (int j = 0; j < (int)ComponentId.NUM_COMPONENTS; ++j)
+            for (int j = 0; j < (int)ComponentManager.SpeciesNamesId.NUMBER_OF_SPECIES; ++j)
             {
-               totPhaseMass[i] += phaseMasses[i * ((int)ComponentId.NUM_COMPONENTS) + j];
+               totPhaseMass[i] += phaseMasses[i * ((int)ComponentManager.SpeciesNamesId.NUMBER_OF_SPECIES) + j];
             }
          }
          double sumVapour = totPhaseMass[(int)BpaPhase.Vapour];
@@ -270,8 +270,8 @@ namespace BasinModelingLinkTest
       {
          CauldronAPI.SetPvtPropertiesConfigFile(m_cfgFile);
 
-         double[] compos = new double[(int)ComponentId.NUM_COMPONENTS];
-         for (int i = 0; i < (int)ComponentId.NUM_COMPONENTS; ++i)
+         double[] compos = new double[(int)ComponentManager.SpeciesNamesId.NUMBER_OF_SPECIES];
+         for (int i = 0; i < (int)ComponentManager.SpeciesNamesId.NUMBER_OF_SPECIES; ++i)
          {
             compos[i] = 1;
          }
@@ -363,10 +363,10 @@ namespace BasinModelingLinkTest
       
       private static void InitializeCompositionMasses(ComputeStruct computeStruct)
       {
-          double[] masses = new double[(int) ComponentId.NUM_COMPONENTS];
+          double[] masses = new double[(int)ComponentManager.SpeciesNamesId.NUMBER_OF_SPECIES];
           InitializeCompositionMasses(masses);
 
-          Assert.AreEqual(masses.Length, (int) ComponentId.NUM_COMPONENTS);
+          Assert.AreEqual(masses.Length, (int)ComponentManager.SpeciesNamesId.NUMBER_OF_SPECIES);
 
           for (int i = 0; i < masses.Length; ++i)
               CauldronAPI.doubleArray_setitem(computeStruct.compMasses, i, masses[i]);
@@ -375,7 +375,7 @@ namespace BasinModelingLinkTest
 
       private static double GetMass(ComputeStruct computeStruct, BpaPhase phase, BpaComponent componentId)
       {
-          return CauldronAPI.doubleArray_getitem(computeStruct.phaseCompMasses, (int) ComponentId.NUM_COMPONENTS * (int)phase + (int)componentId);
+          return CauldronAPI.doubleArray_getitem(computeStruct.phaseCompMasses, (int)ComponentManager.SpeciesNamesId.NUMBER_OF_SPECIES * (int)phase + (int)componentId);
       }
 
       private static double SumPhase(ComputeStruct computeStruct, BpaPhase phase)
