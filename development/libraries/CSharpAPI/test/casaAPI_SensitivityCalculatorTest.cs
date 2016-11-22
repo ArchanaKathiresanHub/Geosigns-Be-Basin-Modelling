@@ -92,31 +92,29 @@ namespace Shell.BasinModeling.Cauldron.Test
                                                  , @"TopCrustHeatProdRate [\mu W/m^3]"
                                                  };
 
-         s_paretoSensValues = new double[] { 24.56711, 22.66290, 20.25829, 15.49220, 14.82233,  2.19715 };
-
+         s_paretoSensValues = new double[] { 26.673177, 20.168892, 18.644706, 15.344448, 12.614685, 6.554091 };
+         
          s_paretoIPNames = new string[] { @"TopCrustHeatProdRate [\mu W/m^3]"
-                                        , @"CrustThinningFactor [m/m]"
                                         , @"EventStartTime [Ma]"
-                                        , @"EventDuration [Ma]"
                                         , @"Lower Jurassic TOC [%]"
+                                        , @"CrustThinningFactor [m/m]"
+                                        , @"EventDuration [Ma]"
                                         , @"InitialCrustThickness [m]"
                                        };
 
-         s_paretoCyclicSensValues = new double[,] { {  24.5383, 22.6555, 19.5884, 16.5954, 14.5813, 2.04104 },
-                                                    {  24.5176, 22.6309, 19.987,  15.6891, 15.0512, 2.12426 },
-                                                    {  24.5324, 22.6385, 20.1405, 15.2782, 15.248,  2.16245 },
-                                                    {  24.5508, 22.651,  20.2158, 15.4089, 14.9898, 2.18381 },
-                                                    {  24.5671, 22.6629, 20.2583, 15.4922, 14.8223, 2.19715 }
+         s_paretoCyclicSensValues = new double[,] { { 26.673177, 20.168892, 18.644706, 15.344448, 12.614685, 6.554091},
+                                                    { 26.673177, 20.168892, 18.644706, 15.344448, 12.614685, 6.554091},
+                                                    { 26.673177, 20.168892, 18.644706, 15.344448, 12.614685, 6.554091},
+                                                    { 26.673177, 20.168892, 18.644706, 15.344448, 12.614685, 6.554091},
+                                                    { 26.673177, 20.168892, 18.644706, 15.344448, 12.614685, 6.554091}
                                                   };
 
-
-
          s_paretoCyclicIPName = new string[,] { 
-           { @"TopCrustHeatProdRate [\mu W/m^3]", @"CrustThinningFactor [m/m]", @"EventStartTime [Ma]", @"Lower Jurassic TOC [%]", @"EventDuration [Ma]",     @"InitialCrustThickness [m]" },
-           { @"TopCrustHeatProdRate [\mu W/m^3]", @"CrustThinningFactor [m/m]", @"EventStartTime [Ma]", @"Lower Jurassic TOC [%]", @"EventDuration [Ma]",     @"InitialCrustThickness [m]" },
-           { @"TopCrustHeatProdRate [\mu W/m^3]", @"CrustThinningFactor [m/m]", @"EventStartTime [Ma]", @"EventDuration [Ma]",     @"Lower Jurassic TOC [%]", @"InitialCrustThickness [m]" },
-           { @"TopCrustHeatProdRate [\mu W/m^3]", @"CrustThinningFactor [m/m]", @"EventStartTime [Ma]", @"EventDuration [Ma]",     @"Lower Jurassic TOC [%]", @"InitialCrustThickness [m]" },
-           { @"TopCrustHeatProdRate [\mu W/m^3]", @"CrustThinningFactor [m/m]", @"EventStartTime [Ma]", @"EventDuration [Ma]",     @"Lower Jurassic TOC [%]", @"InitialCrustThickness [m]" }
+           { @"TopCrustHeatProdRate [\mu W/m^3]", @"EventStartTime [Ma]", @"Lower Jurassic TOC [%]", @"CrustThinningFactor [m/m]", @"EventDuration [Ma]", @"InitialCrustThickness [m]"},
+           { @"TopCrustHeatProdRate [\mu W/m^3]", @"EventStartTime [Ma]", @"Lower Jurassic TOC [%]", @"CrustThinningFactor [m/m]", @"EventDuration [Ma]", @"InitialCrustThickness [m]"},
+           { @"TopCrustHeatProdRate [\mu W/m^3]", @"EventStartTime [Ma]", @"Lower Jurassic TOC [%]", @"CrustThinningFactor [m/m]", @"EventDuration [Ma]", @"InitialCrustThickness [m]"},
+           { @"TopCrustHeatProdRate [\mu W/m^3]", @"EventStartTime [Ma]", @"Lower Jurassic TOC [%]", @"CrustThinningFactor [m/m]", @"EventDuration [Ma]", @"InitialCrustThickness [m]"},
+           { @"TopCrustHeatProdRate [\mu W/m^3]", @"EventStartTime [Ma]", @"Lower Jurassic TOC [%]", @"CrustThinningFactor [m/m]", @"EventDuration [Ma]", @"InitialCrustThickness [m]"}
          };
 
          s_sa = ScenarioAnalysis.loadScenario(s_serialisedStateFileName, "txt");
