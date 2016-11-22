@@ -158,20 +158,16 @@ TEST_F( SensCalcTest, SensitivityCalculatorTornadoTest )
    if ( m_validationMode ) { std::cerr << sensValsOut.str() << obsNamesOut.str() <<  prmNamesOut.str(); }
 }
 
-
-double paretoSensValues[] = { 24.6649, 22.7412, 20.3575, 15.7707, 14.2258, 2.2399 } ;
-
+double paretoSensValues[] = { 26.6732, 20.1689, 18.6447, 15.3444, 12.6147, 6.55409 };
 
 const char * paretoIPNames[] = {
       "TopCrustHeatProdRate [\\mu W/m^3]",
-      "CrustThinningFactor [m/m]",
       "EventStartTime [Ma]",
-      "EventDuration [Ma]",
       "Lower Jurassic TOC [%]",
+      "CrustThinningFactor [m/m]",
+      "EventDuration [Ma]",
       "InitialCrustThickness [m]"
 };
-
-
 
 
 TEST_F( SensCalcTest, SensitivityCalculatorParetoTest )
@@ -181,7 +177,7 @@ TEST_F( SensCalcTest, SensitivityCalculatorParetoTest )
 
    ASSERT_EQ( ErrorHandler::NoError, m_sc->errorCode() );
 
-   const casa::RSProxy * secOrdProx = m_sc->rsProxySet().rsProxy( "SecondOrder" );
+   casa::RSProxy * secOrdProx = m_sc->rsProxySet().rsProxy( "SecondOrder" );
    
    ASSERT_TRUE( secOrdProx != NULL );
 
@@ -221,25 +217,26 @@ TEST_F( SensCalcTest, SensitivityCalculatorParetoTest )
       std::cerr << prmVals.str() << prmNames.str();
    }
 }
-
 double paretoCyclicSensValues[5][6] = {
-     {  24.5383, 22.6555, 19.5884, 16.5954, 14.5813, 2.04104 },
-     {  24.5176, 22.6309, 19.987,  15.6891, 15.0512, 2.12426 },
-     {  24.5324, 22.6385, 20.1405, 15.2782, 15.248,  2.16245 },
-     {  24.5508, 22.651,  20.2158, 15.4089, 14.9898, 2.18381 },
-     {  24.5671, 22.6629, 20.2583, 15.4922, 14.8223, 2.19715 }
+     {  26.6732, 20.1689, 18.6447, 15.3444, 12.6147, 6.55409 },
+     {  26.6732, 20.1689, 18.6447, 15.3444, 12.6147, 6.55409 },
+     {  26.6732, 20.1689, 18.6447, 15.3444, 12.6147, 6.55409 },
+     {  26.6732, 20.1689, 18.6447, 15.3444, 12.6147, 6.55409 },
+     {  26.6732, 20.1689, 18.6447, 15.3444, 12.6147, 6.55409 }
 };
+
 const char * paretoCyclicIPName[5][6] = {
-      { "TopCrustHeatProdRate [\\mu W/m^3]", "CrustThinningFactor [m/m]", "EventStartTime [Ma]", "Lower Jurassic TOC [%]", "EventDuration [Ma]", "InitialCrustThickness [m]" },
-      { "TopCrustHeatProdRate [\\mu W/m^3]", "CrustThinningFactor [m/m]", "EventStartTime [Ma]", "Lower Jurassic TOC [%]", "EventDuration [Ma]", "InitialCrustThickness [m]" },
-      { "TopCrustHeatProdRate [\\mu W/m^3]", "CrustThinningFactor [m/m]", "EventStartTime [Ma]", "EventDuration [Ma]", "Lower Jurassic TOC [%]", "InitialCrustThickness [m]" },
-      { "TopCrustHeatProdRate [\\mu W/m^3]", "CrustThinningFactor [m/m]", "EventStartTime [Ma]", "EventDuration [Ma]", "Lower Jurassic TOC [%]", "InitialCrustThickness [m]" },
-      { "TopCrustHeatProdRate [\\mu W/m^3]", "CrustThinningFactor [m/m]", "EventStartTime [Ma]", "EventDuration [Ma]", "Lower Jurassic TOC [%]", "InitialCrustThickness [m]" }
+      { "TopCrustHeatProdRate [\\mu W/m^3]", "EventStartTime [Ma]", "Lower Jurassic TOC [%]", "CrustThinningFactor [m/m]", "EventDuration [Ma]", "InitialCrustThickness [m]" },
+      { "TopCrustHeatProdRate [\\mu W/m^3]", "EventStartTime [Ma]", "Lower Jurassic TOC [%]", "CrustThinningFactor [m/m]", "EventDuration [Ma]", "InitialCrustThickness [m]" },
+      { "TopCrustHeatProdRate [\\mu W/m^3]", "EventStartTime [Ma]", "Lower Jurassic TOC [%]", "CrustThinningFactor [m/m]", "EventDuration [Ma]", "InitialCrustThickness [m]" },
+      { "TopCrustHeatProdRate [\\mu W/m^3]", "EventStartTime [Ma]", "Lower Jurassic TOC [%]", "CrustThinningFactor [m/m]", "EventDuration [Ma]", "InitialCrustThickness [m]" },
+      { "TopCrustHeatProdRate [\\mu W/m^3]", "EventStartTime [Ma]", "Lower Jurassic TOC [%]", "CrustThinningFactor [m/m]", "EventDuration [Ma]", "InitialCrustThickness [m]" }
+
 };
 
 TEST_F( SensCalcTest, SensitivityCalculatorCyclicParetoTest )
 {
-   const casa::RSProxy * secOrdProx = m_sc->rsProxySet().rsProxy( "SecondOrder" );
+   casa::RSProxy * secOrdProx = m_sc->rsProxySet().rsProxy( "SecondOrder" );
 
    ASSERT_TRUE( secOrdProx != NULL );
 

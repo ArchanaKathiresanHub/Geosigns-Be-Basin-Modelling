@@ -46,7 +46,7 @@ void CmdPlotPareto::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
 {
    // find proxy first
    // Search for given proxy name in the set of calculated proxies
-   const casa::RSProxy * proxy = sa->rsProxySet().rsProxy( m_proxyName.c_str() );
+   casa::RSProxy * proxy = sa->rsProxySet().rsProxy( m_proxyName.c_str() );
    // call response evaluation
    if ( !proxy ) { throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Unknown proxy name:" << m_proxyName; }
 

@@ -20,6 +20,7 @@
 // CASA
 #include "CasaSerializer.h"
 #include "TornadoSensitivityInfo.h"
+#include "ParetoSensitivityInfo.h"
 
 /// @page CASA_SensitivityCalculatorPage Sensitivity calculator for variable parameters
 /// <b>Sensitivity calculator</b> uses the results of DoE Cauldron runs and 
@@ -72,43 +73,8 @@
 
 namespace casa
 {
-   class VarSpace;
-   class ObsSpace;
-   class RSProxySet;
    class RSProxy;
    class RunCaseSet;
-   
-   /// @brief Data structure for keeping Pareto sensitivity calculation results
-   struct ParetoSensitivityInfo
-   {
-      /// @brief Get a list of VarParameters that together have a cumulative sensitivity of the specified value, or more.
-      /// @param fraction cumulative sensitivity: fractional number in range [0.0:1.0]
-      /// @returns        a vector parameters numbers as they are numbered in VarSpace
-      const std::vector< std::pair<const VarParameter *, int > > getVarParametersWithCumulativeImpact( double fraction ) const;
-
-      /// @brief Get the sensitivity of specified VarParameter
-      /// @param varPrm variable parameter object pointer
-      /// @param subPrmID sub-parameter ID
-      /// @returns      the sensitivity value
-      double getSensitivity( const VarParameter * varPrm, int subPrmID ) const;
-
-      /// @brief Get the cumulative sensitivity of specified VarParameter
-      /// @param varPrm variable parameter  object pointer
-      /// @param subPrmID  sub-parameter ID
-      /// @returns the cumulative sensitivity value
-      double getCumulativeSensitivity( const VarParameter * varPrm, int subPrmID ) const;
-
-      /// @brief Add new parameter sensitivity to the list
-      /// @param varPrm parameter number in VarSpace
-      /// @param subPrmID subparameter ID
-      /// @param val variable parameter sensitivity
-      void add( const VarParameter * varPrm, int subPrmID, double val );
-
-      std::vector< const VarParameter * > m_vprmPtr;    ///< Variable parameter pointer
-      std::vector< int >                  m_vprmSubID;  ///< Variable parameter sub-parameter ID
-      std::vector< double >               m_vprmSens;   ///< Variable parameter sub-parameter sensitivity
-   };
-
 
    /// @brief Allows to find all variable parameters sensitivity with respect to each observable and
    /// build Tornado and Pareto diagrams
@@ -122,7 +88,7 @@ namespace casa
       /// @param proxy [in]     pointer to the proxy object which is used to calculate parameters sensitivities
       /// @param sensInfo [out] data set which contains all parameters cumulative sensitivities which can be used to create Pareto diagram
       /// @return ErrorHandler::NoError in case of success, or error code otherwise
-      virtual ErrorHandler::ReturnCode calculatePareto(const RSProxy * proxy, ParetoSensitivityInfo  & sensInfo) = 0;
+      virtual ErrorHandler::ReturnCode calculatePareto( RSProxy * proxy, ParetoSensitivityInfo  & sensInfo ) = 0;
 
       /// @brief Construct 1st order proxy for given set of cases and calculate Tornado variable parameters sensitivities
       /// @param cs [in] case set manager which keeps run cases for DoE experiments

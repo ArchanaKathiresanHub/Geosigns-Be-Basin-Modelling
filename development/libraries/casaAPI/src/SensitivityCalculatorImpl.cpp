@@ -27,6 +27,9 @@
 #include <cassert>
 #include <sstream>
 #include <vector>
+#include <algorithm>
+#include <numeric>
+#include <limits>
 
 // SUMlib
 #include "BaseTypes.h"
@@ -42,171 +45,12 @@ namespace casa
    typedef std::vector<ProxyWeightPair>            ProxyWeightList1D;
 
    //////////////////////////////////////////////////////////////
-   // ParetoSensitivityInfo
-   //////////////////////////////////////////////////////////////
-   const std::vector< std::pair<const VarParameter *, int > >
-   ParetoSensitivityInfo::getVarParametersWithCumulativeImpact( double fraction ) const
-   {
-      std::vector< std::pair<const VarParameter *, int> > ret;
-      double cumulative = 0.0;
-      for ( size_t i = 0; cumulative < fraction && i < m_vprmSens.size(); ++i )
-      {
-         cumulative += m_vprmSens[i];
-         ret.push_back( std::pair< const VarParameter *, int >( m_vprmPtr[i], m_vprmSubID[i] ) );
-      }
-      return ret;
-   }
-
-   // Get the sensitivity of specified VarParameter
-   double ParetoSensitivityInfo::getSensitivity( const VarParameter * varPrm, int subPrmID ) const
-   {
-      for ( size_t i = 0; i < m_vprmPtr.size(); ++i )
-      {
-         if ( m_vprmPtr[i] == varPrm && m_vprmSubID[i] == subPrmID )
-         {
-            return m_vprmSens[i];
-         }
-      }
-      return 0.0;
-   }
-
-   // Get the cumulative sensitivity of specified VarParameter
-   double ParetoSensitivityInfo::getCumulativeSensitivity( const VarParameter * varPrm, int subPrmID ) const
-   {
-      double cumulative = 0.0;
-      for ( size_t i = 0; i < m_vprmSens.size(); ++i )
-      {
-         cumulative += m_vprmSens[i];
-         if ( m_vprmPtr[i] == varPrm && m_vprmSubID[i] == subPrmID ) break;
-      }
-      return cumulative;
-   }
-
-   // Add new parameter sensitivity to the list
-   void ParetoSensitivityInfo::add( const VarParameter * varPrm, int subPrmID, double val ) 
-   { 
-      for ( size_t i = 0; i < m_vprmSens.size() && varPrm; ++i )
-      {  // create sorted by sensitivity value array
-         if ( m_vprmSens[i] < val )
-         {
-            m_vprmSens.insert(  m_vprmSens.begin()  + i, val );
-            m_vprmSubID.insert( m_vprmSubID.begin() + i, subPrmID );
-            m_vprmPtr.insert(   m_vprmPtr.begin()   + i, varPrm );
-            varPrm = 0;
-         }
-      }
-      if ( varPrm ) 
-      {
-         m_vprmSens.push_back(  val );
-         m_vprmSubID.push_back( subPrmID );
-         m_vprmPtr.push_back(   varPrm );
-      }
-   }
-
-
-
-   //////////////////////////////////////////////////////////////
    // SensitivityCalculator methods
    //////////////////////////////////////////////////////////////
     SensitivityCalculatorImpl::SensitivityCalculatorImpl( const VarSpace * vsp, const ObsSpace * obs ) 
       : m_obsSpace( obs )
       , m_varSpace( vsp )
    {
-   }
-
-
-   ErrorHandler::ReturnCode SensitivityCalculatorImpl::calculatePareto( const RSProxy * proxy, ParetoSensitivityInfo & data )
-   {
-      try
-      {
-         const RSProxyImpl * proxySet = dynamic_cast<const RSProxyImpl *>( proxy );
-         assert( proxySet );
-
-         const SUMlib::CompoundProxyCollection * proxies = proxySet->getProxyCollection();
-         const SUMlib::ParameterSpace          & parSpace = proxies->getParameterSpace();
-
-         // fill and scale variable parameters ranges
-         SUMlib::ParameterPdf pdf;
-         sumext::convertVarSpace2ParameterPdf( *m_varSpace, parSpace, pdf );
-         // scale also excluded disabled parameters (where min=max)
-         pdf.scale();
-
-         // fill observables and weights
-         // SensitivityInput 2D array of proxy and weight pairs.SensitivityInput[i][j] corresponds to a proxy and weight pair for
-         // observable i and well j.
-         SUMlib::Pareto::SensitivityInput  proxyMap;
-
-         // create a structure for all observables with non zero SA weight
-         for ( size_t i = 0; i < m_obsSpace->size(); ++i )
-         {
-            // n prop for 1 well
-            const Observable * obs = m_obsSpace->observable( i );
-
-            for ( size_t j = 0; j < obs->dimension(); ++j ) // one SA weight for all observable dimension 
-            {
-               proxyMap.push_back( ProxyWeightList1D() );
-               proxyMap.back().push_back( std::pair< const SUMlib::Proxy *, double >( proxies->getProxyList()[i], obs->saWeight() ) );
-            }
-         }
-
-         std::vector<double>       sensitivity;
-         std::vector<double>       cumulatives;
-         std::vector<unsigned int> order;
-
-         // Calculate sensitivities, and determine order of decreasing sensitivity
-         SUMlib::Pareto pareto;
-         pareto.getSensitivities( proxyMap, pdf, sensitivity );
-         pareto.normalizeAndSort( sensitivity, order, cumulatives );
-
-         // order is empty if normalization was not possible (i.e. total sensitivity == 0)
-         assert( order.empty() || order.size() == sensitivity.size() );
-
-         // create permutation vector to convert linear var. parameter enumeration to VarParameter pointer and sub-parameter ID
-         std::vector< std::pair<const VarParameter *, int > > varPrmsPerm;
-         for ( size_t i = 0; i < m_varSpace->size(); ++i )
-         {
-            const VarParameter * vprm = m_varSpace->parameter( i );
- 
-            switch ( vprm->variationType() )
-            {
-               case casa::VarParameter::Continuous:
-                  {
-                     const casa::VarPrmContinuous * cprm = dynamic_cast<const casa::VarPrmContinuous*>( vprm );
-                     const std::vector<bool> & selPrms = cprm->selected();
-   
-                     for ( size_t j = 0; j < vprm->dimension(); ++j )
-                     {
-                        if ( selPrms[j] ) { varPrmsPerm.push_back( std::pair< const VarParameter *, int >( vprm, static_cast<int>( j ) ) ); }
-                     }
-                  }
-                  break;
-
-               case casa::VarParameter::Categorical:
-               default:
-                  {
-                     for ( size_t j = 0; j < vprm->dimension(); ++j )
-                     {
-                        varPrmsPerm.push_back( std::pair< const VarParameter *, int >( vprm, static_cast<int>( j ) ) );
-                     }
-                  }
-                  break;
-            }
-         }
-        
-         // fill sensitivities into return data structure
-         for ( size_t i = 0; i < order.size(); ++i )
-         {
-            data.add( varPrmsPerm[order[i]].first, varPrmsPerm[order[i]].second, sensitivity[i] );
-         }
-      }
-      catch ( SUMlib::Exception & e )
-      {
-         std::ostringstream oss;
-         oss << "SUMlib exception caught: " << e.what();
-         return reportError( SUMLibException, oss.str() );
-      }
-
-      return NoError;
    }
 
 
@@ -330,6 +174,121 @@ namespace casa
          }
       }
    }
+   
+   void SensitivityCalculatorImpl::calculateParetoSensitivity( std::vector<double>              & rangeOfPropertyResponse
+                                                             , std::vector<std::vector<double>> & propSensitivities
+                                                             , std::vector<RunCaseImpl>         & css
+                                                             , size_t                             prmID
+                                                             , size_t                             prmSubID 
+                                                             )
+   {
+      propSensitivities.push_back( std::vector<double>( m_obsSpace->size(), 0.0 ) );
+
+      for ( size_t o = 0; o < m_obsSpace->size(); ++o )
+      {
+         const Observable * obs = m_obsSpace->observable( o );
+         double wgt = obs->uaWeight();
+
+         double minProxy = UndefinedDoubleValue;
+         double maxProxy = UndefinedDoubleValue;
+        
+         for ( size_t oo = 0; oo < obs->dimension(); ++oo )
+         {
+            std::for_each( css.begin(), css.end(), [o, oo, &minProxy, &maxProxy] ( RunCaseImpl & cs ) 
+                                                   {
+                                                      double csVal = cs.obsValue( o )->asDoubleArray()[oo];
+                                                      if ( csVal != UndefinedDoubleValue )
+                                                      {
+                                                         minProxy = minProxy == UndefinedDoubleValue ? csVal : std::min( csVal, minProxy );
+                                                         maxProxy = maxProxy == UndefinedDoubleValue ? csVal : std::max( csVal, maxProxy );
+                                                      }
+                                                   } );
+            double dProxy = maxProxy - minProxy;
+
+            if ( dProxy > rangeOfPropertyResponse[o] ) { rangeOfPropertyResponse[o] = dProxy; }
+            propSensitivities.back()[o] +=  wgt * dProxy; //actual weighting of the raw sensitivities!
+         }
+      }
+   }
+
+   ErrorHandler::ReturnCode SensitivityCalculatorImpl::calculatePareto( RSProxy * proxy, ParetoSensitivityInfo & data )
+   {
+      try
+      {
+         std::vector<double>               rangeOfPropertyResponse( m_obsSpace->size(), std::numeric_limits<double>::epsilon() );
+         std::vector<std::vector<double>>  propSensitivities; // Prm x Obs
+         
+         // create permutation vector to convert linear var. parameter enumeration to VarParameter pointer and sub-parameter ID
+         std::vector< std::pair<const VarParameter *, int > > varPrmsPerm;
+
+         // calculate sensitivities first for the continious parameters
+         for ( size_t i = 0; i < m_varSpace->size(); ++i )
+         {
+            const VarParameter * prm = m_varSpace->parameter( i );
+            
+            if ( prm->variationType() == VarParameter::Continuous ) 
+            {
+               const std::vector<bool> & selPrms = dynamic_cast<const casa::VarPrmContinuous*>( prm )->selected();
+               for ( size_t j = 0; j < prm->dimension(); ++j )
+               {
+                  if ( !selPrms[j] ) { continue; }
+                  // Calculate 100 RS evaluations on [min:max] parameter interval
+                  std::vector<RunCaseImpl> css( 101 );
+                  for ( size_t k = 0; k < css.size(); ++k ) 
+                  { 
+                     prepareCaseForProxyEvaluation( css[k], i, j, -1.0 + k * (2.0 / (css.size()-1.0)) );
+                     if ( NoError != proxy->evaluateRSProxy( css[k] ) ) { throw ErrorHandler::Exception( *proxy ); }
+                  }
+                  calculateParetoSensitivity( rangeOfPropertyResponse, propSensitivities, css, i, j );
+                  varPrmsPerm.push_back( std::pair< const VarParameter *, int >( prm, static_cast<int>( j ) ) ); 
+               }
+            }
+            else if ( prm->variationType() == VarParameter::Categorical ) 
+            {
+               // Extract all categorical values
+               const std::vector<unsigned int> & pvals = dynamic_cast<const VarPrmCategorical*>( prm )->valuesAsUnsignedIntSortedSet();
+               // evaluate proxy for each categorica value
+               std::vector<RunCaseImpl> css( pvals.size() );
+               for ( auto j : pvals )
+               {  // Calculate RS evaluations for each categorical value
+                  prepareCaseForProxyEvaluation( css[j], i, j, 0 );
+                  if ( NoError != proxy->evaluateRSProxy( css[j] ) ) { throw ErrorHandler::Exception( *proxy ); }
+               }
+               calculateParetoSensitivity( rangeOfPropertyResponse, propSensitivities, css, i, 0 );
+               varPrmsPerm.push_back( std::pair< const VarParameter *, int >( prm, 0 ) ); 
+            }
+            else { throw Exception( NotImplementedAPI ) << "Unsupported parameter type for Pareto diagram calculation"; }
+         }
+         
+         // accumulate parameter sensitivity over all observables
+         std::vector<double>  sensitivity( propSensitivities.size(), 0.0 );
+         for ( size_t i = 0; i < propSensitivities.size(); ++i )
+         {
+            for ( size_t k = 0; k < propSensitivities[i].size(); ++k ) // go over all observables
+            {
+               sensitivity[i] += propSensitivities[i][k] / rangeOfPropertyResponse[k];
+            }
+         }
+
+         // Normalize and sort sensitivities, in order of decreasing sensitivity
+         std::vector<unsigned int> order;
+         std::vector<double>       cumulatives;
+         SUMlib::Pareto pareto;
+         pareto.normalizeAndSort( sensitivity, order, cumulatives );
+
+         // order is empty if normalization was not possible (i.e. total sensitivity == 0)
+         assert( order.empty() || order.size() == sensitivity.size() );
+
+         // fill sensitivities into return data structure
+         for ( size_t i = 0; i < order.size(); ++i )
+         {
+            data.add( varPrmsPerm[order[i]].first, varPrmsPerm[order[i]].second, sensitivity[i] );
+         }
+      }
+      catch( const ErrorHandler::Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
+
+      return NoError;
+   }
 
    std::vector<TornadoSensitivityInfo> SensitivityCalculatorImpl::calculateTornado( RunCaseSet & cs, const std::vector<std::string> & expNames )
    {
@@ -367,7 +326,7 @@ namespace casa
             std::vector<RunCaseImpl> css( 101 );
             for ( size_t k = 0; k < css.size(); ++k ) 
             { 
-               prepareCaseForProxyEvaluation( css[k], i, j, -1.0 + k * 0.02 );
+               prepareCaseForProxyEvaluation( css[k], i, j, -1.0 + k * (2.0 / (css.size()-1.0)) );
                if ( ErrorHandler::NoError != sensProxy->evaluateRSProxy( css[k] ) ) { throw ErrorHandler::Exception( *(sensProxy.get() ) ); }
             }
             calculatePrmSensitivity( returnValue, css, i, j );
@@ -393,7 +352,7 @@ namespace casa
          }
       }
 
-      // and at the end when we have sensitivities for all paramters, we can calulate relative sensitivities
+      // and at the end when we have sensitivities for all parameters, we can calulate relative sensitivities
       for ( size_t i = 0; i < returnValue.size(); ++i ) { returnValue[i].calculateRelativeSensitivities(); }
 
       return returnValue;

@@ -26,8 +26,10 @@
 
 namespace casa
 {
+   class ObsSpace;
    class RSProxyImpl;
    class RunCaseImpl;
+   class VarSpace;
 
    /// @brief Allows to find all variable parameters sensitivity with respect to each observable and
    /// build Tornado and Pareto diagrams
@@ -44,7 +46,7 @@ namespace casa
       /// @param proxy[in]     pointer to the proxy object which is used to calculate parameters sensitivities
       /// @param sensInfo[out] data set which contains all parameters cumulative sensitivities which can be used to create Pareto diagram
       /// @return ErrorHandler::NoError in case of success, or error code otherwise
-      virtual ErrorHandler::ReturnCode calculatePareto(  const RSProxy * proxy, ParetoSensitivityInfo  & sensInfo );
+      virtual ErrorHandler::ReturnCode calculatePareto( RSProxy * proxy, ParetoSensitivityInfo  & sensInfo );
 
       /// @brief Construct 1st order proxy for given set of cases and calculate Tornado variable parameters sensitivities
       /// @param cs[in] case set manager which keeps run cases for DoE experiments
@@ -81,9 +83,20 @@ namespace casa
       // from min/base/max parameter range using rngValue [-1:0:1]
       void prepareCaseForProxyEvaluation( RunCaseImpl & cs, size_t prmID, size_t subPrmID, double rngValue );
 
+      // Calculate cumulitive pareto sensitivity for the given parameter
+      // It looks for min/max target values for the given set of cases
+      // Accumulates max-min over all targets normalizing and weighting 
+      // fills sorted array
+      void calculateParetoSensitivity( std::vector<double>              & rangeOfPropertyResponse
+                                     , std::vector<std::vector<double>> & propSensitivities
+                                     , std::vector<RunCaseImpl>         & css
+                                     , size_t                             prmID
+                                     , size_t                             prmSubID
+                                     );
+ 
       // Calculate given parameter sensitivity over all parameter range for all observables
-      // 1. It calculates min/max sensitivity for min/max paramter range
-      // 2. It looks for min/max observable value over all paramter range with 1/100 paramter range step
+      // 1. It calculates min/max sensitivity for min/max parameter range
+      // 2. It looks for min/max observable value over all parameter range with 1/100 paramter range step
       // 3. If observable value is undefined in parameter range it looks for valid parameter subranges set
       void calculatePrmSensitivity( std::vector<TornadoSensitivityInfo> & sensData, std::vector<RunCaseImpl> & css, size_t prmID, size_t prmSubID );
  
@@ -91,7 +104,6 @@ namespace casa
       SensitivityCalculatorImpl( const SensitivityCalculatorImpl & sc );
       SensitivityCalculatorImpl & operator = ( const SensitivityCalculatorImpl & sc );
    };
-
 }
 
 #endif // CASA_API_SENSITIVITY_CALCULATOR_IMPL_H
