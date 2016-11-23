@@ -44,7 +44,6 @@ bool BasementPropertyCalculator::calculate ()
 {
 
    if ( m_formation->kind () == Interface::BASEMENT_FORMATION ) {
-      unsigned int i;
       
       if ( not isCalculated () ) {
          m_isCalculated = calculateProperty();
@@ -94,9 +93,7 @@ bool BasementPropertyCalculator::calculateProperty () {
                        *m_formation->vectorList.VecArray [ m_propertyName ],
                        (void*) &propertyVector );
 
-      double offset;
       const double theTime = m_snapshot->getTime();
-      CompoundLithology * curLithology;
       
       undefinedValue = theMap->getUndefinedValue ();
       

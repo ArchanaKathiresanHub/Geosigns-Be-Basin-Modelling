@@ -16,8 +16,45 @@ public :
 
    ~MantleFormation ();
 
-   void initialise ();
+   const string                                        & getName()                    const { return GeoPhysics::GeoPhysicsMantleFormation::getName(); }
+   const DataAccess::Interface::LithoType              * getLithoType1()              const { return GeoPhysics::GeoPhysicsMantleFormation::getLithoType1(); }
+   const DataAccess::Interface::GridMap                * getLithoType1PercentageMap() const { return GeoPhysics::GeoPhysicsMantleFormation::getLithoType1PercentageMap(); }
+   const DataAccess::Interface::LithoType              * getLithoType2()              const { return GeoPhysics::GeoPhysicsMantleFormation::getLithoType2(); }
+   const DataAccess::Interface::GridMap                * getLithoType2PercentageMap() const { return GeoPhysics::GeoPhysicsMantleFormation::getLithoType2PercentageMap(); }
+   const DataAccess::Interface::LithoType              * getLithoType3()              const { return GeoPhysics::GeoPhysicsMantleFormation::getLithoType3(); }
+   const DataAccess::Interface::GridMap                * getLithoType3PercentageMap() const { return GeoPhysics::GeoPhysicsMantleFormation::getLithoType3PercentageMap(); }
+   DataAccess::Interface::ReservoirList                * getReservoirs()              const { return GeoPhysics::GeoPhysicsMantleFormation::getReservoirs(); }
+   DataAccess::Interface::MobileLayerList              * getMobileLayers()            const { return GeoPhysics::GeoPhysicsMantleFormation::getMobileLayers(); }
+   const DataAccess::Interface::AllochthonousLithology * getAllochthonousLithology()  const { return GeoPhysics::GeoPhysicsMantleFormation::getAllochthonousLithology(); }
+   DataAccess::Interface::FaultCollectionList          * getFaultCollections()        const { return GeoPhysics::GeoPhysicsMantleFormation::getFaultCollections(); }
+   bool                                                  isMobileLayer()              const { return GeoPhysics::GeoPhysicsMantleFormation::isMobileLayer(); }
+   bool                                                  hasAllochthonousLithology()  const { return GeoPhysics::GeoPhysicsMantleFormation::hasAllochthonousLithology(); }
+   bool                                                  hasConstrainedOverpressure() const { return GeoPhysics::GeoPhysicsMantleFormation::hasConstrainedOverpressure(); }
+   bool                                                  hasChemicalCompaction()      const { return GeoPhysics::GeoPhysicsMantleFormation::hasChemicalCompaction(); }
+   CBMGenerics::capillarySealStrength::MixModel          getMixModel()                const { return GeoPhysics::GeoPhysicsMantleFormation::getMixModel(); }
+   float                                                 getLayeringIndex()           const { return GeoPhysics::GeoPhysicsMantleFormation::getLayeringIndex(); }
+   const DataAccess::Interface::FluidType              * getFluidType()               const { return GeoPhysics::GeoPhysicsMantleFormation::getFluidType(); }
+   const std::string                                   & getMixModelStr()             const { return GeoPhysics::GeoPhysicsMantleFormation::getMixModelStr(); }
+   DataAccess::Interface::GridMap                      * loadThicknessMap()           const { return GeoPhysics::GeoPhysicsMantleFormation::loadThicknessMap(); }
+   DataAccess::Interface::GridMap                      * computeThicknessMap()        const { return GeoPhysics::GeoPhysicsMantleFormation::computeThicknessMap(); }
+   DataAccess::Interface::GridMap                      * computeFaultGridMap( const DataAccess::Interface::Grid * localGrid, const DataAccess::Interface::Snapshot * snapshot ) const {
+      return GeoPhysics::GeoPhysicsMantleFormation::computeFaultGridMap( localGrid, snapshot );
+   }
+   const DataAccess::Interface::GridMap                * getInputThicknessMap()       const { return GeoPhysics::GeoPhysicsMantleFormation::getInputThicknessMap(); }
+   int                                                   getDepositionSequence()      const { return GeoPhysics::GeoPhysicsMantleFormation::getDepositionSequence(); }
+   void                                                  asString( string & str )     const { return GeoPhysics::GeoPhysicsMantleFormation::asString( str ); }
 
+   void determineMinMaxThickness()                                                          { return GeoPhysics::GeoPhysicsMantleFormation::determineMinMaxThickness(); }
+   bool isCrust()                                                                     const { return GeoPhysics::GeoPhysicsMantleFormation::isCrust(); }
+   unsigned int setMaximumNumberOfElements( const bool readSizeFromVolumeData )             { return GeoPhysics::GeoPhysicsMantleFormation::setMaximumNumberOfElements( readSizeFromVolumeData ); }
+   void retrieveAllThicknessMaps()                                                          { return GeoPhysics::GeoPhysicsMantleFormation::retrieveAllThicknessMaps(); }
+   void restoreAllThicknessMaps()                                                           { return GeoPhysics::GeoPhysicsMantleFormation::restoreAllThicknessMaps(); }
+   bool isMantle()                                                                          { return GeoPhysics::GeoPhysicsMantleFormation::isMantle(); }
+
+   // Inherited via LayerProperties
+   void switchLithologies( const double age ) { return LayerProps::LayerProps::switchLithologies( age ); }
+
+   void initialise ();
 
    double presentDayThickness ( const int i, const int j ) const;
 

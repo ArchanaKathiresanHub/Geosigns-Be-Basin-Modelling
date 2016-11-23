@@ -68,7 +68,7 @@ namespace GeoPhysics {
 
 
       // Need to sort these out!
-      int size () const {
+      size_t size () const {
          return compoundLithologies.size ();
       }
 

@@ -245,8 +245,8 @@ void FaultElementCalculator::computeGridIntersectionPoints ( const LineSegment& 
                                                                    bool&          translatedNeeded ) const
 {
    int I;
-   int oldSize;
-   int newSize;
+   size_t oldSize;
+   size_t newSize;
 
    Point P;
    PointLessThan PLT;

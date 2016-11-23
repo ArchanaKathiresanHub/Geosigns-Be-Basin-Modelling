@@ -241,7 +241,7 @@ GridMap * PropertyValue::getGridMap (void) const
 
 bool PropertyValue::isUploadedToBPA (void) const
 {
-   return getBPAPresence (m_record);
+   return getBPAPresence (m_record) == 0 ? false : true;
 }
 
 string PropertyValue::saveToDirectory (const string & directory)
@@ -381,20 +381,20 @@ database::Record* PropertyValue::createTimeIoRecord (database::Table * timeIoTbl
    if (m_formation)
       depoSequence += m_formation->getDepositionSequence () * 1000;
 
-   database::setDepoSequence (timeIoRecord, depoSequence);
-   database::setBPAPresence (timeIoRecord, 0);
-   database::setMD5Checksum (timeIoRecord, "");
-   database::setStandardDev (timeIoRecord, DefaultUndefinedScalarValue);
-   database::setSum2 (timeIoRecord, DefaultUndefinedScalarValue);
-   database::setNP (timeIoRecord, DefaultUndefinedScalarValue);
-   database::setP15 (timeIoRecord, DefaultUndefinedScalarValue);
-   database::setP50 (timeIoRecord, DefaultUndefinedScalarValue);
-   database::setP85 (timeIoRecord, DefaultUndefinedScalarValue);
-   database::setSumSecondPower (timeIoRecord, DefaultUndefinedScalarValue);
-   database::setSumThirdPower (timeIoRecord, DefaultUndefinedScalarValue);
-   database::setSumFourthPower (timeIoRecord, DefaultUndefinedScalarValue);
-   database::setSkewness (timeIoRecord, DefaultUndefinedScalarValue);
-   database::setKurtosis (timeIoRecord, DefaultUndefinedScalarValue);
+   database::setDepoSequence (   timeIoRecord, depoSequence);
+   database::setBPAPresence (    timeIoRecord, 0);
+   database::setMD5Checksum (    timeIoRecord, "");
+   database::setStandardDev (    timeIoRecord, DefaultUndefinedScalarValue);
+   database::setSum2 (           timeIoRecord, DefaultUndefinedScalarValue);
+   database::setNP (             timeIoRecord, DefaultUndefinedScalarIntValue );
+   database::setP15 (            timeIoRecord, DefaultUndefinedScalarIntValue );
+   database::setP50 (            timeIoRecord, DefaultUndefinedScalarValue);
+   database::setP85 (            timeIoRecord, DefaultUndefinedScalarValue);
+   database::setSumSecondPower ( timeIoRecord, DefaultUndefinedScalarValue);
+   database::setSumThirdPower (  timeIoRecord, DefaultUndefinedScalarValue);
+   database::setSumFourthPower ( timeIoRecord, DefaultUndefinedScalarValue);
+   database::setSkewness (       timeIoRecord, DefaultUndefinedScalarValue);
+   database::setKurtosis (       timeIoRecord, DefaultUndefinedScalarValue);
 
    setRecord (timeIoRecord);
 
@@ -411,7 +411,7 @@ database::Record* PropertyValue::create1DTimeIoRecord (database::Table * timeIoT
    database::setPropertyName (timeIoRecord, getName ());
    database::setTime (timeIoRecord, m_snapshot->getTime ());
    database::setFormationName (timeIoRecord, m_formation->getName ());
-   database::setNodeIndex (timeIoRecord, DefaultUndefinedScalarValue);
+   database::setNodeIndex (timeIoRecord, DefaultUndefinedScalarIntValue );
 
    database::setSurfaceName (timeIoRecord, "");
    database::setValue (timeIoRecord, DefaultUndefinedScalarValue);
@@ -435,16 +435,16 @@ database::Record* PropertyValue::create3DTimeIoRecord (database::Table * timeIoT
    
    database::setMapFileName (timeIoRecord, "");
 
-   database::setNumberX (timeIoRecord, DefaultUndefinedScalarValue);
-   database::setNumberY (timeIoRecord, DefaultUndefinedScalarValue);
-   database::setNumberZ (timeIoRecord, DefaultUndefinedScalarValue);
+   database::setNumberX (timeIoRecord, DefaultUndefinedScalarIntValue );
+   database::setNumberY (timeIoRecord, DefaultUndefinedScalarIntValue );
+   database::setNumberZ (timeIoRecord, DefaultUndefinedScalarIntValue );
 
    database::setAverage (timeIoRecord, DefaultUndefinedScalarValue);
    database::setMinimum (timeIoRecord, DefaultUndefinedScalarValue);
    database::setMaximum (timeIoRecord, DefaultUndefinedScalarValue);
-   database::setSum (timeIoRecord, DefaultUndefinedScalarValue);
-   database::setSum2 (timeIoRecord, DefaultUndefinedScalarValue);
-   database::setNP (timeIoRecord, DefaultUndefinedScalarValue);
+   database::setSum (    timeIoRecord, DefaultUndefinedScalarValue);
+   database::setSum2 (   timeIoRecord, DefaultUndefinedScalarValue);
+   database::setNP (     timeIoRecord, DefaultUndefinedScalarIntValue );
 
 
 

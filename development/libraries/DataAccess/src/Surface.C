@@ -38,7 +38,7 @@ Surface::Surface (ProjectHandle * projectHandle, Record * record) : DAObject (pr
    } else {
       m_snapshot = 0;
       m_kind = BASEMENT_SURFACE;
-      m_formationDepositionSequenceNumber = DefaultUndefinedScalarValue;
+      m_formationDepositionSequenceNumber = DefaultUndefinedScalarIntValue;
    }
 
 }
@@ -164,7 +164,7 @@ float Surface::getInputTwoWayTimeScalar( void ) const
       // find the good line for the Surface in the table
       if (database::getSurfaceName( twoWayTimeRecord ) == getName())
       {
-         float twoWayTimeScalar = database::getTwoWayTime( twoWayTimeRecord );
+         float twoWayTimeScalar = static_cast<float>( database::getTwoWayTime( twoWayTimeRecord ) );
          // a two way time needs two be a positive number
          if (twoWayTimeScalar >= 0)
          {
@@ -172,7 +172,7 @@ float Surface::getInputTwoWayTimeScalar( void ) const
          }
       }
    }
-   return -9999;
+   return static_cast<float>( DefaultUndefinedScalarValue );
 }
 
 GridMap * Surface::loadDepthMap (void) const

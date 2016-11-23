@@ -280,7 +280,7 @@ bool  DerivedProperties::createSnapshotResultPropertyValue (  GeoPhysics::Projec
        return true;
    }
 
-   double p_depth = propertyValue->getDepth();
+   unsigned int p_depth = propertyValue->getDepth();
    unsigned int kIndex = 0;
 
    PropertyValue *thePropertyValue = 0;

@@ -5949,5 +5949,5 @@ void ProjectHandle::setPrimaryDouble( const bool PrimaryFlag ) {
 }
 
 bool ProjectHandle::isPrimaryProperty( const string propertyName ) const {
-   return m_primaryList.count( propertyName );
+   return m_primaryList.count( propertyName ) == 0 ? false : true;
 }

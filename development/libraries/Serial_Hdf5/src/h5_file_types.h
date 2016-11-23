@@ -173,7 +173,10 @@ class H5_ReadWrite_File : public H5_Write_File, public H5_ReadOnly_File
 public:
    // ctor / dtor
    H5_ReadWrite_File () : H5_Write_File (), H5_ReadOnly_File () {}
-
+   
+   // to avoid inherited via dominance warning
+   hid_t createPropertyList( H5_PropertyList *userPropertyType ) { return H5_ReadOnly_File::createPropertyList( userPropertyType );  }
+   hid_t createDatasetPropertyList( H5_PropertyList *propertyType ) { return H5_ReadOnly_File::createDatasetPropertyList( propertyType ); }
 private:
    void openInMode (const char *filename);
 };

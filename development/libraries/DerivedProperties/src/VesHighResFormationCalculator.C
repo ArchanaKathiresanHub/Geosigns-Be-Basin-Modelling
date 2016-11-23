@@ -181,7 +181,7 @@ void DerivedProperties::VesHighResFormationCalculator::computeForSubsampledHydro
             if( m_projectHandle->getNodeIsValid(i, j) )
             {
                const GeoPhysics::CompoundLithology * lithology = currentFormation->getCompoundLithology(i, j);
-               bool surfacePorosity = lithology->surfacePorosity();
+               double surfacePorosity = lithology->surfacePorosity();
                assert( lithology != 0 );
 
                // the density difference cannot be smaller than 0

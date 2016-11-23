@@ -550,7 +550,7 @@ const std::string& Formation::getMixModelStr (void) const {
 }
 
 float Formation::getLayeringIndex(void) const {
-   return database::getLayeringIndex(m_record);
+   return static_cast<float>( database::getLayeringIndex(m_record) );
 }
 
 const FluidType* Formation::getFluidType () const

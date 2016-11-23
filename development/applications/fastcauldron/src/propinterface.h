@@ -630,11 +630,11 @@ inline bool AppCtx::isGeometricLoop () const {
 }
 
 inline bool AppCtx::useTemisRelPerm () const {
-   return bool ( m_useTemisRelPerm );
+   return bool ( m_useTemisRelPerm == 0 ? false : true );
 }
 
 inline bool AppCtx::integrateGenexEquations () const {
-   return doGenex;
+   return doGenex == 0 ? false : true;
 }
 
 inline bool AppCtx::saveOnDarcyError () const {

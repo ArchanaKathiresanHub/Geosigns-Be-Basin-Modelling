@@ -81,10 +81,9 @@ bool GeoPhysics::AllochthonousLithologyManager::allochthonousModellingRequired (
 bool GeoPhysics::AllochthonousLithologyManager::allochthonousModellingRequired ( database::Database* projectDatabase,
                                                                                  const std::string&  formationName ) const {
 
-  size_t i;
   database::Table* stratTable = projectDatabase->getTable ( "StratIoTbl" );
 
-  for ( i = 0; i < stratTable->size (); i++ ) {
+  for ( int i = 0; i < stratTable->size (); i++ ) {
 
     if ( database::getLayerName ( stratTable, i ) == formationName ) {
       return database::getHasAllochthonLitho ( stratTable, i ) == 1;

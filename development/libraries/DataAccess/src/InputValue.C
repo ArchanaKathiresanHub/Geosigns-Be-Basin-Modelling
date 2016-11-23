@@ -571,7 +571,7 @@ static bool copyFile (const string & inputFileName, const string & outputFileNam
 
    inputStream.seekg (0, ifstream::end);
 
-   long size = inputStream.tellg ();
+   std::streamoff size = inputStream.tellg ();
 
    inputStream.seekg (0);
 

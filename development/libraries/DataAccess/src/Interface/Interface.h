@@ -671,6 +671,7 @@ namespace DataAccess
       /// Value for undefined used in project files
       const double DefaultUndefinedScalarValue = -9999;
       const double RecordValueUndefined = DefaultUndefinedScalarValue;
+      const int    DefaultUndefinedScalarIntValue = -9999;
 
 
       /// Must correspond to the FaultStatus in Migration

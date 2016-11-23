@@ -389,74 +389,73 @@ public:
    virtual std::string fullDescription() const
    {
       std::ostringstream oss;
-      oss << "    TrapProp [optionLst] <PropName> <X> <Y> <ReservoirName> <Age> [<SA weight> <UA weight>]\n";
-      oss << "    Where:\n";
-      oss << "       optionList             - modifies how trap property RS is constructed. Implemented now options are:\n";
-      oss << "                                \"log\" if this option is given:\n";
-      oss << "                                        for Volume/Mass trap properties casa will create RS for logarithm of target value,\n";
-      oss << "                                        for trap properties calculated by flashing interpolated over RS composition,\n";
-      oss << "                                        casa will create RCs for logarithm of mass of components in composition\n";
-      oss << "                                \"direct\" if this option is given the GOR/CGR/API/Density/Viscosity calculation by flashing\n";
-      oss << "                                        interpolated over RS composition will be disabled\n";
-      oss << "       PropName               - trap property name (supported properties list - see below)\n";
-      oss << "       X,Y                    - are the aerial target point coordinates\n";
-      oss << "       LayerName              - source rock layer name\n";
-      oss << "       Age                    - simulation age in [Ma]\n";
-      oss << "       SA weight              - weight [0:1] for this target for Sensitivity Analysis (it will used for Pareto diagram)\n";
-      oss << "       UA weight              - weight [0:1] for this target for Uncertainty Analysis (it will be used in RMSE calculation)\n";
-      oss << "\n"; 
-      oss << "       Note: If property name for Mass or Volume is prefixed by Log - response surface will approximate the logarithm of \n";
-      oss << "       property values. For GOR/CGR and all APIs properties, Log prefix means that logarthim of composition masses will be approximated \n";
-      oss << "       by response surface\n";
-      oss << "\n"; 
-      oss << "    Supported trap property list:\n";
-      oss << "       VolumeFGIIP [m3] -             Volume of free gas initially in place\n";
-      oss << "       VolumeCIIP [m3] -              Volume of condensate initially in place\n";
-      oss << "       VolumeSGIIP [m3] -             Volume of solution gas initially in place\n";
-      oss << "       VolumeSTOIIP [m3] -            Volume of stock tank oil initially in place\n";
-      oss << "       VolumeLiquid [m3] -            Volume of reservoir liquid phase\n";
-      oss << "       VolumeVapour [m3] -            Volume of reservoir vapour phase\n";
-      oss << "       DensityFGIIP [kg/m3] -         Density of free gas initially in place\n";
-      oss << "       DensityCIIP [kg/m3] -          Density of condensate initially in place\n";
-      oss << "       DensitySGIIP [kg/m3] -         Density of solution gas initially in place\n";
-      oss << "       DensitySTOIIP [kg/m3] -        Density of stock tank oil initially in place\n";
-      oss << "       DensityLiquid [kg/m3] -        Density of reservoir liquid phase\n";
-      oss << "       DensityVapour [kg/m3] -        Density of reservoir vapour phase\n";
-      oss << "       ViscosityFGIIP [Pa*s] -        Viscosity of free gas initially in place\n";
-      oss << "       ViscosityCIIP [Pa*s] -         Viscosity of condensate initially in place\n";
-      oss << "       ViscositySGIIP [Pa*s] -        Viscosity of solution gas initially in place\n";
-      oss << "       ViscositySTOIIP [Pa*s] -       Viscosity of stock tank oil initially in place\n";
-      oss << "       ViscosityLiquid [Pa*s] -       Viscosity of reservoir liquid phase\n";
-      oss << "       ViscosityVapour [Pa*s] -       Viscosity of reservoir vapour phase\n";
-      oss << "       MassFGIIP [kg] -               Mass of free gas initially in place\n";
-      oss << "       MassCIIP [kg] -                Mass of condensate initially in place\n";
-      oss << "       MassSGIIP [kg] -               Mass of solution gas initially in place\n";
-      oss << "       MassSTOIIP [kg] -              Mass of stock tank oil initially in place\n";
-      oss << "       MassLiquid [kg] -              Mass of reservoir liquid phase\n";
-      oss << "       MassVapour [kg] -              Mass of reservoir vapour phase\n";
-      oss << "       CGR [m3/m3] -                  Condensate Gas Ratio: VolumeCIIP / VolumeFGIIP\n";
-      oss << "       GOR [m3/m3] -                  Gas Oil Ratio: VolumeSGIIP / VolumeSTOIIP\n";
-      oss << "       OilAPI [] -                    API of STOIIP\n";
-      oss << "       CondensateAPI [] -             API of CIIP\n";
-      oss << "       GasWetnessFGIIP [mole/mole] -  C1 / Sum (C2 - C5) of FGIIP\n";
-      oss << "       GasWetnessSGIIP [mole/mole] -  C1 / Sum (C2 - C5) of SGIIP\n";
-      oss << "       CEPLiquid [MPa] -              CEP\n";
-      oss << "       CEPVapour [MPa] -              CEP\n";
-      oss << "       FracturePressure [MPa] -       Fracture pressure of the trap\n";
-      oss << "       ColumnHeightLiquid [m] -       Height of the liquid column\n";
-      oss << "       ColumnHeightVapour [m] -       Height of the vapour column\n";
-      oss << "       GOC [m] -                      Depth of Vapour-Liquid contact\n";
-      oss << "       OWC [m] -                      Depth of Liquid-Water contact\n";
-      oss << "       SpillDepth [m] -               Spill depth\n";
-      oss << "       SealPermeability [mD] -        Seal permeability\n";
-      oss << "       Pressure [MPa] -               Pressure at crest point\n";
-      oss << "       LithoStaticPressure [MPa] -    lithostatic pressure at crest point\n";
-      oss << "       HydroStaticPressure [MPa] -    hydrostatic pressure at crest point\n";
-      oss << "       OverPressure [MPa] -           over pressure at crest point\n";
-      oss << "       Temperature [C] -              Temperature at crest point\n";
-      oss << "       Permeability [mD] -            Permeability at crest point\n";       
-      oss << "       Porosity [%] -                 Porosity at crest point\n";       
+      oss << R"(    TrapProp [optionLst] <PropName> <X> <Y> <ReservoirName> <Age> [<SA weight> <UA weight>]
+                      Where:
+                        optionList - modifies how trap property RS is constructed. Implemented now options are:
+                                     "log" if this option is given:
+                                             for Volume/Mass trap properties casa will create RS for logarithm of target value
+                                             for trap properties calculated by flashing interpolated over RS composition,
+                                             casa will create RCs for logarithm of mass of components in composition
+                                     "direct" if this option is given the GOR/CGR/API/Density/Viscosity calculation by flashing
+                                             interpolated over RS composition will be disabled
+                        PropName   - trap property name (supported properties list - see below)
+                        X,Y        - are the aerial target point coordinates
+                        LayerName  - source rock layer name
+                        Age        - simulation age in [Ma]
+                        SA weight  - weight [0:1] for this target for Sensitivity Analysis (it will used for Pareto diagram)
+                        UA weight  - weight [0:1] for this target for Uncertainty Analysis (it will be used in RMSE calculation)
+                      
+                    Note: If property name for Mass or Volume is prefixed by Log - response surface will approximate the logarithm of 
+                    property values. For GOR/CGR and all APIs properties, Log prefix means that logarthim of composition masses will 
+                    be approximated by response surface
 
+                    Supported trap property list:
+                       VolumeFGIIP [m3] -             Volume of free gas initially in place
+                       VolumeCIIP [m3] -              Volume of condensate initially in place
+                       VolumeSGIIP [m3] -             Volume of solution gas initially in place
+                       VolumeSTOIIP [m3] -            Volume of stock tank oil initially in place
+                       VolumeLiquid [m3] -            Volume of reservoir liquid phase
+                       VolumeVapour [m3] -            Volume of reservoir vapour phase
+                       DensityFGIIP [kg/m3] -         Density of free gas initially in place
+                       DensityCIIP [kg/m3] -          Density of condensate initially in place
+                       DensitySGIIP [kg/m3] -         Density of solution gas initially in place
+                       DensitySTOIIP [kg/m3] -        Density of stock tank oil initially in place
+                       DensityLiquid [kg/m3] -        Density of reservoir liquid phase
+                       DensityVapour [kg/m3] -        Density of reservoir vapour phase
+                       ViscosityFGIIP [Pa*s] -        Viscosity of free gas initially in place
+                       ViscosityCIIP [Pa*s] -         Viscosity of condensate initially in place
+                       ViscositySGIIP [Pa*s] -        Viscosity of solution gas initially in place
+                       ViscositySTOIIP [Pa*s] -       Viscosity of stock tank oil initially in place
+                       ViscosityLiquid [Pa*s] -       Viscosity of reservoir liquid phase
+                       ViscosityVapour [Pa*s] -       Viscosity of reservoir vapour phase
+                       MassFGIIP [kg] -               Mass of free gas initially in place
+                       MassCIIP [kg] -                Mass of condensate initially in place
+                       MassSGIIP [kg] -               Mass of solution gas initially in place
+                       MassSTOIIP [kg] -              Mass of stock tank oil initially in place
+                       MassLiquid [kg] -              Mass of reservoir liquid phase
+                       MassVapour [kg] -              Mass of reservoir vapour phase
+                       CGR [m3/m3] -                  Condensate Gas Ratio: VolumeCIIP / VolumeFGIIP
+                       GOR [m3/m3] -                  Gas Oil Ratio: VolumeSGIIP / VolumeSTOIIP
+                       OilAPI [] -                    API of STOIIP
+                       CondensateAPI [] -             API of CIIP
+                       GasWetnessFGIIP [mole/mole] -  C1 / Sum (C2 - C5) of FGIIP
+                       GasWetnessSGIIP [mole/mole] -  C1 / Sum (C2 - C5) of SGIIP
+                       CEPLiquid [MPa] -              CEP
+                       CEPVapour [MPa] -              CEP
+                       FracturePressure [MPa] -       Fracture pressure of the trap
+                       ColumnHeightLiquid [m] -       Height of the liquid column
+                       ColumnHeightVapour [m] -       Height of the vapour column
+                       GOC [m] -                      Depth of Vapour-Liquid contact
+                       OWC [m] -                      Depth of Liquid-Water contact
+                       SpillDepth [m] -               Spill depth
+                       SealPermeability [mD] -        Seal permeability
+                       Pressure [MPa] -               Pressure at crest point
+                       LithoStaticPressure [MPa] -    lithostatic pressure at crest point
+                       HydroStaticPressure [MPa] -    hydrostatic pressure at crest point
+                       OverPressure [MPa] -           over pressure at crest point
+                       Temperature [C] -              Temperature at crest point
+                       Permeability [mD] -            Permeability at crest point
+                       Porosity [%] -                 Porosity at crest point\n)";
       return oss.str();
    }
 
@@ -563,20 +562,22 @@ void CmdAddObs::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
 
 void CmdAddObs::printHelpPage( const char * cmdName )
 {
-   std::cout << "  " << cmdName << " <target type name> [target parameters]\n\n";
-   std::cout << "    Observable (or Target) - could be any data value from the simulation results.\n";
-   std::cout << "  For example temperature or VRe at some position and depth for current time.\n\n";
-
-   std::cout << "    Observable reference value - usually it is a measurement of corresponded observable\n";
-   std::cout << "  value from the real well. Observables with reference value could be used for calibration workflow.\n\n";
-
-   std::cout << "    Standard deviation value of observable reference value - contains the standard deviations\n";
-   std::cout << "  of the measurement noise. Standard deviation (SD) measures the amount of variation or dispersion\n";
-   std::cout << "  from the average. A low standard deviation indicates that the data points tend to be very close to\n";
-   std::cout << "  the mean (also called expected value); a high standard deviation indicates that the data points are\n";
-   std::cout << "  spread out over a large range of values.\n\n";
-
-   std::cout << "  The following list of target types is implemented for this command:\n";
+   std::cout << "   " << cmdName << 
+R"(<target type name> [target parameters]
+     Observable (or Target) - could be any data value from the simulation results.
+     For example temperature or VRe at some position and depth for current time.
+     
+     Observable reference value - usually it is a measurement of corresponded observable
+     value from the real well. Observables with reference value could be used for 
+     calibration workflow.
+     
+     Standard deviation value of observable reference value - contains the standard deviations
+     of the measurement noise. Standard deviation (SD) measures the amount of variation or 
+     dispersion from the average. A low standard deviation indicates that the data points tend 
+     to be very close to the mean (also called expected value); a high standard deviation 
+     indicates that the data points are spread out over a large range of values.
+     
+     The following list of target types is implemented for this command:\n)";
 
    const std::vector<std::string> & obsTypesName = g_obsFactory.typesNameList();
 

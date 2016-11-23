@@ -223,7 +223,7 @@ void DerivedProperties::HeatFlowFormationCalculator::calculate ( DerivedProperti
 
                if ( lithology != 0 ) {
                   
-                  int degenerateElements = 0;
+                  unsigned int degenerateElements = 0;
                   bool validElementFound = false;
 
                   for (unsigned int k = heatFlowX->firstK(); k < heatFlowX->lastK (); ++k ) {
