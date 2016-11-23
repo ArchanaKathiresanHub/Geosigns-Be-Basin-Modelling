@@ -132,14 +132,12 @@ void getGeometryMatrix ( const LayerElement&    element,
 
    double deltaX  = grid.deltaI;
    double deltaY  = grid.deltaJ;
-   double originX = grid.originI;
-   double originY = grid.originJ;
 
    int i;
 
    for ( i = 1; i <= 8; ++i ) {
-      geometryMatrix ( 1, i ) = originX + deltaX * element.getNodeIPosition ( i - 1 );
-      geometryMatrix ( 2, i ) = originY + deltaY * element.getNodeJPosition ( i - 1 );
+      geometryMatrix ( 1, i ) =  deltaX * element.getNodeIPosition ( i - 1 );
+      geometryMatrix ( 2, i ) =  deltaY * element.getNodeJPosition ( i - 1 );
 
       geometryMatrix ( 3, i ) = layer->Current_Properties ( Basin_Modelling::Depth, 
                                                             element.getNodeLocalKPosition ( i - 1 ),
@@ -163,16 +161,14 @@ void getGeometryMatrix ( const LayerElement&    element,
    FiniteElementMethod::ElementVector depth;
    double deltaX  = grid.deltaI;
    double deltaY  = grid.deltaJ;
-   double originX = grid.originI;
-   double originY = grid.originJ;
 
    int i;
 
    interpolateCoefficients ( element, Basin_Modelling::Depth, depth, lambda );
 
    for ( i = 1; i <= 8; ++i ) {
-      geometryMatrix ( 1, i ) = originX + deltaX * element.getNodeIPosition ( i - 1 );
-      geometryMatrix ( 2, i ) = originY + deltaY * element.getNodeJPosition ( i - 1 );
+      geometryMatrix ( 1, i ) = deltaX * element.getNodeIPosition ( i - 1 );
+      geometryMatrix ( 2, i ) = deltaY * element.getNodeJPosition ( i - 1 );
       geometryMatrix ( 3, i ) = depth ( i );
 
    }
@@ -190,15 +186,13 @@ void fillGeometryMatrix ( const LayerElement&                       element,
 
    double deltaX  = grid.deltaI;
    double deltaY  = grid.deltaJ;
-   double originX = grid.originI;
-   double originY = grid.originJ;
 
    unsigned int i;
 
    for ( i = 1; i <= 8; ++i ) {
       finiteElement.setGeometryPoint ( i, 
-                                       originX + deltaX * element.getNodeIPosition ( i - 1 ),
-                                       originY + deltaY * element.getNodeJPosition ( i - 1 ),
+                                        deltaX * element.getNodeIPosition ( i - 1 ),
+                                        deltaY * element.getNodeJPosition ( i - 1 ),
                                        layer->Current_Properties ( Basin_Modelling::Depth, 
                                                                    element.getNodeLocalKPosition ( i - 1 ),
                                                                    element.getNodeJPosition ( i - 1 ),
