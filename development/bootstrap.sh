@@ -11,10 +11,12 @@ if [ ${HOSTNAME} == "okapi" ]; then
    intel_cxx_module_name="intel/latest"
    intel_impi_module_name="impi/latest"
    intel_imkl_module_name="imkl/latest"
+   . /usr/share/Modules/init/bash
 else
    intel_cxx_module_name="intel/2016.01"
    intel_impi_module_name="impi/5.1.2.150-iccifort-2016.1.150-GCC-4.9.3-2.25"
    intel_imkl_module_name="imkl/11.3.1.150-iimpi-2016.01-GCC-4.9.3-2.25"
+   [[ -r /glb/data/hpcrnd/easybuild/public/etc/profile.d/shell-envmodules.sh ]] && . /glb/data/hpcrnd/easybuild/public/etc/profile.d/shell-envmodules.sh
 fi
 ##########################################################################
 
@@ -81,11 +83,6 @@ do
          ;;
    esac
 done
-
-
-##################################################
-# Load modules environment:
-[[ -r /glb/data/hpcrnd/easybuild/public/etc/profile.d/shell-envmodules.sh ]] && . /glb/data/hpcrnd/easybuild/public/etc/profile.d/shell-envmodules.sh
 
 ##################################################
 # Check/load module with settings for Intel C++ compiler
