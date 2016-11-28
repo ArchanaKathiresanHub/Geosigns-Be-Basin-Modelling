@@ -1,4 +1,4 @@
-// Copyright (C) 2010-2015 Shell International Exploration & Production.
+// Copyright (C) 2010-2016 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -83,6 +83,22 @@ namespace migration
    {
       return getMigrator ()->getFormation (index);
    }
+
+   // bool FormationNode::isOnBoundary (void)
+   // {
+   //    bool result = false;
+   //    for (int di = NumberOfUpwardNeighbourOffsets; di < NumberOfNeighbourOffsetsUsed; ++di)
+   //    {
+   //       FormationNode * neighbourNode = getAdjacentFormationNode (di);
+   //       if (neighbourNode == nullptr)
+   //       {
+   //          result = true;
+   //          break;
+   //       }
+   //    }
+
+   //    return result;
+   // }
 
    /// constructor
    ProxyFormationNode::ProxyFormationNode (unsigned int i, unsigned int j, int k, Formation * formation) :
@@ -1013,12 +1029,12 @@ namespace migration
    /// compareDepths returns -1 if this is shallower, 0 if equally deep and 1 if this is deeper
    /// Also used to break the tie between columns with equal top depth
    /// Does not take into account whether columns are sealing or wasting
-   int LocalFormationNode::compareDepths (FormationNode * node, bool useTieBreaker)
+   int FormationNode::compareDepths (FormationNode * node, bool useTieBreaker)
    {
-      // top depth of the current node and node 
+      // top depth of the current node and neighbour node 
       Formation * formation = getFormation ();
-      double depth = formation->getPropertyValue (DEPTHPROPERTY, getI (), getJ (), getK ());
-      double nodedepth = formation->getPropertyValue (DEPTHPROPERTY, node->getI (), node->getJ (), getK ());
+      double depth = formation->getPropertyValue (DEPTHPROPERTY, getI (), getJ (), getK () + 1);
+      double nodedepth = formation->getPropertyValue (DEPTHPROPERTY, node->getI (), node->getJ (), getK () + 1);
 
       if (depth < nodedepth) return -1;
       if (depth > nodedepth) return 1;
@@ -1399,7 +1415,7 @@ namespace migration
          return true;
       }
 
-      if (hasNoThickness ())       // we are not interested
+      if (hasNoThickness ())     // we are not interested
          return true;
 
       if (m_targetFormationNode) // already found
@@ -1415,10 +1431,16 @@ namespace migration
          return false;
       }
 
-      if (hasNowhereToGo ())
+      if (hasNowhereToGo())
       {
-         // no useful target node
-         m_targetFormationNode = this;
+         // If Hcs are trapped in what would otherwise be a detected reservoir
+         if (isPartOfUndetectedReservoir())
+         {
+            dealWithStuckHydrocarbons();
+         }
+         // No useful target node. Hcs are eliminated
+         else
+            m_targetFormationNode = this;
       }
       else
       {
@@ -1435,6 +1457,160 @@ namespace migration
 
       return (m_targetFormationNode != 0);
    }
+
+
+   bool LocalFormationNode::isPartOfUndetectedReservoir()
+   {
+      bool noReservoirDetection    = !m_formation->getMigrator()->performReservoirDetection();
+      bool isReservoirNode         = (m_isReservoirLiquid or m_isReservoirVapour);
+      bool formationIsNotReservoir = m_formation->getMigrator()->getReservoirs(m_formation)->empty();
+
+      bool isPartOfUndetectedReservoir = noReservoirDetection and isReservoirNode and formationIsNotReservoir;
+
+      return isPartOfUndetectedReservoir;
+   }
+
+   void LocalFormationNode::dealWithStuckHydrocarbons ()
+   {
+      bool eliminateHCs = true;
+
+      // If at the crest of a trap that we want to remain undetected, then just funnel all HCs through that crest
+      if (undetectedCrest())
+      {
+         if (m_topFormationNode and !m_topFormationNode->isImpermeable())
+         {
+            if (eliminateHCs)
+            {
+               m_selectedDirectionIndex = -1;
+               m_targetFormationNode = this;
+            }
+            else
+            {
+               m_selectedDirectionIndex = 0;
+               m_topFormationNode->computeTargetFormationNode();
+               m_targetFormationNode = m_topFormationNode->getTargetFormationNode();
+            }
+         }
+         else
+            m_targetFormationNode = this;
+      }
+      else
+      {
+         int di = 0;
+         FormationNode * adjacentFormationNode = getEqualDepthAdjacentNode(di);
+         if (adjacentFormationNode)
+         {
+            m_selectedDirectionIndex = di;
+            adjacentFormationNode->computeTargetFormationNode();
+            m_targetFormationNode = adjacentFormationNode->getTargetFormationNode();
+         }
+         else if (m_topFormationNode and !m_topFormationNode->isImpermeable() and !m_formation->isOnBoundary(this))
+         {
+            m_selectedDirectionIndex = 0;
+            m_topFormationNode->computeTargetFormationNode();
+            m_targetFormationNode = m_topFormationNode->getTargetFormationNode();
+         }
+         else
+            m_targetFormationNode = this;
+      }
+
+      return;
+   }
+
+   bool LocalFormationNode::undetectedCrest()
+   {
+      // Can't be a crest if on boundary
+      if (m_formation->isOnBoundary(this))
+         return false;
+
+      bool onlyDeeperNodes = true;
+      for (int di = NumberOfUpwardNeighbourOffsets; di < NumberOfNeighbourOffsetsUsed; ++di)
+      {
+         FormationNode * neighbourNode = getAdjacentFormationNode(di);
+
+         if (neighbourNode and neighbourNode->isImpermeable())
+         {
+            // path cannot go into an impermeable node
+            continue;
+         }
+
+         if (IsValid(neighbourNode))
+         {
+            //double neighbourNodeDepth = neighbourNode->getDepth();
+
+            // Avoid loops in the path by going only upwards in depth
+            if (compareDepths(neighbourNode, true) == 1)
+            {
+               onlyDeeperNodes = false;
+               break;
+            }
+         }
+      }
+
+      return onlyDeeperNodes;
+   }
+
+   FormationNode * LocalFormationNode::getEqualDepthAdjacentNode(int & di)
+   {
+      int diToReturn = di;
+      double minGradient = 0.0;
+      FormationNode * nodeToReturn = nullptr;
+      for (di = NumberOfUpwardNeighbourOffsets; di < NumberOfNeighbourOffsetsUsed; ++di)
+      {
+         FormationNode * neighbourNode = getAdjacentFormationNode(di);
+
+         if (!IsValid(neighbourNode))
+         {
+            continue;
+         }
+
+         if (neighbourNode and neighbourNode->isImpermeable())
+         {
+            // path cannot go into an impermeable node
+            continue;
+         }
+
+         double dx = m_formation->getDeltaI ();
+         double dy = m_formation->getDeltaJ ();
+
+         double depth = m_formation->getPropertyValue (DEPTHPROPERTY, getI (), getJ (), getK () + 1);
+         double neighbourDepth = m_formation->getPropertyValue (DEPTHPROPERTY, neighbourNode->getI (), neighbourNode->getJ (), getK () + 1);
+
+         if (isShallowerThan (neighbourNode))
+         {
+            // neighbour is deeper
+            continue;
+         }
+         else if (isDeeperThan (neighbourNode, false))
+         {
+            // neighbour is shallower in absolute terms
+            double gradient = (neighbourDepth - depth) / std::sqrt(std::pow(dx * std::abs(NeighbourOffsets3D[di][0]), 2.0) + std::pow(dy * std::abs(NeighbourOffsets3D[di][1]), 2.0) );
+
+            if (gradient <= minGradient)
+            {
+               // neighbourColumn has steepest upward gradient from column, so far.
+               // set it to be the adjacent column.
+               minGradient = gradient;
+               nodeToReturn = neighbourNode;
+               diToReturn = di;
+            }
+         }
+         else
+         {
+            assert (depth == neighbourDepth);
+            if (!nodeToReturn or nodeToReturn->isDeeperThan (neighbourNode))
+            {
+               minGradient = 0;
+               nodeToReturn = neighbourNode;
+               diToReturn = di;
+            }
+         }
+      }
+
+      di = diToReturn;
+      return nodeToReturn;
+   }
+
 
    FormationNode * LocalFormationNode::getAdjacentFormationNode (int directionIndex)
    {

@@ -163,6 +163,8 @@ namespace migration
 
       int getIndex (void);
 
+      bool isOnBoundary (FormationNode *);
+
       SurfaceGridMap getTopSurfaceGridMap (const DataAccess::Interface::Property* prop, const DataAccess::Interface::Snapshot* snapshot) const;
 
       const GridMap * getTopGridMap (const DataAccess::Interface::Property* prop, const DataAccess::Interface::Snapshot* snapshot) const;

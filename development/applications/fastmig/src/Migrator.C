@@ -373,7 +373,6 @@ bool Migrator::computeFormationPropertyMaps (const Interface::Snapshot * snapsho
          if (!formation->computeCapillaryPressureMaps (topDepthGridMap, snapshot))
             return false;
       }
-
    }
 
    if (topDepthGridMap) topDepthGridMap->release ();
@@ -459,6 +458,7 @@ bool Migrator::performSnapshotMigration (const Interface::Snapshot * start, cons
          if (!computeFormationPropertyMaps (end, overPressureRun) or
             !retrieveFormationPropertyMaps (end) or
             !computeFormationNodeProperties (end) or
+            !flagTopNodes(end, overPressureRun) or
             !detectReservoirs (start, end, overPressureRun) or
             !computeSMFlowPaths (start, end) or
             !restoreFormationPropertyMaps (end) or
@@ -789,6 +789,45 @@ migration::Formation * Migrator::getBottomActiveReservoirFormation (const Interf
    return bottomActiveReservoirFormation;
 }
 
+migration::Formation * Migrator::bottomMostFormation(const Interface::Snapshot * end)
+{
+	Formation * bottomFormation;
+	Formation *bottomSourceRockFormation = getBottomSourceRockFormation();
+	if (bottomSourceRockFormation == 0) return 0;
+	Formation * belowBelowSourceRockFormation = 0;
+	Formation * belowSourceRockFormation = bottomSourceRockFormation->getBottomFormation();
+	if (belowSourceRockFormation)
+		belowBelowSourceRockFormation = belowSourceRockFormation->getBottomFormation();
+	if (belowBelowSourceRockFormation != 0)
+		bottomFormation = belowBelowSourceRockFormation; //+2
+	else if (belowSourceRockFormation != 0)
+		bottomFormation = belowSourceRockFormation;  // +1
+	else 
+		bottomFormation = bottomSourceRockFormation; // SR
+	
+	return bottomFormation;
+}
+
+bool Migrator::flagTopNodes(const Interface::Snapshot * end, const bool overPressureRun)
+{
+	Formation * bottomFormation = bottomMostFormation(end);
+	Formation * topSealFormation = getTopActiveFormation(end);
+	if (topSealFormation == 0 or bottomFormation == 0) return false;
+	Formation *sealFormation;
+	Formation *reservoirFormation;
+	bool topSealFormationReached = false;
+	for (reservoirFormation = bottomFormation, sealFormation = (Formation *)reservoirFormation->getTopFormation();
+		sealFormation != 0 and !topSealFormationReached;
+		reservoirFormation = sealFormation, sealFormation = (Formation *)sealFormation->getTopFormation())
+	{
+      //check if top seal formation is reached
+	   topSealFormationReached = (sealFormation == topSealFormation);
+      //Flag all top nodes of each formation
+      reservoirFormation->detectReservoir(sealFormation, m_minOilColumnHeight, m_minGasColumnHeight, overPressureRun, topSealFormation);
+	}
+	return true;
+}
+
 /*
   Reservoir definition based on capillary pressure evaluation.
   Begin from bottom most active reservoir. Go up. Looping through
@@ -891,7 +930,6 @@ bool Migrator::detectReservoirs (const Interface::Snapshot * start, const Interf
 
    // in case one or more formations have been detected, sort m_reservoirs
    if (numDetected > 0) sortReservoirs ();
-
 
    return true;
 }

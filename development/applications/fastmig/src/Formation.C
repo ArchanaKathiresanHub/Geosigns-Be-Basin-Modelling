@@ -222,6 +222,12 @@ namespace migration
       DerivedProperties::PropertyRetriever vapourDensityPropertyRetriever (m_formationPropertyPtr[VAPOURDENSITYPROPERTY]);
       DerivedProperties::PropertyRetriever vPermeabilityPropertyRetriever (m_formationPropertyPtr[VERTICALPERMEABILITYPROPERTY]);
 
+      // Fluid type independent of the position of the node inside the formation.
+      // Same for ctitical temperature for vapour and liquid
+      const GeoPhysics::FluidType * fluid = (GeoPhysics::FluidType *) getFluidType ();
+      double hcTempValueVapour = pvtFlash::getCriticalTemperature (ComponentId::C1, 0);
+      double hcTempValueLiquid = pvtFlash::getCriticalTemperature (ComponentId::C6_MINUS_14SAT, 0);
+
       for (int k = depth; k >= 0; --k)
       {
          for (unsigned int i = ptrVapourPcE->firstI (true); i <= ptrVapourPcE->lastI (true); ++i)
@@ -231,7 +237,7 @@ namespace migration
                bool isNotGhostOrOnBoundary = ( i >= m_formationNodeArray->firstILocal() and i <= m_formationNodeArray->lastILocal() and
                   j >= m_formationNodeArray->firstJLocal() and j <= m_formationNodeArray->lastJLocal() and
                   i < grid->numIGlobal() - 1 and j < grid->numJGlobal() - 1 );
-               
+
                double pressure = m_formationPropertyPtr[PRESSUREPROPERTY]->get (i, j, k);
                double temperature = m_formationPropertyPtr[TEMPERATUREPROPERTY]->get (i, j, k);
                double liquidDensity = m_formationPropertyPtr[LIQUIDDENSITYPROPERTY]->get (i, j, k);
@@ -244,14 +250,8 @@ namespace migration
                   pressure == Interface::DefaultUndefinedMapValue)
                   continue;
 
-               // Fluid type the same independent of the position of the node inside the formation.
-               const GeoPhysics::FluidType * fluid = (GeoPhysics::FluidType *) getFluidType ();
+               // Brined density may depend on pressure and temperature so needs to be calculated separately for every node.
                double waterDensity = fluid->density (temperature, pressure);
-
-               // Critical temperatures and c1, c2 are independent of the exact position of the node inside the formation.
-               double hcTempValueVapour = pvtFlash::getCriticalTemperature (ComponentId::C1, 0);
-               double hcTempValueLiquid = pvtFlash::getCriticalTemperature (ComponentId::C6_MINUS_14SAT, 0);
-
 
                double capillaryEntryPressureLiquid = Interface::DefaultUndefinedMapValue;
                double capillaryEntryPressureVapour = Interface::DefaultUndefinedMapValue;
@@ -586,6 +586,24 @@ namespace migration
       }
 
       return m_index;
+   }
+
+   bool Formation::isOnBoundary (FormationNode * formationNode)
+   {
+      bool isOnBoundary = false;
+      for (int di = 0; di < NumberOfLateralNeighbourOffsets; ++di)
+      {
+         FormationNode * neighbourNode = getFormationNode (formationNode->getI () + NeighbourOffsets2D[di][0],
+                                                           formationNode->getJ () + NeighbourOffsets2D[di][1],
+                                                           formationNode->getK ());
+         if (neighbourNode == nullptr)
+         {
+            isOnBoundary = true;
+            break;
+         }
+      }
+
+      return isOnBoundary;
    }
 
    bool Formation::computeTargetFormationNodes (Formation * targetFormation)

@@ -47,6 +47,13 @@ namespace migration
       inline unsigned int getK (void) const;
       inline Formation *getFormation (void);
 
+      //these are functions used to compare depths in the detectReservoirCrests algorithm
+      int compareDepths (FormationNode * node, bool useTieBreaker = true);
+      inline bool isDeeperThan (FormationNode * node, bool useTieBreaker = true);
+      inline bool isShallowerThan (FormationNode * node, bool useTieBreaker = true);
+
+      //bool isOnBoundary (void);
+
       virtual double getFiniteElementValue (double iOffset, double jOffset, double kOffset, PropertyIndex propertyIndex) = 0;
 
       virtual FormationNode *getTargetFormationNode (void) = 0;
@@ -225,14 +232,14 @@ namespace migration
       double getPressureContrast( const LocalFormationNode * topNode, const PhaseId phase, const bool pressureRun ) const;
       void identifyAsReservoir (void);
 
+      bool isPartOfUndetectedReservoir(void);
+      void dealWithStuckHydrocarbons(void);
+      bool undetectedCrest(void);
+      FormationNode * getEqualDepthAdjacentNode(int & di);
+
       // check if a LocalFormationNode is a crest node
       bool detectReservoirCrests (PhaseId phase);
       bool getIsCrest (PhaseId phase);
-
-      //these are functions used to compare depths in the detectReservoirCrests algorithm
-      virtual int compareDepths (FormationNode * node, bool useTieBreaker = true);
-      inline bool isDeeperThan (FormationNode * node, bool useTieBreaker = true);
-      inline bool isShallowerThan (FormationNode * node, bool useTieBreaker = true);
 
       void computeNodeProperties (void);
       void computeAnalogFlowDirection (void);
@@ -551,12 +558,12 @@ namespace migration
       return m_depth;
    }
 
-   bool LocalFormationNode::isDeeperThan (FormationNode * node, bool useTieBreaker)
+   bool FormationNode::isDeeperThan (FormationNode * node, bool useTieBreaker)
    {
       return compareDepths (node, useTieBreaker) == 1;
    }
 
-   bool LocalFormationNode::isShallowerThan (FormationNode * node, bool useTieBreaker)
+   bool FormationNode::isShallowerThan (FormationNode * node, bool useTieBreaker)
    {
       return compareDepths (node, useTieBreaker) == -1;
    }

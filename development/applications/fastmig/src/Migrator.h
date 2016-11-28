@@ -116,6 +116,9 @@ namespace migration
       /// Check if there are any active reservoirs at given snapshot
       bool activeReservoirs (const Interface::Snapshot * snapshot);
 
+      migration::Formation * bottomMostFormation(const Interface::Snapshot * end);
+	   bool flagTopNodes(const Interface::Snapshot * end, const bool pressureRun);
+
       bool detectReservoirs (const Interface::Snapshot * start, const Interface::Snapshot * end, const bool pressureRun);
 
       /// Charge the active reservoirs with charge already in the traps and
