@@ -250,7 +250,7 @@ namespace migration
                   pressure == Interface::DefaultUndefinedMapValue)
                   continue;
 
-               // Brined density may depend on pressure and temperature so needs to be calculated separately for every node.
+               // Brine density may depend on pressure and temperature so needs to be calculated separately for every node.
                double waterDensity = fluid->density (temperature, pressure);
 
                double capillaryEntryPressureLiquid = Interface::DefaultUndefinedMapValue;

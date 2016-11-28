@@ -84,22 +84,6 @@ namespace migration
       return getMigrator ()->getFormation (index);
    }
 
-   // bool FormationNode::isOnBoundary (void)
-   // {
-   //    bool result = false;
-   //    for (int di = NumberOfUpwardNeighbourOffsets; di < NumberOfNeighbourOffsetsUsed; ++di)
-   //    {
-   //       FormationNode * neighbourNode = getAdjacentFormationNode (di);
-   //       if (neighbourNode == nullptr)
-   //       {
-   //          result = true;
-   //          break;
-   //       }
-   //    }
-
-   //    return result;
-   // }
-
    /// constructor
    ProxyFormationNode::ProxyFormationNode (unsigned int i, unsigned int j, int k, Formation * formation) :
       FormationNode (i, j, k, formation), m_compositionToBeMigrated (0), m_analogFlowDirection (0)
