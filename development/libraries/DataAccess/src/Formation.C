@@ -62,33 +62,6 @@ Formation::Formation (ProjectHandle * projectHandle, Record * record) :
 
    m_igneousIntrusion = 0;
 
-
-   // Moved to project handle::load-formations.
-#if 0
-   if ( recordFromStratIOTbl and isSourceRock ())
-   {
-      // m_sourceRock = (SourceRock *) m_projectHandle->findSourceRock (getName ());
-      m_sourceRock1 = (SourceRock *) m_projectHandle->findSourceRock (getSourceRockType1Name ());
-
-      if( getEnableSourceRockMixing() ) {
-         m_sourceRock2 = (SourceRock *) m_projectHandle->findSourceRock (getSourceRockType2Name ());
-      } else {
-         m_sourceRock2 = 0; 
-      }
-   }
-   else
-   {
-      m_sourceRock1 = 0;
-      m_sourceRock2 = 0;
-   }
-
-#endif
-
-
-#if 0
-   cerr << "Added Formation " << ( recordFromStratIOTbl ? getName () : "Basement formation" ) << endl;
-#endif
-
    if ( recordFromStratIOTbl ) {
       m_mangledName = utilities::mangle (getName ());
    }

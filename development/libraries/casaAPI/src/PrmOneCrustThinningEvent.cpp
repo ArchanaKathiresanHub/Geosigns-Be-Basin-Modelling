@@ -34,9 +34,6 @@ static const char * s_stratIoTblAgeCol       = "DepoAge";
 static const char * s_crustIoTblName         = "CrustIoTbl";
 static const char * s_crustIoTblAgeCol       = "Age";
 static const char * s_crustIoTblThicknessCol = "Thickness";
-static const char * s_crustIoTblCalibThicknessCol = "CalibThickness";
-static const char * s_crustIoTblOptimThicknessCol = "OptimThickness";
-static const char * s_crustIoTblErrThicknessCol   = "ErrThickness";
 
 static const double s_eps = 1.e-8;
 
@@ -101,12 +98,7 @@ ErrorHandler::ReturnCode PrmOneCrustThinningEvent::setInModel( mbapi::Model & md
    for ( size_t i = 0; i < 4 && oK; ++i )
    {
       oK = oK ? ErrorHandler::NoError == mdl.addRowToTable( s_crustIoTblName ) : oK;
-
-      // set to 0 unused columns
-      oK = oK ? ErrorHandler::NoError == mdl.setTableValue( s_crustIoTblName, i, s_crustIoTblCalibThicknessCol, UndefinedDoubleValue ) : oK;
-      oK = oK ? ErrorHandler::NoError == mdl.setTableValue( s_crustIoTblName, i, s_crustIoTblOptimThicknessCol, (long)0 ) : oK;
-      oK = oK ? ErrorHandler::NoError == mdl.setTableValue( s_crustIoTblName, i, s_crustIoTblErrThicknessCol, 0.0e0 ) : oK;
-    }
+   }
 
    // 0 time
    oK = oK ? ErrorHandler::NoError == mdl.setTableValue( s_crustIoTblName, 0, s_crustIoTblAgeCol,       0.0                          ) : oK;

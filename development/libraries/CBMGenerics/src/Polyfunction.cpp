@@ -66,14 +66,11 @@ bool Polyfunction::AddPoint(double x, double y)
    {
       if ((*it)->getX () == x /* && (*it)->getY () == y */) 
       {
-	 // cout << " failed" << endl;
-	 return false; 
+         return false; 
       }
 
       if ((*it)->getX () > x) break;
    }
-
-   // cout << " succeeded" << endl;
 
 
    Point *point = new Point (x, y);
@@ -99,7 +96,7 @@ double Polyfunction::GetPoint (double x)
    {
       if ((*it)->getX () == x)
       {
-	 return (*it)->getY (); 
+         return (*it)->getY (); 
       }
    }
    if (!m_points.empty() && x <= (* m_points.begin ())->getX ())
@@ -122,7 +119,7 @@ void Polyfunction::deepCopyAllPoints (const Polyfunction & src)
    const_iterator srcIter;
 
    for (srcIter = src.m_points.begin ();
-	 srcIter != src.m_points.end (); ++srcIter)
+    srcIter != src.m_points.end (); ++srcIter)
    {
       const Point *srcP = (*srcIter);
       Point * destP = new Point (* srcP);
@@ -193,8 +190,8 @@ double Polyfunction::F(double x) const
       //PETSC_ASSERT (high);
       assert(high);
       double f = low->getY () +
-	 (high->getY () - low->getY ()) * (x - low->getX ()) /
-	 (high->getX () - low->getX ());
+    (high->getY () - low->getY ()) * (x - low->getX ()) /
+    (high->getX () - low->getX ());
 
       /*
       cout << "F ((" << low->getX () << ", " << low->getY () << ")";
@@ -223,7 +220,7 @@ double Polyfunction::F(double x) const
    // Calculate & return linearly interpolated value
    return ((*prev)->getY () +
            ((*it)->getY () - (*prev)->getY ()) * (x - (*prev)->getX ()) /
-	   ((*it)->getX () - (*prev)->getX ()));
+      ((*it)->getX () - (*prev)->getX ()));
 #endif
 }
 
@@ -299,8 +296,8 @@ double Polyfunction::MinY (double beginX, double endX)
    {
       if ((*it)->getX () <= beginX && (*it)->getX () >= endX)
       {
-	 y = (*it)->getY ();
-	 if (y < yMin) yMin = y;
+    y = (*it)->getY ();
+    if (y < yMin) yMin = y;
       }
    }
 
@@ -334,8 +331,8 @@ double Polyfunction::MaxY (double beginX, double endX)
       Point * point = (*it);
       if (point->getX () <= beginX && point->getX () >= endX)
       {
-	 y = point->getY ();
-	 if (y > yMax) yMax = y;
+    y = point->getY ();
+    if (y > yMax) yMax = y;
       }
    }
 
@@ -413,7 +410,7 @@ bool Polyfunction::findIntervalForValueY(double y, const Point * & low, const Po
       {
          high = point;
          maxfound = true;
-	 break;
+         break;
       }
    }
 
@@ -438,7 +435,7 @@ bool Polyfunction::seedPoints(double x, const Point * & low, const Point * & hig
       {
          high = point;
          maxfound = true;
-	 break;
+    break;
       }
    }
 

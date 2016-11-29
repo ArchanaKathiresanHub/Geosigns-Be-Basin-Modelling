@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -28,8 +28,11 @@ using namespace std;
 #include "ApplicationGlobalOperations.h"
 
 // DataAccess library table classes
+// fastctc
 #include "TableCTC.h"
 #include "TableCTCRiftingHistory.h"
+// alc
+#include "TableOceanicCrustThicknessHistory.h"
 
 /*! \mainpage The Cauldron Distributed Data Access Framework
  * \section intro Introduction
@@ -626,8 +629,9 @@ namespace DataAccess
          MutablePaleoSurfacePropertyList   m_heatFlowHistory;
          MutablePaleoFormationPropertyList m_crustPaleoThicknesses;
          MutablePaleoFormationPropertyList m_mantlePaleoThicknesses;
-         const TableCTC               m_tableCTC;
-         const TableCTCRiftingHistory m_tableCTCRiftingHistory;
+         const TableCTC                          m_tableCTC;
+         const TableCTCRiftingHistory            m_tableCTCRiftingHistory;
+         const TableOceanicCrustThicknessHistory m_tableOceanicCrustThicknessHistory;
 
          // Should really be a list of PaleoSurfaceProperty's,
          // but there is no surface defined for the top surface.
@@ -792,8 +796,6 @@ namespace DataAccess
 
          void computeMantlePaleoThicknessHistory() const;
 
-         Snapshot * createSnapshot( database::Record record );
-
          bool initializeMapPropertyValuesWriter( const bool append = false );
          bool finalizeMapPropertyValuesWriter( void );
 
@@ -833,8 +835,6 @@ namespace DataAccess
 
          void numberInputValues( void );
 
-         void saveInputValues( const string & directory, vector<string> & fileNames ) const;
-
          void loadInputGridMaps( void ) const;
          void loadPropertyGridMaps( PropertyValueList * propertyValues ) const;
 
@@ -871,7 +871,6 @@ namespace DataAccess
 
          void deleteCrustFormation();
          void deleteMantleFormation();
-         void deleteBasementSurfaces();
 
          void deleteHeatFlowHistory( void );
          void deleteCrustThinningHistory( void );

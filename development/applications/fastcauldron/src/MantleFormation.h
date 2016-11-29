@@ -18,14 +18,9 @@ public :
 
    void initialise ();
 
-
-   double presentDayThickness ( const int i, const int j ) const;
-
    bool isSourceRock () const;
 
    void setMaximumThicknessValue ( const double newThickness );
-
-   double initialDayThickness ( const int i, const int j ) const;
 
    bool isBasalt() const;
 

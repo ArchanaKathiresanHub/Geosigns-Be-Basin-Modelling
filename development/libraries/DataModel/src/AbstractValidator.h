@@ -8,8 +8,8 @@
 // Do not distribute without written permission from Shell.
 //
 
-#ifndef _CRUSTALTHICKNESS_ABSTRACTVALIDATOR_H_
-#define _CRUSTALTHICKNESS_ABSTRACTVALIDATOR_H_
+#ifndef CRUSTALTHICKNESS_ABSTRACTVALIDATOR_H
+#define CRUSTALTHICKNESS_ABSTRACTVALIDATOR_H
 
 /// @class AbstractValidator Abstract class which defines if one node is valid or not
 class AbstractValidator {

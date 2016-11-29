@@ -1,5 +1,14 @@
-#ifndef _INTERFACE_CRUST_FORMATION_H_
-#define _INTERFACE_CRUST_FORMATION_H_
+//
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+#ifndef INTERFACE_CRUST_FORMATION_H
+#define INTERFACE_CRUST_FORMATION_H
 
 #include "Interface/DAObject.h"
 #include "Interface/Interface.h"
@@ -11,40 +20,56 @@ namespace DataAccess
    namespace Interface
    {
 
-      /// A specialised formation providing the extra functionality requierd by the crust formation.
+      /// A specialised formation providing the extra functionality requiered by the crust formation.
       class CrustFormation : virtual public BasementFormation
       {
       public:
 
-         /// constructor.
          CrustFormation (ProjectHandle * projectHandle, database::Record* record);
 
-         /// destructor.
-         ~CrustFormation (void);
+         ~CrustFormation ();
 
-         /// Return the present day, user-supplied Crust thickness GridMap.
-         const GridMap * getInputThicknessMap (void) const;
+         /// @defgroups MapAccess
+         /// @{
+         /// \return The closest to present day (youngest), user-supplied Crust thickness GridMap
+         /// \details If the thermal model is Advanced Lithosphere Calculator or Basic Crust Thinning, then returns the youngest map
+         ///          If the thermal model is Heat Flow History, then returns the fixed crustal thickness (no variation through time)
+         const GridMap * getInputThicknessMap () const;
 
-         /// Return the user-supplied heat production map for the crust.
+         /// \return The closest to basin age (oldest), user-supplied Crust thickness GridMap
+         /// \details This function is only used if the thermal model is Advanced Lithosphere Calculator
+         const GridMap * getInitialThicknessMap() const;
+
+         /// \return The user-supplied heat production map for the crust
+         /// \details This function is only used if the thermal model is Advanced Lithosphere Calculator or Basic Crust Thinning
          const GridMap * getCrustHeatProductionMap () const;
 
-         const GridMap * getCrustThicknessMeltOnsetMap () const;
-         const GridMap * getBasaltThicknessMap () const;
-         GridMap * loadCrustHeatProductionMap () const;
-         GridMap * loadCrustThicknessMeltOnsetMap () const;
-         GridMap * loadBasaltThicknessMap () const;
-         const GridMap * getInitialThicknessMap (void) const;
+         /// \return The user-supplied crustal thickness at melt onset map
+         /// \details This function is only used if the thermal model is Advanced Lithosphere Calculator
+         /// @todo fix after update
+         const GridMap * getCrustThicknessMeltOnsetMap() const;
 
+         /// \return The user-supplied basalt thickness map
+         /// \details This function is only used if the thermal model is Advanced Lithosphere Calculator
+         /// @todo make it an history
+         const GridMap * getBasaltThicknessMap() const;
+         /// @}
 
+         /// \return The crust paleothickness history stored by the project handle
+         /// \warning This function allocates a new PaleoFormationPropertyList object which needs to be deleted
          PaleoFormationPropertyList * getPaleoThicknessHistory () const;
 
-         virtual int getDepositionSequence () const;
+         /// \return The "fake" deposition sequence of the crust which is defined to be -1
+         /// \details This has no geological meaning and is used to comply with legacy code
+         virtual int getDepositionSequence () const noexcept;
 
-         /// Return the heat production decay constant for the crust.
-         ///
-         /// The heat production has an exponential decay w.r.t. depth.
+         /// \return The heat production decay constant for the crust
+         /// \details The heat production has an exponential decay w.r.t. depth
          virtual double getHeatProductionDecayConstant () const;
 
+         /// \return The crust informations as a string
+         /// \brief Informations returned are name, decay constant, top surface name and bottom surface name
+         /// \details This is a debug utility
          void asString (string & str) const;
 
          void setInitialCrustalThickness( const double aInitCrustalThickness );
@@ -52,14 +77,31 @@ namespace DataAccess
          
       protected:
 
-         mutable const GridMap* m_inputThicknessMap;
-         mutable const GridMap* m_initialThicknessMap;
+         mutable const GridMap* m_inputThicknessMap;   ///< The youngest crustal thickness map [m]
+         mutable const GridMap* m_initialThicknessMap; ///< The oldest crustal thickness map   [m]
 
-         mutable const GridMap* basaltThickness;        
-         mutable const GridMap* crustalThicknessMeltOnset;        
+         mutable const GridMap* basaltThickness;            ///< The basalt thickness map (ALC only)               [m]
+         mutable const GridMap* crustalThicknessMeltOnset;  ///< The crustl thickness at melt onset map (ALC only) [m]
  
          /// crustal thickness at the age of basin.
+         /// @todo what is the difference between m_initialThicknessMap and m_initialCrustalThickness?
          double m_initialCrustalThickness;
+
+      private:
+
+         /// @defgroups MapLoading
+         /// @todo See if these function could be regrouped using the table loader class
+         /// @{
+         /// \brief Load the Crust Heat Production user defined map from the [BasementIoTbl]
+         /// \details If the Crust Heat Production is defined as a scalar, creates a constant map from it
+         GridMap * loadCrustHeatProductionMap() const;
+         /// \brief Load the Crust Thickness At Melt Onset user defined map from the [BasementIoTbl]
+         /// \details If the Crust Thickness At Melt Onset is defined as a scalar, creates a constant map from it
+         GridMap * loadCrustThicknessMeltOnsetMap() const;
+         /// \brief Load the Basalt Thickness user defined map from the [BasementIoTbl]
+         /// \details If the Basalt Thickness is defined as a scalar, creates a constant map from it
+         GridMap * loadBasaltThicknessMap() const;
+         /// @}
 
       };
 
@@ -72,4 +114,4 @@ namespace DataAccess
       }
    }
 }
-#endif // _INTERFACE_CRUST_FORMATION_H_
+#endif // INTERFACE_CRUST_FORMATION_H

@@ -7,6 +7,8 @@
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
+
+// std library
 #include <stdlib.h>
 
 #include <sys/types.h>
@@ -28,15 +30,19 @@
 #include <list>
 #include <cstring>
 
+// TableIo library
 #include "database.h"
 #include "cauldronschema.h"
 #include "cauldronschemafuncs.h"
 
+// hdf5 3dparty library
 #include "hdf5.h"
 #include "hdf5funcs.h"
 
+// Eospack library
 #include "EosPack.h"
 
+// DataAccess library
 #include "Interface/ProjectHandle.h"
 
 #include "Interface/AllochthonousLithology.h"
@@ -68,6 +74,7 @@
 #include "Interface/MobileLayer.h"
 #include "Interface/TouchstoneMap.h"
 #include "Interface/ObjectFactory.h"
+#include "Interface/OceanicCrustThicknessHistoryData.h"
 #include "Interface/OutputProperty.h"
 #include "Interface/Parent.h"
 #include "Interface/PaleoProperty.h"
@@ -100,17 +107,19 @@
 #include "Interface/LangmuirAdsorptionTOCEntry.h"
 #include "Interface/SGDensitySample.h"
 
-
-#include "errorhandling.h"
 #include "wildMatch.h"
-#include "array.h"
+
+// CBMGenerics library
 #include "GenexResultManager.h"
 #include "ComponentManager.h"
 
-#include "FilePath.h"
-
 //utilities library
+#include "array.h"
+#include "errorhandling.h"
 #include "LogHandler.h"
+
+// FileSystem library
+#include "FilePath.h"
 
 
 using namespace DataAccess;
@@ -189,9 +198,11 @@ const DataAccess::Interface::ApplicationGlobalOperations& ProjectHandle::getGlob
 }
 
 ProjectHandle::ProjectHandle( Database * tables, const string & name, const string & accessMode, ObjectFactory* objectFactory ) :
-m_database( tables ), m_name( name ), m_accessMode( READWRITE ),
-m_tableCTC( *this ), m_tableCTCRiftingHistory( *this ),
-m_activityOutputGrid( 0 ), m_mapPropertyValuesWriter( 0 ), m_primaryList( words, words + 12 )
+   m_database( tables ), m_name( name ), m_accessMode( READWRITE ),
+   m_tableCTC                         ( *this ),
+   m_tableCTCRiftingHistory           ( *this ),
+   m_tableOceanicCrustThicknessHistory( *this ),
+   m_activityOutputGrid( 0 ), m_mapPropertyValuesWriter( 0 ), m_primaryList( words, words + 12 )
 {
    (void) accessMode; // ignore warning about unused parameter
 
@@ -2129,10 +2140,7 @@ bool ProjectHandle::loadBottomBoundaryConditions( void )
    else if ( theBottomBCsStr == "Advanced Lithosphere Calculator" )
    {
       m_bottomBoundaryConditions = Interface::ADVANCED_LITHOSPHERE_CALCULATOR;
-      if ( ddd::GetRank() == 0 ) {
-         cout << "The calculation mode is = " << theBottomBCsStr << endl;
-      }
-      m_crustPropertyModel = database::getCrustPropertyModel( projectIoRecord );
+      m_crustPropertyModel  = database::getCrustPropertyModel ( projectIoRecord );
       m_mantlePropertyModel = database::getMantlePropertyModel( projectIoRecord );
    }
    return true;
@@ -3346,25 +3354,6 @@ Interface::MobileLayerList * ProjectHandle::getMobileLayers( const Interface::Fo
    return mobileLayerList;
 }
 
-// Interface::PaleoFormationPropertyList * ProjectHandle::getPaleoThicknesses ( const Interface::Formation * formation ) const {
-// {
-//    Interface::PaleoFormationPropertyList * paleoThicknessList = new Interface::PaleoFormationPropertyList;
-
-//    MutablePaleoFormationPropertyList::const_iterator paleoThicknessIter;
-
-//    for ( paleoThicknessIter = m_crustPaleoThicknesses.begin (); paleoThicknessIter != m_crustPaleoThicknesses.end (); ++paleoThicknessIter )
-//    {
-//       PaleoFormationProperty * paleoThickness = * paleoThicknessIter;
-
-//       if ( formation == 0 or formation == paleoProperty->getFormation ()) {
-//          paleoThicknessList->push_back ( paleoThickness );
-//       }
-
-//    }
-
-//    return paleoThicknessList;
-// }
-
 
 Interface::FluidTypeList * ProjectHandle::getFluids() const {
 
@@ -3381,6 +3370,7 @@ Interface::FluidTypeList * ProjectHandle::getFluids() const {
    return fluidList;
 }
 
+/// @todo Move to CrustFormation?
 Interface::PaleoFormationPropertyList * ProjectHandle::getCrustPaleoThicknessHistory() const {
 
    Interface::PaleoFormationPropertyList * crustThinningHistoryList = new Interface::PaleoFormationPropertyList;

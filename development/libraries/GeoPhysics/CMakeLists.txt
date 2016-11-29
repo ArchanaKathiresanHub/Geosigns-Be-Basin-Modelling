@@ -39,6 +39,7 @@ set(all_headers
       src/ConfigFileParameter.h
       src/ConfigFileParameterAlc.h
       src/DoubleExponentialPorosity.h
+      src/EffectiveCrustalThicknessCalculator.h
       src/ExponentialPorosity.h
       src/FracturePressureCalculator.h
       src/GeoPhysicalConstants.h
@@ -70,6 +71,7 @@ set(all_headers
       src/SimpleLithology.h
       src/SoilMechanicsPorosity.h
       src/TimeDependentLithology.h
+      src/Validator.h
       src/VreTtiMethod.h
       src/VreArrheniusMethod.h
       src/VitriniteReflectance.h
@@ -94,6 +96,7 @@ set(all_srcs
       src/CompoundProperty.C
       src/ConfigFileParameterAlc.C
       src/DoubleExponentialPorosity.C
+      src/EffectiveCrustalThicknessCalculator.C
       src/ExponentialPorosity.C
       src/FracturePressureCalculator.C
       src/GeoPhysicalFunctions.C
@@ -121,6 +124,7 @@ set(all_srcs
       src/SimpleLithology.C
       src/SoilMechanicsPorosity.C
       src/TimeDependentLithology.C
+      src/Validator.C
       src/VreTtiMethod.C
       src/VreArrheniusMethod.C
       src/VitriniteReflectance.C

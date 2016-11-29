@@ -417,9 +417,9 @@ namespace GeoPhysics {
       mutable PolyFunction2DArray m_seaBottomDepth;
       mutable PolyFunction2DArray m_mantleHeatFlow;
       mutable PolyFunction2DArray m_seaBottomTemperature;
-      mutable PolyFunction2DArray m_crustThicknessHistory;
-      mutable PolyFunction2DArray m_contCrustThicknessHistory;
-      mutable PolyFunction2DArray m_basaltThicknessHistory;
+      mutable PolyFunction2DArray m_crustThicknessHistory;     ///< The crust thickness (effective crust thickness in case we use the alc)
+      mutable PolyFunction2DArray m_basaltThicknessHistory;    ///< The oceanic crust thickness (only in case we use the alc)
+      mutable PolyFunction2DArray m_contCrustThicknessHistory; ///< The continental crust thickness (only in case we use the alc)
       mutable DoubleLocal2DArray  m_endOfRiftEvent;
 
             
@@ -447,6 +447,9 @@ namespace GeoPhysics {
       double m_minimumLithosphereThickness; // defined in configuration file
       int    m_maximumNumberOfMantleElements; // defined in configuration file
       double m_constrainedBasaltTemperature; // defined in configuration file
+
+      private:
+         void checkAlcCrustHistoryInput();
 
    }; 
 

@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -172,6 +172,12 @@ namespace DataAccess
          shared_ptr<const CrustalThicknessData> produceCrustalThicknessData( ProjectHandle * projectHandle, database::Record * record ) const;
          /// @brief Produces the CTC data accessor for the CTCRiftingHistoryIoTbl record
          shared_ptr<const CrustalThicknessRiftingHistoryData> produceCrustalThicknessRiftingHistoryData( ProjectHandle * projectHandle, database::Record * record ) const;
+         /// @}
+
+         /// @defgroup ALC
+         /// @{
+         /// @brief Produces the ALC data accessor for the OceaCrustalThicknessIoTbl record
+         shared_ptr<const OceanicCrustThicknessHistoryData> produceOceanicCrustThicknessHistoryData( ProjectHandle * projectHandle, database::Record * record ) const;
          /// @}
       };
    }

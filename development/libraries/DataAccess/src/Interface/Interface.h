@@ -1,4 +1,4 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
 // 
@@ -96,8 +96,11 @@ namespace DataAccess
       class Trap;
       class Trapper;
       class Migration;
-      class CrustalThicknessData;
-      class CrustalThicknessRiftingHistoryData;
+
+      // Data classes, each of them corresponding to a complete IoTbl
+      class CrustalThicknessData;               ///< Data from [CTCIoTbl                 ]
+      class CrustalThicknessRiftingHistoryData; ///< Data from [CTCRiftingHistoryIoTbl   ]
+      class OceanicCrustThicknessHistoryData;   ///< Data from [OceaCrustalThicknessIoTbl]
 
 
       /// list type for the snapshots
@@ -327,8 +330,7 @@ namespace DataAccess
          CrustThinningHistoryInstanceThicknessMap,   ///< Thickness of crust.
          MantleThicknessHistoryInstanceThicknessMap, ///< Thickness of mantle.
          SurfaceTemperatureHistoryInstanceMap,       ///< Temperature of top surface.
-         SurfaceDepthHistoryInstanceMap//,             ///< Depth of top surface.
-         //          AllochthonousLithologyDistributionMap       ///< Distribution of allochthonous salt.
+         SurfaceDepthHistoryInstanceMap              ///< Depth of top surface.
       };
 
 

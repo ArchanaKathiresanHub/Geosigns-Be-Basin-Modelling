@@ -39,11 +39,11 @@ PaleoProperty::PaleoProperty (ProjectHandle * projectHandle, Record * record) : 
 
 }
 
-PaleoProperty::PaleoProperty ( ProjectHandle * projectHandle,
-                               const Formation* formation,
+PaleoProperty::PaleoProperty ( ProjectHandle *      projectHandle,
+                               const Formation*     formation,
                                const PaleoProperty* startProperty,
                                const PaleoProperty* endProperty,
-                               const Snapshot*               interpolationTime ) :
+                               const Snapshot*      interpolationTime ) :
    DAObject (projectHandle, 0),
    m_snapshot ( interpolationTime ),
    m_startProperty ( startProperty),

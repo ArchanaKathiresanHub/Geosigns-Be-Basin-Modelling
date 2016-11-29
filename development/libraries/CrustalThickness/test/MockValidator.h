@@ -12,7 +12,7 @@
 #define _CRUSTALTHICKNESS_VALIDATORUNITTESTS_H_
 
 //Parent
-#include "../src/AbstractValidator.h"
+#include "../../DataModel/src/AbstractValidator.h"
 
 /// @class MockValidator class which defines if one node is valid or not according to its member m_isValid
 ///        Should be used only in unit tests

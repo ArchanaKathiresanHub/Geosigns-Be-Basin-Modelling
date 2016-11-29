@@ -66,7 +66,7 @@ void MantleFormation::cleanVectors() {
 void MantleFormation::initialise () {
 
    layername             = Interface::MantleFormation::getName ();
-   m_lithoMixModel         = Interface::MantleFormation::getMixModelStr ();
+   m_lithoMixModel       = Interface::MantleFormation::getMixModelStr ();
    m_presentDayThickness = Interface::MantleFormation::getInputThicknessMap ();
    depthGridMap          = Interface::MantleFormation::getTopSurface ()->getInputDepthMap ();
 
@@ -127,6 +127,7 @@ bool MantleFormation::setLithologiesFromStratTable () {
    
 }
 
+/// @todo unused function
 //------------------------------------------------------------//
 const CompoundLithology* MantleFormation::getLithology( const double aTime, const int iPosition, const int jPosition, const double aOffset ) {
    // If offset from the top of the Mantle (aOffset) goes above the bottom of Basalt, then we are in Basalt

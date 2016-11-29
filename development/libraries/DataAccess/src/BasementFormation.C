@@ -63,64 +63,12 @@ const GridMap * BasementFormation::getInputThicknessMap (void) const
    else return 0;
 }
 
-GridMap * BasementFormation::loadThicknessMap (void) const
-{
-   return 0;
-}
-
-GridMap * BasementFormation::computeThicknessMap (void) const
-{
-   return 0;
-}
-
 const LithoType * BasementFormation::getLithoType1 (void) const {
 
    if (!m_lithoType1)
       m_lithoType1 = (LithoType const *) m_projectHandle->findLithoType ( m_lithologyName );
    return m_lithoType1;
   
-}
-
-const GridMap * BasementFormation::getLithoType1PercentageMap (void) const
-{
-   GridMap * gridMap;
-
-   if ((gridMap = (GridMap *) getChild (LithoType1Map)) == 0)
-   {
-      const double percentage = 100.0;
-
-      const Grid * grid = m_projectHandle->getActivityOutputGrid();
-      if (!grid) grid = (Grid *) m_projectHandle->getInputGrid ();
-      gridMap = m_projectHandle->getFactory ()->produceGridMap (this, LithoType1Map, grid, percentage);
-
-      assert (gridMap == getChild (LithoType1Map));
-   }
-
-   return gridMap;
-}
-
-/// Return the second lithotype of this BasementFormation
-const LithoType * BasementFormation::getLithoType2 (void) const
-{
-   return 0;
-}
-
-/// Return the percentage map of the second lithotype
-const GridMap * BasementFormation::getLithoType2PercentageMap (void) const
-{
-   return 0;
-}
-
-/// Return the third lithotype of this BasementFormation
-const LithoType * BasementFormation::getLithoType3 (void) const
-{
-   return 0;
-}
-
-/// Return the percentage map of the third lithotype
-const GridMap * BasementFormation::getLithoType3PercentageMap (void) const
-{
-   return 0;
 }
 
 /// return the list of reservoirs in this formation.
@@ -199,6 +147,7 @@ const FluidType* BasementFormation::getFluidType (void) const
 
 float BasementFormation::getLayeringIndex(void) const {
    return -9999;
+   /// @todo
 }
 
 int BasementFormation::getDepositionSequence () const {

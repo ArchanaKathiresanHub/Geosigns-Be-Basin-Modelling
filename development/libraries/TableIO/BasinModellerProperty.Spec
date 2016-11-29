@@ -1385,7 +1385,7 @@ START-properties
     Unit of measurement : m
     Type                : float
     Default             : -9999
-    Error Field         : Yes
+    Error Field         : No
 
     Identification      : SpillDepth
     Description         : depth at which a trap spills
@@ -6802,21 +6802,23 @@ START-property-tables
     Column         : Age
     Column         : Thickness
     Column         : ThicknessGrid
-    Column         : CalibThickness
-    Column         : OptimThickness
     #limited to 1 layer only:
     Header         : Crust Thickness Data  
-    
+
     Identification : ContCrustalThicknessIoTbl
-    Description    : table with Crust thickness data for IO and UI
+    Description    : table with Continental Crust thickness data for IO and UI
     Column         : Age
     Column         : Thickness
     Column         : ThicknessGrid
-    Column         : CalibThickness
-    Column         : OptimThickness
-    #limited to 1 layer only:
-    Header         : Continental Crust Thickness Data  
-    
+    Header         : Continental Crust Thickness Data
+
+    Identification : OceaCrustalThicknessIoTbl
+    Description    : table with Oceanic Crust thickness data for IO and UI
+    Column         : Age
+    Column         : Thickness
+    Column         : ThicknessGrid
+    Header         : Oceanic Crust Thickness Data
+
     Identification : BasaltThicknessIoTbl
     Description    : table with Basalt thickness data for IO and UI
     Column         : BasaltThickness
@@ -6824,7 +6826,7 @@ START-property-tables
     Column         : CrustThicknessMeltOnset
     Column         : CrustThicknessMeltOnsetGrid
     #limited to 1 layer only:
-    Header         : Basalt Thickness Data  
+    Header         : Basalt Thickness Data
 
  # Source Rock data IO:
 
@@ -8014,6 +8016,7 @@ START-application-class-properties
     Property : AllochthonLithoInterpIoTbl
     Property : CrustIoTbl
     Property : ContCrustalThicknessIoTbl
+    Property : OceaCrustalThicknessIoTbl
     Property : BasaltThicknessIoTbl
     Property : BasementIoTbl
     Property : FormPressIoTbl

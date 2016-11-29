@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -62,8 +62,10 @@ using namespace std;
 #include "Interface/Trap.h"
 #include "Interface/Trapper.h"
 #include "Interface/Migration.h"
+
 #include "Interface/CrustalThicknessData.h"
 #include "Interface/CrustalThicknessRiftingHistoryData.h"
+#include "Interface/OceanicCrustThicknessHistoryData.h"
 
 using namespace DataAccess;
 using namespace Interface;
@@ -342,4 +344,8 @@ shared_ptr<const CrustalThicknessData> ObjectFactory::produceCrustalThicknessDat
 
 shared_ptr<const CrustalThicknessRiftingHistoryData> ObjectFactory::produceCrustalThicknessRiftingHistoryData( ProjectHandle * projectHandle, database::Record * record ) const {
    return shared_ptr<const CrustalThicknessRiftingHistoryData>(new CrustalThicknessRiftingHistoryData( projectHandle, record ));
+}
+
+shared_ptr<const OceanicCrustThicknessHistoryData> ObjectFactory::produceOceanicCrustThicknessHistoryData( ProjectHandle * projectHandle, database::Record * record ) const {
+   return shared_ptr<const OceanicCrustThicknessHistoryData>( new OceanicCrustThicknessHistoryData( projectHandle, record ) );
 }

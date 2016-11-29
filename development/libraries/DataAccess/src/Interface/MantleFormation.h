@@ -1,10 +1,19 @@
-#ifndef _INTERFACE_MANTLE_FORMATION_H_
-#define _INTERFACE_MANTLE_FORMATION_H_
+//
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+#ifndef INTERFACE_MANTLE_FORMATION_H
+#define INTERFACE_MANTLE_FORMATION_H
 
+// DataAccess library
 #include "Interface/DAObject.h"
 #include "Interface/Interface.h"
 #include "Interface/BasementFormation.h"
-
 
 namespace DataAccess
 {
@@ -15,10 +24,8 @@ namespace DataAccess
       {
       public:
 
-         /// constructor.
          MantleFormation (ProjectHandle * projectHandle, database::Record* record);
 
-         /// destructor.
          ~MantleFormation (void);
 
          /// Return the present day, user-supplied Mantle thickness GridMap.
@@ -41,10 +48,7 @@ namespace DataAccess
 
          void asString (string & str) const;
 
-
-      protected:
-
       };
    }
 }
-#endif // _INTERFACE_MANTLE_FORMATION_H_
+#endif // INTERFACE_MANTLE_FORMATION_H

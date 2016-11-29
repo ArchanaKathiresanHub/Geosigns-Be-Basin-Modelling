@@ -165,15 +165,11 @@ public:
                                    const unsigned int k,
                                    const double       age ) const;
 
-  void Determine_CFL_Value ( AppCtx* Basin_Model,
-                             double& Layer_CFL_Value );
-
 
    double estimateStandardPermeability () const;
 
   void print();
   void nullify ();
-  void Initialise();
   void reInitialise();
   void setVectorList();
   void Create_FC_Thickness_Polyfunction ( const DM& Map_DA );
@@ -215,12 +211,12 @@ public:
                                      const bool            Use_Solid_Thickness,
                                      const Boolean2DArray& Valid_Needle );
 
-  void setFaultElementsMap ( AppCtx*         Basin_Model,
-			     const Boolean2DArray& validNeedle );
+  void setFaultElementsMap (       AppCtx*         Basin_Model,
+                             const Boolean2DArray& validNeedle );
 
   void deleteFaultElementsMap ();
 
-  void setAllochthonousLithologyMap ( AppCtx*         Basin_Model,
+  void setAllochthonousLithologyMap (       AppCtx*         Basin_Model,
                                       const Boolean2DArray& validNeedle );
 
   void deleteAllochthonousLithologyMap ();
@@ -231,15 +227,15 @@ public:
   /// The thicknesses used will be:
   ///   - Solid thickness for geometric loop; and
   ///   - Real thickness for non-geometric loop.
-  void setErosionFactorMap ( AppCtx*         basinModel,
-			     const Boolean2DArray& validNeedle,
-			     const double    currentAge );
+  void setErosionFactorMap (        AppCtx*         basinModel,
+                             const Boolean2DArray& validNeedle,
+                             const double          currentAge );
 
   /// Delete the erosion-factor maps.
   void deleteErosionFactorMap ();
 
   void setSnapshotInterval ( const SnapshotInterval& interval,
-			            AppCtx*          basinModel );
+                     AppCtx*          basinModel );
 
   void interpolateProperty (       AppCtx*                  basinModel,
                              const double                   currentTime, 
@@ -263,7 +259,7 @@ public:
   const Interface::GridMap * depthGridMap;
   const Interface::GridMap * presentDayThickness;
 
-
+  /// @todo OMG what is going on here??
    // Replace ALL calls to this function with those to getCompoundLithology.
    const CompoundLithology* getLithology ( const int i, const int j ) const {
       return getCompoundLithology ( i, j );
@@ -787,11 +783,11 @@ inline const PVTComponents& LayerProps::getMolarMass () const {
 }
 
 inline  bool LayerProps::isChemicalCompactionVesValueIsDefined() const{
-	return chemicalCompactionVesValueIsDefined;
+   return chemicalCompactionVesValueIsDefined;
 }
 
 inline  double LayerProps::getChemicalCompactionVesValue() const{
-	return chemicalCompactionVesValue;
+   return chemicalCompactionVesValue;
 }
 
 typedef LayerProps* LayerProps_Ptr;

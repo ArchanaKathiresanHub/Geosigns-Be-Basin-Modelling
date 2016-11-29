@@ -23,7 +23,6 @@ endif()
 #
 set( all_headers
    src/AbstractInterfaceOutput.h
-   src/AbstractValidator.h
    src/ConfigFileParameterCtc.h
    src/DensityCalculator.h
    src/InterfaceInput.h
@@ -36,7 +35,6 @@ set( all_headers
    src/PropertyValue.h
    src/RiftingEvent.h
    src/TotalTectonicSubsidenceCalculator.h
-   src/Validator.h
 )
 
 #
@@ -55,7 +53,6 @@ set( all_srcs
    src/PropertyValue.C
    src/RiftingEvent.C
    src/TotalTectonicSubsidenceCalculator.C
-   src/Validator.C
 )
 
 #
@@ -96,6 +93,7 @@ include_directories( SYSTEM
 )
 
 target_link_libraries(CrustalThickness
+   DataModel
    DataAccess
    DataMining
    DerivedProperties
@@ -159,13 +157,13 @@ set ( tester_McKenzie
 #
 add_gtest( NAME "CrustalThickness::ConfigFileCtc"
            SOURCES test/ConfigFileCtc.C 
-           LIBRARIES CrustalThickness DataMining DataAccess SerialDataAccess
+           LIBRARIES CrustalThickness DataMining DataAccess SerialDataAccess DataModel
            ENV_VARS CTCDIR=${PROJECT_SOURCE_DIR}/geocase/misc
          )
 
 add_gtest( NAME "CrustalThickness::InterfaceInput"
            SOURCES test/InterfaceInput.C ${io_ctcMockFiles} ${io_dataAccessMockFiles} ${tester_interface} ../utilities/test/GoogleTestMacros.h
-           LIBRARIES CrustalThickness DataMining DataAccess SerialDataAccess
+           LIBRARIES CrustalThickness DataMining DataAccess SerialDataAccess DataModel
            ENV_VARS CTCDIR=${PROJECT_SOURCE_DIR}/geocase/misc
          )
 
@@ -174,22 +172,22 @@ add_gtest( NAME "CrustalThickness::InterfaceInput"
 #
 add_gtest( NAME "CrustalThickness::Density"
            SOURCES test/Density.C ${io_ctcMockFiles}  ${io_derivedPropertiesMockFiles}
-           LIBRARIES CrustalThickness SerialDataAccess DataMining DataAccess SerialDataAccess
+           LIBRARIES CrustalThickness SerialDataAccess DataMining DataAccess SerialDataAccess DataModel
          )
 
 add_gtest( NAME "CrustalThickness::TotalTectonicSubsidence"
            SOURCES test/TotalTectonicSubsidence.C ${io_ctcMockFiles}  ${io_derivedPropertiesMockFiles}
-           LIBRARIES CrustalThickness DataMining DataAccess SerialDataAccess
+           LIBRARIES CrustalThickness DataMining DataAccess SerialDataAccess DataModel
          )
 
 add_gtest( NAME "CrustalThickness::Paleowaterdepth"
            SOURCES test/Paleowaterdepth.C ${io_ctcMockFiles}  ${io_derivedPropertiesMockFiles}
-           LIBRARIES CrustalThickness DataMining DataAccess SerialDataAccess
+           LIBRARIES CrustalThickness DataMining DataAccess SerialDataAccess DataModel
          )
 
 add_gtest( NAME "CrustalThickness::PaleowaterdepthResidual"
            SOURCES test/PaleowaterdepthResidual.C ${io_ctcMockFiles}
-           LIBRARIES CrustalThickness DataMining DataAccess SerialDataAccess
+           LIBRARIES CrustalThickness DataMining DataAccess SerialDataAccess DataModel
          )
 
 add_gtest( NAME "CrustalThickness::LinearFunction"
@@ -199,12 +197,12 @@ add_gtest( NAME "CrustalThickness::LinearFunction"
 
 add_gtest( NAME "CrustalThickness::McKenzieEquations"
            SOURCES test/McKenzieEquations.C ${tester_McKenzie} ${io_ctcMockFiles}  ${io_derivedPropertiesMockFiles}
-           LIBRARIES CrustalThickness DataMining DataAccess SerialDataAccess
+           LIBRARIES CrustalThickness DataMining DataAccess SerialDataAccess DataModel
          )
 
 add_gtest( NAME "CrustalThickness::McKenzieCompute"
            SOURCES test/McKenzieCompute.C  ${tester_McKenzie} ${io_ctcMockFiles}  ${io_derivedPropertiesMockFiles}
-           LIBRARIES CrustalThickness DataMining DataAccess SerialDataAccess
+           LIBRARIES CrustalThickness DataMining DataAccess SerialDataAccess DataModel
          )
 
 #

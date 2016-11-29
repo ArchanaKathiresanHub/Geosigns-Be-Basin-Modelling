@@ -17,8 +17,8 @@ namespace DataAccess
 
          PaleoFormationProperty (ProjectHandle * projectHandle, database::Record * record, const Formation* formation );
 
-         PaleoFormationProperty ( ProjectHandle * projectHandle,
-                                  const Formation* formation,
+         PaleoFormationProperty ( ProjectHandle *               projectHandle,
+                                  const Formation*              formation,
                                   const PaleoFormationProperty* startProperty,
                                   const PaleoFormationProperty* endProperty,
                                   const Snapshot*               interpolationTime );
@@ -35,9 +35,6 @@ namespace DataAccess
 
          /// Return the string representation of the PaleoFormationProperty object.
          void asString (string &) const;
-
-         //void setFormation ( const Formation* formation );
-
 
       protected:
 

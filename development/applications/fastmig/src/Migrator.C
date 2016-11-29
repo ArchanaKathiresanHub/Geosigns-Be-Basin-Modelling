@@ -1577,7 +1577,6 @@ database::Record * Migrator::addDetectedReservoirRecord (Interface::Formation * 
    database::setBlockingPermeability (reservoirIoRecord, database::getBlockingPermeability (m_detectedReservoirIoRecord));
    database::setBlockingPorosity (reservoirIoRecord, database::getBlockingPorosity (m_detectedReservoirIoRecord));
    database::setErrDepthOffset (reservoirIoRecord, database::getErrDepthOffset (m_detectedReservoirIoRecord));
-   database::setErrThickness (reservoirIoRecord, database::getErrThickness (m_detectedReservoirIoRecord));
    database::setErrMicroTraps (reservoirIoRecord, database::getErrMicroTraps (m_detectedReservoirIoRecord));
    database::setErrLayerFrequency (reservoirIoRecord, database::getErrLayerFrequency (m_detectedReservoirIoRecord));
 

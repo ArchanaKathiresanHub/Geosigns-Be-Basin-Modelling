@@ -113,56 +113,6 @@ namespace GeoPhysics {
 
       virtual void restoreAllThicknessMaps ();
 
-      /// Integrate the compaction equation for a single segment.
-      ///
-      /// Based on a given porosity.
-      double computeRealThickness ( const unsigned int i,
-                                    const unsigned int j,
-                                    const unsigned int k,
-                                    const double       porosityTop,
-                                    const double       porosityBottom,
-                                    const double       age ) const;
-
-      /// Integrate the compaction equation for a single segment.
-      ///
-      /// Based on a given porosity.
-      double computeSolidThickness ( const unsigned int i,
-                                     const unsigned int j,
-                                     const unsigned int k,
-                                     const double       porosityTop,
-                                     const double       porosityBottom,
-                                     const double       age ) const;
-
-      /// Integrate the compaction equation for a single segment.
-      ///
-      /// Based on a given ves. The porosity is computed using the ves.
-      double computeRealThickness ( const unsigned int i,
-                                    const unsigned int j,
-                                    const unsigned int k,
-                                    const double       vesTop,
-                                    const double       vesBottom,
-                                    const double       maxVesTop,
-                                    const double       maxVesBottom,
-                                    const double       chemicalCompactionTop,
-                                    const double       chemicalCompactionBottom,
-                                    const bool         includeChemicalCompaction,
-                                    const double       age ) const;
-
-      /// Integrate the compaction equation for a single segment.
-      ///
-      /// Based on a given ves. The porosity is computed using the ves.
-      double computeSolidThickness ( const unsigned int i,
-                                     const unsigned int j,
-                                     const unsigned int k,
-                                     const double       vesTop,
-                                     const double       vesBottom,
-                                     const double       maxVesTop,
-                                     const double       maxVesBottom,
-                                     const double       chemicalCompactionTop,
-                                     const double       chemicalCompactionBottom,
-                                     const bool         includeChemicalCompaction,
-                                     const double       age ) const;
-
       /// \brief Get the refinement factor for the number of elements in the depth.
       int getDepthRefinementFactor () const;
 
@@ -227,6 +177,7 @@ inline const GeoPhysics::CompoundLithologyArray& GeoPhysics::Formation::getCompo
    return m_compoundLithologies;
 }
 
+/// @todo look here
 inline bool GeoPhysics::Formation::getLithologyHasSwitched ( const unsigned int i, const unsigned int j ) const {
    return m_compoundLithologies.hasSwitched ( i, j );
 }
