@@ -26,7 +26,7 @@ set(cross_platform_headers
       src/BrineDensity.h
       src/BrineVelocity.h
       src/BrineViscosity.h
-	  src/BrooksCorey.h
+      src/BrooksCorey.h
       src/ChemicalCompactionCalculator.h
       src/DoubleExponentialPorosity.h
       src/ExponentialPorosity.h
@@ -83,7 +83,7 @@ set(cross_platform_srcs
       src/BrineDensity.C
       src/BrineVelocity.C
       src/BrineViscosity.C
-	  src/BrooksCorey.cpp
+      src/BrooksCorey.cpp
       src/ChemicalCompactionCalculator.C
       src/DoubleExponentialPorosity.C
       src/ExponentialPorosity.C
@@ -161,8 +161,8 @@ source_group(source FILES ${all_srcs})
 
 
 add_library( GeoPhysics
-	${all_srcs}
-	${all_headers}
+   ${all_srcs}
+   ${all_headers}
 )
 
 # under Linux we are building Boost that is why this target exist
@@ -175,7 +175,7 @@ bm_include_libraries(
         ${all_dependent_libs}
 )
 include_directories( SYSTEM
-	${HDF5_INCLUDE_DIRS}
+   ${HDF5_INCLUDE_DIRS}
 )
 
 target_link_libraries(GeoPhysics
@@ -183,9 +183,9 @@ target_link_libraries(GeoPhysics
 )
 
 install(TARGETS GeoPhysics
-	RUNTIME DESTINATION bin
-	LIBRARY DESTINATION lib
-	ARCHIVE DESTINATION lib
+   RUNTIME DESTINATION bin
+   LIBRARY DESTINATION lib
+   ARCHIVE DESTINATION lib
 )
 
 generate_dox( GeoPhysics.cfg )
@@ -215,8 +215,8 @@ add_gtest( NAME GeoPhysics::BrineViscosity
 )
 
 add_gtest( NAME GeoPhysics::BrooksCorey
-	        SOURCES test/PceTest.C
-			LIBRARIES GeoPhysics SerialDataAccess
+           SOURCES test/PceTest.C
+           LIBRARIES GeoPhysics SerialDataAccess
 )
 
 add_gtest( NAME GeoPhysics::ChemicalCompactionCalculator

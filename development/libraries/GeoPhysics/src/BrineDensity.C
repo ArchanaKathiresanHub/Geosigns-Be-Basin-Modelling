@@ -18,35 +18,37 @@
 
 #include "NumericFunctions.h"
 
-double GeoPhysics::BrineDensity::chooseRegion( const double temperature,
-					       const double pressure,
-					       const double salinity,
-					       const double higherTemperature,
-					       const double lowerTemperature ) const
+GeoPhysics::Brine::Density::Density( const double salinity ) :
+  GeoPhysics::Brine::Phases(salinity)
+{}
+
+double GeoPhysics::Brine::Density::chooseRegion( const double temperature,
+                                                 const double pressure,
+                                                 const double higherTemperature,
+                                                 const double lowerTemperature ) const
 {
    if ( temperature <= lowerTemperature )
    {
-      return aqueousBatzleWang( temperature, pressure, salinity );
+      return aqueousBatzleWang( temperature, pressure );
    }
    else if ( temperature >= higherTemperature )
    {
-      return vapourIdealGas( temperature, pressure, salinity );
+      return vapourIdealGas( temperature, pressure );
    }
    else
    {
-      return transitionRegion( temperature, pressure, salinity, higherTemperature, lowerTemperature );
+      return transitionRegion( temperature, pressure, higherTemperature, lowerTemperature );
    }
 
 }
 
 //  Batzle-Wang formula for fluids in the aqueous (liquid) phase.
-double GeoPhysics::BrineDensity::aqueousBatzleWang( const double temperature,
-                                                    const double pressure,
-                                                    const double salinity ) const
+double GeoPhysics::Brine::Density::aqueousBatzleWang( const double temperature,
+                                                      const double pressure ) const
 {
    const double t = temperature;
    const double p = pressure;
-   const double s = salinity;
+   const double s = m_salinity;
 
    double dens = 1000.0 * ( s * s * ( 0.44 - 0.0033 * t )
                             + p * p * ( -3.33e-7 - 2.0e-9 * t )+
@@ -59,49 +61,45 @@ double GeoPhysics::BrineDensity::aqueousBatzleWang( const double temperature,
 }
 
 //  Ideal-gas formula for fluids in the vapour (gas) phase.
-double GeoPhysics::BrineDensity::vapourIdealGas( const double temperature,
-                                                 const double pressure,
-                                                 const double salinity ) const
+double GeoPhysics::Brine::Density::vapourIdealGas( const double temperature,
+                                                   const double pressure ) const
 {  
    const double t = temperature;
    const double p = pressure;
-   const double s = salinity;
+   const double s = m_salinity;
 
-   double dens = p * 1.0e2 / ( t + 273.0 ) * 1.67/1.38 * ( 18.0 * (1.0-s) + 58.44 * s );
-
-   return dens;
+   return p * 1.0e2 / ( t + 273.0 ) * 1.67/1.38 * ( 18.0 * (1.0-s) + 58.44 * s );
 
 }
 
 // Interpolation between last aqueous value (at T1) and first vapour value (at T2).
-double GeoPhysics::BrineDensity::transitionRegion( const double temperature, const double pressure, const double salinity,
-                                                   const double higherTemperature, const double lowerTemperature) const
+double GeoPhysics::Brine::Density::transitionRegion( const double temperature,
+                                                     const double pressure,
+                                                     const double higherTemperature,
+                                                     const double lowerTemperature ) const
 {
-   double aqueous = aqueousBatzleWang( lowerTemperature, pressure, salinity );
-   double vapour  = vapourIdealGas( higherTemperature, pressure, salinity );
-   double density = ( aqueous + ( temperature - lowerTemperature ) * ( vapour - aqueous ) / ( higherTemperature - lowerTemperature ) );
-
-   return density;
+   double aqueous = aqueousBatzleWang( lowerTemperature, pressure );
+   double vapour  = vapourIdealGas( higherTemperature, pressure );
+   return ( aqueous + ( temperature - lowerTemperature ) * ( vapour - aqueous ) / ( higherTemperature - lowerTemperature ) );
 
 }
 
 // drho / dT
-double GeoPhysics::BrineDensity::computeDerivativeT ( const double temperature, const double pressure, const double salinity ) const
+double GeoPhysics::Brine::Density::computeDerivativeT ( const double temperature, const double pressure ) const
 {
-   double temp = temperature, pres = pressure, sal = salinity;
-   double higherTemperature, lowerTemperature; 
+   const double temp = enforceTemperatureRanges( temperature );
+   const double pres = enforcePressureRanges( pressure );
 
-   enforceRanges( temperature, pressure, salinity, temp, pres, sal );
-   higherTemperature = findT2( pres );
-   lowerTemperature = findT1( higherTemperature );
+   const double higherTemperature = findT2( pres );
+   const double lowerTemperature = findT1( higherTemperature );
   
    if ( temp <= 1.0/1.02 * lowerTemperature )
    {
-      return derivativeTemperatureBatzleWang( temp, pres, sal );
+      return derivativeTemperatureBatzleWang( temp, pres );
    }
    else if ( temp >= 1.0/0.98 * higherTemperature )
    {
-      return derivativeTemperatureIdealGas( temp, pres, sal );
+      return derivativeTemperatureIdealGas( temp, pres );
    }
    else
    {
@@ -112,31 +110,30 @@ double GeoPhysics::BrineDensity::computeDerivativeT ( const double temperature, 
 
       // Formula originates in finite differences approximation of derivatives.
       // This is 4th order, good enough for Ideal Gas (linear) and B&W (cubic).
-      return ( - 1./12. * ( chooseRegion( temp4, pres, sal, higherTemperature, lowerTemperature )
-			    - chooseRegion( temp1, pres, sal, higherTemperature, lowerTemperature ) ) / ( 0.01 * temp ) +
-	          2./3. * ( chooseRegion( temp3, pres, sal, higherTemperature, lowerTemperature )
-			    - chooseRegion( temp2, pres, sal, higherTemperature, lowerTemperature ) ) / ( 0.01 * temp ) );
+      return ( - 1./12. * ( chooseRegion( temp4, pres, higherTemperature, lowerTemperature )
+             - chooseRegion( temp1, pres, higherTemperature, lowerTemperature ) ) / ( 0.01 * temp ) +
+             2./3. * ( chooseRegion( temp3, pres, higherTemperature, lowerTemperature )
+             - chooseRegion( temp2, pres, higherTemperature, lowerTemperature ) ) / ( 0.01 * temp ) );
    }
 
 }
 
 // drho / dP
-double GeoPhysics::BrineDensity::computeDerivativeP ( const double temperature, const double pressure, const double salinity ) const
+double GeoPhysics::Brine::Density::computeDerivativeP ( const double temperature, const double pressure ) const
 {
-   double temp = temperature, pres = pressure, sal = salinity;
-   double higherTemperature, lowerTemperature; 
+   const double temp = enforceTemperatureRanges( temperature );
+   const double pres = enforcePressureRanges( pressure );
 
-   enforceRanges( temperature, pressure, salinity, temp, pres, sal );
-   higherTemperature = findT2( pres );
-   lowerTemperature = findT1( higherTemperature );
+   const double higherTemperature = findT2( pres );
+   const double lowerTemperature = findT1( higherTemperature );
   
    if ( temp <= findT1( findT2( 0.98*pres ) ) )
    {
-      return derivativePressureBatzleWang( temp, pres, sal );
+      return derivativePressureBatzleWang( temp, pres );
    }
    else if ( temp >= findT2( 1.02 * pres ) )
    {
-      return derivativePressureIdealGas( temp, pres, sal );
+      return derivativePressureIdealGas( temp, pres );
    }
    else
    { 
@@ -145,32 +142,28 @@ double GeoPhysics::BrineDensity::computeDerivativeP ( const double temperature, 
       double pres3 = 1.01 * pres;
       double pres4 = 1.02 * pres;
 
-      return ( - 1./12. * ( phaseChange( temp, pres4, sal ) - phaseChange( temp, pres1, sal ) ) / ( 0.01 * pres ) +
-	          2./3. * ( phaseChange( temp, pres3, sal ) - phaseChange( temp, pres2, sal ) ) / ( 0.01 * pres ) );
+      return ( - 1./12. * ( phaseChange( temp, pres4 ) - phaseChange( temp, pres1 ) ) / ( 0.01 * pres ) +
+             2./3. * ( phaseChange( temp, pres3 ) - phaseChange( temp, pres2 ) ) / ( 0.01 * pres ) );
    }
 
 }
 
 // Analytic drho / dT in the vapour region.
-double GeoPhysics::BrineDensity::derivativeTemperatureIdealGas( const double temperature, const double pressure, const double salinity ) const
+double GeoPhysics::Brine::Density::derivativeTemperatureIdealGas( const double temperature, const double pressure ) const
 {
    const double t = temperature;
    const double p = pressure;
-   const double s = salinity;
+   const double s = m_salinity;
 
-   double densityDer;
-
-   densityDer = - 1.0e2 * 1.67 / 1.38 / ( t + 273.0 ) / ( t + 273.0 ) * p * ( 18.0 * ( 1.0 - s ) + 58.44 * s );
-
-   return densityDer;
+   return - 1.0e2 * 1.67 / 1.38 / ( t + 273.0 ) / ( t + 273.0 ) * p * ( 18.0 * ( 1.0 - s ) + 58.44 * s );
 }
 
 // Analytic drho / dT in the aqueous region.
-double GeoPhysics::BrineDensity::derivativeTemperatureBatzleWang( const double temperature, const double pressure, const double salinity ) const
+double GeoPhysics::Brine::Density::derivativeTemperatureBatzleWang( const double temperature, const double pressure ) const
 {
    const double t = temperature;
    const double p = pressure;
-   const double s = salinity;
+   const double s = m_salinity;
 
    double densityDer;
 
@@ -181,25 +174,21 @@ double GeoPhysics::BrineDensity::derivativeTemperatureBatzleWang( const double t
 }
 
 // Analytic drho / dP in the vapour region.
-double GeoPhysics::BrineDensity::derivativePressureIdealGas( const double temperature, const double pressure, const double salinity ) const
+double GeoPhysics::Brine::Density::derivativePressureIdealGas( const double temperature, const double pressure ) const
 {
    const double t = temperature;
    const double p = pressure;
-   const double s = salinity;
+   const double s = m_salinity;
 
-   double densityDer;
-
-   densityDer = 1.0e2 * 1.67 / 1.38 / ( t + 273.0 ) * ( 18.0 * ( 1.0 - s ) + 58.44 * s );
-
-   return densityDer;
+   return 1.0e2 * 1.67 / 1.38 / ( t + 273.0 ) * ( 18.0 * ( 1.0 - s ) + 58.44 * s );
 }
 
 // Analytic drho / dP in the aqueous region.
-double GeoPhysics::BrineDensity::derivativePressureBatzleWang( const double temperature, const double pressure, const double salinity ) const
+double GeoPhysics::Brine::Density::derivativePressureBatzleWang( const double temperature, const double pressure ) const
 {
    const double t = temperature;
    const double p = pressure;
-   const double s = salinity;
+   const double s = m_salinity;
 
    double densityDer;
 

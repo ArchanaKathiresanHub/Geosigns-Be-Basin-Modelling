@@ -75,9 +75,9 @@ TEST ( PiecewiseInterpolator, TestSize2Vector ) {
       EXPECT_NEAR (expectedInterpolations [ i ], interpolationValues [ i ], 1.0e-11 );
    }
 
-   AlignedMemoryAllocator<double, 32>::free ( evaluationPoints );
-   AlignedMemoryAllocator<double, 32>::free ( interpolationValues );
-   AlignedMemoryAllocator<double, 32>::free ( expectedInterpolations );
+   AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::free ( evaluationPoints );
+   AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::free ( interpolationValues );
+   AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::free ( expectedInterpolations );
 }
 
 
@@ -145,7 +145,7 @@ TEST ( PiecewiseInterpolator, TestSize3Vector ) {
       EXPECT_NEAR (expectedInterpolations [ i ], interpolationValues [ i ], 1.0e-11 );
    }
 
-   AlignedMemoryAllocator<double, 32>::free ( evaluationPoints );
-   AlignedMemoryAllocator<double, 32>::free ( interpolationValues );
-   AlignedMemoryAllocator<double, 32>::free ( expectedInterpolations );
+   AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::free ( evaluationPoints );
+   AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::free ( interpolationValues );
+   AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::free ( expectedInterpolations );
 }

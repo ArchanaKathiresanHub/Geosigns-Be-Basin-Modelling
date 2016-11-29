@@ -12,50 +12,99 @@
 #define GEOPHYSICS_BRINE_VISCOSITY_H_
 
 #include "BrinePhases.h"
+#include <cmath>
 
 namespace GeoPhysics
 {
-   /// \brief BrineViscosity is intended to handle the calculations of viscosity for brines whose physical parameters (T,P,S) are
-   ///        within the allowed ranges (see BrinePhases.C). It uses Batzle-Wang analytic equation in the aqueous phase and a constant
-   ///        value in the vapour phase. In the transition region bi-linear interpolation between the two approaches is used.
-
-   class BrineViscosity: public BrinePhases
+   namespace Brine
    {
-   public:
-      /// Constructor.
-      BrineViscosity() {}
-      /// Virtual destructor.
-      virtual ~BrineViscosity() {}
-   protected:
-      /// Analytic function implementing the Batzle-Wang equation for the value of density
-      /// and applying it only in the aqueous phase of the brine.
-      /// \pre Requires the passed arguments to be within the allowed ranges.
-      /// \post Guarantees the return of a non-negative value for the density.
-      double aqueousBatzleWang ( const double temperature, const double salinity ) const;
-
-      /// Returns a constant value for brines of any combination of parameters as long as they are in the vapour phase.
-      /// \pre None.
-      /// \post Guarantees the return of a constant value.
-      double vapourConstant () const;
-
-      /// Linearly interpolates between the values at the two sides of the transition region and returns the value.
-      /// \pre Requires the passed arguments to be within the allowed ranges (see BrinePhases.C) and lowerTemperature < higherTemperature.
-      /// \post Guarantees the return of a non-negative value for the density.
-      double transitionRegion ( const double temperature, const double pressure, const double salinity,
-                                const double higherTemperature, const double lowerTemperature ) const;
-
-   private:
       /// The constant returned by transitionRegion().
-      static const double VapourViscosity;
+      constexpr double VapourViscosity = 2.5e-5;
 
-      /// Depending on the ordering of temperature, higherTemperature and lowerTemperature calls the appropriate function to calculate
-      /// the value of the brine parameter of interest. It then returns the value returned by that function without further checks.
-      /// \pre Requires the triplet of T,P,S to be within the allowed ranges and lowerTemperature < higherTemperature.
-      /// \post Guarantees the return of the return value of the appropriate function to be called depending on temperature, higherTemperature and lowerTemperature.
-      virtual double chooseRegion ( const double temperature, const double pressure, const double salinity,
-                                    const double higherTemperature, const double lowerTemperature ) const;
-   };
+      /// \brief Viscosity is intended to handle the calculations of viscosity for brines whose physical parameters (T,P,S) are
+      ///        within the allowed ranges (see BrinePhases.C). It uses Batzle-Wang analytic equation in the aqueous phase and a constant
+      ///        value in the vapour phase. In the transition region bi-linear interpolation between the two approaches is used.
+      class Viscosity: public Phases
+      {
+      public:
+         /// Constructor.
+         Viscosity( const double salinity );
+         /// Virtual destructor.
+         virtual ~Viscosity() {}
+
+      protected:
+         /// Analytic function implementing the Batzle-Wang equation for the value of density
+         /// and applying it only in the aqueous phase of the brine.
+         /// \pre Requires the passed arguments to be within the allowed ranges.
+         /// \post Guarantees the return of a non-negative value for the density.
+         #pragma omp declare simd notinbranch
+         double aqueousBatzleWang ( const double temperature ) const;
+
+         /// Returns a constant value for brines of any combination of parameters as long as they are in the vapour phase.
+         /// \pre None.
+         /// \post Guarantees the return of a constant value.
+         double vapourConstant () const;
+
+         /// Linearly interpolates between the values at the two sides of the transition region and returns the value.
+         /// \pre Requires the passed arguments to be within the allowed ranges (see BrinePhases.C) and lowerTemperature < higherTemperature.
+         /// \post Guarantees the return of a non-negative value for the density.
+         #pragma omp declare simd notinbranch
+         double transitionRegion ( const double temperature,
+                                   const double pressure,
+                                   const double higherTemperature,
+                                   const double lowerTemperature ) const;
+
+      private:
+         /// ( 0.42 * (std::pow ( salinity, 0.8 ) - 0.17) * (std::pow ( salinity, 0.8 ) - 0.17) + 0.045 )
+         const double m_term1;
+
+         /// 0.001 *(0.1 + 0.333 * salinity)
+         const double m_term2;
+
+         /// 0.001 *(1.65 + 91.9 * salinity * salinity * salinity)
+         const double m_term3;
+
+         /// Depending on the ordering of temperature, higherTemperature and lowerTemperature calls the appropriate function to calculate
+         /// the value of the brine parameter of interest. It then returns the value returned by that function without further checks.
+         /// \pre Requires the triplet of T,P,S to be within the allowed ranges and lowerTemperature < higherTemperature.
+         /// \post Guarantees the return of the return value of the appropriate function to be called depending on temperature, higherTemperature and lowerTemperature.
+         virtual double chooseRegion ( const double temperature,
+                                       const double pressure,
+                                       const double higherTemperature,
+                                       const double lowerTemperature ) const;
+         virtual void   chooseRegion ( const int n,
+                                       ArrayDefs::ConstReal_ptr temperature,
+                                       ArrayDefs::ConstReal_ptr pressure,
+                                       ArrayDefs::ConstReal_ptr higherTemperature,
+                                       ArrayDefs::ConstReal_ptr lowerTemperature,
+                                       ArrayDefs::Real_ptr brineProp ) const;
+      };
+
+   } /// end Brine
 
 } // end GeoPhysics
+
+// Batzle-Wang formula for fluids in the aqueous (liquid) phase.
+inline double GeoPhysics::Brine::Viscosity::aqueousBatzleWang( const double temperature ) const
+{
+   return  m_term2 + m_term3 * std::exp ( - m_term1 * std::pow ( temperature, 0.8 ) );
+}
+
+// Constant viscosity in the vapour phase.
+inline double GeoPhysics::Brine::Viscosity::vapourConstant() const
+{
+   return VapourViscosity;
+}
+
+// Interpolation between last aquous value (at T1) and first vapour value (at T2).
+inline double GeoPhysics::Brine::Viscosity::transitionRegion( const double temperature,
+                                                              const double pressure,
+                                                              const double higherTemperature,
+                                                              const double lowerTemperature) const
+{
+   const double aqueous = aqueousBatzleWang( lowerTemperature );
+   const double vapour  = vapourConstant();
+   return ( aqueous + ( temperature - lowerTemperature ) * ( vapour - aqueous ) / ( higherTemperature - lowerTemperature ) );
+}
 
 #endif // GEOPHYSICS_BRINE_VISCOSITY_H_
