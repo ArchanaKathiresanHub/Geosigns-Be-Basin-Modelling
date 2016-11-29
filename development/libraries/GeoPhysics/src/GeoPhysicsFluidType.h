@@ -217,7 +217,7 @@ inline double GeoPhysics::FluidType::getConstantDensity () const
    return m_densityVal;
 }
 
-inline double GeoPhysics::FluidType::relativePermeability (const double temperature, const double pressure) const
+inline double GeoPhysics::FluidType::relativePermeability (const double , const double ) const
 {
    return 1.0;
 }

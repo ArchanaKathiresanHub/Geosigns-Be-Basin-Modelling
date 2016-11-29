@@ -104,7 +104,7 @@ inline double GeoPhysics::Brine::Viscosity::vapourConstant() const
 
 // Interpolation between last aquous value (at T1) and first vapour value (at T2).
 inline double GeoPhysics::Brine::Viscosity::transitionRegion( const double temperature,
-                                                              const double pressure,
+                                                              const double ,
                                                               const double higherTemperature,
                                                               const double lowerTemperature) const
 {
