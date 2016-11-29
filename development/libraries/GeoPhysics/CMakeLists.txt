@@ -210,7 +210,7 @@ add_gtest( NAME GeoPhysics::BrineVelocity
 )
 
 add_gtest( NAME GeoPhysics::BrineViscosity
-      SOURCES test/BrineViscosity.C src/BrinePhases.C
+      SOURCES test/BrineViscosity.C
       LIBRARIES GeoPhysics SerialDataAccess
 )
 

@@ -37,7 +37,10 @@ namespace GeoPhysics
          /// and applying it only in the aqueous phase of the brine.
          /// \pre Requires the passed arguments to be within the allowed ranges.
          /// \post Guarantees the return of a non-negative value for the density.
+#if defined(__INTEL_COMPILER)
+         // GCC 4.9.3 gives multiple definition error on linking unit test
          #pragma omp declare simd notinbranch
+#endif
          double aqueousBatzleWang ( const double temperature ) const;
 
          /// Returns a constant value for brines of any combination of parameters as long as they are in the vapour phase.
@@ -48,7 +51,10 @@ namespace GeoPhysics
          /// Linearly interpolates between the values at the two sides of the transition region and returns the value.
          /// \pre Requires the passed arguments to be within the allowed ranges (see BrinePhases.C) and lowerTemperature < higherTemperature.
          /// \post Guarantees the return of a non-negative value for the density.
+#if defined(__INTEL_COMPILER)
+         // GCC 4.9.3 gives multiple definition error on linking unit test
          #pragma omp declare simd notinbranch
+#endif
          double transitionRegion ( const double temperature,
                                    const double pressure,
                                    const double higherTemperature,
