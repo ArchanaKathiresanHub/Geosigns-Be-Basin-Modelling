@@ -27,7 +27,7 @@ class BrineViscosityTest: public GeoPhysics::Brine::Viscosity
 {
    BrineViscosityTest() = delete;
 public:
-   BrineViscosityTest( const double sal ) : GeoPhysics::Brine::Viscosity(sal) {}
+   explicit BrineViscosityTest( const double sal ) : GeoPhysics::Brine::Viscosity(sal) {}
    double findT2Test( const double pressure ) const
    {
       return findT2 (pressure);
@@ -80,8 +80,8 @@ TEST ( BrineViscosity, testing_non_negative )
 /// allowed range of) the parameter space are not negative.
 TEST ( BrineViscosity, testing_non_negative_vector )
 {
-   const int N = 12;
-   ArrayDefs::Real_ptr temp = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( N );
+   const int n = 12;
+   ArrayDefs::Real_ptr temp = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( n );
    temp[ 0] = -1000.0;
    temp[ 1] = -100.0;
    temp[ 2] = 0.0;
@@ -94,22 +94,22 @@ TEST ( BrineViscosity, testing_non_negative_vector )
    temp[ 9] = 1200.0;
    temp[10] = 2000.0;
    temp[11] = 68000.0;
-   ArrayDefs::Real_ptr pres = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( N );
-   ArrayDefs::Real_ptr visc = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( N );
-   for( int k=0; k<N; ++k )
+   ArrayDefs::Real_ptr pres = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( n );
+   ArrayDefs::Real_ptr visc = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( n );
+   for( int k=0; k<n; ++k )
       visc[k] = 0.0;
 
    for ( int j=0; j<=4; ++j )
    {
       BrineViscosityTest valuesCheck(0.1*double(j));
-      valuesCheck.setVectorSize(N);
-      EXPECT_EQ( valuesCheck.getVectorSize(), N );
+      valuesCheck.setVectorSize(n);
+      EXPECT_EQ( valuesCheck.getVectorSize(), n );
       for ( int i=0; i<=4000; ++i )
       {
-         for ( int k=0; k<N; ++k )
+         for ( int k=0; k<n; ++k )
             pres[k] = 0.1*double(i);
-         valuesCheck.phaseChange( N, temp, pres, visc );
-         for ( int k=0; k<N; ++k ) 
+         valuesCheck.phaseChange( n, temp, pres, visc );
+         for ( int k=0; k<n; ++k ) 
             EXPECT_GT( visc[k], 0.0 );
       }
    }
@@ -210,22 +210,22 @@ TEST ( BrineViscosity, testing_viscosity_continuity )
 TEST ( BrineViscosity, testing_viscosity_continuity_vector )
 {
    const double epsilon = 1.0e-15;
-   const int N = 100;
-   ArrayDefs::Real_ptr pres  = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( N );
-   ArrayDefs::Real_ptr visc1 = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( N );
-   ArrayDefs::Real_ptr visc2 = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( N );
-   ArrayDefs::Real_ptr visc3 = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( N );
-   ArrayDefs::Real_ptr visc4 = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( N );
-   ArrayDefs::Real_ptr temp1 = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( N );
-   ArrayDefs::Real_ptr temp2 = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( N );
-   ArrayDefs::Real_ptr temp3 = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( N );
-   ArrayDefs::Real_ptr temp4 = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( N );
+   const int n = 100;
+   ArrayDefs::Real_ptr pres  = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( n );
+   ArrayDefs::Real_ptr visc1 = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( n );
+   ArrayDefs::Real_ptr visc2 = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( n );
+   ArrayDefs::Real_ptr visc3 = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( n );
+   ArrayDefs::Real_ptr visc4 = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( n );
+   ArrayDefs::Real_ptr temp1 = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( n );
+   ArrayDefs::Real_ptr temp2 = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( n );
+   ArrayDefs::Real_ptr temp3 = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( n );
+   ArrayDefs::Real_ptr temp4 = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( n );
 
    for ( int j=0; j<8; ++j )
    {
       BrineViscosityTest valuesCheck(0.1 * 0.5 * double(j));
 
-      for ( int i=0; i<N; ++i ) 
+      for ( int i=0; i<n; ++i ) 
       {
          pres[i] = 0.1 * double(20*i);
          if ( pres[i] < 0.1 )
@@ -241,12 +241,12 @@ TEST ( BrineViscosity, testing_viscosity_continuity_vector )
          temp4[i] = highTemp * (1.0 + epsilon);
       }
 
-      valuesCheck.phaseChange( N, temp1, pres, visc1 );
-      valuesCheck.phaseChange( N, temp2, pres, visc2 );
-      valuesCheck.phaseChange( N, temp3, pres, visc3 );
-      valuesCheck.phaseChange( N, temp4, pres, visc4 );
+      valuesCheck.phaseChange( n, temp1, pres, visc1 );
+      valuesCheck.phaseChange( n, temp2, pres, visc2 );
+      valuesCheck.phaseChange( n, temp3, pres, visc3 );
+      valuesCheck.phaseChange( n, temp4, pres, visc4 );
       
-      for ( int i=0; i<N; ++i ) 
+      for ( int i=0; i<n; ++i ) 
       {
          EXPECT_NEAR( visc1[i], visc2[i], 1.0e-10 );
          EXPECT_NEAR( visc3[i], visc4[i], 1.0e-10 );
@@ -275,7 +275,9 @@ TEST ( BrineViscosity, testing_viscosity_region )
       BrineViscosityTest valuesCheck(0.1 * 0.5 * double(j));
       for ( int i=0; i<=100; ++i )
       {
-         double pressure, highTemp, lowTemp;
+         double pressure = 0.0;
+         double highTemp = 0.0;
+         double lowTemp = 0.0;
          for ( int k=1; k<4; ++k )
          {
             pressure = 0.1 * double(20*i);
@@ -306,8 +308,8 @@ TEST ( BrineViscosity, testing_viscosity_vector_exact_val )
    const double salinity = 0.2;
    BrineViscosityTest valuesCheck( salinity );
 
-   const int N = 8;
-   ArrayDefs::Real_ptr temp = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( N );
+   const int n = 8;
+   ArrayDefs::Real_ptr temp = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( n );
    temp[0] = 130.0;
    temp[1] = 130.0;
    temp[2] = 600.0;
@@ -316,7 +318,7 @@ TEST ( BrineViscosity, testing_viscosity_vector_exact_val )
    temp[5] = GeoPhysics::Brine::s_MinTemperature;
    temp[6] = GeoPhysics::Brine::s_MinTemperature;
    temp[7] = 666.0;
-   ArrayDefs::Real_ptr pres = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( N );
+   ArrayDefs::Real_ptr pres = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( n );
    pres[0] = GeoPhysics::Brine::s_MinPressure;
    pres[1] = GeoPhysics::Brine::s_MaxPressure;
    pres[2] = 100.0;
@@ -325,10 +327,10 @@ TEST ( BrineViscosity, testing_viscosity_vector_exact_val )
    pres[5] = 127.0;
    pres[6] = GeoPhysics::Brine::s_MaxPressure;
    pres[7] = 271;
-   ArrayDefs::Real_ptr visc = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( N );
-   for( int k=0; k<N; ++k ) visc[k] = 0.0;
+   ArrayDefs::Real_ptr visc = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( n );
+   for( int k=0; k<n; ++k ) visc[k] = 0.0;
 
-   valuesCheck.phaseChange( N, temp, pres, visc );
+   valuesCheck.phaseChange( n, temp, pres, visc );
 
    EXPECT_NEAR( visc[0], 2.5e-05,               1.e-15 ); // vapor
    EXPECT_NEAR( visc[1], 0.0003742085594019073, 1.e-15 ); // aqueousBatzleWang
@@ -351,8 +353,8 @@ TEST ( BrineViscosity, testing_viscosity_vector_exact_val_different_phases )
    const double salinity = 0.2;
    BrineViscosityTest valuesCheck( salinity );
 
-   const int N = 8;
-   ArrayDefs::Real_ptr temp = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( N );
+   const int n = 8;
+   ArrayDefs::Real_ptr temp = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( n );
    temp[0] = 130.0; // water
    temp[1] = 130.0; // water
    temp[2] = 130.0; // water
@@ -362,7 +364,7 @@ TEST ( BrineViscosity, testing_viscosity_vector_exact_val_different_phases )
    temp[6] = 392.0; // vapor
    temp[7] = 392.0; // vapor
 
-   ArrayDefs::Real_ptr pres = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( N );
+   ArrayDefs::Real_ptr pres = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( n );
    pres[0] = GeoPhysics::Brine::s_MaxPressure; // water
    pres[1] = GeoPhysics::Brine::s_MaxPressure; // water
    pres[2] = GeoPhysics::Brine::s_MaxPressure; // water
@@ -372,13 +374,13 @@ TEST ( BrineViscosity, testing_viscosity_vector_exact_val_different_phases )
    pres[6] = GeoPhysics::Brine::s_MinPressure; // vapor
    pres[7] = GeoPhysics::Brine::s_MinPressure; // vapor
 
-   ArrayDefs::Real_ptr visc = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( N );
-   for( int i = 0; i < N; ++i )
+   ArrayDefs::Real_ptr visc = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( n );
+   for( int i = 0; i < n; ++i )
    {
       visc[i] = 0.0;
    }
 
-   valuesCheck.phaseChange( N, temp, pres, visc );
+   valuesCheck.phaseChange( n, temp, pres, visc );
 
    EXPECT_NEAR( visc[0], 0.0003742085594019073, 1.e-15 ); // water
    EXPECT_NEAR( visc[1], 0.0003742085594019073, 1.e-15 ); // water
@@ -401,46 +403,46 @@ TEST ( BrineViscosity, testing_viscosity_vector_exact_val_same_phase )
    const double salinity = 0.2;
    BrineViscosityTest valuesCheck( salinity );
 
-   const int N = 8;
-   ArrayDefs::Real_ptr temp = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( N );
-   ArrayDefs::Real_ptr pres = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( N );
-   ArrayDefs::Real_ptr visc = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( N );
+   const int n = 8;
+   ArrayDefs::Real_ptr temp = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( n );
+   ArrayDefs::Real_ptr pres = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( n );
+   ArrayDefs::Real_ptr visc = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( n );
 
    // All water
-   for( int i = 0; i < N; ++i )
+   for( int i = 0; i < n; ++i )
    {
       temp[i] = 130.0;
       pres[i] = GeoPhysics::Brine::s_MaxPressure;
       visc[i] = 0.0;
    }
-   valuesCheck.phaseChange( N, temp, pres, visc );   
-   for( int i = 0; i < N; ++i )
+   valuesCheck.phaseChange( n, temp, pres, visc );   
+   for( int i = 0; i < n; ++i )
    {
       EXPECT_NEAR( visc[i], 0.0003742085594019073, 1.e-15 );
    }
 
    // All transition
-   for( int i = 0; i < N; ++i )
+   for( int i = 0; i < n; ++i )
    {
       temp[i] = 392.0;
       pres[i] = 60.0;
       visc[i] = 0.0;
    }
-   valuesCheck.phaseChange( N, temp, pres, visc );   
-   for( int i = 0; i < N; ++i )
+   valuesCheck.phaseChange( n, temp, pres, visc );   
+   for( int i = 0; i < n; ++i )
    {
       EXPECT_NEAR( visc[i], 0.0001110191130450718, 1.e-15 );
    }
 
    // All vapor
-   for( int i = 0; i < N; ++i )
+   for( int i = 0; i < n; ++i )
    {
       temp[i] = 392.0;
       pres[i] = GeoPhysics::Brine::s_MinPressure;
       visc[i] = 0.0;
    }
-   valuesCheck.phaseChange( N, temp, pres, visc );   
-   for( int i = 0; i < N; ++i )
+   valuesCheck.phaseChange( n, temp, pres, visc );   
+   for( int i = 0; i < n; ++i )
    {
       EXPECT_NEAR( visc[i], 2.5e-05, 1.e-15 );
    }

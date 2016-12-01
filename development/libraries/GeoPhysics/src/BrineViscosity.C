@@ -18,6 +18,12 @@ GeoPhysics::Brine::Viscosity::Viscosity( const double salinity ) :
 {}
 
 
+GeoPhysics::Brine::Viscosity::~Viscosity()
+{
+   // // Intentionally unimplemented
+}
+
+
 double GeoPhysics::Brine::Viscosity::chooseRegion( const double temperature,
                                                    const double pressure,
                                                    const double higherTemperature,

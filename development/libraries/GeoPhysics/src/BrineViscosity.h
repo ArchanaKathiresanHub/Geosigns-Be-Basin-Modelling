@@ -28,9 +28,9 @@ namespace GeoPhysics
       {
       public:
          /// Constructor.
-         Viscosity( const double salinity );
+         explicit Viscosity( const double salinity );
          /// Virtual destructor.
-         virtual ~Viscosity() {}
+         virtual ~Viscosity();
 
       protected:
          /// Analytic function implementing the Batzle-Wang equation for the value of density

@@ -89,7 +89,7 @@ namespace GeoPhysics
       {
          static_assert( idx > 0, "Invalid index provided to Brine::intercept" );
          static_assert( idx < s_TabulatedTransitions, "Invalid index provided to Brine::intercept" );
-         return s_TabulatedBrineT[idx-1] + s_halfWidth - s_interpolRatio[idx-1] * s_TabulatedBrineP[idx-1];;
+         return s_TabulatedBrineT[idx-1] + s_halfWidth - s_interpolRatio[idx-1] * s_TabulatedBrineP[idx-1];
       }
 
       /// Useful quantities for the interpolation function in the transition region.
@@ -116,7 +116,7 @@ namespace GeoPhysics
          /// Constructor that initializes m_pres vector and assigns values from TabulatedBrineP[] to its elements.
          /// \pre None.
          /// \post Guarantees initialization.
-         Phases( const double salinity );
+         explicit Phases( const double salinity );
          /// Virtual destructor
          virtual ~Phases();
       

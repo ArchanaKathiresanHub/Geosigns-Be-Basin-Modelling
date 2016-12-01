@@ -57,7 +57,7 @@ GeoPhysics::FluidType::FluidType (Interface::ProjectHandle * projectHandle, data
 {
    const double temperatureValues [ 5 ] = { -40.0, -30.0, -20.0, -10.0, 0.0 };
    const double densityValues [ 5 ] = { 922.8, 921.6, 920.3, 918.7, 916.7 };
-   const double heatCapacityValues [ 5 ] = { 1800.0, 1880.0, 1960.0, 2030.0, 2110.0 }; // 2960.0, 2030.0, 2110.0 };
+   const double heatCapacityValues [ 5 ] = { 1800.0, 1880.0, 1960.0, 2030.0, 2110.0 };
    const double thermalConductivityValues [ 5 ] = { 2.6, 2.5, 2.4, 2.3, 2.14 };
 
    m_iceDensityInterpolator->setInterpolation ( 5, temperatureValues, densityValues);
@@ -281,9 +281,9 @@ double GeoPhysics::FluidType::densXheatCapacity( const double temperature,
       const double iceFractionDerivative = - dThetaDT;
 
       // now we can compute the latent heat term
-      static const double WaterSpecificLatentHeat = 333600.0; // J/kg
+      const double waterSpecificLatentHeat = 333600.0; // J/kg
       const double iceDensity = m_iceDensityInterpolator->evaluate (temperature);
-      const double latentHeatTerm = iceDensity * WaterSpecificLatentHeat * iceFractionDerivative;
+      const double latentHeatTerm = iceDensity * waterSpecificLatentHeat * iceFractionDerivative;
       assert(latentHeatTerm <= 0.0);
 
       // return the volumetric heat capacity of the mixture minus the latent heat term
@@ -304,7 +304,7 @@ double GeoPhysics::FluidType::seismicVelocity (const double temperature,
      case Interface::CALCULATED_MODEL : return m_velocity->phaseChange(temperature, pressure);
      case Interface::CONSTANT_MODEL   : return m_seismicVelocityVal;
      default: throw formattingexception::GeneralException() << "\nMeSsAgE ERROR  " << __FUNCTION__
-                                                             << " - Seismic velocity calculation model not set\n\n";
+                                                            << " - Seismic velocity calculation model not set\n\n";
    }
 
    // Added to prevent compiler warning about missing return at end of function.
@@ -313,9 +313,9 @@ double GeoPhysics::FluidType::seismicVelocity (const double temperature,
 
 double GeoPhysics::FluidType::solidDensityTimesHeatCapacity (const double temperature) const
 {
-   double usedTemperature = temperature; //NumericFunctions::Maximum (temperature, 40.0);
+   double usedTemperature = temperature;
 
-   // return 916.0 * 2110.0;
+   // 916.0 * 2110.0;
    return m_iceDensityInterpolator->evaluate (usedTemperature) * m_iceHeatCapacityInterpolator->evaluate (usedTemperature);
 }
 
