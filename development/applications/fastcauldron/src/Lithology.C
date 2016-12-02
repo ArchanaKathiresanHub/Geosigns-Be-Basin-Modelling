@@ -21,12 +21,14 @@
 
 // utilities library
 #include "ConstantsNumerical.h"
-using Utilities::Numerical::IbsNoDataValue;
 #include "ConstantsMathematics.h"
-using Utilities::Maths::M2ToMilliDarcy;
 
 // CBMGenerics library
 #include "ComponentManager.h"
+
+using Utilities::Numerical::IbsNoDataValue;
+using Utilities::Maths::M2ToMilliDarcy;
+
 typedef CBMGenerics::ComponentManager::PhaseId PhaseId;
 
 Lithology::Lithology ( GeoPhysics::ProjectHandle* projectHandle ) : GeoPhysics::CompoundLithology ( projectHandle ) {

@@ -12,7 +12,6 @@
 // std library
 #include <iostream>
 #include <iomanip>
-using namespace std;
 
 #include "Interface/SGDensitySample.h"
 
@@ -31,11 +30,13 @@ using namespace std;
 // utilitites library
 #include "NumericFunctions.h"
 #include "ConstantsMathematics.h"
-using Utilities::Maths::CelciusToKelvin;
 
 // CBMGenerics library
 #include "ComponentManager.h"
 typedef CBMGenerics::ComponentManager::SpeciesNamesId ComponentId;
+
+using Utilities::Maths::CelciusToKelvin;
+using namespace std;
 using namespace CBMGenerics;
 
 const double Genex6::OTGCC1AdsorptionSimulator::AdsorptionPorosityThreshold = 0.1;

@@ -99,26 +99,20 @@
 
 #include "PetscObjectsIO.h"
 
-using namespace GeoPhysics;
-using namespace Utilities::CheckMemory;
-
 //------------------------------------------------------------//
 
 // utilities library
 #include "ConstantsMathematics.h"
-using Utilities::Maths::Zero;
-using Utilities::Maths::PaToMegaPa;
-using Utilities::Maths::MilliDarcyToM2;
+
 #include "ConstantsNumerical.h"
-using Utilities::Numerical::CauldronNoDataValue;
 #include "ConstantsGeology.h"
-using Utilities::Geology::PresentDay;
 
 //------------------------------------------------------------//
 
 // CBMGenerics library
 #include "ComponentManager.h"
-typedef CBMGenerics::ComponentManager::SpeciesNamesId ComponentId;
+
+//------------------------------------------------------------//
 
 //
 // How to handle the PETSc Matrix allocation. Has the bug been
@@ -126,7 +120,19 @@ typedef CBMGenerics::ComponentManager::SpeciesNamesId ComponentId;
 //
 #define PETSc_MATRIX_BUG_FIXED 1
 
+//------------------------------------------------------------//
+
+using Utilities::Maths::Zero;
+using Utilities::Maths::PaToMegaPa;
+using Utilities::Maths::MilliDarcyToM2;
+using Utilities::Numerical::CauldronNoDataValue;
+using Utilities::Geology::PresentDay;
+
 using namespace FiniteElementMethod;
+using namespace GeoPhysics;
+using namespace Utilities::CheckMemory;
+
+typedef CBMGenerics::ComponentManager::SpeciesNamesId ComponentId;
 
 //------------------------------------------------------------//
 

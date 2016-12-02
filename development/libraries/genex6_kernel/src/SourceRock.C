@@ -2088,12 +2088,8 @@ void SourceRock::updateSnapShotOutputMaps(Genex6::SourceRockNode *theNode)
       if(it != snapshotMapContainerEnd) {               
          specId = m_theSimulator->GetSpeciesIdByName(theManager.getSpeciesName(speciesIndex));
 
-         if( specId < 0 ) { // to support both GX5 and GX6 config files
-
-            // if(m_projectHandle->getRank() == 0) {
-            //    cout<<"Genex6 Simulator does not support species:"<<theManager.getSpeciesName(speciesIndex)<<endl;
-            // } 
-
+         if( specId < 0 ) {
+            // to support both GX5 and GX6 config files
          } else {
             Genex6::SpeciesResult &theResult = theSimulatorState.GetSpeciesResult(specId);
             (it->second)->setValue(i, j, theResult.GetExpelledMass()); 

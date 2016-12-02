@@ -807,7 +807,7 @@ void PVTPhaseValues::zero () {
 
    int i;
 
-   for ( i = 0; i < pvtFlash::numberOfPhases; ++i ) {
+   for ( i = 0; i < PhaseId::NUMBER_OF_PHASES; ++i ) {
       m_values [ i ] = 0.0;
    }
 

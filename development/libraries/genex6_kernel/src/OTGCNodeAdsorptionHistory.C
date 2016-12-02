@@ -23,6 +23,14 @@
 
 // utilitites library
 #include "ConstantsMathematics.h"
+#include "ConstantsNumerical.h"
+#include "ConstantsPhysics.h"
+
+
+// CBMGenerics library
+#include "ComponentManager.h"
+
+
 using Utilities::Maths::CelciusToKelvin;
 using Utilities::Maths::CubicMetresToCubicFeet;
 using Utilities::Maths::CubicMetresToBarrel;
@@ -30,15 +38,11 @@ using Utilities::Maths::GorConversionFactor;
 using Utilities::Maths::CgrConversionFactor;
 using Utilities::Maths::KilometreSquaredToAcres;
 using Utilities::Maths::KilogrammeToUSTon;
-#include "ConstantsNumerical.h"
 using Utilities::Numerical::CauldronNoDataValue;
-#include "ConstantsPhysics.h"
 using Utilities::Physics::StandardPressure;
 using Utilities::Physics::StandardTemperatureGenexK;
-
-// CBMGenerics library
-#include "ComponentManager.h"
 typedef CBMGenerics::ComponentManager::SpeciesNamesId ComponentId;
+
 
 Genex6::OTGCNodeAdsorptionHistory::OTGCNodeAdsorptionHistory ( const SpeciesManager&                      speciesManager,
                                                                DataAccess::Interface::ProjectHandle* projectHandle ) :

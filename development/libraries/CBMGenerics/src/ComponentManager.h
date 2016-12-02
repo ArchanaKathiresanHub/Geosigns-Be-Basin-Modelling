@@ -25,8 +25,6 @@ namespace CBMGenerics
       /// \brief The hydrocarbone species
       enum SpeciesNamesId
       {
-         /// \todo GF Issue with unknown which used to be 23 in genex?
-         /// \todo ask help comment Natalya
          UNKNOWN         = -1,
          
          FIRST_COMPONENT = 0,

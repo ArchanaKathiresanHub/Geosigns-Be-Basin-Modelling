@@ -198,17 +198,17 @@ TEST_F( EosPackTest, FlashVapourLiquid)
 TEST_F( EosPackTest, FlashVapourLiquidUsingArrays )
 {
    double masses[ComponentId::NUMBER_OF_SPECIES];
-   double phaseMasses[ComponentId::NUMBER_OF_SPECIES * numberOfPhases];
-   double phaseDensity[numberOfPhases];
-   double phaseViscosity[numberOfPhases];
+   double phaseMasses[ComponentId::NUMBER_OF_SPECIES * PhaseId::NUMBER_OF_PHASES];
+   double phaseDensity[PhaseId::NUMBER_OF_PHASES];
+   double phaseViscosity[PhaseId::NUMBER_OF_PHASES];
 
    initializeCompositionMasses( masses );
 
    EosPackComputeWithLumpingArr( 373.15, 1e6, masses, false, 0.0, phaseMasses, phaseDensity, phaseViscosity );
 
-   double totPhaseMass[numberOfPhases];
+   double totPhaseMass[PhaseId::NUMBER_OF_PHASES];
 
-   for ( int i = 0; i < numberOfPhases; ++i )
+   for ( int i = 0; i < PhaseId::NUMBER_OF_PHASES; ++i )
    {
       totPhaseMass[i] = 0.0;
       for ( int j = 0; j < ComponentId::NUMBER_OF_SPECIES; ++j )

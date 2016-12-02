@@ -67,14 +67,14 @@ void GeoPhysics::HCDensity::createPropertyTables ()
    bool isGormPrescribed = false;
    double compMasses[ComponentId::NUMBER_OF_SPECIES];
 
-   double phaseCompMasses[pvtFlash::numberOfPhases][ComponentId::NUMBER_OF_SPECIES];
-   double phaseDensity[pvtFlash::numberOfPhases];
-   double phaseViscosity[pvtFlash::numberOfPhases];
+   double phaseCompMasses[PhaseId::NUMBER_OF_PHASES][ComponentId::NUMBER_OF_SPECIES];
+   double phaseDensity[PhaseId::NUMBER_OF_PHASES];
+   double phaseViscosity[PhaseId::NUMBER_OF_PHASES];
 
    memset (compMasses, 0, sizeof (double) * ComponentId::NUMBER_OF_SPECIES);
-   memset (phaseCompMasses, 0, sizeof (double) * ComponentId::NUMBER_OF_SPECIES * pvtFlash::numberOfPhases);
-   memset (phaseDensity, 0, sizeof (double) * pvtFlash::numberOfPhases);
-   memset (phaseViscosity, 0, sizeof (double) * pvtFlash::numberOfPhases);
+   memset (phaseCompMasses, 0, sizeof (double) * ComponentId::NUMBER_OF_SPECIES * PhaseId::NUMBER_OF_PHASES );
+   memset (phaseDensity, 0, sizeof (double) * PhaseId::NUMBER_OF_PHASES );
+   memset (phaseViscosity, 0, sizeof (double) * PhaseId::NUMBER_OF_PHASES );
 
    pvtFlash::EosPack & eosPack = pvtFlash::EosPack::getInstance ();
 

@@ -108,7 +108,7 @@ void Genex6::PVTComponentMasses::zero () {
    int i;
    int j;
 
-   for ( i = 0; i < pvtFlash::numberOfPhases; ++i ) {
+   for ( i = 0; i < PhaseId::NUMBER_OF_PHASES; ++i ) {
 
       for ( j = 0; j < ComponentId::NUMBER_OF_SPECIES; ++j ) {
          m_masses [ i ][ j ] = 0.0;
@@ -135,7 +135,7 @@ Genex6::PVTComponentMasses& Genex6::PVTComponentMasses::operator+=( const PVTCom
    int i;
    int j;
 
-   for ( i = 0; i < pvtFlash::numberOfPhases; ++i ) {
+   for ( i = 0; i < PhaseId::NUMBER_OF_PHASES; ++i ) {
 
       for ( j = 0; j < ComponentId::NUMBER_OF_SPECIES; ++j ) {
          m_masses [ i ][ j ] += components ( PhaseId ( i ), ComponentId ( j ));
@@ -213,7 +213,7 @@ void Genex6::PVTPhaseValues::zero () {
 
    int i;
 
-   for ( i = 0; i < pvtFlash::numberOfPhases; ++i ) {
+   for ( i = 0; i < PhaseId::NUMBER_OF_PHASES; ++i ) {
       m_values [ i ] = 0.0;
    }
 
@@ -223,7 +223,7 @@ void Genex6::PVTPhaseValues::setValues( const Genex6::PVTPhaseValues& values1, c
 
     int i;
 
-   for ( i = 0; i < pvtFlash::numberOfPhases; ++i ) {
+   for ( i = 0; i < PhaseId::NUMBER_OF_PHASES; ++i ) {
       m_values [ i ] = values1.m_values [ i ] * scale1 + values2.m_values [ i ] * scale2;
    }
 }

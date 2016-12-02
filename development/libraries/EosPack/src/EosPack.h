@@ -28,7 +28,6 @@ namespace pvtFlash
 {
 
    extern std::string pvtPropertiesConfigFile;
-   constexpr int numberOfPhases = PhaseId::NUMBER_OF_PHASES;
 
    /// \brief provides interface to PVT-flash functionality of the EosCauldron implementation
    /// The class EosPack class encapsulates the EosCauldron functionality for PVT-flash

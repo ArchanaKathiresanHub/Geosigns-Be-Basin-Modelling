@@ -23,12 +23,13 @@
 
 // utilities library
 # include "ConstantsMathematics.h"
-using Utilities::Maths::CelciusToKelvin;
 #include "ConstantsNumerical.h"
-using Utilities::Numerical::CauldronNoDataValue;
 
 // CBMGenerics library
 #include "ComponentManager.h"
+
+using Utilities::Maths::CelciusToKelvin;
+using Utilities::Numerical::CauldronNoDataValue;
 typedef CBMGenerics::ComponentManager::SpeciesNamesId ComponentId;
 
 namespace Genex6

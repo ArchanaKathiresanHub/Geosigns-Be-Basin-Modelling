@@ -13,11 +13,12 @@
 
 // std library
 #include <assert.h>
-using namespace std;
 
 // CBMGenerics library
 #include "ComponentManager.h"
+
 typedef CBMGenerics::ComponentManager::SpeciesNamesId ComponentId;
+using namespace std;
 
 /// Initialize a new request handling phase.
 namespace migration
