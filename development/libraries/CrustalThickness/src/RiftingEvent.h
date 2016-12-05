@@ -34,16 +34,18 @@ namespace CrustalThickness{
       TectonicFlag getTectonicFlag()                    const{ return m_tectonicFlag;                 }
       GridMap const * getMaximumOceanicCrustThickness() const{ return m_maximumOceanicCrustThickness; }
       GridMap const * getSeaLevelAdjustment()           const{ return m_seaLevelAdjustment;           }
-      double getStartRiftAge() const { return m_startRiftAge; }
-      double getEndRiftAge  () const { return m_endRiftAge;   }
-      unsigned int getRiftId() const { return m_riftId;       }
+      double getStartRiftAge () const { return m_startRiftAge;    }
+      double getEndRiftAge   () const { return m_endRiftAge;      }
+      bool getCalculationMask() const { return m_calculationMask; }
+      unsigned int getRiftId () const { return m_riftId;          }
       /// @}
 
       /// @defgroup Mutators
       /// @{
-      void setStartRiftAge( const double age      );
-      void setEndRiftAge  ( const double age      );
-      void setRiftId      ( const unsigned int id ) { m_riftId = id; }
+      void setStartRiftAge   ( const double age      );
+      void setEndRiftAge     ( const double age      );
+      void setCalculationMask( const bool mask       ) { m_calculationMask = mask; }
+      void setRiftId         ( const unsigned int id ) { m_riftId          = id;   }
       /// @}
 
    private:
@@ -53,6 +55,7 @@ namespace CrustalThickness{
       GridMap const * const m_maximumOceanicCrustThickness; ///< The maximum oceanic crustal thickness                          [m]
       double m_startRiftAge;                                ///< The begging of the rift                                        [Ma]
       double m_endRiftAge;                                  ///< The end of the rift                                            [Ma]
+      bool m_calculationMask;                               ///< If and only if true, then all ctc crust properties are computed and output for this rifting event
       unsigned int m_riftId;                                ///< The rift ID to which belongs the rift event, one rift event belongs to only one rift and vice versa
 
    };

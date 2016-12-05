@@ -3370,7 +3370,6 @@ Interface::FluidTypeList * ProjectHandle::getFluids() const {
    return fluidList;
 }
 
-/// @todo Move to CrustFormation?
 Interface::PaleoFormationPropertyList * ProjectHandle::getCrustPaleoThicknessHistory() const {
 
    Interface::PaleoFormationPropertyList * crustThinningHistoryList = new Interface::PaleoFormationPropertyList;

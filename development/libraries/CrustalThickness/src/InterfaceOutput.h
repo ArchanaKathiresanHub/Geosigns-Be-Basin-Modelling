@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -14,6 +14,7 @@
 // std library
 #include <sstream>
 #include <string.h>
+#include <memory>
 
 // DataAccess library
 #include "Interface/CrustalThicknessInterface.h"
@@ -28,6 +29,7 @@
 
 // CrustalThickness library
 #include "AbstractInterfaceOutput.h"
+#include "InterfaceInput.h"
 
 // utilities library
 #include "FormattingException.h"
@@ -96,7 +98,10 @@ public:
    /// @param[in] theSnapshot The snapshot corresponding to the maps
    /// @param[in] theSurface The stratigraphic surface corresponding to the maps
    /// @param[in] debug If true, then will create debug maps
-   void createSnapShotOutputMaps( GeoPhysics::ProjectHandle * pHandle, const Snapshot* theSnapshot, const Interface::Surface *theSurface = nullptr,
+   void createSnapShotOutputMaps( GeoPhysics::ProjectHandle * pHandle,
+                                  std::shared_ptr< const InterfaceInput > interfaceInput,
+                                  const Snapshot * theSnapshot,
+                                  const Interface::Surface *theSurface,
                                   const bool debug = false );
    /// @brief Create a map for the defined snapshot
    /// @param propertyName The name of the property corresponding to the map
@@ -114,7 +119,11 @@ public:
    void disableDebugOutput( ProjectHandle * pHandle, const Interface::Surface* theSurface, const Snapshot* theSnapshot ) const;
    /// @brief Ensure that the CTC only allocates the required maps
    /// @details Some maps can't be created if some inputs are missing
-   void updatePossibleOutputsAtSnapshot( outputMaps id, const GeoPhysics::ProjectHandle * pHandle, const Snapshot * theSnapshot, const bool debug );
+   void updatePossibleOutputsAtSnapshot( const outputMaps id,
+                                         const GeoPhysics::ProjectHandle * pHandle,
+                                         std::shared_ptr< const InterfaceInput > interfaceInput,
+                                         const Snapshot * theSnapshot,
+                                         const bool debug );
    /// @}
 
    /// @defgroup DataUtilities

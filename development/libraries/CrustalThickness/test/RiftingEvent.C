@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -70,7 +70,7 @@ TEST( RiftingEvent, constructor ){
    EXPECT_EQ( DataAccess::Interface::DefaultUndefinedScalarValue, event.getStartRiftAge()                                     );
    EXPECT_EQ( DataAccess::Interface::DefaultUndefinedScalarValue, event.getEndRiftAge()                                       );
    EXPECT_EQ( 0                                                 , event.getRiftId()                                           );
-
+   EXPECT_EQ( false                                             , event.getCalculationMask()                                  );
 }
 
 TEST( RiftingEvent, star_age ){
@@ -195,9 +195,14 @@ TEST( RiftingEvent, end_age ){
    EXPECT_EQ( 10, event.getEndRiftAge() );
 }
 
-
 TEST( RiftingEvent, rifting_id ){
    RiftingEvent event( DataAccess::Interface::ACTIVE_RIFTING, &seaLevelAdjustment, &maximumBasaltThickness );
    event.setRiftId( 10 );
    EXPECT_EQ( 10, event.getRiftId() );
+}
+
+TEST( RiftingEvent, calculation_mask ) {
+   RiftingEvent event( DataAccess::Interface::ACTIVE_RIFTING, &seaLevelAdjustment, &maximumBasaltThickness );
+   event.setCalculationMask( true );
+   EXPECT_EQ( true, event.getCalculationMask() );
 }

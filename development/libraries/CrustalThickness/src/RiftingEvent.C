@@ -23,6 +23,7 @@ RiftingEvent::RiftingEvent( const TectonicFlag tectonicFlag,
    m_maximumOceanicCrustThickness( maximumOceanicCrustThickness ),
    m_startRiftAge( DataAccess::Interface::DefaultUndefinedScalarValue ),
    m_endRiftAge  ( DataAccess::Interface::DefaultUndefinedScalarValue ),
+   m_calculationMask ( false ),
    m_riftId      ( 0 )
 {
    if (seaLevelAdjustment == nullptr){

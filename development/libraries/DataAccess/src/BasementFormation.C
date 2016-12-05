@@ -8,18 +8,20 @@
 // Do not distribute without written permission from Shell.
 //
 
+// std library
 #include <assert.h>
 #include <iostream>
 #include <sstream>
-using namespace std;
 
+// utilities library
 #include "mangle.h"
+#include "ConstantsNumerical.h"
 
+// tableIo library
 #include "database.h"
 #include "cauldronschemafuncs.h"
 
-using namespace database;
-
+// DataAccess library
 #include "Interface/BasementFormation.h"
 #include "Interface/SourceRock.h"
 #include "Interface/LithoType.h"
@@ -33,6 +35,8 @@ using namespace database;
 #include "Interface/FluidType.h"
 #include "Interface/AllochthonousLithology.h"
 
+using namespace std;
+using namespace database;
 using namespace DataAccess;
 using namespace Interface;
 
@@ -60,7 +64,7 @@ const GridMap * BasementFormation::getInputThicknessMap (void) const
 
    if ((gridMap = (const GridMap *) getChild (ThicknessMap)) != 0) return gridMap;
    else if ((gridMap = computeThicknessMap ()) != 0) return gridMap;
-   else return 0;
+   else return nullptr;
 }
 
 const LithoType * BasementFormation::getLithoType1 (void) const {
@@ -74,13 +78,13 @@ const LithoType * BasementFormation::getLithoType1 (void) const {
 /// return the list of reservoirs in this formation.
 ReservoirList * BasementFormation::getReservoirs (void) const
 {
-   return 0;
+   return nullptr;
 }
 
 /// return the list of MobileLayers in this formation.
 MobileLayerList * BasementFormation::getMobileLayers (void) const
 {
-   return 0;
+   return nullptr;
 }
 
 // Return the allochthonous lithology pointer.
@@ -91,7 +95,7 @@ const AllochthonousLithology * BasementFormation::getAllochthonousLithology (voi
 /// return the list of reservoirs in this formation.
 FaultCollectionList * BasementFormation::getFaultCollections (void) const
 {
-   return 0;
+   return nullptr;
 }
 
 /// tell whether this BasementFormation is a mobile layer
@@ -123,12 +127,12 @@ bool BasementFormation::hasChemicalCompaction () const {
 /// Return the SourceRock of this BasementFormation
 const SourceRock * BasementFormation::getSourceRock (void) const
 {
-   return 0;
+   return nullptr;
 }
 
 GridMap * BasementFormation::computeFaultGridMap (const Grid * localGrid, const Snapshot * snapshot) const
 {
-   return 0;
+   return nullptr;
 }
 
 CBMGenerics::capillarySealStrength::MixModel BasementFormation::getMixModel() const
@@ -142,12 +146,11 @@ const std::string& BasementFormation::getMixModelStr (void) const {
 
 const FluidType* BasementFormation::getFluidType (void) const
 {
-   return 0;
+   return nullptr;
 }
 
 float BasementFormation::getLayeringIndex(void) const {
-   return -9999;
-   /// @todo
+   return Utilities::Numerical::IbsNoDataValue;
 }
 
 int BasementFormation::getDepositionSequence () const {

@@ -1093,7 +1093,6 @@ bool GeoPhysics::ProjectHandle::createMantleHeatFlow () {
 }
 
 //------------------------------------------------------------//
-/// @todo this part will become obsolete
 bool GeoPhysics::ProjectHandle::createBasaltThicknessAndECT () {
 
    if (not m_isALCMode) return false;
@@ -2159,7 +2158,7 @@ double GeoPhysics::ProjectHandle::getLithosphereThicknessMod ( const unsigned in
    return 0.0;
 }
 //------------------------------------------------------------//
-/// @todo unused function
+
 double GeoPhysics::ProjectHandle::getBasaltInMantleThickness ( const unsigned int i,
                                                                const unsigned int j,
                                                                const double       age ) const {

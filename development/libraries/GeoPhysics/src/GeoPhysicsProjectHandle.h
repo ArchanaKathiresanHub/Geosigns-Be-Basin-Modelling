@@ -8,8 +8,8 @@
 // Do not distribute without written permission from Shell.
 //
 
-#ifndef _GEOPHYSICS__PROJECT_HANDLE_H_
-#define _GEOPHYSICS__PROJECT_HANDLE_H_
+#ifndef GEOPHYSICS__PROJECT_HANDLE_H
+#define GEOPHYSICS__PROJECT_HANDLE_H
 
 #include <string>
 #include <list>
@@ -449,6 +449,9 @@ namespace GeoPhysics {
       double m_constrainedBasaltTemperature; // defined in configuration file
 
       private:
+         /// @brief If the ALc version used is v2017.05, checks that there are as much continental as oceanic
+         /// crustal thicknesses inputs and that they are defined at the same age
+         /// @throw std::invalid_argument if the check fails
          void checkAlcCrustHistoryInput();
 
    }; 
@@ -523,4 +526,4 @@ inline double GeoPhysics::ProjectHandle::getConstrainedBasaltTemperature() const
 
 //------------------------------------------------------------//
 
-#endif // _GEOPHYSICS__PROJECT_HANDLE_H_
+#endif // GEOPHYSICS__PROJECT_HANDLE_H

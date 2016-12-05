@@ -215,21 +215,31 @@ void InterfaceOutput::setMapsToOutput(const CrustalThicknessInterface::outputMap
 }
 
 //------------------------------------------------------------//
-void InterfaceOutput::updatePossibleOutputsAtSnapshot( outputMaps id, const GeoPhysics::ProjectHandle * pHandle, const Snapshot * theSnapshot, const bool debug ) {
+void InterfaceOutput::updatePossibleOutputsAtSnapshot( const outputMaps id,
+                                                       const GeoPhysics::ProjectHandle * pHandle,
+                                                       std::shared_ptr< const InterfaceInput > interfaceInput,
+                                                       const Snapshot * theSnapshot,
+                                                       const bool debug ) {
    
    bool toBeOutput = true;
-   // The TTS, Incremental TS, and McKenzie general properties are only ouput when we have an SDH
-   if (  id == WLSMap
-      or id == WLSadjustedMap
-      or id == incTectonicSubsidence
-      or id == RDAadjustedMap
+   // The McKenzie general properties are only ouput when we have an SDH at the end of a rifting event
+   if (  id == RDAadjustedMap
       or id == thicknessCrustMap
       or id == thicknessBasaltMap
       or id == thicknessCrustMeltOnset
       or id == topBasaltMap
       or id == mohoMap
       or id == ECTMap ){
-      if (not pHandle->asSurfaceDepthHistory( theSnapshot->getTime() )){
+      if (not interfaceInput->getRiftingCalculationMask( theSnapshot->getTime() )){
+         toBeOutput = false;
+      }
+   }
+
+   // The TTS and Incremental TS properties are only ouput when we have an SDH
+   else if (  id == WLSMap
+      or id == WLSadjustedMap
+      or id == incTectonicSubsidence) {
+      if (not interfaceInput->getRiftingCalculationMask( theSnapshot->getTime() )) {
          toBeOutput = false;
       }
    }
@@ -249,7 +259,7 @@ void InterfaceOutput::updatePossibleOutputsAtSnapshot( outputMaps id, const GeoP
    }
 
    // The debug outputs
-   // The McKenzie debug properties are only ouput when we have an SDH and in debug mode
+   // The McKenzie debug properties are only ouput when we have an SDH at the end of a rifting event and in debug mode
    else if ( id == estimatedCrustDensityMap
       or id == basaltDensityMap
       or id == PTaMap
@@ -268,7 +278,7 @@ void InterfaceOutput::updatePossibleOutputsAtSnapshot( outputMaps id, const GeoP
       or id == LowerContinentalCrustThickness
       or id == UpperOceanicCrustThickness
       or id == LowerOceanicCrustThickness) {
-      if (not debug or not pHandle->asSurfaceDepthHistory( theSnapshot->getTime() )) {
+      if (not debug or not interfaceInput->getRiftingCalculationMask( theSnapshot->getTime() )) {
          toBeOutput = false;
       }
    }
@@ -292,12 +302,16 @@ void InterfaceOutput::setAllMapsToOutput( const bool flag ) {
 }
 
 //------------------------------------------------------------//
-void InterfaceOutput::createSnapShotOutputMaps( GeoPhysics::ProjectHandle * pHandle, const Snapshot * theSnapshot, const Interface::Surface *theSurface, const bool debug ) {
+void InterfaceOutput::createSnapShotOutputMaps( GeoPhysics::ProjectHandle * pHandle,
+                                                std::shared_ptr< const InterfaceInput > interfaceInput,
+                                                const Snapshot * theSnapshot,
+                                                const Interface::Surface *theSurface,
+                                                const bool debug ) {
    
    LogHandler( LogHandler::DEBUG_SEVERITY ) << "Create snaphot output maps @ snapshot " << theSnapshot->asString();
    for( int i = 0; i < numberOfOutputMaps; ++ i ) {
       outputMaps id = (outputMaps)i;
-      updatePossibleOutputsAtSnapshot( id, pHandle, theSnapshot, debug );
+      updatePossibleOutputsAtSnapshot( id, pHandle, interfaceInput, theSnapshot, debug );
       if( m_outputMapsMask[i] ) {
          if( id != isostaticBathymetry && id != incTectonicSubsidence ) {
             LogHandler( LogHandler::DEBUG_SEVERITY ) << "   #for map " << outputMapsNames[i];

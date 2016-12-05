@@ -1,4 +1,4 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
 // 
@@ -12,7 +12,6 @@
 
 // TableIO library
 #include "cauldronschemafuncs.h"
-using namespace database;
 
 // utilities library
 #include "LogHandler.h"
@@ -21,6 +20,8 @@ using namespace database;
 #include "Interface/Formation.h"
 #include "Interface/Snapshot.h"
 #include "Interface/Surface.h"
+
+using namespace database;
 using namespace DataAccess;
 using namespace Interface;
 

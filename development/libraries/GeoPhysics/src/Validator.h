@@ -8,8 +8,8 @@
 // Do not distribute without written permission from Shell.
 //
 
-#ifndef _CRUSTALTHICKNESS_VALIDATORGEOPHYSICS_H_
-#define _CRUSTALTHICKNESS_VALIDATORGEOPHYSICS_H_
+#ifndef GEOPHYSICS_VALIDATOR_H
+#define GEOPHYSICS_VALIDATOR_H
 
 //Geophysics
 #include "GeoPhysicsProjectHandle.h"

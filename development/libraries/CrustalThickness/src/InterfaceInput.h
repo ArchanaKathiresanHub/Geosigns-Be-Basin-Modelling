@@ -72,7 +72,15 @@ public:
    /// @brief Load data from project file and configuration file
    /// @param[in] inFile The CTC configuration file name
    /// @throw std::invalid_argument exceptions if the inputs are not valid
-   void loadInputData( const string & inFile );
+   void loadInputData();
+
+   /// @brief Loads the presence or absence of a surface depth history at every snapshot.
+   /// @
+   void loadSurfaceDepthHistoryMask( GeoPhysics::ProjectHandle* projectHandle );
+
+   /// @brief Loads the snapshots from the stratigraphy via the crustal thickness history data
+   /// @details The snapshots are ordered from the basement (oldest) to top sediment age (younger)
+   void loadSnapshots();
 
    /// @defgroup LoadDataFromStratigraphy
    ///    Load data from the stratigraphy via GeoPhysics or DataMining projectHandle 
@@ -94,14 +102,12 @@ public:
    /// @brief Load the depth at the defined snapshot and intitalise the top and bottom surface of sediments according to the baseSurfaceName
    /// @return The depth property
    const DataModel::AbstractProperty* loadDepthProperty( );
-
    /// @}
 
    /// @defgroup Accessors
    /// @{
    unsigned int getSmoothRadius()          const { return m_smoothRadius;                              }
    double getFlexuralAge()                 const { return m_flexuralAge;                               }
-   double getFirstRiftAge()                const { return m_firstRiftAge;                              }
    double getInitialSubsidence()           const { return m_constants.getInitialSubsidenceMax();       }
    double getBackstrippingMantleDensity()  const { return m_constants.getBackstrippingMantleDensity(); }
    double getWaterDensity()                const { return m_constants.getWaterDensity();               }
@@ -130,11 +136,12 @@ public:
    /// @defgroup RiftingEventAPI
    ///    API to use for accessing the rifting events data
    /// @{
-   double getRiftingStartAge   ( const double age ) const;
-   double getRiftingEndAge     ( const double age ) const;
-   double getRiftId            ( const double age ) const;
-   const GridMap& getHBuMap    ( const double age ) const;
-   const GridMap& getDeltaSLMap( const double age ) const;
+   bool getRiftingCalculationMask( const double age ) const;
+   double getRiftingStartAge     ( const double age ) const;
+   double getRiftingEndAge       ( const double age ) const;
+   double getRiftId              ( const double age ) const;
+   const GridMap& getHBuMap      ( const double age ) const;
+   const GridMap& getDeltaSLMap  ( const double age ) const;
    /// @}
 
    /// @defgroup Mutators
@@ -157,18 +164,16 @@ protected:
 
    /// @defgroup Loaders
    /// @{
-      /// @brief Loads the snapshots from the stratigraphy via the crustal thickness history data
-      void loadSnapshots();
       /// @throw InputException If the project handle is a null pointer or if the derived property manager cannot be retrieved
       void loadDerivedPropertyManager();
 
       /// @defgroup CTCRiftingHistoryIoTblLoader
       /// @{
-      /// @brief Loads user input data from the project file CTCRiftingHistoryIoTbl
+      /// @brief Loads and analyzes user input data from the project file CTCRiftingHistoryIoTbl
       void loadCTCRiftingHistoryIoTblData();
       /// @brief Load the rifting events for all the loaded snapshots
       /// @details After this their tectonic flag and maximum oceanic crustal thicknesses are set
-      /// @throw std::runtime_error if one of theere are more event than snapshots or vice versa
+      /// @throw std::runtime_error if one of there are more event than snapshots or vice versa
       void loadRiftingEvents();
          /// @defgroup RiftAnalysis
          ///    A rift is defined by a succession of active rifting events (A) and passive margin (P) events
@@ -178,16 +183,49 @@ protected:
          ///    Rifting        <------->;<----------->;<--...
          ///    Rifting ID         1    ;      2      ; 3 ...
          ///    Start age      ^        ;^            ;^  ...
-         ///    End age                ^;            ^;......
+         ///    End age              ^  ;        ^    ;......
+         ///
+         ///    The analysis of the CTCRiftingHistoryIoTbl follows a set of rules:
+         ///       ->Identify calculation ages:
+         ///          #1 An SDH must be defined at this age ( 0Ma as by default a SDH )
+         ///          #2 The first Flexural event ( 0Ma by default ) is a calculation age, and must have an SDH according to #1
+         ///          #3 An Active event with a SDH ( rule #1 ) which follows another Active or Passive event is a calculation age if this is not the basement age
+         ///          #4 A Passive event can never be a calculation age
+         ///          #5 The basement age (first event) can never be a calculation age
+         ///       ->Identify start ages:
+         ///          #6 An Active event with a SDH is a starting rifting age
+         ///       ->Identify end ages:
+         ///          #7 All events are possible end ages
+         ///          #8 An Active event with a SDH which follows another Active event is an End Age
+         ///          #9 A Passive event with a previous event being Active is an End Age
+         ///          #10 The first Flexural event ( 0Ma by default ), if it follows an Active event, is an End Age
+         ///       ->Maximum basalt thickness rule:
+         ///          #11 Only one Maximum Basalt Thickness value can be allowed in any one rift plus optional passive margin phase	10
+         ///       ->History validity rules (throw errors if this happens):
+         ///          #12 The first flexural event doesn't have an SDH
+         ///          #13 The first deposited formation( at basement age ) is not an active event
+         ///          #14 There are post Flexural Active / Passive events
+         ///          #15 There are no SDH defined at the beginning of a rifting event
+         ///          #16 There is no rift defined ( no active event ), in principle rule #14 will catch this error before
+         ///          #17 There is no Flexural event
+         ///
          /// @{
-         /// @brief Set the rifting start and end ages according to the suite of rifting events
-         /// throw std::invalid_argument if the start is anterior or equal to the end for any rifting event
+         /// @brief Set the rifting calculation masks, start and end ages according to the suite of rifting events
+         /// @throw std::invalid_argument if the suite of rifting events is geologically invalid
          void analyseRiftingHistory();
+         /// @brief Set the rifting calculation masks according to the suite of rifting events
+         void analyzeRiftingHistoryCalculationMask();
          /// @brief Set the rifting start ages according to the suite of rifting events
-         /// @details Also set the rift ID and the last computation age (flexural age)
+         /// @throw std::invalid_argument if the start of a rifting event doesn't have an SDH associated
          void analyseRiftingHistoryStartAge();
          /// @brief Set the rifting end ages according to the suite of rifting events
+         /// @details Also set the rift ID and the last computation age (flexural age)
          void analyseRiftingHistoryEndAge();
+         /// @brief Check that the suite of rifting events is geologically valid
+         /// @throw std::invalid_argument if the suite of rifting events is geologically invalid
+         void checkRiftingHistory() const;
+         /// @brief Print and log the analyzed rifting history
+         void printRiftingHistory() const;
          /// @}
       /// @}
 
@@ -200,6 +238,7 @@ protected:
 
    /// @}
 
+   std::shared_ptr<const CrustalThickness::RiftingEvent> getRiftEvent( const double age ) const;
 
    /// @defgroup DataAccess
    /// @{
@@ -211,9 +250,9 @@ protected:
    /// @{
    unsigned int m_smoothRadius;  ///< Smoothing radius                                                                                      [Cells]
    double m_flexuralAge;         ///< Timing of flexural basin, after this age there is no more CTC outputs                                 [Ma]
-   double m_firstRiftAge;        ///< Timing of the first fully defined rift, before this age there is no McKenzie Crust Thicknesses ouptus [Ma]
 
    std::map<const double, std::shared_ptr<CrustalThickness::RiftingEvent>> m_riftingEvents; /// All the rifting events mapped to their stratigraphic age
+   std::map< const double, bool> m_asSurfaceDepthHistory;                                   ///< Maping between the snapshots age and the existence of a SDH at this age
 
    GridMap const * m_HCuMap;     ///< Initial continental crust thickness   [m]
    GridMap const * m_HLMuMap;    ///< Initial lithospheric mantle thickness [m]
@@ -251,6 +290,7 @@ protected:
 
    string m_baseRiftSurfaceName;  ///< Name of a base of syn-rift
 
+   static const string s_ctcConfigurationFile; ///< Name of the CTC/ALC configuration file
 };
 
 #endif

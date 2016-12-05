@@ -168,7 +168,6 @@ inline const GeoPhysics::CompoundLithology* GeoPhysics::Formation::getCompoundLi
    return m_compoundLithologies ( i, j );
 }
 
-
 inline GeoPhysics::CompoundLithologyArray& GeoPhysics::Formation::getCompoundLithologyArray () {
    return m_compoundLithologies;
 }
@@ -177,11 +176,9 @@ inline const GeoPhysics::CompoundLithologyArray& GeoPhysics::Formation::getCompo
    return m_compoundLithologies;
 }
 
-/// @todo look here
 inline bool GeoPhysics::Formation::getLithologyHasSwitched ( const unsigned int i, const unsigned int j ) const {
    return m_compoundLithologies.hasSwitched ( i, j );
 }
-
 
 inline double GeoPhysics::Formation::getMinimumThickness () const {
    return m_minimumDepositedThickness;
@@ -199,10 +196,6 @@ inline bool GeoPhysics::Formation::isMantle () const {
    return false;
 }
 
-// inline bool GeoPhysics::Formation::isSediment () const {
-//    return true;
-// }
-
 inline unsigned int GeoPhysics::Formation::getMaximumNumberOfElements () const {
    return m_maximumNumberOfElements;
 }
@@ -210,7 +203,6 @@ inline unsigned int GeoPhysics::Formation::getMaximumNumberOfElements () const {
 inline bool GeoPhysics::Formation::getContainsFaults () const {
    return m_containsFault;
 }
-
 
 inline CBMGenerics::Polyfunction& GeoPhysics::Formation::getSolidThickness ( const unsigned int i,
                                                                              const unsigned int j,

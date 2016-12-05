@@ -237,7 +237,6 @@ const CompoundLithology* CrustFormation::getLithology( const double aTime, const
       // aOffset is a relative depth of the middle point of element - so could be inside Crust or Mantle
       double basThickness = ((GeoPhysics::ProjectHandle*)(GeoPhysics::Formation::m_projectHandle))->getBasaltThickness(iPosition, jPosition, aTime);
 
-      /// @todo I do not understand this one
       if(basThickness != IbsNoDataValue && basThickness != 0.0) {
          if( aOffset >= ((GeoPhysics::ProjectHandle*)(GeoPhysics::Formation::m_projectHandle))->getContCrustThickness( iPosition, jPosition, aTime )) {
             isBasaltLayer = true;

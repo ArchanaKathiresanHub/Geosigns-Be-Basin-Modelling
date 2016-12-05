@@ -48,7 +48,7 @@ int main(int argc, char** argv)
       {
          char verbosity[11];
          PetscOptionsGetString( PETSC_NULL, "-verbosity", verbosity, 11, 0 );
-         if      ( !strcmp( verbosity, "quiet"      ))  { LogHandler( "fastcauldron", LogHandler::QUIET_LEVEL,      rank ); }
+         if      ( !strcmp( verbosity, "quiet"      ))  { LogHandler( "fastcauldron", LogHandler::QUIET_LEVEL     , rank ); }
          else if ( !strcmp( verbosity, "minimal"    ) ) { LogHandler( "fastcauldron", LogHandler::MINIMAL_LEVEL   , rank ); }
          else if ( !strcmp( verbosity, "normal"     ) ) { LogHandler( "fastcauldron", LogHandler::NORMAL_LEVEL    , rank ); }
          else if ( !strcmp( verbosity, "detailed"   ) ) { LogHandler( "fastcauldron", LogHandler::DETAILED_LEVEL  , rank ); }

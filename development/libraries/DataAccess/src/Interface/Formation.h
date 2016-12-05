@@ -97,9 +97,9 @@ namespace DataAccess
        /// Return the SourceRock2 of this Formation
        virtual void setSourceRock2 ( const SourceRock * sr2 );
 
-            /// Return the SourceRock1 of this Formation
+       /// Return the SourceRock1 of this Formation
        virtual const std::string& getSourceRockType1Name (void) const;
-            /// Return the SourceRock2 of this Formation
+       /// Return the SourceRock2 of this Formation
        virtual const std::string& getSourceRockType2Name (void) const;
 
        /// Return the Mixing Source Rock mode

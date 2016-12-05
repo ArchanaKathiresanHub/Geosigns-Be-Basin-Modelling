@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -115,7 +115,10 @@ void CrustalThicknessCalculator::initialiseCTC() {
    setFormationLithologies( false, true );
 
    m_inputData = std::shared_ptr<InterfaceInput>(new InterfaceInput( m_tableCTC.data(), m_tableCTCRiftingHistory.data() ));
-   m_inputData->loadInputData( "InterfaceData.cfg" );
+   m_inputData->loadSnapshots();
+   m_inputData->loadSurfaceDepthHistoryMask( this );
+   // loads configuration file, CTCIoTbl and CTCRiftingHistoryIoTbl
+   m_inputData->loadInputData();
 
    ///4. Load smoothing radius
    m_applySmoothing = (m_inputData->getSmoothRadius() > 0);
@@ -229,7 +232,7 @@ void CrustalThicknessCalculator::run() {
    // sort from start to end [250 220 ... 0]
    // we insert a 0 snapshot at the beginning because we need first to compute TTS at 0Ma
    // then we compute everything else in the reverse order [0 250 220 ... 0]
-   std::sort( snapshotForLoop.begin(), snapshotForLoop.end(), std::greater<int>() );
+   std::sort( snapshotForLoop.begin(), snapshotForLoop.end(), std::greater<double>() );
    snapshotForLoop.insert( snapshotForLoop.begin(), 0.0 );
 
    for (unsigned int k = 0; k < snapshotForLoop.size(); ++k) {
@@ -239,7 +242,7 @@ void CrustalThicknessCalculator::run() {
          throw CtcException() << "Cannot compute initial total tectonic subsidence";
       }
 
-      if ( (age >= m_inputData->getFlexuralAge() and age <= m_inputData->getFirstRiftAge()) or k == 0){
+      if ( (age >= m_inputData->getFlexuralAge() ) or k == 0){
 
          if (k == 0){
             LogHandler( LogHandler::INFO_SEVERITY, LogHandler::SECTION ) << "Precomputing present day Total Tectonic Subsidence";
@@ -261,7 +264,7 @@ void CrustalThicknessCalculator::run() {
          m_inputData->loadPressureData( m_crustalThicknessCalculator, pressureProperty, age );
 
          /// 2. Create the maps for this snapshot
-         m_outputData.createSnapShotOutputMaps( m_crustalThicknessCalculator, theSnapshot, m_inputData->getTopOfSedimentSurface(), m_debug );
+         m_outputData.createSnapShotOutputMaps( m_crustalThicknessCalculator, m_inputData, theSnapshot, m_inputData->getTopOfSedimentSurface(), m_debug );
 
          retrieveData();
 

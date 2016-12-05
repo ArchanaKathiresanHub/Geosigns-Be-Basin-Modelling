@@ -145,7 +145,6 @@ void EffectiveCrustalThicknessCalculator::compute( PolyFunction2DArray& effectiv
             continue;
           }
       }
-      /// @todo ask bill about warning
       for (unsigned int i = static_cast<unsigned int>(contCrustThicknessMap->getGrid()->firstI( s_gosthNodes )); i <= static_cast<unsigned int>(contCrustThicknessMap->getGrid()->lastI( s_gosthNodes )); ++i) {
 
          for (unsigned int j = contCrustThicknessMap->getGrid()->firstJ( s_gosthNodes ); j <= contCrustThicknessMap->getGrid()->lastJ( s_gosthNodes ); ++j) {
@@ -181,8 +180,8 @@ void EffectiveCrustalThicknessCalculator::compute( PolyFunction2DArray& effectiv
                      previousBasaltThicknessValue,
                      age );
                   basaltThicknessValue = result.basaltThickness;
-		  basaltStatus         = result.basaltStatus;
-		  onsetStatus          = result.onsetStatus;
+                  basaltStatus         = result.basaltStatus;
+                  onsetStatus          = result.onsetStatus;
                }
                // If there is no crust thickness at melt onset defined, then look for the basalt crustal thickness history and compute
                // the effective crustal thickness from it (Legacy ALC)
@@ -203,7 +202,7 @@ void EffectiveCrustalThicknessCalculator::compute( PolyFunction2DArray& effectiv
                                                age );
 
                // Assign results to output
-               oceanicCrustThicknessHistory( i, j ).AddPoint( age, basaltThicknessValue );
+               oceanicCrustThicknessHistory  ( i, j ).AddPoint( age, basaltThicknessValue           );
                effectiveCrustThicknessHistory( i, j ).AddPoint( age, effectiveCrustalThicknessValue );
                endOfRiftEvent( i, j ) = endOfRift;
 

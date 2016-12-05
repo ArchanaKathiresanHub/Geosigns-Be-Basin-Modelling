@@ -46,12 +46,10 @@ namespace DataAccess
 
          /// \return The user-supplied crustal thickness at melt onset map
          /// \details This function is only used if the thermal model is Advanced Lithosphere Calculator
-         /// @todo fix after update
          const GridMap * getCrustThicknessMeltOnsetMap() const;
 
          /// \return The user-supplied basalt thickness map
          /// \details This function is only used if the thermal model is Advanced Lithosphere Calculator
-         /// @todo make it an history
          const GridMap * getBasaltThicknessMap() const;
          /// @}
 
@@ -84,13 +82,11 @@ namespace DataAccess
          mutable const GridMap* crustalThicknessMeltOnset;  ///< The crustl thickness at melt onset map (ALC only) [m]
  
          /// crustal thickness at the age of basin.
-         /// @todo what is the difference between m_initialThicknessMap and m_initialCrustalThickness?
          double m_initialCrustalThickness;
 
       private:
 
          /// @defgroups MapLoading
-         /// @todo See if these function could be regrouped using the table loader class
          /// @{
          /// \brief Load the Crust Heat Production user defined map from the [BasementIoTbl]
          /// \details If the Crust Heat Production is defined as a scalar, creates a constant map from it

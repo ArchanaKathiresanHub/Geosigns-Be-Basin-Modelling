@@ -28,7 +28,7 @@ namespace DataAccess
          public:
 
             MockCrustalThicknessRiftingHistoryData() : CrustalThicknessRiftingHistoryData( nullptr, nullptr ),
-               m_flagName( "placeholder" ){};
+               m_flagName( "placeholderUnitTest" ){};
             virtual ~MockCrustalThicknessRiftingHistoryData() {};
 
             /// @defgroup Accessors

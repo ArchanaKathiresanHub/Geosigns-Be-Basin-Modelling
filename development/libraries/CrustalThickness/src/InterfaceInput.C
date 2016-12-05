@@ -17,7 +17,6 @@
 #include "Interface/Snapshot.h"
 #include "Interface/Grid.h"
 
-
 // GeoPhysics library
 #include "GeoPhysicsProjectHandle.h"
 
@@ -35,6 +34,15 @@
 #include "NumericFunctions.h"
 #include "LogHandler.h"
 #include "StringHandler.h"
+#include "ConstantsNumerical.h"
+
+using DataAccess::Interface::FLEXURAL_BASIN;
+using DataAccess::Interface::ACTIVE_RIFTING;
+using DataAccess::Interface::PASSIVE_MARGIN;
+using Utilities::Numerical::IbsNoDataValue;
+using Utilities::Numerical::UnsignedIntNoDataValue;
+
+const string InterfaceInput::s_ctcConfigurationFile = "InterfaceData.cfg";
 
 //------------------------------------------------------------//
 InterfaceInput::InterfaceInput( const std::shared_ptr< const CrustalThicknessData>                            crustalThicknessData,
@@ -43,7 +51,6 @@ InterfaceInput::InterfaceInput( const std::shared_ptr< const CrustalThicknessDat
    m_crustalThicknessRiftingHistoryData( crustalThicknessRiftingHistoryData ),
    m_smoothRadius              (0  ),
    m_flexuralAge               (0.0),
-   m_firstRiftAge              (0.0),
    m_HCuMap                    (nullptr),
    m_HLMuMap                   (nullptr),
    m_continentalCrustRatio     (0.0),
@@ -87,16 +94,28 @@ InterfaceInput::~InterfaceInput() {
 } 
 
 //------------------------------------------------------------//
-void InterfaceInput::loadInputData( const string & inFile ) {
+void InterfaceInput::loadInputData() {
    ///1. Load configuration file
    LogHandler( LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_STEP ) << "loading CTC configuration file";
-   m_constants.loadConfigurationFileCtc( inFile );
+   m_constants.loadConfigurationFileCtc( s_ctcConfigurationFile );
    ///2. Load parameters input data
    LogHandler( LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_STEP ) << "loading user input data from CTC Parameters Table";
    loadCTCIoTblData();
    ///3. Load history input data
    LogHandler( LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_STEP ) << "loading user input data from CTC Rifting History Table";
    loadCTCRiftingHistoryIoTblData();
+}
+
+//------------------------------------------------------------//
+void InterfaceInput::loadSurfaceDepthHistoryMask( GeoPhysics::ProjectHandle * projectHandle ) {
+   if (m_snapshots.empty()) {
+      throw std::invalid_argument("Could not retreive surface depth history because the snapshots were not loaded");
+   }
+   else {
+      std::for_each( m_snapshots.begin(), m_snapshots.end(), [&](const double age) {
+         m_asSurfaceDepthHistory[age] = projectHandle->asSurfaceDepthHistory( age );
+      } );
+   }
 }
 
 //------------------------------------------------------------//
@@ -110,7 +129,7 @@ void InterfaceInput::loadCTCIoTblData() {
       throw std::invalid_argument( "The smoothing radius is set to a negative value" );
    }
    else{
-      m_smoothRadius = (unsigned int)smoothingRadius;
+      m_smoothRadius = static_cast<unsigned int>(smoothingRadius);
    }
 
    //Debug R&D project file inputs
@@ -135,7 +154,6 @@ void InterfaceInput::loadCTCIoTblData() {
 
 //------------------------------------------------------------//
 void InterfaceInput::loadCTCRiftingHistoryIoTblData(){
-   loadSnapshots();
    loadRiftingEvents();
    analyseRiftingHistory();
 }
@@ -148,277 +166,313 @@ void InterfaceInput::loadRiftingEvents(){
          + ") differ from the number of rifting events (" + std::to_string( m_crustalThicknessRiftingHistoryData.size() ) + ")" );
    }
    LogHandler( LogHandler::DEBUG_SEVERITY, LogHandler::COMPUTATION_SUBSTEP ) << std::setw( 15 ) << "Snapshot" << std::setw( 20 ) << "Tectonic Context";
-   for (size_t i = 0; i < m_snapshots.size(); i++) {
-      const double age = m_snapshots[i];
-      const std::shared_ptr<const CrustalThicknessRiftingHistoryData> data = m_crustalThicknessRiftingHistoryData[i];
+   size_t index = 0;
+   std::for_each( m_snapshots.rbegin(), m_snapshots.rend(), [&]( const double age ) {
+      const std::shared_ptr<const CrustalThicknessRiftingHistoryData> data = m_crustalThicknessRiftingHistoryData[index];
       LogHandler( LogHandler::DEBUG_SEVERITY, LogHandler::COMPUTATION_SUBSTEP ) << std::setw( 15 ) << age << "Ma" << std::setw( 20 ) << data->getTectonicFlagName();;
-      GridMap const * const deltaSLMap( data->getMap( Interface::DeltaSL ));
-      GridMap const * const hBuMap    ( data->getMap( Interface::HBu     ));
+      GridMap const * const deltaSLMap( data->getMap( Interface::DeltaSL ) );
+      GridMap const * const hBuMap( data->getMap( Interface::HBu ) );
       m_riftingEvents[age] = std::shared_ptr<CrustalThickness::RiftingEvent>(
          new CrustalThickness::RiftingEvent( data->getTectonicFlag(), deltaSLMap, hBuMap )
       );
-   }
+      index++;
+   } );
 }
 
 //------------------------------------------------------------//
 void InterfaceInput::analyseRiftingHistory(){
-   analyseRiftingHistoryStartAge();
+   analyzeRiftingHistoryCalculationMask();
+   analyseRiftingHistoryStartAge ();
    analyseRiftingHistoryEndAge();
-   LogHandler( LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP )
-      << std::setw( 15 ) << "Snapshot"
-      << std::setw( 20 ) << "Tectonic Context"
-      << std::setw( 10 ) << "Rift ID"
-      << std::setw( 8  ) << "Start"
-      << std::setw( 8  ) << "End";
-   LogHandler( LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP )
-      << std::setw( 15 ) << "[Ma]"
-      << std::setw( 20 ) << "[]"
-      << std::setw( 10 ) << "[]"
-      << std::setw( 8  ) << "[Ma]"
-      << std::setw( 8  ) << "[Ma]";
-   bool atLeastOneActiveEvent   = false;
-   bool atLeastOnePassiveEvent  = false;
-   bool atLeastOneFlexuralEvent = false;
-   for (size_t i = 0; i < m_snapshots.size(); i++){
-      const std::shared_ptr<const CrustalThickness::RiftingEvent> event = m_riftingEvents[m_snapshots[i]];
-      const double start = m_riftingEvents[m_snapshots[i]]->getStartRiftAge();
-      const double end   = m_riftingEvents[m_snapshots[i]]->getEndRiftAge();
-      LogHandler( LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP )
-         << std::setw( 15 ) << m_snapshots[i]
-         << std::setw( 20 ) << m_crustalThicknessRiftingHistoryData[i]->getTectonicFlagName()
-         << std::setw( 10 ) << event->getRiftId()
-         << std::setw( 8  ) << start
-         << std::setw( 8  ) << end;
-      // check that the timing is valid
-      if (start  != DataAccess::Interface::DefaultUndefinedScalarValue
-         and end != DataAccess::Interface::DefaultUndefinedScalarValue
-         and start <= end){
-         throw  std::invalid_argument( "The start of the rifting event " + std::to_string( start )
-            + "Ma is anterior or equal to its end " + std::to_string( end ) + "Ma" );
-      }
-      // if this is flexural check that there was no active or passive event before
-      if (event->getTectonicFlag() == DataAccess::Interface::FLEXURAL_BASIN){
-         if (atLeastOneActiveEvent){
-            throw std::invalid_argument( "An active rifting event is defined after a flexural event" );
-         }
-         else if (atLeastOnePassiveEvent){
-            throw std::invalid_argument( "A passive margin event is defined after a flexural event" );
-         }
-         else if (not atLeastOneFlexuralEvent){
-            atLeastOneFlexuralEvent = true;
-         }
-      }
-      else if (event->getTectonicFlag() == DataAccess::Interface::ACTIVE_RIFTING){
-         if (not atLeastOneActiveEvent){
-            atLeastOneActiveEvent = true;
-         }
-      }
-      else if (event->getTectonicFlag() == DataAccess::Interface::PASSIVE_MARGIN) {
-         if (not atLeastOnePassiveEvent){
-            atLeastOnePassiveEvent = true;
-         }
-      }
-   }
-   LogHandler( LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP ) << "";
-   LogHandler( LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP ) << "Flexural age " << m_flexuralAge;
+   printRiftingHistory();
+   checkRiftingHistory();
+}
 
-   // check that there is at least one active rifting event defined
-   if (not atLeastOneActiveEvent){
-      throw std::invalid_argument( "There is no active rifting event defined in the rifting history" );
+//------------------------------------------------------------//
+void InterfaceInput::analyzeRiftingHistoryCalculationMask() {
+   bool firstFlexuralEventFound = false;
+   assert( m_snapshots.size() > 0 );
+   for (size_t i = 0; i < m_snapshots.size(); i++) {
+      bool mask = false;
+      const double age = m_snapshots[i];
+      const std::shared_ptr<CrustalThickness::RiftingEvent> event = m_riftingEvents[age];
+      // RULE_ID #2 The first Flexural event (0Ma by default) is a calculation age, and must have an SDH according to RULE_ID #1
+      if (event->getTectonicFlag() == FLEXURAL_BASIN and not firstFlexuralEventFound) {
+         firstFlexuralEventFound = true;
+         mask = true;
+      }
+      // RULE_ID #3 An Active event with a SDH (according to RULE_ID #1) which follows another Active or Passive event is a calculation age
+      //    if this is not the basement age (according to RULE_ID #5)
+      else if (event->getTectonicFlag() == ACTIVE_RIFTING and m_asSurfaceDepthHistory.at(age) and i!=0) {
+         assert( (i - 1) >= 0 );
+         const double prevAge = m_snapshots[i-1];
+         const std::shared_ptr<CrustalThickness::RiftingEvent> prevEvent = m_riftingEvents[prevAge];
+         if (prevEvent->getTectonicFlag() == ACTIVE_RIFTING or prevEvent->getTectonicFlag() == PASSIVE_MARGIN) {
+            mask = true;
+         }
+      }
+      // RULE_ID #4 A Passive event can never be a calculation age
+      // And all other rules have already been applied
+      else {
+         mask = false;
+      }
+      event->setCalculationMask( mask );
    }
-   // check that there is at least one flexural event defined
-   else if (not atLeastOneFlexuralEvent){
-      throw std::invalid_argument( "There is no flexural event defined in the rifting history" );
-   }
-
 }
 
 //------------------------------------------------------------//
 void InterfaceInput::analyseRiftingHistoryStartAge(){
    unsigned int id = 0;
-   double start = DataAccess::Interface::DefaultUndefinedScalarValue;
-   bool isFirstActive = true;
-   bool isFirstFlexural = true;
-   std::shared_ptr<CrustalThickness::RiftingEvent> previousEvent = nullptr;
+   double start = IbsNoDataValue, age = IbsNoDataValue;
+   bool firstFlexuralEventFound = false;
    assert( m_snapshots.size() > 0 );
-   for (size_t i = 1; i <= m_snapshots.size(); i++){
-      size_t index = m_snapshots.size() - i;
-      const double age = m_snapshots[index];
+   for (size_t i = 0; i < m_snapshots.size(); i++) {
+      age = m_snapshots[i];
       const std::shared_ptr<CrustalThickness::RiftingEvent> event = m_riftingEvents[age];
-      ///1. If we are in Active Rifting we we check if this is the first Active Rifting event of the rift
-      ///      and if it is the first global Active Rifting (which defines the first rift to be computed)
-      if ( event->getTectonicFlag() == DataAccess::Interface::ACTIVE_RIFTING ){
-         if ( isFirstActive ){
-            m_firstRiftAge = age;
-            isFirstActive = false;
+
+      if (event->getTectonicFlag() == FLEXURAL_BASIN and not firstFlexuralEventFound) {
+         firstFlexuralEventFound = true;
+      }
+      // RULE_ID #6 An Active event with a SDH is a starting rifting age
+      // by default we assume that the basement as an SDH of 0 if not user defined
+      else if (event->getTectonicFlag() == ACTIVE_RIFTING and not firstFlexuralEventFound) {
+         if (m_asSurfaceDepthHistory.at( age ) and i!=0) {
+            //first set the rift age and id to the one of the ending rift
+            event->setStartRiftAge( start );
+            event->setRiftId( id );
+            //then update the age and id for the other beggining rift
+            start = age;
+            id++;
+            continue;
          }
-         // if there is no previous event (first rifting) or if the next event is passive
-         //    then defined the start age to be the age of the current event
-         if ( previousEvent == nullptr
-              or previousEvent->getTectonicFlag() == DataAccess::Interface::PASSIVE_MARGIN ){
+         // the first event is always the start of the first rift
+         else if (i == 0) {
             start = age;
             id++;
          }
+         else {
+            assert( i > 0 );
+            const double prevAge = m_snapshots[i - 1];
+            const std::shared_ptr<CrustalThickness::RiftingEvent> prevEvent = m_riftingEvents[prevAge];
+            // RULE_ID #15 Error when there are no SDH defined at the beginning of a rifting event
+            if (prevEvent->getTectonicFlag() == PASSIVE_MARGIN) {
+               throw std::invalid_argument( "The begining of rift ID " + std::to_string( id ) +
+                  " at age " + std::to_string( age ) + " does not have any surface depth history associated" );
+            }
+         }
       }
-      ///2. Else if we are in Flexural Basin we check if this is the first Flexural Basin event
-      else if ( event->getTectonicFlag() == DataAccess::Interface::FLEXURAL_BASIN ){
-         // if this is the first flexural event we set the last computation age
-         //    and the start age of the event is the same as the start age of the previous event
-         if (isFirstFlexural){
-            m_flexuralAge = age;
-            isFirstFlexural = false;
-         }
-         // else this is not the first flexural event and there are no computations to be done at this age
-         //    we set the start age of the event to undefined as it is not part of a rift
-         else{
-            id = (unsigned int)DataAccess::Interface::DefaultUndefinedMapValueInteger;
-            start = DataAccess::Interface::DefaultUndefinedScalarValue;
-         }
+      // after the first flexural event, there is no more rift
+      else if (firstFlexuralEventFound) {
+         start = IbsNoDataValue;
+         id    = UnsignedIntNoDataValue;
       }
       event->setStartRiftAge( start );
-      event->setRiftId( id );
-      previousEvent = event;
+      event->setRiftId      ( id    );
    }
 }
 
 //------------------------------------------------------------//
 void InterfaceInput::analyseRiftingHistoryEndAge(){
-   double end = DataAccess::Interface::DefaultUndefinedScalarValue;
+   double end = IbsNoDataValue;
+   bool firstFlexuralEventFound = false;
    std::shared_ptr<CrustalThickness::RiftingEvent> nextEvent = nullptr;
    std::vector<std::shared_ptr<CrustalThickness::RiftingEvent>> eventsToUpdate;
    assert( m_snapshots.size() > 0 );
    for (size_t i = 0; i < m_snapshots.size(); i++){
       const double age = m_snapshots[i];
       const std::shared_ptr<CrustalThickness::RiftingEvent> event = m_riftingEvents[age];
-
-      ///1. If we are in Passive Margin we look for the next Active Rifting and update the end ages
-      ///      according to the end age of this Active Rifting
-      if (event->getTectonicFlag() == DataAccess::Interface::PASSIVE_MARGIN ){
-         eventsToUpdate.push_back(event);
-         // if there is a next event find the first active event of the rift
-         if ( i < m_snapshots.size() - 1){
-            nextEvent = m_riftingEvents[m_snapshots[i + 1]];
-            // first active event is found, the end age of the rift is its age
-            if (nextEvent->getTectonicFlag() == DataAccess::Interface::ACTIVE_RIFTING){
-               end = age;
-               std::for_each( eventsToUpdate.begin(), eventsToUpdate.end(),
-                  [&]( std::shared_ptr<CrustalThickness::RiftingEvent> item ){ item->CrustalThickness::RiftingEvent::setEndRiftAge( end ); } );
-               eventsToUpdate.clear();
-            }
-            else{
-               // continue until we find the next Active Rifting
-               eventsToUpdate.push_back( nextEvent );
-            }
-         }
-         // else there is no next event so we do not know when is the first active event of the rift
-         else{
-            end = DataAccess::Interface::DefaultUndefinedScalarValue;
+      // RULE_ID #8 An Active event with a SDH which follows another Active event is an End Age
+      const bool activeEnd   = event->getTectonicFlag() == ACTIVE_RIFTING and m_asSurfaceDepthHistory.at(age) and i != 0;
+      // RULE_ID #9 A Passive event with a previous event being Active is an End Age
+      const bool passiveEnd  = event->getTectonicFlag() == PASSIVE_MARGIN and i != 0;
+      // RULE_ID #10 The first Flexural event (0Ma by default), if it follows an Active event, is an End Age
+      const bool flexuralEnd = event->getTectonicFlag() == FLEXURAL_BASIN and not firstFlexuralEventFound and i!= 0;
+      if (activeEnd or passiveEnd or flexuralEnd) {
+         assert( (i - 1) >= 0 );
+         const double prevAge = m_snapshots[i - 1];
+         const std::shared_ptr<CrustalThickness::RiftingEvent> prevEvent = m_riftingEvents[prevAge];
+         eventsToUpdate.push_back( event );
+         // if the previous event was active, then we found the end of the rift
+         if (prevEvent->getTectonicFlag() == ACTIVE_RIFTING) {
+            end = age;
             std::for_each( eventsToUpdate.begin(), eventsToUpdate.end(),
-               [&]( std::shared_ptr<CrustalThickness::RiftingEvent> item ){ item->CrustalThickness::RiftingEvent::setEndRiftAge( end ); } );
+               [&]( std::shared_ptr<CrustalThickness::RiftingEvent> item ) { item->setEndRiftAge( end ); } );
+            eventsToUpdate.clear();
+         }
+         // if the previous event was passive, then the end age stays the same
+         else if (prevEvent->getTectonicFlag() == PASSIVE_MARGIN) {
+            std::for_each( eventsToUpdate.begin(), eventsToUpdate.end(),
+               [&]( std::shared_ptr<CrustalThickness::RiftingEvent> item ) { item->setEndRiftAge( end ); } );
             eventsToUpdate.clear();
          }
       }
+      // after the first flexural event, there is no more rift
+      else if (firstFlexuralEventFound) {
+         event->setEndRiftAge( IbsNoDataValue );
+      }
+      // Else, we need to update the events when we will know their end ages
+      else{
+         eventsToUpdate.push_back(event);
+      }
 
-      /// 2. Else if we are in Flexural Basin we look for the nature of the next event
-      else if (event->getTectonicFlag() == DataAccess::Interface::FLEXURAL_BASIN){
-         // if there is a next event find its nature
-         if (i < m_snapshots.size() - 1){
-            nextEvent = m_riftingEvents[m_snapshots[i + 1]];
-            // if the next event is a passive then the current event is the first flexural event
-            //    and its end age is the one of the next active event
-            if (nextEvent->getTectonicFlag() == DataAccess::Interface::PASSIVE_MARGIN){
-               eventsToUpdate.push_back( event );
-            }
-            // else if the next event is a active then the current event is the first flexural event
-            //    and its end age is the one of this active event
-            else if (nextEvent->getTectonicFlag() == DataAccess::Interface::ACTIVE_RIFTING){
-               end = age;
-               event->setEndRiftAge( end );
-            }
-            // else the next event is also flexural so the current event is not the first flexural event
-            //    and its end age is undefined
-            else{
-               event->setEndRiftAge( DataAccess::Interface::DefaultUndefinedScalarValue );
-            }
+      // Sets the flexural age to the first flexural event
+      if (flexuralEnd) {
+         m_flexuralAge = age;
+      }
+      firstFlexuralEventFound = firstFlexuralEventFound or flexuralEnd;
+   }
+}
+
+//------------------------------------------------------------//
+void InterfaceInput::checkRiftingHistory() const {
+
+   bool atLeastOneActiveEvent   = false;
+   bool atLeastOnePassiveEvent  = false;
+   bool atLeastOneFlexuralEvent = false;
+   const double basementAge = m_snapshots[0];
+
+   // RULE_ID #13 The first deposited formation (at basement age) is not an active event
+   if (m_riftingEvents.at(basementAge)->getTectonicFlag() != ACTIVE_RIFTING) {
+      throw std::invalid_argument( "The first rifting event is not an active rifting" );
+   }
+
+   std::shared_ptr<CrustalThickness::RiftingEvent> prevEvent = nullptr;
+   for (size_t i = 0; i < m_snapshots.size(); i++) {
+      const std::shared_ptr<const CrustalThickness::RiftingEvent> event = m_riftingEvents.at(m_snapshots[i]);
+      if (i != 0) prevEvent = m_riftingEvents.at(m_snapshots[i - 1]);
+      const double start = event->getStartRiftAge();
+      const double end = event->getEndRiftAge();
+      // check that the timing is valid
+      if (   start != IbsNoDataValue
+         and end   != IbsNoDataValue
+         and start <= end) {
+         // this should not happen as it is already checked when we set the ages
+         throw  std::invalid_argument( "The start of the rifting event " + std::to_string( start )
+            + "Ma is anterior or equal to its end " + std::to_string( end ) + "Ma" );
+      }
+      // if this is flexural check that there was no active or passive event before
+      if (event->getTectonicFlag() == FLEXURAL_BASIN and not atLeastOneFlexuralEvent) {
+         atLeastOneFlexuralEvent = true;
+         // RULE_ID #11 Error when the first flexural event doesn't have an SDH
+         if (not m_asSurfaceDepthHistory.at( m_snapshots[i] )) {
+            throw std::invalid_argument( "There is no surface depth history defined for the first flexural event" );
+         }
+      }
+      else if (event->getTectonicFlag() == ACTIVE_RIFTING) {
+         // RULE_ID #14 There are post Flexural Active / Passive events
+         if (atLeastOneFlexuralEvent) {
+            throw std::invalid_argument( "An active rifting event is defined after a flexural event" );
+         }
+         else if (not atLeastOneActiveEvent) {
+            atLeastOneActiveEvent = true;
+         }
+      }
+      else if (event->getTectonicFlag() == PASSIVE_MARGIN) {
+         // RULE_ID #14 There are post Flexural Active / Passive events
+         if (atLeastOneFlexuralEvent) {
+            throw std::invalid_argument( "A passive margin event is defined after a flexural event" );
+         }
+         else if (not atLeastOnePassiveEvent) {
+            atLeastOnePassiveEvent = true;
+         }
+      }
+      // check that the maximum basalt thickness is constant within one rift (only if the value is constant, we do not check for maps)
+      // RULE_ID #11 Only one Maximum Basalt Thickness value can be allowed in one rift
+      if (prevEvent != nullptr and prevEvent->getRiftId() == event->getRiftId() and prevEvent->getRiftId() != UnsignedIntNoDataValue) {
+         if (prevEvent->getMaximumOceanicCrustThickness()->getConstantValue() != event->getMaximumOceanicCrustThickness()->getConstantValue()) {
+            throw std::invalid_argument( "Only one Maximum Oceanic Thickness value can be allowed within a rift" );
          }
       }
 
-      /// 3. Else we are in Active Rifting then the end age is the same as the one in the previous event
-      else{
-         event->setEndRiftAge( end );
-      }
    }
+
+   // check that there is at least one active rifting event defined
+   if (not atLeastOneActiveEvent) {
+      // RULE_ID #16 There is no rift defined (no active event), in principle RULE ID #13 will catch this error before
+      throw std::invalid_argument( "There is no active rifting event defined in the rifting history" );
+   }
+   // check that there is at least one flexural event defined
+   else if (not atLeastOneFlexuralEvent) {
+      // RULE_ID #17 Error when there is no Flexural event
+      throw std::invalid_argument( "There is no flexural event defined in the rifting history, at least the present day event has to be set to flexural" );
+   }
+}
+
+//------------------------------------------------------------//
+void InterfaceInput::printRiftingHistory() const {
+   LogHandler( LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP )
+      << std::setw( 15 ) << "Snapshot"
+      << std::setw( 20 ) << "Tectonic Context"
+      << std::setw( 10 ) << "Rift ID"
+      << std::setw( 8  ) << "Start"
+      << std::setw( 8  ) << "End"
+      << std::setw( 8  ) << "SDH";
+   LogHandler( LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP )
+      << std::setw( 15 ) << "[Ma]"
+      << std::setw( 20 ) << "[]"
+      << std::setw( 10 ) << "[]"
+      << std::setw( 8  ) << "[Ma]"
+      << std::setw( 8  ) << "[Ma]"
+      << std::setw( 8  ) << "[]";
+
+   unsigned int index = 0;
+   std::for_each( m_snapshots.rbegin(), m_snapshots.rend(), [&]( const double age ) {
+
+      const std::shared_ptr<const CrustalThickness::RiftingEvent> event = m_riftingEvents.at( age );
+      const double start        = event->getStartRiftAge();
+      const double end          = event->getEndRiftAge();
+      const unsigned int riftId = event->getRiftId();
+
+      std::string startString  = (start  == IbsNoDataValue         ? "NA" : std::to_string( start  ));
+      std::string endString    = (end    == IbsNoDataValue         ? "NA" : std::to_string( end    ));
+
+      //remove useless 0 (60.000000 --> 60.)
+      startString.erase ( startString.find_last_not_of ( '0' ) + 1, std::string::npos );
+      endString.erase   ( endString.find_last_not_of   ( '0' ) + 1, std::string::npos );
+
+      LogHandler( LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP )
+         << std::setw( 15 ) << age
+         << std::setw( 20 ) << m_crustalThicknessRiftingHistoryData[index]->getTectonicFlagName()
+         << std::setw( 10 ) << (riftId == UnsignedIntNoDataValue ? "NA" : std::to_string( riftId ))
+         << std::setw( 8  ) << startString
+         << std::setw( 8  ) << endString
+         << std::setw( 8  ) << m_asSurfaceDepthHistory.at( age );
+      index++;
+
+   } );
+
+   LogHandler( LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP ) << "";
+   LogHandler( LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP ) << "Flexural age " << m_flexuralAge;
+}
+
+//------------------------------------------------------------//
+bool InterfaceInput::getRiftingCalculationMask( const double age ) const {
+   auto event = getRiftEvent( age );
+   return event->getCalculationMask();
 }
 
 //------------------------------------------------------------//
 double InterfaceInput::getRiftingStartAge( const double age ) const{
-   auto iterator = m_riftingEvents.find(age);
-   double riftinStartAge = DataAccess::Interface::DefaultUndefinedScalarValue;
-   if (iterator != m_riftingEvents.end()){
-      if (iterator->second != nullptr){
-         riftinStartAge = iterator->second->getStartRiftAge();
-      }
-      else{
-         throw std::runtime_error( "The rifting event defined at " + std::to_string( age ) + "Ma is corrupted" );
-      }
-   }
-   else{
-      throw std::runtime_error( "There is no rifting event defined at " + std::to_string( age ) + "Ma" );
-   }
-   return riftinStartAge;
+   auto event = getRiftEvent( age );
+   return event->getStartRiftAge();
 }
 
 //------------------------------------------------------------//
 double InterfaceInput::getRiftingEndAge( const double age ) const{
-   auto iterator = m_riftingEvents.find( age );
-   double riftinEndAge = DataAccess::Interface::DefaultUndefinedScalarValue;
-   if (iterator != m_riftingEvents.end()){
-      if (iterator->second != nullptr){
-         riftinEndAge = iterator->second->getEndRiftAge();
-      }
-      else{
-         throw std::runtime_error( "The rifting event defined at " + std::to_string( age ) + "Ma is corrupted" );
-      }
-   }
-   else{
-      throw std::runtime_error( "There is no rifting event defined at " + std::to_string( age ) + "Ma" );
-   }
-   return riftinEndAge;
+   auto event = getRiftEvent( age );
+   return event->getEndRiftAge();
 }
 
 //------------------------------------------------------------//
 double InterfaceInput::getRiftId( const double age ) const{
-   auto iterator = m_riftingEvents.find( age );
-   double riftID = DataAccess::Interface::DefaultUndefinedScalarValue;
-   if (iterator != m_riftingEvents.end()){
-      if (iterator->second != nullptr){
-         riftID = iterator->second->getRiftId();
-      }
-      else{
-         throw std::runtime_error( "The rifting event defined at " + std::to_string( age ) + "Ma is corrupted" );
-      }
-   }
-   else{
-      throw std::runtime_error( "There is no rifting event defined at " + std::to_string( age ) + "Ma" );
-   }
-   return riftID;
+   auto event = getRiftEvent( age );
+   return event->getRiftId();
 }
 
 //------------------------------------------------------------//
 const GridMap& InterfaceInput::getHBuMap( const double age ) const{
-   auto iterator = m_riftingEvents.find( age );
-   GridMap const * map = nullptr;
-   if (iterator != m_riftingEvents.end()){
-      if (iterator->second != nullptr){
-         map = iterator->second->getMaximumOceanicCrustThickness();
-      }
-      else{
-         throw std::runtime_error( "The rifting event defined at " + std::to_string( age ) + "Ma is corrupted" );
-      }
-   }
-   else{
-      throw std::runtime_error( "There is no rifting event defined at " + std::to_string( age ) + "Ma" );
-   }
+   auto event = getRiftEvent( age );
+   GridMap const * map = event->getMaximumOceanicCrustThickness();
    if (map == nullptr){
       // should never happen as it is already tested in RiftingEvents
       throw std::runtime_error( "There is no maximum oceanic crustal thickness defined for the rifting event at " + std::to_string( age ) + "Ma" );
@@ -428,22 +482,11 @@ const GridMap& InterfaceInput::getHBuMap( const double age ) const{
 
 //------------------------------------------------------------//
 const GridMap& InterfaceInput::getDeltaSLMap( const double age ) const{
-   auto iterator = m_riftingEvents.find( age );
-   GridMap const * map = nullptr;
-   if (iterator != m_riftingEvents.end()){
-      if (iterator->second != nullptr){
-         map = iterator->second->getSeaLevelAdjustment();
-      }
-      else{
-         throw std::runtime_error( "The rifting event defined at " + std::to_string( age ) + "Ma is corrupted" );
-      }
-   }
-   else{
-      throw std::runtime_error( "There is no rifting event defined at " + std::to_string( age ) + "Ma" );
-   }
+   auto event = getRiftEvent( age );
+   GridMap const * map = event->getSeaLevelAdjustment();
    if (map == nullptr){
       // should never happen as it is already tested in RiftingEvents
-      throw std::runtime_error( "There is no sea lvel adjustment defined for the rifting event at " + std::to_string( age ) + "Ma" );
+      throw std::runtime_error( "There is no sea level adjustment defined for the rifting event at " + std::to_string( age ) + "Ma" );
    }
    return *map;
 }
@@ -453,6 +496,7 @@ void InterfaceInput::loadSnapshots() {
 
    m_snapshots.clear();
    m_snapshots = m_crustalThicknessData->getSnapshots();
+   std::sort( m_snapshots.begin(), m_snapshots.end(), std::greater<double>() );
 
 }
 
@@ -630,3 +674,18 @@ const GridMap& InterfaceInput::getHLMuMap() const {
    return *m_HLMuMap;
 }
 
+//------------------------------------------------------------//
+std::shared_ptr<const CrustalThickness::RiftingEvent> InterfaceInput::getRiftEvent( const double age ) const {
+   auto iterator = m_riftingEvents.find( age );
+   if (iterator != m_riftingEvents.end()) {
+      if (iterator->second != nullptr) {
+         return iterator->second;
+      }
+      else {
+         throw std::runtime_error( "The rifting event defined at " + std::to_string( age ) + "Ma is corrupted" );
+      }
+   }
+   else {
+      throw std::runtime_error( "There is no rifting event defined at " + std::to_string( age ) + "Ma" );
+   };
+}

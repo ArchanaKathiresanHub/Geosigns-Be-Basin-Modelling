@@ -12,7 +12,7 @@
 #define CRUSTALTHICKNESS_INTERFACEINPUTTESTER_H
 
 // CrustalThickness library
-#include "../src/InterfaceInput.h"
+#include "MockInterfaceInput.h"
 
 // DataAccess library
 #include "../../DataAccess/src/Interface/Interface.h"
@@ -62,29 +62,29 @@ namespace CrustalThickness
          ///    Also the first rift age and flexural age are both tested
          /// @warning The expected vectors should be in the same order than the snapshot list
          ///    and have the same size than the snapshot list
-         /// @param[in] firstRiftAge     The age of the first active rifting event
-         /// @param[in] flexuralAge      The age of the first flexural event
-         /// @param[in] expectedStartAge The expected starting ages of the rift events
-         /// @param[in] expectedEndAge   The expected ending ages of the rift events
-         /// @param[in] expectedriftID   The expected rift ids of the rift events
-         /// @param[in] expectedDeltaSL  The expected sea level adjustement of the rift events
-         /// @param[in] expectedHBu      The expected maximum basalt thickness of the rift events
-         /// @param[in] interfaceInput   The interface to test
-         void EXPECT_RIFT_EQ( const double firstRiftAge,
-                              const double flexuralAge,
+         /// @param[in] flexuralAge             The age of the first flexural event
+         /// @param[in] expectedCalculationMask The expected calculation masks of the rift events
+         /// @param[in] expectedStartAge        The expected starting ages of the rift events
+         /// @param[in] expectedEndAge          The expected ending ages of the rift events
+         /// @param[in] expectedriftID          The expected rift ids of the rift events
+         /// @param[in] expectedDeltaSL         The expected sea level adjustement of the rift events
+         /// @param[in] expectedHBu             The expected maximum basalt thickness of the rift events
+         /// @param[in] interfaceInput          The interface to test
+         void EXPECT_RIFT_EQ( const double flexuralAge,
+                              const std::vector< bool         >& expectedCalculationMask,
                               const std::vector< double       >& expectedStartAge,
                               const std::vector< double       >& expectedEndAge,
                               const std::vector< unsigned int >& expectedriftID,
                               const std::vector< double       >& expectedDeltaSL,
                               const std::vector< double       >& expectedHBu,
-                              std::shared_ptr<InterfaceInput> interfaceInput );
+                              std::shared_ptr<InterfaceInput>    interfaceInput );
 
       protected:
 
          /// @brief Create a CTC interface input
          /// @details Set some default data to the produced CTC interface input
-         /// @return A smart pointer a the new InterfaceInput object
-         std::shared_ptr<InterfaceInput> createInterfaceInput();
+         /// @return A smart pointer a the new MockInterfaceInput object
+         std::shared_ptr<MockInterfaceInput> createInterfaceInput();
 
          /// @defgroup UniTestData
          ///    Some data to use in the unit tests
@@ -104,7 +104,8 @@ namespace CrustalThickness
          DataAccess::Interface::SerialGridMap* m_HLMuIni;               ///< The initial lithospheric mantle thickness       [m]
          DataAccess::Interface::SerialGridMap* m_HCuIni;                ///< The initial continental crust thickness         [m]
 
-         std::vector<double> m_snapshots; ///< The list of snapshots [Ma]
+         std::vector<double> m_snapshots;                       ///< The list of snapshots [Ma]
+         std::map< const double, bool> m_asSurfaceDepthHistory; ///< Maping between the snapshots age and the existence of a SDH at this age
          /// @}
 
          /// @defgroup MockDataAccess
@@ -113,6 +114,8 @@ namespace CrustalThickness
          std::shared_ptr< MockCrustalThicknessData > m_ctcGlobalData;                                   ///< The mock CTCIoTbl data
          std::vector< std::shared_ptr< const CrustalThicknessRiftingHistoryData> > m_ctcRiftingDataVec; ///< The list of mock CTCRiftingHistoryIoTbl data
          /// @}
+
+         static constexpr int s_myRank = 0; ///< The unit tests are using serial data access, so we set the rank to 0
 
       private:
          /// @brief Updates the data stored in m_ctcGlobalData and in m_ctcRiftingDataVec

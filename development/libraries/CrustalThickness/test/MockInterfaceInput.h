@@ -50,6 +50,12 @@ class MockInterfaceInput : public InterfaceInput {
             ctcRiftingHistoryData( 1, std::shared_ptr<const CrustalThicknessRiftingHistoryData>( new CrustalThicknessRiftingHistoryData( nullptr, nullptr ) ) )
          ) {};
 
+      /// @brief Use this constructor to test the calculators by setting inputs in the interface via the data objects
+      MockInterfaceInput( const std::shared_ptr< const CrustalThicknessData>           crustalThicknessData,
+         const std::vector<std::shared_ptr<const CrustalThicknessRiftingHistoryData>>& crustalThicknessRiftingHistoryData )
+         :InterfaceInput( crustalThicknessData, crustalThicknessRiftingHistoryData ) {};
+
+
       virtual ~MockInterfaceInput() {};
 
       /// @defgroup Mutators
@@ -78,6 +84,9 @@ class MockInterfaceInput : public InterfaceInput {
 
       void setTopOfSedimentSurface(const Interface::Surface* surface) { m_topOfSedimentSurface    = surface; }
       void setBotOfSedimentSurface(const Interface::Surface* surface) { m_bottomOfSedimentSurface = surface; }
+
+      void setSurfaceDepthHistoryMask( std::map< const double, bool>& mask ) { m_asSurfaceDepthHistory = mask; };
+
       /// @}
 
 
