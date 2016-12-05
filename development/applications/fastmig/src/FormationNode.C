@@ -1445,11 +1445,11 @@ namespace migration
 
    bool LocalFormationNode::isPartOfUndetectedReservoir()
    {
-      bool noReservoirDetection    = !m_formation->getMigrator()->performReservoirDetection();
+      // Check whether the node has the reservoir flag and its formation is a reservoir
       bool isReservoirNode         = (m_isReservoirLiquid or m_isReservoirVapour);
       bool formationIsNotReservoir = m_formation->getMigrator()->getReservoirs(m_formation)->empty();
 
-      bool isPartOfUndetectedReservoir = noReservoirDetection and isReservoirNode and formationIsNotReservoir;
+      bool isPartOfUndetectedReservoir = isReservoirNode and formationIsNotReservoir;
 
       return isPartOfUndetectedReservoir;
    }
@@ -1484,6 +1484,8 @@ namespace migration
          FormationNode * adjacentFormationNode = getEqualDepthAdjacentNode(di);
          if (adjacentFormationNode)
          {
+            // As above, setting the m_selectedDirectionIndex defines the adjacentNode
+            // which is then used to compute the targetFormationNode.
             m_selectedDirectionIndex = di;
             adjacentFormationNode->computeTargetFormationNode();
             m_targetFormationNode = adjacentFormationNode->getTargetFormationNode();
@@ -1520,8 +1522,6 @@ namespace migration
 
          if (IsValid(neighbourNode))
          {
-            //double neighbourNodeDepth = neighbourNode->getDepth();
-
             // Avoid loops in the path by going only upwards in depth
             if (compareDepths(neighbourNode, true) == 1)
             {
