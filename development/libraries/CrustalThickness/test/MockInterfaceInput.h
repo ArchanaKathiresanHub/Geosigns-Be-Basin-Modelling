@@ -85,7 +85,7 @@ class MockInterfaceInput : public InterfaceInput {
       void setTopOfSedimentSurface(const Interface::Surface* surface) { m_topOfSedimentSurface    = surface; }
       void setBotOfSedimentSurface(const Interface::Surface* surface) { m_bottomOfSedimentSurface = surface; }
 
-      void setSurfaceDepthHistoryMask( std::map< const double, bool>& mask ) { m_asSurfaceDepthHistory = mask; };
+      void setSurfaceDepthHistoryMask( std::map< const double, bool>& mask ) { m_hasSurfaceDepthHistory = mask; };
 
       /// @}
 

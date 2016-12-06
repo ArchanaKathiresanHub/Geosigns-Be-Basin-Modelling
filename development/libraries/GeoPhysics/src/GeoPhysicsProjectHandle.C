@@ -2705,7 +2705,7 @@ bool GeoPhysics::ProjectHandle::loadALCConfigurationFile(const string & cfgFileN
 }
 
 //------------------------------------------------------------//
-bool GeoPhysics::ProjectHandle::asSurfaceDepthHistory( const double age ) const{
+bool GeoPhysics::ProjectHandle::hasSurfaceDepthHistory( const double age ) const{
    for (std::size_t i = 0; i < m_surfaceDepthHistory.size(); i++){
       if (m_surfaceDepthHistory[i]->getSnapshot()->getTime() == age){
          return true;

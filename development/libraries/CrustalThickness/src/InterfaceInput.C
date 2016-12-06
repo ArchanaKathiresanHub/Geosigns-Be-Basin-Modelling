@@ -109,11 +109,11 @@ void InterfaceInput::loadInputData() {
 //------------------------------------------------------------//
 void InterfaceInput::loadSurfaceDepthHistoryMask( GeoPhysics::ProjectHandle * projectHandle ) {
    if (m_snapshots.empty()) {
-      throw std::invalid_argument("Could not retreive surface depth history because the snapshots were not loaded");
+      throw std::invalid_argument("Could not retrieve surface depth history because the snapshots were not loaded");
    }
    else {
       std::for_each( m_snapshots.begin(), m_snapshots.end(), [&](const double age) {
-         m_asSurfaceDepthHistory[age] = projectHandle->asSurfaceDepthHistory( age );
+         m_hasSurfaceDepthHistory[age] = projectHandle->hasSurfaceDepthHistory( age );
       } );
    }
 }
@@ -203,7 +203,7 @@ void InterfaceInput::analyzeRiftingHistoryCalculationMask() {
       }
       // RULE_ID #3 An Active event with a SDH (according to RULE_ID #1) which follows another Active or Passive event is a calculation age
       //    if this is not the basement age (according to RULE_ID #5)
-      else if (event->getTectonicFlag() == ACTIVE_RIFTING and m_asSurfaceDepthHistory.at(age) and i!=0) {
+      else if (event->getTectonicFlag() == ACTIVE_RIFTING and m_hasSurfaceDepthHistory.at(age) and i!=0) {
          assert( (i - 1) >= 0 );
          const double prevAge = m_snapshots[i-1];
          const std::shared_ptr<CrustalThickness::RiftingEvent> prevEvent = m_riftingEvents[prevAge];
@@ -211,8 +211,8 @@ void InterfaceInput::analyzeRiftingHistoryCalculationMask() {
             mask = true;
          }
       }
-      // RULE_ID #4 A Passive event can never be a calculation age
-      // And all other rules have already been applied
+      // RULE_ID #4 A Passive event, Active event but without SDH,
+      // and a Flexural event which is not the first flexural event can never be a calculation age
       else {
          mask = false;
       }
@@ -234,9 +234,9 @@ void InterfaceInput::analyseRiftingHistoryStartAge(){
          firstFlexuralEventFound = true;
       }
       // RULE_ID #6 An Active event with a SDH is a starting rifting age
-      // by default we assume that the basement as an SDH of 0 if not user defined
+      // by default we assume that the basement has an SDH of 0 if not user defined
       else if (event->getTectonicFlag() == ACTIVE_RIFTING and not firstFlexuralEventFound) {
-         if (m_asSurfaceDepthHistory.at( age ) and i!=0) {
+         if (m_hasSurfaceDepthHistory.at( age ) and i!=0) {
             //first set the rift age and id to the one of the ending rift
             event->setStartRiftAge( start );
             event->setRiftId( id );
@@ -282,7 +282,7 @@ void InterfaceInput::analyseRiftingHistoryEndAge(){
       const double age = m_snapshots[i];
       const std::shared_ptr<CrustalThickness::RiftingEvent> event = m_riftingEvents[age];
       // RULE_ID #8 An Active event with a SDH which follows another Active event is an End Age
-      const bool activeEnd   = event->getTectonicFlag() == ACTIVE_RIFTING and m_asSurfaceDepthHistory.at(age) and i != 0;
+      const bool activeEnd   = event->getTectonicFlag() == ACTIVE_RIFTING and m_hasSurfaceDepthHistory.at(age) and i != 0;
       // RULE_ID #9 A Passive event with a previous event being Active is an End Age
       const bool passiveEnd  = event->getTectonicFlag() == PASSIVE_MARGIN and i != 0;
       // RULE_ID #10 The first Flexural event (0Ma by default), if it follows an Active event, is an End Age
@@ -354,7 +354,7 @@ void InterfaceInput::checkRiftingHistory() const {
       if (event->getTectonicFlag() == FLEXURAL_BASIN and not atLeastOneFlexuralEvent) {
          atLeastOneFlexuralEvent = true;
          // RULE_ID #11 Error when the first flexural event doesn't have an SDH
-         if (not m_asSurfaceDepthHistory.at( m_snapshots[i] )) {
+         if (not m_hasSurfaceDepthHistory.at( m_snapshots[i] )) {
             throw std::invalid_argument( "There is no surface depth history defined for the first flexural event" );
          }
       }
@@ -436,7 +436,7 @@ void InterfaceInput::printRiftingHistory() const {
          << std::setw( 10 ) << (riftId == UnsignedIntNoDataValue ? "NA" : std::to_string( riftId ))
          << std::setw( 8  ) << startString
          << std::setw( 8  ) << endString
-         << std::setw( 8  ) << m_asSurfaceDepthHistory.at( age );
+         << std::setw( 8  ) << m_hasSurfaceDepthHistory.at( age );
       index++;
 
    } );

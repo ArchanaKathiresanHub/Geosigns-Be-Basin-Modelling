@@ -105,7 +105,7 @@ namespace CrustalThickness
          DataAccess::Interface::SerialGridMap* m_HCuIni;                ///< The initial continental crust thickness         [m]
 
          std::vector<double> m_snapshots;                       ///< The list of snapshots [Ma]
-         std::map< const double, bool> m_asSurfaceDepthHistory; ///< Maping between the snapshots age and the existence of a SDH at this age
+         std::map< const double, bool> m_hasSurfaceDepthHistory; ///< Maping between the snapshots age and the existence of a SDH at this age
          /// @}
 
          /// @defgroup MockDataAccess

@@ -276,7 +276,7 @@ void CrustalThicknessCalculator::run() {
 
          /// 4. Compute the Total Tectonic Subsidence (only if we have a SDH at this snapshot)
          const Interface::Property* pressureInterfaceProperty = findProperty( "Pressure" );
-         if (asSurfaceDepthHistory( age )){
+         if (hasSurfaceDepthHistory( age )){
             LogHandler( LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_STEP ) << "computing Tectonic Subsidence";
             CrustalThickness::TotalTectonicSubsidenceCalculator TTScalculator( *m_inputData, m_outputData, validator,
                age, densityCalculator.getAirCorrection(), m_previousTTS, m_seaBottomDepth );
@@ -301,7 +301,7 @@ void CrustalThicknessCalculator::run() {
          PWDcalculator.compute();
 
          // 6. Compute the PaleowaterdepthResidual (only if we have a SDH at this snapshot and if we are not at present day)
-         if (asSurfaceDepthHistory( age ) and age!=0.0){
+         if (hasSurfaceDepthHistory( age ) and age!=0.0){
             LogHandler( LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_STEP ) << "computing PaleowaterdepthResidual";
             CrustalThickness::PaleowaterdepthResidualCalculator PWDRcalculator( *m_inputData, m_outputData, validator,
                age, m_seaBottomDepth );
@@ -309,7 +309,7 @@ void CrustalThicknessCalculator::run() {
          }
 
          ///7. Computes the thinning factor and crustal thicknesse
-         if (asSurfaceDepthHistory( age )){
+         if (m_inputData->getRiftingCalculationMask( age )){
             LogHandler( LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_STEP ) << "computing Crustal Thicknesses";
             CrustalThickness::McKenzieCrustCalculator mcKenzieCalculator( *m_inputData, m_outputData, validator, age, m_previousContinentalCrustalThickness, m_previousOceanicCrustalThickness );
             mcKenzieCalculator.compute();

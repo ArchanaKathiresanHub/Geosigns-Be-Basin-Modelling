@@ -201,7 +201,7 @@ TEST_F( InterfaceInputTester, loadCTCRiftingHistoryIoTbl_singleRift_1 ){
                        ACTIVE_RIFTING, ACTIVE_RIFTING, ACTIVE_RIFTING, ACTIVE_RIFTING, ACTIVE_RIFTING };
    //from oldest age to present day (since snapshots are reordered)
    for (unsigned int i = 1; i < 9; i++) {
-      m_asSurfaceDepthHistory[ m_snapshots[i] ] = false;
+      m_hasSurfaceDepthHistory[ m_snapshots[i] ] = false;
    }
    std::shared_ptr<InterfaceInput> interfaceInput = createInterfaceInput();
    interfaceInput->loadInputData();
@@ -224,7 +224,7 @@ TEST_F( InterfaceInputTester, loadCTCRiftingHistoryIoTbl_singleRift_2 ){
                        ACTIVE_RIFTING, ACTIVE_RIFTING, ACTIVE_RIFTING, ACTIVE_RIFTING, ACTIVE_RIFTING };
    //from oldest age to present day (since snapshots are reordered)
    for (unsigned int i = 1; i < 8; i++) {
-      m_asSurfaceDepthHistory[m_snapshots[i]] = false;
+      m_hasSurfaceDepthHistory[m_snapshots[i]] = false;
    }
    std::shared_ptr<InterfaceInput> interfaceInput = createInterfaceInput();
    interfaceInput->loadInputData();
@@ -247,9 +247,9 @@ TEST_F( InterfaceInputTester, loadCTCRiftingHistoryIoTbl_singleRift_3 ){
                        ACTIVE_RIFTING, ACTIVE_RIFTING, ACTIVE_RIFTING, ACTIVE_RIFTING, ACTIVE_RIFTING };
    //from oldest age to present day (since snapshots are reordered)
    for (unsigned int i = 1; i < 6; i++) {
-      m_asSurfaceDepthHistory[m_snapshots[i]] = false;
+      m_hasSurfaceDepthHistory[m_snapshots[i]] = false;
    }
-   m_asSurfaceDepthHistory[m_snapshots[7]] = false;
+   m_hasSurfaceDepthHistory[m_snapshots[7]] = false;
    std::shared_ptr<InterfaceInput> interfaceInput = createInterfaceInput();
    interfaceInput->loadInputData();
 
@@ -271,7 +271,7 @@ TEST_F( InterfaceInputTester, loadCTCRiftingHistoryIoTbl_singleRift_4 ){
                        ACTIVE_RIFTING, ACTIVE_RIFTING, ACTIVE_RIFTING, ACTIVE_RIFTING, ACTIVE_RIFTING };
    //from oldest age to present day (since snapshots are reordered)
    for (unsigned int i = 0; i < 9; i++) {
-      m_asSurfaceDepthHistory[m_snapshots[i]] = false;
+      m_hasSurfaceDepthHistory[m_snapshots[i]] = false;
    }
    std::shared_ptr<InterfaceInput> interfaceInput = createInterfaceInput();
    interfaceInput->loadInputData();
@@ -294,10 +294,10 @@ TEST_F( InterfaceInputTester, loadCTCRiftingHistoryIoTbl_MultiRift_1 ) {
                        PASSIVE_MARGIN, PASSIVE_MARGIN, ACTIVE_RIFTING, ACTIVE_RIFTING, ACTIVE_RIFTING };
    //from oldest age to present day (since snapshots are reordered)
    for (unsigned int i = 1; i < 5; i++) {
-      m_asSurfaceDepthHistory[m_snapshots[i]] = false;
+      m_hasSurfaceDepthHistory[m_snapshots[i]] = false;
    }
-   m_asSurfaceDepthHistory[m_snapshots[6]] = false;
-   m_asSurfaceDepthHistory[m_snapshots[7]] = false;
+   m_hasSurfaceDepthHistory[m_snapshots[6]] = false;
+   m_hasSurfaceDepthHistory[m_snapshots[7]] = false;
    //from present day to oldest age (since inputs are ordered this way)
    for (unsigned int i = 0; i < 4; i++) {
       m_HBu[i].setValues(25000);
@@ -323,10 +323,10 @@ TEST_F( InterfaceInputTester, loadCTCRiftingHistoryIoTbl_MultiRift_2 ) {
                        PASSIVE_MARGIN, PASSIVE_MARGIN, ACTIVE_RIFTING, ACTIVE_RIFTING, ACTIVE_RIFTING };
    //from oldest age to present day (since snapshots are reordered)
    for (unsigned int i = 2; i < 5; i++) {
-      m_asSurfaceDepthHistory[m_snapshots[i]] = false;
+      m_hasSurfaceDepthHistory[m_snapshots[i]] = false;
    }
-   m_asSurfaceDepthHistory[m_snapshots[6]] = false;
-   m_asSurfaceDepthHistory[m_snapshots[7]] = false;
+   m_hasSurfaceDepthHistory[m_snapshots[6]] = false;
+   m_hasSurfaceDepthHistory[m_snapshots[7]] = false;
    //from present day to oldest age (since inputs are ordered this way)
    m_HBu[8].setValues( 6000 );
    m_HBu[9].setValues( 6000 );
@@ -355,9 +355,9 @@ TEST_F( InterfaceInputTester, loadCTCRiftingHistoryIoTbl_MultiRift_3 ) {
                        PASSIVE_MARGIN, PASSIVE_MARGIN, ACTIVE_RIFTING, ACTIVE_RIFTING, ACTIVE_RIFTING };
    //from oldest age to present day (since snapshots are reordered)
    for (unsigned int i = 2; i < 5; i++) {
-      m_asSurfaceDepthHistory[m_snapshots[i]] = false;
+      m_hasSurfaceDepthHistory[m_snapshots[i]] = false;
    }
-   m_asSurfaceDepthHistory[m_snapshots[8]] = false;
+   m_hasSurfaceDepthHistory[m_snapshots[8]] = false;
    //from present day to oldest age (since inputs are ordered this way)
    m_HBu[8].setValues( 6000 );
    m_HBu[9].setValues( 6000 );
@@ -384,10 +384,10 @@ TEST_F( InterfaceInputTester, loadCTCRiftingHistoryIoTbl_MultiRift_4 ) {
    //from present day to oldest age (since inputs are ordered this way)
    m_tectonicFalgs = { FLEXURAL_BASIN, PASSIVE_MARGIN, PASSIVE_MARGIN, PASSIVE_MARGIN, ACTIVE_RIFTING,
                        ACTIVE_RIFTING, ACTIVE_RIFTING, ACTIVE_RIFTING, ACTIVE_RIFTING, ACTIVE_RIFTING };
-   m_asSurfaceDepthHistory[m_snapshots[1]] = false;
+   m_hasSurfaceDepthHistory[m_snapshots[1]] = false;
    //from oldest age to present day (since snapshots are reordered)
    for (unsigned int i = 4; i < 8; i++) {
-      m_asSurfaceDepthHistory[m_snapshots[i]] = false;
+      m_hasSurfaceDepthHistory[m_snapshots[i]] = false;
    }
    //from present day to oldest age (since inputs are ordered this way)
    for (unsigned int i = 0; i < 6; i++) {
@@ -480,22 +480,22 @@ TEST_F( InterfaceInputTester, loadCTCRiftingHistoryIoTbl_exceptions ){
    LogHandler( LogHandler::INFO_SEVERITY, LogHandler::SECTION ) << "Test that the interface throws an exception when there are no SDH defined at the beginning of a rifting event";
    m_tectonicFalgs = { FLEXURAL_BASIN, PASSIVE_MARGIN, ACTIVE_RIFTING, PASSIVE_MARGIN, ACTIVE_RIFTING,
                        ACTIVE_RIFTING, ACTIVE_RIFTING, ACTIVE_RIFTING, ACTIVE_RIFTING, ACTIVE_RIFTING };
-   m_asSurfaceDepthHistory[m_snapshots[7]] = false;
+   m_hasSurfaceDepthHistory[m_snapshots[7]] = false;
    std::invalid_argument exception8( "The begining of rift ID " + std::to_string( 6 ) +
       " at age " + std::to_string( m_snapshots[7] ) + " does not have any surface depth history associated" );
    std::shared_ptr<InterfaceInput> interfaceInput8 = createInterfaceInput();
    EXPECT_EXCEPTION_EQ( interfaceInput8->loadInputData(), exception8 );
-   m_asSurfaceDepthHistory[m_snapshots[7]] = true;
+   m_hasSurfaceDepthHistory[m_snapshots[7]] = true;
 
    //9.  Test that the interface throws an exception when the first flexural event doesn't have an SDH (RULE_ID #11)
    LogHandler( LogHandler::INFO_SEVERITY, LogHandler::SECTION ) << "Test that the interface throws an exception when the first flexural event doesn't have an SDH";
    m_tectonicFalgs = { FLEXURAL_BASIN, FLEXURAL_BASIN, ACTIVE_RIFTING, PASSIVE_MARGIN, ACTIVE_RIFTING,
                        ACTIVE_RIFTING, ACTIVE_RIFTING, ACTIVE_RIFTING, ACTIVE_RIFTING, ACTIVE_RIFTING };
-   m_asSurfaceDepthHistory[m_snapshots[8]] = false;
+   m_hasSurfaceDepthHistory[m_snapshots[8]] = false;
    std::invalid_argument exception9( "There is no surface depth history defined for the first flexural event" );
    std::shared_ptr<InterfaceInput> interfaceInput9 = createInterfaceInput();
    EXPECT_EXCEPTION_EQ( interfaceInput9->loadInputData(), exception9 );
-   m_asSurfaceDepthHistory[m_snapshots[8]] = true;
+   m_hasSurfaceDepthHistory[m_snapshots[8]] = true;
 
    //10.  Test that the interface throws an exception when more than one maximum basalt thickness value is allowed in one rift (RULE_ID #10)
    LogHandler( LogHandler::INFO_SEVERITY, LogHandler::SECTION ) << "Test that the interface throws an exception when more than one maximum basalt thickness value is allowed in one rift";

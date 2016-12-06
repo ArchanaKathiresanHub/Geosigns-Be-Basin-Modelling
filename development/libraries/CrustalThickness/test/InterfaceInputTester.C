@@ -62,7 +62,7 @@ InterfaceInputTester::InterfaceInputTester() :
    m_snapshots.push_back( 0.0   );
    // set default surface depth history data
    std::for_each( m_snapshots.begin(), m_snapshots.end(), [&]( const double age ) {
-      m_asSurfaceDepthHistory[age] = true;
+      m_hasSurfaceDepthHistory[age] = true;
    } );
    // set default sea level adjustment data (from present day to oldest age)
    m_DeltaSL[0].setValues( 235     );
@@ -81,7 +81,7 @@ InterfaceInputTester::InterfaceInputTester() :
    } );
    // check validity of inputs (all the same size)
    assert( m_tectonicFalgs.size()         == m_snapshots.size()
-       and m_asSurfaceDepthHistory.size() == m_snapshots.size()
+       and m_hasSurfaceDepthHistory.size() == m_snapshots.size()
        and m_DeltaSL.size()               == m_snapshots.size()
        and m_HBu.size()                   == m_snapshots.size() );
 }
@@ -95,7 +95,7 @@ std::shared_ptr<MockInterfaceInput> InterfaceInputTester::createInterfaceInput()
    updateData();
    std::shared_ptr<MockInterfaceInput> result( new MockInterfaceInput( m_ctcGlobalData, m_ctcRiftingDataVec ) );
    result->loadSnapshots();
-   result->setSurfaceDepthHistoryMask( m_asSurfaceDepthHistory );
+   result->setSurfaceDepthHistoryMask( m_hasSurfaceDepthHistory );
    return result;
 }
 

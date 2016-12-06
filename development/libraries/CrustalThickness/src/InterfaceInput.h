@@ -252,7 +252,7 @@ protected:
    double m_flexuralAge;         ///< Timing of flexural basin, after this age there is no more CTC outputs                                 [Ma]
 
    std::map<const double, std::shared_ptr<CrustalThickness::RiftingEvent>> m_riftingEvents; /// All the rifting events mapped to their stratigraphic age
-   std::map< const double, bool> m_asSurfaceDepthHistory;                                   ///< Maping between the snapshots age and the existence of a SDH at this age
+   std::map< const double, bool> m_hasSurfaceDepthHistory;                                   ///< Maping between the snapshots age and the existence of a SDH at this age
 
    GridMap const * m_HCuMap;     ///< Initial continental crust thickness   [m]
    GridMap const * m_HLMuMap;    ///< Initial lithospheric mantle thickness [m]

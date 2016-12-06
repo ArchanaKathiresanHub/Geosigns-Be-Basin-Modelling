@@ -236,10 +236,10 @@ void InterfaceOutput::updatePossibleOutputsAtSnapshot( const outputMaps id,
    }
 
    // The TTS and Incremental TS properties are only ouput when we have an SDH
-   else if (  id == WLSMap
-      or id == WLSadjustedMap
-      or id == incTectonicSubsidence) {
-      if (not interfaceInput->getRiftingCalculationMask( theSnapshot->getTime() )) {
+   else if ( id == WLSMap
+          or id == WLSadjustedMap
+          or id == incTectonicSubsidence) {
+      if (not pHandle->hasSurfaceDepthHistory( theSnapshot->getTime() )) {
          toBeOutput = false;
       }
    }
@@ -253,7 +253,7 @@ void InterfaceOutput::updatePossibleOutputsAtSnapshot( const outputMaps id,
 
    // The PWDR is only output when we have an SDH and never output at 0.0Ma (since we do not have a PWD at 0.0Ma)
    else if (id == PaleowaterdepthResidual) {
-      if (not pHandle->asSurfaceDepthHistory( theSnapshot->getTime() ) or theSnapshot->getTime() == 0.0) {
+      if (not pHandle->hasSurfaceDepthHistory( theSnapshot->getTime() ) or theSnapshot->getTime() == 0.0) {
          toBeOutput = false;
       }
    }
