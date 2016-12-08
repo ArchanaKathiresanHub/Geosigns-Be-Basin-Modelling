@@ -48,6 +48,7 @@ namespace casa
 
       void updateParametersAndRunCase( const Eigen::VectorXd & x );
       void calculateFunctionValue( Eigen::VectorXd & fvec );
+	  void removeInvalidObservations(size_t & nValues);
       std::string transformation() const { return m_parameterTransformation; };
       double relativeReduction( ) const { return m_relativeReduction; };
 
@@ -60,8 +61,9 @@ namespace casa
       std::vector< std::pair<const VarPrmContinuous *, size_t> > m_optimPrms; // keeps pointer to variable parameter and subparameter number
       std::vector< size_t >                                      m_permPrms;  // permutation array - optimization prms -> all prms
 
-      std::vector< const Observable*>                            m_optimObs;  // set of observables shoosed for optimization
-      std::vector< size_t >                                      m_permObs;   // permutation array - optimization obs -> all obs
+      std::vector< int >                                         m_permObs;            // permutation array - optimization obs -> all obs
+	  std::vector< std::vector<int>>                             m_optimObservations;  // for each observable in the permutation array, its mask
+	  std::vector< const Observable*>                            m_optimObsarvable;    // the observables in the permutation array
       
       std::vector< std::shared_ptr<RunCase> >                    m_casesSet;         // set of run cases for each step of LM
       std::shared_ptr<RunCase>                                   m_baseCase;         // the base case 

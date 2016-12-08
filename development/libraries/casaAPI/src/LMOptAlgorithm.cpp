@@ -142,15 +142,10 @@ namespace casa
 
       LevenbergMarquardtSpace::Status minimizeInit( FVectorType  & x )
       {
-         n = x.size();
-         m = m_functor.values();
-
+         n = x.size();           //number of parameters
          m_wa1.resize(  n );
          m_wa2.resize(  n ); 
          m_wa3.resize(  n );
-         m_wa4.resize(  m );
-         m_fvec.resize( m );
-         m_fjac.resize( m, n ); //FIXME Sparse Case : Allocate space for the jacobian
 
          //     m_fjac.reserve(VectorXi::Constant(n,5)); // FIXME Find a better alternative
          if ( !m_useExternalScaling ) { m_diag.resize( n ); }
@@ -162,25 +157,33 @@ namespace casa
          m_nfev = 0;
          m_njev = 0;
 
-         // Check the input parameters for errors.
-         if ( n <= 0 || m < n || m_ftol < 0.0 || m_xtol < 0.0 || m_gtol < 0.0 || m_maxfev <= 0 || m_factor <= 0.0 )
-         {
-            return reportError( InvalidInput, LevenbergMarquardtSpace::ImproperInputParameters );
-         }
-
-         if ( m_useExternalScaling )
-         {
-            for ( Index j = 0; j < n; ++j )
-            {
-               if ( m_diag[j] <= 0.0 ) { return reportError( InvalidInput, LevenbergMarquardtSpace::ImproperInputParameters ); }
-            }
-         }
-
-         // evaluate the function at the starting point and calculate its norm.
+         // evaluate the function at the starting point and calculate its norm. Use all observations in m_fvec
          m_nfev = 1;
-         if ( m_functor( x, m_fvec ) < 0 ) { return LevenbergMarquardtSpace::UserAsked; }
+		 size_t nvalues;
+		 size_t originalFunctorValues = m_functor.values();
+		 m_fvec.resize(originalFunctorValues);
+         if ( m_functor.initialRun( x, m_fvec, nvalues) < 0 ) { return LevenbergMarquardtSpace::UserAsked; }
 
+		 //resize the matrices used in subsequent runs, accordingly to the filtering performed in initialRun
+		 m = nvalues + n; //the size of obf components is m + n
+		 m_wa4.resize(m);
+		 m_fvec.conservativeResize(m); // we do not want to loose the calculated values of the objective function . 
+		 m_fjac.resize(m, n); //FIXME Sparse Case : Allocate space for the jacobian
          m_fnorm = m_fvec.stableNorm();
+
+		 // Check the input parameters for errors.
+		 if (n <= 0 || m < n || m_ftol < 0.0 || m_xtol < 0.0 || m_gtol < 0.0 || m_maxfev <= 0 || m_factor <= 0.0)
+		 {
+			 return reportError(InvalidInput, LevenbergMarquardtSpace::ImproperInputParameters);
+		 }
+
+		 if (m_useExternalScaling)
+		 {
+			 for (Index j = 0; j < n; ++j)
+			 {
+				 if (m_diag[j] <= 0.0) { return reportError(InvalidInput, LevenbergMarquardtSpace::ImproperInputParameters); }
+			 }
+		 }
 
          // Initialize levenberg-marquardt parameter and iteration counter.
          m_par = 0.0;
@@ -438,6 +441,15 @@ namespace casa
          return 0;
       }
 
+	  int initialRun(const Eigen::VectorXd & x, Eigen::VectorXd & fvec, size_t & nvalues) const 
+	  {
+		  LMOptAlgorithm & lm = const_cast<LMOptAlgorithm&>(m_lm);
+		  lm.updateParametersAndRunCase(x);
+		  lm.removeInvalidObservations(nvalues);
+		  lm.calculateFunctionValue(fvec);
+		  return 0;
+	  }
+	  
       // In case of log10 transformation we increment the base value and transform the increment back, as done in PEST 
       int df( const InputType & _x, JacobianType & jac )
       {
@@ -452,8 +464,9 @@ namespace casa
          const Scalar           eps = 0.1;
          InputType              x   = _x; // copy input as it constant
 
-         val1.resize( ProjectFunctor::values() );
-         val2.resize( ProjectFunctor::values() );
+		 // resize accordigly to the size of the re-scaled jacobian
+         val1.resize(jac.col(0).size());
+         val2.resize(jac.col(0).size());
 
          // compute f(x)
          ProjectFunctor::operator()( x, val1 ); nfev++;
@@ -540,25 +553,59 @@ size_t LMOptAlgorithm::prepareParameters( std::vector<double> & initGuess, std::
 
 size_t LMOptAlgorithm::prepareObservables()
 {
-   if ( !m_optimObs.empty() ) m_optimObs.clear();
-   if ( !m_permObs.empty()  ) m_permObs.clear();
+	if (!m_permObs.empty()) m_permObs.clear();
+	if (!m_optimObservations.empty())  m_optimObservations.clear();
+	if (!m_optimObsarvable.empty())  m_optimObsarvable.clear();
 
-   // filter observables which are suitable for the optimization loop
-   const ObsSpace & obSp = m_sa->obsSpace();
-   size_t obsSpDim = 0;
+	// filter observables which are suitable for the optimization loop
+	const ObsSpace & obSp = m_sa->obsSpace();
+	size_t obsSpDim = 0;
 
-   for ( size_t i = 0; i < obSp.size(); ++i )
-   {
-      const std::string & msg = obSp.observable( i )->checkObservableForProject( m_sa->baseCase() );
-   
-      if ( msg.empty() && obSp.observable( i )->hasReferenceValue() )
-      {
-         obsSpDim += obSp.observable( i )->dimension();
-         m_optimObs.push_back( obSp.observable( i ) );
-         m_permObs.push_back( i );
-      }
-   }
-   return obsSpDim;
+	for (int i = 0; i < obSp.size(); ++i)
+	{
+		const std::string & msg = obSp.observable(i)->checkObservableForProject(m_sa->baseCase());
+
+		//the observable is included in the domain window 
+		if (msg.empty() && obSp.observable(i)->hasReferenceValue())
+		{
+			const std::vector<double> & obv = obSp.observable(i)->referenceValue()->asDoubleArray();
+			const std::vector<double> & sigma = obSp.observable(i)->stdDeviationForRefValue()->asDoubleArray();
+			std::vector<int>            validObservations;
+
+			for (int k = 0; k < obSp.observable(i)->dimension(); ++k)
+			{
+				// user undefined values are excluded
+				if (obv[k] == DataAccess::Interface::DefaultUndefinedScalarValue || obv[k] == DataAccess::Interface::DefaultUndefinedMapValue)
+				{
+					LogHandler(LogHandler::WARNING_SEVERITY) << "Invalid observation " << obSp.observable(i)->name()[k] << " with reference value  " << obv[k]
+						<< " has been removed from the LM optimization ";
+					continue;
+				}
+
+				// observations with invalid sigmas are excluded
+				if (sigma[k] <= 0)
+				{
+					LogHandler(LogHandler::WARNING_SEVERITY) << "Invalid observation " << obSp.observable(i)->name()[k] << " with standard deviation value  " << sigma[k]
+						<< " has been removed from the LM optimization ";
+					continue;
+				}
+
+				// array of valid observations 
+				validObservations.push_back(k);
+			}
+			
+			size_t validObservationsSize = validObservations.size();
+			if (validObservationsSize > 0)
+			{
+				obsSpDim += validObservationsSize;
+				m_permObs.push_back(i);
+				m_optimObservations.push_back(validObservations);
+				m_optimObsarvable.push_back(obSp.observable(i));
+			}
+		}
+	}
+	
+	return obsSpDim;
 }
 
 void LMOptAlgorithm::updateParametersAndRunCase( const Eigen::VectorXd & x )
@@ -703,61 +750,110 @@ void LMOptAlgorithm::updateParametersAndRunCase( const Eigen::VectorXd & x )
    ++m_stepNum;
 }
 
-void LMOptAlgorithm::calculateFunctionValue( Eigen::VectorXd & fvec )
+void LMOptAlgorithm::removeInvalidObservations(size_t & nValues)
 {
-   double trgtQ = 0.0;
-   double prmQ  = 0.0;
+	//make sure this is the base case (m_stepNum==1)
+	assert(m_stepNum == 1);
+	std::shared_ptr<RunCase>  rc(m_casesSet.back());
+	nValues = 0;
+	// eliminate observations with invalid simulated values in the base case
+	for (size_t i = 0; i < m_permObs.size(); ++i)
+	{
+		const Observable          * obs = m_optimObsarvable[i];
+		const std::vector<double> & obv = rc->obsValue(m_permObs[i])->asDoubleArray();
 
-   // initialze minimization function with all zeros
-   for ( int i = 0; i < fvec.rows() * fvec.cols(); ++i ) { fvec( i ) = 0.0; }
-   
-   std::shared_ptr<RunCase>  rc (m_casesSet.back());
+		for (size_t observation = 0; observation < m_optimObservations[i].size(); ++observation)
+		{
+			size_t k = m_optimObservations[i][observation];
+			if (obv[k] == DataAccess::Interface::DefaultUndefinedScalarValue || obv[k] == DataAccess::Interface::DefaultUndefinedMapValue)
+			{
+				LogHandler(LogHandler::WARNING_SEVERITY) << "Invalid observation " << obs->name()[k] << " with simulated value in the base case " << obv[k] 
+					<< " has been removed from the LM optimization ";
+				m_optimObservations[i][observation] = -1;
+			}
+		}
 
-   size_t mi = 0;
+		//update the mask by removing invalid values
+		m_optimObservations[i].erase(std::remove(m_optimObservations[i].begin(), m_optimObservations[i].end(), -1), m_optimObservations[i].end());
+		size_t validObservations = m_optimObservations[i].size();
 
-   // at first calculate minimization function terms for observables value 
-   for ( size_t i = 0; i < m_permObs.size(); ++i )
-   {
-      const Observable          * obs      = m_optimObs[i]; 
-      const std::vector<double> & refVal   = obs->referenceValue()->asDoubleArray();
-      const std::vector<double> & obv      = rc->obsValue( m_permObs[i] )->asDoubleArray();
-      const std::vector<double> & sigma    = obs->stdDeviationForRefValue()->asDoubleArray();
-      double                      uaWeight = obs->uaWeight();
+		if (validObservations == 0)
+		{
+			//assign a flag to remove the members from the array
+			m_optimObsarvable[i] = nullptr;
+			m_permObs[i] = -1;
+		}
+		else
+		{
+			nValues += validObservations;
+		}
+	}
 
-      assert( refVal.size() == obv.size() );
-            
-      for ( size_t k = 0; k < refVal.size(); ++k )
-      {
-         if ( obv[k] == DataAccess::Interface::DefaultUndefinedScalarValue || obv[k] == DataAccess::Interface::DefaultUndefinedMapValue )
-         {
-            LogHandler( LogHandler::ERROR_SEVERITY ) << "Invalid observation value: " << obs->name()[k] << " with simulated value " << obv[k] << ", stopping...";
-            throw ErrorHandler::Exception( ErrorHandler::UnknownError ) << "Invalid observation value, stopping...";
-         }
+	// remove observable with no valid observations
+	m_optimObsarvable.erase(std::remove(m_optimObsarvable.begin(), m_optimObsarvable.end(), nullptr), m_optimObsarvable.end());
+	m_permObs.erase(std::remove(m_permObs.begin(), m_permObs.end(), -1), m_permObs.end());
+}
 
-         if ( sigma[k] <= 0 )
-         {
-            LogHandler( LogHandler::ERROR_SEVERITY ) << "Invalid standard deviation value: " << obs->name()[k] << " with standard deviation " << sigma[k] << ", stopping...";
-         }
+void LMOptAlgorithm::calculateFunctionValue(Eigen::VectorXd & fvec)
+{
+	double trgtQ = 0.0;
+	double prmQ  = 0.0;
 
-         double dif = std::sqrt( uaWeight ) * std::abs( obv[k] - refVal[k] ) / sigma[k];
+	// initialze minimization function with all zeros
+	for (int i = 0; i < fvec.rows() * fvec.cols(); ++i) { fvec(i) = 0.0; }
+
+	std::shared_ptr<RunCase>  rc(m_casesSet.back());
+
+	size_t mi = 0;
+
+	// at first calculate minimization function terms for observables value 
+	for ( size_t i = 0; i < m_permObs.size(); ++i )
+	{
+		const Observable          * obs    = m_optimObsarvable[i];
+		const std::vector<double> & refVal = obs->referenceValue()->asDoubleArray();
+		const std::vector<double> & obv    = rc->obsValue(m_permObs[i])->asDoubleArray();
+		const std::vector<double> & sigma  = obs->stdDeviationForRefValue()->asDoubleArray();
+		double                      uaWeight = obs->uaWeight();
+
+		assert(refVal.size() == obv.size() );
+
+
+		for (size_t observation = 0; observation < m_optimObservations[i].size(); ++observation)
+		{
+			size_t k = m_optimObservations[i][observation];
+
+			// if the oservation is undefined or invalid at this stage after the filtering of the invalid observations in the base case we should exit the LM optimization
+			if (obv[k] == DataAccess::Interface::DefaultUndefinedScalarValue || obv[k] == DataAccess::Interface::DefaultUndefinedMapValue)
+			{
+				LogHandler(LogHandler::ERROR_SEVERITY) << "Invalid observation value: " << obs->name()[k] << " with simulated value " << obv[k] << ", stopping...";
+				throw ErrorHandler::Exception(ErrorHandler::UnknownError) << "Invalid observation value, stopping...";
+			}
+
+			if (sigma[k] <= 0)
+			{
+				LogHandler(LogHandler::ERROR_SEVERITY) << "Invalid standard deviation value: " << obs->name()[k] << " with standard deviation " << sigma[k] << ", stopping...";
+				throw ErrorHandler::Exception(ErrorHandler::UnknownError) << "Invalid standard deviation value, stopping...";
+			}
+
+			double dif = std::sqrt(uaWeight) * std::abs(obv[k] - refVal[k]) / sigma[k];
 
 #ifndef ACCUMULATE_MIN_FUNCTION
-         fvec[mi] = dif; 
+			fvec[mi] = dif;
 #endif
-         trgtQ += dif*dif;
-         ++mi;
-      }
-   }
+			trgtQ += dif*dif;
+			++mi;
+		}
+	}
 
-// 2. There is need to average trgtQ by mi (it is like multiplying by a constant)
+	// 2. There is need to average trgtQ by mi (it is like multiplying by a constant)
 #ifdef ACCUMULATE_MIN_FUNCTION
-   fvec[0] = std::sqrt(trgtQ);
-   mi = 0;
+	fvec[0] = std::sqrt(trgtQ);
+	mi = 0;
 #endif
 
-   // the calculate minimization function terms for parameters value, to prevent going outside ranges
-   for ( size_t i = 0; i < m_permPrms.size(); ++i )
-   {
+	// the calculate minimization function terms for parameters value, to prevent going outside ranges
+	for (size_t i = 0; i < m_permPrms.size(); ++i)
+	{
       const VarPrmContinuous * vprm  = m_optimPrms[i].first;
       size_t                   prmID = m_optimPrms[i].second;
       double                   minV  = vprm->minValue()->asDoubleArray()[prmID];
@@ -890,8 +986,8 @@ void LMOptAlgorithm::runOptimization( ScenarioAnalysis & sa )
    else
    { 
       Eigen::VectorXd fvec;
-      fvec.resize( functor.values() );
-      functor( initialGuess, fvec );
+	  size_t nvalues;
+	  functor.initialRun( initialGuess, fvec, nvalues);
    }
 
    // if we should not keep history - delete the last step
