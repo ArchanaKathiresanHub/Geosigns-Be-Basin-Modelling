@@ -49,7 +49,7 @@ public :
    unsigned int setMaximumNumberOfElements( const bool readSizeFromVolumeData )             { return GeoPhysics::GeoPhysicsMantleFormation::setMaximumNumberOfElements( readSizeFromVolumeData ); }
    void retrieveAllThicknessMaps()                                                          { return GeoPhysics::GeoPhysicsMantleFormation::retrieveAllThicknessMaps(); }
    void restoreAllThicknessMaps()                                                           { return GeoPhysics::GeoPhysicsMantleFormation::restoreAllThicknessMaps(); }
-   bool isMantle()                                                                          { return GeoPhysics::GeoPhysicsMantleFormation::isMantle(); }
+   bool isMantle() const                                                                    { return GeoPhysics::GeoPhysicsMantleFormation::isMantle(); }
 
    // Inherited via LayerProperties
    void switchLithologies( const double age ) { return LayerProps::LayerProps::switchLithologies( age ); }
