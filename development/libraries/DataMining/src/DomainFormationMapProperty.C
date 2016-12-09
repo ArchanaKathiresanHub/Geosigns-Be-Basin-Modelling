@@ -4,7 +4,7 @@
 
 namespace DataAccess { namespace Mining
 {
-    
+
    DomainFormationMapProperty::DomainFormationMapProperty( const DomainPropertyCollection *           collection,
                                                            DerivedProperties::DerivedPropertyManager& propertyManager,
                                                            const Interface::Snapshot      *           snapshot,
@@ -29,7 +29,7 @@ namespace DataAccess { namespace Mining
 
 
    void DomainFormationMapProperty::compute( const ElementPosition      & position,
-                                             InterpolatedPropertyValues & evaluations )
+                                             InterpolatedPropertyValues & evaluations ) const
    {
 
       if ( position.getFormation() != 0 )
@@ -82,4 +82,3 @@ namespace DataAccess { namespace Mining
       return new DomainFormationMapProperty( collection, propertyManager, snapshot, property );
    }
 }} // namespace DataAccess::Mining
-

@@ -8,7 +8,7 @@
 DataAccess::Mining::DomainReservoirProperty::DomainReservoirProperty ( const DomainPropertyCollection*            collection,
                                                                        DerivedProperties::DerivedPropertyManager& propertyManager,
                                                                        const Interface::Snapshot*                 snapshot,
-                                                                       const Interface::Property*                 property ) : 
+                                                                       const Interface::Property*                 property ) :
    DomainProperty ( collection, propertyManager, snapshot, property )
 {
 
@@ -37,7 +37,7 @@ DataAccess::Mining::DomainReservoirProperty::~DomainReservoirProperty () {
 
 
 void DataAccess::Mining::DomainReservoirProperty::compute ( const ElementPosition&            position,
-                                                                  InterpolatedPropertyValues& evaluations ) {
+                                                                  InterpolatedPropertyValues& evaluations ) const {
 
    if ( position.getSurface () != 0 ) {
       SurfaceToPropertyValueMapping::const_iterator propIter = m_values.find ( position.getSurface ());
@@ -87,4 +87,3 @@ DataAccess::Mining::DomainProperty* DataAccess::Mining::DomainReservoirPropertyA
                                                                                                      const Interface::Property*                 property ) const {
    return new DomainReservoirProperty ( collection, propertyManager, snapshot, property );
 }
-

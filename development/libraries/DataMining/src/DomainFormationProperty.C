@@ -48,7 +48,7 @@ double DataAccess::Mining::DomainFormationProperty::compute ( const ElementPosit
 }
 
 void DataAccess::Mining::DomainFormationProperty::compute ( const ElementPosition&            position,
-                                                                  InterpolatedPropertyValues& evaluations ) {
+                                                                  InterpolatedPropertyValues& evaluations ) const {
 
    if ( position.getFormation () != 0 ) {
 

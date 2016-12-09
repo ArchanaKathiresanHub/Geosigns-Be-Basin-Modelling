@@ -42,7 +42,7 @@ namespace DataAccess {
 
          /// \brief Get the coefficients of the property at the position.
          ///
-         /// If the formation is null or the grid map of the property-value is 
+         /// If the formation is null or the grid map of the property-value is
          /// null the the coefficients vector will be filled with null values.
          void extractCoefficients ( const ElementPosition& position,
                                           FiniteElementMethod::ElementVector& coefficients ) const;
@@ -51,7 +51,7 @@ namespace DataAccess {
          ///
          /// If the formation is null then a null-value will be added.
          void compute ( const ElementPosition&            position,
-                              InterpolatedPropertyValues& evaluations );
+                              InterpolatedPropertyValues& evaluations ) const;
 
       protected :
 

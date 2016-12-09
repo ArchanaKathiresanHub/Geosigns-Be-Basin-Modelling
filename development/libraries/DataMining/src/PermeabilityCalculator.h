@@ -22,6 +22,8 @@ namespace DataAccess {
 
       public :
 
+         using DomainFormationProperty::compute;
+
          PermeabilityCalculator ( const DomainPropertyCollection*            collection,
                                   DerivedProperties::DerivedPropertyManager& propertyManager,
                                   const Interface::Snapshot*                 snapshot,
@@ -30,12 +32,6 @@ namespace DataAccess {
 
          /// Initialise the permeability-calculator by getting the ves and max-ves properties.
          bool initialise ();
-
-         // /// Add the property, evaluated at the position, to the evaluations mapping.
-         // ///
-         // /// If the formation is null then a null-value will be added.
-         // void compute ( const ElementPosition&            position,
-         //                      InterpolatedPropertyValues& evaluations ) const;
 
          double compute ( const ElementPosition& position ) const;
 

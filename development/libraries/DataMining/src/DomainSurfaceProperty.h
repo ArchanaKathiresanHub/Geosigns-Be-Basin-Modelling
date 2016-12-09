@@ -44,7 +44,7 @@ namespace DataAccess {
          ///
          /// If the formation is null then a null-value will be added.
          void compute ( const ElementPosition&            position,
-                              InterpolatedPropertyValues& evaluations );
+                              InterpolatedPropertyValues& evaluations ) const;
 
          double compute ( const ElementPosition& position ) const;
 

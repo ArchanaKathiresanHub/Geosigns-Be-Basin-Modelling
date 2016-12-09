@@ -22,7 +22,7 @@ DataAccess::Mining::DomainSurfaceProperty::~DomainSurfaceProperty () {
 }
 
 void DataAccess::Mining::DomainSurfaceProperty::compute ( const ElementPosition&            position,
-                                                                InterpolatedPropertyValues& evaluations ) {
+                                                                InterpolatedPropertyValues& evaluations ) const {
 
    if ( position.getSurface () != 0 ) {
       SurfaceToPropertyValueMapping::const_iterator propIter = m_values.find ( position.getSurface ());
@@ -72,4 +72,3 @@ DataAccess::Mining::DomainProperty* DataAccess::Mining::DomainSurfacePropertyAll
                                                                                                    const Interface::Property*                 property ) const {
    return new DomainSurfaceProperty ( collection, propertyManager, snapshot, property );
 }
-
