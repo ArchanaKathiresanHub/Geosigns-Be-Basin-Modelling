@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 #include "ExplicitMultiComponentFlowSolver.h"
 
 #include <time.h>
@@ -145,7 +145,7 @@ ExplicitMultiComponentFlowSolver::ExplicitMultiComponentFlowSolver ()
       PetscPrintf ( PETSC_COMM_WORLD, "    Sor scaling    %f \n", ( FastcauldronSimulator::getInstance ().getMcfHandler (). getResidualHcSaturationScaling ()));
 
 
-      PetscPrintf ( PETSC_COMM_WORLD, "   -mcftssmooth    %s %e \n", 
+      PetscPrintf ( PETSC_COMM_WORLD, "   -mcftssmooth    %s %e \n",
                     ( FastcauldronSimulator::getInstance ().getMcfHandler ().applyTimeStepSmoothing () ? "yes" : "no" ),
                     FastcauldronSimulator::getInstance ().getMcfHandler ().getTimeStepSmoothingFactor ());
 
@@ -194,7 +194,7 @@ ExplicitMultiComponentFlowSolver::~ExplicitMultiComponentFlowSolver ()
 
    buffer << " Flashed and transported "
           << std::setw ( 10 ) << m_flashCount << "  "
-          << std::setw ( 10 ) << m_transportInCount << "  " 
+          << std::setw ( 10 ) << m_transportInCount << "  "
           << std::setw ( 10 ) << m_transportOutCount << "  "
           << std::setw ( 10 ) << m_transportCount << "  "
           << endl;
@@ -389,7 +389,7 @@ void ExplicitMultiComponentFlowSolver::solve ( Subdomain&   subdomain,
 
    if ( m_interpolateFacePermeability ) {
       permeabilityStart = WallTime::clock ();
-   } 
+   }
 
    FacePermeabilityInterpolatorCalculator facePermeabilityCalculator ( subdomain );
    FacePermeabilityTemporalInterpolator facePermeabilityInterpolator ( subdomain, facePermeabilityCalculator );
@@ -461,7 +461,7 @@ void ExplicitMultiComponentFlowSolver::solve ( Subdomain&   subdomain,
    int ii, j, k;
 
    for ( ii = phaseComposition.firstI ( true ); ii <= phaseComposition.lastI ( true ); ++ii ) {
-         
+
       for ( j = phaseComposition.firstJ ( true ); j <= phaseComposition.lastJ ( true ); ++j ) {
 
          for ( k = phaseComposition.firstK (); k <= phaseComposition.lastK (); ++k ) {
@@ -498,7 +498,7 @@ void ExplicitMultiComponentFlowSolver::solve ( Subdomain&   subdomain,
       int ii, j, k;
 
       for ( ii = phaseComposition.firstI ( true ); ii <= phaseComposition.lastI ( true ); ++ii ) {
-         
+
          for ( j = phaseComposition.firstJ ( true ); j <= phaseComposition.lastJ ( true ); ++j ) {
 
             for ( k = phaseComposition.firstK (); k <= phaseComposition.lastK (); ++k ) {
@@ -554,7 +554,7 @@ void ExplicitMultiComponentFlowSolver::solve ( Subdomain&   subdomain,
          permeabilityStart = WallTime::clock ();
 
          // Average permeabilities.
-         darcyCalculations.computeAveragePermeabilities ( subdomain, lambdaStart, lambdaEnd, subdomainPermeabilityNVec, subdomainPermeabilityHVec );
+         darcyCalculations.computeAveragePermeabilities ( subdomain, lambdaStart, subdomainPermeabilityNVec, subdomainPermeabilityHVec );
 
          // Update permeability values from neighbouring processes.
          subdomainPermeabilityN.setVector ( permeabilityGrid, subdomainPermeabilityNVec, INSERT_VALUES, true );
@@ -569,7 +569,7 @@ void ExplicitMultiComponentFlowSolver::solve ( Subdomain&   subdomain,
       // Compute the rate at which hc leaves the element.
       // At the same time compute the maximu time-step size so as to remain a positive concentration.
       computeFluxTerms ( subdomain, elementTransportsHc,
-                         phaseComposition, phaseDensities, phaseViscosities, 
+                         phaseComposition, phaseDensities, phaseViscosities,
                          subdomainPermeabilityN, subdomainPermeabilityH, facePermeabilityInterpolator,
                          subdomainVapourPressure,
                          subdomainLiquidPressure,
@@ -623,7 +623,7 @@ void ExplicitMultiComponentFlowSolver::solve ( Subdomain&   subdomain,
       fluxIntervalTime += WallTime::clock () - fluxStart;
 
       if ( FastcauldronSimulator::getInstance ().getMcfHandler ().getDebugLevel () > 0 ) {
-         PetscPrintf ( PETSC_COMM_WORLD, " calculated time step size: %f   %f   %f   %f   %f   %f   %f\n", 
+         PetscPrintf ( PETSC_COMM_WORLD, " calculated time step size: %f   %f   %f   %f   %f   %f   %f\n",
                        deltaTMa,
                        lambdaStart, lambdaEnd, fractionScaling,
                        timeStepStartMa, timeStepEndMa, endTime );
@@ -789,7 +789,7 @@ void ExplicitMultiComponentFlowSolver::solve ( Subdomain&   subdomain,
 
       buffer << " Flashed and transported "
              << std::setw ( 10 ) << m_flashCount << "  "
-             << std::setw ( 10 ) << m_transportInCount << "  " 
+             << std::setw ( 10 ) << m_transportInCount << "  "
              << std::setw ( 10 ) << m_transportOutCount << "  "
              << std::setw ( 10 ) << m_transportCount << "  "
              << endl;
@@ -965,7 +965,7 @@ void ExplicitMultiComponentFlowSolver::computeNumericalFlux ( const SubdomainEle
    }
 
 }
-                                                              
+
 
 //------------------------------------------------------------//
 
@@ -1179,7 +1179,7 @@ void ExplicitMultiComponentFlowSolver::transportComponents ( Subdomain&         
 
 //------------------------------------------------------------//
 
-double ExplicitMultiComponentFlowSolver::computeElementFaceFlux ( const SubdomainElement&                   element, 
+double ExplicitMultiComponentFlowSolver::computeElementFaceFlux ( const SubdomainElement&                   element,
                                                                   const FaceAreaTemporalInterpolator&       faceAreaInterpolator,
                                                                   const VolumeData::BoundaryId              face,
                                                                   const Saturation::Phase                   phase,
@@ -1220,20 +1220,20 @@ double ExplicitMultiComponentFlowSolver::computeElementFaceFlux ( const Subdomai
    double pressureGradient = 0.0;
    double permeabilityValue = -1.0;
 
-   switch ( face ) 
+   switch ( face )
    {
 
-     case VolumeData::ShallowFace : 
+     case VolumeData::ShallowFace :
         pressureGradient = (( elementPressure - neighbourPressure ) / deltaX - phaseDensity * AccelerationDueToGravity);
         permeabilityValue = permNormal;
         break;
 
-     case VolumeData::DeepFace : 
+     case VolumeData::DeepFace :
         pressureGradient = -(( neighbourPressure - elementPressure ) / deltaX - phaseDensity * AccelerationDueToGravity);
         permeabilityValue = permNormal;
         break;
 
-     case VolumeData::Front: 
+     case VolumeData::Front:
 	 case VolumeData::Back:
 	 case VolumeData::Left:
 	 case VolumeData::Right:
@@ -1263,14 +1263,14 @@ double ExplicitMultiComponentFlowSolver::computeElementFaceFlux ( const Subdomai
          getElementBoundaryNormal ( layerElement, finiteElement.getJacobian (), face, normal, dsDt );
          weight = dsDt * quad.getWeight ();
 
-         // The face-flux can be scaled by some of these values after the 
+         // The face-flux can be scaled by some of these values after the
          // end of the loop, since they are invariant within the loop.
          faceFlux += weight * relativePermeability * permeabilityValue * pressureGradient / phaseViscosity;
       }
 
    }
 
-   // Units: 
+   // Units:
    return faceFlux;
 }
 
@@ -1332,13 +1332,13 @@ void ExplicitMultiComponentFlowSolver::computeFluxForPhase ( const PhaseId      
 
                switch ( id ) {
 
-               case VolumeData::GAMMA_1 : 
+               case VolumeData::GAMMA_1 :
                   // Estimate pore-pressure in element above.
                   // Should really get element above, but this is not a part of the darcy subdomain.
                   neighbourPressure = NumericFunctions::Maximum ( 1.0e5, 1.0e6 * porePressure ( element, lambda ) - 1.0e6 );
                   break;
 
-               case VolumeData::GAMMA_6 : 
+               case VolumeData::GAMMA_6 :
                   // Estimate pore-pressure in element below.
                   // Should really get element below, but this is not a part of the darcy subdomain.
                   neighbourPressure = NumericFunctions::Maximum ( 1.0e5, 1.0e6 * porePressure ( element, lambda ) + 1.0e6 );
@@ -1378,7 +1378,7 @@ void ExplicitMultiComponentFlowSolver::computeFluxForPhase ( const PhaseId      
 
             v3 = computeElementFaceFlux ( element,
                                           faceAreaInterpolator,
-                                          id, whichPhase, 
+                                          id, whichPhase,
                                           elementPressure,
                                           neighbourPressure,
                                           deltaX,
@@ -1555,7 +1555,7 @@ void ExplicitMultiComponentFlowSolver::computeFluxTerms ( FormationSubdomainElem
                                      elementPermeabilityH,
                                      permeabilityInterpolator,
                                      elementGasFlux );
-               
+
             }
 
 
@@ -1566,7 +1566,7 @@ void ExplicitMultiComponentFlowSolver::computeFluxTerms ( FormationSubdomainElem
 
                   for ( c = 0; c < NumberOfPVTComponents; ++c ) {
                      ComponentId component = static_cast<ComponentId>( c );
-                     
+
                      // fractions (phase-component-moles per total-phase-component-moles).
                      phaseComponents ( PhaseId::LIQUID, component ) /= phaseMolarConcentrations ( PhaseId::LIQUID );
                   }
@@ -2045,7 +2045,7 @@ void ExplicitMultiComponentFlowSolver::divideByMassMatrix ( FormationSubdomainEl
    }
 
 //------------------------------------------------------------//
-      
+
 void ExplicitMultiComponentFlowSolver::divideByMassMatrix ( Subdomain&        subdomain,
                                                             const Boolean3DArray&                 elementContainsHc,
                                                             const PoreVolumeTemporalInterpolator& poreVolumeInterpolator,
@@ -2066,7 +2066,7 @@ void ExplicitMultiComponentFlowSolver::divideByMassMatrix ( Subdomain&        su
 
 //------------------------------------------------------------//
 
-void ExplicitMultiComponentFlowSolver::updateTransportedMasses ( FormationSubdomainElementGrid& formationGrid, 
+void ExplicitMultiComponentFlowSolver::updateTransportedMasses ( FormationSubdomainElementGrid& formationGrid,
                                                                  const ScalarArray& transportedMasses ) {
 
    LayerProps& theLayer = formationGrid.getFormation ();
@@ -2107,7 +2107,7 @@ void ExplicitMultiComponentFlowSolver::updateTransportedMasses ( FormationSubdom
 
 //------------------------------------------------------------//
 
-void ExplicitMultiComponentFlowSolver::updateTransportedMasses ( Subdomain& subdomain, 
+void ExplicitMultiComponentFlowSolver::updateTransportedMasses ( Subdomain& subdomain,
                                                                  const ScalarArray& transportedMasses ) {
 
    Subdomain::ActiveLayerIterator iter;
@@ -2328,7 +2328,7 @@ void ExplicitMultiComponentFlowSolver::assignGlobalSaturation ( Subdomain&      
    // Initialise with the maximum number of nodes in vertical of subdomain.
    int* verticalDofNumbers = new int [ subdomain.maximumNumberOfNodes ()];
    int dofCount = 0;
-   
+
    while ( not iter.isDone ()) {
 
       FormationSubdomainElementGrid& formationGrid = *iter;
@@ -2433,7 +2433,7 @@ void ExplicitMultiComponentFlowSolver::averageGlobalSaturation ( Subdomain& subd
 
    double phaseMolarMass = 0.0;
    double phaseDensity = 200.0;
-   
+
    elementContainsHc = composition.sum () > HcConcentrationLowerLimit;
 
    if ( elementContainsHc ) {
@@ -2451,7 +2451,7 @@ void ExplicitMultiComponentFlowSolver::averageGlobalSaturation ( Subdomain& subd
 #if 0
    if ( elementContainsHc ) {
       cout << " estimated saturation " << estimatedSaturation << endl;
-   }   
+   }
 #endif
 
 }

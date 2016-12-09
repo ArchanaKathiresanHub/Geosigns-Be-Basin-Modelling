@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -27,7 +27,7 @@
 using namespace database;
 
 #include "layer_iterators.h"
-#include "milestones.h"  
+#include "milestones.h"
 #include "FissionTrackCalculator.h"
 
 #include "GeoPhysicalFunctions.h"
@@ -89,7 +89,7 @@ bool Elt2dIndices::onDomainBoundary ( const int boundaryNumber ) const {
 
 //------------------------------------------------------------//
 
-AppCtx::AppCtx(int argc, char** argv) : filterwizard(&timefilter) 
+AppCtx::AppCtx(int argc, char** argv) : filterwizard(&timefilter)
 {
    database = 0;
    timeIoTbl = 0;
@@ -161,12 +161,12 @@ bool AppCtx::readProjectName () {
    char dirExtension[MaxLineSize];
    dirExtension[0] = '\0';
 
-   PetscBool hasProject   = PETSC_FALSE; 
+   PetscBool hasProject   = PETSC_FALSE;
 
 
    PetscOptionsGetString (PETSC_NULL, "-project", fname, MaxLineSize, 0);
 
-   PetscOptionsHasName( PETSC_NULL, "-project", &hasProject ); 
+   PetscOptionsHasName( PETSC_NULL, "-project", &hasProject );
 
 
    projectFileReadOkay = projectFileReadOkay && setProjectFileName (fname);
@@ -199,16 +199,16 @@ bool AppCtx::readProjectFile () {
    setLayerData ();
 
 //    // Should this be called BEFORE ReadGridsFromFile::Read is called?
-//    // It probably does not matter because any error in the input that 
+//    // It probably does not matter because any error in the input that
 //    // occurs outside of the defined region (after this call) will not
 //    // be processed in the calculation.
 //    correctMissingDataMap ();
 
 //     projectSnapshots.setMinorSnapshotsPrescribed ( calculationMode == PRESSURED_TEMPERATURE_MODE );
 
-//     if ( calculationMode == OVERPRESSURE_MODE || 
-//          calculationMode == FULLY_COUPLED_MODE || 
-//          calculationMode == HYDROSTATIC_TEMPERATURE || 
+//     if ( calculationMode == OVERPRESSURE_MODE ||
+//          calculationMode == FULLY_COUPLED_MODE ||
+//          calculationMode == HYDROSTATIC_TEMPERATURE ||
 //          calculationmode == ) {
 //     }
 
@@ -221,7 +221,7 @@ bool AppCtx::readProjectFile () {
 //     } else if ( calculationMode == PRESSURED_TEMPERATURE ||
 //                 calculationMode == OVERPRESSURE_MODE ) {
 
-//       // Now that the set of major snapshot's has been assigned if there are no 
+//       // Now that the set of major snapshot's has been assigned if there are no
 //       // existing minorsnapshots then they must be computed.
 //       projectSnapshots.initialiseMinorSnapshotVector ();
 //     }
@@ -230,8 +230,8 @@ bool AppCtx::readProjectFile () {
 
    if (( DoOverPressure || Do_Iteratively_Coupled || ( !IsCalculationCoupled && DoTemperature ) || DoDecompaction )) {
 
-     // What can be deleted here? 
-     // Only if we are starting a new run (overpressure, hydrostatic-temperature, 
+     // What can be deleted here?
+     // Only if we are starting a new run (overpressure, hydrostatic-temperature,
      // pt-coupled or decompaction) can the minorsnapshot file be deleted.
 
      // Since we are starting a new calculation we can delete any minor snapshots from a previous overpressure or coupled run.
@@ -248,12 +248,12 @@ bool AppCtx::readProjectFile () {
      projectSnapshots.clearMinorSnapshots ();
    } else if ( not DoHighResDecompaction ) {
 
-     // Now that the set of major snapshot's has been assigned if there are no 
+     // Now that the set of major snapshot's has been assigned if there are no
      // existing minorsnapshots then they must be computed.
       projectSnapshots.initialiseMinorSnapshotVector ( FastcauldronSimulator::getInstance ().getMcfHandler ().solveFlowEquations ());
    }
 
-   // If we are not doing an iteratively coupled model then there is no 
+   // If we are not doing an iteratively coupled model then there is no
    // need for the advective/convective term, as the overpressure is zero.
    if ( includeAdvectiveTerm and ( not Do_Iteratively_Coupled and not IsCalculationCoupled )) {
      includeAdvectiveTerm = false;
@@ -264,10 +264,13 @@ bool AppCtx::readProjectFile () {
    // only guaranteed for sym +ve def systems.
    if ( includeAdvectiveTerm ) {
      Temperature_Linear_Solver_Type = KSPGMRES;
-     Temperature_GMRes_Restart      = 120;
    } else {
      Temperature_Linear_Solver_Type = KSPCG;
    }
+
+   // The restart value may be needed for both when the linear solver fails
+   // and when the advective term is enabled.
+   Temperature_GMRes_Restart      = 120;
 
    m_burialRateTimeStepping = FastcauldronSimulator::getInstance ().getRunParameters ()->useBurialRateTimeStepping ();
 
@@ -277,10 +280,10 @@ bool AppCtx::readProjectFile () {
       m_elementFraction = 1.0 / FastcauldronSimulator::getInstance ().getRunParameters ()->getSegmentFractionToBury ();
 
       if ( debug1 or verbose) {
-         PetscPrintf ( PETSC_COMM_WORLD, " Using burial rate for time-stepping, element fraction: %f.\n", m_elementFraction );        
+         PetscPrintf ( PETSC_COMM_WORLD, " Using burial rate for time-stepping, element fraction: %f.\n", m_elementFraction );
       }
 
-   } 
+   }
 
    return projectFileReadOkay;
 }
@@ -420,7 +423,7 @@ void AppCtx::restartPermafrost () {
 bool AppCtx::switchPermafrostTimeStep ( const double Current_Time ) {
 
   if( Current_Time == 0.0 ) {
-    // Restart permafrost index 
+    // Restart permafrost index
     restartPermafrost();
     return true;
   }
@@ -431,12 +434,12 @@ bool AppCtx::switchPermafrostTimeStep ( const double Current_Time ) {
          return false;
       }
       if( Current_Time <= m_permafrostAges[m_permafrostCurrentInd] ) {
-         // the next (or the first) permafrost age is reached => activate the next time step 
+         // the next (or the first) permafrost age is reached => activate the next time step
          m_permafrostTimeStep = ( m_fixedPermafrostTimeStep > 0 ? m_fixedPermafrostTimeStep : m_permafrostTimeSteps[m_permafrostCurrentInd] );
          -- m_permafrostCurrentInd;
-      } 
-   } 
-   // if all permafrost ages have been reached (m_permafrostAges[m_permafrostCurrentInd] = 0 (present day)), 
+      }
+   }
+   // if all permafrost ages have been reached (m_permafrostAges[m_permafrostCurrentInd] = 0 (present day)),
    // then continue with the last calculated time step = m_permafrostTimeStep until the present day
    return true;
 }
@@ -450,7 +453,7 @@ void AppCtx::adjustTimeStepToPermafrost ( const double Previous_Time, double & C
      if( Current_Time <= getNextPermafrostAge()) {
         const double nextPermafrostTimeStep = getNextPermafrostTimeStep();
         const double timeStepBack = ( Previous_Time - Current_Time ) - nextPermafrostTimeStep;
-        if( timeStepBack > 0.0001 ) {  
+        if( timeStepBack > 0.0001 ) {
            Current_Time = Current_Time + NumericFunctions::Minimum ( timeStepBack, nextPermafrostTimeStep );
        }
      }
@@ -461,7 +464,7 @@ void AppCtx::adjustTimeStepToPermafrost ( const double Previous_Time, double & C
 
 double AppCtx::getNextPermafrostTimeStep () const {
 
-   return ( m_fixedPermafrostTimeStep > 0 ? m_fixedPermafrostTimeStep : 
+   return ( m_fixedPermafrostTimeStep > 0 ? m_fixedPermafrostTimeStep :
             ( m_permafrostTimeSteps.size() != 0 ? m_permafrostTimeSteps[m_permafrostCurrentInd] : 0.0 ));
 
 }
@@ -559,7 +562,7 @@ void AppCtx::printHelp () const {
   helpBuffer << "    -temisviscosity             Use the TemisPack brine-viscosity function." << endl;
   helpBuffer << "    -refinenamedforms <form1,ref1,form2,ref2,...>" << endl
              << "                                Refine a selected set of the formations, formations are indicated by name, ref_i > 0." << endl;
-  helpBuffer << "    -refinenumberedforms <form1,ref1,form2,ref2,...>" << endl 
+  helpBuffer << "    -refinenumberedforms <form1,ref1,form2,ref2,...>" << endl
              << "                                Refine a selected set of the formations, formations are indicated by position from top, ref_i > 0." << endl;
   helpBuffer << "    -fcvesscale <val>           VES scaling factor when initialising the solid-thicknesses in the geometric loop pressure calculation, default value is " << DefaultVesScalingForFctInitialisation << endl;
   helpBuffer << "    -fcctmodel <n>              Set the crust-thinning model, default = 1." << endl;
@@ -594,9 +597,9 @@ void AppCtx::printHelp () const {
   helpBuffer << "    -fixts <ts>                 Fix the time-step size, ts > 0.0." << endl;
   helpBuffer << "    -cflts                      Use the CFL condition for the time-stepping." << endl;
   helpBuffer << "    -brts                       Use the burial rate to control the time-stepping." << endl;
-  helpBuffer << "    -brfrac <frac>              Fraction of element to bury to control the time-stepping, default is " 
+  helpBuffer << "    -brfrac <frac>              Fraction of element to bury to control the time-stepping, default is "
              << DefaultElementBurialFraction << ", must be use in combination with -brts." << endl;
-  helpBuffer << "    -erfrac <frac>              Fraction of element to erode to control the time-stepping, default is " 
+  helpBuffer << "    -erfrac <frac>              Fraction of element to erode to control the time-stepping, default is "
              << DefaultElementBurialFraction << ", must be use in combination with -brts." << endl;
   helpBuffer << "                                If -brfrac is specified and not -erfrac, the -brfrac value will be used." << endl;
 
@@ -645,7 +648,7 @@ void AppCtx::printHelp () const {
 
 }
 
-#undef __FUNCT__  
+#undef __FUNCT__
 #define __FUNCT__ "AppCtx::getCommandLineOptions"
 
 bool AppCtx::getCommandLineOptions() {
@@ -654,8 +657,8 @@ bool AppCtx::getCommandLineOptions() {
 
   PetscBool Use_Non_Geometric_Loop = PETSC_FALSE;
 
-  PetscBool ShowHelp   = PETSC_FALSE; 
-  PetscBool MapType    = PETSC_FALSE; 
+  PetscBool ShowHelp   = PETSC_FALSE;
+  PetscBool MapType    = PETSC_FALSE;
   PetscBool VolumeType = PETSC_FALSE;
   PetscBool Dummy      = PETSC_FALSE;
   PetscBool outputNotRequired = PETSC_FALSE;
@@ -728,7 +731,7 @@ bool AppCtx::getCommandLineOptions() {
   if( bottomBasaltTemp ) {
      PetscPrintf ( PETSC_COMM_WORLD, "Turning on basalt temperature in the lower elements only!" );
   }
- 
+
 //   PetscOptionsHasName ( PETSC_NULL, "-no3doutput",&threeDoutputNotRequired ); CHKERRQ(ierr);
 //   PetscOptionsHasName ( PETSC_NULL, "-no2doutput",&twoDoutputNotRequired ); CHKERRQ(ierr);
 
@@ -773,7 +776,7 @@ bool AppCtx::getCommandLineOptions() {
 
   //
   //
-  // Using geometric loop will be the default, so a -ngl argument must be 
+  // Using geometric loop will be the default, so a -ngl argument must be
   // passed to fastcauldron for running pressure using the non geometric loop
   // option. To make things slightly easier to read (and understand) we use
   // the "positive" Use_Geometric_Loop variable.
@@ -787,17 +790,17 @@ bool AppCtx::getCommandLineOptions() {
 
   //
   //
-  // Is it worth having parameters to control the Newton solver parameters: tolerance, minimum number of iterations, 
+  // Is it worth having parameters to control the Newton solver parameters: tolerance, minimum number of iterations,
   // initial jacobian iterations, compute-jacobian-every-n iterations, maximum number of iterations. And the thickness
   // tolerance.
-  // 
-  //  -fc_newt_tol 
+  //
+  //  -fc_newt_tol
   //  -fc_newt_min_its
   //  -fc_newt_max_its
   //  -fc_newt_init_jac_its
   //  -fc_newt_jac_every_nits
   //  -fc_thick_tol
-  // 
+  //
 
   Output_Level_Str [0] = '\0';
 
@@ -873,7 +876,7 @@ void AppCtx::setAdditionalCommandLineParameters () {
    PetscBool mantleElementScalingChanged = PETSC_FALSE;
    double     mantleElementScaling;
 
- 
+
    PetscOptionsGetString (PETSC_NULL, "-lateralstress", lateralStressFileName, MaxLineSize, &hasLateralStressFile );
    PetscOptionsGetInt  ( PETSC_NULL, "-pressplanequadrature", &pressurePlaneDegree, &pressurePlaneDegreeChanged );
    PetscOptionsGetInt  ( PETSC_NULL, "-pressdepthquadrature", &pressureDepthDegree, &pressureDepthDegreeChanged );
@@ -889,16 +892,16 @@ void AppCtx::setAdditionalCommandLineParameters () {
    PetscOptionsGetReal ( PETSC_NULL, "-mints", &newMinimumTimeStep, &minimumTimeStepChanged );
    PetscOptionsGetReal ( PETSC_NULL, "-maxts", &newMaximumTimeStep, &maximumTimeStepChanged );
    PetscOptionsGetReal ( PETSC_NULL, "-fixts", &newFixedTimeStep, &fixedTimeStepChanged );
-   PetscOptionsHasName ( PETSC_NULL, "-cflts", &petscCflTimeStepping ); 
-   PetscOptionsHasName ( PETSC_NULL, "-brts", &petscBurialRateTimeStepping ); 
-   PetscOptionsGetReal ( PETSC_NULL, "-brfrac", &elementFraction, &petscBurialRateFraction ); 
-   PetscOptionsGetReal ( PETSC_NULL, "-erfrac", &elementErosionFraction, &petscErosionRateFraction ); 
-   PetscOptionsGetReal ( PETSC_NULL, "-fcvesscale", &vesScale, &vesScaleChanged ); 
-   PetscOptionsGetInt  ( PETSC_NULL, "-fcctmodel", &crustThinningModel, &crustThinningModelChanged ); 
-   PetscOptionsGetReal ( PETSC_NULL, "-fcinfmantscal", &mantleElementScaling, &mantleElementScalingChanged ); 
+   PetscOptionsHasName ( PETSC_NULL, "-cflts", &petscCflTimeStepping );
+   PetscOptionsHasName ( PETSC_NULL, "-brts", &petscBurialRateTimeStepping );
+   PetscOptionsGetReal ( PETSC_NULL, "-brfrac", &elementFraction, &petscBurialRateFraction );
+   PetscOptionsGetReal ( PETSC_NULL, "-erfrac", &elementErosionFraction, &petscErosionRateFraction );
+   PetscOptionsGetReal ( PETSC_NULL, "-fcvesscale", &vesScale, &vesScaleChanged );
+   PetscOptionsGetInt  ( PETSC_NULL, "-fcctmodel", &crustThinningModel, &crustThinningModelChanged );
+   PetscOptionsGetReal ( PETSC_NULL, "-fcinfmantscal", &mantleElementScaling, &mantleElementScalingChanged );
 
-   PetscOptionsHasName ( PETSC_NULL, "-permafrost", &petscPermafrost ); 
-   PetscOptionsGetReal ( PETSC_NULL, "-permafrost", &m_fixedPermafrostTimeStep, &petscPermafrostTimeStep ); 
+   PetscOptionsHasName ( PETSC_NULL, "-permafrost", &petscPermafrost );
+   PetscOptionsGetReal ( PETSC_NULL, "-permafrost", &m_fixedPermafrostTimeStep, &petscPermafrostTimeStep );
 
   if ( petscBurialRateTimeStepping ) {
      m_burialRateTimeStepping = bool ( petscBurialRateTimeStepping );
@@ -934,11 +937,11 @@ void AppCtx::setAdditionalCommandLineParameters () {
         m_crustThinningModel = crustThinningModel;
 
         if ( debug1 || verbose ) {
-           PetscPrintf ( PETSC_COMM_WORLD, " Using crust thinning model: %i\n", m_crustThinningModel );        
+           PetscPrintf ( PETSC_COMM_WORLD, " Using crust thinning model: %i\n", m_crustThinningModel );
         }
 
      } else {
-        PetscPrintf ( PETSC_COMM_WORLD, " MeSsAgE WARNING Crust thinning model, %i, is not known, setting to defualt, 1. Allowable values are: 1, 2, 3.\n", crustThinningModel );        
+        PetscPrintf ( PETSC_COMM_WORLD, " MeSsAgE WARNING Crust thinning model, %i, is not known, setting to defualt, 1. Allowable values are: 1, 2, 3.\n", crustThinningModel );
         m_crustThinningModel = DefaultCrustThinningModel;
      }
 
@@ -1132,12 +1135,12 @@ void AppCtx::setAdditionalCommandLineParameters () {
   if( petscPermafrost ) {
      if( ! FastcauldronSimulator::getInstance ().getPermafrost() ) {
         FastcauldronSimulator::getInstance ().setPermafrost ( bool( petscPermafrost ));
-        
+
 
         if( FastcauldronSimulator::getInstance ().determinePermafrost(  m_permafrostTimeSteps, m_permafrostAges )) {
 
            setPermafrost();
-           PetscPrintf ( PETSC_COMM_WORLD, "Permafrost is on.\n"); 
+           PetscPrintf ( PETSC_COMM_WORLD, "Permafrost is on.\n");
         }
      }
      if( petscPermafrostTimeStep && FastcauldronSimulator::getInstance ().getPermafrost() ) {
@@ -1158,7 +1161,7 @@ void AppCtx::computeLowPermeabilitySubdomains ( const double lowPermeability ) {
    for ( i = 0; i < layers.size () - 2; ++i ) {
       perm = layers [ i ]->estimateStandardPermeability ();
       cout << " Layer " << layers [ i ]->layername << " has perm " << perm << endl;
-   } 
+   }
 
 }
 
@@ -1217,7 +1220,7 @@ void AppCtx::setParametersFromEnvironment () {
                     chemicalCompactionVesValue );
       PetscPrintf ( PETSC_COMM_WORLD,
                     " MeSsAgE WARNING  Chemical compaction will not be affected by the environment variable.\n" );
-    } else {    
+    } else {
       chemicalCompactionVesValueWellDefined = (( strEnd == 0 ) or ( strlen ( strEnd ) == 0 ));
 
       if ( chemicalCompactionVesValueWellDefined ) {
@@ -1255,7 +1258,7 @@ void AppCtx::setParametersFromEnvironment () {
 
 //------------------------------------------------------------//
 
-#undef __FUNCT__  
+#undef __FUNCT__
 #define __FUNCT__ "AppCtx::setProjectFileName"
 
 bool AppCtx::setProjectFileName(const string& projectFileName) {
@@ -1268,7 +1271,7 @@ bool AppCtx::setProjectFileName(const string& projectFileName) {
     PetscPrintf( PETSC_COMM_WORLD, " MeSsAgE ERROR project file name is empty. \n");
     returnStatus = false;
   } else if ( ! File_Exists ( projectFileName )) {
-    PetscPrintf( PETSC_COMM_WORLD, " MeSsAgE ERROR project file '%s' does not exist. \n", 
+    PetscPrintf( PETSC_COMM_WORLD, " MeSsAgE ERROR project file '%s' does not exist. \n",
                  projectFileName.c_str ());
     returnStatus = false;
   } else {
@@ -1278,7 +1281,7 @@ bool AppCtx::setProjectFileName(const string& projectFileName) {
   return returnStatus;
 }
 
-#undef __FUNCT__  
+#undef __FUNCT__
 #define __FUNCT__ "AppCtx::setFastCauldronProjectFileName"
 
 void AppCtx::setFastCauldronProjectFileName(string projectName)
@@ -1304,7 +1307,7 @@ string AppCtx::Get_Project_Filename_Base ( )
 }
 
 
-#undef __FUNCT__  
+#undef __FUNCT__
 #define __FUNCT__ "AppCtx::getOutputDirectory"
 
 string AppCtx::getOutputDirectory ()
@@ -1312,7 +1315,7 @@ string AppCtx::getOutputDirectory ()
    return ibs::FolderPath( FastcauldronSimulator::getInstance ().getFullOutputDir () ).path();
 }
 
-#undef __FUNCT__  
+#undef __FUNCT__
 #define __FUNCT__ "AppCtx::getOutputPath"
 
 string AppCtx::getOutputPath ()
@@ -1320,7 +1323,7 @@ string AppCtx::getOutputPath ()
    return ibs::FolderPath( FastcauldronSimulator::getInstance ().getOutputDir () ).path();
 }
 
-#undef __FUNCT__  
+#undef __FUNCT__
 #define __FUNCT__ "AppCtx::makeOutputDirectory"
 
 bool AppCtx::makeOutputDirectory ()
@@ -1329,7 +1332,7 @@ bool AppCtx::makeOutputDirectory ()
 }
 
 
-#undef __FUNCT__  
+#undef __FUNCT__
 #define __FUNCT__ "AppCtx::openProject"
 
 bool AppCtx::openProject ()
@@ -1378,7 +1381,7 @@ void AppCtx::setRelatedProject ( const int indexI, const int indexJ ) {
       project1D->Name = "from command line index_"  + IntegerToString ( indexI ) + "  " + IntegerToString ( indexJ );
       Related_Projects.push_back ( project1D );
    }
-   
+
 }
 
 void AppCtx::setRelatedProject ( const double locationX, const double locationY ) {
@@ -1391,7 +1394,7 @@ void AppCtx::setRelatedProject ( const double locationX, const double locationY 
    project1D->Y_Coord = locationY;
    project1D->Name = "from command line point_"  + IntegerToString ( int ( project1D->X_Coord )) + "  " + IntegerToString ( int ( project1D->Y_Coord ));
    Related_Projects.push_back ( project1D );
-   
+
 }
 
 
@@ -1535,9 +1538,9 @@ void AppCtx::setValidNodeArray () {
          }
 
       }
-  
+
    }
-   
+
    if ( debug1 ) {
       PetscPrintf(PETSC_COMM_WORLD, " DONE\n");
    }
@@ -1570,7 +1573,7 @@ void AppCtx::shareValidNeedleData () {
 
    }
 
-   definedNode.Restore_Global_Array ( Update_Including_Ghosts );  
+   definedNode.Restore_Global_Array ( Update_Including_Ghosts );
 
    definedNode.Set_Global_Array ( *mapDA, definedNodeVec, INSERT_VALUES, IncludeGhostValues );
 
@@ -1616,7 +1619,7 @@ void AppCtx::printValidNeedles () const {
             }
 
             buffer << endl;
-         } 
+         }
 
          buffer << endl;
          cout << buffer.str () << endl;
@@ -1657,7 +1660,7 @@ void AppCtx::printValidNeedles () const {
    //          }
 
    //          buffer << endl;
-   //       } 
+   //       }
 
    //       buffer << endl;
    //       cout << buffer.str () << endl;
@@ -1669,7 +1672,7 @@ void AppCtx::printValidNeedles () const {
 
 }
 
-#undef __FUNCT__  
+#undef __FUNCT__
 #define __FUNCT__ "AppCtx::Get_FCT_Correction"
 bool AppCtx::Get_FCT_Correction () {
 
@@ -1678,7 +1681,7 @@ bool AppCtx::Get_FCT_Correction () {
    }
 
    if ( currentCalculationMode != OVERPRESSURED_TEMPERATURE_MODE and
-        currentCalculationMode != COUPLED_HIGH_RES_DECOMPACTION_MODE and 
+        currentCalculationMode != COUPLED_HIGH_RES_DECOMPACTION_MODE and
         not readFCTCorrectionFactor ) {
       return true;
    }
@@ -1717,20 +1720,20 @@ void AppCtx::Print_Nodes_Value_From_Polyfunction( ) {
   Layers.Initialise_Iterator ( layers, Ascending, Sediments_Only, Active_And_Inactive_Layers );
 
   while ( ! Layers.Iteration_Is_Done () ) {
-    
+
     Current_Layer = Layers.Current_Layer ();
-    
+
     NZ = Current_Layer -> getMaximumNumberOfElements ();
 
     cout << endl;
     cout << Current_Layer->layername << endl;
     cout << endl;
 
-    for ( IX = XS; IX < XS + NX; IX++ ) 
+    for ( IX = XS; IX < XS + NX; IX++ )
     {
-      for ( IY = YS; IY < YS + NY; IY++ ) 
+      for ( IY = YS; IY < YS + NY; IY++ )
       {
-	for ( IZ = 0; IZ < NZ; IZ++ ) 
+	for ( IZ = 0; IZ < NZ; IZ++ )
 	{
 	  cout << endl << "RT [" << IX << "," << IY << "," << IZ << "]" << endl;
 	  Current_Layer -> getRealThickness ( IX, IY, IZ ).printPoints();
@@ -1739,7 +1742,7 @@ void AppCtx::Print_Nodes_Value_From_Polyfunction( ) {
     }
     Layers++;
   }
-  
+
 }
 
 
@@ -1886,7 +1889,7 @@ void AppCtx::deleteMinorSnapshotsFromTimeIOTable ( const snapshottimeContainer& 
 //------------------------------------------------------------//
 
 
-#undef __FUNCT__  
+#undef __FUNCT__
 #define __FUNCT__ "AppCtx::interpolateProperty"
 
 void AppCtx::interpolateProperty ( const double       currentTime,
@@ -1894,7 +1897,7 @@ void AppCtx::interpolateProperty ( const double       currentTime,
 
    Layer_Iterator basinLayers;
    basinLayers.Initialise_Iterator ( layers, Ascending, Sediments_Only, Active_Layers_Only );
-    
+
    while ( ! basinLayers.Iteration_Is_Done ()) {
       basinLayers.Current_Layer ()->interpolateProperty ( this, currentTime, bool ( DoHighResDecompaction ), property );
       basinLayers++;
@@ -1905,7 +1908,7 @@ void AppCtx::interpolateProperty ( const double       currentTime,
 //------------------------------------------------------------//
 
 
-#undef __FUNCT__  
+#undef __FUNCT__
 #define __FUNCT__ "AppCtx::calcNodeVes"
 
 bool AppCtx::calcNodeVes( const double time ) {
@@ -1921,7 +1924,7 @@ bool AppCtx::calcNodeVes( const double time ) {
   Layer_Iterator Layers;
 
 
-  if ( IsCalculationCoupled ) 
+  if ( IsCalculationCoupled )
   {
     interpolateProperty ( time, VES );
     return true;
@@ -1930,30 +1933,30 @@ bool AppCtx::calcNodeVes( const double time ) {
   Layers.Initialise_Iterator ( layers, Descending, Sediments_Only, Active_Layers_Only );
 
   while ( ! Layers.Iteration_Is_Done () ) {
-    
+
     Current_Layer = Layers.Current_Layer ();
-    
-    DMDAGetCorners( Current_Layer -> layerDA, &xs, &ys, &zs, &xm, &ym, &zm ); 
-    
+
+    DMDAGetCorners( Current_Layer -> layerDA, &xs, &ys, &zs, &xm, &ym, &zm );
+
     int Top_Z_Index = zm - 1;
-    
+
     PETSC_3D_Array ves ( Current_Layer->layerDA, Current_Layer->Current_Properties ( Basin_Modelling::VES_FP ));
-    
-    if ( firstpass ) 
+
+    if ( firstpass )
     {
       prev = Array<double>::create2d(xm,ym);
     }
-    
-    for ( i = xs; i < ( xs + xm ); i++) 
+
+    for ( i = xs; i < ( xs + xm ); i++)
     {
-      for ( j = ys; j < ( ys + ym ); j++) 
+      for ( j = ys; j < ( ys + ym ); j++)
       {
 
          if ( not nodeIsDefined ( i, j )) continue;
 
 	ix = i - xs; iy = j - ys;
-	
-	// Set the Top Surface Ves to Zero ( FirstPass = true ) 
+
+	// Set the Top Surface Ves to Zero ( FirstPass = true )
 	//or Copy Ves from Bottom Surface of Above Layer
 	ves( Top_Z_Index,j,i ) = firstpass ? 0.0 : prev[ix][iy];
 
@@ -2001,20 +2004,20 @@ bool AppCtx::calcNodeVes( const double time ) {
           }
        }
     }
-    
+
     // Store bottom values
-    for ( i = xs; i < ( xs + xm ); i++) 
+    for ( i = xs; i < ( xs + xm ); i++)
     {
-      for ( j = ys; j < ( ys + ym ); j++) 
+      for ( j = ys; j < ( ys + ym ); j++)
       {
          if ( not nodeIsDefined ( i, j )) continue;
 
 	ix = i - xs; iy = j - ys;
-	
+
 	prev[ix][iy] = ves( 0,j,i );
       }
     }
-   
+
     Layers++;
   }
 
@@ -2036,7 +2039,7 @@ bool AppCtx::calcNodeMaxVes( const double time ) {
   LayerProps_Ptr Current_Layer;
   Layer_Iterator Layers;
 
-  if ( IsCalculationCoupled ) 
+  if ( IsCalculationCoupled )
   {
     interpolateProperty ( time, MAXVES );
     return true;
@@ -2045,54 +2048,54 @@ bool AppCtx::calcNodeMaxVes( const double time ) {
   Layers.Initialise_Iterator ( layers, Ascending, Sediments_Only, Active_Layers_Only );
 
   while ( ! Layers.Iteration_Is_Done () ) {
-    
+
     Current_Layer = Layers.Current_Layer ();
-    
-    DMDAGetCorners( Current_Layer -> layerDA, &xs, &ys, &zs, &xm, &ym, &zm ); 
-    
+
+    DMDAGetCorners( Current_Layer -> layerDA, &xs, &ys, &zs, &xm, &ym, &zm );
+
     PETSC_3D_Array ves     ( Current_Layer->layerDA, Current_Layer->Current_Properties ( Basin_Modelling::VES_FP ));
     PETSC_3D_Array max_ves ( Current_Layer->layerDA, Current_Layer->Current_Properties ( Basin_Modelling::Max_VES ));
 
     // Set the rest of the values
-    for ( i = xs; i < ( xs + xm ); i++) 
+    for ( i = xs; i < ( xs + xm ); i++)
     {
-      for ( j = ys; j < ( ys + ym ); j++) 
+      for ( j = ys; j < ( ys + ym ); j++)
       {
 
          if ( not nodeIsDefined ( i, j )) continue;
-	
+
 	Density_Difference = Current_Layer -> calcDiffDensity( i,j );
-	
-	for ( k = 0; k < ( zs + zm ); k++) 
+
+	for ( k = 0; k < ( zs + zm ); k++)
 	{
-	  if ( k == 0 ) 
+	  if ( k == 0 )
 	  {
 	    Max_Ves = PetscMax( ves( 0,j,i ) , max_ves( 0,j,i ) );
 	    max_ves( 0,j,i ) = Max_Ves;
 	    continue;
 	  }
-	  
+
 	  Segment_May_Be_Eroding = Current_Layer->getSolidThickness ( i, j, k - 1 ).descending ( time );
 
-	  if ( ves( k,j,i ) < 50.0 && Segment_May_Be_Eroding ) 
+	  if ( ves( k,j,i ) < 50.0 && Segment_May_Be_Eroding )
 	  {
 	    dVes = AccelerationDueToGravity * Density_Difference * Current_Layer->getSolidThickness ( i, j, k - 1, time);
 	    Max_Ves = max_ves( k-1,j,i ) - dVes;
 	    Max_Ves = PetscMax( Max_Ves , ves( k,j,i ) );
 	    Max_Ves = PetscMax( Max_Ves , max_ves( k,j,i ) );
-	  } 
-	  else 
+	  }
+	  else
 	  {
 	    Max_Ves = PetscMax( ves( k,j,i ) , max_ves( k,j,i ) );
 	  }
-	  
+
 	  max_ves( k,j,i ) = Max_Ves;
-	  
+
 
 	}
       }
     }
-    
+
     Layers++;
   }
 
@@ -2105,7 +2108,7 @@ bool AppCtx::calcPorosities( const double time ) {
   int            i, j, k;
   int            xs, ys, zs;
   int            xm, ym, zm;
-  
+
 
   bool Include_Chemical_Compaction;
 
@@ -2115,28 +2118,28 @@ bool AppCtx::calcPorosities( const double time ) {
   Layers.Initialise_Iterator ( layers, Descending, Sediments_Only, Active_Layers_Only );
 
   while ( ! Layers.Iteration_Is_Done () ) {
-    
+
     Current_Layer = Layers.Current_Layer ();
 
     Include_Chemical_Compaction = Do_Chemical_Compaction && ( Current_Layer -> Get_Chemical_Compaction_Mode ());
 
-    DMDAGetCorners( Current_Layer -> layerDA, &xs, &ys, &zs, &xm, &ym, &zm ); 
-    
+    DMDAGetCorners( Current_Layer -> layerDA, &xs, &ys, &zs, &xm, &ym, &zm );
+
     PETSC_3D_Array porosity( Current_Layer -> layerDA, Current_Layer -> Porosity );
 
     PETSC_3D_Array ves                 ( Current_Layer->layerDA, Current_Layer->Current_Properties ( Basin_Modelling::VES_FP ));
     PETSC_3D_Array max_ves             ( Current_Layer->layerDA, Current_Layer->Current_Properties ( Basin_Modelling::Max_VES ));
     PETSC_3D_Array Chemical_Compaction ( Current_Layer->layerDA, Current_Layer->Current_Properties ( Basin_Modelling::Chemical_Compaction ));
 
-    for ( i = xs; i < ( xs + xm ); i++) 
+    for ( i = xs; i < ( xs + xm ); i++)
     {
-      for ( j = ys; j < ( ys + ym ); j++) 
+      for ( j = ys; j < ( ys + ym ); j++)
       {
 
-	for ( k = zs; k < ( zs + zm ); k++) 
+	for ( k = zs; k < ( zs + zm ); k++)
 	{
 
-          if ( not nodeIsDefined ( i, j )) 
+          if ( not nodeIsDefined ( i, j ))
 	  {
 	    porosity( k,j,i ) = CauldronNoDataValue;
 	    continue;
@@ -2154,7 +2157,7 @@ bool AppCtx::calcPorosities( const double time ) {
 	}
       }
     }
-   
+
     Layers++;
   }
 
@@ -2168,7 +2171,7 @@ bool AppCtx::Calculate_Pressure( const double time ) {
   int ix, iy;
   int xs, ys, zs;
   int xm, ym, zm;
-  
+
   int Top_Z_Node_Index;
 
   double seaBottomDepth;
@@ -2185,7 +2188,7 @@ bool AppCtx::Calculate_Pressure( const double time ) {
 
   double Solid_Thickness;
   double Segment_Thickness;
-  
+
   bool   firstpass   = true;
   double **surface_sea_bottom_depth = NULL;
   double **surface_temperature      = NULL;
@@ -2200,7 +2203,7 @@ bool AppCtx::Calculate_Pressure( const double time ) {
   Layers.Initialise_Iterator ( layers, Descending, Sediments_Only, Active_Layers_Only );
 
   while ( ! Layers.Iteration_Is_Done () ) {
-    
+
     Current_Layer = Layers.Current_Layer ();
 
     if ( Current_Layer -> fluid == 0 )
@@ -2208,8 +2211,8 @@ bool AppCtx::Calculate_Pressure( const double time ) {
        cout << "Lithology has no fluid..." << Current_Layer->layername << endl;
     }
 
-    DMDAGetCorners( Current_Layer -> layerDA, &xs, &ys, &zs, &xm, &ym, &zm ); 
-    
+    DMDAGetCorners( Current_Layer -> layerDA, &xs, &ys, &zs, &xm, &ym, &zm );
+
     PETSC_3D_Array depth           ( Current_Layer->layerDA, Current_Layer->Current_Properties ( Basin_Modelling::Depth ));
     PETSC_3D_Array temperature     ( Current_Layer->layerDA, Current_Layer->Current_Properties ( Basin_Modelling::Temperature ));
     PETSC_3D_Array ves             ( Current_Layer->layerDA, Current_Layer->Current_Properties ( Basin_Modelling::VES_FP ));
@@ -2220,24 +2223,24 @@ bool AppCtx::Calculate_Pressure( const double time ) {
 
     Top_Z_Node_Index = zm - 1;
 
-    if ( firstpass ) 
+    if ( firstpass )
     {
       surface_sea_bottom_depth = Array<double>::create2d( xm,ym );
       surface_temperature      = Array<double>::create2d( xm,ym );
-      
+
       previous_hydro_pressure  = Array<double>::create2d( xm,ym );
       previous_litho_pressure  = Array<double>::create2d( xm,ym );
       previous_fluid_pressure  = Array<double>::create2d( xm,ym );
       previous_excess_pressure = Array<double>::create2d( xm,ym );
 
-      for ( i = xs; i < ( xs + xm ); i++ ) 
+      for ( i = xs; i < ( xs + xm ); i++ )
       {
-	for ( j = ys; j < ( ys + ym ); j++ ) 
+	for ( j = ys; j < ( ys + ym ); j++ )
 	{
           if ( not nodeIsDefined ( i, j )) continue;
-	  
+
 	  ix = i - xs; iy = j - ys;
-	  
+
 	  seaBottomDepth = depth( Top_Z_Node_Index,j,i );
 	  surface_sea_bottom_depth[ ix ][ iy ] = seaBottomDepth;
 	  surface_temperature[ ix ][ iy ] = FastcauldronSimulator::getInstance ().getSeaBottomTemperature ( i, j, time );
@@ -2249,47 +2252,47 @@ bool AppCtx::Calculate_Pressure( const double time ) {
 	  fluid_pressure( Top_Z_Node_Index,j,i ) = Hydrostatic_Pressure;
 	  excess_pressure( Top_Z_Node_Index,j,i ) = 0.0;
 
-	  
+
 	}
 
       }
-      
+
       firstpass = false;
-      
-    } 
-    else 
+
+    }
+    else
     {
-      for ( i = xs; i < ( xs + xm ); i++ ) 
+      for ( i = xs; i < ( xs + xm ); i++ )
       {
-	for ( j = ys; j < ( ys + ym ); j++ ) 
+	for ( j = ys; j < ( ys + ym ); j++ )
 	{
           if ( not nodeIsDefined ( i, j )) continue;
-	  
+
 	  ix = i - xs; iy = j - ys;
-	  
+
 	  hydro_pressure( Top_Z_Node_Index,j,i ) = previous_hydro_pressure[ ix ][ iy ];
 	  litho_pressure( Top_Z_Node_Index,j,i ) = previous_litho_pressure[ ix ][ iy ];
 	  fluid_pressure( Top_Z_Node_Index,j,i ) = previous_fluid_pressure[ ix ][ iy ];
 	  excess_pressure( Top_Z_Node_Index,j,i ) = previous_excess_pressure[ ix ][ iy ];
-	  
+
 	}
       }
     }
 
-    for ( i = xs; i < ( xs + xm ); i++) 
+    for ( i = xs; i < ( xs + xm ); i++)
     {
-      for ( j = ys; j < ( ys + ym ); j++) 
+      for ( j = ys; j < ( ys + ym ); j++)
       {
 
          if ( not nodeIsDefined ( i, j )) continue;
 
 	ix = i - xs; iy = j - ys;
-	
+
 	Solid_Density = Current_Layer->getLithology ( i,j )->density();
    // Determine if the permafrost switch is on
    bool switchPermafrost = Current_Layer->fluid->SwitchPermafrost( );
 
-	for ( k = ( Top_Z_Node_Index - 1 ); k >= 0; k-- ) 
+	for ( k = ( Top_Z_Node_Index - 1 ); k >= 0; k-- )
 	{
 
 	  k_top = k + 1;
@@ -2310,7 +2313,7 @@ bool AppCtx::Calculate_Pressure( const double time ) {
           Temperature = temperature ( k, j, i );
 
           if ( Temperature == CauldronNoDataValue || Temperature == IbsNoDataValue ) {
-            Temperature = Estimate_Temperature_At_Depth( depth( k_top,j,i ), 
+            Temperature = Estimate_Temperature_At_Depth( depth( k_top,j,i ),
                                                          surface_temperature[ix][iy],
                                                          surface_sea_bottom_depth[ix][iy] );
           }
@@ -2354,10 +2357,10 @@ bool AppCtx::Calculate_Pressure( const double time ) {
 
      if (std::isnan( Lithostatic_Pressure ))
 	  {
-             cout << "Error lithostatic ... " 
+             cout << "Error lithostatic ... "
                   << Lithostatic_Pressure << "  "
-                  << litho_pressure( k_top,j,i ) << "  " 
-                  << Segment_Thickness << "  " 
+                  << litho_pressure( k_top,j,i ) << "  "
+                  << Segment_Thickness << "  "
                   << Solid_Thickness << "  "
                   << Fluid_Density << "  "
                   << Solid_Density
@@ -2381,11 +2384,11 @@ bool AppCtx::Calculate_Pressure( const double time ) {
 	  excess_pressure( k,j,i ) = Excess_Pressure;
 
 	}
-	
+
       }
     }
-    
-    for ( i = xs; i < ( xs + xm ); i++ ) 
+
+    for ( i = xs; i < ( xs + xm ); i++ )
     {
       for ( j = ys; j < ( ys + ym ); j++ )
       {
@@ -2432,7 +2435,7 @@ bool AppCtx::Calculate_Pressure( const double time ) {
 
 
 
-double AppCtx::Estimate_Temperature_At_Depth( const double Node_Depth, 
+double AppCtx::Estimate_Temperature_At_Depth( const double Node_Depth,
 					      const double Surface_Temperature,
 					      const double Surface_Sea_Bottom_Depth ) {
 
@@ -2442,23 +2445,23 @@ double AppCtx::Estimate_Temperature_At_Depth( const double Node_Depth,
 
   Real_Depth = Node_Depth - Surface_Sea_Bottom_Depth;
 
-  if ( Real_Depth <= 0.0 ) 
+  if ( Real_Depth <= 0.0 )
   {
     Estimated_Temperature = Surface_Temperature;
-  } 
-  else 
+  }
+  else
   {
     Estimated_Temperature = Surface_Temperature + Real_Depth * Temperature_Gradient;
   }
 
 #if 0
-  if ( Estimated_Temperature > 512.0 ) 
+  if ( Estimated_Temperature > 512.0 )
   {
     cout << "Error...." << Node_Depth << "  " << Surface_Temperature << "  " << Surface_Sea_Bottom_Depth << endl;
   }
 #endif
 
-  return Estimated_Temperature;  
+  return Estimated_Temperature;
 }
 
 
@@ -2479,8 +2482,8 @@ void AppCtx::setInitialTimeStep () {
    // // The minimum time it takes for a single element to be fully deposited in the mesh
    // double minimumElementDepositionPeriod = 1000.0;
 
-   // The rate at which ELEMENTS are deposited in the layer. The number of elements 
-   // in the layer is fixed (depends only on present day thickness). The number of 
+   // The rate at which ELEMENTS are deposited in the layer. The number of elements
+   // in the layer is fixed (depends only on present day thickness). The number of
    // elements is independant of the porosity change as the layer is deposited.
    double layerElementDepositionPeriod;
 
@@ -2506,7 +2509,7 @@ void AppCtx::setInitialTimeStep () {
 
       LayerProps* formation = layers [ i ];
 
-      // The time it takes for a single element in the layer to be fully deposited 
+      // The time it takes for a single element in the layer to be fully deposited
       if ( layers [ i ]->getMaximumNumberOfElements () > 0 ) {
 
          if ( formation->getMinimumThickness () >= 0.0 and formation->getMaximumThickness () > 0.0 ) {
@@ -2580,9 +2583,9 @@ const LayerProps* AppCtx::findDepositingLayer ( const double time ) const {
 
       if ( layers [ i ]->depoage <= time and time <= layers [ i + 1 ]->depoage ) {
          return layers [ i ];
-      } 
+      }
 
-   } 
+   }
 
    return 0;
 }
@@ -2602,7 +2605,7 @@ double AppCtx::getInitialTimeStep ( const double currentTime ) const {
       deltaT = layerTs->second;
    } else {
       deltaT = timestepsize;
-   } 
+   }
 
 #if 0
    deltaT = NumericFunctions::Maximum ( deltaT, minimumTimeStep ());
@@ -2627,7 +2630,7 @@ bool AppCtx::setNodeDepths ( const double time ) {
   int            i, j, k;
   int            xs, ys, zs;
   int            xm, ym, zm;
-    
+
   double**       topDepths = 0;
 
   const double presentDayMantleThickness     = FastcauldronSimulator::getInstance ().getMantleFormation ()->getPresentDayThickness ();
@@ -2641,19 +2644,19 @@ bool AppCtx::setNodeDepths ( const double time ) {
   basinLayers.Initialise_Iterator ( layers, Descending, Basement_And_Sediments, Active_Layers_Only );
 
   while ( ! basinLayers.Iteration_Is_Done () ) {
-    
+
     currentLayer = basinLayers.Current_Layer ();
-  
+
     if ( currentLayer -> isMantle ()) {
        if ( isALC() ) {
-          basementThickness = FastcauldronSimulator::getInstance ().getMantleFormation ()->getInitialLithosphericMantleThickness () + 
+          basementThickness = FastcauldronSimulator::getInstance ().getMantleFormation ()->getInitialLithosphericMantleThickness () +
              FastcauldronSimulator::getInstance ().getCrustFormation()->getInitialCrustalThickness();
        } else {
           mantleThickness = FastcauldronSimulator::getInstance ().getMantleFormation ()->getPresentDayThickness ();
        }
     }
 
-    DMDAGetCorners ( currentLayer->layerDA, &xs, &ys, &zs, &xm, &ym, &zm); 
+    DMDAGetCorners ( currentLayer->layerDA, &xs, &ys, &zs, &xm, &ym, &zm);
     int numberOfNodes = zs + zm - 1;
 
     PETSC_3D_Array depth   ( currentLayer->layerDA, currentLayer->Current_Properties ( Basin_Modelling::Depth ));
@@ -2732,7 +2735,7 @@ bool AppCtx::setNodeDepths ( const double time ) {
       }
 
     }
- 
+
     // The bottom depths of this layer are the top depths of the layer below!
     for ( i = xs; i < ( xs + xm ); i++ ) {
 
@@ -2818,7 +2821,7 @@ void AppCtx::setMantleDepth ( const double basementThickness, //presentDayMantle
       }
 
    } else if ( m_crustThinningModel == 4 ) { // ALC mode
-      
+
       assert( currentCrustThickness ); // Effective Crustal thickness can't be 0
 
       double mantleSegmentHeight = Mantle() -> m_mantleElementHeight0 / crustThinningRatio;
@@ -2850,7 +2853,7 @@ bool AppCtx::calcNodeDepths( const double time ) {
   int            i, j, k;
   int            xs, ys, zs;
   int            xm, ym, zm;
-    
+
   double**       prev = NULL;
   double         densityDifference;
   double         segmentThickness;
@@ -2868,18 +2871,18 @@ bool AppCtx::calcNodeDepths( const double time ) {
   activeLayers.Initialise_Iterator ( layers, Descending, Basement_And_Sediments, Active_Layers_Only );
 
   while ( ! activeLayers.Iteration_Is_Done () ) {
-    
+
     currentLayer = activeLayers.Current_Layer ();
     if ( currentLayer->isMantle ()) {
        if ( isALC() ) {
-          basementThickness = FastcauldronSimulator::getInstance ().getMantleFormation ()->getInitialLithosphericMantleThickness() + 
+          basementThickness = FastcauldronSimulator::getInstance ().getMantleFormation ()->getInitialLithosphericMantleThickness() +
              FastcauldronSimulator::getInstance ().getCrustFormation()->getInitialCrustalThickness();
        } else {
           mantleThickness = FastcauldronSimulator::getInstance ().getMantleFormation ()->getPresentDayThickness ();
        }
     }
 
-    DMDAGetCorners(currentLayer->layerDA, &xs, &ys, &zs, &xm, &ym, &zm); 
+    DMDAGetCorners(currentLayer->layerDA, &xs, &ys, &zs, &xm, &ym, &zm);
 
 
     int numberOfNodes = zs + zm - 1;
@@ -2967,7 +2970,7 @@ bool AppCtx::calcNodeDepths( const double time ) {
                                                                                            densityDifference,
                                                                                            solidThickness );
                          }
-                         
+
                          depth ( k, j, i ) = depth ( k + 1, j, i ) + segmentThickness;
                       } else {
                          depth ( k, j, i ) = depth ( k + 1, j, i );
@@ -2992,9 +2995,9 @@ bool AppCtx::calcNodeDepths( const double time ) {
     }
 
     // Store bottom values
-    for ( i = xs; i < ( xs + xm ); i++ ) 
+    for ( i = xs; i < ( xs + xm ); i++ )
     {
-      for ( j = ys; j < ( ys + ym ); j++ ) 
+      for ( j = ys; j < ( ys + ym ); j++ )
       {
 	prev[i-xs][j-ys] = depth( 0,j,i );
       }
@@ -3021,7 +3024,7 @@ void AppCtx::Retrieve_Lithology_ID ()
   Layers.Initialise_Iterator ( layers, Descending, Basement_And_Sediments, Active_Layers_Only );
 
   while ( ! Layers.Iteration_Is_Done () ) {
-    
+
     Current_Layer = Layers.Current_Layer ();
 
     DMDAGetCorners( Current_Layer -> layerDA,&xs,&ys,&zs,&xm,&ym,&zm );
@@ -3032,13 +3035,13 @@ void AppCtx::Retrieve_Lithology_ID ()
 
     PETSC_3D_Array lithology_id( Current_Layer -> layerDA, Current_Layer -> Lithology_ID );
 
-    for ( i = xs; i < ( xs + xm ); i++ ) 
+    for ( i = xs; i < ( xs + xm ); i++ )
     {
-      for ( j = ys; j < ( ys + ym ); j++ ) 
+      for ( j = ys; j < ( ys + ym ); j++ )
       {
 	if ( not nodeIsDefined ( i, j )) continue;
 
-	for ( k = zs; k < zs+zm; k++ ) 
+	for ( k = zs; k < zs+zm; k++ )
 	{
 	  lithology_id( k,j,i ) = (float) ((Lithology*)(Current_Layer->getLithology( i, j )))->getLithologyID ();
 	}
@@ -3061,7 +3064,7 @@ void AppCtx::deleteLithologyIDs () {
   Layers.Initialise_Iterator ( layers, Descending, Basement_And_Sediments, Active_Layers_Only );
 
   while ( ! Layers.Iteration_Is_Done () ) {
-    
+
     currentLayer = Layers.Current_Layer ();
 
     VecValid ( currentLayer->Lithology_ID, &validVector );
@@ -3100,7 +3103,7 @@ bool AppCtx::createFormationLithologies ( const bool canRunSaltModelling ) {
   bool enableHalokinesis = canRunSaltModelling and not FastcauldronSimulator::getInstance ().getMcfHandler ().solveFlowEquations ();
 
   Layer_Iterator Layers;
-  Layers.Initialise_Iterator ( layers, Descending, Basement_And_Sediments, 
+  Layers.Initialise_Iterator ( layers, Descending, Basement_And_Sediments,
 			       Active_And_Inactive_Layers );
 
   Created_Lithologies = FastcauldronSimulator::getInstance ().setFormationLithologies ( enableHalokinesis, true );
@@ -3115,7 +3118,7 @@ bool AppCtx::createFormationLithologies ( const bool canRunSaltModelling ) {
     LayerProps_Ptr Current_Layer = Layers.Current_Layer ();
 
     // Skip Erosion or Hiatus Layers
-    if ( Current_Layer -> getMaximumNumberOfElements() <= 0 ) 
+    if ( Current_Layer -> getMaximumNumberOfElements() <= 0 )
     {
       Layers++;
       continue;
@@ -3134,10 +3137,10 @@ bool AppCtx::createFormationLithologies ( const bool canRunSaltModelling ) {
   int Local_Number_Of_Lithologies = FastcauldronSimulator::getInstance ().getLithologyManager ().size();
 
   /* Find Maximum Number of Lithologies (excluding Crust & Mantle) on a single processor */
-  MPI_Allreduce( &Local_Number_Of_Lithologies, &Max_Number_Of_Lithologies_On_Single_Proc, 1, 
+  MPI_Allreduce( &Local_Number_Of_Lithologies, &Max_Number_Of_Lithologies_On_Single_Proc, 1,
 		 MPI_INT, MPI_MAX, PETSC_COMM_WORLD );
 
-  Generate_Lithology_Identifier_List ( Max_Number_Of_Lithologies_On_Single_Proc, 
+  Generate_Lithology_Identifier_List ( Max_Number_Of_Lithologies_On_Single_Proc,
                                        Global_Number_Of_Lithologies );
 
   if (debug1 && FastcauldronSimulator::getInstance ().getRank () == 0 ) cout << " DONE" << endl;
@@ -3162,7 +3165,7 @@ bool AppCtx::createFormationLithologies ( const bool canRunSaltModelling ) {
 
 
   Layer_Iterator Layers;
-  Layers.Initialise_Iterator ( layers, Descending, Sediments_Only, 
+  Layers.Initialise_Iterator ( layers, Descending, Sediments_Only,
 			       Active_And_Inactive_Layers );
 
   while ( ! Layers.Iteration_Is_Done () ) {
@@ -3170,7 +3173,7 @@ bool AppCtx::createFormationLithologies ( const bool canRunSaltModelling ) {
     LayerProps_Ptr Current_Layer = Layers.Current_Layer ();
 
     // Skip Erosion or Hiatus Layers
-    if ( Current_Layer -> getMaximumNumberOfElements() <= 0 ) 
+    if ( Current_Layer -> getMaximumNumberOfElements() <= 0 )
     {
       Layers++;
       continue;
@@ -3295,7 +3298,7 @@ bool AppCtx::createFormationLithologies ( const bool canRunSaltModelling ) {
              lithologyPercentage3 = 0.0;
           }
 
-          if ( NumericFunctions::Minimum3 ( lithologyPercentage1, lithologyPercentage2, lithologyPercentage3 ) < -LithologyTolerance or 
+          if ( NumericFunctions::Minimum3 ( lithologyPercentage1, lithologyPercentage2, lithologyPercentage3 ) < -LithologyTolerance or
                NumericFunctions::Maximum3 ( lithologyPercentage1, lithologyPercentage2, lithologyPercentage3 ) > 100.0 + LithologyTolerance or
                not NumericFunctions::isEqual ( lithologyPercentage1 + lithologyPercentage2 + lithologyPercentage3, 100.0, LithologyTolerance )) {
 
@@ -3304,9 +3307,9 @@ bool AppCtx::createFormationLithologies ( const bool canRunSaltModelling ) {
              errorBuffer << " Percentage Maps incorrect: " << std::endl
                          << "          min (  " << lithologyPercentage1 << ", " << lithologyPercentage2 << ", " << lithologyPercentage3 << " ) < " << -LithologyTolerance << "; or " << endl
                          << "          max (  " << lithologyPercentage1 << ", " << lithologyPercentage2 << ", " << lithologyPercentage3 << " ) < " << 100 + LithologyTolerance << "; or " << endl
-                         << "          sum (  " << lithologyPercentage1 << ", " << lithologyPercentage2 << ", " << lithologyPercentage3 << " ) = " 
+                         << "          sum (  " << lithologyPercentage1 << ", " << lithologyPercentage2 << ", " << lithologyPercentage3 << " ) = "
                          << lithologyPercentage1 + lithologyPercentage2 + lithologyPercentage3 << " /= " << 100 + LithologyTolerance << ". " << endl;
-                
+
              errorMessage = errorBuffer.str ();
              break;
           } else {
@@ -3398,7 +3401,7 @@ bool AppCtx::createFormationLithologies ( const bool canRunSaltModelling ) {
 
 
 
-       } else if ( NumericFunctions::Minimum3 ( lithologyPercentage1, lithologyPercentage2, lithologyPercentage3 ) < -LithologyTolerance or 
+       } else if ( NumericFunctions::Minimum3 ( lithologyPercentage1, lithologyPercentage2, lithologyPercentage3 ) < -LithologyTolerance or
                    NumericFunctions::Maximum3 ( lithologyPercentage1, lithologyPercentage2, lithologyPercentage3 ) > 100.0 + LithologyTolerance or
                    not NumericFunctions::isEqual ( lithologyPercentage1 + lithologyPercentage2 + lithologyPercentage3, 100.0, LithologyTolerance )) {
 
@@ -3408,9 +3411,9 @@ bool AppCtx::createFormationLithologies ( const bool canRunSaltModelling ) {
           errorBuffer << " Percentage Maps incorrect: " << std::endl
                       << "          min (  " << lithologyPercentage1 << ", " << lithologyPercentage2 << ", " << lithologyPercentage3 << " ) < " << -LithologyTolerance << "; or " << endl
                       << "          max (  " << lithologyPercentage1 << ", " << lithologyPercentage2 << ", " << lithologyPercentage3 << " ) < " << 100 + LithologyTolerance << "; or " << endl
-                      << "          sum (  " << lithologyPercentage1 << ", " << lithologyPercentage2 << ", " << lithologyPercentage3 << " ) = " 
+                      << "          sum (  " << lithologyPercentage1 << ", " << lithologyPercentage2 << ", " << lithologyPercentage3 << " ) = "
                       << lithologyPercentage1 + lithologyPercentage2 + lithologyPercentage3 << " /= " << 100 + LithologyTolerance << ". " << endl;
-                
+
           errorMessage = errorBuffer.str ();
 
        } else {
@@ -3467,7 +3470,7 @@ bool AppCtx::createFormationLithologies ( const bool canRunSaltModelling ) {
 
   #ifdef ALCPROPERTY
   if( isALC() ) {
-     BasementLitho * pMantleLitho = dynamic_cast<BasementLitho *>(lithomanager.getSimpleLithology ("Litho. Mantle")); 
+     BasementLitho * pMantleLitho = dynamic_cast<BasementLitho *>(lithomanager.getSimpleLithology ("Litho. Mantle"));
      assert(pMantleLitho != (BasementLitho*)0);
      pMixedLitho->addLithology(pMantleLitho,100);
      pMantleLitho->setThermalModel( mantlePropertyModel, *m_basementLithoProps );
@@ -3488,12 +3491,12 @@ bool AppCtx::createFormationLithologies ( const bool canRunSaltModelling ) {
   Mantle () -> Lithology.create ( *mapDA );
   Mantle () -> Lithology.fillWithLithology ( MaximumBasinAge, pMixedLitho );
   Mantle () -> Lithology.setCurrentLithologies ( MaximumBasinAge, dummySwitchHasOccurred );
- 
-  if( isALC() ) { 
+
+  if( isALC() ) {
      pMixedLitho = new LithoProps;
 
 #ifdef ALCPROPERTY
-     BasementLitho* pBasaltLitho = dynamic_cast<BasementLitho *>(lithomanager.getSimpleLithology(DataAccess::Interface::ALCBasalt)); 
+     BasementLitho* pBasaltLitho = dynamic_cast<BasementLitho *>(lithomanager.getSimpleLithology(DataAccess::Interface::ALCBasalt));
      assert(pBasaltLitho != (BasementLitho*)0);
      pMixedLitho->addLithology(pBasaltLitho,100);
      if( !pBasaltLitho->setThermalModel( mantlePropertyModel, *m_basementLithoProps )) {
@@ -3506,7 +3509,7 @@ bool AppCtx::createFormationLithologies ( const bool canRunSaltModelling ) {
 #endif
      pMixedLitho->setMixModel("Homogeneous");
      pMixedLitho->reCalcProperties();
-     
+
      MantleFormation * mantle = dynamic_cast<MantleFormation *>(Mantle());
      mantle -> basaltLithology.create ( *mapDA );
      mantle -> basaltLithology.fillWithLithology ( MaximumBasinAge, pMixedLitho );
@@ -3518,7 +3521,7 @@ bool AppCtx::createFormationLithologies ( const bool canRunSaltModelling ) {
 
   Mantle () -> Current_Topmost_Segments.Create ( *mapDA );
   Mantle () -> Current_Topmost_Segments.Fill ( -1 );
-  
+
   // Creating Crust Lithology
   pMixedLitho = new LithoProps;
   assert( Crust() -> layername.find("Crust") == 0 );
@@ -3553,7 +3556,7 @@ bool AppCtx::createFormationLithologies ( const bool canRunSaltModelling ) {
   if(isALC()) { // && !m_basaltThicknessHistory.isNull()){
      pMixedLitho = new LithoProps;
 #ifdef ALCPROPERTY
-     BasementLitho* pBasaltLitho = dynamic_cast<BasementLitho *>(lithomanager.getSimpleLithology(DataAccess::Interface::ALCBasalt)); 
+     BasementLitho* pBasaltLitho = dynamic_cast<BasementLitho *>(lithomanager.getSimpleLithology(DataAccess::Interface::ALCBasalt));
      assert(pBasaltLitho != (BasementLitho*)0);
      pMixedLitho->addLithology(pBasaltLitho,100);
      pBasaltLitho->setThermalModel( crustPropertyModel, *m_basementLithoProps );
@@ -3561,10 +3564,10 @@ bool AppCtx::createFormationLithologies ( const bool canRunSaltModelling ) {
      SimpleLitho* pBasaltLithoS = lithomanager.getSimpleLithology(DataAccess::Interface::ALCBasalt);
      assert(pBasaltLithoS != (SimpleLitho*)0);
      pMixedLitho->addLithology(pBasaltLithoS,100);
-#endif 
+#endif
      pMixedLitho->setMixModel("Homogeneous");
      pMixedLitho->reCalcProperties();
-     
+
      CrustFormation * crust = dynamic_cast<CrustFormation *> (Crust());
      crust -> basaltLithology.create ( *mapDA );
      crust -> basaltLithology.fillWithLithology ( MaximumBasinAge, pMixedLitho );
@@ -3602,10 +3605,10 @@ void AppCtx::generateLithologyIdentifiers () {
   int Local_Number_Of_Lithologies = FastcauldronSimulator::getInstance ().getLithologyManager ().size ();
 
   /* Find Maximum Number of Lithologies (excluding Crust & Mantle) on a single processor */
-  MPI_Allreduce( &Local_Number_Of_Lithologies, &Max_Number_Of_Lithologies_On_Single_Proc, 1, 
+  MPI_Allreduce( &Local_Number_Of_Lithologies, &Max_Number_Of_Lithologies_On_Single_Proc, 1,
 		 MPI_INT, MPI_MAX, PETSC_COMM_WORLD );
 
-  Generate_Lithology_Identifier_List( Max_Number_Of_Lithologies_On_Single_Proc, 
+  Generate_Lithology_Identifier_List( Max_Number_Of_Lithologies_On_Single_Proc,
 				      Global_Number_Of_Lithologies );
 
 }
@@ -3636,9 +3639,9 @@ int AppCtx::Layer_Position ( const string& Formation_Name ) const {
 
 
 bool AppCtx::inProcessorRange ( const int  globalIIndex,
-                                const int  globalJIndex, 
+                                const int  globalJIndex,
                                 const bool includeLowerIGhostNodes,
-                                const bool includeUpperIGhostNodes, 
+                                const bool includeUpperIGhostNodes,
                                 const bool includeLowerJGhostNodes,
                                 const bool includeUpperJGhostNodes ) const {
 
@@ -3656,28 +3659,28 @@ bool AppCtx::inProcessorRange ( const int  globalIIndex,
     xMin = dainfo.gxs;
   } else {
     xMin = dainfo.xs;
-  } 
+  }
 
   if ( includeUpperIGhostNodes ) {
     xMax = dainfo.gxs + ( dainfo.gxm - 1 );
   } else {
     xMax = dainfo.xs + ( dainfo.xm - 1 );
-  } 
+  }
 
   if ( includeLowerJGhostNodes ) {
     yMin = dainfo.gys;
   } else {
     yMin = dainfo.ys;
-  } 
+  }
 
   if ( includeUpperJGhostNodes ) {
     yMax = dainfo.gys + ( dainfo.gym - 1 );
   } else {
     yMax = dainfo.ys + ( dainfo.ym - 1 );
-  } 
+  }
 
   //check that current node is within this processor range
-  return (( xMin <= globalIIndex ) && ( globalIIndex <= xMax ) && 
+  return (( xMin <= globalIIndex ) && ( globalIIndex <= xMax ) &&
           ( yMin <= globalJIndex ) && ( globalJIndex <= yMax ));
 
 }
@@ -3702,7 +3705,7 @@ bool AppCtx::In_Processor_Range ( const int globalIIndex, const int globalJIndex
   yMax = dainfo.ys + ( dainfo.ym - 1 );
 
   //check that current node is within this processor range
-  return (( xMin <= globalIIndex ) && ( globalIIndex <= xMax ) && 
+  return (( xMin <= globalIIndex ) && ( globalIIndex <= xMax ) &&
           ( yMin <= globalJIndex ) && ( globalJIndex <= yMax ));
 
 }
@@ -3722,7 +3725,7 @@ void AppCtx::Generate_Lithology_Identifier_List( const int Max_Nb_Lithology_Sing
   int*         Litho_ID_List = 0;
   Key_List*    Master_Litho_Key_List = 0;
   Key_List*    Litho_Key_List = 0;
-  
+
   MPI_Datatype Key_List_type;
   MPI_Datatype type[1] = {MPI_CHAR};
   int          block_length[1] = {MaxLineSize};
@@ -3754,7 +3757,7 @@ void AppCtx::Generate_Lithology_Identifier_List( const int Max_Nb_Lithology_Sing
 
     CompoundLithologyComposition lc = lm_iter->first;
     Key_String = lc.returnKeyString ();
-    Copy_String_To_Char( Key_String, Litho_Key_List[ Litho_counter++ ].Key_Name, 
+    Copy_String_To_Char( Key_String, Litho_Key_List[ Litho_counter++ ].Key_Name,
 			 MaxLineSize );
   }
 
@@ -3775,27 +3778,27 @@ void AppCtx::Generate_Lithology_Identifier_List( const int Max_Nb_Lithology_Sing
 
   }
 
-  /* Each process (root process included) sends the contents of its Litho_Key_List 
+  /* Each process (root process included) sends the contents of its Litho_Key_List
      to the root process, store into Master_Litho_Key_List */
-  MPI_Gather( Litho_Key_List, Max_Nb_Lithology_Single_Proc, Key_List_type, 
-	      Master_Litho_Key_List, Max_Nb_Lithology_Single_Proc, Key_List_type, 
+  MPI_Gather( Litho_Key_List, Max_Nb_Lithology_Single_Proc, Key_List_type,
+	      Master_Litho_Key_List, Max_Nb_Lithology_Single_Proc, Key_List_type,
 	      0, PETSC_COMM_WORLD );
 
   /* Root processes the Master_Litho_Key_List and attributes Litho Identifier (ID) */
   if ( my_rank == root ) {
 
     Total_Number_Of_Lithologies = 0;
-    
+
     /* Allocate Memory for Global ID list (root only) */
     Master_Litho_ID_List = new int[ mpi_size * Max_Nb_Lithology_Single_Proc ];
-    
+
     for ( I = 0; I < ( mpi_size * Max_Nb_Lithology_Single_Proc ); I++ ) {
-      
+
       /* Initialize value to -1 */
       Master_Litho_ID_List[ I ] = -1;
 
       Key_String = string ( Master_Litho_Key_List[ I ].Key_Name );
-      
+
       if ( Key_String == "" ) continue;
 
       str_it = Litho_List_Key_String.find( Key_String );
@@ -3812,10 +3815,10 @@ void AppCtx::Generate_Lithology_Identifier_List( const int Max_Nb_Lithology_Sing
 
   }
 
-  /* root process sends parts of the content of its Master_Litho_ID_List to all process, 
+  /* root process sends parts of the content of its Master_Litho_ID_List to all process,
      and store them into Litho_ID_List */
-  MPI_Scatter( Master_Litho_ID_List, Max_Nb_Lithology_Single_Proc, MPI_INT, 
-	       Litho_ID_List, Max_Nb_Lithology_Single_Proc, MPI_INT, 
+  MPI_Scatter( Master_Litho_ID_List, Max_Nb_Lithology_Single_Proc, MPI_INT,
+	       Litho_ID_List, Max_Nb_Lithology_Single_Proc, MPI_INT,
 	       0, PETSC_COMM_WORLD );
 
 
@@ -3850,7 +3853,7 @@ bool AppCtx::findActiveElements(const double time)
   // get the number of layers as we are going to need this a lot
   size_t nlayers = layers.size();
 
-  // Set nr of active elements in mantle, crust & sea 
+  // Set nr of active elements in mantle, crust & sea
   // to total amount of elements
   Crust() -> setNrOfActiveElements( Crust() -> getMaximumNumberOfElements() );
   Mantle() -> setNrOfActiveElements( Mantle() -> getMaximumNumberOfElements() );
@@ -3873,7 +3876,7 @@ bool AppCtx::findActiveElements(const double time)
   for (i = int(nlayers-3); i>=0; i--) {
 
     if (0 == layers[i]->getMaximumNumberOfElements()) continue;
-    
+
     // if we have already deposited this layer then all elements are active
     if (time <= layers[i]->depoage) {
 	layers[i]->setNrOfActiveElements(layers[i]->getMaximumNumberOfElements());
@@ -3886,7 +3889,7 @@ bool AppCtx::findActiveElements(const double time)
       }
 
       //Set the number of active elements according to the proportion of layer deposited
-      layers[i]->setNrOfActiveElements(layers[i]->getMaximumNumberOfElements());     
+      layers[i]->setNrOfActiveElements(layers[i]->getMaximumNumberOfElements());
 
       // terminate the processing as this is the last layer being deposited
       break;
@@ -3932,7 +3935,7 @@ int AppCtx::Find_Layer_Index(const double Deposition_Age,
 
   for ( Count = 0; Count < layers.size(); Count++ ) {
 
-     if (( Deposition_Age != 0.0 and ( std::fabs ( Deposition_Age - layers [ Count ]->depoage ) / Deposition_Age ) < tolerance ) or 
+     if (( Deposition_Age != 0.0 and ( std::fabs ( Deposition_Age - layers [ Count ]->depoage ) / Deposition_Age ) < tolerance ) or
          ( Deposition_Age == 0.0 and ( std::fabs ( Deposition_Age - layers [ Count ]->depoage )) < tolerance )) {
         return static_cast<int>( Count );
      }
@@ -4037,9 +4040,9 @@ void AppCtx::printFCT() {
 
   int xs, ys, xm, ym;
   size_t layer;
-  DMDAGetCorners(*mapDA, 
-                 &xs, &ys, PETSC_NULL, 
-                 &xm, &ym, PETSC_NULL); 
+  DMDAGetCorners(*mapDA,
+                 &xs, &ys, PETSC_NULL,
+                 &xm, &ym, PETSC_NULL);
 
 
   for (layer=0; layer<layers.size(); layer++) {
@@ -4117,12 +4120,12 @@ void AppCtx::setUp2dEltMapping()
 void AppCtx::Examine_Load_Balancing() {
 
   int xs,ys,xm,ym;
-  DMDAGetCorners(*mapDA, &xs, &ys, PETSC_NULL, &xm, &ym, PETSC_NULL); 
+  DMDAGetCorners(*mapDA, &xs, &ys, PETSC_NULL, &xm, &ym, PETSC_NULL);
 
   int Number_Of_Valid_Nodes = xm*ym;
 
   int NNodeX,NNodeY;
-  DMDAGetInfo( *mapDA, PETSC_NULL, &NNodeX, &NNodeY, PETSC_NULL, PETSC_NULL, PETSC_NULL, 
+  DMDAGetInfo( *mapDA, PETSC_NULL, &NNodeX, &NNodeY, PETSC_NULL, PETSC_NULL, PETSC_NULL,
                PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL );
 
   float Percentage_Of_Total_Number_Of_Nodes = float(xm*ym) / float(NNodeX*NNodeY) * 100.0;
@@ -4195,7 +4198,7 @@ bool AppCtx::isModellingMode3D () const
 
 
 
-#undef __FUNCT__  
+#undef __FUNCT__
 #define __FUNCT__ "Create_Reference_DA_for_Io_Maps"
 
 bool AppCtx::Create_Reference_DA_for_Io_Maps () {
@@ -4216,7 +4219,7 @@ AppCtx::~AppCtx(){
   size_t indx;
 
   layers.clear ();
-  
+
   for ( indx = 0; indx < Related_Projects.size (); indx++ ) {
     delete Related_Projects [ indx ];
   }
@@ -4259,15 +4262,15 @@ void AppCtx::Locate_Related_Project( )
     X_Coord = WellLoc -> X_Coord;
     Y_Coord = WellLoc -> Y_Coord;
 
-    if ( X_Coord <= Origin_X ) 
+    if ( X_Coord <= Origin_X )
     {
       WellLoc -> In_Range = false;
-    } 
-    else if ( X_Coord > Origin_X + double ( Number_Of_X_Nodes ) * Delta_X ) 
+    }
+    else if ( X_Coord > Origin_X + double ( Number_Of_X_Nodes ) * Delta_X )
     {
       WellLoc -> In_Range = false;
-    } 
-    else 
+    }
+    else
     {
       WellLoc -> In_Range = true;
       WellLoc -> X_Position = int (( X_Coord - Origin_X ) / Delta_X );
@@ -4275,15 +4278,15 @@ void AppCtx::Locate_Related_Project( )
 
     if ( ! WellLoc -> In_Range ) continue;
 
-    if ( Y_Coord <= Origin_Y ) 
+    if ( Y_Coord <= Origin_Y )
     {
       WellLoc -> In_Range = false;
-    } 
-    else if ( Y_Coord > Origin_Y + double ( Number_Of_Y_Nodes ) * Delta_Y ) 
+    }
+    else if ( Y_Coord > Origin_Y + double ( Number_Of_Y_Nodes ) * Delta_Y )
     {
       WellLoc -> In_Range = false;
-    } 
-    else 
+    }
+    else
     {
       WellLoc -> In_Range = true;
       WellLoc -> Y_Position = int (( Y_Coord - Origin_Y ) / Delta_Y );
@@ -4299,7 +4302,7 @@ void AppCtx::Locate_Related_Project( )
        if ( nodeIsDefined ( WellLoc -> X_Position, WellLoc -> Y_Position ))
       {
 	WellLoc -> Exists = true;
-	cout << FastcauldronSimulator::getInstance ().getRank () << " " << WellLoc -> Name << " " 
+	cout << FastcauldronSimulator::getInstance ().getRank () << " " << WellLoc -> Name << " "
 	     << WellLoc -> X_Position << " " << WellLoc -> Y_Position << endl;
       }
     }
@@ -4344,7 +4347,7 @@ double AppCtx::Minimum_Permeability ( const LayerProps* Current_Layer ) const {
     for ( J = Y_Start; J < Y_Start + Y_Count; J++ ) {
 
        if ( m_nodeIsDefined ( I, J )) {
-        Current_Layer->getLithology( I, J )->calcBulkPermeabilityNP ( VES, VES, Porosity, 
+        Current_Layer->getLithology( I, J )->calcBulkPermeabilityNP ( VES, VES, Porosity,
                                                                       Lithology_Permeability_Normal,
                                                                       Lithology_Permeability_Plane );
 
@@ -4356,19 +4359,19 @@ double AppCtx::Minimum_Permeability ( const LayerProps* Current_Layer ) const {
   }
 
   return Permeability;
-} 
+}
 
 
 //------------------------------------------------------------//
 
 
-void AppCtx::Fill_Topmost_Segment_Arrays ( const double Previous_Time, 
+void AppCtx::Fill_Topmost_Segment_Arrays ( const double Previous_Time,
                                            const double Current_Time ) {
 
 
-  Layer_Iterator All_Layers ( layers, 
-                              Basin_Modelling::Descending, 
-                              Basin_Modelling::Sediments_Only, 
+  Layer_Iterator All_Layers ( layers,
+                              Basin_Modelling::Descending,
+                              Basin_Modelling::Sediments_Only,
                               Basin_Modelling::Active_Layers_Only );
 
   while ( ! All_Layers.Iteration_Is_Done () ) {
@@ -4416,7 +4419,7 @@ void AppCtx::setMilestones(void)
    DisplayContourIoTbl = database->getTable ("DisplayContourIoTbl");
    assert(DisplayContourIoTbl);
    Table::iterator tblIter;
- 
+
    for (tblIter = DisplayContourIoTbl->begin (); tblIter != DisplayContourIoTbl->end (); ++tblIter)
    {
       Record * displayContourIoRecord = * tblIter;
@@ -4442,8 +4445,8 @@ void AppCtx::addBottomSedimentSurfaceIsoPointsToIsolines(void)
 {
 //    const AppCtx::DoubleVector & temperatureMilestoneValues = this->getContourMilestones(AppCtx::ISOTEMPERATURE);
    const AppCtx::DoubleVector & vreMilestoneValues 		  = this->getContourMilestones(AppCtx::ISOVRE);
- 
-//    AppCtx::DoubleVector::const_iterator itTemp 	= temperatureMilestoneValues.begin(); 
+
+//    AppCtx::DoubleVector::const_iterator itTemp 	= temperatureMilestoneValues.begin();
 //    AppCtx::DoubleVector::const_iterator itTempEnd = temperatureMilestoneValues.end();
 
 //    while(itTemp != itTempEnd)
@@ -4461,25 +4464,25 @@ void AppCtx::addBottomSedimentSurfaceIsoPointsToIsolines(void)
 
 //          double DeltaAgeOfMilestoneDepth = (deltaTemp * totalDeltaTime)/totalDeltaTemp;
 //          double ageOfMilestoneDepth = low->getX() + DeltaAgeOfMilestoneDepth;
-         
+
 //          double bottomSurfaceTempMilestoneDepth = m_bottomSedimentSurfaceAgeDepthCurve.F(ageOfMilestoneDepth);
-         
+
 //          IsolinePoint *thePoint = new IsolinePoint(-ageOfMilestoneDepth, bottomSurfaceTempMilestoneDepth, tempMilestone);
 //          //cout<<"Adding bottom surface temp iso triple: "<<(-ageOfMilestoneDepth)<<" "<<bottomSurfaceTempMilestoneDepth<<" "<<tempMilestone<<endl;
-         
-//          this->addIsolinePoint(AppCtx::ISOTEMPERATURE, thePoint);  
+
+//          this->addIsolinePoint(AppCtx::ISOTEMPERATURE, thePoint);
 //       }
 //       ++itTemp;
 //    }
 
-   AppCtx::DoubleVector::const_iterator itVre 	= vreMilestoneValues.begin(); 
+   AppCtx::DoubleVector::const_iterator itVre 	= vreMilestoneValues.begin();
    AppCtx::DoubleVector::const_iterator itVreEnd = vreMilestoneValues.end();
 
 //    cout << "AgeVre ";
 //    m_bottomSedimentSurfaceAgeVreCurve.printPoints();
 //    cout << "AgeDepth ";
 //    m_bottomSedimentSurfaceAgeDepthCurve.printPoints();
-   
+
 
    while(itVre != itVreEnd)
    {
@@ -4493,19 +4496,19 @@ void AppCtx::addBottomSedimentSurfaceIsoPointsToIsolines(void)
          double totalDeltaTime = high->getX() - low->getX();
          double totalDeltaVre = high->getY() - low->getY();
          double DeltaAgeOfMilestoneDepth = (deltaVre * totalDeltaTime)/totalDeltaVre;
-         
+
          double ageOfMilestoneDepth = low->getX() + DeltaAgeOfMilestoneDepth;
          double bottomSurfaceVreMilestoneDepth = m_bottomSedimentSurfaceAgeDepthCurve.F(ageOfMilestoneDepth);
-         
-//          cout << "deltaVre " << deltaVre << " totalDeltaTime " << totalDeltaTime << " totalDeltaVre " << totalDeltaVre << " t1 " << low->getX()  << " t2 " <<high->getX() 
-//               << " Vre1 " << low->getY()  << " Vre2 " << high->getY() 
+
+//          cout << "deltaVre " << deltaVre << " totalDeltaTime " << totalDeltaTime << " totalDeltaVre " << totalDeltaVre << " t1 " << low->getX()  << " t2 " <<high->getX()
+//               << " Vre1 " << low->getY()  << " Vre2 " << high->getY()
 //               << " depth1 " << m_bottomSedimentSurfaceAgeDepthCurve.F(low->getX())  << " depth2 " << m_bottomSedimentSurfaceAgeDepthCurve.F(high->getX())
 //               << " vre milestone age " << ageOfMilestoneDepth << " vreSurfDepth " << bottomSurfaceVreMilestoneDepth << " milestone "  << vreMilestone<<endl;
          IsolinePoint *thePoint = new IsolinePoint(-ageOfMilestoneDepth, bottomSurfaceVreMilestoneDepth, vreMilestone);
-         this->addIsolinePoint(AppCtx::ISOVRE, thePoint);  
+         this->addIsolinePoint(AppCtx::ISOVRE, thePoint);
       }
       ++itVre;
-   }	
+   }
 }
 
 void AppCtx::writeIsoLinesToDatabase(void)
@@ -4528,7 +4531,7 @@ void AppCtx::writeFissionTrackResultsToDatabase(const FissionTrackCalculator &th
    database::Table * FtSampleIoTbl;
    FtSampleIoTbl = database->getTable ("FtSampleIoTbl");
 	assert(FtSampleIoTbl);
-   
+
    database::Table * FtGrainIoTbl;
    FtGrainIoTbl = database->getTable ("FtGrainIoTbl");
 	assert(FtGrainIoTbl);
@@ -4546,13 +4549,13 @@ void AppCtx::writeFissionTrackResultsToDatabase(const FissionTrackCalculator &th
 	assert(FtClWeightPercBinsIoTbl);
 
    //qnd to get data...FisssionTrackWriter class could be a better option
-   theFTCalculator.writeFissionTrackResultsToDatabaseTables(*FtSampleIoTbl, 
+   theFTCalculator.writeFissionTrackResultsToDatabaseTables(*FtSampleIoTbl,
                                                             *FtGrainIoTbl,
                                                             *FtPredLengthCountsHistIoTbl,
                                                             *FtPredLengthCountsHistDataIoTbl,
                                                             *FtClWeightPercBinsIoTbl);
 
-   
+
 }
 void AppCtx::deleteIsoValues(void)
 {
@@ -4574,15 +4577,15 @@ bool AppCtx::calcBasementProperties ( const double Current_Time ) {
    size_t layer;
    int xs, ys, zs, xm, ym, zm;
    int layerMx, layerMy, layerMz;
-   
+
    ElementGeometryMatrix Geometry_Matrix;
    const CompoundLithology *  Element_Lithology;
-   
+
    DMDAGetCorners ( *mapDA, &xs, &ys, PETSC_NULL, &xm, &ym, PETSC_NULL );
-   
+
    CrustFormation * crust = dynamic_cast<CrustFormation *>(layers [layers.size () - 2]);
    assert( crust != 0 );
-   
+
    MantleFormation * mantle = dynamic_cast<MantleFormation *>(layers [layers.size () - 1]);
    assert( mantle != 0 );
 
@@ -4590,10 +4593,10 @@ bool AppCtx::calcBasementProperties ( const double Current_Time ) {
    PETSC_2D_Array topBasaltDepth        ( *mapDA, crust->TopBasaltDepth );
    PETSC_2D_Array bottomBasaltDepth     ( *mapDA, crust->BottomBasaltDepth );
    PETSC_2D_Array ccrustThickness       ( *mapDA, crust->ThicknessCCrustALC );
-   PETSC_2D_Array smoothBasaltThickness ( *mapDA, crust->BasaltThickness );    
+   PETSC_2D_Array smoothBasaltThickness ( *mapDA, crust->BasaltThickness );
    PETSC_2D_Array smCrustThickness      ( *mapDA, crust->SmCCrustThickness );
    PETSC_2D_Array smTopBasaltDepth      ( *mapDA, crust->SmTopBasaltDepth );
-   PETSC_2D_Array smBottomBasaltDepth   ( *mapDA, crust->SmBottomBasaltDepth );   
+   PETSC_2D_Array smBottomBasaltDepth   ( *mapDA, crust->SmBottomBasaltDepth );
    PETSC_2D_Array origMantleDepth       ( *mapDA, mantle->UpliftedOrigMantleDepth );
    PETSC_2D_Array hlmod                 ( *mapDA, mantle->LithosphereThicknessMod );
 
@@ -4621,7 +4624,7 @@ bool AppCtx::calcBasementProperties ( const double Current_Time ) {
 
              if( topBasaltDepth( j, i ) == CauldronNoDataValue ) {
                 topBasaltDepth( j, i ) = depth( 0, j, i ); //bottomBasaltDepth( j, i );
-             } 
+             }
 
              smTopBasaltDepth( j, i ) = depth( m_kIndexCrust, j, i ) + FastcauldronSimulator::getInstance ().getContCrustThickness(i, j, Current_Time);
              ccrustThickness( j, i )  = topBasaltDepth( j, i ) - depth( m_kIndexCrust, j, i );
@@ -4629,14 +4632,14 @@ bool AppCtx::calcBasementProperties ( const double Current_Time ) {
 
              if( bottomBasaltDepth( j, i ) == CauldronNoDataValue ) {
                  bottomBasaltDepth( j, i ) = depth( 0, j, i );
-             } 
- 
-             smoothBasaltThickness( j, i ) = FastcauldronSimulator::getInstance ().getBasaltThickness(i, j, Current_Time); 
-             hlmod( j, i ) =  depth( m_kIndexCrust, j, i ) + FastcauldronSimulator::getInstance ().getLithosphereThicknessMod(i, j, Current_Time); 
+             }
+
+             smoothBasaltThickness( j, i ) = FastcauldronSimulator::getInstance ().getBasaltThickness(i, j, Current_Time);
+             hlmod( j, i ) =  depth( m_kIndexCrust, j, i ) + FastcauldronSimulator::getInstance ().getLithosphereThicknessMod(i, j, Current_Time);
              smCrustThickness( j, i ) = FastcauldronSimulator::getInstance ().getContCrustThickness(i, j, Current_Time);
- 
+
              crustThinningRatio = FastcauldronSimulator::getInstance ().getCrustThickness( i, j, Current_Time ) / initCrustThickness; // Effective Crustal Thickness / initial Crustal Thickness
-             
+
              origMantleDepth( j, i ) = mantleDepth( m_kIndexMantle, j, i ) + initMantleThickness * crustThinningRatio;
           }
        }
@@ -4647,7 +4650,7 @@ bool AppCtx::calcBasementProperties ( const double Current_Time ) {
 //------------------------------------------------------------//
 /*
 bool AppCtx::addTemperatureIsoIoTbl( const double Age,
-                              		 const double temperature, 
+                              		 const double temperature,
                               		 const double depth )
 {
 
@@ -4661,7 +4664,7 @@ bool AppCtx::addTemperatureIsoIoTbl( const double Age,
    setContourValue (record, temperature);
    setSum (record, depth);
    setNP (record, 1);
-  
+
    return true;
 }
 */

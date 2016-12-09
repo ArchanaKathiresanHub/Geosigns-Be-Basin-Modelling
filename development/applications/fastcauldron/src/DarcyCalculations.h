@@ -135,8 +135,7 @@ public :
    /// \brief Average the permeability across the face of the element.
    void computeAveragePermeabilities ( Subdomain&       subdomain,
                                        const double     lambda,
-                                       const double     lambdaEnd,
-                                       Vec subdomainPermeabilityNVec, 
+                                       Vec subdomainPermeabilityNVec,
                                        Vec subdomainPermeabilityHVec ) const;
 
    /// \brief Return the total mass of hydrocarbon within the system.
@@ -263,13 +262,13 @@ private :
    void collectElementPermeabilities ( Subdomain&               subdomain,
                                        const ElementVolumeGrid& elementGrid,
                                        const double             lambda,
-                                       ElementFaceValueVector&  subdomainPermeabilityN, 
+                                       ElementFaceValueVector&  subdomainPermeabilityN,
                                        ElementFaceValueVector&  subdomainPermeabilityH ) const;
 
    /// \brief Add permeability from the adjacent face of the neighbouring element.
    void addNeighbourPermeabilities ( Subdomain&               subdomain,
                                      const ElementVolumeGrid& elementGrid,
-                                     ElementFaceValueVector&  subdomainPermeabilityN, 
+                                     ElementFaceValueVector&  subdomainPermeabilityN,
                                      ElementFaceValueVector&  subdomainPermeabilityH,
                                      ElementFaceValueArray&   intermediatePermeabilityN,
                                      ElementFaceValueArray&   intermediatePermeabilityH ) const;
@@ -277,7 +276,7 @@ private :
    /// \brief From the values stored in the arrays compute the average permeability for the element-face.
    void recoverAveragedPermeabilities ( Subdomain&               subdomain,
                                         const ElementVolumeGrid& elementGrid,
-                                        ElementFaceValueVector&  subdomainPermeabilityN, 
+                                        ElementFaceValueVector&  subdomainPermeabilityN,
                                         ElementFaceValueVector&  subdomainPermeabilityH,
                                         ElementFaceValueArray&   intermediatePermeabilityN,
                                         ElementFaceValueArray&   intermediatePermeabilityH,
@@ -308,6 +307,6 @@ private :
    /// Default molar masses, kg/mol.
    PVTComponents m_defaultMolarMasses;
 
-}; 
+};
 
 #endif // FASTCAULDRON__DARCY_CALCULATIONS__H

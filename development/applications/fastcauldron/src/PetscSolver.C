@@ -1,3 +1,12 @@
+//
+// Copyright (C) 2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 #include "PetscSolver.h"
 
 PetscSolver :: PetscSolver(double newTolerance, int newMaxIterations)
@@ -10,7 +19,7 @@ PetscSolver :: PetscSolver(double newTolerance, int newMaxIterations)
    double absoluteTolerance = 0.0;
    double divergenceTolerance =  0.0 ;
    int    currentMaximumIterations = 0;
-  
+
    KSPGetTolerances ( m_solver,
                      &relativeTolerance,
                      &absoluteTolerance,
@@ -23,6 +32,9 @@ PetscSolver :: PetscSolver(double newTolerance, int newMaxIterations)
                      divergenceTolerance,
                      newMaxIterations == 0 ? currentMaximumIterations : newMaxIterations
          );
+
+   // By default use a zero initial solution for iterative solvers.
+   setInitialGuessNonZero ( false );
 }
 
 void PetscSolver::setSolverPrefix ( const std::string& solverPrefix ) {
@@ -34,8 +46,15 @@ void PetscSolver::setSolverPrefix ( const std::string& solverPrefix ) {
    if ( preconditioner != nullptr ) {
       PCSetOptionsPrefix ( preconditioner, solverPrefix.c_str ());
    }
-   
+
    KSPSetOptionsPrefix ( m_solver, solverPrefix.c_str ());
+}
+
+void PetscSolver::setInitialGuessNonZero ( const bool isNonZero ) {
+
+   PetscBool petscIsNonZero = ( isNonZero ? PETSC_TRUE : PETSC_FALSE );
+
+   KSPSetInitialGuessNonzero ( m_solver, petscIsNonZero );
 }
 
 void PetscSolver::loadCmdLineOptions()
@@ -54,7 +73,7 @@ int PetscSolver :: getMaxIterations() const
    double absoluteTolerance = 0.0;
    double divergenceTolerance =  0.0 ;
    int    currentMaximumIterations = 0;
-  
+
    KSPGetTolerances ( m_solver,
                      &relativeTolerance,
                      &absoluteTolerance,
@@ -70,7 +89,7 @@ double PetscSolver :: getTolerance() const
    double absoluteTolerance = 0.0;
    double divergenceTolerance =  0.0 ;
    int    currentMaximumIterations = 0;
-  
+
    KSPGetTolerances ( m_solver,
                      &relativeTolerance,
                      &absoluteTolerance,
@@ -87,7 +106,7 @@ void PetscSolver :: setMaxIterations( int maxIterations)
    double absoluteTolerance = 0.0;
    double divergenceTolerance =  0.0 ;
    int    currentMaximumIterations = 0;
-  
+
    KSPGetTolerances ( m_solver,
                      &relativeTolerance,
                      &absoluteTolerance,
@@ -105,8 +124,6 @@ void PetscSolver :: setMaxIterations( int maxIterations)
 void PetscSolver :: solve( const Mat & A, const Vec & b, Vec & x, int * iterations , KSPConvergedReason * reason , double * residualNorm )
 {
    KSPSetOperators( m_solver, A, A );
-
-   VecSet( x, 0.0 );
    KSPSolve( m_solver, b, x );
 
    if (iterations)
@@ -154,4 +171,3 @@ int PetscGMRES :: getRestart() const
    KSPGMRESGetRestart( m_solver, &restart);
    return restart;
 }
-

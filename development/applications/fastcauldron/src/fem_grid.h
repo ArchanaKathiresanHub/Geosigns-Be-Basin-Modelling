@@ -70,7 +70,7 @@ namespace Basin_Modelling {
 
      /// \brief Solve for both the over-pressure and the temperature.
      ///
-     /// Solves the coupled pressure-temperature equations over the 
+     /// Solves the coupled pressure-temperature equations over the
      /// entire history of the basin specified in the project file.
      /// The pressure can be either geometric or non-geometric loop.
      void solveCoupled ( bool& solverHasConverged,
@@ -98,8 +98,8 @@ namespace Basin_Modelling {
 
      /// \brief Solve the coupled pressure and temperature equations.
      ///
-     /// Solve the coupled pressure and temperature equations from the begining of 
-     /// deposition to present day, if the user has selected the geometric loop, 
+     /// Solve the coupled pressure and temperature equations from the begining of
+     /// deposition to present day, if the user has selected the geometric loop,
      /// then this will be one geometric iteration.
      void Evolve_Coupled_Basin ( const int   Number_Of_Geometric_Iterations,
                                        bool& hasDiverged,
@@ -107,11 +107,10 @@ namespace Basin_Modelling {
 
 
      /// \brief Advance the currentTime by the timeStep.
-     bool Step_Forward (       double& Previous_Time, 
-                               double& Current_Time,
-                               double& Time_Step,
-                               bool&   majorSnapshotTimesUpdated,
-                         const int     Number_Of_Newton_Iterations );
+     bool Step_Forward ( double& Previous_Time,
+                         double& Current_Time,
+                         double& Time_Step,
+                         bool&   majorSnapshotTimesUpdated );
 
      /// \brief Compute the next time step for overpressure calculations.
      ///
@@ -165,8 +164,8 @@ namespace Basin_Modelling {
 
      /// \ brief Compute the next time step for igneous intrusion
      void determineIgneousIntrusionTimeStep ( const double Current_Time, const double previousTimeStep, double & Time_Step );
-     
-     /// \brief Allocate the Finite element grids for overpressure and temperature. 
+
+     /// \brief Allocate the Finite element grids for overpressure and temperature.
      ///
      /// The grids are different for both calculations so 2 are needed.
      void Construct_FEM_Grid ( const double                    Previous_Time,
@@ -245,11 +244,11 @@ namespace Basin_Modelling {
      void Copy_Current_Properties ();
 
     ///
-    /// If a needle, or a layer, is entirely eroded then at the end of an overpressure 
+    /// If a needle, or a layer, is entirely eroded then at the end of an overpressure
     /// calculation there is no reference to which it can be judged to have converged
     /// to the correct thickness. Therefore the values used to determine convergence are
-    /// the calculated thickness at end of deposition of the layer and the deposition 
-    /// thickness input in the stratigraphy table. The value that is stored is this 
+    /// the calculated thickness at end of deposition of the layer and the deposition
+    /// thickness input in the stratigraphy table. The value that is stored is this
     /// thickness at deposition.
     ///
     void Store_Computed_Deposition_Thickness ( const double Current_Time );
@@ -265,12 +264,12 @@ namespace Basin_Modelling {
 
     /// \brief Save properties to disk.
     void Save_Properties ( const double Current_Time );
-  
+
      /// \brief Solves the steady state temperature equation for the basement.
      ///
      /// Basically this pre-heats the basement.
      void Initialise_Basin_Temperature ( bool& temperatureHasDiverged );
-  
+
      ///
      ///
      ///
@@ -298,7 +297,7 @@ namespace Basin_Modelling {
      void zeroTransportedMass ( const double currentTime );
 
      /// \brief Compute temperature dependant properties when solving for over-pressure only.
-     void Compute_Temperature_Dependant_Properties     ( const double Previous_Time, 
+     void Compute_Temperature_Dependant_Properties     ( const double Previous_Time,
                                                          const double Current_Time );
 
 
@@ -386,7 +385,7 @@ namespace Basin_Modelling {
 
      /// Grid that links computation of chemical compaction and grid
      std::unique_ptr<ChemicalCompactionGrid>  m_chemicalCompactionGrid;
-     ///and corresponding chemical compaction calculator   
+     ///and corresponding chemical compaction calculator
      std::unique_ptr<ChemicalCompactionCalculator>  m_chemicalCompactionCalculator;
 
      Temperature_Solver Temperature_Calculator;
@@ -402,7 +401,7 @@ namespace Basin_Modelling {
      PropListVec m_concludingMapOutputProperties;
      /// List of volume properties which are only output at present day, t=0Ma
      PropListVec m_concludingVolumeOutputProperties;
-     PropListVec m_combinedVolumeOutputProperties; 
+     PropListVec m_combinedVolumeOutputProperties;
      /// List of properties which are calculated and output at the end of the simulation
      PropListVec m_volumeDerivedOutputProperties;
      PropListVec m_mapDerivedOutputProperties;

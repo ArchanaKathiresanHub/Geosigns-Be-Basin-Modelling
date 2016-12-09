@@ -35,6 +35,9 @@
 #include <float.h>
 #include <math.h>
 
+//utilities library
+#include "LogHandler.h"
+
 //------------------------------------------------------------//
 
 #include "ConstantsFastcauldron.h"
@@ -143,13 +146,13 @@ typedef CBMGenerics::ComponentManager::SpeciesNamesId ComponentId;
 Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
    : m_vreOutputGrid(Application_Context->mapDA, Application_Context->layers),
      m_vreAlgorithm(GeoPhysics::VitriniteReflectance::create( FastcauldronSimulator::getInstance ().getRunParameters ()->getVreAlgorithm () ) ),
-     Temperature_Calculator ( Application_Context ),
-     m_surfaceNodeHistory ( Application_Context ),
      m_chemicalCompactionGrid ( ChemicalCompactionGrid::create( FastcauldronSimulator::getInstance ().getRunParameters ()->getChemicalCompactionAlgorithm (),
                                                                 FastcauldronSimulator::getInstance().getRunParameters()->getLegacy(),
                                                                 Application_Context -> mapDA,
                                                                 Application_Context -> layers )),
      m_chemicalCompactionCalculator ( m_chemicalCompactionGrid -> createChemicalCompaction() ),
+     Temperature_Calculator ( Application_Context ),
+     m_surfaceNodeHistory ( Application_Context ),
 
      // Construct the computational domain for the temperature simulation.
      // This requires all layers in the domain.
@@ -1116,7 +1119,7 @@ void Basin_Modelling::FEM_Grid::Evolve_Pressure_Basin ( const int   Number_Of_Ge
   overpressureHasDiverged = false;
 
   m_chemicalCompactionGrid->emptyGrid();
-  while ( Step_Forward ( Previous_Time, Current_Time, Time_Step, majorSnapshotTimesUpdated, Number_Of_Newton_Iterations ) and not overpressureHasDiverged and not errorInDarcy ) {
+  while ( Step_Forward ( Previous_Time, Current_Time, Time_Step, majorSnapshotTimesUpdated ) and not overpressureHasDiverged and not errorInDarcy ) {
 
     if ( basinModel -> debug1 or basinModel->verbose ) {
       PetscPrintf ( PETSC_COMM_WORLD, "***************************************************************\n" );
@@ -1256,7 +1259,7 @@ void Basin_Modelling::FEM_Grid::Evolve_Temperature_Basin ( bool& temperatureHasD
   cout.precision ( 8 );
   cout.flags ( ios::scientific );
 
-  while ( Step_Forward ( Previous_Time, Current_Time, Time_Step, majorSnapshotTimesUpdated, Number_Of_Newton_Iterations ) and not temperatureHasDiverged and not errorInDarcy ) {
+  while ( Step_Forward ( Previous_Time, Current_Time, Time_Step, majorSnapshotTimesUpdated ) and not temperatureHasDiverged and not errorInDarcy ) {
 
     if ( basinModel -> debug1 or basinModel->verbose ) {
       PetscPrintf ( PETSC_COMM_WORLD, "***************************************************************\n" );
@@ -1437,7 +1440,7 @@ void Basin_Modelling::FEM_Grid::Evolve_Coupled_Basin ( const int   Number_Of_Geo
 
 
   // Now only need to do a single newton iteration (keep constant and Newton iterations for future use)
-  while ( Step_Forward ( Previous_Time, Current_Time, Time_Step, majorSnapshotTimesUpdated, Number_Of_Newton_Iterations ) and not hasDiverged and not errorInDarcy ) {
+  while ( Step_Forward ( Previous_Time, Current_Time, Time_Step, majorSnapshotTimesUpdated ) and not hasDiverged and not errorInDarcy ) {
 
     if ( basinModel -> debug1 or basinModel->verbose ) {
       PetscPrintf ( PETSC_COMM_WORLD, "***************************************************************\n" );
@@ -1671,13 +1674,12 @@ void Basin_Modelling::FEM_Grid::Save_Properties ( const double Current_Time ) {
 //------------------------------------------------------------//
 
 
-bool Basin_Modelling::FEM_Grid::Step_Forward (       double& Previous_Time,
-                                                     double& Current_Time,
-                                                     double& Time_Step,
-                                                     bool&   majorSnapshotTimesUpdated,
-                                               const int     Number_Of_Newton_Iterations ) {
+bool Basin_Modelling::FEM_Grid::Step_Forward ( double& Previous_Time,
+                                               double& Current_Time,
+                                               double& Time_Step,
+                                               bool&   majorSnapshotTimesUpdated ) {
 
-  majorSnapshotTimesUpdated = false;
+   majorSnapshotTimesUpdated = false;
 
   if ( Current_Time == PresentDay ) {
     // We are done!
@@ -1734,6 +1736,10 @@ void Basin_Modelling::FEM_Grid::Determine_Next_Pressure_Time_Step ( const double
                                                                           double& Time_Step,
                                                                     const int     Number_Of_Newton_Iterations,
                                                                     const int     numberOfGeometricIterations ) {
+
+   // Added in order to prevent a compiler warning about unused parameters.
+   (void) numberOfGeometricIterations;
+
    //Store Time_Step for igneous intrusion computation
    const double previousTimeStep = Time_Step;
 
@@ -1854,8 +1860,13 @@ void Basin_Modelling::FEM_Grid::Determine_Next_Temperature_Time_Step ( const dou
 
 void Basin_Modelling::FEM_Grid::Determine_Next_Coupled_Time_Step ( const double  Current_Time,
                                                                          double& Time_Step,
-                                                                   const int     Number_Of_Overpressure_Newton_Iterations,
+                                                                   const int     numberOfOverpressureNewtonIterations,
                                                                    const int     numberOfGeometricIterations ) {
+
+   // Added in order to prevent a compiler warning about unused parameters.
+   (void) numberOfGeometricIterations;
+   (void) numberOfOverpressureNewtonIterations;
+
    //Store Time_Step for igneous intrusion computation
    const double previousTimeStep = Time_Step;
 
@@ -2149,6 +2160,9 @@ void Basin_Modelling::FEM_Grid::postTimeStepOperations ( const double currentTim
 bool Basin_Modelling::FEM_Grid::RecomputeJacobian ( const int iterationCount,
                                                     const int optimisationLevel ) const {
 
+   // Added in order to prevent a compiler warning about unused parameters.
+   (void) optimisationLevel;
+
 #if 0
   static const int MinimumInitialJacobianComputations [ 3 ] = { 2, 2, 4 };
   const int RecomputeJacobianEveryNthIteration  = 8;
@@ -2246,27 +2260,24 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
   bool Converged = false;
   bool applyNonConservativeModel = false;
 
-  int linearSolverIterationCount = PressureSolver::DefaultMaximumPressureLinearSolverIterations;
-  int linearSolverTotalIterationCount;
+  // Initialised in order to prevent a compiler warning.
+  int linearSolverTotalIterationCount = 0;
   int linearSolveAttempts;
-
-  bool isDefaultSolver = true;
 
   PetscScalar Residual_Solution_Length;
 
   // Initialised to 1, to stop the compiler from complaining. This initialisation is legitimate
   // because this variable IS assigned to before use, it is used in the 3rd and subsequent iterations.
-  PetscScalar Residual_Length = 1.0;
-  PetscScalar Previous_Residual_Length = 1.0;
-  PetscScalar Solution_Length;
+  PetscScalar Residual_Length = 0.0;
+  PetscScalar Previous_Residual_Length = 0.0;
+  PetscScalar Solution_Length = 0.0;
+  PetscScalar previousSolutionLength;
   PetscReal   linearSolverResidualNorm;
 
   boost::shared_ptr<PetscSolver> pressureLinearSolver ( new PetscCG ( pressureSolver->linearSolverTolerance ( basinModel->Optimisation_Level ),
                                                                       PressureSolver::DefaultMaximumPressureLinearSolverIterations ));
   pressureLinearSolver->loadCmdLineOptions();
 
-
-  bool JacobianComputed;
 
   Jacobian = PetscObjectAllocator::allocateMatrix ( m_pressureComputationalDomain );
   Residual = PetscObjectAllocator::allocateVector ( m_pressureComputationalDomain );
@@ -2284,7 +2295,8 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
 
   PetscScalar First_Po_Norm;
 
-  PetscScalar Theta;
+  // Initilaised in order to prevent a compiler warning.
+  PetscScalar Theta = 0.0;
   PetscScalar Theta_Increment;
 
 
@@ -2353,8 +2365,6 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
       System_Assembly_Time = System_Assembly_Time + Assembly_End_Time - Assembly_Start_Time;
 
       PetscTime(&Start_Time);
-
-      JacobianComputed = true;
 
       PetscTime(&Jacobian_End_Time);
       Jacobian_Time = Jacobian_End_Time - Jacobian_Start_Time;
@@ -2487,6 +2497,7 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  Pre
       mapping.putSolution ( Overpressure );
       pressureSolver->checkPressureSolution ();
 
+      previousSolutionLength = Solution_Length;
       VecNorm ( Overpressure, NORM_2, &Solution_Length );
       VecNorm ( Residual_Solution, NORM_2, &Residual_Solution_Length );
       VecNorm ( Residual, NORM_2, &Residual_Length );
@@ -2967,6 +2978,7 @@ void Basin_Modelling::FEM_Grid::Solve_Linear_Temperature_For_Time_Step ( const d
   PetscLogDouble Total_System_Assembly_Time;
 
   boost::shared_ptr< PetscSolver > temperatureLinearSolver;
+  temperatureHasDiverged = false;
 
   if ( strcmp(basinModel->Temperature_Linear_Solver_Type, KSPCG) == 0)
   {
@@ -2978,12 +2990,12 @@ void Basin_Modelling::FEM_Grid::Solve_Linear_Temperature_For_Time_Step ( const d
                                                       basinModel->Temperature_GMRes_Restart ));
   }
 
+  temperatureLinearSolver->setInitialGuessNonZero ( true );
   temperatureLinearSolver->loadCmdLineOptions();
+  maximumNumberOfLinearSolverIterations = temperatureLinearSolver->getMaxIterations();
 
   PetscLogStages::push( PetscLogStages :: TEMPERATURE_LINEAR_SOLVER );
   PetscTime(&Iteration_Start_Time);
-
-  maximumNumberOfLinearSolverIterations = temperatureLinearSolver->getMaxIterations();
 
   PetscTime(&matrixStartTime);
 
@@ -3052,6 +3064,7 @@ void Basin_Modelling::FEM_Grid::Solve_Linear_Temperature_For_Time_Step ( const d
 
   KSPConvergedReason convergedReason;
   temperatureLinearSolver->solve(Stiffness_Matrix, Load_Vector, Temperature, &numberOfLinearIterations, &convergedReason);
+
   PetscTime(&End_Time);
 
   // Print solution to file
@@ -3067,7 +3080,6 @@ void Basin_Modelling::FEM_Grid::Solve_Linear_Temperature_For_Time_Step ( const d
   Solve_Time = End_Time - Start_Time;
 
   VecNorm ( Temperature, NORM_2, &T_Norm );
-
   temperatureHasDiverged = std::isnan( T_Norm ) || (numberOfLinearIterations == maximumNumberOfLinearSolverIterations) || convergedReason == KSP_DIVERGED_NANORINF;
 
   PetscTime(&storeStartTime);
@@ -3227,6 +3239,9 @@ void Basin_Modelling::FEM_Grid::Solve_Coupled_For_Time_Step ( const double  Prev
 void Basin_Modelling::FEM_Grid::Compute_Temperature_Dependant_Properties ( const double Previous_Time,
                                                                            const double Current_Time ) {
 
+   // Added to prevent a compiler warning about an unused parameter.
+   (void) Previous_Time;
+
   PetscLogDouble Start_Time;
   PetscLogDouble End_Time;
 
@@ -3374,9 +3389,6 @@ void Basin_Modelling::FEM_Grid::clearLayerVectors () {
 void Basin_Modelling::FEM_Grid::Copy_Current_Properties () {
 
   Layer_Iterator Layers ( basinModel -> layers, Ascending, Basement_And_Sediments, Active_Layers_Only );
-  LayerProps_Ptr Current_Layer;
-
-  const Boolean2DArray& Valid_Needle = basinModel->getValidNeedles ();
 
   for ( Layers.Initialise_Iterator (); ! Layers.Iteration_Is_Done (); Layers++ ) {
      Layers.Current_Layer ()->copyProperties ();
@@ -3636,7 +3648,6 @@ void Basin_Modelling::FEM_Grid::Print_Needle ( const double currentAge, const in
   int X_Count;
   int Y_Count;
   int Z_Count;
-  int includedDOF;
 
   const Boolean2DArray& Valid_Needle = basinModel->getValidNeedles ();
 
@@ -3652,15 +3663,11 @@ void Basin_Modelling::FEM_Grid::Print_Needle ( const double currentAge, const in
   double Permeability_Plane_Compound;
   double fracturePressure;
 
-  DM  const* gridUsed;
-  Vec const* dofNumbers;
-
   CompoundProperty Porosity;
 
   string Layer_Name;
   std::stringstream buffer;
 
-  int Old_Precision = buffer.precision ( 6 );
   buffer.setf ( ios::scientific );
 
   Layer_Range Basin_Bottom;
@@ -3965,7 +3972,6 @@ void Basin_Modelling::FEM_Grid::printElementNeedle ( const int i, const int j ) 
 
    const FastcauldronSimulator& fastcauldron = FastcauldronSimulator::getInstance ();
    const ElementGrid&           grid         = fastcauldron.getElementGrid ();
-   const MapElementArray&       mapElements  = fastcauldron.getMapElementArray ();
 
    if ( not NumericFunctions::inRange ( i, grid.firstI (), grid.lastI ()) or
         not NumericFunctions::inRange ( j, grid.firstJ (), grid.lastJ ())) {

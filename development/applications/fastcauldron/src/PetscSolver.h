@@ -1,3 +1,12 @@
+//
+// Copyright (C) 2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 #ifndef FASTCAULDRON_PETSCSOLVER_H
 #define FASTCAULDRON_PETSCSOVLER_H
 
@@ -13,7 +22,7 @@ public:
 
    // Prints to screen the settings of the KSP solver
    void viewSettings() const;
-   
+
    int  getMaxIterations() const;
    void setMaxIterations(int maxIterations);
 
@@ -26,7 +35,12 @@ public:
    ///
    /// E.g. prefix = "temp_", then -temp_ksp_type gmres would set the solver to gmres
    void setSolverPrefix ( const std::string& solverPrefix );
-   
+
+   /// \brief Indicate that the initial solution vector is zero or not.
+   ///
+   /// \param [in] isNonZero False indicates that the initial solution is zero, true indicates otherwise.
+   void setInitialGuessNonZero ( const bool isNonZero );
+
 protected:
    PetscSolver(double tolerance = 0.0, int maxIterations = 0);
    KSP m_solver;
