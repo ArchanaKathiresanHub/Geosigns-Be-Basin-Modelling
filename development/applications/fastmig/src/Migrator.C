@@ -438,7 +438,7 @@ bool Migrator::performSnapshotMigration (const Interface::Snapshot * start, cons
    migration::Formation * bottomSourceRock = getBottomSourceRockFormation ();
 
    if (bottomSourceRock != nullptr)
-      sourceRockActive = bottomSourceRock->isActive (end);
+	   sourceRockActive = bottomSourceRock->isActive(end);
 
    if ((activeReservoirs (end) or m_reservoirDetection or m_paleoSeeps or end->getTime () == 0.0) and sourceRockActive)
    {
@@ -837,46 +837,9 @@ bool Migrator::flagTopNodes(const Interface::Snapshot * end, const bool overPres
   */
 bool Migrator::detectReservoirs (const Interface::Snapshot * start, const Interface::Snapshot * end, const bool overPressureRun)
 {
-   // first, find the the bottommost RESERVOIR formation where HC can go
-   Formation *bottomSourceRockFormation = getBottomSourceRockFormation ();
-
-   if (bottomSourceRockFormation == 0)
-      return false;
-
-   Formation * bottomFormation = 0;
-   Formation * belowBelowSourceRockFormation = 0;
-   Formation * belowSourceRockFormation = bottomSourceRockFormation->getBottomFormation ();
-   if (belowSourceRockFormation)
-      belowBelowSourceRockFormation = belowSourceRockFormation->getBottomFormation ();
-
-   if (belowBelowSourceRockFormation != 0)
-      bottomFormation = belowBelowSourceRockFormation; //+2
-   else
-   {
-      if (belowSourceRockFormation != 0)
-         bottomFormation = belowSourceRockFormation;  // +1
-      else
-         bottomFormation = bottomSourceRockFormation; // SR
-   }
-
-   if (bottomFormation == 0) return false;
-
-   //cerr << " bottomFormation ard is "<< bottomFormation->getName () << endl;
-
-   // Second, find the topmost SEAL formation
-   Formation *topActiveFormation = getTopActiveFormation (end);
-   Formation * topSealFormation = 0;
-
-   if (topActiveFormation)
-   {
-      topSealFormation = topActiveFormation;
-      assert (topActiveFormation);
-   }
-
-   //cerr << " topActiveFormation ard is "<< topActiveFormation->getName () << endl;
-
-   //Loop over the formations, to identify the Reservoirs, with these requirements:
-   // 1. they must be not source rock formations?
+   Formation * bottomFormation = bottomMostFormation(end);
+   Formation * topSealFormation = getTopActiveFormation(end);
+   if (topSealFormation == 0 or bottomFormation == 0) return false;
 
    Formation *reservoirFormation;
    Formation *sealFormation;
@@ -906,9 +869,6 @@ bool Migrator::detectReservoirs (const Interface::Snapshot * start, const Interf
 
       if (m_reservoirDetection)
       {
-         // In Reservoir formation flag specified nodes as reservoirs for oil or gas. Update the flag also for already detected reservoirs
-         reservoirFormation->detectReservoir (sealFormation, m_minOilColumnHeight, m_minGasColumnHeight, overPressureRun, topActiveFormation);
-
          // If the formation is already detected skip calculations otherwise detect crests that can hold hc
          if (reservoirFormation->detectReservoirCrests ())
          {
