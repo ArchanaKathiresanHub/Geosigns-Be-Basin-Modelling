@@ -789,7 +789,7 @@ migration::Formation * Migrator::getBottomActiveReservoirFormation (const Interf
    return bottomActiveReservoirFormation;
 }
 
-migration::Formation * Migrator::bottomMostFormation(const Interface::Snapshot * end)
+migration::Formation * Migrator::getBottomMigrationFormation(const Interface::Snapshot * end)
 {
 	Formation * bottomFormation;
 	Formation *bottomSourceRockFormation = getBottomSourceRockFormation();
@@ -810,7 +810,7 @@ migration::Formation * Migrator::bottomMostFormation(const Interface::Snapshot *
 
 bool Migrator::flagTopNodes(const Interface::Snapshot * end, const bool overPressureRun)
 {
-	Formation * bottomFormation = bottomMostFormation(end);
+	Formation * bottomFormation = getBottomMigrationFormation(end);
 	Formation * topSealFormation = getTopActiveFormation(end);
 	if (topSealFormation == 0 or bottomFormation == 0) return false;
 	Formation *sealFormation;
@@ -837,7 +837,7 @@ bool Migrator::flagTopNodes(const Interface::Snapshot * end, const bool overPres
   */
 bool Migrator::detectReservoirs (const Interface::Snapshot * start, const Interface::Snapshot * end, const bool overPressureRun)
 {
-   Formation * bottomFormation = bottomMostFormation(end);
+   Formation * bottomFormation = getBottomMigrationFormation(end);
    Formation * topSealFormation = getTopActiveFormation(end);
    if (topSealFormation == 0 or bottomFormation == 0) return false;
 
@@ -900,15 +900,15 @@ bool Migrator::computeSMFlowPaths (const Interface::Snapshot * start, const Inte
 {
    if (!m_verticalMigration)
    {
-      Formation * bottomSourceRockFormation = getBottomSourceRockFormation ();
-      if (!bottomSourceRockFormation) return false;
+      Formation * sourceFormation = getBottomMigrationFormation (end);
+      if (!sourceFormation) return false;
 
       Formation * topActiveFormation = getTopActiveFormation (end);
       if (!topActiveFormation) return false;
 
-      if (!computeSMFlowPaths (topActiveFormation, bottomSourceRockFormation, start, end)) return false;
+      if (!computeSMFlowPaths (topActiveFormation, sourceFormation, start, end)) return false;
 
-      if (!computeTargetFormationNodes (topActiveFormation, bottomSourceRockFormation)) return false;
+      if (!computeTargetFormationNodes (topActiveFormation, sourceFormation)) return false;
    }
    else
    {
@@ -926,13 +926,13 @@ bool Migrator::computeSMFlowPaths (const Interface::Snapshot * start, const Inte
 
 bool Migrator::saveSMFlowPaths (const Interface::Snapshot * start, const Interface::Snapshot * end)
 {
-   Formation * bottomSourceRockFormation = getBottomSourceRockFormation ();
-   if (!bottomSourceRockFormation) return false;
+   Formation * sourceFormation = getBottomMigrationFormation (end);
+   if (!sourceFormation) return false;
 
    Formation * topActiveFormation = getTopActiveFormation (end);
    if (!topActiveFormation) return false;
 
-   bottomSourceRockFormation->saveComputedSMFlowPaths (topActiveFormation, end);
+   sourceFormation->saveComputedSMFlowPaths (topActiveFormation, end);
 
    return true;
 }

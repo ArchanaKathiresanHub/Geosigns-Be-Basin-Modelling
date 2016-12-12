@@ -1059,7 +1059,10 @@ namespace migration
                if (reservoir and node->isEndOfPath ())
                {
                   LocalColumn * localColumn = reservoir->getLocalColumn (i, j);
-                  gridMapValue = 10 * localColumn->getFlowDirectionJ (migration::OIL) + 1 * localColumn->getFlowDirectionI (migration::OIL);
+                  if (IsValid(localColumn))
+                     gridMapValue = 10 * localColumn->getFlowDirectionJ (migration::OIL) + 1 * localColumn->getFlowDirectionI (migration::OIL);
+                  else
+                     gridMapValue = Interface::DefaultUndefinedMapValue;
                }
                else
                {
