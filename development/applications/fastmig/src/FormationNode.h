@@ -235,7 +235,7 @@ namespace migration
       bool isPartOfUndetectedReservoir(void);
       void dealWithStuckHydrocarbons(void);
       bool undetectedCrest(void);
-      FormationNode * getEqualDepthAdjacentNode(int & di);
+      FormationNode * getLateralAdjacentNode(int & di);
 
       // check if a LocalFormationNode is a crest node
       bool detectReservoirCrests (PhaseId phase);

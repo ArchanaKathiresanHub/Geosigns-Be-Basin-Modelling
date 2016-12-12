@@ -149,7 +149,6 @@ namespace migration
             return false;
       }
 
-
       unsigned int depth = getMaximumNumberOfElements () - 1;
       assert (depth >= 0);
 

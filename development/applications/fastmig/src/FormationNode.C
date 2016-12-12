@@ -50,6 +50,8 @@ using Utilities::Physics::AccelerationDueToGravity;
 #include "ConstantsMathematics.h"
 using Utilities::Maths::PaToMegaPa;
 
+#include "LogHandler.h"
+
 //#define USECAPILLARYPRESSUREMAPS 1
 //#define GAS_DENSITY_FLOW_DIRECTION
 
@@ -1178,6 +1180,8 @@ namespace migration
    {
       if (!IsValid (this))
       {
+         // Set target formation node to "this" for invalid nodes
+         prescribeTargetFormationNode();
          return;
       }
 
@@ -1187,6 +1191,26 @@ namespace migration
       {
          // it should just bypass this node upward as it either has no thickness or is a wasting node.
          m_selectedDirectionIndex = 0;
+         return;
+      }
+
+      // If at a reservoir node, don't compute cosines, follow the path of steepest ascent.
+      if (getReservoirVapour () or getReservoirLiquid ())
+      {
+         int di = 0;
+         FormationNode * adjacentFormationNode = getLateralAdjacentNode(di);
+         if (adjacentFormationNode)
+         {
+            // Setting the m_selectedDirectionIndex defines the adjacentNode
+            // which is then used to compute the targetFormationNode.
+            m_selectedDirectionIndex = di;
+         }
+         // If no suitable lateral adjacent node is found, path ends here.
+         else
+         {
+            m_selectedDirectionIndex = -1;
+            m_targetFormationNode = this;
+         }
          return;
       }
 
@@ -1405,11 +1429,16 @@ namespace migration
       if (m_targetFormationNode) // already found
          return true;
 
-      if (MaxTries < 0)
-         MaxTries = Max (2, NumProcessors () + 8);
+      // m_tried > MaxTries used to be a condition for getting in the "if" block that follows.
+      // Not anymore. Results need to be the same for runs with different numbers of processors.
+      //if (MaxTries < 0)
+      //   MaxTries = Max (2, NumProcessors () + 8);
 
-      if (m_entered or ++m_tried > MaxTries) 
+      // We will call computeNextAdjacentNode() only if there is a closed loop in the path.
+      if (m_entered)
       {
+         LogHandler (LogHandler::WARNING_SEVERITY) << "A loop in the flowlines calculation was found. " <<
+            "Adjacent node will be changed for node (" << getI() << "," << getJ() << "," << getK() << ") of formation " << m_formation->getName();
          m_tried = 0;
          computeNextAdjacentNode (); // selects next adjacent formation node; changes output of getAdjacentFormationNode ()
          return false;
@@ -1419,12 +1448,13 @@ namespace migration
       {
          // If Hcs are trapped in what would otherwise be a detected reservoir
          if (isPartOfUndetectedReservoir())
-         {
             dealWithStuckHydrocarbons();
-         }
          // No useful target node. Hcs are eliminated
          else
+         {
+            m_selectedDirectionIndex = -1;
             m_targetFormationNode = this;
+         }
       }
       else
       {
@@ -1476,12 +1506,16 @@ namespace migration
             }
          }
          else
+         {
+            m_selectedDirectionIndex = -1;
             m_targetFormationNode = this;
+         }
       }
       else
       {
          int di = 0;
-         FormationNode * adjacentFormationNode = getEqualDepthAdjacentNode(di);
+         FormationNode * adjacentFormationNode = getLateralAdjacentNode(di);
+         // If an adjacent node is found use it.
          if (adjacentFormationNode)
          {
             // As above, setting the m_selectedDirectionIndex defines the adjacentNode
@@ -1490,16 +1524,13 @@ namespace migration
             adjacentFormationNode->computeTargetFormationNode();
             m_targetFormationNode = adjacentFormationNode->getTargetFormationNode();
          }
-         else if (m_topFormationNode and !m_topFormationNode->isImpermeable() and !m_formation->isOnBoundary(this))
-         {
-            m_selectedDirectionIndex = 0;
-            m_topFormationNode->computeTargetFormationNode();
-            m_targetFormationNode = m_topFormationNode->getTargetFormationNode();
-         }
+         // Otherwise the path ends here
          else
+         {
+            m_selectedDirectionIndex = -1;
             m_targetFormationNode = this;
+         }
       }
-
       return;
    }
 
@@ -1534,7 +1565,10 @@ namespace migration
       return onlyDeeperNodes;
    }
 
-   FormationNode * LocalFormationNode::getEqualDepthAdjacentNode(int & di)
+   // Replicates the behaviour of columns. Uses depth of top left corner node
+   // to calculate the path of steepest ascent. If at the boundary of a valid
+   // region, then all HCs are eliminated, similar to outward leakage.
+   FormationNode * LocalFormationNode::getLateralAdjacentNode(int & di)
    {
       int diToReturn = di;
       double minGradient = 0.0;
@@ -1545,7 +1579,10 @@ namespace migration
 
          if (!IsValid(neighbourNode))
          {
-            continue;
+            // As in the case of columns in reservoirs, if we are at the edge of the valid grid,
+            // don't bother, charge in this node stays here and eventually gets eliminated
+            nodeToReturn = nullptr;
+            break;
          }
 
          if (neighbourNode and neighbourNode->isImpermeable())
