@@ -912,7 +912,7 @@ namespace migration
       // calculate overpressure difference
       double dOverPressure;
       if ( pressureRun )
-         dOverPressure = topNode->m_overPressure - m_overPressure;
+         dOverPressure = (topNode->m_overPressure - m_overPressure) * Utilities::Maths::MegaPaToPa;
       else
          dOverPressure = 0.0;
 
