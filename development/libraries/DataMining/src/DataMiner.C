@@ -12,7 +12,7 @@ DataAccess::Mining::DataMiner::~DataMiner () {
 
 void DataAccess::Mining::DataMiner::setProperties ( const PropertySet& properties ) {
 
-  
+
    PropertySet::const_iterator propIter;
 
    for ( propIter = properties.begin (); propIter != properties.end (); ++propIter ) {
@@ -35,7 +35,7 @@ void DataAccess::Mining::DataMiner::compute ( const ElementPosition&            
    domainProperty = m_collection->getDomainProperty ( property, m_propertyManager );
 
    if ( domainProperty != 0 ) {
-      domainProperty->compute ( position, result );
+      result.setValue ( domainProperty->getProperty (), domainProperty->compute ( position ));
       result.setElement ( position );
    }
 

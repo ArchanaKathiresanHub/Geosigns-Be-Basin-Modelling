@@ -22,8 +22,6 @@ namespace DataAccess {
 
       public :
 
-         using DomainFormationProperty::compute;
-
          PorosityCalculator ( const DomainPropertyCollection*            collection,
                               DerivedProperties::DerivedPropertyManager& propertyManager,
                               const Interface::Snapshot*                 snapshot,

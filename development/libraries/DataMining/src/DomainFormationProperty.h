@@ -47,12 +47,6 @@ namespace DataAccess {
          void extractCoefficients ( const ElementPosition& position,
                                           FiniteElementMethod::ElementVector& coefficients ) const;
 
-         /// Add the property, evaluated at the position, to the evaluations mapping.
-         ///
-         /// If the formation is null then a null-value will be added.
-         void compute ( const ElementPosition&            position,
-                              InterpolatedPropertyValues& evaluations ) const;
-
       protected :
 
          /// \typedef FormationToGridMapMapping

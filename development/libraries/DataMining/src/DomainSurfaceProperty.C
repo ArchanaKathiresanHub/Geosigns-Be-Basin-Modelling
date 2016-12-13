@@ -21,31 +21,6 @@ DataAccess::Mining::DomainSurfaceProperty::~DomainSurfaceProperty () {
    m_values.clear ();
 }
 
-void DataAccess::Mining::DomainSurfaceProperty::compute ( const ElementPosition&            position,
-                                                                InterpolatedPropertyValues& evaluations ) const {
-
-   if ( position.getSurface () != 0 ) {
-      SurfaceToPropertyValueMapping::const_iterator propIter = m_values.find ( position.getSurface ());
-
-      if ( propIter != m_values.end ()) {
-         DerivedProperties::SurfacePropertyPtr grid = propIter->second;
-         evaluations.setValue ( getProperty (), interpolate2D ( position, grid ));
-      } else {
-         evaluations.setValue ( getProperty (), DataAccess::Interface::DefaultUndefinedMapValue );
-      }
-
-   } else {
-
-      if ( not evaluations.contains ( getProperty ())) {
-         // What kind of error is this?
-         evaluations.setValue ( getProperty (), DataAccess::Interface::DefaultUndefinedMapValue );
-      }
-
-   }
-
-}
-
-
 double DataAccess::Mining::DomainSurfaceProperty::compute ( const ElementPosition& position ) const {
 
    if ( position.getSurface () != 0 ) {

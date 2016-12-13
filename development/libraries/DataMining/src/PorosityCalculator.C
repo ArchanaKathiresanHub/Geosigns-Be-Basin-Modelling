@@ -68,7 +68,7 @@ double DataAccess::Mining::PorosityCalculator::compute ( const ElementPosition& 
       chemicalCompaction = Interface::DefaultUndefinedMapValue;
    }
 
-   if ( ves != Interface::DefaultUndefinedMapValue and maxVes != Interface::DefaultUndefinedMapValue and 
+   if ( ves != Interface::DefaultUndefinedMapValue and maxVes != Interface::DefaultUndefinedMapValue and
         (( layerRequiresChemicalCompaction and chemicalCompaction != Interface::DefaultUndefinedMapValue ) or not layerRequiresChemicalCompaction )) {
 
       const GeoPhysics::CompoundLithology* lithology = geoForm->getCompoundLithology ( position.getI (), position.getJ ());

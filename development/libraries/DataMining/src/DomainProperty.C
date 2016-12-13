@@ -25,15 +25,9 @@ namespace DataAccess { namespace Mining
 
 
   bool DomainProperty::initialise()
-  { 
+  {
      // Do nothing.
      return true;
   }
 
-  void DomainProperty::compute( const ElementPosition      & position,
-                                InterpolatedPropertyValues & evaluations ) const
-  {
-     evaluations.setValue( getProperty(), compute( position ) );
-  }
 }} // namespace DataAccess::Mining
-

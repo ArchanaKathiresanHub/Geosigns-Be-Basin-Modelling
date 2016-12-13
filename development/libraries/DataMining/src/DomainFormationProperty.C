@@ -47,37 +47,6 @@ double DataAccess::Mining::DomainFormationProperty::compute ( const ElementPosit
 
 }
 
-void DataAccess::Mining::DomainFormationProperty::compute ( const ElementPosition&            position,
-                                                                  InterpolatedPropertyValues& evaluations ) const {
-
-   if ( position.getFormation () != 0 ) {
-
-      FormationToPropertyValueMapping::const_iterator propIter = m_values.find ( position.getFormation ());
-
-      if ( propIter != m_values.end ()) {
-         DerivedProperties::FormationPropertyPtr grid = propIter->second;
-
-         if ( position.getSurface () == 0 ) {
-            evaluations.setValue ( getProperty (), interpolate3D ( position, grid ));
-         } else {
-            evaluations.setValue ( getProperty (), interpolate2D ( position, grid ));
-         }
-
-      } else {
-         evaluations.setValue ( getProperty (), DataAccess::Interface::DefaultUndefinedMapValue );
-      }
-
-   } else {
-
-      if ( not evaluations.contains ( getProperty ())) {
-         // What kind of error is this?
-         evaluations.setValue ( getProperty (), DataAccess::Interface::DefaultUndefinedMapValue );
-      }
-
-   }
-
-}
-
 void DataAccess::Mining::DomainFormationProperty::extractCoefficients ( const ElementPosition& position,
                                                                               FiniteElementMethod::ElementVector& coefficients ) const {
 
