@@ -61,9 +61,8 @@ namespace casa
       std::vector< std::pair<const VarPrmContinuous *, size_t> > m_optimPrms; // keeps pointer to variable parameter and subparameter number
       std::vector< size_t >                                      m_permPrms;  // permutation array - optimization prms -> all prms
 
-      std::vector< int >                                         m_permObs;            // permutation array - optimization obs -> all obs
-	  std::vector< std::vector<int>>                             m_optimObservations;  // for each observable in the permutation array, its mask
-	  std::vector< const Observable*>                            m_optimObsarvable;    // the observables in the permutation array
+	  std::vector< std::vector<bool>>                            m_optimObsMask;    // the mask for each observation
+	  std::vector< std::pair<size_t,const Observable*>>          m_optimObsLst;     // the valid observables (first the k position in the observable space, than its ptr)
       
       std::vector< std::shared_ptr<RunCase> >                    m_casesSet;         // set of run cases for each step of LM
       std::shared_ptr<RunCase>                                   m_baseCase;         // the base case 

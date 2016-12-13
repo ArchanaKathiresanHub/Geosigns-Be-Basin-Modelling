@@ -19,6 +19,7 @@
 
 // CMB API
 #include "cmbAPI.h"
+#include <UndefinedValues.h>
 
 // Utilities lib
 #include "NumericFunctions.h"
@@ -553,59 +554,54 @@ size_t LMOptAlgorithm::prepareParameters( std::vector<double> & initGuess, std::
 
 size_t LMOptAlgorithm::prepareObservables()
 {
-	if (!m_permObs.empty()) m_permObs.clear();
-	if (!m_optimObservations.empty())  m_optimObservations.clear();
-	if (!m_optimObsarvable.empty())  m_optimObsarvable.clear();
+   if ( !m_optimObsMask.empty() ) m_optimObsMask.clear();
+   if ( !m_optimObsLst.empty() )  m_optimObsLst.clear();
 
-	// filter observables which are suitable for the optimization loop
-	const ObsSpace & obSp = m_sa->obsSpace();
-	size_t obsSpDim = 0;
+   // filter observables which are suitable for the optimization loop
+   const ObsSpace & obSp = m_sa->obsSpace();
+   size_t obsSpDim = 0;
 
-	for (int i = 0; i < obSp.size(); ++i)
-	{
-		const std::string & msg = obSp.observable(i)->checkObservableForProject(m_sa->baseCase());
+   for ( int i = 0; i < obSp.size(); ++i )
+   {
+      const std::string & msg = obSp.observable(i)->checkObservableForProject(m_sa->baseCase());
 
-		//the observable is included in the domain window 
-		if (msg.empty() && obSp.observable(i)->hasReferenceValue())
-		{
-			const std::vector<double> & obv = obSp.observable(i)->referenceValue()->asDoubleArray();
-			const std::vector<double> & sigma = obSp.observable(i)->stdDeviationForRefValue()->asDoubleArray();
-			std::vector<int>            validObservations;
+      //the observable is included in the domain window 
+      if ( msg.empty() && obSp.observable(i)->hasReferenceValue() )
+      {
+         const std::vector<double> & obv = obSp.observable(i)->referenceValue()->asDoubleArray();
+         const std::vector<double> & sigma = obSp.observable(i)->stdDeviationForRefValue()->asDoubleArray();
+         std::vector<bool> validObservations(obSp.observable(i)->dimension(), false);
 
-			for (int k = 0; k < obSp.observable(i)->dimension(); ++k)
-			{
-				// user undefined values are excluded
-				if (obv[k] == DataAccess::Interface::DefaultUndefinedScalarValue || obv[k] == DataAccess::Interface::DefaultUndefinedMapValue)
-				{
-					LogHandler(LogHandler::WARNING_SEVERITY) << "Invalid observation " << obSp.observable(i)->name()[k] << " with reference value  " << obv[k]
-						<< " has been removed from the LM optimization ";
-					continue;
-				}
+         for ( int k = 0; k < obSp.observable(i)->dimension(); ++k )
+         {
+            // user undefined values are excluded
+            if ( IsValueUndefined(obv[k]) )
+            {
+               LogHandler(LogHandler::ERROR_SEVERITY) << "Invalid observation " << obSp.observable(i)->name()[k] << " with reference value  " << obv[k]
+                  << " has been removed from the LM optimization ";
+               continue;
+            }
 
-				// observations with invalid sigmas are excluded
-				if (sigma[k] <= 0)
-				{
-					LogHandler(LogHandler::WARNING_SEVERITY) << "Invalid observation " << obSp.observable(i)->name()[k] << " with standard deviation value  " << sigma[k]
-						<< " has been removed from the LM optimization ";
-					continue;
-				}
+            // observations with invalid sigmas are excluded
+            if ( sigma[k] <= 0 )
+            {
+               LogHandler(LogHandler::ERROR_SEVERITY) << "Invalid observation " << obSp.observable(i)->name()[k] << " with standard deviation value  " << sigma[k]
+                  << " has been removed from the LM optimization ";
+               continue;
+            }
 
-				// array of valid observations 
-				validObservations.push_back(k);
-			}
-			
-			size_t validObservationsSize = validObservations.size();
-			if (validObservationsSize > 0)
-			{
-				obsSpDim += validObservationsSize;
-				m_permObs.push_back(i);
-				m_optimObservations.push_back(validObservations);
-				m_optimObsarvable.push_back(obSp.observable(i));
-			}
-		}
-	}
-	
-	return obsSpDim;
+            // update the mask and the obsSpDim
+            validObservations[k] = true;
+            obsSpDim += 1;
+         }
+
+         // push back the observable index and pointer and the mask array 
+         m_optimObsLst.push_back(std::make_pair(i, obSp.observable(i)));
+         m_optimObsMask.push_back(validObservations);
+      }
+   }
+
+   return obsSpDim;
 }
 
 void LMOptAlgorithm::updateParametersAndRunCase( const Eigen::VectorXd & x )
@@ -752,46 +748,31 @@ void LMOptAlgorithm::updateParametersAndRunCase( const Eigen::VectorXd & x )
 
 void LMOptAlgorithm::removeInvalidObservations(size_t & nValues)
 {
-	//make sure this is the base case (m_stepNum==1)
-	assert(m_stepNum == 1);
-	std::shared_ptr<RunCase>  rc(m_casesSet.back());
-	nValues = 0;
-	// eliminate observations with invalid simulated values in the base case
-	for (size_t i = 0; i < m_permObs.size(); ++i)
-	{
-		const Observable          * obs = m_optimObsarvable[i];
-		const std::vector<double> & obv = rc->obsValue(m_permObs[i])->asDoubleArray();
+   //make sure this is the base case (m_stepNum==1)
+   assert(m_stepNum == 1);
+   std::shared_ptr<RunCase>  rc(m_casesSet.back());
+   nValues = 0;
 
-		for (size_t observation = 0; observation < m_optimObservations[i].size(); ++observation)
-		{
-			size_t k = m_optimObservations[i][observation];
-			if (obv[k] == DataAccess::Interface::DefaultUndefinedScalarValue || obv[k] == DataAccess::Interface::DefaultUndefinedMapValue)
-			{
-				LogHandler(LogHandler::WARNING_SEVERITY) << "Invalid observation " << obs->name()[k] << " with simulated value in the base case " << obv[k] 
-					<< " has been removed from the LM optimization ";
-				m_optimObservations[i][observation] = -1;
-			}
-		}
+   // eliminate observations with invalid simulated values in the base case
+   for ( size_t i = 0; i < m_optimObsLst.size(); ++i )
+   {
+      const Observable          * obs = m_optimObsLst[i].second;
+      const std::vector<double> & obv = rc->obsValue(m_optimObsLst[i].first)->asDoubleArray();
 
-		//update the mask by removing invalid values
-		m_optimObservations[i].erase(std::remove(m_optimObservations[i].begin(), m_optimObservations[i].end(), -1), m_optimObservations[i].end());
-		size_t validObservations = m_optimObservations[i].size();
+      for ( size_t k = 0; k < m_optimObsMask[i].size(); ++k )
+      {
+         if ( IsValueUndefined(obv[k]) )
+         {
+            LogHandler(LogHandler::ERROR_SEVERITY) << "Invalid observation " << obs->name()[k] << " with simulated value in the base case " << obv[k]
+               << " has been removed from the LM optimization ";
+            m_optimObsMask[i][k] = false;
+            continue;
+         }
 
-		if (validObservations == 0)
-		{
-			//assign a flag to remove the members from the array
-			m_optimObsarvable[i] = nullptr;
-			m_permObs[i] = -1;
-		}
-		else
-		{
-			nValues += validObservations;
-		}
-	}
-
-	// remove observable with no valid observations
-	m_optimObsarvable.erase(std::remove(m_optimObsarvable.begin(), m_optimObsarvable.end(), nullptr), m_optimObsarvable.end());
-	m_permObs.erase(std::remove(m_permObs.begin(), m_permObs.end(), -1), m_permObs.end());
+         // it can also be the mask has been set to false before
+         if ( m_optimObsMask[i][k] ) nValues += 1;
+      }
+   }
 }
 
 void LMOptAlgorithm::calculateFunctionValue(Eigen::VectorXd & fvec)
@@ -806,44 +787,43 @@ void LMOptAlgorithm::calculateFunctionValue(Eigen::VectorXd & fvec)
 
 	size_t mi = 0;
 
-	// at first calculate minimization function terms for observables value 
-	for ( size_t i = 0; i < m_permObs.size(); ++i )
-	{
-		const Observable          * obs    = m_optimObsarvable[i];
-		const std::vector<double> & refVal = obs->referenceValue()->asDoubleArray();
-		const std::vector<double> & obv    = rc->obsValue(m_permObs[i])->asDoubleArray();
-		const std::vector<double> & sigma  = obs->stdDeviationForRefValue()->asDoubleArray();
-		double                      uaWeight = obs->uaWeight();
+   // at first calculate minimization function terms for observables value 
+   for ( size_t i = 0; i < m_optimObsLst.size(); ++i )
+   {
+      const Observable          * obs      = m_optimObsLst[i].second;
+      const std::vector<double> & refVal   = obs->referenceValue()->asDoubleArray();
+      const std::vector<double> & obv      = rc->obsValue(m_optimObsLst[i].first)->asDoubleArray();
+      const std::vector<double> & sigma    = obs->stdDeviationForRefValue()->asDoubleArray();
+      double                      uaWeight = obs->uaWeight();
 
-		assert(refVal.size() == obv.size() );
+      assert(refVal.size() == obv.size());
 
+      for ( size_t k = 0; k < m_optimObsMask[i].size(); ++k )
+      {
+         if ( !m_optimObsMask[i][k] ) continue;
 
-		for (size_t observation = 0; observation < m_optimObservations[i].size(); ++observation)
-		{
-			size_t k = m_optimObservations[i][observation];
+         // if the oservation is undefined or invalid at this stage after the filtering of the invalid observations in the base case we should exit the LM optimization
+         if ( IsValueUndefined(obv[k]) )
+         {
+            LogHandler(LogHandler::ERROR_SEVERITY) << "Invalid observation value: " << obs->name()[k] << " with simulated value " << obv[k] << ", stopping...";
+            throw ErrorHandler::Exception(ErrorHandler::UnknownError) << "Invalid observation value, stopping...";
+         }
 
-			// if the oservation is undefined or invalid at this stage after the filtering of the invalid observations in the base case we should exit the LM optimization
-			if (obv[k] == DataAccess::Interface::DefaultUndefinedScalarValue || obv[k] == DataAccess::Interface::DefaultUndefinedMapValue)
-			{
-				LogHandler(LogHandler::ERROR_SEVERITY) << "Invalid observation value: " << obs->name()[k] << " with simulated value " << obv[k] << ", stopping...";
-				throw ErrorHandler::Exception(ErrorHandler::UnknownError) << "Invalid observation value, stopping...";
-			}
+         if ( sigma[k] <= 0 )
+         {
+            LogHandler(LogHandler::ERROR_SEVERITY) << "Invalid standard deviation value: " << obs->name()[k] << " with standard deviation " << sigma[k] << ", stopping...";
+            throw ErrorHandler::Exception(ErrorHandler::UnknownError) << "Invalid standard deviation value, stopping...";
+         }
 
-			if (sigma[k] <= 0)
-			{
-				LogHandler(LogHandler::ERROR_SEVERITY) << "Invalid standard deviation value: " << obs->name()[k] << " with standard deviation " << sigma[k] << ", stopping...";
-				throw ErrorHandler::Exception(ErrorHandler::UnknownError) << "Invalid standard deviation value, stopping...";
-			}
-
-			double dif = std::sqrt(uaWeight) * std::abs(obv[k] - refVal[k]) / sigma[k];
+         double dif = std::sqrt(uaWeight) * std::abs(obv[k] - refVal[k]) / sigma[k];
 
 #ifndef ACCUMULATE_MIN_FUNCTION
-			fvec[mi] = dif;
+         fvec[mi] = dif;
 #endif
-			trgtQ += dif*dif;
-			++mi;
-		}
-	}
+         trgtQ += dif*dif;
+         ++mi;
+      }
+   }
 
 	// 2. There is need to average trgtQ by mi (it is like multiplying by a constant)
 #ifdef ACCUMULATE_MIN_FUNCTION

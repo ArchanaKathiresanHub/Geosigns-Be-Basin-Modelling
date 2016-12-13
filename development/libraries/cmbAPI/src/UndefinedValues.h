@@ -14,7 +14,8 @@
 #ifndef CMB_UNDEFINED_VALUES
 #define CMB_UNDEFINED_VALUES
 
-#define UndefinedDoubleValue  -9999.0    ///< Undefined value for float point numbers
+#define UndefinedDoubleValue  -9999.0    ///< First undefined value for float point numbers
+#define UndefinedDoubleMapValue 99999.0  ///< Second undefined value for float point numbers
 #define UndefinedIntegerValue -1         ///< Undefined value for integer numbers
 #define UndefinedIDValue       65535U    ///< Undefined value for size_t/ID type numbers
 #define UndefinedStringValue  "undef"    ///< Undefined value for strings
@@ -31,7 +32,7 @@
 /// @brief Check is given value is equal to "undefined double value" 
 /// @param val float point number to check
 /// @return true if given value is exact as "undefined value", false otherwise
-inline bool IsValueUndefined( double              val ) { return val == UndefinedDoubleValue; }
+inline bool IsValueUndefined( double              val ) { return (val == UndefinedDoubleValue or val == UndefinedDoubleMapValue); }
 
 /// @brief Check is given value is equal to "undefined string value" 
 /// @param val string to check
