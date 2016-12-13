@@ -2940,7 +2940,6 @@ void Basin_Modelling::FEM_Grid::Solve_Linear_Temperature_For_Time_Step ( const d
                                                                          double&      T_Norm ) {
 
   int numberOfLinearIterations;
-  int maximumNumberOfLinearSolverIterations;
 
   Mat Stiffness_Matrix;
   Vec Load_Vector;
@@ -2992,7 +2991,6 @@ void Basin_Modelling::FEM_Grid::Solve_Linear_Temperature_For_Time_Step ( const d
 
   temperatureLinearSolver->setInitialGuessNonZero ( true );
   temperatureLinearSolver->loadCmdLineOptions();
-  maximumNumberOfLinearSolverIterations = temperatureLinearSolver->getMaxIterations();
 
   PetscLogStages::push( PetscLogStages :: TEMPERATURE_LINEAR_SOLVER );
   PetscTime(&Iteration_Start_Time);
@@ -3065,6 +3063,35 @@ void Basin_Modelling::FEM_Grid::Solve_Linear_Temperature_For_Time_Step ( const d
   KSPConvergedReason convergedReason;
   temperatureLinearSolver->solve(Stiffness_Matrix, Load_Vector, Temperature, &numberOfLinearIterations, &convergedReason);
 
+  if ( convergedReason < 0 ) {
+     // convergedReason < 0 indicates that the linear solver has failed for some reason.
+
+     LogHandler( LogHandler::DEBUG_SEVERITY ) << "Switching linear solver for temperature due to failure: "
+                                              << getKspConvergedReasonImage ( convergedReason ).c_str ();
+
+     // Do not use the solution obtained from the first attempt, as the last attempt may have diverged
+     // and filled the vector with garbage. So get the initial solution again.
+     mapping.getSolution ( Temperature );
+
+     // Switch linear solver to GMRes with a sufficiently large restart value.
+     temperatureLinearSolver.reset ( new PetscGMRES ( Temperature_Calculator.linearSolverTolerance ( basinModel->Optimisation_Level ),
+                                                      basinModel->Temperature_GMRes_Restart ));
+
+     // Tell the linear solver that the initial guess is not the zero vector.
+     temperatureLinearSolver->setInitialGuessNonZero ( true );
+     temperatureLinearSolver->loadCmdLineOptions();
+     temperatureLinearSolver->solve(Stiffness_Matrix, Load_Vector, Temperature, &numberOfLinearIterations, &convergedReason);
+
+     if ( convergedReason < 0 ) {
+        // Despite changing linear solvers from the default to GMRes, for
+        // some reason the linear solver still failed to reach a solution.
+        temperatureHasDiverged = true;
+     }
+
+  }
+
+  VecNorm ( Temperature, NORM_2, &T_Norm );
+
   PetscTime(&End_Time);
 
   // Print solution to file
@@ -3079,8 +3106,6 @@ void Basin_Modelling::FEM_Grid::Solve_Linear_Temperature_For_Time_Step ( const d
 
   Solve_Time = End_Time - Start_Time;
 
-  VecNorm ( Temperature, NORM_2, &T_Norm );
-  temperatureHasDiverged = std::isnan( T_Norm ) || (numberOfLinearIterations == maximumNumberOfLinearSolverIterations) || convergedReason == KSP_DIVERGED_NANORINF;
 
   PetscTime(&storeStartTime);
 
