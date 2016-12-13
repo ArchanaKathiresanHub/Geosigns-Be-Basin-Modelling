@@ -27,6 +27,7 @@
 #include <vector>
 #include <list>
 #include <cstring>
+#include <boost/filesystem.hpp>
 
 #include "database.h"
 #include "cauldronschema.h"
@@ -131,6 +132,11 @@ static const char * words [] = {"ALCStepBasaltThickness", "ALCStepTopBasaltDepth
 
 DataAccess::Interface::ProjectHandle * DataAccess::Interface::OpenCauldronProject( const string & name, const string & accessMode, ObjectFactory* objectFactory )
 {
+   if ( !boost::filesystem::exists( name ) )
+   {
+     throw formattingexception::GeneralException() << "Project file does not exist";
+   }
+
    Database * tables = CreateDatabaseFromCauldronProject( name );
    if ( tables )
    {
