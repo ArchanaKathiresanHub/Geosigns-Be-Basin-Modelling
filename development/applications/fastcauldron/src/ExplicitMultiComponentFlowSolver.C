@@ -273,8 +273,6 @@ void ExplicitMultiComponentFlowSolver::solve ( Subdomain&   subdomain,
 
    double timeStepStartMa;
    double timeStepEndMa = startTime;
-   double timeStepStartSec;
-   double timeStepEndSec;
 
    double lambdaStart;
    double lambdaEnd;
@@ -451,7 +449,6 @@ void ExplicitMultiComponentFlowSolver::solve ( Subdomain&   subdomain,
    double lastOtgcStartTime;
 
    timeStepStartMa = startTime;
-   timeStepStartSec = startTime * MillionYearToSecond;
    lambdaStart = 0.0;
 
    transportedMasses.fill ( 0.0 );
@@ -604,7 +601,6 @@ void ExplicitMultiComponentFlowSolver::solve ( Subdomain&   subdomain,
 
          deltaTSec = deltaTMa * MillionYearToSecond;
          timeStepEndMa  -= deltaTMa;
-         timeStepEndSec -= deltaTSec;
 
       } else {
 
@@ -612,7 +608,6 @@ void ExplicitMultiComponentFlowSolver::solve ( Subdomain&   subdomain,
          deltaTSec = uniformDeltaTSec;
 
          timeStepEndMa  -= uniformDeltaTMa;
-         timeStepEndSec -= uniformDeltaTSec;
          fractionScaling = uniformFractionScaling;
          lambdaEnd += uniformFractionScaling;
 
@@ -702,7 +697,6 @@ void ExplicitMultiComponentFlowSolver::solve ( Subdomain&   subdomain,
 
 
       // Set start values to end values of last time-step.
-      timeStepStartSec = timeStepEndSec;
       timeStepStartMa  = timeStepEndMa;
       lambdaStart = lambdaEnd;
 
