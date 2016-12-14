@@ -665,10 +665,10 @@ namespace migration
    {
       LocalFormationNode * formationNode = getLocalFormationNode (i, j, depthIndex);
 
-      if (!IsValid (formationNode))
-         return true;
+	  if (!IsValid (formationNode)) 
+		  return true;
       else
-         return formationNode->computeTargetFormationNode ();
+      return formationNode->computeTargetFormationNode ();
    }
 
    void Formation::setEndOfPath (void)
@@ -1625,7 +1625,6 @@ namespace migration
             {
                unsigned int iTarget = targetFormationNode->getI ();
                unsigned int jTarget = targetFormationNode->getJ ();
-               unsigned int kTarget = targetFormationNode->getK ();
 
                // calculate the composition to migrate
                Composition composition;
@@ -1689,7 +1688,7 @@ namespace migration
          for (unsigned int j = m_formationNodeArray->firstJLocal (); j <= m_formationNodeArray->lastJLocal (); ++j)
          {
             LocalColumn * leakingColumn = leakingReservoir->getLocalColumn (i, j);
-            if (!IsValid (leakingColumn) or leakingColumn->isOnBoundary ()) continue;
+            if ( !IsValid(leakingColumn) or leakingColumn->isOnBoundary() ) continue;
 
             // Make sure the leaking node is a valid one.
             LocalFormationNode * formationNode = getLocalFormationNode (i, j, depthIndex);
@@ -1710,10 +1709,8 @@ namespace migration
                !targetFormationNode->goesOutOfBounds () and
                targetFormationNode->getFormation () == targetReservoir->getFormation ())
             {
-               unsigned int iTarget = targetFormationNode->getI ();
-               unsigned int jTarget = targetFormationNode->getJ ();
-
-               unsigned int kTarget = targetFormationNode->getK ();
+               unsigned int iTarget = targetFormationNode->getI () ;
+               unsigned int jTarget = targetFormationNode->getJ () ;
 
                Composition leakingComposition, composition;
                assert (leakingComposition.isEmpty ());
@@ -1786,10 +1783,6 @@ namespace migration
                !targetFormationNode->goesOutOfBounds () and
                targetFormationNode->getFormation () == topActiveFormation)
             {
-               unsigned int iTarget = targetFormationNode->getI ();
-               unsigned int jTarget = targetFormationNode->getJ ();
-               unsigned int kTarget = targetFormationNode->getK ();
-
                // calculate the composition to migrate
                Composition composition;
                for (int componentId = ComponentId::FIRST_COMPONENT; componentId < ComponentId::NUMBER_OF_SPECIES; ++componentId)
@@ -1868,10 +1861,6 @@ namespace migration
                !targetFormationNode->goesOutOfBounds () and
                targetFormationNode->getFormation () == topActiveFormation)
             {
-               unsigned int iTarget = targetFormationNode->getI ();
-               unsigned int jTarget = targetFormationNode->getJ ();
-               unsigned int kTarget = targetFormationNode->getK ();
-
                Composition leakingComposition, composition;
                assert (leakingComposition.isEmpty ());
                assert (composition.isEmpty ());
