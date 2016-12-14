@@ -55,15 +55,15 @@ namespace DataAccess
 	    virtual double getActivityStart (void) const;
 
 	    /// Return whether vertical migration blocking into this reservoir is enabled
-            bool isBlockingEnabled (void) const;
-            /// return the vertical migration blocking permeability threshold.
-            double getBlockingPermeability (void) const;
-            /// return the vertical migration blocking porosity threshold.
-            double getBlockingPorosity (void) const;
+       bool isBlockingEnabled (void) const;
+       /// return the vertical migration blocking permeability threshold.
+       double getBlockingPermeability (void) const;
+       /// return the vertical migration blocking porosity threshold.
+       double getBlockingPorosity (void) const;
 
-            /// Return the minimum height for gas and oil columns
-            double getMinOilColumnHeight (void) const;
-            double getMinGasColumnHeight (void) const;
+       /// Return the minimum height for gas and oil columns
+       double getMinOilColumnHeight (void) const;
+       double getMinGasColumnHeight (void) const;
 
 	    /// Return whether diffusion takes place during migration
 	    virtual bool isDiffusionOn (void) const;

@@ -82,7 +82,6 @@ namespace migration
       bool computeDepthOffsets (const Interface::Snapshot * presentDay);
       bool computeNetToGross (void);
       bool isActive (const Interface::Snapshot * snapshot) const;
-      bool isDiffusionOn (void);
       /// save properties that were derived from input maps during the current snapshot interval
       bool saveComputedInputProperties (const bool saveSnapshot);
       /// save properties the migration module computed during the current snapshot interval

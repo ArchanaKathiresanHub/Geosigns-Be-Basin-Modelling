@@ -2947,11 +2947,6 @@ namespace migration
       return biodegraded;
    }
 
-   bool Reservoir::isDiffusionOn (void)
-   {
-      return Interface::Reservoir::isDiffusionOn ();
-   }
-
    bool Reservoir::diffusionLeakCharges ()
    {
       RequestHandle requestHandle (m_migrator, "diffusionLeakCharges");
