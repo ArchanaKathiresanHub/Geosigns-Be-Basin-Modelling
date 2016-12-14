@@ -1647,36 +1647,12 @@ namespace migration
                      composition.add ((ComponentId)componentId, weight);
                   }
                }
+                  
+               Column *targetColumn = targetReservoir->getColumn (iTarget, jTarget);
 
-               int offsetIndex;
-
-               Column * shallowestColumn = 0;
-               double shallowestDepth = Interface::DefaultUndefinedScalarValue;
-
-               for (offsetIndex = 0; offsetIndex < 4; ++offsetIndex)
+               if (IsValid (targetColumn) and !targetColumn->isSealing ())
                {
-                  Column *targetColumn = targetReservoir->getColumn (iTarget + offsets[offsetIndex][0],
-                     jTarget + offsets[offsetIndex][1]);
-
-                  // If the primary column (same i,j as the targetFormationNode) of the element
-                  // is wasting then put all the HCs there. Gas phase dictates path for all HCs.
-                  // Phase-dependent correction needed.
-                  if (offsetIndex == 0 and targetColumn->isWasting (GAS))
-                  {
-                     shallowestColumn = targetColumn;
-                     break;
-                  }
-
-                  if (IsValid (targetColumn) and !targetColumn->isSealing () and (shallowestColumn == 0 || targetColumn->getTopDepth () < shallowestDepth))
-                  {
-                     shallowestColumn = targetColumn;
-                     shallowestDepth = targetColumn->getTopDepth ();
-                  }
-               }
-
-               if (shallowestColumn)
-               {
-                  shallowestColumn->addCompositionToBeMigrated (composition);
+                  targetColumn->addCompositionToBeMigrated (composition);
                }
                else
                {
@@ -1761,26 +1737,11 @@ namespace migration
 
                if (!composition.isEmpty ())
                {
-                  int offsetIndex;
+                  Column *targetColumn = targetReservoir->getColumn (iTarget, jTarget);
 
-                  Column *shallowestColumn = 0;
-                  double shallowestDepth = Interface::DefaultUndefinedScalarValue;
-
-                  for (offsetIndex = 0; offsetIndex < 4; ++offsetIndex)
+                  if (IsValid (targetColumn) and !targetColumn->isSealing ())
                   {
-                     Column *targetColumn = targetReservoir->getColumn (iTarget + offsets[offsetIndex][0],
-                        jTarget + offsets[offsetIndex][1]);
-
-                     if (IsValid (targetColumn) and !targetColumn->isSealing () and (shallowestColumn == 0 || targetColumn->getTopDepth () < shallowestDepth))
-                     {
-                        shallowestColumn = targetColumn;
-                        shallowestDepth = targetColumn->getTopDepth ();
-                     }
-                  }
-
-                  if (shallowestColumn)
-                  {
-                     shallowestColumn->addCompositionToBeMigrated (composition);
+                     targetColumn->addCompositionToBeMigrated (composition);
                   }
                   else
                   {
