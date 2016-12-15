@@ -498,6 +498,9 @@ void McKenzieCrustCalculator::retrieveData() {
    if (m_previousOceanicCrustThickness != nullptr){
       m_previousOceanicCrustThickness->retrieveData();
    }
+   if (m_previousRiftTTS != nullptr) {
+      m_previousRiftTTS->retrieveData();
+   }
 }
 
 //------------------------------------------------------------//
@@ -511,6 +514,9 @@ void McKenzieCrustCalculator::restoreData() {
    }
    if (m_previousOceanicCrustThickness != nullptr){
       m_previousOceanicCrustThickness->restoreData();
+   }
+   if (m_previousRiftTTS != nullptr) {
+      m_previousRiftTTS->restoreData();
    }
 }
 

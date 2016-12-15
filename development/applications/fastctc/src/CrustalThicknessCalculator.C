@@ -64,6 +64,7 @@ CrustalThicknessCalculator::CrustalThicknessCalculator( database::Database * dat
      m_applySmoothing                     (true   ),
      m_inputData                          (nullptr),
      m_previousTTS                        (nullptr),
+     m_previousRiftTTS                    (nullptr),
      m_previousContinentalCrustalThickness(nullptr),
      m_previousOceanicCrustalThickness    (nullptr)
 {}
@@ -446,6 +447,9 @@ void CrustalThicknessCalculator::retrieveData(){
    if (m_previousTTS != nullptr) {
       m_previousTTS->retrieveData();
    }
+   if (m_previousRiftTTS != nullptr) {
+      m_previousRiftTTS->retrieveData();
+   }
 }
 
 //------------------------------------------------------------//
@@ -454,5 +458,8 @@ void CrustalThicknessCalculator::restoreData(){
    m_outputData.restoreData();
    if (m_previousTTS != nullptr) {
       m_previousTTS->restoreData();
+   }
+   if (m_previousRiftTTS != nullptr) {
+      m_previousRiftTTS->restoreData();
    }
 }
