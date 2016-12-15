@@ -9,10 +9,10 @@
 //
 
 #include "TotalTectonicSubsidenceCalculator.h"
-using namespace  CrustalThickness;
 
 // DataAccess library
 #include "Interface/Interface.h"
+using namespace  CrustalThickness;
 
 //------------------------------------------------------------//
 TotalTectonicSubsidenceCalculator::TotalTectonicSubsidenceCalculator( 

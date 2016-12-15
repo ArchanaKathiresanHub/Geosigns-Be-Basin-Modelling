@@ -39,9 +39,11 @@ McKenzieTester::McKenzieTester() :
    m_HBuMap  = new DataAccess::Interface::SerialGridMap( 0, 0, this->m_grid, 4000,   1 );
    //   - initial lithospheric mantle thickness is 115Km
    m_HLMuMap = new DataAccess::Interface::SerialGridMap( 0, 0, this->m_grid, 115000, 1 );
-   //   - previous continental crust thickness is 0
+   //   - satcked ITS for the rift is 1Km
+   m_previousRiftITS = new DataAccess::Interface::SerialGridMap( 0, 0, this->m_grid, 1000, 1 );
+   //   - previous continental crust thickness is 40Km
    m_previousContinentalCrustThickness = new DataAccess::Interface::SerialGridMap( 0, 0, this->m_grid, 40000, 1 );
-   //   - previous oceanic crust thickness crust is 200
+   //   - previous oceanic crust thickness crust is 200m
    m_previousOceanicCrustThickness     = new DataAccess::Interface::SerialGridMap( 0, 0, this->m_grid, 200,   1 );
 
 }
@@ -103,6 +105,7 @@ const McKenzieCrustCalculatorPtr McKenzieTester::createMcKenzieCalculator()
                                    m_outputData,
                                    m_validator,
                                    m_age,
+                                   m_previousRiftITS,
                                    m_previousContinentalCrustThickness,
                                    m_previousOceanicCrustThickness )
                                    );

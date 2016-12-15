@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -82,14 +82,14 @@ namespace CrustalThickness
          double m_contRatio; ///< Continental crust upper/lower crust ratio
          double m_oceaRatio; ///< Oceanic crust upper/lower crust ratio
 
-         // rifting events
-         riftingEvents m_riftingEvents;
+         riftingEvents m_riftingEvents; ///< The list of rifting events mapped to the snapshot ages
 
          const DataAccess::Interface::SerialGrid* m_grid;
          DataAccess::Interface::SerialGridMap* m_seaLevelAdjustment;                ///< The map used to define the sea level adjustement                  (0m  by default   ) [m]
          DataAccess::Interface::SerialGridMap* m_HCuMap;                            ///< The map used to define the initial continental crustal thickness  (40Km by default  ) [m]
          DataAccess::Interface::SerialGridMap* m_HBuMap;                            ///< The map used to define the maximum oceanic crustal thickness      (4Km by default   ) [m]
          DataAccess::Interface::SerialGridMap* m_HLMuMap;                           ///< The map used to define initial lithospheric mantle thickness      (115Km by default ) [m]
+         DataAccess::Interface::SerialGridMap* m_previousRiftITS;                   ///< The map used to define the stacked ITS for the rift               (1000m by default ) [m]
          DataAccess::Interface::SerialGridMap* m_previousContinentalCrustThickness; ///< The map used to define the previous continental crustal thickness (40000m by default) [m]
          DataAccess::Interface::SerialGridMap* m_previousOceanicCrustThickness;     ///< The map used to define the previous oceanic crustal thickness     (200m by default  ) [m]
 

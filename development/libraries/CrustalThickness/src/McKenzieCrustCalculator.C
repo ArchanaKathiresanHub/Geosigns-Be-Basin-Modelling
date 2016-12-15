@@ -23,6 +23,7 @@ McKenzieCrustCalculator::McKenzieCrustCalculator(
    AbstractInterfaceOutput& outputData,
    const AbstractValidator& validator,
    const double age,
+   const Interface::GridMap* previousRiftTTS,
    const Interface::GridMap* previousContinentalCrustThickness,
    const Interface::GridMap* previousOceanicCrustThickness ) :
       m_constants     ( inputData.getConstants()     ),
@@ -38,8 +39,10 @@ McKenzieCrustCalculator::McKenzieCrustCalculator(
       m_lastJ         ( inputData.lastJ()  ),
       m_continentalCrustRatio( inputData.getContinentalCrustRatio() ),
       m_oceanicCrustRatio    ( inputData.getOceanicCrustRatio()     ),
+      m_previousRiftTTS                  ( previousRiftTTS                   ),
       m_previousContinentalCrustThickness( previousContinentalCrustThickness ),
       m_previousOceanicCrustThickness    ( previousOceanicCrustThickness     ),
+      m_age        ( age         ),
       m_outputData ( outputData  ),
       m_validator  ( validator   )
 {
@@ -316,6 +319,23 @@ void McKenzieCrustCalculator::divideCrust(
    upperCrustThickness = ratio * factor;
    lowerCrustThickness = factor;
 }
+//------------------------------------------------------------//
+
+double McKenzieCrustCalculator::calculateRiftITS(const unsigned int i, const unsigned int j, const double TTS) const {
+   if (m_previousRiftTTS != nullptr) {
+      const double previousRiftTTS = m_previousRiftTTS->getValue( i, j );
+      if (previousRiftTTS != Interface::DefaultUndefinedMapValue and TTS != Interface::DefaultUndefinedMapValue) {
+         return TTS - previousRiftTTS;
+      }
+      else {
+         return Interface::DefaultUndefinedMapValue;
+      }
+   }
+   else {
+      // this is the first rift so the previous rift TTS is 0
+      return TTS;
+   }
+}
 
 //------------------------------------------------------------//
 void McKenzieCrustCalculator::compute(){
@@ -353,7 +373,8 @@ void McKenzieCrustCalculator::compute(){
             thinningFactorOnsetLinearized  = calculateThinningFactorOnsetLinearized ( thinningFactorOnset );
 
             //McKenzie's Total Tectonic Subsidence (back calculated from linearized thinning factor)
-            const double averageRiftTime = (m_riftStartAge + m_riftEndAge) / 2.0;
+            const double averageRiftTime = ((m_riftStartAge + m_riftEndAge) / 2.0) - m_age;
+            assert( averageRiftTime >= 0 );
             TTSexhume              = calculateTTSexhume             ( averageRiftTime );
             TTScritical            = calculateTTScritical           ( TTSexhume, maxBasalticCrustThickness, magmaticDensity );
             TTSOnsetLinearized     = calculateTTSOnsetLinearized    ( averageRiftTime, thinningFactorOnsetLinearized );
@@ -367,7 +388,7 @@ void McKenzieCrustCalculator::compute(){
 
             // incTTS
             const double TTS = m_outputData.getMapValue( CrustalThicknessInterface::outputMaps::WLSadjustedMap               , i, j );
-            const double ITS = m_outputData.getMapValue( CrustalThicknessInterface::outputMaps::incTectonicSubsidenceAdjusted, i, j );
+            const double ITS = calculateRiftITS( i, j, TTS );
             const double previousContinentalCrustThickness = getPreviousContinentalCrustThickness( i, j );
             const double previousOceanicCrustThickness     = getPreviousOceanicCrustThickness( i, j );
             const double depthBasement = m_depthBasement->get( i, j );

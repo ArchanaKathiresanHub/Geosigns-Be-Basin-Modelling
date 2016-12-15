@@ -140,11 +140,11 @@ inline double DataModel::MockGrid::maxJ () const {
 }
 
 inline int DataModel::MockGrid::numIGlobal () const {
-   return maxI();
+   return static_cast< int> ( maxI() );
 }
 
 inline int DataModel::MockGrid::numJGlobal () const {
-   return maxJ();
+   return static_cast< int> ( maxJ() );
 }
 
 

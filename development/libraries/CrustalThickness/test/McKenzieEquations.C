@@ -38,10 +38,10 @@ TEST_F( McKenzieTester, exceptions )
 
    // 1. Test that the constructor throws an exception when the mantle and water densities are equal
    //test if the exception is thrown
-   EXPECT_THROW( McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator, m_age, nullptr, nullptr ), std::invalid_argument );
+   EXPECT_THROW( McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator, m_age, nullptr, nullptr, nullptr ), std::invalid_argument );
    //test if the good exception is thrown
    try{
-      McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator, m_age, nullptr, nullptr );
+      McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator, m_age, nullptr, nullptr, nullptr );
       FAIL() << "Expected 'Mantle density is equal to the water density (both provided by the interface input), this will lead to divisions by 0' exception";
    }
    catch (const std::invalid_argument& ex) {
@@ -56,10 +56,10 @@ TEST_F( McKenzieTester, exceptions )
    initTestData();
    m_inputData.setDepthBasement( nullptr );
    //test if the exception is thrown
-   EXPECT_THROW( McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator, m_age, nullptr, nullptr ), std::invalid_argument );
+   EXPECT_THROW( McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator, m_age, nullptr, nullptr, nullptr ), std::invalid_argument );
    //test if the good exception is thrown
    try{
-      McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator, m_age, nullptr, nullptr );
+      McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator, m_age, nullptr, nullptr, nullptr );
       FAIL() << "Expected 'Basement depth provided by the interface input is a null pointer' exception";
    }
    catch (const std::invalid_argument& ex) {
@@ -75,10 +75,10 @@ TEST_F( McKenzieTester, exceptions )
    m_constants.setModelTotalLithoThickness( 0 );
    m_inputData.setConstants( m_constants );
    //test if the exception is thrown
-   EXPECT_THROW( McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator, m_age, nullptr, nullptr ), std::invalid_argument );
+   EXPECT_THROW( McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator, m_age, nullptr, nullptr, nullptr ), std::invalid_argument );
    //test if the good exception is thrown
    try{
-      McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator, m_age, nullptr, nullptr );
+      McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator, m_age, nullptr, nullptr, nullptr );
       FAIL() << "Expected 'Total lithosphere thickness provided by the interface input is equal to 0 and will lead to divisions by 0' exception";
    }
    catch (const std::invalid_argument& ex) {
@@ -94,10 +94,10 @@ TEST_F( McKenzieTester, exceptions )
    initTestData();
    m_constants.setDecayConstant( 0 );
    m_inputData.setConstants( m_constants );
-   EXPECT_THROW( McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator, m_age, nullptr, nullptr ), std::invalid_argument );
+   EXPECT_THROW( McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator, m_age, nullptr, nullptr, nullptr ), std::invalid_argument );
    //test if the good exception is thrown
    try{
-      McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator, m_age, nullptr, nullptr );
+      McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator, m_age, nullptr, nullptr, nullptr );
       FAIL() << "Expected 'Decay constant provided by the interface input is 0 and will lead to divisions by 0' exception";
    }
    catch (const std::invalid_argument& ex) {
@@ -113,10 +113,10 @@ TEST_F( McKenzieTester, exceptions )
    m_constants.setTau( 0 );
    m_inputData.setConstants( m_constants );
    //test if the exception is thrown
-   EXPECT_THROW( McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator, m_age, nullptr, nullptr ), std::invalid_argument );
+   EXPECT_THROW( McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator, m_age, nullptr, nullptr, nullptr ), std::invalid_argument );
    //test if the good exception is thrown
    try{
-      McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator, m_age, nullptr, nullptr );
+      McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator, m_age, nullptr, nullptr, nullptr );
       FAIL() << "Expected 'Tau provided by the interface input is 0 and will lead to divisions by 0' exception";
    }
    catch (const std::invalid_argument& ex) {
@@ -131,10 +131,10 @@ TEST_F( McKenzieTester, exceptions )
    initTestData();
    m_inputData.setContinentalCrustRatio( -10 );
    //test if the exception is thrown
-   EXPECT_THROW( McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator, m_age, nullptr, nullptr ), std::invalid_argument );
+   EXPECT_THROW( McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator, m_age, nullptr, nullptr, nullptr ), std::invalid_argument );
    //test if the good exception is thrown
    try{
-      McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator, m_age, nullptr, nullptr );
+      McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator, m_age, nullptr, nullptr, nullptr );
       FAIL() << "Expected 'The continental crust ratio (which defines the lower and upper continental crust) provided by the interface input is negative' exception";
    }
    catch (const std::invalid_argument& ex) {
@@ -149,10 +149,10 @@ TEST_F( McKenzieTester, exceptions )
    m_inputData.setContinentalCrustRatio( 0.5 );
    m_inputData.setOceanicCrustRatio( -10 );
    //test if the exception is thrown
-   EXPECT_THROW( McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator, m_age, nullptr, nullptr ), std::invalid_argument );
+   EXPECT_THROW( McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator, m_age, nullptr, nullptr, nullptr ), std::invalid_argument );
    //test if the good exception is thrown
    try{
-      McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator, m_age, nullptr, nullptr );
+      McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator, m_age, nullptr, nullptr, nullptr );
       FAIL() << "Expected 'The oceanic crust ratio (which defines the lower and upper oceanic crust) provided by the interface input is negative' exception";
    }
    catch (const std::invalid_argument& ex) {
@@ -167,10 +167,10 @@ TEST_F( McKenzieTester, exceptions )
    m_inputData.setOceanicCrustRatio( 0.5 );
    const DataAccess::Interface::SerialGridMap previousGrid( 0, 0, this->m_grid, 50, 1 );
    //test if the exception is thrown
-   EXPECT_THROW( McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator, m_age, nullptr, &previousGrid ), std::invalid_argument );
+   EXPECT_THROW( McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator, m_age, nullptr, nullptr, &previousGrid ), std::invalid_argument );
    //test if the good exception is thrown
    try{
-      McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator, m_age, nullptr, &previousGrid );
+      McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator, m_age, nullptr, nullptr, &previousGrid );
       FAIL() << "Expected 'The previous continental crust thickness provided to the McKenzie calculator is a null pointer but some other previous data are not null' exception";
    }
    catch (const std::invalid_argument& ex) {
@@ -181,10 +181,10 @@ TEST_F( McKenzieTester, exceptions )
       FAIL() << "Expected 'The previous continental crust thickness provided to the McKenzie calculator is a null pointer but some other previous data are not null' exception";
    }
    //test if the exception is thrown
-   EXPECT_THROW( McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator, m_age, &previousGrid, nullptr ), std::invalid_argument );
+   EXPECT_THROW( McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator, m_age, nullptr, &previousGrid, nullptr ), std::invalid_argument );
    //test if the good exception is thrown
    try{
-      McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator, m_age, &previousGrid, nullptr );
+      McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator, m_age, nullptr, &previousGrid, nullptr );
       FAIL() << "Expected 'The previous oceanic crust thickness provided to the McKenzie calculator is a null pointer but some other previous data are not null' exception";
    }
    catch (const std::invalid_argument& ex) {
@@ -198,11 +198,11 @@ TEST_F( McKenzieTester, exceptions )
    // 9. Test that the constructor throws an exception when the rift end age is NDV
    (m_riftingEvents[m_age])->setStartRiftAge( DataAccess::Interface::DefaultUndefinedScalarValue );
    //test if the exception is thrown
-   EXPECT_THROW( McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator, m_age, &previousGrid, &previousGrid ), std::invalid_argument );
+   EXPECT_THROW( McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator, m_age, nullptr, &previousGrid, &previousGrid ), std::invalid_argument );
    //test if the good exception is thrown
    std::string expectedOutput = "The beginning of the rifting event is undefined for age " + std::to_string( m_age ) + "Ma";
    try{
-      McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator, m_age, &previousGrid, &previousGrid );
+      McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator, m_age, nullptr, &previousGrid, &previousGrid );
       FAIL() << "Expected '" + expectedOutput + "' exception";
    }
    catch (const std::invalid_argument& ex) {
@@ -217,10 +217,10 @@ TEST_F( McKenzieTester, exceptions )
    (m_riftingEvents[m_age])->setEndRiftAge( DataAccess::Interface::DefaultUndefinedScalarValue );
    expectedOutput = "The end of the rifting event is undefined for age " + std::to_string( m_age ) + "Ma";
    //test if the exception is thrown
-   EXPECT_THROW( McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator, m_age, &previousGrid, &previousGrid ), std::invalid_argument );
+   EXPECT_THROW( McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator, m_age, nullptr, &previousGrid, &previousGrid ), std::invalid_argument );
    //test if the good exception is thrown
    try{
-      McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator, m_age, &previousGrid, &previousGrid );
+      McKenzieCrustCalculator mcKenzieCalculator( m_inputData, m_outputData, m_validator, m_age, nullptr, &previousGrid, &previousGrid );
       FAIL() << "Expected '" + expectedOutput + "' exception";
    }
    catch (const std::invalid_argument& ex) {
@@ -311,29 +311,52 @@ TEST_F( McKenzieTester, calculates_thinningfactors )
 
 TEST_F( McKenzieTester, calculates_ttsendmembers )
 {
-   McKenzieCrustCalculatorPtr mcKenzieCalculator = createMcKenzieCalculator();
+   McKenzieCrustCalculatorPtr mcKenzieCalculator1 = createMcKenzieCalculator();
 
    // 1. TTS at exhume point
-   EXPECT_NEAR( 6920.22280595189, mcKenzieCalculator->calculateTTSexhume( 80  ), 1e-11 );
-   EXPECT_NEAR( 7323.88564105350, mcKenzieCalculator->calculateTTSexhume( 250 ), 1e-11 );
+   EXPECT_NEAR( 6920.22280595189, mcKenzieCalculator1->calculateTTSexhume( 80  ), 1e-11 );
+   EXPECT_NEAR( 7323.88564105350, mcKenzieCalculator1->calculateTTSexhume( 250 ), 1e-11 );
 
    // 2. TTS at critical point
-   EXPECT_NEAR( 6097.83831174862, mcKenzieCalculator->calculateTTScritical( 6920.22280595189, 4000, 2833.29679953964 ), 1e-11 );
-   EXPECT_NEAR( 6093.52057578229, mcKenzieCalculator->calculateTTScritical( 7323.88564105350, 6000, 2834.51188363906 ), 1e-11 );
-   EXPECT_NEAR( 6920.22280595189, mcKenzieCalculator->calculateTTScritical( 6920.22280595189, 0,    2833.29679953964 ), 1e-11 );
+   EXPECT_NEAR( 6097.83831174862, mcKenzieCalculator1->calculateTTScritical( 6920.22280595189, 4000, 2833.29679953964 ), 1e-11 );
+   EXPECT_NEAR( 6093.52057578229, mcKenzieCalculator1->calculateTTScritical( 7323.88564105350, 6000, 2834.51188363906 ), 1e-11 );
+   EXPECT_NEAR( 6920.22280595189, mcKenzieCalculator1->calculateTTScritical( 6920.22280595189, 0,    2833.29679953964 ), 1e-11 );
 
    // 3. TTS at melting point linearized
-   EXPECT_NEAR( 5285.74782707973, mcKenzieCalculator->calculateTTSOnsetLinearized( 80 , 0.77240632040 ), 1e-07 );
-   EXPECT_NEAR( 4888.54662998943, mcKenzieCalculator->calculateTTSOnsetLinearized( 250, 0.66765115587 ), 1e-07 );
-   EXPECT_NEAR( 6920.22280595189, mcKenzieCalculator->calculateTTSOnsetLinearized( 80,  1             ), 1e-11 );
+   EXPECT_NEAR( 5285.74782707973, mcKenzieCalculator1->calculateTTSOnsetLinearized( 80 , 0.77240632040 ), 1e-07 );
+   EXPECT_NEAR( 4888.54662998943, mcKenzieCalculator1->calculateTTSOnsetLinearized( 250, 0.66765115587 ), 1e-07 );
+   EXPECT_NEAR( 6920.22280595189, mcKenzieCalculator1->calculateTTSOnsetLinearized( 80,  1             ), 1e-11 );
 
    // 4. TTS at exhume point with serpentinization of the mantle
-   EXPECT_NEAR( 6238.58340595189, mcKenzieCalculator->calculateTTSexhumeSerpentinized( 6920.22280595189 ), 1e-11 );
-   EXPECT_NEAR( 6642.24624105350, mcKenzieCalculator->calculateTTSexhumeSerpentinized( 7323.88564105350 ), 1e-11 );
+   EXPECT_NEAR( 6238.58340595189, mcKenzieCalculator1->calculateTTSexhumeSerpentinized( 6920.22280595189 ), 1e-11 );
+   EXPECT_NEAR( 6642.24624105350, mcKenzieCalculator1->calculateTTSexhumeSerpentinized( 7323.88564105350 ), 1e-11 );
 
    // 5. ITS adjusted by the previous thinning factor
-   EXPECT_EQ( 350, mcKenzieCalculator->calculateITScorrected(350, 0) );
-   EXPECT_NEAR( 100, mcKenzieCalculator->calculateITScorrected(200, 0.5), 1e-11 );
+   EXPECT_EQ( 350, mcKenzieCalculator1->calculateITScorrected(350, 0) );
+   EXPECT_NEAR( 100, mcKenzieCalculator1->calculateITScorrected(200, 0.5), 1e-11 );
+
+   // 6. ITS stacked for the rift
+   // there is no previous rift
+   auto save = m_previousRiftITS;
+   m_previousRiftITS = nullptr;
+   McKenzieCrustCalculatorPtr mcKenzieCalculator2 = createMcKenzieCalculator();
+   m_previousRiftITS = save;
+
+   for (unsigned int i = static_cast< unsigned int>( m_grid->firstI() ); i <= static_cast< unsigned int>( m_grid->lastI() ); i++) {
+      for (unsigned int j = static_cast< unsigned int>( m_grid->firstJ() ); j <= static_cast< unsigned int>( m_grid->lastJ() ); j++) {
+         // both values are valid (previous rift as TTS of 1Km)
+         EXPECT_EQ( 1050, mcKenzieCalculator1->calculateRiftITS( i, j, 2050 ) );
+         // there is no previous rift
+         EXPECT_EQ( 2050, mcKenzieCalculator2->calculateRiftITS( i, j, 2050 ) );
+         // the previous rift TTS is a ndv
+         m_previousRiftITS->setValues( Interface::DefaultUndefinedMapValue );
+         EXPECT_EQ( Interface::DefaultUndefinedMapValue, mcKenzieCalculator1->calculateRiftITS( i, j, 2050 ) );
+         // the current rift TTS is a ndv
+         m_previousRiftITS->setValues( 1000 );
+         EXPECT_EQ( Interface::DefaultUndefinedMapValue, mcKenzieCalculator1->calculateRiftITS( i, j, Interface::DefaultUndefinedMapValue ) );
+      }
+   }
+
 }
 
 TEST_F( McKenzieTester, define_linearfunction )

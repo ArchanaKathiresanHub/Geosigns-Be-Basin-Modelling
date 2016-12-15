@@ -447,7 +447,7 @@ GeoPhysics::AllochthonousLithologyManager& GeoPhysics::ProjectHandle::getAllocht
 
 void GeoPhysics::ProjectHandle::addUndefinedAreas( const DataAccess::Interface::GridMap* theMap ) {
 
-   if ( theMap == 0 ) {
+   if ( theMap == nullptr ) {
       return;
    }
 
@@ -494,8 +494,15 @@ void GeoPhysics::ProjectHandle::addCrustUndefinedAreas ( const Interface::CrustF
       }
 
       if( m_isALCMode ) {
+         // legacy ALC
          addUndefinedAreas ( dynamic_cast<const Interface::GridMap*>(crust->getBasaltThicknessMap ()));
          addUndefinedAreas ( dynamic_cast<const Interface::GridMap*>(crust->getCrustThicknessMeltOnsetMap ()));
+         // v2017.05 ALC
+         auto oceaData = m_tableOceanicCrustThicknessHistory.data();
+         std::for_each( oceaData.begin(), oceaData.end(), [&]( std::shared_ptr<const OceanicCrustThicknessHistoryData> oceanicCrust)
+         {
+            addUndefinedAreas( oceanicCrust->getMap() );
+         } );
       }
       addUndefinedAreas ( dynamic_cast<const Interface::GridMap*>(crust->getCrustHeatProductionMap ()));
 

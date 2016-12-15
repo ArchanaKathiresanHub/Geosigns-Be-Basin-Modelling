@@ -27,7 +27,7 @@ using Utilities::Numerical::IbsNoDataValue;
 
 // The minimum effective crustal thickness is set to 1km
 const double EffectiveCrustalThicknessCalculator::s_minimumEffectiveCrustalThickness = 1000;
-const bool EffectiveCrustalThicknessCalculator::s_gosthNodes = false;
+const bool EffectiveCrustalThicknessCalculator::s_gosthNodes = true;
 
 EffectiveCrustalThicknessCalculator::EffectiveCrustalThicknessCalculator(
    const PaleoFormationPropertyList*        continentalCrustThicknessHistory,
@@ -111,7 +111,6 @@ void EffectiveCrustalThicknessCalculator::compute( PolyFunction2DArray& effectiv
    double presentDayContinentalCrustThicknessValue, continentalCrustThicknessValue, presentDayBasaltThicknessValue, crustThicknessAtMeltOnsetValue;
    // Outputs
    double effectiveCrustalThicknessValue, endOfRift, basaltThicknessValue;
-   EffectiveCrustalThicknessCalculator::Output result;
    // Temporary data
    double previousContinentalCrustThicknessValue = 0, previousBasaltThicknessValue = 0, agePrev = 0;
    const GridMap* prevContCrustThicknessMap = nullptr;
@@ -147,7 +146,7 @@ void EffectiveCrustalThicknessCalculator::compute( PolyFunction2DArray& effectiv
       }
       for (unsigned int i = static_cast<unsigned int>(contCrustThicknessMap->getGrid()->firstI( s_gosthNodes )); i <= static_cast<unsigned int>(contCrustThicknessMap->getGrid()->lastI( s_gosthNodes )); ++i) {
 
-         for (unsigned int j = contCrustThicknessMap->getGrid()->firstJ( s_gosthNodes ); j <= contCrustThicknessMap->getGrid()->lastJ( s_gosthNodes ); ++j) {
+         for (unsigned int j = static_cast<unsigned int>( contCrustThicknessMap->getGrid()->firstJ( s_gosthNodes )); j <= static_cast<unsigned int>(contCrustThicknessMap->getGrid()->lastJ( s_gosthNodes )); ++j) {
 
             if (m_validator.isValid( i, j )) {
 
@@ -327,17 +326,17 @@ void GeoPhysics::EffectiveCrustalThicknessCalculator::restoreData() {
   
    std::for_each( m_continentalCrustThicknessHistory->begin(), m_continentalCrustThicknessHistory->end(), []( const PaleoFormationProperty* obj )
    {
-      obj->getMap(CrustThinningHistoryInstanceThicknessMap)->restoreData( s_gosthNodes );
+      obj->getMap(CrustThinningHistoryInstanceThicknessMap)->restoreData(false, s_gosthNodes );
    } );
   
    if (m_version == LEGACY) {
-      m_presentDayContCrustThickness->restoreData( s_gosthNodes );
-      m_presentDayBasaltThickness   ->restoreData( s_gosthNodes );
-      m_crustThicknessMeltOnset     ->restoreData( s_gosthNodes );
+      m_presentDayContCrustThickness->restoreData(false, s_gosthNodes );
+      m_presentDayBasaltThickness   ->restoreData(false, s_gosthNodes );
+      m_crustThicknessMeltOnset     ->restoreData(false, s_gosthNodes );
    }
    else if (m_version == V2017_05) {
       auto oceanicCrustData = m_oceanicCrustThicknessHistory.data();
-      std::for_each( oceanicCrustData.begin(), oceanicCrustData.end(), []( std::shared_ptr<const OceanicCrustThicknessHistoryData> obj ) { obj->getMap()->restoreData( s_gosthNodes ); } );
+      std::for_each( oceanicCrustData.begin(), oceanicCrustData.end(), []( std::shared_ptr<const OceanicCrustThicknessHistoryData> obj ) { obj->getMap()->restoreData(false, s_gosthNodes ); } );
    }
    else {
       throw std::runtime_error( "Unkown ALC version" );

@@ -23,9 +23,10 @@ using CrustalThickness::UnitTests::McKenzieTester;
 TEST_F( McKenzieTester, computePostMelt )
 {
    m_oceaRatio = 0.4;
+   m_age       = 0.0;
+   m_previousRiftITS = nullptr;
    McKenzieCrustCalculatorPtr mcKenzieCalculatorPostMelt = createMcKenzieCalculator();
    m_outputData.setMapValues( WLSadjustedMap,                6000 );
-   m_outputData.setMapValues( incTectonicSubsidenceAdjusted, 6000 );
    mcKenzieCalculatorPostMelt->compute();
 
    for (unsigned int i = m_firstI; i <= m_lastI; i++)
@@ -67,16 +68,17 @@ TEST_F( McKenzieTester, computeCritical )
    m_contRatio = 0.4;
    m_oceaRatio = 0.2;
    m_depthBasement->getMockderivedSurfacePropertyPtr()->fill( 3500 );
-   m_startAge = 500 ;
-   m_endAge   = 0;
+   m_startAge  = 500 ;
+   m_endAge    = 0;
+   m_age       = 0.0;
    m_HBuMap ->setValues( 6000   );
    m_HCuMap ->setValues( 30000  );
    m_HLMuMap->setValues( 100000 );
    m_previousContinentalCrustThickness->setValues( 30000 );
    m_previousOceanicCrustThickness    ->setValues( 0     );
+   m_previousRiftITS = nullptr;
    McKenzieCrustCalculatorPtr mcKenzieCalculatorCritical = createMcKenzieCalculator();
    m_outputData.setMapValues( WLSadjustedMap,                6500 );
-   m_outputData.setMapValues( incTectonicSubsidenceAdjusted, 6500 );
    mcKenzieCalculatorCritical->compute();
 
    for (unsigned int i = m_firstI; i <= m_lastI; i++)
@@ -117,12 +119,13 @@ TEST_F( McKenzieTester, computePreMelt )
 {
    m_contRatio = 0.6;
    m_oceaRatio = 1.0;
+   m_age       = 0.0;
    m_depthBasement->getMockderivedSurfacePropertyPtr()->fill( 5000 );
    m_previousContinentalCrustThickness->setValues( 35000 );
    m_previousOceanicCrustThickness    ->setValues( 150   );
    McKenzieCrustCalculatorPtr mcKenzieCalculatorPreMelt = createMcKenzieCalculator();
    m_outputData.setMapValues( WLSadjustedMap,                4500 );
-   m_outputData.setMapValues( incTectonicSubsidenceAdjusted, 250  );
+   m_previousRiftITS->setValues( 4250 );
    mcKenzieCalculatorPreMelt->compute();
 
    for (unsigned int i = m_firstI; i <= m_lastI; i++)
@@ -163,13 +166,14 @@ TEST_F( McKenzieTester, computeNoOceanicCrust )
 {
    m_contRatio = 0.7;
    m_oceaRatio = 0.8;
+   m_age       = 0.0;
    m_depthBasement->getMockderivedSurfacePropertyPtr()->fill( 5000 );
    m_HBuMap ->setValues( 0   );
    m_previousContinentalCrustThickness->setValues( 10000 );
    m_previousOceanicCrustThickness    ->setValues( 3000  );
    McKenzieCrustCalculatorPtr mcKenzieCalculatorNoOceanicCrust = createMcKenzieCalculator();
    m_outputData.setMapValues( WLSadjustedMap,                6000 );
-   m_outputData.setMapValues( incTectonicSubsidenceAdjusted, 5650 );
+   m_previousRiftITS->setValues( 350 );
    mcKenzieCalculatorNoOceanicCrust->compute();
 
    for (unsigned int i = m_firstI; i <= m_lastI; i++)
@@ -210,15 +214,16 @@ TEST_F( McKenzieTester, computeNoOceanicCrust )
 TEST_F( McKenzieTester, computeNDV_1 )
 {
    m_oceaRatio = 0.4;
+   m_age       = 0.0;
    m_depthBasement->getMockderivedSurfacePropertyPtr()->set( 0, 0, Interface::DefaultUndefinedMapValue );
    m_previousContinentalCrustThickness->setValue( 0, 1, Interface::DefaultUndefinedMapValue );
    m_previousOceanicCrustThickness    ->setValue( 0, 2, Interface::DefaultUndefinedMapValue );
    McKenzieCrustCalculatorPtr mcKenzieCalculatorNDV1 = createMcKenzieCalculator();
    m_outputData.setMapValues( WLSadjustedMap,                6000 );
-   m_outputData.setMapValues( incTectonicSubsidenceAdjusted, 6000 );
+   m_previousRiftITS->setValues( 0 );
    m_outputData.setMapValue ( WLSadjustedMap,                1, 0, Interface::DefaultUndefinedMapValue );
-   m_outputData.setMapValue ( incTectonicSubsidenceAdjusted, 1, 1, Interface::DefaultUndefinedMapValue );
-   m_outputData.setMapValue ( incTectonicSubsidenceAdjusted, 1, 2, Interface::DefaultUndefinedMapValue );
+   m_previousRiftITS->setValue( 1, 1, Interface::DefaultUndefinedMapValue );
+   m_previousRiftITS->setValue( 1, 2, Interface::DefaultUndefinedMapValue );
    mcKenzieCalculatorNDV1->compute();
 
    for (unsigned int i = m_firstI; i <= m_lastI; i++)
@@ -275,10 +280,11 @@ TEST_F( McKenzieTester, computeNDV_1 )
 TEST_F( McKenzieTester, computeNDV_2 )
 {
    m_oceaRatio = 0.4;
+   m_age       = 0.0;
    m_validator.setIsValid( false );
    McKenzieCrustCalculatorPtr mcKenzieCalculatorNDV2 = createMcKenzieCalculator();
    m_outputData.setMapValues( WLSadjustedMap,                6000 );
-   m_outputData.setMapValues( incTectonicSubsidenceAdjusted, 6000 );
+   m_previousRiftITS->setValues( 0 );
    mcKenzieCalculatorNDV2->compute();
 
    for (unsigned int i = m_firstI; i <= m_lastI; i++)
@@ -320,12 +326,13 @@ TEST_F( McKenzieTester, computeNDV_2 )
 TEST_F( McKenzieTester, computeNDV_3 )
 {
    m_oceaRatio = 0.4;
+   m_age       = 0.0;
    m_HCuMap ->setValue( 0, 0, Interface::DefaultUndefinedMapValue );
    m_HBuMap ->setValue( 0, 1, Interface::DefaultUndefinedMapValue );
    m_HLMuMap->setValue( 0, 2, Interface::DefaultUndefinedMapValue );
    McKenzieCrustCalculatorPtr mcKenzieCalculatorNDV3 = createMcKenzieCalculator();
    m_outputData.setMapValues( WLSadjustedMap,                6000 );
-   m_outputData.setMapValues( incTectonicSubsidenceAdjusted, 6000 );
+   m_previousRiftITS->setValues( 0 );
    mcKenzieCalculatorNDV3->compute();
 
    for (unsigned int i = m_firstI; i <= m_lastI; i++)
@@ -394,3 +401,16 @@ TEST_F( McKenzieTester, computeNDV_3 )
    }
 }
 
+#ifndef _WIN32
+// TEST_F is not working on windows because of some strange
+// behaviors of the projecthandle and the data access library
+// Once issues in projecthandle and the data access library are fixed
+// then we will be able to enable the death test on windows
+// However this is not an easy problem as it seems that the memory is corrupted
+TEST_F( McKenzieTester, death_tests ) {
+   ::testing::FLAGS_gtest_death_test_style = "threadsafe";
+   m_age = 100000000.0;
+   McKenzieCrustCalculatorPtr mcKenzieCalculator = createMcKenzieCalculator();
+   ASSERT_DEATH( mcKenzieCalculator->compute(), "" );
+}
+#endif

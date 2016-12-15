@@ -51,6 +51,7 @@ namespace  CrustalThickness
          AbstractInterfaceOutput& outputData,
          const AbstractValidator& validator,
          const double age,
+         const Interface::GridMap* previousRiftTTS,
          const Interface::GridMap* previousContinentalCrustThickness,
          const Interface::GridMap* previousOceanicCrustThickness );
 
@@ -80,7 +81,7 @@ namespace  CrustalThickness
 
       /// @defgroup ThinningFactorsCalculators
       /// These methods calculate the thinning factor end members for the McKenzie function f(TTS)=TF
-      //  Where TTS is the total tectonic subsidence and TF is the thinning factor
+      /// Where TTS is the total tectonic subsidence and TF is the thinning factor
       /// @{
       /// @return The thinning factor at melt onset (melting point)
       /// @details The melting point represents the depth at which the oceanic crust (basalt) starts to be created
@@ -113,6 +114,10 @@ namespace  CrustalThickness
       /// @param[in] ITS The incremental tectonic subsidence
       /// @param[in] previousTF The previous thinning factor (0 if does not exists)
       double calculateITScorrected( const double ITS, const double thinningFactor ) const;
+      /// @return The incremental tectonic subsidence stacked for the rift
+      /// @param[in] TTS The total tectonic subsidence
+      /// @details This is equal to the difference betwenn the TTS for the previous rift and the TTS at the current rift
+      double calculateRiftITS( const unsigned int i, const unsigned int j, const double TTS ) const;
       /// @}
 
       /// @defgroup CrustCalculators
@@ -241,9 +246,11 @@ namespace  CrustalThickness
       const Interface::GridMap* m_previousOceanicCrustThickness;     ///< The oceanic crustal thickness of the previous computation age     [m]
       /// @}
 
+      const Interface::GridMap* m_previousRiftTTS; ///< The Total Tectonic Subsidence of the previous rift (i.e. we are at rift ID 2, the previous iteration was at rift ID 1)
+
+      const double m_age;                     ///< The calculation age           [Ma]
       AbstractInterfaceOutput& m_outputData;  ///< The global interface output object (contains the output maps)
       const AbstractValidator& m_validator;   ///< The validator to check if a node (i,j) is valid or not
-
    };
 } // End namespace CrustalThickness
 #endif

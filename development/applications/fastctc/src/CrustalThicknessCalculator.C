@@ -145,10 +145,10 @@ void CrustalThicknessCalculator::finalise ( const bool saveResults ) {
       }
       if (m_crustalThicknessCalculator->getRank() == 0) {
          if ( m_outputFileName.empty() ) {
-            m_crustalThicknessCalculator->saveToFile( m_outputFileName );
+            m_crustalThicknessCalculator->saveToFile( m_projectFileName );
          }
          else {
-            m_crustalThicknessCalculator->saveToFile( m_projectFileName );
+            m_crustalThicknessCalculator->saveToFile( m_outputFileName );
          }
       }
    }
@@ -311,8 +311,10 @@ void CrustalThicknessCalculator::run() {
          ///7. Computes the thinning factor and crustal thicknesse
          if (m_inputData->getRiftingCalculationMask( age )){
             LogHandler( LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_STEP ) << "computing Crustal Thicknesses";
-            CrustalThickness::McKenzieCrustCalculator mcKenzieCalculator( *m_inputData, m_outputData, validator, age, m_previousContinentalCrustalThickness, m_previousOceanicCrustalThickness );
+            CrustalThickness::McKenzieCrustCalculator mcKenzieCalculator( *m_inputData, m_outputData, validator, age,
+               m_previousRiftTTS, m_previousContinentalCrustalThickness, m_previousOceanicCrustalThickness );
             mcKenzieCalculator.compute();
+            m_previousRiftTTS = m_outputData.getMap( WLSadjustedMap );
             m_previousContinentalCrustalThickness = m_outputData.getMap( thicknessCrustMap  );
             m_previousOceanicCrustalThickness     = m_outputData.getMap( thicknessBasaltMap );
          }
