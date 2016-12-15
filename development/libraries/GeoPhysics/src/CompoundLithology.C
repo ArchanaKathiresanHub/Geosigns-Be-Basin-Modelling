@@ -31,6 +31,7 @@ using Utilities::Maths::MicroWattsToWatts;
 
 #include "capillarySealStrength.h"
 #include "GeoPhysicsProjectHandle.h"
+#include "LambdaMixer.h"
 #include "NumericFunctions.h"
 #include "Quadrature.h"
 
@@ -1518,56 +1519,26 @@ void GeoPhysics::CompoundLithology::mixCapillaryEntryPressureCofficients()
 
 void GeoPhysics::CompoundLithology::mixBrooksCoreyParameters()
 {
-   //Note:  mixing type is not considered (homogeneous, layered)
-   //Maximum percentage is considered
-   //TODO: what when equal percentage (50 - 50)?
-
-   m_LambdaPc = m_LambdaKr = 0;
-   m_PcKrModel = "Brooks_Corey";
+   std::vector<double> lambdaPc, lambdaKr;
 
    compContainer::iterator componentIter = m_lithoComponents.begin();
-   percentContainer::iterator percentIter = m_componentPercentage.begin();
-
-   double percent = (double)(*percentIter) / 100;
-   m_LambdaPc = (*componentIter)->getLambdaPc();
-   m_LambdaKr = (*componentIter)->getLambdaKr();
-   //get pckrmodel
-   //?? is the PcKrModel different for different lithology ?
-   m_PcKrModel = (*componentIter)->getPcKrModel();
-
-   ++componentIter;
-   ++percentIter;
-
    while (m_lithoComponents.end() != componentIter)
    {
-
-      // If the volume fraction of the current lithology is greater than
-      // the maximum volume fraction so far then use the exponents of the
-      // current lithology.
-      if (percent < ((double)(*percentIter) / 100))
-      {
-         m_LambdaPc = (*componentIter)->getLambdaPc();
-         m_LambdaKr = (*componentIter)->getLambdaKr();
-         percent = (double)(*percentIter) / 100;
-      }
-      //if percentage are equal, find smaller exponent
-      else if (percent == ((double)(*percentIter) / 100))
-      {
-
-         if ((*componentIter)->getLambdaPc() < m_LambdaPc)
-         {
-            m_LambdaPc = (*componentIter)->getLambdaPc();
-         }
-         if ((*componentIter)->getLambdaKr() < m_LambdaKr)
-         {
-            m_LambdaKr = (*componentIter)->getLambdaKr();
-         }
-
-      }
+      lambdaPc.push_back ( (*componentIter)->getLambdaPc() );
+      lambdaKr.push_back ( (*componentIter)->getLambdaKr() );
 
       ++componentIter;
-      ++percentIter;
    }
+
+   double lambdaPcMixed, lambdaKrMixed;
+
+   GeoPhysics::LambdaMixer lambdaMixer (m_componentPercentage, lambdaPc, lambdaKr);
+   lambdaMixer.mixLambdas (lambdaPcMixed, lambdaKrMixed);
+
+   m_LambdaPc = lambdaPcMixed;
+   m_LambdaKr = lambdaKrMixed;
+
+   return;
 }
 
 //------------------------------------------------------------//

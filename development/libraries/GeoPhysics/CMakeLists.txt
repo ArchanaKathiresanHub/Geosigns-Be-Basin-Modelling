@@ -30,6 +30,7 @@ set(cross_platform_headers
       src/ChemicalCompactionCalculator.h
       src/DoubleExponentialPorosity.h
       src/ExponentialPorosity.h
+      src/LambdaMixer.h
       src/MultiCompoundProperty.h
       src/Permeability.h
       src/Porosity.h
@@ -87,6 +88,7 @@ set(cross_platform_srcs
       src/ChemicalCompactionCalculator.C
       src/DoubleExponentialPorosity.C
       src/ExponentialPorosity.C
+      src/LambdaMixer.cpp
       src/MultiCompoundProperty.C
       src/Permeability.C
       src/Porosity.C
@@ -231,6 +233,11 @@ add_gtest( NAME GeoPhysics::DoubleExponentialPorosity
 
 add_gtest( NAME GeoPhysics::ExponentialPorosity
       SOURCES test/ExponentialPorosity.C
+      LIBRARIES GeoPhysics SerialDataAccess
+)
+
+add_gtest( NAME GeoPhysics::LambdaMixer
+      SOURCES test/LambdaMixer.cpp
       LIBRARIES GeoPhysics SerialDataAccess
 )
 

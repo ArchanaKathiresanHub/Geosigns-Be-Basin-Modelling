@@ -134,7 +134,7 @@ DataAccess::Interface::ProjectHandle * DataAccess::Interface::OpenCauldronProjec
 {
    if ( !boost::filesystem::exists( name ) )
    {
-     throw formattingexception::GeneralException() << "Project file " << name << " does not exist";
+      throw formattingexception::GeneralException() << "Project file " << name << " does not exist";
    }
 
    Database * tables = CreateDatabaseFromCauldronProject( name );
