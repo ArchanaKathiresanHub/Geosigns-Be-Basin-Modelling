@@ -124,7 +124,7 @@ namespace migration
 #ifdef DETAILED_MASS_BALANCE
       string filename = utils::getProjectBaseName(getReservoir()->getProjectHandle()->getName());
       filename += "_MassBalance";
-      ostringstream strstream; 
+      ostringstream strstream;
       strstream << getReservoir()->getName() << " at " << getReservoir()->getEnd()->asString();
       strstream << " crest " << getCrestColumn();
       filename += "_"; filename += strstream.str();
@@ -136,7 +136,7 @@ namespace migration
 #ifdef DETAILED_VOLUME_BALANCE
       string filename = utils::getProjectBaseName(getReservoir()->getProjectHandle()->getName());
       filename += "_VolumeBalance";
-      ostringstream strstream; 
+      ostringstream strstream;
       strstream << getReservoir()->getName() << " at " << getReservoir()->getEnd()->asString();
       strstream << " crest " << getCrestColumn();
       filename += "_"; filename += strstream.str();
@@ -361,7 +361,7 @@ namespace migration
 #ifdef DEBUG_LEVELTOVOLUME
       string filename = utils::getProjectBaseName(getReservoir()->getProjectHandle()->getName());
       filename += "_LevelToVolume";
-      ostringstream strstream; 
+      ostringstream strstream;
       strstream << getReservoir()->getName() << " at " << getReservoir()->getEnd()->asString();
       strstream << " crest " << getCrestColumn();
       filename += "_"; filename += strstream.str();
@@ -370,7 +370,7 @@ namespace migration
 
       for (int i = 0; i < m_levelToVolume->size(); ++i) {
          Tuple2<Tuple2<double> > limits = m_levelToVolume->piece(i);
-         levelToVolumeFile << "index: " << i << " =  [" << limits[0][0] << "," << limits[0][1] << "] -> [" << 
+         levelToVolumeFile << "index: " << i << " =  [" << limits[0][0] << "," << limits[0][1] << "] -> [" <<
             limits[1][0] << "," << limits[1][1] << "]." << endl;
       }
       levelToVolumeFile.close();
@@ -664,9 +664,7 @@ namespace migration
          int jOffset = NeighbourOffsets2D[k][J];
 
          unsigned int iNeighbour = column->getI () + iOffset;
-         assert (iNeighbour >= 0);
          unsigned int jNeighbour = column->getJ () + jOffset;
-         assert (jNeighbour >= 0);
          Column * neighbourColumn = m_reservoir->getColumn (iNeighbour, jNeighbour);
          if (!IsValid (neighbourColumn))
             continue;
@@ -875,7 +873,7 @@ namespace migration
       return m_spillTarget;
    }
 
-   /// compute the columns at which the trap will waste 
+   /// compute the columns at which the trap will waste
    void Trap::computeWasteColumns (void)
    {
       for (int phase = FIRST_PHASE; phase < NUM_PHASES; ++phase)
@@ -1255,7 +1253,7 @@ namespace migration
    double Trap::biodegradeCharges (const double& timeInterval, const Biodegrade& biodegrade)
    {
        // Flashing at this point is not needed because was done in computeHydrocarbonWaterContactDepth()
-	   
+
 	   if ((m_toBeDistributed[GAS].isEmpty() && m_toBeDistributed[OIL].isEmpty()) || m_isPasteurized) return 0.0; // if a trap is pasteurized => no biodegradation, return 0
 
       assert (!m_toBeDistributed[GAS].isEmpty () || !m_toBeDistributed[OIL].isEmpty ());
@@ -1312,7 +1310,7 @@ namespace migration
 
    void Trap::needToComputePasteurizationStatusFromScratch()
    {
-   
+
 #ifdef DEBUG_BIODEGRADATION
 	   cerr << endl << "==== Compute pasteurization status ====" << endl;
 	   // Count the number of columns for each different status
@@ -1349,7 +1347,7 @@ namespace migration
 #ifdef DEBUG_BIODEGRADATION
 	   cerr << "Number of not-Pasteurized / neutral / Pasteurized columns: " << countNotPasteurized << ", " << countNeutral << ", " << countPasteurized << endl;
 	   cerr << "Need to compute the pasteurization status ? " << needToComputeColumnPasteurizationStatus << endl;
-#endif   
+#endif
    };
 
    void Trap::pasteurizationStatus(const double maxBiodegradationTemperature)
@@ -1358,7 +1356,7 @@ namespace migration
 	   if (m_computePasteurizationStatusFromScratch == true)
 	   {
 	      ConstColumnIterator iter;
-		   if (m_hydrocarbonWaterContactTemperature >= maxBiodegradationTemperature) // Trap pasteurized if temperature higher or equal to the maximum temperature allowed for biodegradation 
+		   if (m_hydrocarbonWaterContactTemperature >= maxBiodegradationTemperature) // Trap pasteurized if temperature higher or equal to the maximum temperature allowed for biodegradation
 		   {
 			   for (iter = m_interior.begin(); iter != m_interior.end(); ++iter)
 			   {
@@ -1474,15 +1472,15 @@ namespace migration
 	   return true;
    }
 
-   /// If depths contains a vector of formations starting with the formation containing 
-   /// this trap, return iterators pointing to the formations which constitute the 
+   /// If depths contains a vector of formations starting with the formation containing
+   /// this trap, return iterators pointing to the formations which constitute the
    /// overburden of this trap:
    void Trap::iterateToFirstOverburdenFormation (const vector<FormationSurfaceGridMaps>& depths,
       vector<FormationSurfaceGridMaps>::const_iterator& begin,
       vector<FormationSurfaceGridMaps>::const_iterator& end) const
    {
-      // Determine first whether the seal of the trap lies inside this formation, or 
-      // whether the seal is formed by the next formation.  In the last case, the first 
+      // Determine first whether the seal of the trap lies inside this formation, or
+      // whether the seal is formed by the next formation.  In the last case, the first
       // is the second formation of depths etc:
       begin = depths.begin (); end = depths.end ();
       if ( getCrestColumn()->getTopDepthOffset() == 0.0 )
@@ -1507,7 +1505,7 @@ namespace migration
       if (!sealPresent)
          return true;
 
-      // Below we copy the property information of the relevant formations to 
+      // Below we copy the property information of the relevant formations to
       // m_diffusionOverburdenProps. Clear first the old information in m_diffusionOverburdenProps:
       vector<DiffusionLeak::OverburdenProp> diffusionOverburdenProps;
 
@@ -1529,7 +1527,7 @@ namespace migration
       vector<FormationSurfaceGridMaps>::const_iterator end;
       iterateToFirstOverburdenFormation (depths, begin, end);
 
-      // Get the first overburden formation which does exist, i.e. for which the thickness is larger 
+      // Get the first overburden formation which does exist, i.e. for which the thickness is larger
       // than zero:
       unsigned int i = getCrestColumn ()->getI ();
       unsigned int j = getCrestColumn ()->getJ ();
@@ -1574,7 +1572,7 @@ namespace migration
       vector<FormationSurfaceGridMaps>::const_iterator end;
       iterateToFirstOverburdenFormation (depths, begin, end);
 
-      // Get the formations which do exist, i.e. for which the thickness is larger than zero, 
+      // Get the formations which do exist, i.e. for which the thickness is larger than zero,
       // and which are within maxSealThickness and maxFormations:
       unsigned int i = getCrestColumn ()->getI ();
       unsigned int j = getCrestColumn ()->getJ ();
@@ -1583,9 +1581,9 @@ namespace migration
          i, j, maxSealThickness, maxFormations, true, formations))
          return false;
 
-      // In case the trap lies inside the formation, the thickness, porosity and base temperature 
+      // In case the trap lies inside the formation, the thickness, porosity and base temperature
       // are not provided by that of the overburden formation, but by the values from the Trap itelf.
-      // The reason is that if we would get the values from the overburden formation, we would 
+      // The reason is that if we would get the values from the overburden formation, we would
       // the values from the base of the formation instead of the top of the trap:
       double baseDepth = getTopDepth ();
       double basePorosity = getCrestColumn ()->getPorosity ();
@@ -1601,7 +1599,7 @@ namespace migration
       // There must be a minimum of 2 entries in fullOverburden.continuous(CONTINUOUS_TEMPERATURE):
       assert (t != temperatures.end ());
 
-      // Iterate over the included formations and the property GridMaps and copy the 
+      // Iterate over the included formations and the property GridMaps and copy the
       // information for each formation within formations:
       ++t;
       while (f != formations.end ())
@@ -1741,9 +1739,9 @@ namespace migration
 
    /// Calculate charge loss due to diffusion leakages.
    ///
-   /// @param[in] timeInterval: The time interval between the previous and current snapshot, i.e. 
-   ///                          previous - current. As is customary in fastmig, all times are positive 
-   ///                          and because timeInterval = previous - current timeInterval is also 
+   /// @param[in] timeInterval: The time interval between the previous and current snapshot, i.e.
+   ///                          previous - current. As is customary in fastmig, all times are positive
+   ///                          and because timeInterval = previous - current timeInterval is also
    ///                          positive.
    /// @param[in] parameters:
    /// @param[in] maxTimeStep:
@@ -1752,7 +1750,7 @@ namespace migration
    void Trap::diffusionLeakCharges (const double& intervalStartTime, const double & intervalEndTime, const Interface::DiffusionLeakageParameters*
       parameters, const double& maxTimeStep, const double& maxFluxError)
    {
-      // If there are no m_diffusionOverburdenProps, there wasn't a overburden.  (Diffusion directly 
+      // If there are no m_diffusionOverburdenProps, there wasn't a overburden.  (Diffusion directly
       // to the air is leaking, not diffusion.).  In that case do nothing:
       if (!m_diffusionOverburdenProps)
          return;
@@ -1856,7 +1854,7 @@ namespace migration
       m_distributed[GAS].computeDiffusionLeakages (diffusionStartTime, intervalStartTime, intervalEndTime, solubilities, getSurface (GAS), diffusionLeaks,
          computeGorm (m_distributed[GAS], m_distributed[OIL]), &m_distributed[GAS], &m_diffusionLeaked[GAS]);
 
-      /// \brief set the penetration distance of the trap for the next snapshot 
+      /// \brief set the penetration distance of the trap for the next snapshot
       if (parameters->transientModel () == Interface::Transient)
       {
          for (c = 0; c < size; ++c)
@@ -1903,7 +1901,7 @@ namespace migration
 
       if (sealPresent)
       {
-         
+
          if ( isLegacy || getCrestColumn()->getTopDepthOffset() != 0.0 )
          {
             setSealPermeability( permeability[0] );
@@ -1913,7 +1911,7 @@ namespace migration
             //set the seal permeability only if a seal formation is present
             setSealPermeability( permeability[1] );
          }
-         
+
          if (!isUndersized ())
          {
             // The fracture seal strength is provided by the fracturePressure minus the pressure:
@@ -1937,34 +1935,34 @@ namespace migration
 #endif
 
 #ifdef DETAILED_MASS_BALANCE
-            ostringstream strstream1; 
+            ostringstream strstream1;
             strstream1 << "fracture seal strength: " << fracSealStrength << endl;
             m_massBalance->addComment(strstream1.str());
-            ostringstream strstream2; 
+            ostringstream strstream2;
             strstream2 << "seal fluid density: " << sealFluidDensity << endl;
             m_massBalance->addComment(strstream2.str());
-            ostringstream strstream3; 
+            ostringstream strstream3;
             strstream2 << "permeability: " << permeability << endl;
             m_massBalance->addComment(strstream3.str());
 #endif
 
 #ifdef DETAILED_VOLUME_BALANCE
-            ostringstream strstream1; 
+            ostringstream strstream1;
             strstream1 << "fracture seal strength: " << fracSealStrength << endl;
             m_volumeBalance->addComment(strstream1.str());
-            ostringstream strstream2; 
+            ostringstream strstream2;
             strstream2 << "seal fluid density: " << sealFluidDensity << endl;
             m_volumeBalance->addComment(strstream2.str());
-            ostringstream strstream3; 
+            ostringstream strstream3;
             strstream2 << "permeability: " << permeability << endl;
             m_volumeBalance->addComment(strstream3.str());
 #endif
 
             // With these parameters, create the algorithm which determines the max gas and oil column.
-            // However, some critical parameters that are necessary for the calculation of the capillary 
-            // entry seal strength, such as the density and composition of the oil and gas phases, are 
+            // However, some critical parameters that are necessary for the calculation of the capillary
+            // entry seal strength, such as the density and composition of the oil and gas phases, are
             // right now not available. So we create here a CapillarySealStrength object and provide this
-            // object the parameters which we already do know. The CapillarySealStrength then calculates 
+            // object the parameters which we already do know. The CapillarySealStrength then calculates
             // the capillary seal strength at the moment the missing data becomes available.
 
             // to compute leakage you need to compute the Brooks Corey correction. Retrive the lambda at the crest location and pass it to the distributor
@@ -2039,7 +2037,7 @@ namespace migration
          fullOverburden.constants (SurfaceGridMapContainer::CONSTANT_LITHOTYPE3PERCENT);
 
       // There must be one extra element in depths in comparison to the discontiuous data
-      // and the number of percentage map properties decrease from LithoType 1 to LithType 2 and 
+      // and the number of percentage map properties decrease from LithoType 1 to LithType 2 and
       // LithoType 3:
       assert (depths.size () == permeabilities.size ());
       assert (depths.size () == lithoType1Percents.size ());
@@ -2083,9 +2081,9 @@ namespace migration
       SurfaceGridMapContainer::constant_properties::const_iterator l1 = lithoType2Percents.begin ();
       SurfaceGridMapContainer::constant_properties::const_iterator l2 = lithoType3Percents.begin ();
 
-      // Find the with the one overburden formation corresponding GridMap's of the 
+      // Find the with the one overburden formation corresponding GridMap's of the
       // properties.  In most cases this will be the first GridMap, but in order to be safe,
-      // we iterate until depths.end() (to prevent an eternal loop), even though we shouldn't get 
+      // we iterate until depths.end() (to prevent an eternal loop), even though we shouldn't get
       // at depths.end():
 
       // the fracture pressure result
@@ -2106,7 +2104,7 @@ namespace migration
          if ( ( *d ).formation() == *f )
          {
 
-            // The top of the one overburden formation must be larger than both 
+            // The top of the one overburden formation must be larger than both
             // the top of the trap and the base of the overburden formation:
 #ifdef DEBUG_TRAP
             bool validTop = (*d).top ().valid ();
@@ -2139,7 +2137,7 @@ namespace migration
             assert( l0 != lithoType1Percents.end() );
             assert( l0->first == *f );
 
-            // So we have found the right d, p, l0, and possibly l1 and l2 iterators if they 
+            // So we have found the right d, p, l0, and possibly l1 and l2 iterators if they
             // do exist.  Get the fractions of the LithoTypes:
             vector<double> formLithFracs;
 
@@ -2152,18 +2150,18 @@ namespace migration
             // store the formation litho fraction
             lithFracs.push_back( formLithFracs );
 
-            // For the capillary entry pressure, we need to know what mixing model to apply when calculating 
+            // For the capillary entry pressure, we need to know what mixing model to apply when calculating
             // the effective capillary parameters:
             mixModel.push_back( ( *f )->getMixModel() );
 
-            // If the trap lies inside the formation the relevant permeability is the permeability 
-            // of the trap, else the permeability is the permeability of the base of the overburden 
+            // If the trap lies inside the formation the relevant permeability is the permeability
+            // of the trap, else the permeability is the permeability of the base of the overburden
             // formation:
 
             if ( getCrestColumn()->getTopDepthOffset() != 0.0 )
                permeability.push_back( getCrestColumn()->getPermeability() );
             else
-            {      
+            {
                // Remove the following if when legacy will be removed.
                if ( isLegacy )
                {
@@ -2209,12 +2207,12 @@ namespace migration
 
             // -- Fracture pressure calculations --//
             // Compute sealFluidDensity, fracPressure and the fracture pressure only for the seal.
-            // Note that in case of offset formation[0] is the reservoir formation. 
+            // Note that in case of offset formation[0] is the reservoir formation.
 			// This means that the fracture pressure is calculated for the reservoir formation.
             if ( ( *f ) == formations.back() )
             {
 
-               // But as depth and temperatureC are of course continuous properties, we may get them from 
+               // But as depth and temperatureC are of course continuous properties, we may get them from
                // the Trap:
                double depth = getTopDepth();
                double depthWrtSedimentSurface = getCrestColumn()->getOverburden();
@@ -2290,7 +2288,7 @@ namespace migration
    bool Trap::distributeCharges (void)
    {
       // requiresDistribution () won't work as it also looks at the crest column,
-      // which is not required/advisable as it is not used further on. 
+      // which is not required/advisable as it is not used further on.
       // Also, Anton's distributor does not handle the case where there is nothing toBeDistributed very well.
 
       bool distributionNeeded = false;
@@ -2490,7 +2488,7 @@ namespace migration
          ostringstream strstream; strstream << getCrestColumn() << endl;
          m_massBalance->addComment(strstream.str());
          m_massBalance->addComment("Snapshot    = ");
-         m_massBalance->addComment(getReservoir()->getEnd()->asString() + "\n"); 
+         m_massBalance->addComment(getReservoir()->getEnd()->asString() + "\n");
          m_massBalance->addComment("Size        = ");
          ostringstream strstream0; strstream0 << getSize() << endl;
          m_massBalance->addComment(strstream0.str());
@@ -2543,7 +2541,7 @@ namespace migration
       ostringstream strstream; strstream << getCrestColumn() << endl;
       m_volumeBalance->addComment(strstream.str());
       m_volumeBalance->addComment("Snapshot    = ");
-      m_volumeBalance->addComment(getReservoir()->getEnd()->asString() + "\n"); 
+      m_volumeBalance->addComment(getReservoir()->getEnd()->asString() + "\n");
       m_volumeBalance->addComment("Size        = ");
       ostringstream strstream0; strstream0 << getSize() << endl;
       m_volumeBalance->addComment(strstream0.str());
@@ -2709,7 +2707,7 @@ namespace migration
       {
          m_hydrocarbonWaterContactTemperature = crestColumn->getOWCTemperature (m_hydrocarbonWaterContactDepth);
       }
-      // Else we need to find another column which has a top and a bottom depth which surrounded the OWC 
+      // Else we need to find another column which has a top and a bottom depth which surrounded the OWC
       else
       {
          // Find a column of the trap with a bottom depth deeper than the hydrocarbon - water contact
@@ -2783,7 +2781,7 @@ namespace migration
 #endif
             volumeFractionOfOilBiodegraded = 1;
             volumeFractionOfGasBiodegraded = (volumeBiodegraded - m_toBeDistributed[OIL].getVolume ()) / m_toBeDistributed[GAS].getVolume ();
-            volumeFractionOfGasBiodegraded = min (volumeFractionOfGasBiodegraded, 1.0);   // in case that the biodegradation zone extends above the volume of Gas 
+            volumeFractionOfGasBiodegraded = min (volumeFractionOfGasBiodegraded, 1.0);   // in case that the biodegradation zone extends above the volume of Gas
          }
       }
       assert (volumeFractionOfOilBiodegraded >= 0 && volumeFractionOfOilBiodegraded <= 1);
