@@ -48,7 +48,7 @@ namespace Basin_Modelling {
 
   public :
 
-    FEM_Grid ( AppCtx* Application_Context );
+    explicit FEM_Grid ( AppCtx* Application_Context );
     ~FEM_Grid ();
 
     //----------------------------//
