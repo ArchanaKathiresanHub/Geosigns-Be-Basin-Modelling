@@ -10,9 +10,11 @@
 #include <cstdlib>
 #include <cstdio>
 #include <algorithm>
+#include <sys/types.h>
+#include <unistd.h>
 
 // This is not really a unit test but more an integration test: Testing the
-// integration of the virtual file driver within HDF5. 
+// integration of the virtual file driver within HDF5.
 // The driver enables the following
 // - Open an existing file for Read&Write
 //     1) FILE-SIZE-RANK exists, but FILE doesn't
@@ -64,8 +66,8 @@ struct MPIHelper
       return object;
    }
 
-   static int rank() 
-   { 
+   static int rank()
+   {
       instance();
 
       int rank;
@@ -73,8 +75,8 @@ struct MPIHelper
       return rank;
    }
 
-   static int size() 
-   { 
+   static int size()
+   {
       instance();
 
       int size;
@@ -82,7 +84,7 @@ struct MPIHelper
       return size;
    }
 
-   static void barrier() 
+   static void barrier()
    {
       instance();
       MPI_Barrier(MPI_COMM_WORLD);
@@ -117,10 +119,10 @@ public:
       }
    }
 
-   // Open the file (by means as defined by 'access'). If useOFPP is defined, the OFPP driver is used. 
+   // Open the file (by means as defined by 'access'). If useOFPP is defined, the OFPP driver is used.
    // (Note: it is silly to create an instance of this class with an extended
-   // file name and to use the OFPP driver again.) If 'data' is negative it will try to read from 
-   // the file. If data is positive it will write that number to the file. 
+   // file name and to use the OFPP driver again.) If 'data' is negative it will try to read from
+   // the file. If data is positive it will write that number to the file.
    // The return value is the data that is has written to or read from the file. It will
    // return one of the ErrorCodes (all negative values) in case the operation fails.
    int open( Access access, bool useOFPP, int data)
@@ -129,7 +131,7 @@ public:
 
       herr_t status = 0;
       hsize_t dims[]  = { 1 };
-      
+
       hid_t fapl = H5P_DEFAULT;
       if (useOFPP)
       {
@@ -239,7 +241,7 @@ public:
    const std::string & name() const
    { return m_file ; }
 
-   static std::string tempName() 
+   static std::string tempName()
    {
       int rank =  MPIHelper::rank();
       char * name = 0;
@@ -247,9 +249,9 @@ public:
       if ( rank == 0)
       {
          std::generate( buffer.begin(), buffer.end(), randomChar);
-      } 
+      }
       MPI_Bcast( &buffer[0], buffer.size(), MPI_CHAR, 0, MPI_COMM_WORLD);
-      
+
       return std::string( buffer.begin(), buffer.end());
    }
 
@@ -268,7 +270,7 @@ private:
       static bool seeded = false;
       if (!seeded)
       {
-         srand( time(0) );
+         srand ( getpid ());
          seeded = true;
       }
       size_t index = (sizeof(characters) - 1) * ( rand() / (double) RAND_MAX );
@@ -361,7 +363,7 @@ TEST( HDF5VirtualFileDriverTest, OpenExistingFile5 )
 
       File c( name, false );
 
-    
+
       EXPECT_EQ( 6, c.open( File::Open, false, -1));
       EXPECT_EQ( File::CannotOpenFile, c.open( File::Open, true, -1) );
    }
@@ -553,4 +555,3 @@ TEST( HDF5VirtualFileDriverTest, TruncateFile4 )
       EXPECT_EQ( 24, File(name, false).open( File::Truncate, false, 24));
    EXPECT_EQ( 25, File(name, false).open( File::Truncate, true, 25) );
 }
-
