@@ -70,8 +70,6 @@ void ImportExport::addProject(pugi::xml_node pt, std::shared_ptr<Project>& proje
     pt.append_child("modelingmode").text() = (int)project->getModelingMode();
     pt.append_child("team").text() = project->getTeam().c_str();
     pt.append_child("programversion").text() = project->getProgramVersion().c_str();
-   
-
 	pt.append_child("outputpath").text() = m_relPath.cpath();
     
     pugi::xml_node ptxml = pt.append_child("xml-version");
@@ -340,8 +338,8 @@ void CauldronIO::ImportExport::addSnapShot(const std::shared_ptr<SnapShot>& snap
         CauldronIO::VisualizationUtils::cellCenterAllMaps(snapShot, m_project);
         CauldronIO::VisualizationUtils::cellCenterVolume(snapShot->getVolume(), m_project);
         
-      // This should be the slowest operation: parallellize
-      CauldronIO::VisualizationUtils::cellCenterFormationVolumes(snapShot, m_project, m_numThreads);
+		// This should be the slowest operation: parallellize
+		CauldronIO::VisualizationUtils::cellCenterFormationVolumes(snapShot, m_project, m_numThreads);
     }
 
     // Add surfaces

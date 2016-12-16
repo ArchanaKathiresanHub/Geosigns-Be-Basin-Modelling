@@ -253,7 +253,7 @@ vector<std::shared_ptr<CauldronIO::Surface> > ImportProjectHandle::createSurface
     // Add all the surfaces
     //
     // 1. Collect all surfaces with the same name
-    // 2. Nameless surfaces -> one map per surface
+    // 2. Nameless surfaces -> identify by formation
     // 3. For each property -> add to project (if not existing)
     // 4. For each formation -> add to project (if not existing)
     // 5. Add SurfaceData to Surface

@@ -25,26 +25,13 @@ include_directories( SYSTEM
 )
 
 bm_include_libraries(
-  DataModel
-  DataAccess
   utilities
-  SerialDataAccess
   FileSystem
-  DataAccess
-  TableIO
-  Serial_Hdf5
-  CBMGenerics
 )
 
 target_link_libraries(VisualizationIO
-  DataModel
-  DataAccess
   utilities
-  SerialDataAccess
   FileSystem
-  TableIO
-  Serial_Hdf5
-  CBMGenerics
   PugiXMLlib
   LZlib
   ${HDF5_LIBRARIES}

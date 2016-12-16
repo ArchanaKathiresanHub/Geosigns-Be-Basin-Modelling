@@ -50,16 +50,16 @@ int main(int argc, char ** argv)
 	if (argc <= 1)
 	{
 		std::cout << "Usage: VisualizationIO_convert [mode] [options] " << endl
-			<< "  Modes: " << endl
-			<< "  -import-native <xml-file>              : loads xml reads all the data into memory" << endl
-			<< "  -import-projectHandle <projectHandle>  : loads the specified projectHandle into memory" << endl
-			<< "  -convert <projectHandle>               : converts the specified projectHandle to new native format, " << endl
+			<< " Modes: " << endl
+			<< "  -import-native <xml-file>               : loads xml reads all the data into memory" << endl
+			<< "  -import-projectHandle <project3D file>  : loads the specified project3D file into memory" << endl
+			<< "  -convert <project3D file>               : converts the specified project3D file to new native format, " << endl
 			<< " Options: " << endl
-			<< " -threads=x                              : use x threads for compression during export or parallel importing" << endl
-			<< " -center                                 : cell-center all properties except depth" << endl
-			<< " -extend <xml-file>                      : if data is existing in the given xml-file, that data will not be converted but referred to" << endl
-			<< " -verbose                                : output debugging information" << endl
-			<< " -outputDir <directory>                  : output to this directory instead of input directory" << endl;
+			<< "  -threads=x                              : use x threads for compression during export or parallel importing" << endl
+			<< "  -center                                 : cell-center all properties except depth" << endl
+			<< "  -extend <xml-file>                      : if data is existing in the given xml-file, that data will not be converted but referred to" << endl
+			<< "  -verbose                                : output debugging information" << endl
+			<< "  -outputDir <directory>                  : output to this directory instead of input directory" << endl;
 
 		return 1;
 	}
@@ -70,29 +70,29 @@ int main(int argc, char ** argv)
 	int numThreads = 1;
 	bool center = false;
 	bool verbose = false;
-	bool extend = false;
-	bool outputDir = false;
 	std::string extendXMLfile;
 	std::string outputDirStr;
 
-	for (int i = 1; i < argc; i++)
+	for (int i = 3; i < argc; i++)
 	{
 		if (std::string(argv[i]).find("threads") != std::string::npos)
 		{
 			numThreads = std::atoi(argv[i] + 9);
 			numThreads = min(24, (int)max(1, (int)numThreads));
+			cout << "Using " << numThreads << " threads" << endl;
 		}
-		if (std::string(argv[i]).find("center") != std::string::npos)
+		else if (std::string(argv[i]).find("center") != std::string::npos)
 		{
 			center = true;
+			cout << "Applying cell-centering to converted maps and volumes" << endl;
 		}
-		if (std::string(argv[i]).find("verbose") != std::string::npos)
+		else if (std::string(argv[i]).find("verbose") != std::string::npos)
 		{
 			verbose = true;
+			cout << "Running in verbose mode" << endl;
 		}
-		if (std::string(argv[i]).find("extend") != std::string::npos)
+		else if (std::string(argv[i]).find("extend") != std::string::npos)
 		{
-			extend = true;
 			if (i == argc - 1)
 			{
 				cerr << "Missing xml-file location" << endl;
@@ -108,11 +108,11 @@ int main(int argc, char ** argv)
 					cerr << "extending with xml-file " << extendXMLfile << " not possible since it can't be found" << endl;
 					exit(1);
 				}
+				cout << "Extending xml-project " << extendXMLfile << endl;
 			}
 		}
-		if (std::string(argv[i]).find("outputDir") != std::string::npos)
+		else if (std::string(argv[i]).find("outputDir") != std::string::npos)
 		{
-			outputDir = true;
 			if (i == argc - 1)
 			{
 				cerr << "Missing output directory location" << endl;
@@ -122,7 +122,13 @@ int main(int argc, char ** argv)
 			{
 				outputDirStr.assign(argv[i + 1]);
 				i++;
+				cout << "Using as output directory: " << outputDirStr << endl;
 			}
+		}
+		else
+		{
+			std::cerr << "Unrecognized option: " << argv[i] << std::endl;
+			exit(1);
 		}
 	}
 
@@ -198,16 +204,16 @@ int main(int argc, char ** argv)
             float timeInSeconds;
 
             // Open the projectHandle
-			std::cout << "Opening project handle " << endl;
+			std::cout << "Opening project3D file " << endl;
             shared_ptr<DataAccess::Interface::ObjectFactory> factory(new DataAccess::Interface::ObjectFactory());
             shared_ptr<DataAccess::Interface::ProjectHandle> projectHandle(DataAccess::Interface::OpenCauldronProject(projectFileName, "r", factory.get()));
             if (!projectHandle)
             {
-                cerr << "Could not open the project handle" << endl;
+                cerr << "Could not open the project3D file" << endl;
                 return 0;
             }
             timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
-			std::cout << "Finished opening project handle in " << timeInSeconds << " seconds " << endl;
+			std::cout << "Finished opening project3D file in " << timeInSeconds << " seconds " << endl;
 			start = clock();
 
             // Import from ProjectHandle
@@ -235,7 +241,7 @@ int main(int argc, char ** argv)
             {
 				// Load existing XML project if needed
 				shared_ptr<CauldronIO::Project> projectExisting;
-				if (extend)
+				if (!extendXMLfile.empty())
 				{
 					std::cout << "Reading existing XML project" << endl;
 					start = clock();
@@ -258,7 +264,7 @@ int main(int argc, char ** argv)
 
                 // Check for explicit output path
                 ibs::FilePath absPath(projectFileName);
-				if (outputDir)
+				if (!outputDirStr.empty())
                 {
 					absPath = ibs::FilePath(outputDirStr) << absPath.fileName();
                 }
