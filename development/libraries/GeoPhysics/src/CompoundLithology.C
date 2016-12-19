@@ -1530,13 +1530,11 @@ void GeoPhysics::CompoundLithology::mixBrooksCoreyParameters()
       ++componentIter;
    }
 
-   double lambdaPcMixed, lambdaKrMixed;
+   GeoPhysics::LambdaMixer pcMixer;
+   m_LambdaPc = pcMixer.mixLambdas(m_componentPercentage, lambdaPc);
 
-   GeoPhysics::LambdaMixer lambdaMixer (m_componentPercentage, lambdaPc, lambdaKr);
-   lambdaMixer.mixLambdas (lambdaPcMixed, lambdaKrMixed);
-
-   m_LambdaPc = lambdaPcMixed;
-   m_LambdaKr = lambdaKrMixed;
+   GeoPhysics::LambdaMixer krMixer;
+   m_LambdaKr = krMixer.mixLambdas(m_componentPercentage, lambdaKr);
 
    return;
 }
