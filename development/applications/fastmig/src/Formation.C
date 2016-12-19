@@ -951,17 +951,27 @@ namespace migration
 
       const GridMap* theMap = 0;
 
-      if (prop->getName ().find ("Permeability") == std::string::npos)
+      if (prop->getName ().find ("Permeability") == std::string::npos )
       {
 
-         DerivedProperties::SurfacePropertyPtr theProperty = m_migrator->getPropertyManager ().getSurfaceProperty (prop, snapshot, surface);
+         DerivedProperties::SurfacePropertyPtr theProperty;
+
+         // the way Formation::getSurfacePropertyGridMap is used, we can also return a 0 if the property cannot be computed (it is supposed to do it)
+         // However we need to catch the exception, othrwise the program will terminate.
+         try
+         {
+            theProperty = m_migrator->getPropertyManager().getSurfaceProperty(prop, snapshot, surface);
+         }
+         catch ( formattingexception::GeneralException& )
+         {
+            theProperty = 0;
+         }
 
          if (theProperty != 0)
          {
 
             const DerivedProperties::PrimarySurfaceProperty * thePrimaryProperty = dynamic_cast<const DerivedProperties::PrimarySurfaceProperty *>(theProperty.get ());
-            //assert (thePrimaryProperty != 0);
-
+ 
             if (thePrimaryProperty != 0)
             {
                theMap = thePrimaryProperty->getGridMap ();
@@ -976,8 +986,14 @@ namespace migration
          {
             DerivedProperties::FormationSurfacePropertyPtr theFormationProperty;
 
-            if (prop->getName() != "Depth" and prop->getName() != "DepthHighRes")
-               theFormationProperty = m_migrator->getPropertyManager ().getFormationSurfaceProperty (prop, snapshot, this, surface);
+            try
+            {
+               theFormationProperty = m_migrator->getPropertyManager().getFormationSurfaceProperty(prop, snapshot, this, surface);
+            }
+            catch ( formattingexception::GeneralException& )
+            {
+               theFormationProperty = 0;
+            }
 
             if (theFormationProperty != 0)
             {
@@ -990,8 +1006,14 @@ namespace migration
       {
          DerivedProperties::FormationSurfacePropertyPtr theFormationProperty;
 
-         if (prop->getName() != "Depth" and prop->getName() != "DepthHighRes")
-            theFormationProperty = m_migrator->getPropertyManager ().getFormationSurfaceProperty (prop, snapshot, this, surface);
+         try
+         {
+            theFormationProperty = m_migrator->getPropertyManager().getFormationSurfaceProperty(prop, snapshot, this, surface);
+         }
+         catch ( formattingexception::GeneralException& )
+         {
+            theFormationProperty = 0;
+         }
 
          if (theFormationProperty != 0)
          {

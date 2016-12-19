@@ -145,10 +145,6 @@ namespace migration
          return getAdjacentSurfaceGridMapFormations (overburden, prop, snapshot);
       }
 
-      /// 
-      ///
-      ///
-
       template <typename PRED>
       vector<const Formation*> getOverburdenFormationsIf (vector<FormationSurfaceGridMaps>::const_iterator begin,
          vector<FormationSurfaceGridMaps>::const_iterator end, PRED pred)
