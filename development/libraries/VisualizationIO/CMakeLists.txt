@@ -19,7 +19,6 @@ source_group("Source Files" FILES ${all_srcs})
 add_library(VisualizationIO ${all_srcs} ${all_headers})
 
 include_directories( SYSTEM
-  ${HDF5_INCLUDE_DIRS}
   ${PUGIXML_INCLUDE_DIR}
   ${LZ_INCLUDE_DIR}
 )
@@ -34,7 +33,6 @@ target_link_libraries(VisualizationIO
   FileSystem
   PugiXMLlib
   LZlib
-  ${HDF5_LIBRARIES}
   ${Boost_LIBRARIES}
 )
 

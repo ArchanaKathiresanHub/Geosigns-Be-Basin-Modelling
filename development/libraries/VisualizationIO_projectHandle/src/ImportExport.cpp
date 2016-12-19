@@ -21,7 +21,6 @@
 #include <iostream>
 #include <fstream>
 #include <cstring>
-#include "hdf5.h"
 
 using namespace CauldronIO;
 
