@@ -33,7 +33,7 @@ namespace Shell.BasinModeling.CauldronIO.Test
         [TestMethod]
         public void LoadProjectNative()
         {
-            Project project = ImportExport.importFromXML("../../../csharp-test/HydrostaticGL_out.xml");
+            Project project = ImportFromXML.importFromXML("../../../csharp-test/HydrostaticGL_out.xml");
             int count = project.getSnapShots().Count;
             Assert.IsTrue(count == 14);
             count = project.getSurfaceNames().Count;

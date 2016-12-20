@@ -11,6 +11,10 @@
 #ifndef _VisualizationAPIFwDecl_h_
 #define _VisualizationAPIFwDecl_h_
 
+#define xml_version_major 0
+							 // version 1: initial version
+#define xml_version_minor 2  // version 2: changed geometry storage
+
 #include <vector>
 #include <memory>
 

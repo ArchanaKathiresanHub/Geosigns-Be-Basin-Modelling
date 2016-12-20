@@ -39,7 +39,7 @@
 #include "SurfaceOutputPropertyValue.h"
 
 #include "VisualizationAPI.h"
-#include "ImportExport.h"
+#include "ExportToXML.h"
 #include "ImportProjectHandle.h"
 
 using namespace std;

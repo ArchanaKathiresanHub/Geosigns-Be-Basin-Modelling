@@ -233,7 +233,7 @@ void PropertiesCalculator::convertToVisualizationIO( )  {
       cout << "Writing to new format" << endl;
       start = clock();
 	  std::shared_ptr<CauldronIO::Project> projectExisting;
-	  CauldronIO::ImportExport::exportToXML(project, projectExisting, absPath.path(), 1);
+	  CauldronIO::ExportToXML::exportToXML(project, projectExisting, absPath.path(), 1);
 
       timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
       cout << "Wrote to new format in " << timeInSeconds << " seconds" << endl;

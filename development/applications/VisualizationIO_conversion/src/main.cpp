@@ -8,7 +8,8 @@
 // Do not distribute without written permission from Shell.
 //
 #include "VisualizationAPI.h"
-#include "ImportExport.h"
+#include "ImportFromXML.h"
+#include "ExportToXML.h"
 #include "ImportProjectHandle.h"
 #include "VisualizationIO_native.h"
 #include "VisualizationUtils.h"
@@ -147,7 +148,7 @@ int main(int argc, char ** argv)
             float timeInSeconds;
 
             std::cout << "Starting import from XML" << endl;
-            shared_ptr<CauldronIO::Project> project = CauldronIO::ImportExport::importFromXML(xmlName);
+            shared_ptr<CauldronIO::Project> project = CauldronIO::ImportFromXML::importFromXML(xmlName);
 
             timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
 			std::cout << "Finished import in " << timeInSeconds << " seconds " << endl;
@@ -245,7 +246,7 @@ int main(int argc, char ** argv)
 				{
 					std::cout << "Reading existing XML project" << endl;
 					start = clock();
-					projectExisting = CauldronIO::ImportExport::importFromXML(extendXMLfile);
+					projectExisting = CauldronIO::ImportFromXML::importFromXML(extendXMLfile);
 
 					timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
 					std::cout << "Finished import in " << timeInSeconds << " seconds " << endl;
@@ -269,7 +270,7 @@ int main(int argc, char ** argv)
 					absPath = ibs::FilePath(outputDirStr) << absPath.fileName();
                 }
 
-                CauldronIO::ImportExport::exportToXML(project, projectExisting, absPath.path(), numThreads, center);
+                CauldronIO::ExportToXML::exportToXML(project, projectExisting, absPath.path(), numThreads, center);
                 timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
 				std::cout << "Wrote to new format in " << timeInSeconds << " seconds" << endl;
             }

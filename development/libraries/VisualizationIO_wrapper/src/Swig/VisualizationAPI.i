@@ -53,7 +53,7 @@ namespace CauldronIO
 #include "VisualizationAPIFwDecl.h"
 #include "VisualizationAPI.h"
 #include "VisualizationIO_native.h"
-#include "ImportExport.h"
+#include "ImportFromXML.h"
 #include "FilePath.h"
 #include "FolderPath.h"
 %}
@@ -69,7 +69,7 @@ namespace CauldronIO
 %include "VisualizationAPIFwDecl.h"
 %include "VisualizationAPI.h"
 %include "VisualizationIO_native.h"
-%include "ImportExport.h"
+%include "ImportFromXML.h"
 
 /* some templates */
 %template(SnapShotList) std::vector < std::shared_ptr<CauldronIO::SnapShot > >;

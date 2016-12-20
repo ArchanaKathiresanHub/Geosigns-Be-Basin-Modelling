@@ -25,7 +25,7 @@
 #include "../../SerialDataAccess/src/Interface/SerialGridMap.h"
 
 #include "ImportProjectHandle.h"
-#include "ImportExport.h"
+#include "ExportToXML.h"
 #include <string>
 #include <iostream>
 #include <iomanip>

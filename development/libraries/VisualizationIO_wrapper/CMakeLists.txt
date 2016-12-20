@@ -32,7 +32,6 @@ bm_include_libraries(
    FileSystem
    utilities
    VisualizationIO
-   VisualizationIO_projectHandle
 )
 
 set(CMAKE_SWIG_OUTDIR ${CMAKE_CURRENT_BINARY_DIR}/csharp)
@@ -46,7 +45,7 @@ swig_add_module( CauldronIO csharp src/Swig/VisualizationAPI.i
     ${CMAKE_CURRENT_BINARY_DIR}/version.rc
 )
 
-swig_link_libraries( CauldronIO VisualizationIO VisualizationIO_projectHandle DataModel DataAccess utilities SerialDataAccess 
+swig_link_libraries( CauldronIO VisualizationIO DataModel DataAccess utilities SerialDataAccess 
 				     FileSystem TableIO Serial_Hdf5 CBMGenerics PugiXMLlib LZlib ${HDF5_LIBRARIES} ${Boost_LIBRARIES} )
 
 # Before C# generation, remove all existing files. The directory should be empty before generation	

@@ -22,7 +22,8 @@
 
 #include "VisualizationAPI.h"
 #include "VisualizationIO_native.h"
-#include "ImportExport.h"
+#include "ImportFromXML.h"
+#include "ExportToXML.h"
 #include "VisualizationIO_projectHandle.h"
 #include "ImportProjectHandle.h"
 #include "Interface/ProjectHandle.h"
@@ -599,7 +600,7 @@ vector<int> updatePropertyVolumeData(shared_ptr<CauldronIO::Project> projectXml,
 void addToExistingData(string xmlFileName)
 {
 	cout << "Starting import from XML" << endl;
-	shared_ptr<CauldronIO::Project> projectXml = CauldronIO::ImportExport::importFromXML(xmlFileName);
+	shared_ptr<CauldronIO::Project> projectXml = CauldronIO::ImportFromXML::importFromXML(xmlFileName);
 	cout << "File read complete" << endl;
 		
 	//Finding property which can be added with PropertySurfaceData
@@ -641,11 +642,11 @@ void addToExistingData(string xmlFileName)
 	
 	//Exporting data
 	shared_ptr<CauldronIO::Project> projectExisting;
-	bool status = CauldronIO::ImportExport::exportToXML(projectXml, projectExisting, xmlFileName);
+	bool status = CauldronIO::ExportToXML::exportToXML(projectXml, projectExisting, xmlFileName);
 	ASSERT_EQ(true, status);
 
 	//Importing data to check if data has been added correctly
-	projectXml = CauldronIO::ImportExport::importFromXML(xmlFileName);
+	projectXml = CauldronIO::ImportFromXML::importFromXML(xmlFileName);
 	
 	if (indexWithUpdatedPropSurfaceData.size() > 0)
 	{
@@ -739,7 +740,7 @@ void addNewData(string xmlFileName)
 {
 	//Import from XML
 	cout << "Starting import from XML" << endl;
-	shared_ptr<CauldronIO::Project> projectXml = CauldronIO::ImportExport::importFromXML(xmlFileName);
+	shared_ptr<CauldronIO::Project> projectXml = CauldronIO::ImportFromXML::importFromXML(xmlFileName);
 		
 	//Preparing new snapshot to be added
 	size_t nSnapshots = projectXml->getSnapShots().size();
@@ -796,11 +797,11 @@ void addNewData(string xmlFileName)
 
 	//Exporting data
 	shared_ptr<CauldronIO::Project> projectExisting;
-	bool status = CauldronIO::ImportExport::exportToXML(projectXml, projectExisting, xmlFileName);
+	bool status = CauldronIO::ExportToXML::exportToXML(projectXml, projectExisting, xmlFileName);
 	ASSERT_EQ(true, status);
 
 	//Importing data to check if data is added correctly
-	projectXml = CauldronIO::ImportExport::importFromXML(xmlFileName);
+	projectXml = CauldronIO::ImportFromXML::importFromXML(xmlFileName);
 	
 	//Comparing snapshot
 	nSnapshots = projectXml->getSnapShots().size();
@@ -999,7 +1000,7 @@ int convertToXML(string filePathP3d, DataAccess::Interface::ObjectFactory *facto
 	ibs::FilePath absPath(filePathP3d);
 	int numThreads = 1;
 	shared_ptr<CauldronIO::Project> existingProject;
-	bool status = CauldronIO::ImportExport::exportToXML(project, existingProject, absPath.path(), numThreads);
+	bool status = CauldronIO::ExportToXML::exportToXML(project, existingProject, absPath.path(), numThreads);
 	if (status == true)
 	{
 		cout << "Wrote to xml format " << endl;
@@ -1038,7 +1039,7 @@ TEST_F(CompareTest, CompareData1)
 
 	//Import from XML
 	cout << "Starting import from XML" << endl;
-	std::shared_ptr<CauldronIO::Project> projectXml = CauldronIO::ImportExport::importFromXML(newFilePathXml.string());
+	std::shared_ptr<CauldronIO::Project> projectXml = CauldronIO::ImportFromXML::importFromXML(newFilePathXml.string());
 	cout << "Comparing data" << endl;
 	//Comparing Project information
 	EXPECT_EQ(projectP3d->getModellingMode(), projectXml->getModelingMode());
