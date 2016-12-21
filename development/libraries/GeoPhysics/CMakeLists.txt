@@ -196,10 +196,11 @@ generate_dox( GeoPhysics.cfg )
 ### Unit Tests
 
 # BrineConductivity unit test not available since reading the FltThCondIoTbl from the project file
-#add_gtest( NAME GeoPhysics::BrineConductivity
-#      SOURCES test/BrineConductivity.C src/BrinePhases.C
-#      LIBRARIES GeoPhysics SerialDataAccess
-#)
+add_gtest( NAME GeoPhysics::BrineConductivity
+      SOURCES test/BrineConductivity.C src/BrinePhases.C
+      LIBRARIES GeoPhysics DataAccess SerialDataAccess 
+      ENV_VARS EOSPACKDIR=${CFGFLS}/eospack GENEX5DIR=${CFGFLS}/genex50 CTCDIR=${CFGFLS}/
+)
 
 add_gtest( NAME GeoPhysics::BrineDensity
       SOURCES test/BrineDensity.C src/BrinePhases.C
@@ -244,6 +245,12 @@ add_gtest( NAME GeoPhysics::LambdaMixer
 configure_file(
    ${CMAKE_CURRENT_SOURCE_DIR}/test/MixingPermeabilityProject.project3d
    MixingPermeabilityProject.project3d
+   COPYONLY
+)
+
+configure_file(
+   ${CMAKE_CURRENT_SOURCE_DIR}/test/MixingPermeabilityProject.project3d
+   ConductivityProject.project3d
    COPYONLY
 )
 

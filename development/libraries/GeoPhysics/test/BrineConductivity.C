@@ -9,16 +9,13 @@
 //
 
 #include "../src/BrineConductivity.h"
+#include "../src/GeoPhysicsObjectFactory.h"
+#include "Interface/FluidThermalConductivitySample.h"
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-
-
-/// NOTE: Unit tests that follow depend on the correctness of the
-///       hard-coded parameter ranges. If those change, tests will
-///       either fail or no longer cover the entirety of the
-///       parameter space.
+using namespace GeoPhysics;
 
 
 class BrineConductivityTest: public GeoPhysics::Brine::Conductivity
@@ -26,6 +23,7 @@ class BrineConductivityTest: public GeoPhysics::Brine::Conductivity
    BrineConductivityTest() = delete;
 public:
    BrineConductivityTest( const double sal ) : GeoPhysics::Brine::Conductivity(sal) {}
+
    double findT2Test( const double pressure ) const
    {
       return findT2 (pressure);
@@ -49,11 +47,53 @@ public:
 };
 
 
+ibs::Interpolator2d getThermalConductivityTable()
+{
+   ObjectFactory factory;
+   ObjectFactory* factoryptr = &factory;
+   ProjectHandle* projectHandle = dynamic_cast<ProjectHandle*>(OpenCauldronProject("ConductivityProject.project3d", "r", factoryptr));
+
+   database::Table* fluidTbl = projectHandle->getTable( "FluidtypeIoTbl" );
+   database::Table::iterator tblIter;
+   database::Record * fluidRecord = 0;
+
+   for ( tblIter = fluidTbl->begin(); tblIter != fluidTbl->end(); ++tblIter )
+   {
+      fluidRecord = *tblIter;
+      if ( fluidRecord )
+         break;
+   }
+
+   FluidType* geoPhysicsFluidType = new FluidType(projectHandle, fluidRecord);
+
+   DataAccess::Interface::FluidThermalConductivitySampleList* thermalConductivitySamples;
+   thermalConductivitySamples = projectHandle->getFluidThermalConductivitySampleList (projectHandle->findFluid (geoPhysicsFluidType->getThermalConductivityFluidName ()));
+   if ((*thermalConductivitySamples).size () != GeoPhysics::Brine::Conductivity::s_thCondArraySize)
+   {
+      throw formattingexception::GeneralException() << "\nMeSsAgE ERROR  Size of FltThCondIoTbl in project file is not correct\n\n";
+   }
+
+   DataAccess::Interface::FluidThermalConductivitySampleList::const_iterator thermalConductivitySampleIter;
+   ibs::Interpolator2d thermalConductivitytbl;
+
+   for (thermalConductivitySampleIter = thermalConductivitySamples->begin ();
+   thermalConductivitySampleIter != thermalConductivitySamples->end ();
+   ++thermalConductivitySampleIter)
+   {
+      const DataAccess::Interface::FluidThermalConductivitySample * sample = *thermalConductivitySampleIter;
+      thermalConductivitytbl.addPoint (sample->getTemperature (), sample->getPressure (), sample->getThermalConductivity ());
+   }
+
+   return thermalConductivitytbl;
+}
+
 /// Testing that conductivity values across (but also outside the
 /// allowed range of) the parameter space are not negative.
 TEST ( BrineConductivity, testing_non_negative )
 {
    BrineConductivityTest valuesCheck(0.0);
+   ibs::Interpolator2d thermalConductivitytbl = getThermalConductivityTable();
+   valuesCheck.setTable(thermalConductivitytbl);
 
    for ( int i=0; i<=4000; ++i )
    {
@@ -73,10 +113,14 @@ TEST ( BrineConductivity, testing_non_negative )
 }
 
 
+
 /// Testing continuity across T1 and T2.
 TEST ( BrineConductivity, testing_conductivity_continuity )
 {
    BrineConductivityTest valuesCheck(0.0);
+   ibs::Interpolator2d thermalConductivitytbl = getThermalConductivityTable();
+   valuesCheck.setTable(thermalConductivitytbl);
+
    const double epsilon = 1.0e-15;
 
    for ( int i=0; i<100; ++i )
@@ -103,6 +147,9 @@ TEST ( BrineConductivity, testing_conductivity_continuity )
 TEST ( BrineConductivity, testing_conductivity_region )
 {
    BrineConductivityTest valuesCheck(0.0);
+   ibs::Interpolator2d thermalConductivitytbl = getThermalConductivityTable();
+   valuesCheck.setTable(thermalConductivitytbl);
+
    const double epsilon = 1.0e-1;
 
    for ( int i=0; i<=100; ++i )
@@ -142,7 +189,3 @@ TEST ( BrineConductivity, testing_conductivity_region )
 
    }
 }
-
-
-
-
