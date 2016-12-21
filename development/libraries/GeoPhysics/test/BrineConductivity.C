@@ -47,7 +47,7 @@ public:
 };
 
 
-ibs::Interpolator2d getThermalConductivityTable()
+void getThermalConductivityTable(ibs::Interpolator2d& thermalConductivitytbl)
 {
    ObjectFactory factory;
    ObjectFactory* factoryptr = &factory;
@@ -74,7 +74,6 @@ ibs::Interpolator2d getThermalConductivityTable()
    }
 
    DataAccess::Interface::FluidThermalConductivitySampleList::const_iterator thermalConductivitySampleIter;
-   ibs::Interpolator2d thermalConductivitytbl;
 
    for (thermalConductivitySampleIter = thermalConductivitySamples->begin ();
    thermalConductivitySampleIter != thermalConductivitySamples->end ();
@@ -84,7 +83,7 @@ ibs::Interpolator2d getThermalConductivityTable()
       thermalConductivitytbl.addPoint (sample->getTemperature (), sample->getPressure (), sample->getThermalConductivity ());
    }
 
-   return thermalConductivitytbl;
+   return;
 }
 
 /// Testing that conductivity values across (but also outside the
@@ -92,7 +91,8 @@ ibs::Interpolator2d getThermalConductivityTable()
 TEST ( BrineConductivity, testing_non_negative )
 {
    BrineConductivityTest valuesCheck(0.0);
-   ibs::Interpolator2d thermalConductivitytbl = getThermalConductivityTable();
+   ibs::Interpolator2d thermalConductivitytbl;
+   getThermalConductivityTable(thermalConductivitytbl);
    valuesCheck.setTable(thermalConductivitytbl);
 
    for ( int i=0; i<=4000; ++i )
@@ -113,12 +113,12 @@ TEST ( BrineConductivity, testing_non_negative )
 }
 
 
-
 /// Testing continuity across T1 and T2.
 TEST ( BrineConductivity, testing_conductivity_continuity )
 {
    BrineConductivityTest valuesCheck(0.0);
-   ibs::Interpolator2d thermalConductivitytbl = getThermalConductivityTable();
+   ibs::Interpolator2d thermalConductivitytbl;
+   getThermalConductivityTable(thermalConductivitytbl);
    valuesCheck.setTable(thermalConductivitytbl);
 
    const double epsilon = 1.0e-15;
@@ -147,7 +147,8 @@ TEST ( BrineConductivity, testing_conductivity_continuity )
 TEST ( BrineConductivity, testing_conductivity_region )
 {
    BrineConductivityTest valuesCheck(0.0);
-   ibs::Interpolator2d thermalConductivitytbl = getThermalConductivityTable();
+   ibs::Interpolator2d thermalConductivitytbl;
+   getThermalConductivityTable(thermalConductivitytbl);
    valuesCheck.setTable(thermalConductivitytbl);
 
    const double epsilon = 1.0e-1;
