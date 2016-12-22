@@ -9,7 +9,7 @@
 // 
 
 /// @file VarPrmLithologyProp.h
-/// @brief This file keeps base class methods definition for any lithology property implemented as variable parameter
+/// @brief This file keeps base class methods definition for any lithology property implemented as influential parameter
 
 // CASA
 #include "VarPrmLithologyProp.h"

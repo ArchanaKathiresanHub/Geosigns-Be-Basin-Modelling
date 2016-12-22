@@ -138,7 +138,7 @@ namespace casa
       return 0;
    }
    
-   // Constructor from input stream, implements common part of deserialization for continuous variable parameters
+   // Constructor from input stream, implements common part of deserialization for continuous influential parameters
    bool VarPrmContinuous::deserializeCommonPart( CasaDeserializer & dz, unsigned int objVer )
    {
       if ( version() < objVer )

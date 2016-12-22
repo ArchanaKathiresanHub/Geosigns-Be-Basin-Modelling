@@ -279,8 +279,8 @@ namespace mbapi {
       ReturnCode origin( double & x, double & y );
 
       /// @brief Get dimensions of hi resolution grid
-      /// @param[out] grid dimension in I direction
-      /// @param[out] grid dimension in J direction
+      /// @param[out] sizeI grid dimension in I direction
+      /// @param[out] sizeJ grid dimension in J direction
       /// @return ErrorHandler::NoError on success or error code otherwise
       ReturnCode hiresGridArealSize( long & sizeI, long & sizeJ );
 

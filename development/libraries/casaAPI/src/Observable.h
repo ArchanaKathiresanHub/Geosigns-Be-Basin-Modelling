@@ -49,8 +49,10 @@
 /// - @subpage CASA_ObservableGridPropWellPage
 /// - @subpage CASA_ObservableSourceRockMapPropPage
 /// - @subpage CASA_ObservableTrapPropPage
+/// - @subpage CASA_ObservableTrapDerivedPropPage
 ///
 /// A new casa::Observable object could be created by one of the static functions from @link casa::DataDigger Data Digger @endlink
+///
 
 namespace mbapi
 {
@@ -93,7 +95,7 @@ namespace casa
       ///        (like trap properties) should be differently treated when they are aproximated by response surface 
       ///        and when they are presented to the user. This function performs such conversion. If specific observable type
       ///        does not need such convertion, this function will return zero pointer.
-      /// @param val Original observable value from the run case or from MonteCarlo
+      // @param val Original observable value from the run case or from MonteCarlo
       /// @return The new Observable value object which will keep the transformed observable value. This object must be destroyed
       ///         by calling function.
       virtual ObsValue * transform( const ObsValue * /* val */ ) const { return 0; }

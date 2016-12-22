@@ -38,7 +38,7 @@ public:
    // Add a new observable
    virtual ErrorHandler::ReturnCode addObservable( Observable * prm );
 
-   // Get number of variable parameters defined in ObsSpace
+   // Get number of influential parameters defined in ObsSpace
    virtual size_t size() const { return m_obsSet.size(); } 
 
    // Dimension of observables space

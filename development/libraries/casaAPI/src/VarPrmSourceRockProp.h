@@ -9,7 +9,7 @@
 // 
 
 /// @file VarPrmSourceRockProp.h
-/// @brief This file keeps API declaration for base class for all source rock lithology variable parameters
+/// @brief This file keeps API declaration for base class for all source rock lithology influential parameters
 
 #ifndef CASA_API_VAR_PARAMETER_SOURCE_ROCK_PROP_H
 #define CASA_API_VAR_PARAMETER_SOURCE_ROCK_PROP_H
@@ -28,7 +28,7 @@ namespace casa
       virtual ~VarPrmSourceRockProp() {;}
      
       /// @brief Get number of subparameters if it is more than one
-      /// @return dimension of variable parameter
+      /// @return dimension of influential parameter
       virtual size_t dimension() const { return 1; }
 
       using VarPrmContinuous::newParameterFromDoubles;
@@ -40,6 +40,7 @@ namespace casa
 
       /// @brief Create parameter by reading the values stored in the project file
       /// @param [in] mdl the model where the parameters values should be read
+      /// @param[in] vin an input vector with parameter specific values. Not used in this parameter
       /// @return the new parameter read from the model
       virtual SharedParameterPtr newParameterFromModel( mbapi::Model & mdl, const std::vector<double> & vin ) const;
 
@@ -51,8 +52,8 @@ namespace casa
                                                    , const std::vector<SharedParameterPtr> & prmVec ///< the optimal parameter values of each 1D project
                                                    ) const;
 
-      /// @brief Convert Cauldron parameter values to SUMlib values for some variable parameters
-      /// @param prm cauldron parameter with to this variable parameter corresponded type
+      /// @brief Convert Cauldron parameter values to SUMlib values for some influential parameters
+      /// @param prm cauldron parameter with to this influential parameter corresponded type
       /// @return parameter values suitable for SUMlib
       virtual std::vector<double> asDoubleArray( const SharedParameterPtr prm ) const;
 
@@ -95,7 +96,7 @@ namespace casa
       /// @brief Could be called only from the child class
       VarPrmSourceRockProp( const char * layerName /**< name of the layer for Prop variation. If layer has mix of 
                                                       source rocks litho-types, Prop will be changed for all of them */
-                          , PDF          pdfType    ///< type of PDF shape for the variable parameter
+                          , PDF          pdfType    ///< type of PDF shape for the influential parameter
                           , const char * name       ///< user specified parameter name
                           , const char * srTypeName ///< source rock type name, to connect with source rock type cat. prm.
                           , int          mixID      ///< mixing ID. Could be 1 or 2

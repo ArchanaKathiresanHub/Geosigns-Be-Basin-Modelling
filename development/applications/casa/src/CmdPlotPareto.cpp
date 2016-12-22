@@ -95,8 +95,8 @@ void CmdPlotPareto::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
    ofs << "   set( h, 'rotation', 90 );\n";
    ofs << "end\n";
    ofs << "ylabel( 'Sensitivity [%]', 'fontweight', 'bold' );\n";
-   ofs << "title ( ['Variable parameters Pareto sensitivity diagram for ' ProxyName], 'fontweight', 'bold' );\n";
-   ofs << "xlabel( 'Variable parameter', 'fontweight', 'bold' );\n";
+   ofs << "title ( ['Influential parameters Pareto sensitivity diagram for ' ProxyName], 'fontweight', 'bold' );\n";
+   ofs << "xlabel( 'Influential parameter', 'fontweight', 'bold' );\n";
    ofs << "set( get( gcf, 'currentaxes' ), 'fontweight', 'bold' );\n";
    ofs << "\n";
    ofs << "print( ['Pareto_' ProxyName '.jpg'] );\n";

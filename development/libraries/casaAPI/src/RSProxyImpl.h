@@ -48,7 +48,7 @@ namespace casa
       virtual ~RSProxyImpl();
 
       // Calculate polynomial coefficients for the given cases set
-      // caseSet list of cases which keeps simulation results with variable parameters value and observables value
+      // caseSet list of cases which keeps simulation results with influential parameters value and observables value
       // return ErrorHandler::NoError in case of success, or error code in case of error
       virtual ErrorHandler::ReturnCode calculateRSProxy( const std::vector<const RunCase*> & caseSet );
 
@@ -70,13 +70,13 @@ namespace casa
       ///
       /// SUMlib::CompoundProxyCollection returns a data structure of type
       /// std::vector< std::map< std::vector<unsigned int >, double >  > which contains for each
-      /// proxy a map with key-value pairs where the keys are lists of variable parameter indexes,
-      /// and the values are the coefficients. The lists of variable parameter indexes
+      /// proxy a map with key-value pairs where the keys are lists of influential parameter indexes,
+      /// and the values are the coefficients. The lists of influential parameter indexes
       /// indicate the monomial to which the coefficient is associated. The
       /// polynomial expression for the proxy is the sum of all monomials multiplied
       /// by their coefficients.
       ///
-      /// For example, suppose the expression (variable parameters named @f$ p_1, p_2, p_3 @f$) for the @f$ k-th @f$
+      /// For example, suppose the expression (influential parameters named @f$ p_1, p_2, p_3 @f$) for the @f$ k-th @f$
       /// proxy is:
       ///
       ///      @f$ f_k(p_1,p_2,p_3) = 2e4 -5.1e3 \cdot p_1 + 2.3e2 \cdot p_2 \cdot p3 - 1.2e1 \cdot p1 \cdot p1 \cdot p3 @f$
@@ -87,8 +87,8 @@ namespace casa
       ///      { 1,2 }   ->  2.3e2    # second order term (quadratic) p_2 \cdot p_3
       ///      { 0,0,2 } -> -1.2e1    # third order term (cubic) p_1 \cdot p_1 \cdot p_3
       ///
-      /// Note that the polynomial is defined for variable parameter values scaled to [-1:1],
-      /// and that the variable parameters are indexed in the order in which they are present in
+      /// Note that the polynomial is defined for influential parameter values scaled to [-1:1],
+      /// and that the influential parameters are indexed in the order in which they are present in
       /// the casa::VarSpace (including multi-dimensional parameters) defining the proxies.
       ///
       ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -124,7 +124,7 @@ namespace casa
    protected:
       std::string      m_name;     // proxy name
 
-      const VarSpace * m_varSpace; // set of variable parameters
+      const VarSpace * m_varSpace; // set of influential parameters
       const ObsSpace * m_obsSpace; // set of observables definitions
 
       size_t        m_rsOrder;    // order of the response surface polynomial approximation

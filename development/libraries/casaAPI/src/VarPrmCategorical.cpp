@@ -89,7 +89,7 @@ namespace casa
       return 0;
    }
    
-   // Implements common part of deserialization for continuous variable parameters
+   // Implements common part of deserialization for continuous influential parameters
    bool VarPrmCategorical::deserializeCommonPart( CasaDeserializer & dz, unsigned int objVer )
    {
       if ( version() < objVer )
@@ -129,7 +129,7 @@ namespace casa
       
       if ( !dynamic_cast<VarPrmContinuous*>( depPrm ) )
       {
-         throw ErrorHandler::Exception( ErrorHandler::SerializationError ) << "Variable parameter: " << depPrm->name()[0] << 
+         throw ErrorHandler::Exception( ErrorHandler::SerializationError ) << "Influential parameter: " << depPrm->name()[0] << 
             " can not depends on categorical parameter";
       }
 

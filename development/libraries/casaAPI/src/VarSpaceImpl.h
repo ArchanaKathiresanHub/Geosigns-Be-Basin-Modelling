@@ -9,7 +9,7 @@
 // 
 
 /// @file VarSpaceImpl.h
-/// @brief This file keeps declaration of the implementation part of variable parameters set manager
+/// @brief This file keeps declaration of the implementation part of influential parameters set manager
 
 #ifndef CASA_API_VAR_SPACE_IMPL_H
 #define CASA_API_VAR_SPACE_IMPL_H
@@ -26,16 +26,16 @@
 
 namespace casa
 {
-// Variable parameters set manager. It keeps a unique set of variable parameters
+// Influential parameters set manager. It keeps a unique set of influential parameters
 class VarSpaceImpl : public VarSpace
 {
 public:  
    // VarSpace interface implementation
    
-   // Add a new variable parameter
+   // Add a new influential parameter
    virtual ErrorHandler::ReturnCode addParameter( VarParameter * prm );
 
-   // Get number of variable parameters defined in VarSpace
+   // Get number of influential parameters defined in VarSpace
    virtual size_t size() const { return m_prms.size(); }
 
    // Get tot parameters space dimension
@@ -92,11 +92,11 @@ private:
    VarSpaceImpl( const VarSpaceImpl & );
    VarSpaceImpl & operator = ( const VarSpaceImpl & );
 
-   std::vector< VarParameter *>     m_prms;    // set of all variable parameters
+   std::vector< VarParameter *>     m_prms;    // set of all influential parameters
 
-   std::vector< VarPrmCategorical*> m_catPrms; // set of categorical variable parameters
-   std::vector< VarPrmDiscrete*>    m_disPrms; // set of discrete variable parameters
-   std::vector< VarPrmContinuous*>  m_cntPrms; // set of continuous variable parameters
+   std::vector< VarPrmCategorical*> m_catPrms; // set of categorical influential parameters
+   std::vector< VarPrmDiscrete*>    m_disPrms; // set of discrete influential parameters
+   std::vector< VarPrmContinuous*>  m_cntPrms; // set of continuous influential parameters
 };
 
 }

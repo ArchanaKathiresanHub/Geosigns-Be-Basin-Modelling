@@ -23,7 +23,7 @@ namespace casa
    class VarPrmCompactionCoefficient : public VarPrmLithologyProp
    {
    public:
-      /// @brief Construct variable parameter for variation of surface porosity lithology parameter 
+      /// @brief Construct influential parameter for variation of surface porosity lithology parameter 
       VarPrmCompactionCoefficient( const std::vector<std::string> & lithosName   ///< list of lithologies type name
                                  , double                           baseCompCoef ///< base value for compaction coefficient 
                                  , double                           minCompCoef  ///< minimal value for compaction coefficient 

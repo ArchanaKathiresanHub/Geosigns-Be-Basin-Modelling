@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2012-2014 Shell International Exploration & Production.
+// Copyright (C) 2012-2016 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -22,42 +22,33 @@
 
 /// @page CASA_DataDiggerPage Data Digger
 ///
-/// It also allows to collect observables value from the simulation results.
-/// To full fill this purpose it should first add to each run case project request for observables. This must be done just after
-/// cases mutation. casa::DataDigger uses the functionality of datadriller cauldron application. Call for datadriller added by casa::RunManager
-/// at the end of applications pipeline.
+/// Data digger requests and collects observable values from the simulation results.
+/// To full fill this purpose it first adds to each DoE run case project a request for observable values. 
+/// This happens just after the base case mutation phase. Each casa::ScenarioAnalysis object keeps a 
+/// @link casa::ObsSpace list @endlink of user defined @link CASA_ObservablePage observable definitions objects @endlink.
+/// Each observable definition has an information about 
+///   - at what age
+///   - which property 
+///   - at which location  
+/// value should be extracted from the simulation results. It also could contains
+/// a reference value and a standard deviation value, if this observable is related to any measurement. 
+/// From an observable definition object, data digger calls casa::Observable::requestObservableInModel() method, 
+/// to add one or several records for this observable in @b DataMiningIoTbl table in project file. 
 ///
-/// The casa::DataDigger accepts a list of cases from casa::RunManager and a list of observables description as an input.
-/// It will load cases one by one and for each case it will collect observable values from computational results and store
-/// observables values in casa::ObsValue objects.
+/// casa::DataDigger uses the functionality of datadriller cauldron application to extract 
+/// observables values from HDF files with simulation results and store them in @b DataMiningIoTbl 
+/// table in project file. casa::RunManager always adds job for datadriller run at the end of the applications 
+/// pipeline. 
 ///
-/// The standard Cauldron data access API can be used to read results from the relevant mesh and trap results.
-/// However there are several specific ways to read this data which need to be implemented as an CASA - specific API.
-/// -# Trap Finder.Because different experiment realizations may put traps in different places or give them different
-///    sizes, a small program must know how to <i>find</i> a trap given a base - case trap. The simplest approach is to find
-///    the trap in the realization which overlaps the base - case crest point.Once the trap is found, the standard API can
-///    be used to extract relevant properties.
-/// -# Well Sampling. It is rare that a user would want to predict pressure at a given XYZ point only.They will want
-///    a pressure profile down a well (or proposed well). Therefore the data should be sampled along the length of the well,
-///    perhaps at every surface and 50 - foot intervals in between.
-/// -# Map sub-sampling/extraction. One target property may be  an entire map (e.g.reservoir formation porosity map). However
-///    generating one response surface per pixel of the target map is likely extremely wasteful. Therefore some sampling function
-///   will have to be described, perhaps high resolution in some places and low resolution in others.
-/// -# Map Aggregate Statistics. Rather than seeing P10 & P90 maps of expulsion, the user may rather instead just view an
-///    aggregate statistic, such as <i>total expulsion over this polygon</i>
-/// -# The user will have to define the targets he has in mind. In a web - based interface, this is likely to be graphical.
-///    However in a <i>data digger</i> API, this will have to be represented programmatically.
+/// After all DoE runs completion, the casa::DataDigger goes over the list of completed cases and
+/// for each run case, it loads a project file and converts observable values from @b DataMiningIoTbl table
+/// to a list of casa::ObsValue objects. The order of observable values is the same as the order of observable
+/// definitions in casa::ObsSpace object. In addition to this, each casa::ObsValue object keep a pointer to
+/// its observable definition object. Here is the implemented list of observable values data types:
 ///
-/// <b> For 2014, the following targets will be supported </b>
-/// - Mesh properties along a vertical well, i.e.specified at a given X / Y.VRe, Temperature, Pressure, Permeability, Density, Sonic Velocity.
-///
-/// <b> For 2015 </b>
-/// - map and map aggregated targets.
-/// - Fluid properties in a trap as currently implemented in BPA1.
-/// - Stock Tank Liquid : Oil Volume, Solution Gas Volume, Oil API, GOR, Oil Density, Oil Viscosity, Solution Gas Density, Solution Gas Viscosity.
-///   Stock Tank Vapor : Condensate Volume, Free Gas Volume, CGR, Condensate Density, Condensate Viscosity, Free Gas Density, Free Gas Viscosity.
-/// - Generic Reservoir Information : GOC, OWC, Spill Depth, Temperature, Pressure, Porosity, Permeability, Fracture Pressure.
-/// - In Situ Conditions : Liquid volume, Liquid Density, Liquid Viscosity, Liquid Mass, Liquid CEP, Vapor Volume, Vapor Density, Vapor CEP, Vapor Mass.
+/// -# @subpage CASA_ObsValueDoubleScalar 
+/// -# @subpage CASA_ObsValueDoubleArray
+/// -# @subpage CASA_ObsValueTransformable
 
 
 namespace casa

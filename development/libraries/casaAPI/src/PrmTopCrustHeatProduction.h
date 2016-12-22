@@ -39,8 +39,8 @@ namespace casa
       /// @param mdl get value of parameter from cauldron model
       PrmTopCrustHeatProduction( mbapi::Model & mdl );
 
-      /// @brief Constructor. Create parameter from variation of variable parameter
-      /// @param parent pointer to a variable parameter which created this one
+      /// @brief Constructor. Create parameter from variation of influential parameter
+      /// @param parent pointer to a influential parameter which created this one
       /// @param val value of top crust heat production rate @f$ [ \mu W/m^3] @f$
       /// @param mapName map name if top crust heat production rate is defined as a map
       PrmTopCrustHeatProduction( const VarPrmTopCrustHeatProduction * parent, double val, std::string mapName = "" );
@@ -52,12 +52,12 @@ namespace casa
       /// @return parameter name
       virtual const char * name() const { return "TopCrustHeatProdRate"; }
 
-      /// @brief Get variable parameter which was used to create this parameter
-      /// @return Pointer to the variable parameter
+      /// @brief Get influential parameter which was used to create this parameter
+      /// @return Pointer to the influential parameter
       virtual const VarParameter * parent() const { return m_parent; }
 
-      /// @brief Set variable parameter which was used to create this parameter
-      /// @param Pointer to the variable parameter
+      /// @brief Set influential parameter which was used to create this parameter
+      /// @param varPrm pointer to the influential parameter
       virtual void setParent( const VarParameter * varPrm ) { m_parent = varPrm; }
 
       /// @brief Get the level of influence to cauldron applications pipeline for this parametr
@@ -126,7 +126,7 @@ namespace casa
       /// @}
 
    protected:
-      const VarParameter  * m_parent;            ///< variable parameter which was used to create this one
+      const VarParameter  * m_parent;            ///< influential parameter which was used to create this one
       double                m_value;             ///< top crust heat production rate value
 
       std::string           m_mapName;           ///< map name (if no interpolation is needed)

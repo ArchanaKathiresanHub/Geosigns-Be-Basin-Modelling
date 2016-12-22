@@ -23,7 +23,7 @@ namespace casa
    class VarPrmSurfacePorosity: public VarPrmLithologyProp
    {
    public:
-      /// @brief Construct variable parameter for variation of surface porosity lithology parameter 
+      /// @brief Construct influential parameter for variation of surface porosity lithology parameter 
       VarPrmSurfacePorosity( const std::vector<std::string> & lithosName  ///< list of lithologies type name
                            , double                           baseSurfPor ///< base value for surface porosity
                            , double                           minSurfPor  ///< minimal value for surface porosity

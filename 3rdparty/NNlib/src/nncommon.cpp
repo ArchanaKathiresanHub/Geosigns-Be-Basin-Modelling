@@ -135,7 +135,7 @@ void points_thingrid(int* pn, point** ppoints, int nx, int ny)
             double fi = (p->x - xmin) / stepx;
 
             if (fabs(rint(fi) - fi) < EPS)
-                i = rint(fi);
+                i = static_cast<int>( rint(fi) );
             else
                 i = (int) floor(fi);
         }
@@ -145,7 +145,7 @@ void points_thingrid(int* pn, point** ppoints, int nx, int ny)
             double fj = (p->y - ymin) / stepy;
 
             if (fabs(rint(fj) - fj) < EPS)
-                j = rint(fj);
+                j = static_cast<int>( rint(fj) );
             else
                 j = (int) floor(fj);
         }

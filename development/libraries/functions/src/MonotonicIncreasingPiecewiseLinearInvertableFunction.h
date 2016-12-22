@@ -38,7 +38,7 @@ public:
    template <typename ForwardIterator>
    MonotonicIncreasingPiecewiseLinearInvertableFunction(ForwardIterator iter, ForwardIterator last);
 
-   int size() const { return m_xToY.size()-1; }
+   int size() const { return static_cast<int>(m_xToY.size()) - 1; }
    Tuple2<element_type> piece(int index) const;
    const element_type& begin(int index) const;
    const element_type& end(int index) const;

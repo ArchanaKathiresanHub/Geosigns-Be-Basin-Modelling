@@ -27,7 +27,7 @@ namespace mbapi
    class Model;
 }
 
-/// @page CASA_SurfacePorosityPage Lithology porosity model
+/// @page CASA_SurfacePorosityPage Surface porosity for lithology porosity model
 ///   
 /// This parameter defines the surface porosity for any porosity model for a lithology, a set of layers and a set of faults.
 /// It defines an alternative way to vary porosity model parameter than casa::PrmPororsityModel class. They must not be defined
@@ -51,7 +51,7 @@ namespace casa
       PrmSurfacePorosity( mbapi::Model & mdl, const std::string & lithoName );
 
       /// @brief Constructor. Create parameter object from the given parameter value
-      /// @param parent pointer to a variable parameter which created this one
+      /// @param parent pointer to a influential parameter which created this one
       /// @param lithosName lithology name
       /// @param surfPor value for surface porosity
       PrmSurfacePorosity( const VarPrmSurfacePorosity * parent, const std::vector<std::string> & lithosName, double surfPor );

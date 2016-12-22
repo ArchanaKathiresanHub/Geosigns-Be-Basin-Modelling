@@ -24,7 +24,7 @@ namespace casa
    {
    public:
 
-      /// @brief Construct variable parameter for variation of the lithofraction parameter 
+      /// @brief Construct influential parameter for variation of the lithofraction parameter 
       VarPrmLithoFraction( const std::string                 & layerName          ///< stratigraphic layer name 
          , const std::vector<int>                                                 & lithoFractionsInds ///< indexes of the lithofractions
          , const std::vector<double>                                              & baseLithoFrac      ///< base lithofractions values
@@ -37,12 +37,12 @@ namespace casa
       /// @brief Destructor
       virtual ~VarPrmLithoFraction() { ; }
 
-      /// @brief Get name of variable parameter in short form     
+      /// @brief Get name of influential parameter in short form     
       /// @return array of names for each subparameter
       virtual std::vector<std::string> name() const;
 
       /// @brief Get number of subparameters if it is more than one
-      /// @return dimension of variable parameter
+      /// @return dimension of influential parameter
       virtual size_t dimension() const;
 
       using VarPrmContinuous::newParameterFromDoubles;
@@ -53,7 +53,7 @@ namespace casa
 
       /// @brief Create parameter by reading the values stored in the project file
       /// @param[in, out] mdl the model where the parameters values should be read
-      /// @param[in] an input vector (e.g. spatial/temporal) coordinates 
+      /// @param[in] vin an input vector (e.g. spatial/temporal) coordinates. Used to convert 3D project into 1D
       /// @return the new parameter read from the model
       virtual SharedParameterPtr newParameterFromModel( mbapi::Model & mdl, const std::vector<double> & vin ) const;
 

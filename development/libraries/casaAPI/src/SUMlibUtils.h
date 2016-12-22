@@ -64,9 +64,9 @@ namespace sumext
    /// @brief Create a SUMlib ParameterPdf.
    ///
    /// The pdf parameters are arranged in the order returned by casa::VarSpace method.
-   /// The variable parameter base values are copied to the corresponding most likely pdf values.
-   /// The variances are calculated from the variable paramter std. deviations.
-   void convertVarSpace2ParameterPdf( const casa::VarSpace         & varSpace ///< [in]  set of variable parameters definition
+   /// The influential parameter base values are copied to the corresponding most likely pdf values.
+   /// The variances are calculated from the influential paramter std. deviations.
+   void convertVarSpace2ParameterPdf( const casa::VarSpace         & varSpace ///< [in]  set of influential parameters definition
                                     , const SUMlib::ParameterSpace & pSpace   ///< [in]  Parameter space of the proxy
                                     , SUMlib::ParameterPdf         & pdf      ///< [out] SUMlib::ParameterPdf instance that must be initialized
                                     );
@@ -81,18 +81,18 @@ namespace sumext
                           );
 
    /// @brief Create SUMlib prior info.
-   /// The variable parameter base values are copied to the corresponding most likely pdf values.
-   /// The variances are calculated from the variable parameter std. deviations.
-   void createSUMlibPrior( const casa::VarSpace & varSpace    ///< [in]  set of variable parameters
+   /// The influential parameter base values are copied to the corresponding most likely pdf values.
+   /// The variances are calculated from the influential parameter std. deviations.
+   void createSUMlibPrior( const casa::VarSpace & varSpace    ///< [in]  set of influential parameters
                          , SUMlib::Case         & pBase       ///< [out] SUMlib base case
                          , SUMlib::RealMatrix   & variance    ///< [out] Variances corresponding to the continuous varModels
-                         , SUMlib::RealMatrix   & disWeights  ///< [out] Weights of the discrete variable parameters 
-                         , SUMlib::RealMatrix   & catWeights  ///< [out] Weights of the categorical variable parameters
+                         , SUMlib::RealMatrix   & disWeights  ///< [out] Weights of the discrete influential parameters 
+                         , SUMlib::RealMatrix   & catWeights  ///< [out] Weights of the categorical influential parameters
                          );
 
    /// @brief Creates custom-made box constraints that can be passed directly to SUMlib::McmcBase.
    void createBoxConstraints( const casa::VarSpace & proxyVs            ///< [in] Proxy VarSpace (VarSpace which was used to build proxy)
-                            , const casa::VarSpace & mcmcVs             /**< [in] MCMC VarSpac (VarSpace which has the same set of variable 
+                            , const casa::VarSpace & mcmcVs             /**< [in] MCMC VarSpac (VarSpace which has the same set of influential 
                                                                              parameters as Proxy VarSpace, but restricted ranges) */
                             , SUMlib::ParameterBounds & boxConstraints  ///< [out] Custom-made box contraints stored as a SUMlib::ParameterBounds instance
                             );

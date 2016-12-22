@@ -9,7 +9,7 @@
 // 
 
 /// @file VarPrmLithologyProp.h
-/// @brief This file keeps base class declaration for any lithology property implemented as variable parameter
+/// @brief This file keeps base class declaration for any lithology property implemented as influential parameter
 
 #ifndef CASA_API_VAR_PARAMETER_LITHOLOGY_PROP_H_
 #define CASA_API_VAR_PARAMETER_LITHOLOGY_PROP_H_
@@ -26,12 +26,12 @@ namespace casa
 
       virtual ~VarPrmLithologyProp() {;}
 
-      /// @brief Get name of variable parameter in short form     
+      /// @brief Get name of influential parameter in short form     
       /// @return array of names for each subparameter
       virtual std::vector<std::string> name() const;
 
       /// @brief Get number of subparameters if it is more than one
-      /// @return dimension of variable parameter
+      /// @return dimension of influential parameter
       virtual size_t dimension() const { return 1; }
 
       using VarPrmContinuous::newParameterFromDoubles;
@@ -42,6 +42,7 @@ namespace casa
 
       /// @brief Create parameter by reading the values stored in the project file
       /// @param[in, out] mdl the model where the parameters values should be read
+      /// @param[in] vin an input vector with parameter specific values. Not used in this parameter
       /// @return the new parameter read from the model
       virtual SharedParameterPtr newParameterFromModel( mbapi::Model & mdl, const std::vector<double> & vin ) const;
 
@@ -57,8 +58,8 @@ namespace casa
                                                    , const std::vector<SharedParameterPtr> & prmVec 
                                                    ) const;
 
-      /// @brief Convert Cauldron parameter values to SUMlib values for some variable parameters
-      /// @param prm cauldron parameter with to this variable parameter corresponded type
+      /// @brief Convert Cauldron parameter values to SUMlib values for some influential parameters
+      /// @param prm cauldron parameter with to this influential parameter corresponded type
       /// @return parameter values suitable for SUMlib
       virtual std::vector<double> asDoubleArray( const SharedParameterPtr prm ) const;
 
@@ -84,7 +85,7 @@ namespace casa
       /// @brief Default constructor, used in deserialization
       VarPrmLithologyProp() {;}
 
-      /// @brief Construct variable parameter for variation of some lithology property 
+      /// @brief Construct influential parameter for variation of some lithology property 
       VarPrmLithologyProp( const std::vector<std::string> & lithosName ///< list of names of the lithology type
                          , VarPrmContinuous::PDF            prmPDF     ///< probability density function 
                          , const std::string              & name       ///< user specified parameter name

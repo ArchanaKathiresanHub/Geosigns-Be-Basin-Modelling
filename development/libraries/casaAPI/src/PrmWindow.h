@@ -26,9 +26,9 @@ namespace mbapi
    class Model;
 }
 
-/// @page CASA_Window windowed projects
+/// @page CASA_WindowedProject Project areal window 
 /// 
-/// Window in the Project3d file should be specified using WindowXMin, WindowXMax, WindowYMin, WindowYMax  
+/// Window in the Project3d file specified by WindowXMin, WindowXMax, WindowYMin, WindowYMax  columns in ProjectIoTbl table
 namespace casa
 {
    class VarParameter;
@@ -55,12 +55,12 @@ namespace casa
       /// @return parameter name
       virtual const char * name() const { return m_name.c_str(); }
 
-      /// @brief Get variable parameter which was used to create this parameter
-      /// @return Pointer to the variable parameter
+      /// @brief Get influential parameter which was used to create this parameter
+      /// @return Pointer to the influential parameter
       virtual const VarParameter * parent() const { return 0; }
 
-      /// @brief Set variable parameter which was used to create this parameter
-      /// @param Pointer to the variable parameter
+      /// @brief Set influential parameter which was used to create this parameter
+      // @param varPrm pointer to the influential parameter (Not used here)
       virtual void setParent( const VarParameter * /*varPrm*/ ) { ; }
 
       /// @brief Get the level of influence to cauldron applications pipeline for this parametr

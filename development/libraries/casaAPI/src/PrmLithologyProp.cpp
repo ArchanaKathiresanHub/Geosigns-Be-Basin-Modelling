@@ -9,7 +9,7 @@
 // 
 
 /// @file PrmLithologyProp.C
-/// @brief This file keeps API implementation of common part of any Lithology property parameter implemented as variable parameter
+/// @brief This file keeps API implementation of common part of any Lithology property parameter implemented as influential parameter
 
 // CASA API
 #include "PrmLithologyProp.h"

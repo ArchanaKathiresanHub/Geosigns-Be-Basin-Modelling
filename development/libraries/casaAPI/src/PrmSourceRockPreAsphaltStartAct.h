@@ -49,7 +49,7 @@ namespace casa
       PrmSourceRockPreAsphaltStartAct( mbapi::Model & mdl, const char * layerName, const char * srType = 0, int mixID = 1  );
 
       /// @brief Constructor, creates the parameter object for the given parameter value and layer name
-      /// @param parent pointer to a variable parameter which created this one
+      /// @param parent pointer to a influential parameter which created this one
       /// @param val value of the parameter
       /// @param layerName layer name
       /// @param srType    source rock type name

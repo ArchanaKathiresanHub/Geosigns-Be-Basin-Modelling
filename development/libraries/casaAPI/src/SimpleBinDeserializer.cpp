@@ -76,7 +76,7 @@ namespace casa
       return fp.good();
    }
 
-   // read simple type variable like int/double/string
+   // read simple type influential like int/double/string
    template <typename T>
    inline bool loadVal( boost::iostreams::filtering_istream & fp, T & val, const string & valName, SimpleDataTypeBinID typeName )
    {

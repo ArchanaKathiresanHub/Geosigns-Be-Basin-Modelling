@@ -50,7 +50,7 @@ namespace mbapi
 
       /// @brief Save input map to the new HDF file. File with the given name should not exist before.
       /// @param id map ID
-      /// @param fileName unique file name
+      /// @param filePathName unique file name
       /// @param mapSequenceNbr the map sequence number in the project3d
       /// @return ErrorHandler::NoError on succes, or error code otherwise
       virtual ErrorHandler::ReturnCode saveMapToHDF( MapID id, const std::string& filePathName, size_t mapSequenceNbr ) = 0;
@@ -127,7 +127,8 @@ namespace mbapi
       /// @param[in] refferedTable the name of the table refferenced this map
       /// @param[in] mapName the name of the map
       /// @param[in] values new map values
-      /// @param[in] the file name of the  HDF file storing the map
+      /// @param[in] mapSequenceNbr  the map sequence number in the project3d
+      /// @param[in] filePathName the file name of the  HDF file storing the map
       /// @return ErrorHandler::NoError on succes, or error code otherwise
       virtual MapID generateMap( const std::string & refferedTable, const std::string mapName, const std::vector<double>& values, size_t & mapSequenceNbr, const std::string & filePathName ) = 0;
 

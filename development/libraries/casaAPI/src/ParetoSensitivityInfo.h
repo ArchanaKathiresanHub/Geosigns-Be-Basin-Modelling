@@ -29,13 +29,13 @@ namespace casa
       const std::vector< std::pair<const VarParameter *, int > > getVarParametersWithCumulativeImpact( double fraction ) const;
 
       /// @brief Get the sensitivity of specified VarParameter
-      /// @param varPrm variable parameter object pointer
+      /// @param varPrm influential parameter object pointer
       /// @param subPrmID sub-parameter ID
       /// @returns      the sensitivity value
       double getSensitivity( const VarParameter * varPrm, int subPrmID ) const;
 
       /// @brief Get the cumulative sensitivity of specified VarParameter
-      /// @param varPrm variable parameter  object pointer
+      /// @param varPrm influential parameter  object pointer
       /// @param subPrmID  sub-parameter ID
       /// @returns the cumulative sensitivity value
       double getCumulativeSensitivity( const VarParameter * varPrm, int subPrmID ) const;
@@ -43,12 +43,12 @@ namespace casa
       /// @brief Add new parameter sensitivity to the list
       /// @param varPrm parameter number in VarSpace
       /// @param subPrmID subparameter ID
-      /// @param val variable parameter sensitivity
+      /// @param val influential parameter sensitivity
       void add( const VarParameter * varPrm, int subPrmID, double val );
 
-      std::vector< const VarParameter * > m_vprmPtr;    ///< Variable parameter pointer
-      std::vector< int >                  m_vprmSubID;  ///< Variable parameter sub-parameter ID
-      std::vector< double >               m_vprmSens;   ///< Variable parameter sub-parameter sensitivity
+      std::vector< const VarParameter * > m_vprmPtr;    ///< Influential parameter pointer
+      std::vector< int >                  m_vprmSubID;  ///< Influential parameter sub-parameter ID
+      std::vector< double >               m_vprmSens;   ///< Influential parameter sub-parameter sensitivity
    };
 }
 

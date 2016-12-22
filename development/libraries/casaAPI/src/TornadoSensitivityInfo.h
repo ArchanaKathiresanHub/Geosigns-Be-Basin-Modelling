@@ -52,11 +52,11 @@ namespace casa
       ///        Relative sensitivities must be calculated after all sensitivities were added by calling calcRelSensitivities
       /// @param minV observable value for the parameter minimal range value
       /// @param maxV observable value for the parameter maximal range value
-      /// @param prm variable parameter
+      /// @param prm influential parameter
       /// @param prmSubID parameter subindex if parameter dimension more than 1
       void addSensitivity( double minV, double maxV, const VarParameter * prm, size_t prmSubID );
       
-      /// @brief Add found by proxy evalutaion min max observable value in [min:max] variable parameter range interval
+      /// @brief Add found by proxy evalutaion min max observable value in [min:max] influential parameter range interval
       ///        Must be called just after TornadoSensitivityInfo::addSensitivity() call.
       /// @param minVal observable minimal value over [min:max] parameter range
       /// @param maxVal observable maximal value over [min:max] parameter range
@@ -66,7 +66,7 @@ namespace casa
 
       /// @brief This function is searching for valid observable values intervals in the given 1D function ( observableVal( prmVal ) )
       ///        and stores found intervals for the last added parameter. It must be called after TornadoSensitivityInfo::addSensitivity call.
-      /// @param allPrmVals 1D array of parameter values in [min:max] variable parameter range interval
+      /// @param allPrmVals 1D array of parameter values in [min:max] influential parameter range interval
       /// @param allObsVals 1D array of observable values which are calculated by tornado proxy evalutation for each value of allPrmVals array
       void calculateAndAddValidRanges( const std::vector<double> & allPrmVals, const std::vector<double> & allObsVals );
 
@@ -94,21 +94,21 @@ namespace casa
       /// @return undefined value
       double                              undefinedValue()   const { return UndefinedDoubleValue; }
 
-      /// @brief Get minimum of variable parameter range value. If parameter is Categorical - it will be integer->double conversion
+      /// @brief Get minimum of influential parameter range value. If parameter is Categorical - it will be integer->double conversion
       /// @param vPrmNum parameter number
-      /// @return minimum of variable parameter value range
+      /// @return minimum of influential parameter value range
       double minVarParameterRangeValue( size_t vPrmNum ) const;
 
-      /// @brief Get maximum of variable parameter range value. If parameter is Categorical - it will be integer->double conversion
+      /// @brief Get maximum of influential parameter range value. If parameter is Categorical - it will be integer->double conversion
       /// @param vPrmNum parameter number
-      /// @return maximum of variable parameter value range
+      /// @return maximum of influential parameter value range
       double maxVarParameterRangeValue( size_t vPrmNum ) const;
 
 
       /// @brief If observable takes undefined value for some parameter variation, for such parameter SensitivityCalculator
       ///        calculating ranges where observable value is valid. This function returns array Kx2 which keeps range values for
       ///        parameter: ( min1, max1, min2, max2, ... )
-      /// @parm prmID variable parameter sequence number (the same order as sensitivities array has)
+      /// @param prmID influential parameter sequence number (the same order as sensitivities array has)
       /// @return array of min/max ranges values for parameter
       std::vector<double> validRngsPrmVals( size_t prmID ) const 
       {
@@ -118,7 +118,7 @@ namespace casa
       /// @brief If observable takes undefined value for some parameter variation, for such parameter SensitivityCalculator
       ///        calculating ranges where observable value is valid. This function returns array Kx2 which keeps corresponded
       ///        observable values for parameter ranges values: ( min1obs, max1obs, min2obs, max2obs, ... )
-      /// @parm prmID variable parameter sequence number (the same order as sensitivities array has)
+      /// @param prmID influential parameter sequence number (the same order as sensitivities array has)
       /// @return array of observable values which correspond to min/max ranges values for parameter
       std::vector<double> validRngsObsVals( size_t prmID ) const 
       {
@@ -161,7 +161,7 @@ namespace casa
       int                 m_obsSubID;         ///< observable could has dimension more than one, in this case here it is ID of sub-observable
       double              m_refObsValue;      ///< reference observable value
 
-      std::vector< std::pair<const VarParameter *, int> > m_vprmPtr;          /*! Variable parameters set (size N + M) in the same order as sensitivities
+      std::vector< std::pair<const VarParameter *, int> > m_vprmPtr;          /*! Influential parameters set (size N + M) in the same order as sensitivities
                                                                                    N is number of continuios parameters and M - categorical */
       SensitivityData     m_sensitivities;    ///< Array Nx2+Mx1 which keep for each var parameter min/max values for observable
       SensitivityData     m_relSensitivities;          ///< Array Nx2+Mx1 with relative sensitivities for min/max from IP boundaries
@@ -169,7 +169,7 @@ namespace casa
       SensitivityData     m_maxRelSensitivities;       ///< Array Nx2+Mx1 with relative sensitivities for min/max targets values over IP range
       SensitivityData     m_prmValForMaxSensitivities; ///< Array Nx2+Mx1 with parameter range value for maximumu/minimum targets values
 
-      // Valid subintervals data for targets which could be undefined on min/max variable parameter range interval
+      // Valid subintervals data for targets which could be undefined on min/max influential parameter range interval
       SensitivityData     m_validSensitivitiesObsVals; /*! Array with size N+M where each element keeps array of mim/max 
                                                            values observable values for valid intervals */
       SensitivityData     m_validSensitivitiesPrmVals; /*! Array with size N+M where each element keeps array of min/max

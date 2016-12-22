@@ -99,8 +99,8 @@ bool LookUp::get(double p, double t, double &value) const
    
    const double MinOffset = 1e-4;
    
-   int p_ind1 = p_pos - m_pressure.begin() ;
-   int t_ind1 = t_pos - m_temperature.begin();
+   int p_ind1 = static_cast<int>( p_pos - m_pressure.begin() );
+   int t_ind1 = static_cast<int>( t_pos - m_temperature.begin() );
    
    int p_ind = p_ind1, t_ind = t_ind1;
    

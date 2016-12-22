@@ -94,7 +94,7 @@ namespace casa
       /// @return path to the top folder where generated cases are located
       const char * scenarioLocation() const;
 
-      /// @brief Provides variable parameters set manager
+      /// @brief Provides influential parameters set manager
       /// @return reference to the instance of VarSpace class
       VarSpace & varSpace();
       
@@ -132,7 +132,7 @@ namespace casa
       /// @return ErrorHandler::NoError in case of success, or error code otherwise
       ErrorHandler::ReturnCode generateThreeDFromOneD( const std::string & expLabel );
       
-      /// @brief Create copy of the base case model and set all variable parameters value defined for each case. Each call of
+      /// @brief Create copy of the base case model and set all influential parameters value defined for each case. Each call of
       ///        this function increase scenario iteration number.
       /// @param cs casa::RunCaseSet object
       /// @return ErrorHandler::NoError
@@ -204,7 +204,7 @@ namespace casa
       ReturnCode setMCAlgorithm( MonteCarloSolver::Algorithm               algo                                   /**< Monte Carlo algorithm type */
                                , MonteCarloSolver::KrigingType             interp = MonteCarloSolver::NoKriging   /**< Do we need Kriging 
                                                                            interpolation? If yes, the response surface proxy must also use it. */
-                               , MonteCarloSolver::PriorDistribution       priorDist = MonteCarloSolver::NoPrior  /**< How to use variable
+                               , MonteCarloSolver::PriorDistribution       priorDist = MonteCarloSolver::NoPrior  /**< How to use influential
                                                                            parameter PDF. If it is set to NoPrior, uniform block PDF is assumed. */
                                , MonteCarloSolver::MeasurementDistribution measureDist = MonteCarloSolver::Normal /**< How measurements are 
                                                                            distributed */
@@ -238,7 +238,7 @@ namespace casa
       // version 2: Added SensitivityCalculator
       // version 3: Added RunManager cases state
       // version 4: SUMlib updated to the latest version
-      // version 5: Changed the way how variable parameters set is serialized to keep the original order of variable parameters
+      // version 5: Changed the way how influential parameters set is serialized to keep the original order of influential parameters
       // version 6: Fixed wrong name for RunManager object (was RunManger)
       // version 7: Added scenario ID
       // version 8: Added source rock type mixing ID, different TOC ranges for source rock category parameter

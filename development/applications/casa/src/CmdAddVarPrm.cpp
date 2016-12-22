@@ -1635,7 +1635,7 @@ void CmdAddVarPrm::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
 void CmdAddVarPrm::printHelpPage( const char * cmdName )
 {
    std::cout << "  " << cmdName << " <variable parameter type name> <min value> <max value> <pdf of parameter>\n\n";
-   std::cout << "  Variable parameter - a parameter in Cauldron project file which exact value is unknown.\n";
+   std::cout << "  Influential parameter - a parameter in Cauldron project file which exact value is unknown.\n";
    std::cout << "  There are only some estimations on it value range. For example - source rock TOC - [5:20]%.\n";
    std::cout << "  To define the variable parameter user should specify parameter type name and parameter range min/max values\n\n";
 

@@ -58,7 +58,7 @@ namespace casa
 
       ScenarioAnalysis                                         * m_sa;
       size_t                                                     m_stepNum;   // current step number. Is used to name case folder
-      std::vector< std::pair<const VarPrmContinuous *, size_t> > m_optimPrms; // keeps pointer to variable parameter and subparameter number
+      std::vector< std::pair<const VarPrmContinuous *, size_t> > m_optimPrms; // keeps pointer to influential parameter and subparameter number
       std::vector< size_t >                                      m_permPrms;  // permutation array - optimization prms -> all prms
 
 	  std::vector< std::vector<bool>>                            m_optimObsMask;    // the mask for each observation

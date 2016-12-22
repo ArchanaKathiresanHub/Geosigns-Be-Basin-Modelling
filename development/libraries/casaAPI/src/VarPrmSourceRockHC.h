@@ -22,12 +22,12 @@ namespace casa
    class VarPrmSourceRockHC : public VarPrmSourceRockProp
    {
    public:
-      /// @brief Create a new initial source rock HI variable parameter
+      /// @brief Create a new initial source rock HI influential parameter
       VarPrmSourceRockHC( const char           * layerName       ///< name of the layer for H/C variation
                          , double                baseValue       ///< base value of parameter
-                         , double                minValue        ///< minimal value for the variable parameter range
-                         , double                maxValue        ///< maximal value for the variable parameter range
-                         , VarPrmContinuous::PDF pdfType = Block ///< type of PDF shape for the variable parameter
+                         , double                minValue        ///< minimal value for the influential parameter range
+                         , double                maxValue        ///< maximal value for the influential parameter range
+                         , VarPrmContinuous::PDF pdfType = Block ///< type of PDF shape for the influential parameter
                          , const char          * name = 0        ///< user specified parameter name
                          , const char          * srTypeName = 0  ///< source rock type name, to connect with source rock type cat. prm.
                          , int                   mixID = 1       ///< mixing ID. Could be 1 or 2
@@ -36,7 +36,7 @@ namespace casa
       /// @brief Destructor
       virtual ~VarPrmSourceRockHC() {;}
      
-	   /// @brief Get name of variable parameter in short form
+	   /// @brief Get name of influential parameter in short form
 	   /// @return array of names for each sub-parameter
 	   virtual std::vector<std::string> name() const;
 

@@ -110,7 +110,7 @@ namespace casa
             cs.addParameter( catPrm->createNewParameterFromUnsignedInt( prmVal ) );
          }
 
-         else { throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Unsupported variable parameter type"; }
+         else { throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Unsupported influential parameter type"; }
       }
    }
 
@@ -149,7 +149,7 @@ namespace casa
 
                if (      continiuosPrm  ) { allPrmVals[c] = css[c].parameter( prmID )->asDoubleArray()[prmSubID]; }
                else if ( categoricalPrm ) { allPrmVals[c] = css[c].parameter( prmID )->asInteger(); }
-               else                       { throw ErrorHandler::Exception( ErrorHandler::NotImplementedAPI ) << "Unsupported variable parameter type"; }
+               else                       { throw ErrorHandler::Exception( ErrorHandler::NotImplementedAPI ) << "Unsupported influential parameter type"; }
 
                if ( csVal == UndefinedDoubleValue ) { hasUndefValue = true; continue; }
                else

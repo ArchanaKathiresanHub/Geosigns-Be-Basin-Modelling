@@ -23,7 +23,7 @@ namespace casa
    class VarPrmPorosityModel: public VarPrmContinuous
    {
    public:
-      /// @brief Construct variable parameter for variation of porosity model parameters in lithology 
+      /// @brief Construct influential parameter for variation of porosity model parameters in lithology 
       ///
       /// Porosity model must be defined for each lithology type in project. Each model has own model parameters
       /// not all of them can be independent. CASA API supports now 3 type of porosity model:
@@ -51,12 +51,12 @@ namespace casa
 
       virtual ~VarPrmPorosityModel();
 
-      /// @brief Get name of variable parameter in short form     
+      /// @brief Get name of influential parameter in short form     
       /// @return array of names for each subparameter
       virtual std::vector<std::string> name() const;
 
       /// @brief Get number of subparameters if it is more than one
-      /// @return dimension of variable parameter
+      /// @return dimension of influential parameter
       virtual size_t dimension() const;
 
       using VarPrmContinuous::newParameterFromDoubles;
@@ -67,6 +67,7 @@ namespace casa
 
       /// @brief Create parameter by reading the values stored in the project file
       /// @param[in] mdl the model where the parameters values should be read
+      /// @param[in] vin an input vector with parameter specific values. Not used in this parameter
       /// @return the new parameter read from the model
       virtual SharedParameterPtr newParameterFromModel( mbapi::Model & mdl, const std::vector<double> & vin ) const;
 

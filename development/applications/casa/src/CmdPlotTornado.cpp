@@ -357,8 +357,8 @@ void CmdPlotTornado::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
    ofs << "   set(gca, 'yticklabel', [] );\n";
    ofs << "\n";
    ofs << "   xlabel( TornadoSens.obsName{i}, 'fontweight', 'bold' );\n";
-   ofs << "   ylabel( 'Variable parameter name', 'fontweight', 'bold' );\n";
-   ofs << "   title( ['Variable parameters sensitivity tornado plot for ' TornadoSens.obsName{i}], 'fontweight', 'bold'  );\n";
+   ofs << "   ylabel( 'Influential parameter name', 'fontweight', 'bold' );\n";
+   ofs << "   title( ['Influential parameters sensitivity tornado plot for ' TornadoSens.obsName{i}], 'fontweight', 'bold'  );\n";
    ofs << "\n";
    ofs << "   set( get( gcf, 'currentaxes' ), 'fontweight', 'bold' );\n";
    ofs << "   grid on\n";

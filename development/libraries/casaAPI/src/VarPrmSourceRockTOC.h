@@ -26,11 +26,11 @@ namespace casa
    class VarPrmSourceRockTOC : public VarPrmSourceRockProp
    {
    public:
-      /// @brief Create a new initial source rock TOC variable parameter
+      /// @brief Create a new initial source rock TOC influential parameter
       VarPrmSourceRockTOC( const char                     * layerName       ///< name of the layer for TOC variation
                          , const std::vector<double>      & dblRng          ///< simple range of double values [min,max,base]
                          , const std::vector<std::string> & mapRng          ///< maps range [min map, max map, base map]
-                         , VarPrmContinuous::PDF            pdfType = Block ///< type of PDF shape for the variable parameter
+                         , VarPrmContinuous::PDF            pdfType = Block ///< type of PDF shape for the influential parameter
                          , const char                     * name = 0        ///< user specified parameter name
                          , const char                     * srTypeName = 0  ///< source rock type name, to connect with source rock type cat. prm.
                          , int                              mixID = 1       ///< mixing ID. Could be 1 or 2
@@ -39,7 +39,7 @@ namespace casa
       /// @brief Destructor
       virtual ~VarPrmSourceRockTOC() {;}
      
-	   /// @brief Get name of variable parameter in short form
+	   /// @brief Get name of influential parameter in short form
 	   /// @return array of names for each subparameter
 	   virtual std::vector<std::string> name() const;
 

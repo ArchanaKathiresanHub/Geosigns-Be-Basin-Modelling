@@ -17,6 +17,9 @@
 
 #include "ObsValue.h"
 
+/// @page CASA_ObsValueDoubleScalar Observable value which could be represented as a single float point value.
+/// Suitable for scalar properties like pressure, temperature and so on for one (X,Y,Z) grid point.
+///
 namespace casa
 {
    /// @brief Class for keeping observable value as float point scalar value

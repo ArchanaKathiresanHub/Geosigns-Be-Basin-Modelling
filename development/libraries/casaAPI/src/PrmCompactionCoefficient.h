@@ -27,15 +27,15 @@ namespace mbapi
    class Model;
 }
 
-/// @page CASA_CompactionCoefficientPage Lithology porosity model
+/// @page CASA_CompactionCoefficientPage Compaction coefficient for lithology porosity model
 ///   
 /// This parameter defines the compaction coefficient for any porosity model for a lithology, a set of layers and a set of faults.
 /// It defines an alternative way to vary compaction coefficient parameter than casa::PrmPororsityModel class. They must not be defined
 /// together for the same layer or lithology
 ///
 /// To define the compaction coefficient user should specify 
-/// - Lithology name
-/// - Compaction coefficient value
+/// -# Lithology name
+/// -# Compaction coefficient value
 namespace casa
 {
    class VarPrmCompactionCoefficient;
@@ -51,7 +51,7 @@ namespace casa
       PrmCompactionCoefficient( mbapi::Model & mdl, const std::string & lithoName );
 
       /// @brief Constructor. Create parameter object from the given parameter value
-      /// @param parent pointer to a variable parameter which created this one
+      /// @param parent pointer to a influential parameter which created this one
       /// @param lithosName lithology name
       /// @param compCoef values for the compaction coefficient
       PrmCompactionCoefficient( const VarPrmCompactionCoefficient * parent, const std::vector<std::string> & lithosName, double compCoef );

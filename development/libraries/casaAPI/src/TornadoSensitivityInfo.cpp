@@ -98,7 +98,7 @@ namespace casa
             m_sensitivities.push_back( std::vector<double>( 1, minV ) ); // for categorical only one sensitivity
          }
       }
-      else { throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Tornado sensitivity: unsupported variable parameter type"; }
+      else { throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Tornado sensitivity: unsupported influential parameter type"; }
    }
 
    void TornadoSensitivityInfo::addMinMaxSensitivityInRange( double minVal, double maxVal, double minPrmVal, double maxPrmVal )
@@ -126,7 +126,7 @@ namespace casa
          m_maxSensitivities.push_back( std::vector<double>( 1, minVal ) );
          m_prmValForMaxSensitivities.push_back( std::vector<double>( 1, minPrmVal ) );
       }
-      else { throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Tornado sensitivity: unsupported variable parameter type"; }
+      else { throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Tornado sensitivity: unsupported influential parameter type"; }
    }
 
    void TornadoSensitivityInfo::calculateAndAddValidRanges( const std::vector<double> & allPrmVals, const std::vector<double> & allObsVals )

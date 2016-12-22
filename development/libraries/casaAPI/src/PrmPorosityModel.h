@@ -95,8 +95,8 @@ namespace casa
       /// @param lithoName lithology name
       PrmPorosityModel( mbapi::Model & mdl, const char * lithoName );
 
-      /// @brief Constructor. Create parameter from variation of variable parameter
-      /// @param parent pointer to a variable parameter which created this one
+      /// @brief Constructor. Create parameter from variation of influential parameter
+      /// @param parent pointer to a influential parameter which created this one
       /// @param lithoName lithology name
       /// @param mdlType type of porosity model
       /// @param mdlPrms list of model parameters
@@ -109,12 +109,12 @@ namespace casa
       /// @return parameter name
       virtual const char * name() const { return m_name.c_str(); }
 
-      /// @brief Get variable parameter which was used to create this parameter
-      /// @return Pointer to the variable parameter
+      /// @brief Get influential parameter which was used to create this parameter
+      /// @return Pointer to the influential parameter
       virtual const VarParameter * parent() const { return m_parent; }
 
-      /// @brief Set variable parameter which was used to create this parameter
-      /// @param Pointer to the variable parameter
+      /// @brief Set influential parameter which was used to create this parameter
+      /// @param varPrm pointer to the influential parameter
       virtual void setParent( const VarParameter * varPrm )  { m_parent = varPrm; }
 
       /// @brief Get the level of influence to cauldron applications pipeline for this parametr
@@ -171,7 +171,7 @@ namespace casa
       /// @}
 
    protected:
-      const VarParameter * m_parent;    ///< variable parameter which was used to create this one
+      const VarParameter * m_parent;    ///< influential parameter which was used to create this one
 
       std::string          m_name;      ///< name of the parameter
       

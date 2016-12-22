@@ -61,7 +61,7 @@ namespace casa
       // Mutate give case to the given project file
       virtual void mutateCaseTo( mbapi::Model & baseCase, const char * newProjectName );
 
-      // Do checking, are all variable parameters case value in their ranges
+      // Do checking, are all influential parameters case value in their ranges
       // if validation is OK, return empty string. otherwise - the list of validation
       //         failed parameters with theirs values
       virtual std::string validateCase();

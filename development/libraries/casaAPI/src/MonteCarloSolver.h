@@ -99,10 +99,10 @@ namespace casa
       /// @brief How to use parameters PDF
       enum PriorDistribution
       {
-         NoPrior,           /**< No prior preference for any value between the bounds of the variable parameter.
-                                 Equivalent to a uniform distribution for all variable parameters.*/
-         MarginalPrior,     /**< The prior probability distribution for a single variable parameter independent
-                                 of other variable parameters */
+         NoPrior,           /**< No prior preference for any value between the bounds of the influential parameter.
+                                 Equivalent to a uniform distribution for all influential parameters.*/
+         MarginalPrior,     /**< The prior probability distribution for a single influential parameter independent
+                                 of other influential parameters */
          MultivariatePrior  /**< not supported yet */
       };
 
@@ -121,7 +121,7 @@ namespace casa
       /// @return measurements distribution type
       virtual MeasurementDistribution measurementDistrib() const = 0;
 
-      /// @brief Get how to variable paramters PDF are treated in MC
+      /// @brief Get how to influential paramters PDF are treated in MC
       /// @return prior distribution type
       virtual PriorDistribution priorDistribution() const = 0;
 
@@ -141,8 +141,8 @@ namespace casa
       /// @brief Perform Monte Carlo simulation and collect results in one go.
       /// @return ErrorHandler::NoError on success, error code otherwise
       virtual ErrorHandler::ReturnCode runSimulation( RSProxy        & proxy              ///< A response Surface proxy object
-                                                    , const VarSpace & proxyVsp           ///< A set of variable parameters which were used to build proxy
-                                                    , const VarSpace & mcmcVsp            ///< Additional restrictions on variable parameters range
+                                                    , const VarSpace & proxyVsp           ///< A set of influential parameters which were used to build proxy
+                                                    , const VarSpace & mcmcVsp            ///< Additional restrictions on influential parameters range
                                                     , const ObsSpace & obs                ///< Observables set
                                                     , unsigned int     numOfSamples       ///< number of Monte Carlo points to sample
                                                     , unsigned int     maxNumSteps        ///< maximal number of steps
@@ -152,8 +152,8 @@ namespace casa
       /// @brief Perform all neccessary steps for Monte Carlo simulation but do not run calculation itself
       /// @return ErrorHandler::NoError on success, error code otherwise
       virtual ErrorHandler::ReturnCode prepareSimulation( RSProxy        & proxy              ///< A response Surface proxy object
-                                                        , const VarSpace & proxyVsp           ///< A set of variable parameters which were used to build proxy
-                                                        , const VarSpace & mcmcVsp            ///< Additional restrictions on variable parameters range
+                                                        , const VarSpace & proxyVsp           ///< A set of influential parameters which were used to build proxy
+                                                        , const VarSpace & mcmcVsp            ///< Additional restrictions on influential parameters range
                                                         , const ObsSpace & obs                ///< Observables set
                                                         , unsigned int     numOfSamples       ///< number of Monte Carlo points to sample
                                                         , unsigned int     maxNumSteps        ///< maximal number of steps
@@ -167,8 +167,8 @@ namespace casa
 
       /// @brief Collect all results of Monte Carlo solver run
       /// @return ErrorHandler::NoError on success, error code otherwise
-      virtual ErrorHandler::ReturnCode collectMCResults( const VarSpace & proxyVsp ///< A set of variable parameters which were used to build proxy
-                                                       , const ObsSpace & obs      ///< Additional restrictions on variable parameters range
+      virtual ErrorHandler::ReturnCode collectMCResults( const VarSpace & proxyVsp ///< A set of influential parameters which were used to build proxy
+                                                       , const ObsSpace & obs      ///< Additional restrictions on influential parameters range
                                                        ) = 0;
 
 

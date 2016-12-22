@@ -23,12 +23,12 @@
 #include <memory>
 #include <set>
 
-/// @page CASA_VarPrmContinuousPage Continuous variable parameter
+/// @page CASA_VarPrmContinuousPage Continuous influential parameter
 ///
 /// Continuous parameter - a parameter that can take any value between certain bounds
 /// (for instance, a fault-sealing factor that varies in the [0, 1] range)
 ///
-/// The following list of variable parameters is implemented in CASA API
+/// The following list of influential parameters is implemented in CASA API
 /// - @subpage CASA_SourceRockTOCPage 
 /// - @subpage CASA_SourceRockHIPage 
 /// - @subpage CASA_SourceRockHCPage 
@@ -39,10 +39,14 @@
 /// - @subpage CASA_PorosityModelPage 
 /// - @subpage CASA_PermeabilityModelPage
 /// - @subpage CASA_LithoSTPThermalCondPage
+/// - @subpage CASA_LithoFractionPage
+/// - @subpage CASA_SurfacePorosityPage
+/// - @subpage CASA_CompactionCoefficientPage
+/// - @subpage CASA_WindowedProject
 
 namespace casa
 {
-   /// @brief Variable parameter with continuous value range.
+   /// @brief Influential parameter with continuous value range.
    /// The parameter value can be represented by the one or several doubles values
    class VarPrmContinuous : public VarParameter
    {
@@ -58,23 +62,23 @@ namespace casa
       /// @brief Destructor
       virtual ~VarPrmContinuous() {;}
 
-      /// @brief Define this variable parameter as a continuous
+      /// @brief Define this influential parameter as a continuous
       /// @return VarParameter::Continuous
       virtual Type variationType() const { return Continuous; }
 
-      /// @brief A parameter which corresponds the minimal range value of the variable parameter 
+      /// @brief A parameter which corresponds the minimal range value of the influential parameter 
       /// @return the parameter object which should not be deleted by a caller
       virtual const SharedParameterPtr minValue() const { return m_minValue; }
 
-      /// @brief A parameter which corresponds the maximal range value of the variable parameter 
+      /// @brief A parameter which corresponds the maximal range value of the influential parameter 
       /// @return the parameter object should be deleted by a caller
       virtual const SharedParameterPtr maxValue() const { return m_maxValue; }
 
-      /// @brief A parameter which corresponds the base value of the variable parameter 
+      /// @brief A parameter which corresponds the base value of the influential parameter 
       /// @return the parameter object which should not be deleted by a caller
       virtual const SharedParameterPtr baseValue() const { return m_baseValue; }
 
-      /// @brief Get Probability Density Function type of the variable parameter
+      /// @brief Get Probability Density Function type of the influential parameter
       /// @return parameter PDF type
       virtual PDF pdfType() const { return m_pdf; }
 
@@ -108,8 +112,8 @@ namespace casa
                                                    , const std::vector<SharedParameterPtr> & prmVec /// the optimal parameter value of each 1D project
                                                    ) const = 0;
 
-      /// @brief Convert Cauldron parameter values to SUMlib values for some variable parameters
-      /// @param prm cauldron parameter with to this variable parameter corresponded type
+      /// @brief Convert Cauldron parameter values to SUMlib values for some influential parameters
+      /// @param prm cauldron parameter with to this influential parameter corresponded type
       /// @return parameter values suitable for SUMlib
       virtual std::vector<double> asDoubleArray( const SharedParameterPtr prm ) const { return prm->asDoubleArray(); }
       
@@ -143,7 +147,7 @@ namespace casa
       /// @return Actual version of serialized object representation
       virtual unsigned int version() const { return 0; }
 
-      /// @brief  Implements common part of deserialization for continuous variable parameters
+      /// @brief  Implements common part of deserialization for continuous influential parameters
       /// @param dz input stream
       /// @param objVer The object version.
       bool deserializeCommonPart( CasaDeserializer & dz, unsigned int objVer );

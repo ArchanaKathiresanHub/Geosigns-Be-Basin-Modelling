@@ -9,7 +9,7 @@
 //
 
 /// @file SensitivityCalculatorImpl.h
-/// @brief This file keeps declaration of the implementation part of variable parameters sensitivity calculator
+/// @brief This file keeps declaration of the implementation part of influential parameters sensitivity calculator
 
 #ifndef CASA_API_SENSITIVITY_CALCULATOR_IMPL_H
 #define CASA_API_SENSITIVITY_CALCULATOR_IMPL_H
@@ -31,7 +31,7 @@ namespace casa
    class RunCaseImpl;
    class VarSpace;
 
-   /// @brief Allows to find all variable parameters sensitivity with respect to each observable and
+   /// @brief Allows to find all influential parameters sensitivity with respect to each observable and
    /// build Tornado and Pareto diagrams
    class SensitivityCalculatorImpl : public SensitivityCalculator
    {
@@ -48,10 +48,10 @@ namespace casa
       /// @return ErrorHandler::NoError in case of success, or error code otherwise
       virtual ErrorHandler::ReturnCode calculatePareto( RSProxy * proxy, ParetoSensitivityInfo  & sensInfo );
 
-      /// @brief Construct 1st order proxy for given set of cases and calculate Tornado variable parameters sensitivities
+      /// @brief Construct 1st order proxy for given set of cases and calculate Tornado influential parameters sensitivities
       /// @param cs[in] case set manager which keeps run cases for DoE experiments
       /// @param expName[in] list of DoE names which will be used to create proxy for parameters sensitivity calculation
-      /// @return array which contains for each observable, a set of variable parameters sensitivities which could be used
+      /// @return array which contains for each observable, a set of influential parameters sensitivities which could be used
       ///         for creation Tornado diagram. In case of error method will return empty array and error code and error message
       ///         could be obtained from SensitivitCalculator object
       virtual std::vector<TornadoSensitivityInfo> calculateTornado( RunCaseSet & cs, const std::vector<std::string> & expNames );
@@ -74,7 +74,7 @@ namespace casa
 
    protected:
       const ObsSpace * m_obsSpace; // set of observable definitions
-      const VarSpace * m_varSpace; // set of variable parameters descriptions
+      const VarSpace * m_varSpace; // set of influential parameters descriptions
 
       // Create 1st order proxy with global kriging for the given DoE experiments. This proxy is used for Tornado diagram calculation  
       RSProxyImpl * createProxyForTornado( RunCaseSet & cs, const std::vector< std::string> & expNames );
