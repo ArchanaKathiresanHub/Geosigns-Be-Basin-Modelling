@@ -65,7 +65,7 @@ namespace BrineConductivity_UnitTests
             break;
       }
 
-      FluidType* geoPhysicsFluidType = new FluidType(projectHandle, fluidRecord);
+      std::unique_ptr<FluidType> geoPhysicsFluidType (new FluidType(projectHandle, fluidRecord));
 
       DataAccess::Interface::FluidThermalConductivitySampleList* thermalConductivitySamples;
       thermalConductivitySamples = projectHandle->getFluidThermalConductivitySampleList(projectHandle->findFluid(geoPhysicsFluidType->getThermalConductivityFluidName()));
