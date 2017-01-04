@@ -55,6 +55,12 @@ namespace casa
       /// @return true if requested observable value is valid at least for one run case
       virtual bool isValid( size_t obId, size_t obSubId ) const = 0;
  
+      /// @brief Add observable validity status. This function also is called for each run 
+      ///        case on the stage of extracting observables in data digger. 
+      /// @param ob observable number in observables space 
+      /// @param valFlags list the same size as transformed observable dimension with valid/invalid flags
+      virtual void updateObsValueValidateStatus( size_t ob, const std::vector<bool> & valFlags ) = 0;
+
    protected:
       ObsSpace() { ; }
       virtual ~ObsSpace() { ; }

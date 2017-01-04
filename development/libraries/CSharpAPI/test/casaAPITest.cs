@@ -94,6 +94,7 @@ namespace Shell.BasinModeling.Cauldron.Test
             for (uint j = 0; j < 2; ++j)
             {
                ObsValue obVal = obs.observable(j).newObsValueFromDoubles(obsVals, ref off);
+               obs.updateObsValueValidateStatus(j, obs.observable(j).isValid(obVal));
                rcs.runCase(i).addObsValue( obVal );
             }
             rcs.runCase(i).setRunStatus(RunCase.CaseStatus.Completed);
