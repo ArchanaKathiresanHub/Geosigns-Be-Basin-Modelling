@@ -29,6 +29,8 @@ using Utilities::Maths::MegaPaToPa;
 using Utilities::Physics::StockTankPressureMPa;
 using Utilities::Physics::StockTankTemperatureC;
 
+#include "LogHandler.h"
+
 // EosPack
 #include "EosPack.h"
 
@@ -139,10 +141,28 @@ ObsValue * ObsTrapDerivedProp::transform( const ObsValue * val ) const
 // Get standard deviations for the reference value
 void ObsTrapDerivedProp::setReferenceValue( ObsValue * obsVal, ObsValue * devVal )
 {
-   assert( obsVal != NULL );
-   assert( devVal != NULL );
+   assert( obsVal != nullptr );
+   ObsValueDoubleScalar * val = dynamic_cast<ObsValueDoubleScalar*>( obsVal );
+   assert( val != nullptr );
 
    m_refValue.reset( obsVal );
+
+   assert( devVal != nullptr );
+   ObsValueDoubleScalar * dev = dynamic_cast<ObsValueDoubleScalar*>( devVal ); 
+   assert( dev != nullptr );
+
+   // check dev for negative/zero value
+   if ( dev->value() <= 0.0 )
+   {
+      double newDev = std::abs( val->value() ) * 0.1;
+      if ( newDev == 0.0 ) { newDev = 0.1; }
+
+      LogHandler( LogHandler::WARNING_SEVERITY ) << "Invalid the standard deviation value: " << dev->value()
+                                                 << " for the target " << m_name[0] << ", possible error in scenario setup. "
+                                                 << "Replacing it with the default value (0.1*refVal): " << newDev;
+      delete devVal;
+      devVal = ObsValueDoubleScalar::createNewInstance( this, newDev );
+   }
    m_devValue.reset( devVal );
 }
 

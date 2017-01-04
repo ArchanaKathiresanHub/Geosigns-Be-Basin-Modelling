@@ -19,6 +19,9 @@
 #include "cmbAPI.h"
 #include "NumericFunctions.h"
 
+// utilities lib
+#include "LogHandler.h"
+
 // STL/C lib
 #include <cassert>
 #include <sstream>
@@ -78,13 +81,42 @@ std::vector< std::string > ObsGridPropertyWell::name() const
 // Get standard deviations for the reference value
 void ObsGridPropertyWell::setReferenceValue( ObsValue * obsVal, ObsValue * devVal )
 {
-   assert( obsVal != NULL );
-   assert( dynamic_cast<ObsValueDoubleArray*>( obsVal ) != NULL );
-
-   assert( devVal != NULL );
-   assert( dynamic_cast<ObsValueDoubleArray*>( devVal ) != NULL );
+   assert( obsVal != nullptr );
+   ObsValueDoubleArray * val = dynamic_cast<ObsValueDoubleArray*>( obsVal );
+   assert( val != nullptr );
 
    m_refValue.reset( obsVal );
+
+   assert( devVal != nullptr );
+   ObsValueDoubleArray * dev = dynamic_cast<ObsValueDoubleArray*>( devVal ); 
+   assert( dev != nullptr );
+
+   // check dev for negative/zero value
+   std::vector<double> refLst = val->asDoubleArray();
+   std::vector<double> devLst = dev->asDoubleArray();
+   bool isUpdated = false;
+
+   for ( size_t i = 0; i < devLst.size(); ++i )
+   {
+      if ( devLst[i] <= 0.0 )
+      {
+         double newDev = std::abs( refLst[i] ) * 0.1;
+         if ( newDev == 0.0 ) { newDev = 0.1; }
+
+         LogHandler( LogHandler::WARNING_SEVERITY ) << "Invalid the standard deviation value: " << devLst[i]
+                                                    << " for the target " << m_name[i] << ", possible error in scenario setup. "
+                                                    << "Replacing it with the default value (0.1*refVal): " << newDev;
+         devLst[i] = newDev;
+         isUpdated = true;
+      }
+   }
+
+   if ( isUpdated ) // if we changed any deviation value, recreate the ObsValue object with new std. deviation values
+   {
+     delete devVal;
+     devVal = ObsValueDoubleArray::createNewInstance( this, devLst );
+   }
+
    m_devValue.reset( devVal );
 }
  
