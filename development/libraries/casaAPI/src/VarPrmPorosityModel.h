@@ -36,15 +36,15 @@ namespace casa
                          , double       baseSurfPor    ///< base value for surface porosity
                          , double       minSurfPor     ///< minimal value for surface porosity
                          , double       maxSurfPor     ///< maximal value for surface porosity
-                         , double       baseMinPor     ///< base value for minimal porosity (Double_Exponential model only, for others must be UndefinedDoubleValue)
-                         , double       minMinPor      ///< minimal value for minimal porosity (Double_Exponential model only, for others must be UndefinedDoubleValue)
-                         , double       maxMinPor      ///< maximal value for minimal porosity (Double_Exponential model only, for others must be UndefinedDoubleValue)
+                         , double       baseMinPor     ///< base value for minimal porosity (Double_Exponential model only, for others must be Utilities::Numerical::IbsNoDataValue)
+                         , double       minMinPor      ///< minimal value for minimal porosity (Double_Exponential model only, for others must be Utilities::Numerical::IbsNoDataValue)
+                         , double       maxMinPor      ///< maximal value for minimal porosity (Double_Exponential model only, for others must be Utilities::Numerical::IbsNoDataValue)
                          , double       baseCompCoeff  ///< base value for compaction coefficient (CompCoefA for Double_Exponential model)
                          , double       minCompCoeff   ///< minimal value for compaction coefficient (CompCoefA for Double_Exponential model)
                          , double       maxCompCoeff   ///< maximal value for compaction coefficient (CompCoefA for Double_Exponential model)
-                         , double       baseCompCoeffB ///< base value for compaction coefficient "B" (Double_Exponential model only, for others must be UndefinedDoubleValue)
-                         , double       minCompCoeffB  ///< minimal value for compaction coefficient "B" (Double_Exponential model only, for others must be UndefinedDoubleValue)
-                         , double       maxCompCoeffB  ///< maximal value for compaction coefficient "B" (Double_Exponential model only, for others must be UndefinedDoubleValue)
+                         , double       baseCompCoeffB ///< base value for compaction coefficient "B" (Double_Exponential model only, for others must be Utilities::Numerical::IbsNoDataValue)
+                         , double       minCompCoeffB  ///< minimal value for compaction coefficient "B" (Double_Exponential model only, for others must be Utilities::Numerical::IbsNoDataValue)
+                         , double       maxCompCoeffB  ///< maximal value for compaction coefficient "B" (Double_Exponential model only, for others must be Utilities::Numerical::IbsNoDataValue)
                          , PDF          prmPDF         ///< probability density function for all 4 sub-parameters
                          , const char * name = 0       ///< user specified parameter name
                          );

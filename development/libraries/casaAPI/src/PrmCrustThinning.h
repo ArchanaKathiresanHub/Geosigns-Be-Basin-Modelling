@@ -17,7 +17,7 @@
 #include "Parameter.h"
 
 // CMB API
-#include <UndefinedValues.h>
+#include "UndefinedValues.h"
 
 #include <cassert>
 
@@ -120,7 +120,7 @@ namespace casa
 
       /// @brief Get parameter value as integer
       /// @return parameter value represented as integer
-      virtual int asInteger() const { assert( 0 ); return UndefinedIntegerValue; }
+      virtual int asInteger() const { assert( 0 ); return Utilities::Numerical::NoDataIntValue; }
 
       /// @brief Are two parameters equal?
       /// @param prm Parameter object to compare with

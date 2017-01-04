@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2012-2014 Shell International Exploration & Production.
+// Copyright (C) 2012-2017 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -97,7 +97,7 @@ namespace casa
    
       /// @brief Get parameter value as integer
       /// @return parameter value represented as integer
-      virtual int asInteger() const { assert(0); return UndefinedIntegerValue; }
+      virtual int asInteger() const { assert(0); return Utilities::Numerical::NoDataIntValue; }
 
       /// @brief Are two parameters equal?
       /// @param prm Parameter object to compare with

@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2012-2014 Shell International Exploration & Production.
+// Copyright (C) 2012-2017 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -19,7 +19,7 @@
 #include "cmbAPI.h"
 
 // Utilities lib
-#include <NumericFunctions.h>
+#include "NumericFunctions.h"
 
 // STL/C lib
 #include <cassert>
@@ -35,10 +35,10 @@ PrmPorosityModel::PrmPorosityModel( mbapi::Model & mdl, const char * lithoName )
    : m_parent( 0 )
    , m_modelType(   UndefinedModel )
    , m_lithoName(   lithoName )
-   , m_surfPor(     UndefinedDoubleValue )
-   , m_compCoef(    UndefinedDoubleValue )
-   , m_minPorosity( UndefinedDoubleValue )
-   , m_compCoef1(   UndefinedDoubleValue )
+   , m_surfPor(     Utilities::Numerical::IbsNoDataValue )
+   , m_compCoef(    Utilities::Numerical::IbsNoDataValue )
+   , m_minPorosity( Utilities::Numerical::IbsNoDataValue )
+   , m_compCoef1(   Utilities::Numerical::IbsNoDataValue )
 
 { 
    // construct parameter name
@@ -101,10 +101,10 @@ PrmPorosityModel::PrmPorosityModel( const VarPrmPorosityModel * parent, const ch
    : m_parent(      parent )
    , m_modelType(   mdlType )
    , m_lithoName(   lithoName )
-   , m_surfPor(     UndefinedDoubleValue )
-   , m_compCoef(    UndefinedDoubleValue )
-   , m_minPorosity( UndefinedDoubleValue )
-   , m_compCoef1(   UndefinedDoubleValue )
+   , m_surfPor(     Utilities::Numerical::IbsNoDataValue )
+   , m_compCoef(    Utilities::Numerical::IbsNoDataValue )
+   , m_minPorosity( Utilities::Numerical::IbsNoDataValue )
+   , m_compCoef1(   Utilities::Numerical::IbsNoDataValue )
 {
   // construct parameter name
    std::ostringstream oss;
@@ -240,7 +240,7 @@ std::string PrmPorosityModel::validate( mbapi::Model & caldModel )
    mbapi::LithologyManager              & mgr = caldModel.lithologyManager();
    mbapi::LithologyManager::LithologyID   lid = mgr.findID( m_lithoName );
 
-   if ( UndefinedIDValue == lid ) { oss << "Can't find lithology: " << m_lithoName << " in project file\n"; }
+   if ( IsValueUndefined( lid ) ) { oss << "Can't find lithology: " << m_lithoName << " in project file\n"; }
    else
    {
       // check that parameter value in project the same as in this parameter

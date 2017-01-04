@@ -17,9 +17,6 @@
 // CASA API
 #include "PrmLithologyProp.h"
 
-// CMB API
-#include <UndefinedValues.h>
-
 #include <cassert>
 
 namespace mbapi

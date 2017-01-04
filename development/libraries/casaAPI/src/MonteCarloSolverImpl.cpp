@@ -21,6 +21,9 @@
 #include "VarSpace.h"
 #include "VarPrmContinuous.h"
 
+// utilities
+#include "LogHandler.h"
+
 // STL
 #include <stdexcept>
 
@@ -98,7 +101,17 @@ SUMlib::McmcBase * MonteCarloSolverImpl::createMcmc( const SUMlib::CompoundProxy
 
             for ( size_t k = 0; k < vals.size(); ++k )
             {
-               m_input.push_back( new SUMlib::ReferenceProxy( *proxies[numObsVals], vals[k], vstd[k] ) );
+               if ( obs.isValid( i, (obv->dimension() == vals.size() ? k : 0) ) )
+               {
+                  m_input.push_back( new SUMlib::ReferenceProxy( *proxies[numObsVals], vals[k], vstd[k] ) );
+               }
+               else
+               {
+                  LogHandler( LogHandler::WARNING_SEVERITY ) << "MC/MCMC: " << obv->name()[k] << 
+                     " has the undefined value for all run cases and will be excluded from RMSE calculation";
+
+                  m_input.push_back( new SUMlib::ReferenceProxy( *proxies[numObsVals] ) );
+               }
                ++numObsVals;
             }
          }

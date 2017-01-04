@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2012-2014 Shell International Exploration & Production.
+// Copyright (C) 2012-2017 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -19,7 +19,7 @@
 #include "cmbAPI.h"
 
 // Utilities lib
-#include <NumericFunctions.h>
+#include "NumericFunctions.h"
 
 // STL/C lib
 #include <cassert>
@@ -34,7 +34,7 @@ namespace casa
 PrmLithoSTPThermalCond::PrmLithoSTPThermalCond( mbapi::Model & mdl, const char * lithoName )
    : m_parent( 0 )
    , m_lithoName(   lithoName )
-   , m_value(       UndefinedDoubleValue )
+   , m_value(       Utilities::Numerical::IbsNoDataValue )
 
 { 
    try

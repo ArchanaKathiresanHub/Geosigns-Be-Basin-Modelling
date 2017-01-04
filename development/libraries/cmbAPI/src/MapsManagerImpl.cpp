@@ -28,7 +28,7 @@
 #include "FolderPath.h"
 
 // Utilities lib
-#include <NumericFunctions.h>
+#include "NumericFunctions.h"
 
 // NNlib
 #include "nn.h"
@@ -102,7 +102,7 @@ MapsManager::MapID MapsManagerImpl::findID( const std::string & mName )
    }
    catch ( const Exception & e ) { reportError( e.errorCode(), e.what() ); }
 
-   return UndefinedIDValue;
+   return Utilities::Numerical::NoDataIDValue;
 }
 
 
@@ -111,7 +111,7 @@ MapsManager::MapID MapsManagerImpl::copyMap( MapID id, const std::string & newMa
 {
    if ( errorCode() != NoError ) resetError();
 
-   MapID ret = UndefinedIDValue;
+   MapID ret = Utilities::Numerical::NoDataIDValue;
 
    try
    {
@@ -164,12 +164,12 @@ MapsManager::MapID MapsManagerImpl::generateMap( const std::string         & ref
 {
    if ( errorCode() != NoError ) resetError();
 
-   MapID ret = UndefinedIDValue;
+   MapID ret = Utilities::Numerical::NoDataIDValue;
 
    try
    {
       DataAccess::Interface::GridMap * gridMap = m_proj->getFactory()->produceGridMap( 0, 0, m_proj->getInputGrid(),
-                                                                                       DataAccess::Interface::DefaultUndefinedMapValue, 1 );
+                                                                                       Utilities::Numerical::CauldronNoDataValue, 1 );
       ibs::FilePath mapFullPath( ibs::FilePath( m_projectFileName ).filePath() );
 
       // if filename is empty 
@@ -334,7 +334,7 @@ double MapsManagerImpl::mapGetValue( MapID id, size_t i, size_t j )
 {
    if ( errorCode() != NoError ) resetError();
 
-   double value = UndefinedDoubleValue;
+   double value = Utilities::Numerical::IbsNoDataValue;
 
    loadGridMap( id ); // check if map is loaded and load it if not loaded before
    m_mapObj[id]->retrieveData();

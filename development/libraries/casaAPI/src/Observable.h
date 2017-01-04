@@ -142,10 +142,16 @@ namespace casa
       /// when it can be discarded
       virtual ObsValue * getFromModel( mbapi::Model & caldModel ) = 0;
 
-      /// @brief Do observable validation for the given model
+      /// @brief Do observable position validation for the given model, for this it performs check - can observable 
+      ///        value be extracted from the model or it  position is outside of the model boundaries
       /// @param caldModel reference to Cauldron model
       /// @return empty string if there is no any problems with this observable, or error message if something wrong
       virtual std::string checkObservableForProject( mbapi::Model & caldModel ) const = 0; 
+
+      /// @brief Check the extracted from the model observable value, is it defined or not.
+      /// @param obv observable value
+      /// @return true if observable value has some reasonable value, false if observable value is outside of valid range.
+      virtual std::vector<bool> isValid( const ObsValue * obv ) const;
 
       /// @brief Create new observable value from set of doubles. This method is used for data conversion between SUMlib and CASA
       /// @param[in,out] val iterator for double array

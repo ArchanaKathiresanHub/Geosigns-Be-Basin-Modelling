@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2017 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -177,14 +177,14 @@ void FastDepthCalibration::calibrateDepths()
 		for (int lith = 0; lith != lithoList.size(); ++lith)
 		{
 			mbapi::LithologyManager::LithologyID lithID = litMgrLocal.findID(lithoList[lith]);
-			if (lithID == UndefinedIDValue)
+			if ( IsValueUndefined( lithID ) )
 			{
 				throw ErrorHandler::Exception(litMgrLocal.errorCode()) << "Can not find the id for the lithology " << lith
 					<< ", " << litMgrLocal.errorMessage();
 			}
 			// For these surfaces get the rock seismic velocity
 			double seisVel = litMgrLocal.seisVelocity(lithID);
-			if (seisVel == UndefinedIDValue)
+			if ( IsValueUndefined( seisVel ) )
 			{
 				throw ErrorHandler::Exception(litMgrLocal.errorCode()) << "Can not find the seismic velocity for the lithology " << lith
 					<< ", " << litMgrLocal.errorMessage();
@@ -283,10 +283,10 @@ void FastDepthCalibration::calibrateDepths()
 
 		// Create the new map with the increased depths
 		m_correctedMapsNames[nextSurface] = mapName;
-		size_t mapsSequenceNbr = UndefinedIDValue;
+		size_t mapsSequenceNbr = Utilities::Numerical::NoDataIDValue;
 ;
 		m_correctedMapsIDs[nextSurface] = mapsMgrLocalReloaded.generateMap("StratIoTbl", mapName, increasedDepths, mapsSequenceNbr, s_resultsFile);
-		if (UndefinedIDValue == m_correctedMapsIDs[nextSurface])
+		if ( IsValueUndefined( m_correctedMapsIDs[nextSurface] ) )
 		{
 			throw T2Zexception() << " Cannot generate the map with increased depths for the surface " << nextSurface;
 		}
@@ -334,8 +334,8 @@ void FastDepthCalibration::calibrateDepths()
 
 		// Now write the corrected map (note that the project file path will be appended to the HDF map name,
 		// so we must be in the master path to do this operation!)
-		mapsSequenceNbr = UndefinedIDValue;
-		if (UndefinedIDValue == mapsMgrLocalReloaded.generateMap("StratIoTbl", mapName, newDepths, mapsSequenceNbr, s_resultsFile))
+		mapsSequenceNbr = Utilities::Numerical::NoDataIDValue;
+		if ( IsValueUndefined( mapsMgrLocalReloaded.generateMap( "StratIoTbl", mapName, newDepths, mapsSequenceNbr, s_resultsFile ) ) )
 		{
 			throw T2Zexception() << " Cannot generate the map with corrected depths for the surface " << nextSurface;
 		}
@@ -404,13 +404,13 @@ void FastDepthCalibration::writeFinalProject()
 		{
 			LogHandler(LogHandler::INFO_SEVERITY) << " Appending isopack for surface " << s;
 		}
-		size_t mapsSequenceNbr = UndefinedIDValue;
+		size_t mapsSequenceNbr = Utilities::Numerical::NoDataIDValue;
 		for (size_t i = 0; i != m_depthsEndSurface.size(); ++i)
 		{
 			m_isoPacks[s][i] = m_depthsEndSurface[i] + m_isoPacks[s][i];
 		}
 		m_correctedMapsNames[s] = mapName;
-		if (UndefinedIDValue == mapsMgrFinal.generateMap("StratIoTbl", mapName, m_isoPacks[s], mapsSequenceNbr, s_resultsFile))
+		if ( IsValueUndefined( mapsMgrFinal.generateMap("StratIoTbl", mapName, m_isoPacks[s], mapsSequenceNbr, s_resultsFile ) ) )
 		{
 			throw T2Zexception() << " Cannot generate the map for the iso surface " << s;
 		}

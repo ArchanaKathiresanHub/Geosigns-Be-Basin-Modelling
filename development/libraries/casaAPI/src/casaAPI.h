@@ -382,8 +382,10 @@ namespace casa
                                                          -# Anisotropic coefficient
                                                          -# Number of points in 1D profile of permeability vs porosity
                                                          -# set of profile points (porosity,permeability) values
-                                                      If any parameter value is set to UndefinedDoubleValue, this parameter is excluded from variation and it value
-                                                      will be taken from the base case */
+                                                      If any parameter value is set to Utilities::Numerical::IbsNoDataValue, this parameter 
+                                                      will be excluded from variation and it value will be taken from the base case
+                                                      */
+
           , std::vector<double>   & maxModelPrms  ///< [inout] List of maximal values of model parameter, depending on the model type. Order the same as for minModelPrms
           , VarPrmContinuous::PDF   pdfType             /**< [in] probability function type for the influential parameter. If PDF needs 
                                                            some middle parameter value it will be taken from the base case model */
@@ -399,8 +401,8 @@ namespace casa
        , const char *          litName       ///< [in] lithology name
        , double                minVal        ///< [in] min range value for the STP thermal conductivity coeff. 
        , double                maxVal        ///< [in] max range value for the STP thermal conductivity coeff.
-      , VarPrmContinuous::PDF pdfType          /**< [in] probability function type for the influential parameter. If PDF needs 
-                                                     some middle parameter value it will be taken from the base case model */
+       , VarPrmContinuous::PDF pdfType       /**< [in] probability function type for the influential parameter. If PDF needs 
+                                                       some middle parameter value it will be taken from the base case model */
        );
    } // namespace BusinessLogicRulesSet
 

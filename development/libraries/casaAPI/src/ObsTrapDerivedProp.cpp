@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2012-2014 Shell International Exploration & Production.
+// Copyright (C) 2012-2017 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -111,9 +111,9 @@ ObsValue * ObsTrapDerivedProp::transform( const ObsValue * val ) const
    std::vector<double> values     = arrVal->asDoubleArray();
    bool                allDefined = true;
 
-   for ( auto it : values ) { if ( it == UndefinedDoubleValue ) { allDefined = false; break; } }
+   for ( auto it : values ) { if ( IsValueUndefined( it ) ) { allDefined = false; break; } }
 
-   double ret = UndefinedDoubleValue;
+   double ret = Utilities::Numerical::IbsNoDataValue;
    if ( allDefined && values.size() == ComponentManager::NUMBER_OF_SPECIES + 4 )
    {
       // do back transform from log10
@@ -177,10 +177,10 @@ ErrorHandler::ReturnCode ObsTrapDerivedProp::requestObservableInModel( mbapi::Mo
       if ( ErrorHandler::NoError != caldModel.setTableValue( Observable::s_dataMinerTable, pos, "Time",          m_simTime            ) ||
            ErrorHandler::NoError != caldModel.setTableValue( Observable::s_dataMinerTable, pos, "XCoord",        m_x                  ) ||
            ErrorHandler::NoError != caldModel.setTableValue( Observable::s_dataMinerTable, pos, "YCoord",        m_y                  ) ||
-           ErrorHandler::NoError != caldModel.setTableValue( Observable::s_dataMinerTable, pos, "ZCoord",        UndefinedDoubleValue ) ||
+           ErrorHandler::NoError != caldModel.setTableValue( Observable::s_dataMinerTable, pos, "ZCoord",        Utilities::Numerical::IbsNoDataValue ) ||
            ErrorHandler::NoError != caldModel.setTableValue( Observable::s_dataMinerTable, pos, "ReservoirName", m_resName            ) ||
            ErrorHandler::NoError != caldModel.setTableValue( Observable::s_dataMinerTable, pos, "PropertyName",  propList[i]          ) ||
-           ErrorHandler::NoError != caldModel.setTableValue( Observable::s_dataMinerTable, pos, "Value",         UndefinedDoubleValue ) 
+           ErrorHandler::NoError != caldModel.setTableValue( Observable::s_dataMinerTable, pos, "Value",         Utilities::Numerical::IbsNoDataValue ) 
       ) return caldModel.errorCode();
    }
    return ErrorHandler::NoError;
@@ -190,7 +190,7 @@ ErrorHandler::ReturnCode ObsTrapDerivedProp::requestObservableInModel( mbapi::Mo
 // Get this observable value from Cauldron model
 ObsValue * ObsTrapDerivedProp::getFromModel( mbapi::Model & caldModel )
 {
-   std::vector<double> val( m_posDataMiningTbl.size(), UndefinedDoubleValue );
+   std::vector<double> val( m_posDataMiningTbl.size(), Utilities::Numerical::IbsNoDataValue );
    double eps = g_ZeroMassThreshold;
  
    const std::string & msg = checkObservableForProject( caldModel );
@@ -207,22 +207,22 @@ ObsValue * ObsTrapDerivedProp::getFromModel( mbapi::Model & caldModel )
       else if ( i == ComponentManager::NUMBER_OF_SPECIES + 2 ) { propName = "Pressure";    }
       else if ( i == ComponentManager::NUMBER_OF_SPECIES + 3 ) { propName = "Temperature"; }
 
-      if ( m_posDataMiningTbl[i] == UndefinedIDValue )
+      if ( IsValueUndefined( m_posDataMiningTbl[i] ) )
       {
          bool found = false;
          for ( size_t j = 0; j < tblSize && !found; ++j )
          {
             double obTime = caldModel.tableValueAsDouble( Observable::s_dataMinerTable, j, "Time"   );
-            if ( caldModel.errorCode() != ErrorHandler::NoError || ! NumericFunctions::isEqual( obTime, m_simTime,            eps ) ) { continue; }
+            if ( caldModel.errorCode() != ErrorHandler::NoError || ! NumericFunctions::isEqual( obTime, m_simTime, eps ) ) { continue; }
 
             double xCrd   = caldModel.tableValueAsDouble( Observable::s_dataMinerTable, j, "XCoord" );
-            if ( caldModel.errorCode() != ErrorHandler::NoError || ! NumericFunctions::isEqual( xCrd,   m_x,                  eps ) ) { continue; }
+            if ( caldModel.errorCode() != ErrorHandler::NoError || ! NumericFunctions::isEqual( xCrd,   m_x,       eps ) ) { continue; }
 
             double yCrd   = caldModel.tableValueAsDouble( Observable::s_dataMinerTable, j, "YCoord" );
-            if ( caldModel.errorCode() != ErrorHandler::NoError || ! NumericFunctions::isEqual( yCrd,   m_y,                  eps ) ) { continue; }
+            if ( caldModel.errorCode() != ErrorHandler::NoError || ! NumericFunctions::isEqual( yCrd,   m_y,       eps ) ) { continue; }
 
             double zCrd   = caldModel.tableValueAsDouble( Observable::s_dataMinerTable, j, "ZCoord" );
-            if ( caldModel.errorCode() != ErrorHandler::NoError || ! NumericFunctions::isEqual( zCrd,   UndefinedDoubleValue, eps ) ) { continue; }
+            if ( caldModel.errorCode() != ErrorHandler::NoError || ! IsValueUndefined( zCrd )                            ) { continue; }
                        
             const std::string & resName = caldModel.tableValueAsString( Observable::s_dataMinerTable, j, "ReservoirName" );
             if ( caldModel.errorCode() != ErrorHandler::NoError || m_resName != resName ) { continue; }
@@ -354,7 +354,7 @@ ObsTrapDerivedProp::ObsTrapDerivedProp( CasaDeserializer & dz, unsigned int objV
       m_posDataMiningTbl.resize( pos.size() );
       for ( size_t i = 0; i < pos.size(); ++i )
       {
-         m_posDataMiningTbl[ i ] = static_cast<size_t>( pos[i] < 0 ? UndefinedIDValue : pos[i] );
+         m_posDataMiningTbl[ i ] = static_cast<size_t>( pos[i] < 0 ? Utilities::Numerical::NoDataIDValue : pos[i] );
       }
    }
    else
@@ -388,7 +388,7 @@ ObsTrapDerivedProp::ObsTrapDerivedProp( CasaDeserializer & dz, unsigned int objV
 
 double ObsTrapDerivedProp::calculateDerivedTrapProp( const std::vector<double> & vals ) const
 {
-   double ret = UndefinedDoubleValue;
+   double ret = Utilities::Numerical::IbsNoDataValue;
 
    if ( vals.size() < ComponentManager::NUMBER_OF_SPECIES + 4 ) return ret;
 
@@ -437,9 +437,9 @@ double ObsTrapDerivedProp::calculateDerivedTrapProp( const std::vector<double> &
          densitiesST[phase][ComponentManager::LIQUID] = 0.0;
          densitiesST[phase][ComponentManager::VAPOUR] = 0.0;
 
-         viscositiesRC[phase] = UndefinedDoubleValue;
-         viscositiesST[phase][ComponentManager::LIQUID] = UndefinedDoubleValue;
-         viscositiesST[phase][ComponentManager::VAPOUR] = UndefinedDoubleValue;
+         viscositiesRC[phase] = Utilities::Numerical::IbsNoDataValue;
+         viscositiesST[phase][ComponentManager::LIQUID] = Utilities::Numerical::IbsNoDataValue;
+         viscositiesST[phase][ComponentManager::VAPOUR] = Utilities::Numerical::IbsNoDataValue;
       }
       else
       {
@@ -448,7 +448,7 @@ double ObsTrapDerivedProp::calculateDerivedTrapProp( const std::vector<double> &
             if ( densitiesST[phase][stPhase] == 1000 )
             {
                densitiesST[phase][stPhase] = 0.0;
-               viscositiesST[phase][stPhase] = UndefinedDoubleValue;
+               viscositiesST[phase][stPhase] = Utilities::Numerical::IbsNoDataValue;
             }
          }
       }
@@ -624,7 +624,7 @@ bool performPVT( double masses[ComponentManager::NUMBER_OF_SPECIES]
 
 double ComputeVolume( double * masses, double density, int numberOfSpecies )
 {
-   double value = UndefinedDoubleValue;
+   double value = Utilities::Numerical::IbsNoDataValue;
 
    double mass = 0.0;
    for ( int i = 0; i < numberOfSpecies; ++i ) { mass += masses[i]; }

@@ -45,10 +45,10 @@ PrmOneCrustThinningEvent::PrmOneCrustThinningEvent( mbapi::Model & mdl ) : m_par
 {
    size_t crustIoTblSize = mdl.tableSize( s_crustIoTblName );
 
-   m_initialThickness = UndefinedDoubleValue;
-   m_t0               = UndefinedDoubleValue;
-   m_dt               = UndefinedDoubleValue;
-   m_coeff            = UndefinedDoubleValue;
+   m_initialThickness = Utilities::Numerical::IbsNoDataValue;
+   m_t0               = Utilities::Numerical::IbsNoDataValue;
+   m_dt               = Utilities::Numerical::IbsNoDataValue;
+   m_coeff            = Utilities::Numerical::IbsNoDataValue;
 
    if ( ErrorHandler::NoError == mdl.errorCode() )
    {
@@ -103,7 +103,8 @@ ErrorHandler::ReturnCode PrmOneCrustThinningEvent::setInModel( mbapi::Model & md
       oK = oK ? ErrorHandler::NoError == mdl.addRowToTable( s_crustIoTblName ) : oK;
 
       // set to 0 unused columns
-      oK = oK ? ErrorHandler::NoError == mdl.setTableValue( s_crustIoTblName, i, s_crustIoTblCalibThicknessCol, UndefinedDoubleValue ) : oK;
+      oK = oK ? ErrorHandler::NoError == mdl.setTableValue( s_crustIoTblName, i, s_crustIoTblCalibThicknessCol, 
+                                                                                 Utilities::Numerical::IbsNoDataValue ) : oK;
       oK = oK ? ErrorHandler::NoError == mdl.setTableValue( s_crustIoTblName, i, s_crustIoTblOptimThicknessCol, (long)0 ) : oK;
       oK = oK ? ErrorHandler::NoError == mdl.setTableValue( s_crustIoTblName, i, s_crustIoTblErrThicknessCol, 0.0e0 ) : oK;
     }

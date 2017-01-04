@@ -16,9 +16,6 @@
 
 #include "PrmSourceRockProp.h"
 
-// CMB API
-#include <UndefinedValues.h>
-
 #include <cassert>
 
 namespace mbapi

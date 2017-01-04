@@ -151,7 +151,7 @@ namespace casa
                else if ( categoricalPrm ) { allPrmVals[c] = css[c].parameter( prmID )->asInteger(); }
                else                       { throw ErrorHandler::Exception( ErrorHandler::NotImplementedAPI ) << "Unsupported influential parameter type"; }
 
-               if ( csVal == UndefinedDoubleValue ) { hasUndefValue = true; continue; }
+               if ( IsValueUndefined( csVal ) ) { hasUndefValue = true; continue; }
                else
                {
                   if ( minValPos == css.size() || allObsVals[minValPos] > csVal ) { minValPos = c; }
@@ -162,10 +162,10 @@ namespace casa
                                        , css.back( ).obsValue( o )->asDoubleArray()[oo]
                                        , m_varSpace->parameter( prmID ), prmSubID );
 
-            sensData[so].addMinMaxSensitivityInRange( minValPos == css.size() ? UndefinedDoubleValue : allObsVals[minValPos]
-                                                    , maxValPos == css.size() ? UndefinedDoubleValue : allObsVals[maxValPos]
-                                                    , minValPos == css.size() ? UndefinedDoubleValue : allPrmVals[minValPos]
-                                                    , maxValPos == css.size() ? UndefinedDoubleValue : allPrmVals[maxValPos]
+            sensData[so].addMinMaxSensitivityInRange( minValPos == css.size() ? Utilities::Numerical::IbsNoDataValue : allObsVals[minValPos]
+                                                    , maxValPos == css.size() ? Utilities::Numerical::IbsNoDataValue : allObsVals[maxValPos]
+                                                    , minValPos == css.size() ? Utilities::Numerical::IbsNoDataValue : allPrmVals[minValPos]
+                                                    , maxValPos == css.size() ? Utilities::Numerical::IbsNoDataValue : allPrmVals[maxValPos]
                                                     );
 
             // if there were undefined values - calculate valid intervals
@@ -189,18 +189,18 @@ namespace casa
          const Observable * obs = m_obsSpace->observable( o );
          double wgt = obs->uaWeight();
 
-         double minProxy = UndefinedDoubleValue;
-         double maxProxy = UndefinedDoubleValue;
+         double minProxy = Utilities::Numerical::IbsNoDataValue;
+         double maxProxy = Utilities::Numerical::IbsNoDataValue;
         
          for ( size_t oo = 0; oo < obs->dimension(); ++oo )
          {
             std::for_each( css.begin(), css.end(), [o, oo, &minProxy, &maxProxy] ( RunCaseImpl & cs ) 
                                                    {
                                                       double csVal = cs.obsValue( o )->asDoubleArray()[oo];
-                                                      if ( csVal != UndefinedDoubleValue )
+                                                      if ( !IsValueUndefined( csVal ) )
                                                       {
-                                                         minProxy = minProxy == UndefinedDoubleValue ? csVal : std::min( csVal, minProxy );
-                                                         maxProxy = maxProxy == UndefinedDoubleValue ? csVal : std::max( csVal, maxProxy );
+                                                         minProxy = IsValueUndefined( minProxy ) ? csVal : std::min( csVal, minProxy );
+                                                         maxProxy = IsValueUndefined( maxProxy ) ? csVal : std::max( csVal, maxProxy );
                                                       }
                                                    } );
             double dProxy = maxProxy - minProxy;

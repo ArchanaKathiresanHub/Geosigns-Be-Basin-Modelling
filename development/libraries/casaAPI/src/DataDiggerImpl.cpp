@@ -98,8 +98,8 @@ namespace casa
    // Collect observables for the given RunCase
    ErrorHandler::ReturnCode DataDiggerImpl::collectRunResults( ObsSpace & obs, RunCase * cs )
    {
-      ObsSpaceImpl & observSpace = dynamic_cast<ObsSpaceImpl&>(obs);
-      RunCaseImpl  * runCase     = dynamic_cast<RunCaseImpl*>( cs );
+      ObsSpaceImpl & observSpace = dynamic_cast<ObsSpaceImpl&>( obs );
+      RunCaseImpl  * runCase     = dynamic_cast<RunCaseImpl*>(  cs );
 
       assert( runCase->observablesNumber() == 0 );
 
@@ -112,6 +112,9 @@ namespace casa
          ObsValue   * obVal = obDef->getFromModel( caseModel );
 
          if ( !obVal ) return moveError( caseModel );
+         
+         observSpace.updateObsValueValidateStatus( ob, obDef->isValid( obVal ) );
+
          runCase->addObsValue( obVal );
       }
       return NoError;

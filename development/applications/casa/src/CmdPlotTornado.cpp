@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2012-2014 Shell International Exploration & Production.
+// Copyright (C) 2012-2017 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -128,8 +128,8 @@ void CmdPlotTornado::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
          ofs << "TornadoSens.prmNames{ " << obsNum << ", " << j+1 << "} = '" << prmName << "';\n";
          ofs << "TornadoSens.prmRange{ " << obsNum << ", " << j+1 << "} = [" << data[i].minVarParameterRangeValue( j ) << " "
                                                                              << data[i].maxVarParameterRangeValue( j ) << "];\n";
-         double absSensMin = sens[j].front() == UndefinedDoubleValue ? sens[j].front() : data[i].refObsValue() + sens[j].front();
-         double absSensMax = sens[j].back()  == UndefinedDoubleValue ? sens[j].back()  : data[i].refObsValue() + sens[j].back();
+         double absSensMin = IsValueUndefined( sens[j].front() ) ? sens[j].front() : data[i].refObsValue() + sens[j].front();
+         double absSensMax = IsValueUndefined( sens[j].back()  ) ? sens[j].back()  : data[i].refObsValue() + sens[j].back();
 
          if ( sens[j].size() == 1 ) // categorical
          {
@@ -150,8 +150,8 @@ void CmdPlotTornado::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
             ofs << "TornadoSens.maxRelSensMax( " << obsNum << ", " << j+1 << ") = " << (maxRelSens.empty() ? 0.0 : maxRelSens[j][1]) << ";\n";
          }
          
-         absSensMin = maxSens[j].front() == UndefinedDoubleValue ? maxSens[j].front() : data[i].refObsValue() + maxSens[j].front();
-         absSensMax = maxSens[j].back()  == UndefinedDoubleValue ? maxSens[j].back()  : data[i].refObsValue() + maxSens[j].back();
+         absSensMin = IsValueUndefined( maxSens[j].front() ) ? maxSens[j].front() : data[i].refObsValue() + maxSens[j].front();
+         absSensMax = IsValueUndefined( maxSens[j].back()  ) ? maxSens[j].back()  : data[i].refObsValue() + maxSens[j].back();
 
          ofs << "TornadoSens.maxSensMin( "    << obsNum << ", " << j+1 << ") = " << absSensMin << ";\n";
          ofs << "TornadoSens.maxSensMax( "    << obsNum << ", " << j+1 << ") = " << absSensMax << ";\n";

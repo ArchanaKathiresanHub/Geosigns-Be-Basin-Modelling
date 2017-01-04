@@ -77,8 +77,8 @@ namespace casa
 
    void TornadoSensitivityInfo::addSensitivity( double minV, double maxV, const VarParameter * prm, size_t prmSubID )
    {
-      if ( minV != UndefinedDoubleValue ) { minV -= m_refObsValue; }
-      if ( maxV != UndefinedDoubleValue ) { maxV -= m_refObsValue; }
+      if ( !IsValueUndefined( minV ) ) { minV -= m_refObsValue; }
+      if ( !IsValueUndefined( maxV ) ) { maxV -= m_refObsValue; }
 
       if ( prm->variationType() == VarParameter::Continuous )
       {
@@ -110,8 +110,8 @@ namespace casa
 
       const VarParameter * vprm = m_vprmPtr.back().first;
 
-      if ( minVal != UndefinedDoubleValue ) { minVal -= m_refObsValue; }
-      if ( maxVal != UndefinedDoubleValue ) { maxVal -= m_refObsValue; }
+      if ( !IsValueUndefined( minVal ) ) { minVal -= m_refObsValue; }
+      if ( !IsValueUndefined( maxVal ) ) { maxVal -= m_refObsValue; }
 
       if ( vprm->variationType() == VarParameter::Continuous )
       {
@@ -145,7 +145,7 @@ namespace casa
 
       for ( size_t i = 0; i < allPrmVals.size(); ++i )
       {
-         if ( allObsVals[i] != UndefinedDoubleValue )
+         if ( !IsValueUndefined( allObsVals[i] ) )
          {
             if ( rngBeg == allPrmVals.size() ) { rngBeg = i; }
             else                               { rngEnd = i; }
@@ -185,8 +185,8 @@ namespace casa
       // first accumulate sensitivities
       for ( size_t i = 0; i < m_sensitivities.size(); ++i ) // min/max on boundaries of IP range 
       {
-         double smin = m_sensitivities[i].front() == UndefinedDoubleValue ? 0.0 : m_sensitivities[i].front();
-         double smax = m_sensitivities[i].back()  == UndefinedDoubleValue ? 0.0 : m_sensitivities[i].back();
+         double smin = IsValueUndefined( m_sensitivities[i].front() ) ? 0.0 : m_sensitivities[i].front();
+         double smax = IsValueUndefined( m_sensitivities[i].back()  ) ? 0.0 : m_sensitivities[i].back();
          switch ( m_vprmPtr[i].first->variationType() )
          {  
             case VarParameter::Continuous:
@@ -201,8 +201,8 @@ namespace casa
       
       for ( size_t i = 0; i < m_maxSensitivities.size(); ++i ) // min/max inside IP range 
       { 
-         double smin = m_maxSensitivities[i].front() == UndefinedDoubleValue ? 0.0 : m_maxSensitivities[i].front();
-         double smax = m_maxSensitivities[i].back()  == UndefinedDoubleValue ? 0.0 : m_maxSensitivities[i].back();
+         double smin = IsValueUndefined( m_maxSensitivities[i].front() ) ? 0.0 : m_maxSensitivities[i].front();
+         double smax = IsValueUndefined( m_maxSensitivities[i].back()  ) ? 0.0 : m_maxSensitivities[i].back();
          switch ( m_vprmPtr[i].first->variationType() )
          {  
             case VarParameter::Continuous:
@@ -223,8 +223,8 @@ namespace casa
       {   
          for ( size_t i = 0; i < m_sensitivities.size(); ++i )
          {
-            double smin = m_sensitivities[i].front() == UndefinedDoubleValue ? 0.0 : m_sensitivities[i].front();
-            double smax = m_sensitivities[i].back()  == UndefinedDoubleValue ? 0.0 : m_sensitivities[i].back();
+            double smin = IsValueUndefined( m_sensitivities[i].front() ) ? 0.0 : m_sensitivities[i].front();
+            double smax = IsValueUndefined( m_sensitivities[i].back()  ) ? 0.0 : m_sensitivities[i].back();
             
             m_relSensitivities.push_back( std::vector<double>() );
 
@@ -248,8 +248,8 @@ namespace casa
       {   
          for ( size_t i = 0; i < m_maxSensitivities.size(); ++i )
          {
-            double smin = m_maxSensitivities[i].front() == UndefinedDoubleValue ? 0.0 : m_maxSensitivities[i].front();
-            double smax = m_maxSensitivities[i].back()  == UndefinedDoubleValue ? 0.0 : m_maxSensitivities[i].back();
+            double smin = IsValueUndefined( m_maxSensitivities[i].front() ) ? 0.0 : m_maxSensitivities[i].front();
+            double smax = IsValueUndefined( m_maxSensitivities[i].back()  ) ? 0.0 : m_maxSensitivities[i].back();
 
             m_maxRelSensitivities.push_back( std::vector<double>() );
 
@@ -343,7 +343,7 @@ namespace casa
       const VarParameter * vPrm = m_vprmPtr[vPrmNum].first;
       size_t               vPrmSubID = m_vprmPtr[vPrmNum].second;
 
-      double ret = UndefinedDoubleValue;
+      double ret = Utilities::Numerical::IbsNoDataValue;
 
       if ( vPrm->variationType() == VarParameter::Continuous )
       {
@@ -363,7 +363,7 @@ namespace casa
       const VarParameter * vPrm = m_vprmPtr[vPrmNum].first;
       size_t               vPrmSubID = m_vprmPtr[vPrmNum].second;
 
-      double ret = UndefinedDoubleValue;
+      double ret = Utilities::Numerical::IbsNoDataValue;
 
       if ( vPrm->variationType() == VarParameter::Continuous )
       {
@@ -377,6 +377,5 @@ namespace casa
 
       return ret;
    }
-
 }
 

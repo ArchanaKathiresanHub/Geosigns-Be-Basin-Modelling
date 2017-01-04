@@ -92,7 +92,7 @@ namespace casa
 
       /// @brief Get value which is used for indicating the absense of observable value
       /// @return undefined value
-      double                              undefinedValue()   const { return UndefinedDoubleValue; }
+      double                              undefinedValue()   const { return Utilities::Numerical::IbsNoDataValue; }
 
       /// @brief Get minimum of influential parameter range value. If parameter is Categorical - it will be integer->double conversion
       /// @param vPrmNum parameter number

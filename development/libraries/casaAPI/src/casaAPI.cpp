@@ -68,7 +68,7 @@ static size_t findMixingIDForLithologyInLayer( const char * layerName, const std
       mbapi::StratigraphyManager & smgr = sa.baseCase().stratigraphyManager();
       mbapi::StratigraphyManager::LayerID lyd = smgr.layerID( layerName );
       
-      if ( UndefinedIDValue == lyd )
+      if ( IsValueUndefined( lyd ) )
       {
          throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "No such layer: " << layerName << " in stratigraphy table";
       }
@@ -157,7 +157,7 @@ ErrorHandler::ReturnCode VaryTopCrustHeatProduction( ScenarioAnalysis           
          for ( size_t k = 0; k < 2; ++k )
          {
             mbapi::MapsManager::MapID mid = mm.findID( mapRng[k] );
-            if ( UndefinedIDValue == mid )
+            if ( IsValueUndefined( mid ) )
             {
                throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Base case project has no map " << mapRng[k] << " defined";
             }
@@ -229,8 +229,14 @@ ErrorHandler::ReturnCode VarySourceRockTOC( ScenarioAnalysis               & sa
 
          // check are other 2 maps exist in maps list
          mbapi::MapsManager & mm = mdl.mapsManager();
-         if ( UndefinedIDValue == mm.findID( mapRng[0] ) ) { throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Base case project has no map " << mapRng[0] << " defined"; }
-         if ( UndefinedIDValue == mm.findID( mapRng[1] ) ) { throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Base case project has no map " << mapRng[1] << " defined"; }
+         if ( IsValueUndefined( mm.findID( mapRng[0] ) ) )
+         {
+            throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Base case project has no map " << mapRng[0] << " defined";
+         }
+         if ( IsValueUndefined( mm.findID( mapRng[1] ) ) )
+         { 
+            throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Base case project has no map " << mapRng[1] << " defined";
+         }
       }
       else
       {
@@ -878,11 +884,11 @@ ErrorHandler::ReturnCode VaryCrustThinning( casa::ScenarioAnalysis & sa
 
       std::vector<double> baseValues;
       // if base case does not have the same pattern - ignore it and generate base case as a middle between min/max
-      if ( !samePattern ) { baseValues.assign( 3 * minT0.size() + 1, UndefinedDoubleValue ); }
+      if ( !samePattern ) { baseValues.assign( 3 * minT0.size() + 1, Utilities::Numerical::IbsNoDataValue ); }
       else                { baseValues.insert( baseValues.begin(), prmBaseValues.begin(), prmBaseValues.end() ); }
 
-      std::vector<double> minValues( 3 * minT0.size() + 1, UndefinedDoubleValue );
-      std::vector<double> maxValues( 3 * minT0.size() + 1, UndefinedDoubleValue );
+      std::vector<double> minValues( 3 * minT0.size() + 1, Utilities::Numerical::IbsNoDataValue );
+      std::vector<double> maxValues( 3 * minT0.size() + 1, Utilities::Numerical::IbsNoDataValue );
 
       if ( IsValueUndefined( minThickIni ) ||
            IsValueUndefined( maxThickIni ) ) { throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Initial crust thickness is undefined"; }
@@ -974,7 +980,7 @@ ErrorHandler::ReturnCode VarySurfacePorosity( ScenarioAnalysis & sa
       mbapi::LithologyManager & mgr = mdl.lithologyManager();
 
       mbapi::LithologyManager::LithologyID lid = mgr.findID( litName );
-      if ( lid == UndefinedIDValue ) { throw ErrorHandler::Exception( mgr.errorCode() ) << mgr.errorMessage(); }
+      if ( IsValueUndefined( lid ) ) { throw ErrorHandler::Exception( mgr.errorCode() ) << mgr.errorMessage(); }
 
       mbapi::LithologyManager::PorosityModel porModel = mbapi::LithologyManager::PorUnknown;
       std::vector<double> porModelPrms;
@@ -1059,7 +1065,7 @@ ErrorHandler::ReturnCode VaryCompactionCoefficient( ScenarioAnalysis            
       // Check if the parameter space has a layer where the surface porosity was defined for a soil mechanics model. 
       // In this case display an error message and exit.
       mbapi::LithologyManager::LithologyID lid = mgr.findID( litName );
-      if ( lid == UndefinedIDValue )
+      if ( IsValueUndefined( lid ) )
       {
          throw ErrorHandler::Exception( mgr.errorCode() ) << mgr.errorMessage();
       }
@@ -1390,7 +1396,7 @@ ErrorHandler::ReturnCode VaryPermeabilityModelParameters( ScenarioAnalysis      
       // get base value
       mbapi::LithologyManager & lmgr = sa.baseCase().lithologyManager();
       mbapi::LithologyManager::LithologyID ltid = lmgr.findID( lithoName );
-      if ( UndefinedIDValue == ltid ) 
+      if ( IsValueUndefined( ltid ) ) 
       {
          throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "No lithology with name: " << lithoName << " in lithologies type table";
       }

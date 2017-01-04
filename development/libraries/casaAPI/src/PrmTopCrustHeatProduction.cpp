@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2012-2014 Shell International Exploration & Production.
+// Copyright (C) 2012-2016 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -69,7 +69,7 @@ PrmTopCrustHeatProduction::PrmTopCrustHeatProduction( mbapi::Model & mdl ) : m_p
       mbapi::MapsManager & mpMgr = mdl.mapsManager();
       mbapi::MapsManager::MapID mID = mpMgr.findID( mapName );
 
-      if ( UndefinedIDValue == mID )
+      if ( IsValueUndefined( mID ) )
       {
          throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Can't find the map: " << mapName
                << " defined for top crust heat production rate in maps catalog"; 
@@ -120,7 +120,7 @@ ErrorHandler::ReturnCode PrmTopCrustHeatProduction::setInModel( mbapi::Model & c
             mbapi::MapsManager & mpMgr = cldModel.mapsManager();
             mbapi::MapsManager::MapID mID = mpMgr.findID( mapName ); // get map
 
-            if ( UndefinedIDValue == mID )
+            if ( IsValueUndefined( mID ) )
             {
                throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Can't find the map: " << mapName
                   << " defined for top crust heat production rate in maps catalog"; 
@@ -129,7 +129,7 @@ ErrorHandler::ReturnCode PrmTopCrustHeatProduction::setInModel( mbapi::Model & c
             // copy map to avoid influence on other project parts
             std::string newMapName = mapName + "_Case_" + std::to_string( caseID + 1 ) + s_mapNameSuffix;
             mbapi::MapsManager::MapID cmID = mpMgr.copyMap( mID, newMapName );
-            if ( UndefinedIDValue == cmID )
+            if ( IsValueUndefined( cmID ) )
             {
                throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Copy radiogenic heat production rate map " << mapName << " failed";
             }
@@ -161,7 +161,7 @@ ErrorHandler::ReturnCode PrmTopCrustHeatProduction::setInModel( mbapi::Model & c
             {
                throw ErrorHandler::Exception( cldModel.errorCode() ) << cldModel.errorMessage();
             }
-            if ( ErrorHandler::NoError != cldModel.setTableValue( s_basementTblName, 0, s_topCrustHeatProd, UndefinedDoubleValue ) )
+            if ( ErrorHandler::NoError != cldModel.setTableValue( s_basementTblName, 0, s_topCrustHeatProd, Utilities::Numerical::IbsNoDataValue ) )
             {
                throw ErrorHandler::Exception( cldModel.errorCode() ) << cldModel.errorMessage();
             }
@@ -185,19 +185,19 @@ ErrorHandler::ReturnCode PrmTopCrustHeatProduction::setInModel( mbapi::Model & c
             mbapi::MapsManager & mpMgr = cldModel.mapsManager();
 
             mbapi::MapsManager::MapID bsID = mpMgr.findID( m_mapName );
-            if ( UndefinedIDValue == bsID ) { throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Can't find map: " << m_mapName; }
+            if ( IsValueUndefined( bsID ) ) { throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Can't find map: " << m_mapName; } 
 
             mbapi::MapsManager::MapID minID = mpMgr.findID( m_minMapName );
-            if ( UndefinedIDValue == minID ) { throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Can't find map: " << m_minMapName; }
+            if ( IsValueUndefined( minID ) ) { throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Can't find map: " << m_minMapName; }
 
             mbapi::MapsManager::MapID maxID = mpMgr.findID( m_maxMapName );
-            if ( UndefinedIDValue == maxID ) { throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Can't find map: " << m_maxMapName; }
+            if ( IsValueUndefined( maxID ) ) { throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Can't find map: " << m_maxMapName; }
 
             // copy map and overwrite it when interpolating between min/max maps values
             std::string newMapName = m_mapName + "_Case_" + std::to_string( caseID + 1 ) + s_mapNameSuffix;
             mbapi::MapsManager::MapID cmID = mpMgr.copyMap( bsID, newMapName );
 
-            if ( UndefinedIDValue == cmID )
+            if ( IsValueUndefined( cmID ) )
             {
                throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Copy radiogenic heat production rate map " << m_mapName << " failed";
             }
@@ -221,7 +221,7 @@ ErrorHandler::ReturnCode PrmTopCrustHeatProduction::setInModel( mbapi::Model & c
             }
          }
 
-         if ( ErrorHandler::NoError != cldModel.setTableValue( s_basementTblName, 0, s_topCrustHeatProd, UndefinedDoubleValue ) )
+         if ( ErrorHandler::NoError != cldModel.setTableValue( s_basementTblName, 0, s_topCrustHeatProd, Utilities::Numerical::IbsNoDataValue ) )
          {
             throw ErrorHandler::Exception( cldModel.errorCode() ) << cldModel.errorMessage();
          }
@@ -305,7 +305,7 @@ std::string PrmTopCrustHeatProduction::validate( mbapi::Model & cldModel )
          mbapi::MapsManager & mpMgr = cldModel.mapsManager();
 
          mbapi::MapsManager::MapID mID = mpMgr.findID( heatProdMap ); // get map
-         if ( UndefinedIDValue == mID )
+         if ( IsValueUndefined( mID ) )
          {
             throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Can't find the map: " << heatProdMap 
                                                  << " defined for top crust heat production rate in maps catalog"; 
@@ -346,11 +346,11 @@ std::string PrmTopCrustHeatProduction::validate( mbapi::Model & cldModel )
          mbapi::MapsManager & mpMgr = cldModel.mapsManager();
 
          mbapi::MapsManager::MapID minID = mpMgr.findID( m_minMapName );
-         if ( UndefinedIDValue == minID ) { throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Can't find map: " << m_minMapName; }
+         if ( IsValueUndefined( minID ) ) { throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Can't find map: " << m_minMapName; }
          mbapi::MapsManager::MapID maxID = mpMgr.findID( m_maxMapName );
-         if ( UndefinedIDValue == maxID ) { throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Can't find map: " << m_maxMapName; }
+         if ( IsValueUndefined( maxID ) ) { throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Can't find map: " << m_maxMapName; }
          mbapi::MapsManager::MapID mID = mpMgr.findID( heatProdMap ); // get map
-         if ( UndefinedIDValue == mID   ) { throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Can't find map: " << heatProdMap; }
+         if ( IsValueUndefined( mID   ) ) { throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Can't find map: " << heatProdMap; }
 
 
          // get min/max values for min/max maps

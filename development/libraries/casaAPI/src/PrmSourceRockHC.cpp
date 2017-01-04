@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2012-2015 Shell International Exploration & Production.
+// Copyright (C) 2012-2017 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -19,7 +19,7 @@
 #include "cmbAPI.h"
 
 // Utilities lib
-#include <NumericFunctions.h>
+#include "NumericFunctions.h"
 
 // STL/C lib
 #include <cassert>
@@ -133,7 +133,7 @@ std::string PrmSourceRockHC::validate( mbapi::Model & caldModel )
             "H/C setting error: source rock is not active for the layer:" << m_layerName;
       }
 
-      double hcInModel = UndefinedDoubleValue;
+      double hcInModel = Utilities::Numerical::IbsNoDataValue;
 
       // go to source rock lithology table for the source rock H/C
       const std::vector<std::string> & srtNames = stMgr.sourceRockTypeName( lid );

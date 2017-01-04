@@ -250,7 +250,7 @@ int Model::tableSize( const std::string & tableName )
    catch ( const Exception & ex ) { return reportError( ex.errorCode(), ex.what() ); }
    catch ( ... )                  { return reportError( UnknownError, "Unknown error" ); }
 
-   return UndefinedIntegerValue;
+   return Utilities::Numerical::NoDataIntValue;
 }
 
 // Get value from the table
@@ -262,7 +262,7 @@ long Model::tableValueAsInteger( const std::string & tableName, size_t rowNumber
    catch ( const Exception & ex ) { reportError( ex.errorCode(), ex.what() ); }
    catch ( ... )                  { reportError( UnknownError, "Unknown error" ); }
 
-   return UndefinedIntegerValue;
+   return Utilities::Numerical::NoDataIntValue;
 }
 
 // Get value from the table
@@ -274,7 +274,7 @@ double Model::tableValueAsDouble( const std::string & tableName, size_t rowNumbe
    catch ( const Exception & ex ) { reportError( ex.errorCode(), ex.what() ); }
    catch ( ... )                  { reportError( UnknownError, "Unknown error" ); }
 
-   return UndefinedDoubleValue;
+   return Utilities::Numerical::IbsNoDataValue;
 }
 
 // Get value from the table
@@ -286,7 +286,7 @@ std::string Model::tableValueAsString( const std::string & tableName, size_t row
    catch ( const Exception & ex ) { reportError( ex.errorCode(), ex.what() ); }
    catch ( ... )                  { reportError( UnknownError, "Unknown error" ); }
 
-   return UndefinedStringValue;
+   return Utilities::Numerical::NoDataStringValue;
 }
 
 // Set value in the table
@@ -975,7 +975,11 @@ std::vector<std::string> Model::ModelImpl::tablesList()
 {
    std::vector<std::string> ret;
 
-   if ( !m_projHandle.get() || !m_projHandle->getDataBase() ) throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Project " << m_projFileName << " not loaded";
+   if ( !m_projHandle.get() || !m_projHandle->getDataBase() )
+   { 
+      throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Project " << m_projFileName << " not loaded";
+   }
+
    for ( database::Database::iterator it = m_projHandle->getDataBase()->begin(); it != m_projHandle->getDataBase()->end(); ++it )
    {
       ret.push_back( (*it)->name() );
@@ -1083,7 +1087,7 @@ long Model::ModelImpl::tableValueAsInteger( const std::string & tableName, size_
    default:
       throw ErrorHandler::Exception( UndefinedValue ) << tableName << "(" << propName << ") - data type can't be cast to integer value";
    }
-   return UndefinedIntegerValue;
+   return Utilities::Numerical::NoDataIntValue;
 }
 
 double Model::ModelImpl::tableValueAsDouble( const std::string & tableName, size_t rowNumber, const std::string & propName )
@@ -1111,7 +1115,7 @@ double Model::ModelImpl::tableValueAsDouble( const std::string & tableName, size
    default:
       throw ErrorHandler::Exception( UndefinedValue ) << tableName << "(" << propName << ") - data type can't be cast to float point value";
    }
-   return UndefinedDoubleValue;
+   return Utilities::Numerical::IbsNoDataValue;
 }
 
 std::string Model::ModelImpl::tableValueAsString( const std::string & tableName, size_t rowNumber, const std::string & propName )
@@ -1138,7 +1142,7 @@ std::string Model::ModelImpl::tableValueAsString( const std::string & tableName,
    default:
       throw ErrorHandler::Exception( UndefinedValue ) << tableName << "(" << propName << ") - data type can't be cast to string";
    }
-   return UndefinedStringValue;
+   return Utilities::Numerical::NoDataStringValue;
 }
 
 void Model::ModelImpl::setTableIntegerValue( const std::string & tableName, size_t rowNumber, const std::string & propName, long propValue )
@@ -1610,7 +1614,7 @@ std::vector<std::string> Model::ModelImpl::copyLithology( const std::string     
    // get lithology ID
    mbapi::LithologyManager::LithologyID lithID = m_lithMgr.findID( litName );
 
-   if ( UndefinedIDValue == lithID ) 
+   if ( IsValueUndefined( lithID ) )
    {
       throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "No lithology with name: " <<  litName << " in lithologies type table";
    }
@@ -1620,7 +1624,7 @@ std::vector<std::string> Model::ModelImpl::copyLithology( const std::string     
    {
       // get layer ID from stratigraphy manager
       mbapi::StratigraphyManager::LayerID lyd = m_stratMgr.layerID( layersName[i].first );
-      if ( UndefinedIDValue == lyd )
+      if ( IsValueUndefined( lyd ) )
       {
          throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "No such layer: " << layersName[i].first << " in stratigraphy table";
       }
@@ -1661,7 +1665,7 @@ std::vector<std::string> Model::ModelImpl::copyLithology( const std::string     
       std::string newLithoName = litName + "_" + randomString( randStringSize ) + "_CASA";
 
       mbapi::LithologyManager::LithologyID newLithID = m_lithMgr.copyLithology( lithID, newLithoName );
-      if ( UndefinedIDValue == newLithID ) throw ErrorHandler::Exception( m_lithMgr.errorCode() ) << m_lithMgr.errorMessage();
+      if ( IsValueUndefined( newLithID ) ) throw ErrorHandler::Exception( m_lithMgr.errorCode() ) << m_lithMgr.errorMessage();
       mixList[layersName[i].second] = newLithoName;
       
       // set updated lithologies list back to the layer
@@ -1676,7 +1680,7 @@ std::vector<std::string> Model::ModelImpl::copyLithology( const std::string     
    for ( size_t i = 0; i < allochtLitName.size(); ++i )
    {
       mbapi::LithologyManager::AllochtLithologyID alID = m_lithMgr.findAllochtID( allochtLitName[i] );
-      if ( UndefinedIDValue == alID )
+      if ( IsValueUndefined( alID ) )
       {
          throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "No allochtonous lithology for the layer: " <<  allochtLitName[i];
       }
@@ -1701,7 +1705,7 @@ std::vector<std::string> Model::ModelImpl::copyLithology( const std::string     
       std::string newLithoName = litName + "_" + randomString( randStringSize ) + "_CASA";
 
       mbapi::LithologyManager::LithologyID newLithID = m_lithMgr.copyLithology( lithID, newLithoName );
-      if ( UndefinedIDValue == newLithID ) throw ErrorHandler::Exception( m_lithMgr.errorCode() ) << m_lithMgr.errorMessage();
+      if ( IsValueUndefined( newLithID ) ) throw ErrorHandler::Exception( m_lithMgr.errorCode() ) << m_lithMgr.errorMessage();
       
       // set copied lithology back to the layer
       if ( ErrorHandler::NoError != m_lithMgr.setAllochtonLithology( alID, newLithoName ) )
@@ -1716,7 +1720,7 @@ std::vector<std::string> Model::ModelImpl::copyLithology( const std::string     
    for ( size_t i = 0; i < faultsName.size(); ++i )
    {
       mbapi::StratigraphyManager::PrFaultCutID flID = m_stratMgr.findFaultCut( faultsName[i].first, faultsName[i].second );
-      if ( UndefinedIDValue == flID )
+      if ( IsValueUndefined( flID ) )
       {
          throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "No lithology for the fault cut: " <<  faultsName[i].first <<
             ":" << faultsName[i].second;
@@ -1742,7 +1746,7 @@ std::vector<std::string> Model::ModelImpl::copyLithology( const std::string     
       std::string newLithoName = litName + "_" + randomString( randStringSize ) + "_CASA";
 
       mbapi::LithologyManager::LithologyID newLithID = m_lithMgr.copyLithology( lithID, newLithoName );
-      if ( UndefinedIDValue == newLithID ) throw ErrorHandler::Exception( m_lithMgr.errorCode() ) << m_lithMgr.errorMessage();
+      if ( IsValueUndefined( newLithID ) ) throw ErrorHandler::Exception( m_lithMgr.errorCode() ) << m_lithMgr.errorMessage();
       
       // set copied lithology back to the layer
       if ( ErrorHandler::NoError != m_stratMgr.setFaultCutLithology( flID, newLithoName ) )
@@ -1801,10 +1805,10 @@ bool Model::ModelImpl::getGridMapDepthValues( const mbapi::StratigraphyManager::
 
    // Get the map name and id
    std::string depthMap = tableValueAsString( "StratIoTbl", s, "DepthGrid" );
-   if ( depthMap == UndefinedStringValue ) { return false; }
+   if ( IsValueUndefined( depthMap ) ) { return false; }
 
    mbapi::MapsManager::MapID depthMapID = m_mapMgr.findID( depthMap );
-   if ( depthMapID == UndefinedIDValue ) { return false; }
+   if ( IsValueUndefined( depthMapID ) ) { return false; }
 
    // Get the values
    if ( ErrorHandler::ReturnCode::NoError != m_mapMgr.mapGetValues( depthMapID, v ) ) { return false; }

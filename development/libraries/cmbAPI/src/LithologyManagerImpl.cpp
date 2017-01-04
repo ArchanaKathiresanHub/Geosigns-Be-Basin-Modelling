@@ -16,9 +16,8 @@
 #include "StratigraphyManagerImpl.h"
 #include "UndefinedValues.h"
 
-
 // Utilities lib
-#include <NumericFunctions.h>
+#include "NumericFunctions.h"
 
 // DataAccess
 #include "database.h"
@@ -188,13 +187,13 @@ void LithologyManagerImpl::copyRecordsHeatCoeffTbls( const char * tblName, const
 // Make a copy of the given lithology. Also makes a new set of records in table [LitThCondIoTbl] for the new litholog
 LithologyManager::LithologyID LithologyManagerImpl::copyLithology( LithologyID id, const std::string & newLithoName )
 {
-   LithologyID ret = UndefinedIDValue;
+   LithologyID ret = Utilities::Numerical::NoDataIDValue;
 
    if ( errorCode() != NoError ) resetError();
    try
    {
       // first check if given name already exist
-      if ( findID( newLithoName ) != UndefinedIDValue )
+      if ( !IsValueUndefined( findID( newLithoName ) ) )
       {
          throw Exception( AlreadyDefined ) << "Create copy: " << newLithoName << ", already exist in the lithology table";
       }
@@ -532,7 +531,7 @@ LithologyManager::LithologyID LithologyManagerImpl::findID( const std::string & 
    }
    catch ( const Exception & e ) { reportError( e.errorCode(), e.what() ); }
 
-   return UndefinedIDValue;
+   return Utilities::Numerical::NoDataIDValue;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -556,7 +555,7 @@ std::vector<LithologyManager::AllochtLithologyID> LithologyManagerImpl::allochto
 
 
 // Search in AllochthonLithoIoTbl table for the given layer name
-// AllochthonLithologyID for the found lithology on success, UndefinedIDValue otherwise
+// AllochthonLithologyID for the found lithology on success, Utilities::Numerical::NoDataIDValue otherwise
 LithologyManager::AllochtLithologyID LithologyManagerImpl::findAllochtID( const std::string & layerName )
 {
    if ( errorCode() != NoError ) resetError();
@@ -578,7 +577,7 @@ LithologyManager::AllochtLithologyID LithologyManagerImpl::findAllochtID( const 
    }
    catch ( const Exception & e ) { reportError( e.errorCode(), e.what() ); }
 
-   return UndefinedIDValue;
+   return Utilities::Numerical::NoDataIDValue;
 }
 
 // Get lithlogy name for the allochton lithology
@@ -901,7 +900,7 @@ ErrorHandler::ReturnCode LithologyManagerImpl::setPermeabilityModel( LithologyID
 
 double LithologyManagerImpl::seisVelocity( LithologyID id )
 {
-   double val = UndefinedDoubleValue;
+   double val = Utilities::Numerical::IbsNoDataValue;
 
    if ( errorCode( ) != NoError ) resetError( );
    try
@@ -924,7 +923,7 @@ double LithologyManagerImpl::seisVelocity( LithologyID id )
 // Set lithology STP thermal conductivity coefficient
 double LithologyManagerImpl::stpThermalConductivityCoeff( LithologyID id )
 {
-   double val = UndefinedDoubleValue;
+   double val = Utilities::Numerical::IbsNoDataValue;
 
    if ( errorCode() != NoError ) resetError();
    try

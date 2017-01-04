@@ -17,6 +17,19 @@
 #include "ObsTrapProp.h"
 #include "ObsTrapDerivedProp.h"
 
+#include "UndefinedValues.h"
+
+std::vector<bool> casa::Observable::isValid( const casa::ObsValue * obv ) const
+{
+   std::vector<bool> ret;
+
+   if ( ! obv ) { return ret; }
+
+   const std::vector<double> & vals = obv->asDoubleArray();
+   for ( auto v : vals ) { ret.push_back( !IsValueUndefined( v ) ); }
+ 
+   return ret;
+}
 
 casa::Observable * casa::Observable::load( CasaDeserializer & dz, const char * objName )
 {

@@ -752,7 +752,7 @@ TEST_F( BLRSTest, VarySurfacePorosity )
    for ( size_t i = 0; i < layLst.size(); ++i )
    {
       mbapi::StratigraphyManager::LayerID lid = strMgr.layerID( layLst[i].first );
-      ASSERT_NE( UndefinedIDValue, lid );
+      ASSERT_FALSE( IsValueUndefined( lid ) );
 
       std::vector<std::string>      lithoList;
       std::vector<double>           lithoPercent;
@@ -884,7 +884,7 @@ TEST_F( BLRSTest, VaryCompactionCoefficient )
    for ( size_t i = 0; i < layLst.size( ); ++i )
    {
       mbapi::StratigraphyManager::LayerID lid = strMgr.layerID( layLst[i].first );
-      ASSERT_NE( UndefinedIDValue, lid );
+      ASSERT_FALSE( IsValueUndefined( lid ) );
 
       std::vector<std::string>      lithoList;
       std::vector<double>           lithoPercent;
@@ -1005,7 +1005,9 @@ TEST_F( BLRSTest, VaryPorosityExponentialModelParameters )
    // the first one - try to give wrong porosity model name
    ASSERT_EQ( ErrorHandler::OutOfRangeValue, casa::BusinessLogicRulesSet::VaryPorosityModelParameters( sc, 0, "Permian", sandLithology 
                , "Eponential"
-               , 30.0, 60.0, 2.0, 4.0, UndefinedDoubleValue, UndefinedDoubleValue, UndefinedDoubleValue, UndefinedDoubleValue, VarPrmContinuous::Block 
+               , 30.0, 60.0, 2.0, 4.0, 
+               Utilities::Numerical::IbsNoDataValue, Utilities::Numerical::IbsNoDataValue, 
+               Utilities::Numerical::IbsNoDataValue, Utilities::Numerical::IbsNoDataValue, VarPrmContinuous::Block 
                ) );
 
    // set the parameter
@@ -1017,8 +1019,8 @@ TEST_F( BLRSTest, VaryPorosityExponentialModelParameters )
             , "Exponential"
             , 30.0, 60.0
             , 2.0, 4.0
-            , UndefinedDoubleValue, UndefinedDoubleValue
-            , UndefinedDoubleValue, UndefinedDoubleValue
+            , Utilities::Numerical::IbsNoDataValue, Utilities::Numerical::IbsNoDataValue
+            , Utilities::Numerical::IbsNoDataValue, Utilities::Numerical::IbsNoDataValue
             , VarPrmContinuous::Block )
             );
 
@@ -1056,7 +1058,7 @@ TEST_F( BLRSTest, VaryPorosityExponentialModelParameters )
    mbapi::StratigraphyManager & strMgr = mdl.stratigraphyManager();
 
    mbapi::StratigraphyManager::LayerID lid = strMgr.layerID( "Permian" );
-   ASSERT_NE( UndefinedIDValue, lid );
+   ASSERT_FALSE( IsValueUndefined( lid ) );
 
    std::vector<std::string>      lithoList;
    std::vector<double>           lithoPercent;
@@ -1068,7 +1070,7 @@ TEST_F( BLRSTest, VaryPorosityExponentialModelParameters )
    ASSERT_EQ( lithoList[0].find( sandLithology ), 0U );
 
    mbapi::LithologyManager & lthMgr = mdl.lithologyManager();
-   ASSERT_NE( UndefinedIDValue, lthMgr.findID( lithoList[0] ) );
+   ASSERT_FALSE( IsValueUndefined( lthMgr.findID( lithoList[0] ) ) );
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -1081,7 +1083,9 @@ TEST_F( BLRSTest, VaryPorositySoilMechanicsModelParameters )
    // the first one - try to define both parameters in inconsistent way
    ASSERT_EQ( ErrorHandler::OutOfRangeValue, casa::BusinessLogicRulesSet::VaryPorosityModelParameters( sc, 0, NULL, "Std. Sandstone"
                , "Soil_Mechanics"
-               , 30.0, 60.0, 2.0, 4.0, UndefinedDoubleValue, UndefinedDoubleValue, UndefinedDoubleValue, UndefinedDoubleValue, VarPrmContinuous::Block 
+               , 30.0, 60.0, 2.0, 4.0
+               , Utilities::Numerical::IbsNoDataValue, Utilities::Numerical::IbsNoDataValue
+               , Utilities::Numerical::IbsNoDataValue, Utilities::Numerical::IbsNoDataValue, VarPrmContinuous::Block 
                ) );
 
    // set the parameter
@@ -1092,9 +1096,9 @@ TEST_F( BLRSTest, VaryPorositySoilMechanicsModelParameters )
             , "Std. Sandstone"
             , "Soil_Mechanics"
             , 30.0, 60.0
-            , UndefinedDoubleValue, UndefinedDoubleValue
-            , UndefinedDoubleValue, UndefinedDoubleValue
-            , UndefinedDoubleValue, UndefinedDoubleValue
+            , Utilities::Numerical::IbsNoDataValue, Utilities::Numerical::IbsNoDataValue
+            , Utilities::Numerical::IbsNoDataValue, Utilities::Numerical::IbsNoDataValue
+            , Utilities::Numerical::IbsNoDataValue, Utilities::Numerical::IbsNoDataValue
             , VarPrmContinuous::Block )
             );
 
@@ -1324,8 +1328,8 @@ TEST_F( BLRSTest, VaryPermeabilitySandstoneModelParameters )
    minMdlPrms[ PrmPermeabilityModel::SensitivityCoeff ] = 1.0; 
    maxMdlPrms[ PrmPermeabilityModel::SensitivityCoeff ] = 2.0; 
 
-   minMdlPrms[ PrmPermeabilityModel::RecoverCoeff ] = UndefinedDoubleValue; 
-   maxMdlPrms[ PrmPermeabilityModel::RecoverCoeff ] = UndefinedDoubleValue; 
+   minMdlPrms[ PrmPermeabilityModel::RecoverCoeff ] = Utilities::Numerical::IbsNoDataValue; 
+   maxMdlPrms[ PrmPermeabilityModel::RecoverCoeff ] = Utilities::Numerical::IbsNoDataValue; 
 
    ASSERT_EQ( ErrorHandler::UndefinedValue, casa::BusinessLogicRulesSet::VaryPermeabilityModelParameters( sc
                                                                                                         , 0

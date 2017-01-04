@@ -22,7 +22,6 @@
 #include "StratigraphyManager.h"
 #include "FluidManager.h"
 #include "MapsManager.h"
-
 #include "UndefinedValues.h"
 
 // TableIO

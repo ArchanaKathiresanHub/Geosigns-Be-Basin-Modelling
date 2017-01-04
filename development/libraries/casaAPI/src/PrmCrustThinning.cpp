@@ -45,7 +45,7 @@ PrmCrustThinning::PrmCrustThinning( mbapi::Model & mdl ) : m_parent( 0 )
 {
    size_t crustIoTblSize = mdl.tableSize( s_crustIoTblName );
 
-   m_initialThickness = UndefinedDoubleValue;
+   m_initialThickness = Utilities::Numerical::IbsNoDataValue;
    m_eventsNumber     = 0;
 
    std::vector<double>      t( crustIoTblSize );
@@ -121,7 +121,7 @@ ErrorHandler::ReturnCode PrmCrustThinning::setInModel( mbapi::Model & caldModel,
    {
       // get age of the eldest layer
       double eldestAge = caldModel.stratigraphyManager().eldestLayerAge();
-      if ( eldestAge == UndefinedDoubleValue )
+      if ( IsValueUndefined( eldestAge ) )
       {
          throw ErrorHandler::Exception( caldModel.stratigraphyManager().errorCode() ) << caldModel.stratigraphyManager().errorMessage();
       }
@@ -163,7 +163,7 @@ ErrorHandler::ReturnCode PrmCrustThinning::setInModel( mbapi::Model & caldModel,
          if ( !NumericFunctions::isEqual( m_coeff[i], 1.0, s_eps ) ) // copy and scale maps
          {
             mbapi::MapsManager::MapID id = mMgr.findID( oldMapName );
-            if ( UndefinedIDValue == id )
+            if ( IsValueUndefined( id ) )
             {
                throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Crust thinning, unknown map is given: " << oldMapName;
             }
@@ -172,7 +172,7 @@ ErrorHandler::ReturnCode PrmCrustThinning::setInModel( mbapi::Model & caldModel,
             newMapName += ibs::to_string( i );
 
             id = mMgr.copyMap( id, newMapName );
-            if ( UndefinedIDValue == id )
+            if ( IsValueUndefined( id ) )
             {
                throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Crust thinning, copying " << oldMapName << " map failed";
             }
@@ -186,7 +186,7 @@ ErrorHandler::ReturnCode PrmCrustThinning::setInModel( mbapi::Model & caldModel,
                throw ErrorHandler::Exception( mMgr.errorCode() ) << mMgr.errorMessage();
             }
          }
-         d.push_back( UndefinedDoubleValue );
+         d.push_back( Utilities::Numerical::IbsNoDataValue );
          m.push_back( newMapName ); // just put map - no any scaling
 
          // because we generated new map - replace scaler with new map name, otherwise validation will fail
@@ -212,13 +212,14 @@ ErrorHandler::ReturnCode PrmCrustThinning::setInModel( mbapi::Model & caldModel,
 
       for ( size_t i = 0; i < m.size() && ok; ++i )
       {
-         ok = ok ? ErrorHandler::NoError == caldModel.setTableValue( s_crustIoTblName, i, s_crustIoTblAgeCol, t[t.size() - i - 1] ) : ok;
+         ok = ok ? ErrorHandler::NoError == caldModel.setTableValue( s_crustIoTblName, i, s_crustIoTblAgeCol, t[t.size() - i - 1] )       : ok;
          ok = ok ? ErrorHandler::NoError == caldModel.setTableValue( s_crustIoTblName, i, s_crustIoTblThicknessCol, d[d.size() - i - 1] ) : ok;
-         ok = ok ? ErrorHandler::NoError == caldModel.setTableValue( s_crustIoTblName, i, s_crustIoTblMapNameCol, m[m.size() - i - 1] ) : ok;
+         ok = ok ? ErrorHandler::NoError == caldModel.setTableValue( s_crustIoTblName, i, s_crustIoTblMapNameCol, m[m.size() - i - 1] )   : ok;
          // set to 0 unused columns
-         ok = ok ? ErrorHandler::NoError == caldModel.setTableValue( s_crustIoTblName, i, s_crustIoTblCalibThicknessCol, UndefinedDoubleValue ) : ok;
-         ok = ok ? ErrorHandler::NoError == caldModel.setTableValue( s_crustIoTblName, i, s_crustIoTblOptimThicknessCol, 0L ) : ok;
-         ok = ok ? ErrorHandler::NoError == caldModel.setTableValue( s_crustIoTblName, i, s_crustIoTblErrThicknessCol, 0.0e0 ) : ok;
+         ok = ok ? ErrorHandler::NoError == caldModel.setTableValue( s_crustIoTblName, i, s_crustIoTblCalibThicknessCol, 
+                                                                                                   Utilities::Numerical::IbsNoDataValue ) : ok;
+         ok = ok ? ErrorHandler::NoError == caldModel.setTableValue( s_crustIoTblName, i, s_crustIoTblOptimThicknessCol, 0L )             : ok;
+         ok = ok ? ErrorHandler::NoError == caldModel.setTableValue( s_crustIoTblName, i, s_crustIoTblErrThicknessCol, 0.0e0 )            : ok;
      }
      if ( !ok ) { throw ErrorHandler::Exception( caldModel.errorCode() ) << caldModel.errorMessage(); }
    }

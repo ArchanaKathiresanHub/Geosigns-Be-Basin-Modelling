@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2012-2014 Shell International Exploration & Production.
+// Copyright (C) 2012-2017 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -19,8 +19,7 @@
 #include "cmbAPI.h"
 
 // Utilities lib
-#include <NumericFunctions.h>
-#include "Path.h" // for to_string
+#include "NumericFunctions.h"
 
 // STL/C lib
 #include <cassert>
@@ -53,7 +52,7 @@ PrmSourceRockTOC::PrmSourceRockTOC( mbapi::Model & mdl
    if ( m_srTypeName.empty() ) { m_srTypeName = srtNames[m_mixID-1]; }
    mbapi::SourceRockManager::SourceRockID sid = srMgr.findID( m_layerName, m_srTypeName );
 
-   if ( UndefinedIDValue == sid )
+   if ( IsValueUndefined( sid ) )
    {
       throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Can't find source rock lithology: " << m_srTypeName;
    }
@@ -64,7 +63,7 @@ PrmSourceRockTOC::PrmSourceRockTOC( mbapi::Model & mdl
    {
       mbapi::MapsManager & mpMgr = mdl.mapsManager();
       const mbapi::MapsManager::MapID mID = mpMgr.findID( mapName );
-      if ( UndefinedIDValue == mID )
+      if ( IsValueUndefined( mID ) )
       {
          throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Source rock lithology for layer" << m_layerName
             << " has TOC defined as unknown map :" << mapName; 
@@ -151,7 +150,7 @@ ErrorHandler::ReturnCode PrmSourceRockTOC::setInModel( mbapi::Model & caldModel,
          {
             mbapi::MapsManager::MapID mID = mpMgr.findID( mapName );
 
-            if ( UndefinedIDValue == mID )
+            if ( IsValueUndefined( mID ) )
             {
                throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Source rock lithology for layer"   << m_layerName
                                                                             << " has TOC defined as unknown map :" << mapName; 
@@ -171,7 +170,7 @@ ErrorHandler::ReturnCode PrmSourceRockTOC::setInModel( mbapi::Model & caldModel,
                // copy map to avoid influence on other project parts
                std::string newMapName = "CasaGeneratedMap_" + caldModel.randomString( 3 ) + "_" + s_mapNameSuffix;
                mbapi::MapsManager::MapID cmID = mpMgr.copyMap( mID, newMapName );
-               if ( UndefinedIDValue == cmID )
+               if ( IsValueUndefined( cmID ) )
                {
                   throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Copy initial TOC map " << mapName << " failed";
                }
@@ -212,10 +211,10 @@ ErrorHandler::ReturnCode PrmSourceRockTOC::setInModel( mbapi::Model & caldModel,
          else // interpolation is needed
          {
             mbapi::MapsManager::MapID minID = mpMgr.findID( m_minMapName );
-            if ( UndefinedIDValue == minID ) { throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Can't find map: " << m_minMapName; }
+            if ( IsValueUndefined( minID ) ) { throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Can't find map: " << m_minMapName; }
 
             mbapi::MapsManager::MapID maxID = mpMgr.findID( m_maxMapName );
-            if ( UndefinedIDValue == maxID ) { throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Can't find map: " << m_maxMapName; }
+            if ( IsValueUndefined( maxID ) ) { throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Can't find map: " << m_maxMapName; }
 
             std::string newMapName;
             
@@ -231,7 +230,7 @@ ErrorHandler::ReturnCode PrmSourceRockTOC::setInModel( mbapi::Model & caldModel,
                newMapName = "CasaGeneratedMap_" + caldModel.randomString( 3 ) + "_" + s_mapNameSuffix;
                mbapi::MapsManager::MapID cmID = mpMgr.copyMap( minID, newMapName );
 
-               if ( UndefinedIDValue == cmID )
+               if ( IsValueUndefined( cmID ) )
                {
                   throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Copy initial TOC map " << m_mapName << " failed";
                }
@@ -253,7 +252,7 @@ ErrorHandler::ReturnCode PrmSourceRockTOC::setInModel( mbapi::Model & caldModel,
                throw ErrorHandler::Exception( srMgr.errorCode() ) << srMgr.errorMessage();
             }
          }
-         if ( ErrorHandler::NoError != srMgr.setTOCIni( sid, UndefinedDoubleValue ) )
+         if ( ErrorHandler::NoError != srMgr.setTOCIni( sid, Utilities::Numerical::IbsNoDataValue ) )
          {
             throw ErrorHandler::Exception( srMgr.errorCode() ) << srMgr.errorMessage();
          }
@@ -290,7 +289,7 @@ std::string PrmSourceRockTOC::validate( mbapi::Model & caldModel )
          throw ErrorHandler::Exception( ErrorHandler::ValidationError ) << "TOC error: source rock is not active for the layer:" << m_layerName;
       }
 
-      double tocInModel = UndefinedDoubleValue;
+      double tocInModel = Utilities::Numerical::IbsNoDataValue;
 
       // go to source rock lithology table for the source rock TOC
       const std::vector<std::string> & srtNames = stMgr.sourceRockTypeName( lid );
@@ -341,7 +340,7 @@ std::string PrmSourceRockTOC::validate( mbapi::Model & caldModel )
             mbapi::MapsManager & mpMgr = caldModel.mapsManager();
 
             mbapi::MapsManager::MapID mID = mpMgr.findID( mapName ); // get map
-            if ( UndefinedIDValue == mID )
+            if ( IsValueUndefined( mID ) )
             {
                throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Can't find the map: " << mapName 
                                                                             << " defined for initial TOC in maps catalog"; 
@@ -375,11 +374,11 @@ std::string PrmSourceRockTOC::validate( mbapi::Model & caldModel )
             mbapi::MapsManager & mpMgr = caldModel.mapsManager();
 
             mbapi::MapsManager::MapID minID = mpMgr.findID( m_minMapName );
-            if ( UndefinedIDValue == minID ) { throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Can't find map: " << m_minMapName; }
+            if ( IsValueUndefined( minID ) ) { throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Can't find map: " << m_minMapName; }
             mbapi::MapsManager::MapID maxID = mpMgr.findID( m_maxMapName );
-            if ( UndefinedIDValue == maxID ) { throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Can't find map: " << m_maxMapName; }
+            if ( IsValueUndefined( maxID ) ) { throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Can't find map: " << m_maxMapName; }
             mbapi::MapsManager::MapID mID = mpMgr.findID( mapName ); // get map
-            if ( UndefinedIDValue == mID   ) { throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Can't find map: " << mapName; }
+            if ( IsValueUndefined( mID   ) ) { throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Can't find map: " << mapName; }
 
             // get min/max values for min/max maps
             double minMinVal, minMaxVal, maxMinVal, maxMaxVal, minVal, maxVal;

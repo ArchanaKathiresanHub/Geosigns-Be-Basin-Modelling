@@ -171,7 +171,7 @@ StratigraphyManagerImpl::LayerID StratigraphyManagerImpl::layerID( const std::st
    {
       if ( ln == layerName( ids[i] ) ) return ids[i];
    }
-   return UndefinedIDValue;
+   return Utilities::Numerical::NoDataIDValue;
 }
 
 
@@ -205,7 +205,7 @@ double StratigraphyManagerImpl::eldestLayerAge()
 {
    if ( errorCode() != NoError ) resetError();
 
-   double layerAge = UndefinedDoubleValue;
+   double layerAge = Utilities::Numerical::IbsNoDataValue;
    try
    {
       // if table does not exist - report error
@@ -765,7 +765,7 @@ StratigraphyManager::PrFaultCutID StratigraphyManagerImpl::findFaultCut( const s
    }
    catch ( const Exception & e ) { reportError( e.errorCode(), e.what() ); }
 
-   return UndefinedIDValue;
+   return Utilities::Numerical::NoDataIDValue;
 }
 
 // Get lithlogy name for the given fault cut ID
@@ -912,7 +912,7 @@ double StratigraphyManagerImpl::twtValue( LayerID id )
       // 
       std::string topSurface = surfaceName( id );
       std::string twtSurface( "" );
-      double twtVal = UndefinedDoubleValue;
+      double twtVal = Utilities::Numerical::IbsNoDataValue;
 
       for ( size_t i = 0; i < table->size(); ++i )
       {
@@ -929,7 +929,7 @@ double StratigraphyManagerImpl::twtValue( LayerID id )
    }
    catch ( const Exception & e ) { reportError( e.errorCode(), e.what() ); }
 
-   return UndefinedDoubleValue;
+   return Utilities::Numerical::IbsNoDataValue;
 }
     
 }

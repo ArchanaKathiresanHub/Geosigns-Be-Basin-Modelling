@@ -14,13 +14,7 @@
 #ifndef CMB_UNDEFINED_VALUES
 #define CMB_UNDEFINED_VALUES
 
-#define UndefinedDoubleValue  -9999.0    ///< First undefined value for float point numbers
-#define UndefinedDoubleMapValue 99999.0  ///< Second undefined value for float point numbers
-#define UndefinedIntegerValue -1         ///< Undefined value for integer numbers
-#define UndefinedIDValue       65535U    ///< Undefined value for size_t/ID type numbers
-#define UndefinedStringValue  "undef"    ///< Undefined value for strings
-
-#include <cmath>
+#include "ConstantsNumerical.h"
 
 #ifdef _WIN32
 #include <float.h>
@@ -28,25 +22,28 @@
 #include <values.h>
 #endif
 
-
-/// @brief Check is given value is equal to "undefined double value" 
+/// @brief Do check if the given value is equal to one of the "no data values" 
 /// @param val float point number to check
-/// @return true if given value is exact as "undefined value", false otherwise
-inline bool IsValueUndefined( double              val ) { return (val == UndefinedDoubleValue or val == UndefinedDoubleMapValue); }
+/// @return true if given value is exact as one of the "no data values", false otherwise
+inline bool IsValueUndefined( double val )
+{ 
+   return val == Utilities::Numerical::IbsNoDataValue or
+          val == Utilities::Numerical::CauldronNoDataValue;
+}
 
-/// @brief Check is given value is equal to "undefined string value" 
+/// @brief Do check is given value is equal to "no data integer value" 
+/// @param val integerf value to check
+/// @return true if given value is exact as "no data integer value", false otherwise
+inline bool IsValueUndefined( int val ) { return val == Utilities::Numerical::NoDataIntValue; }
+
+/// @brief Do check is given value is equal to "undefined string value" 
 /// @param val string to check
 /// @return true if given value is exact as "undefined string value", false otherwise
-inline bool IsValueUndefined( const std::string & val ) { return val == UndefinedStringValue; }
+inline bool IsValueUndefined( const std::string & val ) { return val == Utilities::Numerical::NoDataStringValue; }
 
-/// @brief Check is given value is equal to "undefined integer value" 
-/// @param val integer value to check
-/// @return true if given value is exact as "undefined integer value", false otherwise
-inline bool IsValueUndefined( int                 val ) { return val == UndefinedIntegerValue; }
-
-/// @brief Check is given value is equal to "undefined size_t/ID-type value" 
-/// @param val integer value to check
-/// @return true if given value is exact as "undefined ID value", false otherwise
-inline bool IsValueUndefined( size_t              val ) { return val == UndefinedIDValue; }
+/// \brief Do check is given value is equal to "undefined size_t/ID-type value" 
+/// \param val integer value to check
+/// \return true if given value is exact as "undefined ID value", false otherwise
+inline bool IsValueUndefined( size_t val ) { return val == Utilities::Numerical::NoDataIDValue; }
 
 #endif // CMB_API

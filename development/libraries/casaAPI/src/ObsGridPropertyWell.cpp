@@ -108,7 +108,7 @@ ErrorHandler::ReturnCode ObsGridPropertyWell::requestObservableInModel( mbapi::M
            ErrorHandler::NoError != caldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl[i], "YCoord",       m_y[i]               ) ||
            ErrorHandler::NoError != caldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl[i], "ZCoord",       m_z[i]               ) ||
            ErrorHandler::NoError != caldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl[i], "PropertyName", m_propName           ) ||
-           ErrorHandler::NoError != caldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl[i], "Value",        UndefinedDoubleValue )
+           ErrorHandler::NoError != caldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl[i], "Value",        Utilities::Numerical::IbsNoDataValue )
          ) return caldModel.errorCode();
    }
    return ErrorHandler::NoError;
@@ -118,7 +118,7 @@ ErrorHandler::ReturnCode ObsGridPropertyWell::requestObservableInModel( mbapi::M
 // Get this observable value from Cauldron model
 ObsValue * ObsGridPropertyWell::getFromModel( mbapi::Model & caldModel )
 {
-   std::vector<double> vals( m_posDataMiningTbl.size(), UndefinedDoubleValue );
+   std::vector<double> vals( m_posDataMiningTbl.size(), Utilities::Numerical::IbsNoDataValue );
 
    const std::string & msg = checkObservableForProject( caldModel );
    if (!msg.empty()) { return new ObsValueDoubleArray( this, vals ); }
@@ -199,7 +199,7 @@ std::string ObsGridPropertyWell::checkObservableForProject( mbapi::Model & caldM
 // Create this observable value from double array (converting data from SUMlib for response surface evaluation
 ObsValue * ObsGridPropertyWell::createNewObsValueFromDouble( std::vector<double>::const_iterator & val ) const
 {
-   std::vector<double> obsVal( m_x.size(), UndefinedDoubleValue );
+   std::vector<double> obsVal( m_x.size(), Utilities::Numerical::IbsNoDataValue );
 
    for ( size_t i = 0; i < m_x.size(); ++i )
    {

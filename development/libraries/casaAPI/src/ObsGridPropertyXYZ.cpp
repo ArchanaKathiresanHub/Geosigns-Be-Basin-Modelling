@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2012-2014 Shell International Exploration & Production.
+// Copyright (C) 2012-2017 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -19,6 +19,7 @@
 
 // utilities
 #include "NumericFunctions.h"
+#include "LogHandler.h"
 
 // C & STL
 #include <cassert>
@@ -66,13 +67,28 @@ std::vector<std::string> ObsGridPropertyXYZ::name() const { return m_name; }
 // Get standard deviations for the reference value
 void ObsGridPropertyXYZ::setReferenceValue( ObsValue * obsVal, ObsValue * devVal )
 {
-   assert( obsVal != NULL );
-   assert( dynamic_cast<ObsValueDoubleScalar*>( obsVal ) != NULL );
-
-   assert( devVal != NULL );
-   assert( dynamic_cast<ObsValueDoubleScalar*>( devVal ) != NULL );
+   assert( obsVal != nullptr );
+   ObsValueDoubleScalar * val = dynamic_cast<ObsValueDoubleScalar*>( obsVal );
+   assert( val != nullptr );
 
    m_refValue.reset( obsVal );
+
+   assert( devVal != nullptr );
+   ObsValueDoubleScalar * dev = dynamic_cast<ObsValueDoubleScalar*>( devVal ); 
+   assert( dev != nullptr );
+
+   // check dev for negative/zero value
+   if ( dev->value() <= 0.0 )
+   {
+      double newDev = std::abs( val->value() ) * 0.1;
+      if ( newDev == 0.0 ) { newDev = 0.1; }
+
+      LogHandler( LogHandler::WARNING_SEVERITY ) << "Invalid the standard deviation value: " << dev->value()
+                                                 << " for the target " << m_name[0] << ", possible error in scenario setup. "
+                                                 << "Replacing it with the default value (0.1*refVal): " << newDev;
+      delete devVal;
+      devVal = ObsValueDoubleScalar::createNewInstance( this, newDev );
+   }
    m_devValue.reset( devVal );
 }
 
@@ -91,7 +107,8 @@ ErrorHandler::ReturnCode ObsGridPropertyXYZ::requestObservableInModel( mbapi::Mo
         ErrorHandler::NoError != caldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl, "YCoord",       m_y                  ) ||
         ErrorHandler::NoError != caldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl, "ZCoord",       m_z                  ) ||
         ErrorHandler::NoError != caldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl, "PropertyName", m_propName           ) ||
-        ErrorHandler::NoError != caldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl, "Value",        UndefinedDoubleValue )
+        ErrorHandler::NoError != caldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl, "Value",        
+                                                                                                            Utilities::Numerical::IbsNoDataValue )
       ) return caldModel.errorCode();
 
    return ErrorHandler::NoError;
@@ -101,7 +118,7 @@ ErrorHandler::ReturnCode ObsGridPropertyXYZ::requestObservableInModel( mbapi::Mo
 // Get this observable value from Cauldron model
 ObsValue * ObsGridPropertyXYZ::getFromModel( mbapi::Model & caldModel )
 {
-   double val = UndefinedDoubleValue;
+   double val = Utilities::Numerical::IbsNoDataValue;
    
    const std::string & msg = checkObservableForProject( caldModel );
    if ( !msg.empty() ) { return new ObsValueDoubleScalar( this, val ); }

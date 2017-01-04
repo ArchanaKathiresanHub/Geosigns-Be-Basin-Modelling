@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2012-2014 Shell International Exploration & Production.
+// Copyright (C) 2012-2017 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -17,7 +17,7 @@
 #include "Parameter.h"
 
 // CMB API
-#include <UndefinedValues.h>
+#include "UndefinedValues.h"
 
 #include <cassert>
 
@@ -57,7 +57,7 @@ namespace mbapi
 ///
 /// Soil Mechanics model depends on clay fraction parameter only. It value could be calculated from
 /// surface porosity or compaction coefficient. User must specify only one of them, the another one should be set
-/// to UndefinedDoubleValue.
+/// to Utilities::Numerical::IbsNoDataValue.
 /// -# Surface porosity @f$ \phi_0 @f$. It is continuous parameter an it range is @f$ [0:100]\% @f$
 /// -# Compaction coefficient @f$ \beta @f$
 ///
