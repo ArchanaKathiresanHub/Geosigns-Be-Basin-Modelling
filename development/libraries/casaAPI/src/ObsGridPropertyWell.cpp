@@ -94,18 +94,33 @@ void ObsGridPropertyWell::setReferenceValue( ObsValue * obsVal, ObsValue * devVa
    // check dev for negative/zero value
    std::vector<double> refLst = val->asDoubleArray();
    std::vector<double> devLst = dev->asDoubleArray();
+
+   size_t numOfValid = 0;
+   double validAv    = 0.0;
+   double eps        = 1.e-12;
+
    bool isUpdated = false;
+   // calculate average over defined std deviations along well
+   for ( size_t i = 0; i < devLst.size(); ++i )
+   {
+      if ( devLst[i] > eps )
+      {
+         validAv += devLst[0];
+         ++numOfValid;
+      }
+   }
+   if ( numOfValid > 0 ) { validAv /= static_cast<double>( numOfValid ); }
 
    for ( size_t i = 0; i < devLst.size(); ++i )
    {
-      if ( devLst[i] <= 0.0 )
+      if ( devLst[i] <= eps )
       {
-         double newDev = std::abs( refLst[i] ) * 0.1;
-         if ( newDev == 0.0 ) { newDev = 0.1; }
+         double newDev = numOfValid > 0 ? validAv : std::abs( refLst[i] ) * 0.1;
+         if ( newDev < eps ) { newDev = 0.1; }
 
          LogHandler( LogHandler::WARNING_SEVERITY ) << "Invalid the standard deviation value: " << devLst[i]
-                                                    << " for the target " << m_name[i] << ", possible error in scenario setup. "
-                                                    << "Replacing it with the default value (0.1*refVal): " << newDev;
+                                                    << " for the target " << m_name[i] << ", possible error in scenario setup? "
+                                                    << "Replacing it with the value: " << newDev;
          devLst[i] = newDev;
          isUpdated = true;
       }
