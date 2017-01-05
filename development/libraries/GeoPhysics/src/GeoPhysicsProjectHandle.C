@@ -2430,7 +2430,7 @@ bool GeoPhysics::ProjectHandle::updateMobileLayerOrIgneousIntrusionMaxVes ( cons
       {
          diffdensity = lithology->density () - fluid->getConstantDensity ();
          
-         bool switchPermaFrost = fluid->SwitchPermafrost( );
+         bool switchPermaFrost = fluid->isPermafrostEnabled();
          double surfacePorosity = lithology->surfacePorosity( );
 
          // Fluid is denser than rock and the permafrost switch is on

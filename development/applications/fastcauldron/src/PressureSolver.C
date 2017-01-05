@@ -103,7 +103,7 @@ void PressureSolver::initialiseFctCorrection () {
   LayerProps_Ptr Current_Layer;
   
   Layer_Iterator Layers ( cauldron->layers, Ascending, Sediments_Only, 
-			  Active_And_Inactive_Layers );
+           Active_And_Inactive_Layers );
 
 
   for ( Layers.Initialise_Iterator (); ! Layers.Iteration_Is_Done (); Layers++ ) 
@@ -185,7 +185,7 @@ void PressureSolver::checkPressureSolution () {
 
           }
 
-	}
+   }
 
       }
 
@@ -696,7 +696,7 @@ void PressureSolver::getBoundaryConditions ( const GeneralElement& element,
          bcs.setBoundaryConditions ( n, Interior_Constrained_Overpressure, constrainedOverPressureValue );
       }
       else if ( ( layerNodeK == numberOfDepthElements - 1 and fracturePressureExceeded ( n + 1 ) > 0.0 and elementAbove != nullptr and  elementAbove->getLayerElement ().getLithology ()->surfacePorosity () == 0.0 ) or
-		        ( hfm.isNonConservativeFractureModel()    and currentLayer->nodeIsTemporarilyDirichlet( nodeI, nodeJ, layerNodeK ) ) ) 
+              ( hfm.isNonConservativeFractureModel()    and currentLayer->nodeIsTemporarilyDirichlet( nodeI, nodeJ, layerNodeK ) ) ) 
       {
          // Need elemnt boundary conditions in order to eliminate this check for surface porosity == 0.
          double hydrostaticPressure = currentLayer->Current_Properties( Basin_Modelling::Hydrostatic_Pressure,
@@ -945,7 +945,7 @@ void PressureSolver::assembleSystem ( const ComputationalDomain& computationalDo
                 elementLithology = layerElement.getLithology ();
 
                 // if element hase fluid density more than matrix density, we assuming the solid is ice in this case. 
-                bool isIceSheetLayer = layerElement.getFluid ()->SwitchPermafrost() and fluidDensityForP0_1andT0 > elementLithology->density();
+                bool isIceSheetLayer = layerElement.getFluid()->isPermafrostEnabled() and fluidDensityForP0_1andT0 > elementLithology->density();
 
                 PetscTime(&Element_Start_Time);
                 getBoundaryConditions ( gridElement,

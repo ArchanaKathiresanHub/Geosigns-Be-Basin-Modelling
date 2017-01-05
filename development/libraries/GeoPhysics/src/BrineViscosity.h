@@ -11,20 +11,24 @@
 #ifndef GEOPHYSICS_BRINE_VISCOSITY_H_
 #define GEOPHYSICS_BRINE_VISCOSITY_H_
 
-#include "BrinePhases.h"
 #include <cmath>
+#include "ArrayDefinitions.h"
 
 namespace GeoPhysics
 {
    namespace Brine
    {
+      /// Forward declaration
+      class PhaseStateScalar;
+      class PhaseStateVec;
+
       /// The constant returned by transitionRegion().
       constexpr double VapourViscosity = 2.5e-5;
 
       /// \brief Viscosity is intended to handle the calculations of viscosity for brines whose physical parameters (T,P,S) are
       ///        within the allowed ranges (see BrinePhases.C). It uses Batzle-Wang analytic equation in the aqueous phase and a constant
       ///        value in the vapour phase. In the transition region bi-linear interpolation between the two approaches is used.
-      class Viscosity: public Phases
+      class Viscosity
       {
       public:
          /// Constructor.
@@ -32,7 +36,15 @@ namespace GeoPhysics
          /// Virtual destructor.
          virtual ~Viscosity();
 
-      protected:
+         /// Depending on the ordering of temperature, higherTemperature and lowerTemperature calls the appropriate function to calculate
+         /// the value of the brine parameter of interest. It then returns the value returned by that function without further checks.
+         /// \pre Requires the triplet of T,P,S to be within the allowed ranges and lowerTemperature < higherTemperature.
+         /// \post Guarantees the return of the return value of the appropriate function to be called depending on temperature, higherTemperature and lowerTemperature.
+         double get( const GeoPhysics::Brine::PhaseStateScalar & phase ) const;
+         void   get( const GeoPhysics::Brine::PhaseStateVec & phase,
+                     ArrayDefs::Real_ptr brineProp ) const;
+
+      private:
          /// Analytic function implementing the Batzle-Wang equation for the value of density
          /// and applying it only in the aqueous phase of the brine.
          /// \pre Requires the passed arguments to be within the allowed ranges.
@@ -60,7 +72,6 @@ namespace GeoPhysics
                                    const double higherTemperature,
                                    const double lowerTemperature ) const;
 
-      private:
          /// ( 0.42 * (std::pow ( salinity, 0.8 ) - 0.17) * (std::pow ( salinity, 0.8 ) - 0.17) + 0.045 )
          const double m_term1;
 
@@ -69,21 +80,6 @@ namespace GeoPhysics
 
          /// 0.001 *(1.65 + 91.9 * salinity * salinity * salinity)
          const double m_term3;
-
-         /// Depending on the ordering of temperature, higherTemperature and lowerTemperature calls the appropriate function to calculate
-         /// the value of the brine parameter of interest. It then returns the value returned by that function without further checks.
-         /// \pre Requires the triplet of T,P,S to be within the allowed ranges and lowerTemperature < higherTemperature.
-         /// \post Guarantees the return of the return value of the appropriate function to be called depending on temperature, higherTemperature and lowerTemperature.
-         virtual double chooseRegion ( const double temperature,
-                                       const double pressure,
-                                       const double higherTemperature,
-                                       const double lowerTemperature ) const;
-         virtual void   chooseRegion ( const int n,
-                                       ArrayDefs::ConstReal_ptr temperature,
-                                       ArrayDefs::ConstReal_ptr pressure,
-                                       ArrayDefs::ConstReal_ptr higherTemperature,
-                                       ArrayDefs::ConstReal_ptr lowerTemperature,
-                                       ArrayDefs::Real_ptr brineProp ) const;
       };
 
    } /// end Brine

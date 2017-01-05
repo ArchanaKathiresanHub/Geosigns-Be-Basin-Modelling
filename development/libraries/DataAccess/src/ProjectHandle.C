@@ -263,6 +263,7 @@ ProjectHandle::ProjectHandle( Database * tables, const string & name, const stri
    loadMigrations();
    loadInputValues();
    numberInputValues();
+   loadPermafrostData();
    loadFluidTypes();
 
 #if 0
@@ -322,7 +323,6 @@ ProjectHandle::ProjectHandle( Database * tables, const string & name, const stri
    loadSGDensitySample();
 
    loadCrustalThicknessData();
-   loadPermafrostData();
 }
 
 int ProjectHandle::getRank() const {

@@ -433,7 +433,7 @@ void Basin_Modelling::computeFluidVelocity
 
   porePressure = ( overpressure + hydrostaticPressure ) * PaToMegaPa;
   fluidViscosity = fluid->viscosity ( temperature, porePressure );
-  relativePermeability = fluid->relativePermeability ( temperature, porePressure ) * currentElementRelativePermeability;
+  relativePermeability = fluid->relativePermeability() * currentElementRelativePermeability;
 
   matrixTransposeVectorProduct ( gradBasis, currentElementPo, referenceGradOverpressure );
   matrixTransposeVectorProduct ( jacobianInverse, referenceGradOverpressure, gradOverpressure );
@@ -843,7 +843,7 @@ void Basin_Modelling::assembleElementTemperatureResidual ( const bool           
                                                  Current_Porosity,
                                                  Current_Pore_Pressure,
                                                  Current_Temperature,
-        	                                 Current_LithostaticPressure,
+                                            Current_LithostaticPressure,
                                                  Current_Bulk_Density_X_Capacity );
 
         Scaling = Current_Bulk_Density_X_Capacity * Current_Temperature * integrationWeight * timeStepInv;
@@ -1203,7 +1203,7 @@ void Basin_Modelling::assembleElementTemperatureStiffnessMatrix ( const bool    
 
           Fluid_Density_Heat_Capacity = Fluid->densXheatCapacity ( Current_Temperature, Current_Pore_Pressure );
           Fluid_Viscosity = Fluid->viscosity ( Current_Temperature, Current_Pore_Pressure );
-          Fluid_RelativePermeability = Fluid->relativePermeability ( Current_Temperature, Current_Pore_Pressure );
+          Fluid_RelativePermeability = Fluid->relativePermeability();
 
           matrixTransposeVectorProduct ( Grad_Basis, Current_Po, Reference_Grad_Overpressure );
           matrixTransposeVectorProduct ( Jacobian_Inverse, Reference_Grad_Overpressure, Grad_Overpressure );
@@ -1424,7 +1424,7 @@ void Basin_Modelling::assembleElementPressureSystem ( const BasisFunctionCache& 
 
             double fluidViscosity       = Fluid->viscosity ( currentTemperature, PaToMegaPa * currentPorePressure );
 
-            double currentRelativePermeability = relativePermeability * Fluid->relativePermeability( currentTemperature, PaToMegaPa * currentPorePressure );
+            double currentRelativePermeability = relativePermeability * Fluid->relativePermeability();
 
             //
             // Now compute each of the terms in the PDE
@@ -1929,7 +1929,7 @@ void Basin_Modelling::applyDirichletBoundaryConditionsLinear ( const BoundaryCon
   {
 
      if ( bcs.getBoundaryCondition ( i - 1 ) == Surface_Boundary  or bcs.getBoundaryCondition(i - 1) == Interior_Constrained_Temperature )
-	 {
+    {
       Load_Vector ( i ) = Dirichlet_Boundary_Scaling * bcs.getBoundaryConditionValue ( i - 1 );
       Stiffness_Matrix ( i, i ) = Dirichlet_Boundary_Scaling;
      } 

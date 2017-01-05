@@ -11,6 +11,7 @@
 #ifndef _GEOPHYSICS__FLUID_TYPE_H_
 #define _GEOPHYSICS__FLUID_TYPE_H_
 
+#include "ArrayDefinitions.h"
 #include "Interface/FluidType.h"
 #include "Interface/Interface.h"
 
@@ -29,6 +30,8 @@ namespace GeoPhysics
 {
    namespace Brine
    {
+      class PhaseStateScalar;
+      class PhaseStateVec;
       class Conductivity;
       class Density;
       class Velocity;
@@ -93,7 +96,9 @@ namespace GeoPhysics {
 
       /// Compute the fluid density.
       /// If the density calculation model is 'constant' the result here may be different from that in the fluid-io table.
-      double density ( const double temperature, const double pressure ) const;
+      double density( const double temperature, const double pressure ) const;
+      void   density( const GeoPhysics::Brine::PhaseStateVec & phases,
+                      ArrayDefs::Real_ptr & density ) const;
 
       /// Correct the simple density (density value) of the fluid.
       ///
@@ -102,45 +107,60 @@ namespace GeoPhysics {
       /// 1000 Kg/M^3) this function "corrects" this, and uses the Batzle and Wang density function
       /// evaluated at the standard depth, with the standard pressure gradient and the
       /// temperature gradient given in the project3d file.
-      void correctSimpleDensity ( const double standardDepth,
-                                  const double pressureGradient,
-                                  const double surfaceTemperature,
-                                  const double temperatureGradient );
+      void correctSimpleDensity( const double standardDepth,
+                                 const double pressureGradient,
+                                 const double surfaceTemperature,
+                                 const double temperatureGradient );
 
       /// \brief Compute the brine density at a defined depth and pressure.
       ///
       /// The temperature is computed from a standard surface-temperature and 
       /// the temperature gradient in the project file.
-      double getCorrectedSimpleDensity ( const double standardDepth,
-                                         const double pressureGradient,
-                                         const double surfaceTemperature,
-                                         const double temperatureGradient ) const;
+      double getCorrectedSimpleDensity( const double standardDepth,
+                                        const double pressureGradient,
+                                        const double surfaceTemperature,
+                                        const double temperatureGradient ) const;
 
       /// Compute the derivative of the fluid density w.r.t. pressure.
-      double computeDensityDerivativeWRTPressure ( const double temperature, const double pressure ) const;
+      double computeDensityDerivativeWRTPressure( const double temperature, const double pressure ) const;
+      void   computeDensityDerivativeWRTPressure( const GeoPhysics::Brine::PhaseStateVec & phases,
+                                                  ArrayDefs::Real_ptr & densityDerivative ) const;
 
       /// Compute the derivative of the fluid density w.r.t. temperature.
-      double computeDensityDerivativeWRTTemperature ( const double temperature, const double pressure ) const;
+      double computeDensityDerivativeWRTTemperature( const double temperature, const double pressure ) const;
+      void   computeDensityDerivativeWRTTemperature( const GeoPhysics::Brine::PhaseStateVec & phases,
+                                                     ArrayDefs::Real_ptr & densityDerivative ) const;
 
       /// Compute the fluid viscosity.
-      double viscosity ( const double temperature, const double pressure ) const;
+      double viscosity( const double temperature, const double pressure ) const;
+      void   viscosity( const GeoPhysics::Brine::PhaseStateVec & phases,
+                        ArrayDefs::Real_ptr & viscosity ) const;
 
       /// Compute the thermal conductivity.
-      double thermalConductivity ( const double temperature, const double pressure ) const;
+      double thermalConductivity( const double temperature, const double pressure ) const;
+      void   thermalConductivity( const GeoPhysics::Brine::PhaseStateVec & phases,
+                                  ArrayDefs::Real_ptr & thConductivty ) const;
 
       /// Compute the heat-capacity.
-      double heatCapacity ( const double temperature, const double pressure ) const;
+      double heatCapacity( const double temperature, const double pressure ) const;
+      void   heatCapacity( const GeoPhysics::Brine::PhaseStateVec & phases,
+                           ArrayDefs::Real_ptr & heatCapacity ) const;
 
       /// Compute the density x heat-capacity, also known as the Volumetric Heat Capacity.
-      double densXheatCapacity ( const double temperature, const double pressure, bool includePermafrost = false ) const;
+      double densXheatCapacity( const double temperature, const double pressure ) const;
+      void   densXheatCapacity( const GeoPhysics::Brine::PhaseStateVec & phases,
+                                ArrayDefs::Real_ptr & densXheatCap ) const;
 
       /// Compute the seismic velocity.
-      double seismicVelocity ( const double temperature, const double pressure ) const;
+      double seismicVelocity( const double temperature, const double pressure ) const;
+      void   seismicVelocity( const GeoPhysics::Brine::PhaseStateVec & phases,
+                              ArrayDefs::Real_ptr & seismicVelocity ) const;
 
       /// Compute relative premeability (for ice)
-      double relativePermeability ( const double temperature, const double pressure ) const;
+      double relativePermeability() const;
 
-      bool SwitchPermafrost () const;
+      /// Returns a boolean: TRUE if permafrost is enabled
+      bool isPermafrostEnabled() const;
 
    private :
 
@@ -156,37 +176,36 @@ namespace GeoPhysics {
 
       double       m_densityVal;
       const double m_salinity;
-      double       m_seismicVelocityVal;
+      const double m_seismicVelocityVal;
 
       /// For permafrost.
-      double m_pressureTerm;
-      double m_salinityTerm;
+      const bool   m_hasPermafrost;
+      const double m_pressureTerm;
+      const double m_salinityTerm;
       
       /// For Brine properties
       std::unique_ptr<GeoPhysics::Brine::Conductivity> m_conductivity;
       std::unique_ptr<GeoPhysics::Brine::Density>      m_density;
       std::unique_ptr<GeoPhysics::Brine::Velocity>     m_velocity;
       std::unique_ptr<GeoPhysics::Brine::Viscosity>    m_viscosity;
-      std::unique_ptr<GeoPhysics::Brine::Conductivity> m_zeroSalinityConductivity;
-      std::unique_ptr<GeoPhysics::Brine::Density>      m_zeroSalinityDensity;
 
-      double solidDensityTimesHeatCapacity ( const double temperature ) const;
+      double solidDensityTimesHeatCapacity( const double temperature ) const;
 
       /// Compute the fraction of water as opposed to ice in the pore space.
-      double computeTheta ( const double temperature, const double liquidusTemperature ) const;
+      double computeTheta( const double temperature, const double liquidusTemperature ) const;
 
       /// Compute the derivate of the Theta with respect to Temperature. Theta is the fraction of water
       /// as opposed to ice in the pore space.
-      double computeThetaDerivative ( const double temperature, const double liquidusTemperature ) const;
+      double computeThetaDerivative( const double temperature, const double liquidusTemperature ) const;
 
       /// Compute the temperature below which water starts to freeze.
-      double getLiquidusTemperature ( const double temperature, const double pressure ) const;
+      double getLiquidusTemperature( const double temperature, const double pressure ) const;
 
       /// Compute the temperature at which 99% of the water has turned into ice.
-      double getSolidusTemperature ( const double liquidusTemperature ) const;
+      double getSolidusTemperature( const double liquidusTemperature ) const;
 
       /// Compute the salinity.
-      double salinityConcentration ( const double temperature, const double pressure ) const;
+      double salinityConcentration( const double temperature, const double pressure ) const;
 
       /// An interpolator for the density of water containing some fraction of ice ( t < 0.0 ).
       /// It depends only on temperature.
@@ -217,14 +236,14 @@ inline double GeoPhysics::FluidType::getConstantDensity () const
    return m_densityVal;
 }
 
-inline double GeoPhysics::FluidType::relativePermeability (const double , const double ) const
+inline double GeoPhysics::FluidType::relativePermeability() const
 {
    return 1.0;
 }
 
-inline bool GeoPhysics::FluidType::SwitchPermafrost() const
+inline bool GeoPhysics::FluidType::isPermafrostEnabled() const
 {
-   return m_projectHandle->getPermafrost();
+   return m_hasPermafrost;
 }
 
 #endif // _GEOPHYSICS__FLUID_TYPE_H_

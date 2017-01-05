@@ -1,4 +1,4 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
 // 
@@ -317,7 +317,7 @@ void DerivedProperties::FluidVelocityFormationCalculator::computeFluidVelocity (
    porosity = currentCompoundPorosity.mixedProperty ();
  
    fluidViscosity = fluid->viscosity ( temperature, porePressure );
-   relativePermeability = fluid->relativePermeability ( temperature, porePressure );
+   relativePermeability = fluid->relativePermeability();
 
    matrixTransposeVectorProduct ( element.getReferenceGradBasis(), currentElementPp, referenceGradPorePressure );
    matrixTransposeVectorProduct ( element.getJacobianInverse(), referenceGradPorePressure, gradPorePressure );

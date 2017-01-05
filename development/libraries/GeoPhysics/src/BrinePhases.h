@@ -107,79 +107,191 @@ namespace GeoPhysics
       };
 
 
-      /// \brief Phases serves as the base class for all brine properties that use the same approach of dividing
+      /// \brief PhaseStateBase serves as the base class for all brine properties that use the same approach of dividing
       ///        the parameter space in three regions, aqueous, vapour and an artificially extended transition region.
-      class Phases
+      class PhaseStateBase
       {
       public:
 
          /// Constructor that initializes m_pres vector and assigns values from TabulatedBrineP[] to its elements.
          /// \pre None.
          /// \post Guarantees initialization.
-         explicit Phases( const double salinity );
-         /// Virtual destructor
-         virtual ~Phases();
-      
-         /// phaseChange() returns the value of a given physical parameter for an input triplet of T, P, S (temperature, pressure, salinity) values.
-         /// \pre Input values should be within the defined ranges (see BrinePhases.C). In case they are not they will be internally adjusted to the relevant limits.
-         /// \post Guarantees the return of a non-negative number.
-         double phaseChange( const double temperature, const double pressure ) const;
-         void   phaseChange( const unsigned int n,
-                             ArrayDefs::ConstReal_ptr temperature,
-                             ArrayDefs::ConstReal_ptr pressure,
-                             ArrayDefs::Real_ptr brineProp );
+         explicit PhaseStateBase( const double salinity );
 
-         /// Set size of working vectors
-         void setVectorSize( const unsigned int size );
+         /// Destructor
+         ~PhaseStateBase();
 
-         /// Get size of working vectors
-         int getVectorSize();
+         /// Get salinity
+         double getSalinity() const;
+
+         /// Get salinity
+         void setSalinity( const double salinity );
 
          /// Uses linear 1D interpolation to return the value of the temperature at the high end of the artificially broadened transition region
          /// using pressure as an argument.
          /// \pre Input value of pressure should be within the allowed pressure range, otherwise the algorithm will effectively extrapolate.
          /// \post Guarantees the return of a temperature value within the range defined by the m_temps[] array.
          static double findT2( const double pressure );
-         static void   findT2( const int n,
-                               ArrayDefs::ConstReal_ptr pressure,
-                               ArrayDefs::Real_ptr t2 );
 
          /// Subtracts ( 2 x s_halfwidth ) from the input temperature to return the temperature value at the low end of the extended transition region.
          /// \preNone.
          /// \post Guarantees the return of a value which is smaller by ( 2 x s_halfwidth ) compared to the input value.
          static double findT1( const double higherTemperature );
-         static void   findT1( const int n,
-                               ArrayDefs::ConstReal_ptr higherTemperature,
-                               ArrayDefs::Real_ptr t1 );
 
       protected:
+
          /// Checks whether all three of the defining physical parameters (T,P,S) are within the allowed ranges and if not adjusts them
          /// \pre Requires any valid values for the triplet passed by value.
          /// \post Guarantees assignment of valid and within the allowed ranges values to the triplet that is passed by reference.
-         void   enforceRanges( const int n,
-                               ArrayDefs::ConstReal_ptr temperature,
-                               ArrayDefs::ConstReal_ptr pressure,
-                               ArrayDefs::Real_ptr cutTemp,
-                               ArrayDefs::Real_ptr cutPres );
-         double enforceTemperatureRanges( const double temperature ) const;
-         double enforcePressureRanges( const double pressure ) const;
+         static double enforceTemperatureRanges( const double temperature );
+         static double enforcePressureRanges( const double pressure );
+         static double enforceSalinityRanges( const double salinity );
+         
+         /// Returns the index of the first tabulated pressure greater than the provided value
+         static int getTemperatureUpperBoundIdx( const double pressure );
 
          /// Salinity
-         const double m_salinity;
+         double m_salinity;
+      };
+
+
+      /// \brief PhaseStateScalar serves as the base class for all brine properties that use the same approach of dividing
+      ///        the parameter space in three regions, aqueous, vapour and an artificially extended transition region.
+      class PhaseStateScalar : public PhaseStateBase
+      {
+      public:
+
+         /// Constructor that initializes m_pres vector and assigns values from TabulatedBrineP[] to its elements.
+         /// \pre None.
+         /// \post Guarantees initialization.
+         explicit PhaseStateScalar( const double salinity );
+
+         /// Destructor
+         ~PhaseStateScalar();
+      
+         /// phaseChange() returns the value of a given physical parameter for an input triplet of T, P, S (temperature, pressure, salinity) values.
+         /// \pre Input values should be within the defined ranges (see BrinePhases.C). In case they are not they will be internally adjusted to the relevant limits.
+         /// \post Guarantees the return of a non-negative number.
+         void set( const double temperature, const double pressure );
+
+         /// Get pressure value
+         double getPressure() const;
+
+         /// Get temperature value
+         double getTemperature() const;
+
+         /// Get temperature value
+         double getLowEndTransitionTemp() const;
+
+         /// Get temperature value
+         double getHighEndTransitionTemp() const;
+
+      private:
+
+         /// Pressure after ranges have been applied
+         double m_inRangePres;
+
+         /// Temperature after ranges have been applied
+         double m_inRangeTemp;
+
+         /// Termperature at low end of transition region
+         double m_lowEndTransitionTemp;
+
+         /// Termperature at high end of transition region
+         double m_highEndTransitionTemp;
+      };
+
+
+      /// \brief PhaseStateVec serves as the base class for all brine properties that use the same approach of dividing
+      ///        the parameter space in three regions, aqueous, vapour and an artificially extended transition region.
+      class PhaseStateVec : public PhaseStateBase
+      {
+      public:
+
+         /// Constructor that initializes m_pres vector and assigns values from TabulatedBrineP[] to its elements.
+         /// \pre None.
+         /// \post Guarantees initialization.
+         explicit PhaseStateVec( const unsigned int n, const double salinity );
+
+         /// Destructor
+         ~PhaseStateVec();
+      
+         /// phaseChange() returns the value of a given physical parameter for an input triplet of T, P, S (temperature, pressure, salinity) values.
+         /// \pre Input values should be within the defined ranges (see BrinePhases.C). In case they are not they will be internally adjusted to the relevant limits.
+         /// \post Guarantees the return of a non-negative number.
+         void set( const unsigned int n,
+                   ArrayDefs::ConstReal_ptr temperature,
+                   ArrayDefs::ConstReal_ptr pressure );
+
+         /// Get size of working vectors
+         int getVectorSize() const;
+
+         /// Get number of phases in the aqueous state
+         int getAqueousPhasesNum() const;
+
+         /// Get number of phases in the vapour state
+         int getVapourPhasesNum() const;
+
+         /// Get number of phases in the transition state
+         int getTransitionPhasesNum() const;
+
+         /// Get aqueous state indices
+         ArrayDefs::Int_ptr getAqueousIndices() const;
+
+         /// Get vapour state indices
+         ArrayDefs::Int_ptr getVapourIndices() const;
+
+         /// Get transition state indices
+         ArrayDefs::Int_ptr getTransitionIndices() const;
+
+         /// Get pressure values
+         ArrayDefs::Real_ptr getPressure() const;
+
+         /// Get temperature values
+         ArrayDefs::Real_ptr getTemperature() const;
+
+         /// Get temperature values
+         ArrayDefs::Real_ptr getLowEndTransitionTemp() const;
+
+         /// Get temperature values
+         ArrayDefs::Real_ptr getHighEndTransitionTemp() const;
+
+         /// Uses linear 1D interpolation to return the value of the temperature at the high end of the artificially broadened transition region
+         /// using pressure as an argument.
+         /// \pre Input value of pressure should be within the allowed pressure range, otherwise the algorithm will effectively extrapolate.
+         /// \post Guarantees the return of a temperature value within the range defined by the m_temps[] array.
+         static void findT2( const int n,
+                             ArrayDefs::ConstReal_ptr pressure,
+                             ArrayDefs::Real_ptr t2 );
+
+         /// Subtracts ( 2 x s_halfwidth ) from the input temperature to return the temperature value at the low end of the extended transition region.
+         /// \preNone.
+         /// \post Guarantees the return of a value which is smaller by ( 2 x s_halfwidth ) compared to the input value.
+         static void findT1( const int n,
+                             ArrayDefs::ConstReal_ptr higherTemperature,
+                             ArrayDefs::Real_ptr t1 );
+
+      private:
+         /// Checks whether all three of the defining physical parameters (T,P,S) are within the allowed ranges and if not adjusts them
+         /// \pre Requires any valid values for the triplet passed by value.
+         /// \post Guarantees assignment of valid and within the allowed ranges values to the triplet that is passed by reference.
+         void enforceRanges( ArrayDefs::ConstReal_ptr temperature,
+                             ArrayDefs::ConstReal_ptr pressure,
+                             ArrayDefs::Real_ptr cutTemp,
+                             ArrayDefs::Real_ptr cutPres );
 
          /// Counters of vector elements in each state
-         int m_acqueousNum;
+         int m_aqueousNum;
          int m_vapourNum;
          int m_transitionNum;
       
-         /// Indeces of vector elements in each state
-         ArrayDefs::Int_ptr m_acqueousIdx;
+         /// Indices of vector elements in each state
+         ArrayDefs::Int_ptr m_aqueousIdx;
          ArrayDefs::Int_ptr m_vapourIdx;
          ArrayDefs::Int_ptr m_transitionIdx;
 
-      private:
          /// Size of arrays used in the vectorized function calls
-         unsigned int m_size;
+         const unsigned int m_size;
 
          /// Array of values of pressure after ranges have been applied
          ArrayDefs::Real_ptr m_inRangePres;
@@ -193,32 +305,14 @@ namespace GeoPhysics
          /// Array of values of termperature at high end of transition region
          ArrayDefs::Real_ptr m_highEndTransitionTemp;
 
-         /// Depending on the ordering of temperature, higherTemperature and lowerTemperature calls the appropriate function to calculate
-         /// the value of the brine parameter of interest. It then returns the value returned by that function without further checks.
-         /// \pre Requires the triplet of T,P,S to be within the allowed ranges and lowerTemperature < higherTemperature.
-         /// \post Guarantees the return of the return value of the appropriate function to be called depending on temperature, higherTemperature and lowerTemperature.
-         virtual double chooseRegion ( const double temperature,
-                                       const double pressure,
-                                       const double higherTemperature,
-                                       const double lowerTemperature ) const = 0;
-         virtual void   chooseRegion ( const int n,
-                                       ArrayDefs::ConstReal_ptr temperature,
-                                       ArrayDefs::ConstReal_ptr pressure,
-                                       ArrayDefs::ConstReal_ptr higherTemperature,
-                                       ArrayDefs::ConstReal_ptr lowerTemperature,
-                                       ArrayDefs::Real_ptr brineProp ) const = 0;
-
-         /// Returns the index of the first tabulated pressure greater than the provided value
-         static int getTemperatureUpperBoundIdx( const double pressure );
-
          /// Method for allocating variable size arrays needed by the class
-         void allocateVariableArrays( const unsigned int newSize );
+         void allocateArrays();
 
          /// Method for deallocating variable size arrays needed by the class
-         void deallocateVariableArrays();
+         void deallocateArrays();
 
          /// Method for deallocating arrays needed by the class
-         void updatePhaseStatesVector( const int n, ArrayDefs::ConstReal_ptr );
+         void updatePhaseStatesVector( ArrayDefs::ConstReal_ptr );
       };
 
    } /// end Brine
@@ -226,27 +320,134 @@ namespace GeoPhysics
 } /// end GeoPhysics
 
 
-inline int GeoPhysics::Brine::Phases::getVectorSize()
+/// PhaseStateBase inline methods
+
+inline double GeoPhysics::Brine::PhaseStateBase::getSalinity() const
 {
-   return m_size;
+   return m_salinity;
+}
+
+inline void GeoPhysics::Brine::PhaseStateBase::setSalinity( const double salinity )
+{
+   m_salinity = enforceSalinityRanges( salinity );
 }
 
 
-inline double GeoPhysics::Brine::Phases::findT1( const double higherTemperature )
-{
-   return higherTemperature - 2.0 * s_halfWidth;
-}
-
-
-inline double GeoPhysics::Brine::Phases::enforceTemperatureRanges( const double temperature ) const
+inline double GeoPhysics::Brine::PhaseStateBase::enforceTemperatureRanges( const double temperature )
 {
    return (temperature > s_MaxTemperature) ? s_MaxTemperature : ( temperature < s_MinTemperature ? s_MinTemperature : temperature );
 }
 
 
-inline double GeoPhysics::Brine::Phases::enforcePressureRanges( const double pressure ) const
+inline double GeoPhysics::Brine::PhaseStateBase::enforcePressureRanges( const double pressure )
 {
    return (pressure > s_MaxPressure) ? s_MaxPressure : ( pressure < s_MinPressure ? s_MinPressure : pressure );
+}
+
+
+inline double GeoPhysics::Brine::PhaseStateBase::enforceSalinityRanges( const double salinity )
+{
+   return (salinity > s_MaxSalinity) ? s_MaxSalinity : ( salinity < s_MinSalinity ? s_MinSalinity : salinity );
+}
+
+
+inline double GeoPhysics::Brine::PhaseStateBase::findT1( const double higherTemperature )
+{
+   return higherTemperature - 2.0 * s_halfWidth;
+}
+
+
+/// PhaseStateScalar inline methods
+
+inline double GeoPhysics::Brine::PhaseStateScalar::getPressure() const
+{
+   return m_inRangePres;
+}
+
+
+inline double GeoPhysics::Brine::PhaseStateScalar::getTemperature() const
+{
+   return m_inRangeTemp;
+}
+
+
+inline double GeoPhysics::Brine::PhaseStateScalar::getLowEndTransitionTemp() const
+{
+   return m_lowEndTransitionTemp;
+}
+
+
+inline double GeoPhysics::Brine::PhaseStateScalar::getHighEndTransitionTemp() const
+{
+   return m_highEndTransitionTemp;
+}
+
+/// PhaseStateVec inline methods
+
+
+inline int GeoPhysics::Brine::PhaseStateVec::getVectorSize() const
+{
+   return m_size;
+}
+
+
+inline int GeoPhysics::Brine::PhaseStateVec::getAqueousPhasesNum() const
+{
+   return m_aqueousNum;
+}
+
+
+inline int GeoPhysics::Brine::PhaseStateVec::getVapourPhasesNum() const
+{
+   return m_vapourNum;
+}
+
+
+inline int GeoPhysics::Brine::PhaseStateVec::getTransitionPhasesNum() const
+{
+   return m_transitionNum;
+}
+
+
+inline ArrayDefs::Int_ptr GeoPhysics::Brine::PhaseStateVec::getAqueousIndices() const
+{
+   return m_aqueousIdx;
+}
+
+
+inline ArrayDefs::Int_ptr GeoPhysics::Brine::PhaseStateVec::getVapourIndices() const
+{
+   return m_vapourIdx;
+}
+
+
+inline ArrayDefs::Int_ptr GeoPhysics::Brine::PhaseStateVec::getTransitionIndices() const
+{
+   return m_transitionIdx;
+}
+
+
+inline ArrayDefs::Real_ptr GeoPhysics::Brine::PhaseStateVec::getPressure() const
+{
+   return m_inRangePres;
+}
+
+
+inline ArrayDefs::Real_ptr GeoPhysics::Brine::PhaseStateVec::getTemperature() const
+{
+   return m_inRangeTemp;
+}
+
+
+inline ArrayDefs::Real_ptr GeoPhysics::Brine::PhaseStateVec::getLowEndTransitionTemp() const
+{
+   return m_lowEndTransitionTemp;
+}
+
+
+inline ArrayDefs::Real_ptr GeoPhysics::Brine::PhaseStateVec::getHighEndTransitionTemp() const
+{
+   return m_highEndTransitionTemp;
 }
 
 #endif /// GEOPHYSICS_BRINE_PHASES_H_

@@ -172,7 +172,7 @@ void DerivedProperties::VesHighResFormationCalculator::computeForSubsampledHydro
       double solidThickness = 0.0;
       const GeoPhysics::FluidType * fluid = dynamic_cast<const GeoPhysics::FluidType*>(currentFormation->getFluidType());
       const double constFluidDensity = (fluid == 0) ? 0.0 : fluid->getConstantDensity();
-      const bool switchPermafrost = ( fluid == 0 ) ? false : fluid->SwitchPermafrost( );
+      const bool switchPermafrost = ( fluid == 0 ) ? false : fluid->isPermafrostEnabled();
 
       for( unsigned int i = firstI; i <= lastI; ++i )
       {

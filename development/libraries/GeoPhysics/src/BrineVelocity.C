@@ -9,56 +9,51 @@
 //
 
 #include "BrineVelocity.h"
-
+#include "BrinePhases.h"
 #include <cmath>
-#include <assert.h>
-#include <sstream>
-#include <iostream>
-#include <iomanip>
 
-GeoPhysics::Brine::Velocity::Velocity( const double salinity ) :
-  GeoPhysics::Brine::Phases(salinity)
+GeoPhysics::Brine::Velocity::Velocity() :
+   m_highEndTransitionTempMax( GeoPhysics::Brine::PhaseStateScalar::findT2(PressureMaxForVelocity) ),
+   m_lowEndTransitionTempMax( GeoPhysics::Brine::PhaseStateScalar::findT1(m_highEndTransitionTempMax) )
 {}
 
-double GeoPhysics::Brine::Velocity::chooseRegion( const double temperature,
-                                                  const double pressure,
-                                                  const double higherTemperature,
-                                                  const double lowerTemperature ) const
+double GeoPhysics::Brine::Velocity::get( const GeoPhysics::Brine::PhaseStateScalar & phase ) const
 {
    // First a check that the pressure is smaller than 100 MPa.
    // Table from Sengers et al. only goes up to 100 MPa.
-   double newPressure = pressure;
-   double highTemp    = higherTemperature;
-   double lowTemp     = lowerTemperature;
-   if ( newPressure > PressureMaxForVelocity )
-   {
-      newPressure = PressureMaxForVelocity;
+   double pressure = phase.getPressure();
+   double highTemp = phase.getHighEndTransitionTemp();
+   double lowTemp  = phase.getLowEndTransitionTemp();
 
-      highTemp = findT2( newPressure );
-      lowTemp = findT1( highTemp );
+   if ( pressure > PressureMaxForVelocity )
+   {
+      pressure = PressureMaxForVelocity;
+      highTemp = m_highEndTransitionTempMax;
+      lowTemp  = m_lowEndTransitionTempMax;
    }
+
+   const double temperature = phase.getTemperature();
 
    if ( temperature <= lowTemp )
    {
-      return aqueousBatzleWang( temperature, newPressure );
+      return aqueousBatzleWang( temperature, pressure, phase.getSalinity() );
    }
    else if ( temperature >= highTemp )
    {
-      return vapourIdealGas( temperature );
+      return vapourIdealGas( temperature, phase.getSalinity() );
    }
    else
    {
-      return transitionRegion( temperature, newPressure, highTemp, lowTemp );
+      return transitionRegion( temperature, pressure, phase.getSalinity(), highTemp, lowTemp );
    }
-
 }
 
 // Batzle-Wang formula for fluids in the aqueous (liquid) phase.
-double GeoPhysics::Brine::Velocity::aqueousBatzleWang( const double temperature, const double pressure ) const
+double GeoPhysics::Brine::Velocity::aqueousBatzleWang( const double temperature, const double pressure, const double salinity ) const
 {
    const double t = temperature;
    const double p = pressure;
-   const double s = m_salinity;
+   const double s = salinity;
 
    const double t2 = t * t;
    const double t3 = t2 * t;
@@ -84,26 +79,23 @@ double GeoPhysics::Brine::Velocity::aqueousBatzleWang( const double temperature,
 }
 
 // Use ideal-gas law for seismic velocity in the vapour phase.
-double GeoPhysics::Brine::Velocity::vapourIdealGas( const double temperature ) const
+double GeoPhysics::Brine::Velocity::vapourIdealGas( const double temperature, const double salinity ) const
 {
    const double t = temperature;
-   const double s = m_salinity;
+   const double s = salinity;
 
    // Formula assumes an adiabatic index of 1.333 (striclty applicable only to pure water vapour).
-   double seisvel = std::sqrt( 1.333 * 1.38 / 1.67 * 1.0e4 / ( 18.0 * ( 1.0 - s ) + 58.44 * s ) * ( t + 273.0 ) );
-
-   return seisvel;
+   return std::sqrt( 1.333 * 1.38 / 1.67 * 1.0e4 / ( 18.0 * ( 1.0 - s ) + 58.44 * s ) * ( t + 273.0 ) );
 }
 
 // Interpolation between last aqueous value (at lowerTemperature) and first vapour value (at higherTemperature).
 double GeoPhysics::Brine::Velocity::transitionRegion( const double temperature,
                                                       const double pressure,
+                                                      const double salinity,
                                                       const double higherTemperature,
                                                       const double lowerTemperature) const
 {
-   double aqueous = aqueousBatzleWang( lowerTemperature, pressure );
-   double vapour = vapourIdealGas( higherTemperature );
-   double velocity = ( aqueous + ( temperature - lowerTemperature ) * ( vapour - aqueous ) / ( higherTemperature - lowerTemperature ) );
-
-   return velocity;
+   double aqueous = aqueousBatzleWang( lowerTemperature, pressure, salinity );
+   double vapour = vapourIdealGas( higherTemperature, salinity );
+   return ( aqueous + ( temperature - lowerTemperature ) * ( vapour - aqueous ) / ( higherTemperature - lowerTemperature ) );
 }

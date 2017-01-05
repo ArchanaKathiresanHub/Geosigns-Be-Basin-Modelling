@@ -308,7 +308,7 @@ void GeometricLoopPressureSolver::computeRealThickness ( const LayerProps_Ptr cu
 
     // We assume the solid is ice in this case
     // for the else case     H * Fluid_Density * GRAVITY * PaToMegaPa     should be 0 to be consistant.
-    if ( not ( (Fluid_Density > Solid_Density) && currentLayer->fluid->SwitchPermafrost() ) )
+    if ( not ( (Fluid_Density > Solid_Density) && currentLayer->fluid->isPermafrostEnabled() ) )
     {
       Hydrostatic_Pressure = Hydrostatic_Pressure + Segment_Real_Thickness * Fluid_Density * AccelerationDueToGravity * PaToMegaPa;
     }
@@ -317,7 +317,7 @@ void GeometricLoopPressureSolver::computeRealThickness ( const LayerProps_Ptr cu
 
     Max_VES      = ( Intermediate_Max_VES_Top * ( Number_Of_Segments - I ) + Intermediate_Max_VES_Bottom * I ) / Number_Of_Segments;
 
-    if ( (Fluid_Density > Solid_Density) && ( currentLayer->fluid->SwitchPermafrost() ) )  // NLSAY3: We assume the solid is ice in this case
+    if ( (Fluid_Density > Solid_Density) && ( currentLayer->fluid->isPermafrostEnabled() ) )  // NLSAY3: We assume the solid is ice in this case
     {
       Pore_Pressure_Bottom = Lithostatic_Pressure;
     }

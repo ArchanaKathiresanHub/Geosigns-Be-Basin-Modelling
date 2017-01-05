@@ -921,7 +921,7 @@ void GeoPhysics::CompoundLithology::calcBulkDensXHeatCapacity(const FluidType* f
 
    if (LithoHasFluid) {
 
-      double FluidDensXHeatCap = fluid->densXheatCapacity(Temperature, Pressure, m_projectHandle->getPermafrost());
+      double FluidDensXHeatCap = fluid->densXheatCapacity(Temperature, Pressure);
       BulkDensXHeatCapacity = MatrixDensXHeatCap * (1.0 - Porosity) + FluidDensXHeatCap * Porosity;
 
    }

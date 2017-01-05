@@ -8,6 +8,7 @@
 // Do not distribute without written permission from Shell.
 //
 
+#include "../src/BrinePhases.h"
 #include "../src/BrineViscosity.h"
 #include "ArrayDefinitions.h"
 #include "AlignedMemoryAllocator.h"
@@ -23,54 +24,40 @@
 ///       parameter space.
 
 
-class BrineViscosityTest: public GeoPhysics::Brine::Viscosity
-{
-   BrineViscosityTest() = delete;
-public:
-   explicit BrineViscosityTest( const double sal ) : GeoPhysics::Brine::Viscosity(sal) {}
-   double findT2Test( const double pressure ) const
-   {
-      return findT2 (pressure);
-   }
-
-   double findT1Test( const double higherTemperature ) const
-   {
-      return findT1 (higherTemperature);
-   }
-
-   double aqueousBatzleWangTest( const double temperature )const
-   {
-      return aqueousBatzleWang (temperature);
-   }
-
-   double vapourConstantTest( )const
-   {
-      return vapourConstant ();
-   }
-};
-
-
 /// Testing that viscosity values across (but also outside the
 /// allowed range of) the parameter space are not negative.
 TEST ( BrineViscosity, testing_non_negative )
 {
    for ( int j=0; j<=4; ++j )
    {
-      BrineViscosityTest valuesCheck(0.1*double(j));
+      GeoPhysics::Brine::PhaseStateScalar phase(0.1*double(j));
+      GeoPhysics::Brine::Viscosity visc(phase.getSalinity());
       for ( int i=0; i<=4000; ++i )
       {
-         EXPECT_GT( valuesCheck.phaseChange( -1000.0, 0.1*double(i) ), 0.0 );
-         EXPECT_GT( valuesCheck.phaseChange( -100.0, 0.1*double(i) ), 0.0 );
-         EXPECT_GT( valuesCheck.phaseChange( 0.0, 0.1*double(i) ), 0.0 );
-         EXPECT_GT( valuesCheck.phaseChange( 80.0, 0.1*double(i) ), 0.0 );
-         EXPECT_GT( valuesCheck.phaseChange( 150.0, 0.1*double(i) ), 0.0 );
-         EXPECT_GT( valuesCheck.phaseChange( 280.0, 0.1*double(i) ), 0.0 );
-         EXPECT_GT( valuesCheck.phaseChange( 450.0, 0.1*double(i) ), 0.0 );
-         EXPECT_GT( valuesCheck.phaseChange( 680.0, 0.1*double(i) ), 0.0 );
-         EXPECT_GT( valuesCheck.phaseChange( 900.0, 0.1*double(i) ), 0.0 );
-         EXPECT_GT( valuesCheck.phaseChange( 1200.0, 0.1*double(i) ), 0.0 );
-         EXPECT_GT( valuesCheck.phaseChange( 2000.0, 0.1*double(i) ), 0.0 );
-         EXPECT_GT( valuesCheck.phaseChange( 6800.0, 0.1*double(i) ), 0.0 );
+         phase.set( -1000.0, 0.1*double(i) );
+         EXPECT_GT( visc.get(phase), 0.0 );
+         phase.set(  -100.0, 0.1*double(i) );
+         EXPECT_GT( visc.get(phase), 0.0 );
+         phase.set(     0.0, 0.1*double(i) );
+         EXPECT_GT( visc.get(phase), 0.0 );
+         phase.set(    80.0, 0.1*double(i) );
+         EXPECT_GT( visc.get(phase), 0.0 );
+         phase.set(   150.0, 0.1*double(i) );
+         EXPECT_GT( visc.get(phase), 0.0 );
+         phase.set(   280.0, 0.1*double(i) );
+         EXPECT_GT( visc.get(phase), 0.0 );
+         phase.set(   450.0, 0.1*double(i) );
+         EXPECT_GT( visc.get(phase), 0.0 );
+         phase.set(   680.0, 0.1*double(i) );
+         EXPECT_GT( visc.get(phase), 0.0 );
+         phase.set(   900.0, 0.1*double(i) );
+         EXPECT_GT( visc.get(phase), 0.0 );
+         phase.set(  1200.0, 0.1*double(i) );
+         EXPECT_GT( visc.get(phase), 0.0 );
+         phase.set(  2000.0, 0.1*double(i) );
+         EXPECT_GT( visc.get(phase), 0.0 );
+         phase.set(  6800.0, 0.1*double(i) );
+         EXPECT_GT( visc.get(phase), 0.0 );
       }
    }
 }
@@ -101,14 +88,15 @@ TEST ( BrineViscosity, testing_non_negative_vector )
 
    for ( int j=0; j<=4; ++j )
    {
-      BrineViscosityTest valuesCheck(0.1*double(j));
-      valuesCheck.setVectorSize(n);
-      EXPECT_EQ( valuesCheck.getVectorSize(), n );
+      GeoPhysics::Brine::PhaseStateVec phase(n,0.1*double(j));
+      GeoPhysics::Brine::Viscosity viscosity(phase.getSalinity());
+      EXPECT_EQ( phase.getVectorSize(), n );
       for ( int i=0; i<=4000; ++i )
       {
          for ( int k=0; k<n; ++k )
             pres[k] = 0.1*double(i);
-         valuesCheck.phaseChange( n, temp, pres, visc );
+         phase.set( n, temp, pres );
+         viscosity.get( phase, visc );
          for ( int k=0; k<n; ++k ) 
             EXPECT_GT( visc[k], 0.0 );
       }
@@ -128,8 +116,10 @@ TEST ( BrineViscosity, testing_ordering_salinity )
 {
    for ( int j=0; j<3; ++j )
    {
-      BrineViscosityTest valuesCheck1(0.1*double(j+1));
-      BrineViscosityTest valuesCheck2(0.1*double(j));
+      GeoPhysics::Brine::PhaseStateScalar phase1( 0.1*double(j+1) );
+      GeoPhysics::Brine::Viscosity viscosity1(phase1.getSalinity());
+      GeoPhysics::Brine::PhaseStateScalar phase2( 0.1*double(j) );
+      GeoPhysics::Brine::Viscosity viscosity2(phase2.getSalinity());
       for ( int i=0; i<=100; ++i )
       {
          double pressure = 0.1*double(20*i);
@@ -140,11 +130,13 @@ TEST ( BrineViscosity, testing_ordering_salinity )
          for ( int k=0; k<=50; ++k )
          {
             // findT2Test does not depend on salinity so we can use one or the other
-            if ( 30.0*double(k) >= valuesCheck1.findT2Test( pressure ) )
+            if ( 30.0*double(k) >= phase1.findT2( pressure ) )
             {
                break;
             }
-            EXPECT_GT( valuesCheck1.phaseChange( 30.0*double(k), pressure ), valuesCheck2.phaseChange( 30.0*double(k), pressure ) );
+            phase1.set( 30.0*double(k), pressure );
+            phase2.set( 30.0*double(k), pressure );
+            EXPECT_GT( viscosity1.get( phase1 ), viscosity2.get( phase1 ) );
          }
       }
    }
@@ -156,7 +148,8 @@ TEST ( BrineViscosity, testing_ordering_temperature )
 {
    for ( int j=0; j<4; ++j )
    {
-      BrineViscosityTest valuesCheck(0.1*double(j));
+      GeoPhysics::Brine::PhaseStateScalar phase( 0.1*double(j) );
+      GeoPhysics::Brine::Viscosity viscosity(phase.getSalinity());
       for ( int i=0; i<100; ++i )
       {
          double pressure = 0.1*double(20*i);
@@ -166,11 +159,15 @@ TEST ( BrineViscosity, testing_ordering_temperature )
          }
          for ( int k=0; k<150; ++k )
          {
-            if ( 10.0*double(k+1) >= valuesCheck.findT2Test( pressure ) )
+            if ( 10.0*double(k+1) >= phase.findT2( pressure ) )
             {
                break;
             }
-            EXPECT_GT( valuesCheck.phaseChange( 10.0*double(k), pressure ), valuesCheck.phaseChange( 10.0*double(k+1), pressure ) );
+            phase.set( 10.0*double(k), pressure );
+            double visc1 = viscosity.get( phase );
+            phase.set( 10.0*double(k+1), pressure );
+            double visc2 = viscosity.get( phase );
+            EXPECT_GT( visc1, visc2 );
          }
       }
    }
@@ -184,7 +181,8 @@ TEST ( BrineViscosity, testing_viscosity_continuity )
 
    for ( int j=0; j<8; ++j )
    {
-      BrineViscosityTest valuesCheck(0.1 * 0.5 * double(j));
+      GeoPhysics::Brine::PhaseStateScalar phase( 0.1 * 0.5 * double(j) );
+      GeoPhysics::Brine::Viscosity viscosity(phase.getSalinity());
       for ( int i=0; i<100; ++i ) 
       {
          double pressure = 0.1 * double(20*i);
@@ -194,13 +192,20 @@ TEST ( BrineViscosity, testing_viscosity_continuity )
             pressure = 0.1;
          }
      
-         double highTemp = valuesCheck.findT2Test( pressure );
-         double lowTemp = valuesCheck.findT1Test( highTemp );
+         double highTemp = phase.findT2( pressure );
+         double lowTemp = phase.findT1( highTemp );
+         
+         phase.set( lowTemp * (1.0 - epsilon), pressure );
+         double visc1 = viscosity.get( phase );
+         phase.set( lowTemp * (1.0 + epsilon), pressure );
+         double visc2 = viscosity.get( phase );
+         EXPECT_NEAR( visc1, visc2, 1.0e-10 );
 
-         EXPECT_NEAR( valuesCheck.phaseChange( lowTemp * (1.0 - epsilon) , pressure ),
-                      valuesCheck.phaseChange( lowTemp * (1.0 + epsilon) , pressure ), 1.0e-10 );
-         EXPECT_NEAR( valuesCheck.phaseChange( highTemp * (1.0 - epsilon) , pressure ),
-                      valuesCheck.phaseChange( highTemp * (1.0 + epsilon) , pressure ), 1.0e-10 );
+         phase.set( highTemp * (1.0 - epsilon), pressure );
+         visc1 = viscosity.get( phase );
+         phase.set( highTemp * (1.0 + epsilon), pressure );
+         visc2 = viscosity.get( phase );
+         EXPECT_NEAR( visc1, visc2, 1.0e-10 );
       }
    }
 }
@@ -223,7 +228,8 @@ TEST ( BrineViscosity, testing_viscosity_continuity_vector )
 
    for ( int j=0; j<8; ++j )
    {
-      BrineViscosityTest valuesCheck(0.1 * 0.5 * double(j));
+      GeoPhysics::Brine::PhaseStateVec phase( n, 0.1 * 0.5 * double(j) );
+      GeoPhysics::Brine::Viscosity viscosity(phase.getSalinity());
 
       for ( int i=0; i<n; ++i ) 
       {
@@ -233,18 +239,22 @@ TEST ( BrineViscosity, testing_viscosity_continuity_vector )
             pres[i] = 0.1;
          }
      
-         double highTemp = valuesCheck.findT2Test( pres[i] );
-         double lowTemp = valuesCheck.findT1Test( highTemp );
+         double highTemp = GeoPhysics::Brine::PhaseStateBase::findT2( pres[i] );
+         double lowTemp = GeoPhysics::Brine::PhaseStateBase::findT1( highTemp );
          temp1[i] = lowTemp * (1.0 - epsilon);
          temp2[i] = lowTemp * (1.0 + epsilon);
          temp3[i] = highTemp * (1.0 - epsilon);
          temp4[i] = highTemp * (1.0 + epsilon);
       }
 
-      valuesCheck.phaseChange( n, temp1, pres, visc1 );
-      valuesCheck.phaseChange( n, temp2, pres, visc2 );
-      valuesCheck.phaseChange( n, temp3, pres, visc3 );
-      valuesCheck.phaseChange( n, temp4, pres, visc4 );
+      phase.set( n, temp1, pres );
+      viscosity.get( phase, visc1 );
+      phase.set( n, temp2, pres );
+      viscosity.get( phase, visc2 );
+      phase.set( n, temp3, pres );
+      viscosity.get( phase, visc3 );
+      phase.set( n, temp4, pres );
+      viscosity.get( phase, visc4 );
       
       for ( int i=0; i<n; ++i ) 
       {
@@ -266,49 +276,13 @@ TEST ( BrineViscosity, testing_viscosity_continuity_vector )
 
 
 /// Testing region selection of viscosity.
-TEST ( BrineViscosity, testing_viscosity_region )
-{
-   const double epsilon = 1.0e-1;
-
-   for ( int j=0; j<8; ++j )
-   {
-      BrineViscosityTest valuesCheck(0.1 * 0.5 * double(j));
-      for ( int i=0; i<=100; ++i )
-      {
-         double pressure = 0.0;
-         double highTemp = 0.0;
-         double lowTemp = 0.0;
-         for ( int k=1; k<4; ++k )
-         {
-            pressure = 0.1 * double(20*i);
-            if ( pressure < 0.1 )
-            {
-               pressure = 0.1;
-            }
-     
-            highTemp = valuesCheck.findT2Test( pressure );
-            lowTemp = valuesCheck.findT1Test( highTemp );
-
-            EXPECT_NEAR( valuesCheck.phaseChange( ( lowTemp - epsilon) / double(k), pressure ), valuesCheck.aqueousBatzleWangTest( ( lowTemp - epsilon ) / double(k) ), 1.0e-10 );
-         
-            EXPECT_NEAR( valuesCheck.phaseChange( ( highTemp + epsilon) * double(k), pressure ), valuesCheck.vapourConstantTest(), 1.0e-10 );
-         }
-
-         EXPECT_NEAR( valuesCheck.phaseChange( ( highTemp + lowTemp) * 0.5, pressure ),
-                      0.5 * ( valuesCheck.vapourConstantTest() + valuesCheck.aqueousBatzleWangTest( lowTemp ) ), 1.0e-10 );
-
-      }
-   }
-}
-
-
-/// Testing region selection of viscosity.
 TEST ( BrineViscosity, testing_viscosity_vector_exact_val )
 {
-   const double salinity = 0.2;
-   BrineViscosityTest valuesCheck( salinity );
-
    const int n = 8;
+   const double salinity = 0.2;
+   GeoPhysics::Brine::PhaseStateVec phase( n, salinity );
+   GeoPhysics::Brine::Viscosity viscosity( phase.getSalinity() );
+
    ArrayDefs::Real_ptr temp = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( n );
    temp[0] = 130.0;
    temp[1] = 130.0;
@@ -330,7 +304,8 @@ TEST ( BrineViscosity, testing_viscosity_vector_exact_val )
    ArrayDefs::Real_ptr visc = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( n );
    for( int k=0; k<n; ++k ) visc[k] = 0.0;
 
-   valuesCheck.phaseChange( n, temp, pres, visc );
+   phase.set( n, temp, pres );
+   viscosity.get( phase, visc );
 
    EXPECT_NEAR( visc[0], 2.5e-05,               1.e-15 ); // vapor
    EXPECT_NEAR( visc[1], 0.0003742085594019073, 1.e-15 ); // aqueousBatzleWang
@@ -350,10 +325,11 @@ TEST ( BrineViscosity, testing_viscosity_vector_exact_val )
 /// Testing region selection of viscosity.
 TEST ( BrineViscosity, testing_viscosity_vector_exact_val_different_phases )
 {
-   const double salinity = 0.2;
-   BrineViscosityTest valuesCheck( salinity );
-
    const int n = 8;
+   const double salinity = 0.2;
+   GeoPhysics::Brine::PhaseStateVec phase( n, salinity );
+   GeoPhysics::Brine::Viscosity viscosity( phase.getSalinity() );
+
    ArrayDefs::Real_ptr temp = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( n );
    temp[0] = 130.0; // water
    temp[1] = 130.0; // water
@@ -379,8 +355,9 @@ TEST ( BrineViscosity, testing_viscosity_vector_exact_val_different_phases )
    {
       visc[i] = 0.0;
    }
-
-   valuesCheck.phaseChange( n, temp, pres, visc );
+   
+   phase.set( n, temp, pres );
+   viscosity.get( phase, visc );
 
    EXPECT_NEAR( visc[0], 0.0003742085594019073, 1.e-15 ); // water
    EXPECT_NEAR( visc[1], 0.0003742085594019073, 1.e-15 ); // water
@@ -400,10 +377,11 @@ TEST ( BrineViscosity, testing_viscosity_vector_exact_val_different_phases )
 /// Testing region selection of viscosity.
 TEST ( BrineViscosity, testing_viscosity_vector_exact_val_same_phase )
 {
-   const double salinity = 0.2;
-   BrineViscosityTest valuesCheck( salinity );
-
    const int n = 8;
+   const double salinity = 0.2;
+   GeoPhysics::Brine::PhaseStateVec phase( n, salinity );
+   GeoPhysics::Brine::Viscosity viscosity( phase.getSalinity() );
+
    ArrayDefs::Real_ptr temp = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( n );
    ArrayDefs::Real_ptr pres = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( n );
    ArrayDefs::Real_ptr visc = AlignedMemoryAllocator<double, ARRAY_ALIGNMENT>::allocate ( n );
@@ -415,7 +393,8 @@ TEST ( BrineViscosity, testing_viscosity_vector_exact_val_same_phase )
       pres[i] = GeoPhysics::Brine::s_MaxPressure;
       visc[i] = 0.0;
    }
-   valuesCheck.phaseChange( n, temp, pres, visc );   
+   phase.set( n, temp, pres );
+   viscosity.get( phase, visc );
    for( int i = 0; i < n; ++i )
    {
       EXPECT_NEAR( visc[i], 0.0003742085594019073, 1.e-15 );
@@ -428,7 +407,8 @@ TEST ( BrineViscosity, testing_viscosity_vector_exact_val_same_phase )
       pres[i] = 60.0;
       visc[i] = 0.0;
    }
-   valuesCheck.phaseChange( n, temp, pres, visc );   
+   phase.set( n, temp, pres );
+   viscosity.get( phase, visc );
    for( int i = 0; i < n; ++i )
    {
       EXPECT_NEAR( visc[i], 0.0001110191130450718, 1.e-15 );
@@ -441,7 +421,8 @@ TEST ( BrineViscosity, testing_viscosity_vector_exact_val_same_phase )
       pres[i] = GeoPhysics::Brine::s_MinPressure;
       visc[i] = 0.0;
    }
-   valuesCheck.phaseChange( n, temp, pres, visc );   
+   phase.set( n, temp, pres );
+   viscosity.get( phase, visc );
    for( int i = 0; i < n; ++i )
    {
       EXPECT_NEAR( visc[i], 2.5e-05, 1.e-15 );
