@@ -60,41 +60,42 @@ void LambdaMixer::sanitizeLambdas ()
 
 double GeoPhysics::LambdaMixer::mixLambdas (const std::vector<double> & percentages, const std::vector<double> & lambda)
 {
-   // Put the compound-lithology values in member data
-   m_fraction1 = percentages[0] / 100.0;
-   m_lambda1 = lambda[0];
+   int sizeP = percentages.size();
+   int sizeL = lambda.size();
 
-   if (percentages.size() == 2)
+   if (sizeP != sizeL)
    {
-      m_fraction2 = percentages[1] / 100.0;
-      m_lambda2 = lambda[1];
-
-      m_numberOfComponents = 2;
+      throw formattingexception::GeneralException() << "Error in calculation of mixed lambdas: size of percentage array (" << sizeP <<
+         ")is not the same as the size of the lambda array (" << sizeL << ")" ;
    }
-   else if (percentages.size() == 3)
-   {
-      m_fraction2 = percentages[1] / 100.0;
-      m_lambda2 = lambda[1];
 
+   m_numberOfComponents = sizeP;
+
+   if (m_numberOfComponents == 1)
+      return lambda[0];
+
+   switch (sizeP)
+   {
+   case 3:
       m_fraction3 = percentages[2] / 100.0;
       m_lambda3 = lambda[2];
+   case 2:
+      m_fraction2 = percentages[1] / 100.0;
+      m_lambda2 = lambda[1];
+      m_fraction1 = percentages[0] / 100.0; // case 1 is covered above
+      m_lambda1 = lambda[0];
+      break;
+   default:
+      throw formattingexception::GeneralException() << "Error in calculation of mixed lambdas: size of lambda array needs to be between 1 and 3";
+   }
    
-      m_numberOfComponents = 3;
-   }
-
-   // If only one component, just use those lambdas
-   if (m_numberOfComponents == 1)
-   {
-      return m_lambda1;
-   }
-
    sanitizeLambdas();
 
    // If two components, check if there is a dominant lithology
    if (m_numberOfComponents == 2)
    {
       // If there is a single dominant lithology use those lambdas
-      if (m_fraction1 >= 0.6)
+      if (m_fraction1 >= (1.0 + m_maximumAllowedDifference) / 2.0)
       {
          return m_lambda1;
       }
@@ -130,14 +131,14 @@ double GeoPhysics::LambdaMixer::mixLambdas (const std::vector<double> & percenta
 double LambdaMixer::dealWithThreeComponents ()
 {
    // If there is a single dominant lithology use those lambdas
-   if (m_fraction1 > 0.2 + m_fraction2)
+   if (m_fraction1 > m_maximumAllowedDifference + m_fraction2)
    {
       return m_lambda1;
    }
    
    // So second lithology is important, but if the
    // third one isn't, just average the first two.
-   if (m_fraction1 > 0.2 + m_fraction3)
+   if (m_fraction1 > m_maximumAllowedDifference + m_fraction3)
    {
       double difference = m_fraction1 - m_fraction2;
       double weight1 = 0.5 * (1.0 + difference / m_maximumAllowedDifference);
