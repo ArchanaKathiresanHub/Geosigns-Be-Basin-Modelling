@@ -14,7 +14,7 @@
 ///    # The loading of the CTCIoTbl and its possible exceptions
 ///    # The loading and interpreation of the CTCRiftingHistoryIoTbl and its possible exceptions
 ///      The details of the CTCRiftingHistoryIoTbl unit tests are documented in an excel file
-///      located @
+///      located @ https://sps.sede-coe.pds.nl/COE-II/Basin%20Modeling/_layouts/xlviewer.aspx?id=/COE-II/Basin%20Modeling/Development/CTC%20upgrade/CTCHistoryIoTbl_UniTests.xlsx&Source=https%3A%2F%2Fsps%2Esede%2Dcoe%2Epds%2Enl%2FCOE%2DII%2FBasin%2520Modeling%2FDevelopment%2FForms%2FAllItems%2Easpx%3FRootFolder%3D%252FCOE%252DII%252FBasin%2520Modeling%252FDevelopment%252FCTC%2520upgrade%26FolderCTID%3D0x01200075835670C4A4424D851CD5CC38F7B3E5%26View%3D%7B611C9535%2DA717%2D4886%2DAEF3%2D7E8F9A1B43AB%7D%26InitialTabId%3DRibbon%252EDocument%26VisibilityContext%3DWSSTabPersistence&DefaultItemOpen=1&DefaultItemOpen=1
 
 #include "InterfaceInputTester.h"
 

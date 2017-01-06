@@ -401,6 +401,7 @@ TEST_F( McKenzieTester, computeNDV_3 )
    }
 }
 
+// CASE 8 : The average rift age is negative
 #ifndef _WIN32
 // TEST_F is not working on windows because of some strange
 // behaviors of the projecthandle and the data access library
@@ -409,6 +410,7 @@ TEST_F( McKenzieTester, computeNDV_3 )
 // However this is not an easy problem as it seems that the memory is corrupted
 TEST_F( McKenzieTester, death_tests ) {
    ::testing::FLAGS_gtest_death_test_style = "threadsafe";
+   // Make the average rift age negative by setting a very high value to the current age
    m_age = 100000000.0;
    McKenzieCrustCalculatorPtr mcKenzieCalculator = createMcKenzieCalculator();
    ASSERT_DEATH( mcKenzieCalculator->compute(), "" );

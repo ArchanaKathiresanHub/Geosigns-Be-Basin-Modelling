@@ -309,7 +309,7 @@ void CrustalThicknessCalculator::run() {
             PWDRcalculator.compute();
          }
 
-         ///7. Computes the thinning factor and crustal thicknesse
+         ///7. Computes the thinning factor and crustal thicknesses
          if (m_inputData->getRiftingCalculationMask( age )){
             LogHandler( LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_STEP ) << "computing Crustal Thicknesses";
             CrustalThickness::McKenzieCrustCalculator mcKenzieCalculator( *m_inputData, m_outputData, validator, age,

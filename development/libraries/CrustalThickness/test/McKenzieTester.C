@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -39,7 +39,7 @@ McKenzieTester::McKenzieTester() :
    m_HBuMap  = new DataAccess::Interface::SerialGridMap( 0, 0, this->m_grid, 4000,   1 );
    //   - initial lithospheric mantle thickness is 115Km
    m_HLMuMap = new DataAccess::Interface::SerialGridMap( 0, 0, this->m_grid, 115000, 1 );
-   //   - satcked ITS for the rift is 1Km
+   //   - stacked ITS for the rift is 1Km
    m_previousRiftITS = new DataAccess::Interface::SerialGridMap( 0, 0, this->m_grid, 1000, 1 );
    //   - previous continental crust thickness is 40Km
    m_previousContinentalCrustThickness = new DataAccess::Interface::SerialGridMap( 0, 0, this->m_grid, 40000, 1 );
