@@ -1612,6 +1612,7 @@ namespace migration
       return true;
    }
 
+   // Refactor this. Too big, too complex
    /// migrate the contents of the charge grid maps to their appropriate columns in the target reservoir
    void Formation::migrateExpelledChargesToReservoir (unsigned int direction, Reservoir * targetReservoir) const
    {
@@ -1677,7 +1678,31 @@ namespace migration
                }
                else
                {
-                  targetReservoir->addBlocked (composition);
+                  // If the primary column (same i,j as the targetFormationNode) of the element
+                  // is sealing look at the other three columns associated with that element.
+                  if (targetColumn->isSealing ())
+                  {
+                     int offsetIndex;
+                     Column * shallowestColumn = 0;
+                     double shallowestDepth = Interface::DefaultUndefinedScalarValue;
+                     for (offsetIndex = 1; offsetIndex < 4; ++offsetIndex)
+                     {
+                        Column *altTargetColumn = targetReservoir->getColumn (iTarget + offsets[offsetIndex][0],
+                                                                           jTarget + offsets[offsetIndex][1]);
+                        
+                        if (IsValid (altTargetColumn) and !altTargetColumn->isSealing () and (shallowestColumn == 0 || altTargetColumn->getTopDepth () < shallowestDepth))
+                        {
+                           shallowestColumn = altTargetColumn;
+                           shallowestDepth = targetColumn->getTopDepth ();
+                        }
+                     }
+                     if (shallowestColumn)
+                        shallowestColumn->addCompositionToBeMigrated (composition);
+                     else
+                        targetReservoir->addBlocked (composition);
+                  }
+                  else
+                     targetReservoir->addBlocked (composition);
                }
             }
          }
@@ -1686,7 +1711,7 @@ namespace migration
       RequestHandling::FinishRequestHandling ();
    }
 
-
+   // Refactor this. Too big, too complex
    void Formation::migrateLeakedChargesToReservoir (Reservoir * targetReservoir) const
    {
       // LeakingReservoirList should contain only the reservoir corresponding
@@ -1764,7 +1789,31 @@ namespace migration
                   }
                   else
                   {
-                     targetReservoir->addBlocked (composition);
+                     // If the primary column (same i,j as the targetFormationNode) of the element
+                     // is sealing look at the other three columns associated with that element.
+                     if (targetColumn->isSealing ())
+                     {
+                        int offsetIndex;
+                        Column * shallowestColumn = 0;
+                        double shallowestDepth = Interface::DefaultUndefinedScalarValue;
+                        for (offsetIndex = 1; offsetIndex < 4; ++offsetIndex)
+                        {
+                           Column *altTargetColumn = targetReservoir->getColumn (iTarget + offsets[offsetIndex][0],
+                                                                                 jTarget + offsets[offsetIndex][1]);
+                        
+                           if (IsValid (altTargetColumn) and !altTargetColumn->isSealing () and (shallowestColumn == 0 || altTargetColumn->getTopDepth () < shallowestDepth))
+                           {
+                              shallowestColumn = altTargetColumn;
+                              shallowestDepth = targetColumn->getTopDepth ();
+                           }
+                        }
+                        if (shallowestColumn)
+                           shallowestColumn->addCompositionToBeMigrated (composition);
+                        else
+                           targetReservoir->addBlocked (composition);
+                     }
+                     else
+                        targetReservoir->addBlocked (composition);
                   }
                }
             }
