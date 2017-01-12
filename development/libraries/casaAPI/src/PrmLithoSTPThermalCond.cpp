@@ -33,8 +33,8 @@ namespace casa
 // Constructor
 PrmLithoSTPThermalCond::PrmLithoSTPThermalCond( mbapi::Model & mdl, const char * lithoName )
    : m_parent( 0 )
-   , m_lithoName(   lithoName )
-   , m_value(       Utilities::Numerical::IbsNoDataValue )
+   , m_lithoName( lithoName )
+   , m_value( Utilities::Numerical::IbsNoDataValue )
 
 { 
    try

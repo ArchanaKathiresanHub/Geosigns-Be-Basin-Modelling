@@ -26,14 +26,16 @@
 #include <cmath>
 #include <sstream>
 
+using namespace Utilities::Numerical;
+
 namespace casa
 {
 
-static const char * s_stratIoTblName         = "StratIoTbl";
-static const char * s_stratIoTblAgeCol       = "DepoAge";
-static const char * s_crustIoTblName         = "CrustIoTbl";
-static const char * s_crustIoTblAgeCol       = "Age";
-static const char * s_crustIoTblThicknessCol = "Thickness";
+static const char * s_stratIoTblName              = "StratIoTbl";
+static const char * s_stratIoTblAgeCol            = "DepoAge";
+static const char * s_crustIoTblName              = "CrustIoTbl";
+static const char * s_crustIoTblAgeCol            = "Age";
+static const char * s_crustIoTblThicknessCol      = "Thickness";
 static const char * s_crustIoTblCalibThicknessCol = "CalibThickness";
 static const char * s_crustIoTblOptimThicknessCol = "OptimThickness";
 static const char * s_crustIoTblErrThicknessCol   = "ErrThickness";
@@ -45,10 +47,10 @@ PrmOneCrustThinningEvent::PrmOneCrustThinningEvent( mbapi::Model & mdl ) : m_par
 {
    size_t crustIoTblSize = mdl.tableSize( s_crustIoTblName );
 
-   m_initialThickness = Utilities::Numerical::IbsNoDataValue;
-   m_t0               = Utilities::Numerical::IbsNoDataValue;
-   m_dt               = Utilities::Numerical::IbsNoDataValue;
-   m_coeff            = Utilities::Numerical::IbsNoDataValue;
+   m_initialThickness = IbsNoDataValue;
+   m_t0               = IbsNoDataValue;
+   m_dt               = IbsNoDataValue;
+   m_coeff            = IbsNoDataValue;
 
    if ( ErrorHandler::NoError == mdl.errorCode() )
    {
@@ -72,14 +74,17 @@ PrmOneCrustThinningEvent::PrmOneCrustThinningEvent( mbapi::Model & mdl ) : m_par
 }
 
 // Constructor. Set given parameter values
-PrmOneCrustThinningEvent::PrmOneCrustThinningEvent( const VarPrmOneCrustThinningEvent * parent, double thickIni, double t0, double dt, double coeff ) : 
-     m_parent( parent )
-   , m_initialThickness( thickIni ) 
-   , m_t0( t0 )
-   , m_dt( dt )
-   , m_coeff( coeff )
-{
-}
+PrmOneCrustThinningEvent::PrmOneCrustThinningEvent( const VarPrmOneCrustThinningEvent * parent
+                                                  , double                              thickIni
+                                                  , double                              t0
+                                                  , double                              dt
+                                                  , double                              coeff
+                                                  )
+                                                  : m_parent( parent )
+                                                  , m_initialThickness( thickIni ) 
+                                                  , m_t0( t0 )
+                                                  , m_dt( dt )
+                                                  , m_coeff( coeff ) {}
 
 // Set this parameter value in Cauldron model
 ErrorHandler::ReturnCode PrmOneCrustThinningEvent::setInModel( mbapi::Model & mdl, size_t /* caseID */ )
@@ -103,10 +108,9 @@ ErrorHandler::ReturnCode PrmOneCrustThinningEvent::setInModel( mbapi::Model & md
       oK = oK ? ErrorHandler::NoError == mdl.addRowToTable( s_crustIoTblName ) : oK;
 
       // set to 0 unused columns
-      oK = oK ? ErrorHandler::NoError == mdl.setTableValue( s_crustIoTblName, i, s_crustIoTblCalibThicknessCol, 
-                                                                                 Utilities::Numerical::IbsNoDataValue ) : oK;
-      oK = oK ? ErrorHandler::NoError == mdl.setTableValue( s_crustIoTblName, i, s_crustIoTblOptimThicknessCol, (long)0 ) : oK;
-      oK = oK ? ErrorHandler::NoError == mdl.setTableValue( s_crustIoTblName, i, s_crustIoTblErrThicknessCol, 0.0e0 ) : oK;
+      oK = oK ? ErrorHandler::NoError == mdl.setTableValue( s_crustIoTblName, i, s_crustIoTblCalibThicknessCol, IbsNoDataValue ) : oK;
+      oK = oK ? ErrorHandler::NoError == mdl.setTableValue( s_crustIoTblName, i, s_crustIoTblOptimThicknessCol, (long)0        ) : oK;
+      oK = oK ? ErrorHandler::NoError == mdl.setTableValue( s_crustIoTblName, i, s_crustIoTblErrThicknessCol,   0.0e0          ) : oK;
     }
 
    // 0 time

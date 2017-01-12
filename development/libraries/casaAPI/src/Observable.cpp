@@ -23,7 +23,7 @@ std::vector<bool> casa::Observable::isValid( const casa::ObsValue * obv ) const
 {
    std::vector<bool> ret;
 
-   if ( ! obv ) { return ret; }
+   if ( obv == nullptr ) { return ret; }
 
    const std::vector<double> & vals = obv->asDoubleArray();
    for ( auto v : vals ) { ret.push_back( !IsValueUndefined( v ) ); }

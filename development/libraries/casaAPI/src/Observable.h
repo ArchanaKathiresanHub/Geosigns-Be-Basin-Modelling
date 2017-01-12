@@ -131,26 +131,27 @@ namespace casa
       virtual void setUAWeight( double w ) = 0;
 
       /// @brief Update Model to be sure that requested property will be saved at requested time
-      /// @param caldModel Cauldron model
+      /// @param[in] caldModel Cauldron model
       /// @return NoError in case of success, or error code otherwise, error message will be set in caldModel.
       virtual ErrorHandler::ReturnCode requestObservableInModel( mbapi::Model & caldModel ) = 0;
 
       /// @brief Get this observable value from Cauldron model
-      /// @param caldModel reference to Cauldron model
+      /// @param[in] caldModel Cauldron model
       /// @return a new ObsValue object with observable value on success or NULL otherwise. 
       /// Error code could be obtained from the Model object. Caller is responsible for deleting the object
       /// when it can be discarded
       virtual ObsValue * getFromModel( mbapi::Model & caldModel ) = 0;
 
-      /// @brief Do observable position validation for the given model, for this it performs check - can observable 
-      ///        value be extracted from the model or it  position is outside of the model boundaries
-      /// @param caldModel reference to Cauldron model
-      /// @return empty string if there is no any problems with this observable, or error message if something wrong
+      /// @brief Check the observable position for the given model, is the observable outside of the model 
+      ///        boundaries and can the observable value be extracted from the model 
+      /// @param[in] caldModel reference to Cauldron model
+      /// @return empty string if check didn't find any problems with this observable, or error message if something is wrong
       virtual std::string checkObservableForProject( mbapi::Model & caldModel ) const = 0; 
 
-      /// @brief Check the extracted from the model observable value, is it defined or not.
-      /// @param obv observable value
-      /// @return true if observable value has some reasonable value, false if observable value is outside of valid range.
+      /// @brief Check the extracted from the model observable value (values if the dimension of the 
+      ///        observable more then one), is it defined or undefined.
+      /// @param[in] obv observable value object pointer
+      /// @return vector with size of the observable dimension with true/false values for defined/undefined observable value
       virtual std::vector<bool> isValid( const ObsValue * obv ) const;
 
       /// @brief Create new observable value from set of doubles. This method is used for data conversion between SUMlib and CASA
@@ -173,8 +174,8 @@ namespace casa
       }
 
       /// @brief Create a new observable instance and deserialize it from the given stream
-      /// @param dz input stream
-      /// @param objName expected object name
+      /// @param[in] dz input stream
+      /// @param[in] objName expected object name
       /// @return new observable instance on susccess, or throw and exception in case of any error
       static Observable * load( CasaDeserializer & dz, const char * objName );
 

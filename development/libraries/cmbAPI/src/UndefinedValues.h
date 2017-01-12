@@ -16,12 +16,6 @@
 
 #include "ConstantsNumerical.h"
 
-#ifdef _WIN32
-#include <float.h>
-#else
-#include <values.h>
-#endif
-
 /// @brief Do check if the given value is equal to one of the "no data values" 
 /// @param val float point number to check
 /// @return true if given value is exact as one of the "no data values", false otherwise

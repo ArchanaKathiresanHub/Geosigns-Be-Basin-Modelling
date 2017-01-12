@@ -111,7 +111,7 @@ void CmdAddCldApp::printHelpPage( const char * cmdName )
    std::cout << "        cpus    - (Optional) If application is parallel, user could specify number of cpus. By default,\n";
    std::cout << "                  the number of cpus is set to 1. If a user is inteded to define a time limits (see next \n";
    std::cout << "                  parameter description) he must define the cpus number to some value.\n";
-   std::cout << "        timeLim - [min] (Optional) Defines the time limits for a specific application. If the wall clock\n";
+   std::cout << "        timeLim - (Optional) Defines the time limits for a specific application. If the wall clock\n";
    std::cout << "                  exceeds timeLim, the application will be stopped\n";
    std::cout << "                  and all further stages in applications pipeline will be invalidated also.\n";
    std::cout << "        appName - name of the cauldron application. Here is a list of supported applicatons: \n";

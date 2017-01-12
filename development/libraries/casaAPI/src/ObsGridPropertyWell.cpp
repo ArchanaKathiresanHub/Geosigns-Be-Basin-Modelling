@@ -26,6 +26,8 @@
 #include <cassert>
 #include <sstream>
 
+using namespace Utilities::Numerical;
+
 namespace casa
 {
 
@@ -142,20 +144,20 @@ ErrorHandler::ReturnCode ObsGridPropertyWell::requestObservableInModel( mbapi::M
         ErrorHandler::NoError != caldModel.propertyManager().requestPropertyInSnapshots( m_propName )
       ) return caldModel.errorCode();
 
-   size_t tblSize = caldModel.tableSize( Observable::s_dataMinerTable );
+   size_t tblSize = caldModel.tableSize( s_dataMinerTable );
 
    for ( size_t i = 0; i < m_x.size(); ++i )
    {
-      if ( ErrorHandler::NoError != caldModel.addRowToTable( Observable::s_dataMinerTable ) ) return caldModel.errorCode();
+      if ( ErrorHandler::NoError != caldModel.addRowToTable( s_dataMinerTable ) ) return caldModel.errorCode();
 
       m_posDataMiningTbl[i] = static_cast<int>( tblSize + i );
 
-      if ( ErrorHandler::NoError != caldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl[i], "Time",         m_simTime            ) || 
-           ErrorHandler::NoError != caldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl[i], "XCoord",       m_x[i]               ) ||
-           ErrorHandler::NoError != caldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl[i], "YCoord",       m_y[i]               ) ||
-           ErrorHandler::NoError != caldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl[i], "ZCoord",       m_z[i]               ) ||
-           ErrorHandler::NoError != caldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl[i], "PropertyName", m_propName           ) ||
-           ErrorHandler::NoError != caldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl[i], "Value",        Utilities::Numerical::IbsNoDataValue )
+      if ( ErrorHandler::NoError != caldModel.setTableValue( s_dataMinerTable, m_posDataMiningTbl[i], "Time",         m_simTime      ) || 
+           ErrorHandler::NoError != caldModel.setTableValue( s_dataMinerTable, m_posDataMiningTbl[i], "XCoord",       m_x[i]         ) ||
+           ErrorHandler::NoError != caldModel.setTableValue( s_dataMinerTable, m_posDataMiningTbl[i], "YCoord",       m_y[i]         ) ||
+           ErrorHandler::NoError != caldModel.setTableValue( s_dataMinerTable, m_posDataMiningTbl[i], "ZCoord",       m_z[i]         ) ||
+           ErrorHandler::NoError != caldModel.setTableValue( s_dataMinerTable, m_posDataMiningTbl[i], "PropertyName", m_propName     ) ||
+           ErrorHandler::NoError != caldModel.setTableValue( s_dataMinerTable, m_posDataMiningTbl[i], "Value",        IbsNoDataValue )
          ) return caldModel.errorCode();
    }
    return ErrorHandler::NoError;
@@ -165,10 +167,10 @@ ErrorHandler::ReturnCode ObsGridPropertyWell::requestObservableInModel( mbapi::M
 // Get this observable value from Cauldron model
 ObsValue * ObsGridPropertyWell::getFromModel( mbapi::Model & caldModel )
 {
-   std::vector<double> vals( m_posDataMiningTbl.size(), Utilities::Numerical::IbsNoDataValue );
+   std::vector<double> vals( m_posDataMiningTbl.size(), IbsNoDataValue );
 
    const std::string & msg = checkObservableForProject( caldModel );
-   if (!msg.empty()) { return new ObsValueDoubleArray( this, vals ); }
+   if ( !msg.empty() ) { return new ObsValueDoubleArray( this, vals ); }
 
    const double eps = 1.e-5;
 
@@ -177,44 +179,35 @@ ObsValue * ObsGridPropertyWell::getFromModel( mbapi::Model & caldModel )
       if ( m_posDataMiningTbl[i] < 0 )
       {
          size_t tblSize = caldModel.tableSize( Observable::s_dataMinerTable );
-         bool found = false;
-         for ( size_t j = 0; j < tblSize && !found; ++j )
+         for ( size_t j = 0; j < tblSize; ++j )
          {
-            double obTime = caldModel.tableValueAsDouble( Observable::s_dataMinerTable, j, "Time" );
-            if ( caldModel.errorCode() == ErrorHandler::NoError && NumericFunctions::isEqual( obTime, m_simTime, eps ) )
-            {
-               double xCrd = caldModel.tableValueAsDouble( Observable::s_dataMinerTable, j, "XCoord" );
-               if ( caldModel.errorCode() == ErrorHandler::NoError && NumericFunctions::isEqual( xCrd, m_x[i], eps ) )
-               {
-                  double yCrd = caldModel.tableValueAsDouble( Observable::s_dataMinerTable, j, "YCoord" );
-                  if ( caldModel.errorCode() == ErrorHandler::NoError && NumericFunctions::isEqual( yCrd, m_y[i], eps ) )
-                  {
-                     double zCrd = caldModel.tableValueAsDouble( Observable::s_dataMinerTable, j, "ZCoord" );
-                     if ( caldModel.errorCode() == ErrorHandler::NoError && NumericFunctions::isEqual( zCrd, m_z[i], eps ) )
-                     {
-                        const std::string & propName = caldModel.tableValueAsString( Observable::s_dataMinerTable, j, "PropertyName" );
-                        if ( caldModel.errorCode() == ErrorHandler::NoError && m_propName == propName )
-                        {
-                           found = true;
-                           vals[i] = caldModel.tableValueAsDouble( Observable::s_dataMinerTable, j, "Value" );
+            double obTime = caldModel.tableValueAsDouble( s_dataMinerTable, j, "Time" );
+            if ( caldModel.errorCode() != ErrorHandler::NoError || !NumericFunctions::isEqual( obTime, m_simTime, eps ) ) { continue; }
 
-                           m_posDataMiningTbl[i] = static_cast<int>( j ); // fill the rest of the table as well data must be continuous
-                           for ( size_t k = i+1; k < m_posDataMiningTbl.size(); ++k )
-                           {
-                              m_posDataMiningTbl[k] = m_posDataMiningTbl[k-1]+1;
-                           }
-                        }
-                     }
-                  }
-               }
+            double xCrd = caldModel.tableValueAsDouble( s_dataMinerTable, j, "XCoord" );
+            if ( caldModel.errorCode() != ErrorHandler::NoError || !NumericFunctions::isEqual( xCrd, m_x[i], eps ) ) { continue; }
+
+            double yCrd = caldModel.tableValueAsDouble( s_dataMinerTable, j, "YCoord" );
+            if ( caldModel.errorCode() != ErrorHandler::NoError || !NumericFunctions::isEqual( yCrd, m_y[i], eps ) ) { continue; }
+
+            double zCrd = caldModel.tableValueAsDouble( s_dataMinerTable, j, "ZCoord" );
+            if ( caldModel.errorCode() != ErrorHandler::NoError || !NumericFunctions::isEqual( zCrd, m_z[i], eps ) ) { continue; }
+
+            const std::string & propName = caldModel.tableValueAsString( s_dataMinerTable, j, "PropertyName" );
+            if ( caldModel.errorCode() != ErrorHandler::NoError || m_propName != propName ) { continue; }
+
+            vals[i] = caldModel.tableValueAsDouble( s_dataMinerTable, j, "Value" );
+            m_posDataMiningTbl[i] = static_cast<int>( j ); // fill the rest of the table as well data must be continuous
+            for ( size_t k = i + 1; k < m_posDataMiningTbl.size(); ++k )
+            {
+               m_posDataMiningTbl[k] = m_posDataMiningTbl[k-1]+1;
             }
+            break;
          }
       }
-      else
-      {
-         vals[i] = caldModel.tableValueAsDouble( Observable::s_dataMinerTable, m_posDataMiningTbl[i], "Value" );
-      }
-      if ( caldModel.errorCode() != ErrorHandler::NoError ) return NULL;
+      else { vals[i] = caldModel.tableValueAsDouble( s_dataMinerTable, m_posDataMiningTbl[i], "Value" ); }
+
+      if ( caldModel.errorCode() != ErrorHandler::NoError ) return nullptr;
    }
 
    return new ObsValueDoubleArray( this, vals );
@@ -226,10 +219,10 @@ std::string ObsGridPropertyWell::checkObservableForProject( mbapi::Model & caldM
    std::ostringstream oss;
 
    double x0, y0;
-   caldModel.origin( x0, y0 );
+   if ( caldModel.origin( x0, y0 ) != ErrorHandler::NoError ) { oss << "Can't extract project origin coordinates"; }
    
    double dimX, dimY;
-   caldModel.arealSize( dimX, dimY );
+   if ( caldModel.arealSize( dimX, dimY ) != ErrorHandler::NoError ) { oss << "Can't extract project grid dimenstions"; }
 
    for ( size_t i = 0; i < m_x.size(); ++i )
    {
@@ -246,7 +239,7 @@ std::string ObsGridPropertyWell::checkObservableForProject( mbapi::Model & caldM
 // Create this observable value from double array (converting data from SUMlib for response surface evaluation
 ObsValue * ObsGridPropertyWell::createNewObsValueFromDouble( std::vector<double>::const_iterator & val ) const
 {
-   std::vector<double> obsVal( m_x.size(), Utilities::Numerical::IbsNoDataValue );
+   std::vector<double> obsVal( m_x.size(), IbsNoDataValue );
 
    for ( size_t i = 0; i < m_x.size(); ++i )
    {

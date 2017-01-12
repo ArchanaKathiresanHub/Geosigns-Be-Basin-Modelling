@@ -17,12 +17,12 @@
 
 ErrorHandler::ReturnCode casa::ObsSpaceImpl::addObservable( Observable * prm )
 {
-   if ( prm )
+   if ( prm != nullptr )
    {
       m_obsSet.push_back( prm );
       m_obsIsValidFlags.push_back( std::vector<bool>( prm->dimension(), false ) );
    }
-   else       { return reportError( UndefinedValue, "ObsSpaceImpl::addObservable() no observable was given" ); }
+   else { return reportError( UndefinedValue, "ObsSpaceImpl::addObservable() no observable was given" ); }
    return NoError;
 }
 
