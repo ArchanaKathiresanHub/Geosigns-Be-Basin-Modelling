@@ -175,19 +175,23 @@ bool Migrator::compute (void)
 
    ComputeRanks (m_projectHandle->getActivityOutputGrid ());
 
-   m_verticalMigration = m_projectHandle->getRunParameters ()->getVerticalSecondaryMigration ();
+   m_advancedMigration = m_projectHandle->getRunParameters ()->getAdvancedMigration ();
    m_hdynamicAndCapillary = m_projectHandle->getRunParameters ()->getHydrodynamicCapillaryPressure ();
-   if (m_verticalMigration)
-      m_hdynamicAndCapillary = 0;
    m_reservoirDetection = m_projectHandle->getRunParameters ()->getReservoirDetection ();
    m_paleoSeeps = m_projectHandle->getRunParameters ()->getPaleoSeeps ();
+   if (!m_advancedMigration)
+   {
+      m_hdynamicAndCapillary = 0;
+      m_reservoirDetection = 0;
+      m_paleoSeeps = 0;
+   }
    m_legacyMigration = m_projectHandle->getRunParameters ()->getLegacy ();
 
    if (!setUpBasinGeometry ()) return false;
 
    if (m_legacyMigration)
    {
-      m_verticalMigration = true;
+      m_advancedMigration = false;
       m_hdynamicAndCapillary = false;
       m_reservoirDetection = false;
       m_paleoSeeps = false;
@@ -243,13 +247,13 @@ bool Migrator::compute (void)
    //Specify the simulation details   
    string simulatorMode;
 
-   if (!m_verticalMigration and !m_hdynamicAndCapillary)
+   if (m_advancedMigration and !m_hdynamicAndCapillary)
    {
       simulatorMode += simulationModeStr[3];
       simulatorMode += " ";
    }
 
-   if (m_verticalMigration)
+   if (!m_advancedMigration)
    {
       simulatorMode += simulationModeStr[0];
       simulatorMode += " ";
@@ -898,7 +902,7 @@ bool Migrator::detectReservoirs (const Interface::Snapshot * start, const Interf
 
 bool Migrator::computeSMFlowPaths (const Interface::Snapshot * start, const Interface::Snapshot * end)
 {
-   if (!m_verticalMigration)
+   if (m_advancedMigration)
    {
       Formation * sourceFormation = getBottomMigrationFormation (end);
       if (!sourceFormation) return false;
@@ -1055,9 +1059,7 @@ bool Migrator::chargeReservoir (migration::Reservoir * reservoir, migration::Res
 
    if (reservoirBelow) // Collect the leaked HCs from the reservoir below
    {
-      // Non-Vertical Migration: collectLeakedCharges () assumes vertical. We want something like 
-      // migrateExpelledChargesToReservoir () as in the case of expulsion. If vertical then collectLeakedCHarges () is OK.
-      if (m_verticalMigration)
+      if (!m_advancedMigration)
       {
          reservoir->collectLeakedCharges (reservoirBelow, barrier);
       }
@@ -1196,7 +1198,7 @@ bool Migrator::calculateSeepage (const Interface::Snapshot * end)
       // If it is, the column composition will be registered for seeps as it is currently stored.
       if (formationOnTop and formationOnTop->isActive (end))
       {
-         if (!topReservoirFormation->calculateLeakageSeeps (end, m_verticalMigration))
+         if (!topReservoirFormation->calculateLeakageSeeps (end, m_advancedMigration))
             return false;
       }
 
@@ -1233,7 +1235,7 @@ bool Migrator::calculateSeepage (const Interface::Snapshot * end)
             // Account for the possibility of downward migration
             indexDifference = topReservoirIndex - formation->getDepositionSequence ();
             double fractionOfExpulsion = indexDifference < -2 ? 1.0 : 0.5;
-            if (!formation->calculateExpulsionSeeps (end, fractionOfExpulsion, m_verticalMigration))
+            if (!formation->calculateExpulsionSeeps (end, fractionOfExpulsion, m_advancedMigration))
                return false;
          }
       }
@@ -1358,7 +1360,7 @@ bool Migrator::collectAndMigrateExpelledCharges (Reservoir * reservoir, Reservoi
 
       if (formation->isSourceRock ())
       {
-         if ((directionsToCollect & EXPELLEDUPWARD) and !m_verticalMigration)
+         if ((directionsToCollect & EXPELLEDUPWARD) and m_advancedMigration)
          {
             formation->migrateExpelledChargesToReservoir (directionsToCollect, reservoir);
          }

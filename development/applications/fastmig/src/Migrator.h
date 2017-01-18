@@ -197,7 +197,7 @@ namespace migration
 
       MigrationPropertyManager& getPropertyManager ();
 
-      inline bool performVerticalMigration (void) const;
+      inline bool performAdvancedMigration (void) const;
       inline bool performHDynamicAndCapillary (void) const;
       inline bool performReservoirDetection (void) const;
       inline bool calculatePaleoSeeps (void) const;
@@ -236,7 +236,7 @@ namespace migration
       OilToGasCracker * m_otgc;
 #endif
 
-      bool m_verticalMigration;
+      bool m_advancedMigration;
       bool m_hdynamicAndCapillary;
       bool m_reservoirDetection;
       bool m_paleoSeeps;
@@ -259,9 +259,9 @@ inline migration::MigrationPropertyManager& migration::Migrator::getPropertyMana
    return *(m_propertyManager.get ());
 }
 
-bool migration::Migrator::performVerticalMigration (void) const
+bool migration::Migrator::performAdvancedMigration (void) const
 {
-   return m_verticalMigration;
+   return m_advancedMigration;
 }
 
 bool migration::Migrator::performHDynamicAndCapillary (void) const

@@ -3079,13 +3079,13 @@ START-properties
     Error Field         : No
     Default             : 1
 
-    Identification      : VerticalSecondaryMigration
-    Description         : Perform vertical or non-vertical secondary migrattion
+    Identification      : AdvancedMigration
+    Description         : Use the basic or advanced secondary-migration engine
     Type                : integer
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
-    Default             : 1
+    Default             : 0
 
     Identification      : HydrodynamicCapillaryPressure
     Description         : Consider hydrodynamic and capillary forces in flow path modeling
@@ -6546,7 +6546,7 @@ START-property-tables
     Column         : Optimisation_Level
     Column         : Temperature_Gradient
     Column         : Constrain_VES
-    Column         : VerticalSecondaryMigration
+    Column         : AdvancedMigration
     Column         : HydrodynamicCapillaryPressure
     Column         : ReservoirDetection
     Column         : PaleoSeeps

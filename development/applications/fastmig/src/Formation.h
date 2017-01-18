@@ -191,8 +191,8 @@ namespace migration
       void migrateExpelledChargesToReservoir (unsigned int direction, Reservoir * targetReservoir) const;
       void migrateLeakedChargesToReservoir (Reservoir * targetReservoir) const;
 
-      bool calculateLeakageSeeps (const Interface::Snapshot * end, const bool verticalMigration);
-      bool calculateExpulsionSeeps (const Interface::Snapshot * end, const double expulsionFraction, const bool verticalMigration);
+      bool calculateLeakageSeeps (const Interface::Snapshot * end, const bool advancedMigration);
+      bool calculateExpulsionSeeps (const Interface::Snapshot * end, const double expulsionFraction, const bool advancedMigration);
 
       void manipulateFormationNodeComposition (FormationNodeCompositionRequest & compositionRequest);
       void getFormationNodeComposition (FormationNodeCompositionRequest & compositionRequest, FormationNodeCompositionRequest & compositionResponse);
@@ -215,7 +215,7 @@ namespace migration
       const Interface::GridMap * getPropertyGridMap (const string & propertyName,
          const Interface::Snapshot * snapshot) const;
 
-      inline bool performVerticalMigration (void) const;
+      inline bool performAdvancedMigration (void) const;
       inline bool performHDynamicAndCapillary (void) const;
       inline bool performReservoirDetection (void) const;
       inline double getBlockingPermeability (void);
@@ -332,9 +332,9 @@ namespace migration
       return getPropertyValue (TEMPERATUREPROPERTY, i, j, k);
    }
 
-   bool Formation::performVerticalMigration (void) const
+   bool Formation::performAdvancedMigration (void) const
    {
-      return m_migrator->performVerticalMigration ();
+      return m_migrator->performAdvancedMigration ();
    }
 
    bool Formation::performHDynamicAndCapillary (void) const

@@ -149,7 +149,7 @@ namespace migration
             return false;
       }
 
-      unsigned int depth = getMaximumNumberOfElements () - 1;
+      int depth = getMaximumNumberOfElements () - 1;
       assert (depth >= 0);
 
       // Using the PropertyRetriever class which ensures the retrieval and later on the restoration of property pointers
@@ -167,7 +167,7 @@ namespace migration
       {
          for (unsigned int j = m_formationNodeArray->firstJLocal (); j <= m_formationNodeArray->lastJLocal (); ++j)
          {
-            for (unsigned int k = 0; k <= depth; ++k)
+            for (unsigned int k = 0; k <= (unsigned int) depth; ++k)
             {
                LocalFormationNode * formationNode = getLocalFormationNode (i, j, k);
 
@@ -1088,7 +1088,7 @@ namespace migration
                }
                else
                {
-                  if (!m_migrator->performVerticalMigration ())
+                  if (m_migrator->performAdvancedMigration ())
                   {
                      gridMapValue =
                         100 * node->getAdjacentFormationNodeGridOffset (2) +     // K
@@ -1824,7 +1824,7 @@ namespace migration
       RequestHandling::FinishRequestHandling ();
    }
 
-   bool Formation::calculateExpulsionSeeps (const Interface::Snapshot * end, const double expulsionFraction, const bool verticalMigration)
+   bool Formation::calculateExpulsionSeeps (const Interface::Snapshot * end, const double expulsionFraction, const bool advancedMigration)
    {
       int depthIndex = m_formationNodeArray->depth () - 1;
 
@@ -1841,7 +1841,7 @@ namespace migration
 
             FormationNode * targetFormationNode;
 
-            if (verticalMigration)
+            if (!advancedMigration)
             {
                int k = topActiveFormation->getNodeDepth () - 1;
                targetFormationNode = topActiveFormation->getFormationNode (i, j, k);
@@ -1884,7 +1884,7 @@ namespace migration
       return true;
    }
 
-   bool Formation::calculateLeakageSeeps (const Interface::Snapshot * end, const bool verticalMigration)
+   bool Formation::calculateLeakageSeeps (const Interface::Snapshot * end, const bool advancedMigration)
    {
       // LeakingReservoirList should contain only the reservoir corresponding
       // to the formation whose member function is being executed
@@ -1919,7 +1919,7 @@ namespace migration
 
             FormationNode *targetFormationNode;
 
-            if (verticalMigration)
+            if (!advancedMigration)
             {
                int k = topActiveFormation->getNodeDepth () - 1;
                targetFormationNode = topActiveFormation->getFormationNode (i, j, k);

@@ -1,3 +1,7 @@
+
+
+
+
 // Copyright (C) 2010-2015 Shell International Exploration & Production.
 // All rights reserved.
 //
@@ -204,7 +208,7 @@ namespace migration
 
       virtual bool isValid (void);
 
-      double performVerticalMigration (void);
+      double performAdvancedMigration (void);
       double performHDynamicAndCapillary (void);
       double getBlockingPorosity (void);
       double getBlockingPermeability (void);

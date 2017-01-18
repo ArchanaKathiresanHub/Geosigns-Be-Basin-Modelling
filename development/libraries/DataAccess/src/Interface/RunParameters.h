@@ -111,8 +111,8 @@ namespace DataAccess
          /// Indicates minimum gas column height a reservoir must be able to sustain
          virtual double getMinGasColumnHeight () const;
 
-         /// Indicates whether to perform vertical or non-vertical secondary migration.
-         virtual bool getVerticalSecondaryMigration () const;
+         /// Indicates whether to use the basic (vertical) or the advanced (non-vertical, ARD) migration engine.
+         virtual bool getAdvancedMigration () const;
 
          /// Indicates whether to automatically detect reservoir nodes.
          virtual bool getReservoirDetection () const;

@@ -555,9 +555,9 @@ namespace migration
       m_waterDensity = fluid->density (m_temperature, m_pressure);
    }
 
-   double LocalFormationNode::performVerticalMigration (void)
+   double LocalFormationNode::performAdvancedMigration (void)
    {
-      return getFormation ()->performVerticalMigration ();
+      return getFormation ()->performAdvancedMigration ();
    }
 
    double LocalFormationNode::performHDynamicAndCapillary (void)
@@ -1070,7 +1070,7 @@ namespace migration
       int j = getJ ();
       int k = getK ();
 
-      if (performVerticalMigration () or hasNoThickness ())
+      if (!performAdvancedMigration () or hasNoThickness ())
       {
          // let's assume everything will go straight up in this case
          if (!m_analogFlowDirection) m_analogFlowDirection = new FiniteElementMethod::ThreeVector;
@@ -1241,12 +1241,6 @@ namespace migration
 
       int diStart = 0;
 
-      if (getReservoirVapour () or getReservoirLiquid ())
-      {
-         // Only look laterally (grid-wise) for flow path continuations
-         diStart += NumberOfUpwardNeighbourOffsets;
-      }
-
       double dx = m_formation->getDeltaI ();
       double dy = m_formation->getDeltaJ ();
 
@@ -1267,12 +1261,6 @@ namespace migration
          if (neighbourNode and neighbourNode->isImpermeable ())
          {
             // path cannot go into an impermeable node
-            continue;
-         }
-
-         if ((getReservoirVapour () or getReservoirLiquid ()) and neighbourNode and neighbourNode->hasNoThickness ())
-         {
-            // cannot escape via a zero thickness node if we are in a reservoir
             continue;
          }
 
@@ -1306,6 +1294,12 @@ namespace migration
             // Avoid loops in the path by going only upwards in depth
             if (neighbourNodeDepth >= m_depth)
                continue;
+
+            // Avoid going to a reservoir node ("this" cannot be reservoir)
+            // where from charge can (steepest) ascend back to "this".
+            //if ( (neighbourNode->getReservoirVapour() or neighbourNode->getReservoirLiquid()) and
+            //     isShallowerThan(neighbourNode,false))
+            //   continue;
          }
          else
          {
@@ -1323,12 +1317,6 @@ namespace migration
             neighbourNodeDepth = getFiniteElementValue (iQP, jQP, kQP, DEPTHPROPERTY);
          }
 
-         if ((getReservoirVapour () or getReservoirLiquid ()) and neighbourNodeDepth >= m_depth)
-         {
-            // if we are in the reservoir area, only try to go upward (z-wise)
-            continue;
-         }
-
          discretizedFlowDirection (3) = neighbourNodeDepth - m_depth;
 
          normalizedDiscretizedFlowDirection = discretizedFlowDirection;
@@ -1343,7 +1331,6 @@ namespace migration
          // of the two elements involved.
          if (IsValid (neighbourNode))
          {
-
             iQP = double (-iOffset);
             jQP = double (-jOffset);
             kQP = double (kOffset); // Notice how z does the opposite of the others.
@@ -1408,6 +1395,7 @@ namespace migration
 
    }
 
+   // Too complex. Simplify!
    bool LocalFormationNode::computeTargetFormationNode (void)
    {
       if (!IsValid (this))
@@ -1471,7 +1459,6 @@ namespace migration
 
       return (m_targetFormationNode != 0);
    }
-
 
    bool LocalFormationNode::isPartOfUndetectedReservoir()
    {
