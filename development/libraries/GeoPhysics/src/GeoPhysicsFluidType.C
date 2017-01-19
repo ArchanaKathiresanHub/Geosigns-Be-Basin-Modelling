@@ -1,9 +1,9 @@
 //
 // Copyright (C) 2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -157,12 +157,18 @@ double GeoPhysics::FluidType::density( const double temperature, const double pr
 }
 
 void GeoPhysics::FluidType::density( const GeoPhysics::Brine::PhaseStateVec & phases,
-                                     ArrayDefs::Real_ptr & density ) const
+                                     ArrayDefs::Real_ptr density ) const
 {
    switch (m_densityCalculationModel)
    {
-     case CBMGenerics::waterDensity::Constant   : std::fill_n(density, phases.getVectorSize(), m_densityVal);
-     case CBMGenerics::waterDensity::Calculated : m_density->get( phases, density );
+     case CBMGenerics::waterDensity::Constant   :
+        std::fill_n(density, phases.getVectorSize(), m_densityVal);
+        break;
+
+     case CBMGenerics::waterDensity::Calculated :
+        m_density->get( phases, density );
+        break;
+
      default : throw formattingexception::GeneralException() << "\nMeSsAgE ERROR  " << __FUNCTION__
                                                              << " - Density calculation model not set\n\n";
    }
@@ -226,12 +232,18 @@ double GeoPhysics::FluidType::computeDensityDerivativeWRTPressure( const double 
 
 
 void GeoPhysics::FluidType::computeDensityDerivativeWRTPressure( const GeoPhysics::Brine::PhaseStateVec & phases,
-                                                                 ArrayDefs::Real_ptr & densityDerivative ) const
+                                                                 ArrayDefs::Real_ptr densityDerivative ) const
 {
    switch (m_densityCalculationModel)
    {
-     case CBMGenerics::waterDensity::Calculated : m_density->computeDerivativeP( phases, densityDerivative );
-     case CBMGenerics::waterDensity::Constant   : std::fill_n(densityDerivative, phases.getVectorSize(), 0.0);
+     case CBMGenerics::waterDensity::Calculated :
+        m_density->computeDerivativeP( phases, densityDerivative );
+        break;
+
+     case CBMGenerics::waterDensity::Constant   :
+        std::fill_n(densityDerivative, phases.getVectorSize(), 0.0);
+        break;
+
      default : throw formattingexception::GeneralException() << "\nMeSsAgE ERROR  " << __FUNCTION__
                                                              << " - Density calculation model not set\n\n";
    }
@@ -257,12 +269,18 @@ double GeoPhysics::FluidType::computeDensityDerivativeWRTTemperature( const doub
 }
 
 void GeoPhysics::FluidType::computeDensityDerivativeWRTTemperature( const GeoPhysics::Brine::PhaseStateVec & phases,
-                                                                    ArrayDefs::Real_ptr & densityDerivative ) const
+                                                                    ArrayDefs::Real_ptr densityDerivative ) const
 {
    switch (m_densityCalculationModel)
    {
-     case CBMGenerics::waterDensity::Calculated : m_density->computeDerivativeT( phases, densityDerivative );
-     case CBMGenerics::waterDensity::Constant   : std::fill_n(densityDerivative, phases.getVectorSize(), 0.0);
+     case CBMGenerics::waterDensity::Calculated :
+        m_density->computeDerivativeT( phases, densityDerivative );
+        break;
+
+     case CBMGenerics::waterDensity::Constant   :
+        std::fill_n(densityDerivative, phases.getVectorSize(), 0.0);
+        break;
+
      default : throw formattingexception::GeneralException() << "\nMeSsAgE ERROR  " << __FUNCTION__
                                                              << " - Density calculation model not set\n\n";
    }
@@ -276,7 +294,7 @@ double GeoPhysics::FluidType::viscosity( const double temperature, const double 
 }
 
 void GeoPhysics::FluidType::viscosity( const GeoPhysics::Brine::PhaseStateVec & phases,
-                                       ArrayDefs::Real_ptr & viscosity ) const
+                                       ArrayDefs::Real_ptr viscosity ) const
 {
    return m_viscosity->get( phases, viscosity);
 }
@@ -299,7 +317,7 @@ double GeoPhysics::FluidType::thermalConductivity( const double temperature, con
 }
 
 void GeoPhysics::FluidType::thermalConductivity( const GeoPhysics::Brine::PhaseStateVec & phases,
-                                                 ArrayDefs::Real_ptr & thConductivty ) const
+                                                 ArrayDefs::Real_ptr thConductivty ) const
 {
    const int n = phases.getVectorSize();
    const ArrayDefs::Real_ptr temperature = phases.getTemperature();
@@ -316,7 +334,7 @@ double GeoPhysics::FluidType::heatCapacity( const double temperature, const doub
 }
 
 void GeoPhysics::FluidType::heatCapacity( const GeoPhysics::Brine::PhaseStateVec & phases,
-                                          ArrayDefs::Real_ptr & heatCapacity ) const
+                                          ArrayDefs::Real_ptr heatCapacity ) const
 {
    const int n = phases.getVectorSize();
    const ArrayDefs::Real_ptr temperature = phases.getTemperature();
@@ -375,7 +393,7 @@ double GeoPhysics::FluidType::densXheatCapacity( const double temperature,
 }
 
 void GeoPhysics::FluidType::densXheatCapacity( const GeoPhysics::Brine::PhaseStateVec & phases,
-                                               ArrayDefs::Real_ptr & densXheatCap ) const
+                                               ArrayDefs::Real_ptr densXheatCap ) const
 {
    const int n = phases.getVectorSize();
    const ArrayDefs::Real_ptr temperature = phases.getTemperature();

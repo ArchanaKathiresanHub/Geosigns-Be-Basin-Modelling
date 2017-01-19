@@ -1073,7 +1073,8 @@ void GeoPhysics::CompoundLithology::getPorosity ( const unsigned int       size,
                                                   ArrayDefs::ConstReal_ptr maxVes,
                                                   const bool               includeChemicalCompaction,
                                                   ArrayDefs::ConstReal_ptr chemicalCompactionTerm,
-                                                  MultiCompoundProperty&   porosities ) const {
+                                                  MultiCompoundProperty&   porosities,
+                                                  ArrayDefs::Real_ptr      porosityDerivative ) const {
 
    if ( porosities.getNumberOfLithologies () != m_lithoComponents.size ()) {
       throw formattingexception::GeneralException ()
@@ -1084,7 +1085,11 @@ void GeoPhysics::CompoundLithology::getPorosity ( const unsigned int       size,
       m_lithoComponents [ i ]->porosity (size, ves, maxVes, includeChemicalCompaction, chemicalCompactionTerm, porosities.getSimpleData ( i ));
    }
 
-   // m_porosity.calculate (size, ves, maxVes, includeChemicalCompaction, chemicalCompactionTerm, porosities.mixedProperty ());
+   if ( porosityDerivative == nullptr ) {
+      m_porosity.calculate (size, ves, maxVes, includeChemicalCompaction, chemicalCompactionTerm, porosities.getMixedData ());
+   } else {
+      m_porosity.calculate (size, ves, maxVes, includeChemicalCompaction, chemicalCompactionTerm, porosities.getMixedData (), porosityDerivative );
+   }
 }
 
 //------------------------------------------------------------//

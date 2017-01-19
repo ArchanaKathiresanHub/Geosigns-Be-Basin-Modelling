@@ -23,6 +23,9 @@ namespace GeoPhysics {
 
    public :
 
+      /// \brief Default constructor.
+      MultiCompoundProperty ();
+
       /// \brief Construct the with the number of lithologies used in the compound lithology and the number of data values required.
       ///
       /// \param [in] lithoCount The number of litholigies.

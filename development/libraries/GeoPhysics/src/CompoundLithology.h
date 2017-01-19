@@ -357,7 +357,8 @@ namespace GeoPhysics {
                          ArrayDefs::ConstReal_ptr maxVes,
                          const bool               includeChemicalCompaction,
                          ArrayDefs::ConstReal_ptr chemicalCompactionTerm,
-                         MultiCompoundProperty&   porosities ) const;
+                         MultiCompoundProperty&   porosities,
+                         ArrayDefs::Real_ptr      porosityDerivative = nullptr ) const;
 
       /// Calculate the permeability value using the compound porosity.
       void calcBulkPermeabilityNP(const double            ves,
@@ -421,6 +422,9 @@ namespace GeoPhysics {
       void setIsLegacy( bool isLegacy );
 
       void setMinimumPorosity(DataAccess::Interface::PorosityModel porosityModel, double  surfaceVoidRatio, double soilMechanicsCompactionCoefficient);
+
+      /// \brief Return the number of simple lithologies the compound lithology is made from.
+      size_t getNumberOfSimpleLithologies () const;
 
    protected:
 
@@ -703,4 +707,9 @@ inline void GeoPhysics::CompoundLithology::setIsLegacy( bool isLegacy )
 {
    m_isLegacy = isLegacy;
 }
+
+inline size_t GeoPhysics::CompoundLithology::getNumberOfSimpleLithologies () const {
+   return m_lithoComponents.size ();
+}
+
 #endif // _GEOPHYSICS__COMPOUND_LITHOLOGY_H_

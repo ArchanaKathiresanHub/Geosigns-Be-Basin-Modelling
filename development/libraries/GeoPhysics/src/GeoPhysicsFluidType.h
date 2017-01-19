@@ -1,9 +1,9 @@
 //
 // Copyright (C) 2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -98,12 +98,12 @@ namespace GeoPhysics {
       /// If the density calculation model is 'constant' the result here may be different from that in the fluid-io table.
       double density( const double temperature, const double pressure ) const;
       void   density( const GeoPhysics::Brine::PhaseStateVec & phases,
-                      ArrayDefs::Real_ptr & density ) const;
+                      ArrayDefs::Real_ptr density ) const;
 
       /// Correct the simple density (density value) of the fluid.
       ///
-      /// The fluid density that is used in decompaction and some of the hydrostatic temperature 
-      /// calculation is the simple density. This may not be the best choice (the default is 
+      /// The fluid density that is used in decompaction and some of the hydrostatic temperature
+      /// calculation is the simple density. This may not be the best choice (the default is
       /// 1000 Kg/M^3) this function "corrects" this, and uses the Batzle and Wang density function
       /// evaluated at the standard depth, with the standard pressure gradient and the
       /// temperature gradient given in the project3d file.
@@ -114,7 +114,7 @@ namespace GeoPhysics {
 
       /// \brief Compute the brine density at a defined depth and pressure.
       ///
-      /// The temperature is computed from a standard surface-temperature and 
+      /// The temperature is computed from a standard surface-temperature and
       /// the temperature gradient in the project file.
       double getCorrectedSimpleDensity( const double standardDepth,
                                         const double pressureGradient,
@@ -124,32 +124,32 @@ namespace GeoPhysics {
       /// Compute the derivative of the fluid density w.r.t. pressure.
       double computeDensityDerivativeWRTPressure( const double temperature, const double pressure ) const;
       void   computeDensityDerivativeWRTPressure( const GeoPhysics::Brine::PhaseStateVec & phases,
-                                                  ArrayDefs::Real_ptr & densityDerivative ) const;
+                                                  ArrayDefs::Real_ptr  densityDerivative ) const;
 
       /// Compute the derivative of the fluid density w.r.t. temperature.
       double computeDensityDerivativeWRTTemperature( const double temperature, const double pressure ) const;
       void   computeDensityDerivativeWRTTemperature( const GeoPhysics::Brine::PhaseStateVec & phases,
-                                                     ArrayDefs::Real_ptr & densityDerivative ) const;
+                                                     ArrayDefs::Real_ptr densityDerivative ) const;
 
       /// Compute the fluid viscosity.
       double viscosity( const double temperature, const double pressure ) const;
       void   viscosity( const GeoPhysics::Brine::PhaseStateVec & phases,
-                        ArrayDefs::Real_ptr & viscosity ) const;
+                        ArrayDefs::Real_ptr viscosity ) const;
 
       /// Compute the thermal conductivity.
       double thermalConductivity( const double temperature, const double pressure ) const;
       void   thermalConductivity( const GeoPhysics::Brine::PhaseStateVec & phases,
-                                  ArrayDefs::Real_ptr & thConductivty ) const;
+                                  ArrayDefs::Real_ptr thConductivty ) const;
 
       /// Compute the heat-capacity.
       double heatCapacity( const double temperature, const double pressure ) const;
       void   heatCapacity( const GeoPhysics::Brine::PhaseStateVec & phases,
-                           ArrayDefs::Real_ptr & heatCapacity ) const;
+                           ArrayDefs::Real_ptr heatCapacity ) const;
 
       /// Compute the density x heat-capacity, also known as the Volumetric Heat Capacity.
       double densXheatCapacity( const double temperature, const double pressure ) const;
       void   densXheatCapacity( const GeoPhysics::Brine::PhaseStateVec & phases,
-                                ArrayDefs::Real_ptr & densXheatCap ) const;
+                                ArrayDefs::Real_ptr densXheatCap ) const;
 
       /// Compute the seismic velocity.
       double seismicVelocity( const double temperature, const double pressure ) const;
@@ -182,7 +182,7 @@ namespace GeoPhysics {
       const bool   m_hasPermafrost;
       const double m_pressureTerm;
       const double m_salinityTerm;
-      
+
       /// For Brine properties
       std::unique_ptr<GeoPhysics::Brine::Conductivity> m_conductivity;
       std::unique_ptr<GeoPhysics::Brine::Density>      m_density;

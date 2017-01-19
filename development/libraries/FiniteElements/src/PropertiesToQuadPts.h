@@ -11,7 +11,10 @@
 #ifndef _PROPERTIES_TO_QUAD_PTS_H_
 #define _PROPERTIES_TO_QUAD_PTS_H_
 
+#include <algorithm>
 #include <vector>
+#include <assert.h>
+
 #include "AlignedDenseMatrix.h"
 #include "BasisFunctionInterpolator.h"
 #include "CpuInfo.h"
@@ -22,15 +25,16 @@ namespace FiniteElementMethod
    class ElementVector;
 
    /// \enum Property type
-   enum Property{ Ph = 0,        // Hydrostatic pressure
-                  Pl,            // Lithostatic pressure
-                  Po,            // Overpressure
-                  Pp,            // Pore pressure
-                  Ves,           // Vertical effective stress
-                  MaxVes,        // Max vertical effective stress
-                  ChemComp,      // Chemical compaction
-                  Temp,          // Temparature
-                  No_Property }; // Total number of properties in this enum
+   enum CauldronPropertyName{ Ph = 0,        // Hydrostatic pressure
+                              Pl,            // Lithostatic pressure
+                              Po,            // Overpressure
+                              Pp,            // Pore pressure
+                              Ves,           // Vertical effective stress
+                              MaxVes,        // Max vertical effective stress
+                              ChemComp,      // Chemical compaction
+                              Temp,          // Temparature
+                              No_Property }; // Total number of properties in this enum
+
    /// \enum Time step
    enum TimeStep{ Curr, Prev };
 
@@ -65,7 +69,7 @@ namespace FiniteElementMethod
       const Numerics::AlignedDenseMatrix & getPropertyQuadMatrix() const;
 
       /// \brief Get property names stored inside the object
-      const std::vector< Property > & getPropertyNames() const;
+      const std::vector< CauldronPropertyName > & getPropertyNames() const;
 
       /// \brief Retrieve (by index) property values in each quadrature point
       /// \param [in] idx Index of the property to be retrieved (consistent with the order used in compute).
@@ -73,7 +77,7 @@ namespace FiniteElementMethod
 
       /// \brief Retrieve (by name) property values in each quadrature point
       /// \param [in] idx Enum name of the property to be retrieved
-      const double * getProperty( Property propName ) const;
+      const double * getProperty( CauldronPropertyName propName ) const;
 
    private :
 
@@ -81,7 +85,7 @@ namespace FiniteElementMethod
       unsigned int m_numProps;
 
       /// \brief Vector containing property types
-      std::vector< Property > m_propNames;
+      std::vector< CauldronPropertyName > m_propNames;
 
       /// \brief Aligned matrix containing the basis function values (#DOFs x #quad)
       Numerics::AlignedDenseMatrix m_basisMat;
@@ -100,7 +104,7 @@ namespace FiniteElementMethod
 
       /// \brief
       void addSingleProperty( const unsigned int propIdx,
-                              Property propName,
+                              CauldronPropertyName propName,
                               const ElementVector & propVal );
 
       /// \brief
@@ -131,7 +135,7 @@ namespace FiniteElementMethod
    inline const Numerics::AlignedDenseMatrix & PropertiesToQuadPts::getPropertyQuadMatrix() const { return m_propOnQuadMat; }
 
 
-   inline const std::vector< Property > & PropertiesToQuadPts::getPropertyNames() const { return m_propNames; }
+   inline const std::vector< CauldronPropertyName > & PropertiesToQuadPts::getPropertyNames() const { return m_propNames; }
 
 
    template <typename T, typename V>
@@ -140,7 +144,7 @@ namespace FiniteElementMethod
                                             const V & propVal )
    {
       // Check that all types are correct
-      static_assert( std::is_same<T,Property>::value and std::is_same<V,ElementVector>::value,
+      static_assert( std::is_same<T,CauldronPropertyName>::value and std::is_same<V,ElementVector>::value,
                      "Only allowed for Fundamental_Property and ElementVector");
       addSingleProperty( propIdx, propName, propVal );
    }
@@ -153,11 +157,26 @@ namespace FiniteElementMethod
                                             const Args & ... args )
    {
       // Check that all types are correct
-      static_assert( std::is_same<T,Property>::value and std::is_same<V,ElementVector>::value,
+      static_assert( std::is_same<T,CauldronPropertyName>::value and std::is_same<V,ElementVector>::value,
                      "Only allowed for Fundamental_Property and ElementVector");
       addSingleProperty( propIdx, propName, propVal );
       addProperties( propIdx + 1, args... ); // recursive variadic template
    }
+
+   inline const double * PropertiesToQuadPts::getProperty( const unsigned int idx ) const
+   {
+      assert( idx < m_numProps );
+      return m_propOnQuadMat.getColumn( idx );
+   }
+
+   inline const double * PropertiesToQuadPts::getProperty( CauldronPropertyName propName ) const
+   {
+      const unsigned int idx = static_cast<unsigned int>( std::find( m_propNames.begin(),
+                                                                     m_propNames.end(), propName )
+                                                          - m_propNames.begin() );
+      return getProperty( idx );
+   }
+
 
 
    template <typename T, typename V, typename... Args>

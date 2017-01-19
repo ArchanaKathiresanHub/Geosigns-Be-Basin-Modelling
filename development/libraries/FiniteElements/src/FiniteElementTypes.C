@@ -41,39 +41,45 @@ void FiniteElementMethod::Matrix3x3::put ( const std::string& name,
 
 }
 
+void FiniteElementMethod::invert ( const Matrix3x3& Mat,
+                                         Matrix3x3& Inverse,
+                                         double&    det ) {
+
+   double A11 = Mat ( 1, 1 );
+   double A12 = Mat ( 1, 2 );
+   double A13 = Mat ( 1, 3 );
+
+   double A21 = Mat ( 2, 1 );
+   double A22 = Mat ( 2, 2 );
+   double A23 = Mat ( 2, 3 );
+
+   double A31 = Mat ( 3, 1 );
+   double A32 = Mat ( 3, 2 );
+   double A33 = Mat ( 3, 3 );
+
+   det = A11 * ( A22 * A33 - A23 * A32 ) + A21 * ( A13 * A32 - A12 * A33 ) + A31 * ( A12 * A23 - A22 * A13 );
+   double detInverse = 1.0 / det;
+
+   Inverse ( 1, 1 ) = ( A22 * A33 - A23 * A32 ) * detInverse;
+   Inverse ( 1, 2 ) = ( A13 * A32 - A12 * A33 ) * detInverse;
+   Inverse ( 1, 3 ) = ( A12 * A23 - A13 * A22 ) * detInverse;
+
+   Inverse ( 2, 1 ) = ( A23 * A31 - A21 * A33 ) * detInverse;
+   Inverse ( 2, 2 ) = ( A11 * A33 - A13 * A31 ) * detInverse;
+   Inverse ( 2, 3 ) = ( A13 * A21 - A11 * A23 ) * detInverse;
+
+   Inverse ( 3, 1 ) = ( A21 * A32 - A22 * A31 ) * detInverse;
+   Inverse ( 3, 2 ) = ( A12 * A31 - A11 * A32 ) * detInverse;
+   Inverse ( 3, 3 ) = ( A11 * A22 - A12 * A21 ) * detInverse;
+
+}
 
 void FiniteElementMethod::invert ( const Matrix3x3& Mat,
                                          Matrix3x3& Inverse ) {
 
-  double Det_Inverse = 1.0 / determinant ( Mat );
-
-  double A11 = Mat ( 1, 1 );
-  double A12 = Mat ( 1, 2 );
-  double A13 = Mat ( 1, 3 );
-
-  double A21 = Mat ( 2, 1 );
-  double A22 = Mat ( 2, 2 );
-  double A23 = Mat ( 2, 3 );
-
-  double A31 = Mat ( 3, 1 );
-  double A32 = Mat ( 3, 2 );
-  double A33 = Mat ( 3, 3 );
-
-
-  Inverse ( 1, 1 ) = ( A22 * A33 - A23 * A32 ) * Det_Inverse;
-  Inverse ( 1, 2 ) = ( A13 * A32 - A12 * A33 ) * Det_Inverse;
-  Inverse ( 1, 3 ) = ( A12 * A23 - A13 * A22 ) * Det_Inverse;
-
-  Inverse ( 2, 1 ) = ( A23 * A31 - A21 * A33 ) * Det_Inverse;
-  Inverse ( 2, 2 ) = ( A11 * A33 - A13 * A31 ) * Det_Inverse;
-  Inverse ( 2, 3 ) = ( A13 * A21 - A11 * A23 ) * Det_Inverse;
-
-  Inverse ( 3, 1 ) = ( A21 * A32 - A22 * A31 ) * Det_Inverse;
-  Inverse ( 3, 2 ) = ( A12 * A31 - A11 * A32 ) * Det_Inverse;
-  Inverse ( 3, 3 ) = ( A11 * A22 - A12 * A21 ) * Det_Inverse;
-
+   double det;
+   invert ( Mat, Inverse, det );
 }
-
 
 //------------------------------------------------------------//
 
@@ -437,7 +443,7 @@ double FiniteElementMethod::maxValue ( const ElementVector& Vec ) {
 
 //------------------------------------------------------------//
 
-FiniteElementMethod::ElementVector FiniteElementMethod::maximum ( const ElementVector& vec, 
+FiniteElementMethod::ElementVector FiniteElementMethod::maximum ( const ElementVector& vec,
                                                                   const double         scalar ) {
 
    ElementVector result;
@@ -1074,7 +1080,7 @@ bool FiniteElementMethod::BooleanVector::orValues () const {
 
   for ( I = 0; I < 8; I++ ) {
 
-    if ( m_entries [ I ]) { 
+    if ( m_entries [ I ]) {
        // if any value is true then the result is true.
       return true;
     }
