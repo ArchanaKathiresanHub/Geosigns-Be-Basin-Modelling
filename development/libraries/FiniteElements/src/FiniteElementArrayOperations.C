@@ -83,56 +83,21 @@ void FiniteElementMethod::ArrayOperations::scaleGradBases ( const Numerics::Alig
 
    const double* gp = gradBases.data ();
    double* res = scaledGradBases.data ();
-   double m11 = matrices [ 0 ]( 1, 1 );
-   double m22 = matrices [ 0 ]( 2, 2 );
 
    for ( unsigned int i = 0; i < matrices.size (); ++i, gp += 24, res += 24  ) {
-      // const Matrix3x3& m = matrices [ i ];
-      double m31 = matrices [ i ]( 3, 1 );
-      double m32 = matrices [ i ]( 3, 2 );
-      double m33 = matrices [ i ]( 3, 3 );
+      const Matrix3x3& m = matrices [ i ];
 
       for ( unsigned int j = 0; j < 8; j += 2 ) {
-         res [ j      ] = gp [ j ] * m11 + gp [ j + 16 ] * m31;
-         res [ j +  1 ] = gp [ j + 1 ] * m11 + gp [ j + 17 ] * m31;
+         res [ j      ] = gp [ j ] * m ( 1, 1 ) + gp [ j + 8 ] * m ( 2, 1 ) + gp [ j + 16 ] * m ( 3, 1 );
+         res [ j +  1 ] = gp [ j + 1 ] * m ( 1, 1 ) + gp [ j + 9 ] * m ( 2, 1 ) + gp [ j + 17 ] * m ( 3, 1 );
 
-         res [ j +  8 ] = gp [ j + 8 ] * m22 + gp [ j + 16 ] * m32;
-         res [ j +  9 ] = gp [ j + 9 ] * m22 + gp [ j + 17 ] * m32;
+         res [ j +  8 ] = gp [ j ] * m ( 1, 2 ) + gp [ j + 8 ] * m ( 2, 2 ) + gp [ j + 16 ] * m ( 3, 2 );
+         res [ j +  9 ] = gp [ j + 1 ] * m ( 1, 2 ) + gp [ j + 9 ] * m ( 2, 2 ) + gp [ j + 17 ] * m ( 3, 2 );
 
-         res [ j + 16 ] = gp [ j + 16 ] * m33;
-         res [ j + 17 ] = gp [ j + 17 ] * m33;
+
+         res [ j + 16 ] = gp [ j ] * m ( 1, 3 ) + gp [ j + 8 ] * m ( 2, 3 ) + gp [ j + 16 ] * m ( 3, 3 );
+         res [ j + 17 ] = gp [ j + 1 ] * m ( 1, 3 ) + gp [ j + 9 ] * m ( 2, 3 ) + gp [ j + 17 ] * m ( 3, 3 );
       }
-
-      // for ( unsigned int j = 0; j < 8; j += 2 ) {
-      //    res [ j      ] = gp [ j ] * m ( 1, 1 ) + gp [ j + 8 ] * m ( 2, 1 ) + gp [ j + 16 ] * m ( 3, 1 );
-      //    res [ j +  1 ] = gp [ j + 1 ] * m ( 1, 1 ) + gp [ j + 9 ] * m ( 2, 1 ) + gp [ j + 17 ] * m ( 3, 1 );
-
-      //    res [ j +  8 ] = gp [ j ] * m ( 1, 2 ) + gp [ j + 8 ] * m ( 2, 2 ) + gp [ j + 16 ] * m ( 3, 2 );
-      //    res [ j +  9 ] = gp [ j + 1 ] * m ( 1, 2 ) + gp [ j + 9 ] * m ( 2, 2 ) + gp [ j + 17 ] * m ( 3, 2 );
-
-
-      //    res [ j + 16 ] = gp [ j ] * m ( 1, 3 ) + gp [ j + 8 ] * m ( 2, 3 ) + gp [ j + 16 ] * m ( 3, 3 );
-      //    res [ j + 17 ] = gp [ j + 1 ] * m ( 1, 3 ) + gp [ j + 9 ] * m ( 2, 3 ) + gp [ j + 17 ] * m ( 3, 3 );
-      // }
-
-
-      // for ( unsigned int j = 0; j < 8; j += 2 ) {
-      //    res [ j      ] = gp [ j ] * m ( 1, 1 ) + gp [ j + 8 ] * m ( 2, 1 ) + gp [ j + 16 ] * m ( 3, 1 );
-      //    res [ j +  1 ] = gp [ j + 1 ] * m ( 1, 1 ) + gp [ j + 9 ] * m ( 2, 1 ) + gp [ j + 17 ] * m ( 3, 1 );
-
-      //    res [ j +  8 ] = gp [ j ] * m ( 1, 2 ) + gp [ j + 8 ] * m ( 2, 2 ) + gp [ j + 16 ] * m ( 3, 2 );
-      //    res [ j +  9 ] = gp [ j + 1 ] * m ( 1, 2 ) + gp [ j + 9 ] * m ( 2, 2 ) + gp [ j + 17 ] * m ( 3, 2 );
-
-
-      //    res [ j + 16 ] = gp [ j ] * m ( 1, 3 ) + gp [ j + 8 ] * m ( 2, 3 ) + gp [ j + 16 ] * m ( 3, 3 );
-      //    res [ j + 17 ] = gp [ j + 1 ] * m ( 1, 3 ) + gp [ j + 9 ] * m ( 2, 3 ) + gp [ j + 17 ] * m ( 3, 3 );
-      // }
-
-      // for ( unsigned int j = 0; j < 8; ++j ) {
-      //    res [ j      ] = gp [ j ] * m ( 1, 1 ) + gp [ j + 8 ] * m ( 2, 1 ) + gp [ j + 16 ] * m ( 3, 1 );
-      //    res [ j +  8 ] = gp [ j ] * m ( 1, 2 ) + gp [ j + 8 ] * m ( 2, 2 ) + gp [ j + 16 ] * m ( 3, 2 );
-      //    res [ j + 16 ] = gp [ j ] * m ( 1, 3 ) + gp [ j + 8 ] * m ( 2, 3 ) + gp [ j + 16 ] * m ( 3, 3 );
-      // }
 
    }
 
@@ -148,7 +113,7 @@ void FiniteElementMethod::ArrayOperations::scaleGradBases ( const Numerics::Alig
    for ( unsigned int i = 0; i < vectors.size (); ++i, gp += 24, res += 8 ) {
       const ThreeVector& v = vectors [ i ];
 
-#if 0
+#ifdef OPTIMISE_GRAD_BASIS_VECTOR
       for ( unsigned int j = 0; j < 8; j += 4 ) {
          res [ j     ] = gp [ j     ] * v ( 1 ) + gp [ j +  8 ] * v ( 2 ) + gp [ j + 16 ] * v ( 3 );
          res [ j + 1 ] = gp [ j + 1 ] * v ( 1 ) + gp [ j +  9 ] * v ( 2 ) + gp [ j + 17 ] * v ( 3 );
