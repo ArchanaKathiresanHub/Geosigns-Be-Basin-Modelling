@@ -105,8 +105,8 @@ Migrator::Migrator (const string & name)
    m_migrationIoTbl = 0;
    m_trapIoTbl = 0;
    m_ReservoirIoTbl = 0;
-   m_detectedReservoirIoTbl = 0;
-   m_detectedReservoirIoRecord = 0;
+   m_reservoirOptionsIoTbl = 0;
+   m_reservoirOptionsIoRecord = 0;
 
    getMinimumColumnHeights ();
 
@@ -219,7 +219,7 @@ bool Migrator::compute (void)
    PetscOptionsHasName (PETSC_NULL, "-minor", &minorSnapshots);
 
    Interface::SnapshotList * snapshots = m_projectHandle->getSnapshots (minorSnapshots ? (Interface::MAJOR | Interface::MINOR)
-      : Interface::MAJOR);
+                                                                        : Interface::MAJOR);
 
    Interface::SnapshotList::reverse_iterator snapshotIter;
 
@@ -313,9 +313,9 @@ bool Migrator::setUpBasinGeometry (void)
    {
       // From GeoPhysics::ProjectHandle
       if (!m_projectHandle->initialise (true) or
-         !m_projectHandle->setFormationLithologies (true, true) or
-         !m_projectHandle->initialiseLayerThicknessHistory (!HydrostaticCalculation) or // Backstripping
-         !m_projectHandle->applyFctCorrections ())
+          !m_projectHandle->setFormationLithologies (true, true) or
+          !m_projectHandle->initialiseLayerThicknessHistory (!HydrostaticCalculation) or // Backstripping
+          !m_projectHandle->applyFctCorrections ())
          return false;
       else
          return true;
@@ -323,7 +323,7 @@ bool Migrator::setUpBasinGeometry (void)
    else
    {
       if (!m_projectHandle->initialise (true) or
-         !m_projectHandle->setFormationLithologies (true, true))
+          !m_projectHandle->setFormationLithologies (true, true))
          return false;
       else
          return true;
@@ -368,7 +368,7 @@ bool Migrator::computeFormationPropertyMaps (const Interface::Snapshot * snapsho
       bool lowResEqualsHighRes = ((*(m_projectHandle->getLowResolutionOutputGrid ())) == (*(m_projectHandle->getHighResolutionOutputGrid ())));
 
       formation->computePropertyMaps (topDepthGridMap, snapshot, lowResEqualsHighRes, isOverPressureRun, m_projectHandle->getRunParameters ()->getNonGeometricLoop (),
-         m_projectHandle->getRunParameters ()->getChemicalCompaction ()); // allowed to fail
+                                      m_projectHandle->getRunParameters ()->getChemicalCompaction ()); // allowed to fail
 
       formation->computeHCDensityMaps (snapshot);
 
@@ -460,17 +460,17 @@ bool Migrator::performSnapshotMigration (const Interface::Snapshot * start, cons
          clearFormationNodeProperties ();
 
          if (!computeFormationPropertyMaps (end, overPressureRun) or
-            !retrieveFormationPropertyMaps (end) or
-            !computeFormationNodeProperties (end) or
-            !flagTopNodes(end, overPressureRun) or
-            !detectReservoirs (start, end, overPressureRun) or
-            !computeSMFlowPaths (start, end) or
-            !restoreFormationPropertyMaps (end) or
-            !loadExpulsionMaps (start, end) or
-            !chargeReservoirs (start, end) or
-            !calculateSeepage (end) or
-            !unloadExpulsionMaps (end) or
-            !saveSMFlowPaths (start, end))
+             !retrieveFormationPropertyMaps (end) or
+             !computeFormationNodeProperties (end) or
+             !flagTopNodes(end, overPressureRun) or
+             !detectReservoirs (start, end, overPressureRun) or
+             !computeSMFlowPaths (start, end) or
+             !restoreFormationPropertyMaps (end) or
+             !loadExpulsionMaps (start, end) or
+             !chargeReservoirs (start, end) or
+             !calculateSeepage (end) or
+             !unloadExpulsionMaps (end) or
+             !saveSMFlowPaths (start, end))
          {
             return false;
          }
@@ -491,13 +491,13 @@ bool Migrator::performSnapshotMigration (const Interface::Snapshot * start, cons
    // the properties are computed at the end  
    m_propertyManager->removeProperties (end);
    m_projectHandle->deletePropertyValueGridMaps (Interface::SURFACE | Interface::FORMATION | Interface::FORMATIONSURFACE | Interface::RESERVOIR,
-      0, end, 0, 0, 0, Interface::MAP | Interface::VOLUME);
+                                                 0, end, 0, 0, 0, Interface::MAP | Interface::VOLUME);
 
    // for extra cleaning we also delete at the start, data are saved in the columns anyway
    m_propertyManager->removeProperties (start);
 
    m_projectHandle->deletePropertyValueGridMaps (Interface::SURFACE | Interface::FORMATION | Interface::FORMATIONSURFACE | Interface::RESERVOIR,
-      0, start, 0, 0, 0, Interface::MAP | Interface::VOLUME);
+                                                 0, start, 0, 0, 0, Interface::MAP | Interface::VOLUME);
 
 
    return true;
@@ -535,7 +535,7 @@ bool Migrator::computeNetToGross (void)
 
       assert (reservoir);
 
-	  if (!reservoir->computeNetToGross ()) return false;
+      if (!reservoir->computeNetToGross ()) return false;
    }
    return true;
 }
@@ -821,8 +821,8 @@ bool Migrator::flagTopNodes(const Interface::Snapshot * end, const bool overPres
 	Formation *reservoirFormation;
 	bool topSealFormationReached = false;
 	for (reservoirFormation = bottomFormation, sealFormation = (Formation *)reservoirFormation->getTopFormation();
-		sealFormation != 0 and !topSealFormationReached;
-		reservoirFormation = sealFormation, sealFormation = (Formation *)sealFormation->getTopFormation())
+        sealFormation != 0 and !topSealFormationReached;
+        reservoirFormation = sealFormation, sealFormation = (Formation *)sealFormation->getTopFormation())
 	{
       //check if top seal formation is reached
 	   topSealFormationReached = (sealFormation == topSealFormation);
@@ -838,7 +838,7 @@ bool Migrator::flagTopNodes(const Interface::Snapshot * end, const bool overPres
   the uppermost cells of each formation and check the capillary pressure jump
   ( difference between 0% saturation capillary pressure at current formation
   and 100% capillary pressure at lowermost cells of formation above ).
-  */
+*/
 bool Migrator::detectReservoirs (const Interface::Snapshot * start, const Interface::Snapshot * end, const bool overPressureRun)
 {
    Formation * bottomFormation = getBottomMigrationFormation(end);
@@ -853,8 +853,8 @@ bool Migrator::detectReservoirs (const Interface::Snapshot * start, const Interf
 
    bool topSealFormationReached = false;
    for (reservoirFormation = bottomFormation, sealFormation = (Formation *)reservoirFormation->getTopFormation ();
-      sealFormation != 0 and !topSealFormationReached;
-      reservoirFormation = sealFormation, sealFormation = (Formation *)sealFormation->getTopFormation ())
+        sealFormation != 0 and !topSealFormationReached;
+        reservoirFormation = sealFormation, sealFormation = (Formation *)sealFormation->getTopFormation ())
    {
       //check if top seal formation is reached
       topSealFormationReached = (sealFormation == topSealFormation);
@@ -942,7 +942,7 @@ bool Migrator::saveSMFlowPaths (const Interface::Snapshot * start, const Interfa
 }
 
 bool Migrator::computeSMFlowPaths (migration::Formation * targetFormation, migration::Formation * sourceFormation,
-   const Interface::Snapshot * start, const Interface::Snapshot * end)
+                                   const Interface::Snapshot * start, const Interface::Snapshot * end)
 {
    if (sourceFormation == 0) return false;
 
@@ -994,7 +994,7 @@ bool Migrator::chargeReservoirs (const Interface::Snapshot * start, const Interf
 }
 
 bool Migrator::chargeReservoir (migration::Reservoir * reservoir, migration::Reservoir * reservoirAbove, migration::Reservoir * reservoirBelow,
-   const Interface::Snapshot * start, const Interface::Snapshot * end)
+                                const Interface::Snapshot * start, const Interface::Snapshot * end)
 {
    if (GetRank () == 0)
    {
@@ -1118,7 +1118,7 @@ bool Migrator::chargeReservoir (migration::Reservoir * reservoir, migration::Res
    totalLeakedUpward -= totalLeakedOutward;
    if (GetRank () == 0) m_massBalance->subtractFromBalance ("Leaked upward from reservoir", totalLeakedUpward);
 
-   if (!m_legacyMigration and reservoir->isDiffusionOn ())
+   if (!m_legacyMigration and reservoir->isDiffusionOn (m_legacyMigration))
    {
       /// For each column in the trap set the diffusion starting time
       reservoir->broadcastTrapDiffusionStartTimes ();
@@ -1280,7 +1280,7 @@ void Migrator::saveSeepageAmounts (migration::Formation * seepsFormation, const 
 // collect expelled charges into reservoirs from the formations that are
 // above reservoirBelow and not above or just above reservoir
 bool Migrator::collectAndMigrateExpelledCharges (Reservoir * reservoir, Reservoir * reservoirAbove, Reservoir * reservoirBelow,
-   const Interface::Snapshot * start, const Interface::Snapshot * end, Barrier * barrier)
+                                                 const Interface::Snapshot * start, const Interface::Snapshot * end, Barrier * barrier)
 {
    Interface::FormationList * formations = getAllFormations ();
 
@@ -1298,7 +1298,7 @@ bool Migrator::collectAndMigrateExpelledCharges (Reservoir * reservoir, Reservoi
       if (formationBelow)
          formationBelowBelow = formationBelow->getBottomFormation ();
       if (withinRange or formationBelow == reservoir->getFormation () or
-         formationBelowBelow == reservoir->getFormation ())
+          formationBelowBelow == reservoir->getFormation ())
       {
          withinRange = true;
       }
@@ -1315,10 +1315,10 @@ bool Migrator::collectAndMigrateExpelledCharges (Reservoir * reservoir, Reservoi
 
          // check if reservoirAbove is in the way of reservoir with respect to downward migration
          if (!reservoirAbove or
-            !reservoirAbove->isActive (end) or
-            ((reservoirAbove->getFormation () != formationBelow and
-            reservoirAbove->getFormation () != formationBelowBelow) and
-            reservoirAbove->getFormation () != formation))
+             !reservoirAbove->isActive (end) or
+             ((reservoirAbove->getFormation () != formationBelow and
+               reservoirAbove->getFormation () != formationBelowBelow) and
+              reservoirAbove->getFormation () != formation))
          {
             directionsToCollect |= EXPELLEDDOWNWARD;
          }
@@ -1339,8 +1339,8 @@ bool Migrator::collectAndMigrateExpelledCharges (Reservoir * reservoir, Reservoi
          }
       }
       else if (reservoirBelow and
-         (formationBelow == reservoirBelow->getFormation () or
-         formationBelowBelow == reservoirBelow->getFormation ()))
+               (formationBelow == reservoirBelow->getFormation () or
+                formationBelowBelow == reservoirBelow->getFormation ()))
       {
          // source rock just above reservoir below
          directionsToCollect |= EXPELLEDUPWARD;
@@ -1376,8 +1376,8 @@ bool Migrator::collectAndMigrateExpelledCharges (Reservoir * reservoir, Reservoi
          barrier->updateBlocking (formation, end);
 
       if (reservoirBelow and reservoirBelow->isActive (end) and
-         formationBelow == reservoirBelow->getFormation () and
-         !performHDynamicAndCapillary ()) //as in sec-mig 
+          formationBelow == reservoirBelow->getFormation () and
+          !performHDynamicAndCapillary ()) //as in sec-mig 
       {
          break;
       }
@@ -1520,26 +1520,26 @@ void Migrator::addTrapRecord (migration::Reservoir * reservoir, migration::TrapP
    }
 }
 
-// this function sets the minimum gas and column heights and reads the DetectedReservoirIoTbl
+// this function sets the minimum gas and column heights and reads the ReservoirOptionsIoTbl
 void Migrator::getMinimumColumnHeights ()
 {
 
-   if (!m_detectedReservoirIoTbl) m_detectedReservoirIoTbl = m_projectHandle->getTable ("DetectedReservoirIoTbl");
-   assert (m_detectedReservoirIoTbl);
-   if (!m_detectedReservoirIoRecord)
+   if (!m_reservoirOptionsIoTbl) m_reservoirOptionsIoTbl = m_projectHandle->getTable ("ReservoirOptionsIoTbl");
+   assert (m_reservoirOptionsIoTbl);
+   if (!m_reservoirOptionsIoRecord)
    {
-      Table::iterator  iterator = m_detectedReservoirIoTbl->begin ();
-      m_detectedReservoirIoRecord = m_detectedReservoirIoTbl->getRecord (iterator);
-      if (!m_detectedReservoirIoRecord) m_detectedReservoirIoRecord = m_detectedReservoirIoTbl->createRecord ();
+      Table::iterator  iterator = m_reservoirOptionsIoTbl->begin ();
+      m_reservoirOptionsIoRecord = m_reservoirOptionsIoTbl->getRecord (iterator);
+      if (!m_reservoirOptionsIoRecord) m_reservoirOptionsIoRecord = m_reservoirOptionsIoTbl->createRecord ();
    }
-   assert (m_detectedReservoirIoRecord);
+   assert (m_reservoirOptionsIoRecord);
 
-   m_minOilColumnHeight = database::getMinOilColumnHeight (m_detectedReservoirIoRecord);
-   m_minGasColumnHeight = database::getMinGasColumnHeight (m_detectedReservoirIoRecord);
+   m_minOilColumnHeight = database::getMinOilColumnHeight (m_reservoirOptionsIoRecord);
+   m_minGasColumnHeight = database::getMinGasColumnHeight (m_reservoirOptionsIoRecord);
 
 }
 
-/// This function adds a  reservoir record to the ReservoirIoTbl with the values specified in the DetectedReservoirIoTbl
+/// This function adds a  reservoir record to the ReservoirIoTbl with the values specified in the ReservoirOptionsIoTbl
 database::Record * Migrator::addDetectedReservoirRecord (Interface::Formation * formation, const Interface::Snapshot * start)
 {
    if (!m_ReservoirIoTbl) m_ReservoirIoTbl = m_projectHandle->getTable ("ReservoirIoTbl");
@@ -1551,40 +1551,40 @@ database::Record * Migrator::addDetectedReservoirRecord (Interface::Formation * 
    database::setReservoirName (reservoirIoRecord, detectedReservoirName);
    database::setDetectedReservoir (reservoirIoRecord, 1);
    database::setFormationName (reservoirIoRecord, formation->getName ());
-   database::setTrapCapacity (reservoirIoRecord, database::getTrapCapacity (m_detectedReservoirIoRecord));
+   database::setTrapCapacity (reservoirIoRecord, database::getTrapCapacity (m_reservoirOptionsIoRecord));
    database::setActivityMode (reservoirIoRecord, "ActiveFrom");
 
    database::setActivityStart (reservoirIoRecord, start->getTime ());
-   database::setDepthOffset (reservoirIoRecord, database::getDepthOffset (m_detectedReservoirIoRecord));
-   database::setDepthOffsetGrid (reservoirIoRecord, database::getDepthOffsetGrid (m_detectedReservoirIoRecord));
-   database::setThickness (reservoirIoRecord, database::getThickness (m_detectedReservoirIoRecord));
-   database::setThicknessGrid (reservoirIoRecord, database::getThicknessGrid (m_detectedReservoirIoRecord));
-   database::setNetToGross (reservoirIoRecord, database::getNetToGross (m_detectedReservoirIoRecord));
-   database::setNetToGrossGrid (reservoirIoRecord, database::getNetToGrossGrid (m_detectedReservoirIoRecord));
-   database::setMicroTraps (reservoirIoRecord, database::getMicroTraps (m_detectedReservoirIoRecord));
-   database::setLeakProperty (reservoirIoRecord, database::getLeakProperty (m_detectedReservoirIoRecord));
-   database::setLeakRate (reservoirIoRecord, database::getLeakRate (m_detectedReservoirIoRecord));
-   database::setLithotype1 (reservoirIoRecord, database::getLithotype1 (m_detectedReservoirIoRecord));
-   database::setPercent1 (reservoirIoRecord, database::getPercent1 (m_detectedReservoirIoRecord));
-   database::setPercent1Grid (reservoirIoRecord, database::getPercent1Grid (m_detectedReservoirIoRecord));
-   database::setLithotype2 (reservoirIoRecord, database::getLithotype2 (m_detectedReservoirIoRecord));
-   database::setPercent2 (reservoirIoRecord, database::getPercent2 (m_detectedReservoirIoRecord));
-   database::setPercent2Grid (reservoirIoRecord, database::getPercent2Grid (m_detectedReservoirIoRecord));
-   database::setLithotype3 (reservoirIoRecord, database::getLithotype3 (m_detectedReservoirIoRecord));
-   database::setLayerFrequency (reservoirIoRecord, database::getLayerFrequency (m_detectedReservoirIoRecord));
-   database::setLayerFrequencyGrid (reservoirIoRecord, database::getLayerFrequencyGrid (m_detectedReservoirIoRecord));
-   database::setBioDegradInd (reservoirIoRecord, database::getBioDegradInd (m_detectedReservoirIoRecord));
-   database::setOilToGasCrackingInd (reservoirIoRecord, database::getOilToGasCrackingInd (m_detectedReservoirIoRecord));
-   database::setDiffusionInd (reservoirIoRecord, database::getDiffusionInd (m_detectedReservoirIoRecord));
-   database::setMinOilColumnHeight (reservoirIoRecord, database::getMinOilColumnHeight (m_detectedReservoirIoRecord));
-   database::setMinGasColumnHeight (reservoirIoRecord, database::getMinGasColumnHeight (m_detectedReservoirIoRecord));
-   database::setBlockingInd (reservoirIoRecord, database::getBlockingInd (m_detectedReservoirIoRecord));
-   database::setBlockingPermeability (reservoirIoRecord, database::getBlockingPermeability (m_detectedReservoirIoRecord));
-   database::setBlockingPorosity (reservoirIoRecord, database::getBlockingPorosity (m_detectedReservoirIoRecord));
-   database::setErrDepthOffset (reservoirIoRecord, database::getErrDepthOffset (m_detectedReservoirIoRecord));
-   database::setErrThickness (reservoirIoRecord, database::getErrThickness (m_detectedReservoirIoRecord));
-   database::setErrMicroTraps (reservoirIoRecord, database::getErrMicroTraps (m_detectedReservoirIoRecord));
-   database::setErrLayerFrequency (reservoirIoRecord, database::getErrLayerFrequency (m_detectedReservoirIoRecord));
+   database::setDepthOffset (reservoirIoRecord, database::getDepthOffset (m_reservoirOptionsIoRecord));
+   database::setDepthOffsetGrid (reservoirIoRecord, database::getDepthOffsetGrid (m_reservoirOptionsIoRecord));
+   database::setThickness (reservoirIoRecord, database::getThickness (m_reservoirOptionsIoRecord));
+   database::setThicknessGrid (reservoirIoRecord, database::getThicknessGrid (m_reservoirOptionsIoRecord));
+   database::setNetToGross (reservoirIoRecord, database::getNetToGross (m_reservoirOptionsIoRecord));
+   database::setNetToGrossGrid (reservoirIoRecord, database::getNetToGrossGrid (m_reservoirOptionsIoRecord));
+   database::setMicroTraps (reservoirIoRecord, database::getMicroTraps (m_reservoirOptionsIoRecord));
+   database::setLeakProperty (reservoirIoRecord, database::getLeakProperty (m_reservoirOptionsIoRecord));
+   database::setLeakRate (reservoirIoRecord, database::getLeakRate (m_reservoirOptionsIoRecord));
+   database::setLithotype1 (reservoirIoRecord, database::getLithotype1 (m_reservoirOptionsIoRecord));
+   database::setPercent1 (reservoirIoRecord, database::getPercent1 (m_reservoirOptionsIoRecord));
+   database::setPercent1Grid (reservoirIoRecord, database::getPercent1Grid (m_reservoirOptionsIoRecord));
+   database::setLithotype2 (reservoirIoRecord, database::getLithotype2 (m_reservoirOptionsIoRecord));
+   database::setPercent2 (reservoirIoRecord, database::getPercent2 (m_reservoirOptionsIoRecord));
+   database::setPercent2Grid (reservoirIoRecord, database::getPercent2Grid (m_reservoirOptionsIoRecord));
+   database::setLithotype3 (reservoirIoRecord, database::getLithotype3 (m_reservoirOptionsIoRecord));
+   database::setLayerFrequency (reservoirIoRecord, database::getLayerFrequency (m_reservoirOptionsIoRecord));
+   database::setLayerFrequencyGrid (reservoirIoRecord, database::getLayerFrequencyGrid (m_reservoirOptionsIoRecord));
+   database::setBioDegradInd (reservoirIoRecord, database::getBioDegradInd (m_reservoirOptionsIoRecord));
+   database::setOilToGasCrackingInd (reservoirIoRecord, database::getOilToGasCrackingInd (m_reservoirOptionsIoRecord));
+   database::setDiffusionInd (reservoirIoRecord, database::getDiffusionInd (m_reservoirOptionsIoRecord));
+   database::setMinOilColumnHeight (reservoirIoRecord, database::getMinOilColumnHeight (m_reservoirOptionsIoRecord));
+   database::setMinGasColumnHeight (reservoirIoRecord, database::getMinGasColumnHeight (m_reservoirOptionsIoRecord));
+   database::setBlockingInd (reservoirIoRecord, database::getBlockingInd (m_reservoirOptionsIoRecord));
+   database::setBlockingPermeability (reservoirIoRecord, database::getBlockingPermeability (m_reservoirOptionsIoRecord));
+   database::setBlockingPorosity (reservoirIoRecord, database::getBlockingPorosity (m_reservoirOptionsIoRecord));
+   database::setErrDepthOffset (reservoirIoRecord, database::getErrDepthOffset (m_reservoirOptionsIoRecord));
+   database::setErrThickness (reservoirIoRecord, database::getErrThickness (m_reservoirOptionsIoRecord));
+   database::setErrMicroTraps (reservoirIoRecord, database::getErrMicroTraps (m_reservoirOptionsIoRecord));
+   database::setErrLayerFrequency (reservoirIoRecord, database::getErrLayerFrequency (m_reservoirOptionsIoRecord));
 
    return reservoirIoRecord;
 }
@@ -1625,7 +1625,7 @@ database::Record * Migrator::copyMigrationRecord (database::Record * oldRecord, 
 }
 
 void Migrator::addMigrationRecord (const string & srcReservoirName, const string & srcFormationName,
-   const string & dstReservoirName, migration::MigrationRequest & mr)
+                                   const string & dstReservoirName, migration::MigrationRequest & mr)
 {
    assert (GetRank () == 0);
 
@@ -1656,8 +1656,8 @@ void Migrator::addMigrationRecord (const string & srcReservoirName, const string
 }
 
 database::Record * Migrator::createMigrationRecord (const string & srcReservoirName, const string & srcFormationName,
-   const string & dstReservoirName,
-   MigrationRequest & mr)
+                                                    const string & dstReservoirName,
+                                                    MigrationRequest & mr)
 {
    assert (GetRank () == 0);
 
@@ -1684,8 +1684,8 @@ database::Record * Migrator::createMigrationRecord (const string & srcReservoirN
 }
 
 database::Record * Migrator::findMigrationRecord (const string & srcReservoirName, const string & srcFormationName,
-   const string & dstReservoirName,
-   MigrationRequest & mr)
+                                                  const string & dstReservoirName,
+                                                  MigrationRequest & mr)
 {
    assert (GetRank () == 0);
 
@@ -1936,9 +1936,9 @@ void Migrator::sanitizeMigrationRecords (void)
       {
       }
       else if (migrationProcess == MigrationProcessNames[BIODEGRADATION] or
-         migrationProcess == MigrationProcessNames[DIFFUSION] or
-         migrationProcess == MigrationProcessNames[OILTOGASCRACKINGLOST] or
-         migrationProcess == MigrationProcessNames[OILTOGASCRACKINGGAINED])
+               migrationProcess == MigrationProcessNames[DIFFUSION] or
+               migrationProcess == MigrationProcessNames[OILTOGASCRACKINGLOST] or
+               migrationProcess == MigrationProcessNames[OILTOGASCRACKINGGAINED])
       {
          if (sourceTrapId < 0)
          {
@@ -1984,8 +1984,8 @@ void Migrator::renumberMigrationRecordTrap (const Interface::Snapshot * snapshot
 }
 
 const Interface::GridMap * Migrator::getPropertyGridMap (const string & propertyName, const Interface::Snapshot * snapshot,
-   const Interface::Reservoir * reservoir,
-   const Interface::Formation * formation, const Interface::Surface * surface)
+                                                         const Interface::Reservoir * reservoir,
+                                                         const Interface::Formation * formation, const Interface::Surface * surface)
 {
    int selectionFlags = 0;
 
@@ -1995,9 +1995,9 @@ const Interface::GridMap * Migrator::getPropertyGridMap (const string & property
    if (formation and surface) selectionFlags |= Interface::FORMATIONSURFACE;
 
    Interface::PropertyValueList * propertyValues = m_projectHandle->getPropertyValues (selectionFlags,
-      m_projectHandle->findProperty (propertyName),
-      snapshot, reservoir, formation, surface,
-      Interface::MAP);
+                                                                                       m_projectHandle->findProperty (propertyName),
+                                                                                       snapshot, reservoir, formation, surface,
+                                                                                       Interface::MAP);
 
    if (propertyValues->size () != 1)
    {

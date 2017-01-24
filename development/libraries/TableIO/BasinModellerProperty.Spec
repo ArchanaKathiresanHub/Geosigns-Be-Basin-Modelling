@@ -3370,14 +3370,14 @@ START-properties
     Error Field         : No
 
     Identification      : BioDegradInd
-    Description         : Switch for Bio Degradation (1 = On, 0 = Off)
+    Description         : Switch for Biodegradation (1 = On, 0 = Off)
     Type                : boolean
     Unit of measurement : 
     Default             : 0
     Error Field         : No
 
     Identification      : OilToGasCrackingInd
-    Description         : Switch for Bio Degradation (1 = On, 0 = Off)
+    Description         : Switch for OTGC (1 = On, 0 = Off)
     Type                : boolean
     Unit of measurement : 
     Default             : 1
@@ -3393,8 +3393,8 @@ START-properties
     Identification      : MinOilColumnHeight 
     Description         : minimum oil column height
     Unit of measurement : m
-    Type                : double 
-    Default		: 0.5
+    Type                : double
+    Default             : 0.5
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
@@ -3403,7 +3403,7 @@ START-properties
     Description         : minimum gas column height
     Unit of measurement : m
     Type                : double
-    Default		: 0.5
+    Default             : 0.5
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
@@ -7204,7 +7204,7 @@ START-property-tables
     Column         : BlockingPorosity
     Header         : Reservoir Data
     
-    Identification : DetectedReservoirIoTbl
+    Identification : ReservoirOptionsIoTbl
     Description    : Table listing the parameters for detected reservoirs
     Column         : TrapCapacity
     Column         : ActivityMode
@@ -8018,7 +8018,7 @@ START-application-class-properties
     Property : SmectiteIlliteIoTbl
     Property : SmectiteIlliteKinIoTbl
     Property : ReservoirIoTbl
-    Property : DetectedReservoirIoTbl
+    Property : ReservoirOptionsIoTbl
     Property : BioDegradIoTbl
     Property : DiffusionIoTbl
     Property : PalinspasticIoTbl

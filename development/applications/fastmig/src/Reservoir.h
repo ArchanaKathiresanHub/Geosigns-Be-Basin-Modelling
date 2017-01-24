@@ -55,7 +55,6 @@ namespace migration
    class Reservoir : public Interface::Reservoir
    {
    public:
-
       /// This constructor is called by the object factory
       Reservoir (Interface::ProjectHandle * projectHandle, Migrator * const migrator, database::Record * record);
 
@@ -75,10 +74,10 @@ namespace migration
       /// reset properties from a previous timestep
       bool clearPreviousProperties (void);
       DerivedProperties::FormationPropertyPtr getVolumeProperty (const Formation * formation,
-         const string & propertyName,
-         const Interface::Snapshot * snapshot) const;
+                                                                 const string & propertyName,
+                                                                 const Interface::Snapshot * snapshot) const;
       DerivedProperties::FormationPropertyPtr getFormationPropertyPtr (const string & propertyName,
-         const Interface::Snapshot * snapshot) const;
+                                                                       const Interface::Snapshot * snapshot) const;
       bool computeDepthOffsets (const Interface::Snapshot * presentDay);
       bool computeNetToGross (void);
       bool isActive (const Interface::Snapshot * snapshot) const;
@@ -86,6 +85,16 @@ namespace migration
       bool saveComputedInputProperties (const bool saveSnapshot);
       /// save properties the migration module computed during the current snapshot interval
       bool saveComputedOutputProperties (const bool saveSnapshot);
+
+      
+      /// Reservoir Options
+
+      /// Return whether diffusion takes place inside traps
+      bool isDiffusionOn (bool legacy) const;
+      /// Return whether biodegradation takes place inside traps
+      bool isBioDegradationOn (bool legacy) const;
+      /// Return whether OTGC takes place inside traps
+      bool isOilToGasCrackingOn (bool legacy) const;
 
 
       /// Reservoir Charge
@@ -203,7 +212,7 @@ namespace migration
       void clearProxyProperties (ColumnValueRequest & valueRequest);
       void manipulateColumn (ColumnColumnRequest & columnRequest);
       void manipulateColumnComposition (ColumnCompositionRequest & compositionRequest);
-	  void manipulateColumnCompositionPosition(ColumnCompositionPositionRequest & compositionPositionRequest);
+      void manipulateColumnCompositionPosition(ColumnCompositionPositionRequest & compositionPositionRequest);
       void getColumnComposition (ColumnCompositionRequest & compositionRequest, ColumnCompositionRequest & compositionResponse);
       void collectMigrationRequest (MigrationRequest & request);
       void processMigrationRequests ();
@@ -269,8 +278,8 @@ namespace migration
       const Interface::Formation* getSeaBottomFormation (const Interface::Snapshot * snapshot) const;
       const Interface::Formation* getTopFormation (const Interface::Snapshot * snapshot) const;
       const Interface::GridMap * getPropertyGridMap (const string & propertyName, const Interface::Snapshot * snapshot,
-         const Interface::Reservoir * reservoir, const Interface::Formation * formation,
-         const Interface::Surface * surface) const;
+                                                     const Interface::Reservoir * reservoir, const Interface::Formation * formation,
+                                                     const Interface::Surface * surface) const;
 
 
       /// Reservoir Charge
