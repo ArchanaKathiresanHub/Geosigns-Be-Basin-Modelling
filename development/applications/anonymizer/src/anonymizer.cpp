@@ -256,12 +256,12 @@ void Anonymizer::write()
    update( "ReservoirIoTbl", "Percent1Grid", m_gridMap );
    update( "ReservoirIoTbl", "Percent2Grid", m_gridMap );
    update( "ReservoirIoTbl", "LayerFrequencyGrid", m_gridMap );
-   update( "DetectedReservoirIoTbl", "DepthOffsetGrid", m_gridMap );
-   update( "DetectedReservoirIoTbl", "ThicknessGrid", m_gridMap );
-   update( "DetectedReservoirIoTbl", "NetToGrossGrid", m_gridMap );
-   update( "DetectedReservoirIoTbl", "Percent1Grid", m_gridMap );
-   update( "DetectedReservoirIoTbl", "Percent2Grid", m_gridMap );
-   update( "DetectedReservoirIoTbl", "LayerFrequencyGrid", m_gridMap );
+   update( "ReservoirOptionsIoTbl", "DepthOffsetGrid", m_gridMap );
+   update( "ReservoirOptionsIoTbl", "ThicknessGrid", m_gridMap );
+   update( "ReservoirOptionsIoTbl", "NetToGrossGrid", m_gridMap );
+   update( "ReservoirOptionsIoTbl", "Percent1Grid", m_gridMap );
+   update( "ReservoirOptionsIoTbl", "Percent2Grid", m_gridMap );
+   update( "ReservoirOptionsIoTbl", "LayerFrequencyGrid", m_gridMap );
    update( "PalinspasticIoTbl", "DepthGrid", m_gridMap );
    update( "PalinspasticIoTbl", "FaultcutsMap", m_gridMap );
    update( "PalinspasticIoTbl", "SurfaceName", m_surfaceNames );
