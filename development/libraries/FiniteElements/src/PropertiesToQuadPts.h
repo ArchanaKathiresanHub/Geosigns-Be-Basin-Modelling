@@ -33,6 +33,7 @@ namespace FiniteElementMethod
                               MaxVes,        // Max vertical effective stress
                               ChemComp,      // Chemical compaction
                               Temp,          // Temparature
+                              HeatProd,      // Heat production
                               No_Property }; // Total number of properties in this enum
 
    /// \enum Time step
@@ -145,7 +146,7 @@ namespace FiniteElementMethod
    {
       // Check that all types are correct
       static_assert( std::is_same<T,CauldronPropertyName>::value and std::is_same<V,ElementVector>::value,
-                     "Only allowed for Fundamental_Property and ElementVector");
+                     "Only allowed for CauldronPropertyName and ElementVector");
       addSingleProperty( propIdx, propName, propVal );
    }
 
@@ -158,7 +159,7 @@ namespace FiniteElementMethod
    {
       // Check that all types are correct
       static_assert( std::is_same<T,CauldronPropertyName>::value and std::is_same<V,ElementVector>::value,
-                     "Only allowed for Fundamental_Property and ElementVector");
+                     "Only allowed for CauldronPropertyName and ElementVector");
       addSingleProperty( propIdx, propName, propVal );
       addProperties( propIdx + 1, args... ); // recursive variadic template
    }

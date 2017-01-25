@@ -437,6 +437,53 @@ double GeoPhysics::CompoundLithology::densityXheatcapacity(const double temperat
 
    return lithoHeatCapacity;
 }
+
+//------------------------------------------------------------//
+
+void GeoPhysics::CompoundLithology::densityXheatcapacity ( const unsigned int       size,
+                                                           ArrayDefs::ConstReal_ptr temperature,
+                                                           ArrayDefs::ConstReal_ptr pressure,
+                                                           ArrayDefs::Real_ptr      densityXHeatCap ) const {
+
+   double fraction;
+   bool firstLithology = true;
+
+   for ( size_t i = 0; i < m_lithoComponents.size (); ++i ) {
+      fraction = m_componentPercentage [ i ] / 100.0;
+
+      if ( firstLithology ) {
+
+         for ( unsigned int j = 0; j < size; ++j ) {
+
+#ifdef NOPRESSURE
+            densityXHeatCap [ j ] = m_lithoComponents [ i ]->heatcapacity(temperature [ j ]) * m_lithoComponents [ i ]->getDensity(temperature [ j ], 0.0)  * fraction;
+#else
+            // temporary remove pressure term from the density calculation
+            densityXHeatCap [ j ] = m_lithoComponents [ i ]->heatcapacity(temperature [ j ]) * m_lithoComponents [ i ]->getDensity(temperature [ j ], pressure [ j ])  * fraction;
+#endif
+
+         }
+
+      } else {
+
+         for ( unsigned int j = 0; j < size; ++j ) {
+
+#ifdef NOPRESSURE
+            densityXHeatCap [ j ] += m_lithoComponents [ i ]->heatcapacity(temperature [ j ]) * m_lithoComponents [ i ]->getDensity(temperature [ j ], 0.0)  * fraction;
+#else
+            // temporary remove pressure term from the density calculation
+            densityXHeatCap [ j ] += m_lithoComponents [ i ]->heatcapacity(temperature [ j ]) * m_lithoComponents [ i ]->getDensity(temperature [ j ], pressure [ j ])  * fraction;
+#endif
+
+         }
+
+
+      }
+
+   }
+
+}
+
 //------------------------------------------------------------//
 
 
@@ -909,11 +956,11 @@ double GeoPhysics::CompoundLithology::computeSegmentThickness(const double topMa
 //------------------------------------------------------------//
 
 void GeoPhysics::CompoundLithology::calcBulkDensXHeatCapacity(const FluidType* fluid,
-   const double     Porosity,
-   const double     Pressure,
-   const double     Temperature,
-   const double     LithoPressure,
-   double&    BulkDensXHeatCapacity) const {
+                                                              const double     Porosity,
+                                                              const double     Pressure,
+                                                              const double     Temperature,
+                                                              const double     LithoPressure,
+                                                              double&    BulkDensXHeatCapacity) const {
 
    bool LithoHasFluid = (fluid != 0);
 
@@ -931,6 +978,35 @@ void GeoPhysics::CompoundLithology::calcBulkDensXHeatCapacity(const FluidType* f
       BulkDensXHeatCapacity = MatrixDensXHeatCap;
 
    }
+}
+
+//------------------------------------------------------------//
+
+void GeoPhysics::CompoundLithology::calcBulkDensXHeatCapacity ( const unsigned int  size,
+                                                                const double*       fluidDensityXHeatCap,
+                                                                const double*       porosity,
+                                                                const double*       pressure,
+                                                                const double*       temperature,
+                                                                const double*       lithostaticPressure,
+                                                                ArrayDefs::Real_ptr bulkDensXHeatCapacity,
+                                                                ArrayDefs::Real_ptr matrixDensXHeatCapWorkSpace ) const {
+
+   densityXheatcapacity ( size, temperature, lithostaticPressure, matrixDensXHeatCapWorkSpace );
+
+   if ( fluidDensityXHeatCap != nullptr ) {
+
+      for ( unsigned int i = 0; i < size; ++i ) {
+         bulkDensXHeatCapacity [ i ] = matrixDensXHeatCapWorkSpace [ i ] * (1.0 - porosity [ i ]) + fluidDensityXHeatCap [ i ] * porosity [ i ];
+      }
+
+   } else {
+
+      for ( unsigned int i = 0; i < size; ++i ) {
+         bulkDensXHeatCapacity [ i ] = matrixDensXHeatCapWorkSpace [ i ];
+      }
+
+   }
+
 }
 
 //------------------------------------------------------------//
@@ -1018,6 +1094,42 @@ void GeoPhysics::CompoundLithology::calcBulkThermCondNP(const FluidType* fluid,
    BulkTHCondP = pow(MatrixTHCondP, 1.0 - Porosity) * pow(FluidThCond, Porosity);
 
 }
+//------------------------------------------------------------//
+
+void GeoPhysics::CompoundLithology::calcBulkThermCondNP ( const unsigned int size,
+                                                          const double* fluidThermalConductivity,
+                                                          const double* porosity,
+                                                          const double* temperature,
+                                                          const double* porePressue,
+                                                          double*       bulkThermalCondN,
+                                                          double*       bulkThermalCondP ) const {
+
+   double matrixThermalConductivityN;
+   double matrixThermalConductivityP;
+
+   if ( fluidThermalConductivity != nullptr ) {
+
+      for ( unsigned int i = 0; i < size; ++i ) {
+          matrixThermalConductivityN = thermalconductivityN ( temperature [ i ]);
+          matrixThermalConductivityP = thermalconductivityP ( temperature [ i ]);
+
+          bulkThermalCondN [ i ] = matrixThermalConductivityN * pow ( fluidThermalConductivity [ i ] / matrixThermalConductivityN, porosity [ i ]);
+          bulkThermalCondP [ i ] = matrixThermalConductivityP * pow ( fluidThermalConductivity [ i ] / matrixThermalConductivityP, porosity [ i ]);
+      }
+
+   } else {
+
+      for ( unsigned int i = 0; i < size; ++i ) {
+          matrixThermalConductivityN = thermalconductivityN ( temperature [ i ]);
+          matrixThermalConductivityP = thermalconductivityP ( temperature [ i ]);
+
+          bulkThermalCondN [ i ] = pow ( matrixThermalConductivityN, 1.0 - porosity [ i ]);
+          bulkThermalCondP [ i ] = pow ( matrixThermalConductivityP, 1.0 - porosity [ i ]);
+      }
+
+   }
+}
+
 //------------------------------------------------------------//
 
 void GeoPhysics::CompoundLithology::calcBulkHeatProd(const double Porosity, double &BulkHeatProd)  const {
@@ -1675,6 +1787,7 @@ double GeoPhysics::CompoundLithology::capillaryPressure(const unsigned int phase
    return capP;
 }
 //------------------------------------------------------------//
+
 void GeoPhysics::CompoundLithology::calcBulkThermCondNPBasement(const FluidType* fluid,
                                                                 double           Porosity,
                                                                 double           Temperature,
@@ -1688,33 +1801,80 @@ void GeoPhysics::CompoundLithology::calcBulkThermCondNPBasement(const FluidType*
    if (this->m_lithoComponents.size() != 1) {
       cerr << "Few lithologies in basement." << endl;
    }
+
    SimpleLithology * currentLitho = m_lithoComponents[0];
 
    if (m_lithoComponents[0]->getName() == DataAccess::Interface::ALCBasalt) {
-      return calcBulkThermCondNPBasalt(Temperature, LithoPressure, BulkTHCondN, BulkTHCondP);
-   }
-   double MatrixTHCondN = 0.0, MatrixTHCondP = 0.0;
+      BulkTHCondN = currentLitho->basaltThermalConductivity(Temperature, LithoPressure);
+      BulkTHCondP = BulkTHCondN;
+   } else {
+      double MatrixTHCondN = 0.0, MatrixTHCondP = 0.0;
 
-   if ((currentLitho->getThermalCondModel() == Interface::TABLE_MODEL or currentLitho->getThermalCondModel() == Interface::CONSTANT_MODEL)) {
-      MatrixTHCondN = thermalconductivityN(Temperature);
-      MatrixTHCondP = thermalconductivityP(Temperature);
+      if ((currentLitho->getThermalCondModel() == Interface::TABLE_MODEL or currentLitho->getThermalCondModel() == Interface::CONSTANT_MODEL)) {
+         MatrixTHCondN = thermalconductivityN(Temperature);
+         MatrixTHCondP = thermalconductivityP(Temperature);
+      }
+      else {
+         // cout << "calcBulkThermCondNPBasement for " <<  m_lithoComponents [ 0 ]->getName() << "; model = " << currentLitho->getThermalCondModel() << endl;
+         MatrixTHCondP = (MatrixTHCondN = currentLitho->thermalconductivity(Temperature, LithoPressure));
+      }
+
+      double FluidThCond = 1.0;
+      /* There is no fluid in the basement
+         if (LithoHasFluid) {
+         FluidThCond = fluid->thermalConductivity(Temperature);
+         }
+      */
+      BulkTHCondN = pow(MatrixTHCondN, 1.0 - Porosity) * pow(FluidThCond, Porosity);
+      BulkTHCondP = pow(MatrixTHCondP, 1.0 - Porosity) * pow(FluidThCond, Porosity);
    }
-   else {
-      // cout << "calcBulkThermCondNPBasement for " <<  m_lithoComponents [ 0 ]->getName() << "; model = " << currentLitho->getThermalCondModel() << endl;
-      MatrixTHCondP = (MatrixTHCondN = currentLitho->thermalconductivity(Temperature, LithoPressure));
+}
+
+void GeoPhysics::CompoundLithology::calcBulkThermCondNPBasement ( const unsigned int size,
+                                                                  const double* temperature,
+                                                                  const double* lithostaticPressure,
+                                                                  double*       bulkThermalCondN,
+                                                                  double*       bulkThermalCondP ) const {
+
+   if (this->m_lithoComponents.size() != 1) {
+      cerr << "Few lithologies in basement." << endl;
    }
 
-   double FluidThCond = 1.0;
-   /* There is no fluid in the basement
-   if (LithoHasFluid) {
-   FluidThCond = fluid->thermalConductivity(Temperature);
+   SimpleLithology * currentLitho = m_lithoComponents[0];
+
+   if ( currentLitho->getName() == DataAccess::Interface::ALCBasalt) {
+
+      for ( unsigned int i = 0; i < size; ++i ) {
+         bulkThermalCondN [ i ] = currentLitho->basaltThermalConductivity ( temperature [ i ], lithostaticPressure [ i ]);
+         bulkThermalCondP [ i ] = bulkThermalCondN [ i ];
+      }
+
+   } else {
+
+      if ( currentLitho->getThermalCondModel() == Interface::TABLE_MODEL or
+           currentLitho->getThermalCondModel() == Interface::CONSTANT_MODEL ) {
+
+         for ( unsigned int i = 0; i < size; ++i ) {
+            bulkThermalCondN [ i ] = thermalconductivityN ( temperature [ i ]);
+            bulkThermalCondP [ i ] = thermalconductivityP ( temperature [ i ]);
+         }
+
+      } else {
+
+         for ( unsigned int i = 0; i < size; ++i ) {
+            bulkThermalCondN [ i ] = currentLitho->thermalconductivity ( temperature [ i ], lithostaticPressure [ i ]);
+            bulkThermalCondP [ i ] = bulkThermalCondN [ i ];
+         }
+
+      }
+
    }
-   */
-   BulkTHCondN = pow(MatrixTHCondN, 1.0 - Porosity) * pow(FluidThCond, Porosity);
-   BulkTHCondP = pow(MatrixTHCondP, 1.0 - Porosity) * pow(FluidThCond, Porosity);
 
 }
+
+
 //------------------------------------------------------------//
+
 void GeoPhysics::CompoundLithology::calcBulkThermCondNPBasalt(double           Temperature,
                                                               double           LithoPressure,
                                                               double&          BulkTHCondN,

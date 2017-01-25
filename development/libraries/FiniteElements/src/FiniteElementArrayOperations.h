@@ -19,10 +19,6 @@ namespace FiniteElementMethod {
    /// \brief Contains a set of operations on arrays of matrices and vectors.
    struct ArrayOperations {
 
-      // static void computeJacobians ( const ElementGeometryMatrix&        geometryMatrix,
-      //                                const Numerics::AlignedDenseMatrix& gradBases,
-      //                                      ArrayOfMatrix3x3&             jacobians );
-
       /// \brief Multiply each of the grad bases by the Jacobian inverse (the 3x3 matrix).
       static void scaleGradBases ( const Numerics::AlignedDenseMatrix& gradBases,
                                    const ArrayOfMatrix3x3&             matrices,
@@ -48,36 +44,6 @@ namespace FiniteElementMethod {
                                         const ElementVector&                propertyCoefficients2,
                                         ArrayOfVector3&                     gradProperty1,
                                         ArrayOfVector3&                     gradProperty2 );
-
-      // static void product ( const Numerics::MatrixTransposeType aTrans,
-      //                       const ArrayOfMatrix3x3&             aMatrices,
-      //                       const Numerics::MatrixTransposeType bTrans,
-      //                       const ArrayOfMatrix3x3&             bMatrices,
-      //                             ArrayOfMatrix3x3&             result );
-
-      // static void product ( const Numerics::MatrixTransposeType aTrans,
-      //                       const ArrayOfMatrix3x3&             aMatrices,
-      //                       const Numerics::MatrixTransposeType bTrans,
-      //                             ArrayOfMatrix3x3&             results );
-
-      // static void invertMatrices ( const ArrayOfMatrix3x3&   matrices,
-      //                              ArrayOfMatrix3x3&   matrixInverses,
-      //                              ArrayDefs::Real_ptr determinants );
-
-      // /// \brief Multiply the transpose of the matrix
-      // static void product ( const ArrayOfMatrix3x3& matrices,
-      //                       const ArrayOfVector3&   vectors,
-      //                             ArrayOfVector3&   results );
-
-
-      // /// \brief Multiply the transpose of the matrix
-      // static void product ( const ArrayOfMatrix3x3& matrices,
-      //                             ArrayOfVector3&   vectors );
-
-      // /// \brief Multiply the transpose of the matrix
-      // static void productWithInverse ( const JacobianStorage& matrices,
-      //                                  const ArrayOfVector3&   vectors,
-      //                                        ArrayOfVector3&   results );
 
       /// \brief Inplace multiply a vector by the transpose of the matrix.
       static void productWithInverse ( const JacobianStorage& jacobians,

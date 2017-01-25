@@ -148,7 +148,11 @@ namespace GeoPhysics {
 
       /// Compute the density x heat-capacity, also known as the Volumetric Heat Capacity.
       double densXheatCapacity( const double temperature, const double pressure ) const;
+      double densXheatCapacity( const double fluidDensity, const double temperature, const double pressure ) const;
       void   densXheatCapacity( const GeoPhysics::Brine::PhaseStateVec & phases,
+                                ArrayDefs::Real_ptr densXheatCap ) const;
+      void   densXheatCapacity( const GeoPhysics::Brine::PhaseStateVec & phases,
+                                ArrayDefs::ConstReal_ptr fluidDensity,
                                 ArrayDefs::Real_ptr densXheatCap ) const;
 
       /// Compute the seismic velocity.

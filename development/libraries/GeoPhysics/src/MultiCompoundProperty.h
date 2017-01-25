@@ -114,6 +114,14 @@ namespace GeoPhysics {
 
    private :
 
+
+      /// \briief Remove the possibility of copy construction.
+      MultiCompoundProperty ( const MultiCompoundProperty& copy ) = delete;
+
+      /// \briief Remove the possibility of copying.
+      MultiCompoundProperty& operator=( const MultiCompoundProperty& copy ) = delete;
+
+
       /// \brief Allocate the data arrays.
       void allocate ( const unsigned int lithoCount,
                       const unsigned int dataCount );

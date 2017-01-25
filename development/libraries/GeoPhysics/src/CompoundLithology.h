@@ -86,6 +86,12 @@ namespace GeoPhysics {
       /// Calculate the density times heat-capacity of the compound-lithology.
       double densityXheatcapacity(const double temperature, const double pressure) const;
 
+      /// \bried Calculate the density times heat-capacity of the compound-lithology for a vector of values.
+      void densityXheatcapacity ( const unsigned int       size,
+                                  ArrayDefs::ConstReal_ptr temperature,
+                                  ArrayDefs::ConstReal_ptr pressure,
+                                  ArrayDefs::Real_ptr      densityXHeatCap ) const;
+
       /// Return the heat-production value for the compound-lithology.
       double heatproduction() const;
 
@@ -168,6 +174,16 @@ namespace GeoPhysics {
                                      const double  LithoPressure,
                                      double& BulkDensXHeatCapacity) const;
 
+      /// \bried Calculate the bulk-density times heat-capacity for a vector of values.
+      void calcBulkDensXHeatCapacity ( const unsigned int  size,
+                                       const double*       fluidDensityXHeatCap,
+                                       const double*       porosity,
+                                       const double*       pressure,
+                                       const double*       temperature,
+                                       const double*       lithostaticPressure,
+                                       ArrayDefs::Real_ptr bulkDensXHeatCapacity,
+                                       ArrayDefs::Real_ptr matrixDensXHeatCapWorkSpace ) const;
+
       /// \brief Compute the density of the lithology.
       ///
       /// The lithologies "Crust", "Litho. Mantle" and ALCBasalt can only appear
@@ -216,10 +232,28 @@ namespace GeoPhysics {
                                double& BulkTHCondN,
                                double& BulkTHCondP) const;
 
+      /// \brief Calculate the bulk thermal-conductivity for a vector of values.
+      void calcBulkThermCondNP ( const unsigned int size,
+                                 const double* fluidThermalConductivity,
+                                 const double* porosity,
+                                 const double* temperature,
+                                 const double* porePressue,
+                                 double*       bulkThermalCondN,
+                                 double*       bulkThermalCondP ) const;
+
+
       /// thermal permeability for basement lithology
       void calcBulkThermCondNPBasement(const FluidType* fluid,
                                        double Porosity, double Temperature, double LithoPressure,
                                        double &BulkTHCondN, double &BulkTHCondP) const;
+
+      /// \brief thermal permeability for basement lithology for a vector of values.
+      void calcBulkThermCondNPBasement ( const unsigned int size,
+                                         const double* temperature,
+                                         const double* lithostaticPressure,
+                                         double*       bulkThermalCondN,
+                                         double*       bulkThermalCondP ) const;
+
 
       /// thermal permeability for ALC Basalt  lithology
       void calcBulkThermCondNPBasalt( double Temperature, double LithoPressure, double &BulkTHCondN, double &BulkTHCondP) const;

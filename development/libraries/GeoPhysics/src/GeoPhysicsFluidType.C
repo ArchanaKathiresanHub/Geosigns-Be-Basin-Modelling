@@ -348,11 +348,16 @@ void GeoPhysics::FluidType::heatCapacity( const GeoPhysics::Brine::PhaseStateVec
 double GeoPhysics::FluidType::densXheatCapacity( const double temperature,
                                                  const double pressure ) const
 {
-   GeoPhysics::Brine::PhaseStateScalar phase( m_salinity );
-   phase.set( temperature, pressure );
+   return densXheatCapacity ( density ( temperature, pressure ), temperature, pressure );
+}
+
+double GeoPhysics::FluidType::densXheatCapacity( const double fluidDensity,
+                                                 const double temperature,
+                                                 const double pressure ) const
+{
    // Calculate the volumetric heat capacity (VHC) of water. Salinity is taken into account through density.
    const double waterVHC = m_heatCapacitytbl->compute( temperature, pressure, ibs::Interpolator2d::constant )
-                         * density( temperature, pressure );
+                         * fluidDensity;
 
    if( m_hasPermafrost )
    {
@@ -401,6 +406,32 @@ void GeoPhysics::FluidType::densXheatCapacity( const GeoPhysics::Brine::PhaseSta
    for( int i = 0; i < n; ++i )
    {
       densXheatCap[i] = densXheatCapacity( temperature[i], pressure[i] );
+   }
+}
+
+void GeoPhysics::FluidType::densXheatCapacity( const GeoPhysics::Brine::PhaseStateVec & phases,
+                                               ArrayDefs::ConstReal_ptr fluidDensity,
+                                               ArrayDefs::Real_ptr densXheatCap ) const
+{
+   const int n = phases.getVectorSize();
+   const ArrayDefs::Real_ptr temperature = phases.getTemperature();
+   const ArrayDefs::Real_ptr pressure    = phases.getPressure();
+
+   if ( m_hasPermafrost ) {
+
+      for( int i = 0; i < n; ++i )
+      {
+         densXheatCap[i] = densXheatCapacity ( fluidDensity [ i ], temperature[i], pressure[i] );
+      }
+
+   } else {
+
+      for( int i = 0; i < n; ++i )
+      {
+         const double heatCapacity = m_heatCapacitytbl->compute( temperature [ i ], pressure [ i ], ibs::Interpolator2d::constant );
+         densXheatCap[i] = fluidDensity [ i ] * heatCapacity;
+      }
+
    }
 }
 

@@ -72,7 +72,7 @@ void FiniteElementMethod::ArrayOperations::scaleBases ( const Numerics::AlignedD
       res [ 4 ] = scalarValues [ i ] * phi [ 4 ];
       res [ 5 ] = scalarValues [ i ] * phi [ 5 ];
       res [ 6 ] = scalarValues [ i ] * phi [ 6 ];
-      res [ 7 ] = scalarValues [ i ] * phi [ 0 ];
+      res [ 7 ] = scalarValues [ i ] * phi [ 7 ];
    }
 
 }
@@ -88,14 +88,14 @@ void FiniteElementMethod::ArrayOperations::scaleGradBases ( const Numerics::Alig
       const Matrix3x3& m = matrices [ i ];
 
       for ( unsigned int j = 0; j < 8; j += 2 ) {
-         res [ j      ] = gp [ j ] * m ( 1, 1 ) + gp [ j + 8 ] * m ( 2, 1 ) + gp [ j + 16 ] * m ( 3, 1 );
+         res [ j      ] = gp [ j     ] * m ( 1, 1 ) + gp [ j + 8 ] * m ( 2, 1 ) + gp [ j + 16 ] * m ( 3, 1 );
          res [ j +  1 ] = gp [ j + 1 ] * m ( 1, 1 ) + gp [ j + 9 ] * m ( 2, 1 ) + gp [ j + 17 ] * m ( 3, 1 );
 
-         res [ j +  8 ] = gp [ j ] * m ( 1, 2 ) + gp [ j + 8 ] * m ( 2, 2 ) + gp [ j + 16 ] * m ( 3, 2 );
+         res [ j +  8 ] = gp [ j     ] * m ( 1, 2 ) + gp [ j + 8 ] * m ( 2, 2 ) + gp [ j + 16 ] * m ( 3, 2 );
          res [ j +  9 ] = gp [ j + 1 ] * m ( 1, 2 ) + gp [ j + 9 ] * m ( 2, 2 ) + gp [ j + 17 ] * m ( 3, 2 );
 
 
-         res [ j + 16 ] = gp [ j ] * m ( 1, 3 ) + gp [ j + 8 ] * m ( 2, 3 ) + gp [ j + 16 ] * m ( 3, 3 );
+         res [ j + 16 ] = gp [ j     ] * m ( 1, 3 ) + gp [ j + 8 ] * m ( 2, 3 ) + gp [ j + 16 ] * m ( 3, 3 );
          res [ j + 17 ] = gp [ j + 1 ] * m ( 1, 3 ) + gp [ j + 9 ] * m ( 2, 3 ) + gp [ j + 17 ] * m ( 3, 3 );
       }
 
