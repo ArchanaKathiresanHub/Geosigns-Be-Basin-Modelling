@@ -1297,9 +1297,9 @@ namespace migration
 
             // Avoid going to a reservoir node ("this" cannot be reservoir)
             // where from charge can (steepest) ascend back to "this".
-            //if ( (neighbourNode->getReservoirVapour() or neighbourNode->getReservoirLiquid()) and
-            //     isShallowerThan(neighbourNode,false))
-            //   continue;
+            if ( (neighbourNode->getReservoirVapour() or neighbourNode->getReservoirLiquid()) and
+                 isShallowerThan(neighbourNode,false))
+               continue;
          }
          else
          {
