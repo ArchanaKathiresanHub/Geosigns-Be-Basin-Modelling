@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2010-2015 Shell International Exploration & Production.
+// Copyright (C) 2010-2017 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -68,7 +68,7 @@ namespace migration
       inline static Formation * CastToFormation (const Interface::Formation * formation);
 
       bool computePropertyMaps (Interface::GridMap * topDepthGridMap, const Interface::Snapshot * snapshot, bool lowResEqualsHighRes,
-         bool isPressureRun, bool nonGeometricLoop, bool chemicalCompaction);
+                                bool isPressureRun, bool nonGeometricLoop, bool chemicalCompaction);
 
       bool computeCapillaryPressureMaps (Interface::GridMap * topDepthGridMap, const Interface::Snapshot * snapshot);
 
@@ -177,12 +177,12 @@ namespace migration
       const GridMap* getFormationPrimaryPropertyGridMap (const DataAccess::Interface::Property* prop, const Interface::Snapshot * snapshot) const;
 
       const GridMap* getSurfacePropertyGridMap (const DataAccess::Interface::Property* prop, const Interface::Snapshot * snapshot,
-         const Interface::Surface* surface) const;
+                                                const Interface::Surface* surface) const;
 
       bool isActive (const DataAccess::Interface::Snapshot * snapshot) const;
 
       bool computeAnalogFlowDirections (Formation * targetFormation, const Interface::Snapshot * begin,
-         const Interface::Snapshot * end);
+                                        const Interface::Snapshot * end);
       bool computeAnalogFlowDirections (int depthIndex, const Interface::Snapshot * begin, const Interface::Snapshot * end);
 
       bool computeAdjacentNodes (Formation * targetFormation, const Interface::Snapshot * begin, const Interface::Snapshot * end);
@@ -191,7 +191,9 @@ namespace migration
       void migrateExpelledChargesToReservoir (unsigned int direction, Reservoir * targetReservoir) const;
       void migrateLeakedChargesToReservoir (Reservoir * targetReservoir) const;
 
+      /// @brief Calculates seeps due to leakage from the top reservoir
       bool calculateLeakageSeeps (const Interface::Snapshot * end, const bool advancedMigration);
+      /// @ brief Calculates seeps due to expulsion from all source rocks above the top reservoir
       bool calculateExpulsionSeeps (const Interface::Snapshot * end, const double expulsionFraction, const bool advancedMigration);
 
       void manipulateFormationNodeComposition (FormationNodeCompositionRequest & compositionRequest);
@@ -213,7 +215,7 @@ namespace migration
       Interface::GridMap* getGenexData () const { return m_genexData; }
 
       const Interface::GridMap * getPropertyGridMap (const string & propertyName,
-         const Interface::Snapshot * snapshot) const;
+                                                     const Interface::Snapshot * snapshot) const;
 
       inline bool performAdvancedMigration (void) const;
       inline bool performHDynamicAndCapillary (void) const;
@@ -245,17 +247,17 @@ namespace migration
       Interface::GridMap* m_genexData;
 
       bool computeInterpolator (const string & propertyName, const Interface::Snapshot *intervalStart, const Interface::Snapshot *intervalEnd,
-         Genex6::LinearGridInterpolator& interpolator);
+                                Genex6::LinearGridInterpolator& interpolator);
       bool extractGenexDataInterval (const Interface::Snapshot *intervalStart, const Interface::Snapshot *intervalEnd,
-         Genex6::LinearGridInterpolator& thickness,
-         Genex6::LinearGridInterpolator& ves,
-         Genex6::LinearGridInterpolator& temperature,
-         Genex6::LinearGridInterpolator& hydrostaticPressure,
-         Genex6::LinearGridInterpolator& lithostaticPressure,
-         Genex6::LinearGridInterpolator& porePressure,
-         Genex6::LinearGridInterpolator& porosity,
-         Genex6::LinearGridInterpolator& permeability,
-         Genex6::LinearGridInterpolator& vre);
+                                     Genex6::LinearGridInterpolator& thickness,
+                                     Genex6::LinearGridInterpolator& ves,
+                                     Genex6::LinearGridInterpolator& temperature,
+                                     Genex6::LinearGridInterpolator& hydrostaticPressure,
+                                     Genex6::LinearGridInterpolator& lithostaticPressure,
+                                     Genex6::LinearGridInterpolator& porePressure,
+                                     Genex6::LinearGridInterpolator& porosity,
+                                     Genex6::LinearGridInterpolator& permeability,
+                                     Genex6::LinearGridInterpolator& vre);
 
       // Formation property pointer using the derived properties library
       DerivedProperties::FormationPropertyPtr m_formationPropertyPtr[NUMBEROFPROPERTYINDICES];

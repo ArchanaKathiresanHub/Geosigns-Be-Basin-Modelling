@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2010-2016 Shell International Exploration & Production.
+// Copyright (C) 2010-2017 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -89,11 +89,11 @@ Migrator::Migrator (const string & name)
       exit (-1);
    }
 
-   m_massBalance = 0;
+   m_massBalance = nullptr;
    m_propertyManager.reset (new MigrationPropertyManager (m_projectHandle.get ()));
 
-   m_reservoirs = 0;
-   m_formations = 0;
+   m_reservoirs = nullptr;
+   m_formations = nullptr;
 
 
    InitializeRequestTypes ();
@@ -102,11 +102,11 @@ Migrator::Migrator (const string & name)
       m_migrationRecordLists = new vector<database::Record *>[NUMBEROFPROCESSES];
    }
 
-   m_migrationIoTbl = 0;
-   m_trapIoTbl = 0;
-   m_ReservoirIoTbl = 0;
-   m_reservoirOptionsIoTbl = 0;
-   m_reservoirOptionsIoRecord = 0;
+   m_migrationIoTbl = nullptr;
+   m_trapIoTbl = nullptr;
+   m_ReservoirIoTbl = nullptr;
+   m_reservoirOptionsIoTbl = nullptr;
+   m_reservoirOptionsIoRecord = nullptr;
 
    getMinimumColumnHeights ();
 
@@ -181,9 +181,9 @@ bool Migrator::compute (void)
    m_paleoSeeps = m_projectHandle->getRunParameters ()->getPaleoSeeps ();
    if (!m_advancedMigration)
    {
-      m_hdynamicAndCapillary = 0;
-      m_reservoirDetection = 0;
-      m_paleoSeeps = 0;
+      m_hdynamicAndCapillary = false;
+      m_reservoirDetection = false;
+      m_paleoSeeps = false;
    }
    m_legacyMigration = m_projectHandle->getRunParameters ()->getLegacy ();
 

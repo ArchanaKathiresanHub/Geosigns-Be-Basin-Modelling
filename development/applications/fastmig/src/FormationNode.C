@@ -555,12 +555,12 @@ namespace migration
       m_waterDensity = fluid->density (m_temperature, m_pressure);
    }
 
-   double LocalFormationNode::performAdvancedMigration (void)
+   bool LocalFormationNode::performAdvancedMigration (void)
    {
       return getFormation ()->performAdvancedMigration ();
    }
 
-   double LocalFormationNode::performHDynamicAndCapillary (void)
+   bool LocalFormationNode::performHDynamicAndCapillary (void)
    {
       return getFormation ()->performHDynamicAndCapillary ();
    }
@@ -1395,7 +1395,7 @@ namespace migration
 
    }
 
-   // Too complex. Simplify!
+   /// @todo Simplify
    bool LocalFormationNode::computeTargetFormationNode (void)
    {
       if (!IsValid (this))

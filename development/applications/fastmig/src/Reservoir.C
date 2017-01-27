@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2010-2016 Shell International Exploration & Production.
+// Copyright (C) 2010-2017 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -4258,6 +4258,7 @@ namespace migration
                                                                                    compositionRequest.phase, compositionResponse.composition);
    }
 
+   /// If legacy use reservoir-specific options (ReservoirIoTbl), otherwise global reservoir options (ReservoirOptionsIoTbl)
    bool Reservoir::isBioDegradationOn (bool legacy) const
    {
       if (legacy)

@@ -3081,7 +3081,7 @@ START-properties
 
     Identification      : AdvancedMigration
     Description         : Use the basic or advanced secondary-migration engine
-    Type                : integer
+    Type                : boolean
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
@@ -3089,7 +3089,7 @@ START-properties
 
     Identification      : HydrodynamicCapillaryPressure
     Description         : Consider hydrodynamic and capillary forces in flow path modeling
-    Type                : integer
+    Type                : boolean
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
@@ -3097,7 +3097,7 @@ START-properties
 
     Identification      : ReservoirDetection
     Description         : Automatic detection of nodes that are reservoir candidates
-    Type                : integer
+    Type                : boolean
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
@@ -3105,7 +3105,7 @@ START-properties
 
     Identification      : PaleoSeeps
     Description         : Calculation of seepage at paleo times
-    Type                : integer
+    Type                : boolean
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
@@ -3113,7 +3113,7 @@ START-properties
 
     Identification      : Legacy
     Description         : Whether to run BPA-compatible migration mode
-    Type                : integer
+    Type                : boolean
     Error Field         : No
     Time dependent      : No
     Property I/O        : No

@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2010-2015 Shell International Exploration & Production.
+// Copyright (C) 2010-2017 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -45,7 +45,7 @@ namespace migration
    {
    public:
       /// Constructor
-      Migrator (const string & name);// , DataAccess::Interface::ObjectFactory* objectFactory);
+      Migrator (const string & name);
       virtual ~Migrator (void);
 
       bool saveTo (const std::string & outputFileName);
@@ -162,7 +162,8 @@ namespace migration
                                                 const std::string & dstReservoirName,
                                                 MigrationRequest & mr);
 
-      inline database::Record * getReservoirOptionsIoRecord (void);
+      /// Get global reservoir options from the ReservoirOptionsIoTbl
+      inline database::Record * getReservoirOptionsIoRecord (void) const;
 
       bool retrieveFormationPropertyMaps (const Interface::Snapshot * end);
       bool restoreFormationPropertyMaps (const Interface::Snapshot * end);
@@ -203,11 +204,10 @@ namespace migration
       inline bool performAdvancedMigration (void) const;
       inline bool performHDynamicAndCapillary (void) const;
       inline bool performReservoirDetection (void) const;
-      inline bool calculatePaleoSeeps (void) const;
       inline bool performLegacyMigration (void) const;
-      inline bool isBlockingOn (void);
-      inline double getBlockingPermeability (void);
-      inline double getBlockingPorosity (void);
+      inline bool isBlockingOn (void) const;
+      inline double getBlockingPermeability (void) const;
+      inline double getBlockingPorosity (void) const;
 
       const Interface::GridMap * getPropertyGridMap (const string & propertyName, const Interface::Snapshot * snapshot,
                                                      const Interface::Reservoir * reservoir,
@@ -239,12 +239,19 @@ namespace migration
       OilToGasCracker * m_otgc;
 #endif
 
+      /// Whether we use the advanced (true) or basic (false) mode of the BPA2 engine
       bool m_advancedMigration;
+      /// Whether pore-pressure and capillary-pressure gradients are taken into account in flow-lines calculation
       bool m_hdynamicAndCapillary;
+      /// Whether automatic reservoir detection (ARD) in ON
       bool m_reservoirDetection;
+      /// Wthere seeps are also calcaulated at paleo times
       bool m_paleoSeeps;
+      /// Whether the 'blocking' functionality is used
       bool m_isBlockingOn;
+      /// Whether we use GeoSigns-BPA (true) or BPA2 (false) engine
       bool m_legacyMigration;
+   
       double m_blockingPermeability;
       double m_blockingPorosity;
       double m_minOilColumnHeight;
@@ -277,32 +284,27 @@ bool migration::Migrator::performReservoirDetection (void) const
    return m_reservoirDetection;
 }
 
-bool migration::Migrator::calculatePaleoSeeps (void) const
-{
-   return m_paleoSeeps;
-}
-
 bool migration::Migrator::performLegacyMigration (void) const
 {
    return m_legacyMigration;
 }
 
-bool migration::Migrator::isBlockingOn (void)
+bool migration::Migrator::isBlockingOn (void) const
 {
    return m_isBlockingOn;
 }
 
-double migration::Migrator::getBlockingPermeability (void)
+double migration::Migrator::getBlockingPermeability (void) const
 {
    return (m_isBlockingOn ? m_blockingPermeability : 0);
 }
 
-double migration::Migrator::getBlockingPorosity (void)
+double migration::Migrator::getBlockingPorosity (void) const
 {
    return (m_isBlockingOn ? m_blockingPorosity : 0);
 }
 
-database::Record * migration::Migrator::getReservoirOptionsIoRecord (void)
+database::Record * migration::Migrator::getReservoirOptionsIoRecord (void) const
 {
    return m_reservoirOptionsIoRecord;
 }

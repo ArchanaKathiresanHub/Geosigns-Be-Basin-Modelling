@@ -1,8 +1,4 @@
-
-
-
-
-// Copyright (C) 2010-2015 Shell International Exploration & Production.
+// Copyright (C) 2010-2017 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -208,9 +204,13 @@ namespace migration
 
       virtual bool isValid (void);
 
-      double performAdvancedMigration (void);
-      double performHDynamicAndCapillary (void);
+      /// @brief Whether to use the advanced mode of the BPA2 engine
+      bool performAdvancedMigration (void);
+      /// @brief Whether to account for pore-pressure and capillary-pressure gradients in flow-pathy calculation
+      bool performHDynamicAndCapillary (void);
+      /// @return The value of blocking porosity
       double getBlockingPorosity (void);
+      /// @return The value of blocking permeability
       double getBlockingPermeability (void);
 
       virtual void clearProperties (void);

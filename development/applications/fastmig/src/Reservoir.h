@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2010-2016 Shell International Exploration & Production.
+// Copyright (C) 2010-2017 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -61,44 +61,48 @@ namespace migration
       /// Destructor
       virtual ~Reservoir (void);
 
-
-      /// Reservoir Properties
-
-      /// Retain properties calculated during the previous snapshot interval that
-      /// are required during the current snapshot interval.
+      /// @defgroup ReservoirProperties
+      /// @{
+      /// @brief Retain properties calculated during the previous snapshot interval that are required during the current snapshot interval.
       void retainPreviousProperties (void);
-      /// Reset all computed property values
+      /// @brief Reset all computed property values
       bool clearProperties (void);
-      /// Compute new input-based property values.
+      /// @brief Compute new input-based property values.
       bool computeProperties (void);
-      /// reset properties from a previous timestep
+      /// @brief Reset properties from a previous timestep
       bool clearPreviousProperties (void);
       DerivedProperties::FormationPropertyPtr getVolumeProperty (const Formation * formation,
                                                                  const string & propertyName,
                                                                  const Interface::Snapshot * snapshot) const;
       DerivedProperties::FormationPropertyPtr getFormationPropertyPtr (const string & propertyName,
                                                                        const Interface::Snapshot * snapshot) const;
+      /// @brief Computes depth offsets according to input (legacy only)
       bool computeDepthOffsets (const Interface::Snapshot * presentDay);
+      /// @brief Computes net to gross according to input (legacy only)
       bool computeNetToGross (void);
+      /// @return Boolean whether a reservoir is active at a given snapshot
       bool isActive (const Interface::Snapshot * snapshot) const;
-      /// save properties that were derived from input maps during the current snapshot interval
+      /// @brief Save properties that were derived from input maps during the current snapshot interval
       bool saveComputedInputProperties (const bool saveSnapshot);
-      /// save properties the migration module computed during the current snapshot interval
+      /// @brief Save properties the migration module computed during the current snapshot interval
       bool saveComputedOutputProperties (const bool saveSnapshot);
+      /// @}
 
-      
-      /// Reservoir Options
 
-      /// Return whether diffusion takes place inside traps
+      /// @defgroup ReservoirOptions
+      /// @{
+      /// @return Boolean whether diffusion takes place inside traps
       bool isDiffusionOn (bool legacy) const;
-      /// Return whether biodegradation takes place inside traps
+      /// @return Boolean whether biodegradation takes place inside traps
       bool isBioDegradationOn (bool legacy) const;
-      /// Return whether OTGC takes place inside traps
+      /// @return Boolean whether OTGC takes place inside traps
       bool isOilToGasCrackingOn (bool legacy) const;
+      /// @}
+      
 
 
-      /// Reservoir Charge
-
+      /// @defgroup ReservoirCharge
+      /// @{
       double getTotalToBeStoredCharges (bool onBoundaryOnly = false);
       double getTotalChargesToBeMigrated (void);
       double getTotalBiodegradedCharges (void);
@@ -136,11 +140,12 @@ namespace migration
       void reportDiffusionLoss (Trap * sourceTrap, const Composition & composition);
       bool processMigration (MigrationRequest & mr);
       bool processAbsorption (MigrationRequest & mr);
+      /// @}
 
 
-      /// Column Handling
-
-      /// refine geometry, to take into account zero thicknesses
+      /// @defgroup ColumnHandling
+      /// @{
+      /// @brief Refine geometry, to take into account zero thicknesses
       bool refineGeometryZeroThicknessAreas (void);
       bool refineGeometrySetFaulStatus (void);
       bool resetProxiesBeforeRefine (void);
@@ -154,7 +159,7 @@ namespace migration
       void putSeepsInColumns (const Formation * seepsFormation);
       /// save Seepage amounts at the top formation of the basin
       bool saveSeepageProperties (const Interface::Snapshot * end);
-
+      /// @}
 
       /// Trap Handling
 
