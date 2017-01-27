@@ -115,10 +115,10 @@ namespace GeoPhysics {
    private :
 
 
-      /// \briief Remove the possibility of copy construction.
+      /// \brief Remove the possibility of copy construction.
       MultiCompoundProperty ( const MultiCompoundProperty& copy ) = delete;
 
-      /// \briief Remove the possibility of copying.
+      /// \brief Remove the possibility of copying.
       MultiCompoundProperty& operator=( const MultiCompoundProperty& copy ) = delete;
 
 

@@ -439,10 +439,10 @@ inline void GeoPhysics::PermeabilityMixer::mixTwoLayeringIndexZero ( const unsig
    for ( unsigned int i = 0; i < size; ++i ) {
       k21 = std::cbrt ( permeabilities2 [ i ] / permeabilities1 [ i ]);
       normal = 1.0 + m_percentRatio2 * k21;
-      normal = normal * normal * normal * permeabilities1 [ i ] * m_percentPowerNormal * MilliDarcyToM2;
+      permeabilityNormal [ i ] = normal * normal * normal * permeabilities1 [ i ] * m_percentPowerNormal * MilliDarcayToM2;
 
       plane = 1.0 + m_percentRatio2 * m_anisoRatioExp2 * k21;
-      plane = plane * plane * plane * m_percentPowerPlane * permeabilityAnisotropy1 * permeabilities1 [ i ] * MilliDarcyToM2;
+      permeabilityPlane [ i ] = plane * plane * plane * m_percentPowerPlane * permeabilityAnisotropy1 * permeabilities1 [ i ] * MilliDarcyToM2;
    }
 
 }

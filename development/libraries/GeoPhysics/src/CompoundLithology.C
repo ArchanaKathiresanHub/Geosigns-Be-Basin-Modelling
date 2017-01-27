@@ -448,31 +448,33 @@ void GeoPhysics::CompoundLithology::densityXheatcapacity ( const unsigned int   
    double fraction;
    bool firstLithology = true;
 
-   for ( size_t i = 0; i < m_lithoComponents.size (); ++i ) {
-      fraction = m_componentPercentage [ i ] / 100.0;
+   for ( size_t l = 0; l < m_lithoComponents.size (); ++l ) {
+      fraction = m_componentPercentage [ l ] / 100.0;
+      const SimpleLithology* currentLitho = m_lithoComponents [ l ];
 
       if ( firstLithology ) {
 
          for ( unsigned int j = 0; j < size; ++j ) {
 
 #ifdef NOPRESSURE
-            densityXHeatCap [ j ] = m_lithoComponents [ i ]->heatcapacity(temperature [ j ]) * m_lithoComponents [ i ]->getDensity(temperature [ j ], 0.0)  * fraction;
+            densityXHeatCap [ j ] = currentLitho->heatcapacity(temperature [ j ]) * currentLitho->getDensity(temperature [ j ], 0.0)  * fraction;
 #else
             // temporary remove pressure term from the density calculation
-            densityXHeatCap [ j ] = m_lithoComponents [ i ]->heatcapacity(temperature [ j ]) * m_lithoComponents [ i ]->getDensity(temperature [ j ], pressure [ j ])  * fraction;
+            densityXHeatCap [ j ] = currentLitho->heatcapacity(temperature [ j ]) * currentLitho->getDensity(temperature [ j ], pressure [ j ])  * fraction;
 #endif
 
          }
 
+         firstLithology = false;
       } else {
 
          for ( unsigned int j = 0; j < size; ++j ) {
 
 #ifdef NOPRESSURE
-            densityXHeatCap [ j ] += m_lithoComponents [ i ]->heatcapacity(temperature [ j ]) * m_lithoComponents [ i ]->getDensity(temperature [ j ], 0.0)  * fraction;
+            densityXHeatCap [ j ] += currentLitho->heatcapacity(temperature [ j ]) * currentLitho->getDensity(temperature [ j ], 0.0)  * fraction;
 #else
             // temporary remove pressure term from the density calculation
-            densityXHeatCap [ j ] += m_lithoComponents [ i ]->heatcapacity(temperature [ j ]) * m_lithoComponents [ i ]->getDensity(temperature [ j ], pressure [ j ])  * fraction;
+            densityXHeatCap [ j ] += currentLitho->heatcapacity(temperature [ j ]) * currentLitho->getDensity(temperature [ j ], pressure [ j ])  * fraction;
 #endif
 
          }
