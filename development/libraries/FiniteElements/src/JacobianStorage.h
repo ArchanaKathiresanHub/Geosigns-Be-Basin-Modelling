@@ -39,6 +39,12 @@ namespace FiniteElementMethod {
 
       JacobianStorage ( const int numberOfQuadraturePoints );
 
+      /// \briief Remove the possibility of copy construction.
+      JacobianStorage ( const JacobianStorage& copy ) = delete;
+
+      /// \briief Remove the possibility of copy construction.
+      JacobianStorage& operator=( const JacobianStorage& copy ) = delete;
+
       /// \brief Set the values for a particular element.
       ///
       /// The Jacobian is compute are \$f GM \cdot \nabla \phi \$f.
@@ -74,12 +80,6 @@ namespace FiniteElementMethod {
       double getDeterminant ( const int i ) const;
 
    private :
-
-      /// \briief Remove the possibility of copy construction.
-      JacobianStorage ( const JacobianStorage& copy ) = delete;
-
-      /// \briief Remove the possibility of copy construction.
-      JacobianStorage& operator=( const JacobianStorage& copy ) = delete;
 
       ArrayOfVector3 m_jacobian3rdRow;
       ArrayOfVector3 m_inverseJacobian3rdRow;

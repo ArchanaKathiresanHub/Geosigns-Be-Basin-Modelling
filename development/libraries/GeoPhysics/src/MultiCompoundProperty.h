@@ -26,6 +26,12 @@ namespace GeoPhysics {
       /// \brief Default constructor.
       MultiCompoundProperty ();
 
+      /// \brief Remove the possibility of copy construction.
+      MultiCompoundProperty ( const MultiCompoundProperty& copy ) = delete;
+
+      /// \brief Remove the possibility of copying.
+      MultiCompoundProperty& operator=( const MultiCompoundProperty& copy ) = delete;
+
       /// \brief Construct the with the number of lithologies used in the compound lithology and the number of data values required.
       ///
       /// \param [in] lithoCount The number of litholigies.
@@ -113,13 +119,6 @@ namespace GeoPhysics {
 
 
    private :
-
-
-      /// \brief Remove the possibility of copy construction.
-      MultiCompoundProperty ( const MultiCompoundProperty& copy ) = delete;
-
-      /// \brief Remove the possibility of copying.
-      MultiCompoundProperty& operator=( const MultiCompoundProperty& copy ) = delete;
 
 
       /// \brief Allocate the data arrays.
