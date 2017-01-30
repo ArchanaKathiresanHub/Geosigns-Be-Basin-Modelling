@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 //------------------------------------------------------------//
 
 #ifndef __Element_Contributions_HH__
@@ -58,20 +58,6 @@ namespace Basin_Modelling {
                     const PetscScalar valuePlane,
                     const Matrix3x3&  jacobian,
                     Matrix3x3&        tensor );
-
-   void computeFluidMobilityTerms ( const bool                Has_Fractured,
-                                    const double              fractureScaling,
-                                    const double              VES,
-                                    const double              Max_VES,
-                                    const CompoundProperty&   Porosity,
-                                    const double              fluidDensity,
-                                    const double              Fluid_Viscosity,
-                                    const double              relativePermeability,
-                                    const Matrix3x3&          Jacobian,
-                                    const ThreeVector&        Grad_Overpressure,
-                                    const CompoundLithology*  lithology,
-                                          ThreeVector&        Fluid_Velocity,
-                                          Matrix3x3&          Fluid_Mobility );
 
   void computeFluidFlux
      ( const bool                imposeFluxLimit,
@@ -125,7 +111,7 @@ namespace Basin_Modelling {
 
   bool Degenerate_Element ( const ElementGeometryMatrix& geometryMatrix );
 
-			 
+
 
   void computeHeatFlow
      ( const bool                     isBasementFormation,
@@ -165,7 +151,7 @@ namespace Basin_Modelling {
 
 
   void Compute_Heat_Flow
-     ( const bool                   isBasementFormation,    
+     ( const bool                   isBasementFormation,
 	   const CompoundLithology*     Lithology,
        const GeoPhysics::FluidType* Fluid,
        const ElementVector&         Temperature_Vector,
@@ -204,37 +190,6 @@ namespace Basin_Modelling {
                                                  const double               conversionFactor,
                                                  const ElementVector&       currentPropertyValues,
                                                  ElementVector&             vector );
-
-   /// \brief Assemble the element Jacobian and residual for the pressure equation.
-   void assembleElementPressureSystem ( const BasisFunctionCache&              basisFunctions,
-                                        const double                           currentTime,
-                                        const double                           timeStep,
-                                        const BoundaryConditions&              bcs,
-                                        const bool                             isIceSheetLayer,
-                                        const CompoundLithology*               Lithology,
-                                        const GeoPhysics::FluidType*           Fluid,
-                                        const bool                             includeChemicalCompaction,
-                                        const Interface::FracturePressureModel fractureModel,
-                                        const ElementGeometryMatrix&           geometryMatrix,
-                                        const ElementVector&                   Previous_Ph,
-                                        const ElementVector&                   Current_Ph,
-                                        const ElementVector&                   Previous_Po,
-                                        const ElementVector&                   Current_Po,
-                                        const ElementVector&                   Current_Pl,
-                                        const ElementVector&                   Previous_Element_VES,
-                                        const ElementVector&                   Current_Element_VES,
-                                        const ElementVector&                   Previous_Element_Max_VES,
-                                        const ElementVector&                   Current_Element_Max_VES,
-                                        const ElementVector&                   Previous_Element_Temperature,
-                                        const ElementVector&                   Current_Element_Temperature,
-                                        const ElementVector&                   Previous_Element_Chemical_Compaction,
-                                        const ElementVector&                   Current_Element_Chemical_Compaction,
-                                        const ElementVector&                   Fracture_Pressure_Exceeded,
-                                        const bool                             includeWaterSaturation,
-                                        const Saturation&                      currentSaturation,
-                                        const Saturation&                      previousSaturation,
-                                        ElementMatrix&                         elementJacobian,
-                                        ElementVector&                         elementResidual );
 
    /// \brief Assemble the element Jacobian and residual for the temperature equation.
   void assembleElementTemperatureSystem ( const bool                   isBasementFormation,
@@ -293,36 +248,6 @@ namespace Basin_Modelling {
                                             const ElementVector&         Previous_Element_Chemical_Compaction,
                                             const ElementVector&         Current_Element_Chemical_Compaction,
                                             ElementVector&               Element_Residual );
-
-   /// \brief Assemble the element stiffness matrix and load vector for the linearised temperature equation.
-   void assembleElementTemperatureStiffnessMatrix ( const bool                          isBasementFormation,
-                                                    const int                           planeQuadratureDegree,
-                                                    const int                           depthQuadratureDegree,
-                                                    const double                        currentTime,
-                                                    const double                        timeStep,
-                                                    const bool                          Include_Advection_Term,
-                                                    const BoundaryConditions&           bcs,
-                                                    const CompoundLithology*            Lithology,
-                                                    const GeoPhysics::FluidType*        Fluid,
-                                                    const bool                          includeChemicalCompaction,
-                                                    const ElementGeometryMatrix&       geometryMatrix,
-                                                    const ElementVector&               Element_Heat_Production,
-                                                    const ElementVector&               Current_Ph,
-                                                    const ElementVector&               Current_Po,
-                                                    const ElementVector&               Previous_Pp,
-                                                    const ElementVector&               Current_Pp,
-                                                    const ElementVector&               Previous_Lp,
-                                                    const ElementVector&               Current_Lp,
-                                                    const ElementVector&               Previous_Element_VES,
-                                                    const ElementVector&               Current_Element_VES,
-                                                    const ElementVector&               Previous_Element_Max_VES,
-                                                    const ElementVector&               Current_Element_Max_VES,
-                                                    const ElementVector&               Previous_Element_Temperature,
-                                                    const ElementVector&               Current_Element_Temperature,
-                                                    const ElementVector&               Previous_Element_Chemical_Compaction,
-                                                    const ElementVector&               Current_Element_Chemical_Compaction,
-                                                    ElementMatrix&                     Element_Stiffness_Matrix,
-                                                    ElementVector&                     Element_Load_Vector );
 
 
 } // end namespace Basin_Modelling

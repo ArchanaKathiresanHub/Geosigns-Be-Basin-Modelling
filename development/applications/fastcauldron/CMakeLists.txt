@@ -118,6 +118,7 @@ set( all_headers,
      src/PetscSolver.h
      src/PoreVolumeInterpolatorCalculator.h
      src/PorosityCalculator.h
+     src/PressureElementMatrixAssembly.h
      src/PressureSolver.h
      src/PrimaryOutputPropertyMap.h
      src/PrimaryOutputPropertyVolume.h
@@ -153,6 +154,7 @@ set( all_headers,
      src/StratigraphicGrids.h
      src/SubdomainElement.h
      src/Subdomain.h
+     src/TemperatureElementAssembly.h
      src/TemperatureForVreInputGrid.h
      src/temperature_solver.h
      src/TemporalPropertyInterpolator.h
@@ -260,6 +262,7 @@ set( all_srcs_except_main
      src/PetscSolver.C
      src/PoreVolumeInterpolatorCalculator.C
      src/PorosityCalculator.C
+     src/PressureElementMatrixAssembly.C
      src/PressureSolver.C
      src/PrimaryOutputPropertyMap.C
      src/PrimaryOutputPropertyVolume.C
@@ -292,6 +295,7 @@ set( all_srcs_except_main
      src/StratigraphicColumn.C
      src/StratigraphicGrids.C
      src/Subdomain.C
+     src/TemperatureElementAssembly.C
      src/TemperatureForVreInputGrid.C
      src/temperature_solver.C
      src/TemporalPropertyInterpolator.C

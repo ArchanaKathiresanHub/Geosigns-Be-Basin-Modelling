@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -36,6 +36,8 @@
 #include "ElementContributions.h"
 #include "Lithology.h"
 
+#include "TemperatureElementAssembly.h"
+
 // utilities library
 #include "ConstantsNumerical.h"
 using Utilities::Numerical::CauldronNoDataValue;
@@ -55,21 +57,21 @@ int Temperature_Solver::DepthQuadratureDegrees [ NumberOfOptimisationLevels ] = 
 
 //------------------------------------------------------------//
 
-Temperature_Solver::Temperature_Solver( AppCtx* appctx ) : 
+Temperature_Solver::Temperature_Solver( AppCtx* appctx ) :
    m_SmectiteIlliteCalculator( appctx ),
    m_BiomarkersCalculator(appctx),
    m_FissionTrackCalculator(appctx)
 {
 
   Basin_Model  = appctx;
- 
+
 }
 
 
 //------------------------------------------------------------//
 
 
-Temperature_Solver::~Temperature_Solver() 
+Temperature_Solver::~Temperature_Solver()
 {
 
   if ( Basin_Model -> IsCalculationCoupled || Basin_Model -> DoTemperature || Basin_Model -> Do_Iteratively_Coupled ) {
@@ -124,14 +126,14 @@ void Temperature_Solver::Compute_Crust_Heat_Production ( )
   PETSC_3D_Array Crust_Layer_Heat_Production_Array ( Crust_Layer -> layerDA, Crust_Layer -> BulkHeatProd );
 
 
-  for ( I = X_Start; I < X_Start + X_Count; I++ ) 
+  for ( I = X_Start; I < X_Start + X_Count; I++ )
   {
 
-    for ( J = Y_Start; J < Y_Start + Y_Count; J++ ) 
+    for ( J = Y_Start; J < Y_Start + Y_Count; J++ )
     {
       Z_Node_Count = 0;
 
-        for ( K = Z_Start + Z_Count - 1; K >= Z_Start; K-- ) 
+        for ( K = Z_Start + Z_Count - 1; K >= Z_Start; K-- )
         {
            Crust_Heat_Production_Array ( K, J, I ) = Crust_Layer->getHeatProduction ( I, J ) * exp( -( Z_Node_Count * Crust_Segment_Thickness ) / heatProductionDecayConstant );
            Z_Node_Count++;
@@ -182,16 +184,16 @@ void Temperature_Solver::computeHeatProduction ( const double previousTime,
 
 
    while ( ! Layers.Iteration_Is_Done () ) {
-    
+
       currentLayer = Layers.Current_Layer ();
 
       PETSC_3D_Array layerPorosity ( currentLayer->layerDA, currentLayer->Porosity );
       PETSC_3D_Array layerHeatProduction ( currentLayer->layerDA, currentLayer->BulkHeatProd );
       DMDAGetCorners ( currentLayer->layerDA, PETSC_NULL, PETSC_NULL, &zStart, PETSC_NULL, PETSC_NULL, &zCount );
-      
+
       //For everything except igneous intrusion at the time of intrusion
       if ( !(currentLayer->getIsIgneousIntrusion ()) or previousTime != currentLayer->getIgneousIntrusionAge ()) {
-         
+
          for ( i = xStart; i < xStart + xCount; ++i ) {
 
             for ( j = yStart; j < yStart + yCount; ++j ) {
@@ -209,13 +211,13 @@ void Temperature_Solver::computeHeatProduction ( const double previousTime,
             }
 
          }
-         
+
 
       } else { //For igneous intrusion at the time of intrusion
 
-         
+
          #ifdef DEBUG_HEATPRODUCTIONFORINTRUSION
-         if ( FastcauldronSimulator::getInstance ().getRank () == 0 ) 
+         if ( FastcauldronSimulator::getInstance ().getRank () == 0 )
          { //Display the intrusion temperature for the node 5, 5
            cout << " Setting igneous intrusion "  << previousTime << "  " << currentLayer -> getLithology ( 5, 5 ) -> igneousIntrusionTemperature () << endl;
          }
@@ -249,16 +251,16 @@ void Temperature_Solver::computeHeatProduction ( const double previousTime,
                   currentLithology = currentLayer->getLithology ( i, j );
 
                   heatCapacity = currentLithology->densityXheatcapacity ( intrusionTemperature, 0.0 );
-                  
+
                   // The physical equation was not fitting the expected results, we determined a numerical factor in order to fit the benchmark
                   double factor = 41/thickness + 0.59;
                   heatProductionRateForIntrusion = factor * heatCapacity * ( intrusionTemperature - currentLayer->Current_Properties ( Basin_Modelling::Temperature, 0, j, i )) / timeStep;
 
-                  
+
                   #ifdef DEBUG_HEATPRODUCTIONFORINTRUSION
                   // Some values printed to help in debug mode => to delete once the prototype is released
                   if ( i == 1 and j == 1 ) {
-                     cout << " heatProductionForIntrusion " << heatProductionRateForIntrusion << "  " 
+                     cout << " heatProductionForIntrusion " << heatProductionRateForIntrusion << "  "
                           << heatProduction << "  "
                           << intrusionTemperature << "  "
                           << currentLayer->Current_Properties ( Basin_Modelling::Temperature, 0, j, i ) << "  "
@@ -288,7 +290,7 @@ void Temperature_Solver::computeHeatProduction ( const double previousTime,
       Layers++;
    }
 
-} 
+}
 
 //------------------------------------------------------------//
 
@@ -317,7 +319,7 @@ void Temperature_Solver::setSurfaceTemperature ( AppCtx*      basinModel,
   DMDAGetCorners ( *basinModel->mapDA, &xStart, &yStart, PETSC_NULL, &xCount, &yCount, PETSC_NULL );
 
   Double_Array_2D Temperature_Above ( xCount, yCount );
-  
+
   Layers.Initialise_Iterator ( basinModel -> layers, Descending, Sediments_Only, Active_Layers_Only );
 
   if ( Layers.Iteration_Is_Done ()) {
@@ -378,28 +380,28 @@ void Temperature_Solver::Estimate_Basement_Temperature ( )
   MantleFormation* Mantle_Layer  = Basin_Model -> Mantle();
 
   double Top_Asthenospheric_Temperature = FastcauldronSimulator::getInstance ().getBottomMantleTemperature ();
-  
+
   DMDAGetCorners( *Basin_Model -> mapDA, &X_Start, &Y_Start, PETSC_NULL, &X_Count, &Y_Count, PETSC_NULL );
 
-  DMDAGetCorners( Crust_Layer -> layerDA, PETSC_NULL, PETSC_NULL, PETSC_NULL, 
+  DMDAGetCorners( Crust_Layer -> layerDA, PETSC_NULL, PETSC_NULL, PETSC_NULL,
                   PETSC_NULL, PETSC_NULL, &Crust_Z_Nodes );
 
-  DMDAGetCorners( Mantle_Layer -> layerDA, PETSC_NULL, PETSC_NULL, PETSC_NULL, 
+  DMDAGetCorners( Mantle_Layer -> layerDA, PETSC_NULL, PETSC_NULL, PETSC_NULL,
                   PETSC_NULL, PETSC_NULL, &Mantle_Z_Nodes );
 
 
-  PETSC_3D_Array Crust_Depth( Crust_Layer -> layerDA, 
+  PETSC_3D_Array Crust_Depth( Crust_Layer -> layerDA,
 			      Crust_Layer -> Current_Properties ( Basin_Modelling::Depth ) );
-  PETSC_3D_Array Crust_Temperature( Crust_Layer -> layerDA, 
+  PETSC_3D_Array Crust_Temperature( Crust_Layer -> layerDA,
 				    Crust_Layer -> Current_Properties ( Basin_Modelling::Temperature ) );
-  PETSC_3D_Array Crust_Previous_Temperature( Crust_Layer -> layerDA, 
+  PETSC_3D_Array Crust_Previous_Temperature( Crust_Layer -> layerDA,
                                              Crust_Layer -> Previous_Properties ( Basin_Modelling::Temperature ) );
 
-  PETSC_3D_Array Mantle_Depth( Mantle_Layer -> layerDA, 
+  PETSC_3D_Array Mantle_Depth( Mantle_Layer -> layerDA,
 			       Mantle_Layer -> Current_Properties ( Basin_Modelling::Depth ) );
-  PETSC_3D_Array Mantle_Temperature( Mantle_Layer -> layerDA, 
+  PETSC_3D_Array Mantle_Temperature( Mantle_Layer -> layerDA,
 				     Mantle_Layer -> Current_Properties ( Basin_Modelling::Temperature ) );
-  PETSC_3D_Array Mantle_Previous_Temperature( Mantle_Layer -> layerDA, 
+  PETSC_3D_Array Mantle_Previous_Temperature( Mantle_Layer -> layerDA,
                                               Mantle_Layer -> Previous_Properties ( Basin_Modelling::Temperature ) );
 
 
@@ -437,7 +439,7 @@ void Temperature_Solver::Estimate_Basement_Temperature ( )
 
 //------------------------------------------------------------//
 
-#undef  __FUNCT__  
+#undef  __FUNCT__
 #define __FUNCT__ "Temperature_Solver::Estimate_Temperature"
 
 void Temperature_Solver::Estimate_Temperature ( AppCtx*      basinModel,
@@ -528,7 +530,7 @@ void Temperature_Solver::Estimate_Temperature ( AppCtx*      basinModel,
 
 //------------------------------------------------------------//
 
-#undef  __FUNCT__  
+#undef  __FUNCT__
 #define __FUNCT__ "Temperature_Solver::Store_Temperature_Solution"
 
 void Temperature_Solver::correctTemperatureSolution ( const double Current_Time ) {
@@ -556,16 +558,16 @@ void Temperature_Solver::correctTemperatureSolution ( const double Current_Time 
 
   DMDAGetCorners ( *Basin_Model->mapDA, &X_Start, &Y_Start, PETSC_NULL, &X_Count, &Y_Count, PETSC_NULL );
 
-  for ( Layers.Initialise_Iterator (); ! Layers.Iteration_Is_Done (); Layers++ ) 
+  for ( Layers.Initialise_Iterator (); ! Layers.Iteration_Is_Done (); Layers++ )
   {
     Current_Layer = Layers.Current_Layer ();
     DMDAGetCorners ( Current_Layer->layerDA, &X_Start, &Y_Start, &Z_Start, &X_Count, &Y_Count, &Z_Count );
     Current_Layer -> Current_Properties.Activate_Property ( Basin_Modelling::Temperature );
 
     for ( I = X_Start; I < X_Start + X_Count; I++ ) {
-          
+
        for ( J = Y_Start; J < Y_Start + Y_Count; J++ ) {
-             
+
           if ( Basin_Model->nodeIsDefined ( I, J )) {
              SeaBottomTemperature = FastcauldronSimulator::getInstance ().getSeaBottomTemperature ( I, J, Current_Time );
 
@@ -576,7 +578,7 @@ void Temperature_Solver::correctTemperatureSolution ( const double Current_Time 
              }
           }
        }
-          
+
     }
 
     Current_Layer -> Current_Properties.Restore_Property ( Basin_Modelling::Temperature );
@@ -609,9 +611,9 @@ PetscScalar Temperature_Solver::Maximum_Temperature_Difference ()
 
   Layers.Initialise_Iterator ( Basin_Model -> layers, Ascending, Sediments_Only, Active_Layers_Only );
 
-  while ( ! Layers.Iteration_Is_Done () ) 
+  while ( ! Layers.Iteration_Is_Done () )
   {
-    
+
     Current_Layer = Layers.Current_Layer ();
 
     Current_Temperature  = Current_Layer->Current_Properties  ( Basin_Modelling::Temperature );
@@ -636,7 +638,7 @@ PetscScalar Temperature_Solver::Maximum_Temperature_Difference ()
     Layers++;
 
   }
-  
+
   return Maximum_Difference;
 
 }
@@ -662,12 +664,12 @@ PetscScalar Temperature_Solver::Maximum_Temperature_Difference_In_Source_Rocks (
   PetscScalar Maximum_Difference = -1.0e10;
   PetscScalar Maximum_Layer_Difference;
 
-  Source_Rock_Layers.Initialise_Iterator ( Basin_Model -> layers, Ascending, Source_Rocks_Only, 
+  Source_Rock_Layers.Initialise_Iterator ( Basin_Model -> layers, Ascending, Source_Rocks_Only,
 					   Active_Layers_Only );
 
-  while ( ! Source_Rock_Layers.Iteration_Is_Done () ) 
+  while ( ! Source_Rock_Layers.Iteration_Is_Done () )
   {
-    
+
     Current_Source_Rock = Source_Rock_Layers.Current_Layer ();
 
     Current_Temperature  = Current_Source_Rock->Current_Properties  ( Basin_Modelling::Temperature );
@@ -694,7 +696,7 @@ PetscScalar Temperature_Solver::Maximum_Temperature_Difference_In_Source_Rocks (
     Source_Rock_Layers++;
 
   }
-  
+
   return Maximum_Difference;
 
 }
@@ -703,7 +705,7 @@ PetscScalar Temperature_Solver::Maximum_Temperature_Difference_In_Source_Rocks (
 //------------------------------------------------------------//
 
 
-void Temperature_Solver::resetBiomarkerStateVectors() 
+void Temperature_Solver::resetBiomarkerStateVectors()
 {
 
   if ( ! Basin_Model->filterwizard.IsBiomarkersCalculationNeeded()) {
@@ -714,8 +716,8 @@ void Temperature_Solver::resetBiomarkerStateVectors()
 
   Layer_Iterator Layers;
   Layers.Initialise_Iterator ( Basin_Model -> layers, Descending, Sediments_Only, Active_Layers_Only );
-    
-  while ( ! Layers.Iteration_Is_Done () ) 
+
+  while ( ! Layers.Iteration_Is_Done () )
   {
     LayerProps_Ptr currentLayer = Layers.Current_Layer ();
 
@@ -724,7 +726,7 @@ void Temperature_Solver::resetBiomarkerStateVectors()
     Layers++;
   }
 }
-void Temperature_Solver::resetSmectiteIlliteStateVectors( ) 
+void Temperature_Solver::resetSmectiteIlliteStateVectors( )
 {
 
   if ( ! Basin_Model->filterwizard.IsSmectiteIlliteCalculationNeeded()) {
@@ -735,8 +737,8 @@ void Temperature_Solver::resetSmectiteIlliteStateVectors( )
 
   Layer_Iterator Layers;
   Layers.Initialise_Iterator ( Basin_Model -> layers, Descending, Sediments_Only, Active_Layers_Only );
-    
-  while ( ! Layers.Iteration_Is_Done () ) 
+
+  while ( ! Layers.Iteration_Is_Done () )
   {
     LayerProps_Ptr currentLayer = Layers.Current_Layer ();
 
@@ -750,10 +752,10 @@ void Temperature_Solver::resetSmectiteIlliteStateVectors( )
 #undef  __FUNCT__
 #define __FUNCT__ "Temperature_Solver::computeSmectiteIlliteIncrement"
 
-void Temperature_Solver::computeSmectiteIlliteIncrement ( const double Previous_Time, const double Current_Time ) 
+void Temperature_Solver::computeSmectiteIlliteIncrement ( const double Previous_Time, const double Current_Time )
 {
 
-   if ( false == Basin_Model -> filterwizard.IsSmectiteIlliteCalculationNeeded()) 
+   if ( false == Basin_Model -> filterwizard.IsSmectiteIlliteCalculationNeeded())
    {
       return;
    }
@@ -770,9 +772,9 @@ void Temperature_Solver::computeSmectiteIlliteIncrement ( const double Previous_
 #undef  __FUNCT__
 #define __FUNCT__ "Temperature_Solver::computeSnapShotSmectiteIllite"
 
-void Temperature_Solver::computeSnapShotSmectiteIllite ( const double Current_Time, const Boolean2DArray& validNeedle ) 
+void Temperature_Solver::computeSnapShotSmectiteIllite ( const double Current_Time, const Boolean2DArray& validNeedle )
 {
-   if ( false == Basin_Model -> filterwizard.IsSmectiteIlliteCalculationNeeded()) 
+   if ( false == Basin_Model -> filterwizard.IsSmectiteIlliteCalculationNeeded())
    {
       return;
    }
@@ -784,7 +786,7 @@ void Temperature_Solver::computeSnapShotSmectiteIllite ( const double Current_Ti
 #define __FUNCT__ "Temperature_Solver::deleteSmectiteIlliteVector"
 void Temperature_Solver::deleteSmectiteIlliteVector ()
 {
-   if ( Basin_Model -> filterwizard.IsSmectiteIlliteCalculationNeeded()) 
+   if ( Basin_Model -> filterwizard.IsSmectiteIlliteCalculationNeeded())
    {
       return;
    }
@@ -796,11 +798,11 @@ void Temperature_Solver::deleteSmectiteIlliteVector ()
 
    Layers.Initialise_Iterator ( Basin_Model -> layers, Descending, Sediments_Only, Active_Layers_Only );
 
-   while ( ! Layers.Iteration_Is_Done ()) 
+   while ( ! Layers.Iteration_Is_Done ())
    {
       VecValid ( Layers.Current_Layer () -> m_IlliteFraction, &validVector );
 
-      if ( validVector ) 
+      if ( validVector )
       {
          VecDestroy (&( Layers.Current_Layer () -> m_IlliteFraction ));
          Layers.Current_Layer () -> m_IlliteFraction = Vec ( 0 );
@@ -815,10 +817,10 @@ void Temperature_Solver::deleteSmectiteIlliteVector ()
 #undef  __FUNCT__
 #define __FUNCT__ "Temperature_Solver::computeBiomarkersIncrement"
 
-void Temperature_Solver::computeBiomarkersIncrement ( const double Previous_Time, const double Current_Time ) 
+void Temperature_Solver::computeBiomarkersIncrement ( const double Previous_Time, const double Current_Time )
 {
 
-   if ( false == Basin_Model -> filterwizard.IsBiomarkersCalculationNeeded()) 
+   if ( false == Basin_Model -> filterwizard.IsBiomarkersCalculationNeeded())
    {
       return;
    }
@@ -852,9 +854,9 @@ void  Temperature_Solver:: resetFissionTrackCalculator(void)
 #undef  __FUNCT__
 #define __FUNCT__ "Temperature_Solver::computeSnapShotBiomarkers"
 
-void Temperature_Solver::computeSnapShotBiomarkers ( const double Current_Time, const Boolean2DArray& validNeedle ) 
+void Temperature_Solver::computeSnapShotBiomarkers ( const double Current_Time, const Boolean2DArray& validNeedle )
 {
-   if ( false == Basin_Model -> filterwizard.IsBiomarkersCalculationNeeded()) 
+   if ( false == Basin_Model -> filterwizard.IsBiomarkersCalculationNeeded())
    {
       return;
    }
@@ -867,7 +869,7 @@ void Temperature_Solver::computeSnapShotBiomarkers ( const double Current_Time, 
 void Temperature_Solver::deleteBiomarkersVectors ( )
 {
 
-   if ( false == Basin_Model -> filterwizard.IsBiomarkersCalculationNeeded()) 
+   if ( false == Basin_Model -> filterwizard.IsBiomarkersCalculationNeeded())
    {
       return;
    }
@@ -879,11 +881,11 @@ void Temperature_Solver::deleteBiomarkersVectors ( )
 
    Layers.Initialise_Iterator ( Basin_Model -> layers, Descending, Sediments_Only, Active_Layers_Only );
 
-   while ( ! Layers.Iteration_Is_Done ()) 
+   while ( ! Layers.Iteration_Is_Done ())
    {
       VecValid ( Layers.Current_Layer () -> m_HopaneIsomerisation, &validVector );
 
-      if ( validVector ) 
+      if ( validVector )
       {
          VecDestroy (&( Layers.Current_Layer () -> m_HopaneIsomerisation ));
          Layers.Current_Layer () -> m_HopaneIsomerisation = Vec ( 0 );
@@ -891,20 +893,20 @@ void Temperature_Solver::deleteBiomarkersVectors ( )
 
       VecValid ( Layers.Current_Layer () -> m_SteraneIsomerisation, &validVector );
 
-      if ( validVector ) 
+      if ( validVector )
       {
          VecDestroy (&( Layers.Current_Layer () -> m_SteraneIsomerisation ));
          Layers.Current_Layer () -> m_SteraneIsomerisation = Vec ( 0 );
       }
-      
+
       VecValid ( Layers.Current_Layer () -> m_SteraneAromatisation, &validVector );
-      
-      if ( validVector ) 
+
+      if ( validVector )
       {
          VecDestroy (&( Layers.Current_Layer () -> m_SteraneAromatisation ));
          Layers.Current_Layer () -> m_SteraneAromatisation = Vec ( 0 );
       }
-      
+
       Layers++;
    }
 }
@@ -991,8 +993,8 @@ void Temperature_Solver::getBoundaryConditions ( const GeneralElement& element,
       if ( bottomNeighbour == 0 ) {
          bottomOfDomain = true;
       }
-   }
 
+   }
 
    bcs.reset ();
 
@@ -1065,7 +1067,7 @@ void Temperature_Solver::getAlcBcsAndLithology ( const GeneralElement&     eleme
             // Is this just the bottom BC (1333)?
             bcs.setBoundaryConditions ( n, Surface_Boundary, fc.getBottomMantleTemperature ());
          }
-         
+
       }
 
    }
@@ -1097,14 +1099,14 @@ void Temperature_Solver::getAlcBcsAndLithology ( const GeneralElement&     eleme
 
          if ( not fc.getCauldron ()->bottomBasaltTemp ) {
 
-            if ( ! currentFormation->getPreviousBasaltLitho( i, j, k ) && 
+            if ( ! currentFormation->getPreviousBasaltLitho( i, j, k ) &&
                  currentTime > fc.getEndOfRiftEvent( layerElement.getIPosition (), layerElement.getJPosition ())) {
                bcs.setBoundaryConditions ( n, Interior_Constrained_Temperature, constrainedTempValue );
             }
 
             // set constraied temperature only for the bottom basalt element
-         } else if (( bottomBasaltDepth( j, i ) == CauldronNoDataValue ) && 
-                    ( fc.getBasaltThickness( i, j, currentTime ) > 
+         } else if (( bottomBasaltDepth( j, i ) == CauldronNoDataValue ) &&
+                    ( fc.getBasaltThickness( i, j, currentTime ) >
                       fc.getBasaltThickness( i, j, previousTime )) &&
                     currentTime >  fc.getEndOfRiftEvent( layerElement.getIPosition (), layerElement.getJPosition ())) {
 
@@ -1116,93 +1118,6 @@ void Temperature_Solver::getAlcBcsAndLithology ( const GeneralElement&     eleme
    }
 
 }
-
-//------------------------------------------------------------//
-
-void Temperature_Solver::assembleElementTemperatureStiffnessMatrix ( const GeneralElement&     element,
-                                                                     const PETSC_3D_Array&     bulkHeatProd,
-                                                                     const int                 planeQuadratureDegree,
-                                                                     const int                 depthQuadratureDegree,
-                                                                     const double              currentTime,
-                                                                     const double              timeStep,
-                                                                     const bool                includeAdvectiveTerm,
-                                                                     const BoundaryConditions& bcs,
-                                                                     const CompoundLithology*  elementLithology,
-                                                                     const bool                includeChemicalCompaction,
-                                                                     ElementMatrix&            elementStiffnessMatrix,
-                                                                     ElementVector&            elementLoadVector ) const {
-
-
-   const LayerElement& layerElement = element.getLayerElement ();
-
-   ElementGeometryMatrix geometryMatrix;
-
-   ElementVector currentPh;
-   ElementVector currentPo;
-   ElementVector previousPp;
-   ElementVector currentPp;
-   ElementVector previousPl;
-   ElementVector currentPl;
-   ElementVector previousVes;
-   ElementVector currentVes;
-   ElementVector previousMaxVes;
-   ElementVector currentMaxVes;
-   ElementVector previousTemperature;
-   ElementVector currentTemperature;
-   ElementVector previousChemicalCompaction;
-   ElementVector currentChemicalCompaction;
-   ElementVector elementHeatProduction;
-
-   getGeometryMatrix ( layerElement, geometryMatrix );
-   getCoefficients ( layerElement, Basin_Modelling::Hydrostatic_Pressure, currentPh );
-   getCoefficients ( layerElement, Basin_Modelling::Overpressure,         currentPo );
-   getCoefficients ( layerElement, Basin_Modelling::Pore_Pressure,        currentPp );
-   getCoefficients ( layerElement, Basin_Modelling::Lithostatic_Pressure, currentPl );
-   getCoefficients ( layerElement, Basin_Modelling::VES_FP,               currentVes );
-   getCoefficients ( layerElement, Basin_Modelling::Max_VES,              currentMaxVes );
-   getCoefficients ( layerElement, Basin_Modelling::Temperature,          currentTemperature );
-   getCoefficients ( layerElement, Basin_Modelling::Chemical_Compaction,  currentChemicalCompaction );
-
-   getPreviousCoefficients ( layerElement, Basin_Modelling::Pore_Pressure,        previousPp );
-   getPreviousCoefficients ( layerElement, Basin_Modelling::Lithostatic_Pressure, previousPl );
-   getPreviousCoefficients ( layerElement, Basin_Modelling::VES_FP,               previousVes );
-   getPreviousCoefficients ( layerElement, Basin_Modelling::Max_VES,              previousMaxVes );
-   getPreviousCoefficients ( layerElement, Basin_Modelling::Temperature,          previousTemperature );
-   getPreviousCoefficients ( layerElement, Basin_Modelling::Chemical_Compaction,  previousChemicalCompaction );
-
-   getCoefficients ( layerElement, bulkHeatProd, elementHeatProduction );
-
-   Basin_Modelling::assembleElementTemperatureStiffnessMatrix ( layerElement.getFormation ()->kind() == Interface::BASEMENT_FORMATION,
-                                                                planeQuadratureDegree,
-                                                                depthQuadratureDegree,
-                                                                currentTime,
-                                                                timeStep,
-                                                                includeAdvectiveTerm,
-                                                                bcs,
-                                                                elementLithology,
-                                                                layerElement.getFormation ()->fluid,
-                                                                includeChemicalCompaction,
-                                                                geometryMatrix,
-                                                                elementHeatProduction,
-                                                                currentPh,
-                                                                currentPo,
-                                                                previousPp,
-                                                                currentPp,
-                                                                previousPl,
-                                                                currentPl,
-                                                                previousVes,
-                                                                currentVes,
-                                                                previousMaxVes,
-                                                                currentMaxVes,
-                                                                previousTemperature,
-                                                                currentTemperature,
-                                                                previousChemicalCompaction,
-                                                                currentChemicalCompaction,
-                                                                elementStiffnessMatrix,
-                                                                elementLoadVector );
-
-}
-
 
 //------------------------------------------------------------//
 
@@ -1371,7 +1286,7 @@ void Temperature_Solver::assembleElementNonLinearResidual ( const GeneralElement
 
 //------------------------------------------------------------//
 
-#undef  __FUNCT__  
+#undef  __FUNCT__
 #define __FUNCT__ "Temperature_Solver::assembleStiffnessMatrix"
 
 void Temperature_Solver::assembleStiffnessMatrix ( const ComputationalDomain& computationalDomain,
@@ -1392,7 +1307,7 @@ void Temperature_Solver::assembleStiffnessMatrix ( const ComputationalDomain& co
 
   const bool SteadyStateCalculation = ( previousTime == currentTime );
 
-  const bool includeAdvectiveTerm = Basin_Model->includeAdvectiveTerm and 
+  const bool includeAdvectiveTerm = Basin_Model->includeAdvectiveTerm and
                                     not SteadyStateCalculation and
                                    ( Basin_Model->Do_Iteratively_Coupled or
                                      Basin_Model->IsCalculationCoupled );
@@ -1401,7 +1316,7 @@ void Temperature_Solver::assembleStiffnessMatrix ( const ComputationalDomain& co
 
   PetscLogDouble Element_Start_Time;
   PetscLogDouble Element_End_Time;
-			    
+
   bool IncludeGhosts = true;
 
   BoundaryConditions bcs;
@@ -1413,7 +1328,7 @@ void Temperature_Solver::assembleStiffnessMatrix ( const ComputationalDomain& co
   bool includeChemicalCompaction;
 
   Layer_Iterator Layers;
-  Layers.Initialise_Iterator ( Basin_Model -> layers, Ascending, Basement_And_Sediments, 
+  Layers.Initialise_Iterator ( Basin_Model -> layers, Ascending, Basement_And_Sediments,
 			       Active_Layers_Only );
 
   elementContributionsTime = 0.0;
@@ -1425,7 +1340,7 @@ void Temperature_Solver::assembleStiffnessMatrix ( const ComputationalDomain& co
   PETSC_2D_Array bottomBasaltDepth;
 
   if ( Basin_Model -> isALC()) {
-     CrustFormation*   crustLayer = dynamic_cast<CrustFormation*>(Basin_Model -> Crust ());   
+     CrustFormation*   crustLayer = dynamic_cast<CrustFormation*>(Basin_Model -> Crust ());
      MantleFormation*  mantleLayer = dynamic_cast<MantleFormation*>(Basin_Model -> Mantle ());
      crustLayer->cleanVectors();
      mantleLayer->cleanVectors();
@@ -1435,8 +1350,13 @@ void Temperature_Solver::assembleStiffnessMatrix ( const ComputationalDomain& co
   }
 
   MatZeroEntries ( stiffnessMatrix );
-  
+
   WallTime::Time startAss = WallTime::clock ();
+
+  FiniteElementMethod::BasisFunctionCache basisFunctions ( planeQuadratureDegree, planeQuadratureDegree, depthQuadratureDegree );
+
+  TemperatureElementAssembly temperatureAssembly ( basisFunctions );
+  ElementVector elementHeatProduction;
 
   while ( ! Layers.Iteration_Is_Done () ) {
 
@@ -1447,7 +1367,7 @@ void Temperature_Solver::assembleStiffnessMatrix ( const ComputationalDomain& co
     currentLayer->Current_Properties.Activate_Properties  ( INSERT_VALUES, IncludeGhosts );
     currentLayer->Previous_Properties.Activate_Properties ( INSERT_VALUES, IncludeGhosts );
 
-    PETSC_3D_Array bulkHeatProd ( currentLayer-> layerDA, 
+    PETSC_3D_Array bulkHeatProd ( currentLayer-> layerDA,
                                   currentLayer -> BulkHeatProd,
                                   INSERT_VALUES, IncludeGhosts );
 
@@ -1474,18 +1394,18 @@ void Temperature_Solver::assembleStiffnessMatrix ( const ComputationalDomain& co
 
                 PetscTime(&Element_Start_Time);
 
-                assembleElementTemperatureStiffnessMatrix ( gridElement,
-                                                            bulkHeatProd,
-                                                            planeQuadratureDegree,
-                                                            depthQuadratureDegree,
-                                                            currentTime,
-                                                            timeStep,
-                                                            includeAdvectiveTerm,
-                                                            bcs,
-                                                            elementLithology,
-                                                            includeChemicalCompaction,
-                                                            elementStiffnessMatrix,
-                                                            elementLoadVector );
+                getCoefficients ( layerElement, bulkHeatProd, elementHeatProduction );
+
+                temperatureAssembly.compute ( layerElement,
+                                              elementLithology,
+                                              currentTime,
+                                              timeStep,
+                                              includeAdvectiveTerm,
+                                              bcs,
+                                              includeChemicalCompaction,
+                                              elementHeatProduction,
+                                              elementStiffnessMatrix,
+                                              elementLoadVector );
 
                 PetscTime(&Element_End_Time);
                 elementContributionsTime = elementContributionsTime + Element_End_Time - Element_Start_Time;
@@ -1516,8 +1436,8 @@ void Temperature_Solver::assembleStiffnessMatrix ( const ComputationalDomain& co
 
 
   if ( Basin_Model -> isALC ()) {
-     topBasaltDepth.Restore_Global_Array( Update_Excluding_Ghosts );  
-     bottomBasaltDepth.Restore_Global_Array( Update_Excluding_Ghosts ); 
+     topBasaltDepth.Restore_Global_Array( Update_Excluding_Ghosts );
+     bottomBasaltDepth.Restore_Global_Array( Update_Excluding_Ghosts );
   }
 
   VecAssemblyBegin ( loadVector );
@@ -1531,7 +1451,7 @@ void Temperature_Solver::assembleStiffnessMatrix ( const ComputationalDomain& co
 
 //------------------------------------------------------------//
 
-#undef  __FUNCT__  
+#undef  __FUNCT__
 #define __FUNCT__ "Temperature_Solver::assembleStiffnessMatrix"
 
 void Temperature_Solver::assembleSystem ( const ComputationalDomain& computationalDomain,
@@ -1552,7 +1472,7 @@ void Temperature_Solver::assembleSystem ( const ComputationalDomain& computation
 
   const bool SteadyStateCalculation = ( previousTime == currentTime );
 
-  const bool includeAdvectiveTerm = Basin_Model->includeAdvectiveTerm and 
+  const bool includeAdvectiveTerm = Basin_Model->includeAdvectiveTerm and
                                     not SteadyStateCalculation and
                                    ( Basin_Model->Do_Iteratively_Coupled or
                                      Basin_Model->IsCalculationCoupled );
@@ -1561,7 +1481,7 @@ void Temperature_Solver::assembleSystem ( const ComputationalDomain& computation
 
   PetscLogDouble Element_Start_Time;
   PetscLogDouble Element_End_Time;
-			    
+
   bool IncludeGhosts = true;
 
   BoundaryConditions bcs;
@@ -1573,7 +1493,7 @@ void Temperature_Solver::assembleSystem ( const ComputationalDomain& computation
   bool includeChemicalCompaction;
 
   Layer_Iterator Layers;
-  Layers.Initialise_Iterator ( Basin_Model -> layers, Ascending, Basement_And_Sediments, 
+  Layers.Initialise_Iterator ( Basin_Model -> layers, Ascending, Basement_And_Sediments,
 			       Active_Layers_Only );
 
   elementContributionsTime = 0.0;
@@ -1585,7 +1505,7 @@ void Temperature_Solver::assembleSystem ( const ComputationalDomain& computation
   PETSC_2D_Array bottomBasaltDepth;
 
   if( Basin_Model -> isALC() ) {
-     CrustFormation*   crustLayer = dynamic_cast<CrustFormation*>(Basin_Model -> Crust ());   
+     CrustFormation*   crustLayer = dynamic_cast<CrustFormation*>(Basin_Model -> Crust ());
      MantleFormation*  mantleLayer = dynamic_cast<MantleFormation*>(Basin_Model -> Mantle ());
      crustLayer->cleanVectors();
      mantleLayer->cleanVectors();
@@ -1594,7 +1514,7 @@ void Temperature_Solver::assembleSystem ( const ComputationalDomain& computation
   }
 
   MatZeroEntries ( jacobian );
-  
+
   WallTime::Time startAss = WallTime::clock ();
 
   while ( ! Layers.Iteration_Is_Done () ) {
@@ -1606,7 +1526,7 @@ void Temperature_Solver::assembleSystem ( const ComputationalDomain& computation
     currentLayer->Current_Properties.Activate_Properties  ( INSERT_VALUES, IncludeGhosts );
     currentLayer->Previous_Properties.Activate_Properties ( INSERT_VALUES, IncludeGhosts );
 
-    PETSC_3D_Array bulkHeatProd ( currentLayer-> layerDA, 
+    PETSC_3D_Array bulkHeatProd ( currentLayer-> layerDA,
                                   currentLayer -> BulkHeatProd,
                                   INSERT_VALUES, IncludeGhosts );
 
@@ -1674,8 +1594,8 @@ void Temperature_Solver::assembleSystem ( const ComputationalDomain& computation
   }
 
   if ( Basin_Model -> isALC ()) {
-     topBasaltDepth.Restore_Global_Array( Update_Excluding_Ghosts );  
-     bottomBasaltDepth.Restore_Global_Array( Update_Excluding_Ghosts ); 
+     topBasaltDepth.Restore_Global_Array( Update_Excluding_Ghosts );
+     bottomBasaltDepth.Restore_Global_Array( Update_Excluding_Ghosts );
   }
 
   VecAssemblyBegin ( residual );
@@ -1689,7 +1609,7 @@ void Temperature_Solver::assembleSystem ( const ComputationalDomain& computation
 
 //------------------------------------------------------------//
 
-#undef  __FUNCT__  
+#undef  __FUNCT__
 #define __FUNCT__ "Temperature_Solver::assembleResidual"
 
 void Temperature_Solver::assembleResidual ( const ComputationalDomain& computationalDomain,
@@ -1709,7 +1629,7 @@ void Temperature_Solver::assembleResidual ( const ComputationalDomain& computati
 
   const bool SteadyStateCalculation = ( previousTime == currentTime );
 
-  const bool includeAdvectiveTerm = Basin_Model->includeAdvectiveTerm and 
+  const bool includeAdvectiveTerm = Basin_Model->includeAdvectiveTerm and
                                     not SteadyStateCalculation and
                                    ( Basin_Model->Do_Iteratively_Coupled or
                                      Basin_Model->IsCalculationCoupled );
@@ -1718,7 +1638,7 @@ void Temperature_Solver::assembleResidual ( const ComputationalDomain& computati
 
   PetscLogDouble Element_Start_Time;
   PetscLogDouble Element_End_Time;
-		    
+
   bool IncludeGhosts = true;
 
 
@@ -1730,7 +1650,7 @@ void Temperature_Solver::assembleResidual ( const ComputationalDomain& computati
   bool includeChemicalCompaction;
 
   Layer_Iterator Layers;
-  Layers.Initialise_Iterator ( Basin_Model -> layers, Ascending, Basement_And_Sediments, 
+  Layers.Initialise_Iterator ( Basin_Model -> layers, Ascending, Basement_And_Sediments,
 			       Active_Layers_Only );
 
   elementContributionsTime = 0.0;
@@ -1742,7 +1662,7 @@ void Temperature_Solver::assembleResidual ( const ComputationalDomain& computati
   PETSC_2D_Array bottomBasaltDepth;
 
   if( Basin_Model -> isALC() ) {
-     CrustFormation*   crustLayer = dynamic_cast<CrustFormation*>(Basin_Model -> Crust ());   
+     CrustFormation*   crustLayer = dynamic_cast<CrustFormation*>(Basin_Model -> Crust ());
      MantleFormation*  mantleLayer = dynamic_cast<MantleFormation*>(Basin_Model -> Mantle ());
      crustLayer->cleanVectors();
      mantleLayer->cleanVectors();
@@ -1750,7 +1670,7 @@ void Temperature_Solver::assembleResidual ( const ComputationalDomain& computati
      topBasaltDepth.Set_Global_Array ( * Basin_Model ->mapDA, crustLayer -> TopBasaltDepth, INSERT_VALUES, IncludeGhosts );
      bottomBasaltDepth.Set_Global_Array ( * Basin_Model ->mapDA, crustLayer -> BottomBasaltDepth, INSERT_VALUES, IncludeGhosts );
   }
-  
+
   WallTime::Time startAss = WallTime::clock ();
 
 
@@ -1763,7 +1683,7 @@ void Temperature_Solver::assembleResidual ( const ComputationalDomain& computati
     currentLayer->Current_Properties.Activate_Properties  ( INSERT_VALUES, IncludeGhosts );
     currentLayer->Previous_Properties.Activate_Properties ( INSERT_VALUES, IncludeGhosts );
 
-    PETSC_3D_Array bulkHeatProd ( currentLayer-> layerDA, 
+    PETSC_3D_Array bulkHeatProd ( currentLayer-> layerDA,
                                   currentLayer -> BulkHeatProd,
                                   INSERT_VALUES, IncludeGhosts );
 
@@ -1825,8 +1745,8 @@ void Temperature_Solver::assembleResidual ( const ComputationalDomain& computati
 
 
   if( Basin_Model -> isALC ()) {
-     topBasaltDepth.Restore_Global_Array( Update_Excluding_Ghosts );  
-     bottomBasaltDepth.Restore_Global_Array( Update_Excluding_Ghosts ); 
+     topBasaltDepth.Restore_Global_Array( Update_Excluding_Ghosts );
+     bottomBasaltDepth.Restore_Global_Array( Update_Excluding_Ghosts );
   }
 
 
@@ -1835,4 +1755,3 @@ void Temperature_Solver::assembleResidual ( const ComputationalDomain& computati
 
   PetscLogStages::pop();
 }
-
