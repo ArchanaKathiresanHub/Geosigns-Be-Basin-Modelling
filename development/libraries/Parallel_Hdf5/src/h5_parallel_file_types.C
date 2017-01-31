@@ -115,16 +115,16 @@ bool H5_Parallel_PropertyList :: setOneFilePerProcessOption( )
             int tempLen = 0;
             if( rank == 0 ) {
                char templateName[] = "ProjectXXXXXX";
-               char * tempName = 0;
-               
-               tempName = mktemp(templateName);
-               
-               if( tempName != 0 ) {
+
+               const int tempName = mkstemp( templateName );
+
+               // if mkstemp is successful
+               if (tempName != -1) {
                   strcat( temporaryDirName, "/" );
-                  strcat( temporaryDirName, tempName );
+                  strcat( temporaryDirName, templateName );
                   tmpDir = temporaryDirName;
                   tempLen = strlen( temporaryDirName ) + strlen( templateName );
-              } 
+               }
             }
 
             MPI_Bcast( &tempLen, 1, MPI_INT, 0, PETSC_COMM_WORLD );

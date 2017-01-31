@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2014 Shell International Exploration & Production.
+// Copyright (C) 2014-2017 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -63,8 +63,9 @@ namespace GeoPhysics
          /// and applying it only in the aqueous phase of the brine.
          /// \pre Requires the passed arguments to be within the allowed ranges.
          /// \post Guarantees the return of a non-negative value for the density.
-#if defined(__INTEL_COMPILER)
+#if defined(__INTEL_COMPILER) and defined(NDEBUG)
          // GCC 4.9.3 gives multiple definition error on linking unit test
+         // Intel 16.0.1.20151021 in debug mode gives warning #13401: vector function was emulate
          #pragma omp declare simd notinbranch
 #endif
          double aqueousBatzleWang ( const double temperature, const double pressure, const double salinity ) const;
@@ -72,8 +73,9 @@ namespace GeoPhysics
          /// Analytic function implementing the ideal-gas equation for the value of the density of a brine.
          /// \pre Requires the passed arguments to be within the allowed ranges (see BrinePhases.C).
          /// \post Guarantees the return of a non-negative value for the density.
-#if defined(__INTEL_COMPILER)
+#if defined(__INTEL_COMPILER) and defined(NDEBUG)
          // GCC 4.9.3 gives multiple definition error on linking unit test
+         // Intel 16.0.1.20151021 in debug mode gives warning #13401: vector function was emulate
          #pragma omp declare simd notinbranch
 #endif
          double vapourIdealGas ( const double temperature, const double pressure, const double salinity ) const;
@@ -81,8 +83,9 @@ namespace GeoPhysics
          /// Linearly interpolates between the values at the two sides of the transition region and returns the value.
          /// \pre Requires the passed arguments to be within the allowed ranges (see BrinePhases.C) and lowerTemperature < higherTemperature.
          /// \post Guarantees the return of a non-negative value for the density.
-#if defined(__INTEL_COMPILER)
+#if defined(__INTEL_COMPILER) and defined(NDEBUG)
          // GCC 4.9.3 gives multiple definition error on linking unit test
+         // Intel 16.0.1.20151021 in debug mode gives warning #13401: vector function was emulate
          #pragma omp declare simd notinbranch
 #endif
          double transitionRegion ( const double temperature,
@@ -94,8 +97,9 @@ namespace GeoPhysics
          /// Partial derivative of the density (in the ideal-gas scenario) with respect to temperature.
          /// \pre Requires positive values for temperature, pressure, salinity.
          /// \post Guarantees the return of a negative number.
-#if defined(__INTEL_COMPILER)
+#if defined(__INTEL_COMPILER) and defined(NDEBUG)
          // GCC 4.9.3 gives multiple definition error on linking unit test
+         // Intel 16.0.1.20151021 in debug mode gives warning #13401: vector function was emulate
          #pragma omp declare simd notinbranch
 #endif
          double derivativeTemperatureIdealGas( const double temperature, const double pressure, const double salinity ) const;
@@ -103,8 +107,9 @@ namespace GeoPhysics
          /// Partial derivative of the density (using the Batzle-Wang equation) with respect to temperature.
          /// \pre Requires positive values for temperature, pressure, salinity.
          /// \post Guarantees the return of a negative number.
-#if defined(__INTEL_COMPILER)
+#if defined(__INTEL_COMPILER) and defined(NDEBUG)
          // GCC 4.9.3 gives multiple definition error on linking unit test
+         // Intel 16.0.1.20151021 in debug mode gives warning #13401: vector function was emulate
          #pragma omp declare simd notinbranch
 #endif
          double derivativeTemperatureBatzleWang( const double temperature, const double pressure, const double salinity ) const;
@@ -112,8 +117,9 @@ namespace GeoPhysics
          /// Partial derivative of the density (in the ideal-gas scenario) with respect to pressure.
          /// \pre Requires positive values for temperature, pressure, salinity.
          /// \post Guarantees the return of a positive number.
-#if defined(__INTEL_COMPILER)
+#if defined(__INTEL_COMPILER) and defined(NDEBUG)
          // GCC 4.9.3 gives multiple definition error on linking unit test
+         // Intel 16.0.1.20151021 in debug mode gives warning #13401: vector function was emulate
          #pragma omp declare simd notinbranch
 #endif
          double derivativePressureIdealGas( const double temperature, const double pressure, const double salinity ) const;
@@ -121,8 +127,9 @@ namespace GeoPhysics
          /// Partial derivative of the density (using the Batzle-Wang equation) with respect to pressure.
          /// \pre Requires positive values for temperature, pressure, salinity.
          /// \post Guarantees the return of a positive number.
-#if defined(__INTEL_COMPILER)
+#if defined(__INTEL_COMPILER) and defined(NDEBUG)
          // GCC 4.9.3 gives multiple definition error on linking unit test
+         // Intel 16.0.1.20151021 in debug mode gives warning #13401: vector function was emulate
          #pragma omp declare simd notinbranch
 #endif
          double derivativePressureBatzleWang( const double temperature, const double pressure, const double salinity ) const;
