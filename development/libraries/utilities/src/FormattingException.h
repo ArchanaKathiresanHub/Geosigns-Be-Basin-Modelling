@@ -15,7 +15,7 @@
 #include <sstream>
 #include <vector>
 
-namespace formattingexception {
+namespace formattingexception{
 
 class GeneralException : public std::exception
 {
