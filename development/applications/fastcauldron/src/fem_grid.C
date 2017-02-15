@@ -754,7 +754,12 @@ void Basin_Modelling::FEM_Grid::solvePressure ( bool& solverHasConverged,
     m_surfaceNodeHistory.clearProperties ();
 
     if ( basinModel->isModellingMode3D() ) {
-        basinModel->threeDTimeIoTbl->clear();
+       database::Table* table = FastcauldronSimulator::getInstance ().getTable ("3DTimeIoTbl");
+
+       if ( table != nullptr ) {
+          table->clear ();
+       }
+
     }
 
     basinModel->deleteMinorSnapshotsFromTimeIOTable ( savedMinorSnapshotTimes, genexOutputProperties );
@@ -945,7 +950,12 @@ void Basin_Modelling::FEM_Grid::solveCoupled ( bool& solverHasConverged,
 
     if ( basinModel->isModellingMode3D() )
     {
-       basinModel->threeDTimeIoTbl->clear();
+       database::Table* table = FastcauldronSimulator::getInstance ().getTable ("3DTimeIoTbl");
+
+       if ( table != nullptr ) {
+          table->clear ();
+       }
+
        basinModel->deleteMinorSnapshotsFromTimeIOTable ( savedMinorSnapshotTimes, genexOutputProperties );
        basinModel->deleteMinorSnapshotsFromTimeIOTable ( savedMinorSnapshotTimes, shaleGasOutputProperties );
 
@@ -961,7 +971,12 @@ void Basin_Modelling::FEM_Grid::solveCoupled ( bool& solverHasConverged,
    }
     else
     {
-       basinModel->timeIoTbl->clear();
+       database::Table* table = FastcauldronSimulator::getInstance ().getTable ("TimeIoTbl");
+
+       if ( table != nullptr ) {
+          table->clear ();
+       }
+
        FastcauldronSimulator::getInstance ().deleteMinorSnapshotsFromSnapshotTable ();
 
        Temperature_Calculator.resetBiomarkerStateVectors ( );

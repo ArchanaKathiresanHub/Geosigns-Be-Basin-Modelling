@@ -12,6 +12,7 @@ using namespace std;
 #include "Interface.h"
 
 #include "database.h"
+#include "ProjectFileHandler.h"
 
 #include "PropertyAttribute.h"
 
@@ -57,12 +58,16 @@ namespace DataAccess
    {
       /// Create a project from a project file with the given name and access mode ("r" or "rw") and
       /// return the associated ProjectHandle
-      ProjectHandle * OpenCauldronProject( const string & name, const string & accessMode, ObjectFactory* objectFactory );
+      ProjectHandle * OpenCauldronProject( const string & name,
+                                           const string & accessMode,
+                                           ObjectFactory* objectFactory,
+                                           const std::vector<std::string>& outputTableNames = NoTableNames );
 
       /// @brief Create TableIO database object from project file. This function is used by OpenCauldronProject()
       /// @param name project file name
       /// @return Database object pointer which must be deleted by the caller
-      database::Database * CreateDatabaseFromCauldronProject( const string & name );
+      database::ProjectFileHandlerPtr CreateDatabaseFromCauldronProject( const string& name,
+                                                                         const std::vector<std::string>& outputTableNames = NoTableNames );
 
       /// Close the project associated with the given ProjectHandle
       void CloseCauldronProject( ProjectHandle * projectHandle );
@@ -74,7 +79,7 @@ namespace DataAccess
       {
       public:
          /// Constructor
-         ProjectHandle( database::Database * database, const string & name, const string & accessMode, ObjectFactory* objectFactory );
+         ProjectHandle( database::ProjectFileHandlerPtr projectFileHandler, const string & name, const string & accessMode, ObjectFactory* objectFactory );
 
          /// Destructor
          virtual ~ProjectHandle( void );
@@ -82,11 +87,12 @@ namespace DataAccess
          int GetNumberOfSpecies( void );
          std::string GetSpeciesName( int i );
 
-         database::Database * getDataBase( void ) const;
-
          /// Get a handle to the Table with the given name
          database::Table * getTable( const string & tableName ) const;
 
+
+         /// \brief Set the table to be saved in the table output file.
+         void setAsOutputTable ( const std::string& tableName );
 
          /// return the ObjectFactory
          ObjectFactory * getFactory( void ) const;
@@ -527,16 +533,15 @@ namespace DataAccess
 
          void mapFileCacheDestructor( void );
 
+         database::ProjectFileHandlerPtr getProjectFileHandler ();
+
+
       protected:
-		  friend ProjectHandle * OpenCauldronProject( const string & name, const string & accessMode, DataAccess::Interface::ObjectFactory* objectFactory );
 
          typedef enum { READONLY, READWRITE } AccessMode;
          //1DComponent
          bool loadModellingMode( void );
          ModellingMode m_modellingMode;
-
-         /// Pointer to the TableIO handler
-         database::Database * const m_database;
 
          /// the full path of the project
          const string m_name;
@@ -607,6 +612,7 @@ namespace DataAccess
          RunParameters* m_runParameters;
          ProjectData* m_projectData;
          MutableSimulationDetailsList m_simulationDetails;
+         database::ProjectFileHandlerPtr m_projectFileHandler;
 
 
          /// The crust- and mantle-formations do not have to be deallocated directly. Since they are added

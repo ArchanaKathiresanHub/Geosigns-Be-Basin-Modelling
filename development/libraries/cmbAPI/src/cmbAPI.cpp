@@ -1,4 +1,4 @@
-//                                                                      
+//
 // Copyright (C) 2012-2016 Shell International Exploration & Production.
 // All rights reserved.
 //
@@ -65,7 +65,7 @@ std::string Model::randomString( size_t len )
       oss << alphanum[rnd];
    }
    return oss.str();
-} 
+}
 
 
 
@@ -79,7 +79,7 @@ public:
 
    // constructor / destructor
    ModelImpl();
-   ~ModelImpl(); 
+   ~ModelImpl();
 
    ModelImpl & operator = ( const ModelImpl & otherModel );
 
@@ -92,7 +92,7 @@ public:
                              , double                        relTol
                              );
 
-   // Copy matched given filter records from the given project to the current, all similar records in 
+   // Copy matched given filter records from the given project to the current, all similar records in
    // the currenct projects will be deleted and replaced
    std::string mergeProject( Model::ModelImpl                             * mdl
                            , const std::set<std::string>                  & tblsList
@@ -113,11 +113,11 @@ public:
    long        tableValueAsInteger(  const std::string & tableName, size_t rowNumber, const std::string & propName );
    double      tableValueAsDouble(   const std::string & tableName, size_t rowNumber, const std::string & propName );
    std::string tableValueAsString(   const std::string & tableName, size_t rowNumber, const std::string & propName );
-   
+
    void        setTableIntegerValue( const std::string & tableName, size_t rowNumber, const std::string & propName, long propValue );
    void        setTableDoubleValue(  const std::string & tableName, size_t rowNumber, const std::string & propName, double propValue );
    void        setTableStringValue(  const std::string & tableName, size_t rowNumber, const std::string & propName, const std::string & propValue );
-   
+
    void        tableSort( const std::string & tblName, const std::vector<std::string> & colsName );
 
    // IO methods
@@ -127,8 +127,8 @@ public:
 
    // Create the unique copies of lithology for each given layer, alochtonous lithology and fault cut from the given lists
    // returns array of newly created lithologies name in order of layers->alochtonous lithologies->fault cuts
-   std::vector<std::string> copyLithology( const std::string                                       & litName      
-                                         , const std::vector< std::pair<std::string, size_t> >     & layersName   
+   std::vector<std::string> copyLithology( const std::string                                       & litName
+                                         , const std::vector< std::pair<std::string, size_t> >     & layersName
                                          , const std::vector<std::string>                          & alochtLitName
                                          , const std::vector<std::pair<std::string, std::string> > & faultsName
                                          );
@@ -149,7 +149,7 @@ public:
 
    // model dimensions along X/Y [m]
    void arealSize( double & dimX, double & dimY );
-   
+
    // window size
    void windowSize( double x, double y, int & xMin, int & xMax, int & yMin, int & yMax, double & xc, double & yc );
 
@@ -178,7 +178,7 @@ public:
 
    // get the depth values of one specific surface
    bool getGridMapDepthValues( const mbapi::StratigraphyManager::SurfaceID s, std::vector<double> & v );
-  
+
    LithologyManager    & lithologyManager()    { return m_lithMgr;  } // Lithology
    StratigraphyManager & stratigraphyManager() { return m_stratMgr; } // Stratigraphy
    FluidManager        & fluidManager()        { return m_fluidMgr; } // Fluid
@@ -186,7 +186,7 @@ public:
    SnapshotManager     & snapshotManager()     { return m_snpMgr;   } // Snapshots manager
    PropertyManager     & propertyManager()     { return m_prpMgr;   } // Properties manager
    MapsManager         & mapsManager()         { return m_mapMgr;   } // Maps manager
-   
+
    // data members
    LithologyManagerImpl     m_lithMgr;
    StratigraphyManagerImpl  m_stratMgr;
@@ -197,7 +197,7 @@ public:
    MapsManagerImpl          m_mapMgr;
 
    std::unique_ptr<DataAccess::Interface::ProjectHandle> m_projHandle;   // project file database (set of tables)
-   std::unique_ptr<DataAccess::Interface::ObjectFactory> m_factory;  
+   std::unique_ptr<DataAccess::Interface::ObjectFactory> m_factory;
    std::string                                           m_projFileName; // project files name with path
 };
 
@@ -338,10 +338,10 @@ std::string Model::compareProject( Model                       & mdl1
    if ( errorCode() != NoError ) resetError(); // clean any previous error
 
    try { return m_pimpl->compareProject( mdl1.m_pimpl.get(), compareTblsList, ignoreTblsList, relTol ); }
-   catch ( const Exception & ex ) { return std::string( "Exception during project comparison. Error code: " + 
+   catch ( const Exception & ex ) { return std::string( "Exception during project comparison. Error code: " +
                                                          ibs::to_string( ex.errorCode() ) + ", error message " + ex.what() ); }
    catch ( ... ) { return "Unknown error"; }
-  
+
    return "Can not perform comparison for unknown reason";
 }
 
@@ -356,7 +356,7 @@ std::string Model::mergeProject( Model                                   & mdl1
    if ( errorCode() != NoError ) resetError(); // clean any previous error
 
    try { return m_pimpl->mergeProject( mdl1.m_pimpl.get(), tblsList, fltList, dlRecNum, cpRecNum ); }
-   catch ( const Exception & ex ) { return std::string( "Exception during project merge. Error code: " + 
+   catch ( const Exception & ex ) { return std::string( "Exception during project merge. Error code: " +
                                                         ibs::to_string( ex.errorCode() ) + ", error message " + ex.what() ); }
    catch ( ... ) { return "Unknown error"; }
 
@@ -570,8 +570,8 @@ Model::ReturnCode Model::backTransformLithoFractions( const std::vector<double> 
    return NoError;
 }
 
-std::vector<std::string> Model::copyLithology( const std::string                                       & litName      
-                                             , const std::vector< std::pair<std::string, size_t> >     & layersName   
+std::vector<std::string> Model::copyLithology( const std::string                                       & litName
+                                             , const std::vector< std::pair<std::string, size_t> >     & layersName
                                              , const std::vector<std::string>                          & alochtLitName
                                              , const std::vector<std::pair<std::string, std::string> > & faultsName
                                              )
@@ -587,8 +587,8 @@ std::vector<std::string> Model::copyLithology( const std::string                
 }
 
 bool Model::checkPoint( const double x,
-                        const double y, 
-                        const double z, 
+                        const double y,
+                        const double z,
                         const std::string & layerName )
 {
    if ( errorCode( ) != NoError ) resetError( ); // clean any previous error
@@ -602,7 +602,7 @@ bool Model::checkPoint( const double x,
 }
 
 
-bool Model::getGridMapDepthValues( const mbapi::StratigraphyManager::SurfaceID s, 
+bool Model::getGridMapDepthValues( const mbapi::StratigraphyManager::SurfaceID s,
                                    std::vector<double> & v )
 {
    if ( errorCode( ) != NoError ) resetError( ); // clean any previous error
@@ -625,7 +625,7 @@ Model::ModelImpl::~ModelImpl() {}
 
 struct RecordSorter
 {
-   RecordSorter( database::Table * tbl, double tol ) 
+   RecordSorter( database::Table * tbl, double tol )
    {
       const database::TableDefinition & tblDef = tbl->getTableDefinition();
       m_eps = tol;
@@ -645,21 +645,21 @@ struct RecordSorter
                {
                   m_fldIDs.push_back( i );
                   m_fldTypes.push_back( tblDef.getFieldDefinition( i )->dataType() );
-               }         
+               }
             }
          }
       }
       // For all other tables sort first by string-type records and then everything else
       else
       {
-      // cache fields index and data type 
+      // cache fields index and data type
       for ( size_t i = 0; i < tblDef.size(); ++i )
       {
          if ( tblDef.getFieldDefinition( i )->dataType() == datatype::String )
          {
             m_fldIDs.push_back( i );
             m_fldTypes.push_back( tblDef.getFieldDefinition( i )->dataType() );
-         }         
+         }
       }
       for ( size_t i = 0; i < tblDef.size(); ++i )
       {
@@ -667,7 +667,7 @@ struct RecordSorter
          {
             m_fldIDs.push_back( i );
             m_fldTypes.push_back( tblDef.getFieldDefinition( i )->dataType() );
-         }         
+         }
       }
    }
 
@@ -689,7 +689,7 @@ struct RecordSorter
             case datatype::Float:
                { double v = r1->getValue<float>(id); double w = r2->getValue<float>(id); if ( !NumericFunctions::isEqual( v, w, m_eps ) ) return v < w; }
                break;
-            case datatype::Double: 
+            case datatype::Double:
                { double v = r1->getValue<double>(id); double w = r2->getValue<double>(id); if ( !NumericFunctions::isEqual( v, w, m_eps ) ) return v < w; }
                break;
             case datatype::String: { string v = r1->getValue<string>( id ); string w = r2->getValue<string>( id ); if ( v != w ) return v < w; } break;
@@ -712,40 +712,52 @@ std::string Model::ModelImpl::compareProject( Model::ModelImpl * mdl
                                             , double relTol
                                             )
 {
-   if ( !m_projHandle.get()      || !m_projHandle->getDataBase() )
+   if ( !m_projHandle.get()      || m_projHandle->getProjectFileHandler () == nullptr )
    {
       throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Project " << m_projFileName      << " not loaded";
    }
 
-   if ( !mdl->m_projHandle.get() || !m_projHandle->getDataBase() )
+   if ( !mdl->m_projHandle.get() || m_projHandle->getProjectFileHandler () == nullptr )
    {
       throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Project " << mdl->m_projFileName << " not loaded";
    }
 
    std::ostringstream oss;
 
+   const std::vector<std::string>& tableNames1 =      m_projHandle->getProjectFileHandler ()->getAllTableNames ();
+   const std::vector<std::string>& tableNames2 = mdl->m_projHandle->getProjectFileHandler ()->getAllTableNames ();
+
    // compare tables list
    std::vector<std::string> lst1;
    std::vector<std::string> lst2;
 
-   for ( database::Database::iterator it = m_projHandle->getDataBase()->begin(); it != m_projHandle->getDataBase()->end(); ++it )
+   for ( std::vector<std::string>::const_iterator it = tableNames1.begin(); it != tableNames1.end(); ++it )
    {
-      if ( (ignoreList.size() > 0 && ignoreList.count( (*it)->name() )  > 0 ) ||
-           (procesList.size() > 0 && procesList.count( (*it)->name() ) == 0 ) 
+      if ( (ignoreList.size() > 0 && ignoreList.count( *it )  > 0 ) ||
+           (procesList.size() > 0 && procesList.count( *it ) == 0 )
          ) { continue; }
 
-      if ( (*it)->size() > 0 ) { lst1.push_back( (*it)->name() ); }
+      if ( m_projHandle->getTable ( *it )->size () > 0 ) {
+         lst1.push_back( *it );
+      }
+
    }
+
    std::stable_sort( lst1.begin(), lst1.end()  );
 
-   for ( database::Database::iterator it = mdl->m_projHandle->getDataBase()->begin(); it != mdl->m_projHandle->getDataBase()->end(); ++it )
+   for ( std::vector<std::string>::const_iterator it = tableNames2.begin(); it != tableNames2.end(); ++it )
    {
-      if ( (ignoreList.size() > 0 && ignoreList.count( (*it)->name() )  > 0 )||
-           (procesList.size() > 0 && procesList.count( (*it)->name() ) == 0 )
+      if ( (ignoreList.size() > 0 && ignoreList.count( *it )  > 0 ) ||
+           (procesList.size() > 0 && procesList.count( *it ) == 0 )
          ) { continue; }
 
-      if ( (*it)->size() > 0 ) { lst2.push_back( (*it)->name() ); }
+
+      if ( mdl->m_projHandle->getTable ( *it )->size () > 0 ) {
+         lst2.push_back( *it );
+      }
+
    }
+
    std::stable_sort( lst2.begin(), lst2.end() );
 
    // do comparison
@@ -754,8 +766,8 @@ std::string Model::ModelImpl::compareProject( Model::ModelImpl * mdl
    tblLst.resize( tit - tblLst.begin() );
 
    for ( size_t i = 0; i < tblLst.size(); ++i )
-   {  
-      const std::string & pname = m_projHandle->getDataBase()->getTable( tblLst[i] )->size() > 0 ? m_projFileName : mdl->m_projFileName;
+   {
+      const std::string & pname = m_projHandle->getTable( tblLst[i] )->size() > 0 ? m_projFileName : mdl->m_projFileName;
       oss << "Only in " << pname << " table " << tblLst[i] << "\n";
    }
 
@@ -768,8 +780,8 @@ std::string Model::ModelImpl::compareProject( Model::ModelImpl * mdl
    for ( size_t i = 0; i < tblLst.size(); ++i )
    {
       const std::string & tblName = tblLst[i];
-      database::Table * tbl1 = m_projHandle->getDataBase()->getTable( tblName );
-      database::Table * tbl2 = mdl->m_projHandle->getDataBase()->getTable( tblName );
+      database::Table * tbl1 = m_projHandle->getTable( tblName );
+      database::Table * tbl2 = mdl->m_projHandle->getTable( tblName );
 
       if ( tbl1->size() != tbl2->size() )
       {
@@ -800,7 +812,7 @@ std::string Model::ModelImpl::compareProject( Model::ModelImpl * mdl
                                                                                    , recCmp
                                                                                    );
       diffRecs.resize( dit - diffRecs.begin() );
-      
+
       tbl1Recs.clear();
       tbl2Recs.clear();
       // sort different records back to sets
@@ -808,7 +820,7 @@ std::string Model::ModelImpl::compareProject( Model::ModelImpl * mdl
       {
          if ( diffRecs[j]->getTable() == tbl1 ) { tbl1Recs.push_back( diffRecs[j] ); }
          else                                   { tbl2Recs.push_back( diffRecs[j] ); }
-      }    
+      }
 
       assert( tbl1Recs.size() == tbl2Recs.size() );
 
@@ -816,7 +828,7 @@ std::string Model::ModelImpl::compareProject( Model::ModelImpl * mdl
 
       // compare field in records
       for ( std::vector<database::Record*>::iterator it1  = tbl1Recs.begin(), it2  = tbl2Recs.begin();
-                                                     it1 != tbl1Recs.end() && it2 != tbl2Recs.end(); 
+                                                     it1 != tbl1Recs.end() && it2 != tbl2Recs.end();
                                                      ++it1, ++it2
           )
       {
@@ -830,12 +842,12 @@ std::string Model::ModelImpl::compareProject( Model::ModelImpl * mdl
          {
             datatype::DataType dt = tblDef.getFieldDefinition( static_cast<int>( k ) )->dataType();
             const std::string & colName = tblDef.getFieldDefinition( static_cast<int>( k ) )->name();
-            
+
             switch ( dt )
             {
                case datatype::Bool:
                   {
-                     bool v1 = r1->getValue<bool>( static_cast<int>( k ) ); 
+                     bool v1 = r1->getValue<bool>( static_cast<int>( k ) );
                      bool v2 = r2->getValue<bool>( static_cast<int>( k ) );
                      if ( v1 != v2 ) { oss << tblName << "("<< pos1 << "," << pos2 << ")." << colName << ": " << v1 << " != " << v2 << "\n"; }
                   }
@@ -858,7 +870,7 @@ std::string Model::ModelImpl::compareProject( Model::ModelImpl * mdl
                   break;
 
                case datatype::Float:
-               case datatype::Double: 
+               case datatype::Double:
                   {
                      double v1 = r1->getValue<double>( static_cast<int>( k ) );
                      double v2 = r2->getValue<double>( static_cast<int>( k ) );
@@ -897,11 +909,11 @@ std::string Model::ModelImpl::mergeProject( Model::ModelImpl                    
 
    for ( std::set<std::string>::const_iterator it = tblsList.begin(); it != tblsList.end(); ++it )
    {
-      database::Table * tblFrom = mdl->m_projHandle->getDataBase()->getTable( *it );
-      database::Table * tblTo   =      m_projHandle->getDataBase()->getTable( *it );
+      database::Table * tblFrom = mdl->m_projHandle->getTable( *it );
+      database::Table * tblTo   =      m_projHandle->getTable( *it );
 
-      if ( tblFrom == NULL || tblTo == NULL ) continue; // skip empty tables 
-     
+      if ( tblFrom == NULL || tblTo == NULL ) continue; // skip empty tables
+
       //
       bool tableHasFilter = false;
       for ( size_t i = 0; i < fltList.size() && !tableHasFilter; ++i )
@@ -929,7 +941,7 @@ std::string Model::ModelImpl::mergeProject( Model::ModelImpl                    
 
             int index = tblFrom->getIndex( fltList[f][1] );
             if ( index < 0 )
-            { 
+            {
                throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Wrong column name: " << fltList[f][1]  <<
                   " for the table: " << fltList[f][0];
             }
@@ -944,7 +956,7 @@ std::string Model::ModelImpl::mergeProject( Model::ModelImpl                    
                }
                else { tit++; }
             }
-           
+
             // copy records from table tblFrom to the table tblTo which matched filter
             for ( database::Table::iterator tit = tblFrom->begin(); tit != tblFrom->end(); ++tit )
             {
@@ -962,7 +974,7 @@ std::string Model::ModelImpl::mergeProject( Model::ModelImpl                    
 
    if ( dlRecNum > 0 || cpRecNum > 0 )
    {
-      database::Database * db = m_projHandle->getDataBase();
+      database::ProjectFileHandlerPtr db = m_projHandle->getProjectFileHandler ();
       if ( !db->saveToFile( db->getFileName() ) )
       {
          throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Failed to write updated tables to file: " << db->getFileName();
@@ -975,16 +987,12 @@ std::vector<std::string> Model::ModelImpl::tablesList()
 {
    std::vector<std::string> ret;
 
-   if ( !m_projHandle.get() || !m_projHandle->getDataBase() )
-   { 
+   if ( !m_projHandle.get() || m_projHandle->getProjectFileHandler () == nullptr )
+   {
       throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Project " << m_projFileName << " not loaded";
    }
 
-   for ( database::Database::iterator it = m_projHandle->getDataBase()->begin(); it != m_projHandle->getDataBase()->end(); ++it )
-   {
-      ret.push_back( (*it)->name() );
-   }
-   return ret;
+   return m_projHandle->getProjectFileHandler ()->getAllTableNames ();
 }
 
 std::vector<std::string> Model::ModelImpl::tableColumnsList( const std::string & tableName, std::vector<datatype::DataType> & colTypes )
@@ -993,7 +1001,7 @@ std::vector<std::string> Model::ModelImpl::tableColumnsList( const std::string &
    colTypes.clear();
 
    // get pointer to the table
-   database::Table * table = m_projHandle->getDataBase()->getTable( tableName.c_str() );
+   database::Table * table = m_projHandle->getTable( tableName );
 
    // if table does not exist - report error
    if ( !table ) throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << tableName << " table could not be found in project";
@@ -1014,7 +1022,7 @@ std::vector<std::string> Model::ModelImpl::tableColumnsList( const std::string &
 int Model::ModelImpl::tableSize( const std::string & tableName )
 {
    // get pointer to the table
-   database::Table * table = m_projHandle->getDataBase()->getTable( tableName.c_str() );
+   database::Table * table = m_projHandle->getTable( tableName );
 
    // if table does not exist - report error
    if ( !table ) throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << tableName << " table could not be found in project";
@@ -1026,7 +1034,7 @@ int Model::ModelImpl::tableSize( const std::string & tableName )
 void Model::ModelImpl::clearTable( const std::string & tableName )
 {
    // get pointer to the table
-   database::Table * table = m_projHandle->getDataBase()->getTable( tableName.c_str() );
+   database::Table * table = m_projHandle->getTable( tableName );
 
    // if table does not exist - report error
    if ( !table ) throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << tableName << " table could not be found in project";
@@ -1038,7 +1046,7 @@ void Model::ModelImpl::clearTable( const std::string & tableName )
 void Model::ModelImpl::addRowToTable( const std::string & tableName )
 {
    // get pointer to the table
-   database::Table * table = m_projHandle->getDataBase()->getTable( tableName.c_str() );
+   database::Table * table = m_projHandle->getTable( tableName );
 
    // if table does not exist - report error
    if ( !table ) throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << tableName << " table could not be found in project";
@@ -1050,7 +1058,7 @@ void Model::ModelImpl::addRowToTable( const std::string & tableName )
 void Model::ModelImpl::removeRecordFromTable( const std::string & tableName, int ind )
 {
    // get pointer to the table
-   database::Table * table = m_projHandle->getDataBase( )->getTable( tableName.c_str( ) );
+   database::Table * table = m_projHandle->getTable( tableName );
 
    if ( !table ) throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << tableName << " table could not be found in project";
 
@@ -1064,7 +1072,7 @@ void Model::ModelImpl::removeRecordFromTable( const std::string & tableName, int
 long Model::ModelImpl::tableValueAsInteger( const std::string & tableName, size_t rowNumber, const std::string & propName )
 {
    // get pointer to the table
-   database::Table * table = m_projHandle->getDataBase()->getTable( tableName );
+   database::Table * table = m_projHandle->getTable( tableName );
 
    // if table does not exist - report error
    if (                    !table ) throw ErrorHandler::Exception( UndefinedValue ) << tableName << " table could not be found in project";
@@ -1093,7 +1101,7 @@ long Model::ModelImpl::tableValueAsInteger( const std::string & tableName, size_
 double Model::ModelImpl::tableValueAsDouble( const std::string & tableName, size_t rowNumber, const std::string & propName )
 {
    // get pointer to the table
-   database::Table * table = m_projHandle->getDataBase()->getTable( tableName );
+   database::Table * table = m_projHandle->getTable( tableName );
 
    // if table does not exist - report error
    if (                    !table ) throw ErrorHandler::Exception( UndefinedValue ) << tableName << " table could not be found in project";
@@ -1104,9 +1112,9 @@ double Model::ModelImpl::tableValueAsDouble( const std::string & tableName, size
 
    const database::TableDefinition & tblDef  = record->getTableDefinition();
    int ind = tblDef.getIndex( propName );
-   
+
    if ( ind < 0 ) throw ErrorHandler::Exception( UndefinedValue ) << propName << " - unknown column name in the table " + tableName;
-   
+
    datatype::DataType dt = tblDef.getFieldDefinition( ind )->dataType();
    switch ( dt )
    {
@@ -1121,7 +1129,7 @@ double Model::ModelImpl::tableValueAsDouble( const std::string & tableName, size
 std::string Model::ModelImpl::tableValueAsString( const std::string & tableName, size_t rowNumber, const std::string & propName )
 {
    // get pointer to the table
-   database::Table * table = m_projHandle->getDataBase()->getTable( tableName );
+   database::Table * table = m_projHandle->getTable( tableName );
 
    // if table does not exist - report error
    if (                    !table ) throw ErrorHandler::Exception( UndefinedValue ) << tableName << " table could not be found in project";
@@ -1148,7 +1156,7 @@ std::string Model::ModelImpl::tableValueAsString( const std::string & tableName,
 void Model::ModelImpl::setTableIntegerValue( const std::string & tableName, size_t rowNumber, const std::string & propName, long propValue )
 {
    // get pointer to the table
-   database::Table * table = m_projHandle->getDataBase()->getTable( tableName );
+   database::Table * table = m_projHandle->getTable( tableName );
 
    // if table does not exist - report error
    if (                    !table ) throw ErrorHandler::Exception( UndefinedValue ) << tableName << " table could not be found in project";
@@ -1177,7 +1185,7 @@ void Model::ModelImpl::setTableIntegerValue( const std::string & tableName, size
 void Model::ModelImpl::setTableDoubleValue( const std::string & tableName, size_t rowNumber, const std::string & propName, double propValue )
 {
    // get pointer to the table
-   database::Table * table = m_projHandle->getDataBase()->getTable( tableName );
+   database::Table * table = m_projHandle->getTable( tableName );
 
    // if table does not exist - report error
    if (                    !table ) throw ErrorHandler::Exception( UndefinedValue ) << tableName << " table could not be found in project";
@@ -1204,7 +1212,7 @@ void Model::ModelImpl::setTableDoubleValue( const std::string & tableName, size_
 void Model::ModelImpl::setTableStringValue( const std::string & tableName, size_t rowNumber, const std::string & propName, const std::string & propValue )
 {
    // get pointer to the table
-   database::Table * table = m_projHandle->getDataBase()->getTable( tableName );
+   database::Table * table = m_projHandle->getTable( tableName );
 
    // if table does not exist - report error
    if (                    !table ) throw ErrorHandler::Exception( UndefinedValue ) << tableName << " table could not be found in project";
@@ -1231,7 +1239,7 @@ void Model::ModelImpl::setTableStringValue( const std::string & tableName, size_
 void Model::ModelImpl::tableSort( const std::string & tblName, const std::vector<std::string> & colsName )
 {
    // get pointer to the table
-   database::Table * table = m_projHandle->getDataBase()->getTable( tblName );
+   database::Table * table = m_projHandle->getTable( tblName );
 
    // if table does not exist - report error
    if ( !table ) throw ErrorHandler::Exception( UndefinedValue ) << tblName << " table could not be found in project";
@@ -1260,12 +1268,12 @@ void Model::ModelImpl::loadModelFromProjectFile( const char * projectFileName )
    }
 
    m_projFileName = projectFileName;
-   
-   m_srkMgr.setDatabase(   m_projHandle->getDataBase() );                 // set database in source rock manager
-   m_lithMgr.setDatabase(  m_projHandle->getDataBase(), &m_stratMgr );    // set database in lithologies type manager and link to strigraphy manager
-   m_snpMgr.setDatabase(   m_projHandle->getDataBase(), m_projFileName ); // set database in snapshot manager
-   m_prpMgr.setDatabase(   m_projHandle->getDataBase(), m_projFileName ); // set database in property manager
-   m_stratMgr.setDatabase( m_projHandle->getDataBase() );                 // set database in stratigraphy manager
+
+   m_srkMgr.setDatabase(   m_projHandle->getProjectFileHandler() );                 // set database in source rock manager
+   m_lithMgr.setDatabase(  m_projHandle->getProjectFileHandler(), &m_stratMgr );    // set database in lithologies type manager and link to strigraphy manager
+   m_snpMgr.setDatabase(   m_projHandle->getProjectFileHandler(), m_projFileName ); // set database in snapshot manager
+   m_prpMgr.setDatabase(   m_projHandle->getProjectFileHandler(), m_projFileName ); // set database in property manager
+   m_stratMgr.setDatabase( m_projHandle->getProjectFileHandler() );                 // set database in stratigraphy manager
 
    m_mapMgr.setProject(    m_projHandle.get(),          m_projFileName ); // set project handle in maps manager
 }
@@ -1278,12 +1286,12 @@ void Model::ModelImpl::saveModelToProjectFile( const char * projectFileName, boo
       throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Model::saveModelToProjectFile(): no project to save";
    }
 
-   if ( !m_projHandle->getDataBase()->saveToFile( projectFileName ) )
+   if ( !m_projHandle->saveToFile( projectFileName ) )
    {
-      throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Model::saveModelToProjectFile() failed to save to " << 
+      throw ErrorHandler::Exception( ErrorHandler::IoError ) << "Model::saveModelToProjectFile() failed to save to " <<
                                                                    projectFileName << " project file";
    }
-    
+
    // copying maps
    ibs::FilePath projectFilePath( projectFileName );
    projectFilePath.cutLast();  // cut filename
@@ -1380,10 +1388,10 @@ void Model::ModelImpl::windowSize( double x, double y, int & xMin, int & xMax, i
 
    xMin = static_cast<int>( std::floor( ( x - pd->getXOrigin() ) / pd->getDeltaX() ) );
    xMax = xMin + 1;
-   
+
    yMin = static_cast<int>( std::floor( ( y - pd->getYOrigin() ) / pd->getDeltaY() ) );
    yMax = yMin + 1;
-   
+
    // centre of calculated model
    xc = pd->getXOrigin() + ( xMin + xMax ) * 0.5 * pd->getDeltaX();
    yc = pd->getYOrigin() + ( yMin + yMax ) * 0.5 * pd->getDeltaY( );
@@ -1415,7 +1423,7 @@ void Model::ModelImpl::interpolateLithoFractions( const std::vector<double> & xi
    const int    convexHullEdgePoints = 25;
    const size_t nin                  = lf1.size();
 
-   // for all wells calculate rp, r12 
+   // for all wells calculate rp, r12
    std::vector<double> rp;
    std::vector<double> r13;
    std::vector<double> x;
@@ -1504,13 +1512,13 @@ void Model::ModelImpl::interpolateLithoFractions( const std::vector<double> & xi
       r13.push_back(  lf1hat / lf3hat );
    }
 
-   // interpolate 
+   // interpolate
    if ( ErrorHandler::NoError != m_mapMgr.interpolateMap( x, y, rp
                                                         , xmin + deltaX * 0.5
                                                         , xmax - deltaX * 0.5
                                                         , ymin + deltaY * 0.5
                                                         , ymax - deltaY * 0.5
-                                                        , numI, numJ, xInt, yInt, rpInt 
+                                                        , numI, numJ, xInt, yInt, rpInt
                                                         ) )
    {
       throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "NNlib interpolation failed for rp ";
@@ -1543,13 +1551,13 @@ void Model::ModelImpl::backTransformLithoFractions( const std::vector<double> & 
    lf1CorrInt.resize( rpInt.size() );
    lf2CorrInt.resize( rpInt.size() );
    lf3CorrInt.resize( rpInt.size() );
-   
+
    // back-transform and correct the lithofractions
    for ( size_t i = 0; i < rpInt.size(); ++i )
    {
       double lf2Int =   sumLfInt            / ( rpInt[i]  + 1 );
       double lf3Int = ( sumLfInt - lf2Int ) / ( r13Int[i] + 1 );
-      double lf1Int =   sumLfInt - lf2Int   -   lf3Int;  
+      double lf1Int =   sumLfInt - lf2Int   -   lf3Int;
       lf1Int -= shift;
       lf2Int -= shift;
       lf3Int -= shift;
@@ -1584,14 +1592,14 @@ void Model::ModelImpl::backTransformLithoFractions( const std::vector<double> & 
          }
          else
          {
-            throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Negative interpolated lithofractions: lf1Int " << lf1Int << 
-                                                                                                                   " lf2Int " << lf2Int << 
+            throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Negative interpolated lithofractions: lf1Int " << lf1Int <<
+                                                                                                                   " lf2Int " << lf2Int <<
                                                                                                                    " lf3Int " << lf3Int;
          }
       }
-      if ( ( lf1Int + lf2Int + lf3Int ) > 100 + eps ) 
+      if ( ( lf1Int + lf2Int + lf3Int ) > 100 + eps )
       {
-         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << 
+         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) <<
                                       "The sum of the interpolated lithofractions is greater than 100.0001: " << lf1Int + lf2Int + lf3Int;
       }
       lf1CorrInt[i] = lf1Int;
@@ -1602,8 +1610,8 @@ void Model::ModelImpl::backTransformLithoFractions( const std::vector<double> & 
 
 // Create the unique copies of lithology for each given layer, alochtonous lithology and fault cut from the given lists
 // returns array of newly created lithologies name in order of layers->alochtonous lithologies->fault cuts
-std::vector<std::string> Model::ModelImpl::copyLithology( const std::string                                       & litName      
-                                                        , const std::vector< std::pair<std::string, size_t> >     & layersName   
+std::vector<std::string> Model::ModelImpl::copyLithology( const std::string                                       & litName
+                                                        , const std::vector< std::pair<std::string, size_t> >     & layersName
                                                         , const std::vector<std::string>                          & allochtLitName
                                                         , const std::vector<std::pair<std::string, std::string> > & faultsName
                                                         )
@@ -1640,7 +1648,7 @@ std::vector<std::string> Model::ModelImpl::copyLithology( const std::string     
       }
 
       // check if lithology is already copied
-      if ( mixList.size() - 1 >= layersName[i].second && 
+      if ( mixList.size() - 1 >= layersName[i].second &&
            mixList[layersName[i].second].rfind( "_CASA" ) != std::string::npos &&
            mixList[layersName[i].second].find( litName ) == 0
          )
@@ -1667,7 +1675,7 @@ std::vector<std::string> Model::ModelImpl::copyLithology( const std::string     
       mbapi::LithologyManager::LithologyID newLithID = m_lithMgr.copyLithology( lithID, newLithoName );
       if ( IsValueUndefined( newLithID ) ) throw ErrorHandler::Exception( m_lithMgr.errorCode() ) << m_lithMgr.errorMessage();
       mixList[layersName[i].second] = newLithoName;
-      
+
       // set updated lithologies list back to the layer
       if ( ErrorHandler::NoError != m_stratMgr.setLayerLithologiesList( lyd, mixList, lithPerc ) )
       {
@@ -1697,7 +1705,7 @@ std::vector<std::string> Model::ModelImpl::copyLithology( const std::string     
 
       if ( alLitNm != litName )
       {
-         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Layer " << allochtLitName[i] << " has no allochtonous lithology " 
+         throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Layer " << allochtLitName[i] << " has no allochtonous lithology "
             << litName;
       }
 
@@ -1706,7 +1714,7 @@ std::vector<std::string> Model::ModelImpl::copyLithology( const std::string     
 
       mbapi::LithologyManager::LithologyID newLithID = m_lithMgr.copyLithology( lithID, newLithoName );
       if ( IsValueUndefined( newLithID ) ) throw ErrorHandler::Exception( m_lithMgr.errorCode() ) << m_lithMgr.errorMessage();
-      
+
       // set copied lithology back to the layer
       if ( ErrorHandler::NoError != m_lithMgr.setAllochtonLithology( alID, newLithoName ) )
       {
@@ -1747,7 +1755,7 @@ std::vector<std::string> Model::ModelImpl::copyLithology( const std::string     
 
       mbapi::LithologyManager::LithologyID newLithID = m_lithMgr.copyLithology( lithID, newLithoName );
       if ( IsValueUndefined( newLithID ) ) throw ErrorHandler::Exception( m_lithMgr.errorCode() ) << m_lithMgr.errorMessage();
-      
+
       // set copied lithology back to the layer
       if ( ErrorHandler::NoError != m_stratMgr.setFaultCutLithology( flID, newLithoName ) )
       {
@@ -1815,6 +1823,5 @@ bool Model::ModelImpl::getGridMapDepthValues( const mbapi::StratigraphyManager::
 
    return true;
 }
- 
-}
 
+}

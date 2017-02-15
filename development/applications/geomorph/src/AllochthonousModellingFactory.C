@@ -29,10 +29,9 @@ using Interface::LithoType;
 
 
 DataAccess::Interface::ProjectHandle *
-AllochMod::AllochthonousModellingFactory::produceProjectHandle ( database::Database * database,
+AllochMod::AllochthonousModellingFactory::produceProjectHandle ( database::ProjectFileHandlerPtr database,
                                                                  const string & name,
                                                                  const string & accessMode) {
-//   std::cout << "AllochthonousModellingFactory::produceProjectHandle" << std::endl;
   return new AllochthonousLithologySimulator ( database, name, accessMode, this );
 }
 
@@ -47,4 +46,3 @@ AllochMod::AllochthonousModellingFactory::produceAllochthonousLithologyDistribut
 {
    return new AllochthonousLithologyDistribution (projectHandle, record);
 }
-

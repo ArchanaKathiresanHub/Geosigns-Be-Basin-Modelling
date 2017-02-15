@@ -1,6 +1,8 @@
 #ifndef __AllochthonousModellingFactory_HH_
 #define __AllochthonousModellingFactory_HH_
 
+#include "ProjectFileHandler.h"
+
 #include "Interface/ObjectFactory.h"
 
 namespace DataAccess
@@ -8,7 +10,7 @@ namespace DataAccess
    namespace Interface
    {
       class ObjectFactory;
-      class ProjectHandle;  
+      class ProjectHandle;
       class SourceRock;
       class AllochthonousLithology;
       class AllochthonousLithologyDistribution;
@@ -39,9 +41,9 @@ namespace AllochMod {
   public :
 
     /// Returns the project-handle.
-    DataAccess::Interface::ProjectHandle * produceProjectHandle ( database::Database * database,
-                                                                       const string & name,
-                                                                       const string & accessMode);
+    DataAccess::Interface::ProjectHandle * produceProjectHandle ( database::ProjectFileHandlerPtr database,
+                                                                  const string & name,
+                                                                  const string & accessMode);
 
     /// Returns an allochtohonous lithology
     DataAccess::Interface::AllochthonousLithology * produceAllochthonousLithology ( DataAccess::Interface::ProjectHandle * projectHandle,

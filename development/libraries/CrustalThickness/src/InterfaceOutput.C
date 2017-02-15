@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -17,7 +17,9 @@
 #include "Interface/Surface.h"
 
 #include "InterfaceOutput.h"
-#include "InterfaceInput.h" 
+#include "InterfaceInput.h"
+
+#include "ConstantsNames.h"
 
 using namespace CrustalThicknessInterface;
 
@@ -75,34 +77,34 @@ bool InterfaceOutput::saveOutputMaps( Interface::ProjectHandle * projectHandle, 
    // cout << "My rank is " << CrustalThicknessInterface::GetRank() << endl;
    // char ageString[64];
    // sprintf(ageString, "_%lf", 0);
-   
+
    const Interface::Formation * formationCrust = dynamic_cast<const Interface::Formation *>(projectHandle->getCrustFormation ());
    const Interface::Surface   * topOfCrust = formationCrust->getTopSurface();
    const string topCrustSurfaceName = topOfCrust->getName();
-   
+
    float time = (float) theSnapshot->getTime ();
 
    const string extensionString = ".HDF";
    Interface::MapWriter * mapWriter = projectHandle->getFactory()->produceMapWriter();
-   
-   const string dirToOutput = projectHandle->getProjectName() + "_CauldronOutputDir/";
+
+   const string dirToOutput = projectHandle->getProjectName() + Utilities::Names::CauldronOutputDir + "/";
 
    for( int i = 0; i < numberOfOutputMaps; ++ i ) {
       if( m_outputMapsMask[i] != 0 && m_outputMaps[i] != 0) {
          //        string outputFileName = projectHandle->getProjectName() + "_" + outputMapsNames[i] + string(ageString) + extensionString;
          string outputFileName =  dirToOutput + projectHandle->getProjectName() + "_" + outputMapsNames[i] + extensionString;
-         
+
          // Put 0 as a DataSetName to make comparison with regression tests results easier. Also 0 should be there if we want to re-use the map in fastcauldron
          string dataSetName = "0"; //outputMapsNames[i];
          dataSetName += "_";
          dataSetName += theSnapshot->asString();
          dataSetName += "_";
          dataSetName += topCrustSurfaceName;
-         
+
          mapWriter->open( outputFileName, false );
          mapWriter->saveDescription (projectHandle->getActivityOutputGrid ());
-         
-         mapWriter->writeMapToHDF (m_outputMaps[i], time, time, dataSetName, topCrustSurfaceName); 
+
+         mapWriter->writeMapToHDF (m_outputMaps[i], time, time, dataSetName, topCrustSurfaceName);
          mapWriter->close();
 
          if( projectHandle->getRank() == 0 ) {
@@ -120,12 +122,12 @@ bool InterfaceOutput::saveXYZOutputMaps( Interface::ProjectHandle * projectHandl
    // cout << "My rank is " << CrustalThicknessInterface::GetRank() << endl;
    // char ageString[64];
    // sprintf(ageString, "_%lf", 0);
-   
+
    const string extensionString = ".XYZ";
    ofstream outputFileCrust;
-   
+
    const Interface::Grid * grid = projectHandle->getActivityOutputGrid ();
-   
+
    unsigned int i, j, k;
    double posI, posJ;
    unsigned lastI = grid->numI();
@@ -135,7 +137,7 @@ bool InterfaceOutput::saveXYZOutputMaps( Interface::ProjectHandle * projectHandl
       if( m_outputMapsMask[k] != 0 && m_outputMaps[k] != 0 ) {
          //        string outputFileName = projectHandle->getProjectName() + "_" + outputMapsNames[i] + string(ageString) + extensionString;
          string outputFileName = projectHandle->getProjectName() + "_" + outputMapsNames[k] + extensionString;
-         
+
          outputFileCrust.open (outputFileName.c_str ());
          if (outputFileCrust.fail ()) {
             cout << "Could not open XYZ output file for map " << outputMapsNames[k] << endl;
@@ -143,8 +145,8 @@ bool InterfaceOutput::saveXYZOutputMaps( Interface::ProjectHandle * projectHandl
          }
          m_outputMaps[k]->retrieveData();
          for ( i = 0; i < lastI; ++ i ) {
-            for ( j = 0; j < lastJ; ++ j ) { 
-               
+            for ( j = 0; j < lastJ; ++ j ) {
+
                grid->getPosition( i, j, posI, posJ );
                outputFileCrust << posI << ", " << posJ << ", ";
                outputFileCrust << m_outputMaps[k]->getValue(i, j) << endl;
@@ -155,7 +157,7 @@ bool InterfaceOutput::saveXYZOutputMaps( Interface::ProjectHandle * projectHandl
          cout << "Map " << outputMapsNames[k] << " is saved into " << outputFileName <<  endl;
       }
    }
-   return true; 
+   return true;
 }
 //------------------------------------------------------------//
 bool InterfaceOutput::saveExcelSurfaceOutputMaps( Interface::ProjectHandle * projectHandle ) {
@@ -164,12 +166,12 @@ bool InterfaceOutput::saveExcelSurfaceOutputMaps( Interface::ProjectHandle * pro
 
    // char ageString[64];
    // sprintf(ageString, "_%lf", 0);
-   
+
    const string extensionString = ".SUR";
    ofstream outputFileCrust;
-   
+
    const Interface::Grid * grid = projectHandle->getActivityOutputGrid ();
-   
+
    unsigned int i, j, k;
    double posI, posJ;
    unsigned lastI = grid->numI();
@@ -179,7 +181,7 @@ bool InterfaceOutput::saveExcelSurfaceOutputMaps( Interface::ProjectHandle * pro
       if( m_outputMapsMask[k] != 0 && m_outputMaps[k] != 0 ) {
          //        string outputFileName = projectHandle->getProjectName() + "_" + outputMapsNames[i] + string(ageString) + extensionString;
          string outputFileName = projectHandle->getProjectName() + "_" + outputMapsNames[k] + extensionString;
-         
+
          outputFileCrust.open (outputFileName.c_str ());
          if (outputFileCrust.fail ()) {
             cout << "Could not open XYZ output file for map " << outputMapsNames[k] << endl;
@@ -188,16 +190,16 @@ bool InterfaceOutput::saveExcelSurfaceOutputMaps( Interface::ProjectHandle * pro
          m_outputMaps[k]->retrieveData();
 
          outputFileCrust << ", ";
-         for ( j = 0; j < lastJ; ++ j ) { 
+         for ( j = 0; j < lastJ; ++ j ) {
             grid->getPosition( 0, j, posI, posJ );
             outputFileCrust << posJ << ", ";
          }
          outputFileCrust << endl;
-         
+
          for ( i = 0; i < lastI; ++ i ) {
             grid->getPosition( i, 0, posI, posJ );
             outputFileCrust << posI << ", " ;
-            for ( j = 0; j < lastJ; ++ j ) { 
+            for ( j = 0; j < lastJ; ++ j ) {
                outputFileCrust << m_outputMaps[k]->getValue(i, j) << ", ";
             }
             outputFileCrust << endl;
@@ -207,7 +209,7 @@ bool InterfaceOutput::saveExcelSurfaceOutputMaps( Interface::ProjectHandle * pro
          cout << "Map " << outputMapsNames[k] << " is saved into " << outputFileName <<  endl;
       }
    }
-   return true; 
+   return true;
 }
 //------------------------------------------------------------//
 void InterfaceOutput::setMapsToOutput(CrustalThicknessInterface::outputMaps mapIndex, ... ) {
@@ -224,7 +226,7 @@ void InterfaceOutput::setMapsToOutput(CrustalThicknessInterface::outputMaps mapI
 }
 //------------------------------------------------------------//
 void InterfaceOutput::setAllMapsToOutput( bool flag ) {
- 
+
    for( int i = 0; i < numberOfOutputMaps; ++ i ) {
       m_outputMapsMask[i] = flag;
    }
@@ -238,11 +240,11 @@ bool InterfaceOutput::allocateOutputMaps(Interface::ProjectHandle * projectHandl
 
   for( int i = 0; i < numberOfOutputMaps; ++ i ) {
      if( m_outputMapsMask[i] ) {
-        m_outputMaps[i] = projectHandle->getFactory()->produceGridMap(0, 0, grid, Interface::DefaultUndefinedMapValue, 1);    
+        m_outputMaps[i] = projectHandle->getFactory()->produceGridMap(0, 0, grid, Interface::DefaultUndefinedMapValue, 1);
         if( m_outputMaps[i] == 0 ) {
            status = false;
            break;
-        } 
+        }
      }
   }
   return status;
@@ -251,7 +253,7 @@ bool InterfaceOutput::allocateOutputMaps(Interface::ProjectHandle * projectHandl
 //------------------------------------------------------------//
 bool InterfaceOutput::createSnapShotOutputMaps(ProjectHandle * pHandle, const Snapshot * theSnapshot) {
 
-   
+
    bool status = true;
    for(int i = 0; i < numberOfOutputMaps; ++ i ) {
       if( m_outputMapsMask[i] ) {
@@ -277,22 +279,22 @@ GridMap * InterfaceOutput::createSnapshotResultPropertyValueMap (ProjectHandle *
       theMap = thePropertyValue->getGridMap();
    }
 
-   return theMap;   
+   return theMap;
 }
 //------------------------------------------------------------//
-void InterfaceOutput::allocateOutputMap( ProjectHandle * pHandle, outputMaps aMapIndex ) 
+void InterfaceOutput::allocateOutputMap( ProjectHandle * pHandle, outputMaps aMapIndex )
 {
    m_outputMapsMask[aMapIndex] = true;
    m_outputMaps[aMapIndex] = pHandle->getFactory ()->produceGridMap (0, 0, pHandle->getActivityOutputGrid (), DefaultUndefinedMapValue, 1);;
-} 
+}
 
 //------------------------------------------------------------//
-void InterfaceOutput::deleteOutputMap( outputMaps aMapIndex ) 
+void InterfaceOutput::deleteOutputMap( outputMaps aMapIndex )
 {
    if( m_outputMaps[aMapIndex] != 0 ) {
       delete m_outputMaps[aMapIndex];
    }
-} 
+}
 
 
 //------------------------------------------------------------//

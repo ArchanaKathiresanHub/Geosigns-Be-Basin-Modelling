@@ -15,7 +15,7 @@ using namespace std;
 #include "utils.h"
 #include "FastcauldronSimulator.h"
 #include "StatisticsHandler.h"
-#include "Well.h" 
+#include "Well.h"
 
 #include "Interface/RunParameters.h"
 
@@ -55,16 +55,16 @@ FCTCalc::FCTCalc( AppCtx* Application_Context )
    if( not ( onlyPrimaryProperties && FastcauldronSimulator::getInstance ().getCalculationMode () == HYDROSTATIC_DECOMPACTION_MODE )) {
       m_volumeOutputProperties.push_back ( LITHOSTATICPRESSURE );
       m_volumeOutputProperties.push_back ( POROSITYVEC );
-   } 
+   }
    // Required for porosity calculation.
-   m_volumeOutputProperties.push_back ( CHEMICAL_COMPACTION ); 
+   m_volumeOutputProperties.push_back ( CHEMICAL_COMPACTION );
 
    if ( FastcauldronSimulator::getInstance ().getCalculationMode () == HYDROSTATIC_HIGH_RES_DECOMPACTION_MODE )
    {
       m_mapOutputProperties.push_back ( DEPTH );
       m_mapOutputProperties.push_back ( THICKNESS );
    }
-   else if ( FastcauldronSimulator::getInstance ().getCalculationMode () == COUPLED_HIGH_RES_DECOMPACTION_MODE ) 
+   else if ( FastcauldronSimulator::getInstance ().getCalculationMode () == COUPLED_HIGH_RES_DECOMPACTION_MODE )
    {
       m_mapOutputProperties.push_back ( DEPTH );
       m_mapOutputProperties.push_back ( THICKNESS );
@@ -86,14 +86,14 @@ FCTCalc::FCTCalc( AppCtx* Application_Context )
 
 void FCTCalc::printTestVals()
 {
-  
+
    size_t layerNr;
-   unsigned int i; 
+   unsigned int i;
    unsigned int j;
 
    for (layerNr = 0; layerNr < cauldron->layers.size(); layerNr++) {
       LayerProps* pLayer = cauldron->layers[layerNr];
-    
+
 
       for ( i = FastcauldronSimulator::getInstance ().firstI (); i <= FastcauldronSimulator::getInstance ().lastI (); ++i ) {
 
@@ -110,7 +110,7 @@ void FCTCalc::printTestVals()
                cout << "   {" << segmentNr << "} ";
 
                for (polyfit = polyf->getBegin(); polyfit != polyf->getEnd(); polyfit++) {
-                  cout << "(" << (*polyfit)->getX() << " , " 
+                  cout << "(" << (*polyfit)->getX() << " , "
                        << (*polyfit)->getY() << ")" << " ";
                }
 
@@ -120,7 +120,7 @@ void FCTCalc::printTestVals()
          }
 
       }
-    
+
    }
 
 }
@@ -130,16 +130,20 @@ void FCTCalc::decompact(){
   if ( FastcauldronSimulator::getInstance ().getCalculationMode () == HYDROSTATIC_DECOMPACTION_MODE ) {
      FastcauldronSimulator::getInstance ().deleteMinorSnapshotsFromSnapshotTable ();
 
+#if 0
+     cauldron->initialiseTimeIOTable ( DecompactionRunStatusStr );
+#endif
+
      FastcauldronSimulator::getInstance ().deletePropertyValues();
   }
 
   PetscBool minorSnapshots;
 
   PetscOptionsHasName ( PETSC_NULL, "-minor", &minorSnapshots );
- 
+
   SnapshotEntrySet allSnapshots;
 
-  if( minorSnapshots and ( FastcauldronSimulator::getInstance ().getCalculationMode () == HYDROSTATIC_HIGH_RES_DECOMPACTION_MODE or 
+  if( minorSnapshots and ( FastcauldronSimulator::getInstance ().getCalculationMode () == HYDROSTATIC_HIGH_RES_DECOMPACTION_MODE or
                            FastcauldronSimulator::getInstance ().getCalculationMode () == COUPLED_HIGH_RES_DECOMPACTION_MODE  )) {
      allSnapshots.insert(  cauldron->projectSnapshots.majorSnapshotsBegin (), cauldron->projectSnapshots.majorSnapshotsEnd () );
      allSnapshots.insert(  cauldron->projectSnapshots.minorSnapshotsBegin (), cauldron->projectSnapshots.minorSnapshotsEnd () );
@@ -151,14 +155,14 @@ void FCTCalc::decompact(){
   SnapshotEntrySetIterator it;
 
   for ( it = allSnapshots.rbegin (); it != allSnapshots.rend (); ++it ) {
-    
+
     double SnapShotTime = (*it)->time ();
-    
+
     if (cauldron->DoDecompaction)
       displayProgress(cauldron->debug1, "o Decompacting... ",SnapShotTime);
     else
       displayProgress (cauldron->debug1, "o HighRes Decompacting... ", SnapShotTime);
-    
+
     getGrid ( SnapShotTime, it );
     StatisticsHandler::update ();
     MPI_Barrier(PETSC_COMM_WORLD);
@@ -230,7 +234,7 @@ bool FCTCalc::getGrid ( const double                    currentTime,
   status &= cauldron->findActiveElements( currentTime );
 
   Layer_Iterator Layers;
-  Layers.Initialise_Iterator ( cauldron->layers, Descending, Basement_And_Sediments, 
+  Layers.Initialise_Iterator ( cauldron->layers, Descending, Basement_And_Sediments,
 			       Active_And_Inactive_Layers );
 
 
@@ -271,7 +275,7 @@ bool FCTCalc::getGrid ( const double                    currentTime,
     status &= cauldron->calcNodeDepths( currentTime );
   }
   PETSC_ASSERT( status );
-  
+
   status &= cauldron->Calculate_Pressure(  currentTime  );
   PETSC_ASSERT( status );
 

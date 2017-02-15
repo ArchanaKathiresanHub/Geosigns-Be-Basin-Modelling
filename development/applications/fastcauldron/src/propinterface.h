@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 #ifndef _PROPInterface_H_
 #define _PROPInterface_H_
 
@@ -140,9 +140,9 @@ public:
    bool In_Processor_Range ( const int globalIIndex, const int globalJIndex );
 
    bool inProcessorRange ( const int  globalIIndex,
-			   const int  globalJIndex, 
+			   const int  globalJIndex,
 			   const bool includeLowerIGhostNodes,
-			   const bool includeUpperIGhostNodes, 
+			   const bool includeUpperIGhostNodes,
 			   const bool includeLowerJGhostNodes,
 			   const bool includeUpperJGhostNodes ) const;
 
@@ -267,17 +267,17 @@ public:
    void   restartPermafrost();
    /// Calculate time step for permafrost modelling
    bool   switchPermafrostTimeStep ( const double Current_Time );
-   /// Adjust the Current time and Permafrost time step  
+   /// Adjust the Current time and Permafrost time step
    void   adjustTimeStepToPermafrost ( const double Previous_Time, double & Current_Time );
    double getNextPermafrostTimeStep () const;
-   double getNextPermafrostAge () const;   
+   double getNextPermafrostAge () const;
    /// Retrieve the last time at which an igneous intrusion started or a NoDataValue if no intrusion ever occurs
-   double getPreviousIgneousIntrusionTime( const double Current_Time ) const; 
+   double getPreviousIgneousIntrusionTime( const double Current_Time ) const;
 
    /// Initialises other minor layer data fields.
    void setLayerData ();
 
-   double Estimate_Temperature_At_Depth( const double Node_Depth, 
+   double Estimate_Temperature_At_Depth( const double Node_Depth,
 					 const double Surface_Temperature,
 					 const double Surface_Sea_Bottom_Depth );
 
@@ -329,12 +329,12 @@ public:
 
    typedef std::vector<double> DoubleVector;
 
-   
+
    enum ContourType {ISOVRE, ISOTEMPERATURE, NUMBEROFCONTOURTYPES};
-	
+
    IsoLineTable m_theTables[NUMBEROFCONTOURTYPES];
    DoubleVector m_theMilestones[NUMBEROFCONTOURTYPES];
-	
+
    const IsoLineTable & getContourValueTable(enum ContourType theType) const;
    const DoubleVector & getContourMilestones(enum ContourType theType) const;
    void addIsolinePoint(ContourType theType, IsolinePoint *thePoint);
@@ -349,10 +349,6 @@ public:
 
    //FT stuff
    void writeFissionTrackResultsToDatabase(const FissionTrackCalculator &theFTCalculator);
-
-   database::Database * database;
-   database::Table * timeIoTbl;
-   database::Table * threeDTimeIoTbl;
 
    LayerList layers;
 
@@ -453,14 +449,14 @@ public:
 
    // set flag to determine the primary properties output
    void setPrimaryOutput( const bool flag );
-  
+
    // return true if the only primary properties are required
    bool primaryOutput() const;
 
    // ModelArea Grid_Window;
    bool useTemisRelPerm () const;
 
-    void Fill_Topmost_Segment_Arrays ( const double Previous_Time, 
+    void Fill_Topmost_Segment_Arrays ( const double Previous_Time,
                                        const double Current_Time );
 
 
@@ -589,7 +585,7 @@ public:
 
    bool   m_exitAtAgeSet;
    double m_exitAtAge;
- 
+
 
 };
 
@@ -617,11 +613,11 @@ inline int AppCtx::getCrustThinningModel () const {
    return m_crustThinningModel;
 }
 
-inline CrustFormation* AppCtx::Crust () const { 
+inline CrustFormation* AppCtx::Crust () const {
    return Crust_Layer;
 }
 
-inline MantleFormation* AppCtx::Mantle () const { 
+inline MantleFormation* AppCtx::Mantle () const {
    return Mantle_Layer;
 }
 

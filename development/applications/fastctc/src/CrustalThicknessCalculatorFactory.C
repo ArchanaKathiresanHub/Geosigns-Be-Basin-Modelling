@@ -9,13 +9,13 @@ using namespace DataAccess;
 
 
 DataAccess::Interface::ProjectHandle*
-CrustalThicknessCalculatorFactory::produceProjectHandle ( database::Database * database, const string & name,
+CrustalThicknessCalculatorFactory::produceProjectHandle ( database::ProjectFileHandlerPtr database, const string & name,
                                                           const string & accessMode) {
    return new CrustalThicknessCalculator ( database, name, accessMode, this );
 }
 
 DataAccess::Interface::CrustalThicknessData *
-CrustalThicknessCalculatorFactory::produceCrustalThicknessData (DataAccess::Interface::ProjectHandle * projectHandle, 
+CrustalThicknessCalculatorFactory::produceCrustalThicknessData (DataAccess::Interface::ProjectHandle * projectHandle,
                                                                 database::Record * record)
 {
    return new InterfaceInput(projectHandle, record);

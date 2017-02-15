@@ -1,27 +1,25 @@
 #ifndef __FASTCAULDRONOBJECTFACTORY_HH_
 #define __FASTCAULDRONOBJECTFACTORY_HH_
 
+#include "ProjectFileHandler.h"
+
 #include "PropertyAttribute.h"
 
 #include "GeoPhysicsObjectFactory.h"
-// #include "Interface/ObjectFactory.h"
-
 #include "PiecewiseInterpolator.h"
-
 #include "CompoundLithology.h"
 
 namespace DataAccess
 {
    namespace Interface
    {
-      class ProjectHandle;  
+      class ProjectHandle;
    }
 }
 
 namespace database
 {
    class Record;
-   class Database;
 }
 
 
@@ -42,24 +40,23 @@ public :
 
 
    /// Returns the project-handle.
-   Interface::ProjectHandle * produceProjectHandle ( database::Database * database,
-                                                          const string &       name,
-                                                          const string &       accessMode
- 													      );
+   Interface::ProjectHandle * produceProjectHandle ( database::ProjectFileHandlerPtr pfh,
+                                                     const string&                   name,
+                                                     const string&                   accessMode );
 
    /// Allocate a fastcauldron related-project.
    Interface::RelatedProject* produceRelatedProject ( Interface::ProjectHandle* projectHandle,
-                                                           database::Record*              record );
+                                                      database::Record*              record );
 
-   Interface::RunParameters * produceRunParameters ( Interface::ProjectHandle * projectHandle, 
-                                                          database::Record *              record);
+   Interface::RunParameters * produceRunParameters ( Interface::ProjectHandle * projectHandle,
+                                                     database::Record *              record);
 
    /// Allocate a fastcauldron property.
    Interface::Property * produceProperty ( Interface::ProjectHandle * projectHandle,
                                            database::Record *                 record,
                                            const string &                     userName,
                                            const string &                     cauldronName,
-                                           const string &                     unit, 
+                                           const string &                     unit,
                                            Interface::PropertyType            type,
                                            const DataModel::PropertyAttribute attr );
 

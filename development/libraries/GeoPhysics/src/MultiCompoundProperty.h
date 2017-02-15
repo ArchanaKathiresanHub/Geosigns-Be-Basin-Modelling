@@ -120,7 +120,6 @@ namespace GeoPhysics {
 
    private :
 
-
       /// \brief Allocate the data arrays.
       void allocate ( const unsigned int lithoCount,
                       const unsigned int dataCount );

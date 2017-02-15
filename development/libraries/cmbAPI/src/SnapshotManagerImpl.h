@@ -1,18 +1,20 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
-/// @file SnapshotManagerImpl.h 
+/// @file SnapshotManagerImpl.h
 /// @brief This file keeps implementation declarations for API which provides access to simulation results
 
 #ifndef CMB_SNAPSHOT_MANAGER_IMPL
 #define CMB_SNAPSHOT_MANAGER_IMPL
+
+#include "ProjectFileHandler.h"
 
 #include "SnapshotManager.h"
 
@@ -37,11 +39,11 @@ namespace mbapi
       virtual ~SnapshotManagerImpl() { ; }
 
       // Set project database. Reset all
-      void setDatabase( database::Database * db, const std::string & projName );
+      void setDatabase( database::ProjectFileHandlerPtr pfh, const std::string & projName );
 
 
       /// @brief Get number of snapshots in project
-      /// @return number of snapshots 
+      /// @return number of snapshots
       virtual size_t snapshotsNumber();
 
       /// @brief Get time for the i-th snapshot
@@ -51,8 +53,8 @@ namespace mbapi
 
       /// @brief Ask, is i-th snapshot minor?
       /// @param i snapshot number
-      /// @return true if it is minor snapshot, false otherwise for 
-      virtual bool isMinor( size_t i );  
+      /// @return true if it is minor snapshot, false otherwise for
+      virtual bool isMinor( size_t i );
 
       /// @brief Get snapshot type
       /// @param i snapshot number
@@ -73,7 +75,7 @@ namespace mbapi
 
    private:
       static double                                     s_snpTol;   // small value for comparison of snapshot time
-      database::Database                              * m_db;       // project database
+      database::ProjectFileHandlerPtr                   m_db;       // project database
       database::Table                                 * m_snpTable; // snapshot table
 
       SnapshotManagerImpl( const SnapshotManagerImpl & );

@@ -38,14 +38,14 @@ void displayTime ( const double timeToDisplay, const char * msgToDisplay ) {
    int hours   = (int)(  timeToDisplay / 3600.0 );
    int minutes = (int)(( timeToDisplay - (hours * 3600.0) ) / 60.0 );
    int seconds = (int)(  timeToDisplay - hours * 3600.0 - minutes * 60.0 );
-   
+
    PetscPrintf ( PETSC_COMM_WORLD, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n" );
    PetscPrintf ( PETSC_COMM_WORLD, "%s: %d hours %d minutes %d seconds\n", msgToDisplay, hours, minutes, seconds );
    PetscPrintf ( PETSC_COMM_WORLD, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n" );
 
 }
 
-GenexSimulator::GenexSimulator (database::Database * database, const std::string & name, const std::string & accessMode, DataAccess::Interface::ObjectFactory* objectFactory)
+GenexSimulator::GenexSimulator (database::ProjectFileHandlerPtr database, const std::string & name, const std::string & accessMode, DataAccess::Interface::ObjectFactory* objectFactory)
    : GeoPhysics::ProjectHandle (database, name, accessMode, objectFactory)
 {
   registerProperties();
@@ -77,9 +77,9 @@ bool GenexSimulator::saveTo(const std::string & outputFileName)
 bool GenexSimulator::run()
 {
    bool started = startActivity ( GenexActivityName, getLowResolutionOutputGrid () );
-   
+
    if (!started) return false;
-   
+
    const Interface::SimulationDetails* simulationDetails = getDetailsOfLastSimulation ( "fastcauldron" );
 
    bool coupledCalculation = simulationDetails != 0 and ( simulationDetails->getSimulatorMode () == "CoupledPressureAndTemperature" or
@@ -90,15 +90,15 @@ bool GenexSimulator::run()
 
    started =  GeoPhysics::ProjectHandle::initialise ( coupledCalculation );
    if (!started) return false;
-   
-   started = setFormationLithologies ( false, true ); 
+
+   started = setFormationLithologies ( false, true );
    if (!started) return false;
 
    started = initialiseLayerThicknessHistory ( coupledCalculation );
    if (!started) return false;
 
    setRequestedOutputProperties();
-   
+
    bool useFormationName = false;
 
    PetscLogDouble run_Start_Time;
@@ -108,9 +108,9 @@ bool GenexSimulator::run()
    std::vector<Interface::SourceRock*>::iterator sourceRockIter;
    Interface::Formation * theFormation;
 
-   for (sourceRockIter = m_sourceRocks.begin(); sourceRockIter != m_sourceRocks.end(); ++ sourceRockIter) { 
+   for (sourceRockIter = m_sourceRocks.begin(); sourceRockIter != m_sourceRocks.end(); ++ sourceRockIter) {
       SourceRock * sr = dynamic_cast<Genex6::SourceRock *>( *sourceRockIter );
-      
+
       if( !sr->getLayerName().empty() ) {
          useFormationName = true;
          const Interface::Formation * theFormation = findFormation( sr->getLayerName() );
@@ -125,14 +125,14 @@ bool GenexSimulator::run()
    if( !useFormationName ) {
       std::vector<Interface::Formation*>::iterator formationIter;
 
-      for (formationIter = m_formations.begin(); formationIter != m_formations.end(); ++ formationIter) { 
-         
+      for (formationIter = m_formations.begin(); formationIter != m_formations.end(); ++ formationIter) {
+
          if(started) {
             Interface::Formation * theFormation = dynamic_cast<Interface::Formation*>( *formationIter );
-            
+
             if( theFormation != 0 && theFormation->isSourceRock() ) {
-               
-               Genex6::SourceRock* sr = (Genex6::SourceRock *)( theFormation->getSourceRock1() ); 
+
+               Genex6::SourceRock* sr = (Genex6::SourceRock *)( theFormation->getSourceRock1() );
                started = computeSourceRock( sr, theFormation );
             }
          } else {
@@ -155,23 +155,23 @@ bool GenexSimulator::run()
       PetscPrintf ( PETSC_COMM_WORLD, "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ \n" );
    }
 
-   finishActivity (); 
+   finishActivity ();
    setSimulationDetails ( "fastgenex", "Default", "" );
 
    if( !mergeOutputFiles ()) {
       PetscPrintf ( PETSC_COMM_WORLD, "MeSsAgE ERROR Unable to merge output files\n");
-      
+
       started = 0;
-   }   
+   }
 
    if(started) {
       PetscLogDouble sim_End_Time;
       PetscTime(&sim_End_Time);
-      
+
       displayTime ( sim_End_Time - run_Start_Time, "Results saved sucessfully" );
    }
-   
-   return started; 
+
+   return started;
 }
 
 bool GenexSimulator::computeSourceRock ( Genex6::SourceRock * aSourceRock, const Interface::Formation * aFormation )
@@ -180,7 +180,7 @@ bool GenexSimulator::computeSourceRock ( Genex6::SourceRock * aSourceRock, const
       aSourceRock->clear();
       aSourceRock->setPropertyManager ( m_propertyManager );
       aSourceRock->setFormationData( aFormation ); // set layerName, formation, second SR type, mixing parameters, isSulphur
-      
+
       bool isSulphur = aSourceRock->isSulphur();
       if ( aSourceRock->doOutputAdsorptionProperties ()) {
          if( isSulphur ) {
@@ -195,8 +195,8 @@ bool GenexSimulator::computeSourceRock ( Genex6::SourceRock * aSourceRock, const
             aSourceRock->initializeSnapShotOutputMaps ( m_expelledToCarrierBedProperties, m_requestedProperties );
          }
       }
-      
-      return aSourceRock->compute(); 
+
+      return aSourceRock->compute();
    } else {
       cerr << "Error in the project file: cannot find Source Rock reference in formation " << aFormation->getName() << endl;
       finishActivity();
@@ -213,7 +213,7 @@ void GenexSimulator::setRequestedSpeciesOutputProperties()
       if(!theManager.isSulphurComponent(i)) {
          m_expelledToCarrierBedProperties.push_back ( theManager.getSpeciesOutputPropertyName ( i, false ));
          m_expelledToSourceRockProperties.push_back ( theManager.getSpeciesOutputPropertyName ( i, true ));
-      } 
+      }
       m_expelledToCarrierBedPropertiesS.push_back ( theManager.getSpeciesOutputPropertyName ( i, false ));
       m_expelledToSourceRockPropertiesS.push_back ( theManager.getSpeciesOutputPropertyName ( i, true ));
    }
@@ -231,7 +231,7 @@ void GenexSimulator::setRequestedOutputProperties()
 
    using namespace CBMGenerics;
    GenexResultManager & theResultManager = GenexResultManager::getInstance();
-  
+
    Interface::ModellingMode theMode = getModellingMode();
    string theModellingMode = "3d";
 
@@ -274,7 +274,7 @@ void GenexSimulator::setRequestedOutputProperties()
          if(isPropertyRegistered(propertyName) and theResultManager.getResultId ( propertyName ) != -1 ) {
             theResultManager.SetResultToggleByName(propertyName, true);
          }
-      } 
+      }
    }
   sort(m_requestedProperties.begin(), m_requestedProperties.end());
 }
@@ -283,7 +283,7 @@ void GenexSimulator::registerProperties()
    using namespace CBMGenerics;
    ComponentManager & theManager = ComponentManager::getInstance();
    GenexResultManager & theResultManager = GenexResultManager::getInstance();
-   
+
    int i;
 
    for (i = 0; i < ComponentManager::NUMBER_OF_SPECIES; ++i ) {
@@ -295,9 +295,9 @@ void GenexSimulator::registerProperties()
    }
 
    for(i = 0; i < GenexResultManager::NumberOfResults; ++ i) {
-      m_registeredProperties.push_back (theResultManager.GetResultName(i));                      
-   }  
-   
+      m_registeredProperties.push_back (theResultManager.GetResultName(i));
+   }
+
    // Adding all possible species that can be used in the adsorption process.
    for (i = 0; i < ComponentManager::NUMBER_OF_SPECIES; ++i)
    {
@@ -336,7 +336,7 @@ void GenexSimulator::registerProperties()
    sort(m_registeredProperties.begin(), m_registeredProperties.end());
 }
 
-bool GenexSimulator::isPropertyRegistered(const string & propertyName) 
+bool GenexSimulator::isPropertyRegistered(const string & propertyName)
 {
    return std::binary_search(m_registeredProperties.begin(), m_registeredProperties.end(), propertyName);
 }
@@ -379,4 +379,3 @@ bool GenexSimulator::mergeOutputFiles ( ) {
    return status;
 #endif
 }
-
