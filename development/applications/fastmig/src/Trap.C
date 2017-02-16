@@ -1089,12 +1089,7 @@ namespace migration
 
    bool Trap::isUndersized (void) const
    {
-      return (getCapacity () == 0 || getCapacity () < getMinimumTrapCapacity ());
-   }
-
-   double Trap::getMinimumTrapCapacity (void) const
-   {
-      return m_reservoir->getTrapCapacity ();
+      return (getCapacity () == 0 || getCapacity () < m_reservoir->getMinTrapCapacity ());
    }
 
    void Trap::setGlobalId (int id)

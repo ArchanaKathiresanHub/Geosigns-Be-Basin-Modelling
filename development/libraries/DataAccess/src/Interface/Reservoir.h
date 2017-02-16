@@ -63,6 +63,13 @@ namespace DataAccess
          /// Only valid if ActivityMode == "ActiveFrom".
          virtual double getActivityStart (void) const;
 
+         /// @return whether diffusion is ON
+         bool isDiffusionOn (void) const;
+         /// @return whether biodegradation is ON
+         bool isBiodegradationOn (void) const;
+         /// @return whether OTGC is ON
+         bool isOilToGasCrackingOn (void) const;
+
          /// Return whether vertical migration blocking into this reservoir is enabled
          bool isBlockingEnabled (void) const;
          /// return the vertical migration blocking permeability threshold.

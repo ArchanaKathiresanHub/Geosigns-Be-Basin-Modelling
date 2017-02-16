@@ -87,6 +87,7 @@ namespace DataAccess
       class PropertyValue;
       class RelatedProject;
       class Reservoir;
+      class ReservoirOptions;
       class RunParameters;
       class SGDensitySample;
       class SimulationDetails;

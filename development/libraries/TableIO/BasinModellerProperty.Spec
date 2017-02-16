@@ -3394,7 +3394,7 @@ START-properties
     Description         : minimum oil column height
     Unit of measurement : m
     Type                : double
-    Default             : 0.5
+    Default             : 1.0
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
@@ -3403,7 +3403,7 @@ START-properties
     Description         : minimum gas column height
     Unit of measurement : m
     Type                : double
-    Default             : 0.5
+    Default             : 1.0
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
@@ -3440,7 +3440,7 @@ START-properties
     Description         : Porosity at which to block secondary migration
     Type                : float
     Unit of measurement : %
-    Default		: 0
+    Default		         : 0
     Error Field         : No
     Time dependent      : No
     Property I/O        : No
@@ -7202,30 +7202,11 @@ START-property-tables
     Column         : BlockingInd 
     Column         : BlockingPermeability
     Column         : BlockingPorosity
-    Header         : Reservoir Data
+    Header         : Individual Reservoir Data
     
     Identification : ReservoirOptionsIoTbl
     Description    : Table listing the parameters for detected reservoirs
     Column         : TrapCapacity
-    Column         : ActivityMode
-    Column         : DepthOffset
-    Column         : DepthOffsetGrid
-    Column         : Thickness
-    Column         : ThicknessGrid
-    Column         : NetToGross
-    Column         : NetToGrossGrid
-    Column         : MicroTraps
-    Column         : LeakProperty
-    Column         : LeakRate
-    Column         : Lithotype1
-    Column         : Percent1
-    Column         : Percent1Grid
-    Column         : Lithotype2
-    Column         : Percent2
-    Column         : Percent2Grid
-    Column         : Lithotype3
-    Column         : LayerFrequency 
-    Column         : LayerFrequencyGrid
     Column         : BioDegradInd 
     Column         : OilToGasCrackingInd 
     Column         : DiffusionInd
@@ -7234,7 +7215,7 @@ START-property-tables
     Column         : BlockingInd 
     Column         : BlockingPermeability
     Column         : BlockingPorosity
-    Header         : Detected reservoir data
+    Header         : Global reservoir data
 
     Identification : BioDegradIoTbl
     Description    : This table holds the bio degradation parameters 
@@ -7256,7 +7237,7 @@ START-property-tables
     Column         : C15Sat_BioFactor 
     Column         : resins_BioFactor 
     Column         : asphaltenes_BioFactor 
-    Header         : Bio Degradation Data 
+    Header         : Biodegradation Data 
 
     Identification : DiffusionIoTbl
     Description    : This table holds the diffusion parameters 

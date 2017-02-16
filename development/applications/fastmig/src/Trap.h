@@ -244,14 +244,6 @@ namespace migration
       */
       bool isUndersized (void) const;
 
-      /*!
-      * \brief Get the minimum trap capacity" value in the [ReservoirIoTbl] of " .project3d".
-      * \details The obtained value is the minimum trap capacity allowed. This parameter helps to define if a trap is undersized or not.
-      * If a trap is undersized, it can be merged with others in further steps.
-      * \return The minimum trap capacity (in m3)
-      */
-      double getMinimumTrapCapacity (void) const;
-
       double getWeight (void) const;
       double getWeight (PhaseId phase) const;
       double getWeight (ComponentId component) const;

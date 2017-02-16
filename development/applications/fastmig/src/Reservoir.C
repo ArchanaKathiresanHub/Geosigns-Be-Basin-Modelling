@@ -36,6 +36,7 @@
 #include "Interface/FracturePressureFunctionParameters.h"
 #include "Interface/DiffusionLeakageParameters.h"
 #include "Interface/MapWriter.h"
+#include "Interface/ReservoirOptions.h"
 
 #include "database.h"
 #include "cauldronschemafuncs.h"
@@ -330,7 +331,7 @@ namespace migration
 
    bool Reservoir::recomputeTrapDepthToVolumeFunctions (void)
    {
-      if (!isOilToGasCrackingOn (m_migrator->performLegacyMigration ())) return false;
+      if (!performOilToGasCracking ()) return false;
 
       RequestHandling::StartRequestHandling (m_migrator, "recomputeTrapDepthToVolumeFunctions");
       TrapVector::iterator trapIter;
@@ -1109,7 +1110,7 @@ namespace migration
       // If diffusion leakages is included, initialize m_diffusionOverburdenGridMaps with 
       // the necessary grid maps:
       // Optimization for May 2016 Release
-      if (isDiffusionOn (m_migrator->performLegacyMigration ()) and !m_migrator->performLegacyMigration ())
+      if (performDiffusion ())
       {
          vector<SurfaceGridMapFormations> temperatureGridMaps = overburden_MPI::getAdjacentSurfaceGridMapFormations (
             overburden, "Temperature", getEnd ());
@@ -2269,7 +2270,7 @@ namespace migration
 #ifdef USEOTGC
    bool Reservoir::crackChargesToBeMigrated (OilToGasCracker & otgc)
    {
-      if (!isOilToGasCrackingOn (m_migrator->performLegacyMigration ())) return false;
+      if (!performOilToGasCracking ()) return false;
 
       setSourceReservoir (this);
 
@@ -2698,7 +2699,7 @@ namespace migration
          return false;
 
       m_biodegraded = 0;
-      if (isBioDegradationOn (m_migrator->performLegacyMigration ()))
+      if (performBiodegradation ())
       {
          if (!m_migrator->performLegacyMigration ())
          {
@@ -2723,7 +2724,7 @@ namespace migration
       while (!allProcessorsFinished (distributionHasFinished ()));
 
       // Optimization for May 2016 Release
-      if (isDiffusionOn (m_migrator->performLegacyMigration ()) and !m_migrator->performLegacyMigration ())
+      if (performDiffusion ())
       {
          broadcastTrapFillDepthProperties ();
          if (!diffusionLeakCharges ())
@@ -3183,7 +3184,7 @@ namespace migration
    void Reservoir::broadcastTrapDiffusionStartTimes (void)
    {
       // Optimization for May 2016 Release
-      if (!isDiffusionOn (m_migrator->performLegacyMigration ()) or m_migrator->performLegacyMigration ()) return;
+      if (!performDiffusion ()) return;
 
       TrapVector::iterator trapIter;
 
@@ -3199,7 +3200,7 @@ namespace migration
    void Reservoir::broadcastTrapPenetrationDistances (void)
    {
       // Optimization for May 2016 Release
-      if (!isDiffusionOn (m_migrator->performLegacyMigration ()) or m_migrator->performLegacyMigration ()) return;
+      if (!performDiffusion ()) return;
 
       const DiffusionLeakageParameters *parameters = getProjectHandle ()->getDiffusionLeakageParameters ();
 
@@ -3606,7 +3607,7 @@ namespace migration
       TrapVector trapList;
       vector<int> idList;
 
-      double minimumCapacity = getTrapCapacity ();
+      double minimumCapacity = getMinTrapCapacity ();
 
       for (i = 0; i < maxNumberOfRequests; ++i)
       {
@@ -3666,7 +3667,7 @@ namespace migration
 
       const int maxIterations = 100;
 
-      double minimumCapacity = getTrapCapacity ();
+      double minimumCapacity = getMinTrapCapacity ();
       unsigned int i;
       for (i = 0; i < maxNumberOfRequests; ++i)
       {
@@ -4259,27 +4260,63 @@ namespace migration
    }
 
    /// If legacy use reservoir-specific options (ReservoirIoTbl), otherwise global reservoir options (ReservoirOptionsIoTbl)
-   bool Reservoir::isBioDegradationOn (bool legacy) const
+   bool Reservoir::performBiodegradation (void) const
    {
-      if (legacy)
-         return database::getBioDegradInd (m_record) == 1;
+      if (m_migrator->performLegacyMigration () == true)
+         return isBiodegradationOn();
       else
-         return database::getBioDegradInd (m_migrator->getReservoirOptionsIoRecord()) == 1;
+         return m_migrator->getProjectHandle()->getReservoirOptions()->isBiodegradationOn();
    }
 
-   bool Reservoir::isOilToGasCrackingOn (bool legacy) const
+   bool Reservoir::performOilToGasCracking (void) const
    {
-      if (legacy)
-         return database::getOilToGasCrackingInd (m_record) == 1;
+      if (m_migrator->performLegacyMigration () == true)
+         return isOilToGasCrackingOn();
       else
-         return database::getOilToGasCrackingInd (m_migrator->getReservoirOptionsIoRecord()) == 1;
+         return m_migrator->getProjectHandle()->getReservoirOptions()->isOilToGasCrackingOn();
    }
 
-   bool Reservoir::isDiffusionOn (bool legacy) const
+   bool Reservoir::performDiffusion (void) const
    {
-      if (legacy)
-         return database::getDiffusionInd (m_record) == 1;
+      if (m_migrator->performLegacyMigration () == true)
+         return false;
       else
-         return database::getDiffusionInd (m_migrator->getReservoirOptionsIoRecord()) == 1;
+         return m_migrator->getProjectHandle()->getReservoirOptions()->isDiffusionOn();
    }
+
+   double Reservoir::getMinTrapCapacity (void) const
+   {
+      if (m_migrator->performLegacyMigration () == true)
+         return getTrapCapacity ();
+      else
+         return m_migrator->getProjectHandle()->getReservoirOptions()->getTrapCapacity();
+   }
+
+   bool Reservoir::isBlockingOn (void) const
+   {
+      if (m_migrator->performAdvancedMigration())
+         return false;
+
+      if (m_migrator->performLegacyMigration () == true)
+         return isBlockingEnabled();
+      else
+         return m_migrator->getProjectHandle()->getReservoirOptions()->isBlockingEnabled();
+   }
+
+   double Reservoir::getBlockingPerm (void) const
+   {
+      if (m_migrator->performLegacyMigration () == true)
+         return getBlockingPermeability();
+      else
+         return m_migrator->getProjectHandle()->getReservoirOptions()->getBlockingPermeability();
+   }
+
+   double Reservoir::getBlockingPoro (void) const
+   {
+      if (m_migrator->performLegacyMigration () == true)
+         return getBlockingPorosity();
+      else
+         return m_migrator->getProjectHandle()->getReservoirOptions()->getBlockingPorosity();
+   }
+
 }

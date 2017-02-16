@@ -97,13 +97,8 @@ namespace migration
       Formation * getBottomActiveReservoirFormation (const Interface::Snapshot * end);
       Formation * getTopActiveReservoirFormation (const Interface::Snapshot * end);
 
-      // Formation * getBotomSourceRockOverTopReservoir (const Interface::Snapshot * end);
-
-      // If getMinOilColumnHeight and getMinGasColumnHeight get moved to RunOptionsIoTbl these functions can be used
-      /*
-        double getMinOilColumnHeight (void) const;
-        double getMinGasColumnHeight (void) const;
-      */
+      inline double getMinOilColumnHeight (void) const;
+      inline double getMinGasColumnHeight (void) const;
 
       GeoPhysics::ProjectHandle * getProjectHandle (void);
 
@@ -145,8 +140,10 @@ namespace migration
 
       void addTrapRecord (Reservoir * reservoir, TrapPropertiesRequest & tpRequest);
 
-      // add a detected reservoir to ResIoTbl and return the record itself
+      /// add a detected reservoir to ResIoTbl and return the record itself
       database::Record * addDetectedReservoirRecord (Interface::Formation * formation, const Interface::Snapshot * start);
+
+      /// Read minimum column heights from ReservoirOptionsIoTbl
       void getMinimumColumnHeights ();
 
       database::Record * copyMigrationRecord (database::Record * oldRecord, const std::string & newMigrationProcess);
@@ -161,9 +158,6 @@ namespace migration
       database::Record * createMigrationRecord (const std::string & srcReservoirName, const std::string & srcFormationName,
                                                 const std::string & dstReservoirName,
                                                 MigrationRequest & mr);
-
-      /// Get global reservoir options from the ReservoirOptionsIoTbl
-      inline database::Record * getReservoirOptionsIoRecord (void) const;
 
       bool retrieveFormationPropertyMaps (const Interface::Snapshot * end);
       bool restoreFormationPropertyMaps (const Interface::Snapshot * end);
@@ -230,8 +224,6 @@ namespace migration
       database::Table * m_trapIoTbl;
       database::Table * m_migrationIoTbl;
       database::Table * m_ReservoirIoTbl;
-      database::Table * m_reservoirOptionsIoTbl;
-      database::Record * m_reservoirOptionsIoRecord;
 
       bool mergeOutputFiles ();
 
@@ -304,9 +296,14 @@ double migration::Migrator::getBlockingPorosity (void) const
    return (m_isBlockingOn ? m_blockingPorosity : 0);
 }
 
-database::Record * migration::Migrator::getReservoirOptionsIoRecord (void) const
+double migration::Migrator::getMinOilColumnHeight (void) const
 {
-   return m_reservoirOptionsIoRecord;
+   return m_minOilColumnHeight;
+}
+
+double migration::Migrator::getMinGasColumnHeight (void) const
+{
+   return m_minGasColumnHeight;
 }
 
 #endif // _MIGRATION_MIGRATOR_H
