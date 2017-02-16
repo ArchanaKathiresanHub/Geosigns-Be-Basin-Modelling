@@ -192,6 +192,8 @@ void database::ProjectFileHandler::loadOutputTables () {
               boost::filesystem::exists ( fullFileName )) {
             m_outputDataBase = database::Database::CreateFromFile ( fullFileName, *outputSchema );
          } else {
+            LogHandler ( LogHandler::WARNING_SEVERITY ) << "(" << __FUNCTION__ << ") Output tables file does not exist: "
+                                                        << outputDirectory << "/" << fullFileName;
             m_outputDataBase = database::Database::CreateFromSchema ( *outputSchema );
          }
 
