@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -709,6 +709,17 @@ namespace DataAccess
 
       /// \var NullString
       static const std::string NullString = "";
+
+      /// \brief A vector of zero length.
+      static const std::vector<std::string> NoTableNames = std::vector<std::string>();
+
+      /// \brief A vector of names of the largest output tables in the project file.
+      ///
+      /// These are the candidates for being moved to the output table file.
+      static const std::vector<std::string> DefaultOutputTableNames =
+                            std::vector<std::string>({ "1DTimeIoTbl",    "3DTimeIoTbl",
+                                                       "MigrationIoTbl", "TimeIoTbl",
+                                                       "TrapIoTbl",      "TrapperIoTbl" });
 
       /// \var IgneousIntrusionEventDuration
       /// \brief The time interval over which an igneous intrusion can be inflated.

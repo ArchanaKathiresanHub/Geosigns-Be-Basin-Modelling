@@ -42,7 +42,7 @@ namespace database {
 
 
 
-   Database::Database (const DataSchema & dataSchema) : m_dataSchema (dataSchema), m_fileName ("")
+   Database::Database (DataSchema& dataSchema) : m_dataSchema (dataSchema), m_fileName ("")
    {
       char *fieldWidthStr = getenv ("IBS_FIELDWIDTH");
 
@@ -95,12 +95,55 @@ namespace database {
       return m_tables[index];
    }
 
+   bool Database::addTableDefinition ( TableDefinition* tblDef ) {
+
+      bool status = false;
+
+      if ( m_dataSchema.getTableDefinition ( tblDef->name ()) == nullptr ) {
+         m_dataSchema.addTableDefinition ( tblDef );
+         Table *aTable = new Table (*tblDef);
+         m_tables.push_back (aTable);
+         status = true;
+      }
+
+      return status;
+   }
+
+   void Database::removeTable ( Table* table ) {
+
+      if ( table != nullptr and hasTable ( table )) {
+         m_dataSchema.removeTableDefinition ( m_dataSchema.getTableDefinition ( table->name ()));
+         m_tables.erase ( std::remove ( m_tables.begin (), m_tables.end (), table ), m_tables.end ());
+      }
+
+   }
+
+   void Database::deleteTable ( const std::string& tableName ) {
+
+      Table* table = getTable ( tableName );
+
+      if ( table != nullptr ) {
+         removeTable ( table );
+         delete table;
+      }
+
+   }
+
+   bool Database::hasTable ( const std::string& name ) const {
+      return m_dataSchema.getIndex (name) != -1;
+   }
+
+   bool Database::hasTable ( const Table* table ) const {
+      return std::find ( m_tables.begin (), m_tables.end (), table ) != m_tables.end ();
+   }
+
+
    Table *Database::getTable (int index)
    {
       if (index == -1)
-         return 0;
+         return nullptr;
       if (index >= m_tables.size ())
-         return 0;
+         return nullptr;
       return m_tables[index];
    }
 
@@ -303,6 +346,18 @@ namespace database {
       }
    }
 
+   void Table::copyTo ( Table* table ) const {
+
+      if ( table != nullptr and table->name () == m_tableDefinition.name ()) {
+
+         for ( size_t i = 0; i < m_records.size (); ++i ) {
+            table->addRecord ( m_records [ i ]->deepCopy ( table ));
+         }
+
+      }
+
+   }
+
    void Table::clear (bool deleteRecords)
    {
       if (deleteRecords)
@@ -450,8 +505,8 @@ namespace database {
       {
          Record * record = * iter;
          if (  record != other &&
-               value1 == record->getValue<std::string>(index1) && 
-               value2 == record->getValue<std::string>(index2)) 
+               value1 == record->getValue<std::string>(index1) &&
+               value2 == record->getValue<std::string>(index2))
             return record;
       }
       return 0;
@@ -469,11 +524,11 @@ namespace database {
 
    struct LocalTableSorter
    {
-      LocalTableSorter( Table * tbl, const std::vector<std::string> & fldList ) 
+      LocalTableSorter( Table * tbl, const std::vector<std::string> & fldList )
       {
          const database::TableDefinition & tblDef = tbl->getTableDefinition();
 
-         // cache fields index and data type 
+         // cache fields index and data type
          if ( fldList.empty() )
          {
             for ( int i = 0; i < tblDef.size(); ++i )
@@ -667,7 +722,7 @@ namespace database {
       streampos pos = infile.tellg ();
 
       if (!loadLine (infile, line))
-         return false; 
+         return false;
 
       const string separators = " \t";
       size_t firstNonSpace = line.find_first_not_of (separators, 0);
@@ -763,6 +818,28 @@ namespace database {
          m_fields.push_back( other.m_fields[i]->clone() );
    }
 
+   Record::Record (const Record & record, Table * table)
+      : m_table(table),
+        m_tableDefinition (table->getTableDefinition ()),
+        m_fields()
+   {
+      for (size_t i = 0; i < record.m_fields.size(); ++i) {
+         m_fields.push_back( record.m_fields[i]->clone() );
+      }
+   }
+
+
+   Record* Record::deepCopy ( Table * table ) const {
+
+      Record* newRecord = nullptr;
+
+      if ( table != nullptr and table->name () == m_table->name ()) {
+         newRecord = new Record ( *this, table );
+      }
+
+      return newRecord;
+   }
+
    void Record::createFields (void)
    {
       for (size_t i = 0; i < m_tableDefinition.size (); i++)
@@ -806,8 +883,8 @@ namespace database {
    }
 
    const std::string & Record::tableName() const
-   { 
-      return getTable()->name(); 
+   {
+      return getTable()->name();
    }
 
    void Record::destroyYourself (void)

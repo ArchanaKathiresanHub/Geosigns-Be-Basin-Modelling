@@ -8,7 +8,7 @@
 #include "Interface/Interface.h"
 
 #include "GeoPhysicsProjectHandle.h"
-#include "database.h"
+#include "ProjectFileHandler.h"
 
 #include "DomainPropertyCollection.h"
 #include "CauldronDomain.h"
@@ -23,7 +23,7 @@ namespace DataAccess {
 
       public :
 
-         ProjectHandle (database::Database * database, const std::string & name, const std::string & accessMode, DataAccess::Interface::ObjectFactory* objectFactory);
+         ProjectHandle (database::ProjectFileHandlerPtr pfh, const std::string & name, const std::string & accessMode, DataAccess::Interface::ObjectFactory* objectFactory);
 
          /// \brief Get the domain-property collection.
          ///

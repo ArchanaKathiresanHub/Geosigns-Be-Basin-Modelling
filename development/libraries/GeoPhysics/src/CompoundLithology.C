@@ -1797,7 +1797,6 @@ void GeoPhysics::CompoundLithology::calcBulkThermCondNPBasement(const FluidType*
          MatrixTHCondP = thermalconductivityP(Temperature);
       }
       else {
-         // cout << "calcBulkThermCondNPBasement for " <<  m_lithoComponents [ 0 ]->getName() << "; model = " << currentLitho->getThermalCondModel() << endl;
          MatrixTHCondP = (MatrixTHCondN = currentLitho->thermalconductivity(Temperature, LithoPressure));
       }
 

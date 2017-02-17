@@ -40,6 +40,7 @@
 #include "database.h"
 #include "cauldronschemafuncs.h"
 
+#include "ConstantsNames.h"
 #include "ConstantsGenex.h"
 #include "FormationPropertyAtSurface.h"
 
@@ -761,7 +762,7 @@ namespace migration
 #endif
 
       // And if the type of fracturePressureFunctionParameters is given by Interface::
-      // FunctionOfLithostaticPressure, also the hydrostatic and lithostatic pressures are needed.  
+      // FunctionOfLithostaticPressure, also the hydrostatic and lithostatic pressures are needed.
       const FracturePressureFunctionParameters*
          fracturePressureFunctionParameters = getProjectHandle ()->getFracturePressureFunctionParameters ();
       if (!fracturePressureFunctionParameters)
@@ -1084,7 +1085,7 @@ namespace migration
       m_diffusionOverburdenGridMaps.clear ();
       m_sealPressureLeakageGridMaps.clear ();
 
-      // Determine the overburden formations.  Include first the formation of the reservoir, for 
+      // Determine the overburden formations.  Include first the formation of the reservoir, for
       // the trap may be sealed inside the formation:
       vector<const Formation*> formations;
       formations.push_back (dynamic_cast<Formation *>(const_cast<Interface::Formation*>(getFormation ())));
@@ -1095,8 +1096,8 @@ namespace migration
          (dynamic_cast<Formation *> (const_cast<Interface::Formation*>(getFormation ())), true);
       overburden.append (overburdenFormations.formations ());
 
-      // We need the depth for both diffusion leakage and seal pressure leakage.  (Note, we put depths 
-      // in vector<FormationSurfaceGridMaps> even though the depth is a continuous property.  This is done 
+      // We need the depth for both diffusion leakage and seal pressure leakage.  (Note, we put depths
+      // in vector<FormationSurfaceGridMaps> even though the depth is a continuous property.  This is done
       // just for convenience.   The algorithms work out easier.)
       const ProjectHandle* projectHandle = getFormation ()->getProjectHandle ();
       const Property* depthProp = lowResEqualsHighRes () ?
@@ -1106,7 +1107,7 @@ namespace migration
       vector<FormationSurfaceGridMaps> depthGridMaps = overburden_MPI::getFormationSurfaceGridMaps (
          overburden.formations (), depthProp, getEnd ());
 
-      // If diffusion leakages is included, initialize m_diffusionOverburdenGridMaps with 
+      // If diffusion leakages is included, initialize m_diffusionOverburdenGridMaps with
       // the necessary grid maps:
       // Optimization for May 2016 Release
       if (isDiffusionOn (m_migrator->performLegacyMigration ()) and !m_migrator->performLegacyMigration ())
@@ -1125,11 +1126,11 @@ namespace migration
          m_diffusionOverburdenGridMaps.setDiscontinuous (SurfaceGridMapContainer::DISCONTINUOUS_BRINEVISCOSITY, brineViscosityGridMaps);
       }
 
-      // Include the grid maps for seal failure. Seal failure is always on.  We need the grid maps 
-      // for permeability and the percentage maps for LithoType 1, 2 and 3.  We read permeability by 
-      // means of overburden_MPI::getFormationSurfaceGridMapss.  We can't use formation_MPI::surfaceTopPropertyMap, 
-      // because permeability is not a continuous property, so we must get the permeability from the 
-      // seal formation.  And at this moment in time, it is not clear what the seal formation is, 
+      // Include the grid maps for seal failure. Seal failure is always on.  We need the grid maps
+      // for permeability and the percentage maps for LithoType 1, 2 and 3.  We read permeability by
+      // means of overburden_MPI::getFormationSurfaceGridMapss.  We can't use formation_MPI::surfaceTopPropertyMap,
+      // because permeability is not a continuous property, so we must get the permeability from the
+      // seal formation.  And at this moment in time, it is not clear what the seal formation is,
       // so we read in all formations:
       vector<FormationSurfaceGridMaps> permeabilityGridMaps = overburden_MPI::getFormationSurfaceGridMaps (
          overburden.formations (), "Permeability", getEnd ());
@@ -1148,7 +1149,7 @@ namespace migration
       {
          if ((*f)->getBottomSurface()->getSnapshot()->getTime() < getEnd()->getTime())
             break;
-            
+
          // Create the following grid map only once:
          const GridMap* litho1PercentMap = (*f)->getLithoType1PercentageMap ();
          assert ((*f)->getLithoType1 () and litho1PercentMap);
@@ -1157,7 +1158,7 @@ namespace migration
 
          if ((*f)->getLithoType2 ())
          {
-            // Make sure (*f)->getLithoType2PercentageMap() is consistent with (*f)->getLithoType2(). 
+            // Make sure (*f)->getLithoType2PercentageMap() is consistent with (*f)->getLithoType2().
             // If (*f)->getLithoType2() exists, so does (*f)->getLithoType2PercentageMap():
             const GridMap* litho2PercentMap = (*f)->getLithoType2PercentageMap ();
             assert (litho2PercentMap);
@@ -1877,7 +1878,7 @@ namespace migration
       DerivedProperties::SurfacePropertyPtr theProperty = m_migrator->getPropertyManager ().getSurfaceProperty (property, snapshot,
                                                                                                                 (seaFormation ? seaFormation->getTopSurface () : 0));
 
-#ifdef DEBUG   
+#ifdef DEBUG
       if( GetRank() == 0 ) {
          if( theProperty ) {
             cout << "getSeaBottomProperty " << propertyName << " for " << seaFormation->getName() << " at " << snapshot->getTime () << " at " << seaFormation->getTopSurface ()->getName()  << endl;
@@ -2150,7 +2151,7 @@ namespace migration
       if (!m_migrator->performLegacyMigration() and (depthOffsetMap or thicknessMap))
       {
          LogHandler (LogHandler::WARNING_SEVERITY) << "Reservoir " << getName() << ": Offset and/or thickness maps for reservoirs cannot be used in non-legacy mode.\nThese inputs will be ignored in this run.";
-		  	  
+
          depthOffsetMap = nullptr;
          thicknessMap   = nullptr;
       }
@@ -2456,7 +2457,7 @@ namespace migration
       const string extensionString = ".HDF";
       Interface::MapWriter * mapWriter = m_projectHandle->getFactory ()->produceMapWriter ();
 
-      const string dirToOutput = m_projectHandle->getProjectName () + "_CauldronOutputDir/";
+      const string dirToOutput = m_projectHandle->getProjectName () + Utilities::Names::CauldronOutputDir + "/";
 
       // string outputFileName = projectHandle->getProjectName() + "_" + outputMapsNames[i] + string(ageString) + extensionString;
       string outputFileName = dirToOutput + formation->getName () + "_" + speciesName + "_" + aSnapshot->asString () + extensionString;
@@ -2703,7 +2704,7 @@ namespace migration
          if (!m_migrator->performLegacyMigration ())
          {
             if (!computeHydrocarbonWaterContactDepth () or
-                !computeHydrocarbonWaterTemperature () or 
+                !computeHydrocarbonWaterTemperature () or
                 !needToComputePasteurizationStatusFromScratch() or
                 !pasteurizationStatus() or
                 !setPasteurizationStatus())
@@ -2837,7 +2838,7 @@ namespace migration
 
       return succeded;
    };
-   
+
    bool Reservoir::needToComputePasteurizationStatusFromScratch()
    {
 	   RequestHandling::StartRequestHandling(m_migrator, "needToComputePasteurizationStatusFromScratch");
@@ -2908,7 +2909,7 @@ namespace migration
 	   RequestHandling::FinishRequestHandling();
 
 	   return succeded;
-   }; 
+   };
 
    double Reservoir::biodegradeCharges ()
    {
@@ -3586,7 +3587,7 @@ namespace migration
       unsigned int i;
       for (i = 0; i < maxNumberOfRequests; ++i)
       {
-         if (tpRequests[i].id >= 0) // globally valid id 
+         if (tpRequests[i].id >= 0) // globally valid id
          {
             if (GetRank () == 0)
             {
@@ -3610,7 +3611,7 @@ namespace migration
 
       for (i = 0; i < maxNumberOfRequests; ++i)
       {
-         if (tpRequests[i].id >= 0) // globally valid id 
+         if (tpRequests[i].id >= 0) // globally valid id
          {
             if (tpRequests[i].rank == GetRank ()) // locally available trap
             {

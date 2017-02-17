@@ -1,15 +1,15 @@
-//                                                                      
+//
 // Copyright (C) 2012-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file PropertyManagerImpl.C
-/// @brief This file keeps implementation for API to 
+/// @brief This file keeps implementation for API to
 
 // CMB API
 #include "PropertyManagerImpl.h"
@@ -36,7 +36,7 @@ PropertyManagerImpl::PropertyManagerImpl()
 }
 
 // Set project database. Reset all
-void PropertyManagerImpl::setDatabase( database::Database * db, const std::string & /*projName*/ )
+void PropertyManagerImpl::setDatabase( database::ProjectFileHandlerPtr db, const std::string & /*projName*/ )
 {
    m_db = db;
    m_fltTimeTable    = m_db->getTable( "FilterTimeIoTbl" );
@@ -59,7 +59,7 @@ ErrorHandler::ReturnCode PropertyManagerImpl::requestPropertyInSnapshots( const 
    for ( database::Table::iterator it = m_fltTimeTable->begin(); it != m_fltTimeTable->end(); ++it )
    {
       if ( database::getPropertyName( *it ) == propName )
-      { 
+      {
          if ( database::getModellingMode( *it ) == "3d" )
          {
             record3d = *it;
@@ -77,7 +77,7 @@ ErrorHandler::ReturnCode PropertyManagerImpl::requestPropertyInSnapshots( const 
    if ( record3d )
    {
       if ( database::getOutputOption( record3d ) == "None" ) // if save was not requested
-      { 
+      {
          if ( record1d && database::getOutputOption( record1d ) != "None" ) // special case if 1d is set and 3d isn't
          {
             database::setOutputOption( record3d, database::getOutputOption( record1d ) ); // copy from 1d
@@ -93,14 +93,14 @@ ErrorHandler::ReturnCode PropertyManagerImpl::requestPropertyInSnapshots( const 
    {
       record3d = m_fltTimeTable->createRecord();
       record1d = m_fltTimeTable->createRecord();
-      
+
       database::setPropertyName( record3d, propName );
       database::setPropertyName( record1d, propName );
-      
+
       database::setModellingMode( record3d, "3d" );
       database::setModellingMode( record1d, "1d" );
-      
-      
+
+
       database::setOutputOption( record3d, oo );
       database::setOutputOption( record1d, oo );
 
@@ -115,7 +115,7 @@ ErrorHandler::ReturnCode PropertyManagerImpl::copyResultsFiles( const std::strin
 {
    if ( errorCode() != NoError ) resetError();
 
-   try 
+   try
    {
       std::set<std::string> fileList;
 
@@ -149,16 +149,16 @@ ErrorHandler::ReturnCode PropertyManagerImpl::copyResultsFiles( const std::strin
       const std::string & oldProjectName = oldProjectPath.fileNameNoExtension();
       oldProjectPath.cutLast(); // cut project file name
       oldProjectPath << oldProjectName + Model::s_ResultsFolderSuffix;
-      
+
       ibs::FilePath newProjectPath( newProject );
       const std::string & newProjectName  = newProjectPath.fileNameNoExtension();
       newProjectPath.cutLast(); // cut project file name
       newProjectPath << newProjectName + Model::s_ResultsFolderSuffix;
 
       // create new folder for results files if it doesn't exist
-      if ( !newProjectPath.exists() ) ibs::FolderPath( newProjectPath.path() ).create(); 
+      if ( !newProjectPath.exists() ) ibs::FolderPath( newProjectPath.path() ).create();
 
-      if ( !oldProjectPath.exists() && !fileList.empty() ) 
+      if ( !oldProjectPath.exists() && !fileList.empty() )
       {
          throw Exception( IoError ) << "Copy results files failed: no such folder: " << oldProjectPath.path();
       }
@@ -171,21 +171,21 @@ ErrorHandler::ReturnCode PropertyManagerImpl::copyResultsFiles( const std::strin
          ibs::FilePath newResFile( newProjectPath.path() );
          newResFile << *it;
          if ( newResFile.exists() ) throw Exception( IoError ) << "Copy results files failed: file already exists: " << newResFile.path();
-         
+
          bool copied = true;
          // for Time_*.h5/*_Results files make only links
          if (      !(*it).compare( 0, 5,  "Time_", 0, 5 ) )
          {
             copied = copyFiles ? oldResFile.copyFile( newResFile.fullPath() ) : oldResFile.linkFile( newResFile.fullPath() );
-         } 
+         }
          else if ( !(*it).compare( 0, 25, "HydrostaticTemperature_Results", 0, 25 ) )
          {
             copied = copyFiles ? oldResFile.copyFile( newResFile.fullPath() ) : oldResFile.linkFile( newResFile.fullPath() );
-         } 
+         }
          else if ( !(*it).compare( 0, 25, "PressureAndTemperature_Results", 0, 25 ) )
          {
             copied = copyFiles ? oldResFile.copyFile( newResFile.fullPath() ) : oldResFile.linkFile( newResFile.fullPath() );
-         } 
+         }
          else
          {
             copied = oldResFile.copyFile( newResFile.fullPath() );
@@ -215,4 +215,3 @@ std::string PropertyManagerImpl::outputOptionForProperty( const std::string & pr
 }
 
 }
-

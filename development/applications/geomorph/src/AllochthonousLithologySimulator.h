@@ -1,6 +1,8 @@
 #ifndef __AllochthonousLithologySimulator_HH__
 #define __AllochthonousLithologySimulator_HH__
 
+#include "ProjectFileHandler.h"
+
 // Data access
 #include "Interface/Interface.h"
 #include "Interface/ObjectFactory.h"
@@ -10,11 +12,6 @@
 #include "AllochthonousLithologyDistribution.h"
 
 #include "hdf5.h"
-
-namespace database
-{
-   class Database;
-}
 
 using namespace DataAccess;
 using namespace DataAccess::Interface;
@@ -60,8 +57,8 @@ namespace AllochMod {
 
 
     /// Constructor
-    AllochthonousLithologySimulator (database::Database * database, const std::string & name, const std::string & accessMode, ObjectFactory* factory);
-	
+    AllochthonousLithologySimulator (database::ProjectFileHandlerPtr database, const std::string & name, const std::string & accessMode, ObjectFactory* factory);
+
     ~AllochthonousLithologySimulator (void);
 
     /// \brief Open the project file and return a pointed to the allochthonous lithology modelling simulator.
@@ -86,7 +83,7 @@ namespace AllochMod {
 
   protected :
 
-    /// 
+    ///
     void getAllochthonousLithologyDistributionList ( const Interface::AllochthonousLithology*     theAllochthonousLithology,
                                                            AllochthonousLithologyDistributionSequence& associatedLithologyDistributions );
   };

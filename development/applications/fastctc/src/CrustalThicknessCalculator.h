@@ -1,6 +1,8 @@
 #ifndef __CRUSTAL_THICKNESS_CALCULATOR__
 #define __CRUSTAL_THICKNESS_CALCULATOR__
 
+#include "ProjectFileHandler.h"
+
 #include "Interface/Interface.h"
 #include "Interface/ProjectHandle.h"
 #include "InterfaceInput.h"
@@ -23,7 +25,7 @@ class CrustalThicknessCalculator : public GeoPhysics::ProjectHandle {
 
 public :
    // Constructor / Destructor
-   CrustalThicknessCalculator( database::Database * database, const std::string & name, const std::string & accessMode, ObjectFactory* factory );
+   CrustalThicknessCalculator( database::ProjectFileHandlerPtr database, const std::string & name, const std::string & accessMode, ObjectFactory* factory );
 
    ~CrustalThicknessCalculator();
 
@@ -56,7 +58,7 @@ private :
 
    static string m_projectFileName;
    static string m_outputFileName;
-   int    m_outputOptions; 
+   int    m_outputOptions;
    bool   m_debug;
    bool   m_applySmoothing; // smooth the WLS map
 

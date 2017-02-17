@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 #include "SmectiteIlliteCalculator.h"
 #include "SmectiteIlliteSimulator.h"
 #include "SmectiteIlliteOutput.h"
@@ -24,6 +24,8 @@
 #include "cauldronschema.h"
 #include "cauldronschemafuncs.h"
 
+#include "FastcauldronSimulator.h"
+
 // utilities library
 #include "ConstantsNumerical.h"
 using Utilities::Numerical::CauldronNoDataValue;
@@ -34,10 +36,11 @@ SmectiteIlliteCalculator::SmectiteIlliteCalculator( AppCtx* Application_Context 
 m_Basin_Model(Application_Context)
 {
    database::Table * SmectiteIlliteKinIoTbl;
-   SmectiteIlliteKinIoTbl = m_Basin_Model->database->getTable ("SmectiteIlliteKinIoTbl");
+
+   SmectiteIlliteKinIoTbl = FastcauldronSimulator::getInstance ().getTable ( "SmectiteIlliteKinIoTbl" );
    assert(SmectiteIlliteKinIoTbl);
    database::Record * SmectiteIlliteKinIoTblRecord = * (SmectiteIlliteKinIoTbl->begin ());
- 
+
    const double & ActEnergy1 = database::getActEnergy1(SmectiteIlliteKinIoTblRecord);
    const double & FreqFactor1 = database::getFreqFactor1(SmectiteIlliteKinIoTblRecord);
    const double & ActEnergy2 = database::getActEnergy2(SmectiteIlliteKinIoTblRecord);
@@ -54,7 +57,7 @@ SmectiteIlliteCalculator::~SmectiteIlliteCalculator()
    delete m_SmectiteIlliteSimulator;
 };
 
-#undef __FUNCT__  
+#undef __FUNCT__
 #define __FUNCT__ "SmectiteIlliteCalculator::computeSmectiteIlliteIncrement"
 
 bool SmectiteIlliteCalculator::computeSmectiteIlliteIncrement( double time, double timeStep )
@@ -65,7 +68,7 @@ bool SmectiteIlliteCalculator::computeSmectiteIlliteIncrement( double time, doub
    Layer_Iterator Layers;
    Layers.Initialise_Iterator ( m_Basin_Model -> layers, Descending, Sediments_Only, Active_Layers_Only );
 
-   while ( ! Layers.Iteration_Is_Done () ) 
+   while ( ! Layers.Iteration_Is_Done () )
    {
       LayerProps_Ptr Current_Layer = Layers.Current_Layer ();
 
@@ -73,14 +76,14 @@ bool SmectiteIlliteCalculator::computeSmectiteIlliteIncrement( double time, doub
 
       PETSC_3D_Array layerTemperature ( Current_Layer -> layerDA, Current_Layer -> Current_Properties ( Basin_Modelling::Temperature ));
 
-      for (i = xs; i < xs+xm; i++) 
+      for (i = xs; i < xs+xm; i++)
       {
-         for (j = ys; j < ys+ym; j++) 
+         for (j = ys; j < ys+ym; j++)
          {
-            for (k = zs; k < zs+zm; k++) 
+            for (k = zs; k < zs+zm; k++)
             {
                Calibration::NodeInput currentInput( time,  layerTemperature( k, j, i ) );
-               m_SmectiteIlliteSimulator->advanceState(currentInput, Current_Layer->m_SmectiteIlliteState(i,j,k));      
+               m_SmectiteIlliteSimulator->advanceState(currentInput, Current_Layer->m_SmectiteIlliteState(i,j,k));
             }
          }
       }
@@ -91,7 +94,7 @@ bool SmectiteIlliteCalculator::computeSmectiteIlliteIncrement( double time, doub
 }
 
 
-#undef __FUNCT__  
+#undef __FUNCT__
 #define __FUNCT__ "SmectiteIlliteCalculator::computeSnapShotSmectiteIllite"
 
 bool SmectiteIlliteCalculator::computeSnapShotSmectiteIllite ( const double time, const Boolean2DArray& validNeedleSet )
@@ -102,7 +105,7 @@ bool SmectiteIlliteCalculator::computeSnapShotSmectiteIllite ( const double time
    Layer_Iterator Layers;
    Layers.Initialise_Iterator ( m_Basin_Model -> layers, Descending, Sediments_Only, Active_Layers_Only );
 
-   while ( ! Layers.Iteration_Is_Done () ) 
+   while ( ! Layers.Iteration_Is_Done () )
    {
       LayerProps_Ptr Current_Layer = Layers.Current_Layer ();
 
@@ -115,18 +118,18 @@ bool SmectiteIlliteCalculator::computeSnapShotSmectiteIllite ( const double time
 
       double ***snapShotSmectiteIllite;
       DMDAVecGetArray(Current_Layer ->layerDA, Current_Layer ->m_IlliteFraction, &snapShotSmectiteIllite);
-    
-      for (i = xs; i < xs+xm; i++) 
+
+      for (i = xs; i < xs+xm; i++)
       {
-         for (j = ys; j < ys+ym; j++) 
+         for (j = ys; j < ys+ym; j++)
          {
             if ( !validNeedleSet(i,j) ) continue;
 
-            for (k = zs; k < zs+zm; k++) 
+            for (k = zs; k < zs+zm; k++)
             {
                Calibration::NodeInput currentInput( time,  layerTemperature( k, j, i ) );
-               m_SmectiteIlliteSimulator->advanceState(currentInput, Current_Layer->m_SmectiteIlliteState(i,j,k));//need to opt for ret: const T & instead of T 
-          
+               m_SmectiteIlliteSimulator->advanceState(currentInput, Current_Layer->m_SmectiteIlliteState(i,j,k));//need to opt for ret: const T & instead of T
+
                Calibration::SmectiteIlliteOutput currentOutput(time);
                m_SmectiteIlliteSimulator->computeOutput(Current_Layer->m_SmectiteIlliteState(i,j,k), currentOutput);
                snapShotSmectiteIllite[k][j][i] = currentOutput.getIlliteTransfRatio();
@@ -138,7 +141,6 @@ bool SmectiteIlliteCalculator::computeSnapShotSmectiteIllite ( const double time
 
       Layers++;
    }
- 
+
    return true;
 }
-

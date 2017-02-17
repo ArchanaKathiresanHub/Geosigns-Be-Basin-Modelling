@@ -4,6 +4,9 @@
 #include <string>
 #include <vector>
 #include "petsc.h"
+
+#include "ProjectFileHandler.h"
+
 namespace database
 {
    class Database;
@@ -21,7 +24,7 @@ namespace GenexSimulation
    const string GenexActivityName = "Genex5";
 
    //! GenexSimulator Controls the execution of Generation and Expulsion simulation.
-   /*! 
+   /*!
       Derives from Interface::ProjectHandle
    */
    class GenexSimulator : public GeoPhysics::ProjectHandle
@@ -33,8 +36,8 @@ namespace GenexSimulation
          \param name the name of the file
          \param accessMode read or write
       */
-      GenexSimulator (database::Database * database, const std::string & name, const std::string & accessMode, DataAccess::Interface::ObjectFactory* objectFactory);
-      
+      GenexSimulator (database::ProjectFileHandlerPtr database, const std::string & name, const std::string & accessMode, DataAccess::Interface::ObjectFactory* objectFactory);
+
       static GenexSimulator *CreateFrom (const std::string & inputFileName, DataAccess::Interface::ObjectFactory* objectFactory);
 
       virtual ~GenexSimulator (void);
@@ -52,10 +55,10 @@ namespace GenexSimulation
       bool mergeOutputFiles ();
    protected:
 
-      /// Sets the requested output properties according to Filter Time IO and fastmig requirements 
+      /// Sets the requested output properties according to Filter Time IO and fastmig requirements
       void setRequestedOutputProperties();
 
-      /// Sets the requested output properties related to Species output 
+      /// Sets the requested output properties related to Species output
       void setRequestedSpeciesOutputProperties();
       //! Registers the full set of available output properties
       /*!
@@ -83,6 +86,4 @@ namespace GenexSimulation
 
 }
 
-#endif 
-
-
+#endif

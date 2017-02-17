@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -38,7 +38,7 @@ using namespace Interface;
 
 const std::string BasementFormation::HomogeneousMixtureString = "Homogeneous";
 
-BasementFormation::BasementFormation (ProjectHandle * projectHandle, database::Record* record, const std::string& formationName, const std::string& lithologyName ) : 
+BasementFormation::BasementFormation (ProjectHandle * projectHandle, database::Record* record, const std::string& formationName, const std::string& lithologyName ) :
    Formation (projectHandle, record), m_formationName ( formationName ), m_lithologyName ( lithologyName )
 {
    m_mangledName = utilities::mangle ( m_formationName );
@@ -78,7 +78,7 @@ const LithoType * BasementFormation::getLithoType1 (void) const {
    if (!m_lithoType1)
       m_lithoType1 = (LithoType const *) m_projectHandle->findLithoType ( m_lithologyName );
    return m_lithoType1;
-  
+
 }
 
 const GridMap * BasementFormation::getLithoType1PercentageMap (void) const
@@ -195,6 +195,10 @@ const std::string& BasementFormation::getMixModelStr (void) const {
 const FluidType* BasementFormation::getFluidType (void) const
 {
    return 0;
+}
+
+unsigned int BasementFormation::getElementRefinement () const {
+   return 1;
 }
 
 float BasementFormation::getLayeringIndex(void) const {
