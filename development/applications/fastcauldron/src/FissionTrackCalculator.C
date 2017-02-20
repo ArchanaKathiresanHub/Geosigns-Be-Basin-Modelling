@@ -49,54 +49,54 @@ m_Basin_Model(Application_Context),m_theFtAnalysis(0)
       m_theFtAnalysis = new FtAnalysis;
 
       //Populate m_theFtAnalysis with project file input
-      database::Table * FtSampleIoTbl = 0;
-      FtSampleIoTbl = FastcauldronSimulator::getInstance ().getTable ( "FtSampleIoTbl" );
-      assert(FtSampleIoTbl);
+      database::Table * ftSampleIoTbl = 0;
+      ftSampleIoTbl = FastcauldronSimulator::getInstance ().getTable ( "FtSampleIoTbl" );
+      assert(ftSampleIoTbl);
 
-      for (database::Table::iterator tblIter = FtSampleIoTbl->begin (), tblIterEnd = FtSampleIoTbl->end ();  tblIter != tblIterEnd; ++tblIter)
+      for (database::Table::iterator tblIter = ftSampleIoTbl->begin (), tblIterEnd = ftSampleIoTbl->end ();  tblIter != tblIterEnd; ++tblIter)
       {
-         database::Record * FtSampleIoTblRecord = * tblIter;
-         assert(FtSampleIoTblRecord);
-         const string & sampleId = database::getFtSampleId(FtSampleIoTblRecord);
-         const double & zeta = database::getFtZeta(FtSampleIoTblRecord);
-         const double & UstglTrackDensity = database::getFtUstglTrackDensity(FtSampleIoTblRecord);
+         database::Record * ftSampleIoTblRecord = * tblIter;
+         assert(ftSampleIoTblRecord);
+         const string & sampleId = database::getFtSampleId(ftSampleIoTblRecord);
+         const double & zeta = database::getFtZeta(ftSampleIoTblRecord);
+         const double & UstglTrackDensity = database::getFtUstglTrackDensity(ftSampleIoTblRecord);
 
          m_theFtAnalysis->addSample(sampleId, zeta, UstglTrackDensity);
 
-         const double & depthIndex = database::getDepthIndex(FtSampleIoTblRecord);
+         const double & depthIndex = database::getDepthIndex(ftSampleIoTblRecord);
 
          m_sampleTrackingData.insert(std::make_pair(sampleId, new SampleTrackingData(depthIndex, "", 0, 0, 0.0, 0.0, 0, 0, 0.0 ) ) );
       }
 
-      database::Table * FtGrainIoTbl = 0;
-      FtGrainIoTbl = FastcauldronSimulator::getInstance ().getTable ( "FtGrainIoTbl" );
-      assert(FtGrainIoTbl);
+      database::Table * ftGrainIoTbl = 0;
+      ftGrainIoTbl = FastcauldronSimulator::getInstance ().getTable ( "FtGrainIoTbl" );
+      assert(ftGrainIoTbl);
 
-      for (database::Table::iterator tblIter = FtGrainIoTbl->begin (), tblIterEnd = FtGrainIoTbl->end ();  tblIter != tblIterEnd; ++tblIter)
+      for (database::Table::iterator tblIter = ftGrainIoTbl->begin (), tblIterEnd = ftGrainIoTbl->end ();  tblIter != tblIterEnd; ++tblIter)
       {
-         database::Record * FtGrainIoTblRecord = * tblIter;
-         assert(FtGrainIoTblRecord);
-         const string & sampleId       = database::getFtSampleId(FtGrainIoTblRecord);
-         const int & grainId           = database::getFtGrainId(FtGrainIoTblRecord);
-         const int & nSpontTracks      = database::getFtSpontTrackNo(FtGrainIoTblRecord);
-         const int & nInducedTracks    = database::getFtInducedTrackNo(FtGrainIoTblRecord);
-         const double & ClWeightPerc = database::getFtClWeightPerc(FtGrainIoTblRecord);
+         database::Record * ftGrainIoTblRecord = * tblIter;
+         assert(ftGrainIoTblRecord);
+         const string & sampleId       = database::getFtSampleId(ftGrainIoTblRecord);
+         const int & grainId           = database::getFtGrainId(ftGrainIoTblRecord);
+         const int & nSpontTracks      = database::getFtSpontTrackNo(ftGrainIoTblRecord);
+         const int & nInducedTracks    = database::getFtInducedTrackNo(ftGrainIoTblRecord);
+         const double & ClWeightPerc = database::getFtClWeightPerc(ftGrainIoTblRecord);
 
          m_theFtAnalysis->addGrain(sampleId, grainId, nSpontTracks, nInducedTracks, ClWeightPerc);
       }
 
-      database::Table * FtLengthIoTbl = 0;
+      database::Table * ftLengthIoTbl = 0;
 
-      FtLengthIoTbl = FastcauldronSimulator::getInstance ().getTable ( "FtLengthIoTbl" );
-      assert(FtLengthIoTbl);
+      ftLengthIoTbl = FastcauldronSimulator::getInstance ().getTable ( "FtLengthIoTbl" );
+      assert(ftLengthIoTbl);
 
-      for (database::Table::iterator tblIter = FtLengthIoTbl->begin (), tblIterEnd = FtLengthIoTbl->end ();  tblIter != tblIterEnd; ++tblIter)
+      for (database::Table::iterator tblIter = ftLengthIoTbl->begin (), tblIterEnd = ftLengthIoTbl->end ();  tblIter != tblIterEnd; ++tblIter)
       {
-         database::Record * FtLengthIoTblRecord = * tblIter;
-         assert(FtLengthIoTblRecord);
-         const string & sampleId      = database::getFtSampleId(FtLengthIoTblRecord);
-         const int & grainId          = database::getFtGrainId(FtLengthIoTblRecord);
-         const double & length        = database::getFtLength(FtLengthIoTblRecord);
+         database::Record * ftLengthIoTblRecord = * tblIter;
+         assert(ftLengthIoTblRecord);
+         const string & sampleId      = database::getFtSampleId(ftLengthIoTblRecord);
+         const int & grainId          = database::getFtGrainId(ftLengthIoTblRecord);
+         const double & length        = database::getFtLength(ftLengthIoTblRecord);
 
          m_theFtAnalysis->addTrackLength(sampleId, grainId, length);
       }

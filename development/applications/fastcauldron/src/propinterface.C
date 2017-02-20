@@ -4637,25 +4637,3 @@ bool AppCtx::calcBasementProperties ( const double Current_Time ) {
 }
 
 //------------------------------------------------------------//
-/*
-bool AppCtx::addTemperatureIsoIoTbl( const double Age,
-                                     const double temperature,
-                                     const double depth )
-{
-
-   database::Table * TemperatureIsoIoTbl;
-   TemperatureIsoIoTbl = FastcauldronSimulator::getInstance ().getTable ("TemperatureIsoIoTbl");
-   Record *record = TemperatureIsoIoTbl->createRecord ();
-
-   deleteTimeIORecord ( propertyName, time, surfaceName, formationName );
-
-   setAge (record, Age);
-   setContourValue (record, temperature);
-   setSum (record, depth);
-   setNP (record, 1);
-
-   return true;
-}
-*/
-
-//------------------------------------------------------------//

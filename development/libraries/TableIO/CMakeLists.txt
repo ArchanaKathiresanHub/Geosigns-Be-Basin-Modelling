@@ -83,16 +83,6 @@ install(TARGETS TableIO
 	ARCHIVE DESTINATION lib
 )
 
-add_gtest( NAME TableIO::DataSchemaTest
-           SOURCES test/DataSchemaTest.cpp
-           LIBRARIES TableIO utilities
-)
-
-add_gtest( NAME TableIO::DataBaseTest
-           SOURCES test/DataBaseTest.cpp
-           LIBRARIES TableIO utilities
-)
-
 configure_file(
       ${CMAKE_CURRENT_SOURCE_DIR}/test/Reference.project3d
       ${CMAKE_CURRENT_BINARY_DIR}
@@ -103,11 +93,23 @@ configure_file(
       ${CMAKE_CURRENT_BINARY_DIR}
       COPYONLY
 )
+
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/ReferenceWithOutput_CauldronOutputDir)
+
 configure_file(
       ${CMAKE_CURRENT_SOURCE_DIR}/test/ReferenceWithOutput_CauldronOutputDir/Output.iotables3d
       ${CMAKE_CURRENT_BINARY_DIR}/ReferenceWithOutput_CauldronOutputDir
       COPYONLY
+)
+
+add_gtest( NAME TableIO::DataSchemaTest
+           SOURCES test/DataSchemaTest.cpp
+           LIBRARIES TableIO utilities
+)
+
+add_gtest( NAME TableIO::DataBaseTest
+           SOURCES test/DataBaseTest.cpp
+           LIBRARIES TableIO utilities
 )
 
 add_gtest( NAME TableIO::ProjectFileHandlerTest

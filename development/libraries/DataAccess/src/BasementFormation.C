@@ -198,7 +198,7 @@ const FluidType* BasementFormation::getFluidType (void) const
 }
 
 unsigned int BasementFormation::getElementRefinement () const {
-   return 1;
+   return DefaultBasementElementRefinement;
 }
 
 float BasementFormation::getLayeringIndex(void) const {

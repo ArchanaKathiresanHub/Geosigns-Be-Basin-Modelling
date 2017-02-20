@@ -164,7 +164,7 @@ void database::ProjectFileHandler::loadOutputTables () {
       std::string outputDirectory = stripExtension ( m_inputDataBase->getFileName ()) + Names::CauldronOutputDir;
       std::string fullFileName = outputDirectory + "/" + outputTableFileName;
       database::DataSchema * outputSchema = new database::DataSchema;
-      bool tableHasBeeAdded = false;
+      bool tableHasBeenAdded = false;
 
       for ( size_t i = 0; i < outputTablesTbl->size (); ++i ) {
          record = outputTablesTbl->getRecord ( i );
@@ -179,14 +179,14 @@ void database::ProjectFileHandler::loadOutputTables () {
             // output tables file so copying of the data here is not necessary.
             outputSchema->addTableDefinition ( tableDefinition.deepCopy ());
             m_inputDataBase->deleteTable ( tableDefinition.name ());
-            tableHasBeeAdded = true;
+            tableHasBeenAdded = true;
          } else {
             LogHandler ( LogHandler::ERROR_SEVERITY ) << "(" << __FUNCTION__ << ") Cannot find table name " << tableName;
          }
 
       }
 
-      if ( tableHasBeeAdded ) {
+      if ( tableHasBeenAdded ) {
 
          if ( boost::filesystem::exists ( outputDirectory ) and
               boost::filesystem::exists ( fullFileName )) {
@@ -208,7 +208,7 @@ void database::ProjectFileHandler::loadOutputTables () {
 }
 
 
-database::Table* database::ProjectFileHandler::getTable ( const std::string& tableName ) {
+database::Table* database::ProjectFileHandler::getTable ( const std::string& tableName ) const {
 
    database::Table* table = m_inputDataBase->getTable ( tableName );
 

@@ -712,12 +712,12 @@ std::string Model::ModelImpl::compareProject( Model::ModelImpl * mdl
                                             , double relTol
                                             )
 {
-   if ( !m_projHandle.get()      || m_projHandle->getProjectFileHandler () == nullptr )
+   if ( m_projHandle.get() == nullptr || m_projHandle->getProjectFileHandler () == nullptr )
    {
       throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Project " << m_projFileName      << " not loaded";
    }
 
-   if ( !mdl->m_projHandle.get() || m_projHandle->getProjectFileHandler () == nullptr )
+   if ( mdl->m_projHandle.get() == nullptr || m_projHandle->getProjectFileHandler () == nullptr )
    {
       throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Project " << mdl->m_projFileName << " not loaded";
    }
@@ -987,7 +987,7 @@ std::vector<std::string> Model::ModelImpl::tablesList()
 {
    std::vector<std::string> ret;
 
-   if ( !m_projHandle.get() || m_projHandle->getProjectFileHandler () == nullptr )
+   if ( m_projHandle.get() == nullptr || m_projHandle->getProjectFileHandler () == nullptr )
    {
       throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Project " << m_projFileName << " not loaded";
    }

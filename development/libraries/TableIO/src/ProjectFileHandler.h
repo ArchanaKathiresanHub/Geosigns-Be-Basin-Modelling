@@ -73,7 +73,7 @@ namespace database {
       ///
       /// A nullptr will be returned if the table cannot be found
       /// in either the input or output databases.
-      database::Table* getTable ( const std::string& tableName );
+      database::Table* getTable ( const std::string& tableName ) const;
 
       /// \brief Set a table as an output table.
       ///

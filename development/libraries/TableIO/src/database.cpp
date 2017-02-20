@@ -86,7 +86,7 @@ namespace database {
       m_header = "";
    }
 
-   Table *Database::getTable (const string & name)
+   Table *Database::getTable (const string & name) const
    {
       int index = m_dataSchema.getIndex (name);
 
@@ -138,7 +138,7 @@ namespace database {
    }
 
 
-   Table *Database::getTable (int index)
+   Table *Database::getTable (int index) const
    {
       if (index == -1)
          return nullptr;

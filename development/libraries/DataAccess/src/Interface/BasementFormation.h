@@ -145,6 +145,9 @@ namespace DataAccess
 
       protected :
 
+         /// \brief The element refinement for basement layers.
+         static const int DefaultBasementElementRefinement = 1;
+
          static const std::string HomogeneousMixtureString;
 
          const std::string m_formationName;

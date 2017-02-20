@@ -257,7 +257,11 @@ void ProjectHandle::deletePersistentTraps (void)
 
 void ProjectHandle::saveProject (const string & fileName)
 {
-   getProjectFileHandler ()->saveToFile (fileName);
+
+   if ( getProjectFileHandler () != nullptr ) {
+      getProjectFileHandler ()->saveToFile (fileName);
+   }
+
 }
 
 

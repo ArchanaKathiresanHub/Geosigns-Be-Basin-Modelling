@@ -373,9 +373,9 @@ namespace database
       bool hasTable ( const Table* table ) const;
 
       /// Get the Table with the specified name.
-      Table *getTable (const std::string & name);
+      Table *getTable (const std::string & name) const;
       /// Get the Table at the specified index.
-      Table *getTable (int index);
+      Table *getTable (int index) const;
 
       /// Clear the table with the specified name.
       bool clearTable (const std::string & name, bool deleteRecords = true);
