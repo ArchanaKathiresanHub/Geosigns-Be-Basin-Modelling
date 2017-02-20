@@ -228,13 +228,11 @@ TEST(Project, AddFormation)
 	const string version("version");
 	ModellingMode mode = MODE1D;
 	
-	size_t kStart = 1;
-	size_t kEnd = 2;
+	int kStart = 1;
+	int kEnd = 2;
 	const string formationName("formation");
-	bool isSourceRock = true;
-	bool isMobileLayer = true;
 
-	std::shared_ptr<const Formation> formation(new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer));
+	std::shared_ptr<Formation> formation(new Formation(kStart, kEnd, formationName));
 	std::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2, 1));
 	const FormationList& formationList = project->getFormations();
 	EXPECT_EQ(formationList.size(), 0);
@@ -250,13 +248,11 @@ TEST(Project, AddFormation_HandleEmptyFormation)
 	const string version("version");
 	ModellingMode mode = MODE1D;
 	
-	size_t kStart = 1;
-	size_t kEnd = 2;
+	int kStart = 1;
+	int kEnd = 2;
 	const string formationName("formation");
-	bool isSourceRock = true;
-	bool isMobileLayer = true;
 
-	std::shared_ptr<const Formation> formation;
+	std::shared_ptr<Formation> formation;
 	std::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2, 1));
 	const FormationList& formationList = project->getFormations();
 
@@ -283,13 +279,11 @@ TEST(Project, AddFormation_HandleDuplicateFormation)
 	const string version("version");
 	ModellingMode mode = MODE1D;
 	
-	size_t kStart = 1;
-	size_t kEnd = 2;
+	int kStart = 1;
+	int kEnd = 2;
 	const string formationName("formation");
-	bool isSourceRock = true;
-	bool isMobileLayer = true;
 
-	std::shared_ptr<const Formation> formation(new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer));
+	std::shared_ptr<Formation> formation(new Formation(kStart, kEnd, formationName));
 	std::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2, 1));
 	const FormationList& formationList = project->getFormations();
 	project->addFormation(formation);
@@ -317,13 +311,11 @@ TEST(Project, FindFormation)
 	const string version("version");
 	ModellingMode mode = MODE1D;
 	
-	size_t kStart = 1;
-	size_t kEnd = 2;
+	int kStart = 1;
+	int kEnd = 2;
 	const string formationName("formation");
-	bool isSourceRock = true;
-	bool isMobileLayer = true;
 
-	std::shared_ptr<const Formation> formation(new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer));
+	std::shared_ptr<Formation> formation(new Formation(kStart, kEnd, formationName));
 	std::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2, 1));
 	project->addFormation(formation);
 
@@ -339,14 +331,12 @@ TEST(Project, AddReservoir)
 	const string version("version");
 	ModellingMode mode = MODE1D;
 	
-	size_t kStart = 1;
-	size_t kEnd = 2;
+	int kStart = 1;
+	int kEnd = 2;
 	const string formationName("formation");
-	bool isSourceRock = true;
-	bool isMobileLayer = true;
 	const string reservoirName("reservoir");
 
-	std::shared_ptr<const Formation> formation(new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer));
+	std::shared_ptr<Formation> formation(new Formation(kStart, kEnd, formationName));
 	std::shared_ptr<const Reservoir> reservoir(new Reservoir(reservoirName, formation));
 	std::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2, 1));
 	const ReservoirList& reservoirList = project->getReservoirs();
@@ -392,14 +382,12 @@ TEST(Project, AddReservoir_HandleDuplicateReservoir)
 	const string version("version");
 	ModellingMode mode = MODE1D;
 	
-	size_t kStart = 1;
-	size_t kEnd = 2;
+	int kStart = 1;
+	int kEnd = 2;
 	const string formationName("formation");
-	bool isSourceRock = true;
-	bool isMobileLayer = true;
 	const string reservoirName("reservoir");
 
-	std::shared_ptr<const Formation> formation(new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer));
+	std::shared_ptr<const Formation> formation(new Formation(kStart, kEnd, formationName));
 	std::shared_ptr<const Reservoir> reservoir(new Reservoir(reservoirName, formation));
 	std::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2, 1));
 	const ReservoirList& reservoirList = project->getReservoirs();
@@ -428,14 +416,12 @@ TEST(Project, FindReservoir)
 	const string version("version");
 	ModellingMode mode = MODE1D;
 	
-	size_t kStart = 1;
-	size_t kEnd = 2;
+	int kStart = 1;
+	int kEnd = 2;
 	const string formationName("formation");
-	bool isSourceRock = true;
-	bool isMobileLayer = true;
 	const string reservoirName("reservoir");
 
-	std::shared_ptr<const Formation> formation(new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer));
+	std::shared_ptr<const Formation> formation(new Formation(kStart, kEnd, formationName));
 	std::shared_ptr<const Reservoir> reservoir(new Reservoir(reservoirName, formation));
 	std::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2, 1));
 	project->addReservoir(reservoir);
@@ -568,12 +554,10 @@ TEST(SnapShot, Add)
 
 	// create a formation volume to add to the snapshot
 	std::shared_ptr<const Geometry3D> geometry3D(new Geometry3D(2, 2, 2, 0, 100, 100, 0, 0));
-	size_t kStart = 1;
-	size_t kEnd = 2;
+	int kStart = 1;
+	int kEnd = 2;
 	const string formationName("formation");
-	bool isSourceRock = true;
-	bool isMobileLayer = true;
-	std::shared_ptr<const Formation> formation(new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer));
+	std::shared_ptr<const Formation> formation(new Formation(kStart, kEnd, formationName));
 	std::shared_ptr<Volume> volume(new Volume(Sediment));
 	FormationVolume formationVolume = FormationVolume(formation, volume);
 	snapShot->addFormationVolume(formationVolume);
@@ -673,12 +657,10 @@ TEST(SnapShot, AddFormationVolume_HandleDuplicateVolume)
 	std::shared_ptr<SnapShot> snapShot(new SnapShot(0, SYSTEM, false));
 	const FormationVolumeList& formVolumes = snapShot->getFormationVolumeList();
 	std::shared_ptr<const Geometry3D> geometry3D(new Geometry3D(2, 2, 2, 0, 100, 100, 0, 0));
-	size_t kStart = 1;
-	size_t kEnd = 2;
+	int kStart = 1;
+	int kEnd = 2;
 	const string formationName("formation");
-	bool isSourceRock = true;
-	bool isMobileLayer = true;
-	std::shared_ptr<const Formation> formation(new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer));
+	std::shared_ptr<Formation> formation(new Formation(kStart, kEnd, formationName));
 	std::shared_ptr<Volume> volume(new Volume(Sediment));
 	FormationVolume formationVolume = FormationVolume(formation, volume);
 	snapShot->addFormationVolume(formationVolume);
@@ -752,30 +734,24 @@ TEST(SnapShot, AddTrapper_HandleDuplicateTrapper)
 
 TEST(Formation, Create)
 {
-	size_t kStart = 1;
-	size_t kEnd = 2;
+	int kStart = 1;
+	int kEnd = 2;
 	const string formationName("formation");
-	bool isSourceRock = true;
-	bool isMobileLayer = true;
-	std::shared_ptr<const Formation> formation(new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer));
-	unsigned int start, end;
+	std::shared_ptr<Formation> formation(new Formation(kStart, kEnd, formationName));
+	int start, end;
 	formation->getK_Range(start, end);
 	EXPECT_EQ(start, kStart);
 	EXPECT_EQ(end, kEnd);
 	EXPECT_EQ(formation->getName().c_str(), formationName);
-	EXPECT_EQ(formation->isMobileLayer(), isMobileLayer);
-	EXPECT_EQ(formation->isSourceRock(), isSourceRock);
 }
 
 TEST(Formation, Create_HandleEmptyName)
 {
-	size_t kStart = 1;
-	size_t kEnd = 2;
+	int kStart = 1;
+	int kEnd = 2;
 	const string formationName;
-	bool isSourceRock = true;
-	bool isMobileLayer = true;
 	try{
-		std::shared_ptr<const Formation> formation(new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer));
+		std::shared_ptr<const Formation> formation(new Formation(kStart, kEnd, formationName));
 		FAIL();
 	}
 	catch (CauldronIOException const & err)
@@ -790,16 +766,13 @@ TEST(Formation, Create_HandleEmptyName)
 
 TEST(Formation, OperatorEquals)
 {
-	size_t kStart = 1;
-	size_t kEnd = 2;
+	int kStart = 1;
+	int kEnd = 2;
 	const string formationName("formation");
-	bool isSourceRock = true;
-	bool isMobileLayer = true;
-	std::shared_ptr<const Formation> formation1(new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer));
-	std::shared_ptr<const Formation> formation2(new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer));
+	std::shared_ptr<const Formation> formation1(new Formation(kStart, kEnd, formationName));
+	std::shared_ptr<const Formation> formation2(new Formation(kStart, kEnd, formationName));
 	bool isEqual = *formation1 == *formation2;
 	EXPECT_EQ(isEqual, true);
-
 }
 
 TEST(Surface, Create)
@@ -815,12 +788,10 @@ TEST(Surface, SetFormation)
 {
 	const string surfaceName = "waterbottom";
 	std::shared_ptr<Surface> surface(new Surface(surfaceName, Sediment));
-	size_t kStart = 1;
-	size_t kEnd = 2;
+	int kStart = 1;
+	int kEnd = 2;
 	const string formationName("formation");
-	bool isSourceRock = true;
-	bool isMobileLayer = true;
-	std::shared_ptr<const Formation> formation(new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer));
+	std::shared_ptr<Formation> formation(new Formation(kStart, kEnd, formationName));
 	surface->setFormation(formation, true);
 	EXPECT_STREQ(surface->getTopFormation()->getName().c_str(), formationName.c_str());
 
@@ -925,5 +896,135 @@ TEST(Trapper, Create)
 
 	EXPECT_EQ(trapper->getID(), ID);
 	EXPECT_EQ(trapper->getPersistentID(), persistentID);
+
+}
+
+TEST(Formation, Properties)
+{
+	Formation formation(-1, -1, "Bogus");
+
+	EXPECT_FALSE(formation.isDepthRangeDefined());
+
+	int kStart = 0, kEnd = 10;
+	formation.updateK_range(kStart, kEnd);
+
+	EXPECT_TRUE(formation.isDepthRangeDefined());
+	int kStartOut, kEndOut;
+	formation.getK_Range(kStartOut, kEndOut);
+
+	EXPECT_EQ(kStart, kStartOut);
+	EXPECT_EQ(kEnd, kEndOut);
+
+	// Test some defaults
+	EXPECT_FALSE(formation.hasAllochthonousLithology());
+	EXPECT_FALSE(formation.hasChemicalCompaction());
+	EXPECT_FALSE(formation.isMobileLayer());
+	EXPECT_FALSE(formation.hasThicknessMap());
+	EXPECT_FALSE(formation.hasConstrainedOverpressure());
+	EXPECT_FALSE(formation.hasSourceRockMixingHIMap());
+	EXPECT_FALSE(formation.hasLithoType1PercentageMap());
+	EXPECT_FALSE(formation.hasLithoType2PercentageMap());
+	EXPECT_FALSE(formation.hasLithoType3PercentageMap());
+	EXPECT_FALSE(formation.isSourceRock());
+	EXPECT_FALSE(formation.isIgneousIntrusion());
+	EXPECT_FALSE(formation.getEnableSourceRockMixing());
+
+	formation.setAllochthonousLithology(true);
+	formation.setEnableSourceRockMixing(true);
+	formation.setIsMobileLayer(true);
+	formation.setChemicalCompaction(true);
+	formation.setConstrainedOverpressure(true);
+	formation.setIgneousIntrusion(true);
+
+	EXPECT_TRUE(formation.hasAllochthonousLithology());
+	EXPECT_TRUE(formation.hasConstrainedOverpressure());
+	EXPECT_TRUE(formation.hasChemicalCompaction());
+	EXPECT_TRUE(formation.isMobileLayer());
+	EXPECT_TRUE(formation.isIgneousIntrusion());
+	EXPECT_TRUE(formation.getEnableSourceRockMixing());
+
+	// Assign some maps
+	std::shared_ptr<Geometry2D> geometry(new Geometry2D(2, 2, 0.5, 0.5, 0, 0, false));
+	std::shared_ptr<MapNative> map(new MapNative(geometry));
+	map->setConstantValue(0.5);
+
+	std::shared_ptr<const Property> propertyHI(new Property("HI", "username", "cauldronname", "unit", FormationProperty, Surface2DProperty));
+	std::shared_ptr<const Property> propertyThickness(new Property("Thickness", "username", "cauldronname", "unit", FormationProperty, Surface2DProperty));
+	std::shared_ptr<const Property> propertyLitho1(new Property("Litho1", "username", "cauldronname", "unit", FormationProperty, Surface2DProperty));
+	std::shared_ptr<const Property> propertyLitho2(new Property("Litho2", "username", "cauldronname", "unit", FormationProperty, Surface2DProperty));
+	std::shared_ptr<const Property> propertyLitho3(new Property("Litho3", "username", "cauldronname", "unit", FormationProperty, Surface2DProperty));
+
+	PropertySurfaceData propSurfDataHI(propertyHI, map);
+	PropertySurfaceData propSurfDataThickness(propertyThickness, map);
+	PropertySurfaceData propSurfDataLitho1(propertyLitho1, map);
+	PropertySurfaceData propSurfDataLitho2(propertyLitho2, map);
+	PropertySurfaceData propSurfDataLitho3(propertyLitho3, map);
+
+	formation.setSourceRockMixingHIMap(propSurfDataHI);
+	formation.setThicknessMap(propSurfDataThickness);
+	formation.setLithoType1PercentageMap(propSurfDataLitho1);
+	formation.setLithoType2PercentageMap(propSurfDataLitho2);
+	formation.setLithoType3PercentageMap(propSurfDataLitho3);
+
+	EXPECT_TRUE(formation.hasLithoType1PercentageMap());
+	EXPECT_TRUE(formation.hasLithoType2PercentageMap());
+	EXPECT_TRUE(formation.hasLithoType3PercentageMap());
+	EXPECT_TRUE(formation.hasThicknessMap());
+	EXPECT_TRUE(formation.hasSourceRockMixingHIMap());
+
+	// Test some strings
+	const string sr1name("SR1");
+	const string sr2name("SR2");
+	const string fluid("Fluid");
+	const string lithotype1("litho1");
+	const string lithotype2("litho2");
+	const string lithotype3("litho3");
+	const string mixingModel("mixing");
+	const string allocht("allocht");
+
+	EXPECT_EQ(formation.getSourceRock1Name().length(), 0);
+	EXPECT_EQ(formation.getSourceRock2Name().length(), 0);
+	EXPECT_EQ(formation.getFluidType().length(), 0);
+	EXPECT_EQ(formation.getLithoType1Name().length(), 0);
+	EXPECT_EQ(formation.getLithoType2Name().length(), 0);
+	EXPECT_EQ(formation.getLithoType3Name().length(), 0);
+	EXPECT_EQ(formation.getMixingModel().length(), 0);
+	EXPECT_EQ(formation.getAllochthonousLithologyName().length(), 0);
+
+	formation.setSourceRock1Name(sr1name);
+	formation.setSourceRock2Name(sr2name);
+	formation.setFluidType(fluid);
+	formation.setLithoType1Name(lithotype1);
+	formation.setLithoType2Name(lithotype2);
+	formation.setLithoType3Name(lithotype3);
+	formation.setMixingModel(mixingModel);
+	formation.setAllochthonousLithologyName(allocht);
+
+	EXPECT_EQ(formation.getSourceRock1Name(), sr1name);
+	EXPECT_EQ(formation.getSourceRock2Name(), sr2name);
+	EXPECT_EQ(formation.getFluidType(), fluid);
+	EXPECT_EQ(formation.getLithoType1Name(), lithotype1);
+	EXPECT_EQ(formation.getLithoType2Name(), lithotype2);
+	EXPECT_EQ(formation.getLithoType3Name(), lithotype3);
+	EXPECT_EQ(formation.getMixingModel(), mixingModel);
+	EXPECT_EQ(formation.getAllochthonousLithologyName(), allocht);
+
+	int depoSequence = 5;
+	formation.setDepoSequence(depoSequence);
+	EXPECT_EQ(formation.getDepoSequence(), depoSequence);
+
+	int elementRef = 1;
+	formation.setElementRefinement(elementRef);
+	EXPECT_EQ(formation.getElementRefinement(), elementRef);
+
+	// Surfaces
+	std::shared_ptr<Surface> surfaceTop(new Surface("topSurface", Sediment));
+	std::shared_ptr<Surface> surfaceBottom(new Surface("bottomSurface", Sediment));
+
+	formation.setTopSurface(surfaceTop);
+	formation.setBottomSurface(surfaceBottom);
+
+	EXPECT_TRUE(surfaceBottom == formation.getBottomSurface());
+	EXPECT_TRUE(surfaceTop == formation.getTopSurface());
 
 }

@@ -8,8 +8,8 @@
 // Do not distribute without written permission from Shell.
 //
 
-#ifndef _CAULDRONIO_H_
-#define _CAULDRONIO_H_
+#ifndef _VisualizationAPI_h__
+#define _VisualizationAPI_h__
 
 #include "VisualizationAPIFwDecl.h"
 
@@ -44,7 +44,7 @@ namespace CauldronIO
     typedef std::vector<std::shared_ptr<Surface > >                                     SurfaceList;
     typedef std::vector<std::shared_ptr<Trapper > >                                     TrapperList;
     typedef std::vector<std::shared_ptr<const Property > >                              PropertyList;
-    typedef std::vector<std::shared_ptr<const Formation> >                              FormationList;
+    typedef std::vector<std::shared_ptr<Formation> >	                                FormationList;
     typedef std::vector<std::shared_ptr<const Reservoir> >                              ReservoirList;
     typedef std::pair<  std::shared_ptr<const Property>, std::shared_ptr<SurfaceData> > PropertySurfaceData;
     typedef std::pair<  std::shared_ptr<const Property>, std::shared_ptr<VolumeData> >  PropertyVolumeData;
@@ -65,7 +65,7 @@ namespace CauldronIO
         /// \param [in] mode Modeling mode
         /// \param [in] xmlVersionMajor 
         /// \param [in] xmlVersionMinor
-        Project(const std::string& name, const std::string& description, const std::string& team, const std::string& version,
+		explicit Project(const std::string& name, const std::string& description, const std::string& team, const std::string& version,
             ModellingMode mode, int xmlVersionMajor, int xmlVersionMinor);
 
         /// \brief Destructor
@@ -76,12 +76,12 @@ namespace CauldronIO
         /// \brief Adds a property to the current project: exception thrown if it exists
         void addProperty(std::shared_ptr<const Property>& property);
         /// \brief Adds a formation to the current project: exception thrown if it exists
-        void addFormation(std::shared_ptr<const Formation>& formation);
+        void addFormation(std::shared_ptr<Formation>& formation);
         /// \brief Adds a reservoir to the current project: exception thrown if it exists
         void addReservoir(std::shared_ptr<const Reservoir>& newReservoir);
         /// \brief Adds a geometry to the current project: no exception thrown if it exists
         /// Note: when a new surface or volume is added to the project without registering its geometry, this will fail...
-        ///     : consider to move this administration elsewhere, e.g. in the export(import)ToXML logic itself
+        /// TODO: consider to move this administration elsewhere, e.g. in the export(import)ToXML logic itself, this is not very failsafe
         void addGeometry(const std::shared_ptr<const Geometry2D>& geometry);
         /// \brief Finds the index of this geometry in the list of geometries; throws an exception if index not found
         /// \returns the index of this geometry in the list of geometries
@@ -113,17 +113,22 @@ namespace CauldronIO
         /// \returns a list of all formations
         const FormationList& getFormations() const;
         /// \returns the formation (if existing) for the given name
-        std::shared_ptr<const Formation> findFormation(std::string formationName) const;
+        std::shared_ptr<Formation> findFormation(std::string formationName) const;
         /// \returns a list of reservoirs
         const ReservoirList& getReservoirs() const;
         /// \returns the reservoir (if existing) for the given name [we assume there are no reservoirs with identical names and different otherwise]
         std::shared_ptr<const Reservoir> findReservoir(std::string reservoirName) const;
-        /// \returns a list of strings containing the names of all surfaces
-        const std::vector<std::string>& getSurfaceNames();
         /// \returns the xml version number
         int getXmlVersionMajor() const;
         /// \returns the xml version number
         int getXmlVersionMinor() const;
+		/// \returns the input stratigraphy table
+		const std::vector<StratigraphyTableEntry>& getStratigraphyTable() const;
+		/// \brief Adds an entry to the input stratigraphy table
+		/// \param [in] entry a new entry for the input stratigraphy table
+		void addStratigraphyTableEntry(StratigraphyTableEntry entry);
+		/// \brief Retrieve all data in the stratigraphy table
+		void retrieveStratigraphyTable();
 
     private:
         SnapShotList m_snapShotList;
@@ -133,9 +138,30 @@ namespace CauldronIO
         FormationList m_formationList;
         ReservoirList m_reservoirList;
         GeometryList m_geometries;
-        std::vector<std::string> m_surfaceNames;
         int m_xmlVersionMajor, m_xmlVersionMinor;
+		std::vector<StratigraphyTableEntry> m_stratTable;
     };
+
+	/// \class StratigraphyTableEntry
+	/// \brief This class holds the input data surface or formation entry to build a stratigraphy table
+	class StratigraphyTableEntry
+	{
+	public:
+		/// \brief Constructor
+		StratigraphyTableEntry() {};
+		/// \returns The surface, can be null
+		const std::shared_ptr<Surface>& getSurface() const;
+		/// \returns The formation, can be null
+		const std::shared_ptr<Formation>& getFormation() const;
+		/// \brief set a surface, this will nullify the formation
+		void setSurface(std::shared_ptr<Surface>& surface);
+		/// \brief set a formation, this will nullify the surface
+		void setFormation(std::shared_ptr<Formation>& formation);
+
+	private:
+		std::shared_ptr<Surface> m_surface;
+		std::shared_ptr<Formation> m_formation;
+	};
 
     /// \class SnapShot 
     /// \brief container class holding all surfaces and volumes for a snapshot
@@ -146,7 +172,7 @@ namespace CauldronIO
         /// \param [in] age Snapshot age in MY
         /// \param [in] kind Snapshot kind
         /// \param [in] isMinorShapshot If true, this is a minor snapshot
-	    SnapShot(double age, SnapShotKind kind, bool isMinorShapshot);
+		explicit SnapShot(double age, SnapShotKind kind, bool isMinorShapshot);
         ~SnapShot();
 
         /// \brief Retrieve all data in snapshot: 
@@ -200,7 +226,7 @@ namespace CauldronIO
         /// \brief Reservoir constructor
         /// \param [in] reservoirName name of reservoir
         /// \param [in] formation the formation for this reservoir
-        Reservoir(const std::string& reservoirName, const std::shared_ptr<const Formation>& formation);
+		explicit Reservoir(const std::string& reservoirName, const std::shared_ptr<const Formation>& formation);
 
         /// \returns the name of this reservoir
         const std::string& getName() const;
@@ -222,7 +248,7 @@ namespace CauldronIO
         /// \brief Property constructor
         /// \param [in] ID the ID of the trapper
         /// \param [in] persistentID the persistent ID of the trapper
-        Trapper(int ID, int persistentID);
+		explicit Trapper(int ID, int persistentID);
         /// \returns the reservoir name
         const std::string& getReservoirName() const;
         /// \param [in] reservoirName the name of the reservoir
@@ -290,7 +316,7 @@ namespace CauldronIO
         /// \param [in] unit the Unit of the property
         /// \param [in] type the property type
         /// \param [in] attrib the property attribute
-        Property(const std::string& name, const std::string& username, const std::string& cauldronName, const std::string& unit,
+		explicit Property(const std::string& name, const std::string& username, const std::string& cauldronName, const std::string& unit,
             PropertyType type, PropertyAttribute attrib);
 	    /// \returns the name of this property
         const std::string& getName() const;
@@ -324,24 +350,143 @@ namespace CauldronIO
         /// \param [in] kStart start depth index into the bigger volume (if relevant)
         /// \param [in] kEnd end depth index (inclusive) into bigger volume
         /// \param [in] name name of the formation
-        /// \param [in] isSourceRock true if this formation is a source rock
-        /// \param [in] isMobileLayer true if this formation is a mobile layer
-        Formation(size_t kStart, size_t kEnd, const std::string& name, bool isSourceRock, bool isMobileLayer);
-        /// \returns the depth range
-        void getK_Range(unsigned int & k_range_start, unsigned int& k_range_end) const;
+		explicit Formation(int kStart, int kEnd, const std::string& name);
+
+		/// \returns true if depth (or k) range is defined
+		bool isDepthRangeDefined() const;
+		/// \brief Update the k-range of an existing formation
+		/// \param [in] kStart start depth index into the bigger volume (if relevant)
+		/// \param [in] kEnd end depth index (inclusive) into bigger volume
+		void updateK_range(int kStart, int kEnd);
+		/// \returns the depth range; only sensible output if isDepthRangeDefined returns true
+        void getK_Range(int & k_range_start, int& k_range_end) const;
         /// \returns the formation name
         const std::string& getName() const;
         /// \returns true if two formations are equal
         bool operator==(const Formation& other) const;
-        /// \returns true if this formation is a source rock
-        bool isSourceRock() const;
-        /// \returns true if this formation is a mobile layer
+		/// \param [in] isMobileLayer true if this formation is a mobile layer
+		void setIsMobileLayer(bool isMobileLayer);
+		/// \returns true if this formation is a mobile layer
         bool isMobileLayer() const;
+		/// \returns true if this formation has a thickness map defined
+		bool hasThicknessMap() const;
+		/// \brief Assigns a thickness map to this formation
+		void setThicknessMap(PropertySurfaceData& thicknessMap);
+		/// \returns Returns the thickness map; can be empty
+		const PropertySurfaceData& getThicknessMap() const;
+		/// \param [in] isSourceRock true if this formation is a source rock
+		void setIsSourceRock(bool isSourceRock);
+		/// \returns true if this formation is a source rock
+		bool isSourceRock() const;
+		/// \returns true if this formation has a mixingHI map defined
+		bool hasSourceRockMixingHIMap() const;
+		/// \brief Assigns a mixingHI map to this formation
+		void setSourceRockMixingHIMap(PropertySurfaceData& map);
+		/// \returns Returns the mixingHI map; can be empty
+		const PropertySurfaceData& getSourceRockMixingHIMap() const;
+		/// \brief Assigns the source rock 1 name
+		void setSourceRock1Name(const std::string& name);
+		/// \returns Returns the source rock 1 name
+		const std::string& getSourceRock1Name() const;
+		/// \brief Assigns the source rock 2 name
+		void setSourceRock2Name(const std::string& name);
+		/// \returns Returns the source rock 2 name
+		const std::string& getSourceRock2Name() const;
+		/// \brief Enables source rock mixing
+		void setEnableSourceRockMixing(bool enable);
+		/// \returns Returns true if source rock mixing has been enabled
+		bool getEnableSourceRockMixing() const;
+		/// \returns Returns true if this formation has an allochthonous lithology
+		bool hasAllochthonousLithology() const;
+		/// \brief Enables allochthonous lithology for this formation
+		void setAllochthonousLithology(bool value);
+		/// \returns Returns the allochthonous lithology name
+		const std::string& getAllochthonousLithologyName() const;
+		/// \brief Assigns the allochthonous lithology name
+		void setAllochthonousLithologyName(const std::string& value);
+		/// \returns Returns true if this formation is an ignious intrusion
+		bool isIgneousIntrusion() const;
+		/// \brief Enables ignious intrusion for this formation
+		void setIgneousIntrusion(bool value);
+		/// \returns Returns the ignious intrusion age
+		double getIgneousIntrusionAge() const;
+		/// \brief Assigns the ignious intrusion age
+		void setIgneousIntrusionAge(double age);
+		/// \returns Returns the deposition sequence number 
+		int getDepoSequence() const;
+		/// \brief Assigns the deposition sequence number 
+		void setDepoSequence(int number);
+		/// \returns Returns the fluid type string
+		const std::string& getFluidType() const;
+		/// \brief Assigns the fluid type string
+		void setFluidType(const std::string& type);
+		/// \returns Returns true if this formation has a constrained overpressure
+		bool hasConstrainedOverpressure() const;
+		/// \brief Enables constrained overpressure for this formation
+		void setConstrainedOverpressure(bool value);
+		/// \returns Returns true if this formation is subject to chemical compaction
+		bool hasChemicalCompaction() const;
+		/// \brief Enable chemical compaction for this formation
+		void setChemicalCompaction(bool value);
+		/// \returns Returns the element refinement in z-direction
+		int getElementRefinement() const;
+		/// \brief Assigns the element refinement in z-direction
+		void setElementRefinement(int value);
+		/// \returns Returns the mixingmodel string
+		const std::string& getMixingModel() const;
+		/// \brief Assigns the mixingmodel
+		void setMixingModel(const std::string& model);
+		/// \brief assign the lithotype1 name
+		void setLithoType1Name(const std::string& name);
+		/// \returns the lithotype1 name
+		const std::string& getLithoType1Name() const;
+		/// \brief assign the lithotype2 name
+		void setLithoType2Name(const std::string& name);
+		/// \returns the lithotype2 name
+		const std::string& getLithoType2Name() const;
+		/// \brief assign the lithotype3 name
+		void setLithoType3Name(const std::string& name);
+		/// \returns the lithotype3 name
+		const std::string& getLithoType3Name() const;
+		/// \brief Assign a lithotype percentagemap
+		void setLithoType1PercentageMap(PropertySurfaceData& map);
+		/// \brief Assign a lithotype percentagemap
+		void setLithoType2PercentageMap(PropertySurfaceData& map);
+		/// \brief Assign a lithotype percentagemap
+		void setLithoType3PercentageMap(PropertySurfaceData& map);
+		/// \brief Retrieve a lithotype percentagemap
+		const PropertySurfaceData& getLithoType1PercentageMap() const;
+		/// \brief Retrieve a lithotype percentagemap
+		const PropertySurfaceData& getLithoType2PercentageMap() const;
+		/// \brief Retrieve a lithotype percentagemap
+		const PropertySurfaceData& getLithoType3PercentageMap() const;
+		/// \returns Returns true if this formation has a lithotype1 percentagemap
+		bool hasLithoType1PercentageMap() const;
+		/// \returns Returns true if this formation has a lithotype2 percentagemap
+		bool hasLithoType2PercentageMap() const;
+		/// \returns Returns true if this formation has a lithotype3 percentagemap
+		bool hasLithoType3PercentageMap() const;
+
+		void setTopSurface(std::shared_ptr<CauldronIO::Surface>& surface);
+		const std::shared_ptr<CauldronIO::Surface>& getTopSurface();
+
+		void setBottomSurface(std::shared_ptr<CauldronIO::Surface>& surface);
+		const std::shared_ptr<CauldronIO::Surface>& getBottomSurface();
+
+		/// \brief Release the formation's data
+		void release();
+		/// \brief Retrieve all data related to this formation
+		void retrieve();
 
     private:
-        std::string m_name;
-        size_t m_kstart, m_kend;
-        bool m_isSourceRock, m_isMobileLayer;
+		std::string m_name, m_lithoType1name, m_lithoType2name, m_lithoType3name, m_fluidTypeName;
+		std::string m_mixingmodelname, m_sourceRock1name, m_sourceRock2name, m_allochthonousLithologyName;
+        int m_kstart, m_kend; // these can be negative if not defined, for example if output data is not available
+		bool m_isSourceRock, m_isMobileLayer, m_chemicalcompaction, m_constrainedOverpressure, m_igniousintrusion, m_enableSourceRockMixing, m_hasAllochthonousLithology;
+		double m_igniousintrusionAge;
+		int m_depoSequence, m_elementRefinement;
+		PropertySurfaceData m_thickness, m_mixingHI, m_lithPerc1map, m_lithPerc2map, m_lithPerc3map;
+		std::shared_ptr<CauldronIO::Surface> m_topSurface, m_bottomSurface;
     };
 
     /// \class Surface
@@ -352,7 +497,7 @@ namespace CauldronIO
         /// \brief Construct a new surface
         /// \param [in] name Name of the surface
         /// \param [in] kind kind of surface
-        Surface(const std::string& name, SubsurfaceKind kind);
+		explicit Surface(const std::string& name, SubsurfaceKind kind);
         /// \brief Destructor
         ~Surface();
         
@@ -375,11 +520,11 @@ namespace CauldronIO
         /// \brief Associate a formation with this map
         /// \param [in] formation the formation to be associated with this map. Optional.
         /// \param [in] isTop
-        void setFormation(std::shared_ptr<const Formation>& formation, bool isTop);
+        void setFormation(std::shared_ptr<Formation>& formation, bool isTop);
         /// \returns the associated top formation for this map. Can be null
-        const std::shared_ptr<const Formation>& getTopFormation() const;
+        const std::shared_ptr<Formation>& getTopFormation() const;
         /// \returns the associated bottom formation for this map. Can be null
-        const std::shared_ptr<const Formation>& getBottomFormation() const;
+        const std::shared_ptr<Formation>& getBottomFormation() const;
         /// \brief Retrieve actual data into memory
         void retrieve();
         /// \brief Release memory; does not destroy the object; it can be retrieved again
@@ -388,14 +533,22 @@ namespace CauldronIO
         bool isRetrieved() const;
 		/// \returns true if two Surfaces are equal: note: the PropertySurfaceDataList is not compared 
 		bool operator==(const Surface& other) const;
+		/// \returns true if Age is defined
+		bool isAgeDefined() const;
+		/// \brief Assigns an age to this surface
+		/// \param [in] age deposition age
+		void setAge(float age);
+		/// \returns Age of this surface. Only makes sense if isAgeDefined is true
+		float getAge() const;
 
 	private:
         SubsurfaceKind m_subSurfaceKind;
-        std::shared_ptr<const Formation> m_Topformation;
-        std::shared_ptr<const Formation> m_Bottomformation;
+        std::shared_ptr<Formation> m_Topformation;
+        std::shared_ptr<Formation> m_Bottomformation;
         std::string m_name;
         std::string m_reservoirName;
         PropertySurfaceDataList m_propSurfaceList;
+		float m_age;
     };
 
     class Geometry2D
@@ -408,7 +561,7 @@ namespace CauldronIO
         /// \param [in] deltaJ spacing in j-direction
         /// \param [in] minI map origin in i-direction
         /// \param [in] minJ map origin in j-direction
-        Geometry2D(size_t numI, size_t numJ, double deltaI, double deltaJ, double minI, double minJ, bool cellCentered = false);
+		explicit Geometry2D(size_t numI, size_t numJ, double deltaI, double deltaJ, double minI, double minJ, bool cellCentered = false);
         /// \returns the local horizontal resolution
         size_t getNumI() const;
         /// \returns  the local vertical resolution
@@ -453,7 +606,7 @@ namespace CauldronIO
         /// \param [in] deltaJ spacing in j-dimension
         /// \param [in] minI the volume origin in i-dimension
         /// \param [in] minJ the volume origin in j-dimension
-        Geometry3D(size_t numI, size_t numJ, size_t numK, size_t offsetK,
+		explicit Geometry3D(size_t numI, size_t numJ, size_t numK, size_t offsetK,
             double deltaI, double deltaJ, double minI, double minJ, bool cellCentered = false);
 
         /// \returns the number of k elements in this volume
@@ -524,7 +677,7 @@ namespace CauldronIO
     {
     public:
         /// \brief Create a surface-data object
-        SurfaceData(const std::shared_ptr<const Geometry2D>& geometry, float minValue = DefaultUndefinedValue, float maxValue = DefaultUndefinedValue);
+		explicit SurfaceData(const std::shared_ptr<const Geometry2D>& geometry, float minValue = DefaultUndefinedValue, float maxValue = DefaultUndefinedValue);
         virtual ~SurfaceData();
 
         /// VisualizationIOData implementation
@@ -625,7 +778,7 @@ namespace CauldronIO
     public:
         /// \brief Constructor
         /// \param [in] kind the SubsurfaceKind of this volume
-        Volume(SubsurfaceKind kind);
+		explicit Volume(SubsurfaceKind kind);
         /// \brief Destructor
         ~Volume();
 
@@ -662,7 +815,7 @@ namespace CauldronIO
     {
     public:
         /// \brief Create a surface-data object
-        VolumeData(const std::shared_ptr<Geometry3D>& geometry, float minValue = DefaultUndefinedValue, float maxValue = DefaultUndefinedValue);
+		explicit VolumeData(const std::shared_ptr<Geometry3D>& geometry, float minValue = DefaultUndefinedValue, float maxValue = DefaultUndefinedValue);
         virtual ~VolumeData();
 
         /// \returns the geometry

@@ -61,7 +61,10 @@ namespace DataAccess
           /// Get the sequence number of the map.
           virtual int getMapSequenceNumber () const;
 
-	       inline void setIndex (unsigned int index);
+		  /// Get information about the hdf filename and datasetname for this inputmap
+		  void getHDFinfo(string& fileName, string& dataSetName) const;
+		   
+		   inline void setIndex(unsigned int index);
 	       inline unsigned int getIndex (void);
 
 	       unsigned int computeIndex ();

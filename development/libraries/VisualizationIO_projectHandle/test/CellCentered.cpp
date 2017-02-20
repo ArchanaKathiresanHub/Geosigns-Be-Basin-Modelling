@@ -112,9 +112,9 @@ TEST( Utilities, CellCenterData )
 	volumeData2->setData_IJK(data2);
 	volumeData3->setData_IJK(data3);
 
-	std::shared_ptr<const Formation> formation1(new Formation(0, 2, "formation1", false, false));
-	std::shared_ptr<const Formation> formation2(new Formation(2, 4, "formation2", false, false));
-	std::shared_ptr<const Formation> formation3(new Formation(4, 6, "formation3", false, false));
+	std::shared_ptr<Formation> formation1(new Formation(0, 2, "formation1"));
+	std::shared_ptr<Formation> formation2(new Formation(2, 4, "formation2"));
+	std::shared_ptr<Formation> formation3(new Formation(4, 6, "formation3"));
 	project->addFormation(formation1);
 	project->addFormation(formation2);
 	project->addFormation(formation3);

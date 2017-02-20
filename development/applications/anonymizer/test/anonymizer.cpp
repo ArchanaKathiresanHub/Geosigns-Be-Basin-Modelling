@@ -34,7 +34,7 @@ namespace supportFunc
    {
       bool sameFile = false;
 #ifdef WIN32
-      std::string diffCommand = "FC /L " + leftFileName + " " + rightFileName;
+      std::string diffCommand = "FC /L /w " + leftFileName + " " + rightFileName;
       const std::string result = exec(diffCommand.c_str());
       sameFile = (result.find("no differences encountered") != std::string::npos);
 #else

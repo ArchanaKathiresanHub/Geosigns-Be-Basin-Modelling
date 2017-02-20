@@ -8,9 +8,10 @@
 // Do not distribute without written permission from Shell.
 //
 
-#include "VisualizationIO_projectHandle.h"
 #include "VisualizationAPI.h"
 #include "VisualizationUtils.h"
+#include "VisualizationIO_native.h"
+#include "VisualizationIO_projectHandle.h"
 
 #include "Interface/ProjectHandle.h"
 #include "Interface/ObjectFactory.h"
@@ -18,11 +19,20 @@
 #include "Interface/PropertyValue.h"
 #include "Interface/Reservoir.h"
 #include "Interface/Surface.h"
+#include "Interface/Formation.h"
 #include "Interface/Trapper.h"
+#include "Interface/FluidType.h"
+#include "Interface/LithoType.h"
+#include "Interface/AllochthonousLithology.h"
 #include "Interface/Snapshot.h"
 #include "Interface/GridMap.h"
+#include "Interface/Grid.h"
 #include "Interface/ProjectData.h"
+#include "Interface/InputValue.h"
+#include "Interface/BasementFormation.h"
 #include "../../SerialDataAccess/src/Interface/SerialGridMap.h"
+#include "database.h"
+#include "cauldronschemafuncs.h"
 
 #include "ImportProjectHandle.h"
 #include "ExportToXML.h"
@@ -52,47 +62,52 @@ std::shared_ptr<CauldronIO::Project> ImportProjectHandle::createFromProjectHandl
         projectData->getProgramVersion(), mode, xml_version_major, xml_version_minor));
 
     // Import all snapshots
-    ImportProjectHandle import(verbose, project);
+    ImportProjectHandle import(verbose, project, projectHandle);
 
-    import.addSnapShots(projectHandle);
+	// Add input values: this will define the formations
+	std::cout << "Importing input data" << std::endl;
+	import.checkInputValues();
+
+    // Add snapshots
+	import.addSnapShots();
 
     return project;
 }
 
-ImportProjectHandle::ImportProjectHandle(bool verbose, std::shared_ptr<CauldronIO::Project>& project)
+ImportProjectHandle::ImportProjectHandle(bool verbose, std::shared_ptr<CauldronIO::Project>& project, std::shared_ptr<ProjectHandle>& projectHandle)
 {
     m_verbose = verbose;
     m_project = project;
+	m_projectHandle = projectHandle;
 }
 
-void ImportProjectHandle::addSnapShots(std::shared_ptr<Interface::ProjectHandle> projectHandle) 
+void ImportProjectHandle::addSnapShots() 
 {
     // Get all property values once
-    m_propValues.reset(projectHandle->getPropertyValues(ALLSELECTION, 0, 0, 0, 0, 0, MAP | VOLUME));
+    m_propValues.reset(m_projectHandle->getPropertyValues(ALLSELECTION, 0, 0, 0, 0, 0, MAP | VOLUME));
     sort(m_propValues->begin(), m_propValues->end(), PropertyValue::SortByAgeAndDepoAge);
 
-    m_props.reset(projectHandle->getProperties(true, ALLSELECTION, 0, 0, 0, 0, MAP | VOLUME));
+    m_props.reset(m_projectHandle->getProperties(true, ALLSELECTION, 0, 0, 0, 0, MAP | VOLUME));
 
     if (m_verbose)
         cout << "Loaded " << m_propValues->size() << " propertyvalues and " << m_props->size() << " properties" << endl;
 
     std::shared_ptr<SnapshotList> snapShots;
-    snapShots.reset(projectHandle->getSnapshots(MAJOR | MINOR));
+    snapShots.reset(m_projectHandle->getSnapshots(MAJOR | MINOR));
 
     for (size_t i = 0; i < snapShots->size(); i++)
     {
         const Snapshot* snapShot = snapShots->at(i);
 
          // Create a new snapshot
-        std::shared_ptr<CauldronIO::SnapShot> snapShotIO = createSnapShotIO(projectHandle, snapShot);  
+        std::shared_ptr<CauldronIO::SnapShot> snapShotIO = createSnapShotIO(snapShot);  
 
         // Add to project
         m_project->addSnapShot(snapShotIO);
     }
 }
 
-std::shared_ptr<CauldronIO::SnapShot> ImportProjectHandle::createSnapShotIO(std::shared_ptr<Interface::ProjectHandle> projectHandle,
-    const DataAccess::Interface::Snapshot* snapShot)
+std::shared_ptr<CauldronIO::SnapShot> ImportProjectHandle::createSnapShotIO(const DataAccess::Interface::Snapshot* snapShot)
 {
     std::shared_ptr<CauldronIO::SnapShot> snapShotIO(new CauldronIO::SnapShot(snapShot->getTime(), 
         getSnapShotKind(snapShot), snapShot->getType() == MINOR));
@@ -108,20 +123,20 @@ std::shared_ptr<CauldronIO::SnapShot> ImportProjectHandle::createSnapShotIO(std:
     std::shared_ptr<PropertyList> snapShotProps = getProperties(snapShotPropVals);
 
     // Create depth-geometry information
-    std::shared_ptr<CauldronIO::FormationInfoList> depthFormations = getDepthFormations(projectHandle, snapShot);
-
-    // Add all the surfaces
-    ///////////////////////////////////////////////////////////
-    vector<std::shared_ptr<CauldronIO::Surface> > surfaces = createSurfaces(depthFormations, snapShot, snapShotPropVals);
-    BOOST_FOREACH(std::shared_ptr<CauldronIO::Surface>& surface, surfaces)
-        snapShotIO->addSurface(surface);
+    std::shared_ptr<CauldronIO::FormationInfoList> depthFormations = getDepthFormations(snapShot);
 
     // Bail out if we don't have depthFormations
 	if (depthFormations->size() == 0)
 	{
-		if (m_verbose) std::cout << "Snapshot does not contain depth-information" << std::endl;
+		if (m_verbose) std::cout << "Warning: skipping snapshot as it does not contain depth-information" << std::endl;
 		return snapShotIO;
 	}
+
+	// Add all the surfaces
+	///////////////////////////////////////////////////////////
+	vector<std::shared_ptr<CauldronIO::Surface> > surfaces = createSurfaces(depthFormations, snapShot, snapShotPropVals);
+	BOOST_FOREACH(std::shared_ptr<CauldronIO::Surface>& surface, surfaces)
+		snapShotIO->addSurface(surface);
 
     // Add the volume
     //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -136,7 +151,7 @@ std::shared_ptr<CauldronIO::SnapShot> ImportProjectHandle::createSnapShotIO(std:
         PropertyAttribute attrib = prop->getPropertyAttribute();
         // Bail out if it is not continuous
         if (attrib != CONTINUOUS_3D_PROPERTY) continue;
-        std::shared_ptr<PropertyValueList> propValues = getFormationVolumePropertyValues(prop, snapShotPropVals, NULL);
+        std::shared_ptr<PropertyValueList> propValues = getFormationVolumePropertyValues(prop, snapShotPropVals, nullptr);
         // Bail out if there are no property value objects
         if (propValues->size() == 0) continue;
 
@@ -151,12 +166,12 @@ std::shared_ptr<CauldronIO::SnapShot> ImportProjectHandle::createSnapShotIO(std:
 
     // Add all formationVolumes
     //////////////////////////////////////////////////////////////////////////
-    std::shared_ptr<FormationList> formations(projectHandle->getFormations(snapShot, true));
+    std::shared_ptr<FormationList> formations(m_projectHandle->getFormations(snapShot, true));
     for (size_t i = 0; i < formations->size(); ++i)
     {
         const Formation* formation = formations->at(i);
-        std::shared_ptr<const CauldronIO::Formation> formationIO = findOrCreateFormation(formation, depthFormations);
-        if (!formationIO)
+        std::shared_ptr<CauldronIO::Formation> formationIO = findOrCreateFormation(formation, depthFormations);
+        if (!formationIO || !formationIO->isDepthRangeDefined())
         {
             if (m_verbose) cerr << "Warning: ignoring formation: " << formation->getName() << " not found as depth formation" << endl;
             continue;
@@ -204,7 +219,7 @@ std::shared_ptr<CauldronIO::SnapShot> ImportProjectHandle::createSnapShotIO(std:
     }
         
     // Find trappers
-    std::shared_ptr<TrapperList> trapperList(projectHandle->getTrappers(0, snapShot, 0, 0));
+    std::shared_ptr<TrapperList> trapperList(m_projectHandle->getTrappers(0, snapShot, 0, 0));
     for (size_t i = 0; i < trapperList->size(); ++i)
     {
         const Trapper* trapper = trapperList->at(i);
@@ -289,7 +304,7 @@ vector<std::shared_ptr<CauldronIO::Surface> > ImportProjectHandle::createSurface
         std::shared_ptr<const CauldronIO::Property> propertyIO = findOrCreateProperty(prop);
 
         // Find or create a formation
-        std::shared_ptr<const CauldronIO::Formation> formationIO;
+        std::shared_ptr<CauldronIO::Formation> formationIO;
         if (formation) 
             formationIO = findOrCreateFormation(formation, depthFormations);
 
@@ -338,8 +353,8 @@ vector<std::shared_ptr<CauldronIO::Surface> > ImportProjectHandle::createSurface
             if (surface)
             {
                 // Find or create top/bottom formations
-                std::shared_ptr<const CauldronIO::Formation> topFormation = findOrCreateFormation(surface->getTopFormation(), depthFormations);
-                std::shared_ptr<const CauldronIO::Formation> bottomFormation = findOrCreateFormation(surface->getBottomFormation(), depthFormations);
+                std::shared_ptr<CauldronIO::Formation> topFormation = findOrCreateFormation(surface->getTopFormation(), depthFormations);
+                std::shared_ptr<CauldronIO::Formation> bottomFormation = findOrCreateFormation(surface->getBottomFormation(), depthFormations);
                 assert(topFormation == formationIO || bottomFormation == formationIO || !formationIO);
 
                 surfaceIO->setFormation(topFormation, true);
@@ -377,7 +392,7 @@ std::shared_ptr<CauldronIO::Surface> ImportProjectHandle::findSurface(vector< st
 }
 
 std::shared_ptr<CauldronIO::Surface> ImportProjectHandle::findSurface(vector< std::shared_ptr<CauldronIO::Surface> > surfaces, 
-    std::shared_ptr<const CauldronIO::Formation>& formation) const
+    std::shared_ptr<CauldronIO::Formation>& formation) const
 {
     BOOST_FOREACH(std::shared_ptr<CauldronIO::Surface>& surface, surfaces)
     {
@@ -400,22 +415,136 @@ std::shared_ptr<const CauldronIO::Property> ImportProjectHandle::findOrCreatePro
     return propertyIO;
 }
 
-std::shared_ptr<const CauldronIO::Formation> ImportProjectHandle::findOrCreateFormation(const Formation* form, std::shared_ptr<CauldronIO::FormationInfoList> depthFormations)
+std::shared_ptr<const CauldronIO::Property> ImportProjectHandle::findOrCreateProperty(const std::string& propString)
 {
-    std::shared_ptr< const CauldronIO::Formation> formationIO;
+	for (auto& prop : m_project->getProperties())
+	{
+		if (prop->getName() == propString) return prop;
+	}
+
+	// Create a new one...
+	const Property* prop = m_projectHandle->findProperty(propString);
+	if (prop == nullptr) throw CauldronIO::CauldronIOException("Cannot find property");
+
+	std::shared_ptr<const CauldronIO::Property> propertyIO(new CauldronIO::Property(
+		prop->getName(), prop->getUserName(), prop->getCauldronName(),
+		prop->getUnit(), getPropertyType(prop), getPropertyAttribute(prop)));
+	m_project->addProperty(propertyIO);
+
+	return propertyIO;
+}
+
+std::shared_ptr<CauldronIO::Formation> ImportProjectHandle::findOrCreateFormation(const Formation* form, std::shared_ptr<CauldronIO::FormationInfoList> depthFormations)
+{
+    std::shared_ptr<CauldronIO::Formation> formationIO;
     if (!form) return formationIO;
     
-    BOOST_FOREACH(const std::shared_ptr<const CauldronIO::Formation>& formation, m_project->getFormations())
-        if (formation->getName() == form->getName()) return formation;
+	BOOST_FOREACH(const std::shared_ptr<CauldronIO::Formation>& formation, m_project->getFormations())
+	{
+		if (formation->getName() == form->getName())
+		{
+			// Update k-range if needed
+			if (!formation->isDepthRangeDefined())
+			{
+				// Find the depth formation
+				for (size_t i = 0; i < depthFormations->size(); ++i)
+				{
+					if (depthFormations->at(i)->formation == form)
+					{
+						auto info = depthFormations->at(i);
+						formation->updateK_range((int)info->kStart, (int)info->kEnd);
+						break;
+					}
+				}
+			}
+
+			return formation;
+		}
+	}
 
     formationIO = createFormation(form, depthFormations);
-    // It can be that this formation is not met with a depthformation: don't add it to the list
+
+    // It can be that this formation is not created from a depthformation: don't add it to the list
     if (!formationIO)
-        return formationIO;
+       return formationIO;
 
     m_project->addFormation(formationIO);
 
     return formationIO;
+}
+
+std::shared_ptr<CauldronIO::Formation> ImportProjectHandle::findOrCreateFormation(const DataAccess::Interface::Formation* form)
+{
+	std::shared_ptr<CauldronIO::Formation> formationIO;
+	if (!form) return formationIO;
+
+	BOOST_FOREACH(const std::shared_ptr<CauldronIO::Formation>& formation, m_project->getFormations())
+		if (formation->getName() == form->getName()) return formation;
+
+	formationIO.reset(new CauldronIO::Formation(-1, -1, form->getName()));
+
+	// Some additional properties
+	setFormationProperties(formationIO, form);
+
+	m_project->addFormation(formationIO);
+
+	return formationIO;
+}
+
+
+void ImportProjectHandle::setFormationProperties(std::shared_ptr<CauldronIO::Formation> formationIO, const DataAccess::Interface::Formation* form) const
+{
+	formationIO->setIsMobileLayer(form->isMobileLayer());
+	formationIO->setIsSourceRock(form->isSourceRock());
+
+	if (form->getSourceRock1())
+	{
+		formationIO->setSourceRock1Name(form->getSourceRockType1Name());
+	}
+	if (form->getSourceRock2())
+	{
+		formationIO->setSourceRock2Name(form->getSourceRockType2Name());
+	}
+	if (form->isSourceRock())
+	{
+		formationIO->setEnableSourceRockMixing(form->getEnableSourceRockMixing());
+	}
+	if (form->getFluidType())
+	{
+		formationIO->setFluidType(form->getFluidType()->getName());
+	}
+	formationIO->setAllochthonousLithology(form->hasAllochthonousLithology());
+	if (form->hasAllochthonousLithology())
+	{
+		formationIO->setAllochthonousLithologyName(form->getAllochthonousLithology()->getLithologyName());
+	}
+	formationIO->setDepoSequence(form->getDepositionSequence());
+	if (form->getLithoType1())
+	{
+		formationIO->setLithoType1Name(form->getLithoType1()->getName());
+	}
+	if (form->getLithoType2())
+	{
+		formationIO->setLithoType2Name(form->getLithoType2()->getName());
+	}
+	if (form->getLithoType3())
+	{
+		formationIO->setLithoType3Name(form->getLithoType3()->getName());
+	}
+	formationIO->setMixingModel(form->getMixModelStr());
+	formationIO->setIgneousIntrusion(form->getIsIgneousIntrusion());
+	if (form->getIsIgneousIntrusion())
+	{
+		formationIO->setIgneousIntrusionAge(form->getIgneousIntrusionAge());
+	}
+	formationIO->setConstrainedOverpressure(form->hasConstrainedOverpressure());
+	formationIO->setChemicalCompaction(form->hasChemicalCompaction());
+
+	// The method below crashes if this Formation is a BasementFormation
+	if (dynamic_cast<const BasementFormation*>(form) == nullptr)
+	{
+		formationIO->setElementRefinement(form->getElementRefinement());
+	}
 }
 
 std::shared_ptr<const CauldronIO::Reservoir> ImportProjectHandle::findOrCreateReservoir(const Reservoir* reserv, std::shared_ptr<const CauldronIO::Formation> formationIO)
@@ -618,17 +747,16 @@ CauldronIO::PropertyAttribute ImportProjectHandle::getPropertyAttribute(const Pr
     return attribIO;
 }
 
-std::shared_ptr<CauldronIO::FormationInfoList> ImportProjectHandle::getDepthFormations(std::shared_ptr<Interface::ProjectHandle> projectHandle,
-                                                                                                  const Snapshot* snapShot) const
+std::shared_ptr<CauldronIO::FormationInfoList> ImportProjectHandle::getDepthFormations(const Snapshot* snapShot) const
 {
     std::shared_ptr<CauldronIO::FormationInfoList> depthFormations(new CauldronIO::FormationInfoList());
 
     // Find the depth property
-    const Property* depthProp = projectHandle->findProperty("Depth");
+    const Property* depthProp = m_projectHandle->findProperty("Depth");
     if (!depthProp) return depthFormations;
 
     // Find the depth property formations for this snapshot
-    std::shared_ptr<PropertyValueList> propValues(projectHandle->getPropertyValues(FORMATION, depthProp, snapShot, 0, 0, 0, VOLUME));
+    std::shared_ptr<PropertyValueList> propValues(m_projectHandle->getPropertyValues(FORMATION, depthProp, snapShot, 0, 0, 0, VOLUME));
     if (propValues->size() == 0) return depthFormations;
 
     // Find all depth formations and add these
@@ -652,7 +780,7 @@ std::shared_ptr<CauldronIO::FormationInfoList> ImportProjectHandle::getDepthForm
         /// in a SerialGridMap gridmap, depth is aligned (=increasing) with k index
         /// in a DistributedGridmap, depth is inverse to k index
         SerialGridMap* sGridmap = static_cast<SerialGridMap*>(map);
-        info->reverseDepth = sGridmap == NULL;
+        info->reverseDepth = sGridmap == nullptr;
         
         depthFormations->push_back(info);
         
@@ -671,7 +799,7 @@ std::shared_ptr<CauldronIO::FormationInfoList> ImportProjectHandle::getDepthForm
     return depthFormations;
 }
 
-std::shared_ptr<const CauldronIO::Formation> ImportProjectHandle::createFormation(const DataAccess::Interface::Formation* formation, 
+std::shared_ptr<CauldronIO::Formation> ImportProjectHandle::createFormation(const DataAccess::Interface::Formation* formation, 
     std::shared_ptr<CauldronIO::FormationInfoList> depthFormations) const
 {
     std::shared_ptr<CauldronIO::Formation> formationPtr;
@@ -692,7 +820,8 @@ std::shared_ptr<const CauldronIO::Formation> ImportProjectHandle::createFormatio
     if (!info)
         return formationPtr;
 
-    formationPtr.reset(new CauldronIO::Formation(info->kStart, info->kEnd, info->formation->getName(), formation->isSourceRock(), formation->isMobileLayer()));
+	formationPtr.reset(new CauldronIO::Formation((int)info->kStart, (int)info->kEnd, info->formation->getName()));
+	setFormationProperties(formationPtr, info->formation);
 
     return formationPtr;
 }
@@ -760,11 +889,286 @@ std::shared_ptr<PropertyValueList> ImportProjectHandle::getFormationVolumeProper
 
         if (propValue->getProperty() != prop) continue;
         if (propValue->getStorage() != SNAPSHOTIOTBL && propValue->getStorage() != THREEDTIMEIOTBL) continue;
-        if (propValue->getSurface() != NULL) continue;
-        if (formation != NULL && propValue->getFormation() != formation) continue;
+        if (propValue->getSurface() != nullptr) continue;
+        if (formation != nullptr && propValue->getFormation() != formation) continue;
 
         propertyValueList->push_back(propValue);
     }
 
     return propertyValueList;
 }
+
+void ImportProjectHandle::checkInputValues()
+{
+	SurfaceList* surfaces = m_projectHandle->getSurfaces(nullptr, false);
+	if (surfaces->size() > 0)
+	{
+		if (m_verbose) cout << "== StratIOTable ==" << endl;
+
+		for (const Interface::Surface* surface : *surfaces)
+		{
+			addStratTableSurface(surface);
+			const Interface::Formation* formation = surface->getBottomFormation();
+			if (formation) addStratTableFormation(formation);
+		}
+	}
+
+	// Loop over surfaces/formations to connect them
+	for (int index = 1; index <  m_project->getStratigraphyTable().size(); index += 2)
+	{
+		const CauldronIO::StratigraphyTableEntry& entry = m_project->getStratigraphyTable().at(index);
+		assert(bool(entry.getFormation()));
+
+		std::shared_ptr<CauldronIO::Surface> topSurface = m_project->getStratigraphyTable().at(index - 1).getSurface();
+		std::shared_ptr<CauldronIO::Formation> formation = m_project->getStratigraphyTable().at(index).getFormation();
+
+		formation->setTopSurface(topSurface);
+		topSurface->setFormation(formation, false);
+
+		if (index + 1 < m_project->getStratigraphyTable().size())
+		{
+			std::shared_ptr<CauldronIO::Surface> bottomSurface = m_project->getStratigraphyTable().at(index + 1).getSurface();
+			formation->setBottomSurface(bottomSurface);
+			bottomSurface->setFormation(formation, true);
+		}
+	}
+
+	delete surfaces;
+}
+
+void ImportProjectHandle::addStratTableSurface(const DataAccess::Interface::Surface* surface)
+{
+	// Set the geometry
+	const Grid* grid = (Grid *)m_projectHandle->getInputGrid();
+	const Interface::GridMap* gridmap = m_projectHandle->getFactory()->produceGridMap(surface, 0, grid, 0);
+	std::shared_ptr<const CauldronIO::Geometry2D> geometry(new CauldronIO::Geometry2D(grid->numI(), grid->numJ(),
+		grid->deltaI(), grid->deltaJ(), grid->minI(), grid->minJ()));
+
+	// Add the geometry to the project
+	m_project->addGeometry(geometry);
+
+	// Create the surface
+	std::shared_ptr<CauldronIO::Surface> surfaceIO(new CauldronIO::Surface(surface->getName(), getSubSurfaceKind(surface)));
+	if (m_verbose) cout << "Adding stratigraphy surface: " << surface->getName() << endl;
+	database::Record* record = surface->getRecord();
+	assert(record);
+
+	double depoAge = getDepoAge(record);
+	if (depoAge != DefaultUndefinedScalarValue)
+	{
+		surfaceIO->setAge((float)depoAge);
+	}
+
+	// Get the data for depth - constant or a gridmap
+	///////////////////////////////////////////////////////
+	std::shared_ptr<CauldronIO::SurfaceData> depthMap = getInputMap(static_cast<float>(getDepth(record)), getDepthGrid(record), geometry);
+	if (depthMap)
+	{
+		CauldronIO::PropertySurfaceData propSurfaceData(findOrCreateProperty("Depth"), depthMap);
+		surfaceIO->addPropertySurfaceData(propSurfaceData);
+	}
+
+	// Look for two-way time map for this surface
+	///////////////////////////////////////////////////////////////
+	
+	database::Table* twtIoTable = m_projectHandle->getTable("TwoWayTimeIoTbl");
+	if (twtIoTable != nullptr && twtIoTable->size() > 0)
+	{
+		database::Table::iterator tblIter;
+		for (tblIter = twtIoTable->begin(); tblIter != twtIoTable->end(); ++tblIter)
+		{
+			database::Record * twoWayTimeRecord = *tblIter;
+			// find the good line for the Surface in the table
+			if (database::getSurfaceName(twoWayTimeRecord) == surface->getName())
+			{
+				const string &twtGridMapId = getTwoWayTimeGrid(twoWayTimeRecord);
+				float twt = static_cast<float>(getTwoWayTime(twoWayTimeRecord));
+				std::shared_ptr<CauldronIO::SurfaceData> twtMap;
+
+				if (twt >= 0 && twt != DefaultUndefinedScalarValue)
+				{
+					twtMap.reset(new CauldronIO::MapNative(geometry));
+					twtMap->setConstantValue(twt);
+				}
+				else if (twtGridMapId.length() > 0)
+				{
+					const Interface::InputValue* inputMap = m_projectHandle->findInputValue("TwoWayTimeIoTbl", twtGridMapId);
+					assert(inputMap != nullptr);
+
+					CauldronIO::MapProjectHandle* mapProjectHandle = new CauldronIO::MapProjectHandle(geometry);
+					twtMap.reset(mapProjectHandle);
+					mapProjectHandle->setDataStore(inputMap);
+				}
+
+				if (twtMap)
+				{
+					std::shared_ptr<const CauldronIO::Property> twtProperty = findOrCreateProperty("TwoWayTime");
+
+					CauldronIO::PropertySurfaceData propSurfaceData(twtProperty, twtMap);
+					surfaceIO->addPropertySurfaceData(propSurfaceData);
+				}
+
+				break;
+			}
+		}
+	}
+
+	CauldronIO::StratigraphyTableEntry entry;
+	entry.setSurface(surfaceIO);
+
+	m_project->addStratigraphyTableEntry(entry);
+}
+
+
+std::shared_ptr<CauldronIO::SurfaceData> ImportProjectHandle::getInputMap(float value, const string &valueGridMapId,
+	std::shared_ptr<const CauldronIO::Geometry2D> geometry) const
+{
+	std::shared_ptr<CauldronIO::SurfaceData> valueMap;
+
+	if (valueGridMapId.length() > 0)
+	{
+		// Get some info about this input Map
+		const Interface::InputValue* inputMap = m_projectHandle->findInputValue("StratIoTbl", valueGridMapId);
+		assert(inputMap != nullptr);
+
+		// Construct a SurfaceData object caching this inputMap, to derive HDFinfo later from it
+		CauldronIO::MapProjectHandle* mapProjectHandle = new CauldronIO::MapProjectHandle(geometry);
+		valueMap.reset(mapProjectHandle);
+		mapProjectHandle->setDataStore(inputMap);
+	}
+	else if (value != DefaultUndefinedScalarValue)
+	{
+		valueMap.reset(new CauldronIO::MapNative(geometry));
+		valueMap->setConstantValue(value);
+	}
+
+	return valueMap;
+}
+
+void ImportProjectHandle::addStratTableFormation(const Interface::Formation* formation)
+{
+	auto formationIO = findOrCreateFormation(formation);
+	if (m_verbose) cout << "Adding formation: " << formation->getName() << endl;
+
+	// Create a geometry
+	const Grid* grid = (Grid *)m_projectHandle->getInputGrid();
+	const Interface::GridMap* gridmap = m_projectHandle->getFactory()->produceGridMap(formation, 0, grid, 0);
+	std::shared_ptr<const CauldronIO::Geometry2D> geometry(new CauldronIO::Geometry2D(grid->numI(), grid->numJ(),
+		grid->deltaI(), grid->deltaJ(), grid->minI(), grid->minJ()));
+
+	// Get the database record
+	database::Record* record = formation->getTopSurface()->getRecord();
+	assert(record);
+
+	// Check thickness grid
+	///////////////////////////
+	std::shared_ptr<CauldronIO::SurfaceData> thicknessMap = getInputMap(static_cast<float>(getThickness(record)), getThicknessGrid(record), geometry);
+	if (thicknessMap)
+	{
+		CauldronIO::PropertySurfaceData propSurfaceData(findOrCreateProperty("Thickness"), thicknessMap);
+		formationIO->setThicknessMap(propSurfaceData);
+	}
+
+	// Check SourceRockMixingHI grid
+	////////////////////////////////////////
+	std::shared_ptr<CauldronIO::SurfaceData> mixingHIMap = getInputMap(static_cast<float>(getSourceRockMixingHI(record)), getSourceRockMixingHIGrid(record), geometry);
+	if (mixingHIMap)
+	{
+		std::shared_ptr<const CauldronIO::Property> mixingProperty = getDefaultProperty("MixingHI");
+		CauldronIO::PropertySurfaceData propSurfaceData(mixingProperty, mixingHIMap);
+		formationIO->setSourceRockMixingHIMap(propSurfaceData);
+	}
+
+	// Check Lithotype percentage grids
+	//////////////////////////////////////////////
+	std::shared_ptr<CauldronIO::SurfaceData> lithPerc1Map, lithPerc2Map, lithPerc3Map;
+
+	if (formation->getLithoType1() != nullptr)
+	{
+		lithPerc1Map = getInputMap(static_cast<float>(getPercent1(record)), getPercent1Grid(record), geometry);
+		if (lithPerc1Map)
+		{
+			std::shared_ptr<const CauldronIO::Property> lithPerc1Property = getDefaultProperty("LithoType1Percentage");
+			CauldronIO::PropertySurfaceData propSurfaceData(lithPerc1Property, lithPerc1Map);
+			formationIO->setLithoType1PercentageMap(propSurfaceData);
+		}
+	}
+	// If lithotype 3 is defined read lithotype 2 from map
+	if (formation->getLithoType3() != nullptr)
+	{
+		lithPerc2Map = getInputMap(static_cast<float>(getPercent2(record)), getPercent2Grid(record), geometry);
+	}
+	else if (lithPerc1Map)
+	{
+		// Compute from lithotype1 map: type2 = 100 - type1
+		CauldronIO::VisualizationUtils::retrieveSingleData(lithPerc1Map);
+
+		// Create a new native map
+		lithPerc2Map.reset(new CauldronIO::MapNative(geometry));
+		float* data = new float[geometry->getNumI() * geometry->getNumJ()];
+		const float* inputData = lithPerc1Map->getSurfaceValues();
+
+		for (int i = 0; i < geometry->getNumI() * geometry->getNumJ(); ++i)
+			data[i] = 100 - inputData[i];
+
+		lithPerc2Map->setData_IJ(data);
+		lithPerc2Map->getMaxValue(); // trigger updating min/max
+
+		delete[] data;
+	}
+	if (lithPerc2Map)
+	{
+		std::shared_ptr<const CauldronIO::Property> lithPerc2Property = getDefaultProperty("LithoType2Percentage");
+		CauldronIO::PropertySurfaceData propSurfaceData(lithPerc2Property, lithPerc2Map);
+		formationIO->setLithoType2PercentageMap(propSurfaceData);
+	}
+
+	// If lithotype 3 is defined, lithotype 3 = 100 - lithotype1 - lithotype2
+	if (formation->getLithoType3() != nullptr && lithPerc1Map && lithPerc2Map)
+	{
+		// Get all the data
+		if (!lithPerc1Map->isRetrieved())
+			CauldronIO::VisualizationUtils::retrieveSingleData(lithPerc1Map);
+
+		CauldronIO::VisualizationUtils::retrieveSingleData(lithPerc2Map);
+
+		// Create a new native map
+		lithPerc3Map.reset(new CauldronIO::MapNative(geometry));
+		float* data = new float[geometry->getNumI() * geometry->getNumJ()];
+		const float* inputData1 = lithPerc1Map->getSurfaceValues();
+		const float* inputData2 = lithPerc2Map->getSurfaceValues();
+
+		for (int i = 0; i < geometry->getNumI() * geometry->getNumJ(); ++i)
+			data[i] = 100 - inputData1[i] - inputData2[i];
+
+		lithPerc3Map->setData_IJ(data);
+		lithPerc3Map->getMaxValue(); // trigger updating min/max
+
+		delete[] data;
+	}
+	if (lithPerc3Map)
+	{
+		std::shared_ptr<const CauldronIO::Property> lithPerc3Property = getDefaultProperty("LithoType3Percentage");
+		CauldronIO::PropertySurfaceData propSurfaceData(lithPerc3Property, lithPerc3Map);
+		formationIO->setLithoType3PercentageMap(propSurfaceData);
+	}
+
+	CauldronIO::StratigraphyTableEntry entry;
+	entry.setFormation(formationIO);
+
+	m_project->addStratigraphyTableEntry(entry);
+}
+
+std::shared_ptr<const CauldronIO::Property> ImportProjectHandle::getDefaultProperty(const string& propString)
+{
+	for (auto& prop : m_project->getProperties())
+	{
+		if (prop->getName() == propString) return prop;
+	}
+
+	std::shared_ptr<const CauldronIO::Property> propertyIO(new CauldronIO::Property(propString, propString, propString, "", CauldronIO::FormationProperty, CauldronIO::Other));
+	m_project->addProperty(propertyIO);
+
+	return propertyIO;
+}
+

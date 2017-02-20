@@ -114,14 +114,6 @@ std::shared_ptr<Project> CauldronIO::ImportFromXML::getProject(const pugi::xml_d
     // Create the project
     m_project.reset(new Project(projectName, projectDescript, projectTeam, projectVersion, mode, dataXmlVersionMajor, dataXmlVersionMinor));
 
-    // Read all formations
-    pugi::xml_node formationsNode = pt.child("formations");
-    for (pugi::xml_node formationNode = formationsNode.child("formation"); formationNode; formationNode = formationNode.next_sibling("formation"))
-    {
-        std::shared_ptr<const Formation> formation = getFormation(formationNode);
-        m_project->addFormation(formation);
-    }
-
     // Read all properties
     pugi::xml_node propertiesNode = pt.child("properties");
     for (pugi::xml_node propertyNode = propertiesNode.child("property"); propertyNode; propertyNode = propertyNode.next_sibling("property"))
@@ -129,6 +121,26 @@ std::shared_ptr<Project> CauldronIO::ImportFromXML::getProject(const pugi::xml_d
         std::shared_ptr<const Property> property = getProperty(propertyNode);
         m_project->addProperty(property);
     }
+
+	// Read all geometries
+	pugi::xml_node geometriesNode = pt.child("geometries");
+	if (!geometriesNode)
+	{
+		throw CauldronIOException("Cannot find any geometries, please reconvert your project to reflect latest xml format");
+	}
+	for (pugi::xml_node geometryNode = geometriesNode.child("geometry"); geometryNode; geometryNode = geometryNode.next_sibling("geometry"))
+	{
+		std::shared_ptr<const Geometry2D> geometry = getGeometry2D(geometryNode);
+		m_project->addGeometry(geometry);
+	}
+
+	// Read all formations
+	pugi::xml_node formationsNode = pt.child("formations");
+	for (pugi::xml_node formationNode = formationsNode.child("formation"); formationNode; formationNode = formationNode.next_sibling("formation"))
+	{
+		std::shared_ptr<Formation> formation = getFormation(formationNode, fullOutputPath);
+		m_project->addFormation(formation);
+	}
 
     // Read all reservoirs
     pugi::xml_node hasReservoirs = pt.child("reservoirs");
@@ -141,18 +153,52 @@ std::shared_ptr<Project> CauldronIO::ImportFromXML::getProject(const pugi::xml_d
         }
     }
 
-    // Read all geometries
-    pugi::xml_node geometriesNode = pt.child("geometries");
-    if (!geometriesNode)
-    {
-        throw CauldronIOException("Cannot find any geometries, please reconvert your project to reflect latest xml format");
-    }
-    for (pugi::xml_node geometryNode = geometriesNode.child("geometry"); geometryNode; geometryNode = geometryNode.next_sibling("geometry"))
-    {
-        std::shared_ptr<const Geometry2D> geometry = getGeometry2D(geometryNode);
-        m_project->addGeometry(geometry);
-    }
-    
+	// Read strat table
+	pugi::xml_node stratTableNode = pt.child("stratigraphytable");
+	if (stratTableNode)
+	{
+		for (pugi::xml_node_iterator it = stratTableNode.begin(); it != stratTableNode.end(); ++it)
+		{
+			pugi::xml_node entry = (*it);
+			if (std::string(entry.name()) == "surface")
+			{
+				std::shared_ptr<Surface> surface = getSurface(entry, fullOutputPath);
+				StratigraphyTableEntry item;
+				item.setSurface(surface);
+				m_project->addStratigraphyTableEntry(item);
+			}
+			else if (std::string(entry.name()) == "formation")
+			{
+				// Get the name and find it in the list
+				const std::string formationName(entry.attribute("name").as_string());
+				std::shared_ptr<Formation> formation = m_project->findFormation(formationName);
+				assert(formation);
+
+				StratigraphyTableEntry item;
+				item.setFormation(formation);
+				m_project->addStratigraphyTableEntry(item);
+			}
+		}
+
+		// Loop over formations to connect surfaces; surfaces should already be connected
+		for (int index = 1; index < m_project->getStratigraphyTable().size(); index += 2)
+		{
+			const CauldronIO::StratigraphyTableEntry& entry = m_project->getStratigraphyTable().at(index);
+			assert(bool(entry.getFormation()));
+
+			std::shared_ptr<CauldronIO::Surface> topSurface = m_project->getStratigraphyTable().at(index - 1).getSurface();
+			std::shared_ptr<CauldronIO::Formation> formation = m_project->getStratigraphyTable().at(index).getFormation();
+
+			formation->setTopSurface(topSurface);
+
+			if (index + 1 < m_project->getStratigraphyTable().size())
+			{
+				std::shared_ptr<CauldronIO::Surface> bottomSurface = m_project->getStratigraphyTable().at(index + 1).getSurface();
+				formation->setBottomSurface(bottomSurface);
+			}
+		}
+	}
+
     // Read all snapshots
     pugi::xml_node snapshotsNode = pt.child("snapshots");
     for (pugi::xml_node snapShotNode = snapshotsNode.child("snapshot"); snapShotNode; snapShotNode = snapShotNode.next_sibling("snapshot"))
@@ -171,81 +217,8 @@ std::shared_ptr<Project> CauldronIO::ImportFromXML::getProject(const pugi::xml_d
         {
             for (pugi::xml_node surfaceNode = hasSurfaces.child("surface"); surfaceNode; surfaceNode = surfaceNode.next_sibling("surface"))
             {
-                // Read some xml attributes
-                std::string surfaceName = surfaceNode.attribute("name").value();
-                SubsurfaceKind surfaceKind = (SubsurfaceKind)surfaceNode.attribute("subsurfacekind").as_int();
-
-                // Find formations, if present
-                std::shared_ptr<const Formation> topFormationIO;
-                pugi::xml_attribute topFormationName = surfaceNode.attribute("top-formation");
-                if (topFormationName)
-                    topFormationIO = m_project->findFormation(topFormationName.value());
-                std::shared_ptr<const Formation> bottomFormationIO;
-                pugi::xml_attribute bottomFormationName = surfaceNode.attribute("bottom-formation");
-                if (bottomFormationName)
-                    bottomFormationIO = m_project->findFormation(bottomFormationName.value());
-
-                // Construct the surface
-                std::shared_ptr<Surface> surface(new Surface(surfaceName, surfaceKind)); 
-                if (topFormationIO) surface->setFormation(topFormationIO, true);
-                if (bottomFormationIO) surface->setFormation(bottomFormationIO, false);
-
-                // Get all property surface data
-                pugi::xml_node propertyMapNodes = surfaceNode.child("propertymaps");
-                for (pugi::xml_node propertyMapNode = propertyMapNodes.child("propertymap"); propertyMapNode; propertyMapNode = propertyMapNode.next_sibling("propertymap"))
-                {
-                    std::string propertyName = propertyMapNode.attribute("property").value();
-                    std::shared_ptr<const Property> property = m_project->findProperty(propertyName);
-                    assert(property);
-
-                    // Get the geometry
-                    size_t geometryIndex = (size_t)propertyMapNode.attribute("geom-index").as_int();
-                    std::shared_ptr<const Geometry2D> geometry = m_project->getGeometries().at(geometryIndex);
-
-                    // Get min/max value
-                    float minValue = DefaultUndefinedValue;
-                    float maxValue = DefaultUndefinedValue;
-
-                    pugi::xml_attribute minValueAttr = propertyMapNode.attribute("min");
-                    if (minValueAttr)
-                        minValue = minValueAttr.as_float();
-
-                    pugi::xml_attribute maxValueAttr = propertyMapNode.attribute("max");
-                    if (maxValueAttr)
-                        maxValue = maxValueAttr.as_float();
-
-                    // Create the surface data
-                    std::shared_ptr<SurfaceData> surfaceData(new MapNative(geometry, minValue, maxValue));
-
-                    // Contains formation?
-                    pugi::xml_attribute formationName = propertyMapNode.attribute("formation");
-                    if (formationName)
-                    {
-                        std::shared_ptr<const Formation> formationIO = m_project->findFormation(formationName.value());
-                        surfaceData->setFormation(formationIO);
-                    }
-
-                    // Find the reservoir object, if name is present
-                    std::shared_ptr<const Reservoir> reservoirIO;
-                    pugi::xml_attribute reservoirName = propertyMapNode.attribute("reservoir");
-                    if (reservoirName)
-                    {
-                        reservoirIO = m_project->findReservoir(reservoirName.value());
-                        assert(reservoirIO);
-                        surfaceData->setReservoir(reservoirIO);
-                    }
-
-                    // Get the datastore xml node or constantvalue
-                    pugi::xml_attribute constantVal = propertyMapNode.attribute("constantvalue");
-                    if (constantVal)
-                        surfaceData->setConstantValue(constantVal.as_float());
-                    else
-                        DataStoreLoad::getSurface(propertyMapNode, surfaceData, fullOutputPath);
-
-                    PropertySurfaceData propSurfaceData(property, surfaceData);
-                    surface->addPropertySurfaceData(propSurfaceData);
-                }
-
+				std::shared_ptr<Surface> surface = getSurface(surfaceNode, fullOutputPath);
+				
                 // Add to snapshot
                 snapShot->addSurface(surface);
             }
@@ -445,6 +418,96 @@ std::shared_ptr<Volume> CauldronIO::ImportFromXML::getVolume(pugi::xml_node volu
     return volume;
 }
 
+CauldronIO::PropertySurfaceData CauldronIO::ImportFromXML::getPropertySurfaceData(pugi::xml_node &propertyMapNode, const ibs::FilePath& fullOutputPath) const
+{
+	std::string propertyName = propertyMapNode.attribute("property").value();
+	std::shared_ptr<const Property> property = m_project->findProperty(propertyName);
+	assert(property);
+
+	// Get the geometry
+	size_t geometryIndex = (size_t)propertyMapNode.attribute("geom-index").as_int();
+	std::shared_ptr<const Geometry2D> geometry = m_project->getGeometries().at(geometryIndex);
+
+	// Get min/max value
+	float minValue = DefaultUndefinedValue;
+	float maxValue = DefaultUndefinedValue;
+
+	pugi::xml_attribute minValueAttr = propertyMapNode.attribute("min");
+	if (minValueAttr)
+		minValue = minValueAttr.as_float();
+
+	pugi::xml_attribute maxValueAttr = propertyMapNode.attribute("max");
+	if (maxValueAttr)
+		maxValue = maxValueAttr.as_float();
+
+	// Create the surface data
+	std::shared_ptr<SurfaceData> surfaceData(new MapNative(geometry, minValue, maxValue));
+
+	// Contains formation?
+	pugi::xml_attribute formationName = propertyMapNode.attribute("formation");
+	if (formationName)
+	{
+		std::shared_ptr<const Formation> formationIO = m_project->findFormation(formationName.value());
+		surfaceData->setFormation(formationIO);
+	}
+
+	// Find the reservoir object, if name is present
+	std::shared_ptr<const Reservoir> reservoirIO;
+	pugi::xml_attribute reservoirName = propertyMapNode.attribute("reservoir");
+	if (reservoirName)
+	{
+		reservoirIO = m_project->findReservoir(reservoirName.value());
+		assert(reservoirIO);
+		surfaceData->setReservoir(reservoirIO);
+	}
+
+	// Get the datastore xml node or constantvalue
+	pugi::xml_attribute constantVal = propertyMapNode.attribute("constantvalue");
+	if (constantVal)
+		surfaceData->setConstantValue(constantVal.as_float());
+	else
+		DataStoreLoad::getSurface(propertyMapNode, surfaceData, fullOutputPath);
+
+	return PropertySurfaceData(property, surfaceData);
+}
+
+std::shared_ptr<CauldronIO::Surface> ImportFromXML::getSurface(pugi::xml_node surfaceNode, const ibs::FilePath& fullOutputPath) const
+{
+	// Read some xml attributes
+	std::string surfaceName = surfaceNode.attribute("name").value();
+	SubsurfaceKind surfaceKind = (SubsurfaceKind)surfaceNode.attribute("subsurfacekind").as_int();
+
+	// Find formations, if present
+	std::shared_ptr<Formation> topFormationIO;
+	pugi::xml_attribute topFormationName = surfaceNode.attribute("top-formation");
+	if (topFormationName)
+		topFormationIO = m_project->findFormation(topFormationName.value());
+	std::shared_ptr<Formation> bottomFormationIO;
+	pugi::xml_attribute bottomFormationName = surfaceNode.attribute("bottom-formation");
+	if (bottomFormationName)
+		bottomFormationIO = m_project->findFormation(bottomFormationName.value());
+
+	// Construct the surface
+	std::shared_ptr<Surface> surface(new Surface(surfaceName, surfaceKind));
+	if (topFormationIO) surface->setFormation(topFormationIO, true);
+	if (bottomFormationIO) surface->setFormation(bottomFormationIO, false);
+
+	// Find age, if present
+	pugi::xml_attribute ageAttrib = surfaceNode.attribute("age");
+	if (ageAttrib)
+		surface->setAge(ageAttrib.as_float());
+
+	// Get all property surface data
+	pugi::xml_node propertyMapNodes = surfaceNode.child("propertymaps");
+	for (pugi::xml_node propertyMapNode = propertyMapNodes.child("propertymap"); propertyMapNode; propertyMapNode = propertyMapNode.next_sibling("propertymap"))
+	{
+		PropertySurfaceData propSurfaceData = getPropertySurfaceData(propertyMapNode, fullOutputPath);
+		surface->addPropertySurfaceData(propSurfaceData);
+	}
+
+	return surface;
+}
+
 std::shared_ptr<Property> CauldronIO::ImportFromXML::getProperty(pugi::xml_node propertyNode) const
 {
     std::shared_ptr<Property> property;
@@ -460,7 +523,7 @@ std::shared_ptr<Property> CauldronIO::ImportFromXML::getProperty(pugi::xml_node 
     return property;
 }
 
-std::shared_ptr<Formation> CauldronIO::ImportFromXML::getFormation(pugi::xml_node formationNode) const
+std::shared_ptr<Formation> CauldronIO::ImportFromXML::getFormation(pugi::xml_node formationNode, const ibs::FilePath& fullOutputPath) const
 {
     std::shared_ptr<Formation> formation;
 
@@ -468,9 +531,140 @@ std::shared_ptr<Formation> CauldronIO::ImportFromXML::getFormation(pugi::xml_nod
     std::string name = formationNode.attribute("name").value();
     start = formationNode.attribute("kstart").as_uint();
     end = formationNode.attribute("kend").as_uint();
-    bool isSR = formationNode.attribute("isSR").as_bool();
-    bool isML = formationNode.attribute("isML").as_bool(); 
+    formation.reset(new Formation(start, end, name));
 
-    formation.reset(new Formation(start, end, name, isSR, isML));
+	// Read thicknessmap if present
+	pugi::xml_node subNode = formationNode.child("thicknessmap");
+	if (subNode)
+	{
+		// read the propertySurface data
+		PropertySurfaceData propSurfaceData = getPropertySurfaceData(subNode, fullOutputPath);
+		formation->setThicknessMap(propSurfaceData);
+	}
+
+	// Read mixingHI map if present
+	subNode = formationNode.child("mixingHImap");
+	if (subNode)
+	{
+		// read the propertySurface data
+		PropertySurfaceData propSurfaceData = getPropertySurfaceData(subNode, fullOutputPath);
+		formation->setSourceRockMixingHIMap(propSurfaceData);
+	}
+
+	// Read lithotype percentage maps
+	subNode = formationNode.child("lithoType1Perc1map");
+	if (subNode)
+	{
+		// read the propertySurface data
+		PropertySurfaceData propSurfaceData = getPropertySurfaceData(subNode, fullOutputPath);
+		formation->setLithoType1PercentageMap(propSurfaceData);
+	}
+	subNode = formationNode.child("lithoType1Perc2map");
+	if (subNode)
+	{
+		// read the propertySurface data
+		PropertySurfaceData propSurfaceData = getPropertySurfaceData(subNode, fullOutputPath);
+		formation->setLithoType2PercentageMap(propSurfaceData);
+	}
+	subNode = formationNode.child("lithoType1Perc3map");
+	if (subNode)
+	{
+		// read the propertySurface data
+		PropertySurfaceData propSurfaceData = getPropertySurfaceData(subNode, fullOutputPath);
+		formation->setLithoType3PercentageMap(propSurfaceData);
+	}
+
+	// Find additional properties
+	pugi::xml_attribute attrib = formationNode.attribute("sr1name");
+	if (attrib)
+	{
+		formation->setSourceRock1Name(attrib.as_string());
+	}
+	attrib = formationNode.attribute("sr2name");
+	if (attrib)
+	{
+		formation->setSourceRock2Name(attrib.as_string());
+	}
+	attrib = formationNode.attribute("fluid_type");
+	if (attrib)
+	{
+		formation->setFluidType(attrib.as_string());
+	}
+	attrib = formationNode.attribute("sr_mixing");
+	if (attrib)
+	{
+		formation->setEnableSourceRockMixing(attrib.as_bool());
+	}
+	attrib = formationNode.attribute("allocht_lith");
+	if (attrib)
+	{
+		formation->setAllochthonousLithology(attrib.as_bool());
+	}
+	attrib = formationNode.attribute("allocht_lith_name");
+	if (attrib)
+	{
+		formation->setAllochthonousLithologyName(attrib.as_string());
+	}
+	attrib = formationNode.attribute("constrained_op");
+	if (attrib)
+	{
+		formation->setConstrainedOverpressure(attrib.as_bool());
+	}
+	attrib = formationNode.attribute("chem_compact");
+	if (attrib)
+	{
+		formation->setChemicalCompaction(attrib.as_bool());
+	}
+	attrib = formationNode.attribute("ignious_intr");
+	if (attrib)
+	{
+		formation->setIgneousIntrusion(attrib.as_bool());
+	}
+	attrib = formationNode.attribute("ignious_intr_age");
+	if (attrib)
+	{
+		formation->setIgneousIntrusionAge(attrib.as_double());
+	}
+	attrib = formationNode.attribute("depo_sequence");
+	if (attrib)
+	{
+		formation->setDepoSequence(attrib.as_int());
+	}
+	attrib = formationNode.attribute("elem_refinement");
+	if (attrib)
+	{
+		formation->setElementRefinement(attrib.as_int());
+	}
+	attrib = formationNode.attribute("mixing_model");
+	if (attrib)
+	{
+		formation->setMixingModel(attrib.as_string());
+	}
+	attrib = formationNode.attribute("litho1_name");
+	if (attrib)
+	{
+		formation->setLithoType1Name(attrib.as_string());
+	}
+	attrib = formationNode.attribute("litho2_name");
+	if (attrib)
+	{
+		formation->setLithoType2Name(attrib.as_string());
+	}
+	attrib = formationNode.attribute("litho3_name");
+	if (attrib)
+	{
+		formation->setLithoType3Name(attrib.as_string());
+	}
+	attrib = formationNode.attribute("isSR");
+	if (attrib)
+	{
+		formation->setIsSourceRock(attrib.as_bool());
+	}
+	attrib = formationNode.attribute("isML");
+	if (attrib)
+	{
+		formation->setIsMobileLayer(attrib.as_bool());
+	}
+
     return formation;
 }
