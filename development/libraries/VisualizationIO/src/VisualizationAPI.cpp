@@ -47,9 +47,6 @@ void CauldronIO::Project::addSnapShot(std::shared_ptr<SnapShot>& newSnapShot)
         if (snapShot == newSnapShot) throw CauldronIOException("Cannot add snapshot twice");
 
     m_snapShotList.push_back(newSnapShot);
-    
-    // Invalidate the surface names; the list may have changed now
-    m_surfaceNames.clear();
 }
 
 const string& CauldronIO::Project::getName() const
@@ -119,45 +116,15 @@ const FormationList& CauldronIO::Project::getFormations() const
     return m_formationList;
 }
 
-std::shared_ptr<const Formation> CauldronIO::Project::findFormation(std::string formationName) const
+std::shared_ptr<Formation> CauldronIO::Project::findFormation(std::string formationName) const
 {
-    BOOST_FOREACH(const std::shared_ptr<const Formation>& formation, m_formationList)
+    BOOST_FOREACH(const std::shared_ptr<Formation>& formation, m_formationList)
     {
         if (formation->getName() == formationName) return formation;
     }
 
-    return std::shared_ptr<const Formation>();
+    return std::shared_ptr<Formation>();
 }
-
-const std::vector<std::string>& CauldronIO::Project::getSurfaceNames() 
-{
-    // Construct the list if needed
-    if (m_surfaceNames.size() == 0)
-    {
-        BOOST_FOREACH(std::shared_ptr<SnapShot>& snapShot, m_snapShotList)
-        {
-            BOOST_FOREACH(const std::shared_ptr<Surface>& surface, snapShot->getSurfaceList())
-            {
-                const string& surfaceName = surface->getName();
-                if (surfaceName.empty()) continue;
-
-                bool exists = false;
-                BOOST_FOREACH(const string& existingSurface, m_surfaceNames)
-                {
-                    if (existingSurface == surfaceName)
-                    {
-                        exists = true;
-                        break;
-                    }
-                }
-                if (!exists) m_surfaceNames.push_back(surfaceName);
-            }
-        }
-    }
-
-    return m_surfaceNames;
-}
-
 
 int CauldronIO::Project::getXmlVersionMajor() const
 {
@@ -167,6 +134,32 @@ int CauldronIO::Project::getXmlVersionMajor() const
 int CauldronIO::Project::getXmlVersionMinor() const
 {
     return m_xmlVersionMinor;
+}
+
+const std::vector<CauldronIO::StratigraphyTableEntry>& CauldronIO::Project::getStratigraphyTable() const
+{
+	return m_stratTable;
+}
+
+void CauldronIO::Project::addStratigraphyTableEntry(StratigraphyTableEntry entry)
+{
+	m_stratTable.push_back(entry);
+}
+
+
+void CauldronIO::Project::retrieveStratigraphyTable()
+{
+	for (auto& entry : m_stratTable)
+	{
+		if (entry.getFormation())
+		{
+			entry.getFormation()->retrieve();
+		}
+		if (entry.getSurface())
+		{
+			entry.getSurface()->retrieve();
+		}
+	}
 }
 
 const ReservoirList& CauldronIO::Project::getReservoirs() const
@@ -194,12 +187,12 @@ void CauldronIO::Project::addProperty(std::shared_ptr<const Property>& newProper
     m_propertyList.push_back(newProperty);
 }
 
-void CauldronIO::Project::addFormation(std::shared_ptr<const Formation>& newFormation)
+void CauldronIO::Project::addFormation(std::shared_ptr<Formation>& newFormation)
 {
     if (!newFormation) throw CauldronIOException("Cannot add empty formation");
 
     // Check if formation exists
-    BOOST_FOREACH(std::shared_ptr<const Formation>& formation, m_formationList)
+    BOOST_FOREACH(std::shared_ptr<Formation>& formation, m_formationList)
         if (*formation == *newFormation) throw CauldronIOException("Cannot add formation twice");
 
     m_formationList.push_back(newFormation);
@@ -244,6 +237,21 @@ void CauldronIO::Project::release()
 {
     BOOST_FOREACH(std::shared_ptr<SnapShot>& snapShot, m_snapShotList)
         snapShot->release();
+
+	// Release strat-table
+	for (auto& entry : m_stratTable)
+	{
+		if (entry.getSurface())
+		{
+			entry.getSurface()->release();
+		}
+		if (entry.getFormation())
+		{
+			entry.getFormation()->release();
+		}
+	}
+
+	m_stratTable.clear();
 }
 
 /// SnapShot implementation
@@ -458,21 +466,52 @@ bool CauldronIO::Property::operator==(const Property& other) const
 /// Formation
 //////////////////////////////////////////////////////////////////////////
 
-CauldronIO::Formation::Formation(size_t kStart, size_t kEnd, const string& name, bool isSourceRock, bool isMobileLayer)
+CauldronIO::Formation::Formation(int kStart, int kEnd, const string& name)
 {
     if (name.empty()) throw CauldronIOException("Formation name cannot be empty");
     
     m_kstart = kStart;
     m_kend = kEnd;
     m_name = name;
-    m_isSourceRock = isSourceRock;
-    m_isMobileLayer = isMobileLayer;
+	
+	m_isSourceRock = false;
+    m_isMobileLayer = false;
+	m_hasAllochthonousLithology = false;
+	m_chemicalcompaction = false;
+	m_constrainedOverpressure = false;
+	m_igniousintrusion = false;
+	m_hasAllochthonousLithology = false;
+	m_enableSourceRockMixing = false;
+
+	m_depoSequence = -1;
+	m_elementRefinement = -1;
+	m_igniousintrusionAge = -1;
+
+	m_lithoType1name.clear();
+	m_lithoType2name.clear();
+	m_lithoType3name.clear(); 
+	m_fluidTypeName.clear();
+	m_mixingmodelname.clear(); 
+	m_sourceRock1name.clear();
+	m_sourceRock2name.clear();
+	m_allochthonousLithologyName.clear();
 }
 
-void CauldronIO::Formation::getK_Range(unsigned int &start, unsigned int &end) const
+bool CauldronIO::Formation::isDepthRangeDefined() const
 {
-    start = (unsigned int)m_kstart;
-    end = (unsigned int)m_kend;
+	return m_kstart >= 0 && m_kend >= 0;
+}
+
+void CauldronIO::Formation::updateK_range(int kStart, int kEnd)
+{
+	m_kstart = kStart;
+	m_kend = kEnd;
+}
+
+void CauldronIO::Formation::getK_Range(int &start, int &end) const
+{
+    start = m_kstart;
+    end = m_kend;
 }
 
 const string& CauldronIO::Formation::getName() const
@@ -480,15 +519,351 @@ const string& CauldronIO::Formation::getName() const
     return m_name;
 }
 
+
+void CauldronIO::Formation::setIsSourceRock(bool isSourceRock)
+{
+	m_isSourceRock = isSourceRock;
+}
+
 bool CauldronIO::Formation::isSourceRock() const
 {
     return m_isSourceRock;
 }
 
+void CauldronIO::Formation::setIsMobileLayer(bool isMobileLayer)
+{
+	m_isMobileLayer = isMobileLayer;
+}
 
 bool CauldronIO::Formation::isMobileLayer() const
 {
     return m_isMobileLayer;
+}
+
+bool CauldronIO::Formation::hasThicknessMap() const
+{
+	return bool(m_thickness.second);
+}
+
+void CauldronIO::Formation::setThicknessMap(PropertySurfaceData& thicknessMap)
+{
+	m_thickness = thicknessMap;
+}
+
+const CauldronIO::PropertySurfaceData& CauldronIO::Formation::getThicknessMap() const
+{
+	return m_thickness;
+}
+
+
+bool CauldronIO::Formation::hasSourceRockMixingHIMap() const
+{
+	return bool(m_mixingHI.second);
+}
+
+void CauldronIO::Formation::setSourceRockMixingHIMap(PropertySurfaceData& map)
+{
+	m_mixingHI = map;
+}
+
+const CauldronIO::PropertySurfaceData& CauldronIO::Formation::getSourceRockMixingHIMap() const
+{
+	return m_mixingHI;
+}
+
+
+void CauldronIO::Formation::setSourceRock1Name(const std::string& name)
+{
+	m_sourceRock1name = name;
+}
+
+
+const std::string& CauldronIO::Formation::getSourceRock1Name() const
+{
+	return m_sourceRock1name;
+}
+
+void CauldronIO::Formation::setSourceRock2Name(const std::string& name)
+{
+	m_sourceRock2name = name;
+}
+
+
+const std::string& CauldronIO::Formation::getSourceRock2Name() const
+{
+	return m_sourceRock2name;
+}
+
+void CauldronIO::Formation::setEnableSourceRockMixing(bool enable)
+{
+	m_enableSourceRockMixing = enable;
+}
+
+
+bool CauldronIO::Formation::getEnableSourceRockMixing() const
+{
+	return m_enableSourceRockMixing;
+}
+
+
+bool CauldronIO::Formation::hasAllochthonousLithology() const
+{
+	return m_hasAllochthonousLithology;
+}
+
+
+void CauldronIO::Formation::setAllochthonousLithology(bool value)
+{
+	m_hasAllochthonousLithology = value;
+}
+
+
+const std::string& CauldronIO::Formation::getAllochthonousLithologyName() const
+{
+	return m_allochthonousLithologyName;
+}
+
+
+void CauldronIO::Formation::setAllochthonousLithologyName(const std::string& value)
+{
+	m_allochthonousLithologyName = value;
+}
+
+
+bool CauldronIO::Formation::isIgneousIntrusion() const
+{
+	return m_igniousintrusion;
+}
+
+
+void CauldronIO::Formation::setIgneousIntrusion(bool value)
+{
+	m_igniousintrusion = value;
+}
+
+
+double CauldronIO::Formation::getIgneousIntrusionAge() const
+{
+	return m_igniousintrusionAge;
+}
+
+
+void CauldronIO::Formation::setIgneousIntrusionAge(double age)
+{
+	m_igniousintrusionAge = age;
+}
+
+
+int CauldronIO::Formation::getDepoSequence() const
+{
+	return m_depoSequence;
+}
+
+
+void CauldronIO::Formation::setDepoSequence(int number)
+{
+	m_depoSequence = number;
+}
+
+
+const std::string& CauldronIO::Formation::getFluidType() const
+{
+	return m_fluidTypeName;
+}
+
+
+void CauldronIO::Formation::setFluidType(const std::string& type)
+{
+	m_fluidTypeName = type;
+}
+
+
+bool CauldronIO::Formation::hasConstrainedOverpressure() const
+{
+	return m_constrainedOverpressure;
+}
+
+
+void CauldronIO::Formation::setConstrainedOverpressure(bool value)
+{
+	m_constrainedOverpressure = value;
+}
+
+
+bool CauldronIO::Formation::hasChemicalCompaction() const
+{
+	return m_chemicalcompaction;
+}
+
+
+void CauldronIO::Formation::setChemicalCompaction(bool value)
+{
+	m_chemicalcompaction = value;
+}
+
+
+int CauldronIO::Formation::getElementRefinement() const
+{
+	return m_elementRefinement;
+}
+
+
+void CauldronIO::Formation::setElementRefinement(int value)
+{
+	m_elementRefinement = value;
+}
+
+
+const std::string& CauldronIO::Formation::getMixingModel() const
+{
+	return m_mixingmodelname;
+}
+
+
+void CauldronIO::Formation::setMixingModel(const std::string& model)
+{
+	m_mixingmodelname = model;
+}
+
+
+void CauldronIO::Formation::setLithoType1Name(const std::string& name)
+{
+	m_lithoType1name = name;
+}
+
+
+const std::string& CauldronIO::Formation::getLithoType1Name() const
+{
+	return m_lithoType1name;
+}
+
+
+void CauldronIO::Formation::setLithoType2Name(const std::string& name)
+{
+	m_lithoType2name = name;
+}
+
+const std::string& CauldronIO::Formation::getLithoType2Name() const
+{
+	return m_lithoType2name;
+}
+
+
+void CauldronIO::Formation::setLithoType3Name(const std::string& name)
+{
+	m_lithoType3name = name;
+}
+
+
+const std::string& CauldronIO::Formation::getLithoType3Name() const
+{
+	return m_lithoType3name;
+}
+
+void CauldronIO::Formation::setLithoType1PercentageMap(PropertySurfaceData& map)
+{
+	m_lithPerc1map = map;
+}
+
+void CauldronIO::Formation::setLithoType2PercentageMap(PropertySurfaceData& map)
+{
+	m_lithPerc2map = map;
+}
+
+void CauldronIO::Formation::setLithoType3PercentageMap(PropertySurfaceData& map)
+{
+	m_lithPerc3map = map;
+}
+
+const CauldronIO::PropertySurfaceData& CauldronIO::Formation::getLithoType1PercentageMap() const
+{
+	return m_lithPerc1map;
+}
+
+const CauldronIO::PropertySurfaceData& CauldronIO::Formation::getLithoType2PercentageMap() const
+{
+	return m_lithPerc2map;
+}
+
+const CauldronIO::PropertySurfaceData& CauldronIO::Formation::getLithoType3PercentageMap() const
+{
+	return m_lithPerc3map;
+}
+
+bool CauldronIO::Formation::hasLithoType1PercentageMap() const
+{
+	return bool(m_lithPerc1map.second);
+}
+
+bool CauldronIO::Formation::hasLithoType2PercentageMap() const
+{
+	return bool(m_lithPerc2map.second);
+}
+
+bool CauldronIO::Formation::hasLithoType3PercentageMap() const
+{
+	return bool(m_lithPerc3map.second);
+}
+
+void CauldronIO::Formation::setTopSurface(std::shared_ptr<CauldronIO::Surface>& surface)
+{
+	m_topSurface = surface;
+}
+
+const std::shared_ptr<CauldronIO::Surface>& CauldronIO::Formation::getTopSurface()
+{
+	return m_topSurface;
+}
+
+void CauldronIO::Formation::setBottomSurface(std::shared_ptr<CauldronIO::Surface>& surface)
+{
+	m_bottomSurface = surface;
+}
+
+const std::shared_ptr<CauldronIO::Surface>& CauldronIO::Formation::getBottomSurface()
+{
+	return m_bottomSurface;
+}
+
+void CauldronIO::Formation::release()
+{
+	if (hasThicknessMap())
+	{
+		m_thickness.second->release();
+		m_thickness.second.reset();
+	}
+	if (hasSourceRockMixingHIMap())
+	{
+		m_mixingHI.second->release();
+		m_mixingHI.second.reset();
+	}
+	if (hasLithoType1PercentageMap())
+	{
+		m_lithPerc1map.second->release();
+		m_lithPerc1map.second.reset();
+	}
+	if (hasLithoType2PercentageMap())
+	{
+		m_lithPerc2map.second->release();
+		m_lithPerc2map.second.reset();
+	}
+	if (hasLithoType3PercentageMap())
+	{
+		m_lithPerc3map.second->release();
+		m_lithPerc3map.second.reset();
+	}
+}
+
+void CauldronIO::Formation::retrieve()
+{
+	if (hasThicknessMap() && !m_thickness.second->isRetrieved())
+	{
+		m_thickness.second->retrieve();
+	}
+	if (hasSourceRockMixingHIMap() && !m_mixingHI.second->isRetrieved())
+	{
+		m_mixingHI.second->retrieve();
+	}
 }
 
 bool CauldronIO::Formation::operator==(const Formation& other) const
@@ -504,6 +879,7 @@ CauldronIO::Surface::Surface(const std::string& name, SubsurfaceKind kind)
     m_name = name;
     m_subSurfaceKind = kind;
     m_propSurfaceList.clear();
+	m_age = -1;
 }
 
 CauldronIO::Surface::~Surface()
@@ -562,7 +938,7 @@ CauldronIO::SubsurfaceKind CauldronIO::Surface::getSubSurfaceKind() const
     return m_subSurfaceKind;
 }
 
-void CauldronIO::Surface::setFormation(std::shared_ptr<const Formation>& formation, bool isTopFormation)
+void CauldronIO::Surface::setFormation(std::shared_ptr<Formation>& formation, bool isTopFormation)
 {
     if (isTopFormation)
         m_Topformation = formation;
@@ -570,12 +946,12 @@ void CauldronIO::Surface::setFormation(std::shared_ptr<const Formation>& formati
         m_Bottomformation = formation;
 }
 
-const std::shared_ptr<const Formation>& CauldronIO::Surface::getTopFormation() const
+const std::shared_ptr<Formation>& CauldronIO::Surface::getTopFormation() const
 {
     return m_Topformation;
 }
 
-const std::shared_ptr<const Formation>& CauldronIO::Surface::getBottomFormation() const
+const std::shared_ptr<Formation>& CauldronIO::Surface::getBottomFormation() const
 {
     return m_Bottomformation;
 }
@@ -606,6 +982,21 @@ bool CauldronIO::Surface::isRetrieved() const
     return true;
 }
 
+
+bool CauldronIO::Surface::isAgeDefined() const
+{
+	return m_age >= 0;
+}
+
+void CauldronIO::Surface::setAge(float age)
+{
+	m_age = age;
+}
+
+float CauldronIO::Surface::getAge() const
+{
+	return m_age;
+}
 
 bool CauldronIO::Surface::operator==(const Surface& other) const
 {
@@ -733,7 +1124,7 @@ CauldronIO::SurfaceData::SurfaceData(const std::shared_ptr<const Geometry2D>& ge
     m_updateMinMax = minValue == DefaultUndefinedValue; // if the min/max values are not set they need to be updated
 
     // Indexing into the map is unknown
-    m_internalData = NULL;
+    m_internalData = nullptr;
     
     m_reservoir.reset();
     m_formation.reset();
@@ -793,7 +1184,7 @@ void CauldronIO::SurfaceData::setConstantValue(float value)
 CauldronIO::SurfaceData::~SurfaceData()
 {
     if (m_internalData) delete[] m_internalData;
-    m_internalData = NULL;
+    m_internalData = nullptr;
 }
 
 const std::shared_ptr<const Geometry2D>& CauldronIO::SurfaceData::getGeometry() const
@@ -834,7 +1225,7 @@ void CauldronIO::SurfaceData::setData(float* data, bool setValue, float value)
         std::fill(m_internalData, m_internalData + m_numI * m_numJ, value);
     }
 
-    m_retrieved = true;
+	m_retrieved = true;
 }
 
 
@@ -852,20 +1243,30 @@ void CauldronIO::SurfaceData::updateMinMax()
     size_t allElements = m_numI * m_numJ;
     float minValue = DefaultUndefinedValue;
     float maxValue = DefaultUndefinedValue;
+	bool foundUndefined = false;
 
     for (size_t i = 0; i < allElements; i++)
     {
         float val = m_internalData[i];
-        if (val != DefaultUndefinedValue)
-        {
+		if (val != DefaultUndefinedValue)
+		{
 			minValue = minValue == DefaultUndefinedValue ? val : min(minValue, val);
 			maxValue = maxValue == DefaultUndefinedValue ? val : max(maxValue, val);
-        }
+		}
+		else
+			foundUndefined = true;
     }
 
     m_minValue = minValue;
     m_maxValue = maxValue;
-    m_updateMinMax = false;
+
+	if ((minValue == maxValue && !foundUndefined) || (minValue == DefaultUndefinedValue && maxValue == DefaultUndefinedValue))
+	{
+		release();
+		setConstantValue(minValue);
+	}
+
+	m_updateMinMax = false;
 }
 
 bool CauldronIO::SurfaceData::canGetRow() const
@@ -901,7 +1302,7 @@ const float* CauldronIO::SurfaceData::getRowValues(size_t j)
     if (!isRetrieved()) throw CauldronIOException("Need to assign data first");
 
     // Create our internal buffer if not existing
-    if (!m_internalData && m_isConstant) setData(NULL, true, m_constantValue);
+    if (!m_internalData && m_isConstant) setData(nullptr, true, m_constantValue);
 
     return m_internalData + getMapIndex(0, j);
 }
@@ -912,7 +1313,7 @@ const float* CauldronIO::SurfaceData::getColumnValues(size_t i)
     if (!canGetColumn()) throw CauldronIOException("Cannot return column values");
 
     // Create our internal buffer if not existing
-    if (!m_internalData && m_isConstant) setData(NULL, true, m_constantValue);
+    if (!m_internalData && m_isConstant) setData(nullptr, true, m_constantValue);
 
     return m_internalData + getMapIndex(i, 0);
 }
@@ -922,7 +1323,7 @@ const float* CauldronIO::SurfaceData::getSurfaceValues()
     if (!isRetrieved()) throw CauldronIOException("Need to assign data first");
 
     // Create our internal buffer if not existing
-    if (!m_internalData && m_isConstant) setData(NULL, true, m_constantValue);
+    if (!m_internalData && m_isConstant) setData(nullptr, true, m_constantValue);
 
     return m_internalData;
 }
@@ -936,7 +1337,7 @@ size_t CauldronIO::SurfaceData::getMapIndex(size_t i, size_t j) const
 void CauldronIO::SurfaceData::release()
 {
     if (m_internalData) delete[] m_internalData;
-    m_internalData = NULL;
+    m_internalData = nullptr;
     m_retrieved = false;
 }
 
@@ -1244,8 +1645,8 @@ const std::shared_ptr<const Formation>& CauldronIO::Reservoir::getFormation() co
 
 CauldronIO::VolumeData::VolumeData(const std::shared_ptr<Geometry3D>& geometry, float minValue, float maxValue)
 {
-    m_internalDataIJK = NULL;
-    m_internalDataKIJ = NULL;
+    m_internalDataIJK = nullptr;
+    m_internalDataKIJ = nullptr;
     m_isConstant = false;
     m_retrieved = false;
     m_geometry = geometry;
@@ -1260,8 +1661,8 @@ CauldronIO::VolumeData::~VolumeData()
 {
     if (m_internalDataIJK) delete[] m_internalDataIJK;
     if (m_internalDataKIJ) delete[] m_internalDataKIJ;
-    m_internalDataIJK = NULL;
-    m_internalDataKIJ = NULL;
+    m_internalDataIJK = nullptr;
+    m_internalDataKIJ = nullptr;
 }
 
 const std::shared_ptr<Geometry3D>& CauldronIO::VolumeData::getGeometry() const
@@ -1296,7 +1697,7 @@ const float* CauldronIO::VolumeData::getRowValues(size_t j, size_t k)
     if (!hasDataIJK()) throw CauldronIOException("Cannot return row values");
 
     // Create our internal buffer if not existing
-    if (!m_internalDataIJK && m_isConstant) setData_IJK(NULL, true, m_constantValue);
+    if (!m_internalDataIJK && m_isConstant) setData_IJK(nullptr, true, m_constantValue);
 
     // Assume IJK ordering
     assert(m_internalDataIJK);
@@ -1314,7 +1715,7 @@ const float* CauldronIO::VolumeData::getNeedleValues(size_t i, size_t j)
     if (!hasDataKIJ() || isConstant()) throw CauldronIOException("Cannot return needle values");
 
     // Create our internal buffer if not existing
-    if (!m_internalDataKIJ && m_isConstant) setData_KIJ(NULL, true, m_constantValue);
+    if (!m_internalDataKIJ && m_isConstant) setData_KIJ(nullptr, true, m_constantValue);
 
     return m_internalDataKIJ + computeIndex_KIJ(i, j, m_firstK);
 }
@@ -1325,7 +1726,7 @@ const float* CauldronIO::VolumeData::getSurface_IJ(size_t k)
     if (!hasDataIJK() || isConstant()) throw CauldronIOException("Cannot return surface values");
 
     // Create our internal buffer if not existing
-    if (!m_internalDataIJK && m_isConstant) setData_IJK(NULL, true, m_constantValue);
+    if (!m_internalDataIJK && m_isConstant) setData_IJK(nullptr, true, m_constantValue);
 
     return m_internalDataIJK + computeIndex_IJK(0, 0, k);
 }
@@ -1336,7 +1737,7 @@ const float* CauldronIO::VolumeData::getVolumeValues_KIJ()
     if (!hasDataKIJ() || isConstant()) throw CauldronIOException("Cannot return volume values");
 
     // Create our internal buffer if not existing
-    if (!m_internalDataKIJ && m_isConstant) setData_KIJ(NULL, true, m_constantValue);
+    if (!m_internalDataKIJ && m_isConstant) setData_KIJ(nullptr, true, m_constantValue);
 
     return m_internalDataKIJ;
 }
@@ -1347,7 +1748,7 @@ const float* CauldronIO::VolumeData::getVolumeValues_IJK()
     if (!hasDataIJK() || isConstant()) throw CauldronIOException("Cannot return volume values");
 
     // Create our internal buffer if not existing
-    if (!m_internalDataIJK && m_isConstant) setData_IJK(NULL, true, m_constantValue);
+    if (!m_internalDataIJK && m_isConstant) setData_IJK(nullptr, true, m_constantValue);
 
     return m_internalDataIJK;
 }
@@ -1493,19 +1894,19 @@ void CauldronIO::VolumeData::release()
 {
     if (m_internalDataIJK) delete[] m_internalDataIJK;
     if (m_internalDataKIJ) delete[] m_internalDataKIJ;
-    m_internalDataIJK = NULL;
-    m_internalDataKIJ = NULL;
+    m_internalDataIJK = nullptr;
+    m_internalDataKIJ = nullptr;
     m_retrieved = false;
 }
 
 bool CauldronIO::VolumeData::hasDataIJK() const
 {
-    return m_internalDataIJK != NULL;
+    return m_internalDataIJK != nullptr;
 }
 
 bool CauldronIO::VolumeData::hasDataKIJ() const
 {
-    return m_internalDataKIJ != NULL;
+    return m_internalDataKIJ != nullptr;
 }
 
 float CauldronIO::VolumeData::getUndefinedValue() const
@@ -1525,3 +1926,25 @@ void CauldronIO::VolumeData::setConstantValue(float value)
     m_retrieved = true;
 }
 
+
+const std::shared_ptr<Surface>& CauldronIO::StratigraphyTableEntry::getSurface() const
+{
+	return m_surface;
+}
+
+const std::shared_ptr<Formation>& CauldronIO::StratigraphyTableEntry::getFormation() const
+{
+	return m_formation;
+}
+
+void CauldronIO::StratigraphyTableEntry::setSurface(std::shared_ptr<Surface>& surface)
+{
+	m_formation.reset();
+	m_surface = surface;
+}
+
+void CauldronIO::StratigraphyTableEntry::setFormation(std::shared_ptr<Formation>& formation)
+{
+	m_surface.reset();
+	m_formation = formation;
+}

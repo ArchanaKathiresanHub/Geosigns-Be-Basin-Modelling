@@ -36,8 +36,6 @@ namespace Shell.BasinModeling.CauldronIO.Test
             Project project = ImportFromXML.importFromXML("../../../csharp-test/HydrostaticGL_out.xml");
             int count = project.getSnapShots().Count;
             Assert.IsTrue(count == 14);
-            count = project.getSurfaceNames().Count;
-            Assert.IsTrue(count == 5);
             count = project.getProperties().Count;
             Assert.IsTrue(count == 23);
             count = project.getFormations().Count;
@@ -60,7 +58,7 @@ namespace Shell.BasinModeling.CauldronIO.Test
             Assert.IsTrue(project.getSnapShots()[0].getVolume().getSubSurfaceKind() == SubsurfaceKind.None);
             
             Formation form = project.findFormation("Mantle");
-            uint kStart, kEnd;
+            int kStart, kEnd;
             form.getK_Range(out kStart, out kEnd);
             Assert.IsFalse(form.isSourceRock());
             Assert.IsFalse(form.isMobileLayer());
@@ -145,12 +143,10 @@ namespace Shell.BasinModeling.CauldronIO.Test
             ModellingMode mode = ModellingMode.MODE1D;
             
             Project project = new Project(name, description, team, version, mode, 2,1);
-            uint kStart = 1;
-            uint kEnd = 2;
+            int kStart = 1;
+            int kEnd = 2;
             const string formationName = "formation";
-            bool isSourceRock = true;
-            bool isMobileLayer = true;
-            Formation formation = new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer);
+            Formation formation = new Formation(kStart, kEnd, formationName);
             FormationList formationList = project.getFormations();
             Assert.AreEqual(formationList.Count, 0);
             project.addFormation(formation);
@@ -167,12 +163,10 @@ namespace Shell.BasinModeling.CauldronIO.Test
             ModellingMode mode = ModellingMode.MODE1D;
             
             Project project = new Project(name, description, team, version, mode, 2,1);
-            uint kStart = 1;
-            uint kEnd = 2;
+            int kStart = 1;
+            int kEnd = 2;
             const string formationName = "formation";
-            bool isSourceRock = true;
-            bool isMobileLayer = true;
-            Formation formation = new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer);
+            Formation formation = new Formation(kStart, kEnd, formationName);
             const string reservoirName = "reservoir";
             Reservoir reservoir = new Reservoir(reservoirName, formation);
             ReservoirList reservoirList = project.getReservoirs();
@@ -219,21 +213,17 @@ namespace Shell.BasinModeling.CauldronIO.Test
             ModellingMode mode = ModellingMode.MODE1D;
             
             Project project = new Project(name, description, team, version, mode, 2,1);
-            uint kStart = 1;
-            uint kEnd = 2;
+            int kStart = 1;
+            int kEnd = 2;
             const string formationName = "formation";
-            bool isSourceRock = true;
-            bool isMobileLayer = true;
-            Formation formation = new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer);
+            Formation formation = new Formation(kStart, kEnd, formationName);
             project.addFormation(formation);
             Formation newFormation = project.findFormation(formationName);
-            uint start, end;
+            int start, end;
             newFormation.getK_Range(out start, out end);
             Assert.AreEqual(start, kStart);
             Assert.AreEqual(end, kEnd);
             StringAssert.Equals(newFormation.getName(), formationName);
-            Assert.AreEqual(newFormation.isMobileLayer(), isMobileLayer);
-            Assert.AreEqual(newFormation.isSourceRock(), isSourceRock);
         }
 
         [TestMethod]
@@ -246,21 +236,17 @@ namespace Shell.BasinModeling.CauldronIO.Test
             ModellingMode mode = ModellingMode.MODE1D;
             
             Project project = new Project(name, description, team, version, mode, 2,1);
-            uint kStart = 1;
-            uint kEnd = 2;
+            int kStart = 1;
+            int kEnd = 2;
             const string formationName = "formation";
-            bool isSourceRock = true;
-            bool isMobileLayer = true;
-            Formation formation = new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer);
+            Formation formation = new Formation(kStart, kEnd, formationName);
             const string reservoirName = "reservoir";
             Reservoir reservoir = new Reservoir(reservoirName, formation);
             project.addReservoir(reservoir);
             Reservoir newReservoir = project.findReservoir(reservoirName);
             StringAssert.Equals(newReservoir.getName(), reservoirName);
             StringAssert.Equals(newReservoir.getFormation().getName(), formationName);
-            Assert.AreEqual(newReservoir.getFormation().isMobileLayer(), isMobileLayer);
-            Assert.AreEqual(newReservoir.getFormation().isSourceRock(), isSourceRock);
-            uint start, end;
+            int start, end;
             newReservoir.getFormation().getK_Range(out start, out end);
             Assert.AreEqual(start, kStart);
             Assert.AreEqual(end, kEnd);
@@ -307,18 +293,14 @@ namespace Shell.BasinModeling.CauldronIO.Test
             const string surfaceName = "waterbottom";
             SubsurfaceKind kind = SubsurfaceKind.Sediment;
             Surface surface = new Surface(surfaceName, kind);
-            uint kStart = 1;
-            uint kEnd = 2;
+            int kStart = 1;
+            int kEnd = 2;
             const string formationName = "formation";
-            bool isSourceRock = true;
-            bool isMobileLayer = true;
-            Formation formation = new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer);
+            Formation formation = new Formation(kStart, kEnd, formationName);
             surface.setFormation(formation,true);
             Assert.AreEqual(surface.getTopFormation().getName(), formationName);
-            uint start, end;
+            int start, end;
             surface.getTopFormation().getK_Range(out start, out end);
-            Assert.AreEqual(surface.getTopFormation().isMobileLayer(), isMobileLayer);
-            Assert.AreEqual(surface.getTopFormation().isSourceRock(), isSourceRock);
             Assert.AreEqual(start, kStart);
             Assert.AreEqual(end, kEnd);
         }
@@ -375,12 +357,10 @@ namespace Shell.BasinModeling.CauldronIO.Test
                 SnapShotKind kind = SnapShotKind.SYSTEM;
                 bool isMinorSnapShot = true;
                 SnapShot snap = new SnapShot(age, kind, isMinorSnapShot);
-                uint kStart = 1;
-                uint kEnd = 2;
+                int kStart = 1;
+                int kEnd = 2;
                 const string formationName = "formation";
-                bool isSourceRock = true;
-                bool isMobileLayer = true;
-                Formation formation = new Formation(kStart, kEnd, formationName, isSourceRock, isMobileLayer);
+                Formation formation = new Formation(kStart, kEnd, formationName);
                 SubsurfaceKind subsurfaceKind = SubsurfaceKind.Sediment;
                 Geometry3D geometry = new Geometry3D(2, 2, 2, 4, 100, 100, 0, 0);
                 Volume volume = new Volume(subsurfaceKind);

@@ -31,17 +31,19 @@ namespace CauldronIO
        
     private:
 
-		ImportFromXML(const ibs::FilePath& absPath);
+		explicit ImportFromXML(const ibs::FilePath& absPath);
         std::shared_ptr<Property> getProperty(pugi::xml_node propertyNode) const;
-        std::shared_ptr<Formation> getFormation(pugi::xml_node formationNode) const;
+        std::shared_ptr<Formation> getFormation(pugi::xml_node formationNode, const ibs::FilePath& fullOutputPath) const;
         std::shared_ptr<Project> getProject(const pugi::xml_document& pt);
         std::shared_ptr<const Reservoir> getReservoir(pugi::xml_node reservoirNode) const;
         std::shared_ptr<const Geometry2D> getGeometry2D(pugi::xml_node surfaceNode) const;
         std::shared_ptr<Volume> getVolume(pugi::xml_node volumeNode, const ibs::FilePath& path);
-        
+		std::shared_ptr<CauldronIO::Surface> getSurface(pugi::xml_node surfaceNode, const ibs::FilePath& fullOutputPath) const;
+		CauldronIO::PropertySurfaceData getPropertySurfaceData(pugi::xml_node &propertyMapNode, const ibs::FilePath& fullOutputPath) const;
+		
         // member variables
 		ibs::FilePath m_absPath;
         std::shared_ptr<Project> m_project;
-    };
+	};
 }
 #endif

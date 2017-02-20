@@ -23,9 +23,9 @@ namespace CauldronIO
     public:
         /// \brief Load all data of given snapshot into memory using multiple threads, for VisualizationIO_projectHandle objects.
         //// since snapshot().retrieve does not work for reading HDF data for these objects, this method takes care of that
-        /// \param[in] snapShot the snapshot to load
+        /// \param[in] allReadData vector holding all the data to read
         /// \param[in] numThreads the number of threads to use
-        static void retrieveAllData(const std::shared_ptr<SnapShot>& snapShot, size_t numThreads = 1);
+        static void retrieveAllData(std::vector < VisualizationIOData* >& allReadData, size_t numThreads = 1);
         /// \brief Cell-centers all properties except depth for the maps in the current snapshot
         /// \param[in] snapShot the snapshot
         /// \param[in] project the project, to add the new geometries to the project
@@ -42,6 +42,8 @@ namespace CauldronIO
 		/// \param[in] snapShot the snapshot
 		/// \param[in] project the project, to add the new geometries to the project
 		static void replaceExistingProperties(const std::shared_ptr<SnapShot>& snapShot, std::shared_ptr<const Project>& project);
+		/// \param[in] map data to retrieve
+		static void retrieveSingleData(std::shared_ptr<CauldronIO::SurfaceData> map);
 
 	private:
         typedef float(*filterFunc)(float*, size_t);
@@ -67,6 +69,8 @@ namespace CauldronIO
 		static void replaceVolume(const std::shared_ptr<Volume>& currentVolume, const std::shared_ptr<Volume>& volumeToExtend);
 		static std::shared_ptr<CauldronIO::SurfaceData> createReferenceSurfData(const std::shared_ptr<CauldronIO::SurfaceData>& surfaceData);
 		static bool surfaceEquals(const std::shared_ptr<CauldronIO::Surface>& surface1, const std::shared_ptr<CauldronIO::Surface>& surface2);
+	
+		friend class ImportProjectHandle;
 	};
 }
 #endif

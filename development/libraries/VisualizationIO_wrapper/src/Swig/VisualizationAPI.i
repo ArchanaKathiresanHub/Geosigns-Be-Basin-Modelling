@@ -25,8 +25,8 @@ namespace CauldronIO
     %apply float&  OUTPUT { float& spillPointPosY };
     %apply float&  OUTPUT { float& positionPosX };
     %apply float&  OUTPUT { float& positionPosY };
-    %apply unsigned int& OUTPUT { unsigned int& k_range_start };
-    %apply unsigned int& OUTPUT { unsigned int& k_range_end };
+    %apply int& OUTPUT { int& k_range_start };
+    %apply int& OUTPUT { int& k_range_end };
 }
 
 %shared_ptr(CauldronIO::SnapShot)
@@ -82,7 +82,7 @@ namespace CauldronIO
 %template(PropertySurfaceData) std::pair<std::shared_ptr<const CauldronIO::Property>, std::shared_ptr<CauldronIO::SurfaceData> >;
 %template(PropertySurfaceDataList) std::vector < CauldronIO::PropertySurfaceData > ;
 %template(ReservoirList) std::vector<std::shared_ptr<const CauldronIO::Reservoir> >  ;
-%template(FormationList) std::vector<std::shared_ptr<const CauldronIO::Formation> > ;
+%template(FormationList) std::vector<std::shared_ptr<CauldronIO::Formation> > ;
 %template(SurfaceNameList) std::vector<std::string> ;
 %template(PropertyVolumeData) std::pair<std::shared_ptr<const CauldronIO::Property>, std::shared_ptr<CauldronIO::VolumeData> >;
 %template(PropertyVolumeDataList) std::vector<CauldronIO::PropertyVolumeData > ;

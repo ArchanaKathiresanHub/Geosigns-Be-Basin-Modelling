@@ -282,6 +282,7 @@ ProjectHandle::ProjectHandle( database::ProjectFileHandlerPtr pfh, const string 
 
    connectSurfaces();
    connectReservoirs();
+
    connectTraps();
    if ( trappersAreAvailable() )
    {

@@ -47,13 +47,15 @@ namespace CauldronIO
 		ExportToXML(const ibs::FilePath& absPath, const ibs::FilePath& relPath, size_t numThreads, bool center);
 		void addProject(pugi::xml_node pt, std::shared_ptr<Project>& project, const std::shared_ptr<Project>& projectExisting);
         void addProperty(pugi::xml_node node, const std::shared_ptr<const Property>& property) const;
-        void addFormation(pugi::xml_node node, const std::shared_ptr<const Formation>& formation) const;
-        void addSurface(DataStoreSave& dataStore, const std::shared_ptr<Surface>& surfaceIO, pugi::xml_node ptree);
-        void addVolume(DataStoreSave& dataStore, const std::shared_ptr<Volume>& volume, pugi::xml_node volNode);
+        void addFormation(DataStoreSave& dataStore, pugi::xml_node node, const std::shared_ptr<Formation>& formation) const;
+        void addSurface(DataStoreSave& dataStore, pugi::xml_node& ptree, const std::shared_ptr<Surface>& surfaceIO) const;
+		void addPropertySurfaceData(pugi::xml_node &valueMapsNode, DataStoreSave &dataStore, const PropertySurfaceData &propertySurfaceData) const;
+		void addVolume(DataStoreSave& dataStore, const std::shared_ptr<Volume>& volume, pugi::xml_node volNode);
 		void addReferenceData(pugi::xml_node &node, const DataStoreParams* params, bool dataIJK, bool dataKIJ) const;
 		void addGeometryInfo2D(pugi::xml_node node, const std::shared_ptr<const Geometry2D>& geometry) const;
         void addSnapShot(const std::shared_ptr<SnapShot>& snapShot, ibs::FilePath fullPath, pugi::xml_node node);
-        
+		void addStratTableNode(pugi::xml_node& stratTableNode, const StratigraphyTableEntry& entry, DataStoreSave& dataStoreSave);
+
         // member variables
 		ibs::FilePath m_absPath;
 		ibs::FilePath m_relPath;
@@ -61,6 +63,6 @@ namespace CauldronIO
 		std::shared_ptr<const Project> m_projectExisting;
 		bool m_append, m_center;
         size_t m_numThreads;
-    };
+	};
 }
 #endif

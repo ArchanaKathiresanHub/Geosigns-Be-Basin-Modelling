@@ -24,7 +24,7 @@ namespace CauldronIO
     {
     public:
         /// \brief Constructor defining if this map is cell centered, and its undefined value
-        MapNative(const std::shared_ptr<const Geometry2D>& geometry, float minValue = DefaultUndefinedValue, float maxValue = DefaultUndefinedValue);
+		explicit MapNative(const std::shared_ptr<const Geometry2D>& geometry, float minValue = DefaultUndefinedValue, float maxValue = DefaultUndefinedValue);
         ~MapNative();
         
         /// \brief Prefetch any data: load from disk, do not decompress yet
@@ -51,7 +51,7 @@ namespace CauldronIO
     class VolumeDataNative : public VolumeData
     {
     public:
-        VolumeDataNative(const std::shared_ptr<Geometry3D>& geometry, float minValue = DefaultUndefinedValue, float maxValue = DefaultUndefinedValue);
+		explicit VolumeDataNative(const std::shared_ptr<Geometry3D>& geometry, float minValue = DefaultUndefinedValue, float maxValue = DefaultUndefinedValue);
         ~VolumeDataNative();
 
         /// \brief Prefetch any data: load from disk, do not decompress yet
@@ -83,7 +83,7 @@ namespace CauldronIO
 	class ReferenceVolume : public VolumeData
 	{
 	public:
-		ReferenceVolume(const std::shared_ptr<Geometry3D>& geometry, float minValue = DefaultUndefinedValue,
+		explicit ReferenceVolume(const std::shared_ptr<Geometry3D>& geometry, float minValue = DefaultUndefinedValue,
 			float maxValue = DefaultUndefinedValue);
 		~ReferenceVolume() {};
 
@@ -114,7 +114,7 @@ namespace CauldronIO
 	{
 	public:
 		/// \brief Constructor defining if this map is cell centered, and its undefined value
-		ReferenceMap(const std::shared_ptr<const Geometry2D>& geometry, float minValue = DefaultUndefinedValue, float maxValue = DefaultUndefinedValue);
+		explicit ReferenceMap(const std::shared_ptr<const Geometry2D>& geometry, float minValue = DefaultUndefinedValue, float maxValue = DefaultUndefinedValue);
 		~ReferenceMap() {};
 
 		/// \brief Prefetch any data: load from disk, do not decompress yet

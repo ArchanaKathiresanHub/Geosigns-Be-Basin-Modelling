@@ -8,8 +8,8 @@
 // Do not distribute without written permission from Shell.
 //
 
-#ifndef __VisualizationIO_native_h__
-#define __VisualizationIO_native_h__
+#ifndef __VisualizationIO_projectHandle_h__
+#define __VisualizationIO_projectHandle_h__
 
 #include "VisualizationAPI.h"
 #include "Interface/GridMap.h"
@@ -36,7 +36,7 @@ namespace CauldronIO
     {
     public:
         /// \brief Constructor defining if this map is cell centered, and its undefined value
-        MapProjectHandle(std::shared_ptr<const CauldronIO::Geometry2D>& geometry);
+        explicit MapProjectHandle(std::shared_ptr<const CauldronIO::Geometry2D>& geometry);
         ~MapProjectHandle();
 
         /// \brief Prefetch any data
@@ -49,7 +49,8 @@ namespace CauldronIO
         virtual const std::vector < std::shared_ptr<HDFinfo> >& getHDFinfo();
         /// \brief Set all variables needed to retrieve the data
         void setDataStore(const DataAccess::Interface::PropertyValue* propVal);
-        /// \brief Method to add HDF data to this class
+		/// \brief Method to set data from an InputMap
+		void setDataStore(const DataAccess::Interface::InputValue* inputVal);
         /// \returns true if all data needed is now ready (prefetch done)
         virtual bool signalNewHDFdata();
 
@@ -59,6 +60,7 @@ namespace CauldronIO
     private:
         void retrieveFromHDF();
         const DataAccess::Interface::PropertyValue* m_propVal;
+		const DataAccess::Interface::InputValue* m_inputVal;
         std::vector < std::shared_ptr<HDFinfo> > m_info;
     };
 
@@ -66,7 +68,7 @@ namespace CauldronIO
     class VolumeProjectHandle : public VolumeData
     {
     public:
-        VolumeProjectHandle(const std::shared_ptr<Geometry3D>& geometry);
+		explicit VolumeProjectHandle(const std::shared_ptr<Geometry3D>& geometry);
         ~VolumeProjectHandle();
 
         /// \brief Prefetch any data: not implemented by this class
@@ -80,7 +82,7 @@ namespace CauldronIO
         /// \brief Set all variables needed to retrieve the data for multiple formations
         void setDataStore(std::shared_ptr<DataAccess::Interface::PropertyValueList> propValues,
             std::shared_ptr<CauldronIO::FormationInfoList> depthFormations);
-        /// \brief Set all variables needed to retrieve the data
+        /// \brief Set all variables needed to retrieve the data for a single formation
         void setDataStore(const DataAccess::Interface::PropertyValue* propVal, std::shared_ptr<CauldronIO::FormationInfo> depthFormation);
         /// \brief Method to add HDF data to this class
         /// \returns true if all data needed is now ready (prefetch done)
