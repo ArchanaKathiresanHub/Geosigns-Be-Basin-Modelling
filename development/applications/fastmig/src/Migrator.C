@@ -1117,7 +1117,7 @@ bool Migrator::chargeReservoir (migration::Reservoir * reservoir, migration::Res
    totalLeakedUpward -= totalLeakedOutward;
    if (GetRank () == 0) m_massBalance->subtractFromBalance ("Leaked upward from reservoir", totalLeakedUpward);
 
-   if (reservoir->performDiffusion ())
+   if (reservoir->isDiffusionEnabled ())
    {
       /// For each column in the trap set the diffusion starting time
       reservoir->broadcastTrapDiffusionStartTimes ();
@@ -1519,11 +1519,26 @@ void Migrator::addTrapRecord (migration::Reservoir * reservoir, migration::TrapP
    }
 }
 
-// this function sets the minimum gas and column heights and reads the ReservoirOptionsIoTbl
 void Migrator::getMinimumColumnHeights ()
 {
    m_minOilColumnHeight = m_projectHandle->getReservoirOptions()->getMinOilColumnHeight();
    m_minGasColumnHeight = m_projectHandle->getReservoirOptions()->getMinGasColumnHeight();
+}
+
+void Migrator::getBlocking ()
+{
+   m_isBlockingOn = m_projectHandle->getReservoirOptions()->isBlockingOn();
+
+   if (m_isBlockingOn == true)
+   {
+      m_blockingPermeability = m_projectHandle->getReservoirOptions()->getBlockingPermeability ();
+      m_blockingPorosity     = m_projectHandle->getReservoirOptions()->getBlockingPorosity ();
+   }
+   else
+   {
+      m_blockingPermeability = 0.0;
+      m_blockingPorosity     = 0.0;
+   }
 }
 
 /// This function adds a  reservoir record to the ReservoirIoTbl with the values specified in the ReservoirOptionsIoTbl
@@ -1565,7 +1580,7 @@ database::Record * Migrator::addDetectedReservoirRecord (Interface::Formation * 
    database::setDiffusionInd (reservoirIoRecord, m_projectHandle->getReservoirOptions()->isDiffusionOn());
    database::setMinOilColumnHeight (reservoirIoRecord, m_projectHandle->getReservoirOptions()->getMinOilColumnHeight());
    database::setMinGasColumnHeight (reservoirIoRecord, m_projectHandle->getReservoirOptions()->getMinGasColumnHeight());
-   database::setBlockingInd (reservoirIoRecord, m_projectHandle->getReservoirOptions()->isBlockingEnabled());
+   database::setBlockingInd (reservoirIoRecord, m_projectHandle->getReservoirOptions()->isBlockingOn());
    database::setBlockingPermeability (reservoirIoRecord, m_projectHandle->getReservoirOptions()->getBlockingPermeability());
    database::setBlockingPorosity (reservoirIoRecord, m_projectHandle->getReservoirOptions()->getBlockingPorosity());
    database::setErrDepthOffset (reservoirIoRecord, Interface::DefaultUndefinedScalarValue);

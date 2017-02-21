@@ -63,7 +63,7 @@ namespace DataAccess
 
          virtual Reservoir * produceReservoir (ProjectHandle * projectHandle, database::Record * record);
 
-         virtual ReservoirOptions * produceReservoirOptions (ProjectHandle * projectHandle, database::Record * record);
+         virtual std::shared_ptr<ReservoirOptions> produceReservoirOptions (ProjectHandle * projectHandle, database::Record * record);
 
          virtual MobileLayer * produceMobileLayer (ProjectHandle * projectHandle, database::Record * record);
 

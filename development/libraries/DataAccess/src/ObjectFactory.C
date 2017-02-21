@@ -119,9 +119,9 @@ Reservoir * ObjectFactory::produceReservoir (ProjectHandle * projectHandle, data
    return new Reservoir (projectHandle, record);
 }
 
-ReservoirOptions * ObjectFactory::produceReservoirOptions (ProjectHandle * projectHandle, database::Record * record)
+std::shared_ptr<ReservoirOptions> ObjectFactory::produceReservoirOptions (ProjectHandle * projectHandle, database::Record * record)
 {
-   return new ReservoirOptions (projectHandle, record);
+   return std::make_shared<ReservoirOptions> (projectHandle, record);
 }
 
 MobileLayer * ObjectFactory::produceMobileLayer (ProjectHandle * projectHandle, database::Record * record)

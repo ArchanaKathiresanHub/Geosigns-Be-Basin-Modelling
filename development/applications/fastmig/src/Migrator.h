@@ -145,6 +145,8 @@ namespace migration
 
       /// Read minimum column heights from ReservoirOptionsIoTbl
       void getMinimumColumnHeights ();
+      /// \brief Get all blocking-related input options
+      void getBlocking ();
 
       database::Record * copyMigrationRecord (database::Record * oldRecord, const std::string & newMigrationProcess);
 

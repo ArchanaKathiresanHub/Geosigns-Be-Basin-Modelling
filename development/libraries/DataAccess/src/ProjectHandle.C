@@ -3385,7 +3385,7 @@ Interface::ReservoirList * ProjectHandle::getReservoirs( const Interface::Format
    return reservoirList;
 }
 
-ReservoirOptions * ProjectHandle::getReservoirOptions () const
+std::shared_ptr<ReservoirOptions> ProjectHandle::getReservoirOptions () const
 {
    return m_reservoirOptions;
 }

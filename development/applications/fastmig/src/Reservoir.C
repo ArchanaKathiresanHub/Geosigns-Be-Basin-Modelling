@@ -331,7 +331,7 @@ namespace migration
 
    bool Reservoir::recomputeTrapDepthToVolumeFunctions (void)
    {
-      if (!performOilToGasCracking ()) return false;
+      if (!isOilToGasCrackingEnabled ()) return false;
 
       RequestHandling::StartRequestHandling (m_migrator, "recomputeTrapDepthToVolumeFunctions");
       TrapVector::iterator trapIter;
@@ -1110,7 +1110,7 @@ namespace migration
       // If diffusion leakages is included, initialize m_diffusionOverburdenGridMaps with 
       // the necessary grid maps:
       // Optimization for May 2016 Release
-      if (performDiffusion ())
+      if (isDiffusionEnabled ())
       {
          vector<SurfaceGridMapFormations> temperatureGridMaps = overburden_MPI::getAdjacentSurfaceGridMapFormations (
             overburden, "Temperature", getEnd ());
@@ -2270,7 +2270,7 @@ namespace migration
 #ifdef USEOTGC
    bool Reservoir::crackChargesToBeMigrated (OilToGasCracker & otgc)
    {
-      if (!performOilToGasCracking ()) return false;
+      if (!isOilToGasCrackingEnabled ()) return false;
 
       setSourceReservoir (this);
 
@@ -2699,7 +2699,7 @@ namespace migration
          return false;
 
       m_biodegraded = 0;
-      if (performBiodegradation ())
+      if (isBiodegradationEnabled ())
       {
          if (!m_migrator->performLegacyMigration ())
          {
@@ -2724,7 +2724,7 @@ namespace migration
       while (!allProcessorsFinished (distributionHasFinished ()));
 
       // Optimization for May 2016 Release
-      if (performDiffusion ())
+      if (isDiffusionEnabled ())
       {
          broadcastTrapFillDepthProperties ();
          if (!diffusionLeakCharges ())
@@ -3184,7 +3184,7 @@ namespace migration
    void Reservoir::broadcastTrapDiffusionStartTimes (void)
    {
       // Optimization for May 2016 Release
-      if (!performDiffusion ()) return;
+      if (!isDiffusionEnabled ()) return;
 
       TrapVector::iterator trapIter;
 
@@ -3200,7 +3200,7 @@ namespace migration
    void Reservoir::broadcastTrapPenetrationDistances (void)
    {
       // Optimization for May 2016 Release
-      if (!performDiffusion ()) return;
+      if (!isDiffusionEnabled ()) return;
 
       const DiffusionLeakageParameters *parameters = getProjectHandle ()->getDiffusionLeakageParameters ();
 
@@ -4260,7 +4260,7 @@ namespace migration
    }
 
    /// If legacy use reservoir-specific options (ReservoirIoTbl), otherwise global reservoir options (ReservoirOptionsIoTbl)
-   bool Reservoir::performBiodegradation (void) const
+   bool Reservoir::isBiodegradationEnabled (void) const
    {
       if (m_migrator->performLegacyMigration () == true)
          return isBiodegradationOn();
@@ -4268,7 +4268,7 @@ namespace migration
          return m_migrator->getProjectHandle()->getReservoirOptions()->isBiodegradationOn();
    }
 
-   bool Reservoir::performOilToGasCracking (void) const
+   bool Reservoir::isOilToGasCrackingEnabled (void) const
    {
       if (m_migrator->performLegacyMigration () == true)
          return isOilToGasCrackingOn();
@@ -4276,7 +4276,7 @@ namespace migration
          return m_migrator->getProjectHandle()->getReservoirOptions()->isOilToGasCrackingOn();
    }
 
-   bool Reservoir::performDiffusion (void) const
+   bool Reservoir::isDiffusionEnabled (void) const
    {
       if (m_migrator->performLegacyMigration () == true)
          return false;
@@ -4292,15 +4292,15 @@ namespace migration
          return m_migrator->getProjectHandle()->getReservoirOptions()->getTrapCapacity();
    }
 
-   bool Reservoir::isBlockingOn (void) const
+   bool Reservoir::isBlockingEnabled (void) const
    {
       if (m_migrator->performAdvancedMigration())
          return false;
 
       if (m_migrator->performLegacyMigration () == true)
-         return isBlockingEnabled();
+         return isBlockingOn();
       else
-         return m_migrator->getProjectHandle()->getReservoirOptions()->isBlockingEnabled();
+         return m_migrator->getProjectHandle()->getReservoirOptions()->isBlockingOn();
    }
 
    double Reservoir::getBlockingPerm (void) const

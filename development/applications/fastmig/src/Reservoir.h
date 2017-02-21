@@ -92,13 +92,13 @@ namespace migration
       /// @defgroup ReservoirOptions
       /// @{
       /// @return Boolean whether diffusion takes place inside traps
-      bool performDiffusion (void) const;
+      bool isDiffusionEnabled (void) const;
       /// @return Boolean whether biodegradation takes place inside traps
-      bool performBiodegradation (void) const;
+      bool isBiodegradationEnabled (void) const;
       /// @return Boolean whether OTGC takes place inside traps
-      bool performOilToGasCracking (void) const;
+      bool isOilToGasCrackingEnabled (void) const;
       /// @return Boolean whether vertical migration blocking into this reservoir is enabled
-      bool isBlockingOn (void) const;
+      bool isBlockingEnabled (void) const;
       /// @return The vertical migration blocking permeability threshold.
       double getBlockingPerm (void) const;
       /// @return The vertical migration blocking porosity threshold.

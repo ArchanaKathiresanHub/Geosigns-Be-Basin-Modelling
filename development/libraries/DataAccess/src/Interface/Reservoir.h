@@ -71,7 +71,7 @@ namespace DataAccess
          bool isOilToGasCrackingOn (void) const;
 
          /// Return whether vertical migration blocking into this reservoir is enabled
-         bool isBlockingEnabled (void) const;
+         bool isBlockingOn (void) const;
          /// return the vertical migration blocking permeability threshold.
          double getBlockingPermeability (void) const;
          /// return the vertical migration blocking porosity threshold.

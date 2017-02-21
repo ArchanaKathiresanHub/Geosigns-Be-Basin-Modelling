@@ -122,7 +122,7 @@ double Reservoir::getTrapCapacity (void) const
    return database::getTrapCapacity (m_record);
 }
 
-bool Reservoir::isBlockingEnabled (void) const
+bool Reservoir::isBlockingOn (void) const
 {
    return database::getBlockingInd (m_record) == 1;
 }

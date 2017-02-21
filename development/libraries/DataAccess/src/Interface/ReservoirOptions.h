@@ -35,7 +35,7 @@ namespace DataAccess
          /// @return Boolean whether OTGC takes place inside traps
          bool isOilToGasCrackingOn (void) const;
          /// @return Boolean whether vertical migration blocking into this reservoir is enabled
-         bool isBlockingEnabled (void) const;
+         bool isBlockingOn (void) const;
          /// @return The vertical migration blocking permeability threshold.
          double getBlockingPermeability (void) const;
          /// @return The vertical migration blocking porosity threshold.
