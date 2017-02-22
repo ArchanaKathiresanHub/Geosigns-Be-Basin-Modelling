@@ -195,7 +195,7 @@ namespace DataAccess
          /// return the list of reservoirs
          virtual ReservoirList * getReservoirs( const Formation * formation = 0 ) const;
          /// @return the global reservoir options
-         std::shared_ptr<ReservoirOptions> getReservoirOptions () const;
+         std::shared_ptr<const ReservoirOptions> getReservoirOptions () const;
          /// add a detected reservoir to the list of reservoirs
          virtual Reservoir* addDetectedReservoirs (database::Record * record, const Formation * formation);
          /// return the list of MobileLayers
