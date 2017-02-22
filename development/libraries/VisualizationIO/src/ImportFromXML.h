@@ -14,7 +14,11 @@
 #include "VisualizationAPI.h"
 #include "DataStore.h"
 #include "FilePath.h"
+
+#ifdef _MSC_VER
 #pragma warning (disable:488)
+#endif
+
 #include <boost/lockfree/queue.hpp>
 #include <boost/atomic.hpp>
 #include "pugixml.hpp"

@@ -181,7 +181,7 @@ std::shared_ptr<Project> CauldronIO::ImportFromXML::getProject(const pugi::xml_d
 		}
 
 		// Loop over formations to connect surfaces; surfaces should already be connected
-		for (int index = 1; index < m_project->getStratigraphyTable().size(); index += 2)
+		for (size_t index = 1; index < m_project->getStratigraphyTable().size(); index += 2)
 		{
 			const CauldronIO::StratigraphyTableEntry& entry = m_project->getStratigraphyTable().at(index);
 			assert(bool(entry.getFormation()));

@@ -225,7 +225,7 @@ size_t CauldronIO::Project::getGeometryIndex(const std::shared_ptr<const Geometr
     if (!newGeometry) throw CauldronIOException("Cannot find empty geometry");
 
     // Check if exists
-    for (int i = 0; i < m_geometries.size(); i++)
+    for (size_t i = 0; i < m_geometries.size(); i++)
     {
         if (*m_geometries.at(i) == *newGeometry) return i;
     }
