@@ -1,3 +1,16 @@
+//                                                                      
+// Copyright (C) 2012-2017 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
+
+/// @file MasterTouch.h
+/// @brief This file keeps API declaration for adding ResQ outputs maps, running the touchstone wrapper, and saving the results to maps. 
+
 #ifndef FASTTOUCH7_MASTERTOUCH_H
 #define FASTTOUCH7_MASTERTOUCH_H
 
@@ -32,40 +45,52 @@ class TouchstoneFiles;
 
 namespace fasttouch
 {
-   /** This class controls the functional requests to the ResQ library
-    *  The necessary steps using the library are as follows
-    *  - Load Tcf files associated with user-selected layer
-    *  - Calculate all results for each grid point on the layer, based on
-    *   the burial history and the Tcf file
-    *  - Save user-requested results to maps
-    */
    class MasterTouch
    {
    public:
 
-      /** Struct containing Map information. */
+      /// @brief Constructor
+      MasterTouch(DataAccess::Interface::ProjectHandle & projectHandle);
+
+      /// @brief Add a result map. Note for BPA2: an additional parameter ( int scenNum) needs to be add to this method.
+      /// This value will be read from an additional column of the [TouchstoneIoTbl]. 
+      /// This is needed to support multiple facies maps in the same layer, similary to what it is done in BPA, where several TCFs can be used in the same layer
+      bool addOutputFormat(const std::string & filename,
+         const DataAccess::Interface::Surface * surface,
+         const DataAccess::Interface::Formation * formation,
+         const std::string & category, const std::string & format, int percent, const DataAccess::Interface::GridMap * faciesGrid, int index);
+
+      /// @brief Write the burial histories, run the touchstoneWrapper and save the results to grid. this is done one TCF by one
+      bool run();
+
+   private:
+
+      /// Class types
+
+      /// @brief define a type containing the information of a result map
       struct MapInfo
       {
-         std::string format;
-         std::vector<DataAccess::Interface::GridMap *> gridMap;
-         int percent;
+         std::vector<DataAccess::Interface::GridMap *> gridMap; /// vector of gridmap at UseInResQ user-defined snapshots
+         std::string category; /// category: MACRO_PORO, IGV, CMT_QRTZ, CORE_PORO, MICRO_PORO, PERM, LOGPERM
+         std::string format;   /// format: SD, MEAN, GEOMEAN, SKEWNESS, KURTOSIS, MIN, MAX, MODE, PERCENTILE, DISTRIBUTION
+         int percent;          /// percetiles: 1, 5, 10, ...,95, 99     
       };
 
-      /** Struct containing information of different layers. */
+      /// @brief define a type containing the information about one layer
       struct LayerInfo
       {
          LayerInfo() {}
-            
-         LayerInfo( const DataAccess::Interface::Surface   * surf,
-                    const DataAccess::Interface::Formation * form )
-            : surface( surf ), formation( form ) {}
 
-         bool operator == ( const LayerInfo & rhs ) const
+         LayerInfo(const DataAccess::Interface::Surface   * surf,
+            const DataAccess::Interface::Formation * form)
+            : surface(surf), formation(form){}
+
+         bool operator == (const LayerInfo & rhs) const
          {
             return surface == rhs.surface && formation == rhs.formation;
          }
-            
-         bool operator < ( const LayerInfo & rhs ) const
+
+         bool operator < (const LayerInfo & rhs) const
          {
             return surface == rhs.surface ?
                formation->getName() < rhs.formation->getName() : surface->getName() < rhs.surface->getName();
@@ -74,89 +99,84 @@ namespace fasttouch
          const DataAccess::Interface::Surface   * surface;
          const DataAccess::Interface::Formation * formation;
       };
-         
-      typedef std::list < MapInfo > MapInfoList;
-         
-      // output category and corresponding list of formats
-      typedef std::map < std::string, MapInfoList > CategoryMapInfoList;
-         
-      // list of layers with corresponding categories for output
-      typedef std::map < LayerInfo, CategoryMapInfoList > LayerCategoryMapInfoList;
-         
-      // map storing for each layer and category a counter, to push back only necessary maps
-      typedef std::map < LayerInfo, std::map <std::string, int> > LayerCategoryResultCounter;
 
-      enum { SD = 0, MEAN, GEOMEAN, SKEWNESS, KURTOSIS, MIN, MAX, MODE, PERCENTILE, DISTRIBUTION };
-      
-      enum { MACRO_PORO = 0, IGV, CMT_QRTZ, CORE_PORO, MICRO_PORO, PERM, LOGPERM};      
-      
-      void message( const std::string & msg, int level = 0 ) {  if ( level >= m_verboseLevel ) (level > 0 ? std::cout : std::cerr) << "MeSsAgE " << msg << std::endl; }      
-
-      //** Struct containing facies map and facies indexes *//
+      /// @brief define a type containing the information about one facies map, also the output MapInfo
       struct faciesGridMap
       {
-         const DataAccess::Interface::GridMap * GridMap;
+         const DataAccess::Interface::GridMap * faciesGrid;
          int faciesNumber;
+         LayerInfo layer;
+         MapInfo * outputMap;
       };
 
-      typedef std::map < LayerInfo, faciesGridMap > LayerFaciesGridMap;
+      /// @brief define a type for storing each TCF file and all its faciesGridMap
+      typedef std::map < std::string, std::vector<faciesGridMap> >  fileFacies;
 
-      typedef std::map < std::string, LayerFaciesGridMap >  FileLayerFaciesGridMap;
+      /// @brief define a type for storing the name of the output and its associated result map 
+      typedef std::map < std::string, MapInfo > fileMaps;
 
-   private:
+      /// @brief define the categories
+      enum { MACRO_PORO = 0, IGV, CMT_QRTZ, CORE_PORO, MICRO_PORO, PERM, LOGPERM, numberOfTouchstoneCategories };
+
+      /// @brief define the formats
+      enum { SD = 0, MEAN, GEOMEAN, SKEWNESS, KURTOSIS, MIN, MAX, MODE, PERCENTILE, DISTRIBUTION };
+
+      /// Class methods
+
+      /// @brief write the burial histories for each layer used by the TCF
+      void writeBurialHistory(const string & filename, const char * burhistFile, const std::map<LayerInfo, std::vector<int>> & validLayerLocations, const int numActive);
+
+      /// @brief reads the results produced by the touchstoneWrapper and calls writeResultsToGrids
+      bool calculate(const std::string & filename, const char * burhistFile, const std::map<LayerInfo, std::vector<int>> & validLayerLocations);
+
+      /// @brief executes the wrapper for a specific TCF file
+      bool executeWrapper(const char * burHistFile, const string & filename, const char * resultFile);
+
+      /// @brief write the results of each MapInfo to grid     
+      void writeResultsToGrids(size_t sn, int i, int j, MapInfo * currentOutput, const size_t startingIndex, const std::vector<double>& stripeOutput);
+
+      /// @brief checks if one instance of the wrapper is zombie state
+      bool checkZombie(pid_t pid);
+
+      /// @brief prints logging messages
+      void message(const std::string & msg, int level = 0) { if ( level >= m_verboseLevel ) (level > 0 ? std::cout : std::cerr) << "MeSsAgE " << msg << std::endl; }
+
+      /// Class members
 
       DataAccess::Interface::ProjectHandle & m_projectHandle;
 
-      std::tr1::array<int,101> m_percentPercentileMapping;
+      const int numberOfStatisticalOutputs = 30;
+
+      std::tr1::array<int, 101> m_percentPercentileMapping;
+
       std::map < std::string, int > m_categoriesMapping;
+
       std::vector<std::string> m_categories;
 
-      // display values
       std::map < std::string, int > m_formatsMapping;
-         
-      LayerCategoryMapInfoList  m_layerList;
-         
+
+      fileMaps  m_fileMaps;
+
+      fileFacies m_fileFacies;
+
       std::vector<size_t> m_usedSnapshotsIndex;
-        
+
       std::vector<double> m_usedSnapshotsAge;
-         
-      PetscInt m_verboseLevel;         
-         
-      LayerCategoryResultCounter m_layerCategoryResultCounter;
-         
-      // Multi facies data mebers
-         
-      FileLayerFaciesGridMap m_fileLayerFaciesGridMap;
 
-      /** Collect cauldron output and call the new ts calculate*/                         
-      bool calculate( const std::string & filename, const char * burhistFile );
+      int m_firstI;
 
-      bool retrieveGridMaps(const CategoryMapInfoList & currentOutputs);
-      bool restoreGridMaps(const CategoryMapInfoList & currentOutputs);
-      bool executeWrapper( const char * burHistFile, const string & filename, const char * resultFile );
-          
+      int m_firstJ;
 
-      void writeBurialHistory(const DataAccess::Interface::Surface * surface, WriteBurial & writeBurial, const faciesGridMap * faciesGridMap);      
-      int countActive( const DataAccess::Interface::Surface * surface, const faciesGridMap * faciesGridMap);         
-      void writeResultsToGrids( int i, int j, const CategoryMapInfoList & currentOutputs, TouchstoneFiles & readTouchstone, size_t sn);
-	  
-	  bool checkZombie( pid_t pid );
-	  void writeBurialHistoryToFile(const string & filename, const char * burhistFile, const int numActive);
-         
-   public:
-      MasterTouch( DataAccess::Interface::ProjectHandle & projectHandle);
-      bool run(); 
-     
-      // add format request to category output for a certain layer
-      bool addOutputFormat( const std::string & filename,
-                            const DataAccess::Interface::Surface * surface,
-                            const DataAccess::Interface::Formation * formation,
-                            const std::string & category, const std::string & format, int percent, const DataAccess::Interface::GridMap * faciesGrid, int index);
+      int m_lastI;
 
+      int m_lastJ;
+
+      int m_gridSize;
+
+      PetscInt m_verboseLevel;
    };
 
 }
-
 
 #endif
 
