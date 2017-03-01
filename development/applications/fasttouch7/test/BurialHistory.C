@@ -33,7 +33,7 @@ TEST (WriteReadBurialHistory,WriteReadBurialHistory)
 	//write burial history
 	WriteBurial WriteBurial("BurialHistory");
 	WriteBurial.writeIndexes(firstI, lastI, firstJ, lastJ, numLayers, numActive);
-	WriteBurial.writeBurialHistory(burHistTimesteps, iD, true) ;
+	WriteBurial.writeBurialHistory(&burHistTimesteps, iD) ;
 	}
 	
 	//read  Burial History, into the wrapper burHistTimesteps is of Geocosm::TsLib::burHistTimestep type

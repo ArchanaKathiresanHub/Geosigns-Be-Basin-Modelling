@@ -9,7 +9,7 @@
 // 
 
 /// @file MasterTouch.h
-/// @brief This file keeps API declaration for adding ResQ outputs maps, running the touchstone wrapper, and saving the results to maps. 
+/// @brief This file keeps API declaration for adding ResQ outputs maps, running the touchstone wrapper and saving the results to maps. 
 
 #ifndef FASTTOUCH7_MASTERTOUCH_H
 #define FASTTOUCH7_MASTERTOUCH_H
@@ -52,7 +52,7 @@ namespace fasttouch
       /// @brief Constructor
       MasterTouch(DataAccess::Interface::ProjectHandle & projectHandle);
 
-      /// @brief Add a result map. Note for BPA2: an additional parameter ( int scenNum) needs to be add to this method.
+      /// @brief Add a result map. Note for BPA2: an additional parameter (int scenNum) needs to be added to this method.
       /// This value will be read from an additional column of the [TouchstoneIoTbl]. 
       /// This is needed to support multiple facies maps in the same layer, similary to what it is done in BPA, where several TCFs can be used in the same layer
       bool addOutputFormat(const std::string & filename,
@@ -71,9 +71,9 @@ namespace fasttouch
       struct MapInfo
       {
          std::vector<DataAccess::Interface::GridMap *> gridMap; /// vector of gridmap at UseInResQ user-defined snapshots
-         std::string category; /// category: MACRO_PORO, IGV, CMT_QRTZ, CORE_PORO, MICRO_PORO, PERM, LOGPERM
-         std::string format;   /// format: SD, MEAN, GEOMEAN, SKEWNESS, KURTOSIS, MIN, MAX, MODE, PERCENTILE, DISTRIBUTION
-         int percent;          /// percetiles: 1, 5, 10, ...,95, 99     
+         std::string category;                                  /// category: MACRO_PORO, IGV, CMT_QRTZ, CORE_PORO, MICRO_PORO, PERM, LOGPERM
+         std::string format;                                    /// format: SD, MEAN, GEOMEAN, SKEWNESS, KURTOSIS, MIN, MAX, MODE, PERCENTILE, DISTRIBUTION
+         int percent;                                           /// percetiles: 1, 5, 10, ...,95, 99     
       };
 
       /// @brief define a type containing the information about one layer
@@ -100,7 +100,7 @@ namespace fasttouch
          const DataAccess::Interface::Formation * formation;
       };
 
-      /// @brief define a type containing the information about one facies map, also the output MapInfo
+      /// @brief define a type containing the information about one facies grid, the facies number and where to output the property
       struct faciesGridMap
       {
          const DataAccess::Interface::GridMap * faciesGrid;
@@ -109,7 +109,7 @@ namespace fasttouch
          MapInfo * outputMap;
       };
 
-      /// @brief define a type for storing each TCF file and all its faciesGridMap
+      /// @brief define a type for storing for each TCF file its faciesGridMap
       typedef std::map < std::string, std::vector<faciesGridMap> >  fileFacies;
 
       /// @brief define a type for storing the name of the output and its associated result map 

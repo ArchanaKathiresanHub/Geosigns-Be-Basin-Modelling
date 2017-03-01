@@ -352,7 +352,7 @@ bool MasterTouch::run()
       //the TCF file name
       const string & filename = (it->first);
 
-      //for this TCF get the layers where it is used
+      //for this TCF get the layers where it is used and create a mask that indicates the valid locations (at least one TCF is used)
       std::map<LayerInfo, std::vector<int>> validLayerLocations;
       for ( auto it = m_fileFacies[filename].begin(); it != m_fileFacies[filename].end(); ++it )
       {

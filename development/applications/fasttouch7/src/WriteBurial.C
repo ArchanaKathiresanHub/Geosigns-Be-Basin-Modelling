@@ -23,31 +23,31 @@ void WriteBurial::writeSnapshotsIndexes(const std::vector<size_t> & usedSnapshot
    }
 }
 
-void WriteBurial::writeBurialHistory(const std::vector<BurialHistoryTimeStep > & burHistTimesteps, int iD, bool isInFacies) 
+void WriteBurial::writeBurialHistory(const std::vector<BurialHistoryTimeStep > * burHistTimesteps, int iD)
 {
-   
-   size_t size;   
-   
-   if (isInFacies) 
+
+   size_t size;
+
+   if ( burHistTimesteps == nullptr )
    {
-   size = burHistTimesteps.size();
+      size = 0;
    }
-   else 
+   else
    {
-   size = 0;
+      size = burHistTimesteps->size();
    }
-   
+
    m_filename << iD;   //the  global i j position
    m_filename << size; //the number of time steps to read
-   
+
    for ( size_t bt = 0; bt < size; ++bt )
    {
-      m_filename << burHistTimesteps[bt].time; 
-      m_filename << burHistTimesteps[bt].temperature;
-      m_filename << burHistTimesteps[bt].depth;
-      m_filename << burHistTimesteps[bt].effStress;
-      m_filename << burHistTimesteps[bt].waterSat;
-      m_filename << burHistTimesteps[bt].overPressure;    
+      m_filename << (*burHistTimesteps)[bt].time;
+      m_filename << (*burHistTimesteps)[bt].temperature;
+      m_filename << (*burHistTimesteps)[bt].depth;
+      m_filename << (*burHistTimesteps)[bt].effStress;
+      m_filename << (*burHistTimesteps)[bt].waterSat;
+      m_filename << (*burHistTimesteps)[bt].overPressure;
    }
 }
 
