@@ -9,20 +9,20 @@
 
 //this class defines how the touchstone results should be read
 
-class TouchstoneFiles 
+class TouchstoneFiles
 {
 private:
    DataPipe  m_filename;
 public:
-// read methods
+   // read methods
    TouchstoneFiles(const char * filename);
    void readOrder(std::vector<int> & vec);
    void readNumTimeSteps(size_t * numTimeSteps);
    void readArray(std::vector<double> & OutputProperties);
-// write methods
-   void writeOrder(std::map <int, int> categoriesMappingOrder) ;
-   void writeNumTimeSteps(size_t numTimeSteps);  
-   void writeArray(std::vector<double> & OutputProperties); 
+   // write methods
+   void writeOrder(std::map <int, int> categoriesMappingOrder);
+   void writeNumTimeSteps(size_t numTimeSteps);
+   void writeArray(std::vector<double> & OutputProperties);
 };
 
 #endif

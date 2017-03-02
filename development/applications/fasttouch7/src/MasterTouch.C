@@ -451,7 +451,7 @@ bool MasterTouch::run()
 bool MasterTouch::addOutputFormat(const string & filename,
    const Surface * surface, const Formation * formation,
    const string & category, const string & format,
-   int percent, const GridMap * faciesGrid, int index)
+   const int percent, const GridMap * faciesGrid, const int faciesNumber)
 {
    if ( filename.size() < 1 )
    {
@@ -470,6 +470,7 @@ bool MasterTouch::addOutputFormat(const string & filename,
       propertyValueName += filename;
       propertyValueName += " ";
    }
+
    propertyValueName += category;
    propertyValueName += " ";
    propertyValueName += format;
@@ -479,14 +480,11 @@ bool MasterTouch::addOutputFormat(const string & filename,
 
    if ( !isLegacy )
    {
-      // Here we should add the scenario number read from the project file as an additional parameter of the [TouchstoneIoTbl]
+      // Here we  add the run name read from the project file as an additional parameter of the [TouchstoneIoTbl]
       // This should be passed to addOutputFormat and it is necessary to support multifacies in ANY setting, e.g. several multifacies scenarios in the same layer. 
-
       // propertyValueName += " ";
-      // propertyValueName += to_string(scenNumber); //scenNumber, should be read from the TouchstoneIoTbl
+      // propertyValueName += runName; //scenNumber, should be read from the TouchstoneIoTbl
    }
-
-   LayerInfo layer(surface, formation);
 
    //if a map for this format, category and percent has been already defined no need to create a new MapInfo
    if ( m_fileMaps.count(propertyValueName) == 0 )
@@ -531,9 +529,10 @@ bool MasterTouch::addOutputFormat(const string & filename,
    }
 
    //save where is used and where to write 
-   faciesGridMap                  faciesGridMap;
+   faciesGridMap faciesGridMap;
+   LayerInfo layer(surface, formation);
    faciesGridMap.faciesGrid = faciesGrid;
-   faciesGridMap.faciesNumber = index;
+   faciesGridMap.faciesNumber = faciesNumber;
    faciesGridMap.layer = layer;
    faciesGridMap.outputMap = &(m_fileMaps[propertyValueName]);
 
@@ -592,21 +591,23 @@ bool MasterTouch::calculate(const std::string & filename, const char * burhistFi
       //read the results
       TouchstoneFiles readTouchstone(resultFile);
 
-      //read the categories as saved by touchstoneLibrary
+      //read the categories as saved by touchstone library
       std::vector<int> vec;
       readTouchstone.readOrder(vec);
       for ( size_t ii = 0; ii < vec.size() - 1; ++ii ) m_categoriesMapping[m_categories[ii]] = vec[ii];
 
-      //Read the outputs. Will store all outputs of this TCF here, allows combining facies maps
+      //Read the outputs. Will store all outputs of this TCF here, allows combining the outputs in different facies maps
       std::map<LayerInfo, std::vector<double>> stripeOutput;
       std::map<LayerInfo, std::vector<int>> validTimeSteps;
       size_t numberOfOutputs = numberOfTouchstoneCategories * numberOfStatisticalOutputs;
+
       for ( auto it = validLayerLocations.begin(); it != validLayerLocations.end(); ++it )
       {
-         //count the number of active position for this layer and allocate memory
+         //count the number of active position for this layer and allocate the required memory
          int layerNumActive = std::accumulate(it->second.begin(), it->second.end(), 0);
          stripeOutput[it->first] = std::vector<double>(layerNumActive*numberOfOutputs, 99999.0);
          validTimeSteps[it->first] = std::vector<int>(m_gridSize, 0);
+         
          size_t startingIndex = 0;
          size_t indexTimeSteps = 0;
 
@@ -617,7 +618,6 @@ bool MasterTouch::calculate(const std::string & filename, const char * burhistFi
                //num of timeSteps should always be read
                size_t numTimeSteps = 0;
                readTouchstone.readNumTimeSteps(&numTimeSteps);
-
                validTimeSteps[it->first][indexTimeSteps] = numTimeSteps;
                indexTimeSteps += 1;
 
@@ -628,6 +628,8 @@ bool MasterTouch::calculate(const std::string & filename, const char * burhistFi
                   {
                      std::vector<double> needleOutput(numberOfOutputs, 99999.0);
                      readTouchstone.readArray(needleOutput);
+
+                     //copy the results to the output vector
                      std::copy(needleOutput.begin(), needleOutput.end(), stripeOutput[it->first].begin() + startingIndex);
                      startingIndex += numberOfOutputs;
                   }
@@ -639,12 +641,12 @@ bool MasterTouch::calculate(const std::string & filename, const char * burhistFi
       // fill each result map belonging to this filename, read the results
       for ( auto it = m_fileFacies[filename].begin(); it != m_fileFacies[filename].end(); ++it )
       {
-         // the current output map
+         // retrive the current map output data
          MapInfo * currentOutput = it->outputMap;
-         for ( size_t sn = 0; sn < currentOutput->gridMap.size(); ++sn ) currentOutput->gridMap[sn]->retrieveData();
+         for ( auto const&  m: currentOutput->gridMap ) m->retrieveData();
 
+         // if a facies is not defined, all surface belongs to the TCF
          bool facieGridMapisDefined = false;
-         // if a facies is not defined, all surface belongs to the TCF   
          if ( it->faciesGrid )
          {
             facieGridMapisDefined = true;
@@ -657,12 +659,11 @@ bool MasterTouch::calculate(const std::string & filename, const char * burhistFi
          {
             for ( int j = m_firstJ; j <= m_lastJ; ++j )
             {
-               if ( validTimeSteps[it->layer][indexTimeSteps] > 0 ) // valid intersection of AOI maps using this TCF filename 
+               if ( validTimeSteps[it->layer][indexTimeSteps] > 0 ) // Valid results are present at this location
                {
                   for ( size_t sn = 0; sn < m_usedSnapshotsIndex.size(); ++sn )
                   {
-
-                     if ( !facieGridMapisDefined or it->faciesGrid->getValue((unsigned int)i, (unsigned int)j) == it->faciesNumber ) // facies gridmap valid intersection
+                     if ( !facieGridMapisDefined or it->faciesGrid->getValue((unsigned int)i, (unsigned int)j) == it->faciesNumber ) // the results are part of the facies map
                      {
                         writeResultsToGrids(sn, i, j, currentOutput, startingIndex, stripeOutput[it->layer]);
                      }
@@ -675,7 +676,7 @@ bool MasterTouch::calculate(const std::string & filename, const char * burhistFi
 
          if ( facieGridMapisDefined ) it->faciesGrid->restoreData(false, false);
          // restore the current output map 
-         for ( auto it = 0; it < currentOutput->gridMap.size(); ++it ) currentOutput->gridMap[it]->restoreData();
+         for ( auto const& m : currentOutput->gridMap ) m->restoreData();
       }
    }
    catch ( const std::runtime_error & e )

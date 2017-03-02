@@ -52,13 +52,13 @@ namespace fasttouch
       /// @brief Constructor
       MasterTouch(DataAccess::Interface::ProjectHandle & projectHandle);
 
-      /// @brief Add a result map. Note for BPA2: an additional parameter (int scenNum) needs to be added to this method.
-      /// This value will be read from an additional column of the [TouchstoneIoTbl]. 
+      /// @brief Add a result map. 
+      /// Note for BPA2: an additional parameter (const std::string& runName ) needs to be added to this method. This value will be read from an additional column of the [TouchstoneIoTbl] (see the resq phase 2 requirment document)
       /// This is needed to support multiple facies maps in the same layer, similary to what it is done in BPA, where several TCFs can be used in the same layer
       bool addOutputFormat(const std::string & filename,
          const DataAccess::Interface::Surface * surface,
          const DataAccess::Interface::Formation * formation,
-         const std::string & category, const std::string & format, int percent, const DataAccess::Interface::GridMap * faciesGrid, int index);
+         const std::string & category, const std::string & format, const int percent, const DataAccess::Interface::GridMap * faciesGrid, const int faciesNumber);
 
       /// @brief Write the burial histories, run the touchstoneWrapper and save the results to grid. this is done one TCF by one
       bool run();
