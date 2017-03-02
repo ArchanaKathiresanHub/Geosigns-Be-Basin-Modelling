@@ -495,6 +495,18 @@ CauldronIO::Formation::Formation(int kStart, int kEnd, const string& name)
 	m_sourceRock1name.clear();
 	m_sourceRock2name.clear();
 	m_allochthonousLithologyName.clear();
+
+    m_thicknessMap_index = -1;
+    m_mixingHI_index = -1;
+    m_lithPerc1_index = -1;
+    m_lithPerc2_index = -1;
+    m_lithPerc3_index = -1;
+}
+
+
+CauldronIO::Formation::~Formation()
+{
+    m_propSurfaceList.clear();
 }
 
 bool CauldronIO::Formation::isDepthRangeDefined() const
@@ -542,33 +554,53 @@ bool CauldronIO::Formation::isMobileLayer() const
 
 bool CauldronIO::Formation::hasThicknessMap() const
 {
-	return bool(m_thickness.second);
+    return m_thicknessMap_index != -1;
 }
 
 void CauldronIO::Formation::setThicknessMap(PropertySurfaceData& thicknessMap)
 {
-	m_thickness = thicknessMap;
+    if (!hasThicknessMap())
+    {
+        m_propSurfaceList.push_back(thicknessMap);
+        m_thicknessMap_index = (int)(m_propSurfaceList.size() - 1);
+    }
+    else
+    {
+        m_propSurfaceList.at(m_thicknessMap_index).second->release();
+        m_propSurfaceList.at(m_thicknessMap_index) = thicknessMap;
+    }
 }
 
 const CauldronIO::PropertySurfaceData& CauldronIO::Formation::getThicknessMap() const
 {
-	return m_thickness;
+    if (!hasThicknessMap()) throw CauldronIOException("No thickness map present in this formation");
+    return m_propSurfaceList.at(m_thicknessMap_index);
 }
 
 
 bool CauldronIO::Formation::hasSourceRockMixingHIMap() const
 {
-	return bool(m_mixingHI.second);
+    return m_mixingHI_index != -1;
 }
 
 void CauldronIO::Formation::setSourceRockMixingHIMap(PropertySurfaceData& map)
 {
-	m_mixingHI = map;
+    if (!hasSourceRockMixingHIMap())
+    {
+        m_propSurfaceList.push_back(map);
+        m_mixingHI_index = (int)(m_propSurfaceList.size() - 1);
+    }
+    else
+    {
+        m_propSurfaceList.at(m_mixingHI_index).second->release();
+        m_propSurfaceList.at(m_mixingHI_index) = map;
+    }
 }
 
 const CauldronIO::PropertySurfaceData& CauldronIO::Formation::getSourceRockMixingHIMap() const
 {
-	return m_mixingHI;
+    if (!hasSourceRockMixingHIMap()) throw CauldronIOException("No sourcerock mixingHI map present in this formation");
+    return m_propSurfaceList.at(m_mixingHI_index);
 }
 
 
@@ -762,47 +794,77 @@ const std::string& CauldronIO::Formation::getLithoType3Name() const
 
 void CauldronIO::Formation::setLithoType1PercentageMap(PropertySurfaceData& map)
 {
-	m_lithPerc1map = map;
+    if (!hasLithoType1PercentageMap())
+    {
+        m_propSurfaceList.push_back(map);
+        m_lithPerc1_index = (int)(m_propSurfaceList.size() - 1);
+    }
+    else
+    {
+        m_propSurfaceList.at(m_lithPerc1_index).second->release();
+        m_propSurfaceList.at(m_lithPerc1_index) = map;
+    }
 }
 
 void CauldronIO::Formation::setLithoType2PercentageMap(PropertySurfaceData& map)
 {
-	m_lithPerc2map = map;
+    if (!hasLithoType2PercentageMap())
+    {
+        m_propSurfaceList.push_back(map);
+        m_lithPerc2_index = (int)(m_propSurfaceList.size() - 1);
+    }
+    else
+    {
+        m_propSurfaceList.at(m_lithPerc2_index).second->release();
+        m_propSurfaceList.at(m_lithPerc2_index) = map;
+    }
 }
 
 void CauldronIO::Formation::setLithoType3PercentageMap(PropertySurfaceData& map)
 {
-	m_lithPerc3map = map;
+    if (!hasLithoType3PercentageMap())
+    {
+        m_propSurfaceList.push_back(map);
+        m_lithPerc3_index = (int)(m_propSurfaceList.size() - 1);
+    }
+    else
+    {
+        m_propSurfaceList.at(m_lithPerc3_index).second->release();
+        m_propSurfaceList.at(m_lithPerc3_index) = map;
+    }
 }
 
 const CauldronIO::PropertySurfaceData& CauldronIO::Formation::getLithoType1PercentageMap() const
 {
-	return m_lithPerc1map;
+    if (!hasLithoType1PercentageMap()) throw CauldronIOException("No lithotype percentage1 map present in this formation");
+    return m_propSurfaceList.at(m_lithPerc1_index);
 }
 
 const CauldronIO::PropertySurfaceData& CauldronIO::Formation::getLithoType2PercentageMap() const
 {
-	return m_lithPerc2map;
+    if (!hasLithoType2PercentageMap()) throw CauldronIOException("No lithotype percentage2 map present in this formation");
+    return m_propSurfaceList.at(m_lithPerc2_index);
 }
 
 const CauldronIO::PropertySurfaceData& CauldronIO::Formation::getLithoType3PercentageMap() const
 {
-	return m_lithPerc3map;
+    if (!hasLithoType3PercentageMap()) throw CauldronIOException("No lithotype percentage3 map present in this formation");
+    return m_propSurfaceList.at(m_lithPerc3_index);
 }
 
 bool CauldronIO::Formation::hasLithoType1PercentageMap() const
 {
-	return bool(m_lithPerc1map.second);
+    return m_lithPerc1_index != -1;
 }
 
 bool CauldronIO::Formation::hasLithoType2PercentageMap() const
 {
-	return bool(m_lithPerc2map.second);
+    return m_lithPerc2_index != -1;
 }
 
 bool CauldronIO::Formation::hasLithoType3PercentageMap() const
 {
-	return bool(m_lithPerc3map.second);
+    return m_lithPerc3_index != -1;
 }
 
 void CauldronIO::Formation::setTopSurface(std::shared_ptr<CauldronIO::Surface>& surface)
@@ -825,45 +887,30 @@ const std::shared_ptr<CauldronIO::Surface>& CauldronIO::Formation::getBottomSurf
 	return m_bottomSurface;
 }
 
-void CauldronIO::Formation::release()
-{
-	if (hasThicknessMap())
-	{
-		m_thickness.second->release();
-		m_thickness.second.reset();
-	}
-	if (hasSourceRockMixingHIMap())
-	{
-		m_mixingHI.second->release();
-		m_mixingHI.second.reset();
-	}
-	if (hasLithoType1PercentageMap())
-	{
-		m_lithPerc1map.second->release();
-		m_lithPerc1map.second.reset();
-	}
-	if (hasLithoType2PercentageMap())
-	{
-		m_lithPerc2map.second->release();
-		m_lithPerc2map.second.reset();
-	}
-	if (hasLithoType3PercentageMap())
-	{
-		m_lithPerc3map.second->release();
-		m_lithPerc3map.second.reset();
-	}
-}
-
 void CauldronIO::Formation::retrieve()
 {
-	if (hasThicknessMap() && !m_thickness.second->isRetrieved())
-	{
-		m_thickness.second->retrieve();
-	}
-	if (hasSourceRockMixingHIMap() && !m_mixingHI.second->isRetrieved())
-	{
-		m_mixingHI.second->retrieve();
-	}
+    BOOST_FOREACH(PropertySurfaceData& data, m_propSurfaceList)
+    {
+        data.second->retrieve();
+    }
+}
+
+void CauldronIO::Formation::release()
+{
+    BOOST_FOREACH(PropertySurfaceData& data, m_propSurfaceList)
+    {
+        data.second->release();
+    }
+}
+
+bool CauldronIO::Formation::isRetrieved() const
+{
+    BOOST_FOREACH(const PropertySurfaceData& data, m_propSurfaceList)
+    {
+        if (!data.second->isRetrieved()) return false;
+    }
+
+    return true;
 }
 
 bool CauldronIO::Formation::operator==(const Formation& other) const

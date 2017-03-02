@@ -232,6 +232,8 @@ int main(int argc, char ** argv)
 				std::cout << "Retrieving data" << endl;
                 start = clock();
 
+                project->retrieveStratigraphyTable();
+
                 for (const std::shared_ptr<CauldronIO::SnapShot>& snapShot : project->getSnapShots())
                 {
 					std::vector < CauldronIO::VisualizationIOData* > data = snapShot->getAllRetrievableData();

@@ -351,6 +351,8 @@ namespace CauldronIO
         /// \param [in] kEnd end depth index (inclusive) into bigger volume
         /// \param [in] name name of the formation
 		explicit Formation(int kStart, int kEnd, const std::string& name);
+        /// \brief Destructor
+        ~Formation();
 
 		/// \returns true if depth (or k) range is defined
 		bool isDepthRangeDefined() const;
@@ -368,24 +370,12 @@ namespace CauldronIO
 		void setIsMobileLayer(bool isMobileLayer);
 		/// \returns true if this formation is a mobile layer
         bool isMobileLayer() const;
-		/// \returns true if this formation has a thickness map defined
-		bool hasThicknessMap() const;
-		/// \brief Assigns a thickness map to this formation
-		void setThicknessMap(PropertySurfaceData& thicknessMap);
-		/// \returns Returns the thickness map; can be empty
-		const PropertySurfaceData& getThicknessMap() const;
-		/// \param [in] isSourceRock true if this formation is a source rock
-		void setIsSourceRock(bool isSourceRock);
+        /// \param [in] isSourceRock true if this formation is a source rock
+        void setIsSourceRock(bool isSourceRock);
 		/// \returns true if this formation is a source rock
 		bool isSourceRock() const;
-		/// \returns true if this formation has a mixingHI map defined
-		bool hasSourceRockMixingHIMap() const;
-		/// \brief Assigns a mixingHI map to this formation
-		void setSourceRockMixingHIMap(PropertySurfaceData& map);
-		/// \returns Returns the mixingHI map; can be empty
-		const PropertySurfaceData& getSourceRockMixingHIMap() const;
-		/// \brief Assigns the source rock 1 name
-		void setSourceRock1Name(const std::string& name);
+        /// \brief Assigns the source rock 1 name
+        void setSourceRock1Name(const std::string& name);
 		/// \returns Returns the source rock 1 name
 		const std::string& getSourceRock1Name() const;
 		/// \brief Assigns the source rock 2 name
@@ -448,6 +438,24 @@ namespace CauldronIO
 		void setLithoType3Name(const std::string& name);
 		/// \returns the lithotype3 name
 		const std::string& getLithoType3Name() const;
+
+        /// \brief get the list of all property-surfaceData pairs contained in this formation
+        const PropertySurfaceDataList& getPropertySurfaceDataList() const;
+
+        /// \returns true if this formation has a thickness map defined
+        bool hasThicknessMap() const;
+        /// \brief Assigns a thickness map to this formation
+        void setThicknessMap(PropertySurfaceData& thicknessMap);
+        /// \returns Returns the thickness map; can be empty
+        const PropertySurfaceData& getThicknessMap() const;
+
+        /// \returns true if this formation has a mixingHI map defined
+        bool hasSourceRockMixingHIMap() const;
+        /// \brief Assigns a mixingHI map to this formation
+        void setSourceRockMixingHIMap(PropertySurfaceData& map);
+        /// \returns Returns the mixingHI map; can be empty
+        const PropertySurfaceData& getSourceRockMixingHIMap() const;
+
 		/// \brief Assign a lithotype percentagemap
 		void setLithoType1PercentageMap(PropertySurfaceData& map);
 		/// \brief Assign a lithotype percentagemap
@@ -477,6 +485,8 @@ namespace CauldronIO
 		void release();
 		/// \brief Retrieve all data related to this formation
 		void retrieve();
+        /// \brief Returns true if the data has been retrieved
+        bool isRetrieved() const;
 
     private:
 		std::string m_name, m_lithoType1name, m_lithoType2name, m_lithoType3name, m_fluidTypeName;
@@ -485,7 +495,8 @@ namespace CauldronIO
 		bool m_isSourceRock, m_isMobileLayer, m_chemicalcompaction, m_constrainedOverpressure, m_igniousintrusion, m_enableSourceRockMixing, m_hasAllochthonousLithology;
 		double m_igniousintrusionAge;
 		int m_depoSequence, m_elementRefinement;
-		PropertySurfaceData m_thickness, m_mixingHI, m_lithPerc1map, m_lithPerc2map, m_lithPerc3map;
+        int m_thicknessMap_index, m_mixingHI_index, m_lithPerc1_index, m_lithPerc2_index, m_lithPerc3_index;
+        PropertySurfaceDataList m_propSurfaceList;
 		std::shared_ptr<CauldronIO::Surface> m_topSurface, m_bottomSurface;
     };
 
