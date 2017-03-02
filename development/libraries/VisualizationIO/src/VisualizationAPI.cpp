@@ -552,6 +552,11 @@ bool CauldronIO::Formation::isMobileLayer() const
     return m_isMobileLayer;
 }
 
+const PropertySurfaceDataList& CauldronIO::Formation::getPropertySurfaceDataList() const
+{
+   return m_propSurfaceList;
+}
+
 bool CauldronIO::Formation::hasThicknessMap() const
 {
     return m_thicknessMap_index != -1;
