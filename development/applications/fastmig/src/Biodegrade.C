@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2016 Shell International Exploration & Production.
+// Copyright (C) 2017 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -54,7 +54,7 @@ void Biodegrade::calculate(const double timeInterval, const double temperatureTr
       if (degradeFactor < 0.0)
       {
          cerr << "Warning: trying to biodegrade more of component " << compIdx << " than is in the trap" << endl;
-	 lost[compIdx] = input[compIdx];
+         lost[compIdx] = input[compIdx];
          continue;
       }
       if (degradeFactor > 1.0)

@@ -2692,16 +2692,50 @@ namespace migration
    /// perform the filling and spilling process.
    bool Reservoir::fillAndSpill ()
    {
-
       setSourceReservoir (this);
 
       if (!computeDistributionParameters ())
          return false;
 
-      m_biodegraded = 0;
-      if (isBioDegradationOn (m_migrator->performLegacyMigration ()))
+      bool legacy = m_migrator->performLegacyMigration ();
+
+      // If in legacy mode, biodegrade first and then distribute. No diffusion
+      if (legacy)
       {
-         if (!m_migrator->performLegacyMigration ())
+         m_biodegraded = 0;
+         if (isBioDegradationOn (legacy))
+         {
+            m_biodegraded = biodegradeCharges ();
+         }
+
+         do
+         {
+            collectAndSplitCharges ();
+            distributeCharges ();
+
+            mergeSpillingTraps ();
+            processMigrationRequests ();
+         }
+         while (!allProcessorsFinished (distributionHasFinished ()));
+
+      }
+      // If BPA2 engine, then distribute first (i.e. calculate leakage, wasting and spillage),
+      // then biodegrade and then calculate diffusion losses. If something is biodegraded, or
+      // diffused, then a final re-distribution will be needed.
+      else
+      {
+         do
+         {
+            collectAndSplitCharges ();
+            distributeCharges ();
+
+            mergeSpillingTraps ();
+            processMigrationRequests ();
+         }
+         while (!allProcessorsFinished (distributionHasFinished ()));
+
+         m_biodegraded = 0;
+         if (isBioDegradationOn (legacy))
          {
             if (!computeHydrocarbonWaterContactDepth () or
                 !computeHydrocarbonWaterTemperature () or
@@ -2709,32 +2743,38 @@ namespace migration
                 !pasteurizationStatus() or
                 !setPasteurizationStatus())
                return false;
+            
+            m_biodegraded = biodegradeCharges ();
          }
-         m_biodegraded = biodegradeCharges ();
-      }
 
-      do
-      {
-         collectAndSplitCharges ();
-         distributeCharges ();
-
-         mergeSpillingTraps ();
-         processMigrationRequests ();
-      }
-      while (!allProcessorsFinished (distributionHasFinished ()));
-
-      // Optimization for May 2016 Release
-      if (isDiffusionOn (m_migrator->performLegacyMigration ()) and !m_migrator->performLegacyMigration ())
-      {
-         broadcastTrapFillDepthProperties ();
-         if (!diffusionLeakCharges ())
+         if (isDiffusionOn (legacy))
          {
-            return false;
+            broadcastTrapFillDepthProperties ();
+            if (!diffusionLeakCharges ())
+               return false;
+         }         
+
+         // If charge was either biodegraded or diffused, need to correct fill depths
+         if (isBioDegradationOn (legacy) or
+             isDiffusionOn (legacy))
+         {
+            bool flashCharges = true;
+            do
+            {
+               collectAndSplitCharges (flashCharges);
+               distributeCharges (flashCharges);
+
+               mergeSpillingTraps ();
+               processMigrationRequests ();
+
+               // Making sure that if spillage occurs, every trap will be re-flashed.
+               // No easy way of knowing that in advance.
+               flashCharges = false;
+            }
+            while (!allProcessorsFinished (distributionHasFinished ()));
          }
 
-         // To get the fill heights, etc. correct again!
-         collectAndSplitCharges (true);
-         distributeCharges (true);
+         putInitialLeakageBack();
       }
 
       reportLeakages ();
@@ -2763,6 +2803,16 @@ namespace migration
 
       RequestHandling::FinishRequestHandling ();
       return value;
+   }
+
+   void Reservoir::putInitialLeakageBack()
+   {
+      TrapVector::iterator trapIter;
+
+      for (trapIter = m_traps.begin (); trapIter != m_traps.end (); ++trapIter)
+      {
+         (*trapIter)->putInitialLeakageBack ();
+      }
    }
 
    void Reservoir::reportLeakages ()
@@ -2997,7 +3047,7 @@ namespace migration
       TrapVector::iterator trapIter;
       for (trapIter = m_traps.begin (); trapIter != m_traps.end (); ++trapIter)
       {
-         if (always and !(*trapIter)->diffusionLeakageOccoured ())
+         if (always and !(*trapIter)->biodegradationOccurred () and !(*trapIter)->diffusionLeakageOccurred ())
             continue;
          else
             distributionFinished &= (*trapIter)->distributeCharges ();
@@ -3156,6 +3206,9 @@ namespace migration
          Trap * trap = *trapIter;
          if (trap->isToBeAbsorbed ())
          {
+            // Before deleting the trap, move initial leakage to crest column.
+            trap->putInitialLeakageBack();
+            
             trap->beAbsorbed ();
 
             delete trap;
@@ -3251,7 +3304,7 @@ namespace migration
 
       for (trapIter = m_traps.begin (); trapIter != m_traps.end (); ++trapIter)
       {
-         if (always and !(*trapIter)->diffusionLeakageOccoured ())
+         if (always and !(*trapIter)->biodegradationOccurred() and !(*trapIter)->diffusionLeakageOccurred())
             continue;
          else
             (*trapIter)->collectAndSplitCharges (always);

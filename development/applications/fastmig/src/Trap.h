@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2010-2016 Shell International Exploration & Production.
+// Copyright (C) 2010-2017 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -303,8 +303,6 @@ namespace migration
       void computeVolumeToDepthFunction (void);
       void computeVolumeToDepthFunction2 (void);
 
-      //void deleteDepthToVolumeFunction (void);
-
       double getDepthForVolume (double volume);
 
       void setLocalId (int id);
@@ -317,9 +315,11 @@ namespace migration
       int getDrainageAreaId (void);
 
       void collectAndSplitCharges (bool always = false);
-      bool diffusionLeakageOccoured () const;
+      bool biodegradationOccurred () const;
+      bool diffusionLeakageOccurred () const;
 
-      //void checkDistributedCharges (PhaseId phase);
+      /// \brief Put leakage before biodegradation/diffusion back to crest columns of traps
+      void putInitialLeakageBack(void);
 
       /*!
       * \brief Compute the thickness above the hydrocarbon - water contact affected by biodegradation
@@ -435,7 +435,7 @@ namespace migration
       void moveBackToToBeDistributed (PhaseId lighterPhase);
       void moveBackToCrestColumn (void);
       void moveBackToCrestColumn (PhaseId phase);
-      // after diffusion put in the crest column only the trap content 
+      /// After biodegradation and/or diffusion put in the crest column only the trap content 
       void moveDistributedToCrestColumn (void);
 
       void moveBackToBeMigrated (void);
@@ -533,18 +533,25 @@ namespace migration
 
 
       //store what was already leaked before diffusion
-      Composition * m_leakedBeforeDiffusion;
+      Composition * m_leakedBeforeBiodegDiffusion;
 
       double m_diffusionStartTime;
       double m_penetrationDistances[DiffusionComponentSize];
 
       double m_fillDepth[NUM_PHASES];
+
+      /// @defgroup BiodegradationRelated
+      /// @{
       double m_hydrocarbonWaterContactDepth;
       double m_hydrocarbonWaterContactTemperature;
       bool m_isPasteurized;
       bool m_computePasteurizationStatusFromScratch;
       bool m_includeNotPasteurizedColumn;
       bool m_includePasteurizedColumn;
+      /// @return Boolean whether any charge was biodegraded
+      bool m_biodegraded;
+      /// @}
+
 #ifdef COMPUTECAPACITY
       double m_capacity;
 #endif
