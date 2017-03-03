@@ -1,3 +1,13 @@
+//                                                                      
+// Copyright (C) 2012-2017 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
+
 #pragma warning( push )
 #pragma warning( disable : 1478 )
 // Disable warning 1478 for touchstone 3rd party library

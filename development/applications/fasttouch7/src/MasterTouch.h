@@ -65,12 +65,12 @@ namespace fasttouch
 
    private:
 
-      /// Class types
+      /// Class user defined types
 
-      /// @brief define a type containing the information of a result map
+      /// @brief type defining an output result, as read from the [TouchstoneIoTbl]
       struct MapInfo
       {
-         std::vector<DataAccess::Interface::GridMap *> gridMap; /// vector of gridmap at UseInResQ user-defined snapshots
+         std::vector<DataAccess::Interface::GridMap *> gridMap; /// vector containing the gridmaps at each user defined UseInResQ major snapshots
          std::string category;                                  /// category: MACRO_PORO, IGV, CMT_QRTZ, CORE_PORO, MICRO_PORO, PERM, LOGPERM
          std::string format;                                    /// format: SD, MEAN, GEOMEAN, SKEWNESS, KURTOSIS, MIN, MAX, MODE, PERCENTILE, DISTRIBUTION
          int percent;                                           /// percetiles: 1, 5, 10, ...,95, 99     
@@ -101,19 +101,13 @@ namespace fasttouch
       };
 
       /// @brief define a type containing the information about one facies grid, the facies number and where to output the property
-      struct faciesGridMap
+      struct FaciesGridMap
       {
          const DataAccess::Interface::GridMap * faciesGrid;
          int faciesNumber;
          LayerInfo layer;
          MapInfo * outputMap;
       };
-
-      /// @brief define a type for storing for each TCF file its faciesGridMap
-      typedef std::map < std::string, std::vector<faciesGridMap> >  fileFacies;
-
-      /// @brief define a type for storing the name of the output and its associated result map 
-      typedef std::map < std::string, MapInfo > fileMaps;
 
       /// @brief define the categories
       enum { MACRO_PORO = 0, IGV, CMT_QRTZ, CORE_PORO, MICRO_PORO, PERM, LOGPERM, numberOfTouchstoneCategories };
@@ -145,9 +139,9 @@ namespace fasttouch
 
       DataAccess::Interface::ProjectHandle & m_projectHandle;
 
-      const int numberOfStatisticalOutputs = 30;
+      static const int numberOfStatisticalOutputs = 30;
 
-      std::tr1::array<int, 101> m_percentPercentileMapping;
+      std::array<int, 101> m_percentPercentileMapping;
 
       std::map < std::string, int > m_categoriesMapping;
 
@@ -155,9 +149,11 @@ namespace fasttouch
 
       std::map < std::string, int > m_formatsMapping;
 
-      fileMaps  m_fileMaps;
+      /// @brief define a type for storing the name of the output and its associated result map 
+      std::map < std::string, MapInfo >  m_fileMaps;
 
-      fileFacies m_fileFacies;
+      /// @brief define a type for storing for each TCF file its faciesGridMap
+      std::map < std::string, std::vector<FaciesGridMap> >  m_fileFacies;
 
       std::vector<size_t> m_usedSnapshotsIndex;
 

@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2012-2016 Shell International Exploration & Production.
+// Copyright (C) 2012-2017 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -352,7 +352,7 @@ bool MasterTouch::run()
       //the TCF file name
       const string & filename = (it->first);
 
-      //for this TCF get the layers where it is used and create a mask that indicates the valid locations (at least one TCF is used)
+      //for this TCF get the layers where it is used and create a mask to indicates the valid locations (at least one TCF is used)
       std::map<LayerInfo, std::vector<int>> validLayerLocations;
       for ( auto it = m_fileFacies[filename].begin(); it != m_fileFacies[filename].end(); ++it )
       {
@@ -379,7 +379,7 @@ bool MasterTouch::run()
          {
             for ( int j = m_firstJ; j <= m_lastJ; ++j )
             {
-               // if the facies grid map is not defined, all TCF will be used for the grid
+               // if the facies grid map is not defined, the entire stripe will be used
                if ( validLayerLocations[it->layer][indexGrid] != 1 and (!faciesGrid or faciesGrid->getValue((unsigned int)i, (unsigned int)j) == it->faciesNumber) )
                {
                   validLayerLocations[it->layer][indexGrid] = 1;
@@ -529,7 +529,7 @@ bool MasterTouch::addOutputFormat(const string & filename,
    }
 
    //save where is used and where to write 
-   faciesGridMap faciesGridMap;
+   FaciesGridMap faciesGridMap;
    LayerInfo layer(surface, formation);
    faciesGridMap.faciesGrid = faciesGrid;
    faciesGridMap.faciesNumber = faciesNumber;
@@ -663,7 +663,8 @@ bool MasterTouch::calculate(const std::string & filename, const char * burhistFi
                {
                   for ( size_t sn = 0; sn < m_usedSnapshotsIndex.size(); ++sn )
                   {
-                     if ( !facieGridMapisDefined or it->faciesGrid->getValue((unsigned int)i, (unsigned int)j) == it->faciesNumber ) // the results are part of the facies map
+                     // the results are part of the facies map defined in MapInfo. If no faciesGrid is defined it means that all TCF will be used in the stripe
+                     if ( !facieGridMapisDefined or it->faciesGrid->getValue((unsigned int)i, (unsigned int)j) == it->faciesNumber )
                      {
                         writeResultsToGrids(sn, i, j, currentOutput, startingIndex, stripeOutput[it->layer]);
                      }
