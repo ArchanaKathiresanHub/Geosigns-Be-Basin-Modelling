@@ -10,6 +10,7 @@
 
 /// @file MasterTouch.h
 /// @brief This file keeps API declaration for adding ResQ outputs maps, running the touchstone wrapper and saving the results to maps. 
+/// Note this class has linux functions calls and will not compile in windows
 
 #ifndef FASTTOUCH7_MASTERTOUCH_H
 #define FASTTOUCH7_MASTERTOUCH_H
@@ -52,9 +53,9 @@ namespace fasttouch
       /// @brief Constructor
       MasterTouch(DataAccess::Interface::ProjectHandle & projectHandle);
 
-      /// @brief Add a result map. 
-      /// Note for BPA2: an additional parameter (const std::string& runName ) needs to be added to this method. This value will be read from an additional column of the [TouchstoneIoTbl] (see the resq phase 2 requirment document)
-      /// This is needed to support multiple facies maps in the same layer, similary to what it is done in BPA, where several TCFs can be used in the same layer
+      /// @brief Add a result map. Note for BPA2: an additional parameter (const std::string& runName ) needs to be added to this method. 
+      /// This value will be read from an additional column of the [TouchstoneIoTbl] (see the resq phase 2 requirement document)
+      /// This is needed to support multiple facies maps in the same layer, similary to what it is done in BPA1, where several TCFs can be used in the same layer
       bool addOutputFormat(const std::string & filename,
          const DataAccess::Interface::Surface * surface,
          const DataAccess::Interface::Formation * formation,
@@ -100,13 +101,14 @@ namespace fasttouch
          const DataAccess::Interface::Formation * formation;
       };
 
-      /// @brief define a type containing the information about one facies grid, the facies number and where to output the property
+      /// @brief define a type containing the information about one row of the [TouchstoneIoTbl] where the
+      /// facies grid is specified with its facies number, the output layer and the MapInfo where to save the results
       struct FaciesGridMap
       {
-         const DataAccess::Interface::GridMap * faciesGrid;
-         int faciesNumber;
-         LayerInfo layer;
-         MapInfo * outputMap;
+         const DataAccess::Interface::GridMap * faciesGrid; /// the facies grid
+         int faciesNumber;                                  /// the facies number defining the zone associated with its TCF file
+         LayerInfo layer;                                   /// the layer 
+         MapInfo * outputMap;                               /// the output map where to save the results
       };
 
       /// @brief define the categories
@@ -117,19 +119,35 @@ namespace fasttouch
 
       /// Class methods
 
-      /// @brief write the burial histories for each layer used by the TCF
-      void writeBurialHistory(const string & filename, const char * burhistFile, const std::map<LayerInfo, std::vector<int>> & validLayerLocations, const int numActive);
-
       /// @brief reads the results produced by the touchstoneWrapper and calls writeResultsToGrids
+      /// @param filename the TCF file name
+      /// @param burhistFile the name of the burial history file
+      /// @param validLayerLocations for each layer the location 0 = burial history not saved, 1 = burial history saved
       bool calculate(const std::string & filename, const char * burhistFile, const std::map<LayerInfo, std::vector<int>> & validLayerLocations);
 
+      /// @brief write the burial histories for each layer used by the TCF
+      /// @param filename the TCF file name
+      /// @param burhistFile the name of the burial history file
+      /// @param validLayerLocations for each layer the location 0 = burial history not saved, 1 = burial history saved
+      /// @param numActive the total number of active positions (must be known in advance to log the percentage of completion accurately)
+      void writeBurialHistory(const string & filename, const char * burhistFile, const std::map<LayerInfo, std::vector<int>> & validLayerLocations, const int numActive);
+
       /// @brief executes the wrapper for a specific TCF file
+      /// @param burhistFile the name of the burial history file
+      /// @param filename the TCF file name
+      /// @param resultFile the file where the touchstone results will be written
       bool executeWrapper(const char * burHistFile, const string & filename, const char * resultFile);
 
-      /// @brief write the results of each MapInfo to grid     
+      /// @brief write the results of each i j position to the appropriate MapInfo    
+      /// @param sn the snapshot number
+      /// @param i the i position in the grid
+      /// @param j the j position in the grid
+      /// @param currentOutput the map info where the results will be written
+      /// @param startingIndex the index where to start reading inside stripeOutput   
+      /// @param stripeOutput the vector storing the TCF results
       void writeResultsToGrids(size_t sn, int i, int j, MapInfo * currentOutput, const size_t startingIndex, const std::vector<double>& stripeOutput);
 
-      /// @brief checks if one instance of the wrapper is zombie state
+      /// @brief checks if one instance of the wrapper is in the zombie state by reading the /proc/%d/stat file. Works only in linux
       bool checkZombie(pid_t pid);
 
       /// @brief prints logging messages
@@ -150,9 +168,13 @@ namespace fasttouch
       std::map < std::string, int > m_formatsMapping;
 
       /// @brief define a type for storing the name of the output and its associated result map 
+      /// first key of the map is the unique identifier for the output map. 
+      /// In BPA1 the identifier is filename + category + format + percent
+      /// In BPA2 the identifier is is category + format + percent + runName (to support multifacies, where a TCF combination can be used more than once in a layer) 
       std::map < std::string, MapInfo >  m_fileMaps;
 
       /// @brief define a type for storing for each TCF file its faciesGridMap
+      /// first key is the TCF file name, the second key is a vector of FaciesGridMap
       std::map < std::string, std::vector<FaciesGridMap> >  m_fileFacies;
 
       std::vector<size_t> m_usedSnapshotsIndex;
