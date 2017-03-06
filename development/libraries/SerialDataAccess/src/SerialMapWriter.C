@@ -78,7 +78,7 @@ const string & SerialMapWriter::getFileName (void)
 }
 
 bool SerialMapWriter::writeMapToHDF (GridMap * gridMap, float time, double depoAge,
-                                     const string & propertyGrid, const string & surfaceName, const bool saveAsPrimary)
+                                     const string & propertyGrid, const string &, const bool)
 {
    return writeMapToHDF(gridMap, time, depoAge, propertyGrid);
 }
@@ -144,7 +144,7 @@ bool SerialMapWriter::writeMapData( const string & dataSetName, const GridMap * 
    {
       for (int j = 0; j < numJ; ++j)
       {
-         dataArray[i * numJ + j] = gridMap->getValue ((unsigned int) i, (unsigned int) j, (unsigned int) 0); 
+         dataArray[i * numJ + j] = static_cast<float>(gridMap->getValue ((unsigned int) i, (unsigned int) j, (unsigned int) 0));
       }
    }
 
@@ -155,7 +155,7 @@ bool SerialMapWriter::writeMapData( const string & dataSetName, const GridMap * 
    return true;
 }
 
-bool SerialMapWriter::writeVolumeToHDF (GridMap * gridMap, const string & propertyName, const string & layerName, const bool isPrimary )
+bool SerialMapWriter::writeVolumeToHDF (GridMap *, const string &, const string &, const bool )
 {
    // not yet implemented
    return false;
@@ -182,17 +182,17 @@ bool SerialMapWriter::saveDescription (const Grid * grid)
 
    Write1DDataSet (1, NR_J_DATASET_NAME, H5T_NATIVE_INT, &nrJ);
 
-   float originI = grid->minIGlobal ();
+   float originI = static_cast<float>(grid->minIGlobal ());
 
    Write1DDataSet (1, ORIGIN_I_DATASET_NAME, H5T_NATIVE_FLOAT, &originI);
-   float originJ = grid->minJGlobal ();
+   float originJ = static_cast<float>(grid->minJGlobal ());
 
    Write1DDataSet (1, ORIGIN_J_DATASET_NAME, H5T_NATIVE_FLOAT, &originJ);
 
-   float deltaI = grid->deltaIGlobal ();
+   float deltaI = static_cast<float>(grid->deltaIGlobal ());
 
    Write1DDataSet (1, DELTA_I_DATASET_NAME, H5T_NATIVE_FLOAT, &deltaI);
-   float deltaJ = grid->deltaJGlobal ();
+   float deltaJ = static_cast<float>(grid->deltaJGlobal ());
 
    Write1DDataSet (1, DELTA_J_DATASET_NAME, H5T_NATIVE_FLOAT, &deltaJ);
 
