@@ -168,10 +168,11 @@ namespace fasttouch
       std::map < std::string, int > m_formatsMapping;
 
       /// @brief define a type for storing the name of the output and its associated result map 
-      /// first key of the map is the unique identifier for the output map. 
-      /// In BPA1 the identifier is filename + category + format + percent
-      /// In BPA2 the identifier is is category + format + percent + runName (to support multifacies, where a TCF combination can be used more than once in a layer) 
-      std::map < std::string, MapInfo >  m_fileMaps;
+      /// first key of the map is an identifier for the output map. 
+      /// In BPA1 the identifier is filename + category + format + percent. We need also the layer information in case the same TCF and output property is present  in several layers
+      /// In BPA2 the identifier is is category + format + percent + runName (to support multifacies, where a TCF combination can be used more than once in a layer). We must have an unique
+      /// run Name for each touchstone simulation.
+      std::map < std::string, std::map<LayerInfo, MapInfo>>  m_fileMaps;
 
       /// @brief define a type for storing for each TCF file its faciesGridMap
       /// first key is the TCF file name, the second key is a vector of FaciesGridMap

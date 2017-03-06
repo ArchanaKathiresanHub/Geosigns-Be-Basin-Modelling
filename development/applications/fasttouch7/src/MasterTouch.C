@@ -486,8 +486,10 @@ bool MasterTouch::addOutputFormat(const string & filename,
       // propertyValueName += runName; //scenNumber, should be read from the TouchstoneIoTbl
    }
 
+   LayerInfo layer(surface, formation);
+
    //if a map for this format, category and percent has been already defined no need to create a new MapInfo
-   if ( m_fileMaps.count(propertyValueName) == 0 )
+   if ( m_fileMaps[propertyValueName].count(layer) == 0 )
    {
 
       //Create map info
@@ -525,16 +527,15 @@ bool MasterTouch::addOutputFormat(const string & filename,
       }
 
       // for each scenario and property we have only one stack of maps
-      m_fileMaps[propertyValueName] = map;
+      m_fileMaps[propertyValueName][layer] = map;
    }
 
    //save where is used and where to write 
-   FaciesGridMap faciesGridMap;
-   LayerInfo layer(surface, formation);
+   FaciesGridMap faciesGridMap;  
    faciesGridMap.faciesGrid = faciesGrid;
    faciesGridMap.faciesNumber = faciesNumber;
    faciesGridMap.layer = layer;
-   faciesGridMap.outputMap = &(m_fileMaps[propertyValueName]);
+   faciesGridMap.outputMap = &(m_fileMaps[propertyValueName][layer]);
 
    // for each filename store the faciesGridMap to be saved to output
    m_fileFacies[filename].push_back(faciesGridMap);
@@ -587,6 +588,8 @@ bool MasterTouch::calculate(const std::string & filename, const char * burhistFi
       {
          throw std::runtime_error("Error in executeWrapper");
       }
+      //remove burial history
+      remove(burhistFile);
 
       //read the results
       TouchstoneFiles readTouchstone(resultFile);
@@ -605,7 +608,7 @@ bool MasterTouch::calculate(const std::string & filename, const char * burhistFi
       {
          //count the number of active position for this layer and allocate the required memory
          int layerNumActive = std::accumulate(it->second.begin(), it->second.end(), 0);
-         stripeOutput[it->first] = std::vector<double>(layerNumActive*numberOfOutputs, 99999.0);
+         stripeOutput[it->first] = std::vector<double>(layerNumActive* m_usedSnapshotsIndex.size() *numberOfOutputs, 99999.0);
          validTimeSteps[it->first] = std::vector<int>(m_gridSize, 0);
          
          size_t startingIndex = 0;
