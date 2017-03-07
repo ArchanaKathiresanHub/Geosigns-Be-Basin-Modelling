@@ -211,8 +211,22 @@ namespace migration
       assert (ptrVapourPcE);
       assert (ptrLiquidPcE);
 
+      const DataModel::AbstractProperty* vapourDensity = m_migrator->getPropertyManager ().getProperty ("HcVapourDensity");
+      const DataModel::AbstractProperty* liquidDensity = m_migrator->getPropertyManager ().getProperty ("HcLiquidDensity");
+
+      DerivedProperties::DerivedFormationPropertyPtr ptrVapourDensity = DerivedProperties::DerivedFormationPropertyPtr
+         (new DerivedProperties::DerivedFormationProperty (vapourDensity, snapshot, this, grid, depth + 1));
+      DerivedProperties::DerivedFormationPropertyPtr ptrLiquidDensity = DerivedProperties::DerivedFormationPropertyPtr
+         (new DerivedProperties::DerivedFormationProperty (liquidDensity, snapshot, this, grid, depth + 1));
+
+      assert (ptrVapourDensity);
+      assert (ptrLiquidDensity);
+
       m_formationPropertyPtr[CAPILLARYENTRYPRESSUREVAPOURPROPERTY] = ptrVapourPcE;
       m_formationPropertyPtr[CAPILLARYENTRYPRESSURELIQUIDPROPERTY] = ptrLiquidPcE;
+
+      m_formationPropertyPtr[VAPOURDENSITYPROPERTY] = ptrVapourDensity;
+      m_formationPropertyPtr[LIQUIDDENSITYPROPERTY] = ptrLiquidDensity;
 
       // Using the PropertyRetriever class which ensures the retrieval and later on the restoration of property pointers
       DerivedProperties::PropertyRetriever pressurePropertyRetriever (m_formationPropertyPtr[PRESSUREPROPERTY]);
@@ -296,6 +310,9 @@ namespace migration
                   ptrVapourPcE->set (i, j, (unsigned int)k, 0.0);
                   ptrLiquidPcE->set (i, j, (unsigned int)k, 0.0);
 
+                  ptrVapourDensity->set (i, j, (unsigned int)k, vapourDensity);
+                  ptrLiquidDensity->set (i, j, (unsigned int)k, liquidDensity);
+
                   // If not a ghost node and not on last I or J row of the basin then assign the values to the local formation node
                   if ( isNotGhostOrOnBoundary )
                   {
@@ -307,12 +324,21 @@ namespace migration
 
                      formationNode->setCapillaryEntryPressureVapour (0.0, k == depth);
                      formationNode->setCapillaryEntryPressureLiquid (0.0, k == depth);
+
+                     if (k != depth)
+                     {
+                        formationNode->setVapourDensity (vapourDensity);
+                        formationNode->setLiquidDensity (liquidDensity);
+                     }
                   }
                }
                else
                {
                   ptrVapourPcE->set (i, j, (unsigned int)k, capillaryEntryPressureVapour);
                   ptrLiquidPcE->set (i, j, (unsigned int)k, capillaryEntryPressureLiquid);
+
+                  ptrVapourDensity->set (i, j, (unsigned int)k, vapourDensity);
+                  ptrLiquidDensity->set (i, j, (unsigned int)k, liquidDensity);
 
                   // If not a ghost node and not on last I or J row of the basin then assign the values to the local formation node
                   if ( isNotGhostOrOnBoundary )
@@ -325,6 +351,12 @@ namespace migration
 
                      formationNode->setCapillaryEntryPressureVapour (capillaryEntryPressureVapour, k == depth);
                      formationNode->setCapillaryEntryPressureLiquid (capillaryEntryPressureLiquid, k == depth);
+
+                     if (k != depth)
+                     {
+                        formationNode->setVapourDensity (vapourDensity);
+                        formationNode->setLiquidDensity (liquidDensity);
+                     }
                   }
                }
             }
@@ -426,20 +458,6 @@ namespace migration
 
                   ptrVapourDensity->set (i, j, (unsigned int)k, phaseDensity[Phase::VAPOUR]);
                   ptrLiquidDensity->set (i, j, (unsigned int)k, phaseDensity[Phase::LIQUID]);
-
-                  // If not a ghost node and not on last I or J row of the basin and
-                  // not a top node then assign the value to the local formation node
-                  if (i >= m_formationNodeArray->firstILocal () and i <= m_formationNodeArray->lastILocal () and
-                     j >= m_formationNodeArray->firstJLocal () and j <= m_formationNodeArray->lastJLocal () and
-                     i < grid->numIGlobal () - 1 and j < grid->numJGlobal () - 1 and k != depth)
-                  {
-                     LocalFormationNode * formationNode = getLocalFormationNode (i, j, k);
-                     if (!formationNode)
-                        continue;
-
-                     formationNode->setVapourDensity (phaseDensity[Phase::VAPOUR]);
-                     formationNode->setLiquidDensity (phaseDensity[Phase::LIQUID]);
-                  }
                }
             }
          }
