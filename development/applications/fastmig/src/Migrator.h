@@ -214,6 +214,10 @@ namespace migration
       GeoPhysics::ProjectHandle* openProject (const std::string & fileName);
       void sortReservoirs () const;
 
+      /// \brief Get a list of the tables that are to be output tables.
+      void getOutputTableNames ( std::vector<std::string>& outputTableNames ) const;
+
+
       mutable DataAccess::Interface::FormationList * m_formations;
       mutable DataAccess::Interface::ReservoirList * m_reservoirs;
 

@@ -50,7 +50,7 @@ namespace database
    class AbstractField
    {
       public:
-         virtual ~AbstractField() {} 
+         virtual ~AbstractField() {}
 
          AbstractField( const FieldDefinition & fieldDefinition )
             : m_fieldDefinition(fieldDefinition)
@@ -81,7 +81,7 @@ namespace database
 
          Field (const FieldDefinition & fieldDef)
             : AbstractField(fieldDef)
-         { 
+         {
             assignFromString(fieldDef.defaultValue());
          }
 
@@ -95,7 +95,7 @@ namespace database
          const Type & getValue() const
          {
             checkType < Type > (m_value, getFieldDefinition().dataType ());
-            return m_value; 
+            return m_value;
          }
 
          virtual bool assignFromString (const std::string & word);
@@ -114,78 +114,87 @@ namespace database
    /// A Record consists of a number of Fields whose values can be set or retrieved.
    class Record
    {
-      public:
-         /// print the record's content
-         void printOn (ostream &);
+   public:
+      /// print the record's content
+      void printOn (ostream &);
 
-         /// Return the table name
-         const std::string & tableName() const;
+      /// Return the table name
+      const std::string & tableName() const;
 
-         /// Return the list index of the field with the specified name.
-         inline int getIndex (const std::string & fieldName);
+      /// Return the list index of the field with the specified name.
+      inline int getIndex (const std::string & fieldName);
 
-         inline const TableDefinition & getTableDefinition() const;
-         inline Table * getTable() const;
-
-
-         template <typename Type>
-            void setValue (size_t index, const Type & value)
-            {
-               std::dynamic_pointer_cast< Field < Type > >(getField (index))->setValue(value);
-            }
-
-         template < class Type > 
-            void setValue (const std::string & fieldName, const Type & value, int * cachedIndex = 0) const
-            {
-               std::dynamic_pointer_cast< Field < Type > >( getField (fieldName, cachedIndex) )->setValue(value);
-            }
-
-         template <typename Type>
-            const Type & getValue (size_t index) const
-            {
-               return std::dynamic_pointer_cast< const Field < Type > >(getField (index))->getValue();
-            }
-
-         template < class Type > 
-            const Type & getValue (const std::string & fieldName, int * cachedIndex = 0) const
-            {
-               return std::dynamic_pointer_cast< const Field < Type > >( getField (fieldName, cachedIndex) )->getValue();
-            }
-
-         Record (const TableDefinition & tableDefinition, Table * table);
-         Record (const Record & record);
-
-      private:
-         friend class Table;
-
-         typedef std::vector< std::shared_ptr< AbstractField > > FieldList;
-         typedef FieldList::iterator FieldListIterator;
-
-         ~Record() {}
-
-         std::shared_ptr<AbstractField> getField (size_t index) const
-         { return m_fields[index]; }
-
-         std::shared_ptr<AbstractField> getField(const std::string & name, int * index) const;
-
-         // Record (const TableDefinition & tableDefinition, Table * table);
-         //      Record (Record & record);
-         void createFields();
-
-         void destroyYourself();
-         void addToTable();
+      inline const TableDefinition & getTableDefinition() const;
+      inline Table * getTable() const;
 
 
-         bool saveToStream (ostream & ofile, bool rowBased);
-         bool saveFieldToStream (ostream & ofile, int fieldIndex, int &borrowed);
+      template <typename Type>
+      void setValue (size_t index, const Type & value)
+      {
+         std::dynamic_pointer_cast< Field < Type > >(getField (index))->setValue(value);
+      }
 
-         bool loadFromLine (const std::string & line, std::vector < int >&dataToFieldMap);
-         bool assignFromStringToIndex (const std::string & word, int toIndex);
+      template < class Type >
+      void setValue (const std::string & fieldName, const Type & value, int * cachedIndex = 0) const
+      {
+         std::dynamic_pointer_cast< Field < Type > >( getField (fieldName, cachedIndex) )->setValue(value);
+      }
+
+      template <typename Type>
+      const Type & getValue (size_t index) const
+      {
+         return std::dynamic_pointer_cast< const Field < Type > >(getField (index))->getValue();
+      }
+
+      template < class Type >
+      const Type & getValue (const std::string & fieldName, int * cachedIndex = 0) const
+      {
+         return std::dynamic_pointer_cast< const Field < Type > >( getField (fieldName, cachedIndex) )->getValue();
+      }
+
+      Record (const TableDefinition & tableDefinition, Table * table);
+      Record (const Record & record);
+
+      /// \brief Construct a new record.
+      ///
+      /// Copy the contets of the old record but assign it to the new table.
+      Record (const Record & record, Table * table);
+
+      /// \brief Get a copy of a record, but is associated with another table reference.
+      ///
+      /// Table must have same name as current record otherwise a nullptr will be returned.
+      Record* deepCopy ( Table * table ) const;
+
+   private:
+      friend class Table;
+
+      typedef std::vector< std::shared_ptr< AbstractField > > FieldList;
+      typedef FieldList::iterator FieldListIterator;
+
+      ~Record() {}
+
+      std::shared_ptr<AbstractField> getField (size_t index) const { return m_fields[index]; }
+
+      std::shared_ptr<AbstractField> getField(const std::string & name, int * index) const;
+
+      // Record (const TableDefinition & tableDefinition, Table * table);
+      //      Record (Record & record);
+      void createFields();
+
+      void destroyYourself();
+      void addToTable();
 
 
-         Table * m_table;
-         const TableDefinition & m_tableDefinition;
-         FieldList m_fields;
+      bool saveToStream (ostream & ofile, bool rowBased);
+      bool saveFieldToStream (ostream & ofile, int fieldIndex, int &borrowed);
+
+      bool loadFromLine (const std::string & line, std::vector < int >&dataToFieldMap);
+      bool assignFromStringToIndex (const std::string & word, int toIndex);
+
+
+      Table * m_table;
+      const TableDefinition & m_tableDefinition;
+      FieldList m_fields;
    };
 
 
@@ -202,7 +211,7 @@ namespace database
       typedef std::vector < Record * >RecordList;
       typedef RecordList::iterator RecordListIterator;
 
-      public:
+   public:
       /// Forward iterator type used to iterate through the Records of a Table.
       typedef RecordList::iterator iterator;
 
@@ -283,7 +292,14 @@ namespace database
       /// Return an iterator pointing to the end of the Table.
       inline Table::iterator end();
 
-      private:
+      /// \brief Copy the records in the current table to the table passed as a parameter.
+      ///
+      /// Contents will be copied only if the table is not a nullptr and the table
+      /// name matches the current table.
+      void copyTo ( Table* table ) const;
+
+   private:
+
       friend class Database;
       friend class Record;
 
@@ -314,7 +330,7 @@ namespace database
       typedef std::vector < Table * >TableList;
       typedef TableList::iterator TableListIterator;
 
-      public:
+   public:
       /// Forward iterator type used to iterate through the Tables of a Database.
       typedef TableList::iterator iterator;
 
@@ -334,10 +350,32 @@ namespace database
       /// Clear the database header
       void clearHeader();
 
+      /// \brief Add a table to both the Cauldron schema and the database.
+      ///
+      /// If the database has a table with the same name already then it will not be added.
+      /// The return value indicates whether or not the table was added (true it was added, false it otherwise).
+      bool addTableDefinition ( TableDefinition* tblDef );
+
+      /// \brief Remove a table from the database
+      ///
+      /// The table reference is also removed from the schema.
+      void removeTable ( Table* table );
+
+      /// \brief Remove a table from the database and delete it.
+      ///
+      /// The table reference is also removed from the schema.
+      void deleteTable ( const std::string& tableName );
+
+      /// \brief Determine whether or not the database has a table with the name.
+      bool hasTable ( const std::string& name ) const;
+
+      /// \brief Determine whether or not the database has a table.
+      bool hasTable ( const Table* table ) const;
+
       /// Get the Table with the specified name.
-      Table *getTable (const std::string & name);
+      Table *getTable (const std::string & name) const;
       /// Get the Table at the specified index.
-      Table *getTable (int index);
+      Table *getTable (int index) const;
 
       /// Clear the table with the specified name.
       bool clearTable (const std::string & name, bool deleteRecords = true);
@@ -352,8 +390,7 @@ namespace database
       bool loadFromFile (const std::string & filename);
 
       /// Get the file name
-      std::string getFileName() const
-      { return m_fileName; }
+      const std::string& getFileName() const { return m_fileName; }
 
       /// Return an iterator pointing to the beginning of the Database.
       inline Database::iterator begin();
@@ -371,12 +408,16 @@ namespace database
 
       bool saveToStream (ostream & ofile);
 
-      private:
+      /// \brief Get a constant reference to the data schema.
+      const DataSchema& getDataSchema () const;
+
+   private:
+
       static int s_maxFieldsPerLine;
       static int s_fieldWidth;
       static int s_precision;
 
-      const DataSchema & m_dataSchema;
+      DataSchema& m_dataSchema;
 
       std::string m_fileName;
 
@@ -384,7 +425,7 @@ namespace database
 
       std::string m_header;
 
-      Database (const DataSchema & dataSchema);
+      Database (DataSchema& dataSchema);
 
       bool skipTableFromStream (istream & infile);
 
@@ -440,6 +481,10 @@ namespace database
    int Database::GetFieldWidth()
    {
       return s_fieldWidth;
+   }
+
+   inline const DataSchema& Database::getDataSchema () const {
+      return m_dataSchema;
    }
 
    Record * Table::getRecord (Table::iterator & iter)

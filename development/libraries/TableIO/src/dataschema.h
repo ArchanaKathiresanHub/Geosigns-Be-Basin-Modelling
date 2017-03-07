@@ -111,7 +111,6 @@ namespace database
 
       bool addFieldDefinition (FieldDefinition * fieldDefinition);
 
-      TableDefinition * deepCopy () const;
 
       inline bool isValid (void) const;
       inline bool hasName (const std::string theName) const;
@@ -129,6 +128,8 @@ namespace database
       /// return the description of a TableDefinition
       inline const std::string & description () const;
 
+      TableDefinition * deepCopy () const;
+
       /// returns the index in the list of tables of a FieldDefinition with the given name
       int getIndex (const std::string & name, int hint = -1) const;
 
@@ -139,7 +140,7 @@ namespace database
       /// Creates a new, volatile, FieldDefinition with the specified attributes.
       /// Fields of this FieldDefinition will not be saved.
       bool addVolatileFieldDefinition (const std::string & name, datatype::DataType type,
-            const std::string & unit, const std::string & defaultValue);
+                                       const std::string & unit, const std::string & defaultValue);
 
       /// returns the FieldDefinition at the specified index
       inline FieldDefinition * getFieldDefinition (size_t i) const;
@@ -162,20 +163,31 @@ namespace database
 
       TableDefinitionList m_tableDefinitionList;
 
-      bool addTableDefinition (TableDefinition * tableDefinition);
-
       DataSchema * deepCopy () const;
 
-      public:
+   public:
+
       /// Create an empty DataSchema
       DataSchema (void);
+
       /// Destroy a DataSchema
       ~DataSchema (void);
 
+      /// \brief Add a table definition to this data schema.
+      bool addTableDefinition (TableDefinition * tableDefinition);
+
+      /// \brief Remove a table definition from this data schema.
+      bool removeTableDefinition (TableDefinition * tableDefinition);
+
+      /// \brief Determine if the data schema contains the table.
+      bool hasTableDefinition ( TableDefinition* tableDefinition ) const;
+
       /// Create an empty TableDefinition with given name and description and add it to this DataSchema
       TableDefinition * addTableDefinition (const std::string & name, const std::string & description);
+
       /// Find the TableDefinition with the given name
       TableDefinition * getTableDefinition (const std::string & name) const;
+
       /// Return the TableDefinition at the given index
       inline TableDefinition * getTableDefinition (size_t i) const;
 

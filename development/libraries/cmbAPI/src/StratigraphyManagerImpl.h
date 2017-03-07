@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 // @file StratigraphyManagerImpl.h
 //  This file keeps API implementation for manipulating layers in Cauldron model
@@ -15,6 +15,8 @@
 #define CMB_STRATIGRAPHY_MANAGER_IMPL_API
 
 #include <memory>
+
+#include "ProjectFileHandler.h"
 
 #include "StratigraphyManager.h"
 
@@ -29,11 +31,11 @@ namespace mbapi {
    // Class StratigraphyManager keeps a list of layers/surfaces in Cauldron model and allows to add/delete/edit layer/surface
    class StratigraphyManagerImpl : public StratigraphyManager
    {
-   public:     
+   public:
       // Constructors/destructor
       // brief Constructor which creates an StratigraphyManager
       StratigraphyManagerImpl();
-      
+
       // Destructor
       virtual ~StratigraphyManagerImpl() {;}
 
@@ -43,15 +45,15 @@ namespace mbapi {
       // Set of interfaces for interacting with a Cauldron model
 
       // Set project database. Reset all
-      void setDatabase( database::Database * db );
+      void setDatabase( database::ProjectFileHandlerPtr pfh );
 
       // Get list of layers in the model
       // returns an array with IDs of layers defined in the model
-      virtual std::vector<LayerID> layersIDs() const; 
+      virtual std::vector<LayerID> layersIDs() const;
 
       // Get list of surfaces in the model
       // returns array with IDs of surfaces defined in the model
-      virtual std::vector<SurfaceID> surfacesIDs() const; 
+      virtual std::vector<SurfaceID> surfacesIDs() const;
 
       // Get the referenced table
       // returns the table name as a string
@@ -70,7 +72,7 @@ namespace mbapi {
       // return layer name on success or empty string otherwise
       virtual std::string layerName( LayerID id );
 
-      // Get layer ID for the given name 
+      // Get layer ID for the given name
       // ln layer name
       // return layer ID on success or UndefinedIDValue otherwise
       virtual LayerID layerID( const std::string & ln );
@@ -106,7 +108,7 @@ namespace mbapi {
       // [in] dsid down surface id
       // returns NoError on success or NonexistingID on error
       virtual ReturnCode setLayerSurfaces( LayerID lid,  SurfaceID usid, SurfaceID dsid );
-      
+
       // Collect layers where the given lithology is referenced
       // lithName name of lithology type
       // return list of layers ID
@@ -162,9 +164,9 @@ namespace mbapi {
       //        HI value for the mix or 0 otherwise.
       virtual double sourceRockMixHC( LayerID lid );
 
-      // Set source rock types name for the given layer and enable layer to be layer with source rock 
+      // Set source rock types name for the given layer and enable layer to be layer with source rock
       // lid layer ID
-      // srTypeNames array which can have one or two (in case of mixing) source rock types name. 
+      // srTypeNames array which can have one or two (in case of mixing) source rock types name.
       // return ErrorHandler::NoError on success, error code otherwise
       virtual ReturnCode setSourceRockTypeName( LayerID lid, const std::vector<std::string> & srTypeNames );
 
@@ -193,7 +195,7 @@ namespace mbapi {
 
       // Search in PressureFaultcutIoTbl table for the given combination of map name/fault name
       // mapName map name
-      // fltName fault cut name 
+      // fltName fault cut name
       // return PrFaultCutID for the found fault / map combination on success, UndefinedIDValue otherwise
       virtual PrFaultCutID findFaultCut( const std::string & mapName, const std::string & fltName );
 
@@ -225,7 +227,7 @@ namespace mbapi {
       /// id layer id
       /// the measured twt value on success, UndefinedDoubleValue otherwise
       virtual double twtValue( LayerID id );
-  
+
    private:
       static const char * s_stratigraphyTableName;
       static const char * s_layerNameFieldName;
@@ -243,7 +245,7 @@ namespace mbapi {
       static const char * s_sourceRockType1FieldName;
       static const char * s_sourceRockType2FieldName;
       static const char * s_sourceRockHIFieldName;
-      static const char * s_sourceRockHIMapFieldName;        
+      static const char * s_sourceRockHIMapFieldName;
       static const char * s_sourceRockEnableMixingFieldName;
       static const char * s_isAllochtonLithology;
 
@@ -257,10 +259,10 @@ namespace mbapi {
       static const char * s_twoWayTimeFiledName;
       static const char * s_surfaceNameFieldName;
       static const char * s_depthGridFiledName;
-                                
 
-      database::Database * m_db;         // cauldron project database
-      database::Table    * m_stratIoTbl; // stratigraphy table
+
+      database::ProjectFileHandlerPtr m_db;         // cauldron project database
+      database::Table               * m_stratIoTbl; // stratigraphy table
 
       // Copy constructor is disabled, use the copy operator instead
       StratigraphyManagerImpl( const StratigraphyManager & );

@@ -17,8 +17,8 @@ FILE( GLOB all_srcs src/*.C)
 source_group(source FILES ${all_srcs})
 
 add_library(SerialDataAccess 
-	${all_srcs}
-	${all_headers}
+   ${all_srcs}
+   ${all_headers}
 )
 
 bm_include_libraries(
@@ -52,6 +52,16 @@ endif(UNIX)
 
 install(TARGETS SerialDataAccess
    RUNTIME DESTINATION bin
-   LIBRARY	DESTINATION lib
+   LIBRARY DESTINATION lib
    ARCHIVE DESTINATION lib
+)
+
+add_gtest( NAME SerialGridMap
+           SOURCES test/SerialGridMap.C
+           LIBRARIES SerialDataAccess DataAccess
+)
+
+add_gtest( NAME SerialMapWriter
+           SOURCES test/SerialMapWriter.C
+           LIBRARIES SerialDataAccess DataAccess Serial_Hdf5 FileSystem
 )

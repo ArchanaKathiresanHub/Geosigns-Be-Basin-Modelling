@@ -8,6 +8,8 @@
 #include <iostream>
 #include <fstream>
 
+#include "ProjectFileHandler.h"
+
 #include "Interface/ProjectHandle.h"
 #include "Interface/ObjectFactory.h"
 
@@ -35,7 +37,7 @@ FastCauldronEnvironment :: Configuration
    const std::string sepMarkerLeft = "[";
    const std::string sepMarkerRight = "]";
 
-   std::string line, script; 
+   std::string line, script;
    VersionID   version;
 
    // read the configuration file line by line
@@ -65,7 +67,7 @@ FastCauldronEnvironment :: Configuration
    // add the final script
    if (!version.empty())
       m_runTemplates[version] = script;
-}     
+}
 
 std::string
 FastCauldronEnvironment :: Configuration
@@ -83,16 +85,16 @@ FastCauldronEnvironment :: Configuration
 
 std::string
 FastCauldronEnvironment :: Configuration
-   :: getRunScript( const VersionID & version, int numberOfProcessors, 
+   :: getRunScript( const VersionID & version, int numberOfProcessors,
          const std::vector< std::string > & mpiCmdLineParams,
          const std::string & inputProject, const std::string & outputProject,
          const std::vector< std::string > & fcCmdLineParams) const
 {
    std::ostringstream result;
-   
+
    std::string token, marker;
    FastCauldronEnvironmentConfigurationTokenizer tokens(getRunTemplate(version));
-   
+
    while ( tokens.hasMore())
    {
       tokens.next( token, marker );
@@ -111,7 +113,7 @@ FastCauldronEnvironment :: Configuration
       {
          for (unsigned k = 0; k < mpiCmdLineParams.size(); ++k)
          {
-            if (k) 
+            if (k)
                result << ' ';
 
             result << mpiCmdLineParams[k] ;
@@ -152,12 +154,12 @@ FastCauldronEnvironment
    , m_mpiCmdLine()
    , m_cauldronCmdLine()
    , m_projectSourceDir( projectFile.getParentDirectory() )
-   , m_version(version)                                             
+   , m_version(version)
 {
-  m_factory.reset(new DataAccess::Interface::ObjectFactory());  
+  m_factory.reset(new DataAccess::Interface::ObjectFactory());
   m_project = boost::shared_ptr<DataAccess::Interface::ProjectHandle>
               ( DataAccess::Interface::OpenCauldronProject(projectFile.getCanonicalPath(), "r", m_factory.get()));
-  
+
   if (!m_project)
      throw Exception() << "Could not open project file '" << projectFile << "'";
 }
@@ -169,7 +171,7 @@ FastCauldronEnvironment
    param.writeValue( m_project.get(), value );
 }
 
-void 
+void
 FastCauldronEnvironment
    :: applyMpiCmdLineParameter( const CmdLineParameter & param, const std::vector< std::string > & values)
 {
@@ -179,7 +181,7 @@ FastCauldronEnvironment
    m_mpiCmdLine.insert( m_mpiCmdLine.end(), newOptions.begin(), newOptions.end());
 }
 
-void 
+void
 FastCauldronEnvironment
    :: applyCauldronCmdLineParameter( const CmdLineParameter & param, const std::vector< std::string > & values)
 {
@@ -208,7 +210,7 @@ FastCauldronEnvironment
          << "   previousHost=$host\n"
          << "\n"
          << "   echo ::::::::::::: $host :::::::::::::::\n"
-         << "   ssh -oStrictHostKeyChecking=no -oForwardX11=no $host '" 
+         << "   ssh -oStrictHostKeyChecking=no -oForwardX11=no $host '"
                      << "cat /proc/cpuinfo ; "
                      << "echo; "
                      << "echo ===== Memory Info =====; "
@@ -248,13 +250,13 @@ FastCauldronEnvironment
 
    if (fileType != Path::Regular && fileType != Path::NotExists)
       throw Exception() << "File '" << outputFile << "' exists and is not a regular file";
-   
+
    return fileType == Path::Regular;
 }
 
-void 
+void
 FastCauldronEnvironment
-   :: commandToRunJob( const Path & directory, const std::string & id, 
+   :: commandToRunJob( const Path & directory, const std::string & id,
          boost::shared_ptr<Path> & workingDir, std::string & command )
 {
   workingDir = directory.getDirectoryEntry(id);
@@ -286,7 +288,7 @@ FastCauldronEnvironment
    m_project->saveToFile( myDir->getDirectoryEntry( "Project.project3d")->getPath() );
 
    {  // copy files on which the project depends
-      ProjectDependencies deps = getProjectDependencies(m_project->getDataBase());
+      ProjectDependencies deps = getProjectDependencies(m_project->getProjectFileHandler ());
 
       if ( !deps.outputMaps.empty() || !deps.snapshots.empty())
       {
@@ -297,7 +299,7 @@ FastCauldronEnvironment
       for (unsigned i = 0; i < deps.inputMaps.size(); ++i)
       {
          m_projectSourceDir->getDirectoryEntry(deps.inputMaps[i])->copyTo(
-               *myDir->getDirectoryEntry( deps.inputMaps[i]) 
+               *myDir->getDirectoryEntry( deps.inputMaps[i])
              );
       }
 
@@ -305,7 +307,7 @@ FastCauldronEnvironment
       for (unsigned i = 0; i < deps.related.size(); ++i)
       {
          m_projectSourceDir->getDirectoryEntry(deps.related[i])->copyTo(
-               *myDir->getDirectoryEntry( deps.related[i]) 
+               *myDir->getDirectoryEntry( deps.related[i])
              );
       }
    }
@@ -328,12 +330,10 @@ FastCauldronEnvironment
          << hostInformationScript
          << "\n"
          << std::endl;
-    
+
 
    return true;
 }
 
 
 }
-
-

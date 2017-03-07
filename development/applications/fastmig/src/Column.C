@@ -86,7 +86,8 @@ namespace migration
          // Subtract the previously generated immobiles stuff from the volume
          // This should really take into account the depths at which the immobiles were generated
 #ifdef USEOTGC
-         volume -= getImmobilesVolume () * (bottomOfFill - topOfFill) / (getBottomDepth () - getTopDepth ());
+         if (bottomOfFill > topOfFill)
+            volume -= getImmobilesVolume () * (bottomOfFill - topOfFill) / (getBottomDepth () - getTopDepth ());
 #endif
          if (volume < 0) volume = 0;
       }

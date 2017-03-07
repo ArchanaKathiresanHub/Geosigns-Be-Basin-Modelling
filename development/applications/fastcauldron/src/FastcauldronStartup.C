@@ -68,7 +68,7 @@ FastcauldronStartup::FastcauldronStartup( int argc, char** argv, bool checkLicen
 
 FastcauldronStartup::~FastcauldronStartup( )
 {
-   //No action taken by the destructor. We need to make sure that factories and other classes are deleted before PetscFinalize and not by automatic destruction. 
+   //No action taken by the destructor. We need to make sure that factories and other classes are deleted before PetscFinalize and not by automatic destruction.
    //Factories and other classes are deleted in the finalize function.
 }
 
@@ -130,6 +130,27 @@ bool FastcauldronStartup::prepare()
    return true;
 }
 
+void FastcauldronStartup::getOutputTables ( std::vector<std::string>& outputTableNames ) const {
+
+   const int MaximumNumberOfOutputTables = 256;
+
+   PetscBool outputTablesDefined = PETSC_FALSE;
+   char* outputTableNamesArray [ MaximumNumberOfOutputTables ];
+   int numberOfOutputTables = MaximumNumberOfOutputTables;
+
+   PetscOptionsGetStringArray ( PETSC_NULL, "-outtabs", outputTableNamesArray, &numberOfOutputTables, &outputTablesDefined );
+   outputTableNames.clear ();
+
+   if ( outputTablesDefined ) {
+
+      for ( int i = 0; i < numberOfOutputTables; ++i ) {
+         outputTableNames.push_back ( outputTableNamesArray [ i ]);
+      }
+
+   }
+}
+
+
 bool FastcauldronStartup::startup( int        argc,
                                    char**     argv,
                                    const bool saveAsInputGrid,
@@ -145,8 +166,12 @@ bool FastcauldronStartup::startup( int        argc,
       return false;
    }
 
+   std::vector<std::string> outputTableNames;
+
    StatisticsHandler::initialise();
-   FastcauldronSimulator::CreateFrom( m_cauldron, m_factory );
+   getOutputTables ( outputTableNames );
+   FastcauldronSimulator::CreateFrom( m_cauldron, m_factory, outputTableNames );
+
    FastcauldronSimulator::getInstance().readCommandLineParametersEarlyStage( argc, argv );
    FastcauldronSimulator::getInstance().deleteTemporaryDirSnapshots();
    FastcauldronSimulator::getInstance().setFormationElementHeightScalingFactors();

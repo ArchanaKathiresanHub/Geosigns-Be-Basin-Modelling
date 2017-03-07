@@ -22,7 +22,7 @@ const string & HDF5::findLayerName (const string & filePathName, int layerIndex)
    }
    else
    {
-      int ret = H5Giterate (fileId, "/", NULL, (H5G_iterate_t) checkForLayerName, &layerInfo);
+      H5Giterate (fileId, "/", NULL, (H5G_iterate_t) checkForLayerName, &layerInfo);
 
       H5Fclose (fileId);
    }

@@ -65,7 +65,6 @@ namespace DataAccess
          void setChunking() {}
       protected:
 
-      private:
          static const char *VERSION_DATASET_NAME;
          static const char *NULL_VALUE_NAME;
          static const char *NR_I_DATASET_NAME;

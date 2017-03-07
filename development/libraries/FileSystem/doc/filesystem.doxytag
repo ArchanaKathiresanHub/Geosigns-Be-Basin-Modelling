@@ -2,20 +2,20 @@
 <tagfile>
   <compound kind="file">
     <name>FilePath.h</name>
-    <path>V:/TFS/Trunk/development/libraries/FileSystem/src/</path>
+    <path>C:/trunk_git/development/libraries/FileSystem/src/</path>
     <filename>FilePath_8h</filename>
     <includes id="Path_8h" name="Path.h" local="yes" imported="no">Path.h</includes>
   </compound>
   <compound kind="file">
     <name>FolderPath.h</name>
-    <path>V:/TFS/Trunk/development/libraries/FileSystem/src/</path>
+    <path>C:/trunk_git/development/libraries/FileSystem/src/</path>
     <filename>FolderPath_8h</filename>
     <includes id="Path_8h" name="Path.h" local="yes" imported="no">Path.h</includes>
     <class kind="class">ibs::FolderPath</class>
   </compound>
   <compound kind="file">
     <name>Path.h</name>
-    <path>V:/TFS/Trunk/development/libraries/FileSystem/src/</path>
+    <path>C:/trunk_git/development/libraries/FileSystem/src/</path>
     <filename>Path_8h</filename>
     <class kind="struct">ibs::PathException</class>
     <class kind="class">ibs::Path</class>
@@ -176,12 +176,5 @@
   <compound kind="struct">
     <name>ibs::PathException</name>
     <filename>structibs_1_1PathException.html</filename>
-  </compound>
-  <compound kind="namespace">
-    <name>ibs</name>
-    <filename>namespaceibs.html</filename>
-    <class kind="class">ibs::FolderPath</class>
-    <class kind="class">ibs::Path</class>
-    <class kind="struct">ibs::PathException</class>
   </compound>
 </tagfile>

@@ -6,6 +6,7 @@
 
 // #include "hdf5.h"
 
+#include <ProjectFileHandler.h>
 #include "PropertyAttribute.h"
 
 using namespace std;
@@ -34,7 +35,8 @@ namespace DataAccess
          ObjectFactory() {}
 
          virtual ~ObjectFactory () {}
-         virtual ProjectHandle * produceProjectHandle (database::Database * database, const string & name, const string & accessMode);
+
+         virtual ProjectHandle * produceProjectHandle (database::ProjectFileHandlerPtr pfh, const string & name, const string & accessMode);
 
          virtual Snapshot * produceSnapshot (ProjectHandle * projectHandle, database::Record * record);
          virtual Snapshot * produceSnapshot (ProjectHandle * projectHandle, double time);
@@ -111,7 +113,6 @@ namespace DataAccess
 
          virtual FluidDensitySample * produceFluidDensitySample (ProjectHandle * projectHandle, database::Record * record);
 
-
          virtual RelatedProject * produceRelatedProject (ProjectHandle * projectHandle, database::Record * record);
 
          virtual Trap * produceTrap (ProjectHandle * projectHandle, database::Record * record);
@@ -135,21 +136,20 @@ namespace DataAccess
                                                        const string & name, const Property * property, const Snapshot * snapshot,
                                                        const Reservoir * reservoir, const Formation * formation, const Surface * surface, PropertyStorage storage);
 
-         virtual BiodegradationParameters* produceBiodegradationParameters (ProjectHandle * projectHandle, 
+         virtual BiodegradationParameters* produceBiodegradationParameters (ProjectHandle * projectHandle,
                                                                             database::Record* bioRecord);
 
-         virtual DiffusionLeakageParameters* produceDiffusionLeakageParameters (ProjectHandle * projectHandle, 
+         virtual DiffusionLeakageParameters* produceDiffusionLeakageParameters (ProjectHandle * projectHandle,
                                                                                 database::Record* diffusionLeakageRecord);
 
          virtual FracturePressureFunctionParameters* produceFracturePressureFunctionParameters (
-            ProjectHandle * projectHandle, database::Record* runOptionsIoTblRecord, database::Record* pressureIoTblRecord);
+                                                                                                ProjectHandle * projectHandle, database::Record* runOptionsIoTblRecord, database::Record* pressureIoTblRecord);
 
-         virtual FluidType* produceFluidType ( ProjectHandle * projectHandle, database::Record* 
+         virtual FluidType* produceFluidType ( ProjectHandle * projectHandle, database::Record*
                                                fluidtypeIoRecord);
 
          virtual FaultCollection * produceFaultCollection (ProjectHandle * projectHandle, const string & mapName);
          // virtual Fault * produceFault (string & name);
-
 
          virtual IrreducibleWaterSaturationSample* produceIrreducibleWaterSaturationSample (ProjectHandle * projectHandle, database::Record * record);
 
@@ -162,9 +162,8 @@ namespace DataAccess
          virtual SGDensitySample* produceSGDensitySample (ProjectHandle * projectHandle, database::Record * record);
             
 			virtual MapWriter* produceMapWriter (void);
-			
-         virtual CrustalThicknessData* produceCrustalThicknessData (ProjectHandle * projectHandle, database::Record * record);
 
+         virtual CrustalThicknessData* produceCrustalThicknessData (ProjectHandle * projectHandle, database::Record * record);
 
       };
    }

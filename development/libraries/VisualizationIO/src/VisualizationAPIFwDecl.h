@@ -71,6 +71,7 @@ namespace CauldronIO
     class Trapper;
     class Reservoir;
     class VisualizationIOData;
+	class StratigraphyTableEntry;
     struct FormationInfo;
     typedef std::vector<std::shared_ptr<FormationInfo> > FormationInfoList;
 }

@@ -4,6 +4,7 @@
 #include <fstream>
 #include <sstream>
 #include <iomanip>
+#include <algorithm>
 using namespace std;
 
 #include "datautils.h"
@@ -75,7 +76,7 @@ int TableDefinition::getIndex (const string & name, int hint) const
 
       if (fieldDef->hasName (name)) return i;
    }
-   
+
    // cerr << "Error: Field " << name << " not part of Table " << m_name << endl;
    return -1;
 }
@@ -141,7 +142,7 @@ TableDefinition * TableDefinition::deepCopy () const
 
    return tableDefCopy;
 }
-      
+
 bool TableDefinition::saveToStream (ostream & ofile, bool rowBased) const
 {
    ofile << "; " << m_description << endl;
@@ -231,11 +232,29 @@ DataSchema * DataSchema::deepCopy () const
    return dataSchemaCopy;
 }
 
-bool DataSchema::addTableDefinition (TableDefinition * tableDefinition)
-{
-   m_tableDefinitionList.push_back (tableDefinition);
+bool DataSchema::addTableDefinition (TableDefinition * tableDefinition) {
+
+   // Dont add a null table definition and dont add one if its already in the schema.
+   if ( tableDefinition != nullptr and not hasTableDefinition ( tableDefinition )) {
+      m_tableDefinitionList.push_back ( tableDefinition );
+   }
 
    return true;
+}
+
+bool DataSchema::removeTableDefinition (TableDefinition * tableDefinition) {
+
+   // Dont try to remove a null table definition and dont remove it if does not exist in the schema.
+   if ( tableDefinition != nullptr and hasTableDefinition ( tableDefinition )) {
+      TableDefinitionList::iterator iter = std::remove ( m_tableDefinitionList.begin (), m_tableDefinitionList.end (), tableDefinition );
+      m_tableDefinitionList.erase ( iter, m_tableDefinitionList.end ());
+   }
+
+   return true;
+}
+
+bool DataSchema::hasTableDefinition ( TableDefinition* tableDefinition ) const {
+   return std::find ( m_tableDefinitionList.begin (), m_tableDefinitionList.end (), tableDefinition ) != m_tableDefinitionList.end ();
 }
 
 // create a new table definition with name and description
@@ -258,7 +277,7 @@ TableDefinition * DataSchema::getTableDefinition (const string & name) const
 
       if (tableDef->hasName (name)) return tableDef;
    }
-   
+
    return 0;
 }
 
@@ -274,6 +293,6 @@ int DataSchema::getIndex (const string & name) const
 
       if (tableDef->hasName (name)) return i;
    }
-   
+
    return -1;
 }

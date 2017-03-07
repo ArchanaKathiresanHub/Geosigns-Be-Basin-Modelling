@@ -18,12 +18,8 @@
 namespace CauldronIO
 {
 
-void CauldronIO::VisualizationUtils::retrieveAllData(const std::shared_ptr<SnapShot>& snapShot, size_t numThreads)
+void CauldronIO::VisualizationUtils::retrieveAllData(std::vector < VisualizationIOData* >& allReadData, size_t numThreads)
 {
-	// Collect all data to retrieve
-	// TODO: check if this works correctly in "append" mode: in append mode it should not retrieve data that has not been added
-	std::vector < VisualizationIOData* > allReadData = snapShot->getAllRetrievableData();
-
 	// This is the queue of indices of data ready to be retrieved (and compressed?)
 	boost::lockfree::queue<int> queue(128);
 	boost::atomic<bool> done(false);
@@ -865,6 +861,14 @@ void VisualizationUtils::replaceVolume(const std::shared_ptr<Volume>& currentVol
 			}
 		}
 	}
+}
+
+void VisualizationUtils::retrieveSingleData(std::shared_ptr<CauldronIO::SurfaceData> map)
+{
+	boost::lockfree::queue<int> queue(128); // unused
+	std::vector < std::shared_ptr<CauldronIO::HDFinfo> > hdfInfo = map->getHDFinfo();
+	loadHDFdata(hdfInfo, &queue);
+	map->retrieve();
 }
 
 }

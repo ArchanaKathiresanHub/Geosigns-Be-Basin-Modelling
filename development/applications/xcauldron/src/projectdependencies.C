@@ -4,6 +4,7 @@
 #include "cauldronschemafuncs.h"
 
 #include "FilePath.h"
+#include "ConstantsNames.h"
 
 #include <cassert>
 #include <algorithm>
@@ -15,7 +16,7 @@
 using namespace std;
 using namespace database;
 
-ProjectDependencies getProjectDependencies( database::Database * projBase )
+ProjectDependencies getProjectDependencies( database::ProjectFileHandlerPtr projBase )
 {
    typedef vector < string > StringList;
 
@@ -67,7 +68,7 @@ ProjectDependencies getProjectDependencies( database::Database * projBase )
    const string & mapType = getMapType (ioOptionsRcrd);
 
    std::string fileName = projBase->getFileName();
-   std::string outputDir = std::string( fileName, 0, fileName.rfind(".project")) + "_CauldronOutputDir";
+   std::string outputDir = std::string( fileName, 0, fileName.rfind(".project")) + Utilities::Names::CauldronOutputDir;
 
    Table * timeTbl = projBase->getTable ("TimeIoTbl");
    if (timeTbl)
@@ -119,6 +120,3 @@ ProjectDependencies getProjectDependencies( database::Database * projBase )
 
    return dependencies;
 }
-
-
-

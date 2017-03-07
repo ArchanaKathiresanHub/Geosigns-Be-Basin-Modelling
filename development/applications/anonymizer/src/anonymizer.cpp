@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 #include "anonymizer.h"
 
@@ -20,6 +20,7 @@
 #include "cauldronschema.h"
 #include "database.h"
 #include "dataschema.h"
+#include "ProjectFileHandler.h"
 #include "FilePath.h"
 #include "FolderPath.h"
 #include "FormattingException.h"
@@ -75,8 +76,8 @@ bool Anonymizer::run( const std::string & projectFolder )
          fPathAnonymized.create();
 
          // Opening database
-         database::DataSchema * cauldronSchema = database::createCauldronSchema();
-         m_db.reset( database::Database::CreateFromFile( fPath.fullPath().path(), *cauldronSchema ) );
+         m_db.reset ( new database::ProjectFileHandler ( fPath.fullPath().path()));
+         m_db->mergeTablesToInput ();
 
          // Anonymizing
          clearNameMappings();
@@ -134,7 +135,7 @@ void Anonymizer::read()
    createMapping( "SourceRockLithoIoTbl", "SourceRockType", m_sourceRockTypes );
 
    createMapping( "ReservoirIoTbl", "ReservoirName", m_reservoirNames );
-   
+
    createMapping( "GridMapIoTbl", "MapFileName", m_mapFileNames );
    createMapping( "GridMapIoTbl", "HDF5FileName", m_mapFileNames );
 
@@ -142,7 +143,7 @@ void Anonymizer::read()
 
    createMapping( "LangmuirAdsorptionCapacityIsothermSetIoTbl", "LangmuirName", m_langmuirNames );
    createMapping( "LangmuirAdsorptionCapacityTOCFunctionIoTbl", "LangmuirName", m_langmuirNames );
-   
+
    createMapping( "WellLocIoTbl", "WellName", m_wellNames );
 }
 
@@ -220,7 +221,7 @@ void Anonymizer::write()
    update( "FltThCondIoTbl", "Fluidtype", m_fluidTypes );
    update( "FltHeatCapIoTbl", "Fluidtype", m_fluidTypes );
    update( "FltDensityIoTbl", "Fluidtype", m_fluidTypes );
-   update( "FltViscoIoTbl", "Fluidtype", m_fluidTypes );   
+   update( "FltViscoIoTbl", "Fluidtype", m_fluidTypes );
    update( "SourceRockLithoIoTbl", "LayerName", m_layerNames );
    update( "SourceRockLithoIoTbl", "SourceRockType", m_sourceRockTypes );
    update( "SourceRockLithoIoTbl", "TocIniGrid", m_gridMap );
@@ -276,28 +277,30 @@ void Anonymizer::write()
    update( "SourceRockPropIoTbl", "LayerName", m_layerNames );
    update( "SourceRockPropIoTbl", "MapFileName", m_mapFileNames );
    update( "ReservoirPropIoTbl", "ReservoirName", m_reservoirNames );
-   update( "ReservoirPropIoTbl", "MapFileName", m_mapFileNames );   
+   update( "ReservoirPropIoTbl", "MapFileName", m_mapFileNames );
    update( "TouchstoneMapIoTbl", "TcfName", m_mapFileNames );
    update( "TouchstoneMapIoTbl", "FormationName", m_layerNames );
    update( "TouchstoneMapIoTbl", "SurfaceName", m_surfaceNames );
    update( "TwoWayTimeIoTbl", "TwoWayTimeGrid", m_gridMap );
-   update( "TwoWayTimeIoTbl", "SurfaceName", m_surfaceNames );   
+   update( "TwoWayTimeIoTbl", "SurfaceName", m_surfaceNames );
    update( "WellLocIoTbl", "WellName", m_wellNames );
    clearTableField( "WellLocIoTbl", "Datum" );
    clearTableField( "FilterTimeDepthIoTbl", "SurfaceName" );
    clearTableField( "FilterTimeDepthIoTbl", "FormationName" );
-   
+
    // Writing anonymized project to file
    ibs::FilePath fPath = ibs::FilePath( m_projectFolder ) << m_projectFile;
    m_anonymizedProjectFile = "Project" + s_anonymized + "." + fPath.fileNameExtension();
    ibs::FilePath fPathAnonymized( ibs::FilePath( fPath.filePath() ) << s_anonymizedFolder << m_anonymizedProjectFile);
+
+
    std::ofstream outStream;
    outStream.open( fPathAnonymized.path(), std::ios::out );
    if( outStream.fail() )
    {
       throw std::runtime_error( "Unable to open anonymized project file" );
    }
-   m_db->saveToStream( outStream );
+   m_db->saveInputDataBaseToStream ( outStream );
    outStream.close();
 
    writeMappingtoFile();
@@ -657,9 +660,9 @@ void Anonymizer::shiftHDFCoordinates( const std::string & fileName ) const
       errMsg << "Unable to open '" << fileName << "'";
       throw std::runtime_error( errMsg.str().c_str() );
    }
-   
+
    double value;
-   
+
    // Open an existing dataset
    hid_t datasetId = H5Dopen2( fileId, "/origin in I dimension", H5P_DEFAULT);
    // Read current value
@@ -708,7 +711,7 @@ void Anonymizer::processTouchstonFile() const
           updateXMLField( analysts, "contactPerson", "misterX", status );
           updateXMLField( analysts, "petrographer", "misterY", status );
           updateXMLField( analysts, "basinModeler", "misterZ", status );
-          
+
           pugi::xml_node geolInfo = header.child("geologicInformation");
           updateXMLField( geolInfo, "basinName", "AnonymousBasin", status );
           updateXMLField( geolInfo, "reservoirUnitName", "ReservoirUnit", status );
@@ -718,7 +721,7 @@ void Anonymizer::processTouchstonFile() const
             updateXMLField( sample, "wellName", "Well", status );
             updateXMLField( sample, "unitName", "ReservoirUnit", status );
           }
-          
+
           pugi::xml_node sampleData = root.child("sampleData");
           for( pugi::xml_node data : sampleData.children("sampleMeasurements") )
           {
@@ -804,7 +807,7 @@ void Anonymizer::removeAttributesFrom2DOutputFile( const std::string & fileName 
       // Close dataset
       status = H5Dclose( datasetId );
    }
-   
+
    double value = 0.0;
    // Open an existing dataset
    hid_t datasetId = H5Dopen2( fileId, "/origin in I dimension", H5P_DEFAULT);

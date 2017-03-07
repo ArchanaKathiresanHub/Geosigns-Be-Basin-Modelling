@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2015 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file MapsManagerImpl.h
 /// @brief This file keeps API implementation for manipulating input 2D maps
@@ -40,19 +40,19 @@ namespace DataAccess
 namespace mbapi
 {
    // Class MapsManagerImpl keeps a list of input maps in Cauldron model and allows to load/modify/save 2D input maps
-   class MapsManagerImpl : public MapsManager 
+   class MapsManagerImpl : public MapsManager
    {
    public:
-      /// @brief Constructor 
+      /// @brief Constructor
       MapsManagerImpl();
-   
+
       // Destructor
       virtual ~MapsManagerImpl();
 
       // Get list of input maps in the model
-      virtual std::vector<MapID> mapsIDs() const; 
+      virtual std::vector<MapID> mapsIDs() const;
 
-      // Search for map record which has given name 
+      // Search for map record which has given name
       virtual MapID findID( const std::string & mName );
 
       // Make a copy of the given map. Map must be saved in the separate call of MapManager::saveMapToHDF
@@ -106,7 +106,7 @@ namespace mbapi
 
       // Finalize the map writer
       virtual ErrorHandler::ReturnCode finalizeMapWriter();
-      
+
       // Set of interfaces for interacting with a Cauldron model
       // Set project database. Reset all
       void setProject( DataAccess::Interface::ProjectHandle * ph, const std::string & projectFileName );
@@ -122,13 +122,12 @@ namespace mbapi
       static const char * s_MapFileNameColName; // Filename of the grid map (with extension)
       static const char * s_MapSeqNbrColName;   // Sequence number of the grid map, within the grid loader (Starting with 0). This attribute
       static const char * s_StratIoTbl;         // Table name reffered in the GridMapIoTbl for the lithofractions
-      static const char * s_mapResultFile;      // The name of the HDF file containing the maps 
+      static const char * s_mapResultFile;      // The name of the HDF file containing the maps
 
       // Copy constructor and operator are disabled
       MapsManagerImpl( const MapsManagerImpl & otherMapsManagerImpl );
       MapsManagerImpl & operator = ( const MapsManagerImpl & otherMapsManagerImpl );
-   
-      database::Database                              * m_db;                      // cauldron project database
+
       DataAccess::Interface::ProjectHandle            * m_proj;                    // project handle, to load/save maps
       std::string                                       m_projectFileName;         // project file name
       DataAccess::Interface::MapWriter                * m_mapPropertyValuesWriter; // own map writer to write/append maps to HDF file
@@ -138,7 +137,7 @@ namespace mbapi
 
       std::vector<DataAccess::Interface::GridMap *>     m_mapObj;
       std::map<std::string, std::vector<std::string>>   m_fileMaps;     // for each HDF file, the vector of maps names
-   
+
       std::set<std::string>                             m_mapsFileList; // unique list of files with project maps
 
       void loadGridMap( MapID id );

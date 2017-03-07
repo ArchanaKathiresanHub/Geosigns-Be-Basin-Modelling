@@ -114,7 +114,7 @@ void compareFormations(std::shared_ptr<CauldronIO::Project> projectXml, std::uni
 	EXPECT_EQ(sizeP3d, sizeXml);
 	for (size_t i = 0; i < sizeP3d; i++)
 	{
-		const std::shared_ptr<const CauldronIO::Formation> formationXml = projectXml->getFormations()[i];
+		const std::shared_ptr<CauldronIO::Formation> formationXml = projectXml->getFormations()[i];
 		const DataAccess::Interface::Formation* formationP3d = projectP3d->findFormation(formationXml->getName());
 
 		EXPECT_EQ(formationP3d->getName(), formationXml->getName());
@@ -154,8 +154,8 @@ void compareProperties(std::shared_ptr<CauldronIO::Project> projectXml, std::uni
 	//Comparing Properties information
 	DataAccess::Interface::PropertyList *propListP3d = projectP3d->getProperties();
 	size_t sizeP3d = propListP3d->size();
-	size_t sizeXml = projectXml->getProperties().size();
-	EXPECT_EQ(sizeP3d, sizeXml);
+	size_t sizeXml = projectXml->getProperties().size(); // size can be different as some input properties are created
+	
 	for (size_t i = 0; i < sizeP3d; i++)
 	{
 		const DataAccess::Interface::Property* propP3d = propListP3d->at(i);
@@ -195,10 +195,10 @@ void compare2dPropertyValues(std::shared_ptr<CauldronIO::Project> projectXml, st
 		string userNameP3d = propValueP3d->getProperty()->getUserName();
 		string cauldronNameP3d = propValueP3d->getProperty()->getCauldronName();
 		string formationNameP3d = propValueP3d->getFormation() ? propValueP3d->getFormation()->getName() : "";
-		
-		formationNameP3d = ((formationNameP3d.empty())  && (propValueP3d->getReservoir())) ? propValueP3d->getReservoir()->getFormation()->getName() : formationNameP3d;
+
+		formationNameP3d = ((formationNameP3d.empty()) && (propValueP3d->getReservoir())) ? propValueP3d->getReservoir()->getFormation()->getName() : formationNameP3d;
 		string surfaceNameP3d = propValueP3d->getSurface() ? propValueP3d->getSurface()->getName() : "";
-				
+
 		string key = std::to_string(ageP3d) + sep + propNameP3d + sep + userNameP3d + sep + cauldronNameP3d + sep + formationNameP3d + sep + surfaceNameP3d;
 		ASSERT_TRUE(propValue2DMapP3d.count(key) == 0) << "Error:: Key not unique: " << key;
 		propValue2DMapP3d.insert(std::make_pair(key, static_cast<int>(i)));
@@ -220,7 +220,7 @@ void compare2dPropertyValues(std::shared_ptr<CauldronIO::Project> projectXml, st
 				const CauldronIO::PropertySurfaceData propSurfaceDataXml = propSurfaceDataListXml.at(k);
 				std::shared_ptr<const CauldronIO::Property> propXml = propSurfaceDataXml.first;
 				std::shared_ptr<CauldronIO::SurfaceData> surfaceDataXml = propSurfaceDataXml.second;
-								
+
 				string formationNameXml = surfaceDataXml->getFormation() ? surfaceDataXml->getFormation()->getName() : "";
 				formationNameXml = ((formationNameXml.empty()) && (surfaceDataXml->getReservoir())) ? surfaceDataXml->getReservoir()->getFormation()->getName() : formationNameXml;
 
@@ -262,7 +262,7 @@ std::map<string, int> createFormationMap(std::shared_ptr<CauldronIO::Project> pr
 	size_t nFormationsXml = projectXml->getFormations().size();
 	for (size_t i = 0; i < nFormationsXml; i++)
 	{
-		unsigned int kStart, kEnd;
+		int kStart, kEnd;
 		projectXml->getFormations()[i]->getK_Range(kStart, kEnd);
 		formationMapXml.insert(std::make_pair(projectXml->getFormations()[static_cast<int>(i)]->getName().c_str(), kStart));
 	}
@@ -772,10 +772,10 @@ void addNewData(string xmlFileName)
 	snapShot->addSurface(surface);
 	
 	//Preparing formation to be added
-	unsigned int kStart, kEnd;
+	int kStart, kEnd;
 	const string formName = projectXml->getFormations()[0]->getName();
 	projectXml->getFormations()[0]->getK_Range(kStart, kEnd);
-	shared_ptr<const Formation> formation(new Formation(kStart, kEnd, formName, projectXml->getFormations()[0]->isSourceRock(), projectXml->getFormations()[0]->isMobileLayer()));
+	shared_ptr<const Formation> formation(new Formation(kStart, kEnd, formName));
 	shared_ptr<Volume> vol(new Volume(Sediment));
 	
 	//Preparing property volume data
@@ -853,7 +853,7 @@ void addNewData(string xmlFileName)
 
 	CauldronIO::FormationVolume formVolNew = snapShotNew->getFormationVolumeList()[0];
 	shared_ptr<const Formation> formationNew = formVolNew.first;
-	unsigned int kStartNew, kEndNew;
+	int kStartNew, kEndNew;
 	formationNew->getK_Range(kStartNew, kEndNew);
 	shared_ptr<Volume> volNew = formVolNew.second;
 	EXPECT_EQ(formName, formationNew->getName());

@@ -4,16 +4,13 @@
 #include <vector>
 #include <string>
 
-namespace database
-{
-   class Database;
-}
+#include "ProjectFileHandler.h"
 
 struct ProjectDependencies
 {
    std::vector< std::string > inputMaps, related, outputMaps, snapshots;
 };
 
-ProjectDependencies getProjectDependencies( database::Database * projBase );
+ProjectDependencies getProjectDependencies( database::ProjectFileHandlerPtr projBase );
 
 #endif

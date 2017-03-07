@@ -91,8 +91,6 @@ bool Elt2dIndices::onDomainBoundary ( const int boundaryNumber ) const {
 
 AppCtx::AppCtx(int argc, char** argv) : filterwizard(&timefilter)
 {
-   database = 0;
-   timeIoTbl = 0;
    m_saveOnDarcyError = false;
    m_no2Doutput = false;
    m_primaryOutput = false;
@@ -1338,22 +1336,8 @@ bool AppCtx::makeOutputDirectory ()
 bool AppCtx::openProject ()
 {
 
-   database = FastcauldronSimulator::getInstance ().getDataBase ();
-
-   if (database == 0)
-   {
-      SETERRQ (PETSC_COMM_SELF, 0, "unable to open project file\n");
-      return false;
-   }
-
-   timeIoTbl = database->getTable ("TimeIoTbl");
-   PETSC_ASSERT (timeIoTbl);
-
-   threeDTimeIoTbl = database->getTable ("3DTimeIoTbl");
-   PETSC_ASSERT (threeDTimeIoTbl);
-
    database::Table * ioOptionsIoTbl;
-   ioOptionsIoTbl = database->getTable ("IoOptionsIoTbl");
+   ioOptionsIoTbl = FastcauldronSimulator::getInstance ().getTable ("IoOptionsIoTbl");
    PETSC_ASSERT (ioOptionsIoTbl);
 
    if (ioOptionsIoTbl->size() > 0)
@@ -1750,8 +1734,8 @@ void AppCtx::Print_Nodes_Value_From_Polyfunction( ) {
 
 void AppCtx::initialiseTimeIOTable ( const string& currentOperation ) {
 
-  database::Table* localTimeIoTbl = database->getTable ("TimeIoTbl");
-  database::Table* local3DTimeIoTbl = database->getTable ("3DTimeIoTbl");
+  database::Table* localTimeIoTbl   = FastcauldronSimulator::getInstance ().getTable ("TimeIoTbl");
+  database::Table* local3DTimeIoTbl = FastcauldronSimulator::getInstance ().getTable ("3DTimeIoTbl");
 
   if ( currentOperation == DecompactionRunStatusStr ||
        currentOperation == HydrostaticTemperatureRunStatusStr ||
@@ -1797,6 +1781,9 @@ void AppCtx::clearOperationFromTimeIOTable ( database::Table* table, const strin
 
 void AppCtx::deleteTimeIORecord ( const double  age )
 {
+
+  database::Table* timeIoTbl = FastcauldronSimulator::getInstance ().getTable ("TimeIoTbl");
+
    std::vector < Record * >recordsForDeletion;
    std::vector < Record * >::iterator recordIterator;
 
@@ -1822,6 +1809,7 @@ void AppCtx::deleteTimeIORecord ( const string& propertyName,
                                   const double  age ) {
 
 
+  database::Table* timeIoTbl = FastcauldronSimulator::getInstance ().getTable ("TimeIoTbl");
   std::vector < Record* > recordsForDeletion;
   std::vector < Record* >::iterator recordIterator;
 
@@ -1849,6 +1837,7 @@ void AppCtx::deleteTimeIORecord ( const string& propertyName,
                                   const string& formationName ) {
 
 
+  database::Table* timeIoTbl = FastcauldronSimulator::getInstance ().getTable ("TimeIoTbl");
   std::vector < Record* > recordsForDeletion;
   std::vector < Record* >::iterator recordIterator;
 
@@ -4159,7 +4148,7 @@ void AppCtx::Examine_Load_Balancing() {
 void AppCtx::Output_Number_Of_Geological_Events() {
 
    database::Table * snapshotIoTbl;
-   snapshotIoTbl = database->getTable ("SnapshotIoTbl");
+   snapshotIoTbl = FastcauldronSimulator::getInstance ().getTable ("SnapshotIoTbl");
    PETSC_ASSERT(snapshotIoTbl);
    if (snapshotIoTbl->size() > 0)
    {
@@ -4416,7 +4405,7 @@ void AppCtx::setMilestones(void)
 {
 
    database::Table * DisplayContourIoTbl;
-   DisplayContourIoTbl = database->getTable ("DisplayContourIoTbl");
+   DisplayContourIoTbl = FastcauldronSimulator::getInstance ().getTable ("DisplayContourIoTbl");
    assert(DisplayContourIoTbl);
    Table::iterator tblIter;
 
@@ -4516,12 +4505,12 @@ void AppCtx::writeIsoLinesToDatabase(void)
 
    this->addBottomSedimentSurfaceIsoPointsToIsolines();
    database::Table * TemperatureIsoIoTbl;
-   TemperatureIsoIoTbl = database->getTable ("TemperatureIsoIoTbl");
+   TemperatureIsoIoTbl = FastcauldronSimulator::getInstance ().getTable ("TemperatureIsoIoTbl");
    assert(TemperatureIsoIoTbl);
    m_theTables[ISOTEMPERATURE].writeToDatabaseTable( TemperatureIsoIoTbl );
 
    database::Table * VrIsoIoTbl;
-   VrIsoIoTbl = database->getTable ("VrIsoIoTbl");
+   VrIsoIoTbl = FastcauldronSimulator::getInstance ().getTable ("VrIsoIoTbl");
    assert(VrIsoIoTbl);
    m_theTables[ISOVRE].writeToDatabaseTable( VrIsoIoTbl );
 }
@@ -4529,23 +4518,23 @@ void AppCtx::writeIsoLinesToDatabase(void)
 void AppCtx::writeFissionTrackResultsToDatabase(const FissionTrackCalculator &theFTCalculator)
 {
    database::Table * FtSampleIoTbl;
-   FtSampleIoTbl = database->getTable ("FtSampleIoTbl");
+   FtSampleIoTbl = FastcauldronSimulator::getInstance ().getTable ("FtSampleIoTbl");
    assert(FtSampleIoTbl);
 
    database::Table * FtGrainIoTbl;
-   FtGrainIoTbl = database->getTable ("FtGrainIoTbl");
+   FtGrainIoTbl = FastcauldronSimulator::getInstance ().getTable ("FtGrainIoTbl");
    assert(FtGrainIoTbl);
 
    database::Table * FtPredLengthCountsHistIoTbl;
-   FtPredLengthCountsHistIoTbl = database->getTable ("FtPredLengthCountsHistIoTbl");
+   FtPredLengthCountsHistIoTbl = FastcauldronSimulator::getInstance ().getTable ("FtPredLengthCountsHistIoTbl");
    assert(FtPredLengthCountsHistIoTbl);
 
    database::Table * FtPredLengthCountsHistDataIoTbl;
-   FtPredLengthCountsHistDataIoTbl = database->getTable ("FtPredLengthCountsHistDataIoTbl");
+   FtPredLengthCountsHistDataIoTbl = FastcauldronSimulator::getInstance ().getTable ("FtPredLengthCountsHistDataIoTbl");
    assert(FtPredLengthCountsHistDataIoTbl);
 
    database::Table * FtClWeightPercBinsIoTbl;
-   FtClWeightPercBinsIoTbl = database->getTable ("FtClWeightPercBinsIoTbl");
+   FtClWeightPercBinsIoTbl = FastcauldronSimulator::getInstance ().getTable ("FtClWeightPercBinsIoTbl");
    assert(FtClWeightPercBinsIoTbl);
 
    //qnd to get data...FisssionTrackWriter class could be a better option
@@ -4646,27 +4635,5 @@ bool AppCtx::calcBasementProperties ( const double Current_Time ) {
    }
    return true;
 }
-
-//------------------------------------------------------------//
-/*
-bool AppCtx::addTemperatureIsoIoTbl( const double Age,
-                                     const double temperature,
-                                     const double depth )
-{
-
-   database::Table * TemperatureIsoIoTbl;
-   TemperatureIsoIoTbl = database->getTable ("TemperatureIsoIoTbl");
-   Record *record = TemperatureIsoIoTbl->createRecord ();
-
-   deleteTimeIORecord ( propertyName, time, surfaceName, formationName );
-
-   setAge (record, Age);
-   setContourValue (record, temperature);
-   setSum (record, depth);
-   setNP (record, 1);
-
-   return true;
-}
-*/
 
 //------------------------------------------------------------//

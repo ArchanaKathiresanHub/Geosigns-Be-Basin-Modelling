@@ -107,6 +107,7 @@
 #include "GenexResultManager.h"
 #include "ComponentManager.h"
 #include "InterfaceDefs.h"
+#include "ConstantsNames.h"
 
 #include "FilePath.h"
 
@@ -131,43 +132,37 @@ static const char * words [] = {"ALCStepBasaltThickness", "ALCStepTopBasaltDepth
                                 "ErosionFactor", "FCTCorrection", "MaxVes",
                                 "Pressure", "Temperature", "ThicknessError", "Ves", "Vr" };
 
-DataAccess::Interface::ProjectHandle * DataAccess::Interface::OpenCauldronProject( const string & name, const string & accessMode, ObjectFactory* objectFactory )
+DataAccess::Interface::ProjectHandle * DataAccess::Interface::OpenCauldronProject( const string & name,
+                                                                                   const string & accessMode,
+                                                                                   ObjectFactory* objectFactory,
+                                                                                   const std::vector<std::string>& outputTableNames )
 {
    if ( !boost::filesystem::exists( name ) )
    {
       throw formattingexception::GeneralException() << "Project file " << name << " does not exist";
    }
 
-   Database * tables = CreateDatabaseFromCauldronProject( name );
-   if ( tables )
+   database::ProjectFileHandlerPtr pfh = CreateDatabaseFromCauldronProject( name, outputTableNames );
+
+   if ( pfh != nullptr )
    {
-      return objectFactory->produceProjectHandle( tables, name, accessMode );
+      return objectFactory->produceProjectHandle ( pfh, name, accessMode );
    }
    else
    {
       return 0;
    }
+
 }
 
-Database * DataAccess::Interface::CreateDatabaseFromCauldronProject( const string & name )
+database::ProjectFileHandlerPtr DataAccess::Interface::CreateDatabaseFromCauldronProject( const string & name,
+                                                                                          const std::vector<std::string>& outputTableNames )
 {
    FaultFileReaderFactory::getInstance().registerReader( IBSFaultFileReaderID, allocateIBSFaultFileReader );
    FaultFileReaderFactory::getInstance().registerReader( LandmarkFaultFileReaderID, allocateLandmarkFaultFileReader );
    FaultFileReaderFactory::getInstance().registerReader( ZyCorFaultFileReaderID, allocateZyCorFaultFileReader );
 
-   DataSchema * cauldronSchema = database::createCauldronSchema();
-   database::TableDefinition *tableDef = cauldronSchema->getTableDefinition( "DepthIoTbl" );
-
-   if ( tableDef )
-   {
-      // Adding (volatile, won't be output) definition for DepositionSequence field
-      // Required to properly sort the DepthIoTbl, not to be output
-      tableDef->addVolatileFieldDefinition( "DepositionSequence", datatype::Int, "", "0" );
-   }
-
-   Database * tables = Database::CreateFromFile( name, *cauldronSchema );
-   delete cauldronSchema;
-   return tables;
+   return database::ProjectFileHandlerPtr ( new database::ProjectFileHandler ( name, outputTableNames ));
 }
 
 void DataAccess::Interface::CloseCauldronProject( DataAccess::Interface::ProjectHandle * projectHandle )
@@ -179,6 +174,11 @@ int Interface::ProjectHandle::GetNumberOfSpecies( void )
 {
    return ComponentId::NUMBER_OF_SPECIES;
 }
+
+database::ProjectFileHandlerPtr Interface::ProjectHandle::getProjectFileHandler () {
+   return m_projectFileHandler;
+}
+
 
 std::string Interface::ProjectHandle::GetSpeciesName( int i )
 {
@@ -194,11 +194,10 @@ const DataAccess::Interface::ApplicationGlobalOperations& ProjectHandle::getGlob
    return *m_globalOperations;
 }
 
-ProjectHandle::ProjectHandle( Database * tables, const string & name, const string & accessMode, ObjectFactory* objectFactory ) :
-   m_database( tables ), m_name( name ), m_accessMode( READWRITE ), m_activityOutputGrid( 0 ), m_mapPropertyValuesWriter( 0 ), m_primaryList( words, words + 12 )
+ProjectHandle::ProjectHandle( database::ProjectFileHandlerPtr pfh, const string & name, const string & accessMode, ObjectFactory* objectFactory ) :
+   m_projectFileHandler ( pfh ), m_name( name ), m_accessMode( READWRITE ), m_activityOutputGrid( 0 ), m_mapPropertyValuesWriter( 0 ), m_primaryList( words, words + 12 )
 {
    (void) accessMode; // ignore warning about unused parameter
-
 
    m_messageHandler = 0;
    m_globalOperations = 0;
@@ -285,6 +284,7 @@ ProjectHandle::ProjectHandle( Database * tables, const string & name, const stri
 
    connectSurfaces();
    connectReservoirs();
+
    connectTraps();
    if ( trappersAreAvailable() )
    {
@@ -443,7 +443,6 @@ ProjectHandle::~ProjectHandle( void )
    deletePermafrost();
    deleteSimulationDetails();
 
-   if ( m_database ) delete m_database;
 }
 
 
@@ -474,12 +473,10 @@ void ProjectHandle::splitName( void )
 
 bool ProjectHandle::saveToFile( const string & fileName )
 {
-   // #ifdef DISTRIBUTED
-   //    if (getRank () == 0)
-   // #endif
+
    if ( getRank() == 0 )
    {
-      m_database->saveToFile( fileName );
+      m_projectFileHandler->saveToFile( fileName );
    }
 
    return true;
@@ -653,15 +650,15 @@ const Grid * ProjectHandle::getActivityOutputGrid( void ) const
    return m_activityOutputGrid;
 }
 
-Database * ProjectHandle::getDataBase( void ) const
-{
-   return m_database;
-}
-
 database::Table * ProjectHandle::getTable( const string & tableName ) const
 {
-   return m_database->getTable( tableName );
+   return m_projectFileHandler->getTable ( tableName );
 }
+
+void ProjectHandle::setAsOutputTable ( const std::string& tableName ) {
+   m_projectFileHandler->setTableAsOutput ( tableName );
+}
+
 
 bool ProjectHandle::loadSnapshots( void )
 {
@@ -5774,7 +5771,7 @@ void ProjectHandle::deletePointHistories() {
 /// Get a project's output directory
 std::string ProjectHandle::getOutputDir( void ) const
 {
-   return getProjectName() +  "_CauldronOutputDir";
+   return getProjectName() + Utilities::Names::CauldronOutputDir;
 }
 
 void ProjectHandle::resetSnapshotIoTbl(  ) const

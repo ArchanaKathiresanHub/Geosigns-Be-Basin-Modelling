@@ -32,20 +32,20 @@ using Interface::LithoType;
 #include "Lithology.h"
 
 DataAccess::Interface::ProjectHandle *
-FastcauldronFactory::produceProjectHandle ( database::Database * database,
+FastcauldronFactory::produceProjectHandle ( database::ProjectFileHandlerPtr pfh,
                                             const string & name,
-											const string & accessMode) {
-   return new FastcauldronSimulator ( database, name, accessMode, this );
+                                            const string & accessMode) {
+   return new FastcauldronSimulator ( pfh, name, accessMode, this );
 }
 
 
 DataAccess::Interface::RelatedProject* FastcauldronFactory::produceRelatedProject ( Interface::ProjectHandle* projectHandle,
-                                                                                         database::Record*              record ) {
+                                                                                    database::Record*              record ) {
    return new RelatedProject ( projectHandle, record );
 }
 
 DataAccess::Interface::RunParameters * FastcauldronFactory::produceRunParameters ( Interface::ProjectHandle * projectHandle,
-                                                                                        database::Record *              record ) {
+                                                                                   database::Record *              record ) {
    return new RunParameters ( projectHandle, record );
 }
 
@@ -54,7 +54,7 @@ DataAccess::Interface::Property * FastcauldronFactory::produceProperty ( Interfa
                                                                          database::Record *              record,
                                                                          const string &                  userName,
                                                                          const string &                  cauldronName,
-                                                                         const string &                  unit, 
+                                                                         const string &                  unit,
                                                                          Interface::PropertyType         type,
                                                                          const DataModel::PropertyAttribute attr ) {
 

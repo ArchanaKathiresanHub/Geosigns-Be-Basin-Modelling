@@ -25,7 +25,7 @@ SerialGrid::SerialGrid (double minI, double minJ,
    m_numsJ[0] = int(numJ);
 }
 
-SerialGrid::SerialGrid (const Grid * referenceGrid, double minI, double minJ, double maxI, double maxJ, unsigned int numI, unsigned int numJ) :
+SerialGrid::SerialGrid (const Grid * , double minI, double minJ, double maxI, double maxJ, unsigned int numI, unsigned int numJ) :
    m_minI (minI), m_minJ (minJ), m_maxI (maxI), m_maxJ (maxJ), m_numI (numI), m_numJ (numJ),
    m_deltaI ((m_maxI - m_minI) / (m_numI - 1)), m_deltaJ ((m_maxJ - m_minJ) / (m_numJ - 1)),
    m_surface (m_deltaI * m_deltaJ)
@@ -77,7 +77,7 @@ int SerialGrid::firstI (void) const
    return 0;
 }
 
-int SerialGrid::firstI (bool withGhosts) const
+int SerialGrid::firstI (bool) const
 {
    return 0;
 }
@@ -87,7 +87,7 @@ int SerialGrid::firstJ (void) const
    return 0;
 }
 
-int SerialGrid::firstJ (bool withGhosts) const
+int SerialGrid::firstJ (bool) const
 {
    return 0;
 }
@@ -97,7 +97,7 @@ int SerialGrid::lastI (void) const
    return numI () - 1;
 }
 
-int SerialGrid::lastI (bool withGhosts) const
+int SerialGrid::lastI (bool) const
 {
    return lastI();
 }
@@ -107,7 +107,7 @@ int SerialGrid::lastJ (void) const
    return numJ () - 1;
 }
 
-int SerialGrid::lastJ (bool withGhosts) const
+int SerialGrid::lastJ (bool) const
 {
    return lastJ();
 }
@@ -290,7 +290,7 @@ bool SerialGrid::getPosition (double i, double j, double &posI, double &posJ) co
 
 bool SerialGrid::convertToGrid (const Grid & toGrid,
       unsigned int fromI, unsigned int fromJ,
-      unsigned int & toI, unsigned int & toJ, bool useCaching) const
+      unsigned int & toI, unsigned int & toJ, bool) const
 {
    double posI, posJ;
    if (!getPosition (fromI, fromJ, posI, posJ)) return false;
@@ -302,7 +302,7 @@ bool SerialGrid::convertToGrid (const Grid & toGrid,
 
 bool SerialGrid::convertToGrid (const Grid & toGrid,
       unsigned int fromI, unsigned int fromJ,
-      double & toI, double & toJ, bool useCaching) const
+      double & toI, double & toJ, bool) const
 {
    double posI, posJ;
    if (!getPosition (fromI, fromJ, posI, posJ)) return false;

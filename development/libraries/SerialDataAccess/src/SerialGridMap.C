@@ -22,17 +22,17 @@ using namespace Interface;
 
 
 SerialGridMap::SerialGridMap (const Parent * owner, unsigned int childIndex, const Grid * grid, double undefinedValue, unsigned int depth, float *** values) :
-	    GridMap (owner, childIndex), m_grid (grid),	m_undefinedValue (undefinedValue), m_averageValue (m_undefinedValue), m_depth (depth)
+       GridMap (owner, childIndex), m_grid (grid),   m_undefinedValue (undefinedValue), m_averageValue (m_undefinedValue), m_depth (depth)
 {
    m_values = Array < double >::create3d( static_cast<size_t>(grid->numI()), static_cast<size_t>(grid->numJ()), static_cast<size_t>( m_depth ), m_undefinedValue);
    m_singleValue = m_undefinedValue;
 
-   unsigned int numI = grid->numI ();
-   unsigned int numJ = grid->numJ ();
+   const unsigned int numI = grid->numI ();
+   const unsigned int numJ = grid->numJ ();
 
    bool first = true;
    bool isConstant = true;
-   double constantValue;
+   double constantValue = DefaultUndefinedMapValue;
 
    for (unsigned int i = 0; i < numI; ++i)
    {
@@ -63,7 +63,7 @@ SerialGridMap::SerialGridMap (const Parent * owner, unsigned int childIndex, con
 }
 
 SerialGridMap::SerialGridMap (const Parent * owner, unsigned int childIndex, const Grid * grid, double value, unsigned int depth) :
-      GridMap (owner, childIndex), m_grid (grid), m_undefinedValue (99999), m_averageValue (value), m_depth (depth)
+      GridMap (owner, childIndex), m_grid (grid), m_undefinedValue (DefaultUndefinedMapValue), m_averageValue (value), m_depth (depth)
 {
    m_values = 0;
    m_singleValue = value;
@@ -74,11 +74,11 @@ SerialGridMap::SerialGridMap (const Parent * owner, unsigned int childIndex, con
       m_undefinedValue (operand1->getUndefinedValue ()), m_averageValue (operand1->getUndefinedValue ()),
       m_depth (operand1->getDepth ())
 {
-   unsigned int numI = m_grid->numI ();
-   unsigned int numJ = m_grid->numJ ();
+   const unsigned int numI = m_grid->numI ();
+   const unsigned int numJ = m_grid->numJ ();
 
-   assert (numI == operand2->getGrid ()->numI ());
-   assert (numJ == operand2->getGrid ()->numJ ());
+   assert (numI == static_cast<unsigned int>(operand2->getGrid ()->numI ()));
+   assert (numJ == static_cast<unsigned int>(operand2->getGrid ()->numJ ()));
 
    assert (m_depth == operand2->getDepth ());
 
@@ -117,8 +117,8 @@ SerialGridMap::SerialGridMap (const Parent * owner, unsigned int childIndex, con
       m_undefinedValue (operand->getUndefinedValue ()), m_averageValue (operand->getUndefinedValue ()),
       m_depth (operand->getDepth ())
 {
-   unsigned int numI = m_grid->numI ();
-   unsigned int numJ = m_grid->numJ ();
+   const unsigned int numI = m_grid->numI ();
+   const unsigned int numJ = m_grid->numJ ();
 
    if (operand->isConstant ())
    {
@@ -155,11 +155,11 @@ SerialGridMap::SerialGridMap (const Parent * owner, unsigned int childIndex, con
       m_undefinedValue (operand1->getUndefinedValue ()), m_averageValue (operand1->getUndefinedValue ()),
       m_depth (operand1->getDepth ())
 {
-   unsigned int numI = m_grid->numI ();
-   unsigned int numJ = m_grid->numJ ();
+   const unsigned int numI = m_grid->numI ();
+   const unsigned int numJ = m_grid->numJ ();
 
-   assert (numI == operand2->getGrid ()->numI ());
-   assert (numJ == operand2->getGrid ()->numJ ());
+   assert (numI == static_cast<unsigned int>(operand2->getGrid ()->numI ()));
+   assert (numJ == static_cast<unsigned int>(operand2->getGrid ()->numJ ()));
 
    assert (m_depth == operand2->getDepth ());
 
@@ -243,12 +243,12 @@ bool SerialGridMap::retrieveGhostedData (void) const
    return true;
 }
 
-bool SerialGridMap::retrieveData (bool withGhosts) const
+bool SerialGridMap::retrieveData (bool ) const
 {
    return true;
 }
 
-bool SerialGridMap::restoreData (bool save, bool withGhosts) const
+bool SerialGridMap::restoreData (bool , bool ) const
 {
    return true;
 }
@@ -425,20 +425,20 @@ double SerialGridMap::getAverageValue (void) const
       return m_averageValue;
    }
 
-   for (unsigned int i = 0; i < m_grid->numI (); i++)
+   for (unsigned int i = 0; i < static_cast<unsigned int>(m_grid->numI()); i++)
    {
-      for (unsigned int j = 0; j < m_grid->numJ (); j++)
+      for (unsigned int j = 0; j < static_cast<unsigned int>(m_grid->numJ()); j++)
       {
-	 for (unsigned int k = 0; k < m_depth; k++)
-	 {
-	    double value = getValue (i, j, k);
-
-	    if (value != getUndefinedValue ())
-	    {
-	       numValues++;
-	       total += value;
-	    }
-	 }
+         for (unsigned int k = 0; k < m_depth; k++)
+         {
+            double value = getValue (i, j, k);
+        
+            if (value != getUndefinedValue ())
+            {
+               numValues++;
+               total += value;
+            }
+         }
       }
    }
 
@@ -456,20 +456,20 @@ void SerialGridMap::getMinMaxValue (double & min, double & max) const
    min = std::numeric_limits< double >::max(); 
    max = -std::numeric_limits< double >::max(); 
 
-   for (unsigned int i = 0; i < m_grid->numI (); i++)
+   for (unsigned int i = 0; i < static_cast<unsigned int>(m_grid->numI ()); i++)
    {
-      for (unsigned int j = 0; j < m_grid->numJ (); j++)
+      for (unsigned int j = 0; j < static_cast<unsigned int>(m_grid->numJ ()); j++)
       {
-	 for (unsigned int k = 0; k < m_depth; k++)
-	 {
-	    double value = getValue (i, j, k);
-
-	    if (value != getUndefinedValue ())
-	    {
-	       max = std::max (value, max);
-	       min = std::min (value, min);
-	    }
-	 }
+         for (unsigned int k = 0; k < m_depth; k++)
+         {
+            double value = getValue (i, j, k);
+       
+            if (value != getUndefinedValue ())
+            {
+               max = std::max (value, max);
+               min = std::min (value, min);
+            }
+         }
       }
    }
    if (min == std::numeric_limits< double >::max() )
@@ -482,19 +482,19 @@ double SerialGridMap::getSumOfValues (void) const
 {
    double total = 0;
 
-   for (unsigned int i = 0; i < m_grid->numI (); i++)
+   for (unsigned int i = 0; i < static_cast<unsigned int>(m_grid->numI ()); i++)
    {
-      for (unsigned int j = 0; j < m_grid->numJ (); j++)
+      for (unsigned int j = 0; j < static_cast<unsigned int>(m_grid->numJ ()); j++)
       {
-	 for (unsigned int k = 0; k < m_depth; k++)
-	 {
-	    double value = getValue (i, j, k);
-
-	    if (value != getUndefinedValue ())
-	    {
-	       total += value;
-	    }
-	 }
+         for (unsigned int k = 0; k < m_depth; k++)
+         {
+            double value = getValue (i, j, k);
+         
+            if (value != getUndefinedValue ())
+            {
+               total += value;
+            }
+         }
       }
    }
 
@@ -505,19 +505,19 @@ double SerialGridMap::getSumOfSquaredValues (void) const
 {
    double total = 0;
 
-   for (unsigned int i = 0; i < m_grid->numI (); i++)
+   for (unsigned int i = 0; i < static_cast<unsigned int>(m_grid->numI ()); i++)
    {
-      for (unsigned int j = 0; j < m_grid->numJ (); j++)
+      for (unsigned int j = 0; j < static_cast<unsigned int>(m_grid->numJ ()); j++)
       {
-	 for (unsigned int k = 0; k < m_depth; k++)
-	 {
-	    double value = getValue (i, j, k);
+         for (unsigned int k = 0; k < m_depth; k++)
+         {
+            double value = getValue (i, j, k);
 
-	    if (value != getUndefinedValue ())
-	    {
-	       total += value * value;
-	    }
-	 }
+            if (value != getUndefinedValue ())
+            {
+               total += value * value;
+            }
+         }
       }
    }
 
@@ -528,19 +528,19 @@ int SerialGridMap::getNumberOfDefinedValues (void) const
 {
    int numValues = 0;
 
-   for (unsigned int i = 0; i < m_grid->numI (); i++)
+   for (unsigned int i = 0; i < static_cast<unsigned int>(m_grid->numI ()); i++)
    {
-      for (unsigned int j = 0; j < m_grid->numJ (); j++)
+      for (unsigned int j = 0; j < static_cast<unsigned int>(m_grid->numJ ()); j++)
       {
-	 for (unsigned int k = 0; k < m_depth; k++)
-	 {
-	    double value = getValue (i, j, k);
-
-	    if (value != getUndefinedValue ())
-	    {
-	       numValues++;
-	    }
-	 }
+         for (unsigned int k = 0; k < m_depth; k++)
+         {
+            double value = getValue (i, j, k);
+        
+            if (value != getUndefinedValue ())
+            {
+               numValues++;
+            }
+         }
       }
    }
 
@@ -600,11 +600,11 @@ bool SerialGridMap::saveHDF5 (const string & fileName) const
 
    float * dataArray = new float[getGrid ()->numI () * getGrid ()->numJ ()];
 
-   for (unsigned int i = 0; i < numI; ++i)
+   for (unsigned int i = 0; i < static_cast<unsigned int>(numI); ++i)
    {
-      for (unsigned int j = 0; j < numJ; ++j)
+      for (unsigned int j = 0; j < static_cast<unsigned int>(numJ); ++j)
       {
-	 dataArray[i * numJ + j] = getValue (i, j, (unsigned int) 0); 
+         dataArray[i * numJ + j] = getValue (i, j, (unsigned int) 0); 
       }
    }
 
@@ -645,15 +645,15 @@ void SerialGridMap::printOn (ostream & ostr) const
    {
       for (unsigned int i = 0; i < numI; ++i)
       {
-	 for (unsigned int j = 0; j < numJ; ++j)
-	 {
-	    if (j != 0)
-	       ostr << ", ";
-	    double value = getValue (i, j, k);
-
-	    ostr << value;
-	 }
-	 ostr << endl;
+         for (unsigned int j = 0; j < numJ; ++j)
+         {
+            if (j != 0)
+               ostr << ", ";
+            double value = getValue (i, j, k);
+        
+            ostr << value;
+         }
+         ostr << endl;
       }
       ostr << endl;
    }
@@ -671,12 +671,12 @@ bool SerialGridMap::convertToGridMap(GridMap *mapB) const
    {
       ret = transformHighRes2LowRes(mapB);
    }
-   else       	
+   else
    {
       ret = transformLowRes2HighRes(mapB);
    }
 
-   return ret;	
+   return ret;   
 }
 
 bool SerialGridMap::transformHighRes2LowRes(GridMap *mapB) const 
@@ -696,30 +696,24 @@ bool SerialGridMap::transformHighRes2LowRes(GridMap *mapB) const
 
    const Grid *highResGridA = (Grid *) this->getGrid();
    
-   for (indexImapB = 0; indexImapB < gridB->numI (); ++indexImapB)
+   for (indexImapB = 0; indexImapB < static_cast<unsigned int>(gridB->numI ()); ++indexImapB)
    {
-      for (indexJmapB = 0; indexJmapB < gridB->numJ (); ++indexJmapB)
+      for (indexJmapB = 0; indexJmapB < static_cast<unsigned int>(gridB->numJ ()); ++indexJmapB)
       {
-	 if (gridB->convertToGrid ( (*highResGridA), indexImapB, indexJmapB, indexImapA, indexJmapA) )
-	 {
-	    for (k = 0; k < depthA; k++)
-	    {
+         if (gridB->convertToGrid ( (*highResGridA), indexImapB, indexJmapB, indexImapA, indexJmapA) )
+         {
+            for (k = 0; k < depthA; k++)
+            {
                mapB->setValue (indexImapB, indexJmapB, k, this->getValue (indexImapA, indexJmapA, k));
-	       
-#if 0
-	       cerr << ddd::GetRankString () << ": converting value " << this->getValue (indexImapA, indexJmapA, k) <<
-		  " from lowres (" << indexImapB << ", " << indexJmapB << ", " << k <<
-		  ") to highres (" << indexImapA << ", "  << indexJmapA << ", " << k << ")" << endl;
-#endif
-	    }
-	 }
-	 else
-	 {
-	    cerr << "conversion from lowres (" << indexImapB << ", " << indexJmapB <<
-	       ") to highres (" << indexImapA << ", " << indexJmapA << ") failed unexpectedly" << endl;
-	    ret = false;
-	    break;
-	 }
+            }
+         }
+         else
+         {
+            cerr << "conversion from lowres (" << indexImapB << ", " << indexJmapB <<
+               ") to highres (" << indexImapA << ", " << indexJmapA << ") failed unexpectedly" << endl;
+            ret = false;
+            break;
+         }
       }
    }
 
@@ -730,98 +724,71 @@ bool SerialGridMap::transformHighRes2LowRes(GridMap *mapB) const
 bool SerialGridMap::transformLowRes2HighRes(GridMap *mapB) const
 {
    const GridMap *mapA = this;
-   const Grid *gridA = (Grid *) mapA->getGrid ();
-   const Grid *gridB = (Grid *) mapB->getGrid ();
+   const Grid *gridA = (Grid *)mapA->getGrid();
+   const Grid *gridB = (Grid *)mapB->getGrid();
 
    bool ret = true;
 
-
    unsigned int highResI, highResJ, k;
-   unsigned int depthB = mapB->getDepth ();
+   unsigned int depthB = mapB->getDepth();
 
-   for (highResI = 0; highResI < gridB->numI (); ++highResI)
+   for (highResI = 0; highResI < static_cast<unsigned int>(gridB->numI()); ++highResI)
    {
-      for (highResJ = 0; highResJ < gridB->numJ (); ++highResJ)
+      for (highResJ = 0; highResJ < static_cast<unsigned int>(gridB->numJ()); ++highResJ)
       {
          double doubleLowResI, doubleLowResJ;
-
-         if (!gridB->convertToGrid (* gridA, highResI, highResJ, doubleLowResI, doubleLowResJ))
+         if (!gridB->convertToGrid(*gridA, highResI, highResJ, doubleLowResI, doubleLowResJ))
          {
-	    // one of the four surrounding lowres grid points is outside the highres grid
-#if 0
-	    cerr << "mapping of (" << highResI << ", " << highResJ << ") to " <<
-	       "(" << doubleLowResI << ", " << doubleLowResJ << ") is out of bounds " << endl;
-#endif
-
+            // one of the four surrounding lowres grid points is outside the highres grid
             for (k = 0; k < depthB; k++)
-	    {
-               mapB->setValue(highResI, highResJ, k, DefaultUndefinedMapValue); 
-	    }
-	    continue;
+            {
+               mapB->setValue(highResI, highResJ, k, DefaultUndefinedMapValue);
+            }
+            continue;
          }
+         unsigned int intLowResI = (int)doubleLowResI;
+         unsigned int intLowResJ = (int)doubleLowResJ;
 
-#if 0
-	    cerr << "mapping of (" << highResI << ", " << highResJ << ") to " <<
-	       "(" << doubleLowResI << ", " << doubleLowResJ << ") is within bounds " << endl;
-#endif
-         unsigned int intLowResI = (int) doubleLowResI;
-         unsigned int intLowResJ = (int) doubleLowResJ;
-
-	 const double errorMargin = 1e-4;
+         const double errorMargin = 1e-4;
 
          double fractionI = doubleLowResI - intLowResI;
-	 if (fractionI < errorMargin) fractionI = 0;
-	 if (fractionI > 1 - errorMargin) fractionI = 1;
+         if (fractionI < errorMargin) fractionI = 0;
+         if (fractionI > 1 - errorMargin) fractionI = 1;
 
          double fractionJ = doubleLowResJ - intLowResJ;
-	 if (fractionJ < errorMargin) fractionJ = 0;
-	 if (fractionJ > 1 - errorMargin) fractionJ = 1;
-
-#if 0
-	 cerr << "Fractions (" << highResI << ", " << highResJ << ") = " << "(" << fractionI << ", " << fractionJ << ")" << endl;
-#endif
+         if (fractionJ < errorMargin) fractionJ = 0;
+         if (fractionJ > 1 - errorMargin) fractionJ = 1;
 
          for (k = 0; k < depthB; k++)
          {
             double lowResMapValues[2][2];
 
-            lowResMapValues[0][0] = mapA->getValue (intLowResI, intLowResJ, k);
-            lowResMapValues[0][1] = mapA->getValue (intLowResI, intLowResJ + 1, k);
-            lowResMapValues[1][0] = mapA->getValue (intLowResI + 1, intLowResJ, k);
-            lowResMapValues[1][1] = mapA->getValue (intLowResI + 1, intLowResJ + 1, k);
+            lowResMapValues[0][0] = mapA->getValue(intLowResI, intLowResJ, k);
+            lowResMapValues[0][1] = mapA->getValue(intLowResI, intLowResJ + 1, k);
+            lowResMapValues[1][0] = mapA->getValue(intLowResI + 1, intLowResJ, k);
+            lowResMapValues[1][1] = mapA->getValue(intLowResI + 1, intLowResJ + 1, k);
 
             double highResMapValue = 0;
 
-	    if ((lowResMapValues[0][0] == mapA->getUndefinedValue () && fractionI != 1 && fractionJ != 1) ||
-		  (lowResMapValues[0][1] == mapA->getUndefinedValue () && fractionI != 1 && fractionJ != 0) ||
-		  (lowResMapValues[1][0] == mapA->getUndefinedValue () && fractionI != 0 && fractionJ != 1) ||
-		  (lowResMapValues[1][1] == mapA->getUndefinedValue () && fractionI != 0 && fractionJ != 0))
-	    {
-#if 0
-	       cerr << ddd::GetRank () << ": " << endl;
-	       cerr << "highResMapValue (" << highResI << ", " << highResJ << ") = undefined" << endl;
-	       cerr << "fractionI = " << fractionI << ", fractionJ = " << fractionJ << endl;
-	       cerr << "intLowResI = " << intLowResI << ", intLowResJ = " << intLowResJ << endl;
-	       cerr << "doubleLowResI = " << doubleLowResI << ", doubleLowResJ = " << doubleLowResJ << endl;
-	       cerr << "lowResMapValues[0][0] = " << lowResMapValues[0][0] << endl;
-	       cerr << "lowResMapValues[0][1] = " << lowResMapValues[0][1] << endl;
-	       cerr << "lowResMapValues[1][0] = " << lowResMapValues[1][0] << endl;
-	       cerr << "lowResMapValues[1][1] = " << lowResMapValues[1][1] << endl;
-#endif
-	       highResMapValue = mapB->getUndefinedValue ();
+            if ((lowResMapValues[0][0] == mapA->getUndefinedValue() && fractionI != 1 && fractionJ != 1) ||
+               (lowResMapValues[0][1] == mapA->getUndefinedValue() && fractionI != 1 && fractionJ != 0) ||
+                    (lowResMapValues[1][0] == mapA->getUndefinedValue() && fractionI != 0 && fractionJ != 1) ||
+                         (lowResMapValues[1][1] == mapA->getUndefinedValue() && fractionI != 0 && fractionJ != 0))
+            {
+               highResMapValue = mapB->getUndefinedValue();
 
-	    }
-	    else
-	    {
-	       highResMapValue += lowResMapValues[0][0] * (1 - fractionI) * (1 - fractionJ);
-	       highResMapValue += lowResMapValues[0][1] * (1 - fractionI) * (fractionJ);
-	       highResMapValue += lowResMapValues[1][0] * (fractionI) * (1 - fractionJ);
-	       highResMapValue += lowResMapValues[1][1] * (fractionI) * (fractionJ);
-	    }
+            }
+            else
+            {
+               highResMapValue += lowResMapValues[0][0] * (1 - fractionI) * (1 - fractionJ);
+               highResMapValue += lowResMapValues[0][1] * (1 - fractionI) * (fractionJ);
+               highResMapValue += lowResMapValues[1][0] * (fractionI) * (1 - fractionJ);
+               highResMapValue += lowResMapValues[1][1] * (fractionI) * (fractionJ);
+            }
 
             //set the value
-            mapB->setValue (highResI, highResJ, k, highResMapValue);
-         }
+            mapB->setValue(highResI, highResJ, k, highResMapValue);
+            }
       }
    }
 
@@ -835,12 +802,12 @@ bool SerialGridMap::transformLowRes2HighRes(GridMap *mapB) const
 
 unsigned int SerialGridMap::numI (void) const
 {
-	return m_grid->numI();
+   return m_grid->numI();
 }
 
 unsigned int SerialGridMap::numJ (void) const
 {
-	return m_grid->numJ();
+   return m_grid->numJ();
 }
 
 double SerialGridMap::minI (void) const

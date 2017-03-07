@@ -157,6 +157,9 @@ int main(int argc, char ** argv)
 			std::cout << "Retrieving data" << endl;
             start = clock();
 
+			std::cout << "Retrieving input data" << endl;
+			project->retrieveStratigraphyTable();
+
             for (shared_ptr<CauldronIO::SnapShot> snapShot : project->getSnapShots())
             {
                 std::vector < CauldronIO::VisualizationIOData* > allReadData = snapShot->getAllRetrievableData();
@@ -229,10 +232,13 @@ int main(int argc, char ** argv)
 				std::cout << "Retrieving data" << endl;
                 start = clock();
 
+                project->retrieveStratigraphyTable();
+
                 for (const std::shared_ptr<CauldronIO::SnapShot>& snapShot : project->getSnapShots())
                 {
-                    CauldronIO::VisualizationUtils::retrieveAllData(snapShot, numThreads);
-                    snapShot->release();
+					std::vector < CauldronIO::VisualizationIOData* > data = snapShot->getAllRetrievableData();
+					CauldronIO::VisualizationUtils::retrieveAllData(data, numThreads);
+					snapShot->release();
                 }
 
                 timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;

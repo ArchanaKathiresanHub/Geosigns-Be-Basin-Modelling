@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -90,11 +90,11 @@ static const char * s_FormationPropList[] =
 namespace DataAccess { namespace Mining
 {
 
-   DataAccess::Interface::ProjectHandle* DomainPropertyFactory::produceProjectHandle( database::Database * database, 
+   DataAccess::Interface::ProjectHandle* DomainPropertyFactory::produceProjectHandle( database::ProjectFileHandlerPtr pfh,
                                                                                       const std::string  & name,
                                                                                       const std::string  & accessMode )
    {
-      ProjectHandle * projectHandle = new ProjectHandle( database, name, accessMode, this );
+      ProjectHandle * projectHandle = new ProjectHandle ( pfh, name, accessMode, this );
       initialiseDomainPropertyFactory( projectHandle );
       return projectHandle;
    }
@@ -205,7 +205,7 @@ namespace DataAccess { namespace Mining
       delete reservoirProperties;
    }
 
-   
+
    DomainPropertyFactory::~DomainPropertyFactory()
    {
       for (  PropertyToDomainPropertyAllocator::iterator allocIter = m_allocators.begin(); allocIter != m_allocators.end(); ++allocIter )
@@ -214,7 +214,7 @@ namespace DataAccess { namespace Mining
       }
    }
 
-   
+
    DomainProperty* DomainPropertyFactory::allocate ( const DomainPropertyCollection*            collection,
                                                      DerivedProperties::DerivedPropertyManager& propertyManager,
                                                      const Interface::Snapshot*                 snapshot,
@@ -223,7 +223,7 @@ namespace DataAccess { namespace Mining
       PropertyToDomainPropertyAllocator::const_iterator allocIter = m_allocators.find( property );
       // should we check that the project-handle is the same,
       // i.e. collection->getProjectHandle () == m_projectHandle.
-      
+
       if ( allocIter != m_allocators.end() )
       {
          return allocIter->second->allocate ( collection, propertyManager, snapshot, property );
@@ -236,7 +236,7 @@ namespace DataAccess { namespace Mining
    }
 
 
-   bool DomainPropertyFactory::containsAllocator( const Interface::Property* property ) const 
+   bool DomainPropertyFactory::containsAllocator( const Interface::Property* property ) const
    {
       PropertyToDomainPropertyAllocator::const_iterator allocIter = m_allocators.find ( property );
 
@@ -308,4 +308,3 @@ namespace DataAccess { namespace Mining
       return new CauldronDomain ( projectHandle );
    }
 }}
-

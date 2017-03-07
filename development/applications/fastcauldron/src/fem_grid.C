@@ -750,52 +750,57 @@ void Basin_Modelling::FEM_Grid::solvePressure ( bool& solverHasConverged,
   }
 
   do {
-    FastcauldronSimulator::getInstance ().restartActivity ();
-    m_surfaceNodeHistory.clearProperties ();
+     FastcauldronSimulator::getInstance ().restartActivity ();
+     m_surfaceNodeHistory.clearProperties ();
 
-    if ( basinModel->isModellingMode3D() ) {
-        basinModel->threeDTimeIoTbl->clear();
-    }
+     if ( basinModel->isModellingMode3D() ) {
+        database::Table* table = FastcauldronSimulator::getInstance ().getTable ("3DTimeIoTbl");
 
-    basinModel->deleteMinorSnapshotsFromTimeIOTable ( savedMinorSnapshotTimes, genexOutputProperties );
-    basinModel->deleteMinorSnapshotsFromTimeIOTable ( savedMinorSnapshotTimes, shaleGasOutputProperties );
-    basinModel->deleteMinorSnapshotsFromTimeIOTable ( savedMinorSnapshotTimes, mapOutputProperties );
+        if ( table != nullptr ) {
+           table->clear ();
+        }
 
-    FastcauldronSimulator::getInstance ().deleteSnapshotProperties ();
-    FastcauldronSimulator::getInstance ().deleteMinorSnapshots ();
-    FastcauldronSimulator::getInstance ().deleteMinorSnapshotsFromSnapshotTable ();
+     }
 
-    savedMinorSnapshotTimes.clear ();
+     basinModel->deleteMinorSnapshotsFromTimeIOTable ( savedMinorSnapshotTimes, genexOutputProperties );
+     basinModel->deleteMinorSnapshotsFromTimeIOTable ( savedMinorSnapshotTimes, shaleGasOutputProperties );
+     basinModel->deleteMinorSnapshotsFromTimeIOTable ( savedMinorSnapshotTimes, mapOutputProperties );
 
-    if( basinModel->isModellingMode1D () )
-    {
-       Temperature_Calculator.resetBiomarkerStateVectors ( );
-       Temperature_Calculator.resetSmectiteIlliteStateVectors ( );
-       Temperature_Calculator.resetFissionTrackCalculator ( );
-       basinModel->deleteIsoValues();
-    }
+     FastcauldronSimulator::getInstance ().deleteSnapshotProperties ();
+     FastcauldronSimulator::getInstance ().deleteMinorSnapshots ();
+     FastcauldronSimulator::getInstance ().deleteMinorSnapshotsFromSnapshotTable ();
 
-    if ( basinModel->debug1 or basinModel->verbose ) {
-      PetscPrintf ( PETSC_COMM_WORLD,
-                    "o Starting iteration %d of %d (Maximum number of iterations)",
-                    numberOfGeometricIterations,
-                    maximumNumberOfGeometricIterations );
-    }
+     savedMinorSnapshotTimes.clear ();
 
-    // Compute the overpressure from basin-start-age to present day.
-    Evolve_Pressure_Basin ( numberOfGeometricIterations,
-                            overpressureHasDiverged,
-                            errorInDarcy );
+     if( basinModel->isModellingMode1D () )
+     {
+        Temperature_Calculator.resetBiomarkerStateVectors ( );
+        Temperature_Calculator.resetSmectiteIlliteStateVectors ( );
+        Temperature_Calculator.resetFissionTrackCalculator ( );
+        basinModel->deleteIsoValues();
+     }
 
-    if ( not ( overpressureHasDiverged or errorInDarcy )) {
-      // Check that the predicted geometry has converged to with some tolerance of the real (input) geometry
-      pressureSolver->adjustSolidThickness ( pressureSolver->getRelativeThicknessTolerance ( basinModel -> Optimisation_Level ),
-                                             pressureSolver->getAbsoluteThicknessTolerance ( basinModel -> Optimisation_Level ),
-                                             geometryHasConverged );
+     if ( basinModel->debug1 or basinModel->verbose ) {
+        PetscPrintf ( PETSC_COMM_WORLD,
+                      "o Starting iteration %d of %d (Maximum number of iterations)",
+                      numberOfGeometricIterations,
+                      maximumNumberOfGeometricIterations );
+     }
 
-      numberOfGeometricIterations = numberOfGeometricIterations + 1;
-      MPI_Barrier(PETSC_COMM_WORLD);
-    }
+     // Compute the overpressure from basin-start-age to present day.
+     Evolve_Pressure_Basin ( numberOfGeometricIterations,
+                             overpressureHasDiverged,
+                             errorInDarcy );
+
+     if ( not ( overpressureHasDiverged or errorInDarcy )) {
+        // Check that the predicted geometry has converged to with some tolerance of the real (input) geometry
+        pressureSolver->adjustSolidThickness ( pressureSolver->getRelativeThicknessTolerance ( basinModel -> Optimisation_Level ),
+                                               pressureSolver->getAbsoluteThicknessTolerance ( basinModel -> Optimisation_Level ),
+                                               geometryHasConverged );
+
+        numberOfGeometricIterations = numberOfGeometricIterations + 1;
+        MPI_Barrier(PETSC_COMM_WORLD);
+     }
 
   } while (( numberOfGeometricIterations <= maximumNumberOfGeometricIterations ) && ! geometryHasConverged && ! overpressureHasDiverged );
 
@@ -945,7 +950,12 @@ void Basin_Modelling::FEM_Grid::solveCoupled ( bool& solverHasConverged,
 
     if ( basinModel->isModellingMode3D() )
     {
-       basinModel->threeDTimeIoTbl->clear();
+       database::Table* table = FastcauldronSimulator::getInstance ().getTable ("3DTimeIoTbl");
+
+       if ( table != nullptr ) {
+          table->clear ();
+       }
+
        basinModel->deleteMinorSnapshotsFromTimeIOTable ( savedMinorSnapshotTimes, genexOutputProperties );
        basinModel->deleteMinorSnapshotsFromTimeIOTable ( savedMinorSnapshotTimes, shaleGasOutputProperties );
 
@@ -961,7 +971,12 @@ void Basin_Modelling::FEM_Grid::solveCoupled ( bool& solverHasConverged,
    }
     else
     {
-       basinModel->timeIoTbl->clear();
+       database::Table* table = FastcauldronSimulator::getInstance ().getTable ("TimeIoTbl");
+
+       if ( table != nullptr ) {
+          table->clear ();
+       }
+
        FastcauldronSimulator::getInstance ().deleteMinorSnapshotsFromSnapshotTable ();
 
        Temperature_Calculator.resetBiomarkerStateVectors ( );

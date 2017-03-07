@@ -1,3 +1,12 @@
+//
+// Copyright (C) 2012-2017 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 #include <cassert>
 #include <iostream>
 
@@ -21,8 +30,10 @@ using namespace std;
 
 static bool reservoirSorter (const Interface::Reservoir * reservoir1, const Interface::Reservoir * reservoir2);
 
-ProjectHandle::ProjectHandle (database::Database * database,
-      const string & name, const string & accessMode, DataAccess::Interface::ObjectFactory* factory)
+ProjectHandle::ProjectHandle (database::ProjectFileHandlerPtr database,
+                              const string & name,
+                              const string & accessMode,
+                              DataAccess::Interface::ObjectFactory* factory)
    : Interface::ProjectHandle (database, name, accessMode, factory)
 {
 }
@@ -38,7 +49,7 @@ bool ProjectHandle::createPersistentTraps (void)
    Interface::SnapshotList::const_iterator snapshotIter;
 
    const Interface::Snapshot * previousSnapshot = 0;
-   
+
    for (snapshotIter = snapshots->begin (); snapshotIter != snapshots->end (); ++snapshotIter)
    {
       const Interface::Snapshot * snapshot = * snapshotIter;
@@ -246,8 +257,11 @@ void ProjectHandle::deletePersistentTraps (void)
 
 void ProjectHandle::saveProject (const string & fileName)
 {
-   Database * db = getDataBase ();
-   if (db) db->saveToFile (fileName);
+
+   if ( getProjectFileHandler () != nullptr ) {
+      getProjectFileHandler ()->saveToFile (fileName);
+   }
+
 }
 
 
@@ -259,7 +273,7 @@ bool reservoirSorter (const Interface::Reservoir * reservoir1, const Interface::
    cerr << "\tDepth (" << reservoir2->getName () << ") = " << ((PersistentTraps::Reservoir *) reservoir2)->getAverageDepth ();
    cerr << endl;
 #endif
-   
+
    return ((PersistentTraps::Reservoir *) reservoir1)->getAverageDepth () > ((PersistentTraps::Reservoir *) reservoir2)->getAverageDepth ();
 }
 
@@ -291,4 +305,3 @@ bool ProjectHandle::isDeposited (const Interface::Formation * formation, const I
    else
       return false;
 }
-

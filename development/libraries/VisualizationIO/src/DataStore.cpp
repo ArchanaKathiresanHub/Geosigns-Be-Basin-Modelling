@@ -43,7 +43,7 @@ CauldronIO::DataStoreLoad::DataStoreLoad(DataStoreParams* params)
         throw CauldronIOException("Cannot retrieve file for reading");
 
     m_file_in.open(m_params->fileName.cpath(), std::fstream::in | std::fstream::binary);
-    m_data_uncompressed = NULL;
+    m_data_uncompressed = nullptr;
 }
 
 CauldronIO::DataStoreLoad::~DataStoreLoad()
@@ -79,7 +79,7 @@ float* CauldronIO::DataStoreLoad::getData(size_t& uncompressedSize)
     else
         uncompressedSize = compressedSize;
 
-    m_data_uncompressed = NULL;
+    m_data_uncompressed = nullptr;
     return result;
 }
 
@@ -254,7 +254,7 @@ char* CauldronIO::DataStoreSave::compress_lz4(const char* inputData, size_t& ele
     {
         delete[] dest;
         elements = (size_t)inputSize;
-        return NULL; 
+        return nullptr;
     }
 
     return dest;
@@ -268,7 +268,7 @@ void CauldronIO::DataStoreSave::addData(const float* data, size_t size, bool com
 
 void CauldronIO::DataStoreSave::flush()
 {
-    for (int i = 0; i < m_dataToCompress.size(); i++)
+    for (size_t i = 0; i < m_dataToCompress.size(); i++)
     {
         std::shared_ptr<DataToCompress> data = m_dataToCompress.at(i);
 
@@ -306,9 +306,8 @@ void CauldronIO::DataStoreSave::addSurface(const std::shared_ptr<SurfaceData>& s
 
     // We write the actual data if 1) this map has been loaded from projecthandle (so mapNative == null)
     // or 2) this map has been created in native format, but was not loaded from disk (so no datastoreparams were set)
-    if (mapNative == NULL || (mapNative != NULL && mapNative->getDataStoreParams() == NULL))
+    if (mapNative == nullptr || (mapNative != nullptr && mapNative->getDataStoreParams() == nullptr))
     {
-        size_t seekPos = m_file_out.tellp();
         addData(surfaceData->getSurfaceValues(), surfaceData->getGeometry()->getNumI() * surfaceData->getGeometry()->getNumJ(), compress);
         m_dataToCompress.back()->setXmlNode(subNode);
     }
@@ -322,7 +321,6 @@ void CauldronIO::DataStoreSave::addSurface(const std::shared_ptr<SurfaceData>& s
         subNode.append_attribute("size") = (unsigned int)params->size;
         m_offset += params->size;
     }
-
 }
 
 void CauldronIO::DataStoreSave::addVolume(const std::shared_ptr<VolumeData>& data, pugi::xml_node node, size_t numBytes)
@@ -333,13 +331,12 @@ void CauldronIO::DataStoreSave::addVolume(const std::shared_ptr<VolumeData>& dat
     // We need to check if this volume has IJK data, and account for the case it was not retrieved yet;
     // in that case we need to write the meta data again to XML, without writing the volume data itself.
     // To check for that, it should be a native volume, with datastore parameters set.
-    if (data->hasDataIJK() || (nativeVolume != NULL && nativeVolume->getDataStoreParamsIJK() != NULL))
+    if (data->hasDataIJK() || (nativeVolume != nullptr && nativeVolume->getDataStoreParamsIJK() != nullptr))
         writeVolumePart(node, compress, true, data);
 
-    if (data->hasDataKIJ() || (nativeVolume != NULL && nativeVolume->getDataStoreParamsKIJ() != NULL))
+    if (data->hasDataKIJ() || (nativeVolume != nullptr && nativeVolume->getDataStoreParamsKIJ() != nullptr))
         writeVolumePart(node, compress, false, data);
 }
-
 
 std::vector<std::shared_ptr<DataToCompress> > CauldronIO::DataStoreSave::getDataToCompressList()
 {
@@ -360,13 +357,13 @@ void CauldronIO::DataStoreSave::writeVolumePart(pugi::xml_node volNode, bool com
         subNode.append_attribute("compression") = "none";
     subNode.append_attribute("dataIJK") = IJK;
 
-    // We write the actual data if 1) this volume has been loaded from projecthandle (so nativeVolume == null)
+    // We write the actual data if 1) this volume has been loaded from projecthandle (so nativeVolume == nullptr)
     // or 2) this volume has been created in native format, but was not loaded from disk (so no datastoreparams were set)
     bool writeData;
     if (IJK)
-        writeData = nativeVolume == NULL || nativeVolume->getDataStoreParamsIJK() == NULL;
+        writeData = nativeVolume == nullptr || nativeVolume->getDataStoreParamsIJK() == nullptr;
     else 
-        writeData = nativeVolume == NULL || nativeVolume->getDataStoreParamsKIJ() == NULL;
+        writeData = nativeVolume == nullptr || nativeVolume->getDataStoreParamsKIJ() == nullptr;
 
     if (writeData)
     {
@@ -402,7 +399,7 @@ CauldronIO::DataToCompress::DataToCompress(const float* inputData, size_t nrOfEl
     m_inputData = inputData;
     m_compress = compress;
     m_inputNrElements = nrOfElements;
-    m_outputData = NULL;
+    m_outputData = nullptr;
     m_node_set = false;
     m_processed = false;
 }
@@ -412,7 +409,7 @@ CauldronIO::DataToCompress::~DataToCompress()
     if (m_outputData)
     {
         delete m_outputData;
-        m_outputData = NULL;
+        m_outputData = nullptr;
     }
 }
 
@@ -465,6 +462,6 @@ void CauldronIO::DataToCompress::updateXmlNode()
     m_node.append_attribute("offset") = (unsigned int)m_offset;
 
     // If compression failed reset compression (none)
-    if (m_compress && m_outputData == NULL)
+    if (m_compress && m_outputData == nullptr)
         m_node.attribute("compression") = "none";
 }

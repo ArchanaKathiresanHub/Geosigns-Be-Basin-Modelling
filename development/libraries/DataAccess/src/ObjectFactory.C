@@ -66,12 +66,14 @@ using namespace std;
 #include "Interface/Migration.h"
 #include "Interface/CrustalThicknessData.h"
 
+#include "ProjectFileHandler.h"
+
 using namespace DataAccess;
 using namespace Interface;
 
-ProjectHandle * ObjectFactory::produceProjectHandle (database::Database * database, const string & name, const string & accessMode)
+ProjectHandle * ObjectFactory::produceProjectHandle (database::ProjectFileHandlerPtr pfh, const string & name, const string & accessMode)
 {
-   return new ProjectHandle (database, name, accessMode, this);
+   return new ProjectHandle ( pfh, name, accessMode, this);
 }
 
 Snapshot * ObjectFactory::produceSnapshot (ProjectHandle * projectHandle, database::Record * record)
@@ -298,7 +300,7 @@ BiodegradationParameters* ObjectFactory::produceBiodegradationParameters (
 }
 
 FracturePressureFunctionParameters* ObjectFactory::produceFracturePressureFunctionParameters (
-   ProjectHandle * projectHandle, database::Record* runOptionsIoTblRecord, 
+   ProjectHandle * projectHandle, database::Record* runOptionsIoTblRecord,
    database::Record* pressureIoTblRecord)
 {
    return new FracturePressureFunctionParameters(projectHandle, runOptionsIoTblRecord, pressureIoTblRecord);
@@ -309,7 +311,7 @@ FluidType* ObjectFactory::produceFluidType ( ProjectHandle * projectHandle, data
 {
    return new FluidType (projectHandle, fluidtypeIoRecord);
 }
-  
+
 DiffusionLeakageParameters* ObjectFactory::produceDiffusionLeakageParameters (
    ProjectHandle * projectHandle, database::Record* bioRecord)
 {

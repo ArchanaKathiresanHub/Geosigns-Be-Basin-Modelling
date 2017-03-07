@@ -488,28 +488,38 @@ int InputValue::getMapSequenceNumber () const {
    return getMapSeqNbr (m_record);
 }
 
+void InputValue::getHDFinfo(string& fileName, string& dataSetName) const
+{
+	assert(m_record);
+	const string & hdf5FileName = getHDF5FileName(m_record);
+
+	if (getMapType() == "HDF5")
+	{
+		ibs::FilePath mapFileName(m_projectHandle->getProjectPath());
+		mapFileName << getMapFileName(m_record);
+		fileName = mapFileName.path();
+		dataSetName = HDF5::findLayerName(mapFileName.path(), getMapSeqNbr(m_record));
+	}
+	else if (hdf5FileName != "")
+	{
+		ibs::FilePath mapFileName(m_projectHandle->getFullOutputDir());
+		mapFileName << hdf5FileName;
+		fileName = mapFileName.path();
+		dataSetName = HDF5::findLayerName(mapFileName.path(), 0);
+	}
+	else
+	{
+		fileName.clear();
+	}
+}
 
 GridMap * InputValue::loadGridMap (void) const
 {
-   assert (m_record);
-   const string & hdf5FileName = getHDF5FileName (m_record);
+	string fileName, dataSetName;
+	getHDFinfo(fileName, dataSetName);
+	if (fileName.empty()) return nullptr;
 
-   if (getMapType () == "HDF5")
-   {
-      ibs::FilePath mapFileName( m_projectHandle->getProjectPath() );
-      mapFileName << getMapFileName( m_record );
-      return m_projectHandle->loadGridMap (this, ValueMap, mapFileName.path(), HDF5::findLayerName (mapFileName.path(), getMapSeqNbr (m_record)));
-   }
-   else if ( hdf5FileName != "" )
-   {
-      ibs::FilePath mapFileName( m_projectHandle->getFullOutputDir() );
-      mapFileName << hdf5FileName;
-      return m_projectHandle->loadGridMap( this, ValueMap, mapFileName.path(), HDF5::findLayerName( mapFileName.path(), 0 ) );
-   }
-   else
-   {
-      return 0;
-   }
+	return m_projectHandle->loadGridMap(this, ValueMap, fileName, dataSetName);
 }
 
 void InputValue::printOn (ostream & ostr) const

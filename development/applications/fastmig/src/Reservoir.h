@@ -316,6 +316,10 @@ namespace migration
       bool subtractChargesToBeMigrated (ComponentId componentId, const DataAccess::Interface::GridMap * gridMap, double fraction, Barrier * barrier);
       bool checkChargesToBeMigrated (ComponentId componentId);
       void collectAndSplitCharges (bool always = false);
+      /// \brief Add the leakage before biodegradation/diffusion to the crest column once
+      ///        re-distribution has finished. Care should be taken with merging traps.
+      ///        Their initial leakage should be added to the crest column before deletion.
+      void putInitialLeakageBack(void);
 
 
       /// Column Handling

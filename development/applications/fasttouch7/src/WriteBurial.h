@@ -16,7 +16,7 @@ class WriteBurial
    //write methods
    void writeIndexes(int firstI, int lastI, int firstJ, int lastJ, int numLayers, int numActive) ;
    void writeSnapshotsIndexes(const std::vector<size_t> & usedSnapshotsIndexes);
-   void writeBurialHistory(const std::vector<BurialHistoryTimeStep> & burHistTimesteps, int iD, bool isInFacies) ;	
+   void writeBurialHistory(const std::vector<BurialHistoryTimeStep> * burHistTimesteps, int iD);
 };
 
 #endif

@@ -256,6 +256,7 @@ namespace migration
                double capillaryEntryPressureVapour = Interface::DefaultUndefinedMapValue;
 
                const GeoPhysics::CompoundLithology*  compoundLithology = getCompoundLithology( i, j );
+               /// Compute capillary pressure if at a valid node
                if ( compoundLithology )
                {
                   const double capC1 = compoundLithology->capC1();
@@ -263,11 +264,31 @@ namespace migration
 
                   double capSealStrength_Air_Hg = CBMGenerics::capillarySealStrength::capSealStrength_Air_Hg( capC1, capC2, vPermeability );
 
-                  double liquidIFT = CBMGenerics::capillarySealStrength::capTension_H2O_HC( waterDensity, liquidDensity, temperature + CelciusToKelvin, hcTempValueLiquid );
+                  /// If liquid phase is present (density is a proxy, if 1000, there's only vapour)
+                  if (liquidDensity != 1000.0 )
+                  {
+                     double liquidIFT = CBMGenerics::capillarySealStrength::capTension_H2O_HC( waterDensity, liquidDensity, temperature + CelciusToKelvin, hcTempValueLiquid );
+                     capillaryEntryPressureLiquid = CBMGenerics::capillarySealStrength::capSealStrength_H2O_HC( capSealStrength_Air_Hg, liquidIFT );
 
-                  // Considers 180 deg. angle between H2O and HC (strictly speaking not true for oil)
-                  capillaryEntryPressureLiquid = CBMGenerics::capillarySealStrength::capSealStrength_H2O_HC( capSealStrength_Air_Hg, liquidIFT );
-                  capillaryEntryPressureVapour = capillaryEntryPressureLiquid + capillaryEntryPressureLiquidVapour( vPermeability, pressure, capC1, capC2 );
+                     /// Vapour phase is also present
+                     if (vapourDensity != 1000.0)
+                        capillaryEntryPressureVapour = capillaryEntryPressureLiquid + capillaryEntryPressureLiquidVapour( vPermeability, pressure, capC1, capC2 );
+                     else
+                     {
+                        capillaryEntryPressureVapour = capillaryEntryPressureLiquid;
+                        vapourDensity = liquidDensity;
+                     }
+                  }
+                  /// There's only vapour. Calculate capillary pressures accordingly.
+                  else
+                  {
+                     double vapourIFT = CBMGenerics::capillarySealStrength::capTension_H2O_HC( waterDensity, vapourDensity, temperature + CelciusToKelvin, hcTempValueVapour );
+                     capillaryEntryPressureVapour = CBMGenerics::capillarySealStrength::capSealStrength_H2O_HC( capSealStrength_Air_Hg, vapourIFT );
+
+                     capillaryEntryPressureLiquid = capillaryEntryPressureVapour;
+                     liquidDensity = vapourDensity;
+                  }
+                     
                }
 
                if (capillaryEntryPressureLiquid == Interface::DefaultUndefinedMapValue or capillaryEntryPressureVapour == Interface::DefaultUndefinedMapValue)
@@ -400,18 +421,8 @@ namespace migration
                if (temperature != Interface::DefaultUndefinedMapValue and
                   pressure != Interface::DefaultUndefinedMapValue)
                {
-                  bool flashSuccess = pvtFlash::EosPack::getInstance ().computeWithLumping (temperature + CelciusToKelvin,
-                     pressure * MegaPaToPa,
-                     compMasses, phaseCompMasses,
-                     phaseDensity, phaseViscosity);
-
-                  // If there's only vapour phase the Liquid density will be 1000. We should then use vapour density
-                  // in the subsequent calculations of buoyancy and the resulting flow directions 
-                  if (phaseDensity[Phase::LIQUID] == 1000.0)
-                     phaseDensity[Phase::LIQUID] = phaseDensity[Phase::VAPOUR];
-
-                  if (phaseDensity[Phase::VAPOUR] == 1000.0)
-                     phaseDensity[Phase::VAPOUR] = phaseDensity[Phase::LIQUID];
+                  bool flashSuccess = pvtFlash::EosPack::getInstance ().computeWithLumping (temperature + CelciusToKelvin, pressure * MegaPaToPa,
+                                                                                            compMasses, phaseCompMasses, phaseDensity, phaseViscosity);
 
                   ptrVapourDensity->set (i, j, (unsigned int)k, phaseDensity[Phase::VAPOUR]);
                   ptrLiquidDensity->set (i, j, (unsigned int)k, phaseDensity[Phase::LIQUID]);

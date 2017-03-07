@@ -75,9 +75,7 @@ int main (int argc, char ** argv)
    else
       projectFileName = projectPath;
 
-   DataSchema * projSchema = createReducedCauldronSchema (outputs);
-   Database * projBase = Database::CreateFromFile (projectFileName, * projSchema);
-   delete projSchema;
+   database::ProjectFileHandlerPtr projBase ( new database::ProjectFileHandler ( projectFileName ));
 
    if (!projBase)
    {
@@ -86,12 +84,11 @@ int main (int argc, char ** argv)
    }
 
    ProjectDependencies dependencies = getProjectDependencies( projBase);
-   delete projBase;
 
    if (verbose) cout << "--- project file ---" << endl;
    cout << projectFileName << endl;
 
-   
+
    if (verbose) cout << "--- input maps ---" << endl;
    for (unsigned i = 0 ; i < dependencies.inputMaps.size(); ++i)
    {
@@ -140,4 +137,3 @@ DataSchema * createReducedCauldronSchema (bool outputs)
 
    return dataSchema;
 }
-
