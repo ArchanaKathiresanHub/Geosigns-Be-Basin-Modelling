@@ -70,6 +70,9 @@ namespace migration
    {
       double volume = 0;
 
+      if (getBottomDepth () <= getTopDepth ())
+         return volume;
+
       if (getTopDepth () < lowerDepth)
       {
          double topOfFill = Max (upperDepth, getTopDepth ());

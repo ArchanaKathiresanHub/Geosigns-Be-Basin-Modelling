@@ -1341,7 +1341,7 @@ namespace migration
 	   }
 #ifdef DEBUG_BIODEGRADATION
 	   cerr << "Number of not-Pasteurized / neutral / Pasteurized columns: " << countNotPasteurized << ", " << countNeutral << ", " << countPasteurized << endl;
-	   cerr << "Need to compute the pasteurization status ? " << needToComputeColumnPasteurizationStatus << endl;
+	   cerr << "Need to compute the pasteurization status ? " << m_computePasteurizationStatusFromScratch << endl;
 #endif
    };
 
