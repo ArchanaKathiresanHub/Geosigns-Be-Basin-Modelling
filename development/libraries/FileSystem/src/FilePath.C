@@ -136,6 +136,7 @@ bool FilePath::linkFile( const Path & destPath )
 {
    if ( destPath.exists() ) return false;
 
+#ifndef _MSC_VER
    const boost::filesystem::path & curPath = boost::filesystem::absolute( boost::filesystem::path( m_path ) );
    try
    { 
@@ -146,6 +147,10 @@ bool FilePath::linkFile( const Path & destPath )
       return false;
    }
    return true;
+#else
+   // On Windows, to create symbolic links Administrator rights are ofter needed
+   return false;
+#endif
 }
 
 }

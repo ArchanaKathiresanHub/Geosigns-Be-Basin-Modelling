@@ -25,10 +25,26 @@ bm_include_libraries(
    utilities
 )
 
+include_directories( src )
+
 target_link_libraries(FileSystem
    utilities
    ${Boost_LIBRARIES}
 )
 
-generate_dox( src/FileSystem.cfg)
+generate_dox( src/FileSystem.cfg )
 
+add_gtest( NAME FileSystem::Path
+           SOURCES test/Path.C
+           LIBRARIES FileSystem utilities ${Boost_LIBRARIES}
+)
+
+add_gtest( NAME FileSystem::FilePath
+           SOURCES test/FilePath.C
+           LIBRARIES FileSystem utilities ${Boost_LIBRARIES}
+)
+
+add_gtest( NAME FileSystem::FolderPath
+           SOURCES test/FolderPath.C
+           LIBRARIES FileSystem utilities ${Boost_LIBRARIES}
+)
