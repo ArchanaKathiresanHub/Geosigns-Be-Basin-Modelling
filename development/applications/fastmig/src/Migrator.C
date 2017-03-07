@@ -395,11 +395,8 @@ bool Migrator::computeFormationPropertyMaps (const Interface::Snapshot * snapsho
 
       formation->computeHCDensityMaps (snapshot);
 
-      if (m_hdynamicAndCapillary or m_reservoirDetection)
-      {
-         if (!formation->computeCapillaryPressureMaps (topDepthGridMap, snapshot))
-            return false;
-      }
+      if (!formation->computeCapillaryPressureMaps (topDepthGridMap, snapshot))
+         return false;
    }
 
    if (topDepthGridMap) topDepthGridMap->release ();
