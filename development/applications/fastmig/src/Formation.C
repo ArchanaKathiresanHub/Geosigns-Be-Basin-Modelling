@@ -211,22 +211,8 @@ namespace migration
       assert (ptrVapourPcE);
       assert (ptrLiquidPcE);
 
-      const DataModel::AbstractProperty* vapourDensity = m_migrator->getPropertyManager ().getProperty ("HcVapourDensity");
-      const DataModel::AbstractProperty* liquidDensity = m_migrator->getPropertyManager ().getProperty ("HcLiquidDensity");
-
-      DerivedProperties::DerivedFormationPropertyPtr ptrVapourDensity = DerivedProperties::DerivedFormationPropertyPtr
-         (new DerivedProperties::DerivedFormationProperty (vapourDensity, snapshot, this, grid, depth + 1));
-      DerivedProperties::DerivedFormationPropertyPtr ptrLiquidDensity = DerivedProperties::DerivedFormationPropertyPtr
-         (new DerivedProperties::DerivedFormationProperty (liquidDensity, snapshot, this, grid, depth + 1));
-
-      assert (ptrVapourDensity);
-      assert (ptrLiquidDensity);
-
       m_formationPropertyPtr[CAPILLARYENTRYPRESSUREVAPOURPROPERTY] = ptrVapourPcE;
       m_formationPropertyPtr[CAPILLARYENTRYPRESSURELIQUIDPROPERTY] = ptrLiquidPcE;
-
-      m_formationPropertyPtr[VAPOURDENSITYPROPERTY] = ptrVapourDensity;
-      m_formationPropertyPtr[LIQUIDDENSITYPROPERTY] = ptrLiquidDensity;
 
       // Using the PropertyRetriever class which ensures the retrieval and later on the restoration of property pointers
       DerivedProperties::PropertyRetriever pressurePropertyRetriever (m_formationPropertyPtr[PRESSUREPROPERTY]);
@@ -269,22 +255,22 @@ namespace migration
                double capillaryEntryPressureLiquid = Interface::DefaultUndefinedMapValue;
                double capillaryEntryPressureVapour = Interface::DefaultUndefinedMapValue;
 
-               const GeoPhysics::CompoundLithology*  compoundLithology = getCompoundLithology( i, j );
+               const GeoPhysics::CompoundLithology* compoundLithology = getCompoundLithology( i, j );
                /// Compute capillary pressure if at a valid node
                if ( compoundLithology )
                {
                   const double capC1 = compoundLithology->capC1();
-                  const double capC2 = compoundLithology->capC2();
+                  const double capC2 = compoundLithology->capC2();                  
 
                   double capSealStrength_Air_Hg = CBMGenerics::capillarySealStrength::capSealStrength_Air_Hg( capC1, capC2, vPermeability );
 
-                  /// If liquid phase is present (density is a proxy, if 1000, there's only vapour)
+                  // If liquid phase is present (density is a proxy, if 1000, there's only vapour)
                   if (liquidDensity != 1000.0 )
                   {
                      double liquidIFT = CBMGenerics::capillarySealStrength::capTension_H2O_HC( waterDensity, liquidDensity, temperature + CelciusToKelvin, hcTempValueLiquid );
                      capillaryEntryPressureLiquid = CBMGenerics::capillarySealStrength::capSealStrength_H2O_HC( capSealStrength_Air_Hg, liquidIFT );
 
-                     /// Vapour phase is also present
+                     // Vapour phase is also present
                      if (vapourDensity != 1000.0)
                         capillaryEntryPressureVapour = capillaryEntryPressureLiquid + capillaryEntryPressureLiquidVapour( vPermeability, pressure, capC1, capC2 );
                      else
@@ -293,7 +279,7 @@ namespace migration
                         vapourDensity = liquidDensity;
                      }
                   }
-                  /// There's only vapour. Calculate capillary pressures accordingly.
+                  // There's only vapour. Calculate capillary pressures accordingly.
                   else
                   {
                      double vapourIFT = CBMGenerics::capillarySealStrength::capTension_H2O_HC( waterDensity, vapourDensity, temperature + CelciusToKelvin, hcTempValueVapour );
@@ -309,9 +295,6 @@ namespace migration
                {
                   ptrVapourPcE->set (i, j, (unsigned int)k, 0.0);
                   ptrLiquidPcE->set (i, j, (unsigned int)k, 0.0);
-
-                  ptrVapourDensity->set (i, j, (unsigned int)k, vapourDensity);
-                  ptrLiquidDensity->set (i, j, (unsigned int)k, liquidDensity);
 
                   // If not a ghost node and not on last I or J row of the basin then assign the values to the local formation node
                   if ( isNotGhostOrOnBoundary )
@@ -336,9 +319,6 @@ namespace migration
                {
                   ptrVapourPcE->set (i, j, (unsigned int)k, capillaryEntryPressureVapour);
                   ptrLiquidPcE->set (i, j, (unsigned int)k, capillaryEntryPressureLiquid);
-
-                  ptrVapourDensity->set (i, j, (unsigned int)k, vapourDensity);
-                  ptrLiquidDensity->set (i, j, (unsigned int)k, liquidDensity);
 
                   // If not a ghost node and not on last I or J row of the basin then assign the values to the local formation node
                   if ( isNotGhostOrOnBoundary )

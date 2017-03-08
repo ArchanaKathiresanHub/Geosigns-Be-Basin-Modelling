@@ -1069,7 +1069,7 @@ namespace migration
       int i = getI ();
       int j = getJ ();
       int k = getK ();
-
+      
       if (!performAdvancedMigration () or hasNoThickness ())
       {
          // let's assume everything will go straight up in this case
