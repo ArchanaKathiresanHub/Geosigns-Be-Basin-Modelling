@@ -119,9 +119,6 @@ namespace migration
 
       double getPropertyValue (PropertyIndex propertyIndex, int i, int j, int k) const;
 
-      double getMinLiquidColumnHeight (void) const;
-      double getMinVapourColumnHeight (void) const;
-
       inline double getDepth (int i, int j, int k) const;
       inline double getHorizontalPermeability (int i, int j, int k);
       inline double getVerticalPermeability (int i, int j, int k);

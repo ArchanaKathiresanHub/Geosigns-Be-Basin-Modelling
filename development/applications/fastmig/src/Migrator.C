@@ -55,6 +55,7 @@ using namespace migration;
 #include "GeoPhysicsProjectHandle.h"
 #include "Interface/ProjectHandle.h"
 #include "Interface/Reservoir.h"
+#include "Interface/ReservoirOptions.h"
 #include "Interface/PropertyValue.h"
 #include "Interface/Grid.h"
 #include "Interface/GridMap.h"
@@ -107,8 +108,6 @@ Migrator::Migrator (const string & name)
    m_migrationIoTbl = nullptr;
    m_trapIoTbl = nullptr;
    m_ReservoirIoTbl = nullptr;
-   m_reservoirOptionsIoTbl = nullptr;
-   m_reservoirOptionsIoRecord = nullptr;
 
    getMinimumColumnHeights ();
 
@@ -1051,7 +1050,8 @@ bool Migrator::chargeReservoir (migration::Reservoir * reservoir, migration::Res
    reservoir->computeTraps ();
 
    Barrier * barrier = 0;
-   if (reservoir->isBlockingEnabled ())
+   /// Only allow blocking functionality in the basic mode of the simulator
+   if (reservoir->isBlockingEnabled () and !m_advancedMigration)
    {
       barrier = new Barrier (reservoir);
    }
@@ -1060,7 +1060,6 @@ bool Migrator::chargeReservoir (migration::Reservoir * reservoir, migration::Res
 
 #ifdef USEOTGC
    reservoir->crackChargesToBeMigrated (*m_otgc);
-
 
    // trap capacities will have changed
    reservoir->recomputeTrapDepthToVolumeFunctions ();
@@ -1138,7 +1137,7 @@ bool Migrator::chargeReservoir (migration::Reservoir * reservoir, migration::Res
    totalLeakedUpward -= totalLeakedOutward;
    if (GetRank () == 0) m_massBalance->subtractFromBalance ("Leaked upward from reservoir", totalLeakedUpward);
 
-   if (!m_legacyMigration and reservoir->isDiffusionOn (m_legacyMigration))
+   if (reservoir->isDiffusionEnabled ())
    {
       /// For each column in the trap set the diffusion starting time
       reservoir->broadcastTrapDiffusionStartTimes ();
@@ -1540,23 +1539,26 @@ void Migrator::addTrapRecord (migration::Reservoir * reservoir, migration::TrapP
    }
 }
 
-// this function sets the minimum gas and column heights and reads the ReservoirOptionsIoTbl
 void Migrator::getMinimumColumnHeights ()
 {
+   m_minOilColumnHeight = m_projectHandle->getReservoirOptions()->getMinOilColumnHeight();
+   m_minGasColumnHeight = m_projectHandle->getReservoirOptions()->getMinGasColumnHeight();
+}
 
-   if (!m_reservoirOptionsIoTbl) m_reservoirOptionsIoTbl = m_projectHandle->getTable ("ReservoirOptionsIoTbl");
-   assert (m_reservoirOptionsIoTbl);
-   if (!m_reservoirOptionsIoRecord)
+void Migrator::getBlocking ()
+{
+   m_isBlockingOn = m_projectHandle->getReservoirOptions()->isBlockingOn();
+
+   if (m_isBlockingOn == true)
    {
-      Table::iterator  iterator = m_reservoirOptionsIoTbl->begin ();
-      m_reservoirOptionsIoRecord = m_reservoirOptionsIoTbl->getRecord (iterator);
-      if (!m_reservoirOptionsIoRecord) m_reservoirOptionsIoRecord = m_reservoirOptionsIoTbl->createRecord ();
+      m_blockingPermeability = m_projectHandle->getReservoirOptions()->getBlockingPermeability ();
+      m_blockingPorosity     = m_projectHandle->getReservoirOptions()->getBlockingPorosity ();
    }
-   assert (m_reservoirOptionsIoRecord);
-
-   m_minOilColumnHeight = database::getMinOilColumnHeight (m_reservoirOptionsIoRecord);
-   m_minGasColumnHeight = database::getMinGasColumnHeight (m_reservoirOptionsIoRecord);
-
+   else
+   {
+      m_blockingPermeability = 0.0;
+      m_blockingPorosity     = 0.0;
+   }
 }
 
 /// This function adds a  reservoir record to the ReservoirIoTbl with the values specified in the ReservoirOptionsIoTbl
@@ -1571,40 +1573,40 @@ database::Record * Migrator::addDetectedReservoirRecord (Interface::Formation * 
    database::setReservoirName (reservoirIoRecord, detectedReservoirName);
    database::setDetectedReservoir (reservoirIoRecord, 1);
    database::setFormationName (reservoirIoRecord, formation->getName ());
-   database::setTrapCapacity (reservoirIoRecord, database::getTrapCapacity (m_reservoirOptionsIoRecord));
+   database::setTrapCapacity (reservoirIoRecord, m_projectHandle->getReservoirOptions()->getTrapCapacity());
    database::setActivityMode (reservoirIoRecord, "ActiveFrom");
 
    database::setActivityStart (reservoirIoRecord, start->getTime ());
-   database::setDepthOffset (reservoirIoRecord, database::getDepthOffset (m_reservoirOptionsIoRecord));
-   database::setDepthOffsetGrid (reservoirIoRecord, database::getDepthOffsetGrid (m_reservoirOptionsIoRecord));
-   database::setThickness (reservoirIoRecord, database::getThickness (m_reservoirOptionsIoRecord));
-   database::setThicknessGrid (reservoirIoRecord, database::getThicknessGrid (m_reservoirOptionsIoRecord));
-   database::setNetToGross (reservoirIoRecord, database::getNetToGross (m_reservoirOptionsIoRecord));
-   database::setNetToGrossGrid (reservoirIoRecord, database::getNetToGrossGrid (m_reservoirOptionsIoRecord));
-   database::setMicroTraps (reservoirIoRecord, database::getMicroTraps (m_reservoirOptionsIoRecord));
-   database::setLeakProperty (reservoirIoRecord, database::getLeakProperty (m_reservoirOptionsIoRecord));
-   database::setLeakRate (reservoirIoRecord, database::getLeakRate (m_reservoirOptionsIoRecord));
-   database::setLithotype1 (reservoirIoRecord, database::getLithotype1 (m_reservoirOptionsIoRecord));
-   database::setPercent1 (reservoirIoRecord, database::getPercent1 (m_reservoirOptionsIoRecord));
-   database::setPercent1Grid (reservoirIoRecord, database::getPercent1Grid (m_reservoirOptionsIoRecord));
-   database::setLithotype2 (reservoirIoRecord, database::getLithotype2 (m_reservoirOptionsIoRecord));
-   database::setPercent2 (reservoirIoRecord, database::getPercent2 (m_reservoirOptionsIoRecord));
-   database::setPercent2Grid (reservoirIoRecord, database::getPercent2Grid (m_reservoirOptionsIoRecord));
-   database::setLithotype3 (reservoirIoRecord, database::getLithotype3 (m_reservoirOptionsIoRecord));
-   database::setLayerFrequency (reservoirIoRecord, database::getLayerFrequency (m_reservoirOptionsIoRecord));
-   database::setLayerFrequencyGrid (reservoirIoRecord, database::getLayerFrequencyGrid (m_reservoirOptionsIoRecord));
-   database::setBioDegradInd (reservoirIoRecord, database::getBioDegradInd (m_reservoirOptionsIoRecord));
-   database::setOilToGasCrackingInd (reservoirIoRecord, database::getOilToGasCrackingInd (m_reservoirOptionsIoRecord));
-   database::setDiffusionInd (reservoirIoRecord, database::getDiffusionInd (m_reservoirOptionsIoRecord));
-   database::setMinOilColumnHeight (reservoirIoRecord, database::getMinOilColumnHeight (m_reservoirOptionsIoRecord));
-   database::setMinGasColumnHeight (reservoirIoRecord, database::getMinGasColumnHeight (m_reservoirOptionsIoRecord));
-   database::setBlockingInd (reservoirIoRecord, database::getBlockingInd (m_reservoirOptionsIoRecord));
-   database::setBlockingPermeability (reservoirIoRecord, database::getBlockingPermeability (m_reservoirOptionsIoRecord));
-   database::setBlockingPorosity (reservoirIoRecord, database::getBlockingPorosity (m_reservoirOptionsIoRecord));
-   database::setErrDepthOffset (reservoirIoRecord, database::getErrDepthOffset (m_reservoirOptionsIoRecord));
-   database::setErrThickness (reservoirIoRecord, database::getErrThickness (m_reservoirOptionsIoRecord));
-   database::setErrMicroTraps (reservoirIoRecord, database::getErrMicroTraps (m_reservoirOptionsIoRecord));
-   database::setErrLayerFrequency (reservoirIoRecord, database::getErrLayerFrequency (m_reservoirOptionsIoRecord));
+   database::setDepthOffset (reservoirIoRecord, Interface::DefaultUndefinedScalarValue);
+   database::setDepthOffsetGrid (reservoirIoRecord, "");
+   database::setThickness (reservoirIoRecord, Interface::DefaultUndefinedScalarValue);
+   database::setThicknessGrid (reservoirIoRecord, "");
+   database::setNetToGross (reservoirIoRecord, Interface::DefaultUndefinedScalarValue);
+   database::setNetToGrossGrid (reservoirIoRecord, "");
+   database::setMicroTraps (reservoirIoRecord, Interface::DefaultUndefinedScalarValue);
+   database::setLeakProperty (reservoirIoRecord, "");
+   database::setLeakRate (reservoirIoRecord, Interface::DefaultUndefinedScalarValue);
+   database::setLithotype1 (reservoirIoRecord, "");
+   database::setPercent1 (reservoirIoRecord, Interface::DefaultUndefinedScalarValue);
+   database::setPercent1Grid (reservoirIoRecord, "");
+   database::setLithotype2 (reservoirIoRecord, "");
+   database::setPercent2 (reservoirIoRecord, Interface::DefaultUndefinedScalarValue);
+   database::setPercent2Grid (reservoirIoRecord, "");
+   database::setLithotype3 (reservoirIoRecord, "");
+   database::setLayerFrequency (reservoirIoRecord, Interface::DefaultUndefinedScalarValue);
+   database::setLayerFrequencyGrid (reservoirIoRecord, "");
+   database::setBioDegradInd (reservoirIoRecord, m_projectHandle->getReservoirOptions()->isBiodegradationOn());
+   database::setOilToGasCrackingInd (reservoirIoRecord, m_projectHandle->getReservoirOptions()->isOilToGasCrackingOn());
+   database::setDiffusionInd (reservoirIoRecord, m_projectHandle->getReservoirOptions()->isDiffusionOn());
+   database::setMinOilColumnHeight (reservoirIoRecord, m_projectHandle->getReservoirOptions()->getMinOilColumnHeight());
+   database::setMinGasColumnHeight (reservoirIoRecord, m_projectHandle->getReservoirOptions()->getMinGasColumnHeight());
+   database::setBlockingInd (reservoirIoRecord, m_projectHandle->getReservoirOptions()->isBlockingOn());
+   database::setBlockingPermeability (reservoirIoRecord, m_projectHandle->getReservoirOptions()->getBlockingPermeability());
+   database::setBlockingPorosity (reservoirIoRecord, m_projectHandle->getReservoirOptions()->getBlockingPorosity());
+   database::setErrDepthOffset (reservoirIoRecord, Interface::DefaultUndefinedScalarValue);
+   database::setErrThickness (reservoirIoRecord, Interface::DefaultUndefinedScalarValue);
+   database::setErrMicroTraps (reservoirIoRecord, Interface::DefaultUndefinedScalarValue);
+   database::setErrLayerFrequency (reservoirIoRecord, Interface::DefaultUndefinedScalarValue);
 
    return reservoirIoRecord;
 }

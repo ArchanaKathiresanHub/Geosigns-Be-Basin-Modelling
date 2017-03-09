@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2017 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include <iostream>
 using namespace std;
 
@@ -41,6 +51,7 @@ using namespace std;
 #include "Interface/PropertyValue.h"
 #include "Interface/RelatedProject.h"
 #include "Interface/Reservoir.h"
+#include "Interface/ReservoirOptions.h"
 #include "Interface/RunParameters.h"
 #include "Interface/SGDensitySample.h"
 #include "Interface/SimulationDetails.h"
@@ -108,6 +119,11 @@ BasementSurface * ObjectFactory::produceBasementSurface (ProjectHandle * project
 Reservoir * ObjectFactory::produceReservoir (ProjectHandle * projectHandle, database::Record * record)
 {
    return new Reservoir (projectHandle, record);
+}
+
+std::shared_ptr<ReservoirOptions> ObjectFactory::produceReservoirOptions (ProjectHandle * projectHandle, database::Record * record)
+{
+   return std::make_shared<ReservoirOptions> (projectHandle, record);
 }
 
 MobileLayer * ObjectFactory::produceMobileLayer (ProjectHandle * projectHandle, database::Record * record)

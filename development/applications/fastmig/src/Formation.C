@@ -571,16 +571,6 @@ namespace migration
       return value;
    }
 
-   double Formation::getMinLiquidColumnHeight (void) const
-   {
-      return m_migrator->getProjectHandle ()->getRunParameters ()->getMinOilColumnHeight ();
-   }
-
-   double Formation::getMinVapourColumnHeight (void) const
-   {
-      return m_migrator->getProjectHandle ()->getRunParameters ()->getMinGasColumnHeight ();
-   }
-
    FiniteElementMethod::ThreeVector & Formation::getAnalogFlowDirection (int i, int j, int k)
    {
       return getFormationNode (i, j, k)->getAnalogFlowDirection ();
@@ -1292,10 +1282,8 @@ namespace migration
       return false;
    }
 
-   //
    // Loop through the uppermost cells and check if a trap crests exist with m_height_oil > minOilColumnHeight OR m_height_gas > minGasColumnHeight 
    // Stop as soon as a trap crest is found. 
-
    bool Formation::detectReservoirCrests ()
    {
       //cout << " Rank, Formation, m_detectedReservoir " << GetRank () << " " << getName () << " " << m_detectedReservoir << endl;

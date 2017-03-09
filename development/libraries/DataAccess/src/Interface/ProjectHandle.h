@@ -200,6 +200,8 @@ namespace DataAccess
          virtual TouchstoneMapList * getTouchstoneMaps( void ) const;
          /// return the list of reservoirs
          virtual ReservoirList * getReservoirs( const Formation * formation = 0 ) const;
+         /// @return the global reservoir options
+         std::shared_ptr<const ReservoirOptions> getReservoirOptions () const;
          /// add a detected reservoir to the list of reservoirs
          virtual Reservoir* addDetectedReservoirs (database::Record * record, const Formation * formation);
          /// return the list of MobileLayers
@@ -563,6 +565,8 @@ namespace DataAccess
 
          ObjectFactory * m_factory;
 
+         std::shared_ptr<ReservoirOptions> m_reservoirOptions;
+
          // All the lists
 
          MutableSnapshotList m_snapshots;
@@ -691,6 +695,7 @@ namespace DataAccess
          bool loadSurfaces( void );
          bool loadFormations( void );
          bool loadReservoirs( void );
+         bool loadGlobalReservoirOptions (void);
          bool loadMobileLayers( void );
          bool loadAllochthonousLithologies( void );
          bool loadAllochthonousLithologyDistributions( void );
@@ -706,7 +711,6 @@ namespace DataAccess
          bool loadVolumePropertyValuesVia3DTimeIoTbl( void );
 
          bool loadIgneousIntrusions();
-
 
          bool loadCrustFormation();
          bool loadMantleFormation();

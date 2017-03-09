@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2016 Shell International Exploration & Production.
+// Copyright (C) 2016-2017 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -35,8 +35,8 @@ Barrier::Barrier (Reservoir * reservoir) : m_reservoir (reservoir)
    m_firstJ = m_reservoir->getGrid ()->firstJ ();
 
    m_values = Array<bool>::create2d (m_reservoir->getGrid ()->numI (),  m_reservoir->getGrid ()->numJ (), false);
-   m_blockingPermeability = m_reservoir->getBlockingPermeability ();
-   m_blockingPorosity = m_reservoir->getBlockingPorosity();
+   m_blockingPermeability = m_reservoir->getBlockingPerm ();
+   m_blockingPorosity = m_reservoir->getBlockingPoro();
 }
 
 Barrier::~Barrier (void)

@@ -102,12 +102,27 @@ const Formation * Reservoir::getFormation (void) const
    return m_formation;
 }
 
+bool Reservoir::isDiffusionOn (void) const
+{
+   return database::getDiffusionInd (m_record) == 1;
+}
+
+bool Reservoir::isBiodegradationOn (void) const
+{
+   return database::getBioDegradInd (m_record) == 1;
+}
+
+bool Reservoir::isOilToGasCrackingOn (void) const
+{
+   return database::getOilToGasCrackingInd (m_record) == 1;
+}
+
 double Reservoir::getTrapCapacity (void) const
 {
    return database::getTrapCapacity (m_record);
 }
 
-bool Reservoir::isBlockingEnabled (void) const
+bool Reservoir::isBlockingOn (void) const
 {
    return database::getBlockingInd (m_record) == 1;
 }

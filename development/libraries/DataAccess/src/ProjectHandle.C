@@ -78,6 +78,7 @@
 #include "Interface/PropertyValue.h"
 #include "Interface/RelatedProject.h"
 #include "Interface/Reservoir.h"
+#include "Interface/ReservoirOptions.h"
 #include "Interface/SimulationDetails.h"
 #include "Interface/Snapshot.h"
 #include "Interface/SourceRock.h"
@@ -252,6 +253,7 @@ ProjectHandle::ProjectHandle( database::ProjectFileHandlerPtr pfh, const string 
    loadSurfaces();
    loadFormations();
    loadReservoirs();
+   loadGlobalReservoirOptions();
    loadMobileLayers();
    loadTouchstoneMaps();
    loadAllochthonousLithologies();
@@ -1852,6 +1854,20 @@ bool ProjectHandle::loadReservoirs( void )
    return true;
 }
 
+bool ProjectHandle::loadGlobalReservoirOptions (void)
+{
+   database::Table* reservoirOptionsIoTbl = getTable( "ReservoirOptionsIoTbl" );
+
+   Record * reservoirOptionsRecord;
+   if (reservoirOptionsIoTbl->size() == 0)
+      reservoirOptionsIoTbl->createRecord();
+
+   reservoirOptionsRecord = reservoirOptionsIoTbl->getRecord(0);
+   m_reservoirOptions = getFactory()->produceReservoirOptions( this, reservoirOptionsRecord );
+
+   return true;
+}
+
 bool ProjectHandle::loadMobileLayers( void )
 {
    database::Table* mobileLayerTbl = getTable( "MobLayThicknIoTbl" );
@@ -3366,6 +3382,10 @@ Interface::ReservoirList * ProjectHandle::getReservoirs( const Interface::Format
    return reservoirList;
 }
 
+std::shared_ptr<const ReservoirOptions> ProjectHandle::getReservoirOptions () const
+{
+   return m_reservoirOptions;
+}
 
 Reservoir* ProjectHandle::addDetectedReservoirs (database::Record * record, const Formation * formation)
 {

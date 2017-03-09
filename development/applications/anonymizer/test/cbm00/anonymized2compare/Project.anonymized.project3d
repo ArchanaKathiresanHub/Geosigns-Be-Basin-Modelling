@@ -802,8 +802,8 @@ ReservoirName DetectedReservoir FormationName TrapCapacity ActivityMode Activity
 ;
 [ReservoirOptionsIoTbl]
 ;
-TrapCapacity ActivityMode DepthOffset DepthOffsetGrid Thickness ThicknessGrid NetToGross NetToGrossGrid MicroTraps LeakProperty LeakRate Lithotype1 Percent1 Percent1Grid Lithotype2 Percent2 Percent2Grid Lithotype3 LayerFrequency LayerFrequencyGrid BioDegradInd OilToGasCrackingInd DiffusionInd MinOilColumnHeight MinGasColumnHeight BlockingInd BlockingPermeability BlockingPorosity ErrDepthOffset ErrThickness ErrMicroTraps ErrLayerFrequency
-(m3)   ()  (m)  (m)  (m)  (m) (percent) (percent) (m3/m2) () (kg/m2/ma) () (volume%) (volume%) () (volume%) (volume%) () (km) () () () () (m) (m) () (mD) (%) (m) (m) (m3/m2) (km)
+TrapCapacity BioDegradInd OilToGasCrackingInd DiffusionInd MinOilColumnHeight MinGasColumnHeight BlockingInd BlockingPermeability BlockingPorosity
+(m3)   ()   ()   ()  (m)  (m)   () (mD)  (%)
 [End]
 ;
 ;
@@ -2356,23 +2356,5 @@ SGMeanBulkDensity
 SimulationSequenceNumber SimulatorName SimulatorMode NumberOfCores SimulatorCommandLineParameters
   ()   ()   ()   ()   ()
    1 "fastcauldron" "CoupledPressureAndTemperature" 1 "-project ./Unziped/Wyllie/Project.project3d -itcoupled"
-[End]
-;
-;
-; OutputTablesFileIoTbl
-;
-[OutputTablesFileIoTbl]
-;
-                Filename
-                      ()
-[End]
-;
-;
-; OutputTablesIoTbl
-;
-[OutputTablesIoTbl]
-;
-               TableName
-                      ()
 [End]
 ;

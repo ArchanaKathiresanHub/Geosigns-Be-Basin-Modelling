@@ -35,6 +35,7 @@ namespace DataAccess
          ObjectFactory() {}
 
          virtual ~ObjectFactory () {}
+
          virtual ProjectHandle * produceProjectHandle (database::ProjectFileHandlerPtr pfh, const string & name, const string & accessMode);
 
          virtual Snapshot * produceSnapshot (ProjectHandle * projectHandle, database::Record * record);
@@ -63,6 +64,8 @@ namespace DataAccess
          virtual BasementSurface * produceBasementSurface (ProjectHandle * projectHandle, const std::string& name );
 
          virtual Reservoir * produceReservoir (ProjectHandle * projectHandle, database::Record * record);
+
+         virtual std::shared_ptr<ReservoirOptions> produceReservoirOptions (ProjectHandle * projectHandle, database::Record * record);
 
          virtual MobileLayer * produceMobileLayer (ProjectHandle * projectHandle, database::Record * record);
 
@@ -110,7 +113,6 @@ namespace DataAccess
 
          virtual FluidDensitySample * produceFluidDensitySample (ProjectHandle * projectHandle, database::Record * record);
 
-
          virtual RelatedProject * produceRelatedProject (ProjectHandle * projectHandle, database::Record * record);
 
          virtual Trap * produceTrap (ProjectHandle * projectHandle, database::Record * record);
@@ -149,7 +151,6 @@ namespace DataAccess
          virtual FaultCollection * produceFaultCollection (ProjectHandle * projectHandle, const string & mapName);
          // virtual Fault * produceFault (string & name);
 
-
          virtual IrreducibleWaterSaturationSample* produceIrreducibleWaterSaturationSample (ProjectHandle * projectHandle, database::Record * record);
 
          virtual LangmuirAdsorptionIsothermSample* produceLangmuirAdsorptionIsothermSample (ProjectHandle * projectHandle, database::Record * record);
@@ -159,11 +160,10 @@ namespace DataAccess
          virtual PointAdsorptionHistory* producePointAdsorptionHistory (ProjectHandle * projectHandle, database::Record * record);
 
          virtual SGDensitySample* produceSGDensitySample (ProjectHandle * projectHandle, database::Record * record);
-
-         virtual MapWriter* produceMapWriter (void);
+            
+			virtual MapWriter* produceMapWriter (void);
 
          virtual CrustalThicknessData* produceCrustalThicknessData (ProjectHandle * projectHandle, database::Record * record);
-
 
       };
    }
