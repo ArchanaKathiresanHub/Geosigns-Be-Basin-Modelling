@@ -255,22 +255,22 @@ namespace migration
                double capillaryEntryPressureLiquid = Interface::DefaultUndefinedMapValue;
                double capillaryEntryPressureVapour = Interface::DefaultUndefinedMapValue;
 
-               const GeoPhysics::CompoundLithology*  compoundLithology = getCompoundLithology( i, j );
+               const GeoPhysics::CompoundLithology* compoundLithology = getCompoundLithology( i, j );
                /// Compute capillary pressure if at a valid node
                if ( compoundLithology )
                {
                   const double capC1 = compoundLithology->capC1();
-                  const double capC2 = compoundLithology->capC2();
+                  const double capC2 = compoundLithology->capC2();                  
 
                   double capSealStrength_Air_Hg = CBMGenerics::capillarySealStrength::capSealStrength_Air_Hg( capC1, capC2, vPermeability );
 
-                  /// If liquid phase is present (density is a proxy, if 1000, there's only vapour)
+                  // If liquid phase is present (density is a proxy, if 1000, there's only vapour)
                   if (liquidDensity != 1000.0 )
                   {
                      double liquidIFT = CBMGenerics::capillarySealStrength::capTension_H2O_HC( waterDensity, liquidDensity, temperature + CelciusToKelvin, hcTempValueLiquid );
                      capillaryEntryPressureLiquid = CBMGenerics::capillarySealStrength::capSealStrength_H2O_HC( capSealStrength_Air_Hg, liquidIFT );
 
-                     /// Vapour phase is also present
+                     // Vapour phase is also present
                      if (vapourDensity != 1000.0)
                         capillaryEntryPressureVapour = capillaryEntryPressureLiquid + capillaryEntryPressureLiquidVapour( vPermeability, pressure, capC1, capC2 );
                      else
@@ -279,7 +279,7 @@ namespace migration
                         vapourDensity = liquidDensity;
                      }
                   }
-                  /// There's only vapour. Calculate capillary pressures accordingly.
+                  // There's only vapour. Calculate capillary pressures accordingly.
                   else
                   {
                      double vapourIFT = CBMGenerics::capillarySealStrength::capTension_H2O_HC( waterDensity, vapourDensity, temperature + CelciusToKelvin, hcTempValueVapour );
@@ -307,6 +307,12 @@ namespace migration
 
                      formationNode->setCapillaryEntryPressureVapour (0.0, k == depth);
                      formationNode->setCapillaryEntryPressureLiquid (0.0, k == depth);
+
+                     if (k != depth)
+                     {
+                        formationNode->setVapourDensity (vapourDensity);
+                        formationNode->setLiquidDensity (liquidDensity);
+                     }
                   }
                }
                else
@@ -325,6 +331,12 @@ namespace migration
 
                      formationNode->setCapillaryEntryPressureVapour (capillaryEntryPressureVapour, k == depth);
                      formationNode->setCapillaryEntryPressureLiquid (capillaryEntryPressureLiquid, k == depth);
+
+                     if (k != depth)
+                     {
+                        formationNode->setVapourDensity (vapourDensity);
+                        formationNode->setLiquidDensity (liquidDensity);
+                     }
                   }
                }
             }
@@ -426,20 +438,6 @@ namespace migration
 
                   ptrVapourDensity->set (i, j, (unsigned int)k, phaseDensity[Phase::VAPOUR]);
                   ptrLiquidDensity->set (i, j, (unsigned int)k, phaseDensity[Phase::LIQUID]);
-
-                  // If not a ghost node and not on last I or J row of the basin and
-                  // not a top node then assign the value to the local formation node
-                  if (i >= m_formationNodeArray->firstILocal () and i <= m_formationNodeArray->lastILocal () and
-                     j >= m_formationNodeArray->firstJLocal () and j <= m_formationNodeArray->lastJLocal () and
-                     i < grid->numIGlobal () - 1 and j < grid->numJGlobal () - 1 and k != depth)
-                  {
-                     LocalFormationNode * formationNode = getLocalFormationNode (i, j, k);
-                     if (!formationNode)
-                        continue;
-
-                     formationNode->setVapourDensity (phaseDensity[Phase::VAPOUR]);
-                     formationNode->setLiquidDensity (phaseDensity[Phase::LIQUID]);
-                  }
                }
             }
          }
