@@ -2704,7 +2704,7 @@ namespace migration
       if (legacy)
       {
          m_biodegraded = 0;
-         if (isBioDegradationOn (legacy))
+         if (isBiodegradationEnabled())
          {
             m_biodegraded = biodegradeCharges ();
          }
@@ -2736,7 +2736,7 @@ namespace migration
          while (!allProcessorsFinished (distributionHasFinished ()));
 
          m_biodegraded = 0;
-         if (isBioDegradationOn (legacy))
+         if (isBiodegradationEnabled())
          {
             if (!computeHydrocarbonWaterContactDepth () or
                 !computeHydrocarbonWaterTemperature () or
@@ -2748,7 +2748,7 @@ namespace migration
             m_biodegraded = biodegradeCharges ();
          }
 
-         if (isDiffusionOn (legacy))
+         if (isDiffusionEnabled())
          {
             broadcastTrapFillDepthProperties ();
             if (!diffusionLeakCharges ())
@@ -2756,8 +2756,8 @@ namespace migration
          }         
 
          // If charge was either biodegraded or diffused, need to correct fill depths
-         if (isBioDegradationOn (legacy) or
-             isDiffusionOn (legacy))
+         if (isBiodegradationEnabled() or
+             isDiffusionEnabled())
          {
             bool flashCharges = true;
             do
