@@ -6129,6 +6129,12 @@ Identification      : HcLiquidBrineCapillaryEntryPressure
     Unit of measurement :
     Type                : string
     Error Field         : No
+	
+	Identification      : RunName
+    Description         : The name of the run (See ResQ phase 2 requirement document)
+    Unit of measurement :
+    Type                : string
+    Error Field         : No
 
     Identification      : PercentUsed
     Description         : Touchstone percent for output Map
@@ -7897,6 +7903,7 @@ START-property-tables
     Column         : Format
     Column         : Percentile
     Column         : FaciesMap
+	Column         : RunName
     Header         : List of Touchstone Map Combinations
 
 # Genex History location Table

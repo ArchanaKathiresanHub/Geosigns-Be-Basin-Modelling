@@ -451,7 +451,7 @@ bool MasterTouch::run()
 bool MasterTouch::addOutputFormat(const string & filename,
    const Surface * surface, const Formation * formation,
    const string & category, const string & format,
-   const int percent, const GridMap * faciesGrid, const int faciesNumber)
+   const int percent, const GridMap * faciesGrid, const int faciesNumber, const string & runName)
 {
    if ( filename.size() < 1 )
    {
@@ -480,10 +480,10 @@ bool MasterTouch::addOutputFormat(const string & filename,
 
    if ( !isLegacy )
    {
-      // Here we  add the run name read from the project file as an additional parameter of the [TouchstoneIoTbl]
-      // This should be passed to addOutputFormat and it is necessary to support multifacies in ANY setting, e.g. several multifacies scenarios in the same layer. 
-      // propertyValueName += " ";
-      // propertyValueName += runName; //scenNumber, should be read from the TouchstoneIoTbl
+      // Here the run name read from the project file is added, it is necessary to support multifacies in ANY setting,
+      // e.g. several multifacies runs in the same layer. 
+      propertyValueName += " ";
+      propertyValueName += runName;
    }
 
    LayerInfo layer(surface, formation);

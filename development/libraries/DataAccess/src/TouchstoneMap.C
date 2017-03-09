@@ -116,6 +116,11 @@ const GridMap * TouchstoneMap::getFaciesGridMap (void) const
 	return inputValue ? inputValue->getGridMap( ) : 0;
 }
 
+const string & TouchstoneMap::getRunName(void) const
+{
+   return database::getRunName(m_record);
+}
+
 void TouchstoneMap::printOn (ostream & ostr) const
 {
    string str;

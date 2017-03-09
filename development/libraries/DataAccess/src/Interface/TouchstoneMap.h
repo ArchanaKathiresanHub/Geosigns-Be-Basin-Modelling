@@ -37,8 +37,11 @@ namespace DataAccess
 		 /// Return the gridMap object
 	    virtual const GridMap * getFaciesGridMap (void) const;
 
-	    /// Find the PropertyValue that was produced for this TouchstoneMap
-	    virtual const PropertyValue * findPropertyValue (void) const;
+       /// Find the PropertyValue that was produced for this TouchstoneMap
+       virtual const PropertyValue * findPropertyValue(void) const;
+
+	    ///Return the name of the touchstone run
+	    virtual const string & getRunName(void) const;
 
 	    /// Print the attributes of this SourceRock
             // May not work if user application is compiled under IRIX with CC -lang:std

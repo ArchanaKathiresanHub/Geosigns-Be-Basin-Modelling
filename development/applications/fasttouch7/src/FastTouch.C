@@ -134,7 +134,7 @@ bool FastTouch::addToComputationList (const TouchstoneMap * touchstoneMap)
 
    m_masterTouch.addOutputFormat(touchstoneMap->getTCFName (), touchstoneMap->getSurface (), touchstoneMap->getFormation (),
                                  touchstoneMap->getCategory (), touchstoneMap->getFormat (), static_cast<int>(touchstoneMap->getPercentage ()),
-                                 touchstoneMap->getFaciesGridMap ( ), touchstoneMap->getFaciesNumber());
+                                 touchstoneMap->getFaciesGridMap ( ), touchstoneMap->getFaciesNumber(), touchstoneMap->getRunName());
    return true;
 }
 
