@@ -2288,8 +2288,8 @@ SurfaceName TwoWayTimeGrid TwoWayTime
 ;
 [TouchstoneMapIoTbl]
 ;
-TcfName FaciesNumber SurfaceName FormationName Category Format Percentile FaciesMap
-  ()   ()   ()   ()   ()   ()   ()   ()
+TcfName FaciesNumber SurfaceName FormationName Category Format Percentile FaciesMap RunName
+  ()   ()   ()   ()   ()   ()   ()   ()   ()
 [End]
 ;
 ;
@@ -2363,8 +2363,8 @@ SimulationSequenceNumber SimulatorName SimulatorMode NumberOfCores SimulatorComm
 ;
 [OutputTablesFileIoTbl]
 ;
-                Filename
-                      ()
+Filename
+  ()
 [End]
 ;
 ;
@@ -2372,7 +2372,7 @@ SimulationSequenceNumber SimulatorName SimulatorMode NumberOfCores SimulatorComm
 ;
 [OutputTablesIoTbl]
 ;
-               TableName
-                      ()
+TableName
+  ()
 [End]
 ;
