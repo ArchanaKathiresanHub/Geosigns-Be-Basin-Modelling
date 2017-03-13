@@ -21,7 +21,7 @@ namespace CauldronIO
 void CauldronIO::VisualizationUtils::retrieveAllData(std::vector < VisualizationIOData* >& allReadData, size_t numThreads)
 {
 	// This is the queue of indices of data ready to be retrieved (and compressed?)
-	boost::lockfree::queue<int> queue(128);
+	boost::lockfree::queue<int> queue(allReadData.size());
 	boost::atomic<bool> done(false);
 
 	// Retrieve in separate threads; the queue will be filled from the main thread
@@ -449,7 +449,7 @@ void VisualizationUtils::cellCenterFormationVolumes(const std::shared_ptr<SnapSh
 	std::shared_ptr<VolumeData>* propVolumeDataCreated = new std::shared_ptr<VolumeData>[numProperties];
 
 	// This is the queue of indices ready 
-	boost::lockfree::queue<int> queue(128);
+	boost::lockfree::queue<int> queue(4096);
 	boost::atomic<bool> done(false);
 
 	// Merge data in separate threads
@@ -869,6 +869,66 @@ void VisualizationUtils::retrieveSingleData(std::shared_ptr<CauldronIO::SurfaceD
 	std::vector < std::shared_ptr<CauldronIO::HDFinfo> > hdfInfo = map->getHDFinfo();
 	loadHDFdata(hdfInfo, &queue);
 	map->retrieve();
+}
+
+void VisualizationUtils::findAndOutputData(CauldronIO::VisualizationIOData* data, std::shared_ptr<CauldronIO::Project>& project)
+{
+    for (auto& snapshot : project->getSnapShots())
+    {
+        for (const std::shared_ptr<Surface>& surfaceIO : snapshot->getSurfaceList())
+        {
+            for (const PropertySurfaceData& propertySurfaceData : surfaceIO->getPropertySurfaceDataList())
+            {
+                VisualizationIOData* surfaceData = propertySurfaceData.second.get();
+                if (surfaceData == data)
+                {
+                    std::cout << "Data from: "
+                        << " Snapshot age: " << snapshot->getAge()
+                        << " Surface: " << surfaceIO->getName()
+                        << " Property: " << propertySurfaceData.first->getName()
+                        << std::endl;
+                    return;
+                }
+            }
+        }
+
+        if (snapshot->getVolume())
+        {
+            for (const PropertyVolumeData& propVolume : snapshot->getVolume()->getPropertyVolumeDataList())
+            {
+                VisualizationIOData* volData = propVolume.second.get();
+                if (volData == data)
+                {
+                    std::cout << "Data from: "
+                        << " Snapshot age: " << snapshot->getAge()
+                        << " Continuous volume " 
+                        << " Property: " << propVolume.first->getName()
+                        << std::endl;
+                    return;
+                }
+            }
+        }
+
+        for (const FormationVolume& formVolume : snapshot->getFormationVolumeList())
+        {
+            const std::shared_ptr<Volume> subVolume = formVolume.second;
+            for (const PropertyVolumeData& propVolume : subVolume->getPropertyVolumeDataList())
+            {
+                VisualizationIOData* voldata = propVolume.second.get();
+                if (voldata == data)
+                {
+                    std::cout << "Data from: "
+                        << " Snapshot age: " << snapshot->getAge()
+                        << " FormationVolume: " << formVolume.first->getName()
+                        << " Property: " << propVolume.first->getName()
+                        << std::endl;
+                    return;
+                }
+            }
+        }
+
+        std::cout << "Could not find data" << std::endl;
+    }
 }
 
 }

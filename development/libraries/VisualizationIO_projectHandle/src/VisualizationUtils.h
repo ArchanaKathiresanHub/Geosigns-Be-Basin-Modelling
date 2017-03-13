@@ -38,14 +38,16 @@ namespace CauldronIO
         /// \param[in] snapShot the snapshot
         /// \param[in] project the project, to add the new geometries to the project
         static void cellCenterFormationVolumes(const std::shared_ptr<SnapShot>& snapShot, std::shared_ptr<Project>& project, size_t numThreads = 1);
-		/// \brief For the given snapshot, replace surfaces and volumes that exist in the given project by references to that
-		/// \param[in] snapShot the snapshot
-		/// \param[in] project the project, to add the new geometries to the project
-		static void replaceExistingProperties(const std::shared_ptr<SnapShot>& snapShot, std::shared_ptr<const Project>& project);
-		/// \param[in] map data to retrieve
-		static void retrieveSingleData(std::shared_ptr<CauldronIO::SurfaceData> map);
+        /// \brief For the given snapshot, replace surfaces and volumes that exist in the given project by references to that
+        /// \param[in] snapShot the snapshot
+        /// \param[in] project the project, to add the new geometries to the project
+        static void replaceExistingProperties(const std::shared_ptr<SnapShot>& snapShot, std::shared_ptr<const Project>& project);
+        /// \param[in] map data to retrieve
+        static void retrieveSingleData(std::shared_ptr<CauldronIO::SurfaceData> map);
+        /// \brief Little method to find data within a project
+        static void findAndOutputData(CauldronIO::VisualizationIOData* data, std::shared_ptr<CauldronIO::Project>& project);
 
-	private:
+    private:
         typedef float(*filterFunc)(float*, size_t);
 
         static std::shared_ptr<VolumeData> mergeVolumeDataList(PropertyVolumeDataList& propVolume, std::shared_ptr<Project> project);
@@ -54,23 +56,23 @@ namespace CauldronIO
         static void prefetchHDFdata(std::vector< VisualizationIOData* > allReadData, boost::lockfree::queue<int>* queue);
         static void loadHDFdata(std::vector< std::shared_ptr<HDFinfo> > hdfInfoList, boost::lockfree::queue<int>* queue);
         static void retrieveDataQueue(std::vector < VisualizationIOData* >* allData, boost::lockfree::queue<int>* queue, boost::atomic<bool>* done);
-		static void mergeDataQueue(PropertyVolumeDataList* formVolumesToMerge, std::shared_ptr<VolumeData>* propVolumeDataCreated,
-			bool* propMerged, boost::lockfree::queue<int>* queue, std::shared_ptr<Project>& project, boost::atomic<bool>* done);
+        static void mergeDataQueue(PropertyVolumeDataList* formVolumesToMerge, std::shared_ptr<VolumeData>* propVolumeDataCreated,
+            bool* propMerged, boost::lockfree::queue<int>* queue, std::shared_ptr<Project>& project, boost::atomic<bool>* done);
         static float getUndefAverage(float* v, size_t size);
         static float getAverage(float* v, size_t size);
         static float getUndefMedian(float* v, size_t size);
         static float getMedian(float* v, size_t size);
-		static float getFlowIJK(float* v, size_t size);
+        static float getFlowIJK(float* v, size_t size);
         static std::shared_ptr<VolumeData> mergeVolumes(std::shared_ptr<const Property>& propertyIO, std::vector<std::shared_ptr<VolumeData> > volDataList, std::shared_ptr<Project> project);
         static void computeVolumeData(std::shared_ptr<VolumeData> volData, std::shared_ptr<Geometry3D>& geometry, float* newData, size_t outputIndex,
             filterFunc filter, filterFunc filterUndef);
         static void getFilterFunc(const std::shared_ptr<const Property>& propertyIO, filterFunc& filter, filterFunc& filterUndef);
-		static std::shared_ptr<CauldronIO::VolumeData> createReferenceVolData(const std::shared_ptr<CauldronIO::VolumeData>& volData);
-		static void replaceVolume(const std::shared_ptr<Volume>& currentVolume, const std::shared_ptr<Volume>& volumeToExtend);
-		static std::shared_ptr<CauldronIO::SurfaceData> createReferenceSurfData(const std::shared_ptr<CauldronIO::SurfaceData>& surfaceData);
-		static bool surfaceEquals(const std::shared_ptr<CauldronIO::Surface>& surface1, const std::shared_ptr<CauldronIO::Surface>& surface2);
-	
-		friend class ImportProjectHandle;
-	};
+        static std::shared_ptr<CauldronIO::VolumeData> createReferenceVolData(const std::shared_ptr<CauldronIO::VolumeData>& volData);
+        static void replaceVolume(const std::shared_ptr<Volume>& currentVolume, const std::shared_ptr<Volume>& volumeToExtend);
+        static std::shared_ptr<CauldronIO::SurfaceData> createReferenceSurfData(const std::shared_ptr<CauldronIO::SurfaceData>& surfaceData);
+        static bool surfaceEquals(const std::shared_ptr<CauldronIO::Surface>& surface1, const std::shared_ptr<CauldronIO::Surface>& surface2);
+
+        friend class ImportProjectHandle;
+    };
 }
 #endif

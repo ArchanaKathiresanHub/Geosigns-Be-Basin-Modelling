@@ -34,8 +34,7 @@ CauldronIO::Project::Project(const string& name, const string& description, cons
 
 CauldronIO::Project::~Project()
 {
-    // Delete all snapshots
-    m_snapShotList.clear();
+    release();
 }
 
 void CauldronIO::Project::addSnapShot(std::shared_ptr<SnapShot>& newSnapShot)
@@ -136,7 +135,7 @@ int CauldronIO::Project::getXmlVersionMinor() const
     return m_xmlVersionMinor;
 }
 
-const std::vector<CauldronIO::StratigraphyTableEntry>& CauldronIO::Project::getStratigraphyTable() const
+const StratigraphyTableEntryList& CauldronIO::Project::getStratigraphyTable() const
 {
 	return m_stratTable;
 }
@@ -160,6 +159,18 @@ void CauldronIO::Project::retrieveStratigraphyTable()
 			entry.getSurface()->retrieve();
 		}
 	}
+}
+
+
+const CauldronIO::MigrationEventList& CauldronIO::Project::getMigrationEventsTable() const
+{
+    return m_migrationEventList;
+}
+
+
+void CauldronIO::Project::addMigrationEvent(std::shared_ptr<MigrationEvent> event)
+{
+    m_migrationEventList.push_back(event);
 }
 
 const ReservoirList& CauldronIO::Project::getReservoirs() const
@@ -237,6 +248,7 @@ void CauldronIO::Project::release()
 {
     BOOST_FOREACH(std::shared_ptr<SnapShot>& snapShot, m_snapShotList)
         snapShot->release();
+    m_snapShotList.clear();
 
 	// Release strat-table
 	for (auto& entry : m_stratTable)
@@ -252,6 +264,10 @@ void CauldronIO::Project::release()
 	}
 
 	m_stratTable.clear();
+    m_geometries.clear();
+    m_migrationEventList.clear();
+    m_formationList.clear();
+    m_propertyList.clear();
 }
 
 /// SnapShot implementation
@@ -1999,4 +2015,59 @@ void CauldronIO::StratigraphyTableEntry::setFormation(std::shared_ptr<Formation>
 {
 	m_surface.reset();
 	m_formation = formation;
+}
+
+CauldronIO::MigrationEvent::MigrationEvent()
+{
+    // Clear our buffers
+    std::memset((void*)m_SourceReservoirName, 0, m_maxStringLength);
+    std::memset((void*)m_SourceRockName, 0, m_maxStringLength);
+    std::memset((void*)m_DestinationReservoirName, 0, m_maxStringLength);
+    std::memset((void*)m_migrationProcess, 0, m_maxStringLength);
+}
+
+
+void CauldronIO::MigrationEvent::setMigrationProcess(const std::string& name)
+{
+    for (size_t index = 0; index < name.length(); ++index)
+        m_migrationProcess[index] = name.c_str()[index];
+}
+
+
+std::string CauldronIO::MigrationEvent::getMigrationProcess() const
+{
+    return std::string(m_migrationProcess);
+}
+
+void CauldronIO::MigrationEvent::setSourceRockName(const std::string& name)
+{
+    for (size_t index = 0; index < name.length(); ++index)
+        m_SourceRockName[index] = name.c_str()[index];
+}
+
+std::string CauldronIO::MigrationEvent::getSourceRockName() const
+{
+    return std::string(m_SourceRockName);
+}
+
+void CauldronIO::MigrationEvent::setSourceReservoirName(const std::string& name)
+{
+    for (size_t index = 0; index < name.length(); ++index)
+        m_SourceReservoirName[index] = name.c_str()[index];
+}
+
+std::string CauldronIO::MigrationEvent::getSourceReservoirName() const
+{
+    return std::string(m_SourceReservoirName);
+}
+
+void CauldronIO::MigrationEvent::setDestinationReservoirName(const std::string& name)
+{
+    for (size_t index = 0; index < name.length(); ++index)
+        m_DestinationReservoirName[index] = name.c_str()[index];
+}
+
+std::string CauldronIO::MigrationEvent::getDestinationReservoirName() const
+{
+    return std::string(m_DestinationReservoirName);
 }

@@ -25,7 +25,8 @@
 #include <cstring>
 
 /// \brief method to retrieve data on a separate thread
-void retrieveDataQueue(std::vector < CauldronIO::VisualizationIOData* >* allData, boost::lockfree::queue<int>* queue, boost::atomic<bool>* done)
+void retrieveDataQueue(std::vector < CauldronIO::VisualizationIOData* >* allData, boost::lockfree::queue<int>* queue, 
+    boost::atomic<bool>* done, std::shared_ptr<CauldronIO::Project>& project)
 {
 	int value;
 	while (!*done) {
@@ -33,7 +34,16 @@ void retrieveDataQueue(std::vector < CauldronIO::VisualizationIOData* >* allData
 		{
 			CauldronIO::VisualizationIOData* data = allData->at(value);
 			assert(!data->isRetrieved());
-			data->retrieve();
+			try
+			{
+                data->retrieve();
+            }
+			catch (CauldronIO::CauldronIOException&)
+			{
+                // Find out what data did not load
+                std::cout << "Data " << value << " failed to load: ";
+                CauldronIO::VisualizationUtils::findAndOutputData(data, project);
+			}
 		}
 	}
 
@@ -41,8 +51,18 @@ void retrieveDataQueue(std::vector < CauldronIO::VisualizationIOData* >* allData
 	{
 		CauldronIO::VisualizationIOData* data = allData->at(value);
 		assert(!data->isRetrieved());
-		data->retrieve();
-	}
+    
+        try
+        {
+            data->retrieve();
+        }
+        catch (CauldronIO::CauldronIOException&)
+        {
+            // Find out what data did not load
+            std::cout << "Data " << value << " failed to load: ";
+            CauldronIO::VisualizationUtils::findAndOutputData(data, project);
+        }
+    }
 }
 
 /// \brief Small wrapper application for the VisualizationIO libraries
@@ -165,27 +185,31 @@ int main(int argc, char ** argv)
                 std::vector < CauldronIO::VisualizationIOData* > allReadData = snapShot->getAllRetrievableData();
 
                 std::cout << "Retrieving snapshot " << snapShot->getAge() << " with " << numThreads << " threads" << endl;
+                std::cout << "Nr. of data blocks to process: " << allReadData.size() << endl;
 
-                boost::lockfree::queue<int> queue(128);
-                boost::atomic<bool> done(false);
-
-                // Retrieve in separate threads
-                boost::thread_group threads;
-                for (int i = 0; i < numThreads - 1; ++i)
-                    threads.add_thread(new boost::thread(retrieveDataQueue, &allReadData, &queue, &done));
-
-                // Load the data on the main thread
-                for (int i = 0; i < allReadData.size(); i++)
-                {
-                    allReadData[i]->prefetch();
-                    queue.push(i);
-                }
-                done = true;
-
-                // Single threaded: retrieve now
                 if (numThreads == 1)
-                    retrieveDataQueue(&allReadData, &queue, &done);
-                threads.join_all();
+                {
+                    snapShot->retrieve();
+                }
+                else
+                {
+                    boost::lockfree::queue<int> queue(allReadData.size());
+                    boost::atomic<bool> done(false);
+
+                    // Retrieve in separate threads
+                    boost::thread_group threads;
+                    for (int i = 0; i < numThreads - 1; ++i)
+                        threads.add_thread(new boost::thread(retrieveDataQueue, &allReadData, &queue, &done, project));
+
+                    // Load the data on the main thread
+                    for (int i = 0; i < allReadData.size(); i++)
+                    {
+                        allReadData[i]->prefetch();
+                        queue.push(i);
+                    }
+                    done = true;
+                    threads.join_all();
+                }
 
                 snapShot->release();
             }

@@ -56,10 +56,14 @@ bool ExportToXML::exportToXML(std::shared_ptr<Project>& project, const std::shar
     return doc.save_file(xmlFileName.cpath());
 }
 
+CauldronIO::ExportToXML::ExportToXML(const ibs::FilePath& absPath, const ibs::FilePath& relPath, size_t numThreads, bool center)
+    : m_fullPath(absPath), m_relPath(relPath), m_numThreads(numThreads), m_center(center)
+{
+    m_fullPath << relPath.path();
+}
+
 void ExportToXML::addProject(pugi::xml_node pt, std::shared_ptr<Project>& project, const std::shared_ptr<Project>& projectExisting)
 {
-	ibs::FilePath fullPath(m_absPath);
-	fullPath << m_relPath.path();
 	m_project = project;
 	m_projectExisting = projectExisting;
 
@@ -103,7 +107,7 @@ void ExportToXML::addProject(pugi::xml_node pt, std::shared_ptr<Project>& projec
 	for (auto& snapShot : snapShotList)
 	{
 		pugi::xml_node node = snapShotNodes.append_child("snapshot");
-		addSnapShot(snapShot, fullPath, node);
+		addSnapShot(snapShot, node);
 	}
 
 	// Write all geometries
@@ -120,7 +124,7 @@ void ExportToXML::addProject(pugi::xml_node pt, std::shared_ptr<Project>& projec
 	///////////////////////////////////////////////
 	{
 		// Create datastore	for input surfaces
-		ibs::FilePath inputSurfaceStorePath(fullPath);
+		ibs::FilePath inputSurfaceStorePath(m_fullPath);
 		inputSurfaceStorePath << "Input_surfaces.cldrn";
 		DataStoreSave inputSurfaceDataStore(inputSurfaceStorePath.path(), m_append);
 
@@ -140,42 +144,18 @@ void ExportToXML::addProject(pugi::xml_node pt, std::shared_ptr<Project>& projec
 		}
 		for (auto& formation : project->getFormations())
 		{
-			if (formation->hasThicknessMap())
-			{
-				VisualizationIOData* surfaceData = formation->getThicknessMap().second.get();
-				if (!surfaceData->isRetrieved())
-					allSurfaceData.push_back(surfaceData);
-			}
-			if (formation->hasSourceRockMixingHIMap())
-			{
-				VisualizationIOData* surfaceData = formation->getSourceRockMixingHIMap().second.get();
-				if (!surfaceData->isRetrieved())
-					allSurfaceData.push_back(surfaceData);
-			}
-			if (formation->hasLithoType1PercentageMap())
-			{
-				VisualizationIOData* surfaceData = formation->getLithoType1PercentageMap().second.get();
-				if (!surfaceData->isRetrieved())
-					allSurfaceData.push_back(surfaceData);
-			}
-			if (formation->hasLithoType2PercentageMap())
-			{
-				VisualizationIOData* surfaceData = formation->getLithoType2PercentageMap().second.get();
-				if (!surfaceData->isRetrieved())
-					allSurfaceData.push_back(surfaceData);
-			}
-			if (formation->hasLithoType3PercentageMap())
-			{
-				VisualizationIOData* surfaceData = formation->getLithoType3PercentageMap().second.get();
-				if (!surfaceData->isRetrieved())
-					allSurfaceData.push_back(surfaceData);
-			}
+            for (auto& propSurfData : formation->getPropertySurfaceDataList())
+            {
+                VisualizationIOData* surfaceData = propSurfData.second.get();
+                if (!surfaceData->isRetrieved())
+                    allSurfaceData.push_back(surfaceData);
+            }
 		}
 
 		// Retrieve it
 		CauldronIO::VisualizationUtils::retrieveAllData(allSurfaceData, m_numThreads);
 
-		// Add the surfaces
+		// Add the entries
 		pugi::xml_node stratTableNode = pt.append_child("stratigraphytable");
 		for (const StratigraphyTableEntry& entry : project->getStratigraphyTable())
 		{
@@ -194,14 +174,14 @@ void ExportToXML::addProject(pugi::xml_node pt, std::shared_ptr<Project>& projec
 		for (int i = 0; i < inputSurfaceDataStore.getDataToCompressList().size(); i++)
 			allData.push_back(inputSurfaceDataStore.getDataToCompressList().at(i));
 
-		boost::lockfree::queue<int> queue(1024);
+		boost::lockfree::queue<int> queue(allData.size());
 		boost::thread_group threads;
 
 		// Add to queue
 		for (int i = 0; i < allData.size(); i++)
 			queue.push(i);
 
-		// Compress it in separate threads
+    	// Compress it in separate threads
 		for (int i = 0; i < m_numThreads; ++i)
 			threads.add_thread(new boost::thread(CauldronIO::ExportToXML::compressDataQueue, allData, &queue));
 		threads.join_all();
@@ -209,11 +189,9 @@ void ExportToXML::addProject(pugi::xml_node pt, std::shared_ptr<Project>& projec
 		// Write to disk
 		inputSurfaceDataStore.flush();
 	}
-}
 
-CauldronIO::ExportToXML::ExportToXML(const ibs::FilePath& absPath, const ibs::FilePath& relPath, size_t numThreads, bool center)
-    : m_absPath(absPath), m_relPath(relPath), m_numThreads(numThreads), m_center(center)
-{
+    // Write migrationIO table
+    addMigrationEventList(pt);
 }
 
 void CauldronIO::ExportToXML::addProperty(pugi::xml_node node, const std::shared_ptr<const Property>& property) const
@@ -487,7 +465,7 @@ void CauldronIO::ExportToXML::addGeometryInfo2D(pugi::xml_node node, const std::
         subNode.append_attribute("cell-centered") = true;
 }
 
-void CauldronIO::ExportToXML::addSnapShot(const std::shared_ptr<SnapShot>& snapShot, ibs::FilePath fullPath, pugi::xml_node node)
+void CauldronIO::ExportToXML::addSnapShot(const std::shared_ptr<SnapShot>& snapShot, pugi::xml_node node)
 {
     std::ostringstream ss;
     ss << std::fixed << std::setprecision(6);
@@ -495,11 +473,11 @@ void CauldronIO::ExportToXML::addSnapShot(const std::shared_ptr<SnapShot>& snapS
     std::string snapshotString = ss.str();
     std::cout << "Writing snapshot Age=" << snapshotString << std::endl;
 
-    ibs::FilePath volumeStorePath(fullPath);
+    ibs::FilePath volumeStorePath(m_fullPath);
     volumeStorePath << "Snapshot_" + snapshotString + "_volumes.cldrn";
     DataStoreSave volumeStore(volumeStorePath.path(), m_append);
 
-    ibs::FilePath surfaceStorePath(fullPath);
+    ibs::FilePath surfaceStorePath(m_fullPath);
     surfaceStorePath << "Snapshot_" + snapshotString + "_surfaces.cldrn";
     DataStoreSave surfaceDataStore(surfaceStorePath.path(), m_append);
 
@@ -586,7 +564,7 @@ void CauldronIO::ExportToXML::addSnapShot(const std::shared_ptr<SnapShot>& snapS
     for (int i = 0; i < volumeStore.getDataToCompressList().size(); i++)
         allData.push_back(volumeStore.getDataToCompressList().at(i));
 
-    boost::lockfree::queue<int> queue(1024);
+    boost::lockfree::queue<int> queue(allData.size());
     boost::thread_group threads;
 
     // Add to queue
@@ -660,6 +638,7 @@ void CauldronIO::ExportToXML::addStratTableNode(pugi::xml_node& stratTableNode, 
 	}
 }
 
+
 void CauldronIO::ExportToXML::compressDataQueue(std::vector< std::shared_ptr < DataToCompress > > allData, boost::lockfree::queue<int>* queue)
 {
     int value;
@@ -697,4 +676,41 @@ bool CauldronIO::ExportToXML::detectAppend(std::shared_ptr<Project>& project)
 
     // This should not happen
     return false;
+}
+
+void CauldronIO::ExportToXML::addMigrationEventList(pugi::xml_node pt)
+{
+    size_t nr_events = m_project->getMigrationEventsTable().size();
+    if (nr_events == 0) return;
+
+    MigrationEventList events = m_project->getMigrationEventsTable();
+
+    pugi::xml_node node = pt.append_child("migrationEvents");
+    node.append_attribute("number") = (unsigned int)nr_events;
+
+    size_t record_size = sizeof(*events[0]);
+    node.append_attribute("record_size") = (unsigned int)record_size;
+
+    ibs::FilePath migrationDataPath(m_fullPath);
+    migrationDataPath << "migration_events.cldrn";
+    DataStoreSave migrationDataStore(migrationDataPath.path(), m_append);
+
+    char* data = new char[record_size * nr_events];
+    assert(sizeof(char) == 1);
+
+    size_t dataIndex = 0;
+
+    for (size_t index = 0; index < nr_events; ++index, dataIndex += record_size)
+    {
+        void* source = (void*)(events[index].get());
+        void* dest = (void*)(&data[dataIndex]);
+        memcpy(dest, source, record_size);
+    }
+
+    // Add all data
+    migrationDataStore.addData((void*)data, node, record_size * nr_events);
+    // Compress it and write to disk
+    migrationDataStore.flush();
+
+    delete[] data;
 }

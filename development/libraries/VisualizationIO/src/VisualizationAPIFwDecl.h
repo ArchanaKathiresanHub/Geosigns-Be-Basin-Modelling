@@ -72,6 +72,7 @@ namespace CauldronIO
     class Reservoir;
     class VisualizationIOData;
 	class StratigraphyTableEntry;
+    class MigrationEvent;
     struct FormationInfo;
     typedef std::vector<std::shared_ptr<FormationInfo> > FormationInfoList;
 }

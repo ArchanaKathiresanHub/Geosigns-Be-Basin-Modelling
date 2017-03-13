@@ -113,7 +113,7 @@ char* CauldronIO::DataStoreLoad::decompress(const char* inputData, size_t& eleme
     return charResult;
 }
 
-char* CauldronIO::DataStoreLoad::decompress_lz4(const char* inputData, size_t& compressedSize, size_t uncompressedSize)
+char* CauldronIO::DataStoreLoad::decompress_lz4(const char* inputData, size_t compressedSize, size_t uncompressedSize)
 {
     char* dest = new char[uncompressedSize];
     size_t actualCompressedSize = (size_t)LZ4_decompress_fast(inputData, dest, (int)uncompressedSize);
@@ -128,6 +128,7 @@ void CauldronIO::DataStoreLoad::getVolume(pugi::xml_node ptree, std::shared_ptr<
 {
     bool foundSome = false;
 
+    // There can be two datastores for a volume (one per orientation)
     for (pugi::xml_node datastoreNode = ptree.child("datastore"); datastoreNode; datastoreNode = datastoreNode.next_sibling("datastore"))
     {
         foundSome = true;
@@ -135,25 +136,7 @@ void CauldronIO::DataStoreLoad::getVolume(pugi::xml_node ptree, std::shared_ptr<
         VolumeDataNative* volumeNative = dynamic_cast<VolumeDataNative*>(volumeData.get());
         assert(volumeNative);
 
-        DataStoreParams* paramsNative = new DataStoreParams();
-
-		// Check for partial path
-		pugi::xml_attribute partialPath = datastoreNode.attribute("partialpath");
-		if (!partialPath || partialPath.as_bool())
-		{
-			paramsNative->fileName = path;
-			paramsNative->fileName << datastoreNode.attribute("file").value();
-		}
-		else
-		{
-			paramsNative->fileName = ibs::FilePath(datastoreNode.attribute("file").value());
-		}
-
-        std::string compression = datastoreNode.attribute("compression").value();
-        paramsNative->compressed = compression == "gzip" || compression == "lz4";
-        paramsNative->compressed_lz4 = compression == "lz4";
-        paramsNative->size = (size_t)datastoreNode.attribute("size").as_uint();
-        paramsNative->offset = (size_t)datastoreNode.attribute("offset").as_uint();
+        DataStoreParams* paramsNative = getDatastoreParams(datastoreNode, path);
         bool dataIJK = datastoreNode.attribute("dataIJK").as_bool();
 
         volumeNative->setDataStore(paramsNative, dataIJK);
@@ -161,6 +144,32 @@ void CauldronIO::DataStoreLoad::getVolume(pugi::xml_node ptree, std::shared_ptr<
     
     if (!foundSome)
         throw CauldronIOException("Could not find datastore in xml node");
+}
+
+
+CauldronIO::DataStoreParams* CauldronIO::DataStoreLoad::getDatastoreParams(pugi::xml_node &datastoreNode, const ibs::FilePath& path)
+{
+    DataStoreParams* paramsNative = new DataStoreParams();
+
+    // Check for partial path
+    pugi::xml_attribute partialPath = datastoreNode.attribute("partialpath");
+    if (!partialPath || partialPath.as_bool())
+    {
+        paramsNative->fileName = path;
+        paramsNative->fileName << datastoreNode.attribute("file").value();
+    }
+    else
+    {
+        paramsNative->fileName = ibs::FilePath(datastoreNode.attribute("file").value());
+    }
+
+    std::string compression = datastoreNode.attribute("compression").value();
+    paramsNative->compressed = compression == "gzip" || compression == "lz4";
+    paramsNative->compressed_lz4 = compression == "lz4";
+    paramsNative->size = (size_t)datastoreNode.attribute("size").as_uint();
+    paramsNative->offset = (size_t)datastoreNode.attribute("offset").as_uint();
+
+    return paramsNative;
 }
 
 void CauldronIO::DataStoreLoad::getSurface(pugi::xml_node ptree, std::shared_ptr<SurfaceData> surfaceData, const ibs::FilePath& path)
@@ -172,25 +181,7 @@ void CauldronIO::DataStoreLoad::getSurface(pugi::xml_node ptree, std::shared_ptr
     MapNative* mapNative = dynamic_cast<MapNative*>(surfaceData.get());
     assert(mapNative); 
             
-    DataStoreParams* paramsNative = new DataStoreParams();
-
-	// Check for partial path
-	pugi::xml_attribute partialPath = datastoreNode.attribute("partialpath");
-	if (!partialPath || partialPath.as_bool())
-	{
-		paramsNative->fileName = path;
-		paramsNative->fileName << datastoreNode.attribute("file").value();
-	}
-	else
-	{
-		paramsNative->fileName = ibs::FilePath(datastoreNode.attribute("file").value());
-	}
-
-    std::string compression = datastoreNode.attribute("compression").value();
-    paramsNative->compressed = compression == "gzip" || compression == "lz4";
-    paramsNative->compressed_lz4 = compression == "lz4";
-    paramsNative->size = (size_t)datastoreNode.attribute("size").as_uint();
-    paramsNative->offset = (size_t)datastoreNode.attribute("offset").as_uint(); 
+    DataStoreParams* paramsNative = getDatastoreParams(datastoreNode, path);
     mapNative->setDataStore(paramsNative);
 }
 
@@ -250,7 +241,7 @@ char* CauldronIO::DataStoreSave::compress_lz4(const char* inputData, size_t& ele
     char* dest = new char[maxOutputSize];
     elements = (size_t)LZ4_compress_default(inputData, dest, (int)elements, maxOutputSize);
 
-    if (elements == 0) // failed to compress
+    if (elements == 0 || (elements == inputSize)) // failed to compress
     {
         delete[] dest;
         elements = (size_t)inputSize;
@@ -262,7 +253,7 @@ char* CauldronIO::DataStoreSave::compress_lz4(const char* inputData, size_t& ele
 
 void CauldronIO::DataStoreSave::addData(const float* data, size_t size, bool compressData)
 {
-    std::shared_ptr<DataToCompress> dataToCompress(new DataToCompress(data, size, compressData));
+    std::shared_ptr<DataToCompress> dataToCompress(new DataToCompress(data, size * sizeof(float), compressData));
     m_dataToCompress.push_back(dataToCompress);
 }
 
@@ -383,6 +374,22 @@ void CauldronIO::DataStoreSave::writeVolumePart(pugi::xml_node volNode, bool com
     }
 }
 
+void CauldronIO::DataStoreSave::addData(void* data, pugi::xml_node node, size_t numBytes)
+{
+    pugi::xml_node subNode = node.append_child("datastore");
+    subNode.append_attribute("file") = ibs::FilePath(m_fileName).fileName().c_str();
+
+    bool compress = m_compress && numBytes > MINIMALBYTESTOCOMPRESS;
+    if (compress)
+        subNode.append_attribute("compression") = COMPRESSION_LZ4 ? "lz4" : "gzip";
+    else
+        subNode.append_attribute("compression") = "none";
+
+    std::shared_ptr<DataToCompress> dataToCompress(new DataToCompress(data, numBytes, compress));
+    m_dataToCompress.push_back(dataToCompress);
+    m_dataToCompress.back()->setXmlNode(subNode);
+}
+
 void CauldronIO::DataStoreSave::writeVolume(const std::shared_ptr<VolumeData>& volume, bool dataIJK, bool compress)
 {
     if (volume->isConstant()) return;
@@ -394,11 +401,11 @@ void CauldronIO::DataStoreSave::writeVolume(const std::shared_ptr<VolumeData>& v
 /// DataToCompress
 //////////////////////////////////////////////////////////////////////////
 
-CauldronIO::DataToCompress::DataToCompress(const float* inputData, size_t nrOfElements, bool compress)
+CauldronIO::DataToCompress::DataToCompress(const void* inputData, size_t numBytes, bool compress)
 {
     m_inputData = inputData;
     m_compress = compress;
-    m_inputNrElements = nrOfElements;
+    m_inputSize = numBytes;
     m_outputData = nullptr;
     m_node_set = false;
     m_processed = false;
@@ -420,7 +427,7 @@ void CauldronIO::DataToCompress::setOffset(size_t offset)
 
 void CauldronIO::DataToCompress::compress()
 {
-    m_outputNrBytes = sizeof(float)*m_inputNrElements;
+    m_outputNrBytes = m_inputSize;
 
     if (m_compress && !COMPRESSION_LZ4)
         m_outputData = (float*)DataStoreSave::compress((char*)m_inputData, m_outputNrBytes);
@@ -436,7 +443,7 @@ bool CauldronIO::DataToCompress::isProcessed() const
     return m_processed;
 }
 
-const float* CauldronIO::DataToCompress::getOutputData() const
+const void* CauldronIO::DataToCompress::getOutputData() const
 {
     if (m_outputData)
         return m_outputData;

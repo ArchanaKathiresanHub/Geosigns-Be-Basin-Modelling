@@ -51,6 +51,8 @@ namespace CauldronIO
     typedef std::vector < PropertySurfaceData >                                         PropertySurfaceDataList;
     typedef std::vector < PropertyVolumeData >                                          PropertyVolumeDataList;
     typedef std::vector<std::shared_ptr<const Geometry2D> >                             GeometryList;
+    typedef std::vector<std::shared_ptr<MigrationEvent> >                               MigrationEventList;
+    typedef std::vector<StratigraphyTableEntry>                                         StratigraphyTableEntryList;
 
     /// \class Project
     /// \brief Highest level class containing all surface and volume data within a Cauldron project
@@ -123,12 +125,17 @@ namespace CauldronIO
         /// \returns the xml version number
         int getXmlVersionMinor() const;
 		/// \returns the input stratigraphy table
-		const std::vector<StratigraphyTableEntry>& getStratigraphyTable() const;
+		const StratigraphyTableEntryList& getStratigraphyTable() const;
 		/// \brief Adds an entry to the input stratigraphy table
 		/// \param [in] entry a new entry for the input stratigraphy table
 		void addStratigraphyTableEntry(StratigraphyTableEntry entry);
 		/// \brief Retrieve all data in the stratigraphy table
 		void retrieveStratigraphyTable();
+        /// \returns the migration events table
+        const MigrationEventList& getMigrationEventsTable() const;
+        /// \brief Adds an entry to the migration events table
+        /// \param [in] entry a new entry for the migration events table
+        void addMigrationEvent(std::shared_ptr<MigrationEvent> event);
 
     private:
         SnapShotList m_snapShotList;
@@ -138,8 +145,9 @@ namespace CauldronIO
         FormationList m_formationList;
         ReservoirList m_reservoirList;
         GeometryList m_geometries;
+        MigrationEventList m_migrationEventList;
         int m_xmlVersionMajor, m_xmlVersionMinor;
-		std::vector<StratigraphyTableEntry> m_stratTable;
+		StratigraphyTableEntryList m_stratTable;
     };
 
 	/// \class StratigraphyTableEntry
@@ -933,6 +941,70 @@ namespace CauldronIO
         bool m_retrieved;
         size_t m_numI, m_numJ, m_firstK, m_lastK, m_numK;
         double m_deltaI, m_deltaJ, m_minI, m_minJ, m_maxI, m_maxJ;
+    };
+
+    /// \class MigrationEvent
+    /// \brief This class holds all data related to one migration event
+    class MigrationEvent
+    {
+    public:
+        MigrationEvent();
+
+        /// \brief Process
+        void setMigrationProcess(const std::string& name);
+        std::string getMigrationProcess() const;
+        
+        /// \brief Source info
+        float SourceAge;
+        void setSourceRockName(const std::string& name);
+        std::string getSourceRockName() const;
+        void setSourceReservoirName(const std::string& name);
+        std::string getSourceReservoirName() const;
+        int SourceTrapID;
+        float SourcePointX;
+        float SourcePointY;
+        
+        /// \brief Destination info
+        float DestinationAge;
+        void setDestinationReservoirName(const std::string& name); 
+        std::string getDestinationReservoirName() const;
+        int DestinationTrapID;
+        float DestinationPointX;
+        float DestinationPointY;
+        
+        /// \brief Masses exchanged
+        double MassC1;
+        double MassC2;
+        double MassC3;
+        double MassC4;
+        double MassC5;
+        double MassN2;
+        double MassCOx;
+        double MassH2S;
+        double MassC6_14Aro;
+        double MassC6_14Sat;
+        double MassC15Aro;
+        double MassC15Sat;
+        double MassLSC;
+        double MassC15AT;
+        double MassC15AroS;
+        double MassC15SatS;
+        double MassC6_14BT;
+        double MassC6_14DBT;
+        double MassC6_14BP;
+        double MassC6_14SatS;
+        double MassC6_14AroS;
+        double Massresins;
+        double Massasphaltenes;
+
+    private:
+        static const int m_maxStringLength = 256;
+        
+        // We store the strings as char[] so we can serialize the entire class easily
+        char m_migrationProcess[m_maxStringLength];
+        char m_SourceRockName[m_maxStringLength];
+        char m_SourceReservoirName[m_maxStringLength];
+        char m_DestinationReservoirName[m_maxStringLength];
     };
 }
 

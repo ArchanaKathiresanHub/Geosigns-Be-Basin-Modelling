@@ -47,6 +47,7 @@ namespace CauldronIO
 %shared_ptr(CauldronIO::Geometry3D)
 %shared_ptr(CauldronIO::Reservoir)
 %shared_ptr(CauldronIO::HDFinfo)
+%shared_ptr(CauldronIO::MigrationEvent)
 
 %{
 /* Includes the header in the wrapper code */
@@ -88,3 +89,5 @@ namespace CauldronIO
 %template(PropertyVolumeDataList) std::vector<CauldronIO::PropertyVolumeData > ;
 %template(HDFinfoList) std::vector<std::shared_ptr<CauldronIO::HDFinfo> >;
 %template(GeometryList) std::vector<std::shared_ptr<const CauldronIO::Geometry2D> >;
+%template(MigrationEventList) std::vector<std::shared_ptr<CauldronIO::MigrationEvent> >;
+%template(StratigraphyTableEntryList) std::vector<CauldronIO::StratigraphyTableEntry>;

@@ -53,16 +53,17 @@ namespace CauldronIO
 		void addVolume(DataStoreSave& dataStore, const std::shared_ptr<Volume>& volume, pugi::xml_node volNode);
 		void addReferenceData(pugi::xml_node &node, const DataStoreParams* params, bool dataIJK, bool dataKIJ) const;
 		void addGeometryInfo2D(pugi::xml_node node, const std::shared_ptr<const Geometry2D>& geometry) const;
-        void addSnapShot(const std::shared_ptr<SnapShot>& snapShot, ibs::FilePath fullPath, pugi::xml_node node);
+        void addSnapShot(const std::shared_ptr<SnapShot>& snapShot, pugi::xml_node node);
 		void addStratTableNode(pugi::xml_node& stratTableNode, const StratigraphyTableEntry& entry, DataStoreSave& dataStoreSave);
+        void addMigrationEventList(pugi::xml_node pt);
 
         // member variables
-		ibs::FilePath m_absPath;
+		ibs::FilePath m_fullPath;
 		ibs::FilePath m_relPath;
         std::shared_ptr<Project> m_project;
 		std::shared_ptr<const Project> m_projectExisting;
 		bool m_append, m_center;
         size_t m_numThreads;
-	};
+    };
 }
 #endif

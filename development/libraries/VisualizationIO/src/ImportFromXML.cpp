@@ -121,7 +121,7 @@ std::shared_ptr<Project> CauldronIO::ImportFromXML::getProject(const pugi::xml_d
         std::shared_ptr<const Property> property = getProperty(propertyNode);
         m_project->addProperty(property);
     }
-
+    
 	// Read all geometries
 	pugi::xml_node geometriesNode = pt.child("geometries");
 	if (!geometriesNode)
@@ -198,6 +198,36 @@ std::shared_ptr<Project> CauldronIO::ImportFromXML::getProject(const pugi::xml_d
 			}
 		}
 	}
+
+    // Parse migration event table
+    pugi::xml_node migrationEventsNode = pt.child("migrationEvents");
+    if (migrationEventsNode)
+    {
+        size_t nrEvents = (size_t)migrationEventsNode.attribute("number").as_int();
+        size_t record_size = migrationEventsNode.attribute("record_size").as_int();
+        size_t totalSize = nrEvents * record_size;
+
+        // Uncompress the data
+        pugi::xml_node datastoreNode = migrationEventsNode.child("datastore");
+        DataStoreLoad datastore(DataStoreLoad::getDatastoreParams(datastoreNode, fullOutputPath));
+        char* data = (char*)datastore.getData(totalSize);
+        
+        // Reconstruct migrationEvents
+        size_t dataIndex = 0;
+        for (size_t index = 0; index < nrEvents; ++index, dataIndex += record_size)
+        {
+            std::shared_ptr<MigrationEvent> event(new MigrationEvent());
+
+            void* source = (void*)(&data[dataIndex]);
+            void* dest = (void*)(event.get());
+            memcpy(dest, source, record_size);
+
+            m_project->addMigrationEvent(event);
+        }
+
+        delete data;
+    }
+   
 
     // Read all snapshots
     pugi::xml_node snapshotsNode = pt.child("snapshots");

@@ -59,9 +59,12 @@ namespace CauldronIO
         // Returns a decompressed char* with size "size", for given input data char* and size
         static char* decompress(const char* data, size_t& size);
         // Returns a decompressed char* with size "size", for given input data char* and uncompressed size; the compressedSize will be output
-        static char* decompress_lz4(const char* inputData, size_t& compressedSize, size_t uncompressedSize);
+        static char* decompress_lz4(const char* inputData, size_t compressedSize, size_t uncompressedSize);
+
         /// \brief Creates a volume from the current XML node and assigns given Property
         static void getVolume(pugi::xml_node propertyVolNode, std::shared_ptr<VolumeData> volumeData, const ibs::FilePath& path);
+        /// \brief get datastore parameters from the XML node
+        static DataStoreParams* getDatastoreParams(pugi::xml_node &datastoreNode, const ibs::FilePath& path);
         /// \brief Gets surfacedata from the current XML node
         static void getSurface(pugi::xml_node propertyMapNode, std::shared_ptr<SurfaceData> surfaceData, const ibs::FilePath& path);
 
@@ -76,10 +79,10 @@ namespace CauldronIO
     {
     public:
         /// \brief Creates a new instance of DataToCompress
-        /// \param[in] inputData the data to compress
-        /// \param[in] nrOfElements the number of floats in the input data to compress
+        /// \param[in] inputData the (void) data to compress
+        /// \param[in] numBytes the number of bytes in the input data to compress
         /// \param[in] compress if true the data will be compressed, otherwise, no compression 
-        DataToCompress(const float* inputData, size_t nrOfElements, bool compress);
+        DataToCompress(const void* inputData, size_t numBytes, bool compress);
         /// \brief Destroys the obect
         ~DataToCompress();
         /// \brief Sets the offset within the binary output file; to be written to 
@@ -88,8 +91,8 @@ namespace CauldronIO
         void compress();
         /// \brief Returns true if this block has been compressed
         bool isProcessed() const;
-        /// \brief Returns a float* to the output data
-        const float* getOutputData() const;
+        /// \brief Returns a void* to the output data
+        const void* getOutputData() const;
         /// \brief
         size_t getOutputSizeInBytes() const;
         /// \brief
@@ -97,10 +100,10 @@ namespace CauldronIO
         /// \brief Writes size and offset to the xml node
         void updateXmlNode();
 
-    private:
-        const float* m_inputData; // not owned by us (!)
-        float* m_outputData;
-        size_t m_inputNrElements, m_outputNrBytes, m_offset;
+     private:
+        const void* m_inputData; // not owned by us (!)
+        void* m_outputData;
+        size_t m_inputSize, m_outputNrBytes, m_offset;
         bool m_compress, m_processed, m_node_set;
         pugi::xml_node m_node;
     };
@@ -124,6 +127,8 @@ namespace CauldronIO
         void addVolume(const std::shared_ptr<VolumeData>& data, pugi::xml_node node, size_t numBytes);
         /// \brief Returns a list with DataToCompress that can be compressed
         std::vector<std::shared_ptr<DataToCompress> > getDataToCompressList();
+        /// \brief Add generic data to this datastore
+        void addData(void* data, pugi::xml_node node, size_t numBytes);
 
         // Returns a compressed char* with size "size", for given input data char* and size
         static char* compress(const char* data, size_t& size);

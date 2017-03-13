@@ -68,6 +68,7 @@ private:
     std::shared_ptr<CauldronIO::SurfaceData> createMapIO(const DataAccess::Interface::PropertyValue* propVal, std::shared_ptr<const CauldronIO::Geometry2D>& geometry);
 
     void addSnapShots();
+    void addMigrationIO();
 
     CauldronIO::SubsurfaceKind getSubSurfaceKind(const DataAccess::Interface::Surface* surface) const;
 

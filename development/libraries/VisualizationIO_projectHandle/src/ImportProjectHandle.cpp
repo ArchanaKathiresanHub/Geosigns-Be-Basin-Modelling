@@ -71,6 +71,9 @@ std::shared_ptr<CauldronIO::Project> ImportProjectHandle::createFromProjectHandl
     // Add snapshots
 	import.addSnapShots();
 
+    // Add migration_io data
+    import.addMigrationIO();
+
     return project;
 }
 
@@ -1170,5 +1173,56 @@ std::shared_ptr<const CauldronIO::Property> ImportProjectHandle::getDefaultPrope
 	m_project->addProperty(propertyIO);
 
 	return propertyIO;
+}
+
+void ImportProjectHandle::addMigrationIO()
+{
+    database::Table* table = m_projectHandle->getTable("MigrationIoTbl");
+    if (!table || table->size() == 0) return;
+
+    for (size_t index = 0; index < table->size(); index++)
+    {
+        std::shared_ptr<CauldronIO::MigrationEvent> event(new CauldronIO::MigrationEvent());
+        database::Record* record = table->getRecord((int)index);
+
+        event->setMigrationProcess(getMigrationProcess(record));
+
+        event->SourceAge = (float)getSourceAge(record);
+        event->setSourceRockName(getSourceRockName(record));
+        event->setSourceReservoirName(getSourceReservoirName(record));
+        event->SourcePointX = (float)getSourcePointX(record);
+        event->SourcePointY = (float)getSourcePointY(record);
+
+        event->DestinationAge = (float)getDestinationAge(record);
+        event->setDestinationReservoirName(getDestinationReservoirName(record));
+        event->DestinationTrapID = getDestinationTrapID(record);
+        event->DestinationPointX = (float)getDestinationPointX(record);
+        event->DestinationPointY = (float)getDestinationPointY(record);
+
+        event->MassC1          = getMassC1(record);
+        event->MassC2          = getMassC2(record);
+        event->MassC3          = getMassC3(record);
+        event->MassC5          = getMassC5(record);
+        event->MassN2          = getMassN2(record);
+        event->MassCOx         = getMassCOx(record);
+        event->MassH2S         = getMassH2S(record);
+        event->MassC6_14Aro    = getMassC6_14Aro(record);
+        event->MassC6_14Sat    = getMassC6_14Sat(record);
+        event->MassC15Aro      = getMassC15Aro(record);
+        event->MassC15Sat      = getMassC15Sat(record);
+        event->MassLSC         = getMassLSC(record);
+        event->MassC15AT       = getMassC15AT(record);
+        event->MassC15AroS     = getMassC15AroS(record);
+        event->MassC15SatS     = getMassC15SatS(record);
+        event->MassC6_14BT     = getMassC6_14BT(record);
+        event->MassC6_14DBT    = getMassC6_14DBT(record);
+        event->MassC6_14BP     = getMassC6_14BP(record);
+        event->MassC6_14SatS   = getMassC6_14SatS(record);
+        event->MassC6_14AroS   = getMassC6_14AroS(record);
+        event->Massresins      = getMassresins(record);
+        event->Massasphaltenes = getMassasphaltenes(record);
+
+        m_project->addMigrationEvent(event);
+    }
 }
 
