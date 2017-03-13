@@ -227,6 +227,15 @@ bool Migrator::compute (void)
       if (!computeFormationPropertyMaps(m_projectHandle->getSnapshots()->front(), overPressureRun)) return false;
    }
 
+   if (m_reservoirDetection == true)
+   {
+      if (m_ReservoirIoTbl == nullptr) m_ReservoirIoTbl = m_projectHandle->getTable("ReservoirIoTbl");
+      assert(m_ReservoirIoTbl);
+      m_ReservoirIoTbl->clear();
+
+      m_projectHandle->deleteReservoirs();
+   }
+
    //By default the m_topDepthOffset= m_bottomDepthOffset = 0
    if (!computeDepthOffsets()) return false;
    if (!computeNetToGross()) return false;

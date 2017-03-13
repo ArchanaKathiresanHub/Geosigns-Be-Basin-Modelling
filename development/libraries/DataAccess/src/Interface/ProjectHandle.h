@@ -40,6 +40,11 @@ using namespace std;
  * an object factory that can be replaced to produce objects of derived classes of the framework classes.
  */
 
+namespace migration
+{
+   class Migrator;
+}
+
 namespace DataAccess
 {
    using Interface::MINOR;
@@ -878,7 +883,8 @@ namespace DataAccess
 
          /// List of the primary properties
          std::set<std::string> m_primaryList;
-
+         
+         friend class migration::Migrator;
       };
    }
 }
