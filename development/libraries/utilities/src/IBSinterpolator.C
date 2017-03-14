@@ -14,9 +14,9 @@ using namespace std;
 #ifdef ABS
 #undef ABS
 #endif
-#define ABS(x)	((x) < 0 ? -(x) : (x))
+#define ABS(x)   ((x) < 0 ? -(x) : (x))
 
-#define ACCURACY	0.0001
+#define ACCURACY   0.0001
 
 void ibs::XF::print (void) const
 {
@@ -77,16 +77,16 @@ ibs::Interpolator::Interpolator (ibs::Interpolator::SorterType sorterType) : d_s
    switch (sorterType)
    {
       case UnOrdered:
-	 d_sorterFunc = UnOrderedSorter;
-	 break;
+    d_sorterFunc = UnOrderedSorter;
+    break;
       case Ascending:
-	 d_sorterFunc = AscendingSorter;
-	 break;
+    d_sorterFunc = AscendingSorter;
+    break;
       case Descending:
-	 d_sorterFunc = DescendingSorter;
-	 break;
+    d_sorterFunc = DescendingSorter;
+    break;
       default:
-	 assert (false);
+    assert (false);
    }
 }
 
@@ -127,19 +127,19 @@ double ibs::Interpolator::compute (double x, Extrapolation type)
    assert (d_vectorXF.size () >= 2);
 
    // find the two adjacent points
-   for (int i = 0; i < d_vectorXF.size (); i++)
+   for (size_t i = 0; i < d_vectorXF.size (); i++)
    {
       XF * point = & d_vectorXF[i];
 
       if (point->getX () <= x)
       {
-	 pointLeft = point;
+         pointLeft = point;
       }
 
       if (point->getX () >= x)
       {
-	 pointRight = point;
-	 break;
+         pointRight = point;
+         break;
       }
    }
 
@@ -154,12 +154,12 @@ double ibs::Interpolator::compute (double x, Extrapolation type)
       // left extrapolation
       if (type == constant)
       {
-	 return pointRight->getF ();
+         return pointRight->getF ();
       }
       else
       {
-	 pointLeft = &d_vectorXF[0];
-	 pointRight = &d_vectorXF[1];
+         pointLeft = &d_vectorXF[0];
+         pointRight = &d_vectorXF[1];
       }
    }
    else if (!pointRight)
@@ -167,14 +167,14 @@ double ibs::Interpolator::compute (double x, Extrapolation type)
       // right extrapolation
       if (type == constant)
       {
-	 return pointLeft->getF ();
+         return pointLeft->getF ();
       }
       else
       {
-	 size_t size = d_vectorXF.size ();
+         size_t size = d_vectorXF.size ();
 
-	 pointLeft = &d_vectorXF[size - 2];
-	 pointRight = &d_vectorXF[size - 1];
+         pointLeft = &d_vectorXF[size - 2];
+         pointRight = &d_vectorXF[size - 1];
       }
    }
 
@@ -198,7 +198,7 @@ void ibs::Interpolator::freeze () {
 
 void ibs::Interpolator::print (void)
 {
-   for (int i = 0; i < d_vectorXF.size (); i++)
+   for (size_t i = 0; i < d_vectorXF.size (); i++)
    {
       XF * point = & d_vectorXF[i];
       point->print ();

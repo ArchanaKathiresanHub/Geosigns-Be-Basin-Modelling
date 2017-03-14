@@ -37,7 +37,7 @@ namespace Numerics {
 inline Numerics::FloatingPoint Numerics::RBFCubic::operator ()( const FloatingPoint rSquared ) const {
 
   // r^3 = r^2 * sqrt ( r^2 )
-  return rSquared * std::sqrt ( rSquared );
+  return (rSquared>=0.) ? rSquared * std::sqrt ( rSquared ) : 0.;
 }
 
 

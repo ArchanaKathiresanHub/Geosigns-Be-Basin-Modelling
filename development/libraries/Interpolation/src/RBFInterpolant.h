@@ -135,8 +135,8 @@ Numerics::RBFInterpolant<RadialBasisFunction>::RBFInterpolant
      const int                 initialPolynomialDegree ) :
 
      interpolationPoints ( newInterpolationPoints ),
-     coefficients ( newInterpolationPoints.size () + numberOfPolynomialTerms<Point::DIMENSION>( initialPolynomialDegree )),
-     workSpace    ( newInterpolationPoints.size () + numberOfPolynomialTerms<Point::DIMENSION>( initialPolynomialDegree )) {
+     coefficients ( (int)newInterpolationPoints.size () + numberOfPolynomialTerms<Point::DIMENSION>( initialPolynomialDegree )),
+     workSpace    ( (int)newInterpolationPoints.size () + numberOfPolynomialTerms<Point::DIMENSION>( initialPolynomialDegree )) {
 
 
   polynomialDegree = initialPolynomialDegree;
@@ -176,7 +176,7 @@ const Numerics::Vector& Numerics::RBFInterpolant<RadialBasisFunction>::getCoeffi
 template <class RadialBasisFunction>
 void Numerics::RBFInterpolant<RadialBasisFunction>::setInterpolationPoints ( const PointArray& newPoints ) {
   interpolationPoints = newPoints;
-  workSpace.resize ( interpolationPoints.size () + numberOfPolynomialTerms<Point::DIMENSION>( polynomialDegree ));
+  workSpace.resize ( static_cast<int>(interpolationPoints.size()) + numberOfPolynomialTerms<Point::DIMENSION>( polynomialDegree ));
 }
 
 //------------------------------------------------------------//

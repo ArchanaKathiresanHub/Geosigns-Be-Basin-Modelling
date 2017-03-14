@@ -6,6 +6,7 @@
 //------------------------------------------------------------//
 
 #include "Numerics.h"
+#include <stdexcept>
 
 //------------------------------------------------------------//
 
@@ -61,12 +62,18 @@ namespace Numerics {
 //------------------------------------------------------------//
 
 inline Numerics::FloatingPoint Numerics::GeometryVector::operator ()( const int coord ) const {
+#ifndef NDEBUG
+   if( coord < 0 || coord >= DIMENSION ) throw std::runtime_error("Out of bounds access");
+#endif
   return values [ coord ];
 }
 
 //------------------------------------------------------------//
 
 inline Numerics::FloatingPoint& Numerics::GeometryVector::operator ()( const int coord ) {
+#ifndef NDEBUG
+   if( coord < 0 || coord >= DIMENSION ) throw std::runtime_error("Out of bounds access");
+#endif
   return values [ coord ];
 }
 

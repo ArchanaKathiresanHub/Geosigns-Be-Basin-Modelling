@@ -98,6 +98,7 @@ namespace Numerics {
 template<const int Dimension>
 int Numerics::numberOfPolynomialTerms ( const int degree ) {
 
+  static_assert(Dimension > 0, "Dimension must be positive");
   if ( degree <= NoPolynomial ) {
     return 0;
   } else if ( degree == ConstantPolynomial ) {
@@ -208,12 +209,11 @@ void Numerics::evaluateBasisFunction ( const RadialBasisFunction& rbf,
                                        const Point&               evaluationPoint,
                                              Vector&              bases ) {
 
-  size_t i;
+  int i;
   int j;
   FloatingPoint rSquared;
-  
 
-  for ( i = 0; i < interpolationPoints.size (); i++ ) {
+  for ( i = 0; i < (int)interpolationPoints.size (); i++ ) {
     rSquared = separationDistanceSquared ( evaluationPoint, interpolationPoints [ i ]);
     bases ( i ) = rbf ( rSquared );
   }

@@ -587,12 +587,12 @@ bool SerialGridMap::saveHDF5 (const string & fileName) const
    HDF5::writeData1D (fileHandle, 1, "/origin in I dimension", H5T_NATIVE_FLOAT, &origI);
    HDF5::writeData1D (fileHandle, 1, "/origin in J dimension", H5T_NATIVE_FLOAT, &origJ);
 
-   float deltaI = getGrid ()->deltaI ();
-   float deltaJ = getGrid ()->deltaJ ();
+   float deltaI = static_cast<float>( getGrid ()->deltaI () );
+   float deltaJ = static_cast<float>( getGrid ()->deltaJ () );
    HDF5::writeData1D (fileHandle, 1, "/delta in I dimension", H5T_NATIVE_FLOAT, &deltaI);
    HDF5::writeData1D (fileHandle, 1, "/delta in J dimension", H5T_NATIVE_FLOAT, &deltaJ);
 
-   float nullValue = (float) getUndefinedValue ();
+   float nullValue = static_cast<float>( getUndefinedValue () );
    HDF5::writeData1D (fileHandle, 1, "/null value", H5T_NATIVE_FLOAT, &nullValue);
 
    int maxKsize = 1;
@@ -604,7 +604,7 @@ bool SerialGridMap::saveHDF5 (const string & fileName) const
    {
       for (unsigned int j = 0; j < static_cast<unsigned int>(numJ); ++j)
       {
-         dataArray[i * numJ + j] = getValue (i, j, (unsigned int) 0); 
+         dataArray[i * numJ + j] = static_cast<float>( getValue (i, j, (unsigned int) 0) );
       }
    }
 

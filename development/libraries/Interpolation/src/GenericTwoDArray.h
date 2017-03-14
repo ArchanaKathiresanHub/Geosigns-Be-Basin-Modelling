@@ -6,6 +6,7 @@
 //------------------------------------------------------------//
 
 #include "Numerics.h"
+#include <stdexcept>
 
 //------------------------------------------------------------//
 
@@ -146,8 +147,9 @@ protected :
 
 template<typename DataType>
 GenericTwoDArray<DataType>::GenericTwoDArray () {
-  entries1D = (DataType*)(0);
-  entries2D = (DataType**)(0);
+  entries1D = (DataType*)(nullptr);
+  entries2D = (DataType**)(nullptr);
+  totalNumberOfEntries = 0;
 }
 
 //------------------------------------------------------------//
@@ -216,11 +218,11 @@ GenericTwoDArray<DataType>::GenericTwoDArray ( const GenericTwoDArray& array ) {
 template<typename DataType>
 GenericTwoDArray<DataType>::~GenericTwoDArray () {
 
-  if ( entries1D != (DataType*)(0)) {
+  if ( entries1D != (DataType*)(nullptr)) {
     delete [] entries1D;
   }
 
-  if ( entries2D != (DataType**)(0)) {
+  if ( entries2D != (DataType**)(nullptr)) {
     delete [] entries2D;
   }
 
@@ -289,12 +291,9 @@ void GenericTwoDArray<DataType>::setSize ( const int dimension1,
 template<typename DataType>
 int GenericTwoDArray<DataType>::first ( const int dimension ) const {
 
-  #ifdef __Constraint_Check__
-  if ( dimension <= 0 or dimension > 2 ) {
-    throw Exceptions::ConstraintError ( " Invalid dimension not in range 1 .. 2 )",
-                                        __LINE__, __FUNCTION__, __FILE__ );
-  }
-  #endif
+#ifdef __Constraint_Check__
+   if( dimension <= 0 || dimension > 2 ) throw std::runtime_error("Out of bounds access");
+#endif
 
   return startPosition [ dimension - 1 ];
 }
@@ -304,12 +303,9 @@ int GenericTwoDArray<DataType>::first ( const int dimension ) const {
 template<typename DataType>
 int GenericTwoDArray<DataType>::last ( const int dimension ) const {
 
-  #ifdef __Constraint_Check__
-  if ( dimension <= 0 or dimension > 2 ) {
-    throw Exceptions::ConstraintError ( " Invalid dimension not in range 1 .. 2 )",
-                                        __LINE__, __FUNCTION__, __FILE__ );
-  }
-  #endif
+#ifdef __Constraint_Check__
+   if( dimension <= 0 || dimension > 2 ) throw std::runtime_error("Out of bounds access");
+#endif
 
   return endPosition [ dimension - 1 ];
 }
@@ -319,12 +315,9 @@ int GenericTwoDArray<DataType>::last ( const int dimension ) const {
 template<typename DataType>
 int GenericTwoDArray<DataType>::length ( const int dimension ) const {
 
-  #ifdef __Constraint_Check__
-  if ( dimension <= 0 or dimension > 2 ) {
-    throw Exceptions::ConstraintError ( " Invalid dimension not in range 1 .. 2 )",
-                                        __LINE__, __FUNCTION__, __FILE__ );
-  }
-  #endif
+#ifdef __Constraint_Check__
+   if( dimension <= 0 || dimension > 2 ) throw std::runtime_error("Out of bounds access");
+#endif
 
   return endPosition [ dimension - 1 ] - startPosition [ dimension - 1 ] + 1;
 }
@@ -342,15 +335,12 @@ template<typename DataType>
 const DataType& GenericTwoDArray<DataType>::operator ()( const int position1,
                                                          const int position2 ) const {
 
-  #ifdef __Constraint_Check__
-  if (( position1 < startPosition [ 0 ] ) || ( position1 > endPosition [ 0 ] ) ||
-      ( position2 < startPosition [ 1 ] ) || ( position2 > endPosition [ 1 ] )) {
-    ThrowException ( Exceptions::ConstraintError,
-                     " position not in range: " 
-                     << position1 << " in " << startPosition [ 0 ] << " .. " << endPosition [ 0 ]
-                     << position2 << " in " << startPosition [ 1 ] << " .. " << endPosition [ 1 ]);
-  }
-  #endif
+#ifdef __Constraint_Check__
+if (( position1 < startPosition [ 0 ] ) || ( position1 > endPosition [ 0 ] ) ||
+   ( position2 < startPosition [ 1 ] ) || ( position2 > endPosition [ 1 ] )) {
+   throw std::runtime_error("Out of bounds access");
+}
+#endif
       
   return entries2D [ position1 - startPosition [ 0 ]][ position2 - startPosition [ 1 ]];
 }
@@ -361,15 +351,12 @@ template<typename DataType>
 DataType& GenericTwoDArray<DataType>::operator ()( const int position1,
                                                    const int position2 ) {
 
-  #ifdef __Constraint_Check__
-  if (( position1 < startPosition [ 0 ] ) || ( position1 > endPosition [ 0 ] ) ||
-      ( position2 < startPosition [ 1 ] ) || ( position2 > endPosition [ 1 ] )) {
-    ThrowException ( Exceptions::ConstraintError,
-                     " position not in range: " 
-                     << position1 << " in " << startPosition [ 0 ] << " .. " << endPosition [ 0 ]
-                     << position2 << " in " << startPosition [ 1 ] << " .. " << endPosition [ 1 ]);
-  }
-  #endif
+#ifdef __Constraint_Check__
+if (( position1 < startPosition [ 0 ] ) || ( position1 > endPosition [ 0 ] ) ||
+   ( position2 < startPosition [ 1 ] ) || ( position2 > endPosition [ 1 ] )) {
+   throw std::runtime_error("Out of bounds access");
+}
+#endif
       
   return entries2D [ position1 - startPosition [ 0 ]][ position2 - startPosition [ 1 ]];
 }
