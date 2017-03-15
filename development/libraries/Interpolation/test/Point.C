@@ -62,6 +62,7 @@ TEST( Point, AccessOperator )
    EXPECT_DOUBLE_EQ( p1(2), 4. );
 }
 
+#ifndef NDEBUG
 TEST( Point, AccessOperatorFail )
 {
    const Numerics::Point p0(1.,2.,3.);
@@ -95,6 +96,7 @@ TEST( Point, AccessOperatorFail )
       FAIL() << "Expected std::runtime_error";
    }
 }
+#endif
 
 TEST( Point, AssignementOperatorPlus )
 {

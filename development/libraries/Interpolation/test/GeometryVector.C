@@ -22,6 +22,7 @@ TEST( GeometryVector, AccessOperator )
    EXPECT_DOUBLE_EQ( gv(2), 3. );
 }
 
+#ifndef NDEBUG
 TEST( Point, AccessOperatorFail )
 {
    Numerics::GeometryVector gv0;
@@ -55,6 +56,7 @@ TEST( Point, AccessOperatorFail )
       FAIL() << "Expected std::runtime_error";
    }
 }
+#endif
 
 TEST( GeometryVector, Data )
 {

@@ -55,7 +55,7 @@ TEST( RBF, ThinPlateSpline )
    
    EXPECT_DOUBLE_EQ( rbf(0.), 0. );
 
-   // Check it's decreasing
+   // Check it's increasing for values greater than 1
    for(int i = 1; i <= 100; ++i)
    {
       EXPECT_GT( rbf(static_cast<double>(i+1)), rbf(static_cast<double>(i)) );
