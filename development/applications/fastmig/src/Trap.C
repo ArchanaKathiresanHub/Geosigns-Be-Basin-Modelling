@@ -50,7 +50,6 @@ extern ostringstream cerrstrstr;
 using Interface::Formation;
 using Interface::Snapshot;
 using functions::Tuple2;
-using functions::tuple;
 
 // utilities library
 #include "ConstantsMathematics.h"
@@ -1660,7 +1659,7 @@ namespace migration
                return false;
             }
 
-            double thickness = (*d).base ()[functions::tuple (i, j)] - (*d).top ()[functions::tuple (i, j)];
+            double thickness = (*d).base ()[functions::Tuple2<unsigned int>(i, j)] - (*d).top ()[functions::Tuple2<unsigned int>(i, j)];
 
 #ifdef DEBUG_TRAP
             string name = (*f)->getName();
@@ -1695,7 +1694,7 @@ namespace migration
 
                return false;
             }
-            double topTemperature = (*t)[functions::tuple (i, j)];
+            double topTemperature = (*t)[functions::Tuple2<unsigned int>(i, j)];
 
             if (!(*p).top ().valid ())
             {
@@ -1705,7 +1704,7 @@ namespace migration
 
                return false;
             }
-            double topPorosity = (*p).top ()[functions::tuple (i, j)];
+            double topPorosity = (*p).top ()[functions::Tuple2<unsigned int>(i, j)];
 
             if (!(*bv).top ().valid ())
             {
@@ -1715,7 +1714,7 @@ namespace migration
 
                return false;
             }
-            double topBrineViscosity = (*bv).top ()[functions::tuple (i, j)];
+            double topBrineViscosity = (*bv).top ()[functions::Tuple2<unsigned int>(i, j)];
 
             diffusionOverburdenProps.push_back (DiffusionLeak::OverburdenProp (thickness, topPorosity, basePorosity,
                                                                                topTemperature, baseTemperature,
@@ -1733,7 +1732,7 @@ namespace migration
 
             return false;
          }
-         baseDepth = (*d).base ()[functions::tuple (i, j)];
+         baseDepth = (*d).base ()[functions::Tuple2<unsigned int>(i, j)];
 
          if (!(*p).top ().valid ())
          {
@@ -1744,7 +1743,7 @@ namespace migration
             return false;
          }
 
-         basePorosity = (*p).top ()[functions::tuple (i, j)];
+         basePorosity = (*p).top ()[functions::Tuple2<unsigned int>(i, j)];
 
          if (!(*t).valid ())
          {
@@ -1754,7 +1753,7 @@ namespace migration
 
             return false;
          }
-         baseTemperature = (*t)[functions::tuple (i, j)];
+         baseTemperature = (*t)[functions::Tuple2<unsigned int>(i, j)];
 
          if (!(*bv).top ().valid ())
          {
@@ -1765,7 +1764,7 @@ namespace migration
             return false;
          }
 
-         baseBrineViscosity = (*bv).top ()[functions::tuple (i, j)];
+         baseBrineViscosity = (*bv).top ()[functions::Tuple2<unsigned int>(i, j)];
 
          ++d; ++p; ++t;
       }
@@ -2169,7 +2168,7 @@ namespace migration
             }
 
             //the formation has thickness at the specific i,j
-            assert( ( *d ).base()[functions::tuple( i, j )] - ( *d ).top()[functions::tuple( i, j )] > 0.0 );
+            assert( ( *d ).base()[functions::Tuple2<unsigned int>( i, j )] - ( *d ).top()[functions::Tuple2<unsigned int>( i, j )] > 0.0 );
             assert( ( *f )->getLithoType1() );
             assert( l0 != lithoType1Percents.end() );
             assert( l0->first == *f );
@@ -2178,11 +2177,11 @@ namespace migration
             // do exist.  Get the fractions of the LithoTypes:
             vector<double> formLithFracs;
 
-            formLithFracs.push_back( 0.01 * ( *l0 ).second[functions::tuple( i, j )] );
+            formLithFracs.push_back( 0.01 * ( *l0 ).second[functions::Tuple2<unsigned int>( i, j )] );
             if ( ( *f )->getLithoType2() && l1 != lithoType2Percents.end() && ( *l1 ).first == ( *f ) )
-               formLithFracs.push_back( 0.01 * ( *l1 ).second[functions::tuple( i, j )] );
+               formLithFracs.push_back( 0.01 * ( *l1 ).second[functions::Tuple2<unsigned int>( i, j )] );
             if ( ( *f )->getLithoType3() && l2 != lithoType3Percents.end() && ( *l2 ).first == ( *f ) )
-               formLithFracs.push_back( 0.01 * ( *l2 ).second[functions::tuple( i, j )] );
+               formLithFracs.push_back( 0.01 * ( *l2 ).second[functions::Tuple2<unsigned int>( i, j )] );
 
             // store the formation litho fraction
             lithFracs.push_back( formLithFracs );
@@ -2211,19 +2210,19 @@ namespace migration
                      return false;
                   }
                   else
-                     permeability.push_back(( *p ).base( )[functions::tuple( i, j )]);
+                     permeability.push_back(( *p ).base( )[functions::Tuple2<unsigned int>( i, j )]);
                }
                else
                {
                   if ( *f == formations.front() && ( *p ).top().valid() )
                   {
                      //reservoir (in case the only valid formation is the reservoir only this is executed)
-                     permeability.push_back( ( *p ).top()[functions::tuple( i, j )] );
+                     permeability.push_back( ( *p ).top()[functions::Tuple2<unsigned int>( i, j )] );
                   }
                   else if ( formations.size() == 2 && *f == formations.back() && ( *p ).base().valid() )
                   {
                      //seal
-                     permeability.push_back( ( *p ).base()[functions::tuple( i, j )] );
+                     permeability.push_back( ( *p ).base()[functions::Tuple2<unsigned int>( i, j )] );
                   }
                   else
                   {

@@ -29,8 +29,6 @@ using std::ostringstream;
 #include <algorithm>
 #include <assert.h>
 
-using functions::tuple;
-
 using namespace std;
 
 namespace migration
@@ -188,7 +186,7 @@ namespace migration
 
          // If the oil buoyancy alone is bigger or equal to the maximum seal pressure, all gas 
          // will be leaked:
-         if (maxGasLevelFunctor < functions::tuple (0.0, 0.0))
+         if (maxGasLevelFunctor < functions::Tuple2<double>(0.0, 0.0))
          {
 #ifdef DEBUG_LEAKGAS
             assert(oilVolume >= leakGasDueToOilBuoyancy.maxVolume());

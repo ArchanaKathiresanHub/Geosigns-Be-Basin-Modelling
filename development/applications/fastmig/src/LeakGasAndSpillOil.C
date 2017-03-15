@@ -20,7 +20,6 @@
 #include <assert.h>
 
 using std::min;
-using functions::tuple;
 #ifdef DEBUG_LEAKGASANDSPILLOIL
 using std::cerr;
 using std::endl;
@@ -134,7 +133,7 @@ namespace migration
             minGasContent[0] = m_leakGas.levelToVolume ()->invert (minGasContent[1]);
          }
          else
-            minGasContent = tuple (0.0, 0.0);
+            minGasContent = functions::Tuple2<double>(0.0, 0.0);
 
          bool onlyLeaking = maxGasLevelFunctor < minGasContent;
 
