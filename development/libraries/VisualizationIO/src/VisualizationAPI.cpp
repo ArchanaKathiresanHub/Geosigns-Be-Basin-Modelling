@@ -2020,10 +2020,7 @@ void CauldronIO::StratigraphyTableEntry::setFormation(std::shared_ptr<Formation>
 CauldronIO::MigrationEvent::MigrationEvent()
 {
     // Clear our buffers
-    std::memset((void*)m_SourceReservoirName, 0, m_maxStringLength);
-    std::memset((void*)m_SourceRockName, 0, m_maxStringLength);
-    std::memset((void*)m_DestinationReservoirName, 0, m_maxStringLength);
-    std::memset((void*)m_migrationProcess, 0, m_maxStringLength);
+    std::memset((void*)this, 0, sizeof(MigrationEvent));
 }
 
 
