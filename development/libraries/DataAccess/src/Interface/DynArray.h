@@ -29,16 +29,16 @@ template < class ObjType > class DynArray
    }
 
    /// index of the next non-zero array entry following the entry of the given index, O(1).
-   inline int next (const int index) const;
+   inline unsigned int next (const unsigned int index) const;
 
    /// returns the element at the index.
-   inline const ObjType & get (const int index) const;
+   inline const ObjType & get (const unsigned int index) const;
 
    /// puts an element at the index and returns the old one.
-   inline ObjType & put (const int index, const ObjType & value);
+   inline ObjType & put (const unsigned int index, const ObjType & value);
 
    /// array operator for retrieval and assignment.
-   inline ObjType & operator[](const int index);
+   inline ObjType & operator[](const unsigned int index);
 
    /// remove all elements
    inline void clear (void);
@@ -111,21 +111,21 @@ template < class ObjType >
 unsigned int DynArray < ObjType >::size (void) const
 {
    int sz = 0;
-   for (int i = 0; i < m_capacity; i++)
+   for (unsigned int i = 0; i < m_capacity; i++)
       if (m_table[i]) ++sz;
    return sz;
 }
 
 template < class ObjType >
-int DynArray < ObjType >::next (const int index) const
+unsigned int DynArray < ObjType >::next (const unsigned int index) const
 {
-   for (int i = index + 1; i < m_capacity; i++)
+   for (unsigned int i = index + 1; i < m_capacity; i++)
       if (m_table[i]) return i;
    return m_capacity;
 }
 
 template < class ObjType >
-const ObjType & DynArray < ObjType >::get (const int index) const
+const ObjType & DynArray < ObjType >::get (const unsigned int index) const
 {
    if (index < m_capacity)
       return m_table[index];
@@ -153,7 +153,7 @@ void DynArray < ObjType >::resize (unsigned int index)
 }
 
 template < class ObjType >
-ObjType & DynArray < ObjType >::put (const int index, const ObjType & value)
+ObjType & DynArray < ObjType >::put (const unsigned int index, const ObjType & value)
 {
    ObjType null = 0;
    ObjType & old = null;
@@ -169,7 +169,7 @@ ObjType & DynArray < ObjType >::put (const int index, const ObjType & value)
 }
 
 template < class ObjType >
-ObjType & DynArray < ObjType >::operator[](const int index)
+ObjType & DynArray < ObjType >::operator[](const unsigned int index)
 {
    if (index >= m_capacity)
       resize (index + 1);

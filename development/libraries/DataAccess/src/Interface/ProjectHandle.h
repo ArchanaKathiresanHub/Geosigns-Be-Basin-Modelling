@@ -320,9 +320,9 @@ namespace DataAccess
          /// @param[in] all if true it means: SURFACE | FORMATION | FORMATIONSURFACE | RESERVOIR
          /// @param[in] selectionFlags is logical OR for the following flags:
          ///                           SURFACE = surface property which per definition is 2D.
-         /// 	                         FORMATION = formation property which can be 2D and 3D
-         /// 	                         FORMATIONSURFACE = a surface property that is not continuous over the surface.
-         /// 	                         RESERVOIR = properties which apply to a reservoir and are therefore 2D.
+         ///                             FORMATION = formation property which can be 2D and 3D
+         ///                             FORMATIONSURFACE = a surface property that is not continuous over the surface.
+         ///                             RESERVOIR = properties which apply to a reservoir and are therefore 2D.
          /// @param[in] snapshot      properties belonging to this snapshot. If not specified, return properties for all snapshots.
          /// @param[in] reservoir     properties belonging to this reservoir.
          /// @param[in] formation     properties belonging to this formation.
@@ -341,9 +341,9 @@ namespace DataAccess
          ///
          /// @param[in] selectionFlags is logical OR for the following flags:
          ///                           SURFACE = surface property which per definition is 2D.
-         /// 	                         FORMATION = formation property which can be 2D and 3D
-         /// 	                         FORMATIONSURFACE = a surface property that is not continuous over the surface.
-         /// 	                         RESERVOIR = properties which apply to a reservoir and are therefore 2D.
+         ///                             FORMATION = formation property which can be 2D and 3D
+         ///                             FORMATIONSURFACE = a surface property that is not continuous over the surface.
+         ///                             RESERVOIR = properties which apply to a reservoir and are therefore 2D.
          /// @param property
          /// @param[in] snapshot properties belonging to this snapshot. If not specified, return
          ///            properties for all snapshots.
@@ -860,6 +860,8 @@ namespace DataAccess
          void deletePointHistories();
          void deleteIrreducibleWaterSaturationSample();
          void deleteSGDensitySample();
+
+         void deleteFaultCollections();
 
          MutableLangmuirAdsorptionIsothermSampleList m_langmuirIsotherms;
          MutableLangmuirAdsorptionTOCEntryList m_langmuirTocAdsorptionEntries;

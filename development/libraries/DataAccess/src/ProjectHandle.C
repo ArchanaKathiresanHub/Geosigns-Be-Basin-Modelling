@@ -150,7 +150,7 @@ DataAccess::Interface::ProjectHandle * DataAccess::Interface::OpenCauldronProjec
    }
    else
    {
-      return 0;
+      return nullptr;
    }
 
 }
@@ -195,7 +195,7 @@ const DataAccess::Interface::ApplicationGlobalOperations& ProjectHandle::getGlob
 }
 
 ProjectHandle::ProjectHandle( database::ProjectFileHandlerPtr pfh, const string & name, const string & accessMode, ObjectFactory* objectFactory ) :
-   m_projectFileHandler ( pfh ), m_name( name ), m_accessMode( READWRITE ), m_activityOutputGrid( 0 ), m_mapPropertyValuesWriter( 0 ), m_primaryList( words, words + 12 )
+   m_name( name ), m_accessMode( READWRITE ), m_projectFileHandler( pfh ), m_activityOutputGrid( 0 ), m_mapPropertyValuesWriter( 0 ), m_primaryList( words, words + 12 )
 {
    (void) accessMode; // ignore warning about unused parameter
 
@@ -443,6 +443,9 @@ ProjectHandle::~ProjectHandle( void )
    deletePermafrost();
    deleteSimulationDetails();
 
+   deleteMigrations();
+   deleteTrappers();
+   deleteFaultCollections();
 }
 
 
@@ -573,7 +576,6 @@ bool ProjectHandle::restartActivity( void )
    }
    else
    {
-      const std::string& directoryName = getOutputDir();
       // create hdf file
       string fileName = getActivityName();
 
@@ -586,7 +588,7 @@ bool ProjectHandle::restartActivity( void )
       m_mapPropertyValuesWriter->open( filePathName, false );
       m_mapPropertyValuesWriter->saveDescription( getActivityOutputGrid() );
 
-      saveCreatedMapPropertyValues();		/// creates new TimeIoRecords
+      saveCreatedMapPropertyValues();      /// creates new TimeIoRecords
 
       return true;
    }
@@ -596,7 +598,7 @@ bool ProjectHandle::continueActivity( void )
 {
    if ( getActivityName() == "" || getActivityOutputGrid() == 0 ) return false;
 
-   saveCreatedMapPropertyValues();		/// creates new TimeIoRecords
+   saveCreatedMapPropertyValues();      /// creates new TimeIoRecords
 
    saveCreatedVolumePropertyValues();
 
@@ -3252,7 +3254,7 @@ float ProjectHandle::GetUndefinedValue( hid_t fileId )
          assert( rank == 1 );
          assert( hdimension == 1 );
 
-         herr_t status = H5Dread( dataSetId, dataTypeId, H5S_ALL, H5S_ALL, H5P_DEFAULT, &undefinedValue );
+         H5Dread( dataSetId, dataTypeId, H5S_ALL, H5S_ALL, H5P_DEFAULT, &undefinedValue );
 
          H5Sclose( dataSpaceId );
       }
@@ -3389,13 +3391,13 @@ std::shared_ptr<const ReservoirOptions> ProjectHandle::getReservoirOptions () co
 
 Reservoir* ProjectHandle::addDetectedReservoirs (database::Record * record, const Formation * formation)
 {
-	DataAccess::Interface::Reservoir * detectedReservoir = getFactory ()->produceReservoir (this, record);
+   DataAccess::Interface::Reservoir * detectedReservoir = getFactory ()->produceReservoir (this, record);
    // connect the detected Reservoir
    detectedReservoir->setFormation(formation);
-	// add the detected reservoir to the list of reservoirs
-	m_reservoirs.push_back (detectedReservoir);
-	// return the reservoir to formation
-	return detectedReservoir;
+   // add the detected reservoir to the list of reservoirs
+   m_reservoirs.push_back (detectedReservoir);
+   // return the reservoir to formation
+   return detectedReservoir;
 }
 
 
@@ -3614,14 +3616,13 @@ Interface::TouchstoneMapList * ProjectHandle::getTouchstoneMaps( void ) const
 
 Interface::AllochthonousLithologyDistributionList * ProjectHandle::getAllochthonousLithologyDistributions( const Interface::AllochthonousLithology * allochthonousLithology ) const
 {
+   if ( allochthonousLithology == nullptr )
+   {
+      return nullptr;
+   }
 
    Interface::AllochthonousLithologyDistributionList* allochthonousLithologyDistributionList = new Interface::AllochthonousLithologyDistributionList;
    MutableAllochthonousLithologyDistributionList::const_iterator distributionIter;
-
-   if ( allochthonousLithology == 0 )
-   {
-      return 0;
-   }
 
    for ( distributionIter = m_allochthonousLithologyDistributions.begin(); distributionIter != m_allochthonousLithologyDistributions.end(); ++distributionIter )
    {
@@ -3639,14 +3640,13 @@ Interface::AllochthonousLithologyDistributionList * ProjectHandle::getAllochthon
 
 Interface::AllochthonousLithologyInterpolationList * ProjectHandle::getAllochthonousLithologyInterpolations( const Interface::AllochthonousLithology * allochthonousLithology ) const
 {
-
+   if ( allochthonousLithology == nullptr )
+   {
+      return nullptr;
+   }
+   
    Interface::AllochthonousLithologyInterpolationList* allochthonousLithologyInterpolationList = new Interface::AllochthonousLithologyInterpolationList;
    MutableAllochthonousLithologyInterpolationList::const_iterator interpolationIter;
-
-   if ( allochthonousLithology == 0 )
-   {
-      return 0;
-   }
 
    for ( interpolationIter = m_allochthonousLithologyInterpolations.begin(); interpolationIter != m_allochthonousLithologyInterpolations.end(); ++interpolationIter )
    {
@@ -5724,6 +5724,20 @@ void ProjectHandle::deleteSGDensitySample() {
       delete m_sgDensitySample;
       m_sgDensitySample = 0;
    }
+
+}
+
+void ProjectHandle::deleteFaultCollections() {
+
+   MutableFaultCollectionList::const_iterator faultCollectionIter;
+
+   for ( faultCollectionIter = m_faultCollections.begin(); faultCollectionIter != m_faultCollections.end(); ++faultCollectionIter )
+   {
+      FaultCollection * faultCollectionInstance = *faultCollectionIter;
+      delete faultCollectionInstance;
+   }
+
+   m_faultCollections.clear();
 
 }
 

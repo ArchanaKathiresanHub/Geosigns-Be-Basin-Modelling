@@ -58,19 +58,19 @@ const GridMap * BasementFormation::getInputThicknessMap (void) const
 {
    const GridMap * gridMap;
 
-   if ((gridMap = (const GridMap *) getChild (ThicknessMap)) != 0) return gridMap;
-   else if ((gridMap = computeThicknessMap ()) != 0) return gridMap;
-   else return 0;
+   if ((gridMap = (const GridMap *) getChild (ThicknessMap)) != nullptr) return gridMap;
+   else if ((gridMap = computeThicknessMap ()) != nullptr) return gridMap;
+   else return nullptr;
 }
 
 GridMap * BasementFormation::loadThicknessMap (void) const
 {
-   return 0;
+   return nullptr;
 }
 
 GridMap * BasementFormation::computeThicknessMap (void) const
 {
-   return 0;
+   return nullptr;
 }
 
 const LithoType * BasementFormation::getLithoType1 (void) const {
@@ -85,7 +85,7 @@ const GridMap * BasementFormation::getLithoType1PercentageMap (void) const
 {
    GridMap * gridMap;
 
-   if ((gridMap = (GridMap *) getChild (LithoType1Map)) == 0)
+   if ((gridMap = (GridMap *) getChild (LithoType1Map)) == nullptr)
    {
       const double percentage = 100.0;
 
@@ -102,48 +102,48 @@ const GridMap * BasementFormation::getLithoType1PercentageMap (void) const
 /// Return the second lithotype of this BasementFormation
 const LithoType * BasementFormation::getLithoType2 (void) const
 {
-   return 0;
+   return nullptr;
 }
 
 /// Return the percentage map of the second lithotype
 const GridMap * BasementFormation::getLithoType2PercentageMap (void) const
 {
-   return 0;
+   return nullptr;
 }
 
 /// Return the third lithotype of this BasementFormation
 const LithoType * BasementFormation::getLithoType3 (void) const
 {
-   return 0;
+   return nullptr;
 }
 
 /// Return the percentage map of the third lithotype
 const GridMap * BasementFormation::getLithoType3PercentageMap (void) const
 {
-   return 0;
+   return nullptr;
 }
 
 /// return the list of reservoirs in this formation.
 ReservoirList * BasementFormation::getReservoirs (void) const
 {
-   return 0;
+   return nullptr;
 }
 
 /// return the list of MobileLayers in this formation.
 MobileLayerList * BasementFormation::getMobileLayers (void) const
 {
-   return 0;
+   return nullptr;
 }
 
 // Return the allochthonous lithology pointer.
 const AllochthonousLithology * BasementFormation::getAllochthonousLithology (void) const {
-  return false;
+  return nullptr;
 }
 
 /// return the list of reservoirs in this formation.
 FaultCollectionList * BasementFormation::getFaultCollections (void) const
 {
-   return 0;
+   return nullptr;
 }
 
 /// tell whether this BasementFormation is a mobile layer
@@ -175,12 +175,12 @@ bool BasementFormation::hasChemicalCompaction () const {
 /// Return the SourceRock of this BasementFormation
 const SourceRock * BasementFormation::getSourceRock (void) const
 {
-   return 0;
+   return nullptr;
 }
 
-GridMap * BasementFormation::computeFaultGridMap (const Grid * localGrid, const Snapshot * snapshot) const
+GridMap * BasementFormation::computeFaultGridMap (const Grid * , const Snapshot * ) const
 {
-   return 0;
+   return nullptr;
 }
 
 CBMGenerics::capillarySealStrength::MixModel BasementFormation::getMixModel() const
@@ -194,7 +194,7 @@ const std::string& BasementFormation::getMixModelStr (void) const {
 
 const FluidType* BasementFormation::getFluidType (void) const
 {
-   return 0;
+   return nullptr;
 }
 
 unsigned int BasementFormation::getElementRefinement () const {

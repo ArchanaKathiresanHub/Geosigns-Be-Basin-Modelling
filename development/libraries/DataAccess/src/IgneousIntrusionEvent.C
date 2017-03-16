@@ -20,22 +20,22 @@ DataAccess::Interface::IgneousIntrusionEvent::IgneousIntrusionEvent ( ProjectHan
    double intrusionAge;
 
    m_formation = m_projectHandle->findFormation ( database::getLayerName (m_record));
-   assert (("The formation for the igneous intrusion is invalid", m_formation != 0 ));
+   assert ( m_formation != nullptr );
    
    intrusionAge = database::getIgneousIntrusionAge ( m_record );
-   assert (("The intrusion age is no data value", intrusionAge != DefaultUndefinedScalarValue ));
-   assert (( "The time of intrusion should be smaller than the time of deposition", intrusionAge <= m_formation->getTopSurface()->getSnapshot()->getTime() ));
+   assert ( intrusionAge != DefaultUndefinedScalarValue );
+   assert ( intrusionAge <= m_formation->getTopSurface()->getSnapshot()->getTime() );
        
    m_snapshot = m_projectHandle->findSnapshot ( intrusionAge );
-   assert (("The snapshot is invalid", m_snapshot != 0 ));
+   assert ( m_snapshot != nullptr );
    
    // Intrusion event and snapshot must have the same age.
-   assert (("The intrusion age must have the same age than his snapshot", intrusionAge == m_snapshot->getTime ()));
+   assert ( intrusionAge == m_snapshot->getTime() );
    
 }
 
 DataAccess::Interface::IgneousIntrusionEvent::~IgneousIntrusionEvent () {
-   m_formation = 0;
+   m_formation = nullptr;
 }
 
 const DataAccess::Interface::Formation* DataAccess::Interface::IgneousIntrusionEvent::getFormation () const {

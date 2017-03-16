@@ -41,30 +41,29 @@ const std::string & BasementSurface::getName (void) const {
 }
 
 GridMap * BasementSurface::loadDepthMap (void) const {
-   return 0;
+   return nullptr;
 }
 
 GridMap * BasementSurface::computeDepthMap (void) const
 {
-
    AdditionFunctor add;
 
    bool isALC = (( m_mangledName == "Bottom_of_Crust" ) && m_projectHandle->getBottomBoundaryConditions () == ADVANCED_LITHOSPHERE_CALCULATOR);
    
    const Formation * upperFormation = (Formation *) Surface::getTopFormation ();
-   if (!upperFormation) return false;
+   if (!upperFormation) return nullptr;
 
    GridMap * upperFormationGridMap = ( isALC ? (GridMap *) (dynamic_cast<const CrustFormation *>(upperFormation))->getInitialThicknessMap () :
                                        (GridMap *) upperFormation->getInputThicknessMap ());
    
    const Surface * upperSurface = (Surface *) upperFormation->getTopSurface ();
-   if (!upperSurface) return false;
+   if (!upperSurface) return nullptr;
    
    const GridMap * thicknessMap = upperFormationGridMap;
    const GridMap * depthMap = (GridMap *) upperSurface->getInputDepthMap ();
 
-   if (!thicknessMap) return false;
-   if (!depthMap) return false;
+   if (!thicknessMap) return nullptr;
+   if (!depthMap) return nullptr;
 
    GridMap * myDepthMap = m_projectHandle->getFactory ()->produceGridMap (this, DEPTH, depthMap, thicknessMap, add );
 

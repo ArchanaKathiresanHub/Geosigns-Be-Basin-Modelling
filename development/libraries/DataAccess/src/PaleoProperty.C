@@ -40,7 +40,7 @@ PaleoProperty::PaleoProperty (ProjectHandle * projectHandle, Record * record) : 
 }
 
 PaleoProperty::PaleoProperty ( ProjectHandle * projectHandle,
-                               const Formation* formation,
+                               const Formation* ,
                                const PaleoProperty* startProperty,
                                const PaleoProperty* endProperty,
                                const Snapshot*               interpolationTime ) :

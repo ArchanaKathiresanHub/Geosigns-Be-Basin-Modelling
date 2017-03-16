@@ -152,15 +152,14 @@ bool HDF5::writeAttribute(hid_t fileHandle,
    hid_t writeStatus = H5Awrite (attributeId, attributeType, data);
 
    // close the attribute
-   hid_t status = H5Aclose (attributeId);
+   H5Aclose (attributeId);
 
    // close the dataspace
-   status = H5Sclose (dataspaceId);
+   H5Sclose (dataspaceId);
    // close the dataset
-   status = H5Dclose (datasetId);
+   H5Dclose (datasetId);
 
    return (writeStatus <= 0);
-   //return 0;
 }
 
 int HDF5::readData (hid_t fileHandle, const char * datasetName, hsize_t * dimensions, void * data)
@@ -195,7 +194,7 @@ int HDF5::readData (hid_t fileHandle, const char * datasetName, hsize_t * dimens
    if (status_n < 0) return 0;
 
    // read the data
-   herr_t status = H5Dread (dataset, datatype, H5S_ALL, H5S_ALL, H5P_DEFAULT, data);
+   H5Dread (dataset, datatype, H5S_ALL, H5S_ALL, H5P_DEFAULT, data);
 
    // clean up the dataset and dataspace
    if (dataset != 0)
@@ -212,7 +211,7 @@ int HDF5::readData (hid_t fileHandle, const char * datasetName, hsize_t * dimens
 }
 
 /// Function used to iterate through a HDF5 file to find the name of the DataSet with the given layerIndex
-herr_t HDF5::checkForLayerName (hid_t groupId, const char * layerName, HDF5::LayerInfo * layerInfo)
+herr_t HDF5::checkForLayerName (hid_t , const char * layerName, HDF5::LayerInfo * layerInfo)
 {
    if (strncmp (layerName, "Layer=", 6) == 0)
    {

@@ -17,20 +17,20 @@ FILE( GLOB all_srcs src/*.C)
 source_group(source FILES ${all_srcs})
 
 add_library(DataAccess 
-	${all_srcs}
-	${all_headers}
+   ${all_srcs}
+   ${all_headers}
 )
 
 bm_include_libraries(
-    DataModel
-	Serial_Hdf5
-	CBMGenerics
-	utilities
-	FileSystem 
-	TableIO
-	EosPack
-	
-	CrustalThickness
+   DataModel
+   Serial_Hdf5
+   CBMGenerics
+   utilities
+   FileSystem 
+   TableIO
+   EosPack
+   
+   CrustalThickness
 )
 
 include_directories(
@@ -38,21 +38,34 @@ include_directories(
 )
 
 include_directories( SYSTEM
-	${HDF5_INCLUDE_DIRS}
+   ${HDF5_INCLUDE_DIRS}
 )
 
-target_link_libraries(DataAccess 
-    ${Boost_LIBRARIES}
-	Serial_Hdf5
-	CBMGenerics
-	FileSystem
-	utilities
-	TableIO
+target_link_libraries(DataAccess
+   ${Boost_LIBRARIES}
+   Serial_Hdf5
+   CBMGenerics
+   FileSystem
+   utilities
+   TableIO
 )
 
 if (UNIX)
 add_dependencies(DataAccess HDF5)
 endif (UNIX)
+
+add_gtest( NAME DataAccess
+           SOURCES test/DataAccess.C
+           INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../SerialDataAccess/src/Interface/
+           LIBRARIES DataAccess SerialDataAccess Serial_Hdf5
+           ENV_VARS EOSPACKDIR=${CFGFLS}/eospack GENEX5DIR=${CFGFLS}/genex50 CTCDIR=${CFGFLS}/
+)
+
+configure_file(
+   ${CMAKE_CURRENT_SOURCE_DIR}/test/DataAccessTest.project3d
+   DataAccessTest.project3d
+   COPYONLY
+)
 
 generate_dox( src/DataAccess.cfg )
 

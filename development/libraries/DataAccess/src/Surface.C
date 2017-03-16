@@ -23,11 +23,11 @@ using namespace DataAccess;
 using namespace Interface;
 
 
-Surface::Surface (ProjectHandle * projectHandle, Record * record) : DAObject (projectHandle, record), m_top (0), m_bottom (0), m_snapshot (0)
+Surface::Surface (ProjectHandle * projectHandle, Record * record) : DAObject (projectHandle, record), m_top (nullptr), m_bottom (nullptr), m_snapshot (nullptr)
 {
 
    // It is up to the the derived classes to initialise correctly the member components of this class.
-   const bool recordFromStratIOTbl = ( m_record != 0 and m_record->getTable ()->name () == "StratIoTbl" );
+   const bool recordFromStratIOTbl = ( m_record != nullptr and m_record->getTable ()->name () == "StratIoTbl" );
 
    if ( recordFromStratIOTbl ) {
       m_snapshot = (const Snapshot *) m_projectHandle->findSnapshot (getDepoAge (m_record));
@@ -36,14 +36,14 @@ Surface::Surface (ProjectHandle * projectHandle, Record * record) : DAObject (pr
       m_kind = SEDIMENT_SURFACE;
       m_formationDepositionSequenceNumber = database::getDepoSequence ( m_record );
    } else {
-      m_snapshot = 0;
+      m_snapshot = nullptr;
       m_kind = BASEMENT_SURFACE;
       m_formationDepositionSequenceNumber = DefaultUndefinedScalarIntValue;
    }
 
 }
 
-Surface::Surface (ProjectHandle * projectHandle) : DAObject (projectHandle, 0), m_mangledName ( "" ), m_top (0), m_bottom (0), m_snapshot (0)
+Surface::Surface (ProjectHandle * projectHandle) : DAObject (projectHandle, nullptr), m_mangledName ( "" ), m_top (nullptr), m_bottom (nullptr), m_snapshot (nullptr)
 {
    m_kind = BASEMENT_SURFACE;
 }
@@ -70,7 +70,7 @@ SurfaceKind Surface::kind () const {
 const string & Surface::getTopFormationName (void) const
 {
 
-   if ( m_top != 0 ) {
+   if ( m_top != nullptr ) {
       return m_top->getName ();
    } else {
       return NullString;
@@ -81,7 +81,7 @@ const string & Surface::getTopFormationName (void) const
 const string & Surface::getBottomFormationName (void) const
 {
 
-   if ( m_bottom != 0 ) {
+   if ( m_bottom != nullptr ) {
       return m_bottom->getName ();
    } else {
       return NullString;
@@ -117,17 +117,17 @@ const Snapshot * Surface::getSnapshot (void) const
 const GridMap * Surface::getInputDepthMap (void) const
 {
    const GridMap * gridMap;
-   if ((gridMap = (GridMap *) getChild (DEPTH)) != 0) return gridMap;
-   if ((gridMap = loadDepthMap ()) != 0) return gridMap;
-   else if ((gridMap = computeDepthMap ()) != 0) return gridMap;
-   else return 0;
+   if ((gridMap = (GridMap *) getChild (DEPTH)) != nullptr) return gridMap;
+   if ((gridMap = loadDepthMap ()) != nullptr) return gridMap;
+   else if ((gridMap = computeDepthMap ()) != nullptr) return gridMap;
+   else return nullptr;
 }
 
 const GridMap * Surface::getInputTwoWayTimeMap( void ) const
 {
-   const GridMap * gridMap = 0;
+   const GridMap * gridMap = nullptr;
    // if the map is already loaded
-   if ((gridMap = (GridMap *)getChild( TWOWAYTIME )) != 0) return gridMap;
+   if ((gridMap = (GridMap *)getChild( TWOWAYTIME )) != nullptr) return gridMap;
 
    // else load it if possible
    else {
@@ -166,7 +166,7 @@ float Surface::getInputTwoWayTimeScalar( void ) const
       {
          float twoWayTimeScalar = static_cast<float>( database::getTwoWayTime( twoWayTimeRecord ) );
          // a two way time needs two be a positive number
-         if (twoWayTimeScalar >= 0)
+         if (twoWayTimeScalar >= 0.f)
          {
             return twoWayTimeScalar;
          }
@@ -178,7 +178,7 @@ float Surface::getInputTwoWayTimeScalar( void ) const
 GridMap * Surface::loadDepthMap (void) const
 {
    double depth;
-   GridMap * gridMap = 0;
+   GridMap * gridMap = nullptr;
 
    if ((depth = getDepth (m_record)) != RecordValueUndefined)
    {
@@ -206,15 +206,15 @@ static double minus (double a, double b)
 GridMap * Surface::computeDepthMap (void) const
 {
    const Formation * lowerFormation = dynamic_cast<const Formation *>(getBottomFormation ());
-   if (!lowerFormation) return false;
+   if (!lowerFormation) return nullptr;
    const Surface * lowerSurface = dynamic_cast<const Surface *>(lowerFormation->getBottomSurface ());
-   if (!lowerSurface) return false;
+   if (!lowerSurface) return nullptr;
 
    const GridMap * thicknessMap = (GridMap *) lowerFormation->getInputThicknessMap ();
    const GridMap * depthMap = (GridMap *) lowerSurface->getInputDepthMap ();
 
-   if (!thicknessMap) return false;
-   if (!depthMap) return false;
+   if (!thicknessMap) return nullptr;
+   if (!depthMap) return nullptr;
 
    GridMap * myDepthMap = m_projectHandle->getFactory ()->produceGridMap (this, DEPTH, depthMap, thicknessMap, ::minus);
 
