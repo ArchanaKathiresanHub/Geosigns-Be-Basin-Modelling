@@ -8,16 +8,37 @@
 // Do not distribute without written permission from Shell.
 //
 
-#include "DataStore.h"
-#include "VisualizationAPI.h"
-#include "VisualizationIO_native.h"
+#ifdef _MSC_VER
+#pragma warning (push)
+#pragma warning (disable : 4244 4996)
+// boost/iostreams/copy.hpp(128):
+//   warning C4244: 'argument': conversion from 'std::streamsize' to 'int', possible loss of data
+//
+// C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\xutility(2372)
+//   warning C4996: 'std::copy::_Unchecked_iterators::_Deprecate': Call to 'std::copy' with parameters that may be unsafe
+//   this call relies on the caller to check that the passed values are correct. To disable this warning,
+//   use -D_SCL_SECURE_NO_WARNINGS. See documentation on how to use Visual C++ 'Checked Iterators'
 
+// Visual Studio warning C4996 comes from a security check on iterators and std::copy from boost, which uses
+// raw pointers, so to disable it algorithm header has to be not included yet in this scope
+#endif
+#ifdef _ALGORITHM_
+#error algorithm header has already been included before boost (see comments)
+#endif
+#include <algorithm>
 #include <boost/iostreams/filtering_stream.hpp>
 #include <boost/iostreams/filter/gzip.hpp>
 #include <boost/iostreams/copy.hpp>
 #include <boost/iostreams/stream.hpp>
 #include <boost/iostreams/device/file.hpp>
 #include <boost/foreach.hpp>
+#ifdef _MSC_VER
+#pragma warning (pop)
+#endif
+
+#include "DataStore.h"
+#include "VisualizationAPI.h"
+#include "VisualizationIO_native.h"
 
 #include "lz4.h"
 
@@ -235,16 +256,16 @@ char* CauldronIO::DataStoreSave::compress(const char* inputData, size_t& element
 
 char* CauldronIO::DataStoreSave::compress_lz4(const char* inputData, size_t& elements)
 {
-    int inputSize = (int)elements;
-    int maxOutputSize = inputSize;
+    size_t inputSize = elements;
+    size_t maxOutputSize = inputSize;
     
     char* dest = new char[maxOutputSize];
-    elements = (size_t)LZ4_compress_default(inputData, dest, (int)elements, maxOutputSize);
+    elements = (size_t)LZ4_compress_default(inputData, dest, (int)elements, (int)maxOutputSize);
 
     if (elements == 0 || (elements == inputSize)) // failed to compress
     {
         delete[] dest;
-        elements = (size_t)inputSize;
+        elements = inputSize;
         return nullptr;
     }
 
@@ -415,7 +436,7 @@ CauldronIO::DataToCompress::~DataToCompress()
 {
     if (m_outputData)
     {
-        delete m_outputData;
+        delete[] (char*)m_outputData;
         m_outputData = nullptr;
     }
 }
@@ -430,9 +451,9 @@ void CauldronIO::DataToCompress::compress()
     m_outputNrBytes = m_inputSize;
 
     if (m_compress && !COMPRESSION_LZ4)
-        m_outputData = (float*)DataStoreSave::compress((char*)m_inputData, m_outputNrBytes);
+        m_outputData = (void*)DataStoreSave::compress((char*)m_inputData, m_outputNrBytes);
     else if (m_compress && COMPRESSION_LZ4)
-        m_outputData = (float*)DataStoreSave::compress_lz4((char*)m_inputData, m_outputNrBytes);
+        m_outputData = (void*)DataStoreSave::compress_lz4((char*)m_inputData, m_outputNrBytes);
 
     m_processed = true;
 }

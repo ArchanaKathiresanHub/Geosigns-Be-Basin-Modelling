@@ -12,7 +12,7 @@
 #define _VisualizationAPIFwDecl_h_
 
 #define xml_version_major 0
-							 // version 1: initial version
+                             // version 1: initial version
 #define xml_version_minor 2  // version 2: changed geometry storage
 
 #include <vector>
@@ -71,7 +71,7 @@ namespace CauldronIO
     class Trapper;
     class Reservoir;
     class VisualizationIOData;
-	class StratigraphyTableEntry;
+    class StratigraphyTableEntry;
     class MigrationEvent;
     struct FormationInfo;
     typedef std::vector<std::shared_ptr<FormationInfo> > FormationInfoList;
