@@ -1028,3 +1028,150 @@ TEST(Formation, Properties)
 	EXPECT_TRUE(surfaceTop == formation.getTopSurface());
 
 }
+
+TEST(MigrationEvent, Properties)
+{
+    const string projectName("project");
+    const string teamName("team");
+    const string description("descript");
+    const string version("version");
+    ModellingMode mode = MODE1D;
+    std::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2, 1));
+    std::shared_ptr<CauldronIO::MigrationEvent> event(new CauldronIO::MigrationEvent());
+
+    const string process("Expulsion");
+    event->setMigrationProcess(process);
+    EXPECT_STREQ(process.c_str(), event->getMigrationProcess().c_str());
+
+    float sourceAge = 2.0f;
+    event->setSourceAge(sourceAge);
+    EXPECT_FLOAT_EQ(sourceAge, event->getSourceAge());
+    
+    int srcTrapID = 1205;
+    event->setSourceTrapID(srcTrapID);
+    EXPECT_EQ(srcTrapID, event->getSourceTrapID());
+
+    const string sourceRockName("srcName");
+    event->setSourceRockName(sourceRockName);
+    EXPECT_STREQ(sourceRockName.c_str(), event->getSourceRockName().c_str());
+
+    const string sourceRockResName("srcResName");
+    event->setSourceReservoirName(sourceRockResName);
+    EXPECT_STREQ(sourceRockResName.c_str(), event->getSourceReservoirName().c_str());
+
+    float srcPtX = 0.1f;
+    event->setSourcePointX(srcPtX);
+    EXPECT_FLOAT_EQ(srcPtX, event->getSourcePointX());
+
+    float srcPtY = 0.2f;
+    event->setSourcePointY(srcPtY);
+    EXPECT_FLOAT_EQ(srcPtY, event->getSourcePointY());
+
+    float dstAge = 3.0f;
+    event->setDestinationAge(dstAge);
+    EXPECT_FLOAT_EQ(dstAge, event->getDestinationAge());
+
+    const string destReservoir("destReservoir");
+    event->setDestinationReservoirName(destReservoir);
+    EXPECT_STREQ(destReservoir.c_str(), event->getDestinationReservoirName().c_str());
+
+    int dstTrapID = 1206;
+    event->setDestinationTrapID(dstTrapID);
+    EXPECT_EQ(dstTrapID, event->getDestinationTrapID());
+
+    float dstPtX = 0.11f;
+    event->setDestinationPointX(dstPtX);
+    EXPECT_FLOAT_EQ(dstPtX, event->getDestinationPointX());
+
+    float dstPtY = 0.21f;
+    event->setDestinationPointY(dstPtY);
+    EXPECT_FLOAT_EQ(dstPtY, event->getDestinationPointY());
+
+    double massC1 = 0.10101;
+    event->setMassC1(massC1);
+    EXPECT_DOUBLE_EQ(massC1, event->getMassC1());
+
+    double massC2 = 0.10201;
+    event->setMassC2(massC2);
+    EXPECT_DOUBLE_EQ(massC2, event->getMassC2());
+
+    double massC3 = 0.103;
+    event->setMassC3(massC3);
+    EXPECT_DOUBLE_EQ(massC3, event->getMassC3());
+
+    double massC5 = 0.104;
+    event->setMassC5(massC5);
+    EXPECT_DOUBLE_EQ(massC5, event->getMassC5());
+
+    double massN2 = 0.105;
+    event->setMassN2(massN2);
+    EXPECT_DOUBLE_EQ(massN2, event->getMassN2());
+
+    double massCOx = 0.106;
+    event->setMassCOx(massCOx);
+    EXPECT_DOUBLE_EQ(massCOx, event->getMassCOx());
+
+    double massH2S = 0.107;
+    event->setMassH2S(massH2S);
+    EXPECT_DOUBLE_EQ(massH2S, event->getMassH2S());
+
+    double massC6_14Aro = 0.108;
+    event->setMassC6_14Aro(massC6_14Aro);
+    EXPECT_DOUBLE_EQ(massC6_14Aro, event->getMassC6_14Aro());
+
+    double massC6_14Sat = 0.109;
+    event->setMassC6_14Sat(massC6_14Sat);
+    EXPECT_DOUBLE_EQ(massC6_14Sat, event->getMassC6_14Sat());
+
+    double massC15Aro = 0.101;
+    event->setMassC15Aro(massC15Aro);
+    EXPECT_DOUBLE_EQ(massC15Aro, event->getMassC15Aro());
+
+    double massC15Sat = 0.1011;
+    event->setMassC15Sat(massC15Sat);
+    EXPECT_DOUBLE_EQ(massC15Sat, event->getMassC15Sat());
+
+    double massLSC = 0.1012;
+    event->setMassLSC(massLSC);
+    EXPECT_DOUBLE_EQ(massLSC, event->getMassLSC());
+
+    double massC15AT = 0.1013;
+    event->setMassC15AT(massC15AT);
+    EXPECT_DOUBLE_EQ(massC15AT, event->getMassC15AT());
+
+    double massC15AroS = 0.1014;
+    event->setMassC15AroS(massC15AroS);
+    EXPECT_DOUBLE_EQ(massC15AroS, event->getMassC15AroS());
+
+    double massC15SatS = 0.1015;
+    event->setMassC15SatS(massC15SatS);
+    EXPECT_DOUBLE_EQ(massC15SatS, event->getMassC15SatS());
+
+    double massC6_14BT = 0.1016;
+    event->setMassC6_14BT(massC6_14BT);
+    EXPECT_DOUBLE_EQ(massC6_14BT, event->getMassC6_14BT());
+
+    double massC6_14DBT = 0.1017;
+    event->setMassC6_14DBT(massC6_14DBT);
+    EXPECT_DOUBLE_EQ(massC6_14DBT, event->getMassC6_14DBT());
+
+    double massC6_14BP = 0.1018;
+    event->setMassC6_14BP(massC6_14BP);
+    EXPECT_DOUBLE_EQ(massC6_14BP, event->getMassC6_14BP());
+
+    double massC6_14SatS = 0.1019;
+    event->setMassC6_14SatS(massC6_14SatS);
+    EXPECT_DOUBLE_EQ(massC6_14SatS, event->getMassC6_14SatS());
+
+    double massC6_14AroS = 0.102;
+    event->setMassC6_14AroS(massC6_14AroS);
+    EXPECT_DOUBLE_EQ(massC6_14AroS, event->getMassC6_14AroS());
+
+    double massresins = 0.1021;
+    event->setMassresins(massresins);
+    EXPECT_DOUBLE_EQ(massresins, event->getMassresins());
+
+    double massasphaltenes = 0.1022;
+    event->setMassasphaltenes(massasphaltenes);
+    EXPECT_DOUBLE_EQ(massasphaltenes, event->getMassasphaltenes());
+}

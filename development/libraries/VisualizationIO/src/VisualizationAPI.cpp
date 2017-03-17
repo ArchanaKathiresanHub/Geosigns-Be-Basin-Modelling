@@ -2026,6 +2026,7 @@ CauldronIO::MigrationEvent::MigrationEvent()
 
 void CauldronIO::MigrationEvent::setMigrationProcess(const std::string& name)
 {
+    memset((void*)m_migrationProcess, 0, m_maxStringLength);
     for (size_t index = 0; index < name.length(); ++index)
         m_migrationProcess[index] = name.c_str()[index];
 }
@@ -2036,8 +2037,22 @@ std::string CauldronIO::MigrationEvent::getMigrationProcess() const
     return std::string(m_migrationProcess);
 }
 
+
+float CauldronIO::MigrationEvent::getSourceAge() const
+{
+    return m_srcAge;
+}
+
+
+void CauldronIO::MigrationEvent::setSourceAge(float val)
+{
+    m_srcAge = val;
+}
+
 void CauldronIO::MigrationEvent::setSourceRockName(const std::string& name)
 {
+    memset((void*)m_SourceRockName, 0, m_maxStringLength);
+
     for (size_t index = 0; index < name.length(); ++index)
         m_SourceRockName[index] = name.c_str()[index];
 }
@@ -2049,6 +2064,8 @@ std::string CauldronIO::MigrationEvent::getSourceRockName() const
 
 void CauldronIO::MigrationEvent::setSourceReservoirName(const std::string& name)
 {
+    memset((void*)m_SourceReservoirName, 0, m_maxStringLength);
+
     for (size_t index = 0; index < name.length(); ++index)
         m_SourceReservoirName[index] = name.c_str()[index];
 }
@@ -2058,8 +2075,58 @@ std::string CauldronIO::MigrationEvent::getSourceReservoirName() const
     return std::string(m_SourceReservoirName);
 }
 
+
+int CauldronIO::MigrationEvent::getSourceTrapID() const
+{
+    return m_srcTrapID;
+}
+
+
+void CauldronIO::MigrationEvent::setSourceTrapID(int val)
+{
+    m_srcTrapID = val;
+}
+
+
+float CauldronIO::MigrationEvent::getSourcePointX() const
+{
+    return m_srcX;
+}
+
+
+void CauldronIO::MigrationEvent::setSourcePointX(float val)
+{
+    m_srcX = val;
+}
+
+
+float CauldronIO::MigrationEvent::getSourcePointY() const
+{
+    return m_srcY;
+}
+
+
+void CauldronIO::MigrationEvent::setSourcePointY(float val)
+{
+    m_srcY = val;
+}
+
+
+float CauldronIO::MigrationEvent::getDestinationAge() const
+{
+    return m_destAge;
+}
+
+
+void CauldronIO::MigrationEvent::setDestinationAge(float val)
+{
+    m_destAge = val;
+}
+
 void CauldronIO::MigrationEvent::setDestinationReservoirName(const std::string& name)
 {
+    memset((void*)m_DestinationReservoirName, 0, m_maxStringLength);
+
     for (size_t index = 0; index < name.length(); ++index)
         m_DestinationReservoirName[index] = name.c_str()[index];
 }
@@ -2067,4 +2134,264 @@ void CauldronIO::MigrationEvent::setDestinationReservoirName(const std::string& 
 std::string CauldronIO::MigrationEvent::getDestinationReservoirName() const
 {
     return std::string(m_DestinationReservoirName);
+}
+
+void CauldronIO::MigrationEvent::setDestinationTrapID(int val)
+{
+    m_destTrapID = val;
+}
+
+int CauldronIO::MigrationEvent::getDestinationTrapID()
+{
+    return m_destTrapID;
+}
+
+void CauldronIO::MigrationEvent::setDestinationPointX(float val)
+{
+    m_destX = val;
+}
+
+float CauldronIO::MigrationEvent::getDestinationPointX() const
+{
+    return m_destX;
+}
+
+void CauldronIO::MigrationEvent::setDestinationPointY(float val)
+{
+    m_destY = val;
+}
+
+float CauldronIO::MigrationEvent::getDestinationPointY() const
+{
+    return m_destY;
+}
+
+double CauldronIO::MigrationEvent::getMassC1() const
+{
+    return m_MassC1;
+}
+
+double CauldronIO::MigrationEvent::getMassC2() const
+{
+    return m_MassC2;
+}
+
+double CauldronIO::MigrationEvent::getMassC3() const
+{
+    return m_MassC3;
+}
+
+double CauldronIO::MigrationEvent::getMassC4() const
+{
+    return m_MassC4;
+}
+
+double CauldronIO::MigrationEvent::getMassC5() const
+{
+    return m_MassC5;
+}
+
+double CauldronIO::MigrationEvent::getMassN2() const
+{
+    return m_MassN2;
+}
+
+double CauldronIO::MigrationEvent::getMassCOx() const
+{
+    return m_MassCOx;
+}
+
+double CauldronIO::MigrationEvent::getMassH2S() const
+{
+    return m_MassH2S;
+}
+
+double CauldronIO::MigrationEvent::getMassC6_14Aro() const
+{
+    return m_MassC6_14Aro;
+}
+
+double CauldronIO::MigrationEvent::getMassC6_14Sat() const
+{
+    return m_MassC6_14Sat;
+}
+
+double CauldronIO::MigrationEvent::getMassC15Aro() const
+{
+    return m_MassC15Aro;
+}
+
+double CauldronIO::MigrationEvent::getMassC15Sat() const
+{
+    return m_MassC15Sat;
+}
+
+double CauldronIO::MigrationEvent::getMassLSC() const
+{
+    return m_MassLSC;
+}
+
+double CauldronIO::MigrationEvent::getMassC15AT() const
+{
+    return m_MassC15AT;
+}
+
+double CauldronIO::MigrationEvent::getMassC15AroS() const
+{
+    return m_MassC15AroS;
+}
+
+double CauldronIO::MigrationEvent::getMassC15SatS() const
+{
+    return m_MassC15SatS;
+}
+
+double CauldronIO::MigrationEvent::getMassC6_14BT() const
+{
+    return m_MassC6_14BT;
+}
+
+double CauldronIO::MigrationEvent::getMassC6_14DBT() const
+{
+    return m_MassC6_14DBT;
+}
+
+double CauldronIO::MigrationEvent::getMassC6_14BP() const
+{
+    return m_MassC6_14BP;
+}
+
+double CauldronIO::MigrationEvent::getMassC6_14SatS() const
+{
+    return m_MassC6_14SatS;
+}
+
+double CauldronIO::MigrationEvent::getMassC6_14AroS() const
+{
+    return m_MassC6_14AroS;
+}
+
+double CauldronIO::MigrationEvent::getMassresins() const
+{
+    return m_Massresins;
+}
+
+double CauldronIO::MigrationEvent::getMassasphaltenes() const
+{
+    return m_Massasphaltenes;
+}
+
+void CauldronIO::MigrationEvent::setMassC1(double val)
+{
+    m_MassC1 = val;
+}
+
+void CauldronIO::MigrationEvent::setMassC2(double val)
+{
+    m_MassC2 = val;
+}
+
+void CauldronIO::MigrationEvent::setMassC3(double val)
+{
+    m_MassC3 = val;
+}
+
+void CauldronIO::MigrationEvent::setMassC4(double val)
+{
+    m_MassC4 = val;
+}
+
+void CauldronIO::MigrationEvent::setMassC5(double val)
+{
+    m_MassC5 = val;
+}
+
+void CauldronIO::MigrationEvent::setMassN2(double val)
+{
+    m_MassN2 = val;
+}
+
+void CauldronIO::MigrationEvent::setMassCOx(double val)
+{
+    m_MassCOx = val;
+}
+
+void CauldronIO::MigrationEvent::setMassH2S(double val)
+{
+    m_MassH2S = val;
+}
+
+void CauldronIO::MigrationEvent::setMassC6_14Aro(double val)
+{
+    m_MassC6_14Aro = val;
+}
+
+void CauldronIO::MigrationEvent::setMassC6_14Sat(double val)
+{
+    m_MassC6_14Sat = val;
+}
+
+void CauldronIO::MigrationEvent::setMassC15Aro(double val)
+{
+    m_MassC15Aro = val;
+}
+
+void CauldronIO::MigrationEvent::setMassC15Sat(double val)
+{
+    m_MassC15Sat = val;
+}
+
+void CauldronIO::MigrationEvent::setMassLSC(double val)
+{
+    m_MassLSC = val;
+}
+
+void CauldronIO::MigrationEvent::setMassC15AT(double val)
+{
+    m_MassC15AT = val;
+}
+
+void CauldronIO::MigrationEvent::setMassC15AroS(double val)
+{
+    m_MassC15AroS = val;
+}
+
+void CauldronIO::MigrationEvent::setMassC15SatS(double val)
+{
+    m_MassC15SatS = val;
+}
+
+void CauldronIO::MigrationEvent::setMassC6_14BT(double val)
+{
+    m_MassC6_14BT = val;
+}
+
+void CauldronIO::MigrationEvent::setMassC6_14DBT(double val)
+{
+    m_MassC6_14DBT = val;
+}
+
+void CauldronIO::MigrationEvent::setMassC6_14BP(double val)
+{
+    m_MassC6_14BP = val;
+}
+
+void CauldronIO::MigrationEvent::setMassC6_14SatS(double val)
+{
+    m_MassC6_14SatS = val;
+}
+
+void CauldronIO::MigrationEvent::setMassC6_14AroS(double val)
+{
+    m_MassC6_14AroS = val;
+}
+
+void CauldronIO::MigrationEvent::setMassresins(double val)
+{
+    m_Massresins = val;
+}
+
+void CauldronIO::MigrationEvent::setMassasphaltenes(double val)
+{
+    m_Massasphaltenes = val;
 }

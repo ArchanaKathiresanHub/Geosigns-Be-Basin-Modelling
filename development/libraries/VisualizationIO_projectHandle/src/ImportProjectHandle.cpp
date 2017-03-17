@@ -1187,40 +1187,41 @@ void ImportProjectHandle::addMigrationIO()
 
         event->setMigrationProcess(getMigrationProcess(record));
 
-        event->SourceAge = (float)getSourceAge(record);
+        event->setSourceAge((float)getSourceAge(record));
         event->setSourceRockName(getSourceRockName(record));
         event->setSourceReservoirName(getSourceReservoirName(record));
-        event->SourcePointX = (float)getSourcePointX(record);
-        event->SourcePointY = (float)getSourcePointY(record);
+        event->setSourceTrapID(getSourceTrapID(record));
+        event->setSourcePointX((float)getSourcePointX(record));
+        event->setSourcePointY((float)getSourcePointY(record));
 
-        event->DestinationAge = (float)getDestinationAge(record);
+        event->setDestinationAge((float)getDestinationAge(record));
         event->setDestinationReservoirName(getDestinationReservoirName(record));
-        event->DestinationTrapID = getDestinationTrapID(record);
-        event->DestinationPointX = (float)getDestinationPointX(record);
-        event->DestinationPointY = (float)getDestinationPointY(record);
+        event->setDestinationTrapID(getDestinationTrapID(record));
+        event->setDestinationPointX((float)getDestinationPointX(record));
+        event->setDestinationPointY((float)getDestinationPointY(record));
 
-        event->MassC1          = getMassC1(record);
-        event->MassC2          = getMassC2(record);
-        event->MassC3          = getMassC3(record);
-        event->MassC5          = getMassC5(record);
-        event->MassN2          = getMassN2(record);
-        event->MassCOx         = getMassCOx(record);
-        event->MassH2S         = getMassH2S(record);
-        event->MassC6_14Aro    = getMassC6_14Aro(record);
-        event->MassC6_14Sat    = getMassC6_14Sat(record);
-        event->MassC15Aro      = getMassC15Aro(record);
-        event->MassC15Sat      = getMassC15Sat(record);
-        event->MassLSC         = getMassLSC(record);
-        event->MassC15AT       = getMassC15AT(record);
-        event->MassC15AroS     = getMassC15AroS(record);
-        event->MassC15SatS     = getMassC15SatS(record);
-        event->MassC6_14BT     = getMassC6_14BT(record);
-        event->MassC6_14DBT    = getMassC6_14DBT(record);
-        event->MassC6_14BP     = getMassC6_14BP(record);
-        event->MassC6_14SatS   = getMassC6_14SatS(record);
-        event->MassC6_14AroS   = getMassC6_14AroS(record);
-        event->Massresins      = getMassresins(record);
-        event->Massasphaltenes = getMassasphaltenes(record);
+        event->setMassC1         (getMassC1(record));
+        event->setMassC2         (getMassC2(record));
+        event->setMassC3         (getMassC3(record));
+        event->setMassC5         (getMassC5(record));
+        event->setMassN2         (getMassN2(record));
+        event->setMassCOx        (getMassCOx(record));
+        event->setMassH2S        (getMassH2S(record));
+        event->setMassC6_14Aro   (getMassC6_14Aro(record));
+        event->setMassC6_14Sat   (getMassC6_14Sat(record));
+        event->setMassC15Aro     (getMassC15Aro(record));
+        event->setMassC15Sat     (getMassC15Sat(record));
+        event->setMassLSC        (getMassLSC(record));
+        event->setMassC15AT      (getMassC15AT(record));
+        event->setMassC15AroS    (getMassC15AroS(record));
+        event->setMassC15SatS    (getMassC15SatS(record));
+        event->setMassC6_14BT    (getMassC6_14BT(record));
+        event->setMassC6_14DBT   (getMassC6_14DBT(record));
+        event->setMassC6_14BP    (getMassC6_14BP(record));
+        event->setMassC6_14SatS  (getMassC6_14SatS(record));
+        event->setMassC6_14AroS  (getMassC6_14AroS(record));
+        event->setMassresins     (getMassresins(record));
+        event->setMassasphaltenes(getMassasphaltenes(record));
 
         m_project->addMigrationEvent(event);
     }

@@ -191,7 +191,7 @@ namespace CauldronIO
 
         /// \brief Add a surface to the snapshot; ownership is transfered
         void addSurface(std::shared_ptr<Surface>& surface);
-         /// \brief Add a volume to the snapshot; ownership is transfered
+        /// \brief Add a volume to the snapshot; ownership is transfered
         void setVolume(std::shared_ptr<Volume>& volume);
         /// \brief Add a discontinuous volume to the snapshot; ownership is transfered
         void addFormationVolume(FormationVolume& formVolume);
@@ -199,7 +199,7 @@ namespace CauldronIO
         void addTrapper(std::shared_ptr<Trapper>& trapper);
 
         /// \returns Age of snapshot
-        double getAge () const;
+        double getAge() const;
         /// \returns kind of snapshot
         SnapShotKind getKind() const;
         /// \returns True if this is a minor snapshot
@@ -215,7 +215,7 @@ namespace CauldronIO
         const TrapperList& getTrapperList() const;
         /// \returns a list of all data not yet retrieved for this snapshot
         std::vector < VisualizationIOData* > getAllRetrievableData() const;
-        
+
     private:
         SurfaceList m_surfaceList;
         std::shared_ptr<Volume> m_volume;
@@ -311,7 +311,7 @@ namespace CauldronIO
         std::shared_ptr<const Trapper> m_downstreamTrapper;
         std::string m_reservoir;
     };
-    
+
     /// \class Property 
     /// \brief Little information class holding information about a Cauldron property
     class Property
@@ -519,7 +519,7 @@ namespace CauldronIO
         explicit Surface(const std::string& name, SubsurfaceKind kind);
         /// \brief Destructor
         ~Surface();
-        
+
         /// \brief get the list of property-surfaceData pairs contained in this surface
         const PropertySurfaceDataList& getPropertySurfaceDataList() const;
         /// \brief Method to replace a PropertySurfaceData object by another one in the list
@@ -527,9 +527,9 @@ namespace CauldronIO
         /// \param[in] index data the new PropertySurfaceData for that element
         void replaceAt(size_t index, PropertySurfaceData& data);
         /// \brief Add a property-surfaceData pair to the list
-        void addPropertySurfaceData( PropertySurfaceData& data);
+        void addPropertySurfaceData(PropertySurfaceData& data);
         /// \returns true if this surface has a depth surface
-        bool hasDepthSurface() const; 
+        bool hasDepthSurface() const;
         /// \returns the depth surface data; can be null
         std::shared_ptr<SurfaceData> getDepthSurface() const;
         /// \brief Get the name of this surface
@@ -653,8 +653,8 @@ namespace CauldronIO
     {
     public:
         void setData(float* data) { m_data = data; }
-        float* getData() { return m_data;  }
-        
+        float* getData() { return m_data; }
+
         std::string dataSetName;
         std::string filepathName;
         VisualizationIOData* parent;
@@ -679,10 +679,10 @@ namespace CauldronIO
         virtual void prefetch() = 0;
         /// \returns true if data is available
         virtual bool isRetrieved() const = 0;
-        
+
         /// HDF support calls (relevant for VisualizationIO_projectHandle only)
         /////////////////////////////////////
-        
+
         /// \returns a list of HDFinfo holding the data; can be null; ownership with this class
         virtual const std::vector < std::shared_ptr<HDFinfo> >& getHDFinfo() = 0;
         /// \brief Method to signal new HDF data has been loaded
@@ -948,64 +948,166 @@ namespace CauldronIO
     class MigrationEvent
     {
     public:
+        /// \brief Constructor
         MigrationEvent();
 
-        /// \brief Process
+        /// \brief set migration process name
         void setMigrationProcess(const std::string& name);
+        //// \brief get migration process name
         std::string getMigrationProcess() const;
-        
-        /// \brief Source info
-        float SourceAge;
+        /// \brief get source rock age
+        float getSourceAge() const;
+        /// \brief set source rock age
+        void setSourceAge(float val);
+        /// \brief set source rock name
         void setSourceRockName(const std::string& name);
+        /// \brief get source rock name
         std::string getSourceRockName() const;
+        /// \brief set source reservoir name
         void setSourceReservoirName(const std::string& name);
+        /// \brief get source reservoir name
         std::string getSourceReservoirName() const;
-        int SourceTrapID;
-        float SourcePointX;
-        float SourcePointY;
-        
-        /// \brief Destination info
-        float DestinationAge;
-        void setDestinationReservoirName(const std::string& name); 
+        /// \brief get source trap ID
+        int getSourceTrapID() const;
+        /// \brief set source trap ID
+        void setSourceTrapID(int val);
+        /// \brief get source point X
+        float getSourcePointX() const;
+        /// \brief set source point X
+        void setSourcePointX(float val);
+        /// \brief get source point Y
+        float getSourcePointY() const;
+        /// \brief set source point Y
+        void setSourcePointY(float val);
+        /// \brief get the destination age
+        float getDestinationAge() const;
+        /// \brief set the destination age
+        void setDestinationAge(float val);
+        /// \brief set the destination reservoir name
+        void setDestinationReservoirName(const std::string& name);
+        /// \brief get the destination reservoir name
         std::string getDestinationReservoirName() const;
-        int DestinationTrapID;
-        float DestinationPointX;
-        float DestinationPointY;
-        
-        /// \brief Masses exchanged
-        double MassC1;
-        double MassC2;
-        double MassC3;
-        double MassC4;
-        double MassC5;
-        double MassN2;
-        double MassCOx;
-        double MassH2S;
-        double MassC6_14Aro;
-        double MassC6_14Sat;
-        double MassC15Aro;
-        double MassC15Sat;
-        double MassLSC;
-        double MassC15AT;
-        double MassC15AroS;
-        double MassC15SatS;
-        double MassC6_14BT;
-        double MassC6_14DBT;
-        double MassC6_14BP;
-        double MassC6_14SatS;
-        double MassC6_14AroS;
-        double Massresins;
-        double Massasphaltenes;
+        /// \brief set the destination trap ID
+        void setDestinationTrapID(int val);
+        /// \brief get the destination trap ID
+        int getDestinationTrapID();
+        /// \brief set the destination point X
+        void setDestinationPointX(float val);
+        /// \brief get the destination point X
+        float getDestinationPointX() const;
+        /// \brief set the destination point Y
+        void setDestinationPointY(float val);
+        /// \brief get the destination point Y
+        float getDestinationPointY() const;
+
+        /// \brief get Mass C1
+        double getMassC1() const;
+        /// \brief get Mass C2
+        double getMassC2() const;
+        /// \brief get Mass C3
+        double getMassC3() const;
+        /// \brief get Mass C4
+        double getMassC4() const;
+        /// \brief get Mass C5
+        double getMassC5() const;
+        /// \brief get Mass N2
+        double getMassN2() const;
+        /// \brief get Mass COx
+        double getMassCOx() const;
+        /// \brief get Mass H2S
+        double getMassH2S() const;
+        /// \brief get Mass C6_14Aro
+        double getMassC6_14Aro() const;
+        /// \brief get Mass C6_14Sat
+        double getMassC6_14Sat() const;
+        /// \brief get Mass C15Aro
+        double getMassC15Aro() const;
+        /// \brief get Mass C5Sat
+        double getMassC15Sat() const;
+        /// \brief get Mass LSC
+        double getMassLSC() const;
+        /// \brief get Mass C15AT
+        double getMassC15AT() const;
+        /// \brief get Mass C15AroS
+        double getMassC15AroS() const;
+        /// \brief get Mass C15SatS
+        double getMassC15SatS() const;
+        /// \brief get Mass C6_14DBT
+        double getMassC6_14BT() const;
+        /// \brief get Mass C6_14DBT
+        double getMassC6_14DBT() const;
+        /// \brief get Mass C6_14BP
+        double getMassC6_14BP() const;
+        /// \brief get Mass C6_14SatS
+        double getMassC6_14SatS() const;
+        /// \brief get Mass C46_14AroS
+        double getMassC6_14AroS() const;
+        /// \brief get Mass resins
+        double getMassresins() const;
+        /// \brief get Mass asphaltenes
+        double getMassasphaltenes() const;
+        /// \brief set Mass C1
+        void setMassC1(double val);
+        /// \brief set Mass C2
+        void setMassC2(double val);
+        /// \brief set Mass C3
+        void setMassC3(double val);
+        /// \brief set Mass C4
+        void setMassC4(double val);
+        /// \brief set Mass C5
+        void setMassC5(double val);
+        /// \brief set Mass N2
+        void setMassN2(double val);
+        /// \brief set Mass COx
+        void setMassCOx(double val);
+        /// \brief set Mass H2S
+        void setMassH2S(double val);
+        /// \brief set Mass C6_14Aro
+        void setMassC6_14Aro(double val);
+        /// \brief set Mass C6_14Sat
+        void setMassC6_14Sat(double val);
+        /// \brief set Mass C15Aro
+        void setMassC15Aro(double val);
+        /// \brief set Mass C15Sat
+        void setMassC15Sat(double val);
+        /// \brief set Mass LSC
+        void setMassLSC(double val);
+        /// \brief set Mass C15AT
+        void setMassC15AT(double val);
+        /// \brief set Mass C15AroS
+        void setMassC15AroS(double val);
+        /// \brief set Mass C15SatS
+        void setMassC15SatS(double val);
+        /// \brief set Mass C6_14BT
+        void setMassC6_14BT(double val);
+        /// \brief set Mass C6_14DBT
+        void setMassC6_14DBT(double val);
+        /// \brief set Mass C6_14BP
+        void setMassC6_14BP(double val);
+        /// \brief set Mass C6_14SatS
+        void setMassC6_14SatS(double val);
+        /// \brief set Mass C6_14AroS
+        void setMassC6_14AroS(double val);
+        /// \brief set Mass resins
+        void setMassresins(double val);
+        /// \brief set Mass asphaltenes
+        void setMassasphaltenes(double val);
 
     private:
         static const int m_maxStringLength = 256;
-        
+
         // We store the strings as char[] so we can serialize the entire class easily
         char m_migrationProcess[m_maxStringLength];
         char m_SourceRockName[m_maxStringLength];
         char m_SourceReservoirName[m_maxStringLength];
         char m_DestinationReservoirName[m_maxStringLength];
+
+        float m_destX, m_destY, m_srcX, m_srcY, m_srcAge, m_destAge;
+        int m_srcTrapID, m_destTrapID;
+
+        double m_MassC1, m_MassC2, m_MassC3, m_MassC4, m_MassC5, m_MassN2, m_MassCOx, m_MassH2S, m_MassC6_14Aro, m_MassC6_14Sat;
+        double m_MassC15Aro, m_MassC15Sat, m_MassLSC, m_MassC15AT, m_MassC15AroS, m_MassC15SatS, m_MassC6_14BT, m_MassC6_14DBT;
+        double m_MassC6_14BP, m_MassC6_14SatS, m_MassC6_14AroS, m_Massresins, m_Massasphaltenes;
     };
 }
-
 #endif
