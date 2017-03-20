@@ -87,6 +87,9 @@ void CauldronIO::MapProjectHandle::retrieveFromHDF()
     float* mapData = new float[m_numI * m_numJ];
     size_t index = 0;
 
+    assert(m_numI == m_info[0]->numI);
+    assert(m_numJ == m_info[0]->numJ);
+
     for (unsigned int j = 0; j < m_numJ; ++j)
     {
         for (unsigned int i = 0; i < m_numI; ++i)
@@ -260,6 +263,9 @@ void CauldronIO::VolumeProjectHandle::retrieveMultipleFromHDF()
     bool firstConstant = true;
     float* inputData = new float[m_numI * m_numJ * m_numK];
 
+    assert(m_numI == m_info[0]->numI);
+    assert(m_numJ == m_info[0]->numJ);
+
     // Make sure all k-range is accounted for
     size_t detected_minK = 16384;
     size_t detected_maxK = 0;
@@ -345,6 +351,15 @@ void CauldronIO::VolumeProjectHandle::retrieveSingleFromHDF()
     float constantValue;
     bool isConstant = true;
     bool firstConstant = true;
+
+    // Check our dimensions
+    if (m_numI != m_info[0]->numI || m_numJ != m_info[0]->numJ)
+    {
+        m_geometry->updateIJ_range(m_info[0]->numI, m_info[0]->numJ);
+        updateGeometry();
+    }
+    assert(m_numK == m_info[0]->numK);
+
     float* inputData = new float[m_numI * m_numJ * m_numK];
 
     for (unsigned int k = 0; k < m_numK; ++k)

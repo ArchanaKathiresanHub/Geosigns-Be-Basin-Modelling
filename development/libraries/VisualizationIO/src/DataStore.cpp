@@ -320,7 +320,7 @@ void CauldronIO::DataStoreSave::addSurface(const std::shared_ptr<SurfaceData>& s
     // or 2) this map has been created in native format, but was not loaded from disk (so no datastoreparams were set)
     if (mapNative == nullptr || (mapNative != nullptr && mapNative->getDataStoreParams() == nullptr))
     {
-        addData(surfaceData->getSurfaceValues(), surfaceData->getGeometry()->getNumI() * surfaceData->getGeometry()->getNumJ(), compress);
+        addData(surfaceData->getSurfaceValues(), surfaceData->getGeometry()->getSize(), compress);
         m_dataToCompress.back()->setXmlNode(subNode);
     }
     else
@@ -448,6 +448,9 @@ void CauldronIO::DataToCompress::setOffset(size_t offset)
 
 void CauldronIO::DataToCompress::compress()
 {
+    // Nothing to do if this has been processed
+    if (m_processed) return;
+
     m_outputNrBytes = m_inputSize;
 
     if (m_compress && !COMPRESSION_LZ4)

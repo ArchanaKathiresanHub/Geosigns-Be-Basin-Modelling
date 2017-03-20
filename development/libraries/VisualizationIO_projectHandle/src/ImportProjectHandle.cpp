@@ -183,7 +183,6 @@ std::shared_ptr<CauldronIO::SnapShot> ImportProjectHandle::createSnapShotIO(cons
         std::shared_ptr<CauldronIO::FormationInfo> formationInfo = findDepthFormationInfo(formation, depthFormations);
 
         // Create the volume for this formation
-        std::shared_ptr<CauldronIO::Geometry3D> geometry = createGeometry3D(formationInfo);
         std::shared_ptr<CauldronIO::Volume> volume(new CauldronIO::Volume(getSubSurfaceKind(formation)));
 
         // Add all property-value data : loop over properties, then get all property values for the property and this formation
@@ -199,6 +198,8 @@ std::shared_ptr<CauldronIO::SnapShot> ImportProjectHandle::createSnapShotIO(cons
             if (propValues->size() == 0) continue;
             assert(propValues->size() == 1);
             const PropertyValue* propVal = propValues->at(0);
+            // Create a geometry
+            std::shared_ptr<CauldronIO::Geometry3D> geometry = createGeometry3D(formationInfo);
 
             CauldronIO::PropertyVolumeData propVolume = createPropertyVolumeData(propVal, geometry, formationInfo);
             volume->addPropertyVolumeData(propVolume);

@@ -83,11 +83,10 @@ namespace CauldronIO
         void addReservoir(std::shared_ptr<const Reservoir>& newReservoir);
         /// \brief Adds a geometry to the current project: no exception thrown if it exists
         /// Note: when a new surface or volume is added to the project without registering its geometry, this will fail...
-        /// TODO: consider to move this administration elsewhere, e.g. in the export(import)ToXML logic itself, this is not very failsafe
         void addGeometry(const std::shared_ptr<const Geometry2D>& geometry);
         /// \brief Finds the index of this geometry in the list of geometries; throws an exception if index not found
         /// \returns the index of this geometry in the list of geometries
-        size_t getGeometryIndex(const std::shared_ptr<const Geometry2D>& newGeometry) const;
+        size_t getGeometryIndex(const std::shared_ptr<const Geometry2D>& newGeometry, bool addWhenNotFound = false);
         /// \brief Release all data in project
         void release();
 
@@ -642,6 +641,10 @@ namespace CauldronIO
         /// \param [in] firstK index in k-dimension
         /// \param [in] numK number of elements in k-dimension
         void updateK_range(size_t firstK, size_t numK);
+        /// \brief updates the IJ-range [use with care!!!]
+        /// \param [in] numI number of elements in i-dimension
+        /// \param [in] numJ number of elements in j-dimension
+        void updateIJ_range(size_t numI, size_t numJ);
 
     private:
         size_t m_numK, m_firstK;
@@ -657,6 +660,7 @@ namespace CauldronIO
 
         std::string dataSetName;
         std::string filepathName;
+        size_t numI, numJ, numK;
         VisualizationIOData* parent;
         int indexMain; // index into allReadData
         int indexSub;  // index into propertyvalue array

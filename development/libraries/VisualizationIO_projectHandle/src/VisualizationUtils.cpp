@@ -119,6 +119,9 @@ void CauldronIO::VisualizationUtils::loadHDFdata(std::vector< std::shared_ptr<HD
 
 		// Allocate memory
 		hdfInfoList[i]->setData(new float[dimensions[0] * dimensions[1] * dimensions[2]]);
+        hdfInfoList[i]->numI = dimensions[0];
+        hdfInfoList[i]->numJ = dimensions[1];
+        hdfInfoList[i]->numK = dimensions[2];
 
 		// Read the data
 		herr_t status = H5Dread(dataSetId, dataTypeId, H5S_ALL, H5S_ALL, H5P_DEFAULT, (void*)hdfInfoList[i]->getData());

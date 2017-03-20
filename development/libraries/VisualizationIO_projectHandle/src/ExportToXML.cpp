@@ -395,9 +395,9 @@ void CauldronIO::ExportToXML::addVolume(DataStoreSave& dataStore, const std::sha
             node.append_attribute("numK") = (unsigned int)thisGeometry->getNumK();
 
             // Write the geometry
-            node.append_attribute("geom-index") = (int)m_project->getGeometryIndex(thisGeometry);
+            node.append_attribute("geom-index") = (int)m_project->getGeometryIndex(thisGeometry, true);
 
-            size_t numBytes = thisGeometry->getNumI()*thisGeometry->getNumJ()*thisGeometry->getNumK()*sizeof(float);
+            size_t numBytes = thisGeometry->getSize() * sizeof(float);
 
             // Min/max values
             node.append_attribute("min") = data->getMinValue();
@@ -564,17 +564,29 @@ void CauldronIO::ExportToXML::addSnapShot(const std::shared_ptr<SnapShot>& snapS
     for (int i = 0; i < volumeStore.getDataToCompressList().size(); i++)
         allData.push_back(volumeStore.getDataToCompressList().at(i));
 
-    boost::lockfree::queue<int> queue(allData.size());
-    boost::thread_group threads;
+    // Compress on main thread or separately
+    if (m_numThreads == 1)
+    {
+        for (int i = 0; i < allData.size(); i++)
+        {
+            auto& dataToCompress = allData.at(i);
+            dataToCompress->compress();
+        }
+    }
+    else
+    {
+        boost::lockfree::queue<int> queue(allData.size());
+        boost::thread_group threads;
 
-    // Add to queue
-    for (int i = 0; i < allData.size(); i++)
-        queue.push(i);
+        // Add to queue
+        for (int i = 0; i < allData.size(); i++)
+            queue.push(i);
 
-    // Compress it in separate threads
-    for (int i = 0; i < m_numThreads; ++i)
-        threads.add_thread(new boost::thread(CauldronIO::ExportToXML::compressDataQueue, allData, &queue));
-    threads.join_all();
+        // Compress it in separate threads
+        for (int i = 0; i < m_numThreads; ++i)
+            threads.add_thread(new boost::thread(CauldronIO::ExportToXML::compressDataQueue, allData, &queue));
+        threads.join_all();
+    }
 
     surfaceDataStore.flush();
     volumeStore.flush();

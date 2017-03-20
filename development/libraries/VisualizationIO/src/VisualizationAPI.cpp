@@ -231,7 +231,7 @@ void CauldronIO::Project::addGeometry(const std::shared_ptr<const Geometry2D>& n
     m_geometries.push_back(newGeometry);
 }
 
-size_t CauldronIO::Project::getGeometryIndex(const std::shared_ptr<const Geometry2D>& newGeometry) const
+size_t CauldronIO::Project::getGeometryIndex(const std::shared_ptr<const Geometry2D>& newGeometry, bool addWhenNotFound) 
 {
     if (!newGeometry) throw CauldronIOException("Cannot find empty geometry");
 
@@ -239,6 +239,12 @@ size_t CauldronIO::Project::getGeometryIndex(const std::shared_ptr<const Geometr
     for (size_t i = 0; i < m_geometries.size(); i++)
     {
         if (*m_geometries.at(i) == *newGeometry) return i;
+    }
+
+    if (addWhenNotFound)
+    {
+        addGeometry(newGeometry);
+        return getGeometryIndex(newGeometry);
     }
 
     throw CauldronIOException("Geometry not found");
@@ -1164,7 +1170,6 @@ bool CauldronIO::Geometry2D::operator==(const Geometry2D& other) const
 {
     return
         m_numI == other.m_numI && m_numJ == other.m_numJ &&
-        m_deltaI == other.m_deltaI && m_deltaJ == other.m_deltaJ &&
         m_minI == other.m_minI && m_minJ == other.m_minJ &&
         m_isCellCentered == other.m_isCellCentered;
 }
@@ -1555,11 +1560,17 @@ void CauldronIO::Geometry3D::updateK_range(size_t firstK, size_t numK)
     m_numK = numK;
 }
 
+
+void CauldronIO::Geometry3D::updateIJ_range(size_t numI, size_t numJ)
+{
+    m_numI = numI;
+    m_numJ = numJ;
+}
+
 bool CauldronIO::Geometry3D::operator==(const Geometry3D& other) const
 {
     return
         m_numI == other.m_numI && m_numJ == other.m_numJ &&
-        m_deltaI == other.m_deltaI && m_deltaJ == other.m_deltaJ &&
         m_minI == other.m_minI && m_minJ == other.m_minJ &&
         m_numK == other.m_numK && m_firstK == other.m_firstK;
 }
