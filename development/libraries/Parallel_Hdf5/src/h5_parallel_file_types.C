@@ -230,7 +230,7 @@ bool H5_Parallel_PropertyList ::mergeOutputFiles ( const string & activityName, 
    ibs::FilePath filePathName( localPath );
    filePathName << fileName;
  
-   bool status;
+   bool status = false;
 
    if( not  H5_Parallel_PropertyList::isPrimaryPodEnabled () ) {
       PetscPrintf ( PETSC_COMM_WORLD, "Merging of output files.\n" );

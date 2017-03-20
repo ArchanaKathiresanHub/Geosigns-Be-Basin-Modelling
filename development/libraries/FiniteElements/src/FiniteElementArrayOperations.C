@@ -64,7 +64,7 @@ void FiniteElementMethod::ArrayOperations::scaleBases ( const Numerics::AlignedD
    const double* phi = bases.data ();
    double* res = scaledBases.data ();
 
-   for ( unsigned int i = 0; i < bases.cols (); ++i, phi += 8, res += 8 ) {
+   for ( int i = 0; i < bases.cols (); ++i, phi += 8, res += 8 ) {
       res [ 0 ] = scalarValues [ i ] * phi [ 0 ];
       res [ 1 ] = scalarValues [ i ] * phi [ 1 ];
       res [ 2 ] = scalarValues [ i ] * phi [ 2 ];

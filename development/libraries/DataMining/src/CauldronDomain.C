@@ -342,18 +342,20 @@ void DataAccess::Mining::CauldronDomain::getBottomSurface( double x, double y, E
    if ( element.isValidPlaneElement() and m_domainDerivedDepths.size() != 0 and
         ( includeBasement or dynamic_cast<const Interface::Formation*>( m_domainDerivedDepths[ 0 ]->getFormation ())->kind () != Interface::BASEMENT_FORMATION )) {
 
-      unsigned int bottomSedimentGridIndex = m_domainDerivedDepths.size() - 1;
+      assert(m_domainDerivedDepths.size()>0);
+      size_t bottomSedimentGridIndex = m_domainDerivedDepths.size() - 1;
 
       if ( dynamic_cast<const Interface::Formation*>( m_domainDerivedDepths[ m_domainDerivedDepths.size() - 1 ]->getFormation ())->kind () == Interface::BASEMENT_FORMATION )
       {
          // If the bottom formation is a basement-formation then so is the one above.
          // The bottom is the crust and above this is the crust.
+         assert(bottomSedimentGridIndex>1);
          bottomSedimentGridIndex -= 2;
       }
 
       // How many nodes are above us?
       int count = 0;
-      for ( unsigned int i = 0; i <= bottomSedimentGridIndex; ++i )
+      for ( size_t i = 0; i <= bottomSedimentGridIndex; ++i )
       {
          // Minus one because we do not want to count the end points twice.
          count += m_domainDerivedDepths [ i ]->lengthK () - 1;

@@ -16,50 +16,61 @@ FILE( GLOB all_srcs src/*.C)
 source_group(source FILES ${all_srcs})
 
 add_library(DataMining
-	${all_srcs}
-	${all_headers}
+   ${all_srcs}
+   ${all_headers}
 )
 
 bm_include_libraries( 
-	DataModel
-	FiniteElements 
-	utilities 
-	Interpolation 
-	LinearAlgebra 
-	DerivedProperties
-	TableIO 
-	EosPack 
-	DataAccess 
-	GeoPhysics 
-	CBMGenerics
+   DataModel
+   FiniteElements 
+   utilities 
+   Interpolation 
+   LinearAlgebra 
+   DerivedProperties
+   TableIO 
+   EosPack 
+   DataAccess 
+   GeoPhysics 
+   CBMGenerics
 )
 
 include_directories(
-	src
+   src
 )
 
 include_directories( SYSTEM
-	${HDF5_INCLUDE_DIRS}
+   ${HDF5_INCLUDE_DIRS}
 )
 
 target_link_libraries(DataMining
-	FiniteElements
-	utilities
-	Interpolation
-	LinearAlgebra
-	TableIO
-	EosPack
-	DerivedProperties
-	DataAccess
-	GeoPhysics
-	CBMGenerics
-	${HDF5_LIBRARIES}
+   FiniteElements
+   utilities
+   Interpolation
+   LinearAlgebra
+   TableIO
+   EosPack
+   DerivedProperties
+   DataAccess
+   GeoPhysics
+   CBMGenerics
+   ${HDF5_LIBRARIES}
 )
 
 install(TARGETS DataMining
-	RUNTIME DESTINATION bin
-	LIBRARY DESTINATION lib
-	ARCHIVE DESTINATION lib
+   RUNTIME DESTINATION bin
+   LIBRARY DESTINATION lib
+   ARCHIVE DESTINATION lib
+)
+
+add_gtest( NAME DataMiningProjectHandle
+           SOURCES test/DataMiningProjectHandle.C
+           LIBRARIES DataMining DataAccess SerialDataAccess
+)
+
+configure_file(
+   ${CMAKE_CURRENT_SOURCE_DIR}/test/DataMiningProjectHandleTest.project3d
+   DataMiningProjectHandleTest.project3d
+   COPYONLY
 )
 
 # Local Variables:

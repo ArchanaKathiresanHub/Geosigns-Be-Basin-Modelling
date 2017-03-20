@@ -21,14 +21,14 @@ public:
    // public methods
 
    // returns property list (default: serial)
-   virtual hid_t createFilePropertyList (  const bool readOnly ) const
+   virtual hid_t createFilePropertyList (  const bool /*readOnly*/ ) const
    { 
       // hope this works across the board
       return H5P_DEFAULT; 
    }
 
    // returns data property list
-   virtual hid_t createDatasetPropertyList (  const bool readOnly ) const
+   virtual hid_t createDatasetPropertyList (  const bool /*readOnly*/ ) const
    {
       return H5P_DEFAULT; 
    }

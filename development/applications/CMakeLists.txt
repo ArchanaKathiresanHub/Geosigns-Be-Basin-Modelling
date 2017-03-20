@@ -21,10 +21,6 @@ if (BM_BUILD_SERIAL_APPS)
    add_subdirectory(projdiff)
 endif (BM_BUILD_SERIAL_APPS)
 
-if (BM_BUILD_4DVIEWER)
-   add_subdirectory(4DViewer)
-endif (BM_BUILD_4DVIEWER)
-
 # Applications that can only be built on Unix at the moment.
 if (UNIX)
 	if (BM_PARALLEL)

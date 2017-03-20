@@ -245,10 +245,10 @@ double SerialGrid::getSurface (unsigned int i, unsigned int j) const
 {
    double surface = m_surface;
 
-   if (i == 0 || i == numI () - 1)
+   if (i == 0 || static_cast<int>(i) == numI () - 1)
       surface /= 2;
 
-   if (j == 0 || j == numJ () - 1)
+   if (j == 0 || static_cast<int>(j) == numJ () - 1)
       surface /= 2;
 
    return surface;

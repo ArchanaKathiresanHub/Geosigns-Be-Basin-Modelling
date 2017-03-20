@@ -52,8 +52,6 @@ double DataAccess::Mining::TemperatureGradientCalculator::compute ( const Elemen
 
    double calculationResult;
 
-   double temperature;
-
    FiniteElementMethod::FiniteElement finiteElement;
    FiniteElementMethod::ThreeVector   gradTemperature;
 
@@ -72,7 +70,6 @@ double DataAccess::Mining::TemperatureGradientCalculator::compute ( const Elemen
 
    finiteElement.setGeometry ( geometryMatrix );
    finiteElement.setQuadraturePoint ( position.getReferencePoint ()( 0 ), position.getReferencePoint ()( 1 ), position.getReferencePoint ()( 2 ));
-   temperature = finiteElement.interpolate ( temperatureCoeffs );
 
    gradTemperature = finiteElement.interpolateGrad ( temperatureCoeffs );
 

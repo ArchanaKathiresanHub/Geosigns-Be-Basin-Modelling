@@ -83,8 +83,7 @@ double DataAccess::Mining::FluidVelocityCalculator::compute ( const ElementPosit
    const GeoPhysics::Formation* formation = dynamic_cast<const GeoPhysics::Formation*>(position.getFormation ());
    const GeoPhysics::FluidType* fluid = dynamic_cast<const GeoPhysics::FluidType*>(formation->getFluidType ());
 
-   double fluidVelocityMagnitude;
-   double calculationResult;
+   double calculationResult = 0.;
 
    double fluidViscosity;
    double permeabilityH;

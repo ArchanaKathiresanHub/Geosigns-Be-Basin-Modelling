@@ -27,7 +27,7 @@ if (UNIX AND BM_ENABLE_WARNINGS)
 
    elseif(CMAKE_COMPILER_IS_GNUCXX)
       # Assume GCC compiler
-      add_definitions(-Wall -Wextra)
+      add_definitions(-Wall -Wextra -Wno-comment)
    else()
       message(WARNING "Don't know the compiler flags to emit all compilation warnings")
    endif()

@@ -114,7 +114,6 @@ TEST ( GeneralMatrixMultiply, NoTransTrans ) {
    // IMPORTANT: For this test to complete this number should be a double precision
    // model number and have not too many significant figures.
    double value = 2.5;
-   double expectedValue = value * value * static_cast<double>(n2);
 
    AlignedDenseMatrix mat1 ( n1, n2 );
    AlignedDenseMatrix mat2 ( n1, n2 );
@@ -172,7 +171,6 @@ TEST ( GeneralMatrixMultiply, TransNoTrans ) {
    // IMPORTANT: For this test to complete this number should be a double precision
    // model number and have not too many significant figures.
    double value = 2.5;
-   double expectedValue = value * value * static_cast<double>(n2);
 
    AlignedDenseMatrix mat1 ( n2, n1 );
    AlignedDenseMatrix mat2 ( n2, n1 );
@@ -229,7 +227,6 @@ TEST ( GeneralMatrixMultiply, TransTrans ) {
    // IMPORTANT: For this test to complete this number should be a double precision
    // model number and have not too many significant figures.
    double value = 2.5;
-   double expectedValue = value * value * static_cast<double>(n2);
 
    AlignedDenseMatrix mat1 ( n2, n1 );
    AlignedDenseMatrix mat2 ( n1, n2 );

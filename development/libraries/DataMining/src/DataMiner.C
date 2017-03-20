@@ -91,8 +91,8 @@ void DataAccess::Mining::DataMiner::compute ( const ElementPositionSequence& pos
 }
 
 
-void DataAccess::Mining::DataMiner::compute ( const ElementPositionSequence& positions,
-                                                    ResultValues&            results ) {
+void DataAccess::Mining::DataMiner::compute ( const ElementPositionSequence& ,
+                                                    ResultValues&             ) {
 
    // ElementPositionSequence::const_iterator positionIter;
    // InterpolatedPropertyValues positionResult;

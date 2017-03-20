@@ -36,10 +36,6 @@ target_link_libraries(VisualizationIO
   ${Boost_LIBRARIES}
 )
 
-if(CMAKE_COMPILER_IS_GNUCXX)
-  set_target_properties( VisualizationIO PROPERTIES COMPILE_FLAGS "-Werror" )
-endif()
-
 generate_dox( VisualizationIO.cfg )
 
 # Local Variables:

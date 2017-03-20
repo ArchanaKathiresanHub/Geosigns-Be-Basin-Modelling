@@ -15,7 +15,7 @@ Numerics::GMResRestart::GMResRestart () {
 void Numerics::GMResRestart::fill ( VectorArray& vecs, 
                                     Vector*      value ) const {
 
-  int i;
+  size_t i;
 
   for ( i = 0; i < vecs.size (); i++ ){
     vecs [ i ] = value;

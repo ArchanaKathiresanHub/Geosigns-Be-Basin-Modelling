@@ -39,7 +39,6 @@ double DataAccess::Mining::BrineViscosityCalculator::compute ( const ElementPosi
 
    double temperature;
    double pressure;
-   double porePressure;
    double viscosity;
 
    const GeoPhysics::Formation* formation = dynamic_cast<const GeoPhysics::Formation*>(position.getFormation ());

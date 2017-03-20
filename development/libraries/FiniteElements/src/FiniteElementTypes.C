@@ -447,7 +447,7 @@ FiniteElementMethod::ElementVector FiniteElementMethod::maximum ( const ElementV
                                                                   const double         scalar ) {
 
    ElementVector result;
-   int i;
+   unsigned int i;
 
    for ( i = 1; i <= ElementVector::NumberOfEntries; ++i ) {
       result ( i ) = NumericFunctions::Maximum<double>( vec ( i ), scalar );
@@ -462,7 +462,7 @@ FiniteElementMethod::ElementVector FiniteElementMethod::maximum ( const ElementV
                                                                   const ElementVector& vec2 ) {
 
    ElementVector result;
-   int i;
+   unsigned int i;
 
    for ( i = 1; i <= ElementVector::NumberOfEntries; ++i ) {
       result ( i ) = NumericFunctions::Maximum<double>( vec1 ( i ), vec2 ( i ));
@@ -477,7 +477,7 @@ FiniteElementMethod::ElementVector FiniteElementMethod::minimum ( const ElementV
                                                                   const ElementVector& vec2 ) {
 
    ElementVector result;
-   int i;
+   unsigned int i;
 
    for ( i = 1; i <= ElementVector::NumberOfEntries; ++i ) {
       result ( i ) = NumericFunctions::Minimum<double>( vec1 ( i ), vec2 ( i ));
@@ -493,7 +493,7 @@ void FiniteElementMethod::interpolate ( const ElementVector& start,
                                         const double         lambda,
                                               ElementVector& result ) {
 
-   int i;
+   unsigned int i;
 
    for ( i = 1; i <= ElementVector::NumberOfEntries; ++i ) {
       result ( i ) = ( 1.0 - lambda ) * start ( i ) + lambda * end ( i );

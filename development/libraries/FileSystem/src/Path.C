@@ -52,7 +52,7 @@ Path Path::applicationFullPath()
       // too small buffer - increase it
       delete [] pathBuf;
       pathBufSize *= 2;
-      if ( pathBufSize >= 32768U ) break; // too long buffer
+      if ( pathBufSize >= 32768 ) break; // too long buffer
 
       pathBuf = new char[pathBufSize];
 

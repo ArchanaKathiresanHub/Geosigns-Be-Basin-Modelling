@@ -246,7 +246,7 @@ bool H5_Write_File::writeDataset (hid_t dataId, const void *buffer, H5_PropertyL
 }
 
 bool H5_Write_File::writeAttribute (hid_t attributeId, hid_t spaceId, void *buffer, 
-                                   H5_PropertyList *pList)
+                                   H5_PropertyList *)
 {
    herr_t status = -1;
 
@@ -328,7 +328,7 @@ bool H5_ReadOnly_File::readDataset (hid_t dataId, void *buffer, H5_PropertyList 
 }
 
 bool H5_ReadOnly_File::readAttribute (hid_t attributeId, hid_t spaceId, void *buffer,  
-                                       H5_PropertyList *pList)
+                                       H5_PropertyList *)
 {
    herr_t status = -1;
 

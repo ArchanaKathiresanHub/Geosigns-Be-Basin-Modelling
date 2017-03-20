@@ -181,13 +181,12 @@ void DataAccess::Mining::getElementCoefficients ( const ElementPosition&        
                                                   const Interface::GridMap*           property,
                                                   FiniteElementMethod::ElementVector& coefficients ) {
 
-   const unsigned int i = element.getI ();
-   const unsigned int j = element.getJ ();
-   const unsigned int k = element.getLocalK ();
-
    getElementCoefficients ( element.getI (), element.getJ (), element.getLocalK (), property, coefficients );
 
 #if 0
+   const unsigned int i = element.getI ();
+   const unsigned int j = element.getJ ();
+   const unsigned int k = element.getLocalK ();
    int l;
    bool valueIsNull = false;
 

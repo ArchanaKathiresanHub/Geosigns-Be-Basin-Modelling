@@ -104,11 +104,11 @@ TEST_F( Matrix3x3Test, matrixVectorProductTest )
    EXPECT_NEAR( resVec(2), 606, 1e-6 );
    EXPECT_NEAR( resVec(3), 428, 1e-6 );
 
-   const FiniteElementMethod::ThreeVector & retVec = FiniteElementMethod::matrixVectorProduct ( mat, vec1 );
+   const FiniteElementMethod::ThreeVector retVec = FiniteElementMethod::matrixVectorProduct ( mat, vec1 );
 
-   EXPECT_NEAR( resVec(1), 406, 1e-6 );
-   EXPECT_NEAR( resVec(2), 606, 1e-6 );
-   EXPECT_NEAR( resVec(3), 428, 1e-6 );
+   EXPECT_NEAR( retVec(1), 406, 1e-6 );
+   EXPECT_NEAR( retVec(2), 606, 1e-6 );
+   EXPECT_NEAR( retVec(3), 428, 1e-6 );
 }
 
  

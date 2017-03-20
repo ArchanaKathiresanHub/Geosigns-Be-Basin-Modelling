@@ -262,7 +262,7 @@ namespace DataAccess { namespace Mining
    }
 
 
-   DomainPropertyAllocator * DomainPropertyFactory::produceFormationPropertyAllocator( const Interface::ProjectHandle * projectHandle,
+   DomainPropertyAllocator * DomainPropertyFactory::produceFormationPropertyAllocator( const Interface::ProjectHandle * ,
                                                                                        const Interface::Property      * property )
    {
       DomainPropertyAllocator * allocator;
@@ -277,26 +277,26 @@ namespace DataAccess { namespace Mining
    }
 
 
-   DomainPropertyAllocator * DomainPropertyFactory::produceFormationMapPropertyAllocator( const Interface::ProjectHandle * projectHandle,
-                                                                                          const Interface::Property      * property )
+   DomainPropertyAllocator * DomainPropertyFactory::produceFormationMapPropertyAllocator( const Interface::ProjectHandle * ,
+                                                                                          const Interface::Property      *  )
    {
       return new DomainFormationMapPropertyAllocator;
    }
 
-   DomainPropertyAllocator* DomainPropertyFactory::produceSurfacePropertyAllocator( const Interface::ProjectHandle * projectHandle,
-                                                                                     const Interface::Property      * property )
+   DomainPropertyAllocator* DomainPropertyFactory::produceSurfacePropertyAllocator( const Interface::ProjectHandle * ,
+                                                                                     const Interface::Property      * )
    {
    //    assert ( property->getType () == Interface::SURFACEPROPERTY );
       return new DomainSurfacePropertyAllocator;
    }
 
-   DomainPropertyAllocator * DomainPropertyFactory::produceFormationConstantPropertyAllocator( const Interface::ProjectHandle * projectHandle,
-                                                                                               const Interface::Property      * property )
+   DomainPropertyAllocator * DomainPropertyFactory::produceFormationConstantPropertyAllocator( const Interface::ProjectHandle * ,
+                                                                                               const Interface::Property      *  )
    {
       return new ConstantDomainFormationPropertyAllocator;
    }
 
-   DomainPropertyAllocator* DomainPropertyFactory::produceReservoirPropertyAllocator( const Interface::ProjectHandle * projectHandle,
+   DomainPropertyAllocator* DomainPropertyFactory::produceReservoirPropertyAllocator( const Interface::ProjectHandle * ,
                                                                                        const Interface::Property      * property )
    {
       assert ( property->getType () == Interface::RESERVOIRPROPERTY );
