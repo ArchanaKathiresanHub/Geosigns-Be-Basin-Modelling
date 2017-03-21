@@ -99,6 +99,7 @@ install(TARGETS fastmig
 	RUNTIME DESTINATION bin
 )
 
+set(CFGFLS "${PROJECT_SOURCE_DIR}/geocase/misc")
 
 ### Unit Tests
 
