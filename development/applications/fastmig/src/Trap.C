@@ -2367,9 +2367,11 @@ namespace migration
       double finalGasLevel;
       double finalHCLevel;
 
+      double crestPressure = getCrestColumn()->getPressure();
+
       m_distributor->distribute (m_toBeDistributed[GAS], m_toBeDistributed[OIL],
                                  getTemperature () + CelciusToKelvin, m_distributed[GAS], m_distributed[OIL], gasLeaked, gasWasted,
-                                 gasSpilled, oilLeaked, oilSpilledOrWasted, finalGasLevel, finalHCLevel);
+                                 gasSpilled, oilLeaked, oilSpilledOrWasted, finalGasLevel, finalHCLevel, crestPressure);
 
 #ifdef DETAILED_MASS_BALANCE
       m_massBalance->subtractFromBalance("gas leaked", gasLeaked.getWeight());
@@ -3236,6 +3238,13 @@ namespace migration
 
       double gorm = computeGorm (m_distributed[GAS], m_distributed[OIL]);
 
+      double capSealStrength_H2O_Gas;
+      double capSealStrength_H2O_Oil;
+      std::vector<Composition> trapComposition(2);
+      trapComposition[0] = m_distributed[GAS];
+      trapComposition[1] = m_distributed[OIL];
+      double crestPressure = getCrestColumn()->getPressure();
+
       for (int phase = (int)FIRST_PHASE; phase < (int)NUM_PHASES; ++phase)
       {
          tpRequest.cep[phase] = -1;
@@ -3244,17 +3253,18 @@ namespace migration
 
          if (leakDistributor && m_distributed[phase].getWeight () > 0.0)
          {
-            double capillarySealStrength = leakDistributor->capillarySealStrength ().compute (m_distributed[phase], gorm,
-                                                                                              getTemperature () + CelciusToKelvin);
-            if (capillarySealStrength != numeric_limits<double>::max ())
-               tpRequest.cep[phase] = PaToMegaPa * capillarySealStrength;
+            leakDistributor->capillarySealStrength().compute(trapComposition, gorm, getTemperature() + CelciusToKelvin, crestPressure,
+                                                             capSealStrength_H2O_Gas, capSealStrength_H2O_Oil);
 
-            double criticalTemperature =
-               leakDistributor->capillarySealStrength ().criticalTemperature (m_distributed[phase], gorm) - CelciusToKelvin;
+            if ( phase == GAS && capSealStrength_H2O_Gas != numeric_limits<double>::max ())
+               tpRequest.cep[phase] = PaToMegaPa * capSealStrength_H2O_Gas;
+            else if ( phase == OIL && capSealStrength_H2O_Oil != numeric_limits<double>::max() )
+               tpRequest.cep[phase] = PaToMegaPa * capSealStrength_H2O_Oil;
+
+            double criticalTemperature = leakDistributor->capillarySealStrength ().criticalTemperature (m_distributed[phase], gorm) - CelciusToKelvin;
             tpRequest.criticalTemperature[phase] = criticalTemperature;
 
-            double interfacialTension = leakDistributor->capillarySealStrength ().interfacialTension (m_distributed[phase], gorm,
-                                                                                                      getTemperature () + CelciusToKelvin);
+            double interfacialTension = leakDistributor->capillarySealStrength ().interfacialTension (m_distributed[phase], gorm, getTemperature () + CelciusToKelvin);
             tpRequest.interfacialTension[phase] = interfacialTension;
          }
          tpRequest.volume[phase] = getVolume ((PhaseId)phase);

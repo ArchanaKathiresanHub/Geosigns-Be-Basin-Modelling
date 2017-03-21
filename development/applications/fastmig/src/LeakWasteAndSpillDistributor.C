@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2016 Shell International Exploration & Production.
+// Copyright (C) 2016-2017 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -96,9 +96,9 @@ namespace migration
    }
 
    void LeakWasteAndSpillDistributor::distribute (const Composition& gas, const Composition& oil, const double& T_K,
-      Composition& remainingGas, Composition& remainingOil,
-      Composition& leakedGas, Composition& wastedGas, Composition& spilledGas,
-      Composition& leakedOil, Composition& spilledOil, double& finalGasLevel, double& finalHCLevel) const
+                                                  Composition& remainingGas, Composition& remainingOil, Composition& leakedGas,
+                                                  Composition& wastedGas, Composition& spilledGas, Composition& leakedOil, Composition& spilledOil,
+                                                  double& finalGasLevel, double& finalHCLevel, const double brinePressure) const
    {
       assert (gas.getWeight () >= 0.0);
       assert (oil.getWeight () >= 0.0);
@@ -110,17 +110,15 @@ namespace migration
       double gasVolume = gas.getVolume ();
       double oilVolume = oil.getVolume ();
 
-      // If there is gas calculate the capillary entry pressure for gas.  (If there is no gas, 
-      // the gas density is undefined.  And if leaking() returns false, we do not need 
-      // capSealStrength_H2O_Gas.)
-      double capSealStrength_H2O_Gas = leaking () && gasVolume > 0.0 ?
-         m_capSealStrength.compute (gas, gorm, T_K) :
-         0.0;
+      double capSealStrength_H2O_Gas = 0.0;
+      double capSealStrength_H2O_Oil = 0.0;
 
-      // If there is oil calculate also the capillary entry pressure for oil:
-      double capSealStrength_H2O_Oil = leaking () && oilVolume > 0.0 ?
-         m_capSealStrength.compute (oil, gorm, T_K) :
-         0.0;
+      std::vector<Composition>  trapComposition(2);
+      trapComposition[0] = gas;
+      trapComposition[1] = oil;
+
+      if (leaking() && (gasVolume > 0.0 or oilVolume > 0.0))
+         m_capSealStrength.compute(trapComposition, gorm, T_K, brinePressure, capSealStrength_H2O_Gas, capSealStrength_H2O_Oil);
 
       double gasVolumeLeaked = 0.0;
       double gasVolumeSpilled = 0.0;

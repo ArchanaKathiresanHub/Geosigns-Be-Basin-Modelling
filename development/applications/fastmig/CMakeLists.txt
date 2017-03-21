@@ -1,6 +1,6 @@
 #########################################################################
 #                                                                       #
-# Copyright (C) 2012-2015 Shell International Exploration & Production. #
+# Copyright (C) 2012-2017 Shell International Exploration & Production. #
 # All rights reserved.                                                  #
 #                                                                       #
 # Developed under license for Shell by PDS BV.                          #
@@ -105,6 +105,12 @@ install(TARGETS fastmig
 add_gtest( NAME "Fastmig::Biodegrade"
 		   SOURCES test/BiodegradeTest.C src/Biodegrade.C
 		   LIBRARIES DataAccess DistributedDataAccess
+		  )
+
+add_gtest( NAME "Fastmig::CapillarySealStrength"
+		   SOURCES test/CapillarySealStrength.C src/CapillarySealStrength.C src/Composition.C src/Biodegrade.C src/DiffusionLeak.C src/DiffusionCoefficient.C
+		   LIBRARIES DataAccess DistributedDataAccess CBMGenerics EosPack GeoPhysics functions
+         ENV_VARS EOSPACKDIR=${CFGFLS}/eospack GENEX5DIR=${CFGFLS}/genex50 CTCDIR=${CFGFLS}/
 		  )
 
 endif (BM_PARALLEL)

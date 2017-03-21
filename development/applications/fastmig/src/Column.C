@@ -1512,7 +1512,7 @@ namespace migration
          assert (IsValid (targetColumn));
 
          double weight = phaseCompositions[phase].getWeight ();
-		 targetColumn->addTargetCompositionToBuffer((PhaseId)phase, position, phaseCompositions[phase]);
+         targetColumn->addTargetCompositionToBuffer((PhaseId)phase, position, phaseCompositions[phase]);
 
          if (getPreviousGlobalTrapId () >= 0)
             m_reservoir->reportLateralMigration (getPreviousGlobalTrapId (), targetColumn, phaseCompositions[phase]);

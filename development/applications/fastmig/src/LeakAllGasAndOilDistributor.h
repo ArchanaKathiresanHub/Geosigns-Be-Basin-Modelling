@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2016 Shell International Exploration & Production.
+// Copyright (C) 2016-2017 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -36,9 +36,9 @@ namespace migration
       LeakAllGasAndOilDistributor (const MonotonicIncreasingPiecewiseLinearInvertableFunction* levelToVolume);
 
       void distribute (const Composition& gas, const Composition& oil, const double& T_K,
-         Composition& remainingGas, Composition& remainingOil,
-         Composition& leakedGas, Composition& wastedGas, Composition& spilledGas,
-         Composition& leakedOil, Composition& spilledOil, double& finalGasLevel, double& finalHCLevel) const;
+                       Composition& remainingGas, Composition& remainingOil, Composition& leakedGas,
+                       Composition& wastedGas, Composition& spilledGas, Composition& leakedOil, Composition& spilledOil,
+                       double& finalGasLevel, double& finalHCLevel, const double brinePressure) const;
 
       bool leaking () const { return true; }
       bool wasting () const { return false; }
