@@ -257,33 +257,6 @@ double interpolateProperty ( const LayerElement&                         element
 
 //------------------------------------------------------------//
 
-ThreeVector computeGradientProperty ( const LayerElement&                         element,
-                                      const FiniteElementMethod::Matrix3x3&       ,
-                                      const Basin_Modelling::Fundamental_Property property,
-                                      const double                                x,
-                                      const double                                y,
-                                      const double                                z ) {
-
-   BasisFunction     basis;
-   ThreeVector       gradient;
-   ThreeVector       referenceGradient;
-   Matrix3x3         jacobianInverse;
-   GradElementVector gradBasis;
-   ElementVector     phi;
-   ElementVector     coefficients;
-
-   basis ( x, y, z, gradBasis );
-
-   getCoefficients ( element, property, coefficients );
-
-   matrixTransposeVectorProduct ( gradBasis, coefficients, referenceGradient );
-   matrixTransposeVectorProduct ( jacobianInverse, referenceGradient, gradient );
-
-   return gradient;
-}
-
-//------------------------------------------------------------//
-
 double volumeOfElement ( const LayerElement&                               ,
                          const FiniteElementMethod::ElementGeometryMatrix& geometryMatrix,
                          const int                                         numberOfQuadraturePoints ) {

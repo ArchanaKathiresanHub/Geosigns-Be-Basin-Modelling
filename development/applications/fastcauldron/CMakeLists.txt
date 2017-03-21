@@ -516,6 +516,7 @@ add_gtest( NAME "PetscSolver"
            SOURCES src/PetscSolver.C test/PetscSolver.C
            LIBRARIES ${PETSC_LIBRARIES}
            LINK_FLAGS "${PETSC_LINK_FLAGS}"
+           ENV_VARS LD_LIBRARY_PATH=$ENV{LD_LIBRARY_PATH}:${HYPRE_LIBRARY_DIR}
          )
 
 ################## PETSC OBJECTS IO UNIT TESTS #################
