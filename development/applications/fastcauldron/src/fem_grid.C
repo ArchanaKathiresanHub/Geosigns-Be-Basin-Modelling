@@ -750,8 +750,8 @@ void Basin_Modelling::FEM_Grid::solvePressure ( bool& solverHasConverged,
   }
 
   do {
-     FastcauldronSimulator::getInstance ().restartActivity ();
-     m_surfaceNodeHistory.clearProperties ();
+    FastcauldronSimulator::getInstance ().restartActivity ();
+    m_surfaceNodeHistory.clearProperties ();
 
      if ( basinModel->isModellingMode3D() ) {
         database::Table* table = FastcauldronSimulator::getInstance ().getTable ("3DTimeIoTbl");
@@ -762,45 +762,45 @@ void Basin_Modelling::FEM_Grid::solvePressure ( bool& solverHasConverged,
 
      }
 
-     basinModel->deleteMinorSnapshotsFromTimeIOTable ( savedMinorSnapshotTimes, genexOutputProperties );
-     basinModel->deleteMinorSnapshotsFromTimeIOTable ( savedMinorSnapshotTimes, shaleGasOutputProperties );
-     basinModel->deleteMinorSnapshotsFromTimeIOTable ( savedMinorSnapshotTimes, mapOutputProperties );
+    basinModel->deleteMinorSnapshotsFromTimeIOTable ( savedMinorSnapshotTimes, genexOutputProperties );
+    basinModel->deleteMinorSnapshotsFromTimeIOTable ( savedMinorSnapshotTimes, shaleGasOutputProperties );
+    basinModel->deleteMinorSnapshotsFromTimeIOTable ( savedMinorSnapshotTimes, mapOutputProperties );
 
-     FastcauldronSimulator::getInstance ().deleteSnapshotProperties ();
-     FastcauldronSimulator::getInstance ().deleteMinorSnapshots ();
-     FastcauldronSimulator::getInstance ().deleteMinorSnapshotsFromSnapshotTable ();
+    FastcauldronSimulator::getInstance ().deleteSnapshotProperties ();
+    FastcauldronSimulator::getInstance ().deleteMinorSnapshots ();
+    FastcauldronSimulator::getInstance ().deleteMinorSnapshotsFromSnapshotTable ();
 
-     savedMinorSnapshotTimes.clear ();
+    savedMinorSnapshotTimes.clear ();
 
-     if( basinModel->isModellingMode1D () )
-     {
-        Temperature_Calculator.resetBiomarkerStateVectors ( );
-        Temperature_Calculator.resetSmectiteIlliteStateVectors ( );
-        Temperature_Calculator.resetFissionTrackCalculator ( );
-        basinModel->deleteIsoValues();
-     }
+    if( basinModel->isModellingMode1D () )
+    {
+       Temperature_Calculator.resetBiomarkerStateVectors ( );
+       Temperature_Calculator.resetSmectiteIlliteStateVectors ( );
+       Temperature_Calculator.resetFissionTrackCalculator ( );
+       basinModel->deleteIsoValues();
+    }
 
-     if ( basinModel->debug1 or basinModel->verbose ) {
-        PetscPrintf ( PETSC_COMM_WORLD,
-                      "o Starting iteration %d of %d (Maximum number of iterations)",
-                      numberOfGeometricIterations,
-                      maximumNumberOfGeometricIterations );
-     }
+    if ( basinModel->debug1 or basinModel->verbose ) {
+      PetscPrintf ( PETSC_COMM_WORLD,
+                    "o Starting iteration %d of %d (Maximum number of iterations)",
+                    numberOfGeometricIterations,
+                    maximumNumberOfGeometricIterations );
+    }
 
-     // Compute the overpressure from basin-start-age to present day.
-     Evolve_Pressure_Basin ( numberOfGeometricIterations,
-                             overpressureHasDiverged,
-                             errorInDarcy );
+    // Compute the overpressure from basin-start-age to present day.
+    Evolve_Pressure_Basin ( numberOfGeometricIterations,
+                            overpressureHasDiverged,
+                            errorInDarcy );
 
-     if ( not ( overpressureHasDiverged or errorInDarcy )) {
-        // Check that the predicted geometry has converged to with some tolerance of the real (input) geometry
-        pressureSolver->adjustSolidThickness ( pressureSolver->getRelativeThicknessTolerance ( basinModel -> Optimisation_Level ),
-                                               pressureSolver->getAbsoluteThicknessTolerance ( basinModel -> Optimisation_Level ),
-                                               geometryHasConverged );
+    if ( not ( overpressureHasDiverged or errorInDarcy )) {
+      // Check that the predicted geometry has converged to with some tolerance of the real (input) geometry
+      pressureSolver->adjustSolidThickness ( pressureSolver->getRelativeThicknessTolerance ( basinModel -> Optimisation_Level ),
+                                             pressureSolver->getAbsoluteThicknessTolerance ( basinModel -> Optimisation_Level ),
+                                             geometryHasConverged );
 
-        numberOfGeometricIterations = numberOfGeometricIterations + 1;
-        MPI_Barrier(PETSC_COMM_WORLD);
-     }
+      numberOfGeometricIterations = numberOfGeometricIterations + 1;
+      MPI_Barrier(PETSC_COMM_WORLD);
+    }
 
   } while (( numberOfGeometricIterations <= maximumNumberOfGeometricIterations ) && ! geometryHasConverged && ! overpressureHasDiverged );
 
@@ -2206,7 +2206,6 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  pre
   PetscScalar Residual_Length = 0.0;
   PetscScalar Previous_Residual_Length = 0.0;
   PetscScalar Solution_Length = 0.0;
-  PetscScalar previousSolutionLength;
   PetscReal   linearSolverResidualNorm;
 
   boost::shared_ptr<PetscSolver> pressureLinearSolver ( new PetscCG ( pressureSolver->linearSolverTolerance ( basinModel->Optimisation_Level ),
@@ -2339,49 +2338,84 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  pre
          pressureLinearSolver->viewSettings();
       }
 
-
-
       // First attempt to solve linear system of equations.
       linearSolveAttempts = 1;
 
       if ( convergedReason < 0 ) {
          linearSolverTotalIterationCount = numberOfLinearIterations;
 
-         PetscPrintf ( PETSC_COMM_WORLD,
-                       " MeSsAgE WARNING The pressure solver exit condition was: %s. Retrying with another linear solver. \n",
-                       getKspConvergedReasonImage ( convergedReason ).c_str ());
+         // Check if HYPRE has been disabled from command line
+         PetscBool disableHypre = PETSC_FALSE;
+         PetscOptionsHasName( NULL, "-disableHypre", &disableHypre );
 
-         // Now iterate several times until the linear system has been solved.
-         // If, however, the number of iterations exceeds the maximum then this will result in a simulation failure.
-         // On the first iteration the linear solver is switched to gmres.
-         // On subsequent iterations the restart level and the maximum number of iterations are both increased,
-         for ( int linearSolveLoop = 1; linearSolveLoop <= PressureSolver::MaximumLinearSolveAttempts and convergedReason < 0; ++linearSolveLoop, ++linearSolveAttempts ) {
+         if( (PETSC_FALSE == disableHypre) && (convergedReason == KSP_DIVERGED_ITS) && (pressureLinearSolver->getPCtype() != PCHYPRE) )
+         {
+            // If the linear solver has diverged due to the maximum number of iterations it then tries HYPRE
+            PetscPrintf ( PETSC_COMM_WORLD,
+                          " MeSsAgE WARNING The pressure solver exit condition was: %s. Retrying with HYPRE preconditioner. \n",
+                          getKspConvergedReasonImage ( convergedReason ).c_str ());
 
-            boost::shared_ptr<PetscGMRES> gmres = boost::dynamic_pointer_cast<PetscGMRES>( pressureLinearSolver);
-            if ( ! gmres  ) {
-               pressureLinearSolver.reset ( new PetscGMRES ( pressureLinearSolver->getTolerance(),
-                                                             PressureSolver::DefaultGMResRestartValue,
-                                                             pressureLinearSolver->getMaxIterations ()));
-
-               gmres = boost::dynamic_pointer_cast<PetscGMRES>( pressureLinearSolver);
-               gmres->loadCmdLineOptions();
-               gmres->setRestart ( std::max( gmres->getRestart(), PressureSolver::DefaultGMResRestartValue ));
-               gmres->setMaxIterations( std::max( pressureLinearSolver->getMaxIterations(), PressureSolver::DefaultMaximumPressureLinearSolverIterations) );
-
-            } else {
-               gmres->setRestart( gmres->getRestart() + PressureSolver::GMResRestartIncrementValue );
-               gmres->setMaxIterations(( 3 * gmres->getMaxIterations ()) / 2 );
-            }
+            pressureLinearSolver->setPCtype( PCHYPRE );
 
             pressureLinearSolver->solve ( Jacobian, Residual, Residual_Solution,
                                           &numberOfLinearIterations, &convergedReason, &linearSolverResidualNorm );
 
             linearSolverTotalIterationCount += numberOfLinearIterations;
+         }
+         else
+         {
+            // If the linear solver has diverged for other reasons it then tries GMRES with several settings
+            PetscPrintf ( PETSC_COMM_WORLD,
+                          " MeSsAgE WARNING The pressure solver exit condition was: %s. Retrying with another linear solver. \n",
+                          getKspConvergedReasonImage ( convergedReason ).c_str ());
 
-            if ( basinModel->debug1 ) {
-               PetscPrintf ( PETSC_COMM_WORLD, " The re-tried (%i) pressure solver exit condition was: %s \n", linearSolveLoop, getKspConvergedReasonImage ( convergedReason ).c_str ());
+            // Now iterate several times until the linear system has been solved.
+            // If, however, the number of iterations exceeds the maximum then this will result in a simulation failure.
+            // On the first iteration the linear solver is switched to gmres.
+            // On subsequent iterations the restart level and the maximum number of iterations are both increased,
+            for ( int linearSolveLoop = 1; linearSolveLoop <= PressureSolver::MaximumLinearSolveAttempts and convergedReason < 0; ++linearSolveLoop, ++linearSolveAttempts ) {
+
+               boost::shared_ptr<PetscGMRES> gmres = boost::dynamic_pointer_cast<PetscGMRES>( pressureLinearSolver);
+               if ( ! gmres  ) {
+                  pressureLinearSolver.reset ( new PetscGMRES ( pressureLinearSolver->getTolerance(),
+                                                                PressureSolver::DefaultGMResRestartValue,
+                                                                pressureLinearSolver->getMaxIterations ()));
+
+                  gmres = boost::dynamic_pointer_cast<PetscGMRES>( pressureLinearSolver);
+                  gmres->loadCmdLineOptions();
+                  gmres->setRestart ( std::max( gmres->getRestart(), PressureSolver::DefaultGMResRestartValue ));
+                  gmres->setMaxIterations( std::max( pressureLinearSolver->getMaxIterations(), PressureSolver::DefaultMaximumPressureLinearSolverIterations) );
+
+               } else {
+                  gmres->setRestart( gmres->getRestart() + PressureSolver::GMResRestartIncrementValue );
+                  gmres->setMaxIterations(( 3 * gmres->getMaxIterations ()) / 2 );
+               }
+
+               pressureLinearSolver->solve ( Jacobian, Residual, Residual_Solution,
+                                             &numberOfLinearIterations, &convergedReason, &linearSolverResidualNorm );
+
+               linearSolverTotalIterationCount += numberOfLinearIterations;
+
+               if ( basinModel->debug1 ) {
+                  PetscPrintf ( PETSC_COMM_WORLD, " The re-tried (%i) pressure solver exit condition was: %s \n", linearSolveLoop, getKspConvergedReasonImage ( convergedReason ).c_str ());
+               }
+
             }
 
+            // If all the loops with GMRES have falied we give one last shot to HYPRE
+            if( (PETSC_FALSE == disableHypre) && (convergedReason < 0) && (pressureLinearSolver->getPCtype() != PCHYPRE) )
+            {
+               PetscPrintf ( PETSC_COMM_WORLD,
+                             " MeSsAgE WARNING The pressure solver exit condition was: %s. Retrying with HYPRE preconditioner. \n",
+                             getKspConvergedReasonImage ( convergedReason ).c_str ());
+
+               pressureLinearSolver->setPCtype( PCHYPRE );
+
+               pressureLinearSolver->solve ( Jacobian, Residual, Residual_Solution,
+                                             &numberOfLinearIterations, &convergedReason, &linearSolverResidualNorm );
+
+               linearSolverTotalIterationCount += numberOfLinearIterations;
+            }
          }
 
       }
@@ -2432,7 +2466,6 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  pre
       mapping.putSolution ( Overpressure );
       pressureSolver->checkPressureSolution ();
 
-      previousSolutionLength = Solution_Length;
       VecNorm ( Overpressure, NORM_2, &Solution_Length );
       VecNorm ( Residual_Solution, NORM_2, &Residual_Solution_Length );
       VecNorm ( Residual, NORM_2, &Residual_Length );

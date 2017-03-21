@@ -14,7 +14,7 @@ AllochthonousLithologyMapCalculator::AllochthonousLithologyMapCalculator ( Layer
 
 }
 
-bool AllochthonousLithologyMapCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& properties, 
+bool AllochthonousLithologyMapCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& , 
                                                              OutputPropertyMap::PropertyValueList&  propertyValues ) {
 
    if ( m_isCalculated ) {
@@ -73,7 +73,7 @@ void AllochthonousLithologyMapCalculator::allocatePropertyValues ( OutputPropert
 
 }
 
-bool AllochthonousLithologyMapCalculator::initialise ( OutputPropertyMap::PropertyValueList& propertyValues ) {
+bool AllochthonousLithologyMapCalculator::initialise ( OutputPropertyMap::PropertyValueList&  ) {
 
    m_lithologies = &m_formation->getCompoundLithologyArray ();
 

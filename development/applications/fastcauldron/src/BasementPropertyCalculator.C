@@ -92,8 +92,6 @@ bool BasementPropertyCalculator::calculateProperty () {
       DMDAVecGetArray( *m_BasinModel->mapDA,
                        *m_formation->vectorList.VecArray [ m_propertyName ],
                        (void*) &propertyVector );
-
-      const double theTime = m_snapshot->getTime();
       
       undefinedValue = theMap->getUndefinedValue ();
       
@@ -157,6 +155,3 @@ bool BasementPropertyCalculator::isCalculated () const {
 OutputPropertyMap* allocateBasementPropertyCalculator ( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot ) {
    return new BasementPropertyCalculator ( property, formation, surface, snapshot );
 }
-
-
-

@@ -327,14 +327,22 @@ source_group(source FILES ${all_srcs_except_main} src/main.C)
 #       since the FastcauldronApplication library is linked to the unit tests projects.
 #
 add_library( FastcauldronApplication
-	${all_srcs_except_main}
-	${all_headers}
+    ${all_srcs_except_main}
+    ${all_headers}
 )
 
 #
 # 4. fastcauldron application
 #
 add_executable(fastcauldron src/main.C ${all_headers})
+
+#
+# 4.1 Setting RPATH for fastcauldron binary in order to find the Hypre shared library which is copied
+#     in the same folder of the binary.
+#
+if(UNIX)
+   set_target_properties( fastcauldron PROPERTIES INSTALL_RPATH "${CMAKE_BINARY_DIR}/bin" )
+endif(UNIX)
 
 #
 # 5. linearSolver application
@@ -357,33 +365,33 @@ include_directories(
 )
 
 include_directories( SYSTEM
-	${HDF5_INCLUDE_DIRS}
-	${MPI_INCLUDE_DIRS}
-	${PETSC_INCLUDE_DIRS}
-	${EIGEN_INCLUDE_DIRS}
+    ${HDF5_INCLUDE_DIRS}
+    ${MPI_INCLUDE_DIRS}
+    ${PETSC_INCLUDE_DIRS}
+    ${EIGEN_INCLUDE_DIRS}
 )
 
 bm_include_libraries(
-	FastcauldronApplication
-	DataModel
-	DataAccess
-	DerivedProperties
-	DistributedDataAccess
-	utilities
-	Utilities_Petsc
-	Serial_Hdf5
-	Parallel_Hdf5
-	EosPack
-	TableIO
-	LinearAlgebra
-	Interpolation
-	FiniteElements
-	CBMGenerics
-	genex6
-	genex6_kernel
-	GeoPhysics
-	FileSystem
-	calibration_kernel
+    FastcauldronApplication
+    DataModel
+    DataAccess
+    DerivedProperties
+    DistributedDataAccess
+    utilities
+    Utilities_Petsc
+    Serial_Hdf5
+    Parallel_Hdf5
+    EosPack
+    TableIO
+    LinearAlgebra
+    Interpolation
+    FiniteElements
+    CBMGenerics
+    genex6
+    genex6_kernel
+    GeoPhysics
+    FileSystem
+    calibration_kernel
 )
 
 #
@@ -393,44 +401,44 @@ bm_include_libraries(
 # DataAccess and DistributedDataAccess crossdependencies
 #
 target_link_libraries(fastcauldron
-	FastcauldronApplication
-	DataAccess
-	DistributedDataAccess
+    FastcauldronApplication
+    DataAccess
+    DistributedDataAccess
 )
 target_link_libraries(linearSolver
-	FastcauldronApplication
-	DataAccess
-	DistributedDataAccess
+    FastcauldronApplication
+    DataAccess
+    DistributedDataAccess
 )
 
 #
 # 2. FastcauldronApplication links to IBS libraries
 #
 target_link_libraries(FastcauldronApplication
-	DataAccess
-	DerivedProperties
-	DistributedDataAccess
-	utilities
-	Utilities_Petsc
-	Serial_Hdf5
-	Parallel_Hdf5
-	EosPack
-	TableIO
-	LinearAlgebra
-	Interpolation
-	FiniteElements
-	CBMGenerics
-	genex6
-	genex6_kernel
-	GeoPhysics
-	FileSystem
-	calibration_kernel
-	OTGC_kernel6
-	${HDF5_LIBRARIES}
-	${PETSC_LIBRARIES}
-	${MPI_LIBRARIES}
-	${Boost_LIBRARIES}
-        ${BM_CLOCK_GETTIME_LIB}
+    DataAccess
+    DerivedProperties
+    DistributedDataAccess
+    utilities
+    Utilities_Petsc
+    Serial_Hdf5
+    Parallel_Hdf5
+    EosPack
+    TableIO
+    LinearAlgebra
+    Interpolation
+    FiniteElements
+    CBMGenerics
+    genex6
+    genex6_kernel
+    GeoPhysics
+    FileSystem
+    calibration_kernel
+    OTGC_kernel6
+    ${HDF5_LIBRARIES}
+    ${PETSC_LIBRARIES}
+    ${MPI_LIBRARIES}
+    ${Boost_LIBRARIES}
+    ${BM_CLOCK_GETTIME_LIB}
 )
 
 set_target_properties(fastcauldron
@@ -458,8 +466,14 @@ if (BM_USE_FLEXLM)
 endif(BM_USE_FLEXLM)
 
 install(TARGETS fastcauldron linearSolver
-	RUNTIME DESTINATION bin
+        RUNTIME DESTINATION bin
 )
+
+if(UNIX AND BM_BUILD_HYPRE)
+   # Copying Hypre shared library in the fastcauldron build directory
+   add_custom_command(TARGET fastcauldron POST_BUILD
+                      COMMAND ${CMAKE_COMMAND} -E copy ${HYPRE_LIBRARIES} ${CMAKE_CURRENT_BINARY_DIR} )
+endif()
 
 ################################################################
 ######################## MEMORY CHECK ##########################

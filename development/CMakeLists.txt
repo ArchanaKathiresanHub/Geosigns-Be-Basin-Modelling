@@ -58,12 +58,16 @@ option( BM_CSHARP_API "Build the C sharp interface (Windows only)" OFF )
 option( BM_PARALLEL "Build the parallel cauldron applications" ON )
 option( BM_BUILD_SERIAL_APPS "Also build serial version of apps" ON )
 option( BM_BUILD_DOCS "Build documentation" ON )
-option( BM_BUILD_PARAVIEW_PLUGIN "Also build the ParaView plugin to view cauldron projects in ParaView."  OFF)
+option( BM_BUILD_PARAVIEW_PLUGIN "Also build the ParaView plugin to view cauldron projects in ParaView." OFF )
 option( BM_BUILD_ENABLE_TESTING "Whether testing is enabled" ON )
 option( BM_CODE_COVERAGE_ENABLE "Enable code coverage" OFF )
 option( BM_INSTALL_BENCHMARK_SUITE "Install the cauldron benchmark suite" OFF )
-option( BM_USE_FLEXLM "Whether to require a license via FlexLM" OFF)
-option(BM_EXTERNAL_COMPONENTS_REBUILD "Whether or not to rebuild external components" OFF)
+option( BM_USE_FLEXLM "Whether to require a license via FlexLM" OFF )
+option( BM_EXTERNAL_COMPONENTS_REBUILD "Whether or not to rebuild external components" OFF )
+option( BM_BUILD_HYPRE "Whether to build Hypre library" ON )
+if(WIN32)
+   set( BM_BUILD_HYPRE OFF CACHE BOOL "Disable Hypre on Windows" FORCE )
+endif(WIN32)
 
 #
 # Variables concerning version numbers
@@ -251,7 +255,6 @@ endif()
 #
 include(cmake/BuildEnvironment.cmake)
 
-#
 #
 # Include the subdirectories that have to be built
 #

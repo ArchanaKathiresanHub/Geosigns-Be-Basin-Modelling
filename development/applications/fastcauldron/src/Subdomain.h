@@ -587,7 +587,7 @@ void Subdomain::initialiseLayerIterator ( GenericLayerIterator<Predicate, ConstR
 
 //------------------------------------------------------------//
 
-inline bool Subdomain::PredicateTrue::operator ()( const LayerProps& formation ) const {
+inline bool Subdomain::PredicateTrue::operator ()( const LayerProps& /*formation*/ ) const {
    return true;
 }
 

@@ -120,10 +120,7 @@ void Basin_Modelling::Compute_Normal ( const Matrix3x3&   Jacobian,
 
 inline void Basin_Modelling::Compute_Normal ( const Matrix3x3&   Jacobian,
                                               ThreeVector& Normal ) {
-
-   const int column1Position = 2;
-   const int column2Position = 1;
-
+   
    //
    // Normal = R1 x R2 -- vector cross product
    //
@@ -615,7 +612,6 @@ void Basin_Modelling::computeHeatFlow
 void Basin_Modelling::assembleElementTemperatureResidual ( const bool                   isBasementFormation,
                                                            const int                    planeQuadratureDegree,
                                                            const int                    depthQuadratureDegree,
-                                                           const double                 currentTime,
                                                            const double                 timeStep,
                                                            const bool                   Include_Advection_Term,
                                                            const BoundaryConditions&    bcs,
@@ -624,18 +620,13 @@ void Basin_Modelling::assembleElementTemperatureResidual ( const bool           
                                                            const bool                   includeChemicalCompaction,
                                                            const ElementGeometryMatrix& geometryMatrix,
                                                            const ElementVector&         Element_Heat_Production,
-                                                           const ElementVector&         Previous_Ph,
                                                            const ElementVector&         Current_Ph,
-                                                           const ElementVector&         Previous_Po,
                                                            const ElementVector&         Current_Po,
                                                            const ElementVector&         Current_Lp,
-                                                           const ElementVector&         Previous_Element_VES,
                                                            const ElementVector&         Current_Element_VES,
-                                                           const ElementVector&         Previous_Element_Max_VES,
                                                            const ElementVector&         Current_Element_Max_VES,
                                                            const ElementVector&         Previous_Element_Temperature,
                                                            const ElementVector&         Current_Element_Temperature,
-                                                           const ElementVector&         Previous_Element_Chemical_Compaction,
                                                            const ElementVector&         Current_Element_Chemical_Compaction,
                                                            ElementVector&               elementResidual ) {
 
@@ -891,7 +882,6 @@ void Basin_Modelling::assembleElementTemperatureResidual ( const bool           
 void Basin_Modelling::assembleElementTemperatureSystem ( const bool                   isBasementFormation,
                                                          const int                    planeQuadratureDegree,
                                                          const int                    depthQuadratureDegree,
-                                                         const double                 currentTime,
                                                          const double                 timeStep,
                                                          const bool                   includeAdvectionTerm,
                                                          const BoundaryConditions&    bcs,
@@ -900,18 +890,13 @@ void Basin_Modelling::assembleElementTemperatureSystem ( const bool             
                                                          const bool                   includeChemicalCompaction,
                                                          const ElementGeometryMatrix& geometryMatrix,
                                                          const ElementVector&         elementHeatProduction,
-                                                         const ElementVector&         previousPh,
                                                          const ElementVector&         currentPh,
-                                                         const ElementVector&         previousPo,
                                                          const ElementVector&         currentPo,
                                                          const ElementVector&         currentLp,
-                                                         const ElementVector&         previousElementVes,
                                                          const ElementVector&         currentElementVes,
-                                                         const ElementVector&         previousElementMaxVes,
                                                          const ElementVector&         currentElementMaxVes,
                                                          const ElementVector&         previousElementTemperature,
                                                          const ElementVector&         currentElementTemperature,
-                                                         const ElementVector&         previousElementChemicalCompaction,
                                                          const ElementVector&         currentElementChemicalCompaction,
                                                          ElementMatrix&               elementJacobian,
                                                          ElementVector&               elementResidual ) {

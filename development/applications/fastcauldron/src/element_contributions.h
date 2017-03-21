@@ -115,7 +115,7 @@ namespace Basin_Modelling {
 
   void computeHeatFlow
      ( const bool                     isBasementFormation,
-	   const CompoundLithology*       lithology,
+      const CompoundLithology*       lithology,
        const GeoPhysics::FluidType*   fluid,
        const bool                     includeChemicalCompaction,
        const bool                     includeAdvectionTerm,
@@ -132,7 +132,7 @@ namespace Basin_Modelling {
    // The location of evaluation (x, y, z) should be from the reference-element [-1,1]^3
   void computeHeatFlow
      ( const bool                     isBasementFormation,
-	   const double                   x,
+      const double                   x,
        const double                   y,
        const double                   z,
        const CompoundLithology*       lithology,
@@ -152,7 +152,7 @@ namespace Basin_Modelling {
 
   void Compute_Heat_Flow
      ( const bool                   isBasementFormation,
-	   const CompoundLithology*     Lithology,
+      const CompoundLithology*     Lithology,
        const GeoPhysics::FluidType* Fluid,
        const ElementVector&         Temperature_Vector,
        const double                 Temperature_Value,
@@ -169,12 +169,6 @@ namespace Basin_Modelling {
   void applyHeatFlowBoundaryConditions ( const ElementGeometryMatrix& geometryMatrix,
                                          const BoundaryConditions&    bcs,
                                          ElementVector&               ElementVector_Contributions );
-
-   /// \brief Apply Dirichlet type boundary conditions for the linearised temperature equation.
-   void applyDirichletBoundaryConditionsLinear ( const BoundaryConditions&  bcs,
-                                                 const double               Dirichlet_Boundary_Scaling,
-                                                 ElementMatrix&             Stiffness_Matrix,
-                                                 ElementVector&             Load_Vector );
 
    /// \brief Apply Dirichlet type boundary conditions for non-linear pressure and temperature equations.
    void applyDirichletBoundaryConditionsNewton ( const BoundaryConditions&  bcs,
@@ -195,7 +189,6 @@ namespace Basin_Modelling {
   void assembleElementTemperatureSystem ( const bool                   isBasementFormation,
                                           const int                    planeQuadratureDegree,
                                           const int                    depthQuadratureDegree,
-                                          const double                 currentTime,
                                           const double                 timeStep,
                                           const bool                   Include_Advection_Term,
                                           const BoundaryConditions&    bcs,
@@ -204,18 +197,13 @@ namespace Basin_Modelling {
                                           const bool                   includeChemicalCompaction,
                                           const ElementGeometryMatrix& geometryMatrix,
                                           const ElementVector&         Element_Heat_Production,
-                                          const ElementVector&         Previous_Ph,
                                           const ElementVector&         Current_Ph,
-                                          const ElementVector&         Previous_Po,
                                           const ElementVector&         Current_Po,
                                           const ElementVector&         Current_Lp,
-                                          const ElementVector&         Previous_Element_VES,
                                           const ElementVector&         Current_Element_VES,
-                                          const ElementVector&         Previous_Element_Max_VES,
                                           const ElementVector&         Current_Element_Max_VES,
                                           const ElementVector&         Previous_Element_Temperature,
                                           const ElementVector&         Current_Element_Temperature,
-                                          const ElementVector&         Previous_Element_Chemical_Compaction,
                                           const ElementVector&         Current_Element_Chemical_Compaction,
                                           ElementMatrix&               Element_Jacobian,
                                           ElementVector&               Element_Residual );
@@ -225,7 +213,6 @@ namespace Basin_Modelling {
   void assembleElementTemperatureResidual ( const bool                   isBasementFormation,
                                             const int                    planeQuadratureDegree,
                                             const int                    depthQuadratureDegree,
-                                            const double                 currentTime,
                                             const double                 timeStep,
                                             const bool                   Include_Advection_Term,
                                             const BoundaryConditions&    bcs,
@@ -234,18 +221,13 @@ namespace Basin_Modelling {
                                             const bool                   includeChemicalCompaction,
                                             const ElementGeometryMatrix& geometryMatrix,
                                             const ElementVector&         Element_Heat_Production,
-                                            const ElementVector&         Previous_Ph,
                                             const ElementVector&         Current_Ph,
-                                            const ElementVector&         Previous_Po,
                                             const ElementVector&         Current_Po,
                                             const ElementVector&         Current_Lp,
-                                            const ElementVector&         Previous_Element_VES,
                                             const ElementVector&         Current_Element_VES,
-                                            const ElementVector&         Previous_Element_Max_VES,
                                             const ElementVector&         Current_Element_Max_VES,
                                             const ElementVector&         Previous_Element_Temperature,
                                             const ElementVector&         Current_Element_Temperature,
-                                            const ElementVector&         Previous_Element_Chemical_Compaction,
                                             const ElementVector&         Current_Element_Chemical_Compaction,
                                             ElementVector&               Element_Residual );
 

@@ -505,7 +505,6 @@ int DarcyCalculations::flashComponents ( FormationSubdomainElementGrid& formatio
                                          Boolean3DArray&                     elementContainsHc ) {
 
    const ElementVolumeGrid& concentrationGrid = formationGrid.getVolumeGrid ( NumberOfPVTComponents );
-   const ElementGrid& elementGrid = FastcauldronSimulator::getInstance ().getElementGrid ();
 
    LayerProps& theLayer = formationGrid.getFormation ();
 
@@ -529,7 +528,6 @@ int DarcyCalculations::flashComponents ( FormationSubdomainElementGrid& formatio
             for ( k = formationGrid.firstK (); k <= formationGrid.lastK (); ++k ) {
 
                const SubdomainElement& element = formationGrid.getElement ( i, j, k );
-               unsigned int elementK = element.getK ();
 
                if ( element.getLayerElement ().isActive () and elementContainsHc ( element.getI (), element.getJ (), element.getK ())) {
 
@@ -936,7 +934,6 @@ void DarcyCalculations::setSaturations ( FormationSubdomainElementGrid& formatio
             for ( k = formationGrid.firstK (); k <= formationGrid.lastK (); ++k ) {
 
                const SubdomainElement& element = formationGrid.getElement ( i, j, k );
-               unsigned int elementK = element.getK ();
 
                if ( element.getLayerElement ().isActive ()) {
 
@@ -1012,7 +1009,6 @@ void DarcyCalculations::computeSaturation ( const SubdomainElement&        eleme
    double             vapourSaturation;
    double             liquidSaturation;
    double             immobileSaturation;
-   int                c;
 
 #if 0
    PVTComponents      totalComposition;
@@ -1214,9 +1210,6 @@ double DarcyCalculations::totalLayerHcMass ( FormationSubdomainElementGrid& form
    FiniteElementMethod::ElementGeometryMatrix geometryMatrix;
    PVTComponents massConcentration;
 
-   double elementPorePressure;
-   double capillaryPressure;
-
    int i;
    int j;
    int k;
@@ -1350,7 +1343,6 @@ void DarcyCalculations::collectElementPermeabilities ( Subdomain&       subdomai
                interpolateCoefficients ( layerElement, Basin_Modelling::Max_VES, maxVesCoeffs, lambda );
 
                const Lithology* lithology = layerElement.getLithology ();
-               const LayerProps* layer = layerElement.getFormation ();
 
                getGeometryMatrix ( element.getLayerElement (), geometryMatrix, lambda );
 
@@ -1456,7 +1448,7 @@ void DarcyCalculations::recoverAveragedPermeabilities ( Subdomain&              
                                                         ElementFaceValueVector&  subdomainPermeabilityH,
                                                         ElementFaceValueArray&   intermediatePermeabilityN,
                                                         ElementFaceValueArray&   intermediatePermeabilityH,
-                                                        const double lambda ) const {
+                                                        const double ) const {
 
    int i;
    int j;
@@ -1580,7 +1572,6 @@ void DarcyCalculations::setTimeOfElementInvasion ( FormationSubdomainElementGrid
             for ( k = formationGrid.firstK (); k <= formationGrid.lastK (); ++k ) {
 
                const SubdomainElement& element = formationGrid.getElement ( i, j, k );
-               unsigned int elementK = element.getK ();
 
                if ( element.getLayerElement ().isActive ()) {
 

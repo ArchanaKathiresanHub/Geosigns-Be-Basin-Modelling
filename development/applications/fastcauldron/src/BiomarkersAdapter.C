@@ -32,7 +32,7 @@ BiomarkersAdapter::BiomarkersAdapter ( LayerProps* formation, const Interface::S
 
 }
 
-bool BiomarkersAdapter::operator ()( const OutputPropertyMap::OutputPropertyList& properties, 
+bool BiomarkersAdapter::operator ()( const OutputPropertyMap::OutputPropertyList& , 
                                                         OutputPropertyMap::PropertyValueList&  propertyValues ) {
 
    if ( m_isCalculated ) {
@@ -137,7 +137,7 @@ void BiomarkersAdapter::allocatePropertyValues ( OutputPropertyMap::PropertyValu
 
 }
 
-bool BiomarkersAdapter::initialise ( OutputPropertyMap::PropertyValueList& propertyValues ) {
+bool BiomarkersAdapter::initialise ( OutputPropertyMap::PropertyValueList&  ) {
    return true;
 }
 
@@ -149,7 +149,7 @@ BiomarkersVolumeAdapter::BiomarkersVolumeAdapter ( LayerProps* formation, const 
 
 }
 
-bool BiomarkersVolumeAdapter::operator ()( const OutputPropertyMap::OutputPropertyList& properties, 
+bool BiomarkersVolumeAdapter::operator ()( const OutputPropertyMap::OutputPropertyList& , 
                                                               OutputPropertyMap::PropertyValueList&  propertyValues ) {
 
    if ( m_isCalculated ) {
@@ -260,6 +260,6 @@ void BiomarkersVolumeAdapter::allocatePropertyValues ( OutputPropertyMap::Proper
 
 }
 
-bool BiomarkersVolumeAdapter::initialise ( OutputPropertyMap::PropertyValueList& propertyValues ) {
+bool BiomarkersVolumeAdapter::initialise ( OutputPropertyMap::PropertyValueList&  ) {
    return true;
 }

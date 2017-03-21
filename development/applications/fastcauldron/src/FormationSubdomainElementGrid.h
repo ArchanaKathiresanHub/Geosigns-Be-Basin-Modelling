@@ -256,7 +256,7 @@ inline int FormationSubdomainElementGrid::lengthJ ( const bool includeGhosts ) c
 
 //------------------------------------------------------------//
 
-inline bool FormationSubdomainElementGrid::PredicateTrue::operator ()( const SubdomainElement& element ) const {
+inline bool FormationSubdomainElementGrid::PredicateTrue::operator ()( const SubdomainElement& /*element*/ ) const {
    return true;
 }
 

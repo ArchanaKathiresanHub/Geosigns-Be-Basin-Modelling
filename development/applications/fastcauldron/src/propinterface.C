@@ -640,6 +640,12 @@ void AppCtx::printHelp () const {
   helpBuffer << "           -matlab                     [optional] Output files in matlab format (default is binary)." << endl;
 
   helpBuffer << endl;
+
+  helpBuffer << "  Linear solver settings:" << endl;
+  helpBuffer << "           -disableHypre               Disable HYPRE BoomerAMG preconditioner as default fallback in case of linear solver divergence" << endl;
+  helpBuffer << "                                       due to maximum number of iterations reached." << endl;
+
+  helpBuffer << endl;
   helpBuffer << endl;
 
   PetscPrintf ( PETSC_COMM_WORLD, helpBuffer.str ().c_str ());

@@ -279,8 +279,6 @@ void ComputationalDomain::numberGlobalDofs ( const bool verbose ) {
       return;
    }
 
-   const FastcauldronSimulator& fc = FastcauldronSimulator::getInstance ();
-
    const NodalVolumeGrid& scalarNodeGrid = m_grids.getNodeGrid ( 1 );
    const double NullDofNumberReal = static_cast<double>( NullDofNumber );
 
@@ -339,7 +337,6 @@ void ComputationalDomain::numberGlobalDofsIJK ( int&                      global
 
    const FastcauldronSimulator& fc = FastcauldronSimulator::getInstance ();
 
-   const NodalVolumeGrid& scalarNodeGrid = m_grids.getNodeGrid ( 1 );
    const double NullDofNumberReal = static_cast<double>( NullDofNumber );
 
    // One less because the first index is zero.
@@ -380,7 +377,6 @@ void ComputationalDomain::numberGlobalDofsKIJ ( int&                      global
 
    const FastcauldronSimulator& fc = FastcauldronSimulator::getInstance ();
 
-   const NodalVolumeGrid& scalarNodeGrid = m_grids.getNodeGrid ( 1 );
    const double NullDofNumberReal = static_cast<double>( NullDofNumber );
 
    // One less because the first index is zero.
@@ -421,7 +417,6 @@ void ComputationalDomain::numberGlobalDofsKJI ( int&                      global
 
    const FastcauldronSimulator& fc = FastcauldronSimulator::getInstance ();
 
-   const NodalVolumeGrid& scalarNodeGrid = m_grids.getNodeGrid ( 1 );
    const double NullDofNumberReal = static_cast<double>( NullDofNumber );
 
    // One less because the first index is zero.

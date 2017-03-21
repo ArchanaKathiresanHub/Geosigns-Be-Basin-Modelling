@@ -155,7 +155,6 @@ bool DerivedPropertiesCalculator::calculateProperties ( FormationSurfaceVector& 
    PetscLogDouble Start_Time;
    PetscLogDouble End_Time;
 
-   const bool append = true;
    PetscTime( & Start_Saving_Time );
 
    for ( snapshotIter = snapshots.begin(); snapshotIter != snapshots.end(); ++snapshotIter ) {

@@ -233,7 +233,7 @@ void Temperature_Solver::computeHeatProduction ( const double previousTime,
             currentLayer->Current_Properties.Activate_Property ( Basin_Modelling::Temperature );
          }
          if ( not depthIsActive ) {
-	           currentLayer->Current_Properties.Activate_Property ( Basin_Modelling::Depth );
+           currentLayer->Current_Properties.Activate_Property ( Basin_Modelling::Depth );
          }
 
          for ( i = xStart; i < xStart + xCount; ++i ) {
@@ -391,16 +391,16 @@ void Temperature_Solver::Estimate_Basement_Temperature ( )
 
 
   PETSC_3D_Array Crust_Depth( Crust_Layer -> layerDA,
-			      Crust_Layer -> Current_Properties ( Basin_Modelling::Depth ) );
+      Crust_Layer -> Current_Properties ( Basin_Modelling::Depth ) );
   PETSC_3D_Array Crust_Temperature( Crust_Layer -> layerDA,
-				    Crust_Layer -> Current_Properties ( Basin_Modelling::Temperature ) );
+    Crust_Layer -> Current_Properties ( Basin_Modelling::Temperature ) );
   PETSC_3D_Array Crust_Previous_Temperature( Crust_Layer -> layerDA,
                                              Crust_Layer -> Previous_Properties ( Basin_Modelling::Temperature ) );
 
   PETSC_3D_Array Mantle_Depth( Mantle_Layer -> layerDA,
-			       Mantle_Layer -> Current_Properties ( Basin_Modelling::Depth ) );
+       Mantle_Layer -> Current_Properties ( Basin_Modelling::Depth ) );
   PETSC_3D_Array Mantle_Temperature( Mantle_Layer -> layerDA,
-				     Mantle_Layer -> Current_Properties ( Basin_Modelling::Temperature ) );
+     Mantle_Layer -> Current_Properties ( Basin_Modelling::Temperature ) );
   PETSC_3D_Array Mantle_Previous_Temperature( Mantle_Layer -> layerDA,
                                               Mantle_Layer -> Previous_Properties ( Basin_Modelling::Temperature ) );
 
@@ -665,7 +665,7 @@ PetscScalar Temperature_Solver::Maximum_Temperature_Difference_In_Source_Rocks (
   PetscScalar Maximum_Layer_Difference;
 
   Source_Rock_Layers.Initialise_Iterator ( Basin_Model -> layers, Ascending, Source_Rocks_Only,
-					   Active_Layers_Only );
+   Active_Layers_Only );
 
   while ( ! Source_Rock_Layers.Iteration_Is_Done () )
   {
@@ -1125,7 +1125,7 @@ void Temperature_Solver::assembleElementNonLinearSystem ( const GeneralElement& 
                                                           const PETSC_3D_Array&     bulkHeatProd,
                                                           const int                 planeQuadratureDegree,
                                                           const int                 depthQuadratureDegree,
-                                                          const double              currentTime,
+                                                          const double              ,
                                                           const double              timeStep,
                                                           const bool                includeAdvectiveTerm,
                                                           const BoundaryConditions& bcs,
@@ -1138,21 +1138,16 @@ void Temperature_Solver::assembleElementNonLinearSystem ( const GeneralElement& 
 
    ElementGeometryMatrix geometryMatrix;
 
-   ElementVector previousPh;
    ElementVector currentPh;
-   ElementVector previousPo;
    ElementVector currentPo;
    ElementVector previousPp;
    ElementVector currentPp;
    ElementVector previousPl;
    ElementVector currentPl;
-   ElementVector previousVes;
    ElementVector currentVes;
-   ElementVector previousMaxVes;
    ElementVector currentMaxVes;
    ElementVector previousTemperature;
    ElementVector currentTemperature;
-   ElementVector previousChemicalCompaction;
    ElementVector currentChemicalCompaction;
    ElementVector elementHeatProduction;
 
@@ -1165,19 +1160,13 @@ void Temperature_Solver::assembleElementNonLinearSystem ( const GeneralElement& 
    getCoefficients ( layerElement, Basin_Modelling::Temperature,          currentTemperature );
    getCoefficients ( layerElement, Basin_Modelling::Chemical_Compaction,  currentChemicalCompaction );
 
-   getPreviousCoefficients ( layerElement, Basin_Modelling::Hydrostatic_Pressure, previousPh );
-   getPreviousCoefficients ( layerElement, Basin_Modelling::Overpressure,         previousPo );
-   getPreviousCoefficients ( layerElement, Basin_Modelling::VES_FP,               previousVes );
-   getPreviousCoefficients ( layerElement, Basin_Modelling::Max_VES,              previousMaxVes );
    getPreviousCoefficients ( layerElement, Basin_Modelling::Temperature,          previousTemperature );
-   getPreviousCoefficients ( layerElement, Basin_Modelling::Chemical_Compaction,  previousChemicalCompaction );
 
    getCoefficients ( layerElement, bulkHeatProd, elementHeatProduction );
 
    Basin_Modelling::assembleElementTemperatureSystem ( layerElement.getFormation ()->kind() == Interface::BASEMENT_FORMATION,
                                                        planeQuadratureDegree,
                                                        depthQuadratureDegree,
-                                                       currentTime,
                                                        timeStep,
                                                        includeAdvectiveTerm,
                                                        bcs,
@@ -1186,18 +1175,13 @@ void Temperature_Solver::assembleElementNonLinearSystem ( const GeneralElement& 
                                                        includeChemicalCompaction,
                                                        geometryMatrix,
                                                        elementHeatProduction,
-                                                       previousPh,
                                                        currentPh,
-                                                       previousPo,
                                                        currentPo,
                                                        currentPl,
-                                                       previousVes,
                                                        currentVes,
-                                                       previousMaxVes,
                                                        currentMaxVes,
                                                        previousTemperature,
                                                        currentTemperature,
-                                                       previousChemicalCompaction,
                                                        currentChemicalCompaction,
                                                        elementJacobian,
                                                        elementResidual );
@@ -1210,7 +1194,7 @@ void Temperature_Solver::assembleElementNonLinearResidual ( const GeneralElement
                                                             const PETSC_3D_Array&     bulkHeatProd,
                                                             const int                 planeQuadratureDegree,
                                                             const int                 depthQuadratureDegree,
-                                                            const double              currentTime,
+                                                            const double              ,
                                                             const double              timeStep,
                                                             const bool                includeAdvectiveTerm,
                                                             const BoundaryConditions& bcs,
@@ -1222,18 +1206,13 @@ void Temperature_Solver::assembleElementNonLinearResidual ( const GeneralElement
 
    ElementGeometryMatrix geometryMatrix;
 
-   ElementVector previousPh;
    ElementVector currentPh;
-   ElementVector previousPo;
    ElementVector currentPo;
    ElementVector currentPl;
-   ElementVector previousVes;
    ElementVector currentVes;
-   ElementVector previousMaxVes;
    ElementVector currentMaxVes;
    ElementVector previousTemperature;
    ElementVector currentTemperature;
-   ElementVector previousChemicalCompaction;
    ElementVector currentChemicalCompaction;
    ElementVector elementHeatProduction;
 
@@ -1246,19 +1225,13 @@ void Temperature_Solver::assembleElementNonLinearResidual ( const GeneralElement
    getCoefficients ( layerElement, Basin_Modelling::Temperature,          currentTemperature );
    getCoefficients ( layerElement, Basin_Modelling::Chemical_Compaction,  currentChemicalCompaction );
 
-   getPreviousCoefficients ( layerElement, Basin_Modelling::Hydrostatic_Pressure, previousPh );
-   getPreviousCoefficients ( layerElement, Basin_Modelling::Overpressure,         previousPo );
-   getPreviousCoefficients ( layerElement, Basin_Modelling::VES_FP,               previousVes );
-   getPreviousCoefficients ( layerElement, Basin_Modelling::Max_VES,              previousMaxVes );
    getPreviousCoefficients ( layerElement, Basin_Modelling::Temperature,          previousTemperature );
-   getPreviousCoefficients ( layerElement, Basin_Modelling::Chemical_Compaction,  previousChemicalCompaction );
 
    getCoefficients ( layerElement, bulkHeatProd, elementHeatProduction );
 
    Basin_Modelling::assembleElementTemperatureResidual ( layerElement.getFormation ()->kind() == Interface::BASEMENT_FORMATION,
                                                          planeQuadratureDegree,
                                                          depthQuadratureDegree,
-                                                         currentTime,
                                                          timeStep,
                                                          includeAdvectiveTerm,
                                                          bcs,
@@ -1267,18 +1240,13 @@ void Temperature_Solver::assembleElementNonLinearResidual ( const GeneralElement
                                                          includeChemicalCompaction,
                                                          geometryMatrix,
                                                          elementHeatProduction,
-                                                         previousPh,
                                                          currentPh,
-                                                         previousPo,
                                                          currentPo,
                                                          currentPl,
-                                                         previousVes,
                                                          currentVes,
-                                                         previousMaxVes,
                                                          currentMaxVes,
                                                          previousTemperature,
                                                          currentTemperature,
-                                                         previousChemicalCompaction,
                                                          currentChemicalCompaction,
                                                          elementResidual );
 
@@ -1329,7 +1297,7 @@ void Temperature_Solver::assembleStiffnessMatrix ( const ComputationalDomain& co
 
   Layer_Iterator Layers;
   Layers.Initialise_Iterator ( Basin_Model -> layers, Ascending, Basement_And_Sediments,
-			       Active_Layers_Only );
+       Active_Layers_Only );
 
   elementContributionsTime = 0.0;
 
@@ -1494,7 +1462,7 @@ void Temperature_Solver::assembleSystem ( const ComputationalDomain& computation
 
   Layer_Iterator Layers;
   Layers.Initialise_Iterator ( Basin_Model -> layers, Ascending, Basement_And_Sediments,
-			       Active_Layers_Only );
+       Active_Layers_Only );
 
   elementContributionsTime = 0.0;
 
@@ -1651,7 +1619,7 @@ void Temperature_Solver::assembleResidual ( const ComputationalDomain& computati
 
   Layer_Iterator Layers;
   Layers.Initialise_Iterator ( Basin_Model -> layers, Ascending, Basement_And_Sediments,
-			       Active_Layers_Only );
+       Active_Layers_Only );
 
   elementContributionsTime = 0.0;
 

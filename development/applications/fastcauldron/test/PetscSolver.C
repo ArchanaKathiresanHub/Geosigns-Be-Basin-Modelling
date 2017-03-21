@@ -14,6 +14,7 @@ struct Init
 TEST( PetscSolver, CGSolve )
 {
    PetscCG cg( 1e-6, 100);
+   EXPECT_EQ( cg.getPCtype(), PCBJACOBI );
 
    Mat A;
    MatCreate(PETSC_COMM_WORLD, &A);
@@ -81,6 +82,7 @@ TEST( PetscSolver, CGTolerance)
 TEST( PetscSolver, GMRESSolve )
 {
    PetscGMRES gmres( 1e-6, 10, 100);
+   EXPECT_EQ( gmres.getPCtype(), PCBJACOBI );
 
    Mat A;
    MatCreate(PETSC_COMM_WORLD, &A);
@@ -154,3 +156,12 @@ TEST( PetscSolver, GMRESTolerance)
    EXPECT_DOUBLE_EQ( 1.0e-6, gmres.getTolerance() );
 }
 
+#ifndef _MSC_VER
+TEST( PetscSolver, setPCType)
+{
+   PetscCG cg( 1e-6, 100);
+   EXPECT_EQ( cg.getPCtype(), PCBJACOBI );
+   cg.setPCtype( PCHYPRE );
+   EXPECT_EQ( cg.getPCtype(), PCHYPRE );
+}
+#endif
