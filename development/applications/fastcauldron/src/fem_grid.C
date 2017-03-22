@@ -2344,7 +2344,7 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  pre
       if ( convergedReason < 0 ) {
          linearSolverTotalIterationCount = numberOfLinearIterations;
 
-         // Check if HYPRE has been disabled from command line
+/*         // Check if HYPRE has been disabled from command line
          PetscBool disableHypre = PETSC_FALSE;
          PetscOptionsHasName( NULL, "-disableHypre", &disableHypre );
 
@@ -2363,7 +2363,7 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  pre
             linearSolverTotalIterationCount += numberOfLinearIterations;
          }
          else
-         {
+         {*/
             // If the linear solver has diverged for other reasons it then tries GMRES with several settings
             PetscPrintf ( PETSC_COMM_WORLD,
                           " MeSsAgE WARNING The pressure solver exit condition was: %s. Retrying with another linear solver. \n",
@@ -2402,7 +2402,7 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  pre
 
             }
 
-            // If all the loops with GMRES have falied we give one last shot to HYPRE
+/*            // If all the loops with GMRES have falied we give one last shot to HYPRE
             if( (PETSC_FALSE == disableHypre) && (convergedReason < 0) && (pressureLinearSolver->getPCtype() != PCHYPRE) )
             {
                PetscPrintf ( PETSC_COMM_WORLD,
@@ -2416,7 +2416,7 @@ void Basin_Modelling::FEM_Grid::Solve_Pressure_For_Time_Step ( const double  pre
 
                linearSolverTotalIterationCount += numberOfLinearIterations;
             }
-         }
+         }*/
 
       }
 
