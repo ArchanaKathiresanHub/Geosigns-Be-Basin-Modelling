@@ -22,7 +22,38 @@ add_executable(${FASTTOUCH7_TARGET_NAME}
     src/WriteBurial.C
     src/TouchstoneFiles.C
 )
+
 create_application_run_script( ${FASTTOUCH7_TARGET_NAME} )
+
+if ( "${BM_CONFIG_PRESET}" STREQUAL "ShellLinux" )
+application_env_var( TARGET ${FASTTOUCH7_TARGET_NAME} VARS
+  "LD_PRELOAD" "/glb/data/hpcrnd/easybuild/PRODUCTION/software/rhel/6/GCCcore/4.9.3/lib64/libstdc++.so"
+  "MATLABMCR" "${MCR_ROOT}"
+  "LD_LIBRARY_PATH" "$MATLABMCR/bin/glnxa64:$LD_LIBRARY_PATH"
+  "LANG" "en_US.UTF-8"
+  "MWDISABLE_MVM_API" "1"
+  "LD_LIBRARY_PATH" "$MATLABMCR/sys/os/glnxa64:$MATLABMCR/runtime/glnxa64:$MATLABMCR/sys/java/jre/glnxa64/jre/lib/amd64/native_threads:$LD_LIBRARY_PATH"
+  "LD_LIBRARY_PATH" "$MATLABMCR/sys/java/jre/glnxa64/jre/lib/amd64/server:$LD_LIBRARY_PATH"
+  "LD_LIBRARY_PATH" "$MATLABMCR/sys/java/jre/glnxa64/jre/lib/amd64:$GEOCOSMBASEDIR/bin/x86_64_linux/Release:$LD_LIBRARY_PATH"
+  "XAPPLRESDIR" "$MATLABMCR/X11/app-defaults"
+  CUSTOM_COMMAND
+  ". /glb/data/hpcrnd/easybuild/public/etc/profile.d/shell-envmodules.sh"
+  "load module intel/2016.01"
+)
+else ()
+application_env_var( TARGET ${FASTTOUCH7_TARGET_NAME} VARS
+  "MATLABMCR" "${MCR_ROOT}"
+  "LD_LIBRARY_PATH" "$MATLABMCR/bin/glnxa64:$LD_LIBRARY_PATH"
+  "LANG" "en_US.UTF-8"
+  "MWDISABLE_MVM_API" "1"
+  "LD_LIBRARY_PATH" "$MATLABMCR/sys/os/glnxa64:$MATLABMCR/runtime/glnxa64:$MATLABMCR/sys/java/jre/glnxa64/jre/lib/amd64/native_threads:$LD_LIBRARY_PATH"
+  "LD_LIBRARY_PATH" "$MATLABMCR/sys/java/jre/glnxa64/jre/lib/amd64/server:$LD_LIBRARY_PATH"
+  "LD_LIBRARY_PATH" "$MATLABMCR/sys/java/jre/glnxa64/jre/lib/amd64:$GEOCOSMBASEDIR/bin/x86_64_linux/Release:$LD_LIBRARY_PATH"
+  "XAPPLRESDIR" "$MATLABMCR/X11/app-defaults"
+)
+
+endif()
+
 
 bm_include_libraries(
    DataModel

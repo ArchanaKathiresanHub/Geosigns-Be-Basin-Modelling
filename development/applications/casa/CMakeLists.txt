@@ -17,13 +17,41 @@ source_group(source FILES ${all_srcs})
 
 configure_file(../../libraries/casaAPI/src/CauldronEnvConfig.h.in CauldronEnvConfig.h)
 
-add_executable( casa
+set( APP_NAME "casa.exe" )
+
+add_executable( ${APP_NAME}
   ${all_srcs}
   ${all_headers}
 )
 
+create_application_run_script( ${APP_NAME} )
+
+if ( "${BM_CONFIG_PRESET}" STREQUAL "ShellLinux" )
+   application_env_var( TARGET ${APP_NAME} VARS
+     "LD_PRELOAD" "/glb/data/hpcrnd/easybuild/PRODUCTION/software/rhel/6/GCCcore/4.9.3/lib64/libstdc++.so"
+     "GENEXDIR"    "$MISCDIR/genex40"
+     "GENEX5DIR"   "$MISCDIR/genex50"
+     "GENEX6DIR"   "$MISCDIR/genex60"
+     "OTGCDIR"     "$MISCDIR/OTGC" 
+     "CTCDIR"      "$MISCDIR"
+     "EOSPACKDIR"  "$MISCDIR/eospack"
+     CUSTOM_COMMAND
+     ". /glb/data/hpcrnd/easybuild/public/etc/profile.d/shell-envmodules.sh"
+     "load module intel/2016.01" 
+   )
+else ()
+   application_env_var( TARGET ${APP_NAME} VARS
+     "GENEXDIR"    "$DIR/../../misc/genex40"
+     "GENEX5DIR"   "$DIR/../../misc/genex50"
+     "GENEX6DIR"   "$DIR/../../misc/genex60"
+     "OTGCDIR"     "$DIR/../../misc/OTGC" 
+     "CTCDIR"      "$DIR/../../misc"
+     "EOSPACKDIR"  "$DIR/../../misc/eospack"
+   )
+endif()
+    
 if (UNIX)
-add_dependencies(casa Boost)
+add_dependencies(${APP_NAME} Boost)
 endif (UNIX)
 
 bm_include_libraries(
@@ -44,7 +72,7 @@ include_directories( SYSTEM
    ${NNLIB_INCLUDE_DIR}
 )
 
-target_link_libraries( casa
+target_link_libraries( ${APP_NAME}
    casaapi
    cmbapi
    CBMGenerics
@@ -60,6 +88,6 @@ target_link_libraries( casa
    ${LSF_LIBS}
 )
 
-install( TARGETS casa
+install( TARGETS ${APP_NAME}
    DESTINATION bin
 )

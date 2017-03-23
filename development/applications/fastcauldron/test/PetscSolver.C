@@ -156,7 +156,7 @@ TEST( PetscSolver, GMRESTolerance)
    EXPECT_DOUBLE_EQ( 1.0e-6, gmres.getTolerance() );
 }
 
-/*#ifndef _MSC_VER
+#ifndef _WIN32
 TEST( PetscSolver, setPCType)
 {
    PetscCG cg( 1e-6, 100);
@@ -164,4 +164,4 @@ TEST( PetscSolver, setPCType)
    cg.setPCtype( PCHYPRE );
    EXPECT_EQ( cg.getPCtype(), PCHYPRE );
 }
-#endif*/
+#endif

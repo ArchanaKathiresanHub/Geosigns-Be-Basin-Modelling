@@ -32,6 +32,11 @@ if(UNIX)
 
 # Script directory
 DIR=\"$( cd \"$( dirname \"\${BASH_SOURCE\[0\]}\" )\" && pwd )\"
+if [ -e $DIR/../misc ]; then
+   MISCDIR=$DIR/../misc
+else
+   MISCDIR=$DIR/../../misc
+fi
 
 # Sourcing environment variables script (if it exists)
 [[ -f \"$DIR/${targetNameNoExt}Env.sh\" ]] && source $DIR/${targetNameNoExt}Env.sh
@@ -75,7 +80,7 @@ endmacro()
 macro( APPLICATION_ENV_VAR )
 if(UNIX)
     set( oneValueArgs TARGET )
-    set( multiValueArgs VARS )
+    set( multiValueArgs VARS CUSTOM_COMMAND )
     cmake_parse_arguments(APPLICATION_ENV_VAR "" "${oneValueArgs}" "${multiValueArgs}" ${ARGN} )
     get_filename_component( targetNameNoExt "${APPLICATION_ENV_VAR_TARGET}" NAME_WE )
     set( scriptName "${CMAKE_CURRENT_BINARY_DIR}/${targetNameNoExt}Env.sh" )
@@ -101,6 +106,12 @@ DIR=\"$( cd \"$( dirname \"\${BASH_SOURCE\[0\]}\" )\" && pwd )\"
         endif()
         math( EXPR index "${index}+1" )
     endforeach()
+
+    foreach(v ${APPLICATION_ENV_VAR_CUSTOM_COMMAND})
+       file( APPEND ${scriptName} "${v}
+")
+    endforeach()
+
 endif(UNIX)
 endmacro()
 
