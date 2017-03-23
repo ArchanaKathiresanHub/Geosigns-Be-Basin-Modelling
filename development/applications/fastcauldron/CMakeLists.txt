@@ -334,20 +334,16 @@ add_library( FastcauldronApplication
 #
 # 4. fastcauldron application
 #
-add_executable(fastcauldron src/main.C ${all_headers})
-
-#
-# 4.1 Setting RPATH for fastcauldron binary in order to find the Hypre shared library which is copied
-#     in the same folder of the binary.
-#
-if(UNIX)
-   set_target_properties( fastcauldron PROPERTIES INSTALL_RPATH "${CMAKE_BINARY_DIR}/bin" )
-endif(UNIX)
+set( FASTCAULDRON_TARGET_NAME "fastcauldron.exe" )
+add_executable( ${FASTCAULDRON_TARGET_NAME} src/main.C ${all_headers} )
+create_application_run_script( ${FASTCAULDRON_TARGET_NAME} )
 
 #
 # 5. linearSolver application
 #
-add_executable(linearSolver linearSolver/main.C ${all_headers})
+set( LINEARSOLVER_TARGET_NAME "linearSolver.exe" )
+add_executable( ${LINEARSOLVER_TARGET_NAME} linearSolver/main.C ${all_headers} )
+create_application_run_script( ${LINEARSOLVER_TARGET_NAME} )
 
 ################################################################
 ################### SET DEPENDENCIES/LINKS #####################
@@ -400,12 +396,12 @@ bm_include_libraries(
 # libraries even if they are already linked to FastcauldronApplication because of
 # DataAccess and DistributedDataAccess crossdependencies
 #
-target_link_libraries(fastcauldron
+target_link_libraries(${FASTCAULDRON_TARGET_NAME}
     FastcauldronApplication
     DataAccess
     DistributedDataAccess
 )
-target_link_libraries(linearSolver
+target_link_libraries(${LINEARSOLVER_TARGET_NAME}
     FastcauldronApplication
     DataAccess
     DistributedDataAccess
@@ -441,10 +437,10 @@ target_link_libraries(FastcauldronApplication
     ${BM_CLOCK_GETTIME_LIB}
 )
 
-set_target_properties(fastcauldron
+set_target_properties(${FASTCAULDRON_TARGET_NAME}
       PROPERTIES LINK_FLAGS "${PETSC_LINK_FLAGS}"
 )
-set_target_properties(linearSolver
+set_target_properties(${LINEARSOLVER_TARGET_NAME}
       PROPERTIES LINK_FLAGS "${PETSC_LINK_FLAGS}"
 )
 
@@ -465,13 +461,13 @@ if (BM_USE_FLEXLM)
    target_link_libraries(FastcauldronApplication ${FLEXLM_LIBRARIES})
 endif(BM_USE_FLEXLM)
 
-install(TARGETS fastcauldron linearSolver
+install(TARGETS ${FASTCAULDRON_TARGET_NAME} ${LINEARSOLVER_TARGET_NAME}
         RUNTIME DESTINATION bin
 )
 
 if(UNIX AND BM_BUILD_HYPRE)
    # Copying Hypre shared library in the fastcauldron build directory
-   add_custom_command(TARGET fastcauldron POST_BUILD
+   add_custom_command(TARGET ${FASTCAULDRON_TARGET_NAME} POST_BUILD
                       COMMAND ${CMAKE_COMMAND} -E copy ${HYPRE_LIBRARIES} ${CMAKE_CURRENT_BINARY_DIR} )
 endif()
 
@@ -487,7 +483,7 @@ configure_file(
 
 add_memcheck(
    NAME "Fastcauldron_SimpleItcoupled"
-   EXECUTABLE fastcauldron
+   EXECUTABLE ${FASTCAULDRON_TARGET_NAME}
    PARAMETERS "-project" "MemCheck.project3d" "-itcoupled"
 )
 

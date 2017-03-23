@@ -12,15 +12,17 @@
 
 if (BM_PARALLEL AND TSLIB_ROOT)
 
-add_executable(fasttouch7
-	src/main.C
-	src/misc.C
-	src/FastTouch.C
-	src/MasterTouch.C
-	src/BurialHistory.C
-	src/WriteBurial.C
-	src/TouchstoneFiles.C
+set( FASTTOUCH7_TARGET_NAME "fasttouch7.exe" )
+add_executable(${FASTTOUCH7_TARGET_NAME}
+    src/main.C
+    src/misc.C
+    src/FastTouch.C
+    src/MasterTouch.C
+    src/BurialHistory.C
+    src/WriteBurial.C
+    src/TouchstoneFiles.C
 )
+create_application_run_script( ${FASTTOUCH7_TARGET_NAME} )
 
 bm_include_libraries(
    DataModel
@@ -37,46 +39,46 @@ bm_include_libraries(
 )
 
 include_directories( SYSTEM
-	${HDF5_INCLUDE_DIRS}
-	${MPI_INCLUDE_DIRS}
-	${PETSC_INCLUDE_DIRS}
-	${XERCES_INCLUDE_DIRS}
-	${XSD_INCLUDE_DIRS}
-	${TSLIB_INCLUDE_DIRS}
+    ${HDF5_INCLUDE_DIRS}
+    ${MPI_INCLUDE_DIRS}
+    ${PETSC_INCLUDE_DIRS}
+    ${XERCES_INCLUDE_DIRS}
+    ${XSD_INCLUDE_DIRS}
+    ${TSLIB_INCLUDE_DIRS}
 )
 
-target_link_libraries(fasttouch7
-	DataAccess
-	DistributedDataAccess
-	Utilities_Petsc
-	Serial_Hdf5
-	Parallel_Hdf5
-	TableIO
+target_link_libraries(${FASTTOUCH7_TARGET_NAME}
+    DataAccess
+    DistributedDataAccess
+    Utilities_Petsc
+    Serial_Hdf5
+    Parallel_Hdf5
+    TableIO
    FileSystem
-	utilities
-	CBMGenerics
+    utilities
+    CBMGenerics
 
-	${HDF5_LIBRARIES}
-	${PETSC_LIBRARIES}	
+    ${HDF5_LIBRARIES}
+    ${PETSC_LIBRARIES}    
 )
 
 if (UNIX)
-   target_link_libraries(fasttouch7
+   target_link_libraries(${FASTTOUCH7_TARGET_NAME}
          OneFilePerProcess
    )
 endif(UNIX)
 
-set_target_properties(fasttouch7
+set_target_properties(${FASTTOUCH7_TARGET_NAME}
       PROPERTIES LINK_FLAGS "${PETSC_LINK_FLAGS}"
 )
 
 if (BM_USE_FLEXLM)
    include_directories(${FLEXLM_INCLUDE_DIRS})
-   target_link_libraries(fasttouch7 ${FLEXLM_LIBRARIES})
+   target_link_libraries(${FASTTOUCH7_TARGET_NAME} ${FLEXLM_LIBRARIES})
 endif(BM_USE_FLEXLM)
 
-install(TARGETS fasttouch7
-	RUNTIME DESTINATION bin
+install(TARGETS ${FASTTOUCH7_TARGET_NAME}
+    RUNTIME DESTINATION bin
 )
 
 add_definitions(-DMPICH_IGNORE_CXX_SEEK)
@@ -88,23 +90,23 @@ endif()
 #Touchstone Wrapper
 
 add_executable(touchstoneWrapper
-	src/TouchstoneWrapper.C 
-	src/TsLibLoader.C
-	src/LibLoaderLinux.C
-	src/Touchstone.C
-	src/ReadBurial.C
-	src/TouchstoneFiles.C
+    src/TouchstoneWrapper.C 
+    src/TsLibLoader.C
+    src/LibLoaderLinux.C
+    src/Touchstone.C
+    src/ReadBurial.C
+    src/TouchstoneFiles.C
 )
 
 target_link_libraries(touchstoneWrapper
-	${TSLIB_LIBRARIES}
-	${XERCES_LIBRARIES}
-	utilities
-	${BM_DL_LIB}
+    ${TSLIB_LIBRARIES}
+    ${XERCES_LIBRARIES}
+    utilities
+    ${BM_DL_LIB}
 )
 
 install(TARGETS touchstoneWrapper
-	RUNTIME DESTINATION bin
+    RUNTIME DESTINATION bin
 )
 
 ### Unit Tests

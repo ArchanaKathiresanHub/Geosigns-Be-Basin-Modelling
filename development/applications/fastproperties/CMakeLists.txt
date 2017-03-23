@@ -23,10 +23,12 @@ source_group(include FILES ${all_headers})
 
 source_group(source FILES ${all_srcs})
 
-add_executable(fastproperties
+set( FASTPROPERTIES_TARGET_NAME "fastproperties.exe" )
+add_executable(${FASTPROPERTIES_TARGET_NAME}
    ${all_srcs}
    ${all_headers}
 )
+create_application_run_script( ${FASTPROPERTIES_TARGET_NAME} )
 
 bm_include_libraries(
    DataModel
@@ -57,7 +59,7 @@ include_directories( SYSTEM
    ${LZ_INCLUDE_DIR}
 )
 
-target_link_libraries(fastproperties
+target_link_libraries(${FASTPROPERTIES_TARGET_NAME}
    DerivedProperties
    GeoPhysics
    DataAccess
@@ -79,7 +81,7 @@ target_link_libraries(fastproperties
    ${PETSC_LIBRARIES}
 )
 
-install(TARGETS fastproperties
+install(TARGETS ${FASTPROPERTIES_TARGET_NAME}
    RUNTIME DESTINATION bin
 )
 

@@ -18,73 +18,75 @@ source_group(include FILES ${all_headers})
 FILE( GLOB all_srcs src/*.C)
 source_group(source FILES ${all_srcs})
 
-add_executable(fastgenex6 ${all_srcs} ${all_headers})
+set( FASTGENEX_TARGET_NAME "fastgenex6.exe" )
+add_executable( ${FASTGENEX_TARGET_NAME} ${all_srcs} ${all_headers} )
+create_application_run_script( ${FASTGENEX_TARGET_NAME} )
 
 include_directories( SYSTEM
-	${HDF5_INCLUDE_DIRS}
-	${MPI_INCLUDE_DIRS}
-	${PETSC_INCLUDE_DIRS}
+    ${HDF5_INCLUDE_DIRS}
+    ${MPI_INCLUDE_DIRS}
+    ${PETSC_INCLUDE_DIRS}
 )
 
 bm_include_libraries(
-	DataModel
-	DataAccess
-	DerivedProperties
-	GeoPhysics
-	Interpolation
-	LinearAlgebra
-	DistributedDataAccess
-	Utilities_Petsc
-	Serial_Hdf5
-	Parallel_Hdf5
-	genex6
-	genex6_kernel
-	CBMGenerics
-	EosPack
-	OTGC_kernel6
-	FileSystem
-	utilities
-	TableIO
+    DataModel
+    DataAccess
+    DerivedProperties
+    GeoPhysics
+    Interpolation
+    LinearAlgebra
+    DistributedDataAccess
+    Utilities_Petsc
+    Serial_Hdf5
+    Parallel_Hdf5
+    genex6
+    genex6_kernel
+    CBMGenerics
+    EosPack
+    OTGC_kernel6
+    FileSystem
+    utilities
+    TableIO
 )
 
-target_link_libraries( fastgenex6
-	DataAccess
-	DerivedProperties
-	GeoPhysics
-	DistributedDataAccess
-	Utilities_Petsc
-	Serial_Hdf5
-	Parallel_Hdf5
-	genex6
-	genex6_kernel
-	CBMGenerics
-	EosPack
-	OTGC_kernel6
-	FileSystem
-	utilities
-	TableIO
-	${HDF5_LIBRARIES}
-	${PETSC_LIBRARIES}
+target_link_libraries( ${FASTGENEX_TARGET_NAME}
+    DataAccess
+    DerivedProperties
+    GeoPhysics
+    DistributedDataAccess
+    Utilities_Petsc
+    Serial_Hdf5
+    Parallel_Hdf5
+    genex6
+    genex6_kernel
+    CBMGenerics
+    EosPack
+    OTGC_kernel6
+    FileSystem
+    utilities
+    TableIO
+    ${HDF5_LIBRARIES}
+    ${PETSC_LIBRARIES}
 )
 
 # OFPP only for Linux
 if (UNIX)
-	target_link_libraries(fastgenex6 OneFilePerProcess)
-	bm_include_libraries( OneFilePerProcess )
+    target_link_libraries(${FASTGENEX_TARGET_NAME} OneFilePerProcess)
+    bm_include_libraries( OneFilePerProcess )
 endif (UNIX)
 
-set_target_properties(fastgenex6
+set_target_properties(${FASTGENEX_TARGET_NAME}
       PROPERTIES LINK_FLAGS "${PETSC_LINK_FLAGS}"
 )
 
 if (BM_USE_FLEXLM)
    include_directories( ${FLEXLM_INCLUDE_DIRS})
-   target_link_libraries(fastgenex6 ${FLEXLM_LIBRARIES})
+   target_link_libraries(${FASTGENEX_TARGET_NAME} ${FLEXLM_LIBRARIES})
 endif(BM_USE_FLEXLM)
 
 
-install(TARGETS fastgenex6
-	RUNTIME DESTINATION bin
+install(TARGETS ${FASTGENEX_TARGET_NAME}
+    RUNTIME DESTINATION bin
 )
 
 endif(BM_PARALLEL)

@@ -22,16 +22,18 @@ source_group(include FILES ${all_headers})
 FILE( GLOB all_srcs src/*.cpp)
 source_group(source FILES ${all_srcs})
 
-add_executable(fastdepthcalibration ${all_srcs} ${all_headers})
+set( FASTDEPTHCALIBRATION_TARGET_NAME "fastdepthcalibration.exe" )
+add_executable( ${FASTDEPTHCALIBRATION_TARGET_NAME} ${all_srcs} ${all_headers} )
+create_application_run_script( ${FASTDEPTHCALIBRATION_TARGET_NAME} )
 
 ################################################################
 ################### SET DEPENDENCIES/LINKS #####################
 ################################################################
 
 if (UNIX)
-add_dependencies(fastdepthcalibration FastcauldronApplication TableIO Boost cmbapi PETSC )
+add_dependencies(${FASTDEPTHCALIBRATION_TARGET_NAME} FastcauldronApplication TableIO Boost cmbapi PETSC )
 else (WIN32)
-add_dependencies(fastdepthcalibration FastcauldronApplication TableIO )
+add_dependencies(${FASTDEPTHCALIBRATION_TARGET_NAME} FastcauldronApplication TableIO )
 endif (UNIX)
 
 include_directories(
@@ -48,71 +50,71 @@ include_directories( SYSTEM
 )
 
 bm_include_libraries(
-	FastcauldronApplication
-	DataModel
-	DataAccess
-	DerivedProperties
-	DistributedDataAccess
-	utilities
-	Utilities_Petsc
-	Serial_Hdf5
-	Parallel_Hdf5
-	EosPack
-	TableIO
-	LinearAlgebra
-	Interpolation
-	FiniteElements
-	CBMGenerics
-	genex6
-	genex6_kernel	
-	GeoPhysics
-	FileSystem
-	calibration_kernel
-    cmbapi	
+    FastcauldronApplication
+    DataModel
+    DataAccess
+    DerivedProperties
+    DistributedDataAccess
+    utilities
+    Utilities_Petsc
+    Serial_Hdf5
+    Parallel_Hdf5
+    EosPack
+    TableIO
+    LinearAlgebra
+    Interpolation
+    FiniteElements
+    CBMGenerics
+    genex6
+    genex6_kernel
+    GeoPhysics
+    FileSystem
+    calibration_kernel
+    cmbapi
 )
 
-target_link_libraries(fastdepthcalibration
-	FastcauldronApplication
-	DataAccess
-	DistributedDataAccess
-	)
+target_link_libraries(${FASTDEPTHCALIBRATION_TARGET_NAME}
+    FastcauldronApplication
+    DataAccess
+    DistributedDataAccess
+    )
 
-target_link_libraries( fastdepthcalibration
-	DataAccess
-	DerivedProperties
-	DistributedDataAccess
-	utilities
-	Utilities_Petsc
-	Serial_Hdf5
-	Parallel_Hdf5
-	EosPack
-	TableIO
-	LinearAlgebra
-	Interpolation
-	FiniteElements
-	CBMGenerics
-	genex6
-	genex6_kernel	
-	GeoPhysics
-	FileSystem
-	calibration_kernel
-	OTGC_kernel6
-	cmbapi
-	${HDF5_LIBRARIES}
-	${PETSC_LIBRARIES}
-	${MPI_LIBRARIES}
-	${Boost_LIBRARIES}
+target_link_libraries( ${FASTDEPTHCALIBRATION_TARGET_NAME}
+    DataAccess
+    DerivedProperties
+    DistributedDataAccess
+    utilities
+    Utilities_Petsc
+    Serial_Hdf5
+    Parallel_Hdf5
+    EosPack
+    TableIO
+    LinearAlgebra
+    Interpolation
+    FiniteElements
+    CBMGenerics
+    genex6
+    genex6_kernel
+    GeoPhysics
+    FileSystem
+    calibration_kernel
+    OTGC_kernel6
+    cmbapi
+    ${HDF5_LIBRARIES}
+    ${PETSC_LIBRARIES}
+    ${MPI_LIBRARIES}
+    ${Boost_LIBRARIES}
     ${BM_CLOCK_GETTIME_LIB}
 )
 
-set_target_properties(fastdepthcalibration
+set_target_properties(${FASTDEPTHCALIBRATION_TARGET_NAME}
       PROPERTIES LINK_FLAGS "${PETSC_LINK_FLAGS}"
 )
 
 if(UNIX)
    # The OneFilePerProcess library is only available on Unix
    bm_include_libraries( OneFilePerProcess )
-   target_link_libraries(fastdepthcalibration OneFilePerProcess)
+   target_link_libraries(${FASTDEPTHCALIBRATION_TARGET_NAME} OneFilePerProcess)
 endif()
 
 if (WIN32)
@@ -123,12 +125,12 @@ endif()
 
 if (BM_USE_FLEXLM)
    include_directories( ${FLEXLM_INCLUDE_DIRS})
-   target_link_libraries(fastdepthcalibration ${FLEXLM_LIBRARIES})
+   target_link_libraries(${FASTDEPTHCALIBRATION_TARGET_NAME} ${FLEXLM_LIBRARIES})
 endif(BM_USE_FLEXLM)
 
-install(TARGETS fastdepthcalibration
-	RUNTIME DESTINATION bin
+install(TARGETS ${FASTDEPTHCALIBRATION_TARGET_NAME}
+    RUNTIME DESTINATION bin
 )
-	
+    
 endif(BM_PARALLEL)
 
