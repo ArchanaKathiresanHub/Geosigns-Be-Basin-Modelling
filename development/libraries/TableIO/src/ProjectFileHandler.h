@@ -11,13 +11,14 @@
 #ifndef TABLE_IO__PROJECT_FILE_HANDLER__H
 #define TABLE_IO__PROJECT_FILE_HANDLER__H
 
+// TableIO
+#include "database.h"
+
 // Sytem
 #include <memory>
 #include <ostream>
 #include <string>
-
-// TableIO
-#include "database.h"
+#include <memory>
 
 namespace database {
 
@@ -38,6 +39,9 @@ namespace database {
       //// \brief The default name for the output tables file.
       static const std::string OutputTablesFileName;
 
+
+      /// \brief Constructor creates the empty database from schema
+      ProjectFileHandler ();
 
       /// \brief Constructor loads the project file into the database.
       ///
@@ -113,10 +117,10 @@ namespace database {
 
 
       /// \brief Contains tables that are part of the project file
-      database::Database* m_inputDataBase;
+      std::unique_ptr<database::Database> m_inputDataBase;
 
       /// \brief Contains tables that are to be saved in a file separated from the project file.
-      database::Database* m_outputDataBase;
+      std::unique_ptr<database::Database> m_outputDataBase;
 
       /// \brief A list of all the tables contained in both input and output databases.
       std::vector<std::string> m_allTableNames;

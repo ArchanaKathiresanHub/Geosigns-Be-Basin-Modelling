@@ -10,7 +10,7 @@
 
 #include "ProjectFileHandler.h"
 
-#include <boost/filesystem.hpp>
+#include <memory>
 
 // TableIO
 #include "dataschema.h"
@@ -23,16 +23,38 @@ using namespace Utilities;
 #include "FormattingException.h"
 #include "LogHandler.h"
 
+// FileSystem
+#include "FilePath.h"
+#include "FolderPath.h"
+
 const std::string database::ProjectFileHandler::OutputTablesFileIoTableName = "OutputTablesFileIoTbl";
 const std::string database::ProjectFileHandler::OutputTablesIoTableName = "OutputTablesIoTbl";
 const std::string database::ProjectFileHandler::OutputTablesFileName = "Output.iotables3d";
 
-database::ProjectFileHandler::ProjectFileHandler ( const std::string& fileName ) :
-   m_inputDataBase ( nullptr ),
-   m_outputDataBase ( nullptr )
+database::ProjectFileHandler::ProjectFileHandler () 
 {
+   std::unique_ptr<database::DataSchema> cauldronSchema( database::createCauldronSchema() );
+   database::TableDefinition * tableDef = cauldronSchema->getTableDefinition( "DepthIoTbl" );
+   
+   if ( tableDef != nullptr ) {
+      // Adding (volatile, won't be output) definition for DepositionSequence field
+      // Required to properly sort the DepthIoTbl, not to be output
+      tableDef->addVolatileFieldDefinition( "DepositionSequence", datatype::Int, "", "0" );
+   }
 
-   if ( not boost::filesystem::exists( fileName )) {
+   m_inputDataBase.reset( database::Database::CreateFromSchema( *(cauldronSchema.get()) ) );
+
+   // Now that we have the cauldron schema, use it to set the list of all possible table names.
+   m_allTableNames.reserve ( cauldronSchema->size ());
+
+   for ( size_t i = 0; i < cauldronSchema->size(); ++i ) {
+      m_allTableNames.push_back ( cauldronSchema->getTableDefinition ( i )->name ());
+   }
+}
+
+database::ProjectFileHandler::ProjectFileHandler ( const std::string& fileName ) 
+{
+   if ( ! ibs::FilePath( fileName ).exists() ) {
       throw formattingexception::GeneralException() << "Project file " << fileName << " does not exist";
    }
 
@@ -40,31 +62,20 @@ database::ProjectFileHandler::ProjectFileHandler ( const std::string& fileName )
    loadOutputTables ();
 }
 
-database::ProjectFileHandler::ProjectFileHandler ( const std::string&              fileName,
-                                                   const std::vector<std::string>& outputTableNames ) :
-   ProjectFileHandler ( fileName )
+database::ProjectFileHandler::ProjectFileHandler ( const std::string&              fileName
+                                                 , const std::vector<std::string>& outputTableNames 
+                                                 ) 
+                                                 : ProjectFileHandler ( fileName )
 {
-
    for ( size_t i = 0; i < outputTableNames.size (); ++i ) {
 
-      if ( m_outputDataBase == nullptr or not m_outputDataBase->hasTable ( outputTableNames [ i ])) {
+      if ( !m_outputDataBase || !m_outputDataBase->hasTable ( outputTableNames [ i ] ) ) {
          setTableAsOutput ( outputTableNames [ i ]);
       }
-
    }
-
 }
 
 database::ProjectFileHandler::~ProjectFileHandler () {
-
-   if ( m_inputDataBase != nullptr ) {
-      delete m_inputDataBase;
-   }
-
-   if ( m_outputDataBase != nullptr ) {
-      delete m_outputDataBase;
-   }
-
 }
 
 
@@ -72,11 +83,11 @@ bool database::ProjectFileHandler::saveToFile ( const std::string& fileName ) {
 
    bool status = true;
 
-   if ( m_inputDataBase != nullptr ) {
+   if ( m_inputDataBase ) {
       status = m_inputDataBase->saveToFile( fileName );
    }
 
-   if ( m_outputDataBase != nullptr ) {
+   if ( m_outputDataBase ) {
       database::Table* outputTablesFileTbl = m_inputDataBase->getTable ( OutputTablesFileIoTableName );
 
       if ( outputTablesFileTbl != nullptr and outputTablesFileTbl->size () == 1 ) {
@@ -85,33 +96,19 @@ bool database::ProjectFileHandler::saveToFile ( const std::string& fileName ) {
 
          std::string outputDirectory = stripExtension ( fileName ) + Names::CauldronOutputDir;
 
-         if ( not boost::filesystem::exists ( outputDirectory )) {
-
-            if ( not boost::filesystem::create_directory ( outputDirectory )) {
-               throw formattingexception::GeneralException() << outputDirectory << " cannot be created ";
-            }
-
-         }
+         ibs::FolderPath( outputDirectory ).create(); // checks for directory existence inside
 
          std::string outputFileName = outputDirectory + "/" + outputTableFileName;
          status = m_outputDataBase->saveToFile ( outputFileName ) and status;
       }
-
    }
-
    return status;
 }
 
 
 bool database::ProjectFileHandler::saveInputDataBaseToStream ( std::ostream& os ) {
 
-   bool status = false;
-
-   if ( m_inputDataBase != nullptr ) {
-      status = m_inputDataBase->saveToStream ( os );
-   }
-
-   return status;
+   return m_inputDataBase ? m_inputDataBase->saveToStream ( os ) : false;
 }
 
 
@@ -126,8 +123,9 @@ void database::ProjectFileHandler::loadFromFile ( const std::string& fileName ) 
       tableDef->addVolatileFieldDefinition( "DepositionSequence", datatype::Int, "", "0" );
    }
 
-   m_inputDataBase = database::Database::CreateFromFile( fileName, *cauldronSchema );
-
+   m_inputDataBase.reset( database::Database::CreateFromFile( fileName, *cauldronSchema ) );
+   database::upgradeAllTablesInCauldronSchema( m_inputDataBase.get() );
+   
    // Now that we have the cauldron schema, use it to set the list of all possible table names.
    m_allTableNames.reserve ( cauldronSchema->size ());
 
@@ -156,20 +154,20 @@ std::string database::ProjectFileHandler::stripExtension ( const std::string& fi
 void database::ProjectFileHandler::loadOutputTables () {
 
    database::Table* outputTablesFileTbl = m_inputDataBase->getTable ( OutputTablesFileIoTableName );
-   database::Table* outputTablesTbl     = m_inputDataBase->getTable ( OutputTablesIoTableName );
+   database::Table* outputTablesTbl     = getTable ( OutputTablesIoTableName );
 
    if ( outputTablesFileTbl != nullptr and outputTablesFileTbl->size () == 1 and outputTablesTbl != nullptr and outputTablesTbl->size () > 0 ) {
-      database::Record* record = outputTablesFileTbl->getRecord ( 0 );
+      database::Record* record        = outputTablesFileTbl->getRecord ( 0 );
       std::string outputTableFileName = database::getFilename ( record );
-      std::string outputDirectory = stripExtension ( m_inputDataBase->getFileName ()) + Names::CauldronOutputDir;
-      std::string fullFileName = outputDirectory + "/" + outputTableFileName;
-      database::DataSchema * outputSchema = new database::DataSchema;
-      bool tableHasBeenAdded = false;
+      std::string outputDirectory     = stripExtension ( m_inputDataBase->getFileName ()) + Names::CauldronOutputDir;
+      std::string fullFileName        = outputDirectory + "/" + outputTableFileName;
+      bool        tableHasBeenAdded   = false;
+      std::unique_ptr<database::DataSchema>  outputSchema( new database::DataSchema );
 
       for ( size_t i = 0; i < outputTablesTbl->size (); ++i ) {
-         record = outputTablesTbl->getRecord ( i );
+         record                       = outputTablesTbl->getRecord ( i );
          const std::string& tableName = database::getTableName ( record );
-         database::Table* table = m_inputDataBase->getTable ( tableName );
+         database::Table*   table     = m_inputDataBase->getTable ( tableName );
 
          if ( tableName == OutputTablesFileIoTableName or tableName == OutputTablesIoTableName ) {
             LogHandler ( LogHandler::ERROR_SEVERITY ) << "(" << __FUNCTION__ << ") Cannot make table " << tableName << " an output table.";
@@ -178,7 +176,7 @@ void database::ProjectFileHandler::loadOutputTables () {
             // The table should be populated in either the input project file or the
             // output tables file so copying of the data here is not necessary.
             outputSchema->addTableDefinition ( tableDefinition.deepCopy ());
-            m_inputDataBase->deleteTable ( tableDefinition.name ());
+            m_inputDataBase->deleteTable (     tableDefinition.name ());
             tableHasBeenAdded = true;
          } else {
             LogHandler ( LogHandler::ERROR_SEVERITY ) << "(" << __FUNCTION__ << ") Cannot find table name " << tableName;
@@ -188,18 +186,16 @@ void database::ProjectFileHandler::loadOutputTables () {
 
       if ( tableHasBeenAdded ) {
 
-         if ( boost::filesystem::exists ( outputDirectory ) and
-              boost::filesystem::exists ( fullFileName )) {
-            m_outputDataBase = database::Database::CreateFromFile ( fullFileName, *outputSchema );
+         if ( ibs::FolderPath ( outputDirectory ).exists() and
+              ibs::FilePath ( fullFileName ).exists() ) {
+            m_outputDataBase.reset( database::Database::CreateFromFile ( fullFileName, *(outputSchema.get()) ) );
          } else {
             LogHandler ( LogHandler::WARNING_SEVERITY ) << "(" << __FUNCTION__ << ") Output tables file does not exist: "
                                                         << outputDirectory << "/" << fullFileName;
-            m_outputDataBase = database::Database::CreateFromSchema ( *outputSchema );
+            m_outputDataBase.reset( database::Database::CreateFromSchema ( *(outputSchema.get()) ) );
          }
 
       }
-
-      delete outputSchema;
 
    } else if ( outputTablesFileTbl != nullptr and outputTablesFileTbl->size () > 1 ) {
       LogHandler ( LogHandler::ERROR_SEVERITY ) << "(" << __FUNCTION__ << ") " << outputTablesFileTbl->name () << " table has more than 1 row";
@@ -224,12 +220,12 @@ bool database::ProjectFileHandler::setTableAsOutput ( const std::string& tableNa
 
    bool status = false;
 
-   if ( m_outputDataBase != nullptr and m_outputDataBase->getTable ( tableName ) != nullptr ) {
+   if (        m_outputDataBase and m_outputDataBase->getTable ( tableName ) != nullptr ) {
       LogHandler ( LogHandler::WARNING_SEVERITY ) << "(" << __FUNCTION__ << ") Table " << tableName << " is already an output table.";
    } else if ( tableName == OutputTablesFileIoTableName or tableName == OutputTablesIoTableName ) {
-      LogHandler ( LogHandler::ERROR_SEVERITY ) << "(" << __FUNCTION__ << ") Cannot make table " << tableName << " an output table.";
+      LogHandler ( LogHandler::ERROR_SEVERITY   ) << "(" << __FUNCTION__ << ") Cannot make table " << tableName << " an output table.";
    } else if ( m_inputDataBase->getTable ( tableName ) == nullptr ) {
-      LogHandler ( LogHandler::ERROR_SEVERITY ) << "(" << __FUNCTION__ << ") Table " << tableName << " cannot be found in the input data schema.";
+      LogHandler ( LogHandler::ERROR_SEVERITY   ) << "(" << __FUNCTION__ << ") Table " << tableName << " cannot be found in the input data schema.";
    } else {
 
       const database::DataSchema& inputSchema = m_inputDataBase->getDataSchema ();
@@ -247,7 +243,7 @@ bool database::ProjectFileHandler::setTableAsOutput ( const std::string& tableNa
       if ( m_outputDataBase == nullptr ) {
          database::DataSchema* outputSchema = new database::DataSchema;
          outputSchema->addTableDefinition ( tableDefinition->deepCopy ());
-         m_outputDataBase = database::Database::CreateFromSchema ( *outputSchema );
+         m_outputDataBase.reset( database::Database::CreateFromSchema ( *outputSchema ) );
          delete outputSchema;
       } else {
          m_outputDataBase->addTableDefinition ( tableDefinition->deepCopy ());
@@ -298,8 +294,7 @@ void database::ProjectFileHandler::mergeTablesToInput () {
          outputTablesFileTbl->clear ();
       }
 
-      delete m_outputDataBase;
-      m_outputDataBase = nullptr;
+      m_outputDataBase.reset( nullptr );
    }
 
 }

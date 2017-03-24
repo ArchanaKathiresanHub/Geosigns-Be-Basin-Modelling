@@ -48,6 +48,7 @@ TEST ( TableIoDataBaseTest, FieldDefinitionTest ) {
 
    table = database->getTable ( 0 );
    EXPECT_EQ ( table->size (), 2 );
+   EXPECT_EQ ( table->version(), 100 );
 
    rec = table->getRecord ( 0 );
    EXPECT_EQ ( getIntegerField1 ( rec ), 10 );
@@ -67,6 +68,7 @@ TEST ( TableIoDataBaseTest, FieldDefinitionTest ) {
 
    table = database->getTable ( 1 );
    EXPECT_EQ ( table->size (), 3 );
+   EXPECT_EQ ( table->version(), 100 );
 
    rec = table->getRecord ( 0 );
    EXPECT_EQ ( getStringField ( rec ), "Field1" );
@@ -118,13 +120,13 @@ DataSchema* createSchema () {
 
    DataSchema* dataSchema = new DataSchema;
 
-   TableDefinition* tableDefinition = dataSchema->addTableDefinition ( Table1, "Description of MyTestTable1" );
+   TableDefinition* tableDefinition = dataSchema->addTableDefinition ( Table1, "Description of MyTestTable1", 100 );
 
    tableDefinition->addFieldDefinition ( "IntegerField1", Int, "", "1", 0 );
    tableDefinition->addFieldDefinition ( "IntegerField2", Int, "", "2", 1 );
    tableDefinition->addFieldDefinition ( "IntegerField3", Int, "", "3", 2 );
 
-   tableDefinition = dataSchema->addTableDefinition ( Table2, "Description of MyTestTable2" );
+   tableDefinition = dataSchema->addTableDefinition ( Table2, "Description of MyTestTable2", 100 );
 
    tableDefinition->addFieldDefinition ( "StringField", String, "", "SomeText", 0 );
    tableDefinition->addFieldDefinition ( "FloatField",  Double, "", "1.23",     1 );
@@ -229,7 +231,7 @@ std::string getExpectedContents () {
    contents << "; Description of MyTestTable1"                                                << std::endl;
    contents << ";"                                                                            << std::endl;
    contents << "[MyTestTable1]"                                                               << std::endl;
-   contents << ";"                                                                            << std::endl;
+   contents << ";v100"                                                                        << std::endl;
    contents << "           IntegerField1            IntegerField2            IntegerField3"   << std::endl;
    contents << "                      ()                       ()                       ()"   << std::endl;
    contents << "                      10                       20                       30"   << std::endl;
@@ -240,7 +242,7 @@ std::string getExpectedContents () {
    contents << "; Description of MyTestTable2"                                                << std::endl;
    contents << ";"                                                                            << std::endl;
    contents << "[MyTestTable2]"                                                               << std::endl;
-   contents << ";"                                                                            << std::endl;
+   contents << ";v100"                                                                        << std::endl;
    contents << "             StringField               FloatField"                            << std::endl;
    contents << "                      ()                       ()"                            << std::endl;
    contents << "                \"Field1\"                       10"                          << std::endl;

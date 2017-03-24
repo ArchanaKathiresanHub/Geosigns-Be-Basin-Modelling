@@ -21,14 +21,15 @@ set (generator_source_files
   ${CMAKE_CURRENT_BINARY_DIR}/cauldronschemafuncs.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/cauldronschema.h
   ${CMAKE_CURRENT_BINARY_DIR}/cauldronschemafuncs.h
-  )
+)
 
 add_library( TableIO
 	src/dataschema.cpp
 	src/database.cpp
 	src/datautils.cpp
 	src/ProjectFileHandler.h
-	src/ProjectFileHandler.C
+	src/ProjectFileHandler.cpp
+	src/upgradeTables.cpp
 	${generator_source_files}
 )
 
@@ -40,14 +41,17 @@ endif (UNIX)
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 add_dependencies( TableIO
+   FileSystem
    utilities
 )
 
 bm_include_libraries( TableIO
+   FileSystem
    utilities
 )
 
 target_link_libraries( TableIO
+   FileSystem
    utilities
 )
 

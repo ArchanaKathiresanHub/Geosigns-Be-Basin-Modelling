@@ -11,6 +11,7 @@
 #########################################################################
 
 add_subdirectory(TableIO)
+add_subdirectory(bmAPI)
 add_subdirectory(utilities)
 add_subdirectory(FileSystem)
 add_subdirectory(DataModel)

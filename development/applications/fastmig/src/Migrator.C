@@ -1612,10 +1612,6 @@ database::Record * Migrator::addDetectedReservoirRecord (Interface::Formation * 
    database::setBlockingInd (reservoirIoRecord, m_projectHandle->getReservoirOptions()->isBlockingOn());
    database::setBlockingPermeability (reservoirIoRecord, m_projectHandle->getReservoirOptions()->getBlockingPermeability());
    database::setBlockingPorosity (reservoirIoRecord, m_projectHandle->getReservoirOptions()->getBlockingPorosity());
-   database::setErrDepthOffset (reservoirIoRecord, Interface::DefaultUndefinedScalarValue);
-   database::setErrThickness (reservoirIoRecord, Interface::DefaultUndefinedScalarValue);
-   database::setErrMicroTraps (reservoirIoRecord, Interface::DefaultUndefinedScalarValue);
-   database::setErrLayerFrequency (reservoirIoRecord, Interface::DefaultUndefinedScalarValue);
 
    return reservoirIoRecord;
 }

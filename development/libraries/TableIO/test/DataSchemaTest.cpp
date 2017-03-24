@@ -9,13 +9,13 @@ TEST ( TableIoDataSchemaTest, FieldDefinitionTest ) {
 
    DataSchema dataSchema;
 
-   TableDefinition* tableDefinition = dataSchema.addTableDefinition ( "MyTestTable1", "Description of MyTestTable1" );
+   TableDefinition* tableDefinition = dataSchema.addTableDefinition ( "MyTestTable1", "Description of MyTestTable1", 100 );
 
    tableDefinition->addFieldDefinition ( "IntegerField1", Int, "", "1", 0 );
    tableDefinition->addFieldDefinition ( "IntegerField2", Int, "", "2", 1 );
    tableDefinition->addFieldDefinition ( "IntegerField3", Int, "", "3", 2 );
 
-   tableDefinition = dataSchema.addTableDefinition ( "MyTestTable2", "Description of MyTestTable2" );
+   tableDefinition = dataSchema.addTableDefinition ( "MyTestTable2", "Description of MyTestTable2", 100 );
 
    tableDefinition->addFieldDefinition ( "StringField", String, "", "SomeText", 0 );
    tableDefinition->addFieldDefinition ( "FloatField",  Double, "", "1.23",     1 );
@@ -35,6 +35,7 @@ TEST ( TableIoDataSchemaTest, FieldDefinitionTest ) {
    EXPECT_EQ ( dataSchema.getIndex ( "MyTestTable1" ), 0 );
    EXPECT_EQ ( tableDefinition->size (), 3 );
    EXPECT_EQ ( tableDefinition->name (), "MyTestTable1" );
+   EXPECT_EQ ( tableDefinition->version (), 100 );
 
    // Check field names.
    EXPECT_EQ ( tableDefinition->getFieldDefinition ( 0 )->name (), "IntegerField1" );
@@ -64,6 +65,7 @@ TEST ( TableIoDataSchemaTest, FieldDefinitionTest ) {
    EXPECT_NE ( tableDefinition, nullptr );
    EXPECT_EQ ( tableDefinition->size (), 2 );
    EXPECT_EQ ( tableDefinition->name (), "MyTestTable2" );
+   EXPECT_EQ ( tableDefinition->version (), 100 );
 
    // Check field names.
    EXPECT_EQ ( tableDefinition->getFieldDefinition ( 0 )->name (), "StringField" );

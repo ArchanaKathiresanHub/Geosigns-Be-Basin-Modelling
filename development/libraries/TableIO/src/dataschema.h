@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2012-2015 Shell International Exploration & Production.
+// Copyright (C) 2012-2017 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -68,7 +68,7 @@ namespace database
       /// outputs the unit value onto the specified stream
       bool saveUnitToStream (ostream & ofile, int & borrowed) const;
 
-   public:
+      public:
       /// returns the storage type (Volatile or Persistent)
       inline StorageType storageType () const;
       /// returns the name
@@ -102,12 +102,10 @@ namespace database
 
       const std::string m_name;
       const std::string m_description;
+      const int         m_version;
 
       FieldDefinitionList m_fieldDefinitionList;
       Shuffle m_outputOrdering;
-
-      TableDefinition (const std::string & name, const std::string & description);
-      ~TableDefinition ();
 
       bool addFieldDefinition (FieldDefinition * fieldDefinition);
 
@@ -122,11 +120,15 @@ namespace database
       /// by order
       inline size_t getPosition (size_t order) const;
 
-   public:
+      public:
       /// return the name of a TableDefinition
-      inline const std::string & name () const;
+      const std::string & name() const { return m_name; }
+
       /// return the description of a TableDefinition
-      inline const std::string & description () const;
+      const std::string & description() const { return m_description; }
+
+      /// return the description of a TableDefinition
+      const int & version() const { return m_version; }
 
       TableDefinition * deepCopy () const;
 
@@ -140,7 +142,7 @@ namespace database
       /// Creates a new, volatile, FieldDefinition with the specified attributes.
       /// Fields of this FieldDefinition will not be saved.
       bool addVolatileFieldDefinition (const std::string & name, datatype::DataType type,
-                                       const std::string & unit, const std::string & defaultValue);
+            const std::string & unit, const std::string & defaultValue);
 
       /// returns the FieldDefinition at the specified index
       inline FieldDefinition * getFieldDefinition (size_t i) const;
@@ -150,6 +152,11 @@ namespace database
 
       /// returns the number of non-volatile FieldDefinitions
       inline size_t persistentSize (void) const;
+
+   public:
+      TableDefinition (const std::string & name, const std::string & description, int version );
+     ~TableDefinition ();
+
    };
 
    /// Objects of this class are used to specify the structure of a database.
@@ -165,7 +172,7 @@ namespace database
 
       DataSchema * deepCopy () const;
 
-   public:
+      public:
 
       /// Create an empty DataSchema
       DataSchema (void);
@@ -183,19 +190,19 @@ namespace database
       bool hasTableDefinition ( TableDefinition* tableDefinition ) const;
 
       /// Create an empty TableDefinition with given name and description and add it to this DataSchema
-      TableDefinition * addTableDefinition (const std::string & name, const std::string & description);
+      TableDefinition * addTableDefinition (const std::string & name, const std::string & description, int version );
 
       /// Find the TableDefinition with the given name
       TableDefinition * getTableDefinition (const std::string & name) const;
 
       /// Return the TableDefinition at the given index
-      inline TableDefinition * getTableDefinition (size_t i) const;
-
+      inline TableDefinition * getTableDefinition (size_t i) const { return m_tableDefinitionList[i]; }
+      
       /// Find the index of a TableDefinition with the given name. Returns -1 if not found
       int getIndex (const std::string & name) const;
 
       /// Return the number of TableDefinitions
-      inline size_t size (void) const;
+      size_t size (void) const { return m_tableDefinitionList.size (); }
    };
 
    FieldDefinition::StorageType FieldDefinition::storageType () const
@@ -238,16 +245,6 @@ namespace database
       return m_name == theName;
    }
 
-   const std::string & TableDefinition::name () const
-   {
-      return m_name;
-   }
-
-   const std::string & TableDefinition::description () const
-   {
-      return m_description;
-   }
-
    bool TableDefinition::isValid (void) const
    {
       return m_name.length () != 0;
@@ -281,17 +278,6 @@ namespace database
          return 0;
       else
          return m_fieldDefinitionList[i];
-   }
-
-   size_t DataSchema::size (void) const
-   {
-      return m_tableDefinitionList.size ();
-   }
-
-   // Retrieve a data definition
-   TableDefinition * DataSchema::getTableDefinition  (size_t i) const
-   {
-      return m_tableDefinitionList[i];
    }
 }
 

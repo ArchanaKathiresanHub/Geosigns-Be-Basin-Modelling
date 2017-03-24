@@ -250,8 +250,12 @@ namespace database
 
       /// Remove duplicate records based on the specified equality function after merging them based on the specified merge function
       void unique (EqualityFunc equalityFunc, MergeFunc mergeFunc = 0);
-      /// Return the name of the Table.
-      inline const std::string & name();
+      
+      /// return the name of the Table.
+      const std::string & name() { return m_tableDefinition.name(); }
+
+      /// return verision of data schema in which this table was written. Used in table upgrade scheme
+      int version() { return m_version; }
 
       inline Record * getRecord (Table::iterator & iter);
 
@@ -259,7 +263,7 @@ namespace database
       inline const TableDefinition & getTableDefinition () const;
 
       /// Return the number of Records in the Table.
-      inline size_t size();
+      size_t size() { return m_records.size(); }
 
       /// Return the Record at the specified index
       inline Record *getRecord (int i);
@@ -267,9 +271,9 @@ namespace database
       inline Record *operator[] (int i);
 
       /// Find a record in which the specified field has the specified value
-      Record * findRecord(const std::string & fieldName, const std::string & value);
-      Record * findRecord(const std::string & field1, const std::string & value1, const std::string & field2, const std::string & value2, Record * other = 0);
-
+      Record * findRecord( const std::string & fieldName, const std::string & value );
+      Record * findRecord( const std::string & field1, const std::string & value1, const std::string & field2,
+                           const std::string & value2, Record * other = 0);
 
       /// Remove all Records from this Table and destroy them as requested.
       void clear (bool deleteRecords = true);
@@ -305,6 +309,7 @@ namespace database
 
       const TableDefinition & m_tableDefinition;
       RecordList m_records;
+      int        m_version;
 
       Table (const TableDefinition & tableDefinition);
       ~Table();
@@ -320,6 +325,7 @@ namespace database
       bool loadRecordsFromStream (istream & infile, std::vector < int >&dataToFieldMap);
       bool loadRowBasedRecordsFromStream (istream & infile);
 
+      void setVersion( int ver ) { m_version = ver; }
    };
 
 
@@ -343,7 +349,7 @@ namespace database
       ~Database();
 
       /// Return the number of Tables in the Database.
-      inline size_t size();
+      size_t size() { return m_tables.size(); }
 
       /// Add text to the database header
       void addHeader (const std::string & text);
@@ -389,13 +395,17 @@ namespace database
       /// Fill the tables of this database from the specified file.
       bool loadFromFile (const std::string & filename);
 
+      /// Reread file again, or if tblName is given, just this table
+      bool reload( std::string tblName = "" );
+
       /// Get the file name
       const std::string& getFileName() const { return m_fileName; }
 
       /// Return an iterator pointing to the beginning of the Database.
-      inline Database::iterator begin();
+      Database::iterator begin() { return m_tables.begin (); }
+
       /// Return an iterator pointing to the end of the Database.
-      inline Database::iterator end();
+      Database::iterator end() { return m_tables.end (); }
 
       inline static void SetFieldWidth (int fieldWidth);
       inline static int GetFieldWidth();
@@ -411,11 +421,16 @@ namespace database
       /// \brief Get a constant reference to the data schema.
       const DataSchema& getDataSchema () const;
 
+      /// @brief Get list of table which were recognized in file
+      const std::map<std::string, bool> & getTablesInFile()  { return m_tablesInFile; }
+      
    private:
 
       static int s_maxFieldsPerLine;
       static int s_fieldWidth;
       static int s_precision;
+
+      std::map<std::string,bool> m_tablesInFile; // tables list in file: true for loaded, false for skipped 
 
       DataSchema& m_dataSchema;
 
@@ -438,20 +453,6 @@ namespace database
    ///////////////////////////////////////////////////////////////////////
    // IMPLEMENTATIONS ////////////////////////////////////////////////////
    ///////////////////////////////////////////////////////////////////////
-   size_t Database::size()
-   {
-      return m_tables.size();
-   }
-
-   Database::iterator Database::begin()
-   {
-      return m_tables.begin ();
-   }
-
-   Database::iterator Database::end()
-   {
-      return m_tables.end ();
-   }
 
    void Database::SetPrecision (int precision)
    {
@@ -490,16 +491,6 @@ namespace database
    Record * Table::getRecord (Table::iterator & iter)
    {
       return (iter == m_records.end () ? 0 : * iter);
-   }
-
-   size_t Table::size()
-   {
-      return m_records.size ();
-   }
-
-   const std::string & Table::name()
-   {
-      return m_tableDefinition.name ();
    }
 
    const TableDefinition & Table::getTableDefinition () const

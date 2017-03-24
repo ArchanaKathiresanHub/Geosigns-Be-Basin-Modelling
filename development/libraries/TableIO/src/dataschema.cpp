@@ -46,10 +46,11 @@ bool FieldDefinition::saveUnitToStream (ostream & ofile, int & borrowed) const
    return saveStringToStream (ofile, field, borrowed, Database::GetFieldWidth ());
 }
 
-TableDefinition::TableDefinition (const std::string & name, const std::string & description)
-: m_name (name), m_description (description)
-{
-}
+TableDefinition::TableDefinition( const std::string & name, const std::string & description, int version )
+                                : m_name( name )
+                                , m_description( description )
+                                , m_version( version )
+                                {}
 
 TableDefinition::~TableDefinition (void)
 {
@@ -121,7 +122,7 @@ bool TableDefinition::addVolatileFieldDefinition (const std::string & name, data
 
 TableDefinition * TableDefinition::deepCopy () const
 {
-   TableDefinition * tableDefCopy = new TableDefinition (name (), description ());
+   TableDefinition * tableDefCopy = new TableDefinition (name (), description (), version () );
 
    FieldDefinitionListIterator iter;
    for (iter = m_fieldDefinitionList.begin ();
@@ -143,16 +144,15 @@ TableDefinition * TableDefinition::deepCopy () const
    return tableDefCopy;
 }
 
-bool TableDefinition::saveToStream (ostream & ofile, bool rowBased) const
+bool TableDefinition::saveToStream( ostream & ofile, bool rowBased ) const
 {
    ofile << "; " << m_description << endl;
    ofile << ";" << endl;
    ofile << "[" << m_name << "]" << endl;
-   ofile << ";" << endl;
+   ofile << ";v" << version() << endl;
 
-   if (!rowBased)
-      saveFieldDefinitionsToStream (ofile);
-   return !ofile.fail ();
+   if ( !rowBased ) { saveFieldDefinitionsToStream( ofile ); }
+   return !ofile.fail();
 }
 
 bool TableDefinition::saveFieldDefinitionsToStream (ostream & ofile) const
@@ -258,9 +258,9 @@ bool DataSchema::hasTableDefinition ( TableDefinition* tableDefinition ) const {
 }
 
 // create a new table definition with name and description
-TableDefinition * DataSchema::addTableDefinition (const std::string & name, const std::string & description)
+TableDefinition * DataSchema::addTableDefinition (const std::string & name, const std::string & description, int ver )
 {
-   TableDefinition * tableDefinition = new TableDefinition (name, description);
+   TableDefinition * tableDefinition = new TableDefinition( name, description, ver );
    addTableDefinition (tableDefinition);
    return tableDefinition;
 }
