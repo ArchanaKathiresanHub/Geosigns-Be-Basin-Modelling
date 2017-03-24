@@ -18,9 +18,20 @@ source_group(include FILES ${all_headers})
 FILE( GLOB all_srcs src/*.C)
 source_group(source FILES ${all_srcs})
 
-set( FASTMIG_TARGET_NAME "fastmig.exe" )
-add_executable( ${FASTMIG_TARGET_NAME} ${all_srcs} ${all_headers} )
-create_application_run_script( ${FASTMIG_TARGET_NAME} )
+set( APP_NAME "fastmig" )
+add_executable( ${APP_NAME} ${all_srcs} ${all_headers} )
+
+set_target_properties( ${APP_NAME} PROPERTIES SUFFIX ".exe" )
+
+create_application_run_script( ${APP_NAME} )
+
+application_env_var( TARGET ${APP_NAME} VARS
+     "GENEXDIR"    "$MISCDIR/genex40"
+     "GENEX5DIR"   "$MISCDIR/genex50"
+     "OTGCDIR"     "$MISCDIR/OTGC"
+     "CTCDIR"      "$MISCDIR"
+     "EOSPACKDIR"  "$MISCDIR/eospack"
+)
 
 add_definitions(-DUSEOTGC)
 
@@ -57,7 +68,7 @@ bm_include_libraries(
 )
 
 
-target_link_libraries(${FASTMIG_TARGET_NAME}
+target_link_libraries(${APP_NAME}
     DataModel
     DataAccess
     DerivedProperties
@@ -82,22 +93,22 @@ target_link_libraries(${FASTMIG_TARGET_NAME}
    ${BM_CLOCK_GETTIME_LIB}
 )
 
-set_target_properties(${FASTMIG_TARGET_NAME}
+set_target_properties(${APP_NAME}
       PROPERTIES LINK_FLAGS "${PETSC_LINK_FLAGS}"
 )
    
 if (UNIX)
    # The OneFilePerProcess library is only available on Unix
    bm_include_libraries( OneFilePerProcess )
-   target_link_libraries(${FASTMIG_TARGET_NAME} OneFilePerProcess)
+   target_link_libraries(${APP_NAME} OneFilePerProcess)
 endif ()
 
 if (BM_USE_FLEXLM)
    include_directories(${FLEXLM_INCLUDE_DIRS})
-   target_link_libraries(${FASTMIG_TARGET_NAME} ${FLEXLM_LIBRARIES})
+   target_link_libraries(${APP_NAME} ${FLEXLM_LIBRARIES})
 endif(BM_USE_FLEXLM)
 
-install(TARGETS ${FASTMIG_TARGET_NAME}
+install(TARGETS ${APP_NAME}
     RUNTIME DESTINATION bin
 )
 

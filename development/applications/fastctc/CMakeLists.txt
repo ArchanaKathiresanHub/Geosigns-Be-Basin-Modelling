@@ -18,9 +18,16 @@ source_group(include FILES ${all_headers})
 FILE( GLOB all_srcs src/*.C)
 source_group(source FILES ${all_srcs})
 
-set( FASTCTC_TARGET_NAME "fastctc.exe" )
-add_executable( ${FASTCTC_TARGET_NAME} ${all_srcs} ${all_headers} )
-create_application_run_script( ${FASTCTC_TARGET_NAME} )
+set( APP_NAME "fastctc" )
+add_executable( ${APP_NAME} ${all_srcs} ${all_headers} )
+
+set_target_properties( ${APP_NAME} PROPERTIES SUFFIX ".exe" )
+
+create_application_run_script( ${APP_NAME} )
+
+application_env_var( TARGET ${APP_NAME} VARS
+                     "CTCDIR" "$MISCDIR"
+)
 
 bm_include_libraries(
     DataModel
@@ -50,7 +57,7 @@ include_directories( SYSTEM
     ${PETSC_INCLUDE_DIRS}
 )
 
-target_link_libraries(${FASTCTC_TARGET_NAME}
+target_link_libraries(${APP_NAME}
     DataAccess
     DistributedDataAccess
     DerivedProperties
@@ -74,21 +81,21 @@ target_link_libraries(${FASTCTC_TARGET_NAME}
 
 # OFPP only for Linux
 if (UNIX)
-    target_link_libraries(${FASTCTC_TARGET_NAME} OneFilePerProcess)
+    target_link_libraries(${APP_NAME} OneFilePerProcess)
     bm_include_libraries( OneFilePerProcess )
 endif (UNIX)
 
-set_target_properties(${FASTCTC_TARGET_NAME}
+set_target_properties(${APP_NAME}
       PROPERTIES LINK_FLAGS "${PETSC_LINK_FLAGS}"
 )
 
 if (BM_USE_FLEXLM)
    include_directories( ${FLEXLM_INCLUDE_DIRS})
-   target_link_libraries(${FASTCTC_TARGET_NAME} ${FLEXLM_LIBRARIES})
+   target_link_libraries(${APP_NAME} ${FLEXLM_LIBRARIES})
 endif(BM_USE_FLEXLM)
 
 
-install(TARGETS ${FASTCTC_TARGET_NAME}
+install(TARGETS ${APP_NAME}
     RUNTIME DESTINATION bin
 )
 

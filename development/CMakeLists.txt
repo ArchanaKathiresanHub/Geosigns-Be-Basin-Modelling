@@ -17,6 +17,7 @@ cmake_policy(SET CMP0054 NEW)
 set(PETSC_VERSION "3.5.4"  CACHE STRING "PETSc version")
 set(TSLIB_VERSION "7.4.2"  CACHE STRING "Geocosm library version")
 set(SWIG_VERSION  "3.0.10" CACHE STRING "The version number of the swig executable")
+set(INTEL_CMPL_VERSON "2016.01" CACHE STRING "The version number of intel compiler. Used in module load command")
 
 if (UNIX)
    set(HDF5_VERSION  "1.8.11" CACHE STRING "HDF5 version") # 1.8.17 doesn't have H5FDmpiposix.c

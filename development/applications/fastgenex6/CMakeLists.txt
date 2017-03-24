@@ -18,9 +18,20 @@ source_group(include FILES ${all_headers})
 FILE( GLOB all_srcs src/*.C)
 source_group(source FILES ${all_srcs})
 
-set( FASTGENEX_TARGET_NAME "fastgenex6.exe" )
-add_executable( ${FASTGENEX_TARGET_NAME} ${all_srcs} ${all_headers} )
-create_application_run_script( ${FASTGENEX_TARGET_NAME} )
+set( APP_NAME "fastgenex6" )
+
+add_executable( ${APP_NAME} ${all_srcs} ${all_headers} )
+
+set_target_properties( ${APP_NAME} PROPERTIES SUFFIX ".exe" )
+
+create_application_run_script( ${APP_NAME} )
+application_env_var( TARGET ${APP_NAME} VARS
+     "GENEX5DIR"   "$MISCDIR/genex50"
+     "GENEX6DIR"   "$MISCDIR/genex60"
+     "OTGCDIR"     "$MISCDIR/OTGC"
+     "CTCDIR"      "$MISCDIR"
+     "EOSPACKDIR"  "$MISCDIR/eospack"
+)
 
 include_directories( SYSTEM
     ${HDF5_INCLUDE_DIRS}
@@ -49,7 +60,7 @@ bm_include_libraries(
     TableIO
 )
 
-target_link_libraries( ${FASTGENEX_TARGET_NAME}
+target_link_libraries( ${APP_NAME}
     DataAccess
     DerivedProperties
     GeoPhysics
@@ -71,21 +82,21 @@ target_link_libraries( ${FASTGENEX_TARGET_NAME}
 
 # OFPP only for Linux
 if (UNIX)
-    target_link_libraries(${FASTGENEX_TARGET_NAME} OneFilePerProcess)
+    target_link_libraries(${APP_NAME} OneFilePerProcess)
     bm_include_libraries( OneFilePerProcess )
 endif (UNIX)
 
-set_target_properties(${FASTGENEX_TARGET_NAME}
+set_target_properties(${APP_NAME}
       PROPERTIES LINK_FLAGS "${PETSC_LINK_FLAGS}"
 )
 
 if (BM_USE_FLEXLM)
    include_directories( ${FLEXLM_INCLUDE_DIRS})
-   target_link_libraries(${FASTGENEX_TARGET_NAME} ${FLEXLM_LIBRARIES})
+   target_link_libraries(${APP_NAME} ${FLEXLM_LIBRARIES})
 endif(BM_USE_FLEXLM)
 
 
-install(TARGETS ${FASTGENEX_TARGET_NAME}
+install(TARGETS ${APP_NAME}
     RUNTIME DESTINATION bin
 )
 

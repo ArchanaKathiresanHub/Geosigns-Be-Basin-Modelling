@@ -18,15 +18,13 @@
 # and run the application <TARGET>.exe
 macro( create_application_run_script targetName )
 if(UNIX)
-    # Strip the extension
-    get_filename_component( targetNameNoExt "${targetName}" NAME_WE )
     # Run script filename
-    set( scriptName "${CMAKE_CURRENT_BINARY_DIR}/${targetNameNoExt}" )
+    set( scriptName "${CMAKE_CURRENT_BINARY_DIR}/${targetName}" )
     # Environment variables script filename
-    set( scriptVarName "${CMAKE_CURRENT_BINARY_DIR}/${targetNameNoExt}Env.sh" )
+    set( scriptVarName "${CMAKE_CURRENT_BINARY_DIR}/${targetName}Env.sh" )
     # Create file overwriting any existing content
     file( WRITE ${scriptName}
-"#!/bin/bash
+"#!/bin/bash -e
 # Source this file to load the development environment into your shell
 # This file has been automatically generated -- Do not edit!
 
@@ -39,13 +37,27 @@ else
 fi
 
 # Sourcing environment variables script (if it exists)
-[[ -f \"$DIR/${targetNameNoExt}Env.sh\" ]] && source $DIR/${targetNameNoExt}Env.sh
+[[ -f \"$DIR/${targetName}Env.sh\" ]] && source $DIR/${targetName}Env.sh
 
 # Setting runtime libraries directory
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$DIR
 
+if [ -e /glb/data/hpcrnd/easybuild/PRODUCTION/software/rhel/6/GCCcore/4.9.3/lib64/libstdc++.so ]; then
+   export LD_PRELOAD=/glb/data/hpcrnd/easybuild/PRODUCTION/software/rhel/6/GCCcore/4.9.3/lib64/libstdc++.so
+fi
+if [ -e /glb/data/hpcrnd/easybuild/public/etc/profile.d/shell-envmodules.sh ]; then
+   . /glb/data/hpcrnd/easybuild/public/etc/profile.d/shell-envmodules.sh
+fi
+   
+# In Shell network FLEXLM licens is requred and located in this file
+if [ -z \"$SIEPRTS_LICENSE_FILE\" ] && [ -e /apps/sss/etc/local/flexlmlicenses ]; then
+  export SIEPRTS_LICENSE_FILE=`cat /apps/sss/etc/local/flexlmlicenses | grep SIEPRTS_LICENSE_FILE | cut -d ' ' -f 2`
+fi
+module purge
+module load intel/${INTEL_CMPL_VERSION}
+
 # Running application forwarding all the script inputs
-$DIR/${targetName} \"$@\"
+$DIR/${targetName}.exe \"$@\"
 ")
     # Applying permission to run script
     add_custom_command(TARGET ${targetName} POST_BUILD COMMAND chmod 755 ${scriptName} )
@@ -82,13 +94,12 @@ if(UNIX)
     set( oneValueArgs TARGET )
     set( multiValueArgs VARS CUSTOM_COMMAND )
     cmake_parse_arguments(APPLICATION_ENV_VAR "" "${oneValueArgs}" "${multiValueArgs}" ${ARGN} )
-    get_filename_component( targetNameNoExt "${APPLICATION_ENV_VAR_TARGET}" NAME_WE )
-    set( scriptName "${CMAKE_CURRENT_BINARY_DIR}/${targetNameNoExt}Env.sh" )
+    set( scriptName "${CMAKE_CURRENT_BINARY_DIR}/${APPLICATION_ENV_VAR_TARGET}Env.sh" )
     if( EXISTS ${scriptName} )
         file( REMOVE ${scriptName} )
     endif()
     file( WRITE ${scriptName}
-"#!/bin/bash
+"#!/bin/bash -e
 # Environment variables for ${APPLICATION_ENV_VAR_TARGET}
 
 # Script directory

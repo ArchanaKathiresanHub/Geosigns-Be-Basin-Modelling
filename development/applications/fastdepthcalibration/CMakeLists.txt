@@ -22,18 +22,31 @@ source_group(include FILES ${all_headers})
 FILE( GLOB all_srcs src/*.cpp)
 source_group(source FILES ${all_srcs})
 
-set( FASTDEPTHCALIBRATION_TARGET_NAME "fastdepthcalibration.exe" )
-add_executable( ${FASTDEPTHCALIBRATION_TARGET_NAME} ${all_srcs} ${all_headers} )
-create_application_run_script( ${FASTDEPTHCALIBRATION_TARGET_NAME} )
+set( APP_NAME "fastdepthcalibration" )
+
+add_executable( ${APP_NAME} ${all_srcs} ${all_headers} )
+
+set_target_properties( ${APP_NAME} PROPERTIES SUFFIX ".exe" )
+
+create_application_run_script( ${APP_NAME} )
+
+application_env_var( TARGET ${APP_NAME} VARS
+     "GENEXDIR"    "$MISCDIR/genex40"
+     "GENEX5DIR"   "$MISCDIR/genex50"
+     "GENEX6DIR"   "$MISCDIR/genex60"
+     "OTGCDIR"     "$MISCDIR/OTGC"
+     "CTCDIR"      "$MISCDIR"
+     "EOSPACKDIR"  "$MISCDIR/eospack"
+)
 
 ################################################################
 ################### SET DEPENDENCIES/LINKS #####################
 ################################################################
 
 if (UNIX)
-add_dependencies(${FASTDEPTHCALIBRATION_TARGET_NAME} FastcauldronApplication TableIO Boost cmbapi PETSC )
+add_dependencies(${APP_NAME} FastcauldronApplication TableIO Boost cmbapi PETSC )
 else (WIN32)
-add_dependencies(${FASTDEPTHCALIBRATION_TARGET_NAME} FastcauldronApplication TableIO )
+add_dependencies(${APP_NAME} FastcauldronApplication TableIO )
 endif (UNIX)
 
 include_directories(
@@ -73,13 +86,13 @@ bm_include_libraries(
     cmbapi
 )
 
-target_link_libraries(${FASTDEPTHCALIBRATION_TARGET_NAME}
+target_link_libraries(${APP_NAME}
     FastcauldronApplication
     DataAccess
     DistributedDataAccess
     )
 
-target_link_libraries( ${FASTDEPTHCALIBRATION_TARGET_NAME}
+target_link_libraries( ${APP_NAME}
     DataAccess
     DerivedProperties
     DistributedDataAccess
@@ -107,14 +120,14 @@ target_link_libraries( ${FASTDEPTHCALIBRATION_TARGET_NAME}
     ${BM_CLOCK_GETTIME_LIB}
 )
 
-set_target_properties(${FASTDEPTHCALIBRATION_TARGET_NAME}
+set_target_properties(${APP_NAME}
       PROPERTIES LINK_FLAGS "${PETSC_LINK_FLAGS}"
 )
 
 if(UNIX)
    # The OneFilePerProcess library is only available on Unix
    bm_include_libraries( OneFilePerProcess )
-   target_link_libraries(${FASTDEPTHCALIBRATION_TARGET_NAME} OneFilePerProcess)
+   target_link_libraries(${APP_NAME} OneFilePerProcess)
 endif()
 
 if (WIN32)
@@ -125,10 +138,10 @@ endif()
 
 if (BM_USE_FLEXLM)
    include_directories( ${FLEXLM_INCLUDE_DIRS})
-   target_link_libraries(${FASTDEPTHCALIBRATION_TARGET_NAME} ${FLEXLM_LIBRARIES})
+   target_link_libraries(${APP_NAME} ${FLEXLM_LIBRARIES})
 endif(BM_USE_FLEXLM)
 
-install(TARGETS ${FASTDEPTHCALIBRATION_TARGET_NAME}
+install(TARGETS ${APP_NAME}
     RUNTIME DESTINATION bin
 )
     

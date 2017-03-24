@@ -334,16 +334,28 @@ add_library( FastcauldronApplication
 #
 # 4. fastcauldron application
 #
-set( FASTCAULDRON_TARGET_NAME "fastcauldron.exe" )
+set( FASTCAULDRON_TARGET_NAME "fastcauldron" )
 add_executable( ${FASTCAULDRON_TARGET_NAME} src/main.C ${all_headers} )
+set_target_properties( ${FASTCAULDRON_TARGET_NAME} PROPERTIES SUFFIX ".exe" )
 create_application_run_script( ${FASTCAULDRON_TARGET_NAME} )
 
+application_env_var( TARGET ${FASTCAULDRON_TARGET_NAME} VARS
+     "GENEXDIR"    "$MISCDIR/genex40"
+     "GENEX5DIR"   "$MISCDIR/genex50"
+     "GENEX6DIR"   "$MISCDIR/genex60"
+     "OTGCDIR"     "$MISCDIR/OTGC"
+     "CTCDIR"      "$MISCDIR"
+     "EOSPACKDIR"  "$MISCDIR/eospack"
+)
+                              
 #
 # 5. linearSolver application
 #
-set( LINEARSOLVER_TARGET_NAME "linearSolver.exe" )
+set( LINEARSOLVER_TARGET_NAME "linearSolver" )
 add_executable( ${LINEARSOLVER_TARGET_NAME} linearSolver/main.C ${all_headers} )
+set_target_properties( ${LINEARSOLVER_TARGET_NAME} PROPERTIES SUFFIX ".exe" )
 create_application_run_script( ${LINEARSOLVER_TARGET_NAME} )
+
 
 ################################################################
 ################### SET DEPENDENCIES/LINKS #####################

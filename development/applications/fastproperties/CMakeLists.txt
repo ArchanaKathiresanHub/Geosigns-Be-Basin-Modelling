@@ -23,12 +23,22 @@ source_group(include FILES ${all_headers})
 
 source_group(source FILES ${all_srcs})
 
-set( FASTPROPERTIES_TARGET_NAME "fastproperties.exe" )
-add_executable(${FASTPROPERTIES_TARGET_NAME}
+set( APP_NAME "fastproperties" )
+add_executable(${APP_NAME}
    ${all_srcs}
    ${all_headers}
 )
-create_application_run_script( ${FASTPROPERTIES_TARGET_NAME} )
+
+set_target_properties( ${APP_NAME} PROPERTIES SUFFIX ".exe" )
+
+create_application_run_script( ${APP_NAME} )
+
+application_env_var( TARGET ${APP_NAME} VARS
+     "GENEX5DIR"   "$MISCDIR/genex50"
+     "GENEX6DIR"   "$MISCDIR/genex60"
+     "OTGCDIR"     "$MISCDIR/OTGC"
+     "EOSPACKDIR"  "$MISCDIR/eospack"
+)
 
 bm_include_libraries(
    DataModel
@@ -59,7 +69,7 @@ include_directories( SYSTEM
    ${LZ_INCLUDE_DIR}
 )
 
-target_link_libraries(${FASTPROPERTIES_TARGET_NAME}
+target_link_libraries(${APP_NAME}
    DerivedProperties
    GeoPhysics
    DataAccess
@@ -81,7 +91,7 @@ target_link_libraries(${FASTPROPERTIES_TARGET_NAME}
    ${PETSC_LIBRARIES}
 )
 
-install(TARGETS ${FASTPROPERTIES_TARGET_NAME}
+install(TARGETS ${APP_NAME}
    RUNTIME DESTINATION bin
 )
 
