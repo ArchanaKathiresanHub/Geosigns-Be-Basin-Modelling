@@ -38,7 +38,6 @@ static const char * s_crustIoTblAgeCol            = "Age";
 static const char * s_crustIoTblThicknessCol      = "Thickness";
 static const char * s_crustIoTblCalibThicknessCol = "CalibThickness";
 static const char * s_crustIoTblOptimThicknessCol = "OptimThickness";
-static const char * s_crustIoTblErrThicknessCol   = "ErrThickness";
 
 static const double s_eps = 1.e-8;
 
@@ -110,7 +109,6 @@ ErrorHandler::ReturnCode PrmOneCrustThinningEvent::setInModel( mbapi::Model & md
       // set to 0 unused columns
       oK = oK ? ErrorHandler::NoError == mdl.setTableValue( s_crustIoTblName, i, s_crustIoTblCalibThicknessCol, IbsNoDataValue ) : oK;
       oK = oK ? ErrorHandler::NoError == mdl.setTableValue( s_crustIoTblName, i, s_crustIoTblOptimThicknessCol, (long)0        ) : oK;
-      oK = oK ? ErrorHandler::NoError == mdl.setTableValue( s_crustIoTblName, i, s_crustIoTblErrThicknessCol,   0.0e0          ) : oK;
     }
 
    // 0 time

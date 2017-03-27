@@ -38,7 +38,6 @@ static const char * s_crustIoTblThicknessCol      = "Thickness";
 static const char * s_crustIoTblMapNameCol        = "ThicknessGrid";
 static const char * s_crustIoTblCalibThicknessCol = "CalibThickness";
 static const char * s_crustIoTblOptimThicknessCol = "OptimThickness";
-static const char * s_crustIoTblErrThicknessCol   = "ErrThickness";
 
 static constexpr double s_eps = 1.e-8;
 
@@ -220,7 +219,6 @@ ErrorHandler::ReturnCode PrmCrustThinning::setInModel( mbapi::Model & caldModel,
          // set to 0 unused columns
          ok = ok ? ErrorHandler::NoError == caldModel.setTableValue( s_crustIoTblName, i, s_crustIoTblCalibThicknessCol, IbsNoDataValue ) : ok;
          ok = ok ? ErrorHandler::NoError == caldModel.setTableValue( s_crustIoTblName, i, s_crustIoTblOptimThicknessCol, 0L             ) : ok;
-         ok = ok ? ErrorHandler::NoError == caldModel.setTableValue( s_crustIoTblName, i, s_crustIoTblErrThicknessCol,   0.0e0          ) : ok;
      }
      if ( !ok ) { throw ErrorHandler::Exception( caldModel.errorCode() ) << caldModel.errorMessage(); }
    }
