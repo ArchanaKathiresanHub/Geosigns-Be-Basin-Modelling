@@ -41,20 +41,38 @@ namespace supportFunc
       std::ifstream irfs( rightFileName.c_str() );
       std::string rightContent( ( std::istreambuf_iterator<char>( irfs ) ), ( std::istreambuf_iterator<char>() ) );
       
+      size_t ll = 1; // left line number
+      size_t rl = 1; // right line number
+
       // compare contents
       for ( size_t i = 0, j = 0; i < leftContent.size(); ++i, ++j )
       {
          // skip white spaces/eol in left and right
-         for ( ; i < leftContent.size()  && ( ::isspace( leftContent[i] )  || leftContent[i]  == '\n' || leftContent[i]  == '\r' ); ++i );
-         for ( ; j < rightContent.size() && ( ::isspace( rightContent[j] ) || rightContent[i] == '\n' || rightContent[i] == '\r' ); ++j );
+         for ( ; i < leftContent.size()  && ( ::isspace( leftContent[i] )  || leftContent[i]  == '\n' || leftContent[i]  == '\r' ); ++i )
+         {
+            if ( leftContent[i] == '\n' ) { ++ll; }
+         }
+
+         for ( ; j < rightContent.size() && ( ::isspace( rightContent[j] ) || rightContent[j] == '\n' || rightContent[j] == '\r' ); ++j )
+         {
+            if ( rightContent[j] == '\n' ) { ++rl; }
+         }
+
+         if ( leftContent.size() == i && j == rightContent.size() ) { break; } // eof - comparison is completed
 
          if ( leftContent.size()  == i && j < rightContent.size() ||
-              rightContent.size() == j && j < leftContent.size()  || // files are different in length
-              leftContent[ i ] != rightContent[ j ]                  // files are different in contents
+              rightContent.size() == j && i < leftContent.size()  || // files are different in length
+              leftContent[i] != rightContent[j]                      // files are different in contents
             )
          { 
-            sameFile = false; 
-            break; 
+            std::cerr << "Files: "  << leftFileName << " and " << rightFileName << " are different in lines: " << ll << "<->" << rl << "\n";
+            while( i < leftContent.size() && leftContent[i] != '\n' ) { std::cerr << leftContent[i++]; }
+            std::cerr << "\n";
+            while( j < rightContent.size() && rightContent[j] != '\n' ) { std::cerr << rightContent[j++]; }
+            std::cerr << "\n";
+
+            sameFile = false;
+            break;
          } 
       }
 
