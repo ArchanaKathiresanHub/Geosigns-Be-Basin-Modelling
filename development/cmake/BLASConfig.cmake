@@ -31,7 +31,7 @@ if (UNIX)
             "-Wl,${INTEL_MKL_ROOT}/lib/intel64/libmkl_intel_lp64.a"
             "-Wl,${INTEL_MKL_ROOT}/lib/intel64/libmkl_core.a"
             "-Wl,${INTEL_MKL_ROOT}/lib/intel64/libmkl_sequential.a"
-            "-Wl,${INTEL_MKL_ROOT}/lib/intel64/libmkl_blacs_lp64.a"
+            "-Wl,${INTEL_MKL_ROOT}/lib/intel64/libmkl_blacs_intelmpi_lp64.a"
             "-Wl,--end-group" 
          )
          set( BLAS_FOUND ON )
