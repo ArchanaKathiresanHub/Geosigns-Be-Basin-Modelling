@@ -1,14 +1,16 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
 
 #include "MantleFormation.h"
+
+#include <cmath>
 
 #include "FastcauldronSimulator.h"
 #include "propinterface.h"
@@ -24,10 +26,10 @@
 #include "PetscBlockVector.h"
 
 MantleFormation::MantleFormation ( Interface::ProjectHandle * projectHandle,
-                                   database::Record *              record ) : 
+                                   database::Record *              record ) :
    DataAccess::Interface::Formation ( projectHandle, record ),
    GeoPhysics::Formation ( projectHandle, record ),
-   LayerProps ( projectHandle, record ), 
+   LayerProps ( projectHandle, record ),
    DataAccess::Interface::BasementFormation ( projectHandle, record, Interface::MantleFormationName, Interface::MantleLithologyName ),
    DataAccess::Interface::MantleFormation ( projectHandle, record ),
    GeoPhysics::GeoPhysicsMantleFormation ( projectHandle, record ) {
@@ -99,23 +101,23 @@ const CompoundLithology*  MantleFormation::getLithology(const int iPosition, con
 
 //------------------------------------------------------------//
 bool MantleFormation::setLithologiesFromStratTable () {
-   
+
    bool createdLithologies = true;
-   
+
    if( GeoPhysics::GeoPhysicsMantleFormation::setLithologiesFromStratTable () == false ) {
       return false;
    }
    if(((GeoPhysics::ProjectHandle*)(GeoPhysics::Formation::m_projectHandle))->isALC() ) {
 
       m_basaltLithology.allocate ( GeoPhysics::Formation::m_projectHandle->getActivityOutputGrid ());
-                
+
       CompoundLithologyComposition lc ( DataAccess::Interface::ALCBasalt, "",  "",
                                         100.0, 0.0, 0.0,
                                         DataAccess::Interface::MantleFormation::getMixModelStr (),
                                         DataAccess::Interface::MantleFormation::getLayeringIndex());
 
       lc.setThermalModel( m_projectHandle->getMantlePropertyModel() );
-      
+
       CompoundLithology* pMixedLitho = ((GeoPhysics::ProjectHandle*)(GeoPhysics::Formation::m_projectHandle))->getLithologyManager ().getCompoundLithology ( lc );
       createdLithologies = pMixedLitho != 0;
       m_basaltLithology.fillWithLithology ( pMixedLitho );
@@ -124,7 +126,7 @@ bool MantleFormation::setLithologiesFromStratTable () {
       // }
    }
    return createdLithologies;
-   
+
 }
 
 //------------------------------------------------------------//
@@ -132,7 +134,7 @@ const CompoundLithology* MantleFormation::getLithology( const double aTime, cons
    // If offset from the top of the Mantle (aOffset) goes above the bottom of Basalt, then we are in Basalt
    const AppCtx* aBasinModel =  FastcauldronSimulator::getInstance ().getCauldron ();
 
-   if( aBasinModel->isALC() ) { 
+   if( aBasinModel->isALC() ) {
       double partOfBasaltInMantle = ((GeoPhysics::ProjectHandle*)(GeoPhysics::Formation::m_projectHandle))->getBasaltThickness(iPosition, jPosition, aTime) +
          ((GeoPhysics::ProjectHandle*)(GeoPhysics::Formation::m_projectHandle))->getContCrustThickness( iPosition, jPosition, aTime) -
          ((GeoPhysics::ProjectHandle*)(GeoPhysics::Formation::m_projectHandle))->getCrustThickness( iPosition, jPosition, aTime );
@@ -156,14 +158,14 @@ const CompoundLithology* MantleFormation::getLithology( const double aTime, cons
 
 //------------------------------------------------------------//
 void MantleFormation::allocateBasementVecs( ) {
- 
+
    const AppCtx* basinModel =  FastcauldronSimulator::getInstance ().getCauldron ();
 
    if( basinModel->isALC()) {
       assert(NULL == UpliftedOrigMantleDepth);
-      createCount++;    
+      createCount++;
       DMCreateGlobalVector( * basinModel->mapDA, &UpliftedOrigMantleDepth );
-       
+
       assert( NULL == LithosphereThicknessMod );
       createCount++;
       DMCreateGlobalVector( * basinModel->mapDA, &LithosphereThicknessMod );
@@ -187,7 +189,7 @@ void MantleFormation::initialiseBasementVecs() {
 //------------------------------------------------------------//
 void MantleFormation::reInitialiseBasementVecs() {
    Destroy_Petsc_Vector ( UpliftedOrigMantleDepth );
-   Destroy_Petsc_Vector ( LithosphereThicknessMod ); 
+   Destroy_Petsc_Vector ( LithosphereThicknessMod );
 }
 
 //------------------------------------------------------------//
@@ -229,10 +231,17 @@ void MantleFormation::setLayerElementActivity ( const double age ) {
 
                if ( mapElement.isOnProcessor ()) {
 
-                  activeSegment1 = depth ( k, mapElement.getNodeJPosition ( 0 ), mapElement.getNodeIPosition ( 0 )) > depth ( k + 1, mapElement.getNodeJPosition ( 0 ), mapElement.getNodeIPosition ( 0 ));
-                  activeSegment2 = depth ( k, mapElement.getNodeJPosition ( 1 ), mapElement.getNodeIPosition ( 1 )) > depth ( k + 1, mapElement.getNodeJPosition ( 1 ), mapElement.getNodeIPosition ( 1 ));
-                  activeSegment3 = depth ( k, mapElement.getNodeJPosition ( 2 ), mapElement.getNodeIPosition ( 2 )) > depth ( k + 1, mapElement.getNodeJPosition ( 2 ), mapElement.getNodeIPosition ( 2 ));
-                  activeSegment4 = depth ( k, mapElement.getNodeJPosition ( 3 ), mapElement.getNodeIPosition ( 3 )) > depth ( k + 1, mapElement.getNodeJPosition ( 3 ), mapElement.getNodeIPosition ( 3 ));
+                  activeSegment1 = std::fabs ( depth ( k,     mapElement.getNodeJPosition ( 0 ), mapElement.getNodeIPosition ( 0 )) -
+                                               depth ( k + 1, mapElement.getNodeJPosition ( 0 ), mapElement.getNodeIPosition ( 0 ))) > DepositingThicknessTolerance;
+
+                  activeSegment2 = std::fabs ( depth ( k,     mapElement.getNodeJPosition ( 1 ), mapElement.getNodeIPosition ( 1 )) -
+                                               depth ( k + 1, mapElement.getNodeJPosition ( 1 ), mapElement.getNodeIPosition ( 1 ))) > DepositingThicknessTolerance;
+
+                  activeSegment3 = std::fabs ( depth ( k,     mapElement.getNodeJPosition ( 2 ), mapElement.getNodeIPosition ( 2 )) -
+                                               depth ( k + 1, mapElement.getNodeJPosition ( 2 ), mapElement.getNodeIPosition ( 2 ))) > DepositingThicknessTolerance;
+
+                  activeSegment4 = std::fabs ( depth ( k,     mapElement.getNodeJPosition ( 3 ), mapElement.getNodeIPosition ( 3 )) -
+                                               depth ( k + 1, mapElement.getNodeJPosition ( 3 ), mapElement.getNodeIPosition ( 3 ))) > DepositingThicknessTolerance;
 
                   // if any segment is active then the element is active.
                   if ( activeSegment1 or activeSegment2 or activeSegment3 or activeSegment4 ) {
@@ -266,7 +275,7 @@ void MantleFormation::setLayerElementActivity ( const double age ) {
 
                         volumeElement.setIsActive ( activeSegment1 or activeSegment2 );
                         volumeElement.setIsActiveBoundary ( VolumeData::GAMMA_5, activeSegment1 or activeSegment2 );
-                     } 
+                     }
 
                   } else if ( mapElements.firstI ( false ) != 0 and i < mapElements.firstI ( false )) {
 
@@ -277,7 +286,7 @@ void MantleFormation::setLayerElementActivity ( const double age ) {
 
                         volumeElement.setIsActive ( activeSegment1 or activeSegment2 );
                         volumeElement.setIsActiveBoundary ( VolumeData::GAMMA_3, activeSegment1 or activeSegment2 );
-                     } 
+                     }
 
                   }
 
@@ -290,7 +299,7 @@ void MantleFormation::setLayerElementActivity ( const double age ) {
 
                         volumeElement.setIsActive ( activeSegment1 or activeSegment2 );
                         volumeElement.setIsActiveBoundary ( VolumeData::GAMMA_4, activeSegment1 or activeSegment2 );
-                     } 
+                     }
 
 
                   } else if ( mapElements.firstJ ( false ) != 0 and j < mapElements.firstJ ( false )) {
@@ -302,7 +311,7 @@ void MantleFormation::setLayerElementActivity ( const double age ) {
 
                         volumeElement.setIsActive ( activeSegment1 or activeSegment2 );
                         volumeElement.setIsActiveBoundary ( VolumeData::GAMMA_4, activeSegment1 or activeSegment2 );
-                     } 
+                     }
 
                   }
 
@@ -323,7 +332,7 @@ void MantleFormation::setLayerElementActivity ( const double age ) {
          }
 
       }
-   
+
    }
 
    depth.Restore_Global_Array ( No_Update );
