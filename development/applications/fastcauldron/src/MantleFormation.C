@@ -270,8 +270,8 @@ void MantleFormation::setLayerElementActivity ( const double age ) {
 
                      if ( NumericFunctions::inRange<unsigned int> ( j, mapElements.firstJ ( false ), mapElements.lastJ ( false ))) {
 
-                        activeSegment1 = depth ( k, j, i ) > depth ( k + 1, j, i );
-                        activeSegment2 = depth ( k, j + 1, i ) > depth ( k + 1, j + 1, i );
+                        activeSegment1 = std::fabs ( depth ( k, j,     i ) - depth ( k + 1, j,     i )) > DepositingThicknessTolerance;
+                        activeSegment2 = std::fabs ( depth ( k, j + 1, i ) - depth ( k + 1, j + 1, i )) > DepositingThicknessTolerance;
 
                         volumeElement.setIsActive ( activeSegment1 or activeSegment2 );
                         volumeElement.setIsActiveBoundary ( VolumeData::GAMMA_5, activeSegment1 or activeSegment2 );
@@ -281,8 +281,8 @@ void MantleFormation::setLayerElementActivity ( const double age ) {
 
                      if ( NumericFunctions::inRange<unsigned int> ( j, mapElements.firstJ ( false ), mapElements.lastJ ( false ))) {
 
-                        activeSegment1 = depth ( k, j, i ) > depth ( k + 1, j, i );
-                        activeSegment2 = depth ( k, j + 1, i ) > depth ( k + 1, j + 1, i );
+                        activeSegment1 = std::fabs ( depth ( k, j,     i ) - depth ( k + 1, j,     i )) > DepositingThicknessTolerance;
+                        activeSegment2 = std::fabs ( depth ( k, j + 1, i ) > depth ( k + 1, j + 1, i )) > DepositingThicknessTolerance;
 
                         volumeElement.setIsActive ( activeSegment1 or activeSegment2 );
                         volumeElement.setIsActiveBoundary ( VolumeData::GAMMA_3, activeSegment1 or activeSegment2 );
@@ -294,8 +294,8 @@ void MantleFormation::setLayerElementActivity ( const double age ) {
 
                      if ( NumericFunctions::inRange<unsigned int> ( i, mapElements.firstI ( false ), mapElements.lastI ( false ))) {
 
-                        activeSegment1 = depth ( k, j, i     ) > depth ( k + 1, j, i );
-                        activeSegment2 = depth ( k, j, i + 1 ) > depth ( k + 1, j, i + 1 );
+                        activeSegment1 = std::fabs ( depth ( k, j, i     ) - depth ( k + 1, j, i     )) > DepositingThicknessTolerance;
+                        activeSegment2 = std::fabs ( depth ( k, j, i + 1 ) - depth ( k + 1, j, i + 1 )) > DepositingThicknessTolerance;
 
                         volumeElement.setIsActive ( activeSegment1 or activeSegment2 );
                         volumeElement.setIsActiveBoundary ( VolumeData::GAMMA_4, activeSegment1 or activeSegment2 );
@@ -306,8 +306,8 @@ void MantleFormation::setLayerElementActivity ( const double age ) {
 
                      if ( NumericFunctions::inRange<unsigned int> ( i, mapElements.firstI ( false ), mapElements.lastI ( false ))) {
 
-                        activeSegment1 = depth ( k, j, i     ) > depth ( k + 1, j, i );
-                        activeSegment2 = depth ( k, j, i + 1 ) > depth ( k + 1, j, i + 1 );
+                        activeSegment1 = std::fabs ( depth ( k, j, i     ) - depth ( k + 1, j, i     )) > DepositingThicknessTolerance;
+                        activeSegment2 = std::fabs ( depth ( k, j, i + 1 ) - depth ( k + 1, j, i + 1 )) > DepositingThicknessTolerance;
 
                         volumeElement.setIsActive ( activeSegment1 or activeSegment2 );
                         volumeElement.setIsActiveBoundary ( VolumeData::GAMMA_4, activeSegment1 or activeSegment2 );
