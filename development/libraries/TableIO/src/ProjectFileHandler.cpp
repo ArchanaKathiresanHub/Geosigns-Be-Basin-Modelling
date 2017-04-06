@@ -165,7 +165,7 @@ void database::ProjectFileHandler::loadOutputTables () {
       std::unique_ptr<database::DataSchema>  outputSchema( new database::DataSchema );
 
       for ( size_t i = 0; i < outputTablesTbl->size (); ++i ) {
-         record                       = outputTablesTbl->getRecord ( i );
+         record                       = outputTablesTbl->getRecord ( (int)i );
          const std::string& tableName = database::getTableName ( record );
          database::Table*   table     = m_inputDataBase->getTable ( tableName );
 

@@ -115,6 +115,9 @@ namespace database
    class Record
    {
    public:
+      // destructor
+      ~Record() {}
+
       /// print the record's content
       void printOn (ostream &);
 
@@ -170,8 +173,6 @@ namespace database
 
       typedef std::vector< std::shared_ptr< AbstractField > > FieldList;
       typedef FieldList::iterator FieldListIterator;
-
-      ~Record() {}
 
       std::shared_ptr<AbstractField> getField (size_t index) const { return m_fields[index]; }
 

@@ -319,7 +319,14 @@ void ParseSpecFile( const string & specFile )
    }
 }
 
-//#define API_UNIT_TEST
+#define API_UNIT_TEST
+#ifdef _WIN32
+static const std::string accObj = ".";
+static const std::string accCls = ".";
+#else
+static const std::string accObj = "->";
+static const std::string accCls = "::";
+#endif
 
 void GenerateCMBAPI( const string & schemaName, const string & schemaDir, bool verbose )
 {
@@ -340,12 +347,15 @@ void GenerateCMBAPI( const string & schemaName, const string & schemaDir, bool v
 
    // Header file generation
    headerOut << 
-R"(#include "database.h"
-
+R"(
+#include <vector>
+#include <string>
+#include <exception>  
 
 namespace database
 {
    class ProjectFileHandler;
+   class Table;
 }
 
 namespace bmapi
@@ -382,11 +392,14 @@ namespace bmapi
          string fieldDescr = FieldDescriptions[ fieldName ];
          headerOut << "m_" << fieldName << "; // " << fieldDescr << "\n";
       }
-      headerOut << "\n         Record(); // default constructor. Intitilized structure with default field values\n\n";
+      headerOut << "\n         Record();    // default constructor. Initializes structure with default field values\n";
+      headerOut << "\n         ~Record(){;} // default destructor.\n";
+      headerOut << "         bool operator == ( const Record & rec ) const;\n";
       headerOut << "      };\n\n";
 
       headerOut << "      Table" << tableName << "( database::Table * tbl );\n";
       headerOut << "      ~Table" << tableName << "();\n\n";
+      headerOut << "      bool operator == ( const Table" << tableName << " & tbl ) const;\n\n";
       headerOut << "      RecNumber  addRecord(  const Record & rec );\n";
       headerOut << "      Record getRecord( RecNumber rec );\n\n";
       headerOut << "      size_t size() const { return m_recordList.size(); }\n";
@@ -462,6 +475,16 @@ namespace bmapi
       sourceOut << "      return m_recordList.size() - 1;\n";
       sourceOut << "   }\n\n";
  
+      // generate operator for Record ==
+      sourceOut << "   bool Table" << tableName << "::Record::operator == ( const Record & rec ) const\n";
+      sourceOut << "   {\n";
+      for ( auto fieldName : TableFields[ tableName ] )
+      {
+         sourceOut << "      if ( !(m_" << fieldName << " == rec.m_" << fieldName << ") ) { return false; };\n";
+      }
+      sourceOut << "      return true;\n";
+      sourceOut << "   }\n\n";
+
       sourceOut << "   Table" << tableName << "::Record Table" << tableName << "::getRecord( RecNumber id ) ";
       sourceOut << "{ return id < m_recordList.size() ? m_recordList[id] : Record(); }\n\n";
 
@@ -477,23 +500,13 @@ namespace bmapi
 
          sourceOut << "   " << fieldGetType << " Table" << tableName << "::get" << fieldName << "( RecNumber id ) const\n";
          sourceOut << "   {\n";
-         sourceOut << "      if ( id >= m_recordList.size() ) { throw std::runtime_error( \"No such record with id\" + std::to_string( id ) ); }\n"; 
+         sourceOut << "      if ( id >= m_recordList.size() ) { throw std::runtime_error( \"No such record with id\" + std::to_string( id ) ); }\n";                 
+
 #ifdef API_UNIT_TEST
-         if ( fieldType == "String" )
-         {
-            sourceOut << "      std::cerr << \"   ph.m_" << tableName << "->set" << fieldName << "( id, \\\"\" << m_recordList[id].m_" << 
-                         fieldName << " << \"\\\" );\" << std::endl;\n";
-         }
-         else if ( fieldType == "Double" )
-         {
-            sourceOut << "      std::cerr << \"   ph.m_" << tableName << "->set" << fieldName << 
-                         "( id, \" << std::setprecision( 15 ) << m_recordList[id].m_" << fieldName << " << \" );\" << std::endl;\n";
-         }
-         else
-         {
-            sourceOut << "      std::cerr << \"   ph.m_" << tableName << "->set" << fieldName << "( id, \" << m_recordList[id].m_" << 
-                         fieldName << " << \" );\" << std::endl;\n";
-         }
+         sourceOut << "      std::cerr << \"   ph.m_" << tableName << accObj << "set" << fieldName;
+         if (      fieldType == "String" ) { sourceOut << "( id, \\\"\" << m_recordList[id].m_" << fieldName << " << \"\\\" );\" << std::endl;\n"; }
+         else if ( fieldType == "Double" ) { sourceOut << "( id, \" << std::setprecision(15) << m_recordList[id].m_" << fieldName << " << \" );\" << std::endl;\n"; }
+         else {                              sourceOut << "( id, \" << m_recordList[id].m_" << fieldName << " << \" );\" << std::endl;\n"; }
 #endif
          sourceOut << "      return m_recordList[id].m_" << fieldName << ";\n";
          sourceOut << "   }\n\n";
@@ -503,6 +516,20 @@ namespace bmapi
          sourceOut << "      m_recordList[id].m_" << fieldName << " = val;\n";
          sourceOut << "   }\n\n";
       }
+      
+      // generate operator for table ==
+      sourceOut << "   bool Table" << tableName << "::operator == ( const Table" << tableName << " & tbl ) const";
+      sourceOut << R"(
+   {
+      if ( tbl.size() != m_recordList.size() ) { return false; }
+      for ( size_t i = 0; i < m_recordList.size(); ++i )
+      {
+         if ( ! (tbl.m_recordList[i] == m_recordList[i]) ) { return false; }
+      }
+      return true;
+   }
+
+)";
    }
    
    // Generate declaration of ProjectHandle as incorporated tables
@@ -515,11 +542,13 @@ namespace bmapi
    }
    headerOut << R"(
 
-      ProjectIoAPI();                                    // default constructor
-      ProjectIoAPI( const std::string & projFileName );  // constructor from database
-      ~ProjectIoAPI();                                   // destructor
+      ProjectIoAPI();                                             // default constructor
+      ProjectIoAPI( const std::string & projFileName );           // constructor from database
+
+      ~ProjectIoAPI();                                            // destructor
 
       bool saveToProjectFile( const std::string & projFileName ); // save to file
+      bool operator == ( const ProjectIoAPI & obj ) const;        // compare 2 set of tables, return true if all records in all tables are the same
 
    protected:
       void initialize( database::ProjectFileHandler & ph ); // initialize all table pointers
@@ -551,15 +580,28 @@ namespace bmapi
    {
       sourceOut << "\n      tbl = ph.getTable( \"" << tableName << "\" );\n";
 #ifdef API_UNIT_TEST
+      sourceOut << "      if ( m_" << tableName << "->size() > 0 ) { std::cerr << \"void FillTable" << tableName;
+#ifdef _WIN32
+      sourceOut << "( ProjectIoAPI ph )\" << std::endl  << \"{\" << std::endl << \"   uint id;\" << std::endl; }\n";
+#else
+      sourceOut << "( bmapi::ProjectIoAPI & ph )\" << std::endl  << \"{\" << std::endl<< \"   bmapi::RecNumber id;\" << std::endl; }\n";
+#endif
       sourceOut << "      for ( RecNumber id = 0; id < m_" << tableName << "->size(); id++ )\n";
       sourceOut << "      {\n";
-      sourceOut << "         std::cerr << \"   id = ph.m_" << tableName << "->addRecord( bmapi::Table" << tableName << "::Record() );\" << std::endl;\n";
+      sourceOut << "         std::cerr << \"   id = ph.m_" << tableName << accObj << 
+#ifdef _WIN32
+      "addRecord( new Table"     << tableName << ".Record() ); \" << std::endl;\n";
+#else
+      "addRecord( mbapi::Table"     << tableName << "::Record() ); \" << std::endl;\n";
+#endif
       sourceOut << "         database::Record * trec = tbl->createRecord( true );\n";
+
       for ( auto fieldName : TableFields[ tableName ] )
       {
          sourceOut << "         database::set" << fieldName << "( trec, m_" << tableName << "->get" << fieldName << "( id ) );\n";
       }
       sourceOut << "      }\n\n";
+      sourceOut << "      if ( tbl->size() > 0 ) { std::cerr << \"}\" << std::endl; }\n";
 #else
       sourceOut << "      for ( auto & rec : *m_" << tableName << " )\n";
       sourceOut << "      {\n";
@@ -572,10 +614,34 @@ namespace bmapi
 #endif
    }
 
+#ifdef API_UNIT_TEST
+   sourceOut << "      std::cerr << \"void FillAllTables";
+#ifdef _WIN32
+   sourceOut << "( ProjectIoAPI ph )\" << std::endl  << \"{\" << std::endl;\n";
+#else
+   sourceOut << "( bmapi::ProjectIoAPI & ph )\" << std::endl  << \"{\" << std::endl;\n";
+#endif
+   for ( auto tableName : TableList )
+   {
+      sourceOut << "      if ( m_" << tableName << "->size() > 0 ) { std::cerr << \"   FillTable" << tableName << "( ph );\" << std::endl; }\n";
+   }
+   sourceOut << "      std::cerr << \"}\" << std::endl;\n";
+#endif
+
    sourceOut << R"(
       return ph.saveToFile( projFileName );
    }
-
+      
+   bool ProjectIoAPI::operator == ( const ProjectIoAPI & obj ) const
+   {
+   )";
+   for ( auto tableName : TableList )
+   {
+      sourceOut << "      if ( ! (*m_" << tableName << " ==  *(obj.m_" << tableName << ")) ) { return false; }\n";
+   }
+   sourceOut << R"(
+      return true;
+   }
    void ProjectIoAPI::initialize( database::ProjectFileHandler & ph ))";
    sourceOut << "\n   {\n";
    for ( auto tableName : TableList )

@@ -11,7 +11,6 @@
 #########################################################################
 
 add_subdirectory(TableIO)
-add_subdirectory(bmAPI)
 add_subdirectory(utilities)
 add_subdirectory(FileSystem)
 add_subdirectory(DataModel)
@@ -24,6 +23,7 @@ add_subdirectory(SerialDataAccess)
 add_subdirectory(GeoPhysics)
 add_subdirectory(DerivedProperties)
 add_subdirectory(casaAPI)
+add_subdirectory(bmAPI)
 add_subdirectory(cmbAPI)
 add_subdirectory(FiniteElements)
 add_subdirectory(Interpolation)

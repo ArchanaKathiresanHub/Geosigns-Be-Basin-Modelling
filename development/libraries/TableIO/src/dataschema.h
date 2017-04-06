@@ -36,10 +36,12 @@ namespace database
    /// the TableDefinition::addFieldDefinition () function
    class FieldDefinition
    {
+   public:
+      typedef enum { Volatile, Persistent } StorageType;
+   
+   private:
       friend class TableDefinition;
       friend class Record;
-
-      typedef enum { Volatile, Persistent } StorageType;
 
       const StorageType m_storageType;
 
