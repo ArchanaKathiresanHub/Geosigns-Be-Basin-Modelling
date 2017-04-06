@@ -44,11 +44,12 @@ if (UNIX)
 
    #Code Coverage
    set(CMAKE_C_FLAGS_CODECOVERAGE "-g -O2 -prof_gen=srcpos" CACHE STRING "List of C compiler flags for a Intel Code Coverage build")
-   set(CMAKE_CXX_FLAGS_CODECOVERAGE "-g -O2 ${cxxVersion} -prof_gen=srcpos" CACHE STRING "List of C++ compiler flags for a Intel Code Coverage build")
+   set(CMAKE_CXX_FLAGS_CODECOVERAGE "-g -O2 ${cxxVersion} -prof_dir=${CMAKE_BINARY_DIR} -prof_gen=srcpos" CACHE STRING "List of C++ compiler flags for a Intel Code Coverage build")
    if (CMAKE_BUILD_TYPE STREQUAL CodeCoverage)
       if (NOT BM_USE_INTEL_COMPILER)
          message(ERROR "Code coverage build must use intel compiler")
       endif()
+      set(ENV{PROF_DIR} ${CMAKE_BINARY_DIR})
    endif()
 
 endif()
