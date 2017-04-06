@@ -19,6 +19,11 @@
 #include <stdexcept>
 #include <memory>
 
+#ifdef _MSC_VER
+#pragma warning (push)
+#pragma warning (disable : 4290)
+#endif
+
 /// \namespace CauldronIO
 /// \brief The namespace for the visualization IO library related classes
 namespace CauldronIO
@@ -74,19 +79,19 @@ namespace CauldronIO
         ~Project();
 
         /// \brief Adds a snapshot to the current project: exception thrown if it exists
-        void addSnapShot(std::shared_ptr<SnapShot>& snapShot);
+        void addSnapShot(std::shared_ptr<SnapShot>& snapShot) throw (CauldronIOException);
         /// \brief Adds a property to the current project: exception thrown if it exists
         void addProperty(std::shared_ptr<const Property>& property);
         /// \brief Adds a formation to the current project: exception thrown if it exists
-        void addFormation(std::shared_ptr<Formation>& formation);
+        void addFormation(std::shared_ptr<Formation>& formation) throw (CauldronIOException);
         /// \brief Adds a reservoir to the current project: exception thrown if it exists
-        void addReservoir(std::shared_ptr<const Reservoir>& newReservoir);
+        void addReservoir(std::shared_ptr<const Reservoir>& newReservoir) throw (CauldronIOException);
         /// \brief Adds a geometry to the current project: no exception thrown if it exists
         /// Note: when a new surface or volume is added to the project without registering its geometry, this will fail...
-        void addGeometry(const std::shared_ptr<const Geometry2D>& geometry);
+        void addGeometry(const std::shared_ptr<const Geometry2D>& geometry) throw (CauldronIOException);
         /// \brief Finds the index of this geometry in the list of geometries; throws an exception if index not found
         /// \returns the index of this geometry in the list of geometries
-        size_t getGeometryIndex(const std::shared_ptr<const Geometry2D>& newGeometry, bool addWhenNotFound = false);
+        size_t getGeometryIndex(const std::shared_ptr<const Geometry2D>& newGeometry, bool addWhenNotFound = false) throw (CauldronIOException);
         /// \brief Release all data in project
         void release();
 
@@ -179,7 +184,7 @@ namespace CauldronIO
         /// \param [in] age Snapshot age in MY
         /// \param [in] kind Snapshot kind
         /// \param [in] isMinorShapshot If true, this is a minor snapshot
-        explicit SnapShot(double age, SnapShotKind kind, bool isMinorShapshot);
+        explicit SnapShot(double age, SnapShotKind kind, bool isMinorShapshot) throw (CauldronIOException);
         ~SnapShot();
 
         /// \brief Retrieve all data in snapshot: 
@@ -189,13 +194,13 @@ namespace CauldronIO
         void release();
 
         /// \brief Add a surface to the snapshot; ownership is transfered
-        void addSurface(std::shared_ptr<Surface>& surface);
+        void addSurface(std::shared_ptr<Surface>& surface) throw (CauldronIOException);
         /// \brief Add a volume to the snapshot; ownership is transfered
         void setVolume(std::shared_ptr<Volume>& volume);
         /// \brief Add a discontinuous volume to the snapshot; ownership is transfered
-        void addFormationVolume(FormationVolume& formVolume);
+        void addFormationVolume(FormationVolume& formVolume) throw (CauldronIOException);
         /// \brief Add a trapper to the snapshot; ownership is transfered
-        void addTrapper(std::shared_ptr<Trapper>& trapper);
+        void addTrapper(std::shared_ptr<Trapper>& trapper) throw (CauldronIOException);
 
         /// \returns Age of snapshot
         double getAge() const;
@@ -324,7 +329,7 @@ namespace CauldronIO
         /// \param [in] type the property type
         /// \param [in] attrib the property attribute
         explicit Property(const std::string& name, const std::string& username, const std::string& cauldronName, const std::string& unit,
-            PropertyType type, PropertyAttribute attrib);
+            PropertyType type, PropertyAttribute attrib) throw (CauldronIOException);
         /// \returns the name of this property
         const std::string& getName() const;
         /// \returns the user name of this property
@@ -357,7 +362,7 @@ namespace CauldronIO
         /// \param [in] kStart start depth index into the bigger volume (if relevant)
         /// \param [in] kEnd end depth index (inclusive) into bigger volume
         /// \param [in] name name of the formation
-        explicit Formation(int kStart, int kEnd, const std::string& name);
+        explicit Formation(int kStart, int kEnd, const std::string& name) throw (CauldronIOException);
         /// \brief Destructor
         ~Formation();
 
@@ -454,14 +459,14 @@ namespace CauldronIO
         /// \brief Assigns a thickness map to this formation
         void setThicknessMap(PropertySurfaceData& thicknessMap);
         /// \returns Returns the thickness map; can be empty
-        const PropertySurfaceData& getThicknessMap() const;
+        const PropertySurfaceData& getThicknessMap() const throw (CauldronIOException);
 
         /// \returns true if this formation has a mixingHI map defined
         bool hasSourceRockMixingHIMap() const;
         /// \brief Assigns a mixingHI map to this formation
         void setSourceRockMixingHIMap(PropertySurfaceData& map);
         /// \returns Returns the mixingHI map; can be empty
-        const PropertySurfaceData& getSourceRockMixingHIMap() const;
+        const PropertySurfaceData& getSourceRockMixingHIMap() const throw (CauldronIOException);
 
         /// \brief Assign a lithotype percentagemap
         void setLithoType1PercentageMap(PropertySurfaceData& map);
@@ -470,11 +475,11 @@ namespace CauldronIO
         /// \brief Assign a lithotype percentagemap
         void setLithoType3PercentageMap(PropertySurfaceData& map);
         /// \brief Retrieve a lithotype percentagemap
-        const PropertySurfaceData& getLithoType1PercentageMap() const;
+        const PropertySurfaceData& getLithoType1PercentageMap() const throw(CauldronIOException);
         /// \brief Retrieve a lithotype percentagemap
-        const PropertySurfaceData& getLithoType2PercentageMap() const;
+        const PropertySurfaceData& getLithoType2PercentageMap() const throw (CauldronIOException);
         /// \brief Retrieve a lithotype percentagemap
-        const PropertySurfaceData& getLithoType3PercentageMap() const;
+        const PropertySurfaceData& getLithoType3PercentageMap() const throw (CauldronIOException);
         /// \returns Returns true if this formation has a lithotype1 percentagemap
         bool hasLithoType1PercentageMap() const;
         /// \returns Returns true if this formation has a lithotype2 percentagemap
@@ -524,9 +529,9 @@ namespace CauldronIO
         /// \brief Method to replace a PropertySurfaceData object by another one in the list
         /// \param[in] index Index in to the PropertySurfaceDataList
         /// \param[in] index data the new PropertySurfaceData for that element
-        void replaceAt(size_t index, PropertySurfaceData& data);
+        void replaceAt(size_t index, PropertySurfaceData& data) throw (CauldronIOException);
         /// \brief Add a property-surfaceData pair to the list
-        void addPropertySurfaceData(PropertySurfaceData& data);
+        void addPropertySurfaceData(PropertySurfaceData& data) throw (CauldronIOException);
         /// \returns true if this surface has a depth surface
         bool hasDepthSurface() const;
         /// \returns the depth surface data; can be null
@@ -721,7 +726,7 @@ namespace CauldronIO
         /// \brief Assign data to the map : geometry must have been assigned
         /// \param [in] data pointer to the xy data, ordered row-wise
         /// \note data is copied so data ownership is not transferred; data should be deleted by client if obsolete
-        void setData_IJ(float* data);
+        void setData_IJ(float* data) throw (CauldronIOException);
         /// \returns  true if data is represented per row
         bool canGetRow() const;
         /// \returns true if data is represented per column
@@ -730,17 +735,17 @@ namespace CauldronIO
         /// \param [in] i row index
         /// \param [in] j column index
         /// \returns value at the given coordinate
-        float getValue(size_t i, size_t j) const;
+        float getValue(size_t i, size_t j) const throw (CauldronIOException);
         /// \brief Gets an entire row; can be null if this map is not row-ordered (or throw an exception)
         /// \param [in] j column index
         /// \returns the row values for the given column
-        const float* getRowValues(size_t j);
+        const float* getRowValues(size_t j) throw (CauldronIOException);
         /// \brief Gets an entire column; can be null if this map is not row-ordered (or throw an exception)
         /// \param [in] i row index
         /// \returns the column values for the given row
-        const float* getColumnValues(size_t i);
+        const float* getColumnValues(size_t i) throw (CauldronIOException);
         /// \returns pointer to entire data 
-        const float* getSurfaceValues();
+        const float* getSurfaceValues() throw (CauldronIOException);
         /// \brief Convenience function to get an index into the flat surface data 
         /// \param [in] i row index
         /// \param [in] j column index
@@ -752,11 +757,11 @@ namespace CauldronIO
         /// \param [in] constantValue
         void setConstantValue(float constantValue);
         /// \returns the constant value
-        float getConstantValue() const;
+        float getConstantValue() const throw (CauldronIOException);
         /// \param [in] i row index
         /// \param [in] j column index
         /// \returns true if grid coordinate is undefined
-        bool isUndefined(size_t i, size_t j) const;
+        bool isUndefined(size_t i, size_t j) const throw (CauldronIOException);
         /// \returns the undefined value
         float getUndefinedValue() const;
         /// \param [in] formation the formation to be associated with this map. Optional.
@@ -773,14 +778,15 @@ namespace CauldronIO
         float getMaxValue();
 
     private:
-        void updateMinMax();
+
+        void updateMinMax() throw (CauldronIOException);
+        void setData(float* data, bool setValue = false, float value = 0) throw (CauldronIOException);
 
         float* m_internalData;
         float m_constantValue;
         bool m_isConstant;
         bool m_updateMinMax;
         float m_minValue, m_maxValue;
-        void setData(float* data, bool setValue = false, float value = 0);
         std::shared_ptr<const Formation> m_formation;
         std::shared_ptr<const Reservoir> m_reservoir;
         std::shared_ptr<const Geometry2D> m_geometry;
@@ -810,13 +816,13 @@ namespace CauldronIO
         /// \brief get the list of property-volumeData pairs contained in this surface
         PropertyVolumeDataList& getPropertyVolumeDataList();
         //// \brief Removes a propertyvolume data from the list and disposes it        
-        void removeVolumeData(PropertyVolumeData& data);
+        void removeVolumeData(PropertyVolumeData& data) throw (CauldronIOException);
         /// \brief Add a property-surfaceData pair to the list
-        void addPropertyVolumeData(PropertyVolumeData& data);
+        void addPropertyVolumeData(PropertyVolumeData& data) throw (CauldronIOException);
         /// \brief Method to replace a PropertyVolumeData object by another one in the list
         /// \param[in] index Index in to the PropertyVolumeDataList
         /// \param[in] index data the new PropertyVolumeData for that element
-        void replaceAt(size_t index, PropertyVolumeData& data);
+        void replaceAt(size_t index, PropertyVolumeData& data) throw (CauldronIOException);
         /// \returns true if this surface has a depth surface
         bool hasDepthVolume() const;
         /// \returns the depth volume data; can be null
@@ -847,12 +853,12 @@ namespace CauldronIO
         /// \param [in] data a pointer to the data; it will be copied, no ownership is transferred
         /// \param [in] setValue if true, a constant value will be assigned to the data
         /// \param [in] value the value to assign to the data if setValue is true
-        void setData_KIJ(float* data, bool setValue = false, float value = 0);
+        void setData_KIJ(float* data, bool setValue = false, float value = 0) throw (CauldronIOException);
         /// \brief Assign data to the volume as a 1D array: I fastest, then J, then K
         /// \param [in] data a pointer to the data; it will be copied, no ownership is transferred
         /// \param [in] setValue if true, a constant value will be assigned to the data
         /// \param [in] value the value to assign to the data if setValue is true
-        void setData_IJK(float* data, bool setValue = false, float value = 0);
+        void setData_IJK(float* data, bool setValue = false, float value = 0) throw (CauldronIOException);
         /// \returns true if IJK data is present (false if not present or constant data)
         bool hasDataIJK() const;
         /// \returns true if KIJ data is present (false if not present or constant data)
@@ -861,7 +867,7 @@ namespace CauldronIO
         /// \param [in] j index in j-dimension
         /// \param [in] k index in k-dimension
         /// \returns if value is undefined
-        bool isUndefined(size_t i, size_t j, size_t k) const;
+        bool isUndefined(size_t i, size_t j, size_t k) const throw (CauldronIOException);
         /// \returns the undefined value
         float getUndefinedValue() const;
         /// \returns true if surface is constant
@@ -870,32 +876,32 @@ namespace CauldronIO
         /// \param [in] constantValue the value to assign to all data of this volume
         void setConstantValue(float constantValue);
         /// \returns the constant value
-        float getConstantValue() const;
+        float getConstantValue() const throw (CauldronIOException);
         /// \param [in] i index in i-dimension
         /// \param [in] j index in j-dimension
         /// \param [in] k index in k-dimension
         /// \returns the value at the specified grid coordinate
-        float getValue(size_t i, size_t j, size_t k) const;
+        float getValue(size_t i, size_t j, size_t k) const throw (CauldronIOException);
         /// \param [in] j index in j-dimension
         /// \param [in] k index in k-dimension
         /// \returns an entire row of data; can be null if this volume is not row-ordered (or throw an exception)
-        const float* getRowValues(size_t j, size_t k);
+        const float* getRowValues(size_t j, size_t k) throw (CauldronIOException);
         /// \param [in] i index in i-dimension
         /// \param [in] k index in k-dimension
         /// \returns an entire column of data; can be null if this volume is not row-ordered (or throw an exception)
-        const float* getColumnValues(size_t i, size_t k);
+        const float* getColumnValues(size_t i, size_t k) throw (CauldronIOException);
         /// \param [in] i index in i-dimension
         /// \param [in] j index in j-dimension
         /// \throws CauldronIOException
         /// \returns an entire needle of data; can be null if this volume is not needle-ordered (or throw an exception)
-        const float* getNeedleValues(size_t i, size_t j);
+        const float* getNeedleValues(size_t i, size_t j) throw (CauldronIOException);
         /// \param [in] k index in k-dimension
         /// \returns pointer to entire data for the surface at depth k; can be null if data is not stored per ij surface
-        const float* getSurface_IJ(size_t k);
+        const float* getSurface_IJ(size_t k) throw (CauldronIOException);
         /// \returns pointer to entire data: can be NULL
-        const float* getVolumeValues_IJK();
+        const float* getVolumeValues_IJK() throw (CauldronIOException);
         /// \returns pointer to entire data: can be NULL 
-        const float* getVolumeValues_KIJ();
+        const float* getVolumeValues_KIJ() throw (CauldronIOException);
 
         /// \brief Convenience function to get an index into the 1D volume data : indexing is through the full-k range, corresponding to the depth volume
         /// \param [in] i index in i-dimension
@@ -927,8 +933,10 @@ namespace CauldronIO
         virtual const std::vector < std::shared_ptr<HDFinfo> >& getHDFinfo() = 0;
 
     private:
-        void updateMinMax();
-        void setData(float* data, float** internalData, bool setValue = false, float value = 0);
+        
+        void updateMinMax() throw (CauldronIOException);
+        void setData(float* data, float** internalData, bool setValue = false, float value = 0) throw (CauldronIOException);
+        
         float* m_internalDataIJK;
         float* m_internalDataKIJ;
         float m_minValue, m_maxValue;
@@ -1114,4 +1122,11 @@ namespace CauldronIO
         double m_MassC6_14BP, m_MassC6_14SatS, m_MassC6_14AroS, m_Massresins, m_Massasphaltenes;
     };
 }
+
+
+#ifdef _MSC_VER
+#pragma warning (pop)
 #endif
+
+#endif
+

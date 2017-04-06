@@ -66,10 +66,10 @@ TEST( Utilities, CellCenterData )
 
 	const float* floatData = newVolData->getVolumeValues_IJK();
 
-	EXPECT_DOUBLE_EQ(floatData[0], 0.5f);
-	EXPECT_DOUBLE_EQ(floatData[1], 0.5f);
-	EXPECT_DOUBLE_EQ(floatData[2], 1.5f);
-	EXPECT_DOUBLE_EQ(floatData[3], 1.33333337f);
+	EXPECT_FLOAT_EQ(floatData[0], 0.5f);
+    EXPECT_FLOAT_EQ(floatData[1], 0.5f);
+    EXPECT_FLOAT_EQ(floatData[2], 1.5f);
+    EXPECT_FLOAT_EQ(floatData[3], 1.33333337f);
 
 	// create a map
 	std::shared_ptr<SurfaceData> surfData(new MapNative(geometry));
@@ -89,8 +89,8 @@ TEST( Utilities, CellCenterData )
 	EXPECT_EQ(newSurfData->getGeometry()->getNumJ(), numJ - 1);
 
 	floatData = newSurfData->getSurfaceValues();
-	EXPECT_DOUBLE_EQ(floatData[0], 1.50f);
-	EXPECT_DOUBLE_EQ(floatData[1], 2.50f);
+    EXPECT_FLOAT_EQ(floatData[0], 1.50f);
+    EXPECT_FLOAT_EQ(floatData[1], 2.50f);
 
 	// Create a formationVolume
 	std::shared_ptr<Geometry3D> geometry1(new Geometry3D(numI, numJ, numK, 0, 1.5, 2.5, 1.2, 3.2));
@@ -147,28 +147,28 @@ TEST( Utilities, CellCenterData )
 
 	// Check surfaces
 	floatData = mergedVolume->getSurface_IJ(0);
-	EXPECT_DOUBLE_EQ(floatData[0], 0.50f);
-	EXPECT_DOUBLE_EQ(floatData[1], 0.50f);
+    EXPECT_FLOAT_EQ(floatData[0], 0.50f);
+    EXPECT_FLOAT_EQ(floatData[1], 0.50f);
 
 	floatData = mergedVolume->getSurface_IJ(1);
-	EXPECT_DOUBLE_EQ(floatData[0], 1.f);
-	EXPECT_DOUBLE_EQ(floatData[1], 1.f);
+    EXPECT_FLOAT_EQ(floatData[0], 1.f);
+    EXPECT_FLOAT_EQ(floatData[1], 1.f);
 
 	floatData = mergedVolume->getSurface_IJ(2);
-	EXPECT_DOUBLE_EQ(floatData[0], 19.f/7.f);
-	EXPECT_DOUBLE_EQ(floatData[1], 19.f/7.f);
+    EXPECT_FLOAT_EQ(floatData[0], 19.f/7.f);
+    EXPECT_FLOAT_EQ(floatData[1], 19.f/7.f);
 
 	floatData = mergedVolume->getSurface_IJ(3);
-	EXPECT_DOUBLE_EQ(floatData[0], 3.f/7.f);
-	EXPECT_DOUBLE_EQ(floatData[1], 3.f/7.f);
+    EXPECT_FLOAT_EQ(floatData[0], 3.f/7.f);
+    EXPECT_FLOAT_EQ(floatData[1], 3.f/7.f);
 
 	floatData = mergedVolume->getSurface_IJ(4);
-	EXPECT_DOUBLE_EQ(floatData[0], 2.f/3.f);
-	EXPECT_DOUBLE_EQ(floatData[1], 0.50f);
+    EXPECT_FLOAT_EQ(floatData[0], 2.f/3.f);
+    EXPECT_FLOAT_EQ(floatData[1], 0.50f);
 
 	floatData = mergedVolume->getSurface_IJ(5);
-	EXPECT_DOUBLE_EQ(floatData[0], 1.5f);
-	EXPECT_DOUBLE_EQ(floatData[1], 1.5f);
+    EXPECT_FLOAT_EQ(floatData[0], 1.5f);
+    EXPECT_FLOAT_EQ(floatData[1], 1.5f);
 }
 
 TEST(Utilities, DoNotCellCenterDepth)

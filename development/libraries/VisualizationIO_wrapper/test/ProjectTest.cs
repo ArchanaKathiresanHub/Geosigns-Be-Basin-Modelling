@@ -386,6 +386,25 @@ namespace Shell.BasinModeling.CauldronIO.Test
                 snap.addTrapper(trapper);
                 Assert.AreEqual(trapperList.Count, 1);
             }
+
+            [TestMethod]
+            public void SnapShotNegativeAge()
+            {
+                double age = -2.5;
+                SnapShotKind kind = SnapShotKind.SYSTEM;
+                bool isMinorSnapShot = true;
+
+                // This should give an exception
+                try
+                {
+                    SnapShot snap = new SnapShot(age, kind, isMinorSnapShot);
+                    Assert.Fail();
+                }
+                catch (System.ApplicationException e)
+                {
+                    Assert.IsTrue(e.ToString().Contains("C++ CauldronIO::CauldronIOException exception thrown"));
+                }
+            }
         }
 
         [TestClass()]

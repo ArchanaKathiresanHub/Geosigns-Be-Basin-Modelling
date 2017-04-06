@@ -15,6 +15,11 @@
 #include <cstring>
 #include <boost/foreach.hpp>
 
+#ifdef _MSC_VER
+#pragma warning (push)
+#pragma warning (disable : 4290)
+#endif
+
 using namespace CauldronIO;
 using namespace std;
 
@@ -37,7 +42,8 @@ CauldronIO::Project::~Project()
     release();
 }
 
-void CauldronIO::Project::addSnapShot(std::shared_ptr<SnapShot>& newSnapShot)
+
+void CauldronIO::Project::addSnapShot(std::shared_ptr<SnapShot>& newSnapShot) throw (CauldronIOException)
 {
     if (!newSnapShot) throw CauldronIOException("Cannot add empty snapshot");
     
@@ -198,7 +204,8 @@ void CauldronIO::Project::addProperty(std::shared_ptr<const Property>& newProper
     m_propertyList.push_back(newProperty);
 }
 
-void CauldronIO::Project::addFormation(std::shared_ptr<Formation>& newFormation)
+
+void CauldronIO::Project::addFormation(std::shared_ptr<Formation>& newFormation) throw (CauldronIOException)
 {
     if (!newFormation) throw CauldronIOException("Cannot add empty formation");
 
@@ -209,7 +216,8 @@ void CauldronIO::Project::addFormation(std::shared_ptr<Formation>& newFormation)
     m_formationList.push_back(newFormation);
 }
 
-void CauldronIO::Project::addReservoir(std::shared_ptr<const Reservoir>& newReservoir)
+
+void CauldronIO::Project::addReservoir(std::shared_ptr<const Reservoir>& newReservoir) throw (CauldronIOException)
 {
     if (!newReservoir) throw CauldronIOException("Cannot add empty reservoir");
 
@@ -220,7 +228,8 @@ void CauldronIO::Project::addReservoir(std::shared_ptr<const Reservoir>& newRese
     m_reservoirList.push_back(newReservoir);
 }
 
-void CauldronIO::Project::addGeometry(const std::shared_ptr<const Geometry2D>& newGeometry)
+
+void CauldronIO::Project::addGeometry(const std::shared_ptr<const Geometry2D>& newGeometry) throw (CauldronIOException)
 {
     if (!newGeometry) throw CauldronIOException("Cannot add empty geometry");
 
@@ -231,7 +240,7 @@ void CauldronIO::Project::addGeometry(const std::shared_ptr<const Geometry2D>& n
     m_geometries.push_back(newGeometry);
 }
 
-size_t CauldronIO::Project::getGeometryIndex(const std::shared_ptr<const Geometry2D>& newGeometry, bool addWhenNotFound) 
+size_t CauldronIO::Project::getGeometryIndex(const std::shared_ptr<const Geometry2D>& newGeometry, bool addWhenNotFound) throw (CauldronIOException)
 {
     if (!newGeometry) throw CauldronIOException("Cannot find empty geometry");
 
@@ -279,7 +288,7 @@ void CauldronIO::Project::release()
 /// SnapShot implementation
 //////////////////////////////////////////////////////////////////////////
 
-CauldronIO::SnapShot::SnapShot(double age, SnapShotKind kind, bool isMinorShapshot)
+CauldronIO::SnapShot::SnapShot(double age, SnapShotKind kind, bool isMinorShapshot) throw (CauldronIOException)
 {
     if (age < 0) throw CauldronIO::CauldronIOException("SnapShot age cannot be negative");
     m_age = age;
@@ -301,7 +310,7 @@ void CauldronIO::SnapShot::setVolume(std::shared_ptr<Volume>& volume)
     m_volume = volume;
 }
 
-void CauldronIO::SnapShot::addSurface(std::shared_ptr<Surface>& newSurface)
+void CauldronIO::SnapShot::addSurface(std::shared_ptr<Surface>& newSurface) throw (CauldronIOException)
 {
     if (!newSurface) throw CauldronIOException("Cannot add empty surface");
 
@@ -312,7 +321,7 @@ void CauldronIO::SnapShot::addSurface(std::shared_ptr<Surface>& newSurface)
     m_surfaceList.push_back(newSurface);
 }
 
-void CauldronIO::SnapShot::addFormationVolume(FormationVolume& formVolume)
+void CauldronIO::SnapShot::addFormationVolume(FormationVolume& formVolume) throw (CauldronIOException)
 {
     // Check if volume exists
     BOOST_FOREACH(FormationVolume& volume, m_formationVolumeList)
@@ -322,7 +331,7 @@ void CauldronIO::SnapShot::addFormationVolume(FormationVolume& formVolume)
 }
 
 
-void CauldronIO::SnapShot::addTrapper(std::shared_ptr<Trapper>& newTrapper)
+void CauldronIO::SnapShot::addTrapper(std::shared_ptr<Trapper>& newTrapper) throw (CauldronIOException)
 {
     if (!newTrapper) throw CauldronIOException("Cannot add empty trapper");
 
@@ -429,7 +438,7 @@ void CauldronIO::SnapShot::release()
 /// Property implementation
 //////////////////////////////////////////////////////////////////////////
 
-CauldronIO::Property::Property(const string& name, const string& username, const string& cauldronName, const string& unit, PropertyType type, PropertyAttribute attrib)
+CauldronIO::Property::Property(const string& name, const string& username, const string& cauldronName, const string& unit, PropertyType type, PropertyAttribute attrib) throw (CauldronIOException)
 {
     if (name.empty()) throw CauldronIOException("Property name cannot be empty");
     if (username.empty()) throw CauldronIOException("User name cannot be empty");
@@ -488,7 +497,7 @@ bool CauldronIO::Property::operator==(const Property& other) const
 /// Formation
 //////////////////////////////////////////////////////////////////////////
 
-CauldronIO::Formation::Formation(int kStart, int kEnd, const string& name)
+CauldronIO::Formation::Formation(int kStart, int kEnd, const string& name) throw (CauldronIOException)
 {
     if (name.empty()) throw CauldronIOException("Formation name cannot be empty");
     
@@ -598,7 +607,7 @@ void CauldronIO::Formation::setThicknessMap(PropertySurfaceData& thicknessMap)
     }
 }
 
-const CauldronIO::PropertySurfaceData& CauldronIO::Formation::getThicknessMap() const
+const CauldronIO::PropertySurfaceData& CauldronIO::Formation::getThicknessMap() const throw (CauldronIOException)
 {
     if (!hasThicknessMap()) throw CauldronIOException("No thickness map present in this formation");
     return m_propSurfaceList.at(m_thicknessMap_index);
@@ -624,7 +633,7 @@ void CauldronIO::Formation::setSourceRockMixingHIMap(PropertySurfaceData& map)
     }
 }
 
-const CauldronIO::PropertySurfaceData& CauldronIO::Formation::getSourceRockMixingHIMap() const
+const CauldronIO::PropertySurfaceData& CauldronIO::Formation::getSourceRockMixingHIMap() const throw (CauldronIOException)
 {
     if (!hasSourceRockMixingHIMap()) throw CauldronIOException("No sourcerock mixingHI map present in this formation");
     return m_propSurfaceList.at(m_mixingHI_index);
@@ -861,19 +870,19 @@ void CauldronIO::Formation::setLithoType3PercentageMap(PropertySurfaceData& map)
     }
 }
 
-const CauldronIO::PropertySurfaceData& CauldronIO::Formation::getLithoType1PercentageMap() const
+const CauldronIO::PropertySurfaceData& CauldronIO::Formation::getLithoType1PercentageMap() const throw (CauldronIOException)
 {
     if (!hasLithoType1PercentageMap()) throw CauldronIOException("No lithotype percentage1 map present in this formation");
     return m_propSurfaceList.at(m_lithPerc1_index);
 }
 
-const CauldronIO::PropertySurfaceData& CauldronIO::Formation::getLithoType2PercentageMap() const
+const CauldronIO::PropertySurfaceData& CauldronIO::Formation::getLithoType2PercentageMap() const throw (CauldronIOException)
 {
     if (!hasLithoType2PercentageMap()) throw CauldronIOException("No lithotype percentage2 map present in this formation");
     return m_propSurfaceList.at(m_lithPerc2_index);
 }
 
-const CauldronIO::PropertySurfaceData& CauldronIO::Formation::getLithoType3PercentageMap() const
+const CauldronIO::PropertySurfaceData& CauldronIO::Formation::getLithoType3PercentageMap() const throw (CauldronIOException)
 {
     if (!hasLithoType3PercentageMap()) throw CauldronIOException("No lithotype percentage3 map present in this formation");
     return m_propSurfaceList.at(m_lithPerc3_index);
@@ -967,7 +976,7 @@ const PropertySurfaceDataList& CauldronIO::Surface::getPropertySurfaceDataList()
 }
 
 
-void CauldronIO::Surface::replaceAt(size_t index, PropertySurfaceData& data)
+void CauldronIO::Surface::replaceAt(size_t index, PropertySurfaceData& data) throw (CauldronIOException)
 {
     if (index > m_propSurfaceList.size()) throw CauldronIOException("Index outside bounds in replaceAt");
     
@@ -978,7 +987,7 @@ void CauldronIO::Surface::replaceAt(size_t index, PropertySurfaceData& data)
     m_propSurfaceList.at(index) = data;
 }
 
-void CauldronIO::Surface::addPropertySurfaceData(PropertySurfaceData& newData)
+void CauldronIO::Surface::addPropertySurfaceData(PropertySurfaceData& newData) throw (CauldronIOException)
 {
     BOOST_FOREACH(PropertySurfaceData& data, m_propSurfaceList)
         if (data == newData) throw CauldronIOException("Cannot add property-surfaceData twice");
@@ -1265,12 +1274,12 @@ const std::shared_ptr<const Geometry2D>& CauldronIO::SurfaceData::getGeometry() 
     return m_geometry;
 }
 
-void CauldronIO::SurfaceData::setData_IJ(float* data)
+void CauldronIO::SurfaceData::setData_IJ(float* data) throw (CauldronIOException)
 {
     setData(data);
 }
 
-void CauldronIO::SurfaceData::setData(float* data, bool setValue, float value)
+void CauldronIO::SurfaceData::setData(float* data, bool setValue, float value) throw (CauldronIOException)
 {
     // If our data buffer exists, we will just reuse it. Otherwise, allocate
     if (!m_internalData)
@@ -1302,7 +1311,7 @@ void CauldronIO::SurfaceData::setData(float* data, bool setValue, float value)
 }
 
 
-void CauldronIO::SurfaceData::updateMinMax()
+void CauldronIO::SurfaceData::updateMinMax() throw (CauldronIOException)
 {
     if (!isRetrieved()) throw CauldronIOException("Need to assign data first");
 
@@ -1353,7 +1362,7 @@ bool CauldronIO::SurfaceData::canGetColumn() const
     return false;
 }
 
-bool CauldronIO::SurfaceData::isUndefined(size_t i, size_t j) const
+bool CauldronIO::SurfaceData::isUndefined(size_t i, size_t j) const throw (CauldronIOException)
 {
     if (!isRetrieved()) throw CauldronIOException("Need to assign data first");
     if (m_isConstant) return m_constantValue == DefaultUndefinedValue;
@@ -1361,7 +1370,7 @@ bool CauldronIO::SurfaceData::isUndefined(size_t i, size_t j) const
     return m_internalData[getMapIndex(i, j)] == DefaultUndefinedValue;
 }
 
-float CauldronIO::SurfaceData::getValue(size_t i, size_t j) const
+float CauldronIO::SurfaceData::getValue(size_t i, size_t j) const throw (CauldronIOException)
 {
     if (!isRetrieved()) throw CauldronIOException("Need to assign data first");
     if (m_isConstant) return m_constantValue;
@@ -1369,7 +1378,7 @@ float CauldronIO::SurfaceData::getValue(size_t i, size_t j) const
     return m_internalData[getMapIndex(i, j)];
 }
 
-const float* CauldronIO::SurfaceData::getRowValues(size_t j)
+const float* CauldronIO::SurfaceData::getRowValues(size_t j) throw (CauldronIOException)
 {
     if (!canGetRow()) throw CauldronIOException("Cannot return row values");
     if (!isRetrieved()) throw CauldronIOException("Need to assign data first");
@@ -1380,7 +1389,7 @@ const float* CauldronIO::SurfaceData::getRowValues(size_t j)
     return m_internalData + getMapIndex(0, j);
 }
 
-const float* CauldronIO::SurfaceData::getColumnValues(size_t i)
+const float* CauldronIO::SurfaceData::getColumnValues(size_t i) throw (CauldronIOException)
 {
     if (!isRetrieved()) throw CauldronIOException("Need to assign data first");
     if (!canGetColumn()) throw CauldronIOException("Cannot return column values");
@@ -1391,7 +1400,7 @@ const float* CauldronIO::SurfaceData::getColumnValues(size_t i)
     return m_internalData + getMapIndex(i, 0);
 }
 
-const float* CauldronIO::SurfaceData::getSurfaceValues()
+const float* CauldronIO::SurfaceData::getSurfaceValues() throw (CauldronIOException)
 {
     if (!isRetrieved()) throw CauldronIOException("Need to assign data first");
 
@@ -1419,7 +1428,7 @@ bool CauldronIO::SurfaceData::isRetrieved() const
     return m_retrieved;
 }
 
-float CauldronIO::SurfaceData::getConstantValue() const
+float CauldronIO::SurfaceData::getConstantValue() const throw (CauldronIOException)
 {
     if (!isConstant()) throw CauldronIOException("Map does not have a constant value");
     return m_constantValue;
@@ -1448,7 +1457,7 @@ PropertyVolumeDataList& CauldronIO::Volume::getPropertyVolumeDataList()
     return m_propVolumeList;
 }
 
-void CauldronIO::Volume::removeVolumeData(PropertyVolumeData& data)
+void CauldronIO::Volume::removeVolumeData(PropertyVolumeData& data) throw (CauldronIOException)
 {
     for (size_t index = 0; index < m_propVolumeList.size(); index++)
     {
@@ -1469,7 +1478,7 @@ void CauldronIO::Volume::removeVolumeData(PropertyVolumeData& data)
     throw CauldronIOException("Cannot find data to remove");
 }
 
-void CauldronIO::Volume::addPropertyVolumeData(PropertyVolumeData& newData)
+void CauldronIO::Volume::addPropertyVolumeData(PropertyVolumeData& newData) throw (CauldronIOException)
 {
     BOOST_FOREACH(PropertyVolumeData& data, m_propVolumeList)
         if (data == newData) throw CauldronIOException("Cannot add property-volumeData twice");
@@ -1478,7 +1487,7 @@ void CauldronIO::Volume::addPropertyVolumeData(PropertyVolumeData& newData)
 }
 
 
-void CauldronIO::Volume::replaceAt(size_t index, PropertyVolumeData& data)
+void CauldronIO::Volume::replaceAt(size_t index, PropertyVolumeData& data) throw (CauldronIOException)
 {
     if (index > m_propVolumeList.size()) throw CauldronIOException("Index outside bounds in replaceAt");
 
@@ -1749,7 +1758,7 @@ const std::shared_ptr<Geometry3D>& CauldronIO::VolumeData::getGeometry() const
     return m_geometry;
 }
 
-bool CauldronIO::VolumeData::isUndefined(size_t i, size_t j, size_t k) const
+bool CauldronIO::VolumeData::isUndefined(size_t i, size_t j, size_t k) const throw (CauldronIOException)
 {
     if (!isRetrieved()) throw CauldronIOException("Need to assign data first");
     if (m_isConstant) return m_constantValue == DefaultUndefinedValue;
@@ -1760,7 +1769,7 @@ bool CauldronIO::VolumeData::isUndefined(size_t i, size_t j, size_t k) const
 }
 
 
-float CauldronIO::VolumeData::getValue(size_t i, size_t j, size_t k) const
+float CauldronIO::VolumeData::getValue(size_t i, size_t j, size_t k) const throw (CauldronIOException)
 {
     if (!isRetrieved()) throw CauldronIOException("Need to assign data first");
     if (m_isConstant) return m_constantValue;
@@ -1770,7 +1779,7 @@ float CauldronIO::VolumeData::getValue(size_t i, size_t j, size_t k) const
     return m_internalDataKIJ[computeIndex_KIJ(i, j, k)];
 }
 
-const float* CauldronIO::VolumeData::getRowValues(size_t j, size_t k)
+const float* CauldronIO::VolumeData::getRowValues(size_t j, size_t k) throw (CauldronIOException)
 {
     if (!isRetrieved()) throw CauldronIOException("Need to assign data first");
     if (!hasDataIJK()) throw CauldronIOException("Cannot return row values");
@@ -1783,12 +1792,12 @@ const float* CauldronIO::VolumeData::getRowValues(size_t j, size_t k)
     return m_internalDataIJK + computeIndex_IJK(0, j, k);
 }
 
-const float* CauldronIO::VolumeData::getColumnValues(size_t , size_t )
+const float* CauldronIO::VolumeData::getColumnValues(size_t , size_t ) throw (CauldronIOException)
 {
     throw CauldronIOException("Not implemented");
 }
 
-const float* CauldronIO::VolumeData::getNeedleValues(size_t i, size_t j)
+const float* CauldronIO::VolumeData::getNeedleValues(size_t i, size_t j) throw (CauldronIOException)
 {
     if (!isRetrieved()) throw CauldronIOException("Need to assign data first");
     if (!hasDataKIJ() || isConstant()) throw CauldronIOException("Cannot return needle values");
@@ -1799,7 +1808,7 @@ const float* CauldronIO::VolumeData::getNeedleValues(size_t i, size_t j)
     return m_internalDataKIJ + computeIndex_KIJ(i, j, m_firstK);
 }
 
-const float* CauldronIO::VolumeData::getSurface_IJ(size_t k)
+const float* CauldronIO::VolumeData::getSurface_IJ(size_t k) throw (CauldronIOException)
 {
     if (!isRetrieved()) throw CauldronIOException("Need to assign data first");
     if (!hasDataIJK() || isConstant()) throw CauldronIOException("Cannot return surface values");
@@ -1810,7 +1819,7 @@ const float* CauldronIO::VolumeData::getSurface_IJ(size_t k)
     return m_internalDataIJK + computeIndex_IJK(0, 0, k);
 }
 
-const float* CauldronIO::VolumeData::getVolumeValues_KIJ()
+const float* CauldronIO::VolumeData::getVolumeValues_KIJ() throw (CauldronIOException)
 {
     if (!isRetrieved()) throw CauldronIOException("Need to assign data first");
     if (!hasDataKIJ() || isConstant()) throw CauldronIOException("Cannot return volume values");
@@ -1821,7 +1830,7 @@ const float* CauldronIO::VolumeData::getVolumeValues_KIJ()
     return m_internalDataKIJ;
 }
 
-const float* CauldronIO::VolumeData::getVolumeValues_IJK()
+const float* CauldronIO::VolumeData::getVolumeValues_IJK() throw (CauldronIOException)
 {
     if (!isRetrieved()) throw CauldronIOException("Need to assign data first");
     if (!hasDataIJK() || isConstant()) throw CauldronIOException("Cannot return volume values");
@@ -1832,12 +1841,12 @@ const float* CauldronIO::VolumeData::getVolumeValues_IJK()
     return m_internalDataIJK;
 }
 
-void CauldronIO::VolumeData::setData_KIJ(float* data, bool setValue /*= false*/, float value /*= 0*/)
+void CauldronIO::VolumeData::setData_KIJ(float* data, bool setValue /*= false*/, float value /*= 0*/) throw (CauldronIOException)
 {
     setData(data, &m_internalDataKIJ, setValue, value);
 }
 
-void CauldronIO::VolumeData::setData_IJK(float* data, bool setValue /*= false*/, float value /*= 0*/)
+void CauldronIO::VolumeData::setData_IJK(float* data, bool setValue /*= false*/, float value /*= 0*/) throw (CauldronIOException)
 {
     setData(data, &m_internalDataIJK, setValue, value);
 }
@@ -1860,7 +1869,7 @@ void CauldronIO::VolumeData::updateGeometry()
 }
 
 
-void CauldronIO::VolumeData::updateMinMax()
+void CauldronIO::VolumeData::updateMinMax() throw (CauldronIOException)
 {
 
     if (!isRetrieved()) throw CauldronIOException("Need to assign data first");
@@ -1892,7 +1901,7 @@ void CauldronIO::VolumeData::updateMinMax()
     m_updateMinMax = false;
 }
 
-void CauldronIO::VolumeData::setData(float* data, float** internalData, bool setValue /*= false*/, float value /*= 0*/)
+void CauldronIO::VolumeData::setData(float* data, float** internalData, bool setValue /*= false*/, float value /*= 0*/) throw (CauldronIOException)
 {
     // If our data buffer exists, we will just reuse it. Otherwise, allocate
     if (!*internalData)
@@ -1951,18 +1960,12 @@ float CauldronIO::VolumeData::getMaxValue()
     return m_maxValue;
 }
 
-float CauldronIO::VolumeData::getConstantValue() const
+float CauldronIO::VolumeData::getConstantValue() const throw (CauldronIOException)
 {
     if (!isConstant())  throw CauldronIOException("Map does not have a constant value");
     return m_constantValue;
 }
 
-
-void CauldronIO::VolumeData::retrieve()
-{
-    if (m_retrieved) return;
-    throw CauldronIOException("Not implemented");
-}
 
 bool CauldronIO::VolumeData::isRetrieved() const
 {
@@ -2406,3 +2409,8 @@ void CauldronIO::MigrationEvent::setMassasphaltenes(double val)
 {
     m_Massasphaltenes = val;
 }
+
+#ifdef _MSC_VER
+#pragma warning (pop)
+#endif
+
