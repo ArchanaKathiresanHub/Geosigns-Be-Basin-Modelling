@@ -604,6 +604,28 @@ namespace migration
       return isOnBoundary;
    }
 
+   bool Formation::isShallowerThanNeighbour (const FormationNode * formationNode, const int neighbourI, const int neighbourJ) const
+   {
+      const double nodeDepth = getPropertyValue (DEPTHPROPERTY, formationNode->getI (), formationNode->getJ (), formationNode->getK () + 1);
+      const double neighbourDepth = getPropertyValue (DEPTHPROPERTY, neighbourI, neighbourJ, formationNode->getK () + 1);
+
+      if (neighbourDepth == m_formationPropertyPtr[DEPTHPROPERTY]->getUndefinedValue() or neighbourDepth < nodeDepth)
+         return false;
+
+      if (neighbourDepth == nodeDepth)
+      {
+         if (formationNode->getI () + formationNode->getJ () > neighbourI + neighbourJ) return true;
+         if (formationNode->getI () + formationNode->getJ () < neighbourI + neighbourJ) return false;
+
+         if (formationNode->getI () > neighbourI) return true;
+         if (formationNode->getI () < neighbourI) return false;
+         if (formationNode->getJ () > neighbourJ) return true;
+         if (formationNode->getJ () < neighbourJ) return false;
+      }
+
+      return true;
+   }
+
    bool Formation::computeTargetFormationNodes (Formation * targetFormation)
    {
       targetFormation->setEndOfPath (); // The path has to stop somewhere if nowhere else

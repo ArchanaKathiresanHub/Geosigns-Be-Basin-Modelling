@@ -161,6 +161,7 @@ namespace migration
       int getIndex (void);
 
       bool isOnBoundary (FormationNode *);
+      bool isShallowerThanNeighbour (const FormationNode *, const int, const int) const;
 
       SurfaceGridMap getTopSurfaceGridMap (const DataAccess::Interface::Property* prop, const DataAccess::Interface::Snapshot* snapshot) const;
 

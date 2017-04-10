@@ -934,7 +934,6 @@ namespace migration
    // Check if the node is a crest node for the phaseId, similarly to what is done in Reservoir::getAdjacentColumn
    bool LocalFormationNode::detectReservoirCrests (PhaseId phase)
    {
-
       // if the node can not gas or oil, skip the calculations
       if (phase == GAS and !getReservoirVapour ())
       {
@@ -959,21 +958,37 @@ namespace migration
 
       //Calculations performed as in Reservoir::getAdjacentColumn. m_isCrestGas and m_isCrestOil are set true in the constructor. 
       //if the neighbours nodes are zero thickness nodes does not matter, the highest depth is always taken
-      int top = m_formation->getGridMapDepth () - 1;
+      int top = m_formation->getNodeDepth () - 1;
 
       for (int n = 0; n < NumNeighbours; ++n)
       {
-         FormationNode * neighbourNode = m_formation->getFormationNode (getI () + NeighbourOffsets2D[n][I], getJ () + NeighbourOffsets2D[n][J], top);
+         int neighbourI = getI () + NeighbourOffsets2D[n][I];
+         int neighbourJ = getJ () + NeighbourOffsets2D[n][J];
+         FormationNode * neighbourNode = m_formation->getFormationNode (neighbourI, neighbourJ, top);
 
          if (!IsValid (neighbourNode))
          {
-            // node lies on the edge, can not be a trap crest
-            if (phase == GAS)
-               m_isCrestVapour = false;
+            // If the neighbourNode object (i.e. element) is invalid we are checking whether the top node
+            // corresponding to that element is valid and deeper than that of the candidate crest element
+            if (m_formation->isShallowerThanNeighbour(this, neighbourI, neighbourJ))
+            {
+               continue;
+            }
             else
-               m_isCrestLiquid = false;
-            return false;
+            {
+               // neighbour corner node either undefined (genuine edge case)
+               // or at a smaller depth than corner node of 'this' element
+               if (phase == GAS)
+                  m_isCrestVapour = false;
+               else
+                  m_isCrestLiquid = false;
+               return false;
+            }
          }
+         
+         // Account for pinch-out traps
+         if (neighbourNode->hasNoThickness())
+            continue;
 
          bool isSealingNeighbourNode = false;
 
