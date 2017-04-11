@@ -23,6 +23,8 @@ namespace Shell.BasinModeling.Project3dAPI.Test
    [TestClass()]
    public partial class Project3dAPITests
    {
+      private string m_projFileName = @"..\..\..\Reference.project3d";
+
       [TestMethod]
       public void CheckCSharpExceptions()
       {
@@ -46,7 +48,7 @@ namespace Shell.BasinModeling.Project3dAPI.Test
          bool exceptionThrown = false;
          try
          {
-            ProjectIoAPI api = new ProjectIoAPI( "..\\..\\..\\Reference.project3d" );
+            ProjectIoAPI api = new ProjectIoAPI( m_projFileName );
             Assert.AreEqual( api.saveToProjectFile( "Reference_csharpbmapi.project3d" ), true );
          }
          catch ( System.Exception ex )
@@ -55,6 +57,26 @@ namespace Shell.BasinModeling.Project3dAPI.Test
             exceptionThrown = true;
          }
          Assert.IsFalse( exceptionThrown );
+      }
+
+      [TestMethod]
+      public void CauldronSchemaAPICopyConstructor()
+      {
+         ProjectIoAPI proj1 = new ProjectIoAPI( m_projFileName );
+         ProjectIoAPI proj2 = new ProjectIoAPI( proj1 );
+
+         Assert.AreEqual( proj1.Equals( proj2 ), true );
+      }
+
+      [TestMethod]
+      public void CauldronSchemaAPIAssignOperator()
+      {
+         ProjectIoAPI proj1 = new ProjectIoAPI( m_projFileName );
+         ProjectIoAPI proj2 = new ProjectIoAPI();
+
+         proj2.Assign( proj1 );
+
+         Assert.AreEqual( proj1.Equals( proj2 ), true );
       }
 
       [TestMethod]

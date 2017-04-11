@@ -1,4 +1,4 @@
-#include "cauldronschemaAPI.h"
+#include "bmAPI.h"
 
 #include <gtest/gtest.h>
 
@@ -19,12 +19,32 @@ TEST ( TableIoDataBaseTest, CauldronSchemaAPIComparisonOperator )
    ASSERT_EQ( proj1 == proj2, false );
 } 
 
+TEST ( TableIoDataBaseTest, CauldronSchemaAPICopyConstructor )
+{
+   bmapi::ProjectIoAPI proj1( "Reference.project3d" );
+   bmapi::ProjectIoAPI proj2( proj1 );
+
+   ASSERT_EQ( proj1, proj2 );
+} 
+
+TEST ( TableIoDataBaseTest, CauldronSchemaAPIAssignOperator )
+{
+   bmapi::ProjectIoAPI proj1( "Reference.project3d" );
+   bmapi::ProjectIoAPI proj2;
+
+   proj2 = proj1;
+
+   ASSERT_EQ( proj1, proj2 );
+} 
+
+
+
 #include "CauldronSchemaAPITest.h"
 
 TEST ( TableIoDataBaseTest, CauldronSchemaAPIFromScratchTest )
 {
    bmapi::ProjectIoAPI ph;
-   bmapi::RecNumber id;
+   size_t id;
    
    FillAllTables( ph );
 

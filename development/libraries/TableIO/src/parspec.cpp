@@ -319,7 +319,12 @@ void ParseSpecFile( const string & specFile )
    }
 }
 
-#define API_UNIT_TEST
+static const string ident = {"   "};
+static const string ident2 = ident  + ident;
+static const string ident3 = ident2 + ident;
+
+
+// #define API_UNIT_TEST
 #ifdef _WIN32
 static const std::string accObj = ".";
 static const std::string accCls = ".";
@@ -328,198 +333,227 @@ static const std::string accObj = "->";
 static const std::string accCls = "::";
 #endif
 
-void GenerateCMBAPI( const string & schemaName, const string & schemaDir, bool verbose )
+static const char * cppFieldType( const string & fieldName, bool getType = true )
 {
-   // construct output file names
-   // convert file names to low case
-   string lowCaseSchemaName = schemaName;
-   transform( lowCaseSchemaName.begin(), lowCaseSchemaName.end(), lowCaseSchemaName.begin(), ::tolower );
+   const string & fieldType = FieldTypes[ fieldName ];
+   if(       fieldType == "Int"                ) { return "int"; }
+   else if ( fieldType == "Double"             ) { return "double"; }
+   else if ( fieldType == "String" &&  getType ) { return "std::string"; }
+   else if ( fieldType == "String" && !getType ) { return "const std::string &"; }
+   
+   throw runtime_error( string( "Unknown column Type " ) + fieldType );
+}
 
-   string sourceFile  = schemaDir + lowCaseSchemaName + "API.cpp";
-   string headerFile  = schemaDir + lowCaseSchemaName + "API.h";
-
-   // open all the output files required
-   ofstream sourceOut( sourceFile.c_str(), ios::out );
-   if ( sourceOut.fail() ) { throw runtime_error( "Error occurred during opening output file " + sourceFile ); }
+void generateBMAPI_TblHeader( const string & schemaDir, const string & tableName )
+{
+   string headerFile = schemaDir + "Table" + tableName + ".h";
 
    ofstream headerOut( headerFile.c_str(), ios::out );
    if ( headerOut.fail() ) { throw runtime_error( "Error occurred during opening output file " + headerFile ); }
 
    // Header file generation
-   headerOut << 
-R"(
-#include <vector>
-#include <string>
-#include <exception>  
+   headerOut << "#ifndef TABLE_" << tableName << "_H\n";
+   headerOut << "#define TABLE_" << tableName << "_H\n\n";
+   headerOut << "#include <vector>\n";
+   headerOut << "#include <string>\n\n";
+   headerOut << "namespace database\n";
+   headerOut << "{\n";
+   headerOut << ident << "class ProjectFileHandler;\n";
+   headerOut << ident << "class Table;\n";
+   headerOut << "}\n\n";
 
-namespace database
-{
-   class ProjectFileHandler;
-   class Table;
+   headerOut << "namespace bmapi\n";
+   headerOut << "{\n";
+   
+   // Declare class and auxillary Record structure for the current table
+   headerOut << ident << "// " << TableDescriptions[ tableName ] << "\n";
+   headerOut << ident << "class Table" << tableName << "\n";
+   headerOut << ident << "{\n";
+   headerOut << ident << "public:\n";
+   headerOut << ident << ident << "struct Record\n";
+   headerOut << ident << ident << "{\n";
+
+   for ( auto fieldName : TableFields[ tableName ] )
+   {
+      headerOut << ident << ident << ident << cppFieldType( fieldName ) << " m_" << fieldName << "; // " << FieldDescriptions[ fieldName ] << "\n";
+   }
+   headerOut << ident3 << "Record();    // default constructor. Initializes structure with default field values\n";
+   headerOut << ident3 << "Record( const Record & rec ); // copy constructor\n";
+   headerOut << ident3 << "~Record() {} // default destructor.\n\n";
+   headerOut << ident3 << "bool     operator == ( const Record & rec ) const;\n";
+   headerOut << ident3 << "Record & operator  = ( const Record & rec ); // assign operator\n";
+   headerOut << ident2 << "};\n\n";
+   
+   headerOut << ident2 << "Table"  << tableName << "( database::Table * tbl );\n";
+   headerOut << ident2 << "Table"  << tableName << "( const Table" << tableName << " & tbl ); // copy constructor\n";
+   headerOut << ident2 << "~Table" << tableName << "();\n\n";
+   headerOut << ident2 << "bool operator == ( const Table" << tableName << " & tbl ) const;\n\n";
+   headerOut << ident2 << "Table" << tableName << " & operator = ( const Table" << tableName << " & tbl );\n\n";
+   headerOut << ident2 << "size_t addRecord( const Record & rec );\n";
+   headerOut << ident2 << "Record getRecord( size_t rec );\n\n";
+   headerOut << ident2 << "size_t size() const { return m_recordList.size(); }\n";
+   headerOut << ident2 << "std::vector<Record>::const_iterator begin() const { return m_recordList.begin(); }\n";
+   headerOut << ident2 << "std::vector<Record>::const_iterator end()   const { return m_recordList.end(); }\n\n";
+
+   for ( auto fieldName : TableFields[ tableName ] )
+   {
+      headerOut << ident2 << cppFieldType( fieldName ) << " get" << fieldName << "( size_t id ) const;\n";
+      headerOut << ident2 << "void set" << fieldName << "( size_t id, " << cppFieldType( fieldName, false ) << " val );\n\n";
+   }
+   headerOut << ident << "protected:\n";
+   headerOut << ident2 << "std::vector<Record> m_recordList;\n";
+   headerOut << ident << "};\n\n";
+   headerOut << "} // namespace bmapi\n";
+   headerOut << "#endif // TABLE_" << tableName << "_H\n";
 }
 
-namespace bmapi
+void generateBMAPI_TblSource( const string & schemaDir, const string & tableName )
 {
-   typedef size_t RecNumber;
-)";
-   sourceOut << "#include \"" << lowCaseSchemaName + "API.h\"\n";
-   sourceOut << "#include \"cauldronschemafuncs.h\"\n\n";
-   sourceOut << "#include \"ProjectFileHandler.h\"\n\n";
+   string sourceFile = schemaDir + "Table" + tableName + ".cpp";
 
+   ofstream sourceOut( sourceFile.c_str(), ios::out );
+   if ( sourceOut.fail() ) { throw runtime_error( "Error occurred during opening output file " + sourceFile ); }
+
+   sourceOut << "#include \"cauldronschemafuncs.h\"\n\n";
+   sourceOut << "#include \"Table"<< tableName << ".h\"\n\n";
+   sourceOut << "#include <exception>\n\n";
 #ifdef API_UNIT_TEST
    sourceOut << "#include <iostream>\n";
    sourceOut << "#include <iomanip>\n";
 #endif
-
    sourceOut << "namespace bmapi\n{\n";
-   
-   for ( auto tableName : TableList )
-   {
-      // Declare class and auxillary Record structure for the current table
-      headerOut << "   // " << TableDescriptions[ tableName ] << "\n";
-      headerOut << "   class Table" << tableName << "\n";
-      headerOut << "   {\n";
-      headerOut << "   public:\n";
-      headerOut << "      struct Record\n";
-      headerOut << "      {\n";
-      for ( auto fieldName : TableFields[ tableName ] )
-      {
-         const string & fieldType = FieldTypes[ fieldName ];
-         if(       fieldType == "Int"    ) { headerOut << "         int          "; }
-         else if ( fieldType == "Double" ) { headerOut << "         double       "; }
-         else if ( fieldType == "String" ) { headerOut << "         std::string  "; }
-         else { throw runtime_error( string( "Unknown column Type " ) + fieldType ); }
-         string fieldDescr = FieldDescriptions[ fieldName ];
-         headerOut << "m_" << fieldName << "; // " << fieldDescr << "\n";
-      }
-      headerOut << "\n         Record();    // default constructor. Initializes structure with default field values\n";
-      headerOut << "\n         ~Record(){;} // default destructor.\n";
-      headerOut << "         bool operator == ( const Record & rec ) const;\n";
-      headerOut << "      };\n\n";
-
-      headerOut << "      Table" << tableName << "( database::Table * tbl );\n";
-      headerOut << "      ~Table" << tableName << "();\n\n";
-      headerOut << "      bool operator == ( const Table" << tableName << " & tbl ) const;\n\n";
-      headerOut << "      RecNumber  addRecord(  const Record & rec );\n";
-      headerOut << "      Record getRecord( RecNumber rec );\n\n";
-      headerOut << "      size_t size() const { return m_recordList.size(); }\n";
-      headerOut << "      std::vector<Record>::const_iterator begin() const { return m_recordList.begin(); }\n";
-      headerOut << "      std::vector<Record>::const_iterator end()   const { return m_recordList.end(); }\n\n";
-
-      for ( auto fieldName : TableFields[ tableName ] )
-      {
-         const string & fieldType = FieldTypes[ fieldName ];
-         string fieldGetType;
-         string fieldSetType;
-         if(       fieldType == "Int"    ) { fieldSetType = fieldGetType = "int"; }
-         else if ( fieldType == "Double" ) { fieldSetType = fieldGetType = "double"; }
-         else if ( fieldType == "String" ) { fieldGetType = "std::string"; fieldSetType = "const " + fieldGetType + " & "; }
-         else { throw runtime_error( string( "Unknown column Type " ) + fieldType ); }
-
-         headerOut << "      " << fieldGetType << " get" << fieldName << "( RecNumber id ) const;\n";
-         headerOut << "      void set" << fieldName << "( RecNumber id, " << fieldSetType << " val );\n\n";
-      }
-      headerOut << "   protected:\n";
-      headerOut << "      std::vector<Record> m_recordList;\n";
-      headerOut << "   };\n\n";
-
-      // Create default constructor for Record
-      sourceOut << "   Table" << tableName << "::Record::Record()\n";
-      sourceOut << "   {\n";
-      for ( auto fieldName : TableFields[ tableName ] )
-      {     
-         const string & defVal  = FieldDefaults[ fieldName ];
-         const string & valType = FieldTypes[    fieldName ];
-         const string & valUnit = FieldUnits[    fieldName ];
-
-         if ( valType == "Int" )
-         {
-            sourceOut << "      m_" << fieldName << " = "; 
-            if ( defVal.empty() || defVal == "FALSE" || defVal == "false" ) { sourceOut << 0; }
-            else if (              defVal == "TRUE"  || defVal == "true"  ) { sourceOut << 1; }
-            else                                                            { sourceOut << defVal; }
-            sourceOut << "; " << (valUnit.empty() ? string( "" ) : " // [" + valUnit + "]" ) << "\n";
-         }
-         else if ( valType == "Double" )
-         {
-            sourceOut << "      m_" << fieldName << " = " << (defVal.empty() ? string( "0.0" ) : defVal );
-            sourceOut << "; " << (valUnit.empty() ? string( "" ) : " // [" + valUnit + "]" ) << "\n";
-         }
-         else if ( valType == "String" && !defVal.empty() )
-         {
-            sourceOut << "      m_" << fieldName << " = \"" << defVal << "\"";
-            sourceOut << "; " << (valUnit.empty() ? string( "" ) : " // [" + valUnit + "]" ) << "\n";
-         }
-      }
-      sourceOut << "   }\n\n";
-
-      // Create constructor for table class
-      sourceOut << "   Table" << tableName << "::Table" << tableName << "( database::Table * tbl )\n";
-      sourceOut << "   {\n";
-      sourceOut << "      for ( auto rec : *tbl )\n";
-      sourceOut << "      {\n";
-      sourceOut << "         RecNumber id = addRecord( Record() );\n";
-      for ( auto fieldName : TableFields[ tableName ] )
-      {
-         sourceOut << "         set" << fieldName << "( id, database::get" << fieldName << "( rec ) );\n";
-      }
-      sourceOut << "      }\n";
-      sourceOut << "   }\n\n";
-
-      sourceOut << "   Table" << tableName << "::~Table" << tableName << "() {}\n\n";
-
-      // Create methods for get/set record
-      sourceOut << "   bmapi::RecNumber Table" << tableName << "::addRecord( const Table" << tableName << "::Record & rec )\n";
-      sourceOut << "   {\n";
-      sourceOut << "      m_recordList.push_back( rec );\n";
-      sourceOut << "      return m_recordList.size() - 1;\n";
-      sourceOut << "   }\n\n";
  
-      // generate operator for Record ==
-      sourceOut << "   bool Table" << tableName << "::Record::operator == ( const Record & rec ) const\n";
-      sourceOut << "   {\n";
-      for ( auto fieldName : TableFields[ tableName ] )
+   // Create default constructor for Record
+   sourceOut << ident << "Table" << tableName << "::Record::Record()\n";
+   sourceOut << ident << "{\n";
+   for ( auto fieldName : TableFields[ tableName ] )
+   {     
+      const string & defVal  = FieldDefaults[ fieldName ];
+      const string & valType = FieldTypes[    fieldName ];
+      const string & valUnit = FieldUnits[    fieldName ];
+
+      bool outUnits = true;
+      if ( valType == "Int" )
       {
-         sourceOut << "      if ( !(m_" << fieldName << " == rec.m_" << fieldName << ") ) { return false; };\n";
+         sourceOut << ident2 << "m_" << fieldName << " = "; 
+         if ( defVal.empty() || defVal == "FALSE" || defVal == "false" ) { sourceOut << 0; }
+         else if (              defVal == "TRUE"  || defVal == "true"  ) { sourceOut << 1; }
+         else                                                            { sourceOut << defVal; }
       }
-      sourceOut << "      return true;\n";
-      sourceOut << "   }\n\n";
-
-      sourceOut << "   Table" << tableName << "::Record Table" << tableName << "::getRecord( RecNumber id ) ";
-      sourceOut << "{ return id < m_recordList.size() ? m_recordList[id] : Record(); }\n\n";
-
-      for ( auto fieldName : TableFields[ tableName ] )
+      else if ( valType == "Double" ) { sourceOut << ident2 << "m_" << fieldName << " = " << (defVal.empty() ? string( "0.0" ) : defVal ); }
+      else if ( valType == "String" )
       {
-         const string & fieldType = FieldTypes[ fieldName ];
-         string fieldGetType;
-         string fieldSetType;
-         if(       fieldType == "Int"    ) { fieldSetType = fieldGetType = "int"; }
-         else if ( fieldType == "Double" ) { fieldSetType = fieldGetType = "double"; }
-         else if ( fieldType == "String" ) { fieldGetType = "std::string"; fieldSetType = "const " + fieldGetType + " & "; }
-         else { throw runtime_error( string( "Unknown column Type " ) + fieldType ); }
+         if ( !defVal.empty() ) { sourceOut << ident2 << "m_" << fieldName << " = \"" << defVal << "\""; } 
+         else { outUnits = false; }
+      }
+      else { throw runtime_error( string( "Unknown column Type " ) + valType ); }
+   
+      if ( outUnits ) { sourceOut << "; " << (valUnit.empty() ? string( "" ) : " // [" + valUnit + "]" ) << "\n"; }
+   }
+   sourceOut << ident << "}\n\n";
 
-         sourceOut << "   " << fieldGetType << " Table" << tableName << "::get" << fieldName << "( RecNumber id ) const\n";
-         sourceOut << "   {\n";
-         sourceOut << "      if ( id >= m_recordList.size() ) { throw std::runtime_error( \"No such record with id\" + std::to_string( id ) ); }\n";                 
+   // Create copy constructor for Record
+   sourceOut << ident << "Table" << tableName << "::Record::Record( const Table" << tableName << "::Record & rec )\n";
+   sourceOut << ident << "{\n";
+   for ( auto fieldName : TableFields[ tableName ] )
+   {     
+      sourceOut << ident2 << "m_" << fieldName << " = rec.m_" << fieldName << ";\n";
+   }
+   sourceOut << ident << "}\n\n";
 
+   // Create assign operator for Record
+   sourceOut << ident << "Table" << tableName << "::Record & Table" << tableName << 
+                               "::Record::operator = ( const Table" << tableName << "::Record & rec )\n";
+   sourceOut << ident << "{\n";
+   for ( auto fieldName : TableFields[ tableName ] )
+   {     
+      sourceOut << ident2 << "m_" << fieldName << " = rec.m_" << fieldName << ";\n";
+   }
+   sourceOut << ident2 << "return *this;\n";
+   sourceOut << ident << "}\n\n";
+
+   // Create constructor for table class
+   sourceOut << ident << "Table" << tableName << "::Table" << tableName << "( database::Table * tbl )\n";
+   sourceOut << ident << "{\n";
+   sourceOut << ident2 << "for ( auto rec : *tbl )\n";
+   sourceOut << ident2 << "{\n";
+   sourceOut << ident3 << "size_t id = addRecord( Record() );\n";
+   for ( auto fieldName : TableFields[ tableName ] )
+   {
+      sourceOut << ident3 << "set" << fieldName << "( id, database::get" << fieldName << "( rec ) );\n";
+   }
+   sourceOut << ident2 << "}\n";
+   sourceOut << ident << "}\n\n";
+
+   // Create copy constructor for table class
+   sourceOut << ident << "Table" << tableName << "::Table" << tableName << "( const Table" << tableName << " & tbl )\n";
+   sourceOut << ident << "{\n";
+   sourceOut << ident2 << "for ( auto & rec : tbl ) { addRecord( rec ); }\n";
+   sourceOut << ident << "}\n\n";
+
+   sourceOut << ident << "Table" << tableName << "::~Table" << tableName << "() {}\n\n";
+
+   // Create methods for get/set record
+   sourceOut << ident << "size_t Table" << tableName << "::addRecord( const Table" << tableName << "::Record & rec )\n";
+   sourceOut << ident << "{\n";
+   sourceOut << ident2 << "m_recordList.push_back( rec );\n";
+   sourceOut << ident2 << "return m_recordList.size() - 1;\n";
+   sourceOut << ident << "}\n\n";
+ 
+   // generate operator for Record ==
+   sourceOut << ident << "bool Table" << tableName << "::Record::operator == ( const Record & rec ) const\n";
+   sourceOut << ident << "{\n";
+   for ( auto fieldName : TableFields[ tableName ] )
+   {
+      sourceOut << ident2 << "if ( !(m_" << fieldName << " == rec.m_" << fieldName << ") ) { return false; };\n";
+   }
+   sourceOut << ident2 << "return true;\n";
+   sourceOut << ident << "}\n\n";
+
+   // Create assign operator for table class
+   sourceOut << ident << "Table" << tableName << " & Table" << tableName << "::operator = ( const Table" << tableName << " & tbl )\n";
+   sourceOut << ident << "{\n";
+   sourceOut << ident2 << "m_recordList.clear();\n";
+   sourceOut << ident2 << "for ( auto & rec : tbl ) { addRecord( rec ); }\n";
+   sourceOut << ident2 << "return *this;\n";
+   sourceOut << ident << "}\n\n";
+
+   // generate getRecord
+   sourceOut << ident << "Table" << tableName << "::Record Table" << tableName << "::getRecord( size_t id ) " << 
+                         "{ return id < m_recordList.size() ? m_recordList[id] : Record(); }\n\n";
+
+   for ( auto fieldName : TableFields[ tableName ] )
+   {
+      sourceOut << ident << cppFieldType( fieldName ) << " Table" << tableName << "::get" << fieldName << "( size_t id ) const\n";
+      sourceOut << ident << "{\n";
+      sourceOut << ident2 << "if ( id >= m_recordList.size() ) { throw std::runtime_error( \"No such record with id\" + std::to_string( id ) ); }\n";                 
 #ifdef API_UNIT_TEST
-         sourceOut << "      std::cerr << \"   ph.m_" << tableName << accObj << "set" << fieldName;
-         if (      fieldType == "String" ) { sourceOut << "( id, \\\"\" << m_recordList[id].m_" << fieldName << " << \"\\\" );\" << std::endl;\n"; }
-         else if ( fieldType == "Double" ) { sourceOut << "( id, \" << std::setprecision(15) << m_recordList[id].m_" << fieldName << " << \" );\" << std::endl;\n"; }
-         else {                              sourceOut << "( id, \" << m_recordList[id].m_" << fieldName << " << \" );\" << std::endl;\n"; }
-#endif
-         sourceOut << "      return m_recordList[id].m_" << fieldName << ";\n";
-         sourceOut << "   }\n\n";
-         sourceOut << "   void Table" << tableName << "::set" << fieldName << "( RecNumber id, " << fieldSetType << " val )\n";
-         sourceOut << "   {\n";
-         sourceOut << "      if ( id >= m_recordList.size() ) { throw std::runtime_error( \"No such record with id\" + std::to_string( id ) ); }\n"; 
-         sourceOut << "      m_recordList[id].m_" << fieldName << " = val;\n";
-         sourceOut << "   }\n\n";
+      sourceOut << "      std::cerr << \"   ph.m_" << tableName << accObj << "set" << fieldName;
+      if (      FieldTypes[fieldName] == "String" )
+      { 
+         sourceOut << "( id, \\\"\" << m_recordList[id].m_" << fieldName << " << \"\\\" );\" << std::endl;\n";
       }
+      else if ( FieldTypes[fieldName] == "Double" )
+      {
+         sourceOut << "( id, \" << std::setprecision(15) << m_recordList[id].m_" << fieldName << " << \" );\" << std::endl;\n";
+      }
+      else
+      {
+         sourceOut << "( id, \" << m_recordList[id].m_" << fieldName << " << \" );\" << std::endl;\n";
+      }
+#endif
+      sourceOut << ident2 << "return m_recordList[id].m_" << fieldName << ";\n";
+      sourceOut << ident << "}\n\n";
+      sourceOut << ident << "void Table" << tableName << "::set" << fieldName << "( size_t id, " << cppFieldType( fieldName, false ) << " val )\n";
+      sourceOut << ident << "{\n";
+      sourceOut << ident2 << "if ( id >= m_recordList.size() ) { throw std::runtime_error( \"No such record with id\" + std::to_string( id ) ); }\n"; 
+      sourceOut << ident2 << "m_recordList[id].m_" << fieldName << " = val;\n";
+      sourceOut << ident << "}\n\n";
+   }
       
-      // generate operator for table ==
-      sourceOut << "   bool Table" << tableName << "::operator == ( const Table" << tableName << " & tbl ) const";
-      sourceOut << R"(
+   // generate operator for table ==
+   sourceOut << ident << "bool Table" << tableName << "::operator == ( const Table" << tableName << " & tbl ) const";
+   sourceOut << R"(
    {
       if ( tbl.size() != m_recordList.size() ) { return false; }
       for ( size_t i = 0; i < m_recordList.size(); ++i )
@@ -528,32 +562,86 @@ namespace bmapi
       }
       return true;
    }
-
+} // bmapi
 )";
-   }
-   
+}
+
+void generateBMAPI_ProjectIoAPI_H( const string & schemaDir )
+{
+   string headerFile = schemaDir + "ProjectIoAPI.h";
+ 
+   ofstream headerOut( headerFile.c_str(), ios::out );
+   if ( headerOut.fail() ) { throw runtime_error( "Error occurred during opening output file " + headerFile ); }
+
+   // Header file generation
+   headerOut << "#ifndef PROJECT_IO_API_H\n";
+   headerOut << "#define PROJECT_IO_API_H\n\n";
+   headerOut << "#include <vector>\n";
+   headerOut << "#include <string>\n\n";
+   headerOut << "namespace database\n";
+   headerOut << "{\n";
+   headerOut << ident << "class ProjectFileHandler;\n";
+   headerOut << ident << "class Table;\n";
+   headerOut << "}\n\n";
+
+   headerOut << "namespace bmapi\n{\n";
+   for ( auto tableName : TableList ) { headerOut << ident << "class Table" << tableName << ";\n"; }
+ 
    // Generate declaration of ProjectHandle as incorporated tables
-   headerOut << "   class ProjectIoAPI\n";
-   headerOut << "   {\n";
-   headerOut << "   public:\n";
+   headerOut << "\n" << ident << "class ProjectIoAPI\n";
+   headerOut << ident << "{\n";
+   headerOut << ident << "public:\n";
    for ( auto tableName : TableList )
    {
-      headerOut << "      Table" << tableName << string( std::max( (3*alignWidth - (int)tableName.length()), 1 ), ' ' ) << " * m_" << tableName << ";\n";
+      headerOut << ident2 << "Table" << tableName << string( std::max( (3*alignWidth - (int)tableName.length()), 1 ), ' ' ) <<
+                             " * m_" << tableName << ";\n";
    }
    headerOut << R"(
 
       ProjectIoAPI();                                             // default constructor
+      ProjectIoAPI( const ProjectIoAPI & obj );                   // copy constructor
       ProjectIoAPI( const std::string & projFileName );           // constructor from database
 
       ~ProjectIoAPI();                                            // destructor
 
       bool saveToProjectFile( const std::string & projFileName ); // save to file
       bool operator == ( const ProjectIoAPI & obj ) const;        // compare 2 set of tables, return true if all records in all tables are the same
+      ProjectIoAPI & operator = ( const ProjectIoAPI & obj );     // assign operator
 
    protected:
       void initialize( database::ProjectFileHandler & ph ); // initialize all table pointers
    };)";
 
+   headerOut << "\n} // namespace bmapi\n#endif // PROJECT_IO_API_H\n";
+}
+
+void generateBMAPI_ProjectIoAPI_C( const string & schemaDir )
+{
+   string sourceFile      = schemaDir + "ProjectIoAPI.cpp";
+   string allIncludesFile = schemaDir + "bmAPI.h";
+ 
+   ofstream sourceOut( sourceFile.c_str(), ios::out );
+   if ( sourceOut.fail() ) { throw runtime_error( "Error occurred during opening output file " + sourceFile ); }
+
+   ofstream headerOut( allIncludesFile.c_str(), ios::out );
+   if ( headerOut.fail() ) { throw runtime_error( "Error occurred during opening output file " + allIncludesFile ); }
+
+   sourceOut << "#include \"cauldronschemafuncs.h\"\n\n";
+   sourceOut << "#include \"ProjectFileHandler.h\"\n\n";
+   sourceOut << "#include \"bmAPI.h\"\n\n";
+   sourceOut << "#include <exception>\n\n";
+#ifdef API_UNIT_TEST
+   sourceOut << "#include <iostream>\n";
+   sourceOut << "#include <iomanip>\n";
+#endif
+
+   headerOut << "#ifndef BM_API_H\n";
+   headerOut << "#define BM_API_H\n";
+   for ( auto tableName : TableList ) { headerOut << "#include \"Table"<< tableName << ".h\"\n"; }
+   headerOut << "#include \"ProjectIoAPI.h\"\n";
+   headerOut << "#endif // BM_API_H\n";
+
+   sourceOut << "\nnamespace bmapi\n{\n";
    sourceOut << R"(
    // Default constructor
    ProjectIoAPI::ProjectIoAPI()
@@ -561,12 +649,22 @@ namespace bmapi
       database::ProjectFileHandler projFileHandler;
       initialize( projFileHandler ); 
    }
-
+   
    // Constructor which loads project file
    ProjectIoAPI::ProjectIoAPI( const std::string & projFileName )
    {
       database::ProjectFileHandler ph( projFileName );
       initialize( ph );
+   }
+
+   ProjectIoAPI::ProjectIoAPI( const ProjectIoAPI & obj )
+   { // init pointers with zero
+)";
+   for ( auto tableName : TableList ) { sourceOut << ident2 << "m_" << tableName << " = nullptr;\n"; }
+
+   sourceOut << R"(
+      // and the call assign operator
+      *this = obj;
    }
 
    // Save project to project file
@@ -578,44 +676,44 @@ namespace bmapi
 
    for ( auto tableName : TableList )
    {
-      sourceOut << "\n      tbl = ph.getTable( \"" << tableName << "\" );\n";
+      sourceOut << "\n" << ident2 << "tbl = ph.getTable( \"" << tableName << "\" );\n";
 #ifdef API_UNIT_TEST
-      sourceOut << "      if ( m_" << tableName << "->size() > 0 ) { std::cerr << \"void FillTable" << tableName;
+      sourceOut << ident2 << "if ( m_" << tableName << "->size() > 0 ) { std::cerr << \"void FillTable" << tableName;
 #ifdef _WIN32
       sourceOut << "( ProjectIoAPI ph )\" << std::endl  << \"{\" << std::endl << \"   uint id;\" << std::endl; }\n";
 #else
-      sourceOut << "( bmapi::ProjectIoAPI & ph )\" << std::endl  << \"{\" << std::endl<< \"   bmapi::RecNumber id;\" << std::endl; }\n";
+      sourceOut << "( bmapi::ProjectIoAPI & ph )\" << std::endl  << \"{\" << std::endl<< \"   size_t id;\" << std::endl; }\n";
 #endif
-      sourceOut << "      for ( RecNumber id = 0; id < m_" << tableName << "->size(); id++ )\n";
-      sourceOut << "      {\n";
-      sourceOut << "         std::cerr << \"   id = ph.m_" << tableName << accObj << 
+      sourceOut << ident2 << "for ( size_t id = 0; id < m_" << tableName << "->size(); id++ )\n";
+      sourceOut << ident2 << "{\n";
+      sourceOut << ident3 << "std::cerr << \"   id = ph.m_" << tableName << accObj << 
 #ifdef _WIN32
       "addRecord( new Table"     << tableName << ".Record() ); \" << std::endl;\n";
 #else
       "addRecord( mbapi::Table"     << tableName << "::Record() ); \" << std::endl;\n";
 #endif
-      sourceOut << "         database::Record * trec = tbl->createRecord( true );\n";
+      sourceOut << ident3 << "database::Record * trec = tbl->createRecord( true );\n";
 
       for ( auto fieldName : TableFields[ tableName ] )
       {
-         sourceOut << "         database::set" << fieldName << "( trec, m_" << tableName << "->get" << fieldName << "( id ) );\n";
+         sourceOut << ident3 << "database::set" << fieldName << "( trec, m_" << tableName << "->get" << fieldName << "( id ) );\n";
       }
-      sourceOut << "      }\n\n";
-      sourceOut << "      if ( tbl->size() > 0 ) { std::cerr << \"}\" << std::endl; }\n";
+      sourceOut << ident2 << "}\n\n";
+      sourceOut << ident2 << "if ( tbl->size() > 0 ) { std::cerr << \"}\" << std::endl; }\n";
 #else
-      sourceOut << "      for ( auto & rec : *m_" << tableName << " )\n";
-      sourceOut << "      {\n";
-      sourceOut << "         database::Record * trec = tbl->createRecord( true );\n";
+      sourceOut << ident2 << "for ( auto & rec : *m_" << tableName << " )\n";
+      sourceOut << ident2 << "{\n";
+      sourceOut << ident3 << "database::Record * trec = tbl->createRecord( true );\n";
       for ( auto fieldName : TableFields[ tableName ] )
       {
-         sourceOut << "         database::set" << fieldName << "( trec, rec.m_" << fieldName << " );\n";
+         sourceOut << ident3 << "database::set" << fieldName << "( trec, rec.m_" << fieldName << " );\n";
       }
-      sourceOut << "      }\n\n";
+      sourceOut << ident2 << "}\n\n";
 #endif
    }
 
 #ifdef API_UNIT_TEST
-   sourceOut << "      std::cerr << \"void FillAllTables";
+   sourceOut << ident2 << "std::cerr << \"void FillAllTables";
 #ifdef _WIN32
    sourceOut << "( ProjectIoAPI ph )\" << std::endl  << \"{\" << std::endl;\n";
 #else
@@ -623,46 +721,159 @@ namespace bmapi
 #endif
    for ( auto tableName : TableList )
    {
-      sourceOut << "      if ( m_" << tableName << "->size() > 0 ) { std::cerr << \"   FillTable" << tableName << "( ph );\" << std::endl; }\n";
+      sourceOut << ident2 << "if ( m_" << tableName << "->size() > 0 ) { std::cerr << \"   FillTable" << tableName << "( ph );\" << std::endl; }\n";
    }
-   sourceOut << "      std::cerr << \"}\" << std::endl;\n";
+   sourceOut << ident2 << "std::cerr << \"}\" << std::endl;\n";
 #endif
 
-   sourceOut << R"(
-      return ph.saveToFile( projFileName );
-   }
-      
-   bool ProjectIoAPI::operator == ( const ProjectIoAPI & obj ) const
-   {
-   )";
+   sourceOut << ident2 << "return ph.saveToFile( projFileName );\n" << ident << "}\n";
+
+   sourceOut << ident << "bool ProjectIoAPI::operator == ( const ProjectIoAPI & obj ) const\n" << ident << "{\n";
    for ( auto tableName : TableList )
    {
-      sourceOut << "      if ( ! (*m_" << tableName << " ==  *(obj.m_" << tableName << ")) ) { return false; }\n";
+      sourceOut << ident2 << "if ( ! (*m_" << tableName << " ==  *(obj.m_" << tableName << ")) ) { return false; }\n";
    }
-   sourceOut << R"(
-      return true;
-   }
-   void ProjectIoAPI::initialize( database::ProjectFileHandler & ph ))";
-   sourceOut << "\n   {\n";
+   sourceOut << ident2 << "return true;\n" << ident << "}\n\n";
+
+   sourceOut << ident << "ProjectIoAPI & ProjectIoAPI::operator = ( const ProjectIoAPI & obj )\n" << ident2 << "{\n";
    for ( auto tableName : TableList )
    {
-      sourceOut << "      m_" << tableName << " = new Table" << tableName << "( ph.getTable( \"" << tableName << "\" ) );\n";
+      sourceOut << ident2 << "if ( nullptr == m_" << tableName << ") { m_"    << tableName << " = new Table" << 
+                                                     tableName << "( *(obj.m_"<< tableName << ")); }\n";
+      sourceOut << ident2 << "else { *(m_" << tableName << ") = *(obj.m_" << tableName << "); }\n";
    }
-   sourceOut << "   }\n\n";      
+   sourceOut << ident2 << "return *this;\n" << ident << "}\n\n";
+ 
+   sourceOut << ident << "void ProjectIoAPI::initialize( database::ProjectFileHandler & ph )\n" << ident << "{\n";
+   for ( auto tableName : TableList )
+   {
+      sourceOut << ident2 << "m_" << tableName << " = new Table" << tableName << "( ph.getTable( \"" << tableName << "\" ) );\n";
+   }
+   sourceOut << ident << "}\n\n";      
 
    // Generate destructor 
-   sourceOut << "   ProjectIoAPI::~ProjectIoAPI()\n";
-   sourceOut << "   {\n";
+   sourceOut << ident << "ProjectIoAPI::~ProjectIoAPI()\n";
+   sourceOut << ident << "{\n";
    for ( auto tableName : TableList )
    {
-      sourceOut << "      if ( m_" << tableName << " != nullptr ) { delete m_" << tableName << "; m_" << tableName << " = nullptr; }\n";
+      sourceOut << ident2 << "if ( m_" << tableName << " != nullptr ) { delete m_" << tableName << "; m_" << tableName << " = nullptr; }\n";
    }
-   sourceOut << "   }\n";
-
-   headerOut << "\n}; // namespace bmapi\n";
-   sourceOut << "\n}; // namespace bmapi\n";
+   sourceOut << ident << "}\n\n} // namespace bmapi\n";
 }
 
+void generateBMAPI_SwigI( const string & schemaDir )
+{
+   string sourceFile = schemaDir + "Project3dAPI.i";
+
+   ofstream sourceOut( sourceFile.c_str(), ios::out );
+   if ( sourceOut.fail() ) { throw runtime_error( "Error occurred during opening output file " + sourceFile ); }
+
+   sourceOut << R"(
+/* File : Project3dAPI.i Swig module file */
+%module Project3dAPI
+%include "stl.i"
+%include "std_except.i"
+%include "exception.i"
+
+%exception bmapi::ProjectIoAPI::ProjectIoAPI {
+   try {
+      $action
+   }
+   SWIG_CATCH_STDEXCEPT // catch std::exception
+   catch (...) { SWIG_exception(SWIG_UnknownError, "Unknown exception"); }
+}
+
+%exception bmapi::ProjectIoAPI::saveToProjectFile {
+   try {
+      $action
+   }
+   SWIG_CATCH_STDEXCEPT // catch std::exception
+   catch (...) { SWIG_exception(SWIG_UnknownError, "Unknown exception"); }
+} 
+
+%exception bmapi::ProjectIoAPI::operator = {
+   try {
+      $action
+   }
+   SWIG_CATCH_STDEXCEPT // catch std::exception
+   catch (...) { SWIG_exception(SWIG_UnknownError, "Unknown exception"); }
+} 
+
+)";
+   for ( auto tableName : TableList )
+   {
+      sourceOut << "%exception bmapi::Table" << tableName << "::Table" << tableName << R"( {
+   try {
+      $action
+   }
+   SWIG_CATCH_STDEXCEPT // catch std::exception
+   catch (...) { SWIG_exception(SWIG_UnknownError, "Unknown exception"); }
+}
+
+)";
+      sourceOut << "%exception bmapi::Table" << tableName << R"(::addRecord {
+   try {
+      $action
+   }
+   SWIG_CATCH_STDEXCEPT // catch std::exception
+   catch (...) { SWIG_exception(SWIG_UnknownError, "Unknown exception"); }
+}
+
+)";
+      sourceOut << "%exception bmapi::Table" << tableName << R"(::operator = {
+   try {
+      $action
+   }
+   SWIG_CATCH_STDEXCEPT // catch std::exception
+   catch (...) { SWIG_exception(SWIG_UnknownError, "Unknown exception"); }
+}
+
+)";
+   }
+   sourceOut << R"(
+%{
+/* Includes the header in the wrapper code */
+#include "bmAPI.h"
+#include "ProjectIoAPI.h"
+
+using namespace database;
+using namespace bmapi;
+%}
+
+/* some output reference types */
+namespace Project3dAPI
+{
+}
+
+%rename(Equals) *::operator ==;
+%rename(Assign) *::operator =;
+%ignore *::begin;
+%ignore *::end;
+
+/* some templates */
+%template(StringVector)		           std::vector< std::string >;
+%template(IntVector)		              std::vector< int >;
+
+)";
+   for ( auto tableName : TableList ) { sourceOut << "%include \"Table" << tableName << ".h\"\n"; }
+   sourceOut << R"(
+%include "ProjectIoAPI.h"
+
+)";
+}
+
+void GenerateCMBAPI( const string & schemaName, const string & schemaDir, bool verbose )
+{
+   for ( auto tableName : TableList )
+   {
+      generateBMAPI_TblHeader( schemaDir, tableName );
+      generateBMAPI_TblSource( schemaDir, tableName );
+   }   
+
+   generateBMAPI_ProjectIoAPI_H( schemaDir );
+   generateBMAPI_ProjectIoAPI_C( schemaDir );
+   generateBMAPI_SwigI( schemaDir );
+}
 
 
 void GenerateDataSchema( const string & schemaName, const string & schemaDir, bool verbose )

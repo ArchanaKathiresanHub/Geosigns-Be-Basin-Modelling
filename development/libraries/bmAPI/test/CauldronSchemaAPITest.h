@@ -1,6 +1,6 @@
 void FillTableProjectIoTbl( bmapi::ProjectIoAPI & ph )
 {
-   bmapi::RecNumber id;
+   size_t id;
    id = ph.m_ProjectIoTbl->addRecord( bmapi::TableProjectIoTbl::Record() ); 
    ph.m_ProjectIoTbl->setProjectName( id, "Acquifer" );
    ph.m_ProjectIoTbl->setProjectSize( id, "Big" );
@@ -28,7 +28,7 @@ void FillTableProjectIoTbl( bmapi::ProjectIoAPI & ph )
 }
 void FillTableIoOptionsIoTbl( bmapi::ProjectIoAPI & ph )
 {
-   bmapi::RecNumber id;
+   size_t id;
    id = ph.m_IoOptionsIoTbl->addRecord( bmapi::TableIoOptionsIoTbl::Record() ); 
    ph.m_IoOptionsIoTbl->setMapType( id, "HDF5" );
    ph.m_IoOptionsIoTbl->setFileVersioning( id, 3 );
@@ -41,7 +41,7 @@ void FillTableIoOptionsIoTbl( bmapi::ProjectIoAPI & ph )
 }
 void FillTableRunOptionsIoTbl( bmapi::ProjectIoAPI & ph )
 {
-   bmapi::RecNumber id;
+   size_t id;
    id = ph.m_RunOptionsIoTbl->addRecord( bmapi::TableRunOptionsIoTbl::Record() ); 
    ph.m_RunOptionsIoTbl->setCompactionAlgorithm( id, "Effective Stress" );
    ph.m_RunOptionsIoTbl->setVreAlgorithm( id, "Modified Lopatin" );
@@ -109,7 +109,7 @@ void FillTableRunOptionsIoTbl( bmapi::ProjectIoAPI & ph )
 }
 void FillTableSnapshotIoTbl( bmapi::ProjectIoAPI & ph )
 {
-   bmapi::RecNumber id;
+   size_t id;
    id = ph.m_SnapshotIoTbl->addRecord( bmapi::TableSnapshotIoTbl::Record() ); 
    ph.m_SnapshotIoTbl->setTime( id, 0 );
    ph.m_SnapshotIoTbl->setIsMinorSnapshot( id, 0 );
@@ -167,7 +167,7 @@ void FillTableSnapshotIoTbl( bmapi::ProjectIoAPI & ph )
 }
 void FillTableSensAnalysisIoTbl( bmapi::ProjectIoAPI & ph )
 {
-   bmapi::RecNumber id;
+   size_t id;
    id = ph.m_SensAnalysisIoTbl->addRecord( bmapi::TableSensAnalysisIoTbl::Record() ); 
    ph.m_SensAnalysisIoTbl->setAnalysisIdentification( id, 0 );
    ph.m_SensAnalysisIoTbl->setAnalysisIndicator( id, 0 );
@@ -267,7 +267,7 @@ void FillTableSensAnalysisIoTbl( bmapi::ProjectIoAPI & ph )
 }
 void FillTableFilterDepthIoTbl( bmapi::ProjectIoAPI & ph )
 {
-   bmapi::RecNumber id;
+   size_t id;
    id = ph.m_FilterDepthIoTbl->addRecord( bmapi::TableFilterDepthIoTbl::Record() ); 
    ph.m_FilterDepthIoTbl->setPropertyName( id, "Massflux" );
    ph.m_FilterDepthIoTbl->setModellingMode( id, "1d" );
@@ -401,7 +401,7 @@ void FillTableFilterDepthIoTbl( bmapi::ProjectIoAPI & ph )
 }
 void FillTableFilterTimeIoTbl( bmapi::ProjectIoAPI & ph )
 {
-   bmapi::RecNumber id;
+   size_t id;
    id = ph.m_FilterTimeIoTbl->addRecord( bmapi::TableFilterTimeIoTbl::Record() ); 
    ph.m_FilterTimeIoTbl->setPropertyName( id, "Massflux" );
    ph.m_FilterTimeIoTbl->setModellingMode( id, "1d" );
@@ -1435,7 +1435,7 @@ void FillTableFilterTimeIoTbl( bmapi::ProjectIoAPI & ph )
 }
 void FillTableFilterTimeDepthIoTbl( bmapi::ProjectIoAPI & ph )
 {
-   bmapi::RecNumber id;
+   size_t id;
    id = ph.m_FilterTimeDepthIoTbl->addRecord( bmapi::TableFilterTimeDepthIoTbl::Record() ); 
    ph.m_FilterTimeDepthIoTbl->setPropertyName( id, "Massflux" );
    ph.m_FilterTimeDepthIoTbl->setPropertyClass( id, "Physical" );
@@ -2119,7 +2119,7 @@ void FillTableFilterTimeDepthIoTbl( bmapi::ProjectIoAPI & ph )
 }
 void FillTableWellLocIoTbl( bmapi::ProjectIoAPI & ph )
 {
-   bmapi::RecNumber id;
+   size_t id;
    id = ph.m_WellLocIoTbl->addRecord( bmapi::TableWellLocIoTbl::Record() ); 
    ph.m_WellLocIoTbl->setWellName( id, "MyWell" );
    ph.m_WellLocIoTbl->setXCoord( id, 0 );
@@ -2133,7 +2133,7 @@ void FillTableWellLocIoTbl( bmapi::ProjectIoAPI & ph )
 }
 void FillTableStratIoTbl( bmapi::ProjectIoAPI & ph )
 {
-   bmapi::RecNumber id;
+   size_t id;
    id = ph.m_StratIoTbl->addRecord( bmapi::TableStratIoTbl::Record() ); 
    ph.m_StratIoTbl->setSurfaceName( id, "Water bottom" );
    ph.m_StratIoTbl->setDepoAge( id, 0 );
@@ -2327,7 +2327,7 @@ void FillTableStratIoTbl( bmapi::ProjectIoAPI & ph )
 }
 void FillTableCrustIoTbl( bmapi::ProjectIoAPI & ph )
 {
-   bmapi::RecNumber id;
+   size_t id;
    id = ph.m_CrustIoTbl->addRecord( bmapi::TableCrustIoTbl::Record() ); 
    ph.m_CrustIoTbl->setAge( id, 0 );
    ph.m_CrustIoTbl->setThickness( id, 30000 );
@@ -2343,7 +2343,7 @@ void FillTableCrustIoTbl( bmapi::ProjectIoAPI & ph )
 }
 void FillTableSurfaceTempIoTbl( bmapi::ProjectIoAPI & ph )
 {
-   bmapi::RecNumber id;
+   size_t id;
    id = ph.m_SurfaceTempIoTbl->addRecord( bmapi::TableSurfaceTempIoTbl::Record() ); 
    ph.m_SurfaceTempIoTbl->setAge( id, 0 );
    ph.m_SurfaceTempIoTbl->setTemperature( id, 10 );
@@ -2352,7 +2352,7 @@ void FillTableSurfaceTempIoTbl( bmapi::ProjectIoAPI & ph )
 }
 void FillTableSurfaceDepthIoTbl( bmapi::ProjectIoAPI & ph )
 {
-   bmapi::RecNumber id;
+   size_t id;
    id = ph.m_SurfaceDepthIoTbl->addRecord( bmapi::TableSurfaceDepthIoTbl::Record() ); 
    ph.m_SurfaceDepthIoTbl->setAge( id, 0 );
    ph.m_SurfaceDepthIoTbl->setDepth( id, 0 );
@@ -2360,7 +2360,7 @@ void FillTableSurfaceDepthIoTbl( bmapi::ProjectIoAPI & ph )
 }
 void FillTableMntlHeatFlowIoTbl( bmapi::ProjectIoAPI & ph )
 {
-   bmapi::RecNumber id;
+   size_t id;
    id = ph.m_MntlHeatFlowIoTbl->addRecord( bmapi::TableMntlHeatFlowIoTbl::Record() ); 
    ph.m_MntlHeatFlowIoTbl->setAge( id, 0 );
    ph.m_MntlHeatFlowIoTbl->setHeatFlow( id, 30 );
@@ -2368,7 +2368,7 @@ void FillTableMntlHeatFlowIoTbl( bmapi::ProjectIoAPI & ph )
 }
 void FillTableBasementIoTbl( bmapi::ProjectIoAPI & ph )
 {
-   bmapi::RecNumber id;
+   size_t id;
    id = ph.m_BasementIoTbl->addRecord( bmapi::TableBasementIoTbl::Record() ); 
    ph.m_BasementIoTbl->setBottomBoundaryModel( id, "Fixed Temperature" );
    ph.m_BasementIoTbl->setTopAsthenoTemp( id, 1333 );
@@ -2388,7 +2388,7 @@ void FillTableBasementIoTbl( bmapi::ProjectIoAPI & ph )
 }
 void FillTableFormPressIoTbl( bmapi::ProjectIoAPI & ph )
 {
-   bmapi::RecNumber id;
+   size_t id;
    id = ph.m_FormPressIoTbl->addRecord( bmapi::TableFormPressIoTbl::Record() ); 
    ph.m_FormPressIoTbl->setDepthIndex( id, 0 );
    ph.m_FormPressIoTbl->setMPressure( id, 0 );
@@ -2397,7 +2397,7 @@ void FillTableFormPressIoTbl( bmapi::ProjectIoAPI & ph )
 }
 void FillTableMarsdenCoefIoTbl( bmapi::ProjectIoAPI & ph )
 {
-   bmapi::RecNumber id;
+   size_t id;
    id = ph.m_MarsdenCoefIoTbl->addRecord( bmapi::TableMarsdenCoefIoTbl::Record() ); 
    ph.m_MarsdenCoefIoTbl->setMarsdenAcoef( id, -3.8 );
    ph.m_MarsdenCoefIoTbl->setMarsdenBcoef( id, 22.8 );
@@ -2405,21 +2405,21 @@ void FillTableMarsdenCoefIoTbl( bmapi::ProjectIoAPI & ph )
 }
 void FillTableSonicIoTbl( bmapi::ProjectIoAPI & ph )
 {
-   bmapi::RecNumber id;
+   size_t id;
    id = ph.m_SonicIoTbl->addRecord( bmapi::TableSonicIoTbl::Record() ); 
    ph.m_SonicIoTbl->setDepth( id, 0 );
    ph.m_SonicIoTbl->setDt( id, 0 );
 }
 void FillTableBulkDensityIoTbl( bmapi::ProjectIoAPI & ph )
 {
-   bmapi::RecNumber id;
+   size_t id;
    id = ph.m_BulkDensityIoTbl->addRecord( bmapi::TableBulkDensityIoTbl::Record() ); 
    ph.m_BulkDensityIoTbl->setDepth( id, 0 );
    ph.m_BulkDensityIoTbl->setBDensity( id, 0 );
 }
 void FillTableBiomarkerKinIoTbl( bmapi::ProjectIoAPI & ph )
 {
-   bmapi::RecNumber id;
+   size_t id;
    id = ph.m_BiomarkerKinIoTbl->addRecord( bmapi::TableBiomarkerKinIoTbl::Record() ); 
    ph.m_BiomarkerKinIoTbl->setHopIsoActEnergy( id, 168000 );
    ph.m_BiomarkerKinIoTbl->setSteIsoActEnergy( id, 169000 );
@@ -2432,7 +2432,7 @@ void FillTableBiomarkerKinIoTbl( bmapi::ProjectIoAPI & ph )
 }
 void FillTableSmectiteIlliteKinIoTbl( bmapi::ProjectIoAPI & ph )
 {
-   bmapi::RecNumber id;
+   size_t id;
    id = ph.m_SmectiteIlliteKinIoTbl->addRecord( bmapi::TableSmectiteIlliteKinIoTbl::Record() ); 
    ph.m_SmectiteIlliteKinIoTbl->setActEnergy1( id, 55800 );
    ph.m_SmectiteIlliteKinIoTbl->setFreqFactor1( id, 3422900 );
@@ -2442,7 +2442,7 @@ void FillTableSmectiteIlliteKinIoTbl( bmapi::ProjectIoAPI & ph )
 }
 void FillTableReservoirIoTbl( bmapi::ProjectIoAPI & ph )
 {
-   bmapi::RecNumber id;
+   size_t id;
    id = ph.m_ReservoirIoTbl->addRecord( bmapi::TableReservoirIoTbl::Record() ); 
    ph.m_ReservoirIoTbl->setReservoirName( id, "Reservoir3" );
    ph.m_ReservoirIoTbl->setDetectedReservoir( id, 0 );
@@ -2479,7 +2479,7 @@ void FillTableReservoirIoTbl( bmapi::ProjectIoAPI & ph )
 }
 void FillTableBioDegradIoTbl( bmapi::ProjectIoAPI & ph )
 {
-   bmapi::RecNumber id;
+   size_t id;
    id = ph.m_BioDegradIoTbl->addRecord( bmapi::TableBioDegradIoTbl::Record() ); 
    ph.m_BioDegradIoTbl->setMaxBioTemp( id, 40 );
    ph.m_BioDegradIoTbl->setTempConstant( id, 40 );
@@ -2502,7 +2502,7 @@ void FillTableBioDegradIoTbl( bmapi::ProjectIoAPI & ph )
 }
 void FillTableDiffusionIoTbl( bmapi::ProjectIoAPI & ph )
 {
-   bmapi::RecNumber id;
+   size_t id;
    id = ph.m_DiffusionIoTbl->addRecord( bmapi::TableDiffusionIoTbl::Record() ); 
    ph.m_DiffusionIoTbl->setDiffusionModel( id, "Transient" );
    ph.m_DiffusionIoTbl->setSealThicknessModel( id, "FullOverburden" );
@@ -2523,7 +2523,7 @@ void FillTableDiffusionIoTbl( bmapi::ProjectIoAPI & ph )
 }
 void FillTablePressureFuncIoTbl( bmapi::ProjectIoAPI & ph )
 {
-   bmapi::RecNumber id;
+   size_t id;
    id = ph.m_PressureFuncIoTbl->addRecord( bmapi::TablePressureFuncIoTbl::Record() ); 
    ph.m_PressureFuncIoTbl->setPresFuncName( id, "None        " );
    ph.m_PressureFuncIoTbl->setCoefA( id, 1000000000 );
@@ -2631,7 +2631,7 @@ void FillTablePressureFuncIoTbl( bmapi::ProjectIoAPI & ph )
 }
 void FillTableLithotypeIoTbl( bmapi::ProjectIoAPI & ph )
 {
-   bmapi::RecNumber id;
+   size_t id;
    id = ph.m_LithotypeIoTbl->addRecord( bmapi::TableLithotypeIoTbl::Record() ); 
    ph.m_LithotypeIoTbl->setLithotype( id, "Std. Sandstone" );
    ph.m_LithotypeIoTbl->setDescription( id, "Standard Sandstone" );
@@ -4405,7 +4405,7 @@ void FillTableLithotypeIoTbl( bmapi::ProjectIoAPI & ph )
 }
 void FillTableLitThCondIoTbl( bmapi::ProjectIoAPI & ph )
 {
-   bmapi::RecNumber id;
+   size_t id;
    id = ph.m_LitThCondIoTbl->addRecord( bmapi::TableLitThCondIoTbl::Record() ); 
    ph.m_LitThCondIoTbl->setLithotype( id, "Std. Sandstone" );
    ph.m_LitThCondIoTbl->setTempIndex( id, 0 );
@@ -5481,7 +5481,7 @@ void FillTableLitThCondIoTbl( bmapi::ProjectIoAPI & ph )
 }
 void FillTableLitHeatCapIoTbl( bmapi::ProjectIoAPI & ph )
 {
-   bmapi::RecNumber id;
+   size_t id;
    id = ph.m_LitHeatCapIoTbl->addRecord( bmapi::TableLitHeatCapIoTbl::Record() ); 
    ph.m_LitHeatCapIoTbl->setLithotype( id, "Std. Sandstone" );
    ph.m_LitHeatCapIoTbl->setTempIndex( id, 0 );
@@ -6437,7 +6437,7 @@ void FillTableLitHeatCapIoTbl( bmapi::ProjectIoAPI & ph )
 }
 void FillTableFluidtypeIoTbl( bmapi::ProjectIoAPI & ph )
 {
-   bmapi::RecNumber id;
+   size_t id;
    id = ph.m_FluidtypeIoTbl->addRecord( bmapi::TableFluidtypeIoTbl::Record() ); 
    ph.m_FluidtypeIoTbl->setFluidtype( id, "Std. Water" );
    ph.m_FluidtypeIoTbl->setDescription( id, "KSEPL's Standard Water" );
@@ -6509,7 +6509,7 @@ void FillTableFluidtypeIoTbl( bmapi::ProjectIoAPI & ph )
 }
 void FillTableFltThCondIoTbl( bmapi::ProjectIoAPI & ph )
 {
-   bmapi::RecNumber id;
+   size_t id;
    id = ph.m_FltThCondIoTbl->addRecord( bmapi::TableFltThCondIoTbl::Record() ); 
    ph.m_FltThCondIoTbl->setFluidtype( id, "Std. Water" );
    ph.m_FltThCondIoTbl->setTempIndex( id, 0 );
@@ -9848,7 +9848,7 @@ void FillTableFltThCondIoTbl( bmapi::ProjectIoAPI & ph )
 }
 void FillTableFltHeatCapIoTbl( bmapi::ProjectIoAPI & ph )
 {
-   bmapi::RecNumber id;
+   size_t id;
    id = ph.m_FltHeatCapIoTbl->addRecord( bmapi::TableFltHeatCapIoTbl::Record() ); 
    ph.m_FltHeatCapIoTbl->setFluidtype( id, "Std. Water" );
    ph.m_FltHeatCapIoTbl->setTempIndex( id, 0 );
@@ -10632,7 +10632,7 @@ void FillTableFltHeatCapIoTbl( bmapi::ProjectIoAPI & ph )
 }
 void FillTableFltDensityIoTbl( bmapi::ProjectIoAPI & ph )
 {
-   bmapi::RecNumber id;
+   size_t id;
    id = ph.m_FltDensityIoTbl->addRecord( bmapi::TableFltDensityIoTbl::Record() ); 
    ph.m_FltDensityIoTbl->setFluidtype( id, "Std. Water" );
    ph.m_FltDensityIoTbl->setTempIndex( id, 0 );
@@ -11416,7 +11416,7 @@ void FillTableFltDensityIoTbl( bmapi::ProjectIoAPI & ph )
 }
 void FillTableFltViscoIoTbl( bmapi::ProjectIoAPI & ph )
 {
-   bmapi::RecNumber id;
+   size_t id;
    id = ph.m_FltViscoIoTbl->addRecord( bmapi::TableFltViscoIoTbl::Record() ); 
    ph.m_FltViscoIoTbl->setFluidtype( id, "Std. Water" );
    ph.m_FltViscoIoTbl->setTempIndex( id, 0 );
@@ -11568,7 +11568,7 @@ void FillTableFltViscoIoTbl( bmapi::ProjectIoAPI & ph )
 }
 void FillTableDisplayContourIoTbl( bmapi::ProjectIoAPI & ph )
 {
-   bmapi::RecNumber id;
+   size_t id;
    id = ph.m_DisplayContourIoTbl->addRecord( bmapi::TableDisplayContourIoTbl::Record() ); 
    ph.m_DisplayContourIoTbl->setPropertyName( id, "Temperature" );
    ph.m_DisplayContourIoTbl->setContourValue( id, 0 );
@@ -11640,7 +11640,7 @@ void FillTableDisplayContourIoTbl( bmapi::ProjectIoAPI & ph )
 }
 void FillTableTimeIoTbl( bmapi::ProjectIoAPI & ph )
 {
-   bmapi::RecNumber id;
+   size_t id;
    id = ph.m_TimeIoTbl->addRecord( bmapi::TableTimeIoTbl::Record() ); 
    ph.m_TimeIoTbl->setPropertyName( id, "Depth" );
    ph.m_TimeIoTbl->setTime( id, 20 );
@@ -14998,7 +14998,7 @@ void FillTableTimeIoTbl( bmapi::ProjectIoAPI & ph )
 }
 void FillTable3DTimeIoTbl( bmapi::ProjectIoAPI & ph )
 {
-   bmapi::RecNumber id;
+   size_t id;
    id = ph.m_3DTimeIoTbl->addRecord( bmapi::Table3DTimeIoTbl::Record() ); 
    ph.m_3DTimeIoTbl->setTime( id, 15 );
    ph.m_3DTimeIoTbl->setPropertyName( id, "Depth" );
@@ -16346,7 +16346,7 @@ void FillTable3DTimeIoTbl( bmapi::ProjectIoAPI & ph )
 }
 void FillTableSimulationDetailsIoTbl( bmapi::ProjectIoAPI & ph )
 {
-   bmapi::RecNumber id;
+   size_t id;
    id = ph.m_SimulationDetailsIoTbl->addRecord( bmapi::TableSimulationDetailsIoTbl::Record() ); 
    ph.m_SimulationDetailsIoTbl->setSimulationSequenceNumber( id, 1 );
    ph.m_SimulationDetailsIoTbl->setSimulatorName( id, "fastcauldron" );

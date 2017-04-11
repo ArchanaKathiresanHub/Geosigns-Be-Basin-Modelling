@@ -159,7 +159,7 @@ bool DistributedMapWriter::writeMapToHDF (DM & da, Vec & vec, float time, double
          {
             writeIndex = (yCnt - start[1]) + ((xCnt - start[0]) * count[1]);
             
-            data[writeIndex] = x (yCnt, xCnt);
+            data[writeIndex] = static_cast<float>( x (yCnt, xCnt) );
          }
       }
       returnVal = m_writer->writeRawData (m_outFile, m_outFile->fileId (), dataSetName.c_str (),
@@ -240,7 +240,7 @@ bool DistributedMapWriter::writeInputMap( GridMap * gridMap, int mapSeqNumber )
       for ( int xCnt = start[0]; xCnt < (start[0] + count[0]); ++xCnt )
       {
          int writeIndex = (yCnt - start[1]) + ((xCnt - start[0]) * count[1]);           
-         data[writeIndex] = x( yCnt, xCnt );
+         data[writeIndex] = static_cast<float>( x( yCnt, xCnt ) );
       }
    }
 
@@ -364,17 +364,17 @@ bool DistributedMapWriter::saveDescription (const Grid * grid)
 
    Write1DDataSet (1, NR_J_DATASET_NAME, H5T_NATIVE_INT, &nrJ);
 
-   float originI = grid->minIGlobal ();
+   float originI = static_cast<float>( grid->minIGlobal () );
 
    Write1DDataSet (1, ORIGIN_I_DATASET_NAME, H5T_NATIVE_FLOAT, &originI);
-   float originJ = grid->minJGlobal ();
+   float originJ = static_cast<float>( grid->minJGlobal () );
 
    Write1DDataSet (1, ORIGIN_J_DATASET_NAME, H5T_NATIVE_FLOAT, &originJ);
 
-   float deltaI = grid->deltaIGlobal ();
+   float deltaI = static_cast<float>( grid->deltaIGlobal () );
 
    Write1DDataSet (1, DELTA_I_DATASET_NAME, H5T_NATIVE_FLOAT, &deltaI);
-   float deltaJ = grid->deltaJGlobal ();
+   float deltaJ = static_cast<float>( grid->deltaJGlobal () );
 
    Write1DDataSet (1, DELTA_J_DATASET_NAME, H5T_NATIVE_FLOAT, &deltaJ);
 

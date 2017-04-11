@@ -18,7 +18,7 @@ if (BM_BUILD_HYPRE)
 
 add_external_project_to_repository(
       NAME PETSC
-      VERSION "${PETSC_VERSION}_Hypre"
+      VERSION ${PETSC_VERSION}_Hypre
       ARCHIVE "${THIRD_PARTY_DIR}/sources/petsc-${PETSC_VERSION}.tar.gz"
       ARCHIVE_MD5 "781af0eec1e821f82fb3ecc7a2dfda8e"
       DEPENDS_NAME "Hypre"
