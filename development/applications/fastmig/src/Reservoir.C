@@ -2214,9 +2214,12 @@ namespace migration
 
    bool Reservoir::computeNetToGross (void)
    {
-      const GridMap * netToGrossMap = getMap (Interface::NetToGross); // may be 0
+      bool reservoirDetection = m_migrator->performReservoirDetection();
 
-      if (netToGrossMap) netToGrossMap->retrieveData ();
+      // If reservoir detection is on, ignore all net-to-gross maps that may be there.
+      const GridMap * netToGrossMap = reservoirDetection? nullptr : getMap (Interface::NetToGross); // may be 0
+
+      if (netToGrossMap != nullptr) netToGrossMap->retrieveData ();
 
       for (unsigned int i = m_columnArray->firstILocal (); i <= m_columnArray->lastILocal (); ++i)
       {
@@ -2225,9 +2228,9 @@ namespace migration
             LocalColumn * column = getLocalColumn (i, j);
 
             double netToGross = 100.0;
-            if (netToGrossMap)
+            if (netToGrossMap != nullptr)
             {
-               netToGross = netToGrossMap->getValue (i, j);
+               netToGross = netToGrossMap->getValue (i, j);     
                if (netToGross == netToGrossMap->getUndefinedValue ())
                {
                   netToGross = 100.0;
@@ -2237,7 +2240,7 @@ namespace migration
          }
       }
 
-      if (netToGrossMap) netToGrossMap->restoreData ();
+      if (netToGrossMap != nullptr) netToGrossMap->restoreData ();
 
       return true;
    }

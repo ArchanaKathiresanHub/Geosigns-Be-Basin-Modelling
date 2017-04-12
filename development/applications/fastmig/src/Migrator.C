@@ -553,6 +553,9 @@ bool Migrator::computeDepthOffsets ()
 /// compute the nett/gross fractions
 bool Migrator::computeNetToGross (void)
 {
+   if (m_reservoirDetection)
+      return true;
+
    Interface::ReservoirList * reservoirs = getReservoirs ();
 
    Interface::ReservoirList::iterator reservoirIter;
