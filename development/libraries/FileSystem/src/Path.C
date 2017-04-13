@@ -69,8 +69,7 @@ bool Path::exists() const
    bool ret = false;
    if ( !m_path.empty() )
    {
-      struct stat File_Stats;
-      ret = stat( m_path.c_str(), &File_Stats ) == 0 ? true : false;
+      ret = boost::filesystem::exists( boost::filesystem::path(m_path) );
    }
    return ret;
 }

@@ -11,6 +11,7 @@
 #include <string>
 #include "Path.h"
 #include <boost/filesystem/operations.hpp>
+#include <fstream>
 #include <gtest/gtest.h>
 
 static const std::string s_file = "Path/File.test";
@@ -66,4 +67,40 @@ TEST( Path, OperatorAngledBrackets )
 #else
    EXPECT_EQ( p.path(), std::string("TEST_FOLDER/TEST_FILE") );
 #endif
+}
+
+TEST( Path, LargeFileExist )
+{
+   // This unit test was created because the exist call was failing on windows with files larger than 2 Gb
+   const std::string fileName = "LargeFile";
+   const ibs::Path p( fileName );
+   try
+   {
+      std::ofstream ofs(fileName.c_str(), std::ios::binary | std::ios::out);
+      if( ofs.is_open() )
+      {
+         // Trying to write 2.4 Gb file
+         // I need this hack-loop because it's not possible to generate the file in one go
+         for( short i = 0; i < 3; ++i)
+         {
+            // Write chunk of 800 Mb
+            ofs.seekp((2400<<20) - 1, std::ios_base::cur);
+            ofs.write("", 1);
+            if( ofs.fail() )
+            {
+               throw std::ios_base::failure("Cannot generate file for LargeFileExist unit test");
+            }
+         }
+      }
+      ofs.close();
+
+      EXPECT_TRUE( p.exists() );
+   }
+   catch( std::ios_base::failure & e )
+   {
+      SUCCEED() << e.what();
+   }
+
+   // Remove the file if it exists
+   boost::filesystem::remove( boost::filesystem::path(p.fullPath().path()) );
 }
