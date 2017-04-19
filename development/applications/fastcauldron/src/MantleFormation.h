@@ -43,6 +43,7 @@ public :
    const DataAccess::Interface::GridMap                * getInputThicknessMap()       const { return GeoPhysics::GeoPhysicsMantleFormation::getInputThicknessMap(); }
    int                                                   getDepositionSequence()      const { return GeoPhysics::GeoPhysicsMantleFormation::getDepositionSequence(); }
    void                                                  asString( string & str )     const { return GeoPhysics::GeoPhysicsMantleFormation::asString( str ); }
+   unsigned int                                          getElementRefinement()       const { return GeoPhysics::GeoPhysicsMantleFormation::getElementRefinement(); }
 
    void determineMinMaxThickness()                                                          { return GeoPhysics::GeoPhysicsMantleFormation::determineMinMaxThickness(); }
    bool isCrust()                                                                     const { return GeoPhysics::GeoPhysicsMantleFormation::isCrust(); }

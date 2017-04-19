@@ -53,6 +53,8 @@ namespace GeoPhysics {
       DataAccess::Interface::GridMap                      * computeFaultGridMap( const DataAccess::Interface::Grid * localGrid, const DataAccess::Interface::Snapshot * snapshot ) const {
          return DataAccess::Interface::BasementFormation::computeFaultGridMap( localGrid, snapshot );
       }
+      unsigned int                                          getElementRefinement() const { return DataAccess::Interface::BasementFormation::getElementRefinement(); }
+
       // Inherited from MantleFormation
       const DataAccess::Interface::GridMap                * getInputThicknessMap()       const { return DataAccess::Interface::MantleFormation::getInputThicknessMap(); }
       int                                                   getDepositionSequence()      const { return DataAccess::Interface::MantleFormation::getDepositionSequence(); }

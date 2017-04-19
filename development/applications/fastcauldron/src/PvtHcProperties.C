@@ -103,8 +103,6 @@ bool PvtHcPropertiesVolumeCalculator::operator ()( const OutputPropertyMap::Outp
 
    const ElementVolumeGrid& grid = m_formation->getVolumeGrid ( NumberOfPVTComponents );
 
-   Interface::GridMap* componentMaps [ NumberOfPVTComponents ];
-
    PetscBlockVector<PVTComponents> layerMolarConcentrations;
 
    Interface::GridMap* hcDensityMaps [ 2 ];

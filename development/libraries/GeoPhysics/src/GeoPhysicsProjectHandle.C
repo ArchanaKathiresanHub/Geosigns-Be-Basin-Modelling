@@ -1258,7 +1258,7 @@ bool GeoPhysics::ProjectHandle::createBasaltThicknessAndECT () {
       crustMeltOnsetMap->restoreData( false, true );
       initialCrustalThickness = 0;
 
-      int globalStatus = true;
+      int globalStatus = 1;
 
       getMinValue( status, globalStatus );
 
@@ -1273,7 +1273,7 @@ bool GeoPhysics::ProjectHandle::createBasaltThicknessAndECT () {
          getMessageHandler ().printLine ( " MeSsAgE ERROR  For correct execution all crust thickness values must be positive." );
       }
       delete crustThicknesses;
-      return globalStatus;
+      return globalStatus < 1 ? false : true;
    }
    return true;
 }

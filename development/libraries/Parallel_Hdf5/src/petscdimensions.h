@@ -80,7 +80,7 @@ public:
    void createGlobalArray (DM &globalArray, const PetscDimensionType &dims)
    {
       DMDACreate3d (PETSC_COMM_WORLD, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DM_BOUNDARY_NONE, DMDA_STENCIL_BOX,
-                    dims[0], dims[1], dims[2], PETSC_DECIDE, PETSC_DECIDE, 
+                    (PetscInt)dims[0], (PetscInt)dims[1], (PetscInt)dims[2], PETSC_DECIDE, PETSC_DECIDE,
                     PETSC_DECIDE, 1, 1, PETSC_NULL, 
                     PETSC_NULL, PETSC_NULL, &globalArray);
    }

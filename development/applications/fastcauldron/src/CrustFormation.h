@@ -47,7 +47,8 @@ public :
    unsigned int setMaximumNumberOfElements( const bool readSizeFromVolumeData )             { return GeoPhysics::GeoPhysicsCrustFormation::setMaximumNumberOfElements( readSizeFromVolumeData ); }
    void retrieveAllThicknessMaps()                                                          { return GeoPhysics::GeoPhysicsCrustFormation::retrieveAllThicknessMaps(); }
    void restoreAllThicknessMaps()                                                           { return GeoPhysics::GeoPhysicsCrustFormation::restoreAllThicknessMaps(); }
-   
+   unsigned int  getElementRefinement()                                               const { return GeoPhysics::GeoPhysicsCrustFormation::getElementRefinement(); }
+
    // Inherited via LayerProperties
    void switchLithologies( const double age )                                               { return LayerProps::LayerProps::switchLithologies( age ); }
 

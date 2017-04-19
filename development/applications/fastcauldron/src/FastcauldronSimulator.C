@@ -794,7 +794,7 @@ void FastcauldronSimulator::printSnapshotProperties () const {
    assert ( snapshotTable != 0 );
 
    for ( timeTableIter = snapshotTable->begin (); timeTableIter != snapshotTable->end (); ++timeTableIter ) {
-      cout << " snapshot table: " << (unsigned long)(*timeTableIter) << "  "
+      cout << " snapshot table: " << (std::uintptr_t)(*timeTableIter) << "  "
            << database::getTime ( *timeTableIter ) << endl;
    }
 
@@ -1983,8 +1983,6 @@ const Interface::OutputProperty* FastcauldronSimulator::findOutputProperty ( con
 //------------------------------------------------------------//
 
 Interface::PropertyOutputOption FastcauldronSimulator::getOutputPropertyOption ( const std::string& propertyName ) {
-
-   Interface::PropertyOutputOption option;
 
    Interface::MutableOutputPropertyList::iterator propertyIter;
    Interface::OutputProperty* outputProperty = 0;

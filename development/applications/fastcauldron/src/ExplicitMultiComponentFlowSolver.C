@@ -290,7 +290,6 @@ void ExplicitMultiComponentFlowSolver::solve ( Subdomain&   subdomain,
 
    ConstrainedBooleanArrayMap currentAlreadyActivatedProperties;
    ConstrainedBooleanArrayMap previousAlreadyActivatedProperties;
-   bool averagedSaturationsActivated;
 
    PhaseCompositionArray phaseComposition;
    SaturationArray       saturations;
@@ -333,8 +332,6 @@ void ExplicitMultiComponentFlowSolver::solve ( Subdomain&   subdomain,
    TemporalPropertyInterpolator ves ( subdomain );
    TemporalPropertyInterpolator maxVes ( subdomain );
    TemporalPropertyInterpolator depth ( subdomain );
-
-   int t;
 
    DMCreateGlobalVector ( fluxGrid.getDa (), &elementGasFluxTermsVec );
    elementGasFluxTerms.setVector ( fluxGrid, elementGasFluxTermsVec, INSERT_VALUES );
@@ -426,8 +423,6 @@ void ExplicitMultiComponentFlowSolver::solve ( Subdomain&   subdomain,
    bool timeStepSubSamplePoint = false;
    bool timeSteppingFinished = false;
    double scaling = 1.0;
-
-   double subSampledLambdaEnd;
 
    zeroPhaseComposition.zero ();
    zeroComposition.zero ();
@@ -1071,7 +1066,6 @@ void ExplicitMultiComponentFlowSolver::transportComponents ( FormationSubdomainE
    int i;
    int j;
    int k;
-   int face;
 
 #if 0
    int elementCount = 0;
@@ -1432,7 +1426,6 @@ void ExplicitMultiComponentFlowSolver::computeFluxTerms ( FormationSubdomainElem
    int j;
    int k;
    int c;
-   int face;
 
    ElementFaceValueVector layerFluxTerms;
    FiniteElementMethod::ElementGeometryMatrix geometryMatrix;
@@ -1445,8 +1438,6 @@ void ExplicitMultiComponentFlowSolver::computeFluxTerms ( FormationSubdomainElem
    Saturation     elementSaturation;
    PVTPhaseValues phaseMolarConcentrations;
 
-   double sumGasMolarMassRatio;
-   double sumOilMolarMassRatio;
    double vapourMolarMass;
    double liquidMolarMass;
    double oilMassDensity;
@@ -1812,7 +1803,6 @@ void ExplicitMultiComponentFlowSolver::computeTemporalContributions ( const Subd
 
       double weight;
       double currentPorosity;
-            double currentPorosityDerivative;
       double previousPorosity;
 
 
