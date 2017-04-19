@@ -163,7 +163,7 @@ GeoPhysics::ProjectHandle * Migrator::getProjectHandle (void)
    return m_projectHandle.get ();
 }
 
-bool Migrator::compute (void)
+bool Migrator::compute (const bool overpressuredLeakage)
 {
    string activityName = MigrationActivityName;
    activityName += NumProcessorsArg;
@@ -201,6 +201,7 @@ bool Migrator::compute (void)
    m_hdynamicAndCapillary = m_projectHandle->getRunParameters ()->getHydrodynamicCapillaryPressure ();
    m_reservoirDetection = m_projectHandle->getRunParameters ()->getReservoirDetection ();
    m_paleoSeeps = m_projectHandle->getRunParameters ()->getPaleoSeeps ();
+   m_overpressuredLeakage = overpressuredLeakage;
    if (!m_advancedMigration)
    {
       m_hdynamicAndCapillary = false;
@@ -217,6 +218,7 @@ bool Migrator::compute (void)
       m_hdynamicAndCapillary = false;
       m_reservoirDetection = false;
       m_paleoSeeps = false;
+      m_overpressuredLeakage = false;
    }
 
    bool overPressureRun = !isHydrostaticCalculation ();

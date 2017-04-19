@@ -246,6 +246,7 @@ namespace migration
       int getIndex (void);
       double getUndefinedValue (void);
       bool saveGenexMaps (const string & speciesName, DataAccess::Interface::GridMap * aMap, const Formation * formation, const Snapshot * aSnapshot);
+      const Migrator * getMigrator (void) const;
       
 
    private:

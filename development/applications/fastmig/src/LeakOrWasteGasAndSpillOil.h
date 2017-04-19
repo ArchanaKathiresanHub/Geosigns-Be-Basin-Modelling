@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2016 Shell International Exploration & Production.
+// Copyright (C) 2016-2017 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -10,6 +10,8 @@
 
 #ifndef _MIGRATION_DISTRIBUTE_LEAKORWASTEGASANDSPILLOIL_H_
 #define _MIGRATION_DISTRIBUTE_LEAKORWASTEGASANDSPILLOIL_H_
+
+#include <boost/array.hpp>
 
 #include "LeakGasAndSpillOil.h"
 #include "Waste.h"
@@ -34,14 +36,13 @@ namespace migration
 
       public:
 
-         LeakOrWasteGasAndSpillOil (const double& gasDensity, const double& oilDensity, const double& sealFluidDensity,
-            const double& fracturePressure, const double& capPressure_H2O_Gas, const double& capPressure_H2O_Oil,
-            const double& wasteLevel,
-            const MonotonicIncreasingPiecewiseLinearInvertableFunction* levelToVolume);
+         LeakOrWasteGasAndSpillOil (const double gasDensity, const double oilDensity, const double sealFluidDensity, const double overPressureContrast,
+                                    const double crestColumnThickness, const double fracturePressure, const double capPressure_H2O_Gas, const double capPressure_H2O_Oil,
+                                    const double wasteLevel, const MonotonicIncreasingPiecewiseLinearInvertableFunction* levelToVolume);
 
          void distribute (const double& gasVolume, const double& oilVolume, double& gasVolumeLeaked,
-            double& gasVolumeWasted, double& gasVolumeSpilled, double& oilVolumeLeaked,
-            double& oilVolumeSpilled) const;
+                          double& gasVolumeWasted, double& gasVolumeSpilled, double& oilVolumeLeaked,
+                          double& oilVolumeSpilled) const;
       };
 
    }

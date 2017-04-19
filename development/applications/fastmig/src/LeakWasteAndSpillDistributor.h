@@ -11,6 +11,8 @@
 #ifndef _MIGRATION_DISTRIBUTE_LEAKWASTEANDSPILLDISTRIBUTOR_H_
 #define _MIGRATION_DISTRIBUTE_LEAKWASTEANDSPILLDISTRIBUTOR_H_
 
+#include <boost/array.hpp>
+
 #include "Distributor.h"
 #include "CapillarySealStrength.h"
 
@@ -32,6 +34,8 @@ namespace migration
       double m_sealFluidDensity;
       double m_fractureSealStrength;
       double m_wasteLevel;
+      double m_overPressureContrast;
+      double m_crestColumnThickness;
 
       CapillarySealStrength m_capSealStrength;
 
@@ -49,12 +53,12 @@ namespace migration
    public:
 
       LeakWasteAndSpillDistributor (const double& sealFluidDensity, const double& fractureSealStrength,
-         const double& wasteLevel, const CapillarySealStrength& capSealStrength,
-         const MonotonicIncreasingPiecewiseLinearInvertableFunction* levelToVolume);
+                                    const double& wasteLevel, const CapillarySealStrength& capSealStrength,
+                                    const MonotonicIncreasingPiecewiseLinearInvertableFunction* levelToVolume);
 
-      LeakWasteAndSpillDistributor (const double& sealFluidDensity, const double& fractureSealStrength,
-         const CapillarySealStrength& capSealStrength, const MonotonicIncreasingPiecewiseLinearInvertableFunction*
-         levelToVolume);
+      LeakWasteAndSpillDistributor (const double sealFluidDensity, const double fractureSealStrength, const double overPressureContrast,
+                                    const double crestColumnThickness, const CapillarySealStrength& capSealStrength,
+                                    const MonotonicIncreasingPiecewiseLinearInvertableFunction* levelToVolume);
 
       ~LeakWasteAndSpillDistributor ();
 

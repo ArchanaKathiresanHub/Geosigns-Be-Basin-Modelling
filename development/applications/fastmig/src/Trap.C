@@ -2012,7 +2012,24 @@ namespace migration
             if ( lambdaPC == Interface::DefaultUndefinedMapValue or lambdaPC == Interface::DefaultUndefinedScalarValue )
                lambdaPC = 1.0;
 
-            m_distributor = new LeakWasteAndSpillDistributor( sealFluidDensity, fracSealStrength,
+            double overPressureContrast = 0.0;
+            bool overpressuredLeakage = m_reservoir->getMigrator()->isOverpressuredLeakageOn();
+            if (!m_reservoir->getMigrator()->isHydrostaticCalculation() and !isLegacy and overpressuredLeakage)
+            {
+               boost::array<double,2> overPressures = {0.0, 0.0};
+
+               int i,j;
+               i = getCrestColumn()->getI();
+               j = getCrestColumn()->getJ();
+               const Formation * const reservoirFormation = dynamic_cast<const Formation *> (m_reservoir->getFormation());
+
+               reservoirFormation->getTopBottomOverpressures(i, j, overPressures);
+               overPressureContrast = Utilities::Maths::MegaPaToPa * (overPressures[0] - overPressures[1]); 
+            }
+
+            double crestColumnThickness = getCrestColumn()->getThickness();
+
+            m_distributor = new LeakWasteAndSpillDistributor( sealFluidDensity, fracSealStrength, overPressureContrast, crestColumnThickness,
                                                               CapillarySealStrength( lithProps, lithFracs, mixModel, permeability, sealFluidDensity, lambdaPC, isLegacy ),
                                                               m_levelToVolume );
          }

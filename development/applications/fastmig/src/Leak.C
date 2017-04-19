@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2016 Shell International Exploration & Production.
+// Copyright (C) 2016-2017 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -9,6 +9,7 @@
 //
 
 #include "Leak.h"
+#include "Interface/Interface.h"
 
 // std library
 #include <iostream>
@@ -26,8 +27,8 @@ namespace migration
    namespace distribute
    {
 
-      Leak::Leak (const double& fluidDensity, const double& sealFluidDensity, const double& maxSealPressure,
-         const MonotonicIncreasingPiecewiseLinearInvertableFunction* levelToVolume) :
+      Leak::Leak (const double fluidDensity, const double sealFluidDensity, const double overPressureContrast, const double crestColumnThickness,
+                  const double maxSealPressure, const MonotonicIncreasingPiecewiseLinearInvertableFunction* levelToVolume) :
          m_fluidDensity (fluidDensity),
          m_sealFluidDensity (sealFluidDensity),
          m_maxSealPressure (maxSealPressure)
@@ -38,30 +39,31 @@ namespace migration
          // Normally the following conditions should apply:
          // assert(sealFluidDensity > fluidDensity);
          // assert(fluidDensity > 0.0);
-         // However, in the first real test of leaking (Acquifer), sealFluidDensity was smaller (1073 kg/m3) 
-         // than oil density (1003 kg/m3).  So we must be a bit careful.  If the density of oil is bigger 
+         // However, in the first real test of leaking (Aquifer), sealFluidDensity was smaller (1073 kg/m3) 
+         // than oil density (1003 kg/m3). So we must be a bit careful. If the density of oil is bigger 
          // than the one from oil or gas, we define the densities such that leaking won't take place.
-         // The easiest way of doing that is by limit the density of oil and or gas equal to that of 
+         // The easiest way of doing that is by limiting the density of oil and/or gas to that of 
          // the sealFluidDensity:
          m_fluidDensity = min (m_sealFluidDensity, m_fluidDensity);
 
-         // Calculate the maximum buoyancy level:
+         double buoyancyForce = (m_sealFluidDensity - m_fluidDensity) * AccelerationDueToGravity;
+
          double& maxBuoyancyLevel = m_maxBuoyancy[0];
-         maxBuoyancyLevel = m_sealFluidDensity != m_fluidDensity ?
-            m_maxSealPressure / ((m_sealFluidDensity - m_fluidDensity) * AccelerationDueToGravity) :
-            numeric_limits<double>::max ();
+         // Infinite column height if no buoyancy. Consistent with previour implementation ignoring overpressures
+         if (buoyancyForce == 0.0)
+            maxBuoyancyLevel = numeric_limits<double>::max ();
+         // Don't account for overpressures if crest column is zero thickness
+         else if (crestColumnThickness == 0.0)
+            maxBuoyancyLevel = m_maxSealPressure / buoyancyForce;
+         // If both buoyancy and thickness are not zero, account for overpressure
+         else
+            maxBuoyancyLevel = m_maxSealPressure / (buoyancyForce + overPressureContrast / crestColumnThickness);
 
-         if (maxBuoyancyLevel < 0)
+         // Check if the denominator of the above equation is smaller than, or euqal to, zero
+         if (maxBuoyancyLevel < 0 or !std::isfinite(maxBuoyancyLevel))
          {
-            std::cerr << "m_maxSealPressure = " << m_maxSealPressure << std::endl;
-            std::cerr << "sealFluidDensity = " << m_sealFluidDensity << std::endl;
-            std::cerr << "fluidDensity = " << m_fluidDensity << std::endl;
-            std::cerr << "maxBuoyancyLevel = " << maxBuoyancyLevel << std::endl;
+            maxBuoyancyLevel = numeric_limits<double>::max ();
          }
-
-         assert (maxBuoyancyLevel >= 0);
-
-
 
          // Calculate the corresponding volume:
          double& maxBuoyancyVolume = m_maxBuoyancy[1];

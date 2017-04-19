@@ -11,6 +11,8 @@
 #ifndef MIGRATION_FORMATION_H
 #define MIGRATION_FORMATION_H
 
+#include <boost/array.hpp>
+
 // CBMGenerics library
 #include "ComponentManager.h"
 typedef CBMGenerics::ComponentManager::SpeciesNamesId ComponentId;
@@ -118,6 +120,8 @@ namespace migration
       void identifyAsReservoir (void) const;
 
       double getPropertyValue (PropertyIndex propertyIndex, int i, int j, int k) const;
+
+      void getTopBottomOverpressures (const int i, const int j, boost::array<double,2> & overPressures) const;
 
       inline double getDepth (int i, int j, int k) const;
       inline double getHorizontalPermeability (int i, int j, int k);

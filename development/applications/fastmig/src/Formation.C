@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2010-2015 Shell International Exploration & Production.
+// Copyright (C) 2010-2017 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -569,6 +569,36 @@ namespace migration
       }
 
       return value;
+   }
+
+   void Formation::getTopBottomOverpressures (const int i, const int j, boost::array<double,2> & overPressures) const
+   {
+      if (m_migrator->isHydrostaticCalculation())
+      {
+         overPressures[0] = 0.0;
+         overPressures[1] = 0.0;
+         return;
+      }
+
+      DerivedProperties::PropertyRetriever overPressurePropertyRetriever (m_formationPropertyPtr[OVERPRESSUREPROPERTY]);
+
+      const int k = getMaximumNumberOfElements();
+      
+      if (m_formationPropertyPtr[OVERPRESSUREPROPERTY] != nullptr)
+      {
+         // Array has first value at the bottom and second at the top of the formation
+         overPressures[0] = m_formationPropertyPtr[OVERPRESSUREPROPERTY]->get (i, j, 0);
+         overPressures[1] = m_formationPropertyPtr[OVERPRESSUREPROPERTY]->get (i, j, k);
+
+         if (overPressures[0] == m_formationPropertyPtr[OVERPRESSUREPROPERTY]->getUndefinedValue() or
+             overPressures[1] == m_formationPropertyPtr[OVERPRESSUREPROPERTY]->getUndefinedValue())
+         {
+            overPressures[0] = 0.0;
+            overPressures[1] = 0.0;
+         }
+      }
+      
+      return;
    }
 
    FiniteElementMethod::ThreeVector & Formation::getAnalogFlowDirection (int i, int j, int k)

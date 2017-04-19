@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2016 Shell International Exploration & Production.
+// Copyright (C) 2016-2017 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -10,6 +10,8 @@
 
 #ifndef _MIGRATION_DISTRIBUTE_LEAK_H_
 #define _MIGRATION_DISTRIBUTE_LEAK_H_
+
+#include <boost/array.hpp>
 
 #include "MonotonicIncreasingPiecewiseLinearInvertableFunction.h"
 #include "Tuple2.h"
@@ -38,8 +40,8 @@ namespace migration
 
       public:
 
-         Leak (const double& fluidDensity, const double& sealFluidDensity, const double& maxSealPressure,
-            const MonotonicIncreasingPiecewiseLinearInvertableFunction* levelToVolume);
+         Leak (const double fluidDensity, const double sealFluidDensity, const double overPressureContrast, const double crestColumnThickness,
+               const double maxSealPressure, const MonotonicIncreasingPiecewiseLinearInvertableFunction* levelToVolume);
 
          void distribute (const double& fluidVolume, double& fluidVolumeLeaked) const;
 

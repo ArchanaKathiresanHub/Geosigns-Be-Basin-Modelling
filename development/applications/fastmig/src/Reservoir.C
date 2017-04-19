@@ -115,7 +115,11 @@ namespace migration
       removePreviousTraps ();
       removeTraps ();
       destroyColumns ();
+   }
 
+   const Migrator * Reservoir::getMigrator (void) const
+   {
+      return m_migrator;
    }
 
    void Reservoir::createColumns (void)

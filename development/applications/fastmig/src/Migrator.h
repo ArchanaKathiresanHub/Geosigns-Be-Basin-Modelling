@@ -51,7 +51,7 @@ namespace migration
       bool saveTo (const std::string & outputFileName);
 
       /// The top migration routine
-      bool compute (void);
+      bool compute (const bool overpressuredLeakage);
 
       void openMassBalanceFile (void);
       void closeMassBalanceFile (void);
@@ -204,6 +204,7 @@ namespace migration
       inline bool isBlockingOn (void) const;
       inline double getBlockingPermeability (void) const;
       inline double getBlockingPorosity (void) const;
+      inline bool isOverpressuredLeakageOn (void) const;
 
       const Interface::GridMap * getPropertyGridMap (const string & propertyName, const Interface::Snapshot * snapshot,
                                                      const Interface::Reservoir * reservoir,
@@ -249,6 +250,8 @@ namespace migration
       bool m_isBlockingOn;
       /// Whether we use GeoSigns-BPA (true) or BPA2 (false) engine
       bool m_legacyMigration;
+      /// Whether overpressure is accounted for in trap leakage
+      bool m_overpressuredLeakage;
    
       double m_blockingPermeability;
       double m_blockingPorosity;
@@ -310,6 +313,11 @@ double migration::Migrator::getMinOilColumnHeight (void) const
 double migration::Migrator::getMinGasColumnHeight (void) const
 {
    return m_minGasColumnHeight;
+}
+
+bool migration::Migrator::isOverpressuredLeakageOn (void) const
+{
+   return m_overpressuredLeakage;
 }
 
 #endif // _MIGRATION_MIGRATOR_H

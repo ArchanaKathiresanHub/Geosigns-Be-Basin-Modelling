@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2016 Shell International Exploration & Production.
+// Copyright (C) 2016-2017 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -11,9 +11,10 @@
 #ifndef _MIGRATION_DISTRIBUTE_LEAKGASANDSPILLOIL_H_
 #define _MIGRATION_DISTRIBUTE_LEAKGASANDSPILLOIL_H_
 
+#include <boost/array.hpp>
+
 #include "LeakGas.h"
 #include "SpillOilAndGas.h"
-// #include "LeakOrSpill.h"
 
 #include "MonotonicIncreasingPiecewiseLinearInvertableFunction.h"
 #include "Tuple2.h"
@@ -36,12 +37,12 @@ namespace migration
 
       public:
 
-         LeakGasAndSpillOil (const double& gasDensity, const double& oilDensity, const double& sealFluidDensity,
-            const double& fracturePressure, const double& capPressure_H2O_Gas, const double& capPressure_H2O_Oil,
-            const MonotonicIncreasingPiecewiseLinearInvertableFunction* levelToVolume);
+         LeakGasAndSpillOil (const double gasDensity, const double oilDensity, const double sealFluidDensity, const double overPressureContrast,
+                             const double crestColumnThickness, const double fracturePressure, const double capPressure_H2O_Gas,
+                             const double capPressure_H2O_Oil, const MonotonicIncreasingPiecewiseLinearInvertableFunction* levelToVolume);
 
          void distribute (const double& gasVolume, const double& oilVolume, double& gasVolumeLeaked,
-            double& gasVolumeSpilled, double& oilVolumeLeaked, double& oilVolumeSpilled) const;
+                          double& gasVolumeSpilled, double& oilVolumeLeaked, double& oilVolumeSpilled) const;
 
          const double& maxCapacityLevel () const { return m_spillOilAndGas.maxLevel (); }
          const double& maxCapacityVolume () const { return m_spillOilAndGas.maxVolume (); }
