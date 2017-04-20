@@ -237,6 +237,10 @@ namespace migration
    // between the original and the one under consideration when trying to find
    // a suitable column to divert HCs that have ended up in a sealing column.
 
+   /// Whether to eliminate HCs stuck in undefined/undetected reservoirs.
+   /// Only possible when running advanced migration without reservoir detection.
+   const bool EliminateStuckHCs = true;
+
    const int NoTrapId = -10;
    const int UnknownTrapId = -5;
 

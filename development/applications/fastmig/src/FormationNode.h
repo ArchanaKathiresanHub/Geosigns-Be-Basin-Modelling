@@ -45,7 +45,7 @@ namespace migration
       inline unsigned int getI (void) const;
       inline unsigned int getJ (void) const;
       inline unsigned int getK (void) const;
-      inline Formation *getFormation (void);
+      inline Formation *getFormation (void) const;
 
       //these are functions used to compare depths in the detectReservoirCrests algorithm
       int compareDepths (FormationNode * node, bool useTieBreaker = true);
@@ -470,7 +470,7 @@ namespace migration
    }
 
 
-   Formation *FormationNode::getFormation (void)
+   Formation *FormationNode::getFormation (void) const
    {
       return m_formation;
    }

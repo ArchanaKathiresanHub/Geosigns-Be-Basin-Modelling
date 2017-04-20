@@ -103,7 +103,7 @@ namespace migration
       void setFiniteElementDepths (int i, int j, int k, double * depths);
 
       LocalFormationNode * getLocalFormationNode (int i, int j, int k) const;
-      FormationNode * getFormationNode (int i, int j, int k);
+      FormationNode * getFormationNode (int i, int j, int k) const;
       double getFormationNodeDepth (int i, int j, int k);
 
       int getNodeDepth (void) const;
@@ -164,7 +164,7 @@ namespace migration
 
       int getIndex (void);
 
-      bool isOnBoundary (FormationNode *);
+      bool isOnBoundary (const FormationNode *) const;
       bool isShallowerThanNeighbour (const FormationNode *, const int, const int) const;
 
       SurfaceGridMap getTopSurfaceGridMap (const DataAccess::Interface::Property* prop, const DataAccess::Interface::Snapshot* snapshot) const;
@@ -197,6 +197,12 @@ namespace migration
       bool calculateLeakageSeeps (const Interface::Snapshot * end, const bool advancedMigration);
       /// @ brief Calculates seeps due to expulsion from all source rocks above the top reservoir
       bool calculateExpulsionSeeps (const Interface::Snapshot * end, const double expulsionFraction, const bool advancedMigration);
+
+      /// @brief Returns whether the node is a 'crest' at a layer other than formation
+      bool isValidNodeBelowFormation (FormationNode * formationNode, const DataAccess::Interface::Formation * formation) const;
+
+      /// @brief Calculate expelled mass of HCs stuck in undetected crest
+      void calculateStuckHCs (const double expulsionFraction, const unsigned int i, const unsigned int j, double& stuckHCMass) const;
 
       void manipulateFormationNodeComposition (FormationNodeCompositionRequest & compositionRequest);
       void getFormationNodeComposition (FormationNodeCompositionRequest & compositionRequest, FormationNodeCompositionRequest & compositionResponse);

@@ -1488,9 +1488,9 @@ namespace migration
 
    void LocalFormationNode::dealWithStuckHydrocarbons ()
    {
-      bool eliminateHCs = true;
+      bool eliminateHCs = EliminateStuckHCs;
 
-      // If at the crest of a trap that we want to remain undetected, then just funnel all HCs through that crest
+      // If at the crest of a trap that we want to remain undetected, then just funnel all HCs through that crest or eliminate them
       if (undetectedCrest())
       {
          if (m_topFormationNode and !m_topFormationNode->isImpermeable())

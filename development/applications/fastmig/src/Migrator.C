@@ -174,14 +174,17 @@ bool Migrator::compute (const bool overpressuredLeakage)
    {
       m_projectHandle->deletePropertyValues (DataAccess::Interface::RESERVOIR);
 
-      // Commented out only for May 2016 release. When 3d grid is used, FlowDirectionIJK will be output and then it must be deleted
-      // m_projectHandle->deletePropertyValues (DataAccess::Interface::FORMATION, m_projectHandle->findProperty("FlowDirectionIJK"), 0, 0, 0, 0, DataAccess::Interface::VOLUME);
+      m_projectHandle->deletePropertyValues (DataAccess::Interface::FORMATION, m_projectHandle->findProperty("FlowDirectionIJK"), 0, 0, 0, 0, DataAccess::Interface::VOLUME);
 
       if (!m_trapIoTbl) m_trapIoTbl = m_projectHandle->getTable ("TrapIoTbl");
       m_trapIoTbl->clear ();
 
       if (!m_migrationIoTbl) m_migrationIoTbl = m_projectHandle->getTable ("MigrationIoTbl");
       m_migrationIoTbl->clear ();
+
+      m_projectHandle->deleteTrappers ();
+      database::Table * trapperIoTbl = m_projectHandle->getTable ("TrapperIoTbl");
+      trapperIoTbl->clear ();      
    }
 
    bool started = m_projectHandle->startActivity (activityName, m_projectHandle->getHighResolutionOutputGrid ());
@@ -1409,8 +1412,7 @@ bool Migrator::collectAndMigrateExpelledCharges (Reservoir * reservoir, Reservoi
          barrier->updateBlocking (formation, end);
 
       if (reservoirBelow and reservoirBelow->isActive (end) and
-          formationBelow == reservoirBelow->getFormation () and
-          !performHDynamicAndCapillary ()) //as in sec-mig
+          formationBelow == reservoirBelow->getFormation ())
       {
          break;
       }

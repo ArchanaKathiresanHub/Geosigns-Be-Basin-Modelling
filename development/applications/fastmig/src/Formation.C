@@ -492,7 +492,7 @@ namespace migration
       getLocalFormationNode (request.i, request.j, request.k)->getThreeVector (request, response);
    }
 
-   FormationNode * Formation::getFormationNode (int i, int j, int k)
+   FormationNode * Formation::getFormationNode (int i, int j, int k) const
    {
       if (k >= (int)getNodeDepth ())
       {
@@ -616,7 +616,7 @@ namespace migration
       return m_index;
    }
 
-   bool Formation::isOnBoundary (FormationNode * formationNode)
+   bool Formation::isOnBoundary (const FormationNode * formationNode) const
    {
       bool isOnBoundary = false;
       for (int di = 0; di < NumberOfLateralNeighbourOffsets; ++di)
@@ -1675,6 +1675,8 @@ namespace migration
 
       RequestHandling::StartRequestHandling (getMigrator (), "migrateExpelledChargesToReservoir");
 
+      double stuckHCMass = 0.0;
+
       for (unsigned int i = m_formationNodeArray->firstILocal (); i <= m_formationNodeArray->lastILocal (); ++i)
       {
          for (unsigned int j = m_formationNodeArray->firstJLocal (); j <= m_formationNodeArray->lastJLocal (); ++j)
@@ -1754,10 +1756,19 @@ namespace migration
                      targetReservoir->addBlocked (composition);
                }
             }
+            else if (isValidNodeBelowFormation(targetFormationNode, targetReservoir->getFormation ()))
+            {
+               calculateStuckHCs (expulsionFraction, i, j, stuckHCMass);
+            }
          }
       }
 
       RequestHandling::FinishRequestHandling ();
+
+      double stuckHCs = SumAll (stuckHCMass);
+      if (GetRank () == 0 and stuckHCs > 0.0)
+         std::cout << "MeSsAgE WARNING: Hydrocarbons expelled from SR " << getName() << " got trapped in undetected/undefined reservoirs. " << stuckHCs << " kg were eliminated.\n";
+      
    }
 
    // Refactor this. Too big, too complex
@@ -1778,6 +1789,8 @@ namespace migration
       int depthIndex = m_formationNodeArray->depth () - 1;
 
       RequestHandling::StartRequestHandling (getMigrator (), "migrateLeakedChargesToReservoir");
+
+      double stuckHCMass = 0.0;
 
       for (unsigned int i = m_formationNodeArray->firstILocal (); i <= m_formationNodeArray->lastILocal (); ++i)
       {
@@ -1866,11 +1879,20 @@ namespace migration
                   }
                }
             }
+            else if (isValidNodeBelowFormation(targetFormationNode, targetReservoir->getFormation ()))
+            {
+               stuckHCMass += leakingColumn->getComposition ().getWeight(); 
+            }
          }
       }
 
       delete leakingReservoirList;
       RequestHandling::FinishRequestHandling ();
+
+      double stuckHCs = SumAll (stuckHCMass);
+      if (GetRank () == 0 and stuckHCs > 0.0)
+         std::cout << "MeSsAgE WARNING: Hydrocarbons leaked from " << leakingReservoir->getFormation()->getName() << " got trapped in undetected/undefined reservoirs. " << stuckHCs << " kg were elinminated.\n";
+  
    }
 
    bool Formation::calculateExpulsionSeeps (const Interface::Snapshot * end, const double expulsionFraction, const bool advancedMigration)
@@ -1880,6 +1902,8 @@ namespace migration
       Formation *topActiveFormation = m_migrator->getTopActiveFormation (end);
 
       RequestHandling::StartRequestHandling (getMigrator (), "calculateExpulsionSeeps");
+
+      double stuckHCMass = 0.0;
 
       for (unsigned int i = m_formationNodeArray->firstILocal (); i <= m_formationNodeArray->lastILocal (); ++i)
       {
@@ -1925,11 +1949,19 @@ namespace migration
                }
                targetFormationNode->addComposition (composition);
             }
+            else if (isValidNodeBelowFormation(targetFormationNode, topActiveFormation))
+            {
+               calculateStuckHCs (expulsionFraction, i, j, stuckHCMass);
+            }
          }
       }
 
       RequestHandling::FinishRequestHandling ();
 
+      double stuckHCs = SumAll (stuckHCMass);
+      if (GetRank () == 0 and stuckHCs > 0.0)
+         std::cout << "MeSsAgE WARNING: Hydrocarbons expelled from SR " << getName() << " got trapped in undetected/undefined reservoirs. " << stuckHCs << " kg were eliminated.\n";
+     
       return true;
    }
 
@@ -1951,6 +1983,8 @@ namespace migration
       int depthIndex = m_formationNodeArray->depth () - 1;
 
       RequestHandling::StartRequestHandling (getMigrator (), "calculateLeakageSeeps");
+
+      double stuckHCMass = 0.0;
 
       for (unsigned int i = m_formationNodeArray->firstILocal (); i <= m_formationNodeArray->lastILocal (); ++i)
       {
@@ -2006,13 +2040,54 @@ namespace migration
                   targetFormationNode->addComposition (composition);
                }
             }
+            else if (isValidNodeBelowFormation(targetFormationNode, topActiveFormation))
+            {
+               stuckHCMass += leakingColumn->getComposition ().getWeight(); 
+            }
          }
       }
 
       delete leakingReservoirList;
       RequestHandling::FinishRequestHandling ();
 
+      double stuckHCs = SumAll (stuckHCMass);
+      if (GetRank () == 0 and stuckHCs > 0.0)
+         std::cout << "MeSsAgE WARNING: Hydrocarbons leaked from " << leakingReservoir->getFormation()->getName() << " got trapped in undetected/undefined reservoirs. " << stuckHCs << " kg were elinminated.\n";
+ 
       return true;
+   }
+
+   bool Formation::isValidNodeBelowFormation (FormationNode * formationNode, const DataAccess::Interface::Formation * formation) const
+   {
+      return formationNode and !isOnBoundary(formationNode) and
+         (formationNode->getReservoirVapour () or formationNode->getReservoirLiquid ()) and
+         formationNode->getFormation () != formation;
+   }
+
+   void Formation::calculateStuckHCs (const double expulsionFraction, const unsigned int i, const unsigned int j, double& stuckHCMass) const
+   {
+      Composition stuckComposition;
+      for (int componentId = ComponentId::FIRST_COMPONENT; componentId < ComponentId::NUMBER_OF_SPECIES; ++componentId)
+      {
+         if (!ComponentsUsed[componentId])
+            continue;
+         if (!m_expulsionGridMaps || !m_expulsionGridMaps[componentId])
+            continue;
+
+         GridMap *densityMap = m_expulsionGridMaps[componentId];
+
+         double surface = densityMap->getGrid ()->getSurface (1, 1);
+
+         double value = densityMap->getValue (i, j);
+         if (value != densityMap->getUndefinedValue ())
+         {
+            double weight = value * expulsionFraction * surface;
+            stuckComposition.add ((ComponentId)componentId, weight);
+         }
+         stuckHCMass += stuckComposition.getWeight();
+      }
+
+      return;
    }
 
    bool Formation::preprocessSourceRock (const double startTime, const bool printDebug)
