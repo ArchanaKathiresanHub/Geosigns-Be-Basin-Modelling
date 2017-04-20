@@ -57,7 +57,15 @@ configure_file(test/data/ARD_simple-test.project3d ${CMAKE_CURRENT_BINARY_DIR}/d
 
 configure_file(test/data/Inputs.HDF ${CMAKE_CURRENT_BINARY_DIR}/data/Inputs.HDF COPYONLY)
 
+configure_file(test/data/ARD_simple-test_MassBalance ${CMAKE_CURRENT_BINARY_DIR}/data/ARD_simple-test_MassBalance COPYONLY)
+
 configure_file(test/data/ARD_simple-test_CauldronOutputDir/Genex5_Results.HDF ${CMAKE_CURRENT_BINARY_DIR}/data/ARD_simple-test_CauldronOutputDir/Genex5_Results.HDF COPYONLY)
+
+configure_file(test/data/ARD_simple-test_CauldronOutputDir/History_ARD_simple-test_genex_sr_5500_4500.dat ${CMAKE_CURRENT_BINARY_DIR}/data/ARD_simple-test_CauldronOutputDir/History_ARD_simple-test_genex_sr_5500_4500.dat COPYONLY)
+
+configure_file(test/data/ARD_simple-test_CauldronOutputDir/HistoryGenex.txt ${CMAKE_CURRENT_BINARY_DIR}/data/ARD_simple-test_CauldronOutputDir/HistoryGenex.txt COPYONLY)
+
+configure_file(test/data/ARD_simple-test_CauldronOutputDir/MyWell.BHF ${CMAKE_CURRENT_BINARY_DIR}/data/ARD_simple-test_CauldronOutputDir/MyWell.BHF COPYONLY)
 
 configure_file(test/data/ARD_simple-test_CauldronOutputDir/HighResDecompaction_Results.HDF ${CMAKE_CURRENT_BINARY_DIR}/data/ARD_simple-test_CauldronOutputDir/HighResDecompaction_Results.HDF COPYONLY)
 

@@ -57,6 +57,12 @@ namespace CauldronIO
     /// \enum SubsurfaceKind
     /// \brief Type of subsurface
     enum SubsurfaceKind { Sediment, Basement, None };
+    /// \enum SpeciesNamesId
+    /// \brief The hydrocarbone species
+    enum SpeciesNamesId  { FIRST_COMPONENT = 0, ASPHALTENE = 0, RESIN = 1, C15_PLUS_ARO = 2, C15_PLUS_SAT = 3, C6_MINUS_14ARO = 4, C6_MINUS_14SAT = 5,
+                           C5 = 6, C4 = 7, C3 = 8, C2 = 9, C1 = 10, COX = 11, N2 = 12, H2S = 13, LSC = 14, C15_PLUS_AT = 15, C6_MINUS_14BT = 16,
+                           C6_MINUS_14DBT = 17, C6_MINUS_14BP = 18, C15_PLUS_ARO_S = 19, C15_PLUS_SAT_S = 20, C6_MINUS_14SAT_S = 21, C6_MINUS_14ARO_S = 22,
+                           NUMBER_OF_SPECIES = 23 };
 
     class SnapShot;
     class Project;
@@ -68,7 +74,9 @@ namespace CauldronIO
     class VolumeData;
     class Geometry2D;
     class Geometry3D;
+	class BaseTrap;
     class Trapper;
+    class Trap;
     class Reservoir;
     class VisualizationIOData;
     class StratigraphyTableEntry;

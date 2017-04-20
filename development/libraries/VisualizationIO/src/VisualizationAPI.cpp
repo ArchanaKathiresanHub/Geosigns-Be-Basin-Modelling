@@ -179,6 +179,68 @@ void CauldronIO::Project::addMigrationEvent(std::shared_ptr<MigrationEvent> even
     m_migrationEventList.push_back(event);
 }
 
+const CauldronIO::TrapperList& CauldronIO::Project::getTrapperTable() const
+{
+    return m_trapperList;
+}
+
+void CauldronIO::Project::addTrapper(std::shared_ptr<Trapper>& newTrapper) throw (CauldronIOException)
+{
+	if (!newTrapper) throw CauldronIOException("Cannot add empty trapper");
+
+	BOOST_FOREACH(std::shared_ptr<Trapper>& trapper, m_trapperList)
+		if (trapper == newTrapper) throw CauldronIOException("Cannot add trapper twice");
+
+	m_trapperList.push_back(newTrapper);
+}
+
+
+const CauldronIO::TrapList& CauldronIO::Project::getTrapTable() const
+{
+    return m_trapList;
+}
+
+void CauldronIO::Project::addTrap(std::shared_ptr<Trap>&  newTrap) throw (CauldronIOException)
+
+{
+   if (!newTrap) throw CauldronIOException("Cannot add empty trap");
+
+   BOOST_FOREACH(std::shared_ptr<Trap>& trap, m_trapList)
+		if (trap == newTrap) throw CauldronIOException("Cannot add trap twice");
+
+    m_trapList.push_back(newTrap);
+}
+
+const std::vector<std::string>& CauldronIO::Project::getGenexHistoryList() 
+{
+    return m_genexHistoryList;
+}
+
+void CauldronIO::Project::addGenexHistoryRecord(std::string historyRecord) 
+{
+   m_genexHistoryList.push_back( historyRecord );
+}
+
+const std::vector<std::string>& CauldronIO::Project::getBurialHistoryList() 
+{
+    return m_burialHistoryList;
+}
+
+void CauldronIO::Project::addBurialHistoryRecord(std::string historyRecord) 
+{
+   m_burialHistoryList.push_back( historyRecord );
+}
+
+const std::string& CauldronIO::Project::getMassBalance() 
+{
+   return m_massBalance;
+}
+
+void  CauldronIO::Project::setMassBalance(const std::string name)
+{
+   m_massBalance = name;
+}
+
 const ReservoirList& CauldronIO::Project::getReservoirs() const
 {
     return m_reservoirList;
@@ -281,6 +343,8 @@ void CauldronIO::Project::release()
     m_stratTable.clear();
     m_geometries.clear();
     m_migrationEventList.clear();
+    m_trapperList.clear();
+    m_trapList.clear();
     m_formationList.clear();
     m_propertyList.clear();
 }
@@ -1585,122 +1649,6 @@ bool CauldronIO::Geometry3D::operator==(const Geometry3D& other) const
 }
 
 //////////////////////////////////////////////////////////////////////////
-/// Trapper implementation
-//////////////////////////////////////////////////////////////////////////
-
-CauldronIO::Trapper::Trapper(int ID, int persistentID)
-{
-    m_ID = ID;
-    m_persistentID = persistentID;
-    m_downstreamTrapperID = -1;
-}
-
-const std::string& CauldronIO::Trapper::getReservoirName() const
-{
-    return m_reservoir;
-}
-
-void CauldronIO::Trapper::setReservoirName(const std::string& reservoirName)
-{
-    m_reservoir = reservoirName;
-}
-
-float CauldronIO::Trapper::getSpillDepth() const
-{
-    return m_spillDepth;
-}
-
-void CauldronIO::Trapper::setSpillDepth(float depth)
-{
-    m_spillDepth = depth;
-}
-
-void CauldronIO::Trapper::getSpillPointPosition(float& posX, float& posY) const
-{
-    posX = m_spillPositionX;
-    posY = m_spillPositionY;
-}
-
-void CauldronIO::Trapper::setSpillPointPosition(float posX, float posY)
-{
-    m_spillPositionX = posX;
-    m_spillPositionY = posY;
-}
-
-float CauldronIO::Trapper::getDepth() const
-{
-  return m_depth;
-}
-
-void CauldronIO::Trapper::setDepth(float depth)
-{
-  m_depth = depth;
-}
-
-void CauldronIO::Trapper::getPosition(float& posX, float& posY) const
-{
-  posX = m_positionX;
-  posY = m_positionY;
-}
-
-void CauldronIO::Trapper::setPosition(float posX, float posY)
-{
-  m_positionX = posX;
-  m_positionY = posY;
-}
-
-int CauldronIO::Trapper::getID() const
-{
-    return m_ID;
-}
-
-int CauldronIO::Trapper::getPersistentID() const
-{
-    return m_persistentID;
-}
-
-std::shared_ptr<const Trapper> CauldronIO::Trapper::getDownStreamTrapper() const
-{
-    return m_downstreamTrapper;
-}
-
-void CauldronIO::Trapper::setDownStreamTrapper(std::shared_ptr<const Trapper> trapper)
-{
-    m_downstreamTrapper = trapper;
-}
-
-void CauldronIO::Trapper::setDownStreamTrapperID(int persistentID)
-{
-    m_downstreamTrapperID = persistentID;
-}
-
-int CauldronIO::Trapper::getDownStreamTrapperID() const
-{
-    return m_downstreamTrapperID;
-}
-
-
-void CauldronIO::Trapper::setGOC(float goc)
-{
-    m_goc = goc;
-}
-
-float CauldronIO::Trapper::getGOC() const
-{
-    return m_goc;
-}
-
-void CauldronIO::Trapper::setOWC(float woc)
-{
-    m_owc = woc;
-}
-
-float CauldronIO::Trapper::getOWC() const
-{
-    return m_owc;
-}
-
-//////////////////////////////////////////////////////////////////////////
 /// Reservoir implementation
 //////////////////////////////////////////////////////////////////////////
 
@@ -2409,6 +2357,7 @@ void CauldronIO::MigrationEvent::setMassasphaltenes(double val)
 {
     m_Massasphaltenes = val;
 }
+
 
 #ifdef _MSC_VER
 #pragma warning (pop)

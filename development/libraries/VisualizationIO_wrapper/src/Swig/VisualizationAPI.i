@@ -40,6 +40,7 @@ namespace CauldronIO
 %shared_ptr(CauldronIO::Property)
 %shared_ptr(CauldronIO::Project)
 %shared_ptr(CauldronIO::Trapper)
+%shared_ptr(CauldronIO::Trap)
 %shared_ptr(CauldronIO::MapNative)
 %shared_ptr(CauldronIO::ReferenceMap)
 %shared_ptr(CauldronIO::VolumeDataNative)
@@ -79,6 +80,7 @@ namespace CauldronIO
 %template(SurfaceList) std::vector<std::shared_ptr<CauldronIO::Surface > > ;
 %template(VolumeList) std::vector<std::shared_ptr<CauldronIO::Volume > > ;
 %template(TrapperList) std::vector<std::shared_ptr<CauldronIO::Trapper > > ;
+%template(TrapList) std::vector<std::shared_ptr<CauldronIO::Trap> >;
 %template(PropertyList) std::vector<std::shared_ptr<const CauldronIO::Property > > ;
 %template(PropertySurfaceData) std::pair<std::shared_ptr<const CauldronIO::Property>, std::shared_ptr<CauldronIO::SurfaceData> >;
 %template(PropertySurfaceDataList) std::vector < CauldronIO::PropertySurfaceData > ;

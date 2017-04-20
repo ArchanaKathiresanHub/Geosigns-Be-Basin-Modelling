@@ -69,6 +69,11 @@ private:
 
     void addSnapShots();
     void addMigrationIO();
+    void addTrapperIO();
+    void addTrapIO();
+    void addGenexHistory();
+    void addBurialHistory();
+    void addMassBalance();
 
     CauldronIO::SubsurfaceKind getSubSurfaceKind(const DataAccess::Interface::Surface* surface) const;
 

@@ -56,7 +56,7 @@ namespace Shell.BasinModeling.CauldronIO.Test
             StringAssert.Equals(project.getProperties()[3].getCauldronName(), "Temperature");
             StringAssert.Equals(project.getProperties()[3].getUserName(), "Temperature");
             Assert.IsTrue(project.getSnapShots()[0].getVolume().getSubSurfaceKind() == SubsurfaceKind.None);
-            
+
             Formation form = project.findFormation("Mantle");
             int kStart, kEnd;
             form.getK_Range(out kStart, out kEnd);
@@ -101,8 +101,8 @@ namespace Shell.BasinModeling.CauldronIO.Test
             const string team = "team";
             const string version = "vers";
             ModellingMode mode = ModellingMode.MODE1D;
-            
-            Project project = new Project(name, description, team, version, mode, 2,1);
+
+            Project project = new Project(name, description, team, version, mode, 2, 1);
             SnapShot snap = new SnapShot(2.5, SnapShotKind.SYSTEM, true);
             SnapShotList snapShotList = project.getSnapShots();
             Assert.AreEqual(snapShotList.Count, 0);
@@ -118,8 +118,8 @@ namespace Shell.BasinModeling.CauldronIO.Test
             const string team = "team";
             const string version = "vers";
             ModellingMode mode = ModellingMode.MODE1D;
-            
-            Project project = new Project(name, description, team, version, mode, 2,1);
+
+            Project project = new Project(name, description, team, version, mode, 2, 1);
             const string propName = "Depth";
             const string cauldronName = "cDepth";
             const string userName = "uDepth";
@@ -141,8 +141,8 @@ namespace Shell.BasinModeling.CauldronIO.Test
             const string team = "team";
             const string version = "vers";
             ModellingMode mode = ModellingMode.MODE1D;
-            
-            Project project = new Project(name, description, team, version, mode, 2,1);
+
+            Project project = new Project(name, description, team, version, mode, 2, 1);
             int kStart = 1;
             int kEnd = 2;
             const string formationName = "formation";
@@ -161,8 +161,8 @@ namespace Shell.BasinModeling.CauldronIO.Test
             const string team = "team";
             const string version = "vers";
             ModellingMode mode = ModellingMode.MODE1D;
-            
-            Project project = new Project(name, description, team, version, mode, 2,1);
+
+            Project project = new Project(name, description, team, version, mode, 2, 1);
             int kStart = 1;
             int kEnd = 2;
             const string formationName = "formation";
@@ -183,8 +183,8 @@ namespace Shell.BasinModeling.CauldronIO.Test
             const string team = "team";
             const string version = "vers";
             ModellingMode mode = ModellingMode.MODE1D;
-            
-            Project project = new Project(name, description, team, version, mode, 2,1);
+
+            Project project = new Project(name, description, team, version, mode, 2, 1);
             const string propName = "Depth";
             const string cauldronName = "cDepth";
             const string userName = "uDepth";
@@ -211,8 +211,8 @@ namespace Shell.BasinModeling.CauldronIO.Test
             const string team = "team";
             const string version = "vers";
             ModellingMode mode = ModellingMode.MODE1D;
-            
-            Project project = new Project(name, description, team, version, mode, 2,1);
+
+            Project project = new Project(name, description, team, version, mode, 2, 1);
             int kStart = 1;
             int kEnd = 2;
             const string formationName = "formation";
@@ -234,8 +234,8 @@ namespace Shell.BasinModeling.CauldronIO.Test
             const string team = "team";
             const string version = "vers";
             ModellingMode mode = ModellingMode.MODE1D;
-            
-            Project project = new Project(name, description, team, version, mode, 2,1);
+
+            Project project = new Project(name, description, team, version, mode, 2, 1);
             int kStart = 1;
             int kEnd = 2;
             const string formationName = "formation";
@@ -250,6 +250,35 @@ namespace Shell.BasinModeling.CauldronIO.Test
             newReservoir.getFormation().getK_Range(out start, out end);
             Assert.AreEqual(start, kStart);
             Assert.AreEqual(end, kEnd);
+        }
+
+        [TestMethod]
+        public void ProjectAddHistoryAndMassBalanceFile()
+        {
+            const string name = "Project";
+            const string description = "desc";
+            const string team = "team";
+            const string version = "vers";
+            ModellingMode mode = ModellingMode.MODE1D;
+            int xmlVersionMjr = 2;
+            int xmlVersionMnr = 1;
+            Project project = new Project(name, description, team, version, mode, xmlVersionMjr, xmlVersionMnr);
+
+            const string historyFileName = "HistoryFile.dat";
+            project.addGenexHistoryRecord(historyFileName);
+            SurfaceNameList filesList = project.getGenexHistoryList();
+            Assert.AreEqual(1, filesList.Count);
+            StringAssert.Equals(historyFileName, filesList[0]);
+
+            const string burialHistoryFileName = "MyWell.BHF";
+            project.addBurialHistoryRecord(burialHistoryFileName);
+            SurfaceNameList burialFilesList = project.getBurialHistoryList();
+            Assert.AreEqual(1, burialFilesList.Count);
+            StringAssert.Equals(burialHistoryFileName, burialFilesList[0]);
+
+            const string massBalanceFileName = "project_MassBalance";
+            project.setMassBalance(massBalanceFileName);
+            StringAssert.Equals(project.getMassBalance(), massBalanceFileName);
         }
     }
 
@@ -297,7 +326,7 @@ namespace Shell.BasinModeling.CauldronIO.Test
             int kEnd = 2;
             const string formationName = "formation";
             Formation formation = new Formation(kStart, kEnd, formationName);
-            surface.setFormation(formation,true);
+            surface.setFormation(formation, true);
             Assert.AreEqual(surface.getTopFormation().getName(), formationName);
             int start, end;
             surface.getTopFormation().getK_Range(out start, out end);
@@ -410,7 +439,7 @@ namespace Shell.BasinModeling.CauldronIO.Test
         [TestClass()]
         public class TrapperTests
         {
-            [TestMethod]
+           [TestMethod]
             public void TrapperCreate()
             {
                 int ID = 1234;
@@ -517,8 +546,112 @@ namespace Shell.BasinModeling.CauldronIO.Test
                 trapper.setDownStreamTrapperID(persistentID);
                 Assert.AreEqual(trapper.getDownStreamTrapperID(), persistentID);
             }
+
+            [TestMethod]
+            public void TrapperSetSolutionMass()
+            {
+                int ID = 1234;
+                int persistentID = 2345;
+                Trapper trapper = new Trapper(ID, persistentID);
+                double solutionMassC6_14Aro = 2682893.23;
+                trapper.setSolutionGasMass(solutionMassC6_14Aro, SpeciesNamesId.C6_MINUS_14ARO);
+                Assert.AreEqual(trapper.getSolutionGasMass(SpeciesNamesId.C6_MINUS_14ARO), solutionMassC6_14Aro);
+                Assert.AreEqual(trapper.getSolutionGasMass(SpeciesNamesId.C3), 0.0);
+            }
+        }
+    }
+    [TestClass]
+    public class TrapTests
+    {
+        [TestMethod]
+        public void TrapCreate()
+        {
+            int ID = 12345;
+            Trap trap = new Trap(ID);
+            Assert.AreEqual(trap.getID(), ID);
+        }
+
+        [TestMethod]
+        public void TrapSetReservoirName()
+        {
+            int ID = 1234;
+            const string reservoirName = "reservoir";
+            Trap trap = new Trap(ID);
+            trap.setReservoirName(reservoirName);
+            StringAssert.Equals(trap.getReservoirName(), reservoirName);
+
+        }
+
+
+        [TestMethod]
+        public void TrapSetSpillDepth()
+        {
+            int ID = 1234;
+            float depth = 1.5f;
+            Trap trap = new Trap(ID);
+            trap.setSpillDepth(depth);
+            Assert.AreEqual(trap.getSpillDepth(), depth);
+
+        }
+
+        [TestMethod]
+        public void TrapSetDepth()
+        {
+            int ID = 1234;
+            float depth = 1.5f;
+            Trap trap = new Trap(ID);
+            trap.setDepth(depth);
+            Assert.AreEqual(trap.getDepth(), depth);
+
+        }
+
+        [TestMethod]
+        public void TrapSetPressure()
+        {
+            int ID = 1234;
+            float pressure = 30.511699f;
+            Trap trap = new Trap(ID);
+            trap.setPressure(pressure);
+            Assert.AreEqual(trap.getPressure(), pressure);
+        }
+
+        [TestMethod]
+        public void TrapSetNetToGross()
+        {
+            int ID = 1234;
+            float net2gross = 100.0f;
+            Trap trap = new Trap(ID);
+            trap.setNetToGross(net2gross);
+            Assert.AreEqual(trap.getNetToGross(), net2gross);
+        }
+
+        [TestMethod]
+        public void TrapSetMass()
+        {
+            int ID = 1234;
+            Trap trap = new Trap(ID);
+            double C1mass = 0.005678;
+            trap.setMass(C1mass, SpeciesNamesId.C1);
+            Assert.AreEqual(trap.getMass(SpeciesNamesId.C1), C1mass);
+        }
+
+        [TestMethod]
+        public void TrapSetSpillPointPosition()
+        {
+            int ID = 1234;
+          
+            float posX = 1.5f;
+            float posY = 2.5f;
+            Trap trap = new Trap(ID);
+            trap.setSpillPointPosition(posX, posY);
+            float checkX, checkY;
+            trap.getSpillPointPosition(out checkX, out checkY);
+            Assert.AreEqual(checkX, posX);
+            Assert.AreEqual(checkY, posY);
+
         }
 
     }
+
 }
 

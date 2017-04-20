@@ -453,6 +453,7 @@
 ;
                 WellName                   XCoord                   YCoord                  BHFName
                       ()                      (m)                      (m)                       ()
+               "MyWell"                        5500                     4500 		      "MyWell.BHF"
 [End]
 ;
 ;
@@ -3577,6 +3578,8 @@
 ;
            FormationName                 WellName           XPlanePosition           YPlanePosition                 Filename
                       ()                       ()                      (m)                      (m)                       ()
+                    "sr"                       ""                     5500                     4500                       ""
+                    "sr"                       ""                     4500                     4500       "HistoryGenex.txt"
 [End]
 ;
 ;

@@ -374,6 +374,12 @@ double Trapper::getPorosity (void) const
    return database::getPorosity (m_record);
 }
 
+/// return the Trapper's net to gross
+double Trapper::getNetToGross (void) const
+{
+   return database::getNetToGross (m_record);
+}
+
 void Trapper::printOn (ostream & ostr) const
 {
    string str;

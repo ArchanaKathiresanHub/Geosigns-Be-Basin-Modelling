@@ -192,6 +192,21 @@ void ExportToXML::addProject(pugi::xml_node pt, std::shared_ptr<Project>& projec
 
     // Write migrationIO table
     addMigrationEventList(pt);
+
+    // Write TrapperIO table
+    addTrapperList(pt);
+
+    // Write TrapIO table
+    addTrapList(pt);
+
+    // Add Genex history files references
+    addGenexHistory(pt);
+
+    // Add Burial history files references
+    addBurialHistory(pt);
+
+    // Add MassBalance file reference
+    addMassBalance(pt);
 }
 
 void CauldronIO::ExportToXML::addProperty(pugi::xml_node node, const std::shared_ptr<const Property>& property) const
@@ -725,4 +740,120 @@ void CauldronIO::ExportToXML::addMigrationEventList(pugi::xml_node pt)
     migrationDataStore.flush();
 
     delete[] data;
+}
+
+
+void CauldronIO::ExportToXML::addTrapperList(pugi::xml_node pt)
+{
+    size_t nr_events = m_project->getTrapperTable().size();
+    if (nr_events == 0) return;
+
+    TrapperList events = m_project->getTrapperTable();
+
+    pugi::xml_node node = pt.append_child("trapper");
+    node.append_attribute("number") = (unsigned int)nr_events;
+
+    size_t record_size = sizeof(*events[0]);
+    node.append_attribute("record_size") = (unsigned int)record_size;
+
+    ibs::FilePath trapperDataPath(m_fullPath);
+    trapperDataPath << "trapper_table.cldrn";
+    DataStoreSave trapperDataStore(trapperDataPath.path(), m_append);
+
+    char* data = new char[record_size * nr_events];
+    assert(sizeof(char) == 1);
+
+    size_t dataIndex = 0;
+
+    for (size_t index = 0; index < nr_events; ++index, dataIndex += record_size)
+    {
+        void* source = (void*)(events[index].get());
+        void* dest = (void*)(&data[dataIndex]);
+        memcpy(dest, source, record_size);
+    }
+
+    // Add all data
+    trapperDataStore.addData((void*)data, node, record_size * nr_events);
+    // Compress it and write to disk
+    trapperDataStore.flush();
+
+    delete[] data;
+}
+
+void CauldronIO::ExportToXML::addTrapList(pugi::xml_node pt)
+{
+    size_t nr_events = m_project->getTrapTable().size();
+    if (nr_events == 0) return;
+
+    TrapList events = m_project->getTrapTable();
+
+    pugi::xml_node node = pt.append_child("trap");
+    node.append_attribute("number") = (unsigned int)nr_events;
+
+    size_t record_size = sizeof(*events[0]);
+    node.append_attribute("record_size") = (unsigned int)record_size;
+
+    ibs::FilePath trapDataPath(m_fullPath);
+    trapDataPath << "trap_table.cldrn";
+    DataStoreSave trapDataStore(trapDataPath.path(), m_append);
+
+    char* data = new char[record_size * nr_events];
+    assert(sizeof(char) == 1);
+
+    size_t dataIndex = 0;
+
+    for (size_t index = 0; index < nr_events; ++index, dataIndex += record_size)
+    {
+        void* source = (void*)(events[index].get());
+        void* dest = (void*)(&data[dataIndex]);
+        memcpy(dest, source, record_size);
+    }
+
+    // Add all data
+    trapDataStore.addData((void*)data, node, record_size * nr_events);
+    // Compress it and write to disk
+    trapDataStore.flush();
+
+    delete[] data;
+}
+
+void CauldronIO::ExportToXML::addGenexHistory(pugi::xml_node pt)
+{
+   size_t nr_events = m_project->getGenexHistoryList().size();
+   if (nr_events == 0) return;
+   
+   const std::vector<std::string> historyFiles = m_project->getGenexHistoryList();
+   
+   pugi::xml_node node = pt.append_child("genexHistoryFiles");
+   
+   std::vector<std::string>::const_iterator fit;
+   for( fit = historyFiles.begin(); fit < historyFiles.end(); ++ fit ) {
+      pugi::xml_node propNode = node.append_child("filepath");
+      propNode.append_attribute("file") = (* fit).c_str();
+   }
+}
+
+void CauldronIO::ExportToXML::addMassBalance(pugi::xml_node pt)
+{
+   const std::string & massBalance = m_project->getMassBalance();
+   if (massBalance != "" ) {
+      pugi::xml_node node = pt.append_child("massBalance");
+      node.append_attribute("file") = massBalance.c_str();
+   }
+}
+
+void CauldronIO::ExportToXML::addBurialHistory(pugi::xml_node pt)
+{
+   size_t nr_events = m_project->getBurialHistoryList().size();
+   if (nr_events == 0) return;
+   
+   const std::vector<std::string> historyFiles = m_project->getBurialHistoryList();
+   
+   pugi::xml_node node = pt.append_child("burialHistoryFiles");
+   
+   std::vector<std::string>::const_iterator fit;
+   for( fit = historyFiles.begin(); fit < historyFiles.end(); ++ fit ) {
+      pugi::xml_node propNode = node.append_child("filepath");
+      propNode.append_attribute("file") = (* fit).c_str();
+   }
 }

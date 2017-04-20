@@ -20,6 +20,8 @@
 
 #include <gtest/gtest.h>
 
+#include "database.h"
+#include "cauldronschemafuncs.h"
 #include "VisualizationAPI.h"
 #include "VisualizationIO_native.h"
 #include "ImportFromXML.h"
@@ -33,6 +35,7 @@
 #include "Interface/Snapshot.h"
 #include "Interface/Reservoir.h"
 #include "Interface/PropertyValue.h"
+#include "Interface/Trap.h"
 #include "Interface/Trapper.h"
 #include "Interface/GridMap.h"
 #include "Interface/Surface.h"
@@ -60,49 +63,50 @@ void compareSnapshots(std::shared_ptr<CauldronIO::Project> projectXml, std::uniq
 	EXPECT_EQ(sizeP3d, sizeXml);
 	for (size_t i = 0; i < sizeP3d; i++)
 	{
-		const DataAccess::Interface::Snapshot* snapshotP3d;
-		std::shared_ptr<CauldronIO::SnapShot> snapshotXml = projectXml->getSnapShots()[i];
-		snapshotP3d = projectP3d->findSnapshot(snapshotXml->getAge(), snapshotXml->isMinorShapshot() ? DataAccess::Interface::MINOR : DataAccess::Interface::MAJOR);
-		EXPECT_EQ(ImportProjectHandle::getSnapShotKind(snapshotP3d), snapshotXml->getKind());
-
-		//Comparing Trappers information
-		DataAccess::Interface::TrapperList *trapListP3d = projectP3d->getTrappers(0, snapshotP3d, 0, 0);
-		const CauldronIO::TrapperList trapListXml = snapshotXml->getTrapperList();
-		size_t sizeP3d1 = trapListP3d->size();
-		size_t sizeXml1 = trapListXml.size();
-		EXPECT_EQ(sizeP3d1, sizeXml1);
-
-		for (size_t j = 0; j < sizeP3d1; j++)
-		{
-			DataAccess::Interface::TrapperList *trapperListP3d;
-			std::shared_ptr<CauldronIO::Trapper> trapperXml = trapListXml.at(j);
-
-			const DataAccess::Interface::Reservoir *reservoirP3d = projectP3d->findReservoir(trapperXml->getReservoirName());
-
-			trapperListP3d = projectP3d->getTrappers(reservoirP3d, snapshotP3d, trapperXml->getID(), trapperXml->getPersistentID());
-			const DataAccess::Interface::Trapper *trapperP3d = trapperListP3d->at(0);
-			EXPECT_NEAR(trapperP3d->getDepth(), trapperXml->getDepth(), 0.00001);
-			EXPECT_EQ(trapperXml->getID(), trapperP3d->getId());
-			EXPECT_EQ(trapperXml->getPersistentID(), trapperP3d->getPersistentId());
-			float posXXml, posYXml;
-			double posXP3d, posYP3d;
-			trapperXml->getPosition(posXXml, posYXml);
-			trapperP3d->getPosition(posXP3d, posYP3d);
-			EXPECT_NEAR(posXXml, posXP3d, 0.00001);
-			EXPECT_NEAR(posYXml, posYP3d, 0.00001);
-			EXPECT_EQ(trapperXml->getReservoirName(), trapperP3d->getReservoir()->getName());
-
-			EXPECT_NEAR(trapperP3d->getSpillDepth(), trapperXml->getSpillDepth(), 0.00001);
-			trapperXml->getSpillPointPosition(posXXml, posYXml);
-			trapperP3d->getSpillPointPosition(posXP3d, posYP3d);
-			EXPECT_NEAR(posXXml, posXP3d, 0.00001);
-			EXPECT_NEAR(posYXml, posYP3d, 0.00001);
-
-			EXPECT_NEAR(trapperXml->getGOC(), trapperP3d->getGOC(), 0.001);
-			EXPECT_NEAR(trapperXml->getOWC(), trapperP3d->getOWC(), 0.001);
-
-		}
-	}
+           const DataAccess::Interface::Snapshot* snapshotP3d;
+           std::shared_ptr<CauldronIO::SnapShot> snapshotXml = projectXml->getSnapShots()[i];
+           snapshotP3d = projectP3d->findSnapshot(snapshotXml->getAge(), snapshotXml->isMinorShapshot() ? DataAccess::Interface::MINOR : DataAccess::Interface::MAJOR);
+           EXPECT_EQ(ImportProjectHandle::getSnapShotKind(snapshotP3d), snapshotXml->getKind());
+           
+           //Comparing Trappers information
+           if( projectXml->getTrapperTable().size() == 0 ) {
+              DataAccess::Interface::TrapperList *trapListP3d = projectP3d->getTrappers(0, snapshotP3d, 0, 0);
+              const CauldronIO::TrapperList trapListXml = snapshotXml->getTrapperList();
+              size_t sizeP3d1 = trapListP3d->size();
+              size_t sizeXml1 = trapListXml.size();
+              EXPECT_EQ(sizeP3d1, sizeXml1);
+              
+              for (size_t j = 0; j < sizeP3d1; j++)
+              {
+                 DataAccess::Interface::TrapperList *trapperListP3d;
+                 std::shared_ptr<CauldronIO::Trapper> trapperXml = trapListXml.at(j);
+                 
+                 const DataAccess::Interface::Reservoir *reservoirP3d = projectP3d->findReservoir(trapperXml->getReservoirName());
+                 
+                 trapperListP3d = projectP3d->getTrappers(reservoirP3d, snapshotP3d, trapperXml->getID(), trapperXml->getPersistentID());
+                 const DataAccess::Interface::Trapper *trapperP3d = trapperListP3d->at(0);
+                 EXPECT_NEAR(trapperP3d->getDepth(), trapperXml->getDepth(), 0.00001);
+                 EXPECT_EQ(trapperXml->getID(), trapperP3d->getId());
+                 EXPECT_EQ(trapperXml->getPersistentID(), trapperP3d->getPersistentId());
+                 float posXXml, posYXml;
+                 double posXP3d, posYP3d;
+                 trapperXml->getPosition(posXXml, posYXml);
+                 trapperP3d->getPosition(posXP3d, posYP3d);
+                 EXPECT_NEAR(posXXml, posXP3d, 0.00001);
+                 EXPECT_NEAR(posYXml, posYP3d, 0.00001);
+                 EXPECT_EQ(trapperXml->getReservoirName(), trapperP3d->getReservoir()->getName());
+                 
+                 EXPECT_NEAR(trapperP3d->getSpillDepth(), trapperXml->getSpillDepth(), 0.00001);
+                 trapperXml->getSpillPointPosition(posXXml, posYXml);
+                 trapperP3d->getSpillPointPosition(posXP3d, posYP3d);
+                 EXPECT_NEAR(posXXml, posXP3d, 0.00001);
+                 EXPECT_NEAR(posYXml, posYP3d, 0.00001);
+                 
+                 EXPECT_NEAR(trapperXml->getGOC(), trapperP3d->getGOC(), 0.001);
+                 EXPECT_NEAR(trapperXml->getOWC(), trapperP3d->getOWC(), 0.001);
+              }
+           }
+        }
 }
 
 void compareFormations(std::shared_ptr<CauldronIO::Project> projectXml, std::unique_ptr<DataAccess::Interface::ProjectHandle> &projectP3d)
@@ -1013,6 +1017,205 @@ int convertToXML(string filePathP3d, DataAccess::Interface::ObjectFactory *facto
 	}
 }
 
+void compareTrappers(std::shared_ptr<CauldronIO::Project> projectXml, std::unique_ptr<DataAccess::Interface::ProjectHandle> &projectP3d) {
+
+   DataAccess::Interface::TrapperList * trapperList3d =  projectP3d->getTrappers(0, 0, 0, 0);
+   const CauldronIO::TrapperList * trapperList = & (projectXml->getTrapperTable());
+   EXPECT_EQ(trapperList3d->size(), trapperList->size() );
+   for (size_t index = 0; index < trapperList3d->size(); ++ index)
+   {
+      const DataAccess::Interface::Trapper* trapper3d = trapperList3d->at(index);
+      std::shared_ptr<CauldronIO::Trapper> trapper = trapperList->at(index);
+      EXPECT_EQ( trapper3d->getId(), trapper->getID() );
+      EXPECT_EQ( trapper3d->getPersistentId(), trapper->getPersistentID() );
+
+      if( trapper3d->getDownstreamTrapper() ) {
+         EXPECT_EQ( trapper3d->getDownstreamTrapper()->getPersistentId(), trapper->getDownStreamTrapperID() );
+      } else {
+         EXPECT_EQ( trapper->getDownStreamTrapperID(), -1 );
+      }
+
+      EXPECT_FLOAT_EQ( (float)trapper3d->getVolume( PhaseId::OIL, PhaseId::GAS ), trapper->getSolutionGasVolume() );
+      EXPECT_FLOAT_EQ( (float)trapper3d->getVolume( PhaseId::GAS, PhaseId::GAS ), trapper->getFreeGasVolume() );
+      EXPECT_FLOAT_EQ( (float)trapper3d->getVolume( PhaseId::OIL, PhaseId::OIL ), trapper->getStockTankOilVolume() );
+      EXPECT_FLOAT_EQ( (float)trapper3d->getVolume( PhaseId::GAS, PhaseId::OIL ), trapper->getCondensateVolume() );
+
+      EXPECT_FLOAT_EQ( (float)trapper3d->getViscosity( PhaseId::OIL, PhaseId::GAS ), trapper->getSolutionGasViscosity() );
+      EXPECT_FLOAT_EQ( (float)trapper3d->getViscosity( PhaseId::GAS, PhaseId::GAS ), trapper->getFreeGasViscosity() );
+      EXPECT_FLOAT_EQ( (float)trapper3d->getViscosity( PhaseId::OIL, PhaseId::OIL ), trapper->getStockTankOilViscosity() );
+      EXPECT_FLOAT_EQ( (float)trapper3d->getViscosity( PhaseId::GAS, PhaseId::OIL ), trapper->getCondensateViscosity() );
+
+      EXPECT_FLOAT_EQ( (float)trapper3d->getDensity( PhaseId::OIL, PhaseId::GAS ), trapper->getSolutionGasDensity() );
+      EXPECT_FLOAT_EQ( (float)trapper3d->getDensity( PhaseId::GAS, PhaseId::GAS ), trapper->getFreeGasDensity() );
+      EXPECT_FLOAT_EQ( (float)trapper3d->getDensity( PhaseId::OIL, PhaseId::OIL ), trapper->getStockTankOilDensity() );
+      EXPECT_FLOAT_EQ( (float)trapper3d->getDensity( PhaseId::GAS, PhaseId::OIL ), trapper->getCondensateDensity() );
+
+      EXPECT_FLOAT_EQ( (float)trapper3d->getMass( PhaseId::OIL, PhaseId::GAS ), trapper->getSolutionGasMass() );
+      EXPECT_FLOAT_EQ( (float)trapper3d->getMass( PhaseId::GAS, PhaseId::GAS ), trapper->getFreeGasMass() );
+      EXPECT_FLOAT_EQ( (float)trapper3d->getMass( PhaseId::OIL, PhaseId::OIL ), trapper->getStockTankOilMass() );
+      EXPECT_FLOAT_EQ( (float)trapper3d->getMass( PhaseId::GAS, PhaseId::OIL ), trapper->getCondensateMass() );
+      
+      for( int compId = 0; compId < CauldronIO::SpeciesNamesId::NUMBER_OF_SPECIES; ++ compId ) {
+         EXPECT_EQ( trapper3d->getMass( PhaseId::OIL, PhaseId::GAS, (ComponentId)compId ), trapper->getSolutionGasMass( (CauldronIO::SpeciesNamesId)compId) );
+         EXPECT_EQ( trapper3d->getMass( PhaseId::GAS, PhaseId::GAS, (ComponentId)compId ), trapper->getFreeGasMass( (CauldronIO::SpeciesNamesId)compId) );
+         EXPECT_EQ( trapper3d->getMass( PhaseId::GAS, PhaseId::OIL, (ComponentId)compId ), trapper->getCondensateMass( (CauldronIO::SpeciesNamesId)compId) );
+         EXPECT_EQ( trapper3d->getMass( PhaseId::OIL, PhaseId::OIL, (ComponentId)compId ), trapper->getStockTankOilMass( (CauldronIO::SpeciesNamesId)compId) );
+      }
+
+      EXPECT_FLOAT_EQ( trapper->getVolumeOil(), (float)trapper3d->getVolume(PhaseId::OIL) );    
+      EXPECT_FLOAT_EQ( trapper->getVolumeGas(), (float)trapper3d->getVolume(PhaseId::GAS) );   
+      EXPECT_FLOAT_EQ( trapper->getMassVapour(), (float)trapper3d->getMass(PhaseId::GAS) );   
+      EXPECT_FLOAT_EQ( trapper->getMassLiquid(), (float)trapper3d->getMass(PhaseId::OIL) );
+      EXPECT_FLOAT_EQ( trapper->getViscosityVapour(), (float)trapper3d->getViscosity(PhaseId::GAS) );       
+      EXPECT_FLOAT_EQ( trapper->getViscosityLiquid(), (float)trapper3d->getViscosity(PhaseId::OIL) );
+      EXPECT_FLOAT_EQ( trapper->getDensityVapour(), (float)trapper3d->getDensity(PhaseId::GAS) );       
+      EXPECT_FLOAT_EQ( trapper->getDensityLiquid(), (float)trapper3d->getDensity(PhaseId::OIL) );
+      EXPECT_FLOAT_EQ( trapper->getCEPGas(), (float)trapper3d->getCEP(PhaseId::GAS) );
+      EXPECT_FLOAT_EQ( trapper->getCEPOil(), (float)trapper3d->getCEP(PhaseId::OIL) );
+      EXPECT_FLOAT_EQ( trapper->getCriticalTemperatureOil(), (float)trapper3d->getCriticalTemperature(PhaseId::OIL) );
+      EXPECT_FLOAT_EQ( trapper->getCriticalTemperatureGas(), (float)trapper3d->getCriticalTemperature(PhaseId::GAS) );
+      EXPECT_FLOAT_EQ( trapper->getInterfacialTensionOil(), (float)trapper3d->getInterfacialTension(PhaseId::OIL) );
+      EXPECT_FLOAT_EQ( trapper->getInterfacialTensionGas(), (float)trapper3d->getInterfacialTension(PhaseId::GAS) );
+      EXPECT_FLOAT_EQ( trapper->getOilAPI(), (float)trapper3d->getOilAPI() );      
+      EXPECT_FLOAT_EQ( trapper->getCGR(), (float)trapper3d->getCGR() );       
+      EXPECT_FLOAT_EQ( trapper->getGOR(), (float)trapper3d->getGOR() );       
+      EXPECT_FLOAT_EQ( trapper->getFracturePressure(), (float)trapper3d->getFracturePressure() );          
+      EXPECT_FLOAT_EQ( trapper->getBuoyancy(), (float)trapper3d->getBuoyancy() );         
+      EXPECT_FLOAT_EQ( trapper->getWCSurface(), (float)trapper3d->getWCSurface() ); 
+      EXPECT_STREQ( trapper->getReservoirName ().c_str(), trapper3d->getReservoir ()->getName().c_str());;
+ 
+      double x3d, y3d;
+      float  x, y;
+      trapper3d->getPosition(x3d, y3d);
+      trapper->getPosition(x, y);
+      EXPECT_FLOAT_EQ((float)x3d, x);
+      EXPECT_FLOAT_EQ((float)y3d, y);
+ 
+      trapper3d->getSpillPointPosition(x3d, y3d);
+      trapper->getSpillPointPosition(x, y);
+      EXPECT_FLOAT_EQ((float)x3d, x);
+      EXPECT_FLOAT_EQ((float)y3d, y);
+
+      EXPECT_FLOAT_EQ( trapper->getTrapCapacity(), (float)trapper3d->getCapacity());
+      EXPECT_FLOAT_EQ( trapper->getDepth(), (float)trapper3d->getDepth()); 
+      EXPECT_FLOAT_EQ( trapper->getGOC(),(float)trapper3d->getGOC()); 
+      EXPECT_FLOAT_EQ( trapper->getOWC(), (float)trapper3d->getOWC());      
+      EXPECT_FLOAT_EQ( trapper->getSpillDepth(),(float)trapper3d->getSpillDepth()); 
+      EXPECT_FLOAT_EQ( trapper->getPressure(),(float)trapper3d->getPressure());
+      EXPECT_FLOAT_EQ( trapper->getTemperature(),(float)trapper3d->getTemperature());
+      EXPECT_FLOAT_EQ( trapper->getPermeability(),(float)trapper3d->getPermeability());
+      EXPECT_FLOAT_EQ( trapper->getSealPermeability(),(float)trapper3d->getSealPermeability()); 
+      EXPECT_FLOAT_EQ( trapper->getPorosity(),(float)trapper3d->getPorosity()); 
+      EXPECT_FLOAT_EQ( trapper->getNetToGross(),(float)trapper3d->getNetToGross());
+      EXPECT_FLOAT_EQ( trapper->getAge(),(float)trapper3d->getSnapshot()->getTime());
+   }
+   if( trapperList3d->size() > 0 ) {
+      cout << "TrapperIoTbl comparison done" << endl;
+   }
+}
+
+void compareTraps(std::shared_ptr<CauldronIO::Project> projectXml, std::unique_ptr<DataAccess::Interface::ProjectHandle> &projectP3d) {
+
+   DataAccess::Interface::TrapList * trapList3d =  projectP3d->getTraps(0, 0, 0);
+   const CauldronIO::TrapList * trapList = & (projectXml->getTrapTable());
+   EXPECT_EQ(trapList3d->size(), trapList->size() );
+   for (size_t index = 0; index < trapList3d->size(); ++ index)
+   {
+      const DataAccess::Interface::Trap* trap3d = trapList3d->at(index);
+      database::Record* record = trap3d->getRecord();
+      std::shared_ptr<CauldronIO::Trap> trap = trapList->at(index);
+ 
+      EXPECT_EQ( trap3d->getId(), trap->getID() );
+      EXPECT_STREQ( trap->getReservoirName ().c_str(), trap3d->getReservoir ()->getName().c_str());;
+      for( int compId = 0; compId < CauldronIO::SpeciesNamesId::NUMBER_OF_SPECIES; ++ compId ) {
+         EXPECT_EQ( trap3d->getMass( (ComponentId)compId ), trap->getMass( (CauldronIO::SpeciesNamesId)compId) );
+      }
+      EXPECT_FLOAT_EQ( trap->getVolumeOil(), (float)trap3d->getVolume(PhaseId::OIL) );
+      EXPECT_FLOAT_EQ( trap->getVolumeGas(), (float)trap3d->getVolume(PhaseId::GAS) );
+      EXPECT_FLOAT_EQ( trap->getCEPGas(), (float)getCEPGas(record));
+      EXPECT_FLOAT_EQ( trap->getCEPOil(), (float)getCEPOil(record));
+      EXPECT_FLOAT_EQ( trap->getCriticalTemperatureOil(), (float)getCriticalTemperatureOil(record));
+      EXPECT_FLOAT_EQ( trap->getCriticalTemperatureGas(), (float)getCriticalTemperatureGas(record));
+      EXPECT_FLOAT_EQ( trap->getInterfacialTensionOil(), (float)getInterfacialTensionOil(record));
+      EXPECT_FLOAT_EQ( trap->getInterfacialTensionGas(), (float)getInterfacialTensionGas(record));
+      EXPECT_FLOAT_EQ( trap->getFracturePressure(), (float)getFracturePressure(record));
+      EXPECT_FLOAT_EQ( trap->getFractSealStrength(), (float)getFractSealStrength(record));
+      EXPECT_FLOAT_EQ( trap->getWCSurface(), (float)getWCSurface(record));
+ 
+      double x3d, y3d;
+      float  x, y;
+      trap3d->getPosition(x3d, y3d);
+      trap->getPosition(x, y);
+      EXPECT_FLOAT_EQ( (float)x3d, x );
+      EXPECT_FLOAT_EQ( (float)y3d, y );
+ 
+      trap3d->getSpillPointPosition(x3d, y3d);
+      trap->getSpillPointPosition(x, y);
+      EXPECT_FLOAT_EQ( (float)x3d, x );
+      EXPECT_FLOAT_EQ( (float)y3d, y );
+
+      EXPECT_FLOAT_EQ( trap->getTrapCapacity(), (float)getTrapCapacity(record));
+      EXPECT_FLOAT_EQ( trap->getDepth(), (float)trap3d->getDepth());
+      EXPECT_FLOAT_EQ( trap->getGOC(), (float)trap3d->getGOC());
+      EXPECT_FLOAT_EQ( trap->getOWC(), (float)trap3d->getOWC());
+      EXPECT_FLOAT_EQ( trap->getSpillDepth(), (float)trap3d->getSpillDepth());
+      EXPECT_FLOAT_EQ( trap->getPressure(), (float)trap3d->getPressure());
+      EXPECT_FLOAT_EQ( trap->getTemperature(), (float)trap3d->getTemperature());
+      EXPECT_FLOAT_EQ( trap->getPermeability(), (float)getPermeability(record));
+      EXPECT_FLOAT_EQ( trap->getSealPermeability(), (float)getSealPermeability(record));
+      EXPECT_FLOAT_EQ( trap->getNetToGross(), (float)getNetToGross(record));
+      EXPECT_FLOAT_EQ( trap->getAge(), (float)trap3d->getSnapshot()->getTime());
+   }
+   if( trapList3d->size() > 0 ) {
+      cout << "TrapIoTbl comparison done" << endl;
+   }
+}
+
+void compareGenexHistory(std::shared_ptr<CauldronIO::Project> projectXml, std::unique_ptr<DataAccess::Interface::ProjectHandle> &projectP3d) {
+
+   const std::vector<std::string> &historyFiles = projectXml->getGenexHistoryList();
+
+   EXPECT_EQ( historyFiles.size(), 2 );
+
+   ibs::FilePath folderPath(projectP3d->getFullOutputDir());
+
+   folderPath << "History_ARD_simple-test_genex_sr_5500_4500.dat";
+   const std::string record1 = folderPath.path();
+
+   folderPath.cutLast(); 
+   folderPath << "HistoryGenex.txt"; 
+   const std::string record2 = folderPath.path();
+
+   bool recordExist = std::find(historyFiles.begin(), historyFiles.end(), record1) != historyFiles.end();
+   EXPECT_EQ(recordExist, true);
+
+   recordExist = std::find(historyFiles.begin(), historyFiles.end(), record2) != historyFiles.end();
+   EXPECT_EQ(recordExist, true);
+}
+
+void compareBurialHistory(std::shared_ptr<CauldronIO::Project> projectXml, std::unique_ptr<DataAccess::Interface::ProjectHandle> &projectP3d) {
+
+   const std::vector<std::string> &historyFiles = projectXml->getBurialHistoryList();
+   database::Table * bhfTable = projectP3d->getTable ("TouchstoneWellIoTbl");
+   EXPECT_EQ(bhfTable->size(), historyFiles.size());
+ 
+   database::Table::iterator tblIter;
+   for (tblIter = bhfTable->begin(); tblIter != bhfTable->end(); ++tblIter) {
+      ibs::FilePath folderPath(projectP3d->getFullOutputDir());
+      folderPath << database::getBHFName( * tblIter );
+      bool recordExist = std::find(historyFiles.begin(), historyFiles.end(),  folderPath.path()) != historyFiles.end();
+      EXPECT_EQ(recordExist, true);
+   }
+}  
+
+void compareMassBalance(std::shared_ptr<CauldronIO::Project> projectXml, std::unique_ptr<DataAccess::Interface::ProjectHandle> &projectP3d) {
+
+   const std::string& massBalance = projectXml->getMassBalance();
+   const std::string  massBalance3D = projectP3d->getProjectName() + "_MassBalance";
+
+   EXPECT_STREQ( massBalance.c_str(), massBalance3D.c_str() );
+}
+
 // Test to compare metadata and property values in binary data stored in project3d and XML formats. The property values include both 2D and 3D. 
 
 TEST_F(CompareTest, CompareData1)
@@ -1051,6 +1254,11 @@ TEST_F(CompareTest, CompareData1)
 	compare2dPropertyValues(projectXml, projectP3d);
 	compare3dDiscontinuousPropertyValues(projectXml, projectP3d);
 	compare3dContinuousPropertyValues(projectXml, projectP3d);
+	compareTrappers(projectXml, projectP3d);
+	compareTraps(projectXml, projectP3d);
+    compareGenexHistory(projectXml, projectP3d);
+    compareMassBalance(projectXml, projectP3d);
+    compareBurialHistory(projectXml, projectP3d);
 	
 	newFilePathP3d = testDataPath;
 

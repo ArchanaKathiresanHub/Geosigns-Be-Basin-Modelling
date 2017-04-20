@@ -1,0 +1,50 @@
+Well  = MyWell (from Cauldron 3D project: ARD_simple-test)
+* Easting       = 5500
+* Northing      = 4500
+* Surface Depth = 0
+
+Unit = f1
+Type = Top/base
+* 
+* Formation name = f1. Top surface name = s0. Bottom surface name = s1.
+* Mix model : Homogeneous : Std. Shale(100%)
+* Fluid type : Std. Marine Water
+* 
+* Time (Ma)             Temperature_t (C)       Temperature_b (C)       TVDSS_t (m)             TVDSS_b (m)             TVDBML_t (m)            TVDBML_b (m)            Pressure_t (MPa)        Pressure_b (MPa)        
+0                       10                      104.502                 0                       1999.49                 0                       1999.49                 0.1                     30.6303                
+
+Unit = f2
+Type = Top/base
+* 
+* Formation name = f2. Top surface name = s1. Bottom surface name = s2.
+* Mix model : Homogeneous : Std. Shale(100%)
+* Fluid type : Std. Marine Water
+* 
+* Time (Ma)             Temperature_t (C)       Temperature_b (C)       TVDSS_t (m)             TVDSS_b (m)             TVDBML_t (m)            TVDBML_b (m)            Pressure_t (MPa)        Pressure_b (MPa)        
+0                       104.502                 173.32                  1999.49                 3683.07                 1999.49                 3683.07                 30.6303                 56.8454                
+15                      10                      115.278                 0                       2120.7                  0                       2120.7                  0.1                     32.6909                
+
+Unit = reservoir 1
+Type = Top/base
+* 
+* Formation name = reservoir 1. Top surface name = s2. Bottom surface name = s3.
+* Mix model : Homogeneous : Std. Sandstone(100%)
+* Fluid type : Std. Marine Water
+* 
+* Time (Ma)             Temperature_t (C)       Temperature_b (C)       TVDSS_t (m)             TVDSS_b (m)             TVDBML_t (m)            TVDBML_b (m)            Pressure_t (MPa)        Pressure_b (MPa)        
+0                       173.32                  257.73                  3683.07                 8015.07                 3683.07                 8015.07                 56.8454                 98.6818                
+15                      115.278                 207.407                 2120.7                  6608                    2120.7                  6608                    32.6909                 78.0459                
+40                      10                      104.627                 0                       4607.41                 0                       4607.41                 0.1                     49.1772                
+
+Unit = sr
+Type = Top/base
+* 
+* Formation name = sr. Top surface name = s3. Bottom surface name = s4.
+* Mix model : Homogeneous : Std. Shale(100%)
+* Fluid type : Std. Marine Water
+* 
+* Time (Ma)             Temperature_t (C)       Temperature_b (C)       TVDSS_t (m)             TVDSS_b (m)             TVDBML_t (m)            TVDBML_b (m)            Pressure_t (MPa)        Pressure_b (MPa)        
+0                       257.73                  283.318                 8015.07                 9015.41                 8015.07                 9015.41                 98.6818                 108.819                
+15                      207.407                 236.834                 6608                    7647.17                 6608                    7647.17                 78.0459                 125.441                
+40                      104.627                 164.981                 4607.41                 6225.17                 4607.41                 6225.17                 49.1772                 125.055                
+50                      10                      129.26                  0                       2483.4                  0                       2483.4                  0.1                     35.916                 

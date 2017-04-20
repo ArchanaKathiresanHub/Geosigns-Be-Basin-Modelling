@@ -20,6 +20,7 @@
 #include "Interface/Reservoir.h"
 #include "Interface/Surface.h"
 #include "Interface/Formation.h"
+#include "Interface/Trap.h"
 #include "Interface/Trapper.h"
 #include "Interface/FluidType.h"
 #include "Interface/LithoType.h"
@@ -30,6 +31,8 @@
 #include "Interface/ProjectData.h"
 #include "Interface/InputValue.h"
 #include "Interface/BasementFormation.h"
+#include "Interface/PointAdsorptionHistory.h"
+#include "FolderPath.h"
 #include "../../SerialDataAccess/src/Interface/SerialGridMap.h"
 #include "database.h"
 #include "cauldronschemafuncs.h"
@@ -73,6 +76,21 @@ std::shared_ptr<CauldronIO::Project> ImportProjectHandle::createFromProjectHandl
 
     // Add migration_io data
     import.addMigrationIO();
+
+    // Add trapper_io data
+    import.addTrapperIO();
+
+    // Add trap_io data
+    import.addTrapIO();
+ 
+    // Find genex/shale-gas history files
+    import.addGenexHistory();
+
+    // Find burial history files
+    import.addBurialHistory();
+
+    // Add reference to massBalance file
+    import.addMassBalance();
 
     return project;
 }
@@ -1226,5 +1244,226 @@ void ImportProjectHandle::addMigrationIO()
 
         m_project->addMigrationEvent(event);
     }
+}
+
+void ImportProjectHandle::addTrapperIO()
+{
+     std::shared_ptr<TrapperList> trapperList(m_projectHandle->getTrappers(0, 0, 0, 0));
+   
+     if (trapperList->size() == 0) return;
+     for (size_t index = 0; index < trapperList->size(); ++ index)
+     {
+        const Trapper* trapper = trapperList->at(index);
+        
+        std::shared_ptr<CauldronIO::Trapper> event(new CauldronIO::Trapper());
+
+        event->setID(trapper->getId());
+        event->setPersistentId(trapper->getPersistentId());
+        if (trapper->getDownstreamTrapper()) {
+           event->setDownStreamTrapperID(trapper->getDownstreamTrapper()->getPersistentId());
+        }
+        event->setSolutionGasVolume((float)trapper->getVolume( PhaseId::OIL, PhaseId::GAS ));
+        event->setSolutionGasDensity((float)trapper->getDensity( PhaseId::OIL, PhaseId::GAS ));
+        event->setSolutionGasViscosity((float)trapper->getViscosity( PhaseId::OIL, PhaseId::GAS ));
+        event->setSolutionGasMass((float)trapper->getMass( PhaseId::OIL, PhaseId::GAS ));
+        
+        event->setFreeGasVolume((float)trapper->getVolume( PhaseId::GAS, PhaseId::GAS ));
+        event->setFreeGasDensity((float)trapper->getDensity( PhaseId::GAS, PhaseId::GAS ));
+        event->setFreeGasViscosity((float)trapper->getViscosity( PhaseId::GAS, PhaseId::GAS ));
+        event->setFreeGasMass((float)trapper->getMass( PhaseId::GAS, PhaseId::GAS ));
+        
+        event->setCondensateVolume((float)trapper->getVolume( PhaseId::GAS, PhaseId::OIL ));
+        event->setCondensateDensity((float)trapper->getDensity( PhaseId::GAS, PhaseId::OIL ));
+        event->setCondensateViscosity((float)trapper->getViscosity( PhaseId::GAS, PhaseId::OIL ));
+        event->setCondensateMass((float)trapper->getMass( PhaseId::GAS, PhaseId::OIL ));
+        
+        event->setStockTankOilVolume((float)trapper->getVolume( PhaseId::OIL, PhaseId::OIL ));
+        event->setStockTankOilDensity((float)trapper->getDensity( PhaseId::OIL, PhaseId::OIL ));
+        event->setStockTankOilViscosity((float)trapper->getViscosity( PhaseId::OIL, PhaseId::OIL ));
+        event->setStockTankOilMass((float)trapper->getMass( PhaseId::OIL, PhaseId::OIL ));
+
+        for( int compId = 0; compId < CauldronIO::SpeciesNamesId::NUMBER_OF_SPECIES; ++ compId ) {
+           event->setSolutionGasMass ( trapper->getMass( PhaseId::OIL, PhaseId::GAS, (ComponentId)compId ), (CauldronIO::SpeciesNamesId)compId );
+           event->setCondensateMass  ( trapper->getMass( PhaseId::GAS, PhaseId::OIL, (ComponentId)compId ), (CauldronIO::SpeciesNamesId)compId );
+           event->setStockTankOilMass( trapper->getMass( PhaseId::OIL, PhaseId::OIL, (ComponentId)compId ), (CauldronIO::SpeciesNamesId)compId );
+           event->setFreeGasMass     ( trapper->getMass( PhaseId::GAS, PhaseId::GAS, (ComponentId)compId ), (CauldronIO::SpeciesNamesId)compId );
+        }
+        
+        event->setVolumeOil((float)trapper->getVolume(PhaseId::OIL));    
+        event->setVolumeGas((float)trapper->getVolume(PhaseId::GAS));   
+        event->setMassVapour((float)trapper->getMass(PhaseId::GAS));   
+        event->setMassLiquid((float)trapper->getMass(PhaseId::OIL));
+        event->setViscosityVapour((float)trapper->getViscosity(PhaseId::GAS));       
+        event->setViscosityLiquid((float)trapper->getViscosity(PhaseId::OIL));
+        event->setDensityVapour((float)trapper->getDensity(PhaseId::GAS));       
+        event->setDensityLiquid((float)trapper->getDensity(PhaseId::OIL));
+        event->setCEPGas((float)trapper->getCEP(PhaseId::GAS));
+        event->setCEPOil((float)trapper->getCEP(PhaseId::OIL));
+        event->setCriticalTemperatureOil((float)trapper->getCriticalTemperature(PhaseId::OIL));
+        event->setCriticalTemperatureGas((float)trapper->getCriticalTemperature(PhaseId::GAS));
+        event->setInterfacialTensionOil((float)trapper->getInterfacialTension(PhaseId::OIL));
+        event->setInterfacialTensionGas((float)trapper->getInterfacialTension(PhaseId::GAS));
+        event->setOilAPI((float)trapper->getOilAPI());      
+        event->setCGR((float)trapper->getCGR());       
+        event->setGOR((float)trapper->getGOR());       
+        event->setFracturePressure((float)trapper->getFracturePressure());          
+        event->setBuoyancy((float)trapper->getBuoyancy());         
+        event->setWCSurface((float)trapper->getWCSurface()); 
+        event->setReservoirName(trapper->getReservoir ()->getName());
+
+        double x, y;
+        trapper->getPosition(x, y);
+        event->setPosition((float)x, (float)y);
+
+        trapper->getSpillPointPosition(x, y);
+        event->setSpillPointPosition((float)x, (float)y);
+       
+        event->setTrapCapacity((float)trapper->getCapacity()); 
+        event->setDepth((float)trapper->getDepth()); 
+        event->setGOC((float)trapper->getGOC()); 
+        event->setOWC((float)trapper->getOWC());      
+        event->setSpillDepth((float)trapper->getSpillDepth()); 
+        event->setPressure((float)trapper->getPressure());
+        event->setTemperature((float)trapper->getTemperature());
+        event->setPermeability((float)trapper->getPermeability());
+        event->setSealPermeability((float)trapper->getSealPermeability()); 
+        event->setPorosity((float)trapper->getPorosity()); 
+        event->setNetToGross((float)trapper->getNetToGross());
+        event->setAge((float)trapper->getSnapshot()->getTime());
+
+        m_project->addTrapper(event);
+     }
+}
+
+void ImportProjectHandle::addTrapIO()
+{
+   std::shared_ptr<TrapList> trapList(m_projectHandle->getTraps(0, 0, 0 ));
+   
+     if (trapList->size() == 0) return;
+     for (size_t index = 0; index < trapList->size(); ++ index)
+     {
+        const Trap* trap = trapList->at(index);
+        database::Record* record = trap->getRecord();
+       
+        std::shared_ptr<CauldronIO::Trap> event(new CauldronIO::Trap());
+
+        event->setID(trap->getId());
+        event->setReservoirName(trap->getReservoir ()->getName());
+        for( int compId = 0; compId < CauldronIO::SpeciesNamesId::NUMBER_OF_SPECIES; ++ compId ) {
+           event->setMass ( trap->getMass( (ComponentId)compId ), (CauldronIO::SpeciesNamesId)compId );
+        }
+        
+        event->setVolumeOil((float)trap->getVolume(PhaseId::OIL));    
+        event->setVolumeGas((float)trap->getVolume(PhaseId::GAS));   
+        event->setCEPGas((float)getCEPGas(record));
+        event->setCEPOil((float)getCEPOil(record));
+        event->setCriticalTemperatureOil((float)getCriticalTemperatureOil(record));
+        event->setCriticalTemperatureGas((float)getCriticalTemperatureGas(record));
+        event->setInterfacialTensionOil((float)getInterfacialTensionOil(record));
+        event->setInterfacialTensionGas((float)getInterfacialTensionGas(record));
+        event->setFracturePressure((float)getFracturePressure(record));
+        event->setFractSealStrength((float)getFractSealStrength(record));
+        event->setWCSurface((float)getWCSurface(record));
+ 
+        double x, y;
+        trap->getPosition(x, y);
+        event->setPosition((float)x, (float)y);
+
+        trap->getSpillPointPosition(x, y);
+        event->setSpillPointPosition((float)x, (float)y);
+       
+        event->setTrapCapacity((float)getTrapCapacity(record));
+        event->setDepth((float)trap->getDepth()); 
+        event->setGOC((float)trap->getGOC()); 
+        event->setOWC((float)trap->getOWC());      
+        event->setSpillDepth((float)trap->getSpillDepth()); 
+        event->setPressure((float)trap->getPressure());
+        event->setTemperature((float)trap->getTemperature());
+        event->setPermeability((float)getPermeability(record));
+        event->setSealPermeability((float)getSealPermeability(record));
+        event->setNetToGross((float)getNetToGross(record));
+        event->setAge((float)trap->getSnapshot()->getTime());
+
+        m_project->addTrap(event);
+     }
+}
+
+void ImportProjectHandle::addMassBalance()  {
+
+   const std::string massBalanceFileName = m_projectHandle->getProjectName() + "_MassBalance";
+
+   ibs::FilePath folderPath( m_projectHandle->getProjectPath() );
+
+   folderPath << massBalanceFileName;
+   if( folderPath.exists() ) {
+      m_project->setMassBalance( massBalanceFileName );
+   } else {
+      m_project->setMassBalance( "" );
+   }
+ }
+
+void ImportProjectHandle::addGenexHistory()  {
+
+   DataAccess::Interface::PointAdsorptionHistoryList* historyList = m_projectHandle->getPointAdsorptionHistoryList ( "" );
+   DataAccess::Interface::PointAdsorptionHistoryList::const_iterator historyIter;
+   
+   std::vector<std::string> historyRecordsDefined;
+   for ( historyIter = historyList->begin (); historyIter != historyList->end (); ++historyIter ) {
+      if( (* historyIter)->getFileName () != "" ) {
+         historyRecordsDefined.push_back( (* historyIter)->getFileName () );
+      }
+   }
+
+   ibs::FilePath folderPath ( m_projectHandle->getFullOutputDir () );
+   
+
+   if( folderPath.exists() ) {
+      boost::filesystem::directory_iterator it (folderPath.path());
+      boost::filesystem::directory_iterator endit;
+      
+      while( it != endit ) {
+         if( std::find( historyRecordsDefined.begin(), historyRecordsDefined.end(), it->path().filename() ) != historyRecordsDefined.end() or
+             it->path().extension() == ".dat" ) {
+
+            ibs::FilePath oneFilePath( it->path().string() );
+            m_project->addGenexHistoryRecord( oneFilePath.cpath() );
+
+         }
+         it ++;
+      }
+   }
+}
+
+
+void ImportProjectHandle::addBurialHistory()  {
+
+   database::Table * bhfTable = m_projectHandle->getTable ("TouchstoneWellIoTbl");
+   std::vector<std::string> historyFilesDefined;
+
+   database::Table::iterator tblIter;
+   for (tblIter = bhfTable->begin(); tblIter != bhfTable->end(); ++tblIter)
+   {
+      database::Record * tableRecord = *tblIter;
+      if( getBHFName(tableRecord) != "" ) {
+         historyFilesDefined.push_back( getBHFName(tableRecord) );
+      }
+   }
+   ibs::FilePath folderPath ( m_projectHandle->getFullOutputDir () );
+   
+
+   if( folderPath.exists() ) {
+      boost::filesystem::directory_iterator it (folderPath.path());
+      boost::filesystem::directory_iterator endit;
+      
+      while( it != endit ) {
+         if( std::find( historyFilesDefined.begin(), historyFilesDefined.end(), it->path().filename() ) != historyFilesDefined.end() ) {
+
+            ibs::FilePath oneFilePath( it->path().string() );
+            m_project->addBurialHistoryRecord( oneFilePath.cpath() );
+
+         }
+         it ++;
+      }
+   }
 }
 

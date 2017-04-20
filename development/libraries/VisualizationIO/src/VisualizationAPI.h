@@ -48,6 +48,7 @@ namespace CauldronIO
     typedef std::vector<std::shared_ptr<SnapShot > >                                    SnapShotList;
     typedef std::vector<std::shared_ptr<Surface > >                                     SurfaceList;
     typedef std::vector<std::shared_ptr<Trapper > >                                     TrapperList;
+    typedef std::vector<std::shared_ptr<Trap > >                                        TrapList;
     typedef std::vector<std::shared_ptr<const Property > >                              PropertyList;
     typedef std::vector<std::shared_ptr<Formation> >                                    FormationList;
     typedef std::vector<std::shared_ptr<const Reservoir> >                              ReservoirList;
@@ -58,7 +59,7 @@ namespace CauldronIO
     typedef std::vector<std::shared_ptr<const Geometry2D> >                             GeometryList;
     typedef std::vector<std::shared_ptr<MigrationEvent> >                               MigrationEventList;
     typedef std::vector<StratigraphyTableEntry>                                         StratigraphyTableEntryList;
-
+ 
     /// \class Project
     /// \brief Highest level class containing all surface and volume data within a Cauldron project
     class Project
@@ -140,6 +141,33 @@ namespace CauldronIO
         /// \brief Adds an entry to the migration events table
         /// \param [in] entry a new entry for the migration events table
         void addMigrationEvent(std::shared_ptr<MigrationEvent> event);
+        /// \brief Adds an entry to the trapper table
+        /// \param [in] entry a new entry for the trapper table
+        void addTrapper(std::shared_ptr<Trapper>& event) throw (CauldronIOException);
+        /// \returns the trapper table
+        const TrapperList& getTrapperTable() const;
+        /// \brief Adds an entry to the trap table
+        /// \param [in] entry a new entry for the trap table
+        void addTrap(std::shared_ptr<Trap>& event) throw (CauldronIOException);
+        /// \returns the trap table
+        const TrapList& getTrapTable() const;
+        /// \returns the list of  genex history files
+        const std::vector<std::string>& getGenexHistoryList();
+        /// \brief Adds an entry to the genex history list
+        ///        Genex history files are produced by genex simulator and contain 
+        ///        the simulation output (genex or shale-gas) at every time-step at history location 
+        ///        defined in the project file
+        /// \param [in] entry a new entry for the genex history list
+        void addGenexHistoryRecord(std::string historyRecord);
+        /// \returns the mass balance file name produced by fastmig simulator
+        const std::string& getMassBalance();
+        ///  \brief Set the mass balance file name
+        void setMassBalance(const std::string name);
+        /// \brief Adds an entry to the burial history list
+        /// \param [in] entry a new entry for the burial history list
+        void addBurialHistoryRecord(std::string historyRecord);
+        /// \returns the list of burial history files - the BHF files produced by cauldron2bhf application.
+        const std::vector<std::string>& getBurialHistoryList();
 
     private:
         SnapShotList m_snapShotList;
@@ -150,8 +178,13 @@ namespace CauldronIO
         ReservoirList m_reservoirList;
         GeometryList m_geometries;
         MigrationEventList m_migrationEventList;
+        TrapperList m_trapperList;
+        TrapList m_trapList;
         int m_xmlVersionMajor, m_xmlVersionMinor;
         StratigraphyTableEntryList m_stratTable;
+        std::vector<std::string> m_genexHistoryList;
+        std::vector<std::string> m_burialHistoryList;
+        std::string m_massBalance;
     };
 
     /// \class StratigraphyTableEntry
@@ -252,69 +285,6 @@ namespace CauldronIO
         std::shared_ptr<const Formation> m_formation;
     };
 
-    /// \class Trapper 
-    /// \brief container class holding all some information related to a Trapper
-    class Trapper
-    {
-    public:
-        /// \brief Property constructor
-        /// \param [in] ID the ID of the trapper
-        /// \param [in] persistentID the persistent ID of the trapper
-        explicit Trapper(int ID, int persistentID);
-        /// \returns the reservoir name
-        const std::string& getReservoirName() const;
-        /// \param [in] reservoirName the name of the reservoir
-        void setReservoirName(const std::string& reservoirName);
-        /// \returns the spillpoint depth
-        float getSpillDepth() const;
-        /// \param [in] depth the spill depth to assign to this trapper
-        void setSpillDepth(float depth);
-        /// \param [out] spillPointPosX the spillpoint X position
-        /// \param [out] spillPointPosY the spillpoint Y position
-        void getSpillPointPosition(float& spillPointPosX, float& spillPointPosY) const;
-        /// \param [in] posX the spillpoint X position
-        /// \param [in] posY the spillpoint Y position
-        void setSpillPointPosition(float posX, float posY);
-        /// \returns the leakage point depth
-        float getDepth() const;
-        /// \param [in] depth the leakage point depth
-        void setDepth(float depth);
-        /// \param [out] positionPosX the leakage point X position
-        /// \param [out] positionPosY the leakage point Y position
-        void getPosition(float& positionPosX, float& positionPosY) const;
-        /// \param [in] posX the leakage point X position
-        /// \param [in] posY the leakage point Y position
-        void setPosition(float posX, float posY);
-        /// \returns the ID
-        int getID() const;
-        /// \returns the persistent ID
-        int getPersistentID() const;
-        /// \brief Assign a downstream trapper for this trapper
-        /// \returns the downstream trapper (if any)
-        std::shared_ptr<const Trapper> getDownStreamTrapper() const;
-        /// \param [in] trapper the downstreamtrapper for this trapper
-        void setDownStreamTrapper(std::shared_ptr<const Trapper> trapper);
-        /// \param [in] persistentID the downstreamtrapper persistent ID for this trapper; temporary state - do not use
-        void setDownStreamTrapperID(int persistentID);
-        /// \returns the downstream trapper ID; temporary state - do not use
-        int getDownStreamTrapperID() const;
-        /// \brief set the gas-oil contact depth
-        void setGOC(float goc);
-        /// \returns the gas-oil contact depth
-        float getGOC() const;
-        /// \brief sets the oil-water contact depth
-        void setOWC(float goc);
-        /// \returns the oil-water contact depth
-        float getOWC() const;
-
-    private:
-        int m_ID, m_persistentID, m_downstreamTrapperID;
-        float m_depth, m_positionX, m_positionY;
-        float m_spillDepth, m_spillPositionX, m_spillPositionY;
-        float m_goc, m_owc;
-        std::shared_ptr<const Trapper> m_downstreamTrapper;
-        std::string m_reservoir;
-    };
 
     /// \class Property 
     /// \brief Little information class holding information about a Cauldron property
@@ -1121,6 +1091,469 @@ namespace CauldronIO
         double m_MassC15Aro, m_MassC15Sat, m_MassLSC, m_MassC15AT, m_MassC15AroS, m_MassC15SatS, m_MassC6_14BT, m_MassC6_14DBT;
         double m_MassC6_14BP, m_MassC6_14SatS, m_MassC6_14AroS, m_Massresins, m_Massasphaltenes;
     };
+ 
+   /// \class Trap
+   /// \brief container class holding all some information related to a Trap
+   class Trap
+   {
+   public:
+      /// \brief Constructor
+      Trap();
+      /// \brief Constructor
+      /// \param [in] ID the trap ID
+      Trap(int ID);
+      /// \param [in] reservoirName the name of the reservoir
+      void setReservoirName(const std::string& reservoirName);
+      /// \param [in] depth the spill depth to assign to this trapper
+      void setSpillDepth(float depth);
+      /// \param [in] posX the spillpoint X position
+      /// \param [in] posY the spillpoint Y position
+      void setSpillPointPosition(float posX, float posY);
+      /// \param [in] depth the leakage point depth
+      void setDepth(float depth);
+      /// \param [in] posX the leakage point X position
+      /// \param [in] posY the leakage point Y position
+      void setPosition(float posX, float posY);
+      /// \brief set the gas-oil contact depth
+      void setGOC(float goc);
+      /// \brief sets the oil-water contact depth
+      void setOWC(float goc);
+      /// \brief set oil volume
+      void setVolumeOil(float volumeLiquid);
+      /// \brief set gas volume
+      void setVolumeGas(float volumeVapour);
+      /// \brief set liquid CEP
+      void setCEPOil(float cepLiquid);
+      /// \brief set vapour CEP
+      void setCEPGas(float cepVapour);
+      /// \brief set liquid critical temerature
+      void setCriticalTemperatureOil(float criticalTemperatureLiquid);
+      /// \brief set vapour critical temerature
+      void setCriticalTemperatureGas(float criticalTemperatureVapour);
+      /// \brief set liquid interfacialTension
+      void setInterfacialTensionOil(float interfacialTensionLiquid);
+      /// \brief set vapour interfacialTension
+      void setInterfacialTensionGas(float interfacialTensionVapour);
+      /// \brief set fracture pressure
+      void setFracturePressure(float fracturePressure);
+      /// \brief set WC Surface
+      void setWCSurface(float wcSurface);
+      /// \brief set trap capacity
+      void setTrapCapacity(float trapCapacity);
+      /// \brief set pressure
+      void setPressure(float pressure);
+      /// \brief set temperature
+      void setTemperature(float temperature);
+      /// \brief set permeability
+      void setPermeability(float permeability);
+      /// \brief set seal permeability
+      void setSealPermeability(float sealPermeability);
+      /// \brief set net to gross
+      void setNetToGross(float netToGross);
+      /// \brief set age
+      void setAge(float age);
+      /// \brief set trap ID
+      void setID(int id);
+      /// \brief set fracture seal strengt
+      void setFractSealStrength(float fractSealStrength);
+      /// \brief set mass for one species
+      void setMass(double mass, SpeciesNamesId compId);
+      
+      /// \returns the gas-oil contact depth
+      float getOWC() const;
+      /// \returns the oil-water contact depth
+      float getGOC() const;
+      /// \returns the ID
+      int getID() const;
+      /// \param [out] positionPosX the leakage point X position
+      /// \param [out] positionPosY the leakage point Y position
+      void getPosition(float& positionPosX, float& positionPosY) const;
+      /// \returns the leakage point depth
+      float getDepth() const;
+      /// \param [out] spillPointPosX the spillpoint X position
+      /// \param [out] spillPointPosY the spillpoint Y position
+      void getSpillPointPosition(float& spillPointPosX, float& spillPointPosY) const;
+      /// \returns the spillpoint depth
+      float getSpillDepth() const;
+      /// \brief get liquid volume
+      float getVolumeOil() const;
+      /// \brief get vapour volume
+      float getVolumeGas() const;
+      /// \brief get liquid CEP
+      float getCEPOil() const;
+      /// \brief get vapour CEP
+      float getCEPGas() const;
+      /// \brief get liquid critical temerature
+      float getCriticalTemperatureOil() const;
+      /// \brief get vapour critical temerature
+      float getCriticalTemperatureGas() const;
+      /// \brief get liquid interfacialTension
+      float getInterfacialTensionOil() const;
+      /// \brief get vapour interfacialTension
+      float getInterfacialTensionGas() const;
+      /// \brief get fracture pressure
+      float getFracturePressure() const;
+      /// \brief get WC Surface
+      float getWCSurface() const;
+      /// \brief get trap capacity
+      float getTrapCapacity() const;
+      /// \brief get pressure
+      float getPressure() const;
+      /// \brief get temperature
+      float getTemperature() const;
+      /// \brief get permeability
+      float getPermeability() const;
+      /// \brief get seal permeability
+      float getSealPermeability() const;
+      /// \brief get net to gross
+      float getNetToGross() const;
+      /// \brief get age
+      float getAge() const;
+      /// \returns the reservoir name
+      const std::string getReservoirName() const;
+      /// \brief get fracture seal strengt
+      float getFractSealStrength() const;
+      /// \brief get mass of one species
+      double getMass(SpeciesNamesId compId) const;
+      
+   private:
+      int m_ID;
+      float m_fractSealStrength;
+      
+      double m_masses[NUMBER_OF_SPECIES];
+      
+      float m_depth, m_positionX, m_positionY;
+      float m_spillDepth, m_spillPositionX, m_spillPositionY;
+      float m_goc, m_owc;
+      
+      float m_volumeLiquid, m_volumeVapour;
+      float m_cepLiquid, m_cepVapour;
+      float m_criticalTemperatureLiquid, m_criticalTemperatureVapour;
+      float m_interfacialTensionLiquid, m_interfacialTensionVapour;
+      float m_fracturePressure;
+      float m_wcSurface;
+      float m_trapCapacity;
+      float m_pressure, m_temperature, m_permeability, m_sealPermeability;
+      float m_netToGross;
+      float m_age;
+      
+      static const int m_maxStringLength = 256;
+      char m_reservoir[m_maxStringLength];
+   };
+   
+   
+   /// \class Trapper 
+   /// \brief container class holding all some information related to a Trapper
+	class Trapper 
+	{
+	public:
+           /// \brief Constructor
+           Trapper();
+           /// \brief Property constructor
+           /// \param [in] ID the ID of the trapper
+           /// \param [in] persistentID the persistent ID of the trapper
+           explicit Trapper(int ID, int persistentID);
+           /// \returns the persistent ID
+           int getPersistentID() const;
+           /// \returns the trapper ID
+           int getID() const;
+           /// \brief Assign a downstream trapper for this trapper
+           /// \returns the downstream trapper (if any)
+           std::shared_ptr<const Trapper> getDownStreamTrapper() const;
+           /// \param [in] trapper the downstreamtrapper for this trapper
+           void setDownStreamTrapper(std::shared_ptr<const Trapper> trapper);
+           /// \param [in] persistentID the downstreamtrapper persistent ID for this trapper; temporary state - do not use
+           void setDownStreamTrapperID(int persistentID);
+           /// \returns the downstream trapper ID; temporary state - do not use
+           int getDownStreamTrapperID() const;
+           
+           /// \brief set the solution gas volume
+           void setSolutionGasVolume(float solutionGasVolume);
+           /// \brief get the solution gas volume
+           float getSolutionGasVolume() const;
+           /// \brief set the solution gas density
+           void setSolutionGasDensity(float solutionGasDensity);
+           /// \brief get the solution gas density
+           float getSolutionGasDensity() const;
+           /// \brief set the solution gas viscosity
+           void setSolutionGasViscosity(float solutionGasViscosity);
+           /// \brief get the solution gas viscosity
+           float getSolutionGasViscosity() const;
+           /// \brief set the one component solution gas mass 
+           void setSolutionGasMass(double solutionGasMass, SpeciesNamesId compId);
+           /// \brief get the one component solution gas mass 
+           double getSolutionGasMass(SpeciesNamesId compId) const;
+           /// \brief set thesolution gas mass 
+           void setSolutionGasMass(float solutionGasMass);
+           /// \brief get the solution gas mass 
+           float getSolutionGasMass() const;
+           
+           /// \brief set the free gas volume
+           void setFreeGasVolume(float freeGasVolume);
+           /// \brief get the free gas volume
+           float getFreeGasVolume() const;
+           /// \brief set the free gas density
+           void setFreeGasDensity(float freeGasDensity);
+           /// \brief get the free gas density
+           float getFreeGasDensity() const;
+           /// \brief set the free gas viscosity
+           void setFreeGasViscosity(float freeGasViscosity);
+           /// \brief get the free gas viscosity
+           float getFreeGasViscosity() const;
+           /// \brief set the one component free gas mass 
+           void setFreeGasMass(double freeGasMass, SpeciesNamesId compId);
+           /// \brief get the one component free gas mass 
+           double getFreeGasMass(SpeciesNamesId compId) const;
+           /// \brief set the  free gas mass 
+           void setFreeGasMass(float freeGasMass);
+           /// \brief get the free gas mass 
+           float getFreeGasMass() const;
+           
+           /// \brief set the condensate volume
+           void setCondensateVolume(float condensateVolume);
+           /// \brief get the condensate volume
+           float getCondensateVolume() const;
+           /// \brief set the condensate density
+           void setCondensateDensity(float condensateDensity);
+           /// \brief get the condensate density
+           float getCondensateDensity() const;
+           /// \brief set the condensate viscosity
+           void setCondensateViscosity(float condensateViscosity);
+           /// \brief get the condensate viscosity
+           float getCondensateViscosity() const;
+           /// \brief set the one component condensate mass 
+           void setCondensateMass(double condensateMass, SpeciesNamesId compId);
+           /// \brief get the one component condensate mass 
+           double getCondensateMass(SpeciesNamesId compId) const;
+           /// \brief set the condensate mass 
+           void setCondensateMass(float condensateMass);
+           /// \brief get the condensate mass 
+           float getCondensateMass() const;
+           
+           /// \brief set the StockTankOil volume
+           void setStockTankOilVolume(float stockTankOilVolume);
+           /// \brief set the StockTankOil density
+           void setStockTankOilDensity(float stockTankOilDensity);
+           /// \brief set the StockTankOil viscosity
+           void setStockTankOilViscosity(float stockTankOilViscosity);
+           /// \brief get the StockTankOil volume
+           float getStockTankOilVolume() const;
+           /// \brief get the StockTankOil density
+           float getStockTankOilDensity() const;
+           /// \brief get the StockTankOil viscosity
+           float getStockTankOilViscosity() const;
+           /// \brief set the one component StockTankOil mass 
+           void setStockTankOilMass(double stockTankOilMass, SpeciesNamesId compId);
+           /// \brief get the one component StockTankOil mass 
+           double getStockTankOilMass(SpeciesNamesId compId) const;
+           /// \brief set the StockTankOil mass 
+           void setStockTankOilMass(float stockTankOilMass);
+           /// \brief get the StockTankOil mass 
+           float getStockTankOilMass() const;
+           
+           /// \brief set liquid mass
+           void setMassLiquid(float massLiquid);
+           /// \brief set vapour mass
+           void setMassVapour(float massVapour);
+           /// \brief set liquid viscosity
+           void setViscosityLiquid(float viscosityLiquid);
+           /// \brief set vapour viscosity
+           void setViscosityVapour(float viscosityVapour);
+           /// \brief set liquid density
+           void setDensityLiquid(float densityLiquid);
+           /// \brief set vapour density
+           void setDensityVapour(float densityVapour);
+           /// \brief set oil API
+           void setOilAPI(float oilAPI);
+           /// \brief set CGR
+           void setCGR(float cgr);
+           /// \brief set GOR
+           void setGOR(float gor);
+           /// \brief set buoyancy
+           void setBuoyancy(float buoyancy);
+           /// \brief set porosily
+           void setPorosity(float porosity);
+           /// \brief set persistent trap ID
+           void setPersistentId(int id);
+           /// \param [in] reservoirName the name of the reservoir
+           void setReservoirName(const std::string& reservoirName);
+           /// \param [in] depth the spill depth to assign to this trapper
+           void setSpillDepth(float depth);
+           /// \param [in] posX the spillpoint X position
+           /// \param [in] posY the spillpoint Y position
+           void setSpillPointPosition(float posX, float posY);
+           /// \param [in] depth the leakage point depth
+           void setDepth(float depth);
+           /// \param [in] posX the leakage point X position
+           /// \param [in] posY the leakage point Y position
+           void setPosition(float posX, float posY);
+           /// \brief set the gas-oil contact depth
+           void setGOC(float goc);
+           /// \brief sets the oil-water contact depth
+           void setOWC(float goc);
+           /// \brief set oil volume
+           void setVolumeOil(float volumeLiquid);
+           /// \brief set gas volume
+           void setVolumeGas(float volumeVapour);
+           /// \brief set liquid CEP
+           void setCEPOil(float cepLiquid);
+           /// \brief set vapour CEP
+           void setCEPGas(float cepVapour);
+           /// \brief set liquid critical temerature
+           void setCriticalTemperatureOil(float criticalTemperatureLiquid);
+           /// \brief set vapour critical temerature
+           void setCriticalTemperatureGas(float criticalTemperatureVapour);
+           /// \brief set liquid interfacialTension
+           void setInterfacialTensionOil(float interfacialTensionLiquid);
+           /// \brief set vapour interfacialTension
+           void setInterfacialTensionGas(float interfacialTensionVapour);
+           /// \brief set fracture pressure
+           void setFracturePressure(float fracturePressure);
+           /// \brief set WC Surface
+           void setWCSurface(float wcSurface);
+           /// \brief set trap capacity
+           void setTrapCapacity(float trapCapacity);
+           /// \brief set pressure
+           void setPressure(float pressure);
+           /// \brief set temperature
+           void setTemperature(float temperature);
+           /// \brief set permeability
+           void setPermeability(float permeability);
+           /// \brief set seal permeability
+           void setSealPermeability(float sealPermeability);
+           /// \brief set net to gross
+           void setNetToGross(float netToGross);
+           /// \brief set age
+           void setAge(float age);
+           /// \brief set trap ID
+           void setID(int id);
+           
+           /// \brief get liquid mass
+           float getMassLiquid() const;
+           /// \brief get vapour mass
+           float getMassVapour() const;
+           /// \brief get liquid viscosity
+           float getViscosityLiquid() const;
+           /// \brief get vapour viscosity
+           float getViscosityVapour() const;
+           /// \brief get liquid density
+           float getDensityLiquid() const;
+           /// \brief get vapour density
+           float getDensityVapour() const;
+           /// \brief get oil API
+           float getOilAPI() const;
+           /// \brief get CGR
+           float getCGR() const;
+           /// \brief get GOR
+           float getGOR() const;
+           /// \brief get buoyancy
+           float getBuoyancy() const;
+           /// \brief get porosily
+           float getPorosity() const;
+           /// \returns the gas-oil contact depth
+           float getOWC() const;
+           /// \returns the oil-water contact depth
+           float getGOC() const;
+           /// \param [out] positionPosX the leakage point X position
+           /// \param [out] positionPosY the leakage point Y position
+           void getPosition(float& positionPosX, float& positionPosY) const;
+           /// \returns the leakage point depth
+           float getDepth() const;
+           /// \param [out] spillPointPosX the spillpoint X position
+           /// \param [out] spillPointPosY the spillpoint Y position
+           void getSpillPointPosition(float& spillPointPosX, float& spillPointPosY) const;
+           /// \returns the spillpoint depth
+           float getSpillDepth() const;
+           /// \brief get liquid volume
+           float getVolumeOil() const;
+           /// \brief get vapour volume
+           float getVolumeGas() const;
+           /// \brief get liquid CEP
+           float getCEPOil() const;
+           /// \brief get vapour CEP
+           float getCEPGas() const;
+           /// \brief get liquid critical temerature
+           float getCriticalTemperatureOil() const;
+           /// \brief get vapour critical temerature
+           float getCriticalTemperatureGas() const;
+           /// \brief get liquid interfacialTension
+           float getInterfacialTensionOil() const;
+           /// \brief get vapour interfacialTension
+           float getInterfacialTensionGas() const;
+           /// \brief get fracture pressure
+           float getFracturePressure() const;
+           /// \brief get WC Surface
+           float getWCSurface() const;
+           /// \brief get trap capacity
+           float getTrapCapacity() const;
+           /// \brief get pressure
+           float getPressure() const;
+           /// \brief get temperature
+           float getTemperature() const;
+           /// \brief get permeability
+           float getPermeability() const;
+           /// \brief get seal permeability
+           float getSealPermeability() const;
+           /// \brief get net to gross
+           float getNetToGross() const;
+           /// \brief get age
+           float getAge() const;
+           /// \returns the reservoir name
+           const std::string getReservoirName() const;
+        private:
+           int m_ID;
+           int m_persistentID, m_downstreamTrapperID;
+           float m_depth, m_positionX, m_positionY;
+           float m_spillDepth, m_spillPositionX, m_spillPositionY;
+           float m_goc, m_owc;
+           
+           float m_volumeLiquid, m_volumeVapour;
+           float m_cepLiquid, m_cepVapour;
+           float m_criticalTemperatureLiquid, m_criticalTemperatureVapour;
+           float m_interfacialTensionLiquid, m_interfacialTensionVapour;
+           float m_fracturePressure;
+           float m_wcSurface;
+           float m_trapCapacity;
+           float m_pressure, m_temperature, m_permeability, m_sealPermeability;
+           float m_netToGross;
+           float m_age;
+           
+           float m_massLiquid, m_massVapour;
+           float m_viscosityLiquid, m_viscosityVapour;
+           float m_densityLiquid, m_densityVapour;
+           float m_oilAPI, m_cgr, m_gor;
+           float m_buoyancy;
+           float m_porosity;
+           
+           float m_solutionGasVolume;
+           float m_solutionGasDensity;
+           float m_solutionGasViscosity;
+           float m_solutionGasMass;
+           double m_solutionGasMasses[NUMBER_OF_SPECIES];
+           
+           float m_freeGasVolume;
+           float m_freeGasDensity;
+           float m_freeGasViscosity;
+           float m_freeGasMass;
+           double m_freeGasMasses[NUMBER_OF_SPECIES];
+           
+           float m_condensateVolume;
+           float m_condensateDensity;
+           float m_condensateViscosity;
+           float m_condensateMass;
+           double m_condensateMasses[NUMBER_OF_SPECIES];
+           
+           float m_stockTankOilVolume;
+           float m_stockTankOilDensity;
+           float m_stockTankOilViscosity;
+           float m_stockTankOilMass;
+           double m_stockTankOilMasses[NUMBER_OF_SPECIES];
+           
+           static const int m_maxStringLength = 256;
+           char m_reservoir[m_maxStringLength];
+           
+           std::shared_ptr<const Trapper> m_downstreamTrapper;
+	};
 }
 
 
@@ -1129,4 +1562,3 @@ namespace CauldronIO
 #endif
 
 #endif
-

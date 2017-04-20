@@ -148,6 +148,8 @@ namespace DataAccess
             virtual double getSealPermeability (void) const;
             /// return the Trapper's Porosity
             virtual double getPorosity (void) const;
+            /// return the Trapper's net to gross
+            virtual double getNetToGross (void) const;
                  
             void addUpstreamTrapper (Trapper * trapper);
             void setDownstreamTrapper (Trapper * trapper);

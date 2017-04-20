@@ -187,7 +187,7 @@ std::shared_ptr<Project> CauldronIO::ImportFromXML::getProject(const pugi::xml_d
             assert(bool(entry.getFormation()));
 
             std::shared_ptr<CauldronIO::Surface> topSurface = m_project->getStratigraphyTable().at(index - 1).getSurface();
-            std::shared_ptr<CauldronIO::Formation> formation = m_project->getStratigraphyTable().at(index).getFormation();
+            std::shared_ptr<CauldronIO::Formation> formation = entry.getFormation();
 
             formation->setTopSurface(topSurface);
 
@@ -228,6 +228,96 @@ std::shared_ptr<Project> CauldronIO::ImportFromXML::getProject(const pugi::xml_d
         delete data;
     }
    
+    // Parse trapper table
+    pugi::xml_node trapperNode = pt.child("trapper");
+    if (trapperNode)
+    {
+        size_t nrEvents = (size_t)trapperNode.attribute("number").as_int();
+        size_t record_size = trapperNode.attribute("record_size").as_int();
+        size_t totalSize = nrEvents * record_size;
+
+        // Uncompress the data
+        pugi::xml_node datastoreNode = trapperNode.child("datastore");
+        DataStoreLoad datastore(DataStoreLoad::getDatastoreParams(datastoreNode, fullOutputPath));
+        char* data = (char*)datastore.getData(totalSize);
+        
+        // Reconstruct trapper
+        size_t dataIndex = 0;
+        for (size_t index = 0; index < nrEvents; ++index, dataIndex += record_size)
+        {
+            std::shared_ptr<Trapper> event(new Trapper());
+
+            void* source = (void*)(&data[dataIndex]);
+            void* dest = (void*)(event.get());
+            memcpy(dest, source, record_size);
+
+            m_project->addTrapper(event);
+        }
+
+        delete data;
+    }
+    // Parse trap table
+    pugi::xml_node trapNode = pt.child("trap");
+    if (trapNode)
+    {
+        size_t nrEvents = (size_t)trapNode.attribute("number").as_int();
+        size_t record_size = trapNode.attribute("record_size").as_int();
+        size_t totalSize = nrEvents * record_size;
+
+        // Uncompress the data
+        pugi::xml_node datastoreNode = trapNode.child("datastore");
+        DataStoreLoad datastore(DataStoreLoad::getDatastoreParams(datastoreNode, fullOutputPath));
+        char* data = (char*)datastore.getData(totalSize);
+        
+        // Reconstruct trap
+        size_t dataIndex = 0;
+        for (size_t index = 0; index < nrEvents; ++index, dataIndex += record_size)
+        {
+            std::shared_ptr<Trap> event(new Trap());
+
+            void* source = (void*)(&data[dataIndex]);
+            void* dest = (void*)(event.get());
+            memcpy(dest, source, record_size);
+
+            m_project->addTrap(event);
+        }
+
+        delete data;
+    }
+    // Parse genex history files references
+    pugi::xml_node genexHistoryNode = pt.child("genexHistoryFiles");
+    if (genexHistoryNode)
+    {
+       for (pugi::xml_node_iterator it = genexHistoryNode.begin(); it != genexHistoryNode.end(); ++it)
+        {
+           pugi::xml_node entry = (*it);
+           if( std::string(entry.name()) == "filepath" ) {
+              const std::string fileName(entry.attribute("file").as_string());
+              m_project->addGenexHistoryRecord( fileName );
+           }
+        }
+    }
+   
+    // Parse burial history files references
+    pugi::xml_node burialHistoryNode = pt.child("burialHistoryFiles");
+    if (burialHistoryNode)
+    {
+       for (pugi::xml_node_iterator it = burialHistoryNode.begin(); it != burialHistoryNode.end(); ++it)
+        {
+           pugi::xml_node entry = (*it);
+           if( std::string(entry.name()) == "filepath" ) {
+              const std::string fileName(entry.attribute("file").as_string());
+              m_project->addBurialHistoryRecord( fileName );
+           }
+        }
+    }
+   
+    // Parse mass balance file reference
+    pugi::xml_node massBalanceNode = pt.child("massBalance");
+    if (massBalanceNode)
+    {
+       m_project->setMassBalance ( massBalanceNode.attribute("file").as_string() );
+    }
 
     // Read all snapshots
     pugi::xml_node snapshotsNode = pt.child("snapshots");
@@ -290,7 +380,7 @@ std::shared_ptr<Project> CauldronIO::ImportFromXML::getProject(const pugi::xml_d
         //////////////////////////////////////////////////////////////////////////
 
         pugi::xml_node hasTrappers = snapShotNode.child("trappers");
-        if (hasTrappers)
+        if (hasTrappers and m_project->getTrapperTable().empty() )
         {
             int maxPersistentTrapperID = hasTrappers.child("maxPersistentTrapperID").text().as_int();
             assert(maxPersistentTrapperID > -1);

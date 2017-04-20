@@ -894,9 +894,28 @@ TEST(Trapper, Create)
 	int persistentID = 2345;
 	std::shared_ptr<const Trapper> trapper(new Trapper(ID, persistentID));
 
-	EXPECT_EQ(trapper->getID(), ID);
-	EXPECT_EQ(trapper->getPersistentID(), persistentID);
+	EXPECT_EQ(ID, trapper->getID());
+	EXPECT_EQ(persistentID, trapper->getPersistentID());
 
+	std::shared_ptr<Trapper> trapper1(new Trapper());
+        trapper1->setFreeGasVolume(9339458859.7369);
+        EXPECT_FLOAT_EQ(9339458859.7369, trapper1->getFreeGasVolume());
+
+        trapper1->setSolutionGasMass(1450545555.65666, CauldronIO::SpeciesNamesId::C3);
+        EXPECT_DOUBLE_EQ(1450545555.65666, trapper1->getSolutionGasMass( CauldronIO::SpeciesNamesId::C3));
+        EXPECT_DOUBLE_EQ(0.0, trapper1->getSolutionGasMass( CauldronIO::SpeciesNamesId::C5));
+
+        trapper1->setFreeGasMass(2682893.23758079, CauldronIO::SpeciesNamesId::C6_MINUS_14ARO);
+        EXPECT_DOUBLE_EQ(2682893.23758079, trapper1->getFreeGasMass( CauldronIO::SpeciesNamesId::C6_MINUS_14ARO));
+        EXPECT_DOUBLE_EQ(0.0, trapper1->getFreeGasMass( CauldronIO::SpeciesNamesId::C6_MINUS_14SAT_S));
+
+        trapper1->setCondensateMass(201456.126648199, CauldronIO::SpeciesNamesId::N2);
+        EXPECT_DOUBLE_EQ(201456.126648199, trapper1->getCondensateMass( CauldronIO::SpeciesNamesId::N2));
+        EXPECT_DOUBLE_EQ(0.0, trapper1->getCondensateMass( CauldronIO::SpeciesNamesId::COX));
+
+        trapper1->setStockTankOilMass(97582712.1753246, CauldronIO::SpeciesNamesId::ASPHALTENE);
+        EXPECT_DOUBLE_EQ(97582712.1753246, trapper1->getStockTankOilMass( CauldronIO::SpeciesNamesId::ASPHALTENE));
+        EXPECT_DOUBLE_EQ(0.0, trapper1->getStockTankOilMass( CauldronIO::SpeciesNamesId::LSC));
 }
 
 TEST(Formation, Properties)
@@ -1174,4 +1193,64 @@ TEST(MigrationEvent, Properties)
     double massasphaltenes = 0.1022;
     event->setMassasphaltenes(massasphaltenes);
     EXPECT_DOUBLE_EQ(massasphaltenes, event->getMassasphaltenes());
+}
+
+TEST(TrapList, Create)
+{
+   std::shared_ptr<CauldronIO::Trap> trap(new CauldronIO::Trap());
+
+   EXPECT_STREQ("", trap->getReservoirName().c_str());
+
+   const string reservoirName("Reservoir1");
+   trap->setReservoirName(reservoirName);
+   EXPECT_STREQ(reservoirName.c_str(), trap->getReservoirName().c_str());
+
+   const float x = 2.0f;
+   const float y = 50.0f;
+   trap->setSpillPointPosition(x, y);
+   float xpos, ypos;
+   trap->getSpillPointPosition(xpos, ypos);
+   EXPECT_FLOAT_EQ(x, xpos);
+   EXPECT_FLOAT_EQ(y, ypos);
+
+   const double C1mass = 0.0234;
+   trap->setMass(C1mass, CauldronIO::SpeciesNamesId::C1);
+   EXPECT_DOUBLE_EQ(C1mass, trap->getMass(CauldronIO::SpeciesNamesId::C1));
+   EXPECT_DOUBLE_EQ(0.0, trap->getMass(CauldronIO::SpeciesNamesId::C6_MINUS_14ARO_S));  
+
+   trap->setFractSealStrength( -1.0f );
+   EXPECT_FLOAT_EQ( -1.0f, trap->getFractSealStrength() );
+
+   trap->setCriticalTemperatureOil ( 294.05f );
+   EXPECT_FLOAT_EQ( 294.05f, trap->getCriticalTemperatureOil() );
+}
+
+TEST(FileReferences, Create)
+{
+    const string projectName("project");
+    const string teamName("team");
+    const string description("descript");
+    const string version("version");
+    ModellingMode mode = MODE3D;
+    std::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2, 1));
+
+    // test for genex history records
+    EXPECT_EQ( 0, (project->getGenexHistoryList()).size() );
+    project->addGenexHistoryRecord("HistoryFile1.dat");
+    const std::vector<std::string>& historyFiles = project->getGenexHistoryList();
+    EXPECT_EQ( 1, historyFiles.size() );
+    EXPECT_STREQ( "HistoryFile1.dat", (*historyFiles.begin()).c_str() );
+   
+    // test for the mass balance file record
+    EXPECT_STREQ( "", project->getMassBalance().c_str() );
+    project->setMassBalance("project_MassBalance");
+    EXPECT_STREQ( "project_MassBalance", project->getMassBalance().c_str() );
+
+    // test for the burial history records
+    EXPECT_EQ( 0, (project->getBurialHistoryList()).size() );
+    project->addBurialHistoryRecord("Well.BHF");
+    const std::vector<std::string>& bhFiles = project->getBurialHistoryList();
+    EXPECT_EQ( 1, bhFiles.size() );
+    EXPECT_STREQ( "Well.BHF", (*bhFiles.begin()).c_str() );
+ 
 }
