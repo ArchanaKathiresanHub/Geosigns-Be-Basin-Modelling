@@ -10,12 +10,44 @@
 #                                                                       #
 #########################################################################
 
+if (GIT_FOUND)
+   # Exctract Spec file version information
+   # the commit's SHA1, and whether the building workspace was dirty or not
+   execute_process(COMMAND 
+      "${GIT_EXECUTABLE}" log --format="%H" -1 VoxetProperty.Spec
+      WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/src"
+      OUTPUT_VARIABLE SPEC_FILE_GIT_SHA1
+      ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+   # the date of the commit
+   execute_process(COMMAND
+      "${GIT_EXECUTABLE}" log -1 --format=%ad --date=local VoxetProperty.Spec
+      WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/src"
+      OUTPUT_VARIABLE SPEC_FILE_GIT_DATE
+      ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+   # the subject of the commit
+   execute_process(COMMAND
+      "${GIT_EXECUTABLE}" log -1 --format=%s VoxetProperty.Spec
+      WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/src"
+      OUTPUT_VARIABLE SPEC_FILE_GIT_COMMIT_SUBJECT
+      ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
+else(GIT_FOUND)
+   set(SPEC_FILE_GIT_SHA1 "0000000000000000000000000000000000000000")  
+   set(SPEC_FILE_GIT_DATE "Mon Jan 01 00:00:00 1900")
+   set(SPEC_FILE_GIT_COMMIT_SUBJECT "Not found")
+endif(GIT_FOUND)
+
+
+# generate include file with Spec file version
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/src/SpecFileVersion.h.in" "${CMAKE_CURRENT_BINARY_DIR}/SpecFileVersion.h" @ONLY)
 
 set (voxetProjectFormatSources
-	${PROJECT_BINARY_DIR}/applications/cauldron2voxet/voxetschemafuncs.h
-	${PROJECT_BINARY_DIR}/applications/cauldron2voxet/voxetschemafuncs.cpp
-	${PROJECT_BINARY_DIR}/applications/cauldron2voxet/voxetschema.h
-	${PROJECT_BINARY_DIR}/applications/cauldron2voxet/voxetschema.cpp
+	${CMAKE_CURRENT_BINARY_DIR}/SpecFileVersion.h
+	${CMAKE_CURRENT_BINARY_DIR}/voxetschemafuncs.h
+	${CMAKE_CURRENT_BINARY_DIR}/voxetschemafuncs.cpp
+	${CMAKE_CURRENT_BINARY_DIR}/voxetschema.h
+	${CMAKE_CURRENT_BINARY_DIR}/voxetschema.cpp
 	)
 
 set( mainSources

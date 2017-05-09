@@ -254,6 +254,7 @@ configure_file(
       COPYONLY
 )
 
+
 add_gtest(NAME TableIO::CauldronSchemaAPITest
           SOURCES test/CauldronSchemaAPITest.cpp ${allheaders} test/CauldronSchemaAPITest.h
           LIBRARIES bmAPI TableIO utilities FileSystem
@@ -261,90 +262,98 @@ add_gtest(NAME TableIO::CauldronSchemaAPITest
 
 if (MSVC)
    ##### Generate the C# API
+   # Set project name which is used in cmake processed .csproj files
+   set(CSPROJ_NAME Project3dAPI) 
+   set(CSPROJ_NAMESPACE Shell.BasinModeling)
+   
    configure_file(src/version.rc.cmake version.rc)
    configure_file(src/AssemblyInfo.cs.cmake csharp/Properties/AssemblyInfo.cs)
+   # Copy assembly icon
+   configure_file(${CMAKE_CURRENT_SOURCE_DIR}/doc/${CSPROJ_NAME}.png ${CMAKE_BINARY_DIR} COPYONLY)
+   configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/${CSPROJ_NAME}.nuspec.cmake ${CMAKE_BINARY_DIR}/${CSPROJ_NAME}.nuspec)
+   configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/${CSPROJ_NAMESPACE}.${CSPROJ_NAME}.targets.cmake ${CMAKE_BINARY_DIR}/${CSPROJ_NAMESPACE}.${CSPROJ_NAME}.targets)
    
    set(CMAKE_SWIG_OUTDIR ${CMAKE_CURRENT_BINARY_DIR}/csharp)
 
-   set_source_files_properties( ${CMAKE_CURRENT_BINARY_DIR}/Project3dAPI.i
-      PROPERTIES SWIG_FLAGS "-namespace;Shell.BasinModeling.Project3dAPI;-I${CMAKE_CURRENT_BINARY_DIR}"
+   set_source_files_properties( ${CMAKE_CURRENT_BINARY_DIR}/${CSPROJ_NAME}.i
+      PROPERTIES SWIG_FLAGS "-namespace;${CSPROJ_NAMESPACE}.${CSPROJ_NAME};-I${CMAKE_CURRENT_BINARY_DIR}"
       CPLUSPLUS ON
    )
 
-   swig_add_module(Project3dAPI csharp ${CMAKE_CURRENT_BINARY_DIR}/Project3dAPI.i
+   swig_add_module(${CSPROJ_NAME} csharp ${CMAKE_CURRENT_BINARY_DIR}/${CSPROJ_NAME}.i
       ${CMAKE_CURRENT_BINARY_DIR}/version.rc
    )
 
-   swig_link_libraries(Project3dAPI bmAPI TableIO FileSystem ${Boost_LIBRARIES})
+   swig_link_libraries(${CSPROJ_NAME} bmAPI TableIO FileSystem ${Boost_LIBRARIES})
 
    # Before C# generation, remove all existing files. The directory should be empty before generation	
-   add_custom_command( TARGET Project3dAPI
+   add_custom_command( TARGET ${CSPROJ_NAME}
       PRE_BUILD
       COMMAND ${CMAKE_COMMAND} ARGS "-E" "remove" "*.cs"
       WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/csharp"
    )
 
    # Visual studio should reload the project after C# generation
-   add_custom_command(TARGET Project3dAPI
+   add_custom_command(TARGET ${CSPROJ_NAME}
       PRE_LINK 
-      COMMAND ${CMAKE_COMMAND} ARGS "-E" "touch_nocreate" "Shell.BasinModeling.Project3dAPI.csproj"
+      COMMAND ${CMAKE_COMMAND} ARGS "-E" "touch_nocreate" "${CSPROJ_NAMESPACE}.${CSPROJ_NAME}.csproj"
       WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/csharp"
    )
-
+   
    # Generate C# project to compile generated C# files. 
    new_guid(Guid)
-   configure_file( Shell.BasinModeling.Project3dAPI.csproj.cmake ${CMAKE_CURRENT_BINARY_DIR}/csharp/read-only/Shell.BasinModeling.Project3dAPI.csproj @ONLY)
+   configure_file(${CSPROJ_NAMESPACE}.${CSPROJ_NAME}.csproj.cmake ${CMAKE_CURRENT_BINARY_DIR}/csharp/read-only/${CSPROJ_NAMESPACE}.${CSPROJ_NAME}.csproj)
    
    # TFS checksout files in 'Read only' mode. configure_file retains this mode, however we want to 'touch' the file when the C# files have been generated
    # So copy it, with the right permissions.
-   file(COPY ${CMAKE_CURRENT_BINARY_DIR}/csharp/read-only/Shell.BasinModeling.Project3dAPI.csproj
+   file(COPY ${CMAKE_CURRENT_BINARY_DIR}/csharp/read-only/${CSPROJ_NAMESPACE}.${CSPROJ_NAME}.csproj
       DESTINATION  ${CMAKE_CURRENT_BINARY_DIR}/csharp
       FILE_PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ
    )
 
-   include_external_msproject(Shell.BasinModeling.Project3dAPI ${CMAKE_CURRENT_BINARY_DIR}/csharp/Shell.BasinModeling.Project3dAPI.csproj
+   include_external_msproject(${CSPROJ_NAMESPACE}.${CSPROJ_NAME} ${CMAKE_CURRENT_BINARY_DIR}/csharp/${CSPROJ_NAMESPACE}.${CSPROJ_NAME}.csproj
       TYPE "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}" # This GUID is a Windows C# project (see also http://msdn.microsoft.com/en-us/library/hb23x61k(v=vs.80).aspx ) 
       PLATFORM "${BM_WINDOWS_PLATFORM}"
       GUID "${Guid}"
-      Project3dAPI
+      ${CSPROJ_NAME}
    )
-    
+   
    ###### Installation
-   install(TARGETS Project3dAPI
+   install(TARGETS ${CSPROJ_NAME}
       RUNTIME DESTINATION bin
       LIBRARY DESTINATION bin
    )
     
-   install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/csharp/Debug/Shell.BasinModeling.Project3dAPI.dll
+   install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/csharp/Debug/${CSPROJ_NAMESPACE}.${CSPROJ_NAME}.dll
       DESTINATION	bin
       CONFIGURATIONS Debug
    )
 
-   install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/csharp/Release/Shell.BasinModeling.Project3dAPI.dll
+   install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/csharp/Release/${CSPROJ_NAMESPACE}.${CSPROJ_NAME}.dll
       DESTINATION	bin
       CONFIGURATIONS Release
    )
 
    ###### Compile and run unit tests	
    set(CSHARP_UNIT_TESTS_SRC
-      test/Project3dAPITest.cs test/Project3dAPITest_gen.cs
+      test/${CSPROJ_NAME}Test.cs test/${CSPROJ_NAME}Test_gen.cs
    )
 
    configure_file(test/AssemblyInfo.cs.cmake csharp-test/Properties/AssemblyInfo.cs)
 
-   add_csharp_unittest(NAME Shell.BasinModeling.Project3dAPI.Test
+   add_csharp_unittest(NAME ${CSPROJ_NAMESPACE}.${CSPROJ_NAME}.Test
       PLATFORM ${BM_WINDOWS_PLATFORM}
       DIRECTORY csharp-test
       TEST_SOURCES ${CSHARP_UNIT_TESTS_SRC}
-      DEPENDS Shell.BasinModeling.Project3dAPI
+      DEPENDS ${CSPROJ_NAMESPACE}.${CSPROJ_NAME}
       TESTLIST "Test"
       TFS_SERVER_URL ${BM_TFS_SERVER_URL}
       TFS_BUILD_NUMBER ${BM_TFS_BUILD_NUMBER}
       TFS_PROJECT_NAME ${BM_TFS_PROJECT_NAME}
-      DEPLOYMENT_ITEMS "../\$(Configuration)/Project3dAPI.dll" 
-      PROJECT_REFERENCE Shell.BasinModeling.Project3dAPI
+      DEPLOYMENT_ITEMS "../\$(Configuration)/${CSPROJ_NAME}.dll" 
+      PROJECT_REFERENCE ${CSPROJ_NAMESPACE}.${CSPROJ_NAME}
       "${Guid}"
-      "${CMAKE_CURRENT_BINARY_DIR}/csharp/Shell.BasinModeling.Project3dAPI.csproj"
+      "${CMAKE_CURRENT_BINARY_DIR}/csharp/${CSPROJ_NAMESPACE}.${CSPROJ_NAME}.csproj"
    )
    
 endif()

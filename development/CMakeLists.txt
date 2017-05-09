@@ -19,6 +19,7 @@ set(TSLIB_VERSION "7.4.2"  CACHE STRING "Geocosm library version")
 set(SWIG_VERSION  "3.0.10" CACHE STRING "The version number of the swig executable")
 set(INTEL_CMPL_VERSON "2016.01" CACHE STRING "The version number of intel compiler. Used in module load command")
 
+
 if (UNIX)
    set(HDF5_VERSION  "1.8.11" CACHE STRING "HDF5 version") # 1.8.17 doesn't have H5FDmpiposix.c
 else(UNIX)
@@ -222,6 +223,7 @@ if (BM_CSHARP_API)
    find_package(Swig REQUIRED CONFIG)
 endif()
 
+find_package(Git)
 find_package(OpenMP REQUIRED CONFIG)
 find_package(Hdf5 REQUIRED CONFIG)
 find_package(Eigen REQUIRED CONFIG)
@@ -246,6 +248,8 @@ if (UNIX)
       find_package(ParaView REQUIRED CONFIG)
       include(${PARAVIEW_USE_FILE})
    endif()
+else(UNIX)
+   find_package(Nuget REQUIRED CONFIG)
 endif(UNIX)
 
 if(BM_BUILD_DOCS)

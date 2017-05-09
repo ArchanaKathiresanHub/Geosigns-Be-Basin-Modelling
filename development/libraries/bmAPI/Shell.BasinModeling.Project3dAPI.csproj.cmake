@@ -8,9 +8,9 @@
     <ProjectGuid>{@Guid@}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Shell.BasinModeling.Project3dAPI</RootNamespace>
-    <AssemblyName>Shell.BasinModeling.Project3dAPI</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <RootNamespace>Shell.BasinModeling.@CSPROJ_NAME@</RootNamespace>
+    <AssemblyName>Shell.BasinModeling.@CSPROJ_NAME@</AssemblyName>
+    <TargetFrameworkVersion>v@DONET_TARGET_VERSION@</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|@BM_WINDOWS_PLATFORM@' ">
@@ -48,10 +48,14 @@
   
   <Target Name="BeforeBuild">
      <!-- Because Visual studio doesn't handle wildcards very well, a rebuild is forced each time by removing the resulting files -->
-     <Delete Files="obj/$(Platform)/$(Configuration)/Shell.BasinModeling.CauldronIO.dll" Condition="Exists('obj/$(Platform)/$(Configuration)/Shell.BasinModeling.CauldronIO.dll')" />
-	 <Delete Files="$(Configuration)/Shell.BasinModeling.CauldronIO.dll" Condition="Exists('$(Configuration)/Shell.BasinModeling.CauldronIO.dll')" />
+     <Delete Files="obj/$(Platform)/$(Configuration)/Shell.BasinModeling.@CSPROJ_NAME@.dll" Condition="Exists('obj/$(Platform)/$(Configuration)/Shell.BasinModeling.@CSPROJ_NAME@.dll')" />
+	 <Delete Files="$(Configuration)/Shell.BasinModeling.@CSPROJ_NAME@.dll" Condition="Exists('$(Configuration)/Shell.BasinModeling.@CSPROJ_NAME@.dll')" />
   </Target>
   <Target Name="AfterBuild">
-     <Error Condition="'@(Compile)' == ''" Text="No source files included in build of Shell.BasinModeling.CauldronIO.dll. Reload the project, and build the solution again"/>
+     <Error Condition="'@(Compile)' == ''" Text="No source files included in build of Shell.BasinModeling.@CSPROJ_NAME@.dll. Reload the project, and build the solution again"/>
   </Target>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <PostBuildEvent>cd $(SolutionDir)
+    @NUGET_EXECUTABLE@ pack @CSPROJ_NAME@.nuspec</PostBuildEvent>
+  </PropertyGroup>
 </Project>

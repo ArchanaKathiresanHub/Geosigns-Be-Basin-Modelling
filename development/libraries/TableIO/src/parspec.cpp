@@ -576,6 +576,7 @@ void generateBMAPI_ProjectIoAPI_H( const string & schemaDir )
    // Header file generation
    headerOut << "#ifndef PROJECT_IO_API_H\n";
    headerOut << "#define PROJECT_IO_API_H\n\n";
+   headerOut << "#include \"SpecFileVersion.h\"\n\n";
    headerOut << "#include <vector>\n";
    headerOut << "#include <string>\n\n";
    headerOut << "namespace database\n";
@@ -608,8 +609,16 @@ void generateBMAPI_ProjectIoAPI_H( const string & schemaDir )
       bool operator == ( const ProjectIoAPI & obj ) const;        // compare 2 set of tables, return true if all records in all tables are the same
       ProjectIoAPI & operator = ( const ProjectIoAPI & obj );     // assign operator
 
+      std::string getAPISpecFileVersion()           const { return m_SpecFileVersion; }
+      std::string getAPISpecFileLastCommitDate()    const { return m_SpecFileLastCommitDate; }
+      std::string getAPISpecFileLastCommitMessage() const { return m_SpecFileLastCommitMessage; }
+      
    protected:
       void initialize( database::ProjectFileHandler & ph ); // initialize all table pointers
+
+      static const std::string m_SpecFileVersion;
+      static const std::string m_SpecFileLastCommitDate;
+      static const std::string m_SpecFileLastCommitMessage;
    };)";
 
    headerOut << "\n} // namespace bmapi\n#endif // PROJECT_IO_API_H\n";
@@ -641,8 +650,14 @@ void generateBMAPI_ProjectIoAPI_C( const string & schemaDir )
    headerOut << "#include \"ProjectIoAPI.h\"\n";
    headerOut << "#endif // BM_API_H\n";
 
-   sourceOut << "\nnamespace bmapi\n{\n";
    sourceOut << R"(
+
+namespace bmapi
+{
+   const std::string ProjectIoAPI::m_SpecFileVersion           = SPEC_FILE_GIT_SHA1;
+   const std::string ProjectIoAPI::m_SpecFileLastCommitDate    = SPEC_FILE_GIT_DATE;
+   const std::string ProjectIoAPI::m_SpecFileLastCommitMessage = SPEC_FILE_GIT_COMMIT_SUBJECT;
+   
    // Default constructor
    ProjectIoAPI::ProjectIoAPI()
    {

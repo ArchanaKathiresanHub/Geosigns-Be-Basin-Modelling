@@ -11,6 +11,11 @@
 #########################################################################
 option(BM_CSHARP_API "Build the C sharp interface" ON)
 
+# Version of .NET for C# projects
+set(DONET_TARGET_VERSION "4.5.2") 
+
+STRING(REPLACE "." "" DONET_TARGET_VERSION_SHORT ${DONET_TARGET_VERSION})
+
 # Check that platform was chosen correctly
 if (IS_DIRECTORY "c:/Apps/3rdparty/")
    set(CBM_HOME "c:/Apps")

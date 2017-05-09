@@ -16,6 +16,38 @@
 #
 include_directories(src)
 
+if (GIT_FOUND)
+   # Exctract Spec file version information
+   # the commit's SHA1, and whether the building workspace was dirty or not
+   execute_process(COMMAND 
+      "${GIT_EXECUTABLE}"  log --format="%H" -1 BasinModellerProperty.Spec
+      WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+      OUTPUT_VARIABLE SPEC_FILE_GIT_SHA1
+      ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+   # the date of the commit
+   execute_process(COMMAND
+      "${GIT_EXECUTABLE}" log -1 --format=%ad --date=local BasinModellerProperty.Spec
+      WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+      OUTPUT_VARIABLE SPEC_FILE_GIT_DATE
+      ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+   # the subject of the commit
+   execute_process(COMMAND
+      "${GIT_EXECUTABLE}" log -1 --format=%s BasinModellerProperty.Spec
+      WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+      OUTPUT_VARIABLE SPEC_FILE_GIT_COMMIT_SUBJECT
+      ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
+else(GIT_FOUND)
+   set(SPEC_FILE_GIT_SHA1 "0000000000000000000000000000000000000000")  
+   set(SPEC_FILE_GIT_DATE "Mon Jan 01 00:00:00 1900")
+   set(SPEC_FILE_GIT_COMMIT_SUBJECT "Not found")
+endif(GIT_FOUND)
+
+
+# generate include file with Spec file version
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/SpecFileVersion.h.in" "${CMAKE_CURRENT_BINARY_DIR}/SpecFileVersion.h" @ONLY)
+
 set (generator_source_files
   ${CMAKE_CURRENT_BINARY_DIR}/cauldronschema.cpp
   ${CMAKE_CURRENT_BINARY_DIR}/cauldronschemafuncs.cpp
