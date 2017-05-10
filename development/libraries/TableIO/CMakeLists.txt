@@ -16,7 +16,7 @@
 #
 include_directories(src)
 
-if (GIT_FOUND)
+if (GIT_FOUND AND EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/../../../.git )
    # Exctract Spec file version information
    # the commit's SHA1, and whether the building workspace was dirty or not
    execute_process(COMMAND 
@@ -39,7 +39,7 @@ if (GIT_FOUND)
       OUTPUT_VARIABLE SPEC_FILE_GIT_COMMIT_SUBJECT
       ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
 else(GIT_FOUND)
-   set(SPEC_FILE_GIT_SHA1 "0000000000000000000000000000000000000000")  
+   set(SPEC_FILE_GIT_SHA1 "\"0000000000000000000000000000000000000000\"")
    set(SPEC_FILE_GIT_DATE "Mon Jan 01 00:00:00 1900")
    set(SPEC_FILE_GIT_COMMIT_SUBJECT "Not found")
 endif(GIT_FOUND)

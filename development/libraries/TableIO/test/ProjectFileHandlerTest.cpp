@@ -142,12 +142,12 @@ void compareTables ( Table* correctTable, Table* testTable ) {
    const TableDefinition& correctTableDefinition = correctTable->getTableDefinition ();
    EXPECT_EQ ( correctTableDefinition.size (), testTable->getTableDefinition ().size ());
 
-   for ( int i = 0; i < correctTable->size (); ++i ) {
+   for ( int i = 0; i < static_cast<int>( correctTable->size ()); ++i ) {
       Record* correctRecord = correctTable->getRecord ( i );
       Record* testRecord    = testTable->getRecord ( i );
       EXPECT_EQ ( correctRecord->tableName (), testRecord->tableName ());
 
-      for ( int j = 0; j < correctTableDefinition.size (); ++j ) {
+      for ( int j = 0; j < static_cast<int>( correctTableDefinition.size ()); ++j ) {
          FieldDefinition* fieldDef = correctTableDefinition.getFieldDefinition ( j );
 
          EXPECT_NE ( fieldDef, nullptr );
@@ -164,6 +164,7 @@ void compareTables ( Table* correctTable, Table* testTable ) {
                   break;
                }
 
+               case datatype::Float  :
                case datatype::Double : {
                   double correctValue = correctRecord->getValue<double>( fieldDef->name (), nullptr );
                   double testValue    =    testRecord->getValue<double>( fieldDef->name (), nullptr );
@@ -171,13 +172,17 @@ void compareTables ( Table* correctTable, Table* testTable ) {
                   break;
                }
 
+               case datatype::Bool:
+               case datatype::Long:
                case datatype::Int : {
                   int correctValue = correctRecord->getValue<int>( fieldDef->name (), nullptr );
                   int testValue    =    testRecord->getValue<int>( fieldDef->name (), nullptr );
                   EXPECT_EQ ( correctValue, testValue );
                   break;
+                  
                }
 
+               default: break;
             }
 
          }

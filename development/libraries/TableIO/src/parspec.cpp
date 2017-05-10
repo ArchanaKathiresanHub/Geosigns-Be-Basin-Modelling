@@ -104,6 +104,7 @@ int GetIndex( string & tableName, string & fieldName )
    return pos == fieldList.end() ? -1 : static_cast<int>( pos - fieldList.begin() );
 }
 
+/*
 /// Check if a field has the same index in each table it features in
 bool CheckIndex( string & fieldName, string & tableNameUsed, int indexUsed )
 {
@@ -113,6 +114,7 @@ bool CheckIndex( string & fieldName, string & tableNameUsed, int indexUsed )
    }
    return true;
 }
+*/
 
 /// Check if the specified fieldIndex is the correct index for the field specified by fieldName
 /// in the table specified by tableName.
@@ -149,7 +151,7 @@ int OrderFields()
       cerr << "Assigning field " << fieldName << " (" << FieldIndices[ fieldName ] << ")" << endl;
 #endif
 
-      for ( int fieldIndicesIndex = 0; true; fieldIndicesIndex++ )
+      for ( size_t fieldIndicesIndex = 0; true; fieldIndicesIndex++ )
       {
          bool validIndex = true;
          bool outOfRange = false;
@@ -877,7 +879,7 @@ namespace Project3dAPI
 )";
 }
 
-void GenerateCMBAPI( const string & schemaName, const string & schemaDir, bool verbose )
+void GenerateCMBAPI( const string & schemaDir )
 {
    for ( auto tableName : TableList )
    {
@@ -1084,7 +1086,7 @@ void GenerateDataSchema( const string & schemaName, const string & schemaDir, bo
       if ( fieldType == "string" ) { fieldType.insert( 0, "std::" ); }
 
       funcsSourceOut << "// " << fieldName << " (" << FieldTypes[ fieldName ] << ") is used in ";
-      for ( int tableIndex = 0; tableIndex < FieldTables[ fieldName ].size(); tableIndex++ )
+      for ( size_t tableIndex = 0; tableIndex < FieldTables[ fieldName ].size(); tableIndex++ )
       {
          if ( tableIndex != 0 ) { funcsSourceOut << ", "; }
          if ( tableIndex % 5 == 0 ) { funcsSourceOut << endl << "//     "; }
@@ -1174,7 +1176,7 @@ int main( int argc, char **argv )
 
       ParseSpecFile( specFile );
 
-      if ( bmapi ) { GenerateCMBAPI(     schemaName, schemaDir, verbose ); }
+      if ( bmapi ) { GenerateCMBAPI(     schemaDir ); }
       else         { GenerateDataSchema( schemaName, schemaDir, verbose ); }
    }
    catch( runtime_error & ex )

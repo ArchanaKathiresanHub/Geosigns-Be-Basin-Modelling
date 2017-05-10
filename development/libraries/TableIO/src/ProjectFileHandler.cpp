@@ -273,7 +273,7 @@ void database::ProjectFileHandler::mergeTablesToInput () {
 
       if ( outputTablesTbl->size () > 0 ) {
 
-         for ( int i = 0; i < outputTablesTbl->size (); ++i ) {
+         for ( int i = 0; i < static_cast<int>(outputTablesTbl->size ()); ++i ) {
             std::string tableName = database::getTableName ( outputTablesTbl->getRecord ( i ));
             database::Table* outputTable = m_outputDataBase->getTable ( tableName );
 

@@ -65,13 +65,13 @@ TableDefinition::~TableDefinition (void)
 
 int TableDefinition::getIndex (const string & name, int hint) const
 {
-   if (hint >= 0 && hint < size ())
+   if ( hint >= 0 && hint < static_cast<int>( size () ) )
    {
       FieldDefinition * fieldDef = getFieldDefinition (hint);
       if (fieldDef->hasName (name)) return hint;
    }
 
-   for (int i = 0; i < size (); i++)
+   for (int i = 0; i < static_cast<int>(size ()); i++)
    {
       FieldDefinition * fieldDef = getFieldDefinition (i);
 

@@ -44,7 +44,6 @@ TEST ( TableIoDataBaseTest, CauldronSchemaAPIAssignOperator )
 TEST ( TableIoDataBaseTest, CauldronSchemaAPIFromScratchTest )
 {
    bmapi::ProjectIoAPI ph;
-   size_t id;
    
    FillAllTables( ph );
 

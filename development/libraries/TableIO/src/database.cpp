@@ -140,11 +140,7 @@ namespace database {
 
    Table *Database::getTable( int index ) const
    {
-      if ( index == -1 )
-         return nullptr;
-      if ( index >= m_tables.size() )
-         return nullptr;
-      return m_tables[ index ];
+      return index < 0 || index >= static_cast<int>(m_tables.size()) ? nullptr : m_tables[ index ];
    }
 
    bool Database::clearTable( const string & name, bool deleteRecords )
@@ -223,13 +219,14 @@ namespace database {
 
       string modHeader = m_header;
 
-      int pos = -1;
+      size_t pos = 0;
       do
       {
-         modHeader.insert( pos + 1, ";! " );
+         modHeader.insert( pos, ";! " );
          // cerr << "modHeader" << modHeader << endl;
-      } while ( pos = static_cast<size_t>( modHeader.find( "\n", pos + 4 ) ) != string::npos &&
-                pos < static_cast<int>( modHeader.length() ) - 2 );
+      } while ( (pos = modHeader.find( "\n", pos + 4 )) != string::npos &&
+                pos < (modHeader.length() - 2) 
+              );
 
       ofile << modHeader;
       if ( modHeader[ modHeader.length() - 1 ] != '\n' )
@@ -579,7 +576,7 @@ namespace database {
          // cache fields index and data type
          if ( fldList.empty() )
          {
-            for ( int i = 0; i < tblDef.size(); ++i )
+            for ( int i = 0; i < static_cast<int>(tblDef.size()); ++i )
             {
                m_fldIDs.push_back( i );
                m_fldTypes.push_back( tblDef.getFieldDefinition( i )->dataType() );
@@ -607,12 +604,13 @@ namespace database {
             int id = m_fldIDs[ i ];
             switch ( m_fldTypes[ i ] )
             {
-            case datatype::Bool: { bool   v = r1->getValue<bool  >( id ); bool   w = r2->getValue<bool  >( id ); if ( v != w ) return v < w; } break;
-            case datatype::Int: { int    v = r1->getValue<int   >( id ); int    w = r2->getValue<int   >( id ); if ( v != w ) return v < w; } break;
-            case datatype::Long: { long   v = r1->getValue<long  >( id ); long   w = r2->getValue<long  >( id ); if ( v != w ) return v < w; } break;
-            case datatype::Float: { float  v = r1->getValue<float >( id ); float  w = r2->getValue<float >( id ); if ( v != w ) return v < w; } break;
+            case datatype::Bool:   { bool   v = r1->getValue<bool  >( id ); bool   w = r2->getValue<bool  >( id ); if ( v != w ) return v < w; } break;
+            case datatype::Int:    { int    v = r1->getValue<int   >( id ); int    w = r2->getValue<int   >( id ); if ( v != w ) return v < w; } break;
+            case datatype::Long:   { long   v = r1->getValue<long  >( id ); long   w = r2->getValue<long  >( id ); if ( v != w ) return v < w; } break;
+            case datatype::Float:  { float  v = r1->getValue<float >( id ); float  w = r2->getValue<float >( id ); if ( v != w ) return v < w; } break;
             case datatype::Double: { double v = r1->getValue<double>( id ); double w = r2->getValue<double>( id ); if ( v != w ) return v < w; } break;
             case datatype::String: { string v = r1->getValue<string>( id ); string w = r2->getValue<string>( id ); if ( v != w ) return v < w; } break;
+            case datatype::NoDataType: break;
             }
          }
          return false;
@@ -679,7 +677,7 @@ namespace database {
 
       bool rowBased;
 
-      if ( m_tableDefinition.size() > Database::GetMaxFieldsPerLine() )
+      if ( static_cast<int>(m_tableDefinition.size()) > Database::GetMaxFieldsPerLine() )
          rowBased = true;
       else
          rowBased = false;
@@ -1167,34 +1165,34 @@ namespace database {
       return true;
    }
 
-   template < class Type > void checkType( const Type & a, const datatype::DataType type );
+   template < class Type > void checkType( const Type &, const datatype::DataType type );
 
-   template <> void checkType < bool >( const bool & a, const datatype::DataType type )
+   template <> void checkType < bool >( const bool &, const datatype::DataType type )
    {
       assert( type == datatype::Bool );
    }
 
-   template <> void checkType < int >( const int &a, const datatype::DataType type )
+   template <> void checkType < int >( const int &, const datatype::DataType type )
    {
       assert( type == datatype::Int );
    }
 
-   template <> void checkType < long >( const long &a, const datatype::DataType type )
+   template <> void checkType < long >( const long &, const datatype::DataType type )
    {
       assert( type == datatype::Long );
    }
 
-   template <> void checkType < float >( const float &a, const datatype::DataType type )
+   template <> void checkType < float >( const float &, const datatype::DataType type )
    {
       assert( type == datatype::Float );
    }
 
-   template <> void checkType < double >( const double &a, const datatype::DataType type )
+   template <> void checkType < double >( const double &, const datatype::DataType type )
    {
       assert( type == datatype::Double );
    }
 
-   template <> void checkType < string >( const string & a, const datatype::DataType type )
+   template <> void checkType < string >( const string &, const datatype::DataType type )
    {
       assert( type == datatype::String );
    }
