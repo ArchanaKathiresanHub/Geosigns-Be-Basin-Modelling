@@ -54,7 +54,7 @@
   <Target Name="AfterBuild">
      <Error Condition="'@(Compile)' == ''" Text="No source files included in build of Shell.BasinModeling.@CSPROJ_NAME@.dll. Reload the project, and build the solution again"/>
   </Target>
-  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <PostBuildEvent>cd $(SolutionDir)
     @NUGET_EXECUTABLE@ pack @CSPROJ_NAME@.nuspec</PostBuildEvent>
   </PropertyGroup>
