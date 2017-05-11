@@ -55,7 +55,7 @@
      <Error Condition="'@(Compile)' == ''" Text="No source files included in build of Shell.BasinModeling.@CSPROJ_NAME@.dll. Reload the project, and build the solution again"/>
   </Target>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <PostBuildEvent>cd $(SolutionDir)
+    <PostBuildEvent>cd @CMAKE_CURRENT_BINARY_DIR@/../../
     @NUGET_EXECUTABLE@ pack @CSPROJ_NAME@.nuspec</PostBuildEvent>
   </PropertyGroup>
 </Project>
