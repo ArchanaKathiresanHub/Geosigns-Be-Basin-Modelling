@@ -211,11 +211,14 @@ set(generator_source_files
 
 include_directories(src ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_BINARY_DIR}/../TableIO )
 
-add_custom_command(OUTPUT ${generator_source_files} ${CMAKE_CURRENT_BINARY_DIR}/Project3dAPI.i
+add_custom_command(OUTPUT ${generator_source_files}
    DEPENDS parspec ../TableIO/BasinModellerProperty.Spec
    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
    COMMAND parspec -schema CauldronSchema -directory ${CMAKE_CURRENT_BINARY_DIR} -input ../TableIO/BasinModellerProperty.Spec -bmapi
+   COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_CURRENT_BINARY_DIR}/libgenerated-stamp
 )
+
+add_custom_target(cpp_generated_api_files DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/libgenerated-stamp)
 
 add_library(bmAPI ${generator_source_files})
 
@@ -225,6 +228,7 @@ add_dependencies(bmAPI Boost)
 endif (UNIX)
 
 add_dependencies(bmAPI
+   cpp_generated_api_files
    TableIO
    FileSystem
    utilities
@@ -248,15 +252,11 @@ install(TARGETS bmAPI
 	ARCHIVE DESTINATION lib
 )
 
-configure_file(
-      ${CMAKE_CURRENT_SOURCE_DIR}/test/Reference.project3d
-      ${CMAKE_CURRENT_BINARY_DIR}
-      COPYONLY
-)
-
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/test/Reference.project3d ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
 
 add_gtest(NAME TableIO::CauldronSchemaAPITest
-          SOURCES test/CauldronSchemaAPITest.cpp ${allheaders} test/CauldronSchemaAPITest.h
+          SOURCES test/CauldronSchemaAPITest.cpp test/CauldronSchemaAPITest.h
+          DEPENDS cpp_generated_api_files
           LIBRARIES bmAPI TableIO utilities FileSystem
 )
 
@@ -265,6 +265,8 @@ if (MSVC)
    # Set project name which is used in cmake processed .csproj files
    set(CSPROJ_NAME Project3dAPI) 
    set(CSPROJ_NAMESPACE Shell.BasinModeling)
+   
+   set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/${CSPROJ_NAME}.i PROPERTIES GENERATED TRUE)
    
    configure_file(src/version.rc.cmake version.rc)
    configure_file(src/AssemblyInfo.cs.cmake csharp/Properties/AssemblyInfo.cs)
@@ -279,7 +281,8 @@ if (MSVC)
       PROPERTIES SWIG_FLAGS "-namespace;${CSPROJ_NAMESPACE}.${CSPROJ_NAME};-I${CMAKE_CURRENT_BINARY_DIR}"
       CPLUSPLUS ON
    )
-
+   
+   set(SWIG_MODULE_${CSPROJ_NAME}_EXTRA_DEPS cpp_generated_api_files)
    swig_add_module(${CSPROJ_NAME} csharp ${CMAKE_CURRENT_BINARY_DIR}/${CSPROJ_NAME}.i
       ${CMAKE_CURRENT_BINARY_DIR}/version.rc
    )

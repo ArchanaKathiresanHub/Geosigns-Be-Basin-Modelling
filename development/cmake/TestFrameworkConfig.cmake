@@ -84,6 +84,7 @@ macro(add_gtest )
    set(testName)    # The name of the test
    set(sources)     # The source files
    set(libraries)   # The libraries that should be linked with it
+   set(dependsOn)    # Other targets on which this test could depends on
    set(compileflags)# The set of compilator flags
    set(linkflags)   # The set of linker flags
    set(mpiSize)     # The number of MPI processes
@@ -99,6 +100,8 @@ macro(add_gtest )
          set(parameterName sources)
       elseif(param STREQUAL LIBRARIES)
          set(parameterName libraries)
+      elseif(param STREQUAL DEPENDS)
+         set(parameterName dependsOn)
       elseif(param STREQUAL COMPILE_FLAGS)
          set(parameterName compileflags)
       elseif(param STREQUAL LINK_FLAGS)
@@ -144,6 +147,10 @@ macro(add_gtest )
 
    # Add the test executable with its sources
    add_executable( ${execName} ${sources})
+   
+   if (dependsOn)
+      add_dependencies( ${execName} ${dependsOn})
+   endif (dependsOn)
 
    # Link with the necessary libraries
    target_link_libraries( ${execName} ${libraries})
