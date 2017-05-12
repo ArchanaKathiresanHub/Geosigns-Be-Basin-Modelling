@@ -2,14 +2,14 @@
 <package >
   <metadata>
     <id>@CSPROJ_NAMESPACE@.@CSPROJ_NAME@</id>
-    <version>1.0.0</version>
+    <version>@SPEC_FILE_GIT_DATE_AS_VER@</version>
     <authors>Sergey Koshelev</authors>
     <owners>Sergey Koshelev</owners>
     <projectUrl>https://sede-pt-ssw.visualstudio.com/DefaultCollection/Basin-Evaluation/_git/Basin-Modelling</projectUrl>
     <iconUrl>file://@CSPROJ_NAME@.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>C# API for Cauldron Project3d reading/writing. @CMAKE_BUILD_TYPE@ buid</description>
-    <releaseNotes>1.0.0 Initial API release </releaseNotes>
+    <releaseNotes>2017.105.101 Initial API release </releaseNotes>
     <copyright>Copyright 2017</copyright>
     <tags>Cauldron backend Project3d API</tags>
     <references>

@@ -13,6 +13,18 @@
 #
 # ATTENTION: The file is used by Basin Modeling and Geocase.
 #
+
+if (GIT_FOUND AND EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/../../../.git )
+   # Exctract Spec file version information
+   # the commit's SHA1, and whether the building workspace was dirty or not
+   # the date of the commit
+   execute_process(COMMAND
+      "${GIT_EXECUTABLE}" log -1 --format=%ad --date=format:%Y.1%m.1%d BasinModellerProperty.Spec
+      WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../TableIO"
+      OUTPUT_VARIABLE SPEC_FILE_GIT_DATE_AS_VER
+      ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
+endif ()
+
 set(allheaders
    ${CMAKE_CURRENT_BINARY_DIR}/bmAPI.h
    ${CMAKE_CURRENT_BINARY_DIR}/ProjectIoAPI.h
@@ -215,10 +227,9 @@ add_custom_command(OUTPUT ${generator_source_files}
    DEPENDS parspec ../TableIO/BasinModellerProperty.Spec
    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
    COMMAND parspec -schema CauldronSchema -directory ${CMAKE_CURRENT_BINARY_DIR} -input ../TableIO/BasinModellerProperty.Spec -bmapi
-   COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_CURRENT_BINARY_DIR}/libgenerated-stamp
 )
 
-add_custom_target(cpp_generated_api_files DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/libgenerated-stamp)
+add_custom_target(cpp_generated_api_files DEPENDS ${generator_source_files})
 
 add_library(bmAPI ${generator_source_files})
 
