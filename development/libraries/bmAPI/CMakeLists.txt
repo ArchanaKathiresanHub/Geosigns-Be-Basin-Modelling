@@ -215,10 +215,9 @@ add_custom_command(OUTPUT ${generator_source_files}
    DEPENDS parspec ../TableIO/BasinModellerProperty.Spec
    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
    COMMAND parspec -schema CauldronSchema -directory ${CMAKE_CURRENT_BINARY_DIR} -input ../TableIO/BasinModellerProperty.Spec -bmapi
-   COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_CURRENT_BINARY_DIR}/libgenerated-stamp
 )
 
-add_custom_target(cpp_generated_api_files DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/libgenerated-stamp)
+add_custom_target(cpp_generated_api_files DEPENDS ${generator_source_files})
 
 add_library(bmAPI ${generator_source_files})
 
