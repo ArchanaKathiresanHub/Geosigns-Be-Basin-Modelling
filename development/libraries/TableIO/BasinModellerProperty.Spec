@@ -316,12 +316,9 @@ START-properties
     Type                : string
 
     Identification      : ProjectSize
-    Description         : Size of the project in relation to the
-                          size of the machine. Possible values:
-                          "" or "Small" -> The whole modelling can
-                          be run within virtual memory
-                          "Big" Only a very limitted number of
-                          snapshots can be held within virtual memory
+    Description         : Size of the project in relation to the size of the machine. Possible values:
+                          "" or "Small" -> The whole modelling can be run within virtual memory
+                          "Big" Only a very limitted number of snapshots can be held within virtual memory
                           This field is a 3D only field.
     Unit of measurement :
     Type                : string
