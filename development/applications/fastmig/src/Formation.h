@@ -141,6 +141,7 @@ namespace migration
 
       void loadExpulsionMaps (const Interface::Snapshot * begin, const Interface::Snapshot * end);
       void unloadExpulsionMaps ();
+      void computeExpulsionMapsOnTheFly (const Interface::Snapshot * begin, const Interface::Snapshot * end);
 
       bool computeTargetFormationNodes (Formation * targetFormation);
       bool computeTargetFormationNodes (int depthIndex);
@@ -203,6 +204,8 @@ namespace migration
 
       /// @brief Calculate expelled mass of HCs stuck in undetected crest
       void calculateStuckHCs (const double expulsionFraction, const unsigned int i, const unsigned int j, double& stuckHCMass) const;
+
+      double getExpelledMass (int i, int j, int componentId) const;
 
       void manipulateFormationNodeComposition (FormationNodeCompositionRequest & compositionRequest);
       void getFormationNodeComposition (FormationNodeCompositionRequest & compositionRequest, FormationNodeCompositionRequest & compositionResponse);

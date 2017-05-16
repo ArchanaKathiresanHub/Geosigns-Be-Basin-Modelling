@@ -137,9 +137,9 @@ namespace migration
          return false;
       if ((m_formationPropertyPtr[TEMPERATUREPROPERTY] = getFormationPropertyPtr ("Temperature", snapshot)) == 0)
          return false;
-      if ((m_formationPropertyPtr[HORIZONTALPERMEABILITYPROPERTY] = getFormationPropertyPtr ("HorizontalPermeability", snapshot)) == 0)
-         return false;
       if ((m_formationPropertyPtr[VERTICALPERMEABILITYPROPERTY] = getFormationPropertyPtr ("Permeability", snapshot)) == 0)
+         return false;
+      if ((m_formationPropertyPtr[HORIZONTALPERMEABILITYPROPERTY] = getFormationPropertyPtr ("HorizontalPermeability", snapshot)) == 0)
          return false;
       if ((m_formationPropertyPtr[POROSITYPROPERTY] = getFormationPropertyPtr ("Porosity", snapshot)) == 0)
          return false;
@@ -1490,6 +1490,27 @@ namespace migration
 
    void Formation::loadExpulsionMaps (const Interface::Snapshot * begin, const Interface::Snapshot * end)
    {
+      PetscBool genexMinorSnapshots;
+      PetscBool genexFraction;
+
+      PetscOptionsHasName (PETSC_NULL, "-genex",  &genexMinorSnapshots);
+      PetscOptionsHasName (PETSC_NULL, "-genexf", &genexFraction);
+
+      const double depoTime = getTopSurface ()->getSnapshot ()->getTime ();
+      bool sourceRockIsActive = (depoTime > begin->getTime ()) or fabs (depoTime - begin->getTime ()) < Genex6::Constants::Zero;
+
+      // Nothing to load/calculate if SR is not active yet
+      if (!sourceRockIsActive)
+         return;
+
+      // If "-genex" then compute expulsion on the fly
+      if (genexMinorSnapshots)
+      {
+         computeExpulsionMapsOnTheFly (begin, end);
+         return;
+      }
+
+      // Otherwise, load expulsion maps as usual, straight from Genex results
       for (int componentId = ComponentId::FIRST_COMPONENT; componentId < ComponentId::NUMBER_OF_SPECIES; ++componentId)
       {
          if (!ComponentsUsed[componentId]) continue;
@@ -1507,13 +1528,13 @@ namespace migration
          }
          else if (gridMapEnd)
          {
-            Interface::AddConstant addZero (0);
-            m_expulsionGridMaps[componentId] = m_migrator->getProjectHandle ()->getFactory ()->produceGridMap (0, 0, gridMapEnd, addZero);
+            Interface::IdentityFunctor idFunctor;
+            m_expulsionGridMaps[componentId] = m_migrator->getProjectHandle ()->getFactory ()->produceGridMap (0, 0, gridMapEnd, idFunctor);
          }
          else if (gridMapStart)
          {
-            Interface::SubtractFromConstant subtractFromZero (0);
-            m_expulsionGridMaps[componentId] = m_migrator->getProjectHandle ()->getFactory ()->produceGridMap (0, 0, gridMapStart, subtractFromZero);
+            Interface::IdentityMinusFunctor idMinusFunctor;
+            m_expulsionGridMaps[componentId] = m_migrator->getProjectHandle ()->getFactory ()->produceGridMap (0, 0, gridMapStart, idMinusFunctor);
          }
 
          if (m_expulsionGridMaps[componentId])
@@ -1539,6 +1560,34 @@ namespace migration
          m_expulsionGridMaps[componentId]->restoreData (false); // no need to save
          delete m_expulsionGridMaps[componentId];
          m_expulsionGridMaps[componentId] = 0;
+      }
+   }
+
+   void Formation::computeExpulsionMapsOnTheFly (const Interface::Snapshot * begin, const Interface::Snapshot * end)
+   {
+      PetscBool printDebug;
+      PetscOptionsHasName (PETSC_NULL, "-debug",  &printDebug);
+
+      if (!isPreprocessed ())
+      {
+         bool status = preprocessSourceRock (begin->getTime (), printDebug);
+         if (!status and GetRank () == 0)
+         {
+            const double depoTime = getTopSurface ()->getSnapshot ()->getTime ();
+            LogHandler (LogHandler::ERROR_SEVERITY) << "Cannot preprocess " << getName () << ", depoage= " << depoTime << " at " << begin->getTime ();
+         }
+      }
+
+      bool status = calculateGenexTimeInterval (begin, end, printDebug);
+      if (!status and GetRank () == 0)
+      {
+         const double depoTime = getTopSurface ()->getSnapshot ()->getTime ();
+         LogHandler (LogHandler::ERROR_SEVERITY) << "Cannot calculate genex " << getName () << ", depoage= " << depoTime << " at " << begin->getTime ();
+      }
+
+      if (m_genexData != nullptr)
+      {
+         m_genexData->retrieveData ();
       }
    }
 
@@ -1668,6 +1717,12 @@ namespace migration
       if (direction == EXPELLEDNONE)
          return;
 
+      PetscBool genexMinorSnapshots;
+      PetscOptionsHasName (PETSC_NULL, "-genex",  &genexMinorSnapshots);
+
+      if (genexMinorSnapshots and m_genexData != nullptr)
+         m_genexData->retrieveData();
+
       double expulsionFraction = (direction == EXPELLEDUPANDDOWNWARD ? 1.0 : 0.5);
 
       unsigned int offsets[4][2] = { { 0, 0 }, { 0, 1 }, { 1, 0 }, { 1, 1 } };
@@ -1706,18 +1761,12 @@ namespace migration
                {
                   if (!ComponentsUsed[componentId])
                      continue;
-                  if (!m_expulsionGridMaps || !m_expulsionGridMaps[componentId])
-                     continue;
 
-                  GridMap *densityMap = m_expulsionGridMaps[componentId];
-
-                  double surface = densityMap->getGrid ()->getSurface (1, 1);
-
-                  double value = densityMap->getValue (i, j);
-                  if (value != densityMap->getUndefinedValue ())
+                  double expelledMass = getExpelledMass (i, j, componentId);
+                  if (expelledMass != 0.0)
                   {
-                     double weight = value * expulsionFraction * surface;
-                     composition.add ((ComponentId)componentId, weight);
+                     double correctedMass = expelledMass * expulsionFraction;
+                     composition.add ((ComponentId)componentId, correctedMass);
                   }
                }
                   
@@ -1768,7 +1817,9 @@ namespace migration
       double stuckHCs = SumAll (stuckHCMass);
       if (GetRank () == 0 and stuckHCs > 0.0)
          std::cout << "MeSsAgE WARNING: Hydrocarbons expelled from SR " << getName() << " got trapped in undetected/undefined reservoirs. " << stuckHCs << " kg were eliminated.\n";
-      
+
+      if (genexMinorSnapshots and m_genexData != nullptr)
+         m_genexData->restoreData();      
    }
 
    // Refactor this. Too big, too complex
@@ -1897,6 +1948,12 @@ namespace migration
 
    bool Formation::calculateExpulsionSeeps (const Interface::Snapshot * end, const double expulsionFraction, const bool advancedMigration)
    {
+      PetscBool genexMinorSnapshots;
+      PetscOptionsHasName (PETSC_NULL, "-genex",  &genexMinorSnapshots);
+
+      if (genexMinorSnapshots and m_genexData != nullptr)
+         m_genexData->retrieveData();
+
       int depthIndex = m_formationNodeArray->depth () - 1;
 
       Formation *topActiveFormation = m_migrator->getTopActiveFormation (end);
@@ -1933,18 +1990,12 @@ namespace migration
                {
                   if (!ComponentsUsed[componentId])
                      continue;
-                  if (!m_expulsionGridMaps || !m_expulsionGridMaps[componentId])
-                     continue;
 
-                  GridMap *densityMap = m_expulsionGridMaps[componentId];
-
-                  double surface = densityMap->getGrid ()->getSurface (1, 1);
-
-                  double value = densityMap->getValue (i, j);
-                  if (value != densityMap->getUndefinedValue ())
+                  double expelledMass = getExpelledMass (i, j, componentId);
+                  if (expelledMass != 0.0)
                   {
-                     double weight = expulsionFraction * surface * value;
-                     composition.add ((ComponentId)componentId, weight);
+                     double correctedMass = expelledMass * expulsionFraction;
+                     composition.add ((ComponentId)componentId, correctedMass);
                   }
                }
                targetFormationNode->addComposition (composition);
@@ -1961,6 +2012,9 @@ namespace migration
       double stuckHCs = SumAll (stuckHCMass);
       if (GetRank () == 0 and stuckHCs > 0.0)
          std::cout << "MeSsAgE WARNING: Hydrocarbons expelled from SR " << getName() << " got trapped in undetected/undefined reservoirs. " << stuckHCs << " kg were eliminated.\n";
+
+      if (genexMinorSnapshots and m_genexData != nullptr)
+         m_genexData->restoreData();
      
       return true;
    }
@@ -2071,23 +2125,46 @@ namespace migration
       {
          if (!ComponentsUsed[componentId])
             continue;
-         if (!m_expulsionGridMaps || !m_expulsionGridMaps[componentId])
-            continue;
 
-         GridMap *densityMap = m_expulsionGridMaps[componentId];
-
-         double surface = densityMap->getGrid ()->getSurface (1, 1);
-
-         double value = densityMap->getValue (i, j);
-         if (value != densityMap->getUndefinedValue ())
+         double expelledMass = getExpelledMass (i, j, componentId);
+         if (expelledMass != 0.0)
          {
-            double weight = value * expulsionFraction * surface;
-            stuckComposition.add ((ComponentId)componentId, weight);
+            double correctedMass = expelledMass * expulsionFraction;
+            stuckComposition.add ((ComponentId)componentId, correctedMass);
          }
          stuckHCMass += stuckComposition.getWeight();
       }
 
       return;
+   }
+
+   double Formation::getExpelledMass (int i, int j, int componentId) const
+   {
+      if (m_migrator->isGenexRunOnTheFly())
+      {
+         if (m_genexData == nullptr)
+            return 0.0;
+
+         double massPerSurface = m_genexData->getValue ((unsigned int) i, (unsigned int) j, (unsigned int) componentId);
+
+         if (massPerSurface != m_genexData->getUndefinedValue ())
+            return massPerSurface * m_genexData->getGrid ()->getSurface(1,1);
+         else
+            return 0.0;
+      }
+      else
+      {
+         if (m_expulsionGridMaps == nullptr or m_expulsionGridMaps[componentId] == nullptr)
+            return 0.0;
+
+         double massPerSurface = m_expulsionGridMaps[componentId]->getValue ((unsigned int) i, (unsigned int) j);
+
+         if (massPerSurface != m_expulsionGridMaps[componentId]->getUndefinedValue ())
+            return massPerSurface * m_expulsionGridMaps[componentId]->getGrid ()->getSurface(1,1);
+         else
+            return 0.0;
+      }
+
    }
 
    bool Formation::preprocessSourceRock (const double startTime, const bool printDebug)
@@ -2235,8 +2312,6 @@ namespace migration
             &permeabilityInterp,
             &vreInterp,
             m_genexData);
-
-
 
          m_startGenexTime = start->getTime ();
          m_endGenexTime = end->getTime ();

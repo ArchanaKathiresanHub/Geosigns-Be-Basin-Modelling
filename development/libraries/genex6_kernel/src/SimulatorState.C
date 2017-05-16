@@ -442,14 +442,16 @@ void SimulatorState::mixIntervalResults ( SimulatorState * inSimulatorState1, Si
       curId = m_speciesManager->mapIdToComponentManagerSpecies( i );
 
       if( curId != CBMGenerics::ComponentManager::UNKNOWN ) {
+         double tempCumulative = 0.0;
          id = speciesManager1->mapIdToComponentManagerSpecies( i );
          if ( id != CBMGenerics::ComponentManager::UNKNOWN ) {
-            m_intervalCumulativeSpecies [ curId ] += fraction1 * inSimulatorState1->m_intervalCumulativeSpecies [ id ];
+            tempCumulative += fraction1 * inSimulatorState1->m_intervalCumulativeSpecies [ id ];
          }
          id  = speciesManager2->mapIdToComponentManagerSpecies ( i );
          if ( id != CBMGenerics::ComponentManager::UNKNOWN ) {
-            m_intervalCumulativeSpecies [ curId ] += fraction2 * inSimulatorState2->m_intervalCumulativeSpecies [ id ];
+            tempCumulative += fraction2 * inSimulatorState2->m_intervalCumulativeSpecies [ id ];
          }
+         m_intervalCumulativeSpecies [ curId ] = tempCumulative;
       }
    }
 #if 0

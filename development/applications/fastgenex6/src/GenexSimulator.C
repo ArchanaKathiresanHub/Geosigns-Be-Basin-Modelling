@@ -101,6 +101,10 @@ bool GenexSimulator::run()
 
    bool useFormationName = false;
 
+   PetscBool minorSnapshots;
+
+   PetscOptionsHasName (PETSC_NULL, "-minor", &minorSnapshots);
+
    PetscLogDouble run_Start_Time;
    PetscTime(&run_Start_Time);
 
@@ -133,6 +137,9 @@ bool GenexSimulator::run()
             if( theFormation != 0 && theFormation->isSourceRock() ) {
 
                Genex6::SourceRock* sr = (Genex6::SourceRock *)( theFormation->getSourceRock1() );
+
+               sr->setMinor (bool (minorSnapshots));
+
                started = computeSourceRock( sr, theFormation );
             }
          } else {

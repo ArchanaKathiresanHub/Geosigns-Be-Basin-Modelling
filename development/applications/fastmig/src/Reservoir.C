@@ -1152,7 +1152,7 @@ namespace migration
       for (overburden::OverburdenFormations::formations_type::const_iterator f = overburden.formations ().begin ();
            f != overburden.formations ().end (); ++f)
       {
-         if ((*f)->getBottomSurface()->getSnapshot()->getTime() < getEnd()->getTime())
+         if ((*f)->getBottomSurface()->getSnapshot()->getTime() <= getEnd()->getTime())
             break;
 
          // Create the following grid map only once:

@@ -1564,8 +1564,8 @@ bool SourceRock::process()
          
       }
       
-      //if t has passed Major snapshot time, compute snapshot and save results
-      if( intervalEnd->getType() == Interface::MAJOR ) {
+      // Output at desired snapshots
+      if( intervalEnd->getType() == Interface::MAJOR or m_minorOutput) {
          computeSnapShot(previousTime, intervalEnd);
          previousTime = intervalEnd->getTime();
       }

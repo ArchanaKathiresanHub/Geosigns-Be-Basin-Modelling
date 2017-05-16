@@ -122,6 +122,12 @@ public:
    /// \brief Collect the history data from any nodes selected.
    void collectSourceRockNodeHistory ();
 
+   /// \brief Sets variable that indicates whether output is desired also at minor snapshots
+   void setMinor (const bool minor);
+
+   /// \brief Gets variable that indicates whether output is desired also at minor snapshots
+   bool getMinor (void) const;
+
 protected:
 
    /// Construct the valid source rock node set, the valid snapshot intervals 
@@ -243,6 +249,9 @@ private:
    /// Apply SR mixing flag
    bool m_applySRMixing;
 
+   /// Output results also at minor snapshots
+   bool m_minorOutput;
+
    /// The snapshot intervals related to the source rock
    std::vector <SnapshotInterval*> m_theIntervals;
 
@@ -322,6 +331,14 @@ inline bool SourceRock::isSulphur() const {
 
 inline const SpeciesManager& SourceRock::getSpeciesManager () const {
    return m_theChemicalModel->getSpeciesManager ();
+}
+
+inline void SourceRock::setMinor( const bool minor) {
+   m_minorOutput = minor;
+}
+
+inline bool SourceRock::getMinor(void) const {
+   return m_minorOutput;
 }
 
 }

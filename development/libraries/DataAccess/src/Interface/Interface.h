@@ -469,6 +469,15 @@ namespace DataAccess
 
       };
 
+      class IdentityMinusFunctor : public UnaryFunctor {
+      public:
+
+         double operator ()( const double operand ) const;
+
+      private:
+
+      };
+
       class SubtractConstant : public UnaryFunctor {
       public:
 
@@ -732,6 +741,10 @@ namespace DataAccess
 
 inline double DataAccess::Interface::IdentityFunctor::operator ()( const double operand ) const {
    return operand;
+}
+
+inline double DataAccess::Interface::IdentityMinusFunctor::operator ()( const double operand ) const {
+   return -operand;
 }
 
 inline double DataAccess::Interface::SubtractionFunctor::operator ()( const double op1, const double op2 ) const {

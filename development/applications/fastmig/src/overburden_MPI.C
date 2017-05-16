@@ -47,7 +47,7 @@ namespace migration
          vector<const Formation*>::const_iterator f = formations.begin ();
          for (; f != formations.end (); ++f)
          {
-            if ((*f)->getBottomSurface()->getSnapshot()->getTime() < snapshot->getTime())
+            if ((*f)->getBottomSurface()->getSnapshot()->getTime() <= snapshot->getTime())
                break;
             FormationSurfaceGridMaps gridMaps = (*f)->getFormationSurfaceGridMaps (prop,
                snapshot);
@@ -82,7 +82,7 @@ namespace migration
          const Formation* f_prev = NULL;
          while (fit != formations.end ())
          {
-            if ( (*fit)->getBottomSurface()->getSnapshot()->getTime() < snapshot->getTime() )
+            if ( (*fit)->getBottomSurface()->getSnapshot()->getTime() <= snapshot->getTime() )
                break;
             SurfaceGridMap top = (*fit)->getTopSurfaceGridMap (prop, snapshot);
             results.push_back (SurfaceGridMapFormations (top, f_prev, *fit));
@@ -110,7 +110,7 @@ namespace migration
          const Formation* f_prev = NULL;
          while (fit != formations.end ())
          {
-            if ( (*fit)->getBottomSurface()->getSnapshot()->getTime() < snapshot->getTime() )
+            if ( (*fit)->getBottomSurface()->getSnapshot()->getTime() <= snapshot->getTime() )
                break;
             SurfaceGridMap base = (*fit)->getBaseSurfaceGridMap (prop, snapshot);
             results.push_back (SurfaceGridMapFormations (base, *fit, f_prev));

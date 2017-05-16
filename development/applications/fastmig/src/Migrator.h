@@ -197,14 +197,15 @@ namespace migration
 
       MigrationPropertyManager& getPropertyManager ();
 
-      inline bool performAdvancedMigration (void) const;
-      inline bool performHDynamicAndCapillary (void) const;
-      inline bool performReservoirDetection (void) const;
-      inline bool performLegacyMigration (void) const;
-      inline bool isBlockingOn (void) const;
-      inline double getBlockingPermeability (void) const;
-      inline double getBlockingPorosity (void) const;
-      inline bool isOverpressuredLeakageOn (void) const;
+      bool performAdvancedMigration (void) const;
+      bool performHDynamicAndCapillary (void) const;
+      bool performReservoirDetection (void) const;
+      bool performLegacyMigration (void) const;
+      bool isBlockingOn (void) const;
+      double getBlockingPermeability (void) const;
+      double getBlockingPorosity (void) const;
+      bool isOverpressuredLeakageOn (void) const;
+      bool isGenexRunOnTheFly (void) const;
 
       const Interface::GridMap * getPropertyGridMap (const string & propertyName, const Interface::Snapshot * snapshot,
                                                      const Interface::Reservoir * reservoir,
@@ -252,6 +253,8 @@ namespace migration
       bool m_legacyMigration;
       /// Whether overpressure is accounted for in trap leakage
       bool m_overpressuredLeakage;
+      /// Whether genex will be run on the fly
+      bool m_genexOnTheFly;
    
       double m_blockingPermeability;
       double m_blockingPorosity;
@@ -270,54 +273,59 @@ inline migration::MigrationPropertyManager& migration::Migrator::getPropertyMana
    return *(m_propertyManager.get ());
 }
 
-bool migration::Migrator::performAdvancedMigration (void) const
+inline bool migration::Migrator::performAdvancedMigration (void) const
 {
    return m_advancedMigration;
 }
 
-bool migration::Migrator::performHDynamicAndCapillary (void) const
+inline bool migration::Migrator::performHDynamicAndCapillary (void) const
 {
    return m_hdynamicAndCapillary;
 }
 
-bool migration::Migrator::performReservoirDetection (void) const
+inline bool migration::Migrator::performReservoirDetection (void) const
 {
    return m_reservoirDetection;
 }
 
-bool migration::Migrator::performLegacyMigration (void) const
+inline bool migration::Migrator::performLegacyMigration (void) const
 {
    return m_legacyMigration;
 }
 
-bool migration::Migrator::isBlockingOn (void) const
+inline bool migration::Migrator::isBlockingOn (void) const
 {
    return m_isBlockingOn;
 }
 
-double migration::Migrator::getBlockingPermeability (void) const
+inline double migration::Migrator::getBlockingPermeability (void) const
 {
    return (m_isBlockingOn ? m_blockingPermeability : 0);
 }
 
-double migration::Migrator::getBlockingPorosity (void) const
+inline double migration::Migrator::getBlockingPorosity (void) const
 {
    return (m_isBlockingOn ? m_blockingPorosity : 0);
 }
 
-double migration::Migrator::getMinOilColumnHeight (void) const
+inline double migration::Migrator::getMinOilColumnHeight (void) const
 {
    return m_minOilColumnHeight;
 }
 
-double migration::Migrator::getMinGasColumnHeight (void) const
+inline double migration::Migrator::getMinGasColumnHeight (void) const
 {
    return m_minGasColumnHeight;
 }
 
-bool migration::Migrator::isOverpressuredLeakageOn (void) const
+inline bool migration::Migrator::isOverpressuredLeakageOn (void) const
 {
    return m_overpressuredLeakage;
+}
+
+inline bool migration::Migrator::isGenexRunOnTheFly (void) const
+{
+   return m_genexOnTheFly;
 }
 
 #endif // _MIGRATION_MIGRATOR_H

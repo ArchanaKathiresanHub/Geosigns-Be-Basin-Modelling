@@ -250,7 +250,10 @@ bool Migrator::compute (const bool overpressuredLeakage)
    // delete the formation property grid maps
    deleteFormationPropertyMaps ();
 
-   PetscBool minorSnapshots;
+   PetscBool minorSnapshots, genexOnTheFly;
+
+   PetscOptionsHasName (PETSC_NULL, "-genex", &genexOnTheFly);
+   m_genexOnTheFly = (genexOnTheFly == PETSC_TRUE? true : false );
 
    PetscOptionsHasName (PETSC_NULL, "-minor", &minorSnapshots);
 
