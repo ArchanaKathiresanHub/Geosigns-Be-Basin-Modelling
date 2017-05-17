@@ -49,6 +49,17 @@ namespace CauldronIO
 %shared_ptr(CauldronIO::Reservoir)
 %shared_ptr(CauldronIO::HDFinfo)
 %shared_ptr(CauldronIO::MigrationEvent)
+%shared_ptr(CauldronIO::DisplayContour);
+%shared_ptr(CauldronIO::IsoEntry);
+%shared_ptr(CauldronIO::Biomarkerm);
+%shared_ptr(CauldronIO::FtSample);
+%shared_ptr(CauldronIO::FtGrain);
+%shared_ptr(CauldronIO::FtPredLengthCountsHist);
+%shared_ptr(CauldronIO::FtPredLengthCountsHistData);
+%shared_ptr(CauldronIO::FtClWeightPercBins);
+%shared_ptr(CauldronIO::SmectiteIllite);
+%shared_ptr(CauldronIO::DepthIo);
+%shared_ptr(CauldronIO::TimeIo1D);
 
 %{
 /* Includes the header in the wrapper code */
@@ -93,3 +104,14 @@ namespace CauldronIO
 %template(GeometryList) std::vector<std::shared_ptr<const CauldronIO::Geometry2D> >;
 %template(MigrationEventList) std::vector<std::shared_ptr<CauldronIO::MigrationEvent> >;
 %template(StratigraphyTableEntryList) std::vector<CauldronIO::StratigraphyTableEntry>;
+%template(DisplayContourList) std::vector<std::shared_ptr<CauldronIO::DisplayContour> >;
+%template(DepthIoList) std::vector<std::shared_ptr<CauldronIO::DepthIo> >;
+%template(TimeIo1DList) std::vector<std::shared_ptr<CauldronIO::TimeIo1D> >;
+%template(ITemperatureIsoList) std::vector<std::shared_ptr<CauldronIO::IsoEntry> >;
+%template(FtSampleList) std::vector<std::shared_ptr<CauldronIO::FtSample> >;
+%template(FtGrainList) std::vector<std::shared_ptr<CauldronIO::FtGrain> >;
+%template(FtPredLengthCountsHistList) std::vector<std::shared_ptr<CauldronIO::FtPredLengthCountsHist> >;
+%template(FtPredLengthCountsHistDataList) std::vector<std::shared_ptr<CauldronIO::FtPredLengthCountsHistData> >;
+%template(SmectiteIlliteList) std::vector<std::shared_ptr<CauldronIO::SmectiteIllite> >;
+%template(BiomarkermList) std::vector<std::shared_ptr<CauldronIO::Biomarkerm> >;
+%template(FtClWeightPercBinsList) std::vector<std::shared_ptr<CauldronIO::FtClWeightPercBins> >;

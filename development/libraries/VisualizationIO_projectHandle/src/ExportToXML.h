@@ -61,6 +61,7 @@ namespace CauldronIO
        void addGenexHistory(pugi::xml_node pt);
        void addBurialHistory(pugi::xml_node pt);
        void addMassBalance(pugi::xml_node pt);
+       void add1Ddata(pugi::xml_node pt);
        
        // member variables
        ibs::FilePath m_fullPath;

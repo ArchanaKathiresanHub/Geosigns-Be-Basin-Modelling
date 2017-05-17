@@ -125,6 +125,9 @@ namespace DataAccess
          /// Return the file name of the project without the directory path
          virtual const string & getFileName( void ) const;
 
+         /// set the Grid that is used to produce new PropertyValues
+         bool setActivityOutputGrid( const Grid * grid );
+
          /// start a new activity
          bool startActivity( const string & name, const Grid * grid, bool saveAsInputGrid = false, bool createResultsFile = true, bool append = false );
 
@@ -686,8 +689,6 @@ namespace DataAccess
 
 
          void resetActivityOutputGrid( void );
-         /// set the Grid that is used to produce new PropertyValues
-         bool setActivityOutputGrid( const Grid * grid );
 
          bool loadSnapshots( void );
          bool createSnapshotsAtGeologicalEvents( void );

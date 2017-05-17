@@ -94,7 +94,10 @@ namespace DataAccess
          
          /// Returns whether this PropertyValue has been uploaded onto a BPA server.
          virtual bool isUploadedToBPA (void) const;
-	 
+
+	     /// Returns deposequence number
+         virtual int getDepoSequence (void) const;
+ 
          string saveToDirectory (const string & directory);
          
          /// First sorts on the age of the PropertyValue objects,

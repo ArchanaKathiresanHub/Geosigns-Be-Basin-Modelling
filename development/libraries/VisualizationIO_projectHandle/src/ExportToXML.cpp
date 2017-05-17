@@ -207,6 +207,9 @@ void ExportToXML::addProject(pugi::xml_node pt, std::shared_ptr<Project>& projec
 
     // Add MassBalance file reference
     addMassBalance(pt);
+
+    // Add 1D data
+    add1Ddata(pt);
 }
 
 void CauldronIO::ExportToXML::addProperty(pugi::xml_node node, const std::shared_ptr<const Property>& property) const
@@ -376,6 +379,9 @@ void CauldronIO::ExportToXML::addPropertySurfaceData(pugi::xml_node &node, DataS
 	if (surfaceData->isConstant())
 	{
 		node.append_attribute("constantvalue") = surfaceData->getConstantValue();
+        if(m_project-> getModelingMode() ==  MODE1D) {
+           node.append_attribute("depo_sequence") = surfaceData->getDepoSequence();
+         }
 	}
 	else if (refMap != nullptr)
 	{
@@ -856,4 +862,287 @@ void CauldronIO::ExportToXML::addBurialHistory(pugi::xml_node pt)
       pugi::xml_node propNode = node.append_child("filepath");
       propNode.append_attribute("file") = (* fit).c_str();
    }
+}
+
+void CauldronIO::ExportToXML::add1Ddata(pugi::xml_node pt)
+{
+   // DisplayContour
+   DisplayContourList displayRecords = m_project->getDisplayContourTable();
+   size_t nr_events = displayRecords.size();
+
+   pugi::xml_node node;
+   
+   if (nr_events != 0) {
+
+      node = pt.append_child("displayContour");
+      node.append_attribute("number") = (unsigned int)nr_events;
+      BOOST_FOREACH(const std::shared_ptr<const DisplayContour>& entry, displayRecords)
+      {
+         pugi::xml_node recordNode = node.append_child("record");
+         
+         recordNode.append_attribute("propertyName") = entry->getPropertyName().c_str();
+         recordNode.append_attribute("colour") = entry->getContourColour().c_str();
+         recordNode.append_attribute("value") = entry->getContourValue();
+      }
+   }
+   // TemperatureIsoIoTbl
+   TemperatureIsoList tempIsoRecords = m_project->getTemperatureIsoTable();
+   nr_events = tempIsoRecords.size();
+
+   if (nr_events != 0) {
+
+      node = pt.append_child("temperatureIso");
+      node.append_attribute("number") = (unsigned int)nr_events;
+      BOOST_FOREACH(const std::shared_ptr<const IsoEntry>& entry, tempIsoRecords)
+      {
+         pugi::xml_node recordNode = node.append_child("record");
+         
+         recordNode.append_attribute("age") = entry->getAge();
+         recordNode.append_attribute("value") = entry->getContourValue();
+         recordNode.append_attribute("sum") = entry->getSum();
+         recordNode.append_attribute("NP") = entry->getNP();
+      }
+   }
+   // VrIsoIoTbl
+   VrIsoList vrIsoRecords = m_project->getVrIsoTable();
+   nr_events = vrIsoRecords.size();
+
+   if (nr_events != 0) {
+
+      node = pt.append_child("vrIso"); 
+      node.append_attribute("number") = (unsigned int)nr_events;
+      BOOST_FOREACH(const std::shared_ptr<const IsoEntry>& entry, vrIsoRecords)
+      {
+         pugi::xml_node recordNode = node.append_child("record");
+         
+         recordNode.append_attribute("age") = entry->getAge();
+         recordNode.append_attribute("value") = entry->getContourValue();
+         recordNode.append_attribute("sum") = entry->getSum();
+         recordNode.append_attribute("NP") = entry->getNP();
+      }
+      
+   }
+   // FtSampleIoTbl
+   FtSampleList fsampRecords = m_project->getFtSampleTable();
+   nr_events = fsampRecords.size();
+      
+   if (nr_events != 0) {
+
+      node = pt.append_child("ftSample"); 
+      node.append_attribute("number") = (unsigned int)nr_events;
+      BOOST_FOREACH(const std::shared_ptr<const FtSample>& entry, fsampRecords)
+      {
+         pugi::xml_node recordNode = node.append_child("record");
+         
+         recordNode.append_attribute("id") = entry->getFtSampleId().c_str();
+         recordNode.append_attribute("depthInd") = entry->getDepthIndex();
+         recordNode.append_attribute("zeta") = entry->getFtZeta();
+         recordNode.append_attribute("ustglTrackDensity") = entry->getFtUstglTrackDensity();
+         recordNode.append_attribute("predictedAge") = entry->getFtPredictedAge();
+         recordNode.append_attribute("pooledAge") = entry->getFtPooledAge();
+         recordNode.append_attribute("pooledAgeErr") = entry->getFtPooledAgeErr();
+         recordNode.append_attribute("ageChi2") = entry->getFtAgeChi2();
+         recordNode.append_attribute("degreeOfFreedom") = entry->getFtDegreeOfFreedom();
+         recordNode.append_attribute("pAgeChi2") = entry->getFtPAgeChi2();
+         recordNode.append_attribute("corrCoeff") = entry->getFtCorrCoeff();
+         recordNode.append_attribute("varianceSqrtNs") = entry->getFtVarianceSqrtNs();
+         recordNode.append_attribute("varianceSqrtNi") = entry->getFtVarianceSqrtNi();
+         recordNode.append_attribute("nsDivNi") = entry->getFtNsDivNi();
+         recordNode.append_attribute("nsDivNiErr") = entry->getFtNsDivNiErr();
+         recordNode.append_attribute("meanRatio") = entry->getFtMeanRatio();
+         recordNode.append_attribute("meanRatioErr") = entry->getFtMeanRatioErr();
+         recordNode.append_attribute("centralAge") = entry->getFtCentralAge();
+         recordNode.append_attribute("centralAgeErr") = entry->getFtCentralAgeErr();
+         recordNode.append_attribute("meanAge") = entry->getFtMeanAge();
+         recordNode.append_attribute("meanAgeErr") = entry->getFtMeanAgeErr();
+         recordNode.append_attribute("lengthChi2") = entry->getFtLengthChi2();
+         recordNode.append_attribute("apatiteYield") = entry->getFtApatiteYield().c_str();
+         recordNode.append_attribute("optimization") = entry->getOptimization();
+         
+      }
+   }
+    // FtGrainIoTbl
+    FtGrainList fgRecords = m_project->getFtGrainTable();
+    nr_events = fgRecords.size();
+    
+    if (nr_events != 0) {
+    
+       node = pt.append_child("ftGrain"); 
+       node.append_attribute("number") = (unsigned int)nr_events;
+       BOOST_FOREACH(const std::shared_ptr<const FtGrain>& entry, fgRecords)
+       {
+          pugi::xml_node recordNode = node.append_child("record");
+          
+          recordNode.append_attribute("sampleId") = entry->getFtSampleId().c_str();
+          recordNode.append_attribute("grainId") = entry->getFtGrainId();
+          recordNode.append_attribute("spontTrackNo") = entry->getFtSpontTrackNo();
+          recordNode.append_attribute("inducedTrackNo") = entry->getFtInducedTrackNo();
+          recordNode.append_attribute("clWeightPerc") = entry->getFtClWeightPerc();
+          recordNode.append_attribute("grainAge") = entry->getFtGrainAge();
+          recordNode.append_attribute("grainAgeErr") = entry->getFtGrainAgeErr();
+       }
+    }
+    // FtPredLengthCountsHistIoTbl
+    FtPredLengthCountsHistList fhRecords = m_project->getFtPredLengthCountsHistTable();
+    nr_events = fhRecords.size();
+    
+    if (nr_events != 0) {
+    
+       node = pt.append_child("ftPredLengthCountsHist"); 
+       node.append_attribute("number") = (unsigned int)nr_events;
+       BOOST_FOREACH(const std::shared_ptr<const FtPredLengthCountsHist>& entry, fhRecords)
+       {
+          pugi::xml_node recordNode = node.append_child("record");
+          
+          recordNode.append_attribute("id") = entry->getFtPredLengthHistId();
+          recordNode.append_attribute("sampleId") = entry->getFtSampleId().c_str();
+          recordNode.append_attribute("clWeightPerc") = entry->getFtClWeightPerc();
+          recordNode.append_attribute("binStart") = entry->getFtPredLengthBinStart();
+          recordNode.append_attribute("binWidth") = entry->getFtPredLengthBinWidth();
+          recordNode.append_attribute("binNum") = entry->getFtPredLengthBinNum();
+       }
+    }
+    // FtPredLengthCountsHistDataIoTbl
+    FtPredLengthCountsHistDataList fdRecords = m_project->getFtPredLengthCountsHistDataTable();
+    nr_events = fdRecords.size();
+    
+    if (nr_events != 0) {
+    
+       node = pt.append_child("ftPredLengthCountsHistData"); 
+       node.append_attribute("number") = (unsigned int)nr_events;
+       BOOST_FOREACH(const std::shared_ptr<const FtPredLengthCountsHistData>& entry, fdRecords)
+       {
+          pugi::xml_node recordNode = node.append_child("record");
+          
+          recordNode.append_attribute("id") = entry->getFtPredLengthHistId();
+          recordNode.append_attribute("binIndex") = entry->getFtPredLengthBinIndex();
+          recordNode.append_attribute("binCount") = entry->getFtPredLengthBinCount();
+       }
+    }
+    // FtClWeightPercBinsTbl
+    FtClWeightPercBinsList ftClRecords = m_project->getFtClWeightPercBinsTable();
+    nr_events = ftClRecords.size();
+    
+    if (nr_events != 0) {
+    
+       node = pt.append_child("ftClWeightPercBins"); 
+       node.append_attribute("number") = (unsigned int)nr_events;
+       BOOST_FOREACH(const std::shared_ptr<const FtClWeightPercBins>&entry, ftClRecords)
+       {
+          pugi::xml_node recordNode = node.append_child("record");
+          
+          recordNode.append_attribute("start") = entry->getFtClWeightBinStart();
+          recordNode.append_attribute("width") = entry->getFtClWeightBinWidth();
+       }
+    }
+    // SmectiteIlliteIoTbl
+    SmectiteIlliteList smRecords = m_project->getSmectiteIlliteTable();
+    nr_events = smRecords.size();
+    
+    if (nr_events != 0) {
+    
+       node = pt.append_child("smectiteIllite"); 
+       node.append_attribute("number") = (unsigned int)nr_events;
+       BOOST_FOREACH(const std::shared_ptr<const SmectiteIllite>& entry, smRecords)
+       {
+          pugi::xml_node recordNode = node.append_child("record");
+          
+          recordNode.append_attribute("depthInd") = entry->getDepthIndex();
+          recordNode.append_attribute("illiteFraction") = entry->getIlliteFraction();
+          recordNode.append_attribute("label") = entry->getLabel().c_str();
+          recordNode.append_attribute("optimization") = entry->getOptimization();
+       }
+    }
+    // BiomarkermIoTbl
+    BiomarkermList bmRecords = m_project->getBiomarkermTable();
+    nr_events = bmRecords.size();
+    
+    if (nr_events != 0) {
+    
+       node = pt.append_child("biomarkerm"); 
+       node.append_attribute("number") = (unsigned int)nr_events;
+       BOOST_FOREACH(const std::shared_ptr<const Biomarkerm>& entry, bmRecords)
+       {
+          pugi::xml_node recordNode = node.append_child("record");
+          
+          recordNode.append_attribute("depthInd") = entry->getDepthIndex();
+          recordNode.append_attribute("hopaneIsomerisation") = entry->getHopaneIsomerisation();
+          recordNode.append_attribute("steraneIsomerisation") = entry->getSteraneIsomerisation();
+          recordNode.append_attribute("steraneAromatisation") = entry->getSteraneAromatisation();
+          recordNode.append_attribute("optimization") = entry->getOptimization();
+       }
+    }
+    // DepthIoTbl
+    char * data = 0;
+    size_t record_size = 0;
+    size_t dataIndex = 0;
+       
+    nr_events = m_project->getDepthIoTable().size();
+    if (nr_events != 0) {
+
+       DepthIoList events = m_project->getDepthIoTable();
+       
+       node = pt.append_child("depthIo");
+       node.append_attribute("number") = (unsigned int)nr_events;
+       
+       record_size = sizeof(*events[0]);
+       node.append_attribute("record_size") = (unsigned int)record_size;
+       
+       ibs::FilePath depthDataPath(m_fullPath);
+       depthDataPath << "depthIo_table.cldrn";
+       DataStoreSave depthDataStore(depthDataPath.path(), m_append);
+       
+       data = new char[record_size * nr_events];
+       assert(sizeof(char) == 1);
+       
+       for (size_t index = 0; index < nr_events; ++index, dataIndex += record_size)
+       {
+          void* source = (void*)(events[index].get());
+          void* dest = (void*)(&data[dataIndex]);
+          memcpy(dest, source, record_size);
+       }
+       
+       // Add all data
+       depthDataStore.addData((void*)data, node, record_size * nr_events);
+       // Compress it and write to disk
+       depthDataStore.flush();
+       
+       delete[] data;
+    }
+
+    // 1DTimeIoTbl
+    nr_events = m_project->get1DTimeIoTable().size();
+    if (nr_events != 0) {
+
+       TimeIo1DList timeio1d_events = m_project->get1DTimeIoTable();
+       
+       node = pt.append_child("timeIo1D");
+       node.append_attribute("number") = (unsigned int)nr_events;
+       
+       record_size = sizeof(*timeio1d_events[0]);
+       node.append_attribute("record_size") = (unsigned int)record_size;
+       
+       ibs::FilePath time1DDataPath(m_fullPath);
+       time1DDataPath << "timeIo1D_table.cldrn";
+       DataStoreSave time1DDataStore(time1DDataPath.path(), m_append);
+       
+       data = new char[record_size * nr_events];
+       assert(sizeof(char) == 1);
+       
+       dataIndex = 0;
+       
+       for (size_t index = 0; index < nr_events; ++index, dataIndex += record_size)
+       {
+          void* source = (void*)(timeio1d_events[index].get());
+          void* dest = (void*)(&data[dataIndex]);
+          memcpy(dest, source, record_size);
+       }
+       
+       // Add all data
+       time1DDataStore.addData((void*)data, node, record_size * nr_events);
+       // Compress it and write to disk
+       time1DDataStore.flush();
+       
+       delete[] data;
+    }
 }

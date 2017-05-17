@@ -439,7 +439,7 @@ namespace Shell.BasinModeling.CauldronIO.Test
         [TestClass()]
         public class TrapperTests
         {
-           [TestMethod]
+            [TestMethod]
             public void TrapperCreate()
             {
                 int ID = 1234;
@@ -639,7 +639,7 @@ namespace Shell.BasinModeling.CauldronIO.Test
         public void TrapSetSpillPointPosition()
         {
             int ID = 1234;
-          
+
             float posX = 1.5f;
             float posY = 2.5f;
             Trap trap = new Trap(ID);
@@ -651,6 +651,171 @@ namespace Shell.BasinModeling.CauldronIO.Test
 
         }
 
+    }
+
+    [TestClass]
+    public class Tables1DTest
+    {
+        [TestMethod]
+        public void DisplayContourTest()
+        {
+            const string propertyName = "Temperature";
+            DisplayContour dp = new DisplayContour();
+            dp.setPropertyName(propertyName);
+            StringAssert.Equals(dp.getPropertyName(), propertyName);
+
+            float val = 122.5f;
+            dp.setContourValue(val);
+            Assert.AreEqual(val, dp.getContourValue());
+        }
+        [TestMethod]
+        public void BiomarkermTest()
+        {
+            Biomarkerm biom = new Biomarkerm();
+            biom.setDepthIndex(345.0f);
+            Assert.AreEqual(345.0f, biom.getDepthIndex());
+            biom.setOptimization(true);
+            Assert.IsTrue(biom.getOptimization());
+        }
+        [TestMethod]
+        public void IsoEntryTest()
+        {
+            IsoEntry iso = new IsoEntry();
+            iso.setAge(50.0f);
+            Assert.AreEqual(50.0f, iso.getAge());
+            iso.setSum(6789.01);
+            Assert.AreEqual(6789.01, iso.getSum());
+        }
+        [TestMethod]
+        public void FtSampleTest()
+        {
+            FtSample fiss = new FtSample();
+
+            StringAssert.Equals("", fiss.getFtSampleId());
+            const string sampleId = "sampleID";
+
+            fiss.setFtSampleId(sampleId);
+            StringAssert.Equals(sampleId, fiss.getFtSampleId());
+
+            fiss.setFtMeanRatio(0.54f);
+            Assert.AreEqual(0.54f, fiss.getFtMeanRatio());
+
+            Assert.IsFalse(fiss.getOptimization());
+            fiss.setOptimization(true);
+            Assert.IsTrue(fiss.getOptimization());
+        }
+        [TestMethod]
+        public void FtGrainTest()
+        {
+            FtGrain fgrain = new FtGrain();
+
+            StringAssert.Equals("", fgrain.getFtSampleId());
+            const string sampleId = "sampleID";
+
+            fgrain.setFtSampleId(sampleId);
+            StringAssert.Equals(sampleId, fgrain.getFtSampleId());
+            fgrain.setFtGrainAgeErr(0.0034f);
+            Assert.AreEqual(0.0034f, fgrain.getFtGrainAgeErr());
+
+            fgrain.setFtInducedTrackNo(23);
+            Assert.AreEqual(23, fgrain.getFtInducedTrackNo());
+        }
+        [TestMethod]
+        public void FtPredLengthCountsHistTest()
+        {
+            FtPredLengthCountsHist fpred = new FtPredLengthCountsHist();
+
+            Assert.AreEqual(0, fpred.getFtPredLengthHistId());
+            fpred.setFtPredLengthHistId(21);
+            Assert.AreEqual(21, fpred.getFtPredLengthHistId());
+
+            fpred.setFtPredLengthBinWidth(45.0f);
+            Assert.AreEqual(45.0f, fpred.getFtPredLengthBinWidth());
+        }
+        [TestMethod]
+        public void FtPredLengthCountsHistDataTest()
+        {
+            FtPredLengthCountsHistData fdata = new FtPredLengthCountsHistData();
+
+            Assert.AreEqual(0.0f, fdata.getFtPredLengthBinCount());
+            fdata.setFtPredLengthBinCount(222.0f);
+            Assert.AreEqual(222.0f, fdata.getFtPredLengthBinCount());
+
+            fdata.setFtPredLengthBinIndex(3);
+            Assert.AreEqual(3, fdata.getFtPredLengthBinIndex());
+
+            fdata.setFtPredLengthHistId(-1);
+            Assert.AreEqual(-1, fdata.getFtPredLengthHistId());
+        }
+        [TestMethod]
+        public void FtClWeightPercBinsTest()
+        {
+            FtClWeightPercBins ftcl = new FtClWeightPercBins();
+
+            ftcl.setFtClWeightBinStart(45.5768);
+            Assert.AreEqual(45.5768, ftcl.getFtClWeightBinStart());
+            ftcl.setFtClWeightBinWidth(0.9456976);
+            Assert.AreEqual(0.9456976, ftcl.getFtClWeightBinWidth());
+        }
+        [TestMethod]
+        public void SmectiteIlliteTest()
+        {
+            SmectiteIllite smect = new SmectiteIllite();
+
+            StringAssert.Equals("", smect.getLabel());
+            const string label = "Label";
+            smect.setLabel(label);
+            StringAssert.Equals(label, smect.getLabel());
+
+            smect.setDepthIndex(356.078f);
+            Assert.AreEqual(356.078f, smect.getDepthIndex());
+
+            Assert.IsFalse(smect.getOptimization());
+            smect.setOptimization(true);
+            Assert.IsTrue(smect.getOptimization());
+
+        }
+        [TestMethod]
+        public void DepthIoTest()
+        {
+            DepthIo depth = new DepthIo();
+
+            StringAssert.Equals("", depth.getPropertyName());
+            const string propertyName = "Vr";
+            depth.setPropertyName(propertyName);
+            StringAssert.Equals(propertyName, depth.getPropertyName());
+
+            depth.setMinimum(0.00000123f);
+            Assert.AreEqual(0.00000123f, depth.getMinimum());
+
+            Assert.AreEqual(0.0f, depth.getMaximum());
+
+            depth.setP85(345.098f);
+            Assert.AreEqual(345.098f, depth.getP85());
+
+            depth.setNP(34);
+            Assert.AreEqual(34, depth.getNP());
+
+            depth.setKurtosis(0.5f);
+            Assert.AreEqual(0.5f, depth.getKurtosis());
+        }
+        [TestMethod]
+        public void TimeIo1DTest()
+        {
+            TimeIo1D time1d = new TimeIo1D();
+
+            const string name = "Surface";
+            time1d.setSurfaceName(name);
+            StringAssert.Equals(name, time1d.getSurfaceName());
+
+            const string propertyName = "Temperature";
+            StringAssert.Equals("", time1d.getPropertyName());
+            time1d.setPropertyName(propertyName);
+            StringAssert.Equals(propertyName, time1d.getPropertyName());
+
+            time1d.setValue(123.04f);
+            Assert.AreEqual(123.04f, time1d.getValue());
+        }
     }
 
 }

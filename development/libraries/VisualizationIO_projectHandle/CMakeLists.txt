@@ -84,6 +84,7 @@ configure_file(test/data/ARD_simple-test_CauldronOutputDir/Time_50.000000.h5 ${C
 
 configure_file(test/data/ARD_simple-test_CauldronOutputDir/Time_70.000000.h5 ${CMAKE_CURRENT_BINARY_DIR}/data/ARD_simple-test_CauldronOutputDir/Time_70.000000.h5 COPYONLY)
 
+configure_file(test/data/Project-1d.project3d ${CMAKE_CURRENT_BINARY_DIR}/data/Project-1d.project3d COPYONLY)
 
 
 add_custom_command(TARGET VisualizationIO_projectHandle PRE_BUILD
@@ -91,7 +92,7 @@ add_custom_command(TARGET VisualizationIO_projectHandle PRE_BUILD
                    test/data/ARD_simple-test_CauldronOutputDir ${CMAKE_CURRENT_BINARY_DIR}/data/ARD_simple-test_CauldronOutputDir )
 
 add_gtest( NAME CauldronIO::Project
-           SOURCES test/Project.cpp test/DataStore.cpp test/VerifyData.cpp test/CellCentered.cpp
+           SOURCES test/Project.cpp test/DataStore.cpp test/VerifyData.cpp  test/VerifyData1D.cpp test/CellCentered.cpp
            LIBRARIES VisualizationIO DataModel DataAccess utilities SerialDataAccess FileSystem TableIO VisualizationIO_projectHandle Serial_Hdf5 CBMGenerics ${HDF5_LIBRARIES} ${Boost_LIBRARIES} )
 
 # Local Variables:

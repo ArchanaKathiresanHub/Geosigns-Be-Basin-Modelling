@@ -74,13 +74,23 @@ namespace CauldronIO
     class VolumeData;
     class Geometry2D;
     class Geometry3D;
-	class BaseTrap;
     class Trapper;
     class Trap;
     class Reservoir;
     class VisualizationIOData;
     class StratigraphyTableEntry;
     class MigrationEvent;
+    class DisplayContour;
+    class IsoEntry;
+    class Biomarkerm;
+    class FtSample;
+    class FtGrain;
+    class FtPredLengthCountsHist;
+    class FtPredLengthCountsHistData;
+    class FtClWeightPercBins;
+    class SmectiteIllite;
+    class DepthIo;
+    class TimeIo1D;
     struct FormationInfo;
     typedef std::vector<std::shared_ptr<FormationInfo> > FormationInfoList;
 }

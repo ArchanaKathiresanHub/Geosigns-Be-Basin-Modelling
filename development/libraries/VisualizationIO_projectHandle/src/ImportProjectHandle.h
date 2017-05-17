@@ -74,6 +74,7 @@ private:
     void addGenexHistory();
     void addBurialHistory();
     void addMassBalance();
+    void add1Ddata();
 
     CauldronIO::SubsurfaceKind getSubSurfaceKind(const DataAccess::Interface::Surface* surface) const;
 

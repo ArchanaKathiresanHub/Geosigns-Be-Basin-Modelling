@@ -256,6 +256,11 @@ string PropertyValue::saveToDirectory (const string & directory)
    return fileName;
 }
 
+int PropertyValue::getDepoSequence (void) const 
+{
+   return database::getDepoSequence (m_record);
+}
+
 //1DComponennt
 //assumtpion lower left corner
 double PropertyValue::getMode1DResult() const	//used in createTimeIoRecord for the MODE1D case

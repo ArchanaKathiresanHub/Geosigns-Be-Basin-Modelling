@@ -1254,3 +1254,164 @@ TEST(FileReferences, Create)
     EXPECT_STREQ( "Well.BHF", (*bhFiles.begin()).c_str() );
  
 }
+
+TEST(Tables1D, Create)
+{
+   // DisplayContour
+   std::shared_ptr<CauldronIO::DisplayContour> entry(new CauldronIO::DisplayContour());
+
+   EXPECT_STREQ("", entry->getPropertyName().c_str());
+
+   const string propertyName("Temperature");
+   entry->setPropertyName(propertyName);
+   EXPECT_STREQ(propertyName.c_str(), entry->getPropertyName().c_str());
+
+   const float contourValue = 122.0f;
+   entry->setContourValue(contourValue);
+   EXPECT_FLOAT_EQ(contourValue, entry->getContourValue());
+
+   const string contourColour("oranje");
+   entry->setContourColour(contourColour);
+   EXPECT_STREQ(contourColour.c_str(), entry->getContourColour().c_str());
+
+   // TemperatureIso or VrIso
+   std::shared_ptr<CauldronIO::IsoEntry> tempiso(new CauldronIO::IsoEntry());
+   
+   tempiso->setContourValue(contourValue);
+   EXPECT_FLOAT_EQ(contourValue, tempiso->getContourValue());
+   
+   tempiso->setAge(50.0f);
+   EXPECT_FLOAT_EQ(50.0f, tempiso->getAge());
+   tempiso->setNP(35);
+   EXPECT_EQ(35, tempiso->getNP());
+   tempiso->setSum(6789.01);
+   EXPECT_DOUBLE_EQ(6789.01, tempiso->getSum());
+
+   // Biomarkerm table
+   std::shared_ptr<CauldronIO::Biomarkerm> biom(new CauldronIO::Biomarkerm());
+   biom->setDepthIndex(345.0f);
+   EXPECT_FLOAT_EQ(345.0f, biom->getDepthIndex());
+   biom->setHopaneIsomerisation(0.26f);
+   EXPECT_FLOAT_EQ(0.26f, biom->getHopaneIsomerisation());
+   biom->setSteraneIsomerisation(0.47f);
+   EXPECT_FLOAT_EQ(0.47f, biom->getSteraneIsomerisation());
+   biom->setSteraneAromatisation(0.81f);
+   EXPECT_FLOAT_EQ(0.81f, biom->getSteraneAromatisation());
+   biom->setOptimization(true);
+   EXPECT_TRUE(biom->getOptimization());
+
+   // FtSample
+   std::shared_ptr<CauldronIO::FtSample> fiss(new CauldronIO::FtSample());
+   
+   EXPECT_STREQ("", fiss->getFtSampleId().c_str());
+   const string sampleId("sampleID");
+   
+   fiss->setFtSampleId(sampleId);
+   EXPECT_STREQ(sampleId.c_str(), fiss->getFtSampleId().c_str());
+   
+   fiss->setFtMeanRatio(0.54f);
+   EXPECT_FLOAT_EQ(0.54f, fiss->getFtMeanRatio());
+   
+   EXPECT_FALSE(fiss->getOptimization());
+   fiss->setOptimization(true);
+   EXPECT_TRUE(fiss->getOptimization());
+   
+   // FtGrain
+   std::shared_ptr<CauldronIO::FtGrain> fgrain(new CauldronIO::FtGrain());
+   
+   EXPECT_STREQ("", fgrain->getFtSampleId().c_str());
+   fgrain->setFtSampleId(sampleId);
+   EXPECT_STREQ(sampleId.c_str(), fgrain->getFtSampleId().c_str());
+   
+   fgrain->setFtGrainAgeErr(0.0034f);
+   EXPECT_FLOAT_EQ(0.0034f, fgrain->getFtGrainAgeErr());
+   
+   fgrain->setFtInducedTrackNo(23);
+   EXPECT_EQ(23, fgrain->getFtInducedTrackNo());
+   
+   // FtPredLengthCountsHist
+   std::shared_ptr<CauldronIO::FtPredLengthCountsHist> fpred(new CauldronIO::FtPredLengthCountsHist());
+   
+   EXPECT_STREQ("", fpred->getFtSampleId().c_str());
+   fpred->setFtSampleId(sampleId);
+   EXPECT_STREQ(sampleId.c_str(), fpred->getFtSampleId().c_str());
+   
+   EXPECT_EQ(0, fpred->getFtPredLengthHistId());
+   fpred->setFtPredLengthHistId(21);
+   EXPECT_EQ(21, fpred->getFtPredLengthHistId());
+   
+   fpred->setFtPredLengthBinWidth(45.0f);
+   EXPECT_FLOAT_EQ(45.0f, fpred->getFtPredLengthBinWidth());
+   
+   // FtPredLengthCountsHistData
+   std::shared_ptr<CauldronIO::FtPredLengthCountsHistData> fdata(new CauldronIO::FtPredLengthCountsHistData());
+   
+   EXPECT_FLOAT_EQ(0.0f, fdata->getFtPredLengthBinCount());
+   fdata->setFtPredLengthBinCount(222.0f);
+   EXPECT_FLOAT_EQ(222.0f, fdata->getFtPredLengthBinCount());
+   
+   fdata->setFtPredLengthBinIndex(3);
+   EXPECT_EQ(3, fdata->getFtPredLengthBinIndex());
+   
+   fdata->setFtPredLengthHistId(-1);
+   EXPECT_EQ(-1, fdata->getFtPredLengthHistId());
+   
+   // FtClWeightPercBins
+   std::shared_ptr<CauldronIO::FtClWeightPercBins> ftcl(new CauldronIO::FtClWeightPercBins());
+   
+   ftcl->setFtClWeightBinStart(45.5768);
+   EXPECT_DOUBLE_EQ(45.5768, ftcl->getFtClWeightBinStart());
+   ftcl->setFtClWeightBinWidth(0.9456976);
+   EXPECT_DOUBLE_EQ(0.9456976, ftcl->getFtClWeightBinWidth());
+   
+   //SmectiteIllite
+   std::shared_ptr<CauldronIO::SmectiteIllite> smect(new CauldronIO::SmectiteIllite());
+   
+   EXPECT_STREQ("", smect->getLabel().c_str());
+   smect->setLabel(sampleId);
+   EXPECT_STREQ(sampleId.c_str(), smect->getLabel().c_str());
+   
+   smect->setDepthIndex(356.078f);
+   EXPECT_FLOAT_EQ(356.078f, smect->getDepthIndex());
+   
+   EXPECT_FALSE(smect->getOptimization());
+   smect->setOptimization(true);
+   EXPECT_TRUE(smect->getOptimization());
+   
+   // DepthIo
+   std::shared_ptr<CauldronIO::DepthIo> depth(new CauldronIO::DepthIo());
+   
+   EXPECT_STREQ("", depth->getPropertyName().c_str());
+   depth->setPropertyName(propertyName);
+   EXPECT_STREQ(propertyName.c_str(), depth->getPropertyName().c_str());
+   
+   depth->setMinimum(0.00000123f);
+   EXPECT_FLOAT_EQ(0.00000123f, depth->getMinimum());
+   
+   EXPECT_FLOAT_EQ(0.0f, depth->getMaximum());
+   
+   depth->setP85(345.098f);
+   EXPECT_FLOAT_EQ(345.098f, depth->getP85());
+   
+   depth->setNP(34);
+   EXPECT_EQ(34, depth->getNP());
+   
+   depth->setKurtosis(0.5f);
+   EXPECT_FLOAT_EQ(0.5f, depth->getKurtosis());
+   
+   // 1DTimeIo
+   std::shared_ptr<CauldronIO::TimeIo1D> time1d(new CauldronIO::TimeIo1D());
+   
+   const std::string name("Surface");
+
+   time1d->setSurfaceName(name);
+   EXPECT_STREQ(name.c_str(), time1d->getSurfaceName().c_str());
+   
+   EXPECT_STREQ("", time1d->getPropertyName().c_str());
+   time1d->setPropertyName(propertyName);
+   EXPECT_STREQ(propertyName.c_str(), time1d->getPropertyName().c_str());
+   
+   time1d->setValue(123.04f);
+   EXPECT_FLOAT_EQ(123.04f, time1d->getValue());
+   
+}

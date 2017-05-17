@@ -30,7 +30,9 @@ namespace CauldronIO
 {
     // From ProjectHandle.C 
     const float DefaultUndefinedValue = 99999;
-
+    const float DefaultUndefinedScalarValue = -9999;
+    // maximum length for string parameters
+    const int maxStringLength = 256;
     /// \class CauldronIOException
     /// \brief The VisualizationIO exception class
     class CauldronIOException : public std::runtime_error
@@ -59,7 +61,20 @@ namespace CauldronIO
     typedef std::vector<std::shared_ptr<const Geometry2D> >                             GeometryList;
     typedef std::vector<std::shared_ptr<MigrationEvent> >                               MigrationEventList;
     typedef std::vector<StratigraphyTableEntry>                                         StratigraphyTableEntryList;
- 
+
+    typedef std::vector<std::shared_ptr<DisplayContour> >                               DisplayContourList;
+    typedef std::vector<std::shared_ptr<DepthIo> >                                      DepthIoList;
+    typedef std::vector<std::shared_ptr<TimeIo1D> >                                     TimeIo1DList;
+    typedef std::vector<std::shared_ptr<IsoEntry> >                                     TemperatureIsoList;
+    typedef std::vector<std::shared_ptr<IsoEntry> >                                     VrIsoList;
+    typedef std::vector<std::shared_ptr<FtSample> >                                     FtSampleList;
+    typedef std::vector<std::shared_ptr<FtGrain> >                                      FtGrainList;
+    typedef std::vector<std::shared_ptr<FtPredLengthCountsHist> >                       FtPredLengthCountsHistList;
+    typedef std::vector<std::shared_ptr<FtPredLengthCountsHistData> >                   FtPredLengthCountsHistDataList;
+    typedef std::vector<std::shared_ptr<SmectiteIllite> >                               SmectiteIlliteList;
+    typedef std::vector<std::shared_ptr<Biomarkerm> >                                   BiomarkermList;
+    typedef std::vector<std::shared_ptr<FtClWeightPercBins>  >                          FtClWeightPercBinsList;
+
     /// \class Project
     /// \brief Highest level class containing all surface and volume data within a Cauldron project
     class Project
@@ -169,7 +184,67 @@ namespace CauldronIO
         /// \returns the list of burial history files - the BHF files produced by cauldron2bhf application.
         const std::vector<std::string>& getBurialHistoryList();
 
-    private:
+       /// \returns the DisplayContour table
+       const DisplayContourList& getDisplayContourTable() const;
+       /// \brief Adds an entry to the list of contour settings for a property to display
+       /// \param [in] entry a new entry
+       void addDisplayContour(std::shared_ptr<DisplayContour> entry);
+       /// \returns the DepthIo table
+       const DepthIoList& getDepthIoTable() const;
+       /// \brief Adds an entry to the list of property values for a depth/time combination
+       /// \param [in] entry a new entry
+       void addDepthIo(std::shared_ptr<DepthIo> entry);
+       const TimeIo1DList& get1DTimeIoTable() const;
+       /// \brief Adds an entry to the list of 1D property values
+       /// \param [in] entry a new entry
+       void add1DTimeIo(std::shared_ptr<TimeIo1D> entry);    
+       /// \returns the TemperatureIso table
+       const TemperatureIsoList& getTemperatureIsoTable() const;
+       /// \brief Adds an entry to the list of temperature Iso depth that will be displayed in the burial graph
+       /// \param [in] entry a new entry
+       void addTemperatureIsoEntry(std::shared_ptr<IsoEntry> entry);
+       /// \returns the VrIso table
+       const VrIsoList& getVrIsoTable() const;
+       /// \brief Adds an entry to the list of Vr Iso depth that will be displayed in the burial graph
+       /// \param [in] entry a new entry
+       void addVrIsoEntry(std::shared_ptr<IsoEntry> entry);
+       /// \returns the FtSampleIo table
+       const FtSampleList& getFtSampleTable() const;
+       /// \brief Adds an entry to the list of Fission track sample data
+       /// \param [in] entry a new entry
+       void addFtSample(std::shared_ptr<FtSample> entry);
+       /// \returns the FtGrainIo table
+       const FtGrainList& getFtGrainTable() const;
+       /// \brief Adds an entry to the list of spontaneous and induced track count per grain
+       /// \param [in] entry a new entry
+       void addFtGrain(std::shared_ptr<FtGrain> entry);
+       /// \returns the FtPredLengthCountsHistIo table
+       const FtPredLengthCountsHistList& getFtPredLengthCountsHistTable() const;
+       /// \brief Adds an entry to the list of layout for the histograms containing the predicted fission track length counts
+       /// \param [in] entry a new entry
+       void addFtPredLengthCountsHist(std::shared_ptr<FtPredLengthCountsHist> entry);
+       /// \returns the FtPredLengthCountsHistDataIo table
+       const FtPredLengthCountsHistDataList& getFtPredLengthCountsHistDataTable() const;
+       /// \brief Adds an entry to the list of histogram data (predicted counts per track length bin) of histograms
+       /// \param [in] entry a new entry
+       void addFtPredLengthCountsHistData(std::shared_ptr<FtPredLengthCountsHistData> entry);
+       /// \returns the SmectiteIlliteIo table
+       const SmectiteIlliteList& getSmectiteIlliteTable() const;
+       /// \brief Adds an entry to the list of measured smectite illite data for well
+       /// \param [in] entry a new entry
+       void addSmectiteIllite(std::shared_ptr<SmectiteIllite> entry);
+       /// \returns the BiomarkermIo table
+       const BiomarkermList& getBiomarkermTable() const;
+       /// \brief Adds an entry to the list of Biomarker measurements for a well
+       /// \param [in] entry a new entry
+       void addBiomarkerm(std::shared_ptr<Biomarkerm> entry);
+       /// \returns the FtClWeightPercBins table
+       const FtClWeightPercBinsList& getFtClWeightPercBinsTable() const;
+       /// \brief Adds the layout of Cl Weight Bins used in the fission track prediction algorithms
+       /// \param [in] entry a new entry
+       void addFtClWeightPercBins(std::shared_ptr<FtClWeightPercBins> entry);
+        
+   private:
         SnapShotList m_snapShotList;
         std::string m_name, m_description, m_team, m_version;
         ModellingMode m_mode;
@@ -185,6 +260,21 @@ namespace CauldronIO
         std::vector<std::string> m_genexHistoryList;
         std::vector<std::string> m_burialHistoryList;
         std::string m_massBalance;
+
+        // 1D tables
+       DisplayContourList m_displayContour;
+       DepthIoList m_depthIo;
+       TimeIo1DList m_timeIo1D;
+       TemperatureIsoList m_temperatureIso;
+       VrIsoList m_vrIso;
+       FtSampleList m_ftSample;
+       FtGrainList m_ftGrain;
+       FtPredLengthCountsHistList m_ftPredHist;
+       FtPredLengthCountsHistDataList m_ftPredHistData;
+       SmectiteIlliteList m_smectiteIllite;
+       BiomarkermList m_biomarkerm;
+       FtClWeightPercBinsList m_ftClWeightPercBins;
+       
     };
 
     /// \class StratigraphyTableEntry
@@ -746,6 +836,10 @@ namespace CauldronIO
         float getMinValue();
         /// \returns the maximum value of this surface
         float getMaxValue();
+        /// \returns Returns the deposition sequence number 
+        int getDepoSequence() const;
+        /// \brief Assigns the deposition sequence number 
+        void setDepoSequence(int number);
 
     private:
 
@@ -757,6 +851,7 @@ namespace CauldronIO
         bool m_isConstant;
         bool m_updateMinMax;
         float m_minValue, m_maxValue;
+        int m_depoSequence;
         std::shared_ptr<const Formation> m_formation;
         std::shared_ptr<const Reservoir> m_reservoir;
         std::shared_ptr<const Geometry2D> m_geometry;
@@ -1076,13 +1171,12 @@ namespace CauldronIO
         void setMassasphaltenes(double val);
 
     private:
-        static const int m_maxStringLength = 256;
 
         // We store the strings as char[] so we can serialize the entire class easily
-        char m_migrationProcess[m_maxStringLength];
-        char m_SourceRockName[m_maxStringLength];
-        char m_SourceReservoirName[m_maxStringLength];
-        char m_DestinationReservoirName[m_maxStringLength];
+        char m_migrationProcess[maxStringLength];
+        char m_SourceRockName[maxStringLength];
+        char m_SourceReservoirName[maxStringLength];
+        char m_DestinationReservoirName[maxStringLength];
 
         float m_destX, m_destY, m_srcX, m_srcY, m_srcAge, m_destAge;
         int m_srcTrapID, m_destTrapID;
@@ -1237,8 +1331,7 @@ namespace CauldronIO
       float m_netToGross;
       float m_age;
       
-      static const int m_maxStringLength = 256;
-      char m_reservoir[m_maxStringLength];
+      char m_reservoir[maxStringLength];
    };
    
    
@@ -1549,11 +1642,488 @@ namespace CauldronIO
            float m_stockTankOilMass;
            double m_stockTankOilMasses[NUMBER_OF_SPECIES];
            
-           static const int m_maxStringLength = 256;
-           char m_reservoir[m_maxStringLength];
+           char m_reservoir[maxStringLength];
            
            std::shared_ptr<const Trapper> m_downstreamTrapper;
 	};
+
+   /// \class IsoEntry
+   /// \brief container class holding an information stored in one record of TemperatureIsoIoTbl or VrIsoIoTbl- Iso data for burial graph.
+
+   class IsoEntry
+   {
+   public:
+      /// \brief Constructor
+      IsoEntry();
+ 
+      /// \brief set the value
+      void setContourValue(float value);
+      /// \brief set age
+      void setAge(float age);
+      /// \brief set the number of points
+      void setNP(int np);
+      /// \brief the depth
+      void setSum(double sum);
+
+      /// \returns the contour value
+      float getContourValue() const;
+      /// \returns the age
+      float getAge() const;
+      /// \returns the number of points
+      int getNP() const;
+      /// \returns the depth
+      double getSum() const;
+    private:
+      float m_age;
+      float m_contourValue;
+      int   m_numberOfPoints;
+      double m_sum;
+   };
+
+   /// \class DisplayContour
+   /// \brief container class holding an information stored in one record of DisplayContourIoTbl - contour settings for any calculated property.
+   class DisplayContour
+   {
+   public:
+      /// \brief Constructor
+      DisplayContour();
+ 
+      /// \brief set the property name
+      void setPropertyName(const std::string& name);
+      /// \brief set the contour color
+      void setContourColour(const std::string& colour);
+      /// \brief set the property name
+      void setContourValue(float value);
+
+      /// \returns the property name
+      const std::string getPropertyName() const;
+      /// \returns the contour color
+      const std::string getContourColour() const;
+      /// \returns the contour value
+      float getContourValue() const;
+
+   private:
+      char m_name[maxStringLength];
+      char m_contourColour[maxStringLength];
+      float m_contourValue;
+   };
+
+   /// \class Biomarkerm
+   /// \brief container class holding Biomarker measurements for a well
+   class Biomarkerm
+   {
+   public:
+      /// \brief Constructor
+      Biomarkerm();
+ 
+      /// \brief set the depth index
+      void setDepthIndex(float depthIndex);
+      /// \brief set the hopane Isomerisation 
+      void setHopaneIsomerisation(float value);
+      /// \brief set the sterane Isomerisation
+      void setSteraneIsomerisation(float value);
+      /// \brief set the sterane Aromatisation
+      void setSteraneAromatisation(float value);
+      /// \brief set optimization flag
+      void setOptimization(bool flag);
+
+      /// \returns the depth index
+      float getDepthIndex() const;
+      /// \returns the hopane Isomerisation
+      float getHopaneIsomerisation() const;
+      /// \returns the sterane Isomerisation
+      float getSteraneIsomerisation() const;
+      /// \returns the sterane Aromatisation
+      float getSteraneAromatisation() const;
+      /// \returns optimization flag
+      bool getOptimization() const;
+   private:
+
+      float m_depthIndex;
+      float m_hopaneIsomerisation;
+      float m_steraneIsomerisation;
+      float m_steraneAromatisation;
+      bool  m_optimization;
+   };
+
+   /// \class FtSample
+   /// \brief container class holding Fission track sample data
+   class FtSample
+   {
+   public:
+      /// \brief Constructor
+      FtSample();
+      
+      /// \brief set ID
+      const std::string getFtSampleId() const;
+      void setFtSampleId(const std::string& value);
+      
+      float getDepthIndex() const;
+      void setDepthIndex(float value);
+      
+      float getFtZeta() const;
+      void setFtZeta(float value);
+      
+      float getFtUstglTrackDensity() const;
+      void setFtUstglTrackDensity(float value);
+      
+      float getFtPredictedAge() const;
+      void setFtPredictedAge(float value);
+
+      float getFtPooledAge() const;
+      void setFtPooledAge(float value);
+
+      float getFtPooledAgeErr() const;
+      void setFtPooledAgeErr(float value);
+
+      float getFtAgeChi2() const;
+      void setFtAgeChi2(float value);
+
+      int getFtDegreeOfFreedom() const;
+      void setFtDegreeOfFreedom(int value);
+
+      float getFtPAgeChi2() const;
+      void setFtPAgeChi2(float value);
+
+      float getFtCorrCoeff() const;
+      void setFtCorrCoeff(float value);
+
+      float getFtVarianceSqrtNs() const;
+      void setFtVarianceSqrtNs(float value);
+
+      float getFtVarianceSqrtNi() const;
+      void setFtVarianceSqrtNi(float value);
+
+      float getFtNsDivNi() const;
+      void setFtNsDivNi(float value);
+
+      float getFtNsDivNiErr() const;
+      void setFtNsDivNiErr(float value);
+
+      float getFtMeanRatio() const;
+      void setFtMeanRatio(float value);
+
+      float getFtMeanRatioErr() const;
+      void setFtMeanRatioErr(float value);
+
+      float getFtCentralAge() const;
+      void setFtCentralAge(float value);
+
+      float getFtCentralAgeErr() const;
+      void setFtCentralAgeErr(float value);
+
+      float getFtMeanAge() const;
+      void setFtMeanAge(float value);
+
+      float getFtMeanAgeErr() const;
+      void setFtMeanAgeErr(float value);
+
+      float getFtLengthChi2() const;
+      void setFtLengthChi2(float value);
+
+      const std::string  getFtApatiteYield() const;
+      void setFtApatiteYield( const std::string & value );
+
+      bool getOptimization() const;
+      void setOptimization(bool value);    
+   private:
+
+      char m_FtSampleId[maxStringLength];
+      float m_DepthIndex;
+      float m_FtZeta; 
+      float m_FtUstglTrackDensity;
+      float m_FtPredictedAge; 
+      float m_FtPooledAge; 
+      float m_FtPooledAgeErr;
+      float m_FtAgeChi2; 
+      int m_FtDegreeOfFreedom; 
+      float m_FtPAgeChi2; 
+      float m_FtCorrCoeff; 
+      float m_FtVarianceSqrtNs;
+      float m_FtVarianceSqrtNi; 
+      float m_FtNsDivNi; 
+      float m_FtNsDivNiErr; 
+      float m_FtMeanRatio; 
+      float m_FtMeanRatioErr; 
+      float m_FtCentralAge;
+      float m_FtCentralAgeErr; 
+      float m_FtMeanAge; 
+      float m_FtMeanAgeErr; 
+      float m_FtLengthChi2; 
+      char m_FtApatiteYield[maxStringLength]; 
+      bool m_Optimization; 
+      
+   };
+   /// \class FtGrain
+   /// \brief container class holding spontaneous and induced track count per grain
+   class FtGrain
+   {
+   public:
+      /// \brief Constructor
+      FtGrain();
+
+      const std::string getFtSampleId() const;
+      void setFtSampleId(const std::string & val);
+
+      int getFtGrainId() const;
+      void setFtGrainId(int val);
+
+      int getFtSpontTrackNo() const;
+      void setFtSpontTrackNo(int val);
+
+      int getFtInducedTrackNo() const;
+      void setFtInducedTrackNo(int val);
+
+      double getFtClWeightPerc() const;
+      void setFtClWeightPerc(float val);
+
+      double getFtGrainAge() const;
+      void setFtGrainAge(float val);
+
+      double getFtGrainAgeErr() const;
+      void setFtGrainAgeErr(float val);
+   private:
+
+      char m_FtSampleId[maxStringLength]; ; 
+      int m_FtGrainId; 
+      int m_FtSpontTrackNo; 
+      int m_FtInducedTrackNo;
+      float m_FtClWeightPerc;
+      float m_FtGrainAge; 
+      float m_FtGrainAgeErr;
+    }; 
+
+   /// \class FtPredLengthCountsHist
+   /// \brief Container class holding description of layout for the histograms containing the predicted fission track length counts
+   class FtPredLengthCountsHist
+   {
+   public:
+      /// \brief Constructor
+      FtPredLengthCountsHist();
+
+      int getFtPredLengthHistId() const;
+      void setFtPredLengthHistId(int val);
+
+      const std::string getFtSampleId() const;
+      void setFtSampleId(const std::string & val);
+
+      float getFtClWeightPerc() const;
+      void setFtClWeightPerc(float val);
+
+      float getFtPredLengthBinStart() const;
+      void setFtPredLengthBinStart(float val);
+
+      float getFtPredLengthBinWidth() const;
+      void setFtPredLengthBinWidth(float val);
+
+      int getFtPredLengthBinNum() const;
+      void setFtPredLengthBinNum(int val);
+
+   private:
+
+      int m_FtPredLengthHistId; 
+      char m_FtSampleId[maxStringLength]; 
+      float m_FtClWeightPerc;
+      float m_FtPredLengthBinStart;
+      float m_FtPredLengthBinWidth; 
+      int m_FtPredLengthBinNum; 
+  };
+
+   /// \class FtPredLengthCountsHistData
+   /// \brief Container class holding description of histogram data (predicted counts per track length bin) of histograms 
+   /// defined in FtPredLengthCountsHist
+   class FtPredLengthCountsHistData
+   {
+   public:
+      /// \brief Constructor
+      FtPredLengthCountsHistData();
+
+      int getFtPredLengthHistId() const;
+      void setFtPredLengthHistId(int val);
+
+      int getFtPredLengthBinIndex() const;
+      void setFtPredLengthBinIndex(int val);
+
+      float getFtPredLengthBinCount() const;
+      void setFtPredLengthBinCount(float val);
+   private:
+
+      int m_FtPredLengthHistId;
+      int m_FtPredLengthBinIndex; 
+      float m_FtPredLengthBinCount; 
+   };
+
+   /// \class FtClWeightPercBins
+   /// \brief Container class holding description of layout of the Cl Weight Bins used in the fission track prediction algorithms
+
+   class FtClWeightPercBins
+   {
+   public:
+      /// \brief Constructor
+      FtClWeightPercBins();
+
+      double getFtClWeightBinStart() const;
+      void setFtClWeightBinStart(double val);
+
+      double getFtClWeightBinWidth() const;
+      void setFtClWeightBinWidth(double val);
+      
+   private:
+      double m_FtClWeightBinStart; 
+      double m_FtClWeightBinWidth; 
+   };
+   /// \class SmectiteIllite
+   /// \brief Container class holding description of measured smectite illite data for well
+
+   class SmectiteIllite
+   {
+   public:
+      /// \brief Constructor
+      SmectiteIllite();
+
+      float getDepthIndex() const;
+      void setDepthIndex(float val);
+
+      float getIlliteFraction() const;
+      void setIlliteFraction(float val);
+
+      const std::string getLabel() const;
+      void setLabel(const std::string & val);
+
+      bool getOptimization() const;
+      void setOptimization(bool val);
+
+   private:
+      float m_DepthIndex;
+      float m_IlliteFraction; 
+      char m_Label[maxStringLength];
+      bool m_Optimization; 
+
+   };
+   /// \class DepthIo
+   /// \brief Container class listing the statistics of property values
+   ///        for a depth/time combinations (output results)
+
+   class DepthIo
+   {
+   public:
+      /// \brief Constructor
+      DepthIo();
+
+      const std::string getPropertyName() const;
+      void setPropertyName(const std::string & val);
+
+      float getTime() const;
+      void setTime(float val);
+
+      float getDepth() const;
+      void setDepth(float val);
+
+      float getAverage() const;
+      void setAverage(float val);
+
+      float getStandardDev() const;
+      void setStandardDev(float val);
+
+      float getMinimum() const;
+      void setMinimum(float val);
+
+      float getMaximum() const;
+      void setMaximum(float val);
+
+      float getSum() const;
+      void setSum(float val);
+
+      float getSum2() const;
+      void setSum2(float val);
+
+      int getNP() const;
+      void setNP(int val);
+
+      float getP15() const;
+      void setP15(float val);
+
+      float getP50() const;
+      void setP50(float val);
+
+      float getP85() const;
+      void setP85(float val);
+
+      float getSumFirstPower() const;
+      void setSumFirstPower(float val);
+
+      float getSumSecondPower() const;
+      void setSumSecondPower(float val);
+
+      float getSumThirdPower() const;
+      void setSumThirdPower(float val);
+
+      float getSumFourthPower() const;
+      void setSumFourthPower(float val);
+
+      float getSkewness() const;
+      void setSkewness(float val);
+
+      float getKurtosis() const;
+      void setKurtosis(float val);
+
+   private:
+      char m_PropertyName[maxStringLength]; 
+      float m_Time;
+      float m_Depth; 
+      float m_Average;
+      float m_StandardDev;
+      float m_Minimum;
+      float m_Maximum; 
+      float m_Sum; 
+      float m_Sum2;
+      int m_NP; 
+      float m_P15; 
+      float m_P50; 
+      float m_P85; 
+      float m_SumFirstPower; 
+      float m_SumSecondPower; 
+      float m_SumThirdPower;
+      float m_SumFourthPower;
+      float m_Skewness;
+      float m_Kurtosis; 
+   };
+
+   /// \class TimeIo1D
+   /// \brief Container class listing 1D property values (1D output results)
+
+   class TimeIo1D
+   {
+   public:
+      /// \brief Constructor
+      TimeIo1D();
+
+      float getTime() const;
+      void setTime(float val);
+
+      const std::string getPropertyName() const;
+      void setPropertyName(const std::string & val);
+
+      const std::string getFormationName() const;
+      void setFormationName(const std::string & val);
+
+      int getNodeIndex() const;
+      void setNodeIndex(int val);
+
+      const std::string getSurfaceName() const;
+      void setSurfaceName(const std::string & val);
+
+      float getValue() const;
+      void setValue(float val);
+   private:
+      float m_Time; 
+      char  m_PropertyName[maxStringLength]; 
+      char  m_FormationName[maxStringLength];
+      int   m_NodeIndex; 
+      char  m_SurfaceName[maxStringLength]; 
+      float m_Value;
+   };
+ 
 }
 
 
