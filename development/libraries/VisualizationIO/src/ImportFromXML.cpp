@@ -323,7 +323,6 @@ std::shared_ptr<Project> CauldronIO::ImportFromXML::getProject(const pugi::xml_d
     pugi::xml_node displayContourNode = pt.child("displayContour");
     if (displayContourNode)
     {
-        size_t nrEvents = (size_t)displayContourNode.attribute("number").as_int();
 
         for (pugi::xml_node oneRecord = displayContourNode.child("record"); oneRecord; oneRecord = oneRecord.next_sibling("record"))
         {
@@ -344,7 +343,6 @@ std::shared_ptr<Project> CauldronIO::ImportFromXML::getProject(const pugi::xml_d
     pugi::xml_node temperatureIsoNode = pt.child("temperatureIso");
     if (temperatureIsoNode)
     {
-        size_t nrEvents = (size_t)temperatureIsoNode.attribute("number").as_int();
 
         for (pugi::xml_node oneRecord = temperatureIsoNode.child("record"); oneRecord; oneRecord = oneRecord.next_sibling("record"))
         {
@@ -368,7 +366,6 @@ std::shared_ptr<Project> CauldronIO::ImportFromXML::getProject(const pugi::xml_d
     pugi::xml_node vrIsoNode = pt.child("vrIso");
     if (vrIsoNode)
     {
-        size_t nrEvents = (size_t)vrIsoNode.attribute("number").as_int();
 
         for (pugi::xml_node oneRecord = vrIsoNode.child("record"); oneRecord; oneRecord = oneRecord.next_sibling("record"))
         {
@@ -393,7 +390,6 @@ std::shared_ptr<Project> CauldronIO::ImportFromXML::getProject(const pugi::xml_d
     pugi::xml_node ftNode = pt.child("ftSample");
     if (ftNode)
     {
-        size_t nrEvents = (size_t)ftNode.attribute("number").as_int();
 
         for (pugi::xml_node oneRecord = ftNode.child("record"); oneRecord; oneRecord = oneRecord.next_sibling("record"))
         {
@@ -456,7 +452,6 @@ std::shared_ptr<Project> CauldronIO::ImportFromXML::getProject(const pugi::xml_d
     pugi::xml_node ftgNode = pt.child("ftGrain");
     if (ftgNode)
     {
-        size_t nrEvents = (size_t)ftgNode.attribute("number").as_int();
 
         for (pugi::xml_node oneRecord = ftgNode.child("record"); oneRecord; oneRecord = oneRecord.next_sibling("record"))
         {
@@ -485,7 +480,6 @@ std::shared_ptr<Project> CauldronIO::ImportFromXML::getProject(const pugi::xml_d
     pugi::xml_node ftpNode = pt.child("ftPredLengthCountsHist");
     if(ftpNode)
     {
-        size_t nrEvents = (size_t)ftpNode.attribute("number").as_int();
 
         for (pugi::xml_node oneRecord = ftpNode.child("record"); oneRecord; oneRecord = oneRecord.next_sibling("record"))
         {
@@ -512,7 +506,6 @@ std::shared_ptr<Project> CauldronIO::ImportFromXML::getProject(const pugi::xml_d
     pugi::xml_node ftpdNode = pt.child("ftPredLengthCountsHistData");
     if(ftpdNode)
     {
-        size_t nrEvents = (size_t)ftpdNode.attribute("number").as_int();
 
         for (pugi::xml_node oneRecord = ftpdNode.child("record"); oneRecord; oneRecord = oneRecord.next_sibling("record"))
         {
@@ -533,7 +526,6 @@ std::shared_ptr<Project> CauldronIO::ImportFromXML::getProject(const pugi::xml_d
     pugi::xml_node ftbNode = pt.child("ftClWeightPercBins");
     if(ftbNode)
     {
-        size_t nrEvents = (size_t)ftbNode.attribute("number").as_int();
 
         for (pugi::xml_node oneRecord = ftbNode.child("record"); oneRecord; oneRecord = oneRecord.next_sibling("record"))
         {
@@ -542,7 +534,7 @@ std::shared_ptr<Project> CauldronIO::ImportFromXML::getProject(const pugi::xml_d
            double start = oneRecord.attribute("start").as_double();
            entry->setFtClWeightBinStart(start);
            double width = oneRecord.attribute("width").as_double();
-           entry->setFtClWeightBinWidth(start);
+           entry->setFtClWeightBinWidth(width);
 
            m_project->addFtClWeightPercBins(entry);
         }
@@ -551,7 +543,6 @@ std::shared_ptr<Project> CauldronIO::ImportFromXML::getProject(const pugi::xml_d
     pugi::xml_node smNode = pt.child("smectiteIllite");
     if(smNode)
     {
-        size_t nrEvents = (size_t)smNode.attribute("number").as_int();
 
         for (pugi::xml_node oneRecord = smNode.child("record"); oneRecord; oneRecord = oneRecord.next_sibling("record"))
         {
@@ -573,7 +564,6 @@ std::shared_ptr<Project> CauldronIO::ImportFromXML::getProject(const pugi::xml_d
     pugi::xml_node bmNode = pt.child("biomarkerm");
     if(bmNode)
     {
-        size_t nrEvents = (size_t)bmNode.attribute("number").as_int();
 
         for (pugi::xml_node oneRecord = bmNode.child("record"); oneRecord; oneRecord = oneRecord.next_sibling("record"))
         {
