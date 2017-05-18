@@ -93,6 +93,35 @@ macro(add_gtest )
    set(environment_vars)#List of variables in format VAR=VAL
 
    set(parameterName)
+   # Loop goes over all parameters as a list of strings
+   # Lets see how loops work for this example: ARGN = "DEPENDS src include LIBRARIES lib ../TableIO
+   # 1. elsif ( param == DEPENDS ) // param == DEPENDS
+   #        parameterName = "dependsOn"
+   #    go to next loop
+   #
+   # 2. else () // param == src
+   #        dependsOn = "src"
+   #    go to next loop
+   #  
+   # 3. else () // param == include
+   #        dependsOn = "src include"
+   #    go to next loop
+   # 4. elsif ( param == LIBRARIES )
+   #        parameterName = "libraries"
+   #    go to next loop
+   #
+   # 5. else () // param == lib
+   #        libraries = "lib"
+   #    go to next loop
+   #
+   # 6. else () // param == ../TableIO
+   #        libraries = "lib ../TableIO"
+   #    go to next loop
+   # 
+   # ...
+   # parameterName variable is set to corresponded and goes to the next loop cycle
+   # if parameter doesn't match any keyword, it is added to the end of 
+   #
    foreach(param ${ARGN})
       if (param STREQUAL NAME)
          set(parameterName testName)
