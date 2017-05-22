@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -36,7 +36,7 @@ int main( int argc, char ** argv )
       char cmd[150];
 
       sprintf (cmd, "ddd  %s %d &", argv[0],  getpid ());
-      
+
       system (cmd);
       sleep (20);
    }
@@ -72,7 +72,7 @@ int main( int argc, char ** argv )
    ////////////////////////////////////////////
    ///2. Parse command line and create calculator
    PetscLogDouble sim_Start_Time;
-   PetscTime( &sim_Start_Time );   
+   PetscTime( &sim_Start_Time );
 
    GeoPhysics::ObjectFactory* factory = new GeoPhysics::ObjectFactory;
    PropertiesCalculator propCalculator ( rank );
@@ -93,15 +93,15 @@ int main( int argc, char ** argv )
       return 1;
    }
    if( propCalculator.convert() ) {
-      
+
       propCalculator.convertToVisualizationIO();
       propCalculator.finalise ( false );
- 
+
       PetscFinalize ();
 
       return 0;
    };
- 
+
    ////////////////////////////////////////////
    ///3. Load data
    propCalculator.printOutputableProperties ();
@@ -109,7 +109,7 @@ int main( int argc, char ** argv )
    propCalculator.acquireAll3Dproperties();
 
    propCalculator.printListSnapshots();
-   propCalculator.printListStratigraphy(); 
+   propCalculator.printListStratigraphy();
 
    if ( propCalculator.showLists() ) {
       propCalculator.finalise ( false );
@@ -121,20 +121,20 @@ int main( int argc, char ** argv )
 
    if ( !propCalculator.startActivity () ) {
       propCalculator.finalise ( false );
- 
+
       PetscFinalize ();
 
       return 1;
    };
-      
+
    SnapshotList snapshots;
    PropertyList properties;
-   
+
    propCalculator.acquireSnapshots( snapshots );
    propCalculator.acquireProperties( properties );
 
    FormationSurfaceVector formationSurfaceItems;
-   
+
    propCalculator.acquireFormationsSurfaces( formationSurfaceItems );
    //////////////////////////////////////////////////
    ///4. Compute derived properties
@@ -150,7 +150,7 @@ int main( int argc, char ** argv )
       LogHandler( LogHandler::FATAL_SEVERITY ) << "Fatal error when computing derived properties.";
       return 1;
    }
-   
+
    ////////////////////////////////////////////
    ///5. Save results
 
@@ -159,11 +159,10 @@ int main( int argc, char ** argv )
    delete factory;
 
    PetscLogDouble sim_End_Time;
-   PetscTime( &sim_End_Time );   
+   PetscTime( &sim_End_Time );
 
    displayTime( sim_End_Time - sim_Start_Time, "End of calculation" );
 
    PetscFinalize ();
-   return status;
+   return ( status ? 0 : 1 );
 }
-
