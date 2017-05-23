@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2017 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 #include <string>
 #include <numeric>
@@ -57,7 +57,7 @@ bool MasterTouch::checkZombie(pid_t pid)
    snprintf(pbuf, sizeof(pbuf), "/proc/%d/stat", (int)pid);
    FILE* fpstat = fopen(pbuf, "r");
 
-   // if "/proc/%d/stat" is not found we can not check the status of the zombie  	
+   // if "/proc/%d/stat" is not found we can not check the status of the zombie
    if ( !fpstat ) return false;
 
    int  rpid = 0;
@@ -94,7 +94,7 @@ bool MasterTouch::executeWrapper(const char * burHistFile, const string & filena
       // create a temporary file in the current directory to store the standard output (e.g. the warning messages from Matlab)
       string wrapperOut("./wrapperStandardOutput_");
       wrapperOut += rank.str();
-      //read and write permissions for the user, read permission for the group  
+      //read and write permissions for the user, read permission for the group
       mode_t mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;
       // copy standard output (1) to file
       int fd = open(wrapperOut.c_str(), O_WRONLY | O_CREAT | O_TRUNC, mode);
@@ -139,8 +139,8 @@ bool MasterTouch::executeWrapper(const char * burHistFile, const string & filena
 
    ReportProgress("Loading touchstone and creating the realizations, please wait ...");
 
-   // here we check several behaviours that can happen in the loading phase. 
-   // If one child is bad we re-start all childrens. 
+   // here we check several behaviours that can happen in the loading phase.
+   // If one child is bad we re-start all childrens.
    do
    {
       // read the fractionCompleted first
@@ -187,18 +187,18 @@ bool MasterTouch::executeWrapper(const char * burHistFile, const string & filena
          childStarted = true;
       }
 
-      // sleep only after the checks ( waitpidReturnValue and childstate are up to date in the checks above). 
+      // sleep only after the checks ( waitpidReturnValue and childstate are up to date in the checks above).
       nanosleep(&sleepTime, &remainingTime);
    } while ( !childStarted );
 
    currentMinimum = MinimumAll(childStatus);
 
-   // return false if currentMinimum is < 0.0 
+   // return false if currentMinimum is < 0.0
    if ( currentMinimum < 0.0 ) return false;
 
    timeToComplete.start();
 
-   // Progress is reported only by Rank 0, we need to keep Rank 0 in the loop even if its child exited. 
+   // Progress is reported only by Rank 0, we need to keep Rank 0 in the loop even if its child exited.
    // One way to do this is to exit the while loop only if the child did not exit AND we are done in all ranks (currentMinimum < 1.0)
    while ( !waitpid(pid, &childstate, WNOHANG) || currentMinimum < 1.0 )
    {
@@ -280,7 +280,7 @@ MasterTouch::MasterTouch(ProjectHandle & projectHandle)
    }
    m_percentPercentileMapping[99] = 20;
 
-   // set categories mapping 
+   // set categories mapping
    m_categories.push_back("Porosity Macro");
    m_categories.push_back("Porosity Intergranular Volume");
    m_categories.push_back("Cement Quartz");
@@ -332,7 +332,7 @@ MasterTouch::MasterTouch(ProjectHandle & projectHandle)
 
 bool MasterTouch::run()
 {
-   // make sure data has been selected 
+   // make sure data has been selected
    if ( m_fileFacies.empty() )
    {
       return false;
@@ -407,7 +407,7 @@ bool MasterTouch::run()
       //write the burial history
       writeBurialHistory(filename, burhistFile, validLayerLocations, totalNumBurialHistories);
 
-      // run touchstone wrapper      
+      // run touchstone wrapper
       // check if failure needs to be simulated
       char * touchstoneWrapperFailure = getenv("touchstoneWrapperFailure");
 
@@ -416,7 +416,7 @@ bool MasterTouch::run()
       {
          if ( touchstoneWrapperFailure && GetRank() == atol(touchstoneWrapperFailure) )
          {
-            calculated = calculate("WrongTCF", burhistFile, validLayerLocations);
+            calculated = calculate("Dummy_TCF_File", burhistFile, validLayerLocations);
          }
          else
          {
@@ -481,7 +481,7 @@ bool MasterTouch::addOutputFormat(const string & filename,
    if ( !isLegacy )
    {
       // Here the run name read from the project file is added, it is necessary to support multifacies in ANY setting,
-      // e.g. several multifacies runs in the same layer. 
+      // e.g. several multifacies runs in the same layer.
       propertyValueName += " ";
       propertyValueName += runName;
    }
@@ -530,8 +530,8 @@ bool MasterTouch::addOutputFormat(const string & filename,
       m_fileMaps[propertyValueName][layer] = map;
    }
 
-   //save where is used and where to write 
-   FaciesGridMap faciesGridMap;  
+   //save where is used and where to write
+   FaciesGridMap faciesGridMap;
    faciesGridMap.faciesGrid = faciesGrid;
    faciesGridMap.faciesNumber = faciesNumber;
    faciesGridMap.layer = layer;
@@ -610,7 +610,7 @@ bool MasterTouch::calculate(const std::string & filename, const char * burhistFi
          int layerNumActive = std::accumulate(it->second.begin(), it->second.end(), 0);
          stripeOutput[it->first] = std::vector<double>(layerNumActive* m_usedSnapshotsIndex.size() *numberOfOutputs, 99999.0);
          validTimeSteps[it->first] = std::vector<int>(m_gridSize, 0);
-         
+
          size_t startingIndex = 0;
          size_t indexTimeSteps = 0;
 
@@ -679,7 +679,7 @@ bool MasterTouch::calculate(const std::string & filename, const char * burhistFi
          }
 
          if ( facieGridMapisDefined ) it->faciesGrid->restoreData(false, false);
-         // restore the current output map 
+         // restore the current output map
          for ( auto const& m : currentOutput->gridMap ) m->restoreData();
       }
    }
@@ -715,7 +715,7 @@ void MasterTouch::writeResultsToGrids(size_t sn, int i, int j, MapInfo * current
    int resultFormat = m_formatsMapping[currentOutput->format];
    // Explanation to formula below:
    // if resultFormat = {SD = 0, 1, 2, 3, 4, 5, MODE = 7} then resultStat = resultFormat.
-   // if resultFormat = { MODE } then resultStat = 8, ... 29 
+   // if resultFormat = { MODE } then resultStat = 8, ... 29
    // if resultFormat = { DISTRIBUTION } then resultStat = 30;
    int resultStat = resultFormat
       + int(resultFormat > MODE) * (m_percentPercentileMapping[currentOutput->percent])

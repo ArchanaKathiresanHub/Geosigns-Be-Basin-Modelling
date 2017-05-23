@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2017 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 #include "hdf5.h"
 #include <stdlib.h>
@@ -94,8 +94,8 @@ static void SetUpTempMCRFolder()
       oss << workingDir;
       free( workingDir );
    }
-   
-   oss << DIRDELIMCHAR << "mcrTemp_" << GetProcessID(); 
+
+   oss << DIRDELIMCHAR << "mcrTemp_" << GetProcessID();
    putenv( strdup( oss.str().c_str() ) );
 }
 
@@ -112,7 +112,7 @@ static void CleanTempMCRFolder()
    if ( !tmpDir ) // clean MCR cache folder only in case if it is in current folder (no TMPDIR variable defined)
    {
       const char * path = getenv( "MCR_CACHE_ROOT" );
-#ifndef _WIN32    
+#ifndef _WIN32
       nftw( path, unlink_cb, 64, FTW_DEPTH | FTW_PHYS );
 #endif
    }
@@ -137,10 +137,10 @@ int main (int argc, char ** argv)
         ++argv0;
 
     PetscOptionsHasName (PETSC_NULL, "-debug", &debug);
-    
+
     char inputFileName[128];
     PetscBool inputFileSet;
- 
+
     PetscOptionsGetString (PETSC_NULL, "-project", inputFileName, 128, &inputFileSet);
     if (!inputFileSet)
     {
@@ -151,20 +151,20 @@ int main (int argc, char ** argv)
 
     char outputFileName[128];
     PetscBool outputFileSet;
- 
+
     PetscOptionsGetString (PETSC_NULL, "-save", outputFileName, 128, &outputFileSet);
     if (!outputFileSet)
     {
         strcpy (outputFileName, inputFileName);
     }
 
-#ifdef unix 
+#ifdef unix
 
     PetscBool ddd = PETSC_FALSE;
     PetscOptionsHasName (PETSC_NULL, "-ddd", &ddd);
     if (ddd)
     {
-        char cmd[150];  
+        char cmd[150];
 
         sprintf (cmd, "/usr/bin/ddd --debugger /usr/bin/gdb %s %d &", argv[0],  getpid ());
         system (cmd);
@@ -175,18 +175,18 @@ int main (int argc, char ** argv)
     PetscOptionsHasName (PETSC_NULL, "-myddd", &myddd);
     if (myddd)
     {
-        char cmd[150]; 
+        char cmd[150];
 
         sprintf (cmd, "/glb/home/ksaho3/bin/myddd %s %d &", argv[0],  getpid ());
         system (cmd);
         sleep(10);
     }
-    
+
     PetscBool gdb = PETSC_FALSE;
     PetscOptionsHasName (PETSC_NULL, "-gdb", &gdb);
     if (gdb)
     {
-        char cmd[150];  
+        char cmd[150];
 
         sprintf (cmd, "/usr/bin/gdb %s %d &", argv[0],  getpid ());
         system (cmd);
@@ -197,13 +197,13 @@ int main (int argc, char ** argv)
 
 
 #ifdef FLEXLM
-    
+
     int rc = EPTFLEXLM_OK;
-    
+
     char feature[EPTFLEXLM_MAX_FEATURE_LEN];
     char version[EPTFLEXLM_MAX_VER_LEN];
     char errmessage[EPTFLEXLM_MAX_MESS_LEN];
- 
+
     if( GetRank() == 0 )
     {
         sprintf(feature, "ibs_cauldron_calc");
@@ -230,7 +230,7 @@ int main (int argc, char ** argv)
         }
     }
     MPI_Bcast ( &rc, 1, MPI_INT, 0, PETSC_COMM_WORLD);
- 
+
     if( rc != EPTFLEXLM_OK && rc != EPTFLEXLM_WARN)
     {
         //FlexLM license check in only for node with rank = 0
@@ -252,7 +252,7 @@ int main (int argc, char ** argv)
 
     StartProgress ();
     if (debug) ReportProgress (string ("XAPPLRESDIR: ") + getenv ("XAPPLRESDIR"));
- 
+
     if (!status)
     {
        ReportProgress (string ("ERROR: Could not start FastTouch7"));
@@ -261,17 +261,17 @@ int main (int argc, char ** argv)
 
     ReportProgress (string ("Reading Project File: ") + inputFileName);
 
-    DataAccess::Interface::ObjectFactory* factory = new DataAccess::Interface::ObjectFactory(); 
+    DataAccess::Interface::ObjectFactory* factory = new DataAccess::Interface::ObjectFactory();
     fastTouch = new FastTouch(inputFileName, factory);
-    
+
     status = (fastTouch != 0);
-    
+
     if (!status)
     {
        ReportProgress (string ("ERROR: Could not open Project File: ") + inputFileName);
         EXIT (-1);
     }
-    
+
     status = fastTouch->removeResqPropertyValues ();
     if (!status)
     {
@@ -280,15 +280,17 @@ int main (int argc, char ** argv)
     }
 
     ReportProgress ("Starting Simulation");
-    
+
 
     status = fastTouch->compute ();
     if (!status)
     {
+       char * touchstoneWrapperFailure = getenv("touchstoneWrapperFailure");
+       int returnStatus = ( touchstoneWrapperFailure == nullptr ? -1 : 100 );
        ReportProgress ("ERROR: Failed to complete simulation");
-        EXIT (-1);
+       EXIT (returnStatus);
     }
- 
+
     ReportProgress ("Finished Simulation, Saved output maps");
     status = fastTouch->saveTo (outputFileName);
     if (!status)
@@ -296,10 +298,10 @@ int main (int argc, char ** argv)
        ReportProgress (string ("Did not save project file: ") + outputFileName);
        ReportProgress ("Finished Simulation prematurely");
         EXIT (-1);
-    }   
+    }
     ReportProgress (string ("Saved project file: ") + outputFileName);
     ReportProgress ("Finished Simulation");
- 
+
     if (debug) ReportProgress ("deleting Objects");
     // delete fastTouch;
     // delete objectFactory;
@@ -311,9 +313,9 @@ int main (int argc, char ** argv)
         // FlexLm license check in, close down and enable logging
         EPTFlexLmCheckIn( feature );
         EPTFlexLmTerminate();
-    } 
+    }
 #endif
-   
+
     CleanTempMCRFolder();
 
     PetscFinalize ();
@@ -351,4 +353,3 @@ double MinimumAll (double myValue)
    // if (rank == 0 && debug) cerr << "Minimum (" << myValue << ") = " << result << endl;
    return result;
 }
-
