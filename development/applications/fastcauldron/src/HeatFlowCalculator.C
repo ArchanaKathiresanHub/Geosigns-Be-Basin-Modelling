@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 #include "HeatFlowCalculator.h"
 #include "DerivedOutputPropertyMap.h"
@@ -47,7 +47,7 @@ HeatFlowCalculator::HeatFlowCalculator ( LayerProps* formation, const Interface:
    m_lithologies = 0;
    m_fluid = 0;
 
-   m_chemicalCompactionRequired = m_formation->hasChemicalCompaction () and 
+   m_chemicalCompactionRequired = m_formation->hasChemicalCompaction () and
                                   FastcauldronSimulator::getInstance ().getRunParameters ()->getChemicalCompaction ();
 
    m_isBasementFormation = m_formation->kind() == Interface::BASEMENT_FORMATION;
@@ -72,7 +72,7 @@ HeatFlowCalculator::HeatFlowCalculator ( LayerProps* formation, const Interface:
 
 }
 
-bool HeatFlowCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& properties, 
+bool HeatFlowCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& properties,
                                             OutputPropertyMap::PropertyValueList&  propertyValues ) {
 
    using namespace Basin_Modelling;
@@ -84,7 +84,7 @@ bool HeatFlowCalculator::operator ()( const OutputPropertyMap::OutputPropertyLis
    const bool IncludeGhosts = true;
    const bool includeAdvectiveTerm = FastcauldronSimulator::getInstance ().getRunParameters ()->getConvectiveTerm ();
 
-//   const bool IncludeAdvectiveTerm = basinModel->includeAdvectiveTerm and 
+//   const bool IncludeAdvectiveTerm = basinModel->includeAdvectiveTerm and
 //                                    ( basinModel->Do_Iteratively_Coupled or
 //                                      basinModel->IsCalculationCoupled );
 
@@ -117,11 +117,11 @@ bool HeatFlowCalculator::operator ()( const OutputPropertyMap::OutputPropertyLis
 
    bool bottomOfMantleHeatFlow = ( m_formation->isMantle () and m_formation->getBottomSurface () == m_surface );
 
-   DMDAGetInfo( *FastcauldronSimulator::getInstance ().getCauldron ()->mapDA, 
+   DMDAGetInfo( *FastcauldronSimulator::getInstance ().getCauldron ()->mapDA,
                 PETSC_NULL, &globalXNodes, &globalYNodes,
-                PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, 
+                PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL,
                 PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL );
-   
+
    if ( not m_depth->isCalculated ()) {
 
       if ( not m_depth->calculate ()) {
@@ -166,7 +166,7 @@ bool HeatFlowCalculator::operator ()( const OutputPropertyMap::OutputPropertyLis
 
       if ( not m_maxVes->calculate ()) {
          return false;
-      } 
+      }
 
    }
 
@@ -174,11 +174,11 @@ bool HeatFlowCalculator::operator ()( const OutputPropertyMap::OutputPropertyLis
 
       if ( not m_chemicalCompaction->calculate ()) {
          return false;
-      } 
+      }
 
    }
    const bool isALC = m_BasinModel->isALC() && m_isBasementFormation;
-  
+
    if ( isALC and not m_lithoPressure->isCalculated () ) {
 
       if ( not m_lithoPressure->calculate ()) {
@@ -199,33 +199,33 @@ bool HeatFlowCalculator::operator ()( const OutputPropertyMap::OutputPropertyLis
         INSERT_VALUES, IncludeGhosts );
 
    PETSC_3D_Array layerCurrentVES
-      ( m_formation->layerDA, 
+      ( m_formation->layerDA,
         m_formation->Current_Properties ( Basin_Modelling::VES_FP ),
         INSERT_VALUES, IncludeGhosts );
 
    PETSC_3D_Array layerCurrentMaxVES
-      ( m_formation->layerDA, 
+      ( m_formation->layerDA,
         m_formation->Current_Properties ( Basin_Modelling::Max_VES ),
         INSERT_VALUES, IncludeGhosts );
 
    PETSC_3D_Array layerCurrentChemicalCompaction
-      ( m_formation->layerDA, 
+      ( m_formation->layerDA,
         m_formation->Current_Properties ( Basin_Modelling::Chemical_Compaction ),
         INSERT_VALUES, IncludeGhosts );
 
    PETSC_3D_Array layerCurrentPo
-      ( m_formation->layerDA, 
+      ( m_formation->layerDA,
         m_formation->Current_Properties ( Basin_Modelling::Overpressure ),
         INSERT_VALUES, IncludeGhosts );
 
    PETSC_3D_Array layerCurrentPp
-      ( m_formation->layerDA, 
+      ( m_formation->layerDA,
         m_formation->Current_Properties ( Basin_Modelling::Pore_Pressure ),
         INSERT_VALUES, IncludeGhosts );
 
    PETSC_3D_Array layerCurrentLp;
    if( isALC ) {
-      layerCurrentLp.Set_Global_Array( m_formation->layerDA, 
+      layerCurrentLp.Set_Global_Array( m_formation->layerDA,
                                        m_formation->Current_Properties ( Basin_Modelling::Lithostatic_Pressure ),
                                        INSERT_VALUES, IncludeGhosts );
    }
@@ -250,7 +250,7 @@ bool HeatFlowCalculator::operator ()( const OutputPropertyMap::OutputPropertyLis
 
 
    for ( elementCount = 0; elementCount < elements.size(); elementCount++ ) {
- 
+
       if ( elements[elementCount].exists) {
          i = elements [ elementCount ].i [ 0 ];
          j = elements [ elementCount ].j [ 0 ];
@@ -323,23 +323,23 @@ bool HeatFlowCalculator::operator ()( const OutputPropertyMap::OutputPropertyLis
                   lithoPressure  ( node ) = ( isALC ? layerCurrentLp ( LidxZ, GidxY, GidxX ) : 0.0 );
                   temperature    ( node ) = layerTemperature ( LidxZ, GidxY, GidxX );
                   chemCompaction ( node ) = layerCurrentChemicalCompaction ( LidxZ, GidxY, GidxX );
-               
+
                }
-               if( isALC ) { 
+               if( isALC ) {
                   ElementGeometryMatrix Geometry_Matrix1;
                   int xX, xY;
                   for ( node = 1; node <= 8; node ++ ) {
                      int LidxZ = usableKIndex + (( node - 1 ) < 4 ? 1 : 0);
                      xY = elements [ elementCount ].j [( node - 1 ) % 4 ];
                      xX = elements [ elementCount ].i [( node - 1 ) % 4 ];
-                     
+
                      Geometry_Matrix1 ( 3, node ) = layerDepth ( LidxZ,xY,xX ) - layerDepth( topDepthIndex, xY, xX );
                   }
                   double midPointDepth = Geometry_Matrix1.getMidPoint();
-                  
+
                   xX = elements [ elementCount ].i [ 0 ];
                   xY = elements [ elementCount ].j [ 0 ];
-                  
+
                   lithology = m_formation -> getLithology( theTime, xX, xY, midPointDepth );
                }
 
@@ -390,7 +390,7 @@ bool HeatFlowCalculator::operator ()( const OutputPropertyMap::OutputPropertyLis
             }
 
          }
-          
+
       }
 
    }
@@ -409,16 +409,19 @@ void HeatFlowCalculator::allocatePropertyValues ( OutputPropertyMap::PropertyVal
    PropertyValue* heatFlowY;
    PropertyValue* heatFlowZ;
 
-   heatFlowX = (PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "HeatFlowX", 
-                                                                                               m_snapshot, 0, 0,
+   heatFlowX = (PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "HeatFlowX",
+                                                                                               m_snapshot, 0,
+                                                                                               m_formation,
                                                                                                m_surface ));
 
-   heatFlowY = (PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "HeatFlowY", 
-                                                                                               m_snapshot, 0, 0,
+   heatFlowY = (PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "HeatFlowY",
+                                                                                               m_snapshot, 0,
+                                                                                               m_formation,
                                                                                                m_surface ));
 
-   heatFlowZ = (PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "HeatFlowZ", 
-                                                                                               m_snapshot, 0, 0,
+   heatFlowZ = (PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( "HeatFlowZ",
+                                                                                               m_snapshot, 0,
+                                                                                               m_formation,
                                                                                                m_surface ));
 
    properties.push_back ( heatFlowX );
@@ -463,7 +466,7 @@ bool HeatFlowCalculator::initialise ( OutputPropertyMap::PropertyValueList& prop
 //    m_lithologies = &m_formation->Lithology;
    m_fluid = m_formation->fluid;
 
-   return m_depth != 0 and m_temperature != 0 and m_porePressure != 0 and m_overpressure != 0 and 
+   return m_depth != 0 and m_temperature != 0 and m_porePressure != 0 and m_overpressure != 0 and
           m_ves != 0 and m_maxVes != 0 and m_lithologies != 0 and
           (( m_isBasementFormation && m_BasinModel->isALC() ) ? m_lithoPressure != 0 : true ) and
           ( m_chemicalCompactionRequired ? m_chemicalCompaction != 0 : true );
@@ -485,13 +488,13 @@ HeatFlowVolumeCalculator::HeatFlowVolumeCalculator ( LayerProps* formation, cons
    m_lithologies = 0;
    m_fluid = 0;
 
-   m_chemicalCompactionRequired = m_formation->hasChemicalCompaction () and 
+   m_chemicalCompactionRequired = m_formation->hasChemicalCompaction () and
                                   FastcauldronSimulator::getInstance ().getRunParameters ()->getChemicalCompaction ();
    m_isBasementFormation = m_formation->kind() == Interface::BASEMENT_FORMATION;
    m_BasinModel =  const_cast<AppCtx*>(FastcauldronSimulator::getInstance().getCauldron());
 }
 
-bool HeatFlowVolumeCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& properties, 
+bool HeatFlowVolumeCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& properties,
                                                   OutputPropertyMap::PropertyValueList&  propertyValues ) {
 
    using namespace Basin_Modelling;
@@ -503,7 +506,7 @@ bool HeatFlowVolumeCalculator::operator ()( const OutputPropertyMap::OutputPrope
    const bool IncludeGhosts = true;
    const bool includeAdvectiveTerm = FastcauldronSimulator::getInstance ().getRunParameters ()->getConvectiveTerm ();
 
-//   const bool IncludeAdvectiveTerm = basinModel->includeAdvectiveTerm and 
+//   const bool IncludeAdvectiveTerm = basinModel->includeAdvectiveTerm and
 //                                    ( basinModel->Do_Iteratively_Coupled or
 //                                      basinModel->IsCalculationCoupled );
 
@@ -533,10 +536,10 @@ bool HeatFlowVolumeCalculator::operator ()( const OutputPropertyMap::OutputPrope
    ElementVector temperature;
    ElementVector chemCompaction;
 
-   DMDAGetInfo( m_formation->layerDA, 
+   DMDAGetInfo( m_formation->layerDA,
                 PETSC_NULL,
                 &globalXNodes, &globalYNodes, &zCount,
-                PETSC_NULL, PETSC_NULL, PETSC_NULL, 
+                PETSC_NULL, PETSC_NULL, PETSC_NULL,
                 PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL, PETSC_NULL );
 
    if ( not m_depth->isCalculated ()) {
@@ -583,7 +586,7 @@ bool HeatFlowVolumeCalculator::operator ()( const OutputPropertyMap::OutputPrope
 
       if ( not m_maxVes->calculate ()) {
          return false;
-      } 
+      }
 
    }
 
@@ -591,7 +594,7 @@ bool HeatFlowVolumeCalculator::operator ()( const OutputPropertyMap::OutputPrope
 
       if ( not m_chemicalCompaction->calculate ()) {
          return false;
-      } 
+      }
 
    }
    const bool isALC = m_BasinModel->isALC() && m_isBasementFormation;
@@ -600,7 +603,7 @@ bool HeatFlowVolumeCalculator::operator ()( const OutputPropertyMap::OutputPrope
       if( not m_lithoPressure->isCalculated ()) {
          if ( not m_lithoPressure->calculate ()) {
             return false;
-         } 
+         }
       }
    }
 
@@ -616,33 +619,33 @@ bool HeatFlowVolumeCalculator::operator ()( const OutputPropertyMap::OutputPrope
         INSERT_VALUES, IncludeGhosts );
 
    PETSC_3D_Array layerCurrentVES
-      ( m_formation->layerDA, 
+      ( m_formation->layerDA,
         m_formation->Current_Properties ( Basin_Modelling::VES_FP ),
         INSERT_VALUES, IncludeGhosts );
 
    PETSC_3D_Array layerCurrentMaxVES
-      ( m_formation->layerDA, 
+      ( m_formation->layerDA,
         m_formation->Current_Properties ( Basin_Modelling::Max_VES ),
         INSERT_VALUES, IncludeGhosts );
 
    PETSC_3D_Array layerCurrentChemicalCompaction
-      ( m_formation->layerDA, 
+      ( m_formation->layerDA,
         m_formation->Current_Properties ( Basin_Modelling::Chemical_Compaction ),
         INSERT_VALUES, IncludeGhosts );
 
    PETSC_3D_Array layerCurrentPo
-      ( m_formation->layerDA, 
+      ( m_formation->layerDA,
         m_formation->Current_Properties ( Basin_Modelling::Overpressure ),
         INSERT_VALUES, IncludeGhosts );
 
    PETSC_3D_Array layerCurrentPp
-      ( m_formation->layerDA, 
+      ( m_formation->layerDA,
         m_formation->Current_Properties ( Basin_Modelling::Pore_Pressure ),
         INSERT_VALUES, IncludeGhosts );
 
    PETSC_3D_Array layerCurrentLp;
    if( isALC ) {
-      layerCurrentLp.Set_Global_Array ( m_formation->layerDA, 
+      layerCurrentLp.Set_Global_Array ( m_formation->layerDA,
         m_formation->Current_Properties ( Basin_Modelling::Lithostatic_Pressure ),
         INSERT_VALUES, IncludeGhosts );
    }
@@ -692,7 +695,7 @@ bool HeatFlowVolumeCalculator::operator ()( const OutputPropertyMap::OutputPrope
                   lithoPressure  ( node ) = ( isALC ? layerCurrentLp ( LidxZ, GidxY, GidxX ) : 0.0 );
                   temperature    ( node ) = layerTemperature ( LidxZ, GidxY, GidxX );
                   chemCompaction ( node ) = layerCurrentChemicalCompaction ( LidxZ, GidxY, GidxX );
-               
+
                }
 
                if( isALC ) {
@@ -702,14 +705,14 @@ bool HeatFlowVolumeCalculator::operator ()( const OutputPropertyMap::OutputPrope
                      int LidxZ = k + (( node - 1 ) < 4 ? 1 : 0);
                      xY = elements [ elementCount ].j [( node - 1 ) % 4 ];
                      xX = elements [ elementCount ].i [( node - 1 ) % 4 ];
-                     
+
                      Geometry_Matrix1 ( 3, node ) = layerDepth ( LidxZ,xY,xX ) - layerDepth( topDepthIndex, xY, xX );
                   }
                   double midPointDepth = Geometry_Matrix1.getMidPoint();
-                  
+
                   xX = elements [ elementCount ].i [ 0 ];
                   xY = elements [ elementCount ].j [ 0 ];
-                  
+
                   lithology = m_formation -> getLithology( theTime, xX, xY, midPointDepth );
                }
 
@@ -757,7 +760,7 @@ bool HeatFlowVolumeCalculator::operator ()( const OutputPropertyMap::OutputPrope
                   heatFlowMapX->setValue ( i, j, k + 1, heatFlow ( 1 ));
                   heatFlowMapY->setValue ( i, j, k + 1, heatFlow ( 2 ));
                   heatFlowMapZ->setValue ( i, j, k + 1, heatFlow ( 3 ));
-                     
+
                   // Fill other heat flow nodes if current (i,j) position is at end of array if ( i == (unsigned int )(globalXNodes) - 2 ) {
                   if ( i == (unsigned int )(globalXNodes) - 2 ) {
                      heatFlowMapX->setValue ( i + 1, j, k + 1, heatFlow ( 1 ));
@@ -782,7 +785,7 @@ bool HeatFlowVolumeCalculator::operator ()( const OutputPropertyMap::OutputPrope
             }
 
          }
-          
+
       }
 
    }
@@ -803,17 +806,17 @@ void HeatFlowVolumeCalculator::allocatePropertyValues ( OutputPropertyMap::Prope
    PropertyValue* heatFlowY;
    PropertyValue* heatFlowZ;
 
-   heatFlowX = (PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "HeatFlowX", 
+   heatFlowX = (PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "HeatFlowX",
                                                                                                   m_snapshot, 0,
                                                                                                   m_formation,
                                                                                                   numberOfNodes ));
 
-   heatFlowY = (PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "HeatFlowY", 
+   heatFlowY = (PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "HeatFlowY",
                                                                                                   m_snapshot, 0,
                                                                                                   m_formation,
                                                                                                   numberOfNodes ));
 
-   heatFlowZ = (PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "HeatFlowZ", 
+   heatFlowZ = (PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( "HeatFlowZ",
                                                                                                   m_snapshot, 0,
                                                                                                   m_formation,
                                                                                                   numberOfNodes ));
@@ -851,9 +854,8 @@ bool HeatFlowVolumeCalculator::initialise ( OutputPropertyMap::PropertyValueList
    m_lithologies = &m_formation->getCompoundLithologyArray ();
    m_fluid = m_formation->fluid;
 
-   return m_depth != 0 and m_temperature != 0 and m_porePressure != 0 and m_overpressure != 0 and 
+   return m_depth != 0 and m_temperature != 0 and m_porePressure != 0 and m_overpressure != 0 and
           m_ves != 0 and m_maxVes != 0 and m_lithologies != 0 and
           (( m_isBasementFormation && m_BasinModel->isALC()) ? m_lithoPressure != 0 : true ) and
           ( m_chemicalCompactionRequired ? m_chemicalCompaction != 0 : true );
 }
-

@@ -31,11 +31,12 @@ enum PropertyList {
    //Please use alphabetic order inside subcategories, and update PropertyOutputConstraints.C according to the order
 
    //Vector Properties
-   BULKDENSITYVEC, DIFFUSIVITYVEC, PERMEABILITYHVEC, PERMEABILITYVEC, POROSITYVEC,
+   BULKDENSITYVEC, DIFFUSIVITYVEC, HEAT_FLOW, HEAT_FLOWY, HEAT_FLOWZ, HEAT_FLOW_,
+   PERMEABILITYHVEC, PERMEABILITYVEC, POROSITYVEC,
    REFLECTIVITYVEC, SONICVEC, THCONDVEC, VELOCITYVEC, VR, MAXVES,
 
    //Scalar Properties
-   DEPTH, HEAT_FLOW, HEAT_FLOWY, HEAT_FLOWZ, HEAT_FLOW_,
+   DEPTH,
    FLUID_VELOCITY, FLUID_VELOCITY_Y, FLUID_VELOCITY_Z, ISOSTATICMASS,
    ISOSTATICDEFLECTION, ISOSTATICWB, MASSFLUX, MASSFLUX_, TEMPERATURE,
    PRESSURE, HYDROSTATICPRESSURE, LITHOSTATICPRESSURE, OVERPRESSURE, FRACTURE_PRESSURE, VES,
@@ -165,6 +166,10 @@ const std::string& propertyListName ( const PropertyList property );
 const string PropertyName[] = {
   "BulkDensityVec",
   "DiffusivityVec",
+  "HeatFlow",
+  "HeatFlowY",
+  "HeatFlowZ",
+  "HeatFlow_",
   "PermeabilityHVec",
   "PermeabilityVec",
   "PorosityVec",
@@ -175,10 +180,6 @@ const string PropertyName[] = {
   "VrVec",
   "MaxVesVec",
   "Depth",
-  "HeatFlow",
-  "HeatFlowY",
-  "HeatFlowZ",
-  "HeatFlow_",
   "FluidVelocity",
   "FluidVelocityY",
   "FluidVelocityZ",
