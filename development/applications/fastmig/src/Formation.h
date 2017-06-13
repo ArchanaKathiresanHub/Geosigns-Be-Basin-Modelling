@@ -117,7 +117,7 @@ namespace migration
 
       void saveReservoir (const Interface::Snapshot * curSnapshot);
 
-      void identifyAsReservoir (void) const;
+      void identifyAsReservoir (const bool advancedMigration) const;
 
       double getPropertyValue (PropertyIndex propertyIndex, int i, int j, int k) const;
 

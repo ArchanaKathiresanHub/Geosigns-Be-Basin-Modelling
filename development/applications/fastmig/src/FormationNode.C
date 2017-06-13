@@ -1064,10 +1064,13 @@ namespace migration
          return m_isCrestLiquid;
    };
 
-   void LocalFormationNode::identifyAsReservoir (void)
+   void LocalFormationNode::identifyAsReservoir (const bool advancedMigration)
    {
-      setReservoirVapour (true);
-      setReservoirLiquid (true);
+      if (!advancedMigration)
+      {
+         setReservoirVapour (true);
+         setReservoirLiquid (true);
+      }
 
       setEndOfPath ();
 

@@ -17,6 +17,9 @@
 #include <sstream>
 #endif
 
+// boost
+#include <boost/lexical_cast.hpp>
+
 // std library
 #include <stdlib.h>
 #include <iostream>
@@ -40,6 +43,8 @@ typedef CBMGenerics::ComponentManager::SpeciesNamesId ComponentId;
 #include "Reservoir.h"
 #include "Formation.h"
 #include "Surface.h"
+
+#include "LogHandler.h"
 
 #ifdef USEOTGC
 #include "OilToGasCracker.h"
@@ -232,7 +237,7 @@ bool Migrator::compute (const bool overpressuredLeakage)
       if (!computeFormationPropertyMaps(m_projectHandle->getSnapshots()->front(), overPressureRun)) return false;
    }
 
-   if (m_reservoirDetection == true)
+   if (m_reservoirDetection)
    {
       if (m_ReservoirIoTbl == nullptr) m_ReservoirIoTbl = m_projectHandle->getTable("ReservoirIoTbl");
       assert(m_ReservoirIoTbl);
@@ -902,9 +907,10 @@ bool Migrator::detectReservoirs (const Interface::Snapshot * start, const Interf
 
       //Assigns nodes of user-selected reservoirs as reservoir nodes, no need to identify the Reservoir here. Do this only for user-defined reservoirs
       std::unique_ptr<Interface::ReservoirList> alreadyReservoirFormation (getReservoirs (reservoirFormation));
-      if (!alreadyReservoirFormation->empty () and !reservoirFormation->getDetectedReservoir ())
+      if (!alreadyReservoirFormation->empty () and !reservoirFormation->getDetectedReservoir () and
+          alreadyReservoirFormation->front()->isActive(start))
       {
-         reservoirFormation->identifyAsReservoir ();
+         reservoirFormation->identifyAsReservoir (m_advancedMigration);
          continue;
       }
 
@@ -1055,9 +1061,9 @@ bool Migrator::chargeReservoir (migration::Reservoir * reservoir, migration::Res
    reservoir->refineGeometrySetFaulStatus ();
 
    // Wasting the columns that have no element with the reservoir flag
-   // Only for detected reservoirs.
+   // Only in the advanced mode.
    migration::Formation * reservoirFormation = Formation::CastToFormation (reservoir->getFormation ());
-   if (reservoirFormation->getDetectedReservoir ())
+   if (m_advancedMigration)
       reservoir->wasteNonReservoirColumns (end);
 
    // save only major snapshots results
@@ -1560,15 +1566,48 @@ void Migrator::addTrapRecord (migration::Reservoir * reservoir, migration::TrapP
 
 void Migrator::getMinimumColumnHeights ()
 {
-   m_minOilColumnHeight = m_projectHandle->getReservoirOptions()->getMinOilColumnHeight();
-   m_minGasColumnHeight = m_projectHandle->getReservoirOptions()->getMinGasColumnHeight();
+   // If reservoir detection is ON, the input minimum column heights are the right numbers to look at
+   if (m_reservoirDetection)
+   {
+      m_minOilColumnHeight = m_projectHandle->getReservoirOptions()->getMinOilColumnHeight();
+      m_minGasColumnHeight = m_projectHandle->getReservoirOptions()->getMinGasColumnHeight();
+   }
+   // But if ARD is OFF, we will use the default values, from BasinModellerPropertySpec
+   else
+   {
+      // Get table and indices of of fields
+      database::Table * resOptionsTable = m_projectHandle->getTable ("ReservoirOptionsIoTbl");
+
+      const int minHeightVapour = resOptionsTable->getIndex ("MinGasColumnHeight");
+      const int minHeightLiquid = resOptionsTable->getIndex ("MinOilColumnHeight");
+
+      // Get table definition, field definition and default values as strings
+      const TableDefinition & resOptionsDefinition = (resOptionsTable->getTableDefinition ());
+      const std::string & minGasColumnHeight = resOptionsDefinition.getFieldDefinition (minHeightVapour)->defaultValue ();
+      const std::string & minOilColumnHeight = resOptionsDefinition.getFieldDefinition (minHeightLiquid)->defaultValue ();
+
+      // Use boost (unlike std::atof, it throws exceptions) to convert to doubles
+      try
+      {
+         m_minGasColumnHeight = boost::lexical_cast<double> (minGasColumnHeight);
+         m_minOilColumnHeight = boost::lexical_cast<double> (minOilColumnHeight);
+      }
+      // If somthing goes wrong, just use the values in the project file
+      catch (const boost::bad_lexical_cast & e)
+      {
+         LogHandler( LogHandler::WARNING_SEVERITY ) << "Something wrong with getting the default values for minimum column heights. Using the ones in the project file\n";
+        
+         m_minOilColumnHeight = m_projectHandle->getReservoirOptions()->getMinOilColumnHeight();
+         m_minGasColumnHeight = m_projectHandle->getReservoirOptions()->getMinGasColumnHeight();
+      }
+   }
 }
 
 void Migrator::getBlocking ()
 {
    m_isBlockingOn = m_projectHandle->getReservoirOptions()->isBlockingOn();
 
-   if (m_isBlockingOn == true)
+   if (m_isBlockingOn)
    {
       m_blockingPermeability = m_projectHandle->getReservoirOptions()->getBlockingPermeability ();
       m_blockingPorosity     = m_projectHandle->getReservoirOptions()->getBlockingPorosity ();

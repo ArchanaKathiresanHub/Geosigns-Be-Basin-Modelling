@@ -234,7 +234,7 @@ namespace migration
 
       bool detectReservoir (LocalFormationNode * topNode, const double minLiquidColumnHeight, const double minVapourColumnHeight, const bool pressureRun);
       double getPressureContrast( const LocalFormationNode * topNode, const PhaseId phase, const bool pressureRun ) const;
-      void identifyAsReservoir (void);
+      void identifyAsReservoir (const bool advancedMigration);
 
       bool isPartOfUndetectedReservoir(void);
       void dealWithStuckHydrocarbons(void);
