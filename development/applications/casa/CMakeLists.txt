@@ -60,7 +60,7 @@ include_directories( SYSTEM
 )
 
 target_link_libraries( ${APP_NAME}
-   casaapi
+   casalib
    cmbapi
    CBMGenerics
    DataAccess

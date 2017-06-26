@@ -21,8 +21,6 @@ typedef CBMGenerics::ComponentManager::PhaseId PhaseId;
 // std library
 #include <vector>
 #include <string>
-using std::vector;
-using std::string;
 
 namespace pvtFlash
 {
@@ -122,7 +120,7 @@ namespace pvtFlash
       /// \brief calculate unlumping fractions. 
       /// \param[in] weights array of size ComponentManager::NUMBER_OF_SPECIES
       /// \param[out] unlump_fraction array of size ComponentManager::NUMBER_OF_SPECIES
-      void getLumpingFractions( const vector<double>& weights, double unlump_fraction[] );
+      void getLumpingFractions( const std::vector<double>& weights, double unlump_fraction[] );
 
       /// \param[in] in_paseCompMasses masses for each lumped component for each phase
       /// \param[out] out_phaseCompMasses masses for each unlumped component for each phase
@@ -179,16 +177,16 @@ namespace pvtFlash
    };
       
    /// Size(weights) = ComponentManager::NUMBER_OF_SPECIES
-   double gorm( const vector<double>& weights );
+   double gorm( const std::vector<double>& weights );
    
    /// Size(weights) = ComponentManager::NUMBER_OF_SPECIES
-   double getMolWeight( int componentId, const vector<double>& weights );
+   double getMolWeight( int componentId, const std::vector<double>& weights );
 
    /// Crtical Temperature per component
    double getCriticalTemperature (int componentId, double gorm);
 
-   double criticalTemperatureAccordingToLiMixingRule           ( const vector<double>& weights, const double& gorm );
-   double criticalTemperatureAccordingToLiMixingRuleWithLumping( const vector<double>& weights, const double& gorm );
+   double criticalTemperatureAccordingToLiMixingRule           ( const std::vector<double>& weights, const double& gorm );
+   double criticalTemperatureAccordingToLiMixingRuleWithLumping( const std::vector<double>& weights, const double& gorm );
 
 } // namespace pvtFlash
 

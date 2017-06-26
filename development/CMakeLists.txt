@@ -56,7 +56,6 @@ set(THIRD_PARTY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty")
 #
 # Options whether to build certain parts
 #
-option( BM_CSHARP_API "Build the C sharp interface (Windows only)" OFF )
 option( BM_PARALLEL "Build the parallel cauldron applications" ON )
 option( BM_BUILD_SERIAL_APPS "Also build serial version of apps" ON )
 option( BM_BUILD_DOCS "Build documentation" ON )
@@ -74,7 +73,7 @@ endif(WIN32)
 #
 # Variables concerning version numbers
 #
-set(BM_VERSION_NUMBER_MAJOR "2016" CACHE STRING "Numerical version major string. Anything like 2014")
+set(BM_VERSION_NUMBER_MAJOR "2017" CACHE STRING "Numerical version major string. Anything like 2014")
 set(BM_VERSION_NUMBER_MINOR "05" CACHE STRING "Numerical version minor string. Anything like 01")
 set(BM_VERSION_NUMBER ${BM_VERSION_NUMBER_MAJOR}.${BM_VERSION_NUMBER_MINOR})
 set(BM_VERSION_TAG "nightly" CACHE STRING "Version tag. E.g. nightly, cmake, etc")

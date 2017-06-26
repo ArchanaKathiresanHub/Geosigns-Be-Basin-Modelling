@@ -1753,7 +1753,7 @@ START-properties
 
     Identification      : MinimumPorosity
     Description         : Minimum porosity
-    Unit of measurement :
+    Unit of measurement : %
     Type                : float
     Default             : 0
 

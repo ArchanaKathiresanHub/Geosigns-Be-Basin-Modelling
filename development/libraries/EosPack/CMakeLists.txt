@@ -9,7 +9,6 @@
 # Do not distribute without written permission from Shell.              #
 #                                                                       #
 #########################################################################
-
 FILE( GLOB all_headers src/*.h )
 source_group(include FILES ${all_headers})
 
@@ -21,7 +20,9 @@ add_library(EosPack
    ${all_headers}
 )
 
-include_directories(utilities)
+include_directories(
+   src
+)
 
 bm_include_libraries(CBMGenerics utilities)
 
@@ -72,3 +73,24 @@ add_gtest( NAME pvtFlash::CAPI_MT
    LINK_FLAGS "${OpenMP_CXX_FLAGS} ${OpenMP_LINK_FLAGS}"
 )
 endif(UNIX)
+
+if (MSVC)
+   generate_version_by_git_last_checkin(src API_FILE_GIT_DATE_AS_VER)
+   
+   MESSAGE(STATUS "Version extracted for EosPackAPI as: ${API_FILE_GIT_DATE_AS_VER}")
+   ##### Generate the C# API  
+   generate_csharp_api(
+      CSPROJ_NAME                   EosPackAPI
+      CSPROJ_NAMESPACE              Shell.BasinModeling.EOS
+      CSPROJ_ASSEMBLY_VERSION       ${API_FILE_GIT_DATE_AS_VER}
+      # Info for Nuget package
+      CSPROJ_ASSEMBLY_OWNER         "Sergey Koshelev"
+      CSPROJ_ASSEMBLY_DESCRIPTION   "C# API for PVT flash and phase diagram calculator"
+      CSPROJ_ASSEMBLY_RELEASE_NOTES "Version ${API_FILE_GIT_DATE_AS_VER}. Initial nuget package release"
+      CSPROJ_ASSEMBLY_TAGS          "Cauldron backend PVT Flasher PhaseDiagram API"
+      CSPROJ_ASSEMBLY_COPYRIGHT     "Copyright (C) 2012-2017"
+      CSPROJ_LIBRARIES              EosPack
+      CSHARP_UNIT_TESTS_SRC         test/PTDiagCalculatorTest.cs test/EospackCApiTest.cs
+   )  
+   configure_file(test/PTDiagCalculatorTest.cfg csharp-test/PTDiagCalculatorTest.cfg COPYONLY) 
+endif (MSVC)

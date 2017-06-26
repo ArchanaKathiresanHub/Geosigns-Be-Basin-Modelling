@@ -164,7 +164,7 @@ int OrderFields()
                break;
             }
 
-            if ( !IsValidIndex( tableName, fieldName, fieldIndicesIndex ) )
+            if ( !IsValidIndex( tableName, fieldName, static_cast<int>(fieldIndicesIndex) ) )
             {
                validIndex = false;
                break;
@@ -188,7 +188,7 @@ int OrderFields()
 #if DEBUG
             cerr << "Assigning " << fieldIndicesIndex << " to " << fieldName << endl;
 #endif
-            FieldIndices[ fieldName ] = fieldIndicesIndex;
+            FieldIndices[ fieldName ] = static_cast<int>(fieldIndicesIndex);
             break;
          }
       }
@@ -326,7 +326,7 @@ static const string ident2 = ident  + ident;
 static const string ident3 = ident2 + ident;
 
 
-// #define API_UNIT_TEST
+#define API_UNIT_TEST
 #ifdef _WIN32
 static const std::string accObj = ".";
 static const std::string accCls = ".";
@@ -346,7 +346,7 @@ static const char * cppFieldType( const string & fieldName, bool getType = true 
    throw runtime_error( string( "Unknown column Type " ) + fieldType );
 }
 
-void generateBMAPI_TblHeader( const string & schemaDir, const string & tableName )
+void generateProject3dAPI_TblHeader( const string & schemaDir, const string & tableName )
 {
    string headerFile = schemaDir + "Table" + tableName + ".h";
 
@@ -364,7 +364,7 @@ void generateBMAPI_TblHeader( const string & schemaDir, const string & tableName
    headerOut << ident << "class Table;\n";
    headerOut << "}\n\n";
 
-   headerOut << "namespace bmapi\n";
+   headerOut << "namespace project3d\n";
    headerOut << "{\n";
    
    // Declare class and auxillary Record structure for the current table
@@ -405,11 +405,11 @@ void generateBMAPI_TblHeader( const string & schemaDir, const string & tableName
    headerOut << ident << "protected:\n";
    headerOut << ident2 << "std::vector<Record> m_recordList;\n";
    headerOut << ident << "};\n\n";
-   headerOut << "} // namespace bmapi\n";
+   headerOut << "} // namespace project3d\n";
    headerOut << "#endif // TABLE_" << tableName << "_H\n";
 }
 
-void generateBMAPI_TblSource( const string & schemaDir, const string & tableName )
+void generateProject3dAPI_TblSource( const string & schemaDir, const string & tableName )
 {
    string sourceFile = schemaDir + "Table" + tableName + ".cpp";
 
@@ -423,7 +423,7 @@ void generateBMAPI_TblSource( const string & schemaDir, const string & tableName
    sourceOut << "#include <iostream>\n";
    sourceOut << "#include <iomanip>\n";
 #endif
-   sourceOut << "namespace bmapi\n{\n";
+   sourceOut << "namespace project3d\n{\n";
  
    // Create default constructor for Record
    sourceOut << ident << "Table" << tableName << "::Record::Record()\n";
@@ -564,11 +564,11 @@ void generateBMAPI_TblSource( const string & schemaDir, const string & tableName
       }
       return true;
    }
-} // bmapi
+} // project3d
 )";
 }
 
-void generateBMAPI_ProjectIoAPI_H( const string & schemaDir )
+void generateProject3dAPI_ProjectIoAPI_H( const string & schemaDir )
 {
    string headerFile = schemaDir + "ProjectIoAPI.h";
  
@@ -587,7 +587,7 @@ void generateBMAPI_ProjectIoAPI_H( const string & schemaDir )
    headerOut << ident << "class Table;\n";
    headerOut << "}\n\n";
 
-   headerOut << "namespace bmapi\n{\n";
+   headerOut << "namespace project3d\n{\n";
    for ( auto tableName : TableList ) { headerOut << ident << "class Table" << tableName << ";\n"; }
  
    // Generate declaration of ProjectHandle as incorporated tables
@@ -623,13 +623,13 @@ void generateBMAPI_ProjectIoAPI_H( const string & schemaDir )
       static const std::string m_SpecFileLastCommitMessage;
    };)";
 
-   headerOut << "\n} // namespace bmapi\n#endif // PROJECT_IO_API_H\n";
+   headerOut << "\n} // namespace project3d\n#endif // PROJECT_IO_API_H\n";
 }
 
-void generateBMAPI_ProjectIoAPI_C( const string & schemaDir )
+void generateProject3dAPI_ProjectIoAPI_C( const string & schemaDir )
 {
    string sourceFile      = schemaDir + "ProjectIoAPI.cpp";
-   string allIncludesFile = schemaDir + "bmAPI.h";
+   string allIncludesFile = schemaDir + "Project3dAPI.h";
  
    ofstream sourceOut( sourceFile.c_str(), ios::out );
    if ( sourceOut.fail() ) { throw runtime_error( "Error occurred during opening output file " + sourceFile ); }
@@ -639,22 +639,22 @@ void generateBMAPI_ProjectIoAPI_C( const string & schemaDir )
 
    sourceOut << "#include \"cauldronschemafuncs.h\"\n\n";
    sourceOut << "#include \"ProjectFileHandler.h\"\n\n";
-   sourceOut << "#include \"bmAPI.h\"\n\n";
+   sourceOut << "#include \"Project3dAPI.h\"\n\n";
    sourceOut << "#include <exception>\n\n";
 #ifdef API_UNIT_TEST
    sourceOut << "#include <iostream>\n";
    sourceOut << "#include <iomanip>\n";
 #endif
 
-   headerOut << "#ifndef BM_API_H\n";
-   headerOut << "#define BM_API_H\n";
+   headerOut << "#ifndef PROJECT3D_API_H\n";
+   headerOut << "#define PROJECT3D_API_H\n";
    for ( auto tableName : TableList ) { headerOut << "#include \"Table"<< tableName << ".h\"\n"; }
    headerOut << "#include \"ProjectIoAPI.h\"\n";
-   headerOut << "#endif // BM_API_H\n";
+   headerOut << "#endif // PROJECT3D_API_H\n";
 
    sourceOut << R"(
 
-namespace bmapi
+namespace project3d
 {
    const std::string ProjectIoAPI::m_SpecFileVersion           = SPEC_FILE_GIT_SHA1;
    const std::string ProjectIoAPI::m_SpecFileLastCommitDate    = SPEC_FILE_GIT_DATE;
@@ -699,7 +699,7 @@ namespace bmapi
 #ifdef _WIN32
       sourceOut << "( ProjectIoAPI ph )\" << std::endl  << \"{\" << std::endl << \"   uint id;\" << std::endl; }\n";
 #else
-      sourceOut << "( bmapi::ProjectIoAPI & ph )\" << std::endl  << \"{\" << std::endl<< \"   size_t id;\" << std::endl; }\n";
+      sourceOut << "( project3d::ProjectIoAPI & ph )\" << std::endl  << \"{\" << std::endl<< \"   size_t id;\" << std::endl; }\n";
 #endif
       sourceOut << ident2 << "for ( size_t id = 0; id < m_" << tableName << "->size(); id++ )\n";
       sourceOut << ident2 << "{\n";
@@ -734,7 +734,7 @@ namespace bmapi
 #ifdef _WIN32
    sourceOut << "( ProjectIoAPI ph )\" << std::endl  << \"{\" << std::endl;\n";
 #else
-   sourceOut << "( bmapi::ProjectIoAPI & ph )\" << std::endl  << \"{\" << std::endl;\n";
+   sourceOut << "( project3d::ProjectIoAPI & ph )\" << std::endl  << \"{\" << std::endl;\n";
 #endif
    for ( auto tableName : TableList )
    {
@@ -775,10 +775,10 @@ namespace bmapi
    {
       sourceOut << ident2 << "if ( m_" << tableName << " != nullptr ) { delete m_" << tableName << "; m_" << tableName << " = nullptr; }\n";
    }
-   sourceOut << ident << "}\n\n} // namespace bmapi\n";
+   sourceOut << ident << "}\n\n} // namespace project3d\n";
 }
 
-void generateBMAPI_SwigI( const string & schemaDir )
+void generateProject3dAPI_SwigI( const string & schemaDir )
 {
    string sourceFile = schemaDir + "Project3dAPI.i";
 
@@ -788,11 +788,10 @@ void generateBMAPI_SwigI( const string & schemaDir )
    sourceOut << R"(
 /* File : Project3dAPI.i Swig module file */
 %module Project3dAPI
-%include "stl.i"
-%include "std_except.i"
-%include "exception.i"
 
-%exception bmapi::ProjectIoAPI::ProjectIoAPI {
+%include "../../swig-common/StdHelper.i"
+
+%exception project3d::ProjectIoAPI::ProjectIoAPI {
    try {
       $action
    }
@@ -800,7 +799,7 @@ void generateBMAPI_SwigI( const string & schemaDir )
    catch (...) { SWIG_exception(SWIG_UnknownError, "Unknown exception"); }
 }
 
-%exception bmapi::ProjectIoAPI::saveToProjectFile {
+%exception project3d::ProjectIoAPI::saveToProjectFile {
    try {
       $action
    }
@@ -808,7 +807,7 @@ void generateBMAPI_SwigI( const string & schemaDir )
    catch (...) { SWIG_exception(SWIG_UnknownError, "Unknown exception"); }
 } 
 
-%exception bmapi::ProjectIoAPI::operator = {
+%exception project3d::ProjectIoAPI::operator = {
    try {
       $action
    }
@@ -819,7 +818,7 @@ void generateBMAPI_SwigI( const string & schemaDir )
 )";
    for ( auto tableName : TableList )
    {
-      sourceOut << "%exception bmapi::Table" << tableName << "::Table" << tableName << R"( {
+      sourceOut << "%exception project3d::Table" << tableName << "::Table" << tableName << R"( {
    try {
       $action
    }
@@ -828,7 +827,7 @@ void generateBMAPI_SwigI( const string & schemaDir )
 }
 
 )";
-      sourceOut << "%exception bmapi::Table" << tableName << R"(::addRecord {
+      sourceOut << "%exception project3d::Table" << tableName << R"(::addRecord {
    try {
       $action
    }
@@ -837,7 +836,7 @@ void generateBMAPI_SwigI( const string & schemaDir )
 }
 
 )";
-      sourceOut << "%exception bmapi::Table" << tableName << R"(::operator = {
+      sourceOut << "%exception project3d::Table" << tableName << R"(::operator = {
    try {
       $action
    }
@@ -850,11 +849,11 @@ void generateBMAPI_SwigI( const string & schemaDir )
    sourceOut << R"(
 %{
 /* Includes the header in the wrapper code */
-#include "bmAPI.h"
+#include "Project3dAPI.h"
 #include "ProjectIoAPI.h"
 
 using namespace database;
-using namespace bmapi;
+using namespace project3d;
 %}
 
 /* some output reference types */
@@ -862,14 +861,8 @@ namespace Project3dAPI
 {
 }
 
-%rename(Equals) *::operator ==;
-%rename(Assign) *::operator =;
 %ignore *::begin;
 %ignore *::end;
-
-/* some templates */
-%template(StringVector)		           std::vector< std::string >;
-%template(IntVector)		              std::vector< int >;
 
 )";
    for ( auto tableName : TableList ) { sourceOut << "%include \"Table" << tableName << ".h\"\n"; }
@@ -879,17 +872,17 @@ namespace Project3dAPI
 )";
 }
 
-void GenerateCMBAPI( const string & schemaDir )
+void GenerateProject3dAPI( const string & schemaDir )
 {
    for ( auto tableName : TableList )
    {
-      generateBMAPI_TblHeader( schemaDir, tableName );
-      generateBMAPI_TblSource( schemaDir, tableName );
+      generateProject3dAPI_TblHeader( schemaDir, tableName );
+      generateProject3dAPI_TblSource( schemaDir, tableName );
    }   
 
-   generateBMAPI_ProjectIoAPI_H( schemaDir );
-   generateBMAPI_ProjectIoAPI_C( schemaDir );
-   generateBMAPI_SwigI( schemaDir );
+   generateProject3dAPI_ProjectIoAPI_H( schemaDir );
+   generateProject3dAPI_ProjectIoAPI_C( schemaDir );
+   generateProject3dAPI_SwigI( schemaDir );
 }
 
 
@@ -1140,7 +1133,7 @@ void GenerateDataSchema( const string & schemaName, const string & schemaDir, bo
 int main( int argc, char **argv )
 {
    bool verbose = false;
-   bool bmapi  = false;
+   bool project3dapi  = false;
    string specFile;
    string schemaName;
    string schemaDir;
@@ -1159,10 +1152,10 @@ int main( int argc, char **argv )
             schemaDir += "/";
 #endif
       }
-         else if ( strncmp( argv[ i ], "-input",   argvSz ) == 0 ) { specFile   = argv[ ++i ]; }
-         else if ( strncmp( argv[ i ], "-schema",  argvSz ) == 0 ) { schemaName = argv[ ++i ]; }
-         else if ( strncmp( argv[ i ], "-verbose", argvSz ) == 0 ) { verbose    = true; }
-         else if ( strncmp( argv[ i ], "-bmapi",   argvSz ) == 0 ) { bmapi     = true; }
+         else if ( strncmp( argv[ i ], "-input",        argvSz ) == 0 ) { specFile     = argv[ ++i ]; }
+         else if ( strncmp( argv[ i ], "-schema",       argvSz ) == 0 ) { schemaName   = argv[ ++i ]; }
+         else if ( strncmp( argv[ i ], "-verbose",      argvSz ) == 0 ) { verbose      = true; }
+         else if ( strncmp( argv[ i ], "-project3dapi", argvSz ) == 0 ) { project3dapi = true; }
          else
          {
             throw runtime_error( string( "Usage: " ) + argv[ 0 ] + " -input filename -schema schemaname [-directory outputdirectory] [-verbose]\n" );
@@ -1176,8 +1169,8 @@ int main( int argc, char **argv )
 
       ParseSpecFile( specFile );
 
-      if ( bmapi ) { GenerateCMBAPI(     schemaDir ); }
-      else         { GenerateDataSchema( schemaName, schemaDir, verbose ); }
+      if ( project3dapi ) { GenerateProject3dAPI(     schemaDir ); }
+      else                { GenerateDataSchema( schemaName, schemaDir, verbose ); }
    }
    catch( runtime_error & ex )
    {

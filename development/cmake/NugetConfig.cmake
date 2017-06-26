@@ -14,6 +14,7 @@ include(cmake/AddPackage.cmake)
 
 set(NUGET_EXECUTABLE "NUGET_EXECUTABLE-NOTFOUND" CACHE PATH "Path to nuget executable") 
 set(NUGET_VERSION  "Unknown")
+set(NUGET_VSTS_FEED_URL "https://sede-pt-ssw.visualstudio.com/DefaultCollection/Basin-Evaluation/_git/Basin-Modelling")
 
 if (MSVC)
 

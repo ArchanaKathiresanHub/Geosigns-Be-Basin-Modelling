@@ -107,22 +107,22 @@ namespace mbapi {
 
       typedef enum
       {
-         PorExponential       = DataAccess::Interface::EXPONENTIAL_POROSITY,        ///< Exponential porosity model
-         PorSoilMechanics     = DataAccess::Interface::SOIL_MECHANICS_POROSITY,     ///< Soil mechanics porosity model
-         PorDoubleExponential = DataAccess::Interface::DOUBLE_EXPONENTIAL_POROSITY, ///< Double Exponential porosity model 
-         PorUnknown           = -1                                                  ///< Not any model was defined
+         PorExponential,           ///< Exponential porosity model
+         PorSoilMechanics,         ///< Soil mechanics porosity model
+         PorDoubleExponential,     ///< Double Exponential porosity model 
+         PorUnknown           = -1 ///< Not any model was defined
       } PorosityModel;
 
 
       // Define permeability models in the same name as in DataAccess interface library
       typedef enum
       {
-         PermSandstone   = DataAccess::Interface::SANDSTONE_PERMEABILITY,   ///< permeability model for sandstones
-         PermMudstone    = DataAccess::Interface::MUDSTONE_PERMEABILITY,    ///< permeability model for shales
-         PermNone        = DataAccess::Interface::NONE_PERMEABILITY,        ///< non permeable layer, layer with tiny permeability ~1e-9
-         PermImpermeable = DataAccess::Interface::IMPERMEABLE_PERMEABILITY, ///< mostly the same as None
-         PermMultipoint  = DataAccess::Interface::MULTIPOINT_PERMEABILITY,  ///< permeability depends on porosity as 1D function
-         PermUnknown     = -1                                               ///< Not any model was defined
+         PermSandstone,       ///< permeability model for sandstones
+         PermMudstone,        ///< permeability model for shales
+         PermNone,            ///< non permeable layer, layer with tiny permeability ~1e-9
+         PermImpermeable,     ///< mostly the same as None
+         PermMultipoint,      ///< permeability depends on porosity as 1D function
+         PermUnknown     = -1 ///< Not any model was defined
       } PermeabilityModel;
 
       /// @brief Get list of lithologies in the model
