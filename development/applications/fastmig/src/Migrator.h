@@ -94,8 +94,7 @@ namespace migration
       Formation * getBottomSourceRockFormation ();
       Formation * getTopSourceRockFormation (const Interface::Snapshot * end);
       Formation * getTopActiveFormation (const Interface::Snapshot * end);
-      Formation * getBottomActiveReservoirFormation (const Interface::Snapshot * end);
-      Formation * getTopActiveReservoirFormation (const Interface::Snapshot * end);
+      Formation * getTopActiveReservoirFormation (const Interface::Snapshot * start, const Interface::Snapshot * end);
 
       inline double getMinOilColumnHeight (void) const;
       inline double getMinGasColumnHeight (void) const;
@@ -126,7 +125,7 @@ namespace migration
                             const Interface::Snapshot * start, const Interface::Snapshot * end);
 
       // Calculate flow at the top level of the basin for a given snapshot time.
-      bool calculateSeepage (const Interface::Snapshot * end);
+      bool calculateSeepage (const Interface::Snapshot * start, const Interface::Snapshot * end);
 
       // Save the calculated amounts of seapage
       void saveSeepageAmounts (migration::Formation * seepsFormation, const Interface::Snapshot * end);

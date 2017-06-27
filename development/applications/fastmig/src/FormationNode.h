@@ -60,8 +60,6 @@ namespace migration
       virtual bool computeTargetFormationNode (void) = 0;
 
       virtual FiniteElementMethod::ThreeVector & getAnalogFlowDirection (void) = 0;
-
-      virtual double getFiniteElementMinimumValue (PropertyIndex propertyIndex) = 0;
       virtual FiniteElementMethod::ThreeVector getFiniteElementGrad (PropertyIndex propertyIndex) = 0;
 
       virtual double getDepth (void) = 0;
@@ -135,9 +133,6 @@ namespace migration
       virtual FiniteElementMethod::ThreeVector & getAnalogFlowDirection (void);
 
       virtual double getFiniteElementValue (double iOffset, double jOffset, double kOffset, PropertyIndex propertyIndex);
-
-      virtual double getFiniteElementMinimumValue (PropertyIndex propertyIndex);
-
       virtual FiniteElementMethod::ThreeVector getFiniteElementGrad (PropertyIndex propertyIndex);
 
       virtual double getDepth (void);
@@ -277,6 +272,8 @@ namespace migration
       FormationNode *getAdjacentFormationNode (int directionIndex = -1);
       int getAdjacentFormationNodeGridOffset (int dimension);
 
+      inline LocalFormationNode * getTopFormationNode(void);
+
       virtual FormationNode *getTargetFormationNode (void);
       virtual bool computeTargetFormationNode (void);
 
@@ -284,12 +281,10 @@ namespace migration
 
       virtual double getFiniteElementValue (double iOffset, double jOffset, double kOffset, PropertyIndex propertyIndex);
 
-      virtual double getFiniteElementMinimumValue (PropertyIndex propertyIndex);
-
       virtual FiniteElementMethod::ThreeVector getFiniteElementGrad (PropertyIndex propertyIndex);
 
       void setFiniteElementDepths (double * depths);
-      bool setFiniteElement (FiniteElementMethod::FiniteElement& finiteElement);
+      bool setFiniteElement (FiniteElementMethod::FiniteElement& finiteElement, const bool computeJacobianInverse = true, const bool computeGradBasis = true);
 
       double getDepth (void);
 
@@ -345,10 +340,6 @@ namespace migration
       inline double getHeightVapour () const;
 
    private:
-
-#ifdef USEBOTTOMFORMATIONNODE
-      LocalFormationNode * m_bottomFormationNode;
-#endif
 
       FormationNode *m_targetFormationNode;
 
@@ -469,10 +460,14 @@ namespace migration
       return m_k;
    }
 
-
    Formation *FormationNode::getFormation (void) const
    {
       return m_formation;
+   }
+
+   LocalFormationNode * LocalFormationNode::getTopFormationNode (void)
+   {
+      return m_topFormationNode;
    }
 
    void FormationNode::clearProperties (void)

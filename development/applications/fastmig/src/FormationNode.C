@@ -10,9 +10,6 @@
 #include <iostream>
 using namespace std;
 
-// large effect on flow directions : should we track oil and gas separatly? 
-//#define GAS_DENSITY_FLOW_DIRECTION
-
 #ifdef _MSC_VER
 #include <io.h>
 #else
@@ -365,18 +362,6 @@ namespace migration
       return threeVectorValueResponse.value;
    }
 
-   double ProxyFormationNode::getFiniteElementMinimumValue (PropertyIndex propertyIndex)
-   {
-      FormationNodeValueRequest valueRequest;
-      FormationNodeValueRequest valueResponse;
-
-      fillFormationNodeRequest (valueRequest, GETFINITEELEMENTMINIMUMVALUE);
-      valueRequest.value = double (propertyIndex);
-
-      RequestHandling::SendFormationNodeValueRequest (valueRequest, valueResponse);
-      return valueResponse.value;
-   }
-
 #ifdef REGISTERPROXIES
    void ProxyFormationNode::registerWithLocal (void)
    {
@@ -535,9 +520,6 @@ namespace migration
       int k = getK ();
 
       if (!m_topFormationNode) m_topFormationNode = m_formation->getLocalFormationNode (i, j, k + 1);
-#ifdef USEBOTTOMFORMATIONNODE
-      if (!m_bottomFormationNode) m_bottomFormationNode = m_formation->getLocalFormationNode (i, j, k - 1);
-#endif
 
       determineThicknessProperties (); // computes m_hasNoThickness
 
@@ -698,13 +680,6 @@ namespace migration
          response.k = getK ();
          response.formationIndex = getFormation ()->getIndex ();
          response.value = getFaultStatus ();
-         break;
-      case GETFINITEELEMENTMINIMUMVALUE:
-         response.i = getI ();
-         response.j = getJ ();
-         response.k = getK ();
-         response.formationIndex = getFormation ()->getIndex ();
-         response.value = getFiniteElementMinimumValue ((PropertyIndex)(int)request.value);
          break;
       default:
          cerr << "ERROR: illegal request: " << request.valueSpec << endl;
@@ -1429,8 +1404,14 @@ namespace migration
          return true;
       }
 
-      if (hasNoThickness ())     // we are not interested
+      if (hasNoThickness ())
+      {
+         if (IsValid(m_topFormationNode))
+            m_targetFormationNode = m_topFormationNode->getTargetFormationNode();
+         else
+            m_targetFormationNode = this;
          return true;
+      }
 
       if (m_targetFormationNode) // already found
          return true;
@@ -1697,7 +1678,7 @@ namespace migration
             getFaultStatus () == SEAL or
             getFaultStatus () == SEALOIL);
       }
-      else if (m_topFormationNode)
+      else if (IsValid(m_topFormationNode))
          impermeable = m_topFormationNode->isImpermeable ();
       else
          impermeable = false;
@@ -1724,12 +1705,7 @@ namespace migration
 
    double LocalFormationNode::getDepth ()
    {
-      if (hasThickness ())
-         return m_depth;
-      else if (m_topFormationNode)
-         return m_topFormationNode->getDepth ();
-      else
-         return Interface::DefaultUndefinedMapValue;
+      return m_depth;
    }
 
    double LocalFormationNode::getPressure ()
@@ -2013,9 +1989,8 @@ namespace migration
          m_finiteElementsDepths[i] = depths[i];
    }
 
-   bool LocalFormationNode::setFiniteElement (FiniteElementMethod::FiniteElement& finiteElement)
+   bool LocalFormationNode::setFiniteElement (FiniteElementMethod::FiniteElement& finiteElement, const bool computeJacobianInverse, const bool computeGradBasis)
    {
-
       // now is time to calculate the finite element
       bool returnValue = true;
       double dx = m_formation->getDeltaI ();
@@ -2029,7 +2004,7 @@ namespace migration
          if (m_finiteElementsDepths[oi] == Interface::DefaultUndefinedMapValue) returnValue = false;
          finiteElement.setGeometryPoint (oi + 1, NodeCornerOffsets[oi][0] * dx, NodeCornerOffsets[oi][1] * dy, m_finiteElementsDepths[oi]);
       }
-      finiteElement.setQuadraturePoint (0.0, 0.0, 0.0);
+      finiteElement.setQuadraturePoint (0.0, 0.0, 0.0, computeJacobianInverse, computeGradBasis);
 
       return returnValue;
    }
@@ -2037,13 +2012,12 @@ namespace migration
    double LocalFormationNode::getFiniteElementValue (double iOffset, double jOffset, double kOffset, PropertyIndex propertyIndex)
    {
       FiniteElement finiteElement;
-      //Check the node
+
+      // Don't calculate Jacobian for elements with no thickness
       if (!hasThickness ())
       {
-         if (m_topFormationNode)
-            return m_topFormationNode->getFiniteElementValue (iOffset, jOffset, kOffset, propertyIndex);
-         else
-            return Interface::DefaultUndefinedMapValue;
+         if (!setFiniteElement (finiteElement, false, false)) return Interface::DefaultUndefinedMapValue;
+         finiteElement.setQuadraturePoint (iOffset, jOffset, kOffset, false, false);
       }
       else
       {
@@ -2051,7 +2025,7 @@ namespace migration
          finiteElement.setQuadraturePoint (iOffset, jOffset, kOffset);
       }
 
-      //Calculate the property
+      // Calculate the property
       ElementVector valueVector;
 
       int oi;
@@ -2069,39 +2043,6 @@ namespace migration
       }
 
       return finiteElement.interpolate (valueVector);
-   }
-
-   double LocalFormationNode::getFiniteElementMinimumValue (PropertyIndex propertyIndex)
-   {
-      if (!hasThickness ())
-      {
-         if (m_topFormationNode)
-            return m_topFormationNode->getFiniteElementMinimumValue (propertyIndex);
-         else
-            return Interface::DefaultUndefinedMapValue;
-      }
-
-      double minimumPropertyValue = Interface::DefaultUndefinedMapValue;
-
-      int oi;
-      for (oi = 0; oi < NumberOfNodeCorners; ++oi)
-      {
-         double propertyValue = m_formation->getPropertyValue (propertyIndex, getI () + NodeCornerOffsets[oi][0], getJ () + NodeCornerOffsets[oi][1], getK () + NodeCornerOffsets[oi][2]);
-
-         if (propertyValue == Interface::DefaultUndefinedMapValue)
-         {
-            // undefined node
-            return Interface::DefaultUndefinedMapValue;
-         }
-
-         if (minimumPropertyValue == Interface::DefaultUndefinedMapValue or propertyValue < minimumPropertyValue)
-         {
-            minimumPropertyValue = propertyValue;
-         }
-      }
-
-      return minimumPropertyValue;
-
    }
 
    ThreeVector LocalFormationNode::getFiniteElementGrad (PropertyIndex propertyIndex)

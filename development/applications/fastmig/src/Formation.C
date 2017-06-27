@@ -1957,6 +1957,7 @@ namespace migration
       int depthIndex = m_formationNodeArray->depth () - 1;
 
       Formation *topActiveFormation = m_migrator->getTopActiveFormation (end);
+      Formation *formationAbove = getTopFormation ();
 
       RequestHandling::StartRequestHandling (getMigrator (), "calculateExpulsionSeeps");
 
@@ -1966,8 +1967,18 @@ namespace migration
       {
          for (unsigned int j = m_formationNodeArray->firstJLocal (); j <= m_formationNodeArray->lastJLocal (); ++j)
          {
-            LocalFormationNode * formationNode = validReservoirNode (i, j);
-            if (!IsValid (formationNode)) continue;
+            // First try to get a non-zero-thickness element above the SR
+            LocalFormationNode * formationNode = validSealNode (i, j, formationAbove, topActiveFormation);
+            if (!IsValid (formationNode))
+            {
+               // If that doesn't work, check if there's any zero-thickness elements above
+               LocalFormationNode * expellingNode = getLocalFormationNode (i, j, depthIndex);
+               formationNode = expellingNode->getTopFormationNode();
+
+               // If that also doesn't work, try the expelling node, it must be at the top.
+               if (!IsValid (formationNode))
+                  formationNode = expellingNode;                  
+            }
 
             FormationNode * targetFormationNode;
 
@@ -2052,7 +2063,16 @@ namespace migration
             // But we know it should leak so we force it to do so
             // by probing the first non-zero thickness node  above it.
             LocalFormationNode * formationNode = validSealNode (i, j, formationAbove, topActiveFormation);
-            if (!IsValid (formationNode)) continue;
+            if (!IsValid (formationNode))
+            {
+               // If that doesn't work, check if there's any zero-thickness elements above
+               LocalFormationNode * leakingNode = getLocalFormationNode (i, j, depthIndex);
+               formationNode = leakingNode->getTopFormationNode();
+
+               // If that also doesn't work, try the leaking node, it must be at the top.
+               if (!IsValid (formationNode))
+                  formationNode = leakingNode;                  
+            }
 
             FormationNode *targetFormationNode;
 

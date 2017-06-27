@@ -485,7 +485,7 @@ bool Migrator::performSnapshotMigration (const Interface::Snapshot * start, cons
    if (bottomSourceRock != nullptr)
 	   sourceRockActive = bottomSourceRock->isActive(end);
 
-   if ((activeReservoirs (end) or m_reservoirDetection or m_paleoSeeps or end->getTime () == 0.0) and sourceRockActive)
+   if ((activeReservoirs (start) or m_reservoirDetection or m_paleoSeeps or end->getTime () == 0.0) and sourceRockActive)
    {
       if (GetRank () == 0)
          std::cout << "Processing snapshot " << end->getTime () << std::endl;
@@ -509,7 +509,7 @@ bool Migrator::performSnapshotMigration (const Interface::Snapshot * start, cons
              !restoreFormationPropertyMaps (end) or
              !loadExpulsionMaps (start, end) or
              !chargeReservoirs (start, end) or
-             !calculateSeepage (end) or
+             !calculateSeepage (start, end) or
              !unloadExpulsionMaps (end) or
              !saveSMFlowPaths (start, end))
          {
@@ -780,7 +780,7 @@ migration::Formation * Migrator::getTopActiveFormation (const Interface::Snapsho
 }
 
 // Returns the top reservoir that has been deposited, is sealed and is active at snapshot "end"
-migration::Formation * Migrator::getTopActiveReservoirFormation (const Interface::Snapshot * end)
+migration::Formation * Migrator::getTopActiveReservoirFormation (const Interface::Snapshot * start, const Interface::Snapshot * end)
 {
    Interface::ReservoirList * reservoirs = getReservoirs ();
    Interface::ReservoirList::iterator reservoirIter;
@@ -795,7 +795,7 @@ migration::Formation * Migrator::getTopActiveReservoirFormation (const Interface
 
       bool isDeposited = tempFormation->getTopSurface ()->getSnapshot ()->getTime () > end->getTime ();
 
-      if (reservoir->isActive (end) and isDeposited)
+      if (reservoir->isActive (start) and isDeposited)
       {
          topActiveReservoir = reservoir;
       }
@@ -807,34 +807,6 @@ migration::Formation * Migrator::getTopActiveReservoirFormation (const Interface
    }
 
    return topActiveReservoirFormation;
-}
-
-migration::Formation * Migrator::getBottomActiveReservoirFormation (const Interface::Snapshot * end)
-{
-   Interface::ReservoirList * reservoirs = getReservoirs ();
-   Interface::ReservoirList::iterator reservoirIter;
-
-   Reservoir * bottomActiveReservoir = 0;
-   Formation * bottomActiveReservoirFormation = 0;
-
-   for (reservoirIter = reservoirs->begin (); reservoirIter != reservoirs->end (); ++reservoirIter)
-   {
-      Reservoir * reservoir = (Reservoir *)(*reservoirIter);
-      Formation * tempFormation = Formation::CastToFormation (reservoir->getFormation ());
-
-      bool isDeposited = tempFormation->getTopSurface ()->getSnapshot ()->getTime () >= end->getTime ();
-      if (reservoir->isActive (end) and isDeposited)
-      {
-         bottomActiveReservoir = reservoir;
-         break;
-      }
-   }
-
-   if (bottomActiveReservoir)
-   {
-      bottomActiveReservoirFormation = Formation::CastToFormation (bottomActiveReservoir->getFormation ());
-   }
-   return bottomActiveReservoirFormation;
 }
 
 migration::Formation * Migrator::getBottomMigrationFormation(const Interface::Snapshot * end)
@@ -1212,7 +1184,7 @@ bool Migrator::chargeReservoir (migration::Reservoir * reservoir, migration::Res
 
 // Depending on the configuration of the basin it calculates leakage from the top reservoir
 // and expulsion from all active source rocks above the top reservoir
-bool Migrator::calculateSeepage (const Interface::Snapshot * end)
+bool Migrator::calculateSeepage (const Interface::Snapshot * start, const Interface::Snapshot * end)
 {
    if (!m_paleoSeeps and end->getTime () > 0.0)
       return true;
@@ -1222,7 +1194,7 @@ bool Migrator::calculateSeepage (const Interface::Snapshot * end)
       return false;
 
    Formation * topSourceRockFormation = getTopSourceRockFormation (end);
-   Formation * topReservoirFormation = getTopActiveReservoirFormation (end);
+   Formation * topReservoirFormation = getTopActiveReservoirFormation (start, end);
 
    // If no source rock and no reservoir there can't be a source for new seepage
    if (!topSourceRockFormation and !topReservoirFormation)
@@ -1360,7 +1332,7 @@ bool Migrator::collectAndMigrateExpelledCharges (Reservoir * reservoir, Reservoi
 
          // check if reservoirAbove is in the way of reservoir with respect to downward migration
          if (!reservoirAbove or
-             !reservoirAbove->isActive (end) or
+             !reservoirAbove->isActive (start) or
              ((reservoirAbove->getFormation () != formationBelow and
                reservoirAbove->getFormation () != formationBelowBelow) and
               reservoirAbove->getFormation () != formation))
@@ -1373,12 +1345,12 @@ bool Migrator::collectAndMigrateExpelledCharges (Reservoir * reservoir, Reservoi
          // reservoir in source rock
 
          // check if reservoirBelow is also in the source rock
-         if (!reservoirBelow or !reservoirBelow->isActive (end) or reservoirBelow->getFormation () != formation)
+         if (!reservoirBelow or !reservoirBelow->isActive (start) or reservoirBelow->getFormation () != formation)
          {
             directionsToCollect |= EXPELLEDDOWNWARD;
          }
          // check if reservoirAbove is also in the source rock
-         if (!reservoirAbove or !reservoirAbove->isActive (end) or reservoirAbove->getFormation () != formation)
+         if (!reservoirAbove or !reservoirAbove->isActive (start) or reservoirAbove->getFormation () != formation)
          {
             directionsToCollect |= EXPELLEDUPWARD;
          }
@@ -1390,7 +1362,7 @@ bool Migrator::collectAndMigrateExpelledCharges (Reservoir * reservoir, Reservoi
          // source rock just above reservoir below
          directionsToCollect |= EXPELLEDUPWARD;
 
-         if (!reservoirBelow->isActive (end))
+         if (!reservoirBelow->isActive (start))
          {
             directionsToCollect |= EXPELLEDDOWNWARD;
          }
@@ -1420,7 +1392,7 @@ bool Migrator::collectAndMigrateExpelledCharges (Reservoir * reservoir, Reservoi
       if (barrier and (directionsToCollect & EXPELLEDUPWARD))
          barrier->updateBlocking (formation, end);
 
-      if (reservoirBelow and reservoirBelow->isActive (end) and
+      if (reservoirBelow and reservoirBelow->isActive (start) and
           formationBelow == reservoirBelow->getFormation ())
       {
          break;
