@@ -65,7 +65,7 @@ set(PARAVIEW_CONFIG_ROOT "PARAVIEW_CONFIG_ROOT-NOTFOUND" CACHE PATH "Path where 
 set( TSLIB_ROOT "${CBM_HOME}/hpc-library/tslib/tslib-${TSLIB_VERSION}" CACHE PATH "Path to Geocosm's TsLib" )
 set( TSLIB_LIBRARY_DIR "${TSLIB_ROOT}/bin/x86_64_linux/Release" CACHE PATH "Path to Geocosm's TsLib library directory")
 
-set( MCR_ROOT "${BM_EXTERNAL_COMPONENTS_DIR}/matlab/8.0" CACHE PATH "Path to Matlab")
+set( MCR_ROOT "/glb/data/opt/matlab/v80/" CACHE PATH "Path to Matlab")
 set( MCR_VERSION "8.0" CACHE STRING "Matlab Version")
 
 set( XERCES_ROOT "${TSLIB_ROOT}/3rdparty/Xerces/xerces-c-3.1.0-x86_64-linux-gcc-3.4" CACHE PATH "Path to Xerces-C library" )
