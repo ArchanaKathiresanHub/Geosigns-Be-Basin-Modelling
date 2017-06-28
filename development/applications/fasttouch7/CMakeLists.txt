@@ -32,12 +32,12 @@ application_env_var( TARGET ${APP_NAME} VARS
   "GEOCOSMBASEDIR" "$MISCDIR/geocosm"
   "GEOCOSMDIR" "$GEOCOSMBASEDIR/bin/x86_64_linux/Release"
   "MATLABMCR" "${MCR_ROOT}"
-  "LD_LIBRARY_PATH" "$MATLABMCR/bin/glnxa64:$LD_LIBRARY_PATH"
+  "LD_LIBRARY_PATH" "$LD_LIBRARY_PATH:/usr/lib64:$MATLABMCR/bin/glnxa64"
   "LANG" "en_US.UTF-8"
   "MWDISABLE_MVM_API" "1"
-  "LD_LIBRARY_PATH" "$MATLABMCR/sys/os/glnxa64:$MATLABMCR/runtime/glnxa64:$MATLABMCR/sys/java/jre/glnxa64/jre/lib/amd64/native_threads:$LD_LIBRARY_PATH"
-  "LD_LIBRARY_PATH" "$MATLABMCR/sys/java/jre/glnxa64/jre/lib/amd64/server:$LD_LIBRARY_PATH"
-  "LD_LIBRARY_PATH" "$MATLABMCR/sys/java/jre/glnxa64/jre/lib/amd64:$GEOCOSMBASEDIR/bin/x86_64_linux/Release:$LD_LIBRARY_PATH"
+  "LD_LIBRARY_PATH" "$LD_LIBRARY_PATH:$MATLABMCR/sys/os/glnxa64:$MATLABMCR/runtime/glnxa64:$MATLABMCR/sys/java/jre/glnxa64/jre/lib/amd64/native_threads"
+  "LD_LIBRARY_PATH" "$LD_LIBRARY_PATH:$MATLABMCR/sys/java/jre/glnxa64/jre/lib/amd64/server"
+  "LD_LIBRARY_PATH" "$LD_LIBRARY_PATH:$MATLABMCR/sys/java/jre/glnxa64/jre/lib/amd64:$GEOCOSMBASEDIR/bin/x86_64_linux/Release"
   "XAPPLRESDIR" "$MATLABMCR/X11/app-defaults"
 )
 
