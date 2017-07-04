@@ -30,7 +30,8 @@
     <file src="libraries\@PROJ_NAME@\Debug\@CSPROJ_NAME@.pdb" target="lib\native\x64\Debug" />
     <file src="c:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\redist\debug_nonredist\x64\Microsoft.VC140.DebugCRT\msvcp140d.dll" target="lib\native\x64\Debug" />
     <file src="c:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\redist\debug_nonredist\x64\Microsoft.VC140.DebugCRT\vcruntime140d.dll" target="lib\native\x64\Debug" />
-    <!-- Modificator for destination c# project to copy native dll -->
-    <file src="@CMAKE_BINARY_DIR@\@CSPROJ_NAMESPACE@.@CSPROJ_NAME@.targets" target="build" />
+@ADDITIONAL_LIBS@    <!-- Swig C++ native library headers -->
+@ADDITIONAL_HEADERS@    <!-- Modificator for destination c# project to copy native dll -->
+    <file src="@TARGET_FILE_PATH@\@CSPROJ_NAMESPACE@.@CSPROJ_NAME@.targets" target="build" />
   </files>
 </package>

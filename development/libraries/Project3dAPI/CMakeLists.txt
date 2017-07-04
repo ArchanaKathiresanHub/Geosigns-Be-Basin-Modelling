@@ -273,7 +273,7 @@ if (MSVC)
       CSPROJ_ASSEMBLY_RELEASE_NOTES "Version ${API_FILE_GIT_DATE_AS_VER}. Initial nuget package release"
       CSPROJ_ASSEMBLY_TAGS          "Cauldron backend Project3d API"
       CSPROJ_ASSEMBLY_COPYRIGHT     "Copyright (C) 2012-2017"
-      CSPROJ__EXTRA_DEPS            cpp_generated_api_files
+      CSPROJ_EXTRA_DEPS             cpp_generated_api_files
       CSPROJ_LIBRARIES              project3d TableIO FileSystem ${Boost_LIBRARIES}
       CSHARP_UNIT_TESTS_SRC         test/Project3dAPITest.cs test/Project3dAPITest_gen.cs
    )     
