@@ -14,6 +14,7 @@
     <includes id="MapsManager_8h" name="MapsManager.h" local="yes" imported="no">MapsManager.h</includes>
     <includes id="UndefinedValues_8h" name="UndefinedValues.h" local="yes" imported="no">UndefinedValues.h</includes>
     <class kind="class">mbapi::Model</class>
+    <namespace>mbapi</namespace>
   </compound>
   <compound kind="file">
     <name>ErrorHandler.h</name>
@@ -27,6 +28,7 @@
     <filename>FluidManager_8h</filename>
     <includes id="ErrorHandler_8h" name="ErrorHandler.h" local="yes" imported="no">ErrorHandler.h</includes>
     <class kind="class">mbapi::FluidManager</class>
+    <namespace>mbapi</namespace>
   </compound>
   <compound kind="file">
     <name>LithologyManager.h</name>
@@ -34,6 +36,7 @@
     <filename>LithologyManager_8h</filename>
     <includes id="ErrorHandler_8h" name="ErrorHandler.h" local="yes" imported="no">ErrorHandler.h</includes>
     <class kind="class">mbapi::LithologyManager</class>
+    <namespace>mbapi</namespace>
   </compound>
   <compound kind="file">
     <name>MapsManager.h</name>
@@ -41,6 +44,7 @@
     <filename>MapsManager_8h</filename>
     <includes id="ErrorHandler_8h" name="ErrorHandler.h" local="yes" imported="no">ErrorHandler.h</includes>
     <class kind="class">mbapi::MapsManager</class>
+    <namespace>mbapi</namespace>
   </compound>
   <compound kind="file">
     <name>PropertyManager.h</name>
@@ -48,6 +52,7 @@
     <filename>PropertyManager_8h</filename>
     <includes id="ErrorHandler_8h" name="ErrorHandler.h" local="yes" imported="no">ErrorHandler.h</includes>
     <class kind="class">mbapi::PropertyManager</class>
+    <namespace>mbapi</namespace>
   </compound>
   <compound kind="file">
     <name>SnapshotManager.h</name>
@@ -55,6 +60,7 @@
     <filename>SnapshotManager_8h</filename>
     <includes id="ErrorHandler_8h" name="ErrorHandler.h" local="yes" imported="no">ErrorHandler.h</includes>
     <class kind="class">mbapi::SnapshotManager</class>
+    <namespace>mbapi</namespace>
   </compound>
   <compound kind="file">
     <name>SourceRockManager.h</name>
@@ -62,6 +68,7 @@
     <filename>SourceRockManager_8h</filename>
     <includes id="ErrorHandler_8h" name="ErrorHandler.h" local="yes" imported="no">ErrorHandler.h</includes>
     <class kind="class">mbapi::SourceRockManager</class>
+    <namespace>mbapi</namespace>
   </compound>
   <compound kind="file">
     <name>StratigraphyManager.h</name>
@@ -69,6 +76,7 @@
     <filename>StratigraphyManager_8h</filename>
     <includes id="ErrorHandler_8h" name="ErrorHandler.h" local="yes" imported="no">ErrorHandler.h</includes>
     <class kind="class">mbapi::StratigraphyManager</class>
+    <namespace>mbapi</namespace>
   </compound>
   <compound kind="file">
     <name>UndefinedValues.h</name>
@@ -337,6 +345,18 @@
       <anchor>a73c7e690b864697e507aaeb537b3c3e5</anchor>
       <arglist>()</arglist>
     </member>
+  </compound>
+  <compound kind="namespace">
+    <name>mbapi</name>
+    <filename>namespacembapi.html</filename>
+    <class kind="class">mbapi::FluidManager</class>
+    <class kind="class">mbapi::LithologyManager</class>
+    <class kind="class">mbapi::MapsManager</class>
+    <class kind="class">mbapi::Model</class>
+    <class kind="class">mbapi::PropertyManager</class>
+    <class kind="class">mbapi::SnapshotManager</class>
+    <class kind="class">mbapi::SourceRockManager</class>
+    <class kind="class">mbapi::StratigraphyManager</class>
   </compound>
   <compound kind="class">
     <name>mbapi::FluidManager</name>

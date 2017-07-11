@@ -61,13 +61,22 @@ if ( MSVC )
                                     ../../../../3rdparty/pugixml-1.7/include/pugiconfig.hpp
                                     ../../../../3rdparty/pugixml-1.7/include/pugixml.hpp
       CSPROJ_LIBRARIES              VisualizationIO DataModel DataAccess utilities SerialDataAccess FileSystem TableIO Serial_Hdf5 CBMGenerics PugiXMLlib LZlib ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
-      CSHARP_UNIT_TESTS_SRC         test/ProjectTest.cs
+      CSHARP_UNIT_TESTS_SRC         test/ProjectTest.cs test/PVTDataTest.cs
    )
 
    configure_file(test/data/HydrostaticGL_out.xml            ${CMAKE_CURRENT_BINARY_DIR}/csharp-test/HydrostaticGL_out.xml COPYONLY)
    configure_file(test/data/Snapshot_0.000000_volumes.cldrn  ${CMAKE_CURRENT_BINARY_DIR}/csharp-test/Snapshot_0.000000_volumes.cldrn  COPYONLY)
    configure_file(test/data/Snapshot_5.000000_volumes.cldrn  ${CMAKE_CURRENT_BINARY_DIR}/csharp-test/Snapshot_5.000000_volumes.cldrn  COPYONLY)
    configure_file(test/data/Snapshot_10.000000_volumes.cldrn ${CMAKE_CURRENT_BINARY_DIR}/csharp-test/Snapshot_10.000000_volumes.cldrn COPYONLY)
+
+   configure_file(test/pvtdata/pvtdata.xml                      ${CMAKE_CURRENT_BINARY_DIR}/csharp-test/pvtdata/pvtdata.xml                      COPYONLY)
+   configure_file(test/pvtdata/Input_surfaces.cldrn             ${CMAKE_CURRENT_BINARY_DIR}/csharp-test/pvtdata/Input_surfaces.cldrn             COPYONLY)
+   configure_file(test/pvtdata/migration_events.cldrn           ${CMAKE_CURRENT_BINARY_DIR}/csharp-test/pvtdata/migration_events.cldrn           COPYONLY)
+   configure_file(test/pvtdata/trap_table.cldrn                 ${CMAKE_CURRENT_BINARY_DIR}/csharp-test/pvtdata/trap_table.cldrn                 COPYONLY)
+   configure_file(test/pvtdata/trapper_table.cldrn              ${CMAKE_CURRENT_BINARY_DIR}/csharp-test/pvtdata/trapper_table.cldrn              COPYONLY)
+   configure_file(test/pvtdata/Snapshot_0.000000_volumes.cldrn  ${CMAKE_CURRENT_BINARY_DIR}/csharp-test/pvtdata/Snapshot_0.000000_volumes.cldrn  COPYONLY)
+   configure_file(test/pvtdata/Snapshot_0.000000_surfaces.cldrn ${CMAKE_CURRENT_BINARY_DIR}/csharp-test/pvtdata/Snapshot_0.000000_surfaces.cldrn COPYONLY)
+
 else (MSVC) # UNIX
    if (NUGET_FOUND)
       generate_nuget_pkg( PKG_NAME          VisualizationIOAPI
@@ -86,8 +95,7 @@ else (MSVC) # UNIX
                                             ../../../../3rdparty/pugixml-1.7/include/pugiconfig.hpp
                                             ../../../../3rdparty/pugixml-1.7/include/pugixml.hpp
                         )
-   endif (NUGET_FOUND)
-  
+   endif (NUGET_FOUND)  
 endif (MSVC)
 
 generate_dox( VisualizationIO.cfg )

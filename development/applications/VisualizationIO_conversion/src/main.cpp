@@ -315,6 +315,10 @@ int main(int argc, char ** argv)
     {
         cerr << "Error occurred: " << except.what() << endl;
     }
+    catch ( ... )
+    {
+       cerr << "Unknown exception happend" << endl;
+    }
 
     return 1;
 }
