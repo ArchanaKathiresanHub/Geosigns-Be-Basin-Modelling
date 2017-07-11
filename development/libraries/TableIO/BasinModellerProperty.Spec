@@ -650,11 +650,6 @@ START-properties
     Type                : integer
     Default             : -1
 
-    Identification      : MD5Checksum
-    Description         : Hexadecimal checksum of the file specified by HDF5FileName
-    Unit of measurement :
-    Type                : string
-
     Identification      : BPAPresence
     Description         : Whether this map has been uploaded to BPA
     Unit of measurement :
@@ -5751,7 +5746,6 @@ START-property-tables
     Column         : MapType
     Column         : MapFileName
     Column         : FileId
-    Column         : MD5Checksum
     Column         : MapSeqNbr
     Column         : HDF5FileName
     Header         : Grid Map Data
@@ -6914,7 +6908,6 @@ START-property-tables
     Column         : FormationName
     Column         : MapFileName
     Column         : BPAPresence
-    Column         : MD5Checksum
     Column         : Average
     Column         : StandardDev
     Column         : Minimum

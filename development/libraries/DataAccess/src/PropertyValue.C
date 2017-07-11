@@ -388,7 +388,6 @@ database::Record* PropertyValue::createTimeIoRecord (database::Table * timeIoTbl
 
    database::setDepoSequence (   timeIoRecord, depoSequence);
    database::setBPAPresence (    timeIoRecord, 0);
-   database::setMD5Checksum (    timeIoRecord, "");
    database::setStandardDev (    timeIoRecord, DefaultUndefinedScalarValue);
    database::setSum2 (           timeIoRecord, DefaultUndefinedScalarValue);
    database::setNP (             timeIoRecord, DefaultUndefinedScalarIntValue );
