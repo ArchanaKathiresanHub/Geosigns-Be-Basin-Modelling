@@ -25,7 +25,7 @@ namespace DerivedProperties {
                                     const DataModel::AbstractFormation* formation,
                                     const DataModel::AbstractGrid*      grid );
 
-      virtual ~DerivedFormationMapProperty () {};
+      virtual ~DerivedFormationMapProperty ();
 
 
       /// \brief Get the value at the position.

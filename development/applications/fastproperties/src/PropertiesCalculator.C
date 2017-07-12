@@ -16,9 +16,14 @@
 #include "h5_parallel_file_types.h"
 #include "Interface/OutputProperty.h"
 #include "Interface/RunParameters.h"
+#include "Interface/ProjectData.h"
+#include "Interface/MantleFormation.h"
 #include "GeoPhysicsFormation.h"
 #include "PropertiesCalculator.h"
 #include "FilePath.h"
+#include "Utilities.h"
+#include "ImportFromXML.h"
+#include "ExportToHDF.h"
 
 // utilities library
 #include "LogHandler.h"
@@ -49,6 +54,9 @@ PropertiesCalculator::PropertiesCalculator( int aRank ) {
    m_listSnapshots    = false;
    m_listStratigraphy = false;
    m_convert          = false;
+   m_vizFormat        = false;
+   m_vizFormatHDF     = false;
+   m_vizFormatHDFonly = false;
    m_primaryPod       = false;
    m_extract2D        = false;
    m_no3Dproperties   = false;
@@ -71,11 +79,7 @@ PropertiesCalculator::PropertiesCalculator( int aRank ) {
 PropertiesCalculator::~PropertiesCalculator() {
 
    if(  m_propertyManager != 0 ) delete m_propertyManager;
-
-   if( m_projectHandle != 0 ) delete m_projectHandle;
-
    m_propertyManager = 0;
-   m_projectHandle   = 0;
 }
 
 //------------------------------------------------------------//
@@ -130,9 +134,6 @@ bool  PropertiesCalculator::finalise ( bool isComplete ) {
    delete m_propertyManager;
    m_propertyManager = 0;
 
-   delete m_projectHandle;
-   m_projectHandle = 0;
-
    return status;
 }
 
@@ -152,7 +153,7 @@ bool PropertiesCalculator::CreateFrom ( DataAccess::Interface::ObjectFactory* fa
    }
 
    if( m_primaryPod ) {
-      H5_Parallel_PropertyList::setOneFilePerProcessOption( );
+      H5_Parallel_PropertyList::setOneFilePerProcessOption( false );
    }
 
    return true;
@@ -209,50 +210,78 @@ bool PropertiesCalculator::showLists() {
 void PropertiesCalculator::convertToVisualizationIO( )  {
 
    if( m_convert ) {
-      cout << "Converting to visualization format.." << endl;
-
+ 
       PetscLogDouble Start_Time;
       PetscLogDouble End_Time;
       PetscTime( &Start_Time );
+
+      if( m_rank == 0  ) {
+         cout << "Converting to visualization format.." << endl;
+      }
       clock_t start = clock();
       float timeInSeconds;
-
+      
       std::shared_ptr<DataAccess::Interface::ObjectFactory> factory(new DataAccess::Interface::ObjectFactory());
       std::shared_ptr<DataAccess::Interface::ProjectHandle> projectHandle(DataAccess::Interface::OpenCauldronProject(m_projectFileName, "r", factory.get()));
-
+      //   projectHandle->setActivityOutputGrid(projectHandle->getLowResolutionOutputGrid ());
+    
       timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
       cout << "Finished opening project handle in " << timeInSeconds << " seconds " << endl;
-
-      std::shared_ptr<CauldronIO::Project> project = ImportProjectHandle::createFromProjectHandle(projectHandle, false );
+    
+      m_vizProject = ImportProjectHandle::createFromProjectHandle(projectHandle, true );
       timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
       cout << "Finished import in " << timeInSeconds << " seconds " << endl;
-
-	  ibs::FilePath absPath(projectHandle->getFullOutputDir());
-	  absPath << m_projectFileName;
+      
+#if 0
+      ibs::FilePath absPath(projectHandle->getFullOutputDir());
+      absPath << m_projectFileName;
 
       cout << "Writing to new format" << endl;
       start = clock();
-	  std::shared_ptr<CauldronIO::Project> projectExisting;
-	  CauldronIO::ExportToXML::exportToXML(project, projectExisting, absPath.path(), 1);
-
+      std::shared_ptr<CauldronIO::Project> projectExisting;
+      CauldronIO::ExportToXML::exportToXML(project, projectExisting, absPath.path(), 1);
+      
       timeInSeconds = (float)(clock() - start) / CLOCKS_PER_SEC;
       cout << "Wrote to new format in " << timeInSeconds << " seconds" << endl;
-
+#endif      
       PetscTime( &End_Time );
       displayTime( End_Time - Start_Time, "Total time: ");
-  }
+   }
 }
+void PropertiesCalculator::createXML() {
 
+   if( m_vizFormat ) {
+
+      boost::filesystem::path pathToxml(m_projectHandle->getProjectPath());
+
+      pathToxml /= m_projectHandle->getProjectName();
+
+      m_fileNameXml = pathToxml.string() + xmlExt;
+
+      ibs::FilePath vizFileName( m_fileNameXml );
+      if( vizFileName.exists() ) {
+          m_vizProject = CauldronIO::ImportFromXML::importFromXML(m_fileNameXml);
+      } else {
+         // create new xml
+         m_vizProject = createStructureFromProjectHandle(false);
+      }
+   }
+}
 //------------------------------------------------------------//
-void PropertiesCalculator::calculateProperties( FormationSurfaceVector& formationItems, PropertyList properties, SnapshotList & snapshots )  {
+void PropertiesCalculator::calculateProperties( FormationSurfaceVector& formationItems, Interface::PropertyList properties, Interface::SnapshotList & snapshots )  {
 
    if( properties.size () == 0 ) {
       return;
    }
+    m_sharedProjectHandle.reset(m_projectHandle);
 
-   SnapshotList::reverse_iterator snapshotIter;
+    if(  m_vizFormat ) {
+       createXML();
+    }
 
-   PropertyList::iterator propertyIter;
+   Interface::SnapshotList::iterator snapshotIter;
+
+   Interface::PropertyList::iterator propertyIter;
    FormationSurfaceVector::iterator formationIter;
 
    SnapshotFormationSurfaceOutputPropertyValueMap allOutputPropertyValues;
@@ -268,7 +297,7 @@ void PropertiesCalculator::calculateProperties( FormationSurfaceVector& formatio
    struct stat fileStatus;
    int fileError;
 
-   for ( snapshotIter = snapshots.rbegin(); snapshotIter != snapshots.rend(); ++snapshotIter )
+   for ( snapshotIter = snapshots.begin(); snapshotIter != snapshots.end(); ++snapshotIter )
    {
       const Interface::Snapshot * snapshot = *snapshotIter;
 
@@ -281,12 +310,15 @@ void PropertiesCalculator::calculateProperties( FormationSurfaceVector& formatio
 
          ((Snapshot *)snapshot)->setAppendFile ( not fileError );
       }
-
+      if(  m_vizFormat ) {
+         m_formInfoList.reset();
+         m_formInfoList = getDepthFormations( m_projectHandle, snapshot );
+      }
       for ( formationIter = formationItems.begin(); formationIter != formationItems.end(); ++formationIter )
       {
-         const Formation * formation = ( *formationIter ).first;
-         const Surface   * surface   = ( *formationIter ).second;
-         const Interface::Snapshot * bottomSurfaceSnapshot = ( formation->getBottomSurface() != 0 ? formation->getBottomSurface()->getSnapshot() : 0 );
+         const Interface::Formation * formation = ( *formationIter ).first;
+         const Interface::Surface   * surface   = ( *formationIter ).second;
+         const Interface::Snapshot  * bottomSurfaceSnapshot = ( formation->getBottomSurface() != 0 ? formation->getBottomSurface()->getSnapshot() : 0 );
 
          if( snapshot->getTime() != 0.0 and surface == 0 and bottomSurfaceSnapshot != 0 ) {
             const double depoAge = bottomSurfaceSnapshot->getTime();
@@ -297,7 +329,7 @@ void PropertiesCalculator::calculateProperties( FormationSurfaceVector& formatio
 
          for ( propertyIter = properties.begin(); propertyIter != properties.end(); ++propertyIter )
          {
-            const Property * property = *propertyIter;
+            const Interface::Property * property = *propertyIter;
             if( m_no3Dproperties and surface == 0 and property->getPropertyAttribute() != DataModel::FORMATION_2D_PROPERTY ) {
                continue;
             }
@@ -325,27 +357,67 @@ void PropertiesCalculator::calculateProperties( FormationSurfaceVector& formatio
                }
             }
          }
-         DerivedProperties::outputSnapshotFormationData( m_projectHandle, snapshot, * formationIter, properties, allOutputPropertyValues );
+         if( not m_vizFormat ) { 
+            DerivedProperties::outputSnapshotFormationData( m_projectHandle, snapshot, * formationIter, properties, allOutputPropertyValues );
+         } else {
+            DerivedProperties::createVizSnapshotFormationData( m_vizProject, m_projectHandle, snapshot, * formationIter, properties, allOutputPropertyValues, m_formInfoList, m_data );
+         }
       }
 
       removeProperties( snapshot, allOutputPropertyValues );
       m_propertyManager->removeProperties( snapshot );
 
-      displayProgress( snapshot->getFileName (), m_startTime, "Start saving " );
-
-      m_projectHandle->continueActivity();
-
-      displayProgress( snapshot->getFileName (), m_startTime, "Saving is finished for " );
-
+      if( not m_vizFormat ) {
+         displayProgress( snapshot->getFileName (), m_startTime, "Start saving " );
+      
+         m_projectHandle->continueActivity();
+      
+         displayProgress( snapshot->getFileName (), m_startTime, "Saving is finished for " );
+      } else {
+         collectVolumeData(  DerivedProperties::getSnapShot( m_vizProject, snapshot->getTime() ), m_data );
+         if( m_rank != 0 ) {
+            DerivedProperties::getSnapShot( m_vizProject, snapshot->getTime() )->release();
+         }
+      }
       //     m_projectHandle->deleteRecordLessMapPropertyValues();
       //     m_projectHandle->deleteRecordLessVolumePropertyValues();
 
       m_projectHandle->deletePropertiesValuesMaps ( snapshot );
    }
 
+   if( m_vizFormat and m_rank == 0) {
+      updateVizSnapshotsConstantValue();
+
+      displayProgress( m_fileNameXml, m_startTime, "Writing to visualization format " );
+      std::shared_ptr<CauldronIO::Project> projectExisting;
+      const string projectFileName = m_projectHandle->getFileName();
+      ibs::FilePath absPath(projectFileName);
+
+      CauldronIO::ExportToXML::exportToXML( m_vizProject, projectExisting, m_fileNameXml, 1, false );
+      displayProgress( "", m_startTime, "Writing to visualization format done " );
+  }
+
+   if( m_vizFormatHDF and m_rank == 0 ) {
+       writeToHDF( );
+   }
+
    PetscLogDouble End_Time;
    PetscTime( &End_Time );
+   
    displayTime( End_Time - m_startTime, "Total derived properties saving: ");
+}
+
+//------------------------------------------------------------//
+void PropertiesCalculator::writeToHDF() {
+    
+   boost::filesystem::path pathToxml(m_projectHandle->getProjectPath());
+   pathToxml /= m_projectHandle->getProjectName();
+   string fileNameXml = pathToxml.string() + xmlExt;
+   std::shared_ptr< CauldronIO::Project> vizProject(CauldronIO::ImportFromXML::importFromXML(fileNameXml));
+  
+   cout << "Writing to HDF from visualization format " << fileNameXml << endl;
+
+   CauldronIO::ExportToHDF::exportToHDF(vizProject, fileNameXml, 1, m_basement, m_projectHandle );
 }
 //------------------------------------------------------------//
 
@@ -546,7 +618,7 @@ bool PropertiesCalculator::acquireSnapshots( SnapshotList & snapshots )
 }
 
 //------------------------------------------------------------//
-void PropertiesCalculator::acquireProperties( PropertyList & properties ) {
+void PropertiesCalculator::acquireProperties( Interface::PropertyList & properties ) {
 
    if( m_propertyNames.size() != 0 ) {
       // remove duplicated names
@@ -590,7 +662,7 @@ void PropertiesCalculator::acquireAll2Dproperties() {
 
    if ( m_all2Dproperties or ( not m_formationNames.empty() and m_propertyNames.empty () ))
    {
-      PropertyList * allProperties = m_projectHandle->getProperties( true );
+      Interface::PropertyList * allProperties = m_projectHandle->getProperties( true );
 
       LogHandler( LogHandler::DEBUG_SEVERITY ) << "Acquiring computable 2D properties";
       for ( size_t i = 0; i < allProperties->size (); ++i ) {
@@ -625,7 +697,7 @@ void PropertiesCalculator::acquireAll3Dproperties() {
 
    if ( m_all3Dproperties or ( not m_formationNames.empty() and m_propertyNames.empty () )) {
 
-      PropertyList * allProperties = m_projectHandle->getProperties( true );
+      Interface::PropertyList * allProperties = m_projectHandle->getProperties( true );
       LogHandler( LogHandler::DEBUG_SEVERITY ) << "Acquiring computable 3D property ";
       for ( size_t i = 0; i < allProperties->size (); ++i ) {
          const Interface::Property* property = (*allProperties)[ i ];
@@ -675,8 +747,8 @@ void PropertiesCalculator::printListStratigraphy () {
       cout << endl;
       const Snapshot * zeroSnapshot = m_projectHandle->findSnapshot( 0 );
 
-      FormationList * myFormations = m_projectHandle->getFormations( zeroSnapshot, true );
-      FormationList::iterator formationIter;
+      Interface::FormationList * myFormations = m_projectHandle->getFormations( zeroSnapshot, true );
+      Interface::FormationList::iterator formationIter;
       cout << "Stratigraphy: ";
       cout << endl;
       cout << endl;
@@ -684,7 +756,7 @@ void PropertiesCalculator::printListStratigraphy () {
       bool arrivedAtBasement = false;
       for ( formationIter = myFormations->begin(); formationIter != myFormations->end(); ++formationIter )
       {
-         const Formation * formation = *formationIter;
+         const Interface::Formation * formation = *formationIter;
          if ( formation->kind() == BASEMENT_FORMATION && arrivedAtBasement == false )
          {
             arrivedAtBasement = true;
@@ -697,7 +769,7 @@ void PropertiesCalculator::printListStratigraphy () {
          }
 
          cout << "\t\t" << formation->getName() << endl;
-         const Surface * bottomSurface = formation->getBottomSurface();
+         const Interface::Surface * bottomSurface = formation->getBottomSurface();
          if ( bottomSurface )
          {
             cout << "\t" << bottomSurface->getName();
@@ -722,7 +794,7 @@ void PropertiesCalculator::printOutputableProperties () {
 
 
    if( m_listProperties ) {
-      PropertyList * allProperties = m_projectHandle->getProperties ( true );
+      Interface::PropertyList * allProperties = m_projectHandle->getProperties ( true );
 
       PetscPrintf( PETSC_COMM_WORLD, "Available 3D output properties are: " );
 
@@ -807,6 +879,65 @@ bool PropertiesCalculator::setFastcauldronActivityName() {
 
    return true;
 }
+
+
+// Methods for visualization format output
+//------------------------------------------------------------//
+
+void PropertiesCalculator::updateVizSnapshotsConstantValue() {
+
+   SnapShotList snapShotList = m_vizProject->getSnapShots();
+   for (auto& snapShot : snapShotList)
+   {
+      DerivedProperties::updateConstantValue( snapShot );
+   }
+
+}
+
+//------------------------------------------------------------//
+std::shared_ptr<CauldronIO::Project> PropertiesCalculator::createStructureFromProjectHandle(bool verbose) {
+
+
+   // Get modeling mode
+    Interface::ModellingMode modeIn = m_sharedProjectHandle->getModellingMode();
+    CauldronIO::ModellingMode mode = modeIn == Interface::MODE1D ? CauldronIO::MODE1D : CauldronIO::MODE3D;
+    // setActivityGrid
+    if( modeIn ==CauldronIO:: MODE1D ) {
+       m_sharedProjectHandle->setActivityOutputGrid( m_sharedProjectHandle->getLowResolutionOutputGrid ());
+    }
+    // Read general project data
+    const Interface::ProjectData* projectData = m_sharedProjectHandle->getProjectData();
+
+    // Create the project
+    std::shared_ptr<CauldronIO::Project> project(new CauldronIO::Project(
+                                                                         projectData->getProjectName(), projectData->getDescription(), projectData->getProjectTeam(),
+                                                                         projectData->getProgramVersion(), mode, xml_version_major, xml_version_minor));
+    // Import all snapshots
+    ImportProjectHandle import(verbose, project, m_sharedProjectHandle);
+
+    import.checkInputValues();
+    if (verbose)
+       cout << "Create empty snapshots" << endl;
+
+   
+    std::shared_ptr<Interface::SnapshotList> snapShots;
+    snapShots.reset(m_projectHandle->getSnapshots(Interface::MAJOR | Interface::MINOR));
+    
+    for (size_t i = 0; i < snapShots->size(); i++)
+    {
+       const Interface::Snapshot* snapShot = snapShots->at(i);
+       
+       // Create a new empty snapshot
+       std::shared_ptr<CauldronIO::SnapShot> snapShotIO(new CauldronIO::SnapShot(snapShot->getTime(), DerivedProperties::getSnapShotKind(snapShot), snapShot->getType() == MINOR));
+      
+       // Add to project
+       project->addSnapShot(snapShotIO);
+    }   
+    return project;
+    
+
+}
+     
 //------------------------------------------------------------//
 bool PropertiesCalculator::copyFiles( ) {
 
@@ -1031,6 +1162,18 @@ bool PropertiesCalculator::parseCommandLine( int argc, char ** argv ) {
       {
          m_convert = true;
       }
+      else if ( strncmp( argv[ arg ], "-viz", Max( 7, (int)strlen( argv[ arg ] )) ) == 0 )
+      {
+         m_vizFormat = true;
+      }
+      else if ( strncmp( argv[ arg ], "-hdf", Max( 7, (int)strlen( argv[ arg ] )) ) == 0 )
+      {
+         m_vizFormatHDF = true;
+      }
+      else if ( strncmp( argv[ arg ], "-hdfonly", Max( 7, (int)strlen( argv[ arg ] )) ) == 0 )
+      {
+         m_vizFormatHDFonly = true;
+      }
       else if ( strncmp( argv[ arg ], "-ddd", Max( 3, (int)strlen( argv[ arg ] )) ) == 0 )
       {
 
@@ -1073,20 +1216,21 @@ bool PropertiesCalculator::parseCommandLine( int argc, char ** argv ) {
    if( m_projectProperties ) {
       m_all3Dproperties = true;
       m_all2Dproperties = true;
-      m_extract2D = true;
+      // Do not extract and save 2D maps from 3d data, define -extract2D option
+      // m_extract2D = false;
       m_basement = true;
    }
 
-   if( m_convert ) {
+   if( m_convert or m_vizFormatHDFonly ) {
       int numberOfRanks;
-
+      
       MPI_Comm_size ( PETSC_COMM_WORLD, &numberOfRanks );
       if( numberOfRanks > 1 ) {
          PetscPrintf( PETSC_COMM_WORLD, "Unable to convert data to Visualization format. Please select 1 core.\n" );
          return false;
       }
    }
-  return true;
+   return true;
 }
 //------------------------------------------------------------//
 void PropertiesCalculator::startTimer() {
@@ -1095,9 +1239,20 @@ void PropertiesCalculator::startTimer() {
 }
 //------------------------------------------------------------//
 
+bool PropertiesCalculator::hdfonly() const {
+   return m_vizFormatHDFonly;
+}
+//------------------------------------------------------------//
+
 bool PropertiesCalculator::convert() const {
    return m_convert;
 }
+//------------------------------------------------------------//
+
+bool PropertiesCalculator::vizFormat() const {
+   return m_vizFormat;
+}
+
 
 //------------------------------------------------------------//
 
@@ -1130,6 +1285,7 @@ void PropertiesCalculator::showUsage( const char* command, const char* message )
            << "\t[-list-snapshots]                          print a list of available snapshots and exit" << endl
            << "\t[-list-stratigraphy]                       print a list of available surfaces and formations and exit" << endl << endl
            << "\t[-convert]                                 convert the data to visialization format. (run on 1 core)" << endl << endl
+           << "\t[-viz]                                     calculate the properties and convert to visialization format." << endl << endl
            << "\t[-help]                                    print this message and exit" << endl << endl
            << "Options for shared cluster storage:" << endl << endl
            << "\t[-primaryPod <dir>]                        use if the fastcauldron data are stored in the shared <dir> on the cluster" << endl << endl

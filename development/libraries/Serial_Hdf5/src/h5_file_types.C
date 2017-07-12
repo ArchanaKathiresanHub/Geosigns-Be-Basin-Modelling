@@ -137,7 +137,8 @@ hid_t H5_Write_File::addDataset (const char *dataname, hid_t locId, hid_t type,
 {
    int numDimensions = space.numDimensions();
 
-   if( not m_useChunks or memspace == NULL ) {
+   // do not output map data in chunks
+   if( not m_useChunks or numDimensions < 3 or memspace == NULL ) {
       return addDataset (dataname, locId, type, space, propertyList);
    }
    

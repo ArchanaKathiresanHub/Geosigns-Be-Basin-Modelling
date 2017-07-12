@@ -821,6 +821,8 @@ std::shared_ptr<CauldronIO::FormationInfoList> ImportProjectHandle::getDepthForm
         if (!map) throw CauldronIO::CauldronIOException("Could not open project3D HDF file!");
         std::shared_ptr<CauldronIO::FormationInfo> info(new CauldronIO::FormationInfo());
 
+        map->retrieveData();
+
         info->formation = propValues->at(i)->getFormation();
         info->kStart = map->firstK();
         info->kEnd = map->lastK();
@@ -838,6 +840,7 @@ std::shared_ptr<CauldronIO::FormationInfoList> ImportProjectHandle::getDepthForm
         
         depthFormations->push_back(info);
         
+        map->restoreData();
         map->release();
     }
 
@@ -995,8 +998,13 @@ void ImportProjectHandle::addStratTableSurface(const DataAccess::Interface::Surf
 	// Set the geometry
 	const Grid* grid = (Grid *)m_projectHandle->getInputGrid();
 	const Interface::GridMap* gridmap = m_projectHandle->getFactory()->produceGridMap(surface, 0, grid, 0);
+    gridmap->retrieveData();
+       
 	std::shared_ptr<const CauldronIO::Geometry2D> geometry(new CauldronIO::Geometry2D(grid->numI(), grid->numJ(),
 		grid->deltaI(), grid->deltaJ(), grid->minI(), grid->minJ()));
+
+    gridmap->restoreData();
+    gridmap->release();
 
 	// Add the geometry to the project
 	m_project->addGeometry(geometry);
@@ -1107,8 +1115,8 @@ void ImportProjectHandle::addStratTableFormation(const Interface::Formation* for
 	// Create a geometry
 	const Grid* grid = (Grid *)m_projectHandle->getInputGrid();
 	const Interface::GridMap* gridmap = m_projectHandle->getFactory()->produceGridMap(formation, 0, grid, 0);
-	std::shared_ptr<const CauldronIO::Geometry2D> geometry(new CauldronIO::Geometry2D(grid->numI(), grid->numJ(),
-		grid->deltaI(), grid->deltaJ(), grid->minI(), grid->minJ()));
+	std::shared_ptr<const CauldronIO::Geometry2D> geometry(new CauldronIO::Geometry2D(grid->numIGlobal(), grid->numJGlobal(),
+		grid->deltaIGlobal(), grid->deltaJGlobal(), grid->minIGlobal(), grid->minJGlobal()));
 
 	// Get the database record
 	database::Record* record = formation->getTopSurface()->getRecord();

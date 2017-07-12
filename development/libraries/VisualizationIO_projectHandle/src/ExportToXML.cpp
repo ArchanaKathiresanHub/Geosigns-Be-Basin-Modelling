@@ -59,7 +59,11 @@ bool ExportToXML::exportToXML(std::shared_ptr<Project>& project, const std::shar
 CauldronIO::ExportToXML::ExportToXML(const ibs::FilePath& absPath, const ibs::FilePath& relPath, size_t numThreads, bool center)
     : m_fullPath(absPath), m_relPath(relPath), m_numThreads(numThreads), m_center(center)
 {
-    m_fullPath << relPath.path();
+    if( absPath.path() == "." ) {
+       m_fullPath = relPath.path();
+    } else {
+      m_fullPath << relPath.path(); 
+    }
 }
 
 void ExportToXML::addProject(pugi::xml_node pt, std::shared_ptr<Project>& project, const std::shared_ptr<Project>& projectExisting)

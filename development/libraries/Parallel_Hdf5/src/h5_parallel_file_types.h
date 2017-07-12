@@ -15,7 +15,7 @@ public:
 
    virtual hid_t createDatasetPropertyList( const bool readOnly ) const;
          
-   static bool setOneFilePerProcessOption() ;
+   static bool setOneFilePerProcessOption( const bool createDir =  true ) ;
 
    static void setOneNodeCollectiveBufferingOption();
 

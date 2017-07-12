@@ -13,10 +13,14 @@
 #FILE( GLOB all_headers src/*.h )
 #FILE( GLOB all_srcs src/*.C)
 set (all_headers,
-   src/PropertiesCalculator.h)
+   src/PropertiesCalculator.h
+   src/Utilities.h 
+   src/ExportToHDF.h )
 
 set(all_srcs
    src/PropertiesCalculator.C
+   src/Utilities.C
+   src/ExportToHDF.cpp
    src/main.C)
 
 source_group(include FILES ${all_headers})

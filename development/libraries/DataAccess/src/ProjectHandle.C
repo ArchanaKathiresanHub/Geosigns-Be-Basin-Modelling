@@ -586,6 +586,7 @@ bool ProjectHandle::restartActivity( void )
 
       m_mapPropertyValuesWriter->close();
       m_mapPropertyValuesWriter->open( filePathName, false );
+      m_mapPropertyValuesWriter->setChunking();
       m_mapPropertyValuesWriter->saveDescription( getActivityOutputGrid() );
 
       saveCreatedMapPropertyValues();      /// creates new TimeIoRecords

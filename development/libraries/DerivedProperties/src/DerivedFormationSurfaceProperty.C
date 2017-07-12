@@ -11,6 +11,10 @@ DerivedProperties::DerivedFormationSurfaceProperty::DerivedFormationSurfacePrope
 {
 }
 
+DerivedProperties::DerivedFormationSurfaceProperty::~DerivedFormationSurfaceProperty () {
+   m_values.resize( boost::extents[0][0] );
+}
+
 double DerivedProperties::DerivedFormationSurfaceProperty::get ( unsigned int i,
                                                                  unsigned int j ) const {
    return m_values[ i - firstI(true)][ j - firstJ(true)];

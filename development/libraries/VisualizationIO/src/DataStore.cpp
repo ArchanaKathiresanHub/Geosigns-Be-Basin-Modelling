@@ -217,6 +217,7 @@ CauldronIO::DataStoreSave::DataStoreSave(const std::string& filename, bool appen
         m_file_out.open(filename.c_str(), std::fstream::binary | std::fstream::ate | std::fstream::app);
 
     m_compress = APPLY_COMPRESSION;
+
     m_fileName = filename;
     m_flushed = false;
     m_offset = 0;
@@ -363,10 +364,6 @@ void CauldronIO::DataStoreSave::writeVolumePart(pugi::xml_node volNode, bool com
     pugi::xml_node subNode = volNode.append_child("datastore");
     subNode.append_attribute("file") = ibs::FilePath(m_fileName).fileName().c_str();
 
-    if (compress)
-        subNode.append_attribute("compression") = COMPRESSION_LZ4 ? "lz4" : "gzip";
-    else
-        subNode.append_attribute("compression") = "none";
     subNode.append_attribute("dataIJK") = IJK;
 
     // We write the actual data if 1) this volume has been loaded from projecthandle (so nativeVolume == nullptr)
@@ -379,6 +376,10 @@ void CauldronIO::DataStoreSave::writeVolumePart(pugi::xml_node volNode, bool com
 
     if (writeData)
     {
+       if (compress)
+          subNode.append_attribute("compression") = COMPRESSION_LZ4 ? "lz4" : "gzip";
+       else
+          subNode.append_attribute("compression") = "none";
         // Write the volume and update the offset
         writeVolume(volume, IJK, compress);
         m_dataToCompress.back()->setXmlNode(subNode);
@@ -389,6 +390,11 @@ void CauldronIO::DataStoreSave::writeVolumePart(pugi::xml_node volNode, bool com
         const DataStoreParams* const params = nativeVolume->getDataStoreParamsIJK();
         assert(m_fileName == params->fileName.path());
 
+        if ( params->compressed )
+           subNode.append_attribute("compression") =  params->compressed_lz4 ? "lz4" : "gzip";
+        else
+           subNode.append_attribute("compression") = "none";
+        
         subNode.append_attribute("offset") = (unsigned int)m_offset;
         subNode.append_attribute("size") = (unsigned int)params->size;
         m_offset += params->size;

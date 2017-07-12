@@ -44,10 +44,13 @@ public:
 	static CauldronIO::PropertyType getPropertyType(const DataAccess::Interface::Property* prop) ;
 	static CauldronIO::PropertyAttribute getPropertyAttribute(const DataAccess::Interface::Property* prop);
 
+
+    /// Constructor
+    ImportProjectHandle(bool verbose, std::shared_ptr<CauldronIO::Project>& project, std::shared_ptr<DataAccess::Interface::ProjectHandle>& projectHandle);
+
+    void checkInputValues();
 private:
 
-    /// Private constructor
-    ImportProjectHandle(bool verbose, std::shared_ptr<CauldronIO::Project>& project, std::shared_ptr<DataAccess::Interface::ProjectHandle>& projectHandle);
 
     /// Private members
 	bool m_verbose;
@@ -102,7 +105,6 @@ private:
     std::shared_ptr<DataAccess::Interface::PropertyValueList> getFormationVolumePropertyValues(const DataAccess::Interface::Property* prop, std::shared_ptr<DataAccess::Interface::PropertyValueList> snapShotPropVals,
         const DataAccess::Interface::Formation* formation) const;
 	
-	void checkInputValues();
 	void addStratTableSurface(const DataAccess::Interface::Surface* surface);
 	std::shared_ptr<CauldronIO::SurfaceData> getInputMap(float value, const std::string &valueGridMapId, std::shared_ptr<const CauldronIO::Geometry2D> geometry) const;
 	void addStratTableFormation(const DataAccess::Interface::Formation* formation);

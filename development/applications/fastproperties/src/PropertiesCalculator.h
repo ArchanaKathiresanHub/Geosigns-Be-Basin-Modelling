@@ -73,19 +73,26 @@ void Swap( T & x, T & y )
 
 class PropertiesCalculator {
 
-
+   const std::string xmlExtName = "";
+   const std::string xmlExt = xmlExtName + ".xml";
+   const std::string xmlDir = xmlExtName + "_vizIO_output";
 public :
    PropertiesCalculator( int aRank );
 
-   ~PropertiesCalculator();
+   virtual ~PropertiesCalculator();
 
    int m_rank;
 
 private:
+   std::shared_ptr<ProjectHandle> m_sharedProjectHandle;
+   std::shared_ptr<CauldronIO::Project> m_vizProject;
    GeoPhysics::ProjectHandle* m_projectHandle;
    DerivedPropertyManager * m_propertyManager;
    
    bool m_convert;
+   bool m_vizFormat;
+   bool m_vizFormatHDF;
+   bool m_vizFormatHDFonly;
    bool m_primaryPod;
    bool m_extract2D;         ///< true if 2D primary/derived properties to be calculated and saved
    bool m_no3Dproperties;    ///< true if no 3d properties are defined to be calculated
@@ -101,6 +108,7 @@ private:
    bool m_projectProperties;
 
    string m_projectFileName;
+   string m_fileNameXml;
 
    StringVector m_propertyNames;
    DoubleVector m_ages;
@@ -111,11 +119,14 @@ private:
    bool   m_decompactionMode;
    int    m_snapshotsType; ///< The type of snapshots to calculate derived properties at
 
+   std::vector<float> m_data;
+   std::shared_ptr<CauldronIO::FormationInfoList> m_formInfoList;
    PetscLogDouble m_startTime;
 
+   std::shared_ptr<CauldronIO::Project> createStructureFromProjectHandle( bool verbose );
    bool allowOutput ( const string & propertyName, const Interface::Formation * formation, const Interface::Surface * surface ) const;
    PropertyOutputOption checkTimeFilter3D ( const string & name ) const;
-
+   void createXML();
 public:
 
    GeoPhysics::ProjectHandle* getProjectHandle() const;
@@ -145,11 +156,15 @@ public:
    void printListSnapshots ();
    void printListStratigraphy ();
 
-   void calculateProperties( FormationSurfaceVector& formationItems, PropertyList properties, SnapshotList & snapshots );
+   void calculateProperties( FormationSurfaceVector& formationItems, Interface::PropertyList properties, Interface::SnapshotList & snapshots );
    
    void convertToVisualizationIO();
+   void updateVizSnapshotsConstantValue();
    bool convert() const;
+   bool hdfonly() const;
+   bool vizFormat() const;
 
+   void writeToHDF();
    bool parseCommandLine ( int argc, char ** argv );
    void showUsage( const char* command, const char* message = 0 );
 

@@ -9,6 +9,10 @@ DerivedProperties::DerivedFormationMapProperty::DerivedFormationMapProperty ( co
    m_values ( boost::extents [grid->lastI(true) - grid->firstI(true) + 1][grid->lastJ(true) - grid->firstJ(true) + 1])
 {
 }
+DerivedProperties::DerivedFormationMapProperty::~DerivedFormationMapProperty () {
+   m_values.resize( boost::extents[0][0] );
+}
+
 
 double DerivedProperties::DerivedFormationMapProperty::get ( unsigned int i,
                                                              unsigned int j ) const {
