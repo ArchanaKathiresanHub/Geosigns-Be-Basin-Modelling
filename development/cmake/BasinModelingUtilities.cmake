@@ -392,7 +392,7 @@ macro( generate_csharp_api )
          set(SWIG_MODULE_${CSPROJ_NAME}_EXTRA_DEPS ${ExtraDependencies})
       endif ()      
 
-      swig_add_module(${CSPROJ_NAME} csharp ${SWIG_INP_FILE} ${CMAKE_CURRENT_BINARY_DIR}/version.rc)
+      swig_add_library(${CSPROJ_NAME} TYPE MODULE LANGUAGE csharp SOURCES ${SWIG_INP_FILE} ${CMAKE_CURRENT_BINARY_DIR}/version.rc)
       swig_link_libraries(${CSPROJ_NAME} ${ProjectLinkLibraries})
 
       # Before C# generation, remove all existing files. The directory should be empty before generation	
