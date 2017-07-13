@@ -53,7 +53,7 @@ fi
 if [ -z \"$SIEPRTS_LICENSE_FILE\" ] && [ -e /apps/sss/etc/local/flexlmlicenses ]; then
   export SIEPRTS_LICENSE_FILE=`cat /apps/sss/etc/local/flexlmlicenses | grep SIEPRTS_LICENSE_FILE | cut -d ' ' -f 2`
 fi
-#module purge
+module purge
 module load intel/${INTEL_CMPL_VERSION}
 
 # Running application forwarding all the script inputs
