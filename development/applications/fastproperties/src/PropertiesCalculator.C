@@ -729,7 +729,7 @@ void PropertiesCalculator::printListSnapshots ()  {
       for ( snapshotIter = mySnapshots->begin(); snapshotIter != mySnapshots->end(); ++snapshotIter )
       {
          if ( snapshotIter != mySnapshots->begin() ) cout << ",";
-         int oldPrecision = cout.precision();
+         int oldPrecision = static_cast<int>(cout.precision());
          cout << setprecision(9);
          cout << ( *snapshotIter )->getTime();
          cout <<setprecision(oldPrecision);

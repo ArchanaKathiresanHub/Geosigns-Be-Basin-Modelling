@@ -170,14 +170,14 @@ bool DerivedProperties::createVizSnapshotResultPropertyValueContinuous (  std::s
    if( snapshot->getTime() == 0 ) {
       std::shared_ptr<CauldronIO::Formation> vizFormation = vizProject->findFormation(daFormation->getName());
       if( not vizFormation ) {
-         vizFormation.reset(new CauldronIO::Formation(info->kStart + 1, propertyValue->getDepth(), daFormation->getName()));
+         vizFormation.reset(new CauldronIO::Formation(static_cast<int>(info->kStart + 1), propertyValue->getDepth(), daFormation->getName()));
          vizProject->addFormation( vizFormation );         
          if( debug ) {
             cout << "Add formation cont" << daFormation->getName() << " kstart " << info->kStart + 1 << " kend " << propertyValue->getDepth() << endl;
          }
      }
       if( not vizFormation->isDepthRangeDefined() ) {
-         vizFormation->updateK_range(  info->kStart, info->kEnd );
+         vizFormation->updateK_range(static_cast<int>(info->kStart), static_cast<int>(info->kEnd));
          if( debug ) {
             cout << "update krange cont " <<  daFormation->getName()<< " " << info->kStart << " " << info->kEnd << endl;
          }
@@ -233,8 +233,8 @@ bool DerivedProperties::createVizSnapshotResultPropertyValueContinuous (  std::s
 
    float * internalData = 0;
 
-   int firstK = info->kStart;
-   int lastK  = info->kEnd;
+   int firstK = static_cast<int>(info->kStart);
+   int lastK  = static_cast<int>(info->kEnd);
 
    if( not propertyVolumeExisting ) {
       volDataNew.reset(new CauldronIO::VolumeDataNative(geometry, CauldronIO::DefaultUndefinedValue));
@@ -260,11 +260,11 @@ bool DerivedProperties::createVizSnapshotResultPropertyValueContinuous (  std::s
    }
    propertyValue->retrieveData();
 
-   for ( unsigned int j = grid->firstJ (); j <= grid->lastJ (); ++j ) {
-      for ( unsigned int i = grid->firstI(); i <= grid->lastI (); ++i ) {
+   for ( int j = grid->firstJ (); j <= grid->lastJ (); ++j ) {
+      for ( int i = grid->firstI(); i <= grid->lastI (); ++i ) {
          unsigned int pk = 0;
          for ( int k = lastK; k >= firstK; --k, ++ pk) {
-            internalData[volDataNew->computeIndex_IJK(i, j, k)] = propertyValue->getValue( i, j, pk );
+            internalData[volDataNew->computeIndex_IJK(i, j, k)] = static_cast<float>(propertyValue->getValue( i, j, pk ));
          }
       }
    }
@@ -323,13 +323,13 @@ bool  DerivedProperties::createVizSnapshotResultPropertyValueDiscontinuous (  st
    
    std::shared_ptr< CauldronIO::Formation> vizFormation = vizProject->findFormation( daFormation->getName() );
    if( not vizFormation ) {
-      vizFormation.reset(new CauldronIO::Formation(info->kStart, info->kEnd, daFormation->getName()));
+      vizFormation.reset(new CauldronIO::Formation(static_cast<int>(info->kStart), static_cast<int>(info->kEnd), daFormation->getName()));
       vizProject->addFormation( vizFormation );    
       if( debug ) { 
          cout << "Add formation " << daFormation->getName() << " kstart " << info->kStart << " kend " << info->kEnd << " depth " << propertyValue->getDepth() << endl;
       }
       if( not vizFormation->isDepthRangeDefined() ) {
-         vizFormation->updateK_range(  info->kStart, info->kEnd );
+         vizFormation->updateK_range(static_cast<int>(info->kStart), static_cast<int>(info->kEnd));
          if( debug ) {
             cout << "update krange " <<  daFormation->getName()<< " " << info->kStart << " " << info->kEnd << endl;
          }
@@ -375,14 +375,14 @@ bool  DerivedProperties::createVizSnapshotResultPropertyValueDiscontinuous (  st
       //error;
    }
 
-   int firstK = geometry->getFirstK();
-   int lastK  = geometry->getFirstK() + geometry->getNumK() - 1;
+   int firstK = static_cast<int>(geometry->getFirstK());
+   int lastK  = static_cast<int>(geometry->getFirstK() + geometry->getNumK() - 1);
 
-   for ( unsigned int i = grid->firstI(); i <= grid->lastI (); ++i ) {
-      for ( unsigned int j = grid->firstJ (); j <= grid->lastJ (); ++j ) {
+   for ( int i = grid->firstI(); i <= grid->lastI (); ++i ) {
+      for ( int j = grid->firstJ (); j <= grid->lastJ (); ++j ) {
          unsigned int pk = 0;
          for ( int k = lastK; k >= firstK; --k, ++ pk ) {
-            internalData[volDataNew->computeIndex_IJK(i, j, k)] = propertyValue->getValue( i, j, pk );
+            internalData[volDataNew->computeIndex_IJK(i, j, k)] = static_cast<float>(propertyValue->getValue( i, j, pk ));
          }
       }
    }
@@ -549,7 +549,7 @@ bool DerivedProperties::createVizSnapshotResultPropertyValueMap (  std::shared_p
    
    assert( p_depth == 1 );
 
-   int dataSize = geometry->getNumI() * geometry->getNumJ();
+   int dataSize = static_cast<int>(geometry->getNumI() * geometry->getNumJ());
    if( inData.size() < dataSize ) {
       inData.resize( dataSize );
    }
@@ -561,9 +561,9 @@ bool DerivedProperties::createVizSnapshotResultPropertyValueMap (  std::shared_p
 
    float * internalData = const_cast<float *>(valueMap->getSurfaceValues());
    propertyValue->retrieveData();
-   for ( unsigned int i = grid->firstI(); i <= grid->lastI (); ++i ) {
-      for ( unsigned int j = grid->firstJ (); j <= grid->lastJ (); ++j ) {
-         internalData[valueMap->getMapIndex(i, j)] = propertyValue->getValue( i, j, kIndex );
+   for ( int i = grid->firstI(); i <= grid->lastI (); ++i ) {
+      for ( int j = grid->firstJ (); j <= grid->lastJ (); ++j ) {
+         internalData[valueMap->getMapIndex(i, j)] = static_cast<float>(propertyValue->getValue( i, j, kIndex ));
       }
    }
    propertyValue->restoreData ();

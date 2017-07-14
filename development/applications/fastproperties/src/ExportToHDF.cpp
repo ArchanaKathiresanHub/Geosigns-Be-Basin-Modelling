@@ -281,8 +281,8 @@ void CauldronIO::ExportToHDF::writeDiscVolToHDF( const std::shared_ptr<SnapShot>
          
          float * values = new float[dims[0] * dims[1] * dims[2]];
          unsigned int kk = 0;
-         int firstK = geometry->getFirstK();
-         int lastK = geometry->getFirstK() + dims[2] - 1;
+         int firstK = static_cast<int>(geometry->getFirstK());
+         int lastK = static_cast<int>(geometry->getFirstK() + dims[2] - 1);
 
          for (unsigned i = 0; i < dims[0]; ++ i ) {
             for (unsigned j = 0; j < dims[1]; ++ j ) {

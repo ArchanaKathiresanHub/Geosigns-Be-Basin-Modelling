@@ -96,8 +96,23 @@ target_link_libraries(${APP_NAME}
 )
 
 install(TARGETS ${APP_NAME}
-   RUNTIME DESTINATION bin
+   RUNTIME DESTINATION bin 
 )
+
+if (UNIX)
+   # In LSF environment (on LSF cluster node, when build is running as a LSF job) mpirun is trying to use job settings
+   # to run mpi unit tests. Sometime it fails because build job requested just 1 cpu. To prevent this we can specify
+   # machines file with localhost list only
+   configure_file(test/machines machines COPYONLY )
+   set( MACHINE_FILE -machinefile machines)
+endif (UNIX)
+                                    
+add_gtest( NAME Fastproperties::ConvertProperties_MPInp2
+           SOURCES test/ConvertProperties.C src/Utilities.h
+           LIBRARIES DerivedProperties VisualizationIO
+           MPI_SIZE 2
+           MPIRUN_PRMS ${MACHINE_FILE}
+        )
 
 generate_dox( fastproperties.cfg )
 
