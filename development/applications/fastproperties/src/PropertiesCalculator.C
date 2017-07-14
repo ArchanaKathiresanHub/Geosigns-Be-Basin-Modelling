@@ -248,6 +248,7 @@ void PropertiesCalculator::convertToVisualizationIO( )  {
       displayTime( End_Time - Start_Time, "Total time: ");
    }
 }
+//------------------------------------------------------------//
 void PropertiesCalculator::createXML() {
 
    if( m_vizFormat ) {
@@ -257,10 +258,10 @@ void PropertiesCalculator::createXML() {
       pathToxml /= m_projectHandle->getProjectName();
 
       m_fileNameXml = pathToxml.string() + xmlExt;
-
-      ibs::FilePath vizFileName( m_fileNameXml );
+      const string fileNameExisting = pathToxml.string() + ".xml";
+      ibs::FilePath vizFileName( fileNameExisting );
       if( vizFileName.exists() ) {
-          m_vizProject = CauldronIO::ImportFromXML::importFromXML(m_fileNameXml);
+         m_vizProject = CauldronIO::ImportFromXML::importFromXML(fileNameExisting, false);
       } else {
          // create new xml
          m_vizProject = createStructureFromProjectHandle(false);
@@ -279,7 +280,7 @@ void PropertiesCalculator::calculateProperties( FormationSurfaceVector& formatio
        createXML();
     }
 
-   Interface::SnapshotList::iterator snapshotIter;
+   Interface::SnapshotList::reverse_iterator snapshotIter;
 
    Interface::PropertyList::iterator propertyIter;
    FormationSurfaceVector::iterator formationIter;
@@ -297,7 +298,7 @@ void PropertiesCalculator::calculateProperties( FormationSurfaceVector& formatio
    struct stat fileStatus;
    int fileError;
 
-   for ( snapshotIter = snapshots.begin(); snapshotIter != snapshots.end(); ++snapshotIter )
+   for ( snapshotIter = snapshots.rbegin(); snapshotIter != snapshots.rend(); ++snapshotIter )
    {
       const Interface::Snapshot * snapshot = *snapshotIter;
 
@@ -393,7 +394,7 @@ void PropertiesCalculator::calculateProperties( FormationSurfaceVector& formatio
       const string projectFileName = m_projectHandle->getFileName();
       ibs::FilePath absPath(projectFileName);
 
-      CauldronIO::ExportToXML::exportToXML( m_vizProject, projectExisting, m_fileNameXml, 1, false );
+      CauldronIO::ExportToXML::exportToXML( m_vizProject, projectExisting, m_fileNameXml, 1, false, true );
       displayProgress( "", m_startTime, "Writing to visualization format done " );
   }
 
@@ -915,7 +916,6 @@ std::shared_ptr<CauldronIO::Project> PropertiesCalculator::createStructureFromPr
     // Import all snapshots
     ImportProjectHandle import(verbose, project, m_sharedProjectHandle);
 
-    import.checkInputValues();
     if (verbose)
        cout << "Create empty snapshots" << endl;
 

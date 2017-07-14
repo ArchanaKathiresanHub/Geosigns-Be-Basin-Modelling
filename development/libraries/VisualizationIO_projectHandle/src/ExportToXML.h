@@ -32,7 +32,7 @@ namespace CauldronIO
         /// \param[in] numThreads number of threads (optional) used for compression
         /// \param[in] center if true, cell-center all properties except depth
         static bool exportToXML(std::shared_ptr<Project>& project, const std::shared_ptr<Project>& projectExisting,
-			const std::string& absPath, size_t numThreads = 1, bool center = false);
+			const std::string& absPath, size_t numThreads = 1, bool center = false, const bool derivedProperties = false);
        
     private:
 
@@ -44,7 +44,7 @@ namespace CauldronIO
         // Method to compress blocks of data on a thread
         static void compressDataQueue(std::vector< std::shared_ptr < DataToCompress > > allData, boost::lockfree::queue<int>* queue);
 
-       ExportToXML(const ibs::FilePath& absPath, const ibs::FilePath& relPath, size_t numThreads, bool center);
+       ExportToXML(const ibs::FilePath& absPath, const ibs::FilePath& relPath, size_t numThreads, bool center, const bool derivedProperties = false);
        void addProject(pugi::xml_node pt, std::shared_ptr<Project>& project, const std::shared_ptr<Project>& projectExisting);
        void addProperty(pugi::xml_node node, const std::shared_ptr<const Property>& property) const;
        void addFormation(DataStoreSave& dataStore, pugi::xml_node node, const std::shared_ptr<Formation>& formation) const;
@@ -70,6 +70,7 @@ namespace CauldronIO
        std::shared_ptr<const Project> m_projectExisting;
        bool m_append, m_center;
        size_t m_numThreads;
+       bool m_derivedProperties;
     };
 }
 #endif

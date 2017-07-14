@@ -27,7 +27,7 @@ using namespace CauldronIO;
 /// Importing from native format
 //////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<Project> CauldronIO::ImportFromXML::importFromXML(const std::string& filename)
+std::shared_ptr<Project> CauldronIO::ImportFromXML::importFromXML(const std::string& filename, const bool loadTables)
 {
     if (!ibs::FilePath(filename).exists())
         throw CauldronIOException("Cannot open file");
@@ -45,7 +45,7 @@ std::shared_ptr<Project> CauldronIO::ImportFromXML::importFromXML(const std::str
     
     try
     {
-        project = importExport.getProject(doc);
+       project = importExport.getProject(doc, loadTables);
     }
     catch (CauldronIOException& excp)
     {
@@ -65,7 +65,7 @@ CauldronIO::ImportFromXML::ImportFromXML(const ibs::FilePath& absPath)
 {
 }
 
-std::shared_ptr<Project> CauldronIO::ImportFromXML::getProject(const pugi::xml_document& ptDoc)
+std::shared_ptr<Project> CauldronIO::ImportFromXML::getProject(const pugi::xml_document& ptDoc, const bool loadTables)
 {
     pugi::xml_node pt = ptDoc.child("project");
     if (!pt) 
@@ -199,446 +199,447 @@ std::shared_ptr<Project> CauldronIO::ImportFromXML::getProject(const pugi::xml_d
         }
     }
 
-    // Parse migration event table
-    pugi::xml_node migrationEventsNode = pt.child("migrationEvents");
-    if (migrationEventsNode)
-    {
-        size_t nrEvents = (size_t)migrationEventsNode.attribute("number").as_int();
-        size_t record_size = migrationEventsNode.attribute("record_size").as_int();
-        size_t totalSize = nrEvents * record_size;
-
-        // Uncompress the data
-        pugi::xml_node datastoreNode = migrationEventsNode.child("datastore");
-        DataStoreLoad datastore(DataStoreLoad::getDatastoreParams(datastoreNode, fullOutputPath));
-        char* data = (char*)datastore.getData(totalSize);
-        
-        // Reconstruct migrationEvents
-        size_t dataIndex = 0;
-        for (size_t index = 0; index < nrEvents; ++index, dataIndex += record_size)
-        {
-            std::shared_ptr<MigrationEvent> event(new MigrationEvent());
-
-            void* source = (void*)(&data[dataIndex]);
-            void* dest = (void*)(event.get());
-            memcpy(dest, source, record_size);
-
-            m_project->addMigrationEvent(event);
-        }
-
-        delete data;
+    if( loadTables ) {
+       // Parse migration event table
+       pugi::xml_node migrationEventsNode = pt.child("migrationEvents");
+       if (migrationEventsNode)
+       {
+          size_t nrEvents = (size_t)migrationEventsNode.attribute("number").as_int();
+          size_t record_size = migrationEventsNode.attribute("record_size").as_int();
+          size_t totalSize = nrEvents * record_size;
+          
+          // Uncompress the data
+          pugi::xml_node datastoreNode = migrationEventsNode.child("datastore");
+          DataStoreLoad datastore(DataStoreLoad::getDatastoreParams(datastoreNode, fullOutputPath));
+          char* data = (char*)datastore.getData(totalSize);
+          
+          // Reconstruct migrationEvents
+          size_t dataIndex = 0;
+          for (size_t index = 0; index < nrEvents; ++index, dataIndex += record_size)
+          {
+             std::shared_ptr<MigrationEvent> event(new MigrationEvent());
+             
+             void* source = (void*)(&data[dataIndex]);
+             void* dest = (void*)(event.get());
+             memcpy(dest, source, record_size);
+             
+             m_project->addMigrationEvent(event);
+          }
+          
+          delete data;
+       }
+       
+       // Parse trapper table
+       pugi::xml_node trapperNode = pt.child("trapper");
+       if (trapperNode)
+       {
+          size_t nrEvents = (size_t)trapperNode.attribute("number").as_int();
+          size_t record_size = trapperNode.attribute("record_size").as_int();
+          size_t totalSize = nrEvents * record_size;
+          
+          // Uncompress the data
+          pugi::xml_node datastoreNode = trapperNode.child("datastore");
+          DataStoreLoad datastore(DataStoreLoad::getDatastoreParams(datastoreNode, fullOutputPath));
+          char* data = (char*)datastore.getData(totalSize);
+          
+          // Reconstruct trapper
+          size_t dataIndex = 0;
+          for (size_t index = 0; index < nrEvents; ++index, dataIndex += record_size)
+          {
+             std::shared_ptr<Trapper> event(new Trapper());
+             
+             void* source = (void*)(&data[dataIndex]);
+             void* dest = (void*)(event.get());
+             memcpy(dest, source, record_size);
+             
+             m_project->addTrapper(event);
+          }
+          
+          delete data;
+       }
+       // Parse trap table
+       pugi::xml_node trapNode = pt.child("trap");
+       if (trapNode)
+       {
+          size_t nrEvents = (size_t)trapNode.attribute("number").as_int();
+          size_t record_size = trapNode.attribute("record_size").as_int();
+          size_t totalSize = nrEvents * record_size;
+          
+          // Uncompress the data
+          pugi::xml_node datastoreNode = trapNode.child("datastore");
+          DataStoreLoad datastore(DataStoreLoad::getDatastoreParams(datastoreNode, fullOutputPath));
+          char* data = (char*)datastore.getData(totalSize);
+          
+          // Reconstruct trap
+          size_t dataIndex = 0;
+          for (size_t index = 0; index < nrEvents; ++index, dataIndex += record_size)
+          {
+             std::shared_ptr<Trap> event(new Trap());
+             
+             void* source = (void*)(&data[dataIndex]);
+             void* dest = (void*)(event.get());
+             memcpy(dest, source, record_size);
+             
+             m_project->addTrap(event);
+          }
+          
+          delete data;
+       }
+       // Parse genex history files references
+       pugi::xml_node genexHistoryNode = pt.child("genexHistoryFiles");
+       if (genexHistoryNode)
+       {
+          for (pugi::xml_node_iterator it = genexHistoryNode.begin(); it != genexHistoryNode.end(); ++it)
+          {
+             pugi::xml_node entry = (*it);
+             if( std::string(entry.name()) == "filepath" ) {
+                const std::string fileName(entry.attribute("file").as_string());
+                m_project->addGenexHistoryRecord( fileName );
+             }
+          }
+       }
+       
+       // Parse burial history files references
+       pugi::xml_node burialHistoryNode = pt.child("burialHistoryFiles");
+       if (burialHistoryNode)
+       {
+          for (pugi::xml_node_iterator it = burialHistoryNode.begin(); it != burialHistoryNode.end(); ++it)
+          {
+             pugi::xml_node entry = (*it);
+             if( std::string(entry.name()) == "filepath" ) {
+                const std::string fileName(entry.attribute("file").as_string());
+                m_project->addBurialHistoryRecord( fileName );
+             }
+          }
+       }
+       
+       // Parse mass balance file reference
+       pugi::xml_node massBalanceNode = pt.child("massBalance");
+       if (massBalanceNode)
+       {
+          m_project->setMassBalance ( massBalanceNode.attribute("file").as_string() );
+       }
+       
+       // Parse display contour table
+       pugi::xml_node displayContourNode = pt.child("displayContour");
+       if (displayContourNode)
+       {
+          
+          for (pugi::xml_node oneRecord = displayContourNode.child("record"); oneRecord; oneRecord = oneRecord.next_sibling("record"))
+          {
+             std::shared_ptr<DisplayContour> entry(new DisplayContour);
+             std::string name = oneRecord.attribute("propertyName").value();
+             std::string colour = oneRecord.attribute("colour").value();
+             float value = oneRecord.attribute("value").as_float();
+             
+             entry->setPropertyName(name);
+             entry->setContourColour(colour);
+             entry->setContourValue(value);
+             
+             m_project->addDisplayContour(entry);
+             
+          }
+       }
+       // Parse TemperatureIso table
+       pugi::xml_node temperatureIsoNode = pt.child("temperatureIso");
+       if (temperatureIsoNode)
+       {
+          
+          for (pugi::xml_node oneRecord = temperatureIsoNode.child("record"); oneRecord; oneRecord = oneRecord.next_sibling("record"))
+          {
+             std::shared_ptr<IsoEntry> entry(new IsoEntry);
+             
+             float age = oneRecord.attribute("age").as_float();
+             float value = oneRecord.attribute("value").as_float();
+             double sum = oneRecord.attribute("sum").as_double();
+             int numberOfPoints = oneRecord.attribute("NP").as_int();
+             
+             entry->setAge(age);
+             entry->setNP(numberOfPoints);
+             entry->setContourValue(value);
+             entry->setSum(sum);
+             
+             m_project->addTemperatureIsoEntry(entry);
+             
+          }
+       }
+       // Parse VRIso table
+       pugi::xml_node vrIsoNode = pt.child("vrIso");
+       if (vrIsoNode)
+       {
+          
+          for (pugi::xml_node oneRecord = vrIsoNode.child("record"); oneRecord; oneRecord = oneRecord.next_sibling("record"))
+          {
+             std::shared_ptr<IsoEntry> entry(new IsoEntry);
+             
+             float age = oneRecord.attribute("age").as_float();
+             float value = oneRecord.attribute("value").as_float();
+             double sum = oneRecord.attribute("sum").as_double();
+             int numberOfPoints = oneRecord.attribute("NP").as_int();
+             
+             entry->setAge(age);
+             entry->setNP(numberOfPoints);
+             entry->setContourValue(value);
+             entry->setSum(sum);
+             
+             m_project->addVrIsoEntry(entry);
+             
+          }
+       }
+       
+       // Parse FtSample table
+       pugi::xml_node ftNode = pt.child("ftSample");
+       if (ftNode)
+       {
+          
+          for (pugi::xml_node oneRecord = ftNode.child("record"); oneRecord; oneRecord = oneRecord.next_sibling("record"))
+          {
+             std::shared_ptr<FtSample> entry(new FtSample);
+             
+             std::string id = oneRecord.attribute("id").value();
+             entry->setFtSampleId(id);
+             float depthInd = oneRecord.attribute("depthInd").as_float();
+             entry->setDepthIndex(depthInd);
+             float zeta = oneRecord.attribute("zeta").as_float();
+             entry->setFtZeta(zeta);
+             float ustglTrackDensity = oneRecord.attribute("ustglTrackDensity").as_float();
+             entry->setFtUstglTrackDensity(ustglTrackDensity);
+             float predictedAge = oneRecord.attribute("predictedAge").as_float();
+             entry->setFtPredictedAge(predictedAge);
+             float pooledAge = oneRecord.attribute("pooledAge").as_float();
+             entry->setFtPooledAge(pooledAge);
+             float pooledAgeErr = oneRecord.attribute("pooledAgeErr").as_float();
+             entry->setFtPooledAgeErr(pooledAgeErr);
+             float ageChi2 = oneRecord.attribute("ageChi2").as_float();
+             entry->setFtAgeChi2(ageChi2);
+             int degreeOfFreedom = oneRecord.attribute("degreeOfFreedom").as_int();
+             entry->setFtDegreeOfFreedom(degreeOfFreedom);
+             float pAgeChi2 = oneRecord.attribute("pAgeChi2").as_float();
+             entry->setFtPAgeChi2(pAgeChi2);
+             float corrCoeff = oneRecord.attribute("corrCoeff").as_float();
+             entry->setFtCorrCoeff(corrCoeff);
+             float varianceSqrtNs = oneRecord.attribute("varianceSqrtNs").as_float();
+             entry->setFtVarianceSqrtNs(varianceSqrtNs);
+             float varianceSqrtNi = oneRecord.attribute("varianceSqrtNi").as_float();
+             entry->setFtVarianceSqrtNi(varianceSqrtNi);
+             float nsDivNiErr = oneRecord.attribute("nsDivNiErr").as_float();
+             entry->setFtNsDivNiErr(nsDivNiErr);
+             float nsDivNi = oneRecord.attribute("nsDivNi").as_float();
+             entry->setFtNsDivNi(nsDivNi);
+             float meanRatio = oneRecord.attribute("meanRatio").as_float();
+             entry->setFtMeanRatio(meanRatio);
+             float meanRatioErr = oneRecord.attribute("meanRatioErr").as_float();
+             entry->setFtMeanRatioErr(meanRatioErr);
+             float centralAge = oneRecord.attribute("centralAge").as_float();
+             entry->setFtCentralAge(centralAge);
+             float centralAgeErr = oneRecord.attribute("centralAgeErr").as_float();
+             entry->setFtCentralAgeErr(centralAgeErr);
+             float meanAge = oneRecord.attribute("meanAge").as_float();
+             entry->setFtMeanAge(meanAge);
+             float meanAgeErr = oneRecord.attribute("meanAgeErr").as_float();
+             entry->setFtMeanAgeErr(meanAgeErr);
+             float lengthChi2 = oneRecord.attribute("lengthChi2").as_float();
+             entry->setFtLengthChi2(lengthChi2);
+             std::string apatiteYield  = oneRecord.attribute("apatiteYield").value();
+             entry->setFtApatiteYield(apatiteYield);
+             bool opt =  oneRecord.attribute("optimization").as_bool();
+             entry->setOptimization(opt);
+             
+             m_project->addFtSample(entry);
+             
+          }
+       }
+       // Parse FtGrain table
+       pugi::xml_node ftgNode = pt.child("ftGrain");
+       if (ftgNode)
+       {
+          
+          for (pugi::xml_node oneRecord = ftgNode.child("record"); oneRecord; oneRecord = oneRecord.next_sibling("record"))
+          {
+             std::shared_ptr<FtGrain> entry(new FtGrain);
+             
+             std::string id = oneRecord.attribute("sampleId").value();
+             entry->setFtSampleId(id);
+             int grainId = oneRecord.attribute("grainId").as_int();
+             entry->setFtGrainId(grainId);
+             int trackNo = oneRecord.attribute("spontTrackNo").as_int();
+             entry->setFtSpontTrackNo(trackNo);
+             int itrackNo = oneRecord.attribute("inducedTrackNo").as_int();
+             entry->setFtInducedTrackNo(itrackNo);
+             float clWeightPerc = oneRecord.attribute("clWeightPerc ").as_float();
+             entry->setFtClWeightPerc(clWeightPerc);
+             float grainAge = oneRecord.attribute("grainAge").as_float();
+             entry->setFtGrainAge(grainAge);
+             float grainAgeErr = oneRecord.attribute("grainAgeErr").as_float();
+             entry->setFtGrainAgeErr(grainAgeErr);
+             
+             m_project->addFtGrain(entry);
+             
+          }
+       }
+       // Parse FtPredLengthCountsHist table
+       pugi::xml_node ftpNode = pt.child("ftPredLengthCountsHist");
+       if(ftpNode)
+       {
+          
+          for (pugi::xml_node oneRecord = ftpNode.child("record"); oneRecord; oneRecord = oneRecord.next_sibling("record"))
+          {
+             std::shared_ptr<FtPredLengthCountsHist> entry(new FtPredLengthCountsHist);
+             
+             std::string id = oneRecord.attribute("sampleId").value();
+             entry->setFtSampleId(id);
+             int histId = oneRecord.attribute("id").as_int();
+             entry->setFtPredLengthHistId(histId);
+             float clWeightPerc = oneRecord.attribute("clWeightPerc").as_float();
+             entry->setFtClWeightPerc(clWeightPerc);
+             float binStart = oneRecord.attribute("binStart").as_float();
+             entry->setFtPredLengthBinStart(binStart);
+             float binWidth = oneRecord.attribute("binWidth").as_float();
+             entry->setFtPredLengthBinStart(binWidth);
+             int binNum = oneRecord.attribute("binNum").as_int();
+             entry->setFtPredLengthBinNum(binNum);
+             
+             m_project->addFtPredLengthCountsHist(entry);
+             
+          }
+       }
+       // Parse FtPredLengthCountsHistData table
+       pugi::xml_node ftpdNode = pt.child("ftPredLengthCountsHistData");
+       if(ftpdNode)
+       {
+          
+          for (pugi::xml_node oneRecord = ftpdNode.child("record"); oneRecord; oneRecord = oneRecord.next_sibling("record"))
+          {
+             std::shared_ptr<FtPredLengthCountsHistData> entry(new FtPredLengthCountsHistData);
+             
+             int histId = oneRecord.attribute("id").as_int();
+             entry->setFtPredLengthHistId(histId);
+             int binIndex = oneRecord.attribute("binIndex").as_int();
+             entry->setFtPredLengthBinIndex(binIndex);
+             float binCount = oneRecord.attribute("binCount").as_float();
+             entry->setFtPredLengthBinCount(binCount);
+             
+             m_project->addFtPredLengthCountsHistData(entry);
+             
+          }
+       }
+       // Parse FtClWeightPercBins table
+       pugi::xml_node ftbNode = pt.child("ftClWeightPercBins");
+       if(ftbNode)
+       {
+          
+          for (pugi::xml_node oneRecord = ftbNode.child("record"); oneRecord; oneRecord = oneRecord.next_sibling("record"))
+          {
+             std::shared_ptr<FtClWeightPercBins> entry(new FtClWeightPercBins);
+             
+             double start = oneRecord.attribute("start").as_double();
+             entry->setFtClWeightBinStart(start);
+             double width = oneRecord.attribute("width").as_double();
+             entry->setFtClWeightBinWidth(width);
+             
+             m_project->addFtClWeightPercBins(entry);
+          }
+       }
+       // Parse SmectiteIlliteIoTbl table
+       pugi::xml_node smNode = pt.child("smectiteIllite");
+       if(smNode)
+       {
+          
+          for (pugi::xml_node oneRecord = smNode.child("record"); oneRecord; oneRecord = oneRecord.next_sibling("record"))
+          {
+             std::shared_ptr<SmectiteIllite> entry(new SmectiteIllite);
+             
+             float depthInd = oneRecord.attribute("depthInd").as_float();
+             entry->setDepthIndex(depthInd);
+             float illiteFraction  = oneRecord.attribute("illiteFraction").as_float();
+             entry->setIlliteFraction(illiteFraction);
+             std::string label =  oneRecord.attribute("label").value();
+             entry->setLabel(label);
+             bool opt =  oneRecord.attribute("optimization").as_bool();
+             entry->setOptimization(opt);
+             
+             m_project->addSmectiteIllite(entry);
+          }
+       }
+       // Parse BiomarkermIoTbl table
+       pugi::xml_node bmNode = pt.child("biomarkerm");
+       if(bmNode)
+       {
+          
+          for (pugi::xml_node oneRecord = bmNode.child("record"); oneRecord; oneRecord = oneRecord.next_sibling("record"))
+          {
+             std::shared_ptr<Biomarkerm> entry(new Biomarkerm);
+             
+             float depthInd = oneRecord.attribute("depthInd").as_float();
+             entry->setDepthIndex(depthInd);
+             float hopaneIsomerisation  = oneRecord.attribute("hopaneIsomerisation").as_float();
+             entry->setHopaneIsomerisation(hopaneIsomerisation);
+             float steraneIsomerisation  = oneRecord.attribute("steraneIsomerisation").as_float();
+             entry->setSteraneIsomerisation(steraneIsomerisation);
+             float steraneAromatisation  = oneRecord.attribute("steraneAromatisation").as_float();
+             entry->setSteraneAromatisation(steraneAromatisation);
+             bool opt =  oneRecord.attribute("optimization").as_bool();
+             entry->setOptimization(opt);
+             
+             m_project->addBiomarkerm(entry);
+          }
+       }
+       // Parse depthIo table
+       pugi::xml_node depthIoNode = pt.child("depthIo");
+       if (depthIoNode)
+       {
+          size_t nrEvents = (size_t)depthIoNode.attribute("number").as_int();
+          size_t record_size = depthIoNode.attribute("record_size").as_int();
+          size_t totalSize = nrEvents * record_size;
+          
+          // Uncompress the data
+          pugi::xml_node datastoreNode = depthIoNode.child("datastore");
+          DataStoreLoad datastore(DataStoreLoad::getDatastoreParams(datastoreNode, fullOutputPath));
+          char* data = (char*)datastore.getData(totalSize);
+          
+          // Reconstruct the record
+          size_t dataIndex = 0;
+          for (size_t index = 0; index < nrEvents; ++index, dataIndex += record_size)
+          {
+             std::shared_ptr<DepthIo> event(new DepthIo());
+             
+             void* source = (void*)(&data[dataIndex]);
+             void* dest = (void*)(event.get());
+             memcpy(dest, source, record_size);
+             
+             m_project->addDepthIo(event);
+          }
+          
+          delete data;
+       }
+       // Parse timeIo1D table
+       pugi::xml_node timeIo1DNode = pt.child("timeIo1D");
+       if (timeIo1DNode)
+       {
+          size_t nrEvents = (size_t)timeIo1DNode.attribute("number").as_int();
+          size_t record_size = timeIo1DNode.attribute("record_size").as_int();
+          size_t totalSize = nrEvents * record_size;
+          
+          // Uncompress the data
+          pugi::xml_node datastoreNode = timeIo1DNode.child("datastore");
+          DataStoreLoad datastore(DataStoreLoad::getDatastoreParams(datastoreNode, fullOutputPath));
+          char* data = (char*)datastore.getData(totalSize);
+          
+          // Reconstruct the record
+          size_t dataIndex = 0;
+          for (size_t index = 0; index < nrEvents; ++index, dataIndex += record_size)
+          {
+             std::shared_ptr<TimeIo1D> event(new TimeIo1D);
+             void* source = (void*)(&data[dataIndex]);
+             void* dest = (void*)(event.get());
+             memcpy(dest, source, record_size);
+             
+             m_project->add1DTimeIo(event);
+          }
+          
+          delete data;
+       }
     }
-   
-    // Parse trapper table
-    pugi::xml_node trapperNode = pt.child("trapper");
-    if (trapperNode)
-    {
-        size_t nrEvents = (size_t)trapperNode.attribute("number").as_int();
-        size_t record_size = trapperNode.attribute("record_size").as_int();
-        size_t totalSize = nrEvents * record_size;
-
-        // Uncompress the data
-        pugi::xml_node datastoreNode = trapperNode.child("datastore");
-        DataStoreLoad datastore(DataStoreLoad::getDatastoreParams(datastoreNode, fullOutputPath));
-        char* data = (char*)datastore.getData(totalSize);
-        
-        // Reconstruct trapper
-        size_t dataIndex = 0;
-        for (size_t index = 0; index < nrEvents; ++index, dataIndex += record_size)
-        {
-            std::shared_ptr<Trapper> event(new Trapper());
-
-            void* source = (void*)(&data[dataIndex]);
-            void* dest = (void*)(event.get());
-            memcpy(dest, source, record_size);
-
-            m_project->addTrapper(event);
-        }
-
-        delete data;
-    }
-    // Parse trap table
-    pugi::xml_node trapNode = pt.child("trap");
-    if (trapNode)
-    {
-        size_t nrEvents = (size_t)trapNode.attribute("number").as_int();
-        size_t record_size = trapNode.attribute("record_size").as_int();
-        size_t totalSize = nrEvents * record_size;
-
-        // Uncompress the data
-        pugi::xml_node datastoreNode = trapNode.child("datastore");
-        DataStoreLoad datastore(DataStoreLoad::getDatastoreParams(datastoreNode, fullOutputPath));
-        char* data = (char*)datastore.getData(totalSize);
-        
-        // Reconstruct trap
-        size_t dataIndex = 0;
-        for (size_t index = 0; index < nrEvents; ++index, dataIndex += record_size)
-        {
-            std::shared_ptr<Trap> event(new Trap());
-
-            void* source = (void*)(&data[dataIndex]);
-            void* dest = (void*)(event.get());
-            memcpy(dest, source, record_size);
-
-            m_project->addTrap(event);
-        }
-
-        delete data;
-    }
-    // Parse genex history files references
-    pugi::xml_node genexHistoryNode = pt.child("genexHistoryFiles");
-    if (genexHistoryNode)
-    {
-       for (pugi::xml_node_iterator it = genexHistoryNode.begin(); it != genexHistoryNode.end(); ++it)
-        {
-           pugi::xml_node entry = (*it);
-           if( std::string(entry.name()) == "filepath" ) {
-              const std::string fileName(entry.attribute("file").as_string());
-              m_project->addGenexHistoryRecord( fileName );
-           }
-        }
-    }
-   
-    // Parse burial history files references
-    pugi::xml_node burialHistoryNode = pt.child("burialHistoryFiles");
-    if (burialHistoryNode)
-    {
-       for (pugi::xml_node_iterator it = burialHistoryNode.begin(); it != burialHistoryNode.end(); ++it)
-        {
-           pugi::xml_node entry = (*it);
-           if( std::string(entry.name()) == "filepath" ) {
-              const std::string fileName(entry.attribute("file").as_string());
-              m_project->addBurialHistoryRecord( fileName );
-           }
-        }
-    }
-   
-    // Parse mass balance file reference
-    pugi::xml_node massBalanceNode = pt.child("massBalance");
-    if (massBalanceNode)
-    {
-       m_project->setMassBalance ( massBalanceNode.attribute("file").as_string() );
-    }
-   
-    // Parse display contour table
-    pugi::xml_node displayContourNode = pt.child("displayContour");
-    if (displayContourNode)
-    {
-
-        for (pugi::xml_node oneRecord = displayContourNode.child("record"); oneRecord; oneRecord = oneRecord.next_sibling("record"))
-        {
-           std::shared_ptr<DisplayContour> entry(new DisplayContour);
-           std::string name = oneRecord.attribute("propertyName").value();
-           std::string colour = oneRecord.attribute("colour").value();
-           float value = oneRecord.attribute("value").as_float();
-
-           entry->setPropertyName(name);
-           entry->setContourColour(colour);
-           entry->setContourValue(value);
-
-           m_project->addDisplayContour(entry);
-
-        }
-    }
-    // Parse TemperatureIso table
-    pugi::xml_node temperatureIsoNode = pt.child("temperatureIso");
-    if (temperatureIsoNode)
-    {
-
-        for (pugi::xml_node oneRecord = temperatureIsoNode.child("record"); oneRecord; oneRecord = oneRecord.next_sibling("record"))
-        {
-           std::shared_ptr<IsoEntry> entry(new IsoEntry);
-
-           float age = oneRecord.attribute("age").as_float();
-           float value = oneRecord.attribute("value").as_float();
-           double sum = oneRecord.attribute("sum").as_double();
-           int numberOfPoints = oneRecord.attribute("NP").as_int();
-
-           entry->setAge(age);
-           entry->setNP(numberOfPoints);
-           entry->setContourValue(value);
-           entry->setSum(sum);
-
-           m_project->addTemperatureIsoEntry(entry);
-
-        }
-    }
-     // Parse VRIso table
-    pugi::xml_node vrIsoNode = pt.child("vrIso");
-    if (vrIsoNode)
-    {
-
-        for (pugi::xml_node oneRecord = vrIsoNode.child("record"); oneRecord; oneRecord = oneRecord.next_sibling("record"))
-        {
-           std::shared_ptr<IsoEntry> entry(new IsoEntry);
-
-           float age = oneRecord.attribute("age").as_float();
-           float value = oneRecord.attribute("value").as_float();
-           double sum = oneRecord.attribute("sum").as_double();
-           int numberOfPoints = oneRecord.attribute("NP").as_int();
-
-           entry->setAge(age);
-           entry->setNP(numberOfPoints);
-           entry->setContourValue(value);
-           entry->setSum(sum);
-
-           m_project->addVrIsoEntry(entry);
-
-        }
-    }
-
-     // Parse FtSample table
-    pugi::xml_node ftNode = pt.child("ftSample");
-    if (ftNode)
-    {
-
-        for (pugi::xml_node oneRecord = ftNode.child("record"); oneRecord; oneRecord = oneRecord.next_sibling("record"))
-        {
-           std::shared_ptr<FtSample> entry(new FtSample);
-
-           std::string id = oneRecord.attribute("id").value();
-           entry->setFtSampleId(id);
-           float depthInd = oneRecord.attribute("depthInd").as_float();
-           entry->setDepthIndex(depthInd);
-           float zeta = oneRecord.attribute("zeta").as_float();
-           entry->setFtZeta(zeta);
-           float ustglTrackDensity = oneRecord.attribute("ustglTrackDensity").as_float();
-           entry->setFtUstglTrackDensity(ustglTrackDensity);
-           float predictedAge = oneRecord.attribute("predictedAge").as_float();
-           entry->setFtPredictedAge(predictedAge);
-           float pooledAge = oneRecord.attribute("pooledAge").as_float();
-           entry->setFtPooledAge(pooledAge);
-           float pooledAgeErr = oneRecord.attribute("pooledAgeErr").as_float();
-           entry->setFtPooledAgeErr(pooledAgeErr);
-           float ageChi2 = oneRecord.attribute("ageChi2").as_float();
-           entry->setFtAgeChi2(ageChi2);
-           int degreeOfFreedom = oneRecord.attribute("degreeOfFreedom").as_int();
-           entry->setFtDegreeOfFreedom(degreeOfFreedom);
-           float pAgeChi2 = oneRecord.attribute("pAgeChi2").as_float();
-           entry->setFtPAgeChi2(pAgeChi2);
-           float corrCoeff = oneRecord.attribute("corrCoeff").as_float();
-           entry->setFtCorrCoeff(corrCoeff);
-           float varianceSqrtNs = oneRecord.attribute("varianceSqrtNs").as_float();
-           entry->setFtVarianceSqrtNs(varianceSqrtNs);
-           float varianceSqrtNi = oneRecord.attribute("varianceSqrtNi").as_float();
-           entry->setFtVarianceSqrtNi(varianceSqrtNi);
-           float nsDivNiErr = oneRecord.attribute("nsDivNiErr").as_float();
-           entry->setFtNsDivNiErr(nsDivNiErr);
-           float nsDivNi = oneRecord.attribute("nsDivNi").as_float();
-           entry->setFtNsDivNi(nsDivNi);
-           float meanRatio = oneRecord.attribute("meanRatio").as_float();
-           entry->setFtMeanRatio(meanRatio);
-           float meanRatioErr = oneRecord.attribute("meanRatioErr").as_float();
-           entry->setFtMeanRatioErr(meanRatioErr);
-           float centralAge = oneRecord.attribute("centralAge").as_float();
-           entry->setFtCentralAge(centralAge);
-           float centralAgeErr = oneRecord.attribute("centralAgeErr").as_float();
-           entry->setFtCentralAgeErr(centralAgeErr);
-           float meanAge = oneRecord.attribute("meanAge").as_float();
-           entry->setFtMeanAge(meanAge);
-           float meanAgeErr = oneRecord.attribute("meanAgeErr").as_float();
-           entry->setFtMeanAgeErr(meanAgeErr);
-           float lengthChi2 = oneRecord.attribute("lengthChi2").as_float();
-           entry->setFtLengthChi2(lengthChi2);
-           std::string apatiteYield  = oneRecord.attribute("apatiteYield").value();
-           entry->setFtApatiteYield(apatiteYield);
-           bool opt =  oneRecord.attribute("optimization").as_bool();
-           entry->setOptimization(opt);
-
-           m_project->addFtSample(entry);
-
-        }
-    }
-    // Parse FtGrain table
-    pugi::xml_node ftgNode = pt.child("ftGrain");
-    if (ftgNode)
-    {
-
-        for (pugi::xml_node oneRecord = ftgNode.child("record"); oneRecord; oneRecord = oneRecord.next_sibling("record"))
-        {
-           std::shared_ptr<FtGrain> entry(new FtGrain);
-
-           std::string id = oneRecord.attribute("sampleId").value();
-           entry->setFtSampleId(id);
-           int grainId = oneRecord.attribute("grainId").as_int();
-           entry->setFtGrainId(grainId);
-           int trackNo = oneRecord.attribute("spontTrackNo").as_int();
-           entry->setFtSpontTrackNo(trackNo);
-           int itrackNo = oneRecord.attribute("inducedTrackNo").as_int();
-           entry->setFtInducedTrackNo(itrackNo);
-           float clWeightPerc = oneRecord.attribute("clWeightPerc ").as_float();
-           entry->setFtClWeightPerc(clWeightPerc);
-           float grainAge = oneRecord.attribute("grainAge").as_float();
-           entry->setFtGrainAge(grainAge);
-           float grainAgeErr = oneRecord.attribute("grainAgeErr").as_float();
-           entry->setFtGrainAgeErr(grainAgeErr);
-
-           m_project->addFtGrain(entry);
-
-        }
-    }
-    // Parse FtPredLengthCountsHist table
-    pugi::xml_node ftpNode = pt.child("ftPredLengthCountsHist");
-    if(ftpNode)
-    {
-
-        for (pugi::xml_node oneRecord = ftpNode.child("record"); oneRecord; oneRecord = oneRecord.next_sibling("record"))
-        {
-           std::shared_ptr<FtPredLengthCountsHist> entry(new FtPredLengthCountsHist);
-
-           std::string id = oneRecord.attribute("sampleId").value();
-           entry->setFtSampleId(id);
-           int histId = oneRecord.attribute("id").as_int();
-           entry->setFtPredLengthHistId(histId);
-           float clWeightPerc = oneRecord.attribute("clWeightPerc").as_float();
-           entry->setFtClWeightPerc(clWeightPerc);
-           float binStart = oneRecord.attribute("binStart").as_float();
-           entry->setFtPredLengthBinStart(binStart);
-           float binWidth = oneRecord.attribute("binWidth").as_float();
-           entry->setFtPredLengthBinStart(binWidth);
-           int binNum = oneRecord.attribute("binNum").as_int();
-           entry->setFtPredLengthBinNum(binNum);
-
-           m_project->addFtPredLengthCountsHist(entry);
-
-        }
-    }
-    // Parse FtPredLengthCountsHistData table
-    pugi::xml_node ftpdNode = pt.child("ftPredLengthCountsHistData");
-    if(ftpdNode)
-    {
-
-        for (pugi::xml_node oneRecord = ftpdNode.child("record"); oneRecord; oneRecord = oneRecord.next_sibling("record"))
-        {
-           std::shared_ptr<FtPredLengthCountsHistData> entry(new FtPredLengthCountsHistData);
-
-           int histId = oneRecord.attribute("id").as_int();
-           entry->setFtPredLengthHistId(histId);
-           int binIndex = oneRecord.attribute("binIndex").as_int();
-           entry->setFtPredLengthBinIndex(binIndex);
-           float binCount = oneRecord.attribute("binCount").as_float();
-           entry->setFtPredLengthBinCount(binCount);
-
-           m_project->addFtPredLengthCountsHistData(entry);
-
-        }
-    }
-    // Parse FtClWeightPercBins table
-    pugi::xml_node ftbNode = pt.child("ftClWeightPercBins");
-    if(ftbNode)
-    {
-
-        for (pugi::xml_node oneRecord = ftbNode.child("record"); oneRecord; oneRecord = oneRecord.next_sibling("record"))
-        {
-           std::shared_ptr<FtClWeightPercBins> entry(new FtClWeightPercBins);
-
-           double start = oneRecord.attribute("start").as_double();
-           entry->setFtClWeightBinStart(start);
-           double width = oneRecord.attribute("width").as_double();
-           entry->setFtClWeightBinWidth(width);
-
-           m_project->addFtClWeightPercBins(entry);
-        }
-    }
-    // Parse SmectiteIlliteIoTbl table
-    pugi::xml_node smNode = pt.child("smectiteIllite");
-    if(smNode)
-    {
-
-        for (pugi::xml_node oneRecord = smNode.child("record"); oneRecord; oneRecord = oneRecord.next_sibling("record"))
-        {
-           std::shared_ptr<SmectiteIllite> entry(new SmectiteIllite);
-
-           float depthInd = oneRecord.attribute("depthInd").as_float();
-           entry->setDepthIndex(depthInd);
-           float illiteFraction  = oneRecord.attribute("illiteFraction").as_float();
-           entry->setIlliteFraction(illiteFraction);
-           std::string label =  oneRecord.attribute("label").value();
-           entry->setLabel(label);
-           bool opt =  oneRecord.attribute("optimization").as_bool();
-           entry->setOptimization(opt);
-           
-           m_project->addSmectiteIllite(entry);
-        }
-    }
-    // Parse BiomarkermIoTbl table
-    pugi::xml_node bmNode = pt.child("biomarkerm");
-    if(bmNode)
-    {
-
-        for (pugi::xml_node oneRecord = bmNode.child("record"); oneRecord; oneRecord = oneRecord.next_sibling("record"))
-        {
-           std::shared_ptr<Biomarkerm> entry(new Biomarkerm);
-
-           float depthInd = oneRecord.attribute("depthInd").as_float();
-           entry->setDepthIndex(depthInd);
-           float hopaneIsomerisation  = oneRecord.attribute("hopaneIsomerisation").as_float();
-           entry->setHopaneIsomerisation(hopaneIsomerisation);
-           float steraneIsomerisation  = oneRecord.attribute("steraneIsomerisation").as_float();
-           entry->setSteraneIsomerisation(steraneIsomerisation);
-           float steraneAromatisation  = oneRecord.attribute("steraneAromatisation").as_float();
-           entry->setSteraneAromatisation(steraneAromatisation);
-           bool opt =  oneRecord.attribute("optimization").as_bool();
-           entry->setOptimization(opt);
-           
-           m_project->addBiomarkerm(entry);
-        }
-    }
-    // Parse depthIo table
-    pugi::xml_node depthIoNode = pt.child("depthIo");
-    if (depthIoNode)
-    {
-        size_t nrEvents = (size_t)depthIoNode.attribute("number").as_int();
-        size_t record_size = depthIoNode.attribute("record_size").as_int();
-        size_t totalSize = nrEvents * record_size;
-
-        // Uncompress the data
-        pugi::xml_node datastoreNode = depthIoNode.child("datastore");
-        DataStoreLoad datastore(DataStoreLoad::getDatastoreParams(datastoreNode, fullOutputPath));
-        char* data = (char*)datastore.getData(totalSize);
-        
-        // Reconstruct the record
-        size_t dataIndex = 0;
-        for (size_t index = 0; index < nrEvents; ++index, dataIndex += record_size)
-        {
-            std::shared_ptr<DepthIo> event(new DepthIo());
-
-            void* source = (void*)(&data[dataIndex]);
-            void* dest = (void*)(event.get());
-            memcpy(dest, source, record_size);
-
-            m_project->addDepthIo(event);
-        }
-
-        delete data;
-    }
-    // Parse timeIo1D table
-    pugi::xml_node timeIo1DNode = pt.child("timeIo1D");
-    if (timeIo1DNode)
-    {
-        size_t nrEvents = (size_t)timeIo1DNode.attribute("number").as_int();
-        size_t record_size = timeIo1DNode.attribute("record_size").as_int();
-        size_t totalSize = nrEvents * record_size;
-
-        // Uncompress the data
-        pugi::xml_node datastoreNode = timeIo1DNode.child("datastore");
-        DataStoreLoad datastore(DataStoreLoad::getDatastoreParams(datastoreNode, fullOutputPath));
-        char* data = (char*)datastore.getData(totalSize);
-        
-        // Reconstruct the record
-        size_t dataIndex = 0;
-        for (size_t index = 0; index < nrEvents; ++index, dataIndex += record_size)
-        {
-           std::shared_ptr<TimeIo1D> event(new TimeIo1D);
-           void* source = (void*)(&data[dataIndex]);
-           void* dest = (void*)(event.get());
-           memcpy(dest, source, record_size);
-           
-           m_project->add1DTimeIo(event);
-        }
-
-        delete data;
-    }
-   
     // Read all snapshots
     pugi::xml_node snapshotsNode = pt.child("snapshots");
     for (pugi::xml_node snapShotNode = snapshotsNode.child("snapshot"); snapShotNode; snapShotNode = snapShotNode.next_sibling("snapshot"))

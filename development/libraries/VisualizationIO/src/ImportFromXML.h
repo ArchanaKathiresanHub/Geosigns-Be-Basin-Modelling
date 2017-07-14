@@ -31,14 +31,14 @@ namespace CauldronIO
     public:
         /// \brief Creates a new Project from the supplied XML indexing file
         /// Throws a CauldronIOException on failure
-        static std::shared_ptr<Project> importFromXML(const std::string& filename);
-       
+       static std::shared_ptr<Project> importFromXML(const std::string& filename, const bool loadTables = true);
+        
     private:
 
         explicit ImportFromXML(const ibs::FilePath& absPath);
         std::shared_ptr<Property> getProperty(pugi::xml_node propertyNode) const;
         std::shared_ptr<Formation> getFormation(pugi::xml_node formationNode, const ibs::FilePath& fullOutputPath) const;
-        std::shared_ptr<Project> getProject(const pugi::xml_document& pt);
+        std::shared_ptr<Project> getProject(const pugi::xml_document& pt, const bool loadTables = true);
         std::shared_ptr<const Reservoir> getReservoir(pugi::xml_node reservoirNode) const;
         std::shared_ptr<const Geometry2D> getGeometry2D(pugi::xml_node surfaceNode) const;
         std::shared_ptr<Volume> getVolume(pugi::xml_node volumeNode, const ibs::FilePath& path);

@@ -210,7 +210,10 @@ bool DerivedProperties::createVizSnapshotResultPropertyValueContinuous (  std::s
          CauldronIO::PropertyVolumeData& pdata =  snapshotVolume->getPropertyVolumeDataList().at(i); 
          if( pdata.first->getName() == propName ) {
             volDataNew = pdata.second;
-            propertyVolumeExisting = true;
+            if( volDataNew ) {
+               propertyVolumeExisting = true;
+            }
+            break;
          }
       }
       if( propertyVolumeExisting ) {
@@ -221,7 +224,9 @@ bool DerivedProperties::createVizSnapshotResultPropertyValueContinuous (  std::s
          if( snapshotVolume->getPropertyVolumeDataList().size() > 0 ) {
             geometry = snapshotVolume->getPropertyVolumeDataList().at(0).second->getGeometry();
          } else {
-            cout << "Cont: No geomerty found" << endl;
+            geometry.reset(new CauldronIO::Geometry3D(grid->numIGlobal(), grid->numJGlobal(), depthK, minK,
+                                                      grid->deltaIGlobal(), grid->deltaJGlobal(), grid->minIGlobal(), grid->minJGlobal()));
+            vizProject->addGeometry(geometry);
          }
       }
    }
@@ -670,9 +675,9 @@ void DerivedProperties::updateConstantValue( std::shared_ptr< CauldronIO::SnapSh
       for (size_t i = 0; i <  snapshotVolume->getPropertyVolumeDataList().size(); ++i ) {
          CauldronIO::PropertyVolumeData& pdata =  snapshotVolume->getPropertyVolumeDataList().at(i); 
          shared_ptr<CauldronIO::VolumeData> volDataNew = pdata.second;
-
-         DerivedProperties::updateVolumeDataConstantValue( volDataNew );
-
+         if(volDataNew->isRetrieved()) {
+            DerivedProperties::updateVolumeDataConstantValue( volDataNew );
+         }
       }
    }
 }
@@ -738,23 +743,23 @@ void DerivedProperties::collectVolumeData( const std::shared_ptr<SnapShot>& snap
  
          BOOST_FOREACH(PropertyVolumeData& propVolume, propVolList) {
             std::shared_ptr< CauldronIO::VolumeData> valueMap = propVolume.second;
-            
-            std::shared_ptr<const Geometry3D> geometry = valueMap->getGeometry();
-            int dataSize = static_cast<int>(geometry->getNumI() * geometry->getNumJ() * geometry->getNumK());
-            if( dataSize > inData.size() ) {
-               inData.resize( dataSize );
+            if( valueMap->isRetrieved() ) {
+               std::shared_ptr<const Geometry3D> geometry = valueMap->getGeometry();
+               int dataSize = static_cast<int>(geometry->getNumI() * geometry->getNumJ() * geometry->getNumK());
+               if( dataSize > inData.size() ) {
+                  inData.resize( dataSize );
+               }
+               float *data = &inData[0];
+               
+               float * internalData = const_cast<float *>(valueMap->getVolumeValues_IJK());
+               
+               MPI_Reduce( (void *)internalData, (void *)data, dataSize, MPI_FLOAT, MPI_SUM, 0,  MPI_COMM_WORLD );
+               
+               if( rank == 0 ) {
+                  std::memcpy( internalData, data, dataSize * sizeof(float));
+               }
+               //            MPI_Barrier( MPI_COMM_WORLD );
             }
-            float *data = &inData[0];
-            valueMap->retrieve();
-
-            float * internalData = const_cast<float *>(valueMap->getVolumeValues_IJK());
-
-            MPI_Reduce( (void *)internalData, (void *)data, dataSize, MPI_FLOAT, MPI_SUM, 0,  MPI_COMM_WORLD );
-
-            if( rank == 0 ) {
-               std::memcpy( internalData, data, dataSize * sizeof(float));
-            }
-            //            MPI_Barrier( MPI_COMM_WORLD );
          }
       }
    }

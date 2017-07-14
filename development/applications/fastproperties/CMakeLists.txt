@@ -109,7 +109,7 @@ endif (UNIX)
                                     
 add_gtest( NAME Fastproperties::ConvertProperties_MPInp2
            SOURCES test/ConvertProperties.C src/Utilities.h
-           LIBRARIES DerivedProperties VisualizationIO
+           LIBRARIES DerivedProperties VisualizationIO DataAccess DistributedDataAccess  GeoPhysics  Parallel_Hdf5
            MPI_SIZE 2
            MPIRUN_PRMS ${MACHINE_FILE}
         )

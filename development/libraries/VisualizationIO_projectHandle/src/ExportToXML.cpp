@@ -25,7 +25,7 @@
 using namespace CauldronIO;
 
 bool ExportToXML::exportToXML(std::shared_ptr<Project>& project, const std::shared_ptr<Project>& projectExisting,
-	const std::string& absPath, size_t numThreads, bool center)
+                              const std::string& absPath, size_t numThreads, bool center, const bool derivedProperties )
 {
    // Create empty property tree object
    ibs::FilePath outputPath(absPath);
@@ -44,7 +44,7 @@ bool ExportToXML::exportToXML(std::shared_ptr<Project>& project, const std::shar
     pugi::xml_document doc;
     pugi::xml_node pt = doc.append_child("project");
 
-	ExportToXML newExport(outputPath.filePath(), filenameNoExtension, numThreads, center);
+    ExportToXML newExport(outputPath.filePath(), filenameNoExtension, numThreads, center, derivedProperties);
 
     // Create xml property tree and write datastores
     newExport.addProject(pt, project, projectExisting);
@@ -56,8 +56,8 @@ bool ExportToXML::exportToXML(std::shared_ptr<Project>& project, const std::shar
     return doc.save_file(xmlFileName.cpath());
 }
 
-CauldronIO::ExportToXML::ExportToXML(const ibs::FilePath& absPath, const ibs::FilePath& relPath, size_t numThreads, bool center)
-    : m_fullPath(absPath), m_relPath(relPath), m_numThreads(numThreads), m_center(center)
+CauldronIO::ExportToXML::ExportToXML(const ibs::FilePath& absPath, const ibs::FilePath& relPath, size_t numThreads, bool center, const bool derivedProperties)
+   : m_fullPath(absPath), m_relPath(relPath), m_numThreads(numThreads), m_center(center), m_derivedProperties(derivedProperties)
 {
     if( absPath.path() == "." ) {
        m_fullPath = relPath.path();
@@ -130,7 +130,7 @@ void ExportToXML::addProject(pugi::xml_node pt, std::shared_ptr<Project>& projec
 		// Create datastore	for input surfaces
 		ibs::FilePath inputSurfaceStorePath(m_fullPath);
 		inputSurfaceStorePath << "Input_surfaces.cldrn";
-		DataStoreSave inputSurfaceDataStore(inputSurfaceStorePath.path(), m_append);
+		DataStoreSave inputSurfaceDataStore(inputSurfaceStorePath.path(), m_append, not m_derivedProperties);
 
 		// Collect all data
 		std::vector<VisualizationIOData*> allSurfaceData;
@@ -499,12 +499,20 @@ void CauldronIO::ExportToXML::addSnapShot(const std::shared_ptr<SnapShot>& snapS
     std::cout << "Writing snapshot Age=" << snapshotString << std::endl;
 
     ibs::FilePath volumeStorePath(m_fullPath);
-    volumeStorePath << "Snapshot_" + snapshotString + "_volumes.cldrn";
-    DataStoreSave volumeStore(volumeStorePath.path(), m_append);
+    if(m_derivedProperties) {
+       volumeStorePath << "Snapshot_" + snapshotString + "_fp_volumes.cldrn";
+    } else {
+       volumeStorePath << "Snapshot_" + snapshotString + "_volumes.cldrn";
+    }
+    DataStoreSave volumeStore(volumeStorePath.path(), m_append, not m_derivedProperties);
 
     ibs::FilePath surfaceStorePath(m_fullPath);
-    surfaceStorePath << "Snapshot_" + snapshotString + "_surfaces.cldrn";
-    DataStoreSave surfaceDataStore(surfaceStorePath.path(), m_append);
+    if(m_derivedProperties) {
+       surfaceStorePath << "Snapshot_" + snapshotString + "_fp_surfaces.cldrn";
+    } else {
+       surfaceStorePath << "Snapshot_" + snapshotString + "_surfaces.cldrn";
+    }
+    DataStoreSave surfaceDataStore(surfaceStorePath.path(), m_append, not m_derivedProperties);
 
     node.append_attribute("age") = snapShot->getAge();
     node.append_attribute("kind") = snapShot->getKind();

@@ -73,9 +73,8 @@ void Swap( T & x, T & y )
 
 class PropertiesCalculator {
 
-   const std::string xmlExtName = "";
-   const std::string xmlExt = xmlExtName + ".xml";
-   const std::string xmlDir = xmlExtName + "_vizIO_output";
+   const std::string xmlExt = "_fp.xml";
+
 public :
    PropertiesCalculator( int aRank );
 
