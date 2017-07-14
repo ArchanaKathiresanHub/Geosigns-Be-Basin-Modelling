@@ -81,7 +81,7 @@ if (MSVC)
    ##### Generate the C# API  
    generate_csharp_api(
       CSPROJ_NAME                   EosPackAPI
-      CSPROJ_NAMESPACE              Shell.BasinModeling.EOS
+      CSPROJ_NAMESPACE              Bpa2.Basin.EOS
       CSPROJ_ASSEMBLY_VERSION       ${API_FILE_GIT_DATE_AS_VER}
       # Info for Nuget package
       CSPROJ_ASSEMBLY_OWNER         "Sergey Koshelev"

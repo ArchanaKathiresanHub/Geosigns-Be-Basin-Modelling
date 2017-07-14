@@ -11,9 +11,9 @@
  *******************************************************************/
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Shell.BasinModeling.DataAccess;
+using Bpa2.Basin.DataAccess;
 
-namespace Shell.BasinModeling.DataAccess.Test
+namespace Bpa2.Basin.DataAccess.Test
 {
     [TestClass]
     public class SerialDataAccessTest

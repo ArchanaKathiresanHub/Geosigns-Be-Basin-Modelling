@@ -43,7 +43,7 @@ if ( MSVC )
    ##### Generate the C# API  
    generate_csharp_api(
       CSPROJ_NAME                   VisualizationIOAPI
-      CSPROJ_NAMESPACE              Shell.BasinModeling.CauldronIO
+      CSPROJ_NAMESPACE              Bpa2.Basin.CauldronIO
       CSPROJ_ASSEMBLY_VERSION       ${API_FILE_GIT_DATE_AS_VER}
       # Info for Nuget package
       CSPROJ_ASSEMBLY_OWNER         "Sebastiaan Kole"
@@ -80,7 +80,7 @@ if ( MSVC )
 else (MSVC) # UNIX
    if (NUGET_FOUND)
       generate_nuget_pkg( PKG_NAME          VisualizationIOAPI
-                          PKG_NAMESPACE     Shell.BasinModeling.CauldronIO
+                          PKG_NAMESPACE     Bpa2.Basin.CauldronIO
                           PKG_VERSION       ${API_FILE_GIT_DATE_AS_VER}
                           PKG_OWNER         "Sebastiaan.Kole@pds.nl"
                           PKG_DESCRIPTION   "C#/C++ Cauldron API to access simulation results data for vizualization"

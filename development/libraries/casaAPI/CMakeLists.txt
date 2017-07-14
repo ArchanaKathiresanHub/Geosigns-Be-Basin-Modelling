@@ -160,7 +160,7 @@ if (MSVC)
    ##### Generate the C# API  
    generate_csharp_api(
       CSPROJ_NAME                   CasaAPI
-      CSPROJ_NAMESPACE              Shell.BasinModeling.Casa
+      CSPROJ_NAMESPACE              Bpa2.Basin.Casa
       CSPROJ_ASSEMBLY_VERSION       ${API_FILE_GIT_DATE_AS_VER}
       # Info for Nuget package
       CSPROJ_ASSEMBLY_OWNER         "Sergey Koshelev"

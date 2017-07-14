@@ -15,7 +15,7 @@ using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 
-namespace Shell.BasinModeling.EOS.Test
+namespace Bpa2.Basin.EOS.Test
 {
     [TestClass]
    public class EosPackCApiTest

@@ -265,7 +265,7 @@ if (MSVC)
    ##### Generate the C# API  
    generate_csharp_api(
       CSPROJ_NAME                   Project3dAPI
-      CSPROJ_NAMESPACE              Shell.BasinModeling.Project3d
+      CSPROJ_NAMESPACE              Bpa2.Basin.Project3d
       CSPROJ_ASSEMBLY_VERSION       ${API_FILE_GIT_DATE_AS_VER}
       # Info for Nuget package
       CSPROJ_ASSEMBLY_OWNER         "Sergey Koshelev"

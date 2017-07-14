@@ -1,6 +1,6 @@
-using Shell.BasinModeling.Project3d;
+using Bpa2.Basin.Project3d;
 
-namespace Shell.BasinModeling.Project3d.Test
+namespace Bpa2.Basin.Project3d.Test
 {
    public partial class Project3dAPITests
    {

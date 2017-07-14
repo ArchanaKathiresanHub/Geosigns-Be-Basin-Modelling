@@ -76,7 +76,7 @@ if ( MSVC )
    ##### Generate the C# API  
    generate_csharp_api(
       CSPROJ_NAME                   DataAccessAPI
-      CSPROJ_NAMESPACE              Shell.BasinModeling.DataAccess
+      CSPROJ_NAMESPACE              Bpa2.Basin.DataAccess
       CSPROJ_ASSEMBLY_VERSION       ${API_FILE_GIT_DATE_AS_VER}
       # Info for Nuget package
       CSPROJ_ASSEMBLY_OWNER         "Sergey Koshelev"

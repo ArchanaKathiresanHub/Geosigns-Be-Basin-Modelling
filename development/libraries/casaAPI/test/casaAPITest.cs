@@ -1,9 +1,9 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
-using Shell.BasinModeling.Casa;
+using Bpa2.Basin.Casa;
 
-namespace Shell.BasinModeling.Casa.Test
+namespace Bpa2.Basin.Casa.Test
 {
    /// <summary>
    ///This is a test class for suaAPI

@@ -15,10 +15,10 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
-using Shell.BasinModeling.Project3d;
+using Bpa2.Basin.Project3d;
 
 
-namespace Shell.BasinModeling.Project3d.Test
+namespace Bpa2.Basin.Project3d.Test
 {
    [TestClass()]
    public partial class Project3dAPITests

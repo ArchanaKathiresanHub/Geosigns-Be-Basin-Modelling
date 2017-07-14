@@ -258,7 +258,7 @@ endmacro(generate_nuget_pkg)
 ### Add C# API
 # Each C++ library for which C# API will be generated
 # must has ${CSPROJ_NAME}.i file in src folder, ${CSPROJ_NAME}.png file with icon in doc folder
-macro( generate_csharp_api )
+macro(generate_csharp_api)
    set(CSPROJ_NAME)
    set(CSPROJ_NAMESPACE)
    set(CSPROJ_ASSEMBLY_VERSION)
