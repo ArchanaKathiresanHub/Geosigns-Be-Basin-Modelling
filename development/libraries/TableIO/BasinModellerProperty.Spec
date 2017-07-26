@@ -8,8 +8,6 @@ START-properties
 
 #### General data --------------------------------------------------------
 
-
-
     Identification      : Age
     Description         : Geological age of an event, entry in a table etc.
     Unit of measurement : Ma
