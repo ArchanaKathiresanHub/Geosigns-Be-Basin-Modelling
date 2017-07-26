@@ -114,8 +114,6 @@ Migrator::Migrator (const string & name)
    m_trapIoTbl = nullptr;
    m_ReservoirIoTbl = nullptr;
 
-   getMinimumColumnHeights ();
-
 #ifdef USEOTGC
    bool includeSulphur = m_projectHandle->containsSulphur ();
    m_otgc = new OilToGasCracker (includeSulphur);
@@ -228,6 +226,8 @@ bool Migrator::compute (const bool overpressuredLeakage)
       m_paleoSeeps = false;
       m_overpressuredLeakage = false;
    }
+
+   getMinimumColumnHeights ();
 
    bool overPressureRun = !isHydrostaticCalculation ();
 
