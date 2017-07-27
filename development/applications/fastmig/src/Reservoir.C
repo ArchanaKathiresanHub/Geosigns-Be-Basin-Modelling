@@ -1349,8 +1349,10 @@ namespace migration
       computeTemperatures ();
       computePressures ();
 
-      PropertyValue * propertyValue_Gas = getProjectHandle ()->createMapPropertyValue ("SeepageBasinTop_Gas", end, this, 0, 0);
-      PropertyValue * propertyValue_Oil = getProjectHandle ()->createMapPropertyValue ("SeepageBasinTop_Oil", end, this, 0, 0);
+      Interface::Formation * topActiveFormation = m_migrator->getTopActiveFormation(end);
+      
+      PropertyValue * propertyValue_Gas = getProjectHandle ()->createMapPropertyValue ("SeepageBasinTop_Gas", end, 0, topActiveFormation, 0);
+      PropertyValue * propertyValue_Oil = getProjectHandle ()->createMapPropertyValue ("SeepageBasinTop_Oil", end, 0, topActiveFormation, 0);
       assert (propertyValue_Gas);
       assert (propertyValue_Oil);
 
