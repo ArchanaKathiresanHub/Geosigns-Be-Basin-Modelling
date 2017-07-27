@@ -7,7 +7,5 @@
       <ReferenceCopyLocalPaths Include="$(MSBuildThisFileDirectory)..\lib\native\x64\Debug\@CSPROJ_NAME@.dll" />
       <ReferenceCopyLocalPaths Include="$(MSBuildThisFileDirectory)..\lib\native\x64\Debug\@CSPROJ_NAME@.pdb" />
       <ReferenceCopyLocalPaths Include="$(MSBuildThisFileDirectory)..\lib\net452\Debug\@CSPROJ_NAMESPACE@.@CSPROJ_NAME@.pdb" />
-      <ReferenceCopyLocalPaths Include="$(MSBuildThisFileDirectory)..\lib\native\x64\Debug\msvcp140d.dll" />
-      <ReferenceCopyLocalPaths Include="$(MSBuildThisFileDirectory)..\lib\native\x64\Debug\vcruntime140d.dll" />
     </ItemGroup>
  </Project>
