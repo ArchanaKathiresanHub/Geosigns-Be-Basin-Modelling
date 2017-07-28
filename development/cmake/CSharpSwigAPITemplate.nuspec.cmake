@@ -16,7 +16,7 @@
       <reference file="@CSPROJ_NAMESPACE@.@CSPROJ_NAME@.dll" />
     </references>
     <dependencies>
-      <dependency id="Bpa2.Basin.VS2015C++RedistDebugDlls" version="(,2.0)" />
+      <dependency id="Bpa2.Basin.VS2015CppRedistDebugDlls" version="(,2.0)" />
     </dependencies>
   </metadata>
   <files>  
