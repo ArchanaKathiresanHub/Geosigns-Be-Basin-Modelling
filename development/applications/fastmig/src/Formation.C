@@ -267,6 +267,10 @@ namespace migration
                   // If liquid phase is present (density is a proxy, if 1000, there's only vapour)
                   if (liquidDensity != 1000.0 )
                   {
+                     // Calculation of interfacial tension requires a positive density contrast
+                     if (waterDensity - liquidDensity < minimumDensityDifference)
+                        waterDensity = liquidDensity + minimumDensityDifference;
+
                      double liquidIFT = CBMGenerics::capillarySealStrength::capTension_H2O_HC( waterDensity, liquidDensity, temperature + CelciusToKelvin, hcTempValueLiquid );
                      capillaryEntryPressureLiquid = CBMGenerics::capillarySealStrength::capSealStrength_H2O_HC( capSealStrength_Air_Hg, liquidIFT );
 
@@ -282,13 +286,16 @@ namespace migration
                   // There's only vapour. Calculate capillary pressures accordingly.
                   else
                   {
+                     // Calculation of interfacial tension requires a positive density contrast
+                     if (waterDensity - vapourDensity < minimumDensityDifference)
+                        waterDensity = vapourDensity + minimumDensityDifference;
+
                      double vapourIFT = CBMGenerics::capillarySealStrength::capTension_H2O_HC( waterDensity, vapourDensity, temperature + CelciusToKelvin, hcTempValueVapour );
                      capillaryEntryPressureVapour = CBMGenerics::capillarySealStrength::capSealStrength_H2O_HC( capSealStrength_Air_Hg, vapourIFT );
 
                      capillaryEntryPressureLiquid = capillaryEntryPressureVapour;
                      liquidDensity = vapourDensity;
-                  }
-                     
+                  }                     
                }
 
                if (capillaryEntryPressureLiquid == Interface::DefaultUndefinedMapValue or capillaryEntryPressureVapour == Interface::DefaultUndefinedMapValue)

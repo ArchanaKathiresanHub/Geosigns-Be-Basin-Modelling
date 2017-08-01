@@ -252,6 +252,10 @@ namespace migration
 
    const double WaterDensity = 1000;
 
+   // Set according to the data based on which
+   // the IFT polynomial has been constructed
+   const double minimumDensityDifference = 10.0;
+
    const double StockTankPressure = 0.101325;	// Stock tank pressure in MPa
    const double StockTankTemperature = 15.0;		// Stock tank temperature in C
 
