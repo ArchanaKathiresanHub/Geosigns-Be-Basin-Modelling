@@ -914,12 +914,12 @@ namespace migration
       if ( phase == GAS )
       {
          // calculate actual capillary sealing pressure for vapour
-         capillaryPressureContrast = topNode->m_capillaryEntryPressureVapour[0] - m_capillaryEntryPressureVapour[0] * resCorr;
+         capillaryPressureContrast = topNode->m_capillaryEntryPressureVapour[0] - m_capillaryEntryPressureVapour[1] * resCorr;
       }
       else
       {
          // calculate actual capillary sealing pressure  for liquid
-         capillaryPressureContrast = topNode->m_capillaryEntryPressureLiquid[0] - m_capillaryEntryPressureLiquid[0] * resCorr;
+         capillaryPressureContrast = topNode->m_capillaryEntryPressureLiquid[0] - m_capillaryEntryPressureLiquid[1] * resCorr;
       }
 
       return capillaryPressureContrast + dOverPressure;
