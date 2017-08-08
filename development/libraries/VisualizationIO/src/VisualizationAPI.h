@@ -33,9 +33,36 @@ namespace CauldronIO
     const float DefaultUndefinedScalarValue = -9999;
     // maximum length for string parameters
     const int maxStringLength = 256;
+
+    // number of points for 2D interpolation
+    const int numberOf2DPoints = 4;
+    // number of points for 3D interpolation
+    const int numberOf3DPoints = 8;
+
+    // \brief An element in which 3D point lies
+    struct Element
+    {
+        // the reference coordinates of the point in the element
+        // reference x coordinate
+        double xi = DefaultUndefinedValue;
+        // reference y coordinate
+        double eta = DefaultUndefinedValue;
+        // reference z coordinate
+        double zeta = DefaultUndefinedValue;
+
+        // the actual point coordinates
+        size_t x = (size_t)DefaultUndefinedValue;
+        size_t y = (size_t)DefaultUndefinedValue;
+        size_t z = (size_t)DefaultUndefinedValue;
+
+        // the formation in which the point lies
+        std::string formationName = "";
+    };
+
     /// \class CauldronIOException
     /// \brief The VisualizationIO exception class
-    class CauldronIOException : public std::runtime_error
+
+   class CauldronIOException : public std::runtime_error
     {
     public:
         /// \brief Exception from string
@@ -243,6 +270,22 @@ namespace CauldronIO
        /// \brief Adds the layout of Cl Weight Bins used in the fission track prediction algorithms
        /// \param [in] entry a new entry
        void addFtClWeightPercBins(std::shared_ptr<FtClWeightPercBins> entry);
+ 
+       /// \brief Get a property value at the x, y, z coordinates. 
+       ///        If the z coordinate is not defined the value is taken at surface or formation map.
+       /// \param [in] snapshotTime Snapshot Age
+       /// \param [in] propertyName Name of the property
+       /// \param [in] xCoord X coordinate 
+       /// \param [in] yCoord Y coordinate 
+       /// \param [in] zCoord Z coordinate
+       /// \param [in] reservoirName The name of reservoir to find the property
+       /// \param [in] surfaceName The name of surface to find a property map
+       /// \param [in] formationName The name of formation to find a property map
+       /// \returns The property value.  
+       float getPropertyAtLocation(double snapshotTime, const std::string & propertyName,
+                                   double xCoord, double yCoord, double zCoord, 
+                                   const std::string& reservoirName, const std::string& surfaceName, 
+                                   const std::string& formationName ) const throw (CauldronIOException);
         
    private:
         SnapShotList m_snapShotList;
@@ -343,6 +386,22 @@ namespace CauldronIO
         /// \returns a list of all data not yet retrieved for this snapshot
         std::vector < VisualizationIOData* > getAllRetrievableData() const;
 
+        /// \brief Get a property value at the x, y, z coordinates
+        ///        If z coordinate is not defined and the property is discontinous, find a top or bottom formation for a surface.
+        ///        
+        /// \param [in] formations The list of formations in the project to find a formation for the surface
+        /// \param [in] property The property in the project
+        /// \param [in] xCoord X coordinate 
+        /// \param [in] yCoord Y coordinate 
+        /// \param [in] zCoord Z coordinate
+        /// \param [in] reservoirName The name of reservoir to find the property
+        /// \param [in] surfaceName The name of surface to find a property map
+        /// \param [in] formationName The name of formation to find a property map
+        /// \returns The property value
+        float getPropertyAtLocation(const FormationList& formations,
+                                   double xCoord, double yCoord, double zCoord, std::shared_ptr<const Property>& property, 
+                                   const std::string& reservoirName, const std::string& surfaceName, 
+                                   const std::string& formationName ) const throw (CauldronIOException);
     private:
         SurfaceList m_surfaceList;
         std::shared_ptr<Volume> m_volume;
@@ -351,6 +410,17 @@ namespace CauldronIO
         SnapShotKind m_kind;
         bool m_isMinor;
         double m_age;
+
+       /// \brief Get a continuous property value at the element location
+       float getValueAtLocation(std::shared_ptr<const Property>& property, std::shared_ptr<CauldronIO::Element> &element) const;
+       /// \brief Get a surface or formation map property value at the element location
+       float getValueAtLocation(std::shared_ptr<const Property>& property, const std::string& surfaceName, const std::string& formationName, std::shared_ptr<CauldronIO::Element> &element) const;
+       /// \brief Find an element in Depth property for x, y, z coordinates in the domain
+       std::shared_ptr<CauldronIO::Element> getDepthElementAtLocation(double xCoord, double yCoord, double zCoord) const throw (CauldronIOException);
+       /// \brief Find the formation for a surface
+       bool findFormationForSurface(const FormationList& formations,
+                                    std::shared_ptr<const Property>& property,  const std::string& surfaceName,
+                                    const std::string& formation, std::shared_ptr<CauldronIO::Element> &element) const;
     };
 
     /// \class Reservoir
@@ -840,8 +910,9 @@ namespace CauldronIO
         int getDepoSequence() const;
         /// \brief Assigns the deposition sequence number 
         void setDepoSequence(int number);
-
-    private:
+        /// \brief Interpolate a property in a 2d map
+        float interpolate( std::shared_ptr<CauldronIO::Element> & element) const;
+   private:
 
         void updateMinMax() throw (CauldronIOException);
         void setData(float* data, bool setValue = false, float value = 0) throw (CauldronIOException);
@@ -960,6 +1031,14 @@ namespace CauldronIO
         /// \throws CauldronIOException
         /// \returns an entire needle of data; can be null if this volume is not needle-ordered (or throw an exception)
         const float* getNeedleValues(size_t i, size_t j) throw (CauldronIOException);
+        /// \brief Find the actual coordinates and the reference coordinates of the element
+        /// \param [in] xCoord x coordinate of the well location
+        /// \param [in] yCoord y coordinate of the well location
+        /// \returns the element with the acual and reference coordinates
+        bool findPlaneLocation(double xCoord, double yCoord, std::shared_ptr<CauldronIO::Element> &element);
+        /// \brief Interpolate a property in a 3d map
+        float interpolate(std::shared_ptr<CauldronIO::Element>& element);
+        float interpolate(std::shared_ptr<CauldronIO::Element>& element, size_t k);
         /// \param [in] k index in k-dimension
         /// \returns pointer to entire data for the surface at depth k; can be null if data is not stored per ij surface
         const float* getSurface_IJ(size_t k) throw (CauldronIOException);

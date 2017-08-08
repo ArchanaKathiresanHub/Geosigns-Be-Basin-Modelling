@@ -417,7 +417,6 @@ void CauldronIO::DataStoreSave::writeVolumePart(pugi::xml_node volNode, bool com
         }
 
         subNode.append_attribute("file") = ibs::FilePath(fileName).fileName().c_str();
- 
         if ( params->compressed )
            subNode.append_attribute("compression") =  params->compressed_lz4 ? "lz4" : "gzip";
         else

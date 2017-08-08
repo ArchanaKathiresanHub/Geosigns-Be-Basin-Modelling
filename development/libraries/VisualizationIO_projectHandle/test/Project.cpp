@@ -1324,7 +1324,7 @@ TEST(Tables1D, Create)
    EXPECT_STREQ(sampleId.c_str(), fgrain->getFtSampleId().c_str());
    
    fgrain->setFtGrainAgeErr(0.0034f);
-   EXPECT_FLOAT_EQ(0.0034f, fgrain->getFtGrainAgeErr());
+   EXPECT_FLOAT_EQ(0.0034f, static_cast<float>(fgrain->getFtGrainAgeErr()));
    
    fgrain->setFtInducedTrackNo(23);
    EXPECT_EQ(23, fgrain->getFtInducedTrackNo());
