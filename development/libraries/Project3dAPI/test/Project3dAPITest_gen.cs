@@ -61,7 +61,6 @@ namespace Bpa2.Basin.Project3d.Test
             ph.m_RunOptionsIoTbl.setFractureType(id, "None");
             ph.m_RunOptionsIoTbl.setFractureModel(id, 1);
             ph.m_RunOptionsIoTbl.setCalcAllDepthIoProps(id, 0);
-            ph.m_RunOptionsIoTbl.setOptimization(id, 0);
             ph.m_RunOptionsIoTbl.setWorkflowType(id, "");
             ph.m_RunOptionsIoTbl.setCoupledMode(id, 0);
             ph.m_RunOptionsIoTbl.setChemicalCompaction(id, 0);
@@ -1657,8 +1656,6 @@ namespace Bpa2.Basin.Project3d.Test
             ph.m_LithotypeIoTbl.setActivationEnergy(id, 0);
             ph.m_LithotypeIoTbl.setMinimumPorosity(id, 0);
             ph.m_LithotypeIoTbl.setIgneousIntrusionTemperature(id, -9999);
-            ph.m_LithotypeIoTbl.setSpecSurfArea(id, 0.06);
-            ph.m_LithotypeIoTbl.setGeoVariance(id, 1.7);
             ph.m_LithotypeIoTbl.setQuartzGrainSize(id, 0.03);
             ph.m_LithotypeIoTbl.setQuartzFraction(id, 0);
             ph.m_LithotypeIoTbl.setClayCoatingFactor(id, 0);
@@ -1716,8 +1713,6 @@ namespace Bpa2.Basin.Project3d.Test
             ph.m_LithotypeIoTbl.setActivationEnergy(id, 0);
             ph.m_LithotypeIoTbl.setMinimumPorosity(id, 0);
             ph.m_LithotypeIoTbl.setIgneousIntrusionTemperature(id, -9999);
-            ph.m_LithotypeIoTbl.setSpecSurfArea(id, 0.06);
-            ph.m_LithotypeIoTbl.setGeoVariance(id, 1.7);
             ph.m_LithotypeIoTbl.setQuartzGrainSize(id, 0.03);
             ph.m_LithotypeIoTbl.setQuartzFraction(id, 0);
             ph.m_LithotypeIoTbl.setClayCoatingFactor(id, 0);
@@ -1775,8 +1770,6 @@ namespace Bpa2.Basin.Project3d.Test
             ph.m_LithotypeIoTbl.setActivationEnergy(id, 0);
             ph.m_LithotypeIoTbl.setMinimumPorosity(id, 0);
             ph.m_LithotypeIoTbl.setIgneousIntrusionTemperature(id, -9999);
-            ph.m_LithotypeIoTbl.setSpecSurfArea(id, 0.06);
-            ph.m_LithotypeIoTbl.setGeoVariance(id, 1.7);
             ph.m_LithotypeIoTbl.setQuartzGrainSize(id, 0.03);
             ph.m_LithotypeIoTbl.setQuartzFraction(id, 0);
             ph.m_LithotypeIoTbl.setClayCoatingFactor(id, 0);
@@ -1834,8 +1827,6 @@ namespace Bpa2.Basin.Project3d.Test
             ph.m_LithotypeIoTbl.setActivationEnergy(id, 0);
             ph.m_LithotypeIoTbl.setMinimumPorosity(id, 0);
             ph.m_LithotypeIoTbl.setIgneousIntrusionTemperature(id, -9999);
-            ph.m_LithotypeIoTbl.setSpecSurfArea(id, 0.06);
-            ph.m_LithotypeIoTbl.setGeoVariance(id, 1.7);
             ph.m_LithotypeIoTbl.setQuartzGrainSize(id, 0.03);
             ph.m_LithotypeIoTbl.setQuartzFraction(id, 0);
             ph.m_LithotypeIoTbl.setClayCoatingFactor(id, 0);
@@ -1893,8 +1884,6 @@ namespace Bpa2.Basin.Project3d.Test
             ph.m_LithotypeIoTbl.setActivationEnergy(id, 0);
             ph.m_LithotypeIoTbl.setMinimumPorosity(id, 0);
             ph.m_LithotypeIoTbl.setIgneousIntrusionTemperature(id, -9999);
-            ph.m_LithotypeIoTbl.setSpecSurfArea(id, 0.06);
-            ph.m_LithotypeIoTbl.setGeoVariance(id, 1.7);
             ph.m_LithotypeIoTbl.setQuartzGrainSize(id, 0.03);
             ph.m_LithotypeIoTbl.setQuartzFraction(id, 0);
             ph.m_LithotypeIoTbl.setClayCoatingFactor(id, 0);
@@ -1952,8 +1941,6 @@ namespace Bpa2.Basin.Project3d.Test
             ph.m_LithotypeIoTbl.setActivationEnergy(id, 0);
             ph.m_LithotypeIoTbl.setMinimumPorosity(id, 0);
             ph.m_LithotypeIoTbl.setIgneousIntrusionTemperature(id, -9999);
-            ph.m_LithotypeIoTbl.setSpecSurfArea(id, 0.06);
-            ph.m_LithotypeIoTbl.setGeoVariance(id, 1.7);
             ph.m_LithotypeIoTbl.setQuartzGrainSize(id, 0.03);
             ph.m_LithotypeIoTbl.setQuartzFraction(id, 0);
             ph.m_LithotypeIoTbl.setClayCoatingFactor(id, 0);
@@ -2011,8 +1998,6 @@ namespace Bpa2.Basin.Project3d.Test
             ph.m_LithotypeIoTbl.setActivationEnergy(id, 0);
             ph.m_LithotypeIoTbl.setMinimumPorosity(id, 0);
             ph.m_LithotypeIoTbl.setIgneousIntrusionTemperature(id, -9999);
-            ph.m_LithotypeIoTbl.setSpecSurfArea(id, 0.06);
-            ph.m_LithotypeIoTbl.setGeoVariance(id, 1.7);
             ph.m_LithotypeIoTbl.setQuartzGrainSize(id, 0.03);
             ph.m_LithotypeIoTbl.setQuartzFraction(id, 0);
             ph.m_LithotypeIoTbl.setClayCoatingFactor(id, 0);
@@ -2070,8 +2055,6 @@ namespace Bpa2.Basin.Project3d.Test
             ph.m_LithotypeIoTbl.setActivationEnergy(id, 0);
             ph.m_LithotypeIoTbl.setMinimumPorosity(id, 0);
             ph.m_LithotypeIoTbl.setIgneousIntrusionTemperature(id, -9999);
-            ph.m_LithotypeIoTbl.setSpecSurfArea(id, 0.06);
-            ph.m_LithotypeIoTbl.setGeoVariance(id, 1.7);
             ph.m_LithotypeIoTbl.setQuartzGrainSize(id, 0.03);
             ph.m_LithotypeIoTbl.setQuartzFraction(id, 0);
             ph.m_LithotypeIoTbl.setClayCoatingFactor(id, 0);
@@ -2129,8 +2112,6 @@ namespace Bpa2.Basin.Project3d.Test
             ph.m_LithotypeIoTbl.setActivationEnergy(id, 0);
             ph.m_LithotypeIoTbl.setMinimumPorosity(id, 0);
             ph.m_LithotypeIoTbl.setIgneousIntrusionTemperature(id, -9999);
-            ph.m_LithotypeIoTbl.setSpecSurfArea(id, 0.06);
-            ph.m_LithotypeIoTbl.setGeoVariance(id, 1.7);
             ph.m_LithotypeIoTbl.setQuartzGrainSize(id, 0.03);
             ph.m_LithotypeIoTbl.setQuartzFraction(id, 0);
             ph.m_LithotypeIoTbl.setClayCoatingFactor(id, 0);
@@ -2188,8 +2169,6 @@ namespace Bpa2.Basin.Project3d.Test
             ph.m_LithotypeIoTbl.setActivationEnergy(id, 0);
             ph.m_LithotypeIoTbl.setMinimumPorosity(id, 0);
             ph.m_LithotypeIoTbl.setIgneousIntrusionTemperature(id, -9999);
-            ph.m_LithotypeIoTbl.setSpecSurfArea(id, 0.06);
-            ph.m_LithotypeIoTbl.setGeoVariance(id, 1.7);
             ph.m_LithotypeIoTbl.setQuartzGrainSize(id, 0.03);
             ph.m_LithotypeIoTbl.setQuartzFraction(id, 0);
             ph.m_LithotypeIoTbl.setClayCoatingFactor(id, 0);
@@ -2247,8 +2226,6 @@ namespace Bpa2.Basin.Project3d.Test
             ph.m_LithotypeIoTbl.setActivationEnergy(id, 0);
             ph.m_LithotypeIoTbl.setMinimumPorosity(id, 0);
             ph.m_LithotypeIoTbl.setIgneousIntrusionTemperature(id, -9999);
-            ph.m_LithotypeIoTbl.setSpecSurfArea(id, 0.06);
-            ph.m_LithotypeIoTbl.setGeoVariance(id, 1.7);
             ph.m_LithotypeIoTbl.setQuartzGrainSize(id, 0.03);
             ph.m_LithotypeIoTbl.setQuartzFraction(id, 0);
             ph.m_LithotypeIoTbl.setClayCoatingFactor(id, 0);
@@ -2306,8 +2283,6 @@ namespace Bpa2.Basin.Project3d.Test
             ph.m_LithotypeIoTbl.setActivationEnergy(id, 0);
             ph.m_LithotypeIoTbl.setMinimumPorosity(id, 0);
             ph.m_LithotypeIoTbl.setIgneousIntrusionTemperature(id, -9999);
-            ph.m_LithotypeIoTbl.setSpecSurfArea(id, 0.06);
-            ph.m_LithotypeIoTbl.setGeoVariance(id, 1.7);
             ph.m_LithotypeIoTbl.setQuartzGrainSize(id, 0.03);
             ph.m_LithotypeIoTbl.setQuartzFraction(id, 0);
             ph.m_LithotypeIoTbl.setClayCoatingFactor(id, 0);
@@ -2365,8 +2340,6 @@ namespace Bpa2.Basin.Project3d.Test
             ph.m_LithotypeIoTbl.setActivationEnergy(id, 0);
             ph.m_LithotypeIoTbl.setMinimumPorosity(id, 0);
             ph.m_LithotypeIoTbl.setIgneousIntrusionTemperature(id, -9999);
-            ph.m_LithotypeIoTbl.setSpecSurfArea(id, 0.06);
-            ph.m_LithotypeIoTbl.setGeoVariance(id, 1.7);
             ph.m_LithotypeIoTbl.setQuartzGrainSize(id, 0.03);
             ph.m_LithotypeIoTbl.setQuartzFraction(id, 0);
             ph.m_LithotypeIoTbl.setClayCoatingFactor(id, 0);
@@ -2424,8 +2397,6 @@ namespace Bpa2.Basin.Project3d.Test
             ph.m_LithotypeIoTbl.setActivationEnergy(id, 0);
             ph.m_LithotypeIoTbl.setMinimumPorosity(id, 0);
             ph.m_LithotypeIoTbl.setIgneousIntrusionTemperature(id, -9999);
-            ph.m_LithotypeIoTbl.setSpecSurfArea(id, 0.06);
-            ph.m_LithotypeIoTbl.setGeoVariance(id, 1.7);
             ph.m_LithotypeIoTbl.setQuartzGrainSize(id, 0.03);
             ph.m_LithotypeIoTbl.setQuartzFraction(id, 0);
             ph.m_LithotypeIoTbl.setClayCoatingFactor(id, 0);
@@ -2483,8 +2454,6 @@ namespace Bpa2.Basin.Project3d.Test
             ph.m_LithotypeIoTbl.setActivationEnergy(id, 0);
             ph.m_LithotypeIoTbl.setMinimumPorosity(id, 0);
             ph.m_LithotypeIoTbl.setIgneousIntrusionTemperature(id, -9999);
-            ph.m_LithotypeIoTbl.setSpecSurfArea(id, 0.06);
-            ph.m_LithotypeIoTbl.setGeoVariance(id, 1.7);
             ph.m_LithotypeIoTbl.setQuartzGrainSize(id, 0.03);
             ph.m_LithotypeIoTbl.setQuartzFraction(id, 0);
             ph.m_LithotypeIoTbl.setClayCoatingFactor(id, 0);
@@ -2542,8 +2511,6 @@ namespace Bpa2.Basin.Project3d.Test
             ph.m_LithotypeIoTbl.setActivationEnergy(id, 0);
             ph.m_LithotypeIoTbl.setMinimumPorosity(id, 0);
             ph.m_LithotypeIoTbl.setIgneousIntrusionTemperature(id, -9999);
-            ph.m_LithotypeIoTbl.setSpecSurfArea(id, 0.06);
-            ph.m_LithotypeIoTbl.setGeoVariance(id, 1.7);
             ph.m_LithotypeIoTbl.setQuartzGrainSize(id, 0.03);
             ph.m_LithotypeIoTbl.setQuartzFraction(id, 0);
             ph.m_LithotypeIoTbl.setClayCoatingFactor(id, 0);
@@ -2601,8 +2568,6 @@ namespace Bpa2.Basin.Project3d.Test
             ph.m_LithotypeIoTbl.setActivationEnergy(id, 0);
             ph.m_LithotypeIoTbl.setMinimumPorosity(id, 0);
             ph.m_LithotypeIoTbl.setIgneousIntrusionTemperature(id, -9999);
-            ph.m_LithotypeIoTbl.setSpecSurfArea(id, 0.06);
-            ph.m_LithotypeIoTbl.setGeoVariance(id, 1.7);
             ph.m_LithotypeIoTbl.setQuartzGrainSize(id, 0.03);
             ph.m_LithotypeIoTbl.setQuartzFraction(id, 0);
             ph.m_LithotypeIoTbl.setClayCoatingFactor(id, 0);
@@ -2660,8 +2625,6 @@ namespace Bpa2.Basin.Project3d.Test
             ph.m_LithotypeIoTbl.setActivationEnergy(id, 0);
             ph.m_LithotypeIoTbl.setMinimumPorosity(id, 0);
             ph.m_LithotypeIoTbl.setIgneousIntrusionTemperature(id, -9999);
-            ph.m_LithotypeIoTbl.setSpecSurfArea(id, 0.06);
-            ph.m_LithotypeIoTbl.setGeoVariance(id, 1.7);
             ph.m_LithotypeIoTbl.setQuartzGrainSize(id, 0.03);
             ph.m_LithotypeIoTbl.setQuartzFraction(id, 0);
             ph.m_LithotypeIoTbl.setClayCoatingFactor(id, 0);
@@ -2719,8 +2682,6 @@ namespace Bpa2.Basin.Project3d.Test
             ph.m_LithotypeIoTbl.setActivationEnergy(id, 0);
             ph.m_LithotypeIoTbl.setMinimumPorosity(id, 0);
             ph.m_LithotypeIoTbl.setIgneousIntrusionTemperature(id, -9999);
-            ph.m_LithotypeIoTbl.setSpecSurfArea(id, 0.06);
-            ph.m_LithotypeIoTbl.setGeoVariance(id, 1.7);
             ph.m_LithotypeIoTbl.setQuartzGrainSize(id, 0.03);
             ph.m_LithotypeIoTbl.setQuartzFraction(id, 0);
             ph.m_LithotypeIoTbl.setClayCoatingFactor(id, 0);
@@ -2778,8 +2739,6 @@ namespace Bpa2.Basin.Project3d.Test
             ph.m_LithotypeIoTbl.setActivationEnergy(id, 0);
             ph.m_LithotypeIoTbl.setMinimumPorosity(id, 0);
             ph.m_LithotypeIoTbl.setIgneousIntrusionTemperature(id, -9999);
-            ph.m_LithotypeIoTbl.setSpecSurfArea(id, 0.06);
-            ph.m_LithotypeIoTbl.setGeoVariance(id, 1.7);
             ph.m_LithotypeIoTbl.setQuartzGrainSize(id, 0.03);
             ph.m_LithotypeIoTbl.setQuartzFraction(id, 0);
             ph.m_LithotypeIoTbl.setClayCoatingFactor(id, 0);
@@ -2837,8 +2796,6 @@ namespace Bpa2.Basin.Project3d.Test
             ph.m_LithotypeIoTbl.setActivationEnergy(id, 0);
             ph.m_LithotypeIoTbl.setMinimumPorosity(id, 0);
             ph.m_LithotypeIoTbl.setIgneousIntrusionTemperature(id, -9999);
-            ph.m_LithotypeIoTbl.setSpecSurfArea(id, 0.06);
-            ph.m_LithotypeIoTbl.setGeoVariance(id, 1.7);
             ph.m_LithotypeIoTbl.setQuartzGrainSize(id, 0.03);
             ph.m_LithotypeIoTbl.setQuartzFraction(id, 0);
             ph.m_LithotypeIoTbl.setClayCoatingFactor(id, 0);
@@ -2896,8 +2853,6 @@ namespace Bpa2.Basin.Project3d.Test
             ph.m_LithotypeIoTbl.setActivationEnergy(id, 0);
             ph.m_LithotypeIoTbl.setMinimumPorosity(id, 0);
             ph.m_LithotypeIoTbl.setIgneousIntrusionTemperature(id, -9999);
-            ph.m_LithotypeIoTbl.setSpecSurfArea(id, 0.06);
-            ph.m_LithotypeIoTbl.setGeoVariance(id, 1.7);
             ph.m_LithotypeIoTbl.setQuartzGrainSize(id, 0.03);
             ph.m_LithotypeIoTbl.setQuartzFraction(id, 0);
             ph.m_LithotypeIoTbl.setClayCoatingFactor(id, 0);
@@ -2955,8 +2910,6 @@ namespace Bpa2.Basin.Project3d.Test
             ph.m_LithotypeIoTbl.setActivationEnergy(id, 0);
             ph.m_LithotypeIoTbl.setMinimumPorosity(id, 0);
             ph.m_LithotypeIoTbl.setIgneousIntrusionTemperature(id, -9999);
-            ph.m_LithotypeIoTbl.setSpecSurfArea(id, 0.06);
-            ph.m_LithotypeIoTbl.setGeoVariance(id, 1.7);
             ph.m_LithotypeIoTbl.setQuartzGrainSize(id, 0.03);
             ph.m_LithotypeIoTbl.setQuartzFraction(id, 0);
             ph.m_LithotypeIoTbl.setClayCoatingFactor(id, 0);
@@ -3014,8 +2967,6 @@ namespace Bpa2.Basin.Project3d.Test
             ph.m_LithotypeIoTbl.setActivationEnergy(id, 0);
             ph.m_LithotypeIoTbl.setMinimumPorosity(id, 0);
             ph.m_LithotypeIoTbl.setIgneousIntrusionTemperature(id, -9999);
-            ph.m_LithotypeIoTbl.setSpecSurfArea(id, 0.06);
-            ph.m_LithotypeIoTbl.setGeoVariance(id, 1.7);
             ph.m_LithotypeIoTbl.setQuartzGrainSize(id, 0.03);
             ph.m_LithotypeIoTbl.setQuartzFraction(id, 0);
             ph.m_LithotypeIoTbl.setClayCoatingFactor(id, 0);
@@ -3073,8 +3024,6 @@ namespace Bpa2.Basin.Project3d.Test
             ph.m_LithotypeIoTbl.setActivationEnergy(id, 0);
             ph.m_LithotypeIoTbl.setMinimumPorosity(id, 0);
             ph.m_LithotypeIoTbl.setIgneousIntrusionTemperature(id, -9999);
-            ph.m_LithotypeIoTbl.setSpecSurfArea(id, 0.06);
-            ph.m_LithotypeIoTbl.setGeoVariance(id, 1.7);
             ph.m_LithotypeIoTbl.setQuartzGrainSize(id, 0.03);
             ph.m_LithotypeIoTbl.setQuartzFraction(id, 0);
             ph.m_LithotypeIoTbl.setClayCoatingFactor(id, 0);
@@ -3132,8 +3081,6 @@ namespace Bpa2.Basin.Project3d.Test
             ph.m_LithotypeIoTbl.setActivationEnergy(id, 0);
             ph.m_LithotypeIoTbl.setMinimumPorosity(id, 0);
             ph.m_LithotypeIoTbl.setIgneousIntrusionTemperature(id, -9999);
-            ph.m_LithotypeIoTbl.setSpecSurfArea(id, 0.06);
-            ph.m_LithotypeIoTbl.setGeoVariance(id, 1.7);
             ph.m_LithotypeIoTbl.setQuartzGrainSize(id, 0.03);
             ph.m_LithotypeIoTbl.setQuartzFraction(id, 0);
             ph.m_LithotypeIoTbl.setClayCoatingFactor(id, 0);
@@ -3191,8 +3138,6 @@ namespace Bpa2.Basin.Project3d.Test
             ph.m_LithotypeIoTbl.setActivationEnergy(id, 0);
             ph.m_LithotypeIoTbl.setMinimumPorosity(id, 0);
             ph.m_LithotypeIoTbl.setIgneousIntrusionTemperature(id, -9999);
-            ph.m_LithotypeIoTbl.setSpecSurfArea(id, 0.06);
-            ph.m_LithotypeIoTbl.setGeoVariance(id, 1.7);
             ph.m_LithotypeIoTbl.setQuartzGrainSize(id, 0.03);
             ph.m_LithotypeIoTbl.setQuartzFraction(id, 0);
             ph.m_LithotypeIoTbl.setClayCoatingFactor(id, 0);
@@ -3250,8 +3195,6 @@ namespace Bpa2.Basin.Project3d.Test
             ph.m_LithotypeIoTbl.setActivationEnergy(id, 0);
             ph.m_LithotypeIoTbl.setMinimumPorosity(id, 0);
             ph.m_LithotypeIoTbl.setIgneousIntrusionTemperature(id, -9999);
-            ph.m_LithotypeIoTbl.setSpecSurfArea(id, 0.06);
-            ph.m_LithotypeIoTbl.setGeoVariance(id, 1.7);
             ph.m_LithotypeIoTbl.setQuartzGrainSize(id, 0.03);
             ph.m_LithotypeIoTbl.setQuartzFraction(id, 0);
             ph.m_LithotypeIoTbl.setClayCoatingFactor(id, 0);
@@ -3309,8 +3252,6 @@ namespace Bpa2.Basin.Project3d.Test
             ph.m_LithotypeIoTbl.setActivationEnergy(id, 0);
             ph.m_LithotypeIoTbl.setMinimumPorosity(id, 0);
             ph.m_LithotypeIoTbl.setIgneousIntrusionTemperature(id, -9999);
-            ph.m_LithotypeIoTbl.setSpecSurfArea(id, 0.06);
-            ph.m_LithotypeIoTbl.setGeoVariance(id, 1.7);
             ph.m_LithotypeIoTbl.setQuartzGrainSize(id, 0.03);
             ph.m_LithotypeIoTbl.setQuartzFraction(id, 0);
             ph.m_LithotypeIoTbl.setClayCoatingFactor(id, 0);
@@ -3368,8 +3309,6 @@ namespace Bpa2.Basin.Project3d.Test
             ph.m_LithotypeIoTbl.setActivationEnergy(id, 0);
             ph.m_LithotypeIoTbl.setMinimumPorosity(id, 0);
             ph.m_LithotypeIoTbl.setIgneousIntrusionTemperature(id, -9999);
-            ph.m_LithotypeIoTbl.setSpecSurfArea(id, 0.06);
-            ph.m_LithotypeIoTbl.setGeoVariance(id, 1.7);
             ph.m_LithotypeIoTbl.setQuartzGrainSize(id, 0.03);
             ph.m_LithotypeIoTbl.setQuartzFraction(id, 0);
             ph.m_LithotypeIoTbl.setClayCoatingFactor(id, 0);
