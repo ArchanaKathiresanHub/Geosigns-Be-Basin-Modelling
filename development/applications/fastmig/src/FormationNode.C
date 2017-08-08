@@ -913,17 +913,26 @@ namespace migration
 
       if ( phase == GAS )
       {
+         // An array of capillary-pressure values is only calculated for the top element.
+         // But here 'this' may actually be an element below the top one, in case of erosion etc.
+         double capillaryEntryPressureVapour = ( getK() == (getFormation()->getMaximumNumberOfElements() - 1) ) ? 
+            m_capillaryEntryPressureVapour[1] : m_topFormationNode->m_capillaryEntryPressureVapour[0];
+         
          // calculate actual capillary sealing pressure for vapour
-         capillaryPressureContrast = topNode->m_capillaryEntryPressureVapour[0] - m_capillaryEntryPressureVapour[1] * resCorr;
+         capillaryPressureContrast = topNode->m_capillaryEntryPressureVapour[0] - capillaryEntryPressureVapour * resCorr;
       }
       else
       {
+         // An array of capillary-pressure values is only calculated for the top element.
+         // But here 'this' may actually be an element below the top one, in case of erosion etc.
+         double capillaryEntryPressureLiquid = ( getK() == (getFormation()->getMaximumNumberOfElements() - 1) ) ? 
+            m_capillaryEntryPressureLiquid[1] : m_topFormationNode->m_capillaryEntryPressureLiquid[0];
+
          // calculate actual capillary sealing pressure  for liquid
-         capillaryPressureContrast = topNode->m_capillaryEntryPressureLiquid[0] - m_capillaryEntryPressureLiquid[1] * resCorr;
+         capillaryPressureContrast = topNode->m_capillaryEntryPressureLiquid[0] - capillaryEntryPressureLiquid * resCorr;
       }
 
       return capillaryPressureContrast + dOverPressure;
-
    }
 
    // Check if the node is a crest node for the phaseId, similarly to what is done in Reservoir::getAdjacentColumn
