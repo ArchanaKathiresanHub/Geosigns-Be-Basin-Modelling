@@ -275,7 +275,7 @@ namespace DataAccess
 
       /// Attributes for which a (GridMap) value can be requested via getMap ().
       enum ReservoirMapAttributeId {
-         NetToGross = 0
+         DepthOffset = 0, ReservoirThickness, NetToGross, LayerFrequency
       };
 
       /// Attributes for which a (GridMap) value can be requested via getMap ().

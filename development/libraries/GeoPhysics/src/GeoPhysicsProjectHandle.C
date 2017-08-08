@@ -630,9 +630,20 @@ void GeoPhysics::ProjectHandle::addFormationUndefinedAreas ( const Interface::Fo
 
       for ( resIt = reservoirs->begin (); resIt != reservoirs->end (); ++resIt )
       {
+         const Interface::GridMap * depthOffsetMap        = dynamic_cast<const Interface::GridMap*>( ( *resIt )->getMap( Interface::DepthOffset ) );
+         const Interface::GridMap * reservoirThicknessMap = dynamic_cast<const Interface::GridMap*>(( *resIt )->getMap( Interface::ReservoirThickness ));
          const Interface::GridMap * netToGrossMap         = dynamic_cast<const Interface::GridMap*>( ( *resIt )->getMap( Interface::NetToGross ) );
+         const Interface::GridMap * layerFrequencyMap     = dynamic_cast<const Interface::GridMap*>( ( *resIt )->getMap( Interface::LayerFrequency ) );
+
+         addUndefinedAreas( depthOffsetMap);
+         addUndefinedAreas( reservoirThicknessMap);
          addUndefinedAreas( netToGrossMap);
+         addUndefinedAreas( layerFrequencyMap);
+
+         if ( depthOffsetMap        ) depthOffsetMap->release( );
+         if ( reservoirThicknessMap ) reservoirThicknessMap->release( );
          if ( netToGrossMap         ) netToGrossMap->release( );
+         if ( layerFrequencyMap     ) layerFrequencyMap->release( );
       }
       delete reservoirs;
 

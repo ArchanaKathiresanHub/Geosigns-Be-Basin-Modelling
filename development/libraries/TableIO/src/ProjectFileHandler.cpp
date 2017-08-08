@@ -34,6 +34,13 @@ const std::string database::ProjectFileHandler::OutputTablesFileName = "Output.i
 database::ProjectFileHandler::ProjectFileHandler () 
 {
    std::unique_ptr<database::DataSchema> cauldronSchema( database::createCauldronSchema() );
+   database::TableDefinition * tableDef = cauldronSchema->getTableDefinition( "DepthIoTbl" );
+   
+   if ( tableDef != nullptr ) {
+      // Adding (volatile, won't be output) definition for DepositionSequence field
+      // Required to properly sort the DepthIoTbl, not to be output
+      tableDef->addVolatileFieldDefinition( "DepositionSequence", datatype::Int, "", "0" );
+   }
 
    m_inputDataBase.reset( database::Database::CreateFromSchema( *(cauldronSchema.get()) ) );
 
@@ -108,6 +115,13 @@ bool database::ProjectFileHandler::saveInputDataBaseToStream ( std::ostream& os 
 void database::ProjectFileHandler::loadFromFile ( const std::string& fileName ) {
 
    database::DataSchema * cauldronSchema = database::createCauldronSchema();
+   database::TableDefinition *tableDef = cauldronSchema->getTableDefinition( "DepthIoTbl" );
+
+   if ( tableDef != nullptr ) {
+      // Adding (volatile, won't be output) definition for DepositionSequence field
+      // Required to properly sort the DepthIoTbl, not to be output
+      tableDef->addVolatileFieldDefinition( "DepositionSequence", datatype::Int, "", "0" );
+   }
 
    m_inputDataBase.reset( database::Database::CreateFromFile( fileName, *cauldronSchema ) );
    database::upgradeAllTablesInCauldronSchema( m_inputDataBase.get() );

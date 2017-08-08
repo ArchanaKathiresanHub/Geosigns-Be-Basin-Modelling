@@ -91,8 +91,8 @@ std::shared_ptr<CauldronIO::Project> ImportProjectHandle::createFromProjectHandl
  
     // Find genex/shale-gas history files
     import.addGenexHistory();
-	
-	// Find burial history files
+
+    // Find burial history files
     import.addBurialHistory();
 
     // Add reference to massBalance file
@@ -413,6 +413,7 @@ vector<std::shared_ptr<CauldronIO::Surface> > ImportProjectHandle::createSurface
    
         if(m_project->getModelingMode() == Interface::MODE1D) {
             propertyMap->setConstantValue((float)constValue1d);
+            propertyMap->setDepoSequence(propValue->getDepoSequence());
          }
  
         // Add the property/surfaceData object
@@ -1473,36 +1474,37 @@ void ImportProjectHandle::addGenexHistory()  {
    }
 }
 
-void ImportProjectHandle::addBurialHistory() {
 
-	database::Table * bhfTable = m_projectHandle->getTable("TouchstoneWellIoTbl");
-	std::vector<std::string> historyFilesDefined;
+void ImportProjectHandle::addBurialHistory()  {
 
-	database::Table::iterator tblIter;
-	for (tblIter = bhfTable->begin(); tblIter != bhfTable->end(); ++tblIter)
-	{
-		database::Record * tableRecord = *tblIter;
-		if (getBHFName(tableRecord) != "") {
-			historyFilesDefined.push_back(getBHFName(tableRecord));
-		}
-	}
-	ibs::FilePath folderPath(m_projectHandle->getFullOutputDir());
+   database::Table * bhfTable = m_projectHandle->getTable ("TouchstoneWellIoTbl");
+   std::vector<std::string> historyFilesDefined;
 
+   database::Table::iterator tblIter;
+   for (tblIter = bhfTable->begin(); tblIter != bhfTable->end(); ++tblIter)
+   {
+      database::Record * tableRecord = *tblIter;
+      if( getBHFName(tableRecord) != "" ) {
+         historyFilesDefined.push_back( getBHFName(tableRecord) );
+      }
+   }
+   ibs::FilePath folderPath ( m_projectHandle->getFullOutputDir () );
+   
 
-	if (folderPath.exists()) {
-		boost::filesystem::directory_iterator it(folderPath.path());
-		boost::filesystem::directory_iterator endit;
+   if( folderPath.exists() ) {
+      boost::filesystem::directory_iterator it (folderPath.path());
+      boost::filesystem::directory_iterator endit;
+      
+      while( it != endit ) {
+         if( std::find( historyFilesDefined.begin(), historyFilesDefined.end(), it->path().filename() ) != historyFilesDefined.end() ) {
 
-		while (it != endit) {
-			if (std::find(historyFilesDefined.begin(), historyFilesDefined.end(), it->path().filename()) != historyFilesDefined.end()) {
+            ibs::FilePath oneFilePath( it->path().string() );
+            m_project->addBurialHistoryRecord( oneFilePath.cpath() );
 
-				ibs::FilePath oneFilePath(it->path().string());
-				m_project->addBurialHistoryRecord(oneFilePath.cpath());
-
-			}
-			it++;
-		}
-	}
+         }
+         it ++;
+      }
+   }
 }
 
 void ImportProjectHandle::add1Ddata()  {
@@ -1591,6 +1593,12 @@ void ImportProjectHandle::add1Ddata()  {
          entry->setFtMeanAgeErr(static_cast<float>(getFtMeanAgeErr(aRecord)));
          entry->setFtLengthChi2(static_cast<float>(getFtLengthChi2(aRecord)));
          entry->setFtApatiteYield(getFtApatiteYield(aRecord));
+         if (getOptimization(aRecord) == 1) {
+             entry->setOptimization(true);
+         }
+         else {
+             entry->setOptimization(false);
+         }
 
          m_project->addFtSample(entry);
       }
@@ -1610,10 +1618,9 @@ void ImportProjectHandle::add1Ddata()  {
          entry->setFtGrainId(getFtGrainId(aRecord));
          entry->setFtSpontTrackNo(getFtSpontTrackNo(aRecord));
          entry->setFtInducedTrackNo(getFtInducedTrackNo(aRecord));
-         entry->setFtClWeightPerc(getFtClWeightPerc(aRecord));
-         entry->setFtGrainAge(getFtGrainAge(aRecord));
          entry->setFtClWeightPerc(static_cast<float>(getFtClWeightPerc(aRecord)));
          entry->setFtGrainAge(static_cast<float>(getFtGrainAge(aRecord)));
+         entry->setFtGrainAgeErr(static_cast<float>(getFtGrainAgeErr(aRecord)));
 
          m_project->addFtGrain(entry);
       }
@@ -1657,6 +1664,90 @@ void ImportProjectHandle::add1Ddata()  {
          m_project->addFtPredLengthCountsHistData(entry);
       }
    }
+   // SmectiteIlliteIoTbl
+   aTable = m_projectHandle->getTable("SmectiteIlliteIoTbl");
+   if (aTable != nullptr and aTable->size() > 0)
+   {
+      database::Table::iterator tblIter;
+      for (tblIter = aTable->begin(); tblIter != aTable->end(); ++tblIter)
+      {
+         database::Record * aRecord = *tblIter;
+         
+         std::shared_ptr<CauldronIO::SmectiteIllite> entry(new CauldronIO::SmectiteIllite());
+
+         entry->setDepthIndex(static_cast<float>(getDepthIndex(aRecord)));
+         entry->setIlliteFraction(static_cast<float>(getIlliteFraction(aRecord)));
+         entry->setLabel(getLabel(aRecord));
+         if (getOptimization(aRecord) == 1) {
+             entry->setOptimization(true);
+         }
+         else {
+             entry->setOptimization(false);
+         }
+
+         m_project->addSmectiteIllite(entry);
+      }
+   }
+   // BiomarkermIoTbl
+   aTable = m_projectHandle->getTable("BiomarkermIoTbl");
+   if (aTable != nullptr and aTable->size() > 0)
+   {
+      database::Table::iterator tblIter;
+      for (tblIter = aTable->begin(); tblIter != aTable->end(); ++tblIter)
+      {
+         database::Record * aRecord = *tblIter;
+         
+         std::shared_ptr<CauldronIO::Biomarkerm> entry(new CauldronIO::Biomarkerm());
+
+         entry->setDepthIndex(static_cast<float>(getDepthIndex(aRecord)));
+         entry->setHopaneIsomerisation(static_cast<float>(getHopaneIsomerisation(aRecord)));
+         entry->setSteraneIsomerisation(static_cast<float>(getSteraneIsomerisation(aRecord)));
+         entry->setSteraneAromatisation(static_cast<float>(getSteraneAromatisation(aRecord)));
+         if (getOptimization(aRecord) == 1) {
+             entry->setOptimization(true);
+         }
+         else {
+             entry->setOptimization(false);
+         }
+
+         m_project->addBiomarkerm(entry);
+      }
+   }
+   // DepthIoTbl
+   aTable = m_projectHandle->getTable("DepthIoTbl");
+   if (aTable != nullptr and aTable->size() > 0)
+   {
+      database::Table::iterator tblIter;
+      for (tblIter = aTable->begin(); tblIter != aTable->end(); ++tblIter)
+      {
+         database::Record * aRecord = *tblIter;
+         
+         std::shared_ptr<CauldronIO::DepthIo> entry(new CauldronIO::DepthIo());
+
+         entry->setPropertyName(getPropertyName(aRecord));
+         entry->setTime(static_cast<float>(getTime(aRecord)));
+         entry->setDepth(static_cast<float>(getDepth_(aRecord)));
+         entry->setAverage(static_cast<float>(getAverage(aRecord)));
+         entry->setStandardDev(static_cast<float>(getStandardDev(aRecord)));
+         entry->setMinimum(static_cast<float>(getMinimum(aRecord)));
+         entry->setMaximum(static_cast<float>(getMaximum(aRecord)));
+         entry->setSum(static_cast<float>(getSum(aRecord)));
+         entry->setSum2(static_cast<float>(getSum2(aRecord)));
+         entry->setNP(getNP(aRecord));
+         entry->setP15(static_cast<float>(getP15(aRecord)));
+         entry->setP50(static_cast<float>(getP50(aRecord)));
+         entry->setP85(static_cast<float>(getP85(aRecord)));
+         entry->setSumFirstPower(static_cast<float>(getSumFirstPower(aRecord)));
+         entry->setSumSecondPower(static_cast<float>(getSumSecondPower(aRecord)));
+         entry->setSumThirdPower(static_cast<float>(getSumThirdPower(aRecord)));
+         entry->setSumFourthPower(static_cast<float>(getSumFourthPower(aRecord)));
+         entry->setSkewness(static_cast<float>(getSkewness(aRecord)));
+         entry->setKurtosis(static_cast<float>(getKurtosis(aRecord)));
+
+         m_project->addDepthIo(entry);
+      }
+   }
+
    // 1DTimeIoTbl
    aTable = m_projectHandle->getTable("1DTimeIoTbl");
    if (aTable != nullptr and aTable->size() > 0)

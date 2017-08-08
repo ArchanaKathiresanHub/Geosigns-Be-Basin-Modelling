@@ -204,6 +204,12 @@ TEST( ExplicitProject3DParameterReadValue, explicitPattern)
          Project3DParameter::QueryException
        );
 
+   // table contains one record
+   EXPECT_EQ( "Effective Stress", 
+         ExplicitProject3DParameter("RunOptionsIoTbl", "CompactionAlgorithm", Project3DParameter::STRING, -1).
+         readValue(testFile.project())
+       );
+
    // table contains multiple records with the same field value
    EXPECT_EQ( "System Generated", 
          ExplicitProject3DParameter("SnapshotIoTbl", "TypeOfSnapshot", Project3DParameter::STRING, -1).

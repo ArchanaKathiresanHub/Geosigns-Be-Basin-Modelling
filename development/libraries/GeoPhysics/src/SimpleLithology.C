@@ -62,6 +62,9 @@ GeoPhysics::SimpleLithology::SimpleLithology(Interface::ProjectHandle * projectH
    m_seismicvelocity = Interface::LithoType::getSeismicVelocity();
    m_nExponentVelocity = Interface::LithoType::getSeismicVelocityExponent();
 
+   m_specificSurfaceArea = Interface::LithoType::getSpecificSurfArea() * 1000; // convert to m2/kg
+   m_geometricVariance = Interface::LithoType::getGeometricVariance();
+
    m_capC1 = Interface::LithoType::getCapillaryEntryPressureC1();
    m_capC2 = Interface::LithoType::getCapillaryEntryPressureC2();
 
@@ -113,6 +116,8 @@ GeoPhysics::SimpleLithology::SimpleLithology ( const SimpleLithology& litho ) :
 
    m_thermalcondaniso ( litho.m_thermalcondaniso ),
    m_thermalconductivityval ( litho.m_thermalconductivityval ),
+   m_specificSurfaceArea ( litho.m_specificSurfaceArea ),
+   m_geometricVariance ( litho.m_geometricVariance ),
    m_capC1 ( litho.m_capC1 ),
    m_capC2 ( litho.m_capC2 ),
 

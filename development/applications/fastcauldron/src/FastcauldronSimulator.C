@@ -254,6 +254,12 @@ void FastcauldronSimulator::clear1DTimeIoTbl () {
    timeIoTbl->clear ();
 }
 
+void FastcauldronSimulator::clearDepthIoTbl () {
+   database::Table * depthIoTbl = getTable ("DepthIoTbl");
+   PETSC_ASSERT (depthIoTbl);
+   depthIoTbl->clear ();
+}
+
 
 //------------------------------------------------------------//
 

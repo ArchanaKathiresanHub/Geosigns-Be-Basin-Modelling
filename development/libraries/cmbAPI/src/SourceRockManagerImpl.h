@@ -96,6 +96,7 @@ namespace mbapi {
       static const char * s_sourceRockTypeFieldName; // name of the field which keeps source rock type name
       static const char * s_tocIni;                  // initial TOC
       static const char * s_tocIniMap;               // initial TOC map name
+      static const char * s_hiIni;                   // initial HI
       static const char * s_hcIni;                   // initial H/C ratio
       static const char * s_PreAsphaltStartAct;      // pre-asphaltene activation energy
 

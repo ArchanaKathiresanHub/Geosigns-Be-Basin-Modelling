@@ -91,8 +91,11 @@ namespace DataAccess
          virtual bool saveMapToFile (MapWriter & mapWriter, const bool saveAsPrimary = false);
          /// save a 3D PropertyValue to file
          virtual bool saveVolumeToFile (MapWriter & mapWriter, const bool saveAsPrimary = false );
+         
+         /// Returns whether this PropertyValue has been uploaded onto a BPA server.
+         virtual bool isUploadedToBPA (void) const;
 
-	 /// Returns deposequence number
+	     /// Returns deposequence number
          virtual int getDepoSequence (void) const;
  
          string saveToDirectory (const string & directory);

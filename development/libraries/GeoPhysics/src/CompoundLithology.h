@@ -95,6 +95,9 @@ namespace GeoPhysics {
       /// Return the heat-production value for the compound-lithology.
       double heatproduction() const;
 
+      /// Return the specific Surface Area
+      double specificSurfaceArea() const;
+
       /// Return the capillary entry pressure coefficient C1
       double capC1() const;
 
@@ -111,6 +114,9 @@ namespace GeoPhysics {
       string PcKrModel() const;
       double LambdaPc() const;
       double LambdaKr() const;
+
+      /// Return the geometric variance of the grain size distribution
+      double geometricVariance() const;
 
       double hydrostatFullCompThickness(const double maxVes,
                                         const double thickness,
@@ -266,6 +272,23 @@ namespace GeoPhysics {
                                      const double bottomVes,
                                      const double densityDifference,
                                      const double solidThickness) const;
+
+      /// \brief Compute capillary pressure.
+      double capillaryPressure(const PhaseId phase,
+                               const double  densityBrine,
+                               const double  densityHc,
+                               const double  saturationBrine,
+                               const double  saturationHc,
+                               const double  porosity) const;
+
+      // compute capillary pressure
+      double capillaryPressure(const unsigned int phaseId,
+                               const double& density_H2O,
+                               const double& density_HC,
+                               const double& T_K,
+                               const double& T_c_HC_K,
+                               const double& wettingSaturation,
+                               const double& porosity) const;
 
       // compute capillary entry pressure coefficients
       void mixCapillaryEntryPressureCofficients();
@@ -478,6 +501,8 @@ namespace GeoPhysics {
       double           m_permeabilitydecr;
       double           m_thermalConductivityValue;
       double           m_thermalConductivityAnisotropy;
+      double           m_specificSurfaceArea;
+      double           m_geometricVariance;
       double           m_capC1;
       double           m_capC2;
       double           m_tenPowerCapC2;
@@ -638,6 +663,14 @@ inline double GeoPhysics::CompoundLithology::thermalconductivityN(const double t
 
 inline double GeoPhysics::CompoundLithology::thermalconductivityP(const double temperature) const {
    return m_thermcondptbl.compute(temperature);
+}
+
+inline double GeoPhysics::CompoundLithology::geometricVariance() const {
+   return m_geometricVariance;
+}
+
+inline double GeoPhysics::CompoundLithology::specificSurfaceArea() const {
+   return m_specificSurfaceArea;
 }
 
 inline double GeoPhysics::CompoundLithology::capC1() const {

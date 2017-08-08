@@ -88,7 +88,7 @@ const string LithoType::s_attributeNames[] =
    "Density", "HeatProd", "SurfacePorosity", "CompacCoefES", "CompacCoefESA","CompacCoefESB", "CompacCoefSC", "CompacCoefFM", "StpThCond",
    "ThCondAnisotropy", "DepoPerm", "PermDecrStressCoef", "PermIncrRelaxCoef", "PermAnisotropy",
    "SeisVelocity", "NExponentVelocity", "CapC1", "CapC2", "Compaction_Coefficient_SM", "HydraulicFracturingPercent",
-   "ReferenceSolidViscosity", "ActivationEnergy", "MinimumPorosity", "IgneousIntrusionTemperature",
+   "ReferenceSolidViscosity", "ActivationEnergy", "MinimumPorosity", "SpecSurfArea", "GeoVariance", "IgneousIntrusionTemperature",
    // Ints
    "UserDefined", "Number_Of_Data_Points"
 };
@@ -255,6 +255,14 @@ double  LithoType::getExponentLambdaPc () const
 double  LithoType::getExponentLambdaKr () const
 {
    return database::getLambdaKr ( m_record ); 
+}
+
+double LithoType::getSpecificSurfArea () const {
+   return database::getSpecSurfArea ( m_record );
+}
+
+double LithoType::getGeometricVariance () const {
+   return database::getGeoVariance ( m_record );
 }
 
 LithologyHeatCapacitySampleList * LithoType::getHeatCapacitySamples () const {

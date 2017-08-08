@@ -23,7 +23,9 @@ class FtGrain
   int           getInducedTrackNo() const;
   double        getClWeightPercent() const;
   double        getGrainAge() const;
+  double        getGrainAgeErr() const;
   void          setGrainAge(double grainAge);
+  void          setGrainAgeErr(double grainAgeError);
   void          addTrackLength(const double length);
   std::list<double>& getTrackLengths(); 
 
@@ -35,6 +37,7 @@ class FtGrain
   int          m_inducedTrackNo;
   double       m_clWeightPerc;
   double       m_grainAge;
+  double       m_grainAgeErr;
   std::list<double> m_trackLengths;
 
 };

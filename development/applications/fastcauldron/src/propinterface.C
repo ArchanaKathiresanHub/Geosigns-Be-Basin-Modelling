@@ -1341,9 +1341,22 @@ bool AppCtx::makeOutputDirectory ()
 
 bool AppCtx::openProject ()
 {
+
+   database::Table * ioOptionsIoTbl;
+   ioOptionsIoTbl = FastcauldronSimulator::getInstance ().getTable ("IoOptionsIoTbl");
+   PETSC_ASSERT (ioOptionsIoTbl);
+
+   if (ioOptionsIoTbl->size() > 0)
+   {
+      setMapType (ioOptionsIoTbl, 0, "HDF5");
+   }
+
    setMilestones();
+
    return true;
 }
+
+
 
 void AppCtx::setRelatedProject ( const int indexI, const int indexJ ) {
 
@@ -1374,29 +1387,33 @@ void AppCtx::setRelatedProject ( const double locationX, const double locationY 
 
 }
 
-bool AppCtx::setRelatedProject ( const Interface::RelatedProject* relatedProject ) { 
+
+bool AppCtx::setRelatedProject ( const Interface::RelatedProject* relatedProject ) {
+
    if ( relatedProject == 0 ) {
       return false;
    } else {
       Related_Project_Ptr project1D = new Related_Project;
-   
+
       project1D->X_Coord = relatedProject->getEast ();
       project1D->Y_Coord = relatedProject->getNorth ();
-   
+
       if ( relatedProject->getName ().find ( "*Point" ) != std::string::npos ) {
          project1D->Name = "Point_" + IntegerToString( int ( project1D -> X_Coord ))
             + "_east__" + IntegerToString ( int ( project1D -> Y_Coord )) + "_north";
       } else {
          std::string projectName = relatedProject->getName ();
-   
+
          removeExtension ( projectName );
          project1D->Name = projectName;
       }
-   
+
       Related_Projects.push_back ( project1D );
    }
+
    return true;
 }
+
 
 void AppCtx::addUndefinedAreas ( const Interface::GridMap* theMap ) {
 

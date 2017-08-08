@@ -98,9 +98,14 @@ namespace GeoPhysics {
       /// Return the seismic velocity value.
       double getSeismicVelocity() const;
 
-      /// Return the n exponent value used for the Kennan's velocity computation mode.
+	  /// Return the n exponent value used for the Kennan's velocity computation mode.
       double getSeismicVelocityExponent() const;
 
+      /// Return the specific surface area.
+      double getSpecificSurfArea() const;
+
+      /// Return the geometric variance of the grain size distribution.
+      double getGeometricVariance () const;
 
       virtual double getDensity( double t, double p ) const { (void) t; (void) p; return m_density; }
       virtual double getBasaltDensity( double t, double p ) const { (void) t; (void) p; return m_density; }
@@ -221,6 +226,8 @@ namespace GeoPhysics {
 
       double            m_thermalcondaniso;
       double            m_thermalconductivityval;
+      double            m_specificSurfaceArea;
+      double            m_geometricVariance;
       double            m_capC1;
       double            m_capC2;
 
@@ -332,6 +339,14 @@ inline double GeoPhysics::SimpleLithology::getLithologyActivationEnergy() const 
 
 inline double GeoPhysics::SimpleLithology::getLithologyFractureGradient() const {
    return m_lithologyFractureGradient;
+}
+
+inline double GeoPhysics::SimpleLithology::getSpecificSurfArea() const {
+   return  m_specificSurfaceArea;
+}
+
+inline double GeoPhysics::SimpleLithology::getGeometricVariance() const {
+   return  m_geometricVariance;
 }
 
 inline double GeoPhysics::SimpleLithology::getCapC1() const {

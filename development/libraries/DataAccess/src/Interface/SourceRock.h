@@ -30,6 +30,7 @@ namespace DataAccess
             /// Return the activation energy of Preasphaltene  
             virtual const double & getPreAsphaltStartAct(void) const;
             /// Return the VRE of this SourceRock
+            virtual const double & getVREini(void) const;
             /// Return the diffusion energy of Asphaltene 
             virtual const double & getAsphalteneDiffusionEnergy(void) const;
             /// Return the diffusion energy of Resin 

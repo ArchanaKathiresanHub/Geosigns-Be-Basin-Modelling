@@ -294,16 +294,38 @@ bool InputValue::fillEventAttributes (void) const
       else if (tblName == "ReservoirIoTbl")
       {
 	      Table::iterator tblIter;
-	      Record * record = nullptr;
+	      Record * record = 0;
 
 	      for (tblIter = tbl->begin (); tblIter != tbl->end (); ++tblIter)
 	      {
 	         record = * tblIter;
-	         if (getNetToGrossGrid (record) == database::getMapName (m_record))
+	         if (getDepthOffsetGrid (record) == database::getMapName (m_record))
+	         {
+	            m_propertyName = "Depth Offset";
+	            m_reservoirName = database::getReservoirName (record);
+	            m_eventAge = 0;
+	            return true;
+	         }
+	         else if (getThicknessGrid (record) == database::getMapName (m_record))
+	         {
+	            m_propertyName = "Thickness";
+	            m_formationName = database::getFormationName (record);
+	            m_reservoirName = database::getReservoirName (record);
+	            m_eventAge = 0;
+	            return true;
+	         }
+	         else if (getLayerFrequencyGrid (record) == database::getMapName (m_record))
+	         {
+	            m_propertyName = "Layer Frequency";
+	            m_reservoirName = database::getReservoirName (record);
+	            m_eventAge = 0;
+	            return true;
+	         }
+	         else if (getNetToGrossGrid (record) == database::getMapName (m_record))
 	         {
 	            m_propertyName = "NetToGross";
 	            m_reservoirName = database::getReservoirName (record);
-	            m_eventAge = 0.0;
+	            m_eventAge = 0;
 	            return true;
 	         }
 	      }

@@ -377,6 +377,8 @@ public:
    double timestepsize;
    double timestepincr;
    double timestepdecr;
+   double BricksizeEast;
+   double BricksizeNorth;
    int MaxNumberOfRunOverpressure;
    int Optimisation_Level;
 

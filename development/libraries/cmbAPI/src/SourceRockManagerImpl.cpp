@@ -32,7 +32,8 @@ const char * SourceRockManagerImpl::s_layerNameFieldName      = "LayerName";
 const char * SourceRockManagerImpl::s_sourceRockTypeFieldName = "SourceRockType";
 const char * SourceRockManagerImpl::s_tocIni                  = "TocIni";
 const char * SourceRockManagerImpl::s_tocIniMap               = "TocIniGrid";
-const char * SourceRockManagerImpl::s_hcIni                   = "HcVRe05";
+const char * SourceRockManagerImpl::s_hiIni                   = "HiIni";
+const char * SourceRockManagerImpl::s_hcIni                   = "HcIni";
 const char * SourceRockManagerImpl::s_PreAsphaltStartAct      = "PreAsphaltStartAct";
 
 // Constructor

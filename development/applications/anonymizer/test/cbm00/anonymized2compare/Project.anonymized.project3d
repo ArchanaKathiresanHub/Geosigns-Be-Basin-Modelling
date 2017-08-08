@@ -3,9 +3,18 @@
 ;
 [ProjectIoTbl]
 ;v100
-             ProjectName              Description              ProjectTeam         ProjectStartDate           ProjectEndDate           ProgramVersion            ModellingMode                   XCoord                   YCoord                  NumberX                  NumberY                   DeltaX                   DeltaY                   ScaleX                   ScaleY                  OffsetX                  OffsetY               WindowXMin               WindowXMax               WindowYMin               WindowYMax
-                      ()                       ()                       ()                       ()                       ()                       ()                       ()                      (m)                      (m)                       ()                       ()                      (m)                      (m)                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()
-     "AnonymizedProject"                       ""                       ""                       ""                       ""               "v2014.07"                     "3d"              535520.5235              3663658.586                       66                       47                     1000                     1000                        4                        4                        0                        0                        0                       65                        0                       46
+             ProjectName              ProjectSize              Description              ProjectTeam         ProjectStartDate           ProjectEndDate           ProgramVersion            ModellingMode                   XCoord                   YCoord                  NumberX                  NumberY                   DeltaX                   DeltaY                   ScaleX                   ScaleY                  OffsetX                  OffsetY               WindowXMin               WindowXMax               WindowYMin               WindowYMax       WktGeometryOutline
+                      ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                      (m)                      (m)                       ()                       ()                      (m)                      (m)                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()
+     "AnonymizedProject"                    "Big"                       ""                       ""                       ""                       ""               "v2014.07"                     "3d"              535520.5235              3663658.586                       66                       47                     1000                     1000                        4                        4                        0                        0                        0                       65                        0                       46 "<WktGeometryOutline><CoordinateOperationName></CoordinateOperationName><SrsName>urn:ogc:def:crs:EPSG::32614</SrsName><Wkt>POLYGON  (( 535118.22781 3663256.20505, 552016.31291 3663256.25989, 552016.29953 3680154.41266, 535118.19884 3680154.36561, 535118.22781 3663256.20505))</Wkt></WktGeometryOutline>"
+[End]
+;
+;
+; ProjectNotesIoTbl
+;
+[ProjectNotesIoTbl]
+;v100
+            ProjectNotes
+                      ()
 [End]
 ;
 ;
@@ -27,13 +36,23 @@
 [End]
 ;
 ;
+; IoOptionsIoTbl
+;
+[IoOptionsIoTbl]
+;v100
+                 MapType           FileVersioning               AutoSaving        SaveBeforeEachRun             MaxFileWidth             ConsoleLevel               PopupLevel             LogfileLevel
+                      ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()
+                  "HDF5"                        3                        0                        0                        0                       -5                       -5                       -5
+[End]
+;
+;
 ; RunOptionsIoTbl
 ;
 [RunOptionsIoTbl]
 ;v100
-            VreAlgorithm             VelAlgorithm       Optimisation_Level     Temperature_Gradient            Constrain_VES        AdvancedMigration HydrodynamicCapillaryPressure  ReservoirDetection               PaleoSeeps                   Legacy             PrefSnapstep          StepsPerSegment    TempDiffBasedStepping            PrefReconstep     OptimalTotalPresDiff     OptimalTotalTempDiff OptimalSourceRockTempDiff MaxTimeStepIncreaseFactor MinTimeStepDecreaseFactor   BrickHeightSediment         BrickHeightCrust        BrickHeightMantle MaxNumberOfRunOverpressure FracturePressureFunction           FractureType            FractureModel      CalcAllDepthIoProps             WorkflowType              CoupledMode       ChemicalCompaction ChemicalCompactionAlgorithm        ConvectiveTerm         NonGeometricLoop   AllochthonousModelling         ApplyOtgcToDarcy         DarcyMaxTimeStep
-                      ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                     (Ma)                       ()                       ()                     (Ma)                    (MPa)         (DegreesCelcius)         (DegreesCelcius)                       ()                     (Ma)                      (m)                      (m)                      (m)                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                     (Ma)
-     "Burnham & Sweeney"  "Wyllie's Time-Average"                "Level 4"                       30                        0                        1                        0                        0                        0                        1                       10                        1                        0                      0.1                      0.1                        4                        2                      1.5                      0.5                      400                     4000                    20000                       10                   "None"                   "None"                        1                        0       "StandardCauldron"                        1                        0              "Schneider"                        0                        0                        0                        0                     0.01
+     CompactionAlgorithm             VreAlgorithm             VelAlgorithm       Optimisation_Level     Temperature_Gradient            Constrain_VES        AdvancedMigration HydrodynamicCapillaryPressure  ReservoirDetection               PaleoSeeps                   Legacy         HeatFlowSolution             PrefSnapstep          StepsPerSegment    TempDiffBasedStepping            PrefReconstep     OptimalTotalPresDiff     OptimalTotalTempDiff OptimalSourceRockTempDiff MaxTimeStepIncreaseFactor MinTimeStepDecreaseFactor         BricksizeEast           BricksizeNorth      BrickHeightSediment         BrickHeightCrust        BrickHeightMantle MaxNumberOfRunOverpressure FracturePressureFunction           FractureType            FractureModel      CalcAllDepthIoProps      UncertaintyAnalysis      SensitivityAnalysis  ResponseSurfaceModeling                NrMCLoops            NrMCSaveEvery          NrSensSaveEvery             Optimization    OptimTopCrustHeatProd    OptimCrustalThickness     OptimMantleThickness     OptimUnconfThickness      FormTempOptimWeight           VrmOptimWeight          BiomOptimWeight            FtOptimWeight           SmiOptimWeight           OptimTolerance                     Hims                      Him             NumEstimates             WorkflowType           PTCouplingMode              CoupledMode       ChemicalCompaction ChemicalCompactionAlgorithm        ConvectiveTerm         NonGeometricLoop   AllochthonousModelling             McHistOutput             RSMxmlOutput         ApplyOtgcToDarcy         DarcyMaxTimeStep
+                      ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                     (Ma)                       ()                       ()                     (Ma)                    (MPa)         (DegreesCelcius)         (DegreesCelcius)                       ()                     (Ma)                      (m)                      (m)                      (m)                      (m)                      (m)                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                     (Ma)
+      "Effective Stress"      "Burnham & Sweeney"  "Wyllie's Time-Average"                "Level 4"                       30                        0                        1                        0                        0                        0                        1              "Transient"                       10                        1                        0                      0.1                      0.1                        4                        2                      1.5                      0.5                      100                      100                      400                     4000                    20000                       10                   "None"                   "None"                        1                        0                        0                        0                        0                        1                      100                      100                        0                        0                        0                        0                        0                       10                       10                       10                       10                       10                    0.001       "Single Variables"    "1st and Total Order"    "2 SClosed, 2 STotal"       "StandardCauldron"              "ItCoupled"                        1                        0              "Schneider"                        0                        0                        0                        0                        0                        0                     0.01
 [End]
 ;
 ;
@@ -80,6 +99,64 @@
         142.666666666667                        1                        0       "System Generated"                       ""
                      145                        0                        0       "System Generated"                       ""
                      146                        0                        0       "System Generated"                       ""
+[End]
+;
+;
+; SensAnalysisIoTbl
+;
+[SensAnalysisIoTbl]
+;v100
+  AnalysisIdentification        AnalysisIndicator      PropertyDescription       TypeOfDistribution            ModellingMode
+                      ()                       ()                       ()                       ()                       ()
+                       0                        0 "Age in stratigraphic data"          "Normal_3SD"                     "1d"
+                       1                        0 "Depth in stratigraphic data"        "Normal_3SD"                     "1d"
+                      10                        0 "Thickness in unconformity data"     "Normal_3SD"                     "1d"
+                      20                        0   "Density of lithology"             "Normal_3SD"                     "1d"
+                      21                        0 "STP thermal conductivity of lithology" "Normal_3SD"                  "1d"
+                      22                        0 "Heat production of lithology"       "Normal_3SD"                     "1d"
+                      23                        0 "Surface porosity of lithology"      "Normal_3SD"                     "1d"
+                      24                        0 "Seismic velocity of lithology"      "Normal_3SD"                     "1d"
+                      25                        0 "Comp. coef. eff. stress of lithology" "Normal_3SD"                   "1d"
+                      26                        0 "Comp. coef. Sclater & Christie of lithology" "Normal_3SD"            "1d"
+                      27                        0 "Comp. coef. Falvey & Middleton of lithology" "Normal_3SD"            "1d"
+                      40                        0 "Thickness in mobile layer"          "Normal_3SD"                     "1d"
+                      50                        0 "Surface temperature in boundary conditions" "Normal_3SD"             "1d"
+                      51                        0 "Mantle heat flow in boundary conditions" "Normal_3SD"                "1d"
+                     100                        0 "Initial TOC of source rock"         "Normal_3SD"                     "1d"
+                     104                        0 "Intial H/C ratio of source rock"    "Normal_3SD"                     "1d"
+[End]
+;
+;
+; FilterDepthIoTbl
+;
+[FilterDepthIoTbl]
+;v100
+            PropertyName            ModellingMode             OutputOption             ResultOption
+                      ()                       ()                       ()                       ()
+              "Massflux"                     "1d"  "SedimentsPlusBasement"                 "Simple"
+             "Massflux_"                     "1d"                   "None"                 "Simple"
+              "Pressure"                     "1d"          "SedimentsOnly"                 "Simple"
+   "LithoStaticPressure"                     "1d"          "SedimentsOnly"                 "Simple"
+   "HydroStaticPressure"                     "1d"          "SedimentsOnly"                 "Simple"
+          "OverPressure"                     "1d"          "SedimentsOnly"                 "Simple"
+        "DiffusivityVec"                     "1d"                   "None"                 "Simple"
+              "HeatFlow"                     "1d"  "SedimentsPlusBasement"                 "Simple"
+             "HeatFlow_"                     "1d"                   "None"                 "Simple"
+         "FluidVelocity"                     "1d"                   "None"                 "Simple"
+             "MaxVesVec"                     "1d"                   "None"                 "Simple"
+           "PorosityVec"                     "1d"          "SedimentsOnly"                 "Simple"
+              "SonicVec"                     "1d"          "SedimentsOnly"                 "Simple"
+           "VelocityVec"                     "1d"          "SedimentsOnly"                 "Simple"
+       "ReflectivityVec"                     "1d"          "SedimentsOnly"                 "Simple"
+        "BulkDensityVec"                     "1d"          "SedimentsOnly"                 "Simple"
+           "Temperature"                     "1d"          "SedimentsOnly"                 "Simple"
+             "ThCondVec"                     "1d"          "SedimentsOnly"                 "Simple"
+       "PermeabilityVec"                     "1d"          "SedimentsOnly"                 "Simple"
+                   "Ves"                     "1d"          "SedimentsOnly"                 "Simple"
+                 "VrVec"                     "1d"          "SedimentsOnly"                 "Simple"
+         "FissionTracks"                     "1d"                   "None"                 "Simple"
+            "Biomarkers"                     "1d"                   "None"                 "Simple"
+        "IlliteFraction"                     "1d"                   "None"                 "Simple"
 [End]
 ;
 ;
@@ -302,6 +379,15 @@
 [End]
 ;
 ;
+; FilterTimeDepthIoTbl
+;
+[FilterTimeDepthIoTbl]
+;v100
+            PropertyName            PropertyClass              SurfaceName            FormationName                     Time             ResultOption             NumberOfBins
+                      ()                       ()                       ()                       ()                     (Ma)                       ()                       ()
+[End]
+;
+;
 ; WellLocIoTbl
 ;
 [WellLocIoTbl]
@@ -350,17 +436,17 @@
 ;
 [StratIoTbl]
 ;v100
-             SurfaceName                  DepoAge                    Depth                DepthGrid                LayerName             DepoSequence                Thickness            ThicknessGrid               Lithotype1                 Percent1             Percent1Grid               Lithotype2                 Percent2             Percent2Grid               Lithotype3                 Percent3                 MixModel            LayeringIndex                Fluidtype               SourceRock              MobileLayer       HasAllochthonLitho       IsIgneousIntrusion      IgneousIntrusionAge                HydroSand       ChemicalCompaction   EnableSourceRockMixing          SourceRockType1          SourceRockType2       SourceRockMixingHI   SourceRockMixingHIGrid       ElementRefinementZ           IncludeInDarcy
-                      ()                     (Ma)                      (m)                      (m)                       ()                       ()                      (m)                      (m)                       ()                (volume%)                (volume%)                       ()                (volume%)                (volume%)                       ()                (volume%)                       ()                       ()                       ()                       ()                       ()                       ()                       ()                     (Ma)                       ()                       ()                       ()                       ()                       ()               (kg/tonne)                       ()                       ()                       ()
-        "SurfaceName000"                        0                    -9999             "MapName000"           "LayerName000"                        8                    -9999                       ""           "Lithotype004"                       40                       ""           "Lithotype005"                       60                       ""           "Lithotype006"                        0            "Homogeneous"                        1           "Fluidtype003"                        0                        0                        0                        0                    -9999                        0                        0                        0                       ""                       ""                        0                       ""                        1                        0
-        "SurfaceName001"                        1                    -9999             "MapName002"           "LayerName001"                        7                    -9999                       ""           "Lithotype004"                       45                       ""           "Lithotype005"                       55                       ""           "Lithotype006"                        0            "Homogeneous"                        1           "Fluidtype003"                        0                        0                        0                        0                    -9999                        0                        0                        0                       ""                       ""                        0                       ""                        1                        0
-        "SurfaceName002"                      2.5                    -9999             "MapName004"           "LayerName002"                        6                    -9999                       ""           "Lithotype004"                       95                       ""           "Lithotype005"                        5                       ""           "Lithotype006"                        0            "Homogeneous"                        1           "Fluidtype003"                        0                        0                        0                        0                    -9999                        0                        0                        0                       ""                       ""                        0                       ""                        1                        0
-        "SurfaceName003"                       23                    -9999             "MapName006"           "LayerName003"                        5                    -9999                       ""           "Lithotype004"                       60                       ""           "Lithotype005"                       40                       ""           "Lithotype006"                        0            "Homogeneous"                        1           "Fluidtype003"                        0                        0                        0                        0                    -9999                        0                        0                        0                       ""                       ""                        0                       ""                        1                        0
-        "SurfaceName004"                       55                    -9999             "MapName007"           "LayerName004"                        4                    -9999                       ""           "Lithotype004"                       50                       ""           "Lithotype005"                       50                       ""           "Lithotype006"                        0            "Homogeneous"                        1           "Fluidtype003"                        0                        0                        0                        0                    -9999                        0                        0                        0                       ""                       ""                        0                       ""                        1                        0
-        "SurfaceName005"                       65                    -9999             "MapName009"           "LayerName005"                        3                    -9999                       ""           "Lithotype004"                       80                       ""           "Lithotype005"                       20                       ""           "Lithotype006"                        0            "Homogeneous"                        1           "Fluidtype003"                        0                        0                        0                        0                    -9999                        0                        0                        0                       ""                       ""                        0                       ""                        1                        0
-        "SurfaceName006"                       96                    -9999             "MapName010"           "LayerName006"                        2                    -9999                       ""           "Lithotype004"                       80                       ""           "Lithotype005"                       10                       ""           "Lithotype006"                       10            "Homogeneous"                        1           "Fluidtype003"                        0                        0                        0                        0                    -9999                        0                        0                        0                       ""                       ""                        0                       ""                        1                        0
-        "SurfaceName007"                      125                    -9999             "MapName012"           "LayerName007"                        1                    -9999                       ""           "Lithotype004"                       60                       ""           "Lithotype005"                       10                       ""           "Lithotype006"                       30            "Homogeneous"                        1           "Fluidtype003"                        0                        0                        0                        0                    -9999                        0                        0                        0                       ""                       ""                        0                       ""                        1                        0
-        "SurfaceName008"                      146                    -9999             "MapName014"                       ""                    -9999                    -9999                       ""                       ""                    -9999                       ""                       ""                    -9999                       ""                       ""                    -9999                       ""                        1                       ""                        0                    -9999                        0                        0                    -9999                    -9999                    -9999                        0                       ""                       ""                        0                       ""                        1                        0
+             SurfaceName                  DepoAge                    Depth                 ErrDepth                DepthGrid                LayerName             DepoSequence                Thickness           CalibThickness           OptimThickness            ThicknessGrid               Lithotype1                 Percent1             Percent1Grid               Lithotype2                 Percent2             Percent2Grid               Lithotype3                 Percent3                 MixModel            LayeringIndex                Fluidtype             TempGradient               SourceRock              MobileLayer       HasAllochthonLitho       IsIgneousIntrusion      IgneousIntrusionAge                HydroSand       ChemicalCompaction   EnableSourceRockMixing          SourceRockType1          SourceRockType2       SourceRockMixingHI   SourceRockMixingHIGrid       ElementRefinementZ           IncludeInDarcy
+                      ()                     (Ma)                      (m)                      (m)                      (m)                       ()                       ()                      (m)                      (m)                       ()                      (m)                       ()                (volume%)                (volume%)                       ()                (volume%)                (volume%)                       ()                (volume%)                       ()                       ()                       ()                    (C/m)                       ()                       ()                       ()                       ()                     (Ma)                       ()                       ()                       ()                       ()                       ()               (kg/tonne)                       ()                       ()                       ()
+        "SurfaceName000"                        0                    -9999                        0             "MapName000"           "LayerName000"                        8                    -9999                    -9999                        0                       ""           "Lithotype004"                       40                       ""           "Lithotype005"                       60                       ""           "Lithotype006"                        0            "Homogeneous"                        1           "Fluidtype003"                    -9999                        0                        0                        0                        0                    -9999                        0                        0                        0                       ""                       ""                        0                       ""                        1                        0
+        "SurfaceName001"                        1                    -9999                        0             "MapName002"           "LayerName001"                        7                    -9999                    -9999                        0                       ""           "Lithotype004"                       45                       ""           "Lithotype005"                       55                       ""           "Lithotype006"                        0            "Homogeneous"                        1           "Fluidtype003"                    -9999                        0                        0                        0                        0                    -9999                        0                        0                        0                       ""                       ""                        0                       ""                        1                        0
+        "SurfaceName002"                      2.5                    -9999                        0             "MapName004"           "LayerName002"                        6                    -9999                    -9999                        0                       ""           "Lithotype004"                       95                       ""           "Lithotype005"                        5                       ""           "Lithotype006"                        0            "Homogeneous"                        1           "Fluidtype003"                    -9999                        0                        0                        0                        0                    -9999                        0                        0                        0                       ""                       ""                        0                       ""                        1                        0
+        "SurfaceName003"                       23                    -9999                        0             "MapName006"           "LayerName003"                        5                    -9999                    -9999                        0                       ""           "Lithotype004"                       60                       ""           "Lithotype005"                       40                       ""           "Lithotype006"                        0            "Homogeneous"                        1           "Fluidtype003"                    -9999                        0                        0                        0                        0                    -9999                        0                        0                        0                       ""                       ""                        0                       ""                        1                        0
+        "SurfaceName004"                       55                    -9999                        0             "MapName007"           "LayerName004"                        4                    -9999                    -9999                        0                       ""           "Lithotype004"                       50                       ""           "Lithotype005"                       50                       ""           "Lithotype006"                        0            "Homogeneous"                        1           "Fluidtype003"                    -9999                        0                        0                        0                        0                    -9999                        0                        0                        0                       ""                       ""                        0                       ""                        1                        0
+        "SurfaceName005"                       65                    -9999                        0             "MapName009"           "LayerName005"                        3                    -9999                    -9999                        0                       ""           "Lithotype004"                       80                       ""           "Lithotype005"                       20                       ""           "Lithotype006"                        0            "Homogeneous"                        1           "Fluidtype003"                    -9999                        0                        0                        0                        0                    -9999                        0                        0                        0                       ""                       ""                        0                       ""                        1                        0
+        "SurfaceName006"                       96                    -9999                        0             "MapName010"           "LayerName006"                        2                    -9999                    -9999                        0                       ""           "Lithotype004"                       80                       ""           "Lithotype005"                       10                       ""           "Lithotype006"                       10            "Homogeneous"                        1           "Fluidtype003"                    -9999                        0                        0                        0                        0                    -9999                        0                        0                        0                       ""                       ""                        0                       ""                        1                        0
+        "SurfaceName007"                      125                    -9999                        0             "MapName012"           "LayerName007"                        1                    -9999                    -9999                        0                       ""           "Lithotype004"                       60                       ""           "Lithotype005"                       10                       ""           "Lithotype006"                       30            "Homogeneous"                        1           "Fluidtype003"                    -9999                        0                        0                        0                        0                    -9999                        0                        0                        0                       ""                       ""                        0                       ""                        1                        0
+        "SurfaceName008"                      146                    -9999                        0             "MapName014"                       ""                    -9999                    -9999                    -9999                        0                       ""                       ""                    -9999                       ""                       ""                    -9999                       ""                       ""                    -9999                       ""                        1                       ""                    -9999                        0                    -9999                        0                        0                    -9999                    -9999                    -9999                        0                       ""                       ""                        0                       ""                        1                        0
 [End]
 ;
 ;
@@ -404,10 +490,10 @@
 ;
 [CrustIoTbl]
 ;v100
-                     Age                Thickness            ThicknessGrid
-                    (Ma)                      (m)                      (m)
-                       0                    30000                       ""
-                     145                    30000                       ""
+                     Age                Thickness            ThicknessGrid           CalibThickness           OptimThickness
+                    (Ma)                      (m)                      (m)                      (m)                       ()
+                       0                    30000                       ""                    -9999                        0
+                     145                    30000                       ""                    -9999                        0
 [End]
 ;
 ;
@@ -415,11 +501,11 @@
 ;
 [ContCrustalThicknessIoTbl]
 ;v100
-                     Age                Thickness            ThicknessGrid
-                    (Ma)                      (m)                      (m)
-                       0                    10000                       ""
-                      55                    10000                       ""
-                     145                    35000                       ""
+                     Age                Thickness            ThicknessGrid           CalibThickness           OptimThickness
+                    (Ma)                      (m)                      (m)                      (m)                       ()
+                       0                    10000                       ""                        0                        0
+                      55                    10000                       ""                        0                        0
+                     145                    35000                       ""                        0                        0
 [End]
 ;
 ;
@@ -437,8 +523,8 @@
 ;
 [SourceRockLithoIoTbl]
 ;v100
-               LayerName           SourceRockType       BaseSourceRockType                   TocIni               TocIniGrid                  HcVRe05                  ScVRe05       PreAsphaltStartAct   PreAsphaltStartActGrid AsphalteneDiffusionEnergy    ResinDiffusionEnergy    C15AroDiffusionEnergy    C15SatDiffusionEnergy          VREoptimization             VREthreshold        VESLimitIndicator                 VESLimit          ApplyAdsorption   AdsorptionTOCDependent              ComputeOTGC AdsorptionCapacityFunctionName WhichAdsorptionSimulator
-                      ()                       ()                       ()                 (weight)                       ()               (kg/tonne)               (kg/tonne)                 (kJ/mol)                       ()                     (kJ)                     (kJ)                     (kJ)                     (kJ)                       ()                       ()                       ()                    (MPa)                       ()                       ()                       ()                       ()                       ()
+               LayerName           SourceRockType       BaseSourceRockType                   TocIni               TocIniGrid              HCInputMode                    S1Ini                S1IniGrid                    S2Ini                S2IniGrid                    S3Ini                S3IniGrid                  HcVRe05                  ScVRe05                    HcIni                HcIniGrid                    HiIni                    OcIni                OcIniGrid                    NcIni                NcIniGrid               CharLength           CharLengthGrid                UpperBiot            UpperBiotGrid                LowerBiot            LowerBiotGrid          KerogenStartAct      KerogenStartActGrid            KerogenEndAct        KerogenEndActGrid       PreAsphaltStartAct   PreAsphaltStartActGrid         PreAsphaltEndAct     PreAsphaltEndActGrid             NettThickIni         NettThickIniGrid          NGenexTimeSteps      NGenexTimeStepsGrid             NGenexSlices         NGenexSlicesGrid                   VREini AsphalteneDiffusionEnergy    ResinDiffusionEnergy    C15AroDiffusionEnergy    C15SatDiffusionEnergy          VREoptimization             VREthreshold        VESLimitIndicator                 VESLimit          ApplyAdsorption   AdsorptionTOCDependent              ComputeOTGC AdsorptionCapacityFunctionName WhichAdsorptionSimulator
+                      ()                       ()                       ()                 (weight)                       ()                       ()               (kg/tonne)                       ()               (kg/tonne)                       ()               (kg/tonne)                       ()               (kg/tonne)               (kg/tonne)               (kg/tonne)                       ()               (kg/tonne)               (kg/tonne)                       ()               (kg/tonne)                       ()                      (m)                       ()                       ()                       ()                       ()                       ()                 (kJ/mol)                       ()                 (kJ/mol)                       ()                 (kJ/mol)                       ()                 (kJ/mol)                       ()                      (m)                       ()                       ()                       ()                       ()                       ()                       ()                     (kJ)                     (kJ)                     (kJ)                     (kJ)                       ()                       ()                       ()                    (MPa)                       ()                       ()                       ()                       ()                       ()
 [End]
 ;
 ;
@@ -483,15 +569,15 @@
 ;
 [SurfaceTempIoTbl]
 ;v100
-                     Age              Temperature          TemperatureGrid
-                    (Ma)                      (C)                      (C)
-                       0                        0                       ""
-                     2.5                        0                       ""
-                      23                       10                       ""
-                      65                       10                       ""
-                      96                       15                       ""
-                     125                       15                       ""
-                     145                       10                       ""
+                     Age              Temperature           ErrTemperature          TemperatureGrid
+                    (Ma)                      (C)                      (C)                      (C)
+                       0                        0                        0                       ""
+                     2.5                        0                        0                       ""
+                      23                       10                        0                       ""
+                      65                       10                        0                       ""
+                      96                       15                        0                       ""
+                     125                       15                        0                       ""
+                     145                       10                        0                       ""
 [End]
 ;
 ;
@@ -532,9 +618,82 @@
 ;
 [BasementIoTbl]
 ;v100
-     BottomBoundaryModel           TopAsthenoTemp         TopCrustHeatProd     TopCrustHeatProdGrid     CrustHeatPDecayConst     LithoMantleThickness     InitialLthMntThickns      FixedCrustThickness InitialLithosphericMantleThickness CrustPropertyModel  MantlePropertyModel
-                      ()                      (C)                  (uW/m3)                  (uW/m3)                      (m)                      (m)                      (m)                      (m)                      (m)                       ()                       ()
-"Advanced Lithosphere Calculator"            1333                        2                       ""                    10000                    90000                    90000                    30000                   115000 "Standard Conductivity Crust" "Standard Conductivity Mantle"
+     BottomBoundaryModel           TopAsthenoTemp         TopCrustHeatProd     TopCrustHeatProdGrid    CalibTopCrustHeatProd     CrustHeatPDecayConst     LithoMantleThickness CalibLithoMantleThickness    InitialLthMntThickns CalibInitialLthMntThickns     FixedCrustThickness CalibFixedCrustThickness InitialLithosphericMantleThickness CrustPropertyModel  MantlePropertyModel
+                      ()                      (C)                  (uW/m3)                  (uW/m3)                  (uW/m3)                      (m)                      (m)                      (m)                      (m)                      (m)                      (m)                      (m)                      (m)                       ()                       ()
+"Advanced Lithosphere Calculator"            1333                        2                       ""                    -9999                    10000                    90000                    -9999                    90000                    -9999                    30000                    -9999                   115000 "Standard Conductivity Crust" "Standard Conductivity Mantle"
+[End]
+;
+;
+; FormPressIoTbl
+;
+[FormPressIoTbl]
+;v100
+              DepthIndex                MPressure         FormPressureType                    Label
+                     (m)                    (MPa)                       ()                       ()
+[End]
+;
+;
+; FormTempIoTbl
+;
+[FormTempIoTbl]
+;v100
+              DepthIndex              Temperature           ErrTemperature             FormTempType                    Label             Optimization
+                     (m)                      (C)                      (C)                       ()                       ()                       ()
+[End]
+;
+;
+; RawBhtIoTbl
+;
+[RawBhtIoTbl]
+;v100
+              DepthIndex      TimeSinceCirStopped              Temperature           ErrTemperature                    Theta
+                     (m)                    (min)                      (C)                      (C)                       ()
+[End]
+;
+;
+; RawBhtBitsizeIoTbl
+;
+[RawBhtBitsizeIoTbl]
+;v100
+              DepthIndex          CirculationTime              BitDiameter             FormTempType
+                     (m)                    (min)                   (inch)                       ()
+[End]
+;
+;
+; MarsdenCoefIoTbl
+;
+[MarsdenCoefIoTbl]
+;v100
+            MarsdenAcoef             MarsdenBcoef             MarsdenCcoef
+                      ()                       ()                       ()
+                    -3.8                     22.8                    -8.06
+[End]
+;
+;
+; VrmIoTbl
+;
+[VrmIoTbl]
+;v100
+              DepthIndex                       Vr                  VrmType                    Label             Optimization
+                     (m)                      (%)                       ()                       ()                       ()
+[End]
+;
+;
+; SonicIoTbl
+;
+[SonicIoTbl]
+;v100
+                   Depth                       Dt
+                     (m)                   (us/m)
+[End]
+;
+;
+; BulkDensityIoTbl
+;
+[BulkDensityIoTbl]
+;v100
+                   Depth                 BDensity
+                     (m)                 (kg/m^3)
 [End]
 ;
 ;
@@ -548,13 +707,31 @@
 [End]
 ;
 ;
+; BiomarkermIoTbl
+;
+[BiomarkermIoTbl]
+;v100
+              DepthIndex      HopaneIsomerisation     SteraneIsomerisation     SteraneAromatisation             Optimization
+                     (m)                       ()                       ()                       ()                       ()
+[End]
+;
+;
 ; SmectiteIlliteKinIoTbl
 ;
 [SmectiteIlliteKinIoTbl]
-;v0
+;v100
               ActEnergy1              FreqFactor1               ActEnergy2              FreqFactor2       InitIlliteFraction
                       ()                       ()                       ()                       ()                       ()
                    55800                  3422900                    13700                        1                        0
+[End]
+;
+;
+; SmectiteIlliteIoTbl
+;
+[SmectiteIlliteIoTbl]
+;v100
+              DepthIndex           IlliteFraction                    Label             Optimization
+                     (m)                       ()                       ()                       ()
 [End]
 ;
 ;
@@ -562,8 +739,8 @@
 ;
 [FtGrainIoTbl]
 ;v100
-              FtSampleId                FtGrainId           FtSpontTrackNo         FtInducedTrackNo           FtClWeightPerc               FtGrainAge
-                      ()                       ()                       ()                       ()                      (%)                     (Ma)
+              FtSampleId                FtGrainId           FtSpontTrackNo         FtInducedTrackNo           FtClWeightPerc               FtGrainAge            FtGrainAgeErr
+                      ()                       ()                       ()                       ()                      (%)                     (Ma)                     (Ma)
 [End]
 ;
 ;
@@ -580,8 +757,8 @@
 ;
 [FtSampleIoTbl]
 ;v100
-              FtSampleId               DepthIndex                   FtZeta      FtUstglTrackDensity           FtPredictedAge              FtPooledAge           FtPooledAgeErr                FtAgeChi2        FtDegreeOfFreedom               FtPAgeChi2              FtCorrCoeff         FtVarianceSqrtNs         FtVarianceSqrtNi                FtNsDivNi             FtNsDivNiErr              FtMeanRatio           FtMeanRatioErr             FtCentralAge          FtCentralAgeErr                FtMeanAge             FtMeanAgeErr             FtLengthChi2           FtApatiteYield
-                      ()                      (m)                       ()                   (cm-2)                     (Ma)                     (Ma)                     (Ma)                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()
+              FtSampleId               DepthIndex                   FtZeta      FtUstglTrackDensity           FtPredictedAge              FtPooledAge           FtPooledAgeErr                FtAgeChi2        FtDegreeOfFreedom               FtPAgeChi2              FtCorrCoeff         FtVarianceSqrtNs         FtVarianceSqrtNi                FtNsDivNi             FtNsDivNiErr              FtMeanRatio           FtMeanRatioErr             FtCentralAge          FtCentralAgeErr                FtMeanAge             FtMeanAgeErr             FtLengthChi2           FtApatiteYield             Optimization
+                      ()                      (m)                       ()                   (cm-2)                     (Ma)                     (Ma)                     (Ma)                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()
 [End]
 ;
 ;
@@ -616,8 +793,8 @@
 ;
 [ReservoirIoTbl]
 ;v100
-           ReservoirName        DetectedReservoir            FormationName             TrapCapacity             ActivityMode            ActivityStart               NetToGross           NetToGrossGrid             BioDegradInd      OilToGasCrackingInd             DiffusionInd       MinOilColumnHeight       MinGasColumnHeight              BlockingInd     BlockingPermeability         BlockingPorosity
-                      ()                       ()                       ()                     (m3)                       ()                     (Ma)                (percent)                (percent)                       ()                       ()                       ()                      (m)                      (m)                       ()                     (mD)                      (%)
+           ReservoirName        DetectedReservoir            FormationName             TrapCapacity             ActivityMode            ActivityStart              DepthOffset          DepthOffsetGrid                Thickness            ThicknessGrid               NetToGross           NetToGrossGrid               MicroTraps             LeakProperty                 LeakRate               Lithotype1                 Percent1             Percent1Grid               Lithotype2                 Percent2             Percent2Grid               Lithotype3           LayerFrequency       LayerFrequencyGrid             BioDegradInd      OilToGasCrackingInd             DiffusionInd       MinOilColumnHeight       MinGasColumnHeight              BlockingInd     BlockingPermeability         BlockingPorosity
+                      ()                       ()                       ()                     (m3)                       ()                     (Ma)                      (m)                      (m)                      (m)                      (m)                (percent)                (percent)                  (m3/m2)                       ()               (kg/m2/ma)                       ()                (volume%)                (volume%)                       ()                (volume%)                (volume%)                       ()                     (km)                       ()                       ()                       ()                       ()                      (m)                      (m)                       ()                     (mD)                      (%)
 [End]
 ;
 ;
@@ -654,8 +831,8 @@
 ;
 [PalinspasticIoTbl]
 ;v100
-               DepthGrid             FaultcutsMap              SurfaceName      BottomFormationName                      Age                    Depth                MapSeqNbr
-                     (m)                      (m)                       ()                       ()                     (Ma)                      (m)                       ()
+               DepthGrid             FaultcutsMap              SurfaceName      BottomFormationName                      Age                    Depth                MapSeqNbr                 OilSlope                 GasSlope               MinimumSGR             SGRIndicator
+                     (m)                      (m)                       ()                       ()                     (Ma)                      (m)                       ()                     (km)                       ()                       ()                       ()
 [End]
 ;
 ;
@@ -714,6 +891,33 @@
 [End]
 ;
 ;
+; SourceRockPropIoTbl
+;
+[SourceRockPropIoTbl]
+;v100
+               LayerName             PropertyName             PropertyUnit              MapFileName                  MapType
+                      ()                       ()                       ()                       ()                       ()
+[End]
+;
+;
+; ReservoirPropIoTbl
+;
+[ReservoirPropIoTbl]
+;v100
+           ReservoirName             PropertyName             PropertyUnit              MapFileName                  MapType
+                      ()                       ()                       ()                       ()                       ()
+[End]
+;
+;
+; GridIoTbl
+;
+[GridIoTbl]
+;v100
+                GridName                    XLeft                  YBottom                  NumberX                  NumberY                   DeltaX                   DeltaY
+                      ()                      (m)                      (m)                       ()                       ()                      (m)                      (m)
+[End]
+;
+;
 ; MigrationIoTbl
 ;
 [MigrationIoTbl]
@@ -727,15 +931,15 @@
 ;
 [LithotypeIoTbl]
 ;v100
-               Lithotype              Description                DefinedBy              UserDefined           DefinitionDate            LastChangedBy          LastChangedDate                 FgColour                 BgColour                   Pixmap                  Density                 HeatProd          SurfacePorosity             CompacCoefES            CompacCoefESA            CompacCoefESB             CompacCoefSC             CompacCoefFM                StpThCond         ThCondAnisotropy                 DepoPerm       PermDecrStressCoef        PermIncrRelaxCoef           PermAnisotropy             PermMixModel             SeisVelocity     SeisVelocityExponent                    CapC1                    CapC2                PcKrModel                 LambdaPc                 LambdaKr              LambdaPc_LW              LambdaPc_VL                      N_W                      N_V                      N_L                   KrwMax                   KrvMax                   KrlMax                      Swi                      Svr                      Slr           Porosity_Model Compaction_Coefficient_SM   Number_Of_Data_Points      Multipoint_Porosity  Multipoint_Permeability HydraulicFracturingPercent ReferenceSolidViscosity        ActivationEnergy          MinimumPorosity IgneousIntrusionTemperature       QuartzGrainSize           QuartzFraction        ClayCoatingFactor
-                      ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                  (kg/m3)                  (uW/m3)                      (%)               (10-8Pa-1)               (10-8Pa-1)               (10-8Pa-1)                   (km-1)                   (km-1)                   (W/mK)                ((ratio))                     (mD)                       ()                       ()                ((ratio))                       ()                    (m/s)                       ()              ((unknown))              ((unknown))              ((unknown))              ((unknown))              ((unknown))              ((unknown))              ((unknown))              ((unknown))              ((unknown))              ((unknown))                   (frac)                   (frac)                   (frac)                   (frac)                   (frac)                   (frac)                       ()                       ()                       ()                       ()                       ()                      (%)                       ()                       ()                      (%)         (DegreesCelcius)                     (cm)               (fraction)               (fraction)
-                 "Crust"                       ""                       ""                        0                       ""                       ""                       ""                "#808080"                "#d5638e"               "Basement"                     2800                        0                        0                        0                        0                        0                        0                        0                     4.09                        1                        0                        0                        0                        0                   "None"                     6500                        0                     0.33                   0.2611           "Brooks_Corey"                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999            "Exponential"                        0                        0                       ""                       ""                      100                    1e+17                        0                        0                    -9999                     0.03                        0                        0
-         "Litho. Mantle"                       ""                       ""                        0                       ""                       ""                       ""                "#808080"                "#da90da"               "Basement"                     3300                        0                        0                        0                        0                        0                        0                        0                      3.2                        1                        0                        0                        0                        0                   "None"                     8000                        0                     0.33                   0.2611           "Brooks_Corey"                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999            "Exponential"                        0                        0                       ""                       ""                      100                    1e+17                        0                        0                    -9999                     0.03                        0                        0
-          "Lithotype002"                       ""                       ""                        0                       ""                       ""                       ""                "#808080"                "#c83232"               "Basement"                     3200                        0                        0                        0                        0                        0                        0                        0                      3.8                        1                        0                        0                        0                        0                   "None"                     8000                        0                     0.33                   0.2611           "Brooks_Corey"                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999            "Exponential"                        0                        0                       ""                       ""                      100                    1e+17                        0                        0                    -9999                     0.03                        0                        0
-          "Lithotype003"                       ""                       ""                        0                       ""                       ""                       ""                "#808080"                "#e3a992"               "Basement"                     2730                     0.63                        0                        0                        0                        0                        0                        0                      2.4                        1                        0                        0                        0                        0                   "None"                     7000                        0                     0.33                   0.2611           "Brooks_Corey"                        1                        5                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999            "Exponential"                        0                        0                       ""                       ""                      100                    1e+17                        0                        0                    -9999                     0.03                        0                        0
-          "Lithotype004"                       ""                       ""                        1                       ""                       ""                       ""                "#808080"                "#7f7f7f"                  "Shale"                     2660                      1.8                       75                      7.5                        0                        0                     0.87                     3.69                      1.6                      1.6                     0.01                     0.01                       60                        1             "Multipoint"                     4500                        0                     0.33                   0.2611           "Brooks_Corey"                        2                        2                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999            "Exponential"                        0                        2                   "5 60"              "-6.2 -2.9"                      100                    1e+17                        0                        0                    -9999                     0.03                        0                        0
-          "Lithotype005"                       ""                       ""                        1                       ""                       ""                       ""                "#808080"                "#e3e01c"              "Sandstone"                     2650                      0.8                       48                      2.8                        0                        0                     0.39                     1.53                      3.4                        1                     6000                        0                      1.5                        1             "Multipoint"                     6097                        0                     0.33                   0.2611           "Brooks_Corey"                      0.5                       10                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999            "Exponential"                        0                        2                   "5 60"                "0.3 8.6"                      100                    1e+17                        0                        0                    -9999                     0.03                        0                        0
-          "Lithotype006"                       ""                       ""                        1                       ""                       ""                       ""                "#808080"                "#95cce5"              "Limestone"                     2655                     0.45                       60                      6.5                        0                        0                     0.71                      2.5                      2.9                        1                      0.1                     0.01                      1.5                        1             "Multipoint"                     5988                        0                     0.33                   0.2611           "Brooks_Corey"                        1                        5                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999            "Exponential"                        0                        2                   "5 60"              "-6.1 -1.7"                      100                    1e+17                        0                        0                    -9999                     0.03                        0                        0
+               Lithotype              Description                DefinedBy              UserDefined           DefinitionDate            LastChangedBy          LastChangedDate                 FgColour                 BgColour                   Pixmap                  Density                 HeatProd          SurfacePorosity             CompacCoefES            CompacCoefESA            CompacCoefESB             CompacCoefSC             CompacCoefFM                StpThCond         ThCondAnisotropy                 DepoPerm       PermDecrStressCoef        PermIncrRelaxCoef           PermAnisotropy             PermMixModel             SeisVelocity     SeisVelocityExponent                    CapC1                    CapC2                PcKrModel                 LambdaPc                 LambdaKr              LambdaPc_LW              LambdaPc_VL                      N_W                      N_V                      N_L                   KrwMax                   KrvMax                   KrlMax                      Swi                      Svr                      Slr           Porosity_Model Compaction_Coefficient_SM   Number_Of_Data_Points      Multipoint_Porosity  Multipoint_Permeability HydraulicFracturingPercent ReferenceSolidViscosity        ActivationEnergy          MinimumPorosity IgneousIntrusionTemperature          SpecSurfArea              GeoVariance          QuartzGrainSize           QuartzFraction        ClayCoatingFactor
+                      ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                  (kg/m3)                  (uW/m3)                      (%)               (10-8Pa-1)               (10-8Pa-1)               (10-8Pa-1)                   (km-1)                   (km-1)                   (W/mK)                ((ratio))                     (mD)                       ()                       ()                ((ratio))                       ()                    (m/s)                       ()              ((unknown))              ((unknown))              ((unknown))              ((unknown))              ((unknown))              ((unknown))              ((unknown))              ((unknown))              ((unknown))              ((unknown))                   (frac)                   (frac)                   (frac)                   (frac)                   (frac)                   (frac)                       ()                       ()                       ()                       ()                       ()                      (%)                       ()                       ()                      (%)         (DegreesCelcius)                   (m2/g)                       ()                     (cm)               (fraction)               (fraction)
+                 "Crust"                       ""                       ""                        0                       ""                       ""                       ""                "#808080"                "#d5638e"               "Basement"                     2800                        0                        0                        0                        0                        0                        0                        0                     4.09                        1                        0                        0                        0                        0                   "None"                     6500                        0                     0.33                   0.2611           "Brooks_Corey"                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999            "Exponential"                        0                        0                       ""                       ""                      100                    1e+17                        0                        0                    -9999                     0.06                      1.7                     0.03                        0                        0
+         "Litho. Mantle"                       ""                       ""                        0                       ""                       ""                       ""                "#808080"                "#da90da"               "Basement"                     3300                        0                        0                        0                        0                        0                        0                        0                      3.2                        1                        0                        0                        0                        0                   "None"                     8000                        0                     0.33                   0.2611           "Brooks_Corey"                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999            "Exponential"                        0                        0                       ""                       ""                      100                    1e+17                        0                        0                    -9999                     0.06                      1.7                     0.03                        0                        0
+          "Lithotype002"                       ""                       ""                        0                       ""                       ""                       ""                "#808080"                "#c83232"               "Basement"                     3200                        0                        0                        0                        0                        0                        0                        0                      3.8                        1                        0                        0                        0                        0                   "None"                     8000                        0                     0.33                   0.2611           "Brooks_Corey"                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999            "Exponential"                        0                        0                       ""                       ""                      100                    1e+17                        0                        0                    -9999                     0.06                      1.7                     0.03                        0                        0
+          "Lithotype003"                       ""                       ""                        0                       ""                       ""                       ""                "#808080"                "#e3a992"               "Basement"                     2730                     0.63                        0                        0                        0                        0                        0                        0                      2.4                        1                        0                        0                        0                        0                   "None"                     7000                        0                     0.33                   0.2611           "Brooks_Corey"                        1                        5                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999            "Exponential"                        0                        0                       ""                       ""                      100                    1e+17                        0                        0                    -9999                     0.06                      1.7                     0.03                        0                        0
+          "Lithotype004"                       ""                       ""                        1                       ""                       ""                       ""                "#808080"                "#7f7f7f"                  "Shale"                     2660                      1.8                       75                      7.5                        0                        0                     0.87                     3.69                      1.6                      1.6                     0.01                     0.01                       60                        1             "Multipoint"                     4500                        0                     0.33                   0.2611           "Brooks_Corey"                        2                        2                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999            "Exponential"                        0                        2                   "5 60"              "-6.2 -2.9"                      100                    1e+17                        0                        0                    -9999                     0.06                      1.7                     0.03                        0                        0
+          "Lithotype005"                       ""                       ""                        1                       ""                       ""                       ""                "#808080"                "#e3e01c"              "Sandstone"                     2650                      0.8                       48                      2.8                        0                        0                     0.39                     1.53                      3.4                        1                     6000                        0                      1.5                        1             "Multipoint"                     6097                        0                     0.33                   0.2611           "Brooks_Corey"                      0.5                       10                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999            "Exponential"                        0                        2                   "5 60"                "0.3 8.6"                      100                    1e+17                        0                        0                    -9999                     0.06                      1.7                     0.03                        0                        0
+          "Lithotype006"                       ""                       ""                        1                       ""                       ""                       ""                "#808080"                "#95cce5"              "Limestone"                     2655                     0.45                       60                      6.5                        0                        0                     0.71                      2.5                      2.9                        1                      0.1                     0.01                      1.5                        1             "Multipoint"                     5988                        0                     0.33                   0.2611           "Brooks_Corey"                        1                        5                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999                    -9999            "Exponential"                        0                        2                   "5 60"              "-6.1 -1.7"                      100                    1e+17                        0                        0                    -9999                     0.06                      1.7                     0.03                        0                        0
 [End]
 ;
 ;
@@ -1772,6 +1976,217 @@
 [End]
 ;
 ;
+; FltDensityIoTbl
+;
+[FltDensityIoTbl]
+;v100
+               Fluidtype                TempIndex                 Pressure                  Density
+                      ()                      (C)                    (MPa)                  (kg/m3)
+          "Fluidtype000"                        0                      0.1                    999.8
+          "Fluidtype000"                       50                      0.1                      988
+          "Fluidtype000"                      100                      0.1                    958.4
+          "Fluidtype000"                      150                      0.1                    916.8
+          "Fluidtype000"                      200                      0.1                    863.6
+          "Fluidtype000"                      250                      0.1                    794.4
+          "Fluidtype000"                      300                      0.1                    689.8
+          "Fluidtype000"                      350                      0.1                      600
+          "Fluidtype000"                      400                      0.1                      400
+          "Fluidtype000"                      450                      0.1                      250
+          "Fluidtype000"                      500                      0.1                      150
+          "Fluidtype000"                      550                      0.1                      125
+          "Fluidtype000"                      600                      0.1                      100
+          "Fluidtype000"                        0                     40.1                   1019.3
+          "Fluidtype000"                       50                     40.1                   1004.7
+          "Fluidtype000"                      100                     40.1                    976.2
+          "Fluidtype000"                      150                     40.1                    937.9
+          "Fluidtype000"                      200                     40.1                    891.1
+          "Fluidtype000"                      250                     40.1                    834.5
+          "Fluidtype000"                      300                     40.1                    764.7
+          "Fluidtype000"                      350                     40.1                    672.3
+          "Fluidtype000"                      400                     40.1                    524.4
+          "Fluidtype000"                      450                     40.1                    272.4
+          "Fluidtype000"                      500                     40.1                    178.7
+          "Fluidtype000"                      550                     40.1                    143.9
+          "Fluidtype000"                      600                     40.1                    124.2
+          "Fluidtype000"                        0                     80.1                     1037
+          "Fluidtype000"                       50                     80.1                   1020.1
+          "Fluidtype000"                      100                     80.1                    992.2
+          "Fluidtype000"                      150                     80.1                    956.3
+          "Fluidtype000"                      200                     80.1                    913.7
+          "Fluidtype000"                      250                     80.1                    864.1
+          "Fluidtype000"                      300                     80.1                    806.7
+          "Fluidtype000"                      350                     80.1                    739.4
+          "Fluidtype000"                      400                     80.1                    659.5
+          "Fluidtype000"                      450                     80.1                      564
+          "Fluidtype000"                      500                     80.1                    457.4
+          "Fluidtype000"                      550                     80.1                    362.3
+          "Fluidtype000"                      600                     80.1                    295.9
+          "Fluidtype000"                        0                    120.1                   1053.2
+          "Fluidtype000"                       50                    120.1                   1034.5
+          "Fluidtype000"                      100                    120.1                     1007
+          "Fluidtype000"                      150                    120.1                    972.8
+          "Fluidtype000"                      200                    120.1                    933.2
+          "Fluidtype000"                      250                    120.1                    888.4
+          "Fluidtype000"                      300                    120.1                      838
+          "Fluidtype000"                      350                    120.1                    781.7
+          "Fluidtype000"                      400                    120.1                    719.1
+          "Fluidtype000"                      450                    120.1                    650.3
+          "Fluidtype000"                      500                    120.1                    577.1
+          "Fluidtype000"                      550                    120.1                      504
+          "Fluidtype000"                      600                    120.1                    437.4
+          "Fluidtype000"                        0                    160.1                   1067.9
+          "Fluidtype000"                       50                    160.1                   1047.9
+          "Fluidtype000"                      100                    160.1                   1020.7
+          "Fluidtype000"                      150                    160.1                    987.9
+          "Fluidtype000"                      200                    160.1                    950.6
+          "Fluidtype000"                      250                    160.1                    909.2
+          "Fluidtype000"                      300                    160.1                    863.7
+          "Fluidtype000"                      350                    160.1                      814
+          "Fluidtype000"                      400                    160.1                    760.3
+          "Fluidtype000"                      450                    160.1                    703.3
+          "Fluidtype000"                      500                    160.1                      644
+          "Fluidtype000"                      550                    160.1                    584.6
+          "Fluidtype000"                      600                    160.1                    527.7
+          "Fluidtype000"                        0                    200.1                   1081.2
+          "Fluidtype000"                       50                    200.1                   1060.5
+          "Fluidtype000"                      100                    200.1                   1033.5
+          "Fluidtype000"                      150                    200.1                   1001.9
+          "Fluidtype000"                      200                    200.1                    966.4
+          "Fluidtype000"                      250                    200.1                    927.7
+          "Fluidtype000"                      300                    200.1                    885.7
+          "Fluidtype000"                      350                    200.1                    840.6
+          "Fluidtype000"                      400                    200.1                    792.7
+          "Fluidtype000"                      450                    200.1                    742.6
+          "Fluidtype000"                      500                    200.1                    691.3
+          "Fluidtype000"                      550                    200.1                    639.9
+          "Fluidtype000"                      600                    200.1                    590.1
+          "Fluidtype000"                        0                    240.1                   1093.1
+          "Fluidtype000"                       50                    240.1                   1072.3
+          "Fluidtype000"                      100                    240.1                   1045.6
+          "Fluidtype000"                      150                    240.1                   1014.9
+          "Fluidtype000"                      200                    240.1                      981
+          "Fluidtype000"                      250                    240.1                    944.3
+          "Fluidtype000"                      300                    240.1                    905.1
+          "Fluidtype000"                      350                    240.1                    863.5
+          "Fluidtype000"                      400                    240.1                    819.8
+          "Fluidtype000"                      450                    240.1                    774.5
+          "Fluidtype000"                      500                    240.1                    728.4
+          "Fluidtype000"                      550                    240.1                    682.4
+          "Fluidtype000"                      600                    240.1                    637.5
+          "Fluidtype000"                        0                    280.1                     1104
+          "Fluidtype000"                       50                    280.1                   1083.5
+          "Fluidtype000"                      100                    280.1                     1057
+          "Fluidtype000"                      150                    280.1                   1027.1
+          "Fluidtype000"                      200                    280.1                    994.5
+          "Fluidtype000"                      250                    280.1                    959.6
+          "Fluidtype000"                      300                    280.1                    922.7
+          "Fluidtype000"                      350                    280.1                    883.8
+          "Fluidtype000"                      400                    280.1                    843.2
+          "Fluidtype000"                      450                    280.1                    801.5
+          "Fluidtype000"                      500                    280.1                    759.2
+          "Fluidtype000"                      550                    280.1                    717.1
+          "Fluidtype000"                      600                    280.1                    675.8
+          "Fluidtype000"                        0                    320.1                   1114.1
+          "Fluidtype000"                       50                    320.1                     1094
+          "Fluidtype000"                      100                    320.1                   1067.9
+          "Fluidtype000"                      150                    320.1                   1038.6
+          "Fluidtype000"                      200                    320.1                   1007.2
+          "Fluidtype000"                      250                    320.1                    973.8
+          "Fluidtype000"                      300                    320.1                    938.7
+          "Fluidtype000"                      350                    320.1                      902
+          "Fluidtype000"                      400                    320.1                    864.1
+          "Fluidtype000"                      450                    320.1                    825.1
+          "Fluidtype000"                      500                    320.1                    785.8
+          "Fluidtype000"                      550                    320.1                    746.6
+          "Fluidtype000"                      600                    320.1                    708.3
+          "Fluidtype000"                        0                    360.1                   1123.4
+          "Fluidtype000"                       50                    360.1                     1104
+          "Fluidtype000"                      100                    360.1                   1078.2
+          "Fluidtype000"                      150                    360.1                   1049.6
+          "Fluidtype000"                      200                    360.1                   1019.1
+          "Fluidtype000"                      250                    360.1                    987.1
+          "Fluidtype000"                      300                    360.1                    953.6
+          "Fluidtype000"                      350                    360.1                    918.8
+          "Fluidtype000"                      400                    360.1                    882.9
+          "Fluidtype000"                      450                    360.1                    846.3
+          "Fluidtype000"                      500                    360.1                    809.3
+          "Fluidtype000"                      550                    360.1                    772.6
+          "Fluidtype000"                      600                    360.1                    736.5
+          "Fluidtype000"                        0                    400.1                   1132.3
+          "Fluidtype000"                       50                    400.1                   1113.6
+          "Fluidtype000"                      100                    400.1                     1088
+          "Fluidtype000"                      150                    400.1                   1060.1
+          "Fluidtype000"                      200                    400.1                   1030.4
+          "Fluidtype000"                      250                    400.1                    999.5
+          "Fluidtype000"                      300                    400.1                    967.4
+          "Fluidtype000"                      350                    400.1                    934.2
+          "Fluidtype000"                      400                    400.1                    900.1
+          "Fluidtype000"                      450                    400.1                    865.4
+          "Fluidtype000"                      500                    400.1                    830.5
+          "Fluidtype000"                      550                    400.1                    795.7
+          "Fluidtype000"                      600                    400.1                    761.5
+          "Fluidtype000"                        0                    440.1                   1140.6
+          "Fluidtype000"                       50                    440.1                   1122.7
+          "Fluidtype000"                      100                    440.1                   1097.4
+          "Fluidtype000"                      150                    440.1                     1070
+          "Fluidtype000"                      200                    440.1                   1041.2
+          "Fluidtype000"                      250                    440.1                   1011.3
+          "Fluidtype000"                      300                    440.1                    980.4
+          "Fluidtype000"                      350                    440.1                    948.6
+          "Fluidtype000"                      400                    440.1                    916.1
+          "Fluidtype000"                      450                    440.1                    883.1
+          "Fluidtype000"                      500                    440.1                    849.8
+          "Fluidtype000"                      550                    440.1                    816.7
+          "Fluidtype000"                      600                    440.1                    784.2
+[End]
+;
+;
+; FltViscoIoTbl
+;
+[FltViscoIoTbl]
+;v100
+               Fluidtype                TempIndex                Viscosity
+                      ()                      (C)                    (PaS)
+          "Fluidtype000"                        0                0.0017715
+          "Fluidtype000"                        5                0.0015088
+          "Fluidtype000"                       10                0.0013015
+          "Fluidtype000"                       15                0.0011352
+          "Fluidtype000"                       20                    0.001
+          "Fluidtype000"                       25               0.00088862
+          "Fluidtype000"                       30               0.00079583
+          "Fluidtype000"                       35               0.00071773
+          "Fluidtype000"                       40               0.00065138
+          "Fluidtype000"                       45               0.00059452
+          "Fluidtype000"                       50               0.00054542
+          "Fluidtype000"                      100               0.00028178
+          "Fluidtype000"                      150               0.00018101
+          "Fluidtype000"                      200               0.00013006
+          "Fluidtype000"                      250               9.9758e-05
+          "Fluidtype000"                      300               7.9743e-05
+          "Fluidtype000"                      350               6.5542e-05
+          "Fluidtype000"                      400               5.4938e-05
+          "Fluidtype000"                      450               4.6715e-05
+          "Fluidtype000"                      500               4.0155e-05
+          "Fluidtype000"                      550               3.4806e-05
+          "Fluidtype000"                      600               3.0368e-05
+          "Fluidtype000"                      650               2.6637e-05
+          "Fluidtype000"                      700               2.3465e-05
+          "Fluidtype000"                      750               2.0745e-05
+          "Fluidtype000"                      800               1.8394e-05
+          "Fluidtype000"                      850               1.6351e-05
+          "Fluidtype000"                      900               1.4566e-05
+          "Fluidtype000"                      950               1.2999e-05
+          "Fluidtype000"                     1000               1.1619e-05
+          "Fluidtype000"                     1050                 1.04e-05
+          "Fluidtype000"                     1100               9.3203e-06
+          "Fluidtype000"                     1150               8.3614e-06
+          "Fluidtype000"                     1200               7.5083e-06
+          "Fluidtype000"                     1250               6.7478e-06
+          "Fluidtype000"                     1300               6.0689e-06
+          "Fluidtype000"                     1350                5.462e-06
+[End]
+;
+;
 ; DisplayContourIoTbl
 ;
 [DisplayContourIoTbl]
@@ -1798,12 +2213,21 @@
 [End]
 ;
 ;
+; DepthIoTbl
+;
+[DepthIoTbl]
+;v100
+            PropertyName                     Time                   Depth_                  Average              StandardDev                  Minimum                  Maximum                      Sum                     Sum2                       NP                      P15                      P50                      P85            SumFirstPower           SumSecondPower            SumThirdPower           SumFourthPower                 Skewness                 Kurtosis
+                      ()                     (Ma)                      (m)                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()
+[End]
+;
+;
 ; TimeIoTbl
 ;
 [TimeIoTbl]
 ;v100
-            PropertyName                     Time              SurfaceName            FormationName              MapFileName                  Average                  Minimum                  Maximum                      Sum                     Sum2                       NP             PropertyGrid
-                      ()                     (Ma)                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()
+            PropertyName                     Time              SurfaceName            FormationName              MapFileName              BPAPresence                  Average              StandardDev                  Minimum                  Maximum                      Sum                     Sum2                       NP             PropertyGrid             DepoSequence                      P15                      P50                      P85            SumFirstPower           SumSecondPower            SumThirdPower           SumFourthPower                 Skewness                 Kurtosis
+                      ()                     (Ma)                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()                       ()
 [End]
 ;
 ;
