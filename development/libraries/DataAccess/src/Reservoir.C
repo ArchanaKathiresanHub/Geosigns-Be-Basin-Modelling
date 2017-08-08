@@ -35,7 +35,7 @@ Reservoir::~Reservoir (void)
 
 const string Reservoir::s_MapAttributeNames[] =
 {
-   "DepthOffset", "Thickness", "NetToGross", "LayerFrequency"
+   "NetToGross"
 };
 
 const string & Reservoir::getName (void) const

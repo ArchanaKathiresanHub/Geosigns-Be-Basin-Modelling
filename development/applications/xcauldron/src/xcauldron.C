@@ -128,7 +128,6 @@ DataSchema * createReducedCauldronSchema (bool outputs)
 
    createGridMapIoTblDefinition (dataSchema);
    createRelatedProjectsIoTblDefinition (dataSchema);
-   createIoOptionsIoTblDefinition (dataSchema);
    if (outputs)
    {
       createTimeIoTblDefinition (dataSchema);

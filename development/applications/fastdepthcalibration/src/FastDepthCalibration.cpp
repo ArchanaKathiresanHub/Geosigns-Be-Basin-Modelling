@@ -508,9 +508,7 @@ void FastDepthCalibration::prepareProject()
 	if (NoError != m_mdl->clearTable("1DTimeIoTbl")) { throw T2Zexception() << "Cannot clear the table 1DTimeIoTbl "; }
 	if (NoError != m_mdl->clearTable("ReservoirIoTbl")) { throw T2Zexception() << "Cannot clear the table ReservoirIoTbl "; }
 	if (NoError != m_mdl->clearTable("MobLayThicknIoTbl")) { throw T2Zexception() << "Cannot clear the table MobLayThicknIoTbl "; }
-	if (NoError != m_mdl->clearTable("FilterDepthIoTbl")) { throw T2Zexception() << "Cannot clear the table FilterDepthIoTbl "; }
 	if (NoError != m_mdl->clearTable("FilterTimeIoTbl")) { throw T2Zexception() << "Cannot clear the table FilterTimeIoTbl "; }
-	if (NoError != m_mdl->clearTable("FilterTimeDepthIoTbl")) { throw T2Zexception() << "Cannot clear the table FilterTimeDepthIoTbl "; }
 	if (NoError != m_mdl->clearTable("SnapshotIoTbl")) { throw T2Zexception() << "Cannot clear the table SnapshotIoTbl "; }
 
 	// Set the properties we want to save in the FilterTimeIoTbl

@@ -102,7 +102,3 @@ FluidHeatCapacitySampleList* FluidType::getFluidHeatCapacitySamples () const {
 FluidThermalConductivitySampleList* FluidType::getFluidThermalConductivitySamples () const {
    return m_projectHandle->getFluidThermalConductivitySampleList ( this );
 }
-
-FluidDensitySampleList* FluidType::getFluidDensitySamples () const {
-   return m_projectHandle->getFluidDensitySampleList ( this );
-}

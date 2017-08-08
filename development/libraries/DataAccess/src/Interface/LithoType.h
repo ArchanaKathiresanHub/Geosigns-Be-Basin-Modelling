@@ -153,13 +153,6 @@ namespace DataAccess
 
          /// Return the capillary entry pressure.
          virtual PcKrModel getPcKrModel () const;
-	 
-
-         /// Return the specific surface area.
-         virtual double getSpecificSurfArea () const;
-
-         /// Return the geometric variance.
-         virtual double getGeometricVariance () const;
 
          /// Return a list of sample points used to describe how the heat-capacity changes w.r.t. temperature.
          virtual LithologyHeatCapacitySampleList * getHeatCapacitySamples () const;

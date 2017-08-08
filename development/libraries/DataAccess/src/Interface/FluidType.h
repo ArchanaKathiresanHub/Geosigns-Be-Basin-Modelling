@@ -86,11 +86,6 @@ namespace DataAccess {
          /// The fluid used for demsity samples.
          virtual const FluidType* getDensityFluidType () const;
 
-         /// Return a list of the density samples.
-         ///
-         /// This list must be deleted after use.
-         virtual FluidDensitySampleList* getFluidDensitySamples () const;
-
          /// @}
 
 

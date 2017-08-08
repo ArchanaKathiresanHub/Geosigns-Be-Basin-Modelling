@@ -1607,24 +1607,8 @@ database::Record * Migrator::addDetectedReservoirRecord (Interface::Formation * 
    database::setActivityMode (reservoirIoRecord, "ActiveFrom");
 
    database::setActivityStart (reservoirIoRecord, start->getTime ());
-   database::setDepthOffset (reservoirIoRecord, Interface::DefaultUndefinedScalarValue);
-   database::setDepthOffsetGrid (reservoirIoRecord, "");
-   database::setThickness (reservoirIoRecord, Interface::DefaultUndefinedScalarValue);
-   database::setThicknessGrid (reservoirIoRecord, "");
    database::setNetToGross (reservoirIoRecord, Interface::DefaultUndefinedScalarValue);
    database::setNetToGrossGrid (reservoirIoRecord, "");
-   database::setMicroTraps (reservoirIoRecord, Interface::DefaultUndefinedScalarValue);
-   database::setLeakProperty (reservoirIoRecord, "");
-   database::setLeakRate (reservoirIoRecord, Interface::DefaultUndefinedScalarValue);
-   database::setLithotype1 (reservoirIoRecord, "");
-   database::setPercent1 (reservoirIoRecord, Interface::DefaultUndefinedScalarValue);
-   database::setPercent1Grid (reservoirIoRecord, "");
-   database::setLithotype2 (reservoirIoRecord, "");
-   database::setPercent2 (reservoirIoRecord, Interface::DefaultUndefinedScalarValue);
-   database::setPercent2Grid (reservoirIoRecord, "");
-   database::setLithotype3 (reservoirIoRecord, "");
-   database::setLayerFrequency (reservoirIoRecord, Interface::DefaultUndefinedScalarValue);
-   database::setLayerFrequencyGrid (reservoirIoRecord, "");
    database::setBioDegradInd (reservoirIoRecord, m_projectHandle->getReservoirOptions()->isBiodegradationOn());
    database::setOilToGasCrackingInd (reservoirIoRecord, m_projectHandle->getReservoirOptions()->isOilToGasCrackingOn());
    database::setDiffusionInd (reservoirIoRecord, m_projectHandle->getReservoirOptions()->isDiffusionOn());

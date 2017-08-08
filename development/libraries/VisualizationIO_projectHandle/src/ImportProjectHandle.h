@@ -53,11 +53,11 @@ private:
 
 
     /// Private members
-	bool m_verbose;
+    bool m_verbose;
     std::shared_ptr<CauldronIO::Project> m_project;
     std::shared_ptr<DataAccess::Interface::PropertyValueList> m_propValues;
     std::shared_ptr<DataAccess::Interface::PropertyList> m_props;
-	std::shared_ptr<DataAccess::Interface::ProjectHandle> m_projectHandle;
+    std::shared_ptr<DataAccess::Interface::ProjectHandle> m_projectHandle;
 
     /// Private helper methods
     std::shared_ptr<CauldronIO::SnapShot> createSnapShotIO(const DataAccess::Interface::Snapshot* snapShot);

@@ -1047,83 +1047,12 @@ void CauldronIO::ExportToXML::add1Ddata(pugi::xml_node pt)
           recordNode.append_attribute("width") = entry->getFtClWeightBinWidth();
        }
     }
-    // SmectiteIlliteIoTbl
-    SmectiteIlliteList smRecords = m_project->getSmectiteIlliteTable();
-    nr_events = smRecords.size();
-    
-    if (nr_events != 0) {
-    
-       node = pt.append_child("smectiteIllite"); 
-       node.append_attribute("number") = (unsigned int)nr_events;
-       BOOST_FOREACH(const std::shared_ptr<const SmectiteIllite>& entry, smRecords)
-       {
-          pugi::xml_node recordNode = node.append_child("record");
-          
-          recordNode.append_attribute("depthInd") = entry->getDepthIndex();
-          recordNode.append_attribute("illiteFraction") = entry->getIlliteFraction();
-          recordNode.append_attribute("label") = entry->getLabel().c_str();
-          recordNode.append_attribute("optimization") = entry->getOptimization();
-       }
-    }
-    // BiomarkermIoTbl
-    BiomarkermList bmRecords = m_project->getBiomarkermTable();
-    nr_events = bmRecords.size();
-    
-    if (nr_events != 0) {
-    
-       node = pt.append_child("biomarkerm"); 
-       node.append_attribute("number") = (unsigned int)nr_events;
-       BOOST_FOREACH(const std::shared_ptr<const Biomarkerm>& entry, bmRecords)
-       {
-          pugi::xml_node recordNode = node.append_child("record");
-          
-          recordNode.append_attribute("depthInd") = entry->getDepthIndex();
-          recordNode.append_attribute("hopaneIsomerisation") = entry->getHopaneIsomerisation();
-          recordNode.append_attribute("steraneIsomerisation") = entry->getSteraneIsomerisation();
-          recordNode.append_attribute("steraneAromatisation") = entry->getSteraneAromatisation();
-          recordNode.append_attribute("optimization") = entry->getOptimization();
-       }
-    }
-    // DepthIoTbl
-    char * data = 0;
-    size_t record_size = 0;
-    size_t dataIndex = 0;
-       
-    nr_events = m_project->getDepthIoTable().size();
-    if (nr_events != 0) {
-
-       DepthIoList events = m_project->getDepthIoTable();
-       
-       node = pt.append_child("depthIo");
-       node.append_attribute("number") = (unsigned int)nr_events;
-       
-       record_size = sizeof(*events[0]);
-       node.append_attribute("record_size") = (unsigned int)record_size;
-       
-       ibs::FilePath depthDataPath(m_fullPath);
-       depthDataPath << "depthIo_table.cldrn";
-       DataStoreSave depthDataStore(depthDataPath.path(), m_append);
-       
-       data = new char[record_size * nr_events];
-       assert(sizeof(char) == 1);
-       
-       for (size_t index = 0; index < nr_events; ++index, dataIndex += record_size)
-       {
-          void* source = (void*)(events[index].get());
-          void* dest = (void*)(&data[dataIndex]);
-          memcpy(dest, source, record_size);
-       }
-       
-       // Add all data
-       depthDataStore.addData((void*)data, node, record_size * nr_events);
-       // Compress it and write to disk
-       depthDataStore.flush();
-       
-       delete[] data;
-    }
-
     // 1DTimeIoTbl
     nr_events = m_project->get1DTimeIoTable().size();
+	char * data = 0;
+	size_t record_size = 0;
+	size_t dataIndex = 0;
+	nr_events = m_project->getDepthIoTable().size();
     if (nr_events != 0) {
 
        TimeIo1DList timeio1d_events = m_project->get1DTimeIoTable();
