@@ -197,8 +197,14 @@ TEST( AnonymizerTest, test_cbm00 )
    ibs::FolderPath outputFolder("test_cbm00");
    outputFolder << anonymizer.s_anonymizedFolder;
    outputFolder.clean();
-
-   EXPECT_TRUE( anonymizer.run( "test_cbm00" ) );
+   
+   try{
+     bool status = anonymizer.run( "test_cbm00" );
+     EXPECT_TRUE(status);
+   }
+   catch(...){
+     FAIL() << "Unexpected exception" << std::endl;
+   }
 
    supportFunc::checkProjectFile(anonymizer, "test_cbm00");
    supportFunc::checkMapping(anonymizer, "test_cbm00");

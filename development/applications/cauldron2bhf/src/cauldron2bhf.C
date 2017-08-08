@@ -261,12 +261,11 @@ static bool generateBHF (ProjectHandle * projectHandle, DerivedProperties::Deriv
    }
 
    BHFName += ".BHF";
-
+   
    if (is3D)
    {
       database::setBHFName (record, BHFName);
    }
-
 
    string outputFileName = projectHandle->getProjectPath ();
 

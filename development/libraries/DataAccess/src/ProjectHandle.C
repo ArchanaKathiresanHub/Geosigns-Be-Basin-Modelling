@@ -238,7 +238,6 @@ ProjectHandle::ProjectHandle( database::ProjectFileHandlerPtr pfh, const string 
    loadSnapshots();
    loadProperties();
    loadTimeOutputProperties();
-   loadDepthOutputProperties();
 
    loadLithologyHeatCapacitySamples();
    loadLithologyThermalConductivitySamples();
@@ -267,12 +266,6 @@ ProjectHandle::ProjectHandle( database::ProjectFileHandlerPtr pfh, const string 
    loadPermafrostData();
    loadFluidTypes();
 
-#if 0
-   loadLithologyHeatCapacitySamples ();
-   loadLithologyThermalConductivitySamples ();
-#endif
-
-   loadFluidDensitySamples();
    loadFluidThermalConductivitySamples();
    loadFluidHeatCapacitySamples();
 
@@ -427,11 +420,9 @@ ProjectHandle::~ProjectHandle( void )
    deleteRelatedProjects();
 
    deleteTimeOutputProperties();
-   deleteDepthOutputProperties();
 
    deleteLithologyHeatCapacitySamples();
    deleteLithologyThermalConductivitySamples();
-   deleteFluidDensitySamples();
    deleteFluidThermalConductivitySamples();
    deleteFluidHeatCapacitySamples();
 
@@ -1312,36 +1303,6 @@ bool ProjectHandle::loadTimeOutputProperties() {
    return true;
 }
 
-bool ProjectHandle::loadDepthOutputProperties() {
-
-   database::Table* filterDepthTbl = getTable( "FilterDepthIoTbl" );
-   database::Table::iterator tblIter;
-   Interface::ModellingMode recordMode;
-
-   m_depthOutputProperties.clear();
-
-   for ( tblIter = filterDepthTbl->begin(); tblIter != filterDepthTbl->end(); ++tblIter )
-   {
-
-      if ( database::getModellingMode( *tblIter ) == "1d" ) {
-         recordMode = Interface::MODE1D;
-      }
-      else {
-         // It may be that the modelling mode string = "multi-1d", in which case
-         // it will be switched to 3d.
-         recordMode = Interface::MODE3D;
-      }
-
-      if ( recordMode == getModellingMode() )
-      {
-         m_depthOutputProperties.push_back( getFactory()->produceOutputProperty( this, *tblIter ) );
-      }
-
-   }
-
-   return true;
-}
-
 bool ProjectHandle::loadLithologyThermalConductivitySamples() {
 
    database::Table* thermalConductivityTbl = getTable( "LitThCondIoTbl" );
@@ -1400,22 +1361,6 @@ bool ProjectHandle::loadFluidThermalConductivitySamples() {
    for ( tblIter = thermalConductivityTbl->begin(); tblIter != thermalConductivityTbl->end(); ++tblIter )
    {
       m_fluidThermalConductivitySamples.push_back( getFactory()->produceFluidThermalConductivitySample( this, *tblIter ) );
-   }
-
-   return true;
-}
-
-bool ProjectHandle::loadFluidDensitySamples() {
-
-   database::Table* densityTbl = getTable( "FltDensityIoTbl" );
-   database::Table::iterator tblIter;
-
-   m_fluidDensitySamples.clear();
-
-   for ( tblIter = densityTbl->begin(); tblIter != densityTbl->end(); ++tblIter )
-   {
-
-      m_fluidDensitySamples.push_back( getFactory()->produceFluidDensitySample( this, *tblIter ) );
    }
 
    return true;
@@ -2469,13 +2414,11 @@ bool TimeIoTblSorter( database::Record * recordL, database::Record * recordR )
    if ( database::getPropertyName( recordL ) > database::getPropertyName( recordR ) ) return false;
    if ( database::getTime( recordL ) < database::getTime( recordR ) ) return true;
    if ( database::getTime( recordL ) > database::getTime( recordR ) ) return false;
-   if ( database::getDepoSequence( recordL ) < database::getDepoSequence( recordR ) ) return false;
-   if ( database::getDepoSequence( recordL ) > database::getDepoSequence( recordR ) ) return true;
 
    return false;
 }
 
-/// Write newly created volume properties to depthiotbl file.
+/// Write newly created volume properties to timeiotbl file.
 bool ProjectHandle::saveCreatedMapPropertyValues( void )
 {
    if ( Interface::MODE3D == getModellingMode() )
@@ -2488,22 +2431,21 @@ bool ProjectHandle::saveCreatedMapPropertyValues( void )
    }
 }
 
-
 //1DComponent
 bool ProjectHandle::saveCreatedMapPropertyValuesMode1D( void )
 {
    database::Table * timeIoTbl = getTable( "TimeIoTbl" );
    if ( !timeIoTbl )
       return false;
-
+   
    MutablePropertyValueList::iterator propertyValueIter;
-
+   
    int increment = 1;
    for ( propertyValueIter = m_recordLessMapPropertyValues.begin();
       propertyValueIter != m_recordLessMapPropertyValues.end(); propertyValueIter += increment )
    {
       PropertyValue *propertyValue = *propertyValueIter;
-
+   
       if ( !propertyValue->toBeSaved() )
       {
          increment = 1;
@@ -2515,7 +2457,7 @@ bool ProjectHandle::saveCreatedMapPropertyValuesMode1D( void )
       propertyValueIter = m_recordLessMapPropertyValues.erase( propertyValueIter );
       increment = 0;
    }
-
+   
    return true;
 }
 
@@ -2570,7 +2512,6 @@ bool ProjectHandle::saveCreatedVolumePropertyValues( void )
    }
    else
    {
-      saveCreatedVolumePropertyValuesMode1DOld();
       return saveCreatedVolumePropertyValuesMode1D();
    }
 }
@@ -2648,20 +2589,6 @@ bool ProjectHandle::saveCreatedVolumePropertyValuesMode3D( void )
    return status;
 }
 
-bool DepthIoTblSorter( database::Record * recordL, database::Record * recordR )
-{
-   if ( database::getPropertyName( recordL ) < database::getPropertyName( recordR ) ) return true;
-   if ( database::getPropertyName( recordL ) > database::getPropertyName( recordR ) ) return false;
-   int leftIndex = recordL->getValue<int>( "DepositionSequence" );
-   int rightIndex = recordR->getValue<int>( "DepositionSequence" );
-   if ( leftIndex > rightIndex ) return true;
-   if ( leftIndex < rightIndex ) return false;
-   if ( database::getDepth_( recordL ) < database::getDepth_( recordR ) ) return true;
-   if ( database::getDepth_( recordL ) > database::getDepth_( recordR ) ) return false;
-
-   return false;
-}
-
 bool ProjectHandle::saveCreatedVolumePropertyValuesMode1D( void )
 {
    database::Table * timeIoTbl = getTable( "1DTimeIoTbl" );
@@ -2715,234 +2642,6 @@ bool ProjectHandle::saveCreatedVolumePropertyValuesMode1D( void )
       m_propertyValues.push_back( propertyValue );
    }
    m_recordLessVolumePropertyValues.clear();
-
-   return status;
-}
-
-/// Write newly created volume properties to depthiotbl file.
-/// This function assumes that all volume properties for a given snapshot are written in one go
-bool ProjectHandle::saveCreatedVolumePropertyValuesMode1DOld( void )
-{
-   const char * scalarPostfixes[ 2 ] = { "", "" };
-   const char * vecPostfixes[ 2 ] = { "[0]", "[1]" };
-
-   const Snapshot *zeroSnapshot = (const Snapshot *)findSnapshot( 0 );
-
-   database::Table * depthIoTbl = getTable( "DepthIoTbl" );
-   if ( !depthIoTbl )
-      return false;
-
-   if ( m_recordLessVolumePropertyValues.size() == 0 ) return true;
-
-   MutablePropertyValueList::iterator depthPropertyValueIter;
-   MutablePropertyValueList::iterator propertyValueIter;
-
-   const Property *depthProperty = (const Property *)findProperty( "Depth" );
-
-   assert( depthProperty );
-
-   bool status = true;
-
-   MutablePropertyValueList selectedPropertyValues;
-   MutablePropertyValueList selectedDepthPropertyValues;
-
-
-   // first find the set of all property values with the same snapshot and formation and pinpoint the depth property value in that set.
-   for ( propertyValueIter = m_recordLessVolumePropertyValues.begin();
-      propertyValueIter != m_recordLessVolumePropertyValues.end(); ++propertyValueIter )
-   {
-      PropertyValue *propertyValue = *propertyValueIter;
-
-      if ( propertyValue->getSnapshot() != zeroSnapshot || !propertyValue->toBeSaved() )
-      {
-         continue;
-      }
-
-      selectedPropertyValues.push_back( propertyValue );
-
-      if ( propertyValue->getProperty() == depthProperty )
-      {
-         selectedDepthPropertyValues.push_back( propertyValue );
-      }
-   }
-
-   const Property *property = 0;
-
-   double previousDepthValue[ 2 ] = { DefaultUndefinedScalarValue, DefaultUndefinedScalarValue };
-
-   for ( depthPropertyValueIter = selectedDepthPropertyValues.begin();
-      depthPropertyValueIter != selectedDepthPropertyValues.end(); ++depthPropertyValueIter )
-   {
-      PropertyValue *depthPropertyValue = *depthPropertyValueIter;
-
-      GridMap *depthGridMap = (GridMap *)depthPropertyValue->getGridMap();
-
-      depthGridMap->retrieveData();
-
-      bool isZeroThickness = ( depthGridMap->getValue( 0, 0, (unsigned int)0 ) == depthGridMap->getValue( 0, 0, (unsigned int)depthGridMap->getDepth() - 1 ) );
-
-      for ( propertyValueIter = selectedPropertyValues.begin();
-         propertyValueIter != selectedPropertyValues.end(); ++propertyValueIter )
-      {
-         PropertyValue *propertyValue = *propertyValueIter;
-
-         if ( propertyValue->getFormation() != depthPropertyValue->getFormation() )
-         {
-            continue;
-         }
-
-
-         property = (const Property *)propertyValue->getProperty();
-
-         int nrOutputs = 1;
-
-         const char ** postFixes = scalarPostfixes;
-
-         if ( property->getCauldronName().rfind( "Vec2" ) != string::npos )
-         {
-            nrOutputs = 2;
-            postFixes = vecPostfixes;
-         }
-
-         if ( isZeroThickness ) continue;
-
-         GridMap *gridMap = (GridMap *)propertyValue->getGridMap();
-
-         if ( gridMap != depthGridMap )
-         {
-            gridMap->retrieveData();
-         }
-
-         unsigned int gridMapDepth = gridMap->getDepth();
-
-         assert( gridMapDepth == depthGridMap->getDepth() );
-
-         for ( int k = gridMapDepth - 1; k >= 0; --k )
-         {
-            assert( depthGridMap->firstI() == 0 );
-            assert( depthGridMap->firstJ() == 0 );
-
-            double depthValue = depthGridMap->getValue( 0, 0, (unsigned int)k );
-            double value = gridMap->getValue( 0, 0, (unsigned int)k );
-            if ( depthValue != depthGridMap->getUndefinedValue() )
-            {
-               if ( value == gridMap->getUndefinedValue() )
-               {
-                  value = DefaultUndefinedScalarValue;
-               }
-               for ( int i = 0; i < nrOutputs; ++i )
-               {
-                  if ( depthValue != DefaultUndefinedScalarValue && depthValue > previousDepthValue[ i ] - 0.01 && depthValue < previousDepthValue[ i ] + 0.01 ) continue;
-
-                  previousDepthValue[ i ] = depthValue;
-
-                  database::Record * depthIoRecord = depthIoTbl->createRecord();
-
-                  depthIoRecord->setValue( "DepositionSequence", propertyValue->getFormation()->getDepositionSequence() );
-                  database::setPropertyName( depthIoRecord, property->getCauldronName() + postFixes[ i ] );
-                  database::setTime( depthIoRecord, zeroSnapshot->getTime() );
-                  database::setDepth_( depthIoRecord, depthValue );
-                  database::setAverage( depthIoRecord, value );
-                  database::setStandardDev( depthIoRecord, DefaultUndefinedScalarValue );
-                  database::setMinimum( depthIoRecord, value );
-                  database::setMaximum( depthIoRecord, value );
-                  database::setSum( depthIoRecord, value );
-                  database::setSum2( depthIoRecord, DefaultUndefinedScalarValue );
-                  database::setNP( depthIoRecord, static_cast<int>( DefaultUndefinedScalarValue ) );
-                  database::setP15( depthIoRecord, DefaultUndefinedScalarValue );
-                  database::setP50( depthIoRecord, DefaultUndefinedScalarValue );
-                  database::setP85( depthIoRecord, DefaultUndefinedScalarValue );
-                  database::setSumFirstPower( depthIoRecord, value );
-                  database::setSumSecondPower( depthIoRecord, DefaultUndefinedScalarValue );
-                  database::setSumThirdPower( depthIoRecord, DefaultUndefinedScalarValue );
-                  database::setSumFourthPower( depthIoRecord, DefaultUndefinedScalarValue );
-                  database::setSkewness( depthIoRecord, DefaultUndefinedScalarValue );
-                  database::setKurtosis( depthIoRecord, DefaultUndefinedScalarValue );
-
-
-#if 0
-                  cerr << "<< " << database::getPropertyName (depthIoRecord) << "(" << database::getDepth_ (depthIoRecord) << ", " << database::getAverage (depthIoRecord) <<
-                     ") of layer " << propertyValue->getFormation ()->getName () << endl;
-#endif
-               }
-            }
-         }
-
-         if ( gridMap != depthGridMap ) gridMap->restoreData();
-      }
-
-      depthGridMap->restoreData();
-   }
-
-   // Remove all records that should not be there
-   sort( depthIoTbl->begin(), depthIoTbl->end(), DepthIoTblSorter );
-
-   int removalIncrement = 1;
-   bool removeNextOne = false;
-   for ( database::Table::iterator removalIter = depthIoTbl->begin(); removalIter != depthIoTbl->end(); removalIter += removalIncrement )
-   {
-      removalIncrement = 1;
-      database::Record * currentRecord = *removalIter;
-
-      if ( removeNextOne )
-      {
-         removalIter = depthIoTbl->removeRecord( removalIter );
-         removalIncrement = 0;
-         removeNextOne = false;
-         continue;
-      }
-
-      if ( removalIter + 1 != depthIoTbl->end() )
-      {
-         database::Record * nextCurrentRecord = *( removalIter + 1 );
-         if ( database::getPropertyName( currentRecord ) != database::getPropertyName( nextCurrentRecord ) )
-         {
-            // removal of any last ...Vec2[0] property
-            if ( database::getPropertyName( currentRecord ).find( "Vec2[0]" ) != string::npos )
-            {
-               removalIter = depthIoTbl->removeRecord( removalIter );
-               removalIncrement = 0;
-            }
-            // removal of any first ...Vec2[1] property
-            if ( database::getPropertyName( nextCurrentRecord ).find( "Vec2[1]" ) != string::npos )
-            {
-               removeNextOne = true;
-            }
-         }
-         else
-         {
-            // removal of any second Vec2[1] property with the same depth
-            if ( database::getPropertyName( currentRecord ).rfind( "Vec2[1]" ) != string::npos && database::getDepth_( currentRecord ) == database::getDepth_( nextCurrentRecord ) )
-            {
-               removeNextOne = true;
-            }
-            // removal of any first Vec2[0] property with the same depth
-            else if ( database::getPropertyName( currentRecord ).rfind( "Vec2[0]" ) != string::npos && database::getDepth_( currentRecord ) == database::getDepth_( nextCurrentRecord ) )
-            {
-               removalIter = depthIoTbl->removeRecord( removalIter );
-               removalIncrement = 0;
-            }
-            // removal of any second non-Vec2 properties with equal depth
-            else if ( database::getDepth_( currentRecord ) == database::getDepth_( nextCurrentRecord ) &&
-               ( database::getPropertyName( currentRecord ).rfind( "Vec2" ) == string::npos ) )
-            {
-               removeNextOne = true;
-            }
-         }
-      }
-   }
-
-   // Remove properties with undefined value
-   for ( database::Table::iterator removalIter = depthIoTbl->begin(); removalIter != depthIoTbl->end(); removalIter += removalIncrement )
-   {
-      removalIncrement = 1;
-      database::Record * currentRecord = *removalIter;
-      if ( database::getAverage( currentRecord ) == DefaultUndefinedScalarValue )
-      {
-         removalIter = depthIoTbl->removeRecord( removalIter );
-         removalIncrement = 0;
-      }
-   }
 
    return status;
 }
@@ -3679,21 +3378,6 @@ Interface::OutputPropertyList * ProjectHandle::getTimeOutputProperties() const {
    return outputPropertyList;
 }
 
-Interface::OutputPropertyList * ProjectHandle::getDepthOutputProperties() const {
-
-   Interface::OutputPropertyList * outputPropertyList = new Interface::OutputPropertyList;
-
-   MutableOutputPropertyList::const_iterator outputPropertyIter;
-
-   for ( outputPropertyIter = m_depthOutputProperties.begin(); outputPropertyIter != m_depthOutputProperties.end(); ++outputPropertyIter )
-   {
-      OutputProperty * outputProperty = *outputPropertyIter;
-      outputPropertyList->push_back( outputProperty );
-   }
-
-   return outputPropertyList;
-}
-
 Interface::LithologyHeatCapacitySampleList * ProjectHandle::getLithologyHeatCapacitySampleList( const Interface::LithoType* litho ) const {
 
    Interface::LithologyHeatCapacitySampleList * heatCapacityList = new Interface::LithologyHeatCapacitySampleList;
@@ -3769,26 +3453,6 @@ Interface::FluidThermalConductivitySampleList * ProjectHandle::getFluidThermalCo
    }
 
    return thermalConductivityList;
-}
-
-
-Interface::FluidDensitySampleList * ProjectHandle::getFluidDensitySampleList( const Interface::FluidType* fluid ) const {
-
-   Interface::FluidDensitySampleList * densityList = new Interface::FluidDensitySampleList;
-
-   MutableFluidDensitySampleList::const_iterator sampleIter;
-
-   for ( sampleIter = m_fluidDensitySamples.begin(); sampleIter != m_fluidDensitySamples.end(); ++sampleIter ) {
-
-      FluidDensitySample * densitySample = *sampleIter;
-
-      if ( fluid == 0 or densitySample->getFluid() == fluid ) {
-         densityList->push_back( densitySample );
-      }
-
-   }
-
-   return densityList;
 }
 
 Interface::RelatedProjectList * ProjectHandle::getRelatedProjectList() const {
@@ -5159,18 +4823,6 @@ void ProjectHandle::deleteTimeOutputProperties() {
    m_timeOutputProperties.clear();
 }
 
-void ProjectHandle::deleteDepthOutputProperties() {
-
-   MutableOutputPropertyList::const_iterator propIter;
-
-   for ( propIter = m_depthOutputProperties.begin(); propIter != m_depthOutputProperties.end(); ++propIter ) {
-      OutputProperty * property = *propIter;
-      delete property;
-   }
-
-   m_depthOutputProperties.clear();
-}
-
 
 
 void ProjectHandle::deleteLithologyThermalConductivitySamples() {
@@ -5220,18 +4872,6 @@ void ProjectHandle::deleteFluidThermalConductivitySamples() {
    }
 
    m_fluidThermalConductivitySamples.clear();
-}
-
-void ProjectHandle::deleteFluidDensitySamples() {
-
-   MutableFluidDensitySampleList::const_iterator sampleIter;
-
-   for ( sampleIter = m_fluidDensitySamples.begin(); sampleIter != m_fluidDensitySamples.end(); ++sampleIter ) {
-      FluidDensitySample * sample = *sampleIter;
-      delete sample;
-   }
-
-   m_fluidDensitySamples.clear();
 }
 
 

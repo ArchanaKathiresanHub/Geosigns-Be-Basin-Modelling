@@ -617,12 +617,10 @@ void FtSampleObservation::calcGrainAgesAndErrors()
          (*iGrain) -> setGrainAge( grainAge );
  
          double grainAgeErr =  grainAge * sqrt (1.0 / (double) Ns + 1.0 / (double) Ni); //originally cast to float
-         (*iGrain) -> setGrainAgeErr( grainAgeErr );
       }
       else
       {
           (*iGrain) -> setGrainAge   ( params.getUndefinedDouble() );
-          (*iGrain) -> setGrainAgeErr( params.getUndefinedDouble() ); 
       }
    }
 }

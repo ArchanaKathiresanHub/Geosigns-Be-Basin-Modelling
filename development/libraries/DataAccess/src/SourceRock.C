@@ -66,10 +66,6 @@ const double & SourceRock::getPreAsphaltStartAct(void) const
 {
    return database::getPreAsphaltStartAct (m_record);
 }
-const double & SourceRock::getVREini(void) const
-{
-   return database::getVREini (m_record);
-}
 const double & SourceRock::getAsphalteneDiffusionEnergy(void) const
 {
    return database::getAsphalteneDiffusionEnergy (m_record);

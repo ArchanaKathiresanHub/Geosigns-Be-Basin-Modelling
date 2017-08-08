@@ -114,7 +114,6 @@ public :
    void removeCurrentSimulationDetails( database::Record * );
 
    void clear1DTimeIoTbl ();
-   void clearDepthIoTbl ();
 
    void initialiseFastcauldronLayers ();
 

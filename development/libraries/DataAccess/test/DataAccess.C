@@ -155,10 +155,5 @@ TEST(DataAccess, OpenCauldronProject)
    if( fhcList == nullptr ) FAIL();
    EXPECT_EQ( fhcList->size(), 156 );
    
-   // Check FltDensityIoTbl
-   std::unique_ptr<DataAccess::Interface::FluidDensitySampleList> fdList(ph->getFluidDensitySampleList( ph->findFluid("Std. Water") ));
-   if( fdList == nullptr ) FAIL();
-   EXPECT_EQ( fdList->size(), 156 );
-   
    delete ph;
 }

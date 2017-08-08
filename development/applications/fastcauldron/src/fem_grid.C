@@ -879,7 +879,6 @@ void Basin_Modelling::FEM_Grid::solveTemperature ( bool& solverHasConverged,
 
   if ( FastcauldronSimulator::getInstance ().getModellingMode () == Interface::MODE1D ) {
      FastcauldronSimulator::getInstance ().clear1DTimeIoTbl ();
-     FastcauldronSimulator::getInstance ().clearDepthIoTbl ();
   }
 
   // Compute the temperature from basin-start-age to present day.
@@ -984,7 +983,6 @@ void Basin_Modelling::FEM_Grid::solveCoupled ( bool& solverHasConverged,
        Temperature_Calculator.resetFissionTrackCalculator();
        basinModel->deleteIsoValues();
        FastcauldronSimulator::getInstance ().clear1DTimeIoTbl ();
-       FastcauldronSimulator::getInstance ().clearDepthIoTbl ();
     }
 
     savedMinorSnapshotTimes.clear ();

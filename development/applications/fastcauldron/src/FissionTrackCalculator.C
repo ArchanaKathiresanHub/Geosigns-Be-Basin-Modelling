@@ -739,7 +739,6 @@ bool FissionTrackCalculator::compute(void)
       if ( grain )
       {
          setFtGrainAge    ( record, grain -> getGrainAge()    );
-         setFtGrainAgeErr ( record, grain -> getGrainAgeErr() );
       }
    }
 

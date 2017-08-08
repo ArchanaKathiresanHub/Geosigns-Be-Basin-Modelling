@@ -12,7 +12,6 @@
 //   TimeIoTbl
 //   3DtimeIoTbl
 //   1DTimeIoTbl
-//   DepthIoTbl
  
 #include "cmbAPI.h"
 
@@ -118,11 +117,7 @@ int main( int argc, char ** argv )
 
       std::cout << "1DTimeIoTbl, ";
       numRecs += cldProject.tableSize( "1DTimeIoTbl" );
-      cldProject.clearTable( "1DTimeIoTbl" );
-      
-      std::cout << "DepthIoTbl";
-      numRecs += cldProject.tableSize( "DepthIoTbl" );
-      cldProject.clearTable( "DepthIoTbl" );
+      cldProject.clearTable( "1DTimeIoTbl" );    
 
       std::cout << "SimulationDetailsIoTbl";
       numRecs += cldProject.tableSize( "SimulationDetailsIoTbl" );

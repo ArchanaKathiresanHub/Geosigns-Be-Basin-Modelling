@@ -603,8 +603,6 @@ bool  GeoPhysics::CompoundLithology::reCalcProperties(){
    m_permeabilitydecr              = 0.0;
    m_thermalConductivityAnisotropy = 1.0;
    m_thermalConductivityValue      = 0.0;
-   m_specificSurfaceArea           = 1.0;
-   m_geometricVariance             = 1.0;
 
    // loop through all the simple lithologies and calculate the
    // properties for this lithology
@@ -646,9 +644,6 @@ bool  GeoPhysics::CompoundLithology::reCalcProperties(){
 
       //3. Matrix Property calculated using the geometric mean
       m_thermalConductivityAnisotropy *= pow((*componentIter)->getThCondAn(), pcMult);
-
-      m_specificSurfaceArea *= pow((*componentIter)->getSpecificSurfArea(), pcMult);
-      m_geometricVariance *= pow((*componentIter)->getGeometricVariance(), pcMult);
 
       //4. Matrix Property calculated using the algebraic mean
       m_quartzGrainSize += pcMult * pow((*componentIter)->getQuartzGrainSize(), 3.0);
@@ -1716,58 +1711,6 @@ double GeoPhysics::CompoundLithology::mixModulusSolid() const
    }
 }
 
-//------------------------------------------------------------//
-
-double GeoPhysics::CompoundLithology::capillaryPressure(const PhaseId phase,
-                                                        const double  densityBrine,
-                                                        const double  densityHc,
-                                                        const double  saturationBrine,
-                                                        const double  saturationHc,
-                                                        const double  porosity) const {
-
-   double result = 99999.0;
-
-#if 0
-   double densityDiff = densityBrine - densityHc;
-   double interfacialTension;
-   double bulkDensity = porosity * densityBrine + (1.0 - porosity) * m_density;
-   double cosContactAngle;
-   double reducedTemperature;
-   double A;
-   double B;
-
-   if (phase == pvtFlash::OIL) {
-      cosContactAngle = m_cosOilContactAngle;
-   }
-   else {
-      cosContactAngle = m_cosGasContactAngle;
-   }
-
-   interfacialTension = std::pow(A * std::pow(densityDiff, B + 1) / reducedTemperature(phase), 4);
-   result = interfacialTension * cosContactAngle * m_specificSurfaceArea * bulkDensity * std::exp(-(1.0 - saturationHc) * m_geometricVariance) * (1.0 - porosity) / porosity;
-#endif
-
-   return result;
-}
-
-//------------------------------------------------------------//
-
-double GeoPhysics::CompoundLithology::capillaryPressure(const unsigned int phaseId,
-                                                        const double& density_H2O,
-                                                        const double& density_HC,
-                                                        const double& T_K,
-                                                        const double& T_c_HC_K,
-                                                        const double& wettingSaturation,
-                                                        const double& porosity) const {
-
-   double capP = CBMGenerics::capillarySealStrength::capPressure(phaseId, density_H2O, density_HC,
-      T_K, T_c_HC_K,
-      m_specificSurfaceArea,
-      m_geometricVariance, wettingSaturation,
-      porosity, m_density);
-
-   return capP;
-}
 //------------------------------------------------------------//
 
 void GeoPhysics::CompoundLithology::calcBulkThermCondNPBasement(const FluidType* fluid,
