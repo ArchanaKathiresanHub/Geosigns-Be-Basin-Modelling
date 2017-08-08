@@ -5859,7 +5859,7 @@ START-property-tables
     Column         : Format
     Column         : Percentile
     Column         : FaciesMap
-	 Column         : RunName
+	Column         : RunName
     Header         : List of Touchstone Map Combinations
 
 # Genex History location Table
@@ -5911,20 +5911,20 @@ START-property-tables
     Column         : SGMeanBulkDensity
 
 
-    Identification      : SimulationDetailsIoTbl
-    Description		: Details about a particular simulation
+    Identification : SimulationDetailsIoTbl
+    Description    : Details about a particular simulation
     Version        : 100
-    Column		: SimulationSequenceNumber
-    Column		: SimulatorName
-    Column		: SimulatorMode
-    Column		: NumberOfCores
-    Column		: SimulatorCommandLineParameters
+    Column         : SimulationSequenceNumber
+    Column         : SimulatorName
+    Column         : SimulatorMode
+    Column         : NumberOfCores
+    Column         : SimulatorCommandLineParameters
 
 
-    Identification      : OutputTablesFileIoTbl
-    Description         : File to contain output tables, if enabled. Only a single row in the table is allowed.
+    Identification : OutputTablesFileIoTbl
+    Description    : File to contain output tables, if enabled. Only a single row in the table is allowed.
     Version        : 100
-    Column              : Filename
+    Column         : Filename
 
     Identification      : OutputTablesIoTbl
     Description         : Each row will be unique and will contain the name of a table that has been
