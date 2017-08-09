@@ -629,7 +629,7 @@ std::shared_ptr<Project> CauldronIO::ImportFromXML::getProject(const pugi::xml_d
         //////////////////////////////////////////////////////////////////////////
 
         pugi::xml_node hasTrappers = snapShotNode.child("trappers");
-        if (hasTrappers and m_project->getTrapperTable().empty() )
+        if (hasTrappers)
         {
             int maxPersistentTrapperID = hasTrappers.child("maxPersistentTrapperID").text().as_int();
             assert(maxPersistentTrapperID > -1);
