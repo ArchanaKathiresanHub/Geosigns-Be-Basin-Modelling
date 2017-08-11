@@ -267,6 +267,10 @@ namespace migration
                   // If liquid phase is present (density is a proxy, if 1000, there's only vapour)
                   if (liquidDensity != 1000.0 )
                   {
+                     // Calculation of interfacial tension requires a positive density contrast
+                     if (waterDensity - liquidDensity < minimumDensityDifference)
+                        waterDensity = liquidDensity + minimumDensityDifference;
+
                      double liquidIFT = CBMGenerics::capillarySealStrength::capTension_H2O_HC( waterDensity, liquidDensity, temperature + CelciusToKelvin, hcTempValueLiquid );
                      capillaryEntryPressureLiquid = CBMGenerics::capillarySealStrength::capSealStrength_H2O_HC( capSealStrength_Air_Hg, liquidIFT );
 
@@ -282,13 +286,16 @@ namespace migration
                   // There's only vapour. Calculate capillary pressures accordingly.
                   else
                   {
+                     // Calculation of interfacial tension requires a positive density contrast
+                     if (waterDensity - vapourDensity < minimumDensityDifference)
+                        waterDensity = vapourDensity + minimumDensityDifference;
+
                      double vapourIFT = CBMGenerics::capillarySealStrength::capTension_H2O_HC( waterDensity, vapourDensity, temperature + CelciusToKelvin, hcTempValueVapour );
                      capillaryEntryPressureVapour = CBMGenerics::capillarySealStrength::capSealStrength_H2O_HC( capSealStrength_Air_Hg, vapourIFT );
 
                      capillaryEntryPressureLiquid = capillaryEntryPressureVapour;
                      liquidDensity = vapourDensity;
-                  }
-                     
+                  }                     
                }
 
                if (capillaryEntryPressureLiquid == Interface::DefaultUndefinedMapValue or capillaryEntryPressureVapour == Interface::DefaultUndefinedMapValue)
@@ -1261,7 +1268,7 @@ namespace migration
       return true;
    }
 
-   //function that returns the first non zero thickness element in the reservoir
+   // Returns the first non-zero-thickness element in the current formation, or a null pointer if such an element does not exist
    LocalFormationNode * Formation::validReservoirNode (const int i, const int j) const
    {
       //reservoir formation, loop downwards until a formation node with thickness is found in the reservoir formation
@@ -1280,11 +1287,11 @@ namespace migration
       if (validReservoirFormationNode)
          return reservoirFormationNode;
       else
-         return 0;
+         return nullptr;
    }
 
 
-   //function that returns the first non zero thickness element in the seal
+   // Returns the bottommost non-zero-thickness element in topFormation, or any formation above, or a null pointer if such an element does not exist
    LocalFormationNode * Formation::validSealNode (const int i, const int j, const Formation * topFormation, const Formation * topActiveFormation) const
    {
       //seal formation, loop upwards until a formation node with thickness is found in one of the formations above the reservoir
@@ -1292,7 +1299,6 @@ namespace migration
       bool validSealFormationNode = false;
       int k = 0;
       int ktopseal = topActiveFormation->getNodeDepth () - 1;
-      //return topFormation->getLocalFormationNode (i, j, k);
 
       while (validSealFormationNode == false)
       {
@@ -1311,7 +1317,7 @@ namespace migration
       if (validSealFormationNode)
          return sealFormationNode;
       else
-         return 0;
+         return nullptr;
    }
 
    //
@@ -1736,12 +1742,14 @@ namespace migration
       {
          for (unsigned int j = m_formationNodeArray->firstJLocal (); j <= m_formationNodeArray->lastJLocal (); ++j)
          {
-            LocalFormationNode * formationNode = validReservoirNode (i, j);
+            // Get and check the top SR element at (i,j) location of expulsion
+            LocalFormationNode * formationNode = getLocalFormationNode (i, j, depthIndex);
             if (!IsValid (formationNode)) continue;
 
-            // Force expulsion by getting node above source rock
-            formationNode = getLocalFormationNode (i, j, depthIndex + 1);
-            if (!IsValid (formationNode)) continue;
+            // Force expulsion by getting node above source rock, unless it's impermeable
+            LocalFormationNode * nodeAboveExpulsion = getLocalFormationNode (i, j, depthIndex + 1);
+            if (IsValid(nodeAboveExpulsion) and !nodeAboveExpulsion->isImpermeable())
+               formationNode = nodeAboveExpulsion;
 
             // getTargetFormationNode () uses recursively the node above as long as the current one has no thickness.
             // If at the top node of the basin, it always returns a targetFormationNode regardless of thickness.
@@ -1967,18 +1975,14 @@ namespace migration
       {
          for (unsigned int j = m_formationNodeArray->firstJLocal (); j <= m_formationNodeArray->lastJLocal (); ++j)
          {
-            // First try to get a non-zero-thickness element above the SR
-            LocalFormationNode * formationNode = validSealNode (i, j, formationAbove, topActiveFormation);
-            if (!IsValid (formationNode))
-            {
-               // If that doesn't work, check if there's any zero-thickness elements above
-               LocalFormationNode * expellingNode = getLocalFormationNode (i, j, depthIndex);
-               formationNode = expellingNode->getTopFormationNode();
+            // Get and check the top SR element at (i,j) location of expulsion
+            LocalFormationNode * formationNode = getLocalFormationNode (i, j, depthIndex);
+            if (!IsValid(formationNode)) continue;
 
-               // If that also doesn't work, try the expelling node, it must be at the top.
-               if (!IsValid (formationNode))
-                  formationNode = expellingNode;                  
-            }
+            // Force expulsion by getting node above source rock, unless it's impermeable
+            LocalFormationNode * nodeAboveExpulsion = getLocalFormationNode (i, j, depthIndex + 1);
+            if (IsValid(nodeAboveExpulsion) and !nodeAboveExpulsion->isImpermeable())
+               formationNode = nodeAboveExpulsion;
 
             FormationNode * targetFormationNode;
 

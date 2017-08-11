@@ -17,19 +17,15 @@ set(allheaders
    ${CMAKE_CURRENT_BINARY_DIR}/Project3dAPI.h
    ${CMAKE_CURRENT_BINARY_DIR}/ProjectIoAPI.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableProjectIoTbl.h
-   ${CMAKE_CURRENT_BINARY_DIR}/TableProjectNotesIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableRelatedProjectsIoTbl.h
-   ${CMAKE_CURRENT_BINARY_DIR}/TableIoOptionsIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableRunOptionsIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableSnapshotIoTbl.h
-   ${CMAKE_CURRENT_BINARY_DIR}/TableSensAnalysisIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableWellLocIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableTouchstoneWellIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableTouchstoneMapIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableGridMapIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableStratIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableSourceRockLithoIoTbl.h
-   ${CMAKE_CURRENT_BINARY_DIR}/TableSourceRockPropIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableMobLayThicknIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableAllochthonLithoIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableAllochthonLithoDistribIoTbl.h
@@ -38,8 +34,6 @@ set(allheaders
    ${CMAKE_CURRENT_BINARY_DIR}/TableContCrustalThicknessIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableBasaltThicknessIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableBasementIoTbl.h
-   ${CMAKE_CURRENT_BINARY_DIR}/TableFormPressIoTbl.h
-   ${CMAKE_CURRENT_BINARY_DIR}/TableFormTempIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableDisplayContourIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableSurfaceTempIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TablePermafrostIoTbl.h
@@ -48,18 +42,9 @@ set(allheaders
    ${CMAKE_CURRENT_BINARY_DIR}/TableBoundaryValuesIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableSurfaceDepthIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableMntlHeatFlowIoTbl.h
-   ${CMAKE_CURRENT_BINARY_DIR}/TableRawBhtIoTbl.h
-   ${CMAKE_CURRENT_BINARY_DIR}/TableRawBhtBitsizeIoTbl.h
-   ${CMAKE_CURRENT_BINARY_DIR}/TableMarsdenCoefIoTbl.h
-   ${CMAKE_CURRENT_BINARY_DIR}/TableVrmIoTbl.h
-   ${CMAKE_CURRENT_BINARY_DIR}/TableSonicIoTbl.h
-   ${CMAKE_CURRENT_BINARY_DIR}/TableBulkDensityIoTbl.h
-   ${CMAKE_CURRENT_BINARY_DIR}/TableBiomarkermIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableBiomarkerKinIoTbl.h
-   ${CMAKE_CURRENT_BINARY_DIR}/TableSmectiteIlliteIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableSmectiteIlliteKinIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableReservoirIoTbl.h
-   ${CMAKE_CURRENT_BINARY_DIR}/TableReservoirPropIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableReservoirOptionsIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableBioDegradIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableDiffusionIoTbl.h
@@ -83,12 +68,7 @@ set(allheaders
    ${CMAKE_CURRENT_BINARY_DIR}/TableFluidtypeIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableFltThCondIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableFltHeatCapIoTbl.h
-   ${CMAKE_CURRENT_BINARY_DIR}/TableFltDensityIoTbl.h
-   ${CMAKE_CURRENT_BINARY_DIR}/TableFltViscoIoTbl.h
-   ${CMAKE_CURRENT_BINARY_DIR}/TableFilterDepthIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableFilterTimeIoTbl.h
-   ${CMAKE_CURRENT_BINARY_DIR}/TableFilterTimeDepthIoTbl.h
-   ${CMAKE_CURRENT_BINARY_DIR}/TableDepthIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableTimeIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/Table3DTimeIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/Table1DTimeIoTbl.h
@@ -104,7 +84,6 @@ set(allheaders
    ${CMAKE_CURRENT_BINARY_DIR}/TableSGDensityIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableBPANameMapping.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableSimulationDetailsIoTbl.h
-   ${CMAKE_CURRENT_BINARY_DIR}/TableGridIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableOutputTablesFileIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableOutputTablesIoTbl.h
 )
@@ -112,19 +91,15 @@ set(allheaders
 set(allsources
    ${CMAKE_CURRENT_BINARY_DIR}/ProjectIoAPI.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableProjectIoTbl.cpp
-   ${CMAKE_CURRENT_BINARY_DIR}/TableProjectNotesIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableRelatedProjectsIoTbl.cpp
-   ${CMAKE_CURRENT_BINARY_DIR}/TableIoOptionsIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableRunOptionsIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableSnapshotIoTbl.cpp
-   ${CMAKE_CURRENT_BINARY_DIR}/TableSensAnalysisIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableWellLocIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableTouchstoneWellIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableTouchstoneMapIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableGridMapIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableStratIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableSourceRockLithoIoTbl.cpp
-   ${CMAKE_CURRENT_BINARY_DIR}/TableSourceRockPropIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableMobLayThicknIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableAllochthonLithoIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableAllochthonLithoDistribIoTbl.cpp
@@ -133,8 +108,6 @@ set(allsources
    ${CMAKE_CURRENT_BINARY_DIR}/TableContCrustalThicknessIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableBasaltThicknessIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableBasementIoTbl.cpp
-   ${CMAKE_CURRENT_BINARY_DIR}/TableFormPressIoTbl.cpp
-   ${CMAKE_CURRENT_BINARY_DIR}/TableFormTempIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableDisplayContourIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableSurfaceTempIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TablePermafrostIoTbl.cpp
@@ -143,18 +116,9 @@ set(allsources
    ${CMAKE_CURRENT_BINARY_DIR}/TableBoundaryValuesIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableSurfaceDepthIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableMntlHeatFlowIoTbl.cpp
-   ${CMAKE_CURRENT_BINARY_DIR}/TableRawBhtIoTbl.cpp
-   ${CMAKE_CURRENT_BINARY_DIR}/TableRawBhtBitsizeIoTbl.cpp
-   ${CMAKE_CURRENT_BINARY_DIR}/TableMarsdenCoefIoTbl.cpp
-   ${CMAKE_CURRENT_BINARY_DIR}/TableVrmIoTbl.cpp
-   ${CMAKE_CURRENT_BINARY_DIR}/TableSonicIoTbl.cpp
-   ${CMAKE_CURRENT_BINARY_DIR}/TableBulkDensityIoTbl.cpp
-   ${CMAKE_CURRENT_BINARY_DIR}/TableBiomarkermIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableBiomarkerKinIoTbl.cpp
-   ${CMAKE_CURRENT_BINARY_DIR}/TableSmectiteIlliteIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableSmectiteIlliteKinIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableReservoirIoTbl.cpp
-   ${CMAKE_CURRENT_BINARY_DIR}/TableReservoirPropIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableReservoirOptionsIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableBioDegradIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableDiffusionIoTbl.cpp
@@ -178,12 +142,7 @@ set(allsources
    ${CMAKE_CURRENT_BINARY_DIR}/TableFluidtypeIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableFltThCondIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableFltHeatCapIoTbl.cpp
-   ${CMAKE_CURRENT_BINARY_DIR}/TableFltDensityIoTbl.cpp
-   ${CMAKE_CURRENT_BINARY_DIR}/TableFltViscoIoTbl.cpp
-   ${CMAKE_CURRENT_BINARY_DIR}/TableFilterDepthIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableFilterTimeIoTbl.cpp
-   ${CMAKE_CURRENT_BINARY_DIR}/TableFilterTimeDepthIoTbl.cpp
-   ${CMAKE_CURRENT_BINARY_DIR}/TableDepthIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableTimeIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/Table3DTimeIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/Table1DTimeIoTbl.cpp
@@ -199,7 +158,6 @@ set(allsources
    ${CMAKE_CURRENT_BINARY_DIR}/TableSGDensityIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableBPANameMapping.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableSimulationDetailsIoTbl.cpp
-   ${CMAKE_CURRENT_BINARY_DIR}/TableGridIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableOutputTablesFileIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableOutputTablesIoTbl.cpp
 )
@@ -265,7 +223,7 @@ if (MSVC)
    ##### Generate the C# API  
    generate_csharp_api(
       CSPROJ_NAME                   Project3dAPI
-      CSPROJ_NAMESPACE              Shell.BasinModeling.Project3d
+      CSPROJ_NAMESPACE              Bpa2.Basin.Project3d
       CSPROJ_ASSEMBLY_VERSION       ${API_FILE_GIT_DATE_AS_VER}
       # Info for Nuget package
       CSPROJ_ASSEMBLY_OWNER         "Sergey Koshelev"
@@ -273,7 +231,7 @@ if (MSVC)
       CSPROJ_ASSEMBLY_RELEASE_NOTES "Version ${API_FILE_GIT_DATE_AS_VER}. Initial nuget package release"
       CSPROJ_ASSEMBLY_TAGS          "Cauldron backend Project3d API"
       CSPROJ_ASSEMBLY_COPYRIGHT     "Copyright (C) 2012-2017"
-      CSPROJ__EXTRA_DEPS            cpp_generated_api_files
+      CSPROJ_EXTRA_DEPS             cpp_generated_api_files
       CSPROJ_LIBRARIES              project3d TableIO FileSystem ${Boost_LIBRARIES}
       CSHARP_UNIT_TESTS_SRC         test/Project3dAPITest.cs test/Project3dAPITest_gen.cs
    )     

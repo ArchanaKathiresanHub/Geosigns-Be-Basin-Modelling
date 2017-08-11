@@ -469,7 +469,27 @@ void CauldronIO::Project::addFtClWeightPercBins(std::shared_ptr<FtClWeightPercBi
    m_ftClWeightPercBins.push_back(entry);
 }
 
-
+float CauldronIO::Project::getPropertyAtLocation(double snapshotTime, const std::string & propertyName,
+                                                 double xCoord, double yCoord, double zCoord,
+                                                 const std::string& reservoirName, const std::string& surfaceName, 
+                                                 const std::string& formationName ) const throw (CauldronIOException)
+{
+   float value = DefaultUndefinedValue;
+   const SnapShotList& snapshots = getSnapShots();
+   const FormationList& formations = getFormations();
+  
+   for( auto &snapshot : snapshots) {
+      if(snapshot->getAge() == snapshotTime) {
+         std::shared_ptr<const Property> property = findProperty(propertyName);
+         if(property != 0) {
+            value = snapshot->getPropertyAtLocation(formations, xCoord, yCoord, zCoord, property, reservoirName, surfaceName, formationName);
+            break;
+         }
+      }
+   }
+   return value;
+}
+                                                 
 /// SnapShot implementation
 //////////////////////////////////////////////////////////////////////////
 
@@ -598,6 +618,273 @@ std::vector < VisualizationIOData* > CauldronIO::SnapShot::getAllRetrievableData
     }
 
     return allReadData;
+}
+
+float CauldronIO::SnapShot::getPropertyAtLocation(const FormationList& formations,
+                                                  double xCoord, double yCoord, double zCoord, std::shared_ptr<const Property>& property, 
+                                                  const std::string& reservoirName, const std::string& surfaceName, 
+                                                  const std::string& formationName ) const throw (CauldronIOException)
+{
+   
+   if(property == 0)  throw  CauldronIOException ("Property not found");
+   if(zCoord == DefaultUndefinedScalarValue and formationName == "" and surfaceName == "") {
+      return DefaultUndefinedScalarValue;
+   }
+   float value = DefaultUndefinedValue;
+   if(reservoirName != "") {
+      // to implement
+       return value;
+   }
+ 
+   std::shared_ptr<CauldronIO::Element> element = getDepthElementAtLocation(xCoord, yCoord, zCoord);
+   if(element != 0) {
+      if(zCoord != DefaultUndefinedScalarValue) {
+         // Extract value at zCoord
+         value = getValueAtLocation(property, element);
+      } else if((property->getAttribute() == CauldronIO::Surface2DProperty or property->getAttribute() == CauldronIO::Formation2DProperty) and
+                (surfaceName != "" or formationName != "")) {
+         // Extract value at surface or formation map
+         value = getValueAtLocation(property, surfaceName, formationName, element);
+      } else if(surfaceName != "" or formationName != "") {
+         // Extract continous or discontinous value at surface
+
+         // find a formation at the bottom of the surface and set zCoord
+         if(findFormationForSurface(formations, property, surfaceName, formationName, element)) {
+            value = getValueAtLocation(property, element);
+         }
+      }
+        
+   }
+   return value;
+}
+
+std::shared_ptr<CauldronIO::Element> CauldronIO::SnapShot::getDepthElementAtLocation(double xCoord, double yCoord, double zCoord) const throw (CauldronIOException)
+{
+   if (xCoord == DefaultUndefinedScalarValue) throw  CauldronIOException ("Undefined XCoord value");
+   if (yCoord == DefaultUndefinedScalarValue) throw  CauldronIOException ("Undefined YCoord value");
+
+   if(m_volume and m_volume->hasDepthVolume()) {
+      std::shared_ptr<CauldronIO::Element> element(new CauldronIO::Element);
+      std::shared_ptr<VolumeData> depth = m_volume->getDepthVolume();
+      
+      if (not depth->isRetrieved()) {
+          depth->retrieve();
+      }
+      const bool planeElementFound = depth->findPlaneLocation(xCoord, yCoord, element);
+      if(planeElementFound) {
+         if(zCoord != DefaultUndefinedScalarValue) {
+            float topDepth = depth->interpolate(element, 0);
+            float bottomDepth = depth->interpolate(element, depth->getGeometry()->getNumK() - 1);
+            
+            if (topDepth == DefaultUndefinedValue or bottomDepth == DefaultUndefinedValue) {
+              // depth->release();
+               return std::shared_ptr<CauldronIO::Element> ();
+            }
+            if(zCoord <= bottomDepth and topDepth <= zCoord) {
+               
+               for(unsigned int k = 0; k < depth->getGeometry()->getNumK() - 1; ++ k) {
+                  bottomDepth = depth->interpolate(element, k + 1);
+                  if(topDepth < bottomDepth and zCoord <= bottomDepth and topDepth <= zCoord) {
+                     element->zeta = (2.0 * (zCoord - (double)topDepth) / ((double)bottomDepth - (double)topDepth ) - 1.0);
+                     element->z =  k;
+                     break;
+                  }
+                  topDepth = bottomDepth;
+               }
+            }
+         } 
+         return element;
+      }
+   }
+   return std::shared_ptr<CauldronIO::Element> ();
+}
+
+float CauldronIO::SnapShot::getValueAtLocation(std::shared_ptr<const Property>& property, std::shared_ptr<CauldronIO::Element> &element) const 
+{
+
+   float value = DefaultUndefinedValue;
+
+   if(property->getAttribute() == CauldronIO::Continuous3DProperty) {
+      PropertyVolumeDataList& propVolList = m_volume->getPropertyVolumeDataList();
+      
+      BOOST_FOREACH(PropertyVolumeData& propVolume, propVolList) {
+         std::string pname = propVolume.first->getName();
+         if( propVolume.first == property ) {
+            
+            std::shared_ptr< CauldronIO::VolumeData> valueMap = propVolume.second;
+            if (not valueMap->isRetrieved()) {
+                valueMap->retrieve();
+            }
+            value = valueMap->interpolate(element);
+            break;
+         }
+      }
+   } else if(property->getAttribute() == CauldronIO::Discontinuous3DProperty) {
+
+      std::string fname = element->formationName;
+      bool elementFound = false;
+      FormationVolumeList formVolumes = getFormationVolumeList();
+      BOOST_FOREACH(FormationVolume& formVolume, formVolumes) {
+         PropertyVolumeDataList& propVolList = formVolume.second->getPropertyVolumeDataList();
+         
+         BOOST_FOREACH(PropertyVolumeData& propVolume, propVolList) {
+            std::string pname = propVolume.first->getName();
+            if(fname == "" or (fname == formVolume.first->getName())) {
+               if( pname == property->getName()) {
+                  std::shared_ptr< CauldronIO::VolumeData> valueMap = propVolume.second;
+                  if (not valueMap->isRetrieved()) {
+                      valueMap->retrieve();
+                  }
+                  std::shared_ptr<const Geometry3D> geometry = valueMap->getGeometry();
+                  
+                  if( element->z >= geometry->getFirstK() and element->z < (geometry->getFirstK() + geometry->getNumK())) {
+                     value = valueMap->interpolate(element);
+                     elementFound = true;
+                  }
+                  if( elementFound ) {
+                     return value;
+                  }
+               }
+            }
+         }
+      }
+   }
+   return value;
+}
+
+float CauldronIO::SnapShot::getValueAtLocation(std::shared_ptr<const Property>& property, 
+                                               const std::string& surfaceName, const std::string& formationName, std::shared_ptr<CauldronIO::Element> &element) const 
+{
+   // Get surface or formation map value
+   float value = DefaultUndefinedValue;
+
+   const SurfaceList surfaces = getSurfaceList();
+   BOOST_FOREACH(const std::shared_ptr<Surface>& surfaceIO, surfaces)
+   {
+      if((surfaceName != "" and surfaceIO->getName() == surfaceName) or
+         (formationName != "" and 
+          ((surfaceIO->getTopFormation() and surfaceIO->getTopFormation()->getName() == formationName) or
+           (surfaceIO->getBottomFormation() and surfaceIO->getBottomFormation()->getName() == formationName)))) {
+
+         const PropertySurfaceDataList valueMaps = surfaceIO->getPropertySurfaceDataList();
+         
+         if (valueMaps.size() > 0)
+         {
+            BOOST_FOREACH(const PropertySurfaceData& propertySurfaceData, valueMaps)
+            {
+               if(propertySurfaceData.first->getName() == property->getName()) {
+                  std::shared_ptr< CauldronIO::SurfaceData> valueMap = propertySurfaceData.second;
+                  if (not valueMap->isRetrieved()) {
+                      valueMap->retrieve();
+                  }
+                  value = valueMap->interpolate(element);
+
+                  return value;
+               }
+            }
+         }
+      }
+   }
+   return value;
+}
+
+bool CauldronIO::SnapShot::findFormationForSurface(const FormationList& formations, std::shared_ptr<const Property>& property,
+                                                   const std::string& surfaceName, const std::string& formationName, 
+                                                   std::shared_ptr<CauldronIO::Element> &element) const 
+{
+   if(surfaceName == "")  return false; 
+
+   const bool formationDefined =  formationName != "";
+
+   if(property->getAttribute() == CauldronIO::Discontinuous3DProperty and not formationDefined) {
+      // If formationName is not defined, find the value at the surface - bottom formation (as in datadriller)
+      // return false;
+   }
+   std::shared_ptr<Formation> formationFound;
+   bool surfaceElement = false;
+
+   BOOST_FOREACH(const std::shared_ptr<Formation>& formation, formations)
+   {
+      if(not formationDefined or (formationDefined and formation->getName() == formationName)) {
+         const string topSurface = (formation->getTopSurface() ? formation->getTopSurface()->getName() : "");
+         const string bottomSurface = (formation->getBottomSurface() ? formation->getBottomSurface()->getName() : "");
+         
+         if(property->getAttribute() == CauldronIO::Discontinuous3DProperty) {
+            if(topSurface == surfaceName) {
+               formationFound = formation;
+               surfaceElement = true;
+               break;
+            }
+            if( formationDefined and bottomSurface == surfaceName) {
+               formationFound = formation;
+               break;
+            }
+         } else if(property->getAttribute() == CauldronIO::Continuous3DProperty) {
+            // Ignore the formationName
+            if(bottomSurface == surfaceName) {
+               continue;
+            } else if(topSurface == surfaceName) {
+               formationFound = formation;
+               surfaceElement = true;
+               break;
+            }
+         }
+      }
+   }
+   if(formationFound == 0) {
+      return false;
+   }
+   const string formationFoundName = formationFound->getName();
+ 
+   int k_range_start, k_range_end;
+   formationFound->getK_Range(k_range_start, k_range_end);
+   if(surfaceElement) {
+      element->z = k_range_start;
+   } else {
+      element->z = k_range_end - 1;
+   }
+   element->zeta = -1;
+   element->formationName = formationFoundName;
+   return true;
+
+ #if 0
+   // What if krange is not defined??
+   bool elementFound = false;
+   if(property->getAttribute() == CauldronIO::Discontinuous3DProperty) {
+      FormationVolumeList formVolumes = getFormationVolumeList();
+      BOOST_FOREACH(FormationVolume& formVolume, formVolumes) {
+         std::shared_ptr<const Formation>& formation = formVolume.first;
+         if(formation->getName() == formationFoundName) {
+            PropertyVolumeDataList& propVolList = formVolume.second->getPropertyVolumeDataList();
+            BOOST_FOREACH(PropertyVolumeData& propVolume, propVolList) {
+               if(propVolume.first == property){
+                  std::shared_ptr< CauldronIO::VolumeData> valueMap = propVolume.second;    
+                  element->formationName = formationFoundName;
+                 if(surfaceElement) {
+                     element->z =  valueMap->getGeometry()->getFirstK();
+                     element->zeta = -1;
+                  } else {
+                     element->z = valueMap->getGeometry()->getLastK() - 1;
+                     element->zeta = -1;
+                  }
+                  
+                  elementFound = true;
+                  break;
+               }
+            }
+            return elementFound;
+         }
+      }
+   }
+   if(property->getAttribute() == CauldronIO::Continuous3DProperty) {
+      int k_range_start, k_range_end;
+      formationFound->getK_Range(k_range_start, k_range_end);
+      element->z = k_range_start;
+      element->zeta = -1;
+      return true;
+   }
+   return false;
+#endif
 }
 
 void CauldronIO::SnapShot::retrieve()
@@ -1389,7 +1676,7 @@ CauldronIO::SurfaceData::SurfaceData(const std::shared_ptr<const Geometry2D>& ge
     m_minValue = minValue;
     m_maxValue = maxValue;
     m_updateMinMax = minValue == DefaultUndefinedValue; // if the min/max values are not set they need to be updated
-    m_depoSequence = DefaultUndefinedScalarValue;
+    m_depoSequence = (int)DefaultUndefinedScalarValue;
     // Indexing into the map is unknown
     m_internalData = nullptr;
     
@@ -1627,6 +1914,50 @@ float CauldronIO::SurfaceData::getConstantValue() const throw (CauldronIOExcepti
 {
     if (!isConstant()) throw CauldronIOException("Map does not have a constant value");
     return m_constantValue;
+}
+
+float CauldronIO::SurfaceData::interpolate( std::shared_ptr<CauldronIO::Element> & element) const
+{
+   float weights [numberOf2DPoints];
+   double phi [numberOf2DPoints];
+   float result;
+
+   size_t i = element->x;
+   size_t j = element->y;
+
+   const double xi   = element->xi;
+   const double eta  = element->eta;
+
+   if (xi == DefaultUndefinedValue or eta  == DefaultUndefinedValue) {
+      return DefaultUndefinedValue;
+   }
+   
+   weights [0] = getValue(i, j);
+   weights [1] = getValue(i + 1, j);
+   weights [2] = getValue(i + 1, j + 1);
+   weights [3] = getValue(i, j + 1);
+      
+   for (unsigned int l = 0; l < numberOf2DPoints; ++l) {
+      if (weights [ l ] == DefaultUndefinedValue) {
+         return DefaultUndefinedValue;
+      }
+   }
+
+   // Set the reference element basis function.
+   phi [0] = 0.25 * (1.0 - xi) * (1.0 - eta);
+   phi [1] = 0.25 * (1.0 + xi) * (1.0 - eta);
+   phi [2] = 0.25 * (1.0 + xi) * (1.0 + eta);
+   phi [3] = 0.25 * (1.0 - xi) * (1.0 + eta);
+
+   result = 0.0;
+
+   // Calculate inner-product of basis-functions with property-values.
+   for (unsigned int l = 0; l < numberOf2DPoints; ++ l) {
+      result += weights [l] * static_cast<float>(phi [l]);
+   }
+
+   return result;
+
 }
 
 /// Volume implementation
@@ -1885,6 +2216,128 @@ const float* CauldronIO::VolumeData::getNeedleValues(size_t i, size_t j) throw (
     if (!m_internalDataKIJ && m_isConstant) setData_KIJ(nullptr, true, m_constantValue);
 
     return m_internalDataKIJ + computeIndex_KIJ(i, j, m_firstK);
+}
+
+float CauldronIO::VolumeData::interpolate( std::shared_ptr<CauldronIO::Element> & element) 
+{
+   float weights [numberOf3DPoints];
+   double phi [numberOf3DPoints];
+   float result;
+
+   size_t i = element->x;
+   size_t j = element->y;
+   size_t k = element->z;
+
+   const double xi   = element->xi;
+   const double eta  = element->eta;
+   const double zeta = element->zeta;
+
+   if (xi == DefaultUndefinedValue or eta  == DefaultUndefinedValue or zeta == DefaultUndefinedValue) {
+      return DefaultUndefinedValue;
+   }
+   
+   weights [0] = getValue(i, j, k);
+   weights [1] = getValue(i + 1, j, k);
+   weights [2] = getValue(i + 1, j + 1, k);
+   weights [3] = getValue(i, j + 1, k);
+   weights [4] = getValue(i, j, k + 1);
+   weights [5] = getValue(i + 1, j, k + 1);
+   weights [6] = getValue(i + 1, j + 1, k + 1);
+   weights [7] = getValue(i, j + 1, k + 1);
+      
+   for (unsigned int l = 0; l < numberOf3DPoints; ++l) {
+      if (weights [ l ] == DefaultUndefinedValue) {
+         return DefaultUndefinedValue;
+      }
+   }
+
+   // Set the reference element basis function.
+   phi[0] = 0.125 * (1.0 - xi) * (1.0 - eta) * (1.0 - zeta);
+   phi[1] = 0.125 * (1.0 + xi) * (1.0 - eta) * (1.0 - zeta);
+   phi[2] = 0.125 * (1.0 + xi) * (1.0 + eta) * (1.0 - zeta);
+   phi[3] = 0.125 * (1.0 - xi) * (1.0 + eta) * (1.0 - zeta);
+   phi[4] = 0.125 * (1.0 - xi) * (1.0 - eta) * (1.0 + zeta);
+   phi[5] = 0.125 * (1.0 + xi) * (1.0 - eta) * (1.0 + zeta);
+   phi[6] = 0.125 * (1.0 + xi) * (1.0 + eta) * (1.0 + zeta);
+   phi[7] = 0.125 * (1.0 - xi) * (1.0 + eta) * (1.0 + zeta);
+
+   result = 0.0;
+
+   // Calculate inner-product of basis-functions with property-values.
+   for (unsigned int l = 0; l < numberOf3DPoints; ++ l) {
+      result += weights[l] * static_cast<float>(phi[l]);
+   }
+
+   return result;
+
+}
+
+float CauldronIO::VolumeData::interpolate( std::shared_ptr<CauldronIO::Element> & element, size_t k) 
+{
+   float weights [numberOf2DPoints];
+   double phi [numberOf2DPoints];
+   float result;
+
+   size_t i = element->x;
+   size_t j = element->y;
+
+   const double xi   = element->xi;
+   const double eta  = element->eta;
+
+   if (xi == DefaultUndefinedValue or eta  == DefaultUndefinedValue) {
+      return DefaultUndefinedValue;
+   }
+   
+   weights [0] = getValue(i, j, k);
+   weights [1] = getValue(i + 1, j, k);
+   weights [2] = getValue(i + 1, j + 1, k);
+   weights [3] = getValue(i, j + 1, k);
+      
+   for (unsigned int l = 0; l < numberOf2DPoints; ++l) {
+      if (weights [ l ] == DefaultUndefinedValue) {
+         return DefaultUndefinedValue;
+      }
+   }
+
+   // Set the reference element basis function.
+   phi [0] = 0.25 * (1.0 - xi) * (1.0 - eta);
+   phi [1] = 0.25 * (1.0 + xi) * (1.0 - eta);
+   phi [2] = 0.25 * (1.0 + xi) * (1.0 + eta);
+   phi [3] = 0.25 * (1.0 - xi) * (1.0 + eta);
+
+   result = 0.0;
+
+   // Calculate inner-product of basis-functions with property-values.
+   for (unsigned int l = 0; l < numberOf2DPoints; ++ l) {
+      result += weights [l] * static_cast<float>(phi [l]);
+   }
+
+   return result;
+
+}
+bool  CauldronIO::VolumeData::findPlaneLocation(double xCoord, double yCoord, std::shared_ptr<CauldronIO::Element> &element)
+{
+   if(m_minI <= xCoord and xCoord <= m_maxI and   m_minJ <= yCoord and yCoord <= m_maxJ) {
+      unsigned int i = (unsigned int)(std::floor( ( xCoord - m_minI ) / m_deltaI ));
+      unsigned int j = (unsigned int)(std::floor( ( yCoord - m_minJ ) / m_deltaJ ));
+      
+      double elementOriginX;
+      double elementOriginY;
+      
+      if(i < m_numI and j < m_numJ) {
+         elementOriginX = i * m_deltaI + m_minI;
+         elementOriginY = j * m_deltaJ + m_minJ;
+         
+         element->xi = 2.0 * (xCoord - elementOriginX) / m_deltaI - 1.0;
+         element->eta = 2.0 * (yCoord - elementOriginY) / m_deltaJ - 1.0;
+         element->x = i;
+         element->y = j;
+
+         return true;
+      }
+   }
+
+   return false;
 }
 
 const float* CauldronIO::VolumeData::getSurface_IJ(size_t k) throw (CauldronIOException)

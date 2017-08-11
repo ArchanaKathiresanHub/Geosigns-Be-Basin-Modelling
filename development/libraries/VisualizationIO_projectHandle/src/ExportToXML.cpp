@@ -25,7 +25,7 @@
 using namespace CauldronIO;
 
 bool ExportToXML::exportToXML(std::shared_ptr<Project>& project, const std::shared_ptr<Project>& projectExisting,
-	const std::string& absPath, size_t numThreads, bool center)
+                              const std::string& absPath, size_t numThreads, bool center, const bool derivedProperties )
 {
    // Create empty property tree object
    ibs::FilePath outputPath(absPath);
@@ -44,7 +44,7 @@ bool ExportToXML::exportToXML(std::shared_ptr<Project>& project, const std::shar
     pugi::xml_document doc;
     pugi::xml_node pt = doc.append_child("project");
 
-	ExportToXML newExport(outputPath.filePath(), filenameNoExtension, numThreads, center);
+    ExportToXML newExport(outputPath.filePath(), filenameNoExtension, numThreads, center, derivedProperties);
 
     // Create xml property tree and write datastores
     newExport.addProject(pt, project, projectExisting);
@@ -56,10 +56,14 @@ bool ExportToXML::exportToXML(std::shared_ptr<Project>& project, const std::shar
     return doc.save_file(xmlFileName.cpath());
 }
 
-CauldronIO::ExportToXML::ExportToXML(const ibs::FilePath& absPath, const ibs::FilePath& relPath, size_t numThreads, bool center)
-    : m_fullPath(absPath), m_relPath(relPath), m_numThreads(numThreads), m_center(center)
+CauldronIO::ExportToXML::ExportToXML(const ibs::FilePath& absPath, const ibs::FilePath& relPath, size_t numThreads, bool center, const bool derivedProperties)
+   : m_fullPath(absPath), m_relPath(relPath), m_numThreads(numThreads), m_center(center), m_derivedProperties(derivedProperties)
 {
-    m_fullPath << relPath.path();
+    if( absPath.path() == "." ) {
+       m_fullPath = relPath.path();
+    } else {
+      m_fullPath << relPath.path(); 
+    }
 }
 
 void ExportToXML::addProject(pugi::xml_node pt, std::shared_ptr<Project>& project, const std::shared_ptr<Project>& projectExisting)
@@ -126,7 +130,7 @@ void ExportToXML::addProject(pugi::xml_node pt, std::shared_ptr<Project>& projec
 		// Create datastore	for input surfaces
 		ibs::FilePath inputSurfaceStorePath(m_fullPath);
 		inputSurfaceStorePath << "Input_surfaces.cldrn";
-		DataStoreSave inputSurfaceDataStore(inputSurfaceStorePath.path(), m_append);
+		DataStoreSave inputSurfaceDataStore(inputSurfaceStorePath.path(), m_append, not m_derivedProperties);
 
 		// Collect all data
 		std::vector<VisualizationIOData*> allSurfaceData;
@@ -495,12 +499,20 @@ void CauldronIO::ExportToXML::addSnapShot(const std::shared_ptr<SnapShot>& snapS
     std::cout << "Writing snapshot Age=" << snapshotString << std::endl;
 
     ibs::FilePath volumeStorePath(m_fullPath);
-    volumeStorePath << "Snapshot_" + snapshotString + "_volumes.cldrn";
-    DataStoreSave volumeStore(volumeStorePath.path(), m_append);
+    if(m_derivedProperties) {
+       volumeStorePath << "Snapshot_" + snapshotString + "_fp_volumes.cldrn";
+    } else {
+       volumeStorePath << "Snapshot_" + snapshotString + "_volumes.cldrn";
+    }
+    DataStoreSave volumeStore(volumeStorePath.path(), m_append, not m_derivedProperties);
 
     ibs::FilePath surfaceStorePath(m_fullPath);
-    surfaceStorePath << "Snapshot_" + snapshotString + "_surfaces.cldrn";
-    DataStoreSave surfaceDataStore(surfaceStorePath.path(), m_append);
+    if(m_derivedProperties) {
+       surfaceStorePath << "Snapshot_" + snapshotString + "_fp_surfaces.cldrn";
+    } else {
+       surfaceStorePath << "Snapshot_" + snapshotString + "_surfaces.cldrn";
+    }
+    DataStoreSave surfaceDataStore(surfaceStorePath.path(), m_append, not m_derivedProperties);
 
     node.append_attribute("age") = snapShot->getAge();
     node.append_attribute("kind") = snapShot->getKind();
@@ -1035,83 +1047,12 @@ void CauldronIO::ExportToXML::add1Ddata(pugi::xml_node pt)
           recordNode.append_attribute("width") = entry->getFtClWeightBinWidth();
        }
     }
-    // SmectiteIlliteIoTbl
-    SmectiteIlliteList smRecords = m_project->getSmectiteIlliteTable();
-    nr_events = smRecords.size();
-    
-    if (nr_events != 0) {
-    
-       node = pt.append_child("smectiteIllite"); 
-       node.append_attribute("number") = (unsigned int)nr_events;
-       BOOST_FOREACH(const std::shared_ptr<const SmectiteIllite>& entry, smRecords)
-       {
-          pugi::xml_node recordNode = node.append_child("record");
-          
-          recordNode.append_attribute("depthInd") = entry->getDepthIndex();
-          recordNode.append_attribute("illiteFraction") = entry->getIlliteFraction();
-          recordNode.append_attribute("label") = entry->getLabel().c_str();
-          recordNode.append_attribute("optimization") = entry->getOptimization();
-       }
-    }
-    // BiomarkermIoTbl
-    BiomarkermList bmRecords = m_project->getBiomarkermTable();
-    nr_events = bmRecords.size();
-    
-    if (nr_events != 0) {
-    
-       node = pt.append_child("biomarkerm"); 
-       node.append_attribute("number") = (unsigned int)nr_events;
-       BOOST_FOREACH(const std::shared_ptr<const Biomarkerm>& entry, bmRecords)
-       {
-          pugi::xml_node recordNode = node.append_child("record");
-          
-          recordNode.append_attribute("depthInd") = entry->getDepthIndex();
-          recordNode.append_attribute("hopaneIsomerisation") = entry->getHopaneIsomerisation();
-          recordNode.append_attribute("steraneIsomerisation") = entry->getSteraneIsomerisation();
-          recordNode.append_attribute("steraneAromatisation") = entry->getSteraneAromatisation();
-          recordNode.append_attribute("optimization") = entry->getOptimization();
-       }
-    }
-    // DepthIoTbl
-    char * data = 0;
-    size_t record_size = 0;
-    size_t dataIndex = 0;
-       
-    nr_events = m_project->getDepthIoTable().size();
-    if (nr_events != 0) {
-
-       DepthIoList events = m_project->getDepthIoTable();
-       
-       node = pt.append_child("depthIo");
-       node.append_attribute("number") = (unsigned int)nr_events;
-       
-       record_size = sizeof(*events[0]);
-       node.append_attribute("record_size") = (unsigned int)record_size;
-       
-       ibs::FilePath depthDataPath(m_fullPath);
-       depthDataPath << "depthIo_table.cldrn";
-       DataStoreSave depthDataStore(depthDataPath.path(), m_append);
-       
-       data = new char[record_size * nr_events];
-       assert(sizeof(char) == 1);
-       
-       for (size_t index = 0; index < nr_events; ++index, dataIndex += record_size)
-       {
-          void* source = (void*)(events[index].get());
-          void* dest = (void*)(&data[dataIndex]);
-          memcpy(dest, source, record_size);
-       }
-       
-       // Add all data
-       depthDataStore.addData((void*)data, node, record_size * nr_events);
-       // Compress it and write to disk
-       depthDataStore.flush();
-       
-       delete[] data;
-    }
-
     // 1DTimeIoTbl
     nr_events = m_project->get1DTimeIoTable().size();
+	char * data = 0;
+	size_t record_size = 0;
+	size_t dataIndex = 0;
+	nr_events = m_project->getDepthIoTable().size();
     if (nr_events != 0) {
 
        TimeIo1DList timeio1d_events = m_project->get1DTimeIoTable();

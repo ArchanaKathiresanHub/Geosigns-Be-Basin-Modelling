@@ -91,8 +91,8 @@ std::shared_ptr<CauldronIO::Project> ImportProjectHandle::createFromProjectHandl
  
     // Find genex/shale-gas history files
     import.addGenexHistory();
-
-    // Find burial history files
+	
+	// Find burial history files
     import.addBurialHistory();
 
     // Add reference to massBalance file
@@ -366,7 +366,7 @@ vector<std::shared_ptr<CauldronIO::Surface> > ImportProjectHandle::createSurface
         // Set the geometry
         std::shared_ptr<const CauldronIO::Geometry2D> geometry(new CauldronIO::Geometry2D(gridmap->numI(), gridmap->numJ(), 
                                                                                           gridmap->deltaI(), gridmap->deltaJ(), gridmap->minI(), gridmap->minJ()));
-         if(m_project->getModelingMode() ==  MODE1D ) {
+        if(m_project->getModelingMode() ==  Interface::MODE1D ) {
            constValue1d = gridmap->getAverageValue();
          }
          gridmap->restoreData();
@@ -411,9 +411,8 @@ vector<std::shared_ptr<CauldronIO::Surface> > ImportProjectHandle::createSurface
         if (reservoir)
             propertyMap->setReservoir(reservoirIO);
    
-         if(m_project->getModelingMode() ==  MODE1D) {
+        if(m_project->getModelingMode() == Interface::MODE1D) {
             propertyMap->setConstantValue((float)constValue1d);
-            propertyMap->setDepoSequence(propValue->getDepoSequence());
          }
  
         // Add the property/surfaceData object
@@ -510,7 +509,7 @@ std::shared_ptr<CauldronIO::Formation> ImportProjectHandle::findOrCreateFormatio
     // It can be that this formation is not created from a depthformation: don't add it to the list
     if( !formationIO ) {
 
-       if(m_projectHandle->getModellingMode() == CauldronIO::MODE1D and form->getName() == "Mantle") {
+       if(m_projectHandle->getModellingMode() == Interface::MODE1D and form->getName() == "Mantle") {
           const DataAccess::Interface::Formation * mantleForm = dynamic_cast<const DataAccess::Interface::Formation *>(m_projectHandle->getMantleFormation());
           formationIO = findOrCreateFormation(mantleForm);
           return formationIO;
@@ -821,6 +820,8 @@ std::shared_ptr<CauldronIO::FormationInfoList> ImportProjectHandle::getDepthForm
         if (!map) throw CauldronIO::CauldronIOException("Could not open project3D HDF file!");
         std::shared_ptr<CauldronIO::FormationInfo> info(new CauldronIO::FormationInfo());
 
+        map->retrieveData();
+
         info->formation = propValues->at(i)->getFormation();
         info->kStart = map->firstK();
         info->kEnd = map->lastK();
@@ -838,6 +839,7 @@ std::shared_ptr<CauldronIO::FormationInfoList> ImportProjectHandle::getDepthForm
         
         depthFormations->push_back(info);
         
+        map->restoreData();
         map->release();
     }
 
@@ -995,8 +997,13 @@ void ImportProjectHandle::addStratTableSurface(const DataAccess::Interface::Surf
 	// Set the geometry
 	const Grid* grid = (Grid *)m_projectHandle->getInputGrid();
 	const Interface::GridMap* gridmap = m_projectHandle->getFactory()->produceGridMap(surface, 0, grid, 0);
+    gridmap->retrieveData();
+       
 	std::shared_ptr<const CauldronIO::Geometry2D> geometry(new CauldronIO::Geometry2D(grid->numI(), grid->numJ(),
 		grid->deltaI(), grid->deltaJ(), grid->minI(), grid->minJ()));
+
+    gridmap->restoreData();
+    gridmap->release();
 
 	// Add the geometry to the project
 	m_project->addGeometry(geometry);
@@ -1107,8 +1114,8 @@ void ImportProjectHandle::addStratTableFormation(const Interface::Formation* for
 	// Create a geometry
 	const Grid* grid = (Grid *)m_projectHandle->getInputGrid();
 	const Interface::GridMap* gridmap = m_projectHandle->getFactory()->produceGridMap(formation, 0, grid, 0);
-	std::shared_ptr<const CauldronIO::Geometry2D> geometry(new CauldronIO::Geometry2D(grid->numI(), grid->numJ(),
-		grid->deltaI(), grid->deltaJ(), grid->minI(), grid->minJ()));
+	std::shared_ptr<const CauldronIO::Geometry2D> geometry(new CauldronIO::Geometry2D(grid->numIGlobal(), grid->numJGlobal(),
+		grid->deltaIGlobal(), grid->deltaJGlobal(), grid->minIGlobal(), grid->minJGlobal()));
 
 	// Get the database record
 	database::Record* record = formation->getTopSurface()->getRecord();
@@ -1466,37 +1473,36 @@ void ImportProjectHandle::addGenexHistory()  {
    }
 }
 
+void ImportProjectHandle::addBurialHistory() {
 
-void ImportProjectHandle::addBurialHistory()  {
+	database::Table * bhfTable = m_projectHandle->getTable("TouchstoneWellIoTbl");
+	std::vector<std::string> historyFilesDefined;
 
-   database::Table * bhfTable = m_projectHandle->getTable ("TouchstoneWellIoTbl");
-   std::vector<std::string> historyFilesDefined;
+	database::Table::iterator tblIter;
+	for (tblIter = bhfTable->begin(); tblIter != bhfTable->end(); ++tblIter)
+	{
+		database::Record * tableRecord = *tblIter;
+		if (getBHFName(tableRecord) != "") {
+			historyFilesDefined.push_back(getBHFName(tableRecord));
+		}
+	}
+	ibs::FilePath folderPath(m_projectHandle->getFullOutputDir());
 
-   database::Table::iterator tblIter;
-   for (tblIter = bhfTable->begin(); tblIter != bhfTable->end(); ++tblIter)
-   {
-      database::Record * tableRecord = *tblIter;
-      if( getBHFName(tableRecord) != "" ) {
-         historyFilesDefined.push_back( getBHFName(tableRecord) );
-      }
-   }
-   ibs::FilePath folderPath ( m_projectHandle->getFullOutputDir () );
-   
 
-   if( folderPath.exists() ) {
-      boost::filesystem::directory_iterator it (folderPath.path());
-      boost::filesystem::directory_iterator endit;
-      
-      while( it != endit ) {
-         if( std::find( historyFilesDefined.begin(), historyFilesDefined.end(), it->path().filename() ) != historyFilesDefined.end() ) {
+	if (folderPath.exists()) {
+		boost::filesystem::directory_iterator it(folderPath.path());
+		boost::filesystem::directory_iterator endit;
 
-            ibs::FilePath oneFilePath( it->path().string() );
-            m_project->addBurialHistoryRecord( oneFilePath.cpath() );
+		while (it != endit) {
+			if (std::find(historyFilesDefined.begin(), historyFilesDefined.end(), it->path().filename()) != historyFilesDefined.end()) {
 
-         }
-         it ++;
-      }
-   }
+				ibs::FilePath oneFilePath(it->path().string());
+				m_project->addBurialHistoryRecord(oneFilePath.cpath());
+
+			}
+			it++;
+		}
+	}
 }
 
 void ImportProjectHandle::add1Ddata()  {
@@ -1510,7 +1516,7 @@ void ImportProjectHandle::add1Ddata()  {
          database::Record * aRecord = *tblIter;
          std::shared_ptr<CauldronIO::DisplayContour> entry(new CauldronIO::DisplayContour());
          entry->setPropertyName(getPropertyName(aRecord));
-         entry->setContourValue(getContourValue(aRecord));
+         entry->setContourValue(static_cast<float>(getContourValue(aRecord)));
          entry->setContourColour(getContourColour(aRecord));
 
          m_project->addDisplayContour(entry);
@@ -1526,8 +1532,8 @@ void ImportProjectHandle::add1Ddata()  {
          database::Record * aRecord = *tblIter;
          
          std::shared_ptr<CauldronIO::IsoEntry> entry(new CauldronIO::IsoEntry());
-         entry->setContourValue(getContourValue(aRecord));
-         entry->setAge(getAge(aRecord));
+         entry->setContourValue(static_cast<float>(getContourValue(aRecord)));
+         entry->setAge(static_cast<float>(getAge(aRecord)));
          entry->setNP(getNP(aRecord));
          entry->setSum(getSum(aRecord));
 
@@ -1544,8 +1550,8 @@ void ImportProjectHandle::add1Ddata()  {
          database::Record * aRecord = *tblIter;
          
          std::shared_ptr<CauldronIO::IsoEntry> entry(new CauldronIO::IsoEntry());
-         entry->setContourValue(getContourValue(aRecord));
-         entry->setAge(getAge(aRecord));
+         entry->setContourValue(static_cast<float>(getContourValue(aRecord)));
+         entry->setAge(static_cast<float>(getAge(aRecord)));
          entry->setNP(getNP(aRecord));
          entry->setSum(getSum(aRecord));
 
@@ -1564,28 +1570,27 @@ void ImportProjectHandle::add1Ddata()  {
          std::shared_ptr<CauldronIO::FtSample> entry(new CauldronIO::FtSample());
 
          entry->setFtSampleId(getFtSampleId(aRecord));
-         entry->setDepthIndex(getDepthIndex(aRecord));
-         entry->setFtZeta(getFtZeta(aRecord));
-         entry->setFtUstglTrackDensity(getFtUstglTrackDensity(aRecord));
-         entry->setFtPredictedAge(getFtPredictedAge(aRecord));
-         entry->setFtPooledAge(getFtPooledAge(aRecord));
-         entry->setFtPooledAgeErr(getFtPooledAgeErr(aRecord));
-         entry->setFtAgeChi2(getFtAgeChi2(aRecord));
+         entry->setDepthIndex(static_cast<float>(getDepthIndex(aRecord)));
+         entry->setFtZeta(static_cast<float>(getFtZeta(aRecord)));
+         entry->setFtUstglTrackDensity(static_cast<float>(getFtUstglTrackDensity(aRecord)));
+         entry->setFtPredictedAge(static_cast<float>(getFtPredictedAge(aRecord)));
+         entry->setFtPooledAge(static_cast<float>(getFtPooledAge(aRecord)));
+         entry->setFtPooledAgeErr(static_cast<float>(getFtPooledAgeErr(aRecord)));
+         entry->setFtAgeChi2(static_cast<float>(getFtAgeChi2(aRecord)));
          entry->setFtDegreeOfFreedom(getFtDegreeOfFreedom(aRecord));
-         entry->setFtPAgeChi2(getFtPAgeChi2(aRecord));
-         entry->setFtCorrCoeff(getFtCorrCoeff(aRecord));
-         entry->setFtVarianceSqrtNs(getFtVarianceSqrtNs(aRecord));
-         entry->setFtVarianceSqrtNi(getFtVarianceSqrtNi(aRecord));
-         entry->setFtNsDivNi(getFtNsDivNi(aRecord));
-         entry->setFtNsDivNiErr(getFtNsDivNiErr(aRecord));
-         entry->setFtMeanRatio(getFtMeanRatio(aRecord));
-         entry->setFtMeanRatioErr(getFtMeanRatioErr(aRecord));
-         entry->setFtCentralAge(getFtCentralAge(aRecord));
-         entry->setFtMeanAge(getFtMeanAge(aRecord));
-         entry->setFtMeanAgeErr(getFtMeanAgeErr(aRecord));
-         entry->setFtLengthChi2(getFtLengthChi2(aRecord));
+         entry->setFtPAgeChi2(static_cast<float>(getFtPAgeChi2(aRecord)));
+         entry->setFtCorrCoeff(static_cast<float>(getFtCorrCoeff(aRecord)));
+         entry->setFtVarianceSqrtNs(static_cast<float>(getFtVarianceSqrtNs(aRecord)));
+         entry->setFtVarianceSqrtNi(static_cast<float>(getFtVarianceSqrtNi(aRecord)));
+         entry->setFtNsDivNi(static_cast<float>(getFtNsDivNi(aRecord)));
+         entry->setFtNsDivNiErr(static_cast<float>(getFtNsDivNiErr(aRecord)));
+         entry->setFtMeanRatio(static_cast<float>(getFtMeanRatio(aRecord)));
+         entry->setFtMeanRatioErr(static_cast<float>(getFtMeanRatioErr(aRecord)));
+         entry->setFtCentralAge(static_cast<float>(getFtCentralAge(aRecord)));
+         entry->setFtMeanAge(static_cast<float>(getFtMeanAge(aRecord)));
+         entry->setFtMeanAgeErr(static_cast<float>(getFtMeanAgeErr(aRecord)));
+         entry->setFtLengthChi2(static_cast<float>(getFtLengthChi2(aRecord)));
          entry->setFtApatiteYield(getFtApatiteYield(aRecord));
-         entry->setOptimization((bool)getOptimization(aRecord));
 
          m_project->addFtSample(entry);
       }
@@ -1607,7 +1612,8 @@ void ImportProjectHandle::add1Ddata()  {
          entry->setFtInducedTrackNo(getFtInducedTrackNo(aRecord));
          entry->setFtClWeightPerc(getFtClWeightPerc(aRecord));
          entry->setFtGrainAge(getFtGrainAge(aRecord));
-         entry->setFtGrainAgeErr(getFtGrainAgeErr(aRecord));
+         entry->setFtClWeightPerc(static_cast<float>(getFtClWeightPerc(aRecord)));
+         entry->setFtGrainAge(static_cast<float>(getFtGrainAge(aRecord)));
 
          m_project->addFtGrain(entry);
       }
@@ -1625,9 +1631,9 @@ void ImportProjectHandle::add1Ddata()  {
 
          entry->setFtPredLengthHistId(getFtPredLengthHistId(aRecord));
          entry->setFtSampleId(getFtSampleId(aRecord));
-         entry->setFtClWeightPerc(getFtClWeightPerc(aRecord));
-         entry->setFtPredLengthBinStart(getFtPredLengthBinStart(aRecord));
-         entry->setFtPredLengthBinWidth(getFtPredLengthBinWidth(aRecord));
+         entry->setFtClWeightPerc(static_cast<float>(getFtClWeightPerc(aRecord)));
+         entry->setFtPredLengthBinStart(static_cast<float>(getFtPredLengthBinStart(aRecord)));
+         entry->setFtPredLengthBinWidth(static_cast<float>(getFtPredLengthBinWidth(aRecord)));
          entry->setFtPredLengthBinNum(getFtPredLengthBinNum(aRecord));
 
          m_project->addFtPredLengthCountsHist(entry);
@@ -1646,86 +1652,11 @@ void ImportProjectHandle::add1Ddata()  {
 
          entry->setFtPredLengthHistId(getFtPredLengthHistId(aRecord));
          entry->setFtPredLengthBinIndex(getFtPredLengthBinIndex(aRecord));
-         entry->setFtPredLengthBinCount(getFtPredLengthBinCount(aRecord));
+         entry->setFtPredLengthBinCount(static_cast<float>(getFtPredLengthBinCount(aRecord)));
 
          m_project->addFtPredLengthCountsHistData(entry);
       }
    }
-   // SmectiteIlliteIoTbl
-   aTable = m_projectHandle->getTable("SmectiteIlliteIoTbl");
-   if (aTable != nullptr and aTable->size() > 0)
-   {
-      database::Table::iterator tblIter;
-      for (tblIter = aTable->begin(); tblIter != aTable->end(); ++tblIter)
-      {
-         database::Record * aRecord = *tblIter;
-         
-         std::shared_ptr<CauldronIO::SmectiteIllite> entry(new CauldronIO::SmectiteIllite());
-
-         entry->setDepthIndex(getDepthIndex(aRecord));
-         entry->setIlliteFraction(getIlliteFraction(aRecord));
-         entry->setLabel(getLabel(aRecord));
-         entry->setOptimization((bool)getOptimization(aRecord));
-
-
-         m_project->addSmectiteIllite(entry);
-      }
-   }
-   // BiomarkermIoTbl
-   aTable = m_projectHandle->getTable("BiomarkermIoTbl");
-   if (aTable != nullptr and aTable->size() > 0)
-   {
-      database::Table::iterator tblIter;
-      for (tblIter = aTable->begin(); tblIter != aTable->end(); ++tblIter)
-      {
-         database::Record * aRecord = *tblIter;
-         
-         std::shared_ptr<CauldronIO::Biomarkerm> entry(new CauldronIO::Biomarkerm());
-
-         entry->setDepthIndex(getDepthIndex(aRecord));
-         entry->setHopaneIsomerisation(getHopaneIsomerisation(aRecord));
-         entry->setSteraneIsomerisation(getSteraneIsomerisation(aRecord));
-         entry->setSteraneAromatisation(getSteraneAromatisation(aRecord));
-         entry->setOptimization((bool)getOptimization(aRecord));
-
-         m_project->addBiomarkerm(entry);
-      }
-   }
-   // DepthIoTbl
-   aTable = m_projectHandle->getTable("DepthIoTbl");
-   if (aTable != nullptr and aTable->size() > 0)
-   {
-      database::Table::iterator tblIter;
-      for (tblIter = aTable->begin(); tblIter != aTable->end(); ++tblIter)
-      {
-         database::Record * aRecord = *tblIter;
-         
-         std::shared_ptr<CauldronIO::DepthIo> entry(new CauldronIO::DepthIo());
-
-         entry->setPropertyName(getPropertyName(aRecord));
-         entry->setTime(getTime(aRecord));
-         entry->setDepth(getDepth_(aRecord));
-         entry->setAverage(getAverage(aRecord));
-         entry->setStandardDev(getStandardDev(aRecord));
-         entry->setMinimum(getMinimum(aRecord));
-         entry->setMaximum(getMaximum(aRecord));
-         entry->setSum(getSum(aRecord));
-         entry->setSum2(getSum2(aRecord));
-         entry->setNP(getNP(aRecord));
-         entry->setP15(getP15(aRecord));
-         entry->setP50(getP50(aRecord));
-         entry->setP85(getP85(aRecord));
-         entry->setSumFirstPower(getSumFirstPower(aRecord));
-         entry->setSumSecondPower(getSumSecondPower(aRecord));
-         entry->setSumThirdPower(getSumThirdPower(aRecord));
-         entry->setSumFourthPower(getSumFourthPower(aRecord));
-         entry->setSkewness(getSkewness(aRecord));
-         entry->setKurtosis(getKurtosis(aRecord));
-
-         m_project->addDepthIo(entry);
-      }
-   }
-
    // 1DTimeIoTbl
    aTable = m_projectHandle->getTable("1DTimeIoTbl");
    if (aTable != nullptr and aTable->size() > 0)
@@ -1737,12 +1668,12 @@ void ImportProjectHandle::add1Ddata()  {
          
          std::shared_ptr<CauldronIO::TimeIo1D> entry(new CauldronIO::TimeIo1D());;
 
-         entry->setTime(getTime(aRecord));
+         entry->setTime(static_cast<float>(getTime(aRecord)));
          entry->setPropertyName(getPropertyName(aRecord));
          entry->setFormationName(getFormationName(aRecord));
          entry->setNodeIndex(getNodeIndex(aRecord));
          entry->setSurfaceName(getSurfaceName(aRecord));
-         entry->setValue(getValue(aRecord));
+         entry->setValue(static_cast<float>(getValue(aRecord)));
 
          m_project->add1DTimeIo(entry);
       }

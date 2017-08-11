@@ -15,7 +15,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
-using Shell.BasinModeling.CauldronIO;
+using Bpa2.Basin.CauldronIO;
 using System.Threading;
 
 
@@ -818,5 +818,195 @@ namespace Shell.BasinModeling.CauldronIO.Test
         }
     }
 
+    [TestClass]
+    public class DataDrillerTest
+    {
+        [TestMethod]
+        public void DrillData()
+        {
+            const string name = "Project";
+            const string description = "desc"; 
+            const string team = "team";
+            const string version = "vers";
+
+            ModellingMode mode = ModellingMode.MODE3D;
+            int xmlVersionMjr = 2;
+            int xmlVersionMnr = 1;
+            Project project = new Project(name, description, team, version, mode, xmlVersionMjr, xmlVersionMnr);
+            SnapShot snap = new SnapShot(2.5, SnapShotKind.SYSTEM, true);
+            project.addSnapShot(snap);
+
+            string propName = "Depth";
+            string cauldronName = "cDepth";
+            string userName = "uDepth";
+            string unit = "m";
+            PropertyType type = PropertyType.FormationProperty;
+            PropertyAttribute attrib = PropertyAttribute.Continuous3DProperty;
+            Property depthProperty = new Property(propName, userName, cauldronName, unit, type, attrib);
+            project.addProperty(depthProperty);
+
+            propName = "Temperature";
+            cauldronName = propName;
+            userName = propName;
+            unit = "C";
+            type = PropertyType.FormationProperty;
+            Property tempProperty = new Property(propName, userName, cauldronName, unit, type, attrib);
+            project.addProperty(tempProperty);
+
+            propName = "Vr";
+            cauldronName = propName;
+            userName = propName;
+            unit = "%";
+            type = PropertyType.FormationProperty;
+            attrib = PropertyAttribute.Discontinuous3DProperty;
+            Property vrProperty = new Property(propName, userName, cauldronName, unit, type, attrib);
+            project.addProperty(vrProperty);
+
+            string surfaceName = "waterbottom";
+            SubsurfaceKind kind = SubsurfaceKind.Sediment;
+            Surface surface = new Surface(surfaceName, kind);
+
+            surfaceName = "s2";
+            kind = SubsurfaceKind.Sediment;
+            Surface surface2 = new Surface(surfaceName, kind);
+
+            int kStart = 0;
+            int kEnd = 4;
+            string formationName = "formation1";
+            Formation formation = new Formation(kStart, kEnd, formationName);
+            formation.setTopSurface(surface);
+            formation.setBottomSurface(surface2);
+            project.addFormation(formation);
+ 
+            surfaceName = "s3";
+            kind = SubsurfaceKind.Sediment;
+            Surface surface3 = new Surface(surfaceName, kind);
+ 
+            kStart = 4;
+            kEnd = 6;
+            formationName = "formation2";
+            Formation formation2 = new Formation(kStart, kEnd, formationName);
+            formation2.setTopSurface(surface2);
+            formation2.setBottomSurface(surface3);
+            project.addFormation(formation2);
+
+            SubsurfaceKind subsurfaceKind = SubsurfaceKind.Sediment;
+            Geometry3D geometry = new Geometry3D(2, 2, 6, 0, 100, 100, 0, 0);
+
+            // add formation volume Vr
+            Volume volume = new Volume(subsurfaceKind);
+            FormationVolume formationVolume = new FormationVolume(formation, volume);
+            Geometry3D geometry1 = new Geometry3D(2, 2, 4, 0, 100, 100, 0, 0);
+
+            VolumeData propertyVrData = new VolumeDataNative(geometry1);
+            float [] vrvalues = new float[16];
+            uint kk;
+            for(uint i = 0; i < 2; ++i) {
+                for (uint j = 0; j < 2; ++j) {
+                    for (uint k = 0; k < 4; ++k) {
+                        kk = propertyVrData.computeIndex_IJK(i, j, k);
+                        vrvalues[kk] = 0.5F;
+                    }
+                }
+            }
+
+            IntPtr vrvec = Marshal.AllocHGlobal(4 * 16);
+            Marshal.Copy(vrvalues, 0, vrvec, vrvalues.Length);
+
+            propertyVrData.setData_IJK( vrvec );
+            PropertyVolumeData pdata = new PropertyVolumeData(vrProperty, propertyVrData);
+            volume.addPropertyVolumeData(pdata);
+            snap.addFormationVolume(formationVolume);
+
+            // add formation volume Vr
+            Volume volume2 = new Volume(subsurfaceKind);
+            FormationVolume formationVolume2 = new FormationVolume(formation2, volume2);
+            Geometry3D geometry2 = new Geometry3D(2, 2, 6, 4, 100, 100, 0, 0);
+
+            VolumeData propertyVrData2 = new VolumeDataNative(geometry2);
+            float[] vrvalues2 = new float[8];
+
+            for (uint i = 0; i < 2; ++i)
+            {
+                for (uint j = 0; j < 2; ++j)
+                {
+                    for (uint k = 4; k < 6; ++k)
+                    {
+                        kk = propertyVrData2.computeIndex_IJK(i, j, k);
+                        vrvalues2[kk] = 0.6F;
+                    }
+                }
+            }
+
+            IntPtr vrvec2 = Marshal.AllocHGlobal(4 * 8);
+            Marshal.Copy(vrvalues2, 0, vrvec2, vrvalues2.Length);
+
+            propertyVrData2.setData_IJK(vrvec2);
+            PropertyVolumeData pdata2 = new PropertyVolumeData(vrProperty, propertyVrData2);
+            volume2.addPropertyVolumeData(pdata2);
+            snap.addFormationVolume(formationVolume2);
+
+            // add snapshot volume Depth
+            Volume snapshotVolume = new Volume(kind);
+            VolumeData snapshotDepthData = new VolumeDataNative(geometry);
+            float[] depthvalues = new float[24];
+
+            float v = 0;
+            for (uint i = 0; i < 2; ++i) {
+                for (uint j = 0; j < 2; ++j)  {
+                    for (uint k = 0; k < 6; ++k)
+                    {
+                        kk = snapshotDepthData.computeIndex_IJK(i, j, k);
+
+                        depthvalues[kk] = v;
+                        v = v + 100;
+                    }
+                }
+            }
+
+            IntPtr depthvec = Marshal.AllocHGlobal(4 * 24);
+            Marshal.Copy(depthvalues, 0, depthvec, depthvalues.Length);
+            snapshotDepthData.setData_IJK(depthvec);
+            PropertyVolumeData volumeDepthPropertyData = new PropertyVolumeData(depthProperty, snapshotDepthData);
+            snapshotVolume.addPropertyVolumeData(volumeDepthPropertyData);
+
+            // add snapshot volume Temperature
+            VolumeData snapshotDataTemp = new VolumeDataNative(geometry);
+            float[] tempvalues = new float[24];
+
+            v = 20;
+            for (uint i = 0; i < 2; ++i)  {
+                for (uint j = 0; j < 2; ++j) {
+                    for (uint k = 0; k < 6; ++k)  {
+                        kk = snapshotDataTemp.computeIndex_IJK(i, j, k);
+
+                        tempvalues[kk] = v;
+                        v = v + 100;
+                    }
+                }
+            }
+
+            IntPtr tempvec = Marshal.AllocHGlobal(4 * 24);
+            Marshal.Copy(tempvalues, 0, tempvec, tempvalues.Length);
+            snapshotDataTemp.setData_IJK(tempvec);
+            PropertyVolumeData volumePropertyTempData = new PropertyVolumeData(tempProperty, snapshotDataTemp);
+            snapshotVolume.addPropertyVolumeData(volumePropertyTempData);
+            
+            snap.setVolume(snapshotVolume);
+ 
+            float value = project.getPropertyAtLocation(2.5, "Temperature", 0, 0, 0, "", "", "");
+            Assert.AreEqual(20.0, value);
+            value = project.getPropertyAtLocation(2.5, "Temperature", 0, 0, 500, "", "", "");
+            Assert.AreEqual(520.0, value);
+            
+            value = project.getPropertyAtLocation(2.5, "Temperature", 0, 0, Bpa2.Basin.CauldronIO.VisualizationIOAPI.DefaultUndefinedScalarValue, "", "s2", "");
+            Assert.AreEqual(420.0, value);
+            value = project.getPropertyAtLocation(2.5, "Vr", 0, 0, Bpa2.Basin.CauldronIO.VisualizationIOAPI.DefaultUndefinedScalarValue, "", "s2", "");
+            Assert.AreEqual(0.6F, value);
+        }
+
+      }
 }
+
+
 

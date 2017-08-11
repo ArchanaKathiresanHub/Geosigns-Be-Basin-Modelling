@@ -1,10 +1,10 @@
-﻿using Shell.BasinModeling.EOS;
+﻿using Bpa2.Basin.EOS;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
 
-namespace Shell.BasinModeling.EOS.Test
+namespace Bpa2.Basin.EOS.Test
 {
 
 

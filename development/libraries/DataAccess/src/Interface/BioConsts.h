@@ -36,8 +36,7 @@ namespace DataAccess {
                cerr << "Warning: you try to biodegrade CO2. The CO2 cannot be biodegraded, its biodegradation coefficient has been reset to 1.0" << endl;
                m_bioConsts[COX] = 1.0;
             }
-            */
-            
+            */            
          }
 
          size_t size() const { return m_bioConsts.size(); }

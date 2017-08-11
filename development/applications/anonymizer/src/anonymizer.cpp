@@ -182,10 +182,8 @@ void Anonymizer::renameMapFiles()
 void Anonymizer::clearTables()
 {
    clearOutputTables();
-   clearTable("ProjectNotesIoTbl");
    clearTable("RelatedProjectsIoTbl");
    clearTable("BPANameMapping");
-   clearTable("FilterTimeDepthIoTbl");
 }
 
 
@@ -220,8 +218,6 @@ void Anonymizer::write()
    writeFluidtypeIoTbl();
    update( "FltThCondIoTbl", "Fluidtype", m_fluidTypes );
    update( "FltHeatCapIoTbl", "Fluidtype", m_fluidTypes );
-   update( "FltDensityIoTbl", "Fluidtype", m_fluidTypes );
-   update( "FltViscoIoTbl", "Fluidtype", m_fluidTypes );
    update( "SourceRockLithoIoTbl", "LayerName", m_layerNames );
    update( "SourceRockLithoIoTbl", "SourceRockType", m_sourceRockTypes );
    update( "SourceRockLithoIoTbl", "TocIniGrid", m_gridMap );
@@ -268,10 +264,6 @@ void Anonymizer::write()
    update( "DataMiningIoTbl", "FormationName", m_layerNames );
    update( "DataMiningIoTbl", "SurfaceName", m_surfaceNames );
    update( "DataMiningIoTbl", "ReservoirName", m_reservoirNames );
-   update( "SourceRockPropIoTbl", "LayerName", m_layerNames );
-   update( "SourceRockPropIoTbl", "MapFileName", m_mapFileNames );
-   update( "ReservoirPropIoTbl", "ReservoirName", m_reservoirNames );
-   update( "ReservoirPropIoTbl", "MapFileName", m_mapFileNames );
    update( "TouchstoneMapIoTbl", "TcfName", m_mapFileNames );
    update( "TouchstoneMapIoTbl", "FormationName", m_layerNames );
    update( "TouchstoneMapIoTbl", "SurfaceName", m_surfaceNames );
@@ -279,8 +271,6 @@ void Anonymizer::write()
    update( "TwoWayTimeIoTbl", "SurfaceName", m_surfaceNames );
    update( "WellLocIoTbl", "WellName", m_wellNames );
    clearTableField( "WellLocIoTbl", "Datum" );
-   clearTableField( "FilterTimeDepthIoTbl", "SurfaceName" );
-   clearTableField( "FilterTimeDepthIoTbl", "FormationName" );
 
    // Writing anonymized project to file
    ibs::FilePath fPath = ibs::FilePath( m_projectFolder ) << m_projectFile;
@@ -407,7 +397,6 @@ void Anonymizer::writeProjectIoTbl()
    {
       record->setValue<double>( "XCoord", s_northPoleCoord[0] );
       record->setValue<double>( "YCoord", s_northPoleCoord[1] );
-      record->setValue<std::string>( "WktGeometryOutline", s_wktGeometryOutline );
    }
 }
 

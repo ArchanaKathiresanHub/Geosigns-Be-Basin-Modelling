@@ -820,7 +820,7 @@ namespace migration
    {
       if (!IsValid (this)) return true;
 
-      double pressureContrastVapor, pressureContrastLiquid;
+      double pressureContrastVapour, pressureContrastLiquid;
 
       bool vapourFlag = false;
       bool liquidFlag = false;
@@ -835,30 +835,50 @@ namespace migration
             liquidFlag = true;
             setReservoirVapour (vapourFlag);
             setReservoirLiquid (liquidFlag);
+
             return true;
          }
 
-         // get the vapor pressure contrast 
-         pressureContrastVapor = getPressureContrast( topNode, GAS, pressureRun );
-         // calculate maximum height of the hydrocarbons column for gas
-         m_heightVapour = pressureContrastVapor / ( ( m_waterDensity - m_vapourDensity ) * AccelerationDueToGravity );
+         // calculate the density contrast
+         double densityContrast = m_waterDensity - m_vapourDensity;
+         // get the vapour pressure contrast 
+         pressureContrastVapour = getPressureContrast( topNode, GAS, pressureRun );
 
-         // if actual height is greater than the user-defined minimum - raise potential reservoir flag
-         if (m_heightVapour > minVapourColumnHeight)
-         {
+         // Positive pressure contrast and negative density contrast
+         // implies downward force, i.e. reservoir node
+         if (pressureContrastVapour > 0.0 and densityContrast <= 0.0)
             vapourFlag = true;
+         else
+         {
+            // calculate maximum height of the hydrocarbons column for gas
+            m_heightVapour = pressureContrastVapour / ( densityContrast * AccelerationDueToGravity );
+
+            // if actual height is greater than the user-defined minimum - raise potential reservoir flag
+            if (m_heightVapour > minVapourColumnHeight)
+            {
+               vapourFlag = true;
+            }
          }
 
+         // re-calculate the density contrast
+         densityContrast = m_waterDensity - m_liquidDensity;
          // get the liquid pressure contrast 
          pressureContrastLiquid = getPressureContrast( topNode, OIL, pressureRun );
 
-         // calculate maximum height of the hydrocarbons column for oil
-         m_heightLiquid = pressureContrastLiquid / ( ( m_waterDensity - m_liquidDensity ) * AccelerationDueToGravity );
-
-         // if actual height is greater than the user-defined minimum - raise potential reservoir flag
-         if ( m_heightLiquid > minLiquidColumnHeight )
-         {
+         // Positive pressure contrast and negative density contrast
+         // implies downward force, i.e. reservoir node
+         if (pressureContrastLiquid > 0.0 and densityContrast <= 0.0)
             liquidFlag = true;
+         else
+         {
+            // calculate maximum height of the hydrocarbons column for oil
+            m_heightLiquid = pressureContrastLiquid / ( densityContrast * AccelerationDueToGravity );
+
+            // if actual height is greater than the user-defined minimum - raise potential reservoir flag
+            if ( m_heightLiquid > minLiquidColumnHeight )
+            {
+               liquidFlag = true;
+            }
          }
       }
 
@@ -893,17 +913,26 @@ namespace migration
 
       if ( phase == GAS )
       {
+         // An array of capillary-pressure values is only calculated for the top element.
+         // But here 'this' may actually be an element below the top one, in case of erosion etc.
+         double capillaryEntryPressureVapour = ( getK() == (getFormation()->getMaximumNumberOfElements() - 1) ) ? 
+            m_capillaryEntryPressureVapour[1] : m_topFormationNode->m_capillaryEntryPressureVapour[0];
+         
          // calculate actual capillary sealing pressure for vapour
-         capillaryPressureContrast = topNode->m_capillaryEntryPressureVapour[0] - m_capillaryEntryPressureVapour[0] * resCorr;
+         capillaryPressureContrast = topNode->m_capillaryEntryPressureVapour[0] - capillaryEntryPressureVapour * resCorr;
       }
       else
       {
+         // An array of capillary-pressure values is only calculated for the top element.
+         // But here 'this' may actually be an element below the top one, in case of erosion etc.
+         double capillaryEntryPressureLiquid = ( getK() == (getFormation()->getMaximumNumberOfElements() - 1) ) ? 
+            m_capillaryEntryPressureLiquid[1] : m_topFormationNode->m_capillaryEntryPressureLiquid[0];
+
          // calculate actual capillary sealing pressure  for liquid
-         capillaryPressureContrast = topNode->m_capillaryEntryPressureLiquid[0] - m_capillaryEntryPressureLiquid[0] * resCorr;
+         capillaryPressureContrast = topNode->m_capillaryEntryPressureLiquid[0] - capillaryEntryPressureLiquid * resCorr;
       }
 
       return capillaryPressureContrast + dOverPressure;
-
    }
 
    // Check if the node is a crest node for the phaseId, similarly to what is done in Reservoir::getAdjacentColumn

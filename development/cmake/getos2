@@ -1,0 +1,439 @@
+#!/bin/bash
+#
+#	Command	      : getos2
+#	Author	      : Greg Renzelman
+#	Date	      : 16-Jul-2003
+#
+#	Description   : Prints the machines platform information
+#			according to OSS and CSCE conventions.
+#
+#			The user can override the check by defining
+#			the enviroment variable 'OSSOS'.
+#			If flag '-f' is specified, OSSOS is ignored.
+#
+#			The format will consist of three fields separated
+#			with '_' characters.  The first field is based on
+#			uname with a optional qualifier where uname by
+#			itself is insufficient.  The second field is the
+#			architecture value returned by 'uname -m'.  The
+#			third field is a version.
+#			<uname>[qualifier]_<architecture>_<version>
+#
+#	Assumptions &
+#	Limitations:	
+#			Pertaining to SunOS;
+#			1) This is only tested and known to be valid for
+#			   "Solaris"
+#			2) Solaris releases with only have releases containing
+#			   major, minor, and sometime sub-minor versioning.
+#			3) Sub-minor version number will never exceed 9
+#			4) Minor version number will never exceed 99
+#			5) The optional qualifier following uname will only
+#			   be used when running 64bit and have a value of 64
+#
+#			Pertaining to AIX;
+#			1) The oslevel will only return major, minor,
+#			   sub-minor, and second sub-minor values, and that
+#			    all values except major will never exceed 9
+#			2) The values returned by the command;
+#			   "/usr/sbin/lsattr -EHl proc0" will be mapped to
+#			   a shorter identifier
+#			3) PowerPC_601 will be treated as PowerPC
+#			4) The optional qualifier following uname will only
+#			   be used when running 64bit and have a value of 64
+#
+#			Pertaining to IRIX;
+#			1) The `/sbin/uname -R` command will return two white
+#			   space seperated fields such that the second field
+#			   contains only a major, minor, and sub-minor values
+#			2) The value of the minor version will never exceed 9
+#			3) The ending character in the sub-minor version will
+#			   always be ignored
+#			4) The optional qualifier will never be used as uname
+#			   returns IRIX64 for 64bit hardware
+#
+#			Pertaining to Linux;
+#			1) The Linux Distribution will be mapped to a short 
+#			   identifier of 2 characters.  The only exception
+#                          is RedHat Enterprise Linux which is 4 character
+#                          (RHEL) to be able to distinguish between older
+#                          RedHat distributions and the newer RedHat
+#                          Enterprise distributions.
+#			2) The optional qualifier following uname will
+#			   contain the Linux Distribution identifier
+#			3) The value of the minor version will never exceed 9
+#			   If not present will be assumed to be zero, and 0
+#			   will be appended appropriately
+#			4) There will be no sub-minor version
+#			5) Kernel version will not be part of the return value
+#			6) The optional qualifier will also end with 64 
+#			   when running 64bit hardware
+#
+#	Example Output:
+#			SunOS_sun4u_5051        -- 32bit Solaris 2.5.1
+#			SunOS_sun4u_5080        -- 32bit Solaris 8
+#			SunOS64_sun4u_5080      -- 64bit Solaris 8
+#			SunOS64_sun4u_5100      -- 64bit Solaris 10
+#
+#			LinuxRH_i386_72         -- Intel 32-Bit RedHat 7.2
+#			LinuxRH_i686_73         -- Intel 32-Bit RedHat 7.3
+#			LinuxDB_i686_30         -- Intel 32-Bit Debian 3.0
+#			LinuxRH64_ia64_21AW     -- Intel Itanium RedHat AW 2.1
+#			LinuxSU64_x86_64_81     -- AMD Opteron SuSE 8.1
+#			LinuxRHEL64_x86_64_30WS -- AMD RedHat Enterprise
+#						   Linux 3 WS
+#			LinuxRHEL_i686_30WS     -- Intel 32-Bit RedHat
+#						   Enterprise Linux 3 WS
+#
+#			IRIX64_IP27_6509        -- (sglogin1)
+#			IRIX_IP32_6511          -- (toaster)
+#			IRIX64_IP30_6513        -- (kseu1006)
+#			
+#			AIX_pwr2_4330           -- (kseu98)
+#			AIX64_ppc3_4330         -- (kseu720)
+#			AIX64_ppc4_5100         -- (warp1)
+#
+
+function Usage
+{
+    echo "Usage: $0 [options]"
+    echo "       --help        print this message"
+    echo "       --arch        print architecture identifier"
+    echo "       --os          print operating system identifier"
+    echo "       --ver         print operating system versioning"
+    echo "       --nbits=##    prints the ## bit operating system"
+    echo "                     identifier, where ## is the number"
+    echo "                     32 for 32bit and 64 for 64bit"
+    echo
+    echo "if no options are specified, or only the --nbits option is"
+    echo "specified, then it is the same as using"
+    echo " --os --arch --ver"
+    echo
+    echo "Each identifier will be seperated by '_' will order will"
+    echo "be os, arch, then ver; therefore --ver --os will still print"
+    echo "<os>_<ver>"
+    echo
+}
+
+printarch=0
+printos=0
+printver=0
+
+going=1
+while [ ${going} -eq 1 -a $# -gt 0 ] 
+do
+    case $1 in
+	--arch)
+	    printarch=1
+	    shift
+	    ;;
+	--help)
+	    Usage
+	    exit 0
+	    ;;
+	--os)
+	    printos=1
+	    shift
+	    ;;
+	--ver)
+	    printver=1
+	    shift
+	    ;;
+	--nbits=*)
+	    csce_nbits=${1#--*=}
+	    shift
+	    ;;
+	*)
+	    Usage
+	    exit 1
+    esac
+done
+
+if [ $printos -eq 0 -a $printarch -eq 0 -a $printver -eq 0 ]; then
+    printos=1
+    printarch=1
+    printver=1
+fi
+
+
+if [ ! -z "${DEBUG_GETOS:-}" ] ; then
+    set -x
+fi
+
+command=getos
+
+if [[ ("$1" != -f) && ("$OSSOS" != "") ]] ; then
+    print $OSSOS
+    exit 0
+fi
+
+set -- `/bin/uname -a`
+os=$1
+ver=$3
+aixrel=$4
+arch=`/bin/uname -m`
+
+case $os in
+AIX)
+    rel=$aixrel
+    if [[ -x ${0%/*}/test_aix_${rel}${ver}_64 ]] ; then 
+	     ${0%/*}/test_aix_${rel}${ver}_64 1>/dev/null 2>&1
+    	if [[ $? -eq 0 ]]; then
+	       os="${os}64"
+    	fi
+    fi
+    # Possibly Need to figure out what to do with uname -m on AIX
+    aixarch=`/usr/sbin/lsattr -EHl proc0 | grep ^type | awk '{print $2}'`
+    case $aixarch in
+    POWER[0-9]*)
+	arch=`echo "$aixarch" | sed "s#\(^POWER\)\(.*\)#pwr\2#g"`
+	;;
+    POWER)
+	arch=`echo "$aixarch" | sed "s/^POWER$/pwr/g"`
+	;;
+    PowerPC_POWER[0-9]*)
+	arch=`echo "$aixarch" | sed "s#\(^PowerPC_POWER\)\(.*\)#ppp\2#g"`
+	;;
+    PowerPC[0-9]*)
+	arch=`echo "$aixarch" | sed "s#\(^PowerPC\)\(.*\)#ppc\2#g"`
+	;;
+    PowerPC_*)
+	arch=`echo "$aixarch" | sed "s/^PowerPC_.*$/ppc/g"`
+	;;
+    PowerPC)
+	arch=`echo "$aixarch" | sed "s/^PowerPC$/ppc/g"`
+	;;
+    rs6*|RS6*)
+	arch="rs6k"
+	;;
+    *)
+	print "$command: Unknown AIX architecture -- $arch" >&2
+	;;
+    esac
+    version=`oslevel 2>/dev/null | tr -d "."`
+    ;;
+
+IRIX|IRIX64)
+    IFS=.
+    set -- `/sbin/uname -R | awk '{print $2}' | tr -d "[a-zA-Z]"`
+    major=$1
+    minor=$2
+    sbmin=$3
+    if [ ${sbmin} -lt 10 ] ; then
+	sbmin=0${sbmin}
+    fi
+    version=${major}${minor}${sbmin}
+    ;;
+
+Linux)
+    isknown=0
+    for distrib in CentOS RedHat Fedora SuSE Mandrake Debian UnitedLinux \
+                   Gentoo; do
+	case $distrib in
+        CentOS)
+            if [ -f /etc/centos-release ] ; then
+                if [ `grep -c "CentOS" /etc/centos-release` = 1 ] ; then
+                    os=LinuxRHEL
+                    # Depending on PC or desktop
+                    cdmm=`grep -i Linux /etc/centos-release` 
+                    if [ "$?" -ne "0" ]
+                    then 
+                      version=`cat /etc/centos-release | \
+                      sed -e "s#\(CentOS release \)\([0-9.]*[^ ]*\)\( .*\)#\2#g" | awk -F\. '{ print $1$2 }'`
+                    else
+                      version=`cat /etc/centos-release | \
+                      sed -e "s#\(CentOS Linux release \)\([0-9.]*[^ ]*\)\( .*\)#\2#g" | awk -F\. '{ print $1$2 }'`
+                    fi
+                    if [ ${version} -lt 10 ] ; then
+                        version=${version}0
+                    fi
+                    version=${version}WS 
+                    isknown=1
+                    break
+                fi
+            fi
+	    if [ -f /etc/redhat-release -a ! -L /etc/redhat-release ] ; then
+                if [ `grep -c "CentOS" /etc/redhat-release` = 1 ] ; then
+                    os=CT
+                    version=`cat /etc/redhat-release | \
+                    sed -e "s#\(CentOS release \)\([0-9.]*[^ ]*\)\( .*\)#\2#g" | tr -d .`
+		    if [ ${version} -lt 10 ] ; then
+			version=${version}0
+		    fi
+		    isknown=1
+		    break
+		fi
+            fi
+        ;;
+	RedHat)
+	    if [ -f /etc/redhat-release -a ! -L /etc/redhat-release ] ; then
+		os=${os}RH
+		version=`cat /etc/redhat-release | \
+		sed -e "s#\(^Red Hat.*Linux.*release \)\([0-9.]*[^ ]*\)\( .*\)#\2#g" | tr -d .`
+		if [ `grep -c "Red Hat Enterprise Linux" /etc/redhat-release` = 1 ] ; then
+		    os=${os}EL
+		    if [ ${version} -lt 10 ] ; then
+			version=${version}0
+		    fi
+                    rhver=`cat /etc/redhat-release | sed -e "s#\(^Red Hat.*Linux \)\([A-Za-z]*\)\( .*\)#\2#g"`
+		    case $rhver in
+		    Server|ComputeNode)
+		        # Accounting for RHEL 5 changing redhat-release format
+		        rhver="WS"
+		        ;;
+		    AS|ES|WS)
+		        ;;
+		    *)
+		        print "$command: Unknown RedHat Enterprise release" >&2
+		        ;;
+		    esac
+		    version=${version}$rhver;
+		fi
+		isknown=1
+		break
+	    fi
+	;;
+	Fedora)
+	    if [ -f /etc/fedora-release -a ! -L /etc/fedora-release ] ; then
+		os=${os}FC
+		version=`cat /etc/fedora-release | \
+		sed -e "s#\(^Fedora Core release \)\([0-9.]*[^ ]*\)\( .*\)#\2#g" | tr -d .`
+		if [ ${version} -lt 10 ] ; then
+		    version=${version}0
+		fi
+		isknown=1
+		break
+	    fi
+	;;
+	SuSE)
+	    if [ -f /etc/SuSE-release ] ; then
+		os=${os}SU
+		version=`cat /etc/SuSE-release | grep "^VERSION" | \
+		sed -e "s#\(^VERSION = \)\([0-9.]*$\)#\2#g" | tr -d .`
+		isknown=1
+		break
+	    fi
+	;;
+	Mandrake)
+	    if [ -f /etc/mandrake-release ] ; then
+		os=${os}MD
+		version=`cat /etc/mandrake-release | \
+		sed -e "s#\(^Mandrake Linux release \)\([0-9.]*[^ ]*\)\( .*\)#\2#g" | tr -d .`
+		isknown=1
+		break
+	    fi
+	;;
+	Debian)
+	    if [ -f /etc/debian_version ] ; then
+		os=${os}DB
+		version=`cat /etc/debian_version | \
+		 sed -e "s#\(^[0-9.]*\)\([^0-9.]*.*\)#\1#g" | tr -d .`
+		isknown=1
+		break
+	    fi
+	;;
+	UnitedLinux)
+	    if [ -f /etc/UnitedLinux-release ] ; then
+		os=${os}UL
+		version=`cat /etc/UnitedLinux-release | grep "^VERSION" | \
+		sed -e "s#\(^VERSION = \)\([0-9.]*$\)#\2#g" | tr -d .`
+		isknown=1
+		break
+	    fi
+	;;
+	Gentoo)
+	    if [ -f /etc/gentoo-release ]; then
+	    	os=${os}GT
+		version=`ls -l /etc/make.profile | \
+		         sed -e "s/.*\([0-9]\{4\}\.[0-9]*\)/\1/g"`
+		isknown=1
+		break
+	    fi
+	;;
+	*)
+	    print "$command: Should never have gotten here::" >&2
+	    print "          Distribution:: $distrib" >&2
+	;;
+	esac
+    done
+    if [ $isknown -eq 0 ] ; then
+	print "$command: Unknown Linux Distribution" >&2
+	exit 1
+    fi
+    # indecate if 64bit
+    if [ `echo $arch | grep -c 64` = 1 ]; then
+	os="${os}64"
+    fi
+    ;;
+
+SunOS)
+    if [[ -x /usr/bin/isainfo ]] ; then 
+	iset=`/usr/bin/isainfo -b`
+	if [[ "$iset" = "64" ]] ; then
+	    os="${os}64"
+	fi
+    fi
+    IFS=.
+    set -- $ver
+    rel=$1
+    ver=$2
+    if [ ${ver} -lt 10 ] ; then
+	ver=0${ver}
+    fi
+    if [ $# -gt 2 ] ; then
+	version=${rel}${ver}$3
+    else
+	version=${rel}${ver}0
+    fi
+    ;;
+
+*)
+    print "$command: Unknown os platform: $os" >&2
+    exit 1
+    ;;
+
+esac
+
+platformname=""
+
+if [ ${printos} -eq 1 ]
+then
+    case $csce_nbits in
+    32)
+	os="${os%@(64|128)}"
+	;;
+    64)
+	os="${os%@(64|128)}64"
+	;;
+    128)
+	os="${os%@(64|128)}128"
+	;;
+    esac
+    platformname="${os}"
+fi
+
+if [ ${printarch} -eq 1 ]
+then
+    if [ ! -z "${platformname}" ] 
+    then 
+	platformname="${platformname}_"
+    fi
+    platformname="${platformname}${arch}"
+fi
+
+if [ ${printver} -eq 1 ]
+then
+    if [ ! -z "${platformname}" ] 
+    then
+	platformname="${platformname}_"
+    fi
+    platformname="${platformname}${version}"
+fi
+
+if [ ! -z "${DEBUG_GETOS:-}" ] ; then
+    set +x
+fi
+
+echo -ne "${platformname}"
+
+exit 0

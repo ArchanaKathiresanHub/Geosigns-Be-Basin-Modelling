@@ -78,7 +78,7 @@ hid_t H5_Parallel_PropertyList :: createDatasetPropertyList( const bool readOnly
    return pList;
 }
 
-bool H5_Parallel_PropertyList :: setOneFilePerProcessOption( )
+bool H5_Parallel_PropertyList :: setOneFilePerProcessOption( const bool createDir )
 {
    PetscBool noOfpp = PETSC_FALSE;
    PetscBool primaryPod = PETSC_FALSE;
@@ -108,34 +108,40 @@ bool H5_Parallel_PropertyList :: setOneFilePerProcessOption( )
          }
       } else {
          if( primaryPod ) {
+            
             // Create a temporary dir unique name and broadcast it
             int rank;
             
             MPI_Comm_rank(PETSC_COMM_WORLD, &rank);
             int tempLen = 0;
-            if( rank == 0 ) {
-               char templateName[] = "ProjectXXXXXX";
-
-               const int tempName = mkstemp( templateName );
-
-               // if mkstemp is successful
-               if (tempName != -1) {
+            if( createDir ) {
+               if( rank == 0 ) {
+                  char templateName[] = "ProjectXXXXXX";
+                  
+                  
+                  // if mkstemp is successful
                   strcat( temporaryDirName, "/" );
                   strcat( temporaryDirName, templateName );
-                  tmpDir = temporaryDirName;
-                  tempLen = strlen( temporaryDirName ) + strlen( templateName );
-               }
-            }
+                  char * tempName = mkdtemp( temporaryDirName );
+                  if (tempName != 0) {
 
-            MPI_Bcast( &tempLen, 1, MPI_INT, 0, PETSC_COMM_WORLD );
-            if( tempLen > 0 ) {
-               MPI_Bcast( temporaryDirName, tempLen, MPI_CHAR, 0, PETSC_COMM_WORLD );
-               tmpDir = temporaryDirName;
+                     tmpDir = temporaryDirName;
+                     tempLen = strlen( temporaryDirName );
+                  }
+               }
+               
+               MPI_Bcast( &tempLen, 1, MPI_INT, 0, PETSC_COMM_WORLD );
+               if( tempLen > 0 ) {
+                  MPI_Bcast( temporaryDirName, tempLen, MPI_CHAR, 0, PETSC_COMM_WORLD );
+                  tmpDir = temporaryDirName;
+               } else {
+                  setPrimaryPod ( PETSC_FALSE );
+                  tmpDir = 0;
+                  PetscPrintf ( PETSC_COMM_WORLD, "Temporary dir cannot be created.\n" );    
+               }       
             } else {
-               setPrimaryPod ( PETSC_FALSE );
-               tmpDir = 0;
-               PetscPrintf ( PETSC_COMM_WORLD, "Temporary dir cannot be created.\n" );    
-            }       
+               tmpDir = temporaryDirName;
+            }
          } else {
             tmpDir = temporaryDirName;
          }

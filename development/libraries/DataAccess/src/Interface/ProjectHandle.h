@@ -244,10 +244,6 @@ namespace DataAccess
          /// Return a list of the time-output properties for a current modelling mode.
          virtual OutputPropertyList * getTimeOutputProperties() const;
 
-         /// Return a list of the depth-output properties for a current modelling mode.
-         virtual OutputPropertyList * getDepthOutputProperties() const;
-
-
          /// Return a list to the heat-capacity samples for the lithology.
          ///
          /// If litho == 0 then all heat capacity samples will be returned.
@@ -267,11 +263,6 @@ namespace DataAccess
          ///
          /// If fluid == 0 then all heat-capacity samples will be returned.
          virtual FluidThermalConductivitySampleList * getFluidThermalConductivitySampleList( const FluidType* fluid ) const;
-
-         /// Return a list to the density samples for the fluid.
-         ///
-         /// If fluid == 0 then all density samples will be returned.
-         virtual FluidDensitySampleList * getFluidDensitySampleList( const FluidType* fluid ) const;
 
          /// Return a list to the related projects.
          virtual RelatedProjectList * getRelatedProjectList() const;
@@ -609,7 +600,6 @@ namespace DataAccess
          MutablePropertyValueList m_recordLessMapPropertyValues;
          MutablePropertyValueList m_recordLessVolumePropertyValues;
          MutableOutputPropertyList m_timeOutputProperties;
-         MutableOutputPropertyList m_depthOutputProperties;
          MutableRelatedProjectList m_relatedProjects;
          MutableConstrainedOverpressureIntervalList m_constrainedOverpressureIntervals;
          MutablePermafrostEventList m_permafrostEvents;
@@ -645,7 +635,6 @@ namespace DataAccess
          MutableLithologyHeatCapacitySampleList m_lithologyHeatCapacitySamples;
          MutableLithologyThermalConductivitySampleList m_lithologyThermalConductivitySamples;
 
-         MutableFluidDensitySampleList             m_fluidDensitySamples;
          MutableFluidThermalConductivitySampleList m_fluidThermalConductivitySamples;
          MutableFluidHeatCapacitySampleList        m_fluidHeatCapacitySamples;
 
@@ -730,7 +719,6 @@ namespace DataAccess
          bool loadDepthOutputProperties( void );
          bool loadSimulationDetails ();
 
-         bool loadFluidDensitySamples();
          bool loadFluidThermalConductivitySamples();
          bool loadFluidHeatCapacitySamples();
          bool loadLithologyHeatCapacitySamples();
@@ -760,16 +748,14 @@ namespace DataAccess
          bool finalizeMapPropertyValuesWriter( void );
 
          bool saveCreatedMapPropertyValues( void );
-
-         //1DComponent
+         
          bool saveCreatedMapPropertyValuesMode1D( void );
-
+ 
          bool saveCreatedMapPropertyValuesMode3D( void );
 
          virtual bool saveCreatedVolumePropertyValues( void );
 
          bool saveCreatedVolumePropertyValuesMode1D( void );
-         bool saveCreatedVolumePropertyValuesMode1DOld( void );
 
          bool saveCreatedVolumePropertyValuesMode3D( void );
 
@@ -850,7 +836,6 @@ namespace DataAccess
          void deleteDepthOutputProperties( void );
          void deleteLithologyHeatCapacitySamples( void );
          void deleteLithologyThermalConductivitySamples( void );
-         void deleteFluidDensitySamples();
          void deleteFluidThermalConductivitySamples();
          void deleteFluidHeatCapacitySamples();
          void deleteRelatedProjects();

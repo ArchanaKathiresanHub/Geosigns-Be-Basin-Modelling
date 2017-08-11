@@ -209,7 +209,7 @@ void CauldronIO::DataStoreLoad::getSurface(pugi::xml_node ptree, std::shared_ptr
  /// DataStoreSave
  //////////////////////////////////////////////////////////////////////////
 
-CauldronIO::DataStoreSave::DataStoreSave(const std::string& filename, bool append)
+CauldronIO::DataStoreSave::DataStoreSave(const std::string& filename, bool append, const bool rewrite )
 {
     if (!append)
         m_file_out.open(filename.c_str(), std::fstream::binary);
@@ -217,9 +217,11 @@ CauldronIO::DataStoreSave::DataStoreSave(const std::string& filename, bool appen
         m_file_out.open(filename.c_str(), std::fstream::binary | std::fstream::ate | std::fstream::app);
 
     m_compress = APPLY_COMPRESSION;
+
     m_fileName = filename;
     m_flushed = false;
     m_offset = 0;
+    m_rewrite = rewrite;
 }
 
 CauldronIO::DataStoreSave::~DataStoreSave()
@@ -303,35 +305,53 @@ void CauldronIO::DataStoreSave::flush()
 void CauldronIO::DataStoreSave::addSurface(const std::shared_ptr<SurfaceData>& surfaceData, pugi::xml_node node)
 {
     pugi::xml_node subNode = node.append_child("datastore");
-    subNode.append_attribute("file") = ibs::FilePath(m_fileName).fileName().c_str();
 
     MapNative* mapNative = dynamic_cast<MapNative*>(surfaceData.get());
 
     size_t numBytes = surfaceData->getGeometry()->getSize() * sizeof(float);
     bool compress = m_compress && numBytes > MINIMALBYTESTOCOMPRESS;
-    if (compress)
-        subNode.append_attribute("compression") = COMPRESSION_LZ4 ? "lz4" : "gzip";
-    else
-        subNode.append_attribute("compression") = "none";
-
+ 
     if (surfaceData->isConstant()) throw CauldronIO::CauldronIOException("Cannot write constant value");
 
     // We write the actual data if 1) this map has been loaded from projecthandle (so mapNative == null)
     // or 2) this map has been created in native format, but was not loaded from disk (so no datastoreparams were set)
     if (mapNative == nullptr || (mapNative != nullptr && mapNative->getDataStoreParams() == nullptr))
     {
-        addData(surfaceData->getSurfaceValues(), surfaceData->getGeometry()->getSize(), compress);
-        m_dataToCompress.back()->setXmlNode(subNode);
+       subNode.append_attribute("file") = ibs::FilePath(m_fileName).fileName().c_str();
+       if (compress)
+          subNode.append_attribute("compression") = COMPRESSION_LZ4 ? "lz4" : "gzip";
+       else
+          subNode.append_attribute("compression") = "none";
+
+       addData(surfaceData->getSurfaceValues(), surfaceData->getGeometry()->getSize(), compress);
+       m_dataToCompress.back()->setXmlNode(subNode);
     }
     else
     {
-        // This surface already has been written: skip it
-        const DataStoreParams* const params = mapNative->getDataStoreParams();
-        assert(m_fileName == params->fileName.path());
-
-        subNode.append_attribute("offset") = (unsigned int)m_offset;
-        subNode.append_attribute("size") = (unsigned int)params->size;
-        m_offset += params->size;
+       // This surface already has been written: skip it
+       const DataStoreParams* const params = mapNative->getDataStoreParams();
+       std::string fileName;
+       if(m_rewrite) {
+          // write to the same file
+          assert(m_fileName == params->fileName.path());
+          fileName = m_fileName;
+       } else {
+          // do not write - create a record only
+          fileName = params->fileName.path();
+       }
+       subNode.append_attribute("file") = ibs::FilePath(fileName).fileName().c_str();
+       if ( params->compressed )
+           subNode.append_attribute("compression") =  params->compressed_lz4 ? "lz4" : "gzip";
+        else
+           subNode.append_attribute("compression") = "none";
+ 
+       subNode.append_attribute("size") = (unsigned int)params->size;
+       if( m_rewrite) {
+          subNode.append_attribute("offset") = (unsigned int)m_offset;
+          m_offset += params->size;
+       } else {
+          subNode.append_attribute("offset") = (unsigned int)params->offset;
+       }
     }
 }
 
@@ -361,13 +381,6 @@ void CauldronIO::DataStoreSave::writeVolumePart(pugi::xml_node volNode, bool com
     VolumeDataNative* nativeVolume = dynamic_cast<VolumeDataNative*>(volume.get());
 
     pugi::xml_node subNode = volNode.append_child("datastore");
-    subNode.append_attribute("file") = ibs::FilePath(m_fileName).fileName().c_str();
-
-    if (compress)
-        subNode.append_attribute("compression") = COMPRESSION_LZ4 ? "lz4" : "gzip";
-    else
-        subNode.append_attribute("compression") = "none";
-    subNode.append_attribute("dataIJK") = IJK;
 
     // We write the actual data if 1) this volume has been loaded from projecthandle (so nativeVolume == nullptr)
     // or 2) this volume has been created in native format, but was not loaded from disk (so no datastoreparams were set)
@@ -379,6 +392,12 @@ void CauldronIO::DataStoreSave::writeVolumePart(pugi::xml_node volNode, bool com
 
     if (writeData)
     {
+       subNode.append_attribute("file") = ibs::FilePath(m_fileName).fileName().c_str();
+       if (compress)
+          subNode.append_attribute("compression") = COMPRESSION_LZ4 ? "lz4" : "gzip";
+       else
+          subNode.append_attribute("compression") = "none";
+       subNode.append_attribute("dataIJK") = IJK;
         // Write the volume and update the offset
         writeVolume(volume, IJK, compress);
         m_dataToCompress.back()->setXmlNode(subNode);
@@ -387,11 +406,31 @@ void CauldronIO::DataStoreSave::writeVolumePart(pugi::xml_node volNode, bool com
     {
         // This volume already has been written: skip it
         const DataStoreParams* const params = nativeVolume->getDataStoreParamsIJK();
-        assert(m_fileName == params->fileName.path());
+        std::string fileName;
+        if(m_rewrite) {
+           // writes to the same file
+           assert(m_fileName == params->fileName.path());
+           fileName = m_fileName;
+        } else {
+           // do not write, creates a record only
+           fileName = params->fileName.path();
+        }
 
-        subNode.append_attribute("offset") = (unsigned int)m_offset;
+        subNode.append_attribute("file") = ibs::FilePath(fileName).fileName().c_str();
+        if ( params->compressed )
+           subNode.append_attribute("compression") =  params->compressed_lz4 ? "lz4" : "gzip";
+        else
+           subNode.append_attribute("compression") = "none";
+       
+        subNode.append_attribute("dataIJK") = IJK;
         subNode.append_attribute("size") = (unsigned int)params->size;
-        m_offset += params->size;
+        
+        if( m_rewrite) {
+           subNode.append_attribute("offset") = (unsigned int)m_offset;
+           m_offset += params->size;
+        } else {
+           subNode.append_attribute("offset") = (unsigned int)params->offset;
+        }
     }
 }
 

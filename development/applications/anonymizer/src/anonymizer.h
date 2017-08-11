@@ -27,7 +27,6 @@ class Anonymizer
 public:
    // North Pole coordinates and wktGeometryOutline
    const double s_northPoleCoord[2] = { 535520.5235, 3663658.586 };
-   const std::string s_wktGeometryOutline = "<WktGeometryOutline><CoordinateOperationName></CoordinateOperationName><SrsName>urn:ogc:def:crs:EPSG::32614</SrsName><Wkt>POLYGON  (( 535118.22781 3663256.20505, 552016.31291 3663256.25989, 552016.29953 3680154.41266, 535118.19884 3680154.36561, 535118.22781 3663256.20505))</Wkt></WktGeometryOutline>";
 
    // Undefined fault value for .FLT files
    const double s_undefFault = 999.999;

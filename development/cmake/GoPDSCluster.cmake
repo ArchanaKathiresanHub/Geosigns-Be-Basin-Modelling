@@ -52,7 +52,7 @@ else()
    option( BM_USE_FLEXLM "Whether to require a license via FlexLM" OFF)
    set( FLEXLM_ROOT "" CACHE PATH "Path to FlexLM directory" )
    set( FLEXLM_LIBRARY "" CACHE FILEPATH "Path of FlexLM libraries" )
-   message( WARNING "WARNING!!! No FlexLM library was found, code will be without license checking!" )
+   message( WARNING "WARNING!!! No FlexLM library was found, code will be built without license checking!" )
 endif()
 
 # LSF setup

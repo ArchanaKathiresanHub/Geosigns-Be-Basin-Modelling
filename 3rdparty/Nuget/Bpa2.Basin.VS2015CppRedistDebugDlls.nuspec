@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>Bpa2.Basin.VS2015CppRedistDebugDlls</id>
+    <version>1.0.0</version>
+    <authors>Microsoft</authors>
+    <owners>Microsoft</owners>
+    <projectUrl>https://www.microsoft.com/en-us/download/details.aspx?id=48145</projectUrl>
+    <iconUrl>file://VS2015.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Collection of redistributable debug dlls for VS2015</description>
+    <releaseNotes>Collection of debug dlls which are needed to run tests in Debug configuration in BPA2.Basin project</releaseNotes>
+    <copyright>Microsoft (C)</copyright>
+    <tags>VS2015 Redistributable Swig Debug Tests msvcp140d ucrtbased vcruntime140d</tags>
+    <references>
+      <!-- <reference file="Sample.dll" /> -->
+    </references>
+    <dependencies>
+      <!-- <dependency id="SampleDependency" version="1.0" /> -->
+    </dependencies>
+  </metadata>
+  <files>  
+    <!-- Windows C++ native libraries -->
+    <file src="msvcp140d.dll" target="lib\native\x64\Debug" />
+    <file src="vcruntime140d.dll" target="lib\native\x64\Debug" />
+    <file src="ucrtbased.dll" target="lib\native\x64\Debug" />
+    <!-- Modificator for destination c# project to copy native dll -->
+    <file src="Bpa2.Basin.VS2015CppRedistDebugDlls.targets" target="build" />
+  </files>
+</package>

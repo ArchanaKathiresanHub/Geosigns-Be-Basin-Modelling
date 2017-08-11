@@ -46,11 +46,6 @@ double  FtGrain::getGrainAge() const
    return m_grainAge;
 }
 
-double  FtGrain::getGrainAgeErr() const
-{
-   return  m_grainAgeErr;
-}
-
 void   FtGrain::addTrackLength(const double length)
 {
    m_trackLengths.push_back(length);
@@ -64,12 +59,6 @@ list<double>&  FtGrain::getTrackLengths()
 void FtGrain::setGrainAge(double grainAge)
 {
    m_grainAge = grainAge ;
-}
-
-void FtGrain::setGrainAgeErr(double grainAgeError)
-{
-   m_grainAgeErr = grainAgeError;
-   
 }
 
 }

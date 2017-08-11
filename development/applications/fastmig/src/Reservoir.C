@@ -1349,8 +1349,10 @@ namespace migration
       computeTemperatures ();
       computePressures ();
 
-      PropertyValue * propertyValue_Gas = getProjectHandle ()->createMapPropertyValue ("SeepageBasinTop_Gas", end, this, 0, 0);
-      PropertyValue * propertyValue_Oil = getProjectHandle ()->createMapPropertyValue ("SeepageBasinTop_Oil", end, this, 0, 0);
+      Interface::Formation * topActiveFormation = m_migrator->getTopActiveFormation(end);
+      
+      PropertyValue * propertyValue_Gas = getProjectHandle ()->createMapPropertyValue ("SeepageBasinTop_Gas", end, 0, topActiveFormation, 0);
+      PropertyValue * propertyValue_Oil = getProjectHandle ()->createMapPropertyValue ("SeepageBasinTop_Oil", end, 0, topActiveFormation, 0);
       assert (propertyValue_Gas);
       assert (propertyValue_Oil);
 
@@ -2144,22 +2146,8 @@ namespace migration
          return false;
       }
 
-      const GridMap * depthOffsetMap = getMap (Interface::DepthOffset); // may be 0
-      const GridMap * thicknessMap = getMap (Interface::ReservoirThickness); // may be 0
-
       formationTopDepthMap->retrieveData ();
       formationBottomDepthMap->retrieveData ();
-      if (depthOffsetMap) depthOffsetMap->retrieveData ();
-      if (thicknessMap) thicknessMap->retrieveData ();
-
-      //By default the m_topDepthOffset= m_bottomDepthOffset = 0
-      if (!m_migrator->performLegacyMigration() and (depthOffsetMap or thicknessMap))
-      {
-         LogHandler (LogHandler::WARNING_SEVERITY) << "Reservoir " << getName() << ": Offset and/or thickness maps for reservoirs cannot be used in non-legacy mode.\nThese inputs will be ignored in this run.";
-
-         depthOffsetMap = nullptr;
-         thicknessMap   = nullptr;
-      }
 
       for (unsigned int i = m_columnArray->firstILocal (); i <= m_columnArray->lastILocal (); ++i)
       {
@@ -2180,38 +2168,11 @@ namespace migration
             double formationThickness = formationBottomDepth - formationTopDepth;
             formationThickness = Max (0.001, formationThickness);
 
-            double depthOffset = 0;
-            if (depthOffsetMap)
-            {
-               depthOffset = depthOffsetMap->getValue (i, j);
-               if (depthOffset == depthOffsetMap->getUndefinedValue ())
-               {
-                  depthOffset = 0;
-               }
-            }
-
-            double thickness = formationThickness;
-            if (thicknessMap)
-            {
-               thickness = thicknessMap->getValue (i, j);
-               if (thickness == thicknessMap->getUndefinedValue ())
-               {
-                  thickness = formationThickness;
-               }
-            }
-
-            column->setTopDepthOffset (depthOffset / formationThickness);
-            column->setBottomDepthOffset ((formationThickness - (depthOffset + thickness)) / formationThickness);
          }
       }
 
       formationTopDepthMap->restoreData ();
       formationBottomDepthMap->restoreData ();
-      if (depthOffsetMap) depthOffsetMap->restoreData ();
-      if (thicknessMap) thicknessMap->restoreData ();
-
-      if (depthOffsetMap) delete depthOffsetMap;
-      if (thicknessMap) delete thicknessMap;
 
       return true;
    }

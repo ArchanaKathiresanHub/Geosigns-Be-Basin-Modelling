@@ -26,7 +26,7 @@ namespace DerivedProperties {
                                         const DataModel::AbstractSurface*   surface,
                                         const DataModel::AbstractGrid*      grid );
 
-      virtual ~DerivedFormationSurfaceProperty () {};
+      virtual ~DerivedFormationSurfaceProperty ();
 
       /// \brief Get the value of the property at the position i,j.
       virtual double get ( unsigned int i,

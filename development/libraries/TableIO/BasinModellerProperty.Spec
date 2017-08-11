@@ -1,5 +1,5 @@
 ##########################################################################
-#    Property specification file for BPA-Cauldron                        #
+#    Property specification file for BPA2-Cauldron                       #
 ##########################################################################
 
 ##########################################################################
@@ -7,8 +7,6 @@
 START-properties
 
 #### General data --------------------------------------------------------
-
-
 
     Identification      : Age
     Description         : Geological age of an event, entry in a table etc.
@@ -103,12 +101,6 @@ START-properties
     Unit of measurement :
     Type                : string
 
-    Identification      : PropertyClass
-    Description         : Type of property {Physical, Formation, FormationTop,
-                          FormationBottom, Source rock}
-    Unit of measurement :
-    Type                : string
-
     Identification      : Time
     Description         : Snapshot time of a property value
     Unit of measurement : Ma
@@ -126,18 +118,8 @@ START-properties
     Type                : integer
     Default             : 0
 
-    Identification      : Depth_
-    Description         : The depth for a property
-    Unit of measurement : m
-    Type                : float
-
     Identification      : Average
     Description         : Average property value
-    Unit of measurement :
-    Type                : float
-
-    Identification      : StandardDev
-    Description         : Standard Deviation
     Unit of measurement :
     Type                : float
 
@@ -166,69 +148,6 @@ START-properties
     Unit of measurement :
     Type                : integer
 
-    # Added by S. Mathijssen (ORIGIN) 12-11-1997
-    # Increment 4.4
-    Identification      : P15
-    Description         : P15 distribution percentile
-    Unit of measurement :
-    Type                : double
-
-    # Added by S. Mathijssen (ORIGIN) 12-11-1997
-    # Increment 4.4
-    Identification      : P50
-    Description         : P50 distribution percentile
-    Unit of measurement :
-    Type                : double
-
-    # Added by S. Mathijssen (ORIGIN) 12-11-1997
-    # Increment 4.4
-    Identification      : P85
-    Description         : P85 distribution percentile
-    Unit of measurement :
-    Type                : double
-
-    # Added by S. Mathijssen (ORIGIN) 14-11-1997
-    # Increment 4.6
-    Identification      : SumFirstPower
-    Description         : Mean
-    Unit of measurement :
-    Type                : double
-
-    # Added by S. Mathijssen (ORIGIN) 14-11-1997
-    # Increment 4.6
-    Identification      : SumSecondPower
-    Description         : Sum of second power about mean
-    Unit of measurement :
-    Type                : double
-
-    # Added by S. Mathijssen (ORIGIN) 14-11-1997
-    # Increment 4.6
-    Identification      : SumThirdPower
-    Description         : Sum of third power about mean
-    Unit of measurement :
-    Type                : double
-
-    # Added by S. Mathijssen (ORIGIN) 14-11-1997
-    # Increment 4.6
-    Identification      : SumFourthPower
-    Description         : Sum of fourth power about mean
-    Unit of measurement :
-    Type                : double
-
-    # Added by S. Mathijssen (ORIGIN) 14-11-1997
-    # Increment 4.6
-    Identification      : Skewness
-    Description         : Degree of asymmetry of distribution
-    Unit of measurement :
-    Type                : double
-
-    # Added by S. Mathijssen (ORIGIN) 14-11-1997
-    # Increment 4.6
-    Identification      : Kurtosis
-    Description         : Degree of peakedness of distribution
-    Unit of measurement :
-    Type                : double
-
     Identification      : Value
     Description         : A property value
     Unit of measurement :
@@ -249,16 +168,6 @@ START-properties
     Type                : string
     Default             : ""
     Unit of measurement :
-
-    Identification      : BricksizeEast
-    Description         : Bricksize in model East direction in 1D modelling mode
-    Unit of measurement : m
-    Type                : float
-
-    Identification      : BricksizeNorth
-    Description         : Bricksize in model North direction in 1D modelling mode
-    Unit of measurement : m
-    Type                : float
 
     Identification      : PrefSnapstep
     Description         : Prefered step between two snapshot times
@@ -315,19 +224,6 @@ START-properties
     Unit of measurement :
     Type                : string
 
-    Identification      : ProjectSize
-    Description         : Size of the project in relation to the size of the machine. Possible values:
-                          "" or "Small" -> The whole modelling can be run within virtual memory
-                          "Big" Only a very limitted number of snapshots can be held within virtual memory
-                          This field is a 3D only field.
-    Unit of measurement :
-    Type                : string
-
-    Identification      : ProjectNotes
-    Description         : text field where user can write notes about project
-    Unit of measurement :
-    Type                : string
-
     Identification      : ProjectTeam
     Description         : People involved in the Project
     Unit of measurement :
@@ -348,22 +244,8 @@ START-properties
     Unit of measurement :
     Type                : string
 
-    Identification      : PTCouplingMode
-    Description         : One of "Hydrostatic", "LooselyCoupled", "ItCoupled"
-    Unit of measurement :
-    Type                : string
-
     Identification      : WorkflowType
     Description         : One of "StandardCauldron", "DarcyFlow"
-    Unit of measurement :
-    Type                : string
-
-    Identification      : WktGeometryOutline
-    Description         : An XML fragment with an entity name of <WktGeometryOutline> defined by the BPA <WktGeometry> class
-                          containing three entities with names as follows:
-                          <CoordinateOperationName> contains the identifier for the transform of the Crs to/from WGS84
-                          <SrsName> contains the identifier of the Crs, the Shell Geodetic Registry urn
-                          <Wkt> contains the well known text description of the project outline polygon, if it exists.
     Unit of measurement :
     Type                : string
 
@@ -378,9 +260,7 @@ START-properties
     Type                : string
 
     Identification      : OutputOption
-    Description         : Allowed values for the "DepthIoTbl":
-                          "None", "SedimentsOnly" or "SedimentsPlusBasement".
-                          Allowed values for the "TimeIoTbl":
+    Description         : Allowed values for the "TimeIoTbl":
                           "None", "SourceRockOnly", "SedimentsOnly" or
                           "SedimentsPlusBasement".
                           This field specifies the level of detail at
@@ -396,7 +276,7 @@ START-properties
     # Added by S. Mathijssen (ORIGIN) 05-11-1997
     # Increment 1.2
     Identification      : ResultOption
-    Description         : Allowed values for the "DepthIoTbl", "TimeIoTbl":
+    Description         : Allowed values for the "TimeIoTbl":
                           "Simple" and "Full".
                           "Simple" means average, minimum, maximum, standard
                           deviation, sum, sum^2, NP, and Skewness and Kurtosis.
@@ -454,13 +334,13 @@ START-properties
     Default             : 0
 
     Identification      : DeltaX
-    Description         : Same as attribute "BricksizeEast"
+    Description         : Brick size in the X direction
     Unit of measurement : m
     Type                : double
     Default             : 1
 
     Identification      : DeltaY
-    Description         : Same as attribute "BricksizeNorth"
+    Description         : Brick size in the Y direction
     Unit of measurement : m
     Type                : double
     Default             : 1
@@ -535,23 +415,11 @@ START-properties
     Unit of measurement : m
     Type                : double
     Default             : 0
-
+	
     Identification      : BHFName
     Description         : Name of burial history file in output directory
     Unit of measurement :
     Type                : string
-
-    Identification      : XLeft
-    Description         : bottom left of a grid
-    Unit of measurement : m
-    Type                : double
-    Default             : 0
-
-    Identification      : YBottom
-    Description         : bottom left of a grid
-    Unit of measurement : m
-    Type                : double
-    Default             : 0
 
     Identification      : Latitude
     Description         : Latitude of a well
@@ -649,11 +517,6 @@ START-properties
     Unit of measurement :
     Type                : integer
     Default             : -1
-
-    Identification      : MD5Checksum
-    Description         : Hexadecimal checksum of the file specified by HDF5FileName
-    Unit of measurement :
-    Type                : string
 
     Identification      : BPAPresence
     Description         : Whether this map has been uploaded to BPA
@@ -836,54 +699,6 @@ START-properties
     Type                : string
     Unit of measurement :
 
-    Identification      : S1Ini
-    Description         : S1 initial value: The mass of hydrocarbons retained
-                          per mass of rock.
-    Type                : float
-    Unit of measurement : kg/tonne
-
-    Identification      : S1IniGrid
-    Description         : S1 initial value: The mass of hydrocarbons retained
-                          per mass of rock.
-    Type                : string
-    Unit of measurement :
-
-    Identification      : S2Ini
-    Description         : S2 initial value: The remaining generative potential
-                          of the rock which has not yet been transformed into
-                          hydrocarbons
-    Type                : float
-    Unit of measurement : kg/tonne
-
-    Identification      : S2IniGrid
-    Description         : S2 initial value: The remaining generative potential
-                          of the rock which has not yet been transformed into
-                          hydrocarbons
-    Type                : string
-    Unit of measurement :
-
-    Identification      : S3Ini
-    Description         : S3 initial value: Rough measurements of the oxygen
-                          content of the organic matter
-    Type                : float
-    Unit of measurement : kg/tonne
-
-    Identification      : S3IniGrid
-    Description         : S3 initial value: Rough measurements of the oxygen
-                          content of the organic matter
-    Type                : string
-    Unit of measurement :
-
-    Identification      : HCInputMode
-    Description         : Method of inputting the H/C (possible values are "HC", "HI" or "S2")
-    Type                : string
-
-    Identification      : HcIni
-    Description         : H/C initial ratio
-    Type                : float
-    Unit of measurement : kg/tonne C
-    Default             : 1.56
-
     Identification      : HcVRe05
     Description         : H/C initial ratio. H/C at VRe 0.5.
     Type                : float
@@ -895,101 +710,6 @@ START-properties
     Type                : float
     Unit of measurement : kg/tonne C
     Default             : 0
-
-    Identification      : HiIni
-    Description         : HI initial ratio
-    Type                : float
-    Unit of measurement : kg/tonne
-    Default             : 773.5
-
-    Identification      : HcIniGrid
-    Description         : H/C initial ratio
-    Type                : string
-    Unit of measurement :
-
-    Identification      : OcIni
-    Description         : O/C initial ratio
-    Type                : float
-    Unit of measurement : kg/tonne C
-
-    Identification      : OcIniGrid
-    Description         : O/C initial ratio
-    Type                : string
-    Unit of measurement :
-
-    Identification      : NcIni
-    Description         : N/C initial ratio
-    Type                : float
-    Unit of measurement : kg/tonne C
-
-    Identification      : NcIniGrid
-    Description         : N/C initial ratio
-    Type                : string
-    Unit of measurement :
-
-    Identification      : CharLength
-    Description         : Characteristic length of the source Rock.
-                          Measurement for the ease of pimary migration
-    Type                : float
-    Unit of measurement : m
-
-    Identification      : CharLengthGrid
-    Description         : Characteristic length of the source Rock.
-                          Measurement for the ease of pimary migration
-    Type                : string
-    Unit of measurement :
-
-    Identification      : UpperBiot
-    Description         : Biot number for the top boundary of the source rock.
-                          A value to indicate the seal/carrier capacity of the
-                          top of source rock/lithology boundary
-    Type                : float
-    Unit of measurement :
-
-    Identification      : UpperBiotGrid
-    Description         : Biot number for the top boundary of the source rock.
-                          A value to indicate the seal/carrier capacity of the
-                          top of source rock/lithology boundary
-    Type                : string
-    Unit of measurement :
-
-    Identification      : LowerBiot
-    Description         : Biot number for the bottom boundary of the source rock.
-                          A value to indicate the seal/carrier capacity of the
-                          bottom of source rock/lithology boundary
-    Type                : float
-    Unit of measurement :
-
-    Identification      : LowerBiotGrid
-    Description         : Biot number for the bottom boundary of the source rock.
-                          A value to indicate the seal/carrier capacity of the
-                          bottom of source rock/lithology boundary
-    Type                : string
-    Unit of measurement :
-
-    Identification      : KerogenStartAct
-    Description         : The activation energy limit for which the kerogen
-                          cracking starts
-    Type                : float
-    Unit of measurement : kJ/mol
-
-    Identification      : KerogenStartActGrid
-    Description         : The activation energy limit for which the kerogen
-                          cracking starts
-    Type                : string
-    Unit of measurement :
-
-    Identification      : KerogenEndAct
-    Description         : The activation energy limit where the kerogen
-                          cracking ends
-    Type                : float
-    Unit of measurement : kJ/mol
-
-    Identification      : KerogenEndActGrid
-    Description         : The activation energy limit where the kerogen
-                          cracking ends
-    Type                : string
-    Unit of measurement :
 
     Identification      : PreAsphaltStartAct
     Description         : The activation energy limit for which the PreAsphalt
@@ -1003,62 +723,6 @@ START-properties
                           cracking starts
     Type                : string
     Unit of measurement :
-
-    Identification      : PreAsphaltEndAct
-    Description         : The activation energy limit where the PreAsphalt
-                          cracking ends
-    Type                : float
-    Unit of measurement : kJ/mol
-
-    Identification      : PreAsphaltEndActGrid
-    Description         : The activation energy limit where the PreAsphalt
-                          cracking ends
-    Type                : string
-    Unit of measurement :
-
-    Identification      : NettThickIni
-    Description         : Netto initial thickness of the source rock. This
-                          is defined as the gross - non-source rock
-    Type                : float
-    Unit of measurement : m
-
-    Identification      : NettThickIniGrid
-    Description         : Netto initial thickness of the source rock. This
-                          is defined as the gross - non-source rock
-    Type                : string
-    Unit of measurement :
-
-    Identification      : NGenexTimeSteps
-    Description         : Number of time steps to use in the Genex generation
-                          and expulsion calculations
-    Type                : smallint
-    Unit of measurement :
-
-    Identification      : NGenexTimeStepsGrid
-    Description         : Number of time steps to use in the Genex generation
-                          and expulsion calculations
-    Type                : string
-    Unit of measurement :
-
-    Identification      : NGenexSlices
-    Description         : Number of slices in which the source rock will be
-                          modelled with the Genex generation and expulsion
-                          calculations
-    Type                : smallint
-    Unit of measurement :
-
-    Identification      : NGenexSlicesGrid
-    Description         : Number of slices in which the source rock will be
-                          modelled with the Genex generation and expulsion
-                          calculations
-    Type                : string
-    Unit of measurement :
-
-    Identification      : VREini
-    Description         : Vitrinite reflectance of the source rock
-    Type                : float
-    Unit of measurement :
-    Default             : 0.5
 
     Identification      : AsphalteneDiffusionEnergy
     Description         : diffusion energy for asphaltne
@@ -1146,11 +810,6 @@ START-properties
     Unit of measurement : m
     Type                : float
 
-    Identification      : ErrDepth
-    Description         : Error in Depth
-    Unit of measurement : m
-    Type                : float
-
     Identification      : DepthGrid
     Description         : MapName of the "Depth" property
     Unit of measurement : m
@@ -1171,17 +830,6 @@ START-properties
     Description         : depth at which a trap spills
     Unit of measurement : m
     Type                : float
-
-    Identification      : CalibThickness
-    Description         : Calibrated value for 'Thickness'
-    Unit of measurement : m
-    Type                : float
-
-    Identification      : OptimThickness
-    Description         : 0 = No optimization
-                          1 = Optimize formation thickness
-    Type                : integer
-    Unit of measurement :
 
     Identification      : ThicknessGrid
     Description         : MapName of the "Thickness" property
@@ -1256,28 +904,13 @@ START-properties
     Unit of measurement : m
     Type                : float
 
-    Identification      : CalibLithoMantleThickness
-    Description         : Calibrated value for 'LithoMantleThickness'
-    Unit of measurement : m
-    Type                : float
-
     Identification      : InitialLthMntThickns
     Description         : Initial Litho Mantle thickness
     Unit of measurement : m
     Type                : float
 
-    Identification      : CalibInitialLthMntThickns
-    Description         : Calibrated value for 'InitialLthMntThickns'
-    Unit of measurement : m
-    Type                : float
-
     Identification      : FixedCrustThickness
     Description         : Fixed Crust Thickness
-    Unit of measurement : m
-    Type                : float
-
-    Identification      : CalibFixedCrustThickness
-    Description         : Calibrated value for 'FixedCrustThickness'
     Unit of measurement : m
     Type                : float
 
@@ -1440,11 +1073,6 @@ START-properties
     Identification      : Multipoint_Permeability
     Description         : array of characters contining the permeabilities
     Type                : string
-
-    Identification      : Viscosity
-    Description         : The ease in which fluid will flow in Pascal times Second
-    Unit of measurement : PaS
-    Type                : float
 
     Identification      : HeatCapacity
     Description         : Specific heat capacity of lithotype and fluidtypes
@@ -1672,11 +1300,6 @@ START-properties
     Unit of measurement : uW/m3
     Type                : string
 
-    Identification      : CalibTopCrustHeatProd
-    Description         : Calibrated 'TopCrustHeatProd' value
-    Unit of measurement : uW/m3
-    Type                : float
-
     Identification      : CrustHeatPDecayConst
     Description         : The decay constant of the surface Radiogenic heat
                           production of the basement
@@ -1763,13 +1386,6 @@ START-properties
     Type                : double
     Default             : -9999
 
-    Identification      : SpecSurfArea
-    Description         : Specific surface area, factor in a formula to determine
-                          the capillary pressure from the porosity
-    Unit of measurement : m2/g
-    Type                : float
-    Default             : 0.06
-
     Identification      : QuartzGrainSize
     Description         : Size of the grains of quartz, for example average diameter
     Unit of measurement : cm
@@ -1787,13 +1403,6 @@ START-properties
     Unit of measurement : fraction of total area of quartz grain - without unit
     Type                : double
     Default             : 0.0
-
-    Identification      : GeoVariance
-    Description         : Geometric variance, factor in a formula to determine
-                          the capillary pressure from the porosity
-    Unit of measurement :
-    Type                : float
-    Default             : 1.7
 
 #### Rock properties Algorithm parameters ---------------------------------
 
@@ -2110,28 +1719,10 @@ START-properties
 
 #### Calibration / Thermal Indicator properties ---------------------------
 
-# Measured Pressure
-    Identification      : MPressure
-    Description         :
-    Unit of measurement : MPa
-    Type                : double
-
-    Identification      : FormPressureType
-    Description         : Text label which allows user to classify their
-                          press. data as RFT or LOP
-    Unit of measurement :
-    Type                : string
-#   Enum options:        : "RFT" "LPO"
-
 # temperature / BHT (bottom hole temperatures)
 
     Identification      : Temperature
     Description         :
-    Unit of measurement : C (degCentigrade)
-    Type                : double
-
-    Identification      : ErrTemperature
-    Description         : Error in Temperature
     Unit of measurement : C (degCentigrade)
     Type                : double
 
@@ -2146,106 +1737,7 @@ START-properties
     Unit of measurement : C (degCentigrade)
     Type                : double
 
-    Identification      : TempGradient
-    Description         : temperature gradient per formation.
-                          If this option is selected by the user for their
-                          calculation then lithotypes, conductivities etc.
-                          are ignored, and temperature gradient is an input
-                          parameter. Alternatively in a heatflow option
-                          run temperature gradient is calulated for a segment.
-    Unit of measurement : C/m
-    Type                : float
-
-    Identification      : FormTempType
-    Description         : Text label which allows user to classify their
-                          temp. data as BHT, DST, RFT or other
-    Unit of measurement :
-    Type                : string
-#   Enum options:        : "BHT" "RFT" "GEOfile"
-
-    Identification      : CirculationTime
-    Description         : Mud circulation time (for BhtTable)
-    Unit of measurement : min
-    Type                : float
-
-    Identification      : TimeSinceCirStopped
-    Description         : Lenght of time betweem end of mud circulation
-                          and logging tool on the bottom (for BhtTable)
-    Unit of measurement : min
-    Type                : float
-
-    Identification      : Theta
-    Description         : Value calculated in bht correction.
-    Unit of measurement :
-    Type                : float
-
-    Identification      : BitDiameter
-    Description         : Diameter of bit (for BhtTable) (frequently in inches)
-    Unit of measurement : inch
-    Type                : float
-
-    Identification      : MarsdenAcoef
-    Description         : a coefficient of Marsden & Schreurs bht correction
-    Unit of measurement :
-    Type                : float
-
-    Identification      : MarsdenBcoef
-    Description         : b coefficient of Marsden & Schreurs bht correction
-    Unit of measurement :
-    Type                : float
-
-    Identification      : MarsdenCcoef
-    Description         : c coefficient of Marsden & Schreurs bht correction
-    Unit of measurement :
-    Type                : float
-
-# vitrinite reflectance
-
-    Identification      : Vr
-    Description         : Vitrinite Reflectance Value for a VRM (measurement)
-                          or for a VRE model (calculated)
-    Unit of measurement : % reflectivity
-    Type                : float
-
-    Identification      : VrmType
-    Description         : Text label which allows user to classify their VRM
-                          data as one of 3 types (tellocollinite,
-                          desmocoll. & other)
-    Unit of measurement :
-    Type                : string
-
-# Sonic velocity (Sonic log from Logic)
-
-    Identification      : Dt
-    Description         : Sonic Velocity Value for Logic (measurement)
-                          or for a Sonic velocity model (calculated)
-    Unit of measurement : us/m
-    Type                : float
-
-#  Bulk Density (Density log from Logic)
-
-    Identification      : BDensity
-    Description         : Bulk Density Value for Logic (measurement)
-                          or for a Bulk Density model (calculated)
-    Unit of measurement : kg/m^3
-    Type                : float
-
 # Biomarker properties
-
-    Identification      : HopaneIsomerisation
-    Description         :
-    Unit of measurement :
-    Type                : float
-
-    Identification      : SteraneIsomerisation
-    Description         :
-    Unit of measurement :
-    Type                : float
-
-    Identification      : SteraneAromatisation
-    Description         :
-    Unit of measurement :
-    Type                : float
 
     Identification      : HopIsoActEnergy
     Description         :
@@ -2331,11 +1823,6 @@ START-properties
 
     Identification      : FtGrainAge
     Description         : Fission track age of a grain
-    Unit of measurement : Ma
-    Type                : float
-
-    Identification      : FtGrainAgeErr
-    Description         : Error in fission track age of a grain
     Unit of measurement : Ma
     Type                : float
 
@@ -2479,11 +1966,6 @@ START-properties
 
 # smectite illite properties
 
-    Identification      : IlliteFraction
-    Description         : Illite Fraction
-    Unit of measurement :
-    Type                : float
-
     Identification      : ActEnergy1
     Description         : Phase 1 (growth of illite layers within flaky
                           smectite particles) activation energy
@@ -2516,61 +1998,6 @@ START-properties
     Type                : float
 
 #### Run Options / Algorithm choice Properties -----------------------------
-
-    Identification      : FileVersioning
-    Description         : File versioning policy:
-                          1 = no file versioning
-                          2 = IBS - like version numbers
-                          3 = .bak files
-    Type                : integer
-    Unit of measurement :
-
-    Identification      : AutoSaving
-    Description         : Automatically saves the projectfile after a run
-                          0 or NULL = no autosaving
-                          1 = autosaving
-    Type                : integer
-    Unit of measurement :
-
-    Identification      : SaveBeforeEachRun
-    Description         : Saves the whole projectfile before each
-                          montecarlo iteration
-                          0 or NULL = no autosaving
-                          1 = autosaving
-    Type                : integer
-    Unit of measurement :
-
-    Identification      : MaxFileWidth
-    Description         : Max width for the iosets, if a table
-                          exceeds this limit then a block format will be used
-    Type                : integer
-    Unit of measurement :
-
-    Identification      : ConsoleLevel
-    Description         : Level at which messages are send to the console
-                          < 0 means error msssages
-                          > 0 means trace msssages
-    Type                : integer
-    Unit of measurement :
-
-    Identification      : PopupLevel
-    Description         : Level at which messages are popped up
-                          < 0 means error msssages
-                          > 0 means trace msssages
-    Type                : integer
-    Unit of measurement :
-
-    Identification      : LogfileLevel
-    Description         : Level at which messages are send to the logfile
-                          < 0 means error msssages
-                          > 0 means trace msssages
-    Type                : integer
-    Unit of measurement :
-
-    Identification      : CompactionAlgorithm
-    Description         : Active compaction algorithm
-    Type                : string
-    Unit of measurement :
 
     Identification      : BottomBoundaryModel
     Description         : Active Bottom boundary model,
@@ -2652,42 +2079,12 @@ START-properties
     Type                : integer
     Default             : 1
 
-    Identification      : HeatFlowSolution
-    Description         : Heat flow solution model
-    Type                : string
-    Unit of measurement :
-
     Identification      : TopAsthenoTemp
     Description         : Temperature at the top of the asthenospheric mantle
                           (bottom of lithospheric mantle) i.e. melting
                           temperature.
     Type                : float
     Unit of measurement : C (degCentigrade)
-
-    Identification      : UncertaintyAnalysis
-    Description         : Application of uncertainty analysis;  (1 = On, 0 = Off)
-    Type                : boolean
-    Unit of measurement :
-
-    Identification      : SensitivityAnalysis
-    Description         : Application of sensitivity analysis;  (1 = On, 0 = Off)
-    Type                : boolean
-    Unit of measurement :
-
-    Identification      : Him
-    Description         : Values: 1st, 2nd, 3nd, nth
-    Type                : string
-    Unit of measurement :
-
-    Identification      : Hims
-    Description         : Values: single
-    Type                : string
-    Unit of measurement :
-
-    Identification      : NumEstimates
-    Description         : Values: 2,2 or 4,8
-    Type                : string
-    Unit of measurement :
 
     Identification      : CoupledMode
     Description         : Whether or not running Coupled Pressure and Temperature
@@ -2721,21 +2118,6 @@ START-properties
     Unit of measurement :
     Default             : FALSE
 
-    Identification      : ResponseSurfaceModeling
-    Description         : Application of response surface modeling;  (1 = On, 0 = Off)
-    Type                : boolean
-    Unit of measurement :
-
-    Identification      : McHistOutput
-    Description         : Switch for MonteCarlo Histogram output generation  (1 = On, 0 = Off)
-    Type                : boolean
-    Unit of measurement :
-
-    Identification      : RSMxmlOutput
-    Description         : Switch for response surface output generation  (1 = On, 0 = Off)
-    Type                : boolean
-    Unit of measurement :
-
     Identification      : ApplyOtgcToDarcy
     Description         : Indicate whether otgc should be applied to Darcy simulation
     Type                : boolean
@@ -2746,118 +2128,6 @@ START-properties
     Type                : double
     Unit of measurement : Ma
     Default             : 0.001
-
-    Identification      : Optimization
-    Description         : Application of Optimization; boolean value (0 or 1)
-    Type                : boolean
-    Unit of measurement :
-    Default             : 0
-
-    Identification      : FormTempOptimWeight
-    Description         : Relative weight for the optimization function
-    Type                : float
-    Unit of measurement :
-
-    Identification      : VrmOptimWeight
-    Description         : Relative weight for the optimization function
-    Type                : float
-    Unit of measurement :
-
-    Identification      : BiomOptimWeight
-    Description         : Relative weight for the optimization function
-    Type                : float
-    Unit of measurement :
-
-    Identification      : FtOptimWeight
-    Description         : Relative weight for the optimization function
-    Type                : float
-    Unit of measurement :
-
-    Identification      : SmiOptimWeight
-    Description         : Relative weight for the optimization function
-    Type                : float
-    Unit of measurement :
-
-    Identification      : OptimTolerance
-    Description         : Optimality Tolerance for the calibration procedure
-    Type                : double
-    Unit of measurement :
-
-    Identification      : OptimTopCrustHeatProd
-    Description         : 0 = No optimization
-                          1 = Optimize crustal heat production (A0)
-    Type                : integer
-    Unit of measurement :
-
-    Identification      : OptimCrustalThickness
-    Description         : 0 = No optimization
-                          1 = Optimize crustal thicknesses
-    Type                : integer
-    Unit of measurement :
-
-    Identification      : OptimMantleThickness
-    Description         : 0 = No optimization
-                          1 = Optimize the mantle thickness
-    Type                : integer
-    Unit of measurement :
-
-    Identification      : OptimUnconfThickness
-    Description         : 0 = No optimization
-                          1 = Optimize unconformity thicknesses
-    Type                : integer
-    Unit of measurement :
-
-    Identification      : NrMCLoops
-    Description         : Number of monte Carlo loops to be run
-    Type                : integer
-    Unit of measurement :
-
-    Identification      : NrMCSaveEvery
-    Description         : If NrMCSaveEvery > 0 then the project file
-                          together with the output results will be
-                          saved every "NrMCSaveEvery" iterations. These
-                          files can be used for intermediate purposes
-                          and to be able to perform a restart and
-                          continue in case of problems.
-    Type                : integer
-    Unit of measurement :
-
-    Identification      : NrSensSaveEvery
-    Description         : If NrSensSaveEvery > 0 then the project file
-                          together with the output results will be
-                          saved every "NrSensSaveEvery" iterations. These
-                          files can be used for intermediate purposes
-                          and to be able to perform a restart and
-                          continue in case of problems.
-    Type                : integer
-    Unit of measurement :
-
-    Identification      : AnalysisIdentification
-    Description         : Unique identification for the sensitivity analysis
-                          to be perform. For more details see "RBYmontecarlo.dat"
-    Type                : integer
-    Unit of measurement :
-
-    Identification      : AnalysisIndicator
-    Description         : Switch for sensitivity analysis (1 = On, 0 = Off)
-    Type                : boolean
-    Unit of measurement :
-
-    Identification      : PropertyDescription
-    Description         : Description for a property application
-    Type                : string
-    Unit of measurement :
-
-    Identification      : TypeOfDistribution
-    Description         : Values: Uniform, Normal_1SD, Normal_2SD, Normal_3SD
-    Type                : string
-    Unit of measurement :
-
-    Identification      : SGRIndicator
-    Description         : Switch for SGR analysis (1 = On, 0 = Off)
-    Type                : boolean
-    Unit of measurement :
-    Default             : 0
 
     Identification      : BioDegradInd
     Description         : Switch for Biodegradation (1 = On, 0 = Off)
@@ -3830,17 +3100,6 @@ Identification      : HcLiquidBrineCapillaryEntryPressure
     Type                : float
     Default             : 5e5
 
-    Identification      : DepthOffset
-    Description         : offset depth from the top of a formation
-    Unit of measurement : m
-    Type                : double
-    Default             : -9999
-
-    Identification      : DepthOffsetGrid
-    Description         : MapName of the "DepthOffset" property
-    Unit of measurement : m
-    Type                : string
-
     Identification      : NetToGross
     Description         : Net to Gross Percentage
     Unit of measurement : percent
@@ -3851,49 +3110,6 @@ Identification      : HcLiquidBrineCapillaryEntryPressure
     Description         : MapName of the "NetToGross" property
     Unit of measurement : percent
     Type                : string
-
-    Identification      : MicroTraps
-    Description         : microtraps density at the top of the reservoir
-    Unit of measurement : m3/m2
-    Type                : double
-    Default             : -9999
-
-    Identification      : LeakProperty
-    Description         : switch to tell what is leaking gas/oil with without a specified rate (NoLeak/GasLeak/OilLeak/GasLeakRate/OilLeakRate).
-    Unit of measurement :
-    Type                : string
-
-    Identification      : LeakRate
-    Description         : rate at which the oil/gas is leaking.
-    Unit of measurement : kg/m2/ma
-    Type                : double
-    Default             : -9999
-
-    Identification      : LayerFrequency
-    Description         : Sand/Shale Layer Frequency
-    Unit of measurement : km
-    Type                : double
-    Default             : -9999
-
-    Identification      : LayerFrequencyGrid
-    Description         : MapName of the "LayerFrequency" property
-    Unit of measurement :
-    Type                : string
-
-    Identification      : OilSlope
-    Description         : Oil SGR slope
-    Unit of measurement : km
-    Type                : float
-
-    Identification      : GasSlope
-    Description         : Gas SGR slope
-    Unit of measurement :
-    Type                : float
-
-    Identification      : MinimumSGR
-    Description         : Minimun SGR value
-    Unit of measurement :
-    Type                : float
 
 #### BioDegradation Constants -----------------------------
 
@@ -5018,11 +4234,6 @@ Identification      : HcLiquidBrineCapillaryEntryPressure
     Unit of measurement :
     Type                : integer
 
-    Identification      : NumberOfBins
-    Description         : Number of bins in a histogram
-    Unit of measurement :
-    Type                : integer
-
     Identification      : Key
     Description         : Key
     Unit of measurement :
@@ -5530,7 +4741,6 @@ START-property-tables
     Description    : table with general project data
     Version        : 100
     Column         : ProjectName
-    Column         : ProjectSize
     Column         : Description
     Column         : ProjectTeam
     Column         : ProjectStartDate
@@ -5551,13 +4761,6 @@ START-property-tables
     Column         : WindowXMax
     Column         : WindowYMin
     Column         : WindowYMax
-    Column         : WktGeometryOutline
-    Header         : Project data
-
-    Identification : ProjectNotesIoTbl
-    Description    : table with the project notes (multi line!!)
-    Version        : 100
-    Column         : ProjectNotes
     Header         : Project data
 
     Identification : RelatedProjectsIoTbl
@@ -5572,22 +4775,9 @@ START-property-tables
     Column         : BPAColumnName
     Column         : BPAColumnValue
 
-    Identification : IoOptionsIoTbl
-    Description    : table with file io options
-    Version        : 100
-    Column         : MapType
-    Column         : FileVersioning
-    Column         : AutoSaving
-    Column         : SaveBeforeEachRun
-    Column         : MaxFileWidth
-    Column         : ConsoleLevel
-    Column         : PopupLevel
-    Column         : LogfileLevel
-
     Identification : RunOptionsIoTbl
     Description    : table with run options data
     Version        : 100
-    Column         : CompactionAlgorithm
     Column         : VreAlgorithm
     Column         : VelAlgorithm
     Column         : Optimisation_Level
@@ -5598,7 +4788,6 @@ START-property-tables
     Column         : ReservoirDetection
     Column         : PaleoSeeps
     Column         : Legacy
-    Column         : HeatFlowSolution
     Column         : PrefSnapstep
     Column         : StepsPerSegment
     Column         : TempDiffBasedStepping
@@ -5608,8 +4797,6 @@ START-property-tables
     Column         : OptimalSourceRockTempDiff
     Column         : MaxTimeStepIncreaseFactor
     Column         : MinTimeStepDecreaseFactor
-    Column         : BricksizeEast
-    Column         : BricksizeNorth
     Column         : BrickHeightSediment
 # BrickHeightBasement -> replaced by the 2 below:
     Column         : BrickHeightCrust
@@ -5619,36 +4806,13 @@ START-property-tables
     Column         : FractureType
     Column         : FractureModel
     Column         : CalcAllDepthIoProps
-    Column         : UncertaintyAnalysis
-    Column         : SensitivityAnalysis
-    Column         : ResponseSurfaceModeling
-    Column         : NrMCLoops
-    Column         : NrMCSaveEvery
-    Column         : NrSensSaveEvery
-    Column         : Optimization
-    Column         : OptimTopCrustHeatProd
-    Column         : OptimCrustalThickness
-    Column         : OptimMantleThickness
-    Column         : OptimUnconfThickness
-    Column         : FormTempOptimWeight
-    Column         : VrmOptimWeight
-    Column         : BiomOptimWeight
-    Column         : FtOptimWeight
-    Column         : SmiOptimWeight
-    Column         : OptimTolerance
-    Column         : Hims
-    Column         : Him
-    Column         : NumEstimates
     Column         : WorkflowType
-    Column         : PTCouplingMode
     Column         : CoupledMode
     Column         : ChemicalCompaction
     Column         : ChemicalCompactionAlgorithm
     Column         : ConvectiveTerm
     Column         : NonGeometricLoop
     Column         : AllochthonousModelling
-    Column         : McHistOutput
-    Column         : RSMxmlOutput
     Column         : ApplyOtgcToDarcy
     Column         : DarcyMaxTimeStep
     Header         : Run Options
@@ -5663,31 +4827,6 @@ START-property-tables
     Column         : SnapshotFileName
     Header         : Run Options
 
-    # Changed by S. Mathijssen (ORIGIN) 24-11-1997
-    # Increment 1.1 (3D)
-    # New column ModellingMode added.
-    Identification : SensAnalysisIoTbl
-    Description    : table with parameters for the sensitivity analysis
-    Version        : 100
-    Column         : AnalysisIdentification
-    Column         : AnalysisIndicator
-    Column         : PropertyDescription
-    Column         : TypeOfDistribution
-    Column         : ModellingMode
-    Header         : Run Options
-
-    # Changed by S. Mathijssen (ORIGIN) 05-11-1997
-    # Increment 1.2
-    Identification : FilterDepthIoTbl
-    Description    : Determines which properties needs to be present
-                     within the DepthIoTbl
-    Version        : 100
-    Column         : PropertyName
-    Column         : ModellingMode
-    Column         : OutputOption
-    Column         : ResultOption
-    Header         : Run Options
-
     # Changed by S. Mathijssen (ORIGIN) 05-11-1997
     # Increment 1.2
     Identification : FilterTimeIoTbl
@@ -5698,19 +4837,6 @@ START-property-tables
     Column         : ModellingMode
     Column         : OutputOption
     Column         : ResultOption
-    Header         : Run Options
-
-    Identification : FilterTimeDepthIoTbl
-    Description    : Determines which properties needs to be present
-                     within the HistogramMcResultIoTbl
-    Version        : 100
-    Column         : PropertyName
-    Column         : PropertyClass
-    Column         : SurfaceName
-    Column         : FormationName
-    Column         : Time
-    Column         : ResultOption
-    Column         : NumberOfBins
     Header         : Run Options
 
 #### Project - 1d tables --------------------------------------------------
@@ -5728,9 +4854,7 @@ START-property-tables
     Column         : DerFloorElev
     Column         : Waterdepth
     Header         : Location Data
-
-#### Project - 1d tables --------------------------------------------------
-
+	
     Identification : TouchstoneWellIoTbl
     Description    : Table with Well location data for Touchstone
     Version        : 100
@@ -5751,7 +4875,6 @@ START-property-tables
     Column         : MapType
     Column         : MapFileName
     Column         : FileId
-    Column         : MD5Checksum
     Column         : MapSeqNbr
     Column         : HDF5FileName
     Header         : Grid Map Data
@@ -5765,15 +4888,12 @@ START-property-tables
     Column         : SurfaceName
     Column         : DepoAge
     Column         : Depth
-    Column         : ErrDepth
     Column         : DepthGrid
 #  Layer properties:
     Column         : LayerName
     Column         : DepoSequence
     Column         : Thickness
 #  The next two entries for unconformities only
-    Column         : CalibThickness
-    Column         : OptimThickness
     Column         : ThicknessGrid
 #leave ui and io limited to 3 layers only:
     Column         : Lithotype1->LithoTypeIoTbl.Lithotype
@@ -5787,7 +4907,6 @@ START-property-tables
     Column         : MixModel
     Column         : LayeringIndex
     Column         : Fluidtype
-    Column         : TempGradient
     Column         : SourceRock
     Column         : MobileLayer
     Column         : HasAllochthonLitho
@@ -5849,8 +4968,6 @@ START-property-tables
     Column         : Age
     Column         : Thickness
     Column         : ThicknessGrid
-    Column         : CalibThickness
-    Column         : OptimThickness
     #limited to 1 layer only:
     Header         : Crust Thickness Data
 
@@ -5860,8 +4977,6 @@ START-property-tables
     Column         : Age
     Column         : Thickness
     Column         : ThicknessGrid
-    Column         : CalibThickness
-    Column         : OptimThickness
     #limited to 1 layer only:
     Header         : Continental Crust Thickness Data
 
@@ -5886,43 +5001,10 @@ START-property-tables
     Column         : BaseSourceRockType
     Column         : TocIni
     Column         : TocIniGrid
-    Column         : HCInputMode
-    Column         : S1Ini
-    Column         : S1IniGrid
-    Column         : S2Ini
-    Column         : S2IniGrid
-    Column         : S3Ini
-    Column         : S3IniGrid
     Column         : HcVRe05
     Column         : ScVRe05
-    Column         : HcIni
-    Column         : HcIniGrid
-    Column         : HiIni
-    Column         : OcIni
-    Column         : OcIniGrid
-    Column         : NcIni
-    Column         : NcIniGrid
-    Column         : CharLength
-    Column         : CharLengthGrid
-    Column         : UpperBiot
-    Column         : UpperBiotGrid
-    Column         : LowerBiot
-    Column         : LowerBiotGrid
-    Column         : KerogenStartAct
-    Column         : KerogenStartActGrid
-    Column         : KerogenEndAct
-    Column         : KerogenEndActGrid
     Column         : PreAsphaltStartAct
     Column         : PreAsphaltStartActGrid
-    Column         : PreAsphaltEndAct
-    Column         : PreAsphaltEndActGrid
-    Column         : NettThickIni
-    Column         : NettThickIniGrid
-    Column         : NGenexTimeSteps
-    Column         : NGenexTimeStepsGrid
-    Column         : NGenexSlices
-    Column         : NGenexSlicesGrid
-    Column         : VREini
     Column         : AsphalteneDiffusionEnergy
     Column         : ResinDiffusionEnergy
     Column         : C15AroDiffusionEnergy
@@ -5992,7 +5074,6 @@ START-property-tables
     Version        : 100
     Column         : Age
     Column         : Temperature
-    Column         : ErrTemperature
     Column         : TemperatureGrid
     Header         : Surface Temperatures
 
@@ -6028,14 +5109,10 @@ START-property-tables
     Column         : TopAsthenoTemp
     Column         : TopCrustHeatProd
     Column         : TopCrustHeatProdGrid
-    Column         : CalibTopCrustHeatProd
     Column         : CrustHeatPDecayConst
     Column         : LithoMantleThickness
-    Column         : CalibLithoMantleThickness
     Column         : InitialLthMntThickns
-    Column         : CalibInitialLthMntThickns
     Column         : FixedCrustThickness
-    Column         : CalibFixedCrustThickness
     Column         : InitialLithosphericMantleThickness
     Column         : CrustPropertyModel
     Column         : MantlePropertyModel
@@ -6043,94 +5120,7 @@ START-property-tables
 
 
 #### Calibration / Thermal Indicator Data -----------------------------------
-# Measured Pressures:
 
-    Identification : FormPressIoTbl
-    Description    : Measured Pressures for a well
-                     (no correction or after correction)
-    Version        : 100
-    Column         : DepthIndex
-    Column         : MPressure
-    Column         : FormPressureType
-    Column         : Label
-    Header         : Measured Pressures
-
-# temperatures /BHT:
-
-    Identification : FormTempIoTbl
-    Description    : Corrected temperature data for a well
-                     (no correction or after correction)
-    Version        : 100
-    Column         : DepthIndex
-    Column         : Temperature
-    Column         : ErrTemperature
-    Column         : FormTempType
-    Column         : Label
-    Column         : Optimization
-    Header         : Formation Temperatures (corrected)
-
-    Identification : RawBhtIoTbl
-    Description    : Measuered Bottom hole temperature data at depth for well
-                     after ciculation time, before correction (CTCYM/Horner)
-    Version        : 100
-    Column         : DepthIndex
-    Column         : TimeSinceCirStopped
-    Column         : Temperature
-    Column         : ErrTemperature
-    Column         : Theta
-    Header         : Bottom Hole Temperatures (uncorrected)
-
-    Identification : RawBhtBitsizeIoTbl
-    Description    : Additional data at depth used for the calculation of
-                     corrected well temperatures from the Bottom hole
-                     temperature
-    Version        : 100
-    Column         : DepthIndex
-    Column         : CirculationTime
-    Column         : BitDiameter
-    Column         : FormTempType
-    Header         : Bottom Hole Temperatures (uncorrected)
-
-# Bht correction with Marsden & Schreurs polynomial trend fitting
-
-    Identification : MarsdenCoefIoTbl
-    Description    : Data for Marsden & Schreurs polynomial trend
-                     fitting method for bottom hole temperature correction
-    Version        : 100
-    Column         : MarsdenAcoef
-    Column         : MarsdenBcoef
-    Column         : MarsdenCcoef
-    Header         : Marsden & Schreurs polynom coefficients
-
-# Vitrinite reflectance:
-
-    Identification : VrmIoTbl
-    Description    : Measured Vitrinite Reflectance for well
-    Version        : 100
-    Column         : DepthIndex
-    Column         : Vr
-    Column         : VrmType
-    Column         : Label
-    Column         : Optimization
-    Header         : Vitrinite Reflectance Measurements
-
-# Sonic Velocity:
-
-    Identification : SonicIoTbl
-    Version        : 100
-    Description    : Measured Sonic Velocity for well from LOGIC application
-    Column         : Depth
-    Column         : Dt
-    Header         : Sonic Velocity Measurements
-
-# Bulk Density:
-
-    Identification : BulkDensityIoTbl
-    Description    : Measured Density log for well from LOGIC application
-    Version        : 100
-    Column         : Depth
-    Column         : BDensity
-    Header         : Bulk Density Measurements
 # Biomarker  :
 
     Identification : BiomarkerKinIoTbl
@@ -6146,36 +5136,16 @@ START-property-tables
     Column         : SteIsoGamma
     Header         : Biomarker Kinetics
 
-    Identification : BiomarkermIoTbl
-    Description    : Measured biomarker data for well
-    Version        : 100
-    Column         : DepthIndex
-    Column         : HopaneIsomerisation
-    Column         : SteraneIsomerisation
-    Column         : SteraneAromatisation
-    Column         : Optimization
-    Header         : Biomarker Measurements
-
 # Smectite Illite  :
 
     Identification : SmectiteIlliteKinIoTbl
-    Description    :
-    Version        : 100
+    Description    : 
     Column         : ActEnergy1
     Column         : FreqFactor1
     Column         : ActEnergy2
     Column         : FreqFactor2
     Column         : InitIlliteFraction
     Header         : Smectite Illite Kinetics
-
-    Identification : SmectiteIlliteIoTbl
-    Description    : Measured smectite illite data for well
-    Version        : 100
-    Column         : DepthIndex
-    Column         : IlliteFraction
-    Column         : Label
-    Column         : Optimization
-    Header         : Smectite Illite Measurements
 
 # Fission track :
 
@@ -6188,7 +5158,6 @@ START-property-tables
     Column         : FtInducedTrackNo
     Column         : FtClWeightPerc
     Column         : FtGrainAge
-    Column         : FtGrainAgeErr
     Header         : Fission track counts
 
     Identification : FtLengthIoTbl
@@ -6225,7 +5194,6 @@ START-property-tables
     Column         : FtMeanAgeErr
     Column         : FtLengthChi2
     Column         : FtApatiteYield
-    Column         : Optimization
     Header         : Fission track sample data
 
     #Fission track new tables for Cauldron/BPA integration
@@ -6268,24 +5236,8 @@ START-property-tables
     Column         : TrapCapacity
     Column         : ActivityMode
     Column         : ActivityStart
-    Column         : DepthOffset
-    Column         : DepthOffsetGrid
-    Column         : Thickness
-    Column         : ThicknessGrid
     Column         : NetToGross
     Column         : NetToGrossGrid
-    Column         : MicroTraps
-    Column         : LeakProperty
-    Column         : LeakRate
-    Column         : Lithotype1->LithoTypeIoTbl.Lithotype
-    Column         : Percent1
-    Column         : Percent1Grid
-    Column         : Lithotype2->LithoTypeIoTbl.Lithotype
-    Column         : Percent2
-    Column         : Percent2Grid
-    Column         : Lithotype3->LithoTypeIoTbl.Lithotype
-    Column         : LayerFrequency
-    Column         : LayerFrequencyGrid
     Column         : BioDegradInd
     Column         : OilToGasCrackingInd
     Column         : DiffusionInd
@@ -6366,10 +5318,6 @@ START-property-tables
     Column         : Age
     Column         : Depth
     Column         : MapSeqNbr
-    Column         : OilSlope
-    Column         : GasSlope
-    Column         : MinimumSGR
-    Column         : SGRIndicator
     Header         : Palinspastic Map Data
 
     Identification : FaultcutIoTbl
@@ -6628,38 +5576,6 @@ START-property-tables
     Column         : Value
     Header         : datadriller Data
 
-    Identification : SourceRockPropIoTbl
-    Description    : Contains present day source rock properties
-    Version        : 100
-    Column         : LayerName
-    Column         : PropertyName
-    Column         : PropertyUnit
-    Column         : MapFileName
-    Column         : MapType
-    Header         : Present day source rock properties
-
-    Identification : ReservoirPropIoTbl
-    Description    : Contains present day reservoir properties
-    Version        : 100
-    Column         : ReservoirName
-    Column         : PropertyName
-    Column         : PropertyUnit
-    Column         : MapFileName
-    Column         : MapType
-    Header         : Present day reservoir properties
-
-    Identification : GridIoTbl
-    Description    : Contains grid descriptions
-    Version        : 100
-    Column         : GridName
-    Column         : XLeft
-    Column         : YBottom
-    Column         : NumberX
-    Column         : NumberY
-    Column         : DeltaX
-    Column         : DeltaY
-    Header         : Grid descriptions
-
     Identification : MigrationIoTbl
     Description    : Table listing migrations (information through time, read-only)
     Version        : 100
@@ -6718,7 +5634,6 @@ START-property-tables
     Column         : BgColour
     Column         : Pixmap
     Column         : Density
-#    Column         : TExpansionCoef
     Column         : HeatProd
     Column         : SurfacePorosity
     Column         : CompacCoefES
@@ -6761,8 +5676,6 @@ START-property-tables
     Column         : ActivationEnergy
     Column         : MinimumPorosity
     Column         : IgneousIntrusionTemperature
-    Column         : SpecSurfArea
-    Column         : GeoVariance
     Column         : QuartzGrainSize
     Column         : QuartzFraction
     Column         : ClayCoatingFactor
@@ -6833,25 +5746,6 @@ START-property-tables
     Column         : HeatCapacity
     Header         : Fluidtype Data
 
-    Identification : FltDensityIoTbl
-    Description    : Table of temperature dependence of specific heat
-                     capacitiesper fluidtype
-    Version        : 100
-    Column         : Fluidtype
-    Column         : TempIndex
-    Column         : Pressure
-    Column         : Density
-    Header         : Fluidtype Data
-
-    Identification : FltViscoIoTbl
-    Description    : Table which specifies the decrease and increase coefficients
-                     for the permeability for a specific lithology type
-    Version        : 100
-    Column         : Fluidtype
-    Column         : TempIndex
-    Column         : Viscosity
-    Header         : Fluidtype Data
-
 #### User Interface tables ------------------------------------------------
 
     Identification : DisplayContourIoTbl
@@ -6862,40 +5756,6 @@ START-property-tables
     Column         : ContourValue
     Column         : ContourColour
     Header         : Countour settings
-
-# Output results  ------------------------------------------------------
-
-    # Changed by S. Mathijssen (ORIGIN) 14-11-1997
-    # Increment 4.4
-    # Added P15, P50 and P85
-    # Increment 4.6
-    # Added sums of nth power about the mean and
-    # skewness and kurtosis
-    Identification : DepthIoTbl
-    Description    : Table listing the statistics of property values
-                     for serveral depth/time combinations,
-    Version        : 100
-    KEYS           : PropertyName+Time+Depth_
-    Column         : PropertyName
-    Column         : Time
-    Column         : Depth_
-    Column         : Average
-    Column         : StandardDev
-    Column         : Minimum
-    Column         : Maximum
-    Column         : Sum
-    Column         : Sum2
-    Column         : NP
-    Column         : P15
-    Column         : P50
-    Column         : P85
-    Column         : SumFirstPower
-    Column         : SumSecondPower
-    Column         : SumThirdPower
-    Column         : SumFourthPower
-    Column         : Skewness
-    Column         : Kurtosis
-    Header         : Output results
 
     # Changed by S. Mathijssen (ORIGIN) 14-11-1997
     # Increment 4.4
@@ -6913,26 +5773,13 @@ START-property-tables
     Column         : SurfaceName
     Column         : FormationName
     Column         : MapFileName
-    Column         : BPAPresence
-    Column         : MD5Checksum
     Column         : Average
-    Column         : StandardDev
     Column         : Minimum
     Column         : Maximum
     Column         : Sum
     Column         : Sum2
     Column         : NP
     Column         : PropertyGrid
-    Column         : DepoSequence
-    Column         : P15
-    Column         : P50
-    Column         : P85
-    Column         : SumFirstPower
-    Column         : SumSecondPower
-    Column         : SumThirdPower
-    Column         : SumFourthPower
-    Column         : Skewness
-    Column         : Kurtosis
     Header         : Output results
 
     Identification : 3DTimeIoTbl
@@ -7012,7 +5859,7 @@ START-property-tables
     Column         : Format
     Column         : Percentile
     Column         : FaciesMap
-	 Column         : RunName
+	Column         : RunName
     Header         : List of Touchstone Map Combinations
 
 # Genex History location Table
@@ -7064,20 +5911,20 @@ START-property-tables
     Column         : SGMeanBulkDensity
 
 
-    Identification      : SimulationDetailsIoTbl
-    Description		: Details about a particular simulation
+    Identification : SimulationDetailsIoTbl
+    Description    : Details about a particular simulation
     Version        : 100
-    Column		: SimulationSequenceNumber
-    Column		: SimulatorName
-    Column		: SimulatorMode
-    Column		: NumberOfCores
-    Column		: SimulatorCommandLineParameters
+    Column         : SimulationSequenceNumber
+    Column         : SimulatorName
+    Column         : SimulatorMode
+    Column         : NumberOfCores
+    Column         : SimulatorCommandLineParameters
 
 
-    Identification      : OutputTablesFileIoTbl
-    Description         : File to contain output tables, if enabled. Only a single row in the table is allowed.
+    Identification : OutputTablesFileIoTbl
+    Description    : File to contain output tables, if enabled. Only a single row in the table is allowed.
     Version        : 100
-    Column              : Filename
+    Column         : Filename
 
     Identification      : OutputTablesIoTbl
     Description         : Each row will be unique and will contain the name of a table that has been
@@ -7101,14 +5948,10 @@ START-application-class-properties
 
     Class    : Project
     Property : ProjectIoTbl
-    Property : ProjectNotesIoTbl
     Property : RelatedProjectsIoTbl
-    Property : IoOptionsIoTbl
     Property : RunOptionsIoTbl
     Property : SnapshotIoTbl
-    Property : SensAnalysisIoTbl
     Property : WellLocIoTbl
-    Property : TouchstoneWellIoTbl
     Property : TouchstoneMapIoTbl
     Property : GridMapIoTbl
     Property : StratIoTbl
@@ -7121,8 +5964,6 @@ START-application-class-properties
     Property : ContCrustalThicknessIoTbl
     Property : BasaltThicknessIoTbl
     Property : BasementIoTbl
-    Property : FormPressIoTbl
-    Property : FormTempIoTbl
     Property : DisplayContourIoTbl
     Property : SurfaceTempIoTbl
     Property : PermafrostIoTbl
@@ -7131,15 +5972,7 @@ START-application-class-properties
     Property : BoundaryValuesIoTbl
     Property : SurfaceDepthIoTbl
     Property : MntlHeatFlowIoTbl
-    Property : RawBhtIoTbl
-    Property : RawBhtBitsizeIoTbl
-    Property : MarsdenCoefIoTbl
-    Property : VrmIoTbl
-    Property : SonicIoTbl
-    Property : BulkDensityIoTbl
-    Property : BiomarkermIoTbl
     Property : BiomarkerKinIoTbl
-    Property : SmectiteIlliteIoTbl
     Property : SmectiteIlliteKinIoTbl
     Property : ReservoirIoTbl
     Property : ReservoirOptionsIoTbl
@@ -7165,12 +5998,7 @@ START-application-class-properties
     Property : FluidtypeIoTbl
     Property : FltThCondIoTbl
     Property : FltHeatCapIoTbl
-    Property : FltDensityIoTbl
-    Property : FltViscoIoTbl
-    Property : FilterDepthIoTbl
     Property : FilterTimeIoTbl
-    Property : FilterTimeDepthIoTbl
-    Property : DepthIoTbl
     Property : TimeIoTbl
     Property : 3DTimeIoTbl
     Property : 1DTimeIoTbl

@@ -86,7 +86,7 @@ bool DistributedMapWriter::open (const string & fileName, bool append)
 void DistributedMapWriter::setChunking() {
 
    if( m_outFile != 0 and H5_Parallel_PropertyList::isPrimaryPodEnabled () ) {
-      m_outFile->setChunking ( false ) ;//true );
+      m_outFile->setChunking ( true );
    }
       
 }

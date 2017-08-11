@@ -10,6 +10,10 @@ DerivedProperties::DerivedSurfaceProperty::DerivedSurfaceProperty ( const DataMo
 {
 }
 
+DerivedProperties::DerivedSurfaceProperty::~DerivedSurfaceProperty () {
+   m_values.resize( boost::extents[0][0] );
+}
+
 double DerivedProperties::DerivedSurfaceProperty::get ( unsigned int i,
                                                         unsigned int j ) const {
    return m_values[ i - firstI(true)][ j - firstJ(true)];

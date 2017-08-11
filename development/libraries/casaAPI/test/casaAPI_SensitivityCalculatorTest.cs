@@ -1,11 +1,11 @@
-﻿using Shell.BasinModeling.Casa;
+﻿using Bpa2.Basin.Casa;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Collections.Generic;
 
-namespace Shell.BasinModeling.Casa.Test
+namespace Bpa2.Basin.Casa.Test
 {
    /// <summary>
    ///This is a test class for suaAPI
