@@ -1406,17 +1406,6 @@ START-properties
 
 #### Rock properties Algorithm parameters ---------------------------------
 
-    Identification      : CompacCoefSC
-    Description         : Sclater & Christie compaction coefficient for a
-                          lithotype
-    Unit of measurement : km-1
-    Type                : float
-
-    Identification      : CompacCoefFM
-    Description         : Falvey & Middleton compaction coefficient
-    Unit of measurement : km-1
-    Type                : float
-
     Identification      : CompacCoefES
     Description         : Vertical Effective Stress single exponential or SM compaction coefficient
     Unit of measurement : 10-8Pa-1
@@ -5639,8 +5628,6 @@ START-property-tables
     Column         : CompacCoefES
     Column         : CompacCoefESA
     Column         : CompacCoefESB
-    Column         : CompacCoefSC
-    Column         : CompacCoefFM
     Column         : StpThCond
     Column         : ThCondAnisotropy
     Column         : DepoPerm

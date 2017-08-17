@@ -265,7 +265,7 @@ namespace DataAccess
          FgColour, BgColour, Pixmap, HeatProdSource, PermMixModel, Porosity_Model,
          Multipoint_Porosity, Multipoint_Permeability,
          // Doubles
-         Density, HeatProd, SurfacePorosity, CompacCoefES,CompacCoefESA, CompacCoefESB, CompacCoefSC, CompacCoefFM, StpThCond,
+         Density, HeatProd, SurfacePorosity, CompacCoefES,CompacCoefESA, CompacCoefESB, StpThCond,
          ThCondAnisotropy, DepoPerm, PermDecrStressCoef, PermIncrRelaxCoef, PermAnisotropy,
          SeisVelocity, NExponentVelocity, CapC1, CapC2, Compaction_Coefficient_SM, HydraulicFracturingPercent,
          ReferenceSolidViscosity, ActivationEnergy, MinimumPorosity,

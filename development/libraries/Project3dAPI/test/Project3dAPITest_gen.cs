@@ -1619,8 +1619,6 @@ namespace Bpa2.Basin.Project3d.Test
             ph.m_LithotypeIoTbl.setCompacCoefES(id, 3.22);
             ph.m_LithotypeIoTbl.setCompacCoefESA(id, 0);
             ph.m_LithotypeIoTbl.setCompacCoefESB(id, 0);
-            ph.m_LithotypeIoTbl.setCompacCoefSC(id, 0.39);
-            ph.m_LithotypeIoTbl.setCompacCoefFM(id, 1.53);
             ph.m_LithotypeIoTbl.setStpThCond(id, 3.4);
             ph.m_LithotypeIoTbl.setThCondAnisotropy(id, 1);
             ph.m_LithotypeIoTbl.setDepoPerm(id, 6000);
@@ -1676,8 +1674,6 @@ namespace Bpa2.Basin.Project3d.Test
             ph.m_LithotypeIoTbl.setCompacCoefES(id, 3.22);
             ph.m_LithotypeIoTbl.setCompacCoefESA(id, 0);
             ph.m_LithotypeIoTbl.setCompacCoefESB(id, 0);
-            ph.m_LithotypeIoTbl.setCompacCoefSC(id, 0.39);
-            ph.m_LithotypeIoTbl.setCompacCoefFM(id, 1.53);
             ph.m_LithotypeIoTbl.setStpThCond(id, 3.4);
             ph.m_LithotypeIoTbl.setThCondAnisotropy(id, 1);
             ph.m_LithotypeIoTbl.setDepoPerm(id, 6000);
@@ -1733,8 +1729,6 @@ namespace Bpa2.Basin.Project3d.Test
             ph.m_LithotypeIoTbl.setCompacCoefES(id, 7.27);
             ph.m_LithotypeIoTbl.setCompacCoefESA(id, 0);
             ph.m_LithotypeIoTbl.setCompacCoefESB(id, 0);
-            ph.m_LithotypeIoTbl.setCompacCoefSC(id, 0.87);
-            ph.m_LithotypeIoTbl.setCompacCoefFM(id, 3.69);
             ph.m_LithotypeIoTbl.setStpThCond(id, 1.4);
             ph.m_LithotypeIoTbl.setThCondAnisotropy(id, 1.6);
             ph.m_LithotypeIoTbl.setDepoPerm(id, 0.01);
@@ -1790,8 +1784,6 @@ namespace Bpa2.Basin.Project3d.Test
             ph.m_LithotypeIoTbl.setCompacCoefES(id, 7.27);
             ph.m_LithotypeIoTbl.setCompacCoefESA(id, 0);
             ph.m_LithotypeIoTbl.setCompacCoefESB(id, 0);
-            ph.m_LithotypeIoTbl.setCompacCoefSC(id, 0.87);
-            ph.m_LithotypeIoTbl.setCompacCoefFM(id, 3.69);
             ph.m_LithotypeIoTbl.setStpThCond(id, 1.4);
             ph.m_LithotypeIoTbl.setThCondAnisotropy(id, 1.6);
             ph.m_LithotypeIoTbl.setDepoPerm(id, 0.01);
@@ -1847,8 +1839,6 @@ namespace Bpa2.Basin.Project3d.Test
             ph.m_LithotypeIoTbl.setCompacCoefES(id, 7.27);
             ph.m_LithotypeIoTbl.setCompacCoefESA(id, 0);
             ph.m_LithotypeIoTbl.setCompacCoefESB(id, 0);
-            ph.m_LithotypeIoTbl.setCompacCoefSC(id, 0.87);
-            ph.m_LithotypeIoTbl.setCompacCoefFM(id, 3.69);
             ph.m_LithotypeIoTbl.setStpThCond(id, 1.4);
             ph.m_LithotypeIoTbl.setThCondAnisotropy(id, 1.6);
             ph.m_LithotypeIoTbl.setDepoPerm(id, 0.01);
@@ -1904,8 +1894,6 @@ namespace Bpa2.Basin.Project3d.Test
             ph.m_LithotypeIoTbl.setCompacCoefES(id, 7.27);
             ph.m_LithotypeIoTbl.setCompacCoefESA(id, 0);
             ph.m_LithotypeIoTbl.setCompacCoefESB(id, 0);
-            ph.m_LithotypeIoTbl.setCompacCoefSC(id, 0.87);
-            ph.m_LithotypeIoTbl.setCompacCoefFM(id, 3.69);
             ph.m_LithotypeIoTbl.setStpThCond(id, 1.4);
             ph.m_LithotypeIoTbl.setThCondAnisotropy(id, 1.6);
             ph.m_LithotypeIoTbl.setDepoPerm(id, 0.01);
@@ -1961,8 +1949,6 @@ namespace Bpa2.Basin.Project3d.Test
             ph.m_LithotypeIoTbl.setCompacCoefES(id, 4);
             ph.m_LithotypeIoTbl.setCompacCoefESA(id, 0);
             ph.m_LithotypeIoTbl.setCompacCoefESB(id, 0);
-            ph.m_LithotypeIoTbl.setCompacCoefSC(id, 0.39);
-            ph.m_LithotypeIoTbl.setCompacCoefFM(id, 2.18);
             ph.m_LithotypeIoTbl.setStpThCond(id, 1.8);
             ph.m_LithotypeIoTbl.setThCondAnisotropy(id, 1.5);
             ph.m_LithotypeIoTbl.setDepoPerm(id, 50);
@@ -2018,8 +2004,6 @@ namespace Bpa2.Basin.Project3d.Test
             ph.m_LithotypeIoTbl.setCompacCoefES(id, 3.8);
             ph.m_LithotypeIoTbl.setCompacCoefESA(id, 0);
             ph.m_LithotypeIoTbl.setCompacCoefESB(id, 0);
-            ph.m_LithotypeIoTbl.setCompacCoefSC(id, 0.51);
-            ph.m_LithotypeIoTbl.setCompacCoefFM(id, 1.8);
             ph.m_LithotypeIoTbl.setStpThCond(id, 2.5);
             ph.m_LithotypeIoTbl.setThCondAnisotropy(id, 1);
             ph.m_LithotypeIoTbl.setDepoPerm(id, 6000);
@@ -2075,8 +2059,6 @@ namespace Bpa2.Basin.Project3d.Test
             ph.m_LithotypeIoTbl.setCompacCoefES(id, 3.03);
             ph.m_LithotypeIoTbl.setCompacCoefESA(id, 0);
             ph.m_LithotypeIoTbl.setCompacCoefESB(id, 0);
-            ph.m_LithotypeIoTbl.setCompacCoefSC(id, 0.22);
-            ph.m_LithotypeIoTbl.setCompacCoefFM(id, 1.5);
             ph.m_LithotypeIoTbl.setStpThCond(id, 5);
             ph.m_LithotypeIoTbl.setThCondAnisotropy(id, 1);
             ph.m_LithotypeIoTbl.setDepoPerm(id, 6000);
@@ -2132,8 +2114,6 @@ namespace Bpa2.Basin.Project3d.Test
             ph.m_LithotypeIoTbl.setCompacCoefES(id, 7.27);
             ph.m_LithotypeIoTbl.setCompacCoefESA(id, 0);
             ph.m_LithotypeIoTbl.setCompacCoefESB(id, 0);
-            ph.m_LithotypeIoTbl.setCompacCoefSC(id, 0.51);
-            ph.m_LithotypeIoTbl.setCompacCoefFM(id, 1.8);
             ph.m_LithotypeIoTbl.setStpThCond(id, 2.5);
             ph.m_LithotypeIoTbl.setThCondAnisotropy(id, 1.5);
             ph.m_LithotypeIoTbl.setDepoPerm(id, 0.01);
@@ -2189,8 +2169,6 @@ namespace Bpa2.Basin.Project3d.Test
             ph.m_LithotypeIoTbl.setCompacCoefES(id, 7.27);
             ph.m_LithotypeIoTbl.setCompacCoefESA(id, 0);
             ph.m_LithotypeIoTbl.setCompacCoefESB(id, 0);
-            ph.m_LithotypeIoTbl.setCompacCoefSC(id, 0.22);
-            ph.m_LithotypeIoTbl.setCompacCoefFM(id, 1.5);
             ph.m_LithotypeIoTbl.setStpThCond(id, 5);
             ph.m_LithotypeIoTbl.setThCondAnisotropy(id, 1.5);
             ph.m_LithotypeIoTbl.setDepoPerm(id, 0.01);
@@ -2246,8 +2224,6 @@ namespace Bpa2.Basin.Project3d.Test
             ph.m_LithotypeIoTbl.setCompacCoefES(id, 4.83);
             ph.m_LithotypeIoTbl.setCompacCoefESA(id, 0);
             ph.m_LithotypeIoTbl.setCompacCoefESB(id, 0);
-            ph.m_LithotypeIoTbl.setCompacCoefSC(id, 0.71);
-            ph.m_LithotypeIoTbl.setCompacCoefFM(id, 2.5);
             ph.m_LithotypeIoTbl.setStpThCond(id, 2.9);
             ph.m_LithotypeIoTbl.setThCondAnisotropy(id, 1);
             ph.m_LithotypeIoTbl.setDepoPerm(id, 0.1);
@@ -2303,8 +2279,6 @@ namespace Bpa2.Basin.Project3d.Test
             ph.m_LithotypeIoTbl.setCompacCoefES(id, 4.83);
             ph.m_LithotypeIoTbl.setCompacCoefESA(id, 0);
             ph.m_LithotypeIoTbl.setCompacCoefESB(id, 0);
-            ph.m_LithotypeIoTbl.setCompacCoefSC(id, 0.71);
-            ph.m_LithotypeIoTbl.setCompacCoefFM(id, 2.5);
             ph.m_LithotypeIoTbl.setStpThCond(id, 1.6);
             ph.m_LithotypeIoTbl.setThCondAnisotropy(id, 1.4);
             ph.m_LithotypeIoTbl.setDepoPerm(id, 0.01);
@@ -2360,8 +2334,6 @@ namespace Bpa2.Basin.Project3d.Test
             ph.m_LithotypeIoTbl.setCompacCoefES(id, 0);
             ph.m_LithotypeIoTbl.setCompacCoefESA(id, 0);
             ph.m_LithotypeIoTbl.setCompacCoefESB(id, 0);
-            ph.m_LithotypeIoTbl.setCompacCoefSC(id, 0);
-            ph.m_LithotypeIoTbl.setCompacCoefFM(id, 0);
             ph.m_LithotypeIoTbl.setStpThCond(id, 5.8);
             ph.m_LithotypeIoTbl.setThCondAnisotropy(id, 1);
             ph.m_LithotypeIoTbl.setDepoPerm(id, 0);
@@ -2417,8 +2389,6 @@ namespace Bpa2.Basin.Project3d.Test
             ph.m_LithotypeIoTbl.setCompacCoefES(id, 0);
             ph.m_LithotypeIoTbl.setCompacCoefESA(id, 0);
             ph.m_LithotypeIoTbl.setCompacCoefESB(id, 0);
-            ph.m_LithotypeIoTbl.setCompacCoefSC(id, 0);
-            ph.m_LithotypeIoTbl.setCompacCoefFM(id, 0);
             ph.m_LithotypeIoTbl.setStpThCond(id, 6.3);
             ph.m_LithotypeIoTbl.setThCondAnisotropy(id, 1);
             ph.m_LithotypeIoTbl.setDepoPerm(id, 0);
@@ -2474,8 +2444,6 @@ namespace Bpa2.Basin.Project3d.Test
             ph.m_LithotypeIoTbl.setCompacCoefES(id, 0);
             ph.m_LithotypeIoTbl.setCompacCoefESA(id, 0);
             ph.m_LithotypeIoTbl.setCompacCoefESB(id, 0);
-            ph.m_LithotypeIoTbl.setCompacCoefSC(id, 0);
-            ph.m_LithotypeIoTbl.setCompacCoefFM(id, 0);
             ph.m_LithotypeIoTbl.setStpThCond(id, 6.95);
             ph.m_LithotypeIoTbl.setThCondAnisotropy(id, 1);
             ph.m_LithotypeIoTbl.setDepoPerm(id, 0);
@@ -2531,8 +2499,6 @@ namespace Bpa2.Basin.Project3d.Test
             ph.m_LithotypeIoTbl.setCompacCoefES(id, 4.76);
             ph.m_LithotypeIoTbl.setCompacCoefESA(id, 0);
             ph.m_LithotypeIoTbl.setCompacCoefESB(id, 0);
-            ph.m_LithotypeIoTbl.setCompacCoefSC(id, 0.9);
-            ph.m_LithotypeIoTbl.setCompacCoefFM(id, 5);
             ph.m_LithotypeIoTbl.setStpThCond(id, 0.21);
             ph.m_LithotypeIoTbl.setThCondAnisotropy(id, 0.03);
             ph.m_LithotypeIoTbl.setDepoPerm(id, 0);
@@ -2588,8 +2554,6 @@ namespace Bpa2.Basin.Project3d.Test
             ph.m_LithotypeIoTbl.setCompacCoefES(id, 0);
             ph.m_LithotypeIoTbl.setCompacCoefESA(id, 0);
             ph.m_LithotypeIoTbl.setCompacCoefESB(id, 0);
-            ph.m_LithotypeIoTbl.setCompacCoefSC(id, 0);
-            ph.m_LithotypeIoTbl.setCompacCoefFM(id, 0);
             ph.m_LithotypeIoTbl.setStpThCond(id, 2.4);
             ph.m_LithotypeIoTbl.setThCondAnisotropy(id, 1);
             ph.m_LithotypeIoTbl.setDepoPerm(id, 0);
@@ -2645,8 +2609,6 @@ namespace Bpa2.Basin.Project3d.Test
             ph.m_LithotypeIoTbl.setCompacCoefES(id, 0);
             ph.m_LithotypeIoTbl.setCompacCoefESA(id, 0);
             ph.m_LithotypeIoTbl.setCompacCoefESB(id, 0);
-            ph.m_LithotypeIoTbl.setCompacCoefSC(id, 0);
-            ph.m_LithotypeIoTbl.setCompacCoefFM(id, 0);
             ph.m_LithotypeIoTbl.setStpThCond(id, 4.09);
             ph.m_LithotypeIoTbl.setThCondAnisotropy(id, 1);
             ph.m_LithotypeIoTbl.setDepoPerm(id, 0);
@@ -2702,8 +2664,6 @@ namespace Bpa2.Basin.Project3d.Test
             ph.m_LithotypeIoTbl.setCompacCoefES(id, 0);
             ph.m_LithotypeIoTbl.setCompacCoefESA(id, 0);
             ph.m_LithotypeIoTbl.setCompacCoefESB(id, 0);
-            ph.m_LithotypeIoTbl.setCompacCoefSC(id, 0);
-            ph.m_LithotypeIoTbl.setCompacCoefFM(id, 0);
             ph.m_LithotypeIoTbl.setStpThCond(id, 3.2);
             ph.m_LithotypeIoTbl.setThCondAnisotropy(id, 1);
             ph.m_LithotypeIoTbl.setDepoPerm(id, 0);
@@ -2759,8 +2719,6 @@ namespace Bpa2.Basin.Project3d.Test
             ph.m_LithotypeIoTbl.setCompacCoefES(id, 0);
             ph.m_LithotypeIoTbl.setCompacCoefESA(id, 0);
             ph.m_LithotypeIoTbl.setCompacCoefESB(id, 0);
-            ph.m_LithotypeIoTbl.setCompacCoefSC(id, 0);
-            ph.m_LithotypeIoTbl.setCompacCoefFM(id, 0);
             ph.m_LithotypeIoTbl.setStpThCond(id, 3.8);
             ph.m_LithotypeIoTbl.setThCondAnisotropy(id, 1);
             ph.m_LithotypeIoTbl.setDepoPerm(id, 0);
@@ -2816,8 +2774,6 @@ namespace Bpa2.Basin.Project3d.Test
             ph.m_LithotypeIoTbl.setCompacCoefES(id, 2.67);
             ph.m_LithotypeIoTbl.setCompacCoefESA(id, 0);
             ph.m_LithotypeIoTbl.setCompacCoefESB(id, 0);
-            ph.m_LithotypeIoTbl.setCompacCoefSC(id, 0.39);
-            ph.m_LithotypeIoTbl.setCompacCoefFM(id, 1.53);
             ph.m_LithotypeIoTbl.setStpThCond(id, 3.5);
             ph.m_LithotypeIoTbl.setThCondAnisotropy(id, 1);
             ph.m_LithotypeIoTbl.setDepoPerm(id, 6000);
@@ -2873,8 +2829,6 @@ namespace Bpa2.Basin.Project3d.Test
             ph.m_LithotypeIoTbl.setCompacCoefES(id, 5.98);
             ph.m_LithotypeIoTbl.setCompacCoefESA(id, 0);
             ph.m_LithotypeIoTbl.setCompacCoefESB(id, 0);
-            ph.m_LithotypeIoTbl.setCompacCoefSC(id, 0.87);
-            ph.m_LithotypeIoTbl.setCompacCoefFM(id, 3.69);
             ph.m_LithotypeIoTbl.setStpThCond(id, 2);
             ph.m_LithotypeIoTbl.setThCondAnisotropy(id, 1.6);
             ph.m_LithotypeIoTbl.setDepoPerm(id, 0.01);
@@ -2930,8 +2884,6 @@ namespace Bpa2.Basin.Project3d.Test
             ph.m_LithotypeIoTbl.setCompacCoefES(id, 3.47);
             ph.m_LithotypeIoTbl.setCompacCoefESA(id, 0);
             ph.m_LithotypeIoTbl.setCompacCoefESB(id, 0);
-            ph.m_LithotypeIoTbl.setCompacCoefSC(id, 0.51);
-            ph.m_LithotypeIoTbl.setCompacCoefFM(id, 1.8);
             ph.m_LithotypeIoTbl.setStpThCond(id, 1.7);
             ph.m_LithotypeIoTbl.setThCondAnisotropy(id, 1);
             ph.m_LithotypeIoTbl.setDepoPerm(id, 0.01);
@@ -2987,8 +2939,6 @@ namespace Bpa2.Basin.Project3d.Test
             ph.m_LithotypeIoTbl.setCompacCoefES(id, 1.5);
             ph.m_LithotypeIoTbl.setCompacCoefESA(id, 0);
             ph.m_LithotypeIoTbl.setCompacCoefESB(id, 0);
-            ph.m_LithotypeIoTbl.setCompacCoefSC(id, 0.22);
-            ph.m_LithotypeIoTbl.setCompacCoefFM(id, 1.5);
             ph.m_LithotypeIoTbl.setStpThCond(id, 3);
             ph.m_LithotypeIoTbl.setThCondAnisotropy(id, 1);
             ph.m_LithotypeIoTbl.setDepoPerm(id, 0.01);
@@ -3044,8 +2994,6 @@ namespace Bpa2.Basin.Project3d.Test
             ph.m_LithotypeIoTbl.setCompacCoefES(id, 4.83);
             ph.m_LithotypeIoTbl.setCompacCoefESA(id, 0);
             ph.m_LithotypeIoTbl.setCompacCoefESB(id, 0);
-            ph.m_LithotypeIoTbl.setCompacCoefSC(id, 0.71);
-            ph.m_LithotypeIoTbl.setCompacCoefFM(id, 2.5);
             ph.m_LithotypeIoTbl.setStpThCond(id, 1.5);
             ph.m_LithotypeIoTbl.setThCondAnisotropy(id, 1);
             ph.m_LithotypeIoTbl.setDepoPerm(id, 0.1);
@@ -3101,8 +3049,6 @@ namespace Bpa2.Basin.Project3d.Test
             ph.m_LithotypeIoTbl.setCompacCoefES(id, 0);
             ph.m_LithotypeIoTbl.setCompacCoefESA(id, 0);
             ph.m_LithotypeIoTbl.setCompacCoefESB(id, 0);
-            ph.m_LithotypeIoTbl.setCompacCoefSC(id, 0.39);
-            ph.m_LithotypeIoTbl.setCompacCoefFM(id, 1.53);
             ph.m_LithotypeIoTbl.setStpThCond(id, 3.4);
             ph.m_LithotypeIoTbl.setThCondAnisotropy(id, 1);
             ph.m_LithotypeIoTbl.setDepoPerm(id, 6000);
@@ -3158,8 +3104,6 @@ namespace Bpa2.Basin.Project3d.Test
             ph.m_LithotypeIoTbl.setCompacCoefES(id, 0);
             ph.m_LithotypeIoTbl.setCompacCoefESA(id, 0);
             ph.m_LithotypeIoTbl.setCompacCoefESB(id, 0);
-            ph.m_LithotypeIoTbl.setCompacCoefSC(id, 0.39);
-            ph.m_LithotypeIoTbl.setCompacCoefFM(id, 1.53);
             ph.m_LithotypeIoTbl.setStpThCond(id, 3.4);
             ph.m_LithotypeIoTbl.setThCondAnisotropy(id, 1);
             ph.m_LithotypeIoTbl.setDepoPerm(id, 6000);
@@ -3215,8 +3159,6 @@ namespace Bpa2.Basin.Project3d.Test
             ph.m_LithotypeIoTbl.setCompacCoefES(id, 0);
             ph.m_LithotypeIoTbl.setCompacCoefESA(id, 0);
             ph.m_LithotypeIoTbl.setCompacCoefESB(id, 0);
-            ph.m_LithotypeIoTbl.setCompacCoefSC(id, 0.39);
-            ph.m_LithotypeIoTbl.setCompacCoefFM(id, 1.53);
             ph.m_LithotypeIoTbl.setStpThCond(id, 3.4);
             ph.m_LithotypeIoTbl.setThCondAnisotropy(id, 1);
             ph.m_LithotypeIoTbl.setDepoPerm(id, 6000);
@@ -3272,8 +3214,6 @@ namespace Bpa2.Basin.Project3d.Test
             ph.m_LithotypeIoTbl.setCompacCoefES(id, 0);
             ph.m_LithotypeIoTbl.setCompacCoefESA(id, 0);
             ph.m_LithotypeIoTbl.setCompacCoefESB(id, 0);
-            ph.m_LithotypeIoTbl.setCompacCoefSC(id, 0.39);
-            ph.m_LithotypeIoTbl.setCompacCoefFM(id, 1.53);
             ph.m_LithotypeIoTbl.setStpThCond(id, 3.4);
             ph.m_LithotypeIoTbl.setThCondAnisotropy(id, 1);
             ph.m_LithotypeIoTbl.setDepoPerm(id, 6000);

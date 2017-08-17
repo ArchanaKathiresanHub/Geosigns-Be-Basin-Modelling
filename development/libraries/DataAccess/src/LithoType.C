@@ -85,7 +85,7 @@ const string LithoType::s_attributeNames[] =
    "FgColour", "BgColour", "Pixmap", "HeatProdSource", "PermMixModel", "Porosity_Model",
    "Multipoint_Porosity", "Multipoint_Permeability",
    // Doubles
-   "Density", "HeatProd", "SurfacePorosity", "CompacCoefES", "CompacCoefESA","CompacCoefESB", "CompacCoefSC", "CompacCoefFM", "StpThCond",
+   "Density", "HeatProd", "SurfacePorosity", "CompacCoefES", "CompacCoefESA", "CompacCoefESB", "StpThCond",
    "ThCondAnisotropy", "DepoPerm", "PermDecrStressCoef", "PermIncrRelaxCoef", "PermAnisotropy",
    "SeisVelocity", "NExponentVelocity", "CapC1", "CapC2", "Compaction_Coefficient_SM", "HydraulicFracturingPercent",
    "ReferenceSolidViscosity", "ActivationEnergy", "MinimumPorosity", "IgneousIntrusionTemperature",
@@ -173,14 +173,6 @@ double LithoType::getExponentialCompactionCoefficientB () const {
 
 double LithoType::getSoilMechanicsCompactionCoefficient () const {
    return database::getCompaction_Coefficient_SM ( m_record );
-}
-
-double LithoType::getCompacCoefSC () const {
-   return database::getCompacCoefSC ( m_record );
-}
-
-double LithoType::getCompacCoefFM () const {
-   return database::getCompacCoefFM ( m_record );
 }
 
 double LithoType::getQuartzGrainSize () const {

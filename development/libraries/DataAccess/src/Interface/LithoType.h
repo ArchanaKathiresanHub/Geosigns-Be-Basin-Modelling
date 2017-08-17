@@ -84,12 +84,6 @@ namespace DataAccess
          /// Return the soil mechanics compaction coefficient.
          virtual double getSoilMechanicsCompactionCoefficient () const;
 
-         /// This is defined inthe project file, but is not used.
-         virtual double getCompacCoefSC () const;
-
-         /// This is defined inthe project file, but is not used.
-         virtual double getCompacCoefFM () const;
-
          /// Return the size of the grain of quartz for chemical compaction
          virtual double getQuartzGrainSize () const;
 

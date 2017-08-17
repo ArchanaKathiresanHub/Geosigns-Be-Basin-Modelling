@@ -36,8 +36,6 @@ static const char * s_crustIoTblName              = "CrustIoTbl";
 static const char * s_crustIoTblAgeCol            = "Age";
 static const char * s_crustIoTblThicknessCol      = "Thickness";
 static const char * s_crustIoTblMapNameCol        = "ThicknessGrid";
-static const char * s_crustIoTblCalibThicknessCol = "CalibThickness";
-static const char * s_crustIoTblOptimThicknessCol = "OptimThickness";
 
 static constexpr double s_eps = 1.e-8;
 
@@ -216,9 +214,6 @@ ErrorHandler::ReturnCode PrmCrustThinning::setInModel( mbapi::Model & caldModel,
          ok = ok ? ErrorHandler::NoError == caldModel.setTableValue( s_crustIoTblName, i, s_crustIoTblAgeCol,       t[t.size() - i - 1] ) : ok;
          ok = ok ? ErrorHandler::NoError == caldModel.setTableValue( s_crustIoTblName, i, s_crustIoTblThicknessCol, d[d.size() - i - 1] ) : ok;
          ok = ok ? ErrorHandler::NoError == caldModel.setTableValue( s_crustIoTblName, i, s_crustIoTblMapNameCol,   m[m.size() - i - 1] ) : ok;
-         // set to 0 unused columns
-         ok = ok ? ErrorHandler::NoError == caldModel.setTableValue( s_crustIoTblName, i, s_crustIoTblCalibThicknessCol, IbsNoDataValue ) : ok;
-         ok = ok ? ErrorHandler::NoError == caldModel.setTableValue( s_crustIoTblName, i, s_crustIoTblOptimThicknessCol, 0L             ) : ok;
      }
      if ( !ok ) { throw ErrorHandler::Exception( caldModel.errorCode() ) << caldModel.errorMessage(); }
    }
