@@ -718,12 +718,6 @@ START-properties
     Unit of measurement : kJ/mol
     Default             : 216.0
 
-    Identification      : PreAsphaltStartActGrid
-    Description         : The activation energy limit for which the PreAsphalt
-                          cracking starts
-    Type                : string
-    Unit of measurement :
-
     Identification      : AsphalteneDiffusionEnergy
     Description         : diffusion energy for asphaltne
     Type                : float
@@ -4993,7 +4987,6 @@ START-property-tables
     Column         : HcVRe05
     Column         : ScVRe05
     Column         : PreAsphaltStartAct
-    Column         : PreAsphaltStartActGrid
     Column         : AsphalteneDiffusionEnergy
     Column         : ResinDiffusionEnergy
     Column         : C15AroDiffusionEnergy
