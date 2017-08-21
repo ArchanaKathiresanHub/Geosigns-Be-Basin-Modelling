@@ -169,12 +169,6 @@ START-properties
     Default             : ""
     Unit of measurement :
 
-    Identification      : PrefSnapstep
-    Description         : Prefered step between two snapshot times
-    Unit of measurement : Ma
-    Type                : float
-    Default             : 10.0
-
     Identification      : PrefReconstep
     Description         : Initial temperature calculation step
                           at the start of a Snapstep
@@ -884,14 +878,6 @@ START-properties
     Unit of measurement :
     Type                : smallint
     Default             : 1
-
-    Identification      : CalcAllDepthIoProps
-    Description         : Calculate all DepthIoProps through time and store
-                          them in the DepthIoTbl --> 1
-                          Only calculate and store the present day DepthIoProps
-                          and store them in the DepthIoTbl <> 1
-    Unit of measurement :
-    Type                : smallint
 
     Identification      : LithoMantleThickness
     Description         : Lithospheric Mantle thickness
@@ -4771,7 +4757,6 @@ START-property-tables
     Column         : ReservoirDetection
     Column         : PaleoSeeps
     Column         : Legacy
-    Column         : PrefSnapstep
     Column         : StepsPerSegment
     Column         : TempDiffBasedStepping
     Column         : PrefReconstep
@@ -4788,7 +4773,6 @@ START-property-tables
     Column         : FracturePressureFunction
     Column         : FractureType
     Column         : FractureModel
-    Column         : CalcAllDepthIoProps
     Column         : WorkflowType
     Column         : CoupledMode
     Column         : ChemicalCompaction

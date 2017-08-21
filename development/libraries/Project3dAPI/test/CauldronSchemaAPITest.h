@@ -38,7 +38,6 @@ void FillTableRunOptionsIoTbl(project3d::ProjectIoAPI & ph)
 	ph.m_RunOptionsIoTbl->setReservoirDetection(id, 0);
 	ph.m_RunOptionsIoTbl->setPaleoSeeps(id, 0);
 	ph.m_RunOptionsIoTbl->setLegacy(id, 1);
-	ph.m_RunOptionsIoTbl->setPrefSnapstep(id, 10);
 	ph.m_RunOptionsIoTbl->setStepsPerSegment(id, 1);
 	ph.m_RunOptionsIoTbl->setTempDiffBasedStepping(id, 1);
 	ph.m_RunOptionsIoTbl->setPrefReconstep(id, 0.5);
@@ -54,7 +53,6 @@ void FillTableRunOptionsIoTbl(project3d::ProjectIoAPI & ph)
 	ph.m_RunOptionsIoTbl->setFracturePressureFunction(id, "None        ");
 	ph.m_RunOptionsIoTbl->setFractureType(id, "None");
 	ph.m_RunOptionsIoTbl->setFractureModel(id, 1);
-	ph.m_RunOptionsIoTbl->setCalcAllDepthIoProps(id, 0);
 	ph.m_RunOptionsIoTbl->setWorkflowType(id, "");
 	ph.m_RunOptionsIoTbl->setCoupledMode(id, 0);
 	ph.m_RunOptionsIoTbl->setChemicalCompaction(id, 0);
