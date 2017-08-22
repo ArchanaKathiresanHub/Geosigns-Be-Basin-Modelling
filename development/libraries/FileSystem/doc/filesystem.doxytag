@@ -2,20 +2,20 @@
 <tagfile>
   <compound kind="file">
     <name>FilePath.h</name>
-    <path>E:/Build/cld-dev-git/development/libraries/FileSystem/src/</path>
+    <path>C:/trunk_git/development/libraries/FileSystem/src/</path>
     <filename>FilePath_8h</filename>
     <includes id="Path_8h" name="Path.h" local="yes" imported="no">Path.h</includes>
   </compound>
   <compound kind="file">
     <name>FolderPath.h</name>
-    <path>E:/Build/cld-dev-git/development/libraries/FileSystem/src/</path>
+    <path>C:/trunk_git/development/libraries/FileSystem/src/</path>
     <filename>FolderPath_8h</filename>
     <includes id="Path_8h" name="Path.h" local="yes" imported="no">Path.h</includes>
     <class kind="class">ibs::FolderPath</class>
   </compound>
   <compound kind="file">
     <name>Path.h</name>
-    <path>E:/Build/cld-dev-git/development/libraries/FileSystem/src/</path>
+    <path>C:/trunk_git/development/libraries/FileSystem/src/</path>
     <filename>Path_8h</filename>
     <class kind="struct">ibs::PathException</class>
     <class kind="class">ibs::Path</class>
@@ -84,6 +84,10 @@
       <anchor>ab96da29af1acbd0024b55af43dad3b1f</anchor>
       <arglist>(const FolderPath &amp;fld)</arglist>
     </member>
+  </compound>
+  <compound kind="class">
+    <name>ibs::Path</name>
+    <filename>classibs_1_1Path.html</filename>
     <member kind="function">
       <type></type>
       <name>Path</name>
@@ -168,10 +172,6 @@
       <anchor>a2e6454837655990fdc5b3267a8a48f9b</anchor>
       <arglist>()</arglist>
     </member>
-  </compound>
-  <compound kind="class">
-    <name>ibs::Path</name>
-    <filename>classibs_1_1Path.html</filename>
   </compound>
   <compound kind="struct">
     <name>ibs::PathException</name>

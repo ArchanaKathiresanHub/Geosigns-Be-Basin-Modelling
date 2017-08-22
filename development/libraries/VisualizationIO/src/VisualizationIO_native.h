@@ -19,7 +19,7 @@ namespace CauldronIO
     struct DataStoreParams;
     class DataStoreLoad;
 
-    /// \brief Map class implementation with native retrieve of data
+    /// \brief Map class implementation with "native" retrieve of data - meaning converted to xml/cldrn format
     class MapNative : public SurfaceData
     {
     public:

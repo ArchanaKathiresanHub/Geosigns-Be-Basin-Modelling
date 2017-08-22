@@ -76,12 +76,14 @@ CauldronIO::DataStoreLoad::~DataStoreLoad()
 
 float* CauldronIO::DataStoreLoad::getData(size_t& uncompressedSize)
 {
+    // Get the compressed data from file
     if (!m_data_uncompressed)
         prefetch();
 
     size_t compressedSize = m_params->size;
     float* result = (float*)m_data_uncompressed;
 
+    // Decompress using gzip
     if (m_params->compressed && !m_params->compressed_lz4)
     {
         char* resultChar = decompress(m_data_uncompressed, compressedSize);
@@ -91,15 +93,18 @@ float* CauldronIO::DataStoreLoad::getData(size_t& uncompressedSize)
         if (compressedSize != uncompressedSize)
             throw CauldronIOException("Error during gzip decompression");
     }
+    // Decompress using lz4
     else if (m_params->compressed_lz4)
     {
         char* resultChar = decompress_lz4(m_data_uncompressed, compressedSize, uncompressedSize);
         result = (float*)resultChar;
         delete[] m_data_uncompressed;
     }
+    // No decompression needed
     else
         uncompressedSize = compressedSize;
 
+    // Release pointer to data - do not delete, we do not own the data
     m_data_uncompressed = nullptr;
     return result;
 }
@@ -108,6 +113,7 @@ void CauldronIO::DataStoreLoad::prefetch()
 {
     if (!m_data_uncompressed)
     {
+        // Read from disk
         size_t compressedSize = m_params->size;
         m_file_in.seekg(m_params->offset);
         m_data_uncompressed = new char[compressedSize];
@@ -120,6 +126,7 @@ char* CauldronIO::DataStoreLoad::decompress(const char* inputData, size_t& eleme
     std::stringstream data, result;
     data.write(inputData, elements);
 
+    // Use boost streams to decompress gzip 
     boost::iostreams::filtering_streambuf<boost::iostreams::input> out;
     out.push(boost::iostreams::gzip_decompressor());
     out.push(data);
@@ -139,6 +146,7 @@ char* CauldronIO::DataStoreLoad::decompress_lz4(const char* inputData, size_t co
     char* dest = new char[uncompressedSize];
     size_t actualCompressedSize = (size_t)LZ4_decompress_fast(inputData, dest, (int)uncompressedSize);
 
+    // Check for success
     if (compressedSize != actualCompressedSize)
         throw CauldronIOException("Error during decompression");
 
@@ -149,7 +157,7 @@ void CauldronIO::DataStoreLoad::getVolume(pugi::xml_node ptree, std::shared_ptr<
 {
     bool foundSome = false;
 
-    // There can be two datastores for a volume (one per orientation)
+    // There can be two datastores for a volume (one per orientation) - note: this has not been encountered yet
     for (pugi::xml_node datastoreNode = ptree.child("datastore"); datastoreNode; datastoreNode = datastoreNode.next_sibling("datastore"))
     {
         foundSome = true;
@@ -172,7 +180,8 @@ CauldronIO::DataStoreParams* CauldronIO::DataStoreLoad::getDatastoreParams(pugi:
 {
     DataStoreParams* paramsNative = new DataStoreParams();
 
-    // Check for partial path
+    /// Check for partial path - when projects are converted and then additional data is added from another converted project
+    /// by adding references (so not the data itself) this can be accounted for by using partial paths
     pugi::xml_attribute partialPath = datastoreNode.attribute("partialpath");
     if (!partialPath || partialPath.as_bool())
     {
@@ -221,7 +230,7 @@ CauldronIO::DataStoreSave::DataStoreSave(const std::string& filename, bool appen
     m_fileName = filename;
     m_flushed = false;
     m_offset = 0;
-    m_rewrite = rewrite;
+    m_rewrite = rewrite; // rewrite is true for NOT derived properties
 }
 
 CauldronIO::DataStoreSave::~DataStoreSave()

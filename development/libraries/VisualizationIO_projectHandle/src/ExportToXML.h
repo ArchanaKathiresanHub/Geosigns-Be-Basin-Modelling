@@ -28,9 +28,11 @@ namespace CauldronIO
         /// \brief Exports the current Project to XML and saves all 2D and 3D data in the supplied path
         /// Returns true on success, throws a CauldronIOException on failure
         /// \param[in] project the project to export to XML
+        /// \param[in] projectExisting an existing converted project; it will be checked if data to be converted is present there, and then be referenced
         /// \param[in] absPath the path with the xml file name 
         /// \param[in] numThreads number of threads (optional) used for compression
         /// \param[in] center if true, cell-center all properties except depth
+        /// \param[in] derivedProperties if true, these are derived properties; save to separate file
         static bool exportToXML(std::shared_ptr<Project>& project, const std::shared_ptr<Project>& projectExisting,
 			const std::string& absPath, size_t numThreads = 1, bool center = false, const bool derivedProperties = false);
        

@@ -69,7 +69,10 @@ CauldronIO::ExportToXML::ExportToXML(const ibs::FilePath& absPath, const ibs::Fi
 void ExportToXML::addProject(pugi::xml_node pt, std::shared_ptr<Project>& project, const std::shared_ptr<Project>& projectExisting)
 {
 	m_project = project;
-	m_projectExisting = projectExisting;
+	
+    // If there is an existing project, it is checked if data to be stored isn't already stored in the existing project
+    // if true, when such data is encountered, we add references to the existing project and not duplicating the data
+    m_projectExisting = projectExisting;
 
 	// Add general project description
 	pt.append_child("name").text() = project->getName().c_str();
@@ -83,7 +86,10 @@ void ExportToXML::addProject(pugi::xml_node pt, std::shared_ptr<Project>& projec
 	ptxml.append_attribute("major") = xml_version_major;
 	ptxml.append_attribute("minor") = xml_version_minor;
 
-	m_append = detectAppend(project);
+	// Append is true if we're exporting new (native) data to an existing vizIO project - 
+    // this is detected by inspecting the offered project and checking if the implementation is native, and not coming from project3D
+    // Note - this mode is unused afaik, and probably untested. The preferred way would be to have an existing project instead
+    m_append = detectAppend(project);
 
 	// Write all properties
 	pugi::xml_node propertyNode = pt.append_child("properties");
@@ -499,6 +505,7 @@ void CauldronIO::ExportToXML::addSnapShot(const std::shared_ptr<SnapShot>& snapS
     std::cout << "Writing snapshot Age=" << snapshotString << std::endl;
 
     ibs::FilePath volumeStorePath(m_fullPath);
+    // Derived properties are stored separately - don't know why
     if(m_derivedProperties) {
        volumeStorePath << "Snapshot_" + snapshotString + "_fp_volumes.cldrn";
     } else {
@@ -507,6 +514,7 @@ void CauldronIO::ExportToXML::addSnapShot(const std::shared_ptr<SnapShot>& snapS
     DataStoreSave volumeStore(volumeStorePath.path(), m_append, not m_derivedProperties);
 
     ibs::FilePath surfaceStorePath(m_fullPath);
+    // Derived properties are stored separately - don't know why
     if(m_derivedProperties) {
        surfaceStorePath << "Snapshot_" + snapshotString + "_fp_surfaces.cldrn";
     } else {

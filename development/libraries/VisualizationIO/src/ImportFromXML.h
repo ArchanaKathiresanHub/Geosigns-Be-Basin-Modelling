@@ -36,6 +36,8 @@ namespace CauldronIO
     private:
 
         explicit ImportFromXML(const ibs::FilePath& absPath);
+        
+        // subroutines to load specific part of the XML file
         std::shared_ptr<Property> getProperty(pugi::xml_node propertyNode) const;
         std::shared_ptr<Formation> getFormation(pugi::xml_node formationNode, const ibs::FilePath& fullOutputPath) const;
         std::shared_ptr<Project> getProject(const pugi::xml_document& pt, const bool loadTables = true);

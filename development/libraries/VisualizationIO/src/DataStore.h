@@ -31,16 +31,16 @@ namespace CauldronIO
     class Geometry2D;
     class Geometry3D;
 
-    /// \brief Little struct to hold parameters to retrieve data 
+    /// \brief Little struct to hold parameters to be able to retrieve data from disk
     struct DataStoreParams
     {
         DataStoreParams() : fileName("") { ; }
         
         ibs::FilePath fileName;
-        size_t offset;
-        size_t size;
-        bool compressed;
-        bool compressed_lz4;
+        size_t offset;       // offset within the file
+        size_t size;         // size of data chunk
+        bool compressed;     // true if compressed
+        bool compressed_lz4; // true if compressed with lz4 algorithm
     };
 
     /// \brief Little class to load data from binary storage
