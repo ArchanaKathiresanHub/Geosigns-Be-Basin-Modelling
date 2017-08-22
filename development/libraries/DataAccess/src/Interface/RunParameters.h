@@ -95,8 +95,6 @@ namespace DataAccess
          /// Overpressure optimisation level string.
          virtual const std::string& getOptimisationLevelStr () const;
 
-         /// Indicates when ves constraints are permitted during the overpressure calculation.
-         virtual bool getConstrainVES () const;
          /// @}
 
          /// \name Fastmig parameters.

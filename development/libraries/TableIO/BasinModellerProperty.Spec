@@ -2043,11 +2043,6 @@ START-properties
     Property I/O        : No
     Default             : 1
 
-    Identification      : Constrain_VES
-    Description         : Constrain VES to be greater than zero/Reference VES (0 or 1.0e5)(Should be Boolean)
-    Type                : integer
-    Default             : 1
-
     Identification      : TopAsthenoTemp
     Description         : Temperature at the top of the asthenospheric mantle
                           (bottom of lithospheric mantle) i.e. melting
@@ -4751,7 +4746,6 @@ START-property-tables
     Column         : VelAlgorithm
     Column         : Optimisation_Level
     Column         : Temperature_Gradient
-    Column         : Constrain_VES
     Column         : AdvancedMigration
     Column         : HydrodynamicCapillaryPressure
     Column         : ReservoirDetection

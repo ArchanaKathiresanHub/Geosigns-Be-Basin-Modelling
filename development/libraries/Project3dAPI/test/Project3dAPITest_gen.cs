@@ -38,7 +38,6 @@ namespace Bpa2.Basin.Project3d.Test
             ph.m_RunOptionsIoTbl.setVelAlgorithm(id, "Gardner's Velocity-Density");
             ph.m_RunOptionsIoTbl.setOptimisation_Level(id, "Level 4 (default)");
             ph.m_RunOptionsIoTbl.setTemperature_Gradient(id, 30);
-            ph.m_RunOptionsIoTbl.setConstrain_VES(id, 0);
             ph.m_RunOptionsIoTbl.setAdvancedMigration(id, 0);
             ph.m_RunOptionsIoTbl.setHydrodynamicCapillaryPressure(id, 0);
             ph.m_RunOptionsIoTbl.setReservoirDetection(id, 0);
