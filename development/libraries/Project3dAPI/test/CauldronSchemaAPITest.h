@@ -5294,8 +5294,6 @@ void FillTableFluidtypeIoTbl(project3d::ProjectIoAPI & ph)
 	ph.m_FluidtypeIoTbl->setSalinity(id, 0);
 	ph.m_FluidtypeIoTbl->setHeatCaptype(id, "Std. Water");
 	ph.m_FluidtypeIoTbl->setThermCondtype(id, "Std. Water");
-	ph.m_FluidtypeIoTbl->setDenstype(id, "Std. Water");
-	ph.m_FluidtypeIoTbl->setViscotype(id, "Std. Water");
 	id = ph.m_FluidtypeIoTbl->addRecord(project3d::TableFluidtypeIoTbl::Record());
 	ph.m_FluidtypeIoTbl->setFluidtype(id, "Std. Marine Water");
 	ph.m_FluidtypeIoTbl->setDescription(id, "KSEPL's Standard Marine Water");
@@ -5311,8 +5309,6 @@ void FillTableFluidtypeIoTbl(project3d::ProjectIoAPI & ph)
 	ph.m_FluidtypeIoTbl->setSalinity(id, 0.13);
 	ph.m_FluidtypeIoTbl->setHeatCaptype(id, "Std. Water");
 	ph.m_FluidtypeIoTbl->setThermCondtype(id, "Std. Water");
-	ph.m_FluidtypeIoTbl->setDenstype(id, "Std. Water");
-	ph.m_FluidtypeIoTbl->setViscotype(id, "Std. Water");
 	id = ph.m_FluidtypeIoTbl->addRecord(project3d::TableFluidtypeIoTbl::Record());
 	ph.m_FluidtypeIoTbl->setFluidtype(id, "Std. Hyper Saline Water");
 	ph.m_FluidtypeIoTbl->setDescription(id, "KSEPL's Standard Ultra Marine Water");
@@ -5328,8 +5324,6 @@ void FillTableFluidtypeIoTbl(project3d::ProjectIoAPI & ph)
 	ph.m_FluidtypeIoTbl->setSalinity(id, 0.22);
 	ph.m_FluidtypeIoTbl->setHeatCaptype(id, "Std. Water");
 	ph.m_FluidtypeIoTbl->setThermCondtype(id, "Std. Water");
-	ph.m_FluidtypeIoTbl->setDenstype(id, "Std. Water");
-	ph.m_FluidtypeIoTbl->setViscotype(id, "Std. Water");
 	id = ph.m_FluidtypeIoTbl->addRecord(project3d::TableFluidtypeIoTbl::Record());
 	ph.m_FluidtypeIoTbl->setFluidtype(id, "MyFluid");
 	ph.m_FluidtypeIoTbl->setDescription(id, "KSEPL's Standard Marine Water");
@@ -5345,8 +5339,6 @@ void FillTableFluidtypeIoTbl(project3d::ProjectIoAPI & ph)
 	ph.m_FluidtypeIoTbl->setSalinity(id, 0.13);
 	ph.m_FluidtypeIoTbl->setHeatCaptype(id, "Std. Water");
 	ph.m_FluidtypeIoTbl->setThermCondtype(id, "Std. Water");
-	ph.m_FluidtypeIoTbl->setDenstype(id, "Std. Water");
-	ph.m_FluidtypeIoTbl->setViscotype(id, "Std. Water");
 }
 void FillTableFltThCondIoTbl(project3d::ProjectIoAPI & ph)
 {

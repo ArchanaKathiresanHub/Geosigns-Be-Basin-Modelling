@@ -3573,12 +3573,6 @@ void ProjectHandle::numberInputValues( void )
    for ( inputValueIter = m_inputValues.begin(); inputValueIter != m_inputValues.end(); ++inputValueIter )
    {
       InputValue * inputValue = *inputValueIter;
-      if ( ( index = inputValue->computeIndex() ) > maxIndexUsed ) maxIndexUsed = index;
-   }
-
-   for ( inputValueIter = m_inputValues.begin(); inputValueIter != m_inputValues.end(); ++inputValueIter )
-   {
-      InputValue * inputValue = *inputValueIter;
       if ( ( index = inputValue->applyIndex( maxIndexUsed + 1 ) ) > maxIndexUsed ) maxIndexUsed = index;
    }
 }

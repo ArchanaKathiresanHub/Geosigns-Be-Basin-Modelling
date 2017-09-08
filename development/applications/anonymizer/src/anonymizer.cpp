@@ -137,7 +137,6 @@ void Anonymizer::read()
    createMapping( "ReservoirIoTbl", "ReservoirName", m_reservoirNames );
 
    createMapping( "GridMapIoTbl", "MapFileName", m_mapFileNames );
-   createMapping( "GridMapIoTbl", "HDF5FileName", m_mapFileNames );
 
    createMapping( "TouchstoneMapIoTbl", "TcfName", m_mapFileNames );
 

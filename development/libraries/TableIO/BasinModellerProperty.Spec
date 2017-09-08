@@ -90,9 +90,9 @@ START-properties
     Description         : volume fraction of lithotype2 in rock matrix at STP
     Unit of measurement : volume%
     Type                : string
-
+    
     Identification      : Percent3
-    Description         : volume fraction of lithotype3 in rock matrix at STP
+    Description         : volume fraction of lithotype2 in rock matrix at STP
     Unit of measurement : volume%
     Type                : float
 
@@ -491,11 +491,6 @@ START-properties
     Unit of measurement :
     Type                : smallint
 
-    Identification      : HDF5FileName
-    Description         : Filename of the grid map (with extension)
-    Unit of measurement :
-    Type                : string
-
     Identification      : DataSetName
     Description         : DataSet name in the file
     Unit of measurement :
@@ -505,12 +500,6 @@ START-properties
     Description         : Group name in the file
     Unit of measurement :
     Type                : string
-
-    Identification      : FileId
-    Description         : inode number identifying the file
-    Unit of measurement :
-    Type                : integer
-    Default             : -1
 
     Identification      : BPAPresence
     Description         : Whether this map has been uploaded to BPA
@@ -595,21 +584,6 @@ START-properties
     Description         : name of fluid type used to identify a set of
                           material properties of that fluid type (In the
                           first version we only have one fluid = water)
-    Unit of measurement :
-    Type                : string
-
-    Identification      : Denstype
-    Description         : name of fluid type used to identify a set of
-                          material properties of that fluid type (In the
-                          first version we only have one fluid = water)
-    Unit of measurement :
-    Type                : string
-
-    Identification      : Viscotype
-    Description         : name of fluid type used to identify a set of
-                          material properties of that fluid type (In the
-                          first version we only have one fluid = water)
-
     Unit of measurement :
     Type                : string
 
@@ -4835,9 +4809,7 @@ START-property-tables
     Column         : MapName
     Column         : MapType
     Column         : MapFileName
-    Column         : FileId
     Column         : MapSeqNbr
-    Column         : HDF5FileName
     Header         : Grid Map Data
 
 #### Stratigraphic data --------------------------------------------------
@@ -5680,8 +5652,6 @@ START-property-tables
     Column         : Salinity
     Column         : HeatCaptype
     Column         : ThermCondtype
-    Column         : Denstype
-    Column         : Viscotype
     Header         : Fluidtype Data
 
     Identification : FltThCondIoTbl

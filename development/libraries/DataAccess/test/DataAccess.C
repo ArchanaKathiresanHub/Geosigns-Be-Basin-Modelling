@@ -126,7 +126,6 @@ TEST(DataAccess, OpenCauldronProject)
    EXPECT_EQ( fluidList->size(), 4 );
    const DataAccess::Interface::FluidType * fluid = (*fluidList)[1];
    EXPECT_EQ( fluid->getName(), "Std. Marine Water" );
-   EXPECT_DOUBLE_EQ( fluid->getDensityFluidType()->density(), 1000. );
    EXPECT_DOUBLE_EQ( fluid->getConstantSeismicVelocity(), 1500. );
    EXPECT_EQ( fluid->getSeismicVelocityCalculationModel(), DataAccess::Interface::CALCULATED_MODEL );
    EXPECT_DOUBLE_EQ( fluid->salinity(), 0.13 );

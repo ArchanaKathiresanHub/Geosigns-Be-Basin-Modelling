@@ -469,7 +469,6 @@ void FastDepthCalibration::modifyTables(const mbapi::StratigraphyManager::Surfac
 		if (NoError != m_mdl->setTableValue("GridMapIoTbl", m_correctedMapsIDs[it->first], "MapName", m_correctedMapsNames[it->first])) { throw T2Zexception() << "Cannot set MapName in GridMapIoTbl "; }
 		if (NoError != m_mdl->setTableValue("GridMapIoTbl", m_correctedMapsIDs[it->first], "MapType", "HDF5")) { throw T2Zexception() << "Cannot set MapType in GridMapIoTbl "; }
 		if (NoError != m_mdl->setTableValue("GridMapIoTbl", m_correctedMapsIDs[it->first], "MapFileName", s_resultsFile)) { throw T2Zexception() << "Cannot set MapFileName in GridMapIoTbl "; }
-		if (NoError != m_mdl->setTableValue("GridMapIoTbl", m_correctedMapsIDs[it->first], "FileId", (long)-1)) { throw T2Zexception() << "Cannot set FileId in GridMapIoTbl "; }
 		if (NoError != m_mdl->setTableValue("GridMapIoTbl", m_correctedMapsIDs[it->first], "MapSeqNbr", (long)m_correctedMapsSequenceNbr[it->first])) { throw T2Zexception() << "Cannot set MapSeqNbr in GridMapIoTbl "; }
 	}
 }

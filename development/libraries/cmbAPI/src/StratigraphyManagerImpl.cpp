@@ -298,7 +298,7 @@ ErrorHandler::ReturnCode StratigraphyManagerImpl::setLayerLithologiesList( Layer
          throw Exception( NonexistingID ) << "No layer with ID: " << id << " in stratigraphy table";
       }
 
-      assert( !lithoList.empty() && lithoList.size() == lithoPercent.size() );
+      assert( !lithoList.empty() && lithoList.size() == lithoPercent.size());
 
       // set 1st lithology
       rec->setValue<std::string>( s_lithoType1FiledName,        lithoList[0]    );

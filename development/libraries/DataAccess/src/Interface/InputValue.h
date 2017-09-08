@@ -67,7 +67,6 @@ namespace DataAccess
 		   inline void setIndex(unsigned int index);
 	       inline unsigned int getIndex (void);
 
-	       unsigned int computeIndex ();
 	       unsigned int applyIndex (unsigned int index);
 
 	       string saveToDirectory (const string & directory);

@@ -87,14 +87,6 @@ const FluidType* FluidType::getThermalConductivityFluidType () const {
    return m_projectHandle->findFluid ( getThermalConductivityFluidName ());
 }
 
-const std::string& FluidType::getDensityFluidName () const {
-   return database::getDenstype ( m_record );
-}
-
-const FluidType* FluidType::getDensityFluidType () const {
-   return m_projectHandle->findFluid ( getDensityFluidName ());
-}
-
 FluidHeatCapacitySampleList* FluidType::getFluidHeatCapacitySamples () const {
    return m_projectHandle->getFluidHeatCapacitySampleList ( this );
 }

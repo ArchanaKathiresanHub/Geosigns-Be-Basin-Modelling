@@ -581,9 +581,6 @@ int main (int argc, char ** argv)
             setMapFileName (gridMapIoRecord, outputMapFileName);
             setMapType (gridMapIoRecord, "HDF5");
 
-            setFileId (gridMapIoRecord, -1);
-            setHDF5FileName (gridMapIoRecord, "");
-
             if (fileNameFound)
                continue;
 
