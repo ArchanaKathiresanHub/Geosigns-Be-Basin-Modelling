@@ -26,6 +26,7 @@ add_external_project_to_repository(
          "./configure" 
             "--prefix={ROOT}" 
       BUILD_COMMAND   "make"
+      TEST_COMMAND    "${CMAKE_COMMAND}" "-E" "echo" "Valgrind has no tests."
       INSTALL_COMMAND "make" "install"
       CONFIGURE_OPTIONS 
         COMPILER "{CurrentCompiler}"   # Always use system default compiler

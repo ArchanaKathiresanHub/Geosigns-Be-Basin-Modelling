@@ -1037,3 +1037,4 @@ std::shared_ptr<Formation> CauldronIO::ImportFromXML::getFormation(pugi::xml_nod
 
     return formation;
 }
+

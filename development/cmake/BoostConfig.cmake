@@ -51,15 +51,16 @@ if (UNIX)
    # Add Boost as an external project
    add_external_project_to_repository(
          NAME Boost
-         VERSION 1.59.0
-         ARCHIVE "${THIRD_PARTY_DIR}/sources/boost_1_59_0.tar.gz"
-         ARCHIVE_MD5 "4f3bcac57378b2bf0e4f82d4904fca91"
+         VERSION 1.65.1
+         ARCHIVE "${THIRD_PARTY_DIR}/sources/boost_1_65_1.tar.gz"
+         ARCHIVE_MD5 "ee64fd29a3fe42232c6ac3c419e523cf"
          PATCH_COMMAND
             "./bootstrap.sh"
             "--with-libraries=${COMMA_SEP_BOOST_LIBS_LIST}"
             "--prefix={ROOT}"
          CONFIGURE_COMMAND "./b2" "install"
          BUILD_COMMAND   "${CMAKE_COMMAND}" "-E" "echo" "Boost has been built."
+         TEST_COMMAND    "${CMAKE_COMMAND}" "-E" "echo" "Boost has no tests."
          INSTALL_COMMAND  "${CMAKE_COMMAND}" "-E" "echo" "Boost has already been installed."
          CONFIGURE_OPTIONS
            COMPILER "{CurrentCompiler}" "toolset=${toolset}"
@@ -86,9 +87,9 @@ if (UNIX)
       CAPABILITY BoostLib
       NAME    "Boost"
       VENDOR  "Boost"
-      VERSION "1.59.0"
+      VERSION "1.65.1"
       LICENSE_TYPE "Boost v1"
-      LICENSE_FILE "${THIRD_PARTY_DIR}/licenses/Boost-1.59.0.txt"
+      LICENSE_FILE "${THIRD_PARTY_DIR}/licenses/Boost.txt"
       URL "http://boost.org"
       DESCRIPTION "Free peer-reviewed portable C++ source libraries"
       REQUIRED_AT  "Runtime"
@@ -124,15 +125,15 @@ elseif(WIN32)
         set(Boost_USE_STATIC_LIBS        ON) # only find static libs
     endif()
 
-    find_package( Boost 1.59.0 REQUIRED COMPONENTS ${BOOST_LIBS_LIST} )
+    find_package( Boost 1.65.1 REQUIRED COMPONENTS ${BOOST_LIBS_LIST} )
 
     add_external_package_info(
       CAPABILITY BoostLib
       NAME    "Boost"
       VENDOR  "Boost"
-      VERSION "1.59.0"
+      VERSION "1.65.1"
       LICENSE_TYPE "Boost v1"
-      LICENSE_FILE "${THIRD_PARTY_DIR}/licenses/Boost-1.59.0.txt"
+      LICENSE_FILE "${THIRD_PARTY_DIR}/licenses/Boost.txt"
       URL "http://boost.org"
       DESCRIPTION "Free peer-reviewed portable C++ source libraries"
       REQUIRED_AT  "Runtime"

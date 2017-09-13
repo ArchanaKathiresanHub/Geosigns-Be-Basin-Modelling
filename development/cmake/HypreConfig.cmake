@@ -40,6 +40,7 @@ add_external_project_to_repository(
             "--enable-shared"
 
       BUILD_COMMAND   "make"
+      TEST_COMMAND    "make" "test"
       INSTALL_COMMAND "make" "install"
       CONFIGURE_OPTIONS 
         COMPILER "{CurrentCompiler}" 
