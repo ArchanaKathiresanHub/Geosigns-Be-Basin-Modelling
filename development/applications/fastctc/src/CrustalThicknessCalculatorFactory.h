@@ -14,8 +14,12 @@
 // DataMining library
 #include "DataMiningObjectFactory.h"
 
-#include "CrustalThicknessCalculator.h"
+// TableIO library
+//@TODO_Check
+#include "ProjectFileHandler.h"
 #include "PropertyValue.h"
+
+#include "CrustalThicknessCalculator.h"
 
 namespace database
 {
@@ -28,7 +32,7 @@ class CrustalThicknessCalculatorFactory : public DataAccess::Mining::ObjectFacto
 {
 public:
    /// @brief Produce the CrustalThicknessCalculator specific ProjectHandle
-   virtual CrustalThicknessCalculator* produceProjectHandle( database::Database * database,
+   virtual CrustalThicknessCalculator* produceProjectHandle( database::ProjectFileHandlerPtr database,
                                                              const string & name,  const string & accessMode);
 
    /// @brief Produce the fasctc PropertyValue
@@ -37,8 +41,4 @@ public:
                                                       const Reservoir * reservoir, const Formation * formation, const Surface * surface, PropertyStorage storage );
 };
 
-
 #endif
-
-
-

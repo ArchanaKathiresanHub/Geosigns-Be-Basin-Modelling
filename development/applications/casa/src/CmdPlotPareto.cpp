@@ -46,7 +46,7 @@ void CmdPlotPareto::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
 {
    // find proxy first
    // Search for given proxy name in the set of calculated proxies
-   const casa::RSProxy * proxy = sa->rsProxySet().rsProxy( m_proxyName.c_str() );
+   casa::RSProxy * proxy = sa->rsProxySet().rsProxy( m_proxyName.c_str() );
    // call response evaluation
    if ( !proxy ) { throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Unknown proxy name:" << m_proxyName; }
 
@@ -95,8 +95,8 @@ void CmdPlotPareto::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
    ofs << "   set( h, 'rotation', 90 );\n";
    ofs << "end\n";
    ofs << "ylabel( 'Sensitivity [%]', 'fontweight', 'bold' );\n";
-   ofs << "title ( ['Variable parameters Pareto sensitivity diagram for ' ProxyName], 'fontweight', 'bold' );\n";
-   ofs << "xlabel( 'Variable parameter', 'fontweight', 'bold' );\n";
+   ofs << "title ( ['Influential parameters Pareto sensitivity diagram for ' ProxyName], 'fontweight', 'bold' );\n";
+   ofs << "xlabel( 'Influential parameter', 'fontweight', 'bold' );\n";
    ofs << "set( get( gcf, 'currentaxes' ), 'fontweight', 'bold' );\n";
    ofs << "\n";
    ofs << "print( ['Pareto_' ProxyName '.jpg'] );\n";

@@ -8,26 +8,29 @@
 // Do not distribute without written permission from Shell.
 //
 
-#ifndef _MIGRATION_COMPOSITION_H_
-#define _MIGRATION_COMPOSITION_H_
+#ifndef MIGRATION_COMPOSITION_H
+#define MIGRATION_COMPOSITION_H
 
 #include "Biodegrade.h"
 #include "migration.h"
 #include "DiffusionLeak.h"
-#include "EosPack.h"
 
+// Eospack library
+#include "EosPack.h"
+using namespace pvtFlash;
+
+// std library
 #include <math.h>
 #include <stdlib.h>
 #include <assert.h>
-
-
 #include <string>
 #include <map>
 #include <vector>
-
 using namespace std;
 
-using namespace pvtFlash;
+// CBMGenerics library
+#include "ComponentManager.h"
+typedef CBMGenerics::ComponentManager::SpeciesNamesId ComponentId;
 
 /// Composition Class
 namespace migration
@@ -38,60 +41,60 @@ namespace migration
    {
       friend void InitializeRequestTypes (void);
       public:
-	 /// Constructor
-	 Composition (void);
+         /// Constructor
+         Composition (void);
 
-	 /// Destructor
-	 virtual ~Composition (void);
+         /// Destructor
+         virtual ~Composition (void);
 
-	 inline void reset (ComponentId componentId);
-	 inline void set (ComponentId componentId, double weight);
-	 inline void add (ComponentId componentId, double weight);
-	 inline void subtract (ComponentId componentId, double weight);
-	 inline bool isEmpty (ComponentId componentId) const;
-	 inline double getWeight (ComponentId componentId) const;
+         inline void reset       (ComponentId componentId);
+         inline void set         (ComponentId componentId, double weight);
+         inline void add         (ComponentId componentId, double weight);
+         inline void subtract    (ComponentId componentId, double weight);
+         inline bool isEmpty     (ComponentId componentId) const;
+         inline double getWeight (ComponentId componentId) const;
          inline vector<double> getWeights() const;
          inline double moles(ComponentId componentId, const double& gorm) const;
 
-	 inline void setViscosity (double viscosity);
-	 inline double getViscosity (void) const;
-	 inline void resetViscosity (void);
+         inline void setViscosity (double viscosity);
+         inline double getViscosity (void) const;
+         inline void resetViscosity (void);
 
-	 inline void setDensity (double density);
-	 inline double getDensity (void) const;
-	 inline void resetDensity (void);
+         inline void setDensity (double density);
+         inline double getDensity (void) const;
+         inline void resetDensity (void);
 
-	 void reset (void);
-	 void set (const Composition & composition);
-	 void add (const Composition & composition);
-	 void subtract (const Composition & composition);
-	 bool isEmpty (void) const;
-	 double getWeight (void) const;
-	 void setWeight(const double& weight);
+         void reset (void);
+         void set      (const Composition & composition);
+         void add      (const Composition & composition);
+         void subtract (const Composition & composition);
+         bool isEmpty (void) const;
+         double getWeight (void) const;
+         void setWeight(const double& weight);
 
-	 double getVolume (void) const;
+         double getVolume (void) const;
          void setVolume(const double& volume);
 
-	 void addFraction (const Composition & composition, double fraction);
-	 void subtractFraction (const Composition & composition, double fraction);
+         void addFraction      (const Composition & composition, double fraction);
+         void subtractFraction (const Composition & composition, double fraction);
 
-	 void computeBiodegradation(const double& timeInterval, const double& temperature,
+         void computeBiodegradation(const double& timeInterval, const double& temperature,
          const Biodegrade& biodegrade, Composition& compositionLost, const double fractionVolumeBiodegraded, const bool legacyMigration) const;
 
 
-	 void computeDiffusionLeakages(const double& diffusionStartTime, const double & intervalStartTime, const double & intervalEndTime, const vector<double>& solubilities, 
-            const double& surfaceArea, vector<DiffusionLeak*>& diffusionLeaks, const double& gorm, 
-	    Composition* compositionOut, Composition* compositionLost) const;
+         void computeDiffusionLeakages(const double& diffusionStartTime, const double & intervalStartTime, const double & intervalEndTime, const vector<double>& solubilities, 
+         const double& surfaceArea, vector<DiffusionLeak*>& diffusionLeaks, const double& gorm, 
+         Composition* compositionOut, Composition* compositionLost) const;
 
-	 void computePVT (double temperature, double pressure, Composition * compositionsOut);
+         void computePVT (double temperature, double pressure, Composition * compositionsOut);
 
-	 Composition & operator= (const Composition & original);
+         Composition & operator= (const Composition & original);
 
       private:
 
-	 double m_components[NUM_COMPONENTS];
-	 double m_density;
-	 double m_viscosity;
+        double m_components[ComponentId::NUMBER_OF_SPECIES];
+        double m_density;
+        double m_viscosity;
    };
 
    ostream & operator<< (ostream & stream, Composition & composition);
@@ -100,13 +103,13 @@ namespace migration
 
 void migration::Composition::reset (ComponentId componentId)
 {
-   assert( FIRST_COMPONENT <= componentId && componentId <= LAST_COMPONENT);
+   assert( ComponentId::FIRST_COMPONENT <= componentId && componentId <= ComponentId::LAST_COMPONENT);
    m_components[(int) componentId] = 0;
 }
 
 void migration::Composition::set (ComponentId componentId, double weight)
 {
-   assert( FIRST_COMPONENT <= componentId && componentId <= LAST_COMPONENT);
+   assert( ComponentId::FIRST_COMPONENT <= componentId && componentId <= ComponentId::LAST_COMPONENT);
    if (std::isnan( weight )) weight = 0;
    m_components[(int) componentId] = weight;
    if (m_components[componentId] < 0) m_components[componentId] = 0;
@@ -114,7 +117,7 @@ void migration::Composition::set (ComponentId componentId, double weight)
 
 void migration::Composition::add (ComponentId componentId, double weight)
 {
-   assert( FIRST_COMPONENT <= componentId && componentId <= LAST_COMPONENT);
+   assert( ComponentId::FIRST_COMPONENT <= componentId && componentId <= ComponentId::LAST_COMPONENT);
    if (std::isnan( weight )) weight = 0;
    m_components[(int) componentId] += weight;
    if (m_components[componentId] < 0) m_components[componentId] = 0;
@@ -122,7 +125,7 @@ void migration::Composition::add (ComponentId componentId, double weight)
 
 void migration::Composition::subtract (ComponentId componentId, double weight)
 {
-   assert( FIRST_COMPONENT <= componentId && componentId <= LAST_COMPONENT);
+   assert( ComponentId::FIRST_COMPONENT <= componentId && componentId <= ComponentId::LAST_COMPONENT);
    if (std::isnan( weight )) weight = 0;
    m_components[(int) componentId] -= weight;
    if (m_components[componentId] < 0) m_components[componentId] = 0;
@@ -130,20 +133,20 @@ void migration::Composition::subtract (ComponentId componentId, double weight)
 
 bool migration::Composition::isEmpty (ComponentId componentId) const
 {
-   assert( FIRST_COMPONENT <= componentId && componentId <= LAST_COMPONENT);
+   assert( ComponentId::FIRST_COMPONENT <= componentId && componentId <= ComponentId::LAST_COMPONENT);
    return (m_components[(int) componentId] <= 0);
 }
 
 double migration::Composition::getWeight (ComponentId componentId) const
 {
-   assert( FIRST_COMPONENT <= componentId && componentId <= LAST_COMPONENT);
+   assert( ComponentId::FIRST_COMPONENT <= componentId && componentId <= ComponentId::LAST_COMPONENT);
    return m_components[(int) componentId];
 }
 
 vector<double> migration::Composition::getWeights () const
 {
-   vector<double> weights(NUM_COMPONENTS);
-   for (int componentId = FIRST_COMPONENT; componentId <= LAST_COMPONENT; ++componentId)
+   vector<double> weights( ComponentId::NUMBER_OF_SPECIES );
+   for (int componentId = ComponentId::FIRST_COMPONENT; componentId <= ComponentId::LAST_COMPONENT; ++componentId)
       weights[componentId] = m_components[(int) componentId];
    return weights;
 }
@@ -182,5 +185,5 @@ void migration::Composition::resetDensity (void)
 }
 
 
-#endif // _MIGRATION_COMPOSITION_H_
+#endif // MIGRATION_COMPOSITION_H
 

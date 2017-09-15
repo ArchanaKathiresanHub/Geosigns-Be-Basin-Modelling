@@ -171,6 +171,7 @@ macro( add_external_project_to_repository )
          DEPENDS_VER
          CONFIGURE_COMMAND 
          BUILD_COMMAND 
+         TEST_COMMAND 
          INSTALL_COMMAND
          CONFIGURE_OPTIONS
          YIELD_LIBRARIES
@@ -322,6 +323,11 @@ macro( add_external_project_to_repository )
          BUILD_COMMAND   ${extProj_BUILD_COMMAND}
          BUILD_IN_SOURCE 1  # Because some libraries may not support out-of-source compilation
          INSTALL_COMMAND ${extProj_INSTALL_COMMAND}
+
+         TEST_BEFORE_INSTALL    1
+         TEST_AFTER_INSTALL     0
+         TEST_EXCLUDE_FROM_MAIN 0
+         TEST_COMMAND           ${extProj_TEST_COMMAND}
 
         # Log everything this function does.
          LOG_DOWNLOAD  1

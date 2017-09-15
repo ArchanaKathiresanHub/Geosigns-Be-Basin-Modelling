@@ -21,15 +21,15 @@
 
 #include <memory>
 
-/// @page CASA_VarPrmDiscretePage Discrete variable parameter
+/// @page CASA_VarPrmDiscretePage Discrete influential parameter
 ///
 /// Discrete parameter - a parameter that can have only a (numerical) value out of a given set of numbers. 
 ///
-/// The following list of variable discrete parameters is implemented in CASA API
+/// The following list of influential discrete parameters is implemented in CASA API
 
 namespace casa
 {
-   /// @brief Variable parameter with continuous value range.
+   /// @brief Influential parameter with continuous value range.
    /// The parameter value can be represented by the one or several doubles values
    class VarPrmDiscrete : public VarParameter
    {
@@ -37,19 +37,19 @@ namespace casa
       /// @brief Destructor
       virtual ~VarPrmDiscrete() {;}
 
-      /// @brief Define this variable parameter as a continuous
+      /// @brief Define this influential parameter as a continuous
       /// @return VarParameter::Discrete
       virtual Type variationType() const { return Discrete; }
 
-      /// @brief A parameter which corresponds the minimal range value of the variable parameter 
+      /// @brief A parameter which corresponds the minimal range value of the influential parameter 
       /// @return the parameter object which should not be deleted by a caller
       virtual const SharedParameterPtr minValue() const { return m_values[m_minValue]; }
 
-      /// @brief A parameter which corresponds the maximal range value of the variable parameter 
+      /// @brief A parameter which corresponds the maximal range value of the influential parameter 
       /// @return the parameter object should be deleted by a caller
       virtual const SharedParameterPtr maxValue() const { return m_values[m_maxValue]; }
 
-      /// @brief A parameter which corresponds the base value of the variable parameter 
+      /// @brief A parameter which corresponds the base value of the influential parameter 
       /// @return the parameter object which should not be deleted by a caller
       virtual const SharedParameterPtr baseValue() const { return m_values[m_baseValue]; }
 

@@ -18,7 +18,7 @@ using namespace Interface;
 
 //------------------------------------------------------------//
 
-FaultElementCalculator::FaultElementCalculator (void) : m_grid (0), m_snapshot (0)
+FaultElementCalculator::FaultElementCalculator (void) : m_grid (nullptr), m_snapshot (nullptr)
 {
 }
 
@@ -49,7 +49,7 @@ bool FaultElementCalculator::computeFaultGridMap (GridMap * faultMap, FaultColle
    
    return true;
 }
-         
+
 bool FaultElementCalculator::computeFaultGridMap (GridMap * faultMap, FaultCollection * fc)
 {
    FaultList * faults = ((FaultCollection *) fc)->getFaults ();
@@ -69,16 +69,7 @@ bool FaultElementCalculator::computeFaultGridMap (GridMap * faultMap, FaultColle
 
       for (elementIter = faultElements.begin (); elementIter != faultElements.end (); ++elementIter)
       {
-#if 0
-         cerr << ddd::GetRank () << ": Trying to add Map point (" << (*elementIter) (X_COORD) << ", " << (*elementIter) (Y_COORD) << ")" << endl;
-#endif
-         bool set = faultMap->setValue ((*elementIter) (X_COORD), (*elementIter) (Y_COORD), double (faultStatus));
-#if 0
-         if (set)
-         {
-            cerr << ddd::GetRank () << ": FaultStatus at (" << (*elementIter) (X_COORD) << ", " << (*elementIter) (Y_COORD) << ") == " << fault->getStatusName (m_snapshot) << endl;
-         }
-#endif
+         faultMap->setValue ((*elementIter) (X_COORD), (*elementIter) (Y_COORD), double (faultStatus));
       }
    }
 
@@ -245,8 +236,8 @@ void FaultElementCalculator::computeGridIntersectionPoints ( const LineSegment& 
                                                                    bool&          translatedNeeded ) const
 {
    int I;
-   int oldSize;
-   int newSize;
+   size_t oldSize;
+   size_t newSize;
 
    Point P;
    PointLessThan PLT;

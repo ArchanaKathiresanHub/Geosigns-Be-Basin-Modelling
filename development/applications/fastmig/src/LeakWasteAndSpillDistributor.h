@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2016 Shell International Exploration & Production.
+// Copyright (C) 2016-2017 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -10,6 +10,8 @@
 
 #ifndef _MIGRATION_DISTRIBUTE_LEAKWASTEANDSPILLDISTRIBUTOR_H_
 #define _MIGRATION_DISTRIBUTE_LEAKWASTEANDSPILLDISTRIBUTOR_H_
+
+#include <boost/array.hpp>
 
 #include "Distributor.h"
 #include "CapillarySealStrength.h"
@@ -32,6 +34,8 @@ namespace migration
       double m_sealFluidDensity;
       double m_fractureSealStrength;
       double m_wasteLevel;
+      double m_overPressureContrast;
+      double m_crestColumnThickness;
 
       CapillarySealStrength m_capSealStrength;
 
@@ -49,21 +53,21 @@ namespace migration
    public:
 
       LeakWasteAndSpillDistributor (const double& sealFluidDensity, const double& fractureSealStrength,
-         const double& wasteLevel, const CapillarySealStrength& capSealStrength,
-         const MonotonicIncreasingPiecewiseLinearInvertableFunction* levelToVolume);
+                                    const double& wasteLevel, const CapillarySealStrength& capSealStrength,
+                                    const MonotonicIncreasingPiecewiseLinearInvertableFunction* levelToVolume);
 
-      LeakWasteAndSpillDistributor (const double& sealFluidDensity, const double& fractureSealStrength,
-         const CapillarySealStrength& capSealStrength, const MonotonicIncreasingPiecewiseLinearInvertableFunction*
-         levelToVolume);
+      LeakWasteAndSpillDistributor (const double sealFluidDensity, const double fractureSealStrength, const double overPressureContrast,
+                                    const double crestColumnThickness, const CapillarySealStrength& capSealStrength,
+                                    const MonotonicIncreasingPiecewiseLinearInvertableFunction* levelToVolume);
 
       ~LeakWasteAndSpillDistributor ();
 
       void shiftToOrigin ();
 
       void distribute (const Composition& gas, const Composition& oil, const double& T_K,
-         Composition& remainingGas, Composition& remainingOil,
-         Composition& leakedGas, Composition& wastedGas, Composition& spilledGas,
-         Composition& leakedOil, Composition& spilledOil, double& finalGasLevel, double& finalHCLevel) const;
+                       Composition& remainingGas, Composition& remainingOil, Composition& leakedGas,
+                       Composition& wastedGas, Composition& spilledGas, Composition& leakedOil, Composition& spilledOil,
+                       double& finalGasLevel, double& finalHCLevel, const double brinePressure) const;
 
       bool leaking () const { return m_leaking; }
       bool wasting () const { return m_wasting; }

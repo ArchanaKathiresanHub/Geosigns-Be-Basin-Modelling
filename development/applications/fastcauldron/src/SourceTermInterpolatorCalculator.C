@@ -19,6 +19,10 @@
 #include "ConstantsFastcauldron.h"
 #include "layer.h"
 
+// CBMGenerics library
+#include "ComponentManager.h"
+typedef CBMGenerics::ComponentManager::SpeciesNamesId ComponentId;
+
 void SourceTermInterpolatorCalculator::compute ( const LayerElement& element,
                                                  const CoefficientArray&  xs,
                                                  MultiInterpolator& interpolator) const {
@@ -59,8 +63,8 @@ void SourceTermInterpolatorCalculator::compute ( const LayerElement& element,
                                          element.getNodeJPosition ( i - 1 ),
                                          generated ( i ));
             
-            generated ( i )( pvtFlash::COX ) = 0.0;
-            generated ( i )( pvtFlash::H2S ) = 0.0;
+            generated ( i )( ComponentId::COX ) = 0.0;
+            generated ( i )( ComponentId::H2S ) = 0.0;
             
             layerThickness = srLayer->getCurrentLayerThickness ( element.getNodeIPosition ( i - 1 ),
                                                                  element.getNodeJPosition ( i - 1 ));
@@ -86,7 +90,7 @@ void SourceTermInterpolatorCalculator::compute ( const LayerElement& element,
             computedSourceTerm += term;
          }
          for (  i = 0; i < NumberOfEquations; ++ i ) {
-            pvtFlash::ComponentId component = static_cast<pvtFlash::ComponentId>( i );
+            ComponentId component = static_cast<ComponentId>( i );
             elementMassAdded[ i ][ j ] = computedSourceTerm ( component );
          }
       }

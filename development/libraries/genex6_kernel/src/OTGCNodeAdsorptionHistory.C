@@ -14,7 +14,6 @@
 #include "Interface/SGDensitySample.h"
 
 #include "ConstantsGenex.h"
-#include "ComponentManager.h"
 
 #include "Input.h"
 #include "SimulatorState.h"
@@ -24,6 +23,14 @@
 
 // utilitites library
 #include "ConstantsMathematics.h"
+#include "ConstantsNumerical.h"
+#include "ConstantsPhysics.h"
+
+
+// CBMGenerics library
+#include "ComponentManager.h"
+
+
 using Utilities::Maths::CelciusToKelvin;
 using Utilities::Maths::CubicMetresToCubicFeet;
 using Utilities::Maths::CubicMetresToBarrel;
@@ -31,11 +38,11 @@ using Utilities::Maths::GorConversionFactor;
 using Utilities::Maths::CgrConversionFactor;
 using Utilities::Maths::KilometreSquaredToAcres;
 using Utilities::Maths::KilogrammeToUSTon;
-#include "ConstantsNumerical.h"
 using Utilities::Numerical::CauldronNoDataValue;
-#include "ConstantsPhysics.h"
 using Utilities::Physics::StandardPressure;
 using Utilities::Physics::StandardTemperatureGenexK;
+typedef CBMGenerics::ComponentManager::SpeciesNamesId ComponentId;
+
 
 Genex6::OTGCNodeAdsorptionHistory::OTGCNodeAdsorptionHistory ( const SpeciesManager&                      speciesManager,
                                                                DataAccess::Interface::ProjectHandle* projectHandle ) :
@@ -156,28 +163,28 @@ void Genex6::OTGCNodeAdsorptionHistory::collect ( Genex6::SourceRockNode* node )
       Genex6::PVTComponents masses;
 
       masses = simulatorState->getVapourComponents ();
-      masses ( pvtFlash::COX ) = 0.0;
-      masses ( pvtFlash::H2S ) = 0.0;
+      masses ( ComponentId::COX ) = 0.0;
+      masses ( ComponentId::H2S ) = 0.0;
 
       Genex6::PVTCalc::getInstance ().compute ( StandardTemperatureGenexK, StandardPressure, masses, phaseMasses, densities, viscosities, true, gorm );
 
       // Could optimise this a bit.
-      gasRetainedBcf = phaseMasses.sum ( pvtFlash::VAPOUR_PHASE ) / densities ( pvtFlash::VAPOUR_PHASE );
-      oilRetainedMbbl = phaseMasses.sum ( pvtFlash::LIQUID_PHASE ) / densities ( pvtFlash::LIQUID_PHASE );
+      gasRetainedBcf = phaseMasses.sum ( PhaseId::VAPOUR ) / densities ( PhaseId::VAPOUR );
+      oilRetainedMbbl = phaseMasses.sum ( PhaseId::LIQUID ) / densities ( PhaseId::LIQUID );
 
-      gasRetained = phaseMasses.sum ( pvtFlash::VAPOUR_PHASE ) / ( thickness * densities ( pvtFlash::VAPOUR_PHASE ));
-      oilRetained = phaseMasses.sum ( pvtFlash::LIQUID_PHASE ) / ( thickness * densities ( pvtFlash::LIQUID_PHASE ));
+      gasRetained = phaseMasses.sum ( PhaseId::VAPOUR ) / ( thickness * densities ( PhaseId::VAPOUR ));
+      oilRetained = phaseMasses.sum ( PhaseId::LIQUID ) / ( thickness * densities ( PhaseId::LIQUID ));
 
       masses = simulatorState->getLiquidComponents ();
-      masses ( pvtFlash::COX ) = 0.0;
-      masses ( pvtFlash::H2S ) = 0.0;
+      masses ( ComponentId::COX ) = 0.0;
+      masses ( ComponentId::H2S ) = 0.0;
       Genex6::PVTCalc::getInstance ().compute ( StandardTemperatureGenexK, StandardPressure, masses, phaseMasses, densities, viscosities, true, gorm );
 
-      gasRetainedBcf += phaseMasses.sum ( pvtFlash::VAPOUR_PHASE ) / ( densities ( pvtFlash::VAPOUR_PHASE ));
-      oilRetainedMbbl += phaseMasses.sum ( pvtFlash::LIQUID_PHASE ) / densities ( pvtFlash::LIQUID_PHASE );
+      gasRetainedBcf += phaseMasses.sum ( PhaseId::VAPOUR ) / ( densities ( PhaseId::VAPOUR ));
+      oilRetainedMbbl += phaseMasses.sum ( PhaseId::LIQUID ) / densities ( PhaseId::LIQUID );
 
-      gasRetained += phaseMasses.sum ( pvtFlash::VAPOUR_PHASE ) / ( thickness * densities ( pvtFlash::VAPOUR_PHASE ));
-      oilRetained += phaseMasses.sum ( pvtFlash::LIQUID_PHASE ) / ( thickness * densities ( pvtFlash::LIQUID_PHASE ));
+      gasRetained += phaseMasses.sum ( PhaseId::VAPOUR ) / ( thickness * densities ( PhaseId::VAPOUR ));
+      oilRetained += phaseMasses.sum ( PhaseId::LIQUID ) / ( thickness * densities ( PhaseId::LIQUID ));
 
       hist->m_thickness = thickness;
       hist->m_gasRetainedSTSCF = gasRetained * SCFGasVolumeConversionFactor;
@@ -186,8 +193,8 @@ void Genex6::OTGCNodeAdsorptionHistory::collect ( Genex6::SourceRockNode* node )
       hist->m_gasRetainedSTBCF = gasRetainedBcf * BCFGasVolumeConversionFactor;
       hist->m_oilRetainedSTMBarrels = oilRetainedMbbl * MBarrelsOilVolumeConversionFactor;
  
-      hist->m_subSurfaceLiquidDensity = simulatorState->getSubSurfaceDensities ()( pvtFlash::LIQUID_PHASE );
-      hist->m_subSurfaceVapourDensity = simulatorState->getSubSurfaceDensities ()( pvtFlash::VAPOUR_PHASE );
+      hist->m_subSurfaceLiquidDensity = simulatorState->getSubSurfaceDensities ()( PhaseId::LIQUID );
+      hist->m_subSurfaceVapourDensity = simulatorState->getSubSurfaceDensities ()( PhaseId::VAPOUR );
 
       hist->m_time = nodeInput->GetTime ();
       hist->m_temperature = nodeInput->GetTemperatureKelvin () - CelciusToKelvin;
@@ -225,19 +232,19 @@ void Genex6::OTGCNodeAdsorptionHistory::collect ( Genex6::SourceRockNode* node )
       hist->m_h2sRisk = simulatorState->getH2SFromGenex () + simulatorState->getH2SFromOtgc ();
 
       // Get species-expelled-from-source-rock and species-retained-in-source-rock.
-      for ( id = 0; id < pvtFlash::NUM_COMPONENTS; ++id ) {
+      for ( id = 0; id < ComponentId::NUMBER_OF_SPECIES; ++id ) {
 
          CBMGenerics::ComponentManager::SpeciesNamesId componentManagerId = CBMGenerics::ComponentManager::SpeciesNamesId ( id );
 
          speciesState = simulatorState->GetSpeciesStateById ( getSpeciesManager ().mapComponentManagerSpeciesToId ( componentManagerId ));
 
          if ( speciesState != 0 ) {
-            hist->m_expelledMasses ( pvtFlash::ComponentId ( id )) = speciesState->getMassExpelledFromSourceRock ();
-            hist->m_retainedMasses ( pvtFlash::ComponentId ( id )) = speciesState->getRetained ();
-            hist->m_genex5ExpelledMasses ( pvtFlash::ComponentId ( id )) = speciesState->GetExpelledMass ();
+            hist->m_expelledMasses ( ComponentId ( id )) = speciesState->getMassExpelledFromSourceRock ();
+            hist->m_retainedMasses ( ComponentId ( id )) = speciesState->getRetained ();
+            hist->m_genex5ExpelledMasses ( ComponentId ( id )) = speciesState->GetExpelledMass ();
          } else {
-            hist->m_expelledMasses ( pvtFlash::ComponentId ( id )) = 0.0;
-            hist->m_retainedMasses ( pvtFlash::ComponentId ( id )) = 0.0;
+            hist->m_expelledMasses ( ComponentId ( id )) = 0.0;
+            hist->m_retainedMasses ( ComponentId ( id )) = 0.0;
          }
 
       }
@@ -286,16 +293,16 @@ void Genex6::OTGCNodeAdsorptionHistory::write ( std::ostream& str ) {
        << setw ( 21 ) << "IWS"
        << setw ( 21 ) << "HcSat";
 
-   for ( id = 0; id < pvtFlash::NUM_COMPONENTS; ++id ) {
-      str << setw ( 30 ) << pvtFlash::ComponentIdNames [ id ] + "Expel-kg/m^2";
+   for ( id = 0; id < ComponentId::NUMBER_OF_SPECIES; ++id ) {
+      str << setw ( 30 ) << CBMGenerics::ComponentManager::getInstance().getSpeciesNameHistory( id ) + "Expel-kg/m^2";
    }
 
-   for ( id = 0; id < pvtFlash::NUM_COMPONENTS; ++id ) {
-      str << setw ( 30 ) << pvtFlash::ComponentIdNames [ id ] + "Retain-kg/m^2";
+   for ( id = 0; id < ComponentId::NUMBER_OF_SPECIES; ++id ) {
+      str << setw ( 30 ) << CBMGenerics::ComponentManager::getInstance().getSpeciesNameHistory( id ) + "Retain-kg/m^2";
    }
 
-   for ( id = 0; id < pvtFlash::NUM_COMPONENTS; ++id ) {
-      str << setw ( 30 ) << pvtFlash::ComponentIdNames [ id ] + "Gx5Expel-kg/m^2";
+   for ( id = 0; id < ComponentId::NUMBER_OF_SPECIES; ++id ) {
+      str << setw ( 30 ) << CBMGenerics::ComponentManager::getInstance().getSpeciesNameHistory( id ) + "Gx5Expel-kg/m^2";
    }
 
    str << setw ( 21 ) << "FracOfAdCap";
@@ -346,35 +353,17 @@ void Genex6::OTGCNodeAdsorptionHistory::write ( std::ostream& str ) {
           << std::setw ( 21 ) << hist->m_irreducibleWaterSat
           << std::setw ( 21 ) << hist->m_hcSaturation;
 
-      for ( id = 0; id < CBMGenerics::ComponentManager::NumberOfSpecies; ++id ) {
+      for ( id = 0; id < ComponentId::NUMBER_OF_SPECIES; ++id ) {
          str << setw ( 30 ) << hist->m_expelledMasses.m_components [ id ];
       }
 
-#if 0
-      for ( id = 0; id < pvtFlash::NUM_COMPONENTS; ++id ) {
-         str << setw ( 30 ) << hist->m_expelledMasses ( pvtFlash::ComponentId ( id ));
-      }
-#endif
-      
-      for ( id = 0; id < CBMGenerics::ComponentManager::NumberOfSpecies; ++id ) {
+      for ( id = 0; id < ComponentId::NUMBER_OF_SPECIES; ++id ) {
          str << setw ( 30 ) << hist->m_retainedMasses.m_components [ id ];
       }
 
-#if 0
-      for ( id = 0; id < pvtFlash::NUM_COMPONENTS; ++id ) {
-         str << setw ( 30 ) << hist->m_retainedMasses ( pvtFlash::ComponentId ( id ));
-      }
-#endif
-
-      for ( id = 0; id < CBMGenerics::ComponentManager::NumberOfSpecies; ++id ) {
+      for ( id = 0; id < ComponentId::NUMBER_OF_SPECIES; ++id ) {
          str << setw ( 30 ) << hist->m_genex5ExpelledMasses.m_components [ id ];
       }
-
-#if 0
-      for ( id = 0; id < pvtFlash::NUM_COMPONENTS; ++id ) {
-         str << setw ( 30 ) << hist->m_genex5ExpelledMasses ( pvtFlash::ComponentId ( id ));
-      }
-#endif
 
       str << setw ( 21 ) << hist->m_adsorpedFraction;
       str << setw ( 21 ) << hist->m_hcVapourSaturation;

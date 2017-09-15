@@ -27,6 +27,7 @@ include_directories( SYSTEM
 bm_include_libraries(
    DataModel
    DataAccess
+   CBMGenerics
    utilities
    SerialDataAccess
    FileSystem 
@@ -56,7 +57,15 @@ configure_file(test/data/ARD_simple-test.project3d ${CMAKE_CURRENT_BINARY_DIR}/d
 
 configure_file(test/data/Inputs.HDF ${CMAKE_CURRENT_BINARY_DIR}/data/Inputs.HDF COPYONLY)
 
+configure_file(test/data/ARD_simple-test_MassBalance ${CMAKE_CURRENT_BINARY_DIR}/data/ARD_simple-test_MassBalance COPYONLY)
+
 configure_file(test/data/ARD_simple-test_CauldronOutputDir/Genex5_Results.HDF ${CMAKE_CURRENT_BINARY_DIR}/data/ARD_simple-test_CauldronOutputDir/Genex5_Results.HDF COPYONLY)
+
+configure_file(test/data/ARD_simple-test_CauldronOutputDir/History_ARD_simple-test_genex_sr_5500_4500.dat ${CMAKE_CURRENT_BINARY_DIR}/data/ARD_simple-test_CauldronOutputDir/History_ARD_simple-test_genex_sr_5500_4500.dat COPYONLY)
+
+configure_file(test/data/ARD_simple-test_CauldronOutputDir/HistoryGenex.txt ${CMAKE_CURRENT_BINARY_DIR}/data/ARD_simple-test_CauldronOutputDir/HistoryGenex.txt COPYONLY)
+
+configure_file(test/data/ARD_simple-test_CauldronOutputDir/MyWell.BHF ${CMAKE_CURRENT_BINARY_DIR}/data/ARD_simple-test_CauldronOutputDir/MyWell.BHF COPYONLY)
 
 configure_file(test/data/ARD_simple-test_CauldronOutputDir/HighResDecompaction_Results.HDF ${CMAKE_CURRENT_BINARY_DIR}/data/ARD_simple-test_CauldronOutputDir/HighResDecompaction_Results.HDF COPYONLY)
 
@@ -75,6 +84,7 @@ configure_file(test/data/ARD_simple-test_CauldronOutputDir/Time_50.000000.h5 ${C
 
 configure_file(test/data/ARD_simple-test_CauldronOutputDir/Time_70.000000.h5 ${CMAKE_CURRENT_BINARY_DIR}/data/ARD_simple-test_CauldronOutputDir/Time_70.000000.h5 COPYONLY)
 
+configure_file(test/data/Project-1d.project3d ${CMAKE_CURRENT_BINARY_DIR}/data/Project-1d.project3d COPYONLY)
 
 
 add_custom_command(TARGET VisualizationIO_projectHandle PRE_BUILD
@@ -82,7 +92,7 @@ add_custom_command(TARGET VisualizationIO_projectHandle PRE_BUILD
                    test/data/ARD_simple-test_CauldronOutputDir ${CMAKE_CURRENT_BINARY_DIR}/data/ARD_simple-test_CauldronOutputDir )
 
 add_gtest( NAME CauldronIO::Project
-           SOURCES test/Project.cpp test/DataStore.cpp test/VerifyData.cpp test/CellCentered.cpp
+           SOURCES test/Project.cpp test/DataStore.cpp test/VerifyData.cpp  test/VerifyData1D.cpp test/CellCentered.cpp
            LIBRARIES VisualizationIO DataModel DataAccess utilities SerialDataAccess FileSystem TableIO VisualizationIO_projectHandle Serial_Hdf5 CBMGenerics ${HDF5_LIBRARIES} ${Boost_LIBRARIES} )
 
 # Local Variables:

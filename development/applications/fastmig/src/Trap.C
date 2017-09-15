@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2010-2015 Shell International Exploration & Production.
+// Copyright (C) 2010-2017 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -27,7 +27,6 @@
 #include "capillarySealStrength.h"
 #include "fracturePressure.h"
 #include "waterDensity.h"
-#include "ComponentManager.h"
 #include "Tuple2.h"
 #include "depthToVolume.h"
 #include "Interface/FluidType.h"
@@ -37,15 +36,6 @@
 #include "LeakAllGasAndOilDistributor.h"
 #include "SpillAllGasAndOilDistributor.h"
 #include "utils.h"
-//                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
-// All rights reserved.
-// 
-// Developed under license for Shell by PDS BV.
-// 
-// Confidential and proprietary source code of Shell.
-// Do not distribute without written permission from Shell.
-// 
 
 // std library
 #include <assert.h>
@@ -60,7 +50,6 @@ extern ostringstream cerrstrstr;
 using Interface::Formation;
 using Interface::Snapshot;
 using functions::Tuple2;
-using functions::tuple;
 
 // utilities library
 #include "ConstantsMathematics.h"
@@ -86,7 +75,8 @@ namespace migration
       m_diffusionStartTime (-1),
       m_diffusionOverburdenProps (0),
       m_hydrocarbonWaterContactDepth (-199999),
-      m_isPasteurized (false)
+      m_isPasteurized (false),
+      m_biodegraded (false)
    {
       column->setTrap (this);
       m_reservoir = column->getReservoir ();
@@ -117,7 +107,7 @@ namespace migration
       }
 
       m_diffusionLeaked = 0;
-      m_leakedBeforeDiffusion = 0;
+      m_leakedBeforeBiodegDiffusion = 0;
       m_sealPermeability = -1;
       m_fracturePressure = -1;
 
@@ -134,7 +124,7 @@ namespace migration
 #ifdef DETAILED_MASS_BALANCE
       string filename = utils::getProjectBaseName(getReservoir()->getProjectHandle()->getName());
       filename += "_MassBalance";
-      ostringstream strstream; 
+      ostringstream strstream;
       strstream << getReservoir()->getName() << " at " << getReservoir()->getEnd()->asString();
       strstream << " crest " << getCrestColumn();
       filename += "_"; filename += strstream.str();
@@ -146,7 +136,7 @@ namespace migration
 #ifdef DETAILED_VOLUME_BALANCE
       string filename = utils::getProjectBaseName(getReservoir()->getProjectHandle()->getName());
       filename += "_VolumeBalance";
-      ostringstream strstream; 
+      ostringstream strstream;
       strstream << getReservoir()->getName() << " at " << getReservoir()->getEnd()->asString();
       strstream << " crest " << getCrestColumn();
       filename += "_"; filename += strstream.str();
@@ -183,10 +173,10 @@ namespace migration
          delete[] m_diffusionLeaked;
          m_diffusionLeaked = 0;
       }
-      if (m_leakedBeforeDiffusion)
+      if (m_leakedBeforeBiodegDiffusion)
       {
-         delete  m_leakedBeforeDiffusion;
-         m_leakedBeforeDiffusion = 0;
+         delete m_leakedBeforeBiodegDiffusion;
+         m_leakedBeforeBiodegDiffusion = 0;
       }
    }
 
@@ -371,7 +361,7 @@ namespace migration
 #ifdef DEBUG_LEVELTOVOLUME
       string filename = utils::getProjectBaseName(getReservoir()->getProjectHandle()->getName());
       filename += "_LevelToVolume";
-      ostringstream strstream; 
+      ostringstream strstream;
       strstream << getReservoir()->getName() << " at " << getReservoir()->getEnd()->asString();
       strstream << " crest " << getCrestColumn();
       filename += "_"; filename += strstream.str();
@@ -380,7 +370,7 @@ namespace migration
 
       for (int i = 0; i < m_levelToVolume->size(); ++i) {
          Tuple2<Tuple2<double> > limits = m_levelToVolume->piece(i);
-         levelToVolumeFile << "index: " << i << " =  [" << limits[0][0] << "," << limits[0][1] << "] -> [" << 
+         levelToVolumeFile << "index: " << i << " =  [" << limits[0][0] << "," << limits[0][1] << "] -> [" <<
             limits[1][0] << "," << limits[1][1] << "]." << endl;
       }
       levelToVolumeFile.close();
@@ -389,18 +379,6 @@ namespace migration
       if (m_distributor)
          m_distributor->setLevelToVolume (m_levelToVolume);
    }
-
-   /*void Trap::deleteDepthToVolumeFunction (void)
-   {
-   delete m_levelToVolume; // FIXME
-   m_levelToVolume = 0;
-   if (m_distributor)
-   m_distributor->setLevelToVolume(0);
-   #ifdef DEBUG_TRAP
-   delete m_volumeToDepth2;
-   m_volumeToDepth2 = 0;
-   #endif
-   }*/
 
    double Trap::getDepthForVolume (double volume)
    {
@@ -530,7 +508,7 @@ namespace migration
       if (DebugOn)
       {
          cerr << GetRankString () << ": " << m_reservoir->getName () << this
-            << ": extendWith (" << column << ", " << minimumSpillDepth << ")" << endl;
+              << ": extendWith (" << column << ", " << minimumSpillDepth << ")" << endl;
       }
 
       // addToPerimeter (column);
@@ -569,7 +547,7 @@ namespace migration
          if (getCrestColumn () != curCrestColumn)
          {
             cerr << GetRankString () << ": ERROR in " << this << ": old crest column " << curCrestColumn
-               << " != new crest column " << getCrestColumn () << endl;
+                 << " != new crest column " << getCrestColumn () << endl;
          }
          assert (getCrestColumn () == curCrestColumn);
       }
@@ -616,7 +594,7 @@ namespace migration
          }
 
          if (!neighbourColumn->isSealing () && !isInInterior (neighbourColumn) && !isOnPerimeter (neighbourColumn) &&
-            neighbourColumn->isShallowerThan (column))
+             neighbourColumn->isShallowerThan (column))
          {
             return true;
          }
@@ -648,8 +626,8 @@ namespace migration
       if (DebugOn)
       {
          cerr << "        " << GetRankString () << ": Checking if on perimeter "
-            << *column
-            << endl;
+              << *column
+              << endl;
       }
 
       ConstColumnIterator iter;
@@ -674,9 +652,7 @@ namespace migration
          int jOffset = NeighbourOffsets2D[k][J];
 
          unsigned int iNeighbour = column->getI () + iOffset;
-         assert (iNeighbour >= 0);
          unsigned int jNeighbour = column->getJ () + jOffset;
-         assert (jNeighbour >= 0);
          Column * neighbourColumn = m_reservoir->getColumn (iNeighbour, jNeighbour);
          if (!IsValid (neighbourColumn))
             continue;
@@ -698,8 +674,8 @@ namespace migration
          if (column == perimeterColumn)
             return;
          if ((perimeterColumn->isSealing () and column->isSealing () and perimeterColumn->isDeeperThan (column)) or
-            (!perimeterColumn->isSealing () and !column->isSealing () and perimeterColumn->isDeeperThan (column)) or
-            (perimeterColumn->isSealing () and !column->isSealing ()))
+             (!perimeterColumn->isSealing () and !column->isSealing () and perimeterColumn->isDeeperThan (column)) or
+             (perimeterColumn->isSealing () and !column->isSealing ()))
          {
             break;
          }
@@ -860,7 +836,7 @@ namespace migration
       if (getFinalSpillTarget (GAS) == getCrestColumn ())
       {
          cerr << "ERROR: final spill target(): "
-            << getFinalSpillTarget (GAS) << " == crest column: " << getCrestColumn () << endl;
+              << getFinalSpillTarget (GAS) << " == crest column: " << getCrestColumn () << endl;
          cerr << GetRankString () << ": " << this << "->getSpillColumn () = " << m_spillTarget << endl;
          printSpillTrajectory (GAS);
          printInterior ();
@@ -885,7 +861,7 @@ namespace migration
       return m_spillTarget;
    }
 
-   /// compute the columns at which the trap will waste 
+   /// compute the columns at which the trap will waste
    void Trap::computeWasteColumns (void)
    {
       for (int phase = FIRST_PHASE; phase < NUM_PHASES; ++phase)
@@ -1101,12 +1077,7 @@ namespace migration
 
    bool Trap::isUndersized (void) const
    {
-      return (getCapacity () == 0 || getCapacity () < getMinimumTrapCapacity ());
-   }
-
-   double Trap::getMinimumTrapCapacity (void) const
-   {
-      return m_reservoir->getTrapCapacity ();
+      return (getCapacity () == 0 || getCapacity () < m_reservoir->getMinTrapCapacity ());
    }
 
    void Trap::setGlobalId (int id)
@@ -1161,19 +1132,25 @@ namespace migration
       return surface;
    }
 
-   bool Trap::diffusionLeakageOccoured () const
+   bool Trap::biodegradationOccurred () const
+   {
+      return m_biodegraded;
+   }
+
+   bool Trap::diffusionLeakageOccurred () const
    {
       if (!m_diffusionLeaked) return false;
 
       double diffusedWeight = 0;
 
-      diffusedWeight = m_diffusionLeaked[GAS].getWeight (C1) +
-         m_diffusionLeaked[GAS].getWeight (C2) +
-         m_diffusionLeaked[GAS].getWeight (C3) +
-         m_diffusionLeaked[GAS].getWeight (C4) +
-         m_diffusionLeaked[GAS].getWeight (C5);
+      diffusedWeight = m_diffusionLeaked[GAS].getWeight (ComponentId::C1) +
+                       m_diffusionLeaked[GAS].getWeight (ComponentId::C2) +
+                       m_diffusionLeaked[GAS].getWeight (ComponentId::C3) +
+                       m_diffusionLeaked[GAS].getWeight (ComponentId::C4) +
+                       m_diffusionLeaked[GAS].getWeight (ComponentId::C5);
 
-      if (diffusedWeight > 0) return true;
+      if (diffusedWeight > 0)
+         return true;
       else
          return false;
    }
@@ -1183,8 +1160,10 @@ namespace migration
    {
       if (always || requiresDistribution ())
       {
-         // diffusion occured, only the trap content will be flashed and re-distributed
-         if (diffusionLeakageOccoured ())
+         // Biodegradation or diffusion occurred, only the trap content will be flashed and re-distributed.
+         // But if we're in the post-biodegradation/diffusion stage and spillage has occurred (2nd iteration)
+         // don't save crest-column content in m_leakageBeforeBiodegDiffusion, as it is spillage from other traps.
+         if (always and (biodegradationOccurred () or diffusionLeakageOccurred ()))
          {
             moveDistributedToCrestColumn ();
          }
@@ -1194,8 +1173,8 @@ namespace migration
       }
 
 #ifndef INCLUDE_COX
-      assert (m_toBeDistributed[GAS].getWeight (pvtFlash::COX) == 0.0);
-      assert (m_toBeDistributed[OIL].getWeight (pvtFlash::COX) == 0.0);
+      assert (m_toBeDistributed[GAS].getWeight (ComponentId::COX) == 0.0);
+      assert (m_toBeDistributed[OIL].getWeight (ComponentId::COX) == 0.0);
 #endif
 
       if (requiresPVT ())
@@ -1208,8 +1187,10 @@ namespace migration
    /// resets the target column of its own crest column to the crest column of the trap it merges with
    void Trap::migrateTo (Column * column)
    {
+      int numI = getReservoir()->getGrid()->numIGlobal();
+      int position = getCrestColumn()->getI() + getCrestColumn()->getJ() * numI;
       moveBackToCrestColumn ();
-      column->addComposition (getCrestColumn ()->getComposition ());
+      column->addMergingCompositionToBuffer(position, getCrestColumn ()->getComposition ());
       m_reservoir->reportTrapAbsorption (this, column, getCrestColumn ()->getComposition ());
       getCrestColumn ()->resetComposition ();
    }
@@ -1239,7 +1220,6 @@ namespace migration
 #endif
 
       return biodegraded;
-
    }
 
    // legacy biodegradeCharges
@@ -1249,9 +1229,9 @@ namespace migration
 
       assert (!m_toBeDistributed[phase].isEmpty ());
 
-      //temperature here is compute at the trap crest
+      //temperature here is computed at the trap crest
       m_toBeDistributed[phase].computeBiodegradation (timeInterval, getTemperature (), biodegrade,
-         biodegraded, 1.0, true);
+                                                      biodegraded, 1.0, true);
 
       m_toBeDistributed[phase].subtract (biodegraded);
 
@@ -1262,65 +1242,108 @@ namespace migration
 
    double Trap::biodegradeCharges (const double& timeInterval, const Biodegrade& biodegrade)
    {
-       // Flashing at this point is not needed because was done in computeHydrocarbonWaterContactDepth()
-	   
-	   if ((m_toBeDistributed[GAS].isEmpty() && m_toBeDistributed[OIL].isEmpty()) || m_isPasteurized) return 0.0; // if a trap is pasteurized => no biodegradation, return 0
+      // Charge has been placed in m_toBeDistributed in computeHydrocarbonWaterContactDepth()
+      // It was flashed at the end of the initial distribution. Ready for biodegradation.
+      Composition biodegraded;
 
-      assert (!m_toBeDistributed[GAS].isEmpty () || !m_toBeDistributed[OIL].isEmpty ());
+      // Only biodegrade if there is charge in m_toBeDistributed and the trap is not pasteurized
+      if ((!m_toBeDistributed[GAS].isEmpty() or !m_toBeDistributed[OIL].isEmpty()) and !m_isPasteurized)
+      {
 
 #ifdef DEBUG_BIODEGRADATION
-      cerr << endl << ">>> DEBUG_BIODEGRADATION <<<<" << endl;
-      cerr << "Initial Gas mass = " << m_toBeDistributed[GAS].getWeight() << "; Initial Gas volume = " << m_toBeDistributed[GAS].getVolume() << endl;
-      cerr << "Initial Oil mass = " << m_toBeDistributed[OIL].getWeight() << "; Initial Oil volume = " << m_toBeDistributed[OIL].getVolume() << endl;
+         cerr << endl << ">>> DEBUG_BIODEGRADATION <<<<" << endl;
+         cerr << "Initial Gas mass = " << m_toBeDistributed[GAS].getWeight() << "; Initial Gas volume = " << m_toBeDistributed[GAS].getVolume() << endl;
+         cerr << "Initial Oil mass = " << m_toBeDistributed[OIL].getWeight() << "; Initial Oil volume = " << m_toBeDistributed[OIL].getVolume() << endl;
 #endif
 
-      Composition biodegradedGas;
-      Composition biodegradedOil;
+         Composition biodegradedGas;
+         Composition biodegradedOil;
 
-	  // compute the volume proportions
-	  double volumeFractionOfGasBiodegraded = 0.0;
-	  double volumeFractionOfOilBiodegraded = 0.0;
-	  computePhaseVolumeProportionInBiodegradadedZone(timeInterval, volumeFractionOfGasBiodegraded, volumeFractionOfOilBiodegraded, biodegrade);
+         // compute the volume proportions
+         double volumeFractionOfGasBiodegraded = 0.0;
+         double volumeFractionOfOilBiodegraded = 0.0;
+         computePhaseVolumeProportionInBiodegradadedZone(timeInterval, volumeFractionOfGasBiodegraded, volumeFractionOfOilBiodegraded, biodegrade);
 
-      // Compute biodegradation for the GAS phase
-      if (volumeFractionOfGasBiodegraded > 0.0)
-      {
-         m_toBeDistributed[GAS].computeBiodegradation (timeInterval, m_hydrocarbonWaterContactTemperature, biodegrade,
-            biodegradedGas, volumeFractionOfGasBiodegraded, false);
-         m_toBeDistributed[GAS].subtract (biodegradedGas);
-         assert (m_toBeDistributed[GAS].getWeight () >= 0.0);
-      }
-      // Compute biodegradation for the OIL phase
-      if (volumeFractionOfOilBiodegraded > 0.0)
-      {
-         m_toBeDistributed[OIL].computeBiodegradation (timeInterval, m_hydrocarbonWaterContactTemperature, biodegrade,
-            biodegradedOil, volumeFractionOfOilBiodegraded, false);
-         m_toBeDistributed[OIL].subtract (biodegradedOil);
-         assert (m_toBeDistributed[OIL].getWeight () >= 0.0);
-      }
+         // Compute biodegradation for the GAS phase
+         if (volumeFractionOfGasBiodegraded > 0.0)
+         {
+            m_toBeDistributed[GAS].computeBiodegradation (timeInterval, m_hydrocarbonWaterContactTemperature, biodegrade,
+                                                          biodegradedGas, volumeFractionOfGasBiodegraded, false);
+            m_toBeDistributed[GAS].subtract (biodegradedGas);
+            assert (m_toBeDistributed[GAS].getWeight () >= 0.0);
+         }
+         // Compute biodegradation for the OIL phase
+         if (volumeFractionOfOilBiodegraded > 0.0)
+         {
+            m_toBeDistributed[OIL].computeBiodegradation (timeInterval, m_hydrocarbonWaterContactTemperature, biodegrade,
+                                                          biodegradedOil, volumeFractionOfOilBiodegraded, false);
+            m_toBeDistributed[OIL].subtract (biodegradedOil);
+            assert (m_toBeDistributed[OIL].getWeight () >= 0.0);
+         }
 
-      // Addition of the mass biodegraded in the two phases in order to report the global biodegradation
-      Composition biodegraded;
-      biodegraded.add (biodegradedGas);
-      biodegraded.add (biodegradedOil);
+         // Addition of the mass biodegraded in the two phases in order to report the global biodegradation
+         biodegraded.add (biodegradedGas);
+         biodegraded.add (biodegradedOil);
 
-      // Report the biodegradation
-      m_reservoir->reportBiodegradationLoss (this, biodegraded);
+         // Report the biodegradation
+         m_reservoir->reportBiodegradationLoss (this, biodegraded);
 
 #ifdef DETAILED_MASS_BALANCE
-      m_massBalance->subtractFromBalance("biodegraded", biodegraded.getWeight());
+         m_massBalance->subtractFromBalance("biodegraded", biodegraded.getWeight());
 #endif
 
 #ifdef DETAILED_VOLUME_BALANCE
-      m_volumeBalance->subtractFromBalance("biodegraded", biodegraded.getWeight());
+         m_volumeBalance->subtractFromBalance("biodegraded", biodegraded.getWeight());
 #endif
+      }
+
+      // Biodegradation or not, charge needs to be put in m_distributed 
+      // so that it can be diffused and/or re-distributed
+      for (int phase = FIRST_PHASE; phase < NUM_PHASES; ++phase)
+      {
+         if (m_toBeDistributed[phase].isEmpty())
+            continue;
+         m_distributed[phase].add(m_toBeDistributed[phase]);
+         m_distributed[phase].setDensity(m_toBeDistributed[phase].getDensity());
+         m_toBeDistributed[phase].reset();
+      }
+
+      // If biodegraded trap, just set m_biodegraded to true and exit.
+      // Re-flashing and re-distributing will happen later
+      if (biodegraded.getWeight() > 0.0)
+      {
+         m_biodegraded = true;
+      }
+      // But if nothing was biodegraded, there are two possibilities:
+      // a) Either nothing is in the trap, in which case there's nothing to do. OR
+      // b) There is something in the trap and it didn't get biodegraded due to temperature,
+      //    pasteurization, whatever. In that case, no redistribution is needed but we need
+      //    to re-establish volumes and fill depths to get the mass and volume balances right.
+      //    There won't be a chance to do this later because no-redistribution is needed.
+      else
+      {
+         if (!m_distributed[GAS].isEmpty () || !m_distributed[OIL].isEmpty ())
+         {
+            double volume[2] = {0.0};
+            for (int phase = FIRST_PHASE; phase < NUM_PHASES; ++phase)
+            {
+               if (!m_distributed[phase].isEmpty() and m_distributed[phase].getDensity() > 0.0)
+                  volume[phase] = m_distributed[phase].getWeight() / m_distributed[phase].getDensity();
+            }
+            double finalVapourLevel = m_levelToVolume->invert (volume[GAS]);
+            double finalLiquidLevel = m_levelToVolume->invert (volume[GAS] + volume[OIL]);            
+
+            setFillDepth (GAS, finalVapourLevel + getTopDepth ());
+            setFillDepth (OIL, finalLiquidLevel + getTopDepth ());
+         }
+      }
 
       return biodegraded.getWeight ();
    }
 
    void Trap::needToComputePasteurizationStatusFromScratch()
    {
-   
+
 #ifdef DEBUG_BIODEGRADATION
 	   cerr << endl << "==== Compute pasteurization status ====" << endl;
 	   // Count the number of columns for each different status
@@ -1356,8 +1379,8 @@ namespace migration
 	   }
 #ifdef DEBUG_BIODEGRADATION
 	   cerr << "Number of not-Pasteurized / neutral / Pasteurized columns: " << countNotPasteurized << ", " << countNeutral << ", " << countPasteurized << endl;
-	   cerr << "Need to compute the pasteurization status ? " << needToComputeColumnPasteurizationStatus << endl;
-#endif   
+	   cerr << "Need to compute the pasteurization status ? " << m_computePasteurizationStatusFromScratch << endl;
+#endif
    };
 
    void Trap::pasteurizationStatus(const double maxBiodegradationTemperature)
@@ -1366,7 +1389,7 @@ namespace migration
 	   if (m_computePasteurizationStatusFromScratch == true)
 	   {
 	      ConstColumnIterator iter;
-		   if (m_hydrocarbonWaterContactTemperature >= maxBiodegradationTemperature) // Trap pasteurized if temperature higher or equal to the maximum temperature allowed for biodegradation 
+		   if (m_hydrocarbonWaterContactTemperature >= maxBiodegradationTemperature) // Trap pasteurized if temperature higher or equal to the maximum temperature allowed for biodegradation
 		   {
 			   for (iter = m_interior.begin(); iter != m_interior.end(); ++iter)
 			   {
@@ -1482,26 +1505,26 @@ namespace migration
 	   return true;
    }
 
-   /// If depths contains a vector of formations starting with the formation containing 
-   /// this trap, return iterators pointing to the formations which constitute the 
+   /// If depths contains a vector of formations starting with the formation containing
+   /// this trap, return iterators pointing to the formations which constitute the
    /// overburden of this trap:
    void Trap::iterateToFirstOverburdenFormation (const vector<FormationSurfaceGridMaps>& depths,
-      vector<FormationSurfaceGridMaps>::const_iterator& begin,
-      vector<FormationSurfaceGridMaps>::const_iterator& end) const
+                                                 vector<FormationSurfaceGridMaps>::const_iterator& begin,
+                                                 vector<FormationSurfaceGridMaps>::const_iterator& end) const
    {
-      // Determine first whether the seal of the trap lies inside this formation, or 
-      // whether the seal is formed by the next formation.  In the last case, the first 
+      // Determine first whether the seal of the trap lies inside this formation, or
+      // whether the seal is formed by the next formation.  In the last case, the first
       // is the second formation of depths etc:
       begin = depths.begin (); end = depths.end ();
       if ( getCrestColumn()->getTopDepthOffset() == 0.0 )
       {
          ++begin;
       }
-	  if (begin == end) LogHandler(LogHandler::ERROR_SEVERITY) << "The begin and the end of the depth overbuden array coincide in Trap::iterateToFirstOverburdenFormation";
+      if (begin == end) LogHandler(LogHandler::ERROR_SEVERITY) << "The begin and the end of the depth overbuden array coincide in Trap::iterateToFirstOverburdenFormation";
    }
 
    bool Trap::computeDiffusionOverburden (const SurfaceGridMapContainer& fullOverburden,
-      const Snapshot* snapshot, const double& maxSealThickness, int maxFormations)
+                                          const Snapshot* snapshot, const double& maxSealThickness, int maxFormations)
    {
       delete m_diffusionOverburdenProps;
       m_diffusionOverburdenProps = 0;
@@ -1515,21 +1538,21 @@ namespace migration
       if (!sealPresent)
          return true;
 
-      // Below we copy the property information of the relevant formations to 
+      // Below we copy the property information of the relevant formations to
       // m_diffusionOverburdenProps. Clear first the old information in m_diffusionOverburdenProps:
       vector<DiffusionLeak::OverburdenProp> diffusionOverburdenProps;
 
       if (!computeDiffusionOverburdenImpl (fullOverburden, snapshot, maxSealThickness, maxFormations,
-         diffusionOverburdenProps))
+                                           diffusionOverburdenProps))
          return false;
 
       m_diffusionOverburdenProps = new DiffusionOverburdenProperties (diffusionOverburdenProps,
-         sealFluidDensity);
+                                                                      sealFluidDensity);
       return true;
    }
 
    bool Trap::computeSealFluidDensity (const SurfaceGridMapContainer& fullOverburden, const Snapshot* snapshot,
-      bool& sealPresent, double& sealFluidDensity) const
+                                       bool& sealPresent, double& sealFluidDensity) const
    {
       // Get the overburden formation depths:
       const vector<FormationSurfaceGridMaps>& depths = fullOverburden.discontinuous (SurfaceGridMapContainer::DISCONTINUOUS_DEPTH);
@@ -1537,13 +1560,13 @@ namespace migration
       vector<FormationSurfaceGridMaps>::const_iterator end;
       iterateToFirstOverburdenFormation (depths, begin, end);
 
-      // Get the first overburden formation which does exist, i.e. for which the thickness is larger 
+      // Get the first overburden formation which does exist, i.e. for which the thickness is larger
       // than zero:
       unsigned int i = getCrestColumn ()->getI ();
       unsigned int j = getCrestColumn ()->getJ ();
       vector<const Formation*> formations;
       if (!overburden_MPI::getRelevantOverburdenFormations (begin, end, snapshot,
-         i, j, numeric_limits<double>::max (), 1, true, formations))
+                                                            i, j, numeric_limits<double>::max (), 1, true, formations))
          return false;
 
       sealPresent = formations.size () != 0;
@@ -1561,8 +1584,8 @@ namespace migration
    }
 
    bool Trap::computeDiffusionOverburdenImpl (const SurfaceGridMapContainer& fullOverburden,
-      const Snapshot* snapshot, const double& maxSealThickness, int maxFormations,
-      vector<DiffusionLeak::OverburdenProp>& diffusionOverburdenProps) const
+                                              const Snapshot* snapshot, const double& maxSealThickness, int maxFormations,
+                                              vector<DiffusionLeak::OverburdenProp>& diffusionOverburdenProps) const
    {
       const SurfaceGridMapContainer::discontinuous_properties& depths = fullOverburden.discontinuous (
          SurfaceGridMapContainer::DISCONTINUOUS_DEPTH);
@@ -1582,18 +1605,18 @@ namespace migration
       vector<FormationSurfaceGridMaps>::const_iterator end;
       iterateToFirstOverburdenFormation (depths, begin, end);
 
-      // Get the formations which do exist, i.e. for which the thickness is larger than zero, 
+      // Get the formations which do exist, i.e. for which the thickness is larger than zero,
       // and which are within maxSealThickness and maxFormations:
       unsigned int i = getCrestColumn ()->getI ();
       unsigned int j = getCrestColumn ()->getJ ();
       vector<const Formation*> formations;
       if (!overburden_MPI::getRelevantOverburdenFormations (begin, depths.end (), snapshot,
-         i, j, maxSealThickness, maxFormations, true, formations))
+                                                            i, j, maxSealThickness, maxFormations, true, formations))
          return false;
 
-      // In case the trap lies inside the formation, the thickness, porosity and base temperature 
+      // In case the trap lies inside the formation, the thickness, porosity and base temperature
       // are not provided by that of the overburden formation, but by the values from the Trap itelf.
-      // The reason is that if we would get the values from the overburden formation, we would 
+      // The reason is that if we would get the values from the overburden formation, we would
       // the values from the base of the formation instead of the top of the trap:
       double baseDepth = getTopDepth ();
       double basePorosity = getCrestColumn ()->getPorosity ();
@@ -1609,7 +1632,7 @@ namespace migration
       // There must be a minimum of 2 entries in fullOverburden.continuous(CONTINUOUS_TEMPERATURE):
       assert (t != temperatures.end ());
 
-      // Iterate over the included formations and the property GridMaps and copy the 
+      // Iterate over the included formations and the property GridMaps and copy the
       // information for each formation within formations:
       ++t;
       while (f != formations.end ())
@@ -1636,7 +1659,7 @@ namespace migration
                return false;
             }
 
-            double thickness = (*d).base ()[functions::tuple (i, j)] - (*d).top ()[functions::tuple (i, j)];
+            double thickness = (*d).base ()[functions::Tuple2<unsigned int>(i, j)] - (*d).top ()[functions::Tuple2<unsigned int>(i, j)];
 
 #ifdef DEBUG_TRAP
             string name = (*f)->getName();
@@ -1671,7 +1694,7 @@ namespace migration
 
                return false;
             }
-            double topTemperature = (*t)[functions::tuple (i, j)];
+            double topTemperature = (*t)[functions::Tuple2<unsigned int>(i, j)];
 
             if (!(*p).top ().valid ())
             {
@@ -1681,7 +1704,7 @@ namespace migration
 
                return false;
             }
-            double topPorosity = (*p).top ()[functions::tuple (i, j)];
+            double topPorosity = (*p).top ()[functions::Tuple2<unsigned int>(i, j)];
 
             if (!(*bv).top ().valid ())
             {
@@ -1691,10 +1714,11 @@ namespace migration
 
                return false;
             }
-            double topBrineViscosity = (*bv).top ()[functions::tuple (i, j)];
+            double topBrineViscosity = (*bv).top ()[functions::Tuple2<unsigned int>(i, j)];
 
-            diffusionOverburdenProps.push_back (DiffusionLeak::OverburdenProp (thickness,
-               topPorosity, basePorosity, topTemperature, baseTemperature, topBrineViscosity, baseBrineViscosity));
+            diffusionOverburdenProps.push_back (DiffusionLeak::OverburdenProp (thickness, topPorosity, basePorosity,
+                                                                               topTemperature, baseTemperature,
+                                                                               topBrineViscosity, baseBrineViscosity));
 
             // Goto the next included formation:
             ++f;
@@ -1708,7 +1732,7 @@ namespace migration
 
             return false;
          }
-         baseDepth = (*d).base ()[functions::tuple (i, j)];
+         baseDepth = (*d).base ()[functions::Tuple2<unsigned int>(i, j)];
 
          if (!(*p).top ().valid ())
          {
@@ -1719,7 +1743,7 @@ namespace migration
             return false;
          }
 
-         basePorosity = (*p).top ()[functions::tuple (i, j)];
+         basePorosity = (*p).top ()[functions::Tuple2<unsigned int>(i, j)];
 
          if (!(*t).valid ())
          {
@@ -1729,7 +1753,7 @@ namespace migration
 
             return false;
          }
-         baseTemperature = (*t)[functions::tuple (i, j)];
+         baseTemperature = (*t)[functions::Tuple2<unsigned int>(i, j)];
 
          if (!(*bv).top ().valid ())
          {
@@ -1740,7 +1764,7 @@ namespace migration
             return false;
          }
 
-         baseBrineViscosity = (*bv).top ()[functions::tuple (i, j)];
+         baseBrineViscosity = (*bv).top ()[functions::Tuple2<unsigned int>(i, j)];
 
          ++d; ++p; ++t;
       }
@@ -1749,18 +1773,18 @@ namespace migration
 
    /// Calculate charge loss due to diffusion leakages.
    ///
-   /// @param[in] timeInterval: The time interval between the previous and current snapshot, i.e. 
-   ///                          previous - current. As is customary in fastmig, all times are positive 
-   ///                          and because timeInterval = previous - current timeInterval is also 
+   /// @param[in] timeInterval: The time interval between the previous and current snapshot, i.e.
+   ///                          previous - current. As is customary in fastmig, all times are positive
+   ///                          and because timeInterval = previous - current timeInterval is also
    ///                          positive.
    /// @param[in] parameters:
    /// @param[in] maxTimeStep:
    /// @param[in] maxFluxError:
    ///
    void Trap::diffusionLeakCharges (const double& intervalStartTime, const double & intervalEndTime, const Interface::DiffusionLeakageParameters*
-      parameters, const double& maxTimeStep, const double& maxFluxError)
+                                    parameters, const double& maxTimeStep, const double& maxFluxError)
    {
-      // If there are no m_diffusionOverburdenProps, there wasn't a overburden.  (Diffusion directly 
+      // If there are no m_diffusionOverburdenProps, there wasn't a overburden.  (Diffusion directly
       // to the air is leaking, not diffusion.).  In that case do nothing:
       if (!m_diffusionOverburdenProps)
          return;
@@ -1773,7 +1797,7 @@ namespace migration
 
       for (c = 0; c < size; ++c)
       {
-         totalWeight += getWeight (GAS, (ComponentId)(pvtFlash::C1 - c));
+         totalWeight += getWeight (GAS, (ComponentId)(ComponentId::C1 - c));
       }
 
       if (totalWeight < 1)
@@ -1844,8 +1868,8 @@ namespace migration
          assert (penetrationDistance >= 0);
 
          DiffusionLeak*  diffusionLeak = new DiffusionLeak (m_diffusionOverburdenProps->properties (),
-            m_diffusionOverburdenProps->sealFluidDensity (), penetrationDistance,
-            parameters->maximumSealThickness (), coefficient, maxTimeStep, maxFluxError);
+                                                            m_diffusionOverburdenProps->sealFluidDensity (), penetrationDistance,
+                                                            parameters->maximumSealThickness (), coefficient, maxTimeStep, maxFluxError);
 
          diffusionLeaks.push_back (diffusionLeak);
       }
@@ -1862,9 +1886,9 @@ namespace migration
       m_diffusionLeaked[OIL].setDensity (0);
 
       m_distributed[GAS].computeDiffusionLeakages (diffusionStartTime, intervalStartTime, intervalEndTime, solubilities, getSurface (GAS), diffusionLeaks,
-         computeGorm (m_distributed[GAS], m_distributed[OIL]), &m_distributed[GAS], &m_diffusionLeaked[GAS]);
+                                                   computeGorm (m_distributed[GAS], m_distributed[OIL]), &m_distributed[GAS], &m_diffusionLeaked[GAS]);
 
-      /// \brief set the penetration distance of the trap for the next snapshot 
+      /// \brief set the penetration distance of the trap for the next snapshot
       if (parameters->transientModel () == Interface::Transient)
       {
          for (c = 0; c < size; ++c)
@@ -1888,7 +1912,8 @@ namespace migration
    }
 
    bool Trap::computeDistributionParameters (const Interface::FracturePressureFunctionParameters*
-      parameters, const SurfaceGridMapContainer& fullOverburden, const Snapshot* snapshot, const bool isLegacy )
+                                             parameters, const SurfaceGridMapContainer& fullOverburden,
+                                             const Snapshot* snapshot, const bool isLegacy )
    {
       delete m_distributor;
       m_distributor = 0;
@@ -1903,7 +1928,8 @@ namespace migration
       vector<double> permeability;
 
       if (!computeSealPressureLeakParametersImpl (parameters, fullOverburden, snapshot, sealPresent,
-         fracPressure, sealFluidDensity, lithProps, lithFracs, mixModel, permeability, isLegacy ) )
+                                                  fracPressure, sealFluidDensity, lithProps, lithFracs,
+                                                  mixModel, permeability, isLegacy ) )
          return false;
 
       setFracturePressure (fracPressure);
@@ -1911,7 +1937,7 @@ namespace migration
 
       if (sealPresent)
       {
-         
+
          if ( isLegacy || getCrestColumn()->getTopDepthOffset() != 0.0 )
          {
             setSealPermeability( permeability[0] );
@@ -1921,7 +1947,7 @@ namespace migration
             //set the seal permeability only if a seal formation is present
             setSealPermeability( permeability[1] );
          }
-         
+
          if (!isUndersized ())
          {
             // The fracture seal strength is provided by the fracturePressure minus the pressure:
@@ -1945,34 +1971,34 @@ namespace migration
 #endif
 
 #ifdef DETAILED_MASS_BALANCE
-            ostringstream strstream1; 
+            ostringstream strstream1;
             strstream1 << "fracture seal strength: " << fracSealStrength << endl;
             m_massBalance->addComment(strstream1.str());
-            ostringstream strstream2; 
+            ostringstream strstream2;
             strstream2 << "seal fluid density: " << sealFluidDensity << endl;
             m_massBalance->addComment(strstream2.str());
-            ostringstream strstream3; 
+            ostringstream strstream3;
             strstream2 << "permeability: " << permeability << endl;
             m_massBalance->addComment(strstream3.str());
 #endif
 
 #ifdef DETAILED_VOLUME_BALANCE
-            ostringstream strstream1; 
+            ostringstream strstream1;
             strstream1 << "fracture seal strength: " << fracSealStrength << endl;
             m_volumeBalance->addComment(strstream1.str());
-            ostringstream strstream2; 
+            ostringstream strstream2;
             strstream2 << "seal fluid density: " << sealFluidDensity << endl;
             m_volumeBalance->addComment(strstream2.str());
-            ostringstream strstream3; 
+            ostringstream strstream3;
             strstream2 << "permeability: " << permeability << endl;
             m_volumeBalance->addComment(strstream3.str());
 #endif
 
             // With these parameters, create the algorithm which determines the max gas and oil column.
-            // However, some critical parameters that are necessary for the calculation of the capillary 
-            // entry seal strength, such as the density and composition of the oil and gas phases, are 
+            // However, some critical parameters that are necessary for the calculation of the capillary
+            // entry seal strength, such as the density and composition of the oil and gas phases, are
             // right now not available. So we create here a CapillarySealStrength object and provide this
-            // object the parameters which we already do know. The CapillarySealStrength then calculates 
+            // object the parameters which we already do know. The CapillarySealStrength then calculates
             // the capillary seal strength at the moment the missing data becomes available.
 
             // to compute leakage you need to compute the Brooks Corey correction. Retrive the lambda at the crest location and pass it to the distributor
@@ -1986,9 +2012,26 @@ namespace migration
             if ( lambdaPC == Interface::DefaultUndefinedMapValue or lambdaPC == Interface::DefaultUndefinedScalarValue )
                lambdaPC = 1.0;
 
-            m_distributor = new LeakWasteAndSpillDistributor( sealFluidDensity, fracSealStrength,
-               CapillarySealStrength( lithProps, lithFracs, mixModel, permeability, sealFluidDensity, lambdaPC, isLegacy ),
-               m_levelToVolume );
+            double overPressureContrast = 0.0;
+            bool overpressuredLeakage = m_reservoir->getMigrator()->isOverpressuredLeakageOn();
+            if (!m_reservoir->getMigrator()->isHydrostaticCalculation() and !isLegacy and overpressuredLeakage)
+            {
+               boost::array<double,2> overPressures = {0.0, 0.0};
+
+               int i,j;
+               i = getCrestColumn()->getI();
+               j = getCrestColumn()->getJ();
+               const Formation * const reservoirFormation = dynamic_cast<const Formation *> (m_reservoir->getFormation());
+
+               reservoirFormation->getTopBottomOverpressures(i, j, overPressures);
+               overPressureContrast = Utilities::Maths::MegaPaToPa * (overPressures[0] - overPressures[1]); 
+            }
+
+            double crestColumnThickness = getCrestColumn()->getThickness();
+
+            m_distributor = new LeakWasteAndSpillDistributor( sealFluidDensity, fracSealStrength, overPressureContrast, crestColumnThickness,
+                                                              CapillarySealStrength( lithProps, lithFracs, mixModel, permeability, sealFluidDensity, lambdaPC, isLegacy ),
+                                                              m_levelToVolume );
          }
          else
          {
@@ -2033,7 +2076,7 @@ namespace migration
       vector<CBMGenerics::capillarySealStrength::MixModel>& mixModel,
       vector<double>& permeability,
       const bool isLegacy) const
-      // to implement //
+   // to implement //
    {
       const SurfaceGridMapContainer::discontinuous_properties & depths =
          fullOverburden.discontinuous (SurfaceGridMapContainer::DISCONTINUOUS_DEPTH);
@@ -2047,7 +2090,7 @@ namespace migration
          fullOverburden.constants (SurfaceGridMapContainer::CONSTANT_LITHOTYPE3PERCENT);
 
       // There must be one extra element in depths in comparison to the discontiuous data
-      // and the number of percentage map properties decrease from LithoType 1 to LithType 2 and 
+      // and the number of percentage map properties decrease from LithoType 1 to LithType 2 and
       // LithoType 3:
       assert (depths.size () == permeabilities.size ());
       assert (depths.size () == lithoType1Percents.size ());
@@ -2066,16 +2109,16 @@ namespace migration
 
       if ( isLegacy || getCrestColumn()->getTopDepthOffset() != 0.0 )
       {
-		  //if is legacy or there is offset, get only the seal formation (formations[0])
-		  if ( !overburden_MPI::getRelevantOverburdenFormations( begin, depths.end( ), snapshot,
-            i, j, numeric_limits < double >::max( ), 1, true, formations ) )
+         //if is legacy or there is offset, get only the seal formation (formations[0])
+         if ( !overburden_MPI::getRelevantOverburdenFormations( begin, depths.end( ), snapshot, i, j,
+                                                                numeric_limits < double >::max( ), 1, true, formations ) )
             return false;
       }
       else
       {
          //if offset is not present and is not legacy, get the reservoir (formations[0]) and the seal formation (formations[1])
-         if ( !overburden_MPI::getRelevantOverburdenFormations( depths.begin( ), depths.end( ), snapshot,
-            i, j, numeric_limits < double >::max( ), 2, true, formations ) )
+         if ( !overburden_MPI::getRelevantOverburdenFormations( depths.begin( ), depths.end( ), snapshot, i, j,
+                                                                numeric_limits < double >::max( ), 2, true, formations ) )
             return false;
       }
 
@@ -2091,9 +2134,9 @@ namespace migration
       SurfaceGridMapContainer::constant_properties::const_iterator l1 = lithoType2Percents.begin ();
       SurfaceGridMapContainer::constant_properties::const_iterator l2 = lithoType3Percents.begin ();
 
-      // Find the with the one overburden formation corresponding GridMap's of the 
+      // Find the with the one overburden formation corresponding GridMap's of the
       // properties.  In most cases this will be the first GridMap, but in order to be safe,
-      // we iterate until depths.end() (to prevent an eternal loop), even though we shouldn't get 
+      // we iterate until depths.end() (to prevent an eternal loop), even though we shouldn't get
       // at depths.end():
 
       // the fracture pressure result
@@ -2114,7 +2157,7 @@ namespace migration
          if ( ( *d ).formation() == *f )
          {
 
-            // The top of the one overburden formation must be larger than both 
+            // The top of the one overburden formation must be larger than both
             // the top of the trap and the base of the overburden formation:
 #ifdef DEBUG_TRAP
             bool validTop = (*d).top ().valid ();
@@ -2142,36 +2185,36 @@ namespace migration
             }
 
             //the formation has thickness at the specific i,j
-            assert( ( *d ).base()[functions::tuple( i, j )] - ( *d ).top()[functions::tuple( i, j )] > 0.0 );
+            assert( ( *d ).base()[functions::Tuple2<unsigned int>( i, j )] - ( *d ).top()[functions::Tuple2<unsigned int>( i, j )] > 0.0 );
             assert( ( *f )->getLithoType1() );
             assert( l0 != lithoType1Percents.end() );
             assert( l0->first == *f );
 
-            // So we have found the right d, p, l0, and possibly l1 and l2 iterators if they 
+            // So we have found the right d, p, l0, and possibly l1 and l2 iterators if they
             // do exist.  Get the fractions of the LithoTypes:
             vector<double> formLithFracs;
 
-            formLithFracs.push_back( 0.01 * ( *l0 ).second[functions::tuple( i, j )] );
+            formLithFracs.push_back( 0.01 * ( *l0 ).second[functions::Tuple2<unsigned int>( i, j )] );
             if ( ( *f )->getLithoType2() && l1 != lithoType2Percents.end() && ( *l1 ).first == ( *f ) )
-               formLithFracs.push_back( 0.01 * ( *l1 ).second[functions::tuple( i, j )] );
+               formLithFracs.push_back( 0.01 * ( *l1 ).second[functions::Tuple2<unsigned int>( i, j )] );
             if ( ( *f )->getLithoType3() && l2 != lithoType3Percents.end() && ( *l2 ).first == ( *f ) )
-               formLithFracs.push_back( 0.01 * ( *l2 ).second[functions::tuple( i, j )] );
+               formLithFracs.push_back( 0.01 * ( *l2 ).second[functions::Tuple2<unsigned int>( i, j )] );
 
             // store the formation litho fraction
             lithFracs.push_back( formLithFracs );
 
-            // For the capillary entry pressure, we need to know what mixing model to apply when calculating 
+            // For the capillary entry pressure, we need to know what mixing model to apply when calculating
             // the effective capillary parameters:
             mixModel.push_back( ( *f )->getMixModel() );
 
-            // If the trap lies inside the formation the relevant permeability is the permeability 
-            // of the trap, else the permeability is the permeability of the base of the overburden 
+            // If the trap lies inside the formation the relevant permeability is the permeability
+            // of the trap, else the permeability is the permeability of the base of the overburden
             // formation:
 
             if ( getCrestColumn()->getTopDepthOffset() != 0.0 )
                permeability.push_back( getCrestColumn()->getPermeability() );
             else
-            {      
+            {
                // Remove the following if when legacy will be removed.
                if ( isLegacy )
                {
@@ -2184,19 +2227,19 @@ namespace migration
                      return false;
                   }
                   else
-                     permeability.push_back(( *p ).base( )[functions::tuple( i, j )]);
+                     permeability.push_back(( *p ).base( )[functions::Tuple2<unsigned int>( i, j )]);
                }
                else
                {
                   if ( *f == formations.front() && ( *p ).top().valid() )
                   {
                      //reservoir (in case the only valid formation is the reservoir only this is executed)
-                     permeability.push_back( ( *p ).top()[functions::tuple( i, j )] );
+                     permeability.push_back( ( *p ).top()[functions::Tuple2<unsigned int>( i, j )] );
                   }
                   else if ( formations.size() == 2 && *f == formations.back() && ( *p ).base().valid() )
                   {
                      //seal
-                     permeability.push_back( ( *p ).base()[functions::tuple( i, j )] );
+                     permeability.push_back( ( *p ).base()[functions::Tuple2<unsigned int>( i, j )] );
                   }
                   else
                   {
@@ -2210,19 +2253,18 @@ namespace migration
 
             // Finally use the gathered information to calculate the capillary seal strength of gas and oil:
             vector<translateProps::CreateCapillaryLithoProp::output> formlithProps;
-            translateProps::translate < translateProps::CreateCapillaryLithoProp >( *f,
-               translateProps::CreateCapillaryLithoProp(),
-               formlithProps );
+            translateProps::translate < translateProps::CreateCapillaryLithoProp >( *f, translateProps::CreateCapillaryLithoProp(),
+                                                                                    formlithProps );
             lithProps.push_back( formlithProps );
 
             // -- Fracture pressure calculations --//
             // Compute sealFluidDensity, fracPressure and the fracture pressure only for the seal.
-            // Note that in case of offset formation[0] is the reservoir formation. 
-			// This means that the fracture pressure is calculated for the reservoir formation.
+            // Note that in case of offset formation[0] is the reservoir formation.
+            // This means that the fracture pressure is calculated for the reservoir formation.
             if ( ( *f ) == formations.back() )
             {
 
-               // But as depth and temperatureC are of course continuous properties, we may get them from 
+               // But as depth and temperatureC are of course continuous properties, we may get them from
                // the Trap:
                double depth = getTopDepth();
                double depthWrtSedimentSurface = getCrestColumn()->getOverburden();
@@ -2231,9 +2273,9 @@ namespace migration
                // Get the water density:
                const Interface::FluidType * fluidType = ( *f )->getFluidType();
                sealFluidDensity = CBMGenerics::waterDensity::compute( fluidType->fluidDensityModel(),
-                  fluidType->density(), fluidType->salinity(),
-                  temperatureC, getPressure() );
-			   // Compute the fracture pressure:
+                                                                      fluidType->density(), fluidType->salinity(),
+                                                                      temperatureC, getPressure() );
+               // Compute the fracture pressure:
                fracPressure = numeric_limits < double >::max();
 
                switch ( fracturePressureParameters->type() )
@@ -2243,14 +2285,14 @@ namespace migration
                case Interface::FunctionOfDepthWrtSeaLevelSurface:
                   fracPressure =
                      CBMGenerics::fracturePressure::computeForFunctionOfDepthWrtSeaLevelSurface( fracturePressureParameters->
-                     coefficients(), depth );
+                                                                                                 coefficients(), depth );
                   break;
                case Interface::FunctionOfDepthWrtSedimentSurface:
                {
                   fracPressure =
                      CBMGenerics::fracturePressure::computeForFunctionOfDepthWrtSedimentSurface( fracturePressureParameters->coefficients(),
-                     depthWrtSedimentSurface,
-                     getCrestColumn()->getSeaBottomPressure() );
+                                                                                                 depthWrtSedimentSurface,
+                                                                                                 getCrestColumn()->getSeaBottomPressure() );
                   break;
                }
                case Interface::FunctionOfLithostaticPressure:
@@ -2282,23 +2324,23 @@ namespace migration
    }
 
    bool Trap::computeForFunctionOfLithostaticPressure (const SurfaceGridMapContainer& fullOverburden,
-      const Formation* formation, const vector<double>& lithFracs, double& fracPressure) const
+                                                       const Formation* formation, const vector<double>& lithFracs,
+                                                       double& fracPressure) const
    {
       vector<double> lithHydraulicFracturingFracs;
-      translateProps::translate<translateProps::CreateLithHydraulicFracturingFrac> (formation,
-         translateProps::CreateLithHydraulicFracturingFrac (), lithHydraulicFracturingFracs);
-      double hydraulicFracture = CBMGenerics::fracturePressure::hydraulicFracturingFrac (
-         lithHydraulicFracturingFracs, lithFracs);
+      translateProps::translate<translateProps::CreateLithHydraulicFracturingFrac> (formation, translateProps::CreateLithHydraulicFracturingFrac (),
+                                                                                    lithHydraulicFracturingFracs);
+      double hydraulicFracture = CBMGenerics::fracturePressure::hydraulicFracturingFrac (lithHydraulicFracturingFracs, lithFracs);
 
-      fracPressure = CBMGenerics::fracturePressure::computeForFunctionOfLithostaticPressure (hydraulicFracture,
-         getLithostaticPressure (), getHydrostaticPressure ());
+      fracPressure = CBMGenerics::fracturePressure::computeForFunctionOfLithostaticPressure (hydraulicFracture, getLithostaticPressure (),
+                                                                                             getHydrostaticPressure ());
       return true;
    }
 
    bool Trap::distributeCharges (void)
    {
       // requiresDistribution () won't work as it also looks at the crest column,
-      // which is not required/advisable as it is not used further on. 
+      // which is not required/advisable as it is not used further on.
       // Also, Anton's distributor does not handle the case where there is nothing toBeDistributed very well.
 
       bool distributionNeeded = false;
@@ -2307,7 +2349,8 @@ namespace migration
          if (!m_toBeDistributed[phase].isEmpty ()) distributionNeeded = true;
       }
 
-      if (!distributionNeeded) return true;
+      if (!distributionNeeded)
+         return true;
 
       incrementChargeDistributionCount ();
 
@@ -2315,7 +2358,7 @@ namespace migration
 
 #if 0
       cerrstrstr << GetRankString () << ": " << this << "::distributeCharges ("
-         << m_toBeDistributed[GAS].getWeight () << ", " << m_toBeDistributed[OIL].getWeight () << ")" << endl;
+                 << m_toBeDistributed[GAS].getWeight () << ", " << m_toBeDistributed[OIL].getWeight () << ")" << endl;
 #endif
 
       // Check if wasting is possible:
@@ -2338,15 +2381,14 @@ namespace migration
       Composition oilLeaked;
       Composition oilSpilledOrWasted;
 
-      //add what was leaked before the diffusion event, do not update m_compositionState
-      if (m_leakedBeforeDiffusion) getCrestColumn ()->getComposition ().add (*m_leakedBeforeDiffusion);
-
       double finalGasLevel;
       double finalHCLevel;
 
+      double crestPressure = getCrestColumn()->getPressure();
+
       m_distributor->distribute (m_toBeDistributed[GAS], m_toBeDistributed[OIL],
-         getTemperature () + CelciusToKelvin, m_distributed[GAS], m_distributed[OIL], gasLeaked, gasWasted,
-         gasSpilled, oilLeaked, oilSpilledOrWasted, finalGasLevel, finalHCLevel);
+                                 getTemperature () + CelciusToKelvin, m_distributed[GAS], m_distributed[OIL], gasLeaked, gasWasted,
+                                 gasSpilled, oilLeaked, oilSpilledOrWasted, finalGasLevel, finalHCLevel, crestPressure);
 
 #ifdef DETAILED_MASS_BALANCE
       m_massBalance->subtractFromBalance("gas leaked", gasLeaked.getWeight());
@@ -2376,6 +2418,10 @@ namespace migration
       assert(fabs(m_volumeBalance->balance()) < 10.0);
 #endif
 
+      //trap position for buffered addition
+      int numI = getReservoir()->getGrid()->numIGlobal();
+      int position = getCrestColumn()->getI() + getCrestColumn()->getJ() * numI;
+
       if (!gasLeaked.isEmpty () || !oilLeaked.isEmpty ())
       {
          gasLeaked.add (oilLeaked);
@@ -2384,7 +2430,7 @@ namespace migration
 
       if (!gasWasted.isEmpty ())
       {
-         getWasteColumn (GAS)->addWasteComposition (gasWasted);
+         getWasteColumn (GAS)->addWasteCompositionToBuffer(GAS, position, gasWasted);
          m_reservoir->reportWaste (this, getWasteColumn (GAS), gasWasted);
       }
 
@@ -2392,14 +2438,14 @@ namespace migration
       {
          if (getWasteColumn (OIL))
          {
-            getWasteColumn (OIL)->addWasteComposition (oilSpilledOrWasted);
+            getWasteColumn (OIL)->addWasteCompositionToBuffer(OIL, position, oilSpilledOrWasted);
             m_reservoir->reportWaste (this, getWasteColumn (OIL), oilSpilledOrWasted);
          }
          else
          {
             Column* targetColumn = getFinalSpillTarget (OIL);
 
-            targetColumn->addSpillComposition (oilSpilledOrWasted);
+            targetColumn->addSpillCompositionToBuffer (OIL, position, oilSpilledOrWasted);
             m_reservoir->reportSpill (this, targetColumn, oilSpilledOrWasted);
             getSpillTarget ()->addMigrated (OIL, oilSpilledOrWasted.getWeight ());
             setSpilling ();
@@ -2410,7 +2456,7 @@ namespace migration
       {
          Column* targetColumn = getFinalSpillTarget (GAS);
 
-         targetColumn->addSpillComposition (gasSpilled);
+         targetColumn->addSpillCompositionToBuffer (GAS, position, gasSpilled);
          m_reservoir->reportSpill (this, targetColumn, gasSpilled);
          getSpillTarget ()->addMigrated (GAS, gasSpilled.getWeight ());
          setSpilling ();
@@ -2424,11 +2470,11 @@ namespace migration
       m_toBeDistributed[OIL].reset ();
 
       if (finalGasLevel + getTopDepth () > getSpillDepth () ||
-         finalHCLevel + getTopDepth () > getSpillDepth ())
+          finalHCLevel + getTopDepth () > getSpillDepth ())
       {
          cerr << GetRankString () << ": " << this << ": finalGasDepth = " << getTopDepth () + finalGasLevel
-            << ", finalHCDepth = " << getTopDepth () + finalHCLevel
-            << ", spill depth = " << getSpillDepth () << endl;
+              << ", finalHCDepth = " << getTopDepth () + finalHCLevel
+              << ", spill depth = " << getSpillDepth () << endl;
       }
 
       setFillDepth (GAS, finalGasLevel + getTopDepth ());
@@ -2493,7 +2539,7 @@ namespace migration
          ostringstream strstream; strstream << getCrestColumn() << endl;
          m_massBalance->addComment(strstream.str());
          m_massBalance->addComment("Snapshot    = ");
-         m_massBalance->addComment(getReservoir()->getEnd()->asString() + "\n"); 
+         m_massBalance->addComment(getReservoir()->getEnd()->asString() + "\n");
          m_massBalance->addComment("Size        = ");
          ostringstream strstream0; strstream0 << getSize() << endl;
          m_massBalance->addComment(strstream0.str());
@@ -2534,66 +2580,66 @@ namespace migration
 #endif
 
 #ifdef DETAILED_VOLUME_BALANCE
-   {
-      m_volumeBalance->addToBalance("distributed gas", m_toBeDistributed[GAS].getVolume());
-      m_volumeBalance->addToBalance("distributed oil", m_toBeDistributed[OIL].getVolume());
+      {
+         m_volumeBalance->addToBalance("distributed gas", m_toBeDistributed[GAS].getVolume());
+         m_volumeBalance->addToBalance("distributed oil", m_toBeDistributed[OIL].getVolume());
 
-      m_volumeBalance->addComment("\nTrap:\n");
-      m_volumeBalance->addComment("----\n");
-      m_volumeBalance->addComment("Reservoir   = ");
-      m_volumeBalance->addComment(getReservoir()->getName() + "\n");
-      m_volumeBalance->addComment("Crest column= ");
-      ostringstream strstream; strstream << getCrestColumn() << endl;
-      m_volumeBalance->addComment(strstream.str());
-      m_volumeBalance->addComment("Snapshot    = ");
-      m_volumeBalance->addComment(getReservoir()->getEnd()->asString() + "\n"); 
-      m_volumeBalance->addComment("Size        = ");
-      ostringstream strstream0; strstream0 << getSize() << endl;
-      m_volumeBalance->addComment(strstream0.str());
-      ostringstream strstream1; strstream1 << getTopDepth() << endl;
-      m_volumeBalance->addComment("Depth       = ");
-      m_volumeBalance->addComment(strstream1.str());
+         m_volumeBalance->addComment("\nTrap:\n");
+         m_volumeBalance->addComment("----\n");
+         m_volumeBalance->addComment("Reservoir   = ");
+         m_volumeBalance->addComment(getReservoir()->getName() + "\n");
+         m_volumeBalance->addComment("Crest column= ");
+         ostringstream strstream; strstream << getCrestColumn() << endl;
+         m_volumeBalance->addComment(strstream.str());
+         m_volumeBalance->addComment("Snapshot    = ");
+         m_volumeBalance->addComment(getReservoir()->getEnd()->asString() + "\n");
+         m_volumeBalance->addComment("Size        = ");
+         ostringstream strstream0; strstream0 << getSize() << endl;
+         m_volumeBalance->addComment(strstream0.str());
+         ostringstream strstream1; strstream1 << getTopDepth() << endl;
+         m_volumeBalance->addComment("Depth       = ");
+         m_volumeBalance->addComment(strstream1.str());
 
-      m_volumeBalance->addComment("\nTrap Properties:\n");
-      m_volumeBalance->addComment("---------------\n");
-      ostringstream strstream2; strstream2 << "Temperature = " << getTemperature() << " C" << endl;
-      m_volumeBalance->addComment(strstream2.str());
-      ostringstream strstream3; strstream3 << "Pressure    = " << getPressure() << " MPa" << endl;
-      m_volumeBalance->addComment(strstream3.str());
-      ostringstream strstream4; strstream4 << "Capacity    = " << getCapacity() << " m^3" << endl;
-      m_volumeBalance->addComment(strstream4.str());
+         m_volumeBalance->addComment("\nTrap Properties:\n");
+         m_volumeBalance->addComment("---------------\n");
+         ostringstream strstream2; strstream2 << "Temperature = " << getTemperature() << " C" << endl;
+         m_volumeBalance->addComment(strstream2.str());
+         ostringstream strstream3; strstream3 << "Pressure    = " << getPressure() << " MPa" << endl;
+         m_volumeBalance->addComment(strstream3.str());
+         ostringstream strstream4; strstream4 << "Capacity    = " << getCapacity() << " m^3" << endl;
+         m_volumeBalance->addComment(strstream4.str());
 
-      if (m_toBeDistributed[GAS].getVolume() > 0.0) {
-         m_volumeBalance->addComment("\nGas Properties:\n");
-         m_volumeBalance->addComment("--------------\n");
-         ostringstream strstream5; strstream5 << "Density     = " << m_toBeDistributed[GAS].getDensity() << " kg/m^3" << endl;
-         m_volumeBalance->addComment(strstream5.str());
-         ostringstream strstream6; strstream6 << "Viscosity   = " << m_toBeDistributed[GAS].getViscosity() << endl;
-         m_volumeBalance->addComment(strstream6.str());
+         if (m_toBeDistributed[GAS].getVolume() > 0.0) {
+            m_volumeBalance->addComment("\nGas Properties:\n");
+            m_volumeBalance->addComment("--------------\n");
+            ostringstream strstream5; strstream5 << "Density     = " << m_toBeDistributed[GAS].getDensity() << " kg/m^3" << endl;
+            m_volumeBalance->addComment(strstream5.str());
+            ostringstream strstream6; strstream6 << "Viscosity   = " << m_toBeDistributed[GAS].getViscosity() << endl;
+            m_volumeBalance->addComment(strstream6.str());
+         }
+
+         if (m_toBeDistributed[OIL].getVolume() > 0.0) {
+            m_volumeBalance->addComment("\nOil Properties:\n");
+            m_volumeBalance->addComment("--------------\n");
+            ostringstream strstream7; strstream7 << "Density     = " << m_toBeDistributed[OIL].getDensity() << endl;
+            m_volumeBalance->addComment(strstream7.str());
+            ostringstream strstream8; strstream8 << "Viscosity   = " << m_toBeDistributed[OIL].getViscosity() << endl;
+            m_volumeBalance->addComment(strstream8.str());
+         }
+
+         m_volumeBalance->addComment("\nMass Balance:\n");
+         m_volumeBalance->addComment("------------\n");
       }
-
-      if (m_toBeDistributed[OIL].getVolume() > 0.0) {
-         m_volumeBalance->addComment("\nOil Properties:\n");
-         m_volumeBalance->addComment("--------------\n");
-         ostringstream strstream7; strstream7 << "Density     = " << m_toBeDistributed[OIL].getDensity() << endl;
-         m_volumeBalance->addComment(strstream7.str());
-         ostringstream strstream8; strstream8 << "Viscosity   = " << m_toBeDistributed[OIL].getViscosity() << endl;
-         m_volumeBalance->addComment(strstream8.str());
-      }
-
-      m_volumeBalance->addComment("\nMass Balance:\n");
-      m_volumeBalance->addComment("------------\n");
-   }
 #endif
 
-   return true;
+      return true;
    }
 
    bool Trap::requiresDistribution (void)
    {
       bool result = false;
       if (getCrestColumn ()->containsComposition () &&
-         ((getCrestColumn ()->getCompositionState () & (INITIAL + SPILLED)) != 0))
+          ((getCrestColumn ()->getCompositionState () & (INITIAL + SPILLED)) != 0))
          result = true;
 
       for (int phase = FIRST_PHASE; phase < NUM_PHASES; ++phase)
@@ -2603,31 +2649,6 @@ namespace migration
 
       return result;
    }
-
-   /*void Trap::checkDistributedCharges (PhaseId phase)
-   {
-   const double MinimumVolume = 5000;
-   const double MaximumCapacityError = 0.001;
-
-   double chargeVolume = m_distributed[phase].getVolume ();
-   double usedTrapVolume = getVolumeBetweenDepths (getTopDepth (), getFillDepth (phase));
-   if (phase != FIRST_PHASE)
-   {
-   usedTrapVolume -= getVolumeBetweenDepths (getTopDepth (), getFillDepth (PhaseId (int (phase) - 1)));
-   }
-
-   if (chargeVolume > MinimumVolume)
-   {
-   double capacityError = Abs (chargeVolume - usedTrapVolume) / getCapacity ();
-
-   if (capacityError > MaximumCapacityError)
-   {
-   cerr << GetRankString () << ": ERROR in phase " << PhaseNames[phase] << " of " << this << ":" << endl
-   << "\t" << "charge volume = " << chargeVolume
-   << ", used volume = " << usedTrapVolume << ", capacity = " << getCapacity () << endl;
-   }
-   }
-   }*/
 
    double Trap::computethicknessAffectedByBiodegradationAboveOWC (const double timeInterval, const double bioRate) const
    {
@@ -2639,8 +2660,15 @@ namespace migration
 
    bool Trap::computeHydrocarbonWaterContactDepth (void)
    {
-      if (requiresPVT ())
-         computePVT ();
+      // Charge is flashed split in phases during distributeCarges()
+      // Put it in m_toBeDistributed so it can be biodegraded
+      // Must be put back to m_distributed after biodegradation
+      for (int phase = FIRST_PHASE; phase < NUM_PHASES; ++phase)
+      {
+         m_toBeDistributed[phase].add(m_distributed[phase]);
+         m_toBeDistributed[phase].setDensity(m_distributed[phase].getDensity());
+         m_distributed[phase].reset();
+      }
 
       double const volumeOil = m_toBeDistributed[OIL].getVolume ();
       double const volumeGas = m_toBeDistributed[GAS].getVolume ();
@@ -2712,7 +2740,7 @@ namespace migration
       {
          m_hydrocarbonWaterContactTemperature = crestColumn->getOWCTemperature (m_hydrocarbonWaterContactDepth);
       }
-      // Else we need to find another column which has a top and a bottom depth which surrounded the OWC 
+      // Else we need to find another column which has a top and a bottom depth which surrounded the OWC
       else
       {
          // Find a column of the trap with a bottom depth deeper than the hydrocarbon - water contact
@@ -2786,7 +2814,7 @@ namespace migration
 #endif
             volumeFractionOfOilBiodegraded = 1;
             volumeFractionOfGasBiodegraded = (volumeBiodegraded - m_toBeDistributed[OIL].getVolume ()) / m_toBeDistributed[GAS].getVolume ();
-            volumeFractionOfGasBiodegraded = min (volumeFractionOfGasBiodegraded, 1.0);   // in case that the biodegradation zone extends above the volume of Gas 
+            volumeFractionOfGasBiodegraded = min (volumeFractionOfGasBiodegraded, 1.0);   // in case that the biodegradation zone extends above the volume of Gas
          }
       }
       assert (volumeFractionOfOilBiodegraded >= 0 && volumeFractionOfOilBiodegraded <= 1);
@@ -2834,7 +2862,7 @@ namespace migration
       Column * targetColumn = getFinalSpillTarget (phase);
 
       cerr << GetRankString () << ": " << m_reservoir->getName () << "->" << this
-         << "->spills to " << targetColumn;
+           << "->spills to " << targetColumn;
 
       Column * tmpColumn = getSpillTarget ();
       while (tmpColumn != targetColumn)
@@ -2882,7 +2910,7 @@ namespace migration
 
          if (fillDepth > getSpillDepth ())
          {
-            cerr << "Error in " << this << ": fillDepth (" << fillDepth << ") for phase " << PhaseNames[phase] << " is larger than spillDepth (" << getSpillDepth () << ")" << endl;
+            cerr << "Error in " << this <<  ": TrapID " << getGlobalId() << " fillDepth (" << fillDepth << ") for phase " << PhaseNames[phase] << " is larger than spillDepth (" << getSpillDepth () << ")" << endl;
          }
 
          for (ConstColumnIterator iter = m_interior.begin (); iter != m_interior.end (); ++iter)
@@ -2936,10 +2964,10 @@ namespace migration
    {
       // store what was leaked before diffusion
       LocalColumn * crestColumn = getCrestColumn ();
-      if (!m_leakedBeforeDiffusion) m_leakedBeforeDiffusion = new Composition;
+      if (!m_leakedBeforeBiodegDiffusion) m_leakedBeforeBiodegDiffusion = new Composition;
 
-      m_leakedBeforeDiffusion->setDensity (0);
-      m_leakedBeforeDiffusion->add (crestColumn->getComposition ());
+      m_leakedBeforeBiodegDiffusion->setDensity (0);
+      m_leakedBeforeBiodegDiffusion->add (crestColumn->getComposition ());
 
       // reset crest column composition
       crestColumn->getComposition ().reset ();
@@ -2987,6 +3015,14 @@ namespace migration
       crestColumn->addCompositionToBeMigrated (m_distributed[phase]);
       m_distributed[phase].reset ();
       setFillDepth (phase, getTopDepth ());
+   }
+
+   void Trap::putInitialLeakageBack()
+   {
+      if (m_leakedBeforeBiodegDiffusion)
+         getCrestColumn ()->getComposition ().add (*m_leakedBeforeBiodegDiffusion);
+
+      return;
    }
 
    void Trap::negotiateDensity (PhaseId phase)
@@ -3219,6 +3255,13 @@ namespace migration
 
       double gorm = computeGorm (m_distributed[GAS], m_distributed[OIL]);
 
+      double capSealStrength_H2O_Gas;
+      double capSealStrength_H2O_Oil;
+      std::vector<Composition> trapComposition(2);
+      trapComposition[0] = m_distributed[GAS];
+      trapComposition[1] = m_distributed[OIL];
+      double crestPressure = getCrestColumn()->getPressure();
+
       for (int phase = (int)FIRST_PHASE; phase < (int)NUM_PHASES; ++phase)
       {
          tpRequest.cep[phase] = -1;
@@ -3227,23 +3270,24 @@ namespace migration
 
          if (leakDistributor && m_distributed[phase].getWeight () > 0.0)
          {
-            double capillarySealStrength = leakDistributor->capillarySealStrength ().compute (m_distributed[phase],
-               gorm, getTemperature () + CelciusToKelvin);
-            if (capillarySealStrength != numeric_limits<double>::max ())
-               tpRequest.cep[phase] = PaToMegaPa * capillarySealStrength;
+            leakDistributor->capillarySealStrength().compute(trapComposition, gorm, getTemperature() + CelciusToKelvin, crestPressure,
+                                                             capSealStrength_H2O_Gas, capSealStrength_H2O_Oil);
 
-            double criticalTemperature =
-               leakDistributor->capillarySealStrength ().criticalTemperature (m_distributed[phase], gorm) - CelciusToKelvin;
+            if ( phase == GAS && capSealStrength_H2O_Gas != numeric_limits<double>::max ())
+               tpRequest.cep[phase] = PaToMegaPa * capSealStrength_H2O_Gas;
+            else if ( phase == OIL && capSealStrength_H2O_Oil != numeric_limits<double>::max() )
+               tpRequest.cep[phase] = PaToMegaPa * capSealStrength_H2O_Oil;
+
+            double criticalTemperature = leakDistributor->capillarySealStrength ().criticalTemperature (m_distributed[phase], gorm) - CelciusToKelvin;
             tpRequest.criticalTemperature[phase] = criticalTemperature;
 
-            double interfacialTension = leakDistributor->capillarySealStrength ().interfacialTension (m_distributed[phase],
-               gorm, getTemperature () + CelciusToKelvin);
+            double interfacialTension = leakDistributor->capillarySealStrength ().interfacialTension (m_distributed[phase], gorm, getTemperature () + CelciusToKelvin);
             tpRequest.interfacialTension[phase] = interfacialTension;
          }
          tpRequest.volume[phase] = getVolume ((PhaseId)phase);
       }
 
-      for (int component = FIRST_COMPONENT; component < NUM_COMPONENTS; ++component)
+      for (int component = ComponentId::FIRST_COMPONENT; component < ComponentId::NUMBER_OF_SPECIES; ++component)
       {
          tpRequest.composition.set ((ComponentId)component, getWeight ((ComponentId)component));
       }

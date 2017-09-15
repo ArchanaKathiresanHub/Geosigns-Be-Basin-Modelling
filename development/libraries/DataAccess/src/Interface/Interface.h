@@ -1,12 +1,13 @@
 //
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
+
 #ifndef INTERFACE_H
 #define INTERFACE_H
 
@@ -86,6 +87,7 @@ namespace DataAccess
       class PropertyValue;
       class RelatedProject;
       class Reservoir;
+      class ReservoirOptions;
       class RunParameters;
       class SGDensitySample;
       class SimulationDetails;
@@ -224,44 +226,6 @@ namespace DataAccess
 
       enum InputValueType { PropertyMap, FaultMap };
 
-      /// Ids for the gas and oil phase
-      enum PhaseId {
-         Gas = 0, Oil, NumPhases
-      };
-
-      /// Ids for all the hydrocarbon components used.
-      enum ComponentId
-      {
-         FIRST_COMPONENT = 0,
-         ASPHALTENES = 0,
-         RESINS = 1,
-         C15_ARO = 2,
-         C15_SAT = 3,
-         C6_14ARO = 4,
-         C6_14SAT = 5,
-         C5 = 6,
-         C4 = 7,
-         C3 = 8,
-         C2 = 9,
-         C1 = 10,
-         COX = 11,
-         N2 = 12,
-         H2S = 13,
-         LSC = 14,
-         C15_AT = 15,
-         C6_14BT = 16,
-         C6_14DBT = 17,
-         C6_14BP = 18,
-         C15_AROS = 19,
-         C15_SATS = 20,
-         C6_14SATS = 21,
-         C6_14AROS = 22,
-         LAST_COMPONENT = 22,
-         UNKNOWN = 23,
-         NUM_COMPONENTS = 23
-
-      };
-
       /// \brief Indicates the model method of mixing the lithologies in a layer.
       enum MixModelType { UNDEFINED, HOMOGENEOUS, LAYERED };
 
@@ -305,7 +269,7 @@ namespace DataAccess
          FgColour, BgColour, Pixmap, HeatProdSource, PermMixModel, Porosity_Model,
          Multipoint_Porosity, Multipoint_Permeability,
          // Doubles
-         Density, HeatProd, SurfacePorosity, CompacCoefES,CompacCoefESA, CompacCoefESB, CompacCoefSC, CompacCoefFM, StpThCond,
+         Density, HeatProd, SurfacePorosity, CompacCoefES,CompacCoefESA, CompacCoefESB, StpThCond,
          ThCondAnisotropy, DepoPerm, PermDecrStressCoef, PermIncrRelaxCoef, PermAnisotropy,
          SeisVelocity, NExponentVelocity, CapC1, CapC2, Compaction_Coefficient_SM, HydraulicFracturingPercent,
          ReferenceSolidViscosity, ActivationEnergy, MinimumPorosity,
@@ -315,7 +279,7 @@ namespace DataAccess
 
       /// Attributes for which a (GridMap) value can be requested via getMap ().
       enum ReservoirMapAttributeId {
-         DepthOffset = 0, ReservoirThickness, NetToGross, LayerFrequency
+         NetToGross = 0
       };
 
       /// Attributes for which a (GridMap) value can be requested via getMap ().
@@ -516,6 +480,15 @@ namespace DataAccess
 
 
       class IdentityFunctor : public UnaryFunctor {
+      public:
+
+         double operator ()( const double operand ) const;
+
+      private:
+
+      };
+
+      class IdentityMinusFunctor : public UnaryFunctor {
       public:
 
          double operator ()( const double operand ) const;
@@ -729,6 +702,7 @@ namespace DataAccess
       /// Value for undefined used in project files
       const double DefaultUndefinedScalarValue = -9999;
       const double RecordValueUndefined = DefaultUndefinedScalarValue;
+      const int    DefaultUndefinedScalarIntValue = -9999;
 
 
       /// Must correspond to the FaultStatus in Migration
@@ -767,6 +741,17 @@ namespace DataAccess
       /// \var NullString
       static const std::string NullString = "";
 
+      /// \brief A vector of zero length.
+      static const std::vector<std::string> NoTableNames = std::vector<std::string>();
+
+      /// \brief A vector of names of the largest output tables in the project file.
+      ///
+      /// These are the candidates for being moved to the output table file.
+      static const std::vector<std::string> DefaultOutputTableNames =
+                            std::vector<std::string>({ "1DTimeIoTbl",    "3DTimeIoTbl",
+                                                       "MigrationIoTbl", "TimeIoTbl",
+                                                       "TrapIoTbl",      "TrapperIoTbl" });
+
       /// \var IgneousIntrusionEventDuration
       /// \brief The time interval over which an igneous intrusion can be inflated.
       ///
@@ -777,6 +762,10 @@ namespace DataAccess
 
 inline double DataAccess::Interface::IdentityFunctor::operator ()( const double operand ) const {
    return operand;
+}
+
+inline double DataAccess::Interface::IdentityMinusFunctor::operator ()( const double operand ) const {
+   return -operand;
 }
 
 inline double DataAccess::Interface::SubtractionFunctor::operator ()( const double op1, const double op2 ) const {

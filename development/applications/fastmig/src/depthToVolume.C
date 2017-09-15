@@ -17,7 +17,6 @@
 #include <math.h>
 
 using functions::Tuple2;
-using functions::tuple;
 using std::map;
 using std::numeric_limits;
 using std::min;
@@ -138,8 +137,8 @@ const MonotonicIncreasingPiecewiseLinearInvertableFunction* compute(const double
    // Traps with an empty levelToVolume function are more difficult to deal with than a 
    // trap with a zero levelToVolume function: 
    if (capacity[1] == 0.0) {
-      depthToCapacity.push_back(functions::tuple(limits[0],0.0));
-      depthToCapacity.push_back(functions::tuple(limits[1],0.0));
+      depthToCapacity.push_back(functions::Tuple2<double>(0.0,0.0));
+      depthToCapacity.push_back(functions::Tuple2<double>(0.0,0.0));
    }
    
    assert(depthToCapacity.size() > 1);

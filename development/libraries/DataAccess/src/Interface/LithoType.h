@@ -84,12 +84,6 @@ namespace DataAccess
          /// Return the soil mechanics compaction coefficient.
          virtual double getSoilMechanicsCompactionCoefficient () const;
 
-         /// This is defined inthe project file, but is not used.
-         virtual double getCompacCoefSC () const;
-
-         /// This is defined inthe project file, but is not used.
-         virtual double getCompacCoefFM () const;
-
          /// Return the size of the grain of quartz for chemical compaction
          virtual double getQuartzGrainSize () const;
 
@@ -153,13 +147,6 @@ namespace DataAccess
 
          /// Return the capillary entry pressure.
          virtual PcKrModel getPcKrModel () const;
-	 
-
-         /// Return the specific surface area.
-         virtual double getSpecificSurfArea () const;
-
-         /// Return the geometric variance.
-         virtual double getGeometricVariance () const;
 
          /// Return a list of sample points used to describe how the heat-capacity changes w.r.t. temperature.
          virtual LithologyHeatCapacitySampleList * getHeatCapacitySamples () const;

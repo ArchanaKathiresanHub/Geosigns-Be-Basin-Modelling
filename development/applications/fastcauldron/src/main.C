@@ -28,7 +28,6 @@ static void abortOnBadAlloc () {
 int main(int argc, char** argv)
 {
    bool returnStatus = true;
-   bool canRunSaltModelling = true;
 
    // If bad_alloc is raised during an allocation of memory then this function will be called.
    std::set_new_handler ( abortOnBadAlloc );

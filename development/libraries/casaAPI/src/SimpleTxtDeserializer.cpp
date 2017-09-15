@@ -97,7 +97,7 @@ namespace casa
       return true;
    }
 
-   // read simple type variable like int/double/string
+   // read simple type influential like int/double/string
    template <typename T>
    inline bool loadVal( std::istream & fp, T & val, const std::string & valName, const char * typeName )
    {

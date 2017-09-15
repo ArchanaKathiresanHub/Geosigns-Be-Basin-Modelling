@@ -13,7 +13,6 @@ void Numerics::GMRes::operator ()
   const int MaximumDimension = maximumNumberOfIterations + 2;
   const int dimension = theMatrix->numberOfRows ();
 
-  int I;
   int K;
   int iterationCount = 1;
 
@@ -123,7 +122,7 @@ void Numerics::GMRes::operator ()
 
   update ( Solution, iterationCount - 1, hessenbergMatrix, S, vectorSequence, workSpace );
 
-  for ( I = 1; I < vectorSequence.size (); I++ ) {
+  for ( size_t I = 1; I < vectorSequence.size (); I++ ) {
 
     if ( vectorSequence [ I ] != 0 ) {
       delete vectorSequence [ I ];
@@ -219,7 +218,7 @@ void Numerics::GMRes::applyPlaneRotation
 void Numerics::GMRes::fill ( VectorArray& vecs, 
                              Vector*      value ) const {
 
-  int i;
+  size_t i;
 
   for ( i = 0; i < vecs.size (); i++ ){
     vecs [ i ] = value;

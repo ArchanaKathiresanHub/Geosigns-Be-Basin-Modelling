@@ -102,7 +102,7 @@ int main (int argc, char ** argv)
    {
       argv0 = argv[0];
    }
-   
+
    int arg;
    for (arg = 1; arg < argc; arg++)
    {
@@ -158,7 +158,7 @@ int main (int argc, char ** argv)
       outputProjectFileName = inputProjectFileName;
    }
 
-   
+
    GeoPhysics::ObjectFactory* factory = new GeoPhysics::ObjectFactory();
    GeoPhysics::ProjectHandle* projectHandle = dynamic_cast< GeoPhysics::ProjectHandle* >( OpenCauldronProject( inputProjectFileName, "rw", factory ) );
    DerivedProperties::DerivedPropertyManager propertyManager ( projectHandle );
@@ -207,8 +207,7 @@ int main (int argc, char ** argv)
 
    if (projectHandle->getModellingMode () == Interface::MODE3D)
    {
-      Database * db = ((Interface::ProjectHandle *) projectHandle)->getDataBase ();
-      Table * table = db->getTable ("TouchstoneWellIoTbl");
+      Table * table = projectHandle->getTable ("TouchstoneWellIoTbl");
       int i;
       for (i = 0; i < table->size (); ++i)
       {
@@ -262,12 +261,11 @@ static bool generateBHF (ProjectHandle * projectHandle, DerivedProperties::Deriv
    }
 
    BHFName += ".BHF";
-
+   
    if (is3D)
    {
       database::setBHFName (record, BHFName);
    }
-
 
    string outputFileName = projectHandle->getProjectPath ();
 
@@ -481,4 +479,3 @@ void showUsage (const char * message)
       << endl;
    exit (-1);
 }
-

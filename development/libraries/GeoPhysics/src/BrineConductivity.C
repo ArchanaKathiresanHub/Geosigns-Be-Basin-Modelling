@@ -9,24 +9,20 @@
 //
 
 #include "BrineConductivity.h"
+#include "BrinePhases.h"
 
-#include <cmath>
-#include <assert.h>
-#include <sstream>
-#include <iostream>
-#include <iomanip>
+#include <algorithm>
 
 #include "IBSinterpolator2d.h"
 #include "NumericFunctions.h"
 
-const double GeoPhysics::BrineConductivity::PressureMaxForConductivity = 100.0;
-const double GeoPhysics::BrineConductivity::TemperatureMaxForConductivity = 800.0;
-
  
-GeoPhysics::BrineConductivity::BrineConductivity()
+GeoPhysics::Brine::Conductivity::Conductivity() :
+   m_highEndTransitionTempMax( GeoPhysics::Brine::PhaseStateBase::findT2(PressureMaxForConductivity) ),
+   m_lowEndTransitionTempMax( GeoPhysics::Brine::PhaseStateBase::findT1(m_highEndTransitionTempMax) )
 {}
 
-void GeoPhysics::BrineConductivity::setTable (const ibs::Interpolator2d& thermalConductivitytbl)
+void GeoPhysics::Brine::Conductivity::setTable (const ibs::Interpolator2d& thermalConductivitytbl)
 {
    int tempArraySize = s_tempArraySize;
    int presArraySize = s_presArraySize;
@@ -56,79 +52,63 @@ void GeoPhysics::BrineConductivity::setTable (const ibs::Interpolator2d& thermal
    }
 }
 
-double GeoPhysics::BrineConductivity::chooseRegion( const double temperature, const double pressure,
-                                                    const double salinity, const double higherTemperature,
-                                                    const double lowerTemperature ) const
+double GeoPhysics::Brine::Conductivity::get( const GeoPhysics::Brine::PhaseStateScalar & phase ) const
 {
-   double newPressure    = pressure;
-   double newTemperature = temperature;
+   double pressure = phase.getPressure();
+   double highTemp = phase.getHighEndTransitionTemp();
+   double lowTemp  = phase.getLowEndTransitionTemp();
 
-   double highTemp = higherTemperature;
-   double lowTemp  = lowerTemperature;
-
-   if ( newPressure > PressureMaxForConductivity )
+   if ( pressure > PressureMaxForConductivity )
    {
-      newPressure = PressureMaxForConductivity;
-
-      highTemp = findT2( newPressure );
-      lowTemp = findT1( highTemp );
+      pressure = PressureMaxForConductivity;
+      highTemp = m_highEndTransitionTempMax;
+      lowTemp  = m_lowEndTransitionTempMax;
    }
 
-   if ( newTemperature > TemperatureMaxForConductivity )
-   {
-      newTemperature = TemperatureMaxForConductivity;
-   }
+   const double temperature = std::min( phase.getTemperature(), TemperatureMaxForConductivity );
 
-   if ( newTemperature <= lowTemp )
+   if ( temperature <= lowTemp )
    {
-      return aqueousTable( newTemperature, newPressure );
+      return aqueousTable( temperature, pressure );
    }
-   else if ( newTemperature >= highTemp )
+   else if ( temperature >= highTemp )
    {
-      return vapourTable( newTemperature, newPressure );
+      return vapourTable( temperature, pressure );
    }
    else
    {
-      return transitionRegion( newTemperature, newPressure, highTemp, lowTemp );
+      return transitionRegion( temperature, pressure, highTemp, lowTemp );
    }
-
 }
 
 //  Use the Sengers et al. table in the aqueous (liquid) phase.
-double GeoPhysics::BrineConductivity::aqueousTable( const double temperature,
-                                                    const double pressure ) const
+double GeoPhysics::Brine::Conductivity::aqueousTable( const double temperature,
+                                                      const double pressure ) const
 {
-   double conductivity = interpolate2d( temperature, pressure );
-
-   return conductivity;
+   return interpolate2d( temperature, pressure );
 }
 
 //  Use the Sengers et al. table also in the vapour (gas) phase.
-double GeoPhysics::BrineConductivity::vapourTable( const double temperature,
-                                                   const double pressure ) const
+double GeoPhysics::Brine::Conductivity::vapourTable( const double temperature,
+                                                     const double pressure ) const
 {  
-   double conductivity = interpolate2d( temperature, pressure );
-
-   return conductivity;
+   return interpolate2d( temperature, pressure );
 }
 
 // Interpolation between last aqueous value (at T1) and first vapour value (at T2).
-double GeoPhysics::BrineConductivity::transitionRegion( const double temperature, const double pressure,
-                                                        const double higherTemperature, const double lowerTemperature) const
+double GeoPhysics::Brine::Conductivity::transitionRegion( const double temperature, const double pressure,
+                                                          const double higherTemperature, const double lowerTemperature) const
 {
    double aqueous = aqueousTable( lowerTemperature, pressure );
    double vapour  = vapourTable( higherTemperature, pressure );
-   double conductivity = ( aqueous + ( temperature - lowerTemperature ) * ( vapour - aqueous ) / ( higherTemperature - lowerTemperature ) );
-
-   return conductivity;
-
+   return ( aqueous + ( temperature - lowerTemperature ) * ( vapour - aqueous ) / ( higherTemperature - lowerTemperature ) );
 }
 
 // 2D Interpolation in T-P space to find thermal conductivity.
-double GeoPhysics::BrineConductivity::interpolate2d( const double temperature, const double pressure ) const
+double GeoPhysics::Brine::Conductivity::interpolate2d( const double temperature, const double pressure ) const
 {
    int i = 1;
-   while ( temperature > m_tempArray[i]  )
+   while ( temperature > m_tempArray[i] )
    {
       ++i;
    }

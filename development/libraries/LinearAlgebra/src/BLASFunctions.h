@@ -59,7 +59,6 @@ namespace BLAS {
   static float zeroFlt = 0.0;
 
   static int oneInt  = 1;
-  static int zeroInt = 0;
 
 
 

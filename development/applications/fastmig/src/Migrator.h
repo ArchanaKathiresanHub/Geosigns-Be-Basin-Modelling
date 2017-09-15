@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2010-2015 Shell International Exploration & Production.
+// Copyright (C) 2010-2017 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -45,13 +45,13 @@ namespace migration
    {
    public:
       /// Constructor
-      Migrator (const string & name);// , DataAccess::Interface::ObjectFactory* objectFactory);
+      Migrator (const string & name);
       virtual ~Migrator (void);
 
       bool saveTo (const std::string & outputFileName);
 
       /// The top migration routine
-      bool compute (void);
+      bool compute (const bool overpressuredLeakage);
 
       void openMassBalanceFile (void);
       void closeMassBalanceFile (void);
@@ -94,16 +94,10 @@ namespace migration
       Formation * getBottomSourceRockFormation ();
       Formation * getTopSourceRockFormation (const Interface::Snapshot * end);
       Formation * getTopActiveFormation (const Interface::Snapshot * end);
-      Formation * getBottomActiveReservoirFormation (const Interface::Snapshot * end);
-      Formation * getTopActiveReservoirFormation (const Interface::Snapshot * end);
+      Formation * getTopActiveReservoirFormation (const Interface::Snapshot * start, const Interface::Snapshot * end);
 
-      // Formation * getBotomSourceRockOverTopReservoir (const Interface::Snapshot * end);
-
-      // If getMinOilColumnHeight and getMinGasColumnHeight get moved to RunOptionsIoTbl these functions can be used
-      /*
-        double getMinOilColumnHeight (void) const;
-        double getMinGasColumnHeight (void) const;
-        */
+      inline double getMinOilColumnHeight (void) const;
+      inline double getMinGasColumnHeight (void) const;
 
       GeoPhysics::ProjectHandle * getProjectHandle (void);
 
@@ -116,6 +110,9 @@ namespace migration
       /// Check if there are any active reservoirs at given snapshot
       bool activeReservoirs (const Interface::Snapshot * snapshot);
 
+      migration::Formation * getBottomMigrationFormation(const Interface::Snapshot * end);
+	   bool flagTopNodes(const Interface::Snapshot * end, const bool pressureRun);
+
       bool detectReservoirs (const Interface::Snapshot * start, const Interface::Snapshot * end, const bool pressureRun);
 
       /// Charge the active reservoirs with charge already in the traps and
@@ -125,38 +122,43 @@ namespace migration
       /// Charge the specified reservoir with charge already in the traps and
       /// additionally expelled charge between the given snapshots.
       bool chargeReservoir (Reservoir * reservoir, Reservoir * reservoirAbove, Reservoir * reservoirBelow,
-         const Interface::Snapshot * start, const Interface::Snapshot * end);
+                            const Interface::Snapshot * start, const Interface::Snapshot * end);
 
       // Calculate flow at the top level of the basin for a given snapshot time.
-      bool calculateSeepage (const Interface::Snapshot * end);
+      bool calculateSeepage (const Interface::Snapshot * start, const Interface::Snapshot * end);
 
       // Save the calculated amounts of seapage
       void saveSeepageAmounts (migration::Formation * seepsFormation, const Interface::Snapshot * end);
 
       /// Collect expelled charges into the given reservoir from the appropriate source rocks.
       bool collectAndMigrateExpelledCharges (Reservoir * reservoir, Reservoir * reservoirAbove, Reservoir * reservoirBelow,
-         const Interface::Snapshot * start, const Interface::Snapshot * end, Barrier * barrier);
+                                             const Interface::Snapshot * start, const Interface::Snapshot * end, Barrier * barrier);
 
       /// retrieve the reservoirs, for the specified formation if specified.
       virtual DataAccess::Interface::ReservoirList * getReservoirs (const Interface::Formation * formation = 0) const;
 
       void addTrapRecord (Reservoir * reservoir, TrapPropertiesRequest & tpRequest);
-      // add a detected reservoir to ResIoTbl and return the record itself
+
+      /// add a detected reservoir to ResIoTbl and return the record itself
       database::Record * addDetectedReservoirRecord (Interface::Formation * formation, const Interface::Snapshot * start);
+
+      /// Read minimum column heights from ReservoirOptionsIoTbl
       void getMinimumColumnHeights ();
+      /// \brief Get all blocking-related input options
+      void getBlocking ();
 
       database::Record * copyMigrationRecord (database::Record * oldRecord, const std::string & newMigrationProcess);
 
       void addMigrationRecord (const std::string & srcReservoirName, const std::string & srcFormationName,
-         const std::string & dstReservoirName, MigrationRequest & mr);
+                               const std::string & dstReservoirName, MigrationRequest & mr);
 
       database::Record * findMigrationRecord (const std::string & srcReservoirName, const std::string & srcFormationName,
-         const std::string & dstReservoirName,
-         MigrationRequest & mr);
+                                              const std::string & dstReservoirName,
+                                              MigrationRequest & mr);
 
       database::Record * createMigrationRecord (const std::string & srcReservoirName, const std::string & srcFormationName,
-         const std::string & dstReservoirName,
-         MigrationRequest & mr);
+                                                const std::string & dstReservoirName,
+                                                MigrationRequest & mr);
 
       bool retrieveFormationPropertyMaps (const Interface::Snapshot * end);
       bool restoreFormationPropertyMaps (const Interface::Snapshot * end);
@@ -187,30 +189,35 @@ namespace migration
       void deleteExpelledChargeMaps (const Interface::Snapshot * snapshot);
 
       const Interface::GridMap * getPropertyGridMap (const std::string & propertyName,
-         const Interface::Snapshot * snapshot,
-         const Interface::Reservoir * reservoir,
-         const Interface::Formation * formation,
-         const Interface::Surface * surface);
+                                                     const Interface::Snapshot * snapshot,
+                                                     const Interface::Reservoir * reservoir,
+                                                     const Interface::Formation * formation,
+                                                     const Interface::Surface * surface);
 
       MigrationPropertyManager& getPropertyManager ();
 
-      inline bool performVerticalMigration (void) const;
-      inline bool performHDynamicAndCapillary (void) const;
-      inline bool performReservoirDetection (void) const;
-      inline bool calculatePaleoSeeps (void) const;
-      inline bool performLegacyMigration (void) const;
-      inline bool isBlockingOn (void);
-      inline double getBlockingPermeability (void);
-      inline double getBlockingPorosity (void);
+      bool performAdvancedMigration (void) const;
+      bool performHDynamicAndCapillary (void) const;
+      bool performReservoirDetection (void) const;
+      bool performLegacyMigration (void) const;
+      bool isBlockingOn (void) const;
+      double getBlockingPermeability (void) const;
+      double getBlockingPorosity (void) const;
+      bool isOverpressuredLeakageOn (void) const;
+      bool isGenexRunOnTheFly (void) const;
 
       const Interface::GridMap * getPropertyGridMap (const string & propertyName, const Interface::Snapshot * snapshot,
-         const Interface::Reservoir * reservoir,
-         const Interface::Formation * formation,
-         const Interface::Surface * surface) const;
+                                                     const Interface::Reservoir * reservoir,
+                                                     const Interface::Formation * formation,
+                                                     const Interface::Surface * surface) const;
 
    private:
       GeoPhysics::ProjectHandle* openProject (const std::string & fileName);
       void sortReservoirs () const;
+
+      /// \brief Get a list of the tables that are to be output tables.
+      void getOutputTableNames ( std::vector<std::string>& outputTableNames ) const;
+
 
       mutable DataAccess::Interface::FormationList * m_formations;
       mutable DataAccess::Interface::ReservoirList * m_reservoirs;
@@ -224,8 +231,6 @@ namespace migration
       database::Table * m_trapIoTbl;
       database::Table * m_migrationIoTbl;
       database::Table * m_ReservoirIoTbl;
-      database::Table * m_detectedReservoirIoTbl;
-      database::Record * m_detectedReservoirIoRecord;
 
       bool mergeOutputFiles ();
 
@@ -233,12 +238,23 @@ namespace migration
       OilToGasCracker * m_otgc;
 #endif
 
-      bool m_verticalMigration;
+      /// Whether we use the advanced (true) or basic (false) mode of the BPA2 engine
+      bool m_advancedMigration;
+      /// Whether pore-pressure and capillary-pressure gradients are taken into account in flow-lines calculation
       bool m_hdynamicAndCapillary;
+      /// Whether automatic reservoir detection (ARD) in ON
       bool m_reservoirDetection;
+      /// Wthere seeps are also calcaulated at paleo times
       bool m_paleoSeeps;
+      /// Whether the 'blocking' functionality is used
       bool m_isBlockingOn;
+      /// Whether we use GeoSigns-BPA (true) or BPA2 (false) engine
       bool m_legacyMigration;
+      /// Whether overpressure is accounted for in trap leakage
+      bool m_overpressuredLeakage;
+      /// Whether genex will be run on the fly
+      bool m_genexOnTheFly;
+   
       double m_blockingPermeability;
       double m_blockingPorosity;
       double m_minOilColumnHeight;
@@ -256,44 +272,59 @@ inline migration::MigrationPropertyManager& migration::Migrator::getPropertyMana
    return *(m_propertyManager.get ());
 }
 
-bool migration::Migrator::performVerticalMigration (void) const
+inline bool migration::Migrator::performAdvancedMigration (void) const
 {
-   return m_verticalMigration;
+   return m_advancedMigration;
 }
 
-bool migration::Migrator::performHDynamicAndCapillary (void) const
+inline bool migration::Migrator::performHDynamicAndCapillary (void) const
 {
    return m_hdynamicAndCapillary;
 }
 
-bool migration::Migrator::performReservoirDetection (void) const
+inline bool migration::Migrator::performReservoirDetection (void) const
 {
    return m_reservoirDetection;
 }
 
-bool migration::Migrator::calculatePaleoSeeps (void) const
-{
-   return m_paleoSeeps;
-}
-
-bool migration::Migrator::performLegacyMigration (void) const
+inline bool migration::Migrator::performLegacyMigration (void) const
 {
    return m_legacyMigration;
 }
 
-bool migration::Migrator::isBlockingOn (void)
+inline bool migration::Migrator::isBlockingOn (void) const
 {
    return m_isBlockingOn;
 }
 
-double migration::Migrator::getBlockingPermeability (void)
+inline double migration::Migrator::getBlockingPermeability (void) const
 {
    return (m_isBlockingOn ? m_blockingPermeability : 0);
 }
 
-double migration::Migrator::getBlockingPorosity (void)
+inline double migration::Migrator::getBlockingPorosity (void) const
 {
    return (m_isBlockingOn ? m_blockingPorosity : 0);
+}
+
+inline double migration::Migrator::getMinOilColumnHeight (void) const
+{
+   return m_minOilColumnHeight;
+}
+
+inline double migration::Migrator::getMinGasColumnHeight (void) const
+{
+   return m_minGasColumnHeight;
+}
+
+inline bool migration::Migrator::isOverpressuredLeakageOn (void) const
+{
+   return m_overpressuredLeakage;
+}
+
+inline bool migration::Migrator::isGenexRunOnTheFly (void) const
+{
+   return m_genexOnTheFly;
 }
 
 #endif // _MIGRATION_MIGRATOR_H

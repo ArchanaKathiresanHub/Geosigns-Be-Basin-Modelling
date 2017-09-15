@@ -54,9 +54,9 @@ class Array {
    {
       Type * array = Array<Type>::create1d (n1);
       CheckArray (array);
-      for (int j = n1 - 1; j >= 0; j--)
+      for (size_t j = 0; j < n1; ++j)
       {
-	 array[j] = value;
+         array[j] = value;
       }
       return array;
    }
@@ -73,8 +73,8 @@ class Array {
 
       Type ** array = Array<Type *>::create1d (n1);
       CheckArray (array);
-
-      for (int j = static_cast<int>( n1 ) - 1; j >= 0; j--)
+      
+      for (size_t j = 0; j < n1; ++j)
       {
          array[j] = array1d + j * n2;
       }
@@ -86,10 +86,10 @@ class Array {
    {
       Type ** array = Array<Type>::create2d (n1, n2);
       CheckArray (array);
-
-      for (int j = n1*n2 - 1; j >= 0; j--)
+      
+      for (size_t j = 0; j < n1*n2; ++j)
       {
-	 array[0][j] = value;
+         array[0][j] = value;
       }
       return array;
    }
@@ -107,10 +107,10 @@ class Array {
 
       Type *** array = Array<Type *>::create2d (n1, n2);
       CheckArray (array);
-
-      for (int j = n1*n2 - 1; j >= 0; j--)
+      
+      for (size_t j = 0; j < n1*n2; ++j)
       {
-	 array[0][j] = array1d + j * n3;
+         array[0][j] = array1d + j * n3;
       }
 
       return array;
@@ -120,10 +120,10 @@ class Array {
    {
       Type *** array = Array<Type>::create3d (n1, n2, n3);
       CheckArray (array);
-
-      for (int j = n1*n2*n3 - 1; j >= 0; j--)
+      
+      for (size_t j = 0; j < n1*n2*n3; ++j)
       {
-	 array[0][0][j] = value;
+         array[0][0][j] = value;
       }
       return array;
    }
@@ -141,10 +141,10 @@ class Array {
 
       Type **** array = Array<Type *>::create3d (n1, n2, n3);
       CheckArray (array);
-
-      for (int j = n1*n2*n3 - 1; j >= 0; j--)
+      
+      for (size_t j = 0; j < n1*n2*n3; ++j)
       {
-	 array[0][0][j] = array1d + j * n4;
+         array[0][0][j] = array1d + j * n4;
       }
 
       return array;
@@ -154,9 +154,9 @@ class Array {
    {
       Type **** array = Array<Type>::create4d (n1, n2, n3, n4);
       CheckArray (array);
-      for (int j = n1*n2*n3*n4 - 1; j >= 0; j--)
+      for (size_t j = 0; j < n1*n2*n3*n4; ++j)
       {
-	 array[0][0][0][j] = value;
+         array[0][0][0][j] = value;
       }
       return array;
    }
@@ -257,10 +257,6 @@ class Array {
     int Last ( const int Dimension ) const {
       return Dimensions [ Dimension - 1 ];
     }
-
-//      int Length ( const int Dimension ) const {
-//        return Last ( Dimension ) - First ( Dimension );
-//      }
 
   private :
 

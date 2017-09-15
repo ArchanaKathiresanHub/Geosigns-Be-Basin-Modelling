@@ -27,10 +27,10 @@
 #include <WallTime.h>
 
 
-#define ERROR      -1
-#define WARNING     1
-#define INFOMSG     2
-#define PROGRESSMSG 3
+#define PD_ERROR      -1
+#define PD_WARNING     1
+#define PD_INFOMSG     2
+#define PD_PROGRESSMSG 3
 
 static int g_VerboseLevel = 3;
 static int g_totalDiffNumber = 0;
@@ -41,7 +41,7 @@ void Message( const std::string & msg, int level, bool newLine = true )
 {
    if ( level <= g_VerboseLevel ) 
    {
-      if ( level == ERROR ) { std::cerr << msg << (newLine ? "\n" : ""); }
+      if ( level == PD_ERROR ) { std::cerr << msg << (newLine ? "\n" : ""); }
       else                  { std::cout << msg << (newLine ? "\n" : ""); std::cout.flush(); }
    }
 }
@@ -121,7 +121,7 @@ int main( int argc, char ** argv )
                      filterList.push_back( std::vector<std::string>( flt.begin(), flt.end() ) );
                      if ( filterList.back().size() != 3 )
                      {
-                        Message( std::string( "Wrong filter is given, must be in format Table:ColName:Value, but given: " ) + flist[j], ERROR );
+                        Message( std::string( "Wrong filter is given, must be in format Table:ColName:Value, but given: " ) + flist[j], PD_ERROR );
                      }
                   }
                }
@@ -139,7 +139,7 @@ int main( int argc, char ** argv )
          }
          else
          {
-            Message( std::string( "Unknown parameter: " ) + argv[i], ERROR );
+            Message( std::string( "Unknown parameter: " ) + argv[i], PD_ERROR );
             return Usage( argv[0] );
          }
       }
@@ -149,14 +149,14 @@ int main( int argc, char ** argv )
          else if ( !in2File ) { in2File = argv[i]; }
          else
          {
-            Message( std::string( "Unknown parameter: " ) + argv[i], ERROR );
+            Message( std::string( "Unknown parameter: " ) + argv[i], PD_ERROR );
             return Usage( argv[0] );
          }
       }
    }
    if ( !in1File || !in2File ) 
    {
-      Message( std::string( "Wrong parameters number, project file name is missing" ), ERROR );
+      Message( std::string( "Wrong parameters number, project file name is missing" ), PD_ERROR );
       return Usage( argv[0] );
    }
 
@@ -166,37 +166,37 @@ int main( int argc, char ** argv )
    mbapi::Model cldProject1;
    mbapi::Model cldProject2;
 
-   Message( std::string( "# Reading project file: " ) + in1File + "...", PROGRESSMSG, false );
+   Message( std::string( "# Reading project file: " ) + in1File + "...", PD_PROGRESSMSG, false );
    if ( ErrorHandler::NoError != cldProject1.loadModelFromProjectFile( in1File ) )
    {
-      Message( std::string( "Failing to load project file: " ) + in1File, ERROR );
+      Message( std::string( "Failing to load project file: " ) + in1File, PD_ERROR );
       return -1;
    }
-   Message( std::string( " done in " ) + to_string( (WallTime::clock() - timer).floatValue() ) + " sec.", PROGRESSMSG );
+   Message( std::string( " done in " ) + to_string( (WallTime::clock() - timer).floatValue() ) + " sec.", PD_PROGRESSMSG );
    timer = WallTime::clock();
 
-   Message( std::string( "## Reading project file: " ) + in2File + "...", PROGRESSMSG, false );
+   Message( std::string( "## Reading project file: " ) + in2File + "...", PD_PROGRESSMSG, false );
    if ( ErrorHandler::NoError != cldProject2.loadModelFromProjectFile( in2File ) )
    {
-      Message( std::string( "Failing to load project file: " ) + in2File, ERROR );
+      Message( std::string( "Failing to load project file: " ) + in2File, PD_ERROR );
       return -1;
    }
-   Message( std::string( " done in " ) + to_string( (WallTime::clock() - timer).floatValue() ) + " sec.", PROGRESSMSG );
+   Message( std::string( " done in " ) + to_string( (WallTime::clock() - timer).floatValue() ) + " sec.", PD_PROGRESSMSG );
    timer = WallTime::clock();
 
    if ( compareFiles )
    {
-      Message( std::string( "### Comparing tables..." ), PROGRESSMSG, false );
+      Message( std::string( "### Comparing tables..." ), PD_PROGRESSMSG, false );
       const std::string & diffs = cldProject1.compareProject( cldProject2, procesList, ignoreList, eps );
 
       g_totalDiffNumber += std::count( diffs.begin(), diffs.end(), '\n' );
    
-      Message( std::string( " done in " ) + to_string( (WallTime::clock() - timer).floatValue() ) + " sec.", PROGRESSMSG );
-      if ( !diffs.empty() ) { Message( std::string( "Found differences: \n" ) + diffs, WARNING ); }
+      Message( std::string( " done in " ) + to_string( (WallTime::clock() - timer).floatValue() ) + " sec.", PD_PROGRESSMSG );
+      if ( !diffs.empty() ) { Message( std::string( "Found differences: \n" ) + diffs, PD_WARNING ); }
 
       timer = WallTime::clock();
    
-      Message( "###### All done!", PROGRESSMSG );
+      Message( "###### All done!", PD_PROGRESSMSG );
    
       std::ostringstream oss;
       oss << "Found " <<  g_totalDiffNumber << " differences";
@@ -207,20 +207,20 @@ int main( int argc, char ** argv )
 
    if ( mergeFiles )
    {
-      Message( std::string( "### Merging tables..." ), PROGRESSMSG, false );
+      Message( std::string( "### Merging tables..." ), PD_PROGRESSMSG, false );
       
       size_t dlRecNum;
       size_t cpRecNum;
 
       const std::string ret = cldProject2.mergeProject( cldProject1, procesList, filterList, dlRecNum, cpRecNum );
       
-      if ( !ret.empty() ) Message( ret, ERROR );
+      if ( !ret.empty() ) Message( ret, PD_ERROR );
 
-      Message( std::string( "#### Deleted records number: \n" ) + ibs::to_string( dlRecNum ), WARNING ); 
-      Message( std::string( "#### Copied records number: \n"  ) + ibs::to_string( cpRecNum ), WARNING );
+      Message( std::string( "#### Deleted records number: \n" ) + ibs::to_string( dlRecNum ), PD_WARNING ); 
+      Message( std::string( "#### Copied records number: \n"  ) + ibs::to_string( cpRecNum ), PD_WARNING );
 
-      Message( std::string( " done in " ) + to_string( (WallTime::clock() - timer).floatValue() ) + " sec.", PROGRESSMSG );
-      Message( "###### All done!", PROGRESSMSG );
+      Message( std::string( " done in " ) + to_string( (WallTime::clock() - timer).floatValue() ) + " sec.", PD_PROGRESSMSG );
+      Message( "###### All done!", PD_PROGRESSMSG );
 
       return ret.empty() ? 0 : -1;
    }

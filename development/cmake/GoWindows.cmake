@@ -11,6 +11,11 @@
 #########################################################################
 option(BM_CSHARP_API "Build the C sharp interface" ON)
 
+# Version of .NET for C# projects
+set(DONET_TARGET_VERSION "4.5.2") 
+
+STRING(REPLACE "." "" DONET_TARGET_VERSION_SHORT ${DONET_TARGET_VERSION})
+
 # Check that platform was chosen correctly
 if (IS_DIRECTORY "c:/Apps/3rdparty/")
    set(CBM_HOME "c:/Apps")
@@ -36,7 +41,7 @@ find_program( MSTEST "mstest.exe"
      )
 
 #BOOST
-set(BOOST_ROOT "${BM_EXTERNAL_COMPONENTS_DIR}/boost_1_59_0" CACHE PATH "Location of the Boost C++ libraries")
+set(BOOST_ROOT "${BM_EXTERNAL_COMPONENTS_DIR}/boost_1_65_1" CACHE PATH "Location of the Boost C++ libraries")
 
 #PETSC 
 if (IS_DIRECTORY "${BM_EXTERNAL_COMPONENTS_DIR}/PETSc_Windows-${PETSC_VERSION}")

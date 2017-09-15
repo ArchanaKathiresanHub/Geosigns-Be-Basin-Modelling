@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file LithologyManagerImpl.C
 /// @brief This file keeps API implementation for manipulating lithologies in Cauldron model
@@ -16,9 +16,8 @@
 #include "StratigraphyManagerImpl.h"
 #include "UndefinedValues.h"
 
-
 // Utilities lib
-#include <NumericFunctions.h>
+#include "NumericFunctions.h"
 
 // DataAccess
 #include "database.h"
@@ -38,7 +37,7 @@ const char * LithologyManagerImpl::s_lithoTypesTableName        = "LithotypeIoTb
 const char * LithologyManagerImpl::s_lithoTypeNameFieldName     = "Lithotype";
 
 // Porosity model
-const char * LithologyManagerImpl::s_porosityModelFieldName     = "Porosity_Model"; 
+const char * LithologyManagerImpl::s_porosityModelFieldName     = "Porosity_Model";
 const char * LithologyManagerImpl::s_surfPorosityFieldName      = "SurfacePorosity";
 const char * LithologyManagerImpl::s_ccExponentialFieldName     = "CompacCoefES";
 const char * LithologyManagerImpl::s_ccaDblExponentialFieldName = "CompacCoefESA";
@@ -125,10 +124,10 @@ LithologyManagerImpl & LithologyManagerImpl::operator = ( const LithologyManager
 }
 
 // Set project database. Reset all
-void LithologyManagerImpl::setDatabase( database::Database * db, mbapi::StratigraphyManagerImpl * stratMgr )
+void LithologyManagerImpl::setDatabase( database::ProjectFileHandlerPtr pfh, mbapi::StratigraphyManagerImpl * stratMgr )
 {
-   m_db = db;
-   
+   m_db = pfh;
+
    m_lithIoTbl   = m_db->getTable( s_lithoTypesTableName );
    m_alLithIoTbl = m_db->getTable( s_allochtLithTableName );
 
@@ -159,12 +158,12 @@ LithologyManager::LithologyID LithologyManagerImpl::createNewLithology()
 // duplicate records in thermal conductivity and heat capacity tables for the given lithology
 void LithologyManagerImpl::copyRecordsHeatCoeffTbls( const char * tblName, const std::string & origLithoName, const std::string & newLithoName )
 {
-   database::Table * ttable = m_db->getTable( tblName );  
+   database::Table * ttable = m_db->getTable( tblName );
 
    // if table does not exist - report error
    if ( !ttable ) { throw Exception( NonexistingID ) <<  tblName << " table could not be found in project"; }
 
-   // go over all records and collect records for the source lithology 
+   // go over all records and collect records for the source lithology
    std::vector<const database::Record *> recSet;
    for ( size_t k = 0; k < ttable->size(); ++k )
    {
@@ -188,13 +187,13 @@ void LithologyManagerImpl::copyRecordsHeatCoeffTbls( const char * tblName, const
 // Make a copy of the given lithology. Also makes a new set of records in table [LitThCondIoTbl] for the new litholog
 LithologyManager::LithologyID LithologyManagerImpl::copyLithology( LithologyID id, const std::string & newLithoName )
 {
-   LithologyID ret = UndefinedIDValue;
+   LithologyID ret = Utilities::Numerical::NoDataIDValue;
 
    if ( errorCode() != NoError ) resetError();
    try
    {
       // first check if given name already exist
-      if ( findID( newLithoName ) != UndefinedIDValue )
+      if ( !IsValueUndefined( findID( newLithoName ) ) )
       {
          throw Exception( AlreadyDefined ) << "Create copy: " << newLithoName << ", already exist in the lithology table";
       }
@@ -235,12 +234,12 @@ LithologyManager::LithologyID LithologyManagerImpl::copyLithology( LithologyID i
 // clean records from thermal conductivity and heat capacity tables for the given lithology
 void LithologyManagerImpl::cleanHeatCoeffTbls( const char * tblName, const std::string & lithoName )
 {
-   database::Table * ttable = m_db->getTable( tblName );  
+   database::Table * ttable = m_db->getTable( tblName );
 
    // if table does not exist - report error
    if ( !ttable ) { throw Exception( NonexistingID ) << tblName << " table could not be found in project"; }
 
-   // go over all records and collect records for the source lithology 
+   // go over all records and collect records for the source lithology
    std::vector<const database::Record *> recSet;
    for ( size_t k = 0; k < ttable->size(); ++k )
    {
@@ -282,7 +281,7 @@ ErrorHandler::ReturnCode LithologyManagerImpl::deleteLithology( LithologyID id )
             std::vector<std::string>::iterator it = std::find( lithoNamesLst.begin(), lithoNamesLst.end(), lithoName );
             if ( it != lithoNamesLst.end() ) // this lithology is referenced in stratigraphy, return error
             {
-               throw Exception( ValidationError ) << "Can not remove lithology: " << lithoName << 
+               throw Exception( ValidationError ) << "Can not remove lithology: " << lithoName <<
                   ", because it is referenced in stratigraphy by the layer: " << m_stMgr->layerName( layIDs[i] );
             }
          }
@@ -292,8 +291,8 @@ ErrorHandler::ReturnCode LithologyManagerImpl::deleteLithology( LithologyID id )
          for ( size_t i = 0; i < fcIDs.size(); ++i )
          {
             if ( m_stMgr->faultCutLithology( fcIDs[i] ) == lithoName )
-            {  
-               throw Exception( ValidationError ) << "Can not remove lithology: " << lithoName << 
+            {
+               throw Exception( ValidationError ) << "Can not remove lithology: " << lithoName <<
                   ", because it is referenced in fault cuts by the fault cut: " << m_stMgr->faultCutName( fcIDs[i] ) <<
                   " for the map: " << m_stMgr->faultCutMapName( fcIDs[i] );
             }
@@ -306,11 +305,11 @@ ErrorHandler::ReturnCode LithologyManagerImpl::deleteLithology( LithologyID id )
       {
          if ( allochtonLithology( alLithoIDs[i] ) == lithoName )
          {
-            throw Exception( ValidationError ) << "Can not remove lithology: " << lithoName << 
+            throw Exception( ValidationError ) << "Can not remove lithology: " << lithoName <<
                ", because it is referenced in allochton lithology by the layer: " << allochtonLithologyLayerName( alLithoIDs[i] );
          }
       }
-      
+
       // delete records in Thermal conductivity and heat capacity tables
       cleanHeatCoeffTbls( s_lithoThCondTableName,  lithoName ); // clean records for the lithoName in ThermoCond table
       cleanHeatCoeffTbls( s_lithoHeatCapTableName, lithoName ); // clean records for the lithoName in HeatCap table
@@ -327,35 +326,35 @@ ErrorHandler::ReturnCode LithologyManagerImpl::deleteLithology( LithologyID id )
 // this is needed for finding lithologies with the same properties
 struct RecordSorter
 {
-   RecordSorter( database::Table * tbl, double tol, const std::vector<std::string> & ignoreList  ) 
+   RecordSorter( database::Table * tbl, double tol, const std::vector<std::string> & ignoreList  )
    {
       const database::TableDefinition & tblDef = tbl->getTableDefinition();
       m_eps = tol;
 
-      // cache fields index and data type 
+      // cache fields index and data type
       for ( size_t i = 0; i < tblDef.size(); ++i )
-      { 
+      {
          if ( tblDef.getFieldDefinition( i )->dataType() == datatype::String )
          {
-            if ( ! ignoreList.empty() && 
+            if ( ! ignoreList.empty() &&
                  std::find( ignoreList.begin(), ignoreList.end(), tblDef.getFieldDefinition( i )->name() ) != ignoreList.end() )
             { continue; }
 
             m_fldIDs.push_back( i );
             m_fldTypes.push_back( tblDef.getFieldDefinition( i )->dataType() );
-         }         
+         }
       }
       for ( size_t i = 0; i < tblDef.size(); ++i )
       {
          if ( tblDef.getFieldDefinition( i )->dataType() != datatype::String )
          {
-            if ( ! ignoreList.empty() && 
+            if ( ! ignoreList.empty() &&
                  std::find( ignoreList.begin(), ignoreList.end(), tblDef.getFieldDefinition( i )->name() ) != ignoreList.end() )
             { continue; }
 
             m_fldIDs.push_back( i );
             m_fldTypes.push_back( tblDef.getFieldDefinition( i )->dataType() );
-         }         
+         }
       }
    }
 
@@ -374,7 +373,7 @@ struct RecordSorter
             case datatype::Float:
                { double v = r1->getValue<float>( id ); double w = r2->getValue<float>( id ); if ( !NumericFunctions::isEqual( v, w, m_eps ) ) return v < w; }
                break;
-            case datatype::Double: 
+            case datatype::Double:
                { double v = r1->getValue<double>( id ); double w = r2->getValue<double>( id ); if ( !NumericFunctions::isEqual( v, w, m_eps ) ) return v < w; }
                break;
             case datatype::String: { string v = r1->getValue<string>( id ); string w = r2->getValue<string>( id ); if ( v != w ) return v < w; } break;
@@ -396,7 +395,7 @@ struct RecordSorter
 ErrorHandler::ReturnCode LithologyManagerImpl::cleanDuplicatedLithologies()
 {
    if ( errorCode() != NoError ) resetError();
-   
+
    try
    {
       // if table does not exist - report error
@@ -444,7 +443,7 @@ ErrorHandler::ReturnCode LithologyManagerImpl::cleanDuplicatedLithologies()
                bool isReplaced = false;
                for ( size_t k = 0; k < lithoNamesLst.size(); ++k )
                {
-                  if ( lithoNamesLst[k] == oldLithName ) 
+                  if ( lithoNamesLst[k] == oldLithName )
                   {
                      lithoNamesLst[k] = newLithName;
                      isReplaced = true;
@@ -458,7 +457,7 @@ ErrorHandler::ReturnCode LithologyManagerImpl::cleanDuplicatedLithologies()
             for ( size_t j = 0; j < fcIDs.size(); ++j )
             {
                if ( m_stMgr->faultCutLithology( fcIDs[j] ) == oldLithName )
-               {  
+               {
                   if ( NoError != m_stMgr->setFaultCutLithology( fcIDs[j], newLithName ) ) return moveError( *m_stMgr );
                }
             }
@@ -532,7 +531,7 @@ LithologyManager::LithologyID LithologyManagerImpl::findID( const std::string & 
    }
    catch ( const Exception & e ) { reportError( e.errorCode(), e.what() ); }
 
-   return UndefinedIDValue;
+   return Utilities::Numerical::NoDataIDValue;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -556,7 +555,7 @@ std::vector<LithologyManager::AllochtLithologyID> LithologyManagerImpl::allochto
 
 
 // Search in AllochthonLithoIoTbl table for the given layer name
-// AllochthonLithologyID for the found lithology on success, UndefinedIDValue otherwise
+// AllochthonLithologyID for the found lithology on success, Utilities::Numerical::NoDataIDValue otherwise
 LithologyManager::AllochtLithologyID LithologyManagerImpl::findAllochtID( const std::string & layerName )
 {
    if ( errorCode() != NoError ) resetError();
@@ -578,7 +577,7 @@ LithologyManager::AllochtLithologyID LithologyManagerImpl::findAllochtID( const 
    }
    catch ( const Exception & e ) { reportError( e.errorCode(), e.what() ); }
 
-   return UndefinedIDValue;
+   return Utilities::Numerical::NoDataIDValue;
 }
 
 // Get lithlogy name for the allochton lithology
@@ -643,7 +642,7 @@ ErrorHandler::ReturnCode LithologyManagerImpl::setAllochtonLithology( AllochtLit
 
    return NoError;
 }
- 
+
 
 // Get lithology porosity model
 ErrorHandler::ReturnCode LithologyManagerImpl::porosityModel( LithologyID         id              // [in] lithology ID
@@ -685,14 +684,14 @@ ErrorHandler::ReturnCode LithologyManagerImpl::porosityModel( LithologyID       
          porModelPrms.push_back( rec->getValue<double>( s_surfPorosityFieldName ) );
          porModelPrms.push_back( rec->getValue<double>( s_ccSoilMechanicsFieldName ) );
          break;
-      
+
       case PorDoubleExponential:
          porModelPrms.push_back( rec->getValue<double>( s_surfPorosityFieldName ) );
          porModelPrms.push_back( rec->getValue<double>( s_minPorosityFieldName ) );
          porModelPrms.push_back( rec->getValue<double>( s_ccaDblExponentialFieldName ) );
          porModelPrms.push_back( rec->getValue<double>( s_ccbDblExponentialFieldName ) );
          break;
-         
+
       default: return reportError( NonexistingID, std::string( "Unsupported porosity model: " ) + tpName );
    }
    return NoError;
@@ -725,10 +724,10 @@ ErrorHandler::ReturnCode LithologyManagerImpl::setPorosityModel( LithologyID    
 
    // if table does not exist - report error
    if ( !m_lithIoTbl ) return reportError( NonexistingID, std::string( s_lithoTypesTableName ) + " table could not be found in project" );
-   
+
    size_t recNum = m_lithIoTbl->size();
    if ( id >= recNum ) { return reportError( OutOfRangeValue, "Wrong lithology ID" ); }
-      
+
    database::Record * rec = m_lithIoTbl->getRecord(  static_cast<int>( id ) );
    if ( !rec ) { return reportError( OutOfRangeValue, "Can't get lithology with given ID from project" ); }
 
@@ -763,7 +762,7 @@ ErrorHandler::ReturnCode LithologyManagerImpl::setPorosityModel( LithologyID    
          rec->setValue( s_ccbDblExponentialFieldName, porModelPrms[3] );
          rec->setValue( s_porosityModelFieldName, std::string( "Double_Exponential" ) );
          break;
-         
+
       default: return reportError( NonexistingID, "Unsupported porosity model" );
    }
    return NoError;
@@ -771,10 +770,10 @@ ErrorHandler::ReturnCode LithologyManagerImpl::setPorosityModel( LithologyID    
 
 // Get lithology permeability model
 ErrorHandler::ReturnCode LithologyManagerImpl::permeabilityModel( LithologyID           id
-                                                                , PermeabilityModel   & prmModel  
+                                                                , PermeabilityModel   & prmModel
                                                                 , std::vector<double> & modelPrms
-                                                                , std::vector<double> & mpPor    
-                                                                , std::vector<double> & mpPerm    
+                                                                , std::vector<double> & mpPor
+                                                                , std::vector<double> & mpPerm
                                                                 )
 {
    if ( errorCode() != NoError ) resetError();
@@ -836,10 +835,10 @@ ErrorHandler::ReturnCode LithologyManagerImpl::permeabilityModel( LithologyID   
 
 // Set lithology permeability model with parameters
 ErrorHandler::ReturnCode LithologyManagerImpl::setPermeabilityModel( LithologyID                 id
-                                                                   , PermeabilityModel           prmModel   
-                                                                   , const std::vector<double> & modelPrms 
-                                                                   , const std::vector<double> & mpPor     
-                                                                   , const std::vector<double> & mpPerm     
+                                                                   , PermeabilityModel           prmModel
+                                                                   , const std::vector<double> & modelPrms
+                                                                   , const std::vector<double> & mpPor
+                                                                   , const std::vector<double> & mpPerm
                                                                    )
 {
    if ( errorCode() != NoError ) resetError();
@@ -861,7 +860,7 @@ ErrorHandler::ReturnCode LithologyManagerImpl::setPermeabilityModel( LithologyID
          case PermImpermeable:
             rec->setValue<std::string>( s_permeabilityModelFieldName, "Impermeable" );
             rec->setValue( s_permeabilityAnisotropyFieldName, 1.0 );
-            break; // no any parameter for 
+            break; // no any parameter for
 
          case PermSandstone:
             rec->setValue<std::string>( s_permeabilityModelFieldName, "Sands" );
@@ -886,11 +885,11 @@ ErrorHandler::ReturnCode LithologyManagerImpl::setPermeabilityModel( LithologyID
                assert( mpPor.size() == mpPerm.size() );
 
                rec->setValue( s_mpNumberOfDataPointsFieldName, static_cast<int>( mpPor.size() ) );
-               rec->setValue<std::string>( s_mpPorosityFieldName,      PrintCoefficientsToString( mpPor ) ); 
-               rec->setValue<std::string>( s_mpPermpeabilityFieldName, PrintCoefficientsToString( mpPerm ) ); 
+               rec->setValue<std::string>( s_mpPorosityFieldName,      PrintCoefficientsToString( mpPor ) );
+               rec->setValue<std::string>( s_mpPermpeabilityFieldName, PrintCoefficientsToString( mpPerm ) );
             }
             break;
-            
+
          default: throw Exception( UndefinedValue ) << "Unknown permeability model:" << prmModel;
       }
    }
@@ -901,7 +900,7 @@ ErrorHandler::ReturnCode LithologyManagerImpl::setPermeabilityModel( LithologyID
 
 double LithologyManagerImpl::seisVelocity( LithologyID id )
 {
-   double val = UndefinedDoubleValue;
+   double val = Utilities::Numerical::IbsNoDataValue;
 
    if ( errorCode( ) != NoError ) resetError( );
    try
@@ -920,11 +919,11 @@ double LithologyManagerImpl::seisVelocity( LithologyID id )
    }
    return val;
 }
- 
+
 // Set lithology STP thermal conductivity coefficient
 double LithologyManagerImpl::stpThermalConductivityCoeff( LithologyID id )
 {
-   double val = UndefinedDoubleValue;
+   double val = Utilities::Numerical::IbsNoDataValue;
 
    if ( errorCode() != NoError ) resetError();
    try
@@ -953,12 +952,12 @@ ErrorHandler::ReturnCode LithologyManagerImpl::setSTPThermalConductivityCoeff( L
    try
    {
       if ( errorCode() != NoError ) resetError();
-      
+
       if ( stpThermCond < 0.0 || stpThermCond > 100.0 )
       {
          throw Exception( OutOfRangeValue ) << "STP thermal conductivity value must be in range [0:100] but given is: " << stpThermCond;
       }
- 
+
       // if table does not exist - report error
       if ( !m_lithIoTbl ) { throw Exception( NonexistingID ) << s_lithoTypesTableName << " table could not be found in project"; }
 

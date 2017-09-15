@@ -22,11 +22,15 @@
 #include <cstdlib>
 
 // utilities library
-#include "ConstantsMathematics.h"
-using Utilities::Maths::CelciusToKelvin;
+# include "ConstantsMathematics.h"
 #include "ConstantsNumerical.h"
+
+// CBMGenerics library
+#include "ComponentManager.h"
+
+using Utilities::Maths::CelciusToKelvin;
 using Utilities::Numerical::CauldronNoDataValue;
-#include "StringHandler.h"
+typedef CBMGenerics::ComponentManager::SpeciesNamesId ComponentId;
 
 namespace Genex6
 {
@@ -678,27 +682,27 @@ void SourceRockNode::computeHcVolumes ( double& gasVolume,
 
    if ( lastInput != 0 ) {
       // Calculate reservoir gas volume
-      masses ( pvtFlash::COX ) = 0.0;
-      masses ( pvtFlash::H2S ) = 0.0;
+      masses ( ComponentId::COX ) = 0.0;
+      masses ( ComponentId::H2S ) = 0.0;
 
       Genex6::PVTCalc::getInstance ().compute ( lastInput->GetTemperatureKelvin (), lastInput->getPorePressure (), masses, phaseMasses, densities, viscosities );
-      reservoirGasVolume = phaseMasses.sum ( pvtFlash::VAPOUR_PHASE ) / densities ( pvtFlash::VAPOUR_PHASE );
+      reservoirGasVolume = phaseMasses.sum ( PhaseId::VAPOUR ) / densities ( PhaseId::VAPOUR );
    }
 
    // Calculate surface volumes from vapour components.
-   masses ( pvtFlash::COX ) = 0.0;
-   masses ( pvtFlash::H2S ) = 0.0;
+   masses ( ComponentId::COX ) = 0.0;
+   masses ( ComponentId::H2S ) = 0.0;
 
    Genex6::PVTCalc::getInstance ().compute ( StandardTemperatureGenexK, StandardPressure, masses, phaseMasses, densities, viscosities );
 
-   freeGasVolume = phaseMasses.sum ( pvtFlash::VAPOUR_PHASE ) / densities ( pvtFlash::VAPOUR_PHASE );
+   freeGasVolume = phaseMasses.sum ( PhaseId::VAPOUR ) / densities ( PhaseId::VAPOUR );
    gasVolume = freeGasVolume;
 
-   condensateVolume = phaseMasses.sum ( pvtFlash::LIQUID_PHASE ) / densities ( pvtFlash::LIQUID_PHASE );
+   condensateVolume = phaseMasses.sum ( PhaseId::LIQUID ) / densities ( PhaseId::LIQUID );
    oilVolume = condensateVolume;
 
-   if ( densities ( pvtFlash::LIQUID_PHASE ) != 1000.0 ) {
-      condensateApi = 141.5 / densities ( pvtFlash::LIQUID_PHASE ) * 1000.0 - 131.5;
+   if ( densities ( PhaseId::LIQUID ) != 1000.0 ) {
+      condensateApi = 141.5 / densities ( PhaseId::LIQUID ) * 1000.0 - 131.5;
 
       if ( condensateApi < 1.99 ) {
          condensateApi = CauldronNoDataValue;
@@ -708,7 +712,7 @@ void SourceRockNode::computeHcVolumes ( double& gasVolume,
       condensateApi = CauldronNoDataValue;
    }
 
-   if ( freeGasVolume > 0.0 and densities ( pvtFlash::VAPOUR_PHASE ) != 1000.0 ) {
+   if ( freeGasVolume > 0.0 and densities ( PhaseId::VAPOUR ) != 1000.0 ) {
       cgr = condensateVolume / freeGasVolume;
    } else {
       cgr = CauldronNoDataValue;
@@ -723,19 +727,19 @@ void SourceRockNode::computeHcVolumes ( double& gasVolume,
    // Calculate surface volumes from liquid components.
    masses.zero();
    masses = state.getLiquidComponents ();
-   masses ( pvtFlash::COX ) = 0.0;
-   masses ( pvtFlash::H2S ) = 0.0;
+   masses ( ComponentId::COX ) = 0.0;
+   masses ( ComponentId::H2S ) = 0.0;
 
    Genex6::PVTCalc::getInstance ().compute ( StandardTemperatureGenexK, StandardPressure, masses, phaseMasses, densities, viscosities );
 
-   solutionGasVolume = phaseMasses.sum ( pvtFlash::VAPOUR_PHASE ) / densities ( pvtFlash::VAPOUR_PHASE );
-   liquidOilVolume = phaseMasses.sum ( pvtFlash::LIQUID_PHASE ) / densities ( pvtFlash::LIQUID_PHASE );
+   solutionGasVolume = phaseMasses.sum ( PhaseId::VAPOUR ) / densities ( PhaseId::VAPOUR );
+   liquidOilVolume = phaseMasses.sum ( PhaseId::LIQUID ) / densities ( PhaseId::LIQUID );
 
    gasVolume += solutionGasVolume;
    oilVolume += liquidOilVolume;
 
-   if ( densities ( pvtFlash::LIQUID_PHASE ) != 1000.0 ) {
-      oilApi = 141.5 / densities ( pvtFlash::LIQUID_PHASE ) * 1000.0 - 131.5;
+   if ( densities ( PhaseId::LIQUID ) != 1000.0 ) {
+      oilApi = 141.5 / densities ( PhaseId::LIQUID ) * 1000.0 - 131.5;
 
       if ( oilApi < 1.99 ) {
          oilApi = CauldronNoDataValue;
@@ -745,7 +749,7 @@ void SourceRockNode::computeHcVolumes ( double& gasVolume,
       oilApi = CauldronNoDataValue;
    }
 
-   if ( liquidOilVolume > 0.0 and densities ( pvtFlash::LIQUID_PHASE ) != 1000.0 ) {
+   if ( liquidOilVolume > 0.0 and densities ( PhaseId::LIQUID ) != 1000.0 ) {
       gor = solutionGasVolume / liquidOilVolume;
    } else {
       gor = CauldronNoDataValue;
@@ -783,9 +787,9 @@ void SourceRockNode::computeOverChargeFactor ( double& overChargeFactor ) const 
    masses.zero ();
 
    for ( i = speciesManager.firstSpecies (); i <= speciesManager.lastSpecies (); ++i ) {
-      pvtFlash::ComponentId pvtId = speciesManager.mapIdToPvtComponents ( i );
+      ComponentId pvtId = speciesManager.mapIdToPvtComponents ( i );
 
-      if ( pvtId != pvtFlash::UNKNOWN ) {
+      if ( pvtId != ComponentId::UNKNOWN ) {
          const SpeciesState* speciesState = state.GetSpeciesStateById ( i );
 
          masses ( pvtId ) = speciesState->getMassExpelledFromSourceRock () + speciesState->getRetained ();
@@ -795,8 +799,8 @@ void SourceRockNode::computeOverChargeFactor ( double& overChargeFactor ) const 
 
    Genex6::PVTCalc::getInstance ().compute ( temperature, porePressure, masses, phaseMasses, densities, viscosities );
 
-   vapourVolume = phaseMasses.sum ( pvtFlash::VAPOUR_PHASE ) / densities ( pvtFlash::VAPOUR_PHASE );
-   liquidVolume = phaseMasses.sum ( pvtFlash::LIQUID_PHASE ) / densities ( pvtFlash::LIQUID_PHASE );
+   vapourVolume = phaseMasses.sum ( PhaseId::VAPOUR ) / densities ( PhaseId::VAPOUR );
+   liquidVolume = phaseMasses.sum ( PhaseId::LIQUID ) / densities ( PhaseId::LIQUID );
 
    if ( thickness > 0.0 and porosity > 0.0 and iws < 1.0 ) {
       overChargeFactor = ( vapourVolume + liquidVolume ) / ( thickness * porosity * ( 1.0 - iws ));

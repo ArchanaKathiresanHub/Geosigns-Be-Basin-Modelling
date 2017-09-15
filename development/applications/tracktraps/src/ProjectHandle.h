@@ -1,3 +1,12 @@
+//
+// Copyright (C) 2012-2017 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 #ifndef _PERSISTENTTRAPS_PROJECTHANDLE_H_
 #define _PERSISTENTTRAPS_PROJECTHANDLE_H_
 
@@ -11,17 +20,13 @@
 #include <iostream>
 #endif // sgi
 
-
 #include <string>
 #include <map>
 #include <vector>
 
 using namespace std;
 
-namespace database
-{
-   class Database;
-}
+#include "ProjectFileHandler.h"
 
 #include "Interface/ProjectHandle.h"
 #include "Interface/ObjectFactory.h"
@@ -44,7 +49,7 @@ namespace PersistentTraps
    {
    public:
       /// Constructor
-      ProjectHandle (database::Database * database, const string & name, const string & accessMode, DataAccess::Interface::ObjectFactory* factory);
+      ProjectHandle (database::ProjectFileHandlerPtr database, const string & name, const string & accessMode, DataAccess::Interface::ObjectFactory* factory);
 
       /// Destructor
       ~ProjectHandle (void);
@@ -61,7 +66,7 @@ namespace PersistentTraps
       /// determine the average depth of each of the reservoirs
       bool determineReservoirDepths (const Interface::Snapshot * snapshot);
 
-      /// Create the persistentTraps, this functions calls all the others 
+      /// Create the persistentTraps, this functions calls all the others
       bool createPersistentTraps (void);
       /// Compute the PersistentTraps for this model
       bool computePersistentTraps (const Interface::Snapshot * snapshot, const Interface::Snapshot * previousSnapshot);
@@ -74,7 +79,7 @@ namespace PersistentTraps
       void saveProject (const string & fileName);
 
       Interface::Formation * getBottomSourceRockFormation ();
-         
+
       bool isDeposited (const Interface::Formation * formation, const Interface::Snapshot * snapshot);
 
    private:
@@ -83,4 +88,3 @@ namespace PersistentTraps
 }
 
 #endif // _PERSISTENTTRAPS_PROJECTHANDLE_H_
-

@@ -172,7 +172,7 @@ bool VolumeCalculator::operator ()( const OutputPropertyMap::OutputPropertyList&
 
                // Get components that are to be flashed.
                for ( c = 0; c < NumberOfPVTComponents; ++c ) {
-                  pvtFlash::ComponentId pvtComponent = pvtFlash::ComponentId ( c );
+                  ComponentId pvtComponent = ComponentId ( c );
                   massConcentration ( pvtComponent ) = layerMolarConcentrations ( k, j, i )( pvtComponent );
                }
 
@@ -186,20 +186,20 @@ bool VolumeCalculator::operator ()( const OutputPropertyMap::OutputPropertyList&
                                                            phaseDensities.m_values,
                                                            phaseViscosities.m_values );
 
-               if ( phaseDensities ( pvtFlash::VAPOUR_PHASE ) != 1000.0 ) {
-                  phaseVolume ( pvtFlash::VAPOUR_PHASE ) = phaseComposition.sum ( pvtFlash::VAPOUR_PHASE ) / phaseDensities ( pvtFlash::VAPOUR_PHASE );
+               if ( phaseDensities ( PhaseId::VAPOUR ) != 1000.0 ) {
+                  phaseVolume ( PhaseId::VAPOUR ) = phaseComposition.sum ( PhaseId::VAPOUR ) / phaseDensities ( PhaseId::VAPOUR );
                } else {
-                  phaseVolume ( pvtFlash::VAPOUR_PHASE ) = CauldronNoDataValue;
+                  phaseVolume ( PhaseId::VAPOUR ) = CauldronNoDataValue;
                }
 
-               if ( phaseDensities ( pvtFlash::LIQUID_PHASE ) != 1000.0 ) {
-                  phaseVolume ( pvtFlash::LIQUID_PHASE ) = phaseComposition.sum ( pvtFlash::LIQUID_PHASE ) / phaseDensities ( pvtFlash::LIQUID_PHASE );
+               if ( phaseDensities ( PhaseId::LIQUID ) != 1000.0 ) {
+                  phaseVolume ( PhaseId::LIQUID ) = phaseComposition.sum ( PhaseId::LIQUID ) / phaseDensities ( PhaseId::LIQUID );
                } else {
-                  phaseVolume ( pvtFlash::LIQUID_PHASE ) = CauldronNoDataValue;
+                  phaseVolume ( PhaseId::LIQUID ) = CauldronNoDataValue;
                }
 
-               hcVolumeMaps [ 0 ]->setValue ( i, j, k, phaseVolume ( pvtFlash::VAPOUR_PHASE ));
-               hcVolumeMaps [ 1 ]->setValue ( i, j, k, phaseVolume ( pvtFlash::LIQUID_PHASE ));
+               hcVolumeMaps [ 0 ]->setValue ( i, j, k, phaseVolume ( PhaseId::VAPOUR ));
+               hcVolumeMaps [ 1 ]->setValue ( i, j, k, phaseVolume ( PhaseId::LIQUID ));
 
                elementVolumeMaps [ 0 ]->setValue ( i, j, k, elementVolume );
                elementVolumeMaps [ 1 ]->setValue ( i, j, k, elementPoreVolume );
@@ -207,56 +207,56 @@ bool VolumeCalculator::operator ()( const OutputPropertyMap::OutputPropertyList&
                // If last element in row or column or ... then copy value to fill array.
                // Since arrays are the same size as the number of nodes.
                if ( i == grid.getNumberOfXElements () - 1 ) {
-                  hcVolumeMaps [ 0 ]->setValue ( i + 1, j, k, phaseVolume ( pvtFlash::VAPOUR_PHASE ));
-                  hcVolumeMaps [ 1 ]->setValue ( i + 1, j, k, phaseVolume ( pvtFlash::LIQUID_PHASE ));
+                  hcVolumeMaps [ 0 ]->setValue ( i + 1, j, k, phaseVolume ( PhaseId::VAPOUR ));
+                  hcVolumeMaps [ 1 ]->setValue ( i + 1, j, k, phaseVolume ( PhaseId::LIQUID ));
 
                   elementVolumeMaps [ 0 ]->setValue ( i + 1, j, k, elementVolume );
                   elementVolumeMaps [ 1 ]->setValue ( i + 1, j, k, elementPoreVolume );
                }
 
                if ( j == grid.getNumberOfYElements () - 1 ) {
-                  hcVolumeMaps [ 0 ]->setValue ( i, j + 1, k, phaseVolume ( pvtFlash::VAPOUR_PHASE ));
-                  hcVolumeMaps [ 1 ]->setValue ( i, j + 1, k, phaseVolume ( pvtFlash::LIQUID_PHASE ));
+                  hcVolumeMaps [ 0 ]->setValue ( i, j + 1, k, phaseVolume ( PhaseId::VAPOUR ));
+                  hcVolumeMaps [ 1 ]->setValue ( i, j + 1, k, phaseVolume ( PhaseId::LIQUID ));
 
                   elementVolumeMaps [ 0 ]->setValue ( i, j + 1, k, elementVolume );
                   elementVolumeMaps [ 1 ]->setValue ( i, j + 1, k, elementPoreVolume );
                }
 
                if ( k == grid.getNumberOfZElements () - 1 ) {
-                  hcVolumeMaps [ 0 ]->setValue ( i, j, k + 1, phaseVolume ( pvtFlash::VAPOUR_PHASE ));
-                  hcVolumeMaps [ 1 ]->setValue ( i, j, k + 1, phaseVolume ( pvtFlash::LIQUID_PHASE ));
+                  hcVolumeMaps [ 0 ]->setValue ( i, j, k + 1, phaseVolume ( PhaseId::VAPOUR ));
+                  hcVolumeMaps [ 1 ]->setValue ( i, j, k + 1, phaseVolume ( PhaseId::LIQUID ));
 
                   elementVolumeMaps [ 0 ]->setValue ( i, j, k + 1, elementVolume );
                   elementVolumeMaps [ 1 ]->setValue ( i, j, k + 1, elementPoreVolume );
                }
 
                if ( i == grid.getNumberOfXElements () - 1 and j == grid.getNumberOfYElements () - 1 ) {
-                  hcVolumeMaps [ 0 ]->setValue ( i + 1, j + 1, k, phaseVolume ( pvtFlash::VAPOUR_PHASE ));
-                  hcVolumeMaps [ 1 ]->setValue ( i + 1, j + 1, k, phaseVolume ( pvtFlash::LIQUID_PHASE ));
+                  hcVolumeMaps [ 0 ]->setValue ( i + 1, j + 1, k, phaseVolume ( PhaseId::VAPOUR ));
+                  hcVolumeMaps [ 1 ]->setValue ( i + 1, j + 1, k, phaseVolume ( PhaseId::LIQUID ));
 
                   elementVolumeMaps [ 0 ]->setValue ( i + 1, j + 1, k, elementVolume );
                   elementVolumeMaps [ 1 ]->setValue ( i + 1, j + 1, k, elementPoreVolume );
                }
 
                if ( i == grid.getNumberOfXElements () - 1 and k == grid.getNumberOfZElements () - 1 ) {
-                  hcVolumeMaps [ 0 ]->setValue ( i + 1, j, k + 1, phaseVolume ( pvtFlash::VAPOUR_PHASE ));
-                  hcVolumeMaps [ 1 ]->setValue ( i + 1, j, k + 1, phaseVolume ( pvtFlash::LIQUID_PHASE ));
+                  hcVolumeMaps [ 0 ]->setValue ( i + 1, j, k + 1, phaseVolume ( PhaseId::VAPOUR ));
+                  hcVolumeMaps [ 1 ]->setValue ( i + 1, j, k + 1, phaseVolume ( PhaseId::LIQUID ));
 
                   elementVolumeMaps [ 0 ]->setValue ( i + 1, j, k + 1, elementVolume );
                   elementVolumeMaps [ 1 ]->setValue ( i + 1, j, k + 1, elementPoreVolume );
                }
 
                if ( j == grid.getNumberOfYElements () - 1 and k == grid.getNumberOfZElements () - 1 ) {
-                  hcVolumeMaps [ 0 ]->setValue ( i, j + 1, k + 1, phaseVolume ( pvtFlash::VAPOUR_PHASE ));
-                  hcVolumeMaps [ 1 ]->setValue ( i, j + 1, k + 1, phaseVolume ( pvtFlash::LIQUID_PHASE ));
+                  hcVolumeMaps [ 0 ]->setValue ( i, j + 1, k + 1, phaseVolume ( PhaseId::VAPOUR ));
+                  hcVolumeMaps [ 1 ]->setValue ( i, j + 1, k + 1, phaseVolume ( PhaseId::LIQUID ));
 
                   elementVolumeMaps [ 0 ]->setValue ( i, j + 1, k + 1, elementVolume );
                   elementVolumeMaps [ 1 ]->setValue ( i, j + 1, k + 1, elementPoreVolume );
                }
 
                if ( i == grid.getNumberOfXElements () - 1 and j == grid.getNumberOfYElements () - 1 and k == grid.getNumberOfZElements () - 1 ) {
-                  hcVolumeMaps [ 0 ]->setValue ( i + 1, j + 1, k + 1, phaseVolume ( pvtFlash::VAPOUR_PHASE ));
-                  hcVolumeMaps [ 1 ]->setValue ( i + 1, j + 1, k + 1, phaseVolume ( pvtFlash::LIQUID_PHASE ));
+                  hcVolumeMaps [ 0 ]->setValue ( i + 1, j + 1, k + 1, phaseVolume ( PhaseId::VAPOUR ));
+                  hcVolumeMaps [ 1 ]->setValue ( i + 1, j + 1, k + 1, phaseVolume ( PhaseId::LIQUID ));
 
                   elementVolumeMaps [ 0 ]->setValue ( i + 1, j + 1, k + 1, elementVolume );
                   elementVolumeMaps [ 1 ]->setValue ( i + 1, j + 1, k + 1, elementPoreVolume );
@@ -299,6 +299,4 @@ bool VolumeCalculator::operator ()( const OutputPropertyMap::OutputPropertyList&
    m_isCalculated = true;
    return true;
 }
-
-
 

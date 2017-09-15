@@ -26,13 +26,13 @@
 #include <memory>
 #include <vector>
 
-/// @page CASA_VarPrmCategoricalPage Variable parameter for categorical values
+/// @page CASA_VarPrmCategoricalPage Influential parameter for categorical values
 ///
 /// Categorical parameter - a parameter that can take some unordered discrete values each of which referring to a
 /// different category (for instance, a PVT parameter that can distinguish between a few, non related PVT models)
 /// There is no ordering in this labeling (you cannot say that one scenario is ‘larger’ than the other)
 ///
-/// The following list of variable parameters is implemented in CASA API
+/// The following list of influential parameters is implemented in CASA API
 /// - @subpage CASA_SourceRockTypePage 
 
 
@@ -40,26 +40,26 @@ namespace casa
 {
    class VarPrmContinuous;
 
-   /// @brief Class to manage categorical variable parameter type
+   /// @brief Class to manage categorical influential parameter type
    class VarPrmCategorical : public VarParameter
    {
    public:
       /// @brief Destructor
       virtual ~VarPrmCategorical() {;}
 
-      /// @brief Define this variable parameter as a categorical
+      /// @brief Define this influential parameter as a categorical
       /// @return VarParameter::Categorical
       virtual Type variationType() const { return Categorical; }
 
-     /// @brief A parameter which corresponds the base value of the variable parameter 
+     /// @brief A parameter which corresponds the base value of the influential parameter 
       /// @return the parameter object which should not be deleted by a caller
       virtual const SharedParameterPtr baseValue() const { return m_variation[m_baseVal]; }
 
-      /// @brief A parameter which corresponds the minimal range value of the variable parameter 
+      /// @brief A parameter which corresponds the minimal range value of the influential parameter 
       /// @return the parameter object which should not be deleted by a caller
       virtual const SharedParameterPtr minValue() const { assert( !m_variation.empty() ); return m_variation.front(); }
 
-      /// @brief A parameter which corresponds the maximal range value of the variable parameter 
+      /// @brief A parameter which corresponds the maximal range value of the influential parameter 
       /// @return the parameter object should be deleted by a caller
       virtual const SharedParameterPtr maxValue() const { assert( !m_variation.empty() ); return m_variation.back(); }
 
@@ -105,7 +105,7 @@ namespace casa
       /// @return Actual version of serialized object representation
       virtual unsigned int version() const { return 0; }
 
-      /// @brief Implements common part of deserialization for continuous variable parameters
+      /// @brief Implements common part of deserialization for continuous influential parameters
       /// @param dz input stream
       /// @param objVer The object version.
       bool deserializeCommonPart( CasaDeserializer & dz, unsigned int objVer );

@@ -29,30 +29,53 @@ namespace supportFunc
    }
 
    // Support function to compare text files using system commands
-   bool compareTextFiles(const std::string & leftFileName,
-                         const std::string & rightFileName)
+   bool compareTextFiles(const std::string & leftFileName, const std::string & rightFileName )
    {
-      bool sameFile = false;
-#ifdef WIN32
-      std::string diffCommand = "FC /L " + leftFileName + " " + rightFileName;
-      const std::string result = exec(diffCommand.c_str());
-      sameFile = (result.find("no differences encountered") != std::string::npos);
-#else
-      // Check for dos2unix to remove windows line endings
-      std::string cmd = "command -v dos2unix";
-      const std::string hasDos2unix = exec(cmd.c_str());
-      if (!hasDos2unix.empty())
+      bool sameFile = true;
+      
+      // read to string left file
+      std::ifstream ilfs( leftFileName.c_str() );
+      std::string leftContent( ( std::istreambuf_iterator<char>( ilfs ) ), ( std::istreambuf_iterator<char>() ) );
+      
+      // read to string right file
+      std::ifstream irfs( rightFileName.c_str() );
+      std::string rightContent( ( std::istreambuf_iterator<char>( irfs ) ), ( std::istreambuf_iterator<char>() ) );
+      
+      size_t ll = 1; // left line number
+      size_t rl = 1; // right line number
+
+      // compare contents
+      for ( size_t i = 0, j = 0; i < leftContent.size(); ++i, ++j )
       {
-         std::string dos2unixCommand = "dos2unix " + leftFileName;
-         std::string result = exec(dos2unixCommand.c_str());
-         dos2unixCommand = "dos2unix " + rightFileName;
-         result = exec(dos2unixCommand.c_str());
+         // skip white spaces/eol in left and right
+         for ( ; i < leftContent.size()  && ( ::isspace( leftContent[i] )  || leftContent[i]  == '\n' || leftContent[i]  == '\r' ); ++i )
+         {
+            if ( leftContent[i] == '\n' ) { ++ll; }
+         }
+
+         for ( ; j < rightContent.size() && ( ::isspace( rightContent[j] ) || rightContent[j] == '\n' || rightContent[j] == '\r' ); ++j )
+         {
+            if ( rightContent[j] == '\n' ) { ++rl; }
+         }
+
+         if ( leftContent.size() == i && j == rightContent.size() ) { break; } // eof - comparison is completed
+
+         if ( leftContent.size()  == i && j < rightContent.size() ||
+              rightContent.size() == j && i < leftContent.size()  || // files are different in length
+              leftContent[i] != rightContent[j]                      // files are different in contents
+            )
+         { 
+            std::cerr << "Files: "  << leftFileName << " and " << rightFileName << " are different in lines: " << ll << "<->" << rl << "\n";
+            while( i < leftContent.size() && leftContent[i] != '\n' ) { std::cerr << leftContent[i++]; }
+            std::cerr << "\n";
+            while( j < rightContent.size() && rightContent[j] != '\n' ) { std::cerr << rightContent[j++]; }
+            std::cerr << "\n";
+
+            sameFile = false;
+            break;
+         } 
       }
-      // Compare text files
-      const std::string command = "diff -bqw " + leftFileName + " " + rightFileName;
-      const std::string result = exec(command.c_str());
-      sameFile = result.empty();
-#endif
+
       return sameFile;
    }
 
@@ -174,8 +197,14 @@ TEST( AnonymizerTest, test_cbm00 )
    ibs::FolderPath outputFolder("test_cbm00");
    outputFolder << anonymizer.s_anonymizedFolder;
    outputFolder.clean();
-
-   EXPECT_TRUE( anonymizer.run( "test_cbm00" ) );
+   
+   try{
+     bool status = anonymizer.run( "test_cbm00" );
+     EXPECT_TRUE(status);
+   }
+   catch(...){
+     FAIL() << "Unexpected exception" << std::endl;
+   }
 
    supportFunc::checkProjectFile(anonymizer, "test_cbm00");
    supportFunc::checkMapping(anonymizer, "test_cbm00");

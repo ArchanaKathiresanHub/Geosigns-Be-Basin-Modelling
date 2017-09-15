@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -46,10 +46,6 @@ namespace GeoPhysics {
 
 namespace GeoPhysics {
 
-   /// Create a project from a project file with the given name and access mode ("r" or "rw") and
-   /// return the associated ProjectHandle
-   DataAccess::Interface::ProjectHandle * OpenCauldronProject( const std::string & name, const std::string & accessMode );
-
    class ProjectHandle : public DataAccess::Interface::ProjectHandle
    {
       typedef GeoPhysics::Local2DArray <CBMGenerics::Polyfunction> PolyFunction2DArray;
@@ -66,7 +62,7 @@ namespace GeoPhysics {
       typedef GeoPhysics::Local2DArray <double> DoubleLocal2DArray;
 
 
-      ProjectHandle ( database::Database * database,
+      ProjectHandle ( database::ProjectFileHandlerPtr pfh,
                       const std::string & name,
                       const std::string & accessMode,
                       DataAccess::Interface::ObjectFactory* objectFactory );
@@ -93,7 +89,7 @@ namespace GeoPhysics {
       /// Can be executed only after the startActivity function has been called.
       /// The valid-nodes array is filled, it is constructed according to the input maps.
       /// Further updates may be necessary depending on the application.
-      /// \param readSizeFromVolumeData Indicate whether the number of elements in the depth 
+      /// \param readSizeFromVolumeData Indicate whether the number of elements in the depth
       /// should be read from the volume results files or not.
       virtual bool initialise ( const bool readSizeFromVolumeData = false,
                                 const bool printTable = true );
@@ -125,7 +121,7 @@ namespace GeoPhysics {
       /// Return whether or not the basin has any active faults.
       bool getBasinHasActiveFaults () const;
 
-      // Temporary function, I will change any function that 
+      // Temporary function, I will change any function that
       // depends on the grid-description to use a Grid object.
       const CauldronGridDescription& getCauldronGridDescription () const;
 
@@ -173,14 +169,14 @@ namespace GeoPhysics {
       double getLithosphereThicknessMod ( const unsigned int i,
                                           const unsigned int j,
                                           const double       age ) const;
-      
+
       /// In ALC - return the calculated age of the rift event
       double getEndOfRiftEvent ( const unsigned int i,
                                  const unsigned int j ) const;
-      
+
       /// Return the maximum thickness attained by the basement.
       double getMaximumBasementThickness () const;
-      
+
       /// Return whether or not the node is defined.
       bool getNodeIsValid ( const unsigned int i, const unsigned int j ) const;
 
@@ -223,7 +219,7 @@ namespace GeoPhysics {
       // Should this be performed during construction?
       void loadFluidPropertyTables ();
 
-      /// 
+      ///
       void loadFracturePressureCalculator ();
 
       void deleteFracturePressureCalculator ();
@@ -266,7 +262,7 @@ namespace GeoPhysics {
 
       /// Add undefined areas from the property-value map.
       ///
-      /// The undefined areas may depend on 
+      /// The undefined areas may depend on
       void addUndefinedAreas ( const DataAccess::Interface::PropertyValue* theProperty );
 
       /// Valid isolated nodes will be removed.
@@ -371,8 +367,8 @@ namespace GeoPhysics {
                                       const unsigned int j,
                                       const bool     overpressureCalculation,
                                             GeoPhysics::Formation* formation,
-                                            int& nrActUnc, 
-                                            FloatStack &uncMaxVes, 
+                                            int& nrActUnc,
+                                            FloatStack &uncMaxVes,
                                             FloatStack &uncThickness );
 
       /// Part of the solid-thickness initialisation.
@@ -422,7 +418,7 @@ namespace GeoPhysics {
       mutable PolyFunction2DArray m_contCrustThicknessHistory; ///< The continental crust thickness (only in case we use the alc)
       mutable DoubleLocal2DArray  m_endOfRiftEvent;
 
-            
+
       /// The first indexes in the 'I' direction.
       unsigned int m_firstI [ 2 ];
 

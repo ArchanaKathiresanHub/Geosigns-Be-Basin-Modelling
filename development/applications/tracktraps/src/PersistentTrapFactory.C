@@ -1,3 +1,12 @@
+//
+// Copyright (C) 2012-2017 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 #include "database.h"
 
 #include "Interface/ObjectFactory.h"
@@ -10,8 +19,8 @@
 using namespace PersistentTraps;
 
 DataAccess::Interface::ProjectHandle *
-PersistentTrapFactory::produceProjectHandle (database::Database * database,
-	 const string & name, const string & accessMode)
+PersistentTrapFactory::produceProjectHandle (database::ProjectFileHandlerPtr database,
+                                             const string & name, const string & accessMode)
 {
    return new ProjectHandle (database, name, accessMode, this);
 }
@@ -27,5 +36,3 @@ PersistentTrapFactory::produceReservoir (DataAccess::Interface::ProjectHandle * 
 {
    return new Reservoir (projectHandle, record);
 }
-
-

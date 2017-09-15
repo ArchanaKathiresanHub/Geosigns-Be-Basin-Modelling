@@ -1,3 +1,12 @@
+//
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
 #include "EosPack.h"
 #include "polynomials.h"
 #include "PTDiagramCalculator.h"
@@ -21,7 +30,7 @@ namespace pvtFlash
       
       bool EosPackComputeWithLumping(ComputeStruct* computeInfo)
       {
-         double phaseCompMasses[CBMGenerics::ComponentManager::NumberOfPhases][CBMGenerics::ComponentManager::NumberOfOutputSpecies];
+         double phaseCompMasses[PhaseId::NUMBER_OF_PHASES][ComponentId::NUMBER_OF_SPECIES];
          std::unique_ptr<EosPack> instance( EosPack::createNewInstance() );
          
          bool result = instance->computeWithLumping( computeInfo->temperature, 
@@ -35,9 +44,9 @@ namespace pvtFlash
                                                    );
          
          int index = 0;
-         for( int i = 0; i < CBMGenerics::ComponentManager::NumberOfPhases; i++ )
+         for( int i = 0; i < PhaseId::NUMBER_OF_PHASES; i++ )
          {
-            for( int j = 0; j < CBMGenerics::ComponentManager::NumberOfOutputSpecies; j++)
+            for( int j = 0; j < ComponentId::NUMBER_OF_SPECIES; j++)
             {
                computeInfo->phaseCompMasses[index++] = phaseCompMasses[i][j];
             }
@@ -62,7 +71,7 @@ namespace pvtFlash
          assert( phaseDensity );
          assert( phaseViscosity );
 
-         double phaseMasses[CBMGenerics::ComponentManager::NumberOfPhases][CBMGenerics::ComponentManager::NumberOfOutputSpecies];
+         double phaseMasses[PhaseId::NUMBER_OF_PHASES][ComponentId::NUMBER_OF_SPECIES];
          std::unique_ptr<EosPack> instance( EosPack::createNewInstance() );
          
          bool result = instance->computeWithLumping( temperature, 
@@ -76,9 +85,9 @@ namespace pvtFlash
                                                    );
          
          int index = 0;
-         for( int i = 0; i < CBMGenerics::ComponentManager::NumberOfPhases; i++ )
+         for( int i = 0; i < PhaseId::NUMBER_OF_PHASES; i++ )
          {
-            for( int j = 0; j < CBMGenerics::ComponentManager::NumberOfOutputSpecies; j++)
+            for( int j = 0; j < ComponentId::NUMBER_OF_SPECIES; j++)
             {
                phaseCompMasses[index++] = phaseMasses[i][j];
             }
@@ -113,7 +122,7 @@ namespace pvtFlash
                            double * isolines // isolines 1D array which keeps T, P values for each isoline, number of points for each isoline keeps szIso array 
                          )
       {
-         const int iNc = CBMGenerics::ComponentManager::NumberOfOutputSpecies;
+         const int iNc = ComponentId::NUMBER_OF_SPECIES;
 
          std::vector<double> masses( iNc );
          std::copy( comp, comp + iNc, masses.begin() );
@@ -194,7 +203,7 @@ namespace pvtFlash
                            double * critPt // critical point array, size of 2 which will contain on return CriticalT, CriticalP
                          )
    {
-      const int iNc = CBMGenerics::ComponentManager::NumberOfOutputSpecies;
+      const int iNc = ComponentId::NUMBER_OF_SPECIES;
       bool ret = false;
 
       std::vector<double> masses( iNc );

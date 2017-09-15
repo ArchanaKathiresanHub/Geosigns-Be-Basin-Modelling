@@ -1,3 +1,13 @@
+//                                                                      
+// Copyright (C) 2012-2017 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
+
 #ifdef _WIN32
 #include <direct.h>
 #else
@@ -124,7 +134,7 @@ bool FastTouch::addToComputationList (const TouchstoneMap * touchstoneMap)
 
    m_masterTouch.addOutputFormat(touchstoneMap->getTCFName (), touchstoneMap->getSurface (), touchstoneMap->getFormation (),
                                  touchstoneMap->getCategory (), touchstoneMap->getFormat (), static_cast<int>(touchstoneMap->getPercentage ()),
-                                 touchstoneMap->getFaciesGridMap ( ), touchstoneMap->getFaciesNumber());
+                                 touchstoneMap->getFaciesGridMap ( ), touchstoneMap->getFaciesNumber(), touchstoneMap->getRunName());
    return true;
 }
 

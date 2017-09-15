@@ -35,7 +35,7 @@ namespace DerivedProperties {
                                const DataModel::AbstractSurface*  surface,
                                const DataModel::AbstractGrid*     grid );
 
-      virtual ~DerivedSurfaceProperty () {};
+      virtual ~DerivedSurfaceProperty ();
 
 
       /// \brief Get the value at the position.

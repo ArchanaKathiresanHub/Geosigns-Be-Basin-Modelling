@@ -1,4 +1,4 @@
-// Copyright (C) 2010-2015 Shell International Exploration & Production.
+// Copyright (C) 2010-2017 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -45,7 +45,14 @@ namespace migration
       inline unsigned int getI (void) const;
       inline unsigned int getJ (void) const;
       inline unsigned int getK (void) const;
-      inline Formation *getFormation (void);
+      inline Formation *getFormation (void) const;
+
+      //these are functions used to compare depths in the detectReservoirCrests algorithm
+      int compareDepths (FormationNode * node, bool useTieBreaker = true);
+      inline bool isDeeperThan (FormationNode * node, bool useTieBreaker = true);
+      inline bool isShallowerThan (FormationNode * node, bool useTieBreaker = true);
+
+      //bool isOnBoundary (void);
 
       virtual double getFiniteElementValue (double iOffset, double jOffset, double kOffset, PropertyIndex propertyIndex) = 0;
 
@@ -53,8 +60,6 @@ namespace migration
       virtual bool computeTargetFormationNode (void) = 0;
 
       virtual FiniteElementMethod::ThreeVector & getAnalogFlowDirection (void) = 0;
-
-      virtual double getFiniteElementMinimumValue (PropertyIndex propertyIndex) = 0;
       virtual FiniteElementMethod::ThreeVector getFiniteElementGrad (PropertyIndex propertyIndex) = 0;
 
       virtual double getDepth (void) = 0;
@@ -128,9 +133,6 @@ namespace migration
       virtual FiniteElementMethod::ThreeVector & getAnalogFlowDirection (void);
 
       virtual double getFiniteElementValue (double iOffset, double jOffset, double kOffset, PropertyIndex propertyIndex);
-
-      virtual double getFiniteElementMinimumValue (PropertyIndex propertyIndex);
-
       virtual FiniteElementMethod::ThreeVector getFiniteElementGrad (PropertyIndex propertyIndex);
 
       virtual double getDepth (void);
@@ -197,9 +199,13 @@ namespace migration
 
       virtual bool isValid (void);
 
-      double performVerticalMigration (void);
-      double performHDynamicAndCapillary (void);
+      /// @brief Whether to use the advanced mode of the BPA2 engine
+      bool performAdvancedMigration (void);
+      /// @brief Whether to account for pore-pressure and capillary-pressure gradients in flow-pathy calculation
+      bool performHDynamicAndCapillary (void);
+      /// @return The value of blocking porosity
       double getBlockingPorosity (void);
+      /// @return The value of blocking permeability
       double getBlockingPermeability (void);
 
       virtual void clearProperties (void);
@@ -223,16 +229,16 @@ namespace migration
 
       bool detectReservoir (LocalFormationNode * topNode, const double minLiquidColumnHeight, const double minVapourColumnHeight, const bool pressureRun);
       double getPressureContrast( const LocalFormationNode * topNode, const PhaseId phase, const bool pressureRun ) const;
-      void identifyAsReservoir (void);
+      void identifyAsReservoir (const bool advancedMigration);
+
+      bool isPartOfUndetectedReservoir(void);
+      void dealWithStuckHydrocarbons(void);
+      bool undetectedCrest(void);
+      FormationNode * getLateralAdjacentNode(int & di);
 
       // check if a LocalFormationNode is a crest node
       bool detectReservoirCrests (PhaseId phase);
       bool getIsCrest (PhaseId phase);
-
-      //these are functions used to compare depths in the detectReservoirCrests algorithm
-      virtual int compareDepths (FormationNode * node, bool useTieBreaker = true);
-      inline bool isDeeperThan (FormationNode * node, bool useTieBreaker = true);
-      inline bool isShallowerThan (FormationNode * node, bool useTieBreaker = true);
 
       void computeNodeProperties (void);
       void computeAnalogFlowDirection (void);
@@ -266,6 +272,8 @@ namespace migration
       FormationNode *getAdjacentFormationNode (int directionIndex = -1);
       int getAdjacentFormationNodeGridOffset (int dimension);
 
+      inline LocalFormationNode * getTopFormationNode(void);
+
       virtual FormationNode *getTargetFormationNode (void);
       virtual bool computeTargetFormationNode (void);
 
@@ -273,12 +281,10 @@ namespace migration
 
       virtual double getFiniteElementValue (double iOffset, double jOffset, double kOffset, PropertyIndex propertyIndex);
 
-      virtual double getFiniteElementMinimumValue (PropertyIndex propertyIndex);
-
       virtual FiniteElementMethod::ThreeVector getFiniteElementGrad (PropertyIndex propertyIndex);
 
       void setFiniteElementDepths (double * depths);
-      bool setFiniteElement (FiniteElementMethod::FiniteElement& finiteElement);
+      bool setFiniteElement (FiniteElementMethod::FiniteElement& finiteElement, const bool computeJacobianInverse = true, const bool computeGradBasis = true);
 
       double getDepth (void);
 
@@ -334,10 +340,6 @@ namespace migration
       inline double getHeightVapour () const;
 
    private:
-
-#ifdef USEBOTTOMFORMATIONNODE
-      LocalFormationNode * m_bottomFormationNode;
-#endif
 
       FormationNode *m_targetFormationNode;
 
@@ -458,10 +460,14 @@ namespace migration
       return m_k;
    }
 
-
-   Formation *FormationNode::getFormation (void)
+   Formation *FormationNode::getFormation (void) const
    {
       return m_formation;
+   }
+
+   LocalFormationNode * LocalFormationNode::getTopFormationNode (void)
+   {
+      return m_topFormationNode;
    }
 
    void FormationNode::clearProperties (void)
@@ -551,12 +557,12 @@ namespace migration
       return m_depth;
    }
 
-   bool LocalFormationNode::isDeeperThan (FormationNode * node, bool useTieBreaker)
+   bool FormationNode::isDeeperThan (FormationNode * node, bool useTieBreaker)
    {
       return compareDepths (node, useTieBreaker) == 1;
    }
 
-   bool LocalFormationNode::isShallowerThan (FormationNode * node, bool useTieBreaker)
+   bool FormationNode::isShallowerThan (FormationNode * node, bool useTieBreaker)
    {
       return compareDepths (node, useTieBreaker) == -1;
    }

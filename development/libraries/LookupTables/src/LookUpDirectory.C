@@ -1,5 +1,20 @@
+//
+// Copyright (C) 2012-2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
+// std library
 #include <vector>
 #include <math.h>
+
+// CBMGenerics library
+#include "ComponentManager.h"
+typedef CBMGenerics::ComponentManager::SpeciesNamesId ComponentId;
 
 #include "LookUpDirectory.h"
 
@@ -59,7 +74,7 @@ const TSR_Tables::LookUp * TSR_Tables::LookUpDirectory::getTable( TSR_Table aTab
    return m_lookupTables[aTable];
 }
 
-bool TSR_Tables::LookUpDirectory::getValueForSalinity( const double salinity, pvtFlash::ComponentId id,
+bool TSR_Tables::LookUpDirectory::getValueForSalinity( const double salinity, ComponentId id,
                                                        const double pressure, const double temperature, 
                                                        double & tableValue )
 {
@@ -100,24 +115,24 @@ bool TSR_Tables::LookUpDirectory::getValueForSalinity( const double salinity, pv
    return true;
 }
 
-TSR_Tables::TSR_Table TSR_Tables::LookUpDirectory::getTableName ( const double salinity, pvtFlash::ComponentId id )
+TSR_Tables::TSR_Table TSR_Tables::LookUpDirectory::getTableName ( const double salinity, ComponentId id )
 {
    const double molal = convertSalinityToMolal ( salinity );
 
    return getLowTableName ( molal, id );
 }
 
-TSR_Tables::TSR_Table TSR_Tables::LookUpDirectory::getUpTableName ( const double molal, pvtFlash::ComponentId id )
+TSR_Tables::TSR_Table TSR_Tables::LookUpDirectory::getUpTableName ( const double molal, ComponentId id )
 {
 
-   if( id == pvtFlash::H2S ) {
+   if( id == ComponentId::H2S ) {
       if( molal <= 1 ) return H2S_H2O_NaCl1m;
       if( molal <= 2 ) return H2S_H2O_NaCl2m;
       if( molal <= 4 ) return H2S_H2O_NaCl4m;
       if( molal <= 6 ) return H2S_H2O_NaCl6m;
       return H2S_H2O_NaCl6m;
    }
-   if( id == pvtFlash::COX ) {
+   if( id == ComponentId::COX ) {
       if( molal <= 1 ) return CO2_H2O_NaCl1m;
       if( molal <= 2 ) return CO2_H2O_NaCl2m;
       if( molal <= 4 ) return CO2_H2O_NaCl4m;
@@ -127,16 +142,16 @@ TSR_Tables::TSR_Table TSR_Tables::LookUpDirectory::getUpTableName ( const double
    return NumberOfTables;
 }
 
-TSR_Tables::TSR_Table TSR_Tables::LookUpDirectory::getLowTableName ( const double molal, pvtFlash::ComponentId id )
+TSR_Tables::TSR_Table TSR_Tables::LookUpDirectory::getLowTableName ( const double molal, ComponentId id )
 {
-   if( id == pvtFlash::H2S ) {
+   if( id == ComponentId::H2S ) {
       if( molal < 1 ) return H2S_H2Om;
       if( molal < 2 ) return H2S_H2O_NaCl1m;
       if( molal < 4 ) return H2S_H2O_NaCl2m;
       if( molal < 6 ) return H2S_H2O_NaCl4m;
       return H2S_H2O_NaCl6m;
    }
-   if( id == pvtFlash::COX ) {
+   if( id == ComponentId::COX ) {
       if( molal < 1 ) return CO2_H2Om;
       if( molal < 2 ) return CO2_H2O_NaCl1m;
       if( molal < 4 ) return CO2_H2O_NaCl2m;

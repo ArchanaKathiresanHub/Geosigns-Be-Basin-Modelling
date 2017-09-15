@@ -52,7 +52,8 @@ TEST( Utilities, CellCenterData )
 
 	//create a volume
 	std::shared_ptr<Volume> volume(new Volume(None));
-	volume->addPropertyVolumeData(PropertyVolumeData(prop, volumeData));
+	PropertyVolumeData propVolData(prop, volumeData);
+	volume->addPropertyVolumeData(propVolData);
 
 	// CELL center the volume
 	VisualizationUtils::cellCenterVolume(volume, project);
@@ -65,10 +66,10 @@ TEST( Utilities, CellCenterData )
 
 	const float* floatData = newVolData->getVolumeValues_IJK();
 
-	EXPECT_DOUBLE_EQ(floatData[0], 0.5f);
-	EXPECT_DOUBLE_EQ(floatData[1], 0.5f);
-	EXPECT_DOUBLE_EQ(floatData[2], 1.5f);
-	EXPECT_DOUBLE_EQ(floatData[3], 1.33333337f);
+	EXPECT_FLOAT_EQ(floatData[0], 0.5f);
+    EXPECT_FLOAT_EQ(floatData[1], 0.5f);
+    EXPECT_FLOAT_EQ(floatData[2], 1.5f);
+    EXPECT_FLOAT_EQ(floatData[3], 1.33333337f);
 
 	// create a map
 	std::shared_ptr<SurfaceData> surfData(new MapNative(geometry));
@@ -76,7 +77,8 @@ TEST( Utilities, CellCenterData )
 	surfData->setData_IJ(mapData);
 
 	std::shared_ptr<Surface> surface(new Surface("surface", None));
-	surface->addPropertySurfaceData(PropertySurfaceData(prop, surfData));
+	PropertySurfaceData propSurfData(prop, surfData);
+	surface->addPropertySurfaceData(propSurfData);
 	snap->addSurface(surface);
 
 	// CELL center map
@@ -87,8 +89,8 @@ TEST( Utilities, CellCenterData )
 	EXPECT_EQ(newSurfData->getGeometry()->getNumJ(), numJ - 1);
 
 	floatData = newSurfData->getSurfaceValues();
-	EXPECT_DOUBLE_EQ(floatData[0], 1.50f);
-	EXPECT_DOUBLE_EQ(floatData[1], 2.50f);
+    EXPECT_FLOAT_EQ(floatData[0], 1.50f);
+    EXPECT_FLOAT_EQ(floatData[1], 2.50f);
 
 	// Create a formationVolume
 	std::shared_ptr<Geometry3D> geometry1(new Geometry3D(numI, numJ, numK, 0, 1.5, 2.5, 1.2, 3.2));
@@ -110,23 +112,29 @@ TEST( Utilities, CellCenterData )
 	volumeData2->setData_IJK(data2);
 	volumeData3->setData_IJK(data3);
 
-	std::shared_ptr<const Formation> formation1(new Formation(0, 2, "formation1", false, false));
-	std::shared_ptr<const Formation> formation2(new Formation(2, 4, "formation2", false, false));
-	std::shared_ptr<const Formation> formation3(new Formation(4, 6, "formation3", false, false));
+	std::shared_ptr<Formation> formation1(new Formation(0, 2, "formation1"));
+	std::shared_ptr<Formation> formation2(new Formation(2, 4, "formation2"));
+	std::shared_ptr<Formation> formation3(new Formation(4, 6, "formation3"));
 	project->addFormation(formation1);
 	project->addFormation(formation2);
 	project->addFormation(formation3);
 
 	std::shared_ptr<Volume> volume1(new Volume(None));
-	volume1->addPropertyVolumeData(PropertyVolumeData(prop, volumeData1));
+	PropertyVolumeData pvd1(prop, volumeData1);
+	volume1->addPropertyVolumeData(pvd1);
 	std::shared_ptr<Volume> volume2(new Volume(None));
-	volume2->addPropertyVolumeData(PropertyVolumeData(prop, volumeData2));
+	PropertyVolumeData pvd2(prop, volumeData2);
+	volume2->addPropertyVolumeData(pvd2);
 	std::shared_ptr<Volume> volume3(new Volume(None));
-	volume3->addPropertyVolumeData(PropertyVolumeData(prop, volumeData3));
+	PropertyVolumeData pvd3(prop, volumeData3);
+	volume3->addPropertyVolumeData(pvd3);
 
-	snap->addFormationVolume(FormationVolume(formation1, volume1));
-	snap->addFormationVolume(FormationVolume(formation2, volume2));
-	snap->addFormationVolume(FormationVolume(formation3, volume3));
+	FormationVolume fv1(formation1, volume1);
+	snap->addFormationVolume(fv1);
+	FormationVolume fv2(formation2, volume2);
+	snap->addFormationVolume(fv2);
+	FormationVolume fv3(formation3, volume3);
+	snap->addFormationVolume(fv3);
 
 	// Cell center the formation volume
 	VisualizationUtils::cellCenterFormationVolumes(snap, project);
@@ -139,28 +147,28 @@ TEST( Utilities, CellCenterData )
 
 	// Check surfaces
 	floatData = mergedVolume->getSurface_IJ(0);
-	EXPECT_DOUBLE_EQ(floatData[0], 0.50f);
-	EXPECT_DOUBLE_EQ(floatData[1], 0.50f);
+    EXPECT_FLOAT_EQ(floatData[0], 0.50f);
+    EXPECT_FLOAT_EQ(floatData[1], 0.50f);
 
 	floatData = mergedVolume->getSurface_IJ(1);
-	EXPECT_DOUBLE_EQ(floatData[0], 1.f);
-	EXPECT_DOUBLE_EQ(floatData[1], 1.f);
+    EXPECT_FLOAT_EQ(floatData[0], 1.f);
+    EXPECT_FLOAT_EQ(floatData[1], 1.f);
 
 	floatData = mergedVolume->getSurface_IJ(2);
-	EXPECT_DOUBLE_EQ(floatData[0], 19.f/7.f);
-	EXPECT_DOUBLE_EQ(floatData[1], 19.f/7.f);
+    EXPECT_FLOAT_EQ(floatData[0], 19.f/7.f);
+    EXPECT_FLOAT_EQ(floatData[1], 19.f/7.f);
 
 	floatData = mergedVolume->getSurface_IJ(3);
-	EXPECT_DOUBLE_EQ(floatData[0], 3.f/7.f);
-	EXPECT_DOUBLE_EQ(floatData[1], 3.f/7.f);
+    EXPECT_FLOAT_EQ(floatData[0], 3.f/7.f);
+    EXPECT_FLOAT_EQ(floatData[1], 3.f/7.f);
 
 	floatData = mergedVolume->getSurface_IJ(4);
-	EXPECT_DOUBLE_EQ(floatData[0], 2.f/3.f);
-	EXPECT_DOUBLE_EQ(floatData[1], 0.50f);
+    EXPECT_FLOAT_EQ(floatData[0], 2.f/3.f);
+    EXPECT_FLOAT_EQ(floatData[1], 0.50f);
 
 	floatData = mergedVolume->getSurface_IJ(5);
-	EXPECT_DOUBLE_EQ(floatData[0], 1.5f);
-	EXPECT_DOUBLE_EQ(floatData[1], 1.5f);
+    EXPECT_FLOAT_EQ(floatData[0], 1.5f);
+    EXPECT_FLOAT_EQ(floatData[1], 1.5f);
 }
 
 TEST(Utilities, DoNotCellCenterDepth)

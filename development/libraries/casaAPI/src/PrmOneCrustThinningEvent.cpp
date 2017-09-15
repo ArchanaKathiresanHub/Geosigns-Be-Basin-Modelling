@@ -26,14 +26,16 @@
 #include <cmath>
 #include <sstream>
 
+using namespace Utilities::Numerical;
+
 namespace casa
 {
 
-static const char * s_stratIoTblName         = "StratIoTbl";
-static const char * s_stratIoTblAgeCol       = "DepoAge";
-static const char * s_crustIoTblName         = "CrustIoTbl";
-static const char * s_crustIoTblAgeCol       = "Age";
-static const char * s_crustIoTblThicknessCol = "Thickness";
+static const char * s_stratIoTblName              = "StratIoTbl";
+static const char * s_stratIoTblAgeCol            = "DepoAge";
+static const char * s_crustIoTblName              = "CrustIoTbl";
+static const char * s_crustIoTblAgeCol            = "Age";
+static const char * s_crustIoTblThicknessCol      = "Thickness";
 
 static const double s_eps = 1.e-8;
 
@@ -42,10 +44,10 @@ PrmOneCrustThinningEvent::PrmOneCrustThinningEvent( mbapi::Model & mdl ) : m_par
 {
    size_t crustIoTblSize = mdl.tableSize( s_crustIoTblName );
 
-   m_initialThickness = UndefinedDoubleValue;
-   m_t0               = UndefinedDoubleValue;
-   m_dt               = UndefinedDoubleValue;
-   m_coeff            = UndefinedDoubleValue;
+   m_initialThickness = IbsNoDataValue;
+   m_t0               = IbsNoDataValue;
+   m_dt               = IbsNoDataValue;
+   m_coeff            = IbsNoDataValue;
 
    if ( ErrorHandler::NoError == mdl.errorCode() )
    {
@@ -69,14 +71,17 @@ PrmOneCrustThinningEvent::PrmOneCrustThinningEvent( mbapi::Model & mdl ) : m_par
 }
 
 // Constructor. Set given parameter values
-PrmOneCrustThinningEvent::PrmOneCrustThinningEvent( const VarPrmOneCrustThinningEvent * parent, double thickIni, double t0, double dt, double coeff ) : 
-     m_parent( parent )
-   , m_initialThickness( thickIni ) 
-   , m_t0( t0 )
-   , m_dt( dt )
-   , m_coeff( coeff )
-{
-}
+PrmOneCrustThinningEvent::PrmOneCrustThinningEvent( const VarPrmOneCrustThinningEvent * parent
+                                                  , double                              thickIni
+                                                  , double                              t0
+                                                  , double                              dt
+                                                  , double                              coeff
+                                                  )
+                                                  : m_parent( parent )
+                                                  , m_initialThickness( thickIni ) 
+                                                  , m_t0( t0 )
+                                                  , m_dt( dt )
+                                                  , m_coeff( coeff ) {}
 
 // Set this parameter value in Cauldron model
 ErrorHandler::ReturnCode PrmOneCrustThinningEvent::setInModel( mbapi::Model & mdl, size_t /* caseID */ )

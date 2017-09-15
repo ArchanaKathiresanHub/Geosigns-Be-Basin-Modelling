@@ -105,27 +105,28 @@ void CmdAddCldApp::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
 
 void CmdAddCldApp::printHelpPage( const char * cmdName )
 {
-   std::cout << "  " << cmdName << " [<cpus>] [<timeLim>] \"<appName>\" [\"appPrm1\" [\"appPrm2\"]... ]\n";
-   std::cout << "   - add a new Cauldron application to the end of the simulation pipeline. The full Cauldron simulation \n";
-   std::cout << "     could consists of several stages, like P/T simulation then genex and then migration.\n";
-   std::cout << "        cpus    - (Optional) If application is parallel, user could specify number of cpus. By default,\n";
-   std::cout << "                  the number of cpus is set to 1. If a user is inteded to define a time limits (see next \n";
-   std::cout << "                  parameter description) he must define the cpus number to some value.\n";
-   std::cout << "        timeLim - (Optional) Defines the time limits for a specific application. If the wall clock exceeds timeLim, \n";
-   std::cout << "                  the application will be stopped\n";
-   std::cout << "                  and all further stages in applications pipeline will be invalidated also.\n";
-   std::cout << "        appName - name of the cauldron application. Here is a list of supported applicatons: \n";
-   std::cout << "                  \"fastcauldron\"  - P/T calculation\n";
-   std::cout << "                  \"fastgenex6\"    - source rock HC generation calculation\n"; 
-   std::cout << "                  \"fastctc\"       - crustal thickness calculator\n";
-   std::cout << "                  \"fasttouch7\"    - reservoir quality calculator\n";
-   std::cout << "                  \"fastmig\"       - HC migration simulator\n";
-   std::cout << "                  \"tracktraps\"    - traps tracking over time\n";
-   std::cout << "                  \"track1d\"       - extracting properties value along vertical well\n";
-   std::cout << "       appPrmN  - (Optional) application parameters. Input and output project file names must not be specified\n";
-   std::cout << "                  as command options, they will be added by CASA.\n";
-   std::cout << "     \n";
-   std::cout << "     Here is an examples of using \"" << cmdName << "\" command:\n";
+   std::cout << "  " << cmdName << 
+   R"( [<cpus>] [<timeLim>] "<appName>" ["appPrm1" ["appPrm2"]... ]
+      - add a new Cauldron application to the end of the simulation pipeline. The full Cauldron simulation
+        could consists of several stages, like P/T simulation then genex and then migration.
+           cpus    - (Optional) If application is parallel, user could specify number of cpus. By default,
+                     the number of cpus is set to 1. If a user is intended to define a time limits (see next
+                     parameter description) he must define the cpus number to some value.
+           timeLim - (Optional) Defines the time limits for a specific application. If the wall clock
+                     exceeds timeLim, the application will be stopped
+                     and all further stages in applications pipeline will be invalidated also.
+           appName - name of the cauldron application. Here is a list of supported applications:
+                     "fastcauldron"  - P/T calculation
+                     "fastgenex6"    - source rock HC generation calculation
+                     "fastctc"       - crustal thickness calculator
+                     "fasttouch7"    - reservoir quality calculator
+                     "fastmig"       - HC migration simulator
+                     "tracktraps"    - traps tracking over time
+                     "track1d"       - extracting properties value along vertical well
+          appPrmN  - (Optional) application parameters. Input and output project file names must not be specified
+                     as command options, they will be added by CASA.
+
+        Here is an examples of using ")" << cmdName << "\" command:\n";
    std::cout << "         " << cmdName << " fastcauldron \"-itcoupled\"\n";
    std::cout << "         " << cmdName << " 4 fastcauldron \"-itcoupled\"\n";
    std::cout << "         " << cmdName << " 4 20 fastcauldron \"-itcoupled\"   #4 cpus run max 20 minutes\n";

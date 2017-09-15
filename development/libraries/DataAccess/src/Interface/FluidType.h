@@ -76,24 +76,6 @@ namespace DataAccess {
          /// This list must be deleted after use.
          virtual FluidThermalConductivitySampleList* getFluidThermalConductivitySamples () const;
 
-         /// @}
-         /// \name Density attributes.
-         /// @{
-
-         /// Name of fluid used for demsity samples.
-         virtual const std::string& getDensityFluidName () const;
-
-         /// The fluid used for demsity samples.
-         virtual const FluidType* getDensityFluidType () const;
-
-         /// Return a list of the density samples.
-         ///
-         /// This list must be deleted after use.
-         virtual FluidDensitySampleList* getFluidDensitySamples () const;
-
-         /// @}
-
-
       private :
 
          CBMGenerics::waterDensity::FluidDensityModel m_fluidDensityModel;

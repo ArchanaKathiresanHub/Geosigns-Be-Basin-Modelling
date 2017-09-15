@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file SnapshotManagerImpl.C
 /// @brief This file keeps implementation for API which provides access to simulation results
@@ -32,9 +32,9 @@ SnapshotManagerImpl::SnapshotManagerImpl()
 }
 
 // Set project database. Reset all
-void SnapshotManagerImpl::setDatabase( database::Database * db, const std::string & /*projName*/ )
+void SnapshotManagerImpl::setDatabase( database::ProjectFileHandlerPtr pfh, const std::string & /*projName*/ )
 {
-   m_db = db;
+   m_db = pfh;
    m_snpTable = m_db->getTable( "SnapshotIoTbl" );
    //m_projHndl.reset( DataAccess::Mining::ProjectHandle( m_db, projName, "r" ) );
 }
@@ -122,4 +122,3 @@ ErrorHandler::ReturnCode SnapshotManagerImpl::requestMajorSnapshot( double simTi
 }
 
 }
-

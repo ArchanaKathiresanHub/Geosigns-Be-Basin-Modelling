@@ -65,7 +65,7 @@ namespace casa
    }
 
    // Generate set of cases for DoE
-   // [in]  varPrmsSet list of variable parameters
+   // [in]  varPrmsSet list of influential parameters
    // [out] expSet list of cases for DoE
    // [in]  runsNum number of runs for DoE algorithms which support this parameter
    // return ErrorHandler::NoError on success, error code otherwise

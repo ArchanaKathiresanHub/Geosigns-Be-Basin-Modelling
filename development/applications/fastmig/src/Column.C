@@ -8,7 +8,6 @@
 // Do not distribute without written permission from Shell.
 //
 
-#include <assert.h>
 #include "Column.h"
 #ifdef USEOTGC
 #include "OilToGasCracker.h"
@@ -22,17 +21,21 @@
 
 #include "array.h"
 
+// std library
+#include <assert.h>
 #include <iostream>
 #include <vector>
 #include <algorithm>
-
-//utilities library
-#include "LogHandler.h"
-
+#include <sstream>
+using std::ostringstream;
 using namespace std;
 
-#include<sstream>
-using std::ostringstream;
+// utilities library
+#include "LogHandler.h"
+
+// CBMGenerics library
+#include "ComponentManager.h"
+typedef CBMGenerics::ComponentManager::SpeciesNamesId ComponentId;
 
 namespace migration
 {
@@ -67,6 +70,9 @@ namespace migration
    {
       double volume = 0;
 
+      if (getBottomDepth () <= getTopDepth ())
+         return volume;
+
       if (getTopDepth () < lowerDepth)
       {
          double topOfFill = Max (upperDepth, getTopDepth ());
@@ -80,7 +86,8 @@ namespace migration
          // Subtract the previously generated immobiles stuff from the volume
          // This should really take into account the depths at which the immobiles were generated
 #ifdef USEOTGC
-         volume -= getImmobilesVolume () * (bottomOfFill - topOfFill) / (getBottomDepth () - getTopDepth ());
+         if (bottomOfFill > topOfFill)
+            volume -= getImmobilesVolume () * (bottomOfFill - topOfFill) / (getBottomDepth () - getTopDepth ());
 #endif
          if (volume < 0) volume = 0;
       }
@@ -241,6 +248,14 @@ namespace migration
       m_diffusionStartTime = -1;
       clearProperties ();
       m_pasteurizationStatus = 0;
+	  // Composition buffers
+	  m_vaporTargetBuffer.clear();
+	  m_liquidTargetBuffer.clear();
+	  m_vaporSpillBuffer.clear();
+	  m_liquidSpillBuffer.clear();
+	  m_vaporWasteBuffer.clear();
+	  m_liquidWasteBuffer.clear();
+	  m_mergingBuffer.clear();
    }
 
    LocalColumn::~LocalColumn (void)
@@ -255,6 +270,14 @@ namespace migration
          delete m_compositionToBeMigrated;
          m_compositionToBeMigrated = 0;
       }
+	  // Composition buffers
+	  m_vaporTargetBuffer.clear();
+	  m_liquidTargetBuffer.clear();
+	  m_vaporSpillBuffer.clear();
+	  m_liquidSpillBuffer.clear();
+	  m_vaporWasteBuffer.clear();
+	  m_liquidWasteBuffer.clear();
+	  m_mergingBuffer.clear();
    }
 
    void LocalColumn::retainPreviousProperties (void)
@@ -1477,6 +1500,10 @@ namespace migration
 
       flashChargesToBeMigrated (phaseCompositions);
 
+	  // calculate the global position
+	  int numI = m_reservoir->getGrid()->numIGlobal();
+	  int position = getI() + getJ() * numI;
+
       for (unsigned int phase = 0; phase < NumPhases; ++phase)
       {
          if (phaseCompositions[phase].isEmpty ()) continue;
@@ -1485,7 +1512,7 @@ namespace migration
          assert (IsValid (targetColumn));
 
          double weight = phaseCompositions[phase].getWeight ();
-         targetColumn->addComposition (phaseCompositions[phase]);
+         targetColumn->addTargetCompositionToBuffer((PhaseId)phase, position, phaseCompositions[phase]);
 
          if (getPreviousGlobalTrapId () >= 0)
             m_reservoir->reportLateralMigration (getPreviousGlobalTrapId (), targetColumn, phaseCompositions[phase]);
@@ -1500,18 +1527,6 @@ namespace migration
    {
       switch (valueSpec)
       {
-      case INCREASECHARGES:
-         addComposition (composition);
-         break;
-      case LEAKCHARGES:
-         addLeakComposition (composition);
-         break;
-      case WASTECHARGES:
-         addWasteComposition (composition);
-         break;
-      case SPILLCHARGES:
-         addSpillComposition (composition);
-         break;
       case ADDCOMPOSITIONTOBEMIGRATED:
          addCompositionToBeMigrated (composition);
          break;
@@ -1522,6 +1537,28 @@ namespace migration
          LogHandler (LogHandler::ERROR_SEVERITY) << "Error in LocalColumn::manipulateComposition: Unknown request " << valueSpec;
          assert (0);
       }
+   }
+
+   void LocalColumn::manipulateCompositionPosition(ValueSpec valueSpec, int phase, int position, Composition & composition)
+   {
+	   switch (valueSpec)
+	   {
+	   case INCREASEBUFFERTARGET:
+		   addTargetCompositionToBuffer((PhaseId)phase, position, composition);
+		   break;
+	   case INCREASEBUFFERWASTE:
+		   addWasteCompositionToBuffer((PhaseId)phase, position, composition);
+		   break;
+	   case INCREASEBUFFERSPILL:
+		   addSpillCompositionToBuffer((PhaseId)phase, position, composition);
+		   break;
+	   case INCREASEBUFFEMERGE:
+		   addMergingCompositionToBuffer(position, composition);
+		   break;
+	   default:
+		   LogHandler(LogHandler::ERROR_SEVERITY) << "Error in LocalColumn::manipulateCompositionPosition: Unknown request " << valueSpec;
+		   assert(0);
+	   }
    }
 
    void LocalColumn::getComposition (ValueSpec valueSpec, int phase, Composition & composition)
@@ -1549,25 +1586,135 @@ namespace migration
       m_compositionState |= INITIAL;
    }
 
+   // Add target composition
+   void LocalColumn::addTargetCompositionToBuffer(PhaseId phase, int position, Composition & composition)
+   {
+	   if ((PhaseId)phase == GAS)
+	   {
+		   m_vaporTargetBuffer.push_back(std::make_pair(position,composition));
+	   }
+	   if ((PhaseId)phase == OIL)
+	   {
+		   m_liquidTargetBuffer.push_back(std::make_pair(position, composition));
+	   }
+   }
+
+   void LocalColumn::addTargetBuffer()
+   {
+	   bufferCompositionSorter bufferCompositionSorter;
+	   std::sort(m_vaporTargetBuffer.begin(), m_vaporTargetBuffer.end(), bufferCompositionSorter);
+	   for (size_t i=0;i<m_vaporTargetBuffer.size();++i)
+	   {
+		   if (!m_composition) m_composition = new Composition;
+		   m_composition->add(m_vaporTargetBuffer[i].second);
+		   m_compositionState |= INITIAL;
+	   }
+
+	   std::sort(m_liquidTargetBuffer.begin(), m_liquidTargetBuffer.end(), bufferCompositionSorter);
+	   for (size_t i = 0; i<m_liquidTargetBuffer.size(); ++i)
+	   {
+		   if (!m_composition) m_composition = new Composition;
+		   m_composition->add(m_liquidTargetBuffer[i].second);
+		   m_compositionState |= INITIAL;
+	   }
+	   m_vaporTargetBuffer.clear();
+	   m_liquidTargetBuffer.clear();
+   }
+
+   // Add waste composition
+   void LocalColumn::addWasteCompositionToBuffer(PhaseId phase, int position, Composition & composition)
+   {
+	   if ((PhaseId)phase == GAS)
+	   {
+		   m_vaporWasteBuffer.push_back(std::make_pair(position, composition));
+	   }
+	   if ((PhaseId)phase == OIL)
+	   {
+		   m_liquidWasteBuffer.push_back(std::make_pair(position, composition));
+	   }
+   }
+
+   void LocalColumn::addWasteBuffer()
+   {
+	   bufferCompositionSorter bufferCompositionSorter;
+	   std::sort(m_vaporWasteBuffer.begin(), m_vaporWasteBuffer.end(), bufferCompositionSorter);
+	   for (size_t i = 0; i<m_vaporWasteBuffer.size(); ++i)
+	   {
+		   if (!m_composition) m_composition = new Composition;
+		   m_composition->add(m_vaporWasteBuffer[i].second);
+		   m_compositionState |= WASTED;
+	   }
+
+	   std::sort(m_liquidWasteBuffer.begin(), m_liquidWasteBuffer.end(), bufferCompositionSorter);
+	   for (size_t i = 0; i<m_liquidWasteBuffer.size(); ++i)
+	   {
+		   if (!m_composition) m_composition = new Composition;
+		   m_composition->add(m_liquidWasteBuffer[i].second);
+		   m_compositionState |= WASTED;
+	   }
+	   m_vaporWasteBuffer.clear();
+	   m_liquidWasteBuffer.clear();
+   }
+
+   // Add spill composition
+   void LocalColumn::addSpillCompositionToBuffer(PhaseId phase, int position, Composition & composition)
+   {
+	   if ((PhaseId)phase == GAS)
+	   {
+		   m_vaporSpillBuffer.push_back(std::make_pair(position, composition));
+	   }
+	   if ((PhaseId)phase == OIL)
+	   {
+		   m_liquidSpillBuffer.push_back(std::make_pair(position, composition));
+	   }
+   }
+
+   void LocalColumn::addSpillBuffer()
+   {
+	   bufferCompositionSorter bufferCompositionSorter;
+	   std::sort(m_vaporSpillBuffer.begin(), m_vaporSpillBuffer.end(), bufferCompositionSorter);
+	   for (size_t i = 0; i<m_vaporSpillBuffer.size(); ++i)
+	   {
+		   if (!m_composition) m_composition = new Composition;
+		   m_composition->add(m_vaporSpillBuffer[i].second);
+		   m_compositionState |= SPILLED;
+	   }
+
+	   std::sort(m_liquidSpillBuffer.begin(), m_liquidSpillBuffer.end(), bufferCompositionSorter);
+	   for (size_t i = 0; i<m_liquidSpillBuffer.size(); ++i)
+	   {
+		   if (!m_composition) m_composition = new Composition;
+		   m_composition->add(m_liquidSpillBuffer[i].second);
+		   m_compositionState |= SPILLED;
+	   }
+	   m_vaporSpillBuffer.clear();
+	   m_liquidSpillBuffer.clear();
+   }
+
+   // Add merging composition
+   void LocalColumn::addMergingCompositionToBuffer(int position, Composition & composition)
+   {
+	   m_mergingBuffer.push_back(std::make_pair(position, composition));
+   }
+
+   void LocalColumn::addMergedBuffer()
+   {
+	   bufferCompositionSorter bufferCompositionSorter;
+	   std::sort(m_mergingBuffer.begin(), m_mergingBuffer.end(), bufferCompositionSorter);
+	   for (size_t i = 0; i<m_mergingBuffer.size(); ++i)
+	   {
+		   if (!m_composition) m_composition = new Composition;
+		   m_composition->add(m_mergingBuffer[i].second);
+		   m_compositionState |= INITIAL;
+	   }
+	   m_mergingBuffer.clear();
+   }
+
    void LocalColumn::addLeakComposition (Composition & composition)
    {
       if (!m_composition) m_composition = new Composition;
       m_composition->add (composition);
       m_compositionState |= LEAKED;
-   }
-
-   void LocalColumn::addWasteComposition (Composition & composition)
-   {
-      if (!m_composition) m_composition = new Composition;
-      m_composition->add (composition);
-      m_compositionState |= WASTED;
-   }
-
-   void LocalColumn::addSpillComposition (Composition & composition)
-   {
-      if (!m_composition) m_composition = new Composition;
-      m_composition->add (composition);
-      m_compositionState |= SPILLED;
    }
 
    void LocalColumn::flashChargesToBeMigrated (Composition * compositionsOut)
@@ -1792,20 +1939,75 @@ namespace migration
       return (*m_composition);
    }
 
-   void ProxyColumn::addComposition (const Composition & composition)
+   // Add target composition
+   void ProxyColumn::addTargetCompositionToBuffer(PhaseId phase, int position, Composition & composition)
    {
-      ColumnCompositionRequest chargesRequest;
-      ColumnCompositionRequest chargesResponse;
+	   ColumnCompositionPositionRequest chargesRequest;
+	   ColumnCompositionPositionRequest chargesResponse;
 
-      chargesRequest.i = getI ();
-      chargesRequest.j = getJ ();
-      chargesRequest.reservoirIndex = m_reservoir->getIndex ();
+	   chargesRequest.i = getI();
+	   chargesRequest.j = getJ();
+	   chargesRequest.phase = phase;
+	   chargesRequest.position = position;
+	   chargesRequest.reservoirIndex = m_reservoir->getIndex();
+	   chargesRequest.valueSpec = INCREASEBUFFERTARGET;
+	   chargesRequest.composition = composition;
 
-      chargesRequest.valueSpec = INCREASECHARGES;
+	   RequestHandling::SendRequest(chargesRequest, chargesResponse);
 
-      chargesRequest.composition = composition;
+   }
 
-      RequestHandling::SendRequest (chargesRequest, chargesResponse);
+   // Add waste composition
+   void ProxyColumn::addWasteCompositionToBuffer(PhaseId phase, int position, Composition & composition)
+   {
+	   ColumnCompositionPositionRequest chargesRequest;
+	   ColumnCompositionPositionRequest chargesResponse;
+
+	   chargesRequest.i = getI();
+	   chargesRequest.j = getJ();
+	   chargesRequest.phase = phase;
+	   chargesRequest.position = position;
+	   chargesRequest.reservoirIndex = m_reservoir->getIndex();
+	   chargesRequest.valueSpec = INCREASEBUFFERWASTE;
+	   chargesRequest.composition = composition;
+
+	   RequestHandling::SendRequest(chargesRequest, chargesResponse);
+
+   }
+
+   // Add spill composition
+   void ProxyColumn::addSpillCompositionToBuffer(PhaseId phase, int position, Composition & composition)
+   {
+	   ColumnCompositionPositionRequest chargesRequest;
+	   ColumnCompositionPositionRequest chargesResponse;
+
+	   chargesRequest.i = getI();
+	   chargesRequest.j = getJ();
+	   chargesRequest.phase = phase;
+	   chargesRequest.position = position;
+	   chargesRequest.reservoirIndex = m_reservoir->getIndex();
+	   chargesRequest.valueSpec = INCREASEBUFFERSPILL;
+	   chargesRequest.composition = composition;
+
+	   RequestHandling::SendRequest(chargesRequest, chargesResponse);
+
+   }
+
+   // Add merged composition. Phase is not relevant here.
+   void ProxyColumn::addMergingCompositionToBuffer(int position, Composition & composition)
+   {
+	   ColumnCompositionPositionRequest chargesRequest;
+	   ColumnCompositionPositionRequest chargesResponse;
+
+	   chargesRequest.i = getI();
+	   chargesRequest.j = getJ();
+	   chargesRequest.position = position;
+	   chargesRequest.reservoirIndex = m_reservoir->getIndex();
+	   chargesRequest.valueSpec = INCREASEBUFFEMERGE;
+	   chargesRequest.composition = composition;
+
+	   RequestHandling::SendRequest(chargesRequest, chargesResponse);
+
    }
 
    void ProxyColumn::setChargesToBeMigrated (PhaseId phase, Composition & composition)
@@ -1847,64 +2049,7 @@ namespace migration
       if (!m_compositionToBeMigrated) m_compositionToBeMigrated = new Composition;
       m_compositionToBeMigrated->add (composition);
    }
-
-   void ProxyColumn::addLeakComposition (Composition & composition)
-   {
-      ColumnCompositionRequest chargesRequest;
-      ColumnCompositionRequest chargesResponse;
-
-      chargesRequest.i = getI ();
-      chargesRequest.j = getJ ();
-      chargesRequest.reservoirIndex = m_reservoir->getIndex ();
-
-      chargesRequest.valueSpec = LEAKCHARGES;
-
-      for (int component = FIRST_COMPONENT; component < NUM_COMPONENTS; ++component)
-      {
-         chargesRequest.composition.set ((ComponentId)component, composition.getWeight ((ComponentId)component));
-      }
-
-      RequestHandling::SendRequest (chargesRequest, chargesResponse);
-   }
-
-   void ProxyColumn::addWasteComposition (Composition & composition)
-   {
-      ColumnCompositionRequest chargesRequest;
-      ColumnCompositionRequest chargesResponse;
-
-      chargesRequest.i = getI ();
-      chargesRequest.j = getJ ();
-
-      chargesRequest.reservoirIndex = m_reservoir->getIndex ();
-      chargesRequest.valueSpec = WASTECHARGES;
-
-      for (int component = FIRST_COMPONENT; component < NUM_COMPONENTS; ++component)
-      {
-         chargesRequest.composition.set ((ComponentId)component, composition.getWeight ((ComponentId)component));
-      }
-
-      RequestHandling::SendRequest (chargesRequest, chargesResponse);
-   }
-
-   void ProxyColumn::addSpillComposition (Composition & composition)
-   {
-      ColumnCompositionRequest chargesRequest;
-      ColumnCompositionRequest chargesResponse;
-
-      chargesRequest.i = getI ();
-      chargesRequest.j = getJ ();
-      chargesRequest.reservoirIndex = m_reservoir->getIndex ();
-
-      chargesRequest.valueSpec = SPILLCHARGES;
-
-      for (int component = FIRST_COMPONENT; component < NUM_COMPONENTS; ++component)
-      {
-         chargesRequest.composition.set ((ComponentId)component, composition.getWeight ((ComponentId)component));
-      }
-
-      RequestHandling::SendRequest (chargesRequest, chargesResponse);
-   }
-
+  
    void ProxyColumn::addToYourTrap (unsigned int i, unsigned int j)
    {
       ColumnColumnRequest columnRequest;

@@ -111,8 +111,8 @@ void Numerics::FortranMatrix::getSubMatrix ( const IntegerArray&  inds,
                                                    FloatingPoint*  subMatrixBuffer ) const {
 
 
-  int i;
-  int j;
+  size_t i;
+  size_t j;
   int count = 0;
 
   for ( i = 0; i < inds.size (); i++ ) {

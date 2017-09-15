@@ -366,7 +366,12 @@ void FiniteElementMethod::BasisFunctionInterpolator::simpleInterpolate ( const N
 void FiniteElementMethod::BasisFunctionInterpolator::compute ( const Numerics::AlignedDenseMatrix& basisFunctionsTranspose,
                                                                const Numerics::AlignedDenseMatrix& propertyVectors,
                                                                      Numerics::AlignedDenseMatrix& interpolatedProperties,
-                                                               const cpuInfo& cpuInfo ) {
+#ifdef __INTEL_COMPILER
+                                                               const cpuInfo& cpuInfo
+#else
+                                                               const cpuInfo&
+#endif
+                                                             ) {
 
 
    if ( basisFunctionsTranspose.cols () != 8 or propertyVectors.rows () != 8 ) {

@@ -18,7 +18,7 @@
 #include "Parameter.h"
 
 // CMB API
-#include <UndefinedValues.h>
+#include "UndefinedValues.h"
 
 #include <cassert>
 
@@ -42,12 +42,12 @@ namespace casa
       /// @return parameter name
       virtual const char * name() const { return m_name.c_str(); }
 
-      /// @brief Get variable parameter object which was used to create this parameter
-      /// @return Pointer to the variable parameter
+      /// @brief Get influential parameter object which was used to create this parameter
+      /// @return Pointer to the influential parameter
       virtual const VarParameter * parent() const { return m_parent; }
 
-      /// @brief Set variable parameter which was used to create this parameter
-      /// @param Pointer to the variable parameter
+      /// @brief Set influential parameter which was used to create this parameter
+      /// @param varPrm pointer to the influential parameter
       virtual void setParent( const VarParameter * varPrm )  { m_parent = varPrm; }
 
       /// @brief Get the level of influence to cauldron applications pipeline for this parametr
@@ -62,7 +62,7 @@ namespace casa
 
       /// @brief Get parameter value as integer
       /// @return parameter value represented as integer
-      virtual int asInteger() const { assert( 0 ); return UndefinedIntegerValue; }
+      virtual int asInteger() const { assert( 0 ); return Utilities::Numerical::NoDataIntValue; }
 
       /// @{ SourceRockProp specific methods
       /// @brief Get mixing ID
@@ -113,14 +113,14 @@ namespace casa
       PrmSourceRockProp( mbapi::Model & mdl, const char * layerName, const char * srType, int mixID );
 
       /// @brief Constructor, creates the parameter object for the given parameter value and layer name
-      /// @param parent pointer to a variable parameter which created this one
+      /// @param parent pointer to a influential parameter which created this one
       /// @param val value of the parameter
       /// @param layerName layer name
       /// @param srType    source rock type name
       /// @param mixID     source rock mixing ID for stratigraphy layer
       PrmSourceRockProp( const VarPrmSourceRockProp * parent, double val, const char * layerName, const char * srType, int mixID );
 
-      const VarParameter * m_parent;     ///< variable parameter which was used to create this one
+      const VarParameter * m_parent;     ///< influential parameter which was used to create this one
 
       std::string          m_propName;   ///< Defines which source rock lithology property this parameter defines
       std::string          m_name;       ///< name of the parameter

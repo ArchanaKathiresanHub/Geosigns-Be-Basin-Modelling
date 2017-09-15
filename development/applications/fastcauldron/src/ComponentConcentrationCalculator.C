@@ -1,3 +1,12 @@
+//
+// Copyright (C) 2012-2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 #include "ComponentConcentrationCalculator.h"
 
 #include "EosPack.h"
@@ -39,7 +48,7 @@ void ComponentConcentrationVolumeCalculator::allocatePropertyValues ( OutputProp
    int i;
 
    for ( i = 0; i < NumberOfPVTComponents; ++i ) {
-      component = (PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( CBMGenerics::ComponentManager::getInstance ().GetSpeciesName ( i ) + "Concentration", 
+      component = (PropertyValue*)(FastcauldronSimulator::getInstance ().createVolumePropertyValue ( CBMGenerics::ComponentManager::getInstance ().getSpeciesName ( i ) + "Concentration", 
                                                                                                      m_snapshot, 0,
                                                                                                      m_formation,
                                                                                                      m_formation->getMaximumNumberOfElements () + 1 ));
@@ -159,7 +168,7 @@ bool ComponentConcentrationVolumeCalculator::operator ()( const OutputPropertyMa
                elementMass = 0.0;
 
                for ( c = 0; c < NumberOfPVTComponents; ++c ) {
-                  pvtFlash::ComponentId pvtComponent = pvtFlash::ComponentId ( c );
+                  ComponentId pvtComponent = ComponentId ( c );
 
                   componentMaps [ c ]->setValue ( i, j, k, molarMasses(pvtComponent)*components ( k, j, i )( pvtComponent ));
                   elementMass += elementPoreVolume * molarMasses(pvtComponent)*components ( k, j, i )( pvtComponent );
@@ -284,7 +293,7 @@ void ComponentConcentrationCalculator::allocatePropertyValues ( OutputPropertyMa
    int i;
 
    for ( i = 0; i < NumberOfPVTComponents; ++i ) {
-      component = (PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( CBMGenerics::ComponentManager::getInstance ().GetSpeciesName ( i ) + "Concentration", 
+      component = (PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( CBMGenerics::ComponentManager::getInstance ().getSpeciesName ( i ) + "Concentration", 
                                                                                                   m_snapshot, 0,
                                                                                                   m_formation,
                                                                                                   0 ));
@@ -357,7 +366,7 @@ bool ComponentConcentrationCalculator::operator ()( const OutputPropertyMap::Out
             value = 0.0;
 
             for ( c = 0; c < NumberOfPVTComponents; ++c ) {
-               pvtFlash::ComponentId pvtComponent = pvtFlash::ComponentId ( c );
+               ComponentId pvtComponent = ComponentId ( c );
 
                for ( k = grid.firstK (); k <= grid.lastK (); ++k ) {
 

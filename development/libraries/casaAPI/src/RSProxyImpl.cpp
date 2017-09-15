@@ -121,14 +121,14 @@ ErrorHandler::ReturnCode RSProxyImpl::calculateRSProxy( const std::vector<const 
    SUMlib::Partition partition( pLowest.size(), true );
 
    // collect and convert list of observables to SUMlib TargetCollection
-   SUMlib::TargetCollection   targetCollection;
-   std::vector< std::vector< bool > >  validCase2Obs; // matrix which defines for which case which observable is valid
+   SUMlib::TargetCollection       targetCollection;
+   std::vector<std::vector<bool>> validCase2Obs; // matrix which defines for which case which observable is valid
 
    sumext::convertObservablesValue( filteredCaseSet, targetCollection, validCase2Obs );   
    assert( !targetCollection.empty() );
 
    // we do not use parameters transformation yet
-   std::vector< std::vector < SUMlib::ParameterTransforms::TransformType > > parameterTransformsDef;
+   std::vector<std::vector<SUMlib::ParameterTransforms::TransformType>> parameterTransformsDef;
 
    // Create the proxies, and store shared pointers to them
    m_collection.reset( new SUMlib::CompoundProxyCollection( sumCaseSet, pLowest, pHighest ) );

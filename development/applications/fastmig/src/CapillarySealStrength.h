@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2010-2015 Shell International Exploration & Production.
+// Copyright (C) 2010-2017 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -14,6 +14,7 @@
 
 #include "Composition.h"
 #include "translateProps.h"
+#include <vector>
 
 namespace migration {
 
@@ -39,9 +40,10 @@ namespace migration {
                              const double& lambdaPC, 
                              const bool isLegacy );
       
-      double compute(const Composition& composition, const double& gorm, const double& T_K) const;
-      double criticalTemperature(const Composition& composition, const double& gorm) const;
-      double interfacialTension(const Composition& composition, const double& gorm, const double& T_K) const;
+      void compute(const std::vector<Composition> & composition, const double gorm, const double T_K,
+                   const double brinePressure, double & capSealStrength_H2O_Gas, double & capSealStrength_H2O_Oil) const;
+      double criticalTemperature(const Composition& composition, const double gorm) const;
+      double interfacialTension(const Composition& composition, const double gorm, const double T_K) const;
    };
 
 } // namespace migration

@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2016 Shell International Exploration & Production.
+// Copyright (C) 2016-2017 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -34,9 +34,9 @@ using migration::distribute::LeakOrWasteGasAndSpillOil;
 namespace migration
 {
 
-   LeakWasteAndSpillDistributor::LeakWasteAndSpillDistributor (const double& sealFluidDensity,
-      const double& fractureSealStrength, const double& wasteLevel, const CapillarySealStrength& capSealStrength,
-      const MonotonicIncreasingPiecewiseLinearInvertableFunction* levelToVolume) :
+   LeakWasteAndSpillDistributor::LeakWasteAndSpillDistributor (const double& sealFluidDensity, const double& fractureSealStrength,
+                                                               const double& wasteLevel, const CapillarySealStrength& capSealStrength,
+                                                               const MonotonicIncreasingPiecewiseLinearInvertableFunction* levelToVolume) :
       m_leaking (true),
       m_wasting (true),
       m_sealFluidDensity (sealFluidDensity),
@@ -49,14 +49,16 @@ namespace migration
       shiftToOrigin ();
    }
 
-   LeakWasteAndSpillDistributor::LeakWasteAndSpillDistributor (const double& sealFluidDensity,
-      const double& fractureSealStrength, const CapillarySealStrength& capSealStrength,
-      const MonotonicIncreasingPiecewiseLinearInvertableFunction* levelToVolume) :
+   LeakWasteAndSpillDistributor::LeakWasteAndSpillDistributor (const double sealFluidDensity, const double fractureSealStrength, const double overPressureContrast,
+                                                               const double crestColumnThickness, const CapillarySealStrength& capSealStrength,
+                                                               const MonotonicIncreasingPiecewiseLinearInvertableFunction* levelToVolume) :
       m_leaking (true),
       m_wasting (false),
       m_sealFluidDensity (sealFluidDensity),
       m_fractureSealStrength (fractureSealStrength),
       m_wasteLevel (numeric_limits<double>::max ()),
+      m_overPressureContrast (overPressureContrast),
+      m_crestColumnThickness (crestColumnThickness),
       m_capSealStrength (capSealStrength),
       m_levelToVolume (levelToVolume),
       m_shift (0.0)
@@ -96,9 +98,9 @@ namespace migration
    }
 
    void LeakWasteAndSpillDistributor::distribute (const Composition& gas, const Composition& oil, const double& T_K,
-      Composition& remainingGas, Composition& remainingOil,
-      Composition& leakedGas, Composition& wastedGas, Composition& spilledGas,
-      Composition& leakedOil, Composition& spilledOil, double& finalGasLevel, double& finalHCLevel) const
+                                                  Composition& remainingGas, Composition& remainingOil, Composition& leakedGas,
+                                                  Composition& wastedGas, Composition& spilledGas, Composition& leakedOil, Composition& spilledOil,
+                                                  double& finalGasLevel, double& finalHCLevel, const double brinePressure) const
    {
       assert (gas.getWeight () >= 0.0);
       assert (oil.getWeight () >= 0.0);
@@ -110,17 +112,15 @@ namespace migration
       double gasVolume = gas.getVolume ();
       double oilVolume = oil.getVolume ();
 
-      // If there is gas calculate the capillary entry pressure for gas.  (If there is no gas, 
-      // the gas density is undefined.  And if leaking() returns false, we do not need 
-      // capSealStrength_H2O_Gas.)
-      double capSealStrength_H2O_Gas = leaking () && gasVolume > 0.0 ?
-         m_capSealStrength.compute (gas, gorm, T_K) :
-         0.0;
+      double capSealStrength_H2O_Gas = 0.0;
+      double capSealStrength_H2O_Oil = 0.0;
 
-      // If there is oil calculate also the capillary entry pressure for oil:
-      double capSealStrength_H2O_Oil = leaking () && oilVolume > 0.0 ?
-         m_capSealStrength.compute (oil, gorm, T_K) :
-         0.0;
+      std::vector<Composition>  trapComposition(2);
+      trapComposition[0] = gas;
+      trapComposition[1] = oil;
+
+      if (leaking() && (gasVolume > 0.0 or oilVolume > 0.0))
+         m_capSealStrength.compute(trapComposition, gorm, T_K, brinePressure, capSealStrength_H2O_Gas, capSealStrength_H2O_Oil);
 
       double gasVolumeLeaked = 0.0;
       double gasVolumeSpilled = 0.0;
@@ -176,46 +176,43 @@ namespace migration
       if (gasVolume > 0.0 && oilVolume > 0.0)
       {
          if (isLeaking && wasting ())
-            LeakOrWasteGasAndSpillOil (gas.getDensity (), oil.getDensity (), m_sealFluidDensity, m_fractureSealStrength,
-            capSealStrength_H2O_Gas, capSealStrength_H2O_Oil, m_wasteLevel, m_levelToVolume).distribute (
-            gasVolume, oilVolume, gasVolumeLeaked, gasVolumeWasted, gasVolumeSpilled, oilVolumeLeaked,
-            oilVolumeSpilled);
+            LeakOrWasteGasAndSpillOil (gas.getDensity (), oil.getDensity (), m_sealFluidDensity, m_overPressureContrast, m_crestColumnThickness,
+                                       m_fractureSealStrength, capSealStrength_H2O_Gas, capSealStrength_H2O_Oil, m_wasteLevel,
+                                       m_levelToVolume).distribute (gasVolume, oilVolume, gasVolumeLeaked, gasVolumeWasted,
+                                                                    gasVolumeSpilled, oilVolumeLeaked, oilVolumeSpilled);
          else if (isLeaking)
-            LeakGasAndSpillOil (gas.getDensity (), oil.getDensity (), m_sealFluidDensity, m_fractureSealStrength,
-            capSealStrength_H2O_Gas, capSealStrength_H2O_Oil, m_levelToVolume).distribute (
-            gasVolume, oilVolume, gasVolumeLeaked, gasVolumeSpilled, oilVolumeLeaked,
-            oilVolumeSpilled);
+            LeakGasAndSpillOil (gas.getDensity (), oil.getDensity (), m_sealFluidDensity, m_overPressureContrast, m_crestColumnThickness,
+                                m_fractureSealStrength, capSealStrength_H2O_Gas, capSealStrength_H2O_Oil,
+                                m_levelToVolume).distribute (gasVolume, oilVolume, gasVolumeLeaked,
+                                                             gasVolumeSpilled, oilVolumeLeaked, oilVolumeSpilled);
          else if (wasting ())
             WasteGasAndSpillOil (m_wasteLevel, m_levelToVolume).distribute (
-            gasVolume, oilVolume, gasVolumeWasted, oilVolumeSpilled);
+               gasVolume, oilVolume, gasVolumeWasted, oilVolumeSpilled);
          else // !isLeaking && !wasting()
             SpillOilAndGas (m_levelToVolume).distribute (
-            gasVolume, oilVolume, gasVolumeSpilled, oilVolumeSpilled);
+               gasVolume, oilVolume, gasVolumeSpilled, oilVolumeSpilled);
       }
       else if (gasVolume > 0.0)
       {
          if (isLeaking && wasting ())
-            LeakOrWaste (gas.getDensity (), m_sealFluidDensity, min (m_fractureSealStrength, capSealStrength_H2O_Gas),
-            m_wasteLevel, m_levelToVolume).distribute (
-            gasVolume, gasVolumeLeaked, gasVolumeWasted);
+            LeakOrWaste (gas.getDensity (), m_sealFluidDensity, m_overPressureContrast, m_crestColumnThickness, min (m_fractureSealStrength, capSealStrength_H2O_Gas),
+                         m_wasteLevel, m_levelToVolume).distribute (gasVolume, gasVolumeLeaked, gasVolumeWasted);
          else if (isLeaking)
-            LeakOrSpill (gas.getDensity (), m_sealFluidDensity, min (m_fractureSealStrength, capSealStrength_H2O_Gas),
-            m_levelToVolume).distribute (
-            gasVolume, gasVolumeLeaked, gasVolumeSpilled);
+            LeakOrSpill (gas.getDensity (), m_sealFluidDensity, m_overPressureContrast, m_crestColumnThickness, min (m_fractureSealStrength, capSealStrength_H2O_Gas),
+                         m_levelToVolume).distribute (gasVolume, gasVolumeLeaked, gasVolumeSpilled);
          else if (wasting ())
             Waste (m_wasteLevel, m_levelToVolume).distribute (
-            gasVolume, gasVolumeWasted);
+               gasVolume, gasVolumeWasted);
          else // !isLeaking && !wasting
             Spill (m_levelToVolume).distribute (
-            gasVolume, gasVolumeSpilled);
+               gasVolume, gasVolumeSpilled);
       }
       else if (oilVolume > 0.0)
       {
          // Oil wasting is already taken care of in the m_levelToVolume:
          if (isLeaking)
-            LeakOrSpill (oil.getDensity (), m_sealFluidDensity, min (m_fractureSealStrength, capSealStrength_H2O_Oil),
-            m_levelToVolume).distribute (
-            oilVolume, oilVolumeLeaked, oilVolumeSpilled);
+            LeakOrSpill (oil.getDensity (), m_sealFluidDensity, m_overPressureContrast, m_crestColumnThickness, min (m_fractureSealStrength, capSealStrength_H2O_Oil),
+                         m_levelToVolume).distribute (oilVolume, oilVolumeLeaked, oilVolumeSpilled);
          else // !isLeaking
             Spill (m_levelToVolume).distribute (
             oilVolume, oilVolumeSpilled);

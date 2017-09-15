@@ -84,6 +84,7 @@ macro(add_gtest )
    set(testName)    # The name of the test
    set(sources)     # The source files
    set(libraries)   # The libraries that should be linked with it
+   set(dependsOn)    # Other targets on which this test could depends on
    set(compileflags)# The set of compilator flags
    set(linkflags)   # The set of linker flags
    set(mpiSize)     # The number of MPI processes
@@ -92,6 +93,35 @@ macro(add_gtest )
    set(environment_vars)#List of variables in format VAR=VAL
 
    set(parameterName)
+   # Loop goes over all parameters as a list of strings
+   # Lets see how loops work for this example: ARGN = "DEPENDS src include LIBRARIES lib ../TableIO
+   # 1. elsif ( param == DEPENDS ) // param == DEPENDS
+   #        parameterName = "dependsOn"
+   #    go to next loop
+   #
+   # 2. else () // param == src
+   #        dependsOn = "src"
+   #    go to next loop
+   #  
+   # 3. else () // param == include
+   #        dependsOn = "src include"
+   #    go to next loop
+   # 4. elsif ( param == LIBRARIES )
+   #        parameterName = "libraries"
+   #    go to next loop
+   #
+   # 5. else () // param == lib
+   #        libraries = "lib"
+   #    go to next loop
+   #
+   # 6. else () // param == ../TableIO
+   #        libraries = "lib ../TableIO"
+   #    go to next loop
+   # 
+   # ...
+   # parameterName variable is set to corresponded and goes to the next loop cycle
+   # if parameter doesn't match any keyword, it is added to the end of 
+   #
    foreach(param ${ARGN})
       if (param STREQUAL NAME)
          set(parameterName testName)
@@ -99,6 +129,8 @@ macro(add_gtest )
          set(parameterName sources)
       elseif(param STREQUAL LIBRARIES)
          set(parameterName libraries)
+      elseif(param STREQUAL DEPENDS)
+         set(parameterName dependsOn)
       elseif(param STREQUAL COMPILE_FLAGS)
          set(parameterName compileflags)
       elseif(param STREQUAL LINK_FLAGS)
@@ -144,6 +176,10 @@ macro(add_gtest )
 
    # Add the test executable with its sources
    add_executable( ${execName} ${sources})
+   
+   if (dependsOn)
+      add_dependencies( ${execName} ${dependsOn})
+   endif (dependsOn)
 
    # Link with the necessary libraries
    target_link_libraries( ${execName} ${libraries})

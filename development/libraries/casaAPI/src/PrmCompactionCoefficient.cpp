@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2012-2016 Shell International Exploration & Production.
+// Copyright (C) 2012-2017 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -20,7 +20,7 @@
 #include "cmbAPI.h"
 
 // Utilities lib
-#include <NumericFunctions.h>
+#include "NumericFunctions.h"
 
 // STL/C lib
 #include <cassert>
@@ -33,7 +33,7 @@ namespace casa
 
 // Constructor
 PrmCompactionCoefficient::PrmCompactionCoefficient( mbapi::Model & mdl, const std::string & lithoName )
-                                                  : PrmLithologyProp( 0, std::vector<std::string>( 1, lithoName ), UndefinedDoubleValue )
+                                                  : PrmLithologyProp( 0, std::vector<std::string>( 1, lithoName ), Utilities::Numerical::IbsNoDataValue )
 { 
    m_propName = "CompactionCoefficient";
 
@@ -46,7 +46,7 @@ PrmCompactionCoefficient::PrmCompactionCoefficient( mbapi::Model & mdl, const st
 
    // go over all lithologies and look for the first lithology with the same name as given
    mbapi::LithologyManager::LithologyID lid = mgr.findID( lithoName );
-   if ( lid == UndefinedIDValue ) { throw ErrorHandler::Exception( mgr.errorCode() ) << mgr.errorMessage(); }
+   if ( IsValueUndefined( lid ) ) { throw ErrorHandler::Exception( mgr.errorCode() ) << mgr.errorMessage(); }
 
    mbapi::LithologyManager::PorosityModel porModel = mbapi::LithologyManager::PorUnknown;
    std::vector<double> porModelPrms;
@@ -94,7 +94,7 @@ ErrorHandler::ReturnCode PrmCompactionCoefficient::setInModel( mbapi::Model & ca
    for ( size_t i = 0; i < m_lithosName.size(); ++i )
    {
       mbapi::LithologyManager::LithologyID lid = mgr.findID( m_lithosName[i] );
-      if ( lid == UndefinedIDValue ) { return caldModel.moveError( mgr ); }
+      if ( IsValueUndefined( lid ) ) { return caldModel.moveError( mgr ); }
 
       mbapi::LithologyManager::PorosityModel mdlType = mbapi::LithologyManager::PorUnknown;
       std::vector<double> porModelPrms;
@@ -135,7 +135,7 @@ std::string PrmCompactionCoefficient::validate( mbapi::Model & caldModel )
  
       mbapi::LithologyManager::LithologyID lid = mgr.findID( m_lithosName[i] );
 
-      if ( lid == UndefinedIDValue )
+      if ( IsValueUndefined( lid ) )
       {
          oss << "Lithology " << m_lithosName[i] << " is not defined in the project" << std::endl;
          return oss.str();

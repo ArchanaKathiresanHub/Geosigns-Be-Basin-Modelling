@@ -294,38 +294,16 @@ bool InputValue::fillEventAttributes (void) const
       else if (tblName == "ReservoirIoTbl")
       {
 	      Table::iterator tblIter;
-	      Record * record = 0;
+	      Record * record = nullptr;
 
 	      for (tblIter = tbl->begin (); tblIter != tbl->end (); ++tblIter)
 	      {
 	         record = * tblIter;
-	         if (getDepthOffsetGrid (record) == database::getMapName (m_record))
-	         {
-	            m_propertyName = "Depth Offset";
-	            m_reservoirName = database::getReservoirName (record);
-	            m_eventAge = 0;
-	            return true;
-	         }
-	         else if (getThicknessGrid (record) == database::getMapName (m_record))
-	         {
-	            m_propertyName = "Thickness";
-	            m_formationName = database::getFormationName (record);
-	            m_reservoirName = database::getReservoirName (record);
-	            m_eventAge = 0;
-	            return true;
-	         }
-	         else if (getLayerFrequencyGrid (record) == database::getMapName (m_record))
-	         {
-	            m_propertyName = "Layer Frequency";
-	            m_reservoirName = database::getReservoirName (record);
-	            m_eventAge = 0;
-	            return true;
-	         }
-	         else if (getNetToGrossGrid (record) == database::getMapName (m_record))
+	         if (getNetToGrossGrid (record) == database::getMapName (m_record))
 	         {
 	            m_propertyName = "NetToGross";
 	            m_reservoirName = database::getReservoirName (record);
-	            m_eventAge = 0;
+	            m_eventAge = 0.0;
 	            return true;
 	         }
 	      }
@@ -420,33 +398,10 @@ bool InputValue::fillEventAttributes (void) const
    return false;
 }
 
-unsigned int InputValue::computeIndex ()
-{
-   const string & hdf5FileName = getHDF5FileName (m_record);
-   if (hdf5FileName.size () != 0)
-   {
-      unsigned int index;
-      sscanf (hdf5FileName.c_str (), HDFFILENAME, &index);
-      return index;
-   }
-   return 0;
-}
-
 unsigned int InputValue::applyIndex (unsigned int newIndex)
 {
-   const string & hdf5FileName = getHDF5FileName (m_record);
-   if (hdf5FileName.size () != 0)
-   {
-      unsigned int index;
-      sscanf (hdf5FileName.c_str (), HDFFILENAME, &index);
-      setIndex (index);
-      return index;
-   }
-   else
-   {
-      setIndex (newIndex);
-      return newIndex;
-   }
+   setIndex (newIndex);
+   return newIndex;
 }
 
 string InputValue::saveToDirectory (const string & directory)
@@ -488,28 +443,28 @@ int InputValue::getMapSequenceNumber () const {
    return getMapSeqNbr (m_record);
 }
 
+void InputValue::getHDFinfo(string& fileName, string& dataSetName) const
+{   assert(m_record);
+	if (getMapType() == "HDF5")
+	{
+		ibs::FilePath mapFileName(m_projectHandle->getProjectPath());
+		mapFileName << getMapFileName(m_record);
+		fileName = mapFileName.path();
+		dataSetName = HDF5::findLayerName(mapFileName.path(), getMapSeqNbr(m_record));
+	}
+	else
+	{
+		fileName.clear();
+	}
+}
 
 GridMap * InputValue::loadGridMap (void) const
 {
-   assert (m_record);
-   const string & hdf5FileName = getHDF5FileName (m_record);
+	string fileName, dataSetName;
+	getHDFinfo(fileName, dataSetName);
+	if (fileName.empty()) return nullptr;
 
-   if (getMapType () == "HDF5")
-   {
-      ibs::FilePath mapFileName( m_projectHandle->getProjectPath() );
-      mapFileName << getMapFileName( m_record );
-      return m_projectHandle->loadGridMap (this, ValueMap, mapFileName.path(), HDF5::findLayerName (mapFileName.path(), getMapSeqNbr (m_record)));
-   }
-   else if ( hdf5FileName != "" )
-   {
-      ibs::FilePath mapFileName( m_projectHandle->getFullOutputDir() );
-      mapFileName << hdf5FileName;
-      return m_projectHandle->loadGridMap( this, ValueMap, mapFileName.path(), HDF5::findLayerName( mapFileName.path(), 0 ) );
-   }
-   else
-   {
-      return 0;
-   }
+	return m_projectHandle->loadGridMap(this, ValueMap, fileName, dataSetName);
 }
 
 void InputValue::printOn (ostream & ostr) const
@@ -528,9 +483,7 @@ void InputValue::asString (string & str) const
    buf << ", MapName = " << database::getMapName (m_record);
    buf << ", MapType = " << getMapType ();
    buf << ", MapFileName = " << getMapFileName (m_record);
-   buf << ", FileId = " << getFileId (m_record);
    buf << ", MapSeqNbr = " << getMapSeqNbr (m_record);
-   buf << ", HDF5FileName = " << getHDF5FileName (m_record);
    buf << endl;
 
    str = buf.str ();
@@ -571,7 +524,7 @@ static bool copyFile (const string & inputFileName, const string & outputFileNam
 
    inputStream.seekg (0, ifstream::end);
 
-   long size = inputStream.tellg ();
+   std::streamoff size = inputStream.tellg ();
 
    inputStream.seekg (0);
 

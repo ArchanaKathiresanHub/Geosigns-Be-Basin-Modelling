@@ -37,7 +37,7 @@ public :
    static const int DefaultMaximumPressureLinearSolverIterations;
 
 
-   /// \brief The maximum number of attempts that can be made when 
+   /// \brief The maximum number of attempts that can be made when
    static const int MaximumLinearSolveAttempts = 6;
 
    /// \brief The maximum number of GMRES restarts allowed
@@ -48,7 +48,7 @@ public :
 
    /// \brief The default value for the gmres restart value.
    ///
-   /// This is used only when the default solver fails 
+   /// This is used only when the default solver fails
    static const int DefaultGMResRestartValue;
 
 
@@ -61,11 +61,11 @@ public :
                                        const double absoluteThicknessTolerance,
                                              bool&  geometryHasConverged ) = 0;
 
-   virtual void computeDependantProperties ( const double previousTime, 
-                                             const double currentTime, 
+   virtual void computeDependantProperties ( const double previousTime,
+                                             const double currentTime,
                                              const bool   outputProperties ) = 0;
 
-   virtual void initialisePressureProperties ( const double previousTime, 
+   virtual void initialisePressureProperties ( const double previousTime,
                                                const double currentTime ) = 0;
 
 
@@ -82,7 +82,7 @@ public :
 
 
    ///
-   /// Find the maximum difference between the overpressure solution at the 
+   /// Find the maximum difference between the overpressure solution at the
    /// current and previous time steps.
    ///
    PetscScalar maximumPressureDifference ();
@@ -106,7 +106,7 @@ public :
    /// Used in the geometric loop for overpressure and coupled calculations.
    ///
    /// At the end of each basin evolution (from basin age to present day)
-   /// a real thickness is predicted, this is likely to differ from that 
+   /// a real thickness is predicted, this is likely to differ from that
    /// input in the strat table. How much of a difference can the user accept?
    /// It is determined by the optimisation level.
    double getRelativeThicknessTolerance ( const int optimisationLevel ) const;
@@ -140,7 +140,7 @@ public :
 
    static void setIterationsForIluFillLevelIncrease ( const int newIluFillLevelIterations );
 
-   /// During a coupled calculation the depths of the basement will be different from 
+   /// During a coupled calculation the depths of the basement will be different from
    /// those calculated during a hydrostatic pressured temperature run. This is due to
    /// the different amount of solid material deposited (due to overpressure).
    void setBasementDepths ( const double           Current_Time,
@@ -171,23 +171,6 @@ protected :
                                 const bool            isIceSheetLayer,
                                 ElementVector&        fracturePressureExceeded,
                                 BoundaryConditions&   bcs ) const;
-
-   /// \brief Assemble the element Jacobian and residual for the pressure equation.
-   void assembleElementSystem ( const GeneralElement&     element,
-                                const double              currentTime,
-                                const double              timeStep,
-                                const BoundaryConditions& bcs,
-                                const CompoundLithology*  elementLithology,
-                                const ElementVector&      exceededFracturePressure,
-                                const bool                includeChemicalCompaction,
-                                const bool                includeInDarcySimulation,
-                                const bool                includeWaterSaturation,
-                                const bool                isIceSheetLayer,
-                                const Saturation&         currentSaturation,
-                                const Saturation&         previousSaturation,
-                                ElementMatrix&            elementJacobian,
-                                ElementVector&            elementResidual ) const;
-
 
 
    AppCtx* cauldron;

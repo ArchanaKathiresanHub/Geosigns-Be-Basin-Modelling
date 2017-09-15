@@ -52,7 +52,42 @@ if (UNIX)
    add_dependencies(DataAccess HDF5)
 endif (UNIX)
 
+add_gtest( NAME DataAccess
+           SOURCES test/DataAccess.C
+           INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../SerialDataAccess/src/Interface/
+           LIBRARIES DataAccess SerialDataAccess Serial_Hdf5
+           ENV_VARS EOSPACKDIR=${CFGFLS}/eospack GENEX5DIR=${CFGFLS}/genex50 CTCDIR=${CFGFLS}/
+)
+
+configure_file(
+   ${CMAKE_CURRENT_SOURCE_DIR}/test/DataAccessTest.project3d
+   DataAccessTest.project3d
+   COPYONLY
+)
+
 generate_dox( src/DataAccess.cfg )
+
+if ( MSVC )
+   generate_version_by_git_last_checkin(src/Interface API_FILE_GIT_DATE_AS_VER)
+   
+   MESSAGE(STATUS "Version extracted for DataAccessAPI as: ${API_FILE_GIT_DATE_AS_VER}")
+   ##### Generate the C# API  
+   generate_csharp_api(
+      CSPROJ_NAME                   DataAccessAPI
+      CSPROJ_NAMESPACE              Bpa2.Basin.DataAccess
+      CSPROJ_ASSEMBLY_VERSION       ${API_FILE_GIT_DATE_AS_VER}
+      # Info for Nuget package
+      CSPROJ_ASSEMBLY_OWNER         "Sergey Koshelev"
+      CSPROJ_ASSEMBLY_DESCRIPTION   "C# API for Cauldron input/simulation results data access"
+      CSPROJ_ASSEMBLY_RELEASE_NOTES "Version ${API_FILE_GIT_DATE_AS_VER}. Initial nuget package release"
+      CSPROJ_ASSEMBLY_TAGS          "Cauldron backend data HDF API"
+      CSPROJ_ASSEMBLY_COPYRIGHT     "Copyright (C) 2012-2017"
+      CSPROJ_LIBRARIES              Serial_Hdf5 TableIO DataModel SerialDataAccess DataAccess EosPack ${Boost_LIBRARIES}
+      CSHARP_UNIT_TESTS_SRC         test/SerialDataAccessTest.cs
+   )
+   
+   configure_file(test/Project.project3d  ${CMAKE_BINARY_DIR}/Project.project3d COPYONLY)   
+endif (MSVC)
 
 # Local Variables:
 # mode: cmake

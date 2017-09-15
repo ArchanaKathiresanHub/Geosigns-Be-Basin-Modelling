@@ -16,23 +16,54 @@ FILE( GLOB all_srcs src/*.C)
 source_group(source FILES ${all_srcs})
 
 add_library(Interpolation
-	${all_srcs}
-	${all_headers}
+   ${all_srcs}
+   ${all_headers}
 )
 
 bm_include_libraries(
-	utilities
-	LinearAlgebra
+   utilities
+   LinearAlgebra
 )
 
+include_directories( src )
+
 target_link_libraries(Interpolation
-	utilities
-	LinearAlgebra
+   utilities
+   LinearAlgebra
 )
 
 install(TARGETS Interpolation
-	RUNTIME DESTINATION bin
-	LIBRARY DESTINATION lib
-	ARCHIVE DESTINATION lib
+   RUNTIME DESTINATION bin
+   LIBRARY DESTINATION lib
+   ARCHIVE DESTINATION lib
 )
 
+add_gtest( NAME Interpolation::Point
+           SOURCES test/Point.C
+           LIBRARIES Interpolation
+)
+
+add_gtest( NAME Interpolation::GeometryVector
+           SOURCES test/GeometryVector.C
+           LIBRARIES Interpolation
+)
+
+add_gtest( NAME Interpolation::GenericTwoDArray
+           SOURCES test/GenericTwoDArray.C
+           LIBRARIES Interpolation
+)
+
+add_gtest( NAME Interpolation::RBF
+           SOURCES test/RBF.C
+           LIBRARIES Interpolation
+)
+
+add_gtest( NAME Interpolation::RBFInterpolant
+           SOURCES test/RBFInterpolant.C
+           LIBRARIES Interpolation
+)
+
+add_gtest( NAME Interpolation::RBFGeneralOperations
+           SOURCES test/RBFGeneralOperations.C
+           LIBRARIES Interpolation
+)

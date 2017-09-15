@@ -16,7 +16,9 @@ cmake_policy(SET CMP0054 NEW)
 #Set 3rd party tools versions:
 set(PETSC_VERSION "3.5.4"  CACHE STRING "PETSc version")
 set(TSLIB_VERSION "7.4.2"  CACHE STRING "Geocosm library version")
-set(SWIG_VERSION  "3.0.10" CACHE STRING "The version number of the swig executable")
+set(SWIG_VERSION  "3.0.12" CACHE STRING "The version number of the swig executable")
+set(INTEL_CMPL_VERSON "2016.01" CACHE STRING "The version number of intel compiler. Used in module load command")
+
 
 if (UNIX)
    set(HDF5_VERSION  "1.8.11" CACHE STRING "HDF5 version") # 1.8.17 doesn't have H5FDmpiposix.c
@@ -54,22 +56,24 @@ set(THIRD_PARTY_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty")
 #
 # Options whether to build certain parts
 #
-option( BM_CSHARP_API "Build the C sharp interface (Windows only)" OFF )
 option( BM_PARALLEL "Build the parallel cauldron applications" ON )
 option( BM_BUILD_SERIAL_APPS "Also build serial version of apps" ON )
 option( BM_BUILD_DOCS "Build documentation" ON )
-option( BM_BUILD_PARAVIEW_PLUGIN "Also build the ParaView plugin to view cauldron projects in ParaView."  OFF)
+option( BM_BUILD_PARAVIEW_PLUGIN "Also build the ParaView plugin to view cauldron projects in ParaView." OFF )
 option( BM_BUILD_ENABLE_TESTING "Whether testing is enabled" ON )
 option( BM_CODE_COVERAGE_ENABLE "Enable code coverage" OFF )
 option( BM_INSTALL_BENCHMARK_SUITE "Install the cauldron benchmark suite" OFF )
-option( BM_USE_FLEXLM "Whether to require a license via FlexLM" OFF)
-option( BM_BUILD_4DVIEWER "Build the 4D viewer (Windows only, needs Qt4 and Open Inventor)" OFF)
-option(BM_EXTERNAL_COMPONENTS_REBUILD "Whether or not to rebuild external components" OFF)
+option( BM_USE_FLEXLM "Whether to require a license via FlexLM" OFF )
+option( BM_EXTERNAL_COMPONENTS_REBUILD "Whether or not to rebuild external components" OFF )
+option( BM_BUILD_HYPRE "Whether to build Hypre library" ON )
+if(WIN32)
+   set( BM_BUILD_HYPRE OFF CACHE BOOL "Disable Hypre on Windows" FORCE )
+endif(WIN32)
 
 #
 # Variables concerning version numbers
 #
-set(BM_VERSION_NUMBER_MAJOR "2016" CACHE STRING "Numerical version major string. Anything like 2014")
+set(BM_VERSION_NUMBER_MAJOR "2017" CACHE STRING "Numerical version major string. Anything like 2014")
 set(BM_VERSION_NUMBER_MINOR "05" CACHE STRING "Numerical version minor string. Anything like 01")
 set(BM_VERSION_NUMBER ${BM_VERSION_NUMBER_MAJOR}.${BM_VERSION_NUMBER_MINOR})
 set(BM_VERSION_TAG "nightly" CACHE STRING "Version tag. E.g. nightly, cmake, etc")
@@ -218,11 +222,13 @@ if (BM_CSHARP_API)
    find_package(Swig REQUIRED CONFIG)
 endif()
 
+find_package(Git)
 find_package(OpenMP REQUIRED CONFIG)
 find_package(Hdf5 REQUIRED CONFIG)
 find_package(Eigen REQUIRED CONFIG)
 find_package(Boost REQUIRED CONFIG)
 find_package(BLAS REQUIRED CONFIG)
+find_package(Nuget REQUIRED CONFIG)
 if (BM_BUILD_HYPRE)
    find_package(Hypre REQUIRED CONFIG)
 endif (BM_BUILD_HYPRE)
@@ -252,7 +258,6 @@ endif()
 #
 include(cmake/BuildEnvironment.cmake)
 
-#
 #
 # Include the subdirectories that have to be built
 #

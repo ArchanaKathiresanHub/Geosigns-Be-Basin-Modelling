@@ -14,6 +14,7 @@ struct Init
 TEST( PetscSolver, CGSolve )
 {
    PetscCG cg( 1e-6, 100);
+   EXPECT_EQ( std::string(cg.getPCtype()), std::string(PCBJACOBI) );
 
    Mat A;
    MatCreate(PETSC_COMM_WORLD, &A);
@@ -81,6 +82,7 @@ TEST( PetscSolver, CGTolerance)
 TEST( PetscSolver, GMRESSolve )
 {
    PetscGMRES gmres( 1e-6, 10, 100);
+   EXPECT_EQ( std::string(gmres.getPCtype()), std::string(PCBJACOBI) );
 
    Mat A;
    MatCreate(PETSC_COMM_WORLD, &A);
@@ -154,3 +156,12 @@ TEST( PetscSolver, GMRESTolerance)
    EXPECT_DOUBLE_EQ( 1.0e-6, gmres.getTolerance() );
 }
 
+#ifndef _WIN32
+TEST( PetscSolver, setPCType)
+{
+   PetscCG cg( 1e-6, 100);
+   EXPECT_EQ( std::string(cg.getPCtype()), std::string(PCBJACOBI) );
+   cg.setPCtype( PCHYPRE );
+   EXPECT_EQ( cg.getPCtype(), PCHYPRE );
+}
+#endif

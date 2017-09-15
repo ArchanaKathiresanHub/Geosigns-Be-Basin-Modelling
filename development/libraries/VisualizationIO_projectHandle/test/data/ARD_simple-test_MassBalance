@@ -1,0 +1,52 @@
+
+-- Snapshot: 15 Ma ----------------------------- Reservoir: reservoir 1 --
+
+Already in reservoir:                                             0 kg
+Charge produced by oil to gas cracking:                           0 kg
+Expelled into reservoir:                                2.95768e+10 kg
+Leaked into reservoir:                                            0 kg
+----------------------------------------------------------------------
+Total in:                                               2.95768e+10 kg
+
+Charge converted by oil to gas cracking:                          0 kg
+Blocked from entering reservoir:                                  0 kg
+Stored in reservoir:                                    2.95768e+10 kg
+Biodegraded:                                                      0 kg
+Diffused:                                                         0 kg
+Leaked outward from reservoir:                                    0 kg
+Leaked upward from reservoir:                                     0 kg
+----------------------------------------------------------------------
+Total out:                                              2.95768e+10 kg
+
+----------------------------------------------------------------------
+Balance:                                                          0 kg
+
+======================================================================
+
+
+
+-- Snapshot: 0 Ma ----------------------------- Reservoir: reservoir 1 --
+
+Already in reservoir:                                   2.95768e+10 kg
+Charge produced by oil to gas cracking:                 2.09401e+09 kg
+Expelled into reservoir:                                2.08311e+08 kg
+Leaked into reservoir:                                            0 kg
+----------------------------------------------------------------------
+Total in:                                               3.18791e+10 kg
+
+Charge converted by oil to gas cracking:                3.93896e+09 kg
+Blocked from entering reservoir:                                  0 kg
+Stored in reservoir:                                    2.79402e+10 kg
+Biodegraded:                                                      0 kg
+Diffused:                                                         0 kg
+Leaked outward from reservoir:                                    0 kg
+Leaked upward from reservoir:                                     0 kg
+----------------------------------------------------------------------
+Total out:                                              3.18791e+10 kg
+
+----------------------------------------------------------------------
+Balance:                                               -7.62939e-06 kg
+
+======================================================================
+
+

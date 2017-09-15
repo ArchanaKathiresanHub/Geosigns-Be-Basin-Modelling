@@ -10,7 +10,6 @@
 #include "Interface/Snapshot.h"
 
 #include "database.h"
-#include "cauldronschemafuncs.h"
 
 #include "SourceRockNode.h"
 #include "Simulator.h"
@@ -36,7 +35,7 @@ GeoPhysics::GeoPhysicsSourceRock::~GeoPhysicsSourceRock () {
 }
 
 void GeoPhysics::GeoPhysicsSourceRock::computeTimeInterval ( const double             previousTime,
-                                                             const double             currentTime, 
+                                                             const double             currentTime,
                                                              const Genex6::LocalGridInterpolator*   ves,
                                                              const Genex6::LocalGridInterpolator*   temperature,
                                                              const Genex6::LocalGridInterpolator*   thickness,
@@ -66,7 +65,7 @@ void GeoPhysics::GeoPhysicsSourceRock::computeTimeInterval ( const double       
 
       }
 
-   } 
+   }
 
 #if 0
    cout << " computeTimeInterval " << previousTime << "  " << currentTime << "   " << getMaximumTimeStepSize ( depositionTime ) << endl;
@@ -121,12 +120,12 @@ void GeoPhysics::GeoPhysicsSourceRock::collectIntervalResults ( Interface::GridM
 
 #if 0
          if ( print ) {
-            std::cout << " species: " 
-                      << ComponentManager::getInstance ().GetSpeciesName ( k ) << "  " 
-                      << k << "  " 
+            std::cout << " species: "
+                      << ComponentManager::getInstance ().getSpeciesName ( k ) << "  "
+                      << k << "  "
                       << genexData->getValue ( i, j, k ) << "  "
                       << (*itNode)->getPrincipleSimulatorState ().getIntervalSpeciesCumulative ( ComponentManager::SpeciesNamesId ( k )) << "  "
-                      << (*itNode)->GetMixedSimulatorState ().getIntervalSpeciesCumulative ( ComponentManager::SpeciesNamesId ( k )) 
+                      << (*itNode)->GetMixedSimulatorState ().getIntervalSpeciesCumulative ( ComponentManager::SpeciesNamesId ( k ))
                       << std::endl;
          }
 #endif
@@ -142,7 +141,7 @@ void GeoPhysics::GeoPhysicsSourceRock::fillResultMap ( const ComponentManager::S
                                                        Interface::GridMap*               map ) const {
 
 
-   const std::string& speciesName = ComponentManager::getInstance ().GetSpeciesName ( name );
+   const std::string& speciesName = ComponentManager::getInstance ().getSpeciesName ( name );
 
    std::vector<Genex6::SourceRockNode*>::const_iterator itNode;
 
@@ -166,7 +165,7 @@ void GeoPhysics::GeoPhysicsSourceRock::fillResultMap ( const ComponentManager::S
 
 #if 0
          if ( print ) {
-            cout << " filled result map:  " << ComponentManager::getInstance ().GetSpeciesName ( name ) << "  " << result.GetExpelledMass () << endl;
+            cout << " filled result map:  " << ComponentManager::getInstance ().getSpeciesName ( name ) << "  " << result.GetExpelledMass () << endl;
          }
 #endif
 

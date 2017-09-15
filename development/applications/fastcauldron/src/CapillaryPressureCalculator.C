@@ -86,7 +86,7 @@ bool CapillaryPressureVolumeCalculator::initialise ( OutputPropertyMap::Property
    return true;
 }
 
-bool CapillaryPressureVolumeCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& properties, 
+bool CapillaryPressureVolumeCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& , 
                                                      OutputPropertyMap::PropertyValueList&  propertyValues )
 {
   
@@ -97,20 +97,15 @@ bool CapillaryPressureVolumeCalculator::operator ()( const OutputPropertyMap::Ou
       return true;
    }
 
-   unsigned int i;
-   unsigned int j;
-   unsigned int k;
-   
+   unsigned int i = 0;
+   unsigned int j = 0;
+   unsigned int k = 0;
 
    Interface::GridMap * liquidWaterCapPressureMap;
    Interface::GridMap * vapourWaterCapPressureMap;
 
    const ElementVolumeGrid& grid = m_formation->getVolumeGrid ( Saturation::NumberOfPhases );
 
-   double hcVapourDensity = 0.0;
-   double hcLiquidDensity = 0.0;
-   double temperature = 0.0;
-   double pressure = 0.0;
    double undefinedValue; 
    double lwcp;
    double vwcp;
@@ -136,9 +131,7 @@ bool CapillaryPressureVolumeCalculator::operator ()( const OutputPropertyMap::Ou
    Saturation saturation;
    saturations.setVector ( grid, m_formation->getPhaseSaturationVec (), INSERT_VALUES );
 
-   PVTPhaseComponents phaseComposition;
    PVTComponents      molarMasses;
-   PVTComponents      massConcentration;
    PVTPhaseValues     phaseDensities;
    PVTPhaseValues     phaseViscosities;
 
@@ -156,8 +149,6 @@ bool CapillaryPressureVolumeCalculator::operator ()( const OutputPropertyMap::Ou
    if ( not maxVesIsActive ) {
       m_formation->Current_Properties.Activate_Property ( Basin_Modelling::Max_VES, INSERT_VALUES, true );
    }
-
-   const double ConcentrationLowerLimit = 1.0e-20;
    
    for ( i = grid.firstI (); i <= grid.lastI (); ++i ) {
 
@@ -185,7 +176,7 @@ bool CapillaryPressureVolumeCalculator::operator ()( const OutputPropertyMap::Ou
                   } else {
                      entryPressure = BrooksCorey::Pe;
                   }
-					   
+                  
                   lwcp = element.getLithology()->capillaryPressure ( Saturation::LIQUID,
                                                                      saturation,
                                                                      entryPressure );

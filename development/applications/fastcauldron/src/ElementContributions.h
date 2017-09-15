@@ -89,18 +89,6 @@ double interpolateProperty ( const LayerElement&                         element
                              const double                                y = 0.0,
                              const double                                z = 0.0 );
 
-
-/// \brief Evalaute one of the "fundamental properties" defined in the element.
-///
-/// The default is to evluate the property at the centre of the element.
-// A temporary function during development.
-FiniteElementMethod::ThreeVector computeGradientProperty ( const LayerElement&                         element,
-                                                           const FiniteElementMethod::Matrix3x3&       jacobian,
-                                                           const Basin_Modelling::Fundamental_Property property,
-                                                           const double                                x = 0.0,
-                                                           const double                                y = 0.0,
-                                                           const double                                z = 0.0 );
-
 /// \brief Compute the volume of the element.
 double volumeOfElement ( const LayerElement&                               element,
                          const FiniteElementMethod::ElementGeometryMatrix& geometryMatrix,

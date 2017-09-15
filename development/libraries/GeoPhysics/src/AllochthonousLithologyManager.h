@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "database.h"
+#include "ProjectFileHandler.h"
 #include "cauldronschemafuncs.h"
 
 #include "IntervalInterpolator.h"
@@ -67,8 +68,7 @@ namespace GeoPhysics {
       virtual ~AllochthonousLithologyManager ();
 
       /// Initialise the allochthonous lithology manager, returns false if an error has occurred.
-      bool initialiseInterpolators ( database::Database* projectDatabase,
-                                     const std::string&  directoryName );
+      bool initialiseInterpolators ( const std::string&  directoryName );
 
       void setGridDescription ( const CauldronGridDescription& newDescription );
 
@@ -76,8 +76,8 @@ namespace GeoPhysics {
       void initialiseLayers ();
 
       /// Once all the initialisation has be performed then the data-structure must be frozen.
-      /// 
-      /// For each formation, the interval interpolators are sorted and the time steps 
+      ///
+      /// For each formation, the interval interpolators are sorted and the time steps
       /// for the lithology switch is set.
       void freeze ( const int optimisationLevel );
 
@@ -88,11 +88,10 @@ namespace GeoPhysics {
 
 
       /// \brief Determine whether or not allochthonous modelling is required.
-      bool allochthonousModellingRequired ( database::Database* projectDatabase ) const;
+      bool allochthonousModellingRequired () const;
 
       /// \brief Determine whether or not allochthonous modelling is required for the formation.
-      bool allochthonousModellingRequired ( database::Database* projectDatabase,
-                                            const std::string&  formationName ) const;
+      bool allochthonousModellingRequired ( const std::string& formationName ) const;
 
       /// \brief Read in the interpolation data from the file.
       bool initialiseInterpolator ( hid_t&            fileId,

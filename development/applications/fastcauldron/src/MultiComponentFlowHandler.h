@@ -348,7 +348,7 @@ private :
 
 
 inline bool MultiComponentFlowHandler::solveFlowEquations () const {
-   return m_solveFlowEquations;
+   return m_solveFlowEquations == PETSC_TRUE ? true : false;
 }
 
 inline int MultiComponentFlowHandler::getDebugLevel () const {
@@ -360,7 +360,7 @@ inline double MultiComponentFlowHandler::getMaximumTimeStepSize () const {
 }
 
 inline bool MultiComponentFlowHandler::applyOtgc () const {
-   return m_applyOtgc;
+   return m_applyOtgc == PETSC_TRUE ? true : false;
 }
 
 inline double MultiComponentFlowHandler::getMaximumPermeability () const {
@@ -372,11 +372,11 @@ inline double MultiComponentFlowHandler::getMaximumPermeability () const {
 // }
 
 inline bool MultiComponentFlowHandler::useUniformTimeStepping () const {
-   return m_uniformTimeStepping;
+   return m_uniformTimeStepping == PETSC_TRUE ? true : false;
 }
 
 inline bool MultiComponentFlowHandler::useAdaptiveTimeStepping () const {
-   return not m_uniformTimeStepping;
+   return not m_uniformTimeStepping == PETSC_TRUE ? true : false;
 }
 
 inline double MultiComponentFlowHandler::adaptiveTimeStepFraction () const {

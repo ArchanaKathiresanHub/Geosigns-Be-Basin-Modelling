@@ -227,7 +227,7 @@ namespace GeoPhysics {
       /// brief Value saved to simplify the computation of permeability, \f$ w_1^{P_v} \f$
       double                               m_percentPowerNormal;
 
-      /// brief Value saved to simplify the computation of permeability, \f$ \frac{\w_3}{\w_1} \f$
+      /// brief Value saved to simplify the computation of permeability, \f$ \frac{w_3}{w_1} \f$
       double                               m_percentRatio3;
 
       /// brief Value saved to simplify the computation of permeability, \f$ \frac{\alpha_2}{\alpha_1} \f$

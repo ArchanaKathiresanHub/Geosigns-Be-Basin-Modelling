@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 #ifndef CONSTANTS_FASTCAULDRON_H
 #define CONSTANTS_FASTCAULDRON_H
@@ -158,7 +158,7 @@ constexpr double DefaultDarcyTimeStepSmoothingFactor = 1.5;
 constexpr int DefaultNumberOfMinorSnapshots = 5;
 
 /// \var MaximumInitialElementDeposition
-/// The maximum portion of an element that can be deposited at the start of 
+/// The maximum portion of an element that can be deposited at the start of
 /// layer deposition. Only used in the overpressure and coupled calculation.
 constexpr double MaximumInitialElementDeposition = 0.5;
 
@@ -177,7 +177,7 @@ constexpr double DefaultElementHiatusFraction = 0.3333333333333;
 
 /// \var Element_Scaling
 /// The scaling factor here is used to scale the element jacobian and residual.
-/// It is necessary when we have very small permeabilities to stop PETSc from 
+/// It is necessary when we have very small permeabilities to stop PETSc from
 /// complaining or to force a linear solve in the PETSc.
 constexpr double Element_Scaling = 1.0e10;
 
@@ -196,7 +196,7 @@ constexpr int NumberOfOptimisationLevels = 5;
 /// @{
 
 /// \var DecompactionRunStatusStr
-/// Values of MCStatusOfLastRun (RunStatusIoTbl) indicating 
+/// Values of MCStatusOfLastRun (RunStatusIoTbl) indicating
 /// last calculation mode.
 ///
 /// Hydrostatic decompaction
@@ -301,7 +301,7 @@ enum CalculationMode
   HYDROSTATIC_HIGH_RES_DECOMPACTION_MODE,
 
   /// Temperature assuming a hydrostatic pore-pressure
-  HYDROSTATIC_TEMPERATURE_MODE, 
+  HYDROSTATIC_TEMPERATURE_MODE,
 
   /// Pressure calculation assuming a linear temperature gradient
   OVERPRESSURE_MODE,
@@ -309,7 +309,7 @@ enum CalculationMode
   /// Temperature calculation using the data from a previous overpressure calculation, i.e. loosely-coupled
   OVERPRESSURED_TEMPERATURE_MODE,
 
-  /// High-resolution decompaction using the results from a previous 
+  /// High-resolution decompaction using the results from a previous
   ///    loosely-coupled or fully-coupled  calculation
   COUPLED_HIGH_RES_DECOMPACTION_MODE,
 
@@ -392,4 +392,3 @@ typedef GeoPhysics::Local3DArray<int> LocalIntegerArray3D;
 typedef std::vector<int> IntegerArray;
 
 #endif // CONSTANTS_FASTCAULDRON_H
- 

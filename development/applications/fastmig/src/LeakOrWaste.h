@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2016 Shell International Exploration & Production.
+// Copyright (C) 2016-2017 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -36,12 +36,11 @@ namespace migration
 
       public:
 
-         LeakOrWaste (const double& fluidDensity, const double& sealFluidDensity,
-            const double& maxSealPressure, const double& wasteLevel,
-            const MonotonicIncreasingPiecewiseLinearInvertableFunction* levelToVolume);
+         LeakOrWaste (const double fluidDensity, const double sealFluidDensity, const double overPressureContrast, const double crestColumnThickness,
+                      const double maxSealPressure, const double wasteLevel, const MonotonicIncreasingPiecewiseLinearInvertableFunction* levelToVolume);
 
          void distribute (const double& fluidVolume, double& fluidVolumeLeaked,
-            double& fluidVolumeWasted) const;
+                          double& fluidVolumeWasted) const;
 
          const double& maxLevel () const
          {

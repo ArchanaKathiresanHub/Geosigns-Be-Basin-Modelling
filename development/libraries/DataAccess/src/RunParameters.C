@@ -118,12 +118,8 @@ const std::string& RunParameters::getOptimisationLevelStr  () const {
    return database::getOptimisation_Level ( m_record );
 }
 
-bool RunParameters::getConstrainVES () const {
-   return database::getConstrain_VES ( m_record ) == 1;
-}
-
-bool RunParameters::getVerticalSecondaryMigration () const {
-   return database::getVerticalSecondaryMigration ( m_record ) != 0;
+bool RunParameters::getAdvancedMigration () const {
+   return database::getAdvancedMigration ( m_record ) != 0;
 }
 
 bool RunParameters::getHydrodynamicCapillaryPressure () const {

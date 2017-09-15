@@ -505,7 +505,7 @@ int main( int argc, char ** argv )
       for ( snapshotIter = mySnapshots->begin(); snapshotIter != mySnapshots->end(); ++snapshotIter )
       {
          if ( snapshotIter != mySnapshots->begin() ) cout << ",";
-         int oldPrecision = cout.precision();
+         std::streamsize oldPrecision = cout.precision();
          cout << setprecision(9);
          cout << ( *snapshotIter )->getTime();
          cout <<setprecision(oldPrecision);
@@ -884,7 +884,7 @@ void outputSnapshotFormationData( ostream & outputStream, DoublePair & coordinat
    }
 
    outputStream << coordinatePair.first << "," << coordinatePair.second << "," << i << "," << j << ",";
-   int oldPrecision = outputStream.precision(); 
+   std::streamsize oldPrecision = outputStream.precision();
    outputStream << setprecision(9) << snapshot->getTime() << setprecision(oldPrecision);
    outputStream << "," << formation->getName();
    outputStream << "," << formationSurfaceName;

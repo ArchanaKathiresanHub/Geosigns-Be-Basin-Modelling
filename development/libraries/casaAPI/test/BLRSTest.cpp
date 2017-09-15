@@ -70,8 +70,7 @@ TEST_F( BLRSTest, VaryTopCrustHeatProductionTest )
    ASSERT_EQ( ErrorHandler::NoError, sc.defineBaseCase( m_testProject ) );
 
    // add the new variable parameter TopCrustHeatProduction to the scenario analysis by using one of the BLRS API function
-   vector<double> dblRng( 1, 0.2 );
-   dblRng.push_back( 4.0 );
+   vector<double> dblRng = { 0.2, 4.0 };
    ASSERT_EQ( ErrorHandler::NoError, VaryTopCrustHeatProduction( sc, 0, dblRng, vector<string>(), VarPrmContinuous::Block ) );
 
    // get varspace 
@@ -130,11 +129,10 @@ TEST_F( BLRSTest, VarySourceRockTOCSimpleTest )
 TEST_F( BLRSTest, VarySourceRockTOCDepOnSrourceRockTypeTest )
 {
    // constants for the test
-   std::vector<std::string> srList;
-
-   srList.push_back( "Type_I_CenoMesozoic_Lacustrine_kin" );
-   srList.push_back( "Type_II_Mesozoic_MarineShale_kin"   );
-   srList.push_back( "Type_III_II_Mesozoic_HumicCoal_lit" );
+   std::vector<std::string> srList = { "Type_I_CenoMesozoic_Lacustrine_kin"
+                                     , "Type_II_Mesozoic_MarineShale_kin"
+                                     , "Type_III_II_Mesozoic_HumicCoal_lit"
+                                     };
    
    std::vector<double> srWeights( 3, 0.33 );
 
@@ -201,10 +199,7 @@ TEST_F( BLRSTest, VarySourceRockTOCDepOnSrourceRockTypeTest )
       ASSERT_TRUE( srList[i] == srtPrm->sourceRockTypeName() );
 
       // check results
-      std::vector<double> inVec;
-      inVec.push_back( -1.0 );
-      inVec.push_back(  0.0 );
-      inVec.push_back(  1.0 );
+      std::vector<double> inVec = { -1.0, 0.0, 1.0 };
       std::vector<double>::const_iterator it = inVec.begin();
 
       for ( size_t j = 0; j < 3; ++j )
@@ -253,11 +248,10 @@ TEST_F( BLRSTest, VarySourceRockHISimpleTest )
 TEST_F( BLRSTest, VarySourceRockHIDepOnSrourceRockTypeTest )
 {
    // constants for the test
-   std::vector<std::string> srList;
-
-   srList.push_back( "Type_I_CenoMesozoic_Lacustrine_kin" );
-   srList.push_back( "Type_II_Mesozoic_MarineShale_kin"   );
-   srList.push_back( "Type_III_II_Mesozoic_HumicCoal_lit" );
+   std::vector<std::string> srList { "Type_I_CenoMesozoic_Lacustrine_kin"
+                                   , "Type_II_Mesozoic_MarineShale_kin"
+                                   , "Type_III_II_Mesozoic_HumicCoal_lit"
+                                   };
    
    std::vector<double> srWeights( 3, 0.33 );
 
@@ -320,10 +314,7 @@ TEST_F( BLRSTest, VarySourceRockHIDepOnSrourceRockTypeTest )
       ASSERT_TRUE( srList[i] == srtPrm->sourceRockTypeName() );
 
       // check results
-      std::vector<double> inVec;
-      inVec.push_back( -1.0 );
-      inVec.push_back(  0.0 );
-      inVec.push_back(  1.0 );
+      std::vector<double> inVec = { -1.0, 0.0, 1.0 };
       std::vector<double>::const_iterator it = inVec.begin();
 
       for ( size_t j = 0; j < 3; ++j )
@@ -372,11 +363,10 @@ TEST_F( BLRSTest, VarySourceRockHCSimpleTest )
 TEST_F( BLRSTest, VarySourceRockHCDepOnSrourceRockTypeTest )
 {
    // constants for the test
-   std::vector<std::string> srList;
-
-   srList.push_back( "Type_I_CenoMesozoic_Lacustrine_kin" );
-   srList.push_back( "Type_II_Mesozoic_MarineShale_kin"   );
-   srList.push_back( "Type_III_II_Mesozoic_HumicCoal_lit" );
+   std::vector<std::string> srList = { "Type_I_CenoMesozoic_Lacustrine_kin"
+                                     , "Type_II_Mesozoic_MarineShale_kin"
+                                     , "Type_III_II_Mesozoic_HumicCoal_lit"
+                                     };
    
    std::vector<double> srWeights( 3, 0.33 );
 
@@ -439,10 +429,7 @@ TEST_F( BLRSTest, VarySourceRockHCDepOnSrourceRockTypeTest )
       ASSERT_TRUE( srList[i] == srtPrm->sourceRockTypeName() );
 
       // check results
-      std::vector<double> inVec;
-      inVec.push_back( -1.0 );
-      inVec.push_back(  0.0 );
-      inVec.push_back(  1.0 );
+      std::vector<double> inVec = { -1.0, 0.0, 1.0 };
       std::vector<double>::const_iterator it = inVec.begin();
 
       for ( size_t j = 0; j < 3; ++j )
@@ -491,11 +478,10 @@ TEST_F( BLRSTest, VarySourceRockPreasphaltActEnergySimpleTest )
 TEST_F( BLRSTest, VarySourceRockPreAsphaltActEnergyDepOnSrourceRockTypeTest )
 {
    // constants for the test
-   std::vector<std::string> srList;
-
-   srList.push_back( "Type_I_CenoMesozoic_Lacustrine_kin" );
-   srList.push_back( "Type_II_Mesozoic_MarineShale_kin"   );
-   srList.push_back( "Type_III_II_Mesozoic_HumicCoal_lit" );
+   std::vector<std::string> srList = { "Type_I_CenoMesozoic_Lacustrine_kin"
+                                     , "Type_II_Mesozoic_MarineShale_kin"
+                                     , "Type_III_II_Mesozoic_HumicCoal_lit"
+                                     };
    
    std::vector<double> srWeights( 3, 0.33 );
 
@@ -558,10 +544,7 @@ TEST_F( BLRSTest, VarySourceRockPreAsphaltActEnergyDepOnSrourceRockTypeTest )
       ASSERT_TRUE( srList[i] == srtPrm->sourceRockTypeName() );
 
       // check results
-      std::vector<double> inVec;
-      inVec.push_back( -1.0 );
-      inVec.push_back(  0.0 );
-      inVec.push_back(  1.0 );
+      std::vector<double> inVec = { -1.0, 0.0, 1.0 };
       std::vector<double>::const_iterator it = inVec.begin();
 
       for ( size_t j = 0; j < 3; ++j )
@@ -579,19 +562,16 @@ TEST_F( BLRSTest, VarySourceRockPreAsphaltActEnergyDepOnSrourceRockTypeTest )
 // Test how ones can add variable categorical parameter source rock type to scenario analysis
 TEST_F( BLRSTest, VarySourceRockTypeTest )
 {
-   std::vector<std::string> srList;
-
-   srList.push_back( "Type_I_CenoMesozoic_Lacustrine_kin" );
-   srList.push_back( "Type_II_Mesozoic_MarineShale_kin"   );
-   srList.push_back( "Type_III_II_Mesozoic_HumicCoal_lit" );
+   std::vector<std::string> srList = { "Type_I_CenoMesozoic_Lacustrine_kin"
+                                     , "Type_II_Mesozoic_MarineShale_kin"
+                                     , "Type_III_II_Mesozoic_HumicCoal_lit"
+                                     };
    
    std::vector<double> srWeights( 3, 0.33 );
 
    VarPrmContinuous::PDF pdft = VarPrmContinuous::Block;
    const char * layerName = "Lower Jurassic";
-   vector<double> tocRng( 2, 0.0 );
-   tocRng[0] = 1.0;
-   tocRng[1] = 15.0;
+   vector<double> tocRng = { 1.0, 15.0 };
 
    // check order of variable parameters for Source Rock Type. User can't add any source rock variable parameter before 
    // source rock type categorical parameter
@@ -772,7 +752,7 @@ TEST_F( BLRSTest, VarySurfacePorosity )
    for ( size_t i = 0; i < layLst.size(); ++i )
    {
       mbapi::StratigraphyManager::LayerID lid = strMgr.layerID( layLst[i].first );
-      ASSERT_NE( UndefinedIDValue, lid );
+      ASSERT_FALSE( IsValueUndefined( lid ) );
 
       std::vector<std::string>      lithoList;
       std::vector<double>           lithoPercent;
@@ -904,7 +884,7 @@ TEST_F( BLRSTest, VaryCompactionCoefficient )
    for ( size_t i = 0; i < layLst.size( ); ++i )
    {
       mbapi::StratigraphyManager::LayerID lid = strMgr.layerID( layLst[i].first );
-      ASSERT_NE( UndefinedIDValue, lid );
+      ASSERT_FALSE( IsValueUndefined( lid ) );
 
       std::vector<std::string>      lithoList;
       std::vector<double>           lithoPercent;
@@ -1025,7 +1005,9 @@ TEST_F( BLRSTest, VaryPorosityExponentialModelParameters )
    // the first one - try to give wrong porosity model name
    ASSERT_EQ( ErrorHandler::OutOfRangeValue, casa::BusinessLogicRulesSet::VaryPorosityModelParameters( sc, 0, "Permian", sandLithology 
                , "Eponential"
-               , 30.0, 60.0, 2.0, 4.0, UndefinedDoubleValue, UndefinedDoubleValue, UndefinedDoubleValue, UndefinedDoubleValue, VarPrmContinuous::Block 
+               , 30.0, 60.0, 2.0, 4.0, 
+               Utilities::Numerical::IbsNoDataValue, Utilities::Numerical::IbsNoDataValue, 
+               Utilities::Numerical::IbsNoDataValue, Utilities::Numerical::IbsNoDataValue, VarPrmContinuous::Block 
                ) );
 
    // set the parameter
@@ -1037,8 +1019,8 @@ TEST_F( BLRSTest, VaryPorosityExponentialModelParameters )
             , "Exponential"
             , 30.0, 60.0
             , 2.0, 4.0
-            , UndefinedDoubleValue, UndefinedDoubleValue
-            , UndefinedDoubleValue, UndefinedDoubleValue
+            , Utilities::Numerical::IbsNoDataValue, Utilities::Numerical::IbsNoDataValue
+            , Utilities::Numerical::IbsNoDataValue, Utilities::Numerical::IbsNoDataValue
             , VarPrmContinuous::Block )
             );
 
@@ -1076,7 +1058,7 @@ TEST_F( BLRSTest, VaryPorosityExponentialModelParameters )
    mbapi::StratigraphyManager & strMgr = mdl.stratigraphyManager();
 
    mbapi::StratigraphyManager::LayerID lid = strMgr.layerID( "Permian" );
-   ASSERT_NE( UndefinedIDValue, lid );
+   ASSERT_FALSE( IsValueUndefined( lid ) );
 
    std::vector<std::string>      lithoList;
    std::vector<double>           lithoPercent;
@@ -1088,7 +1070,7 @@ TEST_F( BLRSTest, VaryPorosityExponentialModelParameters )
    ASSERT_EQ( lithoList[0].find( sandLithology ), 0U );
 
    mbapi::LithologyManager & lthMgr = mdl.lithologyManager();
-   ASSERT_NE( UndefinedIDValue, lthMgr.findID( lithoList[0] ) );
+   ASSERT_FALSE( IsValueUndefined( lthMgr.findID( lithoList[0] ) ) );
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -1101,7 +1083,9 @@ TEST_F( BLRSTest, VaryPorositySoilMechanicsModelParameters )
    // the first one - try to define both parameters in inconsistent way
    ASSERT_EQ( ErrorHandler::OutOfRangeValue, casa::BusinessLogicRulesSet::VaryPorosityModelParameters( sc, 0, NULL, "Std. Sandstone"
                , "Soil_Mechanics"
-               , 30.0, 60.0, 2.0, 4.0, UndefinedDoubleValue, UndefinedDoubleValue, UndefinedDoubleValue, UndefinedDoubleValue, VarPrmContinuous::Block 
+               , 30.0, 60.0, 2.0, 4.0
+               , Utilities::Numerical::IbsNoDataValue, Utilities::Numerical::IbsNoDataValue
+               , Utilities::Numerical::IbsNoDataValue, Utilities::Numerical::IbsNoDataValue, VarPrmContinuous::Block 
                ) );
 
    // set the parameter
@@ -1112,9 +1096,9 @@ TEST_F( BLRSTest, VaryPorositySoilMechanicsModelParameters )
             , "Std. Sandstone"
             , "Soil_Mechanics"
             , 30.0, 60.0
-            , UndefinedDoubleValue, UndefinedDoubleValue
-            , UndefinedDoubleValue, UndefinedDoubleValue
-            , UndefinedDoubleValue, UndefinedDoubleValue
+            , Utilities::Numerical::IbsNoDataValue, Utilities::Numerical::IbsNoDataValue
+            , Utilities::Numerical::IbsNoDataValue, Utilities::Numerical::IbsNoDataValue
+            , Utilities::Numerical::IbsNoDataValue, Utilities::Numerical::IbsNoDataValue
             , VarPrmContinuous::Block )
             );
 
@@ -1344,8 +1328,8 @@ TEST_F( BLRSTest, VaryPermeabilitySandstoneModelParameters )
    minMdlPrms[ PrmPermeabilityModel::SensitivityCoeff ] = 1.0; 
    maxMdlPrms[ PrmPermeabilityModel::SensitivityCoeff ] = 2.0; 
 
-   minMdlPrms[ PrmPermeabilityModel::RecoverCoeff ] = UndefinedDoubleValue; 
-   maxMdlPrms[ PrmPermeabilityModel::RecoverCoeff ] = UndefinedDoubleValue; 
+   minMdlPrms[ PrmPermeabilityModel::RecoverCoeff ] = Utilities::Numerical::IbsNoDataValue; 
+   maxMdlPrms[ PrmPermeabilityModel::RecoverCoeff ] = Utilities::Numerical::IbsNoDataValue; 
 
    ASSERT_EQ( ErrorHandler::UndefinedValue, casa::BusinessLogicRulesSet::VaryPermeabilityModelParameters( sc
                                                                                                         , 0

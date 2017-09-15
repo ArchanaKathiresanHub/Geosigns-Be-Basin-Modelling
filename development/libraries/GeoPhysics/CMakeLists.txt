@@ -20,6 +20,7 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 #  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 endif()
 
+#@TODO_Check
 set(all_headers
       src/AllochthonousLithologyInterpolator.h
       src/AllochthonousLithologyManager.h
@@ -188,10 +189,11 @@ generate_dox( GeoPhysics.cfg )
 ### Unit Tests
 
 # BrineConductivity unit test not available since reading the FltThCondIoTbl from the project file
-#add_gtest( NAME GeoPhysics::BrineConductivity
-#      SOURCES test/BrineConductivity.C src/BrinePhases.C
-#      LIBRARIES GeoPhysics SerialDataAccess
-#)
+add_gtest( NAME GeoPhysics::BrineConductivity
+      SOURCES test/BrineConductivity.C src/BrinePhases.C
+      LIBRARIES GeoPhysics DataAccess SerialDataAccess 
+      ENV_VARS EOSPACKDIR=${CFGFLS}/eospack GENEX5DIR=${CFGFLS}/genex50 CTCDIR=${CFGFLS}/
+)
 
 add_gtest( NAME GeoPhysics::BrineDensity
       SOURCES test/BrineDensity.C src/BrinePhases.C
@@ -204,7 +206,7 @@ add_gtest( NAME GeoPhysics::BrineVelocity
 )
 
 add_gtest( NAME GeoPhysics::BrineViscosity
-      SOURCES test/BrineViscosity.C src/BrinePhases.C
+      SOURCES test/BrineViscosity.C
       LIBRARIES GeoPhysics SerialDataAccess
 )
 
@@ -228,9 +230,20 @@ add_gtest( NAME GeoPhysics::ExponentialPorosity
       LIBRARIES GeoPhysics SerialDataAccess
 )
 
+add_gtest( NAME GeoPhysics::LambdaMixer
+      SOURCES test/LambdaMixer.cpp
+      LIBRARIES GeoPhysics SerialDataAccess
+)
+
 configure_file(
    ${CMAKE_CURRENT_SOURCE_DIR}/test/MixingPermeabilityProject.project3d
    MixingPermeabilityProject.project3d
+   COPYONLY
+)
+
+configure_file(
+   ${CMAKE_CURRENT_SOURCE_DIR}/test/MixingPermeabilityProject.project3d
+   ConductivityProject.project3d
    COPYONLY
 )
 

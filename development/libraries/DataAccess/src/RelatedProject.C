@@ -35,52 +35,52 @@ RelatedProject::RelatedProject (ProjectHandle * projectHandle, Record * record) 
       filePathName << fileName;
       relatedProjectDatabase = Database::CreateFromFile ( filePathName.path(), *projSchema );
     
-      if ( relatedProjectDatabase != 0 )
+      if ( relatedProjectDatabase != nullptr )
       {
          database::Table * tbl = relatedProjectDatabase->getTable ( "WellLocIoTbl" );
 
-         assert ( tbl != 0 );
+         assert ( tbl != nullptr );
 
          database::Record *relatedProjectRecord = tbl->getRecord ( 0 );
-	
-         assert (relatedProjectRecord != 0);
-	
+   
+         assert (relatedProjectRecord != nullptr);
+   
          m_eastPosition  = database::getXCoord ( relatedProjectRecord );
          m_northPosition = database::getYCoord ( relatedProjectRecord );
          
 
          tbl = relatedProjectDatabase->getTable ( "StratIoTbl" );
-         assert ( tbl != 0 );
+         assert ( tbl != nullptr );
 
-	 database::Record * stratRecord = tbl->getRecord((int) tbl->size() - 1);
-	 m_bottomOfSediment = database::getDepth (stratRecord);
+         database::Record * stratRecord = tbl->getRecord((int) tbl->size() - 1);
+         m_bottomOfSediment = database::getDepth (stratRecord);
 
-	 m_topOfSediment = -9999;
+         m_topOfSediment = -9999;
 
-	 double overburdenThickness = 0;
-	 for (int i = 0; i < tbl->size () && m_topOfSediment == -9999; ++i)
-	 {
-	    double depth;
+         double overburdenThickness = 0;
+         for (int i = 0; i < (int)tbl->size () && m_topOfSediment == -9999; ++i)
+         {
+            double depth;
 
-	    stratRecord = tbl->getRecord(i);
-	    if ((depth = database::getDepth (stratRecord)) == -9999)
-	    {
-	       double thickness = database::getThickness (stratRecord);
-	       if (thickness != -9999)
-	       {
-		  overburdenThickness += thickness;
-	       }
-	    }
-	    else
-	    {
-	       m_topOfSediment = depth - overburdenThickness;
-	    }
-	 }
+            stratRecord = tbl->getRecord(i);
+            if ((depth = database::getDepth (stratRecord)) == -9999)
+            {
+               double thickness = database::getThickness (stratRecord);
+               if (thickness != -9999)
+               {
+            overburdenThickness += thickness;
+               }
+            }
+            else
+            {
+               m_topOfSediment = depth - overburdenThickness;
+            }
+         }
 
          delete relatedProjectDatabase;
       }
 
-      if ( projSchema != 0 ) {
+      if ( projSchema != nullptr ) {
          delete projSchema;
       }
 

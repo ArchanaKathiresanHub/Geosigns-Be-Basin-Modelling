@@ -35,7 +35,7 @@ Reservoir::~Reservoir (void)
 
 const string Reservoir::s_MapAttributeNames[] =
 {
-   "DepthOffset", "Thickness", "NetToGross", "LayerFrequency"
+   "NetToGross"
 };
 
 const string & Reservoir::getName (void) const
@@ -102,12 +102,27 @@ const Formation * Reservoir::getFormation (void) const
    return m_formation;
 }
 
+bool Reservoir::isDiffusionOn (void) const
+{
+   return database::getDiffusionInd (m_record) == 1;
+}
+
+bool Reservoir::isBiodegradationOn (void) const
+{
+   return database::getBioDegradInd (m_record) == 1;
+}
+
+bool Reservoir::isOilToGasCrackingOn (void) const
+{
+   return database::getOilToGasCrackingInd (m_record) == 1;
+}
+
 double Reservoir::getTrapCapacity (void) const
 {
    return database::getTrapCapacity (m_record);
 }
 
-bool Reservoir::isBlockingEnabled (void) const
+bool Reservoir::isBlockingOn (void) const
 {
    return database::getBlockingInd (m_record) == 1;
 }
@@ -122,11 +137,6 @@ double Reservoir::getBlockingPorosity (void) const
    return database::getBlockingPorosity (m_record);
 }
 
-bool Reservoir::isDiffusionOn (void) const
-{
-   return database::getDiffusionInd (m_record) == 1;
-}
-
 double Reservoir::getMinOilColumnHeight (void) const
 {
    return database::getMinOilColumnHeight (m_record);
@@ -135,16 +145,6 @@ double Reservoir::getMinOilColumnHeight (void) const
 double Reservoir::getMinGasColumnHeight (void) const
 {
    return database::getMinGasColumnHeight (m_record);
-}
-
-bool Reservoir::isBioDegradationOn (void) const
-{
-   return database::getBioDegradInd (m_record) == 1;
-}
-
-bool Reservoir::isOilToGasCrackingOn (void) const
-{
-   return database::getOilToGasCrackingInd (m_record) == 1;
 }
 
 /// Return the (GridMap) value of one of this Reservoir's attributes
@@ -178,8 +178,8 @@ GridMap * Reservoir::loadMap (ReservoirMapAttributeId attributeId) const
       if ((value = m_record->getValue<double>(s_MapAttributeNames[attributeIndex])) != RecordValueUndefined)
       {
          //const Grid *grid = m_projectHandle->getInputGrid ();
-	 const Grid * grid = m_projectHandle->getActivityOutputGrid();
-	 if (!grid) grid = (Grid *) m_projectHandle->getInputGrid ();
+         const Grid * grid = m_projectHandle->getActivityOutputGrid();
+         if (!grid) grid = (Grid *) m_projectHandle->getInputGrid ();
 
          gridMap = m_projectHandle->getFactory ()->produceGridMap (this, attributeIndex, grid, value);
 

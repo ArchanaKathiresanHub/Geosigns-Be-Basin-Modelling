@@ -13,19 +13,35 @@
 #FILE( GLOB all_headers src/*.h )
 #FILE( GLOB all_srcs src/*.C)
 set (all_headers,
-   src/PropertiesCalculator.h)
+   src/PropertiesCalculator.h
+   src/Utilities.h 
+   src/ExportToHDF.h )
 
 set(all_srcs
    src/PropertiesCalculator.C
+   src/Utilities.C
+   src/ExportToHDF.cpp
    src/main.C)
 
 source_group(include FILES ${all_headers})
 
 source_group(source FILES ${all_srcs})
 
-add_executable(fastproperties
+set( APP_NAME "fastproperties" )
+add_executable(${APP_NAME}
    ${all_srcs}
    ${all_headers}
+)
+
+set_target_properties( ${APP_NAME} PROPERTIES SUFFIX ".exe" )
+
+create_application_run_script( ${APP_NAME} )
+
+application_env_var( TARGET ${APP_NAME} VARS
+     "GENEX5DIR"   "$MISCDIR/genex50"
+     "GENEX6DIR"   "$MISCDIR/genex60"
+     "OTGCDIR"     "$MISCDIR/OTGC"
+     "EOSPACKDIR"  "$MISCDIR/eospack"
 )
 
 bm_include_libraries(
@@ -57,7 +73,7 @@ include_directories( SYSTEM
    ${LZ_INCLUDE_DIR}
 )
 
-target_link_libraries(fastproperties
+target_link_libraries(${APP_NAME}
    DerivedProperties
    GeoPhysics
    DataAccess
@@ -79,9 +95,24 @@ target_link_libraries(fastproperties
    ${PETSC_LIBRARIES}
 )
 
-install(TARGETS fastproperties
-   RUNTIME DESTINATION bin
+install(TARGETS ${APP_NAME}
+   RUNTIME DESTINATION bin 
 )
+
+if (UNIX)
+   # In LSF environment (on LSF cluster node, when build is running as a LSF job) mpirun is trying to use job settings
+   # to run mpi unit tests. Sometime it fails because build job requested just 1 cpu. To prevent this we can specify
+   # machines file with localhost list only
+   configure_file(test/machines machines COPYONLY )
+   set( MACHINE_FILE -machinefile machines)
+endif (UNIX)
+                                    
+add_gtest( NAME Fastproperties::ConvertProperties_MPInp2
+           SOURCES test/ConvertProperties.C src/Utilities.h
+           LIBRARIES DerivedProperties VisualizationIO DataAccess DistributedDataAccess  GeoPhysics  Parallel_Hdf5
+           MPI_SIZE 2
+           MPIRUN_PRMS ${MACHINE_FILE}
+        )
 
 generate_dox( fastproperties.cfg )
 

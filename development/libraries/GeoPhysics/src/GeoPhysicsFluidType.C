@@ -1,32 +1,30 @@
-//                                                                      
+//
 // Copyright (C) 2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
 
+#include <algorithm>
 #include "GeoPhysicsFluidType.h"
-#include "GeoPhysicsProjectHandle.h"
-
 #include "GeoPhysicalConstants.h"
 
-#include <cmath>
-#include <assert.h>
-#include <sstream>
-#include <iostream>
-#include <iomanip>
-
+#include "BrinePhases.h"
+#include "BrineConductivity.h"
+#include "BrineDensity.h"
+#include "BrineVelocity.h"
+#include "BrineViscosity.h"
+#include "IBSinterpolator2d.h"
 #include "Interface/FluidHeatCapacitySample.h"
 #include "Interface/FluidThermalConductivitySample.h"
 #include "Interface/FluidDensitySample.h"
 #include "Interface/FluidType.h"
 #include "Interface/Interface.h"
 #include "Interface/PermafrostEvent.h"
-
-#include "NumericFunctions.h"
+#include "PiecewiseInterpolator.h"
 
 // utilities library
 #include "LogHandler.h"
@@ -38,36 +36,39 @@ const double GeoPhysics::FluidType::StandardSurfaceTemperature                  
 const double GeoPhysics::FluidType::DefaultStandardDepth                            = 2000.0;
 const double GeoPhysics::FluidType::DefaultThermalConductivityCorrectionTemperature = 20.0;
 
-GeoPhysics::FluidType::FluidType (Interface::ProjectHandle * projectHandle, database::Record * record) : DataAccess::Interface::FluidType (projectHandle, record) {
+GeoPhysics::FluidType::FluidType (DataAccess::Interface::ProjectHandle * projectHandle, database::Record * record) :
+   DataAccess::Interface::FluidType (projectHandle, record),
+   m_heatCapacitytbl( new ibs::Interpolator2d ),
+   m_seismicVelocityCalculationModel( getSeismicVelocityCalculationModel() ),
+   m_densityCalculationModel( fluidDensityModel() ),
+   m_densityVal( Interface::FluidType::density() ),
+   m_salinity( salinity() ),
+   m_seismicVelocityVal( getConstantSeismicVelocity() ),
+   m_hasPermafrost( projectHandle->getPermafrost() && (projectHandle->getPermafrostData() != nullptr) ),
+   m_pressureTerm( (m_hasPermafrost && projectHandle->getPermafrostData()->getPressureTerm()) ? 0.073 : 0.0 ),
+   m_salinityTerm( (m_hasPermafrost && projectHandle->getPermafrostData()->getSalinityTerm()) ? 0.064 : 0.0 ),
+   m_conductivity( new GeoPhysics::Brine::Conductivity() ),
+   m_density( new GeoPhysics::Brine::Density() ),
+   m_velocity( new GeoPhysics::Brine::Velocity() ),
+   m_viscosity( new GeoPhysics::Brine::Viscosity(GeoPhysics::Brine::PhaseStateScalar(m_salinity).getSalinity()) ),
+   m_iceDensityInterpolator( new ibs::PiecewiseInterpolator ),
+   m_iceHeatCapacityInterpolator( new ibs::PiecewiseInterpolator ),
+   m_iceThermalConductivityInterpolator( new ibs::PiecewiseInterpolator ),
+   m_omega( 1.5 )
+{
+   const double temperatureValues [ 5 ] = { -40.0, -30.0, -20.0, -10.0, 0.0 };
+   const double densityValues [ 5 ] = { 922.8, 921.6, 920.3, 918.7, 916.7 };
+   const double heatCapacityValues [ 5 ] = { 1800.0, 1880.0, 1960.0, 2030.0, 2110.0 };
+   const double thermalConductivityValues [ 5 ] = { 2.6, 2.5, 2.4, 2.3, 2.14 };
 
-   m_densityVal = Interface::FluidType::density ();
-   m_salinity = salinity ();
-   m_densityCalculationModel = fluidDensityModel ();
-
-   m_seismicVelocityVal = getConstantSeismicVelocity ();
-   m_seismicVelocityCalculationModel = getSeismicVelocityCalculationModel ();
-
-   double term = pow (m_salinity, 0.8) - 0.17;
-
-   m_precomputedViscosityTerm1 = 0.42 * term * term + 0.045;
-   m_precomputedViscosityTerm2 = 1.65 + 91.9 * m_salinity * m_salinity * m_salinity;
-
-   m_omega = 1.5;
-
-   double temperatureValues [ 5 ] = { -40.0, -30.0, -20.0, -10.0, 0.0 };
-   double densityValues [ 5 ] = { 922.8, 921.6, 920.3, 918.7, 916.7 };
-   double heatCapacityValues [ 5 ] = { 1800.0, 1880.0, 1960.0, 2030.0, 2110.0 }; // 2960.0, 2030.0, 2110.0 };
-   double thermalConductivityValues [ 5 ] = { 2.6, 2.5, 2.4, 2.3, 2.14 };
-
-   m_iceDensityInterpolator.setInterpolation ( 5, temperatureValues, densityValues);
-   m_iceHeatCapacityInterpolator.setInterpolation ( 5, temperatureValues, heatCapacityValues);
-   m_iceThermalConductivityInterpolator.setInterpolation ( 5, temperatureValues, thermalConductivityValues);
-
-   m_pressureTerm = 0.0;
-   m_salinityTerm = 0.0;
+   m_iceDensityInterpolator->setInterpolation ( 5, temperatureValues, densityValues);
+   m_iceHeatCapacityInterpolator->setInterpolation ( 5, temperatureValues, heatCapacityValues);
+   m_iceThermalConductivityInterpolator->setInterpolation ( 5, temperatureValues, thermalConductivityValues);
 }
 
-GeoPhysics::FluidType::~FluidType () {
+GeoPhysics::FluidType::~FluidType ()
+{
+   // Intentionally left blank
 }
 
 void GeoPhysics::FluidType::loadPropertyTables ()
@@ -79,7 +80,7 @@ void GeoPhysics::FluidType::loadPropertyTables ()
    heatCapacitySamples = m_projectHandle->getFluidHeatCapacitySampleList (m_projectHandle->findFluid (getHeatCapacityFluidName ()));
 
    thermalConductivitySamples = m_projectHandle->getFluidThermalConductivitySampleList (m_projectHandle->findFluid (getThermalConductivityFluidName ()));
-   if ((*thermalConductivitySamples).size () != GeoPhysics::BrineConductivity::s_thCondArraySize)
+   if ((*thermalConductivitySamples).size () != GeoPhysics::Brine::Conductivity::s_thCondArraySize)
    {
       throw formattingexception::GeneralException() << "\nMeSsAgE ERROR  Size of FltThCondIoTbl in project file is not correct\n\n";
    }
@@ -89,50 +90,37 @@ void GeoPhysics::FluidType::loadPropertyTables ()
 
    for (heatCapacitySampleIter = heatCapacitySamples->begin ();
          heatCapacitySampleIter != heatCapacitySamples->end ();
-         ++heatCapacitySampleIter) {
-
+         ++heatCapacitySampleIter)
+   {
       const Interface::FluidHeatCapacitySample * sample = *heatCapacitySampleIter;
-
-      m_heatCapacitytbl.addPoint (sample->getTemperature (), sample->getPressure (), sample->getHeatCapacity ());
+      m_heatCapacitytbl->addPoint (sample->getTemperature (), sample->getPressure (), sample->getHeatCapacity ());
    }
 
    ibs::Interpolator2d thermalConductivitytbl;
 
    for (thermalConductivitySampleIter = thermalConductivitySamples->begin ();
          thermalConductivitySampleIter != thermalConductivitySamples->end ();
-         ++thermalConductivitySampleIter) {
-
+         ++thermalConductivitySampleIter)
+   {
       const Interface::FluidThermalConductivitySample * sample = *thermalConductivitySampleIter;
-
       thermalConductivitytbl.addPoint (sample->getTemperature (), sample->getPressure (), sample->getThermalConductivity ());
    }
 
    // Pass the table to the m_conductivity object
-   m_conductivity.setTable (thermalConductivitytbl);
-
-   // Load data for permafrost modelling
-   if(m_projectHandle->getPermafrostData() != 0) {
-      if(m_projectHandle->getPermafrostData()->getPressureTerm()) {
-         m_pressureTerm = 0.073;
-      }
-      if(m_projectHandle->getPermafrostData()->getSalinityTerm()) {
-         m_salinityTerm = 0.064;
-      }
-    }
+   m_conductivity->setTable(thermalConductivitytbl);
 
    delete heatCapacitySamples;
    delete thermalConductivitySamples;
 }
 
-double GeoPhysics::FluidType::getLiquidusTemperature (const double temperature, const double pressure) const {
-
-   double p = NumericFunctions::Maximum (0.0, pressure);
-
-   return (- m_pressureTerm * p - m_salinityTerm * salinityConcentration (temperature, p));
+double GeoPhysics::FluidType::getLiquidusTemperature( const double temperature, const double pressure ) const
+{
+   double p = std::max(0.0, pressure);
+   return (- m_pressureTerm * p - m_salinityTerm * salinityConcentration( temperature, p ) );
 }
 
-double GeoPhysics::FluidType::getSolidusTemperature (const double liquidusTemperature) const {
-
+double GeoPhysics::FluidType::getSolidusTemperature (const double liquidusTemperature) const
+{
    // Ts = Tl - omega * sqrt(- log(solidFractionForFrozen))
    // solidFractionForFrozen = 0.01; omega = 1
    //return liquidusTemperature - 2.14596603; // omega = 1
@@ -140,52 +128,71 @@ double GeoPhysics::FluidType::getSolidusTemperature (const double liquidusTemper
    return liquidusTemperature - 3.21894904; // omega = 1.5
 }
 
-double GeoPhysics::FluidType::getConstantDensity () const {
-   return m_densityVal;
+double GeoPhysics::FluidType::salinityConcentration( const double temperature, const double pressure ) const
+{
+   GeoPhysics::Brine::PhaseStateScalar phase( m_salinity );
+   phase.set( temperature, pressure );
+   GeoPhysics::Brine::PhaseStateScalar phaseZeroSal( 0.0 );
+   phaseZeroSal.set( temperature, pressure );
+   return m_density->get(phase) - m_density->get(phaseZeroSal);
 }
 
-void GeoPhysics::FluidType::setDensityToConstant () {
-   m_densityCalculationModel = CBMGenerics::waterDensity::Constant;
-}
-
-double GeoPhysics::FluidType::salinityConcentration(const double temperature, const double pressure) const {
-
-   const double p = NumericFunctions::Maximum (0.0, pressure);
-
-   return m_density.phaseChange (temperature, p, m_salinity) - m_density.phaseChange (temperature, p, 0.0);
-
-}
-
-double GeoPhysics::FluidType::density (const double temperature, const double pressure) const {
-
-   switch (m_densityCalculationModel) {
+double GeoPhysics::FluidType::density( const double temperature, const double pressure ) const
+{
+   switch (m_densityCalculationModel)
+   {
      case CBMGenerics::waterDensity::Constant   : return m_densityVal;
-     case CBMGenerics::waterDensity::Calculated : return m_density.phaseChange (temperature, pressure, m_salinity);
-     default : assert (0);
+     case CBMGenerics::waterDensity::Calculated :
+     {
+        GeoPhysics::Brine::PhaseStateScalar phase( m_salinity );
+        phase.set( temperature, pressure );
+        return m_density->get(phase);
+     }
+     default : throw formattingexception::GeneralException() << "\nMeSsAgE ERROR  " << __FUNCTION__
+                                                             << " - Density calculation model not set\n\n";
    }
 
    // Added to prevent compiler warning about missing return at end of function.
    return 0.0;
 }
 
-void GeoPhysics::FluidType::correctSimpleDensity (const double standardDepth,
-                                                   const double pressureGradient,
-                                                   const double surfaceTemperature,
-                                                   const double temperatureGradient) {
+void GeoPhysics::FluidType::density( const GeoPhysics::Brine::PhaseStateVec & phases,
+                                     ArrayDefs::Real_ptr density ) const
+{
+   switch (m_densityCalculationModel)
+   {
+     case CBMGenerics::waterDensity::Constant   :
+        std::fill_n(density, phases.getVectorSize(), m_densityVal);
+        break;
+
+     case CBMGenerics::waterDensity::Calculated :
+        m_density->get( phases, density );
+        break;
+
+     default : throw formattingexception::GeneralException() << "\nMeSsAgE ERROR  " << __FUNCTION__
+                                                             << " - Density calculation model not set\n\n";
+   }
+}
+
+void GeoPhysics::FluidType::correctSimpleDensity( const double standardDepth,
+                                                  const double pressureGradient,
+                                                  const double surfaceTemperature,
+                                                  const double temperatureGradient )
+{
    m_densityVal = getCorrectedSimpleDensity (standardDepth, pressureGradient, surfaceTemperature, temperatureGradient);
 }
 
-double GeoPhysics::FluidType::getCorrectedSimpleDensity (const double standardDepth,
-                                                          const double pressureGradient,
-                                                          const double surfaceTemperature,
-                                                          const double temperatureGradient) const {
-
+double GeoPhysics::FluidType::getCorrectedSimpleDensity( const double standardDepth,
+                                                         const double pressureGradient,
+                                                         const double surfaceTemperature,
+                                                         const double temperatureGradient ) const
+{
    double result;
 
    /// The density value should be changed only if the density model is not const.
    /// The user may have set some particular value for this.
-   if (m_densityCalculationModel != CBMGenerics::waterDensity::Constant) {
-
+   if (m_densityCalculationModel != CBMGenerics::waterDensity::Constant)
+   {
       /// The temperature gradient here is already in C/m and so does not need to be converted from C/Km.
       double temperature = surfaceTemperature + standardDepth * temperatureGradient;
 
@@ -193,7 +200,9 @@ double GeoPhysics::FluidType::getCorrectedSimpleDensity (const double standardDe
       double pressure    = standardDepth * pressureGradient * 0.001;
 
       // Reset the simple-density using the density calculator. Evaluation at the "standard" temperature and pressure.
-      result = m_density.phaseChange (temperature, pressure, m_salinity);
+      GeoPhysics::Brine::PhaseStateScalar phase( m_salinity );
+      phase.set(temperature, pressure);
+      result = m_density->get(phase);
    } else {
       result = m_densityVal;
    }
@@ -202,69 +211,158 @@ double GeoPhysics::FluidType::getCorrectedSimpleDensity (const double standardDe
 }
 
 
-double GeoPhysics::FluidType::computeDensityDerivativeWRTPressure (const double temperature,
-                                                                    const double pressure) const {
-
-   switch (m_densityCalculationModel) {
-     case CBMGenerics::waterDensity::Calculated : return m_density.computeDerivativeP (temperature, pressure, m_salinity);
+double GeoPhysics::FluidType::computeDensityDerivativeWRTPressure( const double temperature, const double pressure ) const
+{
+   switch (m_densityCalculationModel)
+   {
+     case CBMGenerics::waterDensity::Calculated :
+     {
+        GeoPhysics::Brine::PhaseStateScalar phase( m_salinity );
+        phase.set(temperature, pressure);
+        return m_density->computeDerivativeP( phase );
+     }
      case CBMGenerics::waterDensity::Constant   : return 0.0;
-     default : assert (0);
+     default : throw formattingexception::GeneralException() << "\nMeSsAgE ERROR  " << __FUNCTION__
+                                                             << " - Density calculation model not set\n\n";
    }
 
    // Added to prevent compiler warning about missing return at end of function.
    return 0.0;
 }
 
-double GeoPhysics::FluidType::computeDensityDerivativeWRTTemperature (const double temperature,
-                                                                       const double pressure) const {
 
-   switch (m_densityCalculationModel) {
-     case CBMGenerics::waterDensity::Calculated : return m_density.computeDerivativeT (temperature, pressure, m_salinity);
+void GeoPhysics::FluidType::computeDensityDerivativeWRTPressure( const GeoPhysics::Brine::PhaseStateVec & phases,
+                                                                 ArrayDefs::Real_ptr densityDerivative ) const
+{
+   switch (m_densityCalculationModel)
+   {
+     case CBMGenerics::waterDensity::Calculated :
+        m_density->computeDerivativeP( phases, densityDerivative );
+        break;
+
+     case CBMGenerics::waterDensity::Constant   :
+        std::fill_n(densityDerivative, phases.getVectorSize(), 0.0);
+        break;
+
+     default : throw formattingexception::GeneralException() << "\nMeSsAgE ERROR  " << __FUNCTION__
+                                                             << " - Density calculation model not set\n\n";
+   }
+}
+
+double GeoPhysics::FluidType::computeDensityDerivativeWRTTemperature( const double temperature, const double pressure ) const
+{
+   switch (m_densityCalculationModel)
+   {
+     case CBMGenerics::waterDensity::Calculated :
+     {
+        GeoPhysics::Brine::PhaseStateScalar phase( m_salinity );
+        phase.set( temperature, pressure );
+        return m_density->computeDerivativeT( phase );
+     }
      case CBMGenerics::waterDensity::Constant   : return 0.0;
-     default : assert (0);
+     default : throw formattingexception::GeneralException() << "\nMeSsAgE ERROR  " << __FUNCTION__
+                                                             << " - Density calculation model not set\n\n";
    }
 
    // Added to prevent compiler warning about missing return at end of function.
    return 0.0;
 }
 
-double GeoPhysics::FluidType::viscosity (const double temperature, const double pressure) const {
+void GeoPhysics::FluidType::computeDensityDerivativeWRTTemperature( const GeoPhysics::Brine::PhaseStateVec & phases,
+                                                                    ArrayDefs::Real_ptr densityDerivative ) const
+{
+   switch (m_densityCalculationModel)
+   {
+     case CBMGenerics::waterDensity::Calculated :
+        m_density->computeDerivativeT( phases, densityDerivative );
+        break;
 
-	return m_viscosity.phaseChange (temperature, pressure, m_salinity);
+     case CBMGenerics::waterDensity::Constant   :
+        std::fill_n(densityDerivative, phases.getVectorSize(), 0.0);
+        break;
+
+     default : throw formattingexception::GeneralException() << "\nMeSsAgE ERROR  " << __FUNCTION__
+                                                             << " - Density calculation model not set\n\n";
+   }
 }
 
-double GeoPhysics::FluidType::thermalConductivity (const double temperature, const double pressure) const {
+double GeoPhysics::FluidType::viscosity( const double temperature, const double pressure ) const
+{
+   GeoPhysics::Brine::PhaseStateScalar phase( m_salinity );
+   phase.set( temperature, pressure );
+   return m_viscosity->get( phase );
+}
 
-   if(m_projectHandle->getPermafrost()) {
-      const double liquidusTemperature = getLiquidusTemperature(temperature, pressure);
+void GeoPhysics::FluidType::viscosity( const GeoPhysics::Brine::PhaseStateVec & phases,
+                                       ArrayDefs::Real_ptr viscosity ) const
+{
+   return m_viscosity->get( phases, viscosity);
+}
 
-      if (temperature < liquidusTemperature) {
+double GeoPhysics::FluidType::thermalConductivity( const double temperature, const double pressure ) const
+{
+   GeoPhysics::Brine::PhaseStateScalar phaseZeroSal( 0.0 );
+   phaseZeroSal.set( temperature, pressure );
+   if( m_hasPermafrost )
+   {
+      const double liquidusTemperature = getLiquidusTemperature( temperature, pressure );
+      if (temperature < liquidusTemperature)
+      {
          const double theta = computeTheta (temperature, liquidusTemperature);
-
-         return pow (m_iceThermalConductivityInterpolator.evaluate (temperature), 1.0 - theta) *
-            pow (m_conductivity.phaseChange (temperature, pressure, 0.0), theta);
+         return std::pow (m_iceThermalConductivityInterpolator->evaluate (temperature), 1.0 - theta) *
+                std::pow (m_conductivity->get( phaseZeroSal ), theta);
       }
    }
-   return m_conductivity.phaseChange (temperature, pressure, 0.0);
+   return m_conductivity->get( phaseZeroSal );
 }
 
-double GeoPhysics::FluidType::heatCapacity (const double temperature,
-                                             const double pressure) const {
-
-   return m_heatCapacitytbl.compute (temperature, pressure, ibs::Interpolator2d::constant);
+void GeoPhysics::FluidType::thermalConductivity( const GeoPhysics::Brine::PhaseStateVec & phases,
+                                                 ArrayDefs::Real_ptr thConductivty ) const
+{
+   const int n = phases.getVectorSize();
+   const ArrayDefs::Real_ptr temperature = phases.getTemperature();
+   const ArrayDefs::Real_ptr pressure    = phases.getPressure();
+   for( int i = 0; i < n; ++i )
+   {
+      thConductivty[i] = thermalConductivity( temperature[i], pressure[i] );
+   }
 }
 
-double GeoPhysics::FluidType::densXheatCapacity (const double temperature,
-                                                  const double pressure,
-                                                  bool includePermafrost) const {
+double GeoPhysics::FluidType::heatCapacity( const double temperature, const double pressure ) const
+{
+   return m_heatCapacitytbl->compute(temperature, pressure, ibs::Interpolator2d::constant);
+}
 
-	// Calculate the volumetric heat capacity (VHC) of water. Salinity is taken into account through density.
-   const double waterVHC = m_heatCapacitytbl.compute(temperature, pressure, ibs::Interpolator2d::constant) * density(temperature, pressure);
+void GeoPhysics::FluidType::heatCapacity( const GeoPhysics::Brine::PhaseStateVec & phases,
+                                          ArrayDefs::Real_ptr heatCapacity ) const
+{
+   const int n = phases.getVectorSize();
+   const ArrayDefs::Real_ptr temperature = phases.getTemperature();
+   const ArrayDefs::Real_ptr pressure    = phases.getPressure();
+   for( int i = 0; i < n; ++i )
+   {
+      heatCapacity[i] = m_heatCapacitytbl->compute( temperature[i], pressure[i], ibs::Interpolator2d::constant );
+   }
+}
 
-   if(includePermafrost) {
+double GeoPhysics::FluidType::densXheatCapacity( const double temperature,
+                                                 const double pressure ) const
+{
+   return densXheatCapacity ( density ( temperature, pressure ), temperature, pressure );
+}
 
+double GeoPhysics::FluidType::densXheatCapacity( const double fluidDensity,
+                                                 const double temperature,
+                                                 const double pressure ) const
+{
+   // Calculate the volumetric heat capacity (VHC) of water. Salinity is taken into account through density.
+   const double waterVHC = m_heatCapacitytbl->compute( temperature, pressure, ibs::Interpolator2d::constant )
+                         * fluidDensity;
+
+   if( m_hasPermafrost )
+   {
       // Determine the freezing temperature
-      const double liquidusTemperature = getLiquidusTemperature(temperature, pressure);
+      const double liquidusTemperature = getLiquidusTemperature( temperature, pressure );
 
       // When there is no ice, there is only water: return the VHC of water
       if (temperature > liquidusTemperature)
@@ -273,21 +371,20 @@ double GeoPhysics::FluidType::densXheatCapacity (const double temperature,
       assert(temperature <= liquidusTemperature);
 
       // Compute the volumetric heat capacity  of ice
-      const double iceVHC = solidDensityTimesHeatCapacity (temperature);
+      const double iceVHC = solidDensityTimesHeatCapacity(temperature);
 
       // Compute theta: the fraction of the water that is in liquid phase
-      const double theta = computeTheta (temperature, liquidusTemperature);
-      const double waterFraction = theta;
-      const double iceFraction  = 1.0 - theta;
+      const double waterFraction = computeTheta(temperature, liquidusTemperature);
+      const double iceFraction  = 1.0 - waterFraction;
 
       // compute the derivative of the ice fraction w.r.t. to temperature
-      const double dThetaDT = computeThetaDerivative (temperature, liquidusTemperature);
+      const double dThetaDT = computeThetaDerivative(temperature, liquidusTemperature);
       const double iceFractionDerivative = - dThetaDT;
 
       // now we can compute the latent heat term
-      static const double WaterSpecificLatentHeat = 333600.0; // J/kg
-      const double iceDensity = m_iceDensityInterpolator.evaluate (temperature) ;
-      const double latentHeatTerm = iceDensity * WaterSpecificLatentHeat * iceFractionDerivative;
+      const double waterSpecificLatentHeat = 333600.0; // J/kg
+      const double iceDensity = m_iceDensityInterpolator->evaluate(temperature);
+      const double latentHeatTerm = iceDensity * waterSpecificLatentHeat * iceFractionDerivative;
       assert(latentHeatTerm <= 0.0);
 
       // return the volumetric heat capacity of the mixture minus the latent heat term
@@ -300,52 +397,98 @@ double GeoPhysics::FluidType::densXheatCapacity (const double temperature,
    }
 }
 
-double GeoPhysics::FluidType::seismicVelocity (const double temperature,
-                                                const double pressure) const {
+void GeoPhysics::FluidType::densXheatCapacity( const GeoPhysics::Brine::PhaseStateVec & phases,
+                                               ArrayDefs::Real_ptr densXheatCap ) const
+{
+   const int n = phases.getVectorSize();
+   const ArrayDefs::Real_ptr temperature = phases.getTemperature();
+   const ArrayDefs::Real_ptr pressure    = phases.getPressure();
+   for( int i = 0; i < n; ++i )
+   {
+      densXheatCap[i] = densXheatCapacity( temperature[i], pressure[i] );
+   }
+}
 
-   switch (m_seismicVelocityCalculationModel) {
-     case Interface::CALCULATED_MODEL : return m_velocity.phaseChange (temperature, pressure, m_salinity);
+void GeoPhysics::FluidType::densXheatCapacity( const GeoPhysics::Brine::PhaseStateVec & phases,
+                                               ArrayDefs::ConstReal_ptr fluidDensity,
+                                               ArrayDefs::Real_ptr densXheatCap ) const
+{
+   const int n = phases.getVectorSize();
+   const ArrayDefs::Real_ptr temperature = phases.getTemperature();
+   const ArrayDefs::Real_ptr pressure    = phases.getPressure();
+
+   if ( m_hasPermafrost ) {
+
+      for( int i = 0; i < n; ++i )
+      {
+         densXheatCap[i] = densXheatCapacity ( fluidDensity [ i ], temperature[i], pressure[i] );
+      }
+
+   } else {
+
+      for( int i = 0; i < n; ++i )
+      {
+         const double heatCapacity = m_heatCapacitytbl->compute( temperature [ i ], pressure [ i ], ibs::Interpolator2d::constant );
+         densXheatCap[i] = fluidDensity [ i ] * heatCapacity;
+      }
+
+   }
+}
+
+double GeoPhysics::FluidType::seismicVelocity( const double temperature, const double pressure ) const
+{
+   switch (m_seismicVelocityCalculationModel)
+   {
+     case Interface::CALCULATED_MODEL :
+     {
+        GeoPhysics::Brine::PhaseStateScalar phase( m_salinity );
+        phase.set( temperature, pressure );
+        return m_velocity->get( phase );
+     }
      case Interface::CONSTANT_MODEL   : return m_seismicVelocityVal;
-     default: assert (0);
+     default: throw formattingexception::GeneralException() << "\nMeSsAgE ERROR  " << __FUNCTION__
+                                                            << " - Seismic velocity calculation model not set\n\n";
    }
 
    // Added to prevent compiler warning about missing return at end of function.
    return 0.0;
 }
 
-double GeoPhysics::FluidType::solidDensityTimesHeatCapacity (const double temperature) const {
-
-   double usedTemperature = temperature; //NumericFunctions::Maximum (temperature, 40.0);
-
-   // return 916.0 * 2110.0;
-   return m_iceDensityInterpolator.evaluate (usedTemperature) * m_iceHeatCapacityInterpolator.evaluate (usedTemperature);
+void GeoPhysics::FluidType::seismicVelocity( const GeoPhysics::Brine::PhaseStateVec & phases,
+                                             ArrayDefs::Real_ptr & seismicVelocity ) const
+{
+   switch (m_seismicVelocityCalculationModel)
+   {
+     case Interface::CALCULATED_MODEL : m_velocity->get( phases, seismicVelocity );
+     case Interface::CONSTANT_MODEL   : std::fill_n(seismicVelocity, phases.getVectorSize(), m_seismicVelocityVal);
+     default: throw formattingexception::GeneralException() << "\nMeSsAgE ERROR  " << __FUNCTION__
+                                                            << " - Seismic velocity calculation model not set\n\n";
+   }
 }
 
-double GeoPhysics::FluidType::computeTheta (const double temperature, const double liquidusTemperature) const {
+double GeoPhysics::FluidType::solidDensityTimesHeatCapacity (const double temperature) const
+{
+   return m_iceDensityInterpolator->evaluate(temperature) * m_iceHeatCapacityInterpolator->evaluate(temperature);
+}
 
-   if (temperature < liquidusTemperature) {
-      const double temp = (temperature - liquidusTemperature) / m_omega; // not necessarily divide by m_omega (= 1.0)
-      return exp (-temp * temp);
+double GeoPhysics::FluidType::computeTheta (const double temperature, const double liquidusTemperature) const
+{
+   if (temperature < liquidusTemperature)
+   {
+      const double temp = (temperature - liquidusTemperature) / m_omega;
+      return std::exp (-temp * temp);
    } else {
       return 1.0;
    }
 }
 
-double GeoPhysics::FluidType::computeThetaDerivative (const double temperature, const double liquidusTemperature) const {
-
-   if (temperature < liquidusTemperature) {
-      const double temp = (temperature - liquidusTemperature) / m_omega; // not necessarily divide by m_omega (= 1.0)
-      return -2.0 * temp / m_omega * exp (-temp * temp);
+double GeoPhysics::FluidType::computeThetaDerivative (const double temperature, const double liquidusTemperature) const
+{
+   if (temperature < liquidusTemperature)
+   {
+      const double temp = (temperature - liquidusTemperature) / m_omega;
+      return -2.0 * temp / m_omega * std::exp (-temp * temp);
    } else {
       return 0;
    }
-}
-
-double GeoPhysics::FluidType::relativePermeability (const double temperature, const double pressure) const {
-   return 1.0;
-}
-
-bool GeoPhysics::FluidType::SwitchPermafrost() const {
-
-   return m_projectHandle->getPermafrost();
 }

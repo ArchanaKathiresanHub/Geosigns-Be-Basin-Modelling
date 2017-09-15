@@ -8,12 +8,15 @@
 #include "AlignedMemoryAllocator.h"
 #include "CpuInfo.h"
 
+#define USE_BLAS_LIBRARY
+
 #ifdef USE_BLAS_LIBRARY
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
 extern void dgemm_(char *transa, char *transb, int *m, int *n, int *k, double *alpha, const double *a, int *lda, const double *b, int *ldb, double *beta, double *c, int *ldc);
+extern void dgemv_(char *trans, int *m, int *n, double *alpha, const double *a, int *lda, const double *x, int *incx, double *beta, double *y, int *incy);
 
 #ifdef __cplusplus
 }
@@ -23,6 +26,10 @@ extern void dgemm_(char *transa, char *transb, int *m, int *n, int *k, double *a
 
 inline void dgemm(char transa, char transb, int m, int n, int k, double alpha, const double *a, int lda, const double *b, int ldb, double beta, double *c, int ldc) {
   dgemm_ ( &transa, &transb, &m, &n, &k, &alpha, a, &lda, b, &ldb, &beta, c, &ldc);
+}
+
+inline void dgemv(char transa, int m, int n, double alpha, const double *a, int lda, const double *x, int incx, double beta, double *y, int incy) {
+   dgemv_ ( &transa, &m, &n, &alpha, a, &lda, x, &incx, &beta, y, &incy );
 }
 #endif
 
@@ -166,6 +173,52 @@ void Numerics::transpose ( const AlignedDenseMatrix& mat,
 
 }
 
+void Numerics::mvp ( const double              alpha,
+                     const AlignedDenseMatrix& a,
+                     const double              beta,
+                     const double*             v,
+                           double*             c ) {
+
+   static const char transChar [ 2 ] = {'N', 'T'};
+
+   dgemv ( transChar [ 0 ], a.rows (), a.cols (), alpha, a.data (), a.leadingDimension (), v, 1, beta, c, 1 );
+}
+
+void Numerics::matmult ( const MatrixTransposeType transposeA,
+                         const MatrixTransposeType transposeB,
+                         const double              alpha,
+                         const AlignedDenseMatrix& a,
+                         const AlignedDenseMatrix& b,
+                         const double              beta,
+                               double*             c ) {
+
+   static const char transChar [ 2 ] = {'N', 'T'};
+
+   int m;
+   int n;
+   int k;
+
+   if ( transposeA == NO_TRANSPOSE ) {
+      m = a.rows ();
+      k = a.cols ();
+   } else {
+      m = a.cols ();
+      k = a.rows ();
+   }
+
+   if ( transposeB == NO_TRANSPOSE ) {
+      n = b.cols ();
+   } else {
+      n = b.rows ();
+   }
+
+   dgemm ( transChar [ transposeA ], transChar [ transposeB ],
+           m, n, k, alpha,
+           a.data (), a.leadingDimension (),
+           b.data (), b.leadingDimension (),
+           beta, c, 8 );
+}
+
 
 void Numerics::matmult ( const MatrixTransposeType transposeA,
                          const MatrixTransposeType transposeB,
@@ -197,10 +250,10 @@ void Numerics::matmult ( const MatrixTransposeType transposeA,
    }
 
    dgemm ( transChar [ transposeA ], transChar [ transposeB ],
-      m, n, k, alpha,
-      a.data (), a.leadingDimension (),
-      b.data (), b.leadingDimension (),
-      beta, c.data (), c.leadingDimension ());
+           m, n, k, alpha,
+           a.data (), a.leadingDimension (),
+           b.data (), b.leadingDimension (),
+           beta, c.data (), c.leadingDimension ());
 
 #else
    cpuInfo cpuInfo;

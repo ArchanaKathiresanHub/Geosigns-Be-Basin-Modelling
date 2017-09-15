@@ -80,8 +80,8 @@ PersistentTrap * Trap::findMatchingPersistentTrap (vector < PersistentTrap * >&p
 
       if (isPenetrated && penetrates)
       {
-	 cerr << "trap " << getId () << " penetrates AND is penetrated by " << persistentTrap->getId () << endl;
-	 return persistentTrap;
+    cerr << "trap " << getId () << " penetrates AND is penetrated by " << persistentTrap->getId () << endl;
+    return persistentTrap;
       }
    }
    return closestPersistentTrap;
@@ -109,8 +109,8 @@ PersistentTrap * Trap::findClosestPersistentTrap (vector < PersistentTrap * >&pe
 
       if (isPenetrated && penetrates)
       {
-	 cerr << "trap " << getId () << " illegally penetrates AND is penetrated by " << persistentTrap->getId () << endl;
-	 return persistentTrap;
+    cerr << "trap " << getId () << " illegally penetrates AND is penetrated by " << persistentTrap->getId () << endl;
+    return persistentTrap;
       }
       
       unsigned int i, j;
@@ -120,8 +120,8 @@ PersistentTrap * Trap::findClosestPersistentTrap (vector < PersistentTrap * >&pe
 
       if (distance < closestDistance)
       {
-	 closestDistance = distance;
-	 closestPersistentTrap = persistentTrap;
+    closestDistance = distance;
+    closestPersistentTrap = persistentTrap;
       }
    }
    return closestPersistentTrap;
@@ -133,13 +133,13 @@ bool Trap::contains (unsigned int i, unsigned int j) const
    vector < unsigned int >::const_iterator extentIter[2];
 
    for (extentIter[0] = m_extent[0].begin (), extentIter[1] = m_extent[1].begin ();
-	 extentIter[0] != m_extent[0].end () && extentIter[1] != m_extent[1].end ();
-	 ++extentIter[0], ++extentIter[1])
+    extentIter[0] != m_extent[0].end () && extentIter[1] != m_extent[1].end ();
+    ++extentIter[0], ++extentIter[1])
    {
       if (i == * extentIter[0] && j == * extentIter[1])
       {
-	 // cerr << "---> found" << endl;
-	 return true;
+    // cerr << "---> found" << endl;
+    return true;
       }
    }
    // cerr << "---> not found" << endl;
@@ -152,12 +152,12 @@ int Trap::computeOverlap (Trap * trap)
 
    int count = 0;
    for (extentIter[0] = m_extent[0].begin (), extentIter[1] = m_extent[1].begin ();
-	 extentIter[0] != m_extent[0].end () && extentIter[1] != m_extent[1].end ();
-	 ++extentIter[0], ++extentIter[1])
+    extentIter[0] != m_extent[0].end () && extentIter[1] != m_extent[1].end ();
+    ++extentIter[0], ++extentIter[1])
    {
       if (trap->contains (* extentIter[0], * extentIter[1]))
       {
-	 ++count;
+    ++count;
       }
    }
    return count;
@@ -167,34 +167,34 @@ void Trap::save (database::Table * table)
 {
    int comp, phase;
 
-   double masses[ComponentManager::NumberOfOutputSpecies];
+   double masses[ComponentManager::NUMBER_OF_SPECIES];
 
-   double massesRC[ComponentManager::NumberOfPhases][ComponentManager::NumberOfOutputSpecies];
-   double densitiesRC[ComponentManager::NumberOfPhases];
-   double viscositiesRC[ComponentManager::NumberOfPhases];
+   double massesRC[ComponentManager::NUMBER_OF_PHASES][ComponentManager::NUMBER_OF_SPECIES];
+   double densitiesRC[ComponentManager::NUMBER_OF_PHASES];
+   double viscositiesRC[ComponentManager::NUMBER_OF_PHASES];
 
    // save properties for both reservoir phases
    database::Record * record = table->createRecord ();
 
    saveStructuralProperties (record);
 
-   for (comp = 0; comp < ComponentManager::NumberOfOutputSpecies; ++comp)
+   for (comp = 0; comp < ComponentManager::NUMBER_OF_SPECIES; ++comp)
    {
-      masses[comp] = getMass ((Interface::ComponentId) (comp));
+      masses[comp] = getMass ((ComponentId) (comp));
    }
 
    // perform PVT under reservoir conditions
    performPVT (masses, getTemperature (), getPressure (),
-	 massesRC, densitiesRC, viscositiesRC);
+    massesRC, densitiesRC, viscositiesRC);
 
-   for (phase = 0; phase < ComponentManager::NumberOfPhases; ++phase)
+   for (phase = 0; phase < ComponentManager::NUMBER_OF_PHASES; ++phase)
    {
       viscositiesRC[phase] *= 0.001; // Converting back to SI (from cP to Pa*s)
    }
 
    saveReservoirChargeProperties (record, massesRC, densitiesRC, viscositiesRC);
 
-   for (phase = 0; phase < ComponentManager::NumberOfPhases; ++phase)
+   for (phase = 0; phase < ComponentManager::NUMBER_OF_PHASES; ++phase)
    {
       saveStockTankChargeProperties (record, phase, massesRC[phase], densitiesRC[phase], viscositiesRC[phase]);
    }
@@ -228,9 +228,9 @@ void Trap::saveStructuralProperties (database::Record * record)
 }
 
 void Trap::saveReservoirChargeProperties (database::Record * record,
-      double masses[ComponentManager::NumberOfPhases][ComponentManager::NumberOfOutputSpecies],
-      double density[ComponentManager::NumberOfPhases],
-      double viscosity[ComponentManager::NumberOfPhases])
+      double masses[ComponentManager::NUMBER_OF_PHASES][ComponentManager::NUMBER_OF_SPECIES],
+      double density[ComponentManager::NUMBER_OF_PHASES],
+      double viscosity[ComponentManager::NUMBER_OF_PHASES])
 {
    double cep;
    cep = database::getCEPGas (getRecord ());
@@ -283,92 +283,92 @@ void Trap::saveReservoirChargeProperties (database::Record * record,
 
    database::setFracturePressure (record, database::getFracturePressure (getRecord ()));
    
-   double massTotal[ComponentManager::NumberOfPhases];
+   double massTotal[ComponentManager::NUMBER_OF_PHASES];
 
    int phaseRC;
-   for (phaseRC = 0; phaseRC < ComponentManager::NumberOfPhases; ++phaseRC)
+   for (phaseRC = 0; phaseRC < ComponentManager::NUMBER_OF_PHASES; ++phaseRC)
    {
-      massTotal[phaseRC] = Accumulate (masses[phaseRC], ComponentManager::NumberOfOutputSpecies);
+      massTotal[phaseRC] = Accumulate (masses[phaseRC], ComponentManager::NUMBER_OF_SPECIES);
 
-      record->setValue (MassPrefix + ComponentManager::getInstance ().GetPhaseName (phaseRC), massTotal[phaseRC] > 1 ? massTotal[phaseRC] : 0);
+      record->setValue (MassPrefix + ComponentManager::getInstance ().getPhaseName (phaseRC), massTotal[phaseRC] > 1 ? massTotal[phaseRC] : 0);
 
-      record->setValue (VolumePrefix + ComponentManager::getInstance ().GetPhaseName (phaseRC), massTotal[phaseRC] > 1 ? massTotal[phaseRC] / density[phaseRC] : 0);
-      record->setValue (DensityPrefix + ComponentManager::getInstance ().GetPhaseName (phaseRC), massTotal[phaseRC] > 1 ? density[phaseRC] : IbsNoDataValue);
-      record->setValue (ViscosityPrefix + ComponentManager::getInstance ().GetPhaseName (phaseRC), massTotal[phaseRC] > 1 ? viscosity[phaseRC] : IbsNoDataValue);
+      record->setValue (VolumePrefix + ComponentManager::getInstance ().getPhaseName (phaseRC), massTotal[phaseRC] > 1 ? massTotal[phaseRC] / density[phaseRC] : 0);
+      record->setValue (DensityPrefix + ComponentManager::getInstance ().getPhaseName (phaseRC), massTotal[phaseRC] > 1 ? density[phaseRC] : IbsNoDataValue);
+      record->setValue (ViscosityPrefix + ComponentManager::getInstance ().getPhaseName (phaseRC), massTotal[phaseRC] > 1 ? viscosity[phaseRC] : IbsNoDataValue);
    }
 
    double buoyancy = 0;
-   if (massTotal[ComponentManager::Vapour] > 1)
+   if (massTotal[ComponentManager::VAPOUR] > 1)
    {
-      buoyancy += (1000 - density[ComponentManager::Vapour]) * AccelerationDueToGravity * (getGOC () - getDepth ());
+      buoyancy += (1000 - density[ComponentManager::VAPOUR]) * AccelerationDueToGravity * (getGOC () - getDepth ());
    }
-   if (massTotal[ComponentManager::Liquid] > 1)
+   if (massTotal[ComponentManager::LIQUID] > 1)
    {
-      buoyancy += (1000 - density[ComponentManager::Liquid]) * AccelerationDueToGravity * (getOWC () - getGOC ());
+      buoyancy += (1000 - density[ComponentManager::LIQUID]) * AccelerationDueToGravity * (getOWC () - getGOC ());
    }
    database::setBuoyancy (record, buoyancy * PaToMegaPa);
 }
 
-void Trap::saveStockTankChargeProperties (database::Record * record, int phaseRC, double masses[ComponentManager::NumberOfOutputSpecies], double density,  double viscosity)
+void Trap::saveStockTankChargeProperties (database::Record * record, int phaseRC, double masses[ComponentManager::NUMBER_OF_SPECIES], double density,  double viscosity)
 {
-   double viscositiesST[ComponentManager::NumberOfPhases];
-   double densitiesST[ComponentManager::NumberOfPhases];
-   double phaseMassesST[ComponentManager::NumberOfPhases][ComponentManager::NumberOfOutputSpecies];
+   double viscositiesST[ComponentManager::NUMBER_OF_PHASES];
+   double densitiesST[ComponentManager::NUMBER_OF_PHASES];
+   double phaseMassesST[ComponentManager::NUMBER_OF_PHASES][ComponentManager::NUMBER_OF_SPECIES];
 
    performPVT (masses, StockTankTemperatureC, StockTankPressureMPa,
-	 phaseMassesST, densitiesST, viscositiesST);
+    phaseMassesST, densitiesST, viscositiesST);
 
    int phaseST;
 
-   double phaseMassSTTotal[ComponentManager::NumberOfPhases];
-   for (phaseST = 0; phaseST < ComponentManager::NumberOfPhases; ++phaseST)
+   double phaseMassSTTotal[ComponentManager::NUMBER_OF_PHASES];
+   for (phaseST = 0; phaseST < ComponentManager::NUMBER_OF_PHASES; ++phaseST)
    {
-      phaseMassSTTotal[phaseST] = Accumulate (phaseMassesST[phaseST], ComponentManager::NumberOfOutputSpecies);
+      phaseMassSTTotal[phaseST] = Accumulate (phaseMassesST[phaseST], ComponentManager::NUMBER_OF_SPECIES);
       viscositiesST[phaseST] *= 0.001; // Converting back to SI (from cP to Pa*s)
    }
 
-   if (phaseRC == ComponentManager::Vapour)
+   if (phaseRC == ComponentManager::VAPOUR)
    {
       double cgr = IbsNoDataValue;
-      if (phaseMassSTTotal[ComponentManager::Vapour] > 1)
+      if (phaseMassSTTotal[ComponentManager::VAPOUR] > 1)
       {
-	 cgr = 0;
-	 if (phaseMassSTTotal[ComponentManager::Liquid] > 1)
-	 {
-	    double volumeCondensate = phaseMassSTTotal[ComponentManager::Liquid] / densitiesST[ComponentManager::Liquid];
-	    double volumeGas = phaseMassSTTotal[ComponentManager::Vapour] / densitiesST[ComponentManager::Vapour];
-	    cgr = volumeCondensate / volumeGas;
-	 }
+    cgr = 0;
+    if (phaseMassSTTotal[ComponentManager::LIQUID] > 1)
+    {
+       double volumeCondensate = phaseMassSTTotal[ComponentManager::LIQUID] / densitiesST[ComponentManager::LIQUID];
+       double volumeGas = phaseMassSTTotal[ComponentManager::VAPOUR] / densitiesST[ComponentManager::VAPOUR];
+       cgr = volumeCondensate / volumeGas;
+    }
       }
 
       database::setCGR (record, cgr);
    }
 
-   if (phaseRC == ComponentManager::Liquid)
+   if (phaseRC == ComponentManager::LIQUID)
    {
       double gor = IbsNoDataValue;
       double oilAPI = IbsNoDataValue;
 
-      if (phaseMassSTTotal[ComponentManager::Liquid] > 1)
+      if (phaseMassSTTotal[ComponentManager::LIQUID] > 1)
       {
-	 gor = 0;
-	 if (phaseMassSTTotal[ComponentManager::Vapour] > 1)
-	 {
-	    double volumeOil = phaseMassSTTotal[ComponentManager::Liquid] / densitiesST[ComponentManager::Liquid];
-	    double volumeGas = phaseMassSTTotal[ComponentManager::Vapour] / densitiesST[ComponentManager::Vapour];
-	    gor = volumeGas / volumeOil;
-	 }
+    gor = 0;
+    if (phaseMassSTTotal[ComponentManager::VAPOUR] > 1)
+    {
+       double volumeOil = phaseMassSTTotal[ComponentManager::LIQUID] / densitiesST[ComponentManager::LIQUID];
+       double volumeGas = phaseMassSTTotal[ComponentManager::VAPOUR] / densitiesST[ComponentManager::VAPOUR];
+       gor = volumeGas / volumeOil;
+    }
 
-	 oilAPI = 141.5/(0.001*densitiesST[ComponentManager::Liquid]) -131.5;
+    oilAPI = 141.5/(0.001*densitiesST[ComponentManager::LIQUID]) -131.5;
       }
 
       database::setGOR (record, gor);
       database::setOilAPI (record, oilAPI);
    }
 
-   for (phaseST = 0; phaseST < ComponentManager::NumberOfPhases; ++phaseST)
+   for (phaseST = 0; phaseST < ComponentManager::NUMBER_OF_PHASES; ++phaseST)
    {
-      double phaseMassSTTotal = Accumulate (phaseMassesST[phaseST], ComponentManager::NumberOfOutputSpecies);
+      double phaseMassSTTotal = Accumulate (phaseMassesST[phaseST], ComponentManager::NUMBER_OF_SPECIES);
       record->setValue (StockTankPhaseNames[phaseRC][phaseST] + MassPrefix, phaseMassSTTotal > 1 ? phaseMassSTTotal : 0);
 
       record->setValue (StockTankPhaseNames[phaseRC][phaseST] + VolumePrefix, phaseMassSTTotal > 1 ? phaseMassSTTotal / densitiesST[phaseST] : 0);
@@ -376,9 +376,9 @@ void Trap::saveStockTankChargeProperties (database::Record * record, int phaseRC
       record->setValue (StockTankPhaseNames[phaseRC][phaseST] + ViscosityPrefix, phaseMassSTTotal > 1 ? viscositiesST[phaseST] : IbsNoDataValue);
 
       int comp;
-      for (comp = 0; comp < ComponentManager::NumberOfOutputSpecies; ++comp)
+      for (comp = 0; comp < ComponentManager::NUMBER_OF_SPECIES; ++comp)
       {
-	 record->setValue (StockTankPhaseNames[phaseRC][phaseST] + MassPrefix + TableSpeciesNames[comp], phaseMassSTTotal > 1 ? phaseMassesST[phaseST][comp] : 0);
+         record->setValue (StockTankPhaseNames[phaseRC][phaseST] + MassPrefix + std::string( CBMGenerics::ComponentManager::getInstance().getSpeciesInputName( comp )), phaseMassSTTotal > 1 ? phaseMassesST[phaseST][comp] : 0);
       }
    }
 
@@ -411,51 +411,51 @@ void Trap::saveStockTankChargeProperties (database::Record * record, int phaseRC
       record->setValue ("GasWetness", double (-1));
    }
 
-   for (phase = 0; phase < ComponentManager::NumberOfPhases; ++phase)
+   for (phase = 0; phase < ComponentManager::NUMBER_OF_PHASES; ++phase)
    {
       double num = 0; 
       for (comp = ComponentManager::C5; comp <= ComponentManager::C1; ++comp)
       {
-	 num += phaseMassesST[phase][comp];
+    num += phaseMassesST[phase][comp];
       }
 
       double denom = 0; 
       for (comp = ComponentManager::C15PlusAro; comp <= ComponentManager::C6Minus14Sat; ++comp)
       {
-	 denom += phaseMassesST[phase][comp];
+    denom += phaseMassesST[phase][comp];
       }
 
       if (performedPVT && denom > 0)
       {
-	 record->setValue (ComponentManager::getInstance ().GetPhaseName (phase) + "GORM", num/denom);
+    record->setValue (ComponentManager::getInstance ().getPhaseName (phase) + "GORM", num/denom);
       }
       else
       {
-	 record->setValue (ComponentManager::getInstance ().GetPhaseName (phase) + "GORM", (double) -1);
+    record->setValue (ComponentManager::getInstance ().getPhaseName (phase) + "GORM", (double) -1);
       }
    }
 #endif
 }
 
-bool Trap::performPVT (double masses[ComponentManager::NumberOfOutputSpecies], double temperature, double pressure,
-      double phaseMasses[ComponentManager::NumberOfPhases][ComponentManager::NumberOfOutputSpecies], double phaseDensities[ComponentManager::NumberOfPhases], double phaseViscosities[ComponentManager::NumberOfPhases])
+bool Trap::performPVT (double masses[ComponentManager::NUMBER_OF_SPECIES], double temperature, double pressure,
+      double phaseMasses[ComponentManager::NUMBER_OF_PHASES][ComponentManager::NUMBER_OF_SPECIES], double phaseDensities[ComponentManager::NUMBER_OF_PHASES], double phaseViscosities[ComponentManager::NUMBER_OF_PHASES])
 {
    bool performedPVT = false;
    double massTotal = 0;
 
    int phase, comp;
 
-   for (comp = 0; comp < ComponentManager::NumberOfOutputSpecies; ++comp)
+   for (comp = 0; comp < ComponentManager::NUMBER_OF_SPECIES; ++comp)
    {
       massTotal += masses[comp];
 
-      for (phase = 0; phase < ComponentManager::NumberOfPhases; ++phase)
+      for (phase = 0; phase < ComponentManager::NUMBER_OF_PHASES; ++phase)
       {
-	 phaseMasses[phase][comp] = 0;
+    phaseMasses[phase][comp] = 0;
       }
    }
 
-   for (phase = 0; phase < ComponentManager::NumberOfPhases; ++phase)
+   for (phase = 0; phase < ComponentManager::NUMBER_OF_PHASES; ++phase)
    {
       phaseDensities[phase] = 0;
       phaseViscosities[phase] = 0;

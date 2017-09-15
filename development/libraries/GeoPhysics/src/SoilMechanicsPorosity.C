@@ -132,8 +132,8 @@ namespace GeoPhysics
    double soilMechanicsPorosity::computeSingleValueDerivative( const double porosity,
                                                                const double ves,
                                                                const double maxVes,
-                                                               const bool includeChemicalCompaction,
-                                                               const double chemicalCompactionTerm ) const
+                                                               const bool ,
+                                                               const double ) const
    {
       //   Derivative for the loading phase
       //

@@ -171,6 +171,25 @@ namespace Numerics {
                   const double              beta,
                         AlignedDenseMatrix& c );
 
+   /// \brief Compute the product of two matrices.
+   ///
+   /// \f$ c = \alpha \times \mbox{op}\left( a \right) \times \mbox{op}\left( b \right) + \beta \times c \f$
+   void matmult ( const MatrixTransposeType transposeA,
+                  const MatrixTransposeType transposeB,
+                  const double              alpha,
+                  const AlignedDenseMatrix& a,
+                  const AlignedDenseMatrix& b,
+                  const double              beta,
+                        double*             c );
+
+   /// \brief Compute matrix-vector product.
+   ///
+   void mvp ( const double              alpha,
+              const AlignedDenseMatrix& a,
+              const double              beta,
+              const double*             v,
+                    double*             c );
+
 
 } // end namespace Numerics
 

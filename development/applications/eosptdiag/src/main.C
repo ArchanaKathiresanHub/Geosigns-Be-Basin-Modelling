@@ -265,29 +265,29 @@ int main( int argc, char ** argv )
       curRec.setPressure( 101325.0 * 1e-6 * 125 ); 
       curRec.setTemperature( 15 + 300 ); // stock tank temperature in Celsius 
 
-      curRec.setCompositionComp( 3, CBMGenerics::ComponentManager::C1, 7780993477.8834 ); // kg
-      curRec.setCompositionComp( 3, CBMGenerics::ComponentManager::C2, 7470802663.62787 ); // kg
-      curRec.setCompositionComp( 3, CBMGenerics::ComponentManager::C3, 6369301385.92029 ); // kg
-      curRec.setCompositionComp( 3, CBMGenerics::ComponentManager::C4, 6268552951.99726 ); // kg
-      curRec.setCompositionComp( 3, CBMGenerics::ComponentManager::C5, 6208020563.40107  ); // kg
-      curRec.setCompositionComp( 3, CBMGenerics::ComponentManager::N2, 2659345319.13799 ); // kg
-      curRec.setCompositionComp( 3, CBMGenerics::ComponentManager::COx, 0.0  ); // kg
-      curRec.setCompositionComp( 3, CBMGenerics::ComponentManager::H2S, 541810267.726579 ); // kg
-      curRec.setCompositionComp( 3, CBMGenerics::ComponentManager::C6Minus14Aro, 70134580791.6047 ); // kg
-      curRec.setCompositionComp( 3, CBMGenerics::ComponentManager::C6Minus14Sat , 193473629375.084 ); // kg
-      curRec.setCompositionComp( 3, CBMGenerics::ComponentManager::C15PlusAro, 75361672187.7905 ); // kg
-      curRec.setCompositionComp( 3, CBMGenerics::ComponentManager::C15PlusSat, 160933558529.36 ); // kg
-      curRec.setCompositionComp( 3, CBMGenerics::ComponentManager::LSC, 8168527698.32282 ); // kg
-      curRec.setCompositionComp( 3, CBMGenerics::ComponentManager::C15PlusAT, 26824731512.8973 ); // kg
-      curRec.setCompositionComp( 3, CBMGenerics::ComponentManager::C15PlusAroS, 0.0  ); // kg
-      curRec.setCompositionComp( 3, CBMGenerics::ComponentManager::C15PlusSatS, 0.0 ); // kg
-      curRec.setCompositionComp( 3, CBMGenerics::ComponentManager::C6Minus14BT, 4826027990.49316 ); // kg
-      curRec.setCompositionComp( 3, CBMGenerics::ComponentManager::C6Minus14DBT, 56599766.62811 ); // kg
-      curRec.setCompositionComp( 3, CBMGenerics::ComponentManager::C6Minus14BP, 21763290.0290721 ); // kg
-      curRec.setCompositionComp( 3, CBMGenerics::ComponentManager::C6Minus14SatS, 0.0 ); // kg
-      curRec.setCompositionComp( 3, CBMGenerics::ComponentManager::C6Minus14AroS, 0.0  ); // kg
-      curRec.setCompositionComp( 3, CBMGenerics::ComponentManager::resin, 376228852155.787 ); // kg
-      curRec.setCompositionComp( 3, CBMGenerics::ComponentManager::asphaltene, 46393676972.0415 ); // kg
+      curRec.setCompositionComp( 3, ComponentId::C1,               7780993477.8834   ); // kg
+      curRec.setCompositionComp( 3, ComponentId::C2,               7470802663.62787  ); // kg
+      curRec.setCompositionComp( 3, ComponentId::C3,               6369301385.92029  ); // kg
+      curRec.setCompositionComp( 3, ComponentId::C4,               6268552951.99726  ); // kg
+      curRec.setCompositionComp( 3, ComponentId::C5,               6208020563.40107  ); // kg
+      curRec.setCompositionComp( 3, ComponentId::N2,               2659345319.13799  ); // kg
+      curRec.setCompositionComp( 3, ComponentId::COX,              0.0               ); // kg
+      curRec.setCompositionComp( 3, ComponentId::H2S,              541810267.726579  ); // kg
+      curRec.setCompositionComp( 3, ComponentId::C6_MINUS_14ARO,   70134580791.6047  ); // kg
+      curRec.setCompositionComp( 3, ComponentId::C6_MINUS_14SAT ,  193473629375.084  ); // kg
+      curRec.setCompositionComp( 3, ComponentId::C15_PLUS_ARO,     75361672187.7905  ); // kg
+      curRec.setCompositionComp( 3, ComponentId::C15_PLUS_SAT,     160933558529.36   ); // kg
+      curRec.setCompositionComp( 3, ComponentId::LSC,              8168527698.32282  ); // kg
+      curRec.setCompositionComp( 3, ComponentId::C15_PLUS_AT,      26824731512.8973  ); // kg
+      curRec.setCompositionComp( 3, ComponentId::C15_PLUS_ARO_S,   0.0               ); // kg
+      curRec.setCompositionComp( 3, ComponentId::C15_PLUS_SAT_S,   0.0               ); // kg
+      curRec.setCompositionComp( 3, ComponentId::C6_MINUS_14BT,    4826027990.49316  ); // kg
+      curRec.setCompositionComp( 3, ComponentId::C6_MINUS_14DBT,   56599766.62811    ); // kg
+      curRec.setCompositionComp( 3, ComponentId::C6_MINUS_14BP,    21763290.0290721  ); // kg
+      curRec.setCompositionComp( 3, ComponentId::C6_MINUS_14SAT_S, 0.0               ); // kg
+      curRec.setCompositionComp( 3, ComponentId::C6_MINUS_14ARO_S, 0.0               ); // kg
+      curRec.setCompositionComp( 3, ComponentId::RESIN,            376228852155.787  ); // kg
+      curRec.setCompositionComp( 3, ComponentId::ASPHALTENE,       46393676972.0415  ); // kg
 
       data.push_back( curRec );
    }
@@ -330,8 +330,8 @@ int main( int argc, char ** argv )
    else if ( !compFileName.empty() )
    {
       CBMGenerics::ComponentManager& theComponentManager = CBMGenerics::ComponentManager::getInstance();
-      const int NUM_COMP     = CBMGenerics::ComponentManager::NumberOfSpeciesToFlash;
-      const int NUM_COMP_TOT = CBMGenerics::ComponentManager::NumberOfOutputSpecies;
+      const int NUM_COMP     = ComponentId::NUMBER_OF_SPECIES_TO_FLASH;
+      const int NUM_COMP_TOT = ComponentId::NUMBER_OF_SPECIES;
 
       double pressure;             //[Pa]               
       double temperature;          //[K]=[Celsius+273.15]
@@ -347,7 +347,7 @@ int main( int argc, char ** argv )
          ifs >> compMasses[i];
          if ( !ifs.good() )
          { 
-            std::cerr << "Can't read component fraction from " << compFileName << " for " << theComponentManager.GetSpeciesName( i ) << "\n"; 
+            std::cerr << "Can't read component fraction from " << compFileName << " for " << theComponentManager.getSpeciesName( i ) << "\n"; 
             return -1;
          }
       }
@@ -423,7 +423,7 @@ PTDiagramCalculator * CreateDiagramAndSaveToMFile( TrapperIoTableRec & data, con
 
    double massTotal = data.totMass();
 
-   const int iNc = CBMGenerics::ComponentManager::NumberOfSpecies;
+   const int iNc = ComponentId::NUMBER_OF_SPECIES;
 
    std::vector<double> masses( iNc, 0.0 );
    
@@ -617,35 +617,23 @@ void dumpBblDewLineToDynamoInc( TrapperIoTableRec & data, PTDiagramCalculator & 
       case PTDiagramCalculator::MassFractionDiagram:       plotName += "_mass";   break;
       default:                                             assert( 0 );     break;
    }
-   const char  * compNames[] = { "asphaltenes", 
-                                 "resins",
-                                 "C15_Aro",
-                                 "C15_Sat", 
-                                 "C6_14Aro",
-                                 "C6_14Sat",
-                                 "C5",
-                                 "C4",
-                                 "C3",
-                                 "C2",
-                                 "C1",
-                                 "COx",
-                                 "N2", 
-                                 "H2S" };
+
+   const char ** compNames = CBMGenerics::ComponentManager::getInstance().getSpeciesNameInputList();
 
    std::ofstream ofs( (plotName + ".INC").c_str(), ios_base::out | ios_base::trunc );
    ofs << "   ! create input table for PTFLASH\n";
    ofs << "   TABLE ( MASSFRAC H2O, \\\n";
-   for ( int i = 0; i < CBMGenerics::ComponentManager::NumberOfSpeciesToFlash-1; ++i )
+   for ( int i = 0; i < ComponentId::NUMBER_OF_SPECIES_TO_FLASH-1; ++i )
    {
       ofs << "   MASSFRAC " << compNames[i] << ", \\\n";
    }
-   ofs << "   MASSFRAC " << compNames[CBMGenerics::ComponentManager::NumberOfSpeciesToFlash - 1] << " ) FlashIn;\n";
+   ofs << "   MASSFRAC " << compNames[ComponentId::NUMBER_OF_SPECIES_TO_FLASH - 1] << " ) FlashIn;\n";
 
-   double lumpedMasses[CBMGenerics::ComponentManager::NumberOfSpeciesToFlash];
-   double masses[CBMGenerics::ComponentManager::NumberOfSpecies];
-   double fractions[CBMGenerics::ComponentManager::NumberOfSpecies];
+   double lumpedMasses[ComponentId::NUMBER_OF_SPECIES_TO_FLASH];
+   double masses[ComponentId::NUMBER_OF_SPECIES];
+   double fractions[ComponentId::NUMBER_OF_SPECIES];
 
-   for ( int i = 0; i < CBMGenerics::ComponentManager::NumberOfSpecies; ++i ) 
+   for ( int i = 0; i < ComponentId::NUMBER_OF_SPECIES; ++i ) 
    {
       masses[i] = data.compMass( i );
    }
@@ -653,12 +641,12 @@ void dumpBblDewLineToDynamoInc( TrapperIoTableRec & data, PTDiagramCalculator & 
    pvtFlash::EosPack::getInstance().lumpComponents( masses, lumpedMasses, fractions );
    ofs << "\n" << "   FlashIn H2O [1] = 0.0\n";
 
-   for ( int i = 0; i < CBMGenerics::ComponentManager::NumberOfSpeciesToFlash; ++i )
+   for ( int i = 0; i < ComponentId::NUMBER_OF_SPECIES_TO_FLASH; ++i )
    {
       ofs << "   FlashIn " << compNames[i] << "[1] = " << lumpedMasses[i] / data.totMass() << "\n";
    }
 
-   for ( int i = 0; i < CBMGenerics::ComponentManager::NumberOfSpeciesToFlash; ++i )
+   for ( int i = 0; i < ComponentId::NUMBER_OF_SPECIES_TO_FLASH; ++i )
    {
       ofs << "   HFEED[" << i + 1 << "] = " << lumpedMasses[i] / data.totMass() << "\n";
    }
@@ -712,29 +700,29 @@ void dumpCompositionToCSVforPVTsim( TrapperIoTableRec & data )
 {
    std::ofstream ofs( (data.name()+".csv").c_str(), ios_base::trunc );
 
-   ofs << data.compMass( CBMGenerics::ComponentManager::C1 ) << ",";
-   ofs << data.compMass( CBMGenerics::ComponentManager::C2 ) << ",";
-   ofs << data.compMass( CBMGenerics::ComponentManager::C3 ) << ",";
-   ofs << data.compMass( CBMGenerics::ComponentManager::C4 ) << ",";
-   ofs << data.compMass( CBMGenerics::ComponentManager::C5 ) << ",";
-   ofs << data.compMass( CBMGenerics::ComponentManager::N2 ) << ",";
-   ofs << data.compMass( CBMGenerics::ComponentManager::COx ) << ",";
-   ofs << data.compMass( CBMGenerics::ComponentManager::H2S ) << ",";
-   ofs << data.compMass( CBMGenerics::ComponentManager::C6Minus14Aro ) << ",";
-   ofs << data.compMass( CBMGenerics::ComponentManager::C6Minus14Sat ) << ",";
-   ofs << data.compMass( CBMGenerics::ComponentManager::C15PlusAro ) << ",";
-   ofs << data.compMass( CBMGenerics::ComponentManager::C15PlusSat ) << ",";
-   ofs << data.compMass( CBMGenerics::ComponentManager::LSC ) << ",";
-   ofs << data.compMass( CBMGenerics::ComponentManager::C15PlusAT ) << ",";
-   ofs << data.compMass( CBMGenerics::ComponentManager::C15PlusAroS ) << ",";
-   ofs << data.compMass( CBMGenerics::ComponentManager::C15PlusSatS ) << ",";
-   ofs << data.compMass( CBMGenerics::ComponentManager::C6Minus14BT ) << ",";
-   ofs << data.compMass( CBMGenerics::ComponentManager::C6Minus14DBT ) << ",";
-   ofs << data.compMass( CBMGenerics::ComponentManager::C6Minus14BP ) << ",";
-   ofs << data.compMass( CBMGenerics::ComponentManager::C6Minus14SatS ) << ",";
-   ofs << data.compMass( CBMGenerics::ComponentManager::C6Minus14AroS ) << ",";
-   ofs << data.compMass( CBMGenerics::ComponentManager::resin ) << ",";
-   ofs << data.compMass( CBMGenerics::ComponentManager::asphaltene ) << "\n";
+   ofs << data.compMass( ComponentId::C1               ) << ",";
+   ofs << data.compMass( ComponentId::C2               ) << ",";
+   ofs << data.compMass( ComponentId::C3               ) << ",";
+   ofs << data.compMass( ComponentId::C4               ) << ",";
+   ofs << data.compMass( ComponentId::C5               ) << ",";
+   ofs << data.compMass( ComponentId::N2               ) << ",";
+   ofs << data.compMass( ComponentId::COX              ) << ",";
+   ofs << data.compMass( ComponentId::H2S              ) << ",";
+   ofs << data.compMass( ComponentId::C6_MINUS_14ARO   ) << ",";
+   ofs << data.compMass( ComponentId::C6_MINUS_14SAT   ) << ",";
+   ofs << data.compMass( ComponentId::C15_PLUS_ARO     ) << ",";
+   ofs << data.compMass( ComponentId::C15_PLUS_SAT     ) << ",";
+   ofs << data.compMass( ComponentId::LSC              ) << ",";
+   ofs << data.compMass( ComponentId::C15_PLUS_AT      ) << ",";
+   ofs << data.compMass( ComponentId::C15_PLUS_ARO_S   ) << ",";
+   ofs << data.compMass( ComponentId::C15_PLUS_SAT_S   ) << ",";
+   ofs << data.compMass( ComponentId::C6_MINUS_14BT    ) << ",";
+   ofs << data.compMass( ComponentId::C6_MINUS_14DBT   ) << ",";
+   ofs << data.compMass( ComponentId::C6_MINUS_14BP    ) << ",";
+   ofs << data.compMass( ComponentId::C6_MINUS_14SAT_S ) << ",";
+   ofs << data.compMass( ComponentId::C6_MINUS_14ARO_S ) << ",";
+   ofs << data.compMass( ComponentId::RESIN            ) << ",";
+   ofs << data.compMass( ComponentId::ASPHALTENE       ) << "\n";
 }
 
 // Set of auxillary functions to print in m file data from PTDiagramCalculator
@@ -767,9 +755,9 @@ static void dumpCompositionInfo( std::ofstream & ofs, std::unique_ptr<PTDiagramC
 {
    ofs << "%Hydrocarbons composition masses\n";
    ofs << "Composition = [\n";
-   int iNc = CBMGenerics::ComponentManager::NumberOfSpecies;
+   int iNc = ComponentId::NUMBER_OF_SPECIES;
 
-   double mss[CBMGenerics::ComponentManager::NumberOfSpecies];
+   double mss[ComponentId::NUMBER_OF_SPECIES];
    double massTotal = 0.0;
    for ( int i = 0; i < iNc; ++i )
    {
@@ -805,7 +793,7 @@ static void dumpCompositionInfo( std::ofstream & ofs, std::unique_ptr<PTDiagramC
 
    for ( int i = 0; i < iNc; ++i )
    {
-      ofs << "'" << std::setw( 11 ) << std::left << CBMGenerics::ComponentManager::getInstance().GetSpeciesName( i ) << "'\n";
+      ofs << "'" << std::setw( 11 ) << std::left << CBMGenerics::ComponentManager::getInstance().getSpeciesName( i ) << "'\n";
    }
    ofs << "];\n\n";
 }
@@ -885,10 +873,10 @@ static void dumpPropertiesListArrays( std::ofstream & ofs, std::unique_ptr<PTDia
    {
       for ( size_t j = 0; j < gridT.size(); ++j )
       {
-         const int iNc     = CBMGenerics::ComponentManager::NumberOfSpecies;
-         const int iNp     = CBMGenerics::ComponentManager::NumberOfPhases;
-         const int iLiquid = CBMGenerics::ComponentManager::Liquid;
-         const int iVapour = CBMGenerics::ComponentManager::Vapour;
+         const int iNc     = ComponentId::NUMBER_OF_SPECIES;
+         const int iNp     = PhaseId::NUMBER_OF_PHASES;
+         const int iLiquid = PhaseId::LIQUID;
+         const int iVapour = PhaseId::VAPOUR;
    
          // arrays for passing to flasher
          double masses[iNc];
@@ -1008,10 +996,10 @@ static void dumpPropertySlice( std::unique_ptr<PTDiagramCalculator> & diagBuilde
    std::vector<double> densLiq( std::max( gridT.size(), gridP.size() ), 0.0 );
    std::vector<double> liqFrac( std::max( gridT.size(), gridP.size() ), 0.0 );
 
-   const int iNc     = CBMGenerics::ComponentManager::NumberOfSpecies;
-   const int iNp     = CBMGenerics::ComponentManager::NumberOfPhases;
-   const int iLiquid = CBMGenerics::ComponentManager::Liquid;
-   const int iVapour = CBMGenerics::ComponentManager::Vapour;
+   const int iNc     = ComponentId::NUMBER_OF_SPECIES;
+   const int iNp     = PhaseId::NUMBER_OF_PHASES;
+   const int iLiquid = PhaseId::LIQUID;
+   const int iVapour = PhaseId::VAPOUR;
 
    assert( composition.size() == iNc );
 
@@ -1493,7 +1481,7 @@ static void plotCompositionAsTable( std::ofstream & ofs )
    ofs << "box off;\n";
    
    ofs << "ax = axis;\n";
-   ofs << "dy = (ax(4) - ax(3)) / " << CBMGenerics::ComponentManager::NumberOfSpecies << " * 0.8;\n";
+   ofs << "dy = (ax(4) - ax(3)) / " << ComponentId::NUMBER_OF_SPECIES << " * 0.8;\n";
    ofs << "axis off;\n\n";
 
    ofs << "for i = 1:length( Composition )\n";

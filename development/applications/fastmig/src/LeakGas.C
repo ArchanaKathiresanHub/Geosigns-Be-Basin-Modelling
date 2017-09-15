@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2016 Shell International Exploration & Production.
+// Copyright (C) 2016-2017 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -29,8 +29,6 @@ using std::ostringstream;
 #include <algorithm>
 #include <assert.h>
 
-using functions::tuple;
-
 using namespace std;
 
 namespace migration
@@ -46,15 +44,13 @@ namespace migration
       const int X = 0;
       const int Y = 1;
 
-      LeakGas::LeakGas (const double& gasDensity, const double& oilDensity,
-         const double& sealFluidDensity, const double& fracturePressure,
-         const double& capPressure_H2O_Gas, const double& capPressure_H2O_Oil,
-         const MonotonicIncreasingPiecewiseLinearInvertableFunction* levelToVolume) :
+      LeakGas::LeakGas (const double gasDensity, const double oilDensity, const double sealFluidDensity,
+                        const double overPressureContrast, const double crestColumnThickness,
+                        const double fracturePressure, const double capPressure_H2O_Gas, const double capPressure_H2O_Oil,
+                        const MonotonicIncreasingPiecewiseLinearInvertableFunction* levelToVolume) :
          m_levelToVolume (levelToVolume),
-         m_leakGas (gasDensity, sealFluidDensity, min (fracturePressure, capPressure_H2O_Gas),
-         levelToVolume),
-         m_leakOil (oilDensity, sealFluidDensity, min (fracturePressure, capPressure_H2O_Oil),
-         levelToVolume),
+         m_leakGas (gasDensity, sealFluidDensity, overPressureContrast, crestColumnThickness, min (fracturePressure, capPressure_H2O_Gas), levelToVolume),
+         m_leakOil (oilDensity, sealFluidDensity, overPressureContrast, crestColumnThickness, min (fracturePressure, capPressure_H2O_Oil), levelToVolume),
          m_oilToGasLevelRatio (0.0)
       {
          // Normally the following conditions should apply:
@@ -188,7 +184,7 @@ namespace migration
 
          // If the oil buoyancy alone is bigger or equal to the maximum seal pressure, all gas 
          // will be leaked:
-         if (maxGasLevelFunctor < functions::tuple (0.0, 0.0))
+         if (maxGasLevelFunctor < functions::Tuple2<double>(0.0, 0.0))
          {
 #ifdef DEBUG_LEAKGAS
             assert(oilVolume >= leakGasDueToOilBuoyancy.maxVolume());

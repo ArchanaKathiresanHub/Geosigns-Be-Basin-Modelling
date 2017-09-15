@@ -31,14 +31,14 @@ Numerics::ApproximateCardinalFunction::~ApproximateCardinalFunction () {
 Numerics::FloatingPoint Numerics::ApproximateCardinalFunction::innerProduct ( const Vector& theVector ) const {
 
   FloatingPoint result = 0.0;
-  long          I;
+  int           I;
 
   // Do the loop in reverse, because the smaller numbers (in magnitude) are at 
   // the end of the vector and this should help in ill-conditioned systems.
   // For optimisation purposes, would it be better to order the neighbours/coefficients
   // (sorting in ascending order, on the neighbour number)? Rather than, as happens now,
   // when doing this calculation, neighbours_i jumps "randomly" around in position.
-  for ( I = neighbours.size () - 1; I >= 0; I-- ) {
+  for ( I = (int)neighbours.size () - 1; I >= 0; I-- ) {
     result = result + (*coefficients)( I ) * theVector ( neighbours [ I ]);
   }
 

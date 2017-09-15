@@ -8,12 +8,19 @@
 // Do not distribute without written permission from Shell.
 //
 
-#ifndef _GEOPHYSICS__COMPOUND_LITHOLOGY_H_
-#define _GEOPHYSICS__COMPOUND_LITHOLOGY_H_
+#ifndef GEOPHYSICS__COMPOUND_LITHOLOGY_H
+#define GEOPHYSICS__COMPOUND_LITHOLOGY_H
 
+//std library
 #include <string>
 #include <vector>
+
+// Eospack library
 #include "EosPack.h"
+
+// CBMGenerics library
+#include "ComponentManager.h"
+typedef CBMGenerics::ComponentManager::PhaseId PhaseId;
 
 #include "ArrayDefinitions.h"
 #include "CompoundLithologyComposition.h"
@@ -79,11 +86,14 @@ namespace GeoPhysics {
       /// Calculate the density times heat-capacity of the compound-lithology.
       double densityXheatcapacity(const double temperature, const double pressure) const;
 
+      /// \bried Calculate the density times heat-capacity of the compound-lithology for a vector of values.
+      void densityXheatcapacity ( const unsigned int       size,
+                                  ArrayDefs::ConstReal_ptr temperature,
+                                  ArrayDefs::ConstReal_ptr pressure,
+                                  ArrayDefs::Real_ptr      densityXHeatCap ) const;
+
       /// Return the heat-production value for the compound-lithology.
       double heatproduction() const;
-
-      /// Return the specific Surface Area
-      double specificSurfaceArea() const;
 
       /// Return the capillary entry pressure coefficient C1
       double capC1() const;
@@ -101,9 +111,6 @@ namespace GeoPhysics {
       string PcKrModel() const;
       double LambdaPc() const;
       double LambdaKr() const;
-
-      /// Return the geometric variance of the grain size distribution
-      double geometricVariance() const;
 
       double hydrostatFullCompThickness(const double maxVes,
                                         const double thickness,
@@ -161,6 +168,16 @@ namespace GeoPhysics {
                                      const double  LithoPressure,
                                      double& BulkDensXHeatCapacity) const;
 
+      /// \bried Calculate the bulk-density times heat-capacity for a vector of values.
+      void calcBulkDensXHeatCapacity ( const unsigned int  size,
+                                       const double*       fluidDensityXHeatCap,
+                                       const double*       porosity,
+                                       const double*       pressure,
+                                       const double*       temperature,
+                                       const double*       lithostaticPressure,
+                                       ArrayDefs::Real_ptr bulkDensXHeatCapacity,
+                                       ArrayDefs::Real_ptr matrixDensXHeatCapWorkSpace ) const;
+
       /// \brief Compute the density of the lithology.
       ///
       /// The lithologies "Crust", "Litho. Mantle" and ALCBasalt can only appear
@@ -209,10 +226,28 @@ namespace GeoPhysics {
                                double& BulkTHCondN,
                                double& BulkTHCondP) const;
 
+      /// \brief Calculate the bulk thermal-conductivity for a vector of values.
+      void calcBulkThermCondNP ( const unsigned int size,
+                                 const double* fluidThermalConductivity,
+                                 const double* porosity,
+                                 const double* temperature,
+                                 const double* porePressue,
+                                 double*       bulkThermalCondN,
+                                 double*       bulkThermalCondP ) const;
+
+
       /// thermal permeability for basement lithology
       void calcBulkThermCondNPBasement(const FluidType* fluid,
                                        double Porosity, double Temperature, double LithoPressure,
                                        double &BulkTHCondN, double &BulkTHCondP) const;
+
+      /// \brief thermal permeability for basement lithology for a vector of values.
+      void calcBulkThermCondNPBasement ( const unsigned int size,
+                                         const double* temperature,
+                                         const double* lithostaticPressure,
+                                         double*       bulkThermalCondN,
+                                         double*       bulkThermalCondP ) const;
+
 
       /// thermal permeability for ALC Basalt  lithology
       void calcBulkThermCondNPBasalt( double Temperature, double LithoPressure, double &BulkTHCondN, double &BulkTHCondP) const;
@@ -231,23 +266,6 @@ namespace GeoPhysics {
                                      const double bottomVes,
                                      const double densityDifference,
                                      const double solidThickness) const;
-
-      /// \brief Compute capillary pressure.
-      double capillaryPressure(const pvtFlash::PVTPhase phase,
-                               const double             densityBrine,
-                               const double             densityHc,
-                               const double             saturationBrine,
-                               const double             saturationHc,
-                               const double             porosity) const;
-
-      // compute capillary pressure
-      double capillaryPressure(const unsigned int phaseId,
-                               const double& density_H2O,
-                               const double& density_HC,
-                               const double& T_K,
-                               const double& T_c_HC_K,
-                               const double& wettingSaturation,
-                               const double& porosity) const;
 
       // compute capillary entry pressure coefficients
       void mixCapillaryEntryPressureCofficients();
@@ -350,7 +368,8 @@ namespace GeoPhysics {
                          ArrayDefs::ConstReal_ptr maxVes,
                          const bool               includeChemicalCompaction,
                          ArrayDefs::ConstReal_ptr chemicalCompactionTerm,
-                         MultiCompoundProperty&   porosities ) const;
+                         MultiCompoundProperty&   porosities,
+                         ArrayDefs::Real_ptr      porosityDerivative = nullptr ) const;
 
       /// Calculate the permeability value using the compound porosity.
       void calcBulkPermeabilityNP(const double            ves,
@@ -415,6 +434,9 @@ namespace GeoPhysics {
 
       void setMinimumPorosity(DataAccess::Interface::PorosityModel porosityModel, double  surfaceVoidRatio, double soilMechanicsCompactionCoefficient);
 
+      /// \brief Return the number of simple lithologies the compound lithology is made from.
+      size_t getNumberOfSimpleLithologies () const;
+
    protected:
 
 	   void setChemicalCompactionTerms(const double rockViscosity,
@@ -456,8 +478,6 @@ namespace GeoPhysics {
       double           m_permeabilitydecr;
       double           m_thermalConductivityValue;
       double           m_thermalConductivityAnisotropy;
-      double           m_specificSurfaceArea;
-      double           m_geometricVariance;
       double           m_capC1;
       double           m_capC2;
       double           m_tenPowerCapC2;
@@ -620,14 +640,6 @@ inline double GeoPhysics::CompoundLithology::thermalconductivityP(const double t
    return m_thermcondptbl.compute(temperature);
 }
 
-inline double GeoPhysics::CompoundLithology::geometricVariance() const {
-   return m_geometricVariance;
-}
-
-inline double GeoPhysics::CompoundLithology::specificSurfaceArea() const {
-   return m_specificSurfaceArea;
-}
-
 inline double GeoPhysics::CompoundLithology::capC1() const {
    return m_capC1;
 }
@@ -696,4 +708,9 @@ inline void GeoPhysics::CompoundLithology::setIsLegacy( bool isLegacy )
 {
    m_isLegacy = isLegacy;
 }
+
+inline size_t GeoPhysics::CompoundLithology::getNumberOfSimpleLithologies () const {
+   return m_lithoComponents.size ();
+}
+
 #endif // _GEOPHYSICS__COMPOUND_LITHOLOGY_H_

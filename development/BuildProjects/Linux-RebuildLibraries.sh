@@ -1,7 +1,7 @@
 #!/bin/bash -xl
 
 # Essential parameters
-LIBS="Boost PETSC HDF5 Eigen"
+LIBS="Boost PETSC HDF5 Eigen Hypre"
 SRC=`dirname $0`/..
 
 if [ `hostname -s` == "okapi" ]; then

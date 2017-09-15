@@ -26,7 +26,7 @@
 ///
 /// @subsection TornadoSection Tornado design
 /// The Tornado design is used for parameter screening by systematically varying the parameters one
-/// at a time. This means that each variable resembles the base case value, except for one parameter that is set
+/// at a time. This means that each influential resembles the base case value, except for one parameter that is set
 /// to either its lower or its upper bound.
 /// Figure
 /// @image html TornadoDesign.png "Graphical representation of a Tornado design for three parameters"
@@ -130,7 +130,7 @@ namespace casa
 
       /// @brief Generate set of cases for DoE
       /// @return ErrorHandler::NoError on success, error code otherwise
-      virtual ErrorHandler::ReturnCode generateDoE( const VarSpace & varPrmsSet   ///< [in] list of variable parameters
+      virtual ErrorHandler::ReturnCode generateDoE( const VarSpace & varPrmsSet   ///< [in] list of influential parameters
                                                   , RunCaseSet     & rcSet        ///< [out] container to keep the set of cases for DoE
                                                   , size_t           runsNum = 0  ///< [in] number of runs for DoE algorithm (if it support it)
                                                   , std::string      doeName = "" ///< [in] optional user given name for further reference

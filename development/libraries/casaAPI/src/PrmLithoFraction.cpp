@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2012-2016 Shell International Exploration & Production.
+// Copyright (C) 2012-2017 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -19,7 +19,7 @@
 #include "cmbAPI.h"
 
 // Utilities lib
-#include <NumericFunctions.h>
+#include "NumericFunctions.h"
 
 // STL/C lib
 #include <cassert>
@@ -137,7 +137,7 @@ namespace casa
       {
          mbapi::MapsManager::MapID mFirstID = mpMgr.findID( percMaps[0] );
 
-         if ( UndefinedIDValue == mFirstID )
+         if ( IsValueUndefined( mFirstID ) )
          {
             throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Can't find the map: " << percMaps[0]
                << " defined for the first lithology percentage";
@@ -149,7 +149,7 @@ namespace casa
       {
          mbapi::MapsManager::MapID mSecondID = mpMgr.findID( percMaps[1] );
 
-         if ( UndefinedIDValue == mSecondID )
+         if ( IsValueUndefined( mSecondID ) )
          {
             throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Can't find the map: " << percMaps[1]
                << " defined for the second lithology percentage";
@@ -197,7 +197,7 @@ namespace casa
 
       // get the layer ID
       mbapi::StratigraphyManager::LayerID lid = stMgr.layerID( m_layerName );
-      if ( UndefinedIDValue == lid ) { throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Can not find layer: " << m_layerName; }
+      if ( IsValueUndefined( lid ) ) { throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Can not find layer: " << m_layerName; }
 
       // vector to store the lithologies
       std::vector<std::string> lithoNames;
@@ -217,7 +217,7 @@ namespace casa
          // first map
          mbapi::MapsManager::MapID mFirstID = mpMgr.findID( percMaps[0] );
 
-         if ( UndefinedIDValue == mFirstID )
+         if ( IsValueUndefined( mFirstID ) )
          {
             throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Can't find the map: " << percMaps[0]
                                                                          << " defined for the first lithology percentage";
@@ -225,14 +225,14 @@ namespace casa
 
          // get the value of the first map
          double value = mpMgr.mapGetValue( mFirstID, coordinates[0], coordinates[1] );
-         if ( UndefinedIDValue == value ) { throw ErrorHandler::Exception( mdl.errorCode() ) << mdl.errorMessage(); }
+         if ( IsValueUndefined( value ) ) { throw ErrorHandler::Exception( mdl.errorCode() ) << mdl.errorMessage(); }
 
          // first lithoPercentage
          lithoPercentages[0] = value;
 
          // the second map
          mbapi::MapsManager::MapID mSecondID = mpMgr.findID( percMaps[1] );
-         if ( UndefinedIDValue == mSecondID )
+         if ( IsValueUndefined( mSecondID ) )
          {
             throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Can't find the map: " << percMaps[1]
                                                                          << " defined for the second lithology percentage";
@@ -240,7 +240,7 @@ namespace casa
 
          // get the value of the second map
          value = mpMgr.mapGetValue( mSecondID, coordinates[0], coordinates[1] );
-         if ( UndefinedDoubleValue == value ) { throw ErrorHandler::Exception( mdl.errorCode() ) << mdl.errorMessage(); }
+         if ( IsValueUndefined( value ) ) { throw ErrorHandler::Exception( mdl.errorCode() ) << mdl.errorMessage(); }
 
          // second lithoPercentage
          lithoPercentages[1] = value;
@@ -446,7 +446,7 @@ namespace casa
             // get the name in the GridMapIoTbl
             mbapi::MapsManager::MapID mFirstID = mpMgr.findID( percMaps[0] ); // without the HDF exstension
 
-            if ( UndefinedIDValue == mFirstID )
+            if ( IsValueUndefined( mFirstID ) )
             {
                throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Can't find the map: " << percMaps[0]
                   << " defined for the first lithology percentage";
@@ -477,7 +477,7 @@ namespace casa
             // get the name in the GridMapIoTbl
             mbapi::MapsManager::MapID mSecondID = mpMgr.findID( percMaps[1] );  // without the HDF exstension
 
-            if ( UndefinedIDValue == mSecondID )
+            if ( IsValueUndefined( mSecondID ) )
             {
                throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Can't find the map: " << percMaps[1]
                   << " defined for the second lithology percentage";

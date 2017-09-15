@@ -489,13 +489,13 @@ void Histogram::PrintBins (void)
 void Histogram::Scale (int totBinCnt)
 {
    double sum;
-   float factor;
+   double factor;
 
    sum = SumBins (0, (BINNUM) - 1);
 
    if (! (sum == .0) )
    {
-      factor = (float) totBinCnt / sum;
+      factor = (double) totBinCnt / sum;
       MulBins (factor);
    }
 }

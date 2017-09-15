@@ -22,11 +22,11 @@ namespace casa
    class VarPrmCrustThinning: public VarPrmContinuous
    {
    public:
-      /// @brief Construct variable parameter for one crust thinning event in crust thickness history. 
+      /// @brief Construct influential parameter for one crust thinning event in crust thickness history. 
       ///
       /// Crust thickness in Cauldron should be defined by a piecewise linear function @f$ thickness( time ) @f$ 
       /// User must provide a sorted by time a sequence of points @f$ [(time, thickness), ... ] @f$ .
-      /// This variable parameter allows to define a crust thickness function as set of crust thinning events.
+      /// This influential parameter allows to define a crust thickness function as set of crust thinning events.
       /// To define this event user should provide these sub-parameters:
       /// -# @f$ d_0 @f$ - [m] initial crust thickness - defines thickness of the crust at the beginning of simulation
       ///
@@ -48,14 +48,15 @@ namespace casa
 
       virtual ~VarPrmCrustThinning();
 
-      /// @brief Get name of variable parameter in short form     
+      /// @brief Get name of influential parameter in short form     
       /// @return array of names for each subparameter
       virtual std::vector<std::string> name() const;
 
       /// @brief Get number of subparameters if it is more than one
-      /// @return dimension of variable parameter
+      /// @return dimension of influential parameter
       virtual size_t dimension() const { return 1 + m_eventsNumber * 3; }
 
+      using VarPrmContinuous::newParameterFromDoubles;
       /// @brief Create parameter from set of doubles. This method is used to convert data between CASA and SUMlib
       /// @param[in,out] vals iterator which points to the first parameter value.
       /// @return new parameter for given set of values
@@ -63,6 +64,7 @@ namespace casa
 
       /// @brief Create parameter by reading the values stored in the project file
       /// @param[in, out] mdl the model where the parameters values should be read
+      /// @param[in] vin an input vector with parameter cpecific values. Not used for this parameter
       /// @return the new parameter read from the model
       virtual SharedParameterPtr newParameterFromModel( mbapi::Model & mdl, const std::vector<double> & vin ) const;
 

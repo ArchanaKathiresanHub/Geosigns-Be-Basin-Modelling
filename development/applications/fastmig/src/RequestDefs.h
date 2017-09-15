@@ -116,6 +116,13 @@ namespace migration
       Composition composition;
    };
 
+   struct ColumnCompositionPositionRequest : public Request
+   {
+	   int phase;
+	   int position;
+	   Composition composition;
+   };
+
    struct TrapPropertiesRequest : public Request
    {
       inline TrapPropertiesRequest (void);
@@ -190,6 +197,7 @@ namespace migration
    extern MPI_Datatype ColumnValueArrayType;
    extern MPI_Datatype ColumnColumnType;
    extern MPI_Datatype ColumnCompositionType;
+   extern MPI_Datatype ColumnCompositionPositionType;
    extern MPI_Datatype TrapPropertiesType;
    extern MPI_Datatype MigrationType;
 

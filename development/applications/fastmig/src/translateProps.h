@@ -44,7 +44,8 @@ namespace migration
 
          double operator()(const LithoType* lithoType)
          {
-            return lithoType->getAttributeValue (Interface::HydraulicFracturingPercent).getDouble ();
+            // Converting percentage to fraction through the 0.01 factor
+            return (0.01 * lithoType->getAttributeValue (Interface::HydraulicFracturingPercent).getDouble ());
          }
       };
 

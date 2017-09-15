@@ -31,17 +31,48 @@ namespace DataAccess
 namespace GeoPhysics {
 
    class GeoPhysicsCrustFormation : virtual public GeoPhysics::Formation,
-                                    virtual public DataAccess::Interface::CrustFormation {
+      virtual public DataAccess::Interface::CrustFormation {
 
-   public :
+   public:
 
       GeoPhysicsCrustFormation ( DataAccess::Interface::ProjectHandle* projectHandle,
                                  database::Record*                     record );
 
 
-      ~GeoPhysicsCrustFormation ();
+      ~GeoPhysicsCrustFormation();
+
+      bool isCrust() const;
+
+      // redefine set of methods which are differently were defined in base classes
+      // Inherited from BasementFormation
+      const string                                        & getName()                    const { return DataAccess::Interface::BasementFormation::getName(); }
+      const DataAccess::Interface::LithoType              * getLithoType1()              const { return DataAccess::Interface::BasementFormation::getLithoType1(); }
+      const DataAccess::Interface::GridMap                * getLithoType1PercentageMap() const { return DataAccess::Interface::BasementFormation::getLithoType1PercentageMap(); }
+      const DataAccess::Interface::LithoType              * getLithoType2()              const { return DataAccess::Interface::BasementFormation::getLithoType2(); }
+      const DataAccess::Interface::GridMap                * getLithoType2PercentageMap() const { return DataAccess::Interface::BasementFormation::getLithoType2PercentageMap(); }
+      const DataAccess::Interface::LithoType              * getLithoType3()              const { return DataAccess::Interface::BasementFormation::getLithoType3(); }
+      const DataAccess::Interface::GridMap                * getLithoType3PercentageMap() const { return DataAccess::Interface::BasementFormation::getLithoType3PercentageMap(); }
+      DataAccess::Interface::ReservoirList                * getReservoirs()              const { return DataAccess::Interface::BasementFormation::getReservoirs(); }
+      DataAccess::Interface::MobileLayerList              * getMobileLayers()            const { return DataAccess::Interface::BasementFormation::getMobileLayers(); }
+      const DataAccess::Interface::AllochthonousLithology * getAllochthonousLithology()  const { return DataAccess::Interface::BasementFormation::getAllochthonousLithology(); }
+      DataAccess::Interface::FaultCollectionList          * getFaultCollections()        const { return DataAccess::Interface::BasementFormation::getFaultCollections(); }
+      bool                                                  isMobileLayer()              const { return DataAccess::Interface::BasementFormation::isMobileLayer(); }
+      bool                                                  hasAllochthonousLithology()  const { return DataAccess::Interface::BasementFormation::hasAllochthonousLithology(); }
+      bool                                                  isSourceRock()               const { return DataAccess::Interface::BasementFormation::isSourceRock(); }
+      bool                                                  hasConstrainedOverpressure() const { return DataAccess::Interface::BasementFormation::hasConstrainedOverpressure(); }
+      bool                                                  hasChemicalCompaction()      const { return DataAccess::Interface::BasementFormation::hasChemicalCompaction(); }
+      CBMGenerics::capillarySealStrength::MixModel          getMixModel()                const { return DataAccess::Interface::BasementFormation::getMixModel(); }
+      float                                                 getLayeringIndex()           const { return DataAccess::Interface::BasementFormation::getLayeringIndex(); }
+      const DataAccess::Interface::FluidType              * getFluidType()               const { return DataAccess::Interface::BasementFormation::getFluidType(); }
+      const std::string                                   & getMixModelStr()             const { return DataAccess::Interface::BasementFormation::getMixModelStr(); }
+      DataAccess::Interface::GridMap                      * loadThicknessMap()           const { return DataAccess::Interface::BasementFormation::loadThicknessMap(); }
+      DataAccess::Interface::GridMap                      * computeThicknessMap()        const { return DataAccess::Interface::BasementFormation::computeThicknessMap(); }
+      DataAccess::Interface::GridMap                      * computeFaultGridMap( const DataAccess::Interface::Grid * localGrid, const DataAccess::Interface::Snapshot * snapshot ) const {
+         return DataAccess::Interface::BasementFormation::computeFaultGridMap( localGrid, snapshot ); }
+      unsigned int                                          getElementRefinement() const { return DataAccess::Interface::BasementFormation::getElementRefinement(); }
 
       /// \return True since this is a crust formation
+      //@TODO_Check
       bool isCrust () const noexcept;
 
       // Since this function is almost identical to the one in the GeoPhysicsMantleFormation,
@@ -84,7 +115,6 @@ namespace GeoPhysics {
       DataAccess::Interface::GridMap*  m_crustMaximumThickness; ///< The crust maximum thickness [m]
 
    };
-
 }
 
 //------------------------------------------------------------//

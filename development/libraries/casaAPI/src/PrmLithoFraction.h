@@ -27,9 +27,9 @@ namespace mbapi
    class Model;
 }
 
-/// @page CASA_LithoFractionPage lithofraction model
+/// @page CASA_LithoFractionPage Lithologies mixing proportions
 ///   
-/// This parameter defines the lithology fraction for a particular layer.
+/// This parameter defines the lithology fractions in a mix for a particular layer.
 /// From the one or two lithology fractions, three percentages are calculated and set in the project file. 
 /// If only one lithofraction is specified the remaining part is divided among the remaining lithofractions using the same ratio of the base case.
 ///
@@ -69,7 +69,7 @@ namespace casa
                       );
 
       /// @brief Constructor. Create parameter object from the given parameter value
-      PrmLithoFraction( const VarPrmLithoFraction * parent,                             ///< parent variable parameter which created this one
+      PrmLithoFraction( const VarPrmLithoFraction * parent,                             ///< parent influential parameter which created this one
                         const std::string         & name,                               ///< parameter name
                         const std::string         & layerName,                          ///< the layer name
                         const std::vector<int>    & lithoFractionsInds,                 ///< the indexes of the lithofractions
@@ -100,7 +100,7 @@ namespace casa
 
       /// @brief Get parameter value as integer
       /// @return parameter value represented as integer
-      virtual int asInteger() const { assert( 0 ); return UndefinedIntegerValue; }
+      virtual int asInteger() const { assert( 0 ); return Utilities::Numerical::NoDataIntValue; }
 
       /// @brief Are two parameters equal?
       /// @param prm Parameter object to compare with
@@ -115,12 +115,12 @@ namespace casa
       /// @return number which indicates which solver influence this parameter
       virtual AppPipelineLevel appSolverDependencyLevel() const  { return PTSolver; }
 
-      /// @brief Get variable parameter which was used to create this parameter
-      /// @return Pointer to the variable parameter
+      /// @brief Get influential parameter which was used to create this parameter
+      /// @return Pointer to the influential parameter
       virtual const VarParameter * parent() const { return m_parent; }
 
-      /// @brief Set variable parameter which was used to create this parameter
-      /// @param Pointer to the variable parameter
+      /// @brief Set influential parameter which was used to create this parameter
+      /// @param varPrm pointer to the influential parameter
       virtual void  setParent( const VarParameter * varPrm )  { m_parent =  varPrm; }
 
       /// @{
@@ -150,7 +150,7 @@ namespace casa
       /// @}
 
    protected:
-      const VarParameter *                     m_parent;                             ///< variable parameter which was used to create this one
+      const VarParameter *                     m_parent;                             ///< influential parameter which was used to create this one
       std::string                              m_name;                               ///< name of the parameter
       std::string                              m_layerName;                          ///< stratigraphic layer name 
       std::vector<int>                         m_lithoFractionsInds;                 ///< indexes of the lithofractions

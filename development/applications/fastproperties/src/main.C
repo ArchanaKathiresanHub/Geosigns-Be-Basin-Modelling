@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -36,7 +36,7 @@ int main( int argc, char ** argv )
       char cmd[150];
 
       sprintf (cmd, "ddd  %s %d &", argv[0],  getpid ());
-      
+
       system (cmd);
       sleep (20);
    }
@@ -72,91 +72,111 @@ int main( int argc, char ** argv )
    ////////////////////////////////////////////
    ///2. Parse command line and create calculator
    PetscLogDouble sim_Start_Time;
-   PetscTime( &sim_Start_Time );   
+   PetscTime( &sim_Start_Time );
 
    GeoPhysics::ObjectFactory* factory = new GeoPhysics::ObjectFactory;
-   PropertiesCalculator propCalculator ( rank );
-   propCalculator.startTimer();
+   PropertiesCalculator * propCalculator = new PropertiesCalculator( rank );
+   propCalculator->startTimer();
 
-   if( !propCalculator.parseCommandLine( argc, argv )) {
+   if( !propCalculator->parseCommandLine( argc, argv )) {
 
       PetscFinalize();
       return 1;
    }
 
-   if( ! propCalculator.CreateFrom(factory) ) {
+   if( ! propCalculator->CreateFrom(factory) ) {
 
-      propCalculator.showUsage( argv[ 0 ], "Could not open specified project file" );
+      propCalculator->showUsage( argv[ 0 ], "Could not open specified project file" );
+      delete propCalculator;
 
       PetscFinalize();
 
       return 1;
    }
-   if( propCalculator.convert() ) {
+   if( propCalculator->convert() ) {
       
-      propCalculator.convertToVisualizationIO();
-      propCalculator.finalise ( false );
+      propCalculator->convertToVisualizationIO();
+      propCalculator->finalise ( false );
+      delete propCalculator;
  
       PetscFinalize ();
 
       return 0;
    };
+   if( propCalculator->hdfonly() ) {
+      
+      propCalculator->writeToHDF();
+      propCalculator->finalise ( false );
+      delete propCalculator;
  
+      PetscFinalize ();
+
+      return 0;
+   };
+
    ////////////////////////////////////////////
    ///3. Load data
-   propCalculator.printOutputableProperties ();
-   propCalculator.acquireAll2Dproperties();
-   propCalculator.acquireAll3Dproperties();
+   propCalculator->printOutputableProperties ();
+   propCalculator->acquireAll2Dproperties();
+   propCalculator->acquireAll3Dproperties();
 
-   propCalculator.printListSnapshots();
-   propCalculator.printListStratigraphy(); 
+   propCalculator->printListSnapshots();
+   propCalculator->printListStratigraphy(); 
 
-   if ( propCalculator.showLists() ) {
-      propCalculator.finalise ( false );
+   if ( propCalculator->showLists() ) {
+      propCalculator->finalise ( false );
+      delete propCalculator;
 
       PetscFinalize ();
 
       return 0;
    }
 
-   if ( !propCalculator.startActivity () ) {
-      propCalculator.finalise ( false );
- 
+   if ( !propCalculator->startActivity () ) {
+      propCalculator->finalise ( false );
+      delete propCalculator;
+
       PetscFinalize ();
 
       return 1;
    };
-      
+
    SnapshotList snapshots;
    PropertyList properties;
    
-   propCalculator.acquireSnapshots( snapshots );
-   propCalculator.acquireProperties( properties );
+   propCalculator->acquireSnapshots( snapshots );
+   propCalculator->acquireProperties( properties );
 
    FormationSurfaceVector formationSurfaceItems;
    
-   propCalculator.acquireFormationsSurfaces( formationSurfaceItems );
+   propCalculator->acquireFormationsSurfaces( formationSurfaceItems );
    //////////////////////////////////////////////////
    ///4. Compute derived properties
    try{
 
-   propCalculator.calculateProperties( formationSurfaceItems, properties, snapshots );
+   propCalculator->calculateProperties( formationSurfaceItems, properties, snapshots );
    }
    catch (formattingexception::GeneralException& ex){
       LogHandler( LogHandler::ERROR_SEVERITY ) << ex.what();
       return 1;
    }
+   catch (CauldronIO::CauldronIOException& except)
+    {
+       cerr << "Error occurred: " << except.what() << endl;
+    }
    catch (...){
       LogHandler( LogHandler::FATAL_SEVERITY ) << "Fatal error when computing derived properties.";
       return 1;
    }
-   
+
    ////////////////////////////////////////////
    ///5. Save results
 
-   bool status = propCalculator.finalise ( true );
+   bool status = propCalculator->finalise ( true );
 
    delete factory;
+
+   delete propCalculator;
 
    PetscLogDouble sim_End_Time;
    PetscTime( &sim_End_Time );   
@@ -164,6 +184,5 @@ int main( int argc, char ** argv )
    displayTime( sim_End_Time - sim_Start_Time, "End of calculation" );
 
    PetscFinalize ();
-   return status;
+   return ( status ? 0 : 1 );
 }
-

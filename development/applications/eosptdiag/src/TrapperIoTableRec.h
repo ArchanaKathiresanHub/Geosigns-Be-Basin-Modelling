@@ -6,9 +6,14 @@
 #ifndef TRAPPER_IO_TABLE_REC_H
 #define TRAPPER_IO_TABLE_REC_H
 
+// CBMGenerics library
 #include "ComponentManager.h"
+typedef CBMGenerics::ComponentManager::SpeciesNamesId ComponentId;
+typedef CBMGenerics::ComponentManager::PhaseId PhaseId;
+
 #include "Interface/ProjectHandle.h"
 
+// std library
 #include <numeric>
 #include <string>
 #include <vector>
@@ -20,7 +25,6 @@ class TrapperIoTableRec
 {
 public:
    static const char * PhaseNames[4];
-   static const char * SpeciesNames[CBMGenerics::ComponentManager::NumberOfSpecies];
 
    TrapperIoTableRec();
    TrapperIoTableRec( database::Table * trapperIoTbl );
@@ -42,20 +46,20 @@ public:
 
    double totMass( int phase ) const
    { 
-      assert( phase < CBMGenerics::ComponentManager::NumberOfPhases );
+      assert( phase < PhaseId::NUMBER_OF_PHASES );
       return m_TotMass[phase*2] + m_TotMass[phase*2+1];
    }
 
    double compMass( int compNum, int phase )
    {
-      assert( phase < CBMGenerics::ComponentManager::NumberOfPhases );
-      assert( compNum < CBMGenerics::ComponentManager::NumberOfSpecies );
+      assert( phase < PhaseId::NUMBER_OF_PHASES );
+      assert( compNum < ComponentId::NUMBER_OF_SPECIES );
       return m_CompMass[phase*2][compNum] + m_CompMass[phase*2+1][compNum];
    }
 
    double compMass( int compNum ) const
    {
-      assert( compNum < CBMGenerics::ComponentManager::NumberOfSpecies );
+      assert( compNum < ComponentId::NUMBER_OF_SPECIES );
       return m_CompMass[0][compNum] + m_CompMass[1][compNum] + m_CompMass[2][compNum] + m_CompMass[3][compNum];
    }
 

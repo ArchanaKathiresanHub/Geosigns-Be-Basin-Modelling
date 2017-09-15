@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2015 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file MapsManagerImpl.C
 /// @brief This file keeps API implementation for manipulating input 2D maps
@@ -28,7 +28,7 @@
 #include "FolderPath.h"
 
 // Utilities lib
-#include <NumericFunctions.h>
+#include "NumericFunctions.h"
 
 // NNlib
 #include "nn.h"
@@ -67,10 +67,10 @@ MapsManagerImpl::~MapsManagerImpl()
 std::vector<MapsManager::MapID> MapsManagerImpl::mapsIDs() const
 {
    std::vector<MapID> ids;
-   if ( !m_db ) return ids;
+   if ( !m_proj ) return ids;
 
    // get pointer to the table
-   database::Table * table = m_db->getTable( s_mapsTableName );
+   database::Table * table = m_proj->getTable( s_mapsTableName );
 
    // if table does not exist - return empty array
    if ( !table ) return ids;
@@ -79,14 +79,14 @@ std::vector<MapsManager::MapID> MapsManagerImpl::mapsIDs() const
 
    // fill IDs array with increasing indexes
    ids.resize( m_mapName.size(), 0 );
- 
+
    for ( size_t i = 0; i < m_mapName.size(); ++i ) ids[ i ] = static_cast<MapID>( i );
 
    return ids;
 }
 
 
-// Search for map record which has given name 
+// Search for map record which has given name
 MapsManager::MapID MapsManagerImpl::findID( const std::string & mName )
 {
    if ( errorCode() != NoError ) resetError();
@@ -102,7 +102,7 @@ MapsManager::MapID MapsManagerImpl::findID( const std::string & mName )
    }
    catch ( const Exception & e ) { reportError( e.errorCode(), e.what() ); }
 
-   return UndefinedIDValue;
+   return Utilities::Numerical::NoDataIDValue;
 }
 
 
@@ -111,12 +111,12 @@ MapsManager::MapID MapsManagerImpl::copyMap( MapID id, const std::string & newMa
 {
    if ( errorCode() != NoError ) resetError();
 
-   MapID ret = UndefinedIDValue;
+   MapID ret = Utilities::Numerical::NoDataIDValue;
 
    try
    {
       loadGridMap( id );
-  
+
       // create a copy
       MapID newId = m_mapName.size();
 
@@ -129,7 +129,7 @@ MapsManager::MapID MapsManagerImpl::copyMap( MapID id, const std::string & newMa
       std::string newMapFile = newMapName + ".HDF";
 
       // get pointer to the GridMapIo table
-      database::Table * table = m_db->getTable( s_mapsTableName );
+      database::Table * table = m_proj->getTable( s_mapsTableName );
       if ( !table ) { throw Exception( NonexistingID ) <<  s_mapsTableName << " table could not be found in project " << m_projectFileName; }
 
       // get record for copy
@@ -164,15 +164,15 @@ MapsManager::MapID MapsManagerImpl::generateMap( const std::string         & ref
 {
    if ( errorCode() != NoError ) resetError();
 
-   MapID ret = UndefinedIDValue;
+   MapID ret = Utilities::Numerical::NoDataIDValue;
 
    try
    {
       DataAccess::Interface::GridMap * gridMap = m_proj->getFactory()->produceGridMap( 0, 0, m_proj->getInputGrid(),
-                                                                                       DataAccess::Interface::DefaultUndefinedMapValue, 1 );
+                                                                                       Utilities::Numerical::CauldronNoDataValue, 1 );
       ibs::FilePath mapFullPath( ibs::FilePath( m_projectFileName ).filePath() );
 
-      // if filename is empty 
+      // if filename is empty
       mapFullPath << ( filePathName.empty() ? s_mapResultFile : filePathName );
 
       MapID pos = find( m_mapName.begin(), m_mapName.end(), mapName ) - m_mapName.begin();
@@ -186,7 +186,7 @@ MapsManager::MapID MapsManagerImpl::generateMap( const std::string         & ref
          m_mapRefTable.push_back( refferedTable );
 
          // get pointer to the GridMapIo table
-         database::Table * table = m_db->getTable( s_mapsTableName );
+         database::Table * table = m_proj->getTable( s_mapsTableName );
          if ( !table ) { throw Exception( NonexistingID ) << s_mapsTableName << " table could not be found in project " << m_projectFileName; }
 
          // create a new record in s_mapsTableName
@@ -230,7 +230,7 @@ MapsManager::MapID MapsManagerImpl::generateMap( const std::string         & ref
 
       // save the map to HDF
       if ( ErrorHandler::ReturnCode::NoError != saveMapToHDF( ret, filePathName, mapSequenceNbr ) )
-      { 
+      {
          throw Exception( UnknownError ) << "Can not save HDF5 map";
       }
    }
@@ -261,7 +261,7 @@ ErrorHandler::ReturnCode MapsManagerImpl::inizializeMapWriter( const std::string
 
 ErrorHandler::ReturnCode MapsManagerImpl::finalizeMapWriter()
 {
-   
+
    if ( errorCode() != NoError ) resetError();
    try
    {
@@ -334,7 +334,7 @@ double MapsManagerImpl::mapGetValue( MapID id, size_t i, size_t j )
 {
    if ( errorCode() != NoError ) resetError();
 
-   double value = UndefinedDoubleValue;
+   double value = Utilities::Numerical::IbsNoDataValue;
 
    loadGridMap( id ); // check if map is loaded and load it if not loaded before
    m_mapObj[id]->retrieveData();
@@ -350,24 +350,24 @@ ErrorHandler::ReturnCode MapsManagerImpl::saveMapToHDF( MapID id, const std::str
    if ( errorCode() != NoError ) resetError();
    try
    {
-      if ( !m_db ) throw Exception( NonexistingID ) << "MapsManager::copyMap(): No project file was loaded";
+      if ( !m_proj ) throw Exception( NonexistingID ) << "MapsManager::copyMap(): No project file was loaded";
 
       if ( id >= m_mapName.size() ) { throw Exception( NonexistingID ) <<  "No map with given ID: " << id; }
 
       // get pointer to the GridMapIo table
-      database::Table * table = m_db->getTable( s_mapsTableName );
+      database::Table * table = m_proj->getTable( s_mapsTableName );
       if ( !table ) { throw Exception( NonexistingID ) <<  s_mapsTableName << " table could not be found in project " << m_projectFileName; }
 
       // load source map
-      if ( !m_mapObj[id] ) 
+      if ( !m_mapObj[id] )
       {
          throw Exception( UndefinedValue ) << "MapManager::saveMapToHDF(): Map " << m_mapName[id] << " wasn't modified. Nothing to save";
       }
-      
-      // get record from table for the given map 
+
+      // get record from table for the given map
       database::Record * rec = table->getRecord( static_cast<int>( id ) );
       if ( !rec ) { throw Exception( NonexistingID ) << "No input map with such ID: " << id; }
-      
+
       // get only the file name from the file path (if given)
       std::string mfName = fileName.empty() ? std::string( "" ) : ibs::FilePath( fileName ).fileName();
       if ( mfName.empty() ) // if no file name is given - take file name from the map record
@@ -375,12 +375,12 @@ ErrorHandler::ReturnCode MapsManagerImpl::saveMapToHDF( MapID id, const std::str
          mfName = rec->getValue<std::string>( s_MapFileNameColName );
          if ( mfName.empty() ) throw Exception( UndefinedValue ) << "No file name is given to save input map " << m_mapName[id];
       }
-     
+
       // check if given file name has path and this path is equal with path to project file
       const std::string givenPath = ibs::FilePath( fileName ).filePath();
       if ( !givenPath.empty() && givenPath != ibs::FilePath( m_projectFileName ).filePath() )
       {
-         throw Exception( OutOfRangeValue ) << "Given path to save map " << m_mapName[id] << ": " << givenPath << 
+         throw Exception( OutOfRangeValue ) << "Given path to save map " << m_mapName[id] << ": " << givenPath <<
             ", is different from the path where project is located: " << ibs::FilePath( m_projectFileName ).filePath();
       }
       ibs::FilePath mapFullPath( givenPath.empty() ? ibs::FilePath( m_projectFileName ).filePath() : givenPath );
@@ -489,7 +489,7 @@ ErrorHandler::ReturnCode MapsManagerImpl::interpolateMap( MapID id, MapID minId,
    try
    {
       double nulVal = m_mapObj[id]->getUndefinedValue();
-      
+
       if ( !m_mapObj[minId] ) { loadGridMap( minId ); }
       if ( !m_mapObj[maxId] ) { loadGridMap( maxId ); }
 
@@ -505,7 +505,7 @@ ErrorHandler::ReturnCode MapsManagerImpl::interpolateMap( MapID id, MapID minId,
                m_mapObj[id]->setValue( i, j, nulVal );
                continue;
             }
-            
+
             m_mapObj[id]->setValue( i, j, minV + (maxV - minV) * coeff );
          }
       }
@@ -547,7 +547,7 @@ ErrorHandler::ReturnCode MapsManagerImpl::interpolateMap( const std::vector<doub
 
       // generate the points, interpolate with NNlib
       points_getrange( static_cast<int>( nin ), pin, 1, &xmin, &xmax, &ymin, &ymax );
-      points_generate( xmin, xmax, ymin, ymax, numI, numJ, &nout, &pout );  
+      points_generate( xmin, xmax, ymin, ymax, numI, numJ, &nout, &pout );
       nnpi_interpolate_points( static_cast<int>( nin ), pin, wmin, nout, pout );
 
       xout.resize( nout );
@@ -573,7 +573,6 @@ ErrorHandler::ReturnCode MapsManagerImpl::interpolateMap( const std::vector<doub
 void MapsManagerImpl::setProject( DataAccess::Interface::ProjectHandle * ph, const std::string & projectFileName )
 {
    m_projectFileName = projectFileName;
-   m_db   = ph->getDataBase();
    m_proj = ph;
 
    // clear arrays
@@ -586,7 +585,7 @@ void MapsManagerImpl::setProject( DataAccess::Interface::ProjectHandle * ph, con
 
    // collecting map names and map files name
    // get pointer to the table
-   database::Table * table = m_db->getTable( s_mapsTableName );
+   database::Table * table = m_proj->getTable( s_mapsTableName );
 
    if ( !table ) return; // no table - no maps
 
@@ -660,7 +659,7 @@ void MapsManagerImpl::loadGridMap( MapID id )
    if ( m_mapObj[id] ) return; // nothing to do, map is already loaded
 
    // get pointer to the GridMapIo table
-   database::Table * table = m_db->getTable( s_mapsTableName );
+   database::Table * table = m_proj->getTable( s_mapsTableName );
    if ( !table ) { throw Exception( NonexistingID ) <<  s_mapsTableName << " table could not be found in project " << m_projectFileName; }
 
    // load source map

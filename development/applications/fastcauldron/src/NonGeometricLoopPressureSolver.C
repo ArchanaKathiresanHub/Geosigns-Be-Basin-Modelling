@@ -83,11 +83,11 @@ void NonGeometricLoopPressureSolver::adjustSolidThickness ( const double relativ
 
     PETSC_2D_Array FCTCorrection;
     FCTCorrection.Set_Global_Array( *cauldron -> mapDA, Current_Layer -> FCTCorrection, 
-				    INSERT_VALUES, true );
+                INSERT_VALUES, true );
 
     PETSC_2D_Array Thickness_Error;
     Thickness_Error.Set_Global_Array( *cauldron -> mapDA, Current_Layer -> Thickness_Error, 
-				      INSERT_VALUES, true );
+                  INSERT_VALUES, true );
     //
     //
     //  Computed_Depths:                 Present day depths, as computed by the pressure calculator
@@ -124,7 +124,7 @@ void NonGeometricLoopPressureSolver::adjustSolidThickness ( const double relativ
           }
 
           FCT_Scaling_Factors ( I, J ) = FCTCorrection ( J, I ) * FCT_Scaling;
-	  FCTCorrection ( J, I ) = FCTCorrection ( J, I ) * FCT_Scaling;
+     FCTCorrection ( J, I ) = FCTCorrection ( J, I ) * FCT_Scaling;
 
           if ( Computed_Solid_Thickness == 0.0 ) {
             //
@@ -151,8 +151,8 @@ void NonGeometricLoopPressureSolver::adjustSolidThickness ( const double relativ
           }
 
         } else {
-	  FCTCorrection   ( J, I ) = CauldronNoDataValue;
-	  Thickness_Error ( J, I ) = CauldronNoDataValue;
+     FCTCorrection   ( J, I ) = CauldronNoDataValue;
+     Thickness_Error ( J, I ) = CauldronNoDataValue;
         }
 
       }
@@ -303,21 +303,21 @@ void NonGeometricLoopPressureSolver::computeSolidThickness ( const LayerProps_Pt
     Iteration_Count = Iteration_Count + 1;
   }
 
-/*    if ( (Fluid_Density > Solid_Density) && ( Current_Layer->fluid->SwitchPermafrost() ) )  // NLSAY3: We assume the solid is ice in this case
+/*    if ( (Fluid_Density > Solid_Density) && ( Current_Layer->fluid->isPermafrostEnabled() ) )  // NLSAY3: We assume the solid is ice in this case
     {
     Hydrostatic_Pressure = Hydrostatic_Pressure_Top
                          + 0.5 * GRAVITY * Real_Thickness * ( Bulk_Density_Top + Bulk_Density ) * PaToMegaPa;
     Pore_Pressure = Hydrostatic_Pressure + Overpressure_Bottom;
     }*/
 
-/*    if ( (Fluid_Density > Solid_Density) && ( Current_Layer->fluid->SwitchPermafrost() ) )  // NLSAY3: We assume the solid is ice in this case
+/*    if ( (Fluid_Density > Solid_Density) && ( Current_Layer->fluid->isPermafrostEnabled() ) )  // NLSAY3: We assume the solid is ice in this case
     {
     Hydrostatic_Pressure = Hydrostatic_Pressure_Top
                          + GRAVITY * Real_Thickness * ( Solid_Density ) * PaToMegaPa;
     Pore_Pressure = Hydrostatic_Pressure + Overpressure_Bottom;
     }*/
 
-  if ( (Fluid_Density > Solid_Density) && ( Current_Layer->fluid->SwitchPermafrost() ) )  // NLSAY3: We assume the solid is ice in this case
+  if ( (Fluid_Density > Solid_Density) && ( Current_Layer->fluid->isPermafrostEnabled() ) )  // NLSAY3: We assume the solid is ice in this case
   {
     Hydrostatic_Pressure = Hydrostatic_Pressure_Top;
        //                  + 0.5 * GRAVITY * ( Real_Thickness - Solid_Thickness ) * ( Fluid_Density_Top + Fluid_Density ) * PaToMegaPa; // Second term should be 0 to be consistant.

@@ -48,11 +48,11 @@ TEST( SimpleInterpolator, InterpolatorDegree )
 }
 
 
-double zeroFunction ( const double x ) {
+double zeroFunction ( const double /*x*/ ) {
    return 0.0;
 }
 
-double constantFunction ( const double x ) {
+double constantFunction ( const double /*x*/ ) {
    return 2.0;
 }
 

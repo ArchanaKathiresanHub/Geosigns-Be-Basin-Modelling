@@ -12,6 +12,7 @@ DerivedProperties::DerivedFormationProperty::DerivedFormationProperty ( const Da
 }
 
 DerivedProperties::DerivedFormationProperty::~DerivedFormationProperty () {
+   m_values.resize( boost::extents[0][0][0] );
 }
 
 

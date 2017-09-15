@@ -147,9 +147,21 @@ void  DerivedProperties::removeProperties (  const Snapshot * snapshot,
    SnapshotFormationSurfaceOutputPropertyValueMap::iterator propertyValueToRemove;
    for( propertyValueToRemove = allOutputPropertyValues.begin(); propertyValueToRemove != allOutputPropertyValues.end(); ) {
       if( propertyValueToRemove->first == snapshot ) {
+
+         FormationSurfaceOutputPropertyValueMap map = propertyValueToRemove->second;
+         FormationSurfaceOutputPropertyValueMap::iterator mapToRemove;
+         for( mapToRemove = map.begin(); mapToRemove != map.end(); ++ mapToRemove ) {
+       
+            OutputPropertyValueMap map1 = (*mapToRemove).second;
+            OutputPropertyValueMap::iterator map2;
+            for( map2 = map1.begin(); map2 != map1.end(); ++ map2 ) {
+               (map2->second).reset();
+               map1.erase( map2 );
+            }
+            map.erase( mapToRemove );
+         }
          allOutputPropertyValues.erase( propertyValueToRemove ++ );
       } else {
-         
          ++ propertyValueToRemove;
       }
    }
@@ -280,7 +292,7 @@ bool  DerivedProperties::createSnapshotResultPropertyValue (  GeoPhysics::Projec
        return true;
    }
 
-   double p_depth = propertyValue->getDepth();
+   unsigned int p_depth = propertyValue->getDepth();
    unsigned int kIndex = 0;
 
    PropertyValue *thePropertyValue = 0;

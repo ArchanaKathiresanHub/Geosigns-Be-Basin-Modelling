@@ -11,6 +11,10 @@
 #ifndef FASTCTC_CRUSTALTHICKNESS_CALCULATOR_H
 #define FASTCTC_CRUSTALTHICKNESS_CALCULATOR_H
 
+// TableIO library
+// @TODO_Check
+#include "ProjectFileHandler.h"
+
 // CrustalThickness library
 #include "InterfaceInput.h"
 #include "InterfaceOutput.h"
@@ -44,7 +48,7 @@ class CrustalThicknessCalculator : public DataAccess::Mining::ProjectHandle {
    typedef formattingexception::GeneralException CtcException;
 
 public :
-   CrustalThicknessCalculator( database::Database * database, const std::string & name, const std::string & accessMode, ObjectFactory* objectFactory );
+   CrustalThicknessCalculator( database::ProjectFileHandlerPtr database, const std::string & name, const std::string & accessMode, ObjectFactory* factory );
    ~CrustalThicknessCalculator();
 
    /// @brief Return the reference to the project data

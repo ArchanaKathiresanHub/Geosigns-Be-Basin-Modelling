@@ -137,7 +137,8 @@ hid_t H5_Write_File::addDataset (const char *dataname, hid_t locId, hid_t type,
 {
    int numDimensions = space.numDimensions();
 
-   if( not m_useChunks or memspace == NULL ) {
+   // do not output map data in chunks
+   if( not m_useChunks or numDimensions < 3 or memspace == NULL ) {
       return addDataset (dataname, locId, type, space, propertyList);
    }
    
@@ -246,7 +247,7 @@ bool H5_Write_File::writeDataset (hid_t dataId, const void *buffer, H5_PropertyL
 }
 
 bool H5_Write_File::writeAttribute (hid_t attributeId, hid_t spaceId, void *buffer, 
-                                   H5_PropertyList *pList)
+                                   H5_PropertyList *)
 {
    herr_t status = -1;
 
@@ -328,7 +329,7 @@ bool H5_ReadOnly_File::readDataset (hid_t dataId, void *buffer, H5_PropertyList 
 }
 
 bool H5_ReadOnly_File::readAttribute (hid_t attributeId, hid_t spaceId, void *buffer,  
-                                       H5_PropertyList *pList)
+                                       H5_PropertyList *)
 {
    herr_t status = -1;
 

@@ -167,7 +167,7 @@ void CrustalThicknessCalculator::setRequestedOutputProperties( InterfaceOutput &
    if( Interface::MODE1D == theMode ) {
       theModellingMode = "1d";
    }
-   
+
    Table * timeIoTbl = getTable ("FilterTimeIoTbl");
    Table::iterator tblIter;
 
@@ -366,7 +366,7 @@ bool CrustalThicknessCalculator::mergeOutputFiles() {
 bool CrustalThicknessCalculator::parseCommandLine() {
 
    PetscBool isDefined = PETSC_FALSE;
-   
+
    H5_Parallel_PropertyList::setOneFilePerProcessOption();
    PetscOptionsHasName (PETSC_NULL, "-xyz", &isDefined);
    if (isDefined) {

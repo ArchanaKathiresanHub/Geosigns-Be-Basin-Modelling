@@ -37,10 +37,9 @@ namespace GeoPhysics {
    public :
 
       /// Returns the project-handle.
-      DataAccess::Interface::ProjectHandle* produceProjectHandle ( database::Database * database,
+      DataAccess::Interface::ProjectHandle* produceProjectHandle ( database::ProjectFileHandlerPtr pfh,
                                                                    const string &       name,
-                                                                   const string &       accessMode
-																   );
+                                                                   const string &       accessMode );
 
       /// Allocate a GeoPhysics fluid-type.
       DataAccess::Interface::FluidType* produceFluidType ( DataAccess::Interface::ProjectHandle* projectHandle,
@@ -64,7 +63,7 @@ namespace GeoPhysics {
                                                              database::Record*                     record );
 
       /// Allocate a GeoPhysics litho-type (simple-lithology).
-      DataAccess::Interface::LithoType* produceLithoType ( DataAccess::Interface::ProjectHandle* projectHandle, 
+      DataAccess::Interface::LithoType* produceLithoType ( DataAccess::Interface::ProjectHandle* projectHandle,
                                                            database::Record *                    record );
 
       /// Allocate a GeoPhysics litho-type (simple-lithology).
@@ -95,7 +94,7 @@ namespace GeoPhysics {
       virtual GeoPhysics::FracturePressureCalculator* produceFracturePressureCalculator ( GeoPhysics::ProjectHandle* projectHandle );
 
 
-   }; 
+   };
 
 }
 

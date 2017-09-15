@@ -312,7 +312,7 @@ inline double ComputationalDomain::getCurrentAge () const {
 }
 
 inline int ComputationalDomain::getLocalNumberOfActiveElements () const {
-   return m_activeElements.size ();
+   return static_cast<int>( m_activeElements.size () );
 }
 
 inline int ComputationalDomain::getLocalStartDof () const {

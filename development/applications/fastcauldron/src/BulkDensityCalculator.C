@@ -27,7 +27,7 @@ BulkDensityCalculator::BulkDensityCalculator ( LayerProps* formation, const Inte
 
 }
 
-bool BulkDensityCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& properties, 
+bool BulkDensityCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& , 
                                                OutputPropertyMap::PropertyValueList&  propertyValues ) {
 
    if ( m_isCalculated ) {
@@ -186,7 +186,7 @@ BulkDensityVolumeCalculator::BulkDensityVolumeCalculator ( LayerProps* formation
 
 }
 
-bool BulkDensityVolumeCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& properties, 
+bool BulkDensityVolumeCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& , 
                                                      OutputPropertyMap::PropertyValueList&  propertyValues ) {
 
    if ( m_isCalculated ) {
@@ -289,7 +289,7 @@ void BulkDensityVolumeCalculator::allocatePropertyValues ( OutputPropertyMap::Pr
 
 }
 
-bool BulkDensityVolumeCalculator::initialise ( OutputPropertyMap::PropertyValueList& propertyValues ) {
+bool BulkDensityVolumeCalculator::initialise ( OutputPropertyMap::PropertyValueList& ) {
 
    m_BasinModel = const_cast<AppCtx*>(FastcauldronSimulator::getInstance().getCauldron());
    m_porosity = PropertyManager::getInstance().findOutputPropertyVolume ( "Porosity", m_formation, m_snapshot );

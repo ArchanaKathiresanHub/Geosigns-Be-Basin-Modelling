@@ -22,12 +22,12 @@ namespace casa
    class VarPrmSourceRockPreAsphaltStartAct : public VarPrmSourceRockProp
    {
    public:
-      /// @brief Create a new source rock preasphaltene activation energy variable parameter
+      /// @brief Create a new source rock preasphaltene activation energy influential parameter
       VarPrmSourceRockPreAsphaltStartAct( const char          * layerName       ///< name of the layer the parameter variation
                                         , double                baseValue       ///< base value of parameter
                                         , double                minValue        ///< minimal value for the parameter variation
                                         , double                maxValue        ///< maximal value for the parameter variation
-                                        , VarPrmContinuous::PDF pdfType = Block ///< type of PDF shape for the variable parameter
+                                        , VarPrmContinuous::PDF pdfType = Block ///< type of PDF shape for the influential parameter
                                         , const char          * name = 0        ///< user specified parameter name
                                         , const char          * srTypeName = 0  ///< source rock type name, to connect with source rock type cat. prm.
                                         , int                   mixID = 1       ///< mixing ID. Could be 1 or 2
@@ -36,7 +36,7 @@ namespace casa
       /// @brief Destructor
       virtual ~VarPrmSourceRockPreAsphaltStartAct() {;}
      
-	   /// @brief Get name of variable parameter in short form
+	   /// @brief Get name of influential parameter in short form
 	   /// @return array of names for each subparameter
 	   virtual std::vector<std::string> name() const;
 

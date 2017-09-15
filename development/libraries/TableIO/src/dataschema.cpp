@@ -4,6 +4,7 @@
 #include <fstream>
 #include <sstream>
 #include <iomanip>
+#include <algorithm>
 using namespace std;
 
 #include "datautils.h"
@@ -45,10 +46,11 @@ bool FieldDefinition::saveUnitToStream (ostream & ofile, int & borrowed) const
    return saveStringToStream (ofile, field, borrowed, Database::GetFieldWidth ());
 }
 
-TableDefinition::TableDefinition (const std::string & name, const std::string & description)
-: m_name (name), m_description (description)
-{
-}
+TableDefinition::TableDefinition( const std::string & name, const std::string & description, int version )
+                                : m_name( name )
+                                , m_description( description )
+                                , m_version( version )
+                                {}
 
 TableDefinition::~TableDefinition (void)
 {
@@ -63,19 +65,19 @@ TableDefinition::~TableDefinition (void)
 
 int TableDefinition::getIndex (const string & name, int hint) const
 {
-   if (hint >= 0 && hint < size ())
+   if ( hint >= 0 && hint < static_cast<int>( size () ) )
    {
       FieldDefinition * fieldDef = getFieldDefinition (hint);
       if (fieldDef->hasName (name)) return hint;
    }
 
-   for (int i = 0; i < size (); i++)
+   for (int i = 0; i < static_cast<int>(size ()); i++)
    {
       FieldDefinition * fieldDef = getFieldDefinition (i);
 
       if (fieldDef->hasName (name)) return i;
    }
-   
+
    // cerr << "Error: Field " << name << " not part of Table " << m_name << endl;
    return -1;
 }
@@ -120,7 +122,7 @@ bool TableDefinition::addVolatileFieldDefinition (const std::string & name, data
 
 TableDefinition * TableDefinition::deepCopy () const
 {
-   TableDefinition * tableDefCopy = new TableDefinition (name (), description ());
+   TableDefinition * tableDefCopy = new TableDefinition (name (), description (), version () );
 
    FieldDefinitionListIterator iter;
    for (iter = m_fieldDefinitionList.begin ();
@@ -141,17 +143,16 @@ TableDefinition * TableDefinition::deepCopy () const
 
    return tableDefCopy;
 }
-      
-bool TableDefinition::saveToStream (ostream & ofile, bool rowBased) const
+
+bool TableDefinition::saveToStream( ostream & ofile, bool rowBased ) const
 {
    ofile << "; " << m_description << endl;
    ofile << ";" << endl;
    ofile << "[" << m_name << "]" << endl;
-   ofile << ";" << endl;
+   ofile << ";v" << version() << endl;
 
-   if (!rowBased)
-      saveFieldDefinitionsToStream (ofile);
-   return !ofile.fail ();
+   if ( !rowBased ) { saveFieldDefinitionsToStream( ofile ); }
+   return !ofile.fail();
 }
 
 bool TableDefinition::saveFieldDefinitionsToStream (ostream & ofile) const
@@ -231,17 +232,35 @@ DataSchema * DataSchema::deepCopy () const
    return dataSchemaCopy;
 }
 
-bool DataSchema::addTableDefinition (TableDefinition * tableDefinition)
-{
-   m_tableDefinitionList.push_back (tableDefinition);
+bool DataSchema::addTableDefinition (TableDefinition * tableDefinition) {
+
+   // Dont add a null table definition and dont add one if its already in the schema.
+   if ( tableDefinition != nullptr and not hasTableDefinition ( tableDefinition )) {
+      m_tableDefinitionList.push_back ( tableDefinition );
+   }
 
    return true;
 }
 
+bool DataSchema::removeTableDefinition (TableDefinition * tableDefinition) {
+
+   // Dont try to remove a null table definition and dont remove it if does not exist in the schema.
+   if ( tableDefinition != nullptr and hasTableDefinition ( tableDefinition )) {
+      TableDefinitionList::iterator iter = std::remove ( m_tableDefinitionList.begin (), m_tableDefinitionList.end (), tableDefinition );
+      m_tableDefinitionList.erase ( iter, m_tableDefinitionList.end ());
+   }
+
+   return true;
+}
+
+bool DataSchema::hasTableDefinition ( TableDefinition* tableDefinition ) const {
+   return std::find ( m_tableDefinitionList.begin (), m_tableDefinitionList.end (), tableDefinition ) != m_tableDefinitionList.end ();
+}
+
 // create a new table definition with name and description
-TableDefinition * DataSchema::addTableDefinition (const std::string & name, const std::string & description)
+TableDefinition * DataSchema::addTableDefinition (const std::string & name, const std::string & description, int ver )
 {
-   TableDefinition * tableDefinition = new TableDefinition (name, description);
+   TableDefinition * tableDefinition = new TableDefinition( name, description, ver );
    addTableDefinition (tableDefinition);
    return tableDefinition;
 }
@@ -258,7 +277,7 @@ TableDefinition * DataSchema::getTableDefinition (const string & name) const
 
       if (tableDef->hasName (name)) return tableDef;
    }
-   
+
    return 0;
 }
 
@@ -274,6 +293,6 @@ int DataSchema::getIndex (const string & name) const
 
       if (tableDef->hasName (name)) return i;
    }
-   
+
    return -1;
 }

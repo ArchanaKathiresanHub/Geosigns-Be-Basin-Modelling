@@ -41,8 +41,8 @@ namespace GeoPhysics
    double ExponentialPorosity::fullCompThickness(const double maxVesValue,
                                                  const double thickness,
                                                  const double densitydiff,
-                                                 const double vesScaleFactor,
-                                                 const bool overpressuredCompaction) const
+                                                 const double ,
+                                                 const bool ) const
    {
       double solidThickness;
 

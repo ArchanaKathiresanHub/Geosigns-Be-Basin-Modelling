@@ -145,9 +145,9 @@ Fault * FaultCollection::findFault (const std::string & faultName) const
    return fault;
 }
 
-unsigned int FaultCollection::size (void) const
+size_t FaultCollection::size (void) const
 {
-   return m_faults.size ();
+   return m_faults.size();
 }
 
 //------------------------------------------------------------//

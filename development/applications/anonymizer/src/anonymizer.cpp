@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 #include "anonymizer.h"
 
@@ -20,6 +20,7 @@
 #include "cauldronschema.h"
 #include "database.h"
 #include "dataschema.h"
+#include "ProjectFileHandler.h"
 #include "FilePath.h"
 #include "FolderPath.h"
 #include "FormattingException.h"
@@ -75,8 +76,8 @@ bool Anonymizer::run( const std::string & projectFolder )
          fPathAnonymized.create();
 
          // Opening database
-         database::DataSchema * cauldronSchema = database::createCauldronSchema();
-         m_db.reset( database::Database::CreateFromFile( fPath.fullPath().path(), *cauldronSchema ) );
+         m_db.reset ( new database::ProjectFileHandler ( fPath.fullPath().path()));
+         m_db->mergeTablesToInput ();
 
          // Anonymizing
          clearNameMappings();
@@ -134,15 +135,14 @@ void Anonymizer::read()
    createMapping( "SourceRockLithoIoTbl", "SourceRockType", m_sourceRockTypes );
 
    createMapping( "ReservoirIoTbl", "ReservoirName", m_reservoirNames );
-   
+
    createMapping( "GridMapIoTbl", "MapFileName", m_mapFileNames );
-   createMapping( "GridMapIoTbl", "HDF5FileName", m_mapFileNames );
 
    createMapping( "TouchstoneMapIoTbl", "TcfName", m_mapFileNames );
 
    createMapping( "LangmuirAdsorptionCapacityIsothermSetIoTbl", "LangmuirName", m_langmuirNames );
    createMapping( "LangmuirAdsorptionCapacityTOCFunctionIoTbl", "LangmuirName", m_langmuirNames );
-   
+
    createMapping( "WellLocIoTbl", "WellName", m_wellNames );
 }
 
@@ -181,10 +181,8 @@ void Anonymizer::renameMapFiles()
 void Anonymizer::clearTables()
 {
    clearOutputTables();
-   clearTable("ProjectNotesIoTbl");
    clearTable("RelatedProjectsIoTbl");
    clearTable("BPANameMapping");
-   clearTable("FilterTimeDepthIoTbl");
 }
 
 
@@ -217,85 +215,57 @@ void Anonymizer::write()
    update( "LitThCondIoTbl" , "Lithotype", m_lithoTypes );
    update( "LitHeatCapIoTbl", "Lithotype", m_lithoTypes );
    writeFluidtypeIoTbl();
-   update( "FltThCondIoTbl"           , "Fluidtype"                     , m_fluidTypes      );
-   update( "FltHeatCapIoTbl"          , "Fluidtype"                     , m_fluidTypes      );
-   update( "FltDensityIoTbl"          , "Fluidtype"                     , m_fluidTypes      );
-   update( "FltViscoIoTbl"            , "Fluidtype"                     , m_fluidTypes      );
-   update( "SourceRockLithoIoTbl"     , "LayerName"                     , m_layerNames      );
-   update( "SourceRockLithoIoTbl"     , "SourceRockType"                , m_sourceRockTypes );
-   update( "SourceRockLithoIoTbl"     , "TocIniGrid"                    , m_gridMap         );
-   update( "SourceRockLithoIoTbl"     , "S1IniGrid"                     , m_gridMap         );
-   update( "SourceRockLithoIoTbl"     , "S2IniGrid"                     , m_gridMap         );
-   update( "SourceRockLithoIoTbl"     , "S3IniGrid"                     , m_gridMap         );
-   update( "SourceRockLithoIoTbl"     , "HcIniGrid"                     , m_gridMap         );
-   update( "SourceRockLithoIoTbl"     , "OcIniGrid"                     , m_gridMap         );
-   update( "SourceRockLithoIoTbl"     , "NcIniGrid"                     , m_gridMap         );
-   update( "SourceRockLithoIoTbl"     , "CharLengthGrid"                , m_gridMap         );
-   update( "SourceRockLithoIoTbl"     , "UpperBiotGrid"                 , m_gridMap         );
-   update( "SourceRockLithoIoTbl"     , "LowerBiotGrid"                 , m_gridMap         );
-   update( "SourceRockLithoIoTbl"     , "KerogenStartActGrid"           , m_gridMap         );
-   update( "SourceRockLithoIoTbl"     , "KerogenEndActGrid"             , m_gridMap         );
-   update( "SourceRockLithoIoTbl"     , "PreAsphaltStartActGrid"        , m_gridMap         );
-   update( "SourceRockLithoIoTbl"     , "PreAsphaltEndActGrid"          , m_gridMap         );
-   update( "SourceRockLithoIoTbl"     , "NettThickIniGrid"              , m_gridMap         );
-   update( "SourceRockLithoIoTbl"     , "NGenexTimeStepsGrid"           , m_gridMap         );
-   update( "SourceRockLithoIoTbl"     , "NGenexSlicesGrid"              , m_gridMap         );
-   update( "SourceRockLithoIoTbl"     , "AdsorptionCapacityFunctionName", m_langmuirNames   );
-   update( "CTCIoTbl"                 , "SurfaceName"                   , m_surfaceNames    );
-   update( "CTCIoTbl"                 , "HCuIniGrid"                    , m_gridMap         );
-   update( "CTCIoTbl"                 , "HLMuIniGrid"                   , m_gridMap         );
-   update( "CTCRiftingHistoryIoTbl"   , "HBuGrid"                       , m_gridMap         );
-   update( "CTCRiftingHistoryIoTbl"   , "DeltaSLGrid"                   , m_gridMap         );
-   update( "ReservoirIoTbl"           , "ReservoirName"                 , m_reservoirNames  );
-   update( "ReservoirIoTbl"           , "FormationName"                 , m_layerNames      );
-   update( "ReservoirIoTbl"           , "DepthOffsetGrid"               , m_gridMap         );
-   update( "ReservoirIoTbl"           , "ThicknessGrid"                 , m_gridMap         );
-   update( "ReservoirIoTbl"           , "NetToGrossGrid"                , m_gridMap         );
-   update( "ReservoirIoTbl"           , "Percent1Grid"                  , m_gridMap         );
-   update( "ReservoirIoTbl"           , "Percent2Grid"                  , m_gridMap         );
-   update( "ReservoirIoTbl"           , "LayerFrequencyGrid"            , m_gridMap         );
-   update( "DetectedReservoirIoTbl"   , "DepthOffsetGrid"               , m_gridMap         );
-   update( "DetectedReservoirIoTbl"   , "ThicknessGrid"                 , m_gridMap         );
-   update( "DetectedReservoirIoTbl"   , "NetToGrossGrid"                , m_gridMap         );
-   update( "DetectedReservoirIoTbl"   , "Percent1Grid"                  , m_gridMap         );
-   update( "DetectedReservoirIoTbl"   , "Percent2Grid"                  , m_gridMap         );
-   update( "DetectedReservoirIoTbl"   , "LayerFrequencyGrid"            , m_gridMap         );
-   update( "PalinspasticIoTbl"        , "DepthGrid"                     , m_gridMap         );
-   update( "PalinspasticIoTbl"        , "FaultcutsMap"                  , m_gridMap         );
-   update( "PalinspasticIoTbl"        , "SurfaceName"                   , m_surfaceNames    );
-   update( "PalinspasticIoTbl"        , "BottomFormationName"           , m_layerNames      );
-   update( "FaultcutIoTbl"            , "SurfaceName"                   , m_gridMap         );
-   update( "PressureFaultcutIoTbl"    , "FaultcutsMap"                  , m_gridMap         );
-   update( "GenexHistoryLocationIoTbl", "FormationName"                 , m_layerNames      );
-   update( "AdsorptionHistoryIoTbl"   , "AdsorptionFormationName"       , m_layerNames      );
-   update( "DataMiningIoTbl"          , "FormationName"                 , m_layerNames      );
-   update( "DataMiningIoTbl"          , "SurfaceName"                   , m_surfaceNames    );
-   update( "DataMiningIoTbl"          , "ReservoirName"                 , m_reservoirNames  );
-   update( "SourceRockPropIoTbl"      , "LayerName"                     , m_layerNames      );
-   update( "SourceRockPropIoTbl"      , "MapFileName"                   , m_mapFileNames    );
-   update( "ReservoirPropIoTbl"       , "ReservoirName"                 , m_reservoirNames  );
-   update( "ReservoirPropIoTbl"       , "MapFileName"                   , m_mapFileNames    );
-   update( "TouchstoneMapIoTbl"       , "TcfName"                       , m_mapFileNames    );
-   update( "TouchstoneMapIoTbl"       , "FormationName"                 , m_layerNames      );
-   update( "TouchstoneMapIoTbl"       , "SurfaceName"                   , m_surfaceNames    );
-   update( "TwoWayTimeIoTbl"          , "TwoWayTimeGrid"                , m_gridMap         );
-   update( "TwoWayTimeIoTbl"          , "SurfaceName"                   , m_surfaceNames    );
-   update( "WellLocIoTbl"             , "WellName"                      , m_wellNames       );
-   clearTableField( "WellLocIoTbl"        , "Datum"         );
-   clearTableField( "FilterTimeDepthIoTbl", "SurfaceName"   );
-   clearTableField( "FilterTimeDepthIoTbl", "FormationName" );
-   
+   update( "FltThCondIoTbl", "Fluidtype", m_fluidTypes );
+   update( "FltHeatCapIoTbl", "Fluidtype", m_fluidTypes );
+   update( "SourceRockLithoIoTbl", "LayerName", m_layerNames );
+   update( "SourceRockLithoIoTbl", "SourceRockType", m_sourceRockTypes );
+   update( "SourceRockLithoIoTbl", "TocIniGrid", m_gridMap );
+   update( "SourceRockLithoIoTbl", "AdsorptionCapacityFunctionName", m_langmuirNames );
+   update("CTCIoTbl", "SurfaceName", m_surfaceNames);
+   update("CTCIoTbl", "HCuIniGrid", m_gridMap);
+   update("CTCIoTbl", "HLMuIniGrid", m_gridMap);
+   update("CTCRiftingHistoryIoTbl", "HBuGrid", m_gridMap);
+   update("CTCRiftingHistoryIoTbl", "DeltaSLGrid", m_gridMap);
+   update( "ReservoirIoTbl", "ReservoirName", m_reservoirNames );
+   update( "ReservoirIoTbl", "FormationName", m_layerNames );
+   update( "ReservoirIoTbl", "DepthOffsetGrid", m_gridMap );
+   update( "ReservoirIoTbl", "ThicknessGrid", m_gridMap );
+   update( "ReservoirIoTbl", "NetToGrossGrid", m_gridMap );
+   update( "ReservoirIoTbl", "Percent1Grid", m_gridMap );
+   update( "ReservoirIoTbl", "Percent2Grid", m_gridMap );
+   update( "ReservoirIoTbl", "LayerFrequencyGrid", m_gridMap );
+   update( "PalinspasticIoTbl", "DepthGrid", m_gridMap );
+   update( "PalinspasticIoTbl", "FaultcutsMap", m_gridMap );
+   update( "PalinspasticIoTbl", "SurfaceName", m_surfaceNames );
+   update( "PalinspasticIoTbl", "BottomFormationName", m_layerNames );
+   update( "FaultcutIoTbl", "SurfaceName", m_gridMap );
+   update( "PressureFaultcutIoTbl", "FaultcutsMap", m_gridMap );
+   update( "GenexHistoryLocationIoTbl", "FormationName", m_layerNames );
+   update( "AdsorptionHistoryIoTbl", "AdsorptionFormationName", m_layerNames );
+   update( "DataMiningIoTbl", "FormationName", m_layerNames );
+   update( "DataMiningIoTbl", "SurfaceName", m_surfaceNames );
+   update( "DataMiningIoTbl", "ReservoirName", m_reservoirNames );
+   update( "TouchstoneMapIoTbl", "TcfName", m_mapFileNames );
+   update( "TouchstoneMapIoTbl", "FormationName", m_layerNames );
+   update( "TouchstoneMapIoTbl", "SurfaceName", m_surfaceNames );
+   update( "TwoWayTimeIoTbl", "TwoWayTimeGrid", m_gridMap );
+   update( "TwoWayTimeIoTbl", "SurfaceName", m_surfaceNames );
+   update( "WellLocIoTbl", "WellName", m_wellNames );
+   clearTableField( "WellLocIoTbl", "Datum" );
+
    // Writing anonymized project to file
    ibs::FilePath fPath = ibs::FilePath( m_projectFolder ) << m_projectFile;
    m_anonymizedProjectFile = "Project" + s_anonymized + "." + fPath.fileNameExtension();
    ibs::FilePath fPathAnonymized( ibs::FilePath( fPath.filePath() ) << s_anonymizedFolder << m_anonymizedProjectFile);
+
+
    std::ofstream outStream;
    outStream.open( fPathAnonymized.path(), std::ios::out );
    if( outStream.fail() )
    {
       throw std::runtime_error( "Unable to open anonymized project file" );
    }
-   m_db->saveToStream( outStream );
+   m_db->saveInputDataBaseToStream ( outStream );
    outStream.close();
 
    writeMappingtoFile();
@@ -408,7 +378,6 @@ void Anonymizer::writeProjectIoTbl()
    {
       record->setValue<double>( "XCoord", s_northPoleCoord[0] );
       record->setValue<double>( "YCoord", s_northPoleCoord[1] );
-      record->setValue<std::string>( "WktGeometryOutline", s_wktGeometryOutline );
    }
 }
 
@@ -655,9 +624,9 @@ void Anonymizer::shiftHDFCoordinates( const std::string & fileName ) const
       errMsg << "Unable to open '" << fileName << "'";
       throw std::runtime_error( errMsg.str().c_str() );
    }
-   
+
    double value;
-   
+
    // Open an existing dataset
    hid_t datasetId = H5Dopen2( fileId, "/origin in I dimension", H5P_DEFAULT);
    // Read current value
@@ -706,7 +675,7 @@ void Anonymizer::processTouchstonFile() const
           updateXMLField( analysts, "contactPerson", "misterX", status );
           updateXMLField( analysts, "petrographer", "misterY", status );
           updateXMLField( analysts, "basinModeler", "misterZ", status );
-          
+
           pugi::xml_node geolInfo = header.child("geologicInformation");
           updateXMLField( geolInfo, "basinName", "AnonymousBasin", status );
           updateXMLField( geolInfo, "reservoirUnitName", "ReservoirUnit", status );
@@ -716,7 +685,7 @@ void Anonymizer::processTouchstonFile() const
             updateXMLField( sample, "wellName", "Well", status );
             updateXMLField( sample, "unitName", "ReservoirUnit", status );
           }
-          
+
           pugi::xml_node sampleData = root.child("sampleData");
           for( pugi::xml_node data : sampleData.children("sampleMeasurements") )
           {
@@ -802,7 +771,7 @@ void Anonymizer::removeAttributesFrom2DOutputFile( const std::string & fileName 
       // Close dataset
       status = H5Dclose( datasetId );
    }
-   
+
    double value = 0.0;
    // Open an existing dataset
    hid_t datasetId = H5Dopen2( fileId, "/origin in I dimension", H5P_DEFAULT);

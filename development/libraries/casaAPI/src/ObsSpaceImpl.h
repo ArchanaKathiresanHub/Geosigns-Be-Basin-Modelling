@@ -38,7 +38,7 @@ public:
    // Add a new observable
    virtual ErrorHandler::ReturnCode addObservable( Observable * prm );
 
-   // Get number of variable parameters defined in ObsSpace
+   // Get number of influential parameters defined in ObsSpace
    virtual size_t size() const { return m_obsSet.size(); } 
 
    // Dimension of observables space
@@ -53,10 +53,17 @@ public:
    // Get i-th observable
    virtual const Observable * observable( size_t i ) const { return i < size() ? at( i ) : 0; }
 
+   // Is the given observable valid at least for one case?
+   virtual bool isValid( size_t obId, size_t obSubId ) const;
+
+   // Add observable validity status. This function is called for each run case on the stage of extracting observables
+   // in data digger. 
+   virtual void updateObsValueValidateStatus( size_t ob, const std::vector<bool> & valFlags );
+
    // Serialization / Deserialization
   
    // version of serialized object representation
-   virtual unsigned int version() const { return 0; }
+   virtual unsigned int version() const { return 1; }
 
    // Serialize object to the given stream
    virtual bool save( CasaSerializer & sz, unsigned int version ) const;
@@ -68,7 +75,9 @@ public:
    ObsSpaceImpl( CasaDeserializer & dz, const char * objName );
 
 private:
-   std::vector< Observable*> m_obsSet;
+   std::vector<Observable*>       m_obsSet;          // list of observable definitions
+   std::vector<std::vector<bool>> m_obsIsValidFlags; // list of arrays of is observable valid flags. 
+                                                     // It keeps flags accumulation over all run cases.
 
    // disable copy constructor and copy operator
    ObsSpaceImpl( const ObsSpaceImpl & );

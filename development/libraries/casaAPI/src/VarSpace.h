@@ -9,7 +9,7 @@
 // 
 
 /// @file VarSpace.h
-/// @brief This file keeps API declaration for variable parameters set manager
+/// @brief This file keeps API declaration for influential parameters set manager
 
 #ifndef CASA_API_VAR_SPACE_H
 #define CASA_API_VAR_SPACE_H
@@ -17,8 +17,8 @@
 #include "ErrorHandler.h"
 #include "CasaSerializer.h"
 
-/// @page CASA_VarSpacePage Container for variable parameters
-/// @link casa::VarSpace A collection of variable parameters @endlink defined for scenario analysis 
+/// @page CASA_VarSpacePage Container for influential parameters
+/// @link casa::VarSpace A collection of influential parameters @endlink defined for scenario analysis 
 
 namespace casa
 {
@@ -28,16 +28,16 @@ namespace casa
    class VarPrmDiscrete;
 
    /// @class VarSpace VarSpace.h "VarSpace.h"
-   /// @brief Variable parameters set manager. It keeps a unique set of variable parameters
+   /// @brief Influential parameters set manager. It keeps a unique set of influential parameters
    class VarSpace : public ErrorHandler, public CasaSerializable
    {
    public:
-      /// @brief Add a new variable parameter
+      /// @brief Add a new influential parameter
       /// @param prm a new parameter to be added to the set
       /// @return NoError on success or error code if such parameter is already added to the set
       virtual ErrorHandler::ReturnCode addParameter( VarParameter * prm ) = 0;
 
-      /// @brief Get number of variable parameters defined in VarSpace. Some parameters could have
+      /// @brief Get number of influential parameters defined in VarSpace. Some parameters could have
       ///        dimension more then 1
       /// @return total number of parameters in set
       virtual size_t size() const = 0;

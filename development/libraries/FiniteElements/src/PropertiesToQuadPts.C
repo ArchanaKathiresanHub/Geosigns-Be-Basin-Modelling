@@ -1,7 +1,5 @@
 #include "PropertiesToQuadPts.h"
 #include "FiniteElementTypes.h"
-#include <algorithm>
-#include <assert.h>
 
 namespace FiniteElementMethod
 {
@@ -20,25 +18,8 @@ namespace FiniteElementMethod
       Numerics::transpose ( m_basisMat, m_basisMatTranspose );
    }
 
-
-   const double * PropertiesToQuadPts::getProperty( const unsigned int idx ) const
-   {
-      assert( idx < m_numProps );
-      return m_propOnQuadMat.getColumn( idx );
-   }
-
-
-   const double * PropertiesToQuadPts::getProperty( Property propName ) const
-   {
-      const unsigned int idx = static_cast<unsigned int>( std::find( m_propNames.begin(),
-                                                                     m_propNames.end(), propName )
-                                                          - m_propNames.begin() );
-      return getProperty( idx );
-   }
-
-
    void PropertiesToQuadPts::addSingleProperty( const unsigned int propIdx,
-                                                Property propName,
+                                                CauldronPropertyName propName,
                                                 const ElementVector & propVal )
    {
       // Storing property name

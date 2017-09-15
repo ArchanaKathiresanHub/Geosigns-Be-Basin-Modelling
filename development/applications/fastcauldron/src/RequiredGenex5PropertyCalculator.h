@@ -1,7 +1,19 @@
-#ifndef _FASTCAULDRON__REQUIRED_GENEX5_PROPERTY_CALCULATOR_H_
-#define _FASTCAULDRON__REQUIRED_GENEX5_PROPERTY_CALCULATOR_H_
+//
+// Copyright (C) 2012-2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
+#ifndef FASTCAULDRON__REQUIRED_GENEX5_PROPERTY_CALCULATOR_H
+#define FASTCAULDRON__REQUIRED_GENEX5_PROPERTY_CALCULATOR_H
 
 #include "GeoPhysicsSourceRock.h"
+
+// CBMGenerics library
 #include "ComponentManager.h"
 
 #include "OutputPropertyMap.h"
@@ -33,7 +45,7 @@ private :
 
    const GeoPhysics::GeoPhysicsSourceRock* m_sourceRock;
 
-   bool m_hasSpeciesMap [ CBMGenerics::ComponentManager::NumberOfSpecies ];
+   bool m_hasSpeciesMap [ CBMGenerics::ComponentManager::NUMBER_OF_SPECIES ];
 
    bool m_isCalculated;
 
@@ -42,4 +54,4 @@ private :
 
 OutputPropertyMap* allocateRequiredGenex5PropertyCalculator ( const PropertyList property, LayerProps* formation, const Interface::Surface* surface, const Interface::Snapshot* snapshot );
 
-#endif // _FASTCAULDRON__REQUIRED_GENEX5_PROPERTY_CALCULATOR_H_
+#endif // FASTCAULDRON__REQUIRED_GENEX5_PROPERTY_CALCULATOR_H

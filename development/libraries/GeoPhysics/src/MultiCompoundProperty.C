@@ -10,6 +10,17 @@
 #include "MultiCompoundProperty.h"
 #include "AlignedMemoryAllocator.h"
 
+GeoPhysics::MultiCompoundProperty::MultiCompoundProperty () :
+   m_numberOfLithologies ( 0 ),
+   m_dataCount ( 0 ),
+   m_allValues ( nullptr ),
+   m_mixedValues ( nullptr )
+{
+   m_simpleValues [ 0 ] = nullptr;
+   m_simpleValues [ 1 ] = nullptr;
+   m_simpleValues [ 2 ] = nullptr;
+}
+
 GeoPhysics::MultiCompoundProperty::MultiCompoundProperty ( const unsigned int lithoCount,
                                                            const unsigned int dataCount ) :
    m_numberOfLithologies ( lithoCount ),

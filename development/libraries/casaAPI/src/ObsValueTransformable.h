@@ -18,9 +18,25 @@
 #include "ObsValueDoubleArray.h"
 #include "Observable.h"
 
+/// @page CASA_ObsValueTransformable Observable values transformed in some way for better prediction by a response surface
+///
+/// For some observables values could not be easily interpolated over response surface. For example the 
+/// Gas/Oil ratio value for trap hydrocarbons composition could be undefined, when trap is empty. Also, 
+/// hydrocarbons volumes in trap much better to interpolate over response surface using the logarithmic scale. 
+/// This prevents from prediction of negative amount of hydrocarbons in trap. For such transformation observable 
+/// value object uses the transformation algorithm from the parent observable definition to calculate the derived 
+/// observable values from the set of original observables values.
+///
+/// For example for fluid trap properties such as GOR, API and so on, the transformation algorithm does flash of 
+/// composition. In this case the original observable values extracted from the project file are pressure and 
+/// temperature at trap crest point, trap composition of hydrocarbons spices. The transformed observable value is
+/// the requested fluid property as GOR, API and so on.
+///
 namespace casa
 {
-   /// @brief Class for keeping observable value as an array of float point values
+   /// @brief Class for keeping observable value as two arrays of float point values. The first array keeps the original
+   /// observable values extracted from the simulation results. The second one - the observable values calculated (derived)
+   /// from the original observables values, using a transformation algorithm defined in the parent observable definition.
    class ObsValueTransformable : public ObsValue
    {
    public:
@@ -68,8 +84,8 @@ namespace casa
       virtual bool isDouble() const { return true; }
 
       /// @brief Get observable value as double array
-      /// @param transformed which value for observable shold be returned - transformed is set to default
-      /// @return if transformed is true - transformed value, otherwise the original one
+      /// @param transformed defines transformed or original value for observable should be returned (default is transformed)
+      /// @return if transformed is true return the transformed value, otherwise the original one
       virtual std::vector<double> asDoubleArray( bool transformed = true ) const { return transformed ? m_transfVals : m_value; }
 
       /// @{
@@ -77,7 +93,7 @@ namespace casa
       /// @return Actual version of serialized object representation
       virtual unsigned int version() const { return 0; }
 
-      /// @brief Get type name of the serialaizable object, used in deserialization to create object with correct type
+      /// @brief Get type name of the serializable object, used in deserialization to create object with correct type
       /// @return object class name
       virtual const char * typeName() const { return "ObsValueTransformable"; }
 
@@ -90,7 +106,7 @@ namespace casa
       /// @brief Create a new ObsValueDoubleScalar instance and deserialize it from the given stream
       /// @param dz input stream
       /// @param objVer version of object representation in stream
-      /// @return new ObsValueDoubleScalar instance on susccess, or throw and exception in case of any error
+      /// @return new ObsValueDoubleScalar instance on success, or throw and exception in case of any error
       ObsValueTransformable( CasaDeserializer & dz, unsigned int objVer );
       /// @}
 

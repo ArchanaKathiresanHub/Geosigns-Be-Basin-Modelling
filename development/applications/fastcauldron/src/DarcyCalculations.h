@@ -1,5 +1,14 @@
-#ifndef _FASTCAULDRON__DARCY_CALCULATIONS__H_
-#define _FASTCAULDRON__DARCY_CALCULATIONS__H_
+//
+// Copyright (C) 2012-2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+#ifndef FASTCAULDRON__DARCY_CALCULATIONS__H
+#define FASTCAULDRON__DARCY_CALCULATIONS__H
 
 #include "petsc.h"
 #include "petscmat.h"
@@ -20,6 +29,11 @@
 
 #include "PetscBlockVector.h"
 #include "ghost_array.h"
+
+// CBMGenerics library
+#include "ComponentManager.h"
+typedef CBMGenerics::ComponentManager::PhaseId PhaseId;
+typedef CBMGenerics::ComponentManager::SpeciesNamesId ComponentId;
 
 class DarcyCalculations {
 
@@ -121,8 +135,7 @@ public :
    /// \brief Average the permeability across the face of the element.
    void computeAveragePermeabilities ( Subdomain&       subdomain,
                                        const double     lambda,
-                                       const double     lambdaEnd,
-                                       Vec subdomainPermeabilityNVec, 
+                                       Vec subdomainPermeabilityNVec,
                                        Vec subdomainPermeabilityHVec ) const;
 
    /// \brief Return the total mass of hydrocarbon within the system.
@@ -136,8 +149,8 @@ public :
 private :
 
 
-   static const pvtFlash::PVTPhase RedundantPhase  = pvtFlash::VAPOUR_PHASE;
-   static const pvtFlash::PVTPhase DesignatedPhase = pvtFlash::LIQUID_PHASE;
+   static const PhaseId RedundantPhase  = PhaseId::VAPOUR;
+   static const PhaseId DesignatedPhase = PhaseId::LIQUID;
 
    /// \brief Initialise the simulator for secondary cracking.
    void initialiseOtgcSimulator ();
@@ -249,13 +262,13 @@ private :
    void collectElementPermeabilities ( Subdomain&               subdomain,
                                        const ElementVolumeGrid& elementGrid,
                                        const double             lambda,
-                                       ElementFaceValueVector&  subdomainPermeabilityN, 
+                                       ElementFaceValueVector&  subdomainPermeabilityN,
                                        ElementFaceValueVector&  subdomainPermeabilityH ) const;
 
    /// \brief Add permeability from the adjacent face of the neighbouring element.
    void addNeighbourPermeabilities ( Subdomain&               subdomain,
                                      const ElementVolumeGrid& elementGrid,
-                                     ElementFaceValueVector&  subdomainPermeabilityN, 
+                                     ElementFaceValueVector&  subdomainPermeabilityN,
                                      ElementFaceValueVector&  subdomainPermeabilityH,
                                      ElementFaceValueArray&   intermediatePermeabilityN,
                                      ElementFaceValueArray&   intermediatePermeabilityH ) const;
@@ -263,7 +276,7 @@ private :
    /// \brief From the values stored in the arrays compute the average permeability for the element-face.
    void recoverAveragedPermeabilities ( Subdomain&               subdomain,
                                         const ElementVolumeGrid& elementGrid,
-                                        ElementFaceValueVector&  subdomainPermeabilityN, 
+                                        ElementFaceValueVector&  subdomainPermeabilityN,
                                         ElementFaceValueVector&  subdomainPermeabilityH,
                                         ElementFaceValueArray&   intermediatePermeabilityN,
                                         ElementFaceValueArray&   intermediatePermeabilityH,
@@ -294,6 +307,6 @@ private :
    /// Default molar masses, kg/mol.
    PVTComponents m_defaultMolarMasses;
 
-}; 
+};
 
-#endif // _FASTCAULDRON__DARCY_CALCULATIONS__H_
+#endif // FASTCAULDRON__DARCY_CALCULATIONS__H

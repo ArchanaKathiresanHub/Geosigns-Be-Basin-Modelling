@@ -54,7 +54,7 @@ private :
 
    static const double AdsorptionPorosityThreshold;
 
-   static const bool s_speciesIsSimulated  [ CBMGenerics::ComponentManager::NumberOfOutputSpecies ];
+   static const bool s_speciesIsSimulated  [ ComponentId::NUMBER_OF_SPECIES ];
 
    static const std::string s_c1Name;
    static const std::string s_nullString;

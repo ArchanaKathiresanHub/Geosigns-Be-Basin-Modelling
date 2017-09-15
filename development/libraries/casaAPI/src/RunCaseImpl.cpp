@@ -56,7 +56,7 @@ namespace casa
       {
          if ( m_prmsSet[i]->parent() == prm->parent() )
          {
-            throw ErrorHandler::Exception( ErrorHandler::AlreadyDefined ) << "Parameter value for variable parameter: " <<
+            throw ErrorHandler::Exception( ErrorHandler::AlreadyDefined ) << "Parameter value for influential parameter: " <<
                prm->parent()->name()[0] << ", already exsit in RunCase";
          }
       }
@@ -130,7 +130,7 @@ namespace casa
       }
    }
 
-   // Do checking, are all variable parameters case value in their ranges
+   // Do checking, are all influential parameters case value in their ranges
    std::string RunCaseImpl::validateCase()
    {
       if ( !m_model.get() ) 

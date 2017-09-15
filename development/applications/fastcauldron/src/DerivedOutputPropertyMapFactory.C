@@ -61,7 +61,7 @@ DerivedOutputPropertyMapFactory::DerivedOutputPropertyMapFactory () {
 //     STERANEAROMATISATION,
 //     STERANEISOMERISATION,
 //     HOPANEISOMERISATION,
-//     ILLITEFRACTION, 
+//     ILLITEFRACTION,
 
    // Primary properties.
    mapTraits.m_propertyAllocator = allocatePrimaryPropertyCalculator;
@@ -119,7 +119,7 @@ DerivedOutputPropertyMapFactory::DerivedOutputPropertyMapFactory () {
 
    // Surface properties.
    mapTraits.m_propertyAllocator = allocateHeatFlowCalculator;
-   mapTraits.m_outputAssociation = SURFACE_ASSOCIATION;
+   mapTraits.m_outputAssociation = SURFACE_FORMATION_ASSOCIATION;
    mapTraits.m_isPrimaryProperty = false;
    m_mapPropertyTraitsMap [ HEAT_FLOW ] = mapTraits;
 
@@ -420,7 +420,7 @@ DerivedOutputPropertyMapFactory::DerivedOutputPropertyMapFactory () {
 
    // Volume properties.
 
-//       ISOSTATICMASS, 
+//       ISOSTATICMASS,
 //       ISOSTATICDEFLECTION,
 //       ISOSTATICWB,
 //       MASSFLUX,
@@ -428,7 +428,7 @@ DerivedOutputPropertyMapFactory::DerivedOutputPropertyMapFactory () {
 //       STERANEAROMATISATION,
 //       STERANEISOMERISATION,
 //       HOPANEISOMERISATION,
-//       ILLITEFRACTION, 
+//       ILLITEFRACTION,
 
    volumeTraits.m_propertyAllocator = allocatePrimaryPropertyVolumeCalculator;
    volumeTraits.m_isPrimaryProperty = true;
@@ -590,19 +590,19 @@ DerivedOutputPropertyMapFactory::DerivedOutputPropertyMapFactory () {
    volumeTraits.m_isPrimaryProperty = false;
    m_volumePropertyTraitsMap [ CAPILLARY_PRESSURE  ] = volumeTraits;
 
-#ifdef DEBUG_CAPILLARYPRESSURE 
+#ifdef DEBUG_CAPILLARYPRESSURE
    volumeTraits.m_propertyAllocator = allocateCapillaryPressureGas100VolumeCalculator;
    volumeTraits.m_isPrimaryProperty = false;
    m_volumePropertyTraitsMap[CAPILLARYPRESSUREGAS100] = volumeTraits;
-   
+
    volumeTraits.m_propertyAllocator = allocateCapillaryPressureGas0VolumeCalculator;
    volumeTraits.m_isPrimaryProperty = false;
    m_volumePropertyTraitsMap[CAPILLARYPRESSUREGAS0] = volumeTraits;
-   
+
    volumeTraits.m_propertyAllocator = allocateCapillaryPressureOil100VolumeCalculator;
    volumeTraits.m_isPrimaryProperty = false;
    m_volumePropertyTraitsMap[CAPILLARYPRESSUREOIL100] = volumeTraits;
-   
+
    volumeTraits.m_propertyAllocator = allocateCapillaryPressureOil0VolumeCalculator;
    volumeTraits.m_isPrimaryProperty = false;
    m_volumePropertyTraitsMap[CAPILLARYPRESSUREOIL0] = volumeTraits;
@@ -621,7 +621,7 @@ DerivedOutputPropertyMapFactory::DerivedOutputPropertyMapFactory () {
    m_volumePropertyTraitsMap [ FLUID_PROPERTIES ] = volumeTraits;
 
    //Brine properties viscosity and density
-   
+
    volumeTraits.m_propertyAllocator = allocateBrinePropertiesVolumeCalculator;
    volumeTraits.m_isPrimaryProperty = false;
    m_volumePropertyTraitsMap [ BRINE_PROPERTIES ] = volumeTraits;
@@ -630,7 +630,7 @@ DerivedOutputPropertyMapFactory::DerivedOutputPropertyMapFactory () {
    volumeTraits.m_propertyAllocator = allocateTimeOfElementInvasionVolumeCalculator;
    volumeTraits.m_isPrimaryProperty = false;
    m_volumePropertyTraitsMap [ TIME_OF_ELEMENT_INVASION ] = volumeTraits;
-   
+
    volumeTraits.m_propertyAllocator = allocateRelativePermeabilityCalculator;
    volumeTraits.m_isPrimaryProperty = false;
    m_volumePropertyTraitsMap [ RELATIVE_PERMEABILITY ] = volumeTraits;

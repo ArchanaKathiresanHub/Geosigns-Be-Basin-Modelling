@@ -68,7 +68,7 @@ static size_t findMixingIDForLithologyInLayer( const char * layerName, const std
       mbapi::StratigraphyManager & smgr = sa.baseCase().stratigraphyManager();
       mbapi::StratigraphyManager::LayerID lyd = smgr.layerID( layerName );
       
-      if ( UndefinedIDValue == lyd )
+      if ( IsValueUndefined( lyd ) )
       {
          throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "No such layer: " << layerName << " in stratigraphy table";
       }
@@ -157,7 +157,7 @@ ErrorHandler::ReturnCode VaryTopCrustHeatProduction( ScenarioAnalysis           
          for ( size_t k = 0; k < 2; ++k )
          {
             mbapi::MapsManager::MapID mid = mm.findID( mapRng[k] );
-            if ( UndefinedIDValue == mid )
+            if ( IsValueUndefined( mid ) )
             {
                throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Base case project has no map " << mapRng[k] << " defined";
             }
@@ -205,7 +205,7 @@ ErrorHandler::ReturnCode VarySourceRockTOC( ScenarioAnalysis               & sa
       mbapi::Model & mdl = sa.baseCase();
 
       casa::PrmSourceRockTOC prm( mdl, layerName, srTypeName, mixID );
-      if ( mdl.errorCode() != ErrorHandler::NoError ) { return sa.moveError( mdl ); } 
+      if ( mdl.errorCode() != ErrorHandler::NoError ) { throw ErrorHandler::Exception( mdl.errorCode() )  << mdl.errorMessage(); }
 
       if ( dblRng.size() == 2 )
       {
@@ -229,13 +229,13 @@ ErrorHandler::ReturnCode VarySourceRockTOC( ScenarioAnalysis               & sa
 
          // check are other 2 maps exist in maps list
          mbapi::MapsManager & mm = mdl.mapsManager();
-         for ( size_t k = 0; k < 2; ++k )
+         if ( IsValueUndefined( mm.findID( mapRng[0] ) ) )
          {
-            mbapi::MapsManager::MapID mid = mm.findID( mapRng[k] );
-            if ( UndefinedIDValue == mid )
-            {
-               throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Base case project has no map " << mapRng[k] << " defined";
-            }
+            throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Base case project has no map " << mapRng[0] << " defined";
+         }
+         if ( IsValueUndefined( mm.findID( mapRng[1] ) ) )
+         { 
+            throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "Base case project has no map " << mapRng[1] << " defined";
          }
       }
       else
@@ -246,7 +246,7 @@ ErrorHandler::ReturnCode VarySourceRockTOC( ScenarioAnalysis               & sa
 
       bool alreadyAdded = false;
 
-      // check if the variable parameters set already has TOC parameter
+      // check if the influential parameters set already has TOC parameter
       if ( !srtName.empty() )
       {
          for ( size_t i = 0; i < varPrmsSet.size() && !alreadyAdded; ++i )
@@ -257,7 +257,7 @@ ErrorHandler::ReturnCode VarySourceRockTOC( ScenarioAnalysis               & sa
             {
                if ( name && prm->name()[0].compare( name ) ) // if name is given and name is different - error
                {
-                  throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Different name for the same TOC variable parameter. Given: " 
+                  throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Different name for the same TOC influential parameter. Given: " 
                                                                                  << name << ", expected : " << prm->name()[0];
                }
                alreadyAdded = true;
@@ -371,7 +371,7 @@ ErrorHandler::ReturnCode VarySourceRockHI( ScenarioAnalysis    & sa
          {
             if ( name && hiPrm->name()[0].compare( name ) ) // if name is given and name is different - error
             {
-               throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Different name for the same HI variable parameter. Given: " 
+               throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Different name for the same HI influential parameter. Given: " 
                   << name << ", expected : " << hiPrm->name()[0];
             }
 
@@ -481,7 +481,7 @@ ErrorHandler::ReturnCode VarySourceRockHC( ScenarioAnalysis    & sa
          {
             if ( name && hcPrm->name()[0].compare( name ) ) // if name is given and name is different - error
             {
-               throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Different name for the same H/C variable arameter. Given: " 
+               throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Different name for the same H/C influential arameter. Given: " 
                   << name << ", expected : " << hcPrm->name()[0];
             }
 
@@ -493,7 +493,7 @@ ErrorHandler::ReturnCode VarySourceRockHC( ScenarioAnalysis    & sa
             hcPrm->addSourceRockTypeRange( srTypeName, basValPrm, minValPrm, maxValPrm, rangeShape );
          }
       }
-      // add variable parameter to VarSpace
+      // add influential parameter to VarSpace
       if ( !alreadyAdded )
       {
          std::unique_ptr<VarPrmSourceRockHC> newPrm( new VarPrmSourceRockHC( layerName
@@ -578,7 +578,7 @@ ErrorHandler::ReturnCode VarySourceRockPreAsphaltActEnergy( ScenarioAnalysis    
 
       bool alreadyAdded = false;
 
-      // check is the variable parameters set already has PreAsphaltenActEnergy parameter
+      // check is the influential parameters set already has PreAsphaltenActEnergy parameter
       if ( !srtName.empty() )
       {
          for ( size_t i = 0; i < varPrmsSet.size() && !alreadyAdded; ++i )
@@ -590,7 +590,7 @@ ErrorHandler::ReturnCode VarySourceRockPreAsphaltActEnergy( ScenarioAnalysis    
                if ( name && prm->name()[0].compare( name ) ) // if name is given and name is different - error
                {
                   throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Different name for the same PreAsphaltenActEnergy " <<
-                     "variable parameter. Given: " << name << ", expected : " << prm->name()[0];
+                     "influential parameter. Given: " << name << ", expected : " << prm->name()[0];
                }
                alreadyAdded = true;
                
@@ -734,7 +734,7 @@ ErrorHandler::ReturnCode VarySourceRockType( ScenarioAnalysis               & sa
          }
       }
      
-      // add variable parameter to VarSpace
+      // add influential parameter to VarSpace
       if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmSourceRockType( layerName
                                                                                      , prm.sourceRockTypeName()
                                                                                      , mixingID
@@ -884,11 +884,11 @@ ErrorHandler::ReturnCode VaryCrustThinning( casa::ScenarioAnalysis & sa
 
       std::vector<double> baseValues;
       // if base case does not have the same pattern - ignore it and generate base case as a middle between min/max
-      if ( !samePattern ) { baseValues.assign( 3 * minT0.size() + 1, UndefinedDoubleValue ); }
+      if ( !samePattern ) { baseValues.assign( 3 * minT0.size() + 1, Utilities::Numerical::IbsNoDataValue ); }
       else                { baseValues.insert( baseValues.begin(), prmBaseValues.begin(), prmBaseValues.end() ); }
 
-      std::vector<double> minValues( 3 * minT0.size() + 1, UndefinedDoubleValue );
-      std::vector<double> maxValues( 3 * minT0.size() + 1, UndefinedDoubleValue );
+      std::vector<double> minValues( 3 * minT0.size() + 1, Utilities::Numerical::IbsNoDataValue );
+      std::vector<double> maxValues( 3 * minT0.size() + 1, Utilities::Numerical::IbsNoDataValue );
 
       if ( IsValueUndefined( minThickIni ) ||
            IsValueUndefined( maxThickIni ) ) { throw ErrorHandler::Exception( ErrorHandler::UndefinedValue ) << "Initial crust thickness is undefined"; }
@@ -980,7 +980,7 @@ ErrorHandler::ReturnCode VarySurfacePorosity( ScenarioAnalysis & sa
       mbapi::LithologyManager & mgr = mdl.lithologyManager();
 
       mbapi::LithologyManager::LithologyID lid = mgr.findID( litName );
-      if ( lid == UndefinedIDValue ) { throw ErrorHandler::Exception( mgr.errorCode() ) << mgr.errorMessage(); }
+      if ( IsValueUndefined( lid ) ) { throw ErrorHandler::Exception( mgr.errorCode() ) << mgr.errorMessage(); }
 
       mbapi::LithologyManager::PorosityModel porModel = mbapi::LithologyManager::PorUnknown;
       std::vector<double> porModelPrms;
@@ -999,7 +999,7 @@ ErrorHandler::ReturnCode VarySurfacePorosity( ScenarioAnalysis & sa
             else if ( prm->lithoNames()[0].compare( litName ) )
             {
                throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << " Surface porosity for soil mechanics cannot be created "
-                  << "because the compaction coefficient has been already defined as variable parameter for lithology  " << prm->lithoNames()[0];
+                  << "because the compaction coefficient has been already defined as influential parameter for lithology  " << prm->lithoNames()[0];
             }
          }
       }
@@ -1065,7 +1065,7 @@ ErrorHandler::ReturnCode VaryCompactionCoefficient( ScenarioAnalysis            
       // Check if the parameter space has a layer where the surface porosity was defined for a soil mechanics model. 
       // In this case display an error message and exit.
       mbapi::LithologyManager::LithologyID lid = mgr.findID( litName );
-      if ( lid == UndefinedIDValue )
+      if ( IsValueUndefined( lid ) )
       {
          throw ErrorHandler::Exception( mgr.errorCode() ) << mgr.errorMessage();
       }
@@ -1087,7 +1087,7 @@ ErrorHandler::ReturnCode VaryCompactionCoefficient( ScenarioAnalysis            
             else if ( prm->lithoNames()[0].compare( litName ) )
             {
                throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << " Compaction coefficient for soil mechanics cannot be created "
-                            << "because surface porosity has been already defined as variable parameter for lithology  " << prm->lithoNames()[0];
+                            << "because surface porosity has been already defined as influential parameter for lithology  " << prm->lithoNames()[0];
             }            
          }
       }
@@ -1181,7 +1181,7 @@ ErrorHandler::ReturnCode VaryLithoFraction( ScenarioAnalysis            & sa
                        baseLithoFractions[1] << " is outside of the given range : [" << minLithoFrac[1] << ":" << maxLithoFrac[1] << "]";
        }
 
-      // add the variable lithofraction parameter to varPrmsSet 
+      // add the influential lithofraction parameter to varPrmsSet 
       if ( !layerName.empty() )
       {
          if ( ErrorHandler::NoError != varPrmsSet.addParameter( new VarPrmLithoFraction( layerName
@@ -1396,7 +1396,7 @@ ErrorHandler::ReturnCode VaryPermeabilityModelParameters( ScenarioAnalysis      
       // get base value
       mbapi::LithologyManager & lmgr = sa.baseCase().lithologyManager();
       mbapi::LithologyManager::LithologyID ltid = lmgr.findID( lithoName );
-      if ( UndefinedIDValue == ltid ) 
+      if ( IsValueUndefined( ltid ) ) 
       {
          throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) << "No lithology with name: " << lithoName << " in lithologies type table";
       }

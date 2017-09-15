@@ -24,7 +24,7 @@ namespace casa
    {
    public:
 
-      /// @brief Construct variable parameter for variation of the lithofraction parameter 
+      /// @brief Construct influential parameter for variation of the lithofraction parameter 
       VarPrmLithoFraction( const std::string                 & layerName          ///< stratigraphic layer name 
          , const std::vector<int>                                                 & lithoFractionsInds ///< indexes of the lithofractions
          , const std::vector<double>                                              & baseLithoFrac      ///< base lithofractions values
@@ -37,14 +37,15 @@ namespace casa
       /// @brief Destructor
       virtual ~VarPrmLithoFraction() { ; }
 
-      /// @brief Get name of variable parameter in short form     
+      /// @brief Get name of influential parameter in short form     
       /// @return array of names for each subparameter
       virtual std::vector<std::string> name() const;
 
       /// @brief Get number of subparameters if it is more than one
-      /// @return dimension of variable parameter
+      /// @return dimension of influential parameter
       virtual size_t dimension() const;
 
+      using VarPrmContinuous::newParameterFromDoubles;
       /// @brief Create parameter from set of doubles. This method is used to convert data between CASA and SUMlib
       /// @param[in,out] vals iterator which points to the first parameter value.
       /// @return new parameter for given set of values
@@ -52,17 +53,17 @@ namespace casa
 
       /// @brief Create parameter by reading the values stored in the project file
       /// @param[in, out] mdl the model where the parameters values should be read
-      /// @param[in] an input vector (e.g. spatial/temporal) coordinates 
+      /// @param[in] vin an input vector (e.g. spatial/temporal) coordinates. Used to convert 3D project into 1D
       /// @return the new parameter read from the model
       virtual SharedParameterPtr newParameterFromModel( mbapi::Model & mdl, const std::vector<double> & vin ) const;
 
       /// @brief Average the values, interpolate for lithofractions and set the appropriate entries in the project3d file
-      /// @param[in] mdl the model where to set the new averaged parameter
-      /// @param[in] xin the vector which stores the x coordinates of each 1D project 
-      /// @param[in] yin the vector which stores the y coordinates of each 1D project 
-      /// @param[in] prmVec the vector that stores the optimal parameter value of each 1D project
       /// @return new parameter for given set of values
-      virtual SharedParameterPtr makeThreeDFromOneD( mbapi::Model & mdl, const std::vector<double>& xin, const std::vector<double>& yin, const std::vector<SharedParameterPtr>& prmVec ) const;
+      virtual SharedParameterPtr makeThreeDFromOneD( mbapi::Model                & mdl     /// the model to set the new averaged parameter
+                                                   , const std::vector<double>   & xin     /// the vector to store 1D projects x coordinates  
+                                                   , const std::vector<double>   & yin     /// the vector to store 1D projects y coordinates 
+                                                   , const std::vector<SharedParameterPtr> & prmVec  /// the vector to stores the optimal parameter value of each 1D project
+                                                   ) const;
 
       /// @{
       /// @brief Defines version of serialized object representation. Must be updated on each change in save()

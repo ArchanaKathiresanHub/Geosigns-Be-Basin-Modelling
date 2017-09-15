@@ -138,7 +138,7 @@ void Composition::setWeight (const double& weight)
 
 double Composition::moles(ComponentId componentId, const double& gorm) const
 {
-   assert(FIRST_COMPONENT <= componentId && componentId <= LAST_COMPONENT);
+   assert( ComponentId::FIRST_COMPONENT <= componentId && componentId <= ComponentId::LAST_COMPONENT);
    pvtFlash::EosPack& eosPack = pvtFlash::EosPack::getInstance();
    return getWeight(componentId) / eosPack.getMolWeightLumped(componentId, gorm);
 }
@@ -221,7 +221,7 @@ void Composition::computeDiffusionLeakages(const double& diffusionStartTime, con
    unsigned int index;
    for (index = 0; index < diffusionLeaks.size (); ++index)
    {
-      ComponentId componentId = (ComponentId) (pvtFlash::C1 - index);
+      ComponentId componentId = (ComponentId) (ComponentId::C1 - index);
       double lost = 0.0;
       double molarFraction = moles (componentId, gorm) / totalMoles;
 
@@ -395,7 +395,7 @@ ostream & migration::operator<< (ostream & stream, Composition * composition)
    }
    else
    {
-      for (int component = FIRST_COMPONENT; component < NUM_COMPONENTS; ++component)
+      for (int component = ComponentId::FIRST_COMPONENT; component < ComponentId::NUMBER_OF_SPECIES; ++component)
       {
 	 stream << composition->getWeight ((ComponentId) component) << ", ";
       }

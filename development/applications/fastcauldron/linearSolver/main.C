@@ -62,7 +62,7 @@ int main(int argc, char** argv)
    int l_argc = argc + 1;
    char** l_argv = new char*[l_argc+1];
    l_argv[l_argc-1] = "-decompaction";
-   for( unsigned int i = 0; i < argc; ++i )
+   for( int i = 0; i < argc; ++i )
    {
       l_argv[i] = argv[i];
       if(strcmp(l_argv[i],"-presMatrix")==0) l_argv[l_argc-1] = "-overpressure";

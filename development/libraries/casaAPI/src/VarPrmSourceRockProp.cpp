@@ -50,7 +50,7 @@ SharedParameterPtr VarPrmSourceRockProp::newParameterFromDoubles( std::vector<do
 
    double prmV = *vals++; // in [-1:0:1] range
 
-   // scale to range [-1:0:1] if variable parameter has more than 1 range
+   // scale to range [-1:0:1] if influential parameter has more than 1 range
    if ( m_name2range.size() > 1 ) 
    {  
       // scale prmV from [-1:1] to the current Prop range - [minProp:maxProp]
@@ -109,7 +109,7 @@ std::vector<double> VarPrmSourceRockProp::asDoubleArray( const SharedParameterPt
 
    std::vector<double> ret;
    if ( m_name2range.size() > 1 )
-   {  // scale to range [-1:0:1] if variable parameter has more than 1 range
+   {  // scale to range [-1:0:1] if influential parameter has more than 1 range
       ret.push_back( tocVal < basV ? -1.0 + (tocVal - minV)/(basV-minV) * (0.0 - (-1.0)) :
                                       0.0 + (tocVal - basV)/(maxV-basV) * (1.0 - 0.0 ) );
    }

@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2012-2014 Shell International Exploration & Production.
+// Copyright (C) 2012-2017 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -19,7 +19,7 @@
 #include "cmbAPI.h"
 
 // Utilities lib
-#include <NumericFunctions.h>
+#include "NumericFunctions.h"
 
 // STL/C lib
 #include <cassert>
@@ -35,10 +35,10 @@ PrmPorosityModel::PrmPorosityModel( mbapi::Model & mdl, const char * lithoName )
    : m_parent( 0 )
    , m_modelType(   UndefinedModel )
    , m_lithoName(   lithoName )
-   , m_surfPor(     UndefinedDoubleValue )
-   , m_compCoef(    UndefinedDoubleValue )
-   , m_minPorosity( UndefinedDoubleValue )
-   , m_compCoef1(   UndefinedDoubleValue )
+   , m_surfPor(     Utilities::Numerical::IbsNoDataValue )
+   , m_compCoef(    Utilities::Numerical::IbsNoDataValue )
+   , m_minPorosity( Utilities::Numerical::IbsNoDataValue )
+   , m_compCoef1(   Utilities::Numerical::IbsNoDataValue )
 
 { 
    // construct parameter name
@@ -61,6 +61,7 @@ PrmPorosityModel::PrmPorosityModel( mbapi::Model & mdl, const char * lithoName )
       mbapi::LithologyManager::PorosityModel mdlType;
       std::vector<double> modelPrms;
       if ( ErrorHandler::NoError != mgr.porosityModel( lIDs[i], mdlType, modelPrms ) ) { mdl.moveError( mgr ); return; }
+      
       switch ( mdlType )
       {
          case mbapi::LithologyManager::PorExponential:
@@ -100,24 +101,39 @@ PrmPorosityModel::PrmPorosityModel( const VarPrmPorosityModel * parent, const ch
    : m_parent(      parent )
    , m_modelType(   mdlType )
    , m_lithoName(   lithoName )
-   , m_surfPor(     UndefinedDoubleValue )
-   , m_compCoef(    UndefinedDoubleValue )
-   , m_minPorosity( UndefinedDoubleValue )
-   , m_compCoef1(   UndefinedDoubleValue )
+   , m_surfPor(     Utilities::Numerical::IbsNoDataValue )
+   , m_compCoef(    Utilities::Numerical::IbsNoDataValue )
+   , m_minPorosity( Utilities::Numerical::IbsNoDataValue )
+   , m_compCoef1(   Utilities::Numerical::IbsNoDataValue )
 {
   // construct parameter name
    std::ostringstream oss;
    oss << "PorosityModel(" << m_lithoName << ")";
    m_name = oss.str();
 
+   // check parameters for the model
+   ErrorHandler::Exception ex( ErrorHandler::OutOfRangeValue );
+
    switch( m_modelType )
    {
       case Exponential:
-         if ( mdlPrms.size() != 2 )
-         {
-            throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Wrong parameters number for Exponential porosity model, expected 2, but given: " 
-                  << mdlPrms.size();
-         }
+         if ( mdlPrms.size() != 2 ) { throw ex << "Wrong parameters number for Exponential porosity model, expected 2, but given: "  << mdlPrms.size(); }
+         break;
+
+      case SoilMechanics:
+         if ( mdlPrms.size() < 1 || mdlPrms.size() > 2 ) { throw ex  << "Wrong parameters number for SoilMechanics porosity model: " << mdlPrms.size(); }
+         break;
+      
+      case DoubleExponential:
+         if ( mdlPrms.size() != 4 ) { throw ex << "Wrong parameters number for Double Expi. porosity model, expected 4, but given: " << mdlPrms.size(); }
+         break;
+
+      default: throw ex << "Undefined type of porosity model: " << m_modelType;  break;
+   }
+
+   switch( m_modelType )
+   {
+      case Exponential:
          m_surfPor  = mdlPrms[0];
          m_compCoef = mdlPrms[1];
          break;
@@ -125,15 +141,9 @@ PrmPorosityModel::PrmPorosityModel( const VarPrmPorosityModel * parent, const ch
       case SoilMechanics:
          if (      mdlPrms.size() == 1 ) m_clayFraction = mdlPrms[0];          // created from clayFraction 
          else if ( mdlPrms.size() == 2 ) initSoilMechanicsPorModel( mdlPrms ); // created from surfPor && compCoeff
-         else  throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue)  << "Wrong parameters number for SoilMechanics porosity model: " << mdlPrms.size();
          break;
 
       case DoubleExponential:
-         if ( mdlPrms.size() != 4 )
-         {
-            throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Wrong parameters number for Double Exponential porosity model, expected 4, but given: " 
-                  << mdlPrms.size();
-         }
          m_surfPor     = mdlPrms[0];
          m_minPorosity = mdlPrms[1];
          m_compCoef    = mdlPrms[2];
@@ -204,28 +214,20 @@ std::string PrmPorosityModel::validate( mbapi::Model & caldModel )
    switch ( m_modelType )
    {
       case Exponential:
-         if ( m_surfPor < 0   ) oss << "Surface porosity for lithology " << m_lithoName << " can not be negative: "       << m_surfPor  << std::endl;
-         if ( m_surfPor > 100 ) oss << "Surface porosity for lithology " << m_lithoName << " can not be more than 100%: " << m_surfPor  << std::endl;
-         if ( m_compCoef < 0  ) oss << "Compaction coef. for lithology " << m_lithoName << " can not be negative: "       << m_compCoef << std::endl;
-         if ( m_compCoef > 50 ) oss << "To high value for compaction coef. for lithology " << m_lithoName << ": "         << m_compCoef << std::endl;
+         if ( m_surfPor  < 0 || m_surfPor  > 100 ) oss << "Surface porosity for lithology " << m_lithoName << " is out of range [0:100]: " << m_surfPor  << "\n";
+         if ( m_compCoef < 0 || m_compCoef > 50  ) oss << "Compaction coef. for lithology " << m_lithoName << " is out of rang [0:50]: "   << m_compCoef << "\n";
          break;
 
       case SoilMechanics:
-         if ( m_clayFraction < 0 ) oss << "Clay fraction for lithology " << m_lithoName << " can not be negative: "       << m_clayFraction * 100 << std::endl;
-         if ( m_clayFraction > 1 ) oss << "Clay fraction for lithology " << m_lithoName << " can not be more than 100%: " << m_clayFraction * 100 << std::endl;
+         if ( m_clayFraction < 0 || m_clayFraction > 1 ) oss << "Clay fraction for lithology " << m_lithoName << " is out of range [0:100]: "
+                                                                 << m_clayFraction * 100 << "\n";
          break;
 
       case DoubleExponential:
-         if ( m_surfPor < 0              ) oss << "Surface porosity for lithology " << m_lithoName << " can not be negative: "       << m_surfPor  << std::endl;
-         if ( m_surfPor > 100            ) oss << "Surface porosity for lithology " << m_lithoName << " can not be more than 100%: " << m_surfPor  << std::endl;
-         if ( m_minPorosity < 0          ) oss << "Minimal porosity for lithology " << m_lithoName << " can not be negative: "       << m_surfPor  << std::endl;
-         if ( m_minPorosity > 100        ) oss << "Minimal porosity for lithology " << m_lithoName << " can not be more than 100%: " << m_surfPor  << std::endl;
-         if ( m_minPorosity >= m_surfPor ) oss << "Minimal porosity for lithology " << m_lithoName << " can not be more than surface porosity"     << std::endl;
-
-         if ( m_compCoef  < 0  ) oss << "Compaction coef. \"A\" for lithology " << m_lithoName << " can not be negative: " << m_compCoef << std::endl;
-         if ( m_compCoef  > 50 ) oss << "To high value for compaction coef. \"A\" for lithology " << m_lithoName << ": "   << m_compCoef << std::endl;
-         if ( m_compCoef1 < 0  ) oss << "Compaction coef. \"B\" for lithology " << m_lithoName << " can not be negative: " << m_compCoef << std::endl;
-         if ( m_compCoef1 > 50 ) oss << "To high value for compaction coef. \"B\" for lithology " << m_lithoName << ": "   << m_compCoef << std::endl;
+         if ( m_surfPor     < 0 || m_surfPor > 100            ) oss << "Surf. porosity for lithology " << m_lithoName << " is out of range [0:100]: "     << m_surfPor      << "\n";
+         if ( m_minPorosity < 0 || m_minPorosity >= m_surfPor ) oss << "Min.  porosity for lithology " << m_lithoName << " is out of range [0:surfPor]: " << m_minPorosity  << "\n";
+         if ( m_compCoef    < 0 || m_compCoef  > 50           ) oss << "Comp. coef. \"A\" for lithology " << m_lithoName << " is out of range [0:50]: "   << m_compCoef     << "\n";
+         if ( m_compCoef1   < 0 || m_compCoef1 > 50           ) oss << "Comp. coef. \"B\" for lithology " << m_lithoName << " is out of range [0:50]: "   << m_compCoef1    << "\n";
          break;
 
       default:
@@ -233,88 +235,79 @@ std::string PrmPorosityModel::validate( mbapi::Model & caldModel )
          break;
    }
 
-   mbapi::LithologyManager & mgr = caldModel.lithologyManager();
-
-   bool lFound = false;
 
    // go over all source rock lithologies and check do we have TOC map set for the layer with the same name
-   const std::vector<mbapi::LithologyManager::LithologyID> & ids = mgr.lithologiesIDs();
+   mbapi::LithologyManager              & mgr = caldModel.lithologyManager();
+   mbapi::LithologyManager::LithologyID   lid = mgr.findID( m_lithoName );
 
-   // check that parameter value in project the same as in this parameter
-   for ( size_t i = 0; i < ids.size() && !lFound; ++i )
+   if ( IsValueUndefined( lid ) ) { oss << "Can't find lithology: " << m_lithoName << " in project file\n"; }
+   else
    {
-      if ( mgr.lithologyName( ids[i] ) == m_lithoName )
+      // check that parameter value in project the same as in this parameter
+      std::vector<double> mdlPrms;
+      mbapi::LithologyManager::PorosityModel porModel;
+
+      if ( ErrorHandler::NoError != mgr.porosityModel( lid, porModel, mdlPrms ) )
       {
-         lFound = true;
-         
-         std::vector<double> mdlPrms;
-         mbapi::LithologyManager::PorosityModel porModel;
+         oss << "There is no such lithology in the model: " << m_lithoName << "\n";
+      }
+      else
+      {
+         bool samePorModel = true;
+         bool sameSurfPor  = true;
+         bool sameCC       = true;
+         bool sameMinPor   = true;
+         bool sameCCA      = true;
+         bool sameCCB      = true;
 
-         if ( ErrorHandler::NoError != mgr.porosityModel( ids[i], porModel, mdlPrms ) )
+         switch( porModel )
          {
-            oss << "Can not get porosity model parameters for lithology: " << m_lithoName << " from project" << std::endl;
-         }
-         else
-         {
-            bool samePorModel = true;
-            bool sameSurfPor  = true;
-            bool sameCC       = true;
-            bool sameMinPor   = true;
-            bool sameCCA      = true;
-            bool sameCCB      = true;
-
-            switch( porModel )
-            {
-               case mbapi::LithologyManager::PorExponential:
-                  samePorModel = m_modelType == Exponential ? true : false;
-                  if ( samePorModel )
-                  {
-                     sameSurfPor = NumericFunctions::isEqual( m_surfPor,  mdlPrms[0], 1.e-4 ); 
-                     sameCC      = NumericFunctions::isEqual( m_compCoef, mdlPrms[1], 1.e-4 );
-                  }
-                  break;
+            case mbapi::LithologyManager::PorExponential:
+               samePorModel = m_modelType == Exponential ? true : false;
+               if ( samePorModel )
+               {
+                  sameSurfPor = NumericFunctions::isEqual( m_surfPor,  mdlPrms[0], 1.e-4 ); 
+                  sameCC      = NumericFunctions::isEqual( m_compCoef, mdlPrms[1], 1.e-4 );
+               }
+               break;
  
-               case mbapi::LithologyManager::PorSoilMechanics:
-                  samePorModel = m_modelType == SoilMechanics ? true : false;
-                  if ( samePorModel )
-                  {
-                     sameSurfPor = NumericFunctions::isEqual( SMcf2sp( m_clayFraction ), mdlPrms[0], 1.e-4 ); 
-                     sameCC      = NumericFunctions::isEqual( SMcf2cc( m_clayFraction ), mdlPrms[1], 1.e-4 ); 
-                  }
-                  break;
+            case mbapi::LithologyManager::PorSoilMechanics:
+               samePorModel = m_modelType == SoilMechanics ? true : false;
+               if ( samePorModel )
+               {
+                  sameSurfPor = NumericFunctions::isEqual( SMcf2sp( m_clayFraction ), mdlPrms[0], 1.e-4 ); 
+                  sameCC      = NumericFunctions::isEqual( SMcf2cc( m_clayFraction ), mdlPrms[1], 1.e-4 ); 
+               }
+               break;
 
-              case mbapi::LithologyManager::PorDoubleExponential:
-                  samePorModel = m_modelType == DoubleExponential ? true : false;
-                  if ( samePorModel )
-                  {
-                     sameSurfPor = NumericFunctions::isEqual( m_surfPor,     mdlPrms[0], 1.e-4 );
-                     sameMinPor  = NumericFunctions::isEqual( m_minPorosity, mdlPrms[1], 1.e-4 );
-                     sameCCA     = NumericFunctions::isEqual( m_compCoef,    mdlPrms[2], 1.e-4 );
-                     sameCCB     = NumericFunctions::isEqual( m_compCoef1,   mdlPrms[3], 1.e-4 );
-                  }
-                  break;
+           case mbapi::LithologyManager::PorDoubleExponential:
+               samePorModel = m_modelType == DoubleExponential ? true : false;
+               if ( samePorModel )
+               {
+                  sameSurfPor = NumericFunctions::isEqual( m_surfPor,     mdlPrms[0], 1.e-4 );
+                  sameMinPor  = NumericFunctions::isEqual( m_minPorosity, mdlPrms[1], 1.e-4 );
+                  sameCCA     = NumericFunctions::isEqual( m_compCoef,    mdlPrms[2], 1.e-4 );
+                  sameCCB     = NumericFunctions::isEqual( m_compCoef1,   mdlPrms[3], 1.e-4 );
+               }
+               break;
 
-               default:
-                  oss << "Unsupported porosity model for lithology: " << m_lithoName << " is defined in project" << std::endl;
-                  break;
-            }
-            if ( !samePorModel ) oss << "Porosity model type for lithology "     << m_lithoName << " defined in project, is different from the parameter value" << std::endl;
-            if ( !sameSurfPor  ) oss << "Surface porosity for lithology "        << m_lithoName << " in project: "        << mdlPrms[0] << 
-                                        " is differ from the parameter value: "  << m_surfPor << std::endl;
-            if ( !sameCC       ) oss << "Compaction coeff. for lithology "       << m_lithoName << " in project: "        << mdlPrms[1] << 
-                                        " is differ from the parameter value: "  << m_compCoef << std::endl;
-            if ( !sameMinPor   ) oss << "Minimal porosity for lithology "        << m_lithoName << " defined in project " << mdlPrms[2] << 
-                                        " is differ from the parameter value "   << m_minPorosity << std::endl;
-            if ( !sameCCA      ) oss << "Compaction coeff. \"A\" for lithology " << m_lithoName << " in project: "        << mdlPrms[3] << 
-                                        " is differ from the parameter value: "  << m_compCoef << std::endl;
-            if ( !sameCCB      ) oss << "Compaction coeff. \"B\" for lithology " << m_lithoName << " in project: "        << mdlPrms[4] << 
-                                        " is differ from the parameter value: "  << m_compCoef1 << std::endl;
+            default:
+               oss << "Unsupported porosity model for lithology: " << m_lithoName << " is defined in project" << std::endl;
+               break;
          }
+         if ( !samePorModel ) oss << "Porosity model type for lithology "     << m_lithoName << " defined in project, is different from the parameter value" << std::endl;
+         if ( !sameSurfPor  ) oss << "Surface porosity for lithology "        << m_lithoName << " in project: "        << mdlPrms[0] << 
+                                     " is differ from the parameter value: "  << m_surfPor << std::endl;
+         if ( !sameCC       ) oss << "Compaction coeff. for lithology "       << m_lithoName << " in project: "        << mdlPrms[1] << 
+                                     " is differ from the parameter value: "  << m_compCoef << std::endl;
+         if ( !sameMinPor   ) oss << "Minimal porosity for lithology "        << m_lithoName << " defined in project " << mdlPrms[2] << 
+                                     " is differ from the parameter value "   << m_minPorosity << std::endl;
+         if ( !sameCCA      ) oss << "Compaction coeff. \"A\" for lithology " << m_lithoName << " in project: "        << mdlPrms[3] << 
+                                     " is differ from the parameter value: "  << m_compCoef << std::endl;
+         if ( !sameCCB      ) oss << "Compaction coeff. \"B\" for lithology " << m_lithoName << " in project: "        << mdlPrms[4] << 
+                                     " is differ from the parameter value: "  << m_compCoef1 << std::endl;
       }
    }
-
-   if ( !lFound ) oss << "There is no such lithology in the model: " << m_lithoName << std::endl;
-
    return oss.str();
 }
 
@@ -375,7 +368,8 @@ bool PrmPorosityModel::operator == ( const Parameter & prm ) const
          if ( !NumericFunctions::isEqual( m_compCoef,    pp->m_compCoef,    eps ) ) return false;
          if ( !NumericFunctions::isEqual( m_minPorosity, pp->m_minPorosity, eps ) ) return false;
          if ( !NumericFunctions::isEqual( m_compCoef1,   pp->m_compCoef1,   eps ) ) return false;
-         
+         break;
+
       default:
          assert(0);
          break;
@@ -445,12 +439,6 @@ PrmPorosityModel::PrmPorosityModel( CasaDeserializer & dz, unsigned int /* objVe
 void PrmPorosityModel::initSoilMechanicsPorModel( const std::vector<double> & mdlPrms )
 {
    m_modelType = SoilMechanics;
-
-   if ( mdlPrms.size() != 2 )
-   {
-      throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) <<  "Wrong parameters number for Soil Mechanics porosity model " <<
-         ", expected 2, but were given: "  << mdlPrms.size();
-   }
 
    double surfPor = mdlPrms[0];
    double cc      = mdlPrms[1];

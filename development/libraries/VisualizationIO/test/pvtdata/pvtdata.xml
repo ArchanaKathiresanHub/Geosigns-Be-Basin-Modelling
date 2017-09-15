@@ -1,0 +1,1053 @@
+<?xml version="1.0"?>
+<project>
+	<name>pvtdata</name>
+	<description>Exercise</description>
+	<modelingmode>1</modelingmode>
+	<team>EPT-AE-PSA</team>
+	<programversion>v2011.11</programversion>
+	<outputpath>.</outputpath>
+	<xml-version major="0" minor="2" />
+	<properties>
+		<property name="Depth" cauldronname="Depth" username="Depth" unit="m" attribute="0" type="1" />
+		<property name="MixingHI" cauldronname="MixingHI" username="MixingHI" unit="" attribute="4" type="1" />
+		<property name="LithoType1Percentage" cauldronname="LithoType1Percentage" username="LithoType1Percentage" unit="" attribute="4" type="1" />
+		<property name="LithoType2Percentage" cauldronname="LithoType2Percentage" username="LithoType2Percentage" unit="" attribute="4" type="1" />
+		<property name="Porosity" cauldronname="PorosityVec2" username="Porosity" unit="vol%" attribute="1" type="1" />
+		<property name="Pressure" cauldronname="Pressure" username="Pressure" unit="MPa" attribute="0" type="1" />
+		<property name="OverPressure" cauldronname="OverPressure" username="OverPressure" unit="MPa" attribute="0" type="1" />
+		<property name="Temperature" cauldronname="Temperature" username="Temperature" unit="C" attribute="0" type="1" />
+		<property name="Thickness" cauldronname="Thickness" username="Thickness" unit="m" attribute="3" type="1" />
+		<property name="ErosionFactor" cauldronname="ErosionFactor" username="ErosionFactor" unit="" attribute="3" type="1" />
+		<property name="Permeability" cauldronname="PermeabilityVec2" username="Permeability" unit="mD" attribute="1" type="1" />
+		<property name="PermeabilityH" cauldronname="PermeabilityHVec2" username="PermeabilityH" unit="mD" attribute="1" type="1" />
+		<property name="Vr" cauldronname="VrVec2" username="Vr" unit="%" attribute="1" type="1" />
+		<property name="BulkDensity" cauldronname="BulkDensityVec2" username="BulkDensity" unit="kg/m3" attribute="1" type="1" />
+		<property name="ThCond" cauldronname="ThCondVec2" username="ThCond" unit="W/mK" attribute="1" type="1" />
+		<property name="Ves" cauldronname="Ves" username="Ves" unit="Pa" attribute="0" type="1" />
+		<property name="MaxVes" cauldronname="MaxVesVec2" username="MaxVes" unit="Pa" attribute="1" type="1" />
+		<property name="FCTCorrection" cauldronname="FCTCorrection" username="FCTCorrection" unit="%" attribute="3" type="1" />
+		<property name="HydroStaticPressure" cauldronname="HydroStaticPressure" username="HydroStaticPressure" unit="MPa" attribute="0" type="1" />
+		<property name="LithoStaticPressure" cauldronname="LithoStaticPressure" username="LithoStaticPressure" unit="MPa" attribute="0" type="1" />
+		<property name="ResRockDrainageIdGasPhase" cauldronname="ResRockDrainageIdGasPhase" username="ResRockDrainageIdGasPhase" unit="" attribute="3" type="0" />
+		<property name="ResRockFlow" cauldronname="ResRockFlow" username="ResRockFlow" unit="log(kg)" attribute="3" type="0" />
+		<property name="ResRockFlux" cauldronname="ResRockFlux" username="ResRockFlux" unit="kg/m2" attribute="3" type="0" />
+		<property name="ResRockImmobilesDensity" cauldronname="ResRockImmobilesDensity" username="ResRockImmobilesDensity" unit="kg/m2" attribute="3" type="0" />
+		<property name="ResRockFillGasPhaseDensity" cauldronname="ResRockFillGasPhaseDensity" username="ResRockFillGasPhaseDensity" unit="kg/m2" attribute="3" type="0" />
+		<property name="FaultElements" cauldronname="FaultElements" username="FaultElements" unit="" attribute="3" type="1" />
+		<property name="ResRockTop" cauldronname="ResRockTop" username="ResRockTop" unit="m" attribute="3" type="0" />
+		<property name="ResRockTemperature" cauldronname="ResRockTemperature" username="ResRockTemperature" unit="C" attribute="3" type="0" />
+		<property name="ResRockDrainageIdFluidPhase" cauldronname="ResRockDrainageIdFluidPhase" username="ResRockDrainageIdFluidPhase" unit="" attribute="3" type="0" />
+		<property name="ResRockFillGasPhaseQuantity" cauldronname="ResRockFillGasPhaseQuantity" username="ResRockFillGasPhaseQuantity" unit="kg" attribute="3" type="0" />
+		<property name="ResRockFillFluidPhaseQuantity" cauldronname="ResRockFillFluidPhaseQuantity" username="ResRockFillFluidPhaseQuantity" unit="kg" attribute="3" type="0" />
+		<property name="ResRockCapacity" cauldronname="ResRockCapacity" username="ResRockCapacity" unit="m3" attribute="3" type="0" />
+		<property name="ResRockFillFluidPhaseDensity" cauldronname="ResRockFillFluidPhaseDensity" username="ResRockFillFluidPhaseDensity" unit="kg/m2" attribute="3" type="0" />
+		<property name="ResRockLeakage" cauldronname="ResRockLeakage" username="ResRockLeakage" unit="kg" attribute="3" type="0" />
+		<property name="ResRockTrapId" cauldronname="ResRockTrapId" username="ResRockTrapId" unit="" attribute="3" type="0" />
+		<property name="ResRockOverburden" cauldronname="ResRockOverburden" username="ResRockOverburden" unit="m" attribute="3" type="0" />
+		<property name="ResRockPressure" cauldronname="ResRockPressure" username="ResRockPressure" unit="MPa" attribute="3" type="0" />
+		<property name="ResRockBarriers" cauldronname="ResRockBarriers" username="ResRockBarriers" unit="" attribute="3" type="0" />
+		<property name="ResRockFaultCutEdges" cauldronname="ResRockFaultCutEdges" username="ResRockFaultCutEdges" unit="" attribute="3" type="0" />
+		<property name="ResRockPorosity" cauldronname="ResRockPorosity" username="ResRockPorosity" unit="%" attribute="3" type="0" />
+		<property name="ResRockThickness" cauldronname="ResRockThickness" username="ResRockThickness" unit="m" attribute="3" type="0" />
+		<property name="ResRockBottom" cauldronname="ResRockBottom" username="ResRockBottom" unit="m" attribute="3" type="0" />
+		<property name="HcGasGeneratedRate" cauldronname="HcGasGeneratedRate" username="HcGasGeneratedRate" unit="kg/m2/Ma" attribute="3" type="1" />
+		<property name="HcGasExpelledCumulative" cauldronname="HcGasExpelledCumulative" username="HcGasExpelledCumulative" unit="kg/m2" attribute="3" type="1" />
+		<property name="C1ExpelledCumulative" cauldronname="C1ExpelledCumulative" username="C1ExpelledCumulative" unit="kg/m2" attribute="3" type="1" />
+		<property name="C2ExpelledCumulative" cauldronname="C2ExpelledCumulative" username="C2ExpelledCumulative" unit="kg/m2" attribute="3" type="1" />
+		<property name="C3ExpelledCumulative" cauldronname="C3ExpelledCumulative" username="C3ExpelledCumulative" unit="kg/m2" attribute="3" type="1" />
+		<property name="C4ExpelledCumulative" cauldronname="C4ExpelledCumulative" username="C4ExpelledCumulative" unit="kg/m2" attribute="3" type="1" />
+		<property name="C5ExpelledCumulative" cauldronname="C5ExpelledCumulative" username="C5ExpelledCumulative" unit="kg/m2" attribute="3" type="1" />
+		<property name="C6-14SatExpelledCumulative" cauldronname="C6-14SatExpelledCumulative" username="C6-14SatExpelledCumulative" unit="kg/m2" attribute="3" type="1" />
+		<property name="COxExpelledCumulative" cauldronname="COxExpelledCumulative" username="COxExpelledCumulative" unit="kg/m2" attribute="3" type="1" />
+		<property name="C15+SatExpelledCumulative" cauldronname="C15+SatExpelledCumulative" username="C15+SatExpelledCumulative" unit="kg/m2" attribute="3" type="1" />
+		<property name="HcGasExpelledRate" cauldronname="HcGasExpelledRate" username="HcGasExpelledRate" unit="kg/m2/Ma" attribute="3" type="1" />
+		<property name="C6-14AroExpelledCumulative" cauldronname="C6-14AroExpelledCumulative" username="C6-14AroExpelledCumulative" unit="kg/m2" attribute="3" type="1" />
+		<property name="resinsExpelledCumulative" cauldronname="resinsExpelledCumulative" username="resinsExpelledCumulative" unit="kg/m2" attribute="3" type="1" />
+		<property name="KerogenConversionRatio" cauldronname="KerogenConversionRatio" username="KerogenConversionRatio" unit=" " attribute="3" type="1" />
+		<property name="N2ExpelledCumulative" cauldronname="N2ExpelledCumulative" username="N2ExpelledCumulative" unit="kg/m2" attribute="3" type="1" />
+		<property name="OilExpelledCumulative" cauldronname="OilExpelledCumulative" username="OilExpelledCumulative" unit="kg/m2" attribute="3" type="1" />
+		<property name="asphaltenesExpelledCumulative" cauldronname="asphaltenesExpelledCumulative" username="asphaltenesExpelledCumulative" unit="kg/m2" attribute="3" type="1" />
+		<property name="C15+AroExpelledCumulative" cauldronname="C15+AroExpelledCumulative" username="C15+AroExpelledCumulative" unit="kg/m2" attribute="3" type="1" />
+		<property name="OilExpelledRate" cauldronname="OilExpelledRate" username="OilExpelledRate" unit="kg/m2/Ma" attribute="3" type="1" />
+		<property name="OilGeneratedRate" cauldronname="OilGeneratedRate" username="OilGeneratedRate" unit="kg/m2/Ma" attribute="3" type="1" />
+		<property name="HorizontalPermeability" cauldronname="HorizontalPermeability" username="HorizontalPermeability" unit="mD" attribute="1" type="1" />
+		<property name="BrineDensity" cauldronname="BrineDensity" username="BrineDensity" unit="kg/m3" attribute="1" type="1" />
+		<property name="BrineViscosity" cauldronname="BrineViscosity" username="BrineViscosity" unit="Pa.s" attribute="1" type="1" />
+	</properties>
+	<reservoirs>
+		<reservoir name="Reservoir4" formation="Formation4" />
+	</reservoirs>
+	<snapshots>
+		<snapshot age="0" kind="0" isminor="false">
+			<surfaces>
+				<surface name="Horizon 1" subsurfacekind="0" top-formation="Formation6" bottom-formation="Crust">
+					<propertymaps>
+						<propertymap property="Porosity" formation="Formation6" geom-index="0" min="25.9130077" max="28.328371">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="0" />
+						</propertymap>
+						<propertymap property="PermeabilityH" formation="Formation6" geom-index="0" min="2.91811442" max="6.72058058">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="1764" />
+						</propertymap>
+						<propertymap property="Permeability" formation="Formation6" geom-index="0" min="2.91811442" max="6.72058058">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="3528" />
+						</propertymap>
+						<propertymap property="BulkDensity" formation="Formation6" geom-index="0" min="2189.93848" max="2229.05737">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="lz4" size="1763" offset="5292" />
+						</propertymap>
+						<propertymap property="Vr" formation="Formation6" geom-index="0" min="1.11429203" max="1.14396882">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="7055" />
+						</propertymap>
+						<propertymap property="Temperature" geom-index="0" min="159.76445" max="161.612473">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="8819" />
+						</propertymap>
+						<propertymap property="ThCond" formation="Crust" geom-index="0" min="3.37042141" max="3.379107">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="lz4" size="1762" offset="10583" />
+						</propertymap>
+						<propertymap property="LithoStaticPressure" geom-index="0" min="71.2790527" max="74.0337372">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="12345" />
+						</propertymap>
+						<propertymap property="ThCond" formation="Formation6" geom-index="0" min="1.81693542" max="1.87858701">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="14109" />
+						</propertymap>
+						<propertymap property="MaxVes" geom-index="0" min="16376933" max="19144596">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="15873" />
+						</propertymap>
+						<propertymap property="Ves" geom-index="0" min="16376933" max="19144596">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="17637" />
+						</propertymap>
+						<propertymap property="HydroStaticPressure" geom-index="0" min="42.0234833" max="42.0788498">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="19401" />
+						</propertymap>
+						<propertymap property="Depth" geom-index="0" min="4000" max="4000" constantvalue="4000" />
+						<propertymap property="OverPressure" geom-index="0" min="12.7923489" max="12.8780937">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="21165" />
+						</propertymap>
+						<propertymap property="Pressure" geom-index="0" min="54.871067" max="54.902153">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="lz4" size="1759" offset="22929" />
+						</propertymap>
+					</propertymaps>
+				</surface>
+				<surface name="Water bottom" subsurfacekind="0" bottom-formation="Formation 1">
+					<propertymaps>
+						<propertymap property="Pressure" geom-index="0" min="0.100000001" max="0.100000001" constantvalue="0.100000001" />
+						<propertymap property="OverPressure" geom-index="0" min="0" max="0" constantvalue="0" />
+						<propertymap property="Temperature" geom-index="0" min="10" max="10" constantvalue="10" />
+						<propertymap property="Depth" geom-index="0" min="0" max="0" constantvalue="0" />
+						<propertymap property="Porosity" formation="Formation 1" geom-index="0" min="70" max="70" constantvalue="70" />
+						<propertymap property="Permeability" formation="Formation 1" geom-index="0" min="0.00999999978" max="0.00999999978" constantvalue="0.00999999978" />
+						<propertymap property="PermeabilityH" formation="Formation 1" geom-index="0" min="0.00999999978" max="0.00999999978" constantvalue="0.00999999978" />
+						<propertymap property="Vr" formation="Formation 1" geom-index="0" min="0.200000003" max="0.200000003" constantvalue="0.200000003" />
+						<propertymap property="BulkDensity" formation="Formation 1" geom-index="0" min="1577.94641" max="1577.94641" constantvalue="1577.94641" />
+						<propertymap property="ThCond" formation="Formation 1" geom-index="0" min="0.760059357" max="0.760059357" constantvalue="0.760059357" />
+						<propertymap property="Ves" geom-index="0" min="0" max="0" constantvalue="0" />
+						<propertymap property="MaxVes" geom-index="0" min="0" max="0" constantvalue="0" />
+						<propertymap property="HydroStaticPressure" geom-index="0" min="0.100000001" max="0.100000001" constantvalue="0.100000001" />
+						<propertymap property="LithoStaticPressure" geom-index="0" min="0.100000001" max="0.100000001" constantvalue="0.100000001" />
+					</propertymaps>
+				</surface>
+				<surface name="" subsurfacekind="2" top-formation="Formation 1" bottom-formation="Formation 1">
+					<propertymaps>
+						<propertymap property="Thickness" formation="Formation 1" geom-index="0" min="1500" max="1500" constantvalue="1500" />
+						<propertymap property="ErosionFactor" formation="Formation 1" geom-index="0" min="1" max="1" constantvalue="1" />
+						<propertymap property="FCTCorrection" formation="Formation 1" geom-index="0" min="1" max="1" constantvalue="1" />
+					</propertymaps>
+				</surface>
+				<surface name="" subsurfacekind="2" top-formation="Formation2" bottom-formation="Formation2">
+					<propertymaps>
+						<propertymap property="FCTCorrection" formation="Formation2" geom-index="0" min="1" max="1" constantvalue="1" />
+						<propertymap property="Thickness" formation="Formation2" geom-index="0" min="390" max="950">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="lz4" size="921" offset="24688" />
+						</propertymap>
+						<propertymap property="ErosionFactor" formation="Formation2" geom-index="0" min="1" max="1" constantvalue="1" />
+					</propertymaps>
+				</surface>
+				<surface name="Surface1" subsurfacekind="0" top-formation="Formation 1" bottom-formation="Formation2">
+					<propertymaps>
+						<propertymap property="Pressure" geom-index="0" min="21.9063702" max="22.3598251">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="25609" />
+						</propertymap>
+						<propertymap property="Ves" geom-index="0" min="2070977.25" max="2989911.5">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="27373" />
+						</propertymap>
+						<propertymap property="Temperature" geom-index="0" min="77.1431122" max="80.639122">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="29137" />
+						</propertymap>
+						<propertymap property="Vr" formation="Formation2" geom-index="0" min="0.362064809" max="0.37931937">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="30901" />
+						</propertymap>
+						<propertymap property="ThCond" formation="Formation2" geom-index="0" min="0.884508908" max="0.910662889">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="32665" />
+						</propertymap>
+						<propertymap property="ThCond" formation="Formation 1" geom-index="0" min="0.884508908" max="0.910662889">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="34429" />
+						</propertymap>
+						<propertymap property="Porosity" formation="Formation 1" geom-index="0" min="56.3244476" max="60.2158241">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="36193" />
+						</propertymap>
+						<propertymap property="Porosity" formation="Formation2" geom-index="0" min="56.3244476" max="60.2158241">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="37957" />
+						</propertymap>
+						<propertymap property="BulkDensity" formation="Formation 1" geom-index="0" min="1724.73462" max="1788.58838">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="39721" />
+						</propertymap>
+						<propertymap property="BulkDensity" formation="Formation2" geom-index="0" min="1724.73462" max="1788.58838">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="41485" />
+						</propertymap>
+						<propertymap property="Permeability" formation="Formation2" geom-index="0" min="5.82211687e-05" max="9.88592001e-05">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="43249" />
+						</propertymap>
+						<propertymap property="HydroStaticPressure" geom-index="0" min="16.1002197" max="16.1128521">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="lz4" size="1715" offset="45013" />
+						</propertymap>
+						<propertymap property="OverPressure" geom-index="0" min="5.8031354" max="6.25889635">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="46728" />
+						</propertymap>
+						<propertymap property="Depth" geom-index="0" min="1500" max="1500" constantvalue="1500" />
+						<propertymap property="PermeabilityH" formation="Formation2" geom-index="0" min="5.82211687e-05" max="9.88592001e-05">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="48492" />
+						</propertymap>
+						<propertymap property="PermeabilityH" formation="Formation 1" geom-index="0" min="5.82211687e-05" max="9.88592001e-05">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="50256" />
+						</propertymap>
+						<propertymap property="MaxVes" geom-index="0" min="2070977.25" max="2989911.5">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="52020" />
+						</propertymap>
+						<propertymap property="Permeability" formation="Formation 1" geom-index="0" min="5.82211687e-05" max="9.88592001e-05">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="53784" />
+						</propertymap>
+						<propertymap property="LithoStaticPressure" geom-index="0" min="24.4308033" max="24.8962803">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="55548" />
+						</propertymap>
+						<propertymap property="Vr" formation="Formation 1" geom-index="0" min="0.362061948" max="0.379317254">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="57312" />
+						</propertymap>
+					</propertymaps>
+				</surface>
+				<surface name="Surface2" subsurfacekind="0" top-formation="Formation2" bottom-formation="Formation3">
+					<propertymaps>
+						<propertymap property="BulkDensity" formation="Formation3" geom-index="0" min="1658.56592" max="1828.61438">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="59076" />
+						</propertymap>
+						<propertymap property="LithoStaticPressure" geom-index="0" min="30.9253178" max="41.7084274">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="60840" />
+						</propertymap>
+						<propertymap property="BulkDensity" formation="Formation2" geom-index="0" min="1658.56592" max="1828.61438">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="62604" />
+						</propertymap>
+						<propertymap property="Permeability" formation="Formation2" geom-index="0" min="4.18322015e-05" max="0.000199520116">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="64368" />
+						</propertymap>
+						<propertymap property="PermeabilityH" formation="Formation2" geom-index="0" min="4.18322015e-05" max="0.000199520116">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="66132" />
+						</propertymap>
+						<propertymap property="Vr" formation="Formation2" geom-index="0" min="0.481112391" max="0.610549688">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="67896" />
+						</propertymap>
+						<propertymap property="Permeability" formation="Formation3" geom-index="0" min="4.18322015e-05" max="0.000199520116">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="69660" />
+						</propertymap>
+						<propertymap property="MaxVes" geom-index="0" min="1260370.88" max="3751762.5">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="71424" />
+						</propertymap>
+						<propertymap property="HydroStaticPressure" geom-index="0" min="20.2260609" max="26.1297188">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="73188" />
+						</propertymap>
+						<propertymap property="Depth" geom-index="0" min="1890" max="2450">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="lz4" size="923" offset="74952" />
+						</propertymap>
+						<propertymap property="OverPressure" geom-index="0" min="9.33452606" max="12.0915518">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="75875" />
+						</propertymap>
+						<propertymap property="ThCond" formation="Formation3" geom-index="0" min="0.872524619" max="0.944144785">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="77639" />
+						</propertymap>
+						<propertymap property="ThCond" formation="Formation2" geom-index="0" min="0.872524619" max="0.944144785">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="79403" />
+						</propertymap>
+						<propertymap property="Porosity" formation="Formation2" geom-index="0" min="53.28965" max="63.9362297">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="81167" />
+						</propertymap>
+						<propertymap property="Ves" geom-index="0" min="1120083.25" max="3751762.5">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="82931" />
+						</propertymap>
+						<propertymap property="Temperature" geom-index="0" min="98.0160141" max="115.47831">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="84695" />
+						</propertymap>
+						<propertymap property="PermeabilityH" formation="Formation3" geom-index="0" min="4.18322015e-05" max="0.000199520116">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="86459" />
+						</propertymap>
+						<propertymap property="Vr" formation="Formation3" geom-index="0" min="0.48111251" max="0.610549688">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="88223" />
+						</propertymap>
+						<propertymap property="Porosity" formation="Formation3" geom-index="0" min="53.28965" max="63.9362297">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="89987" />
+						</propertymap>
+						<propertymap property="Pressure" geom-index="0" min="29.7397537" max="38.2212715">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="91751" />
+						</propertymap>
+					</propertymaps>
+				</surface>
+				<surface name="" subsurfacekind="2" top-formation="Formation3" bottom-formation="Formation3">
+					<propertymaps>
+						<propertymap property="ErosionFactor" formation="Formation3" geom-index="0" min="1" max="1" constantvalue="1" />
+						<propertymap property="FCTCorrection" formation="Formation3" geom-index="0" min="1" max="1" constantvalue="1" />
+						<propertymap property="Thickness" formation="Formation3" geom-index="0" min="348.839844" max="1428.75">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="lz4" size="1075" offset="93515" />
+						</propertymap>
+					</propertymaps>
+				</surface>
+				<surface name="Surface3" subsurfacekind="0" top-formation="Formation3" bottom-formation="Formation4">
+					<propertymaps>
+						<propertymap property="BulkDensity" formation="Formation4" geom-index="0" min="1665.66113" max="2252.23193">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="94590" />
+						</propertymap>
+						<propertymap property="ThCond" formation="Formation3" geom-index="0" min="0.877961218" max="1.142573">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="96354" />
+						</propertymap>
+						<propertymap property="Porosity" formation="Formation3" geom-index="0" min="27.2973804" max="63.1211281">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="98118" />
+						</propertymap>
+						<propertymap property="Depth" geom-index="0" min="2280" max="3450">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="lz4" size="956" offset="99882" />
+						</propertymap>
+						<propertymap property="PermeabilityH" formation="Formation3" geom-index="0" min="6.70532427e-06" max="0.000164842699">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="100838" />
+						</propertymap>
+						<propertymap property="Ves" geom-index="0" min="1216996.12" max="12953295">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="102602" />
+						</propertymap>
+						<propertymap property="PermeabilityH" formation="Formation4" geom-index="0" min="8.29097871e-07" max="0.000164842699">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="104366" />
+						</propertymap>
+						<propertymap property="Permeability" formation="Formation4" geom-index="0" min="8.29097871e-07" max="0.000164842699">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="106130" />
+						</propertymap>
+						<propertymap property="HydroStaticPressure" geom-index="0" min="24.3182983" max="36.460556">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="107894" />
+						</propertymap>
+						<propertymap property="Permeability" formation="Formation3" geom-index="0" min="6.70532427e-06" max="0.000164842699">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="109658" />
+						</propertymap>
+						<propertymap property="MaxVes" geom-index="0" min="1444564.25" max="12953295">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="111422" />
+						</propertymap>
+						<propertymap property="Pressure" geom-index="0" min="35.9683952" max="50.318615">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="113186" />
+						</propertymap>
+						<propertymap property="OverPressure" geom-index="0" min="11.466465" max="14.3610001">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="114950" />
+						</propertymap>
+						<propertymap property="BulkDensity" formation="Formation3" geom-index="0" min="1665.66113" max="2252.23193">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="116714" />
+						</propertymap>
+						<propertymap property="Temperature" geom-index="0" min="115.294655" max="149.991684">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="118478" />
+						</propertymap>
+						<propertymap property="Porosity" formation="Formation4" geom-index="0" min="27.2973804" max="63.1211281">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="120242" />
+						</propertymap>
+						<propertymap property="Vr" formation="Formation3" geom-index="0" min="0.609314382" max="0.977333248">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="122006" />
+						</propertymap>
+						<propertymap property="LithoStaticPressure" geom-index="0" min="37.3066216" max="62.2365837">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="123770" />
+						</propertymap>
+						<propertymap property="Vr" formation="Formation4" geom-index="0" min="0.609314382" max="0.977333248">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="125534" />
+						</propertymap>
+						<propertymap property="ThCond" formation="Formation4" geom-index="0" min="0.877961218" max="1.142573">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="127298" />
+						</propertymap>
+					</propertymaps>
+				</surface>
+				<surface name="" subsurfacekind="2" top-formation="Formation4" bottom-formation="Formation4">
+					<propertymaps>
+						<propertymap property="ResRockDrainageIdGasPhase" formation="Formation4" reservoir="Reservoir4" geom-index="0" min="-10" max="7">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="lz4" size="208" offset="129062" />
+						</propertymap>
+						<propertymap property="ResRockFlow" formation="Formation4" reservoir="Reservoir4" geom-index="0" min="0" max="11.9375677">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="129270" />
+						</propertymap>
+						<propertymap property="ResRockFlux" formation="Formation4" reservoir="Reservoir4" geom-index="0" min="0" max="3464398.5">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="131034" />
+						</propertymap>
+						<propertymap property="ResRockImmobilesDensity" formation="Formation4" reservoir="Reservoir4" geom-index="0" min="0" max="0" constantvalue="0" />
+						<propertymap property="ResRockFillGasPhaseDensity" formation="Formation4" reservoir="Reservoir4" geom-index="0" min="0" max="0" constantvalue="0" />
+						<propertymap property="FaultElements" formation="Formation4" geom-index="0" min="0" max="1">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="lz4" size="51" offset="132798" />
+						</propertymap>
+						<propertymap property="ResRockTop" formation="Formation4" reservoir="Reservoir4" geom-index="0" min="2280" max="3450">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="lz4" size="956" offset="132849" />
+						</propertymap>
+						<propertymap property="ErosionFactor" formation="Formation4" geom-index="0" min="1" max="1" constantvalue="1" />
+						<propertymap property="Thickness" formation="Formation4" geom-index="0" min="0" max="502.320068">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="lz4" size="334" offset="133805" />
+						</propertymap>
+						<propertymap property="ResRockTemperature" formation="Formation4" reservoir="Reservoir4" geom-index="0" min="115.294655" max="149.991684">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="134139" />
+						</propertymap>
+						<propertymap property="ResRockDrainageIdFluidPhase" formation="Formation4" reservoir="Reservoir4" geom-index="0" min="-10" max="7">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="lz4" size="208" offset="135903" />
+						</propertymap>
+						<propertymap property="ResRockFillGasPhaseQuantity" formation="Formation4" reservoir="Reservoir4" geom-index="0" min="0" max="0" constantvalue="0" />
+						<propertymap property="ResRockFillFluidPhaseQuantity" formation="Formation4" reservoir="Reservoir4" geom-index="0" min="0" max="2.51499233e+10">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="lz4" size="472" offset="136111" />
+						</propertymap>
+						<propertymap property="ResRockCapacity" formation="Formation4" reservoir="Reservoir4" geom-index="0" min="0" max="64366772">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="lz4" size="1673" offset="136583" />
+						</propertymap>
+						<propertymap property="ResRockFillFluidPhaseDensity" formation="Formation4" reservoir="Reservoir4" geom-index="0" min="0" max="100599.695">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="lz4" size="472" offset="138256" />
+						</propertymap>
+						<propertymap property="ResRockLeakage" formation="Formation4" reservoir="Reservoir4" geom-index="0" min="0" max="3.1721175e+09">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="lz4" size="569" offset="138728" />
+						</propertymap>
+						<propertymap property="ResRockTrapId" formation="Formation4" reservoir="Reservoir4" geom-index="0" min="-10" max="7">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="lz4" size="258" offset="139297" />
+						</propertymap>
+						<propertymap property="ResRockOverburden" formation="Formation4" reservoir="Reservoir4" geom-index="0" min="2280" max="3450">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="lz4" size="956" offset="139555" />
+						</propertymap>
+						<propertymap property="ResRockPressure" formation="Formation4" reservoir="Reservoir4" geom-index="0" min="35.9683952" max="50.318615">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="140511" />
+						</propertymap>
+						<propertymap property="ResRockBarriers" formation="Formation4" reservoir="Reservoir4" geom-index="0" min="0" max="22">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="lz4" size="119" offset="142275" />
+						</propertymap>
+						<propertymap property="ResRockFaultCutEdges" formation="Formation4" reservoir="Reservoir4" geom-index="0" min="0" max="1">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="lz4" size="51" offset="142394" />
+						</propertymap>
+						<propertymap property="ResRockPorosity" formation="Formation4" reservoir="Reservoir4" geom-index="0" min="27.2973804" max="63.1211281">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="142445" />
+						</propertymap>
+						<propertymap property="ResRockThickness" formation="Formation4" reservoir="Reservoir4" geom-index="0" min="0" max="502.320068">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="lz4" size="334" offset="144209" />
+						</propertymap>
+						<propertymap property="ResRockBottom" formation="Formation4" reservoir="Reservoir4" geom-index="0" min="2480" max="3600">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="lz4" size="875" offset="144543" />
+						</propertymap>
+						<propertymap property="FCTCorrection" formation="Formation4" geom-index="0" min="1" max="1" constantvalue="1" />
+					</propertymaps>
+				</surface>
+				<surface name="" subsurfacekind="2" top-formation="Formation5" bottom-formation="Formation5">
+					<propertymaps>
+						<propertymap property="HcGasGeneratedRate" formation="Formation5" geom-index="0" min="0" max="720.145447">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="145418" />
+						</propertymap>
+						<propertymap property="HcGasExpelledCumulative" formation="Formation5" geom-index="0" min="3.18546261e-28" max="1901.6759">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="147182" />
+						</propertymap>
+						<propertymap property="C1ExpelledCumulative" formation="Formation5" geom-index="0" min="2.42996242e-28" max="443.556335">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="148946" />
+						</propertymap>
+						<propertymap property="C2ExpelledCumulative" formation="Formation5" geom-index="0" min="7.53424757e-29" max="481.387115">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="150710" />
+						</propertymap>
+						<propertymap property="C3ExpelledCumulative" formation="Formation5" geom-index="0" min="2.07111173e-31" max="453.889404">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="152474" />
+						</propertymap>
+						<propertymap property="C4ExpelledCumulative" formation="Formation5" geom-index="0" min="4.31745529e-34" max="352.575592">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="154238" />
+						</propertymap>
+						<propertymap property="C5ExpelledCumulative" formation="Formation5" geom-index="0" min="6.02841245e-37" max="216.795334">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="156002" />
+						</propertymap>
+						<propertymap property="C6-14SatExpelledCumulative" formation="Formation5" geom-index="0" min="2.2361246e-37" max="1818.68396">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="157766" />
+						</propertymap>
+						<propertymap property="COxExpelledCumulative" formation="Formation5" geom-index="0" min="2.21566566e-07" max="31951.9277">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="lz4" size="1763" offset="159530" />
+						</propertymap>
+						<propertymap property="C15+SatExpelledCumulative" formation="Formation5" geom-index="0" min="0" max="5358.06934">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="161293" />
+						</propertymap>
+						<propertymap property="HcGasExpelledRate" formation="Formation5" geom-index="0" min="0" max="713.185181">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="163057" />
+						</propertymap>
+						<propertymap property="C6-14AroExpelledCumulative" formation="Formation5" geom-index="0" min="0" max="2562.06714">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="164821" />
+						</propertymap>
+						<propertymap property="ErosionFactor" formation="Formation5" geom-index="0" min="0" max="1">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="lz4" size="122" offset="166585" />
+						</propertymap>
+						<propertymap property="FCTCorrection" formation="Formation5" geom-index="0" min="1" max="1" constantvalue="1" />
+						<propertymap property="Thickness" formation="Formation5" geom-index="0" min="0" max="760">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="lz4" size="918" offset="166707" />
+						</propertymap>
+						<propertymap property="FaultElements" formation="Formation5" geom-index="0" min="0" max="1">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="lz4" size="51" offset="167625" />
+						</propertymap>
+						<propertymap property="resinsExpelledCumulative" formation="Formation5" geom-index="0" min="0" max="2601.73315">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="167676" />
+						</propertymap>
+						<propertymap property="KerogenConversionRatio" formation="Formation5" geom-index="0" min="0.631982684" max="0.998760164">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="169440" />
+						</propertymap>
+						<propertymap property="N2ExpelledCumulative" formation="Formation5" geom-index="0" min="0" max="196.382568">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="171204" />
+						</propertymap>
+						<propertymap property="OilExpelledCumulative" formation="Formation5" geom-index="0" min="2.23613761e-37" max="17027.9082">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="172968" />
+						</propertymap>
+						<propertymap property="asphaltenesExpelledCumulative" formation="Formation5" geom-index="0" min="0" max="1137.78967">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="174732" />
+						</propertymap>
+						<propertymap property="C15+AroExpelledCumulative" formation="Formation5" geom-index="0" min="0" max="4425.72119">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="176496" />
+						</propertymap>
+						<propertymap property="OilExpelledRate" formation="Formation5" geom-index="0" min="0" max="7911.62158">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="178260" />
+						</propertymap>
+						<propertymap property="OilGeneratedRate" formation="Formation5" geom-index="0" min="0" max="23702.1816">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="180024" />
+						</propertymap>
+					</propertymaps>
+				</surface>
+				<surface name="Surface4" subsurfacekind="0" top-formation="Formation4" bottom-formation="Formation5">
+					<propertymaps>
+						<propertymap property="ThCond" formation="Formation4" geom-index="0" min="0.877304375" max="1.15838873">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="181788" />
+						</propertymap>
+						<propertymap property="Porosity" formation="Formation5" geom-index="0" min="30.6514759" max="45.8463783">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="183552" />
+						</propertymap>
+						<propertymap property="LithoStaticPressure" geom-index="0" min="40.5840797" max="64.7370682">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="185316" />
+						</propertymap>
+						<propertymap property="Depth" geom-index="0" min="2480" max="3600">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="lz4" size="875" offset="187080" />
+						</propertymap>
+						<propertymap property="Porosity" formation="Formation4" geom-index="0" min="25.4277859" max="63.108345">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="187955" />
+						</propertymap>
+						<propertymap property="PermeabilityH" formation="Formation4" geom-index="0" min="8.28099189e-07" max="0.000165736288">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="189719" />
+						</propertymap>
+						<propertymap property="Pressure" geom-index="0" min="39.2816734" max="50.8081322">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="191483" />
+						</propertymap>
+						<propertymap property="OverPressure" geom-index="0" min="12.7922783" max="12.8798199">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="193247" />
+						</propertymap>
+						<propertymap property="MaxVes" geom-index="0" min="1439304.75" max="13929198">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="195011" />
+						</propertymap>
+						<propertymap property="Ves" geom-index="0" min="1302406.5" max="13929198">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="196775" />
+						</propertymap>
+						<propertymap property="ThCond" formation="Formation5" geom-index="0" min="1.46510696" max="1.77009857">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="198539" />
+						</propertymap>
+						<propertymap property="HydroStaticPressure" geom-index="0" min="26.4022274" max="38.0093498">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="200303" />
+						</propertymap>
+						<propertymap property="BulkDensity" formation="Formation5" geom-index="0" min="1916.41467" max="2153.38159">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="202067" />
+						</propertymap>
+						<propertymap property="BulkDensity" formation="Formation4" geom-index="0" min="1662.34192" max="2282.75977">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="203831" />
+						</propertymap>
+						<propertymap property="Vr" formation="Formation5" geom-index="0" min="0.689431608" max="1.03181982">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="205595" />
+						</propertymap>
+						<propertymap property="Vr" formation="Formation4" geom-index="0" min="0.689431608" max="1.03181982">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="207359" />
+						</propertymap>
+						<propertymap property="Temperature" geom-index="0" min="124.338882" max="153.983505">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="209123" />
+						</propertymap>
+						<propertymap property="PermeabilityH" formation="Formation5" geom-index="0" min="8.31038278e-07" max="1000">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="lz4" size="1600" offset="210887" />
+						</propertymap>
+						<propertymap property="Permeability" formation="Formation5" geom-index="0" min="8.31038278e-07" max="1000">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="lz4" size="1600" offset="212487" />
+						</propertymap>
+						<propertymap property="Permeability" formation="Formation4" geom-index="0" min="8.28099189e-07" max="0.000165736288">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="214087" />
+						</propertymap>
+					</propertymaps>
+				</surface>
+				<surface name="Surface5" subsurfacekind="0" top-formation="Formation5" bottom-formation="Formation6">
+					<propertymaps>
+						<propertymap property="HydroStaticPressure" geom-index="0" min="34.2564545" max="40.0466309">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="215851" />
+						</propertymap>
+						<propertymap property="Permeability" formation="Formation6" geom-index="0" min="7.20969915" max="123.336571">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="217615" />
+						</propertymap>
+						<propertymap property="Vr" formation="Formation6" geom-index="0" min="0.889438868" max="1.08699059">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="219379" />
+						</propertymap>
+						<propertymap property="BulkDensity" formation="Formation6" geom-index="0" min="2057.38232" max="2187.02832">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="221143" />
+						</propertymap>
+						<propertymap property="LithoStaticPressure" geom-index="0" min="55.4267426" max="69.0006256">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="lz4" size="1762" offset="222907" />
+						</propertymap>
+						<propertymap property="BulkDensity" formation="Formation5" geom-index="0" min="2057.38232" max="2187.02832">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="224669" />
+						</propertymap>
+						<propertymap property="Porosity" formation="Formation5" geom-index="0" min="28.5317726" max="36.7529373">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="226433" />
+						</propertymap>
+						<propertymap property="ThCond" formation="Formation5" geom-index="0" min="1.64139891" max="1.81653988">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="228197" />
+						</propertymap>
+						<propertymap property="ThCond" formation="Formation6" geom-index="0" min="1.64139891" max="1.81653988">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="229961" />
+						</propertymap>
+						<propertymap property="Vr" formation="Formation5" geom-index="0" min="0.889438868" max="1.08699059">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="231725" />
+						</propertymap>
+						<propertymap property="OverPressure" geom-index="0" min="12.7923183" max="12.8788948">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="233489" />
+						</propertymap>
+						<propertymap property="MaxVes" geom-index="0" min="8291393" max="16154743">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="235253" />
+						</propertymap>
+						<propertymap property="Ves" geom-index="0" min="8291393" max="16154743">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="237017" />
+						</propertymap>
+						<propertymap property="Porosity" formation="Formation6" geom-index="0" min="28.5317726" max="36.7529373">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="238781" />
+						</propertymap>
+						<propertymap property="Permeability" formation="Formation5" geom-index="0" min="8.2982649e-07" max="123.336571">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="240545" />
+						</propertymap>
+						<propertymap property="Depth" geom-index="0" min="3240" max="3800">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="lz4" size="911" offset="242309" />
+						</propertymap>
+						<propertymap property="PermeabilityH" formation="Formation5" geom-index="0" min="8.2982649e-07" max="123.336571">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="243220" />
+						</propertymap>
+						<propertymap property="PermeabilityH" formation="Formation6" geom-index="0" min="7.20969915" max="123.336571">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="244984" />
+						</propertymap>
+						<propertymap property="Pressure" geom-index="0" min="47.1353493" max="52.8461227">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="246748" />
+						</propertymap>
+						<propertymap property="Temperature" geom-index="0" min="143.134079" max="157.834976">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="none" size="1764" offset="248512" />
+						</propertymap>
+					</propertymaps>
+				</surface>
+				<surface name="" subsurfacekind="2" top-formation="Formation6" bottom-formation="Formation6">
+					<propertymaps>
+						<propertymap property="FCTCorrection" formation="Formation6" geom-index="0" min="1" max="1" constantvalue="1" />
+						<propertymap property="Thickness" formation="Formation6" geom-index="0" min="200" max="760">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="lz4" size="920" offset="250276" />
+						</propertymap>
+						<propertymap property="ErosionFactor" formation="Formation6" geom-index="0" min="0.874751508" max="1">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="lz4" size="66" offset="251196" />
+						</propertymap>
+					</propertymaps>
+				</surface>
+				<surface name="Bottom of Crust" subsurfacekind="1" top-formation="Crust" bottom-formation="Mantle">
+					<propertymaps>
+						<propertymap property="Depth" geom-index="0" min="34000" max="34000" constantvalue="34000" />
+						<propertymap property="ThCond" formation="Mantle" geom-index="0" min="3.20000005" max="3.20000005" constantvalue="3.20000005" />
+						<propertymap property="ThCond" formation="Crust" geom-index="0" min="2.33866286" max="2.33867025">
+							<datastore file="Snapshot_0.000000_surfaces.cldrn" compression="lz4" size="596" offset="251262" />
+						</propertymap>
+					</propertymaps>
+				</surface>
+				<surface name="Bottom of Lithospheric Mantle" subsurfacekind="1" top-formation="Mantle">
+					<propertymaps>
+						<propertymap property="Depth" geom-index="0" min="124000" max="124000" constantvalue="124000" />
+						<propertymap property="ThCond" formation="Mantle" geom-index="0" min="3.20000005" max="3.20000005" constantvalue="3.20000005" />
+					</propertymaps>
+				</surface>
+			</surfaces>
+			<volume subsurfacekind="2">
+				<propertyvols>
+					<propertyvol property="Depth" firstK="0" numK="20" geom-index="0" min="0" max="124000">
+						<datastore file="Snapshot_0.000000_volumes.cldrn" compression="lz4" dataIJK="true" size="3746" offset="0" />
+					</propertyvol>
+					<propertyvol property="HydroStaticPressure" firstK="0" numK="7" geom-index="0" min="0.100000001" max="42.0788498">
+						<datastore file="Snapshot_0.000000_volumes.cldrn" compression="lz4" dataIJK="true" size="10502" offset="3746" />
+					</propertyvol>
+					<propertyvol property="LithoStaticPressure" firstK="0" numK="7" geom-index="0" min="0.100000001" max="74.0337372">
+						<datastore file="Snapshot_0.000000_volumes.cldrn" compression="lz4" dataIJK="true" size="10641" offset="14248" />
+					</propertyvol>
+					<propertyvol property="OverPressure" firstK="0" numK="7" geom-index="0" min="0" max="14.3610001">
+						<datastore file="Snapshot_0.000000_volumes.cldrn" compression="lz4" dataIJK="true" size="10638" offset="24889" />
+					</propertyvol>
+					<propertyvol property="Pressure" firstK="0" numK="7" geom-index="0" min="0.100000001" max="54.902153">
+						<datastore file="Snapshot_0.000000_volumes.cldrn" compression="lz4" dataIJK="true" size="10545" offset="35527" />
+					</propertyvol>
+					<propertyvol property="Temperature" firstK="0" numK="7" geom-index="0" min="10" max="161.612473">
+						<datastore file="Snapshot_0.000000_volumes.cldrn" compression="lz4" dataIJK="true" size="10641" offset="46072" />
+					</propertyvol>
+					<propertyvol property="Ves" firstK="0" numK="7" geom-index="0" min="0" max="19144596">
+						<datastore file="Snapshot_0.000000_volumes.cldrn" compression="lz4" dataIJK="true" size="10638" offset="56713" />
+					</propertyvol>
+				</propertyvols>
+			</volume>
+			<formvols>
+				<formvol formation="Formation 1">
+					<volume subsurfacekind="0">
+						<propertyvols>
+							<propertyvol property="BulkDensity" firstK="0" numK="2" geom-index="0" min="1577.94641" max="1788.58838">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" compression="lz4" dataIJK="true" size="1786" offset="67351" />
+							</propertyvol>
+							<propertyvol property="HorizontalPermeability" firstK="0" numK="2" geom-index="0" min="5.82211687e-05" max="0.00999999978">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" compression="lz4" dataIJK="true" size="1786" offset="69137" />
+							</propertyvol>
+							<propertyvol property="MaxVes" firstK="0" numK="2" geom-index="0" min="0" max="2989911.5">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" compression="lz4" dataIJK="true" size="1783" offset="70923" />
+							</propertyvol>
+							<propertyvol property="Permeability" firstK="0" numK="2" geom-index="0" min="5.82211687e-05" max="0.00999999978">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" compression="lz4" dataIJK="true" size="1786" offset="72706" />
+							</propertyvol>
+							<propertyvol property="Porosity" firstK="0" numK="2" geom-index="0" min="56.3244476" max="70">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" compression="lz4" dataIJK="true" size="1786" offset="74492" />
+							</propertyvol>
+							<propertyvol property="ThCond" firstK="0" numK="2" geom-index="0" min="0.760059357" max="0.910662889">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" compression="lz4" dataIJK="true" size="1784" offset="76278" />
+							</propertyvol>
+							<propertyvol property="Vr" firstK="0" numK="2" geom-index="0" min="0.200000003" max="0.379317254">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" compression="lz4" dataIJK="true" size="1786" offset="78062" />
+							</propertyvol>
+							<propertyvol property="BrineDensity" firstK="0" numK="2" geom-index="0" min="1073.63452" max="1092.78052">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" compression="lz4" dataIJK="true" size="1779" offset="79848" />
+							</propertyvol>
+							<propertyvol property="BrineViscosity" firstK="0" numK="2" geom-index="0" min="0.000549409771" max="0.0015350373">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" compression="lz4" dataIJK="true" size="1786" offset="81627" />
+							</propertyvol>
+						</propertyvols>
+					</volume>
+				</formvol>
+				<formvol formation="Formation2">
+					<volume subsurfacekind="0">
+						<propertyvols>
+							<propertyvol property="BulkDensity" firstK="1" numK="2" geom-index="0" min="1658.56592" max="1828.61438">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" compression="none" dataIJK="true" size="3528" offset="83413" />
+							</propertyvol>
+							<propertyvol property="HorizontalPermeability" firstK="1" numK="2" geom-index="0" min="4.18322015e-05" max="0.000199520116">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" compression="none" dataIJK="true" size="3528" offset="86941" />
+							</propertyvol>
+							<propertyvol property="MaxVes" firstK="1" numK="2" geom-index="0" min="1260370.88" max="3751762.5">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" compression="none" dataIJK="true" size="3528" offset="90469" />
+							</propertyvol>
+							<propertyvol property="Permeability" firstK="1" numK="2" geom-index="0" min="4.18322015e-05" max="0.000199520116">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" compression="none" dataIJK="true" size="3528" offset="93997" />
+							</propertyvol>
+							<propertyvol property="Porosity" firstK="1" numK="2" geom-index="0" min="53.28965" max="63.9362297">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" compression="none" dataIJK="true" size="3528" offset="97525" />
+							</propertyvol>
+							<propertyvol property="ThCond" firstK="1" numK="2" geom-index="0" min="0.872524619" max="0.944144785">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" compression="none" dataIJK="true" size="3528" offset="101053" />
+							</propertyvol>
+							<propertyvol property="Vr" firstK="1" numK="2" geom-index="0" min="0.362064809" max="0.610549688">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" compression="none" dataIJK="true" size="3528" offset="104581" />
+							</propertyvol>
+							<propertyvol property="BrineDensity" firstK="1" numK="2" geom-index="0" min="1056.03088" max="1075.62463">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" compression="none" dataIJK="true" size="3528" offset="108109" />
+							</propertyvol>
+							<propertyvol property="BrineViscosity" firstK="1" numK="2" geom-index="0" min="0.000388395682" max="0.000571453711">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" compression="none" dataIJK="true" size="3528" offset="111637" />
+							</propertyvol>
+						</propertyvols>
+					</volume>
+				</formvol>
+				<formvol formation="Formation3">
+					<volume subsurfacekind="0">
+						<propertyvols>
+							<propertyvol property="BulkDensity" firstK="2" numK="2" geom-index="0" min="1658.56592" max="2252.23193">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" compression="none" dataIJK="true" size="3528" offset="115165" />
+							</propertyvol>
+							<propertyvol property="HorizontalPermeability" firstK="2" numK="2" geom-index="0" min="6.70532427e-06" max="0.000199520116">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" compression="none" dataIJK="true" size="3528" offset="118693" />
+							</propertyvol>
+							<propertyvol property="MaxVes" firstK="2" numK="2" geom-index="0" min="1260370.88" max="12953295">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" compression="none" dataIJK="true" size="3528" offset="122221" />
+							</propertyvol>
+							<propertyvol property="Permeability" firstK="2" numK="2" geom-index="0" min="6.70532427e-06" max="0.000199520116">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" compression="none" dataIJK="true" size="3528" offset="125749" />
+							</propertyvol>
+							<propertyvol property="Porosity" firstK="2" numK="2" geom-index="0" min="27.2973804" max="63.9362297">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" compression="none" dataIJK="true" size="3528" offset="129277" />
+							</propertyvol>
+							<propertyvol property="ThCond" firstK="2" numK="2" geom-index="0" min="0.872524619" max="1.142573">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" compression="none" dataIJK="true" size="3528" offset="132805" />
+							</propertyvol>
+							<propertyvol property="Vr" firstK="2" numK="2" geom-index="0" min="0.48111251" max="0.977333248">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" compression="none" dataIJK="true" size="3528" offset="136333" />
+							</propertyvol>
+							<propertyvol property="BrineDensity" firstK="2" numK="2" geom-index="0" min="1032.56555" max="1065.49561">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" compression="none" dataIJK="true" size="3528" offset="139861" />
+							</propertyvol>
+							<propertyvol property="BrineViscosity" firstK="2" numK="2" geom-index="0" min="0.000296395563" max="0.000457567367">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" compression="none" dataIJK="true" size="3528" offset="143389" />
+							</propertyvol>
+						</propertyvols>
+					</volume>
+				</formvol>
+				<formvol formation="Formation4">
+					<volume subsurfacekind="0">
+						<propertyvols>
+							<propertyvol property="BulkDensity" firstK="3" numK="2" geom-index="0" min="1662.34192" max="2282.75977">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" compression="lz4" dataIJK="true" size="3448" offset="146917" />
+							</propertyvol>
+							<propertyvol property="HorizontalPermeability" firstK="3" numK="2" geom-index="0" min="8.28099189e-07" max="0.000165736288">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" compression="lz4" dataIJK="true" size="3458" offset="150365" />
+							</propertyvol>
+							<propertyvol property="MaxVes" firstK="3" numK="2" geom-index="0" min="1439304.75" max="13929198">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" compression="lz4" dataIJK="true" size="3450" offset="153823" />
+							</propertyvol>
+							<propertyvol property="Permeability" firstK="3" numK="2" geom-index="0" min="8.28099189e-07" max="0.000165736288">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" compression="lz4" dataIJK="true" size="3458" offset="157273" />
+							</propertyvol>
+							<propertyvol property="Porosity" firstK="3" numK="2" geom-index="0" min="25.4277859" max="63.1211281">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" compression="lz4" dataIJK="true" size="3450" offset="160731" />
+							</propertyvol>
+							<propertyvol property="ThCond" firstK="3" numK="2" geom-index="0" min="0.877304375" max="1.15838873">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" compression="lz4" dataIJK="true" size="3448" offset="164181" />
+							</propertyvol>
+							<propertyvol property="Vr" firstK="3" numK="2" geom-index="0" min="0.609314382" max="1.03181982">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" compression="lz4" dataIJK="true" size="3448" offset="167629" />
+							</propertyvol>
+							<propertyvol property="BrineDensity" firstK="3" numK="2" geom-index="0" min="1029.68127" max="1055.55603">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" compression="lz4" dataIJK="true" size="3442" offset="171077" />
+							</propertyvol>
+							<propertyvol property="BrineViscosity" firstK="3" numK="2" geom-index="0" min="0.000288501673" max="0.000389027235">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" compression="lz4" dataIJK="true" size="3448" offset="174519" />
+							</propertyvol>
+						</propertyvols>
+					</volume>
+				</formvol>
+				<formvol formation="Formation5">
+					<volume subsurfacekind="0">
+						<propertyvols>
+							<propertyvol property="BulkDensity" firstK="4" numK="2" geom-index="0" min="1916.41467" max="2187.02832">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" compression="lz4" dataIJK="true" size="3516" offset="177967" />
+							</propertyvol>
+							<propertyvol property="HorizontalPermeability" firstK="4" numK="2" geom-index="0" min="8.2982649e-07" max="1000">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" compression="lz4" dataIJK="true" size="3357" offset="181483" />
+							</propertyvol>
+							<propertyvol property="MaxVes" firstK="4" numK="2" geom-index="0" min="1439304.75" max="16154743">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" compression="none" dataIJK="true" size="3528" offset="184840" />
+							</propertyvol>
+							<propertyvol property="Permeability" firstK="4" numK="2" geom-index="0" min="8.2982649e-07" max="1000">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" compression="lz4" dataIJK="true" size="3357" offset="188368" />
+							</propertyvol>
+							<propertyvol property="Porosity" firstK="4" numK="2" geom-index="0" min="28.5317726" max="45.8463783">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" compression="none" dataIJK="true" size="3528" offset="191725" />
+							</propertyvol>
+							<propertyvol property="ThCond" firstK="4" numK="2" geom-index="0" min="1.46510696" max="1.81653988">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" compression="none" dataIJK="true" size="3528" offset="195253" />
+							</propertyvol>
+							<propertyvol property="Vr" firstK="4" numK="2" geom-index="0" min="0.689431608" max="1.08699059">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" compression="none" dataIJK="true" size="3528" offset="198781" />
+							</propertyvol>
+							<propertyvol property="BrineDensity" firstK="4" numK="2" geom-index="0" min="1027.03223" max="1049.90564">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" compression="none" dataIJK="true" size="3528" offset="202309" />
+							</propertyvol>
+							<propertyvol property="BrineViscosity" firstK="4" numK="2" geom-index="0" min="0.000281307206" max="0.000359982485">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" compression="none" dataIJK="true" size="3528" offset="205837" />
+							</propertyvol>
+						</propertyvols>
+					</volume>
+				</formvol>
+				<formvol formation="Formation6">
+					<volume subsurfacekind="0">
+						<propertyvols>
+							<propertyvol property="BulkDensity" firstK="5" numK="2" geom-index="0" min="2057.38232" max="2229.05737">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" compression="none" dataIJK="true" size="3528" offset="209365" />
+							</propertyvol>
+							<propertyvol property="HorizontalPermeability" firstK="5" numK="2" geom-index="0" min="2.91811442" max="123.336571">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" compression="none" dataIJK="true" size="3528" offset="212893" />
+							</propertyvol>
+							<propertyvol property="MaxVes" firstK="5" numK="2" geom-index="0" min="8291393" max="19144596">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" compression="none" dataIJK="true" size="3528" offset="216421" />
+							</propertyvol>
+							<propertyvol property="Permeability" firstK="5" numK="2" geom-index="0" min="2.91811442" max="123.336571">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" compression="none" dataIJK="true" size="3528" offset="219949" />
+							</propertyvol>
+							<propertyvol property="Porosity" firstK="5" numK="2" geom-index="0" min="25.9130077" max="36.7529373">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" compression="none" dataIJK="true" size="3528" offset="223477" />
+							</propertyvol>
+							<propertyvol property="ThCond" firstK="5" numK="2" geom-index="0" min="1.64139891" max="1.87858701">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" compression="none" dataIJK="true" size="3528" offset="227005" />
+							</propertyvol>
+							<propertyvol property="Vr" firstK="5" numK="2" geom-index="0" min="0.889438868" max="1.14396882">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" compression="none" dataIJK="true" size="3528" offset="230533" />
+							</propertyvol>
+							<propertyvol property="BrineDensity" firstK="5" numK="2" geom-index="0" min="1024.4093" max="1037.56348">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" compression="none" dataIJK="true" size="3528" offset="234061" />
+							</propertyvol>
+							<propertyvol property="BrineViscosity" firstK="5" numK="2" geom-index="0" min="0.000274628808" max="0.000311082869">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" compression="none" dataIJK="true" size="3528" offset="237589" />
+							</propertyvol>
+						</propertyvols>
+					</volume>
+				</formvol>
+				<formvol formation="Crust">
+					<volume subsurfacekind="1">
+						<propertyvols>
+							<propertyvol property="ThCond" firstK="6" numK="9" geom-index="0" min="2.33866286" max="3.379107">
+								<datastore file="Snapshot_0.000000_volumes.cldrn" compression="lz4" dataIJK="true" size="10080" offset="241117" />
+							</propertyvol>
+						</propertyvols>
+					</volume>
+				</formvol>
+				<formvol formation="Mantle">
+					<volume subsurfacekind="1">
+						<propertyvols>
+							<propertyvol property="ThCond" firstK="14" numK="6" geom-index="0" min="3.20000005" max="3.20000005" constantvalue="3.20000005" />
+						</propertyvols>
+					</volume>
+				</formvol>
+			</formvols>
+			<trappers>
+				<trapper id="1" persistentID="1" reservoirname="Reservoir4" depth="2280" spillDepth="2592.80005" posX="6500" posY="5500" spillPosX="8000" spillPosY="8000" goc="2280" owc="2489.04858" downstreamtrapper="-1" />
+				<trapper id="2" persistentID="2" reservoirname="Reservoir4" depth="2500" spillDepth="2592.80005" posX="9500" posY="9500" spillPosX="8000" spillPosY="8000" goc="2500" owc="2592.80005" downstreamtrapper="1" />
+				<trapper id="3" persistentID="3" reservoirname="Reservoir4" depth="2620" spillDepth="3450" posX="3000" posY="5000" spillPosX="1500" spillPosY="5500" goc="2620" owc="2739.16821" downstreamtrapper="-1" />
+				<trapper id="4" persistentID="4" reservoirname="Reservoir4" depth="2645.19995" spillDepth="3450" posX="3000" posY="6000" spillPosX="1500" spillPosY="6500" goc="2645.19995" owc="2785.70801" downstreamtrapper="-1" />
+				<trapper id="5" persistentID="5" reservoirname="Reservoir4" depth="2720.80005" spillDepth="2788.19995" posX="3000" posY="7000" spillPosX="3500" spillPosY="8000" goc="2720.80005" owc="2788.19995" downstreamtrapper="1" />
+				<trapper id="6" persistentID="6" reservoirname="Reservoir4" depth="3050" spillDepth="3080.19995" posX="1000" posY="9000" spillPosX="1500" spillPosY="8000" goc="3050" owc="3080.19995" downstreamtrapper="5" />
+				<trapper id="7" persistentID="7" reservoirname="Reservoir4" depth="2820" spillDepth="3450" posX="2000" posY="5000" spillPosX="2500" spillPosY="5500" goc="2820" owc="2859.89478" downstreamtrapper="-1" />
+				<maxPersistentTrapperID>7</maxPersistentTrapperID>
+			</trappers>
+		</snapshot>
+		<snapshot age="2" kind="1" isminor="false" />
+		<snapshot age="4" kind="1" isminor="false" />
+		<snapshot age="6" kind="1" isminor="false" />
+		<snapshot age="8" kind="0" isminor="false" />
+		<snapshot age="11" kind="0" isminor="true" />
+		<snapshot age="14" kind="0" isminor="false" />
+		<snapshot age="18.5" kind="0" isminor="true" />
+		<snapshot age="23" kind="0" isminor="false" />
+		<snapshot age="23.666666666666998" kind="0" isminor="true" />
+		<snapshot age="24.333333333333599" kind="0" isminor="true" />
+		<snapshot age="25.000000000000199" kind="0" isminor="true" />
+		<snapshot age="25.666666666666799" kind="0" isminor="true" />
+		<snapshot age="26.3333333333334" kind="0" isminor="true" />
+		<snapshot age="27" kind="0" isminor="false" />
+		<snapshot age="30" kind="0" isminor="true" />
+		<snapshot age="33" kind="0" isminor="false" />
+		<snapshot age="39" kind="0" isminor="true" />
+		<snapshot age="45" kind="0" isminor="false" />
+		<snapshot age="50" kind="0" isminor="false" />
+		<snapshot age="100" kind="0" isminor="false" />
+	</snapshots>
+	<geometries>
+		<geometry numI="21" numJ="21" minI="0" minJ="0" deltaI="500" deltaJ="500" />
+	</geometries>
+	<stratigraphytable>
+		<surface name="Water bottom" subsurfacekind="0" bottom-formation="Formation 1" age="0">
+			<propertymaps>
+				<propertymap property="Depth" geom-index="0" min="0" max="0" constantvalue="0" />
+			</propertymaps>
+		</surface>
+		<formation name="Formation 1" />
+		<surface name="Surface1" subsurfacekind="0" top-formation="Formation 1" bottom-formation="Formation2" age="8">
+			<propertymaps>
+				<propertymap property="Depth" geom-index="0" min="1500" max="1500" constantvalue="1500" />
+			</propertymaps>
+		</surface>
+		<formation name="Formation2" />
+		<surface name="Surface2" subsurfacekind="0" top-formation="Formation2" bottom-formation="Formation3" age="14">
+			<propertymaps>
+				<propertymap property="Depth" geom-index="0" min="1890" max="2450">
+					<datastore file="Input_surfaces.cldrn" compression="lz4" size="923" offset="0" />
+				</propertymap>
+			</propertymaps>
+		</surface>
+		<formation name="Formation3" />
+		<surface name="Surface3" subsurfacekind="0" top-formation="Formation3" bottom-formation="Formation4" age="23">
+			<propertymaps>
+				<propertymap property="Depth" geom-index="0" min="2280" max="3450">
+					<datastore file="Input_surfaces.cldrn" compression="lz4" size="956" offset="923" />
+				</propertymap>
+			</propertymaps>
+		</surface>
+		<formation name="Formation4" />
+		<surface name="Surface4" subsurfacekind="0" top-formation="Formation4" bottom-formation="Formation5" age="27">
+			<propertymaps>
+				<propertymap property="Depth" geom-index="0" min="2480" max="3600">
+					<datastore file="Input_surfaces.cldrn" compression="lz4" size="919" offset="1879" />
+				</propertymap>
+			</propertymaps>
+		</surface>
+		<formation name="Formation5" />
+		<surface name="Surface5" subsurfacekind="0" top-formation="Formation5" bottom-formation="Formation6" age="33">
+			<propertymaps>
+				<propertymap property="Depth" geom-index="0" min="3240" max="3800">
+					<datastore file="Input_surfaces.cldrn" compression="lz4" size="918" offset="2798" />
+				</propertymap>
+			</propertymaps>
+		</surface>
+		<formation name="Formation6" />
+		<surface name="Horizon 1" subsurfacekind="0" top-formation="Formation6" bottom-formation="Crust" age="45">
+			<propertymaps>
+				<propertymap property="Depth" geom-index="0" min="4000" max="4000" constantvalue="4000" />
+			</propertymaps>
+		</surface>
+		<formation name="Crust" />
+	</stratigraphytable>
+	<formations>
+		<formation name="Formation 1" kstart="0" kend="1" fluid_type="Std. Marine Water" depo_sequence="6" elem_refinement="1" mixing_model="Homogeneous" litho1_name="Std. Shale">
+			<mixingHImap property="MixingHI" geom-index="0" min="0" max="0" constantvalue="0" />
+			<lithoType1Perc1map property="LithoType1Percentage" geom-index="0" min="100" max="100" constantvalue="100" />
+			<lithoType1Perc2map property="LithoType2Percentage" geom-index="0" min="0" max="0" constantvalue="0" />
+		</formation>
+		<formation name="Formation2" kstart="1" kend="2" fluid_type="Std. Marine Water" depo_sequence="5" elem_refinement="1" mixing_model="Homogeneous" litho1_name="Std. Shale">
+			<mixingHImap property="MixingHI" geom-index="0" min="0" max="0" constantvalue="0" />
+			<lithoType1Perc1map property="LithoType1Percentage" geom-index="0" min="100" max="100" constantvalue="100" />
+			<lithoType1Perc2map property="LithoType2Percentage" geom-index="0" min="0" max="0" constantvalue="0" />
+		</formation>
+		<formation name="Formation3" kstart="2" kend="3" fluid_type="Std. Marine Water" depo_sequence="4" elem_refinement="1" mixing_model="Homogeneous" litho1_name="Std. Shale">
+			<mixingHImap property="MixingHI" geom-index="0" min="0" max="0" constantvalue="0" />
+			<lithoType1Perc1map property="LithoType1Percentage" geom-index="0" min="100" max="100" constantvalue="100" />
+			<lithoType1Perc2map property="LithoType2Percentage" geom-index="0" min="0" max="0" constantvalue="0" />
+		</formation>
+		<formation name="Formation4" kstart="3" kend="4" fluid_type="Std. Marine Water" depo_sequence="3" elem_refinement="1" mixing_model="Homogeneous" litho1_name="Std. Shale">
+			<mixingHImap property="MixingHI" geom-index="0" min="0" max="0" constantvalue="0" />
+			<lithoType1Perc1map property="LithoType1Percentage" geom-index="0" min="100" max="100" constantvalue="100" />
+			<lithoType1Perc2map property="LithoType2Percentage" geom-index="0" min="0" max="0" constantvalue="0" />
+		</formation>
+		<formation name="Formation5" kstart="4" kend="5" isSR="true" sr1name="MesozoicMarineShale" fluid_type="Std. Marine Water" depo_sequence="2" elem_refinement="1" mixing_model="Homogeneous" litho1_name="Std. Sandstone">
+			<mixingHImap property="MixingHI" geom-index="0" min="0" max="0" constantvalue="0" />
+			<lithoType1Perc1map property="LithoType1Percentage" geom-index="0" min="100" max="100" constantvalue="100" />
+			<lithoType1Perc2map property="LithoType2Percentage" geom-index="0" min="0" max="0" constantvalue="0" />
+		</formation>
+		<formation name="Formation6" kstart="5" kend="6" fluid_type="Std. Marine Water" depo_sequence="1" elem_refinement="1" mixing_model="Homogeneous" litho1_name="Std. Sandstone">
+			<mixingHImap property="MixingHI" geom-index="0" min="0" max="0" constantvalue="0" />
+			<lithoType1Perc1map property="LithoType1Percentage" geom-index="0" min="100" max="100" constantvalue="100" />
+			<lithoType1Perc2map property="LithoType2Percentage" geom-index="0" min="0" max="0" constantvalue="0" />
+		</formation>
+		<formation name="Crust" kstart="6" kend="14" depo_sequence="-1" elem_refinement="-1" mixing_model="Homogeneous" litho1_name="Crust">
+			<mixingHImap property="MixingHI" geom-index="0" min="0" max="0" constantvalue="0" />
+		</formation>
+		<formation name="Mantle" kstart="14" kend="19" depo_sequence="-2" elem_refinement="-1" mixing_model="Homogeneous" litho1_name="Litho. Mantle" />
+	</formations>
+	<migrationEvents number="81" record_size="1240">
+		<datastore file="migration_events.cldrn" compression="lz4" size="9045" offset="0" />
+	</migrationEvents>
+	<trapper number="50" record_size="1232">
+		<datastore file="trapper_table.cldrn" compression="lz4" size="20035" offset="0" />
+	</trapper>
+	<trap number="50" record_size="552">
+		<datastore file="trap_table.cldrn" compression="lz4" size="7674" offset="0" />
+	</trap>
+	<displayContour number="17">
+		<record propertyName="Temperature" colour="red" value="0" />
+		<record propertyName="Temperature" colour="red" value="20" />
+		<record propertyName="Temperature" colour="red" value="40" />
+		<record propertyName="Temperature" colour="red" value="60" />
+		<record propertyName="Temperature" colour="red" value="80" />
+		<record propertyName="Temperature" colour="white" value="100" />
+		<record propertyName="Temperature" colour="red" value="120" />
+		<record propertyName="Temperature" colour="red" value="140" />
+		<record propertyName="Temperature" colour="red" value="160" />
+		<record propertyName="Temperature" colour="red" value="180" />
+		<record propertyName="Temperature" colour="white" value="200" />
+		<record propertyName="Vr" colour="red" value="0.600000024" />
+		<record propertyName="Vr" colour="red" value="1.20000005" />
+		<record propertyName="Vr" colour="green" value="2.4000001" />
+		<record propertyName="Depth" colour="red" value="1000" />
+		<record propertyName="Depth" colour="white" value="2000" />
+		<record propertyName="Depth" colour="blue" value="3000" />
+	</displayContour>
+</project>

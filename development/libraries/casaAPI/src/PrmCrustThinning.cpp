@@ -27,6 +27,8 @@
 #include <cmath>
 #include <sstream>
 
+using namespace Utilities::Numerical;
+
 namespace casa
 {
 static const char * s_crustIoTblName              = "CrustIoTbl";
@@ -35,14 +37,14 @@ static const char * s_crustIoTblAgeCol            = "Age";
 static const char * s_crustIoTblThicknessCol      = "Thickness";
 static const char * s_crustIoTblMapNameCol        = "ThicknessGrid";
 
-static const double s_eps = 1.e-8;
+static constexpr double s_eps = 1.e-8;
 
 // Constructor. Get parameter values from the model
 PrmCrustThinning::PrmCrustThinning( mbapi::Model & mdl ) : m_parent( 0 )
 {
    size_t crustIoTblSize = mdl.tableSize( s_crustIoTblName );
 
-   m_initialThickness = UndefinedDoubleValue;
+   m_initialThickness = IbsNoDataValue;
    m_eventsNumber     = 0;
 
    std::vector<double>      t( crustIoTblSize );
@@ -118,7 +120,7 @@ ErrorHandler::ReturnCode PrmCrustThinning::setInModel( mbapi::Model & caldModel,
    {
       // get age of the eldest layer
       double eldestAge = caldModel.stratigraphyManager().eldestLayerAge();
-      if ( eldestAge == UndefinedDoubleValue )
+      if ( IsValueUndefined( eldestAge ) )
       {
          throw ErrorHandler::Exception( caldModel.stratigraphyManager().errorCode() ) << caldModel.stratigraphyManager().errorMessage();
       }
@@ -160,7 +162,7 @@ ErrorHandler::ReturnCode PrmCrustThinning::setInModel( mbapi::Model & caldModel,
          if ( !NumericFunctions::isEqual( m_coeff[i], 1.0, s_eps ) ) // copy and scale maps
          {
             mbapi::MapsManager::MapID id = mMgr.findID( oldMapName );
-            if ( UndefinedIDValue == id )
+            if ( IsValueUndefined( id ) )
             {
                throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Crust thinning, unknown map is given: " << oldMapName;
             }
@@ -169,7 +171,7 @@ ErrorHandler::ReturnCode PrmCrustThinning::setInModel( mbapi::Model & caldModel,
             newMapName += ibs::to_string( i );
 
             id = mMgr.copyMap( id, newMapName );
-            if ( UndefinedIDValue == id )
+            if ( IsValueUndefined( id ) )
             {
                throw ErrorHandler::Exception( ErrorHandler::OutOfRangeValue ) << "Crust thinning, copying " << oldMapName << " map failed";
             }
@@ -183,7 +185,7 @@ ErrorHandler::ReturnCode PrmCrustThinning::setInModel( mbapi::Model & caldModel,
                throw ErrorHandler::Exception( mMgr.errorCode() ) << mMgr.errorMessage();
             }
          }
-         d.push_back( UndefinedDoubleValue );
+         d.push_back( IbsNoDataValue );
          m.push_back( newMapName ); // just put map - no any scaling
 
          // because we generated new map - replace scaler with new map name, otherwise validation will fail
@@ -209,9 +211,9 @@ ErrorHandler::ReturnCode PrmCrustThinning::setInModel( mbapi::Model & caldModel,
 
       for ( size_t i = 0; i < m.size() && ok; ++i )
       {
-         ok = ok ? ErrorHandler::NoError == caldModel.setTableValue( s_crustIoTblName, i, s_crustIoTblAgeCol, t[t.size() - i - 1] ) : ok;
+         ok = ok ? ErrorHandler::NoError == caldModel.setTableValue( s_crustIoTblName, i, s_crustIoTblAgeCol,       t[t.size() - i - 1] ) : ok;
          ok = ok ? ErrorHandler::NoError == caldModel.setTableValue( s_crustIoTblName, i, s_crustIoTblThicknessCol, d[d.size() - i - 1] ) : ok;
-         ok = ok ? ErrorHandler::NoError == caldModel.setTableValue( s_crustIoTblName, i, s_crustIoTblMapNameCol, m[m.size() - i - 1] ) : ok;
+         ok = ok ? ErrorHandler::NoError == caldModel.setTableValue( s_crustIoTblName, i, s_crustIoTblMapNameCol,   m[m.size() - i - 1] ) : ok;
      }
      if ( !ok ) { throw ErrorHandler::Exception( caldModel.errorCode() ) << caldModel.errorMessage(); }
    }

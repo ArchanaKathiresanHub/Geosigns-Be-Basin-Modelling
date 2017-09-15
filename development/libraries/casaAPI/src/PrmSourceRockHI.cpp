@@ -19,7 +19,7 @@
 #include "cmbAPI.h"
 
 // Utilities lib
-#include <NumericFunctions.h>
+#include "NumericFunctions.h"
 
 // STL/C lib
 #include <cassert>
@@ -135,7 +135,7 @@ std::string PrmSourceRockHI::validate( mbapi::Model & caldModel )
             "HI setting error: source rock is not active for the layer:" << m_layerName;
       }
 
-      double hiInModel = UndefinedDoubleValue;
+      double hiInModel = Utilities::Numerical::IbsNoDataValue;
 
       // go to source rock lithology table for the source rock hi
       const std::vector<std::string> & srtNames = stMgr.sourceRockTypeName( lid );

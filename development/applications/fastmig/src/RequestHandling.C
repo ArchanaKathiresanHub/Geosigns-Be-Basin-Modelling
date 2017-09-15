@@ -162,7 +162,7 @@ namespace migration
       m_requestHandler->getReservoir (migrationRequest.reservoirIndex)->processMigration (migrationRequest);
    }
    //-------------------------------------------------------------------------------------------------------------//
-   // 5. send a charge request to another processor
+   // 5 a. send a charge request to another processor
    void RequestHandling::SendRequest (ColumnCompositionRequest & chargesRequest, ColumnCompositionRequest & chargesResponse)
    {
       assert (RequestHandling::ProxyUseAllowed ());
@@ -206,6 +206,27 @@ namespace migration
 
       assert (columnCompositionResponse);
       MPI_Recv (columnCompositionResponse, 1, ColumnCompositionType, source, COLUMNCOMPOSITIONRESPONSE, PETSC_COMM_WORLD, &recvStatus);
+   }
+
+   //-------------------------------------------------------------------------------------------------------------//
+
+   /// 5 b. send a request for an addition to a local buffer
+   void RequestHandling::SendRequest(ColumnCompositionPositionRequest & chargesRequest, ColumnCompositionPositionRequest & chargesResponse)
+   {
+	   assert(RequestHandling::ProxyUseAllowed());
+
+	   MPI_Bsend(&chargesRequest, 1, ColumnCompositionPositionType, GetRank(chargesRequest.i, chargesRequest.j), COLUMNCOMPOSITIONPOSITIONREQUEST, PETSC_COMM_WORLD);
+	   
+	   HandleRequests(UNTILOUTOFREQUESTS);
+   }
+
+   void RequestHandling::handleColumnCompositionPositionRequest(const int & source)
+   {
+	   ColumnCompositionPositionRequest valueRequest;
+	   MPI_Status recvStatus;
+	   MPI_Recv(&valueRequest, 1, ColumnCompositionPositionType, source, COLUMNCOMPOSITIONPOSITIONREQUEST, PETSC_COMM_WORLD, &recvStatus);
+
+	   m_requestHandler->getReservoir(valueRequest.reservoirIndex)->manipulateColumnCompositionPosition(valueRequest);
    }
 
    //-------------------------------------------------------------------------------------------------------------//
@@ -934,6 +955,11 @@ namespace migration
             // another processor sent me a request, respond if necessary.
             handleColumnCompositionRequest (source);
             break;
+
+		 case COLUMNCOMPOSITIONPOSITIONREQUEST:
+			 // another processor sent me a request, respond if necessary.
+			 handleColumnCompositionPositionRequest(source);
+			 break;
 
          case TRAPPROPERTIESREQUEST:
             // another processor sent me a request, respond if necessary.

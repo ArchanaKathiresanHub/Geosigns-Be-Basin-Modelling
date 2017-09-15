@@ -48,7 +48,7 @@ namespace casa
       PrmSourceRockTOC( mbapi::Model & mdl, const char * layerName, const char * srType = 0, int mixID = 1 );
 
       /// @brief Constructor, creates the parameter object for the given parameter value and layer name
-      PrmSourceRockTOC( const VarPrmSourceRockTOC * parent       /// pointer to a variable parameter which created this one
+      PrmSourceRockTOC( const VarPrmSourceRockTOC * parent       /// pointer to a influential parameter which created this one
                       , double                      val          /// value of the parameter
                       , const char                * layerName    /// layer name
                       , const std::string         & mapName = "" /// name of the TOC map

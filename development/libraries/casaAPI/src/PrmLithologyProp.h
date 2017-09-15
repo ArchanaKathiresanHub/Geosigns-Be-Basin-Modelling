@@ -17,7 +17,7 @@
 #include "Parameter.h"
 
 // CMB API
-#include <UndefinedValues.h>
+#include "UndefinedValues.h"
 
 #include <cassert>
 
@@ -26,14 +26,11 @@ namespace mbapi
    class Model;
 }
 
-/// @page CASA_LithologyPropPage Lithology porosity model
-/// 
-/// This parameter defines a base class and common functions for all lithology properties implented as variable parameters
 namespace casa
 {
    class VarPrmLithologyProp;
 
-   /// @brief Base class for lithology property parameter which can be represented as one double value
+   /// @brief Base class for lithology property parameter which can be represented as a scalar value
    class PrmLithologyProp : public Parameter
    {
    public:
@@ -44,12 +41,12 @@ namespace casa
       /// @return parameter name
       virtual const char * name() const { return m_name.c_str(); }
 
-      /// @brief Get variable parameter which was used to create this parameter
-      /// @return Pointer to the variable parameter
+      /// @brief Get influential parameter which was used to create this parameter
+      /// @return Pointer to the influential parameter
       virtual const VarParameter * parent() const { return m_parent; }
 
-      /// @brief Set variable parameter which was used to create this parameter
-      /// @param Pointer to the variable parameter
+      /// @brief Set influential parameter which was used to create this parameter
+      /// @param varPrm pointer to the influential parameter
       virtual void setParent( const VarParameter * varPrm )  { m_parent = varPrm; }
 
       /// @brief Get the level of influence to cauldron applications pipeline for this parametr
@@ -64,7 +61,7 @@ namespace casa
 
       /// @brief Get parameter value as integer
       /// @return parameter value represented as integer
-      virtual int asInteger() const { assert(0); return UndefinedIntegerValue; }
+      virtual int asInteger() const { assert(0); return Utilities::Numerical::NoDataIntValue; }
 
       /// @brief Are two parameters equal?
       /// @param prm Parameter object to compare with
@@ -94,12 +91,12 @@ namespace casa
       PrmLithologyProp();
 
       /// @brief Constructor
-      /// @param parent variable parameter which created this one
+      /// @param parent influential parameter which created this one
       /// @param lithoName lithology name
       /// @param val lithology property value
       PrmLithologyProp( const VarParameter * parent, const std::vector<std::string> & lithoName, double val );
 
-      const VarParameter      * m_parent;     ///< variable parameter which was used to create this one
+      const VarParameter      * m_parent;     ///< influential parameter which was used to create this one
       std::string               m_name;       ///< name of the parameter
       std::vector<std::string>  m_lithosName; ///< lithology name
       std::string               m_propName;   ///< property name to be set in derived class

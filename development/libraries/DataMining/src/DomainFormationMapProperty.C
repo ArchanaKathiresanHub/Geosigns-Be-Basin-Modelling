@@ -4,7 +4,7 @@
 
 namespace DataAccess { namespace Mining
 {
-    
+
    DomainFormationMapProperty::DomainFormationMapProperty( const DomainPropertyCollection *           collection,
                                                            DerivedProperties::DerivedPropertyManager& propertyManager,
                                                            const Interface::Snapshot      *           snapshot,
@@ -26,33 +26,6 @@ namespace DataAccess { namespace Mining
    {
       m_values.clear ();
    }
-
-
-   void DomainFormationMapProperty::compute( const ElementPosition      & position,
-                                             InterpolatedPropertyValues & evaluations )
-   {
-
-      if ( position.getFormation() != 0 )
-      {
-         FormationMapToPropertyValueMapping::const_iterator propIter = m_values.find( position.getFormation() );
-
-         if ( propIter != m_values.end() )
-         {
-            DerivedProperties::FormationMapPropertyPtr grid = propIter->second;
-            evaluations.setValue( getProperty(), interpolate2D( position, grid ) );
-         }
-         else
-         {
-            evaluations.setValue( getProperty(), DataAccess::Interface::DefaultUndefinedMapValue );
-         }
-      }
-      else if ( not evaluations.contains( getProperty() ) )
-      {
-         // What kind of error is this?
-         evaluations.setValue( getProperty(), DataAccess::Interface::DefaultUndefinedMapValue );
-      }
-   }
-
 
    double DomainFormationMapProperty::compute( const ElementPosition & position ) const
    {
@@ -82,4 +55,3 @@ namespace DataAccess { namespace Mining
       return new DomainFormationMapProperty( collection, propertyManager, snapshot, property );
    }
 }} // namespace DataAccess::Mining
-

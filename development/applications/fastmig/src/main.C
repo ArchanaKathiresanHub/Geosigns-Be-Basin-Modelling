@@ -70,10 +70,10 @@ int main (int argc, char ** argv)
    else
       ++argv0;
 
-   char inputFileName[128];
+   char inputFileName[PETSC_MAX_PATH_LEN];
    PetscBool inputFileSet;
 
-   PetscOptionsGetString (PETSC_NULL, "-project", inputFileName, 128, &inputFileSet);
+   PetscOptionsGetString (PETSC_NULL, "-project", inputFileName, PETSC_MAX_PATH_LEN, &inputFileSet);
    if (!inputFileSet)
    {
       printUsage (argv0);
@@ -81,24 +81,32 @@ int main (int argc, char ** argv)
       return -1;
    }
 
-   char outputFileName[128];
+   char outputFileName[PETSC_MAX_PATH_LEN];
    PetscBool outputFileSet;
 
-   PetscOptionsGetString (PETSC_NULL, "-save", outputFileName, 128, &outputFileSet);
+   PetscOptionsGetString (PETSC_NULL, "-save", outputFileName, PETSC_MAX_PATH_LEN, &outputFileSet);
    if (!outputFileSet)
    {
       strcpy (outputFileName, inputFileName);
    }
 
-   char numProcessors[128];
+   char numProcessors[PETSC_MAX_PATH_LEN];
    PetscBool numProcessorsSet;
 
    NumProcessorsArg = "";
-   PetscOptionsGetString (PETSC_NULL, "-procs", numProcessors, 128, &numProcessorsSet);
+   PetscOptionsGetString (PETSC_NULL, "-procs", numProcessors, PETSC_MAX_PATH_LEN, &numProcessorsSet);
    if (numProcessorsSet)
    {
       NumProcessorsArg += "_";
       NumProcessorsArg += numProcessors;
+   }
+
+   bool opLeak = false;
+   PetscBool op_leakage = PETSC_FALSE;
+   PetscOptionsHasName (PETSC_NULL, "-op_leak", &op_leakage);
+   if (op_leakage)
+   {
+      opLeak = true;
    }
 
 #ifndef _MSC_VER
@@ -206,10 +214,40 @@ int main (int argc, char ** argv)
    }
 #endif
 
+   // Intitialise fastmig logger
+   try
+   {
+      PetscBool log = PETSC_FALSE;
+      PetscOptionsHasName( PETSC_NULL, "-verbosity", &log );
+      if ( log )
+      {
+         char verbosity[11];
+         PetscOptionsGetString( PETSC_NULL, "-verbosity", verbosity, 11, 0 );
+         if      ( !strcmp( verbosity, "quiet"      ))  { LogHandler( "fastmig", LogHandler::QUIET_LEVEL,      rank ); }
+         else if ( !strcmp( verbosity, "minimal"    ) ) { LogHandler( "fastmig", LogHandler::MINIMAL_LEVEL   , rank ); }
+         else if ( !strcmp( verbosity, "normal"     ) ) { LogHandler( "fastmig", LogHandler::NORMAL_LEVEL    , rank ); }
+         else if ( !strcmp( verbosity, "detailed"   ) ) { LogHandler( "fastmig", LogHandler::DETAILED_LEVEL  , rank ); }
+         else if ( !strcmp( verbosity, "diagnostic" ) ) { LogHandler( "fastmig", LogHandler::DIAGNOSTIC_LEVEL, rank ); }
+         else throw formattingexception::GeneralException() << "Unknown <" << verbosity << "> option for -verbosity command line parameter.";
+      }
+      else
+      {
+         LogHandler( "fastmig", LogHandler::DETAILED_LEVEL, rank );
+      }
+   }
+   catch ( formattingexception::GeneralException & ex )
+   {
+      std::cerr << ex.what();
+      return 1;
+   }
+   catch (...)
+   {
+      std::cerr << "Fatal error when initialising log file(s).";
+      return 1;
+   }
+
    bool status = true;
    Migrator * migrator = 0;
-
-   //ObjectFactory* objectFactory = new ObjectFactory();
 
    StartTime ();
 
@@ -223,7 +261,7 @@ int main (int argc, char ** argv)
    if (status)
    {
       ReportProgress ("Starting Simulation");
-      status = migrator->compute ();
+      status = migrator->compute (opLeak);
    }
    else
    {
@@ -241,18 +279,15 @@ int main (int argc, char ** argv)
       ReportProgress ("Did not save Output Maps");
    }
 
-   if (status)
+   if (status and GetRank () == 0)
    {
-      if (GetRank () == 0)
-      {
-         migrator->sanitizeMigrationRecords ();
-         migrator->checkMigrationRecords ();
-         migrator->sortMigrationRecords ();
-         migrator->checkMigrationRecords ();
-         migrator->uniqueMigrationRecords ();
-         migrator->checkMigrationRecords ();
-         status = migrator->saveTo (outputFileName);
-      }
+      migrator->sanitizeMigrationRecords ();
+      migrator->checkMigrationRecords ();
+      migrator->sortMigrationRecords ();
+      migrator->checkMigrationRecords ();
+      migrator->uniqueMigrationRecords ();
+      migrator->checkMigrationRecords ();
+      status = migrator->saveTo (outputFileName);
    }
 
    if (status)

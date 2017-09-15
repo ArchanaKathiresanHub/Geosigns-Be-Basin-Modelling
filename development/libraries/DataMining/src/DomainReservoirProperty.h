@@ -37,12 +37,6 @@ namespace DataAccess {
 
          ~DomainReservoirProperty ();
 
-         /// Add the property, evaluated at the position, to the evaluations mapping.
-         ///
-         /// If the formation is null then a null-value will be added.
-         void compute ( const ElementPosition&            position,
-                              InterpolatedPropertyValues& evaluations );
-
          double compute ( const ElementPosition& position ) const;
 
 

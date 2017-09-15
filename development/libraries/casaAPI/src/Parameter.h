@@ -49,12 +49,12 @@ namespace casa
       /// @return parameter name
       virtual const char * name() const = 0;
       
-      /// @brief Get variable parameter which was used to create this parameter
-      /// @return Pointer to the variable parameter
+      /// @brief Get influential parameter which was used to create this parameter
+      /// @return Pointer to the influential parameter
       virtual const VarParameter * parent() const = 0;
 
-      /// @brief Set variable parameter which was used to create this parameter
-      /// @param Pointer to the variable parameter
+      /// @brief Set influential parameter which was used to create this parameter
+      /// @param varPrm Pointer to the influential parameter
       virtual void  setParent( const VarParameter * varPrm ) = 0;
 
       /// @brief Get the level of influence to cauldron applications pipeline for this parametr

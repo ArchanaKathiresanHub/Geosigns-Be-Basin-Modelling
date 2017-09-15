@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2012-2016 Shell International Exploration & Production.
+// Copyright (C) 2012-2017 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -225,7 +225,7 @@ public:
 
    virtual std::string name() const 
    {
-      std::string nm = m_tblName.empty() ? (m_tblName + ":" + m_colName) : "SourceRockLithoIoTbl:TocIni";
+      std::string nm = !m_tblName.empty() ? (m_tblName + ":" + m_colName) : "SourceRockLithoIoTbl:TocIni";
       return nm; 
    }
 
@@ -1178,11 +1178,11 @@ public:
       double       minCompCoef = atof( prms[pos++].c_str() );
       double       maxCompCoef = atof( prms[pos++].c_str() );
 
-      double minMinPor = UndefinedDoubleValue;
-      double maxMinPor = UndefinedDoubleValue;
+      double minMinPor = Utilities::Numerical::IbsNoDataValue;
+      double maxMinPor = Utilities::Numerical::IbsNoDataValue;
 
-      double minCompCoef1 = UndefinedDoubleValue; 
-      double maxCompCoef1 = UndefinedDoubleValue; 
+      double minCompCoef1 = Utilities::Numerical::IbsNoDataValue; 
+      double maxCompCoef1 = Utilities::Numerical::IbsNoDataValue; 
 
       if ( prms.size() == 12 || prms.size() == 13 )
       {
@@ -1635,7 +1635,7 @@ void CmdAddVarPrm::execute( std::unique_ptr<casa::ScenarioAnalysis> & sa )
 void CmdAddVarPrm::printHelpPage( const char * cmdName )
 {
    std::cout << "  " << cmdName << " <variable parameter type name> <min value> <max value> <pdf of parameter>\n\n";
-   std::cout << "  Variable parameter - a parameter in Cauldron project file which exact value is unknown.\n";
+   std::cout << "  Influential parameter - a parameter in Cauldron project file which exact value is unknown.\n";
    std::cout << "  There are only some estimations on it value range. For example - source rock TOC - [5:20]%.\n";
    std::cout << "  To define the variable parameter user should specify parameter type name and parameter range min/max values\n\n";
 

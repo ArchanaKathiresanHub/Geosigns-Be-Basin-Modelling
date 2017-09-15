@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -47,8 +47,6 @@
 #include "CompoundLithology.h"
 #include "Lithology.h"
 
-#include "ComponentManager.h"
-
 #include "GeoPhysicalConstants.h"
 #include "GeoPhysicsSourceRock.h"
 #include "GeoPhysicsFormation.h"
@@ -65,8 +63,9 @@
 using namespace DataAccess;
 using namespace FiniteElementMethod;
 
-
-#include "NumericFunctions.h"
+// CBMGenerics library
+#include "ComponentManager.h"
+typedef CBMGenerics::ComponentManager::SpeciesNamesId ComponentId;
 
 // utilities library
 #include "ConstantsNumerical.h"
@@ -74,6 +73,7 @@ using Utilities::Numerical::CauldronNoDataValue;
 using Utilities::Numerical::IbsNoDataValue;
 #include "ConstantsMathematics.h"
 using Utilities::Maths::Zero;
+#include "NumericFunctions.h"
 
 using Interface::X_COORD;
 using Interface::Y_COORD;
@@ -359,7 +359,7 @@ void LayerProps::initialise () {
          VecSet ( m_timeOfElementInvasionVec, CauldronNoDataValue );
          PetscBlockVector<double> timeOfElementInvasion;
          timeOfElementInvasion.setVector (m_timeOfElementInvasionGrid, getTimeOfElementInvasionVec(), INSERT_VALUES );
-      
+
          int i;
          int j;
          int k;
@@ -431,7 +431,7 @@ void LayerProps::initialise () {
 
       pressureExceedsFracturePressure.create ( FCT_DA );
       pressureExceedsFracturePressure.fill ( 0 );
-      
+
       nodeIsTemporarilyDirichlet.create ( FCT_DA );
       nodeIsTemporarilyDirichlet.fill ( false );
 
@@ -445,40 +445,39 @@ void LayerProps::initialise () {
   }
 
    int cmp;
-   pvtFlash::ComponentId species;
-   
-   //for ( cmp = 0; cmp < CBMGenerics::ComponentManager::NumberOfSpeciesToFlash; ++cmp ) {
+   ComponentId species;
+
    for ( cmp = 0; cmp < NumberOfPVTComponents; ++cmp ) {
-      species = pvtFlash::ComponentId ( cmp );
+      species = ComponentId ( cmp );
       // Which value to use for the gorm?
       //m_molarMass ( species ) = pvtFlash::EosPack::getInstance ().getMolWeight ( cmp, 1.0 );
-	  m_molarMass ( species ) = pvtFlash::EosPack::getInstance ().getMolWeightLumped( cmp, 1.0 );
+     m_molarMass ( species ) = pvtFlash::EosPack::getInstance ().getMolWeightLumped( cmp, 1.0 );
    }
 
-   m_molarMass ( pvtFlash::ASPHALTENES ) = 7.979050e+02;
-   m_molarMass (      pvtFlash::RESINS ) = 6.105592e+02;
-   m_molarMass (     pvtFlash::C15_ARO ) = 4.633910e+02;
-   m_molarMass (     pvtFlash::C15_SAT ) = 2.646560e+02;
-   m_molarMass (    pvtFlash::C6_14ARO ) = 1.564148e+02;
-   m_molarMass (    pvtFlash::C6_14SAT ) = 1.025200e+02;
-   m_molarMass (          pvtFlash::C5 ) = 7.215064e+01;
-   m_molarMass (          pvtFlash::C4 ) = 5.812370e+01;
-   m_molarMass (          pvtFlash::C3 ) = 4.409676e+01;
-   m_molarMass (          pvtFlash::C2 ) = 3.006982e+01;
-   m_molarMass (          pvtFlash::C1 ) = 1.604288e+01;
-   m_molarMass (         pvtFlash::COX ) = 4.400980e+01;
-   m_molarMass (          pvtFlash::N2 ) = 2.801352e+01;
-   m_molarMass (         pvtFlash::H2S ) = 3.407999e+01;
-   m_molarMass (         pvtFlash::LSC ) = 2.646560e+02;
-   m_molarMass (      pvtFlash::C15_AT ) = 2.646560e+02;
-   m_molarMass (     pvtFlash::C6_14BT ) = 1.564147e+02;
-   m_molarMass (    pvtFlash::C6_14DBT ) = 1.564147e+02;
-   m_molarMass (     pvtFlash::C6_14BP ) = 1.564147e+02;
-   m_molarMass (    pvtFlash::C15_AROS ) = 2.646560e+02;
-   m_molarMass (    pvtFlash::C15_SATS ) = 2.646560e+02;
-   m_molarMass (   pvtFlash::C6_14SATS ) = 1.564147e+02;
-   m_molarMass (   pvtFlash::C6_14AROS ) = 1.564147e+02;
- 
+   m_molarMass ( ComponentId::ASPHALTENE    ) = 7.979050e+02;
+   m_molarMass ( ComponentId::RESIN         ) = 6.105592e+02;
+   m_molarMass ( ComponentId::C15_PLUS_ARO    ) = 4.633910e+02;
+   m_molarMass ( ComponentId::C15_PLUS_SAT    ) = 2.646560e+02;
+   m_molarMass ( ComponentId::C6_MINUS_14ARO  ) = 1.564148e+02;
+   m_molarMass ( ComponentId::C6_MINUS_14SAT  ) = 1.025200e+02;
+   m_molarMass ( ComponentId::C5            ) = 7.215064e+01;
+   m_molarMass ( ComponentId::C4            ) = 5.812370e+01;
+   m_molarMass ( ComponentId::C3            ) = 4.409676e+01;
+   m_molarMass ( ComponentId::C2            ) = 3.006982e+01;
+   m_molarMass ( ComponentId::C1            ) = 1.604288e+01;
+   m_molarMass ( ComponentId::COX           ) = 4.400980e+01;
+   m_molarMass ( ComponentId::N2            ) = 2.801352e+01;
+   m_molarMass ( ComponentId::H2S           ) = 3.407999e+01;
+   m_molarMass ( ComponentId::LSC           ) = 2.646560e+02;
+   m_molarMass ( ComponentId::C15_PLUS_AT     ) = 2.646560e+02;
+   m_molarMass ( ComponentId::C6_MINUS_14BT   ) = 1.564147e+02;
+   m_molarMass ( ComponentId::C6_MINUS_14DBT  ) = 1.564147e+02;
+   m_molarMass ( ComponentId::C6_MINUS_14BP   ) = 1.564147e+02;
+   m_molarMass ( ComponentId::C15_PLUS_ARO_S   ) = 2.646560e+02;
+   m_molarMass ( ComponentId::C15_PLUS_SAT_S   ) = 2.646560e+02;
+   m_molarMass ( ComponentId::C6_MINUS_14SAT_S ) = 1.564147e+02;
+   m_molarMass ( ComponentId::C6_MINUS_14ARO_S ) = 1.564147e+02;
+
    if ( isSourceRock ()) {
       initialiseSourceRockProperties ( false );
    }
@@ -533,7 +532,7 @@ LayerProps::~LayerProps(){
   }
 
   if ( layerDA != nullptr )  DMDestroy( &layerDA );
-  
+
   Destroy_Petsc_Vector ( Lithology_ID );
   Destroy_Petsc_Vector ( FCTCorrection );
   Destroy_Petsc_Vector ( Diffusivity );
@@ -585,7 +584,7 @@ LayerProps::~LayerProps(){
 
   Destroy_Petsc_Vector ( m_SteraneAromatisation );
   Destroy_Petsc_Vector ( m_SteraneIsomerisation );
-  Destroy_Petsc_Vector ( m_HopaneIsomerisation ); 
+  Destroy_Petsc_Vector ( m_HopaneIsomerisation );
 
   Destroy_Petsc_Vector ( m_IlliteFraction );
 
@@ -631,7 +630,7 @@ LayerProps::~LayerProps(){
 
 //------------------------------------------------------------//
 
-#undef __FUNCT__  
+#undef __FUNCT__
 #define __FUNCT__ "LayerProps::initialiseTemperature"
 
 void LayerProps::initialiseTemperature ( AppCtx* basinModel, const double Current_Time ) {
@@ -643,7 +642,7 @@ void LayerProps::initialiseTemperature ( AppCtx* basinModel, const double Curren
     int X_Count;
     int Y_Count;
     int Z_Count;
-    
+
     Previous_Properties.Activate_Property ( Basin_Modelling::Temperature );
     Current_Properties.Activate_Property  ( Basin_Modelling::Temperature );
 
@@ -655,9 +654,9 @@ void LayerProps::initialiseTemperature ( AppCtx* basinModel, const double Curren
        for ( J = Y_Start; J < Y_Start + Y_Count; J++ ) {
           if ( Valid_Needle ( I, J )) {
              double Estimated_Temperature = FastcauldronSimulator::getInstance ().getSeaBottomTemperature ( I, J, Current_Time );
-             
+
              for ( K = Z_Start + Z_Count - 1; K >=  Z_Start; K-- ) {
-                
+
                 Current_Properties ( Basin_Modelling::Temperature, K, J, I ) = Estimated_Temperature;
                 Previous_Properties ( Basin_Modelling::Temperature, K, J, I ) = Estimated_Temperature;
              }
@@ -711,7 +710,7 @@ void LayerProps::initialisePreviousFluidPressures( AppCtx* basinModel, const dou
 }
 
 //---------------------------------------------------------------//
-#undef __FUNCT__  
+#undef __FUNCT__
 #define __FUNCT__ "LayerProps::allocateNewVecs"
 
 bool LayerProps::allocateNewVecs ( AppCtx* basinModel, const double Current_Time ) {
@@ -722,7 +721,7 @@ bool LayerProps::allocateNewVecs ( AppCtx* basinModel, const double Current_Time
   //If layerDA Exists, Check if Needs Reallocation or Deletion (when fully eroded)
   //Skip Non Active Layers
 
-  /// If no layerDA has been allocated yet, then this must be allocated and 
+  /// If no layerDA has been allocated yet, then this must be allocated and
   /// the property vectors allocated also. The layer must also be active.
   if (layerDA == nullptr && isActive()) {
     ierr = FastcauldronSimulator::DACreate3D ( numberOfZNodes, layerDA );
@@ -762,7 +761,7 @@ bool LayerProps::allocateNewVecs ( AppCtx* basinModel, const double Current_Time
     createVec ( Ves );
     createVec ( Max_VES );
     createVec ( Temperature );
-   
+
 
     setVec(Max_VES,Zero);
     setVec(Ves,Zero);
@@ -799,7 +798,7 @@ bool LayerProps::allocateNewVecs ( AppCtx* basinModel, const double Current_Time
     {
        m_BiomarkersState.create(layerDA);
     }
-    
+
     createVec ( m_SteraneAromatisation);
     createVec ( m_SteraneIsomerisation);
     createVec ( m_HopaneIsomerisation );
@@ -822,15 +821,15 @@ bool LayerProps::allocateNewVecs ( AppCtx* basinModel, const double Current_Time
 double LayerProps::calcDiffDensity ( const unsigned int i, const unsigned int j ) const {
 
    double lithodens, fluiddens, densityDifference = 0.0;
-  
+
   lithodens = getLithology ( i,j ) -> density();
 
-  if ( fluid != nullptr ) 
+  if ( fluid != nullptr )
   {
     fluiddens = fluid->getConstantDensity();
     if ( lithodens > fluiddens ) densityDifference = lithodens - fluiddens;
-  } 
-  else 
+  }
+  else
   {
      densityDifference = lithodens;
   }
@@ -914,9 +913,9 @@ void LayerProps::print() {
 
 bool LayerProps::propagateVec(DM from_da, DM to_da, Vec from_vec, Vec to_vec)
 {
-  if ((from_da == nullptr) || 
-      (to_da == nullptr) || 
-      (from_vec == nullptr) || 
+  if ((from_da == nullptr) ||
+      (to_da == nullptr) ||
+      (from_vec == nullptr) ||
       (to_vec == nullptr)) {
     return false;
   }
@@ -926,15 +925,15 @@ bool LayerProps::propagateVec(DM from_da, DM to_da, Vec from_vec, Vec to_vec)
   int to_xs, to_ys, to_zs, to_xm, to_ym, to_zm;
   double ***from_array, ***to_array;
 
-  ierr = DMDAGetCorners(from_da, 
-                        &from_xs, &from_ys, &from_zs, 
+  ierr = DMDAGetCorners(from_da,
+                        &from_xs, &from_ys, &from_zs,
                         &from_xm, &from_ym, &from_zm);
   CHKERRQ(ierr);
-  ierr = DMDAGetCorners(to_da, 
-                        &to_xs, &to_ys, &to_zs, 
+  ierr = DMDAGetCorners(to_da,
+                        &to_xs, &to_ys, &to_zs,
                         &to_xm, &to_ym, &to_zm);
   CHKERRQ(ierr);
-  
+
   // Check sizes -> PETSC_ASSERT if not ok!! Don't check Z counts as we are
   // chaning that
   PETSC_ASSERT(from_xs == to_xs);  PETSC_ASSERT(from_ys == to_ys);
@@ -956,7 +955,7 @@ bool LayerProps::propagateVec(DM from_da, DM to_da, Vec from_vec, Vec to_vec)
       //Changed `k = from_zm' to `k = from_zs' OFM
       for (int k = from_zs; k < from_zs+kmax; k++)
 	to_array[k][j][i] = from_array[k][j][i];
-  
+
   ierr = DMDAVecRestoreArray(from_da, from_vec,  &from_array);
   CHKERRQ(ierr);
   ierr = DMDAVecRestoreArray(to_da, to_vec,  &to_array);
@@ -965,7 +964,7 @@ bool LayerProps::propagateVec(DM from_da, DM to_da, Vec from_vec, Vec to_vec)
   return true;
 }
 
-#undef __FUNCT__  
+#undef __FUNCT__
 #define __FUNCT__ "LayerProps::Create_FC_Thickness_Polyfunction"
 
 void LayerProps::Create_FC_Thickness_Polyfunction ( const DM& Map_DA ) {
@@ -979,7 +978,7 @@ void LayerProps::Create_FC_Thickness_Polyfunction ( const DM& Map_DA ) {
   if ( Number_Of_Segments > 0 )
   {
     DM FCT_DA;
-    
+
     // Set here temporarily
     FastcauldronSimulator::DACreate3D ( Number_Of_Segments + 1, FCT_DA );
     fracturedPermeabilityScaling.create ( FCT_DA );
@@ -1006,7 +1005,7 @@ void LayerProps::setConstrainedOverpressureInterval ( const double startTime,
                                                       const double constrainedOverpressureValue ) {
 
   Boundary_Set* Boundary = new Boundary_Set;
-  
+
   Boundary -> Start_Time     = startTime;
   Boundary -> End_Time       = endTime;
   Boundary -> Boundary_Value = constrainedOverpressureValue;
@@ -1021,8 +1020,8 @@ void LayerProps::getConstrainedOverpressure ( const double Time, double& Value, 
 
   for ( index = 0; index < Constrained_Overpressure.size (); index++ )
   {
-    
-    if ( ( Time <= Constrained_Overpressure[ index ] -> Start_Time ) && 
+
+    if ( ( Time <= Constrained_Overpressure[ index ] -> Start_Time ) &&
          ( Time >= Constrained_Overpressure[ index ] -> End_Time ) )
     {
       Value = Constrained_Overpressure[ index ] -> Boundary_Value;
@@ -1030,7 +1029,7 @@ void LayerProps::getConstrainedOverpressure ( const double Time, double& Value, 
       return;
     }
   }
-  
+
   Is_Constrained = false;
 }
 
@@ -1111,10 +1110,10 @@ void LayerProps::initialiseSourceRockProperties ( const bool printInitialisation
       double SomeLargeValue = 1.0e10;
 
       // The map could be filled with any value since it is over-written anyway with the correct "Boolean" value.
-      Interface::GridMap* nodeIsValid = m_projectHandle->getFactory ()->produceGridMap ( 0, 0, 
+      Interface::GridMap* nodeIsValid = m_projectHandle->getFactory ()->produceGridMap ( 0, 0,
                                                                                          m_projectHandle->getActivityOutputGrid (),
                                                                                          10.0 );
-      Interface::GridMap* vre = m_projectHandle->getFactory ()->produceGridMap ( 0, 0, 
+      Interface::GridMap* vre = m_projectHandle->getFactory ()->produceGridMap ( 0, 0,
                                                                                  m_projectHandle->getActivityOutputGrid (),
                                                                                  SomeLargeValue );
 
@@ -1129,7 +1128,6 @@ void LayerProps::initialiseSourceRockProperties ( const bool printInitialisation
                                                                                           FastcauldronSimulator::getInstance ().getLowResolutionOutputGrid (),
                                                                                           99999.0,
                                                                                           NumberOfPVTComponents);
-                                                                                          // CBMGenerics::ComponentManager::NumberOfOutputSpecies );
 
       for ( i = FastcauldronSimulator::getInstance ().firstI (); i <= FastcauldronSimulator::getInstance ().lastI (); ++i ) {
 
@@ -1203,7 +1201,7 @@ void LayerProps::reInitialise (){
 
    Destroy_Petsc_Vector ( m_SteraneAromatisation );
    Destroy_Petsc_Vector ( m_SteraneIsomerisation );
-   Destroy_Petsc_Vector ( m_HopaneIsomerisation ); 
+   Destroy_Petsc_Vector ( m_HopaneIsomerisation );
 
    Destroy_Petsc_Vector ( m_IlliteFraction );
 
@@ -1213,7 +1211,7 @@ void LayerProps::reInitialise (){
 
    if ( FastcauldronSimulator::getInstance ().getMcfHandler ().solveFlowEquations ()) {
       PetscBool isValid;
-     
+
       VecValid ( m_flowComponents, &isValid );
 
       if ( isValid ) {
@@ -1282,7 +1280,7 @@ void LayerProps::setVectorList() {
   vectorList.VecArray[THCONDVEC] = &BulkTHCondN;        BulkTHCondN = nullptr;
   vectorList.VecArray[PRESSURE] = &Pressure;            Pressure = nullptr;
   vectorList.VecArray[OVERPRESSURE] = &OverPressure;    OverPressure = nullptr;
-  vectorList.VecArray[HYDROSTATICPRESSURE] = &HydroStaticPressure; 
+  vectorList.VecArray[HYDROSTATICPRESSURE] = &HydroStaticPressure;
   HydroStaticPressure = nullptr;
   vectorList.VecArray[LITHOSTATICPRESSURE] = &LithoStaticPressure;
   LithoStaticPressure = nullptr;
@@ -1308,12 +1306,12 @@ void LayerProps::resetSmectiteIlliteStateVectors()
    int xs, ys, zs, xm, ym, zm;
    int i, j, k;
    DMDAGetCorners(layerDA,&xs,&ys,&zs,&xm,&ym,&zm);
-   for (i = xs; i < xs+xm; i++) 
+   for (i = xs; i < xs+xm; i++)
    {
-      for (j = ys; j < ys+ym; j++) 
+      for (j = ys; j < ys+ym; j++)
       {
-         for (k = zs; k < zs+zm; k++) 
-         {	
+         for (k = zs; k < zs+zm; k++)
+         {
             m_SmectiteIlliteState(i,j,k).setAsNotInitialized();
          }
       }
@@ -1325,12 +1323,12 @@ void LayerProps::resetBiomarkerStateVectors()
    int xs, ys, zs, xm, ym, zm;
    int i, j, k;
    DMDAGetCorners(layerDA,&xs,&ys,&zs,&xm,&ym,&zm);
-   for (i = xs; i < xs+xm; i++) 
+   for (i = xs; i < xs+xm; i++)
    {
-      for (j = ys; j < ys+ym; j++) 
+      for (j = ys; j < ys+ym; j++)
       {
-         for (k = zs; k < zs+zm; k++) 
-         {	
+         for (k = zs; k < zs+zm; k++)
+         {
             m_BiomarkersState(i,j,k).setAsNotInitialized();
          }
       }
@@ -1404,7 +1402,7 @@ void LayerProps::setLayerElementActivity ( const double age ) {
 
                         volumeElement.setIsActive ( activeSegment1 or activeSegment2 );
                         volumeElement.setIsActiveBoundary ( VolumeData::Left, activeSegment1 or activeSegment2 );
-                     } 
+                     }
 
                   } else if ( mapElements.firstI ( false ) != 0 and i < mapElements.firstI ( false )) {
 
@@ -1415,7 +1413,7 @@ void LayerProps::setLayerElementActivity ( const double age ) {
 
                         volumeElement.setIsActive ( activeSegment1 or activeSegment2 );
                         volumeElement.setIsActiveBoundary ( VolumeData::GAMMA_3, activeSegment1 or activeSegment2 );
-                     } 
+                     }
 
                   }
 
@@ -1428,7 +1426,7 @@ void LayerProps::setLayerElementActivity ( const double age ) {
 
                         volumeElement.setIsActive ( activeSegment1 or activeSegment2 );
                         volumeElement.setIsActiveBoundary ( VolumeData::GAMMA_4, activeSegment1 or activeSegment2 );
-                     } 
+                     }
 
 
                   } else if ( mapElements.firstJ ( false ) != 0 and j < mapElements.firstJ ( false )) {
@@ -1440,7 +1438,7 @@ void LayerProps::setLayerElementActivity ( const double age ) {
 
                         volumeElement.setIsActive ( activeSegment1 or activeSegment2 );
                         volumeElement.setIsActiveBoundary ( VolumeData::GAMMA_4, activeSegment1 or activeSegment2 );
-                     } 
+                     }
 
                   }
 
@@ -1461,7 +1459,7 @@ void LayerProps::setLayerElementActivity ( const double age ) {
          }
 
       }
-   
+
    }
 
 }
@@ -1490,7 +1488,7 @@ double LayerProps::getDepositingThickness ( const unsigned int i,
 #undef  __FUNCT__
 #define __FUNCT__ "LayerProps::Fill_Topmost_Segment_Array"
 
-void LayerProps::Fill_Topmost_Segment_Array ( const double                  Required_Age, 
+void LayerProps::Fill_Topmost_Segment_Array ( const double                  Required_Age,
                                               const bool                    Use_Solid_Thickness,
                                               const Boolean2DArray&         Valid_Needle,
                                                     PETSc_2D_Integer_Array& Topmost_Segments,
@@ -1546,7 +1544,7 @@ void LayerProps::Fill_Topmost_Segment_Array ( const double                  Requ
 #undef  __FUNCT__
 #define __FUNCT__ "LayerProps::Fill_Topmost_Segment_Arrays"
 
-void LayerProps::Fill_Topmost_Segment_Arrays ( const double          Previous_Time, 
+void LayerProps::Fill_Topmost_Segment_Arrays ( const double          Previous_Time,
                                                const double          Current_Time,
                                                const bool            Use_Solid_Thickness,
                                                const Boolean2DArray& Valid_Needle ) {
@@ -1562,7 +1560,7 @@ void LayerProps::Fill_Topmost_Segment_Arrays ( const double          Previous_Ti
     Fill_Topmost_Segment_Array ( Current_Time,  Use_Solid_Thickness, Valid_Needle, Current_Topmost_Segments,  Current_Topmost_Segment );
     //
     //
-    // Is it possible here, to find the maximum of Current_Topmost_Segment on 
+    // Is it possible here, to find the maximum of Current_Topmost_Segment on
     // ALL the processes? If so, could this be used as the number of elements
     // (in the z-direction) for the layer?
     //
@@ -1642,7 +1640,7 @@ void LayerProps::setErosionFactorMap ( AppCtx*         basinModel,
   int yCount;
   int zCount;
 
-  // Time-wise it would be better to save a deposition-thickness 
+  // Time-wise it would be better to save a deposition-thickness
   // map immediately after the layer has been deposited rather
   // than compute each time this function is called.
   double depositionThickness;
@@ -1666,7 +1664,7 @@ void LayerProps::setErosionFactorMap ( AppCtx*         basinModel,
         depositionThickness = 0.0;
         currentThickness = 0.0;
 
-        // If the currentAge > depoage then the layer is, either, in the process 
+        // If the currentAge > depoage then the layer is, either, in the process
         // of being deposited, or has not started to be deposited yet.
         if ( currentAge < depoage ) {
 
@@ -1692,7 +1690,7 @@ void LayerProps::setErosionFactorMap ( AppCtx*         basinModel,
         }
 
         // Since the erosionFactor vector is a 3d array and the output requires a map only
-        // (and the output function takes only the top-most layer of the array), set the 
+        // (and the output function takes only the top-most layer of the array), set the
         // top-most layer of the array to the erosion-factor value.
         if ( depositionThickness != 0.0 ) {
           erosionFactorMap ( zCount - 1, j, i ) = currentThickness / depositionThickness;
@@ -1900,7 +1898,7 @@ void LayerProps::interpolateProperty ( AppCtx*               basinModel,
 //------------------------------------------------------------//
 
 void LayerProps::interpolateProperty (       AppCtx*                  basinModel,
-                                       const double                   currentTime, 
+                                       const double                   currentTime,
                                        const bool                     doingHighResDecompaction,
                                        const PropertyList             property ) {
 
@@ -1924,7 +1922,7 @@ void LayerProps::interpolateProperty (       AppCtx*                  basinModel
 
       break;
 
-    default: 
+    default:
 
       assert ( false );
 
@@ -1967,7 +1965,7 @@ double LayerProps::estimateStandardPermeability () const {
 
    if ( not valueSet ) {
       maximumPermeability = -9999.0;
-   } 
+   }
 
    MPI_Allreduce ( &maximumPermeability, &globalMaximumPermeability, 1, MPI_DOUBLE, MPI_MAX, PETSC_COMM_WORLD );
 
@@ -1997,8 +1995,8 @@ void LayerProps::copySaturations () {
 }
 
 //------------------------------------------------------------//
- 
-#undef  __FUNCT__  
+
+#undef  __FUNCT__
 #define __FUNCT__ "LayerProps::Set_Chemical_Compaction_Mode"
 
 void LayerProps::Set_Chemical_Compaction_Mode ( const bool Mode ) {
@@ -2025,7 +2023,7 @@ void LayerProps::computeThicknessScaling ( const double startTime,
       for ( j = FastcauldronSimulator::getInstance ().firstJ (); j <= FastcauldronSimulator::getInstance ().lastJ (); ++j ) {
 
          if ( FastcauldronSimulator::getInstance ().nodeIsDefined ( i, j )) {
-         
+
             if ( isMobileLayer ()) {
                thicknessScaling.compute ( i, j, startTime, 1.0, endTime, 1.0 );
             } else {
@@ -2071,7 +2069,7 @@ void LayerProps::computeThicknessScaling ( const double time,
    for ( i = FastcauldronSimulator::getInstance ().firstI (); i <= FastcauldronSimulator::getInstance ().lastI (); ++i ) {
 
       for ( j = FastcauldronSimulator::getInstance ().firstJ (); j <= FastcauldronSimulator::getInstance ().lastJ (); ++j ) {
-         
+
          if ( FastcauldronSimulator::getInstance ().nodeIsDefined ( i, j )) {
 
             if ( isMobileLayer ()) {
@@ -2136,7 +2134,7 @@ void LayerProps::extractGenexDataInterval ( const double startTime,
    Previous_Properties.Activate_Property ( Basin_Modelling::Pore_Pressure );
    Current_Properties.Activate_Property  ( Basin_Modelling::Pore_Pressure );
 
-   ves.compute ( layerDA, Basin_Modelling::VES_FP, startTime, Previous_Properties, endTime, Current_Properties ); 
+   ves.compute ( layerDA, Basin_Modelling::VES_FP, startTime, Previous_Properties, endTime, Current_Properties );
    temperature.compute ( layerDA, Basin_Modelling::Temperature, startTime, Previous_Properties, endTime, Current_Properties );
    hydrostaticPressure.compute ( layerDA, Basin_Modelling::Hydrostatic_Pressure, startTime, Previous_Properties, endTime, Current_Properties );
    lithostaticPressure.compute ( layerDA, Basin_Modelling::Lithostatic_Pressure, startTime, Previous_Properties, endTime, Current_Properties );
@@ -2290,7 +2288,7 @@ void LayerProps::integrateGenexEquations ( const double previousTime,
                               permeabilityInterp,
                               vreInterp );
 
-   sourceRock->computeTimeInterval ( previousTime, currentTime, 
+   sourceRock->computeTimeInterval ( previousTime, currentTime,
                                      &vesInterp,
                                      &temperatureInterp,
                                      &thicknessInterp,
@@ -2314,14 +2312,14 @@ void LayerProps::getGenexGenerated ( const int i,
    if ( isSourceRock ()) {
       unsigned int cmp;
       unsigned int id;
-      pvtFlash::ComponentId species;
+      ComponentId species;
       double gen;
 
       const GeoPhysics::GeoPhysicsSourceRock* sourceRock = (GeoPhysics::GeoPhysicsSourceRock*)(getSourceRock1 ());
       const Genex6::SpeciesManager& speciesManager = sourceRock->getSpeciesManager ();
 
       for ( cmp = 0; cmp < NumberOfPVTComponents; ++cmp ) {
-         species = pvtFlash::ComponentId ( cmp );
+         species = ComponentId ( cmp );
          id = speciesManager.mapPvtComponentsToId ( species );
 
          gen = m_genexData->getValue ( (unsigned int)i, (unsigned int)j, cmp );
@@ -2331,7 +2329,7 @@ void LayerProps::getGenexGenerated ( const int i,
          } else {
             generated ( species ) = gen;
          }
-		
+
 
       }
 

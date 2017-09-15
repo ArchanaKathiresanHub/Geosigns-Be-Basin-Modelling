@@ -36,10 +36,10 @@ PrmPermeabilityModel::PrmPermeabilityModel( mbapi::Model & mdl, const char * lit
    , m_modelType(      Unknown )
    , m_lithoName(      lithoName )
    , m_anisotCoeff(    1.0 )
-   , m_depoPerm(       UndefinedDoubleValue )
-   , m_clayPercentage( UndefinedDoubleValue )
-   , m_sensitCoeff(    UndefinedDoubleValue )
-   , m_recoveryCoeff(  UndefinedDoubleValue )
+   , m_depoPerm(       Utilities::Numerical::IbsNoDataValue )
+   , m_clayPercentage( Utilities::Numerical::IbsNoDataValue )
+   , m_sensitCoeff(    Utilities::Numerical::IbsNoDataValue )
+   , m_recoveryCoeff(  Utilities::Numerical::IbsNoDataValue )
    , m_mpProfilePos(   0.0 )
 { 
    // construct parameter name
@@ -50,7 +50,7 @@ PrmPermeabilityModel::PrmPermeabilityModel( mbapi::Model & mdl, const char * lit
    mbapi::LithologyManager & lmgr = mdl.lithologyManager();
 
    mbapi::LithologyManager::LithologyID lid = lmgr.findID( m_lithoName );
-   if ( UndefinedIDValue == lid )
+   if ( IsValueUndefined( lid ) )
    {
       throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) <<  "Can't find lithology type with name " <<
          m_lithoName << "in lithologies list";
@@ -113,10 +113,10 @@ PrmPermeabilityModel::PrmPermeabilityModel( const VarPrmPermeabilityModel * pare
    , m_modelType(      mdlType )
    , m_lithoName(      lithoName )
    , m_anisotCoeff(    1.0 )
-   , m_depoPerm(       UndefinedDoubleValue )
-   , m_clayPercentage( UndefinedDoubleValue )
-   , m_sensitCoeff(    UndefinedDoubleValue )
-   , m_recoveryCoeff(  UndefinedDoubleValue )
+   , m_depoPerm(       Utilities::Numerical::IbsNoDataValue )
+   , m_clayPercentage( Utilities::Numerical::IbsNoDataValue )
+   , m_sensitCoeff(    Utilities::Numerical::IbsNoDataValue )
+   , m_recoveryCoeff(  Utilities::Numerical::IbsNoDataValue )
    , m_mpProfilePos(   0.0 )
 {
   // construct parameter name
@@ -226,7 +226,7 @@ ErrorHandler::ReturnCode PrmPermeabilityModel::setInModel( mbapi::Model & caldMo
    // get lithology ID
    mbapi::LithologyManager & lmgr = caldModel.lithologyManager();
    mbapi::LithologyManager::LithologyID lid = lmgr.findID( m_lithoName );
-   if ( UndefinedIDValue == lid )
+   if ( IsValueUndefined( lid ) )
    {
       throw ErrorHandler::Exception( ErrorHandler::NonexistingID ) <<  "Can't find lithology type with name " <<
          m_lithoName << "in lithologies list";
@@ -285,7 +285,7 @@ std::string PrmPermeabilityModel::validate( mbapi::Model & caldModel )
    mbapi::LithologyManager & lmgr = caldModel.lithologyManager();
 
    mbapi::LithologyManager::LithologyID lid = lmgr.findID( m_lithoName );
-   if ( UndefinedIDValue == lid )
+   if ( IsValueUndefined( lid ) )
    {
       oss << "Can't find lithology type with name " << m_lithoName << "in lithologies list";
    }
@@ -373,7 +373,7 @@ std::vector<double> PrmPermeabilityModel::asDoubleArray() const
       case Impermeable: break; // no any parameters
 
       case Sandstone:
-         vals.resize( 3, UndefinedDoubleValue );
+         vals.resize( 3, Utilities::Numerical::IbsNoDataValue );
          vals[AnisotropicCoeff] = m_anisotCoeff;
          vals[DepositionalPerm] = m_depoPerm;
          vals[ClayPercentage]   = m_clayPercentage;

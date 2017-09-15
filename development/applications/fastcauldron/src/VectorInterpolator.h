@@ -72,25 +72,13 @@ template<const unsigned int Size>
 inline double VectorInterpolator<Size>::evaluate ( const unsigned int equation,
                                                    const double       x ) const {
 
-// #ifdef DEBUG
-//    if ( Degree != 2 ) {
-//       // Error
-//    }
-// #endif
-
    return ( m_coefficients [ equation ][ 2 ] * x + m_coefficients [ equation ][ 1 ]) * x + m_coefficients [ equation ][ 0 ];
 }
 
 template<const unsigned int Size>
-void VectorInterpolator<Size>::compute ( const CoefficientArray& xs,
+void VectorInterpolator<Size>::compute ( const CoefficientArray& /*xs*/,
                                          const CoefficientMatrix& ys ) {
-
-// #ifdef DEBUG
-//    if ( Degree != 2 ) {
-//       // Error
-//    }
-// #endif
-
+   
 #if 0
    Numerics::FortranMatrix mat ( NumberOfCoefficients, NumberOfCoefficients );
    Numerics::IntegerArray  permutation ( NumberOfCoefficients );

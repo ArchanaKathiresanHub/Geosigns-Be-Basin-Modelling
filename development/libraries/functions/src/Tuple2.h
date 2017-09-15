@@ -3,99 +3,79 @@
 
 #include <assert.h>
 #include <limits>
-#ifdef _MSC_VER
-#undef max
-#endif
+#include <stdexcept>
 
-#include <tuple>
-
-namespace functions {
-
-template <typename ENTRY>
-class Tuple2
+namespace functions
 {
-public:
+   template <typename ENTRY>
+   class Tuple2
+   {
+   private:
 
-  enum { dim = 2, dim_min_1 = 1, dim_plus_1 = 3 };
-  typedef ENTRY Entry;
+     ENTRY m_first, m_second;
 
-private:
+   public:
 
-  ENTRY m_first, m_second;
+     Tuple2()
+     {
+         m_first = -std::numeric_limits<ENTRY>::max();
+         m_second = m_first;
+     }
 
-public:
+     inline ~Tuple2() {}
 
-  inline static Tuple2<ENTRY> filled(const ENTRY& value) {
-    return std::tuple<ENTRY,ENTRY>(value,value);
-  }
- 
-  Tuple2()
-  {
-      m_first = -std::numeric_limits<ENTRY>::max();
-      m_second = m_first;
-  }
+     explicit Tuple2(const ENTRY* data) {
+       if(nullptr==data) throw std::runtime_error("nullptr provided to Tuple2 ctr");
+       m_first = data[0];
+       m_second = data[1];
+     }
 
-  inline ~Tuple2() {
-  }
+     Tuple2(const ENTRY& value1, const ENTRY& value2):
+       m_first(value1),
+       m_second(value2)
+     {}
 
-  Tuple2(const ENTRY* data) {
-    m_first = data[0];
-    m_second = data[1];
-  }
+     inline const ENTRY& operator[](int d) const {
+       assert(d == 0 || d == 1);
+       return d == 0 ? m_first : m_second;
+     }
 
-  Tuple2(const ENTRY& value1, const ENTRY& value2):
-    m_first(value1),
-    m_second(value2)
-  {}
+     inline ENTRY& operator[](int d) {
+       assert(d == 0 || d == 1);
+       return d == 0 ? m_first : m_second;
+     }
 
-  inline const ENTRY& operator[](int d) const {
-    assert(d == 0 || d == 1);
-    return d == 0 ? m_first : m_second;
-  }
+     inline Tuple2<ENTRY> reverse() const {
+       Tuple2<ENTRY> result;
+       result[0] = m_second;
+       result[1] = m_first;
+       return result;
+     }
 
-  inline ENTRY& operator[](int d) {
-    assert(d == 0 || d == 1);
-    return d == 0 ? m_first : m_second;
-  }
+     inline Tuple2<ENTRY>& operator+=(const Tuple2<ENTRY>& rhs) {
+       m_first += rhs[0];
+       m_second += rhs[1];
+       return *this;
+     }
 
-  inline Tuple2<ENTRY> reverse() const {
-    Tuple2<ENTRY> result;
-    result[0] = m_second;
-    result[1] = m_first;
-    return result;
-  }
+     inline Tuple2<ENTRY>& operator-=(const Tuple2<ENTRY>& rhs) {
+       m_first -= rhs[0];
+       m_second -= rhs[1];
+       return *this;
+     }
 
-  inline Tuple2<ENTRY>& operator+=(const Tuple2<ENTRY>& rhs) {
-    m_first += rhs[0];
-    m_second += rhs[1];
-    return *this;
-  }
+     inline Tuple2<ENTRY>& operator*=(const Tuple2<ENTRY>& rhs) {
+       m_first *= rhs[0];
+       m_second *= rhs[1];
+       return *this;
+     }
 
-  inline Tuple2<ENTRY>& operator-=(const Tuple2<ENTRY>& rhs) {
-    m_first -= rhs[0];
-    m_second -= rhs[1];
-    return *this;
-  }
-
-  inline Tuple2<ENTRY>& operator*=(const Tuple2<ENTRY>& rhs) {
-    m_first *= rhs[0];
-    m_second *= rhs[1];
-    return *this;
-  }
-
-  inline Tuple2<ENTRY>& operator/=(const Tuple2<ENTRY>& rhs) {
-    m_first /= rhs[0];
-    m_second /= rhs[1];
-    return *this;
-  }
-};
-
-// Including this function leads to the compiler error: Multiple declaration for dim.
-
-template <typename ENTRY>
-inline Tuple2<ENTRY> tuple(const ENTRY& value1, const ENTRY& value2) {
-  return Tuple2<ENTRY>(value1,value2);
-}
+     inline Tuple2<ENTRY>& operator/=(const Tuple2<ENTRY>& rhs) {
+       m_first /= rhs[0];
+       m_second /= rhs[1];
+       return *this;
+     }
+   };
 
 } // namespace functions
 

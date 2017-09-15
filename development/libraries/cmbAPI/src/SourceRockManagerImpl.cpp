@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2014 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file SourceRockManagerImpl.C
 /// @brief This file keeps API implementation for manipulating source rocks in Cauldron model
@@ -28,12 +28,11 @@
 namespace mbapi
 {
 const char * SourceRockManagerImpl::s_sourceRockTableName     = "SourceRockLithoIoTbl";
-const char * SourceRockManagerImpl::s_layerNameFieldName      = "LayerName";      
+const char * SourceRockManagerImpl::s_layerNameFieldName      = "LayerName";
 const char * SourceRockManagerImpl::s_sourceRockTypeFieldName = "SourceRockType";
 const char * SourceRockManagerImpl::s_tocIni                  = "TocIni";
 const char * SourceRockManagerImpl::s_tocIniMap               = "TocIniGrid";
-const char * SourceRockManagerImpl::s_hiIni                   = "HiIni";
-const char * SourceRockManagerImpl::s_hcIni                   = "HcIni";
+const char * SourceRockManagerImpl::s_hcIni                   = "HcVRe05";
 const char * SourceRockManagerImpl::s_PreAsphaltStartAct      = "PreAsphaltStartAct";
 
 // Constructor
@@ -51,9 +50,9 @@ SourceRockManagerImpl & SourceRockManagerImpl::operator = ( const SourceRockMana
 }
 
 // Set project database. Reset all
-void SourceRockManagerImpl::setDatabase( database::Database * db )
+void SourceRockManagerImpl::setDatabase( database::ProjectFileHandlerPtr pfh )
 {
-   m_db = db;
+   m_db = pfh;
 }
 
 // Get list of source rocks in the model
@@ -71,14 +70,14 @@ std::vector<SourceRockManager::SourceRockID> SourceRockManagerImpl::sourceRockID
 
    // fill IDs array with increasing indexes
    srIDs.resize( table->size(), 0 );
- 
+
    for ( size_t i = 0; i < srIDs.size(); ++i ) srIDs[ i ] = static_cast<SourceRockID>( i );
 
    return srIDs;
 }
 
 // Search for source rock lithology record which has given layer name and source rock type name
-// return ID of found source rock lithology on success or UndefinedIDValue otherwise
+// return ID of found source rock lithology on success or Utilities::Numerical::NoDataIDValue otherwise
 SourceRockManager::SourceRockID SourceRockManagerImpl::findID( const std::string & lName
                                                              , const std::string & srTypeName
                                                              )
@@ -104,7 +103,7 @@ SourceRockManager::SourceRockID SourceRockManagerImpl::findID( const std::string
             throw Exception( NonexistingID ) << "No source rock lithology with such ID: " << i;
          }
 
-         if ( lName      == rec->getValue<std::string>( s_layerNameFieldName ) && 
+         if ( lName      == rec->getValue<std::string>( s_layerNameFieldName ) &&
               srTypeName == rec->getValue<std::string>( s_sourceRockTypeFieldName )
             )
          {
@@ -114,7 +113,7 @@ SourceRockManager::SourceRockID SourceRockManagerImpl::findID( const std::string
    }
    catch ( const Exception & e ) { reportError( e.errorCode(), e.what() ); }
 
-   return UndefinedIDValue;
+   return Utilities::Numerical::NoDataIDValue;
 }
 
 
@@ -130,7 +129,7 @@ std::string SourceRockManagerImpl::layerName( SourceRockID id )
 {
    if ( errorCode() != NoError ) resetError();
    std::string layName;
-   
+
    try
    {
       // get pointer to the table
@@ -209,7 +208,7 @@ double SourceRockManagerImpl::tocIni( SourceRockID id )
       return rec->getValue<double>( s_tocIni );
    }
    catch ( const Exception & e ) { reportError( e.errorCode(), e.what() ); }
-   return UndefinedDoubleValue;
+   return Utilities::Numerical::IbsNoDataValue;
 }
 
 // get layer TOC map name
@@ -238,7 +237,7 @@ std::string SourceRockManagerImpl::tocInitMapName( SourceRockID id )
    }
    catch ( const Exception & e ) { reportError( e.errorCode(), e.what() ); }
 
-   return UndefinedStringValue;
+   return Utilities::Numerical::NoDataStringValue;
 }
 
 ErrorHandler::ReturnCode SourceRockManagerImpl::setTOCIni( SourceRockID id, double newTOC )
@@ -247,7 +246,7 @@ ErrorHandler::ReturnCode SourceRockManagerImpl::setTOCIni( SourceRockID id, doub
 
    try
    {
-      if ( (newTOC < 0.0 || newTOC > 100.0 ) && newTOC != UndefinedDoubleValue )
+      if ( (newTOC < 0.0 || newTOC > 100.0 ) && !IsValueUndefined( newTOC ) )
       {
          throw Exception( OutOfRangeValue ) << "TOC value must be in range [0:100] but given is: " << newTOC;
       }
@@ -293,7 +292,7 @@ ErrorHandler::ReturnCode SourceRockManagerImpl::setTOCInitMapName( SourceRockID 
          throw Exception( NonexistingID ) << "No source rock lithology with such ID: " << id;
       }
       rec->setValue( s_tocIniMap, mapName );
-      rec->setValue( s_tocIni,    UndefinedDoubleValue ); // TOC must be -9999
+      rec->setValue( s_tocIni,    Utilities::Numerical::IbsNoDataValue ); // TOC must be -9999
    }
    catch ( const Exception & e ) { return reportError( e.errorCode(), e.what() ); }
 
@@ -327,7 +326,7 @@ double SourceRockManagerImpl::hiIni( SourceRockID id )
    }
    catch ( const Exception & e ) { reportError( e.errorCode(), e.what() ); }
 
-   return UndefinedDoubleValue;
+   return Utilities::Numerical::IbsNoDataValue;
 }
 
 ErrorHandler::ReturnCode SourceRockManagerImpl::setHIIni( SourceRockID id, double newHI )
@@ -336,7 +335,7 @@ ErrorHandler::ReturnCode SourceRockManagerImpl::setHIIni( SourceRockID id, doubl
 
    try
    {
-      if ( newHI < 0.0 || newHI > 1000.0 ) 
+      if ( newHI < 0.0 || newHI > 1000.0 )
       {
          throw Exception( OutOfRangeValue ) << "HI value must be in range [0:1000], but given is: " << newHI;
       }
@@ -389,7 +388,7 @@ double SourceRockManagerImpl::hcIni( SourceRockID id )
    }
    catch ( const Exception & e ) { reportError( e.errorCode(), e.what() ); }
 
-   return UndefinedDoubleValue;
+   return Utilities::Numerical::IbsNoDataValue;
 }
 
 ErrorHandler::ReturnCode SourceRockManagerImpl::setHCIni( SourceRockID id, double newHC )
@@ -451,7 +450,7 @@ double SourceRockManagerImpl::preAsphActEnergy( SourceRockID id )
    }
    catch ( const Exception & e ) { reportError( e.errorCode(), e.what() ); }
 
-   return UndefinedDoubleValue;
+   return Utilities::Numerical::IbsNoDataValue;
 }
 
 // Set pre-asphaltene activation energy (must be in range 200-220 kJ/mol)

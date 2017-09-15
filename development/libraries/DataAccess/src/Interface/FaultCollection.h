@@ -48,7 +48,7 @@ namespace DataAccess
 
 	 FaultList * getFaults (void) const;
 
-         virtual unsigned int size (void) const;
+         virtual size_t size (void) const;
 
       private:
          const string m_name;

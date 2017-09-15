@@ -36,10 +36,10 @@ public:
 
 
     const LookUp * getTable( TSR_Table tableName );
-    TSR_Table getTableName ( const double salinity, pvtFlash::ComponentId id );
+    TSR_Table getTableName ( const double salinity, ComponentId id );
 
     // interpolate a value for salinity
-    bool getValueForSalinity( const double salinity, pvtFlash::ComponentId id, 
+    bool getValueForSalinity( const double salinity, ComponentId id, 
                               const double pressure, const double temperature, double & value );
 
 private:
@@ -49,8 +49,8 @@ private:
     void allocateTable( TSR_Table tableName );
     double convertSalinityToMolal ( const double salinity ) const;
 
-    TSR_Table getLowTableName ( const double mol, pvtFlash::ComponentId id );
-    TSR_Table getUpTableName ( const double mol, pvtFlash::ComponentId id );
+    TSR_Table getLowTableName ( const double mol, ComponentId id );
+    TSR_Table getUpTableName ( const double mol, ComponentId id );
 };
 
 inline double TSR_Tables::LookUpDirectory::convertSalinityToMolal( const double salinity ) const {

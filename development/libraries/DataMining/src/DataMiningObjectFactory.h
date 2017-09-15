@@ -3,6 +3,7 @@
 
 #include <map>
 
+#include "ProjectFileHandler.h"
 #include "Interface/ProjectHandle.h"
 #include "Interface/ObjectFactory.h"
 #include "Interface/Snapshot.h"
@@ -30,8 +31,9 @@ namespace DataAccess
          virtual ~ObjectFactory ();
 
          /// Allocates a data-mining project-handle.
-         Interface::ProjectHandle* produceProjectHandle( database::Database * database, const string & name, 
-			 const string & accessMode );
+         Interface::ProjectHandle* produceProjectHandle( database::ProjectFileHandlerPtr pfh,
+                                                         const string & name,
+                                                         const string & accessMode );
 
          /// Allocate a new domain-property.
          virtual DomainProperty* allocate ( const DomainPropertyCollection*            collection,
@@ -44,7 +46,7 @@ namespace DataAccess
 
          /// Add a new allocator.
          ///
-         /// If an allocator exists for the property then it is first deleted 
+         /// If an allocator exists for the property then it is first deleted
          /// and the new one added to the map.
          virtual void addAllocator( const Interface::Property * property,
                                     DomainPropertyAllocator   * allocator );

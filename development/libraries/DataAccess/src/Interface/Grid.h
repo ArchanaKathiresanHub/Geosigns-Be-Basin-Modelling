@@ -21,7 +21,7 @@ namespace DataAccess
          virtual ~Grid (void) {};
 
          /// Checks whether the given point is a grid point
-         virtual inline bool isGridPoint (unsigned int i, unsigned int j) const = 0;
+         virtual bool isGridPoint (unsigned int i, unsigned int j) const = 0;
 
          /// return the leftmost grid coordinate value
          virtual double minI (void) const = 0;

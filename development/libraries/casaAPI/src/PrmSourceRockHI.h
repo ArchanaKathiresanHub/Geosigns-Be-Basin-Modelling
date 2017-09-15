@@ -16,9 +16,6 @@
 
 #include "PrmSourceRockProp.h"
 
-// CMB API
-#include <UndefinedValues.h>
-
 #include <cassert>
 
 namespace mbapi
@@ -49,8 +46,8 @@ namespace casa
       /// @param mixID     source rock mixing ID for stratigraphy layer
       PrmSourceRockHI( mbapi::Model & mdl, const char * layerName, const char * srType = 0, int mixID = 1 );
 
-      /// @brief Constructor. Create parameter from variation of variable parameter
-      /// @param parent pointer to a variable parameter which created this one
+      /// @brief Constructor. Create parameter from variation of influential parameter
+      /// @param parent pointer to a influential parameter which created this one
       /// @param val value of the hydrogen index initial ratio in source rock @f$ [ kg/tonne ] @f$
       /// @param layerName layer name
       /// @param srType    source rock type name

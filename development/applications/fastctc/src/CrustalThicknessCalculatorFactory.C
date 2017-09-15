@@ -25,8 +25,8 @@
 using namespace DataAccess;
 
 
-CrustalThicknessCalculator *
-CrustalThicknessCalculatorFactory::produceProjectHandle ( database::Database * database, const string & name,
+DataAccess::Interface::ProjectHandle*
+CrustalThicknessCalculatorFactory::produceProjectHandle ( database::ProjectFileHandlerPtr database, const string & name,
                                                           const string & accessMode) {
    return new CrustalThicknessCalculator ( database, name, accessMode, this );
 }

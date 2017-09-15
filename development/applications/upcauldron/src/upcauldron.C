@@ -203,7 +203,6 @@ int main (int argc, char ** argv)
    if (inputonly)
    {
       tables->clearTable ("TimeIoTbl");
-      tables->clearTable ("DepthIoTbl");
       tables->clearTable ("TrapIoTbl");
       tables->clearTable ("MigrationIoTbl");
       tables->clearTable ("TrapperIoTbl");
@@ -391,7 +390,6 @@ int main (int argc, char ** argv)
 	       cerr << "  Did not recognize source rock type " << sourceRockTypeOld  << " of formation " << getLayerName (sourceRockLithoRecord) << endl << endl;
 	    }
          }
-	 setHCInputMode (sourceRockLithoRecord, "HC");
 
 	 double HC = getHcVRe05 (sourceRockLithoRecord);
 
@@ -582,9 +580,6 @@ int main (int argc, char ** argv)
 
             setMapFileName (gridMapIoRecord, outputMapFileName);
             setMapType (gridMapIoRecord, "HDF5");
-
-            setFileId (gridMapIoRecord, -1);
-            setHDF5FileName (gridMapIoRecord, "");
 
             if (fileNameFound)
                continue;

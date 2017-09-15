@@ -1,14 +1,31 @@
+//
+// Copyright (C) 2012-2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 #include "HCDensity.h"
 
+// std library
 #include <cmath>
 #include <assert.h>
 #include <string.h>
 #include <sstream>
 
+// utilities library
 #include "NumericFunctions.h"
+
+// Eospack library
 #include "EosPack.h"
 #include "EosApplication.h"
 #include "EosPvtTable.h"
+
+// CBMGenerics library
+#include "ComponentManager.h"
+typedef CBMGenerics::ComponentManager::SpeciesNamesId ComponentId;
 
 #define OIL 1
 #define GAS 0
@@ -48,16 +65,16 @@ void GeoPhysics::HCDensity::createPropertyTables ()
    double temperature = m_startTempValue; //[K]=[Celsius+273.15]
 
    bool isGormPrescribed = false;
-   double compMasses[pvtFlash::NUM_COMPONENTS];
+   double compMasses[ComponentId::NUMBER_OF_SPECIES];
 
-   double phaseCompMasses[pvtFlash::N_PHASES][pvtFlash::NUM_COMPONENTS];
-   double phaseDensity[pvtFlash::N_PHASES];
-   double phaseViscosity[pvtFlash::N_PHASES];
+   double phaseCompMasses[PhaseId::NUMBER_OF_PHASES][ComponentId::NUMBER_OF_SPECIES];
+   double phaseDensity[PhaseId::NUMBER_OF_PHASES];
+   double phaseViscosity[PhaseId::NUMBER_OF_PHASES];
 
-   memset (compMasses, 0, sizeof (double) * pvtFlash::NUM_COMPONENTS);
-   memset (phaseCompMasses, 0, sizeof (double) * pvtFlash::NUM_COMPONENTS * pvtFlash::N_PHASES);
-   memset (phaseDensity, 0, sizeof (double) * pvtFlash::N_PHASES);
-   memset (phaseViscosity, 0, sizeof (double) * pvtFlash::N_PHASES);
+   memset (compMasses, 0, sizeof (double) * ComponentId::NUMBER_OF_SPECIES);
+   memset (phaseCompMasses, 0, sizeof (double) * ComponentId::NUMBER_OF_SPECIES * PhaseId::NUMBER_OF_PHASES );
+   memset (phaseDensity, 0, sizeof (double) * PhaseId::NUMBER_OF_PHASES );
+   memset (phaseViscosity, 0, sizeof (double) * PhaseId::NUMBER_OF_PHASES );
 
    pvtFlash::EosPack & eosPack = pvtFlash::EosPack::getInstance ();
 
@@ -67,8 +84,8 @@ void GeoPhysics::HCDensity::createPropertyTables ()
       pressure = m_startPressValue;
       for (int k = 0; k < PRESSURE_NUM; ++k)
       {
-         compMasses[pvtFlash::C1] = 1.0;
-         compMasses[pvtFlash::C6_14SAT] = 0.0;
+         compMasses[ComponentId::C1] = 1.0;
+         compMasses[ComponentId::C6_MINUS_14SAT] = 0.0;
          eosPack.computeWithLumping (temperature,
                                      pressure, compMasses, phaseCompMasses, phaseDensity, phaseViscosity, isGormPrescribed, 0.0);
 
@@ -80,8 +97,8 @@ void GeoPhysics::HCDensity::createPropertyTables ()
             m_vapourDensityTbl.addPoint (pressure, temperature, phaseDensity[OIL]);
 
 
-         compMasses[pvtFlash::C1] = 0.0;
-         compMasses[pvtFlash::C6_14SAT] = 1.0;
+         compMasses[ComponentId::C1] = 0.0;
+         compMasses[ComponentId::C6_MINUS_14SAT] = 1.0;
          eosPack.computeWithLumping (temperature,
                                      pressure, compMasses, phaseCompMasses, phaseDensity, phaseViscosity, isGormPrescribed, 0.0);
 

@@ -113,7 +113,7 @@ void sumext::convertCase( const SUMlib::Case  & sc, const casa::VarSpace & vp, c
 
          case casa::VarParameter::Discrete:
          default:
-            throw ErrorHandler::Exception( ErrorHandler::NotImplementedAPI ) << "Not implemented variable parameter type: " << prm->variationType(); 
+            throw ErrorHandler::Exception( ErrorHandler::NotImplementedAPI ) << "Not implemented influential parameter type: " << prm->variationType(); 
             break;
       }
    }
@@ -285,7 +285,7 @@ void sumext::createSUMlibPrior( const casa::VarSpace & varSpace
                               )
 {
    // Create a CASA case for the base, and create an array containing all standard deviations. The standard
-   // deviations and the variance matrix are used for continuous variable parameters only. For discrete and categorical 
+   // deviations and the variance matrix are used for continuous influential parameters only. For discrete and categorical 
    // varibal parameters it return the weights.
   
    SUMlib::RealVector stdDevs;

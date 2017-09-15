@@ -1,3 +1,12 @@
+//
+// Copyright (C) 2012-2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 #include "PVTCalculator.h"
 
 #include <sstream>
@@ -12,7 +21,7 @@ void Genex6::PVTComponents::zero () {
 
    int i;
 
-   for ( i = 0; i < pvtFlash::NUM_COMPONENTS; ++i ) {
+   for ( i = 0; i < ComponentId::NUMBER_OF_SPECIES; ++i ) {
       m_components [ i ] = 0.0;
    }
 
@@ -23,7 +32,7 @@ double Genex6::PVTComponents::sum () const {
    double result = 0.0;
    int i;
 
-   for ( i = 0; i < pvtFlash::NUM_COMPONENTS; ++i ) {
+   for ( i = 0; i < ComponentId::NUMBER_OF_SPECIES; ++i ) {
       result += m_components [ i ];
    }
 
@@ -34,7 +43,7 @@ Genex6::PVTComponents& Genex6::PVTComponents::operator += ( const PVTComponents&
 
    int i;
 
-   for ( i = 0; i < pvtFlash::NUM_COMPONENTS; ++i ) {
+   for ( i = 0; i < ComponentId::NUMBER_OF_SPECIES; ++i ) {
       m_components [ i ] += components.m_components [ i ];
    }
 
@@ -45,7 +54,7 @@ Genex6::PVTComponents& Genex6::PVTComponents::operator *= ( const double scale )
 
    int i;
 
-   for ( i = 0; i < pvtFlash::NUM_COMPONENTS; ++i ) {
+   for ( i = 0; i < ComponentId::NUMBER_OF_SPECIES; ++i ) {
       m_components [ i ] *= scale;
    }
 
@@ -62,10 +71,10 @@ std::string Genex6::PVTComponents::image () const {
 
    buffer << " {";
 
-   for ( i = 0; i < pvtFlash::NUM_COMPONENTS; ++i ) {
-      buffer << "( " << std::setw ( 11 ) << pvtFlash::ComponentIdNames [ i ] << " = " << std::setw ( 12 ) << m_components [ i ] << " )";
+   for ( i = 0; i < ComponentId::NUMBER_OF_SPECIES; ++i ) {
+      buffer << "( " << std::setw ( 11 ) << CBMGenerics::ComponentManager::getInstance().getSpeciesName( i ) << " = " << std::setw ( 12 ) << m_components [ i ] << " )";
 
-      if ( i < pvtFlash::NUM_COMPONENTS - 1 ) {
+      if ( i < ComponentId::NUMBER_OF_SPECIES - 1 ) {
          buffer << ", ";
       }
 
@@ -81,7 +90,7 @@ void Genex6::PVTComponents::setComponents( const Genex6::PVTComponents& componen
 
     int i;
 
-   for ( i = 0; i < pvtFlash::NUM_COMPONENTS; ++i ) {
+   for ( i = 0; i < ComponentId::NUMBER_OF_SPECIES; ++i ) {
       m_components [ i ] = components1.m_components [ i ] * scale1 + components2.m_components [ i ] * scale2;
    }
 }
@@ -99,9 +108,9 @@ void Genex6::PVTComponentMasses::zero () {
    int i;
    int j;
 
-   for ( i = 0; i < pvtFlash::N_PHASES; ++i ) {
+   for ( i = 0; i < PhaseId::NUMBER_OF_PHASES; ++i ) {
 
-      for ( j = 0; j < pvtFlash::NUM_COMPONENTS; ++j ) {
+      for ( j = 0; j < ComponentId::NUMBER_OF_SPECIES; ++j ) {
          m_masses [ i ][ j ] = 0.0;
       }
 
@@ -109,12 +118,12 @@ void Genex6::PVTComponentMasses::zero () {
 
 }
 
-double Genex6::PVTComponentMasses::sum ( const pvtFlash::PVTPhase phase ) const {
+double Genex6::PVTComponentMasses::sum ( const PhaseId phase ) const {
 
    double result = 0.0;
    int j;
 
-   for ( j = 0; j < pvtFlash::NUM_COMPONENTS; ++j ) {
+   for ( j = 0; j < ComponentId::NUMBER_OF_SPECIES; ++j ) {
       result += m_masses [ phase ][ j ];
    }
 
@@ -126,10 +135,10 @@ Genex6::PVTComponentMasses& Genex6::PVTComponentMasses::operator+=( const PVTCom
    int i;
    int j;
 
-   for ( i = 0; i < pvtFlash::N_PHASES; ++i ) {
+   for ( i = 0; i < PhaseId::NUMBER_OF_PHASES; ++i ) {
 
-      for ( j = 0; j < pvtFlash::NUM_COMPONENTS; ++j ) {
-         m_masses [ i ][ j ] += components ( pvtFlash::PVTPhase ( i ), pvtFlash::ComponentId ( j ));
+      for ( j = 0; j < ComponentId::NUMBER_OF_SPECIES; ++j ) {
+         m_masses [ i ][ j ] += components ( PhaseId ( i ), ComponentId ( j ));
       }
 
    }
@@ -137,18 +146,18 @@ Genex6::PVTComponentMasses& Genex6::PVTComponentMasses::operator+=( const PVTCom
    return *this;
 }
 
-void Genex6::PVTComponentMasses::getPhaseComponents ( const pvtFlash::PVTPhase phase,
+void Genex6::PVTComponentMasses::getPhaseComponents ( const PhaseId phase,
                                                             PVTComponents&     components ) const {
 
    int j;
 
-   for ( j = 0; j < pvtFlash::NUM_COMPONENTS; ++j ) {
-      components ( pvtFlash::ComponentId ( j )) = m_masses [ phase ][ j ];
+   for ( j = 0; j < ComponentId::NUMBER_OF_SPECIES; ++j ) {
+      components ( ComponentId ( j )) = m_masses [ phase ][ j ];
    }
 
 }
 
-Genex6::PVTComponents Genex6::PVTComponentMasses::getPhaseComponents ( const pvtFlash::PVTPhase phase ) const {
+Genex6::PVTComponents Genex6::PVTComponentMasses::getPhaseComponents ( const PhaseId phase ) const {
 
    PVTComponents components;
 
@@ -167,10 +176,10 @@ std::string Genex6::PVTComponentMasses::image () const {
 
    buffer  << " Vapour => {";
 
-   for ( i = 0; i < pvtFlash::NUM_COMPONENTS; ++i ) {
-      buffer << "( " << std::setw ( 11 ) << pvtFlash::ComponentIdNames [ i ] << " = " << std::setw ( 12 ) << m_masses [ 0 ][ i ] << " )";
+   for ( i = 0; i < ComponentId::NUMBER_OF_SPECIES; ++i ) {
+      buffer << "( " << std::setw ( 11 ) << CBMGenerics::ComponentManager::getInstance().getSpeciesName( i ) << " = " << std::setw ( 12 ) << m_masses [ 0 ][ i ] << " )";
 
-      if ( i < pvtFlash::NUM_COMPONENTS - 1 ) {
+      if ( i < ComponentId::NUMBER_OF_SPECIES - 1 ) {
          buffer << ", ";
       }
 
@@ -180,10 +189,10 @@ std::string Genex6::PVTComponentMasses::image () const {
 
    buffer  << " Liquid => {";
 
-   for ( i = 0; i < pvtFlash::NUM_COMPONENTS; ++i ) {
-      buffer << "( " << std::setw ( 11 ) << pvtFlash::ComponentIdNames [ i ] << " = " << std::setw ( 12 ) << m_masses [ 1 ][ i ] << " )";
+   for ( i = 0; i < ComponentId::NUMBER_OF_SPECIES; ++i ) {
+      buffer << "( " << std::setw ( 11 ) << CBMGenerics::ComponentManager::getInstance().getSpeciesName( i ) << " = " << std::setw ( 12 ) << m_masses [ 1 ][ i ] << " )";
 
-      if ( i < pvtFlash::NUM_COMPONENTS - 1 ) {
+      if ( i < ComponentId::NUMBER_OF_SPECIES - 1 ) {
          buffer << ", ";
       }
 
@@ -204,7 +213,7 @@ void Genex6::PVTPhaseValues::zero () {
 
    int i;
 
-   for ( i = 0; i < pvtFlash::N_PHASES; ++i ) {
+   for ( i = 0; i < PhaseId::NUMBER_OF_PHASES; ++i ) {
       m_values [ i ] = 0.0;
    }
 
@@ -214,7 +223,7 @@ void Genex6::PVTPhaseValues::setValues( const Genex6::PVTPhaseValues& values1, c
 
     int i;
 
-   for ( i = 0; i < pvtFlash::N_PHASES; ++i ) {
+   for ( i = 0; i < PhaseId::NUMBER_OF_PHASES; ++i ) {
       m_values [ i ] = values1.m_values [ i ] * scale1 + values2.m_values [ i ] * scale2;
    }
 }
@@ -271,18 +280,18 @@ double Genex6::PVTCalc::computeGorm ( const PVTComponents& vapour,
    double gorm;
 
    // Mass of normally vapour components.
-   for ( i = pvtFlash::C5; i <= pvtFlash::C1; ++i ) {
-      vapourMass += vapour ( pvtFlash::ComponentId ( i )) + liquid ( pvtFlash::ComponentId ( i ));
+   for ( i = ComponentId::C5; i <= ComponentId::C1; ++i ) {
+      vapourMass += vapour ( ComponentId ( i )) + liquid ( ComponentId ( i ));
    }
 
    // Mass of normally liquid components.
-   for ( i = pvtFlash::ASPHALTENES; i <= pvtFlash::C6_14SAT; ++i ) {
-      liquidMass += vapour ( pvtFlash::ComponentId ( i )) + liquid ( pvtFlash::ComponentId ( i ));
+   for ( i = ComponentId::ASPHALTENE; i <= ComponentId::C6_MINUS_14SAT; ++i ) {
+      liquidMass += vapour ( ComponentId ( i )) + liquid ( ComponentId ( i ));
    }
 
    // Add sulphur components to normally liquid components.
-   for ( i = pvtFlash::LSC; i <= pvtFlash::C6_14AROS; ++i ) {
-      liquidMass += vapour ( pvtFlash::ComponentId ( i )) + liquid ( pvtFlash::ComponentId ( i ));
+   for ( i = ComponentId::LSC; i <= ComponentId::C6_MINUS_14ARO_S; ++i ) {
+      liquidMass += vapour ( ComponentId ( i )) + liquid ( ComponentId ( i ));
    }
 
    if ( liquidMass == 0.0 ) {

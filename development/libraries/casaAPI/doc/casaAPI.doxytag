@@ -300,6 +300,13 @@
     <namespace>casa</namespace>
   </compound>
   <compound kind="file">
+    <name>ParetoSensitivityInfo.h</name>
+    <path>E:/Build/cld-dev-git/development/libraries/casaAPI/src/</path>
+    <filename>ParetoSensitivityInfo_8h</filename>
+    <class kind="struct">casa::ParetoSensitivityInfo</class>
+    <namespace>casa</namespace>
+  </compound>
+  <compound kind="file">
     <name>PrmCompactionCoefficient.h</name>
     <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
     <filename>PrmCompactionCoefficient_8h</filename>
@@ -540,7 +547,7 @@
     <path>V:/TFS/Branches/v2015.12alc/development/libraries/casaAPI/src/</path>
     <filename>SensitivityCalculator_8h</filename>
     <includes id="TornadoSensitivityInfo_8h" name="TornadoSensitivityInfo.h" local="yes" imported="no">TornadoSensitivityInfo.h</includes>
-    <class kind="struct">casa::ParetoSensitivityInfo</class>
+    <includes id="ParetoSensitivityInfo_8h" name="ParetoSensitivityInfo.h" local="yes" imported="no">ParetoSensitivityInfo.h</includes>
     <class kind="class">casa::SensitivityCalculator</class>
     <namespace>casa</namespace>
   </compound>
@@ -1913,6 +1920,13 @@
       <anchor>ac1611add9ac1649cea4b71920f355d36</anchor>
       <arglist>(mbapi::Model &amp;caldModel) const =0</arglist>
     </member>
+    <member kind="function" virtualness="virtual">
+      <type>virtual std::vector&lt; bool &gt;</type>
+      <name>isValid</name>
+      <anchorfile>classcasa_1_1Observable.html</anchorfile>
+      <anchor>a4c0a931e5e4175cbd77b0383cd03721f</anchor>
+      <arglist>(const ObsValue *obv) const </arglist>
+    </member>
     <member kind="function" virtualness="pure">
       <type>virtual ObsValue *</type>
       <name>createNewObsValueFromDouble</name>
@@ -2828,6 +2842,20 @@
       <anchorfile>classcasa_1_1ObsSpace.html</anchorfile>
       <anchor>a0d0fa943a8dbd91c72d2e85133b7ac9f</anchor>
       <arglist>(size_t i) const =0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual bool</type>
+      <name>isValid</name>
+      <anchorfile>classcasa_1_1ObsSpace.html</anchorfile>
+      <anchor>a97799cd1926c8c4c981f8ed34b6b6bc8</anchor>
+      <arglist>(size_t obId, size_t obSubId) const =0</arglist>
+    </member>
+    <member kind="function" virtualness="pure">
+      <type>virtual void</type>
+      <name>updateObsValueValidateStatus</name>
+      <anchorfile>classcasa_1_1ObsSpace.html</anchorfile>
+      <anchor>a40820c8b3149833e68e77b9620b93ec5</anchor>
+      <arglist>(size_t ob, const std::vector&lt; bool &gt; &amp;valFlags)=0</arglist>
     </member>
   </compound>
   <compound kind="class">
@@ -7549,8 +7577,8 @@
       <type>virtual ErrorHandler::ReturnCode</type>
       <name>calculatePareto</name>
       <anchorfile>classcasa_1_1SensitivityCalculator.html</anchorfile>
-      <anchor>a6cfcb615f112c56ba830083dd13d59cf</anchor>
-      <arglist>(const RSProxy *proxy, ParetoSensitivityInfo &amp;sensInfo)=0</arglist>
+      <anchor>abeba18009e31b918f3f4fc2b4a1eddee</anchor>
+      <arglist>(RSProxy *proxy, ParetoSensitivityInfo &amp;sensInfo)=0</arglist>
     </member>
     <member kind="function" virtualness="pure">
       <type>virtual std::vector&lt; TornadoSensitivityInfo &gt;</type>

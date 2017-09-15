@@ -22,26 +22,27 @@ namespace casa
    class VarPrmLithoSTPThermalCond : public VarPrmContinuous
    {
    public:
-      /// @brief Create a new variable parameter
+      /// @brief Create a new influential parameter
       VarPrmLithoSTPThermalCond( const char * lithoName       ///< name of the lithology for the parameter variation
                                , double       baseValue       ///< base value of parameter
-                               , double       minValue        ///< minimal value for the variable parameter range
-                               , double       maxValue        ///< maximal value for the variable parameter range
-                               , PDF          pdfType = Block ///< type of PDF shape for the variable parameter
+                               , double       minValue        ///< minimal value for the influential parameter range
+                               , double       maxValue        ///< maximal value for the influential parameter range
+                               , PDF          pdfType = Block ///< type of PDF shape for the influential parameter
                                , const char * name = 0        ///< user specified parameter name
                                );
 
       /// @brief Destructor
       virtual ~VarPrmLithoSTPThermalCond();
      
-	   /// @brief Get name of variable parameter in short form
+	   /// @brief Get name of influential parameter in short form
 	   /// @return array of names for each subparameter
 	   virtual std::vector<std::string> name() const;
 
       /// @brief Get number of subparameters if it is more than one
-      /// @return dimension of variable parameter
+      /// @return dimension of influential parameter
       virtual size_t dimension() const { return 1; }
 
+      using VarPrmContinuous::newParameterFromDoubles;
       /// @brief Create parameter from set of doubles. This method is used to convert data between CASA and SUMlib
       /// @param[in,out] vals iterator which points to the first sub-parameter value
       /// @return new casa::PrmLithoSTPThermalCond parameter
@@ -49,6 +50,7 @@ namespace casa
 
       /// @brief Create parameter by reading the values stored in the project file
       /// @param[in] mdl the model where the parameters values should be read
+      /// @param[in] vin an input vector with parameter specific values. Not used in this parameter
       /// @return the new parameter read from the model
       virtual SharedParameterPtr newParameterFromModel( mbapi::Model & mdl, const std::vector<double> & vin ) const;
 

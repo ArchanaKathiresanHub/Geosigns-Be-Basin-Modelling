@@ -378,11 +378,11 @@ ErrorHandler::ReturnCode RunManagerImpl::runScheduledCases( int updateStateTimeI
                            case JobScheduler::JobFinished:                                                                       break;
                            default: assert( 0 );
                         }
-                        if ( allJobFinished )
-                        { 
-                           jobState = m_jobSched->runJob( job );
-                           if ( JobScheduler::JobPending == jobState ) ++prevPending; // take into account just submitted job
-                        }
+                     }
+                     if ( allJobFinished )
+                     { 
+                        jobState = m_jobSched->runJob( job );
+                        if ( JobScheduler::JobPending == jobState ) ++prevPending; // take into account just submitted job
                      }
                   }
                   else

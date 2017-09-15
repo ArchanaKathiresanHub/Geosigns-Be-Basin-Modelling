@@ -23,7 +23,7 @@ namespace casa
    class VarPrmPorosityModel: public VarPrmContinuous
    {
    public:
-      /// @brief Construct variable parameter for variation of porosity model parameters in lithology 
+      /// @brief Construct influential parameter for variation of porosity model parameters in lithology 
       ///
       /// Porosity model must be defined for each lithology type in project. Each model has own model parameters
       /// not all of them can be independent. CASA API supports now 3 type of porosity model:
@@ -36,29 +36,30 @@ namespace casa
                          , double       baseSurfPor    ///< base value for surface porosity
                          , double       minSurfPor     ///< minimal value for surface porosity
                          , double       maxSurfPor     ///< maximal value for surface porosity
-                         , double       baseMinPor     ///< base value for minimal porosity (Double_Exponential model only, for others must be UndefinedDoubleValue)
-                         , double       minMinPor      ///< minimal value for minimal porosity (Double_Exponential model only, for others must be UndefinedDoubleValue)
-                         , double       maxMinPor      ///< maximal value for minimal porosity (Double_Exponential model only, for others must be UndefinedDoubleValue)
+                         , double       baseMinPor     ///< base value for minimal porosity (Double_Exponential model only, for others must be Utilities::Numerical::IbsNoDataValue)
+                         , double       minMinPor      ///< minimal value for minimal porosity (Double_Exponential model only, for others must be Utilities::Numerical::IbsNoDataValue)
+                         , double       maxMinPor      ///< maximal value for minimal porosity (Double_Exponential model only, for others must be Utilities::Numerical::IbsNoDataValue)
                          , double       baseCompCoeff  ///< base value for compaction coefficient (CompCoefA for Double_Exponential model)
                          , double       minCompCoeff   ///< minimal value for compaction coefficient (CompCoefA for Double_Exponential model)
                          , double       maxCompCoeff   ///< maximal value for compaction coefficient (CompCoefA for Double_Exponential model)
-                         , double       baseCompCoeffB ///< base value for compaction coefficient "B" (Double_Exponential model only, for others must be UndefinedDoubleValue)
-                         , double       minCompCoeffB  ///< minimal value for compaction coefficient "B" (Double_Exponential model only, for others must be UndefinedDoubleValue)
-                         , double       maxCompCoeffB  ///< maximal value for compaction coefficient "B" (Double_Exponential model only, for others must be UndefinedDoubleValue)
+                         , double       baseCompCoeffB ///< base value for compaction coefficient "B" (Double_Exponential model only, for others must be Utilities::Numerical::IbsNoDataValue)
+                         , double       minCompCoeffB  ///< minimal value for compaction coefficient "B" (Double_Exponential model only, for others must be Utilities::Numerical::IbsNoDataValue)
+                         , double       maxCompCoeffB  ///< maximal value for compaction coefficient "B" (Double_Exponential model only, for others must be Utilities::Numerical::IbsNoDataValue)
                          , PDF          prmPDF         ///< probability density function for all 4 sub-parameters
                          , const char * name = 0       ///< user specified parameter name
                          );
 
       virtual ~VarPrmPorosityModel();
 
-      /// @brief Get name of variable parameter in short form     
+      /// @brief Get name of influential parameter in short form     
       /// @return array of names for each subparameter
       virtual std::vector<std::string> name() const;
 
       /// @brief Get number of subparameters if it is more than one
-      /// @return dimension of variable parameter
+      /// @return dimension of influential parameter
       virtual size_t dimension() const;
 
+      using VarPrmContinuous::newParameterFromDoubles;
       /// @brief Create parameter from set of doubles. This method is used to convert data between CASA and SUMlib
       /// @param[in,out] vals iterator which points to the first parameter value.
       /// @return new parameter for given set of values
@@ -66,6 +67,7 @@ namespace casa
 
       /// @brief Create parameter by reading the values stored in the project file
       /// @param[in] mdl the model where the parameters values should be read
+      /// @param[in] vin an input vector with parameter specific values. Not used in this parameter
       /// @return the new parameter read from the model
       virtual SharedParameterPtr newParameterFromModel( mbapi::Model & mdl, const std::vector<double> & vin ) const;
 

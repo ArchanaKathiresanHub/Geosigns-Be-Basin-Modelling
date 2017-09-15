@@ -71,8 +71,8 @@ FastcauldronSimulator* FastcauldronSimulator::m_fastcauldronSimulator = 0;
 
 //------------------------------------------------------------//
 
-FastcauldronSimulator::FastcauldronSimulator (database::Database * database, const std::string & name, const std::string & accessMode, DataAccess::Interface::ObjectFactory* objectFactory)
-   : GeoPhysics::ProjectHandle (database, name, accessMode, objectFactory) {
+FastcauldronSimulator::FastcauldronSimulator (database::ProjectFileHandlerPtr& pfh, const std::string & name, const std::string & accessMode, DataAccess::Interface::ObjectFactory* objectFactory)
+   : GeoPhysics::ProjectHandle (pfh, name, accessMode, objectFactory) {
 
    m_calculationMode = NO_CALCULATION_MODE;
    m_lateralStressInterpolator = 0;
@@ -104,11 +104,13 @@ FastcauldronSimulator::~FastcauldronSimulator () {
 
 //------------------------------------------------------------//
 
-FastcauldronSimulator* FastcauldronSimulator::CreateFrom ( AppCtx* cauldron, DataAccess::Interface::ObjectFactory* objectFactory)
+FastcauldronSimulator* FastcauldronSimulator::CreateFrom ( AppCtx* cauldron,
+                                                           DataAccess::Interface::ObjectFactory* objectFactory,
+                                                           const std::vector<std::string>& outputTableNames )
 {
 
    if ( m_fastcauldronSimulator == 0 ) {
-      m_fastcauldronSimulator = (FastcauldronSimulator*) Interface::OpenCauldronProject ( cauldron->getProjectFileName (), "rw", objectFactory );
+      m_fastcauldronSimulator = (FastcauldronSimulator*) Interface::OpenCauldronProject ( cauldron->getProjectFileName (), "rw", objectFactory, outputTableNames );
 
    }
 
@@ -250,12 +252,6 @@ void FastcauldronSimulator::clear1DTimeIoTbl () {
    database::Table * timeIoTbl = getTable ("1DTimeIoTbl");
    PETSC_ASSERT (timeIoTbl);
    timeIoTbl->clear ();
-}
-
-void FastcauldronSimulator::clearDepthIoTbl () {
-   database::Table * depthIoTbl = getTable ("DepthIoTbl");
-   PETSC_ASSERT (depthIoTbl);
-   depthIoTbl->clear ();
 }
 
 
@@ -792,7 +788,7 @@ void FastcauldronSimulator::printSnapshotProperties () const {
    assert ( snapshotTable != 0 );
 
    for ( timeTableIter = snapshotTable->begin (); timeTableIter != snapshotTable->end (); ++timeTableIter ) {
-      cout << " snapshot table: " << (unsigned long)(*timeTableIter) << "  "
+      cout << " snapshot table: " << (std::uintptr_t)(*timeTableIter) << "  "
            << database::getTime ( *timeTableIter ) << endl;
    }
 
@@ -1076,7 +1072,7 @@ void FastcauldronSimulator::finalise ( const bool saveResults ) {
 
 //------------------------------------------------------------//
 
-void FastcauldronSimulator::correctTimeFilterDefaults () 
+void FastcauldronSimulator::correctTimeFilterDefaults ()
 {
       correctTimeFilterDefaults3D ();
 }
@@ -1196,7 +1192,7 @@ void FastcauldronSimulator::correctTimeFilterDefaults3D () {
          property->setOption ( Interface::SEDIMENTS_ONLY_OUTPUT );
       }
 
-      if ( CBMGenerics::ComponentManager::getInstance ().GetSpeciesIdByName ( name ) != -1 ) {
+      if ( CBMGenerics::ComponentManager::getInstance ().getSpeciesIdByName ( name ) != -1 ) {
          property->setOption ( Interface::SOURCE_ROCK_ONLY_OUTPUT );
       }
 
@@ -1366,12 +1362,9 @@ void FastcauldronSimulator::correctTimeFilterDefaults3D () {
       m_timeOutputProperties.push_back ( getFactory ()->produceOutputProperty ( this, getModellingMode (), Interface::SEDIMENTS_ONLY_OUTPUT, "FCTCorrection" ));
    }
 
-   //for ( i = 0; i < CBMGenerics::ComponentManager::NumberOfSpeciesToFlash; ++i ) {
    for ( i = 0; i < NumberOfPVTComponents; ++i ) {
       newProperty = getFactory ()->produceOutputProperty (this, getModellingMode (), Interface::SEDIMENTS_ONLY_OUTPUT,
-                                                          CBMGenerics::ComponentManager::getInstance ().GetSpeciesName ( i ) + "Concentration" );
-      // newProperty = getFactory ()->produceOutputProperty (this, getModellingMode (), Interface::SEDIMENTS_ONLY_OUTPUT,
-      //                                                     pvtFlash::ComponentIdNames [ i ] + "Concentration" );
+                                                          CBMGenerics::ComponentManager::getInstance ().getSpeciesName ( i ) + "Concentration" );
       newProperty->setOption ( Interface::SEDIMENTS_ONLY_OUTPUT );
       m_timeOutputProperties.push_back ( newProperty );
    }
@@ -1632,13 +1625,12 @@ void FastcauldronSimulator::correctTimeFilterDefaults3D () {
 
    // The genex species output names do not appear in the project file filter-time-io table.
    // So create them here.
-   for (i = 0; i < ComponentManager::NumberOfOutputSpecies; ++i)
+   for (i = 0; i < ComponentManager::NUMBER_OF_SPECIES; ++i)
    {
       m_timeOutputProperties.push_back (getFactory ()->produceOutputProperty ( this,
                                                                                getModellingMode (),
                                                                                Interface::SOURCE_ROCK_ONLY_OUTPUT,
-                                                                               theComponentManager.GetSpeciesOutputPropertyName( i )));
-
+                                                                               theComponentManager.getSpeciesOutputPropertyName( i )));
    }
 
    for (i = 0; i < GenexResultManager::NumberOfResults; ++i)
@@ -1985,8 +1977,6 @@ const Interface::OutputProperty* FastcauldronSimulator::findOutputProperty ( con
 //------------------------------------------------------------//
 
 Interface::PropertyOutputOption FastcauldronSimulator::getOutputPropertyOption ( const std::string& propertyName ) {
-
-   Interface::PropertyOutputOption option;
 
    Interface::MutableOutputPropertyList::iterator propertyIter;
    Interface::OutputProperty* outputProperty = 0;

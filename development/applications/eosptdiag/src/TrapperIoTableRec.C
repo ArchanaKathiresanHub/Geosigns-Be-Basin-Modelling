@@ -8,15 +8,6 @@
 #include <sstream>
 
 const char * TrapperIoTableRec::PhaseNames[4] = { "FreeGas", "Condensate", "SolutionGas", "StockTankOil" };
-const char * TrapperIoTableRec::SpeciesNames[CBMGenerics::ComponentManager::NumberOfSpecies] =  // the same names as they used in tracktraps app
-{
-   "asphaltenes", "resins",
-   "C15Aro", "C15Sat",
-   "C6_14Aro", "C6_14Sat",
-   "C5", "C4", "C3", "C2", "C1",
-   "COx", "N2", "H2S",
-   "LSC", "C15AT", "C6_14BT", "C6_14DBT", "C6_14BP", "C15AroS", "C15SatS", "C6_14SatS", "C6_14AroS"
-};
 
 TrapperIoTableRec::TrapperIoTableRec()
 {
@@ -31,10 +22,10 @@ TrapperIoTableRec::TrapperIoTableRec()
       m_iTotMass[p] = -1;
       m_TotMass[p] = 0.0;
 
-      m_iCompMass[p].resize( CBMGenerics::ComponentManager::NumberOfSpecies );
+      m_iCompMass[p].resize( ComponentId::NUMBER_OF_SPECIES );
       std::fill( m_iCompMass[p].begin(), m_iCompMass[p].end(), -1 );
 
-      m_CompMass[p].resize( CBMGenerics::ComponentManager::NumberOfSpecies );
+      m_CompMass[p].resize( ComponentId::NUMBER_OF_SPECIES );
       std::fill( m_CompMass[p].begin(), m_CompMass[p].end(), 0.0 );
    }
 } 
@@ -63,10 +54,10 @@ TrapperIoTableRec::TrapperIoTableRec( database::Table * trapperIoTbl )
       m_iTotMass[p] = trapperIoTblDef.getIndex( fracPref + "Mass" );
       assert( m_iTotMass[p] > -1 );
 
-      m_iCompMass[p].resize( CBMGenerics::ComponentManager::NumberOfSpecies );
-      for ( int i = 0; i < CBMGenerics::ComponentManager::NumberOfSpecies; ++i )
+      m_iCompMass[p].resize( ComponentId::NUMBER_OF_SPECIES );
+      for ( int i = 0; i < ComponentId::NUMBER_OF_SPECIES; ++i )
       {
-         m_iCompMass[p][i] = trapperIoTblDef.getIndex( fracPref + "Mass" +  SpeciesNames[i] );
+         m_iCompMass[p][i] = trapperIoTblDef.getIndex( fracPref + "Mass" + CBMGenerics::ComponentManager::getInstance().getSpeciesInputName( i ) );
          assert( m_iCompMass[p][i] > -1 );
       }
    }
@@ -86,8 +77,8 @@ void TrapperIoTableRec::loadRec( const database::Table::iterator & tit )
       {
          (*tit)->getValue<double>( m_iTotMass[p] );
    
-         m_CompMass[p].resize( CBMGenerics::ComponentManager::NumberOfSpecies );
-         for ( int i = 0; i < CBMGenerics::ComponentManager::NumberOfSpecies; ++i )
+         m_CompMass[p].resize( ComponentId::NUMBER_OF_SPECIES );
+         for ( int i = 0; i < ComponentId::NUMBER_OF_SPECIES; ++i )
          {
             m_CompMass[p][i] = (*tit)->getValue<double>( m_iCompMass[p][i] );
          }
@@ -112,9 +103,9 @@ std::string TrapperIoTableRec::toString() const
    oss << "     StockTankOil: " << m_TotMass[3] << std::endl;
 
    oss << "  Masses by components: " << std::endl << "      " << std::endl;
-   for ( int i = CBMGenerics::ComponentManager::NumberOfSpecies-1; i >=0; --i )
+   for ( int i = ComponentId::NUMBER_OF_SPECIES-1; i >=0; --i )
    {
-      oss << "      " << CBMGenerics::ComponentManager::getInstance().GetSpeciesName( i ) << ": " << compMass(i) << std::endl;
+      oss << "      " << CBMGenerics::ComponentManager::getInstance().getSpeciesName( i ) << ": " << compMass(i) << std::endl;
    }
    oss << std::endl;
    return oss.str();

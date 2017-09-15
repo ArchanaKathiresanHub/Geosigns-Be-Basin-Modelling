@@ -118,8 +118,346 @@ macro(today RESULT)
    endif (UNIX)
 endmacro(today)
 
-### Add C# Unit tests
+macro(generate_version_by_git_last_checkin BASE_FILE_FOLDER RESULT)
+   if (GIT_FOUND AND EXISTS ${PROJECT_SOURCE_DIR}/../.git )
+      # Exctract Spec file version information
+      # the commit's SHA1, and whether the building workspace was dirty or not
+      # the date of the commit
+      execute_process(COMMAND
+         "${GIT_EXECUTABLE}" log -1 --format=%ad --date=format:%Y.1%m.1%d ${BASE_FILE_FOLDER}
+         WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+         OUTPUT_VARIABLE ${RESULT}
+         ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
+   else ()
+      set(${RESULT} "${BM_VERSION_NUMBER_MAJOR}.0${BM_VERSION_NUMBER_MAJOR}.000")
+   endif ()
+endmacro(generate_version_by_git_last_checkin)
 
+### Add Nuget package
+macro(generate_nuget_pkg)
+   set(PKG_NAME)
+   set(PKG_VERSION)
+   set(PKG_OWNER)
+   set(PKG_DESCRIPTION)
+   set(PKG_RELEASE_NOTES)
+   set(PKG_TAGS)
+   set(PKG_COPYRIGHT)
+   set(AdditionalHeaders)
+   set(AdditionalLibs)
+   set(PKG_TEMPLATE_NUSPEC "NugetPkgTemplate.nuspec.cmake")
+
+   # parse parameters
+	set(parameterName)
+	set(parameterType)
+	foreach(param ${ARGN})
+   #      MESSAGE(STATUS "C# API parameter: ${param}")
+      if (param STREQUAL PKG_NAME)
+         set(parameterName PKG_NAME)
+		   set(parameterType Atom)
+      elseif(param STREQUAL PKG_NAMESPACE)
+         set(parameterName PKG_NAMESPACE)
+         set(parameterType Atom)
+      elseif(param STREQUAL PKG_VERSION)
+	      set(parameterName  PKG_VERSION)
+		   set(parameterType Atom)
+      elseif(param STREQUAL PKG_OWNER)
+	      set(parameterName  PKG_OWNER)
+		   set(parameterType Atom)
+      elseif(param STREQUAL PKG_DESCRIPTION)
+	      set(parameterName  PKG_DESCRIPTION)
+		   set(parameterType Atom)         
+      elseif(param STREQUAL PKG_RELEASE_NOTES)
+         set(parameterName PKG_RELEASE_NOTES)
+		   set(parameterType Atom)
+     
+	      set(parameterName  PKG_TAGS)
+		   set(parameterType Atom)
+      elseif(param STREQUAL PKG_COPYRIGHT)
+         set(parameterName  PLG_COPYRIGHT)
+		   set(parameterType Atom)
+      elseif(param STREQUAL PKG_LIBRARIES) # native libraries which must be bundled with nuget package
+	      set(parameterName  AdditionalLibs)
+		   set(parameterType Sequence)
+      elseif(param STREQUAL PKG_HEADERS)  # native library includes which must be bundled with nuget package
+	      set(parameterName  AdditionalHeaders)
+		   set(parameterType Sequence)
+      elseif(param STREQUAL PKG_TEMPLATE_NUSPEC)
+	      set(parameterName  PKG_TEMPLATE_NUSPEC)
+         set(parameterType Atom)
+		elseif(parameterType STREQUAL Atom)
+		   set(${parameterName} ${param})
+		elseif(parameterType STREQUAL Sequence)
+		   list(APPEND ${parameterName} ${param})
+      endif()
+	endforeach(param)
+ 
+   # Extract project name to use it in nuget package creation
+   get_filename_component(PROJ_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME)
+   
+   if (BUILD_SHARED_LIBS)
+      set(LIB_SFX so)
+   else (BUILD_SHARED_LIBS)
+      set(LIB_SFX a)
+   endif (BUILD_SHARED_LIBS)
+
+   if (UNIX)
+      execute_process(COMMAND "/bin/sh" "${CMAKE_SOURCE_DIR}/cmake/getos2" "--arch" "--ver" OUTPUT_VARIABLE BLD_ARCH)
+   else (UNIX) # Windows
+      if (MSVC14)
+         set(BLD_ARCH x64_vc14)
+      else ()
+         message(FATAL_ERROR "Generate nuget package: Unsupported version of VisualStudio")
+      endif ()
+   endif (UNIX)
+
+   # Create list of additional libraries for nuget package
+   if (AdditionalLibs)
+      foreach(lib ${AdditionalLibs})
+         if (NOT TARGET_NAME ) # assume that first lib in the list is target for this project
+            set(TARGET_NAME ${lib})
+         endif ()
+         get_filename_component(libPath ${lib} DIRECTORY)
+         get_filename_component(libFile ${lib} NAME)
+         get_filename_component(fullLibPath "${CMAKE_CURRENT_BINARY_DIR}/${libPath}" ABSOLUTE)
+         
+         file(TO_NATIVE_PATH ${fullLibPath}/lib${libFile}.${LIB_SFX} fullFilePathNative)
+         set(PKG_LIBS "${PKG_LIBS}    <file src=\"${fullFilePathNative}\" target=\"lib/\"/>\n")
+      endforeach()
+   else ()
+      set(PKG_LIBS)
+   endif ()
+
+   # Create list of additional headers for nuget package
+   if (AdditionalHeaders)              
+      foreach(doth ${AdditionalHeaders})
+         get_filename_component(fullFilePath "${CMAKE_CURRENT_SOURCE_DIR}/src/${doth}" ABSOLUTE)
+         file(TO_NATIVE_PATH ${fullFilePath} fullFilePathNative)
+
+         set(PKG_HEADERS "${PKG_HEADERS}    <file src=\"${fullFilePathNative}\" target=\"include/\"/>\n")
+      endforeach()
+   else ()
+      set(PKG_HEADERS)
+   endif ()
+   
+   file(TO_NATIVE_PATH ${CMAKE_BINARY_DIR} TARGET_FILE_PATH)
+   set(NUGET_SPEC_FILE_NAME  ${PKG_NAMESPACE}.${BLD_ARCH}.${PKG_NAME}.nuspec)
+
+   configure_file(${PROJECT_SOURCE_DIR}/cmake/${PKG_TEMPLATE_NUSPEC} ${CMAKE_BINARY_DIR}/${NUGET_SPEC_FILE_NAME})
+
+   # Copy package icon
+   configure_file(${CMAKE_CURRENT_SOURCE_DIR}/doc/${PKG_NAME}.png ${CMAKE_BINARY_DIR} COPYONLY)
+
+   # Call nuget packaging at the end of this project build
+   add_custom_command(TARGET ${TARGET_NAME}
+                      POST_BUILD
+                      COMMAND ${NUGET_EXECUTABLE} "pack" "${NUGET_SPEC_FILE_NAME}"
+                      WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
+                     )
+endmacro(generate_nuget_pkg)
+
+### Add C# API
+# Each C++ library for which C# API will be generated
+# must has ${CSPROJ_NAME}.i file in src folder, ${CSPROJ_NAME}.png file with icon in doc folder
+macro(generate_csharp_api)
+   set(CSPROJ_NAME)
+   set(CSPROJ_NAMESPACE)
+   set(CSPROJ_ASSEMBLY_VERSION)
+   set(CSPROJ_ASSEMBLY_OWNER)
+   set(CSPROJ_ASSEMBLY_DESCRIPTION)
+   set(CSPROJ_ASSEMBLY_RELEASE_NOTES)
+   set(CSPROJ_ASSEMBLY_TAGS)
+   set(CSPROJ_ASSEMBLY_COPYRIGHT)
+   set(ProjectLinkLibraries)
+   set(UnitTestsFileList)
+   set(ExtraDependencies)
+   set(AdditionalHeaders)
+   set(AdditionalLibs)
+   
+   # parse parameters
+	set(parameterName)
+	set(parameterType)
+	foreach(param ${ARGN})
+#      MESSAGE(STATUS "C# API parameter: ${param}")
+      if (param STREQUAL CSPROJ_NAME)
+	      set(parameterName CSPROJ_NAME)
+		   set(parameterType Atom)
+      elseif(param STREQUAL CSPROJ_NAMESPACE)
+	      set(parameterName CSPROJ_NAMESPACE)
+		   set(parameterType Atom)
+      elseif(param STREQUAL CSPROJ_ASSEMBLY_VERSION)
+	      set(parameterName CSPROJ_ASSEMBLY_VERSION)
+		   set(parameterType Atom)
+      elseif(param STREQUAL CSPROJ_ASSEMBLY_OWNER)
+	      set(parameterName CSPROJ_ASSEMBLY_OWNER)
+		   set(parameterType Atom)
+      elseif(param STREQUAL CSPROJ_ASSEMBLY_DESCRIPTION)
+	      set(parameterName CSPROJ_ASSEMBLY_DESCRIPTION)
+		   set(parameterType Atom)         
+      elseif(param STREQUAL CSPROJ_ASSEMBLY_RELEASE_NOTES)
+	      set(parameterName CSPROJ_ASSEMBLY_RELEASE_NOTES)
+		   set(parameterType Atom)
+      elseif(param STREQUAL CSPROJ_ASSEMBLY_TAGS)
+	      set(parameterName CSPROJ_ASSEMBLY_TAGS)
+		   set(parameterType Atom)
+      elseif(param STREQUAL CSPROJ_ASSEMBLY_COPYRIGHT)
+	      set(parameterName CSPROJ_ASSEMBLY_COPYRIGHT)
+		   set(parameterType Atom)
+      elseif(param STREQUAL CSPROJ_LIBRARIES)  # list of libraries with which swig generated C++ dll must be linked
+	      set(parameterName ProjectLinkLibraries)
+		   set(parameterType Sequence)
+      elseif(param STREQUAL CSPROJ_ADDITIONAL_LIBRARIES) # native libraries which must be bundled with nuget package
+	      set(parameterName AdditionalLibs)
+		   set(parameterType Sequence)
+      elseif(param STREQUAL CSPROJ_ADDITIONAL_HEADERS)  # native library includes which must be bundled with nuget package
+	      set(parameterName AdditionalHeaders)
+		   set(parameterType Sequence)
+      elseif(param STREQUAL CSHARP_UNIT_TESTS_SRC) # list of files with C# unit tests
+         set(parameterName UnitTestsFileList)
+		   set(parameterType Sequence)
+      elseif(param STREQUAL CSPROJ_EXTRA_DEPS) # 
+         set(parameterName ExtraDependencies)
+		   set(parameterType Sequence)      
+		elseif(parameterType STREQUAL Atom)
+		   set(${parameterName} ${param})
+		elseif(parameterType STREQUAL Sequence)
+		   list(APPEND ${parameterName} ${param})
+      endif()
+	endforeach(param)
+   
+	if (MSVC)
+      
+      configure_file(${PROJECT_SOURCE_DIR}/cmake/version.rc.cmake version.rc)
+      configure_file(${PROJECT_SOURCE_DIR}/cmake/AssemblyInfo.cs.cmake csharp/Properties/AssemblyInfo.cs)
+      
+      # Extract project name to use it in nuget package creation
+      get_filename_component(PROJ_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME)
+
+      # Create list of additional libraries for nuget package
+      if (AdditionalLibs)
+         foreach(lib ${AdditionalLibs})
+            get_filename_component(libPath ${lib} DIRECTORY)
+            get_filename_component(libFile ${lib} NAME)
+            get_filename_component(fullLibPath "${CMAKE_CURRENT_BINARY_DIR}/${libPath}" ABSOLUTE)
+            
+            file(TO_NATIVE_PATH ${fullLibPath}/Release/${libFile} fullFilePathNative)
+            set(ADDITIONAL_LIBS "${ADDITIONAL_LIBS}    <file src=\"${fullFilePathNative}\" target=\"lib\\native\\x64\\Release\"/>\n")
+            
+            file(TO_NATIVE_PATH ${fullLibPath}/Debug/${libFile} fullFilePathNative)
+            set(ADDITIONAL_LIBS "${ADDITIONAL_LIBS}    <file src=\"${fullFilePathNative}\" target=\"lib\\native\\x64\\Debug\"/>\n")
+            
+            string(REPLACE ".lib" ".pdb" libFilePDB ${libFile})
+            file(TO_NATIVE_PATH ${fullLibPath}/Debug/${libFilePDB} fullFilePathNative)
+            set(ADDITIONAL_LIBS "${ADDITIONAL_LIBS}    <file src=\"${fullFilePathNative}\" target=\"lib\\native\\x64\\Debug\"/>\n")
+         endforeach()
+      else ()
+         set(ADDITIONAL_LIBS)
+      endif ()
+
+      # Create list of additional headers for nuget package
+      if (AdditionalHeaders)              
+         foreach(doth ${AdditionalHeaders})
+            get_filename_component(fullFilePath "${CMAKE_CURRENT_SOURCE_DIR}/src/${doth}" ABSOLUTE)
+            file(TO_NATIVE_PATH ${fullFilePath} fullFilePathNative)
+
+            set(ADDITIONAL_HEADERS "${ADDITIONAL_HEADERS}    <file src=\"${fullFilePathNative}\" target=\"lib\\native\\include\"/>\n")
+         endforeach()
+      else ()
+         set(ADDITIONAL_HEADERS)
+      endif ()
+      file(TO_NATIVE_PATH ${CMAKE_BINARY_DIR} TARGET_FILE_PATH)
+      configure_file(${PROJECT_SOURCE_DIR}/cmake/CSharpSwigAPITemplate.nuspec.cmake  ${CMAKE_BINARY_DIR}/${CSPROJ_NAME}.nuspec)
+
+      # Copy assembly icon
+      configure_file(${CMAKE_CURRENT_SOURCE_DIR}/doc/${CSPROJ_NAME}.png ${CMAKE_BINARY_DIR} COPYONLY)
+      configure_file(${PROJECT_SOURCE_DIR}/cmake/CSharpSwigAPITemplate.targets.cmake ${CMAKE_BINARY_DIR}/${CSPROJ_NAMESPACE}.${CSPROJ_NAME}.targets)
+   
+      set(CMAKE_SWIG_OUTDIR ${CMAKE_CURRENT_BINARY_DIR}/csharp)
+
+      set(SWIG_INP_FILE ${CMAKE_CURRENT_SOURCE_DIR}/src/${CSPROJ_NAME}.i)
+      
+      if (NOT EXISTS "${SWIG_INP_FILE}")
+         MESSAGE(STATUS "File ${CMAKE_CURRENT_SOURCE_DIR}/src/${CSPROJ_NAME}.i does not exist. Configure swig to use generated .i file")
+         set(SWIG_INP_FILE ${CMAKE_CURRENT_BINARY_DIR}/${CSPROJ_NAME}.i)
+         set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/${CSPROJ_NAME}.i PROPERTIES GENERATED TRUE)
+      endif ()
+
+      set_source_files_properties( ${SWIG_INP_FILE}
+            PROPERTIES SWIG_FLAGS "-namespace;${CSPROJ_NAMESPACE};-I${CMAKE_CURRENT_BINARY_DIR}"
+            CPLUSPLUS ON
+      )
+#            PROPERTIES SWIG_FLAGS "-namespace;${CSPROJ_NAMESPACE}.${CSPROJ_NAME};-I${CMAKE_CURRENT_BINARY_DIR}"
+   
+      if( ExtraDependencies )
+         MESSAGE(STATUS "Set extra dependencies ${ExtraDependencies} for ${CSPROJ_NAME}")
+         set(SWIG_MODULE_${CSPROJ_NAME}_EXTRA_DEPS ${ExtraDependencies})
+      endif ()      
+
+      swig_add_library(${CSPROJ_NAME} TYPE MODULE LANGUAGE csharp SOURCES ${SWIG_INP_FILE} ${CMAKE_CURRENT_BINARY_DIR}/version.rc)
+      swig_link_libraries(${CSPROJ_NAME} ${ProjectLinkLibraries})
+
+      # Before C# generation, remove all existing files. The directory should be empty before generation	
+      add_custom_command( TARGET ${CSPROJ_NAME}
+         PRE_BUILD
+         COMMAND ${CMAKE_COMMAND} ARGS "-E" "remove" "*.cs"
+         WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/csharp"
+      )
+
+      # Visual studio should reload the project after C# generation
+      add_custom_command(TARGET ${CSPROJ_NAME}
+         PRE_LINK 
+         COMMAND ${CMAKE_COMMAND} ARGS "-E" "touch_nocreate" "${CSPROJ_NAMESPACE}.${CSPROJ_NAME}.csproj"
+         WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/csharp"
+      )
+
+      # Generate C# project to compile generated C# files. 
+      new_guid(Guid)
+      configure_file(${PROJECT_SOURCE_DIR}/cmake/CSharpSwigAPITemplate.csproj.cmake ${CMAKE_CURRENT_BINARY_DIR}/csharp/${CSPROJ_NAMESPACE}.${CSPROJ_NAME}.csproj)
+
+      include_external_msproject(${CSPROJ_NAMESPACE}.${CSPROJ_NAME} ${CMAKE_CURRENT_BINARY_DIR}/csharp/${CSPROJ_NAMESPACE}.${CSPROJ_NAME}.csproj
+         TYPE "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}" # This GUID is a Windows C# project (see also http://msdn.microsoft.com/en-us/library/hb23x61k(v=vs.80).aspx )
+         PLATFORM "${BM_WINDOWS_PLATFORM}"
+         GUID "${Guid}"
+         ${CSPROJ_NAME}
+      )
+   
+      ###### Installation
+      install(TARGETS ${CSPROJ_NAME}
+         RUNTIME DESTINATION bin
+         LIBRARY DESTINATION bin
+      )
+    
+      install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/csharp/Debug/${CSPROJ_NAMESPACE}.${CSPROJ_NAME}.dll
+         DESTINATION	bin
+         CONFIGURATIONS Debug
+      )
+
+      install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/csharp/Release/${CSPROJ_NAMESPACE}.${CSPROJ_NAME}.dll
+         DESTINATION	bin
+         CONFIGURATIONS Release
+      )
+      
+      configure_file(${PROJECT_SOURCE_DIR}/cmake/AssemblyInfo.cs.test.cmake csharp-test/Properties/AssemblyInfo.cs)
+
+      add_csharp_unittest(NAME ${CSPROJ_NAMESPACE}.${CSPROJ_NAME}.Test
+         PLATFORM ${BM_WINDOWS_PLATFORM}
+         DIRECTORY csharp-test
+         TEST_SOURCES ${UnitTestsFileList}
+         DEPENDS ${CSPROJ_NAMESPACE}.${CSPROJ_NAME}
+         TESTLIST "Test"
+         TFS_SERVER_URL ${BM_TFS_SERVER_URL}
+         TFS_BUILD_NUMBER ${BM_TFS_BUILD_NUMBER}
+         TFS_PROJECT_NAME ${BM_TFS_PROJECT_NAME}
+         DEPLOYMENT_ITEMS "../\$(Configuration)/${CSPROJ_NAME}.dll" 
+         PROJECT_REFERENCE ${CSPROJ_NAMESPACE}.${CSPROJ_NAME}
+         "${Guid}"
+         "${CMAKE_CURRENT_BINARY_DIR}/csharp/${CSPROJ_NAMESPACE}.${CSPROJ_NAME}.csproj"
+      )   
+
+	endif(MSVC)
+   
+endmacro( generate_csharp_api )
+
+### Add C# Unit tests
 macro(add_csharp_unittest )
     
 	set(TestProjectName)
@@ -141,7 +479,7 @@ macro(add_csharp_unittest )
 	set(parameterType)
 	foreach(param ${ARGN})
 	    if (param STREQUAL NAME)
-	       set(parameterName TestProjectName)
+	      set(parameterName TestProjectName)
 		   set(parameterType Atom)
 	    elseif(param STREQUAL PLATFORM)
 		   set(parameterName Platform)
@@ -271,8 +609,6 @@ macro(add_csharp_unittest )
 				  "/test:${TestList}"
 			)
 		endif()
-
-
 	endif(MSVC)
 endmacro(add_csharp_unittest)
 

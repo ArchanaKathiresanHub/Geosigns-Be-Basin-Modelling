@@ -9,13 +9,11 @@
 // 
 #include "OTGCC1AdsorptionSimulator.h"
 
+// std library
 #include <iostream>
 #include <iomanip>
-using namespace std;
 
 #include "Interface/SGDensitySample.h"
-
-#include "NumericFunctions.h"
 
 #include "ConstantsGenex.h"
 #include "ChemicalModel.h"
@@ -30,20 +28,26 @@ using namespace std;
 #include "PVTCalculator.h"
 
 // utilitites library
+#include "NumericFunctions.h"
 #include "ConstantsMathematics.h"
-using Utilities::Maths::CelciusToKelvin;
 
+// CBMGenerics library
+#include "ComponentManager.h"
+typedef CBMGenerics::ComponentManager::SpeciesNamesId ComponentId;
+
+using Utilities::Maths::CelciusToKelvin;
+using namespace std;
 using namespace CBMGenerics;
 
 const double Genex6::OTGCC1AdsorptionSimulator::AdsorptionPorosityThreshold = 0.1;
 
 const std::string Genex6::OTGCC1AdsorptionSimulator::s_nullString = "";
-const std::string Genex6::OTGCC1AdsorptionSimulator::s_c1Name = ComponentManager::getInstance ().GetSpeciesName ( ComponentManager::C1 );
-const std::string Genex6::OTGCC1AdsorptionSimulator::s_c1AdsorpedName = ComponentManager::getInstance ().GetSpeciesName ( ComponentManager::C1 ) + "Adsorped";
-const std::string Genex6::OTGCC1AdsorptionSimulator::s_c1ExpelledName = ComponentManager::getInstance ().GetSpeciesName ( ComponentManager::C1 ) + "AdsorpedExpelled";
-const std::string Genex6::OTGCC1AdsorptionSimulator::s_c1FreeName = ComponentManager::getInstance ().GetSpeciesName ( ComponentManager::C1 ) + "AdsorpedFree";
+const std::string Genex6::OTGCC1AdsorptionSimulator::s_c1Name         = ComponentManager::getInstance ().getSpeciesName ( ComponentManager::C1 );
+const std::string Genex6::OTGCC1AdsorptionSimulator::s_c1AdsorpedName = ComponentManager::getInstance ().getSpeciesName ( ComponentManager::C1 ) + "Adsorped";
+const std::string Genex6::OTGCC1AdsorptionSimulator::s_c1ExpelledName = ComponentManager::getInstance ().getSpeciesName ( ComponentManager::C1 ) + "AdsorpedExpelled";
+const std::string Genex6::OTGCC1AdsorptionSimulator::s_c1FreeName     = ComponentManager::getInstance ().getSpeciesName ( ComponentManager::C1 ) + "AdsorpedFree";
 
-const bool Genex6::OTGCC1AdsorptionSimulator::s_speciesIsSimulated  [ ComponentManager::NumberOfOutputSpecies ] =
+const bool Genex6::OTGCC1AdsorptionSimulator::s_speciesIsSimulated  [ ComponentManager::NUMBER_OF_SPECIES ] =
    { false, // asphaltene
      false, // resin
      false, // C15PlusAro
@@ -59,14 +63,14 @@ const bool Genex6::OTGCC1AdsorptionSimulator::s_speciesIsSimulated  [ ComponentM
      false, // N2
      false, // H2S
      false, // LSC
-     false, // C15_AT
-     false, // C6_14BT
-     false, // C6_14DBT
-     false, // C6_14BP
-     false, // C15_AROS
-     false, // C15_SATS
-     false, // C6_14SATS
-     false  // C6_14AROS 
+     false, // C15PlusAT
+     false, // C6Minus14BT
+     false, // C6Minus14DBT
+     false, // C6Minus14BP
+     false, // C15PlusAroS
+     false, // C15PlusSatS
+     false, // C6Minus14SatS
+     false  // C6Minus14AroS 
   };
 
 Genex6::OTGCC1AdsorptionSimulator::OTGCC1AdsorptionSimulator ( DataAccess::Interface::ProjectHandle* projectHandle, 
@@ -393,7 +397,7 @@ void Genex6::OTGCC1AdsorptionSimulator::compute ( const Genex6::Input&          
             cout << " after fractions: " << setw ( 13 ) << speciesConcentrationIter->first << "  " << setw ( 10 ) << speciesConcentrationIter->second << endl;
          }
 
-         int speciesId = CBMGenerics::ComponentManager::getInstance ().GetSpeciedIdByName ( speciesConcentrationIter->first );
+         int speciesId = CBMGenerics::ComponentManager::getInstance ().getSpeciesIdByName ( speciesConcentrationIter->first );
 
          if ( speciesId != -1 and CBMGenerics::ComponentManager::getInstance ().isGas ( CBMGenerics::ComponentManager::SpeciesNamesId ( speciesId ))) {
             hcGasAfterOtgc += speciesConcentrationIter->second;
@@ -419,13 +423,13 @@ void Genex6::OTGCC1AdsorptionSimulator::compute ( const Genex6::Input&          
 
       int speciesId = m_speciesManager.getSpeciesIdByName ( speciesName );
 
-      pvtFlash::ComponentId pvtId = m_speciesManager.mapIdToPvtComponents ( speciesId );
+      ComponentId pvtId = m_speciesManager.mapIdToPvtComponents ( speciesId );
 
       if ( output ) {
          cout << setw ( 20 ) << speciesName << "   " << setw ( 4 ) << speciesId;
       }
 
-      if ( pvtId != pvtFlash::UNKNOWN ) {
+      if ( pvtId != ComponentId::UNKNOWN ) {
          // Get all the mobile species for later pvt-flash computation.
          componentMasses ( pvtId ) = speciesMass;
          // speciesState = simulatorState->GetSpeciesStateById ( speciesId );
@@ -457,10 +461,10 @@ void Genex6::OTGCC1AdsorptionSimulator::compute ( const Genex6::Input&          
 
    }
 
-   simulatorState->addH2SFromOtgc ( componentMasses ( pvtFlash::H2S ));
+   simulatorState->addH2SFromOtgc ( componentMasses ( ComponentId::H2S ));
 
-   componentMasses ( pvtFlash::COX ) = 0.0;
-   componentMasses ( pvtFlash::H2S ) = 0.0;
+   componentMasses ( ComponentId::COX ) = 0.0;
+   componentMasses ( ComponentId::H2S ) = 0.0;
 
    if ( output ) {
       cout << " pre-pvt components " << endl << componentMasses.image () << endl;
@@ -468,8 +472,8 @@ void Genex6::OTGCC1AdsorptionSimulator::compute ( const Genex6::Input&          
 
    Genex6::PVTCalc::getInstance ().compute ( temperatureKelvin, porePressure, componentMasses, phaseComponentMasses, phaseDensity, phaseViscosity );
 
-   liquidVolume = phaseComponentMasses.sum ( pvtFlash::LIQUID_PHASE ) / ( thickness * phaseDensity ( pvtFlash::LIQUID_PHASE ));
-   vapourVolume = phaseComponentMasses.sum ( pvtFlash::VAPOUR_PHASE ) / ( thickness * phaseDensity ( pvtFlash::VAPOUR_PHASE ));
+   liquidVolume = phaseComponentMasses.sum ( PhaseId::LIQUID ) / ( thickness * phaseDensity ( PhaseId::LIQUID ));
+   vapourVolume = phaseComponentMasses.sum ( PhaseId::VAPOUR ) / ( thickness * phaseDensity ( PhaseId::VAPOUR ));
 
    bitumenVolume = immobiles.getRetainedVolume ( thickness );
    effectivePorosity = NumericFunctions::Maximum ( 0.0, porosity - bitumenVolume );
@@ -515,17 +519,17 @@ void Genex6::OTGCC1AdsorptionSimulator::compute ( const Genex6::Input&          
    Genex6::PVTComponents vapourComponents;
    Genex6::PVTComponents liquidComponents;
 
-   phaseComponentMasses.getPhaseComponents ( pvtFlash::LIQUID_PHASE, liquidComponents );
-   phaseComponentMasses.getPhaseComponents ( pvtFlash::VAPOUR_PHASE, vapourComponents );
+   phaseComponentMasses.getPhaseComponents ( PhaseId::LIQUID, liquidComponents );
+   phaseComponentMasses.getPhaseComponents ( PhaseId::VAPOUR, vapourComponents );
 
 
    if ( output ) {
-      cout << " phase component sums: " << phaseComponentMasses.sum ( pvtFlash::LIQUID_PHASE ) << "  " << phaseComponentMasses.sum ( pvtFlash::VAPOUR_PHASE ) << endl;
+      cout << " phase component sums: " << phaseComponentMasses.sum ( PhaseId::LIQUID ) << "  " << phaseComponentMasses.sum ( PhaseId::VAPOUR ) << endl;
    }
 
    if ( output ) {
       cout << endl << " liquid scaling factors: " << retainedLiquidVolume << "  " << liquidVolume << "  " 
-           << phaseComponentMasses.sum ( pvtFlash::LIQUID_PHASE ) << endl;
+           << phaseComponentMasses.sum ( PhaseId::LIQUID ) << endl;
       cout << " all liquid compounds: " << endl << phaseComponentMasses.image () << endl;
       cout << " retained liquids:     " << liquidComponents.image () << endl;
    }
@@ -541,17 +545,17 @@ void Genex6::OTGCC1AdsorptionSimulator::compute ( const Genex6::Input&          
 
       const std::string& name = speciesState->getSpecies ()->GetName ();
 
-      int componentId = CBMGenerics::ComponentManager::getInstance ().GetSpeciedIdByName ( name );
+      int componentId = CBMGenerics::ComponentManager::getInstance ().getSpeciesIdByName ( name );
 
       if ( componentId != -1 and speciesState != 0 ) {
          expelled = 0.0;
 
          if ( std::fabs ( liquidVolume  ) > LiquidVolumeTolerance ) {
-            expelled = liquidComponents ( pvtFlash::ComponentId ( componentId )) * ( 1.0 - retainedLiquidVolume / liquidVolume );
+            expelled = liquidComponents ( ComponentId ( componentId )) * ( 1.0 - retainedLiquidVolume / liquidVolume );
          }
 
          if ( std::fabs ( vapourVolume ) > VapourVolumeTolerance ) {
-            expelled += vapourComponents ( pvtFlash::ComponentId ( componentId )) * ( 1.0 - retainedVapourVolume / vapourVolume );
+            expelled += vapourComponents ( ComponentId ( componentId )) * ( 1.0 - retainedVapourVolume / vapourVolume );
          }
 
          if ( output ) {
@@ -608,9 +612,9 @@ void Genex6::OTGCC1AdsorptionSimulator::compute ( const Genex6::Input&          
 
       double retained = 0.0;
 
-      pvtFlash::ComponentId pvtId = m_speciesManager.mapIdToPvtComponents ( speciesId );
+      ComponentId pvtId = m_speciesManager.mapIdToPvtComponents ( speciesId );
 
-      if ( pvtId != pvtFlash::UNKNOWN and speciesState != 0 ) {
+      if ( pvtId != ComponentId::UNKNOWN and speciesState != 0 ) {
          expelled = 0.0;
 
          if ( std::fabs ( liquidVolume  ) > LiquidVolumeTolerance ) {

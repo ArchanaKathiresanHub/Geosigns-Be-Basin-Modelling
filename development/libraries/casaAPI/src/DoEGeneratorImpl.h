@@ -43,7 +43,7 @@ namespace casa
 
       // Generate set of cases for DoE
       // return ErrorHandler::NoError on success, error code otherwise
-      virtual ErrorHandler::ReturnCode generateDoE( const VarSpace & varPrmsSet   // [in]  list of variable parameters
+      virtual ErrorHandler::ReturnCode generateDoE( const VarSpace & varPrmsSet   // [in]  list of influential parameters
                                                   , RunCaseSet     & rcSet        // [out] list of cases for DoE
                                                   , size_t           runsNum = 0  // [in]  number of runs for DoE (if it is supported)
                                                   , std::string      doeName = "" // [in]  DoE name which can be assigned for further reference

@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2016 Shell International Exploration & Production.
+// Copyright (C) 2016-2017 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -10,6 +10,8 @@
 
 #ifndef _MIGRATION_DISTRIBUTE_LEAKGAS_H_
 #define _MIGRATION_DISTRIBUTE_LEAKGAS_H_
+
+#include <boost/array.hpp>
 
 #include "Leak.h"
 
@@ -40,20 +42,20 @@ namespace migration
 #endif
 
          double computeOilToGasLevelRatio (const double& gasDensity, const double& oilDensity,
-            const double& sealFluidDensity) const;
+                                           const double& sealFluidDensity) const;
 
          double computeFinalGasVolume (const double& oilVolume, const Tuple2<Tuple2<double> >& gasLimits,
-            const Tuple2<Tuple2<double> >& hcLimits) const;
+                                       const Tuple2<Tuple2<double> >& hcLimits) const;
 
       public:
 
-         LeakGas (const double& gasDensity, const double& oilDensity, const double& sealFluidDensity,
-            const double& fracturePressure, const double& capPressure_H2O_Gas,
-            const double& capPressure_H2O_Oil,
-            const MonotonicIncreasingPiecewiseLinearInvertableFunction* levelToVolume);
+         LeakGas (const double gasDensity, const double oilDensity, const double sealFluidDensity,
+                  const double overPressureContrast, const double crestColumnThickness,
+                  const double fracturePressure, const double capPressure_H2O_Gas, const double capPressure_H2O_Oil,
+                  const MonotonicIncreasingPiecewiseLinearInvertableFunction* levelToVolume);
 
          void distribute (const double& gasVolume, const double& oilVolume, double& gasVolumeLeaked,
-            double& oilVolumeLeaked) const;
+                          double& oilVolumeLeaked) const;
 
          const double& gasDensity () const { return m_leakGas.fluidDensity (); }
          const double& oilDensity () const { return m_leakOil.fluidDensity (); }
@@ -69,7 +71,6 @@ namespace migration
          const double& maxGasVolume () const { return m_leakGas.maxVolume (); }
          const Tuple2<double>& maxGasContent () const { return m_leakGas.maxContent (); }
 
-         // FIXME
          const double& maxOilLevel () const { return m_leakOil.maxLevel (); }
          const double& maxOilVolume () const { return m_leakOil.maxVolume (); }
          const Tuple2<double>& maxOilContent () const { return m_leakOil.maxContent (); }

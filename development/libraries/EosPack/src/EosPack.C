@@ -7,13 +7,13 @@
 // Do not distribute without written permission from Shell.
 //
 
+// std library
 #include <iostream>
 #include <fstream>
 #include <iomanip>
 #include <sstream>
 #include <limits>
 #include <cstring>
-
 #include <assert.h>
 
 void testPolynomialParse();
@@ -56,7 +56,7 @@ pvtFlash::EosPack::EosPack() : m_isReadInOk( true ),
    try
    {
       CBMGenerics::ComponentManager& theComponentManager = CBMGenerics::ComponentManager::getInstance();
-      const int NUM_COMP = CBMGenerics::ComponentManager::NumberOfSpeciesToFlash;
+      const int NUM_COMP = ComponentId::NUMBER_OF_SPECIES_TO_FLASH;
 
       if( pvtFlash::pvtPropertiesConfigFile == "" )
       {
@@ -134,7 +134,7 @@ pvtFlash::EosPack::EosPack() : m_isReadInOk( true ),
       
       for ( int i = 0; i < NUM_COMP; ++i )
       {
-         int indexFramework = theComponentManager.GetSpeciedIdByName( compPropTable.getEntry( i, 0 ) );
+         int indexFramework = theComponentManager.getSpeciesIdByName( compPropTable.getEntry( i, 0 ) );
          if ( indexFramework < 0 )
          {
             throw std::string( "Bad Name: " ) +  compPropTable.getEntry( i, 0 );
@@ -156,10 +156,10 @@ pvtFlash::EosPack::EosPack() : m_isReadInOk( true ),
 #ifdef DEBUG_EXTENSIVE         
       for ( int i = 0; i < NUM_COMP; ++i )
       {   
-         int indexFramework = theComponentManager.GetSpeciedIdByName( compPropTable.getEntry( i, 0 ) );
+         int indexFramework = theComponentManager.getSpeciesIdByName( compPropTable.getEntry( i, 0 ) );
 
          // test output: are critical temperatures read correctly?
-         std::cout << "parsed Property[" << theComponentManager.GetSpeciesName( indexFramework ) << "] = " <<
+         std::cout << "parsed Property[" << theComponentManager.getSpeciesName( indexFramework ) << "] = " <<
                       m_propertyFunc[indexFramework][5](0.0) << " Index for re-ordering: " << indexFramework << std::endl;
       }
 #endif
@@ -197,59 +197,59 @@ pvtFlash::EosPack::EosPack() : m_isReadInOk( true ),
          polynomials::parse::ParsePiecewisePolynomial( tokens, start, m_corrLBC[i] );
       }
 
-      for ( int i = 0; i < LSC; ++i )
+      for ( int i = 0; i < ComponentId::LSC; ++i )
       {
          lumpedSpeciesIndex[i] = i;
       }
 
-      lumpedSpeciesIndex[LSC]      = lumpedSpeciesIndex[C15_SAT];
-      lumpedSpeciesIndex[C15_AT]   = lumpedSpeciesIndex[C15_SAT];
-      lumpedSpeciesIndex[C15_AROS] = lumpedSpeciesIndex[C15_SAT];
-      lumpedSpeciesIndex[C15_SATS] = lumpedSpeciesIndex[C15_SAT];
+      lumpedSpeciesIndex[ComponentId::LSC        ]    = lumpedSpeciesIndex[ComponentId::C15_PLUS_SAT];
+      lumpedSpeciesIndex[ComponentId::C15_PLUS_AT  ]  = lumpedSpeciesIndex[ComponentId::C15_PLUS_SAT];
+      lumpedSpeciesIndex[ComponentId::C15_PLUS_ARO_S] = lumpedSpeciesIndex[ComponentId::C15_PLUS_SAT];
+      lumpedSpeciesIndex[ComponentId::C15_PLUS_SAT_S] = lumpedSpeciesIndex[ComponentId::C15_PLUS_SAT];
 
-      lumpedSpeciesIndex[C6_14BT]   = lumpedSpeciesIndex[C6_14ARO];
-      lumpedSpeciesIndex[C6_14DBT]  = lumpedSpeciesIndex[C6_14ARO];
-      lumpedSpeciesIndex[C6_14BP]   = lumpedSpeciesIndex[C6_14ARO];
-      lumpedSpeciesIndex[C6_14SATS] = lumpedSpeciesIndex[C6_14ARO];
-      lumpedSpeciesIndex[C6_14AROS] = lumpedSpeciesIndex[C6_14ARO];
+      lumpedSpeciesIndex[ComponentId::C6_MINUS_14BT  ]  = lumpedSpeciesIndex[ComponentId::C6_MINUS_14ARO];
+      lumpedSpeciesIndex[ComponentId::C6_MINUS_14DBT ]  = lumpedSpeciesIndex[ComponentId::C6_MINUS_14ARO];
+      lumpedSpeciesIndex[ComponentId::C6_MINUS_14BP  ]  = lumpedSpeciesIndex[ComponentId::C6_MINUS_14ARO];
+      lumpedSpeciesIndex[ComponentId::C6_MINUS_14SAT_S] = lumpedSpeciesIndex[ComponentId::C6_MINUS_14ARO];
+      lumpedSpeciesIndex[ComponentId::C6_MINUS_14ARO_S] = lumpedSpeciesIndex[ComponentId::C6_MINUS_14ARO];
    
 #ifdef DEBUG_EXTENSIVE         
       //output for generating function values
       //cout.setf(std::ios_base::scientific, std::ios_base::floatfield);
       std::cout.precision( 15 );
-      std::cout << "VolShift C15+Sat  (1.242) = " << m_propertyFunc[C15_SAT ][3](1.242) << std::endl;
-      std::cout << "VolShift C6-14Sat (1.242) = " << m_propertyFunc[C6_14SAT][3](1.242) << std::endl;
-      std::cout << "VolShift C6-14Aro (1.242) = " << m_propertyFunc[C6_14ARO][3](1.242) << std::endl;
+      std::cout << "VolShift C15+Sat  (1.242) = " << m_propertyFunc[ComponentId::C15_PLUS_SAT  ][3](1.242) << std::endl;
+      std::cout << "VolShift C6-14Sat (1.242) = " << m_propertyFunc[ComponentId::C6_MINUS_14SAT][3](1.242) << std::endl;
+      std::cout << "VolShift C6-14Aro (1.242) = " << m_propertyFunc[ComponentId::C6_MINUS_14ARO][3](1.242) << std::endl;
 
       std::cout << std::endl << "CritPressure" << std::endl;
       
-      std::cout <<"Pc resins      (2.4) = " << m_propertyFunc[RESINS     ][4](2.4) << std::endl;
-      std::cout <<"Pc resins      (2.5) = " << m_propertyFunc[RESINS     ][4](2.5) << std::endl;
-      std::cout <<"Pc C15+Sat     (2.4) = " << m_propertyFunc[C15_SAT    ][4](2.4) << std::endl;
-      std::cout <<"Pc C15+Sat     (2.5) = " << m_propertyFunc[C15_SAT    ][4](2.5) << std::endl;
-      std::cout <<"Pc C6-14Sat    (2.4) = " << m_propertyFunc[C6_14SAT   ][4](2.4) << std::endl;
-      std::cout <<"Pc C6-14Sat    (2.5) = " << m_propertyFunc[C6_14SAT   ][4](2.5) << std::endl;
-      std::cout <<"Pc asphaltenes (2.4) = " << m_propertyFunc[ASPHALTENES][4](2.4) << std::endl;
-      std::cout <<"Pc asphaltenes (2.5) = " << m_propertyFunc[ASPHALTENES][4](2.5) << std::endl;
-      std::cout <<"Pc C15+Aro     (2.4) = " << m_propertyFunc[C15_ARO    ][4](2.4) << std::endl;
-      std::cout <<"Pc C15+Aro     (2.5) = " << m_propertyFunc[C15_ARO    ][4](2.5) << std::endl;
-      std::cout <<"Pc C6-14Aro    (2.4) = " << m_propertyFunc[C6_14ARO   ][4](2.4) << std::endl;
-      std::cout <<"Pc C6-14Aro    (2.5) = " << m_propertyFunc[C6_14ARO   ][4](2.5) << std::endl;
+      std::cout <<"Pc resins      (2.4) = " << m_propertyFunc[ComponentId::RESIN         ][4](2.4) << std::endl;
+      std::cout <<"Pc resins      (2.5) = " << m_propertyFunc[ComponentId::RESIN         ][4](2.5) << std::endl;
+      std::cout <<"Pc C15+Sat     (2.4) = " << m_propertyFunc[ComponentId::C15_PLUS_SAT  ][4](2.4) << std::endl;
+      std::cout <<"Pc C15+Sat     (2.5) = " << m_propertyFunc[ComponentId::C15_PLUS_SAT  ][4](2.5) << std::endl;
+      std::cout <<"Pc C6-14Sat    (2.4) = " << m_propertyFunc[ComponentId::C6_MINUS_14SAT][4](2.4) << std::endl;
+      std::cout <<"Pc C6-14Sat    (2.5) = " << m_propertyFunc[ComponentId::C6_MINUS_14SAT][4](2.5) << std::endl;
+      std::cout <<"Pc asphaltenes (2.4) = " << m_propertyFunc[ComponentId::ASPHALTENE    ][4](2.4) << std::endl;
+      std::cout <<"Pc asphaltenes (2.5) = " << m_propertyFunc[ComponentId::ASPHALTENE    ][4](2.5) << std::endl;
+      std::cout <<"Pc C15+Aro     (2.4) = " << m_propertyFunc[ComponentId::C15_PLUS_ARO  ][4](2.4) << std::endl;
+      std::cout <<"Pc C15+Aro     (2.5) = " << m_propertyFunc[ComponentId::C15_PLUS_ARO  ][4](2.5) << std::endl;
+      std::cout <<"Pc C6-14Aro    (2.4) = " << m_propertyFunc[ComponentId::C6_MINUS_14ARO][4](2.4) << std::endl;
+      std::cout <<"Pc C6-14Aro    (2.5) = " << m_propertyFunc[ComponentId::C6_MINUS_14ARO][4](2.5) << std::endl;
       
       std::cout << std::endl << "CritTemperature" << std::endl;
 
-      std::cout <<"Tc resins      (2.4) = " << m_propertyFunc[RESINS     ][5](2.4) << std::endl;
-      std::cout <<"Tc resins      (2.5) = " << m_propertyFunc[RESINS     ][5](2.5) << std::endl;
-      std::cout <<"Tc C15+Sat     (2.4) = " << m_propertyFunc[C15_SAT    ][5](2.4) << std::endl;
-      std::cout <<"Tc C15+Sat     (2.5) = " << m_propertyFunc[C15_SAT    ][5](2.5) << std::endl;
-      std::cout <<"Tc C6-14Sat    (2.4) = " << m_propertyFunc[C6_14SAT   ][5](2.4) << std::endl;
-      std::cout <<"Tc C6-14Sat    (2.5) = " << m_propertyFunc[C6_14SAT   ][5](2.5) << std::endl;
-      std::cout <<"Tc asphaltenes (2.4) = " << m_propertyFunc[ASPHALTENES][5](2.4) << std::endl;
-      std::cout <<"Tc asphaltenes (2.5) = " << m_propertyFunc[ASPHALTENES][5](2.5) << std::endl;
-      std::cout <<"Tc C15+Aro     (2.4) = " << m_propertyFunc[C15_ARO    ][5](2.4) << std::endl;
-      std::cout <<"Tc C15+Aro     (2.5) = " << m_propertyFunc[C15_ARO    ][5](2.5) << std::endl;
-      std::cout <<"Tc C6-14Aro    (2.4) = " << m_propertyFunc[C6_14ARO   ][5](2.4) << std::endl;
-      std::cout <<"Tc C6-14Aro    (2.5) = " << m_propertyFunc[C6_14ARO   ][5](2.5) << std::endl;
+      std::cout <<"Tc resins      (2.4) = " << m_propertyFunc[ComponentId::RESIN         ][5](2.4) << std::endl;
+      std::cout <<"Tc resins      (2.5) = " << m_propertyFunc[ComponentId::RESIN         ][5](2.5) << std::endl;
+      std::cout <<"Tc C15+Sat     (2.4) = " << m_propertyFunc[ComponentId::C15_PLUS_SAT  ][5](2.4) << std::endl;
+      std::cout <<"Tc C15+Sat     (2.5) = " << m_propertyFunc[ComponentId::C15_PLUS_SAT  ][5](2.5) << std::endl;
+      std::cout <<"Tc C6-14Sat    (2.4) = " << m_propertyFunc[ComponentId::C6_MINUS_14SAT][5](2.4) << std::endl;
+      std::cout <<"Tc C6-14Sat    (2.5) = " << m_propertyFunc[ComponentId::C6_MINUS_14SAT][5](2.5) << std::endl;
+      std::cout <<"Tc asphaltenes (2.4) = " << m_propertyFunc[ComponentId::ASPHALTENE    ][5](2.4) << std::endl;
+      std::cout <<"Tc asphaltenes (2.5) = " << m_propertyFunc[ComponentId::ASPHALTENE    ][5](2.5) << std::endl;
+      std::cout <<"Tc C15+Aro     (2.4) = " << m_propertyFunc[ComponentId::C15_PLUS_ARO  ][5](2.4) << std::endl;
+      std::cout <<"Tc C15+Aro     (2.5) = " << m_propertyFunc[ComponentId::C15_PLUS_ARO  ][5](2.5) << std::endl;
+      std::cout <<"Tc C6-14Aro    (2.4) = " << m_propertyFunc[ComponentId::C6_MINUS_14ARO][5](2.4) << std::endl;
+      std::cout <<"Tc C6-14Aro    (2.5) = " << m_propertyFunc[ComponentId::C6_MINUS_14ARO][5](2.5) << std::endl;
 #endif
    }   
    catch ( polynomials::error::SyntaxError& s )
@@ -320,20 +320,20 @@ int pvtFlash::EosPack::getLumpedIndex( int ind ) const
 
 void pvtFlash::EosPack::getLumpingFractions( const vector<double>& inWeights, double unlumpFractions[] )
 {
-   const int NUM_COMP  = CBMGenerics::ComponentManager::NumberOfSpeciesToFlash;
+   const int NUM_COMP  = ComponentId::NUMBER_OF_SPECIES_TO_FLASH;
    double outWeights [NUM_COMP];
 
    pvtFlash::EosPack::lumpComponents( (double *)(&inWeights[0]), outWeights, unlumpFractions );
 }
 
-void pvtFlash::EosPack::lumpComponents( const double in_compMasses[], // size is NumberOfOutputSpecies;
+void pvtFlash::EosPack::lumpComponents( const double in_compMasses[], // size is NUMBER_OF_SPECIES;
                                         double out_compMasses[],      // size is NumberOfSpeciesToFlash
-                                        double unlump_fraction[] )    // size is NumberOfOutputSpecies
+                                        double unlump_fraction[] )    // size is NUMBER_OF_SPECIES
 {
    CBMGenerics::ComponentManager& theComponentManager = CBMGenerics::ComponentManager::getInstance();
    
-   const int NUM_COMP     = CBMGenerics::ComponentManager::NumberOfSpeciesToFlash;
-   const int NUM_COMP_TOT = CBMGenerics::ComponentManager::NumberOfOutputSpecies;
+   const int NUM_COMP     = ComponentId::NUMBER_OF_SPECIES_TO_FLASH;
+   const int NUM_COMP_TOT = ComponentId::NUMBER_OF_SPECIES;
 
    for ( int i = 0; i < NUM_COMP; ++i )
    {
@@ -351,23 +351,23 @@ void pvtFlash::EosPack::lumpComponents( const double in_compMasses[], // size is
       {
          case 0:
             // Lump LSC, C15+AT, C15+AroS, C15+SatS to C15+Sat
-            compIndex[cmpNum++] = LSC;      // theComponentManager.GetSpeciedIdByName("LSC");
-            compIndex[cmpNum++] = C15_AT;   // theComponentManager.GetSpeciedIdByName("C15+AT");
-            compIndex[cmpNum++] = C15_AROS; // theComponentManager.GetSpeciedIdByName("C15+AroS");
-            compIndex[cmpNum++] = C15_SATS; // theComponentManager.GetSpeciedIdByName("C15+SatS");
+            compIndex[cmpNum++] = ComponentId::LSC;            // theComponentManager.getSpeciedIdByName("LSC");
+            compIndex[cmpNum++] = ComponentId::C15_PLUS_AT;    // theComponentManager.getSpeciedIdByName("C15+AT");
+            compIndex[cmpNum++] = ComponentId::C15_PLUS_ARO_S; // theComponentManager.getSpeciedIdByName("C15+AroS");
+            compIndex[cmpNum++] = ComponentId::C15_PLUS_SAT_S; // theComponentManager.getSpeciedIdByName("C15+SatS");
 
-            lump_component_ind = C15_SAT;   // theComponentManager.GetSpeciedIdByName("C15+Sat");
+            lump_component_ind = ComponentId::C15_PLUS_SAT;    // theComponentManager.getSpeciedIdByName("C15+Sat");
             break;
 
          case 1:
             // Lump C6-14BT, C6-14DBT, C6-14BP, C6-14SatS, C6-14AroS to C16-14Aro
-            compIndex[cmpNum++] = C6_14BT;   // theComponentManager.GetSpeciedIdByName("C6-14BT");
-            compIndex[cmpNum++] = C6_14DBT;  // theComponentManager.GetSpeciedIdByName("C6-14DBT");
-            compIndex[cmpNum++] = C6_14BP;   // theComponentManager.GetSpeciedIdByName("C6-14BP");
-            compIndex[cmpNum++] = C6_14SATS; // theComponentManager.GetSpeciedIdByName("C6-14SatS");
-            compIndex[cmpNum++] = C6_14AROS; // theComponentManager.GetSpeciedIdByName("C6-14AroS");
+            compIndex[cmpNum++] = ComponentId::C6_MINUS_14BT;    // theComponentManager.getSpeciedIdByName("C6-14BT");
+            compIndex[cmpNum++] = ComponentId::C6_MINUS_14DBT;   // theComponentManager.getSpeciedIdByName("C6-14DBT");
+            compIndex[cmpNum++] = ComponentId::C6_MINUS_14BP;    // theComponentManager.getSpeciedIdByName("C6-14BP");
+            compIndex[cmpNum++] = ComponentId::C6_MINUS_14SAT_S; // theComponentManager.getSpeciedIdByName("C6-14SatS");
+            compIndex[cmpNum++] = ComponentId::C6_MINUS_14ARO_S; // theComponentManager.getSpeciedIdByName("C6-14AroS");
 
-            lump_component_ind = C6_14ARO;   // theComponentManager.GetSpeciedIdByName("C6-14Aro");
+            lump_component_ind = ComponentId::C6_MINUS_14ARO;    // theComponentManager.getSpeciedIdByName("C6-14Aro");
             break;
          
          default: 
@@ -419,12 +419,12 @@ void pvtFlash::EosPack::lumpComponents( const double in_compMasses[], // size is
 }
 
 
-void pvtFlash::EosPack::unlumpComponents( double in_paseCompMasses[][CBMGenerics::ComponentManager::NumberOfSpeciesToFlash],
-                                          double out_phaseCompMasses[][CBMGenerics::ComponentManager::NumberOfOutputSpecies],
+void pvtFlash::EosPack::unlumpComponents( double in_paseCompMasses[][ComponentId::NUMBER_OF_SPECIES_TO_FLASH],
+                                          double out_phaseCompMasses[][ComponentId::NUMBER_OF_SPECIES],
                                           double unlump_fraction[] ) 
 {
    CBMGenerics::ComponentManager& theComponentManager = CBMGenerics::ComponentManager::getInstance();
-   const int NUM_COMP = CBMGenerics::ComponentManager::NumberOfSpeciesToFlash;
+   const int NUM_COMP = ComponentId::NUMBER_OF_SPECIES_TO_FLASH;
 
    const int iOil = 1;
    const int iGas = 0;
@@ -444,23 +444,23 @@ void pvtFlash::EosPack::unlumpComponents( double in_paseCompMasses[][CBMGenerics
       {
          case 0:
             // UnLump LSC, C15+AT, C15+AroS, C15+SatS from C15+Sat
-            compIndex[cmpNum++] = LSC;      // theComponentManager.GetSpeciedIdByName("LSC");
-            compIndex[cmpNum++] = C15_AT;   // theComponentManager.GetSpeciedIdByName("C15+AT");
-            compIndex[cmpNum++] = C15_AROS; // theComponentManager.GetSpeciedIdByName("C15+AroS");
-            compIndex[cmpNum++] = C15_SATS; // theComponentManager.GetSpeciedIdByName("C15+SatS");
+            compIndex[cmpNum++] = ComponentId::LSC;            // theComponentManager.getSpeciedIdByName("LSC");
+            compIndex[cmpNum++] = ComponentId::C15_PLUS_AT;    // theComponentManager.getSpeciedIdByName("C15+AT");
+            compIndex[cmpNum++] = ComponentId::C15_PLUS_ARO_S; // theComponentManager.getSpeciedIdByName("C15+AroS");
+            compIndex[cmpNum++] = ComponentId::C15_PLUS_SAT_S; // theComponentManager.getSpeciedIdByName("C15+SatS");
 
-            lump_component_ind = C15_SAT;   // theComponentManager.GetSpeciedIdByName("C15+Sat");
+            lump_component_ind = ComponentId::C15_PLUS_SAT;    // theComponentManager.getSpeciedIdByName("C15+Sat");
             break;
 
          case 1:
             // Unlump C6-14BT, C6-14DBT, C6-14BP, C6-14SatS, C6-14AroS from C16-14Aro
-            compIndex[cmpNum++] = C6_14BT;   // theComponentManager.GetSpeciedIdByName("C6-14BT");
-            compIndex[cmpNum++] = C6_14DBT;  // theComponentManager.GetSpeciedIdByName("C6-14DBT");
-            compIndex[cmpNum++] = C6_14BP;   // theComponentManager.GetSpeciedIdByName("C6-14BP");
-            compIndex[cmpNum++] = C6_14SATS; // theComponentManager.GetSpeciedIdByName("C6-14SatS");
-            compIndex[cmpNum++] = C6_14AROS; // theComponentManager.GetSpeciedIdByName("C6-14AroS");
+            compIndex[cmpNum++] = ComponentId::C6_MINUS_14BT;    // theComponentManager.getSpeciedIdByName("C6-14BT");
+            compIndex[cmpNum++] = ComponentId::C6_MINUS_14DBT;   // theComponentManager.getSpeciedIdByName("C6-14DBT");
+            compIndex[cmpNum++] = ComponentId::C6_MINUS_14BP;    // theComponentManager.getSpeciedIdByName("C6-14BP");
+            compIndex[cmpNum++] = ComponentId::C6_MINUS_14SAT_S; // theComponentManager.getSpeciedIdByName("C6-14SatS");
+            compIndex[cmpNum++] = ComponentId::C6_MINUS_14ARO_S; // theComponentManager.getSpeciedIdByName("C6-14AroS");
 
-            lump_component_ind = C6_14ARO;   // theComponentManager.GetSpeciedIdByName("C6-14Aro");
+            lump_component_ind = ComponentId::C6_MINUS_14ARO;    // theComponentManager.getSpeciedIdByName("C6-14Aro");
             break;
          
          default: 
@@ -481,7 +481,7 @@ void pvtFlash::EosPack::unlumpComponents( double in_paseCompMasses[][CBMGenerics
       for ( int i = 0; i < cmpNum; ++i ) std::cout << compIndex[i] << ", ";
       std::cout << std::endl;
       double out_totMassesGas = 0, out_totMassesOil = 0;
-      for ( int i = 0; i < CBMGenerics::ComponentManager::NumberOfOutputSpecies; ++i )
+      for ( int i = 0; i < ComponentId::NUMBER_OF_SPECIES; ++i )
       {
          out_totMassesGas += out_phaseCompMasses[iGas][i];
          out_totMassesOil += out_phaseCompMasses[iOil][i];
@@ -496,7 +496,7 @@ void pvtFlash::EosPack::unlumpComponents( double in_paseCompMasses[][CBMGenerics
 bool pvtFlash::EosPack::computeWithLumping( double  temperature, 
                                             double  pressure, 
                                             double  in_compMasses[],                     
-                                            double  out_phaseCompMasses[][CBMGenerics::ComponentManager::NumberOfOutputSpecies],
+                                            double  out_phaseCompMasses[][ComponentId::NUMBER_OF_SPECIES],
                                             double  phaseDensity [],
                                             double  phaseViscosity[],
                                             bool    isGormPrescribed,
@@ -504,11 +504,11 @@ bool pvtFlash::EosPack::computeWithLumping( double  temperature,
                                             double* pKValues
                                           )   
 {
-   const int NUM_COMP     = CBMGenerics::ComponentManager::NumberOfSpeciesToFlash;
-   const int NUM_COMP_TOT = CBMGenerics::ComponentManager::NumberOfOutputSpecies;
+   const int NUM_COMP     = ComponentId::NUMBER_OF_SPECIES_TO_FLASH;
+   const int NUM_COMP_TOT = ComponentId::NUMBER_OF_SPECIES;
    
    double compMasses[NUM_COMP];
-   double phaseCompMasses[CBMGenerics::ComponentManager::NumberOfPhases][NUM_COMP];
+   double phaseCompMasses[PhaseId::NUMBER_OF_PHASES][NUM_COMP];
    double unlump_fractions[NUM_COMP_TOT];
 
    pvtFlash::EosPack::lumpComponents( in_compMasses, compMasses, unlump_fractions );
@@ -524,7 +524,7 @@ bool pvtFlash::EosPack::computeWithLumping( double  temperature,
 bool pvtFlash::EosPack::compute( double  temperature, 
                                  double  pressure, 
                                  double  compMasses[],                     
-                                 double  phaseCompMasses[][CBMGenerics::ComponentManager::NumberOfSpeciesToFlash],
+                                 double  phaseCompMasses[][ComponentId::NUMBER_OF_SPECIES_TO_FLASH],
                                  double  phaseDensity[],
                                  double  phaseViscosity[],
                                  bool    isGormPrescribed,
@@ -545,7 +545,7 @@ bool pvtFlash::EosPack::compute( double  temperature,
 
       /* Declarations */
       CBMGenerics::ComponentManager& theComponentManager = CBMGenerics::ComponentManager::getInstance();
-      const int iNc = CBMGenerics::ComponentManager::NumberOfSpeciesToFlash; //CBMGenerics::ComponentManager::NumberOfOutputSpecies;
+      const int iNc = ComponentId::NUMBER_OF_SPECIES_TO_FLASH; //ComponentId::NUMBER_OF_SPECIES;
 
       double pLB[5];
 
@@ -582,12 +582,12 @@ bool pvtFlash::EosPack::compute( double  temperature,
                           compMasses [ CBMGenerics::ComponentManager::C5 ] +
                           compMasses [ CBMGenerics::ComponentManager::H2S ];
 
-         double oilMass = compMasses [ CBMGenerics::ComponentManager::resin        ] + 
-                          compMasses [ CBMGenerics::ComponentManager::C15PlusSat   ] +
-                          compMasses [ CBMGenerics::ComponentManager::C6Minus14Sat ] +
-                          compMasses [ CBMGenerics::ComponentManager::asphaltene   ] +
-                          compMasses [ CBMGenerics::ComponentManager::C15PlusAro   ] +
-                          compMasses [ CBMGenerics::ComponentManager::C6Minus14Aro ];
+         double oilMass = compMasses [ CBMGenerics::ComponentManager::RESIN          ] + 
+                          compMasses [ CBMGenerics::ComponentManager::C15_PLUS_SAT   ] +
+                          compMasses [ CBMGenerics::ComponentManager::C6_MINUS_14SAT ] +
+                          compMasses [ CBMGenerics::ComponentManager::ASPHALTENE     ] +
+                          compMasses [ CBMGenerics::ComponentManager::C15_PLUS_ARO   ] +
+                          compMasses [ CBMGenerics::ComponentManager::C6_MINUS_14ARO ];
 
          gorm = oilMass != 0.0 ? gasMass / oilMass : 1.0e+80;
       }
@@ -629,14 +629,14 @@ bool pvtFlash::EosPack::compute( double  temperature,
 
       for ( int i = 0; i < iNc; ++i )
       {   
-         eosout << "pMw[ "     << theComponentManager.GetSpeciesName(i) << "]    " << pMw[i] << std::endl;
-         eosout << "pAc[ "     << theComponentManager.GetSpeciesName(i) << "]    " << pAc[i] << std::endl;
-         eosout << "pVc[ "     << theComponentManager.GetSpeciesName(i) << "]    " << pVc[i] << std::endl;
-         eosout << "pShiftC[ " << theComponentManager.GetSpeciesName(i) << "]    " << pShiftC[i] / ( ( pPc[i] / 8314.472 ) / ( pOmegaB[i] * pTc[i] ) ) << std::endl;
-         eosout << "pPc[ "     << theComponentManager.GetSpeciesName(i) << "]    " << pPc[i] << std::endl;
-         eosout << "pTc[ "     << theComponentManager.GetSpeciesName(i) << "]    " << pTc[i] << std::endl;
-         eosout << "pOmegaA[ " << theComponentManager.GetSpeciesName(i) << "]    " << pOmegaA[i] << std::endl;
-         eosout << "pOmegaB[ " << theComponentManager.GetSpeciesName(i) << "]    " << pOmegaB[i] << std::endl;
+         eosout << "pMw[ "     << theComponentManager.getSpeciesName(i) << "]    " << pMw[i] << std::endl;
+         eosout << "pAc[ "     << theComponentManager.getSpeciesName(i) << "]    " << pAc[i] << std::endl;
+         eosout << "pVc[ "     << theComponentManager.getSpeciesName(i) << "]    " << pVc[i] << std::endl;
+         eosout << "pShiftC[ " << theComponentManager.getSpeciesName(i) << "]    " << pShiftC[i] / ( ( pPc[i] / 8314.472 ) / ( pOmegaB[i] * pTc[i] ) ) << std::endl;
+         eosout << "pPc[ "     << theComponentManager.getSpeciesName(i) << "]    " << pPc[i] << std::endl;
+         eosout << "pTc[ "     << theComponentManager.getSpeciesName(i) << "]    " << pTc[i] << std::endl;
+         eosout << "pOmegaA[ " << theComponentManager.getSpeciesName(i) << "]    " << pOmegaA[i] << std::endl;
+         eosout << "pOmegaB[ " << theComponentManager.getSpeciesName(i) << "]    " << pOmegaB[i] << std::endl;
          eosout << std::endl <<endl;   
       }
 
@@ -727,8 +727,8 @@ bool pvtFlash::EosPack::compute( double  temperature,
 
       for ( int i = 0; i < iNc; ++i )
       {   
-         eosout << "Gas_Phase_Frac_" << theComponentManager.GetSpeciesName(i) << "   " << pMassFraction[i+iNc*iGas] << "   "
-                << "Oil_Phase_Frac_" << theComponentManager.GetSpeciesName(i) << "   " << pMassFraction[i+iNc*iOil] << std::endl;
+         eosout << "Gas_Phase_Frac_" << theComponentManager.getSpeciesName(i) << "   " << pMassFraction[i+iNc*iGas] << "   "
+                << "Oil_Phase_Frac_" << theComponentManager.getSpeciesName(i) << "   " << pMassFraction[i+iNc*iOil] << std::endl;
       }
       eosout << std::endl << std::endl;   
 #endif
@@ -882,34 +882,34 @@ double pvtFlash::EosPack::getCriticalVolumeLumped( int componentId, double gorm 
    return getCriticalVolume( getLumpedIndex( componentId ), gorm );
 } 
 
-double pvtFlash::EosPack::gorm( const double weights[CBMGenerics::ComponentManager::NumberOfOutputSpecies] )
+double pvtFlash::EosPack::gorm( const double weights[ComponentId::NUMBER_OF_SPECIES] )
 {
-   const vector<double> weightVec( weights, weights + CBMGenerics::ComponentManager::NumberOfOutputSpecies );
+   const vector<double> weightVec( weights, weights + ComponentId::NUMBER_OF_SPECIES );
 
    return pvtFlash::gorm( weightVec ); 
 }
 
 double pvtFlash::gorm( const vector<double>& weights )
 {
-   assert ( weights.size() == CBMGenerics::ComponentManager::NumberOfOutputSpecies );
+   assert ( weights.size() == ComponentId::NUMBER_OF_SPECIES );
 
-   double denom = weights[C6_14ARO];
-   denom       += weights[C6_14SAT];
-   denom       += weights[C15_ARO];
-   denom       += weights[C15_SAT];
-   denom       += weights[RESINS];
-   denom       += weights[ASPHALTENES];
+   double denom = weights[ComponentId::C6_MINUS_14ARO];
+   denom       += weights[ComponentId::C6_MINUS_14SAT];
+   denom       += weights[ComponentId::C15_PLUS_ARO];
+   denom       += weights[ComponentId::C15_PLUS_SAT];
+   denom       += weights[ComponentId::RESIN];
+   denom       += weights[ComponentId::ASPHALTENE];
 
-   denom       += weights[LSC];
-   denom       += weights[C15_AT];
-   denom       += weights[C15_AROS];
-   denom       += weights[C15_SATS];
+   denom       += weights[ComponentId::LSC];
+   denom       += weights[ComponentId::C15_PLUS_AT];
+   denom       += weights[ComponentId::C15_PLUS_ARO_S];
+   denom       += weights[ComponentId::C15_PLUS_SAT_S];
 
-   denom       += weights[C6_14BT];
-   denom       += weights[C6_14DBT];
-   denom       += weights[C6_14BP];
-   denom       += weights[C6_14SATS];
-   denom       += weights[C6_14AROS];
+   denom       += weights[ComponentId::C6_MINUS_14BT];
+   denom       += weights[ComponentId::C6_MINUS_14DBT];
+   denom       += weights[ComponentId::C6_MINUS_14BP];
+   denom       += weights[ComponentId::C6_MINUS_14SAT_S];
+   denom       += weights[ComponentId::C6_MINUS_14ARO_S];
 
    assert( denom >= 0.0 );
    
@@ -919,13 +919,13 @@ double pvtFlash::gorm( const vector<double>& weights )
       return 1.0e+80;
    }
 
-   double num = weights[C1];
-   num       += weights[C2];
-   num       += weights[C3];
-   num       += weights[C4];
-   num       += weights[C5];
+   double num = weights[ComponentId::C1];
+   num       += weights[ComponentId::C2];
+   num       += weights[ComponentId::C3];
+   num       += weights[ComponentId::C4];
+   num       += weights[ComponentId::C5];
 
-   num       += weights[H2S];
+   num       += weights[ComponentId::H2S];
    
    return num / denom;
 }

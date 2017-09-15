@@ -8,15 +8,8 @@
 // Do not distribute without written permission from Shell.
 //
 
+#include "../src/BrinePhases.h"
 #include "../src/BrineVelocity.h"
-
-#include <cmath>
-#include <assert.h>
-#include <sstream>
-#include <iostream>
-#include <iomanip>
-
-#include "NumericFunctions.h"
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
@@ -28,55 +21,41 @@
 ///       either fail or no longer cover the entirety of the
 ///       parameter space.
 
-class BrineVelocityTest: public GeoPhysics::BrineVelocity
-{
-
-public:
-   double findT2Test( const double pressure ) const
-   {
-      return findT2 (pressure);
-   }
-
-   double findT1Test( const double higherTemperature ) const
-   {
-      return findT1 (higherTemperature);
-   }
-
-   double aqueousBatzleWangTest( const double temperature, const double pressure, const double salinity )const
-   {
-      return aqueousBatzleWang (temperature, pressure, salinity);
-   }
-
-   double vapourIdealGasTest( const double temperature, const double salinity )const
-   {
-      return vapourIdealGas (temperature, salinity);
-   }
-
-};
-
 
 /// Testing that velocity values across (but also outside the
 /// allowed range of) the parameter space are not negative.
 TEST ( BrineVelocity, testing_non_negative )
 {
-   BrineVelocityTest valuesCheck;
-  
-   for ( int i=0; i<=4000; ++i )
+   GeoPhysics::Brine::Velocity velocity;
+   for ( int j=0; j<=4; ++j )
    {
-      for ( int j=0; j<=4; ++j )
+      GeoPhysics::Brine::PhaseStateScalar phase(0.1*double(j));
+      for ( int i=0; i<=4000; ++i )
       {
-         EXPECT_GE( valuesCheck.phaseChange( -1000.0, 0.1*double(i), 0.1*double(j) ), 0.0 );
-         EXPECT_GE( valuesCheck.phaseChange( -100.0, 0.1*double(i), 0.1*double(j) ), 0.0 );
-         EXPECT_GE( valuesCheck.phaseChange( 0.0, 0.1*double(i), 0.1*double(j) ), 0.0 );
-         EXPECT_GE( valuesCheck.phaseChange( 80.0, 0.1*double(i), 0.1*double(j) ), 0.0 );
-         EXPECT_GE( valuesCheck.phaseChange( 150.0, 0.1*double(i), 0.1*double(j) ), 0.0 );
-         EXPECT_GE( valuesCheck.phaseChange( 280.0, 0.1*double(i), 0.1*double(j) ), 0.0 );
-         EXPECT_GE( valuesCheck.phaseChange( 450.0, 0.1*double(i), 0.1*double(j) ), 0.0 );
-         EXPECT_GE( valuesCheck.phaseChange( 680.0, 0.1*double(i), 0.1*double(j) ), 0.0 );
-         EXPECT_GE( valuesCheck.phaseChange( 900.0, 0.1*double(i), 0.1*double(j) ), 0.0 );
-         EXPECT_GE( valuesCheck.phaseChange( 1200.0, 0.1*double(i), 0.1*double(j) ), 0.0 );
-         EXPECT_GE( valuesCheck.phaseChange( 2000.0, 0.1*double(i), 0.1*double(j) ), 0.0 );
-         EXPECT_GE( valuesCheck.phaseChange( 6800.0, 0.1*double(i), 0.1*double(j) ), 0.0 );
+         phase.set( -1000.0, 0.1*double(i) );
+         EXPECT_GT( velocity.get(phase), 0.0 );
+         phase.set(  -100.0, 0.1*double(i) );
+         EXPECT_GT( velocity.get(phase), 0.0 );
+         phase.set(     0.0, 0.1*double(i) );
+         EXPECT_GT( velocity.get(phase), 0.0 );
+         phase.set(    80.0, 0.1*double(i) );
+         EXPECT_GT( velocity.get(phase), 0.0 );
+         phase.set(   150.0, 0.1*double(i) );
+         EXPECT_GT( velocity.get(phase), 0.0 );
+         phase.set(   280.0, 0.1*double(i) );
+         EXPECT_GT( velocity.get(phase), 0.0 );
+         phase.set(   450.0, 0.1*double(i) );
+         EXPECT_GT( velocity.get(phase), 0.0 );
+         phase.set(   680.0, 0.1*double(i) );
+         EXPECT_GT( velocity.get(phase), 0.0 );
+         phase.set(   900.0, 0.1*double(i) );
+         EXPECT_GT( velocity.get(phase), 0.0 );
+         phase.set(  1200.0, 0.1*double(i) );
+         EXPECT_GT( velocity.get(phase), 0.0 );
+         phase.set(  2000.0, 0.1*double(i) );
+         EXPECT_GT( velocity.get(phase), 0.0 );
+         phase.set(  6800.0, 0.1*double(i) );
+         EXPECT_GT( velocity.get(phase), 0.0 );
       }
    }
 }
@@ -87,11 +66,12 @@ TEST ( BrineVelocity, testing_non_negative )
 /// increasing salinity in the vapour phase.
 TEST ( BrineVelocity, testing_ordering_salinity )
 {
-   BrineVelocityTest valuesCheck;
-  
-   for ( int i=0; i<=100; ++i )
+   GeoPhysics::Brine::Velocity velocity;
+   for ( int j=0; j<4; ++j )
    {
-      for ( int j=0; j<4; ++j )
+      GeoPhysics::Brine::PhaseStateScalar phase1( 0.1*double(j+1) );
+      GeoPhysics::Brine::PhaseStateScalar phase2( 0.1*double(j) );
+      for ( int i=0; i<=100; ++i )
       {
          for ( int k=0; k<=50; ++k )
          {
@@ -101,18 +81,19 @@ TEST ( BrineVelocity, testing_ordering_salinity )
             {
                pres = 0.1;
             }
-            double T2 = valuesCheck.findT2Test( pres );
-            double T1 = valuesCheck.findT1Test( T2 );
+            // Does not depend on salinity so we can use one or the other
+            double T2 = phase1.findT2( pres );
+            double T1 = phase1.findT1( T2 );
               
+            phase1.set( 30.0*double(k), 0.1*double(10*i) );
+            phase2.set( 30.0*double(k), 0.1*double(10*i) );
             if ( temp < T1 )
             {
-               EXPECT_GT( valuesCheck.phaseChange( 30.0*double(k), 0.1*double(10*i), 0.1*double(j+1) ), 
-                          valuesCheck.phaseChange( 30.0*double(k), 0.1*double(10*i), 0.1*double(j) ) );
+               EXPECT_GT( velocity.get( phase1 ), velocity.get( phase2 ) );
             }
             else if ( temp > T2 )
             {
-               EXPECT_GT( valuesCheck.phaseChange( 30.0*double(k), 0.1*double(10*i), 0.1*double(j) ), 
-                          valuesCheck.phaseChange( 30.0*double(k), 0.1*double(10*i), 0.1*double(j+1) ) );
+               EXPECT_GT( velocity.get( phase2 ), velocity.get( phase1 ) );
             }
             else
                continue;
@@ -125,12 +106,13 @@ TEST ( BrineVelocity, testing_ordering_salinity )
 /// Testing continuity across T1 and T2.
 TEST ( BrineVelocity, testing_velocity_continuity )
 {
-   BrineVelocityTest valuesCheck;
    const double epsilon = 1.0e-15;
-
-   for ( int i=0; i<100; ++i )
+   
+   GeoPhysics::Brine::Velocity velocity;
+   for ( int j=0; j<8; ++j )
    {
-      for ( int j=0; j<8; ++j )
+      GeoPhysics::Brine::PhaseStateScalar phase( 0.1 * 0.5 * double(j) );
+      for ( int i=0; i<100; ++i )
       {
          double pressure = 0.1 * double(20*i);
 
@@ -138,56 +120,21 @@ TEST ( BrineVelocity, testing_velocity_continuity )
          {
             pressure = 0.1;
          }
-
-         double salinity = 0.1 * 0.5 * double(j);
-	  
-         double highTemp = valuesCheck.findT2Test( pressure );
-         double lowTemp = valuesCheck.findT1Test( highTemp );
-
-         EXPECT_NEAR (valuesCheck.phaseChange (lowTemp * (1.0 - epsilon) , pressure, salinity) , 
-                      valuesCheck.phaseChange (lowTemp * (1.0 + epsilon) , pressure, salinity) , 1.0e-10);
-         EXPECT_NEAR (valuesCheck.phaseChange (highTemp * (1.0 - epsilon) , pressure, salinity) , 
-                      valuesCheck.phaseChange (highTemp * (1.0 + epsilon) , pressure, salinity) , 1.0e-10);
-      }
-   }
-}
-
-
-/// Testing region selection of velocity.
-TEST ( BrineVelocity, testing_velocity_region )
-{
-   BrineVelocityTest valuesCheck;
-   const double epsilon = 1.0e-1;
-
-   for ( int i=0; i<=100; ++i )
-   {
-      for ( int j=0; j<8; ++j )
-      {
-         double pressure, salinity, highTemp, lowTemp;
-
-         for ( int k=1; k<4; ++k )
-         {
-            pressure = 0.1 * double(10*i);
-            if ( pressure < 0.1 )
-            {
-               pressure = 0.1;
-            }
-
-            salinity = 0.1 * 0.5 * double(j);
-	  
-            highTemp = valuesCheck.findT2Test( pressure );
-            lowTemp = valuesCheck.findT1Test( highTemp );
-
-            EXPECT_NEAR( valuesCheck.phaseChange( ( lowTemp - epsilon) / double(k), pressure, salinity ), 
-                         valuesCheck.aqueousBatzleWangTest( ( lowTemp - epsilon ) / double(k), pressure, salinity ), 1.0e-10 );
-
-            EXPECT_NEAR( valuesCheck.phaseChange( ( highTemp + epsilon) * double(k), pressure, salinity ), 
-	                 valuesCheck.vapourIdealGasTest( ( highTemp + epsilon ) * double(k), salinity ), 1.0e-10 );
-         }
-
-         EXPECT_NEAR( valuesCheck.phaseChange( 0.5 * ( highTemp + lowTemp), pressure, salinity ),
-                      0.5 * ( valuesCheck.vapourIdealGasTest( highTemp, salinity ) + valuesCheck.aqueousBatzleWangTest( lowTemp, pressure, salinity ) ), 1.0e-10 );
-
+     
+         double highTemp = phase.findT2( pressure );
+         double lowTemp  = phase.findT1( highTemp );
+         
+         phase.set( lowTemp * (1.0 - epsilon) , pressure );
+         double vel1 = velocity.get( phase );
+         phase.set( lowTemp * (1.0 + epsilon) , pressure );
+         double vel2 = velocity.get( phase );
+         EXPECT_NEAR (vel1, vel2, 1.0e-10);
+         
+         phase.set( highTemp * (1.0 - epsilon) , pressure );
+         vel1 = velocity.get( phase );
+         phase.set( highTemp * (1.0 + epsilon) , pressure );
+         vel2 = velocity.get( phase );
+         EXPECT_NEAR (vel1, vel2, 1.0e-10);
       }
    }
 }

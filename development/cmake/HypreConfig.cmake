@@ -40,6 +40,7 @@ add_external_project_to_repository(
             "--enable-shared"
 
       BUILD_COMMAND   "make"
+      TEST_COMMAND    "make" "test"
       INSTALL_COMMAND "make" "install"
       CONFIGURE_OPTIONS 
         COMPILER "{CurrentCompiler}" 
@@ -69,9 +70,9 @@ add_external_package_info(
     NAME         "Hypre"
     VENDOR       "Lawrence Livermore National Laboratory"
     VERSION      "2.9.1"
-    LICENSE_TYPE "GPL 2.1"
-    LICENSE_FILE "${THIRD_PARTY_DIR}/licenses/Hypre-2.9.1a"
-    URL          "http://computation.llnl.gov/project/linear_solvers/"
+    LICENSE_TYPE "LGPL 2.1"
+    LICENSE_FILE "${THIRD_PARTY_DIR}/licenses/Hypre-2.9.1a.txt"
+    URL          "http://computation.llnl.gov/projects/hypre-scalable-linear-solvers-multigrid-methods"
     DESCRIPTION  "Library of linear solvers"
     REQUIRED_AT  "Runtime"
     COUNTRY_OF_ORIGIN "USA"

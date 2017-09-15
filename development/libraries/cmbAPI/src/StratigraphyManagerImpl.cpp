@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2012-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 /// @file StratigraphyManagerImpl.C
 /// @brief This file keeps API implementation for manipulating layers/surfaces in Cauldron model
@@ -57,12 +57,12 @@ const char * StratigraphyManagerImpl::s_twoWayTimeTableName             = "TwoWa
 const char * StratigraphyManagerImpl::s_twoWayTimeGridFiledName         = "TwoWayTimeGrid";
 const char * StratigraphyManagerImpl::s_twoWayTimeFiledName             = "TwoWayTime";
 const char * StratigraphyManagerImpl::s_depthGridFiledName              = "DepthGrid";
- 
+
 // Constructor
 StratigraphyManagerImpl::StratigraphyManagerImpl()
 {
    //throw std::runtime_error( "Not implemented yet" );
-   m_db = NULL;
+   m_db = nullptr;
 }
 
 // Copy operator
@@ -73,9 +73,9 @@ StratigraphyManagerImpl & StratigraphyManagerImpl::operator = ( const Stratigrap
 }
 
 // Set project database. Reset all
-void StratigraphyManagerImpl::setDatabase( database::Database * db )
+void StratigraphyManagerImpl::setDatabase( database::ProjectFileHandlerPtr pfh )
 {
-   m_db = db;
+   m_db = pfh;
    m_stratIoTbl = m_db->getTable( s_stratigraphyTableName );
 }
 
@@ -159,11 +159,11 @@ std::string StratigraphyManagerImpl::layerName( StratigraphyManager::LayerID id 
       layName = rec->getValue<std::string>( s_layerNameFieldName );
    }
    catch ( const Exception & e ) { reportError( e.errorCode(), e.what() ); }
-   
+
    return layName;
 }
 
-// Get layer ID for the given name 
+// Get layer ID for the given name
 StratigraphyManagerImpl::LayerID StratigraphyManagerImpl::layerID( const std::string & ln )
 {
    const std::vector<LayerID> & ids = layersIDs();
@@ -171,7 +171,7 @@ StratigraphyManagerImpl::LayerID StratigraphyManagerImpl::layerID( const std::st
    {
       if ( ln == layerName( ids[i] ) ) return ids[i];
    }
-   return UndefinedIDValue;
+   return Utilities::Numerical::NoDataIDValue;
 }
 
 
@@ -205,7 +205,7 @@ double StratigraphyManagerImpl::eldestLayerAge()
 {
    if ( errorCode() != NoError ) resetError();
 
-   double layerAge = UndefinedDoubleValue;
+   double layerAge = Utilities::Numerical::IbsNoDataValue;
    try
    {
       // if table does not exist - report error
@@ -298,7 +298,7 @@ ErrorHandler::ReturnCode StratigraphyManagerImpl::setLayerLithologiesList( Layer
          throw Exception( NonexistingID ) << "No layer with ID: " << id << " in stratigraphy table";
       }
 
-      assert( !lithoList.empty() && lithoList.size() == lithoPercent.size() );
+      assert( !lithoList.empty() && lithoList.size() == lithoPercent.size());
 
       // set 1st lithology
       rec->setValue<std::string>( s_lithoType1FiledName,        lithoList[0]    );
@@ -375,9 +375,9 @@ std::vector<StratigraphyManager::LayerID> StratigraphyManagerImpl::findLayersFor
       std::vector<std::string> lithNames;
       std::vector<double>      lithPerc;
       std::vector<std::string> percMaps;
-      
+
       if ( layerLithologiesList( ids[i], lithNames, lithPerc, percMaps ) != NoError ) continue;
-      
+
       bool found = false;
       for ( size_t j = 0; j < lithNames.size() && !found; ++j )
       {
@@ -519,7 +519,7 @@ std::vector<std::string> StratigraphyManagerImpl::sourceRockTypeName( LayerID li
       }
 
       int isSourceRock = rec->getValue<int>( s_isSourceRockFieldName );
-      
+
       // check if layer is source rock layer
       if ( 1 == isSourceRock )
       {
@@ -589,8 +589,8 @@ double StratigraphyManagerImpl::sourceRockMixHC( LayerID lid )
    }
    return mixHC;
 }
- 
-// Set source rock types name for the given layer and enable layer to be layer with source rock 
+
+// Set source rock types name for the given layer and enable layer to be layer with source rock
 ErrorHandler::ReturnCode StratigraphyManagerImpl::setSourceRockTypeName( LayerID lid
                                                                        , const std::vector<std::string> & srTypeNames
                                                                        )
@@ -765,7 +765,7 @@ StratigraphyManager::PrFaultCutID StratigraphyManagerImpl::findFaultCut( const s
    }
    catch ( const Exception & e ) { reportError( e.errorCode(), e.what() ); }
 
-   return UndefinedIDValue;
+   return Utilities::Numerical::NoDataIDValue;
 }
 
 // Get lithlogy name for the given fault cut ID
@@ -873,7 +873,7 @@ std::string StratigraphyManagerImpl::twtGridName( LayerID id )
       // if table does not exist - report error
       if ( !table ) { throw Exception( NonexistingID ) << s_twoWayTimeTableName << " table could not be found in project"; }
 
-      // 
+      //
       std::string topSurface = surfaceName( id );
       std::string twtGrid("");
 
@@ -909,10 +909,10 @@ double StratigraphyManagerImpl::twtValue( LayerID id )
       // if table does not exist - report error
       if ( !table ) { throw Exception( NonexistingID ) << s_twoWayTimeTableName << " table could not be found in project"; }
 
-      // 
+      //
       std::string topSurface = surfaceName( id );
       std::string twtSurface( "" );
-      double twtVal = UndefinedDoubleValue;
+      double twtVal = Utilities::Numerical::IbsNoDataValue;
 
       for ( size_t i = 0; i < table->size(); ++i )
       {
@@ -929,8 +929,7 @@ double StratigraphyManagerImpl::twtValue( LayerID id )
    }
    catch ( const Exception & e ) { reportError( e.errorCode(), e.what() ); }
 
-   return UndefinedDoubleValue;
-}
-    
+   return Utilities::Numerical::IbsNoDataValue;
 }
 
+}

@@ -72,3 +72,8 @@ add_gtest ( NAME FEM::BasisFunctionInterpolator
    SOURCES test/BasisFunctionInterpolatorTest.C
    LIBRARIES FiniteElements
  )
+
+add_gtest ( NAME JacobianStorageTest
+   SOURCES test/JacobianStorageTest.C
+   LIBRARIES FiniteElements LinearAlgebra
+ )

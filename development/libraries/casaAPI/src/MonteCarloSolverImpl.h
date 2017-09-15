@@ -43,7 +43,7 @@ namespace casa
       // Constructor / Destructor
       MonteCarloSolverImpl( Algorithm               algo        = MonteCarloSolver::MonteCarlo // Monte Carlo algorithm type
                           , KrigingType             interp      = MonteCarloSolver::NoKriging  // Which Kriging interpolation to use
-                          , PriorDistribution       priorDist   = MonteCarloSolver::NoPrior    // How to use variable parameter PDF. If NoPrior - uniform block PDF
+                          , PriorDistribution       priorDist   = MonteCarloSolver::NoPrior    // How to use influential parameter PDF. If NoPrior - uniform block PDF
                           , MeasurementDistribution measureDist = MonteCarloSolver::Normal     // How measurements are distributed
                           );
 
@@ -58,7 +58,7 @@ namespace casa
       // Get how to measurements are distributed
       virtual MeasurementDistribution measurementDistrib() const { return m_measureDistr; }
 
-      // Get how to variable paramters PDF are treated in MC
+      // Get how to influential paramters PDF are treated in MC
       virtual PriorDistribution priorDistribution() const { return m_priorDistr; }
 
       // Get the goodness of fit (GOF) to be displayed (in %). Preferably, the GOF should be larger than about 50%.
@@ -72,8 +72,8 @@ namespace casa
 
       // Start Monte Carlo simulation
       virtual ErrorHandler::ReturnCode runSimulation( RSProxy        & proxy        // A Response Surface proxy object
-                                                    , const VarSpace & proxyVsp     // A set of variable parameters which were used to build proxy
-                                                    , const VarSpace & mcmcVsp      // Additional restrictions on variable parameters range
+                                                    , const VarSpace & proxyVsp     // A set of influential parameters which were used to build proxy
+                                                    , const VarSpace & mcmcVsp      // Additional restrictions on influential parameters range
                                                     , const ObsSpace & obs          // Observables set
                                                     , unsigned int     numOfSamples // Number of Monte Carlo points to sample
                                                     , unsigned int     maxNumSteps  // Maximal number of steps
@@ -82,8 +82,8 @@ namespace casa
 
       // Perform all neccessary steps for Monte Carlo simulation but do not run calculation itself
       virtual ErrorHandler::ReturnCode prepareSimulation( RSProxy        & proxy              // A response Surface proxy object
-                                                        , const VarSpace & proxyVsp           // A set of variable parameters which were used to build proxy
-                                                        , const VarSpace & mcmcVsp            // Additional restrictions on variable parameters range
+                                                        , const VarSpace & proxyVsp           // A set of influential parameters which were used to build proxy
+                                                        , const VarSpace & mcmcVsp            // Additional restrictions on influential parameters range
                                                         , const ObsSpace & obs                // Observables set
                                                         , unsigned int     numOfSamples       // number of Monte Carlo points to sample
                                                         , unsigned int     maxNumSteps        // maximal number of steps
@@ -94,8 +94,8 @@ namespace casa
       virtual ErrorHandler::ReturnCode iterateOnce( int & itNum );
 
       // Collect all results of Monte Carlo solver run
-      virtual ErrorHandler::ReturnCode collectMCResults( const VarSpace & proxyVsp // A set of variable parameters which were used to build proxy
-                                                       , const ObsSpace & obs      // Additional restrictions on variable parameters range
+      virtual ErrorHandler::ReturnCode collectMCResults( const VarSpace & proxyVsp // A set of influential parameters which were used to build proxy
+                                                       , const ObsSpace & obs      // Additional restrictions on influential parameters range
                                                        );
 
       // Get Monte Carlo simulation results
@@ -153,7 +153,7 @@ namespace casa
 
       Algorithm                          m_algo;          // type of MC solver - MC/MCMC/Based MC local solver
       KrigingType                        m_kriging;       // use kriging interpolation
-      PriorDistribution                  m_priorDistr;    // use of ignore variable parameters PDF
+      PriorDistribution                  m_priorDistr;    // use of ignore influential parameters PDF
       MeasurementDistribution            m_measureDistr;  // how measurements are distributed
       StepMethod                         m_stepMethod;    // which step method solver will use
       double                             m_stdDevFactor;  // used to scale standard deviation values to getting good Godness of Fit in MCMC

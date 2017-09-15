@@ -1,9 +1,9 @@
 //
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -108,12 +108,19 @@ namespace DataAccess
          /// The default here is to return null, since in the basement there are no fluids.
          const FluidType * getFluidType (void) const;
 
+         /// \brief Get the element refinement for a basement layer, always returns 1.
+         virtual unsigned int getElementRefinement () const;
+
          /// The default here is to return null, since in the basement there are no faults.
          GridMap * computeFaultGridMap (const Grid * localGrid, const Snapshot * snapshot) const;
 
          virtual PaleoFormationPropertyList * getPaleoThicknessHistory () const = 0;
 
+         //@TODO_Check
       protected : 
+
+         /// \brief The element refinement for basement layers.
+         static const int DefaultBasementElementRefinement = 1;
 
          static const std::string HomogeneousMixtureString;
 

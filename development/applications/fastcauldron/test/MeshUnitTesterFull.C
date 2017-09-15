@@ -1,12 +1,12 @@
-//                                                                      
+//
 // Copyright (C) 2015 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 // Access to STL library.
 #include <string>
@@ -39,13 +39,13 @@
 TEST ( DofCountingUnitTest, FullMesh ) {
 
    ibs::FilePath fpath( "." );
-   fpath << "Acquifer.project3d";
-  
+   fpath << "AcquiferFull.project3d";
+
    //std::string ffpath = fpath.fullPath().path();
    std::string ffpath = fpath.path();
    const char* projectName = ffpath.c_str();
 
-   // argc and argv will be used in place of command line 
+   // argc and argv will be used in place of command line
    // parameters when initialising PETSc and fastcauldron.
    // There are 4 non-null values in the array argv.
    int   argc = 4;

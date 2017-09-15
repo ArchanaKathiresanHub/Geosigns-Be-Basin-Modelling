@@ -10,7 +10,9 @@
 #                                                                       #
 #########################################################################
 
-add_executable(tracktraps
+set( APP_NAME "tracktraps" )
+
+add_executable(${APP_NAME}
 	src/ProjectHandle.C
 	src/PersistentTrap.C
 	src/PersistentTrapFactory.C
@@ -18,6 +20,14 @@ add_executable(tracktraps
 	src/Trap.C
 	src/generics.C
 	src/main.C
+)
+
+set_target_properties( ${APP_NAME} PROPERTIES SUFFIX ".exe" )
+
+create_application_run_script( ${APP_NAME} )
+
+application_env_var( TARGET ${APP_NAME} VARS
+     "EOSPACKDIR"  "$MISCDIR/eospack"
 )
 
 bm_include_libraries(
@@ -35,7 +45,7 @@ include_directories( SYSTEM
 )
 
 
-target_link_libraries(tracktraps
+target_link_libraries(${APP_NAME}
 	EosPack
 	DataAccess
 	SerialDataAccess
@@ -45,7 +55,7 @@ target_link_libraries(tracktraps
 	${HDF5_LIBRARIES}
 )
 
-install(TARGETS tracktraps
+install(TARGETS ${APP_NAME}
 	RUNTIME DESTINATION bin
 )
 

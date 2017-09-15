@@ -90,7 +90,7 @@ namespace casa
       /// @return generated script as a string
       virtual std::string generateCopyResultsScript( const std::string & fromProj, const std::string & toProj, const std::string & scenarioID );
 
-      /// @brief Set path where applications with different versions are. Could be also set through IBS_ROOT environment variable
+      /// @brief Set path where applications with different versions are. Could be also set through IBS_ROOT environment influential
       /// @param rootPath path to IBS folder with different versions of cauldron
       virtual void setPathToApp( const std::string & rootPath ) { m_rootPath = rootPath; }
 
@@ -144,7 +144,7 @@ namespace casa
 
    protected:
 
-      std::map< std::string, std::string >   m_env;               ///< keeps environment variables in map: [variable] -> value
+      std::map< std::string, std::string >   m_env;               ///< keeps environment variables in map: [influential] -> value
       std::string                            m_appName;           ///< name of application like fastcauldron/genex6/...
       std::string                            m_scriptBody;        ///< in case of general app keeps script body
       bool                                   m_parallel;          ///< is this application parallel?
@@ -167,17 +167,17 @@ namespace casa
 
       static const char *                    s_resFilesList[][6]; ///< List of HDF files names with simulation results
 
-      /// @brief get environment variable
+      /// @brief get environment influential
       const char * env( const char * varName );
 
-      /// @brief Print list of environment variable to the output stream
+      /// @brief Print list of environment influential to the output stream
       /// @param oss output stream
       void dumpEnv( std::ostream & oss );
 
-      /// @brief Add environment variable to the list. If such variable exists in environment,\n
-      ///        picks up it value from environment and does not use given variable value
-      /// @param varName name of environment variable
-      /// @param varValue the value of the environment variable if it does not exist in environment
+      /// @brief Add environment influential to the list. If such influential exists in environment,\n
+      ///        picks up it value from environment and does not use given influential value
+      /// @param varName name of environment influential
+      /// @param varValue the value of the environment influential if it does not exist in environment
       /// @return true if given varValue was used, false otherwise
       bool pushDefaultEnv( const std::string & varName, const std::string & varValue );
 

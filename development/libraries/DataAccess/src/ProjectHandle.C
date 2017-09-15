@@ -29,6 +29,7 @@
 #include <vector>
 #include <list>
 #include <cstring>
+#include <boost/filesystem.hpp>
 
 // TableIo library
 #include "database.h"
@@ -86,6 +87,8 @@
 #include "Interface/PropertyValue.h"
 #include "Interface/RelatedProject.h"
 #include "Interface/Reservoir.h"
+//@TODO_Check
+#include "Interface/ReservoirOptions.h"
 #include "Interface/RunParameters.h"
 #include "Interface/SimulationDetails.h"
 #include "Interface/Snapshot.h"
@@ -117,6 +120,8 @@
 #include "array.h"
 #include "errorhandling.h"
 #include "LogHandler.h"
+#include "ConstantsNames.h"
+//@TODO_Check
 
 // FileSystem library
 #include "FilePath.h"
@@ -139,38 +144,37 @@ static const char * words [] = {"ALCStepBasaltThickness", "ALCStepTopBasaltDepth
                                 "ErosionFactor", "FCTCorrection", "MaxVes",
                                 "Pressure", "Temperature", "ThicknessError", "Ves", "Vr" };
 
-DataAccess::Interface::ProjectHandle * DataAccess::Interface::OpenCauldronProject( const string & name, const string & accessMode, ObjectFactory* objectFactory )
+DataAccess::Interface::ProjectHandle * DataAccess::Interface::OpenCauldronProject( const string & name,
+                                                                                   const string & accessMode,
+                                                                                   ObjectFactory* objectFactory,
+                                                                                   const std::vector<std::string>& outputTableNames )
 {
-   Database * tables = CreateDatabaseFromCauldronProject( name );
-   if ( tables )
+   if ( !boost::filesystem::exists( name ) )
    {
-      return objectFactory->produceProjectHandle( tables, name, accessMode );
+      throw formattingexception::GeneralException() << "Project file " << name << " does not exist";
+   }
+
+   database::ProjectFileHandlerPtr pfh = CreateDatabaseFromCauldronProject( name, outputTableNames );
+
+   if ( pfh != nullptr )
+   {
+      return objectFactory->produceProjectHandle ( pfh, name, accessMode );
    }
    else
    {
-      return 0;
+      return nullptr;
    }
+
 }
 
-Database * DataAccess::Interface::CreateDatabaseFromCauldronProject( const string & name )
+database::ProjectFileHandlerPtr DataAccess::Interface::CreateDatabaseFromCauldronProject( const string & name,
+                                                                                          const std::vector<std::string>& outputTableNames )
 {
    FaultFileReaderFactory::getInstance().registerReader( IBSFaultFileReaderID, allocateIBSFaultFileReader );
    FaultFileReaderFactory::getInstance().registerReader( LandmarkFaultFileReaderID, allocateLandmarkFaultFileReader );
    FaultFileReaderFactory::getInstance().registerReader( ZyCorFaultFileReaderID, allocateZyCorFaultFileReader );
 
-   DataSchema * cauldronSchema = database::createCauldronSchema();
-   database::TableDefinition *tableDef = cauldronSchema->getTableDefinition( "DepthIoTbl" );
-
-   if ( tableDef )
-   {
-      // Adding (volatile, won't be output) definition for DepositionSequence field
-      // Required to properly sort the DepthIoTbl, not to be output
-      tableDef->addVolatileFieldDefinition( "DepositionSequence", datatype::Int, "", "0" );
-   }
-
-   Database * tables = Database::CreateFromFile( name, *cauldronSchema );
-   delete cauldronSchema;
-   return tables;
+   return database::ProjectFileHandlerPtr ( new database::ProjectFileHandler ( name, outputTableNames ));
 }
 
 void DataAccess::Interface::CloseCauldronProject( DataAccess::Interface::ProjectHandle * projectHandle )
@@ -180,13 +184,18 @@ void DataAccess::Interface::CloseCauldronProject( DataAccess::Interface::Project
 
 int Interface::ProjectHandle::GetNumberOfSpecies( void )
 {
-   return CBMGenerics::ComponentManager::NumberOfOutputSpecies;
+   return ComponentId::NUMBER_OF_SPECIES;
 }
+
+database::ProjectFileHandlerPtr Interface::ProjectHandle::getProjectFileHandler () {
+   return m_projectFileHandler;
+}
+
 
 std::string Interface::ProjectHandle::GetSpeciesName( int i )
 {
    CBMGenerics::ComponentManager & theComponentManager = CBMGenerics::ComponentManager::getInstance();
-   return theComponentManager.GetSpeciesName( i );
+   return theComponentManager.getSpeciesName( i );
 }
 
 const DataAccess::Interface::MessageHandler& ProjectHandle::getMessageHandler() const {
@@ -197,7 +206,7 @@ const DataAccess::Interface::ApplicationGlobalOperations& ProjectHandle::getGlob
    return *m_globalOperations;
 }
 
-ProjectHandle::ProjectHandle( Database * tables, const string & name, const string & accessMode, ObjectFactory* objectFactory ) :
+ProjectHandle::ProjectHandle(database::ProjectFileHandlerPtr pfh, const string & name, const string & accessMode, ObjectFactory* objectFactory ) :
    m_database( tables ), m_name( name ), m_accessMode( READWRITE ),
    m_tableCTC                         ( *this ),
    m_tableCTCRiftingHistory           ( *this ),
@@ -205,7 +214,6 @@ ProjectHandle::ProjectHandle( Database * tables, const string & name, const stri
    m_activityOutputGrid( 0 ), m_mapPropertyValuesWriter( 0 ), m_primaryList( words, words + 12 )
 {
    (void) accessMode; // ignore warning about unused parameter
-
 
    m_messageHandler = 0;
    m_globalOperations = 0;
@@ -246,7 +254,6 @@ ProjectHandle::ProjectHandle( Database * tables, const string & name, const stri
    loadSnapshots();
    loadProperties();
    loadTimeOutputProperties();
-   loadDepthOutputProperties();
 
    loadLithologyHeatCapacitySamples();
    loadLithologyThermalConductivitySamples();
@@ -259,6 +266,7 @@ ProjectHandle::ProjectHandle( Database * tables, const string & name, const stri
    loadSurfaces();
    loadFormations();
    loadReservoirs();
+   loadGlobalReservoirOptions();
    loadMobileLayers();
    loadTouchstoneMaps();
    loadAllochthonousLithologies();
@@ -269,9 +277,9 @@ ProjectHandle::ProjectHandle( Database * tables, const string & name, const stri
    loadMigrations();
    loadInputValues();
    numberInputValues();
+   loadPermafrostData();
    loadFluidTypes();
 
-   loadFluidDensitySamples();
    loadFluidThermalConductivitySamples();
    loadFluidHeatCapacitySamples();
 
@@ -282,6 +290,7 @@ ProjectHandle::ProjectHandle( Database * tables, const string & name, const stri
 
    connectSurfaces();
    connectReservoirs();
+
    connectTraps();
    if ( trappersAreAvailable() )
    {
@@ -314,6 +323,7 @@ ProjectHandle::ProjectHandle( Database * tables, const string & name, const stri
    loadIrreducibleWaterSaturationSample();
    loadSGDensitySample();
 
+   //@TODO_Check
    loadPermafrostData();
 }
 
@@ -416,11 +426,9 @@ ProjectHandle::~ProjectHandle( void )
    deleteRelatedProjects();
 
    deleteTimeOutputProperties();
-   deleteDepthOutputProperties();
 
    deleteLithologyHeatCapacitySamples();
    deleteLithologyThermalConductivitySamples();
-   deleteFluidDensitySamples();
    deleteFluidThermalConductivitySamples();
    deleteFluidHeatCapacitySamples();
 
@@ -432,7 +440,9 @@ ProjectHandle::~ProjectHandle( void )
    deletePermafrost();
    deleteSimulationDetails();
 
-   if ( m_database ) delete m_database;
+   deleteMigrations();
+   deleteTrappers();
+   deleteFaultCollections();
 }
 
 
@@ -466,7 +476,7 @@ bool ProjectHandle::saveToFile( const string & fileName )
 
    if ( getRank() == 0 )
    {
-      m_database->saveToFile( fileName );
+      m_projectFileHandler->saveToFile( fileName );
    }
 
    return true;
@@ -560,7 +570,6 @@ bool ProjectHandle::restartActivity( void )
    }
    else
    {
-      const std::string& directoryName = getOutputDir();
       // create hdf file
       string fileName = getActivityName();
 
@@ -571,9 +580,10 @@ bool ProjectHandle::restartActivity( void )
 
       m_mapPropertyValuesWriter->close();
       m_mapPropertyValuesWriter->open( filePathName, false );
+      m_mapPropertyValuesWriter->setChunking();
       m_mapPropertyValuesWriter->saveDescription( getActivityOutputGrid() );
 
-      saveCreatedMapPropertyValues();		/// creates new TimeIoRecords
+      saveCreatedMapPropertyValues();      /// creates new TimeIoRecords
 
       return true;
    }
@@ -583,7 +593,7 @@ bool ProjectHandle::continueActivity( void )
 {
    if ( getActivityName() == "" || getActivityOutputGrid() == 0 ) return false;
 
-   saveCreatedMapPropertyValues();		/// creates new TimeIoRecords
+   saveCreatedMapPropertyValues();      /// creates new TimeIoRecords
 
    saveCreatedVolumePropertyValues();
 
@@ -637,15 +647,15 @@ const Grid * ProjectHandle::getActivityOutputGrid( void ) const
    return m_activityOutputGrid;
 }
 
-Database * ProjectHandle::getDataBase( void ) const
-{
-   return m_database;
-}
-
 database::Table * ProjectHandle::getTable( const string & tableName ) const
 {
-   return m_database->getTable( tableName );
+   return m_projectFileHandler->getTable ( tableName );
 }
+
+void ProjectHandle::setAsOutputTable ( const std::string& tableName ) {
+   m_projectFileHandler->setTableAsOutput ( tableName );
+}
+
 
 bool ProjectHandle::loadSnapshots( void )
 {
@@ -971,10 +981,11 @@ bool ProjectHandle::loadProperties( void )
    m_properties.push_back( getFactory()->produceProperty( this, 0, "FluidVelocityX",                 "FluidVelocityX",                 "mm/y",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "FluidVelocityY",                 "FluidVelocityY",                 "mm/y",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "FluidVelocityZ",                 "FluidVelocityZ",                 "mm/y",  FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "HeatFlow",                       "HeatFlow",                       "mW/m2", FORMATIONPROPERTY, DataModel::CONTINUOUS_3D_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "HeatFlowX",                      "HeatFlowX",                      "mW/m2", FORMATIONPROPERTY, DataModel::CONTINUOUS_3D_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "HeatFlowY",                      "HeatFlowY",                      "mW/m2", FORMATIONPROPERTY, DataModel::CONTINUOUS_3D_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "HeatFlowZ",                      "HeatFlowZ",                      "mW/m2", FORMATIONPROPERTY, DataModel::CONTINUOUS_3D_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( this, 0, "HeatFlow",                       "HeatFlow",                       "mW/m2", FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( this, 0, "HeatFlowX",                      "HeatFlowX",                      "mW/m2", FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( this, 0, "HeatFlowY",                      "HeatFlowY",                      "mW/m2", FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( this, 0, "HeatFlowZ",                      "HeatFlowZ",                      "mW/m2", FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY ));
+
 
    // not sure which attribute this property shoudl have, so give it the most general one
    m_properties.push_back( getFactory()->produceProperty( this, 0, "HopaneIsomerisation",            "HopaneIsomerisation",            "",      FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY ));
@@ -1068,7 +1079,7 @@ bool ProjectHandle::loadProperties( void )
    GenexResultManager & theResultManager = GenexResultManager::getInstance();
 
    int i;
-   for ( i = 0; i < ComponentManager::NumberOfOutputSpecies; ++i )
+   for ( i = 0; i < ComponentManager::NUMBER_OF_SPECIES; ++i )
    {
       m_properties.push_back( getFactory()->produceProperty( this, 0,
          theComponentManager.GetSpeciesOutputPropertyName( i, false ),
@@ -1094,7 +1105,7 @@ bool ProjectHandle::loadProperties( void )
          DataModel::FORMATION_2D_PROPERTY ) );
    }
 
-   for ( i = 0; i < ComponentManager::NumberOfOutputSpecies; ++i )
+   for ( i = 0; i < ComponentManager::NUMBER_OF_SPECIES; ++i )
    {
       m_properties.push_back( getFactory()->produceProperty( this, 0,
          theComponentManager.GetSpeciesName( i ) + "Concentration",
@@ -1113,7 +1124,7 @@ bool ProjectHandle::loadProperties( void )
       "kg", FORMATIONPROPERTY,
       DataModel::DISCONTINUOUS_3D_PROPERTY ) );
 
-   for ( i = 0; i < ComponentManager::NumberOfOutputSpecies; ++i )
+   for ( i = 0; i < ComponentManager::NUMBER_OF_SPECIES; ++i )
    {
       m_properties.push_back( getFactory()->produceProperty( this, 0,
          theComponentManager.GetSpeciesName( i ) + "Retained",
@@ -1163,8 +1174,8 @@ bool ProjectHandle::loadProperties( void )
    m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockTrapArea",               "ResRockTrapArea",               "",        RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockTrapId",                 "ResRockTrapId",                 "",        RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockLeakage",                "ResRockLeakage",                "kg",      RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "SeepageBasinTop_Gas",           "SeepageBasinTop_Gas",           "kg",      RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "SeepageBasinTop_Oil",           "SeepageBasinTop_Oil",           "kg",      RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( this, 0, "SeepageBasinTop_Gas",           "SeepageBasinTop_Gas",           "kg",      FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( this, 0, "SeepageBasinTop_Oil",           "SeepageBasinTop_Oil",           "kg",      FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockLeakageUpward",          "ResRockLeakageUpward",          "kg",      RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockLeakageOutward",         "ResRockLeakageOutward",         "kg",      RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "ResRockTop",                    "ResRockTop",                    "m",       RESERVOIRPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
@@ -1243,11 +1254,11 @@ bool ProjectHandle::loadProperties( void )
    m_properties.push_back( getFactory()->produceProperty( this, 0, "SealPermeability",   "SealPermeability",   "mD",        TRAPPROPERTY, DataModel::TRAP_PROPERTY )); //
 
    // amount of trapped HC per spice
-   for ( i = 0; i < ComponentManager::NumberOfOutputSpecies; ++i )
+   for ( i = 0; i < ComponentManager::NUMBER_OF_SPECIES; ++i )
    {
       m_properties.push_back( getFactory()->produceProperty( this, 0
-                                                           , theComponentManager.GetSpeciesName( i ) + "TrappedAmount"
-                                                           , theComponentManager.GetSpeciesName( i ) + "TrappedAmount"
+                                                           , theComponentManager.getSpeciesName( i ) + "TrappedAmount"
+                                                           , theComponentManager.getSpeciesName( i ) + "TrappedAmount"
                                                            , "kg", TRAPPROPERTY, DataModel::TRAP_PROPERTY ) );
    }
 
@@ -1289,36 +1300,6 @@ bool ProjectHandle::loadTimeOutputProperties() {
       if ( recordMode == getModellingMode() )
       {
          m_timeOutputProperties.push_back( getFactory()->produceOutputProperty( this, *tblIter ) );
-      }
-
-   }
-
-   return true;
-}
-
-bool ProjectHandle::loadDepthOutputProperties() {
-
-   database::Table* filterDepthTbl = getTable( "FilterDepthIoTbl" );
-   database::Table::iterator tblIter;
-   Interface::ModellingMode recordMode;
-
-   m_depthOutputProperties.clear();
-
-   for ( tblIter = filterDepthTbl->begin(); tblIter != filterDepthTbl->end(); ++tblIter )
-   {
-
-      if ( database::getModellingMode( *tblIter ) == "1d" ) {
-         recordMode = Interface::MODE1D;
-      }
-      else {
-         // It may be that the modelling mode string = "multi-1d", in which case
-         // it will be switched to 3d.
-         recordMode = Interface::MODE3D;
-      }
-
-      if ( recordMode == getModellingMode() )
-      {
-         m_depthOutputProperties.push_back( getFactory()->produceOutputProperty( this, *tblIter ) );
       }
 
    }
@@ -1384,22 +1365,6 @@ bool ProjectHandle::loadFluidThermalConductivitySamples() {
    for ( tblIter = thermalConductivityTbl->begin(); tblIter != thermalConductivityTbl->end(); ++tblIter )
    {
       m_fluidThermalConductivitySamples.push_back( getFactory()->produceFluidThermalConductivitySample( this, *tblIter ) );
-   }
-
-   return true;
-}
-
-bool ProjectHandle::loadFluidDensitySamples() {
-
-   database::Table* densityTbl = getTable( "FltDensityIoTbl" );
-   database::Table::iterator tblIter;
-
-   m_fluidDensitySamples.clear();
-
-   for ( tblIter = densityTbl->begin(); tblIter != densityTbl->end(); ++tblIter )
-   {
-
-      m_fluidDensitySamples.push_back( getFactory()->produceFluidDensitySample( this, *tblIter ) );
    }
 
    return true;
@@ -1781,9 +1746,9 @@ bool ProjectHandle::loadLithoTypes( void )
    for ( tblIter = lithoTypeTbl->begin(); tblIter != lithoTypeTbl->end(); ++tblIter )
    {
       Record * lithoTypeRecord = *tblIter;
-      m_lithoTypes.push_back( getFactory()->produceLithoType( this, lithoTypeRecord ) );
+         m_lithoTypes.push_back( getFactory()->produceLithoType( this, lithoTypeRecord ) );
 
-      if ( getLithotype( lithoTypeRecord ) == "Crust" ) {
+      if ( getLithotype( lithoTypeRecord ) == DataAccess::Interface::CrustLithologyName) {
          crustLithoType = lithoTypeRecord;
       }
    }
@@ -1812,6 +1777,20 @@ bool ProjectHandle::loadReservoirs( void )
       Record * reservoirRecord = *tblIter;
       m_reservoirs.push_back( getFactory()->produceReservoir( this, reservoirRecord ) );
    }
+   return true;
+}
+
+bool ProjectHandle::loadGlobalReservoirOptions (void)
+{
+   database::Table* reservoirOptionsIoTbl = getTable( "ReservoirOptionsIoTbl" );
+
+   Record * reservoirOptionsRecord;
+   if (reservoirOptionsIoTbl->size() == 0)
+      reservoirOptionsIoTbl->createRecord();
+
+   reservoirOptionsRecord = reservoirOptionsIoTbl->getRecord(0);
+   m_reservoirOptions = getFactory()->produceReservoirOptions( this, reservoirOptionsRecord );
+
    return true;
 }
 
@@ -2409,13 +2388,11 @@ bool TimeIoTblSorter( database::Record * recordL, database::Record * recordR )
    if ( database::getPropertyName( recordL ) > database::getPropertyName( recordR ) ) return false;
    if ( database::getTime( recordL ) < database::getTime( recordR ) ) return true;
    if ( database::getTime( recordL ) > database::getTime( recordR ) ) return false;
-   if ( database::getDepoSequence( recordL ) < database::getDepoSequence( recordR ) ) return false;
-   if ( database::getDepoSequence( recordL ) > database::getDepoSequence( recordR ) ) return true;
 
    return false;
 }
 
-/// Write newly created volume properties to depthiotbl file.
+/// Write newly created volume properties to timeiotbl file.
 bool ProjectHandle::saveCreatedMapPropertyValues( void )
 {
    if ( Interface::MODE3D == getModellingMode() )
@@ -2428,22 +2405,21 @@ bool ProjectHandle::saveCreatedMapPropertyValues( void )
    }
 }
 
-
 //1DComponent
 bool ProjectHandle::saveCreatedMapPropertyValuesMode1D( void )
 {
    database::Table * timeIoTbl = getTable( "TimeIoTbl" );
    if ( !timeIoTbl )
       return false;
-
+   
    MutablePropertyValueList::iterator propertyValueIter;
-
+   
    int increment = 1;
    for ( propertyValueIter = m_recordLessMapPropertyValues.begin();
       propertyValueIter != m_recordLessMapPropertyValues.end(); propertyValueIter += increment )
    {
       PropertyValue *propertyValue = *propertyValueIter;
-
+   
       if ( !propertyValue->toBeSaved() )
       {
          increment = 1;
@@ -2455,7 +2431,7 @@ bool ProjectHandle::saveCreatedMapPropertyValuesMode1D( void )
       propertyValueIter = m_recordLessMapPropertyValues.erase( propertyValueIter );
       increment = 0;
    }
-
+   
    return true;
 }
 
@@ -2510,7 +2486,6 @@ bool ProjectHandle::saveCreatedVolumePropertyValues( void )
    }
    else
    {
-      saveCreatedVolumePropertyValuesMode1DOld();
       return saveCreatedVolumePropertyValuesMode1D();
    }
 }
@@ -2588,20 +2563,6 @@ bool ProjectHandle::saveCreatedVolumePropertyValuesMode3D( void )
    return status;
 }
 
-bool DepthIoTblSorter( database::Record * recordL, database::Record * recordR )
-{
-   if ( database::getPropertyName( recordL ) < database::getPropertyName( recordR ) ) return true;
-   if ( database::getPropertyName( recordL ) > database::getPropertyName( recordR ) ) return false;
-   int leftIndex = recordL->getValue<int>( "DepositionSequence" );
-   int rightIndex = recordR->getValue<int>( "DepositionSequence" );
-   if ( leftIndex > rightIndex ) return true;
-   if ( leftIndex < rightIndex ) return false;
-   if ( database::getDepth_( recordL ) < database::getDepth_( recordR ) ) return true;
-   if ( database::getDepth_( recordL ) > database::getDepth_( recordR ) ) return false;
-
-   return false;
-}
-
 bool ProjectHandle::saveCreatedVolumePropertyValuesMode1D( void )
 {
    database::Table * timeIoTbl = getTable( "1DTimeIoTbl" );
@@ -2655,234 +2616,6 @@ bool ProjectHandle::saveCreatedVolumePropertyValuesMode1D( void )
       m_propertyValues.push_back( propertyValue );
    }
    m_recordLessVolumePropertyValues.clear();
-
-   return status;
-}
-
-/// Write newly created volume properties to depthiotbl file.
-/// This function assumes that all volume properties for a given snapshot are written in one go
-bool ProjectHandle::saveCreatedVolumePropertyValuesMode1DOld( void )
-{
-   const char * scalarPostfixes[ 2 ] = { "", "" };
-   const char * vecPostfixes[ 2 ] = { "[0]", "[1]" };
-
-   const Snapshot *zeroSnapshot = (const Snapshot *)findSnapshot( 0 );
-
-   database::Table * depthIoTbl = getTable( "DepthIoTbl" );
-   if ( !depthIoTbl )
-      return false;
-
-   if ( m_recordLessVolumePropertyValues.size() == 0 ) return true;
-
-   MutablePropertyValueList::iterator depthPropertyValueIter;
-   MutablePropertyValueList::iterator propertyValueIter;
-
-   const Property *depthProperty = (const Property *)findProperty( "Depth" );
-
-   assert( depthProperty );
-
-   bool status = true;
-
-   MutablePropertyValueList selectedPropertyValues;
-   MutablePropertyValueList selectedDepthPropertyValues;
-
-
-   // first find the set of all property values with the same snapshot and formation and pinpoint the depth property value in that set.
-   for ( propertyValueIter = m_recordLessVolumePropertyValues.begin();
-      propertyValueIter != m_recordLessVolumePropertyValues.end(); ++propertyValueIter )
-   {
-      PropertyValue *propertyValue = *propertyValueIter;
-
-      if ( propertyValue->getSnapshot() != zeroSnapshot || !propertyValue->toBeSaved() )
-      {
-         continue;
-      }
-
-      selectedPropertyValues.push_back( propertyValue );
-
-      if ( propertyValue->getProperty() == depthProperty )
-      {
-         selectedDepthPropertyValues.push_back( propertyValue );
-      }
-   }
-
-   const Property *property = 0;
-
-   double previousDepthValue[ 2 ] = { DefaultUndefinedScalarValue, DefaultUndefinedScalarValue };
-
-   for ( depthPropertyValueIter = selectedDepthPropertyValues.begin();
-      depthPropertyValueIter != selectedDepthPropertyValues.end(); ++depthPropertyValueIter )
-   {
-      PropertyValue *depthPropertyValue = *depthPropertyValueIter;
-
-      GridMap *depthGridMap = (GridMap *)depthPropertyValue->getGridMap();
-
-      depthGridMap->retrieveData();
-
-      bool isZeroThickness = ( depthGridMap->getValue( 0, 0, (unsigned int)0 ) == depthGridMap->getValue( 0, 0, (unsigned int)depthGridMap->getDepth() - 1 ) );
-
-      for ( propertyValueIter = selectedPropertyValues.begin();
-         propertyValueIter != selectedPropertyValues.end(); ++propertyValueIter )
-      {
-         PropertyValue *propertyValue = *propertyValueIter;
-
-         if ( propertyValue->getFormation() != depthPropertyValue->getFormation() )
-         {
-            continue;
-         }
-
-
-         property = (const Property *)propertyValue->getProperty();
-
-         int nrOutputs = 1;
-
-         const char ** postFixes = scalarPostfixes;
-
-         if ( property->getCauldronName().rfind( "Vec2" ) != string::npos )
-         {
-            nrOutputs = 2;
-            postFixes = vecPostfixes;
-         }
-
-         if ( isZeroThickness ) continue;
-
-         GridMap *gridMap = (GridMap *)propertyValue->getGridMap();
-
-         if ( gridMap != depthGridMap )
-         {
-            gridMap->retrieveData();
-         }
-
-         unsigned int gridMapDepth = gridMap->getDepth();
-
-         assert( gridMapDepth == depthGridMap->getDepth() );
-
-         for ( int k = gridMapDepth - 1; k >= 0; --k )
-         {
-            assert( depthGridMap->firstI() == 0 );
-            assert( depthGridMap->firstJ() == 0 );
-
-            double depthValue = depthGridMap->getValue( 0, 0, (unsigned int)k );
-            double value = gridMap->getValue( 0, 0, (unsigned int)k );
-            if ( depthValue != depthGridMap->getUndefinedValue() )
-            {
-               if ( value == gridMap->getUndefinedValue() )
-               {
-                  value = DefaultUndefinedScalarValue;
-               }
-               for ( int i = 0; i < nrOutputs; ++i )
-               {
-                  if ( depthValue != DefaultUndefinedScalarValue && depthValue > previousDepthValue[ i ] - 0.01 && depthValue < previousDepthValue[ i ] + 0.01 ) continue;
-
-                  previousDepthValue[ i ] = depthValue;
-
-                  database::Record * depthIoRecord = depthIoTbl->createRecord();
-
-                  depthIoRecord->setValue( "DepositionSequence", propertyValue->getFormation()->getDepositionSequence() );
-                  database::setPropertyName( depthIoRecord, property->getCauldronName() + postFixes[ i ] );
-                  database::setTime( depthIoRecord, zeroSnapshot->getTime() );
-                  database::setDepth_( depthIoRecord, depthValue );
-                  database::setAverage( depthIoRecord, value );
-                  database::setStandardDev( depthIoRecord, DefaultUndefinedScalarValue );
-                  database::setMinimum( depthIoRecord, value );
-                  database::setMaximum( depthIoRecord, value );
-                  database::setSum( depthIoRecord, value );
-                  database::setSum2( depthIoRecord, DefaultUndefinedScalarValue );
-                  database::setNP( depthIoRecord, static_cast<int>( DefaultUndefinedScalarValue ) );
-                  database::setP15( depthIoRecord, DefaultUndefinedScalarValue );
-                  database::setP50( depthIoRecord, DefaultUndefinedScalarValue );
-                  database::setP85( depthIoRecord, DefaultUndefinedScalarValue );
-                  database::setSumFirstPower( depthIoRecord, value );
-                  database::setSumSecondPower( depthIoRecord, DefaultUndefinedScalarValue );
-                  database::setSumThirdPower( depthIoRecord, DefaultUndefinedScalarValue );
-                  database::setSumFourthPower( depthIoRecord, DefaultUndefinedScalarValue );
-                  database::setSkewness( depthIoRecord, DefaultUndefinedScalarValue );
-                  database::setKurtosis( depthIoRecord, DefaultUndefinedScalarValue );
-
-
-#if 0
-                  cerr << "<< " << database::getPropertyName (depthIoRecord) << "(" << database::getDepth_ (depthIoRecord) << ", " << database::getAverage (depthIoRecord) <<
-                     ") of layer " << propertyValue->getFormation ()->getName () << endl;
-#endif
-               }
-            }
-         }
-
-         if ( gridMap != depthGridMap ) gridMap->restoreData();
-      }
-
-      depthGridMap->restoreData();
-   }
-
-   // Remove all records that should not be there
-   sort( depthIoTbl->begin(), depthIoTbl->end(), DepthIoTblSorter );
-
-   int removalIncrement = 1;
-   bool removeNextOne = false;
-   for ( database::Table::iterator removalIter = depthIoTbl->begin(); removalIter != depthIoTbl->end(); removalIter += removalIncrement )
-   {
-      removalIncrement = 1;
-      database::Record * currentRecord = *removalIter;
-
-      if ( removeNextOne )
-      {
-         removalIter = depthIoTbl->removeRecord( removalIter );
-         removalIncrement = 0;
-         removeNextOne = false;
-         continue;
-      }
-
-      if ( removalIter + 1 != depthIoTbl->end() )
-      {
-         database::Record * nextCurrentRecord = *( removalIter + 1 );
-         if ( database::getPropertyName( currentRecord ) != database::getPropertyName( nextCurrentRecord ) )
-         {
-            // removal of any last ...Vec2[0] property
-            if ( database::getPropertyName( currentRecord ).find( "Vec2[0]" ) != string::npos )
-            {
-               removalIter = depthIoTbl->removeRecord( removalIter );
-               removalIncrement = 0;
-            }
-            // removal of any first ...Vec2[1] property
-            if ( database::getPropertyName( nextCurrentRecord ).find( "Vec2[1]" ) != string::npos )
-            {
-               removeNextOne = true;
-            }
-         }
-         else
-         {
-            // removal of any second Vec2[1] property with the same depth
-            if ( database::getPropertyName( currentRecord ).rfind( "Vec2[1]" ) != string::npos && database::getDepth_( currentRecord ) == database::getDepth_( nextCurrentRecord ) )
-            {
-               removeNextOne = true;
-            }
-            // removal of any first Vec2[0] property with the same depth
-            else if ( database::getPropertyName( currentRecord ).rfind( "Vec2[0]" ) != string::npos && database::getDepth_( currentRecord ) == database::getDepth_( nextCurrentRecord ) )
-            {
-               removalIter = depthIoTbl->removeRecord( removalIter );
-               removalIncrement = 0;
-            }
-            // removal of any second non-Vec2 properties with equal depth
-            else if ( database::getDepth_( currentRecord ) == database::getDepth_( nextCurrentRecord ) &&
-               ( database::getPropertyName( currentRecord ).rfind( "Vec2" ) == string::npos ) )
-            {
-               removeNextOne = true;
-            }
-         }
-      }
-   }
-
-   // Remove properties with undefined value
-   for ( database::Table::iterator removalIter = depthIoTbl->begin(); removalIter != depthIoTbl->end(); removalIter += removalIncrement )
-   {
-      removalIncrement = 1;
-      database::Record * currentRecord = *removalIter;
-      if ( database::getAverage( currentRecord ) == DefaultUndefinedScalarValue )
-      {
-         removalIter = depthIoTbl->removeRecord( removalIter );
-         removalIncrement = 0;
-      }
-   }
 
    return status;
 }
@@ -3196,7 +2929,7 @@ float ProjectHandle::GetUndefinedValue( hid_t fileId )
          assert( rank == 1 );
          assert( hdimension == 1 );
 
-         herr_t status = H5Dread( dataSetId, dataTypeId, H5S_ALL, H5S_ALL, H5P_DEFAULT, &undefinedValue );
+         H5Dread( dataSetId, dataTypeId, H5S_ALL, H5S_ALL, H5P_DEFAULT, &undefinedValue );
 
          H5Sclose( dataSpaceId );
       }
@@ -3326,16 +3059,20 @@ Interface::ReservoirList * ProjectHandle::getReservoirs( const Interface::Format
    return reservoirList;
 }
 
+std::shared_ptr<const ReservoirOptions> ProjectHandle::getReservoirOptions () const
+{
+   return m_reservoirOptions;
+}
 
 Reservoir* ProjectHandle::addDetectedReservoirs (database::Record * record, const Formation * formation)
 {
-	DataAccess::Interface::Reservoir * detectedReservoir = getFactory ()->produceReservoir (this, record);
+   DataAccess::Interface::Reservoir * detectedReservoir = getFactory ()->produceReservoir (this, record);
    // connect the detected Reservoir
    detectedReservoir->setFormation(formation);
-	// add the detected reservoir to the list of reservoirs
-	m_reservoirs.push_back (detectedReservoir);
-	// return the reservoir to formation
-	return detectedReservoir;
+   // add the detected reservoir to the list of reservoirs
+   m_reservoirs.push_back (detectedReservoir);
+   // return the reservoir to formation
+   return detectedReservoir;
 }
 
 
@@ -3535,14 +3272,13 @@ Interface::TouchstoneMapList * ProjectHandle::getTouchstoneMaps( void ) const
 
 Interface::AllochthonousLithologyDistributionList * ProjectHandle::getAllochthonousLithologyDistributions( const Interface::AllochthonousLithology * allochthonousLithology ) const
 {
+   if ( allochthonousLithology == nullptr )
+   {
+      return nullptr;
+   }
 
    Interface::AllochthonousLithologyDistributionList* allochthonousLithologyDistributionList = new Interface::AllochthonousLithologyDistributionList;
    MutableAllochthonousLithologyDistributionList::const_iterator distributionIter;
-
-   if ( allochthonousLithology == 0 )
-   {
-      return 0;
-   }
 
    for ( distributionIter = m_allochthonousLithologyDistributions.begin(); distributionIter != m_allochthonousLithologyDistributions.end(); ++distributionIter )
    {
@@ -3560,14 +3296,13 @@ Interface::AllochthonousLithologyDistributionList * ProjectHandle::getAllochthon
 
 Interface::AllochthonousLithologyInterpolationList * ProjectHandle::getAllochthonousLithologyInterpolations( const Interface::AllochthonousLithology * allochthonousLithology ) const
 {
+   if ( allochthonousLithology == nullptr )
+   {
+      return nullptr;
+   }
 
    Interface::AllochthonousLithologyInterpolationList* allochthonousLithologyInterpolationList = new Interface::AllochthonousLithologyInterpolationList;
    MutableAllochthonousLithologyInterpolationList::const_iterator interpolationIter;
-
-   if ( allochthonousLithology == 0 )
-   {
-      return 0;
-   }
 
    for ( interpolationIter = m_allochthonousLithologyInterpolations.begin(); interpolationIter != m_allochthonousLithologyInterpolations.end(); ++interpolationIter )
    {
@@ -3590,21 +3325,6 @@ Interface::OutputPropertyList * ProjectHandle::getTimeOutputProperties() const {
    MutableOutputPropertyList::const_iterator outputPropertyIter;
 
    for ( outputPropertyIter = m_timeOutputProperties.begin(); outputPropertyIter != m_timeOutputProperties.end(); ++outputPropertyIter )
-   {
-      OutputProperty * outputProperty = *outputPropertyIter;
-      outputPropertyList->push_back( outputProperty );
-   }
-
-   return outputPropertyList;
-}
-
-Interface::OutputPropertyList * ProjectHandle::getDepthOutputProperties() const {
-
-   Interface::OutputPropertyList * outputPropertyList = new Interface::OutputPropertyList;
-
-   MutableOutputPropertyList::const_iterator outputPropertyIter;
-
-   for ( outputPropertyIter = m_depthOutputProperties.begin(); outputPropertyIter != m_depthOutputProperties.end(); ++outputPropertyIter )
    {
       OutputProperty * outputProperty = *outputPropertyIter;
       outputPropertyList->push_back( outputProperty );
@@ -3688,26 +3408,6 @@ Interface::FluidThermalConductivitySampleList * ProjectHandle::getFluidThermalCo
    }
 
    return thermalConductivityList;
-}
-
-
-Interface::FluidDensitySampleList * ProjectHandle::getFluidDensitySampleList( const Interface::FluidType* fluid ) const {
-
-   Interface::FluidDensitySampleList * densityList = new Interface::FluidDensitySampleList;
-
-   MutableFluidDensitySampleList::const_iterator sampleIter;
-
-   for ( sampleIter = m_fluidDensitySamples.begin(); sampleIter != m_fluidDensitySamples.end(); ++sampleIter ) {
-
-      FluidDensitySample * densitySample = *sampleIter;
-
-      if ( fluid == 0 or densitySample->getFluid() == fluid ) {
-         densityList->push_back( densitySample );
-      }
-
-   }
-
-   return densityList;
 }
 
 Interface::RelatedProjectList * ProjectHandle::getRelatedProjectList() const {
@@ -3824,12 +3524,6 @@ void ProjectHandle::numberInputValues( void )
 
    unsigned int maxIndexUsed = 0;
    unsigned int index;
-
-   for ( inputValueIter = m_inputValues.begin(); inputValueIter != m_inputValues.end(); ++inputValueIter )
-   {
-      InputValue * inputValue = *inputValueIter;
-      if ( ( index = inputValue->computeIndex() ) > maxIndexUsed ) maxIndexUsed = index;
-   }
 
    for ( inputValueIter = m_inputValues.begin(); inputValueIter != m_inputValues.end(); ++inputValueIter )
    {
@@ -5102,18 +4796,6 @@ void ProjectHandle::deleteTimeOutputProperties() {
    m_timeOutputProperties.clear();
 }
 
-void ProjectHandle::deleteDepthOutputProperties() {
-
-   MutableOutputPropertyList::const_iterator propIter;
-
-   for ( propIter = m_depthOutputProperties.begin(); propIter != m_depthOutputProperties.end(); ++propIter ) {
-      OutputProperty * property = *propIter;
-      delete property;
-   }
-
-   m_depthOutputProperties.clear();
-}
-
 
 
 void ProjectHandle::deleteLithologyThermalConductivitySamples() {
@@ -5163,18 +4845,6 @@ void ProjectHandle::deleteFluidThermalConductivitySamples() {
    }
 
    m_fluidThermalConductivitySamples.clear();
-}
-
-void ProjectHandle::deleteFluidDensitySamples() {
-
-   MutableFluidDensitySampleList::const_iterator sampleIter;
-
-   for ( sampleIter = m_fluidDensitySamples.begin(); sampleIter != m_fluidDensitySamples.end(); ++sampleIter ) {
-      FluidDensitySample * sample = *sampleIter;
-      delete sample;
-   }
-
-   m_fluidDensitySamples.clear();
 }
 
 
@@ -5659,6 +5329,20 @@ void ProjectHandle::deleteSGDensitySample() {
 
 }
 
+void ProjectHandle::deleteFaultCollections() {
+
+   MutableFaultCollectionList::const_iterator faultCollectionIter;
+
+   for ( faultCollectionIter = m_faultCollections.begin(); faultCollectionIter != m_faultCollections.end(); ++faultCollectionIter )
+   {
+      FaultCollection * faultCollectionInstance = *faultCollectionIter;
+      delete faultCollectionInstance;
+   }
+
+   m_faultCollections.clear();
+
+}
+
 
 void ProjectHandle::deleteIrreducibleWaterSaturationSample() {
 
@@ -5703,7 +5387,7 @@ void ProjectHandle::deletePointHistories() {
 /// Get a project's output directory
 std::string ProjectHandle::getOutputDir( void ) const
 {
-   return getProjectName() +  "_CauldronOutputDir";
+   return getProjectName() + Utilities::Names::CauldronOutputDir;
 }
 
 void ProjectHandle::resetSnapshotIoTbl(  ) const
@@ -5904,5 +5588,5 @@ void ProjectHandle::setPrimaryDouble( const bool PrimaryFlag ) {
 }
 
 bool ProjectHandle::isPrimaryProperty( const string propertyName ) const {
-   return m_primaryList.count( propertyName );
+   return m_primaryList.count( propertyName ) == 0 ? false : true;
 }

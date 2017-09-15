@@ -149,10 +149,15 @@ namespace FiniteElementMethod {
                                        const Matrix3x3& Right,
                                              Matrix3x3& Result );
 
+
    double determinant ( const Matrix3x3& M );
 
    void invert ( const Matrix3x3& Mat,
                        Matrix3x3& Inverse );
+
+   void invert ( const Matrix3x3& Mat,
+                       Matrix3x3& Inverse,
+                       double&    determinant );
 
   //------------------------------------------------------------//
 
@@ -188,6 +193,10 @@ namespace FiniteElementMethod {
         return &m_entries [ 0 ];
      }
 
+     double* data () {
+        return &m_entries [ 0 ];
+     }
+
     //----------------------------//
 
     //----------------------------//
@@ -199,7 +208,7 @@ namespace FiniteElementMethod {
   };
 
 
-   ElementVector maximum ( const ElementVector& vec, 
+   ElementVector maximum ( const ElementVector& vec,
                            const double         scalar );
 
    ElementVector maximum ( const ElementVector& vec1,
@@ -376,7 +385,7 @@ namespace FiniteElementMethod {
     //
     //
     // Just a temporary function used for testing
-    // 
+    //
     void Randomise ();
 
     //----------------------------//
@@ -470,7 +479,7 @@ namespace FiniteElementMethod {
                std::ostream&      o = std::cout ) const;
 
      double getMidPoint ();
-  
+
 
   private :
 
@@ -616,7 +625,7 @@ namespace FiniteElementMethod {
 
   inline double innerProduct ( const ElementVector& Left,
                                const ElementVector& Right ) {
-    return Left ( 1 ) * Right ( 1 ) + Left ( 2 ) * Right ( 2 ) + Left( 3 ) * Right( 3 ) + Left( 4 ) * Right( 4 ) + 
+    return Left ( 1 ) * Right ( 1 ) + Left ( 2 ) * Right ( 2 ) + Left( 3 ) * Right( 3 ) + Left( 4 ) * Right( 4 ) +
            Left ( 5 ) * Right ( 5 ) + Left ( 6 ) * Right ( 6 ) + Left( 7 ) * Right( 7 ) + Left( 8 ) * Right( 8 );
   }
 
@@ -764,9 +773,9 @@ namespace FiniteElementMethod {
 
    inline Matrix3x3& Matrix3x3::operator+= ( const Matrix3x3& mat ) {
 
-      m_entries [ 0 ][ 0 ] += mat.m_entries [ 0 ][ 0 ]; m_entries [ 0 ][ 1 ] += mat.m_entries [ 0 ][ 1 ]; m_entries [ 0 ][ 2 ] += mat.m_entries [ 0 ][ 2 ]; 
-      m_entries [ 1 ][ 0 ] += mat.m_entries [ 1 ][ 0 ]; m_entries [ 1 ][ 1 ] += mat.m_entries [ 1 ][ 1 ]; m_entries [ 1 ][ 2 ] += mat.m_entries [ 1 ][ 2 ]; 
-      m_entries [ 2 ][ 0 ] += mat.m_entries [ 2 ][ 0 ]; m_entries [ 2 ][ 1 ] += mat.m_entries [ 2 ][ 1 ]; m_entries [ 2 ][ 2 ] += mat.m_entries [ 2 ][ 2 ]; 
+      m_entries [ 0 ][ 0 ] += mat.m_entries [ 0 ][ 0 ]; m_entries [ 0 ][ 1 ] += mat.m_entries [ 0 ][ 1 ]; m_entries [ 0 ][ 2 ] += mat.m_entries [ 0 ][ 2 ];
+      m_entries [ 1 ][ 0 ] += mat.m_entries [ 1 ][ 0 ]; m_entries [ 1 ][ 1 ] += mat.m_entries [ 1 ][ 1 ]; m_entries [ 1 ][ 2 ] += mat.m_entries [ 1 ][ 2 ];
+      m_entries [ 2 ][ 0 ] += mat.m_entries [ 2 ][ 0 ]; m_entries [ 2 ][ 1 ] += mat.m_entries [ 2 ][ 1 ]; m_entries [ 2 ][ 2 ] += mat.m_entries [ 2 ][ 2 ];
 
       return *this;
    }

@@ -8,7 +8,7 @@
 DataAccess::Mining::DomainReservoirProperty::DomainReservoirProperty ( const DomainPropertyCollection*            collection,
                                                                        DerivedProperties::DerivedPropertyManager& propertyManager,
                                                                        const Interface::Snapshot*                 snapshot,
-                                                                       const Interface::Property*                 property ) : 
+                                                                       const Interface::Property*                 property ) :
    DomainProperty ( collection, propertyManager, snapshot, property )
 {
 
@@ -34,32 +34,6 @@ DataAccess::Mining::DomainReservoirProperty::DomainReservoirProperty ( const Dom
 DataAccess::Mining::DomainReservoirProperty::~DomainReservoirProperty () {
    m_values.clear ();
 }
-
-
-void DataAccess::Mining::DomainReservoirProperty::compute ( const ElementPosition&            position,
-                                                                  InterpolatedPropertyValues& evaluations ) {
-
-   if ( position.getSurface () != 0 ) {
-      SurfaceToPropertyValueMapping::const_iterator propIter = m_values.find ( position.getSurface ());
-
-      if ( propIter != m_values.end ()) {
-         DerivedProperties::FormationMapPropertyPtr grid = propIter->second;
-         evaluations.setValue ( getProperty (), interpolate2D ( position, grid ));
-      } else {
-         evaluations.setValue ( getProperty (), DataAccess::Interface::DefaultUndefinedMapValue );
-      }
-
-   } else {
-
-      if ( not evaluations.contains ( getProperty ())) {
-         // What kind of error is this?
-         evaluations.setValue ( getProperty (), DataAccess::Interface::DefaultUndefinedMapValue );
-      }
-
-   }
-
-}
-
 
 double DataAccess::Mining::DomainReservoirProperty::compute ( const ElementPosition& position ) const {
 
@@ -87,4 +61,3 @@ DataAccess::Mining::DomainProperty* DataAccess::Mining::DomainReservoirPropertyA
                                                                                                      const Interface::Property*                 property ) const {
    return new DomainReservoirProperty ( collection, propertyManager, snapshot, property );
 }
-

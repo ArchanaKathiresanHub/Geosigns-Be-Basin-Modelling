@@ -1,5 +1,15 @@
+//
+// Copyright (C) 2012-2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 #include "Saturation.h"
 
+// std library
 #include <iomanip>
 #include <cmath>
 
@@ -15,10 +25,9 @@ const std::string& Saturation::PhaseImage ( const Phase p ) {
 
 }
 
-Saturation::Phase Saturation::convert ( const pvtFlash::PVTPhase phase ) {
-   return ( phase == pvtFlash::LIQUID_PHASE ? LIQUID : VAPOUR );
+Saturation::Phase Saturation::convert ( const PhaseId phase ) {
+   return ( phase == PhaseId::LIQUID ? LIQUID : VAPOUR );
 }
-
 
 Saturation::Saturation () {
    initialise ();
@@ -76,21 +85,16 @@ Saturation& Saturation::operator/= ( const double divisor ) {
 }
 
 void Saturation::set ( const PVTPhaseValues& phaseSaturations ) {
-   set ( phaseSaturations ( pvtFlash::LIQUID_PHASE ), phaseSaturations ( pvtFlash::VAPOUR_PHASE ), 0.0 );
+   set ( phaseSaturations ( PhaseId::LIQUID ), phaseSaturations ( PhaseId::VAPOUR ), 0.0 );
 }
 
 void Saturation::set ( const PVTPhaseValues& phaseSaturations,
                        const double          immobileSaturation ) {
-   set ( phaseSaturations ( pvtFlash::LIQUID_PHASE ), phaseSaturations ( pvtFlash::VAPOUR_PHASE ), immobileSaturation );
+   set ( phaseSaturations ( PhaseId::LIQUID ), phaseSaturations ( PhaseId::VAPOUR ), immobileSaturation );
 }
 
 void Saturation::set ( const double liquidSaturation,
                        const double vapourSaturation ) {
-
-   // m_values [ LIQUID   ] = liquidSaturation;
-   // m_values [ VAPOUR   ] = vapourSaturation;
-   // m_values [ WATER    ] = 1.0 - m_values [ LIQUID ] - m_values [ VAPOUR ];
-   // m_values [ IMMOBILE ] = 0.0;
 
    set ( liquidSaturation, vapourSaturation, 0.0 );
 }

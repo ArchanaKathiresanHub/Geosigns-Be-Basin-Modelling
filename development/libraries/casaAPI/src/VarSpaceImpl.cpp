@@ -9,7 +9,7 @@
 // 
 
 /// @file VarSpaceImpl.C
-/// @brief This file keeps API implementation for variable parameters set manager. 
+/// @brief This file keeps API implementation for influential parameters set manager. 
 
 #include "VarSpaceImpl.h"
 
@@ -38,7 +38,7 @@ namespace casa
             case VarParameter::Discrete:    m_disPrms.push_back( dynamic_cast<VarPrmDiscrete   *>( prm ) ); break;
 
             default:
-               return reportError( UndefinedValue, "Unknown variable parameter type: " );
+               return reportError( UndefinedValue, "Unknown influential parameter type: " );
                break;
          }
          m_prms.push_back( prm ); // add parameter to the list of all var parameters

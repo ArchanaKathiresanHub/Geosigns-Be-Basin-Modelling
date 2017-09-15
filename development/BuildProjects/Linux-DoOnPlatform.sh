@@ -36,7 +36,7 @@ trap onExit EXIT
 # Execute on available platforms
 exit_status=0
 case $PLATFORM in
-  RHEL6.8) 
+  RHEL7.3) 
       # Submit command to cluster
       bsub -P $LSF_PROJECT -x -Is -q default.q -R "select[ostype=$PLATFORM]" $LSF_PROCS "$@" 
       exit_status=$?
@@ -56,10 +56,10 @@ case $PLATFORM in
 
       ;;
 
-  RHEL6.6)
+  RHEL6.8)
       # Execute on local machine
-      if [ x`/apps/sss/share/getos2 --ver` != x66WS ]; then
-         echo Cannot find a RHEL6.6 machine
+      if [ x`/apps/sss/share/getos2 --ver` != x68WS ]; then
+         echo Cannot find a RHEL6.8 machine
          exit 1
       fi
       

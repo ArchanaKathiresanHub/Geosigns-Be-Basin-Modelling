@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2012-2014 Shell International Exploration & Production.
+// Copyright (C) 2012-2016 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -17,7 +17,7 @@
 #include "Parameter.h"
 
 // CMB API
-#include <UndefinedValues.h>
+#include "UndefinedValues.h"
 
 #include <cassert>
 
@@ -30,7 +30,7 @@ namespace mbapi
 /// 
 /// Crust thickness in Cauldron should be defined by a piecewise linear function @f$ D( t ) @f$ 
 /// User must provide a sorted by time a sequence of points @f$ [p_0(t_0, d_0), p_1(t_1, d_1), ... ] @f$ .
-/// This variable parameter allows to define a crust thickness function with one crust thinning event.
+/// This influential parameter allows to define a crust thickness function with one crust thinning event.
 /// To define such event, user should provide these sub-parameters:
 /// -# initial crust thickness @f$ d_0 @f$ [m]. The valid range is [0:100000]
 /// -# start time for the thinning event @f$ t_0 @f$ [Ma]. The valid range is [0:1000];
@@ -50,8 +50,8 @@ namespace casa
       /// @param mdl Cauldron model interface object to get value for single event crust thinning parameter
       PrmOneCrustThinningEvent( mbapi::Model & mdl );
 
-      /// @brief Constructor. Create parameter from variation of variable parameter
-      /// @param parent pointer to a variable parameter which created this one
+      /// @brief Constructor. Create parameter from variation of influential parameter
+      /// @param parent pointer to a influential parameter which created this one
       /// @param thickIni initial crust thickness [m]
       /// @param t0 start time for crust thinning event [Ma]
       /// @param dt duration of crust thinning event [Ma]
@@ -65,12 +65,12 @@ namespace casa
       /// @return parameter name
       virtual const char * name() const { return "CrustThinningSingleEvent(InitialThickness, T0, dT, ThinningFactor)"; }
 
-      /// @brief Get variable parameter which was used to create this parameter
-      /// @return Pointer to the variable parameter
+      /// @brief Get influential parameter which was used to create this parameter
+      /// @return Pointer to the influential parameter
       virtual const VarParameter * parent() const { return m_parent; }
 
-      /// @brief Set variable parameter which was used to create this parameter
-      /// @param Pointer to the variable parameter
+      /// @brief Set influential parameter which was used to create this parameter
+      /// @param varPrm pointer to the influential parameter
       virtual void setParent( const VarParameter * varPrm )  { m_parent = varPrm; }
 
       /// @brief Get the level of influence to cauldron applications pipeline for this parametr
@@ -96,7 +96,7 @@ namespace casa
 
       /// @brief Get parameter value as integer
       /// @return parameter value represented as integer
-      virtual int asInteger() const { assert( 0 ); return UndefinedIntegerValue; }
+      virtual int asInteger() const { assert( 0 ); return Utilities::Numerical::NoDataIntValue; }
 
       /// @brief Are two parameters equal?
       /// @param prm Parameter object to compare with
@@ -125,7 +125,7 @@ namespace casa
       /// @}
 
    private:
-      const VarParameter * m_parent;          ///< variable parameter which was used to create this one
+      const VarParameter * m_parent;          ///< influential parameter which was used to create this one
       std::string          m_name;            ///< name of the parameter
       
       double               m_initialThickness; ///< initial crust thickness

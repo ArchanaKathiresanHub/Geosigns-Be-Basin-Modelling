@@ -1,17 +1,28 @@
-#ifndef _FASTCAULDRON__PVT_CALCULATOR__H_
-#define _FASTCAULDRON__PVT_CALCULATOR__H_
+//
+// Copyright (C) 2012-2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+#ifndef FASTCAULDRON__PVT_CALCULATOR__H
+#define FASTCAULDRON__PVT_CALCULATOR__H
 
+// std library
 #include <string>
-#include "EosPack.h"
-#include "ComponentManager.h"
 
+// Eospack library
+#include "EosPack.h"
+
+// CBMGenerics library
+#include "ComponentManager.h"
+typedef CBMGenerics::ComponentManager::PhaseId PhaseId;
+typedef CBMGenerics::ComponentManager::SpeciesNamesId ComponentId;
 
 /// The number of components modelled in the pvt flash calculator.
-//static const int NumberOfPVTComponents = CBMGenerics::ComponentManager::NumberOfSpeciesToFlash;
-static const int NumberOfPVTComponents = CBMGenerics::ComponentManager::NumberOfSpecies;
-// static const int NumberOfPVTComponents = pvtFlash::NUM_COMPONENTS;
-
-static const int NumberOfPVTPhases = pvtFlash::N_PHASES;
+static const int NumberOfPVTComponents = ComponentId::NUMBER_OF_SPECIES;
 
 /// Container for all PVT components.
 ///
@@ -22,14 +33,14 @@ public :
 
    static const int BlockSize = NumberOfPVTComponents;
 
-   typedef pvtFlash::ComponentId IndexType;
+   typedef ComponentId IndexType;
 
 
    /// Return the value for the component.
-   double  operator ()( const pvtFlash::ComponentId id ) const;
+   double  operator ()( const ComponentId id ) const;
 
    /// Return the value for the component.
-   double& operator ()( const pvtFlash::ComponentId id );
+   double& operator ()( const ComponentId id );
 
    /// Set all values to zero.
    void zero ();
@@ -57,7 +68,7 @@ public :
    ///
    /// Gas/Vapour = C1, C2, C3, C4 and C5;
    /// Oil/Liquid = All others, e.g. C15_SAT, ...
-   double sum ( const pvtFlash::PVTPhase phase ) const;
+   double sum ( const PhaseId phase ) const;
 
    /// Scale all component-values by scalar.
    PVTComponents& operator*= ( const double scale );
@@ -128,18 +139,13 @@ class PVTPhaseValues {
 
 public :
 
-   static const int BlockSize = pvtFlash::N_PHASES;
-
-   typedef pvtFlash::PVTPhase IndexType;
-
-
    PVTPhaseValues ();
 
    /// Return the value for the phase.
-   double  operator ()( const pvtFlash::PVTPhase phase ) const;
+   double  operator ()( const PhaseId phase ) const;
 
    /// Return the value for the phase.
-   double& operator ()( const pvtFlash::PVTPhase phase );
+   double& operator ()( const PhaseId phase );
 
    /// \brief Assignment operator.
    PVTPhaseValues& operator=( const PVTPhaseValues& values );
@@ -161,7 +167,7 @@ public :
 
    friend class PVTCalc;
 
-   double m_values [ pvtFlash::N_PHASES ];
+   double m_values [PhaseId::NUMBER_OF_PHASES];
 
 };
 
@@ -179,18 +185,18 @@ class PVTPhaseComponents {
 public :
 
    /// Return the value for the component in particular phase.
-   double  operator ()( const pvtFlash::PVTPhase     phase,
-                        const pvtFlash::ComponentId id ) const;
+   double  operator ()( const PhaseId     phase,
+                        const ComponentId id ) const;
 
    /// Return the value for the component in particular phase.
-   double& operator ()( const pvtFlash::PVTPhase     phase,
-                        const pvtFlash::ComponentId id );
+   double& operator ()( const PhaseId     phase,
+                        const ComponentId id );
 
    /// Set all values to zero.
    void zero ();
 
    /// Sum all component values for a particular phase.
-   double sum ( const pvtFlash::PVTPhase phase ) const;
+   double sum ( const PhaseId phase ) const;
 
    /// \brief Sum the components for each phase.
    void sum ( PVTPhaseValues& phases ) const;
@@ -209,15 +215,15 @@ public :
    PVTPhaseComponents& operator+=( const PVTPhaseComponents& components );
 
    /// Set the component-values for a particular phase.
-   void setPhaseComponents ( const pvtFlash::PVTPhase phase,
-                             const PVTComponents&    components );
+   void setPhaseComponents ( const PhaseId        phase,
+                             const PVTComponents& components );
 
    /// Get the component-values for a particular phase.
-   void getPhaseComponents ( const pvtFlash::PVTPhase phase,
-                                   PVTComponents&    components ) const;
+   void getPhaseComponents ( const PhaseId        phase,
+                                   PVTComponents& components ) const;
 
    /// Get the component-values for a particular phase.
-   PVTComponents getPhaseComponents ( const pvtFlash::PVTPhase phase ) const;
+   PVTComponents getPhaseComponents ( const PhaseId phase ) const;
 
    /// Return the string representation of phase-component-values.
    std::string image ( const bool reverseOrder = true ) const;
@@ -244,8 +250,7 @@ public :
 
    friend class PVTCalc;
 
-   // PVTComponents m_masses [ pvtFlash::N_PHASES ];
-   double m_masses [ pvtFlash::N_PHASES ][ NumberOfPVTComponents ];
+   double m_masses [PhaseId::NUMBER_OF_PHASES][ NumberOfPVTComponents ];
 
 };
 
@@ -305,35 +310,35 @@ private :
 //------------------------------------------------------------//
 
 
-inline double PVTComponents::operator ()( const pvtFlash::ComponentId id ) const {
+inline double PVTComponents::operator ()( const ComponentId id ) const {
    return m_components [ id ];
 }
 
-inline double& PVTComponents::operator ()( const pvtFlash::ComponentId id ) {
+inline double& PVTComponents::operator ()( const ComponentId id ) {
    return m_components [ id ];
 }
 
-inline double PVTPhaseComponents::operator ()( const pvtFlash::PVTPhase     phase,
-                                               const pvtFlash::ComponentId id ) const {
+inline double PVTPhaseComponents::operator ()( const PhaseId     phase,
+                                               const ComponentId id ) const {
    return m_masses [ phase ][ id ];
 }
 
-inline double& PVTPhaseComponents::operator ()( const pvtFlash::PVTPhase    phase,
-                                                const pvtFlash::ComponentId id ) {
+inline double& PVTPhaseComponents::operator ()( const PhaseId     phase,
+                                                const ComponentId id ) {
    return m_masses [ phase ][ id ];
 }
 
-inline double PVTPhaseValues::operator ()( const pvtFlash::PVTPhase phase ) const {
+inline double PVTPhaseValues::operator ()( const PhaseId phase ) const {
    return m_values [ phase ];
 }
 
-inline double& PVTPhaseValues::operator ()( const pvtFlash::PVTPhase phase ) {
+inline double& PVTPhaseValues::operator ()( const PhaseId phase ) {
    return m_values [ phase ];
 }
 
 inline PVTPhaseValues& PVTPhaseValues::operator/=( const PVTPhaseValues& divisor ) {
-   m_values [ 0 ] /= divisor ( pvtFlash::VAPOUR_PHASE );
-   m_values [ 1 ] /= divisor ( pvtFlash::LIQUID_PHASE );
+   m_values [ 0 ] /= divisor ( PhaseId::VAPOUR );
+   m_values [ 1 ] /= divisor ( PhaseId::LIQUID );
 
    return *this;
 }
@@ -358,4 +363,4 @@ inline const PVTComponents& PVTCalc::getMolarMass () const {
 }
 
 
-#endif // _FASTCAULDRON__PVT_CALCULATOR__H_
+#endif // FASTCAULDRON__PVT_CALCULATOR__H

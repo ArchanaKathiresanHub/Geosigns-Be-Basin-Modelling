@@ -13,13 +13,15 @@
 #include "VisualizationIO_projectHandle.h"
 #include "FilePath.h"
 #include "Interface/Property.h"
+#include "Interface/InputValue.h"
 
 using namespace DataAccess;
 using namespace DataAccess::Interface;
 
 CauldronIO::MapProjectHandle::MapProjectHandle(std::shared_ptr<const CauldronIO::Geometry2D>& geometry) : SurfaceData(geometry)
 {
-    m_propVal = NULL;
+	m_propVal = nullptr;
+	m_inputVal = nullptr;
 }
 
 CauldronIO::MapProjectHandle::~MapProjectHandle()
@@ -47,11 +49,11 @@ void CauldronIO::MapProjectHandle::release()
 
     if (m_info.size() > 0)
     {
-        for (int i = 0; i < m_info.size(); i++)
-        {
-            if (m_info[i]->getData() != NULL)
-                delete[] m_info[i]->getData();
-        }
+		assert(m_info.size() == 1);
+		if (m_info[0]->getData() != nullptr)
+		{
+			delete[] m_info[0]->getData();
+		}
     }
     m_info.clear();
 
@@ -76,7 +78,7 @@ std::shared_ptr<CauldronIO::HDFinfo > CauldronIO::MapProjectHandle::getHDFinfoFo
 void CauldronIO::MapProjectHandle::retrieveFromHDF()
 {
     assert(signalNewHDFdata());
-    assert(m_info.size() == 1 && m_info[0]->getData() != NULL);
+    assert(m_info.size() == 1 && m_info[0]->getData() != nullptr);
     float* hdfData = m_info[0]->getData(); 
 
     float constantValue;
@@ -84,6 +86,9 @@ void CauldronIO::MapProjectHandle::retrieveFromHDF()
     bool firstConstant = true;
     float* mapData = new float[m_numI * m_numJ];
     size_t index = 0;
+
+    assert(m_numI == m_info[0]->numI);
+    assert(m_numJ == m_info[0]->numJ);
 
     for (unsigned int j = 0; j < m_numJ; ++j)
     {
@@ -118,14 +123,23 @@ const std::vector < std::shared_ptr<CauldronIO::HDFinfo> >& CauldronIO::MapProje
     if (m_info.size() > 0)
         return m_info;
 
-    if (m_propVal != NULL)
+    if (m_propVal != nullptr)
     {
         std::shared_ptr <CauldronIO::HDFinfo > info = MapProjectHandle::getHDFinfoForPropVal(m_propVal);
         info->parent = this;
         info->indexSub = -1;
-        info->setData(NULL);
+        info->setData(nullptr);
         m_info.push_back(info);
     }
+	else if (m_inputVal != nullptr)
+	{
+		std::shared_ptr <CauldronIO::HDFinfo > info(new CauldronIO::HDFinfo());
+		m_inputVal->getHDFinfo(info->filepathName, info->dataSetName);
+		info->parent = this;
+		info->indexSub = -1;
+		info->setData(nullptr);
+		m_info.push_back(info);
+	}
     
     return m_info;
 }
@@ -135,12 +149,18 @@ void CauldronIO::MapProjectHandle::setDataStore(const DataAccess::Interface::Pro
     m_propVal = propVal;
 }
 
+
+void CauldronIO::MapProjectHandle::setDataStore(const DataAccess::Interface::InputValue* inputVal)
+{
+	m_inputVal = inputVal;
+}
+
 bool CauldronIO::MapProjectHandle::signalNewHDFdata()
 {
     if (m_info.size() == 0) return false;
     
     for (int i = 0; i < m_info.size(); i++)
-        if (m_info[i]->getData() == NULL) return false;
+        if (m_info[i]->getData() == nullptr) return false;
 
     return true;
 }
@@ -148,7 +168,7 @@ bool CauldronIO::MapProjectHandle::signalNewHDFdata()
 CauldronIO::VolumeProjectHandle::VolumeProjectHandle(const std::shared_ptr<Geometry3D>& geometry)
     : VolumeData(geometry)
 {
-    m_propVal = NULL;
+    m_propVal = nullptr;
     m_depthInfo.reset();
     m_propValues.reset();
     m_depthFormations.reset();
@@ -176,7 +196,7 @@ void CauldronIO::VolumeProjectHandle::retrieve()
             // Read from prefetched HDF
             retrieveMultipleFromHDF();
     }
-    else if (m_propVal != NULL)
+    else if (m_propVal != nullptr)
     {
         if (!signalNewHDFdata())
             throw CauldronIOException("Cannot retrieve data, HDF binary not read yet");
@@ -192,7 +212,7 @@ void CauldronIO::VolumeProjectHandle::release()
     {
         for (int i = 0; i < m_info.size(); i++)
         {
-            if (m_info[i]->getData() != NULL)
+            if (m_info[i]->getData() != nullptr)
                 delete[] m_info[i]->getData();
         }
     }
@@ -209,23 +229,23 @@ const std::vector < std::shared_ptr<CauldronIO::HDFinfo> >& CauldronIO::VolumePr
 
     if (m_depthFormations && m_propValues)
     {
-        assert(m_propVal == NULL && m_depthInfo == NULL);
+        assert(m_propVal == nullptr && m_depthInfo == nullptr);
         for (int i = 0; i < m_propValues->size(); i++)
         {
             std::shared_ptr <CauldronIO::HDFinfo > info = MapProjectHandle::getHDFinfoForPropVal(m_propValues->at(i));
             info->parent = this;
             info->indexSub = i;
-            info->setData(NULL);
+            info->setData(nullptr);
             m_info.push_back(info);
         }
     }
-    else if (m_propVal != NULL)
+    else if (m_propVal != nullptr)
     {
         assert(!m_depthFormations && !m_propValues);
         std::shared_ptr <CauldronIO::HDFinfo > info = MapProjectHandle::getHDFinfoForPropVal(m_propVal);
         info->parent = this;
         info->indexSub = -1;
-        info->setData(NULL);
+        info->setData(nullptr);
         m_info.push_back(info);
     }
 
@@ -235,13 +255,16 @@ const std::vector < std::shared_ptr<CauldronIO::HDFinfo> >& CauldronIO::VolumePr
 void CauldronIO::VolumeProjectHandle::retrieveMultipleFromHDF()
 {
     assert(signalNewHDFdata());
-    assert(m_info.size() >= 1 && m_info[0]->getData() != NULL);
+    assert(m_info.size() >= 1 && m_info[0]->getData() != nullptr);
 
     // Detect a constant volume consisting of all constant subvolumes (bit extreme case though)
     float constantValue;
     bool isConstant = true;
     bool firstConstant = true;
     float* inputData = new float[m_numI * m_numJ * m_numK];
+
+    assert(m_numI == m_info[0]->numI);
+    assert(m_numJ == m_info[0]->numJ);
 
     // Make sure all k-range is accounted for
     size_t detected_minK = 16384;
@@ -322,12 +345,21 @@ void CauldronIO::VolumeProjectHandle::retrieveMultipleFromHDF()
 void CauldronIO::VolumeProjectHandle::retrieveSingleFromHDF()
 {
     assert(signalNewHDFdata());
-    assert(m_info.size() == 1 && m_info[0]->getData() != NULL);
+    assert(m_info.size() == 1 && m_info[0]->getData() != nullptr);
     float* hdfData = m_info[0]->getData();
 
     float constantValue;
     bool isConstant = true;
     bool firstConstant = true;
+
+    // Check our dimensions
+    if (m_numI != m_info[0]->numI || m_numJ != m_info[0]->numJ)
+    {
+        m_geometry->updateIJ_range(m_info[0]->numI, m_info[0]->numJ);
+        updateGeometry();
+    }
+    assert(m_numK == m_info[0]->numK);
+
     float* inputData = new float[m_numI * m_numJ * m_numK];
 
     for (unsigned int k = 0; k < m_numK; ++k)
@@ -377,7 +409,7 @@ bool CauldronIO::VolumeProjectHandle::signalNewHDFdata()
     if (m_info.size() == 0) return false;
     
     for (int i = 0; i < m_info.size(); i++)
-        if (m_info[i]->getData() == NULL) return false;
+        if (m_info[i]->getData() == nullptr) return false;
 
     return true;
 }

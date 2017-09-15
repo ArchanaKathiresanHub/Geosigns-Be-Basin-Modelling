@@ -95,7 +95,7 @@ void LandmarkFaultFileReader::readBuffer ( char* buffer ) {
 
 //------------------------------------------------------------//
 
-bool LandmarkFaultFileReader::isComment ( const char* buffer ) const {
+bool LandmarkFaultFileReader::isComment ( const char* ) const {
   //
   // What are the landmark fault file comments characters?
   //
@@ -152,9 +152,8 @@ std::string LandmarkFaultFileReader::getString ( const char* buffer,
   /// The number is not going to be longer than the file line.
   ///
   char subString [ LandmarkFaultFileLineLength ];
-  int  I;
 
-  for ( I = 0; I < LandmarkFaultFileLineLength; I++ ) {
+  for ( size_t I = 0; I < LandmarkFaultFileLineLength; I++ ) {
     subString [ I ] = 0;
   }
 
@@ -163,10 +162,10 @@ std::string LandmarkFaultFileReader::getString ( const char* buffer,
   ///
   /// Now, remove all trailing ' ' (space) characters.
   ///
-  for ( I = strlen ( subString ) - 1; I >= 0; I-- ) {
+  for ( size_t I = strlen ( subString ); I > 0; I-- ) {
 
-    if ( subString [ I ] != ' ' ) {
-      subString [ I + 1 ] = 0;
+    if ( subString [ I - 1 ] != ' ' ) {
+      subString [ I ] = 0;
       break;
     }
 

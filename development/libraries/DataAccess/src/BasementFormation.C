@@ -1,9 +1,9 @@
-//                                                                      
+//
 // Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
-// 
+//
 // Developed under license for Shell by PDS BV.
-// 
+//
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
@@ -42,7 +42,7 @@ using namespace Interface;
 
 const std::string BasementFormation::HomogeneousMixtureString = "Homogeneous";
 
-BasementFormation::BasementFormation (ProjectHandle * projectHandle, database::Record* record, const std::string& formationName, const std::string& lithologyName ) : 
+BasementFormation::BasementFormation (ProjectHandle * projectHandle, database::Record* record, const std::string& formationName, const std::string& lithologyName ) :
    Formation (projectHandle, record), m_formationName ( formationName ), m_lithologyName ( lithologyName )
 {
    m_mangledName = utilities::mangle ( m_formationName );
@@ -89,7 +89,7 @@ MobileLayerList * BasementFormation::getMobileLayers (void) const
 
 // Return the allochthonous lithology pointer.
 const AllochthonousLithology * BasementFormation::getAllochthonousLithology (void) const {
-  return false;
+  return nullptr;
 }
 
 /// return the list of reservoirs in this formation.
@@ -130,7 +130,7 @@ const SourceRock * BasementFormation::getSourceRock (void) const
    return nullptr;
 }
 
-GridMap * BasementFormation::computeFaultGridMap (const Grid * localGrid, const Snapshot * snapshot) const
+GridMap * BasementFormation::computeFaultGridMap (const Grid * , const Snapshot * ) const
 {
    return nullptr;
 }
@@ -147,6 +147,11 @@ const std::string& BasementFormation::getMixModelStr (void) const {
 const FluidType* BasementFormation::getFluidType (void) const
 {
    return nullptr;
+}
+
+//@TODO_Check
+unsigned int BasementFormation::getElementRefinement () const {
+   return DefaultBasementElementRefinement;
 }
 
 float BasementFormation::getLayeringIndex(void) const {

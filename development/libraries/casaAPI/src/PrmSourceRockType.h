@@ -54,7 +54,7 @@ namespace casa
       PrmSourceRockType( mbapi::Model & mdl, const std::string & layerName, int mixID = 1 );
 
       /// @brief Constructor. Creates the parameter to variate source rock types for the given layer
-      PrmSourceRockType( const VarParameter * parent     ///< pointer to a variable parameter which created this one
+      PrmSourceRockType( const VarParameter * parent     ///< pointer to a influential parameter which created this one
                        , const std::string  & layerName  ///< stratigraphy layer name
                        , const std::string  & srTypeName ///< name of the source rock type
                        , int                  mixID      ///< 1 or 2 - source rock mixing ID
@@ -67,12 +67,12 @@ namespace casa
       /// @return parameter name
       virtual const char * name() const { return m_name.c_str(); }
 
-      /// @brief Get variable parameter which was used to create this parameter
-      /// @return Pointer to the variable parameter
+      /// @brief Get influential parameter which was used to create this parameter
+      /// @return Pointer to the influential parameter
       virtual const VarParameter * parent() const { return m_parent; }
 
-      /// @brief Set variable parameter which was used to create this parameter
-      /// @param Pointer to the variable parameter
+      /// @brief Set influential parameter which was used to create this parameter
+      /// @param varPrm pointer to the influential parameter
       virtual void setParent( const VarParameter * varPrm )  { m_parent = varPrm; }
 
       /// @brief Get the level of influence to cauldron applications pipeline for this parametr
@@ -136,7 +136,7 @@ namespace casa
       /// @}
 
    protected:
-      const VarParameter * m_parent;    ///< variable parameter which was used to create this one
+      const VarParameter * m_parent;    ///< influential parameter which was used to create this one
       std::string          m_name;      ///< name of the parameter
       
       std::string          m_layerName; ///< layer name with source rock

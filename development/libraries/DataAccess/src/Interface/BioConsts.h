@@ -1,5 +1,14 @@
-#ifndef _DISTRIBUTEDDATAACCESS_BIOCONSTS_H_
-#define _DISTRIBUTEDDATAACCESS_BIOCONSTS_H_
+//
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+#ifndef DISTRIBUTEDDATAACCESS_BIOCONSTS_H
+#define DISTRIBUTEDDATAACCESS_BIOCONSTS_H
 
 #include <iostream>
 #include <vector>
@@ -27,8 +36,7 @@ namespace DataAccess {
                cerr << "Warning: you try to biodegrade CO2. The CO2 cannot be biodegraded, its biodegradation coefficient has been reset to 1.0" << endl;
                m_bioConsts[COX] = 1.0;
             }
-            */
-            
+            */            
          }
 
          size_t size() const { return m_bioConsts.size(); }

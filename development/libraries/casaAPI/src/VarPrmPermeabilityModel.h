@@ -29,7 +29,7 @@ namespace casa
                                                           , const std::vector<double> & maxModelPrms ///< list of model parameters for maximal range values
                                                           );
 
-      /// @brief Construct variable parameter for variation of permeability model parameters for the layer with specific lithology
+      /// @brief Construct influential parameter for variation of permeability model parameters for the layer with specific lithology
       /// Permeability models and their parameters are described @link CASA_PermeabilityModelPage here @endlink 
       VarPrmPermeabilityModel( const char                                  * lithoName     ///< name of the lithology
                              , PrmPermeabilityModel::PermeabilityModelType   mdlType       ///< perm. model type: None/Impermeable/Sanstone/Mudstone/Multipoint
@@ -42,14 +42,15 @@ namespace casa
 
       virtual ~VarPrmPermeabilityModel();
 
-      /// @brief Get name of variable parameter in short form     
+      /// @brief Get name of influential parameter in short form     
       /// @return array of names for each subparameter
       virtual std::vector<std::string> name() const;
 
       /// @brief Get number of subparameters if it is more than one
-      /// @return dimension of variable parameter
+      /// @return dimension of influential parameter
       virtual size_t dimension() const;
 
+      using VarPrmContinuous::newParameterFromDoubles;
       /// @brief Create parameter from set of doubles. This method is used to convert data between CASA and SUMlib
       /// @param[in,out] vals iterator which points to the first parameter value.
       /// @return new parameter for given set of values
@@ -57,6 +58,7 @@ namespace casa
 
       /// @brief Create parameter by reading the values stored in the project file
       /// @param[in] mdl the model where the parameters values should be read
+      /// @param[in] vin an input vector with parameter specific values. Not used in this parameter
       /// @return the new parameter read from the model
       virtual SharedParameterPtr newParameterFromModel( mbapi::Model & mdl, const std::vector<double> & vin ) const;
 

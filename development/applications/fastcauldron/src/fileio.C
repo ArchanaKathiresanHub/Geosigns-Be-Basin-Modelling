@@ -24,9 +24,6 @@ string generatePropertyFileName ( const string& outputDirectory,
                                   const bool    isMinorSnapshot, 
                                   const double  time ) {
 
-  const int size = 150;
-  char buffer[size];
-
   stringstream fileNameStr;//(buffer, size);
 
   if ( isMinorSnapshot ) {
@@ -40,4 +37,3 @@ string generatePropertyFileName ( const string& outputDirectory,
   return fileName;
 
 }
-

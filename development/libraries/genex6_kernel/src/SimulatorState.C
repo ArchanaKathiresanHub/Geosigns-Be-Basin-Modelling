@@ -442,14 +442,16 @@ void SimulatorState::mixIntervalResults ( SimulatorState * inSimulatorState1, Si
       curId = m_speciesManager->mapIdToComponentManagerSpecies( i );
 
       if( curId != CBMGenerics::ComponentManager::UNKNOWN ) {
+         double tempCumulative = 0.0;
          id = speciesManager1->mapIdToComponentManagerSpecies( i );
          if ( id != CBMGenerics::ComponentManager::UNKNOWN ) {
-            m_intervalCumulativeSpecies [ curId ] += fraction1 * inSimulatorState1->m_intervalCumulativeSpecies [ id ];
+            tempCumulative += fraction1 * inSimulatorState1->m_intervalCumulativeSpecies [ id ];
          }
          id  = speciesManager2->mapIdToComponentManagerSpecies ( i );
          if ( id != CBMGenerics::ComponentManager::UNKNOWN ) {
-            m_intervalCumulativeSpecies [ curId ] += fraction2 * inSimulatorState2->m_intervalCumulativeSpecies [ id ];
+            tempCumulative += fraction2 * inSimulatorState2->m_intervalCumulativeSpecies [ id ];
          }
+         m_intervalCumulativeSpecies [ curId ] = tempCumulative;
       }
    }
 #if 0
@@ -1415,7 +1417,7 @@ void SimulatorState::resetIntervalCumulative () {
    m_intervalCumulativeQuantities [SaturatesExpelledVolumeCum] = 0.0;
    m_intervalCumulativeQuantities [WetGasExpelledVolumeCum] = 0.0;
 
-   for ( i = 0; i < CBMGenerics::ComponentManager::NumberOfOutputSpecies; ++i ) {
+   for ( i = 0; i < ComponentId::NUMBER_OF_SPECIES; ++i ) {
       m_intervalCumulativeSpecies [ i ] = 0.0;
    } 
 

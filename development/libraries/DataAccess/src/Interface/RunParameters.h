@@ -95,11 +95,9 @@ namespace DataAccess
          /// Overpressure optimisation level string.
          virtual const std::string& getOptimisationLevelStr () const;
 
-         /// Indicates when ves constraints are permitted during the overpressure calculation.
-         virtual bool getConstrainVES () const;
          /// @}
 
-         /// \name Fastmig (flow-path) parameters.
+         /// \name Fastmig parameters.
          /// @{
          
          /// Indicates whether to perform flow path algorithm which considers capillary  and hydrodinamic forces.
@@ -111,8 +109,8 @@ namespace DataAccess
          /// Indicates minimum gas column height a reservoir must be able to sustain
          virtual double getMinGasColumnHeight () const;
 
-         /// Indicates whether to perform vertical or non-vertical secondary migration.
-         virtual bool getVerticalSecondaryMigration () const;
+         /// Indicates whether to use the basic (vertical) or the advanced (non-vertical, reservoir detection) migration engine.
+         virtual bool getAdvancedMigration () const;
 
          /// Indicates whether to automatically detect reservoir nodes.
          virtual bool getReservoirDetection () const;

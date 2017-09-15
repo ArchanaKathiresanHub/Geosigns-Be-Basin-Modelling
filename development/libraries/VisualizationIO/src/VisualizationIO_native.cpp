@@ -57,7 +57,7 @@ void CauldronIO::MapNative::retrieve()
 
 void CauldronIO::MapNative::setDataStore(DataStoreParams* params)
 {
-    m_params = params;
+	m_params = params;
 }
 
 const DataStoreParams* CauldronIO::MapNative::getDataStoreParams() const
@@ -170,3 +170,60 @@ const DataStoreParams* CauldronIO::VolumeDataNative::getDataStoreParamsKIJ() con
 {
     return m_paramsKIJ;
 }
+
+// Reference volume implementation
+//////////////////////////////////////////////////////////////////
+
+CauldronIO::ReferenceVolume::ReferenceVolume(const std::shared_ptr<Geometry3D>& geometry, float minValue /*= DefaultUndefinedValue*/,
+	float maxValue /*= DefaultUndefinedValue*/)
+	: VolumeData(geometry, minValue, maxValue)
+{
+	m_paramsIJK = nullptr;
+	m_paramsKIJ = nullptr;
+	m_dataIJK = false;
+	m_dataKIJ = false;
+}
+
+void CauldronIO::ReferenceVolume::setDataStore(const DataStoreParams* params, bool dataIJK)
+{
+	if (dataIJK)
+	{
+		m_paramsIJK = params;
+		m_dataIJK = true;
+	}
+	else
+	{
+		m_paramsKIJ = params;
+		m_dataKIJ = true;
+	}
+}
+
+const DataStoreParams* CauldronIO::ReferenceVolume::getDataStoreParamsIJK() const
+{
+	return m_paramsIJK;
+}
+
+const DataStoreParams* CauldronIO::ReferenceVolume::getDataStoreParamsKIJ() const
+{
+	return m_paramsKIJ;
+}
+
+// Reference map implementation
+//////////////////////////////////////////////////////////////////
+
+CauldronIO::ReferenceMap::ReferenceMap(const std::shared_ptr<const Geometry2D>& geometry, float minValue /*= DefaultUndefinedValue*/, float maxValue /*= DefaultUndefinedValue*/)
+	: SurfaceData(geometry, minValue, maxValue)
+{
+	m_params = nullptr;
+}
+
+void CauldronIO::ReferenceMap::setDataStore(const DataStoreParams* params)
+{
+	m_params = params;
+}
+
+const CauldronIO::DataStoreParams* CauldronIO::ReferenceMap::getDataStoreParams() const
+{
+	return m_params;
+}
+

@@ -69,22 +69,20 @@ void GeoPhysics::AllochthonousLithologyManager::initialiseLayers () {
 
 //------------------------------------------------------------//
 
-bool GeoPhysics::AllochthonousLithologyManager::allochthonousModellingRequired ( database::Database* projectDatabase ) const {
+bool GeoPhysics::AllochthonousLithologyManager::allochthonousModellingRequired () const {
 
-  database::Table* runOptionsTable = projectDatabase->getTable ( "RunOptionsIoTbl" );
+  database::Table* runOptionsTable = m_projectHandle->getTable ( "RunOptionsIoTbl" );
 
   return database::getAllochthonousModelling ( runOptionsTable, 0 ) == 1;
 }
 
 //------------------------------------------------------------//
 
-bool GeoPhysics::AllochthonousLithologyManager::allochthonousModellingRequired ( database::Database* projectDatabase,
-                                                                                 const std::string&  formationName ) const {
+bool GeoPhysics::AllochthonousLithologyManager::allochthonousModellingRequired ( const std::string& formationName ) const {
 
-  size_t i;
-  database::Table* stratTable = projectDatabase->getTable ( "StratIoTbl" );
+  database::Table* stratTable = m_projectHandle->getTable ( "StratIoTbl" );
 
-  for ( i = 0; i < stratTable->size (); i++ ) {
+  for ( int i = 0; i < stratTable->size (); i++ ) {
 
     if ( database::getLayerName ( stratTable, i ) == formationName ) {
       return database::getHasAllochthonLitho ( stratTable, i ) == 1;
@@ -97,16 +95,15 @@ bool GeoPhysics::AllochthonousLithologyManager::allochthonousModellingRequired (
 
 //------------------------------------------------------------//
 
-bool GeoPhysics::AllochthonousLithologyManager::initialiseInterpolators ( database::Database* projectDatabase,
-                                                                          const std::string&  directoryName ) {
+bool GeoPhysics::AllochthonousLithologyManager::initialiseInterpolators ( const std::string&  directoryName ) {
 
-  if ( ! allochthonousModellingRequired ( projectDatabase )) {
+  if ( ! allochthonousModellingRequired ()) {
     // If the global switch is OFF then do not read any of the data.
     return true;
   }
 
-  database::Table* allochLithoTable = projectDatabase->getTable ( "AllochthonLithoIoTbl" );
-  database::Table* allochInterpTable = projectDatabase->getTable ( "AllochthonLithoInterpIoTbl" );
+  database::Table* allochLithoTable = m_projectHandle->getTable ( "AllochthonLithoIoTbl" );
+  database::Table* allochInterpTable = m_projectHandle->getTable ( "AllochthonLithoInterpIoTbl" );
   database::Table::iterator iter;
   AllochthonousLithologyInterpolator* lithoInterp;
   CompoundLithology* allochthonousLithology;
@@ -118,13 +115,13 @@ bool GeoPhysics::AllochthonousLithologyManager::initialiseInterpolators ( databa
     allochthonousLithology = m_projectHandle->getLithologyManager ().getCompoundLithology ( database::getLithotype ( *iter ));
 
     if ( allochthonousLithology == 0 ) {
-      cout << "MeSsAgE  ERROR Could not find the lithology " 
-           << database::getLithotype ( *iter ) 
+      cout << "MeSsAgE  ERROR Could not find the lithology "
+           << database::getLithotype ( *iter )
            << " required by the allochthonous modelling " << endl;
       return false;
     }
 
-    if ( allochthonousModellingRequired ( projectDatabase, database::getLayerName ( *iter ))) {
+    if ( allochthonousModellingRequired ( database::getLayerName ( *iter ))) {
       // If the layer switch is off then do not create the interpolator.
       lithoInterp = new AllochthonousLithologyInterpolator ( allochthonousLithology );
       interpolators [ database::getLayerName ( *iter )] = lithoInterp;
@@ -140,8 +137,8 @@ bool GeoPhysics::AllochthonousLithologyManager::initialiseInterpolators ( databa
       fileId = H5Fopen ( fullFileName.cpath (), H5F_ACC_RDONLY, H5P_DEFAULT );
 
       if ( fileId < 0 ) {
-        cout << "MeSsAgE  ERROR Could not open HDF file " 
-             << database::getInterpFileName ( *iter ) 
+        cout << "MeSsAgE  ERROR Could not open HDF file "
+             << database::getInterpFileName ( *iter )
              << " required by the allochthonous modelling " << endl;
         return false;
       }
@@ -316,7 +313,7 @@ bool GeoPhysics::AllochthonousLithologyManager::initialiseInterpolator ( hid_t& 
 
   // END OF Read-in data from HDF file.
 
-  // Now that all of the data has been read from the file, the interval 
+  // Now that all of the data has been read from the file, the interval
   // interpolator can be initialised.
   interp->setPolynomialDegree ( polynomialDegree );
   interp->setInterpolationPoints ( interpolationPoints );

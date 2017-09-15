@@ -44,21 +44,22 @@ static double minus (double a, double b)
 }
 
 Formation::Formation (ProjectHandle * projectHandle, Record * record) : 
-   DAObject (projectHandle, record), m_top (0), m_bottom (0),
-   m_fluidType(0)
+   DAObject (projectHandle, record), m_top (nullptr), m_bottom (nullptr),
+   m_fluidType(nullptr)
 {
 
    // It is up to the the derived classes to initialise correctly the member components of this class.
-   const bool recordFromStratIOTbl = ( m_record != 0 and m_record->getTable ()->name () == "StratIoTbl" );
+   const bool recordFromStratIOTbl = ( m_record != nullptr and m_record->getTable ()->name () == "StratIoTbl" );
 
-   m_lithoType1 = 0;
-   m_lithoType2 = 0;
-   m_lithoType3 = 0;
+   m_lithoType1 = nullptr;
+   m_lithoType2 = nullptr;
+   m_lithoType3 = nullptr;
 
-   m_allochthonousLithology = 0;
+   m_allochthonousLithology = nullptr;
 
-   m_sourceRock1 = 0;
-   m_sourceRock2 = 0;
+   m_sourceRock1 = nullptr;
+   m_sourceRock2 = nullptr;
+   m_igneousIntrusion = nullptr;
 
    m_igneousIntrusion = 0;
 
@@ -75,7 +76,6 @@ Formation::Formation (ProjectHandle * projectHandle, Record * record) :
    }
 
 }
-
 
 
 Formation::~Formation (void)
@@ -149,7 +149,7 @@ const string & Formation::getMangledName (void) const
 const string & Formation::getTopSurfaceName (void) const
 {
 
-   if ( m_top != 0 ) {
+   if ( m_top != nullptr) {
       return m_top->getName ();
    } else {
       return NullString;
@@ -160,7 +160,7 @@ const string & Formation::getTopSurfaceName (void) const
 const string & Formation::getBottomSurfaceName (void) const
 {
 
-   if ( m_bottom != 0 ) {
+   if ( m_bottom != nullptr) {
       return m_bottom->getName ();
    } else {
       return NullString;
@@ -192,25 +192,25 @@ const GridMap * Formation::getInputThicknessMap (void) const
 {
    const GridMap * gridMap;
 
-   if ((gridMap = (const GridMap *) getChild (ThicknessMap)) != 0) return gridMap;
-   else if ((gridMap = loadThicknessMap ()) != 0) return gridMap;
-   else if ((gridMap = computeThicknessMap ()) != 0) return gridMap;
-   else return 0;
+   if ((gridMap = (const GridMap *) getChild (ThicknessMap)) != nullptr) return gridMap;
+   else if ((gridMap = loadThicknessMap ()) != nullptr) return gridMap;
+   else if ((gridMap = computeThicknessMap ()) != nullptr) return gridMap;
+   else return nullptr;
 }
 
 const GridMap * Formation::getMixingHIMap (void) const
 {
    const GridMap * gridMap;
 
-   if ((gridMap = (const GridMap *) getChild (MixingHIMap)) != 0) return gridMap;
-   else if ((gridMap = loadMixingHIMap ()) != 0) return gridMap;
-   else return 0;
+   if ((gridMap = (const GridMap *) getChild (MixingHIMap)) != nullptr) return gridMap;
+   else if ((gridMap = loadMixingHIMap ()) != nullptr) return gridMap;
+   else return nullptr;
 }
 
 GridMap * Formation::loadMixingHIMap (void) const
 {
    double value;
-   GridMap * gridMap = 0;
+   GridMap * gridMap = nullptr;
 
    const string &mixingHIGridMapId = getSourceRockMixingHIGrid (m_record);
    if (mixingHIGridMapId.length () != 0)
@@ -219,7 +219,6 @@ GridMap * Formation::loadMixingHIMap (void) const
    }
    else if ((value = getSourceRockMixingHI()) != RecordValueUndefined)
    {
-      //const Grid * grid = m_projectHandle->getInputGrid ();
       const Grid * grid = m_projectHandle->getActivityOutputGrid();
       if (!grid) grid = (Grid *) m_projectHandle->getInputGrid ();
       gridMap = m_projectHandle->getFactory ()->produceGridMap (this, MixingHIMap, grid, value);
@@ -231,11 +230,10 @@ GridMap * Formation::loadMixingHIMap (void) const
 GridMap * Formation::loadThicknessMap (void) const
 {
    double thickness;
-   GridMap * gridMap = 0;
+   GridMap * gridMap = nullptr;
 
    if ((thickness = getThickness (m_record)) != RecordValueUndefined)
    {
-      //const Grid * grid = m_projectHandle->getInputGrid ();
       const Grid * grid = m_projectHandle->getActivityOutputGrid();
       if (!grid) grid = (Grid *) m_projectHandle->getInputGrid ();
       gridMap = m_projectHandle->getFactory ()->produceGridMap (this, ThicknessMap, grid, thickness);
@@ -244,9 +242,9 @@ GridMap * Formation::loadThicknessMap (void) const
    else
    {
       const string &thicknessGridMapId = getThicknessGrid (m_record);
-      if (thicknessGridMapId.length () != 0)
+      if (thicknessGridMapId.length() != 0)
       {
-	 gridMap = m_projectHandle->loadInputMap ("StratIoTbl", thicknessGridMapId);
+          gridMap = m_projectHandle->loadInputMap("StratIoTbl", thicknessGridMapId);
       }
    }
    return gridMap;
@@ -260,8 +258,8 @@ GridMap * Formation::computeThicknessMap (void) const
    const GridMap * topDepthMap = (GridMap *) topSurface->getInputDepthMap ();
    const GridMap * bottomDepthMap = (GridMap *) bottomSurface->getInputDepthMap ();
 
-   if (!topDepthMap) return 0;
-   if (!bottomDepthMap) return 0;
+   if (!topDepthMap) return nullptr;
+   if (!bottomDepthMap) return nullptr;
 
    GridMap * thicknessMap = m_projectHandle->getFactory ()->produceGridMap (this, ThicknessMap, bottomDepthMap, topDepthMap, ::minus);
 
@@ -283,26 +281,25 @@ const GridMap * Formation::getLithoType1PercentageMap (void) const
    double percentage;
 
    if (!getLithoType1 ())
-      return 0;
+      return nullptr;
 
-   GridMap * gridMap;
-   if ((gridMap = (GridMap *) getChild (LithoType1Map)) == 0)
+   GridMap * gridMap = (GridMap *)getChild(LithoType1Map);
+   if (gridMap == nullptr)
    {
-      const string & lithoTypeGridMapId = getPercent1Grid (m_record);
+	   const string & lithoTypeGridMapId = getPercent1Grid(m_record);
 
-      if (lithoTypeGridMapId.length () != 0)
-      {
-         gridMap = m_projectHandle->loadInputMap ("StratIoTbl", lithoTypeGridMapId);
-      }
-      else if ((percentage = getPercent1 (m_record)) != RecordValueUndefined)
-      {
-         //const Grid *grid = m_projectHandle->getInputGrid ();
-	 const Grid * grid = m_projectHandle->getActivityOutputGrid();
-	 if (!grid) grid = (Grid *) m_projectHandle->getInputGrid ();
-         gridMap = m_projectHandle->getFactory ()->produceGridMap (this, LithoType1Map, grid, percentage);
+	   if (lithoTypeGridMapId.length() != 0)
+	   {
+		   gridMap = m_projectHandle->loadInputMap("StratIoTbl", lithoTypeGridMapId);
+	   }
+	   else if ((percentage = getPercent1(m_record)) != RecordValueUndefined)
+	   {
+		   const Grid * grid = m_projectHandle->getActivityOutputGrid();
+		   if (!grid) grid = (Grid *)m_projectHandle->getInputGrid();
+		   gridMap = m_projectHandle->getFactory()->produceGridMap(this, LithoType1Map, grid, percentage);
 
-         assert (gridMap == getChild (LithoType1Map));
-      }
+		   assert(gridMap == getChild(LithoType1Map));
+	   }
    }
    return gridMap;
 }
@@ -321,39 +318,38 @@ const GridMap * Formation::getLithoType2PercentageMap (void) const
    double percentage;
 
    if (!getLithoType2 ())
-      return 0;
+      return nullptr;
 
-   GridMap * gridMap;
-   if ((gridMap = (GridMap *) getChild (LithoType2Map)) == 0)
+   GridMap* gridMap = (GridMap *)getChild(LithoType2Map);
+
+   if (gridMap == nullptr)
    {
-      if (getLithoType3 () != 0)
-      {
-	 const string & lithoTypeGridMapId = getPercent2Grid (m_record);
+       if (getLithoType3() != nullptr)
+       {
+           const string & lithoTypeGridMapId = getPercent2Grid(m_record);
 
-	 if (lithoTypeGridMapId.length () != 0)
-	 {
-	    gridMap = m_projectHandle->loadInputMap ("StratIoTbl", lithoTypeGridMapId);
-	 }
-	 else if ((percentage = getPercent2 (m_record)) != RecordValueUndefined)
-         {
-            //const Grid *grid = m_projectHandle->getInputGrid ();
-	    const Grid * grid = m_projectHandle->getActivityOutputGrid();
-	    if (!grid) grid = (Grid *) m_projectHandle->getInputGrid ();
-            gridMap = m_projectHandle->getFactory ()->produceGridMap (this, LithoType2Map, grid, percentage);
+           if (lithoTypeGridMapId.length() != 0)
+           {
+               gridMap = m_projectHandle->loadInputMap("StratIoTbl", lithoTypeGridMapId);
+           }
+           else if ((percentage = getPercent2(m_record)) != RecordValueUndefined)
+           {
+               const Grid * grid = m_projectHandle->getActivityOutputGrid();
+               if (!grid) grid = (Grid *)m_projectHandle->getInputGrid();
+               gridMap = m_projectHandle->getFactory()->produceGridMap(this, LithoType2Map, grid, percentage);
 
-            assert (gridMap == getChild (LithoType2Map));
-         }
-      }
-      else
-      {
-         //const Grid *grid = m_projectHandle->getInputGrid ();
-	 const Grid * grid = m_projectHandle->getActivityOutputGrid();
-	 if (!grid) grid = (Grid *) m_projectHandle->getInputGrid ();
-         GridMap *onehundred = m_projectHandle->getFactory ()->produceGridMap (0, 0, grid, 100);
-         gridMap =
-               (GridMap *) m_projectHandle->getFactory ()->produceGridMap (this, LithoType2Map, onehundred, (GridMap *) getLithoType1PercentageMap (),::minus);
-         delete onehundred;
-      }
+               assert(gridMap == getChild(LithoType2Map));
+           }
+       }
+       else
+       {
+           const Grid * grid = m_projectHandle->getActivityOutputGrid();
+           if (!grid) grid = (Grid *)m_projectHandle->getInputGrid();
+           GridMap *onehundred = m_projectHandle->getFactory()->produceGridMap(nullptr, 0, grid, 100);
+           gridMap =
+               (GridMap *)m_projectHandle->getFactory()->produceGridMap(this, LithoType2Map, onehundred, (GridMap *)getLithoType1PercentageMap(), ::minus);
+           delete onehundred;
+       }
    }
    return gridMap;
 }
@@ -370,20 +366,21 @@ const LithoType * Formation::getLithoType3 (void) const
 const GridMap * Formation::getLithoType3PercentageMap (void) const
 {
    if (!getLithoType3 ())
-      return 0;
+      return nullptr;
 
-   GridMap * gridMap;
-   if ((gridMap = (GridMap *) getChild (LithoType3Map)) == 0)
+   GridMap * gridMap = (GridMap *)getChild(LithoType3Map);
+   
+   if (gridMap == nullptr)
    {
-         //const Grid *grid = m_projectHandle->getInputGrid ();
-	 const Grid * grid = m_projectHandle->getActivityOutputGrid();
-	 if (!grid) grid = (Grid *) m_projectHandle->getInputGrid ();
-         GridMap *onehundred = (GridMap *) m_projectHandle->getFactory ()->produceGridMap (0, 0, grid, 100);
-         GridMap * result = (GridMap *) m_projectHandle->getFactory ()->produceGridMap (0, 0, onehundred, (GridMap *) getLithoType1PercentageMap (), ::minus);
-         delete onehundred;
-         gridMap = m_projectHandle->getFactory ()->produceGridMap (this, LithoType3Map, result, (GridMap *) getLithoType2PercentageMap (), ::minus);
-         delete result;
+       const Grid * grid = m_projectHandle->getActivityOutputGrid();
+       if (!grid) grid = (Grid *)m_projectHandle->getInputGrid();
+       GridMap *onehundred = (GridMap *)m_projectHandle->getFactory()->produceGridMap(0, 0, grid, 100);
+       GridMap * result = (GridMap *)m_projectHandle->getFactory()->produceGridMap(0, 0, onehundred, (GridMap *)getLithoType1PercentageMap(), ::minus);
+       delete onehundred;
+       gridMap = m_projectHandle->getFactory()->produceGridMap(this, LithoType3Map, result, (GridMap *)getLithoType2PercentageMap(), ::minus);
+       delete result;
    }
+   
    return gridMap;
 }
 
@@ -407,10 +404,10 @@ const AllochthonousLithology * Formation::getAllochthonousLithology (void) const
 
       const bool recordFromStratIOTbl = ( m_record != 0 and m_record->getTable ()->name () == "StratIoTbl" );
 
-      if ( recordFromStratIOTbl ) {
+      if ( recordFromStratIOTbl ) 
+      {
          m_allochthonousLithology = (const AllochthonousLithology *) m_projectHandle->findAllochthonousLithology ( getName ());
       }
-
    }
 
    return m_allochthonousLithology;
@@ -523,7 +520,7 @@ const std::string& Formation::getMixModelStr (void) const {
 }
 
 float Formation::getLayeringIndex(void) const {
-   return database::getLayeringIndex(m_record);
+   return static_cast<float>( database::getLayeringIndex(m_record) );
 }
 
 const FluidType* Formation::getFluidType () const

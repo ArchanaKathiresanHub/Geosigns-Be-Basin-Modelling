@@ -10,7 +10,7 @@ void Numerics::assembleInterpolationMatrixPolynomialPart ( const PointArray&  in
                                                            const int          polynomialDegree,
                                                                  DenseMatrix& interpolationMatrix ) {
 
-  const int NumberOfPoints = interpolationPoints.size ();
+  const int NumberOfPoints = (int)interpolationPoints.size ();
 
   int i;
   int j;
@@ -101,9 +101,7 @@ void Numerics::computeRsSquared ( const Point&      evaluationPoint,
                                   const PointArray& interpolationPoints,
                                         Vector&     rsSquared ) {
 
-  int i;
-
-  for ( i = 0; i < interpolationPoints.size (); i++ ) {
+  for ( int i = 0; i < (int)interpolationPoints.size (); i++ ) {
     rsSquared ( i ) = separationDistanceSquared ( evaluationPoint, interpolationPoints [ i ]);
   }
 

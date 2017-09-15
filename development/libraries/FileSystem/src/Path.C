@@ -52,7 +52,7 @@ Path Path::applicationFullPath()
       // too small buffer - increase it
       delete [] pathBuf;
       pathBufSize *= 2;
-      if ( pathBufSize >= 32768U ) break; // too long buffer
+      if ( pathBufSize >= 32768 ) break; // too long buffer
 
       pathBuf = new char[pathBufSize];
 
@@ -69,8 +69,7 @@ bool Path::exists() const
    bool ret = false;
    if ( !m_path.empty() )
    {
-      struct stat File_Stats;
-      ret = stat( m_path.c_str(), &File_Stats ) == 0 ? true : false;
+      ret = boost::filesystem::exists( boost::filesystem::path(m_path) );
    }
    return ret;
 }

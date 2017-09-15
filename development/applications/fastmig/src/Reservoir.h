@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2010-2016 Shell International Exploration & Production.
+// Copyright (C) 2010-2017 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -55,42 +55,62 @@ namespace migration
    class Reservoir : public Interface::Reservoir
    {
    public:
-
       /// This constructor is called by the object factory
       Reservoir (Interface::ProjectHandle * projectHandle, Migrator * const migrator, database::Record * record);
 
       /// Destructor
       virtual ~Reservoir (void);
 
-
-      /// Reservoir Properties
-
-      /// Retain properties calculated during the previous snapshot interval that
-      /// are required during the current snapshot interval.
+      /// @defgroup ReservoirProperties
+      /// @{
+      /// @brief Retain properties calculated during the previous snapshot interval that are required during the current snapshot interval.
       void retainPreviousProperties (void);
-      /// Reset all computed property values
+      /// @brief Reset all computed property values
       bool clearProperties (void);
-      /// Compute new input-based property values.
+      /// @brief Compute new input-based property values.
       bool computeProperties (void);
-      /// reset properties from a previous timestep
+      /// @brief Reset properties from a previous timestep
       bool clearPreviousProperties (void);
       DerivedProperties::FormationPropertyPtr getVolumeProperty (const Formation * formation,
-         const string & propertyName,
-         const Interface::Snapshot * snapshot) const;
+                                                                 const string & propertyName,
+                                                                 const Interface::Snapshot * snapshot) const;
       DerivedProperties::FormationPropertyPtr getFormationPropertyPtr (const string & propertyName,
-         const Interface::Snapshot * snapshot) const;
+                                                                       const Interface::Snapshot * snapshot) const;
+      /// @brief Computes depth offsets according to input (legacy only)
       bool computeDepthOffsets (const Interface::Snapshot * presentDay);
+      /// @brief Computes net to gross according to input (legacy only)
       bool computeNetToGross (void);
+      /// @return Boolean whether a reservoir is active at a given snapshot
       bool isActive (const Interface::Snapshot * snapshot) const;
-      bool isDiffusionOn (void);
-      /// save properties that were derived from input maps during the current snapshot interval
+      /// @brief Save properties that were derived from input maps during the current snapshot interval
       bool saveComputedInputProperties (const bool saveSnapshot);
-      /// save properties the migration module computed during the current snapshot interval
+      /// @brief Save properties the migration module computed during the current snapshot interval
       bool saveComputedOutputProperties (const bool saveSnapshot);
+      /// @}
 
 
-      /// Reservoir Charge
+      /// @defgroup ReservoirOptions
+      /// @{
+      /// @return Boolean whether diffusion takes place inside traps
+      bool isDiffusionEnabled (void) const;
+      /// @return Boolean whether biodegradation takes place inside traps
+      bool isBiodegradationEnabled (void) const;
+      /// @return Boolean whether OTGC takes place inside traps
+      bool isOilToGasCrackingEnabled (void) const;
+      /// @return Boolean whether vertical migration blocking into this reservoir is enabled
+      bool isBlockingEnabled (void) const;
+      /// @return The vertical migration blocking permeability threshold.
+      double getBlockingPerm (void) const;
+      /// @return The vertical migration blocking porosity threshold.
+      double getBlockingPoro (void) const;
+      /// @return The minimum capacity for the traps of this Reservoir
+      double getMinTrapCapacity (void) const;
+      /// @}
+      
 
+
+      /// @defgroup ReservoirCharge
+      /// @{
       double getTotalToBeStoredCharges (bool onBoundaryOnly = false);
       double getTotalChargesToBeMigrated (void);
       double getTotalBiodegradedCharges (void);
@@ -128,11 +148,12 @@ namespace migration
       void reportDiffusionLoss (Trap * sourceTrap, const Composition & composition);
       bool processMigration (MigrationRequest & mr);
       bool processAbsorption (MigrationRequest & mr);
+      /// @}
 
 
-      /// Column Handling
-
-      /// refine geometry, to take into account zero thicknesses
+      /// @defgroup ColumnHandling
+      /// @{
+      /// @brief Refine geometry, to take into account zero thicknesses
       bool refineGeometryZeroThicknessAreas (void);
       bool refineGeometrySetFaulStatus (void);
       bool resetProxiesBeforeRefine (void);
@@ -146,7 +167,7 @@ namespace migration
       void putSeepsInColumns (const Formation * seepsFormation);
       /// save Seepage amounts at the top formation of the basin
       bool saveSeepageProperties (const Interface::Snapshot * end);
-
+      /// @}
 
       /// Trap Handling
 
@@ -204,6 +225,7 @@ namespace migration
       void clearProxyProperties (ColumnValueRequest & valueRequest);
       void manipulateColumn (ColumnColumnRequest & columnRequest);
       void manipulateColumnComposition (ColumnCompositionRequest & compositionRequest);
+      void manipulateColumnCompositionPosition(ColumnCompositionPositionRequest & compositionPositionRequest);
       void getColumnComposition (ColumnCompositionRequest & compositionRequest, ColumnCompositionRequest & compositionResponse);
       void collectMigrationRequest (MigrationRequest & request);
       void processMigrationRequests ();
@@ -224,6 +246,7 @@ namespace migration
       int getIndex (void);
       double getUndefinedValue (void);
       bool saveGenexMaps (const string & speciesName, DataAccess::Interface::GridMap * aMap, const Formation * formation, const Snapshot * aSnapshot);
+      const Migrator * getMigrator (void) const;
       
 
    private:
@@ -269,8 +292,8 @@ namespace migration
       const Interface::Formation* getSeaBottomFormation (const Interface::Snapshot * snapshot) const;
       const Interface::Formation* getTopFormation (const Interface::Snapshot * snapshot) const;
       const Interface::GridMap * getPropertyGridMap (const string & propertyName, const Interface::Snapshot * snapshot,
-         const Interface::Reservoir * reservoir, const Interface::Formation * formation,
-         const Interface::Surface * surface) const;
+                                                     const Interface::Reservoir * reservoir, const Interface::Formation * formation,
+                                                     const Interface::Surface * surface) const;
 
 
       /// Reservoir Charge
@@ -294,6 +317,10 @@ namespace migration
       bool subtractChargesToBeMigrated (ComponentId componentId, const DataAccess::Interface::GridMap * gridMap, double fraction, Barrier * barrier);
       bool checkChargesToBeMigrated (ComponentId componentId);
       void collectAndSplitCharges (bool always = false);
+      /// \brief Add the leakage before biodegradation/diffusion to the crest column once
+      ///        re-distribution has finished. Care should be taken with merging traps.
+      ///        Their initial leakage should be added to the crest column before deletion.
+      void putInitialLeakageBack(void);
 
 
       /// Column Handling

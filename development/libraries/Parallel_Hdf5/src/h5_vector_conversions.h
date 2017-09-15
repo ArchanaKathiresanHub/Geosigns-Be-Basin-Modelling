@@ -9,6 +9,9 @@
 #include "PetscVectors.h"
 #include "h5_types.h"
 
+#include <type_traits>
+      
+
 class H5_VectorBoundaries
 {
 public:
@@ -45,14 +48,17 @@ public:
    // convert from petsc vector to buffer
    BufferType* convert (Petsc_Array *localVec)
    {
+      static_assert( std::is_floating_point<BufferType>::value, 
+                     "Only float or double types are supported for VectorToBuffer template" );
+                     
       createBuffer (localVec->linearSize());     
     
       // cerr << "size = " << localVec->linearSize() << endl;
       for ( localVec->begin(); ! localVec->end(); localVec->inc() )
       {
-	 size_t index = localVec->convertCurrentToLinear();
-	 // cerr << "currentPos = " << localVec->currentPos () << ", index = " << index << endl;
-         vBuffer[index] = localVec->currentPos();
+	      size_t index = localVec->convertCurrentToLinear();
+	      // cerr << "currentPos = " << localVec->currentPos () << ", index = " << index << endl;
+         vBuffer[index] = static_cast<BufferType>( localVec->currentPos() );
       }
 
       return vBuffer;

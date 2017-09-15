@@ -118,6 +118,7 @@ set( all_headers,
      src/PetscSolver.h
      src/PoreVolumeInterpolatorCalculator.h
      src/PorosityCalculator.h
+     src/PressureElementMatrixAssembly.h
      src/PressureSolver.h
      src/PrimaryOutputPropertyMap.h
      src/PrimaryOutputPropertyVolume.h
@@ -153,6 +154,7 @@ set( all_headers,
      src/StratigraphicGrids.h
      src/SubdomainElement.h
      src/Subdomain.h
+     src/TemperatureElementAssembly.h
      src/TemperatureForVreInputGrid.h
      src/temperature_solver.h
      src/TemporalPropertyInterpolator.h
@@ -260,6 +262,7 @@ set( all_srcs_except_main
      src/PetscSolver.C
      src/PoreVolumeInterpolatorCalculator.C
      src/PorosityCalculator.C
+     src/PressureElementMatrixAssembly.C
      src/PressureSolver.C
      src/PrimaryOutputPropertyMap.C
      src/PrimaryOutputPropertyVolume.C
@@ -292,6 +295,7 @@ set( all_srcs_except_main
      src/StratigraphicColumn.C
      src/StratigraphicGrids.C
      src/Subdomain.C
+     src/TemperatureElementAssembly.C
      src/TemperatureForVreInputGrid.C
      src/temperature_solver.C
      src/TemporalPropertyInterpolator.C
@@ -323,19 +327,35 @@ source_group(source FILES ${all_srcs_except_main} src/main.C)
 #       since the FastcauldronApplication library is linked to the unit tests projects.
 #
 add_library( FastcauldronApplication
-	${all_srcs_except_main}
-	${all_headers}
+    ${all_srcs_except_main}
+    ${all_headers}
 )
 
 #
 # 4. fastcauldron application
 #
-add_executable(fastcauldron src/main.C ${all_headers})
+set( FASTCAULDRON_TARGET_NAME "fastcauldron" )
+add_executable( ${FASTCAULDRON_TARGET_NAME} src/main.C ${all_headers} )
+set_target_properties( ${FASTCAULDRON_TARGET_NAME} PROPERTIES SUFFIX ".exe" )
+create_application_run_script( ${FASTCAULDRON_TARGET_NAME} )
 
+application_env_var( TARGET ${FASTCAULDRON_TARGET_NAME} VARS
+     "GENEXDIR"    "$MISCDIR/genex40"
+     "GENEX5DIR"   "$MISCDIR/genex50"
+     "GENEX6DIR"   "$MISCDIR/genex60"
+     "OTGCDIR"     "$MISCDIR/OTGC"
+     "CTCDIR"      "$MISCDIR"
+     "EOSPACKDIR"  "$MISCDIR/eospack"
+)
+                              
 #
 # 5. linearSolver application
 #
-add_executable(linearSolver linearSolver/main.C ${all_headers})
+set( LINEARSOLVER_TARGET_NAME "linearSolver" )
+add_executable( ${LINEARSOLVER_TARGET_NAME} linearSolver/main.C ${all_headers} )
+set_target_properties( ${LINEARSOLVER_TARGET_NAME} PROPERTIES SUFFIX ".exe" )
+create_application_run_script( ${LINEARSOLVER_TARGET_NAME} )
+
 
 ################################################################
 ################### SET DEPENDENCIES/LINKS #####################
@@ -353,33 +373,33 @@ include_directories(
 )
 
 include_directories( SYSTEM
-	${HDF5_INCLUDE_DIRS}
-	${MPI_INCLUDE_DIRS}
-	${PETSC_INCLUDE_DIRS}
-	${EIGEN_INCLUDE_DIRS}
+    ${HDF5_INCLUDE_DIRS}
+    ${MPI_INCLUDE_DIRS}
+    ${PETSC_INCLUDE_DIRS}
+    ${EIGEN_INCLUDE_DIRS}
 )
 
 bm_include_libraries(
-	FastcauldronApplication
-	DataModel
-	DataAccess
-	DerivedProperties
-	DistributedDataAccess
-	utilities
-	Utilities_Petsc
-	Serial_Hdf5
-	Parallel_Hdf5
-	EosPack
-	TableIO
-	LinearAlgebra
-	Interpolation
-	FiniteElements
-	CBMGenerics
-	genex6
-	genex6_kernel	
-	GeoPhysics
-	FileSystem
-	calibration_kernel	
+    FastcauldronApplication
+    DataModel
+    DataAccess
+    DerivedProperties
+    DistributedDataAccess
+    utilities
+    Utilities_Petsc
+    Serial_Hdf5
+    Parallel_Hdf5
+    EosPack
+    TableIO
+    LinearAlgebra
+    Interpolation
+    FiniteElements
+    CBMGenerics
+    genex6
+    genex6_kernel
+    GeoPhysics
+    FileSystem
+    calibration_kernel
 )
 
 #
@@ -388,51 +408,51 @@ bm_include_libraries(
 # libraries even if they are already linked to FastcauldronApplication because of
 # DataAccess and DistributedDataAccess crossdependencies
 #
-target_link_libraries(fastcauldron
-	FastcauldronApplication
-	DataAccess
-	DistributedDataAccess
+target_link_libraries(${FASTCAULDRON_TARGET_NAME}
+    FastcauldronApplication
+    DataAccess
+    DistributedDataAccess
 )
-target_link_libraries(linearSolver
-	FastcauldronApplication
-	DataAccess
-	DistributedDataAccess
+target_link_libraries(${LINEARSOLVER_TARGET_NAME}
+    FastcauldronApplication
+    DataAccess
+    DistributedDataAccess
 )
 
 #
 # 2. FastcauldronApplication links to IBS libraries
 #
 target_link_libraries(FastcauldronApplication
-	DataAccess
-	DerivedProperties
-	DistributedDataAccess
-	utilities
-	Utilities_Petsc
-	Serial_Hdf5
-	Parallel_Hdf5
-	EosPack
-	TableIO
-	LinearAlgebra
-	Interpolation
-	FiniteElements
-	CBMGenerics
-	genex6
-	genex6_kernel	
-	GeoPhysics
-	FileSystem
-	calibration_kernel
-	OTGC_kernel6
-	${HDF5_LIBRARIES}
-	${PETSC_LIBRARIES}
-	${MPI_LIBRARIES}
-	${Boost_LIBRARIES}
-   ${BM_CLOCK_GETTIME_LIB}
+    DataAccess
+    DerivedProperties
+    DistributedDataAccess
+    utilities
+    Utilities_Petsc
+    Serial_Hdf5
+    Parallel_Hdf5
+    EosPack
+    TableIO
+    LinearAlgebra
+    Interpolation
+    FiniteElements
+    CBMGenerics
+    genex6
+    genex6_kernel
+    GeoPhysics
+    FileSystem
+    calibration_kernel
+    OTGC_kernel6
+    ${HDF5_LIBRARIES}
+    ${PETSC_LIBRARIES}
+    ${MPI_LIBRARIES}
+    ${Boost_LIBRARIES}
+    ${BM_CLOCK_GETTIME_LIB}
 )
 
-set_target_properties(fastcauldron
+set_target_properties(${FASTCAULDRON_TARGET_NAME}
       PROPERTIES LINK_FLAGS "${PETSC_LINK_FLAGS}"
 )
-set_target_properties(linearSolver
+set_target_properties(${LINEARSOLVER_TARGET_NAME}
       PROPERTIES LINK_FLAGS "${PETSC_LINK_FLAGS}"
 )
 
@@ -453,23 +473,29 @@ if (BM_USE_FLEXLM)
    target_link_libraries(FastcauldronApplication ${FLEXLM_LIBRARIES})
 endif(BM_USE_FLEXLM)
 
-install(TARGETS fastcauldron linearSolver
-	RUNTIME DESTINATION bin
+install(TARGETS ${FASTCAULDRON_TARGET_NAME} ${LINEARSOLVER_TARGET_NAME}
+        RUNTIME DESTINATION bin
 )
+
+if(UNIX AND BM_BUILD_HYPRE)
+   # Copying Hypre shared library in the fastcauldron build directory
+   add_custom_command(TARGET ${FASTCAULDRON_TARGET_NAME} POST_BUILD
+                      COMMAND ${CMAKE_COMMAND} -E copy ${HYPRE_LIBRARIES} ${CMAKE_CURRENT_BINARY_DIR} )
+endif()
 
 ################################################################
 ######################## MEMORY CHECK ##########################
 ################################################################
 
-configure_file( 
+configure_file(
    ${CMAKE_CURRENT_SOURCE_DIR}/test/MemCheck.project3d
    MemCheck.project3d
    COPYONLY
 )
 
-add_memcheck( 
+add_memcheck(
    NAME "Fastcauldron_SimpleItcoupled"
-   EXECUTABLE fastcauldron
+   EXECUTABLE ${FASTCAULDRON_TARGET_NAME}
    PARAMETERS "-project" "MemCheck.project3d" "-itcoupled"
 )
 
@@ -482,8 +508,8 @@ add_memcheck(
 #
 #
 add_gtest( NAME "VectorInterpolator"
-           SOURCES test/InterpolationTest.C 
-           LIBRARIES LinearAlgebra 
+           SOURCES test/InterpolationTest.C
+           LIBRARIES LinearAlgebra
          )
 
 add_gtest( NAME "MatrixInterpolator"
@@ -498,6 +524,7 @@ add_gtest( NAME "PetscSolver"
            SOURCES src/PetscSolver.C test/PetscSolver.C
            LIBRARIES ${PETSC_LIBRARIES}
            LINK_FLAGS "${PETSC_LINK_FLAGS}"
+           ENV_VARS LD_LIBRARY_PATH=$ENV{LD_LIBRARY_PATH}:${HYPRE_LIBRARY_DIR}
          )
 
 ################## PETSC OBJECTS IO UNIT TESTS #################
@@ -513,49 +540,55 @@ add_gtest( NAME "PetscObjectsIO"
 #
 # 1. Copy project files and input maps for dof counting unit tests
 #
-configure_file( 
+configure_file(
       ${CMAKE_CURRENT_SOURCE_DIR}/test/Acquifer.project3d
       Acquifer.project3d
       COPYONLY
 )
 
-configure_file( 
+configure_file(
+      ${CMAKE_CURRENT_SOURCE_DIR}/test/AcquiferFull.project3d
+      AcquiferFull.project3d
+      COPYONLY
+)
+
+configure_file(
       ${CMAKE_CURRENT_SOURCE_DIR}/test/Acquifer.HDF
       Acquifer.HDF
       COPYONLY
 )
 
-configure_file( 
+configure_file(
       ${CMAKE_CURRENT_SOURCE_DIR}/test/MeshWithHoles01.project3d
       MeshWithHoles01.project3d
       COPYONLY
 )
 
-configure_file( 
+configure_file(
       ${CMAKE_CURRENT_SOURCE_DIR}/test/MeshWithHoles02.project3d
       MeshWithHoles02.project3d
       COPYONLY
 )
 
-configure_file( 
+configure_file(
       ${CMAKE_CURRENT_SOURCE_DIR}/test/MeshWithMixedHolesStripes.project3d
       MeshWithMixedHolesStripes.project3d
       COPYONLY
 )
 
-configure_file( 
+configure_file(
       ${CMAKE_CURRENT_SOURCE_DIR}/test/chessBoard1.hdf5
       chessBoard1.hdf5
       COPYONLY
 )
 
-configure_file( 
+configure_file(
       ${CMAKE_CURRENT_SOURCE_DIR}/test/chessBoard2.hdf5
       chessBoard2.hdf5
       COPYONLY
 )
 
-configure_file( 
+configure_file(
       ${CMAKE_CURRENT_SOURCE_DIR}/test/thickStripes.hdf5
       thickStripes.hdf5
       COPYONLY
@@ -564,43 +597,43 @@ configure_file(
 #
 # 2. Copy valid vtk mesh files for dof counting unit tests
 #
-configure_file( 
+configure_file(
       ${CMAKE_CURRENT_SOURCE_DIR}/test/valid_noholes_seds_only_0.vtk
       valid_noholes_seds_only_0.vtk
       COPYONLY
 )
 
-configure_file( 
+configure_file(
       ${CMAKE_CURRENT_SOURCE_DIR}/test/valid_noholes_seds_only_10.vtk
       valid_noholes_seds_only_10.vtk
       COPYONLY
 )
 
-configure_file( 
+configure_file(
       ${CMAKE_CURRENT_SOURCE_DIR}/test/valid_noholes_with_mantle_0.vtk
       valid_noholes_with_mantle_0.vtk
       COPYONLY
 )
 
-configure_file( 
+configure_file(
       ${CMAKE_CURRENT_SOURCE_DIR}/test/valid_noholes_with_mantle_10.vtk
       valid_noholes_with_mantle_10.vtk
       COPYONLY
 )
 
-configure_file( 
+configure_file(
       ${CMAKE_CURRENT_SOURCE_DIR}/test/valid_seds_holes01_0.vtk
       valid_seds_holes01_0.vtk
       COPYONLY
 )
 
-configure_file( 
+configure_file(
       ${CMAKE_CURRENT_SOURCE_DIR}/test/valid_seds_holes02_0.vtk
       valid_seds_holes02_0.vtk
       COPYONLY
 )
 
-configure_file( 
+configure_file(
       ${CMAKE_CURRENT_SOURCE_DIR}/test/valid_mixed_holes_0.vtk
       valid_mixed_holes_0.vtk
       COPYONLY
@@ -615,38 +648,38 @@ add_gtest( NAME "MeshUnitTesterFull"
            SOURCES test/MeshUnitTester.C test/MeshUnitTesterFull.C
            LIBRARIES  FastcauldronApplication DataAccess DistributedDataAccess utilities Utilities_Petsc Serial_Hdf5 Parallel_Hdf5 EosPack TableIO LinearAlgebra Interpolation FiniteElements CBMGenerics genex6_kernel GeoPhysics FileSystem calibration_kernel OTGC_kernel6 ${HDF5_LIBRARIES} ${PETSC_LIBRARIES} ${MPI_LIBRARIES} ${Boost_LIBRARIES}
            LINK_FLAGS "${PETSC_LINK_FLAGS}"
-           ENV_VARS EOSPACKDIR=${CFGFLS}/eospack GENEX5DIR=${CFGFLS}/genex50 
+           ENV_VARS EOSPACKDIR=${CFGFLS}/eospack GENEX5DIR=${CFGFLS}/genex50
          )
 
 add_gtest( NAME "MeshUnitTesterSediments"
            SOURCES test/MeshUnitTester.C test/MeshUnitTesterSediments.C
            LIBRARIES  FastcauldronApplication DataAccess DistributedDataAccess utilities Utilities_Petsc Serial_Hdf5 Parallel_Hdf5 EosPack TableIO LinearAlgebra Interpolation FiniteElements CBMGenerics genex6_kernel GeoPhysics calibration_kernel OTGC_kernel6 ${HDF5_LIBRARIES} ${PETSC_LIBRARIES} ${MPI_LIBRARIES} ${Boost_LIBRARIES}
            LINK_FLAGS "${PETSC_LINK_FLAGS}"
-           ENV_VARS EOSPACKDIR=${CFGFLS}/eospack GENEX5DIR=${CFGFLS}/genex50 
+           ENV_VARS EOSPACKDIR=${CFGFLS}/eospack GENEX5DIR=${CFGFLS}/genex50
          )
 
 add_gtest( NAME "MeshUnitTesterHoles01"
            SOURCES test/MeshUnitTester.C test/MeshUnitTesterHoles01.C
            LIBRARIES  FastcauldronApplication DataAccess DistributedDataAccess utilities Utilities_Petsc Serial_Hdf5 Parallel_Hdf5 EosPack TableIO LinearAlgebra Interpolation FiniteElements CBMGenerics genex6_kernel GeoPhysics calibration_kernel OTGC_kernel6 ${HDF5_LIBRARIES} ${PETSC_LIBRARIES} ${MPI_LIBRARIES} ${Boost_LIBRARIES}
            LINK_FLAGS "${PETSC_LINK_FLAGS}"
-           ENV_VARS EOSPACKDIR=${CFGFLS}/eospack GENEX5DIR=${CFGFLS}/genex50 
+           ENV_VARS EOSPACKDIR=${CFGFLS}/eospack GENEX5DIR=${CFGFLS}/genex50
          )
 
 add_gtest( NAME "MeshUnitTesterHoles02"
            SOURCES test/MeshUnitTester.C test/MeshUnitTesterHoles02.C
            LIBRARIES  FastcauldronApplication DataAccess DistributedDataAccess utilities Utilities_Petsc Serial_Hdf5 Parallel_Hdf5 EosPack TableIO LinearAlgebra Interpolation FiniteElements CBMGenerics genex6_kernel GeoPhysics calibration_kernel OTGC_kernel6 ${HDF5_LIBRARIES} ${PETSC_LIBRARIES} ${MPI_LIBRARIES} ${Boost_LIBRARIES}
            LINK_FLAGS "${PETSC_LINK_FLAGS}"
-           ENV_VARS EOSPACKDIR=${CFGFLS}/eospack GENEX5DIR=${CFGFLS}/genex50 
+           ENV_VARS EOSPACKDIR=${CFGFLS}/eospack GENEX5DIR=${CFGFLS}/genex50
          )
 
 add_gtest( NAME "MeshUnitTesterMixedHoles"
            SOURCES test/MeshUnitTester.C test/MeshUnitTesterMixedHoles.C
            LIBRARIES  FastcauldronApplication DataAccess DistributedDataAccess utilities Utilities_Petsc Serial_Hdf5 Parallel_Hdf5 EosPack TableIO LinearAlgebra Interpolation FiniteElements CBMGenerics genex6_kernel GeoPhysics calibration_kernel OTGC_kernel6 ${HDF5_LIBRARIES} ${PETSC_LIBRARIES} ${MPI_LIBRARIES} ${Boost_LIBRARIES}
            LINK_FLAGS "${PETSC_LINK_FLAGS}"
-           ENV_VARS EOSPACKDIR=${CFGFLS}/eospack GENEX5DIR=${CFGFLS}/genex50 
+           ENV_VARS EOSPACKDIR=${CFGFLS}/eospack GENEX5DIR=${CFGFLS}/genex50
          )
 
-	
+
 endif(BM_PARALLEL)
 
 ################################################################
@@ -660,4 +693,3 @@ generate_dox(src/fastcauldron.cfg)
 # cmake-tab-width: 4
 # tab-width: 4
 # End:
-

@@ -1,4 +1,5 @@
 #include "PieceWiseInterpolator1D.h"
+#include <assert.h>
 
 const double Numerics::PieceWiseInterpolator1D::NullValue = 99999.0;
 
@@ -102,7 +103,8 @@ void Numerics::PieceWiseInterpolator1D::computeLinear () {
 
 void Numerics::PieceWiseInterpolator1D::computeCubic () {
 
-   const unsigned int size = m_xs.size ();
+   const int size = static_cast<int>(m_xs.size());
+   assert(size>0);
 
    int i;
 
@@ -196,17 +198,17 @@ int Numerics::PieceWiseInterpolator1D::findPanel ( const double s ) const {
    if ( s < m_xs [ 0 ]) {
       return -1;
    } else {
-      int i;
+      size_t i;
 
-      for ( i = 1; i <= (int)(m_xs.size ()); ++i ) {
+      for ( i = 1; i <= m_xs.size(); ++i ) {
 
          if ( s < m_xs [ i ]) {
-            return i - 1;
+            return static_cast<int>(i - 1);
          }
 
       }
 
-      return m_xs.size ();
+      return static_cast<int>(m_xs.size());
    }
 
 }

@@ -8,154 +8,167 @@
 // Do not distribute without written permission from Shell.
 //
 
+#include "../src/BrinePhases.h"
 #include "../src/BrineConductivity.h"
-
-#include <cmath>
-#include <assert.h>
-#include <sstream>
-#include <iostream>
-#include <iomanip>
-
-#include "NumericFunctions.h"
+#include "../src/GeoPhysicsObjectFactory.h"
+#include "Interface/FluidThermalConductivitySample.h"
 
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
+using namespace GeoPhysics;
 
-
-/// NOTE: Unit tests that follow depend on the correctness of the
-///       hard-coded parameter ranges. If those change, tests will
-///       either fail or no longer cover the entirety of the
-///       parameter space.
-
-
-class BrineConductivityTest: public GeoPhysics::BrineConductivity
+namespace BrineConductivity_UnitTests
 {
-
-public:
-   double findT2Test( const double pressure ) const
+   void getThermalConductivityTable(ibs::Interpolator2d& thermalConductivitytbl)
    {
-      return findT2 (pressure);
-   }
+      ObjectFactory factory;
+      ObjectFactory* factoryptr = &factory;
+      ProjectHandle* projectHandle = dynamic_cast<ProjectHandle*>(OpenCauldronProject("ConductivityProject.project3d", "r", factoryptr));
 
-   double findT1Test( const double higherTemperature ) const
-   {
-      return findT1 (higherTemperature);
-   }
+      database::Table* fluidTbl = projectHandle->getTable("FluidtypeIoTbl");
+      database::Table::iterator tblIter;
+      database::Record * fluidRecord = 0;
 
-   double aqueousTableTest( const double temperature, const double pressure )const
-   {
-      return aqueousTable (temperature, pressure);
-   }
-
-   double vapourTableTest( const double temperature, const double pressure )const
-   {
-      return vapourTable (temperature, pressure);
-   }
-
-};
-
-
-/// Testing that conductivity values across (but also outside the
-/// allowed range of) the parameter space are not negative.
-TEST ( BrineConductivity, testing_non_negative )
-{
-   BrineConductivityTest valuesCheck;
-
-   for ( int i=0; i<=4000; ++i )
-   {
-      double salinity = 0.0;
-
-      EXPECT_GE( valuesCheck.phaseChange( -1000.0, 0.1*double(i), salinity ), 0.0 );
-      EXPECT_GE( valuesCheck.phaseChange( -100.0, 0.1*double(i), salinity ), 0.0 );
-      EXPECT_GE( valuesCheck.phaseChange( 0.0, 0.1*double(i), salinity ), 0.0 );
-      EXPECT_GE( valuesCheck.phaseChange( 80.0, 0.1*double(i), salinity ), 0.0 );
-      EXPECT_GE( valuesCheck.phaseChange( 150.0, 0.1*double(i), salinity ), 0.0 );
-      EXPECT_GE( valuesCheck.phaseChange( 280.0, 0.1*double(i), salinity ), 0.0 );
-      EXPECT_GE( valuesCheck.phaseChange( 450.0, 0.1*double(i), salinity ), 0.0 );
-      EXPECT_GE( valuesCheck.phaseChange( 680.0, 0.1*double(i), salinity ), 0.0 );
-      EXPECT_GE( valuesCheck.phaseChange( 900.0, 0.1*double(i), salinity ), 0.0 );
-      EXPECT_GE( valuesCheck.phaseChange( 1200.0, 0.1*double(i), salinity ), 0.0 );
-      EXPECT_GE( valuesCheck.phaseChange( 2000.0, 0.1*double(i), salinity ), 0.0 );
-      EXPECT_GE( valuesCheck.phaseChange( 6800.0, 0.1*double(i), salinity ), 0.0 );
-   }
-}
-
-
-/// Testing continuity across T1 and T2.
-TEST ( BrineConductivity, testing_conductivity_continuity )
-{
-   BrineConductivityTest valuesCheck;
-   const double epsilon = 1.0e-15;
-
-   for ( int i=0; i<100; ++i )
-   {
-      double pressure = 0.1 * double(10*i);
-
-      if ( pressure < 0.1 )
+      for (tblIter = fluidTbl->begin(); tblIter != fluidTbl->end(); ++tblIter)
       {
-         pressure = 0.1;
+         fluidRecord = *tblIter;
+         if (fluidRecord)
+            break;
       }
 
-      double salinity = 0.0;
+      std::unique_ptr<FluidType> geoPhysicsFluidType (new FluidType(projectHandle, fluidRecord));
 
-      double highTemp = valuesCheck.findT2Test( pressure );
-      double lowTemp = valuesCheck.findT1Test( highTemp );
-
-      EXPECT_NEAR( valuesCheck.phaseChange( lowTemp * (1.0 - epsilon) , pressure, salinity ), 
-                   valuesCheck.phaseChange( lowTemp * (1.0 + epsilon) , pressure, salinity ), 1.0e-10 );
-      EXPECT_NEAR( valuesCheck.phaseChange( highTemp * (1.0 - epsilon) , pressure, salinity ), 
-                   valuesCheck.phaseChange( highTemp * (1.0 + epsilon) , pressure, salinity ), 1.0e-10 );
-   }
-}
-
-
-/// Testing region selection of conductivity.
-TEST ( BrineConductivity, testing_conductivity_region )
-{
-   BrineConductivityTest valuesCheck;
-   const double epsilon = 1.0e-1;
-
-   for ( int i=0; i<=100; ++i )
-   {
-      double pressure, salinity, highTemp, lowTemp;
-
-      for ( int k=1; k<5; ++k )
+      DataAccess::Interface::FluidThermalConductivitySampleList* thermalConductivitySamples;
+      thermalConductivitySamples = projectHandle->getFluidThermalConductivitySampleList(projectHandle->findFluid(geoPhysicsFluidType->getThermalConductivityFluidName()));
+      if ((*thermalConductivitySamples).size() != GeoPhysics::Brine::Conductivity::s_thCondArraySize)
       {
-         pressure = 0.1 * double(10*i);
-         if ( pressure < 0.1 )
+         throw formattingexception::GeneralException() << "\nMeSsAgE ERROR  Size of FltThCondIoTbl in project file is not correct\n\n";
+      }
+
+      DataAccess::Interface::FluidThermalConductivitySampleList::const_iterator thermalConductivitySampleIter;
+
+      for (thermalConductivitySampleIter = thermalConductivitySamples->begin();
+         thermalConductivitySampleIter != thermalConductivitySamples->end();
+         ++thermalConductivitySampleIter)
+      {
+         const DataAccess::Interface::FluidThermalConductivitySample * sample = *thermalConductivitySampleIter;
+         thermalConductivitytbl.addPoint(sample->getTemperature(), sample->getPressure(), sample->getThermalConductivity());
+      }
+
+      return;
+   }
+
+   /// Testing that conductivity values across (but also outside the
+   /// allowed range of) the parameter space are not negative.
+   TEST(BrineConductivity, testing_non_negative)
+   {
+      GeoPhysics::Brine::PhaseStateScalar phase(0.0);
+      GeoPhysics::Brine::Conductivity conductivity;
+      ibs::Interpolator2d thermalConductivitytbl;
+      getThermalConductivityTable(thermalConductivitytbl);
+      conductivity.setTable(thermalConductivitytbl);
+
+      for (int i = 0; i <= 4000; ++i)
+      {
+         phase.set( -1000.0, 0.1*double(i) );
+         EXPECT_GE(conductivity.get(phase), 0.0);
+         phase.set( -100.0, 0.1*double(i) );
+         EXPECT_GE(conductivity.get(phase), 0.0);
+         phase.set( 0.0, 0.1*double(i) );
+         EXPECT_GE(conductivity.get(phase), 0.0);
+         phase.set( 80.0, 0.1*double(i) );
+         EXPECT_GE(conductivity.get(phase), 0.0);
+         phase.set( 150.0, 0.1*double(i) );
+         EXPECT_GE(conductivity.get(phase), 0.0);
+         phase.set( 280.0, 0.1*double(i) );
+         EXPECT_GE(conductivity.get(phase), 0.0);
+         phase.set( 450.0, 0.1*double(i) );
+         EXPECT_GE(conductivity.get(phase), 0.0);
+         phase.set( 680.0, 0.1*double(i) );
+         EXPECT_GE(conductivity.get(phase), 0.0);
+         phase.set( 900.0, 0.1*double(i) );
+         EXPECT_GE(conductivity.get(phase), 0.0);
+         phase.set( 1200.0, 0.1*double(i) );
+         EXPECT_GE(conductivity.get(phase), 0.0);
+         phase.set( 2000.0, 0.1*double(i) );
+         EXPECT_GE(conductivity.get(phase), 0.0);
+         phase.set( 6800.0, 0.1*double(i) );
+         EXPECT_GE(conductivity.get(phase), 0.0);
+      }
+   }
+
+   /// Testing exact values for the scalar interface
+   TEST ( BrineConductivity, testing_conductivity_exact_values )
+   {
+      const double salinity = 0.2;
+      GeoPhysics::Brine::Conductivity conductivity;
+      GeoPhysics::Brine::PhaseStateScalar phase( salinity );
+      ibs::Interpolator2d thermalConductivitytbl;
+      getThermalConductivityTable(thermalConductivitytbl);
+      conductivity.setTable(thermalConductivitytbl);
+
+      phase.set( 666.0, 271.0 );
+      EXPECT_NEAR( conductivity.get(phase), 0.2536, 1.0e-11 ); // vapor
+
+      phase.set( 130.0, GeoPhysics::Brine::s_MinPressure );
+      EXPECT_NEAR( conductivity.get(phase), 0.03, 1.0e-11 ); // vapor
+
+      phase.set( 600.0, 100.0 );
+      EXPECT_NEAR( conductivity.get(phase), 0.29, 1.0e-11 ); // vapor
+
+      phase.set( GeoPhysics::Brine::s_MinTemperature, 127.0 );
+      EXPECT_NEAR( conductivity.get(phase), 0.62, 1.0e-11 ); // aqueousBatzleWang
+
+      phase.set( GeoPhysics::Brine::s_MinTemperature, GeoPhysics::Brine::s_MaxPressure );
+      EXPECT_NEAR( conductivity.get(phase), 0.62, 1.0e-11 ); // aqueousBatzleWang
+
+      phase.set( 130.0, GeoPhysics::Brine::s_MaxPressure );
+      EXPECT_NEAR( conductivity.get(phase), 0.74, 1.0e-11 ); // aqueousBatzleWang
+
+      phase.set( 50.0, 100.0 );
+      EXPECT_NEAR( conductivity.get(phase), 0.69, 1.0e-11 ); // aqueousBatzleWang
+
+      phase.set( 392.0, 60.0 );
+      EXPECT_NEAR( conductivity.get(phase), 0.486, 1.0e-11 ); // transition
+   }
+
+
+   /// Testing continuity across T1 and T2.
+   TEST(BrineConductivity, testing_conductivity_continuity)
+   {
+      GeoPhysics::Brine::PhaseStateScalar phase(0.0);
+      GeoPhysics::Brine::Conductivity conductivity;
+
+      ibs::Interpolator2d thermalConductivitytbl;
+      getThermalConductivityTable(thermalConductivitytbl);
+      conductivity.setTable(thermalConductivitytbl);
+
+      const double epsilon = 1.0e-15;
+
+      for (int i = 0; i < 100; ++i)
+      {
+         double pressure = 0.1 * double(10 * i);
+
+         if (pressure < 0.1)
          {
             pressure = 0.1;
          }
 
-         salinity = 0.0;
-	  
-         highTemp = valuesCheck.findT2Test( pressure );
-         lowTemp = valuesCheck.findT1Test( highTemp );
+         const double highTemp = phase.findT2(pressure);
+         const double lowTemp  = phase.findT1(highTemp);
+         
+         phase.set( lowTemp * (1.0 - epsilon), pressure );
+         double cond1 = conductivity.get( phase );
+         phase.set( lowTemp * (1.0 + epsilon), pressure );
+         double cond2 = conductivity.get( phase );
+         EXPECT_NEAR( cond1, cond2, 1.0e-10 );
 
-         EXPECT_NEAR( valuesCheck.phaseChange( lowTemp * ( 1.0 - epsilon) / double(k), pressure, salinity ), 
-                      valuesCheck.aqueousTableTest( lowTemp * ( 1.0 - epsilon ) / double(k), pressure ), 1.0e-10 );
-
-         double temp;
-         if ( double(k) * (highTemp+epsilon) > 800.0 )
-         {
-            temp = 800.0;
-         }
-         else
-         {
-            temp =  double(k) * (highTemp+epsilon);
-         }
-
-         EXPECT_NEAR( valuesCheck.phaseChange( temp, pressure, salinity ), 
-                      valuesCheck.vapourTableTest( temp, pressure ), 1.0e-10 );
+         phase.set( highTemp * (1.0 - epsilon), pressure );
+         cond1 = conductivity.get( phase );
+         phase.set( highTemp * (1.0 + epsilon), pressure );
+         cond2 = conductivity.get( phase );
+         EXPECT_NEAR( cond1, cond2, 1.0e-10 );
       }
-
-      EXPECT_NEAR( valuesCheck.phaseChange( 0.5 * ( highTemp + lowTemp), pressure, salinity ),
-	  	   0.5 * ( valuesCheck.vapourTableTest( highTemp, pressure ) + valuesCheck.aqueousTableTest( lowTemp, pressure ) ), 1.0e-10 );
-
    }
 }
-
-
-
-

@@ -132,14 +132,12 @@ void getGeometryMatrix ( const LayerElement&    element,
 
    double deltaX  = grid.deltaI;
    double deltaY  = grid.deltaJ;
-   double originX = grid.originI;
-   double originY = grid.originJ;
 
    int i;
 
    for ( i = 1; i <= 8; ++i ) {
-      geometryMatrix ( 1, i ) = originX + deltaX * element.getNodeIPosition ( i - 1 );
-      geometryMatrix ( 2, i ) = originY + deltaY * element.getNodeJPosition ( i - 1 );
+      geometryMatrix ( 1, i ) =  deltaX * element.getNodeIPosition ( i - 1 );
+      geometryMatrix ( 2, i ) =  deltaY * element.getNodeJPosition ( i - 1 );
 
       geometryMatrix ( 3, i ) = layer->Current_Properties ( Basin_Modelling::Depth, 
                                                             element.getNodeLocalKPosition ( i - 1 ),
@@ -158,21 +156,17 @@ void getGeometryMatrix ( const LayerElement&    element,
 
    const CauldronGridDescription& grid = FastcauldronSimulator::getInstance ().getCauldronGridDescription ();
 
-   const LayerProps* layer = element.getFormation ();
-
    FiniteElementMethod::ElementVector depth;
    double deltaX  = grid.deltaI;
    double deltaY  = grid.deltaJ;
-   double originX = grid.originI;
-   double originY = grid.originJ;
 
    int i;
 
    interpolateCoefficients ( element, Basin_Modelling::Depth, depth, lambda );
 
    for ( i = 1; i <= 8; ++i ) {
-      geometryMatrix ( 1, i ) = originX + deltaX * element.getNodeIPosition ( i - 1 );
-      geometryMatrix ( 2, i ) = originY + deltaY * element.getNodeJPosition ( i - 1 );
+      geometryMatrix ( 1, i ) = deltaX * element.getNodeIPosition ( i - 1 );
+      geometryMatrix ( 2, i ) = deltaY * element.getNodeJPosition ( i - 1 );
       geometryMatrix ( 3, i ) = depth ( i );
 
    }
@@ -190,15 +184,13 @@ void fillGeometryMatrix ( const LayerElement&                       element,
 
    double deltaX  = grid.deltaI;
    double deltaY  = grid.deltaJ;
-   double originX = grid.originI;
-   double originY = grid.originJ;
 
    unsigned int i;
 
    for ( i = 1; i <= 8; ++i ) {
       finiteElement.setGeometryPoint ( i, 
-                                       originX + deltaX * element.getNodeIPosition ( i - 1 ),
-                                       originY + deltaY * element.getNodeJPosition ( i - 1 ),
+                                        deltaX * element.getNodeIPosition ( i - 1 ),
+                                        deltaY * element.getNodeJPosition ( i - 1 ),
                                        layer->Current_Properties ( Basin_Modelling::Depth, 
                                                                    element.getNodeLocalKPosition ( i - 1 ),
                                                                    element.getNodeJPosition ( i - 1 ),
@@ -265,34 +257,7 @@ double interpolateProperty ( const LayerElement&                         element
 
 //------------------------------------------------------------//
 
-ThreeVector computeGradientProperty ( const LayerElement&                         element,
-                                      const FiniteElementMethod::Matrix3x3&       jacobian,
-                                      const Basin_Modelling::Fundamental_Property property,
-                                      const double                                x,
-                                      const double                                y,
-                                      const double                                z ) {
-
-   BasisFunction     basis;
-   ThreeVector       gradient;
-   ThreeVector       referenceGradient;
-   Matrix3x3         jacobianInverse;
-   GradElementVector gradBasis;
-   ElementVector     phi;
-   ElementVector     coefficients;
-
-   basis ( x, y, z, gradBasis );
-
-   getCoefficients ( element, property, coefficients );
-
-   matrixTransposeVectorProduct ( gradBasis, coefficients, referenceGradient );
-   matrixTransposeVectorProduct ( jacobianInverse, referenceGradient, gradient );
-
-   return gradient;
-}
-
-//------------------------------------------------------------//
-
-double volumeOfElement ( const LayerElement&                               element,
+double volumeOfElement ( const LayerElement&                               ,
                          const FiniteElementMethod::ElementGeometryMatrix& geometryMatrix,
                          const int                                         numberOfQuadraturePoints ) {
 
@@ -483,7 +448,7 @@ void elementVolumeCalculations ( const LayerElement&                            
 
 //------------------------------------------------------------//
 
-FiniteElementMethod::ThreeVector elementBoundaryNormal ( const LayerElement&                   element,
+FiniteElementMethod::ThreeVector elementBoundaryNormal ( const LayerElement&                   ,
                                                          const FiniteElementMethod::Matrix3x3& jacobian,
                                                          const VolumeData::BoundaryId          whichBoundary,
                                                          const bool                            normaliseVector ) {
@@ -571,7 +536,7 @@ void getElementBoundaryNormal ( const LayerElement&                   element,
 
 //------------------------------------------------------------//
 
-void getCentreOfElementFace ( const LayerElement&          element,
+void getCentreOfElementFace ( const LayerElement&          ,
                               const VolumeData::BoundaryId whichBoundary,
                                     double&                x,
                                     double&                y,
@@ -619,14 +584,14 @@ void getCentreOfElementFace ( const LayerElement&          element,
 
 //------------------------------------------------------------//
 
-FiniteElementMethod::ThreeVector computeMassFlux ( const LayerElement&  element,
+FiniteElementMethod::ThreeVector computeMassFlux ( const LayerElement&  ,
                                                    const FiniteElement& finiteElement,
                                                    const ElementVector& phasePressure,
                                                    const Matrix3x3&     permeability,
                                                    const double         fluidDensity,
                                                    const double         fluidViscosity,
-                                                   const bool           limitGradPressure,
-                                                   const double         gradPressureMaximum ) {
+                                                   const bool           ,
+                                                   const double          ) {
 
    ThreeVector flux;
 
@@ -652,20 +617,18 @@ FiniteElementMethod::ThreeVector computeMassFlux ( const LayerElement&  element,
 
 //------------------------------------------------------------//
 
-FiniteElementMethod::ThreeVector computeFlowVelocity ( const LayerElement&  element,
+FiniteElementMethod::ThreeVector computeFlowVelocity ( const LayerElement&  ,
                                                        const FiniteElement& finiteElement,
                                                        const ElementVector& brineOverpressure,
                                                        const ElementVector& brineHydrostaticPressure,
                                                        const ElementVector& capillaryPressure,
                                                        const Matrix3x3&     permeability,
-                                                       const double         brineDensity,
-                                                       const double         hcDensity,
+                                                       const double         ,
+                                                       const double         ,
                                                        const double         hcViscosity,
                                                        const bool           limitGradPressure,
                                                        const double         gradPressureMaximum,
-                                                       const bool           print ) {
-
-
+                                                       const bool            ) {
 
    ThreeVector velocity;
    ThreeVector gradOverpressure;

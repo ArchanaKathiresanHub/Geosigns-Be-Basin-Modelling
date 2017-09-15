@@ -86,7 +86,10 @@ public:
 
          for ( size_t j = 0; j < 2; ++j )
          {
-            rc->addObsValue( new ObsValueDoubleScalar( obs[j], obsVals[i][j] ) );
+            ObsValue * obv = ObsValueDoubleScalar::createNewInstance( obs[j], obsVals[i][j] );
+            rc->addObsValue( obv );
+            // mark observables values as valid
+            obs.updateObsValueValidateStatus( j, obs[j]->isValid( obv ) );
          }
          rc->setRunStatus( RunCase::Completed );
       }

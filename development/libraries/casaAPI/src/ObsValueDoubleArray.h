@@ -17,6 +17,9 @@
 
 #include "ObsValue.h"
 
+/// @page CASA_ObsValueDoubleArray Observable value which could be represented as an array of float point values.
+/// Suitable for well observables for scalar properties like pressure, temperature and so on for the set of (X,Y,Z)
+/// grid points along a well path.
 namespace casa
 {
    /// @brief Class for keeping observable value as an array of float point values

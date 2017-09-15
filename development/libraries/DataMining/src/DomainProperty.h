@@ -17,10 +17,10 @@ namespace DataAccess
    {
       /// Forward declaration of property collection.
       class DomainPropertyCollection;
- 
+
       /// Objects of this type are capable of computing the value of a property at any point in the Cauldron domain.
       ///
-      /// If the property is not valid at a particular point, e.g. the point does not lies on a surface 
+      /// If the property is not valid at a particular point, e.g. the point does not lies on a surface
       /// for a GenEx property then a null value will be returned.
       /// If the point lies outside of the valid Cauldron domain then a null value will be returned.
       class DomainProperty
@@ -53,14 +53,6 @@ namespace DataAccess
          /// Return true is initialisation was okay, otherwise return false.
          /// The default behaviour is 'do nothing'.
          virtual bool initialise();
-
-         /// Compute the value of the property at the position defined in element-position.
-         ///
-         /// Since the property may contain several sub-properties, e.g. FluidVelocity
-         /// is made up from FluidVelocityX, FluidVelocityY and FluidVelocityZ, 
-         /// the interpolated-values will be ...
-         virtual void compute( const ElementPosition            & position,
-                                     InterpolatedPropertyValues & evaluations ) const;
 
          /// Compute the value of the property at the position defined in element-position.
          ///

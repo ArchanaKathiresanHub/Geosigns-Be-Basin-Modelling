@@ -15,7 +15,7 @@ include(cmake/EnvSetup.cmake)
 
 set(INTEL_CXX_ROOT "INTEL_CXX_ROOT-NOTFOUND" CACHE PATH "Path to Intel's compiler collection")
 
-set(INTEL_MPI_VERSION "5.1.2.150" CACHE STRING "Intel MPI version")
+set(INTEL_MPI_VERSION "2017.02" CACHE STRING "Intel MPI version")
 set(INTEL_MPI_ROOT "INTEL_MPI_ROOT-NOTFOUND" CACHE PATH "Path to Intel MPI library" )
 set(INTEL_MPI_FLAVOUR "opt" CACHE STRING "Intel MPI library type. Choose from: opt, opt_mt, dbg, dbg_mt, log, log_mt" )
 
@@ -41,7 +41,7 @@ if (UNIX)
    # objcopy --only-keep-debug a.out a.out.dbg
    # objcopy --strip-debug a.out
    # objcopy --add-gnu-debuglink=a.out.dbg a.out
-   set(NO_STRIP_OPTION "" CACHE STRING "Add or not -nostrip option to -show command of compiler")
+   set(NO_STRIP_OPTION "-nostrip" CACHE STRING "Add or not -nostrip option to -show command of compiler")
 
    #
    # Set the compiler on Unix to Intel if enabled
@@ -94,11 +94,6 @@ if (UNIX)
       # If we do build parallel applications
       if (BM_USE_INTEL_MPI)
 
-         STRING(SUBSTRING ${INTEL_MPI_VERSION} 1 1 INTEL_MPI_VERSION_MAJOR)
-         if (${INTEL_MPI_VERSION_MAJOR} VERSION_GREATER  4)
-            set(NO_STRIP_OPTION "-nostrip")
-         endif()
-         
          set( MPI_NAME "IntelMPI_${INTEL_MPI_FLAVOUR}" CACHE STRING "Name of the MPI implementation")
 
          # Set options how to link Intel MPI when using the compiler frontend.
@@ -157,9 +152,16 @@ if (UNIX)
             execute_process( COMMAND "${C_Compiler_Without_Linking}" "-c" "${NO_STRIP_OPTION}" "-show" "${args}"
                   OUTPUT_VARIABLE evaluatedFrontendNonLinkingC
             )
+
             execute_process( COMMAND "${CXX_Compiler_Without_Linking}" "-c" "${NO_STRIP_OPTION}" "-show" "${args}"
                   OUTPUT_VARIABLE evaluatedFrontendNonLinkingCXX
             )
+            
+            # Intel C++ 2017 add '' around @$ argument which is breaking compilation script
+            STRING( REGEX REPLACE "'" "" evaluatedFrontendLinkingCXX    "${evaluatedFrontendLinkingCXX}"    )
+            STRING( REGEX REPLACE "'" "" evaluatedFrontendLinkingC      "${evaluatedFrontendLinkingC}"      )
+            STRING( REGEX REPLACE "'" "" evaluatedFrontendNonLinkingC   "${evaluatedFrontendNonLinkingC}"   )
+            STRING( REGEX REPLACE "'" "" evaluatedFrontendNonLinkingCXX "${evaluatedFrontendNonLinkingCXX}" )
 
             # Generate the wrapper. The overly complex regualr expression is
             # there to detect a "-c" command line parameter. When this is

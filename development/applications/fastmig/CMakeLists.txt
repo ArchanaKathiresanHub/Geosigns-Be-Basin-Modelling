@@ -1,6 +1,6 @@
 #########################################################################
 #                                                                       #
-# Copyright (C) 2012-2015 Shell International Exploration & Production. #
+# Copyright (C) 2012-2017 Shell International Exploration & Production. #
 # All rights reserved.                                                  #
 #                                                                       #
 # Developed under license for Shell by PDS BV.                          #
@@ -18,7 +18,20 @@ source_group(include FILES ${all_headers})
 FILE( GLOB all_srcs src/*.C)
 source_group(source FILES ${all_srcs})
 
-add_executable(fastmig ${all_srcs} ${all_headers})
+set( APP_NAME "fastmig" )
+add_executable( ${APP_NAME} ${all_srcs} ${all_headers} )
+
+set_target_properties( ${APP_NAME} PROPERTIES SUFFIX ".exe" )
+
+create_application_run_script( ${APP_NAME} )
+
+application_env_var( TARGET ${APP_NAME} VARS
+     "GENEXDIR"    "$MISCDIR/genex40"
+     "GENEX5DIR"   "$MISCDIR/genex50"
+     "OTGCDIR"     "$MISCDIR/OTGC"
+     "CTCDIR"      "$MISCDIR"
+     "EOSPACKDIR"  "$MISCDIR/eospack"
+)
 
 add_definitions(-DUSEOTGC)
 
@@ -27,85 +40,92 @@ include_directories(
 )
 
 include_directories( SYSTEM
-	${PETSC_INCLUDE_DIRS}
-	${HDF5_INCLUDE_DIRS}
-	${MPI_INCLUDE_DIRS}
+    ${PETSC_INCLUDE_DIRS}
+    ${HDF5_INCLUDE_DIRS}
+    ${MPI_INCLUDE_DIRS}
 )
 
 bm_include_libraries(
-	DataModel
-	DataAccess
-	DistributedDataAccess
-	DerivedProperties
+    DataModel
+    DataAccess
+    DistributedDataAccess
+    DerivedProperties
     FiniteElements
-	GeoPhysics
-	Interpolation
-	LinearAlgebra
-	Utilities_Petsc
-	Serial_Hdf5
-	Parallel_Hdf5
-	EosPack	
-	CBMGenerics
-	genex6
-	genex6_kernel
-	FileSystem
-	utilities
-	TableIO
-	functions
+    GeoPhysics
+    Interpolation
+    LinearAlgebra
+    Utilities_Petsc
+    Serial_Hdf5
+    Parallel_Hdf5
+    EosPack    
+    CBMGenerics
+    genex6
+    genex6_kernel
+    FileSystem
+    utilities
+    TableIO
+    functions
 )
 
 
-target_link_libraries(fastmig
-	DataModel
-	DataAccess
-	DerivedProperties
-	DistributedDataAccess
-	GeoPhysics
-	Utilities_Petsc
-	Serial_Hdf5
-	Parallel_Hdf5
-	EosPack	
-	CBMGenerics
+target_link_libraries(${APP_NAME}
+    DataModel
+    DataAccess
+    DerivedProperties
+    DistributedDataAccess
+    GeoPhysics
+    Utilities_Petsc
+    Serial_Hdf5
+    Parallel_Hdf5
+    EosPack    
+    CBMGenerics
     FiniteElements
-	genex6
-	genex6_kernel
-	OTGC_kernel6
-	FileSystem
-	utilities
-	TableIO
-	functions
-	${PETSC_LIBRARIES}
-	${HDF5_LIBRARIES}
-	${MPI_LIBRARIES}
+    genex6
+    genex6_kernel
+    OTGC_kernel6
+    FileSystem
+    utilities
+    TableIO
+    functions
+    ${PETSC_LIBRARIES}
+    ${HDF5_LIBRARIES}
+    ${MPI_LIBRARIES}
    ${BM_CLOCK_GETTIME_LIB}
 )
 
-set_target_properties(fastmig
+set_target_properties(${APP_NAME}
       PROPERTIES LINK_FLAGS "${PETSC_LINK_FLAGS}"
 )
    
 if (UNIX)
    # The OneFilePerProcess library is only available on Unix
    bm_include_libraries( OneFilePerProcess )
-   target_link_libraries(fastmig OneFilePerProcess)
+   target_link_libraries(${APP_NAME} OneFilePerProcess)
 endif ()
 
 if (BM_USE_FLEXLM)
    include_directories(${FLEXLM_INCLUDE_DIRS})
-   target_link_libraries(fastmig ${FLEXLM_LIBRARIES})
+   target_link_libraries(${APP_NAME} ${FLEXLM_LIBRARIES})
 endif(BM_USE_FLEXLM)
 
-install(TARGETS fastmig
-	RUNTIME DESTINATION bin
+install(TARGETS ${APP_NAME}
+    RUNTIME DESTINATION bin
 )
 
+set(CFGFLS "${PROJECT_SOURCE_DIR}/geocase/misc")
 
 ### Unit Tests
 
 add_gtest( NAME "Fastmig::Biodegrade"
-		   SOURCES test/BiodegradeTest.C src/Biodegrade.C
-		   LIBRARIES DataAccess DistributedDataAccess
-		  )
+           SOURCES test/BiodegradeTest.C src/Biodegrade.C
+           LIBRARIES DataAccess DistributedDataAccess
+          )
+
+add_gtest( NAME "Fastmig::CapillarySealStrength"
+           SOURCES test/CapillarySealStrength.C src/CapillarySealStrength.C src/Composition.C src/Biodegrade.C src/DiffusionLeak.C src/DiffusionCoefficient.C
+           LIBRARIES DataAccess DistributedDataAccess CBMGenerics EosPack GeoPhysics functions
+         ENV_VARS EOSPACKDIR=${CFGFLS}/eospack GENEX5DIR=${CFGFLS}/genex50 CTCDIR=${CFGFLS}/
+          )
 
 endif (BM_PARALLEL)
 

@@ -29,7 +29,7 @@ void sgetrf (int m, int n, float *a, int lda, int *ipiv, int* info ) {
   sgetrf_ ( &m, &n, a, &lda, ipiv, info );
 }
 
-void dgetrs (char trans, int n, int nrhs, double *a, int lda, int *ipiv, double *b, int ldb, int* info ) {
+void dgetrs (char trans, int n, int /*nrhs*/, double *a, int lda, int *ipiv, double *b, int ldb, int* info ) {
 
   int trans_len = 1;
   int one = 1;
@@ -38,7 +38,7 @@ void dgetrs (char trans, int n, int nrhs, double *a, int lda, int *ipiv, double 
 
 }
 
-void sgetrs (char trans, int n, int nrhs, float *a, int lda, int *ipiv, float *b, int ldb, int *info ) {
+void sgetrs (char trans, int n, int /*nrhs*/, float *a, int lda, int *ipiv, float *b, int ldb, int *info ) {
 
   int trans_len = 1;
   int one = 1;

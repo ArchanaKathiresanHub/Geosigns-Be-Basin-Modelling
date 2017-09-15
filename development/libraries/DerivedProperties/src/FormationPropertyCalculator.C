@@ -35,7 +35,7 @@ void DerivedProperties::FormationPropertyCalculator::setUp2dEltMapping( Abstract
    //             PETSC_NULL,PETSC_NULL,PETSC_NULL,PETSC_NULL,PETSC_NULL,PETSC_NULL,PETSC_NULL,PETSC_NULL);
    // DMDAGetCorners(*mapDA,&xs,&ys,PETSC_NULL,&xm,&ym,PETSC_NULL);
 
-   int i, j;
+   unsigned int i, j;
 
    // for (j=ys; j<ys+ym; j++) {
 

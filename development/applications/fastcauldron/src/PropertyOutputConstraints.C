@@ -36,6 +36,10 @@ const ApplicableOutputRegion::ApplicableRegion PropertyOutputConstraints::s_prop
      //Vector Properties
      ApplicableOutputRegion::SEDIMENTS_AND_BASEMENT,      /* BulkDensityVec         */
      ApplicableOutputRegion::SEDIMENTS_AND_BASEMENT,      /* DiffusivityVec         */
+     ApplicableOutputRegion::SEDIMENTS_AND_BASEMENT,      /* HeatFlow               */
+     ApplicableOutputRegion::SEDIMENTS_AND_BASEMENT,      /* HeatFlowY              */
+     ApplicableOutputRegion::SEDIMENTS_AND_BASEMENT,      /* HeatFlowZ              */
+     ApplicableOutputRegion::SEDIMENTS_AND_BASEMENT,      /* HeatFlow_              */
      ApplicableOutputRegion::SEDIMENTS_ONLY,              /* PermeabilityHVec       */
      ApplicableOutputRegion::SEDIMENTS_ONLY,              /* PermeabilityVec        */
      ApplicableOutputRegion::SEDIMENTS_ONLY,              /* PorosityVec            */
@@ -46,10 +50,6 @@ const ApplicableOutputRegion::ApplicableRegion PropertyOutputConstraints::s_prop
      ApplicableOutputRegion::SEDIMENTS_ONLY,              /* Vr                     */
      ApplicableOutputRegion::SEDIMENTS_ONLY,              /* MaxVes                 */
      ApplicableOutputRegion::SEDIMENTS_AND_BASEMENT,      /* Depth                  */
-     ApplicableOutputRegion::SEDIMENTS_AND_BASEMENT,      /* HeatFlow               */
-     ApplicableOutputRegion::SEDIMENTS_AND_BASEMENT,      /* HeatFlowY              */
-     ApplicableOutputRegion::SEDIMENTS_AND_BASEMENT,      /* HeatFlowZ              */
-     ApplicableOutputRegion::SEDIMENTS_AND_BASEMENT,      /* HeatFlow_              */
      ApplicableOutputRegion::SEDIMENTS_ONLY,              /* FluidVelocity          */
      ApplicableOutputRegion::SEDIMENTS_ONLY,              /* FluidVelocityY         */
      ApplicableOutputRegion::SEDIMENTS_ONLY,              /* FluidVelocityZ         */
@@ -194,6 +194,10 @@ const bool PropertyOutputConstraints::s_outputPermitted [ PropertyListSize ][ Nu
    //Vector Properties
    {  true, false,  true,  true, false, false,  true,  true,  true, false },  /* BulkDensityVec         */
    { false, false,  true, false,  true, false,  true,  true,  true, false },  /* DiffusivityVec         */
+   { false, false,  true, false,  true, false,  true,  true,  true, false },  /* HeatFlow               */
+   { false, false,  true, false,  true, false,  true,  true,  true, false },  /* HeatFlowY              */
+   { false, false,  true, false,  true, false,  true,  true,  true, false },  /* HeatFlowZ              */
+   { false, false,  true, false,  true, false,  true,  true,  true, false },  /* HeatFlow_              */
    { false, false,  true,  true, false, false,  true,  true,  true, false },  /* PermeabilityHVec       */
    { false, false,  true,  true, false, false,  true,  true,  true, false },  /* PermeabilityVec        */
    {  true,  true,  true,  true, false,  true,  true,  true,  true, false },  /* PorosityVec            */
@@ -204,10 +208,6 @@ const bool PropertyOutputConstraints::s_outputPermitted [ PropertyListSize ][ Nu
    { false, false,  true, false,  true, false,  true,  true,  true, false },  /* Vr                     */
    {  true,  true,  true,  true, false,  true,  true,  true,  true, false },  /* MaxVes                 */
    {  true,  true,  true,  true, false,  true,  true,  true,  true, false },  /* Depth                  */
-   { false, false,  true, false,  true, false,  true,  true,  true, false },  /* HeatFlow               */
-   { false, false,  true, false,  true, false,  true,  true,  true, false },  /* HeatFlowY              */
-   { false, false,  true, false,  true, false,  true,  true,  true, false },  /* HeatFlowZ              */
-   { false, false,  true, false,  true, false,  true,  true,  true, false },  /* HeatFlow_              */
    { false, false, false,  true,  true, false,  true, false,  true, false },  /* FluidVelocity          */
    { false, false, false,  true,  true, false,  true, false,  true, false },  /* FluidVelocityY         */
    { false, false, false,  true,  true, false,  true, false,  true, false },  /* FluidVelocityZ         */
@@ -337,6 +337,10 @@ const bool PropertyOutputConstraints::s_outputRequired [ PropertyListSize ][ Num
    //Vector Properties
    { false, false, false, false, false, false, false, false, false, false },  /* BulkDensityVec                            */
    { false, false, false, false, false, false, false, false, false, false },  /* DiffusivityVec                            */
+   { false, false, false, false, false, false, false, false, false, false },  /* HeatFlow                                  */
+   { false, false, false, false, false, false, false, false, false, false },  /* HeatFlowY                                 */
+   { false, false, false, false, false, false, false, false, false, false },  /* HeatFlowZ                                 */
+   { false, false, false, false, false, false, false, false, false, false },  /* HeatFlow_                                 */
    { false, false,  true,  true, false, false,  true,  true,  true, false },  /* PermeabilityHVec                          */
    { false, false,  true,  true, false, false,  true,  true,  true, false },  /* PermeabilityVec                           */
    {  true, false,  true,  true, false, false,  true,  true,  true, false },  /* PorosityVec                               */
@@ -347,10 +351,6 @@ const bool PropertyOutputConstraints::s_outputRequired [ PropertyListSize ][ Num
    { false, false,  true, false,  true, false,  true,  true,  true, false },  /* Vr                                        */
    {  true,  true,  true,  true, false,  true,  true,  true,  true, false },  /* MaxVes                                    */
    {  true,  true,  true,  true, false,  true,  true,  true,  true, false },  /* Depth                                     */
-   { false, false, false, false, false, false, false, false, false, false },  /* HeatFlow                                  */
-   { false, false, false, false, false, false, false, false, false, false },  /* HeatFlowY                                 */
-   { false, false, false, false, false, false, false, false, false, false },  /* HeatFlowZ                                 */
-   { false, false, false, false, false, false, false, false, false, false },  /* HeatFlow_                                 */
    { false, false, false, false, false, false, false, false, false, false },  /* FluidVelocity                             */
    { false, false, false, false, false, false, false, false, false, false },  /* FluidVelocityY                            */
    { false, false, false, false, false, false, false, false, false, false },  /* FluidVelocityZ                            */

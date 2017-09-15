@@ -78,16 +78,11 @@ double DataAccess::Mining::HeatFlowCalculator::compute ( const ElementPosition& 
    const GeoPhysics::Formation* formation = dynamic_cast<const GeoPhysics::Formation*>(position.getFormation ());
    const GeoPhysics::FluidType* fluid = dynamic_cast<const GeoPhysics::FluidType*>(formation->getFluidType ());
 
-   double calculationResult;
+   double calculationResult = 0.;
 
    double ves;
    double maxVes;
    double temperature;
-   double permeabilityN;
-   double permeabilityH;
-   double fluidViscosity;
-   double fluidDensity;
-   double heatCapacity;
    double thermalConductivityN;
    double thermalConductivityH;
    double overpressure;

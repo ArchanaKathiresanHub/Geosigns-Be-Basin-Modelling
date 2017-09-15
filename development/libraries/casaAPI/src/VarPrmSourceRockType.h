@@ -24,7 +24,7 @@ namespace casa
    class VarPrmSourceRockType : public VarPrmCategorical
    {
    public:
-      /// @brief Create a new initial source rock HI variable parameter
+      /// @brief Create a new initial source rock HI influential parameter
       VarPrmSourceRockType( const char                        * layerName ///< name of the layer for source rock type variation
                            , const std::string                & baseVal   ///< base value of parameter
                            , int                                mixID     ///< 1 or 2 - mixing ID 
@@ -36,12 +36,12 @@ namespace casa
       /// @brief Destructor
       virtual ~VarPrmSourceRockType() {;}
      
-	   /// @brief Get name of variable parameter in short form
+	   /// @brief Get name of influential parameter in short form
 	   /// @return array of names for each sub-parameter
 	   virtual std::vector<std::string> name() const;
 
       /// @brief Get number of subparameters if it is more than one
-      /// @return dimension of variable parameter
+      /// @return dimension of influential parameter
       virtual size_t dimension() const { return 1; }
 
       /// @brief Find parameter position in enumeration
@@ -59,6 +59,7 @@ namespace casa
 
       /// @brief Create parameter by reading the values stored in the project file
       /// @param [in] mdl the model where the parameters values should be read
+      /// @param[in] vin an input vector with parameter specific values. Not used in this parameter
       /// @return the new parameter read from the model
       virtual SharedParameterPtr newParameterFromModel( mbapi::Model & mdl, const std::vector<double> & vin ) const;
       /// @}

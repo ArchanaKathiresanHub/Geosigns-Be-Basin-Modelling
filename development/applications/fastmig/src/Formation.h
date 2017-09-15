@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2010-2015 Shell International Exploration & Production.
+// Copyright (C) 2010-2017 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -8,8 +8,15 @@
 // Do not distribute without written permission from Shell.
 //
 
-#ifndef _MIGRATION_FORMATION_H_
-#define _MIGRATION_FORMATION_H_
+#ifndef MIGRATION_FORMATION_H
+#define MIGRATION_FORMATION_H
+
+#include <boost/array.hpp>
+
+// CBMGenerics library
+#include "ComponentManager.h"
+typedef CBMGenerics::ComponentManager::SpeciesNamesId ComponentId;
+typedef CBMGenerics::ComponentManager::PhaseId Phase;
 
 namespace database
 {
@@ -63,7 +70,7 @@ namespace migration
       inline static Formation * CastToFormation (const Interface::Formation * formation);
 
       bool computePropertyMaps (Interface::GridMap * topDepthGridMap, const Interface::Snapshot * snapshot, bool lowResEqualsHighRes,
-         bool isPressureRun, bool nonGeometricLoop, bool chemicalCompaction);
+                                bool isPressureRun, bool nonGeometricLoop, bool chemicalCompaction);
 
       bool computeCapillaryPressureMaps (Interface::GridMap * topDepthGridMap, const Interface::Snapshot * snapshot);
 
@@ -96,7 +103,7 @@ namespace migration
       void setFiniteElementDepths (int i, int j, int k, double * depths);
 
       LocalFormationNode * getLocalFormationNode (int i, int j, int k) const;
-      FormationNode * getFormationNode (int i, int j, int k);
+      FormationNode * getFormationNode (int i, int j, int k) const;
       double getFormationNodeDepth (int i, int j, int k);
 
       int getNodeDepth (void) const;
@@ -110,12 +117,11 @@ namespace migration
 
       void saveReservoir (const Interface::Snapshot * curSnapshot);
 
-      void identifyAsReservoir (void) const;
+      void identifyAsReservoir (const bool advancedMigration) const;
 
       double getPropertyValue (PropertyIndex propertyIndex, int i, int j, int k) const;
 
-      double getMinLiquidColumnHeight (void) const;
-      double getMinVapourColumnHeight (void) const;
+      void getTopBottomOverpressures (const int i, const int j, boost::array<double,2> & overPressures) const;
 
       inline double getDepth (int i, int j, int k) const;
       inline double getHorizontalPermeability (int i, int j, int k);
@@ -135,6 +141,7 @@ namespace migration
 
       void loadExpulsionMaps (const Interface::Snapshot * begin, const Interface::Snapshot * end);
       void unloadExpulsionMaps ();
+      void computeExpulsionMapsOnTheFly (const Interface::Snapshot * begin, const Interface::Snapshot * end);
 
       bool computeTargetFormationNodes (Formation * targetFormation);
       bool computeTargetFormationNodes (int depthIndex);
@@ -158,6 +165,9 @@ namespace migration
 
       int getIndex (void);
 
+      bool isOnBoundary (const FormationNode *) const;
+      bool isShallowerThanNeighbour (const FormationNode *, const int, const int) const;
+
       SurfaceGridMap getTopSurfaceGridMap (const DataAccess::Interface::Property* prop, const DataAccess::Interface::Snapshot* snapshot) const;
 
       const GridMap * getTopGridMap (const DataAccess::Interface::Property* prop, const DataAccess::Interface::Snapshot* snapshot) const;
@@ -170,12 +180,12 @@ namespace migration
       const GridMap* getFormationPrimaryPropertyGridMap (const DataAccess::Interface::Property* prop, const Interface::Snapshot * snapshot) const;
 
       const GridMap* getSurfacePropertyGridMap (const DataAccess::Interface::Property* prop, const Interface::Snapshot * snapshot,
-         const Interface::Surface* surface) const;
+                                                const Interface::Surface* surface) const;
 
       bool isActive (const DataAccess::Interface::Snapshot * snapshot) const;
 
       bool computeAnalogFlowDirections (Formation * targetFormation, const Interface::Snapshot * begin,
-         const Interface::Snapshot * end);
+                                        const Interface::Snapshot * end);
       bool computeAnalogFlowDirections (int depthIndex, const Interface::Snapshot * begin, const Interface::Snapshot * end);
 
       bool computeAdjacentNodes (Formation * targetFormation, const Interface::Snapshot * begin, const Interface::Snapshot * end);
@@ -184,8 +194,18 @@ namespace migration
       void migrateExpelledChargesToReservoir (unsigned int direction, Reservoir * targetReservoir) const;
       void migrateLeakedChargesToReservoir (Reservoir * targetReservoir) const;
 
-      bool calculateLeakageSeeps (const Interface::Snapshot * end, const bool verticalMigration);
-      bool calculateExpulsionSeeps (const Interface::Snapshot * end, const double expulsionFraction, const bool verticalMigration);
+      /// @brief Calculates seeps due to leakage from the top reservoir
+      bool calculateLeakageSeeps (const Interface::Snapshot * end, const bool advancedMigration);
+      /// @ brief Calculates seeps due to expulsion from all source rocks above the top reservoir
+      bool calculateExpulsionSeeps (const Interface::Snapshot * end, const double expulsionFraction, const bool advancedMigration);
+
+      /// @brief Returns whether the node is a 'crest' at a layer other than formation
+      bool isValidNodeBelowFormation (FormationNode * formationNode, const DataAccess::Interface::Formation * formation) const;
+
+      /// @brief Calculate expelled mass of HCs stuck in undetected crest
+      void calculateStuckHCs (const double expulsionFraction, const unsigned int i, const unsigned int j, double& stuckHCMass) const;
+
+      double getExpelledMass (int i, int j, int componentId) const;
 
       void manipulateFormationNodeComposition (FormationNodeCompositionRequest & compositionRequest);
       void getFormationNodeComposition (FormationNodeCompositionRequest & compositionRequest, FormationNodeCompositionRequest & compositionResponse);
@@ -206,9 +226,9 @@ namespace migration
       Interface::GridMap* getGenexData () const { return m_genexData; }
 
       const Interface::GridMap * getPropertyGridMap (const string & propertyName,
-         const Interface::Snapshot * snapshot) const;
+                                                     const Interface::Snapshot * snapshot) const;
 
-      inline bool performVerticalMigration (void) const;
+      inline bool performAdvancedMigration (void) const;
       inline bool performHDynamicAndCapillary (void) const;
       inline bool performReservoirDetection (void) const;
       inline double getBlockingPermeability (void);
@@ -238,22 +258,22 @@ namespace migration
       Interface::GridMap* m_genexData;
 
       bool computeInterpolator (const string & propertyName, const Interface::Snapshot *intervalStart, const Interface::Snapshot *intervalEnd,
-         Genex6::LinearGridInterpolator& interpolator);
+                                Genex6::LinearGridInterpolator& interpolator);
       bool extractGenexDataInterval (const Interface::Snapshot *intervalStart, const Interface::Snapshot *intervalEnd,
-         Genex6::LinearGridInterpolator& thickness,
-         Genex6::LinearGridInterpolator& ves,
-         Genex6::LinearGridInterpolator& temperature,
-         Genex6::LinearGridInterpolator& hydrostaticPressure,
-         Genex6::LinearGridInterpolator& lithostaticPressure,
-         Genex6::LinearGridInterpolator& porePressure,
-         Genex6::LinearGridInterpolator& porosity,
-         Genex6::LinearGridInterpolator& permeability,
-         Genex6::LinearGridInterpolator& vre);
+                                     Genex6::LinearGridInterpolator& thickness,
+                                     Genex6::LinearGridInterpolator& ves,
+                                     Genex6::LinearGridInterpolator& temperature,
+                                     Genex6::LinearGridInterpolator& hydrostaticPressure,
+                                     Genex6::LinearGridInterpolator& lithostaticPressure,
+                                     Genex6::LinearGridInterpolator& porePressure,
+                                     Genex6::LinearGridInterpolator& porosity,
+                                     Genex6::LinearGridInterpolator& permeability,
+                                     Genex6::LinearGridInterpolator& vre);
 
       // Formation property pointer using the derived properties library
       DerivedProperties::FormationPropertyPtr m_formationPropertyPtr[NUMBEROFPROPERTYINDICES];
 
-      GridMap * m_expulsionGridMaps[NUM_COMPONENTS];
+      GridMap * m_expulsionGridMaps[ComponentId::NUMBER_OF_SPECIES];
       int m_index;
 
       // is a detected reservoir formation
@@ -325,9 +345,9 @@ namespace migration
       return getPropertyValue (TEMPERATUREPROPERTY, i, j, k);
    }
 
-   bool Formation::performVerticalMigration (void) const
+   bool Formation::performAdvancedMigration (void) const
    {
-      return m_migrator->performVerticalMigration ();
+      return m_migrator->performAdvancedMigration ();
    }
 
    bool Formation::performHDynamicAndCapillary (void) const
@@ -352,4 +372,4 @@ namespace migration
 
 }
 
-#endif // _MIGRATION_FORMATION_H_
+#endif // MIGRATION_FORMATION_H

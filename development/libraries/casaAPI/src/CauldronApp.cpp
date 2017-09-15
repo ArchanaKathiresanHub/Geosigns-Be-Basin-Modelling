@@ -384,10 +384,10 @@ namespace casa
       if ( m_appName == "fastcauldron" && opt == "-hrdecompaction" ) { m_appDepLevel = HiResDecompaction; }
    }
 
-   // get environment variable
+   // get environment influential
    const char * CauldronApp::env( const char * varName ) { return getenv( varName ); }
 
-   // add the default value of environment variable to the list if it does not set up in environment
+   // add the default value of environment influential to the list if it does not set up in environment
    bool CauldronApp::pushDefaultEnv( const std::string & varName, const std::string & varValue )
    {
       const char * envValue = env( varName.c_str() );

@@ -25,8 +25,6 @@
 
 using namespace migration;
 
-using functions::tuple;
-
 using namespace DataAccess;
 using Interface::FormationList;
 using Interface::PropertyValueList;
@@ -49,7 +47,7 @@ namespace migration
          vector<const Formation*>::const_iterator f = formations.begin ();
          for (; f != formations.end (); ++f)
          {
-            if ((*f)->getBottomSurface()->getSnapshot()->getTime() < snapshot->getTime())
+            if ((*f)->getBottomSurface()->getSnapshot()->getTime() <= snapshot->getTime())
                break;
             FormationSurfaceGridMaps gridMaps = (*f)->getFormationSurfaceGridMaps (prop,
                snapshot);
@@ -84,6 +82,8 @@ namespace migration
          const Formation* f_prev = NULL;
          while (fit != formations.end ())
          {
+            if ( (*fit)->getBottomSurface()->getSnapshot()->getTime() <= snapshot->getTime() )
+               break;
             SurfaceGridMap top = (*fit)->getTopSurfaceGridMap (prop, snapshot);
             results.push_back (SurfaceGridMapFormations (top, f_prev, *fit));
 
@@ -110,6 +110,8 @@ namespace migration
          const Formation* f_prev = NULL;
          while (fit != formations.end ())
          {
+            if ( (*fit)->getBottomSurface()->getSnapshot()->getTime() <= snapshot->getTime() )
+               break;
             SurfaceGridMap base = (*fit)->getBaseSurfaceGridMap (prop, snapshot);
             results.push_back (SurfaceGridMapFormations (base, *fit, f_prev));
 
@@ -144,10 +146,6 @@ namespace migration
 
          return getAdjacentSurfaceGridMapFormations (overburden, prop, snapshot);
       }
-
-      /// 
-      ///
-      ///
 
       template <typename PRED>
       vector<const Formation*> getOverburdenFormationsIf (vector<FormationSurfaceGridMaps>::const_iterator begin,
@@ -186,7 +184,7 @@ namespace migration
                return false;
             }
 
-            double thickness = pair.base ()[functions::tuple (m_i, m_j)] - pair.top ()[functions::tuple (m_i, m_j)];
+            double thickness = pair.base ()[functions::Tuple2<unsigned int>(m_i, m_j)] - pair.top ()[functions::Tuple2<unsigned int>(m_i, m_j)];
             assert (thickness >= 0.0);
 
             // Formations with thickness equal 0.0 don't count here as real formations.
@@ -245,8 +243,8 @@ namespace migration
                return CONTINUE;
             }
 
-            double thickness = gridMaps.base ()[functions::tuple (m_i, m_j)];
-            thickness -= gridMaps.top ()[functions::tuple (m_i, m_j)];
+            double thickness = gridMaps.base ()[functions::Tuple2<unsigned int>(m_i, m_j)];
+            thickness -= gridMaps.top ()[functions::Tuple2<unsigned int>(m_i, m_j)];
             m_someValid = true;
 
             if (m_pred (gridMaps, thickness))

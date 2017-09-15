@@ -10,83 +10,20 @@
 #ifndef EOSPACK_H
 #define EOSPACK_H
 
+// CBMGenerics library
 #include "ComponentManager.h"
+typedef CBMGenerics::ComponentManager::SpeciesNamesId ComponentId;
+typedef CBMGenerics::ComponentManager::PhaseId PhaseId;
+
+// Eospack library
 #include "polynomials.h"
 
+// std library
 #include <vector>
 #include <string>
 
-using std::vector;
-using std::string;
-
 namespace pvtFlash
 {
-   enum ComponentId
-   {
-      FIRST_COMPONENT = 0,
-      ASPHALTENES = 0,
-      RESINS = 1,
-      C15_ARO = 2,
-      C15_SAT = 3,
-      C6_14ARO = 4,
-      C6_14SAT = 5,
-      C5 = 6,
-      C4 = 7,
-      C3 = 8,
-      C2 = 9,
-      C1 = 10,
-      COX = 11,
-      N2 = 12,
-      H2S = 13,
-      LSC = 14,
-      C15_AT = 15,
-      C6_14BT = 16,
-      C6_14DBT = 17,
-      C6_14BP = 18,
-      C15_AROS = 19,
-      C15_SATS = 20,
-      C6_14SATS = 21,
-      C6_14AROS = 22,
-      LAST_COMPONENT = 22,
-      UNKNOWN = 23,
-      NUM_COMPONENTS = 23   
-   };
-
-   const string ComponentIdNames[] =
-   {
-      "ASPHALTENES",
-      "RESINS",
-      "C15_ARO",
-      "C15_SAT",
-      "C6_14ARO",
-      "C6_14SAT",
-      "C5",
-      "C4",
-      "C3",
-      "C2",
-      "C1",
-      "COX",
-      "N2",
-      "H2S",
-      "LSC",
-      "C15_AT",
-      "C6_14BT",
-      "C6_14DBT",
-      "C6_14BP",
-      "C15_AROS",
-      "C15_SATS",
-      "C6_14SATS",
-      "C6_14AROS"
-   };
-
-   const int N_PHASES = CBMGenerics::ComponentManager::NumberOfPhases;
-
-   enum PhaseId
-   {
-      FIRST_PASE = 0, GAS = 0, VAPOUR = 0, OIL = 1, LIQUID = 1, LAST_PHASE = 1, NUM_PHASES = 2
-   };
-
-   enum PVTPhase { VAPOUR_PHASE = 0, LIQUID_PHASE = 1 };
 
    extern std::string pvtPropertiesConfigFile;
 
@@ -111,7 +48,7 @@ namespace pvtFlash
       /// \brief In multithreading cases we need separate instance for each thread. Creates such instance
       static EosPack* createNewInstance() { return new EosPack(); }
        
-      int    getLumpedIndex( int componentId ) const;
+      int getLumpedIndex( int componentId ) const;
 
       /// \brief Computes from pressure, temperature and component masses the corresponding phase component masses, densities and viscosities
       /// \param[in] temperature   (in K)
@@ -133,7 +70,7 @@ namespace pvtFlash
       bool compute( double temperature, 
                     double pressure, 
                     double compMasses[],
-                    double phaseCompMasses[][CBMGenerics::ComponentManager::NumberOfSpeciesToFlash],
+                    double phaseCompMasses[][ComponentId::NUMBER_OF_SPECIES_TO_FLASH],
                     double phaseDensity[],
                     double phaseViscosity[],
                     bool   isGormPrescribed = false,
@@ -141,23 +78,20 @@ namespace pvtFlash
                     double* kValues = 0
                   );
 
-      //bool compute (double temperature, double pressure, int componentId,
-	  //          int & phase, double & density, double & viscosity);
-
       /// \brief Compute with lumped sulphur species into C15+Sat and C6-14Aro
       bool computeWithLumping( double temperature, 
                                double pressure, 
                                double in_compMasses[],  				       
-                               double out_phaseCompMasses[][CBMGenerics::ComponentManager::NumberOfOutputSpecies],
+                               double out_phaseCompMasses[][ComponentId::NUMBER_OF_SPECIES],
                                double phaseDensity [],
                                double phaseViscosity[],
                                bool   isGormPrescribed = false,
                                double gorm = 0.0,
                                double* pKValues = 0
                              );
-       
+
       /// \brief returns gas/oil mass ratio
-      double gorm( const double in_compMasses[CBMGenerics::ComponentManager::NumberOfOutputSpecies] );
+      double gorm( const double in_compMasses[ComponentId::NUMBER_OF_SPECIES] );
        
       /// \brief returns the molecular weight of componentId for a prescribed gorm
       double getMolWeight( int componentId, double gorm );
@@ -171,28 +105,28 @@ namespace pvtFlash
       /// \brief returns the molecular weight of componentId for a prescribed gorm
       double getCriticalVolume( int componentId, double gorm );
 
-	   /// \brief returns critical temperature with weight lumped of componentId for a prescribed gorm
+      /// \brief returns critical temperature with weight lumped of componentId for a prescribed gorm
       double getCriticalTemperatureLumped( int componentId, double gorm );
-       
+
       /// \brief returns critical volume with weight lumped of componentId for a prescribed gorm
       double getCriticalVolumeLumped( int componentId, double gorm );
-      
+
       /// \brief lump/unlump sulphur components before compute 
-      /// \param[in] in_compMasses input array of size ComponentManager::NumberOfOutputSpecies with component masses
+      /// \param[in] in_compMasses input array of size ComponentManager::NUMBER_OF_SPECIES with component masses
       /// \param[out] out_compMasses output array of size ComponentManager::NumberOfSpeciesToFlash with lumped component masses
-      /// \param unlump_fraction array of size ComponentManager::NumberOfOutputSpecies with components fractions
+      /// \param unlump_fraction array of size ComponentManager::NUMBER_OF_SPECIES with components fractions
       void lumpComponents( const double in_compMasses[], double out_compMasses[], double unlump_fraction[] );
-       
+
       /// \brief calculate unlumping fractions. 
-      /// \param[in] weights array of size ComponentManager::NumberOfOutputSpecies
-      /// \param[out] unlump_fraction array of size ComponentManager::NumberOfOutputSpecies
-      void getLumpingFractions( const vector<double>& weights, double unlump_fraction[] );
-       
+      /// \param[in] weights array of size ComponentManager::NUMBER_OF_SPECIES
+      /// \param[out] unlump_fraction array of size ComponentManager::NUMBER_OF_SPECIES
+      void getLumpingFractions( const std::vector<double>& weights, double unlump_fraction[] );
+
       /// \param[in] in_paseCompMasses masses for each lumped component for each phase
       /// \param[out] out_phaseCompMasses masses for each unlumped component for each phase
-      /// \param unlump_fraction array of size ComponentManager::NumberOfOutputSpecies
-      void  unlumpComponents( double in_paseCompMasses[][CBMGenerics::ComponentManager::NumberOfSpeciesToFlash], 
-                              double out_phaseCompMasses[][CBMGenerics::ComponentManager::NumberOfOutputSpecies], 
+      /// \param unlump_fraction array of size ComponentManager::NUMBER_OF_SPECIES
+      void  unlumpComponents( double in_paseCompMasses[][ComponentId::NUMBER_OF_SPECIES_TO_FLASH], 
+                              double out_phaseCompMasses[][ComponentId::NUMBER_OF_SPECIES], 
                               double unlump_fraction[]);
 
       /// \brief Change the default value which is used for single phase lableing in PVT library. Also this call
@@ -216,42 +150,43 @@ namespace pvtFlash
 
       int m_isRK;
 
-      polynomials::PiecewisePolynomial** m_propertyFunc;   // [NUM_COMP][PropertyId] (component-based data)
-      // PropertyId=0: molecular weight
-      // PropertyId=1: acentric factor
-      // PropertyId=2: critical volume
-      // PropertyId=3: volume shift
-      // PropertyId=4: critical pressure
-      // PropertyId=5: critical temperature
-       
+      /// \brief [NUM_COMP][PropertyId] (component-based data)
+      /// \details PropertyId=0: molecular weight
+      ///          PropertyId=1: acentric factor
+      ///          PropertyId=2: critical volume
+      ///          PropertyId=3: volume shift
+      ///          PropertyId=4: critical pressure
+      ///          PropertyId=5: critical temperature
+      polynomials::PiecewisePolynomial** m_propertyFunc;
+
       polynomials::PiecewisePolynomial* m_omegaA;          // [1], general data
       polynomials::PiecewisePolynomial* m_omegaB;          // [1], general data
       polynomials::PiecewisePolynomial* m_corrLBC;         // [5], general data
 
       bool m_isReadInOk;
 
-      int    m_phaseIdMethod;    // Method for labeling a single phase
-      double m_CritAoverB;       // if m_phaseIdMethode is set to EOS_SINGLE_PHASE_AOVERB, this value will 
-                                 // be used for labeling single phase as liquid or vapor 
+      int    m_phaseIdMethod;    ///< Method for labeling a single phase
+      double m_CritAoverB;       ///< if m_phaseIdMethode is set to EOS_SINGLE_PHASE_AOVERB, this value will 
+                                 ///  be used for labeling single phase as liquid or vapor
 
-      int    m_maxItersNum;      // maximal iterations number for the nonlinear solver
-      double m_stopTolerance;    // convergence stop tolerance for nonliner solver
-      double m_NewtonRelaxCoeff; // relaxation coefficient for Newton solver  min( 1.0, RelCoef * 1.1 * IterNum )
+      int    m_maxItersNum;      ///< maximal iterations number for the nonlinear solver
+      double m_stopTolerance;    ///< convergence stop tolerance for nonliner solver
+      double m_NewtonRelaxCoeff; ///< relaxation coefficient for Newton solver  min( 1.0, RelCoef * 1.1 * IterNum )
 
-      int lumpedSpeciesIndex[NUM_COMPONENTS];
+      int lumpedSpeciesIndex[ComponentId::NUMBER_OF_SPECIES];
    };
       
-   /// Size(weights) = ComponentManager::NumberOfOutputSpecies
-   double gorm( const vector<double>& weights );
+   /// Size(weights) = ComponentManager::NUMBER_OF_SPECIES
+   double gorm( const std::vector<double>& weights );
    
-   /// Size(weights) = ComponentManager::NumberOfOutputSpecies
-   double getMolWeight( int componentId, const vector<double>& weights );
+   /// Size(weights) = ComponentManager::NUMBER_OF_SPECIES
+   double getMolWeight( int componentId, const std::vector<double>& weights );
 
    /// Crtical Temperature per component
    double getCriticalTemperature (int componentId, double gorm);
-   
-   double criticalTemperatureAccordingToLiMixingRule( const vector<double>& weights, const double& gorm );
-   double criticalTemperatureAccordingToLiMixingRuleWithLumping( const vector<double>& weights, const double& gorm );
+
+   double criticalTemperatureAccordingToLiMixingRule           ( const std::vector<double>& weights, const double& gorm );
+   double criticalTemperatureAccordingToLiMixingRuleWithLumping( const std::vector<double>& weights, const double& gorm );
 
 } // namespace pvtFlash
 

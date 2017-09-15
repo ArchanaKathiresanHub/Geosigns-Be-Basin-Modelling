@@ -16,7 +16,7 @@ ErosionFactorCalculator::ErosionFactorCalculator ( LayerProps* formation, const 
 
 }
 
-bool ErosionFactorCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& properties, 
+bool ErosionFactorCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& , 
                                                  OutputPropertyMap::PropertyValueList&  propertyValues ) {
 
    if ( m_isCalculated ) {
@@ -110,6 +110,6 @@ void ErosionFactorCalculator::allocatePropertyValues ( OutputPropertyMap::Proper
 
 }
 
-bool ErosionFactorCalculator::initialise ( OutputPropertyMap::PropertyValueList& propertyValues ) {
+bool ErosionFactorCalculator::initialise ( OutputPropertyMap::PropertyValueList& ) {
    return true;
 }

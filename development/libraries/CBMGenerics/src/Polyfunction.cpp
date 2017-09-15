@@ -10,15 +10,17 @@
 
 #include "Polyfunction.h"
 
+// std library
 #include <iostream>
 #include <assert.h>
-
 using namespace std;
+
+// utilities library
+#include "ConstantsNumerical.h"
+using Utilities::Numerical::IbsNoDataValue;
 
 namespace CBMGenerics
 {
-
-const double NULLVALUE           = -9999;
 
 int Polyfunction::s_instanceCount = 0;
 int Polyfunction::s_maxInstanceCount = 0;
@@ -66,11 +68,14 @@ bool Polyfunction::AddPoint(double x, double y)
    {
       if ((*it)->getX () == x /* && (*it)->getY () == y */) 
       {
-         return false; 
+    // cout << " failed" << endl;
+    return false; 
       }
 
       if ((*it)->getX () > x) break;
    }
+
+   // cout << " succeeded" << endl;
 
 
    Point *point = new Point (x, y);
@@ -96,7 +101,7 @@ double Polyfunction::GetPoint (double x)
    {
       if ((*it)->getX () == x)
       {
-         return (*it)->getY (); 
+    return (*it)->getY (); 
       }
    }
    if (!m_points.empty() && x <= (* m_points.begin ())->getX ())
@@ -158,9 +163,9 @@ bool Polyfunction::descending(double x) const
 
 double Polyfunction::F(double x) const
 {
-   // No points in this polyfunction at all -> return NULLVALUE
+   // No points in this polyfunction at all -> return IbsNoDataValue
    if (m_points.size () == 0)
-      return NULLVALUE;
+      return IbsNoDataValue;
 
    Point *firstPoint = *m_points.begin ();
    Point *lastPoint = *m_points.rbegin ();
@@ -203,7 +208,7 @@ double Polyfunction::F(double x) const
    }
    else
    {
-      return NULLVALUE;
+      return IbsNoDataValue;
    }
 #else
    const_iterator it, prev;
@@ -251,8 +256,8 @@ double Polyfunction::MaxY(double &x) const
    }
    else
    {
-      x = NULLVALUE;
-      return NULLVALUE;
+      x = IbsNoDataValue;
+      return IbsNoDataValue;
    }
 }
 
@@ -265,8 +270,8 @@ double Polyfunction::MinY(double &x) const
    }
    else
    {
-      x = NULLVALUE;
-      return NULLVALUE;
+      x = IbsNoDataValue;
+      return IbsNoDataValue;
    }
 }
 
@@ -281,8 +286,8 @@ double Polyfunction::MinY (double beginX, double endX)
 
    double xMax, yMin;
 
-   if ((yMin = MaxY (xMax)) == NULLVALUE)
-      return NULLVALUE;
+   if ((yMin = MaxY (xMax)) == IbsNoDataValue)
+      return IbsNoDataValue;
 
    double y;
 
@@ -315,8 +320,8 @@ double Polyfunction::MaxY (double beginX, double endX)
 
    double xMin, yMax;
 
-   if ((yMax = MinY (xMin)) == NULLVALUE)
-      return NULLVALUE;
+   if ((yMax = MinY (xMin)) == IbsNoDataValue)
+      return IbsNoDataValue;
 
    double y;
 
@@ -410,7 +415,7 @@ bool Polyfunction::findIntervalForValueY(double y, const Point * & low, const Po
       {
          high = point;
          maxfound = true;
-         break;
+    break;
       }
    }
 

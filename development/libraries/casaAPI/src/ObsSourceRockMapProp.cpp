@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2012-2014 Shell International Exploration & Production.
+// Copyright (C) 2012-2017 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -17,6 +17,7 @@
 #include "UndefinedValues.h"
 
 #include "NumericFunctions.h"
+#include "LogHandler.h"
 
 #include <cassert>
 #include <sstream>
@@ -70,13 +71,29 @@ std::vector<std::string> ObsSourceRockMapProp::name() const { return m_name; }
 // Get standard deviations for the reference value
 void ObsSourceRockMapProp::setReferenceValue( ObsValue * obsVal, ObsValue * devVal )
 {
-   assert( obsVal != NULL );
-   assert( dynamic_cast<ObsValueDoubleScalar*>( obsVal ) != NULL );
-
-   assert( devVal != NULL );
-   assert( dynamic_cast<ObsValueDoubleScalar*>( devVal ) != NULL );
+   assert( obsVal != nullptr );
+   ObsValueDoubleScalar * val = dynamic_cast<ObsValueDoubleScalar*>( obsVal );
+   assert( val != nullptr );
 
    m_refValue.reset( obsVal );
+
+   assert( devVal != nullptr );
+   ObsValueDoubleScalar * dev = dynamic_cast<ObsValueDoubleScalar*>( devVal ); 
+   assert( dev != nullptr );
+
+   // check dev for negative/zero value
+   if ( dev->value() <= 0.0 )
+   {
+      double newDev = std::abs( val->value() ) * 0.1;
+      if ( newDev == 0.0 ) { newDev = 0.1; }
+
+      LogHandler( LogHandler::WARNING_SEVERITY ) << "Invalid the standard deviation value: " << dev->value()
+                                                 << " for the target " << m_name[0] << ", possible error in scenario setup. "
+                                                 << "Replacing it with the default value (0.1*refVal): " << newDev;
+      delete devVal;
+      devVal = ObsValueDoubleScalar::createNewInstance( this, newDev );
+   }
+
    m_devValue.reset( devVal );
 }
 
@@ -95,10 +112,12 @@ ErrorHandler::ReturnCode ObsSourceRockMapProp::requestObservableInModel( mbapi::
    if ( ErrorHandler::NoError != cldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl, "Time",          m_simTime            ) ||
         ErrorHandler::NoError != cldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl, "XCoord",        m_x                  ) ||
         ErrorHandler::NoError != cldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl, "YCoord",        m_y                  ) ||
-        ErrorHandler::NoError != cldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl, "ZCoord",        UndefinedDoubleValue ) ||
+        ErrorHandler::NoError != cldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl, "ZCoord",
+                                                                                                            Utilities::Numerical::IbsNoDataValue ) ||
         ErrorHandler::NoError != cldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl, "FormationName", m_layerName          ) ||
         ErrorHandler::NoError != cldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl, "PropertyName",  m_propName           ) ||
-        ErrorHandler::NoError != cldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl, "Value",         UndefinedDoubleValue ) 
+        ErrorHandler::NoError != cldModel.setTableValue( Observable::s_dataMinerTable, m_posDataMiningTbl, "Value",
+                                                                                                            Utilities::Numerical::IbsNoDataValue ) 
       ) return cldModel.errorCode();
 
    return ErrorHandler::NoError;
@@ -108,7 +127,7 @@ ErrorHandler::ReturnCode ObsSourceRockMapProp::requestObservableInModel( mbapi::
 // Get this observable value from Cauldron model
 ObsValue * ObsSourceRockMapProp::getFromModel( mbapi::Model & caldModel )
 {
-   double val = UndefinedDoubleValue;
+   double val = Utilities::Numerical::IbsNoDataValue;
    double eps = 1.e-5;
 
    const std::string & msg = checkObservableForProject( caldModel );
@@ -130,7 +149,7 @@ ObsValue * ObsSourceRockMapProp::getFromModel( mbapi::Model & caldModel )
                if ( caldModel.errorCode() == ErrorHandler::NoError && NumericFunctions::isEqual( yCrd, m_y, eps ) )
                {
                   double zCrd = caldModel.tableValueAsDouble( Observable::s_dataMinerTable, i, "ZCoord" );
-                  if ( caldModel.errorCode() == ErrorHandler::NoError && NumericFunctions::isEqual( zCrd, UndefinedDoubleValue, eps ) )
+                  if ( caldModel.errorCode() == ErrorHandler::NoError && IsValueUndefined( zCrd ) )
                   {
                      const std::string & formName = caldModel.tableValueAsString( Observable::s_dataMinerTable, i, "FormationName" );
                      if ( caldModel.errorCode() == ErrorHandler::NoError && m_layerName == formName )

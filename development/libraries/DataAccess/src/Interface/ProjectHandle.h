@@ -21,6 +21,7 @@ using namespace std;
 #include "Interface.h"
 
 #include "database.h"
+#include "ProjectFileHandler.h"
 
 #include "PropertyAttribute.h"
 
@@ -55,6 +56,11 @@ using namespace std;
  * an object factory that can be replaced to produce objects of derived classes of the framework classes.
  */
 
+namespace migration
+{
+   class Migrator;
+}
+
 namespace DataAccess
 {
    using Interface::MINOR;
@@ -73,12 +79,16 @@ namespace DataAccess
    {
       /// Create a project from a project file with the given name and access mode ("r" or "rw") and
       /// return the associated ProjectHandle
-      ProjectHandle * OpenCauldronProject( const string & name, const string & accessMode, ObjectFactory* objectFactory );
+      ProjectHandle * OpenCauldronProject( const string & name,
+                                           const string & accessMode,
+                                           ObjectFactory* objectFactory,
+                                           const std::vector<std::string>& outputTableNames = NoTableNames );
 
       /// @brief Create TableIO database object from project file. This function is used by OpenCauldronProject()
       /// @param name project file name
       /// @return Database object pointer which must be deleted by the caller
-      database::Database * CreateDatabaseFromCauldronProject( const string & name );
+      database::ProjectFileHandlerPtr CreateDatabaseFromCauldronProject( const string& name,
+                                                                         const std::vector<std::string>& outputTableNames = NoTableNames );
 
       /// Close the project associated with the given ProjectHandle
       void CloseCauldronProject( ProjectHandle * projectHandle );
@@ -90,7 +100,7 @@ namespace DataAccess
       {
       public:
          /// Constructor
-         ProjectHandle( database::Database * database, const string & name, const string & accessMode, ObjectFactory* objectFactory );
+         ProjectHandle( database::ProjectFileHandlerPtr projectFileHandler, const string & name, const string & accessMode, ObjectFactory* objectFactory );
 
          /// Destructor
          virtual ~ProjectHandle( void );
@@ -98,11 +108,12 @@ namespace DataAccess
          int GetNumberOfSpecies( void );
          std::string GetSpeciesName( int i );
 
-         database::Database * getDataBase( void ) const;
-
          /// Get a handle to the Table with the given name
          database::Table * getTable( const string & tableName ) const;
 
+
+         /// \brief Set the table to be saved in the table output file.
+         void setAsOutputTable ( const std::string& tableName );
 
          /// return the ObjectFactory
          ObjectFactory * getFactory( void ) const;
@@ -129,6 +140,9 @@ namespace DataAccess
          virtual const string & getProjectName( void ) const;
          /// Return the file name of the project without the directory path
          virtual const string & getFileName( void ) const;
+
+         /// set the Grid that is used to produce new PropertyValues
+         bool setActivityOutputGrid( const Grid * grid );
 
          /// start a new activity
          bool startActivity( const string & name, const Grid * grid, bool saveAsInputGrid = false, bool createResultsFile = true, bool append = false );
@@ -210,6 +224,8 @@ namespace DataAccess
          virtual TouchstoneMapList * getTouchstoneMaps( void ) const;
          /// return the list of reservoirs
          virtual ReservoirList * getReservoirs( const Formation * formation = 0 ) const;
+         /// @return the global reservoir options
+         std::shared_ptr<const ReservoirOptions> getReservoirOptions () const;
          /// add a detected reservoir to the list of reservoirs
          virtual Reservoir* addDetectedReservoirs (database::Record * record, const Formation * formation);
          /// return the list of MobileLayers
@@ -244,10 +260,6 @@ namespace DataAccess
          /// Return a list of the time-output properties for a current modelling mode.
          virtual OutputPropertyList * getTimeOutputProperties() const;
 
-         /// Return a list of the depth-output properties for a current modelling mode.
-         virtual OutputPropertyList * getDepthOutputProperties() const;
-
-
          /// Return a list to the heat-capacity samples for the lithology.
          ///
          /// If litho == 0 then all heat capacity samples will be returned.
@@ -267,11 +279,6 @@ namespace DataAccess
          ///
          /// If fluid == 0 then all heat-capacity samples will be returned.
          virtual FluidThermalConductivitySampleList * getFluidThermalConductivitySampleList( const FluidType* fluid ) const;
-
-         /// Return a list to the density samples for the fluid.
-         ///
-         /// If fluid == 0 then all density samples will be returned.
-         virtual FluidDensitySampleList * getFluidDensitySampleList( const FluidType* fluid ) const;
 
          /// Return a list to the related projects.
          virtual RelatedProjectList * getRelatedProjectList() const;
@@ -323,9 +330,9 @@ namespace DataAccess
          /// @param[in] all if true it means: SURFACE | FORMATION | FORMATIONSURFACE | RESERVOIR
          /// @param[in] selectionFlags is logical OR for the following flags:
          ///                           SURFACE = surface property which per definition is 2D.
-         /// 	                         FORMATION = formation property which can be 2D and 3D
-         /// 	                         FORMATIONSURFACE = a surface property that is not continuous over the surface.
-         /// 	                         RESERVOIR = properties which apply to a reservoir and are therefore 2D.
+         ///                             FORMATION = formation property which can be 2D and 3D
+         ///                             FORMATIONSURFACE = a surface property that is not continuous over the surface.
+         ///                             RESERVOIR = properties which apply to a reservoir and are therefore 2D.
          /// @param[in] snapshot      properties belonging to this snapshot. If not specified, return properties for all snapshots.
          /// @param[in] reservoir     properties belonging to this reservoir.
          /// @param[in] formation     properties belonging to this formation.
@@ -584,16 +591,15 @@ namespace DataAccess
 
          void mapFileCacheDestructor( void );
 
+         database::ProjectFileHandlerPtr getProjectFileHandler ();
+
+
       protected:
-		  friend ProjectHandle * OpenCauldronProject( const string & name, const string & accessMode, DataAccess::Interface::ObjectFactory* objectFactory );
 
          typedef enum { READONLY, READWRITE } AccessMode;
          //1DComponent
          bool loadModellingMode( void );
          ModellingMode m_modellingMode;
-
-         /// Pointer to the TableIO handler
-         database::Database * const m_database;
 
          /// the full path of the project
          const string m_name;
@@ -614,6 +620,8 @@ namespace DataAccess
          const AccessMode m_accessMode;
 
          ObjectFactory * m_factory;
+
+         std::shared_ptr<ReservoirOptions> m_reservoirOptions;
 
          // All the lists
 
@@ -651,7 +659,6 @@ namespace DataAccess
          MutablePropertyValueList m_recordLessMapPropertyValues;
          MutablePropertyValueList m_recordLessVolumePropertyValues;
          MutableOutputPropertyList m_timeOutputProperties;
-         MutableOutputPropertyList m_depthOutputProperties;
          MutableRelatedProjectList m_relatedProjects;
          MutableConstrainedOverpressureIntervalList m_constrainedOverpressureIntervals;
          MutablePermafrostEventList m_permafrostEvents;
@@ -666,6 +673,7 @@ namespace DataAccess
          RunParameters* m_runParameters;
          ProjectData* m_projectData;
          MutableSimulationDetailsList m_simulationDetails;
+         database::ProjectFileHandlerPtr m_projectFileHandler;
 
 
          /// The crust- and mantle-formations do not have to be deallocated directly. Since they are added
@@ -686,7 +694,6 @@ namespace DataAccess
          MutableLithologyHeatCapacitySampleList m_lithologyHeatCapacitySamples;
          MutableLithologyThermalConductivitySampleList m_lithologyThermalConductivitySamples;
 
-         MutableFluidDensitySampleList             m_fluidDensitySamples;
          MutableFluidThermalConductivitySampleList m_fluidThermalConductivitySamples;
          MutableFluidHeatCapacitySampleList        m_fluidHeatCapacitySamples;
 
@@ -730,8 +737,6 @@ namespace DataAccess
 
 
          void resetActivityOutputGrid( void );
-         /// set the Grid that is used to produce new PropertyValues
-         bool setActivityOutputGrid( const Grid * grid );
 
          bool loadSnapshots( void );
          bool createSnapshotsAtGeologicalEvents( void );
@@ -744,6 +749,7 @@ namespace DataAccess
          bool loadSurfaces( void );
          bool loadFormations( void );
          bool loadReservoirs( void );
+         bool loadGlobalReservoirOptions (void);
          bool loadMobileLayers( void );
          bool loadAllochthonousLithologies( void );
          bool loadAllochthonousLithologyDistributions( void );
@@ -760,7 +766,6 @@ namespace DataAccess
 
          bool loadIgneousIntrusions();
 
-
          bool loadCrustFormation();
          bool loadMantleFormation();
          bool loadBasementSurfaces();
@@ -773,7 +778,6 @@ namespace DataAccess
          bool loadDepthOutputProperties( void );
          bool loadSimulationDetails ();
 
-         bool loadFluidDensitySamples();
          bool loadFluidThermalConductivitySamples();
          bool loadFluidHeatCapacitySamples();
          bool loadLithologyHeatCapacitySamples();
@@ -800,16 +804,14 @@ namespace DataAccess
          bool finalizeMapPropertyValuesWriter( void );
 
          bool saveCreatedMapPropertyValues( void );
-
-         //1DComponent
+         
          bool saveCreatedMapPropertyValuesMode1D( void );
-
+ 
          bool saveCreatedMapPropertyValuesMode3D( void );
 
          virtual bool saveCreatedVolumePropertyValues( void );
 
          bool saveCreatedVolumePropertyValuesMode1D( void );
-         bool saveCreatedVolumePropertyValuesMode1DOld( void );
 
          bool saveCreatedVolumePropertyValuesMode3D( void );
 
@@ -886,7 +888,6 @@ namespace DataAccess
          void deleteDepthOutputProperties( void );
          void deleteLithologyHeatCapacitySamples( void );
          void deleteLithologyThermalConductivitySamples( void );
-         void deleteFluidDensitySamples();
          void deleteFluidThermalConductivitySamples();
          void deleteFluidHeatCapacitySamples();
          void deleteRelatedProjects();
@@ -897,6 +898,8 @@ namespace DataAccess
          void deletePointHistories();
          void deleteIrreducibleWaterSaturationSample();
          void deleteSGDensitySample();
+
+         void deleteFaultCollections();
 
          MutableLangmuirAdsorptionIsothermSampleList m_langmuirIsotherms;
          MutableLangmuirAdsorptionTOCEntryList m_langmuirTocAdsorptionEntries;
@@ -920,7 +923,8 @@ namespace DataAccess
 
          /// List of the primary properties
          std::set<std::string> m_primaryList;
-
+         
+         friend class migration::Migrator;
       };
    }
 }

@@ -1,3 +1,13 @@
+//
+// Copyright (C) 2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "GeoPhysicsObjectFactory.h"
 
 #include "GeoPhysicsFluidType.h"
@@ -11,16 +21,17 @@
 #include "Interface/MantleFormation.h"
 
 #include "database.h"
+#include "ProjectFileHandler.h"
 #include "cauldronschemafuncs.h"
 
 #include "BasementLithology.h"
 
 using namespace DataAccess;
 
-Interface::ProjectHandle * GeoPhysics::ObjectFactory::produceProjectHandle ( database::Database * database,
+Interface::ProjectHandle * GeoPhysics::ObjectFactory::produceProjectHandle ( database::ProjectFileHandlerPtr pfh,
                                                                              const string & name,
                                                                              const string & accessMode ) {
-   return new GeoPhysics::ProjectHandle ( database, name, accessMode, this );
+   return new GeoPhysics::ProjectHandle ( pfh, name, accessMode, this );
 }
 
 Interface::FluidType* GeoPhysics::ObjectFactory::produceFluidType ( Interface::ProjectHandle* projectHandle,
@@ -54,7 +65,7 @@ DataAccess::Interface::MantleFormation* GeoPhysics::ObjectFactory::produceMantle
 
 DataAccess::Interface::SourceRock* GeoPhysics::ObjectFactory::produceSourceRock ( DataAccess::Interface::ProjectHandle* projectHandle,
                                                                                   database::Record*                     record ) {
-   
+
    GeoPhysics::GeoPhysicsSourceRock * result = new GeoPhysics::GeoPhysicsSourceRock ( projectHandle, record );
 
    return result;
@@ -65,7 +76,7 @@ Interface::LithoType* GeoPhysics::ObjectFactory::produceLithoType( DataAccess::I
 
    const string lithoname = database::getLithotype (record);
    if(( projectHandle->getBottomBoundaryConditions() == Interface::ADVANCED_LITHOSPHERE_CALCULATOR ) &&
-      ( lithoname == "Crust" || lithoname == "Litho. Mantle" || lithoname  == DataAccess::Interface::ALCBasalt )) {
+      ( lithoname == DataAccess::Interface::CrustLithologyName || lithoname == DataAccess::Interface::MantleLithologyName || lithoname  == DataAccess::Interface::ALCBasalt )) {
       return new BasementLithology( projectHandle, record );
    } else {
       return new SimpleLithology ( projectHandle, record );

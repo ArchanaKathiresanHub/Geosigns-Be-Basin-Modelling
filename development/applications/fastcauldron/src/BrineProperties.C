@@ -33,12 +33,9 @@ using namespace FiniteElementMethod;
 using namespace pvtFlash;
 
 
-
 OutputPropertyMap* allocateBrinePropertiesVolumeCalculator ( const ::PropertyList property, LayerProps* formation, const Interface::Snapshot* snapshot ) {
    return new DerivedOutputPropertyMap<BrinePropertiesVolumeCalculator>( property, formation, snapshot );
 }
-
-
 
 
 //volume calculator 
@@ -71,7 +68,7 @@ void BrinePropertiesVolumeCalculator::allocatePropertyValues ( OutputPropertyMap
  
 }
 
-bool BrinePropertiesVolumeCalculator::initialise ( OutputPropertyMap::PropertyValueList& propertyValues )
+bool BrinePropertiesVolumeCalculator::initialise ( OutputPropertyMap::PropertyValueList& )
 {
    m_temperature = PropertyManager::getInstance().findOutputPropertyVolume ( "Temperature", m_formation, m_snapshot );
    m_pressure = PropertyManager::getInstance().findOutputPropertyVolume ( "Pressure", m_formation, m_snapshot );
@@ -81,7 +78,7 @@ bool BrinePropertiesVolumeCalculator::initialise ( OutputPropertyMap::PropertyVa
    return true;
 }
 
-bool BrinePropertiesVolumeCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& properties, 
+bool BrinePropertiesVolumeCalculator::operator ()( const OutputPropertyMap::OutputPropertyList& , 
                                                      OutputPropertyMap::PropertyValueList&  propertyValues )
 {
   
@@ -95,12 +92,9 @@ bool BrinePropertiesVolumeCalculator::operator ()( const OutputPropertyMap::Outp
    unsigned int i;
    unsigned int j;
    unsigned int k;
-   
 
    Interface::GridMap * brineDensityMap;
    Interface::GridMap * brineViscosityMap;
-
-   const ElementVolumeGrid& grid = m_formation->getVolumeGrid ( Saturation::NumberOfPhases );
 
    double brineDensity = 0.0;
    double brineViscosity = 0.0;
@@ -145,7 +139,7 @@ bool BrinePropertiesVolumeCalculator::operator ()( const OutputPropertyMap::Outp
                            // temperature in celcius
                            temperature = m_temperature->getVolumeValue (i, j, k);
                            // pressure in MPa
-	                   pressure = m_pressure->getVolumeValue (i, j, k);
+                      pressure = m_pressure->getVolumeValue (i, j, k);
                            //Pressure in MPa, temp in C
 
                            brineDensity = m_fluid->density (temperature, pressure);

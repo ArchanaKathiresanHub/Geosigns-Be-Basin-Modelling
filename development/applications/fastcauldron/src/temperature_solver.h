@@ -18,7 +18,7 @@ public:
   Temperature_Solver(AppCtx* Application_Context );
 
   void Compute_Crust_Heat_Production ();
-  
+
   /// \brief Computes the heat production for each node in the domain.
   void computeHeatProduction ( const double previousTime,
                                const double currentTime ) const;
@@ -58,7 +58,7 @@ public:
    void correctTemperatureSolution ( const double Current_Time );
 
   ///
-  /// Update the Smectite-Illite calculation state, 
+  /// Update the Smectite-Illite calculation state,
   ///
   void computeSmectiteIlliteIncrement ( const double Previous_Time, const double Current_Time );
 
@@ -70,22 +70,22 @@ public:
   void deleteSmectiteIlliteVector ();
 
   ///
-  /// Update the Biomarkers calculation state, 
+  /// Update the Biomarkers calculation state,
   ///
   void computeBiomarkersIncrement ( const double Previous_Time, const double Current_Time );
 
   ///
-  /// Collect data to be used for fission track analysis  
+  /// Collect data to be used for fission track analysis
   ///
   void collectFissionTrackSampleData(const double time);
 
   ///
-  /// Perform fission track analysis  
+  /// Perform fission track analysis
   ///
   void computeFissionTracks(void);
 
   ///
-  /// Clear the input history for fission track calculator  
+  /// Clear the input history for fission track calculator
   ///
   void resetFissionTrackCalculator(void);
 
@@ -96,7 +96,7 @@ public:
   void computeSnapShotBiomarkers ( const double Current_Time, const Boolean2DArray& validNeedle );
   void deleteBiomarkersVectors ( );
   void resetSmectiteIlliteStateVectors( );
-  void resetBiomarkerStateVectors();  
+  void resetBiomarkerStateVectors();
 
   ///
   /// Set the surface temperature for the temperature vector in the topmost layer.
@@ -112,7 +112,7 @@ public:
   void Estimate_Temperature ( AppCtx*      basinModel,
                               const double Current_Time );
 
-  void Create_Source_Rocks_History_Arrays ( const int Number_Of_X_Nodes, 
+  void Create_Source_Rocks_History_Arrays ( const int Number_Of_X_Nodes,
 					    const int Number_Of_Y_Nodes );
 
   void Store_Temperature_Solution ( const DM  Temperature_FEM_Grid,
@@ -125,8 +125,8 @@ public:
 
 
   ///
-  /// The maximum number of Newton iterations that can be performed in the 
-  /// temperature calculation. It is dependant on the user selecting to do a 
+  /// The maximum number of Newton iterations that can be performed in the
+  /// temperature calculation. It is dependant on the user selecting to do a
   /// nonlinear temperature calculation and the optimisation level.
   ///
   int maximumNumberOfNonlinearIterations ( const int optimisationLevel ) const;
@@ -152,20 +152,6 @@ private:
   Temperature_Solver( const Temperature_Solver & ); // prohibit copying
   Temperature_Solver & operator=(const Temperature_Solver & ); // prohibit assignment
 
-
-   /// \brief Assemble the element stiffness matrix and load vector for the linearised temperature equation.
-   void assembleElementTemperatureStiffnessMatrix ( const GeneralElement&     element,
-                                                    const PETSC_3D_Array&     bulkHeatProd,
-                                                    const int                 planeQuadratureDegree,
-                                                    const int                 depthQuadratureDegree,
-                                                    const double              currentTime,
-                                                    const double              timeStep,
-                                                    const bool                includeAdvectiveTerm,
-                                                    const BoundaryConditions& bcs,
-                                                    const CompoundLithology*  elementLithology,
-                                                    const bool                includeChemicalCompaction,
-                                                    ElementMatrix&            elementStiffnessMatrix,
-                                                    ElementVector&            elementLoadVector ) const;
 
    /// \brief Assemble the element Jacobian and residual for the nonlinear temperature equation.
    void assembleElementNonLinearSystem ( const GeneralElement&     element,

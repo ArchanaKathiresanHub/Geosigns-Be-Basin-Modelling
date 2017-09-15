@@ -9,7 +9,7 @@
 // 
 
 /// @file PrmLithologyProp.C
-/// @brief This file keeps API implementation of common part of any Lithology property parameter implemented as variable parameter
+/// @brief This file keeps API implementation of common part of any Lithology property parameter implemented as influential parameter
 
 // CASA API
 #include "PrmLithologyProp.h"
@@ -32,7 +32,7 @@ namespace casa
 {
 
 // Constructors
-PrmLithologyProp::PrmLithologyProp() : m_parent( 0 ), m_val( UndefinedDoubleValue ) {;}
+PrmLithologyProp::PrmLithologyProp() : m_parent( 0 ), m_val( Utilities::Numerical::IbsNoDataValue ) {;}
 
 PrmLithologyProp::PrmLithologyProp( const VarParameter * parent
                                   , const std::vector<std::string> & lithosName
