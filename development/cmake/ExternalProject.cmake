@@ -112,6 +112,9 @@ set(BM_EXTERNAL_COMPONENTS_DIR "${PROJECT_BINARY_DIR}/ExternalComponents" CACHE 
 # Location of external components dir
 set(BM_EXTERNAL_COMPONENTS_TMPDIR "${PROJECT_BINARY_DIR}/ExternalComponents" CACHE PATH "The path to the directory of libraries that are built only for this occassion")
 
+# Determine whether to run unit test for external components (when built)
+option( BM_EXTERNAL_COMPONENTS_UNIT_TEST "Flag for running unit test for external components." ON)
+
 # Determine Compiler identifier
 set( BM_COMPILER_ID "${CMAKE_CXX_COMPILER_ID}_${CMAKE_CXX_COMPILER_VERSION}" CACHE STRING "An identifier for the Compiler for this build." )
 message(STATUS "Compiler identifier = ${BM_COMPILER_ID}")
@@ -190,23 +193,23 @@ macro( add_external_project_to_repository )
    # The current external project depends on other external projects?
    if ( NOT ${extProj_DEPENDS_NAME} STREQUAL "" )
       set( extProj_hasDeps ON )
-      message(STATUS "External component ${extProj_NAME} depends on ${extProj_DEPENDS_NAME} ${extProj_DEPENDS_VER}")
+      message(STATUS "External component ${extProj_NAME} ${extProj_VERSION} depends on ${extProj_DEPENDS_NAME} ${extProj_DEPENDS_VER}")
    else()
       set( extProj_hasDeps OFF )
    endif()
 
    if ( BM_EXTERNAL_COMPONENTS_REBUILD )
-      message(STATUS "External component ${extProj_NAME} will be (re)built")
+      message(STATUS "External component ${extProj_NAME} ${extProj_VERSION} will be (re)built")
    elseif (NOT BM_EXTERNAL_COMPONENTS_REBUILD AND NOT EXISTS ${extProj_ROOT} AND NOT ${extProj_NAME}_ROOT)
-      message(STATUS "External component ${extProj_NAME} will be built temporarily")
+      message(STATUS "External component ${extProj_NAME} ${extProj_VERSION} will be built temporarily")
       set( extProj_ROOT "${BM_EXTERNAL_COMPONENTS_TMPDIR}/${extProj_NAME}")
       set( extProj_rebuild ON)
    elseif ( extProj_hasDeps AND NOT EXISTS ${BM_EXTERNAL_COMPONENTS_DIR}/${extProj_DEPENDS_NAME}/${extProj_DEPENDS_VER}/${BM_EXTERNAL_COMPONENTS_FLAVOUR} )
-      message(STATUS "External component ${extProj_NAME} will be built temporarily because its dependency (${extProj_DEPENDS_NAME} ${extProj_DEPENDS_VER}) has to be rebuilt")
+      message(STATUS "External component ${extProj_NAME} ${extProj_VERSION} will be built temporarily because its dependency (${extProj_DEPENDS_NAME} ${extProj_DEPENDS_VER}) has to be rebuilt")
       set( extProj_ROOT "${BM_EXTERNAL_COMPONENTS_TMPDIR}/${extProj_NAME}")
       set( extProj_rebuild ON)
    else()
-      message(STATUS "External component ${extProj_NAME} is prebuilt")
+      message(STATUS "External component ${extProj_NAME} ${extProj_VERSION} is prebuilt")
    endif()
    set( ${extProj_NAME}_ROOT "${extProj_ROOT}" CACHE PATH "Path to the external component '${extProj_NAME}'" )
    set(extProj_ROOT "${${extProj_NAME}_ROOT}")
@@ -311,6 +314,13 @@ macro( add_external_project_to_repository )
 
    if (extProj_rebuild)
 
+      # Unit test will be run only if the test command has been explicitly defined
+      if ( BM_EXTERNAL_COMPONENTS_UNIT_TEST AND extProj_TEST_COMMAND )
+         set( extProj_runUnitTest 1 )
+      else()
+         set( extProj_runUnitTest 0 )
+      endif()
+
       # Add the extProj as external project for the current extProj configuration
       ExternalProject_Add( ${extProj_NAME}
          DEPENDS         "${extProj_DEPENDS_NAME}"
@@ -324,7 +334,7 @@ macro( add_external_project_to_repository )
          BUILD_IN_SOURCE 1  # Because some libraries may not support out-of-source compilation
          INSTALL_COMMAND ${extProj_INSTALL_COMMAND}
 
-         TEST_BEFORE_INSTALL    1
+         TEST_BEFORE_INSTALL    ${extProj_runUnitTest}
          TEST_AFTER_INSTALL     0
          TEST_EXCLUDE_FROM_MAIN 0
          TEST_COMMAND           ${extProj_TEST_COMMAND}
