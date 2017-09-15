@@ -65,12 +65,10 @@ namespace GeoPhysics {
       virtual double getMaximumThickness () const;
 
       // Would like to remove this function.
-      virtual bool isCrust () const;
+      virtual bool isCrust () const noexcept;
 
       // Would like to remove this function.
       virtual bool isMantle () const;
-
-//       virtual bool isSediment () const;
 
       virtual unsigned int setMaximumNumberOfElements ( const bool readSizeFromVolumeData );
 
@@ -188,7 +186,7 @@ inline double GeoPhysics::Formation::getMaximumThickness () const {
    return m_maximumDepositedThickness;
 }
 
-inline bool GeoPhysics::Formation::isCrust () const {
+inline bool GeoPhysics::Formation::isCrust () const noexcept{
    return false;
 }
 

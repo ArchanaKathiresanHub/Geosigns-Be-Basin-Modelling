@@ -57,7 +57,7 @@ const string CrustalThicknessCalculatorActivityName = "CrustalThicknessCalculato
 
 //------------------------------------------------------------//
 
-CrustalThicknessCalculator::CrustalThicknessCalculator( database::Database * database, const std::string & name, const std::string & accessMode, ObjectFactory* objectFactory )
+CrustalThicknessCalculator::CrustalThicknessCalculator( database::ProjectFileHandlerPtr database, const std::string & name, const std::string & accessMode, ObjectFactory* objectFactory )
    : DataAccess::Mining::ProjectHandle( database, name, accessMode, objectFactory ),
      m_outputOptions                      (0      ),
      m_debug                              (false  ),

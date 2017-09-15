@@ -32,6 +32,7 @@ set(allheaders
    ${CMAKE_CURRENT_BINARY_DIR}/TableAllochthonLithoInterpIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableCrustIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableContCrustalThicknessIoTbl.h
+   ${CMAKE_CURRENT_BINARY_DIR}/TableOceaCrustalThicknessIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableBasaltThicknessIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableBasementIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableDisplayContourIoTbl.h
@@ -77,6 +78,7 @@ set(allheaders
    ${CMAKE_CURRENT_BINARY_DIR}/TableTwoWayTimeIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableGenexHistoryLocationIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableCTCIoTbl.h
+   ${CMAKE_CURRENT_BINARY_DIR}/TableCTCRiftingHistoryIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableLangmuirAdsorptionCapacityIsothermSetIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableLangmuirAdsorptionCapacityTOCFunctionIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableAdsorptionHistoryIoTbl.h
@@ -106,6 +108,7 @@ set(allsources
    ${CMAKE_CURRENT_BINARY_DIR}/TableAllochthonLithoInterpIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableCrustIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableContCrustalThicknessIoTbl.cpp
+   ${CMAKE_CURRENT_BINARY_DIR}/TableOceaCrustalThicknessIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableBasaltThicknessIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableBasementIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableDisplayContourIoTbl.cpp
@@ -151,6 +154,7 @@ set(allsources
    ${CMAKE_CURRENT_BINARY_DIR}/TableTwoWayTimeIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableGenexHistoryLocationIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableCTCIoTbl.cpp
+   ${CMAKE_CURRENT_BINARY_DIR}/TableCTCRiftingHistoryIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableLangmuirAdsorptionCapacityIsothermSetIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableLangmuirAdsorptionCapacityTOCFunctionIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableAdsorptionHistoryIoTbl.cpp

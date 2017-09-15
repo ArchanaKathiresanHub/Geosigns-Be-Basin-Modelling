@@ -22,8 +22,9 @@
 #include <cstdlib>
 
 // utilities library
-# include "ConstantsMathematics.h"
+#include "ConstantsMathematics.h"
 #include "ConstantsNumerical.h"
+#include "StringHandler.h"
 
 // CBMGenerics library
 #include "ComponentManager.h"

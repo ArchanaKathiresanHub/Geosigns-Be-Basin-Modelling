@@ -215,6 +215,7 @@ namespace database
    public:
       /// Forward iterator type used to iterate through the Records of a Table.
       typedef RecordList::iterator iterator;
+      typedef RecordList::const_iterator const_iterator;
 
       /// Create a new Record in this Table
       Record * createRecord (bool addToFile = true);
@@ -296,6 +297,10 @@ namespace database
       inline Table::iterator begin();
       /// Return an iterator pointing to the end of the Table.
       inline Table::iterator end();
+      /// Return an const_iterator pointing to the beginning of the Table.
+      inline Table::const_iterator begin() const;
+      /// Return an const_iterator pointing to the end of the Table.
+      inline Table::const_iterator end() const;
 
       /// \brief Copy the records in the current table to the table passed as a parameter.
       ///
@@ -525,6 +530,16 @@ namespace database
    Table::iterator Table::end()
    {
       return m_records.end ();
+   }
+
+   Table::const_iterator Table::begin() const
+   {
+      return m_records.begin();
+   }
+
+   Table::const_iterator Table::end() const
+   {
+      return m_records.end();
    }
 
    int Record::getIndex (const std::string & fieldName)

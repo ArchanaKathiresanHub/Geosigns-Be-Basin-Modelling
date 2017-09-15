@@ -53,6 +53,7 @@ set(all_headers
       src/GeoPhysicsProjectHandle.h
       src/GeoPhysicsSourceRock.h
       src/HCDensity.h
+      src/LambdaMixer.h
       src/LithologyManager.h
       src/Local2DArray.h
       src/Local3DArray.h
@@ -109,6 +110,7 @@ set(all_srcs
       src/GeoPhysicsProjectHandle.C
       src/GeoPhysicsSourceRock.C
       src/HCDensity.C
+      src/LambdaMixer.cpp
       src/LithologyManager.C
       src/MultiCompoundProperty.C
       src/Permeability.C

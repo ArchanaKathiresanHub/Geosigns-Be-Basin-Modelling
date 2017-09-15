@@ -12,7 +12,6 @@
 #define FASTCTC_CRUSTALTHICKNESS_CALCULATOR_H
 
 // TableIO library
-// @TODO_Check
 #include "ProjectFileHandler.h"
 
 // CrustalThickness library

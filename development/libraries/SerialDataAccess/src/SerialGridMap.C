@@ -253,24 +253,6 @@ bool SerialGridMap::restoreData (bool , bool ) const
    return true;
 }
 
-#if 0
-// Added by V.R. Ambati (13/07/2011):
-// getVec(...) is defined only for Distrubuted version and therefore, serial version
-// simply throws an error
-Vec & GridMap::getVec (void)
-{
-   throw "Vec & GridMap::getVec (void) is not defined for serial version.";
-}
-
-// Added by V.R. Ambati (13/07/2011):
-// getDA(...) is defined only for Distrubuted version and therefore, serial version
-// simply throws an error
-DA & GridMap::getDA (void) const
-{
-   throw "DA & GridMap::getDA (void) const is not defined for serial version.";
-}
-#endif
-
 double SerialGridMap::getUndefinedValue (void) const
 {
    return m_undefinedValue;

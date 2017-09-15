@@ -15,7 +15,7 @@ using database::Table;
 using database::Record;
 
 void TableLoader::load( const ProjectHandle& projectHandle, const std::string& tableName, const std::function<void( Record* )> functor ){
-   Table const * const table = projectHandle.getDataBase()->getTable( tableName );
+   Table const * const table = projectHandle.getTable( tableName );
    if (table == nullptr) {
       throw std::runtime_error( "Could not find the table [" + tableName + "]" );
    }

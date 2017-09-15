@@ -45,8 +45,8 @@ public :
    void                                                  asString( string & str )     const { return GeoPhysics::GeoPhysicsMantleFormation::asString( str ); }
    unsigned int                                          getElementRefinement()       const { return GeoPhysics::GeoPhysicsMantleFormation::getElementRefinement(); }
 
-   void determineMinMaxThickness()                                                          { return GeoPhysics::GeoPhysicsMantleFormation::determineMinMaxThickness(); }
-   bool isCrust()                                                                     const { return GeoPhysics::GeoPhysicsMantleFormation::isCrust(); }
+   void determineMinMaxThickness()                                                    final { return GeoPhysics::GeoPhysicsMantleFormation::determineMinMaxThickness(); }
+   bool isCrust()                                                      const noexcept final { return GeoPhysics::GeoPhysicsMantleFormation::isCrust(); }
    unsigned int setMaximumNumberOfElements( const bool readSizeFromVolumeData )             { return GeoPhysics::GeoPhysicsMantleFormation::setMaximumNumberOfElements( readSizeFromVolumeData ); }
    void retrieveAllThicknessMaps()                                                          { return GeoPhysics::GeoPhysicsMantleFormation::retrieveAllThicknessMaps(); }
    void restoreAllThicknessMaps()                                                           { return GeoPhysics::GeoPhysicsMantleFormation::restoreAllThicknessMaps(); }

@@ -207,7 +207,7 @@ const DataAccess::Interface::ApplicationGlobalOperations& ProjectHandle::getGlob
 }
 
 ProjectHandle::ProjectHandle(database::ProjectFileHandlerPtr pfh, const string & name, const string & accessMode, ObjectFactory* objectFactory ) :
-   m_database( tables ), m_name( name ), m_accessMode( READWRITE ),
+   m_name( name ), m_accessMode( READWRITE ), m_projectFileHandler(pfh),
    m_tableCTC                         ( *this ),
    m_tableCTCRiftingHistory           ( *this ),
    m_tableOceanicCrustThicknessHistory( *this ),
@@ -1082,14 +1082,14 @@ bool ProjectHandle::loadProperties( void )
    for ( i = 0; i < ComponentManager::NUMBER_OF_SPECIES; ++i )
    {
       m_properties.push_back( getFactory()->produceProperty( this, 0,
-         theComponentManager.GetSpeciesOutputPropertyName( i, false ),
-         theComponentManager.GetSpeciesOutputPropertyName( i, false ),
+         theComponentManager.getSpeciesOutputPropertyName( i, false ),
+         theComponentManager.getSpeciesOutputPropertyName( i, false ),
          theResultManager.GetResultUnit( GenexResultManager::OilGeneratedCum ), FORMATIONPROPERTY,
          DataModel::FORMATION_2D_PROPERTY) );
 
       m_properties.push_back( getFactory()->produceProperty( this, 0,
-         theComponentManager.GetSpeciesOutputPropertyName( i, true ),
-         theComponentManager.GetSpeciesOutputPropertyName( i, true ),
+         theComponentManager.getSpeciesOutputPropertyName( i, true ),
+         theComponentManager.getSpeciesOutputPropertyName( i, true ),
          theResultManager.GetResultUnit( GenexResultManager::OilGeneratedCum ), FORMATIONPROPERTY,
          DataModel::FORMATION_2D_PROPERTY ) );
 
@@ -1108,8 +1108,8 @@ bool ProjectHandle::loadProperties( void )
    for ( i = 0; i < ComponentManager::NUMBER_OF_SPECIES; ++i )
    {
       m_properties.push_back( getFactory()->produceProperty( this, 0,
-         theComponentManager.GetSpeciesName( i ) + "Concentration",
-         theComponentManager.GetSpeciesName( i ) + "Concentration",
+         theComponentManager.getSpeciesName( i ) + "Concentration",
+         theComponentManager.getSpeciesName( i ) + "Concentration",
          "kg/m3", FORMATIONPROPERTY,
          DataModel::DISCONTINUOUS_3D_PROPERTY ) );
    }
@@ -1127,26 +1127,26 @@ bool ProjectHandle::loadProperties( void )
    for ( i = 0; i < ComponentManager::NUMBER_OF_SPECIES; ++i )
    {
       m_properties.push_back( getFactory()->produceProperty( this, 0,
-         theComponentManager.GetSpeciesName( i ) + "Retained",
-         theComponentManager.GetSpeciesName( i ) + "Retained",
+         theComponentManager.getSpeciesName( i ) + "Retained",
+         theComponentManager.getSpeciesName( i ) + "Retained",
           theResultManager.GetResultUnit( GenexResultManager::OilGeneratedCum ), FORMATIONPROPERTY,
           DataModel::FORMATION_2D_PROPERTY ) );
 
       m_properties.push_back( getFactory()->produceProperty( this, 0,
-         theComponentManager.GetSpeciesName( i ) + "Adsorped",
-         theComponentManager.GetSpeciesName( i ) + "Adsorped",
+         theComponentManager.getSpeciesName( i ) + "Adsorped",
+         theComponentManager.getSpeciesName( i ) + "Adsorped",
          "scf/ton", FORMATIONPROPERTY,
          DataModel::FORMATION_2D_PROPERTY ) );
 
       m_properties.push_back( getFactory()->produceProperty( this, 0,
-         theComponentManager.GetSpeciesName( i ) + "AdsorpedExpelled",
-         theComponentManager.GetSpeciesName( i ) + "AdsorpedExpelled",
+         theComponentManager.getSpeciesName( i ) + "AdsorpedExpelled",
+         theComponentManager.getSpeciesName( i ) + "AdsorpedExpelled",
          "scf/ton", FORMATIONPROPERTY,
          DataModel::FORMATION_2D_PROPERTY ) );
 
       m_properties.push_back( getFactory()->produceProperty( this, 0,
-         theComponentManager.GetSpeciesName( i ) + "AdsorpedFree",
-         theComponentManager.GetSpeciesName( i ) + "AdsorpedFree",
+         theComponentManager.getSpeciesName( i ) + "AdsorpedFree",
+         theComponentManager.getSpeciesName( i ) + "AdsorpedFree",
          "scf/ton", FORMATIONPROPERTY,
          DataModel::FORMATION_2D_PROPERTY ) );
 

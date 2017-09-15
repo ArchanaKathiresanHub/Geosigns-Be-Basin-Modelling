@@ -15,7 +15,6 @@
 #include "DataMiningObjectFactory.h"
 
 // TableIO library
-//@TODO_Check
 #include "ProjectFileHandler.h"
 #include "PropertyValue.h"
 

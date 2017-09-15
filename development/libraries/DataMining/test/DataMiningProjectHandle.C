@@ -9,7 +9,7 @@
 //
 
 #include "DataMiningProjectHandle.h"
-#include "DomainPropertyFactory.h"
+#include "DataMiningObjectFactory.h"
 #include "Interface/ObjectFactory.h"
 #include "Interface/ProjectHandle.h"
 
@@ -18,7 +18,7 @@
 
 TEST(DataMiningProjectHandle, OpenCauldronProject)
 {
-   std::unique_ptr<DataAccess::Mining::DomainPropertyFactory> factory( new DataAccess::Mining::DomainPropertyFactory );
+   std::unique_ptr<DataAccess::Mining::ObjectFactory> factory( new DataAccess::Mining::ObjectFactory);
    std::unique_ptr<DataAccess::Mining::ProjectHandle> ph(nullptr);
    try
    {

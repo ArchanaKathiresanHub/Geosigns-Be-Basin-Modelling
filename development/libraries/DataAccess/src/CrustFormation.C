@@ -291,7 +291,7 @@ double CrustFormation::getHeatProductionDecayConstant () const {
 
 //------------------------------------------------------------//
 
-int CrustFormation::getDepositionSequence () const noexcept {
+int CrustFormation::getDepositionSequence () const {
    return CRUST_DEPOSITION;
 }
 

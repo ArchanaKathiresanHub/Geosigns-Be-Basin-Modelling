@@ -77,7 +77,7 @@ namespace DataAccess
 
    namespace Interface
    {
-      /// Create a project from a project file with the given name and access mode ("r" or "rw") and
+      /// Create a project from a project file with the given name and access mode ("r" or "rw") andm_projectFileHandler
       /// return the associated ProjectHandle
       ProjectHandle * OpenCauldronProject( const string & name,
                                            const string & accessMode,
@@ -90,7 +90,7 @@ namespace DataAccess
       database::ProjectFileHandlerPtr CreateDatabaseFromCauldronProject( const string& name,
                                                                          const std::vector<std::string>& outputTableNames = NoTableNames );
 
-      /// Close the project associated with the given ProjectHandle
+      /// Close the project associated with the given ProjectHandlem_projectFileHandler
       void CloseCauldronProject( ProjectHandle * projectHandle );
 
       /// A ProjectHandle contains references to the entities in a Project.
@@ -618,6 +618,7 @@ namespace DataAccess
          string m_activityName;
 
          const AccessMode m_accessMode;
+         database::ProjectFileHandlerPtr m_projectFileHandler;
 
          ObjectFactory * m_factory;
 
@@ -673,8 +674,6 @@ namespace DataAccess
          RunParameters* m_runParameters;
          ProjectData* m_projectData;
          MutableSimulationDetailsList m_simulationDetails;
-         database::ProjectFileHandlerPtr m_projectFileHandler;
-
 
          /// The crust- and mantle-formations do not have to be deallocated directly. Since they are added
          /// to the list of formations in the model they will be deleted when this object is destroyed.

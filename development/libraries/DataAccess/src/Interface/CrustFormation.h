@@ -59,7 +59,7 @@ namespace DataAccess
 
          /// \return The "fake" deposition sequence of the crust which is defined to be -1
          /// \details This has no geological meaning and is used to comply with legacy code
-         virtual int getDepositionSequence () const noexcept;
+         virtual int getDepositionSequence () const;
 
          /// \return The heat production decay constant for the crust
          /// \details The heat production has an exponential decay w.r.t. depth

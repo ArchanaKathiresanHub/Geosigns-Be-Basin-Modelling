@@ -56,8 +56,8 @@ public :
    int                                                   getDepositionSequence()      const { return GeoPhysics::GeoPhysicsCrustFormation::getDepositionSequence(); }
    void                                                  asString( string & str )     const { return GeoPhysics::GeoPhysicsCrustFormation::asString( str ); }
 
-   void determineMinMaxThickness()                                                          { return GeoPhysics::GeoPhysicsCrustFormation::determineMinMaxThickness(); }
-   bool isCrust()                                                                     const { return GeoPhysics::GeoPhysicsCrustFormation::isCrust(); }
+   void determineMinMaxThickness()                                                    final { return GeoPhysics::GeoPhysicsCrustFormation::determineMinMaxThickness(); }
+   bool isCrust()                                                      const noexcept final { return GeoPhysics::GeoPhysicsCrustFormation::isCrust(); }
    unsigned int setMaximumNumberOfElements( const bool readSizeFromVolumeData )             { return GeoPhysics::GeoPhysicsCrustFormation::setMaximumNumberOfElements( readSizeFromVolumeData ); }
    void retrieveAllThicknessMaps()                                                          { return GeoPhysics::GeoPhysicsCrustFormation::retrieveAllThicknessMaps(); }
    void restoreAllThicknessMaps()                                                           { return GeoPhysics::GeoPhysicsCrustFormation::restoreAllThicknessMaps(); }

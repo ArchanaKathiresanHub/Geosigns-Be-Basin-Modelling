@@ -41,7 +41,6 @@ namespace GeoPhysics {
 
       ~GeoPhysicsCrustFormation();
 
-      bool isCrust() const;
 
       // redefine set of methods which are differently were defined in base classes
       // Inherited from BasementFormation
@@ -72,7 +71,6 @@ namespace GeoPhysics {
       unsigned int                                          getElementRefinement() const { return DataAccess::Interface::BasementFormation::getElementRefinement(); }
 
       /// \return True since this is a crust formation
-      //@TODO_Check
       bool isCrust () const noexcept;
 
       // Since this function is almost identical to the one in the GeoPhysicsMantleFormation,
@@ -81,7 +79,7 @@ namespace GeoPhysics {
       virtual bool setLithologiesFromStratTable ();
 
       /// \brief Sets the crust formation maximum and minimum thickness and the crust thickness paleo history
-      void determineMinMaxThickness () final;
+      void determineMinMaxThickness ();
 
       /// \brief Sets and return the maximum number of elements for the crust layer
       unsigned int setMaximumNumberOfElements ( const bool readSizeFromVolumeData );
