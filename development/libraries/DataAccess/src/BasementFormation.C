@@ -62,9 +62,19 @@ const GridMap * BasementFormation::getInputThicknessMap (void) const
 {
    const GridMap * gridMap;
 
-   if ((gridMap = (const GridMap *) getChild (ThicknessMap)) != 0) return gridMap;
-   else if ((gridMap = computeThicknessMap ()) != 0) return gridMap;
+   if ((gridMap = (const GridMap *) getChild (ThicknessMap)) != nullptr) return gridMap;
+   else if ((gridMap = computeThicknessMap ()) != nullptr) return gridMap;
    else return nullptr;
+}
+
+GridMap * BasementFormation::loadThicknessMap(void) const
+{
+   return nullptr;
+}
+
+GridMap * BasementFormation::computeThicknessMap(void) const
+{
+   return nullptr;
 }
 
 const LithoType * BasementFormation::getLithoType1 (void) const {
@@ -73,6 +83,48 @@ const LithoType * BasementFormation::getLithoType1 (void) const {
       m_lithoType1 = (LithoType const *) m_projectHandle->findLithoType ( m_lithologyName );
    return m_lithoType1;
   
+}
+
+const GridMap * BasementFormation::getLithoType1PercentageMap(void) const
+{
+   GridMap * gridMap;
+
+   if ((gridMap = (GridMap *)getChild(LithoType1Map)) == nullptr)
+   {
+      const double percentage = 100.0;
+
+      const Grid * grid = m_projectHandle->getActivityOutputGrid();
+      if (!grid) grid = (Grid *)m_projectHandle->getInputGrid();
+      gridMap = m_projectHandle->getFactory()->produceGridMap(this, LithoType1Map, grid, percentage);
+
+      assert(gridMap == getChild(LithoType1Map));
+   }
+
+   return gridMap;
+}
+
+/// Return the second lithotype of this BasementFormation
+const LithoType * BasementFormation::getLithoType2(void) const
+{
+   return nullptr;
+}
+
+/// Return the percentage map of the second lithotype
+const GridMap * BasementFormation::getLithoType2PercentageMap(void) const
+{
+   return nullptr;
+}
+
+/// Return the third lithotype of this BasementFormation
+const LithoType * BasementFormation::getLithoType3(void) const
+{
+   return nullptr;
+}
+
+/// Return the percentage map of the third lithotype
+const GridMap * BasementFormation::getLithoType3PercentageMap(void) const
+{
+   return nullptr;
 }
 
 /// return the list of reservoirs in this formation.
@@ -149,7 +201,6 @@ const FluidType* BasementFormation::getFluidType (void) const
    return nullptr;
 }
 
-//@TODO_Check
 unsigned int BasementFormation::getElementRefinement () const {
    return DefaultBasementElementRefinement;
 }

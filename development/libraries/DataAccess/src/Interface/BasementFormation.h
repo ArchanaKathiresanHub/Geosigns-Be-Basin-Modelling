@@ -46,6 +46,29 @@ namespace DataAccess
          /// Return the first lithotype of this BasementFormation.
          const LithoType * getLithoType1 (void) const;
 
+         /// Return the percentage map of the first lithotype
+         const GridMap * getLithoType1PercentageMap(void) const;
+
+         /// Return the second lithotype of this BasementFormation.
+         ///
+         /// The default here is to return null, since in the basement there is only a single lithotype required.
+         const LithoType * getLithoType2(void) const;
+
+         /// Return the percentage map of the second lithotype.
+         ///
+         /// The default here is to return null, since in the basement there is only a single lithotype required.
+         const GridMap * getLithoType2PercentageMap(void) const;
+
+         /// Return the third lithotype of this BasementFormation.
+         ///
+         /// The default here is to return null, since in the basement there is only a single lithotype required.
+         const LithoType * getLithoType3(void) const;
+
+         /// Return the percentage map of the third lithotype.
+         ///
+         /// The default here is to return null, since in the basement there is only a single lithotype required.
+         const GridMap * getLithoType3PercentageMap(void) const;
+
          /// return the list of reservoirs in this formation.
          ///
          /// The default here is to return null, since in the basement there are no reservoirs.
@@ -116,7 +139,16 @@ namespace DataAccess
 
          virtual PaleoFormationPropertyList * getPaleoThicknessHistory () const = 0;
 
-         //@TODO_Check
+         /// Load thickness map associated with this formation.
+         ///
+         /// Internal function, returns null since there is no map to load?
+         GridMap * loadThicknessMap(void) const;
+
+         /// Compute the thickness map in case it could not be loaded.
+         ///
+         /// Internal function.
+         GridMap * computeThicknessMap(void) const;
+
       protected : 
 
          /// \brief The element refinement for basement layers.
