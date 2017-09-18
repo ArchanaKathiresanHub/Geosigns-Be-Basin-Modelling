@@ -423,6 +423,15 @@
 [End]
 ;
 ;
+; OceaCrustalThicknessIoTbl
+;
+[OceaCrustalThicknessIoTbl]
+;v0
+                     Age                Thickness            ThicknessGrid
+                    (Ma)                      (m)                      (m)
+[End]
+;
+;
 ; BasaltThicknessIoTbl
 ;
 [BasaltThicknessIoTbl]
@@ -445,29 +454,29 @@
 ; CTCIoTbl
 ;
 [CTCIoTbl]
-;
-SurfaceName HCuIni HCuIniGrid HLMuIni HLMuIniGrid FilterHalfWidth UpperLowerContinentalCrustRatio UpperLowerOceanicCrustRatio
-  ()  (m)   ()  (m)   ()   ()   ()   ()
-  "" 40000  "" 115000 ""    5  0.5  0.5
+;v100
+             SurfaceName                   HCuIni               HCuIniGrid                  HLMuIni              HLMuIniGrid          FilterHalfWidth UpperLowerContinentalCrustRatio UpperLowerOceanicCrustRatio
+                      ()                      (m)                       ()                      (m)                       ()                       ()                       ()                       ()
+                      ""                    40000                       ""                   115000                       ""                        5                      0.5                      0.5
 [End]
 ;
 ;
 ; CTCRiftingHistoryIoTbl
 ;
 [CTCRiftingHistoryIoTbl]
-;
- Age TectonicFlag DeltaSL DeltaSLGrid HBu HBuGrid
-(Ma)   ()  (m)   ()  (m)   ()
-   0 "Passive Margin" -550 "" 7000 ""
-   1 "Passive Margin" -550 "" 7000 ""
- 2.5 "Active Rifting" -550 "" 7000 ""
-  23 "Active Rifting" -550 "" 7000 ""
-  55 "Passive Margin" -550 "" 7000 ""
-  65 "Active Rifting" -550 "" 7000 ""
-  96 "Active Rifting" -550 "" 7000 ""
- 125 "Active Rifting" -550 "" 7000 ""
- 145 "Active Rifting" -550 "" 7000 ""
- 146 "Active Rifting" -550 "" 7000 ""
+;v0
+                     Age             TectonicFlag                  DeltaSL              DeltaSLGrid                      HBu                  HBuGrid
+                    (Ma)                       ()                      (m)                       ()                      (m)                       ()
+                       0         "Passive Margin"                     -550                       ""                     7000                       ""
+                       1         "Passive Margin"                     -550                       ""                     7000                       ""
+                     2.5         "Active Rifting"                     -550                       ""                     7000                       ""
+                      23         "Active Rifting"                     -550                       ""                     7000                       ""
+                      55         "Passive Margin"                     -550                       ""                     7000                       ""
+                      65         "Active Rifting"                     -550                       ""                     7000                       ""
+                      96         "Active Rifting"                     -550                       ""                     7000                       ""
+                     125         "Active Rifting"                     -550                       ""                     7000                       ""
+                     145         "Active Rifting"                     -550                       ""                     7000                       ""
+                     146         "Active Rifting"                     -550                       ""                     7000                       ""
 [End]
 ;
 ;
