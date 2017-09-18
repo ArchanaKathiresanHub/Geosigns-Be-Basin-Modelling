@@ -204,7 +204,6 @@ void InterfaceInput::analyzeRiftingHistoryCalculationMask() {
       // RULE_ID #3 An Active event with a SDH (according to RULE_ID #1) which follows another Active or Passive event is a calculation age
       //    if this is not the basement age (according to RULE_ID #5)
       else if (event->getTectonicFlag() == ACTIVE_RIFTING and m_hasSurfaceDepthHistory.at(age) and i!=0) {
-         assert( (i - 1) >= 0 );
          const double prevAge = m_snapshots[i-1];
          const std::shared_ptr<CrustalThickness::RiftingEvent> prevEvent = m_riftingEvents[prevAge];
          if (prevEvent->getTectonicFlag() == ACTIVE_RIFTING or prevEvent->getTectonicFlag() == PASSIVE_MARGIN) {
@@ -288,7 +287,6 @@ void InterfaceInput::analyseRiftingHistoryEndAge(){
       // RULE_ID #10 The first Flexural event (0Ma by default), if it follows an Active event, is an End Age
       const bool flexuralEnd = event->getTectonicFlag() == FLEXURAL_BASIN and not firstFlexuralEventFound and i!= 0;
       if (activeEnd or passiveEnd or flexuralEnd) {
-         assert( (i - 1) >= 0 );
          const double prevAge = m_snapshots[i - 1];
          const std::shared_ptr<CrustalThickness::RiftingEvent> prevEvent = m_riftingEvents[prevAge];
          eventsToUpdate.push_back( event );
