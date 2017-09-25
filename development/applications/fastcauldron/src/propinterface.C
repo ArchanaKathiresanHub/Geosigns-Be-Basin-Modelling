@@ -117,7 +117,6 @@ AppCtx::AppCtx(int argc, char** argv) : filterwizard(&timefilter)
 
    m_doOutputAtAge = PETSC_FALSE;
    m_ageToOutput = CauldronNoDataValue;
-   getCommandLineOptions ();
 
    xCoarseGridPartitioning = 0;
    yCoarseGridPartitioning = 0;
@@ -700,7 +699,6 @@ bool AppCtx::getCommandLineOptions() {
 
   ierr = PetscOptionsHasName( PETSC_NULL, "-itcoupled", &Do_Iteratively_Coupled ); CHKERRQ(ierr);
   ierr = PetscOptionsHasName( PETSC_NULL, "-overpressure",&DoOverPressure); CHKERRQ(ierr);
-  ierr = PetscOptionsHasName( PETSC_NULL, "-coupled",&IsCalculationCoupled); CHKERRQ(ierr);
 
   ierr = PetscOptionsHasName (PETSC_NULL, "-nonlinear", &Nonlinear_Temperature ); CHKERRQ(ierr);
   ierr = PetscOptionsHasName( PETSC_NULL, "-readfct",&readFCTCorrectionFactor ); CHKERRQ(ierr);
@@ -732,16 +730,10 @@ bool AppCtx::getCommandLineOptions() {
   }
 
   bottomBasaltTemp = PetscBool ( bbtemp );
+
   if( bottomBasaltTemp ) {
      PetscPrintf ( PETSC_COMM_WORLD, "Turning on basalt temperature in the lower elements only!" );
   }
-
-//   PetscOptionsHasName ( PETSC_NULL, "-no3doutput",&threeDoutputNotRequired ); CHKERRQ(ierr);
-//   PetscOptionsHasName ( PETSC_NULL, "-no2doutput",&twoDoutputNotRequired ); CHKERRQ(ierr);
-
-//   // They are 'not'ed here because the function PetscOptionsHasName
-//   threeDoutputNotRequired = not threeDoutputNotRequired;
-//   twoDoutputNotRequired   = not twoDoutputNotRequired;
 
   DoHDFOutput = PetscBool ( ! outputNotRequired );
 
@@ -749,21 +741,31 @@ bool AppCtx::getCommandLineOptions() {
   {
     currentCalculationMode = HYDROSTATIC_DECOMPACTION_MODE;
   }
-  else if ( DoHighResDecompaction && ! IsCalculationCoupled )
+  else if ( DoHighResDecompaction )
   {
-    currentCalculationMode = HYDROSTATIC_HIGH_RES_DECOMPACTION_MODE;
+
+     IsCalculationCoupled = FastcauldronSimulator::getInstance ().getLastPTWasCoupled ();
+
+     if ( not IsCalculationCoupled ) {
+        currentCalculationMode = HYDROSTATIC_HIGH_RES_DECOMPACTION_MODE;
+     } else {
+        currentCalculationMode = COUPLED_HIGH_RES_DECOMPACTION_MODE;
+     }
+
   }
-  else if ( DoHighResDecompaction && IsCalculationCoupled )
+  else if ( DoTemperature )
   {
-    currentCalculationMode = COUPLED_HIGH_RES_DECOMPACTION_MODE;
-  }
-  else if ( DoTemperature && ! IsCalculationCoupled )
-  {
-    currentCalculationMode = HYDROSTATIC_TEMPERATURE_MODE;
-  }
-  else if ( DoTemperature && IsCalculationCoupled )
-  {
-    currentCalculationMode = OVERPRESSURED_TEMPERATURE_MODE;
+     PetscBool coupledParameter;
+     ierr = PetscOptionsHasName( PETSC_NULL, "-coupled",&coupledParameter ); CHKERRQ(ierr);
+
+     IsCalculationCoupled = ( coupledParameter == PETSC_TRUE );
+
+     if ( not IsCalculationCoupled ) {
+        currentCalculationMode = HYDROSTATIC_TEMPERATURE_MODE;
+     } else {
+        currentCalculationMode = OVERPRESSURED_TEMPERATURE_MODE;
+     }
+
   }
   else if ( DoOverPressure )
   {
@@ -777,6 +779,7 @@ bool AppCtx::getCommandLineOptions() {
   {
     currentCalculationMode = NO_CALCULATION_MODE;
   }
+
 
   //
   //
@@ -1374,25 +1377,25 @@ void AppCtx::setRelatedProject ( const double locationX, const double locationY 
 
 }
 
-bool AppCtx::setRelatedProject ( const Interface::RelatedProject* relatedProject ) { 
+bool AppCtx::setRelatedProject ( const Interface::RelatedProject* relatedProject ) {
    if ( relatedProject == 0 ) {
       return false;
    } else {
       Related_Project_Ptr project1D = new Related_Project;
-   
+
       project1D->X_Coord = relatedProject->getEast ();
       project1D->Y_Coord = relatedProject->getNorth ();
-   
+
       if ( relatedProject->getName ().find ( "*Point" ) != std::string::npos ) {
          project1D->Name = "Point_" + IntegerToString( int ( project1D -> X_Coord ))
             + "_east__" + IntegerToString ( int ( project1D -> Y_Coord )) + "_north";
       } else {
          std::string projectName = relatedProject->getName ();
-   
+
          removeExtension ( projectName );
          project1D->Name = projectName;
       }
-   
+
       Related_Projects.push_back ( project1D );
    }
    return true;

@@ -427,7 +427,7 @@ public:
    PetscBool allowIluFillIncrease;
    PetscBool allowSolverChange;
 
-   PetscBool IsCalculationCoupled;
+   bool      IsCalculationCoupled;
    PetscBool readFCTCorrectionFactor;
 
    /// Arrays of permafrost time steps and correspondent ages, when those time steps are being activated

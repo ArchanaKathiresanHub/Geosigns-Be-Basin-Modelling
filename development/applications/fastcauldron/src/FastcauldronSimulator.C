@@ -2119,6 +2119,9 @@ void FastcauldronSimulator::readCommandLineParametersEarlyStage( const int argc,
 
    // Should move all command line parameters from appctx to fastcauldron-simulator.
 
+   // Read the command line options setting up the simulation mode, etc.
+   m_cauldron->getCommandLineOptions ();
+
    PetscBool fctScalingChanged;
    double    fctScaling;
    PetscBool hasPrintCommandLine;
@@ -2452,6 +2455,36 @@ void FastcauldronSimulator::removeRecordlessDerivedPropertyValues( ) {
    m_recordLessVolumePropertyValues.clear();
    m_recordLessMapPropertyValues.clear();
 }
+
+//------------------------------------------------------------//
+
+
+bool FastcauldronSimulator::getLastPTWasCoupled () const {
+
+   bool lastPTWasCoupled = false;
+
+   // Loop indexing is in reverse from n down to 1.
+   // Need to subtract 1 from index because array indexing starts at zero.
+   for ( size_t i = m_simulationDetails.size (); i >= 1; --i ) {
+      const DataAccess::Interface::SimulationDetails * simulationDetails = m_simulationDetails [ i - 1 ];
+
+      // Check for last non high-res decompaction mode fastcauldron run.
+      if ( simulationDetails->getSimulatorName () == "fastcauldron" and
+           simulationDetails->getSimulatorMode ().find ( "HighResDecompaction" ) == std::string::npos ) {
+
+         lastPTWasCoupled = simulationDetails->getSimulatorMode () == "Overpressure" ||
+                            simulationDetails->getSimulatorMode () == "LooselyCoupledTemperature" ||
+                            simulationDetails->getSimulatorMode () == "CoupledPressureAndTemperature" ||
+                            simulationDetails->getSimulatorMode () == "CoupledDarcy";
+         break;
+      }
+
+   }
+
+   return lastPTWasCoupled;
+}
+
+
 //------------------------------------------------------------//
 
 database::Record* FastcauldronSimulator::addCurrentSimulationDetails() {
