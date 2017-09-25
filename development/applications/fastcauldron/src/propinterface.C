@@ -674,6 +674,7 @@ bool AppCtx::getCommandLineOptions() {
   PetscBool saveResultsIfDarcyError = PETSC_FALSE;
   int ierr;
 
+  IsCalculationCoupled = PETSC_FALSE;
 
   PetscFunctionBegin;
 
@@ -770,10 +771,12 @@ bool AppCtx::getCommandLineOptions() {
   else if ( DoOverPressure )
   {
     currentCalculationMode = OVERPRESSURE_MODE;
+    IsCalculationCoupled = PETSC_TRUE;
   }
   else if ( Do_Iteratively_Coupled )
   {
     currentCalculationMode = PRESSURE_AND_TEMPERATURE_MODE;
+    IsCalculationCoupled = PETSC_TRUE;
   }
   else
   {
