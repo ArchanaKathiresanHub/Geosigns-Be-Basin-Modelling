@@ -1108,6 +1108,7 @@ bool GeoPhysics::ProjectHandle::createBasaltThicknessAndECT () {
 
    EffectiveCrustalThicknessCalculator ectCalculator( crustThicknesses,
                                                       m_tableOceanicCrustThicknessHistory,
+                                                      m_contCrustThicknessHistory,
                                                       presentDayBasaltThickness,
                                                       crustMeltOnsetMap,
                                                       initialLithosphericMantleThickness,

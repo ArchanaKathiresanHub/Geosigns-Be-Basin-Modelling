@@ -32,26 +32,21 @@ const bool EffectiveCrustalThicknessCalculator::s_gosthNodes = true;
 EffectiveCrustalThicknessCalculator::EffectiveCrustalThicknessCalculator(
    const PaleoFormationPropertyList*        continentalCrustThicknessHistory,
    const TableOceanicCrustThicknessHistory& oceanicCrustThicknessHistory,
+   const PolyFunction2DArray&               continentalCrustThicknessPolyfunction,
    const GridMap*                           presentDayBasaltThickness,
    const GridMap*                           crustMeltOnsetMap,
    const double                             initialLithosphericMantleThickness,
    const double                             initialCrustThickness,
    const AbstractValidator&                 validator ):
-      m_continentalCrustThicknessHistory  ( continentalCrustThicknessHistory   ),
-      m_oceanicCrustThicknessHistory      ( oceanicCrustThicknessHistory       ),
-      m_presentDayBasaltThickness         ( presentDayBasaltThickness          ),
-      m_crustThicknessMeltOnset           ( crustMeltOnsetMap                  ),
-      m_initialLithosphericMantleThickness( initialLithosphericMantleThickness ),
+      m_continentalCrustThicknessHistory  ( continentalCrustThicknessHistory      ),
+      m_oceanicCrustThicknessHistory      ( oceanicCrustThicknessHistory          ),
+      m_contCrustThicknessPolyfunction    ( continentalCrustThicknessPolyfunction ),
+      m_presentDayBasaltThickness         ( presentDayBasaltThickness             ),
+      m_crustThicknessMeltOnset           ( crustMeltOnsetMap                     ),
+      m_initialLithosphericMantleThickness( initialLithosphericMantleThickness    ),
       m_initialCrustThickness             ( initialCrustThickness ),
       m_validator                         ( validator )
 {
-
-   // Find continental crustal thickness map at age 0Ma
-   const auto it = std::find_if( m_continentalCrustThicknessHistory->begin(), m_continentalCrustThicknessHistory->end(), []( const PaleoFormationProperty* obj ) {return obj->getSnapshot()->getTime() == 0.0; } );
-   if (it == m_continentalCrustThicknessHistory->end()) {
-      throw std::invalid_argument( "There is no present day contiental crustal thickness defined" );
-   }
-   m_presentDayContCrustThickness = (*it)->getMap( CrustThinningHistoryInstanceThicknessMap );
 
    // Detecting algorithm version according to inputs
    if (presentDayBasaltThickness != nullptr or crustMeltOnsetMap != nullptr) {
@@ -110,7 +105,7 @@ void EffectiveCrustalThicknessCalculator::compute( PolyFunction2DArray& effectiv
    // Inputs
    double presentDayContinentalCrustThicknessValue, continentalCrustThicknessValue, presentDayBasaltThicknessValue, crustThicknessAtMeltOnsetValue;
    // Outputs
-   double effectiveCrustalThicknessValue, endOfRift, basaltThicknessValue;
+   double effectiveCrustalThicknessValue, basaltThicknessValue;
    // Temporary data
    double previousContinentalCrustThicknessValue = 0, previousBasaltThicknessValue = 0, agePrev = 0;
    const GridMap* prevContCrustThicknessMap = nullptr;
@@ -159,11 +154,11 @@ void EffectiveCrustalThicknessCalculator::compute( PolyFunction2DArray& effectiv
                // If there is a crust thickness at melt onset defined, then compute the effective crustal thickness from it (Legacy ALC)
                if (m_version == LEGACY) {
                   // get inputs
-                  crustThicknessAtMeltOnsetValue           = m_crustThicknessMeltOnset->getValue      ( i, j );
-                  presentDayBasaltThicknessValue           = m_presentDayBasaltThickness->getValue    ( i, j );
-                  previousBasaltThicknessValue             = oceanicCrustThicknessHistory             ( i, j ).GetPoint( agePrev );
-                  previousContinentalCrustThicknessValue   = prevContCrustThicknessMap->getValue      ( i, j );
-                  presentDayContinentalCrustThicknessValue = m_presentDayContCrustThickness->getValue ( i, j );
+                  crustThicknessAtMeltOnsetValue           = m_crustThicknessMeltOnset->getValue  ( i, j );
+                  presentDayBasaltThicknessValue           = m_presentDayBasaltThickness->getValue( i, j );
+                  previousBasaltThicknessValue             = oceanicCrustThicknessHistory         ( i, j ).GetPoint( agePrev );
+                  previousContinentalCrustThicknessValue   = prevContCrustThicknessMap->getValue  ( i, j );
+                  presentDayContinentalCrustThicknessValue = m_contCrustThicknessPolyfunction     ( i, j ).F(0.0);
 
                   checkThicknessValue( "Crustal thickness at melt onset"        , i, j, age, crustThicknessAtMeltOnsetValue           );
                   checkThicknessValue( "Previous basalt thickness thickness"    , i, j, age, previousBasaltThicknessValue             );
@@ -196,14 +191,16 @@ void EffectiveCrustalThicknessCalculator::compute( PolyFunction2DArray& effectiv
                effectiveCrustalThicknessValue = calculateEffectiveCrustalThickness(continentalCrustThicknessValue, basaltThicknessValue, coeff);
 
                // Compute end of rift age
-               endOfRift = calculateEndOfRift( continentalCrustThicknessValue,
-                                               previousContinentalCrustThicknessValue,
-                                               age );
+               EffectiveCrustalThicknessCalculator::Node node(i,j);
+               updateEndOfRift( continentalCrustThicknessValue,
+                                previousContinentalCrustThicknessValue,
+                                age,
+                                node,
+                                endOfRiftEvent);
 
                // Assign results to output
                oceanicCrustThicknessHistory  ( i, j ).AddPoint( age, basaltThicknessValue           );
                effectiveCrustThicknessHistory( i, j ).AddPoint( age, effectiveCrustalThicknessValue );
-               endOfRiftEvent( i, j ) = endOfRift;
 
             }
          }
@@ -287,14 +284,14 @@ double GeoPhysics::EffectiveCrustalThicknessCalculator::calculateEffectiveCrusta
 
 //------------------------------------------------------------//
 
-double GeoPhysics::EffectiveCrustalThicknessCalculator::calculateEndOfRift( const double continentalCrustThickness,
-                                                                            const double previousContinentalCrustThickness,
-                                                                            const double age ) const noexcept{
-   double result = 0.0;
-      if (continentalCrustThickness < previousContinentalCrustThickness) {
-         result = age;
-      }
-   return result;
+void GeoPhysics::EffectiveCrustalThicknessCalculator::updateEndOfRift( const double continentalCrustThickness,
+                                                                         const double previousContinentalCrustThickness,
+                                                                         const double age,
+                                                                         const EffectiveCrustalThicknessCalculator::Node& node,
+                                                                         Local2DArray <double>& endOfRiftEvent ) const noexcept{
+   if (continentalCrustThickness < previousContinentalCrustThickness and continentalCrustThickness < m_initialCrustThickness) {
+      endOfRiftEvent(node.i, node.j) = age;
+   }
 }
 
 //------------------------------------------------------------//
@@ -307,7 +304,6 @@ void GeoPhysics::EffectiveCrustalThicknessCalculator::retrieveData() {
    } );
 
    if (m_version == LEGACY) {
-      m_presentDayContCrustThickness->retrieveData( s_gosthNodes );
       m_presentDayBasaltThickness   ->retrieveData( s_gosthNodes );
       m_crustThicknessMeltOnset     ->retrieveData( s_gosthNodes );
    }
@@ -330,7 +326,6 @@ void GeoPhysics::EffectiveCrustalThicknessCalculator::restoreData() {
    } );
   
    if (m_version == LEGACY) {
-      m_presentDayContCrustThickness->restoreData(false, s_gosthNodes );
       m_presentDayBasaltThickness   ->restoreData(false, s_gosthNodes );
       m_crustThicknessMeltOnset     ->restoreData(false, s_gosthNodes );
    }
