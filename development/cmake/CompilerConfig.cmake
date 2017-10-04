@@ -103,7 +103,8 @@ if (UNIX)
             # If linking statically then link with the Intel MPI libraries statically
             # See main CMakeLists.txt file for comment on linking statically in
             # general
-            set( linkOpts "-link_mpi=${INTEL_MPI_FLAVOUR} -static_mpi")
+            # Link the thread safe version of the Intel(R) MPI Library
+            set( linkOpts "-link_mpi=${INTEL_MPI_FLAVOUR} -mt_mpi")
          endif()
 
          #  Add MPI to the environment set-up script and wrappers

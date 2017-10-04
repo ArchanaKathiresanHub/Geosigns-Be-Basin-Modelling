@@ -8,15 +8,19 @@ HOSTNAME=`hostname -s`
 ##########################################################################
 ### Define default modules name for Intel C++ and Intel MPI
 if [ ${HOSTNAME} == "okapi" ]; then
-   intel_cxx_module_name="intel/latest"
-   intel_impi_module_name="impi/latest"
-   intel_imkl_module_name="imkl/latest"
+   intel_cxx_module_name="intel/2017.02"
+   intel_impi_module_name="impi/2017.02"
+   intel_imkl_module_name="imkl/2017.02"
    . /usr/share/Modules/init/bash
 else
-   intel_cxx_module_name="intel/2016.01"
-   intel_impi_module_name="impi/5.1.2.150-iccifort-2016.1.150-GCC-4.9.3-2.25"
-   intel_imkl_module_name="imkl/11.3.1.150-iimpi-2016.01-GCC-4.9.3-2.25"
+   intel_cxx_module_name="intel/2017.02"
+   intel_impi_module_name="impi/2017.2.174-iccifort-2017.2.174-GCC-4.9.3-2.25"
+   intel_imkl_module_name="imkl/2017.2.174-iimpi-2017.02-GCC-4.9.3-2.25"
    [[ -r /glb/data/hpcrnd/easybuild/public/etc/profile.d/shell-envmodules.sh ]] && . /glb/data/hpcrnd/easybuild/public/etc/profile.d/shell-envmodules.sh
+   echo "Purging modules ..."
+   module purge
+   echo "Loading module for CMake ... CMake/3.8.2"
+   module load CMake/3.8.2
 fi
 ##########################################################################
 
@@ -89,21 +93,24 @@ done
 if [ $cmake_param_use_intel -eq 1 ] && [ $cmake_param_intel_root -eq 0 ] ; then
 
    # check first that intel c++ module is already loaded
-   intel2016av=`module list 2>&1 | grep ${intel_cxx_module_name}`
+   intelAv=`module list 2>&1 | grep ${intel_cxx_module_name}`
 
-   if [ "x${intel2016av}" == "x" ]; then
-
-      intel2016av=`module av ${intel_cxx_module_name} 2>&1`
-      if [ "x${intel2016av}" == "x" ]; then
+   if [ "x${intelAv}" == "x" ]; then
+      intelAv=`module av ${intel_cxx_module_name} 2>&1`
+      if [ "x${intelAv}" == "x" ]; then
          echo "Can't find module ${intel_cxx_module_name} to load environment settings for Intel C++ compiler"
          exit 1;
       else
-         echo "Loading module for Intel C++ ..."
+         echo "Loading module for Intel C++ ... ${intel_cxx_module_name}"
          module load ${intel_cxx_module_name}
          module_loaded_in_script=1
       fi
    else
       echo "Module for Intel C++ is already loaded"
+   fi
+   
+   if [ "x${EBVERSIONINTEL}" != "x" ]; then
+      intel_version=${EBVERSIONINTEL}
    fi
    
    # extract path to intel compiler installation and it version
@@ -125,7 +132,7 @@ if [ "x${intel_path}" != "x" ]; then
 fi
 
 if [ "x${intel_version}" != "x" ]; then
-   extra_cmake_params+=" -DINTEL_CXX_VERSION=\"${intel_version}\""
+   extra_cmake_params+=" -DINTEL_CXX_VERSION=${intel_version}"
 fi
 
 #################################################
@@ -143,7 +150,7 @@ if [ $cmake_param_use_impi -eq 1 ] && [ $cmake_param_impi_root -eq 0 ] ; then
          echo "Can't find module to load environment settings for Intel MPI"
          exit 1;
       else
-         echo "Loading module for Intel MPI ..."
+         echo "Loading module for Intel MPI ... ${intel_impi_module_name}"
          module load ${intel_impi_module_name}
          module_loaded_in_script=1
       fi
@@ -162,7 +169,7 @@ if [ "x${impi_path}" != "x" ]; then
 fi
 
 if [ "x${impi_version}" != "x" ]; then
-   extra_cmake_params+=" -DINTEL_MPI_VERSION=\"${impi_version}\""
+   extra_cmake_params+=" -DINTEL_MPI_VERSION=${impi_version}"
 fi
 
 
@@ -182,7 +189,7 @@ if [ $cmake_param_use_imkl -eq 1 ] && [ $cmake_param_imkl_root -eq 0 ] ; then
          echo "Can't find module to load environment settings for Intel MKL"
          exit 1;
       else
-         echo "Loading module for Intel MKL ..."
+         echo "Loading module for Intel MKL ... ${intel_imkl_module_name}"
          module load ${intel_imkl_module_name}
          module_loaded_in_script=1
       fi
@@ -201,7 +208,7 @@ if [ "x${imkl_path}" != "x" ]; then
 fi
 
 if [ "x${imkl_version}" != "x" ]; then
-   extra_cmake_params+=" -DINTEL_MKL_VERSION=\"${imkl_version}\""
+   extra_cmake_params+=" -DINTEL_MKL_VERSION=${imkl_version}"
 fi
 
 
@@ -253,7 +260,7 @@ $cmake $extra_cmake_params $@ $source_directory || exit 1
 
 if [ $module_loaded_in_script -eq 1 ]; then
    echo ""
-   echo "Some modules has been loaded in bootstrap script. To compile cauldron you'll need these modules:"
+   echo "The following modules have been loaded in bootstrap script:"
 
    if [ $cmake_param_use_intel -eq 1 ]; then
       echo "  ${intel_cxx_module_name}"
@@ -266,13 +273,6 @@ if [ $module_loaded_in_script -eq 1 ]; then
    if [ $cmake_param_use_imkl -eq 1 ] ; then
       echo "  ${intel_imkl_module_name}"
    fi
-   
-   echo "to be loaded before make command. To do so you need to add to your .kshrc/.bashrc file the following lines:"
-   echo ""
-   echo "  [[ -r /glb/data/hpcrnd/easybuild/public/etc/profile.d/shell-envmodules.sh ]] && . /glb/data/hpcrnd/easybuild/public/etc/profile.d/shell-envmodules.sh"
-   echo "  module load ${intel_cxx_module_name}"
-   echo ""
-   echo "and restart your shell"
 fi
 
 #
