@@ -16,7 +16,14 @@ source_group("Header Files" FILES ${all_headers})
 FILE( GLOB all_srcs src/*.cpp)
 source_group("Source Files" FILES ${all_srcs})
 
-add_executable(VisualizationIO_convert ${all_srcs} ${all_headers})
+set( TARGET_NAME "VisualizationIO_convert" )
+add_executable( ${TARGET_NAME} ${all_srcs} ${all_headers} )
+set_target_properties( ${TARGET_NAME} PROPERTIES SUFFIX ".exe" )
+create_application_run_script( ${TARGET_NAME} )
+
+application_env_var( TARGET ${TARGET_NAME} VARS
+   "CTCDIR" "$MISCDIR"
+)
 
 include_directories( SYSTEM
    ${HDF5_INCLUDE_DIRS}
@@ -37,7 +44,7 @@ bm_include_libraries(
 )
 
 target_link_libraries(
-   VisualizationIO_convert
+   ${TARGET_NAME}
    DataModel
    DataAccess
    SerialDataAccess
@@ -52,7 +59,7 @@ target_link_libraries(
    ${Boost_LIBRARIES}
 )
 
-install(TARGETS VisualizationIO_convert
+install(TARGETS ${TARGET_NAME}
    RUNTIME DESTINATION bin
 )
 

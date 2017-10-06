@@ -125,9 +125,11 @@ tar xzf $tar || { echo "tar : error : Could not uncompress tarfile"; exit 1 ; }
 # preloading modules before bootstrap call
 
 [[ -r /glb/data/hpcrnd/easybuild/public/etc/profile.d/shell-envmodules.sh ]] && . /glb/data/hpcrnd/easybuild/public/etc/profile.d/shell-envmodules.sh
-module load impi/5.1.2.150-iccifort-2016.1.150-GCC-4.9.3-2.25
-module load imkl/11.3.1.150-iimpi-2016.01-GCC-4.9.3-2.25
-module load CMake/3.4.1
+module purge
+module load intel/2017.02
+module load impi/2017.2.174-iccifort-2017.2.174-GCC-4.9.3-2.25
+module load imkl/2017.2.174-iimpi-2017.02-GCC-4.9.3-2.25
+module load CMake/3.8.2
 
 echo "Configuring the package"
 ${srcdir}/development/bootstrap.sh \

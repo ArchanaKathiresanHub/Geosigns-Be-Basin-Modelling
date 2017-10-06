@@ -113,6 +113,9 @@ public :
    /// Remove the temporary added simulation detailes record
    void removeCurrentSimulationDetails( database::Record * );
 
+   /// \brief Determine if the last fastcauldron PT run was coupled or not.
+   bool getLastPTWasCoupled () const;
+
    void clear1DTimeIoTbl ();
 
    void initialiseFastcauldronLayers ();

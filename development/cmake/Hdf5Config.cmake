@@ -24,7 +24,6 @@ if(UNIX)
          ARCHIVE_MD5 "d8e1475a6bfe7a8a20ca532985a75816"
          CONFIGURE_COMMAND "./configure" "--prefix={ROOT}"
          BUILD_COMMAND   "make"
-         TEST_COMMAND    "make" "test"
          INSTALL_COMMAND "make" "install"
          CONFIGURE_OPTIONS 
            COMPILER "{CurrentCompiler}"  "CC={CC}" "CXX={CXX}"

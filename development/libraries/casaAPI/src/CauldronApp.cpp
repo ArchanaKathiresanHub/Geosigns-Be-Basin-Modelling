@@ -324,12 +324,12 @@ namespace casa
                case bash: 
                   oss << "# Linking time stamp 3d prop files:\n"; 
                   oss << "ln -s " << fromPath.path() << "/Time_*.h5 " << toPath.path() << "\nif [ $? -ne 0 ]; then allOk=1; fi\n\n";
-                  oss << "${APP} -merge -table SnapshotIoTbl,3DTimeIoTbl " << fromProj << " " << toProj << "\n"; 
+                  oss << "${APP} -merge -table SnapshotIoTbl,3DTimeIoTbl,SimulationDetailsIoTbl " << fromProj << " " << toProj << "\n"; 
                   break;
                case cmd:
                   oss << "REM Linking time stamp 3d prop files:\n"; 
                   oss << "FOR %%c in (" << fromPath.path() << "\\Time_*.h5) DO (mklink /h .\\%%~nxc \\%%c)\nif errorlevel 1 (\n set allOk=1  \n)\n";
-                  oss << "%APP% -merge -table SnapshotIoTbl,3DTimeIoTbl " << fromProj << " " << toProj;
+                  oss << "%APP% -merge -table SnapshotIoTbl,3DTimeIoTbl,SimulationDetailsIoTbl " << fromProj << " " << toProj;
                   break;
             }
             break;
