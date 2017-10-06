@@ -26,7 +26,16 @@ set( all_srcs
 source_group(include FILES ${all_headers})
 source_group(source FILES ${all_srcs})
 
-add_executable(fastctc ${all_srcs} ${all_headers})
+set( APP_NAME "fastctc" )
+add_executable( ${APP_NAME} ${all_srcs} ${all_headers} )
+
+set_target_properties( ${APP_NAME} PROPERTIES SUFFIX ".exe" )
+
+create_application_run_script( ${APP_NAME} )
+
+application_env_var( TARGET ${APP_NAME} VARS
+                     "CTCDIR" "$MISCDIR"
+)
 
 bm_include_libraries(
    DataModel
@@ -58,7 +67,7 @@ include_directories( SYSTEM
    ${FLEXLM_INCLUDE_DIRS}
 )
 
-target_link_libraries(fastctc
+target_link_libraries(${APP_NAME}
    DataModel
    DataMining
    DataAccess
@@ -85,21 +94,21 @@ target_link_libraries(fastctc
 
 # OFPP only for Linux
 if (UNIX)
-   target_link_libraries(fastctc OneFilePerProcess)
+   target_link_libraries(${APP_NAME} OneFilePerProcess)
    bm_include_libraries( OneFilePerProcess )
 endif (UNIX)
 
 # Add FLEXLM if enabled
 if (BM_USE_FLEXLM)
    include_directories( ${FLEXLM_INCLUDE_DIRS})
-   target_link_libraries(fastctc ${FLEXLM_LIBRARIES})
+   target_link_libraries(${APP_NAME} ${FLEXLM_LIBRARIES})
 endif(BM_USE_FLEXLM)
 
-set_target_properties(fastctc
+set_target_properties(${APP_NAME}
    PROPERTIES LINK_FLAGS "${PETSC_LINK_FLAGS}"
 )
 
-install(TARGETS fastctc
+install(TARGETS ${APP_NAME}
    RUNTIME DESTINATION bin
 )
 
