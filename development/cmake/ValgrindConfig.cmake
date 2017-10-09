@@ -61,6 +61,7 @@ ${SOURCE_INTEL_VARS}
 source ${CMAKE_BINARY_DIR}/envsetup.sh
 
 export VALGRIND_LIB=${Valgrind_ROOT}/lib/valgrind
+export LD_PRELOAD=${Valgrind_ROOT}/lib/valgrind/libmpiwrap-amd64-linux.so
 ${VALGRIND} --max-stackframe=8388656 --error-exitcode=1 --run-libc-freeres=no \"$@\" 
 exit_status=$?
 
