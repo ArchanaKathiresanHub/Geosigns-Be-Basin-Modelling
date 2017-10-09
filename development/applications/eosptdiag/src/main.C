@@ -193,7 +193,7 @@ int main( int argc, char ** argv )
          return 0;
       }
       else if ( prm == "-age"         ) { trapAge            = std::string( "_" ) + val;    ++i; }
-      else if ( prm == "-trap"        ) { trapId             = val + "_";           ++i; }
+      else if ( prm == "-trap"        ) { trapId             = "_" + val + "_";             ++i; }
       else if ( prm == "-abterm"      ) { g_ABTerm           = atof( val.c_str() ); ++i; }
       else if ( prm == "-mfile"       ) { g_mFilePrefix      = val; ++i; }
       else if ( prm == "-tuneab"      )
@@ -315,8 +315,8 @@ int main( int argc, char ** argv )
          curRec.loadRec( tit );
          std::string recName = curRec.name();
 
-         if ( !trapAge.empty() && recName.find( trapAge ) == std::string::npos ) continue;
-         if ( !trapId.empty()  && recName.find( trapId  ) == std::string::npos ) continue;
+         if ( !trapAge.empty() && !std::equal( trapAge.rbegin(), trapAge.rend(), recName.rbegin() ) ) continue;
+         if ( !trapId.empty()  && recName.find( trapId  ) == std::string::npos                      ) continue;
 
          if ( curRec.totMass() > 0.0 )
          {
