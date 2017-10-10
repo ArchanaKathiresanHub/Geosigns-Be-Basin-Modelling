@@ -21,11 +21,11 @@ TEST( PetscObjectsIO, MissingFolderOnRead )
    Mat A = 0;
    ibs::FilePath fpath( std::string("MissingFolder") );
    fpath << std::string("MissingFile");
-   EXPECT_EQ( PetscObjectsIO::loadMatrixFromFile( fpath.filePath(), fpath.fileName(), A ), -1 );
+   EXPECT_EQ( PetscObjectsIO::loadMatrixFromFile( fpath.path(), A ), -1 );
    MatDestroy( &A );
    
    Vec b = 0;
-   EXPECT_EQ( PetscObjectsIO::loadVectorFromFile( fpath.filePath(), fpath.fileName(), b ), -1 );
+   EXPECT_EQ( PetscObjectsIO::loadVectorFromFile( fpath.path(), b ), -1 );
    VecDestroy( &b );
 }
 
@@ -35,11 +35,11 @@ TEST( PetscObjectsIO, MissingFileOnRead )
    Mat A = 0;
    ibs::FilePath fpath( std::string("") );
    fpath << std::string("MissingFile");
-   EXPECT_EQ( PetscObjectsIO::loadMatrixFromFile( fpath.filePath(), fpath.fileName(), A ), -1 );
+   EXPECT_EQ( PetscObjectsIO::loadMatrixFromFile( fpath.path(), A ), -1 );
    MatDestroy( &A );
    
    Vec b = 0;
-   EXPECT_EQ( PetscObjectsIO::loadVectorFromFile( fpath.filePath(), fpath.fileName(), b ), -1 );
+   EXPECT_EQ( PetscObjectsIO::loadVectorFromFile( fpath.path(), b ), -1 );
    VecDestroy( &b );
 }
 
@@ -129,7 +129,7 @@ TEST( PetscObjectsIO, ReadAndWriteMatrix )
 
    // Read
    Mat A2read = 0;
-   EXPECT_EQ( PetscObjectsIO::loadMatrixFromFile( fpath.filePath(), fpath.fileName(), A2read ), 0 );
+   EXPECT_EQ( PetscObjectsIO::loadMatrixFromFile( fpath.path() + ".bin", A2read ), 0 );
 
    // Compare
    Mat err = 0;
@@ -203,7 +203,7 @@ TEST( PetscObjectsIO, ReadAndWriteVector )
 
    // Read
    Vec b2read = 0;
-   EXPECT_EQ( PetscObjectsIO::loadVectorFromFile( fpath.filePath(), fpath.fileName(), b2read ), 0 );
+   EXPECT_EQ( PetscObjectsIO::loadVectorFromFile( fpath.path() + ".bin", b2read ), 0 );
 
    // Compare
    Vec err = 0;

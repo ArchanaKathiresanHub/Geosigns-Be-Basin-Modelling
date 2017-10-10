@@ -110,13 +110,13 @@ int main(int argc, char** argv)
    }
 
    // Load matrix, rhs
-   rc = PetscObjectsIO::loadMatrixFromFile( std::string(), matrixFile.substr(0,matrixFile.find_last_of(".")), A );
-   rc = PetscObjectsIO::loadVectorFromFile( std::string(), rhsFile.substr(0,rhsFile.find_last_of(".")), b );
+   rc = PetscObjectsIO::loadMatrixFromFile( matrixFile, A );
+   rc = PetscObjectsIO::loadVectorFromFile( rhsFile, b );
    // Load solution (if provided)
    if( not solutionFile.empty() )
    {
       VecDuplicate( b, &xIn ); // allocates storage for xIn as in b
-      rc = PetscObjectsIO::loadVectorFromFile( std::string(), solutionFile.substr(0,solutionFile.find_last_of(".")), xIn );
+      rc = PetscObjectsIO::loadVectorFromFile( solutionFile, xIn );
    }
 
    // Solve

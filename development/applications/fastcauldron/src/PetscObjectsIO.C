@@ -70,18 +70,14 @@ namespace PetscObjectsIO
    }
    
 
-   int loadMatrixFromFile( const std::string & inputFolder,
-                           const std::string & inputFileName,
+   int loadMatrixFromFile( const std::string & inputFilePath,
                            Mat & matrix )
    {
       PetscErrorCode status = 0;
 
-      ibs::FilePath fPath( inputFolder );
-      fPath << std::string( inputFileName + s_binaryExt );
+      ibs::FilePath fPath( inputFilePath );
 
-      const bool fileExists = fPath.exists();
-
-      if( fileExists )
+      if( fPath.exists() )
       {
          PetscViewer viewer;
          status = PetscViewerCreate( PETSC_COMM_WORLD, &viewer );
@@ -148,18 +144,14 @@ namespace PetscObjectsIO
    }
    
 
-   int loadVectorFromFile( const std::string & inputFolder,
-                           const std::string & inputFileName,
+   int loadVectorFromFile( const std::string & inputFilePath,
                            Vec & vector )
    {
       PetscErrorCode status = 0;
 
-      ibs::FilePath fPath( inputFolder );
-      fPath << std::string( inputFileName + s_binaryExt );
+      ibs::FilePath fPath( inputFilePath );
 
-      const bool fileExists = fPath.exists();
-
-      if( fileExists )
+      if( fPath.exists() )
       {
          PetscViewer viewer;
          status = PetscViewerCreate( PETSC_COMM_WORLD, &viewer );
