@@ -34,12 +34,10 @@ namespace PetscObjectsIO
 
    /// \brief Load PETSc matrix from file. It works ONLY with binary files
    /// 
-   /// \param [in] inputFolder   The full path to input folder.
-   /// \param [in] inputFileName The file name.
+   /// \param [in] inputFilePath The full path to input file.
    /// \param [out] matrix       The PETSc matrix (it might be already initialized as well, otherwise it uses default options).
    /// \return Return code       0 success, -1 file does not exist, else PETSc loading error.
-   int loadMatrixFromFile( const std::string & inputFolder,
-                           const std::string & inputFileName,
+   int loadMatrixFromFile( const std::string & inputFilePath,
                            Mat & matrix );
    
    /// \brief Output PETSc vector to file
@@ -56,12 +54,10 @@ namespace PetscObjectsIO
 
    /// \brief Load PETSc vector from file. It works ONLY with binary files
    /// 
-   /// \param [in] inputFolder   The full path to input folder.
-   /// \param [in] inputFileName The file name.
+   /// \param [in] inputFilePath The full path to input file.
    /// \param [out] vector       The PETSc vector (it might be already initialized as well, otherwise it uses default options).
    /// \return Return code       0 success, -1 file does not exist, else PETSc loading error.
-   int loadVectorFromFile( const std::string & inputFolder,
-                           const std::string & inputFileName,
+   int loadVectorFromFile( const std::string & inputFilePath,
                            Vec & vector );
 }
 

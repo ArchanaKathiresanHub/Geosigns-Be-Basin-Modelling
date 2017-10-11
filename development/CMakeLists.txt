@@ -310,7 +310,7 @@ install( FILES "${CMAKE_BINARY_DIR}/${BM_THIRD_PARTY_COMPONENT_LIST_FILE}"
 
 if (UNIX)
    # Install mpirun/mpiexec wrapper scripts which are used by CASA
-   install( FILES "${CMAKE_BINARY_DIR}/mpirun_wrap.sh" "${CMAKE_BINARY_DIR}/mpiexec_wrap.sh" 
+   install( FILES "${CMAKE_BINARY_DIR}/mpirun_wrap.sh" "${CMAKE_BINARY_DIR}/mpiexec_wrap.sh"
             DESTINATION bin
             PERMISSIONS
                OWNER_READ OWNER_EXECUTE
@@ -327,6 +327,16 @@ if (UNIX)
                   WORLD_READ WORLD_EXECUTE
              )
    endif (BM_BUILD_HYPRE)
+   # Install setupEnv script (only in Shell), it will be sourced (!!) to run regression tests by *.ini scripts
+   if("${BM_CONFIG_PRESET}" STREQUAL "ShellLinux")
+      install( FILES "${CMAKE_CURRENT_SOURCE_DIR}/setupEnv.sh"
+               DESTINATION bin
+               PERMISSIONS
+                  OWNER_READ OWNER_EXECUTE
+                  GROUP_READ GROUP_EXECUTE
+                  WORLD_READ WORLD_EXECUTE
+             )
+   endif()
 endif (UNIX)
 
 #

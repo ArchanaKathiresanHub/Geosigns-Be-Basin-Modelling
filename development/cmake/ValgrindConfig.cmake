@@ -40,7 +40,6 @@ add_external_project_to_repository(
 # Add an executable wrapper script to run Valgrind memory checks
 #
 set(VALGRIND "${Valgrind_ROOT}/bin/valgrind")
-set(VALGRIND_MPI "${Valgrind_ROOT}/lib/valgrind/libmpiwrap-amd64-linux.so")
 
 set(VALGRIND_MEMCHECK "${CMAKE_BINARY_DIR}/valgrind_memcheck.sh")
 set(VALGRIND_MEMCHECK_AUX "${CMAKE_BINARY_DIR}/aux/valgrind_memcheck.sh")
@@ -61,7 +60,8 @@ file(WRITE ${VALGRIND_MEMCHECK_AUX}
 ${SOURCE_INTEL_VARS}
 source ${CMAKE_BINARY_DIR}/envsetup.sh
 
-export LD_PRELOAD=${VALGRIND_MPI}
+export VALGRIND_LIB=${Valgrind_ROOT}/lib/valgrind
+export LD_PRELOAD=${Valgrind_ROOT}/lib/valgrind/libmpiwrap-amd64-linux.so
 ${VALGRIND} --max-stackframe=8388656 --error-exitcode=1 --run-libc-freeres=no \"$@\" 
 exit_status=$?
 
