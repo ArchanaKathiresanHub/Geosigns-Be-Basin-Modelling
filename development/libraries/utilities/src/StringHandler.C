@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2017 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -10,16 +10,8 @@
 
 #include "StringHandler.h"
 
-void StringHandler::parseLine( const std::string& theString, const std::string& theDelimiter, std::vector<std::string>& theTokens )
+void StringHandler::parseLine( const std::string& theString, const char& theDelimiter, std::vector<std::string>& theTokens )
 {
-
-   if (theString.empty())
-   {
-      return;
-   }
-   if (theDelimiter.empty()){
-      throw StringHandlerException() << "Delimiter empty when parsing line";
-   }
 
    std::string::size_type startPos  = 0;
    std::string::size_type endPos    = 0;

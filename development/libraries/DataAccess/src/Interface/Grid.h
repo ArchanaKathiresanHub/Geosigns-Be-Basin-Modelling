@@ -120,11 +120,11 @@ namespace DataAccess
          virtual void printOn (std::ostream &) const = 0;
          virtual void asString (std::string&) const = 0;
 
-         virtual bool isEqual( const Grid& grid ) const = 0;
+         virtual bool hasSameGridding( const Grid& grid ) const = 0;
 
       };
 
-      inline bool operator==(const Grid & Grid1, const Grid & Grid2) { return Grid1.isEqual( Grid2 ); }
+      inline bool operator==(const Grid & Grid1, const Grid & Grid2) { return Grid1.hasSameGridding( Grid2 ); }
    }
 }
 

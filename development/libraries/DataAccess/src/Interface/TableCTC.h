@@ -15,10 +15,6 @@
 #include <string>
 #include <memory>
 
-// DataAccess library
-#include "database.h"
-using database::Database;
-
 namespace DataAccess
 {
 

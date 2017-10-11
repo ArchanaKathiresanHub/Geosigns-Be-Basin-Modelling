@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2017 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -110,6 +110,18 @@ public:
    /// @param[in] severity The severity level of the message
    /// @param[in] style The style of the message
    LogHandler( const SeverityLevel severity, const Style style );
+   
+   /// @brief Delete default assginment operator
+   LogHandler & operator = ( const LogHandler & ) = delete;
+
+   /// @brief Delete default move assginment operator
+   LogHandler & operator = ( LogHandler && ) = delete;
+
+   /// @brief Delete default copy constructor
+   LogHandler( const LogHandler & ) = delete;
+
+   /// @brief Delete default move copy constructor
+   LogHandler( LogHandler && ) = delete;
 
    /// @brief Destructor which writes the stream (m_oss) in the boost log according to the current severity level
    ~LogHandler();
@@ -158,17 +170,6 @@ public:
    const std::string getName() const { return s_logName; };
 
 private:
-   /// @brief Overwrite default assginment operator
-   LogHandler & operator = ( const LogHandler & );
-
-   /// @brief Overwrite default move assginment operator
-   LogHandler & operator = ( LogHandler && );
-
-   /// @brief Overwrite default copy constructor
-   LogHandler( const LogHandler & );
-
-   /// @brief Overwrite default move copy constructor
-   LogHandler( LogHandler && );
 
    /// @brief Apply the current style to the current osstream
    void applyStyle();

@@ -345,7 +345,7 @@ void SerialGrid::asString (string & str) const
    str = buf.str ();
 }
 
-bool SerialGrid::isEqual( const Grid& grid ) const
+bool SerialGrid::hasSameGridding( const Grid& grid ) const
 {
    return(
       this->numI()   == grid.numI   () &&

@@ -1,3 +1,13 @@
+// 
+// Copyright (C) 2015-2017 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef _PARALLELDATAACCESS_LOCALGRID_H_
 #define _PARALLELDATAACCESS_LOCALGRID_H_
 
@@ -18,7 +28,6 @@ namespace DataAccess
    namespace Interface
    {
       typedef int PetscMPIInt;
-      bool operator==(const Grid & Grid1, const Grid & Grid2);
  
       /// Class describing processor-local regular grids.
       class DistributedGrid: public Grid
@@ -155,8 +164,8 @@ namespace DataAccess
          
          static bool CalculatePartitioning (int M, int N, int & m, int & n);
 
-         bool isEqual( const Grid& grid ) const;
-	
+         bool hasSameGridding( const Grid& grid ) const;
+
       private:
          GlobalGrid m_globalGrid;
          DMDALocalInfo m_localInfo;

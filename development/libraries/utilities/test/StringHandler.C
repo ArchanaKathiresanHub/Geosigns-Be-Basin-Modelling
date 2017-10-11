@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2017 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -23,26 +23,13 @@ typedef formattingexception::GeneralException StringHandlerException;
 //Test the parser
 TEST( StringHandler, parser )
 {
-   std::string toBeParsed = "Hello;My;Dear, :)";
-   std::string delemiter = ";";
+   const std::string toBeParsed = "Hello;My;Dear, :)";
+   const char delemiter = ';';
    std::vector<std::string> tokens = {};
 
    // Nothing is happening the string is empty
    StringHandler::parseLine( "", delemiter, tokens );
    EXPECT_EQ( 0, tokens.size() );
-
-   // This is an error
-   try{
-      StringHandler::parseLine( toBeParsed, "", tokens );
-      FAIL() << "Expected 'Delimiter empty when parsing line' exception";
-   }
-   catch (StringHandlerException &ex){
-      EXPECT_EQ( "Delimiter empty when parsing line", std::string( ex.what() ) );
-      EXPECT_EQ( 0, tokens.size() );
-   }
-   catch (...) {
-      FAIL() << "Expected 'Delimiter empty when parsing line' exception";
-   }
 
    // Parse the line with ";"
    StringHandler::parseLine( toBeParsed, delemiter, tokens );

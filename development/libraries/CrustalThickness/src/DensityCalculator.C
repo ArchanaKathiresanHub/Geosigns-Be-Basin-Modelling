@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2017 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -7,18 +7,26 @@
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
+
 #include "DensityCalculator.h"
 using namespace CrustalThickness;
 
 // std library
 #include <math.h>
 
-// utilitites
+// CrusltalThickness library
+#include "AbstractInterfaceOutput.h"
+#include "AbstractValidator.h"
+
+// utilitites library
 #include "LogHandler.h"
 #include "ConstantsPhysics.h"
 using Utilities::Physics::AccelerationDueToGravity;
 #include "ConstantsMathematics.h"
 using Utilities::Maths::MegaPaToPa;
+
+#include "InterfaceInput.h"
+//#include "Interface/CrustalThicknessInterface.h"
 
 //------------------------------------------------------------//
 DensityCalculator::DensityCalculator( 

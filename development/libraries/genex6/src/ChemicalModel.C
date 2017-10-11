@@ -1,5 +1,5 @@
-//                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// 
+// Copyright (C) 2015-2017 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -920,7 +920,7 @@ void ChemicalModel::LoadElements(ifstream &ConfigurationFile)
 {
    std::string line;
    std::vector<std::string> theTokens;
-   std::string delim = ",";
+   const char delim = ',';
 
    std::getline (ConfigurationFile, line, '\n');
 
@@ -947,7 +947,7 @@ void ChemicalModel::LoadSpecies(ifstream &ConfigurationFile)
 {
    std::string line;
    std::vector<std::string> theTokens;
-   std::string delim = ",";
+   const char delim = ',';
 
 
 
@@ -977,7 +977,7 @@ void ChemicalModel::LoadSpeciesComposition(ifstream &ConfigurationFile)
 {
    std::string line;
    std::vector<std::string> theTokens;
-   std::string delim = ",";
+   const char delim = ',';
    
    std::getline (ConfigurationFile, line, '\n');
    StringHandler::parseLine(line, delim, theTokens);
@@ -1035,7 +1035,7 @@ void ChemicalModel::LoadSpeciesProperties(ifstream &ConfigurationFile)
 {
    std::string line;
    std::vector<std::string> theTokens;
-   std::string delim = ",";
+   const char delim = ',';
 
    std::getline (ConfigurationFile, line, '\n');
    
@@ -1089,7 +1089,7 @@ void ChemicalModel::LoadReactions(ifstream &ConfigurationFile)
 {
    std::string line;
    std::vector<std::string> theTokens;
-   std::string delim = ",";
+   const char delim = ',';
    
    std::getline (ConfigurationFile, line, '\n');
 
@@ -1129,7 +1129,7 @@ void ChemicalModel::LoadReactionRatios(ifstream &ConfigurationFile)
 {
    std::string line;
    std::vector<std::string> theTokens;
-   std::string delim = ",";
+   const char delim = ',';
 
    std::getline (ConfigurationFile, line, '\n');
 
@@ -1363,7 +1363,7 @@ void ChemicalModel::SetTheReactions(ifstream &theStream)
    clearReactions();
 
    std::string line;
-   std::string delim(",\n");
+   const char delim = ',';
    std::string tempString;
    std::vector<std::string> Tokens;  //buffer containing all the reactants
    std::vector<std::string> tempReactants;  //buffer containing all the reactants

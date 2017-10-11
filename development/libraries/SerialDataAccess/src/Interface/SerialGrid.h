@@ -1,3 +1,13 @@
+// 
+// Copyright (C) 2015-2017 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef _INTERFACE_SERIALGRID_H_
 #define _INTERFACE_SERIALGRID_H_
 
@@ -123,8 +133,8 @@ namespace DataAccess
          // May not work if user application is compiled under IRIX with CC -lang:std
          virtual void printOn (ostream &) const;
          virtual void asString (std::string&) const;
-
-         bool isEqual( const Grid& grid ) const;
+         
+         bool hasSameGridding( const Grid& grid ) const;
 
       protected:
          //virtual ~SerialGrid (void);

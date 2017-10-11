@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2017 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -89,8 +89,6 @@ private :
 
    static string m_projectFileName;   ///< The input project file name, and output project file name by default
    static string m_outputFileName;    ///< The output project file name, specified via command line under -save
-
-   CrustalThickness::LinearFunction m_LF; ///< The linear function object used by the CTC
 
    int    m_outputOptions;    ///< The output option is the combination the output options defined in the command line (xyz, sur, hdf)
    bool   m_debug;            ///< Run the CTC in debug mode

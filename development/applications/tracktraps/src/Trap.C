@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2017 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -90,7 +90,9 @@ PersistentTrap * Trap::findMatchingPersistentTrap (vector < PersistentTrap * >&p
 PersistentTrap * Trap::findClosestPersistentTrap (vector < PersistentTrap * >&persistentTraps,
       const Interface::Snapshot * snapshot, const Interface::Snapshot * previousSnapshot)
 {
-   PersistentTrap * closestPersistentTrap = 0;
+   PersistentTrap * closestPersistentTrap = nullptr;
+   // Avoid synthax errors caused by windows max
+   // https://stackoverflow.com/questions/27442885/syntax-error-with-stdnumeric-limitsmax
    double closestDistance = (std::numeric_limits<double>::max)();
 
    assert (getSnapshot () == snapshot);

@@ -12,6 +12,7 @@
 
 // TableIO library
 #include "cauldronschemafuncs.h"
+#include "database.h"
 
 // utilities library
 #include "LogHandler.h"
@@ -20,6 +21,10 @@
 #include "Interface/Formation.h"
 #include "Interface/Snapshot.h"
 #include "Interface/Surface.h"
+
+// DataAccess library
+#include "Interface/GridMap.h"
+#include "Interface/ProjectHandle.h"
 
 using namespace database;
 using namespace DataAccess;
@@ -75,10 +80,10 @@ std::vector<double> CrustalThicknessData::getSnapshots() const {
    for (formationIter = formations->begin(); formationIter != formations->end(); ++formationIter) {
       const Interface::Formation * formation = (*formationIter);
 
-      if (formation != 0) {
-         const Surface * topSurface = formation->getBottomSurface();
-         snapshots.push_back( topSurface->getSnapshot()->getTime() );
-         LogHandler( LogHandler::DEBUG_SEVERITY ) << "   #time " << topSurface->getSnapshot()->getTime() << "Ma loaded";
+      if (formation != nullptr) {
+         const Surface * botSurface = formation->getBottomSurface();
+         snapshots.push_back( botSurface->getSnapshot()->getTime() );
+         LogHandler( LogHandler::DEBUG_SEVERITY ) << "   #time " << botSurface->getSnapshot()->getTime() << "Ma loaded";
       }
    }
    delete formations;

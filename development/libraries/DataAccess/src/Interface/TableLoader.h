@@ -15,18 +15,20 @@
 #include <string>
 #include <functional>
 
-// DataAccess library
-#include "Interface/ProjectHandle.h"
-
-// TableIo library
-#include "database.h"
-using database::Record;
+// Forward declare
+namespace database{
+   class Record;
+}
 
 namespace DataAccess
 {
 
    namespace Interface
    {
+     
+      // Forward declare
+      class ProjectHandle;
+      
       /// @class TableLoader Contains the static method to load an IoTbl
       class TableLoader{
 
@@ -38,7 +40,7 @@ namespace DataAccess
             /// @param[in] tableName The name of the IoTbl (i.e. CTCIoTbl)
             /// @param[in] functor The function which will be applied to the records (corresponding to the rows) of the table
             ///    Some basic functor classes are available to read simple tables: TableFunctorCompound and TableFunctorSimple
-            static void load( const ProjectHandle& projectHandle, const std::string& tableName, const std::function<void( Record* )> functor );
+            static void load( const ProjectHandle& projectHandle, const std::string& tableName, const std::function<void( database::Record* )> functor );
 
       };
    }

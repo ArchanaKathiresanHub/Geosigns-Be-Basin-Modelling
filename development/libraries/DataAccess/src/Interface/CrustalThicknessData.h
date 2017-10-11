@@ -13,15 +13,16 @@
 
 // std library
 #include <vector>
-
-// TableIO library
-#include "database.h"
+#include <string>
 
 // DataAccess library
 #include "Interface/DAObject.h"
 #include "Interface/Interface.h"
-#include "Interface/GridMap.h"
-#include "Interface/ProjectHandle.h"
+
+// Forward declare
+namespace database{
+   class Record;
+}
 
 using DataAccess::Interface::SnapshotList;
 
@@ -29,6 +30,10 @@ namespace DataAccess
 {
    namespace Interface
    {
+     
+      // Forward declare
+      class ProjectHandle;
+      class GridMap;
 
       /// @class CrustalThicknessData The CTC interface which reads input data from the CTCIoTbl
       /// @details Also contains an utility to load the snapshots as a list of smart pointers from the project handle

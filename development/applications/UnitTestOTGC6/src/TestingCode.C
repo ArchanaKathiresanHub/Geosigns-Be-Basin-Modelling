@@ -1,3 +1,13 @@
+// 
+// Copyright (C) 2015-2017 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
+
 #include "TestingCode.h"
 //Annette
 
@@ -248,7 +258,7 @@ void TransformSch::LoadTransformScf2CfgData(std::ifstream &testFile)
 {
    std::string line;
    std::vector<std::string> theTokens;
-   std::string delim = ",";
+   const char delim = ',';
    int i = 0;
    for(;;) {
       std::getline (testFile, line, '\n');
@@ -296,7 +306,7 @@ void TransformSch::LoadTransformScf2CfgData(std::ifstream &testFile)
 void BenchmarkTest::LoadBenchmarkInitialSimulatorState(std::ifstream &testFile)
 {
    std::vector<std::string> theTokens;
-   std::string delim = ",";
+   const char delim = ',';
 
    std::string line;
    for(;;) {
@@ -314,7 +324,7 @@ void BenchmarkTest::LoadBenchmarkPTHistory(std::ifstream &testFile)
 {
    std::string line;
    std::vector<std::string> theTokens;
-   std::string delim = ",";
+   const char delim = ',';
     
    enum HistoryDataIndex{TIME, TEMPERATURE, PRESSURE, NUMBEROFDATA};
    double historyData[NUMBEROFDATA];
@@ -347,7 +357,7 @@ void BenchmarkTest::LoadBenchmarkTestDataCreationProperties(std::ifstream &testF
 {
    std::string line;
    std::vector<std::string> theTokens;
-   std::string delim = ",";
+   const char delim = ',';
    int i = 0;
    for(;;) {
       std::getline (testFile, line, '\n');
@@ -411,7 +421,7 @@ void BenchmarkTest::LoadBenchmarkTestSimulatorData(std::ifstream &testFile)
 {
    std::string line;
    std::vector<std::string> theTokens;
-   std::string delim = ",";
+   const char delim = ',';
    int i = 0;
    for(;;) {
       std::getline (testFile, line, '\n');
@@ -526,7 +536,7 @@ UnitTestType UnitTestFactory::determineTestType(const std::string &testFullPathN
    if(testFile.fail()) {
       cout << "File " << testFullPathName << " not found" << endl;
    }
-   std::string delim = ",";
+   const char delim = ',';
    
    while(!testFile.eof() && !testFile.fail()) {
       std::string line;

@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2017 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -1102,8 +1102,8 @@ bool GeoPhysics::ProjectHandle::createBasaltThicknessAndECT () {
    GeoPhysics::GeoPhysicsCrustFormation*  crust = dynamic_cast<GeoPhysics::GeoPhysicsCrustFormation*>(m_crustFormation);
    const Interface::GridMap* presentDayBasaltThickness = crust->getBasaltThicknessMap();
    const Interface::GridMap* crustMeltOnsetMap         = crust->getCrustThicknessMeltOnsetMap();
-   double initialLithosphericMantleThickness = getMantleFormation()->getInitialLithosphericMantleThickness();
-   double initialCrustalThickness            = crust->getInitialCrustalThickness();
+   const double initialLithosphericMantleThickness = getMantleFormation()->getInitialLithosphericMantleThickness();
+   const double initialCrustalThickness            = crust->getInitialCrustalThickness();
    Validator validator( *this );
 
    EffectiveCrustalThicknessCalculator ectCalculator( crustThicknesses,

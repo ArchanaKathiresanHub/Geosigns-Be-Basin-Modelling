@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2017 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -21,7 +21,7 @@ public:
    AbstractInterfaceOutput() {}
    virtual ~AbstractInterfaceOutput() {}
 
-   virtual double getMapValue( CrustalThicknessInterface::outputMaps mapIndex, unsigned int i, unsigned int j ) const               = 0;
+   virtual double getMapValue( CrustalThicknessInterface::outputMaps mapIndex, const unsigned int i, const unsigned int j ) const = 0;
    virtual void   setMapValue( const CrustalThicknessInterface::outputMaps mapIndex,
       const unsigned int i,
       const unsigned int j,

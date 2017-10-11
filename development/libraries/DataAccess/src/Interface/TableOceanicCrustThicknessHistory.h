@@ -16,10 +16,6 @@
 #include <vector>
 #include <memory>
 
-// DataAccess library
-#include "database.h"
-using database::Database;
-
 namespace DataAccess
 {
 

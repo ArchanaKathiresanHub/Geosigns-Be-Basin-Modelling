@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2017 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -10,7 +10,7 @@
 #ifndef _GEOPHYSICS_CONFIGFILEPARAMETER_H_
 #define _GEOPHYSICS_CONFIGFILEPARAMETER_H_
 
-#include <fstream>
+#include <string>
 
 /// @brief List of strings in the ALC-CTC configuration file
 namespace ConfigFileAlcCtc {

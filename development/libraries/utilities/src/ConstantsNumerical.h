@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2017 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -30,12 +30,11 @@ namespace Utilities
       /// \brief Genex positive no data value used accross all ibs libraries and applications
       constexpr double GenexNoDataValue       = 9999.0;
       /// \brief No valid value for size_t (or CASA IDs) type numbers 
-      constexpr size_t      NoDataIDValue     = std::numeric_limits<size_t>::max();
+      constexpr size_t NoDataIDValue     = std::numeric_limits<size_t>::max();
       /// \brief Undefined value for strings
-      //@TODO_Check
-      const std::string     NoDataStringValue = "undef";
+      const std::string NoDataStringValue = "undef";
       /// \brief No valid value for integer type numbers
-      constexpr int         NoDataIntValue    = std::numeric_limits<int>::max();
+      constexpr int     NoDataIntValue    = std::numeric_limits<int>::max();
    }
 }
 #endif

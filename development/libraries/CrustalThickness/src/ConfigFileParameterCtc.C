@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2017 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -17,7 +17,7 @@
 // std library
 #define _USE_MATH_DEFINES
 #include <math.h>
-#include <sstream>
+#include <fstream>
 
 // utilities
 #include "StringHandler.h"
@@ -130,45 +130,11 @@ void ConfigFileParameterCtc::clean() {
 }
 
 //------------------------------------------------------------//
-ConfigFileParameterCtc& ConfigFileParameterCtc::operator=(const ConfigFileParameterCtc& toCopy) {
-
-   //-------------- Basic constants ---------------------
-   m_coeffThermExpansion  = toCopy.getCoeffThermExpansion();
-   m_initialSubsidenceMax = toCopy.getInitialSubsidenceMax();
-   m_E0                   = toCopy.getE0();
-   m_tau                  = toCopy.getTau();
-
-   //-------------- Lithospphere and crust properties ---------------------
-   m_modelTotalLithoThickness    = toCopy.getModelTotalLithoThickness();
-   m_backstrippingMantleDensity  = toCopy.getBackstrippingMantleDensity();
-   m_lithoMantleDensity          = toCopy.getLithoMantleDensity();
-   m_baseLithosphericTemperature = toCopy.getBaseLithosphericTemperature();
-   m_referenceCrustThickness     = toCopy.getReferenceCrustThickness();
-   m_referenceCrustDensity       = toCopy.getReferenceCrustDensity();
-   m_waterDensity                = toCopy.getWaterDensity();
-
-   //------------- Asthenosphere potential temperature data ---------------------
-   m_A = toCopy.getA();
-   m_B = toCopy.getB();
-
-   //------------- Solidus (onset of adiabatic melting) ---------------------
-   m_C = toCopy.getC();
-   m_D = toCopy.getD();
-
-   //------------- Magma-layer density ---------------------
-   m_E             = toCopy.getE();
-   m_F             = toCopy.getF();
-   m_decayConstant = toCopy.getDecayConstant();
-
-   return *this;
-}
-
-//------------------------------------------------------------//
 void ConfigFileParameterCtc::loadBasicConstants( std::ifstream &ConfigurationFile ) {
 
    std::string line;
    std::vector<std::string> theTokens;
-   std::string delim = ",";
+   const char delim = ',';
    size_t firstNotSpace;
    int countParam = 0;
 
@@ -230,7 +196,7 @@ void ConfigFileParameterCtc::loadLithoAndCrustProperties( std::ifstream &Configu
 
    std::string line;
    std::vector<std::string> theTokens;
-   std::string delim = ",";
+   const char delim = ',';
    size_t firstNotSpace;
    int countParam = 0;
 
@@ -311,7 +277,7 @@ void ConfigFileParameterCtc::loadTemperatureData( std::ifstream &ConfigurationFi
 
    std::string line;
    std::vector<std::string> theTokens;
-   std::string delim = ",";
+   const char delim = ',';
    size_t firstNotSpace;
    int countParam = 0;
 
@@ -356,7 +322,7 @@ void ConfigFileParameterCtc::loadSolidus( std::ifstream &ConfigurationFile ) {
 
    std::string line;
    std::vector<std::string> theTokens;
-   std::string delim = ",";
+   const char delim = ',';
    size_t firstNotSpace;
    int countParam = 0;
 
@@ -402,7 +368,7 @@ void ConfigFileParameterCtc::loadMagmaLayer( std::ifstream &ConfigurationFile ) 
 
    std::string line;
    std::vector<std::string> theTokens;
-   std::string delim = ",";
+   const char delim = ',';
    size_t firstNotSpace;
    int countParam = 0;
 

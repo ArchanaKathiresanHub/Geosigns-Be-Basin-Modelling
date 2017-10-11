@@ -13,17 +13,26 @@
 
 // std library
 #include <vector>
+#include <string>
 
 // DataAccess library
 #include "Interface/DAObject.h"
 #include "Interface/Interface.h"
-#include "Interface/ProjectHandle.h"
+
+// Forward declare
+namespace database{
+   class Record;
+}
 
 namespace DataAccess
 {
    namespace Interface
    {
 
+      // Forward declare
+      class ProjectHandle;
+      class GridMap;
+      
       /// @class CrustalThicknessRiftingHistoryData The Advanced Lithospheric Calculator (ALC) interface
       ///    which reads input data from the OceaCrustalThicknessIoTbl
       class OceanicCrustThicknessHistoryData : public DAObject

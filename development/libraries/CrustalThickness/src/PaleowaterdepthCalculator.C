@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2017 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -9,16 +9,27 @@
 //
 
 #include "PaleowaterdepthCalculator.h"
-using namespace CrustalThickness;
 
 // std library
 #include <exception>
+
+// CrustalThickness library
+#include "AbstractInterfaceOutput.h"
+#include "InterfaceInput.h"
+
+// DataModel library
+#include "AbstractValidator.h"
+
+//DataAccess library
+#include "Interface/GridMap.h"
 
 // utilities library
 #include "ConstantsPhysics.h"
 using Utilities::Physics::AccelerationDueToGravity;
 #include "ConstantsMathematics.h"
 using Utilities::Maths::MegaPaToPa;
+
+using namespace CrustalThickness;
 
 //------------------------------------------------------------//
 PaleowaterdepthCalculator::PaleowaterdepthCalculator(

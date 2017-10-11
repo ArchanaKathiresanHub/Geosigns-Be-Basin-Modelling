@@ -23,47 +23,47 @@ add_library(genex6_kernel
 
 bm_include_libraries(
    DataModel
-	genex6 
-	CBMGenerics 
-	EosPack 
-	DerivedProperties
-	GeoPhysics
-	Interpolation
-	LinearAlgebra
-	FileSystem
-	utilities 
-	Serial_Hdf5 
-	OTGC_kernel6
-	TableIO 
-	DataAccess 
-	DataAccessInterface
+   genex6 
+   CBMGenerics 
+   EosPack 
+   DerivedProperties
+   GeoPhysics
+   Interpolation
+   LinearAlgebra
+   FileSystem
+   utilities 
+   Serial_Hdf5 
+   OTGC_kernel6
+   TableIO 
+   DataAccess 
+   DataAccessInterface
 )
 
 include_directories(
-	..
-	src
+   ..
+   src
 )
 
 include_directories( SYSTEM
-	${HDF5_INCLUDE_DIRS}
+   ${HDF5_INCLUDE_DIRS}
 )
 
 target_link_libraries(genex6_kernel
-	genex6
-	CBMGenerics
-	EosPack
-	DerivedProperties
-	FileSystem
-	utilities
-	Serial_Hdf5
-	OTGC_kernel6
-	TableIO
-	DataAccess
+   genex6
+   CBMGenerics
+   EosPack
+   DerivedProperties
+   FileSystem
+   utilities
+   Serial_Hdf5
+   OTGC_kernel6
+   TableIO
+   DataAccess
 )
 
 install(TARGETS genex6_kernel
-	RUNTIME DESTINATION bin
-	LIBRARY DESTINATION lib
-	ARCHIVE DESTINATION lib
+   RUNTIME DESTINATION bin
+   LIBRARY DESTINATION lib
+   ARCHIVE DESTINATION lib
 )
 

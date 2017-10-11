@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2017 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -28,7 +28,7 @@ void fileIO::Table::readFile(std::ifstream& inFile)
 {
    std::string line;
    std::vector<std::string> theTokens;
-   std::string delim=",";
+   const char delim = ',';
 
    //temporary list to store arbitrary number of table-lines
    std::list< std::vector<std::string> > table; 
@@ -47,7 +47,7 @@ void fileIO::Table::readFile(std::ifstream& inFile)
 
    //filter first column of first line: table-name
    StringHandler::parseLine( line, delim, theTokens );
-	
+
    std::vector<std::string> vec(1);
    vec[0] = theTokens[0];
    table.push_back(vec);

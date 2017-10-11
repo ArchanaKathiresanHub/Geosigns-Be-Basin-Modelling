@@ -13,16 +13,25 @@
 
 // std library
 #include <vector>
+#include <string>
 
 // DataAccess library
 #include "Interface/DAObject.h"
 #include "Interface/Interface.h"
-#include "Interface/ProjectHandle.h"
+
+// Forward declare
+namespace database{
+   class Record;
+}
 
 namespace DataAccess
 {
    namespace Interface
    {
+     
+      // Forward declare
+      class ProjectHandle;
+      class GridMap;
 
       /// @class CrustalThicknessRiftingHistoryData The CTC interface which reads input data from the CTCRiftingHistoryIoTbl
       class CrustalThicknessRiftingHistoryData : public DAObject

@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2017 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -9,13 +9,18 @@
 //
 #include "InterfaceInput.h"
 
+// CrustalThickness library
+#include "LinearFunction.h"
+#include "RiftingEvent.h"
+
 // DataAccess library
-#include "Interface/CrustFormation.h"
+#include "Interface/Interface.h"
+#include "Interface/CrustalThicknessData.h"
+#include "Interface/CrustalThicknessInterface.h"
+#include "Interface/CrustalThicknessRiftingHistoryData.h"
 #include "Interface/Formation.h"
+#include "Interface/CrustFormation.h"
 #include "Interface/MantleFormation.h"
-#include "Interface/ProjectHandle.h"
-#include "Interface/Snapshot.h"
-#include "Interface/Grid.h"
 
 // GeoPhysics library
 #include "GeoPhysicsProjectHandle.h"
@@ -27,20 +32,28 @@
 #include "InterpolatedPropertyValues.h"
 #include "DataMiningProjectHandle.h"
 
+// DataModel library
+#include "AbstractProperty.h"
+
 // DerivedProperties library
 #include "DerivedPropertyManager.h"
 
-//utility
+// utility
 #include "NumericFunctions.h"
 #include "LogHandler.h"
 #include "StringHandler.h"
 #include "ConstantsNumerical.h"
+
+// Geophysics library
+#include "GeoPhysicsProjectHandle.h"
 
 using DataAccess::Interface::FLEXURAL_BASIN;
 using DataAccess::Interface::ACTIVE_RIFTING;
 using DataAccess::Interface::PASSIVE_MARGIN;
 using Utilities::Numerical::IbsNoDataValue;
 using Utilities::Numerical::UnsignedIntNoDataValue;
+using DataAccess::Interface::MINOR;
+using DataAccess::Interface::MAJOR;
 
 const string InterfaceInput::s_ctcConfigurationFile = "InterfaceData.cfg";
 
@@ -122,8 +135,8 @@ void InterfaceInput::loadSurfaceDepthHistoryMask( GeoPhysics::ProjectHandle * pr
 void InterfaceInput::loadCTCIoTblData() {
 
    //UI inputs
-   m_HCuMap       = m_crustalThicknessData->getMap (Interface::HCuIni );
-   m_HLMuMap      = m_crustalThicknessData->getMap (Interface::HLMuIni);
+   m_HCuMap       = m_crustalThicknessData->getMap (DataAccess::Interface::HCuIni );
+   m_HLMuMap      = m_crustalThicknessData->getMap (DataAccess::Interface::HLMuIni);
    const int smoothingRadius = m_crustalThicknessData->getFilterHalfWidth();
    if (smoothingRadius < 0){
       throw std::invalid_argument( "The smoothing radius is set to a negative value" );
@@ -170,8 +183,8 @@ void InterfaceInput::loadRiftingEvents(){
    std::for_each( m_snapshots.rbegin(), m_snapshots.rend(), [&]( const double age ) {
       const std::shared_ptr<const CrustalThicknessRiftingHistoryData> data = m_crustalThicknessRiftingHistoryData[index];
       LogHandler( LogHandler::DEBUG_SEVERITY, LogHandler::COMPUTATION_SUBSTEP ) << std::setw( 15 ) << age << "Ma" << std::setw( 20 ) << data->getTectonicFlagName();;
-      GridMap const * const deltaSLMap( data->getMap( Interface::DeltaSL ) );
-      GridMap const * const hBuMap( data->getMap( Interface::HBu ) );
+      GridMap const * const deltaSLMap( data->getMap( DataAccess::Interface::DeltaSL ) );
+      GridMap const * const hBuMap( data->getMap( DataAccess::Interface::HBu ) );
       m_riftingEvents[age] = std::shared_ptr<CrustalThickness::RiftingEvent>(
          new CrustalThickness::RiftingEvent( data->getTectonicFlag(), deltaSLMap, hBuMap )
       );
@@ -518,7 +531,7 @@ void InterfaceInput::loadDerivedPropertyManager(){
 //------------------------------------------------------------//
 void InterfaceInput::loadTopAndBottomOfSediments( GeoPhysics::ProjectHandle* projectHandle, const double snapshotAge, const string & baseSurfaceName ) {
 
-   const Interface::Snapshot * currentSnapshot = projectHandle->findSnapshot( snapshotAge, MINOR | MAJOR );
+   const DataAccess::Interface::Snapshot * currentSnapshot = projectHandle->findSnapshot( snapshotAge, MINOR | MAJOR );
    if (currentSnapshot == nullptr){
       throw InputException() << "Could not retrieve snapshot " << snapshotAge;
    }
@@ -527,7 +540,7 @@ void InterfaceInput::loadTopAndBottomOfSediments( GeoPhysics::ProjectHandle* pro
    //1. Find the bottom of the sediment
    //1.1 If the base of the rift is the base of the stratigraphy (ie. no crust in the stratigraphy)
    if (baseSurfaceName == "") {
-      const Interface::CrustFormation * formationCrust  = projectHandle->getCrustFormation();
+      const DataAccess::Interface::CrustFormation * formationCrust  = projectHandle->getCrustFormation();
       if (formationCrust == nullptr) {
          throw InputException() << "Could not find Crust formation at the age " << currentSnapshot->getTime();
       }
@@ -545,8 +558,8 @@ void InterfaceInput::loadTopAndBottomOfSediments( GeoPhysics::ProjectHandle* pro
    }
 
    //2. Find the top of the sediment
-   Interface::FormationList * myFormations = projectHandle->getFormations( currentSnapshot, true );
-   const Interface::Formation * formationWB = (*myFormations)[0]; // find Water bottom
+   DataAccess::Interface::FormationList * myFormations = projectHandle->getFormations( currentSnapshot, true );
+   const DataAccess::Interface::Formation * formationWB = (*myFormations)[0]; // find Water bottom
    if (formationWB == nullptr) {
       throw InputException() << "Could not find the Water bottom formation at the age " << currentSnapshot->getTime();
    }
@@ -556,7 +569,7 @@ void InterfaceInput::loadTopAndBottomOfSediments( GeoPhysics::ProjectHandle* pro
 
 
    // - MANTLE -
-   const Interface::MantleFormation * formationMantle = projectHandle->getMantleFormation();
+   const DataAccess::Interface::MantleFormation * formationMantle = projectHandle->getMantleFormation();
    if (formationMantle == nullptr) {
       throw InputException() << "Could not find Mantle formation at the age " << currentSnapshot->getTime();
    }
@@ -603,7 +616,7 @@ const DataModel::AbstractProperty* InterfaceInput::loadDepthProperty () {
 void InterfaceInput::loadDepthData( GeoPhysics::ProjectHandle* projectHandle, const DataModel::AbstractProperty* depthProperty, const double snapshotAge ) {
 
    if (m_derivedManager == nullptr) loadDerivedPropertyManager();
-   const Interface::Snapshot * currentSnapshot = projectHandle->findSnapshot( snapshotAge, MINOR | MAJOR );
+   const DataAccess::Interface::Snapshot * currentSnapshot = projectHandle->findSnapshot( snapshotAge, MINOR | MAJOR );
    try{
       // Find the depth property of the bottom of sediment
       m_depthBasement = m_derivedManager->getSurfaceProperty( depthProperty, currentSnapshot, m_bottomOfSedimentSurface );
@@ -634,8 +647,8 @@ const DataModel::AbstractProperty* InterfaceInput::loadPressureProperty () {
 void InterfaceInput::loadPressureData( GeoPhysics::ProjectHandle* projectHandle, const DataModel::AbstractProperty* pressureProperty, const double snapshotAge ) {
 
    if (m_derivedManager == nullptr) loadDerivedPropertyManager();
-   const Interface::Snapshot * currentSnapshot    = projectHandle->findSnapshot( snapshotAge, MINOR | MAJOR );
-   const Interface::Snapshot * presentDaySnapshot = projectHandle->findSnapshot( 0.0,         MINOR | MAJOR );
+   const DataAccess::Interface::Snapshot * currentSnapshot    = projectHandle->findSnapshot( snapshotAge, MINOR | MAJOR );
+   const DataAccess::Interface::Snapshot * presentDaySnapshot = projectHandle->findSnapshot( 0.0,         MINOR | MAJOR );
    try{
       // Find the pressure property of the bottom of sediment
       m_pressureBasement           = m_derivedManager->getSurfaceProperty( pressureProperty, currentSnapshot,    m_bottomOfSedimentSurface );

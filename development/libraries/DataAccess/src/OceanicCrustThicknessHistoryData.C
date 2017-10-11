@@ -16,9 +16,12 @@
 
 // TableIO library
 #include "cauldronschemafuncs.h"
+#include "database.h"
 using namespace database;
 
 // DataAccess library
+#include "Interface/GridMap.h"
+#include "Interface/ProjectHandle.h"
 using namespace DataAccess;
 using namespace Interface;
 

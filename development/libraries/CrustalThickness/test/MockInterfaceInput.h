@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2017 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -20,6 +20,7 @@
 
 // CrustalThickness library
 #include "../src/ConfigFileParameterCtc.h"
+#include "../src/RiftingEvent.h"
 
 // DataAccess library
 #include "Interface/GridMap.h"
@@ -82,8 +83,8 @@ class MockInterfaceInput : public InterfaceInput {
       void setDepthBasement               ( const DerivedProperties::SurfacePropertyPtr depth   ) { m_depthBasement              = depth;    }
       void setDepthWaterBottom            ( const DerivedProperties::SurfacePropertyPtr depth   ) { m_depthWaterBottom           = depth;    }
 
-      void setTopOfSedimentSurface(const Interface::Surface* surface) { m_topOfSedimentSurface    = surface; }
-      void setBotOfSedimentSurface(const Interface::Surface* surface) { m_bottomOfSedimentSurface = surface; }
+      void setTopOfSedimentSurface(const DataAccess::Interface::Surface* surface) { m_topOfSedimentSurface    = surface; }
+      void setBotOfSedimentSurface(const DataAccess::Interface::Surface* surface) { m_bottomOfSedimentSurface = surface; }
 
       void setSurfaceDepthHistoryMask( std::map< const double, bool>& mask ) { m_hasSurfaceDepthHistory = mask; };
 

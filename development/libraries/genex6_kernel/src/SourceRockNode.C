@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2017 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -611,7 +611,7 @@ void SourceRockNode::LoadTestingPTHistory(std::string in_FullPathFileName)
 {
    std::string line;
    std::vector<std::string> theTokens;
-   std::string delim = ",";
+   const char delim = ',';
 
    ifstream PThistoryFile;
    PThistoryFile.open(in_FullPathFileName.c_str());

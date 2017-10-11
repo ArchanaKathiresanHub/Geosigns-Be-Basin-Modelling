@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2017 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -11,16 +11,20 @@
 #ifndef CRUSTALTHICKNESS_PWDCALCULATOR_H
 #define CRUSTALTHICKNESS_PWDCALCULATOR_H
 
-// CrusltalThickness library
-#include "AbstractInterfaceOutput.h"
-#include "AbstractValidator.h"
-#include "InterfaceInput.h"
-
 // DerivedProperties library
 #include "SurfaceProperty.h"
 
-//DataAccess library
-#include "Interface/GridMap.h"
+//Forward declare
+class AbstractInterfaceOutput;
+class AbstractValidator;
+class InterfaceInput;
+
+namespace DataAccess {
+   namespace Interface {
+      class GridMap;
+   }
+}
+
 using namespace DataAccess;
 
 namespace CrustalThickness

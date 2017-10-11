@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2017 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -50,7 +50,7 @@ using namespace database;
 
 //------------------------------------------------------------//
 
-CrustalThicknessCalculator* CrustalThicknessCalculator::m_crustalThicknessCalculator = 0;
+CrustalThicknessCalculator* CrustalThicknessCalculator::m_crustalThicknessCalculator = nullptr;
 string CrustalThicknessCalculator::m_projectFileName = "";
 string CrustalThicknessCalculator::m_outputFileName = "";
 const string CrustalThicknessCalculatorActivityName = "CrustalThicknessCalculator";
@@ -81,7 +81,7 @@ CrustalThicknessCalculator::~CrustalThicknessCalculator () {
 CrustalThicknessCalculator* CrustalThicknessCalculator::createFrom( const string& inputFileName, ObjectFactory* factory ) {
 
 
-   if ( m_crustalThicknessCalculator == 0 ) {
+   if ( m_crustalThicknessCalculator == nullptr ) {
       m_crustalThicknessCalculator = (CrustalThicknessCalculator*)Interface::OpenCauldronProject( inputFileName, "rw", factory );
 
    }
@@ -154,7 +154,7 @@ void CrustalThicknessCalculator::finalise ( const bool saveResults ) {
       }
    }
    delete m_crustalThicknessCalculator;
-   m_crustalThicknessCalculator = 0;
+   m_crustalThicknessCalculator = nullptr;
 }
 
 //------------------------------------------------------------//

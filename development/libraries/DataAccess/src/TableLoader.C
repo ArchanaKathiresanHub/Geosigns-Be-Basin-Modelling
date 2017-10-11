@@ -10,6 +10,12 @@
 
 #include "Interface/TableLoader.h"
 
+// DataAccess library
+#include "Interface/ProjectHandle.h"
+
+// TableIO library
+#include "database.h"
+
 using namespace DataAccess::Interface;
 using database::Table;
 using database::Record;
@@ -28,7 +34,13 @@ void TableLoader::load( const ProjectHandle& projectHandle, const std::string& t
          if (record == nullptr){
             throw std::runtime_error( "Could not find record " + std::to_string(index) + " for table [" + tableName + "]" );
          }
-         functor( record );
+         if(functor){
+            functor( record );
+         }
+         else{
+            throw std::runtime_error( "Undefined functor for table [" + tableName + "]" );
+         }
+         
          index++;
       }
    }

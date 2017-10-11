@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2017 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -12,6 +12,9 @@
 // utilitites
 #include "LogHandler.h"
 #include "NumericFunctions.h"
+
+// DataAccess library
+#include "Interface/GridMap.h"
 
 using namespace DataAccess;
 using namespace Interface;

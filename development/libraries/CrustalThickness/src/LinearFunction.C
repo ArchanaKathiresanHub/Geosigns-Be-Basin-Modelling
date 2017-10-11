@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2017 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -49,15 +49,19 @@ double LinearFunction::getBasaltThickness( const double incrementalTTS ) const {
    double thickness = 0.0;
 
    if( m_maxBasalticCrustThickness != 0.0 ) {
+      // no basalt
       if (incrementalTTS < m_TTS_onset)  {
          thickness = 0.0;
       }
+      // basalt and magma
       else if (incrementalTTS >= m_TTS_crit){
          thickness = m_maxBasalticCrustThickness - (incrementalTTS - m_TTS_crit) * m_magmaThicknessCoeff;
-      } else {
-         thickness = m_maxBasalticCrustThickness * ((incrementalTTS - m_TTS_onset) / (m_TTS_crit - m_TTS_onset));
       }
-      
+      // basalt (m_TTS_onset < incrementalTTS < m_TTS_crit)
+      else {
+         // here m_TTS_crit always differs from m_TTS_onset -> (m_TTS_crit - m_TTS_onset)!=0
+         thickness = m_maxBasalticCrustThickness * ((incrementalTTS - m_TTS_onset) / (m_TTS_crit - m_TTS_onset));
+      }     
       if( thickness < 0.0 ) {
          thickness = 0.0;
       }

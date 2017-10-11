@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2017 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -19,8 +19,6 @@ namespace GeoPhysics {
    {
    public:
       ConfigFileParameterAlc();
-
-      ConfigFileParameterAlc& operator=(const ConfigFileParameterAlc& toCopy);
 
       /// @brief Load the configuration file ALC parameters
       /// @param ConfigurationFile The configuration file

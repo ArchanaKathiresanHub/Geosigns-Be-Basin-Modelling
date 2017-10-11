@@ -411,3 +411,27 @@ TEST( SerialGridMap, LowRes2HighRes )
       
    Array < float >::delete3d (array);
 }
+
+// SetValues
+TEST( SerialGridMap, SetValues )
+{
+   const int size = 4;
+   const unsigned int depth = 1;
+   std::unique_ptr<DataAccess::Interface::SerialGrid> grid( new DataAccess::Interface::SerialGrid( s_minI, s_minJ, s_maxI, s_maxJ, size/2, size/2 ) );
+   float *** array = Array < float >::create3d (grid->numIGlobal(), grid->numJGlobal(), depth);
+   for (int i = 0; i < grid->numIGlobal(); ++i)
+   {
+      for (int j = 0; j < grid->numJGlobal(); ++j)
+      {
+         for (unsigned int k = 0; k < depth; ++k)
+         {
+            array[i][j][k] = s_value;
+         }
+      }
+   }
+   std::unique_ptr<DataAccess::Interface::SerialGridMap> sGridMap(
+      new DataAccess::Interface::SerialGridMap(nullptr, 0, grid.get(), DataAccess::Interface::DefaultUndefinedMapValue, depth, array) );
+   sGridMap->setValues( 123.456 );
+   EXPECT_TRUE( sGridMap->isConstant() );
+   EXPECT_DOUBLE_EQ( sGridMap->getConstantValue(), 123.456 );
+}

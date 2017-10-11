@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2017 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -52,8 +52,6 @@ namespace CrustalThickness {
       /// @{
       void setDecayConstant( const double decayConstant ) { m_decayConstant = decayConstant; };
       /// @}
-
-      ConfigFileParameterCtc& operator=(const ConfigFileParameterCtc& toCopy);
 
       /// @brief Load the configuration file CTC parameters
       /// @param ConfigurationFile The configuration file

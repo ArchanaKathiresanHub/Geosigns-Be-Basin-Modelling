@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2017 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -85,7 +85,7 @@ public:
    /// @brief Set the value of the map at the node (i,j)
    /// @param mapIndex The index of the map we set the value
    /// @param value The value to set at the node (i,j)
-   void setMapValue( const outputMaps mapIndex, const unsigned int i, const unsigned int j, const double value ) override;
+   void setMapValue( const outputMaps mapIndex, const unsigned int i, const unsigned int j, const double value ) final;
    /// @brief Set the values of all the maps at the node (i,j) according to the mask
    void setValuesToMaps( const unsigned int indI, const unsigned int indJ );
    /// @brief Set all map's value to undefined for the node (i,j) according to the mask
@@ -143,7 +143,7 @@ public:
    /// @brief Return the value of the map at node (i,j)
    /// @param mapIndex The index of the map we get the value from
    /// @return The map value
-   double getMapValue( outputMaps mapIndex, unsigned int i, unsigned int j ) const;
+   double getMapValue( outputMaps mapIndex, const unsigned int i, const unsigned int j ) const final;
    /// @brief Return the value of the map mask at node (i,j)
    /// @param mapIndex The index of the map we get the value from
    /// @return The mask value
@@ -163,10 +163,10 @@ private:
 
 //------------------------------------------------------------//
 
-inline void InterfaceOutput::setMapValue(const outputMaps mapIndex, const unsigned int i, const unsigned int j, const double value) 
+inline void InterfaceOutput::setMapValue(const outputMaps mapIndex, const unsigned int i, const unsigned int j, const double value)
 {
 
-   if( m_outputMaps[mapIndex] != 0 ) {
+   if( m_outputMaps[mapIndex] != nullptr ) {
       m_outputMaps[mapIndex]->setValue( i, j, value );
    }
    // If pointer is null then this is not an error as some maps are debug only
@@ -177,7 +177,7 @@ inline void InterfaceOutput::setMapValue(const outputMaps mapIndex, const unsign
 inline double InterfaceOutput::getMapValue(const outputMaps mapIndex, const unsigned int i, const unsigned int j) const
 {
 
-   if( m_outputMaps[mapIndex] != 0 ) {
+   if( m_outputMaps[mapIndex] != nullptr ) {
       return m_outputMaps[mapIndex]->getValue( i, j );
    } else {
       throw InterfaceOutputException() << "Map " << CrustalThicknessInterface::outputMapsNames[mapIndex] << " is not allocated.";
@@ -196,7 +196,7 @@ inline void InterfaceOutput::setMapToOutput(const outputMaps aMapIndex,const boo
 inline void InterfaceOutput::setValuesToMaps( const unsigned int indI, const unsigned int indJ )
 {
    for (int i = 0; i < WLSMap; ++i) {
-      if( m_outputMapsMask[i] && m_outputMaps[i] != 0 ) {
+      if( m_outputMapsMask[i] && m_outputMaps[i] != nullptr ) {
          m_outputMaps[i]->setValue( indI, indJ, m_outputValues[i] );
       }
    }
@@ -208,7 +208,7 @@ inline void InterfaceOutput::setValuesToMaps( const unsigned int indI, const uns
 inline void InterfaceOutput::setAllMapsUndefined( const unsigned int indI, const unsigned int indJ ) 
 {
    for(int i = 0; i < numberOfOutputMaps; ++ i ) {
-      if( m_outputMapsMask[i]  && m_outputMaps[i] != 0 ) {
+      if( m_outputMapsMask[i]  && m_outputMaps[i] != nullptr ) {
          m_outputMaps[i]->setValue( indI, indJ, Interface::DefaultUndefinedMapValue );
       }
    }

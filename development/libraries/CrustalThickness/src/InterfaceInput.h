@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2017 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -15,44 +15,46 @@
 #include <map>
 #include <memory>
 
-// DataAccess library
-#include "Interface/GridMap.h"
-#include "Interface/CrustalThicknessData.h"
-#include "Interface/CrustalThicknessRiftingHistoryData.h"
-#include "Interface/Surface.h"
-#include "Interface/Formation.h"
-
-// DataModel library
-#include "AbstractProperty.h"
-
 // CrustalThickness library
 #include "ConfigFileParameterCtc.h"
-#include "LinearFunction.h"
-#include "RiftingEvent.h"
-
-// Geophysics library
-#include "GeoPhysicsProjectHandle.h"
-
-// Datamining library
-#include "DataMiningProjectHandle.h"
 
 // Derived properties library
 #include "SurfaceProperty.h"
 #include "DerivedPropertyManager.h"
 
-// TableIO library
-#include "database.h"
-
 // utilitites
 #include "FormattingException.h"
 
+// Forward declare
+namespace DataAccess{
+   namespace Interface {
+      class Grid;
+      class Formation;
+      class Surface;
+      class CrustalThicknessData;
+      class CrustalThicknessRiftingHistoryData;
+   }
+}
+
+namespace CrustalThickness {
+   class RiftingEvent;
+}
+
+namespace DataModel {
+   class AbstractProperty;
+}
+
+namespace Geophysics {
+  class ProjectHandle;
+}
+
+using DataAccess::Interface::GridMap;
+using DataAccess::Interface::Formation;
+using DataAccess::Interface::Surface;
+using DataAccess::Interface::CrustalThicknessData;
+using DataAccess::Interface::CrustalThicknessRiftingHistoryData;
+
 using namespace std;
-using namespace DataAccess;
-using Interface::GridMap;
-using Interface::Formation;
-using Interface::Surface;
-using Interface::CrustalThicknessData;
-using Interface::CrustalThicknessRiftingHistoryData;
 
 /// @class InterfaceInput The CTC input interface
 /// @throw InputException This class throw many exceptions in order to avoid calculator failures because of bad inputs
@@ -129,8 +131,8 @@ public:
    DerivedProperties::SurfacePropertyPtr getDepthBasement               () const { return m_depthBasement;              }
    DerivedProperties::SurfacePropertyPtr getDepthWaterBottom            () const { return m_depthWaterBottom;           }
 
-   const Interface::Surface* getTopOfSedimentSurface() const { return m_topOfSedimentSurface;    }
-   const Interface::Surface* getBotOfSedimentSurface() const { return m_bottomOfSedimentSurface; }
+   const Surface* getTopOfSedimentSurface() const { return m_topOfSedimentSurface;    }
+   const Surface* getBotOfSedimentSurface() const { return m_bottomOfSedimentSurface; }
    /// @}
 
    /// @defgroup RiftingEventAPI

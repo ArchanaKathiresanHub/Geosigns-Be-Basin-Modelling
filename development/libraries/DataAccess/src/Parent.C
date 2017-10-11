@@ -6,7 +6,7 @@ using namespace Interface;
 
 Parent::Parent (void)
 {
-   m_children = 0;
+   m_children = nullptr;
 }
 
 Parent::Parent (Child * child, unsigned int index)
@@ -39,7 +39,7 @@ void Parent::setChild (Child * child, unsigned int index) const
 
 void Parent::detachChild (unsigned int index) const
 {
-   if (m_children) (* m_children)[index] = 0;
+   if (m_children) (* m_children)[index] = nullptr;
 }
 
 void Parent::releaseChild (unsigned int index) const
@@ -47,10 +47,10 @@ void Parent::releaseChild (unsigned int index) const
    if (m_children && (* m_children)[index])
    {
       Child * tmpChild = (* m_children)[index];
-      (* m_children)[index] = 0;
+      (* m_children)[index] = nullptr;
       delete tmpChild;
    }
-   assert (getChild (index) == 0);
+   assert (getChild (index) == nullptr);
 }
 
 Child * Parent::getChild (unsigned int index) const

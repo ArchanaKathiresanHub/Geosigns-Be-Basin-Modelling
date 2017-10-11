@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2017 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -28,7 +28,7 @@ ConfigFileParameterAlc::ConfigFileParameterAlc() {
 bool ConfigFileParameterAlc::loadConfigurationFileAlc( std::ifstream &ConfigurationFile ) {
    std::string line;
    std::vector<std::string> theTokens;
-   std::string delim = ",";
+   const char delim = ',';
    
    clean();
 
@@ -203,27 +203,4 @@ void ConfigFileParameterAlc::clean() {
    m_HLmin   = 0;
    m_NLMEmax = 0;
 
-}
-//------------------------------------------------------------//
-ConfigFileParameterAlc& ConfigFileParameterAlc::operator=(const ConfigFileParameterAlc& toCopy) {
-   
-   m_csRho = toCopy.m_csRho;
-   m_clRho = toCopy.m_clRho;
-   m_bRho  = toCopy.m_bRho;
-   m_mRho  = toCopy.m_mRho;
-   m_csA   = toCopy.m_csA;
-   m_csB   = toCopy.m_csB;
-   m_clA   = toCopy.m_clA;
-   m_clB   = toCopy.m_clB;
-   m_bA    = toCopy.m_bA;
-   m_bB    = toCopy.m_bB;
-   m_mA    = toCopy.m_mA;
-   m_mB    = toCopy.m_mB;
-   m_bT    = toCopy.m_bT;
-   m_bHeat = toCopy.m_bHeat;
-   
-   m_HLmin   = toCopy.m_HLmin;
-   m_NLMEmax = toCopy.m_NLMEmax;
-   
-   return * this;
 }

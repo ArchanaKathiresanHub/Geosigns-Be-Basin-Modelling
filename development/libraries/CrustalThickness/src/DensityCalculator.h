@@ -12,9 +12,6 @@
 #define _CRUSTALTHICKNESS_DENSITYCALCULATOR_H_
 
 // CrusltalThickness library
-#include "AbstractInterfaceOutput.h"
-#include "AbstractValidator.h"
-#include "InterfaceInput.h"
 
 // DerivedProperties library
 #include "SurfaceProperty.h"
@@ -22,12 +19,16 @@
 // utilitites library
 #include "FormattingException.h"
 
-// DataAccess library
-#include "Interface/CrustalThicknessInterface.h"
+// Forward declare
+class InterfaceInput;
+class AbstractValidator;
+class AbstractInterfaceOutput;
+
 using namespace DataAccess;
 
 namespace CrustalThickness
 {
+  
    /// @class DensityCalculator The density calcultor used during the CTC backstriping
    class DensityCalculator {
 
@@ -35,7 +36,7 @@ namespace CrustalThickness
 
    public:
 
-      DensityCalculator( const InterfaceInput&    inputData,
+      DensityCalculator( const InterfaceInput& inputData,
          AbstractInterfaceOutput& outputData,
          const AbstractValidator& validator );
       ~DensityCalculator() {
@@ -89,10 +90,10 @@ namespace CrustalThickness
       /// @defgroup InputConfigFileData
       ///    Loaded from configuration file via InterfaceInput
       /// @{
-      const double  m_mantleDensity; ///< The mantle density (is currently the same for lithospheric and asthenospheric mantle)
-      const double  m_waterDensity;  ///< The water density
-      double  m_densityTerm;         ///< densityTerm = 1.0 / (mantleDensity - m_waterDensity)
-      double  m_airCorrection;       ///< The air density correction for the TTS equation when the water depth is above the surface
+      const double m_mantleDensity; ///< The mantle density (is currently the same for lithospheric and asthenospheric mantle)
+      const double m_waterDensity;  ///< The water density
+      double m_densityTerm;         ///< densityTerm = 1.0 / (mantleDensity - m_waterDensity)
+      double m_airCorrection;       ///< The air density correction for the TTS equation when the water depth is above the surface
       /// @}
 
       /// @defgroup InputDerivedProperties

@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2017 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -13,11 +13,11 @@
 
 #ifndef UTILITIES_CONSTANTSMATHEMATICS_H
 #define UTILITIES_CONSTANTSMATHEMATICS_H
+
+#include <cmath>
 #ifndef _USE_MATH_DEFINES
 #define _USE_MATH_DEFINES
 #endif
-#include <cmath>
-#include <math.h>
 
 namespace Utilities
 {

@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2017 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -141,11 +141,11 @@ public:
    bool In_Processor_Range ( const int globalIIndex, const int globalJIndex );
 
    bool inProcessorRange ( const int  globalIIndex,
-			   const int  globalJIndex, 
-			   const bool includeLowerIGhostNodes,
-			   const bool includeUpperIGhostNodes, 
-			   const bool includeLowerJGhostNodes,
-			   const bool includeUpperJGhostNodes ) const;
+                           const int  globalJIndex, 
+                           const bool includeLowerIGhostNodes,
+                           const bool includeUpperIGhostNodes, 
+                           const bool includeLowerJGhostNodes,
+                           const bool includeUpperJGhostNodes ) const;
 
    void Generate_Lithology_Identifier_List (const int Max_Nb_Lithology_Single_Proc, int &Total_Number_Of_Lithologies);
    bool calcNodeDepths (const double time);
@@ -279,8 +279,8 @@ public:
    void setLayerData ();
 
    double Estimate_Temperature_At_Depth( const double Node_Depth, 
-					 const double Surface_Temperature,
-					 const double Surface_Sea_Bottom_Depth );
+                const double Surface_Temperature,
+                const double Surface_Sea_Bottom_Depth );
 
 
    /// Set the time step used after a snapshot when performing a calculation.
@@ -317,14 +317,14 @@ public:
 
 
   void deleteTimeIORecord ( const string& propertyName,
-			    const double  age );
+                            const double  age );
 
   void deleteTimeIORecord ( const double  age );
 
   void deleteTimeIORecord ( const string& propertyName,
-			    const double  age,
-			    const string& surfaceName,
-			    const string& formationName );
+                            const double  age,
+                            const string& surfaceName,
+                            const string& formationName );
 
   void initialiseTimeIOTable ( const string& currentOperation );
 
@@ -332,10 +332,10 @@ public:
 
    
    enum ContourType {ISOVRE, ISOTEMPERATURE, NUMBEROFCONTOURTYPES};
-	
+   
    IsoLineTable m_theTables[NUMBEROFCONTOURTYPES];
    DoubleVector m_theMilestones[NUMBEROFCONTOURTYPES];
-	
+   
    const IsoLineTable & getContourValueTable(enum ContourType theType) const;
    const DoubleVector & getContourMilestones(enum ContourType theType) const;
    void addIsolinePoint(ContourType theType, IsolinePoint *thePoint);
@@ -350,10 +350,6 @@ public:
 
    //FT stuff
    void writeFissionTrackResultsToDatabase(const FissionTrackCalculator &theFTCalculator);
-
-   database::Database * database;
-   database::Table * timeIoTbl;
-   database::Table * threeDTimeIoTbl;
 
    LayerList layers;
 
@@ -382,8 +378,6 @@ public:
    double timestepsize;
    double timestepincr;
    double timestepdecr;
-   double BricksizeEast;
-   double BricksizeNorth;
    int MaxNumberOfRunOverpressure;
    int Optimisation_Level;
 
@@ -631,11 +625,11 @@ inline bool AppCtx::isGeometricLoop () const {
 }
 
 inline bool AppCtx::useTemisRelPerm () const {
-   return bool ( m_useTemisRelPerm );
+   return bool ( m_useTemisRelPerm == 0 ? false : true );
 }
 
 inline bool AppCtx::integrateGenexEquations () const {
-   return doGenex;
+   return doGenex == 0 ? false : true;
 }
 
 inline bool AppCtx::saveOnDarcyError () const {

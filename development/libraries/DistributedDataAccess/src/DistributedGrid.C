@@ -695,7 +695,7 @@ void DistributedGrid::printDistributionOn (MPI_Comm comm) const
    PetscPrintf (comm, "\n");
 }
 
-bool DistributedGrid::isEqual( const Grid& grid ) const
+bool DistributedGrid::hasSameGridding( const Grid& grid ) const
 {
    return ( 
       this->numI()  == grid.numI()   && 

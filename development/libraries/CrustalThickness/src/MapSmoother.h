@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2017 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -11,8 +11,11 @@
 #ifndef _CRUSTALTHICKNESS_MAPSMOOTHER_H_
 #define _CRUSTALTHICKNESS_MAPSMOOTHER_H_
 
-// DataAccess library
-#include "Interface/GridMap.h"
+namespace DataAccess {
+   namespace Interface {
+      class GridMap;
+   }
+}
 
 #include <boost/multi_array.hpp>
 

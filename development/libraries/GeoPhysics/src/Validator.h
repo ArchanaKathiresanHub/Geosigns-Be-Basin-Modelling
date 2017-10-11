@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2017 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -26,7 +26,7 @@ class Validator : public AbstractValidator  {
       ~Validator() {};
 
       /// @brief return true if (i,j) is a valid node, else return false
-      bool isValid( const unsigned int i, const unsigned int j ) const;
+      bool isValid( const unsigned int i, const unsigned int j ) const final;
 
    private:
       GeoPhysics::ProjectHandle& m_projectHandle;

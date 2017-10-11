@@ -1,6 +1,6 @@
 #########################################################################
 #                                                                       #
-# Copyright (C) 2012-2016 Shell International Exploration & Production. #
+# Copyright (C) 2012-2017 Shell International Exploration & Production. #
 # All rights reserved.                                                  #
 #                                                                       #
 # Developed under license for Shell by PDS BV.                          #
@@ -84,9 +84,6 @@ bm_include_libraries(
    TableIO
    Serial_Hdf5
 )
-
-#What is that?
-remove_definitions(-fPIC)
 
 include_directories( SYSTEM
    ${HDF5_INCLUDE_DIRS}
