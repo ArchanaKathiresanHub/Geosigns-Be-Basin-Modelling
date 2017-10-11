@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/ksh
 set -e
 
 # This script is meant to set up the environment in Shell for regression tests.
