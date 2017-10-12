@@ -47,10 +47,6 @@ if (UNIX)
    add_dependencies(utilities Boost)
 endif (UNIX)
 
-if (MSVC)
-   add_definitions( "-D_USE_MATH_DEFINES" )
-endif(MSVC)
-
 
 target_link_libraries(utilities
    ${Boost_LIBRARIES}

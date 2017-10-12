@@ -12,6 +12,9 @@
 // std library
 #include <exception>
 
+// DataAccess library
+#include "Interface/GridMap.h"
+
 using namespace CrustalThickness;
 using DataAccess::Interface::TectonicFlag;
 

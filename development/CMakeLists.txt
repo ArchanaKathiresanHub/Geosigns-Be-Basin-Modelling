@@ -13,6 +13,8 @@
 cmake_minimum_required(VERSION 3.2.1)
 cmake_policy(SET CMP0054 NEW)
 
+set_property( GLOBAL PROPERTY USE_FOLDERS ON )
+
 #Set 3rd party tools versions:
 set(PETSC_VERSION "3.5.4"  CACHE STRING "PETSc version")
 set(TSLIB_VERSION "7.4.2"  CACHE STRING "Geocosm library version")
@@ -207,6 +209,7 @@ add_definitions(-DIBSLONGVERSION="v${BM_VERSION_NUMBER}")
 add_definitions(-DIBSSHORTVERSION="v${BM_VERSION_NUMBER}")
 add_definitions(-DIBSLONGVERSION="v${BM_VERSION_NUMBER}")
 add_definitions(-DSVNREVISION="${BM_SVNREVISION}")
+add_definitions( "-D_USE_MATH_DEFINES" )
 
 
 #

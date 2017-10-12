@@ -47,7 +47,10 @@ class CrustalThicknessCalculator : public DataAccess::Mining::ProjectHandle {
    typedef formattingexception::GeneralException CtcException;
 
 public :
-   CrustalThicknessCalculator( database::ProjectFileHandlerPtr database, const std::string & name, const std::string & accessMode, ObjectFactory* factory );
+   CrustalThicknessCalculator( database::ProjectFileHandlerPtr database,
+                               const std::string & name,
+                               const std::string & accessMode,
+                               DataAccess::Interface::ObjectFactory* factory );
    ~CrustalThicknessCalculator();
 
    /// @brief Return the reference to the project data
@@ -56,7 +59,7 @@ public :
    /// @brief Open the project file
    /// @param inputFileName The file name of the project file such as project.project3d
    /// @ param factory The object factory
-   static CrustalThicknessCalculator* createFrom( const string& inputFileName, ObjectFactory* factory );
+   static CrustalThicknessCalculator* createFrom( const string& inputFileName, DataAccess::Interface::ObjectFactory* factory );
 
    /// @brief Initialise the CTC instance, projecthandle, interface input and interface output
    void initialiseCTC();

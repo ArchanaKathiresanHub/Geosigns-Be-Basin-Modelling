@@ -17,29 +17,33 @@
 #include <memory>
 
 // DataAccess library
-#include "Interface/CrustalThicknessInterface.h"
-#include "Interface/Grid.h"
 #include "Interface/GridMap.h"
-#include "Interface/MapWriter.h"
-#include "Interface/ObjectFactory.h"
-#include "Interface/ProjectHandle.h"
-
-// GeoPhysics library
-#include "GeoPhysicsProjectHandle.h"
+#include "Interface/Interface.h"
 
 // CrustalThickness library
 #include "AbstractInterfaceOutput.h"
-#include "InterfaceInput.h"
 
 // utilities library
 #include "FormattingException.h"
-#include "LogHandler.h"
 
 using namespace std;
-using namespace DataAccess;
-using namespace Interface;
-
 using namespace CrustalThicknessInterface;
+
+// Forward declarations
+namespace DataAccess
+{
+   namespace Interface
+   {
+      class ProjectHandle;
+      class Snapshot;
+      class Surface;
+   }
+}
+namespace GeoPhysics
+{
+   class ProjectHandle;
+}
+class InterfaceInput;
 
 /// @class InterfaceOutput The CTC output interface
 class InterfaceOutput : public AbstractInterfaceOutput {
@@ -54,16 +58,20 @@ public:
    /// @{
    /// @brief Save output maps to HDF file for the given snapshot
    /// @ param theSnapshot The snapshot at which the output maps are saved
-   bool saveOutputMaps            ( ProjectHandle * pHandle, const Snapshot * theSnapshot );
+   bool saveOutputMaps            ( DataAccess::Interface::ProjectHandle * pHandle,
+                                    const DataAccess::Interface::Snapshot * theSnapshot );
    /// @brief Save output maps to XYZ file
-   bool saveXYZOutputMaps         ( ProjectHandle * pHandle );
+   bool saveXYZOutputMaps         ( DataAccess::Interface::ProjectHandle * pHandle );
    /// @brief Save output maps to SUR file
-   bool saveExcelSurfaceOutputMaps( ProjectHandle * pHandle );
+   bool saveExcelSurfaceOutputMaps( DataAccess::Interface::ProjectHandle * pHandle );
    /// @brief Save the output maps according to debug mode and output option
    /// @param isDebug True to save debug outputs, false otherwise
    /// @param outputOptions Save as XYZ, SUR, or HDF
    /// @param theSnapshot The snapshot we save
-   void saveOutput( ProjectHandle * pHandle, bool isDebug, int outputOptions, const Snapshot * theSnapshot );
+   void saveOutput( DataAccess::Interface::ProjectHandle * pHandle, 
+                    bool isDebug,
+                    int outputOptions,
+                    const DataAccess::Interface::Snapshot * theSnapshot );
    /// @}
 
    /// @defgroup SetMaps
@@ -100,29 +108,33 @@ public:
    /// @param[in] debug If true, then will create debug maps
    void createSnapShotOutputMaps( GeoPhysics::ProjectHandle * pHandle,
                                   std::shared_ptr< const InterfaceInput > interfaceInput,
-                                  const Snapshot * theSnapshot,
-                                  const Interface::Surface *theSurface,
+                                  const DataAccess::Interface::Snapshot * theSnapshot,
+                                  const DataAccess::Interface::Surface *theSurface,
                                   const bool debug = false );
    /// @brief Create a map for the defined snapshot
    /// @param propertyName The name of the property corresponding to the map
    /// @param theSnapshot The snapshot corresponding to the map
    /// @param theSurface The stratigraphic surface corresponding to the map
    /// @return The map created
-   GridMap * createSnapshotResultPropertyValueMap( ProjectHandle * pHandle, const std::string& propertyName, const Snapshot* theSnapshot, 
-                                                   const Interface::Surface *theSurface = 0 );
+   DataAccess::Interface::GridMap * createSnapshotResultPropertyValueMap( DataAccess::Interface::ProjectHandle * pHandle,
+                                                                          const std::string& propertyName,
+                                                                          const DataAccess::Interface::Snapshot* theSnapshot, 
+                                                                          const DataAccess::Interface::Surface *theSurface = 0 );
    /// @}
 
    /// @defgroup DisableOutput
    /// @{
    /// @brief Ensure that the CTC only saves the required maps
    /// @details Some maps are required for the CTC computations but they should be output in debug mode only
-   void disableDebugOutput( ProjectHandle * pHandle, const Interface::Surface* theSurface, const Snapshot* theSnapshot ) const;
+   void disableDebugOutput( DataAccess::Interface::ProjectHandle * pHandle,
+                            const DataAccess::Interface::Surface* theSurface,
+                            const DataAccess::Interface::Snapshot* theSnapshot ) const;
    /// @brief Ensure that the CTC only allocates the required maps
    /// @details Some maps can't be created if some inputs are missing
    void updatePossibleOutputsAtSnapshot( const outputMaps id,
                                          const GeoPhysics::ProjectHandle * pHandle,
                                          std::shared_ptr< const InterfaceInput > interfaceInput,
-                                         const Snapshot * theSnapshot,
+                                         const DataAccess::Interface::Snapshot * theSnapshot,
                                          const bool debug );
    /// @}
 
@@ -139,7 +151,7 @@ public:
    /// @brief Return the map value
    double & operator []( const outputMaps &mapInd );
    /// @brief Return the map
-   GridMap * getMap( const outputMaps &mapInd );
+   DataAccess::Interface::GridMap * getMap( const outputMaps &mapInd );
    /// @brief Return the value of the map at node (i,j)
    /// @param mapIndex The index of the map we get the value from
    /// @return The map value
@@ -151,11 +163,14 @@ public:
    /// @}
 
 private:
-   void disableOutput( ProjectHandle * pHandle, const Interface::Surface* theSurface, const Snapshot* theSnapshot, const std::string& name ) const;
+   void disableOutput( DataAccess::Interface::ProjectHandle * pHandle,
+                       const DataAccess::Interface::Surface* theSurface,
+                       const DataAccess::Interface::Snapshot* theSnapshot,
+                       const std::string& name ) const;
 
-   GridMap * m_outputMaps[numberOfOutputMaps];   ///< List of CTC output maps
-   bool m_outputMapsMask [numberOfOutputMaps];   ///< Mask list corresponding to the CTC output maps (true = output, false = no output)
-   double m_outputValues [numberOfOutputMaps];   ///< The temporary values of the maps for a defined (i,j) node. Used to set all the map values at once.
+   DataAccess::Interface::GridMap * m_outputMaps[numberOfOutputMaps];   ///< List of CTC output maps
+   bool                             m_outputMapsMask [numberOfOutputMaps];   ///< Mask list corresponding to the CTC output maps (true = output, false = no output)
+   double                           m_outputValues [numberOfOutputMaps];   ///< The temporary values of the maps for a defined (i,j) node. Used to set all the map values at once.
 
    /// @brief Clean all the members of the class
    void clean();
@@ -209,7 +224,7 @@ inline void InterfaceOutput::setAllMapsUndefined( const unsigned int indI, const
 {
    for(int i = 0; i < numberOfOutputMaps; ++ i ) {
       if( m_outputMapsMask[i]  && m_outputMaps[i] != nullptr ) {
-         m_outputMaps[i]->setValue( indI, indJ, Interface::DefaultUndefinedMapValue );
+         m_outputMaps[i]->setValue( indI, indJ, DataAccess::Interface::DefaultUndefinedMapValue );
       }
    }
    memset(m_outputValues, 0, numberOfOutputMaps * sizeof(double));
@@ -231,7 +246,7 @@ inline double & InterfaceOutput::operator[]( const outputMaps &mapInd )
 
 //------------------------------------------------------------//
 
-inline GridMap * InterfaceOutput::getMap( const outputMaps &mapInd ) 
+inline DataAccess::Interface::GridMap * InterfaceOutput::getMap( const outputMaps &mapInd ) 
 {
    return m_outputMaps[mapInd];
 }

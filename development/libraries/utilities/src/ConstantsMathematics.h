@@ -91,8 +91,6 @@ namespace Utilities
       constexpr double Pi2by8  = Pi2 / 8;
       /// @}
 
-
-
    }
 }
 #endif

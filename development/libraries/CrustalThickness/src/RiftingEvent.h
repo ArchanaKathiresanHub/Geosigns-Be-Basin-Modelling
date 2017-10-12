@@ -12,8 +12,16 @@
 #define CRUSTALTHICKNESS_RIFTINGEVENT_H
 
 // DataAccess library
-#include "Interface/GridMap.h"
 #include "Interface/Interface.h"
+
+// forward declarations
+namespace DataAccess
+{
+   namespace Interface
+   {
+      class GridMap;
+   }
+}
 using DataAccess::Interface::GridMap;
 using DataAccess::Interface::TectonicFlag;
 

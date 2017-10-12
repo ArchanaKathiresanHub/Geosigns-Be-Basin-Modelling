@@ -18,6 +18,13 @@ using Utilities::Maths::Log10;
 using Utilities::Maths::Pi;
 using Utilities::Maths::Pi2by8;
 
+//CrustalThickness
+#include "AbstractValidator.h"
+#include "AbstractInterfaceOutput.h"
+#include "ConfigFileParameterCtc.h"
+#include "InterfaceInput.h"
+#include "LinearFunction.h"
+
 McKenzieCrustCalculator::McKenzieCrustCalculator(
    const InterfaceInput&    inputData,
    AbstractInterfaceOutput& outputData,
@@ -39,9 +46,9 @@ McKenzieCrustCalculator::McKenzieCrustCalculator(
       m_lastJ         ( inputData.lastJ()  ),
       m_continentalCrustRatio( inputData.getContinentalCrustRatio() ),
       m_oceanicCrustRatio    ( inputData.getOceanicCrustRatio()     ),
-      m_previousRiftTTS                  ( previousRiftTTS                   ),
       m_previousContinentalCrustThickness( previousContinentalCrustThickness ),
       m_previousOceanicCrustThickness    ( previousOceanicCrustThickness     ),
+      m_previousRiftTTS                  ( previousRiftTTS                   ),
       m_age        ( age         ),
       m_outputData ( outputData  ),
       m_validator  ( validator   )

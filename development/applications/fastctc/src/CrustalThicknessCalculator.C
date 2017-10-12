@@ -28,6 +28,9 @@ using namespace database;
 #include "Interface/Snapshot.h"
 #include "Interface/Surface.h"
 
+using namespace DataAccess;
+using namespace Interface;
+
 // Crustal Thickness library
 #include "DensityCalculator.h"
 #include "LinearFunction.h"
@@ -276,7 +279,6 @@ void CrustalThicknessCalculator::run() {
          if (not m_debug) m_outputData.disableDebugOutput( m_crustalThicknessCalculator, m_inputData->getBotOfSedimentSurface(), theSnapshot );
 
          /// 4. Compute the Total Tectonic Subsidence (only if we have a SDH at this snapshot)
-         const Interface::Property* pressureInterfaceProperty = findProperty( "Pressure" );
          if (hasSurfaceDepthHistory( age )){
             LogHandler( LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_STEP ) << "computing Tectonic Subsidence";
             CrustalThickness::TotalTectonicSubsidenceCalculator TTScalculator( *m_inputData, m_outputData, validator,

@@ -15,6 +15,7 @@
 
 // DataAccess library
 #include "Interface/GridMap.h"
+#include "Interface/Interface.h"
 
 using namespace DataAccess;
 using namespace Interface;

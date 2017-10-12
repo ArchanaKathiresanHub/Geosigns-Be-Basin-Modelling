@@ -12,7 +12,7 @@
 using namespace CrustalThickness;
 
 // std library
-#include <math.h>
+#include <cmath>
 
 // CrusltalThickness library
 #include "AbstractInterfaceOutput.h"

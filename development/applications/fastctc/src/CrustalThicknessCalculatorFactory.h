@@ -20,10 +20,22 @@
 
 #include "CrustalThicknessCalculator.h"
 
+// Forward declarations
 namespace database
 {
    class Record;
    class Database;
+}
+namespace DataAccess
+{
+   namespace Interface
+   {
+      class Property;
+      class Snapshot;
+      class Reservoir;
+      class Formation;
+      class Surface;
+   }
 }
 
 /// @class CrustalThicknessCalculatorFactory The CTC object factory
@@ -32,12 +44,18 @@ class CrustalThicknessCalculatorFactory : public DataAccess::Mining::ObjectFacto
 public:
    /// @brief Produce the CrustalThicknessCalculator specific ProjectHandle
    virtual CrustalThicknessCalculator* produceProjectHandle( database::ProjectFileHandlerPtr database,
-                                                             const string & name,  const string & accessMode);
+                                                             const string & name,  const string & accessMode) override;
 
    /// @brief Produce the fasctc PropertyValue
-   virtual Ctc::PropertyValue * producePropertyValue( ProjectHandle * projectHandle, database::Record * record,
-                                                      const string & name, const Property * property, const Snapshot * snapshot,
-                                                      const Reservoir * reservoir, const Formation * formation, const Surface * surface, PropertyStorage storage );
+   virtual Ctc::PropertyValue * producePropertyValue( DataAccess::Interface::ProjectHandle * projectHandle,
+                                                      database::Record * record,
+                                                      const string & name,
+                                                      const DataAccess::Interface::Property * property,
+                                                      const DataAccess::Interface::Snapshot * snapshot,
+                                                      const DataAccess::Interface::Reservoir * reservoir,
+                                                      const DataAccess::Interface::Formation * formation,
+                                                      const DataAccess::Interface::Surface * surface,
+                                                      DataAccess::Interface::PropertyStorage storage ) override;
 };
 
 #endif

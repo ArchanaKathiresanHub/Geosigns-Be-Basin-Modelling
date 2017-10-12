@@ -15,8 +15,7 @@
 #include "FilePath.h"
 
 // std library
-#define _USE_MATH_DEFINES
-#include <math.h>
+#include <cmath>
 #include <fstream>
 
 // utilities

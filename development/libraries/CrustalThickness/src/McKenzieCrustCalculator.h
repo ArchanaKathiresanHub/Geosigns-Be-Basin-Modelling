@@ -14,21 +14,28 @@
 // utilitites library
 #include "FormattingException.h"
 
-//CrustalThickness
-#include "AbstractInterfaceOutput.h"
-#include "AbstractValidator.h"
-#include "ConfigFileParameterCtc.h"
-#include "InterfaceInput.h"
-#include "LinearFunction.h"
-
 // DerivedProperties library
 #include "SurfaceProperty.h"
 
+// forward declarations
+namespace DataAccess
+{
+   namespace Interface
+   {
+      class GridMap;
+   }
+}
+class InterfaceInput;
+class AbstractValidator;
+class AbstractInterfaceOutput;
+
 using namespace DataAccess;
-using Interface::GridMap;
 
 namespace  CrustalThickness
 {
+   class ConfigFileParameterCtc;
+   class LinearFunction;
+
    /// @class McKenzieCrustCalculator The calculator used to compute the thinning factor, crustal thicknesses
    ///    and other crustal properties from the McKenzie equations
    class McKenzieCrustCalculator {

@@ -10,8 +10,15 @@
 
 #include "TotalTectonicSubsidenceCalculator.h"
 
-// DataAccess library
-#include "Interface/Interface.h"
+// CrusltalThickness library
+#include "AbstractInterfaceOutput.h"
+#include "AbstractValidator.h"
+#include "InterfaceInput.h"
+
+//DataAccess library
+#include "Interface/CrustalThicknessInterface.h"
+#include "Interface/GridMap.h"
+
 using namespace  CrustalThickness;
 
 //------------------------------------------------------------//

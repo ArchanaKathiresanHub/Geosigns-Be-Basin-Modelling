@@ -1,4 +1,4 @@
-#include <math.h>
+#include <cmath>
 #if defined(_WIN32) || defined (_WIN64)
 #else
 #include <limits.h>
@@ -8,7 +8,6 @@
 
 #include "Interface/GridMap.h"
 #include "Interface/Grid.h"
-
 
 #include "array.h"
 

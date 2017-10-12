@@ -11,16 +11,16 @@
 #ifndef _CRUSTALTHICKNESS_PWDRCALCULATOR_H_
 #define _CRUSTALTHICKNESS_PWDRCALCULATOR_H_
 
-// CrustalThicness library
-#include "AbstractInterfaceOutput.h"
-#include "AbstractValidator.h"
-#include "InterfaceInput.h"
-
 // CBMGenerics library
 #include "Polyfunction.h"
 
 // Geophysics library
 #include "Local2DArray.h"
+
+// forward declarations
+class InterfaceInput;
+class AbstractValidator;
+class AbstractInterfaceOutput;
 
 using namespace DataAccess;
 
@@ -29,7 +29,7 @@ namespace CrustalThickness
    /// @class PaleowaterdepthResidualCalculator The PWDR calculator
    class PaleowaterdepthResidualCalculator {
 
-      typedef GeoPhysics::Local2DArray <CBMGenerics::Polyfunction> PolyFunction2DArray;
+      typedef GeoPhysics::Local2DArray<CBMGenerics::Polyfunction> PolyFunction2DArray;
 
    public:
 

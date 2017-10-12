@@ -196,7 +196,8 @@ macro(add_gtest )
    set_target_properties( ${execName} 
       PROPERTIES 
                  COMPILE_FLAGS "${compileflags}"
-                 LINK_FLAGS "${linkflags}"   )
+                 LINK_FLAGS "${linkflags}"
+                 FOLDER "UnitTests" )
 
    # Add the test to the CTest test  collection.
    if (mpiSize)

@@ -13,8 +13,10 @@
 // std library
 #include <iomanip>
 #include <exception>
+#ifndef _USE_MATH_DEFINES
 #define _USE_MATH_DEFINES
-#include <math.h>
+#endif
+#include <cmath>
 
 // DataAccess library
 #include "Interface/Interface.h"

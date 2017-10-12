@@ -11,20 +11,23 @@
 #ifndef _CRUSTALTHICKNESS_TTSCALCULATOR_H_
 #define _CRUSTALTHICKNESS_TTSCALCULATOR_H_
 
-// CrusltalThickness library
-#include "AbstractInterfaceOutput.h"
-#include "AbstractValidator.h"
-#include "InterfaceInput.h"
-
 // CBMGenerics library
 #include "Polyfunction.h"
 
 // Geophysics library
 #include "Local2DArray.h"
 
-//DataAccess library
-#include "Interface/CrustalThicknessInterface.h"
-#include "Interface/GridMap.h"
+// forward declarations
+namespace DataAccess
+{
+   namespace Interface
+   {
+      class GridMap;
+   }
+}
+class InterfaceInput;
+class AbstractValidator;
+class AbstractInterfaceOutput;
 
 using namespace DataAccess;
 

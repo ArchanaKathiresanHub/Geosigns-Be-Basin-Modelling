@@ -13,12 +13,20 @@
 // std library
 #include <stdarg.h>
 
+// CrustalThickness library
+#include "InterfaceInput.h"
+
 // DataAccess library
 #include "Interface/ProjectHandle.h"
 #include "Interface/CrustFormation.h"
+#include "Interface/MapWriter.h"
+#include "Interface/ProjectHandle.h"
 #include "Interface/PropertyValue.h"
 #include "Interface/Snapshot.h"
 #include "Interface/Surface.h"
+
+// GeoPhysics library
+#include "GeoPhysicsProjectHandle.h"
 
 // CrustalThickness library
 #include "InterfaceInput.h" 
@@ -28,6 +36,8 @@
 #include "LogHandler.h"
 #include "ConstantsNames.h"
 
+using namespace DataAccess;
+using namespace Interface;
 using namespace CrustalThicknessInterface;
 
 //------------------------------------------------------------//
