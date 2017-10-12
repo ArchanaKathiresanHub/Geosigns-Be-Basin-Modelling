@@ -712,6 +712,43 @@ void VisualizationUtils::getFilterFunc(const std::shared_ptr<const Property>& pr
 	}
 }
 
+void VisualizationUtils::replaceStratigraphyTable(const std::shared_ptr<Project>& project, std::shared_ptr<const Project>& projectExisting)
+{
+   for (const StratigraphyTableEntry& entry : project->getStratigraphyTable())
+   {
+      const std::shared_ptr<CauldronIO::Surface>& surface = entry.getSurface();
+      if( surface ) {
+         for (const StratigraphyTableEntry& entryExisting : projectExisting->getStratigraphyTable())  {
+            const std::shared_ptr<CauldronIO::Surface>& surfaceExisting = entryExisting.getSurface();
+            
+            if( surfaceExisting and surface->getName() == surfaceExisting->getName() ) {
+               // Check the propertySurface data 
+               for (size_t i = 0; i <  surface->getPropertySurfaceDataList().size(); ++i)
+               {
+                  auto& propSurfaceData = surface->getPropertySurfaceDataList().at(i);
+                  
+                  for (auto& propSurfaceDataExisting : surfaceExisting->getPropertySurfaceDataList())
+                  {
+                     // Compare properties and geometries
+                     if ((*propSurfaceData.first == *propSurfaceDataExisting.first) &&
+                         *propSurfaceData.second->getGeometry() == *propSurfaceDataExisting.second->getGeometry())
+                     {
+                        // replace Surface at i
+                        PropertySurfaceData surfData(propSurfaceData.first, createReferenceSurfData(propSurfaceDataExisting.second));
+                        surface->replaceAt(i, surfData);
+                        break;
+                     }
+                  }
+               }
+               
+               break;
+            }
+         }
+      }
+      
+   } 
+}
+
 void VisualizationUtils::replaceExistingProperties(const std::shared_ptr<SnapShot>& snapShot, std::shared_ptr<const Project>& projectToExtend)
 {
 	// Find the snapshot

@@ -1171,6 +1171,62 @@ void compareTraps(std::shared_ptr<CauldronIO::Project> projectXml, std::unique_p
    }
 }
 
+void compareDataDriller(std::shared_ptr<CauldronIO::Project> projectXml, std::unique_ptr<DataAccess::Interface::ProjectHandle> &projectP3d) {
+ 
+   float value;
+
+   value =  projectXml->getPropertyAtLocation( 0, "Temperature", 2000, 2000, 38992.9, "", "", "");
+   if( value == DefaultUndefinedValue) value = DefaultUndefinedScalarValue;
+   EXPECT_FLOAT_EQ(550.65936, value);
+
+   value =  projectXml->getPropertyAtLocation( 15, "Vr", 6500, 6500, DefaultUndefinedScalarValue, "", "s2", "");
+   if( value == DefaultUndefinedValue) value = DefaultUndefinedScalarValue;   
+   EXPECT_FLOAT_EQ(0.70490456, value);
+ 
+   value =  projectXml->getPropertyAtLocation( 15, "Temperature", 6500, 6500, DefaultUndefinedScalarValue, "", "s2", "");
+   if( value == DefaultUndefinedValue) value = DefaultUndefinedScalarValue;
+   EXPECT_FLOAT_EQ(123.25272, value);
+
+   value =  projectXml->getPropertyAtLocation( 15, "Temperature", 2000, 2000, DefaultUndefinedScalarValue, "", "s4", "");
+   if( value == DefaultUndefinedValue) value = DefaultUndefinedScalarValue;
+   EXPECT_FLOAT_EQ(237.16568, value);
+
+   value =  projectXml->getPropertyAtLocation( 15, "VolumeSGIIP", 5000, 5000, DefaultUndefinedScalarValue, "reservoir 1", "", "");
+   if( value == DefaultUndefinedValue) value = DefaultUndefinedScalarValue;
+   EXPECT_FLOAT_EQ(5820988849.02242f, value);
+
+   value =  projectXml->getPropertyAtLocation( 15, "MassSTOIIP", 5000, 5000, DefaultUndefinedScalarValue, "reservoir 1", "", "");
+   if( value == DefaultUndefinedValue) value = DefaultUndefinedScalarValue;
+   EXPECT_FLOAT_EQ(22505439209.0994f, value);
+
+   value =  projectXml->getPropertyAtLocation( 15, "DensitySTOIIP", 5000, 5000, DefaultUndefinedScalarValue, "reservoir 1", "", "");
+   if( value == DefaultUndefinedValue) value = DefaultUndefinedScalarValue;
+   EXPECT_FLOAT_EQ( 815.849296424602f, value);
+
+   value =  projectXml->getPropertyAtLocation( 15, "MassLiquid", 5000, 5000, DefaultUndefinedScalarValue, "reservoir 1", "", "");
+   if( value == DefaultUndefinedValue) value = DefaultUndefinedScalarValue;
+   EXPECT_FLOAT_EQ(  29576816190.6786f, value);
+
+   value =  projectXml->getPropertyAtLocation( 15, "MassVapour", 5000, 5000, DefaultUndefinedScalarValue, "reservoir 1", "", "");
+   if( value == DefaultUndefinedValue) value = DefaultUndefinedScalarValue;
+   EXPECT_FLOAT_EQ( 0, value);
+
+   value =  projectXml->getPropertyAtLocation( 15, "OilAPI", 5000, 5000, DefaultUndefinedScalarValue, "reservoir 1", "", "");
+   if( value == DefaultUndefinedValue) value = DefaultUndefinedScalarValue;
+   EXPECT_FLOAT_EQ( 41.9388944381188f, value);
+
+   value =  projectXml->getPropertyAtLocation( 15, "Depth", 5000, 5000, DefaultUndefinedScalarValue, "reservoir 1", "", "");
+   if( value == DefaultUndefinedValue) value = DefaultUndefinedScalarValue;
+   EXPECT_FLOAT_EQ( 2258.05810546875f, value);
+
+   value =  projectXml->getPropertyAtLocation( 15, "Porosity", 5000, 5000, DefaultUndefinedScalarValue, "reservoir 1", "", "");
+   if( value == DefaultUndefinedValue) value = DefaultUndefinedScalarValue;
+   EXPECT_FLOAT_EQ( 47.2822151184082f, value);
+
+   cout << "DataDriller comparison done" << endl;
+
+}
+
 void compareGenexHistory(std::shared_ptr<CauldronIO::Project> projectXml, std::unique_ptr<DataAccess::Interface::ProjectHandle> &projectP3d) {
 
    const std::vector<std::string> &historyFiles = projectXml->getGenexHistoryList();
@@ -1256,9 +1312,11 @@ TEST_F(CompareTest, CompareData1)
 	compare3dContinuousPropertyValues(projectXml, projectP3d);
 	compareTrappers(projectXml, projectP3d);
 	compareTraps(projectXml, projectP3d);
-    compareGenexHistory(projectXml, projectP3d);
-    compareMassBalance(projectXml, projectP3d);
-    compareBurialHistory(projectXml, projectP3d);
+        compareGenexHistory(projectXml, projectP3d);
+        compareMassBalance(projectXml, projectP3d);
+        compareBurialHistory(projectXml, projectP3d);
+
+        compareDataDriller(projectXml, projectP3d);
 	
 	newFilePathP3d = testDataPath;
 

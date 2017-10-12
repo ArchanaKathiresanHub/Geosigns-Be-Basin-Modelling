@@ -19,6 +19,7 @@ namespace DerivedProperties {
    std::shared_ptr<SnapShot> getSnapShot(std::shared_ptr< CauldronIO::Project>& project, const double age);
    std::shared_ptr< CauldronIO::Surface > getSurface( std::shared_ptr< CauldronIO::SnapShot>& snapshot, const std::string &name );
    std::shared_ptr< CauldronIO::Surface > getSurface( std::shared_ptr< CauldronIO::SnapShot>& snapshot, std::shared_ptr< CauldronIO::Formation>& formation );
+   void listProperties( const std::shared_ptr<SnapShot>& snapShot, std::shared_ptr<Project> &project);
    
    bool createVizSnapshotResultPropertyValueMap (  std::shared_ptr<CauldronIO::Project> vizProject,
                                                    GeoPhysics::ProjectHandle* projectHandle, 

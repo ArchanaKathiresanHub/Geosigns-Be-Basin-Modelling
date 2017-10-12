@@ -25,7 +25,7 @@
 using namespace CauldronIO;
 
 bool ExportToXML::exportToXML(std::shared_ptr<Project>& project, const std::shared_ptr<Project>& projectExisting,
-                              const std::string& absPath, size_t numThreads, bool center, const bool derivedProperties )
+                              const std::string& absPath, size_t numThreads, bool center)
 {
    // Create empty property tree object
    ibs::FilePath outputPath(absPath);
@@ -43,8 +43,8 @@ bool ExportToXML::exportToXML(std::shared_ptr<Project>& project, const std::shar
 
     pugi::xml_document doc;
     pugi::xml_node pt = doc.append_child("project");
-
-    ExportToXML newExport(outputPath.filePath(), filenameNoExtension, numThreads, center, derivedProperties);
+   
+   ExportToXML newExport(outputPath.filePath(), filenameNoExtension, numThreads, center);
 
     // Create xml property tree and write datastores
     newExport.addProject(pt, project, projectExisting);
@@ -56,13 +56,13 @@ bool ExportToXML::exportToXML(std::shared_ptr<Project>& project, const std::shar
     return doc.save_file(xmlFileName.cpath());
 }
 
-CauldronIO::ExportToXML::ExportToXML(const ibs::FilePath& absPath, const ibs::FilePath& relPath, size_t numThreads, bool center, const bool derivedProperties)
-   : m_fullPath(absPath), m_relPath(relPath), m_numThreads(numThreads), m_center(center), m_derivedProperties(derivedProperties)
+CauldronIO::ExportToXML::ExportToXML(const ibs::FilePath& absPath, const ibs::FilePath& relPath, size_t numThreads, bool center)
+   : m_fullPath(absPath), m_relPath(relPath), m_numThreads(numThreads), m_center(center)
 {
     if( absPath.path() == "." ) {
        m_fullPath = relPath.path();
     } else {
-      m_fullPath << relPath.path(); 
+       m_fullPath << relPath.path(); 
     }
 }
 
@@ -110,6 +110,11 @@ void ExportToXML::addProject(pugi::xml_node pt, std::shared_ptr<Project>& projec
 		}
 	}
 
+	// If there is an existing project, find references to replace data 
+	if (m_projectExisting)
+	{
+           VisualizationUtils::replaceStratigraphyTable(m_project, m_projectExisting);
+	}
 	// Write all snapshots
 	const SnapShotList snapShotList = project->getSnapShots();
 	pugi::xml_node snapShotNodes = pt.append_child("snapshots");
@@ -136,7 +141,7 @@ void ExportToXML::addProject(pugi::xml_node pt, std::shared_ptr<Project>& projec
 		// Create datastore	for input surfaces
 		ibs::FilePath inputSurfaceStorePath(m_fullPath);
 		inputSurfaceStorePath << "Input_surfaces.cldrn";
-		DataStoreSave inputSurfaceDataStore(inputSurfaceStorePath.path(), m_append, not m_derivedProperties);
+        DataStoreSave inputSurfaceDataStore(inputSurfaceStorePath.path(), m_append);
 
 		// Collect all data
 		std::vector<VisualizationIOData*> allSurfaceData;
@@ -505,22 +510,14 @@ void CauldronIO::ExportToXML::addSnapShot(const std::shared_ptr<SnapShot>& snapS
     std::cout << "Writing snapshot Age=" << snapshotString << std::endl;
 
     ibs::FilePath volumeStorePath(m_fullPath);
-    // Derived properties are stored separately - don't know why
-    if(m_derivedProperties) {
-       volumeStorePath << "Snapshot_" + snapshotString + "_fp_volumes.cldrn";
-    } else {
-       volumeStorePath << "Snapshot_" + snapshotString + "_volumes.cldrn";
-    }
-    DataStoreSave volumeStore(volumeStorePath.path(), m_append, not m_derivedProperties);
+    volumeStorePath << "Snapshot_" + snapshotString + "_volumes.cldrn";
+
+    DataStoreSave volumeStore(volumeStorePath.path(), m_append);
 
     ibs::FilePath surfaceStorePath(m_fullPath);
-    // Derived properties are stored separately - don't know why
-    if(m_derivedProperties) {
-       surfaceStorePath << "Snapshot_" + snapshotString + "_fp_surfaces.cldrn";
-    } else {
-       surfaceStorePath << "Snapshot_" + snapshotString + "_surfaces.cldrn";
-    }
-    DataStoreSave surfaceDataStore(surfaceStorePath.path(), m_append, not m_derivedProperties);
+    surfaceStorePath << "Snapshot_" + snapshotString + "_surfaces.cldrn";
+
+    DataStoreSave surfaceDataStore(surfaceStorePath.path(), m_append);
 
     node.append_attribute("age") = snapShot->getAge();
     node.append_attribute("kind") = snapShot->getKind();
@@ -977,7 +974,6 @@ void CauldronIO::ExportToXML::add1Ddata(pugi::xml_node pt)
          recordNode.append_attribute("meanAgeErr") = entry->getFtMeanAgeErr();
          recordNode.append_attribute("lengthChi2") = entry->getFtLengthChi2();
          recordNode.append_attribute("apatiteYield") = entry->getFtApatiteYield().c_str();
-         recordNode.append_attribute("optimization") = entry->getOptimization();
          
       }
    }
@@ -999,7 +995,6 @@ void CauldronIO::ExportToXML::add1Ddata(pugi::xml_node pt)
           recordNode.append_attribute("inducedTrackNo") = entry->getFtInducedTrackNo();
           recordNode.append_attribute("clWeightPerc") = entry->getFtClWeightPerc();
           recordNode.append_attribute("grainAge") = entry->getFtGrainAge();
-          recordNode.append_attribute("grainAgeErr") = entry->getFtGrainAgeErr();
        }
     }
     // FtPredLengthCountsHistIoTbl
@@ -1060,7 +1055,6 @@ void CauldronIO::ExportToXML::add1Ddata(pugi::xml_node pt)
 	char * data = 0;
 	size_t record_size = 0;
 	size_t dataIndex = 0;
-	nr_events = m_project->getDepthIoTable().size();
     if (nr_events != 0) {
 
        TimeIo1DList timeio1d_events = m_project->get1DTimeIoTable();

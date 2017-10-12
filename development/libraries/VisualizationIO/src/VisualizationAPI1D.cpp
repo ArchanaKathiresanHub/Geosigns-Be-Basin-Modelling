@@ -428,17 +428,6 @@ void CauldronIO::FtSample::setFtApatiteYield( const std::string & value )
    std::strcpy(m_FtApatiteYield, value.c_str());
 }
 
-bool CauldronIO::FtSample::getOptimization() const
-{
-   return m_Optimization;
-}
-
-void CauldronIO::FtSample::setOptimization(bool value)     
-{
-   m_Optimization = value;
-}
-
-
 ///FtGrain
 CauldronIO::FtGrain::FtGrain()
 {
@@ -503,16 +492,6 @@ double CauldronIO::FtGrain::getFtGrainAge() const
 void CauldronIO::FtGrain::setFtGrainAge(float val)
 {
    m_FtGrainAge = val;
-}
-
-double CauldronIO::FtGrain::getFtGrainAgeErr() const
-{
-   return m_FtGrainAgeErr;
-}
-
-void CauldronIO::FtGrain::setFtGrainAgeErr(float val)
-{
-   m_FtGrainAgeErr = val; 
 }
 
 /// FtPredLengthCountsHist

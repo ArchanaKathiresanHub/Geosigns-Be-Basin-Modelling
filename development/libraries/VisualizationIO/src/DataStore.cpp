@@ -218,7 +218,7 @@ void CauldronIO::DataStoreLoad::getSurface(pugi::xml_node ptree, std::shared_ptr
  /// DataStoreSave
  //////////////////////////////////////////////////////////////////////////
 
-CauldronIO::DataStoreSave::DataStoreSave(const std::string& filename, bool append, const bool rewrite )
+CauldronIO::DataStoreSave::DataStoreSave(const std::string& filename, bool append)
 {
     if (!append)
         m_file_out.open(filename.c_str(), std::fstream::binary);
@@ -230,7 +230,6 @@ CauldronIO::DataStoreSave::DataStoreSave(const std::string& filename, bool appen
     m_fileName = filename;
     m_flushed = false;
     m_offset = 0;
-    m_rewrite = rewrite; // rewrite is true for NOT derived properties
 }
 
 CauldronIO::DataStoreSave::~DataStoreSave()
@@ -322,16 +321,16 @@ void CauldronIO::DataStoreSave::addSurface(const std::shared_ptr<SurfaceData>& s
  
     if (surfaceData->isConstant()) throw CauldronIO::CauldronIOException("Cannot write constant value");
 
+    subNode.append_attribute("file") = ibs::FilePath(m_fileName).fileName().c_str();
+    if (compress)
+       subNode.append_attribute("compression") = COMPRESSION_LZ4 ? "lz4" : "gzip";
+    else
+       subNode.append_attribute("compression") = "none";
+    
     // We write the actual data if 1) this map has been loaded from projecthandle (so mapNative == null)
     // or 2) this map has been created in native format, but was not loaded from disk (so no datastoreparams were set)
     if (mapNative == nullptr || (mapNative != nullptr && mapNative->getDataStoreParams() == nullptr))
     {
-       subNode.append_attribute("file") = ibs::FilePath(m_fileName).fileName().c_str();
-       if (compress)
-          subNode.append_attribute("compression") = COMPRESSION_LZ4 ? "lz4" : "gzip";
-       else
-          subNode.append_attribute("compression") = "none";
-
        addData(surfaceData->getSurfaceValues(), surfaceData->getGeometry()->getSize(), compress);
        m_dataToCompress.back()->setXmlNode(subNode);
     }
@@ -339,28 +338,11 @@ void CauldronIO::DataStoreSave::addSurface(const std::shared_ptr<SurfaceData>& s
     {
        // This surface already has been written: skip it
        const DataStoreParams* const params = mapNative->getDataStoreParams();
-       std::string fileName;
-       if(m_rewrite) {
-          // write to the same file
-          assert(m_fileName == params->fileName.path());
-          fileName = m_fileName;
-       } else {
-          // do not write - create a record only
-          fileName = params->fileName.path();
-       }
-       subNode.append_attribute("file") = ibs::FilePath(fileName).fileName().c_str();
-       if ( params->compressed )
-           subNode.append_attribute("compression") =  params->compressed_lz4 ? "lz4" : "gzip";
-        else
-           subNode.append_attribute("compression") = "none";
+       assert(m_fileName == params->fileName.path());
  
+       subNode.append_attribute("offset") = (unsigned int)m_offset;
        subNode.append_attribute("size") = (unsigned int)params->size;
-       if( m_rewrite) {
-          subNode.append_attribute("offset") = (unsigned int)m_offset;
-          m_offset += params->size;
-       } else {
-          subNode.append_attribute("offset") = (unsigned int)params->offset;
-       }
+       m_offset += params->size;
     }
 }
 
@@ -390,7 +372,13 @@ void CauldronIO::DataStoreSave::writeVolumePart(pugi::xml_node volNode, bool com
     VolumeDataNative* nativeVolume = dynamic_cast<VolumeDataNative*>(volume.get());
 
     pugi::xml_node subNode = volNode.append_child("datastore");
-
+    subNode.append_attribute("file") = ibs::FilePath(m_fileName).fileName().c_str();
+    if (compress)
+       subNode.append_attribute("compression") = COMPRESSION_LZ4 ? "lz4" : "gzip";
+    else
+       subNode.append_attribute("compression") = "none";
+    subNode.append_attribute("dataIJK") = IJK;
+ 
     // We write the actual data if 1) this volume has been loaded from projecthandle (so nativeVolume == nullptr)
     // or 2) this volume has been created in native format, but was not loaded from disk (so no datastoreparams were set)
     bool writeData;
@@ -401,45 +389,19 @@ void CauldronIO::DataStoreSave::writeVolumePart(pugi::xml_node volNode, bool com
 
     if (writeData)
     {
-       subNode.append_attribute("file") = ibs::FilePath(m_fileName).fileName().c_str();
-       if (compress)
-          subNode.append_attribute("compression") = COMPRESSION_LZ4 ? "lz4" : "gzip";
-       else
-          subNode.append_attribute("compression") = "none";
-       subNode.append_attribute("dataIJK") = IJK;
-        // Write the volume and update the offset
-        writeVolume(volume, IJK, compress);
-        m_dataToCompress.back()->setXmlNode(subNode);
+       // Write the volume and update the offset
+       writeVolume(volume, IJK, compress);
+       m_dataToCompress.back()->setXmlNode(subNode);
     }
     else
     {
         // This volume already has been written: skip it
         const DataStoreParams* const params = nativeVolume->getDataStoreParamsIJK();
-        std::string fileName;
-        if(m_rewrite) {
-           // writes to the same file
-           assert(m_fileName == params->fileName.path());
-           fileName = m_fileName;
-        } else {
-           // do not write, creates a record only
-           fileName = params->fileName.path();
-        }
-
-        subNode.append_attribute("file") = ibs::FilePath(fileName).fileName().c_str();
-        if ( params->compressed )
-           subNode.append_attribute("compression") =  params->compressed_lz4 ? "lz4" : "gzip";
-        else
-           subNode.append_attribute("compression") = "none";
-       
-        subNode.append_attribute("dataIJK") = IJK;
-        subNode.append_attribute("size") = (unsigned int)params->size;
+        assert(m_fileName == params->fileName.path());
         
-        if( m_rewrite) {
-           subNode.append_attribute("offset") = (unsigned int)m_offset;
-           m_offset += params->size;
-        } else {
-           subNode.append_attribute("offset") = (unsigned int)params->offset;
-        }
+        subNode.append_attribute("offset") = (unsigned int)m_offset;
+        subNode.append_attribute("size") = (unsigned int)params->size;
+        m_offset += params->size;
     }
 }
 

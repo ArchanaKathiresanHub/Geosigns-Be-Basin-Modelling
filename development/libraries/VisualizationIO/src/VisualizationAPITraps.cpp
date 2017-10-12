@@ -75,6 +75,20 @@ int CauldronIO::Trapper::getDownStreamTrapperID() const
    return m_downstreamTrapperID;
 }
 
+float CauldronIO::Trapper::getValue(const std::string valueName) const
+{
+   if (valueName == "VolumeSGIIP")   return getSolutionGasVolume();
+   if (valueName == "MassSTOIIP")    return getStockTankOilMass();
+   if (valueName == "DensitySTOIIP") return getStockTankOilDensity();
+   if (valueName == "MassLiquid")    return getMassLiquid();
+   if (valueName == "MassVapour")    return getMassVapour();
+   if (valueName == "OilAPI")        return getOilAPI();
+   if (valueName == "Depth")         return getDepth();
+   if (valueName == "Temperature")   return getTemperature();
+   if (valueName == "Porosity")      return getPorosity();
+   return DefaultUndefinedValue;
+}
+
 void CauldronIO::Trapper::setSolutionGasVolume(float solutionGasVolume) 
 {
    m_solutionGasVolume = solutionGasVolume;
