@@ -700,9 +700,6 @@ namespace Shell.BasinModeling.CauldronIO.Test
             fiss.setFtMeanRatio(0.54f);
             Assert.AreEqual(0.54f, fiss.getFtMeanRatio());
 
-            Assert.IsFalse(fiss.getOptimization());
-            fiss.setOptimization(true);
-            Assert.IsTrue(fiss.getOptimization());
         }
         [TestMethod]
         public void FtGrainTest()
@@ -714,8 +711,6 @@ namespace Shell.BasinModeling.CauldronIO.Test
 
             fgrain.setFtSampleId(sampleId);
             StringAssert.Equals(sampleId, fgrain.getFtSampleId());
-            fgrain.setFtGrainAgeErr(0.0034f);
-            Assert.AreEqual(0.0034f, fgrain.getFtGrainAgeErr());
 
             fgrain.setFtInducedTrackNo(23);
             Assert.AreEqual(23, fgrain.getFtInducedTrackNo());
