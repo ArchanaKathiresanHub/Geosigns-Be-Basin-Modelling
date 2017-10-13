@@ -29,7 +29,8 @@ bool DerivedProperties::createVizSnapshotResultPropertyValue (  std::shared_ptr<
    
    if( p_depth > 1 and surface == 0 ) {
 
-      if( not propertyValue->isPrimary() ) {
+      //if( not propertyValue->isPrimary() ) { // uncomment to convert only derived properties
+      if( true ) {
          if(  propertyValue->getProperty ()->getPropertyAttribute () == DataModel::CONTINUOUS_3D_PROPERTY ) {
             createVizSnapshotResultPropertyValueContinuous ( vizProject, projectHandle,  propertyValue, snapshot, formation, formInfoList, data );
          } else if( propertyValue->getProperty ()->getPropertyAttribute () == DataModel::DISCONTINUOUS_3D_PROPERTY ) {
@@ -41,7 +42,8 @@ bool DerivedProperties::createVizSnapshotResultPropertyValue (  std::shared_ptr<
          //  the property is already in the output file
       }
       
-   } else if(not propertyValue->isPrimary() and not ( surface == 0 and propertyValue->isPrimary() )) {
+   //} else if(not propertyValue->isPrimary() and not ( surface == 0 and propertyValue->isPrimary() )) { // uncomment to convert only derived properties
+   } else {
       return createVizSnapshotResultPropertyValueMap ( vizProject, projectHandle,  propertyValue, snapshot, formation, surface, data );
    }
 
@@ -99,7 +101,7 @@ std::shared_ptr<CauldronIO::FormationInfoList> DerivedProperties::getDepthFormat
 
     // Capture global k-range
     size_t currentK = depthFormations->at(0)->kEnd;
-    for (int i = 1; i < depthFormations->size(); ++i)
+    for (unsigned int i = 1; i < depthFormations->size(); ++i)
     {
         std::shared_ptr<CauldronIO::FormationInfo>& info = depthFormations->at(i);
         info->kStart += currentK;
@@ -186,7 +188,6 @@ bool DerivedProperties::createVizSnapshotResultPropertyValueContinuous (  std::s
    
    
    // find or create snapshot volume and geometry
-   CauldronIO::SubsurfaceKind formationKind = (daFormation->kind() == Interface::BASEMENT_FORMATION ? CauldronIO::Basement : CauldronIO::Sediment);
    std::shared_ptr<CauldronIO::Volume> snapshotVolume = vizSnapshot->getVolume();
    std::shared_ptr< CauldronIO::Geometry3D> geometry;
    
@@ -244,7 +245,7 @@ bool DerivedProperties::createVizSnapshotResultPropertyValueContinuous (  std::s
    if( not propertyVolumeExisting ) {
       volDataNew.reset(new CauldronIO::VolumeDataNative(geometry, CauldronIO::DefaultUndefinedValue));
       
-      int dataSize = static_cast<int>(geometry->getNumI() * geometry->getNumJ() * geometry->getNumK());
+      unsigned int dataSize = geometry->getNumI() * geometry->getNumJ() * geometry->getNumK();
       if( dataSize > inData.size() ) {
          inData.resize( dataSize );
       }
@@ -359,12 +360,15 @@ bool  DerivedProperties::createVizSnapshotResultPropertyValueDiscontinuous (  st
    if( not vizProperty ) {
       vizProperty.reset( new CauldronIO::Property(propName, propertyUserName, propertyMapName, unit, CauldronIO::FormationProperty, CauldronIO::Discontinuous3DProperty));
       vizProject->addProperty(vizProperty);
+      if( debug ) {
+         cout << "Discont: Adding vizproperty " << propName << endl;
+      }
    }
    
    // create volume data
    shared_ptr<CauldronIO::VolumeData> volDataNew(new CauldronIO::VolumeDataNative(geometry));
    
-   int dataSize = static_cast<int>(geometry->getNumI() * geometry->getNumJ() * geometry->getNumK());
+   unsigned int dataSize = geometry->getNumI() * geometry->getNumJ() * geometry->getNumK();
    if( inData.size() < dataSize ) {
       inData.resize( dataSize );
    }
@@ -481,7 +485,7 @@ bool DerivedProperties::createVizSnapshotResultPropertyValueMap (  std::shared_p
       }
       vizProject->addProperty(vizProperty);
       if( debug ) {
-         cout << "Adding property " << propName << endl;
+         cout << "Adding map property " << propName << endl;
       }
    }
    
@@ -554,12 +558,13 @@ bool DerivedProperties::createVizSnapshotResultPropertyValueMap (  std::shared_p
    
    assert( p_depth == 1 );
 
-   int dataSize = static_cast<int>(geometry->getNumI() * geometry->getNumJ());
+   unsigned int dataSize = geometry->getNumI() * geometry->getNumJ();
    if( inData.size() < dataSize ) {
       inData.resize( dataSize );
    }
    float * data = &inData[0]; 
    memset( data, 0, sizeof(float) * dataSize );
+
    // assign surface map
    std::shared_ptr< CauldronIO::SurfaceData> valueMap(new CauldronIO::MapNative(geometry));
    valueMap->setData_IJ( data ); 
@@ -729,6 +734,7 @@ std::shared_ptr< CauldronIO::Surface > DerivedProperties::getSurface( std::share
 
    return std::shared_ptr< CauldronIO::Surface >();
 }
+
 //------------------------------------------------------------//
 void DerivedProperties::collectVolumeData( const std::shared_ptr<SnapShot>& snapshot, vector<float> & inData ) {
 
@@ -745,7 +751,7 @@ void DerivedProperties::collectVolumeData( const std::shared_ptr<SnapShot>& snap
             std::shared_ptr< CauldronIO::VolumeData> valueMap = propVolume.second;
             if( valueMap->isRetrieved() ) {
                std::shared_ptr<const Geometry3D> geometry = valueMap->getGeometry();
-               int dataSize = static_cast<int>(geometry->getNumI() * geometry->getNumJ() * geometry->getNumK());
+               unsigned int dataSize = geometry->getNumI() * geometry->getNumJ() * geometry->getNumK();
                if( dataSize > inData.size() ) {
                   inData.resize( dataSize );
                }
@@ -758,50 +764,106 @@ void DerivedProperties::collectVolumeData( const std::shared_ptr<SnapShot>& snap
                if( rank == 0 ) {
                   std::memcpy( internalData, data, dataSize * sizeof(float));
                }
-               //            MPI_Barrier( MPI_COMM_WORLD );
             }
          }
       }
    }
 }
-#if 0
 
 
 //------------------------------------------------------------//
-void DerivedProperties::addVolume( GeoPhysics::ProjectHandle* projectHandle, OutputPropertyValuePtr propertyValue, unsigned int kStart, vector<float> & inData ) {
+void DerivedProperties::listProperties(const std::shared_ptr<SnapShot>& snapShot, std::shared_ptr<Project> &project) {
 
+   std::cout << "Snapshot: " << snapShot->getAge() << endl;
 
-   const DataAccess::Interface::Grid* grid = projectHandle->getActivityOutputGrid ();
-   
-   inf numK = propertyValue->getDepth() - kStart;
-   int numI = grid->numIGlobal();
-   int numJ = grid->numJGlobal();
-   
-   int dataSize = static_cast<int>(numI * numJ * numK);
-   if( dataSize > inData.size() ) {
-      inData.resize( dataSize );
+   const StratigraphyTableEntryList& list = project->getStratigraphyTable();
+   for (auto& entry : list ) {
+      const std::shared_ptr<CauldronIO::Surface>& surfaceIO = entry.getSurface();
+      if( surfaceIO ) {
+         std::cout << "Strat Surface: " << surfaceIO->getName() << std::endl;
+         if(  surfaceIO->getPropertySurfaceDataList().size() > 0 ) {
+            const PropertySurfaceDataList valueMaps = surfaceIO->getPropertySurfaceDataList();
+            
+            if (valueMaps.size() > 0)
+            {
+               BOOST_FOREACH(const PropertySurfaceData& propertySurfaceData, valueMaps)
+               {
+                  std::cout << "     " << propertySurfaceData.first->getName() << endl;
+               }
+            }
+         }
+      }
+      const std::shared_ptr<CauldronIO::Formation>& formationIO = entry.getFormation();
+      if(formationIO) {
+         std::cout << "Strat Formation: " << formationIO->getName() << std::endl;
+         if(  formationIO->getPropertySurfaceDataList().size() > 0 ) {
+            const PropertySurfaceDataList valueMaps = formationIO->getPropertySurfaceDataList();
+            
+            if (valueMaps.size() > 0)
+            {
+               BOOST_FOREACH(const PropertySurfaceData& propertySurfaceData, valueMaps)
+               {
+                  std::cout << "     " << propertySurfaceData.first->getName() << endl;
+               }
+            }
+         }
+      }
+ 
    }
-   float *data = &inData[0];
-   memset( data, 0, sizeof(float) * dataSize );
-   
-   unsigned int firstK = numK - 1 - kEnd;
-   unsigned int lastK = numK - 1 - kStart;
-   
-   // for ( unsigned int i = geometry->getMinI(); i < geometry->getMinI() + geometry->getNumI(); ++i ) {
-   //       for ( unsigned int j = geometry->getMinJ(); j < geometry->getMinJ() + geometry->getNumJ(); ++j ) {
-   for ( unsigned int i = grid->firstI(); i <= grid->lastI (); ++i ) {
-      for ( unsigned int j = grid->firstJ (); j <= grid->lastJ (); ++j ) {
-         unsigned int pk = 0;
-         for ( unsigned int k = firstK; k <= lastK; ++k, ++ pk ) {
-            size_t index = i + j * numI + (k - firstK) * numI * numJ;
-            data[index] = propertyValue->getValue( i, j, pk );
+
+   const CauldronIO::SurfaceList surfaces = snapShot->getSurfaceList();
+   if (surfaces.size() > 0)
+   {
+      BOOST_FOREACH(const std::shared_ptr<CauldronIO::Surface>& surfaceIO, surfaces)
+      {
+         std::cout << "Surface: " << surfaceIO->getName() << std::endl;
+         const PropertySurfaceDataList valueMaps = surfaceIO->getPropertySurfaceDataList();
+         
+         if (valueMaps.size() > 0)
+         {
+            BOOST_FOREACH(const PropertySurfaceData& propertySurfaceData, valueMaps)
+            {
+               std::cout << "     " << propertySurfaceData.first->getName() << endl;
+            }
          }
       }
    }
-   MPI_Reduce( (void *)data, 0, dataSize, MPI_FLOAT, MPI_SUM, 0,  MPI_COMM_WORLD );
-   
+   const std::shared_ptr<Volume> volume = snapShot->getVolume();
+   if (volume)
+   {
+     if (volume->getPropertyVolumeDataList().size() > 0)
+      {
+        BOOST_FOREACH(const PropertyVolumeData& propVolume, volume->getPropertyVolumeDataList())
+        {
+           std::cout << "Property volume: " << propVolume.first->getName() << std::endl;
+        }
+        
+      }
+   }
+   FormationVolumeList formVolumes = snapShot->getFormationVolumeList();
+   if (formVolumes.size() > 0)
+   {
+      BOOST_FOREACH(FormationVolume& formVolume, formVolumes)
+      {
+         if (formVolume.second->getPropertyVolumeDataList().size() > 0)
+         {
+            
+            const std::shared_ptr<Volume> subVolume = formVolume.second;
+            const std::shared_ptr<const CauldronIO::Formation> subFormation = formVolume.first;
+            std::cout << "Formation volume: " << formVolume.first->getName() << endl;
+           
+            if (subVolume->getPropertyVolumeDataList().size() > 0)
+            {
+               BOOST_FOREACH(const PropertyVolumeData& propVolume, subVolume->getPropertyVolumeDataList())
+               {
+                  std::cout << "       Property " << propVolume.first->getName() << std::endl;
+               }
+            }
+         }
+      }
+   }
 }
-#endif
+
 //------------------------------------------------------------//
 void DerivedProperties::saveVizSnapshot( const std::shared_ptr<SnapShot>& snapShot, const std::string& absPath) {
 
@@ -822,7 +884,6 @@ void DerivedProperties::saveVizSnapshot( const std::shared_ptr<SnapShot>& snapSh
     const CauldronIO::SurfaceList surfaces = snapShot->getSurfaceList();
    if (surfaces.size() > 0)
     {
-       //        pugi::xml_node surfacesNode = node.append_child("surfaces");
        BOOST_FOREACH(const std::shared_ptr<CauldronIO::Surface>& surfaceIO, surfaces)
        {
           // Data storage
@@ -830,11 +891,9 @@ void DerivedProperties::saveVizSnapshot( const std::shared_ptr<SnapShot>& snapSh
           
           if (valueMaps.size() > 0)
           {
-             //  pugi::xml_node valueMapsNode = ptree.append_child("propertymaps");
              BOOST_FOREACH(const PropertySurfaceData& propertySurfaceData, valueMaps)
              {
-                pugi::xml_node node;// = valueMapsNode.append_child("propertymap");
-  		//	addPropertySurfaceData(node, dataStore, propertySurfaceData);
+                pugi::xml_node node;
                 const std::shared_ptr<SurfaceData>& surfaceData = propertySurfaceData.second;
                 surfaceDataStore.addSurface(surfaceData, node);
              }
@@ -844,12 +903,9 @@ void DerivedProperties::saveVizSnapshot( const std::shared_ptr<SnapShot>& snapSh
    const std::shared_ptr<Volume> volume = snapShot->getVolume();
    if (volume)
    {
-      //    pugi::xml_node volNode = node.append_child("volume");
-      //   addVolume(volumeStore, volume, 0);
-      //        volume->retrieve();
       if (volume->getPropertyVolumeDataList().size() > 0)
       {
-         pugi::xml_node node;// = volNode.append_child("propertyvols");
+         pugi::xml_node node;
         BOOST_FOREACH(const PropertyVolumeData& propVolume, volume->getPropertyVolumeDataList())
         {
            const std::shared_ptr<VolumeData>& data = propVolume.second;
@@ -862,26 +918,24 @@ void DerivedProperties::saveVizSnapshot( const std::shared_ptr<SnapShot>& snapSh
         }
       }
    }
-#if 1
    
    FormationVolumeList formVolumes = snapShot->getFormationVolumeList();
    if (formVolumes.size() > 0)
    {
-      //    pugi::xml_node formVolumesNode = node.append_child("formvols");
       BOOST_FOREACH(FormationVolume& formVolume, formVolumes)
       {
          // Only add a volume if it contains something
          if (formVolume.second->getPropertyVolumeDataList().size() > 0)
          {
             // General properties
-            pugi::xml_node node;// = formVolumesNode.append_child("formvol");
+            pugi::xml_node node;
             
             const std::shared_ptr<Volume> subVolume = formVolume.second;
             const std::shared_ptr<const CauldronIO::Formation> subFormation = formVolume.first;
             
             if (volume->getPropertyVolumeDataList().size() > 0)
             {
-               pugi::xml_node node;// = volNode.append_child("propertyvols");
+               pugi::xml_node node;
                BOOST_FOREACH(const PropertyVolumeData& propVolume, volume->getPropertyVolumeDataList())
                {
                   const std::shared_ptr<VolumeData>& data = propVolume.second;
@@ -893,11 +947,10 @@ void DerivedProperties::saveVizSnapshot( const std::shared_ptr<SnapShot>& snapSh
                   }
                }
             }
-            //addVolume(volumeStore, subVolume, 0);
          }
       }
    }
-#endif
+
     surfaceDataStore.flush();
     volumeStore.flush();
     snapShot->release();

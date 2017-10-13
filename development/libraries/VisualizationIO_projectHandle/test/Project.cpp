@@ -1312,19 +1312,12 @@ TEST(Tables1D, Create)
    fiss->setFtMeanRatio(0.54f);
    EXPECT_FLOAT_EQ(0.54f, fiss->getFtMeanRatio());
    
-   EXPECT_FALSE(fiss->getOptimization());
-   fiss->setOptimization(true);
-   EXPECT_TRUE(fiss->getOptimization());
-   
    // FtGrain
    std::shared_ptr<CauldronIO::FtGrain> fgrain(new CauldronIO::FtGrain());
    
    EXPECT_STREQ("", fgrain->getFtSampleId().c_str());
    fgrain->setFtSampleId(sampleId);
    EXPECT_STREQ(sampleId.c_str(), fgrain->getFtSampleId().c_str());
-   
-   fgrain->setFtGrainAgeErr(0.0034f);
-   EXPECT_FLOAT_EQ(0.0034f, static_cast<float>(fgrain->getFtGrainAgeErr()));
    
    fgrain->setFtInducedTrackNo(23);
    EXPECT_EQ(23, fgrain->getFtInducedTrackNo());

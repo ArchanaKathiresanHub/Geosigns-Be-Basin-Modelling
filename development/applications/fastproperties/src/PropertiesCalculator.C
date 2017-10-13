@@ -47,7 +47,7 @@ PropertiesCalculator::PropertiesCalculator( int aRank ) {
 
    m_debug            = false;
    m_copy             = false;
-   m_basement         = false;
+   m_basement         = true;
    m_all2Dproperties  = false;
    m_all3Dproperties  = false;
    m_listProperties   = false;
@@ -62,7 +62,7 @@ PropertiesCalculator::PropertiesCalculator( int aRank ) {
    m_no3Dproperties   = false;
    m_projectProperties = false;
 
-   m_snapshotsType = MAJOR;
+   m_snapshotsType = MAJOR | MINOR;
 
    m_projectFileName = "";
    m_simulationMode  = "";
@@ -253,19 +253,25 @@ void PropertiesCalculator::createXML() {
 
    if( m_vizFormat ) {
 
+#if 0
+      // Works if the xml file with the primary properties converted  exists
       boost::filesystem::path pathToxml(m_projectHandle->getProjectPath());
-
       pathToxml /= m_projectHandle->getProjectName();
-
       m_fileNameXml = pathToxml.string() + xmlExt;
-      const string fileNameExisting = pathToxml.string() + ".xml";
-      ibs::FilePath vizFileName( fileNameExisting );
+      ibs::FilePath vizFileName( m_fileNameXml );
+
       if( vizFileName.exists() ) {
-         m_vizProject = CauldronIO::ImportFromXML::importFromXML(fileNameExisting, false);
+         m_vizProject = CauldronIO::ImportFromXML::importFromXML(m_fileNameXml);
       } else {
          // create new xml
          m_vizProject = createStructureFromProjectHandle(false);
       }
+#endif
+      m_vizProject = createStructureFromProjectHandle(false);
+   }
+   if( false and m_rank == 0 ) {
+      const shared_ptr<CauldronIO::SnapShot> vizSnapshot = getSnapShot( m_vizProject, 0 );
+      DerivedProperties::listProperties(vizSnapshot, m_vizProject);
    }
 }
 //------------------------------------------------------------//
@@ -287,13 +293,11 @@ void PropertiesCalculator::calculateProperties( FormationSurfaceVector& formatio
 
    SnapshotFormationSurfaceOutputPropertyValueMap allOutputPropertyValues;
 
-   bool zeroSnapshotAdded = false;
-   if( snapshots.empty() ) {
+    if( snapshots.empty() ) {
       const Snapshot * zeroSnapshot = m_projectHandle->findSnapshot( 0 );
 
       snapshots.push_back( zeroSnapshot );
-      zeroSnapshotAdded = true;
-   }
+    }
 
    struct stat fileStatus;
    int fileError;
@@ -314,6 +318,9 @@ void PropertiesCalculator::calculateProperties( FormationSurfaceVector& formatio
       if(  m_vizFormat ) {
          m_formInfoList.reset();
          m_formInfoList = getDepthFormations( m_projectHandle, snapshot );
+         if(m_formInfoList->size() < 1) {
+            continue;
+         }
       }
       for ( formationIter = formationItems.begin(); formationIter != formationItems.end(); ++formationIter )
       {
@@ -388,13 +395,23 @@ void PropertiesCalculator::calculateProperties( FormationSurfaceVector& formatio
 
    if( m_vizFormat and m_rank == 0) {
       updateVizSnapshotsConstantValue();
-
-      displayProgress( m_fileNameXml, m_startTime, "Writing to visualization format " );
       std::shared_ptr<CauldronIO::Project> projectExisting;
-      const string projectFileName = m_projectHandle->getFileName();
-      ibs::FilePath absPath(projectFileName);
+#if 0
+      // Works if the xml file with the primary properties converted  exists.
+      // the derived properties will be saved in a different folder and a new xml will be created.
+      ibs::FilePath vizFileName( m_fileNameXml );
+      if( vizFileName.exists() ) {
+         projectExisting = CauldronIO::ImportFromXML::importFromXML(m_fileNameXml);;
+      }
+#endif
+      boost::filesystem::path pathToxml(m_projectHandle->getProjectPath());
+      pathToxml /= m_projectHandle->getProjectName();
+      string fileNameXml = pathToxml.string() + ".xml";
 
-      CauldronIO::ExportToXML::exportToXML( m_vizProject, projectExisting, m_fileNameXml, 1, false, true );
+      displayProgress( fileNameXml, m_startTime, "Writing to visualization format " );
+      // write new xml with primary and derived properties. Save derived properties, create references to primary properties
+      CauldronIO::ExportToXML::exportToXML( m_vizProject, projectExisting, fileNameXml, 1 );
+
       displayProgress( "", m_startTime, "Writing to visualization format done " );
   }
 
@@ -413,7 +430,7 @@ void PropertiesCalculator::writeToHDF() {
     
    boost::filesystem::path pathToxml(m_projectHandle->getProjectPath());
    pathToxml /= m_projectHandle->getProjectName();
-   string fileNameXml = pathToxml.string() + xmlExt;
+   string fileNameXml = pathToxml.string() + ".xml";
    std::shared_ptr< CauldronIO::Project> vizProject(CauldronIO::ImportFromXML::importFromXML(fileNameXml));
   
    cout << "Writing to HDF from visualization format " << fileNameXml << endl;
@@ -540,7 +557,7 @@ bool PropertiesCalculator::acquireSnapshots( SnapshotList & snapshots )
    }
    else
    {
-      int index;
+      unsigned int index;
       double firstAge = -1;
       double secondAge = -1;
       for ( index = 0; index < m_ages.size(); ++index )
@@ -668,8 +685,6 @@ void PropertiesCalculator::acquireAll2Dproperties() {
       LogHandler( LogHandler::DEBUG_SEVERITY ) << "Acquiring computable 2D properties";
       for ( size_t i = 0; i < allProperties->size (); ++i ) {
          const Interface::Property* property = (*allProperties)[ i ];
-
-         bool addIt = false;
 
          if ( property->getPropertyAttribute () == DataModel::FORMATION_2D_PROPERTY and
               m_propertyManager->formationMapPropertyIsComputable ( property )) {
@@ -900,42 +915,67 @@ std::shared_ptr<CauldronIO::Project> PropertiesCalculator::createStructureFromPr
 
 
    // Get modeling mode
-    Interface::ModellingMode modeIn = m_sharedProjectHandle->getModellingMode();
-    CauldronIO::ModellingMode mode = modeIn == Interface::MODE1D ? CauldronIO::MODE1D : CauldronIO::MODE3D;
-    // setActivityGrid
-    if( modeIn ==CauldronIO:: MODE1D ) {
-       m_sharedProjectHandle->setActivityOutputGrid( m_sharedProjectHandle->getLowResolutionOutputGrid ());
-    }
-    // Read general project data
-    const Interface::ProjectData* projectData = m_sharedProjectHandle->getProjectData();
+   Interface::ModellingMode modeIn = m_sharedProjectHandle->getModellingMode();
+   CauldronIO::ModellingMode mode = modeIn == Interface::MODE1D ? CauldronIO::MODE1D : CauldronIO::MODE3D;
 
-    // Create the project
-    std::shared_ptr<CauldronIO::Project> project(new CauldronIO::Project(
-                                                                         projectData->getProjectName(), projectData->getDescription(), projectData->getProjectTeam(),
-                                                                         projectData->getProgramVersion(), mode, xml_version_major, xml_version_minor));
-    // Import all snapshots
-    ImportProjectHandle import(verbose, project, m_sharedProjectHandle);
-
-    if (verbose)
-       cout << "Create empty snapshots" << endl;
-
+   // setActivityGrid
+   if( mode == CauldronIO:: MODE1D ) {
+      m_sharedProjectHandle->setActivityOutputGrid( m_sharedProjectHandle->getLowResolutionOutputGrid ());
+   }
+   // Read general project data
+   const Interface::ProjectData* projectData = m_sharedProjectHandle->getProjectData();
    
-    std::shared_ptr<Interface::SnapshotList> snapShots;
-    snapShots.reset(m_projectHandle->getSnapshots(Interface::MAJOR | Interface::MINOR));
-    
-    for (size_t i = 0; i < snapShots->size(); i++)
-    {
-       const Interface::Snapshot* snapShot = snapShots->at(i);
-       
-       // Create a new empty snapshot
-       std::shared_ptr<CauldronIO::SnapShot> snapShotIO(new CauldronIO::SnapShot(snapShot->getTime(), DerivedProperties::getSnapShotKind(snapShot), snapShot->getType() == MINOR));
-      
-       // Add to project
-       project->addSnapShot(snapShotIO);
-    }   
-    return project;
-    
+   // Create the project
+   std::shared_ptr<CauldronIO::Project> project(new CauldronIO::Project(projectData->getProjectName(), projectData->getDescription(),
+                                                                        projectData->getProjectTeam(), projectData->getProgramVersion(), 
+                                                                        mode, xml_version_major, xml_version_minor));
+   // Import all snapshots
+   ImportProjectHandle import(verbose, project, m_sharedProjectHandle);
 
+   import.checkInputValues();
+      
+   if( m_rank == 0 ) {
+      // Add migration_io data
+      import.addMigrationIO();
+      
+      // Add trapper_io data
+      import.addTrapperIO();
+      
+      // Add trap_io data
+      import.addTrapIO();
+      
+      // Find genex/shale-gas history files
+      import.addGenexHistory();
+      
+      // Find burial history files
+      import.addBurialHistory();
+      
+      // Add reference to massBalance file
+      import.addMassBalance();
+      
+      // Add 1D tables
+      import.add1Ddata();
+   }    
+ 
+   if (verbose)
+      cout << "Create empty snapshots" << endl;
+   
+   
+   std::shared_ptr<Interface::SnapshotList> snapShots;
+   snapShots.reset(m_projectHandle->getSnapshots(Interface::MAJOR | Interface::MINOR));
+   
+   for (size_t i = 0; i < snapShots->size(); i++)
+   {
+      const Interface::Snapshot* snapShot = snapShots->at(i);
+      
+      // Create a new empty snapshot
+      std::shared_ptr<CauldronIO::SnapShot> snapShotIO(new CauldronIO::SnapShot(snapShot->getTime(), DerivedProperties::getSnapShotKind(snapShot), snapShot->getType() == MINOR));
+      
+      // Add to project
+      project->addSnapShot(snapShotIO);
+   }  
+
+   return project;
 }
      
 //------------------------------------------------------------//
@@ -1084,13 +1124,13 @@ bool PropertiesCalculator::parseCommandLine( int argc, char ** argv ) {
             return false;
          }
       }
-      else if ( strncmp( argv[ arg ], "-basement", Max( 3, (int)strlen( argv[ arg ] ) ) ) == 0 )
+      else if ( strncmp( argv[ arg ], "-nobasement", Max( 3, (int)strlen( argv[ arg ] ) ) ) == 0 )
       {
-         m_basement = true;
+         m_basement = false;
       }
-      else if ( strncmp( argv[ arg ], "-minor", Max( 3, (int)strlen( argv[ arg ] ) ) ) == 0 )
+      else if ( strncmp( argv[ arg ], "-major", Max( 3, (int)strlen( argv[ arg ] ) ) ) == 0 )
       {
-         m_snapshotsType = MAJOR | MINOR;
+         m_snapshotsType = MAJOR;
       }
       else if ( strncmp( argv[ arg ], "-all-2D-properties", Max( 7, (int)strlen( argv[ arg ] ) ) ) == 0 )
       {
@@ -1271,7 +1311,7 @@ void PropertiesCalculator::showUsage( const char* command, const char* message )
            << "\t[-ages age1[-age2],...]                    select snapshot ages using single values and/or ranges" << endl << endl
            << "\t[-formations formation1,formation2...]     produce output for the given formations" << endl
            << "\t                                           the four options above can include Crust or Mantle" << endl << endl
-           << "\t[-basement]                                produce output for the basement as well," << endl
+           << "\t[-nobasement]                              do not produce output for the basement" << endl
            << "\t                                           only needed if none of the three options above have been specified" << endl << endl
            << "\t[-project] projectname                     name of 3D Cauldron project file to produce output for" << endl
            << "\t[-save filename]                           name of file to save output (*.csv format) table to, otherwise save to stdout" << endl
@@ -1284,7 +1324,7 @@ void PropertiesCalculator::showUsage( const char* command, const char* message )
            << "\t[-list-properties]                         print a list of available properties and exit" << endl
            << "\t[-list-snapshots]                          print a list of available snapshots and exit" << endl
            << "\t[-list-stratigraphy]                       print a list of available surfaces and formations and exit" << endl << endl
-           << "\t[-convert]                                 convert the data to visialization format. (run on 1 core)" << endl << endl
+           << "\t[-major]                                   only major snapshots" << endl << endl
            << "\t[-viz]                                     calculate the properties and convert to visialization format." << endl << endl
            << "\t[-help]                                    print this message and exit" << endl << endl
            << "Options for shared cluster storage:" << endl << endl

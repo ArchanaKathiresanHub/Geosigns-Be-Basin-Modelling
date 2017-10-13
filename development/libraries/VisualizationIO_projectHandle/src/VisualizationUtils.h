@@ -42,6 +42,10 @@ namespace CauldronIO
         /// \param[in] snapShot the snapshot
         /// \param[in] project the project, to add the new geometries to the project
         static void replaceExistingProperties(const std::shared_ptr<SnapShot>& snapShot, std::shared_ptr<const Project>& project);
+        /// \brief For the project, replace stratigraphy surfaces that exist in the existing project by references to that
+        /// \param[in] project the project to add references
+        /// \param[in] projectExisting the project with existing stratigraphy
+        static void replaceStratigraphyTable(const std::shared_ptr<Project>& project, std::shared_ptr<const Project>& projectExisting);
         /// \param[in] map data to retrieve
         static void retrieveSingleData(std::shared_ptr<CauldronIO::SurfaceData> map);
         /// \brief Little method to find data within a project

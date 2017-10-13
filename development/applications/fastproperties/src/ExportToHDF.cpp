@@ -17,6 +17,8 @@
 #include "Interface/Formation.h"
 #include "Interface/Snapshot.h"
 #include "Interface/Surface.h"
+#include "Interface/Property.h"
+#include "Interface/PropertyValue.h"
 
 #include <boost/foreach.hpp>
 #include <boost/thread.hpp>
@@ -151,7 +153,6 @@ void CauldronIO::ExportToHDF::writeMapsToHDF( const std::shared_ptr<SnapShot>& s
    const std::string fileName = pathToOutput.string();
    
    hid_t   file_id, dataset_id, dataspace_id; 
-   herr_t  status;
    
    /* Open an existing file. */
    file_id = H5Fopen(fileName.c_str(), H5F_ACC_RDWR, H5P_DEFAULT);
@@ -215,15 +216,14 @@ void CauldronIO::ExportToHDF::writeMapsToHDF( const std::shared_ptr<SnapShot>& s
    dataset_id = H5Dcreate(file_id, datasetName.c_str(), H5T_NATIVE_FLOAT, dataspace_id, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
    
    /* Write the dataset. */
-   status = H5Dwrite(dataset_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL, H5P_DEFAULT, 
-                     values);
+   H5Dwrite(dataset_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL, H5P_DEFAULT, values);
    
    /* Close the dataset. */
-   status = H5Sclose(dataspace_id);
-   status = H5Dclose(dataset_id);
+   H5Sclose(dataspace_id);
+   H5Dclose(dataset_id);
 
    /* Close the file. */
-   status = H5Fclose(file_id);
+   H5Fclose(file_id);
 }   
 
 void CauldronIO::ExportToHDF::writeDiscVolToHDF( const std::shared_ptr<SnapShot>& snapShot,  const std::shared_ptr<const Formation> formation, const std::shared_ptr<Volume> volume ) {
@@ -235,7 +235,6 @@ void CauldronIO::ExportToHDF::writeDiscVolToHDF( const std::shared_ptr<SnapShot>
    const std::string fileName = pathToOutput.string();
  
    hid_t       file_id, dataset_id, dataspace_id, group_id; 
-   herr_t      status;
    
    PropertyVolumeDataList& propVolList = volume->getPropertyVolumeDataList();
    if( propVolList.size() > 0 ) {
@@ -307,17 +306,17 @@ void CauldronIO::ExportToHDF::writeDiscVolToHDF( const std::shared_ptr<SnapShot>
          }
          
          /* Write the dataset. */
-         status = H5Dwrite(dataset_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL, H5P_DEFAULT, 
-                           values);
+         H5Dwrite(dataset_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL, H5P_DEFAULT, values);
          delete [] values;
-         /* Close the dataset. */
-         status = H5Sclose(dataspace_id);
-         /* Close the group. */
-         status = H5Dclose(dataset_id);
-         status = H5Gclose(group_id);
+
+         /* Close the dataset */
+         H5Sclose(dataspace_id);
+         H5Dclose(dataset_id);
+         /* Close the group */
+         H5Gclose(group_id);
       }
       /* Close the file. */
-      status = H5Fclose(file_id);
+      H5Fclose(file_id);
    }   
 }
 
@@ -330,7 +329,6 @@ void CauldronIO::ExportToHDF::writeContVolToHDF( const std::shared_ptr<SnapShot>
    const std::string fileName = pathToOutput.string();
 
    hid_t   file_id, dataset_id, dataspace_id, group_id; 
-   herr_t  status;
 
    double snapshotAge = snapShot->getAge();
    const DataAccess::Interface::Snapshot * nextSnapshot = m_projectHandle->findNextSnapshot( snapShot->getAge(), DataAccess::Interface::MAJOR );
@@ -407,6 +405,17 @@ void CauldronIO::ExportToHDF::writeContVolToHDF( const std::shared_ptr<SnapShot>
             if( (pname == "Pressure" or pname == "Ves")  and  (name == "Crust" or name == "Mantle" )) {
                continue;
             }
+            const DataAccess::Interface::Property * property = m_projectHandle->findProperty(pname);
+            const DataAccess::Interface::Formation * crustForm =  m_projectHandle->findFormation("Crust");
+            DataAccess::Interface::PropertyValueList * projectProps = m_projectHandle->getPropertyValues( DataAccess::Interface::FORMATION, property,
+                                                                                                          m_projectHandle->findSnapshot(snapshotAge), 0, 
+                                                                                                          crustForm, 0, DataAccess::Interface::VOLUME );
+            if( projectProps->size() < 1 and (name == "Crust" or name == "Mantle" )) {
+               delete projectProps;
+               continue;
+             }
+             delete projectProps;
+
 #ifdef DEBUG
             std::cout << "     " << pname << std::endl;
 #endif            
@@ -442,8 +451,8 @@ void CauldronIO::ExportToHDF::writeContVolToHDF( const std::shared_ptr<SnapShot>
             memset( values, 1, sizeof(float) * dims[0] * dims[1] * dims[2]);
             unsigned int kk = 0;
 
-            for (int i = 0; i < dims[0]; ++ i ) {
-               for (int j = 0; j < dims[1]; ++ j ) {
+            for (unsigned int i = 0; i < dims[0]; ++ i ) {
+               for (unsigned int j = 0; j < dims[1]; ++ j ) {
                   for (int k = lastK; k >= firstK; -- k ) {
                      values[kk++] = valueMap->getValue(i, j, k);
                   }
@@ -463,18 +472,18 @@ void CauldronIO::ExportToHDF::writeContVolToHDF( const std::shared_ptr<SnapShot>
             }
             
             /* Write the dataset. */
-            status = H5Dwrite(dataset_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL, H5P_DEFAULT, 
-                              values);
+            H5Dwrite(dataset_id, H5T_NATIVE_FLOAT, H5S_ALL, H5S_ALL, H5P_DEFAULT, values);
             delete [] values;
+
             /* Close the dataset. */
-            status = H5Sclose(dataspace_id);
+            H5Sclose(dataspace_id);
+            H5Dclose(dataset_id);
             /* Close the group. */
-            status = H5Dclose(dataset_id);
-            status = H5Gclose(group_id);
+            H5Gclose(group_id);
          }
       }
       
       /* Close the file. */
-      status = H5Fclose(file_id);
+      H5Fclose(file_id);
    }   
 }

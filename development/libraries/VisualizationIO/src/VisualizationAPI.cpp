@@ -14,6 +14,7 @@
 #include <algorithm>
 #include <cstring>
 #include <boost/foreach.hpp>
+#include <iostream>
 
 #ifdef _MSC_VER
 #pragma warning (push)
@@ -209,6 +210,18 @@ void CauldronIO::Project::addTrap(std::shared_ptr<Trap>&  newTrap) throw (Cauldr
 		if (trap == newTrap) throw CauldronIOException("Cannot add trap twice");
 
     m_trapList.push_back(newTrap);
+}
+
+std::shared_ptr<const Trapper>  CauldronIO::Project::findTrapper(int trapId, float snapsotAge) const
+
+{
+   for(auto & trapper : m_trapperList) {
+      if (trapper->getID() == trapId and trapper->getAge() == snapsotAge) {
+         return trapper;
+      }
+   }
+
+   return std::shared_ptr<const Trapper>();
 }
 
 const std::vector<std::string>& CauldronIO::Project::getGenexHistoryList() 
@@ -480,10 +493,31 @@ float CauldronIO::Project::getPropertyAtLocation(double snapshotTime, const std:
   
    for( auto &snapshot : snapshots) {
       if(snapshot->getAge() == snapshotTime) {
-         std::shared_ptr<const Property> property = findProperty(propertyName);
-         if(property != 0) {
-            value = snapshot->getPropertyAtLocation(formations, xCoord, yCoord, zCoord, property, reservoirName, surfaceName, formationName);
-            break;
+
+         if(reservoirName != "") {
+            std::shared_ptr<const Reservoir> reservoirFormation = findReservoir(reservoirName);
+            
+            if(not reservoirFormation)  throw CauldronIO::CauldronIOException("Reservoir not found");
+            std::string fname = reservoirFormation->getFormation()->getName();
+            std::shared_ptr<const Property> property = findProperty("ResRockTrapId");
+            if(property != 0) {
+               float trapId = DefaultUndefinedValue;
+               trapId = snapshot->getPropertyAtLocation(formations, xCoord, yCoord, zCoord, property, reservoirName, surfaceName, fname);
+               if(trapId != DefaultUndefinedValue) {
+                  std::shared_ptr<const Trapper> trapFound = findTrapper(trapId, static_cast<float>(snapshotTime));
+                  if( trapFound != 0 ) {
+                     value = trapFound->getValue(propertyName);
+                  }
+               }
+            }
+         } else {
+            
+            std::shared_ptr<const Property> property = findProperty(propertyName);
+            if(property != 0) {
+               
+               value = snapshot->getPropertyAtLocation(formations, xCoord, yCoord, zCoord, property, reservoirName, surfaceName, formationName);
+               break;
+            }
          }
       }
    }
@@ -619,7 +653,7 @@ std::vector < VisualizationIOData* > CauldronIO::SnapShot::getAllRetrievableData
 
     return allReadData;
 }
-
+ 
 float CauldronIO::SnapShot::getPropertyAtLocation(const FormationList& formations,
                                                   double xCoord, double yCoord, double zCoord, std::shared_ptr<const Property>& property, 
                                                   const std::string& reservoirName, const std::string& surfaceName, 
@@ -631,12 +665,9 @@ float CauldronIO::SnapShot::getPropertyAtLocation(const FormationList& formation
       return DefaultUndefinedScalarValue;
    }
    float value = DefaultUndefinedValue;
-   if(reservoirName != "") {
-      // to implement
-       return value;
-   }
- 
-   std::shared_ptr<CauldronIO::Element> element = getDepthElementAtLocation(xCoord, yCoord, zCoord);
+   bool highRes = reservoirName != "";
+
+   std::shared_ptr<CauldronIO::Element> element = getDepthElementAtLocation(xCoord, yCoord, zCoord, highRes);
    if(element != 0) {
       if(zCoord != DefaultUndefinedScalarValue) {
          // Extract value at zCoord
@@ -658,42 +689,76 @@ float CauldronIO::SnapShot::getPropertyAtLocation(const FormationList& formation
    return value;
 }
 
-std::shared_ptr<CauldronIO::Element> CauldronIO::SnapShot::getDepthElementAtLocation(double xCoord, double yCoord, double zCoord) const throw (CauldronIOException)
+std::shared_ptr<CauldronIO::Element> CauldronIO::SnapShot::getDepthElementAtLocation(double xCoord, double yCoord, double zCoord, const bool highRes) const throw (CauldronIOException)
 {
    if (xCoord == DefaultUndefinedScalarValue) throw  CauldronIOException ("Undefined XCoord value");
    if (yCoord == DefaultUndefinedScalarValue) throw  CauldronIOException ("Undefined YCoord value");
 
-   if(m_volume and m_volume->hasDepthVolume()) {
-      std::shared_ptr<CauldronIO::Element> element(new CauldronIO::Element);
-      std::shared_ptr<VolumeData> depth = m_volume->getDepthVolume();
-      
-      if (not depth->isRetrieved()) {
-          depth->retrieve();
-      }
-      const bool planeElementFound = depth->findPlaneLocation(xCoord, yCoord, element);
-      if(planeElementFound) {
-         if(zCoord != DefaultUndefinedScalarValue) {
-            float topDepth = depth->interpolate(element, 0);
-            float bottomDepth = depth->interpolate(element, depth->getGeometry()->getNumK() - 1);
-            
-            if (topDepth == DefaultUndefinedValue or bottomDepth == DefaultUndefinedValue) {
-              // depth->release();
-               return std::shared_ptr<CauldronIO::Element> ();
-            }
-            if(zCoord <= bottomDepth and topDepth <= zCoord) {
-               
-               for(unsigned int k = 0; k < depth->getGeometry()->getNumK() - 1; ++ k) {
-                  bottomDepth = depth->interpolate(element, k + 1);
-                  if(topDepth < bottomDepth and zCoord <= bottomDepth and topDepth <= zCoord) {
-                     element->zeta = (2.0 * (zCoord - (double)topDepth) / ((double)bottomDepth - (double)topDepth ) - 1.0);
-                     element->z =  k;
-                     break;
+   if(not m_volume)  return std::shared_ptr<CauldronIO::Element> ();
+
+   std::shared_ptr<CauldronIO::Element> element(new CauldronIO::Element);
+ 
+   if(highRes) {
+      const SurfaceList surfaces = getSurfaceList();
+      bool depthFound = false;
+      if( surfaces.size() > 0 ) {
+         for( auto&  surfaceIO : surfaces) {
+            const PropertySurfaceDataList valueMaps = surfaceIO->getPropertySurfaceDataList();
+            if (valueMaps.size() > 0) {
+               for( auto& propertySurfaceData : valueMaps)  {
+                  if(propertySurfaceData.first->getName() == "DepthHighRes" ) {
+                     depthFound = true;
+                     std::shared_ptr< CauldronIO::SurfaceData> valueMap = propertySurfaceData.second;
+                     if (not valueMap->isRetrieved()) {
+                        valueMap->retrieve();
+                     }
+                     const bool planeElementFound = valueMap->findPlaneLocation(xCoord, yCoord, element);
+                     if(planeElementFound) {
+                        return element;
+                     } else {
+                        return std::shared_ptr<CauldronIO::Element> ();
+                     }
                   }
-                  topDepth = bottomDepth;
                }
             }
-         } 
-         return element;
+         }
+      }
+      if(not depthFound) throw CauldronIOException ("DepthHighRes  property is not found");
+   } else {
+      if(m_volume->hasDepthVolume()) {
+         std::shared_ptr<VolumeData> depth = m_volume->getDepthVolume();
+         
+         if(not depth) throw CauldronIOException ("Depth property is not found");
+         
+         if (not depth->isRetrieved()) {
+            depth->retrieve();
+         }
+         const bool planeElementFound = depth->findPlaneLocation(xCoord, yCoord, element);
+         if(planeElementFound) {
+            if(zCoord != DefaultUndefinedScalarValue) {
+               float topDepth = depth->interpolate(element, 0);
+               float bottomDepth = depth->interpolate(element, depth->getGeometry()->getNumK() - 1);
+               
+               if (topDepth == DefaultUndefinedValue or bottomDepth == DefaultUndefinedValue) {
+                  // depth->release();
+                  return std::shared_ptr<CauldronIO::Element> ();
+               }
+               if(zCoord <= bottomDepth and topDepth <= zCoord) {
+                  
+                  for(unsigned int k = 0; k < depth->getGeometry()->getNumK() - 1; ++ k) {
+                     bottomDepth = depth->interpolate(element, k + 1);
+                     if(topDepth < bottomDepth and zCoord <= bottomDepth and topDepth <= zCoord) {
+                        element->zeta = (2.0 * (zCoord - (double)topDepth) / ((double)bottomDepth - (double)topDepth ) - 1.0);
+                        element->z =  k;
+                        break;
+                     }
+                     topDepth = bottomDepth;
+                  }
+               }
+            } 
+            return element;
+         }
+         return std::shared_ptr<CauldronIO::Element> ();
       }
    }
    return std::shared_ptr<CauldronIO::Element> ();
@@ -777,8 +842,11 @@ float CauldronIO::SnapShot::getValueAtLocation(std::shared_ptr<const Property>& 
                   if (not valueMap->isRetrieved()) {
                       valueMap->retrieve();
                   }
-                  value = valueMap->interpolate(element);
-
+                  if(element->xi == DefaultUndefinedValue) {
+                     value = valueMap->getValue(element->x, element->y);
+                  } else {
+                     value = valueMap->interpolate(element);
+                  }
                   return value;
                }
             }
@@ -802,6 +870,8 @@ bool CauldronIO::SnapShot::findFormationForSurface(const FormationList& formatio
    }
    std::shared_ptr<Formation> formationFound;
    bool surfaceElement = false;
+   int k_range_start, k_range_end;
+   int koffset = 0;
 
    BOOST_FOREACH(const std::shared_ptr<Formation>& formation, formations)
    {
@@ -821,33 +891,32 @@ bool CauldronIO::SnapShot::findFormationForSurface(const FormationList& formatio
             }
          } else if(property->getAttribute() == CauldronIO::Continuous3DProperty) {
             // Ignore the formationName
-            if(bottomSurface == surfaceName) {
-               continue;
-            } else if(topSurface == surfaceName) {
+
+            if(topSurface == surfaceName) {
                formationFound = formation;
                surfaceElement = true;
+               formation->getK_Range(k_range_start, k_range_end);
+               element->z = k_range_start - koffset;
+               element->zeta = -1;
+               element->formationName = formation->getName();
                break;
             }
          }
       }
+      if( formation->getTopSurface() and formation->getTopSurface()->getAge() <= m_age ) {
+         formation->getK_Range(k_range_start, k_range_end);
+         koffset = k_range_start; 
+      }          
+     
    }
    if(formationFound == 0) {
       return false;
    }
-   const string formationFoundName = formationFound->getName();
- 
-   int k_range_start, k_range_end;
-   formationFound->getK_Range(k_range_start, k_range_end);
-   if(surfaceElement) {
-      element->z = k_range_start;
-   } else {
-      element->z = k_range_end - 1;
+   if(property->getAttribute() == CauldronIO::Continuous3DProperty) {
+      return true;
    }
-   element->zeta = -1;
-   element->formationName = formationFoundName;
-   return true;
+   const string formationFoundName = formationFound->getName();
 
- #if 0
    // What if krange is not defined??
    bool elementFound = false;
    if(property->getAttribute() == CauldronIO::Discontinuous3DProperty) {
@@ -876,15 +945,8 @@ bool CauldronIO::SnapShot::findFormationForSurface(const FormationList& formatio
          }
       }
    }
-   if(property->getAttribute() == CauldronIO::Continuous3DProperty) {
-      int k_range_start, k_range_end;
-      formationFound->getK_Range(k_range_start, k_range_end);
-      element->z = k_range_start;
-      element->zeta = -1;
-      return true;
-   }
    return false;
-#endif
+
 }
 
 void CauldronIO::SnapShot::retrieve()
@@ -1795,10 +1857,11 @@ void CauldronIO::SurfaceData::setData(float* data, bool setValue, float value) t
 
 void CauldronIO::SurfaceData::updateMinMax() throw (CauldronIOException)
 {
-    if (!isRetrieved()) throw CauldronIOException("Need to assign data first");
-
-    if (m_isConstant)
-    {
+   if (!isRetrieved()) {
+      throw CauldronIOException("SurfaceData::updateMinMax - data is not retrieved, need to assign data first");
+   }
+   if (m_isConstant)
+   {
         m_minValue = m_maxValue = m_constantValue;
         m_updateMinMax = false;
         return;
@@ -1846,25 +1909,31 @@ bool CauldronIO::SurfaceData::canGetColumn() const
 
 bool CauldronIO::SurfaceData::isUndefined(size_t i, size_t j) const throw (CauldronIOException)
 {
-    if (!isRetrieved()) throw CauldronIOException("Need to assign data first");
-    if (m_isConstant) return m_constantValue == DefaultUndefinedValue;
-
-    return m_internalData[getMapIndex(i, j)] == DefaultUndefinedValue;
+   if (!isRetrieved()) {
+      throw CauldronIOException("SurfaceData::isUndefined - data is not retrieved, need to assign data first");
+   }
+   if (m_isConstant) return m_constantValue == DefaultUndefinedValue;
+   
+   return m_internalData[getMapIndex(i, j)] == DefaultUndefinedValue;
 }
 
 float CauldronIO::SurfaceData::getValue(size_t i, size_t j) const throw (CauldronIOException)
+
 {
-    if (!isRetrieved()) throw CauldronIOException("Need to assign data first");
-    if (m_isConstant) return m_constantValue;
-    
-    return m_internalData[getMapIndex(i, j)];
+   if (!isRetrieved()) {
+      throw CauldronIOException("SurfaceData::getValue - data is not retrieved, need to assign data first");
+   }
+   if (m_isConstant) return m_constantValue;
+   
+   return m_internalData[getMapIndex(i, j)];
 }
 
 const float* CauldronIO::SurfaceData::getRowValues(size_t j) throw (CauldronIOException)
 {
     if (!canGetRow()) throw CauldronIOException("Cannot return row values");
-    if (!isRetrieved()) throw CauldronIOException("Need to assign data first");
-
+    if (!isRetrieved()) {
+       throw CauldronIOException("SurfaceData::getRowValues - data is not retrieved, need to assign data first");
+    }
     // Create our internal buffer if not existing
     if (!m_internalData && m_isConstant) setData(nullptr, true, m_constantValue);
 
@@ -1873,7 +1942,7 @@ const float* CauldronIO::SurfaceData::getRowValues(size_t j) throw (CauldronIOEx
 
 const float* CauldronIO::SurfaceData::getColumnValues(size_t i) throw (CauldronIOException)
 {
-    if (!isRetrieved()) throw CauldronIOException("Need to assign data first");
+   if (!isRetrieved()) throw CauldronIOException("SurfaceData::getColumnValues - data is not retrieved, need to assign data first");
     if (!canGetColumn()) throw CauldronIOException("Cannot return column values");
 
     // Create our internal buffer if not existing
@@ -1884,7 +1953,7 @@ const float* CauldronIO::SurfaceData::getColumnValues(size_t i) throw (CauldronI
 
 const float* CauldronIO::SurfaceData::getSurfaceValues() throw (CauldronIOException)
 {
-    if (!isRetrieved()) throw CauldronIOException("Need to assign data first");
+    if (!isRetrieved()) throw CauldronIOException("SurfaceData::getSurfaceValues - data is not retrieved, need to assign data first");
 
     // Create our internal buffer if not existing
     if (!m_internalData && m_isConstant) setData(nullptr, true, m_constantValue);
@@ -1916,6 +1985,23 @@ float CauldronIO::SurfaceData::getConstantValue() const throw (CauldronIOExcepti
     return m_constantValue;
 }
 
+bool  CauldronIO::SurfaceData::findPlaneLocation(double xCoord, double yCoord, std::shared_ptr<CauldronIO::Element> &element)
+{
+   if(m_minI <= xCoord and xCoord <= m_maxI and  m_minJ <= yCoord and yCoord <= m_maxJ) {
+      unsigned int i = (unsigned int)(( xCoord - m_minI ) / m_deltaI );
+      unsigned int j = (unsigned int)(( yCoord - m_minJ ) / m_deltaJ );
+     
+      if(i < m_numI and j < m_numJ) {
+         element->x = i;
+         element->y = j;
+         
+         return true;
+      }
+   }
+
+   return false;
+}
+
 float CauldronIO::SurfaceData::interpolate( std::shared_ptr<CauldronIO::Element> & element) const
 {
    float weights [numberOf2DPoints];
@@ -1925,6 +2011,9 @@ float CauldronIO::SurfaceData::interpolate( std::shared_ptr<CauldronIO::Element>
    size_t i = element->x;
    size_t j = element->y;
 
+   size_t i1 = (i + 1 < m_numI ? i + 1 : i);
+   size_t j1 = (j + 1 < m_numJ ? j + 1 : j);
+
    const double xi   = element->xi;
    const double eta  = element->eta;
 
@@ -1932,10 +2021,10 @@ float CauldronIO::SurfaceData::interpolate( std::shared_ptr<CauldronIO::Element>
       return DefaultUndefinedValue;
    }
    
-   weights [0] = getValue(i, j);
-   weights [1] = getValue(i + 1, j);
-   weights [2] = getValue(i + 1, j + 1);
-   weights [3] = getValue(i, j + 1);
+   weights [0] = getValue(i,  j);
+   weights [1] = getValue(i1, j);
+   weights [2] = getValue(i1, j1);
+   weights [3] = getValue(i,  j1);
       
    for (unsigned int l = 0; l < numberOf2DPoints; ++l) {
       if (weights [ l ] == DefaultUndefinedValue) {
@@ -2170,28 +2259,34 @@ const std::shared_ptr<Geometry3D>& CauldronIO::VolumeData::getGeometry() const
 
 bool CauldronIO::VolumeData::isUndefined(size_t i, size_t j, size_t k) const throw (CauldronIOException)
 {
-    if (!isRetrieved()) throw CauldronIOException("Need to assign data first");
-    if (m_isConstant) return m_constantValue == DefaultUndefinedValue;
-    if (m_internalDataIJK) return m_internalDataIJK[computeIndex_IJK(i, j, k)] == DefaultUndefinedValue;
-
-    assert(m_internalDataKIJ);
-    return m_internalDataKIJ[computeIndex_KIJ(i, j, k)] == DefaultUndefinedValue;
+   if (!isRetrieved()) {
+      throw CauldronIOException("VolumeData::isUndefined - data is not retrieved, need to assign data first");
+   }
+   if (m_isConstant) return m_constantValue == DefaultUndefinedValue;
+   if (m_internalDataIJK) return m_internalDataIJK[computeIndex_IJK(i, j, k)] == DefaultUndefinedValue;
+   
+   assert(m_internalDataKIJ);
+   return m_internalDataKIJ[computeIndex_KIJ(i, j, k)] == DefaultUndefinedValue;
 }
 
 
 float CauldronIO::VolumeData::getValue(size_t i, size_t j, size_t k) const throw (CauldronIOException)
 {
-    if (!isRetrieved()) throw CauldronIOException("Need to assign data first");
-    if (m_isConstant) return m_constantValue;
-    if (m_internalDataIJK) return m_internalDataIJK[computeIndex_IJK(i, j, k)];
-
-    assert(m_internalDataKIJ);
-    return m_internalDataKIJ[computeIndex_KIJ(i, j, k)];
+   if (!isRetrieved()) {
+      throw CauldronIOException("VolumeData::getValue - data is not retrieved, need to assign data first");
+   }
+   if (m_isConstant) return m_constantValue;
+   if (m_internalDataIJK) return m_internalDataIJK[computeIndex_IJK(i, j, k)];
+   
+   assert(m_internalDataKIJ);
+   return m_internalDataKIJ[computeIndex_KIJ(i, j, k)];
 }
 
 const float* CauldronIO::VolumeData::getRowValues(size_t j, size_t k) throw (CauldronIOException)
 {
-    if (!isRetrieved()) throw CauldronIOException("Need to assign data first");
+    if (!isRetrieved()) {
+       throw CauldronIOException("VolumeData::getRowValues - data is not retrieved, need to assign data first");
+    }
     if (!hasDataIJK()) throw CauldronIOException("Cannot return row values");
 
     // Create our internal buffer if not existing
@@ -2209,7 +2304,7 @@ const float* CauldronIO::VolumeData::getColumnValues(size_t , size_t ) throw (Ca
 
 const float* CauldronIO::VolumeData::getNeedleValues(size_t i, size_t j) throw (CauldronIOException)
 {
-    if (!isRetrieved()) throw CauldronIOException("Need to assign data first");
+    if (!isRetrieved()) throw CauldronIOException("VolumeData::getNeedleValues - data is not retrieved, need to assign data first");
     if (!hasDataKIJ() || isConstant()) throw CauldronIOException("Cannot return needle values");
 
     // Create our internal buffer if not existing
@@ -2228,6 +2323,10 @@ float CauldronIO::VolumeData::interpolate( std::shared_ptr<CauldronIO::Element> 
    size_t j = element->y;
    size_t k = element->z;
 
+   size_t i1 = (i + 1 < m_numI ? i + 1 : i);
+   size_t j1 = (j + 1 < m_numJ ? j + 1 : j);
+   size_t k1 = (k + 1 < m_numK + m_firstK ? k + 1 : k);
+
    const double xi   = element->xi;
    const double eta  = element->eta;
    const double zeta = element->zeta;
@@ -2236,14 +2335,14 @@ float CauldronIO::VolumeData::interpolate( std::shared_ptr<CauldronIO::Element> 
       return DefaultUndefinedValue;
    }
    
-   weights [0] = getValue(i, j, k);
-   weights [1] = getValue(i + 1, j, k);
-   weights [2] = getValue(i + 1, j + 1, k);
-   weights [3] = getValue(i, j + 1, k);
-   weights [4] = getValue(i, j, k + 1);
-   weights [5] = getValue(i + 1, j, k + 1);
-   weights [6] = getValue(i + 1, j + 1, k + 1);
-   weights [7] = getValue(i, j + 1, k + 1);
+   weights [0] = getValue(i , j,  k);
+   weights [1] = getValue(i1, j,  k);
+   weights [2] = getValue(i1, j1, k);
+   weights [3] = getValue(i,  j1, k);
+   weights [4] = getValue(i,  j,  k1);
+   weights [5] = getValue(i1, j,  k1);
+   weights [6] = getValue(i1, j1, k1);
+   weights [7] = getValue(i,  j1, k1);
       
    for (unsigned int l = 0; l < numberOf3DPoints; ++l) {
       if (weights [ l ] == DefaultUndefinedValue) {
@@ -2281,6 +2380,9 @@ float CauldronIO::VolumeData::interpolate( std::shared_ptr<CauldronIO::Element> 
    size_t i = element->x;
    size_t j = element->y;
 
+   size_t i1 = (i + 1 < m_numI ? i + 1 : i);
+   size_t j1 = (j + 1 < m_numJ ? j + 1 : j);
+
    const double xi   = element->xi;
    const double eta  = element->eta;
 
@@ -2288,10 +2390,10 @@ float CauldronIO::VolumeData::interpolate( std::shared_ptr<CauldronIO::Element> 
       return DefaultUndefinedValue;
    }
    
-   weights [0] = getValue(i, j, k);
-   weights [1] = getValue(i + 1, j, k);
-   weights [2] = getValue(i + 1, j + 1, k);
-   weights [3] = getValue(i, j + 1, k);
+   weights [0] = getValue(i,  j,  k);
+   weights [1] = getValue(i1, j,  k);
+   weights [2] = getValue(i1, j1, k);
+   weights [3] = getValue(i,  j1, k);
       
    for (unsigned int l = 0; l < numberOf2DPoints; ++l) {
       if (weights [ l ] == DefaultUndefinedValue) {
@@ -2342,7 +2444,7 @@ bool  CauldronIO::VolumeData::findPlaneLocation(double xCoord, double yCoord, st
 
 const float* CauldronIO::VolumeData::getSurface_IJ(size_t k) throw (CauldronIOException)
 {
-    if (!isRetrieved()) throw CauldronIOException("Need to assign data first");
+    if (!isRetrieved()) throw CauldronIOException("VolumeData::getSurface_IJ - data is not retrieved, need to assign data first");
     if (!hasDataIJK() || isConstant()) throw CauldronIOException("Cannot return surface values");
 
     // Create our internal buffer if not existing
@@ -2353,7 +2455,7 @@ const float* CauldronIO::VolumeData::getSurface_IJ(size_t k) throw (CauldronIOEx
 
 const float* CauldronIO::VolumeData::getVolumeValues_KIJ() throw (CauldronIOException)
 {
-    if (!isRetrieved()) throw CauldronIOException("Need to assign data first");
+    if (!isRetrieved()) throw CauldronIOException("VolumeData::getVolumeValues_KIJ - data is not retrieved, need to assign data first");
     if (!hasDataKIJ() || isConstant()) throw CauldronIOException("Cannot return volume values");
 
     // Create our internal buffer if not existing
@@ -2364,7 +2466,7 @@ const float* CauldronIO::VolumeData::getVolumeValues_KIJ() throw (CauldronIOExce
 
 const float* CauldronIO::VolumeData::getVolumeValues_IJK() throw (CauldronIOException)
 {
-    if (!isRetrieved()) throw CauldronIOException("Need to assign data first");
+    if (!isRetrieved()) throw CauldronIOException("VolumeData::getVolumeValues_IJK - data is not retrieved, need to assign data first");
     if (!hasDataIJK() || isConstant()) throw CauldronIOException("Cannot return volume values");
 
     // Create our internal buffer if not existing
@@ -2404,7 +2506,7 @@ void CauldronIO::VolumeData::updateGeometry()
 void CauldronIO::VolumeData::updateMinMax() throw (CauldronIOException)
 {
 
-    if (!isRetrieved()) throw CauldronIOException("Need to assign data first");
+    if (!isRetrieved()) throw CauldronIOException("VolumeData::updateMinMax - data is not retrieved, need to assign data first");
 
     if (m_isConstant)
     {

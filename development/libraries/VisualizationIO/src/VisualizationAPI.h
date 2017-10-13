@@ -188,6 +188,8 @@ namespace CauldronIO
         void addTrapper(std::shared_ptr<Trapper>& event) throw (CauldronIOException);
         /// \returns the trapper table
         const TrapperList& getTrapperTable() const;
+        /// \returns the trapper record for trapId and snapshot age
+        std::shared_ptr<const Trapper> findTrapper(int trapId, float snapsotAge) const;
         /// \brief Adds an entry to the trap table
         /// \param [in] entry a new entry for the trap table
         void addTrap(std::shared_ptr<Trap>& event) throw (CauldronIOException);
@@ -416,7 +418,7 @@ namespace CauldronIO
        /// \brief Get a surface or formation map property value at the element location
        float getValueAtLocation(std::shared_ptr<const Property>& property, const std::string& surfaceName, const std::string& formationName, std::shared_ptr<CauldronIO::Element> &element) const;
        /// \brief Find an element in Depth property for x, y, z coordinates in the domain
-       std::shared_ptr<CauldronIO::Element> getDepthElementAtLocation(double xCoord, double yCoord, double zCoord) const throw (CauldronIOException);
+       std::shared_ptr<CauldronIO::Element> getDepthElementAtLocation(double xCoord, double yCoord, double zCoord, const bool highRes = false) const throw (CauldronIOException);
        /// \brief Find the formation for a surface
        bool findFormationForSurface(const FormationList& formations,
                                     std::shared_ptr<const Property>& property,  const std::string& surfaceName,
@@ -912,6 +914,7 @@ namespace CauldronIO
         void setDepoSequence(int number);
         /// \brief Interpolate a property in a 2d map
         float interpolate( std::shared_ptr<CauldronIO::Element> & element) const;
+        bool findPlaneLocation(double xCoord, double yCoord, std::shared_ptr<CauldronIO::Element> &element);
    private:
 
         void updateMinMax() throw (CauldronIOException);
@@ -1439,6 +1442,8 @@ namespace CauldronIO
            /// \returns the downstream trapper ID; temporary state - do not use
            int getDownStreamTrapperID() const;
            
+           /// \returns get Value by name
+           float getValue(const std::string valueName) const;
            /// \brief set the solution gas volume
            void setSolutionGasVolume(float solutionGasVolume);
            /// \brief get the solution gas volume
@@ -1903,8 +1908,6 @@ namespace CauldronIO
       const std::string  getFtApatiteYield() const;
       void setFtApatiteYield( const std::string & value );
 
-      bool getOptimization() const;
-      void setOptimization(bool value);    
    private:
 
       char m_FtSampleId[maxStringLength];
@@ -1930,7 +1933,6 @@ namespace CauldronIO
       float m_FtMeanAgeErr; 
       float m_FtLengthChi2; 
       char m_FtApatiteYield[maxStringLength]; 
-      bool m_Optimization; 
       
    };
    /// \class FtGrain
@@ -1958,9 +1960,6 @@ namespace CauldronIO
 
       double getFtGrainAge() const;
       void setFtGrainAge(float val);
-
-      double getFtGrainAgeErr() const;
-      void setFtGrainAgeErr(float val);
    private:
 
       char m_FtSampleId[maxStringLength]; ; 
@@ -1969,7 +1968,6 @@ namespace CauldronIO
       int m_FtInducedTrackNo;
       float m_FtClWeightPerc;
       float m_FtGrainAge; 
-      float m_FtGrainAgeErr;
     }; 
 
    /// \class FtPredLengthCountsHist

@@ -115,7 +115,7 @@ namespace CauldronIO
         /// \brief Creates a new instance, to store binary data to the given filename
         /// \param [in] append If true, appends to existing data structure, otherwise, write from scratch. This is only supported with native data
         /// \param [in] filename filename where to save to
-       DataStoreSave(const std::string& filename, bool append, const bool rewrite = true );
+       DataStoreSave(const std::string& filename, bool append);
         ~DataStoreSave();
 
         /// \brief Write all data to disk
@@ -146,7 +146,6 @@ namespace CauldronIO
         bool m_compress;
         std::vector<std::shared_ptr<DataToCompress> > m_dataToCompress;
         bool m_flushed;
-        bool m_rewrite;
     };
 }
 

@@ -49,7 +49,16 @@ public:
     ImportProjectHandle(bool verbose, std::shared_ptr<CauldronIO::Project>& project, std::shared_ptr<DataAccess::Interface::ProjectHandle>& projectHandle);
 
     void checkInputValues();
-private:
+    void addSnapShots();
+    void addMigrationIO();
+    void addTrapperIO();
+    void addTrapIO();
+    void addGenexHistory();
+    void addBurialHistory();
+    void addMassBalance();
+    void add1Ddata();
+
+ private:
 
 
     /// Private members
@@ -69,15 +78,6 @@ private:
     std::shared_ptr<CauldronIO::FormationInfoList> getDepthFormations(const DataAccess::Interface::Snapshot* snapShot) const;
 
     std::shared_ptr<CauldronIO::SurfaceData> createMapIO(const DataAccess::Interface::PropertyValue* propVal, std::shared_ptr<const CauldronIO::Geometry2D>& geometry);
-
-    void addSnapShots();
-    void addMigrationIO();
-    void addTrapperIO();
-    void addTrapIO();
-    void addGenexHistory();
-    void addBurialHistory();
-    void addMassBalance();
-    void add1Ddata();
 
     CauldronIO::SubsurfaceKind getSubSurfaceKind(const DataAccess::Interface::Surface* surface) const;
 

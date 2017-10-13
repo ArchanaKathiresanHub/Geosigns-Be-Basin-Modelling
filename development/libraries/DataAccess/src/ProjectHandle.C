@@ -87,7 +87,6 @@
 #include "Interface/PropertyValue.h"
 #include "Interface/RelatedProject.h"
 #include "Interface/Reservoir.h"
-//@TODO_Check
 #include "Interface/ReservoirOptions.h"
 #include "Interface/RunParameters.h"
 #include "Interface/SimulationDetails.h"
@@ -121,7 +120,6 @@
 #include "errorhandling.h"
 #include "LogHandler.h"
 #include "ConstantsNames.h"
-//@TODO_Check
 
 // FileSystem library
 #include "FilePath.h"
@@ -140,7 +138,18 @@ const double DefaultUndefinedValue = 99999;
 
 typedef formattingexception::GeneralException ProjectHandleException;
 
-static const char * words [] = {"ALCStepBasaltThickness", "ALCStepTopBasaltDepth", "ChemicalCompaction" , "Depth",
+static const char * words [] = {"ALCStepBasaltThickness", "ALCStepTopBasaltDepth", 
+
+                                "ALCStepMohoDepth", 
+                                "ALCMaxAsthenoMantleDepth",
+                                "ALCSmBasaltThickness",  
+                                "ALCStepContCrustThickness",
+                                "ALCOrigLithMantleDepth",  
+                                "ALCSmContCrustThickness", 
+                                "ALCSmTopBasaltDepth",  
+                                "ALCSmMohoDepth",  
+
+                                "ChemicalCompaction" , "Depth",
                                 "ErosionFactor", "FCTCorrection", "MaxVes",
                                 "Pressure", "Temperature", "ThicknessError", "Ves", "Vr" };
 
@@ -211,7 +220,7 @@ ProjectHandle::ProjectHandle(database::ProjectFileHandlerPtr pfh, const string &
    m_tableCTC                         ( *this ),
    m_tableCTCRiftingHistory           ( *this ),
    m_tableOceanicCrustThicknessHistory( *this ),
-   m_activityOutputGrid( 0 ), m_mapPropertyValuesWriter( 0 ), m_primaryList( words, words + 12 )
+   m_activityOutputGrid( 0 ), m_mapPropertyValuesWriter( 0 ), m_primaryList( words, words + 20 )
 {
    (void) accessMode; // ignore warning about unused parameter
 
@@ -948,16 +957,16 @@ bool ProjectHandle::loadProperties( void )
    using Interface::TRAPPROPERTY;
 
    // fastcauldron properties
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ALCOrigLithMantleDepth",         "ALCOrigLithMantleDepth",         "m",     FORMATIONPROPERTY, DataModel::SURFACE_2D_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ALCMaxAsthenoMantleDepth",       "ALCMaxAsthenoMantleDepth",       "m",     FORMATIONPROPERTY, DataModel::SURFACE_2D_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ALCStepContCrustThickness",      "ALCStepContCrustThickness",      "m",     FORMATIONPROPERTY, DataModel::SURFACE_2D_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( this, 0, "ALCOrigLithMantleDepth",         "ALCOrigLithMantleDepth",         "m",     FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( this, 0, "ALCMaxAsthenoMantleDepth",       "ALCMaxAsthenoMantleDepth",       "m",     FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( this, 0, "ALCStepContCrustThickness",      "ALCStepContCrustThickness",      "m",     FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "ALCStepBasaltThickness",         "ALCStepBasaltThickness",         "m",     FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "ALCStepTopBasaltDepth",          "ALCStepTopBasaltDepth",          "m",     FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ALCSmContCrustThickness",        "ALCSmContCrustThickness",        "m",     FORMATIONPROPERTY, DataModel::SURFACE_2D_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ALCSmBasaltThickness",           "ALCSmBasaltThickness",           "m",     FORMATIONPROPERTY, DataModel::SURFACE_2D_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ALCSmTopBasaltDepth",            "ALCSmTopBasaltDepth",            "m",     FORMATIONPROPERTY, DataModel::SURFACE_2D_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ALCSmMohoDepth",                 "ALCSmMohoDepth",                 "m",     FORMATIONPROPERTY, DataModel::SURFACE_2D_PROPERTY ));
-   m_properties.push_back( getFactory()->produceProperty( this, 0, "ALCStepMohoDepth",               "ALCStepMohoDepth",               "m",     FORMATIONPROPERTY, DataModel::SURFACE_2D_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( this, 0, "ALCSmContCrustThickness",        "ALCSmContCrustThickness",        "m",     FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( this, 0, "ALCSmBasaltThickness",           "ALCSmBasaltThickness",           "m",     FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( this, 0, "ALCSmTopBasaltDepth",            "ALCSmTopBasaltDepth",            "m",     FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( this, 0, "ALCSmMohoDepth",                 "ALCSmMohoDepth",                 "m",     FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
+   m_properties.push_back( getFactory()->produceProperty( this, 0, "ALCStepMohoDepth",               "ALCStepMohoDepth",               "m",     FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
 
    m_properties.push_back( getFactory()->produceProperty( this, 0, "AllochthonousLithology",         "AllochthonousLithology",         "",      FORMATIONPROPERTY, DataModel::FORMATION_2D_PROPERTY ));
    m_properties.push_back( getFactory()->produceProperty( this, 0, "CapillaryEntryPressureVapour",   "CapillaryEntryPressureVapour",   "Pa",    FORMATIONPROPERTY, DataModel::DISCONTINUOUS_3D_PROPERTY ));

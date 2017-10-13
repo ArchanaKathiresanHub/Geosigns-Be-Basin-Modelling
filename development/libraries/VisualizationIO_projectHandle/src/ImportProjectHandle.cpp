@@ -365,9 +365,10 @@ vector<std::shared_ptr<CauldronIO::Surface> > ImportProjectHandle::createSurface
 
         gridmap->retrieveData();
         // Set the geometry
-        std::shared_ptr<const CauldronIO::Geometry2D> geometry(new CauldronIO::Geometry2D(gridmap->numI(), gridmap->numJ(), 
-                                                                                          gridmap->deltaI(), gridmap->deltaJ(), gridmap->minI(), gridmap->minJ()));
-        if(m_project->getModelingMode() ==  Interface::MODE1D ) {
+        std::shared_ptr<const CauldronIO::Geometry2D> geometry(new CauldronIO::Geometry2D(gridmap->getGrid()->numIGlobal(), gridmap->getGrid()->numJGlobal(), 
+                                                                                          gridmap->getGrid()->deltaIGlobal(), gridmap->getGrid()->deltaJGlobal(), 
+                                                                                          gridmap->getGrid()->minIGlobal(), gridmap->getGrid()->minJGlobal()));
+       if(m_project->getModelingMode() == CauldronIO::MODE1D ) {
            constValue1d = gridmap->getAverageValue();
          }
          gridmap->restoreData();
@@ -412,7 +413,7 @@ vector<std::shared_ptr<CauldronIO::Surface> > ImportProjectHandle::createSurface
         if (reservoir)
             propertyMap->setReservoir(reservoirIO);
    
-        if(m_project->getModelingMode() == Interface::MODE1D) {
+        if(m_project->getModelingMode() == CauldronIO::MODE1D) {
             propertyMap->setConstantValue((float)constValue1d);
          }
  
@@ -1002,8 +1003,8 @@ void ImportProjectHandle::addStratTableSurface(const DataAccess::Interface::Surf
    const Interface::GridMap* gridmap = m_projectHandle->getFactory()->produceGridMap(surface, 0, grid, 0);
     gridmap->retrieveData();
        
-   std::shared_ptr<const CauldronIO::Geometry2D> geometry(new CauldronIO::Geometry2D(grid->numI(), grid->numJ(),
-      grid->deltaI(), grid->deltaJ(), grid->minI(), grid->minJ()));
+	std::shared_ptr<const CauldronIO::Geometry2D> geometry(new CauldronIO::Geometry2D(grid->numIGlobal(), grid->numJGlobal(),
+		grid->deltaIGlobal(), grid->deltaJGlobal(), grid->minIGlobal(), grid->minJGlobal()));
 
     gridmap->restoreData();
     gridmap->release();
@@ -1613,8 +1614,6 @@ void ImportProjectHandle::add1Ddata()  {
          entry->setFtGrainId(getFtGrainId(aRecord));
          entry->setFtSpontTrackNo(getFtSpontTrackNo(aRecord));
          entry->setFtInducedTrackNo(getFtInducedTrackNo(aRecord));
-         entry->setFtClWeightPerc(getFtClWeightPerc(aRecord));
-         entry->setFtGrainAge(getFtGrainAge(aRecord));
          entry->setFtClWeightPerc(static_cast<float>(getFtClWeightPerc(aRecord)));
          entry->setFtGrainAge(static_cast<float>(getFtGrainAge(aRecord)));
 
