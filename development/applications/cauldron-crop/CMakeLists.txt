@@ -11,7 +11,7 @@
 #########################################################################
 
 add_executable(cauldron-crop
-	src/crop.C
+   src/crop.C
 )
 
 bm_include_libraries(

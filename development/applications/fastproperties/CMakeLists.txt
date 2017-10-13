@@ -34,6 +34,7 @@ add_executable(${APP_NAME}
 )
 
 set_target_properties( ${APP_NAME} PROPERTIES SUFFIX ".exe" )
+set_target_properties( ${APP_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${APP_NAME}" )
 
 create_application_run_script( ${APP_NAME} )
 
@@ -112,6 +113,7 @@ add_gtest( NAME Fastproperties::ConvertProperties_MPInp2
            LIBRARIES DerivedProperties VisualizationIO DataAccess DistributedDataAccess  GeoPhysics  Parallel_Hdf5
            MPI_SIZE 2
            MPIRUN_PRMS ${MACHINE_FILE}
+           FOLDER "${BASE_FOLDER}/${APP_NAME}"
         )
 
 generate_dox( fastproperties.cfg )

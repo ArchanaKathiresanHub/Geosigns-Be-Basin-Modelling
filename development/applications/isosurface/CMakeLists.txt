@@ -10,33 +10,35 @@
 #                                                                       #
 #########################################################################
 
-add_executable(isosurface
-	src/isosurface.C
+set( TARGET_NAME "isosurface" )
+add_executable(${TARGET_NAME}
+   src/isosurface.C
 )
+set_target_properties( ${TARGET_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${TARGET_NAME}" )
 
 include_directories( SYSTEM
-	${HDF5_INCLUDE_DIRS}
+   ${HDF5_INCLUDE_DIRS}
 )
 
 bm_include_libraries(
-	DataModel
-	SerialDataAccess
-	DataAccess
-	TableIO
-	utilities
-	CBMGenerics
+   DataModel
+   SerialDataAccess
+   DataAccess
+   TableIO
+   utilities
+   CBMGenerics
 )
 
-target_link_libraries(isosurface
-	DataAccess
-	SerialDataAccess
-	TableIO
-	CBMGenerics
-	utilities
+target_link_libraries(${TARGET_NAME}
+   DataAccess
+   SerialDataAccess
+   TableIO
+   CBMGenerics
+   utilities
 )
 
-install(TARGETS isosurface
-	RUNTIME DESTINATION bin
+install(TARGETS ${TARGET_NAME}
+   RUNTIME DESTINATION bin
 )
 # Local Variables:
 # mode: cmake

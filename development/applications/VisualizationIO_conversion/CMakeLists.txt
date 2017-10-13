@@ -19,6 +19,7 @@ source_group("Source Files" FILES ${all_srcs})
 set( TARGET_NAME "VisualizationIO_convert" )
 add_executable( ${TARGET_NAME} ${all_srcs} ${all_headers} )
 set_target_properties( ${TARGET_NAME} PROPERTIES SUFFIX ".exe" )
+set_target_properties( ${TARGET_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${TARGET_NAME}" )
 create_application_run_script( ${TARGET_NAME} )
 
 application_env_var( TARGET ${TARGET_NAME} VARS

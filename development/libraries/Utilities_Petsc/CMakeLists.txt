@@ -13,43 +13,45 @@
 
 if (BM_PARALLEL)
 
-	FILE( GLOB all_headers src/*.h )
-	source_group(include FILES ${all_headers})
+   FILE( GLOB all_headers src/*.h )
+   source_group(include FILES ${all_headers})
 
-	FILE( GLOB all_srcs src/*.C)
-	source_group(source FILES ${all_srcs})
+   FILE( GLOB all_srcs src/*.C)
+   source_group(source FILES ${all_srcs})
 
-	add_library(Utilities_Petsc 
-		${all_srcs}
-		${all_headers}
-	)
-	if (UNIX)
-	    add_dependencies(Utilities_Petsc PETSC)
-	endif (UNIX)
+   set( LIB_NAME "Utilities_Petsc" )
+   add_library(${LIB_NAME} 
+      ${all_srcs}
+      ${all_headers}
+   )
+   set_target_properties( ${LIB_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${LIB_NAME}" )
+   if (UNIX)
+       add_dependencies(${LIB_NAME} PETSC)
+   endif (UNIX)
 
-	include_directories( SYSTEM
-		${PETSC_INCLUDE_DIRS}
-		${MPI_INCLUDE_DIRS}
-	)
+   include_directories( SYSTEM
+      ${PETSC_INCLUDE_DIRS}
+      ${MPI_INCLUDE_DIRS}
+   )
 
-	target_link_libraries(Utilities_Petsc 
-		${PETSC_LIBRARIES}
-		${MPI_LIBRARIES}
-	)
+   target_link_libraries(${LIB_NAME} 
+      ${PETSC_LIBRARIES}
+      ${MPI_LIBRARIES}
+   )
 
-        set_target_properties(Utilities_Petsc
-            PROPERTIES LINK_FLAGS "${PETSC_LINK_FLAGS}"
-        )
+   set_target_properties(${LIB_NAME}
+       PROPERTIES LINK_FLAGS "${PETSC_LINK_FLAGS}"
+   )
 
 
-	install(TARGETS Utilities_Petsc
-		RUNTIME DESTINATION bin
-		LIBRARY DESTINATION lib
-		ARCHIVE DESTINATION lib
-	)
+   install(TARGETS ${LIB_NAME}
+      RUNTIME DESTINATION bin
+      LIBRARY DESTINATION lib
+      ARCHIVE DESTINATION lib
+   )
 
 else (BM_PARALLEL)
-	message("Utilities_Petsc will not be compiled, because MPI is unavailable")
+   message("Utilities_Petsc will not be compiled, because MPI is unavailable")
 endif (BM_PARALLEL)
 
 # Local Variables:

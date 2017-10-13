@@ -15,10 +15,12 @@ source_group(include FILES ${all_headers})
 FILE( GLOB all_srcs src/*.C)
 source_group(source FILES ${all_srcs})
 
-add_executable( projdiff
+set( TARGET_NAME "projdiff" )
+add_executable( ${TARGET_NAME}
    ${all_srcs}
    ${all_headers}
 )
+set_target_properties( ${TARGET_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${TARGET_NAME}" )
 
 bm_include_libraries(
    TableIO
@@ -33,7 +35,7 @@ include_directories( SYSTEM
    ${SUMPP_INCLUDE_DIR}
 )
 
-target_link_libraries( projdiff
+target_link_libraries( ${TARGET_NAME}
    cmbapi
    CBMGenerics
    DataAccess
@@ -45,6 +47,6 @@ target_link_libraries( projdiff
    ${Boost_LIBRARIES}
 )
 
-install( TARGETS projdiff
+install( TARGETS ${TARGET_NAME}
          DESTINATION bin
 )

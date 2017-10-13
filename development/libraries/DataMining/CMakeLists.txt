@@ -15,10 +15,12 @@ source_group(include FILES ${all_headers})
 FILE( GLOB all_srcs src/*.C)
 source_group(source FILES ${all_srcs})
 
-add_library(DataMining
+set( LIB_NAME "DataMining" )
+add_library(${LIB_NAME}
    ${all_srcs}
    ${all_headers}
 )
+set_target_properties( ${LIB_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${LIB_NAME}" )
 
 bm_include_libraries( 
    DataModel
@@ -42,7 +44,7 @@ include_directories( SYSTEM
    ${HDF5_INCLUDE_DIRS}
 )
 
-target_link_libraries(DataMining
+target_link_libraries(${LIB_NAME}
    FiniteElements
    utilities
    Interpolation
@@ -56,7 +58,7 @@ target_link_libraries(DataMining
    ${HDF5_LIBRARIES}
 )
 
-install(TARGETS DataMining
+install(TARGETS ${LIB_NAME}
    RUNTIME DESTINATION bin
    LIBRARY DESTINATION lib
    ARCHIVE DESTINATION lib
@@ -64,7 +66,8 @@ install(TARGETS DataMining
 
 add_gtest( NAME DataMiningProjectHandle
            SOURCES test/DataMiningProjectHandle.C
-           LIBRARIES DataMining DataAccess SerialDataAccess
+           LIBRARIES ${LIB_NAME} DataAccess SerialDataAccess
+           FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 configure_file(

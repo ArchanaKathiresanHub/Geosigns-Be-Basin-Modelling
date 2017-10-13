@@ -33,10 +33,12 @@ source_group(include FILES ${all_headers})
 FILE( GLOB all_srcs src/*.C )
 source_group(source FILES ${all_srcs})
 
-add_library(utilities
+set( LIB_NAME "utilities" )
+add_library(${LIB_NAME}
    ${all_srcs}
    ${all_headers}
 )
+set_target_properties( ${LIB_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${LIB_NAME}" )
 
 ################################################################
 ################### SET DEPENDENCIES/LINKS #####################
@@ -44,15 +46,15 @@ add_library(utilities
 
 # under Linux we are building Boost that is why this target exist
 if (UNIX)
-   add_dependencies(utilities Boost)
+   add_dependencies(${LIB_NAME} Boost)
 endif (UNIX)
 
 
-target_link_libraries(utilities
+target_link_libraries(${LIB_NAME}
    ${Boost_LIBRARIES}
 )
 
-install(TARGETS utilities
+install(TARGETS ${LIB_NAME}
    RUNTIME DESTINATION bin
    LIBRARY DESTINATION lib
    ARCHIVE DESTINATION lib
@@ -64,66 +66,80 @@ install(TARGETS utilities
 
 ######################
 # AlignedWorkSpaceArray tests
-add_gtest( NAME utilities::AlignedWorkSpaceArrays
+add_gtest( NAME ${LIB_NAME}::AlignedWorkSpaceArrays
    SOURCES test/AlignedWorkSpaceArraysTest.C
-   LIBRARIES utilities)
+   LIBRARIES ${LIB_NAME}
+   FOLDER "${BASE_FOLDER}/${LIB_NAME}")
 
 ######################
 # PiecewiseInterpolator tests
-add_gtest( NAME utilities::PiecewiseInterpolator
+add_gtest( NAME ${LIB_NAME}::PiecewiseInterpolator
    SOURCES test/PiecewiseInterpolatorTest.C
-   LIBRARIES utilities)
+   LIBRARIES ${LIB_NAME}
+   FOLDER "${BASE_FOLDER}/${LIB_NAME}")
 
-add_gtest( NAME utilities::PiecewiseInterpolatorDerivative
+add_gtest( NAME ${LIB_NAME}::PiecewiseInterpolatorDerivative
    SOURCES test/PiecewiseInterpolatorDerivativeTest.C
-   LIBRARIES utilities)
+   LIBRARIES ${LIB_NAME}
+   FOLDER "${BASE_FOLDER}/${LIB_NAME}")
 
 ######################
 # IBSInterpolator tests
-add_gtest( NAME utilities::IBSinterpolator
+add_gtest( NAME ${LIB_NAME}::IBSinterpolator
    SOURCES test/IBSinterpolator.C
-   LIBRARIES utilities)
+   LIBRARIES ${LIB_NAME}
+   FOLDER "${BASE_FOLDER}/${LIB_NAME}")
 
-add_gtest( NAME utilities::IBSinterpolator2d
+add_gtest( NAME ${LIB_NAME}::IBSinterpolator2d
    SOURCES test/IBSinterpolator2d.C
-   LIBRARIES utilities)
+   LIBRARIES ${LIB_NAME}
+   FOLDER "${BASE_FOLDER}/${LIB_NAME}")
 
 ######################
 # LogHandler tests
-add_gtest( NAME utilities::LogHandlerCreate
+add_gtest( NAME ${LIB_NAME}::LogHandlerCreate
    SOURCES test/LogHandlerCreate.C test/LogHandlerUnitTester.h
-   LIBRARIES utilities)
+   LIBRARIES ${LIB_NAME}
+   FOLDER "${BASE_FOLDER}/${LIB_NAME}")
 
-add_gtest( NAME utilities::LogHandlerDiagnostic
+add_gtest( NAME ${LIB_NAME}::LogHandlerDiagnostic
    SOURCES test/LogHandlerDiagnostic.C test/LogHandlerUnitTester.h
-   LIBRARIES utilities)
+   LIBRARIES ${LIB_NAME}
+   FOLDER "${BASE_FOLDER}/${LIB_NAME}")
 
-add_gtest( NAME utilities::LogHandlerDetailed
+add_gtest( NAME ${LIB_NAME}::LogHandlerDetailed
    SOURCES test/LogHandlerDetailed.C test/LogHandlerUnitTester.h
-   LIBRARIES utilities)
+   LIBRARIES ${LIB_NAME}
+   FOLDER "${BASE_FOLDER}/${LIB_NAME}")
 
-add_gtest( NAME utilities::LogHandlerNormal
+add_gtest( NAME ${LIB_NAME}::LogHandlerNormal
    SOURCES test/LogHandlerNormal.C test/LogHandlerUnitTester.h
-   LIBRARIES utilities)
+   LIBRARIES ${LIB_NAME}
+   FOLDER "${BASE_FOLDER}/${LIB_NAME}")
 
-add_gtest( NAME utilities::LogHandlerQuiet
+add_gtest( NAME ${LIB_NAME}::LogHandlerQuiet
    SOURCES test/LogHandlerQuiet.C test/LogHandlerUnitTester.h
-   LIBRARIES utilities)
+   LIBRARIES ${LIB_NAME}
+   FOLDER "${BASE_FOLDER}/${LIB_NAME}")
 
-add_gtest( NAME utilities::LogHandlerMinimal
+add_gtest( NAME ${LIB_NAME}::LogHandlerMinimal
    SOURCES test/LogHandlerMinimal.C test/LogHandlerUnitTester.h
-   LIBRARIES utilities)
+   LIBRARIES ${LIB_NAME}
+   FOLDER "${BASE_FOLDER}/${LIB_NAME}")
 
-add_gtest( NAME utilities::LogHandlerStyles
+add_gtest( NAME ${LIB_NAME}::LogHandlerStyles
    SOURCES test/LogHandlerStyles.C test/LogHandlerUnitTester.h
-   LIBRARIES utilities)
+   LIBRARIES ${LIB_NAME}
+   FOLDER "${BASE_FOLDER}/${LIB_NAME}")
 
-add_gtest( NAME utilities::LogHandlerTime
+add_gtest( NAME ${LIB_NAME}::LogHandlerTime
    SOURCES test/LogHandlerTime.C test/LogHandlerUnitTester.h
-   LIBRARIES utilities)
+   LIBRARIES ${LIB_NAME}
+   FOLDER "${BASE_FOLDER}/${LIB_NAME}")
 
 ######################
 # StringHandler tests
-add_gtest( NAME utilities::StringHandler
+add_gtest( NAME ${LIB_NAME}::StringHandler
    SOURCES test/StringHandler.C
-   LIBRARIES utilities)
+   LIBRARIES ${LIB_NAME}
+   FOLDER "${BASE_FOLDER}/${LIB_NAME}")

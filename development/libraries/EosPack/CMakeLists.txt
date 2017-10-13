@@ -15,10 +15,12 @@ source_group(include FILES ${all_headers})
 FILE( GLOB all_srcs src/*.C)
 source_group(source FILES ${all_srcs})
 
-add_library(EosPack 
+set( LIB_NAME "EosPack" )
+add_library(${LIB_NAME} 
    ${all_srcs}
    ${all_headers}
 )
+set_target_properties( ${LIB_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${LIB_NAME}" )
 
 include_directories(
    src
@@ -26,7 +28,7 @@ include_directories(
 
 bm_include_libraries(CBMGenerics utilities)
 
-target_link_libraries(EosPack CBMGenerics utilities) 
+target_link_libraries(${LIB_NAME} CBMGenerics utilities) 
 
 generate_dox( src/EosPack.cfg )
 
@@ -40,7 +42,8 @@ generate_dox( src/EosPack.cfg )
 
 add_gtest( NAME PTDiagramCalculator
    SOURCES test/PTDiagramBuilderTest.C test/PVTCfgFileMgr.C
-   LIBRARIES EosPack
+   LIBRARIES ${LIB_NAME}
+   FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 ######################################
@@ -49,9 +52,10 @@ add_gtest( NAME PTDiagramCalculator
 if(UNIX)
 add_gtest( NAME PTDiagramCalculator_MT
    SOURCES test/PTDiagramBuilderMTTest.C test/PVTCfgFileMgr.C
-   LIBRARIES EosPack
+   LIBRARIES ${LIB_NAME}
    COMPILE_FLAGS "${OpenMP_CXX_FLAGS}"
    LINK_FLAGS "${OpenMP_CXX_FLAGS} ${OpenMP_LINK_FLAGS}"
+   FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 endif(UNIX)
 
@@ -59,7 +63,8 @@ endif(UNIX)
 # Unit test for flasher
 add_gtest( NAME pvtFlash::CAPI
    SOURCES test/EosPackTest.C test/PVTCfgFileMgr.C
-   LIBRARIES EosPack
+   LIBRARIES ${LIB_NAME}
+   FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 ######################################
@@ -68,9 +73,10 @@ add_gtest( NAME pvtFlash::CAPI
 if(UNIX)
 add_gtest( NAME pvtFlash::CAPI_MT
    SOURCES test/EosPackMTTest.C test/PVTCfgFileMgr.C
-   LIBRARIES EosPack
+   LIBRARIES ${LIB_NAME}
    COMPILE_FLAGS "${OpenMP_CXX_FLAGS}"
    LINK_FLAGS "${OpenMP_CXX_FLAGS} ${OpenMP_LINK_FLAGS}"
+   FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 endif(UNIX)
 
@@ -89,7 +95,7 @@ if (MSVC)
       CSPROJ_ASSEMBLY_RELEASE_NOTES "Version ${API_FILE_GIT_DATE_AS_VER}. Initial nuget package release"
       CSPROJ_ASSEMBLY_TAGS          "Cauldron backend PVT Flasher PhaseDiagram API"
       CSPROJ_ASSEMBLY_COPYRIGHT     "Copyright (C) 2012-2017"
-      CSPROJ_LIBRARIES              EosPack
+      CSPROJ_LIBRARIES              ${LIB_NAME}
       CSHARP_UNIT_TESTS_SRC         test/PTDiagCalculatorTest.cs test/EospackCApiTest.cs
    )  
    configure_file(test/PTDiagCalculatorTest.cfg csharp-test/PTDiagCalculatorTest.cfg COPYONLY) 

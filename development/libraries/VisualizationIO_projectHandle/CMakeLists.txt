@@ -16,7 +16,9 @@ source_group("Header Files" FILES ${all_headers})
 FILE( GLOB all_srcs src/*.cpp)
 source_group("Source Files" FILES ${all_srcs})
 
-add_library(VisualizationIO_projectHandle ${all_srcs} ${all_headers})
+set( LIB_NAME "VisualizationIO_projectHandle" )
+add_library(${LIB_NAME} ${all_srcs} ${all_headers})
+set_target_properties( ${LIB_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${LIB_NAME}" )
 
 include_directories( SYSTEM
    ${HDF5_INCLUDE_DIRS}
@@ -33,11 +35,11 @@ bm_include_libraries(
    FileSystem 
    DataAccess
    VisualizationIO
-   VisualizationIO_projectHandle
+   ${LIB_NAME}
    TableIO
 )
 
-target_link_libraries(VisualizationIO_projectHandle
+target_link_libraries(${LIB_NAME}
    DataModel
    DataAccess
    utilities
@@ -87,13 +89,14 @@ configure_file(test/data/ARD_simple-test_CauldronOutputDir/Time_70.000000.h5 ${C
 configure_file(test/data/Project-1d.project3d ${CMAKE_CURRENT_BINARY_DIR}/data/Project-1d.project3d COPYONLY)
 
 
-add_custom_command(TARGET VisualizationIO_projectHandle PRE_BUILD
+add_custom_command(TARGET ${LIB_NAME} PRE_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_directory
                    test/data/ARD_simple-test_CauldronOutputDir ${CMAKE_CURRENT_BINARY_DIR}/data/ARD_simple-test_CauldronOutputDir )
 
 add_gtest( NAME CauldronIO::Project
            SOURCES test/Project.cpp test/DataStore.cpp test/VerifyData.cpp  test/VerifyData1D.cpp test/CellCentered.cpp
-           LIBRARIES VisualizationIO DataModel DataAccess utilities SerialDataAccess FileSystem TableIO VisualizationIO_projectHandle Serial_Hdf5 CBMGenerics ${HDF5_LIBRARIES} ${Boost_LIBRARIES} )
+           LIBRARIES VisualizationIO DataModel DataAccess utilities SerialDataAccess FileSystem TableIO ${LIB_NAME} Serial_Hdf5 CBMGenerics ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
+           FOLDER "${BASE_FOLDER}/${LIB_NAME}" )
 
 # Local Variables:
 # mode: cmake

@@ -16,20 +16,22 @@ source_group(include FILES ${all_headers})
 FILE( GLOB all_srcs src/*.C)
 source_group(source FILES ${all_srcs})
 
-add_library(Serial_Hdf5 
-	${all_srcs}
-	${all_headers}
+set( LIB_NAME "Serial_Hdf5" )
+add_library(${LIB_NAME} 
+   ${all_srcs}
+   ${all_headers}
 )
+set_target_properties( ${LIB_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${LIB_NAME}" )
 
 include_directories( SYSTEM ${HDF5_INCLUDE_DIRS} )
 
-target_link_libraries(Serial_Hdf5 ${HDF5_LIBRARIES})
+target_link_libraries(${LIB_NAME} ${HDF5_LIBRARIES})
 
-	
-install(TARGETS Serial_Hdf5
-	RUNTIME DESTINATION bin
-	LIBRARY	DESTINATION lib
-	ARCHIVE DESTINATION lib
+   
+install(TARGETS ${LIB_NAME}
+   RUNTIME DESTINATION bin
+   LIBRARY DESTINATION lib
+   ARCHIVE DESTINATION lib
 )
 
 # Local Variables:

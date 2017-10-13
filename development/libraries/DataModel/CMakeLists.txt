@@ -28,7 +28,9 @@ set(all_sources
 source_group(include FILES ${all_headers})
 source_group(source  FILES ${all_sources})
 
-add_library(DataModel
+set( LIB_NAME "DataModel" )
+add_library(${LIB_NAME}
    ${all_sources}
    ${all_headers}
 )
+set_target_properties( ${LIB_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${LIB_NAME}" )

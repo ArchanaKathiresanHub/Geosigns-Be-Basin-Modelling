@@ -16,10 +16,12 @@ source_group(include FILES ${all_headers})
 FILE( GLOB all_srcs src/*.C)
 source_group(source FILES ${all_srcs})
 
-add_library(SerialDataAccess 
+set( LIB_NAME "SerialDataAccess" )
+add_library(${LIB_NAME} 
    ${all_srcs}
    ${all_headers}
 )
+set_target_properties( ${LIB_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${LIB_NAME}" )
 
 bm_include_libraries(
    DataModel
@@ -37,7 +39,7 @@ include_directories( SYSTEM
 
 generate_dox( src/SerialDataAccess.cfg )
 
-target_link_libraries(SerialDataAccess
+target_link_libraries(${LIB_NAME}
    Serial_Hdf5
    CBMGenerics
    utilities
@@ -47,10 +49,10 @@ target_link_libraries(SerialDataAccess
 )
 
 if (UNIX)
-   target_link_libraries(SerialDataAccess rt)
+   target_link_libraries(${LIB_NAME} rt)
 endif(UNIX)
 
-install(TARGETS SerialDataAccess
+install(TARGETS ${LIB_NAME}
    RUNTIME DESTINATION bin
    LIBRARY DESTINATION lib
    ARCHIVE DESTINATION lib
@@ -58,10 +60,12 @@ install(TARGETS SerialDataAccess
 
 add_gtest( NAME SerialGridMap
            SOURCES test/SerialGridMap.C
-           LIBRARIES SerialDataAccess DataAccess
+           LIBRARIES ${LIB_NAME} DataAccess
+           FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME SerialMapWriter
            SOURCES test/SerialMapWriter.C
-           LIBRARIES SerialDataAccess DataAccess Serial_Hdf5 FileSystem
+           LIBRARIES ${LIB_NAME} DataAccess Serial_Hdf5 FileSystem
+           FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )

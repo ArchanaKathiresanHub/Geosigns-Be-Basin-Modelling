@@ -155,15 +155,16 @@ set(all_dependent_libs ${cross_platform_libs} ${unix_only_libs} )
 source_group(include FILES ${all_headers})
 source_group(source FILES ${all_srcs})
 
-
-add_library( GeoPhysics
+set( LIB_NAME "GeoPhysics" )
+add_library( ${LIB_NAME}
    ${all_srcs}
    ${all_headers}
 )
+set_target_properties( ${LIB_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${LIB_NAME}" )
 
 # under Linux we are building Boost that is why this target exist
 if (UNIX)
-add_dependencies(GeoPhysics Boost)
+add_dependencies(${LIB_NAME} Boost)
 endif (UNIX)
 
 bm_include_libraries(
@@ -174,11 +175,11 @@ include_directories( SYSTEM
    ${HDF5_INCLUDE_DIRS}
 )
 
-target_link_libraries(GeoPhysics
+target_link_libraries(${LIB_NAME}
       ${all_dependent_libs}
 )
 
-install(TARGETS GeoPhysics
+install(TARGETS ${LIB_NAME}
    RUNTIME DESTINATION bin
    LIBRARY DESTINATION lib
    ARCHIVE DESTINATION lib
@@ -190,50 +191,59 @@ generate_dox( GeoPhysics.cfg )
 ### Unit Tests
 
 # BrineConductivity unit test not available since reading the FltThCondIoTbl from the project file
-add_gtest( NAME GeoPhysics::BrineConductivity
+add_gtest( NAME ${LIB_NAME}::BrineConductivity
       SOURCES test/BrineConductivity.C src/BrinePhases.C
-      LIBRARIES GeoPhysics DataAccess SerialDataAccess 
+      LIBRARIES ${LIB_NAME} DataAccess SerialDataAccess 
       ENV_VARS EOSPACKDIR=${CFGFLS}/eospack GENEX5DIR=${CFGFLS}/genex50 CTCDIR=${CFGFLS}/
+      FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME GeoPhysics::BrineDensity
+add_gtest( NAME ${LIB_NAME}::BrineDensity
       SOURCES test/BrineDensity.C src/BrinePhases.C
-      LIBRARIES GeoPhysics SerialDataAccess
+      LIBRARIES ${LIB_NAME} SerialDataAccess
+      FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME GeoPhysics::BrineVelocity
+add_gtest( NAME ${LIB_NAME}::BrineVelocity
       SOURCES test/BrineVelocity.C src/BrinePhases.C
-      LIBRARIES GeoPhysics SerialDataAccess
+      LIBRARIES ${LIB_NAME} SerialDataAccess
+      FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME GeoPhysics::BrineViscosity
+add_gtest( NAME ${LIB_NAME}::BrineViscosity
       SOURCES test/BrineViscosity.C
-      LIBRARIES GeoPhysics SerialDataAccess
+      LIBRARIES ${LIB_NAME} SerialDataAccess
+      FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME GeoPhysics::BrooksCorey
+add_gtest( NAME ${LIB_NAME}::BrooksCorey
       SOURCES test/PceTest.C
-      LIBRARIES GeoPhysics SerialDataAccess
+      LIBRARIES ${LIB_NAME} SerialDataAccess
+      FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME GeoPhysics::ChemicalCompactionCalculator
+add_gtest( NAME ${LIB_NAME}::ChemicalCompactionCalculator
       SOURCES test/ChemicalCompactionCalculatorTest.C
-      LIBRARIES GeoPhysics SerialDataAccess
+      LIBRARIES ${LIB_NAME} SerialDataAccess
+      FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME GeoPhysics::DoubleExponentialPorosity
+add_gtest( NAME ${LIB_NAME}::DoubleExponentialPorosity
       SOURCES test/DoubleExponentialPorosity.C
-      LIBRARIES GeoPhysics SerialDataAccess
+      LIBRARIES ${LIB_NAME} SerialDataAccess
+      FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME GeoPhysics::ExponentialPorosity
+add_gtest( NAME ${LIB_NAME}::ExponentialPorosity
       SOURCES test/ExponentialPorosity.C
-      LIBRARIES GeoPhysics SerialDataAccess
+      LIBRARIES ${LIB_NAME} SerialDataAccess
+      FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME GeoPhysics::LambdaMixer
+add_gtest( NAME ${LIB_NAME}::LambdaMixer
       SOURCES test/LambdaMixer.cpp
-      LIBRARIES GeoPhysics SerialDataAccess
+      LIBRARIES ${LIB_NAME} SerialDataAccess
+      FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 configure_file(
@@ -248,97 +258,115 @@ configure_file(
    COPYONLY
 )
 
-add_gtest( NAME GeoPhysics::MixingPermeability
+add_gtest( NAME ${LIB_NAME}::MixingPermeability
    SOURCES test/MixingPermeability.C
-   LIBRARIES GeoPhysics DataAccess SerialDataAccess
+   LIBRARIES ${LIB_NAME} DataAccess SerialDataAccess
    ENV_VARS EOSPACKDIR=${CFGFLS}/eospack GENEX5DIR=${CFGFLS}/genex50 CTCDIR=${CFGFLS}/
+   FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME GeoPhysics::MultiMixingPermeability
+add_gtest( NAME ${LIB_NAME}::MultiMixingPermeability
    SOURCES test/MultiMixingPermeability.C
-   LIBRARIES GeoPhysics DataAccess SerialDataAccess
+   LIBRARIES ${LIB_NAME} DataAccess SerialDataAccess
    ENV_VARS EOSPACKDIR=${CFGFLS}/eospack GENEX5DIR=${CFGFLS}/genex50 CTCDIR=${CFGFLS}/
+   FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME GeoPhysics::PermeabilityImpermeable
+add_gtest( NAME ${LIB_NAME}::PermeabilityImpermeable
    SOURCES test/PermeabilityImpermeable.C
-   LIBRARIES GeoPhysics SerialDataAccess
+   LIBRARIES ${LIB_NAME} SerialDataAccess
+   FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME GeoPhysics::PermeabilitySandStone
+add_gtest( NAME ${LIB_NAME}::PermeabilitySandStone
    SOURCES test/PermeabilitySandStone.C
-   LIBRARIES GeoPhysics SerialDataAccess
+   LIBRARIES ${LIB_NAME} SerialDataAccess
+   FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME GeoPhysics::PermeabilityMudStone
+add_gtest( NAME ${LIB_NAME}::PermeabilityMudStone
       SOURCES test/PermeabilityMudStone.C
-      LIBRARIES GeoPhysics SerialDataAccess
+      LIBRARIES ${LIB_NAME} SerialDataAccess
+      FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME GeoPhysics::PermeabilityMultiPoint
+add_gtest( NAME ${LIB_NAME}::PermeabilityMultiPoint
       SOURCES test/PermeabilityMultiPoint.C
-      LIBRARIES GeoPhysics SerialDataAccess
+      LIBRARIES ${LIB_NAME} SerialDataAccess
+      FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME GeoPhysics::PermeabilityMultiPointArrayTest
+add_gtest( NAME ${LIB_NAME}::PermeabilityMultiPointArrayTest
       SOURCES test/PermeabilityMultiPointArrayTest.C
-      LIBRARIES GeoPhysics SerialDataAccess
+      LIBRARIES ${LIB_NAME} SerialDataAccess
+      FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME GeoPhysics::SchneiderCompactionCalculator
+add_gtest( NAME ${LIB_NAME}::SchneiderCompactionCalculator
       SOURCES test/SchneiderCompactionCalculatorTest.C
-      LIBRARIES GeoPhysics SerialDataAccess
+      LIBRARIES ${LIB_NAME} SerialDataAccess
+      FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME GeoPhysics::SeismicVelocityGardner
+add_gtest( NAME ${LIB_NAME}::SeismicVelocityGardner
       SOURCES test/SeismicVelocityGardner.C
-      LIBRARIES GeoPhysics SerialDataAccess
+      LIBRARIES ${LIB_NAME} SerialDataAccess
+      FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME GeoPhysics::SeismicVelocityKennan
+add_gtest( NAME ${LIB_NAME}::SeismicVelocityKennan
       SOURCES test/SeismicVelocityKennan.C
-      LIBRARIES GeoPhysics SerialDataAccess
+      LIBRARIES ${LIB_NAME} SerialDataAccess
+      FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME GeoPhysics::SeismicVelocityWyllie
+add_gtest( NAME ${LIB_NAME}::SeismicVelocityWyllie
       SOURCES test/SeismicVelocityWyllie.C
-      LIBRARIES GeoPhysics SerialDataAccess
+      LIBRARIES ${LIB_NAME} SerialDataAccess
+      FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME GeoPhysics::SoilMechanicsPorosity
+add_gtest( NAME ${LIB_NAME}::SoilMechanicsPorosity
       SOURCES test/SoilMechanicsPorosity.C
-      LIBRARIES GeoPhysics SerialDataAccess
+      LIBRARIES ${LIB_NAME} SerialDataAccess
+      FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME GeoPhysics::VitriniteReflectance
+add_gtest( NAME ${LIB_NAME}::VitriniteReflectance
       SOURCES test/VitriniteReflectance.C test/InputGrid.C test/OutputGrid.C
-      LIBRARIES GeoPhysics SerialDataAccess
+      LIBRARIES ${LIB_NAME} SerialDataAccess
+      FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME GeoPhysics::VreTtiMethod
+add_gtest( NAME ${LIB_NAME}::VreTtiMethod
       SOURCES test/VreTtiMethod.C test/InputGrid.C test/OutputGrid.C
-      LIBRARIES GeoPhysics SerialDataAccess
+      LIBRARIES ${LIB_NAME} SerialDataAccess
+      FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME GeoPhysics::VreArrheniusMethod
+add_gtest( NAME ${LIB_NAME}::VreArrheniusMethod
       SOURCES test/VreArrheniusMethod.C test/InputGrid.C test/OutputGrid.C
-      LIBRARIES GeoPhysics SerialDataAccess
+      LIBRARIES ${LIB_NAME} SerialDataAccess
+      FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME GeoPhysics::WalderhaugCompactionCalculator
+add_gtest( NAME ${LIB_NAME}::WalderhaugCompactionCalculator
       SOURCES test/WalderhaugCompactionCalculatorTest.C
-      LIBRARIES GeoPhysics SerialDataAccess
+      LIBRARIES ${LIB_NAME} SerialDataAccess
+      FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME GeoPhysics::MultiCompoundPropertyTest
+add_gtest( NAME ${LIB_NAME}::MultiCompoundPropertyTest
       SOURCES test/MultiCompoundPropertyTest.C
-      LIBRARIES GeoPhysics SerialDataAccess utilities
+      LIBRARIES ${LIB_NAME} SerialDataAccess utilities
+      FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME GeoPhysics::ConfigFileAlc
+add_gtest( NAME ${LIB_NAME}::ConfigFileAlc
       SOURCES test/ConfigFileAlc.C
-      LIBRARIES GeoPhysics SerialDataAccess
+      LIBRARIES ${LIB_NAME} SerialDataAccess
       ENV_VARS CTCDIR=${PROJECT_SOURCE_DIR}/geocase/misc
+      FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 

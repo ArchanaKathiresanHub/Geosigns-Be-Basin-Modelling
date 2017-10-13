@@ -10,6 +10,8 @@
 #                                                                       #
 #########################################################################
 
+set( BASE_FOLDER "Libraries" )
+
 add_subdirectory(TableIO)
 add_subdirectory(utilities)
 add_subdirectory(FileSystem)

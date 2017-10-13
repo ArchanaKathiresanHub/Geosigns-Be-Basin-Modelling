@@ -28,6 +28,7 @@ source_group(source FILES ${all_srcs})
 
 set( APP_NAME "fastctc" )
 add_executable( ${APP_NAME} ${all_srcs} ${all_headers} )
+set_target_properties( ${APP_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${APP_NAME}" )
 
 set_target_properties( ${APP_NAME} PROPERTIES SUFFIX ".exe" )
 

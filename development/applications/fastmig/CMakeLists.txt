@@ -22,6 +22,7 @@ set( APP_NAME "fastmig" )
 add_executable( ${APP_NAME} ${all_srcs} ${all_headers} )
 
 set_target_properties( ${APP_NAME} PROPERTIES SUFFIX ".exe" )
+set_target_properties( ${APP_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${APP_NAME}" )
 
 create_application_run_script( ${APP_NAME} )
 
@@ -119,12 +120,14 @@ set(CFGFLS "${PROJECT_SOURCE_DIR}/geocase/misc")
 add_gtest( NAME "Fastmig::Biodegrade"
            SOURCES test/BiodegradeTest.C src/Biodegrade.C
            LIBRARIES DataAccess DistributedDataAccess
+           FOLDER "${BASE_FOLDER}/${APP_NAME}"
           )
 
 add_gtest( NAME "Fastmig::CapillarySealStrength"
            SOURCES test/CapillarySealStrength.C src/CapillarySealStrength.C src/Composition.C src/Biodegrade.C src/DiffusionLeak.C src/DiffusionCoefficient.C
            LIBRARIES DataAccess DistributedDataAccess CBMGenerics EosPack GeoPhysics functions
-         ENV_VARS EOSPACKDIR=${CFGFLS}/eospack GENEX5DIR=${CFGFLS}/genex50 CTCDIR=${CFGFLS}/
+           ENV_VARS EOSPACKDIR=${CFGFLS}/eospack GENEX5DIR=${CFGFLS}/genex50 CTCDIR=${CFGFLS}/
+           FOLDER "${BASE_FOLDER}/${APP_NAME}"
           )
 
 endif (BM_PARALLEL)

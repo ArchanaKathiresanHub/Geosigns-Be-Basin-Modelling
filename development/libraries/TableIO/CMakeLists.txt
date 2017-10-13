@@ -55,34 +55,36 @@ set (generator_source_files
   ${CMAKE_CURRENT_BINARY_DIR}/cauldronschemafuncs.h
 )
 
-add_library( TableIO
-	src/dataschema.cpp
-	src/database.cpp
-	src/datautils.cpp
-	src/ProjectFileHandler.h
-	src/ProjectFileHandler.cpp
-	src/upgradeTables.cpp
-	${generator_source_files}
+set( LIB_NAME "TableIO" )
+add_library( ${LIB_NAME}
+   src/dataschema.cpp
+   src/database.cpp
+   src/datautils.cpp
+   src/ProjectFileHandler.h
+   src/ProjectFileHandler.cpp
+   src/upgradeTables.cpp
+   ${generator_source_files}
 )
+set_target_properties( ${LIB_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${LIB_NAME}" )
 
 # under Linux we are building Boost that is why this target exist
 if (UNIX)
-add_dependencies(TableIO Boost)
+add_dependencies(${LIB_NAME} Boost)
 endif (UNIX)
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-add_dependencies( TableIO
+add_dependencies( ${LIB_NAME}
    FileSystem
    utilities
 )
 
-bm_include_libraries( TableIO
+bm_include_libraries( ${LIB_NAME}
    FileSystem
    utilities
 )
 
-target_link_libraries( TableIO
+target_link_libraries( ${LIB_NAME}
    FileSystem
    utilities
 )
@@ -95,28 +97,30 @@ if (CMAKE_CROSSCOMPILING)
 endif()
 
 if (NOT CMAKE_CROSSCOMPILING)
-   add_executable( parspec
+   set( PARSPEC_NAME "parspec" )
+   add_executable( ${PARSPEC_NAME}
       src/parspec.cpp
       src/datautils.cpp
    )
+   set_target_properties( ${PARSPEC_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${PARSPEC_NAME}" )
 endif()
 
 add_custom_command( OUTPUT ${generator_source_files}
-	DEPENDS parspec BasinModellerProperty.Spec
-	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-	COMMAND parspec -schema CauldronSchema -directory ${CMAKE_CURRENT_BINARY_DIR} -input BasinModellerProperty.Spec
+   DEPENDS ${PARSPEC_NAME} BasinModellerProperty.Spec
+   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+   COMMAND ${PARSPEC_NAME} -schema CauldronSchema -directory ${CMAKE_CURRENT_BINARY_DIR} -input BasinModellerProperty.Spec
 )
 
 if (NOT CMAKE_CROSSCOMPILING)
-   EXPORT(TARGETS parspec FILE ${CMAKE_BINARY_DIR}/ImportExecutables.cmake )
+   EXPORT(TARGETS ${PARSPEC_NAME} FILE ${CMAKE_BINARY_DIR}/ImportExecutables.cmake )
 endif()
 
 generate_dox( src/tableio.cfg )
 
-install(TARGETS TableIO
-	RUNTIME DESTINATION bin
-	LIBRARY	DESTINATION lib
-	ARCHIVE DESTINATION lib
+install(TARGETS ${LIB_NAME}
+   RUNTIME DESTINATION bin
+   LIBRARY   DESTINATION lib
+   ARCHIVE DESTINATION lib
 )
 
 configure_file(
@@ -138,17 +142,20 @@ configure_file(
       COPYONLY
 )
 
-add_gtest( NAME TableIO::DataSchemaTest
+add_gtest( NAME ${LIB_NAME}::DataSchemaTest
            SOURCES test/DataSchemaTest.cpp
-           LIBRARIES TableIO utilities
+           LIBRARIES ${LIB_NAME} utilities
+           FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME TableIO::DataBaseTest
+add_gtest( NAME ${LIB_NAME}::DataBaseTest
            SOURCES test/DataBaseTest.cpp
-           LIBRARIES TableIO utilities
+           LIBRARIES ${LIB_NAME} utilities
+           FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME TableIO::ProjectFileHandlerTest
+add_gtest( NAME ${LIB_NAME}::ProjectFileHandlerTest
            SOURCES test/ProjectFileHandlerTest.cpp
-           LIBRARIES TableIO utilities
+           LIBRARIES ${LIB_NAME} utilities
+           FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )

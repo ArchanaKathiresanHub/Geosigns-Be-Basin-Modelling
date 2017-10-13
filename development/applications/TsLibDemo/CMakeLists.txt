@@ -20,25 +20,26 @@ add_executable(${target_name}
    src/tslibloader.cpp
 )
 
+set_target_properties( ${target_name} PROPERTIES FOLDER "${BASE_FOLDER}/${target_name}" )
 
 # IMPORTANT: remove -rdynamic from CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS
 set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "")
 
 include_directories( SYSTEM
-	${XERCES_INCLUDE_DIRS}
-	${XSD_INCLUDE_DIRS}
-	${TS7_INCLUDE_DIRS}
-	${MPI_INCLUDE_DIRS}
+   ${XERCES_INCLUDE_DIRS}
+   ${XSD_INCLUDE_DIRS}
+   ${TS7_INCLUDE_DIRS}
+   ${MPI_INCLUDE_DIRS}
 )
 
 target_link_libraries(${target_name} 
-	${TS7_LIBRARIES}
-	${XERCES_LIBRARIES}
-	${MPI_LIBRARIES}
+   ${TS7_LIBRARIES}
+   ${XERCES_LIBRARIES}
+   ${MPI_LIBRARIES}
 )
 
 install(TARGETS TouchLibDemo
-	RUNTIME DESTINATION bin
+   RUNTIME DESTINATION bin
 )
 
 endif(BM_PARALLEL AND TS7_ROOT)

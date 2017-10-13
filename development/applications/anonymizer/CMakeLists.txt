@@ -19,16 +19,18 @@ FILE( GLOB all_srcs src/*.cpp)
 source_group(source FILES ${all_srcs})
 
 # 3. Anonymizer application
-add_executable( anonymizer
+set( TARGET_NAME "anonymizer" )
+add_executable( ${TARGET_NAME}
    ${all_srcs}
    ${all_headers}
 )
+set_target_properties( ${TARGET_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${TARGET_NAME}" )
 
 # 4. Dependencies
 if (UNIX)
-   add_dependencies(anonymizer TableIO Boost)
+   add_dependencies(${TARGET_NAME} TableIO Boost)
 else (WIN32)
-   add_dependencies(anonymizer TableIO)
+   add_dependencies(${TARGET_NAME} TableIO)
 endif (UNIX)
 
 include_directories( src )
@@ -44,7 +46,7 @@ bm_include_libraries(
    utilities
 )
 
-target_link_libraries(anonymizer
+target_link_libraries(${TARGET_NAME}
    TableIO
    FileSystem
    utilities
@@ -53,7 +55,7 @@ target_link_libraries(anonymizer
    ${Boost_LIBRARIES}
 )
 
-install(TARGETS anonymizer
+install(TARGETS ${TARGET_NAME}
    DESTINATION bin
 )
 
@@ -106,6 +108,7 @@ configure_file(
 add_gtest( NAME "Anonymizer"
            SOURCES src/anonymizer.cpp test/anonymizer.cpp
            LIBRARIES TableIO FileSystem utilities PugiXMLlib ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
+           FOLDER "${BASE_FOLDER}/${TARGET_NAME}"
          )
 
 # Doxygen

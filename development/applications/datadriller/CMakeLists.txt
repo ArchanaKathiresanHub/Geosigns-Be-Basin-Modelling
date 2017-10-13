@@ -15,54 +15,56 @@ source_group(include FILES ${all_headers})
 FILE( GLOB all_srcs src/*.C)
 source_group(source FILES ${all_srcs})
 
-add_executable( datadriller
-	${all_srcs}
-	${all_headers}
-) 
+set( TARGET_NAME "datadriller" )
+add_executable( ${TARGET_NAME}
+   ${all_srcs}
+   ${all_headers}
+)
+set_target_properties( ${TARGET_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${TARGET_NAME}" )
 
 bm_include_libraries(
-	DataModel
-	DataMining
-	DataAccess
-	SerialDataAccess
-	CBMGenerics
-	GeoPhysics
-	DerivedProperties
-	CrustalThinkness
-	Serial_Hdf5
-	EosPack
-	utilities
-	TableIO
-	LinearAlgebra
-	Interpolation
-	FiniteElements
+   DataModel
+   DataMining
+   DataAccess
+   SerialDataAccess
+   CBMGenerics
+   GeoPhysics
+   DerivedProperties
+   CrustalThinkness
+   Serial_Hdf5
+   EosPack
+   utilities
+   TableIO
+   LinearAlgebra
+   Interpolation
+   FiniteElements
 )
 
 include_directories( SYSTEM
-	${HDF5_INCLUDE_DIRS}
+   ${HDF5_INCLUDE_DIRS}
 )
 
-target_link_libraries(datadriller
-	DataMining
-	DataAccess
-	SerialDataAccess
-	CBMGenerics
-	GeoPhysics
-	DerivedProperties
-	Serial_Hdf5
-	EosPack
-	utilities
-	TableIO
-	LinearAlgebra
-	Interpolation
-	FiniteElements
-	${HDF5_LIBRARIES}
+target_link_libraries(${TARGET_NAME}
+   DataMining
+   DataAccess
+   SerialDataAccess
+   CBMGenerics
+   GeoPhysics
+   DerivedProperties
+   Serial_Hdf5
+   EosPack
+   utilities
+   TableIO
+   LinearAlgebra
+   Interpolation
+   FiniteElements
+   ${HDF5_LIBRARIES}
 )
 
-set_target_properties( datadriller
+set_target_properties( ${TARGET_NAME}
       PROPERTIES LINK_FLAGS "${PETSC_LINK_FLAGS}"
 )
 
-install(TARGETS datadriller
-	RUNTIME DESTINATION bin
+install(TARGETS ${TARGET_NAME}
+   RUNTIME DESTINATION bin
 )

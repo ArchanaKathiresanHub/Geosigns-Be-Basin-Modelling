@@ -19,16 +19,18 @@ add_definitions(-DNNLIB_EXPORT)
 
 include_directories(SYSTEM "./include")
 
-add_library( NNlib
+set( LIB_NAME "NNlib" )
+add_library( ${LIB_NAME}
    ${all_srcs}
    ${all_headers}
 )
+set_target_properties( ${LIB_NAME} PROPERTIES FOLDER "3rdparty/${LIB_NAME}" )
 
 if (UNIX)
-add_dependencies(NNlib Boost)
+add_dependencies(${LIB_NAME} Boost)
 endif (UNIX)
 
-install(TARGETS NNlib
+install(TARGETS ${LIB_NAME}
    RUNTIME DESTINATION bin
    LIBRARY DESTINATION lib
    ARCHIVE DESTINATION lib
