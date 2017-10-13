@@ -1003,8 +1003,8 @@ void ImportProjectHandle::addStratTableSurface(const DataAccess::Interface::Surf
    const Interface::GridMap* gridmap = m_projectHandle->getFactory()->produceGridMap(surface, 0, grid, 0);
     gridmap->retrieveData();
        
-	std::shared_ptr<const CauldronIO::Geometry2D> geometry(new CauldronIO::Geometry2D(grid->numIGlobal(), grid->numJGlobal(),
-		grid->deltaIGlobal(), grid->deltaJGlobal(), grid->minIGlobal(), grid->minJGlobal()));
+   std::shared_ptr<const CauldronIO::Geometry2D> geometry(new CauldronIO::Geometry2D(grid->numIGlobal(), grid->numJGlobal(),
+      grid->deltaIGlobal(), grid->deltaJGlobal(), grid->minIGlobal(), grid->minJGlobal()));
 
     gridmap->restoreData();
     gridmap->release();
