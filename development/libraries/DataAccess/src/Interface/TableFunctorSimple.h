@@ -36,7 +36,7 @@ namespace DataAccess
          /// @brief Construct a functor wich can load one data accessors (for the unique line) of an IoTbl and store it in m_data
          /// @param[in] produceFunction The member function of the object factory which will produce the data accessors
          /// @param[out] data The placeholder where will be stored the data accessor
-         TableFunctorSimple( ProjectHandle& projectHandle, const produceData produceFunction, std::shared_ptr<const T> data ) :
+         TableFunctorSimple( ProjectHandle& projectHandle, const produceData produceFunction, std::shared_ptr<const T>& data ) :
             m_projectHandle( projectHandle ),
             m_produceData( produceFunction ),
             m_data( data ){}
@@ -50,7 +50,7 @@ namespace DataAccess
       private:
          ProjectHandle& m_projectHandle;
          const produceData m_produceData;  ///< Pointer to the member function of the object factory which will produce the data accessor
-         std::shared_ptr<const T> m_data; ///< The data accessors produced by m_produceData
+         std::shared_ptr<const T>& m_data; ///< The data accessors produced by m_produceData
       };
    }
 }
