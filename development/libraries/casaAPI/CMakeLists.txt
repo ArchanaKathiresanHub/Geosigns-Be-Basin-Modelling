@@ -17,13 +17,15 @@ source_group(source FILES ${all_srcs})
 
 configure_file(src/CauldronEnvConfig.h.in CauldronEnvConfig.h)
 
+set( LIB_NAME "casalib" )
 add_library(casalib
    ${all_srcs}
    ${all_headers}
 )
+set_target_properties( ${LIB_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${LIB_NAME}" )
 
 if (UNIX)
-add_dependencies(casalib Boost)
+add_dependencies(${LIB_NAME} Boost)
 endif (UNIX)
 
 
@@ -49,7 +51,7 @@ include_directories( SYSTEM
    ${NNLIB_INCLUDE_DIR}
 )
 
-target_link_libraries(casalib
+target_link_libraries(${LIB_NAME}
    TableIO
    cmbapi
    FileSystem
@@ -63,7 +65,7 @@ target_link_libraries(casalib
 
 if (LSF_HOME)
    include_directories(SYSTEM ${LSF_INCLUDE_DIR})
-   target_link_libraries(casalib ${LSF_LIBS})
+   target_link_libraries(${LIB_NAME} ${LSF_LIBS})
 endif(LSF_HOME)
 
 generate_dox( src/API.cfg )
@@ -93,65 +95,77 @@ configure_file(test/Inputs.HDF                        ${CMAKE_CURRENT_BINARY_DIR
 
 add_gtest( NAME BLRSTest
    SOURCES test/BLRSTest.cpp
-   LIBRARIES casalib cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
+   LIBRARIES ${LIB_NAME} cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
+   FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME DoETest
    SOURCES test/DoETest.cpp
-   LIBRARIES casalib cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
+   LIBRARIES ${LIB_NAME} cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
+   FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME MutatorTest
    SOURCES test/MutatorTest.cpp
-   LIBRARIES casalib cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
+   LIBRARIES ${LIB_NAME} cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
+   FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME ValidatorTest
    SOURCES test/ValidatorTest.cpp
-   LIBRARIES casalib cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
+   LIBRARIES ${LIB_NAME} cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
+   FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 if (LSF_HOME)
    add_gtest( NAME RunManagerTest
       SOURCES test/RunManagerTest.cpp
       INCLUDE_DIRS ${LSF_INCLUDE_DIR}
-      LIBRARIES casalib cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES} ${LSF_LIBS}
+      LIBRARIES ${LIB_NAME} cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES} ${LSF_LIBS}
+      FOLDER "${BASE_FOLDER}/${LIB_NAME}"
    )
 endif()
 
 add_gtest( NAME DataDiggerTest
    SOURCES test/DataDiggerTest.cpp
-   LIBRARIES casalib cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
+   LIBRARIES ${LIB_NAME} cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
+   FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME RSProxyTest
    SOURCES test/RSProxyTest.cpp
-   LIBRARIES casalib cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
+   LIBRARIES ${LIB_NAME} cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
+   FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME MCTest
    SOURCES test/MCTest.cpp
-   LIBRARIES casalib cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
+   LIBRARIES ${LIB_NAME} cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
+   FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME SerializationTest
    SOURCES test/SerializationTest.cpp
-   LIBRARIES casalib cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
+   LIBRARIES ${LIB_NAME} cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
+   FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME BestMatchedCaseGenerationTest
    SOURCES test/BestMatchedCaseGenerationTest.cpp
-   LIBRARIES casalib cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
+   LIBRARIES ${LIB_NAME} cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
+   FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME SensCalcTest
    SOURCES test/SensCalcTest.cpp
-   LIBRARIES casalib cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
+   LIBRARIES ${LIB_NAME} cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
+   FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 # temporary disabled, under development
 #add_gtest( NAME LMOptimTest
 #   SOURCES test/LMOptimTest.cpp
-#   LIBRARIES casalib cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
+#   LIBRARIES ${LIB_NAME} cmbapi DataAccess SerialDataAccess TableIO ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
+#   FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 #)
 
 if (MSVC)
@@ -168,7 +182,7 @@ if (MSVC)
       CSPROJ_ASSEMBLY_RELEASE_NOTES "Version ${CSPROJ_ASSEMBLY_VERSION}. Initial nuget package release"
       CSPROJ_ASSEMBLY_TAGS          "Cauldron backend CASA SA/UA/SAC Inversion API"
       CSPROJ_ASSEMBLY_COPYRIGHT     "Copyright (C) 2012-2017"
-      CSPROJ_LIBRARIES              casalib cmbapi Serial_Hdf5 TableIO DataModel SerialDataAccess DataAccess EosPack ${Boost_LIBRARIES}
+      CSPROJ_LIBRARIES              ${LIB_NAME} cmbapi Serial_Hdf5 TableIO DataModel SerialDataAccess DataAccess EosPack ${Boost_LIBRARIES}
       CSHARP_UNIT_TESTS_SRC         test/cmbAPITest.cs test/casaAPITest.cs test/casaAPI_SensitivityCalculatorTest.cs
    )
    

@@ -16,7 +16,6 @@
 
 #include "Input.h"
 #include "SimulatorState.h"
-#include "SpeciesState.h"
 
 #include "EosPack.h"
 

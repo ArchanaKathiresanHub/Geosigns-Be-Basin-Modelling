@@ -16,31 +16,33 @@ source_group(include FILES ${all_headers})
 FILE( GLOB all_srcs src/*.C)
 source_group(source FILES ${all_srcs})
 
-add_library(OTGC_kernel6 
+set( LIB_NAME "OTGC_kernel6" )
+add_library(${LIB_NAME} 
    ${all_srcs}
    ${all_headers}
 )
+set_target_properties( ${LIB_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${LIB_NAME}" )
 
 bm_include_libraries(
-	DataModel
-	genex6
-	utilities
-	CBMGenerics
-	EosPack
+   DataModel
+   genex6
+   utilities
+   CBMGenerics
+   EosPack
 )
 
-target_link_libraries(OTGC_kernel6
-	utilities
-	EosPack
-	CBMGenerics
-	genex6
+target_link_libraries(${LIB_NAME}
+   utilities
+   EosPack
+   CBMGenerics
+   genex6
 )
 
 add_definitions(-DUSEOTGC)
 
-install(TARGETS OTGC_kernel6
-	RUNTIME DESTINATION bin
-	LIBRARY DESTINATION lib
-	ARCHIVE DESTINATION lib
+install(TARGETS ${LIB_NAME}
+   RUNTIME DESTINATION bin
+   LIBRARY DESTINATION lib
+   ARCHIVE DESTINATION lib
 )
 

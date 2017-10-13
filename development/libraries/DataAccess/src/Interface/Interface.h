@@ -98,7 +98,11 @@ namespace DataAccess
       class Trap;
       class Trapper;
       class Migration;
-      class CrustalThicknessData;
+
+      // Data classes, each of them corresponding to a complete IoTbl
+      class CrustalThicknessData;               ///< Data from [CTCIoTbl                 ]
+      class CrustalThicknessRiftingHistoryData; ///< Data from [CTCRiftingHistoryIoTbl   ]
+      class OceanicCrustThicknessHistoryData;   ///< Data from [OceaCrustalThicknessIoTbl]
 
 
       /// list type for the snapshots
@@ -290,8 +294,7 @@ namespace DataAccess
          CrustThinningHistoryInstanceThicknessMap,   ///< Thickness of crust.
          MantleThicknessHistoryInstanceThicknessMap, ///< Thickness of mantle.
          SurfaceTemperatureHistoryInstanceMap,       ///< Temperature of top surface.
-         SurfaceDepthHistoryInstanceMap//,             ///< Depth of top surface.
-         //          AllochthonousLithologyDistributionMap       ///< Distribution of allochthonous salt.
+         SurfaceDepthHistoryInstanceMap              ///< Depth of top surface.
       };
 
 
@@ -308,9 +311,25 @@ namespace DataAccess
          AllochthonousLithologyDistributionMap = 0
       };
 
-      /// Attributes for which a (GridMap) value can be requested via getMap ().
+      /// @brief Attributes for which a (GridMap) value can be requested via getMap ()
+      /// @details To be requested from CrustalThicknessData object
       enum CTCMapAttributeId {
-         T0Ini = 0, TRIni, HCuIni, HLMuIni, HBu, DeltaSL
+         HCuIni, ///< The initial continental crust thickness map         [m]
+         HLMuIni ///< The initial lithospheric mantle crust thickness map [m]
+      };
+
+      /// @brief Attributes for which a (GridMap) value can be requested via getMap ()
+      /// @details To be requested from CrustalThicknessRiftingHistoryData object
+      enum CTCRiftingHistoryMapAttributeId {
+         HBu,     ///< The maximum oceanic crustal thickness map [m]
+         DeltaSL  ///< The sea level adjustment map              [m]
+      };
+
+      /// @brief Indicates what is the tectonic contexct at a specific snapshot
+      enum TectonicFlag {
+         ACTIVE_RIFTING, ///< Syn rift deposition
+         PASSIVE_MARGIN, ///< Post rift deposition
+         FLEXURAL_BASIN  ///< Subduction (subsidence is no more driven by rifting)
       };
 
       /// Indicates the amount of output required for a particular property.
@@ -678,6 +697,8 @@ namespace DataAccess
 
       /// Value for undefined used in maps
       const double DefaultUndefinedMapValue = 99999;
+      /// Value for undefined used in maps
+      const int DefaultUndefinedMapValueInteger = 99999;
       /// Value for undefined used in project files
       const double DefaultUndefinedScalarValue = -9999;
       const double RecordValueUndefined = DefaultUndefinedScalarValue;
@@ -772,4 +793,4 @@ inline double DataAccess::Interface::AddConstant::operator ()( const double oper
 }
 
 
-#endif // Interface_H
+#endif // INTERFACE_H

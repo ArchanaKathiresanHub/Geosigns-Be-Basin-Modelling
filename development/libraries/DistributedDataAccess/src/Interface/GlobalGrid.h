@@ -1,3 +1,13 @@
+// 
+// Copyright (C) 2015-2017 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef _PARALLELDATAACCESS_GLOBALGRID_H_
 #define _PARALLELDATAACCESS_GLOBALGRID_H_
 
@@ -12,10 +22,10 @@ namespace DataAccess
       /// Objects of this class describe the input and output grids of a Cauldron project.
       class GlobalGrid
       {
-public:
+      public:
          /// create a new global grid
          GlobalGrid (double minI, double minJ, double maxI, double maxJ, int numI, int numJ);
-	 virtual ~GlobalGrid (void);
+         virtual ~GlobalGrid (void);
 
          /// Checks whether the given point is a grid point
          bool isGridPoint (int i, int j) const;
@@ -53,21 +63,21 @@ public:
 
          /// convert grid point to grid point of specified grid
          bool convertToGrid (const GlobalGrid & toGrid, unsigned int fromI, unsigned int fromJ,
-	       unsigned int &toI, unsigned int &toJ) const;
+                             unsigned int &toI, unsigned int &toJ) const;
 
          /// convert grid point to grid point of specified grid
          /// the point can be a fractional point
          bool convertToGrid (const GlobalGrid & toGrid, unsigned int fromI, unsigned int fromJ,
-	       double &toI, double &toJ) const;
+                             double &toI, double &toJ) const;
 
          /// get the realworld surface at the given grid coordinates
          double getSurface (int i, int j) const;
          /// get the real-world distance between the two given gridpoints
          double getDistance (int i1, int j1, int i2, int j2) const;
 
-	 virtual void asString (string &) const;
+         virtual void asString (string &) const;
 
-private:
+      private:
          const double m_minI;
          const double m_minJ;
          const double m_maxI;

@@ -81,15 +81,16 @@ set(TESTFRAMEWORK_INCLUDE_DIRS "${gtest_SOURCE_DIR}/include;${gmock_SOURCE_DIR}/
 macro(add_gtest )
 
    ### Parse parameters
-   set(testName)    # The name of the test
-   set(sources)     # The source files
-   set(libraries)   # The libraries that should be linked with it
-   set(dependsOn)    # Other targets on which this test could depends on
-   set(compileflags)# The set of compilator flags
-   set(linkflags)   # The set of linker flags
-   set(mpiSize)     # The number of MPI processes
-   set(mpirunPrms)  # Additional mpirun options
-   set(include_dirs)# Additional include directories
+   set(testName)        # The name of the test
+   set(testFolder)      # The name of the folder for the test
+   set(sources)         # The source files
+   set(libraries)       # The libraries that should be linked with it
+   set(dependsOn)       # Other targets on which this test could depends on
+   set(compileflags)    # The set of compilator flags
+   set(linkflags)       # The set of linker flags
+   set(mpiSize)         # The number of MPI processes
+   set(mpirunPrms)      # Additional mpirun options
+   set(include_dirs)    # Additional include directories
    set(environment_vars)#List of variables in format VAR=VAL
 
    set(parameterName)
@@ -125,6 +126,8 @@ macro(add_gtest )
    foreach(param ${ARGN})
       if (param STREQUAL NAME)
          set(parameterName testName)
+      elseif(param STREQUAL FOLDER)
+         set(parameterName testFolder)
       elseif(param STREQUAL SOURCES)
          set(parameterName sources)
       elseif(param STREQUAL LIBRARIES)
@@ -140,7 +143,7 @@ macro(add_gtest )
       elseif(param STREQUAL INCLUDE_DIRS)
          set(parameterName include_dirs)
       elseif(param STREQUAL ENV_VARS)
-         set(parameterName environment_vars)        
+         set(parameterName environment_vars)
       elseif(param STREQUAL MPIRUN_PRMS)
          set(parameterName mpirunPrms)
       else()
@@ -156,18 +159,18 @@ macro(add_gtest )
    # Windows has a 260 character limitation of path names, so want to keep the executable name length limited
    if (WIN32)
      set(maxExeNameLength 40)
-	  string(LENGTH "${execName}" exeNameLength)
+     string(LENGTH "${execName}" exeNameLength)
      if (exeNameLength GREATER maxExeNameLength)
-	    string(SUBSTRING "${execName}" 0 "${maxExeNameLength}" croppedExeName)
+       string(SUBSTRING "${execName}" 0 "${maxExeNameLength}" croppedExeName)
 
        if( NOT DEFINED RANDOM_SEED_VAL_TEST )
          set(RANDOM_SEED_VAL_TEST 1970 CACHE INTERNAL "Seed value for the test random name generation" )
-   		 string(RANDOM LENGTH 8 RANDOM_SEED ${RANDOM_SEED_VAL_TEST} randomSuffix)
+          string(RANDOM LENGTH 8 RANDOM_SEED ${RANDOM_SEED_VAL_TEST} randomSuffix)
        else()
-   		 string(RANDOM LENGTH 8 randomSuffix)
+          string(RANDOM LENGTH 8 randomSuffix)
        endif()
-		 set( execName "${croppedExeName}_${randomSuffix}")
-	  endif()
+       set( execName "${croppedExeName}_${randomSuffix}")
+     endif()
    endif()
 
    # Add Google Mock (which includes Google Test also) to the list of
@@ -194,9 +197,11 @@ macro(add_gtest )
    target_include_directories( ${execName} SYSTEM PRIVATE "${TESTFRAMEWORK_INCLUDE_DIRS}" )
    target_include_directories( ${execName} PRIVATE "${incdirs};${include_dirs}" )
    set_target_properties( ${execName} 
-      PROPERTIES 
-                 COMPILE_FLAGS "${compileflags}"
-                 LINK_FLAGS "${linkflags}"   )
+      PROPERTIES COMPILE_FLAGS "${compileflags}"
+                 LINK_FLAGS "${linkflags}" )
+   if( NOT "${testFolder}" STREQUAL "" )
+      set_target_properties( ${execName} PROPERTIES FOLDER "${testFolder}/UnitTests" )
+   endif()
 
    # Add the test to the CTest test  collection.
    if (mpiSize)

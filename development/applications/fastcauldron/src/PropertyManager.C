@@ -155,31 +155,31 @@ PropertyManager::PropertyManager () {
 
    m_propertyName2OutputName [ "ElementMass" ] = "ElementMass";
 
-   m_propertyName2OutputName [ "BrineSaturation" ] = "BrineSaturation";
-   m_propertyName2OutputName [ "HcLiquidSaturation"   ] = "HcLiquidSaturation";
-   m_propertyName2OutputName [ "HcVapourSaturation"   ] = "HcVapourSaturation";
-   m_propertyName2OutputName [ "ImmobileSaturation" ] = "ImmobileSaturation";
+   m_propertyName2OutputName [ "BrineSaturation" ]      = "BrineSaturation";
+   m_propertyName2OutputName [ "HcLiquidSaturation" ]   = "HcLiquidSaturation";
+   m_propertyName2OutputName [ "HcVapourSaturation" ]   = "HcVapourSaturation";
+   m_propertyName2OutputName [ "ImmobileSaturation" ]   = "ImmobileSaturation";
 
    //average saturations
-   m_propertyName2OutputName [ "AverageBrineSaturation" ] = "AverageBrineSaturation";
-   m_propertyName2OutputName [ "AverageHcLiquidSaturation"   ] = "AverageHcLiquidSaturation";
-   m_propertyName2OutputName [ "AverageHcVapourSaturation"   ] = "AverageHcVapourSaturation";
-   m_propertyName2OutputName [ "AverageImmobileSaturation" ] = "AverageImmobileSaturation";
+   m_propertyName2OutputName [ "AverageBrineSaturation" ]      = "AverageBrineSaturation";
+   m_propertyName2OutputName [ "AverageHcLiquidSaturation" ]   = "AverageHcLiquidSaturation";
+   m_propertyName2OutputName [ "AverageHcVapourSaturation" ]   = "AverageHcVapourSaturation";
+   m_propertyName2OutputName [ "AverageImmobileSaturation" ]   = "AverageImmobileSaturation";
+   
 
-
-   m_propertyName2OutputName [ "HcVapourDensity" ] = "HcVapourDensity";
-   m_propertyName2OutputName [ "HcLiquidDensity" ] = "HcLiquidDensity";
+   m_propertyName2OutputName [ "HcVapourDensity" ]   = "HcVapourDensity";
+   m_propertyName2OutputName [ "HcLiquidDensity" ]   = "HcLiquidDensity";
    m_propertyName2OutputName [ "HcVapourViscosity" ] = "HcVapourViscosity";
    m_propertyName2OutputName [ "HcLiquidViscosity" ] = "HcLiquidViscosity";
 
-   m_propertyName2OutputName [ "HcVapourVelocityX" ] = "HcVapourVelocityX";
-   m_propertyName2OutputName [ "HcVapourVelocityY" ] = "HcVapourVelocityY";
-   m_propertyName2OutputName [ "HcVapourVelocityZ" ] = "HcVapourVelocityZ";
+   m_propertyName2OutputName [ "HcVapourVelocityX" ]         = "HcVapourVelocityX";
+   m_propertyName2OutputName [ "HcVapourVelocityY" ]         = "HcVapourVelocityY";
+   m_propertyName2OutputName [ "HcVapourVelocityZ" ]         = "HcVapourVelocityZ";
    m_propertyName2OutputName [ "HcVapourVelocityMagnitude" ] = "HcVapourVelocityMagnitude";
 
-   m_propertyName2OutputName [ "HcLiquidVelocityX" ] = "HcLiquidVelocityX";
-   m_propertyName2OutputName [ "HcLiquidVelocityY" ] = "HcLiquidVelocityY";
-   m_propertyName2OutputName [ "HcLiquidVelocityZ" ] = "HcLiquidVelocityZ";
+   m_propertyName2OutputName [ "HcLiquidVelocityX" ]         = "HcLiquidVelocityX";
+   m_propertyName2OutputName [ "HcLiquidVelocityY" ]         = "HcLiquidVelocityY";
+   m_propertyName2OutputName [ "HcLiquidVelocityZ" ]         = "HcLiquidVelocityZ";
    m_propertyName2OutputName [ "HcLiquidVelocityMagnitude" ] = "HcLiquidVelocityMagnitude";
 
 
@@ -187,34 +187,38 @@ PropertyManager::PropertyManager () {
    m_propertyName2OutputName [ "HcVapourVolume" ] = "HcVapourVolume";
    m_propertyName2OutputName [ "HcLiquidVolume" ] = "HcLiquidVolume";
 
-   m_propertyName2OutputName [ "ElementVolume" ] = "ElementVolume";
-   m_propertyName2OutputName [ "ElementPoreVolume" ] = "ElementPoreVolume";
-   m_propertyName2OutputName [ "TransportedMass" ] = "TransportedMass";
-   m_propertyName2OutputName [ "BrineRelativePermeability" ] = "BrineRelativePermeability";
+   m_propertyName2OutputName [ "ElementVolume" ]                = "ElementVolume";
+   m_propertyName2OutputName [ "ElementPoreVolume" ]            = "ElementPoreVolume";
+   m_propertyName2OutputName [ "TransportedMass" ]              = "TransportedMass";
+   m_propertyName2OutputName [ "BrineRelativePermeability" ]    = "BrineRelativePermeability";
    m_propertyName2OutputName [ "HcLiquidRelativePermeability" ] = "HcLiquidRelativePermeability";
    m_propertyName2OutputName [ "HcVapourRelativePermeability" ] = "HcVapourRelativePermeability";
 
 
    m_propertyName2OutputName [ "HcLiquidBrineCapillaryPressure" ] = "HcLiquidBrineCapillaryPressure";
    m_propertyName2OutputName [ "HcVapourBrineCapillaryPressure" ] = "HcVapourBrineCapillaryPressure";
-   m_propertyName2OutputName [ "GOR" ] = "GOR";
-   m_propertyName2OutputName [ "CGR" ] = "CGR";
-   m_propertyName2OutputName [ "OilAPI" ] = "OilAPI";
-   m_propertyName2OutputName [ "CondensateAPI" ] = "CondensateAPI";
-   m_propertyName2OutputName [ "BrineDensity" ] = "BrineDensity";
-   m_propertyName2OutputName [ "BrineViscosity" ] = "BrineViscosity";
-   m_propertyName2OutputName [ "TimeOfInvasion" ] = "TimeOfInvasion";
+   m_propertyName2OutputName [ "GOR" ]                            = "GOR";
+   m_propertyName2OutputName [ "CGR" ]                            = "CGR";
+   m_propertyName2OutputName [ "OilAPI" ]                         = "OilAPI";
+   m_propertyName2OutputName [ "CondensateAPI" ]                  = "CondensateAPI";
+   m_propertyName2OutputName [ "BrineDensity" ]                   = "BrineDensity";
+   m_propertyName2OutputName [ "BrineViscosity" ]                 = "BrineViscosity";
+   m_propertyName2OutputName [ "TimeOfInvasion" ]                 = "TimeOfInvasion";
 
-   m_propertyName2OutputName [ "ALCOrigLithMantleDepth" ] = "ALCOrigLithMantleDepth";
-   m_propertyName2OutputName [ "ALCMaxAsthenoMantleDepth" ] = "ALCMaxAsthenoMantleDepth";
-   m_propertyName2OutputName [ "ALCStepContCrustThickness" ] = "ALCStepContCrustThickness";
-   m_propertyName2OutputName [ "ALCStepBasaltThickness" ] = "ALCStepBasaltThickness";
-   m_propertyName2OutputName [ "ALCStepTopBasaltDepth" ] = "ALCStepTopBasaltDepth";
-   m_propertyName2OutputName [ "ALCSmContCrustThickness" ] = "ALCSmContCrustThickness";
-   m_propertyName2OutputName [ "ALCSmBasaltThickness" ] = "ALCSmBasaltThickness";
-   m_propertyName2OutputName [ "ALCSmTopBasaltDepth" ] = "ALCSmTopBasaltDepth";
-   m_propertyName2OutputName [ "ALCSmMohoDepth" ] = "ALCSmMohoDepth";
-   m_propertyName2OutputName [ "ALCStepMohoDepth" ] = "ALCStepMohoDepth";
+   //ALC default properties
+   m_propertyName2OutputName["ALCStepContCrustThickness"] = "ALCStepContCrustThickness";
+   m_propertyName2OutputName["ALCStepBasaltThickness"]    = "ALCStepBasaltThickness";
+   m_propertyName2OutputName["ALCStepTopBasaltDepth"]     = "ALCStepTopBasaltDepth";
+   m_propertyName2OutputName["ALCStepMohoDepth"]          = "ALCStepMohoDepth";
+  
+   //ALC debug properties
+   m_propertyName2OutputName["ALCOrigLithMantleDepth"]    = "ALCOrigLithMantleDepth";
+   m_propertyName2OutputName["ALCMaxAsthenoMantleDepth"]  = "ALCMaxAsthenoMantleDepth";
+   m_propertyName2OutputName["ALCSmContCrustThickness"]   = "ALCSmContCrustThickness";
+   m_propertyName2OutputName["ALCSmBasaltThickness"]      = "ALCSmBasaltThickness";
+   m_propertyName2OutputName["ALCSmTopBasaltDepth"]       = "ALCSmTopBasaltDepth";
+   m_propertyName2OutputName["ALCSmMohoDepth"]            = "ALCSmMohoDepth";
+
 
 }
 

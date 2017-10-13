@@ -19,6 +19,7 @@ find_package(Doxygen)
 
 if(DOXYGEN_FOUND)
    add_custom_target(doc COMMENT "Generating Doxygen documentation")
+   set_target_properties( doc PROPERTIES FOLDER "Documentation" )
 
    add_external_package_info(
       CAPABILITY Boost

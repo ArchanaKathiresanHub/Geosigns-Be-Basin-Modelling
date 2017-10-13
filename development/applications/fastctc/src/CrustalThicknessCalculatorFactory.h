@@ -1,37 +1,61 @@
-#ifndef _CRUSTAL_THICKNESS_FACTORY_H_
-#define _CRUSTAL_THICKNESS_FACTORY_H_
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 
+#ifndef _FASTCTC_CRUSTALTHICKNESS_CALCULATORFACTORY_H_
+#define _FASTCTC_CRUSTALTHICKNESS_CALCULATORFACTORY_H_
+
+// DataMining library
+#include "DataMiningObjectFactory.h"
+
+// TableIO library
 #include "ProjectFileHandler.h"
-#include "GeoPhysicsObjectFactory.h"
+#include "PropertyValue.h"
 
-namespace DataAccess
-{
-   namespace Interface
-   {
-      class ObjectFactory;
-      class ProjectHandle;
-   }
-}
+#include "CrustalThicknessCalculator.h"
 
+// Forward declarations
 namespace database
 {
    class Record;
    class Database;
 }
+namespace DataAccess
+{
+   namespace Interface
+   {
+      class Property;
+      class Snapshot;
+      class Reservoir;
+      class Formation;
+      class Surface;
+   }
+}
 
-
-class CrustalThicknessCalculatorFactory : public GeoPhysics::ObjectFactory
+/// @class CrustalThicknessCalculatorFactory The CTC object factory
+class CrustalThicknessCalculatorFactory : public DataAccess::Mining::ObjectFactory
 {
 public:
+   /// @brief Produce the CrustalThicknessCalculator specific ProjectHandle
+   virtual CrustalThicknessCalculator* produceProjectHandle( database::ProjectFileHandlerPtr database,
+                                                             const string & name,  const string & accessMode) override;
 
-   /// Produce the CrustalThicknessCalculator specific ProjectHandle
-   virtual DataAccess::Interface::ProjectHandle* produceProjectHandle (database::ProjectFileHandlerPtr database,
-                                                                       const string & name,  const string & accessMode);
-   /// Produce the InterfaceInput
-   virtual DataAccess::Interface::CrustalThicknessData * produceCrustalThicknessData (DataAccess::Interface::ProjectHandle * projectHandle, database::Record * record);
-
-
+   /// @brief Produce the fasctc PropertyValue
+   virtual Ctc::PropertyValue * producePropertyValue( DataAccess::Interface::ProjectHandle * projectHandle,
+                                                      database::Record * record,
+                                                      const string & name,
+                                                      const DataAccess::Interface::Property * property,
+                                                      const DataAccess::Interface::Snapshot * snapshot,
+                                                      const DataAccess::Interface::Reservoir * reservoir,
+                                                      const DataAccess::Interface::Formation * formation,
+                                                      const DataAccess::Interface::Surface * surface,
+                                                      DataAccess::Interface::PropertyStorage storage ) override;
 };
-
 
 #endif

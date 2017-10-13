@@ -561,8 +561,6 @@ void Basin_Modelling::computeBulkDensityVectors ( AppCtx* Basin_Model ) {
 
         if ( Basin_Model->nodeIsDefined ( I, J )) {
 
-      //    currentLithology = currentLayer->getLithology ( I, J );
-
           for ( K = zStart; K < zStart + zCount; K++ ) {
              currentLithology = currentLayer -> getLithology ( I, J, K );
              currentLithology -> calcBulkDensity ( currentLayer->fluid,
@@ -673,7 +671,6 @@ void Basin_Modelling::computeThermalConductivityVectors ( AppCtx*        Basin_M
       for ( J = yStart; J < yStart + yCount; J++ ) {
 
          if ( Basin_Model->nodeIsDefined ( I, J )) {
-     //      currentLithology = currentLayer->getLithology ( I, J );
 
             for ( K = zStart; K < zStart + zCount; K++ ) {
                currentLithology = currentLayer->getLithology ( I, J, K );

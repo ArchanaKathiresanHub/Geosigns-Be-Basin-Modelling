@@ -1,15 +1,24 @@
-#ifndef _INTERFACE_OBJECTFACTORY_H_
-#define _INTERFACE_OBJECTFACTORY_H_
+//
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+#ifndef INTERFACE_OBJECTFACTORY_H
+#define INTERFACE_OBJECTFACTORY_H
 
+// std library
 #include <string>
-// #include <vector>
+#include <memory>
+using namespace std;
 
-// #include "hdf5.h"
 
 #include <ProjectFileHandler.h>
 #include "PropertyAttribute.h"
 
-using namespace std;
 #include "Interface/Interface.h"
 
 namespace database
@@ -22,6 +31,7 @@ namespace database
 
 namespace DataAccess
 {
+
    namespace Interface
    {
       /// The ObjectFactory Class is responsible for producing all objects in the DataAccess library.
@@ -33,7 +43,6 @@ namespace DataAccess
       public:
 
          ObjectFactory() {}
-
          virtual ~ObjectFactory () {}
 
          virtual ProjectHandle * produceProjectHandle (database::ProjectFileHandlerPtr pfh, const string & name, const string & accessMode);
@@ -160,13 +169,23 @@ namespace DataAccess
          virtual PointAdsorptionHistory* producePointAdsorptionHistory (ProjectHandle * projectHandle, database::Record * record);
 
          virtual SGDensitySample* produceSGDensitySample (ProjectHandle * projectHandle, database::Record * record);
-            
-			virtual MapWriter* produceMapWriter (void);
+         virtual MapWriter* produceMapWriter (void);
+         
+         /// @defgroup FASTCTC
+         /// @{
+         /// @brief Produces the CTC data accessor for the CTCIoTbl record
+         shared_ptr<const CrustalThicknessData> produceCrustalThicknessData( ProjectHandle * projectHandle, database::Record * record ) const;
+         /// @brief Produces the CTC data accessor for the CTCRiftingHistoryIoTbl record
+         shared_ptr<const CrustalThicknessRiftingHistoryData> produceCrustalThicknessRiftingHistoryData( ProjectHandle * projectHandle, database::Record * record ) const;
+         /// @}
 
-         virtual CrustalThicknessData* produceCrustalThicknessData (ProjectHandle * projectHandle, database::Record * record);
-
+         /// @defgroup ALC
+         /// @{
+         /// @brief Produces the ALC data accessor for the OceaCrustalThicknessIoTbl record
+         shared_ptr<const OceanicCrustThicknessHistoryData> produceOceanicCrustThicknessHistoryData( ProjectHandle * projectHandle, database::Record * record ) const;
+         /// @}
       };
    }
 }
 
-#endif // _IMPLEMENTATION_OBJECTFACTORY_H_
+#endif // INTERFACE_OBJECTFACTORY_H

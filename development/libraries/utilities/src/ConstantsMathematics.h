@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2017 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -15,6 +15,9 @@
 #define UTILITIES_CONSTANTSMATHEMATICS_H
 
 #include <cmath>
+#ifndef _USE_MATH_DEFINES
+#define _USE_MATH_DEFINES
+#endif
 
 namespace Utilities
 {
@@ -81,6 +84,11 @@ namespace Utilities
       // Logarithmic values
       /// \brief Equivalent to std::log(10);
       constexpr double Log10 = 2.30258509299404568;
+
+      // Trigonometric values
+      constexpr double Pi      = M_PI;
+      constexpr double Pi2     = Pi*Pi;
+      constexpr double Pi2by8  = Pi2 / 8;
       /// @}
 
    }

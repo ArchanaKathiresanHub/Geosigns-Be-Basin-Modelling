@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2017 Shell International Exploration & Production.
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -58,13 +58,14 @@ using namespace std;
 #include "Interface/Snapshot.h"
 #include "Interface/SourceRock.h"
 #include "Interface/Surface.h"
-// #include "Interface/SurfaceDepthHistoryInstance.h"
-// #include "Interface/SurfaceTemperatureHistoryInstance.h"
 #include "Interface/TouchstoneMap.h"
 #include "Interface/Trap.h"
 #include "Interface/Trapper.h"
 #include "Interface/Migration.h"
+
 #include "Interface/CrustalThicknessData.h"
+#include "Interface/CrustalThicknessRiftingHistoryData.h"
+#include "Interface/OceanicCrustThicknessHistoryData.h"
 
 #include "ProjectFileHandler.h"
 
@@ -344,6 +345,14 @@ SGDensitySample* ObjectFactory::produceSGDensitySample (ProjectHandle * projectH
    return new SGDensitySample ( projectHandle, record );
 }
 
-CrustalThicknessData* ObjectFactory::produceCrustalThicknessData (ProjectHandle * projectHandle, database::Record * record) {
-   return new CrustalThicknessData ( projectHandle, record );
+shared_ptr<const CrustalThicknessData> ObjectFactory::produceCrustalThicknessData( ProjectHandle * projectHandle, database::Record * record ) const {
+   return shared_ptr<const CrustalThicknessData>( new CrustalThicknessData( projectHandle, record ));
+}
+
+shared_ptr<const CrustalThicknessRiftingHistoryData> ObjectFactory::produceCrustalThicknessRiftingHistoryData( ProjectHandle * projectHandle, database::Record * record ) const {
+   return shared_ptr<const CrustalThicknessRiftingHistoryData>(new CrustalThicknessRiftingHistoryData( projectHandle, record ));
+}
+
+shared_ptr<const OceanicCrustThicknessHistoryData> ObjectFactory::produceOceanicCrustThicknessHistoryData( ProjectHandle * projectHandle, database::Record * record ) const {
+   return shared_ptr<const OceanicCrustThicknessHistoryData>( new OceanicCrustThicknessHistoryData( projectHandle, record ) );
 }

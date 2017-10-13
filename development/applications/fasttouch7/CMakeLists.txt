@@ -24,6 +24,7 @@ add_executable(${APP_NAME}
 )
 
 set_target_properties( ${APP_NAME} PROPERTIES SUFFIX ".exe" )
+set_target_properties( ${APP_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${APP_NAME}" )
 
 create_application_run_script( ${APP_NAME} )
 
@@ -72,12 +73,12 @@ target_link_libraries(${APP_NAME}
     Serial_Hdf5
     Parallel_Hdf5
     TableIO
-   FileSystem
+    FileSystem
     utilities
     CBMGenerics
 
     ${HDF5_LIBRARIES}
-    ${PETSC_LIBRARIES}    
+    ${PETSC_LIBRARIES}
 )
 
 if (UNIX)
@@ -132,11 +133,13 @@ install(TARGETS touchstoneWrapper
 add_gtest(NAME WriteReadBurialHistory
    SOURCES test/BurialHistory.C src/WriteBurial.C src/ReadBurial.C
    LIBRARIES ${TS7_LIBRARIES} ${TS_LIBRARIES} ${XERCES_LIBRARIES} 
+   FOLDER "${BASE_FOLDER}/${APP_NAME}"
 )
 
 add_gtest(NAME WriteReadTouchstone
    SOURCES test/Touchstone.C src/TouchstoneFiles.C
    LIBRARIES ${TS7_LIBRARIES} ${TS_LIBRARIES} ${XERCES_LIBRARIES} 
+   FOLDER "${BASE_FOLDER}/${APP_NAME}"
 )
 
 endif(BM_PARALLEL AND TSLIB_ROOT)

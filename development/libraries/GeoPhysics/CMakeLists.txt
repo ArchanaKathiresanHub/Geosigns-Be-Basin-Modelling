@@ -1,6 +1,6 @@
 #########################################################################
 #                                                                       #
-# Copyright (C) 2012-2013 Shell International Exploration & Production. #
+# Copyright (C) 2012-2017 Shell International Exploration & Production. #
 # All rights reserved.                                                  #
 #                                                                       #
 # Developed under license for Shell by PDS BV.                          #
@@ -20,46 +20,27 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 #  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 endif()
 
-set(cross_platform_headers
+set(all_headers
+      src/AllochthonousLithologyInterpolator.h
+      src/AllochthonousLithologyManager.h
+      src/BasementLithology.h
       src/BrinePhases.h
       src/BrineConductivity.h
       src/BrineDensity.h
       src/BrineVelocity.h
       src/BrineViscosity.h
       src/BrooksCorey.h
-      src/ChemicalCompactionCalculator.h
-      src/DoubleExponentialPorosity.h
-      src/ExponentialPorosity.h
-      src/LambdaMixer.h
-      src/MultiCompoundProperty.h
-      src/Permeability.h
-      src/Porosity.h
-      src/PermeabilityImpermeable.h
-      src/PermeabilityMixer.h
-      src/PermeabilityMudStone.h
-      src/PermeabilityMultiPoint.h
-      src/PermeabilitySandStone.h
-      src/SeismicVelocity.h
-      src/SeismicVelocityGardner.h
-      src/SeismicVelocityKennan.h
-      src/SeismicVelocityWyllie.h
-      src/SchneiderCompactionCalculator.h
-      src/SoilMechanicsPorosity.h
-      src/VreTtiMethod.h
-      src/VreArrheniusMethod.h
-      src/VitriniteReflectance.h
-      src/WalderhaugCompactionCalculator.h
-)
-
-set(unix_only_headers
-      src/AllochthonousLithologyInterpolator.h
-      src/AllochthonousLithologyManager.h
-      src/BasementLithology.h
       src/CauldronGridDescription.h
+      src/ChemicalCompactionCalculator.h
       src/CompoundLithologyArray.h
       src/CompoundLithologyComposition.h
       src/CompoundLithology.h
       src/CompoundProperty.h
+      src/ConfigFileParameter.h
+      src/ConfigFileParameterAlc.h
+      src/DoubleExponentialPorosity.h
+      src/EffectiveCrustalThicknessCalculator.h
+      src/ExponentialPorosity.h
       src/FracturePressureCalculator.h
       src/GeoPhysicalConstants.h
       src/GeoPhysicalFunctions.h
@@ -71,52 +52,53 @@ set(unix_only_headers
       src/GeoPhysicsProjectHandle.h
       src/GeoPhysicsSourceRock.h
       src/HCDensity.h
+      src/LambdaMixer.h
       src/LithologyManager.h
       src/Local2DArray.h
       src/Local3DArray.h
+      src/MultiCompoundProperty.h
+      src/Permeability.h
+      src/PermeabilityImpermeable.h
+      src/PermeabilityMixer.h
+      src/PermeabilityMudStone.h
+      src/PermeabilityMultiPoint.h
+      src/PermeabilitySandStone.h
+      src/Porosity.h
+      src/SchneiderCompactionCalculator.h
+      src/SeismicVelocity.h
+      src/SeismicVelocityGardner.h
+      src/SeismicVelocityKennan.h
+      src/SeismicVelocityWyllie.h
       src/SimpleLithology.h
+      src/SoilMechanicsPorosity.h
       src/TimeDependentLithology.h
-   )
+      src/Validator.h
+      src/VreTtiMethod.h
+      src/VreArrheniusMethod.h
+      src/VitriniteReflectance.h
+      src/WalderhaugCompactionCalculator.h
+)
 
-set(cross_platform_srcs
+set(all_srcs
+      src/AllochthonousLithologyInterpolator.C
+      src/AllochthonousLithologyManager.C
+      src/BasementLithology.C
       src/BrinePhases.C
       src/BrineConductivity.C
       src/BrineDensity.C
       src/BrineVelocity.C
       src/BrineViscosity.C
       src/BrooksCorey.cpp
-      src/ChemicalCompactionCalculator.C
-      src/DoubleExponentialPorosity.C
-      src/ExponentialPorosity.C
-      src/LambdaMixer.cpp
-      src/MultiCompoundProperty.C
-      src/Permeability.C
-      src/Porosity.C
-      src/PermeabilityMixer.C
-      src/PermeabilityMudStone.C
-      src/PermeabilityMultiPoint.C
-      src/PermeabilitySandStone.C
-      src/SeismicVelocity.C
-      src/SeismicVelocityGardner.C
-      src/SeismicVelocityKennan.C
-      src/SeismicVelocityWyllie.C
-      src/SchneiderCompactionCalculator.C
-      src/SoilMechanicsPorosity.C
-      src/VreTtiMethod.C
-      src/VreArrheniusMethod.C
-      src/VitriniteReflectance.C
-      src/WalderhaugCompactionCalculator.C
-)
-
-set(unix_only_srcs
-      src/AllochthonousLithologyInterpolator.C
-      src/AllochthonousLithologyManager.C
-      src/BasementLithology.C
       src/CauldronGridDescription.C
+      src/ChemicalCompactionCalculator.C
       src/CompoundLithologyArray.C
       src/CompoundLithology.C
       src/CompoundLithologyComposition.C
       src/CompoundProperty.C
+      src/ConfigFileParameterAlc.C
+      src/DoubleExponentialPorosity.C
+      src/EffectiveCrustalThicknessCalculator.C
+      src/ExponentialPorosity.C
       src/FracturePressureCalculator.C
       src/GeoPhysicalFunctions.C
       src/GeoPhysicsCrustFormation.C
@@ -127,17 +109,35 @@ set(unix_only_srcs
       src/GeoPhysicsProjectHandle.C
       src/GeoPhysicsSourceRock.C
       src/HCDensity.C
+      src/LambdaMixer.cpp
       src/LithologyManager.C
+      src/MultiCompoundProperty.C
+      src/Permeability.C
+      src/PermeabilityMudStone.C
+      src/PermeabilityMultiPoint.C
+      src/PermeabilitySandStone.C
+      src/Porosity.C
+      src/PermeabilityMixer.C
+      src/SchneiderCompactionCalculator.C
+      src/SeismicVelocity.C
+      src/SeismicVelocityGardner.C
+      src/SeismicVelocityKennan.C
+      src/SeismicVelocityWyllie.C
       src/SimpleLithology.C
+      src/SoilMechanicsPorosity.C
       src/TimeDependentLithology.C
-   )
+      src/Validator.C
+      src/VreTtiMethod.C
+      src/VreArrheniusMethod.C
+      src/VitriniteReflectance.C
+      src/WalderhaugCompactionCalculator.C
+)
 
 set(unix_only_libs
       LinearAlgebra
       Interpolation
       genex6
       genex6_kernel
-      CrustalThickness
 )
 
 set(cross_platform_libs
@@ -149,27 +149,22 @@ set(cross_platform_libs
       EosPack
 )
 
-
-set(all_srcs)
-set(all_headers)
 set(all_dependent_libs)
-
-set(all_srcs ${cross_platform_srcs} ${unix_only_srcs})
-set(all_headers ${cross_platform_headers} ${unix_only_headers})
 set(all_dependent_libs ${cross_platform_libs} ${unix_only_libs} )
 
 source_group(include FILES ${all_headers})
 source_group(source FILES ${all_srcs})
 
-
-add_library( GeoPhysics
+set( LIB_NAME "GeoPhysics" )
+add_library( ${LIB_NAME}
    ${all_srcs}
    ${all_headers}
 )
+set_target_properties( ${LIB_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${LIB_NAME}" )
 
 # under Linux we are building Boost that is why this target exist
 if (UNIX)
-add_dependencies(GeoPhysics Boost)
+add_dependencies(${LIB_NAME} Boost)
 endif (UNIX)
 
 bm_include_libraries(
@@ -180,11 +175,11 @@ include_directories( SYSTEM
    ${HDF5_INCLUDE_DIRS}
 )
 
-target_link_libraries(GeoPhysics
+target_link_libraries(${LIB_NAME}
       ${all_dependent_libs}
 )
 
-install(TARGETS GeoPhysics
+install(TARGETS ${LIB_NAME}
    RUNTIME DESTINATION bin
    LIBRARY DESTINATION lib
    ARCHIVE DESTINATION lib
@@ -196,50 +191,59 @@ generate_dox( GeoPhysics.cfg )
 ### Unit Tests
 
 # BrineConductivity unit test not available since reading the FltThCondIoTbl from the project file
-add_gtest( NAME GeoPhysics::BrineConductivity
+add_gtest( NAME ${LIB_NAME}::BrineConductivity
       SOURCES test/BrineConductivity.C src/BrinePhases.C
-      LIBRARIES GeoPhysics DataAccess SerialDataAccess 
+      LIBRARIES ${LIB_NAME} DataAccess SerialDataAccess 
       ENV_VARS EOSPACKDIR=${CFGFLS}/eospack GENEX5DIR=${CFGFLS}/genex50 CTCDIR=${CFGFLS}/
+      FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME GeoPhysics::BrineDensity
+add_gtest( NAME ${LIB_NAME}::BrineDensity
       SOURCES test/BrineDensity.C src/BrinePhases.C
-      LIBRARIES GeoPhysics SerialDataAccess
+      LIBRARIES ${LIB_NAME} SerialDataAccess
+      FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME GeoPhysics::BrineVelocity
+add_gtest( NAME ${LIB_NAME}::BrineVelocity
       SOURCES test/BrineVelocity.C src/BrinePhases.C
-      LIBRARIES GeoPhysics SerialDataAccess
+      LIBRARIES ${LIB_NAME} SerialDataAccess
+      FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME GeoPhysics::BrineViscosity
+add_gtest( NAME ${LIB_NAME}::BrineViscosity
       SOURCES test/BrineViscosity.C
-      LIBRARIES GeoPhysics SerialDataAccess
+      LIBRARIES ${LIB_NAME} SerialDataAccess
+      FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME GeoPhysics::BrooksCorey
-           SOURCES test/PceTest.C
-           LIBRARIES GeoPhysics SerialDataAccess
+add_gtest( NAME ${LIB_NAME}::BrooksCorey
+      SOURCES test/PceTest.C
+      LIBRARIES ${LIB_NAME} SerialDataAccess
+      FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME GeoPhysics::ChemicalCompactionCalculator
+add_gtest( NAME ${LIB_NAME}::ChemicalCompactionCalculator
       SOURCES test/ChemicalCompactionCalculatorTest.C
-      LIBRARIES GeoPhysics SerialDataAccess
+      LIBRARIES ${LIB_NAME} SerialDataAccess
+      FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME GeoPhysics::DoubleExponentialPorosity
+add_gtest( NAME ${LIB_NAME}::DoubleExponentialPorosity
       SOURCES test/DoubleExponentialPorosity.C
-      LIBRARIES GeoPhysics SerialDataAccess
+      LIBRARIES ${LIB_NAME} SerialDataAccess
+      FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME GeoPhysics::ExponentialPorosity
+add_gtest( NAME ${LIB_NAME}::ExponentialPorosity
       SOURCES test/ExponentialPorosity.C
-      LIBRARIES GeoPhysics SerialDataAccess
+      LIBRARIES ${LIB_NAME} SerialDataAccess
+      FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME GeoPhysics::LambdaMixer
+add_gtest( NAME ${LIB_NAME}::LambdaMixer
       SOURCES test/LambdaMixer.cpp
-      LIBRARIES GeoPhysics SerialDataAccess
+      LIBRARIES ${LIB_NAME} SerialDataAccess
+      FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 configure_file(
@@ -254,91 +258,115 @@ configure_file(
    COPYONLY
 )
 
-add_gtest( NAME GeoPhysics::MixingPermeability
+add_gtest( NAME ${LIB_NAME}::MixingPermeability
    SOURCES test/MixingPermeability.C
-   LIBRARIES GeoPhysics DataAccess SerialDataAccess
+   LIBRARIES ${LIB_NAME} DataAccess SerialDataAccess
    ENV_VARS EOSPACKDIR=${CFGFLS}/eospack GENEX5DIR=${CFGFLS}/genex50 CTCDIR=${CFGFLS}/
+   FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME GeoPhysics::MultiMixingPermeability
+add_gtest( NAME ${LIB_NAME}::MultiMixingPermeability
    SOURCES test/MultiMixingPermeability.C
-   LIBRARIES GeoPhysics DataAccess SerialDataAccess
+   LIBRARIES ${LIB_NAME} DataAccess SerialDataAccess
    ENV_VARS EOSPACKDIR=${CFGFLS}/eospack GENEX5DIR=${CFGFLS}/genex50 CTCDIR=${CFGFLS}/
+   FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME GeoPhysics::PermeabilityImpermeable
+add_gtest( NAME ${LIB_NAME}::PermeabilityImpermeable
    SOURCES test/PermeabilityImpermeable.C
-   LIBRARIES GeoPhysics SerialDataAccess
+   LIBRARIES ${LIB_NAME} SerialDataAccess
+   FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME GeoPhysics::PermeabilitySandStone
+add_gtest( NAME ${LIB_NAME}::PermeabilitySandStone
    SOURCES test/PermeabilitySandStone.C
-   LIBRARIES GeoPhysics SerialDataAccess
+   LIBRARIES ${LIB_NAME} SerialDataAccess
+   FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME GeoPhysics::PermeabilityMudStone
+add_gtest( NAME ${LIB_NAME}::PermeabilityMudStone
       SOURCES test/PermeabilityMudStone.C
-      LIBRARIES GeoPhysics SerialDataAccess
+      LIBRARIES ${LIB_NAME} SerialDataAccess
+      FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME GeoPhysics::PermeabilityMultiPoint
+add_gtest( NAME ${LIB_NAME}::PermeabilityMultiPoint
       SOURCES test/PermeabilityMultiPoint.C
-      LIBRARIES GeoPhysics SerialDataAccess
+      LIBRARIES ${LIB_NAME} SerialDataAccess
+      FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME GeoPhysics::PermeabilityMultiPointArrayTest
+add_gtest( NAME ${LIB_NAME}::PermeabilityMultiPointArrayTest
       SOURCES test/PermeabilityMultiPointArrayTest.C
-      LIBRARIES GeoPhysics SerialDataAccess
+      LIBRARIES ${LIB_NAME} SerialDataAccess
+      FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME GeoPhysics::SchneiderCompactionCalculator
+add_gtest( NAME ${LIB_NAME}::SchneiderCompactionCalculator
       SOURCES test/SchneiderCompactionCalculatorTest.C
-      LIBRARIES GeoPhysics SerialDataAccess
+      LIBRARIES ${LIB_NAME} SerialDataAccess
+      FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME GeoPhysics::SeismicVelocityGardner
+add_gtest( NAME ${LIB_NAME}::SeismicVelocityGardner
       SOURCES test/SeismicVelocityGardner.C
-      LIBRARIES GeoPhysics SerialDataAccess
+      LIBRARIES ${LIB_NAME} SerialDataAccess
+      FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME GeoPhysics::SeismicVelocityKennan
+add_gtest( NAME ${LIB_NAME}::SeismicVelocityKennan
       SOURCES test/SeismicVelocityKennan.C
-      LIBRARIES GeoPhysics SerialDataAccess
+      LIBRARIES ${LIB_NAME} SerialDataAccess
+      FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME GeoPhysics::SeismicVelocityWyllie
+add_gtest( NAME ${LIB_NAME}::SeismicVelocityWyllie
       SOURCES test/SeismicVelocityWyllie.C
-      LIBRARIES GeoPhysics SerialDataAccess
+      LIBRARIES ${LIB_NAME} SerialDataAccess
+      FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME GeoPhysics::SoilMechanicsPorosity
+add_gtest( NAME ${LIB_NAME}::SoilMechanicsPorosity
       SOURCES test/SoilMechanicsPorosity.C
-      LIBRARIES GeoPhysics SerialDataAccess
+      LIBRARIES ${LIB_NAME} SerialDataAccess
+      FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME GeoPhysics::VitriniteReflectance
+add_gtest( NAME ${LIB_NAME}::VitriniteReflectance
       SOURCES test/VitriniteReflectance.C test/InputGrid.C test/OutputGrid.C
-      LIBRARIES GeoPhysics SerialDataAccess
+      LIBRARIES ${LIB_NAME} SerialDataAccess
+      FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME GeoPhysics::VreTtiMethod
+add_gtest( NAME ${LIB_NAME}::VreTtiMethod
       SOURCES test/VreTtiMethod.C test/InputGrid.C test/OutputGrid.C
-      LIBRARIES GeoPhysics SerialDataAccess
+      LIBRARIES ${LIB_NAME} SerialDataAccess
+      FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME GeoPhysics::VreArrheniusMethod
+add_gtest( NAME ${LIB_NAME}::VreArrheniusMethod
       SOURCES test/VreArrheniusMethod.C test/InputGrid.C test/OutputGrid.C
-      LIBRARIES GeoPhysics SerialDataAccess
+      LIBRARIES ${LIB_NAME} SerialDataAccess
+      FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME GeoPhysics::WalderhaugCompactionCalculator
+add_gtest( NAME ${LIB_NAME}::WalderhaugCompactionCalculator
       SOURCES test/WalderhaugCompactionCalculatorTest.C
-      LIBRARIES GeoPhysics SerialDataAccess
+      LIBRARIES ${LIB_NAME} SerialDataAccess
+      FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME GeoPhysics::MultiCompoundPropertyTest
+add_gtest( NAME ${LIB_NAME}::MultiCompoundPropertyTest
       SOURCES test/MultiCompoundPropertyTest.C
-      LIBRARIES GeoPhysics SerialDataAccess utilities
+      LIBRARIES ${LIB_NAME} SerialDataAccess utilities
+      FOLDER "${BASE_FOLDER}/${LIB_NAME}"
+)
+
+add_gtest( NAME ${LIB_NAME}::ConfigFileAlc
+      SOURCES test/ConfigFileAlc.C
+      LIBRARIES ${LIB_NAME} SerialDataAccess
+      ENV_VARS CTCDIR=${PROJECT_SOURCE_DIR}/geocase/misc
+      FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 

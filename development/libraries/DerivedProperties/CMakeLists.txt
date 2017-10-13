@@ -162,12 +162,14 @@ set(all_srcs
 )
 
 
-add_library(DerivedProperties
+set( LIB_NAME "DerivedProperties" )
+add_library(${LIB_NAME}
   ${all_srcs}
   ${all_headers}
 )
+set_target_properties( ${LIB_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${LIB_NAME}" )
 
-target_link_libraries(DerivedProperties 
+target_link_libraries(${LIB_NAME} 
   DataModel
   FiniteElements
   LinearAlgebra
@@ -195,62 +197,74 @@ include_directories( SYSTEM
 
 generate_dox( DerivedProperties.cfg )
 
-add_gtest( NAME DerivedProperties::DerivedProperties
+add_gtest( NAME ${LIB_NAME}::${LIB_NAME}
            SOURCES test/DerivedProperties.C
-           LIBRARIES DerivedProperties SerialDataAccess GeoPhysics
+           LIBRARIES ${LIB_NAME} SerialDataAccess GeoPhysics
+           FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME DerivedProperties::SimplePropertyManagerTest
+add_gtest( NAME ${LIB_NAME}::SimplePropertyManagerTest
            SOURCES test/SimplePropertyManagerTest.C
-           LIBRARIES DerivedProperties SerialDataAccess GeoPhysics
+           LIBRARIES ${LIB_NAME} SerialDataAccess GeoPhysics
+           FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME DerivedProperties::CompoundFormationMapPropertyManagerTest
+add_gtest( NAME ${LIB_NAME}::CompoundFormationMapPropertyManagerTest
            SOURCES test/CompoundFormationMapPropertyManagerTest.C
-           LIBRARIES DerivedProperties SerialDataAccess GeoPhysics
+           LIBRARIES ${LIB_NAME} SerialDataAccess GeoPhysics
+           FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME DerivedProperties::CompoundContinuousPropertyManagerTest
+add_gtest( NAME ${LIB_NAME}::CompoundContinuousPropertyManagerTest
            SOURCES test/CompoundContinuousPropertyManagerTest.C
-           LIBRARIES DerivedProperties SerialDataAccess GeoPhysics
+           LIBRARIES ${LIB_NAME} SerialDataAccess GeoPhysics
+           FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME DerivedProperties::CompoundDiscontinuousPropertyManagerTest
+add_gtest( NAME ${LIB_NAME}::CompoundDiscontinuousPropertyManagerTest
            SOURCES test/CompoundDiscontinuousPropertyManagerTest.C
-           LIBRARIES DerivedProperties SerialDataAccess GeoPhysics
+           LIBRARIES ${LIB_NAME} SerialDataAccess GeoPhysics
+           FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME DerivedProperties::MultiplePropertyManagerTest
+add_gtest( NAME ${LIB_NAME}::MultiplePropertyManagerTest
            SOURCES test/MultiplePropertyManagerTest.C
-           LIBRARIES DerivedProperties SerialDataAccess GeoPhysics
+           LIBRARIES ${LIB_NAME} SerialDataAccess GeoPhysics
+           FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME DerivedProperties::MultipleFormationMapPropertyManagerTest
+add_gtest( NAME ${LIB_NAME}::MultipleFormationMapPropertyManagerTest
            SOURCES test/MultipleFormationMapPropertyManagerTest.C
-           LIBRARIES DerivedProperties SerialDataAccess GeoPhysics
+           LIBRARIES ${LIB_NAME} SerialDataAccess GeoPhysics
+           FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME DerivedProperties::MultipleFormationSurfacePropertyManagerTest
+add_gtest( NAME ${LIB_NAME}::MultipleFormationSurfacePropertyManagerTest
            SOURCES test/MultipleFormationSurfacePropertyManagerTest.C
-           LIBRARIES DerivedProperties SerialDataAccess GeoPhysics
+           LIBRARIES ${LIB_NAME} SerialDataAccess GeoPhysics
+           FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME DerivedProperties::MultipleFormationPropertyManagerTest
+add_gtest( NAME ${LIB_NAME}::MultipleFormationPropertyManagerTest
            SOURCES test/MultipleFormationPropertyManagerTest.C
-           LIBRARIES DerivedProperties SerialDataAccess GeoPhysics
+           LIBRARIES ${LIB_NAME} SerialDataAccess GeoPhysics
+           FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME DerivedProperties::ThicknessPropertyTest
+add_gtest( NAME ${LIB_NAME}::ThicknessPropertyTest
            SOURCES test/ThicknessPropertyTest.C
-           LIBRARIES DerivedProperties SerialDataAccess GeoPhysics
+           LIBRARIES ${LIB_NAME} SerialDataAccess GeoPhysics
+           FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME DerivedProperties::OverpressurePropertyTest
+add_gtest( NAME ${LIB_NAME}::OverpressurePropertyTest
            SOURCES test/OverpressurePropertyTest.C
-           LIBRARIES DerivedProperties SerialDataAccess GeoPhysics
+           LIBRARIES ${LIB_NAME} SerialDataAccess GeoPhysics
+           FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME DerivedProperties::SurfacePropertyTest
+add_gtest( NAME ${LIB_NAME}::SurfacePropertyTest
            SOURCES test/SurfacePropertyTest.C
-           LIBRARIES DerivedProperties SerialDataAccess GeoPhysics
+           LIBRARIES ${LIB_NAME} SerialDataAccess GeoPhysics
+           FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )

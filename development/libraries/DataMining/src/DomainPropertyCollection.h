@@ -1,3 +1,13 @@
+// 
+// Copyright (C) 2015-2017 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef _DATAACCESS__DOMAIN_PROPERTY_COLLECTION_H_
 #define _DATAACCESS__DOMAIN_PROPERTY_COLLECTION_H_
 
@@ -11,7 +21,7 @@
 
 // DataMining
 #include "DomainProperty.h"
-#include "DomainPropertyFactory.h"
+#include "DataMiningObjectFactory.h"
 
 // STL
 #include <map>
@@ -22,7 +32,7 @@ namespace DataAccess
 {
    namespace Mining
    {
-      class DomainPropertyFactory;
+      class ObjectFactory;
 
       /// A collection of domain-properties.
       ///
@@ -80,7 +90,7 @@ namespace DataAccess
       private :
 
          Interface::ProjectHandle*      m_projectHandle;   ///< The project-handle.
-         Mining::DomainPropertyFactory* m_propertyFactory; ///< The factory that allocates all domain-properties.
+         Mining::ObjectFactory*         m_propertyFactory; ///< The factory that allocates all domain-properties.
          const Interface::Snapshot*     m_snapshot;        ///< The snapshot at which all properties are retrieved.
 
          /// The collection of domain-properties.

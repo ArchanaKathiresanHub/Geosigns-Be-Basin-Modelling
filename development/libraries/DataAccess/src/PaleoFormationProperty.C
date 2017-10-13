@@ -19,17 +19,6 @@ using namespace database;
 using namespace DataAccess;
 using namespace Interface;
 
-
-
-#if 0
-PaleoFormationProperty::PaleoFormationProperty (ProjectHandle * projectHandle, Record * record, const string& initialName ) : 
-   PaleoProperty (projectHandle, record), 
-   formationName ( initialName )
-{
-   m_formation = (const Formation *) m_projectHandle->findFormation ( getFormationName ());
-}
-#endif
-
 PaleoFormationProperty::PaleoFormationProperty (ProjectHandle * projectHandle, Record * record, const Formation* formation ) : 
    PaleoProperty (projectHandle, record),
    formationName ( formation->getName ())

@@ -13,13 +13,13 @@ BasementPropertyCalculator::BasementPropertyCalculator ( const PropertyList prop
 
    // if ( m_formation->getDALFormation ()->kind () == Interface::BASEMENT_FORMATION && m_formation->isCrust()) {
    if ( m_formation->kind () == Interface::BASEMENT_FORMATION && 
-        (( m_formation->isMantle () && ( propertyName == ALCORIGMANTLE || propertyName == HLMOD )) || 
-         ( m_formation->isCrust() && propertyName != ALCORIGMANTLE && propertyName != HLMOD ))) {
+        (( m_formation->isMantle () && ( propertyName == ALC_ORIGINAL_MANTLE || propertyName == ALC_MAX_MANTLE_DEPTH )) || 
+         ( m_formation->isCrust() && propertyName != ALC_ORIGINAL_MANTLE && propertyName != ALC_MAX_MANTLE_DEPTH ))) {
       string outputPropertyName = propertyListName ( propertyName );
       
       PropertyValue* localValues = (PropertyValue*)(FastcauldronSimulator::getInstance ().createMapPropertyValue ( outputPropertyName,
                                                                                                                    snapshot, 0, formation, 0 ));
-      if ( FastcauldronSimulator::getInstance ().isALC () && ( propertyName == TOPBASALTALC || propertyName == MOHOALC )) {
+      if ( FastcauldronSimulator::getInstance ().isALC () && ( propertyName == TOP_BASALT_ALC || propertyName == MOHO_ALC )) {
          localValues->allowOutput ( true );
       }
       m_values.push_back ( localValues );
@@ -68,8 +68,8 @@ bool BasementPropertyCalculator::calculateProperty () {
 
    // if ( m_formation->getDALFormation ()->kind () == Interface::BASEMENT_FORMATION && m_formation->isCrust()) {
    if ( m_formation->kind () == Interface::BASEMENT_FORMATION  && 
-        (( m_formation->isMantle () && ( m_propertyName == ALCORIGMANTLE || m_propertyName == HLMOD )) || 
-         ( m_formation->isCrust() && m_propertyName != ALCORIGMANTLE && m_propertyName != HLMOD ))) {
+        (( m_formation->isMantle () && ( m_propertyName == ALC_ORIGINAL_MANTLE || m_propertyName == ALC_MAX_MANTLE_DEPTH )) || 
+         ( m_formation->isCrust() && m_propertyName != ALC_ORIGINAL_MANTLE && m_propertyName != ALC_MAX_MANTLE_DEPTH ))) {
 
       if ( m_isCalculated ) {
          return true;
@@ -89,6 +89,7 @@ bool BasementPropertyCalculator::calculateProperty () {
       Interface::GridMap* theMap = m_values [ 0 ]->getGridMap ();
       theMap->retrieveData ();
       
+      // Gets the values of Petsc vector from layer class for property 'm_propertyName'.
       DMDAVecGetArray( *m_BasinModel->mapDA,
                        *m_formation->vectorList.VecArray [ m_propertyName ],
                        (void*) &propertyVector );
@@ -124,8 +125,8 @@ bool BasementPropertyCalculator::calculateProperty () {
 bool BasementPropertyCalculator::initialise ( ) {
 
    if ( m_formation->kind () == Interface::BASEMENT_FORMATION  && 
-        (( m_formation->isMantle () && ( m_propertyName == ALCORIGMANTLE || m_propertyName == HLMOD )) || 
-         ( m_formation->isCrust() && m_propertyName != ALCORIGMANTLE && m_propertyName != HLMOD ))) {
+        (( m_formation->isMantle () && ( m_propertyName == ALC_ORIGINAL_MANTLE || m_propertyName == ALC_MAX_MANTLE_DEPTH )) || 
+         ( m_formation->isCrust() && m_propertyName != ALC_ORIGINAL_MANTLE && m_propertyName != ALC_MAX_MANTLE_DEPTH ))) {
       m_BasinModel = const_cast<AppCtx*>(FastcauldronSimulator::getInstance().getCauldron());
       // m_propertyName = m_values[0]->getName();
       
@@ -137,8 +138,8 @@ bool BasementPropertyCalculator::initialise ( ) {
 
 void BasementPropertyCalculator::finalise () {
    if ( m_formation->kind () == Interface::BASEMENT_FORMATION && 
-        (( m_formation->isMantle () && ( m_propertyName == ALCORIGMANTLE || m_propertyName == HLMOD )) || 
-         ( m_formation->isCrust() && m_propertyName != ALCORIGMANTLE && m_propertyName != HLMOD ))) {
+        (( m_formation->isMantle () && ( m_propertyName == ALC_ORIGINAL_MANTLE || m_propertyName == ALC_MAX_MANTLE_DEPTH )) || 
+         ( m_formation->isCrust() && m_propertyName != ALC_ORIGINAL_MANTLE && m_propertyName != ALC_MAX_MANTLE_DEPTH ))) {
       unsigned int i;
       
       for ( i = 0; i < m_propertyMaps.size (); ++i ) {

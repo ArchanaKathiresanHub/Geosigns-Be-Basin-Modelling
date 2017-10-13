@@ -12,59 +12,61 @@
 
 if (BM_PARALLEL)
 
-	FILE( GLOB all_headers src/*.h )
-	source_group(include FILES ${all_headers})
+   FILE( GLOB all_headers src/*.h )
+   source_group(include FILES ${all_headers})
 
-	FILE( GLOB all_srcs src/*.C)
-	source_group(source FILES ${all_srcs})
+   FILE( GLOB all_srcs src/*.C)
+   source_group(source FILES ${all_srcs})
 
-	add_library(Parallel_Hdf5 
-	   ${all_srcs}
-	   ${all_headers}
-	)
-	if (UNIX)
-	    add_dependencies(Parallel_Hdf5 PETSC HDF5)
-	endif (UNIX)
-	set (OFPP "")
-	if (UNIX)
-		set (OFPP OneFilePerProcess)
-		bm_include_libraries( OneFilePerProcess )
-	endif ()
+   set( LIB_NAME "Parallel_Hdf5" )
+   add_library(${LIB_NAME} 
+      ${all_srcs}
+      ${all_headers}
+   )
+   set_target_properties( ${LIB_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${LIB_NAME}" )
+   if (UNIX)
+       add_dependencies(${LIB_NAME} PETSC HDF5)
+   endif (UNIX)
+   set (OFPP "")
+   if (UNIX)
+      set (OFPP OneFilePerProcess)
+      bm_include_libraries( OneFilePerProcess )
+   endif ()
 
-	bm_include_libraries(
-		Serial_Hdf5
-		utilities
-		FileSystem
-		Utilities_Petsc
-	)
+   bm_include_libraries(
+      Serial_Hdf5
+      utilities
+      FileSystem
+      Utilities_Petsc
+   )
 
-	include_directories( SYSTEM
-		${HDF5_INCLUDE_DIRS}
-		${MPI_INCLUDE_DIRS}
-		${PETSC_INCLUDE_DIRS}
-	)
+   include_directories( SYSTEM
+      ${HDF5_INCLUDE_DIRS}
+      ${MPI_INCLUDE_DIRS}
+      ${PETSC_INCLUDE_DIRS}
+   )
 
-	target_link_libraries(Parallel_Hdf5 
-		Utilities_Petsc
-		Serial_Hdf5
-		utilities
-		FileSystem
-		${OFPP}
-		${PETSC_LIBRARIES}
-		${MPI_LIBRARIES}
-	)
-	
-        set_target_properties(Parallel_Hdf5
+   target_link_libraries(${LIB_NAME} 
+      Utilities_Petsc
+      Serial_Hdf5
+      utilities
+      FileSystem
+      ${OFPP}
+      ${PETSC_LIBRARIES}
+      ${MPI_LIBRARIES}
+   )
+   
+        set_target_properties(${LIB_NAME}
             PROPERTIES LINK_FLAGS "${PETSC_LINK_FLAGS}"
         )
 
 
-	
-	install(TARGETS Parallel_Hdf5
-		RUNTIME DESTINATION bin
-		LIBRARY DESTINATION lib
-		ARCHIVE DESTINATION lib
-	)
+   
+   install(TARGETS ${LIB_NAME}
+      RUNTIME DESTINATION bin
+      LIBRARY DESTINATION lib
+      ARCHIVE DESTINATION lib
+   )
 
 
 endif(BM_PARALLEL)

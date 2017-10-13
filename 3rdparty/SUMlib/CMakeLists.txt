@@ -23,16 +23,18 @@ include_directories( SYSTEM
       ${Boost_INCLUDE_DIRS}
 )
 
-add_library( SUMlib
+set( LIB_NAME "SUMlib" )
+add_library( ${LIB_NAME}
    ${all_srcs}
    ${all_headers}
 )
+set_target_properties( ${LIB_NAME} PROPERTIES FOLDER "3rdparty/${LIB_NAME}" )
 
 if (UNIX)
-   add_dependencies(SUMlib Boost)
+   add_dependencies(${LIB_NAME} Boost)
 endif (UNIX)
 
-install(TARGETS SUMlib
+install(TARGETS ${LIB_NAME}
    RUNTIME DESTINATION bin
    LIBRARY DESTINATION lib
    ARCHIVE DESTINATION lib

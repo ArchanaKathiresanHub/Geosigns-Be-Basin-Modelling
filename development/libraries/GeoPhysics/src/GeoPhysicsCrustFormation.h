@@ -1,10 +1,22 @@
-#ifndef _GEOPHYSICS__CRUST_FORMATION_H_
-#define _GEOPHYSICS__CRUST_FORMATION_H_
+//
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+#ifndef GEOPHYSICS__CRUST_FORMATION_H
+#define GEOPHYSICS__CRUST_FORMATION_H
 
+// DataAccess library
 #include "Interface/CrustFormation.h"
 
+// Geophysics library
 #include "GeoPhysicsFormation.h"
 
+// CBMGenerics library
 #include "Polyfunction.h"
 
 namespace DataAccess
@@ -23,13 +35,12 @@ namespace GeoPhysics {
 
    public:
 
-      GeoPhysicsCrustFormation( DataAccess::Interface::ProjectHandle* projectHandle,
-                                database::Record*                          record );
+      GeoPhysicsCrustFormation ( DataAccess::Interface::ProjectHandle* projectHandle,
+                                 database::Record*                     record );
 
 
       ~GeoPhysicsCrustFormation();
 
-      bool isCrust() const;
 
       // redefine set of methods which are differently were defined in base classes
       // Inherited from BasementFormation
@@ -59,45 +70,47 @@ namespace GeoPhysics {
          return DataAccess::Interface::BasementFormation::computeFaultGridMap( localGrid, snapshot ); }
       unsigned int                                          getElementRefinement() const { return DataAccess::Interface::BasementFormation::getElementRefinement(); }
 
-      // Inherited from CrustFormation
-      const DataAccess::Interface::GridMap                * getInputThicknessMap()       const { return DataAccess::Interface::CrustFormation::getInputThicknessMap(); }
-      int                                                   getDepositionSequence()      const { return DataAccess::Interface::CrustFormation::getDepositionSequence(); }
-      void                                                  asString( string & str )     const { return DataAccess::Interface::CrustFormation::asString( str ); }
-
+      /// \return True since this is a crust formation
+      bool isCrust () const noexcept;
 
       // Since this function is almost identical to the one in the GeoPhysicsMantleFormation,
       // would it be better to introduce a GeoPhysicsBasementFormation (derived from
       // the DAL::BasementFormation)?
-     virtual bool setLithologiesFromStratTable ();
+      virtual bool setLithologiesFromStratTable ();
 
+      /// \brief Sets the crust formation maximum and minimum thickness and the crust thickness paleo history
       void determineMinMaxThickness ();
 
+      /// \brief Sets and return the maximum number of elements for the crust layer
       unsigned int setMaximumNumberOfElements ( const bool readSizeFromVolumeData );
 
-      /// Determine the crust-thinning ratio.
-      ///
-      /// If the crust has a negative thickness, this function will return false.
+      /// \brief Sets the crust-thinning ratio and the crust maximum thickness
+      /// \return The status of the function
+      /// \details If the crust has a negative thickness, this function will return false
       bool determineCrustThinningRatio ();
 
+      /// \return The crust paleo thickness at the given age
       double getCrustMaximumThicknessHistory ( const double age ) const;
 
-      double getCrustThinningRatio () const;
+      /// \return The crust thinning ratio
+      double getCrustThinningRatio () const noexcept;
 
+      /// \return The crust maximum thickness at the given (i,j) node
       double getCrustMaximumThickness ( const unsigned int i,
                                         const unsigned int j ) const;
 
-
+      /// \brief Retrieves all the paleo crustal thicknesses map
       void retrieveAllThicknessMaps ();
-
+      /// \brief Restores all the paleo crustal thicknesses map
       void restoreAllThicknessMaps ();
 
    protected :
 
 
-      CBMGenerics::Polyfunction m_crustThickessHistory;
-      double                    m_crustThinningRatio;
+      CBMGenerics::Polyfunction m_crustThickessHistory;         ///< The crust thickness history [m]
+      double                    m_crustThinningRatio;           ///< The crust thinning ration   []
 
-      DataAccess::Interface::GridMap*  m_crustMaximumThickness;
+      DataAccess::Interface::GridMap*  m_crustMaximumThickness; ///< The crust maximum thickness [m]
 
    };
 }
@@ -106,12 +119,12 @@ namespace GeoPhysics {
 //  Inline functions.
 //------------------------------------------------------------//
 
-inline double GeoPhysics::GeoPhysicsCrustFormation::getCrustThinningRatio () const {
+inline double GeoPhysics::GeoPhysicsCrustFormation::getCrustThinningRatio () const noexcept {
    return m_crustThinningRatio;
 }
 
-inline bool GeoPhysics::GeoPhysicsCrustFormation::isCrust () const {
+inline bool GeoPhysics::GeoPhysicsCrustFormation::isCrust () const noexcept {
    return true;
 }
 
-#endif // _GEOPHYSICS__CRUST_FORMATION_H_
+#endif // GEOPHYSICS__CRUST_FORMATION_H

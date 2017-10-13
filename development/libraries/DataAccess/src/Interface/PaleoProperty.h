@@ -1,3 +1,13 @@
+// 
+// Copyright (C) 2015-2017 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef _INTERFACE_PALEOPROPERTY_H_
 #define _INTERFACE_PALEOPROPERTY_H_
 
@@ -20,11 +30,11 @@ namespace DataAccess
 
 
 
-         PaleoProperty ( ProjectHandle * projectHandle,
-                         const Formation* formation,
+         PaleoProperty ( ProjectHandle *      projectHandle,
+                         const Formation*     formation,
                          const PaleoProperty* startProperty,
                          const PaleoProperty* endProperty,
-                         const Snapshot*               interpolationTime );
+                         const Snapshot*      interpolationTime );
 
          virtual ~PaleoProperty (void);
 
@@ -39,8 +49,8 @@ namespace DataAccess
          /// load a map
          GridMap * loadMap (PaleoPropertyMapAttributeId attributeId) const;
 
-	 /// Create a GridMap from the two given GridMap objects after elementwise processing by the specified binary operator.
-	 GridMap * computeMap ( const PaleoPropertyMapAttributeId attributeId,
+         /// Create a GridMap from the two given GridMap objects after elementwise processing by the specified binary operator.
+         GridMap * computeMap ( const PaleoPropertyMapAttributeId attributeId,
                                 const GridMap * operand1, const GridMap * operand2, BinaryFunctor& binaryFunctor) const;
 
          /// Print the attributes of this MobileLayer

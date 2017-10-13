@@ -1,3 +1,13 @@
+// 
+// Copyright (C) 2015-2017 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef _GEOPHYSICS__FORMATION_H_
 #define _GEOPHYSICS__FORMATION_H_
 
@@ -65,12 +75,10 @@ namespace GeoPhysics {
       virtual double getMaximumThickness () const;
 
       // Would like to remove this function.
-      virtual bool isCrust () const;
+      virtual bool isCrust () const noexcept;
 
       // Would like to remove this function.
       virtual bool isMantle () const;
-
-//       virtual bool isSediment () const;
 
       virtual unsigned int setMaximumNumberOfElements ( const bool readSizeFromVolumeData );
 
@@ -112,56 +120,6 @@ namespace GeoPhysics {
       virtual void retrieveAllThicknessMaps ();
 
       virtual void restoreAllThicknessMaps ();
-
-      /// Integrate the compaction equation for a single segment.
-      ///
-      /// Based on a given porosity.
-      double computeRealThickness ( const unsigned int i,
-                                    const unsigned int j,
-                                    const unsigned int k,
-                                    const double       porosityTop,
-                                    const double       porosityBottom,
-                                    const double       age ) const;
-
-      /// Integrate the compaction equation for a single segment.
-      ///
-      /// Based on a given porosity.
-      double computeSolidThickness ( const unsigned int i,
-                                     const unsigned int j,
-                                     const unsigned int k,
-                                     const double       porosityTop,
-                                     const double       porosityBottom,
-                                     const double       age ) const;
-
-      /// Integrate the compaction equation for a single segment.
-      ///
-      /// Based on a given ves. The porosity is computed using the ves.
-      double computeRealThickness ( const unsigned int i,
-                                    const unsigned int j,
-                                    const unsigned int k,
-                                    const double       vesTop,
-                                    const double       vesBottom,
-                                    const double       maxVesTop,
-                                    const double       maxVesBottom,
-                                    const double       chemicalCompactionTop,
-                                    const double       chemicalCompactionBottom,
-                                    const bool         includeChemicalCompaction,
-                                    const double       age ) const;
-
-      /// Integrate the compaction equation for a single segment.
-      ///
-      /// Based on a given ves. The porosity is computed using the ves.
-      double computeSolidThickness ( const unsigned int i,
-                                     const unsigned int j,
-                                     const unsigned int k,
-                                     const double       vesTop,
-                                     const double       vesBottom,
-                                     const double       maxVesTop,
-                                     const double       maxVesBottom,
-                                     const double       chemicalCompactionTop,
-                                     const double       chemicalCompactionBottom,
-                                     const bool         includeChemicalCompaction,
-                                     const double       age ) const;
 
       /// \brief Get the refinement factor for the number of elements in the depth.
       int getDepthRefinementFactor () const;
@@ -218,7 +176,6 @@ inline const GeoPhysics::CompoundLithology* GeoPhysics::Formation::getCompoundLi
    return m_compoundLithologies ( i, j );
 }
 
-
 inline GeoPhysics::CompoundLithologyArray& GeoPhysics::Formation::getCompoundLithologyArray () {
    return m_compoundLithologies;
 }
@@ -231,7 +188,6 @@ inline bool GeoPhysics::Formation::getLithologyHasSwitched ( const unsigned int 
    return m_compoundLithologies.hasSwitched ( i, j );
 }
 
-
 inline double GeoPhysics::Formation::getMinimumThickness () const {
    return m_minimumDepositedThickness;
 }
@@ -240,17 +196,13 @@ inline double GeoPhysics::Formation::getMaximumThickness () const {
    return m_maximumDepositedThickness;
 }
 
-inline bool GeoPhysics::Formation::isCrust () const {
+inline bool GeoPhysics::Formation::isCrust () const noexcept{
    return false;
 }
 
 inline bool GeoPhysics::Formation::isMantle () const {
    return false;
 }
-
-// inline bool GeoPhysics::Formation::isSediment () const {
-//    return true;
-// }
 
 inline unsigned int GeoPhysics::Formation::getMaximumNumberOfElements () const {
    return m_maximumNumberOfElements;
@@ -259,7 +211,6 @@ inline unsigned int GeoPhysics::Formation::getMaximumNumberOfElements () const {
 inline bool GeoPhysics::Formation::getContainsFaults () const {
    return m_containsFault;
 }
-
 
 inline CBMGenerics::Polyfunction& GeoPhysics::Formation::getSolidThickness ( const unsigned int i,
                                                                              const unsigned int j,

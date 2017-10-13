@@ -1946,7 +1946,7 @@ START-properties
     Description         : Active Bottom boundary model,
                           (Fixed Temperature, Fixed HeatFlow)
     Type                : string
-    Unit of measurement :
+    Default             : "Advanced Lithosphere Calculator"
 
     Identification      : VreAlgorithm
     Description         : Active vitrinite reflectance model
@@ -4384,27 +4384,6 @@ Identification      : HcLiquidBrineCapillaryEntryPressure
 
 #### Crustal Thickness Calculator input
 
-    Identification      : T0Ini
-    Description         : Age of onset of rifting
-    Type                : double
-    Unit of measurement : Ma
-
-    Identification      : T0IniGrid
-    Description         : Age of onset of rifting
-    Type                : string
-    Unit of measurement :
-
-    Identification      : TRIni
-    Description         : Age of ending of rifting
-    Type                : double
-    Unit of measurement : Ma
-    Default             :
-
-    Identification      : TRIniGrid
-    Description         : Age of ending of rifting
-    Type                : string
-    Unit of measurement :
-
     Identification      : HCuIni
     Description         : Initial continental crustal thickness
     Type                : double
@@ -4449,7 +4428,29 @@ Identification      : HcLiquidBrineCapillaryEntryPressure
     Type                : string
     Unit of measurement :
 
-#### Crustal Thickness Calculator and Advanced Lithosphere Calculator output properties
+    Identification      : FilterHalfWidth
+    Description         : Half of the filter width for spatial smoothing of crustal thickness maps
+    Type                : integer
+    Default             : 10
+
+    Identification      : UpperLowerContinentalCrustRatio
+    Description         : Ratio which defines the spliting of the continental crust in its upper and lower part (r=Upper/Lower)
+    Type                : double
+    Default             : 1
+
+    Identification      : UpperLowerOceanicCrustRatio
+    Description         : Ratio which defines the spliting of the oceanic crust in its upper and lower part (r=Upper/Lower)
+    Type                : double
+    Default             : 1
+
+    Identification      : TectonicFlag
+    Description         : Defines the tectonic context of the formation (Passive Margin, Active Rifting or Flexural Basin)
+    Type                : string
+    Default             : ""
+
+#### Crustal Thickness Calculator and Advanced Lithosphere Calculator output properties 
+
+    ### Default ctc outputs
 
     Identification      : Moho
     Description         : present-day Moho depth
@@ -4471,23 +4472,22 @@ Identification      : HcLiquidBrineCapillaryEntryPressure
     Unit of measurement : m
     Type                : float
 
-    Identification      : EffectiveCrustalThickness
-    Description         : present-day effective crust thickness
-    Unit of measurement : m
-    Type                : float
-
     Identification      : TopBasaltUnderplate
     Description         : present-day depth to top basalt
     Unit of measurement : m
     Type                : float
 
-    Identification      : ALCMaxAsthenoMantleDepth
-    Description         : maximum depth of asthenospheric mantle
+    ### Debug ctc outputs
+
+    Identification      : EffectiveCrustalThickness
+    Description         : present-day effective crust thickness (-debug output)
     Unit of measurement : m
     Type                : float
 
+    ### Default alc outputs
+    
     Identification      : ALCStepTopBasaltDepth
-    Description         : depth of top of lithoswitched basalt
+    Description         : depth of top of lithoswitched basalt after lithoswitching
     Unit of measurement : m
     Type                : float
 
@@ -4502,32 +4502,39 @@ Identification      : HcLiquidBrineCapillaryEntryPressure
     Type                : float
 
     Identification      : ALCStepBasaltThickness
-    Description         : calculated after lithoswitching thickness of basalt
+    Description         : thickness of oceanic (basalt) crust after lithoswitching
     Unit of measurement : m
     Type                : float
 
+    ### Debug alc outputs
+       
     Identification      : ALCSmBasaltThickness
-    Description         : smooth basalt thickness
+    Description         : smooth basalt thickness (-debugalc output)
     Unit of measurement : m
     Type                : float
 
     Identification      : ALCSmContCrustThickness
-    Description         : interpolated continental crust thickness
+    Description         : interpolated continental crust thickness (-debugalc output)
     Unit of measurement : m
     Type                : float
 
     Identification      : ALCSmTopBasaltDepth
-    Description         : calculated depth of top of basalt
+    Description         : calculated depth of top of basalt (-debugalc output)
     Unit of measurement : m
     Type                : float
 
     Identification      : ALCSmMohoDepth
-    Description         : calculated depth of Moho
+    Description         : calculated depth of Moho (-debugalc output)
     Unit of measurement : m
     Type                : float
 
     Identification      : ALCOrigLithMantleDepth
-    Description         : base of uplifted initial mantle
+    Description         : base of uplifted initial mantle (-debugalc output)
+    Unit of measurement : m
+    Type                : float
+
+    Identification      : ALCMaxAsthenoMantleDepth
+    Description         : maximum depth of asthenospheric mantle (-debugalc output)
     Unit of measurement : m
     Type                : float
 
@@ -4902,16 +4909,22 @@ START-property-tables
     Column         : Thickness
     Column         : ThicknessGrid
     #limited to 1 layer only:
-    Header         : Crust Thickness Data
+    Header         : Crust Thickness Data  
 
     Identification : ContCrustalThicknessIoTbl
-    Description    : table with Crust thickness data for IO and UI
+    Description    : table with Continental Crust thickness data for IO and UI
     Version        : 100
     Column         : Age
     Column         : Thickness
     Column         : ThicknessGrid
-    #limited to 1 layer only:
     Header         : Continental Crust Thickness Data
+
+    Identification : OceaCrustalThicknessIoTbl
+    Description    : table with Oceanic Crust thickness data for IO and UI
+    Column         : Age
+    Column         : Thickness
+    Column         : ThicknessGrid
+    Header         : Oceanic Crust Thickness Data
 
     Identification : BasaltThicknessIoTbl
     Description    : table with Basalt thickness data for IO and UI
@@ -4954,23 +4967,28 @@ START-property-tables
 
 # Data for CrustalThicknessCalculator
 
-    Identification : CTCIoTbl
-    Description    : Table of user defined data for calculation of MOHO and basalt thickness
+    Identification : CTCIoTbl 
+    Description    : Table of user defined global data for calculation of the CTC properties
     Version        : 100
     Column         : SurfaceName
-    Column         : T0Ini
-    Column         : T0IniGrid
-    Column         : TRIni
-    Column         : TRIniGrid
     Column         : HCuIni
     Column         : HCuIniGrid
     Column         : HLMuIni
     Column         : HLMuIniGrid
-    Column         : HBu
-    Column         : HBuGrid
+    Column         : FilterHalfWidth
+    Column         : UpperLowerContinentalCrustRatio
+    Column         : UpperLowerOceanicCrustRatio
+    Header         : Crustal Thickness Calculator global input data
+
+    Identification : CTCRiftingHistoryIoTbl 
+    Description    : Table of user defined rifiting history data for calculation of the CTC properties
+    Column         : Age
+    Column         : TectonicFlag
     Column         : DeltaSL
     Column         : DeltaSLGrid
-    Header         : Crustal Thickness Calculator input data
+    Column         : HBu
+    Column         : HBuGrid
+    Header         : Crustal Thickness Calculator rifting history input data
 
 # Boundary condition data -------------------------------------------------
 
@@ -5890,6 +5908,7 @@ START-application-class-properties
     Property : AllochthonLithoInterpIoTbl
     Property : CrustIoTbl
     Property : ContCrustalThicknessIoTbl
+    Property : OceaCrustalThicknessIoTbl
     Property : BasaltThicknessIoTbl
     Property : BasementIoTbl
     Property : DisplayContourIoTbl
@@ -5937,6 +5956,7 @@ START-application-class-properties
     Property : GenexHistoryLocationIoTbl
 # CrustalThicknessCalculator data
     Property : CTCIoTbl
+    Property : CTCRiftingHistoryIoTbl
 # Shale Gas properties
     Property : LangmuirAdsorptionCapacityIsothermSetIoTbl
     Property : LangmuirAdsorptionCapacityTOCFunctionIoTbl

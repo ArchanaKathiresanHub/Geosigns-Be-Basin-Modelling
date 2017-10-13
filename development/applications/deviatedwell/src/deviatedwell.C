@@ -58,7 +58,7 @@ typedef CBMGenerics::ComponentManager::SpeciesNamesId ComponentId;
 #include "CauldronDomain.h"
 #include "InterpolatedPropertyValues.h"
 #include "DomainProperty.h"
-#include "DomainPropertyFactory.h"
+#include "DataMiningObjectFactory.h"
 #include "DomainPropertyCollection.h"
 
 #include "DomainSurfaceProperty.h"
@@ -293,7 +293,7 @@ int main (int argc, char ** argv) {
       std::cerr << "Read input well description file." << std::endl;
    }
 
-   Mining::DomainPropertyFactory* factory = new DataAccess::Mining::DomainPropertyFactory;
+   Mining::ObjectFactory* factory = new DataAccess::Mining::ObjectFactory;
 
    Mining::ProjectHandle* projectHandle = (Mining::ProjectHandle*)(OpenCauldronProject (projectFileName, "r", factory));
    DerivedProperties::DerivedPropertyManager propertyManager ( projectHandle );

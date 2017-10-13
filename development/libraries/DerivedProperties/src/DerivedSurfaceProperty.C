@@ -1,3 +1,15 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
+#include <algorithm>
+
 #include "DerivedSurfaceProperty.h"
 #include "Interface/Interface.h"
 
@@ -24,6 +36,10 @@ void DerivedProperties::DerivedSurfaceProperty::set ( unsigned int i,
                                                       double   value ) {
 
    m_values[ i - firstI(true)][ j - firstJ(true)] = value;
+}
+
+void DerivedProperties::DerivedSurfaceProperty::fill( const double value ) {
+   std::fill( m_values.origin(), m_values.origin() + m_values.num_elements(), value );
 }
 
 double DerivedProperties::DerivedSurfaceProperty::getUndefinedValue () const {

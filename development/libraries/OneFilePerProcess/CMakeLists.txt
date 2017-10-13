@@ -17,13 +17,15 @@ set_source_files_properties( src/HDF5VirtualFileDriver.c
       PROPERTIES COMPILE_FLAGS "-std=c99"
 )
 
-add_library(OneFilePerProcess
-	${all_srcs}
-	${all_headers}
+set( LIB_NAME "OneFilePerProcess" )
+add_library(${LIB_NAME}
+   ${all_srcs}
+   ${all_headers}
 )
+set_target_properties( ${LIB_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${LIB_NAME}" )
 
 include_directories(
-	src
+   src
 )
 
 include_directories( SYSTEM
@@ -32,13 +34,13 @@ include_directories( SYSTEM
   ${HDF5_SOURCE_DIR}/src
 )
 
-target_link_libraries(OneFilePerProcess
+target_link_libraries(${LIB_NAME}
       ${HDF5_LIBRARIES}
       ${MPI_LIBRARIES}
 )
 
 if (UNIX)
-add_dependencies(OneFilePerProcess HDF5)
+add_dependencies(${LIB_NAME} HDF5)
 endif (UNIX)
 
 if (UNIX)
@@ -50,26 +52,30 @@ if (UNIX)
 endif (UNIX)
                                     
             
-add_gtest( NAME OneFilePerProcess::rewriteFileName
+add_gtest( NAME ${LIB_NAME}::rewriteFileName
            SOURCES test/RewriteFileName.C
-           LIBRARIES OneFilePerProcess
+           LIBRARIES ${LIB_NAME}
+           FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME OneFilePerProcess::HDF5VirtualFileDriver
+add_gtest( NAME ${LIB_NAME}::HDF5VirtualFileDriver
            SOURCES test/HDF5VirtualFileDriver.C
-           LIBRARIES OneFilePerProcess
+           LIBRARIES ${LIB_NAME}
+           FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME OneFilePerProcess::HDF5VirtualFileDriver-MPIPROCS=2
+add_gtest( NAME ${LIB_NAME}::HDF5VirtualFileDriver-MPIPROCS=2
            SOURCES test/HDF5VirtualFileDriver.C
-           LIBRARIES OneFilePerProcess
+           LIBRARIES ${LIB_NAME}
            MPI_SIZE 2
            MPIRUN_PRMS ${MACHINE_FILE}
+           FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
-add_gtest( NAME OneFilePerProcess::h5mergeTest-MPIPROCS=2
+add_gtest( NAME ${LIB_NAME}::h5mergeTest-MPIPROCS=2
            SOURCES test/readDataset.C
-           LIBRARIES OneFilePerProcess
+           LIBRARIES ${LIB_NAME}
            MPI_SIZE 2
            MPIRUN_PRMS ${MACHINE_FILE}
+           FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 

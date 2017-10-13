@@ -1,12 +1,12 @@
-//                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// 
+// Copyright (C) 2015-2017 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
 // 
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 
 // std library
 #include <string.h>
@@ -30,9 +30,10 @@
 #include "GenexResultManager.h"
 #include "GeneralParametersHandler.h"
 
-// utilities
+// utilities library
 #include "ConstantsMathematics.h"
 using Utilities::Maths::KiloJouleToJoule;
+#include "StringHandler.h"
 
 namespace Genex6
 {
@@ -919,7 +920,7 @@ void ChemicalModel::LoadElements(ifstream &ConfigurationFile)
 {
    std::string line;
    std::vector<std::string> theTokens;
-   std::string delim = ",";
+   const char delim = ',';
 
    std::getline (ConfigurationFile, line, '\n');
 
@@ -931,7 +932,7 @@ void ChemicalModel::LoadElements(ifstream &ConfigurationFile)
          break;
       }
       
-      ParseLine(line, delim, theTokens);
+      StringHandler::parseLine(line, delim, theTokens);
       
       Element *theElement = new Genex6::Element(theTokens[0]);
       theElement->SetAtomWeight(atof(theTokens[1].c_str()));
@@ -946,7 +947,7 @@ void ChemicalModel::LoadSpecies(ifstream &ConfigurationFile)
 {
    std::string line;
    std::vector<std::string> theTokens;
-   std::string delim = ",";
+   const char delim = ',';
 
 
 
@@ -960,7 +961,7 @@ void ChemicalModel::LoadSpecies(ifstream &ConfigurationFile)
          break;
       }
       
-      ParseLine(line, delim, theTokens);
+      StringHandler::parseLine(line, delim, theTokens);
       
       Species *theSpecies = new Species(theTokens[1], atoi(theTokens[0].c_str()), this);
       this->AddSpecies(theSpecies);
@@ -976,10 +977,10 @@ void ChemicalModel::LoadSpeciesComposition(ifstream &ConfigurationFile)
 {
    std::string line;
    std::vector<std::string> theTokens;
-   std::string delim = ",";
+   const char delim = ',';
    
    std::getline (ConfigurationFile, line, '\n');
-   ParseLine(line, delim, theTokens);
+   StringHandler::parseLine(line, delim, theTokens);
    
    int i, j;
    int theElements[m_speciesManager.numberOfElements];
@@ -1012,7 +1013,7 @@ void ChemicalModel::LoadSpeciesComposition(ifstream &ConfigurationFile)
          break;
       }
       
-      ParseLine(line, delim, theTokens);
+      StringHandler::parseLine(line, delim, theTokens);
       
       if(tokenSize - 2 > m_speciesManager.getNumberOfElements ()) {
          cout << "Warning!! Wrong number of elements in Species composition." << endl;
@@ -1034,7 +1035,7 @@ void ChemicalModel::LoadSpeciesProperties(ifstream &ConfigurationFile)
 {
    std::string line;
    std::vector<std::string> theTokens;
-   std::string delim = ",";
+   const char delim = ',';
 
    std::getline (ConfigurationFile, line, '\n');
    
@@ -1046,7 +1047,7 @@ void ChemicalModel::LoadSpeciesProperties(ifstream &ConfigurationFile)
          break;
       }
       
-      ParseLine(line, delim, theTokens);
+      StringHandler::parseLine(line, delim, theTokens);
       
       //SpeciesName,Weight,Density,activationEnergy1,activationEnergy2,entropy,volume,reactionOrder,diffusionEnergy1,diffusionEnergy2,jumpLength, B0,aromaticity
       
@@ -1088,7 +1089,7 @@ void ChemicalModel::LoadReactions(ifstream &ConfigurationFile)
 {
    std::string line;
    std::vector<std::string> theTokens;
-   std::string delim = ",";
+   const char delim = ',';
    
    std::getline (ConfigurationFile, line, '\n');
 
@@ -1099,7 +1100,7 @@ void ChemicalModel::LoadReactions(ifstream &ConfigurationFile)
          break;
       }
       
-      ParseLine(line, delim, theTokens);
+      StringHandler::parseLine(line, delim, theTokens);
       Reaction * currentReaction = 0;
       std::vector<std::string>::size_type i = 0;
       for( i = 0; i < theTokens.size(); ++ i) {
@@ -1128,7 +1129,7 @@ void ChemicalModel::LoadReactionRatios(ifstream &ConfigurationFile)
 {
    std::string line;
    std::vector<std::string> theTokens;
-   std::string delim = ",";
+   const char delim = ',';
 
    std::getline (ConfigurationFile, line, '\n');
 
@@ -1140,7 +1141,7 @@ void ChemicalModel::LoadReactionRatios(ifstream &ConfigurationFile)
          break;
       }
       
-      ParseLine(line, delim, theTokens);
+      StringHandler::parseLine(line, delim, theTokens);
       
       Reaction *currentReaction = GetReactionByMotherName(s_mapSpeciesId2Name[theTokens[0]]);
       if(currentReaction && theTokens.size() == 4) {
@@ -1362,7 +1363,7 @@ void ChemicalModel::SetTheReactions(ifstream &theStream)
    clearReactions();
 
    std::string line;
-   std::string delim(",\n");
+   const char delim = ',';
    std::string tempString;
    std::vector<std::string> Tokens;  //buffer containing all the reactants
    std::vector<std::string> tempReactants;  //buffer containing all the reactants
@@ -1376,7 +1377,7 @@ void ChemicalModel::SetTheReactions(ifstream &theStream)
       //DEBUG MAD
       cout << line << endl;
       
-      ParseLine(line, delim, Tokens);
+      StringHandler::parseLine(line, delim, Tokens);
       
       Tokens.pop_back();
       std::vector<std::string>::iterator endOfReactants = std::find(Tokens.begin(), Tokens.end(), "0");

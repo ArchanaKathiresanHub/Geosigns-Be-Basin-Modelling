@@ -10,6 +10,8 @@
 #                                                                       #
 #########################################################################
 
+set( BASE_FOLDER "Applications" )
+
 include( ApplicationRunScript.cmake )
 
 if (BM_BUILD_SERIAL_APPS)

@@ -1,5 +1,5 @@
-//                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// 
+// Copyright (C) 2015-2017 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -193,8 +193,8 @@ bool GeoPhysics::Formation::setLithologiesFromStratTable () {
                   std::ostringstream errorBuffer;
                   errorBuffer << " Percentage Maps incorrect: ( " << i << ", " << j << " ) " 
                               << (lithoMap1 ? lithoMap1->getValue ( i, j ) : 0) << "  "
-			      << (lithoMap2 ? lithoMap2->getValue ( i, j ) : 0) << "  "
-			      << (lithoMap3 ? lithoMap3->getValue ( i, j ) : 0) << "  " 
+                              << (lithoMap2 ? lithoMap2->getValue ( i, j ) : 0) << "  "
+                              << (lithoMap3 ? lithoMap3->getValue ( i, j ) : 0) << "  " 
                               << std::endl
                               << "          min (  " << lithologyPercentage1 << ", " << lithologyPercentage2 << ", " << lithologyPercentage3 << " ) < " << -LithologyTolerance << "; or " << endl
                               << "          max (  " << lithologyPercentage1 << ", " << lithologyPercentage2 << ", " << lithologyPercentage3 << " ) < " << 100 + LithologyTolerance << "; or " << endl
@@ -627,85 +627,3 @@ void GeoPhysics::Formation::restoreAllThicknessMaps () {
 
 }
 
-//------------------------------------------------------------//
-
-double GeoPhysics::Formation::computeRealThickness ( const unsigned int i,
-                                                     const unsigned int j,
-                                                     const unsigned int k,
-                                                     const double       porosityTop,
-                                                     const double       porosityBottom,
-                                                     const double       age ) const {
-   double solidThickness = getSolidThickness ( i, j, k, age );
-   if (solidThickness == Interface::DefaultUndefinedScalarValue)
-      return Interface::DefaultUndefinedScalarValue;
-   else
-      return 0.5 * solidThickness * ( 1.0 / ( 1.0 - porosityTop ) + 1.0 / ( 1.0 - porosityBottom ));
-}
-
-//------------------------------------------------------------//
-
-double GeoPhysics::Formation::computeSolidThickness ( const unsigned int i,
-                                                      const unsigned int j,
-                                                      const unsigned int k,
-                                                      const double       porosityTop,
-                                                      const double       porosityBottom,
-                                                      const double       age ) const {
-
-   double realThickness = getRealThickness ( i, j, k, age );
-   if (realThickness == Interface::DefaultUndefinedScalarValue)
-      return Interface::DefaultUndefinedScalarValue;
-   else
-   return 0.5 * realThickness * (( 1.0 - porosityTop ) + ( 1.0 - porosityBottom ));
-}
-
-//------------------------------------------------------------//
-
-double GeoPhysics::Formation::computeRealThickness ( const unsigned int i,
-                                                     const unsigned int j,
-                                                     const unsigned int k,
-                                                     const double vesTop,
-                                                     const double vesBottom,
-                                                     const double maxVesTop,
-                                                     const double maxVesBottom,
-                                                     const double chemicalCompactionTop,
-                                                     const double chemicalCompactionBottom,
-                                                     const bool   includeChemicalCompaction,
-                                                     const double age ) const {
-
-   const CompoundLithology* lithology = getCompoundLithology ( i, j );
-
-   double porosityTop;
-   double porosityBottom;
-
-   porosityTop = lithology->porosity ( vesTop, maxVesTop, includeChemicalCompaction, chemicalCompactionTop );
-   porosityBottom = lithology->porosity ( vesBottom, maxVesBottom, includeChemicalCompaction, chemicalCompactionBottom );
-
-   return computeRealThickness ( i, j, k, porosityTop, porosityBottom, age );
-}
-
-//------------------------------------------------------------//
-
-double GeoPhysics::Formation::computeSolidThickness ( const unsigned int i,
-                                                      const unsigned int j,
-                                                      const unsigned int k,
-                                                      const double vesTop,
-                                                      const double vesBottom,
-                                                      const double maxVesTop,
-                                                      const double maxVesBottom,
-                                                      const double chemicalCompactionTop,
-                                                      const double chemicalCompactionBottom,
-                                                      const bool   includeChemicalCompaction,
-                                                      const double age ) const {
-
-   const CompoundLithology* lithology = getCompoundLithology ( i, j );
-
-   double porosityTop;
-   double porosityBottom;
-
-   porosityTop = lithology->porosity ( vesTop, maxVesTop, includeChemicalCompaction, chemicalCompactionTop );
-   porosityBottom = lithology->porosity ( vesBottom, maxVesBottom, includeChemicalCompaction, chemicalCompactionBottom );
-
-   return computeSolidThickness ( i, j, k, porosityTop, porosityBottom, age );
-}
-
-//------------------------------------------------------------//

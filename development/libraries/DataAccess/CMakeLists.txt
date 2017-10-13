@@ -16,10 +16,12 @@ source_group(include FILES ${all_headers})
 FILE( GLOB all_srcs src/*.C)
 source_group(source FILES ${all_srcs})
 
-add_library(DataAccess 
+set( LIB_NAME "DataAccess" )
+add_library(${LIB_NAME} 
    ${all_srcs}
    ${all_headers}
 )
+set_target_properties( ${LIB_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${LIB_NAME}" )
 
 bm_include_libraries(
    DataModel
@@ -29,19 +31,17 @@ bm_include_libraries(
    FileSystem 
    TableIO
    EosPack
-   
-   CrustalThickness
 )
 
 include_directories(
-  src
+   src
 )
 
 include_directories( SYSTEM
    ${HDF5_INCLUDE_DIRS}
 )
 
-target_link_libraries(DataAccess
+target_link_libraries(${LIB_NAME} 
    ${Boost_LIBRARIES}
    Serial_Hdf5
    CBMGenerics
@@ -51,14 +51,15 @@ target_link_libraries(DataAccess
 )
 
 if (UNIX)
-add_dependencies(DataAccess HDF5)
+   add_dependencies(${LIB_NAME} HDF5)
 endif (UNIX)
 
-add_gtest( NAME DataAccess
+add_gtest( NAME ${LIB_NAME}
            SOURCES test/DataAccess.C
            INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../SerialDataAccess/src/Interface/
-           LIBRARIES DataAccess SerialDataAccess Serial_Hdf5
+           LIBRARIES ${LIB_NAME} SerialDataAccess Serial_Hdf5
            ENV_VARS EOSPACKDIR=${CFGFLS}/eospack GENEX5DIR=${CFGFLS}/genex50 CTCDIR=${CFGFLS}/
+           FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 configure_file(
@@ -84,7 +85,7 @@ if ( MSVC )
       CSPROJ_ASSEMBLY_RELEASE_NOTES "Version ${API_FILE_GIT_DATE_AS_VER}. Initial nuget package release"
       CSPROJ_ASSEMBLY_TAGS          "Cauldron backend data HDF API"
       CSPROJ_ASSEMBLY_COPYRIGHT     "Copyright (C) 2012-2017"
-      CSPROJ_LIBRARIES              Serial_Hdf5 TableIO DataModel SerialDataAccess DataAccess EosPack ${Boost_LIBRARIES}
+      CSPROJ_LIBRARIES              Serial_Hdf5 TableIO DataModel SerialDataAccess ${LIB_NAME} EosPack ${Boost_LIBRARIES}
       CSHARP_UNIT_TESTS_SRC         test/SerialDataAccessTest.cs
    )
    

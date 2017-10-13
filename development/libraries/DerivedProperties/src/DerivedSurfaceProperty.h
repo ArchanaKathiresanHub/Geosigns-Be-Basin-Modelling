@@ -1,3 +1,13 @@
+//                                                                      
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef DERIVED_PROPERTIES__DERIVED_SURFACE_PROPERTY_H
 #define DERIVED_PROPERTIES__DERIVED_SURFACE_PROPERTY_H
 
@@ -39,6 +49,9 @@ namespace DerivedProperties {
 
       /// \brief Get the undefined value.
       virtual double getUndefinedValue () const;
+
+      /// \brief Fill the property with the defined value
+      void fill( const double value );
 
       /// \brief Return false.
       bool isPrimary () const;

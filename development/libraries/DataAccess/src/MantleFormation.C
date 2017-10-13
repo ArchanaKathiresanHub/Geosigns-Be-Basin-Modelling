@@ -1,15 +1,28 @@
+//
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
+// std library
 #include <assert.h>
 #include <iostream>
 #include <sstream>
 using namespace std;
 
+// utilities library
 #include "mangle.h"
 
+// TableIo library
 #include "database.h"
 #include "cauldronschemafuncs.h"
-
 using namespace database;
 
+// DataAccess library
 #include "Interface/MantleFormation.h"
 #include "Interface/Formation.h"
 #include "Interface/Grid.h"
@@ -18,7 +31,6 @@ using namespace database;
 #include "Interface/Surface.h"
 #include "Interface/ObjectFactory.h"
 #include "Interface/ProjectHandle.h"
-
 using namespace DataAccess;
 using namespace Interface;
 
@@ -125,8 +137,8 @@ void MantleFormation::asString (string & str) const
    ostringstream buf;
 
    buf << "MantleFormation";
-   buf << ": name = " << getName ();
-   buf << ", top surface name = " << getTopSurface ()->getName ();
+   buf << ": name = "                << getName ();
+   buf << ", top surface name = "    << getTopSurface ()->getName ();
    buf << ", bottom surface name = " << getBottomSurface ()->getName ();
    buf << endl;
 

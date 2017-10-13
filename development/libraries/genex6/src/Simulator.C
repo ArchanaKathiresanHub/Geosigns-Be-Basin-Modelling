@@ -1,12 +1,12 @@
-//                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+//                                                      
+// Copyright (C) 2015-2017 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
 // 
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
-// 
+//
 #include "Simulator.h"
 #include "ChemicalModel.h"
 
@@ -30,7 +30,7 @@
 // utilities library
 #include "ConstantsPhysics.h"
 using Utilities::Physics::BoltzmannOverPlanckByMillionYear;
-
+#include "StringHandler.h"
 
 namespace Genex6
 {
@@ -362,7 +362,7 @@ void Simulator::LoadSimulatorProperties(ifstream &ConfigurationFile)
 {
    std::string line;
    std::vector<std::string> theTokens;
-   std::string delim = ",";
+   const char delim = ',';
    
    for(;;) {
 
@@ -372,7 +372,7 @@ void Simulator::LoadSimulatorProperties(ifstream &ConfigurationFile)
          break;
       }
       
-      ParseLine(line, delim, theTokens);
+      StringHandler::parseLine( line, delim, theTokens );
       
       if(theTokens.size() == 2) {
          if(theTokens[0] == Genex6::CFG::PreprocessSpeciesKinetics) {
@@ -425,7 +425,7 @@ void Simulator::LoadGeneralParameters(ifstream &ConfigurationFile)
    //change values stored in singleton
    std::string line;
    std::vector<std::string> theTokens;
-   std::string delim = ",";
+   const char delim = ',';
 
    GeneralParametersHandler &theHandler = GeneralParametersHandler::getInstance();
    for(;;) {
@@ -435,7 +435,7 @@ void Simulator::LoadGeneralParameters(ifstream &ConfigurationFile)
       if(line == Genex6::CFG::EndOfTable || line.size() == 0) {
          break;
       }
-      ParseLine(line, delim, theTokens);
+      StringHandler::parseLine( line, delim, theTokens );
       
       //2Do, implement here the interface for parameters
       if(theTokens.size() == 2) {

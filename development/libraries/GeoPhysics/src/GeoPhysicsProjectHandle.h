@@ -8,8 +8,8 @@
 // Do not distribute without written permission from Shell.
 //
 
-#ifndef _GEOPHYSICS__PROJECT_HANDLE_H_
-#define _GEOPHYSICS__PROJECT_HANDLE_H_
+#ifndef GEOPHYSICS__PROJECT_HANDLE_H
+#define GEOPHYSICS__PROJECT_HANDLE_H
 
 #include <string>
 #include <list>
@@ -37,7 +37,7 @@ namespace DataAccess {
 
 namespace GeoPhysics {
    class AllochthonousLithologyManager;
-   class BasementLithologyProps;
+   class ConfigFileParameterAlc;
    class Formation;
    class FracturePressureCalculator;
    class LithologyManager;
@@ -100,6 +100,9 @@ namespace GeoPhysics {
       /// Scale the solid-thicknesses by the correction factor.
       bool applyFctCorrections ();
 
+      /// @brief Return true if the project has a paleobathymetrie defined in the
+      ///   surface depth history (SDH) for the specified age.
+      bool hasSurfaceDepthHistory( const double age ) const;
 
       /// Return reference to the lithology-manager.
       LithologyManager& getLithologyManager () const;
@@ -205,7 +208,7 @@ namespace GeoPhysics {
       int    getMaximumNumberOfMantleElements() const;
       double getConstrainedBasaltTemperature() const;
 
-      BasementLithologyProps * getBasementLithologyProps() const;
+      ConfigFileParameterAlc * getBasementLithologyProps() const;
 
       /// Compute the age and time step that will be used in permafrost modeling
       bool determinePermafrost( std::vector<double>& timeSteps, std::vector<double>& permafrostAges );
@@ -410,9 +413,9 @@ namespace GeoPhysics {
       mutable PolyFunction2DArray m_seaBottomDepth;
       mutable PolyFunction2DArray m_mantleHeatFlow;
       mutable PolyFunction2DArray m_seaBottomTemperature;
-      mutable PolyFunction2DArray m_crustThicknessHistory;
-      mutable PolyFunction2DArray m_contCrustThicknessHistory;
-      mutable PolyFunction2DArray m_basaltThicknessHistory;
+      mutable PolyFunction2DArray m_crustThicknessHistory;     ///< The crust thickness (effective crust thickness in case we use the alc)
+      mutable PolyFunction2DArray m_basaltThicknessHistory;    ///< The oceanic crust thickness (only in case we use the alc)
+      mutable PolyFunction2DArray m_contCrustThicknessHistory; ///< The continental crust thickness (only in case we use the alc)
       mutable DoubleLocal2DArray  m_endOfRiftEvent;
 
 
@@ -435,13 +438,19 @@ namespace GeoPhysics {
       double m_basinAge;
 
       /// ALC bottom boundary conditions mode
-      bool m_isALCMode;
-      BasementLithologyProps *m_basementLithoProps;
+      bool m_isALCMode;   
+      ConfigFileParameterAlc *m_basementLithoProps;
       double m_minimumLithosphereThickness; // defined in configuration file
       int    m_maximumNumberOfMantleElements; // defined in configuration file
       double m_constrainedBasaltTemperature; // defined in configuration file
 
-   };
+      private:
+         /// @brief If the ALc version used is v2017.05, checks that there are as much continental as oceanic
+         /// crustal thicknesses inputs and that they are defined at the same age
+         /// @throw std::invalid_argument if the check fails
+         void checkAlcCrustHistoryInput();
+
+   }; 
 
 }
 
@@ -513,4 +522,4 @@ inline double GeoPhysics::ProjectHandle::getConstrainedBasaltTemperature() const
 
 //------------------------------------------------------------//
 
-#endif // _GEOPHYSICS__PROJECT_HANDLE_H_
+#endif // GEOPHYSICS__PROJECT_HANDLE_H

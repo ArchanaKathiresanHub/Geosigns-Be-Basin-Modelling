@@ -7,6 +7,8 @@
 // Confidential and proprietary source code of Shell.
 // Do not distribute without written permission from Shell.
 //
+
+// std library
 #include <stdlib.h>
 
 #include <sys/types.h>
@@ -29,37 +31,42 @@
 #include <cstring>
 #include <boost/filesystem.hpp>
 
+// TableIo library
 #include "database.h"
 #include "cauldronschema.h"
 #include "cauldronschemafuncs.h"
 
+// hdf5 3dparty library
 #include "hdf5.h"
 #include "hdf5funcs.h"
 
+// Eospack library
 #include "EosPack.h"
 
+// DataAccess library
 #include "Interface/ProjectHandle.h"
 
 #include "Interface/AllochthonousLithology.h"
 #include "Interface/AllochthonousLithologyDistribution.h"
 #include "Interface/AllochthonousLithologyInterpolation.h"
-#include "Interface/RunParameters.h"
-#include "Interface/ProjectData.h"
 #include "Interface/BasementSurface.h"
 #include "Interface/BiodegradationParameters.h"
 #include "Interface/ConstrainedOverpressureInterval.h"
+#include "Interface/CrustFormation.h"
+#include "Interface/CrustalThicknessData.h"
+#include "Interface/CrustalThicknessInterface.h"
+#include "Interface/CrustFormation.h"
 #include "Interface/DiffusionLeakageParameters.h"
 #include "Interface/FluidType.h"
 #include "Interface/Formation.h"
 #include "Interface/FracturePressureFunctionParameters.h"
-#include "Interface/CrustFormation.h"
-#include "Interface/InputValue.h"
 #include "Interface/IgneousIntrusionEvent.h"
-#include "Interface/LithoType.h"
+#include "Interface/InputValue.h"
 #include "Interface/LithologyHeatCapacitySample.h"
 #include "Interface/LithologyThermalConductivitySample.h"
-#include "Interface/FluidHeatCapacitySample.h"
+#include "Interface/LithoType.h"
 #include "Interface/FluidDensitySample.h"
+#include "Interface/FluidHeatCapacitySample.h"
 #include "Interface/FluidThermalConductivitySample.h"
 #include "Interface/Grid.h"
 #include "Interface/GridMap.h"
@@ -68,17 +75,20 @@
 #include "Interface/MobileLayer.h"
 #include "Interface/TouchstoneMap.h"
 #include "Interface/ObjectFactory.h"
+#include "Interface/OceanicCrustThicknessHistoryData.h"
 #include "Interface/OutputProperty.h"
 #include "Interface/Parent.h"
 #include "Interface/PaleoProperty.h"
 #include "Interface/PaleoFormationProperty.h"
 #include "Interface/PaleoSurfaceProperty.h"
 #include "Interface/PermafrostEvent.h"
+#include "Interface/ProjectData.h"
 #include "Interface/Property.h"
 #include "Interface/PropertyValue.h"
 #include "Interface/RelatedProject.h"
 #include "Interface/Reservoir.h"
 #include "Interface/ReservoirOptions.h"
+#include "Interface/RunParameters.h"
 #include "Interface/SimulationDetails.h"
 #include "Interface/Snapshot.h"
 #include "Interface/SourceRock.h"
@@ -98,21 +108,21 @@
 #include "Interface/LangmuirAdsorptionIsothermSample.h"
 #include "Interface/LangmuirAdsorptionTOCEntry.h"
 #include "Interface/SGDensitySample.h"
-#include "Interface/CrustalThicknessData.h"
 
-
-#include "errorhandling.h"
 #include "wildMatch.h"
-#include "array.h"
+
+// CBMGenerics library
 #include "GenexResultManager.h"
 #include "ComponentManager.h"
-#include "InterfaceDefs.h"
-#include "ConstantsNames.h"
-
-#include "FilePath.h"
 
 //utilities library
+#include "array.h"
+#include "errorhandling.h"
 #include "LogHandler.h"
+#include "ConstantsNames.h"
+
+// FileSystem library
+#include "FilePath.h"
 
 
 using namespace DataAccess;
@@ -205,8 +215,12 @@ const DataAccess::Interface::ApplicationGlobalOperations& ProjectHandle::getGlob
    return *m_globalOperations;
 }
 
-ProjectHandle::ProjectHandle( database::ProjectFileHandlerPtr pfh, const string & name, const string & accessMode, ObjectFactory* objectFactory ) :
-   m_name( name ), m_accessMode( READWRITE ), m_projectFileHandler( pfh ), m_activityOutputGrid( 0 ), m_mapPropertyValuesWriter( 0 ), m_primaryList( words, words + 20 )
+ProjectHandle::ProjectHandle(database::ProjectFileHandlerPtr pfh, const string & name, const string & accessMode, ObjectFactory* objectFactory ) :
+   m_name( name ), m_accessMode( READWRITE ), m_projectFileHandler(pfh),
+   m_tableCTC                         ( *this ),
+   m_tableCTCRiftingHistory           ( *this ),
+   m_tableOceanicCrustThicknessHistory( *this ),
+   m_activityOutputGrid( 0 ), m_mapPropertyValuesWriter( 0 ), m_primaryList( words, words + 20 )
 {
    (void) accessMode; // ignore warning about unused parameter
 
@@ -256,9 +270,7 @@ ProjectHandle::ProjectHandle( database::ProjectFileHandlerPtr pfh, const string 
    loadRunParameters();
    loadBottomBoundaryConditions();
    loadLithoTypes();
-#if 0
-   loadSourceRocks ();
-#endif
+
    loadGrids();
    loadSurfaces();
    loadFormations();
@@ -280,7 +292,6 @@ ProjectHandle::ProjectHandle( database::ProjectFileHandlerPtr pfh, const string 
    loadFluidThermalConductivitySamples();
    loadFluidHeatCapacitySamples();
 
-   //   loadBottomBoundaryConditions ();
    loadCrustFormation();
    loadMantleFormation();
    loadBasementSurfaces();
@@ -299,13 +310,6 @@ ProjectHandle::ProjectHandle( database::ProjectFileHandlerPtr pfh, const string 
 
    loadIgneousIntrusions();
    loadFaults();
-
-   /*
-   loadCrustThinningHistory ();
-   loadMantleThicknessHistory ();
-   loadHeatFlowHistory ();
-   loadConstrainedOverpressureIntervals ();
-   */
 
    loadRelatedProjects();
 
@@ -328,7 +332,8 @@ ProjectHandle::ProjectHandle( database::ProjectFileHandlerPtr pfh, const string 
    loadIrreducibleWaterSaturationSample();
    loadSGDensitySample();
 
-   loadCrustalThicknessData();
+   //@TODO_Check
+   loadPermafrostData();
 }
 
 int ProjectHandle::getRank() const {
@@ -416,7 +421,6 @@ ProjectHandle::~ProjectHandle( void )
    deleteRecordLessMapPropertyValues();
    deleteRecordLessVolumePropertyValues();
    deleteFluidTypes();
-   deleteCrustalThicknessData();
 
    deleteBiodegradationParameters();
    deleteFracturePressureFunctionParameters();
@@ -515,10 +519,7 @@ bool ProjectHandle::startActivity( const string & name, const Interface::Grid * 
    const char * svnRevision = "unknown";
 #endif
 
-   if ( getRank() == 0 )
-   {
-      cerr << endl << "Activity: " << name << ", Revision: " << svnRevision << endl << endl;
-   }
+   LogHandler( LogHandler::INFO_SEVERITY ) << "\n" << "Activity: " << name << ", Revision: " << svnRevision << "\n";
 
    checkForValidPartitioning( name, grid->numIGlobal(), grid->numJGlobal() ); // NOOP in case of serial data access
 
@@ -1092,14 +1093,14 @@ bool ProjectHandle::loadProperties( void )
       m_properties.push_back( getFactory()->produceProperty( this, 0,
          theComponentManager.getSpeciesOutputPropertyName( i, false ),
          theComponentManager.getSpeciesOutputPropertyName( i, false ),
-                                                             theResultManager.GetResultUnit( GenexResultManager::OilGeneratedCum ), FORMATIONPROPERTY,
-                                                             DataModel::FORMATION_2D_PROPERTY) );
+         theResultManager.GetResultUnit( GenexResultManager::OilGeneratedCum ), FORMATIONPROPERTY,
+         DataModel::FORMATION_2D_PROPERTY) );
 
       m_properties.push_back( getFactory()->produceProperty( this, 0,
          theComponentManager.getSpeciesOutputPropertyName( i, true ),
          theComponentManager.getSpeciesOutputPropertyName( i, true ),
-                                                             theResultManager.GetResultUnit( GenexResultManager::OilGeneratedCum ), FORMATIONPROPERTY,
-                                                             DataModel::FORMATION_2D_PROPERTY ) );
+         theResultManager.GetResultUnit( GenexResultManager::OilGeneratedCum ), FORMATIONPROPERTY,
+         DataModel::FORMATION_2D_PROPERTY ) );
 
    }
 
@@ -1109,8 +1110,8 @@ bool ProjectHandle::loadProperties( void )
       m_properties.push_back( getFactory()->produceProperty( this, 0,
          theResultManager.GetResultName( i ),
          theResultManager.GetResultName( i ),
-                                                             theResultManager.GetResultUnit( i ), FORMATIONPROPERTY,
-                                                             DataModel::FORMATION_2D_PROPERTY ) );
+         theResultManager.GetResultUnit( i ), FORMATIONPROPERTY,
+         DataModel::FORMATION_2D_PROPERTY ) );
    }
 
    for ( i = 0; i < ComponentManager::NUMBER_OF_SPECIES; ++i )
@@ -1118,45 +1119,46 @@ bool ProjectHandle::loadProperties( void )
       m_properties.push_back( getFactory()->produceProperty( this, 0,
          theComponentManager.getSpeciesName( i ) + "Concentration",
          theComponentManager.getSpeciesName( i ) + "Concentration",
-                                                             "kg/m3", FORMATIONPROPERTY,
-                                                             DataModel::DISCONTINUOUS_3D_PROPERTY ) );
+         "kg/m3", FORMATIONPROPERTY,
+         DataModel::DISCONTINUOUS_3D_PROPERTY ) );
    }
 
    m_properties.push_back( getFactory()->produceProperty( this, 0,
       "ElementMass", "ElementMass",
-                                                          "kg/m3", FORMATIONPROPERTY,
-                                                          DataModel::DISCONTINUOUS_3D_PROPERTY ) );
+       "kg/m3", FORMATIONPROPERTY,
+       DataModel::DISCONTINUOUS_3D_PROPERTY ) );
 
    m_properties.push_back( getFactory()->produceProperty( this, 0,
       "TransportedMass", "TransportedMass",
-                                                          "kg", FORMATIONPROPERTY,
-                                                          DataModel::DISCONTINUOUS_3D_PROPERTY ) );
+      "kg", FORMATIONPROPERTY,
+      DataModel::DISCONTINUOUS_3D_PROPERTY ) );
 
    for ( i = 0; i < ComponentManager::NUMBER_OF_SPECIES; ++i )
    {
       m_properties.push_back( getFactory()->produceProperty( this, 0,
          theComponentManager.getSpeciesName( i ) + "Retained",
          theComponentManager.getSpeciesName( i ) + "Retained",
-                                                             theResultManager.GetResultUnit( GenexResultManager::OilGeneratedCum ), FORMATIONPROPERTY,
-                                                             DataModel::FORMATION_2D_PROPERTY ) );
+          theResultManager.GetResultUnit( GenexResultManager::OilGeneratedCum ), FORMATIONPROPERTY,
+          DataModel::FORMATION_2D_PROPERTY ) );
 
       m_properties.push_back( getFactory()->produceProperty( this, 0,
          theComponentManager.getSpeciesName( i ) + "Adsorped",
          theComponentManager.getSpeciesName( i ) + "Adsorped",
-                                                             "scf/ton", FORMATIONPROPERTY,
-                                                             DataModel::FORMATION_2D_PROPERTY ) );
+         "scf/ton", FORMATIONPROPERTY,
+         DataModel::FORMATION_2D_PROPERTY ) );
 
       m_properties.push_back( getFactory()->produceProperty( this, 0,
          theComponentManager.getSpeciesName( i ) + "AdsorpedExpelled",
          theComponentManager.getSpeciesName( i ) + "AdsorpedExpelled",
-                                                             "scf/ton", FORMATIONPROPERTY,
-                                                             DataModel::FORMATION_2D_PROPERTY ) );
+         "scf/ton", FORMATIONPROPERTY,
+         DataModel::FORMATION_2D_PROPERTY ) );
 
       m_properties.push_back( getFactory()->produceProperty( this, 0,
          theComponentManager.getSpeciesName( i ) + "AdsorpedFree",
          theComponentManager.getSpeciesName( i ) + "AdsorpedFree",
-                                                             "scf/ton", FORMATIONPROPERTY,
-                                                             DataModel::FORMATION_2D_PROPERTY ) );
+         "scf/ton", FORMATIONPROPERTY,
+         DataModel::FORMATION_2D_PROPERTY ) );
+
    }
 
 
@@ -1270,15 +1272,15 @@ bool ProjectHandle::loadProperties( void )
    }
 
 
-   // Crustal Thickness Calculator output property
+   // Crustal Thickness Calculator output properties
    for ( i = 0; i < CrustalThicknessInterface::numberOfOutputMaps; ++i )
    {
       m_properties.push_back( getFactory()->produceProperty( this, 0,
-         CrustalThicknessInterface::outputMapsNames[ i ],
-         CrustalThicknessInterface::outputMapsNames[ i ],
-                                                             CrustalThicknessInterface::outputMapsUnits[ i ],
-                                                             FORMATIONPROPERTY,
-                                                             DataModel::SURFACE_2D_PROPERTY ));
+                              CrustalThicknessInterface::outputMapsNames[ i ],
+                              CrustalThicknessInterface::outputMapsNames[ i ],
+                              CrustalThicknessInterface::outputMapsUnits[ i ],
+                              FORMATIONPROPERTY,
+                              DataModel::SURFACE_2D_PROPERTY ));
    }
 
    return true;
@@ -1775,33 +1777,6 @@ bool ProjectHandle::loadLithoTypes( void )
    return true;
 }
 
-bool ProjectHandle::loadCrustalThicknessData( void )
-{
-   database::Table* CTCTbl = getTable( "CTCIoTbl" );
-   database::Table::iterator tblIter;
-
-   for ( tblIter = CTCTbl->begin(); tblIter != CTCTbl->end(); ++tblIter ) {
-      Record * CTCRecord = *tblIter;
-      m_crustalThicknessData.push_back( getFactory()->produceCrustalThicknessData( this, CTCRecord ) );
-   }
-   return true;
-}
-
-// Source rocks are now created in loadFormations.
-#if 0
-bool ProjectHandle::loadSourceRocks (void)
-{
-   database::Table* sourceRockTbl = getTable ("SourceRockLithoIoTbl");
-   database::Table::iterator tblIter;
-   for (tblIter = sourceRockTbl->begin (); tblIter != sourceRockTbl->end (); ++tblIter)
-   {
-      Record * sourceRockRecord = * tblIter;
-      m_sourceRocks.push_back (getFactory ()->produceSourceRock (this, sourceRockRecord));
-   }
-   return true;
-}
-#endif
-
 bool ProjectHandle::loadReservoirs( void )
 {
    database::Table* reservoirTbl = getTable( "ReservoirIoTbl" );
@@ -2153,10 +2128,7 @@ bool ProjectHandle::loadBottomBoundaryConditions( void )
    else if ( theBottomBCsStr == "Advanced Lithosphere Calculator" )
    {
       m_bottomBoundaryConditions = Interface::ADVANCED_LITHOSPHERE_CALCULATOR;
-      if ( ddd::GetRank() == 0 ) {
-         cout << "The calculation mode is = " << theBottomBCsStr << endl;
-      }
-      m_crustPropertyModel = database::getCrustPropertyModel( projectIoRecord );
+      m_crustPropertyModel  = database::getCrustPropertyModel ( projectIoRecord );
       m_mantlePropertyModel = database::getMantlePropertyModel( projectIoRecord );
    }
    return true;
@@ -3128,25 +3100,6 @@ Interface::MobileLayerList * ProjectHandle::getMobileLayers( const Interface::Fo
    return mobileLayerList;
 }
 
-// Interface::PaleoFormationPropertyList * ProjectHandle::getPaleoThicknesses ( const Interface::Formation * formation ) const {
-// {
-//    Interface::PaleoFormationPropertyList * paleoThicknessList = new Interface::PaleoFormationPropertyList;
-
-//    MutablePaleoFormationPropertyList::const_iterator paleoThicknessIter;
-
-//    for ( paleoThicknessIter = m_crustPaleoThicknesses.begin (); paleoThicknessIter != m_crustPaleoThicknesses.end (); ++paleoThicknessIter )
-//    {
-//       PaleoFormationProperty * paleoThickness = * paleoThicknessIter;
-
-//       if ( formation == 0 or formation == paleoProperty->getFormation ()) {
-//          paleoThicknessList->push_back ( paleoThickness );
-//       }
-
-//    }
-
-//    return paleoThicknessList;
-// }
-
 
 Interface::FluidTypeList * ProjectHandle::getFluids() const {
 
@@ -3686,18 +3639,40 @@ Interface::PropertyValueList * ProjectHandle::getPropertyValues( int selectionFl
    const Interface::Reservoir * reservoir, const Interface::Formation * formation, const Interface::Surface * surface,
    int propertyType ) const
 {
+   return  getPropertyValuesForList( m_propertyValues, selectionFlags,
+                                     property, snapshot,
+                                     reservoir, formation, surface,
+                                     propertyType );
+}
+
+Interface::PropertyValueList * ProjectHandle::getPropertyUnrecordedValues( int selectionFlags,
+   const Interface::Property * property, const Interface::Snapshot * snapshot,
+   const Interface::Reservoir * reservoir, const Interface::Formation * formation, const Interface::Surface * surface,
+   int propertyType ) const
+{
+   return  getPropertyValuesForList( m_recordLessMapPropertyValues, selectionFlags,
+      property, snapshot,
+      reservoir, formation, surface,
+      propertyType );
+}
+
+Interface::PropertyValueList * ProjectHandle::getPropertyValuesForList( MutablePropertyValueList list,
+   int selectionFlags, const Interface::Property * property, const Interface::Snapshot * snapshot,
+   const Interface::Reservoir * reservoir, const Interface::Formation * formation, const Interface::Surface * surface,
+   int propertyType ) const
+{
    Interface::PropertyValueList * propertyValueList = new Interface::PropertyValueList;
 
    MutablePropertyValueList::const_iterator propertyValueIter;
 
-   for ( propertyValueIter = m_propertyValues.begin();
-      propertyValueIter != m_propertyValues.end();
-      ++propertyValueIter )
+   for (propertyValueIter = list.begin();
+      propertyValueIter != list.end();
+      ++propertyValueIter)
    {
       PropertyValue * propertyValue = *propertyValueIter;
 
-      if ( propertyValue->matchesConditions( selectionFlags, (Property *)property, (Snapshot *)snapshot, (Reservoir *)reservoir,
-         dynamic_cast<const Formation *>( formation ), dynamic_cast<const Surface *>( surface ), propertyType ) )
+      if (propertyValue->matchesConditions( selectionFlags, (Property *)property, (Snapshot *)snapshot, (Reservoir *)reservoir,
+         dynamic_cast<const Formation *>(formation), dynamic_cast<const Surface *>(surface), propertyType ))
       {
          //Alfred  propertyValueList->push_back (const_cast<Interface::PropertyValue*> (propertyValue));
          propertyValueList->push_back( propertyValue );
@@ -3707,6 +3682,7 @@ Interface::PropertyValueList * ProjectHandle::getPropertyValues( int selectionFl
    /// The PropertyValueList needs to be sorted so that user applications know what to expect
    sort( propertyValueList->begin(), propertyValueList->end(), PropertyValue::SortByAgeAndDepoAge );
    return propertyValueList;
+
 }
 
 unsigned int ProjectHandle::deletePropertyValueGridMaps( int selectionFlags,
@@ -4216,7 +4192,8 @@ const Interface::Property * ProjectHandle::findProperty( const string & name ) c
          return property;
       }
    }
-   LogHandler( LogHandler::WARNING_SEVERITY ) << "Property '" << name << "' could not be found by the ProjectHandle.";
+   /// @todo To be fixed by requirement 61411
+   //LogHandler( LogHandler::WARNING_SEVERITY ) << "Property '" << name << "' could not be found by the ProjectHandle.";
    return 0;
 }
 
@@ -4976,19 +4953,6 @@ void ProjectHandle::deleteFluidTypes() {
    }
 
    m_fluidTypes.clear();
-}
-
-void ProjectHandle::deleteCrustalThicknessData() {
-
-   MutableCrustalThicknessDataList::const_iterator ctcIter;
-
-   for ( ctcIter = m_crustalThicknessData.begin(); ctcIter != m_crustalThicknessData.end(); ++ctcIter )
-   {
-      CrustalThicknessData* ctcData = *ctcIter;
-      delete ctcData;
-   }
-
-   m_crustalThicknessData.clear();
 }
 
 void ProjectHandle::deleteReservoirs( void )

@@ -1,3 +1,13 @@
+// 
+// Copyright (C) 2015-2017 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+// 
+
 #include "TestingCode.h"
 //Annette
 
@@ -17,6 +27,8 @@
 #include "ConstantsGenex.h"
 #include "Utilities.h"
 #include "FilePath.h"
+
+#include "StringHandler.h"
 
 using namespace Genex6;
 using namespace std;
@@ -246,7 +258,7 @@ void TransformSch::LoadTransformScf2CfgData(std::ifstream &testFile)
 {
    std::string line;
    std::vector<std::string> theTokens;
-   std::string delim = ",";
+   const char delim = ',';
    int i = 0;
    for(;;) {
       std::getline (testFile, line, '\n');
@@ -254,7 +266,7 @@ void TransformSch::LoadTransformScf2CfgData(std::ifstream &testFile)
          break;
       }
       
-      Genex6::ParseLine(line, delim, theTokens);
+      StringHandler::parseLine(line, delim, theTokens);
       
       switch(i) {
       case TransformSch2CfgData::INPUTFULLPATH :
@@ -294,7 +306,7 @@ void TransformSch::LoadTransformScf2CfgData(std::ifstream &testFile)
 void BenchmarkTest::LoadBenchmarkInitialSimulatorState(std::ifstream &testFile)
 {
    std::vector<std::string> theTokens;
-   std::string delim = ",";
+   const char delim = ',';
 
    std::string line;
    for(;;) {
@@ -303,25 +315,7 @@ void BenchmarkTest::LoadBenchmarkInitialSimulatorState(std::ifstream &testFile)
       if(line == "[EndOfTable]" || line.size() == 0) {
          break;
       }
-      Genex6::ParseLine(line, delim, theTokens);
-
-      /*wrong
-        cout<<line<<endl;
-        tokenizer tokens(line, sep);
-        tokenizer::iterator it = tokens.begin();
-        const std::string & name = *it;
-        ++it;
-        const std::string & value = *it;
-        cout<<name<<","<<value<<endl;
-        m_initialSpeciesConcentrations[name] = atof(value.c_str());
-      */
-      //correct
-      //tokenizer tokens(line, sep);
-      //tokenizer::iterator it = tokens.begin();
-      //std::string name = *it;
-      // ++ it;
-      //std::string value = *it;
-      //cout<<name<<","<<value<<endl;
+      StringHandler::parseLine(line, delim, theTokens);
       m_initialSpeciesConcentrations[theTokens[0]] = atof(theTokens[1].c_str());
       theTokens.clear();
    }
@@ -330,7 +324,7 @@ void BenchmarkTest::LoadBenchmarkPTHistory(std::ifstream &testFile)
 {
    std::string line;
    std::vector<std::string> theTokens;
-   std::string delim = ",";
+   const char delim = ',';
     
    enum HistoryDataIndex{TIME, TEMPERATURE, PRESSURE, NUMBEROFDATA};
    double historyData[NUMBEROFDATA];
@@ -341,7 +335,7 @@ void BenchmarkTest::LoadBenchmarkPTHistory(std::ifstream &testFile)
       if(line == "[EndOfTable]" || line.size() == 0) {
          break;
       }
-      Genex6::ParseLine(line, delim, theTokens);
+      StringHandler::parseLine(line, delim, theTokens);
  
       historyData[TIME] = atof(theTokens[0].c_str());
       historyData[TEMPERATURE] = atof(theTokens[1].c_str());
@@ -363,7 +357,7 @@ void BenchmarkTest::LoadBenchmarkTestDataCreationProperties(std::ifstream &testF
 {
    std::string line;
    std::vector<std::string> theTokens;
-   std::string delim = ",";
+   const char delim = ',';
    int i = 0;
    for(;;) {
       std::getline (testFile, line, '\n');
@@ -371,7 +365,7 @@ void BenchmarkTest::LoadBenchmarkTestDataCreationProperties(std::ifstream &testF
          break;
       }
       
-      Genex6::ParseLine(line, delim, theTokens);
+      StringHandler::parseLine(line, delim, theTokens);
       
       switch(i) {
       case BenchmarkTestDataCreation::NUMBEROFTIMESTEPS :
@@ -427,14 +421,14 @@ void BenchmarkTest::LoadBenchmarkTestSimulatorData(std::ifstream &testFile)
 {
    std::string line;
    std::vector<std::string> theTokens;
-   std::string delim = ",";
+   const char delim = ',';
    int i = 0;
    for(;;) {
       std::getline (testFile, line, '\n');
       if(line == "[EndOfTable]" || line.size() == 0) {
          break;
       }
-      Genex6::ParseLine(line, delim, theTokens);
+      StringHandler::parseLine(line, delim, theTokens);
       switch(i) {
       case BenchmarkTestSimulatorData::SOURCEROCKTYPE :
          m_theData.m_sourceRockType = theTokens[1];
@@ -542,7 +536,7 @@ UnitTestType UnitTestFactory::determineTestType(const std::string &testFullPathN
    if(testFile.fail()) {
       cout << "File " << testFullPathName << " not found" << endl;
    }
-   std::string delim = ",";
+   const char delim = ',';
    
    while(!testFile.eof() && !testFile.fail()) {
       std::string line;
@@ -553,7 +547,7 @@ UnitTestType UnitTestFactory::determineTestType(const std::string &testFullPathN
          for(getline (testFile, line, '\n'); line!="[EndOfTable]"; getline (testFile, line, '\n')) {
             
             theTokens.clear();
-            Genex6::ParseLine(line, delim, theTokens);
+            StringHandler::parseLine(line, delim, theTokens);
             
             if("TestType" == theTokens[0]) {
                if("BENCHMARK" == theTokens[1]) {

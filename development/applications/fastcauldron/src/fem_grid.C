@@ -62,6 +62,9 @@
 #include "Interface/Grid.h"
 
 //------------------------------------------------------------//
+//utilities library
+#include "LogHandler.h"
+//------------------------------------------------------------//
 
 #include "GeoPhysicalFunctions.h"
 #include "CompoundProperty.h"
@@ -240,45 +243,52 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
 
   // If we are using the advanced lithospheric calculator
   if (basinModel->isALC()) {
-     mapOutputProperties.push_back( TOPBASALTALC );
+     PetscBool debugAlc = PETSC_FALSE;
+     PetscOptionsHasName( PETSC_NULL, "-debugalc", &debugAlc );
+
+     //default alc outputs
+     mapOutputProperties.push_back( TOP_BASALT_ALC );
      basinModel->timefilter.setFilter( "ALCStepTopBasaltDepth", "SedimentsPlusBasement" );
-     FastcauldronSimulator::getInstance().setOutputPropertyOption( TOPBASALTALC, Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
-
-     mapOutputProperties.push_back( MOHOALC );
+     FastcauldronSimulator::getInstance().setOutputPropertyOption( TOP_BASALT_ALC, Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
+     mapOutputProperties.push_back( MOHO_ALC );
      basinModel->timefilter.setFilter( "ALCStepMohoDepth", "SedimentsPlusBasement" );
-     FastcauldronSimulator::getInstance().setOutputPropertyOption( MOHOALC, Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
-
-     if (basinModel->timefilter.PropertyOutputOption[HLMOD] != NOOUTPUT) {
-        mapOutputProperties.push_back( HLMOD );
-        basinModel->timefilter.setFilter( "ALCMaxAsthenoMantleDepth", "SedimentsPlusBasement" );
-     }
-     if (basinModel->timefilter.PropertyOutputOption[BASALTTHICKNESS] != NOOUTPUT) {
-        mapOutputProperties.push_back( BASALTTHICKNESS );
-        basinModel->timefilter.setFilter( "ALCSmBasaltThickness", "SedimentsPlusBasement" );
-     }
-     if (basinModel->timefilter.PropertyOutputOption[THICKNESSCCRUSTALC] != NOOUTPUT) {
-        mapOutputProperties.push_back( THICKNESSCCRUSTALC );
+     FastcauldronSimulator::getInstance().setOutputPropertyOption( MOHO_ALC, Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
+     if (basinModel->timefilter.PropertyOutputOption[THICKNESS_CONTINENTAL_CRUST_ALC] != NOOUTPUT) {
+        mapOutputProperties.push_back( THICKNESS_CONTINENTAL_CRUST_ALC );
         basinModel->timefilter.setFilter( "ALCStepContCrustThickness", "SedimentsPlusBasement" );
      }
-     if (basinModel->timefilter.PropertyOutputOption[THICKNESSBASALTALC] != NOOUTPUT) {
-        mapOutputProperties.push_back( THICKNESSBASALTALC );
+     if (basinModel->timefilter.PropertyOutputOption[THICKNESS_OCEANIC_CRUST_ALC] != NOOUTPUT) {
+        mapOutputProperties.push_back( THICKNESS_OCEANIC_CRUST_ALC );
         basinModel->timefilter.setFilter( "ALCStepBasaltThickness", "SedimentsPlusBasement" );
      }
-     if (basinModel->timefilter.PropertyOutputOption[ALCORIGMANTLE] != NOOUTPUT) {
-        mapOutputProperties.push_back( ALCORIGMANTLE );
-        basinModel->timefilter.setFilter( "ALCOrigLithMantleDepth", "SedimentsPlusBasement" );
-     }
-     if (basinModel->timefilter.PropertyOutputOption[ALCSMCRUST] != NOOUTPUT) {
-        mapOutputProperties.push_back( ALCSMCRUST );
-        basinModel->timefilter.setFilter( "ALCSmContCrustThickness", "SedimentsPlusBasement" );
-     }
-     if (basinModel->timefilter.PropertyOutputOption[ALCSMTOPBASALT] != NOOUTPUT) {
-        mapOutputProperties.push_back( ALCSMTOPBASALT );
-        basinModel->timefilter.setFilter( "ALCSmTopBasaltDepth", "SedimentsPlusBasement" );
-     }
-     if (basinModel->timefilter.PropertyOutputOption[ALCSMMOHO] != NOOUTPUT) {
-        mapOutputProperties.push_back( ALCSMMOHO );
-        basinModel->timefilter.setFilter( "ALCSmMohoDepth", "SedimentsPlusBasement" );
+
+     //debug alc outputs
+     if (debugAlc) {
+        LogHandler( LogHandler::DEBUG_SEVERITY ) << "Outputing alc debug outputs because '-debugalc' is specified.";
+        if (basinModel->timefilter.PropertyOutputOption[ALC_ORIGINAL_MANTLE] != NOOUTPUT) {
+           mapOutputProperties.push_back( ALC_ORIGINAL_MANTLE );
+           basinModel->timefilter.setFilter( "ALCOrigLithMantleDepth", "SedimentsPlusBasement" );
+        }
+        if (basinModel->timefilter.PropertyOutputOption[ALC_SM_THICKNESS_CONTINENTAL_CRUST] != NOOUTPUT) {
+           mapOutputProperties.push_back( ALC_SM_THICKNESS_CONTINENTAL_CRUST );
+           basinModel->timefilter.setFilter( "ALCSmContCrustThickness", "SedimentsPlusBasement" );
+        }
+        if (basinModel->timefilter.PropertyOutputOption[ALC_SM_TOP_BASALT] != NOOUTPUT) {
+           mapOutputProperties.push_back( ALC_SM_TOP_BASALT );
+           basinModel->timefilter.setFilter( "ALCSmTopBasaltDepth", "SedimentsPlusBasement" );
+        }
+        if (basinModel->timefilter.PropertyOutputOption[ALC_SM_MOHO] != NOOUTPUT) {
+           mapOutputProperties.push_back( ALC_SM_MOHO );
+           basinModel->timefilter.setFilter( "ALCSmMohoDepth", "SedimentsPlusBasement" );
+        }
+        if (basinModel->timefilter.PropertyOutputOption[ALC_MAX_MANTLE_DEPTH] != NOOUTPUT) {
+           mapOutputProperties.push_back( ALC_MAX_MANTLE_DEPTH );
+           basinModel->timefilter.setFilter( "ALCMaxAsthenoMantleDepth", "SedimentsPlusBasement" );
+        }
+        if (basinModel->timefilter.PropertyOutputOption[ALC_SM_THICKNESS_OCEANIC_CRUST] != NOOUTPUT) {
+           mapOutputProperties.push_back( ALC_SM_THICKNESS_OCEANIC_CRUST );
+           basinModel->timefilter.setFilter( "ALCSmBasaltThickness", "SedimentsPlusBasement" );
+        }
      }
   }
 

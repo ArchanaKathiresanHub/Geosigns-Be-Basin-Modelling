@@ -1,17 +1,30 @@
+//
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
+// std library
 #include <assert.h>
 #include <iostream>
 #include <sstream>
+#include <limits>
 using namespace std;
 
+// utilities library
 #include "mangle.h"
 
+// TableIo library
 #include "database.h"
 #include "cauldronschemafuncs.h"
-
 using namespace database;
 
+// DataAccess library
 #include "Interface/Interface.h"
-
 #include "Interface/CrustFormation.h"
 #include "Interface/Formation.h"
 #include "Interface/Grid.h"
@@ -21,10 +34,10 @@ using namespace database;
 #include "Interface/ObjectFactory.h"
 #include "Interface/ProjectHandle.h"
 #include "Interface/PaleoFormationProperty.h"
-
 using namespace DataAccess;
 using namespace Interface;
 
+//------------------------------------------------------------//
 
 CrustFormation::CrustFormation (ProjectHandle * projectHandle, database::Record* record ) : Formation ( projectHandle, record ), BasementFormation ( projectHandle, record, CrustFormationName, CrustLithologyName ) {
 
@@ -37,20 +50,25 @@ CrustFormation::CrustFormation (ProjectHandle * projectHandle, database::Record*
    // 2. Otherwise, the map will be deleted by the project handle when it destorys the crust
    //    thickness history sequence.
    //
-   m_inputThicknessMap = 0;
-   m_initialThicknessMap = 0;
+   m_inputThicknessMap       = nullptr;
+   m_initialThicknessMap     = nullptr;
+   basaltThickness           = nullptr;
+   crustalThicknessMeltOnset = nullptr;
+
    m_initialCrustalThickness = 0;
 }
 
+//------------------------------------------------------------//
 
 CrustFormation::~CrustFormation (void)
 {
 }
 
-/// Return the present day, user-supplied Crust thickness GridMap.
+//------------------------------------------------------------//
+
 const GridMap * CrustFormation::getInputThicknessMap (void) const {
 
-   if ( m_inputThicknessMap != 0 ) {
+   if ( m_inputThicknessMap != nullptr ) {
       // Map has already been retrieved.
       return m_inputThicknessMap;
    } else if ( m_projectHandle->getBottomBoundaryConditions () == MANTLE_HEAT_FLOW ) {
@@ -68,9 +86,7 @@ const GridMap * CrustFormation::getInputThicknessMap (void) const {
       // Crust thinning.
       // So must return map for present-day, or nearest.
 
-      // No map will [should?] be older than this.
-      // As long as there is a map younger than this age the actual value does not matter.
-      double closestToPresentDay = 5.0e9;
+      double closestToPresentDay = std::numeric_limits<double>::infinity();
 
       PaleoFormationPropertyList * thicknessMaps = getPaleoThicknessHistory ();
       PaleoFormationPropertyList::iterator thicknessIter;
@@ -85,15 +101,19 @@ const GridMap * CrustFormation::getInputThicknessMap (void) const {
 
       }
 
-      assert ( m_inputThicknessMap != 0 );
+      assert ( m_inputThicknessMap != nullptr );
       delete thicknessMaps;
    }
 
    return m_inputThicknessMap;
 }
+
+//------------------------------------------------------------//
+
 // in ALC mode the initial CrustalThickness is a scalar value 
-const GridMap * CrustFormation::getInitialThicknessMap (void) const {
-   if ( m_initialThicknessMap != 0 ) {
+const GridMap * CrustFormation::getInitialThicknessMap () const {
+   if ( m_initialThicknessMap != nullptr ) {
+      // Map has already been retrieved
       return m_initialThicknessMap;
    } else {
 
@@ -111,12 +131,14 @@ const GridMap * CrustFormation::getInitialThicknessMap (void) const {
 
       }
 
-      assert ( m_initialThicknessMap != 0 );
+      assert ( m_initialThicknessMap != nullptr );
       delete thicknessMaps;
    }
 
    return m_initialThicknessMap;
 }
+
+//------------------------------------------------------------//
 
 GridMap * CrustFormation::loadCrustHeatProductionMap () const {
 
@@ -146,6 +168,8 @@ GridMap * CrustFormation::loadCrustHeatProductionMap () const {
    return gridMap;
 }
 
+//------------------------------------------------------------//
+
 const GridMap * CrustFormation::getCrustHeatProductionMap () const {
 
    const GridMap * gridMap;
@@ -160,6 +184,8 @@ const GridMap * CrustFormation::getCrustHeatProductionMap () const {
    }
   
 }
+
+//------------------------------------------------------------//
 
 GridMap * CrustFormation::loadCrustThicknessMeltOnsetMap () const {
 
@@ -192,6 +218,8 @@ GridMap * CrustFormation::loadCrustThicknessMeltOnsetMap () const {
    return gridMap;
 }
 
+//------------------------------------------------------------//
+
 const GridMap * CrustFormation::getCrustThicknessMeltOnsetMap () const {
    const GridMap * gridMap;
    if ((gridMap = (const GridMap *) getChild (CrustThicknessMeltOnsetMap)) != 0) {
@@ -203,6 +231,8 @@ const GridMap * CrustFormation::getCrustThicknessMeltOnsetMap () const {
       return 0;
    }
 }
+
+//------------------------------------------------------------//
 
 GridMap * CrustFormation::loadBasaltThicknessMap () const {
    double basaltThicknessValue;
@@ -232,6 +262,8 @@ GridMap * CrustFormation::loadBasaltThicknessMap () const {
    return gridMap;
 }
 
+//------------------------------------------------------------//
+
 const GridMap * CrustFormation::getBasaltThicknessMap () const {
    const GridMap * gridMap;
    if ((gridMap = (const GridMap *) getChild (BasaltThicknessMap)) != 0) {
@@ -245,27 +277,35 @@ const GridMap * CrustFormation::getBasaltThicknessMap () const {
   
 }
 
+//------------------------------------------------------------//
+
 PaleoFormationPropertyList * CrustFormation::getPaleoThicknessHistory () const {
    return m_projectHandle->getCrustPaleoThicknessHistory ();
 }
+
+//------------------------------------------------------------//
 
 double CrustFormation::getHeatProductionDecayConstant () const {
    return database::getCrustHeatPDecayConst ( m_record );
 }
 
+//------------------------------------------------------------//
+
 int CrustFormation::getDepositionSequence () const {
-   return -1;
+   return CRUST_DEPOSITION;
 }
+
+//------------------------------------------------------------//
 
 void CrustFormation::asString (string & str) const
 {
    ostringstream buf;
 
    buf << "CrustFormation";
-   buf << ": name = " << BasementFormation::getName ();
+   buf << ": name = "                           << BasementFormation::getName ();
    buf << ", heat production decay constant = " << getHeatProductionDecayConstant ();
-   buf << ", top surface name = " << Formation::getTopSurface ()->getName ();
-   buf << ", bottom surface name = " << Formation::getBottomSurface ()->getName ();
+   buf << ", top surface name = "               << Formation::getTopSurface ()->getName ();
+   buf << ", bottom surface name = "            << Formation::getBottomSurface ()->getName ();
    buf << endl;
 
    str = buf.str ();

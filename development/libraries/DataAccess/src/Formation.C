@@ -61,6 +61,8 @@ Formation::Formation (ProjectHandle * projectHandle, Record * record) :
    m_sourceRock2 = nullptr;
    m_igneousIntrusion = nullptr;
 
+   m_igneousIntrusion = 0;
+
    if ( recordFromStratIOTbl ) {
       m_mangledName = utilities::mangle (getName ());
    }

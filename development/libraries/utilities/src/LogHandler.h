@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2017 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -54,23 +54,83 @@ public:
    };
    /// @}
 
+   /// @brief Set the style for log messages
+   /// @details The log will apply the specified style to the provided message
+   enum Style {
+      /// @brief Uses the style of the provided message
+      /// @details
+      /// DEFAULT
+      DEFAULT,
+      /// @brief Adds a line of "_" characters and puts the text in the middle of next line between "_" characters
+      /// @details
+      /// _____________________________________________
+      /// ____________________TITLE____________________
+      TITLE,
+      /// @brief Adds a line of "///" characters and puts the text in the next line after "/// " characters
+      /// @details
+      /// ///////////////
+      /// /// SECTION
+      SECTION,
+      /// @brief Adds "/// " characters before the text
+      /// @details
+      /// /// SUBSECTION
+      SUBSECTION,
+      /// @brief Adds  "   -> " characters before the text
+      /// @details
+      ///    -> COMPUTATION_STEP
+      COMPUTATION_STEP,
+      /// @brief Adds  "      # " characters before the text
+      /// @details
+      ///       # COMPUTATION_SUBSTEP
+      COMPUTATION_SUBSTEP,
+      /// @brief Adds  "        " characters before the text
+      /// @details
+      ///         COMPUTATION_DETAILS
+      COMPUTATION_DETAILS
+   };
+   /// @}
+
    /// @brief Constructor which inititates the boost log file 
    /// @detail The name of the log file will be "logName_mpiRank.log".
    ///   The console output is only avalaible for mpi rank 0.
    ///   The log created is a global boost object.
    ///   This constructor can be called only once per application since we create on log file per application.
    ///   Once called this constructor switches the singleton token s_logIsCreated to true.
-   /// @param logName The main name of the log file (i.e. fastcauldron)
-   /// @param verbosity The level of verbosity used as a filter for the log file
-   /// @param mpiRank The MPI rank which will be added as a sufix of the log file name (i.e. "24"). Set to 0 by default.
+   /// @param[in] logName The main name of the log file (i.e. fastcauldron)
+   /// @param[in] verbosity The level of verbosity used as a filter for the log file
+   /// @param[in] mpiRank The MPI rank which will be added as a sufix of the log file name (i.e. "24"). Set to 0 by default.
    LogHandler( const std::string & logName, const VerbosityLevel verbosity, int mpiRank = 0 );
 
    /// @brief Constructor which must be used to write into the boost log file
-   /// @param severity The severity level of the message
+   /// @details Style is set to default
+   /// @param[in] severity The severity level of the message
    LogHandler( const SeverityLevel severity );
+
+   /// @brief Constructor which must be used to write into the boost log file
+   /// @param[in] severity The severity level of the message
+   /// @param[in] style The style of the message
+   LogHandler( const SeverityLevel severity, const Style style );
+   
+   /// @brief Delete default assginment operator
+   LogHandler & operator = ( const LogHandler & ) = delete;
+
+   /// @brief Delete default move assginment operator
+   LogHandler & operator = ( LogHandler && ) = delete;
+
+   /// @brief Delete default copy constructor
+   LogHandler( const LogHandler & ) = delete;
+
+   /// @brief Delete default move copy constructor
+   LogHandler( LogHandler && ) = delete;
 
    /// @brief Destructor which writes the stream (m_oss) in the boost log according to the current severity level
    ~LogHandler();
+
+   /// @brief Logs the provided time in hours/minutes/secons
+   /// @param[in] timeToDisplay The time to display in seconds
+   /// @param[in] severity The severity level of the message
+   /// @param[in] msgToDisplay The message to display
+   static void displayTime( const SeverityLevel severity, const double timeToDisplay, const char * msgToDisplay );
 
    /// @brief Stream operator to write simple types into the log file
    /// @details Should be used like this:
@@ -110,15 +170,14 @@ public:
    const std::string getName() const { return s_logName; };
 
 private:
-   /// @brief Overwrite default assginment operator
-   LogHandler & operator = ( const LogHandler & );
 
-   /// @brief Overwrite default copy constructor
-   LogHandler( const LogHandler & );
+   /// @brief Apply the current style to the current osstream
+   void applyStyle();
 
    static std::string s_logName;         ///< Full name of the log file (from constructor logName_mpiRank.log)
    static bool        s_logIsCreated;    ///< Singleton token
    SeverityLevel      m_severity;        ///< The current severity level
+   Style              m_style;           ///< The current logging style
    std::ostringstream m_oss;             ///< The stream containing the message to be writen in the log file during destruction of the object
 };
 #endif

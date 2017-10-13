@@ -27,6 +27,7 @@ set( APP_NAME "fastdepthcalibration" )
 add_executable( ${APP_NAME} ${all_srcs} ${all_headers} )
 
 set_target_properties( ${APP_NAME} PROPERTIES SUFFIX ".exe" )
+set_target_properties( ${APP_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${APP_NAME}" )
 
 create_application_run_script( ${APP_NAME} )
 

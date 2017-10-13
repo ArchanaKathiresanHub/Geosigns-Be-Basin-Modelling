@@ -16,12 +16,12 @@
 # Add header files of a Basin Modeling library to the include path
 #
 macro( bm_include_libraries )
-	foreach(library ${ARGN})
-		if(${library} STREQUAL "TableIO")
-			include_directories( ${PROJECT_BINARY_DIR}/libraries/${library} )
-		endif()
-		include_directories( ${PROJECT_SOURCE_DIR}/libraries/${library}/src )
-	endforeach(library)
+  foreach(library ${ARGN})
+    if(${library} STREQUAL "TableIO")
+      include_directories( ${PROJECT_BINARY_DIR}/libraries/${library} )
+    endif()
+    include_directories( ${PROJECT_SOURCE_DIR}/libraries/${library}/src )
+  endforeach(library)
 endmacro( bm_include_libraries )
 
 # The following function is copied from 
@@ -63,32 +63,34 @@ macro(configure_msvc_runtime FLAVOR)
 endmacro()
 
 macro( generate_dox DOXYGEN_CONFIG_FILE )
-	if (BM_BUILD_DOCS AND DOXYGEN_FOUND)
-		message(STATUS "Configure doxygen with ${DOXYGEN_CONFIG_FILE}")
-		# generate an identifier according to the corresponding project name
-		get_filename_component(id ${CMAKE_CURRENT_BINARY_DIR} NAME)
-		string(REPLACE " " "_" id ${id})
-		file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/doc)
-		if (UNIX)
-			add_custom_target( doc_${id}
-				# Override the OUTPUT_DIRECTORY config variable with a trick described in the doxygen FAQ
-				COMMAND /bin/bash -c \"( cat ${CMAKE_CURRENT_SOURCE_DIR}/${DOXYGEN_CONFIG_FILE} \; echo 'OUTPUT_DIRECTORY=${CMAKE_CURRENT_BINARY_DIR}/doc'; ) | ${DOXYGEN_EXECUTABLE} -\"
-				WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src
-				COMMENT "Generating Doxygen documentation with ${DOXYGEN_CONFIG_FILE}"
-			)
-		endif(UNIX)
-		if (WIN32)
-			file(TO_NATIVE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/${DOXYGEN_CONFIG_FILE} DOXY_CFG_PATH)
-			file(TO_NATIVE_PATH ${DOXYGEN_EXECUTABLE} DOXY_EXE_PATH)
-			add_custom_target( doc_${id}
-				# Override the OUTPUT_DIRECTORY config variable with a trick described in the doxygen FAQ
-				COMMAND cmd.exe /c \"( type ${DOXY_CFG_PATH} & echo OUTPUT_DIRECTORY=${CMAKE_CURRENT_BINARY_DIR}/doc; ) | ${DOXY_EXE_PATH} -\"
-				WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src
-				COMMENT "Generating Doxygen documentation with ${DOXYGEN_CONFIG_FILE}"
-			)
-		endif(WIN32)
-		add_dependencies(doc "doc_${id}")
-	endif()
+  if (BM_BUILD_DOCS AND DOXYGEN_FOUND)
+    message(STATUS "Configure doxygen with ${DOXYGEN_CONFIG_FILE}")
+    # generate an identifier according to the corresponding project name
+    get_filename_component(id ${CMAKE_CURRENT_BINARY_DIR} NAME)
+    string(REPLACE " " "_" id ${id})
+    file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/doc)
+    if (UNIX)
+      add_custom_target( doc_${id}
+        # Override the OUTPUT_DIRECTORY config variable with a trick described in the doxygen FAQ
+        COMMAND /bin/bash -c \"( cat ${CMAKE_CURRENT_SOURCE_DIR}/${DOXYGEN_CONFIG_FILE} \; echo 'OUTPUT_DIRECTORY=${CMAKE_CURRENT_BINARY_DIR}/doc'; ) | ${DOXYGEN_EXECUTABLE} -\"
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src
+        COMMENT "Generating Doxygen documentation with ${DOXYGEN_CONFIG_FILE}"
+      )
+    endif(UNIX)
+    if (WIN32)
+      file(TO_NATIVE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/${DOXYGEN_CONFIG_FILE} DOXY_CFG_PATH)
+      file(TO_NATIVE_PATH ${DOXYGEN_EXECUTABLE} DOXY_EXE_PATH)
+      add_custom_target( doc_${id}
+        # Override the OUTPUT_DIRECTORY config variable with a trick described in the doxygen FAQ
+        COMMAND cmd.exe /c \"( type ${DOXY_CFG_PATH} & echo OUTPUT_DIRECTORY=${CMAKE_CURRENT_BINARY_DIR}/doc; ) | ${DOXY_EXE_PATH} -\"
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/src
+        COMMENT "Generating Doxygen documentation with ${DOXYGEN_CONFIG_FILE}"
+      )
+    endif(WIN32)
+    add_dependencies(doc "doc_${id}")
+    
+    set_target_properties( "doc_${id}" PROPERTIES FOLDER "Documentation" )
+  endif()
 endmacro(generate_dox)
 
 ### Generate GUID
@@ -147,49 +149,49 @@ macro(generate_nuget_pkg)
    set(PKG_TEMPLATE_NUSPEC "NugetPkgTemplate.nuspec.cmake")
 
    # parse parameters
-	set(parameterName)
-	set(parameterType)
-	foreach(param ${ARGN})
+  set(parameterName)
+  set(parameterType)
+  foreach(param ${ARGN})
    #      MESSAGE(STATUS "C# API parameter: ${param}")
       if (param STREQUAL PKG_NAME)
          set(parameterName PKG_NAME)
-		   set(parameterType Atom)
+       set(parameterType Atom)
       elseif(param STREQUAL PKG_NAMESPACE)
          set(parameterName PKG_NAMESPACE)
          set(parameterType Atom)
       elseif(param STREQUAL PKG_VERSION)
-	      set(parameterName  PKG_VERSION)
-		   set(parameterType Atom)
+        set(parameterName  PKG_VERSION)
+       set(parameterType Atom)
       elseif(param STREQUAL PKG_OWNER)
-	      set(parameterName  PKG_OWNER)
-		   set(parameterType Atom)
+        set(parameterName  PKG_OWNER)
+       set(parameterType Atom)
       elseif(param STREQUAL PKG_DESCRIPTION)
-	      set(parameterName  PKG_DESCRIPTION)
-		   set(parameterType Atom)         
+        set(parameterName  PKG_DESCRIPTION)
+       set(parameterType Atom)         
       elseif(param STREQUAL PKG_RELEASE_NOTES)
          set(parameterName PKG_RELEASE_NOTES)
-		   set(parameterType Atom)
+       set(parameterType Atom)
      
-	      set(parameterName  PKG_TAGS)
-		   set(parameterType Atom)
+        set(parameterName  PKG_TAGS)
+       set(parameterType Atom)
       elseif(param STREQUAL PKG_COPYRIGHT)
          set(parameterName  PLG_COPYRIGHT)
-		   set(parameterType Atom)
+       set(parameterType Atom)
       elseif(param STREQUAL PKG_LIBRARIES) # native libraries which must be bundled with nuget package
-	      set(parameterName  AdditionalLibs)
-		   set(parameterType Sequence)
+        set(parameterName  AdditionalLibs)
+       set(parameterType Sequence)
       elseif(param STREQUAL PKG_HEADERS)  # native library includes which must be bundled with nuget package
-	      set(parameterName  AdditionalHeaders)
-		   set(parameterType Sequence)
+        set(parameterName  AdditionalHeaders)
+       set(parameterType Sequence)
       elseif(param STREQUAL PKG_TEMPLATE_NUSPEC)
-	      set(parameterName  PKG_TEMPLATE_NUSPEC)
+        set(parameterName  PKG_TEMPLATE_NUSPEC)
          set(parameterType Atom)
-		elseif(parameterType STREQUAL Atom)
-		   set(${parameterName} ${param})
-		elseif(parameterType STREQUAL Sequence)
-		   list(APPEND ${parameterName} ${param})
+    elseif(parameterType STREQUAL Atom)
+       set(${parameterName} ${param})
+    elseif(parameterType STREQUAL Sequence)
+       list(APPEND ${parameterName} ${param})
       endif()
-	endforeach(param)
+  endforeach(param)
  
    # Extract project name to use it in nuget package creation
    get_filename_component(PROJ_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME)
@@ -274,57 +276,57 @@ macro(generate_csharp_api)
    set(AdditionalLibs)
    
    # parse parameters
-	set(parameterName)
-	set(parameterType)
-	foreach(param ${ARGN})
+  set(parameterName)
+  set(parameterType)
+  foreach(param ${ARGN})
 #      MESSAGE(STATUS "C# API parameter: ${param}")
       if (param STREQUAL CSPROJ_NAME)
-	      set(parameterName CSPROJ_NAME)
-		   set(parameterType Atom)
+        set(parameterName CSPROJ_NAME)
+       set(parameterType Atom)
       elseif(param STREQUAL CSPROJ_NAMESPACE)
-	      set(parameterName CSPROJ_NAMESPACE)
-		   set(parameterType Atom)
+        set(parameterName CSPROJ_NAMESPACE)
+       set(parameterType Atom)
       elseif(param STREQUAL CSPROJ_ASSEMBLY_VERSION)
-	      set(parameterName CSPROJ_ASSEMBLY_VERSION)
-		   set(parameterType Atom)
+        set(parameterName CSPROJ_ASSEMBLY_VERSION)
+       set(parameterType Atom)
       elseif(param STREQUAL CSPROJ_ASSEMBLY_OWNER)
-	      set(parameterName CSPROJ_ASSEMBLY_OWNER)
-		   set(parameterType Atom)
+        set(parameterName CSPROJ_ASSEMBLY_OWNER)
+       set(parameterType Atom)
       elseif(param STREQUAL CSPROJ_ASSEMBLY_DESCRIPTION)
-	      set(parameterName CSPROJ_ASSEMBLY_DESCRIPTION)
-		   set(parameterType Atom)         
+        set(parameterName CSPROJ_ASSEMBLY_DESCRIPTION)
+       set(parameterType Atom)         
       elseif(param STREQUAL CSPROJ_ASSEMBLY_RELEASE_NOTES)
-	      set(parameterName CSPROJ_ASSEMBLY_RELEASE_NOTES)
-		   set(parameterType Atom)
+        set(parameterName CSPROJ_ASSEMBLY_RELEASE_NOTES)
+       set(parameterType Atom)
       elseif(param STREQUAL CSPROJ_ASSEMBLY_TAGS)
-	      set(parameterName CSPROJ_ASSEMBLY_TAGS)
-		   set(parameterType Atom)
+        set(parameterName CSPROJ_ASSEMBLY_TAGS)
+       set(parameterType Atom)
       elseif(param STREQUAL CSPROJ_ASSEMBLY_COPYRIGHT)
-	      set(parameterName CSPROJ_ASSEMBLY_COPYRIGHT)
-		   set(parameterType Atom)
+        set(parameterName CSPROJ_ASSEMBLY_COPYRIGHT)
+       set(parameterType Atom)
       elseif(param STREQUAL CSPROJ_LIBRARIES)  # list of libraries with which swig generated C++ dll must be linked
-	      set(parameterName ProjectLinkLibraries)
-		   set(parameterType Sequence)
+        set(parameterName ProjectLinkLibraries)
+       set(parameterType Sequence)
       elseif(param STREQUAL CSPROJ_ADDITIONAL_LIBRARIES) # native libraries which must be bundled with nuget package
-	      set(parameterName AdditionalLibs)
-		   set(parameterType Sequence)
+        set(parameterName AdditionalLibs)
+       set(parameterType Sequence)
       elseif(param STREQUAL CSPROJ_ADDITIONAL_HEADERS)  # native library includes which must be bundled with nuget package
-	      set(parameterName AdditionalHeaders)
-		   set(parameterType Sequence)
+        set(parameterName AdditionalHeaders)
+       set(parameterType Sequence)
       elseif(param STREQUAL CSHARP_UNIT_TESTS_SRC) # list of files with C# unit tests
          set(parameterName UnitTestsFileList)
-		   set(parameterType Sequence)
+       set(parameterType Sequence)
       elseif(param STREQUAL CSPROJ_EXTRA_DEPS) # 
          set(parameterName ExtraDependencies)
-		   set(parameterType Sequence)      
-		elseif(parameterType STREQUAL Atom)
-		   set(${parameterName} ${param})
-		elseif(parameterType STREQUAL Sequence)
-		   list(APPEND ${parameterName} ${param})
+       set(parameterType Sequence)      
+    elseif(parameterType STREQUAL Atom)
+       set(${parameterName} ${param})
+    elseif(parameterType STREQUAL Sequence)
+       list(APPEND ${parameterName} ${param})
       endif()
-	endforeach(param)
+  endforeach(param)
    
-	if (MSVC)
+  if (MSVC)
       
       configure_file(${PROJECT_SOURCE_DIR}/cmake/version.rc.cmake version.rc)
       configure_file(${PROJECT_SOURCE_DIR}/cmake/AssemblyInfo.cs.cmake csharp/Properties/AssemblyInfo.cs)
@@ -395,7 +397,7 @@ macro(generate_csharp_api)
       swig_add_library(${CSPROJ_NAME} TYPE MODULE LANGUAGE csharp SOURCES ${SWIG_INP_FILE} ${CMAKE_CURRENT_BINARY_DIR}/version.rc)
       swig_link_libraries(${CSPROJ_NAME} ${ProjectLinkLibraries})
 
-      # Before C# generation, remove all existing files. The directory should be empty before generation	
+      # Before C# generation, remove all existing files. The directory should be empty before generation  
       add_custom_command( TARGET ${CSPROJ_NAME}
          PRE_BUILD
          COMMAND ${CMAKE_COMMAND} ARGS "-E" "remove" "*.cs"
@@ -427,12 +429,12 @@ macro(generate_csharp_api)
       )
     
       install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/csharp/Debug/${CSPROJ_NAMESPACE}.${CSPROJ_NAME}.dll
-         DESTINATION	bin
+         DESTINATION  bin
          CONFIGURATIONS Debug
       )
 
       install(PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/csharp/Release/${CSPROJ_NAMESPACE}.${CSPROJ_NAME}.dll
-         DESTINATION	bin
+         DESTINATION  bin
          CONFIGURATIONS Release
       )
       
@@ -453,121 +455,121 @@ macro(generate_csharp_api)
          "${CMAKE_CURRENT_BINARY_DIR}/csharp/${CSPROJ_NAMESPACE}.${CSPROJ_NAME}.csproj"
       )   
 
-	endif(MSVC)
+  endif(MSVC)
    
 endmacro( generate_csharp_api )
 
 ### Add C# Unit tests
 macro(add_csharp_unittest )
     
-	set(TestProjectName)
-	set(Platform)
-	set(Directory)
-	set(Dependencies)
-	set(TestList)
-	set(TfsServerUrl)
-	set(TfsBuildNumber)
-	set(TfsProjectName)
-	set(DeploymentItems)
-	set(ProjectReferenceName)
-	set(ProjectReferenceGuid)
-	set(ProjectReferencePath)
-	set(TestSourceFilesList)
-	
-	# parse parameters
-	set(parameterName)
-	set(parameterType)
-	foreach(param ${ARGN})
-	    if (param STREQUAL NAME)
-	      set(parameterName TestProjectName)
-		   set(parameterType Atom)
-	    elseif(param STREQUAL PLATFORM)
-		   set(parameterName Platform)
-		   set(parameterType Atom)
-		elseif(param STREQUAL DIRECTORY)
-		   set(parameterName Directory)
-		   set(parameterType Atom)
-		elseif(param STREQUAL DEPENDS)
-		   set(parameterName Dependencies)
-		   set(parameterType Sequence)
-		elseif(param STREQUAL TESTLIST)
-		   set(parameterName TestList)
-		   set(parameterType Sequence)
-		elseif(param STREQUAL TFS_SERVER_URL)
-		   set(parameterName TfsServerUrl)
-		   set(parameterType Atom)
-		elseif(param STREQUAL TFS_BUILD_NUMBER)
-		   set(parameterName TfsBuildNumber)
-		   set(parameterType Atom)
-		elseif(param STREQUAL TFS_PROJECT_NAME)
-		   set(parameterName TfsProjectName)
-		   set(parameterType Atom)
-		elseif(param STREQUAL DEPLOYMENT_ITEMS)
-		   set(parameterName DeploymentItems)
-		   set(parameterType Sequence)
-		elseif(param STREQUAL PROJECT_REFERENCE)
-		   set(parameterType ProjectReference)
-		   set(parameterName ProjectReferenceName)
-		elseif(param STREQUAL TEST_SOURCES)
-		   set(parameterName TestSourceFilesList)
-		   set(parameterType Sequence)
-		elseif(parameterType STREQUAL Atom)
-		   set(${parameterName} ${param})
-		elseif(parameterType STREQUAL Sequence)
-		   list(APPEND ${parameterName} ${param})
-		elseif(parameterType STREQUAL ProjectReference)
-		   set(${parameterName} ${param})
-		   set(prn "ProjectReferenceName") # This and the two lines below are a workaround for CMake's silly if-statemetn
-		   set(prg "ProjectReferenceGuid")
-		   set(prp "ProjectReferencePath")
-		   if (parameterName STREQUAL prn)
-		     set(parameterName ProjectReferenceGuid)
-		   elseif (parameterName STREQUAL prg)
-		     set(parameterName ProjectReferencePath)
-		   elseif (parameterName STREQUAL prp)
-		     set(parameterName)
-		   endif()
-		endif()
-	endforeach(param)
+  set(TestProjectName)
+  set(Platform)
+  set(Directory)
+  set(Dependencies)
+  set(TestList)
+  set(TfsServerUrl)
+  set(TfsBuildNumber)
+  set(TfsProjectName)
+  set(DeploymentItems)
+  set(ProjectReferenceName)
+  set(ProjectReferenceGuid)
+  set(ProjectReferencePath)
+  set(TestSourceFilesList)
+  
+  # parse parameters
+  set(parameterName)
+  set(parameterType)
+  foreach(param ${ARGN})
+      if (param STREQUAL NAME)
+        set(parameterName TestProjectName)
+       set(parameterType Atom)
+      elseif(param STREQUAL PLATFORM)
+       set(parameterName Platform)
+       set(parameterType Atom)
+    elseif(param STREQUAL DIRECTORY)
+       set(parameterName Directory)
+       set(parameterType Atom)
+    elseif(param STREQUAL DEPENDS)
+       set(parameterName Dependencies)
+       set(parameterType Sequence)
+    elseif(param STREQUAL TESTLIST)
+       set(parameterName TestList)
+       set(parameterType Sequence)
+    elseif(param STREQUAL TFS_SERVER_URL)
+       set(parameterName TfsServerUrl)
+       set(parameterType Atom)
+    elseif(param STREQUAL TFS_BUILD_NUMBER)
+       set(parameterName TfsBuildNumber)
+       set(parameterType Atom)
+    elseif(param STREQUAL TFS_PROJECT_NAME)
+       set(parameterName TfsProjectName)
+       set(parameterType Atom)
+    elseif(param STREQUAL DEPLOYMENT_ITEMS)
+       set(parameterName DeploymentItems)
+       set(parameterType Sequence)
+    elseif(param STREQUAL PROJECT_REFERENCE)
+       set(parameterType ProjectReference)
+       set(parameterName ProjectReferenceName)
+    elseif(param STREQUAL TEST_SOURCES)
+       set(parameterName TestSourceFilesList)
+       set(parameterType Sequence)
+    elseif(parameterType STREQUAL Atom)
+       set(${parameterName} ${param})
+    elseif(parameterType STREQUAL Sequence)
+       list(APPEND ${parameterName} ${param})
+    elseif(parameterType STREQUAL ProjectReference)
+       set(${parameterName} ${param})
+       set(prn "ProjectReferenceName") # This and the two lines below are a workaround for CMake's silly if-statemetn
+       set(prg "ProjectReferenceGuid")
+       set(prp "ProjectReferencePath")
+       if (parameterName STREQUAL prn)
+         set(parameterName ProjectReferenceGuid)
+       elseif (parameterName STREQUAL prg)
+         set(parameterName ProjectReferencePath)
+       elseif (parameterName STREQUAL prp)
+         set(parameterName)
+       endif()
+    endif()
+  endforeach(param)
 
-	if (MSVC)
+  if (MSVC)
       new_guid(Guid)
       set(ProjectReferences)
       if (ProjectReferenceName AND ProjectReferencePath AND ProjectReferenceGuid)
          file(TO_NATIVE_PATH "${ProjectReferencePath}" ProjectReferencePath)
-		   set(ProjectReferences "<ProjectReference Include='${ProjectReferencePath}'><Project>{${ProjectReferenceGuid}}</Project><Name>${ProjectReferenceName}</Name></ProjectReference>")
-		endif()	
+       set(ProjectReferences "<ProjectReference Include='${ProjectReferencePath}'><Project>{${ProjectReferenceGuid}}</Project><Name>${ProjectReferenceName}</Name></ProjectReference>")
+    endif()  
 
-		set (DeploymentItemsList)
+    set (DeploymentItemsList)
       foreach (item ${DeploymentItems})
-		set( NativePathToFile)
-			file( TO_NATIVE_PATH "${item}" NativePathToFile)
-			set (DeploymentItemsList "${DeploymentItemsList}<None Include=\"${NativePathToFile}\">\n      <CopyToOutputDirectory>Always</CopyToOutputDirectory>\n    </None>\n" )
-	   endforeach(item)
-		if (TestSourceFilesList)
-		   set(PrefixedTestSourceFilesList)
-		   foreach(fitem ${TestSourceFilesList} )
-			   set(NativeFullPathToFile)
-				file( TO_NATIVE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/${fitem}" NativeFullPathToFile)
-				list(APPEND PrefixedTestSourceFilesList "${NativeFullPathToFile}")
-			endforeach(fitem)
-			set(FileListForCompilation "${PrefixedTestSourceFilesList}")
-		else(TestSourceFilesList)
-		    set(FileListForCompilation "*.cs")
-		endif(TestSourceFilesList)
-		
+    set( NativePathToFile)
+      file( TO_NATIVE_PATH "${item}" NativePathToFile)
+      set (DeploymentItemsList "${DeploymentItemsList}<None Include=\"${NativePathToFile}\">\n      <CopyToOutputDirectory>Always</CopyToOutputDirectory>\n    </None>\n" )
+     endforeach(item)
+    if (TestSourceFilesList)
+       set(PrefixedTestSourceFilesList)
+       foreach(fitem ${TestSourceFilesList} )
+         set(NativeFullPathToFile)
+        file( TO_NATIVE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/${fitem}" NativeFullPathToFile)
+        list(APPEND PrefixedTestSourceFilesList "${NativeFullPathToFile}")
+      endforeach(fitem)
+      set(FileListForCompilation "${PrefixedTestSourceFilesList}")
+    else(TestSourceFilesList)
+        set(FileListForCompilation "*.cs")
+    endif(TestSourceFilesList)
+    
       configure_file("${PROJECT_SOURCE_DIR}/cmake/CSharpTestProjectTemplate.csproj.cmake" "${Directory}/${TestProjectName}.csproj" @ONLY)
-      		
-		## Write the local.testsettings file
-		set(TestSettings "${CMAKE_CURRENT_BINARY_DIR}/${Directory}/local.testsettings")
-		file(WRITE "${TestSettings}" "<?xml version='1.0' encoding='UTF-8'?><TestSettings name='Local' id='4fd90fa6-1a9f-49c6-a25d-79db40300acb' xmlns='http://microsoft.com/schemas/VisualStudio/TeamTest/2010'> <Description>These are default test settings for a local test run.</Description><Deployment>")
+          
+    ## Write the local.testsettings file
+    set(TestSettings "${CMAKE_CURRENT_BINARY_DIR}/${Directory}/local.testsettings")
+    file(WRITE "${TestSettings}" "<?xml version='1.0' encoding='UTF-8'?><TestSettings name='Local' id='4fd90fa6-1a9f-49c6-a25d-79db40300acb' xmlns='http://microsoft.com/schemas/VisualStudio/TeamTest/2010'> <Description>These are default test settings for a local test run.</Description><Deployment>")
   
       foreach (item ${DeploymentItems})
          file(APPEND "${TestSettings}" "<DeploymentItem filename='${item}' />")
       endforeach(item)
      
       if ( Platform STREQUAL x64 )
-		   set( TestSettingsExecutionParams hostProcessPlatform="MSIL" ) 
+       set( TestSettingsExecutionParams hostProcessPlatform="MSIL" ) 
          # Adding this attribute let's MSTest test 64-bit code
          # Note, see http://www.cmake.org/Wiki/CMake/Language_Syntax for the weird rules on quoting in CMake
       elseif ( Platform STREQUAL Win32 )
@@ -578,38 +580,38 @@ macro(add_csharp_unittest )
          set( TestSettingsExecutionParams )
       endif()
       file(APPEND "${TestSettings}" "</Deployment><Execution ${TestSettingsExecutionParams} ><TestTypeSpecific /><AgentRule name='LocalMachineDefaultRole'/></Execution></TestSettings>")
-				     	
-	   ## Include the generated C# project
-		include_external_msproject("${TestProjectName}" "${CMAKE_CURRENT_BINARY_DIR}/${Directory}/${TestProjectName}.csproj"
-			TYPE "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}" # This GUID is a Windows C# project (see also http://msdn.microsoft.com/en-us/library/hb23x61k(v=vs.80).aspx ) 
-			PLATFORM "${Platform}"
-			GUID "${Guid}"
-			${Dependencies}
-		)
+               
+     ## Include the generated C# project
+    include_external_msproject("${TestProjectName}" "${CMAKE_CURRENT_BINARY_DIR}/${Directory}/${TestProjectName}.csproj"
+      TYPE "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}" # This GUID is a Windows C# project (see also http://msdn.microsoft.com/en-us/library/hb23x61k(v=vs.80).aspx ) 
+      PLATFORM "${Platform}"
+      GUID "${Guid}"
+      ${Dependencies}
+    )
 
       # Add the test, and publish results if the necessary information is available
-		
-		if (TfsServerUrl AND TfsBuildNumber AND TfsProjectName)
-		    add_test(NAME "${TestProjectName}"
-			   COMMAND "${MSTEST}" 
-				  "/testcontainer:${Directory}/bin/$<CONFIGURATION>/${TestProjectName}.dll"
-				  "/testsettings:${TestSettings}"
-				  "/test:${TestList}"
-				  "/publish:${TfsServerUrl}"
-				  "/publishbuild:${TfsBuildNumber}"
-				  "/flavor:$<CONFIGURATION>"
-				  "/platform:${Platform}"
-				  "/teamproject:${TfsProjectName}"
-			)
-		else()
-		    add_test(NAME "${TestProjectName}"
-			   COMMAND "${MSTEST}" 
-				  "/testcontainer:${Directory}/bin/$<CONFIGURATION>/${TestProjectName}.dll"
-				  "/testsettings:${TestSettings}"
-				  "/test:${TestList}"
-			)
-		endif()
-	endif(MSVC)
+    
+    if (TfsServerUrl AND TfsBuildNumber AND TfsProjectName)
+        add_test(NAME "${TestProjectName}"
+         COMMAND "${MSTEST}" 
+          "/testcontainer:${Directory}/bin/$<CONFIGURATION>/${TestProjectName}.dll"
+          "/testsettings:${TestSettings}"
+          "/test:${TestList}"
+          "/publish:${TfsServerUrl}"
+          "/publishbuild:${TfsBuildNumber}"
+          "/flavor:$<CONFIGURATION>"
+          "/platform:${Platform}"
+          "/teamproject:${TfsProjectName}"
+      )
+    else()
+        add_test(NAME "${TestProjectName}"
+         COMMAND "${MSTEST}" 
+          "/testcontainer:${Directory}/bin/$<CONFIGURATION>/${TestProjectName}.dll"
+          "/testsettings:${TestSettings}"
+          "/test:${TestList}"
+      )
+    endif()
+  endif(MSVC)
 endmacro(add_csharp_unittest)
 
 ### 

@@ -13,16 +13,17 @@
 set( APP_NAME "tracktraps" )
 
 add_executable(${APP_NAME}
-	src/ProjectHandle.C
-	src/PersistentTrap.C
-	src/PersistentTrapFactory.C
-	src/Reservoir.C
-	src/Trap.C
-	src/generics.C
-	src/main.C
+   src/ProjectHandle.C
+   src/PersistentTrap.C
+   src/PersistentTrapFactory.C
+   src/Reservoir.C
+   src/Trap.C
+   src/generics.C
+   src/main.C
 )
 
 set_target_properties( ${APP_NAME} PROPERTIES SUFFIX ".exe" )
+set_target_properties( ${APP_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${APP_NAME}" )
 
 create_application_run_script( ${APP_NAME} )
 
@@ -31,32 +32,32 @@ application_env_var( TARGET ${APP_NAME} VARS
 )
 
 bm_include_libraries(
-	DataModel
-	EosPack
-	DataAccess
-	SerialDataAccess
-	TableIO
-	utilities
-	CBMGenerics
+   DataModel
+   EosPack
+   DataAccess
+   SerialDataAccess
+   TableIO
+   utilities
+   CBMGenerics
 )
 
 include_directories( SYSTEM
-	${HDF5_INCLUDE_DIRS}
+   ${HDF5_INCLUDE_DIRS}
 )
 
 
 target_link_libraries(${APP_NAME}
-	EosPack
-	DataAccess
-	SerialDataAccess
-	TableIO
-	utilities
-	CBMGenerics
-	${HDF5_LIBRARIES}
+   EosPack
+   DataAccess
+   SerialDataAccess
+   TableIO
+   utilities
+   CBMGenerics
+   ${HDF5_LIBRARIES}
 )
 
 install(TARGETS ${APP_NAME}
-	RUNTIME DESTINATION bin
+   RUNTIME DESTINATION bin
 )
 
 # Local Variables:

@@ -1,3 +1,13 @@
+// 
+// Copyright (C) 2015-2017 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef _MINING__DOMAIN_PROPERTY_FACTORY_H_
 #define _MINING__DOMAIN_PROPERTY_FACTORY_H_
 
@@ -22,13 +32,13 @@ namespace DataAccess
    namespace Mining
    {
       /// Class for allocating domain-property-derived objects.
-      class DomainPropertyFactory : public GeoPhysics::ObjectFactory
+      class ObjectFactory : public GeoPhysics::ObjectFactory
       {
 
          typedef std::map < const Interface::Property*, DomainPropertyAllocator* > PropertyToDomainPropertyAllocator;
 
       public :
-         virtual ~DomainPropertyFactory ();
+         virtual ~ObjectFactory ();
 
          /// Allocates a data-mining project-handle.
          Interface::ProjectHandle* produceProjectHandle( database::ProjectFileHandlerPtr pfh,
@@ -75,14 +85,14 @@ namespace DataAccess
 
          virtual CauldronDomain* produceCauldronDomain( Interface::ProjectHandle * projectHandle );
 
-      protected :
-
          /// Initialises the domain-property allocators.
          ///
          /// When a project-handle is produced, this function MUST be called.
          /// It should be called once during the life-time of the application.
          /// Since only a single project-handle will be allocated.
-         void initialiseDomainPropertyFactory( Interface::ProjectHandle * handle );
+         void initialiseObjectFactory( Interface::ProjectHandle * handle );
+
+      protected :
 
          Interface::ProjectHandle        * m_projectHandle;
          PropertyToDomainPropertyAllocator m_allocators;

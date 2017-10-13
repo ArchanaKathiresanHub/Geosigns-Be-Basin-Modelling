@@ -11,21 +11,21 @@ namespace DataAccess
       /// ultimately responsible for destroying its Children when it is destroyed itself.
       class Child
       {
-	 public:
-	    Child (void);
+    public:
+       Child (void);
             /// Spawn a Child with the given Parent
-	    Child (const Parent * parent, unsigned int index = 0);
+       Child (const Parent * parent, unsigned int index = 0);
 
-	    virtual ~Child (void);
+       virtual ~Child (void);
 
-	    /// detach from its parent and destroy
-	    virtual void release (void) const;
-	    /// return the parent
-	    virtual const Parent * getParent (void) const;
+       /// detach from its parent and destroy
+       virtual void release (void) const;
+       /// return the parent
+       virtual const Parent * getParent (void) const;
 
-	 protected:
+    protected:
             /// The Child's Parent
-	    mutable const Parent * m_parent;
+       mutable const Parent * m_parent;
             /// the index of the Child at the Parent
             const unsigned int m_index;
       };

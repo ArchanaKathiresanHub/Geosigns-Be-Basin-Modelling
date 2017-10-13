@@ -32,6 +32,7 @@ set(allheaders
    ${CMAKE_CURRENT_BINARY_DIR}/TableAllochthonLithoInterpIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableCrustIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableContCrustalThicknessIoTbl.h
+   ${CMAKE_CURRENT_BINARY_DIR}/TableOceaCrustalThicknessIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableBasaltThicknessIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableBasementIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableDisplayContourIoTbl.h
@@ -77,6 +78,7 @@ set(allheaders
    ${CMAKE_CURRENT_BINARY_DIR}/TableTwoWayTimeIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableGenexHistoryLocationIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableCTCIoTbl.h
+   ${CMAKE_CURRENT_BINARY_DIR}/TableCTCRiftingHistoryIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableLangmuirAdsorptionCapacityIsothermSetIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableLangmuirAdsorptionCapacityTOCFunctionIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableAdsorptionHistoryIoTbl.h
@@ -106,6 +108,7 @@ set(allsources
    ${CMAKE_CURRENT_BINARY_DIR}/TableAllochthonLithoInterpIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableCrustIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableContCrustalThicknessIoTbl.cpp
+   ${CMAKE_CURRENT_BINARY_DIR}/TableOceaCrustalThicknessIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableBasaltThicknessIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableBasementIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableDisplayContourIoTbl.cpp
@@ -151,6 +154,7 @@ set(allsources
    ${CMAKE_CURRENT_BINARY_DIR}/TableTwoWayTimeIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableGenexHistoryLocationIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableCTCIoTbl.cpp
+   ${CMAKE_CURRENT_BINARY_DIR}/TableCTCRiftingHistoryIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableLangmuirAdsorptionCapacityIsothermSetIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableLangmuirAdsorptionCapacityTOCFunctionIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableAdsorptionHistoryIoTbl.cpp
@@ -176,37 +180,40 @@ add_custom_command(OUTPUT ${generator_source_files}
 )
 
 add_custom_target(cpp_generated_api_files DEPENDS ${generator_source_files})
+set_target_properties( cpp_generated_api_files PROPERTIES FOLDER "${BASE_FOLDER}/cpp_generated_api_files" )
 
-add_library(project3d ${generator_source_files})
+set( LIB_NAME "project3d" )
+add_library(${LIB_NAME} ${generator_source_files})
+set_target_properties( ${LIB_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${LIB_NAME}" )
 
 # under Linux we are building Boost that is why this target exist
 if (UNIX)
-add_dependencies(project3d Boost)
+add_dependencies(${LIB_NAME} Boost)
 endif (UNIX)
 
-add_dependencies(project3d
+add_dependencies(${LIB_NAME}
    cpp_generated_api_files
    TableIO
    FileSystem
    utilities
 )
 
-bm_include_libraries(project3d
+bm_include_libraries(${LIB_NAME}
    TableIO
    FileSystem
    utilities
 )
 
-target_link_libraries(project3d
+target_link_libraries(${LIB_NAME}
    TableIO
    FileSystem
    utilities
 )
 
-install(TARGETS project3d
-	RUNTIME DESTINATION bin
-	LIBRARY DESTINATION lib
-	ARCHIVE DESTINATION lib
+install(TARGETS ${LIB_NAME}
+   RUNTIME DESTINATION bin
+   LIBRARY DESTINATION lib
+   ARCHIVE DESTINATION lib
 )
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/test/Reference.project3d ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
@@ -214,7 +221,8 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/test/Reference.project3d ${CMAKE_CURR
 add_gtest(NAME TableIO::CauldronSchemaAPITest
           SOURCES test/CauldronSchemaAPITest.cpp test/CauldronSchemaAPITest.h
           DEPENDS cpp_generated_api_files
-          LIBRARIES project3d TableIO utilities FileSystem
+          LIBRARIES ${LIB_NAME} TableIO utilities FileSystem
+          FOLDER "${BASE_FOLDER}/cpp_generated_api_files"
 )
 
 if (MSVC)

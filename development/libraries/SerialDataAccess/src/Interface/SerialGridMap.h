@@ -1,3 +1,13 @@
+// 
+// Copyright (C) 2015-2017 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef _INTERFACE_SERIALGRIDMAP_H_
 #define _INTERFACE_SERIALGRIDMAP_H_
 
@@ -51,6 +61,9 @@ namespace DataAccess
 
          /// set the value for the given grid coordinates
          virtual bool setValue(unsigned int i, unsigned int j, unsigned int k, double value);
+
+         /// set the constant value for the whole grid
+         void setValues(const double value);
 
          /// get the value for the given index values
          virtual double getValue(unsigned int i, unsigned int j) const;

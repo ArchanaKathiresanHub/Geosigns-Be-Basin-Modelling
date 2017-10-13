@@ -16,7 +16,9 @@ source_group("Header Files" FILES ${all_headers})
 FILE( GLOB all_srcs src/*.cpp)
 source_group("Source Files" FILES ${all_srcs})
 
-add_library(VisualizationIO ${all_srcs} ${all_headers})
+set( LIB_NAME "VisualizationIO" )
+add_library(${LIB_NAME} ${all_srcs} ${all_headers})
+set_target_properties( ${LIB_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${LIB_NAME}" )
 
 include_directories( SYSTEM
    src
@@ -29,7 +31,7 @@ bm_include_libraries(
    FileSystem
 )
 
-target_link_libraries(VisualizationIO
+target_link_libraries(${LIB_NAME}
    utilities
    FileSystem
    PugiXMLlib
@@ -60,7 +62,7 @@ if ( MSVC )
                                     ../../../../3rdparty/lz4/include/lz4.h
                                     ../../../../3rdparty/pugixml-1.7/include/pugiconfig.hpp
                                     ../../../../3rdparty/pugixml-1.7/include/pugixml.hpp
-      CSPROJ_LIBRARIES              VisualizationIO DataModel DataAccess utilities SerialDataAccess FileSystem TableIO Serial_Hdf5 CBMGenerics PugiXMLlib LZlib ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
+      CSPROJ_LIBRARIES              ${LIB_NAME} DataModel DataAccess utilities SerialDataAccess FileSystem TableIO Serial_Hdf5 CBMGenerics PugiXMLlib LZlib ${HDF5_LIBRARIES} ${Boost_LIBRARIES}
       CSHARP_UNIT_TESTS_SRC         test/ProjectTest.cs test/PVTDataTest.cs
    )
 
@@ -85,7 +87,7 @@ else (MSVC) # UNIX
                           PKG_OWNER         "Sebastiaan.Kole@pds.nl"
                           PKG_DESCRIPTION   "C#/C++ Cauldron API to access simulation results data for vizualization"
                           PKG_RELEASE_NOTES "Version ${API_FILE_GIT_DATE_AS_VER}. Initial nuget package release"
-                          PKG_LIBRARIES     VisualizationIO ../FileSystem/FileSystem ../../LZlib/LZlib ../../PugiXMLlib/PugiXMLlib
+                          PKG_LIBRARIES     ${LIB_NAME} ../FileSystem/FileSystem ../../LZlib/LZlib ../../PugiXMLlib/PugiXMLlib
                           PKG_HEADERS       VisualizationAPI.h VisualizationAPIFwDecl.h ImportFromXML.h DataStore.h
                                             ../../FileSystem/src/FilePath.h 
                                             ../../FileSystem/src/Path.h 

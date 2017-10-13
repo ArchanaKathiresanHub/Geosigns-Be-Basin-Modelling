@@ -20,27 +20,29 @@ source_group(include FILES ${all_headers})
 FILE( GLOB all_srcs src/*.cpp )
 source_group(source FILES ${all_srcs})
 
-add_library(CBMGenerics
+set( LIB_NAME "CBMGenerics" )
+add_library(${LIB_NAME}
    ${all_srcs}
    ${all_headers}
 )
+set_target_properties( ${LIB_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${LIB_NAME}" )
 
-add_dependencies( CBMGenerics
+add_dependencies( ${LIB_NAME}
    utilities
 )
 
-bm_include_libraries( CBMGenerics
+bm_include_libraries( ${LIB_NAME}
    utilities 
 )
 
-target_link_libraries( CBMGenerics
+target_link_libraries( ${LIB_NAME}
    utilities
 )
 
 #Doc. generation is commented because most of the classes in CBMGeneric have no doxygen documentation and generate warnings
 #generate_dox( src/CBMGenerics.cfg )
 
-install(TARGETS CBMGenerics
+install(TARGETS ${LIB_NAME}
    RUNTIME DESTINATION bin
    LIBRARY DESTINATION lib
    ARCHIVE DESTINATION lib
@@ -48,6 +50,7 @@ install(TARGETS CBMGenerics
 
 ### Unit Tests
 
-add_gtest( NAME CBMGenerics::Polyfunction 
+add_gtest( NAME ${LIB_NAME}::Polyfunction 
            SOURCES test/Polyfunction.cpp
-           LIBRARIES CBMGenerics )
+           LIBRARIES ${LIB_NAME}
+           FOLDER "${BASE_FOLDER}/${LIB_NAME}" )

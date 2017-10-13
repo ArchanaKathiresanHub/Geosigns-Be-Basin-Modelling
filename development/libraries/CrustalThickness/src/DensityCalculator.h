@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -8,61 +8,115 @@
 // Do not distribute without written permission from Shell.
 //
 
-#ifndef _DENSITY_CALCULATOR_H_
-#define _DENSITY_CALCULATOR_H_
+#ifndef _CRUSTALTHICKNESS_DENSITYCALCULATOR_H_
+#define _CRUSTALTHICKNESS_DENSITYCALCULATOR_H_
 
-#include "Interface/GridMap.h"
-#include "Interface/Grid.h"
+// CrusltalThickness library
 
-#include "DerivedPropertyManager.h"
+// DerivedProperties library
+#include "SurfaceProperty.h"
+
+// utilitites library
+#include "FormattingException.h"
+
+// Forward declare
+class InterfaceInput;
+class AbstractValidator;
+class AbstractInterfaceOutput;
 
 using namespace DataAccess;
 
-class DensityCalculator {
-
-public:
-
-   DensityCalculator ();
-
-   ~DensityCalculator () {};
-
-   
-private:
-
-   Interface::GridMap* m_depthBasementMap; 
-   Interface::GridMap* m_depthWaterBottomMap; 
-
-   DerivedProperties::SurfacePropertyPtr m_pressureBasement; 
-   DerivedProperties::SurfacePropertyPtr m_pressureWaterBottom;
-
+namespace CrustalThickness
+{
   
-   double m_sedimentDensity;
-   double m_waterBottomDepthValue;
-   double m_sedimentThickness;
-   double m_topBasementDepthValue;
-public:
-   
-   void loadData( GeoPhysics::ProjectHandle* projectHandle, const string & baseSurfaceName );
-  
-   void retrieveData();
+   /// @class DensityCalculator The density calcultor used during the CTC backstriping
+   class DensityCalculator {
 
-   void restoreData();
+      typedef formattingexception::GeneralException DensityException;
 
-   void computeNode( unsigned int i, unsigned int j );
- 
-   double getSedimentDensity( ) const;
-   double getTopBasementDepthValue( ) const;
-   double getWLS(  const double backstrippingMantleDensity, const double densityDiff ) const;
-};
+   public:
 
-class PropertyManager : public DerivedProperties::DerivedPropertyManager {
+      DensityCalculator( const InterfaceInput& inputData,
+         AbstractInterfaceOutput& outputData,
+         const AbstractValidator& validator );
+      ~DensityCalculator() {
+         // Empty constructor (comment removes SonarQube issue)
+      };
 
-public :
-   
-   PropertyManager ( GeoPhysics::ProjectHandle* projectHandle ); 
-   
-   ~PropertyManager() {};
-   
-};
+      /// @brief Computes the semdiments density, the sediments thickness, the backstrip and the compensation maps
+      void compute();
+
+      /// @brief Perfrom the backstriping at node (i,j)
+      /// @details Update the variable class members
+      void calculate( const double topBasementDepthValue,
+         const double waterBottomDepthValue,
+         const double pressureTopBasementValue,
+         const double pressureWaterBottomValue );
+
+      /// @defgroup Accessors
+      /// Used in unit tests
+      /// @{
+      double getBackstrip()         const { return m_backstrip; };
+      double getSedimentThickness() const { return m_sedimentThickness; };
+      double getSedimentDensity()   const { return m_sedimentDensity; };
+      double getCompensation()      const { return m_compensation; };
+      double getDensityTerm()       const { return m_densityTerm; };
+      double getAirCorrection()     const { return m_airCorrection; };
+      /// @}
+
+
+   private:
+
+      /// @brief Compute the density term and the air correction
+      void setDensities();
+
+      /// @defgroup DataUtilities
+      /// @{
+      /// @brief Retrieve pressure and depth maps data
+      void retrieveData();
+      /// @brief Restore pressure and depth maps data
+      void restoreData();
+      /// @}
+
+      /// @defgroup InputMapsRange
+      /// Loaded from InterfaceInput
+      /// @{
+      const unsigned int m_firstI; ///< First i index on the map
+      const unsigned int m_firstJ; ///< First j index on the map
+      const unsigned int m_lastI;  ///< Last i index on the map
+      const unsigned int m_lastJ;  ///< Last j index on the map
+      /// @}
+
+      /// @defgroup InputConfigFileData
+      ///    Loaded from configuration file via InterfaceInput
+      /// @{
+      const double m_mantleDensity; ///< The mantle density (is currently the same for lithospheric and asthenospheric mantle)
+      const double m_waterDensity;  ///< The water density
+      double m_densityTerm;         ///< densityTerm = 1.0 / (mantleDensity - m_waterDensity)
+      double m_airCorrection;       ///< The air density correction for the TTS equation when the water depth is above the surface
+      /// @}
+
+      /// @defgroup InputDerivedProperties
+      ///   Loaded from InterfaceInput
+      /// @{
+      DerivedProperties::SurfacePropertyPtr m_pressureBasement;    ///< The pressure of the basement at the current snapshot
+      DerivedProperties::SurfacePropertyPtr m_pressureWaterBottom; ///< The pressure of the water bottom at the current snapshot
+      DerivedProperties::SurfacePropertyPtr m_depthBasement;       ///< The depth of the basement at the current snapshot
+      DerivedProperties::SurfacePropertyPtr m_depthWaterBottom;    ///< The depth of the water bottom at the current snapshot
+      /// @}
+
+      /// @defgroup Variables
+      /// @{
+      double m_sedimentDensity;   ///< The density of the entire stack of sediments
+      double m_sedimentThickness; ///< The thickness of the entire stack of sediments
+      double m_backstrip;         ///< The backstrip (https://en.wikipedia.org/wiki/Back-stripping)
+      double m_compensation;      ///< The compensation
+      /// @}
+
+      AbstractInterfaceOutput& m_outputData; ///< The global interface output object (contains the output maps)
+      const AbstractValidator&  m_validator; ///< The validator to check if a node (i,j) is valid or not
+   };
+
+} // End namespace CrustalThickness
 #endif
 

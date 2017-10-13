@@ -18,23 +18,27 @@ source_group(source FILES ${all_srcs})
 
 include_directories( src )
 
-add_library(functions 
+set( LIB_NAME "functions" )
+add_library(${LIB_NAME} 
    ${all_srcs}
    ${all_headers}
 )
+set_target_properties( ${LIB_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${LIB_NAME}" )
 
-install(TARGETS functions
+install(TARGETS ${LIB_NAME}
    RUNTIME DESTINATION bin
    LIBRARY DESTINATION lib
    ARCHIVE DESTINATION lib
 )
 
-add_gtest( NAME Functions::Tuple2
+add_gtest( NAME ${LIB_NAME}::Tuple2
            SOURCES test/Tuple2.C
-           LIBRARIES functions
+           LIBRARIES ${LIB_NAME}
+           FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME Functions::MonoIncrPwLinInvertFun
            SOURCES test/MonotonicIncreasingPiecewiseLinearInvertableFunction.C
-           LIBRARIES functions
+           LIBRARIES ${LIB_NAME}
+           FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )

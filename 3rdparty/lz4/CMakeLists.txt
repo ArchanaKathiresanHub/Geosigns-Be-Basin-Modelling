@@ -18,12 +18,14 @@ source_group(source FILES ${all_srcs})
 
 include_directories( SYSTEM include/ )
 
-add_library( LZlib
+set( LIB_NAME "LZlib" )
+add_library( ${LIB_NAME}
    ${all_srcs}
    ${all_headers}
 )
+set_target_properties( ${LIB_NAME} PROPERTIES FOLDER "3rdparty/${LIB_NAME}" )
 
-install(TARGETS LZlib
+install(TARGETS ${LIB_NAME}
    RUNTIME DESTINATION bin
    LIBRARY DESTINATION lib
    ARCHIVE DESTINATION lib

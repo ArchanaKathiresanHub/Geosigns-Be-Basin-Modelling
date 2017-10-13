@@ -1,5 +1,14 @@
-#ifndef _INTERFACE_PROJECTHANDLE_H_
-#define _INTERFACE_PROJECTHANDLE_H_
+//
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+#ifndef INTERFACE_PROJECTHANDLE_H
+#define INTERFACE_PROJECTHANDLE_H
 
 #include "hdf5.h"
 
@@ -18,6 +27,13 @@ using namespace std;
 
 #include "MessageHandler.h"
 #include "ApplicationGlobalOperations.h"
+
+// DataAccess library table classes
+// fastctc
+#include "TableCTC.h"
+#include "TableCTCRiftingHistory.h"
+// alc
+#include "TableOceanicCrustThicknessHistory.h"
 
 /*! \mainpage The Cauldron Distributed Data Access Framework
  * \section intro Introduction
@@ -61,7 +77,7 @@ namespace DataAccess
 
    namespace Interface
    {
-      /// Create a project from a project file with the given name and access mode ("r" or "rw") and
+      /// Create a project from a project file with the given name and access mode ("r" or "rw") andm_projectFileHandler
       /// return the associated ProjectHandle
       ProjectHandle * OpenCauldronProject( const string & name,
                                            const string & accessMode,
@@ -74,7 +90,7 @@ namespace DataAccess
       database::ProjectFileHandlerPtr CreateDatabaseFromCauldronProject( const string& name,
                                                                          const std::vector<std::string>& outputTableNames = NoTableNames );
 
-      /// Close the project associated with the given ProjectHandle
+      /// Close the project associated with the given ProjectHandlem_projectFileHandler
       void CloseCauldronProject( ProjectHandle * projectHandle );
 
       /// A ProjectHandle contains references to the entities in a Project.
@@ -331,13 +347,13 @@ namespace DataAccess
          /// \brief Get the list of properties that have the particular PropertyAttribute.
          virtual PropertyListPtr getProperties ( const DataModel::PropertyAttribute attr ) const;
 
-         /// @brief Return a list of property values based on the given arguments.
+         /// @brief Return a list of recorded property values based on the given arguments.
          ///
          /// @param[in] selectionFlags is logical OR for the following flags:
-         ///                           SURFACE = surface property which per definition is 2D.
-         ///                             FORMATION = formation property which can be 2D and 3D
-         ///                             FORMATIONSURFACE = a surface property that is not continuous over the surface.
-         ///                             RESERVOIR = properties which apply to a reservoir and are therefore 2D.
+         ///                            SURFACE = surface property which per definition is 2D.
+         /// 	                         FORMATION = formation property which can be 2D and 3D
+         /// 	                         FORMATIONSURFACE = a surface property that is not continuous over the surface.
+         /// 	                         RESERVOIR = properties which apply to a reservoir and are therefore 2D.
          /// @param property
          /// @param[in] snapshot properties belonging to this snapshot. If not specified, return
          ///            properties for all snapshots.
@@ -345,8 +361,49 @@ namespace DataAccess
          /// @param[in] formation properties belonging to this formation.
          /// @param[in] surface properties belonging to this surface.
          /// @param[in] propertyTypes whether the properties should be 2D (MAP) or 3D (VOLUME)
-         /// @return    a list of the selected properties
+         /// @return    a list of the selected recorded properties
          virtual PropertyValueList * getPropertyValues( int selectionFlags = SURFACE | FORMATION | FORMATIONSURFACE | RESERVOIR,
+            const Property * property = 0, const Snapshot * snapshot = 0,
+            const Reservoir * reservoir = 0, const Formation * formation = 0,
+            const Surface * surface = 0, int propertyTypes = MAP | VOLUME ) const;
+
+         /// @brief Return a list of unrecorded property values based on the given arguments.
+         ///
+         /// @param[in] selectionFlags is logical OR for the following flags:
+         ///                            SURFACE = surface property which per definition is 2D.
+         /// 	                         FORMATION = formation property which can be 2D and 3D
+         /// 	                         FORMATIONSURFACE = a surface property that is not continuous over the surface.
+         /// 	                         RESERVOIR = properties which apply to a reservoir and are therefore 2D.
+         /// @param property
+         /// @param[in] snapshot properties belonging to this snapshot. If not specified, return 
+         ///            properties for all snapshots.
+         /// @param[in] reservoir properties belonging to this reservoir.
+         /// @param[in] formation properties belonging to this formation.
+         /// @param[in] surface properties belonging to this surface.
+         /// @param[in] propertyTypes whether the properties should be 2D (MAP) or 3D (VOLUME)
+         /// @return    a list of the selected unrecorded properties
+         PropertyValueList * getPropertyUnrecordedValues( int selectionFlags,
+            const Interface::Property * property, const Interface::Snapshot * snapshot,
+            const Interface::Reservoir * reservoir, const Interface::Formation * formation, const Interface::Surface * surface,
+            int propertyType ) const;
+
+         /// @brief Return a list of property values based on the given arguments.
+         /// @param[in] list The property value list (recorded or not)
+         /// @param[in] selectionFlags is logical OR for the following flags:
+         ///                            SURFACE = surface property which per definition is 2D.
+         /// 	                         FORMATION = formation property which can be 2D and 3D
+         /// 	                         FORMATIONSURFACE = a surface property that is not continuous over the surface.
+         /// 	                         RESERVOIR = properties which apply to a reservoir and are therefore 2D.
+         /// @param property
+         /// @param[in] snapshot properties belonging to this snapshot. If not specified, return 
+         ///            properties for all snapshots.
+         /// @param[in] reservoir properties belonging to this reservoir.
+         /// @param[in] formation properties belonging to this formation.
+         /// @param[in] surface properties belonging to this surface.
+         /// @param[in] propertyTypes whether the properties should be 2D (MAP) or 3D (VOLUME)
+         /// @return    a list of the selected properties inside the property value list
+         virtual PropertyValueList * getPropertyValuesForList( MutablePropertyValueList list,
+            int selectionFlags = SURFACE | FORMATION | FORMATIONSURFACE | RESERVOIR,
             const Property * property = 0, const Snapshot * snapshot = 0,
             const Reservoir * reservoir = 0, const Formation * formation = 0,
             const Surface * surface = 0, int propertyTypes = MAP | VOLUME ) const;
@@ -561,6 +618,7 @@ namespace DataAccess
          string m_activityName;
 
          const AccessMode m_accessMode;
+         database::ProjectFileHandlerPtr m_projectFileHandler;
 
          ObjectFactory * m_factory;
 
@@ -580,7 +638,9 @@ namespace DataAccess
          MutablePaleoSurfacePropertyList   m_heatFlowHistory;
          MutablePaleoFormationPropertyList m_crustPaleoThicknesses;
          MutablePaleoFormationPropertyList m_mantlePaleoThicknesses;
-         MutableCrustalThicknessDataList   m_crustalThicknessData;
+         const TableCTC                          m_tableCTC;
+         const TableCTCRiftingHistory            m_tableCTCRiftingHistory;
+         const TableOceanicCrustThicknessHistory m_tableOceanicCrustThicknessHistory;
 
          // Should really be a list of PaleoSurfaceProperty's,
          // but there is no surface defined for the top surface.
@@ -614,8 +674,6 @@ namespace DataAccess
          RunParameters* m_runParameters;
          ProjectData* m_projectData;
          MutableSimulationDetailsList m_simulationDetails;
-         database::ProjectFileHandlerPtr m_projectFileHandler;
-
 
          /// The crust- and mantle-formations do not have to be deallocated directly. Since they are added
          /// to the list of formations in the model they will be deleted when this object is destroyed.
@@ -737,12 +795,9 @@ namespace DataAccess
 
          bool loadFluidTypes();
 
-         bool loadCrustalThicknessData();
          void loadPermafrostData();
 
          void computeMantlePaleoThicknessHistory() const;
-
-         Snapshot * createSnapshot( database::Record record );
 
          bool initializeMapPropertyValuesWriter( const bool append = false );
          bool finalizeMapPropertyValuesWriter( void );
@@ -781,8 +836,6 @@ namespace DataAccess
 
          void numberInputValues( void );
 
-         void saveInputValues( const string & directory, vector<string> & fileNames ) const;
-
          void loadInputGridMaps( void ) const;
          void loadPropertyGridMaps( PropertyValueList * propertyValues ) const;
 
@@ -819,9 +872,7 @@ namespace DataAccess
 
          void deleteCrustFormation();
          void deleteMantleFormation();
-         void deleteBasementSurfaces();
 
-         void deleteCrustalThicknessData();
          void deleteHeatFlowHistory( void );
          void deleteCrustThinningHistory( void );
          void deleteMantleThicknessHistory( void );
@@ -876,4 +927,4 @@ namespace DataAccess
       };
    }
 }
-#endif // _INTERFACE_PROJECTHANDLE_H_
+#endif // INTERFACE_PROJECTHANDLE_H

@@ -18,12 +18,14 @@ if (BM_PARALLEL)
    FILE( GLOB all_srcs src/*.C)
    source_group(source FILES ${all_srcs})
 
-   add_library(DistributedDataAccess 
+   set( LIB_NAME "DistributedDataAccess" )
+   add_library(${LIB_NAME} 
       ${all_srcs}
       ${all_headers}
    )
+   set_target_properties( ${LIB_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${LIB_NAME}" )
    if (UNIX)
-      add_dependencies(DistributedDataAccess PETSC)
+      add_dependencies(${LIB_NAME} PETSC)
    endif (UNIX)
 
    set (OFPP "")
@@ -31,7 +33,7 @@ if (BM_PARALLEL)
       set (OFPP OneFilePerProcess)
    endif ()
 
-   target_link_libraries( DistributedDataAccess 
+   target_link_libraries( ${LIB_NAME} 
       DataAccess
       Utilities_Petsc
       Serial_Hdf5
@@ -75,12 +77,12 @@ if (BM_PARALLEL)
       ${MPI_INCLUDE_DIRS}
    )
 
-   set_target_properties(DistributedDataAccess
+   set_target_properties(${LIB_NAME}
        PROPERTIES LINK_FLAGS "${PETSC_LINK_FLAGS}"
    )
 
 
-   install(TARGETS DistributedDataAccess
+   install(TARGETS ${LIB_NAME}
       RUNTIME DESTINATION bin
       LIBRARY DESTINATION lib
       ARCHIVE DESTINATION lib
@@ -98,69 +100,76 @@ if (BM_PARALLEL)
    add_gtest( NAME DistributedGridMap_MPInp4
               SOURCES test/DistributedGridMap.C
               COMPILE_FLAGS "-DNO_ASSERT_DEATH"
-              LIBRARIES Utilities_Petsc ${PETSC_LIBRARIES} DistributedDataAccess DataAccess
+              LIBRARIES Utilities_Petsc ${PETSC_LIBRARIES} ${LIB_NAME} DataAccess
               LINK_FLAGS "${PETSC_LINK_FLAGS}"
               MPI_SIZE 4
               MPIRUN_PRMS ${MACHINE_FILE}
+              FOLDER "${BASE_FOLDER}/${LIB_NAME}"
    )
 
    add_gtest( NAME DistributedGridMap_MPInp2
               SOURCES test/DistributedGridMap.C
               COMPILE_FLAGS "-DNO_ASSERT_DEATH"
-              LIBRARIES Utilities_Petsc ${PETSC_LIBRARIES} DistributedDataAccess DataAccess
+              LIBRARIES Utilities_Petsc ${PETSC_LIBRARIES} ${LIB_NAME} DataAccess
               LINK_FLAGS "${PETSC_LINK_FLAGS}"
               MPI_SIZE 2
               MPIRUN_PRMS ${MACHINE_FILE}
+              FOLDER "${BASE_FOLDER}/${LIB_NAME}"
    )
 
    # MPI death tests need special care, separate binary is required
    add_gtest( NAME DistributedGridMap_MPInp2::AssertDeath1
               SOURCES test/DistributedGridMap.C
               COMPILE_FLAGS "-DASSERT_DEATH_CTR_1"
-              LIBRARIES Utilities_Petsc ${PETSC_LIBRARIES} DistributedDataAccess DataAccess
+              LIBRARIES Utilities_Petsc ${PETSC_LIBRARIES} ${LIB_NAME} DataAccess
               LINK_FLAGS "${PETSC_LINK_FLAGS}"
               MPI_SIZE 2
               MPIRUN_PRMS ${MACHINE_FILE}
+              FOLDER "${BASE_FOLDER}/${LIB_NAME}"
    )
 
    # MPI death tests need special care, separate binary is required
    add_gtest( NAME DistributedGridMap_MPInp2::AssertDeath2
               SOURCES test/DistributedGridMap.C
               COMPILE_FLAGS "-DASSERT_DEATH_CTR_2"
-              LIBRARIES Utilities_Petsc ${PETSC_LIBRARIES} DistributedDataAccess DataAccess
+              LIBRARIES Utilities_Petsc ${PETSC_LIBRARIES} ${LIB_NAME} DataAccess
               LINK_FLAGS "${PETSC_LINK_FLAGS}"
               MPI_SIZE 2
               MPIRUN_PRMS ${MACHINE_FILE}
+              FOLDER "${BASE_FOLDER}/${LIB_NAME}"
    )
 
    # MPI death tests need special care, separate binary is required
    add_gtest( NAME DistributedGridMap_MPInp2::AssertDeath3
               SOURCES test/DistributedGridMap.C
               COMPILE_FLAGS "-DASSERT_DEATH_CTR_3"
-              LIBRARIES Utilities_Petsc ${PETSC_LIBRARIES} DistributedDataAccess DataAccess
+              LIBRARIES Utilities_Petsc ${PETSC_LIBRARIES} ${LIB_NAME} DataAccess
               LINK_FLAGS "${PETSC_LINK_FLAGS}"
               MPI_SIZE 2
               MPIRUN_PRMS ${MACHINE_FILE}
+              FOLDER "${BASE_FOLDER}/${LIB_NAME}"
    )
 
    # MPI death tests need special care, separate binary is required
    add_gtest( NAME DistributedGridMap_MPInp2::AssertDeathNotRetrieved
               SOURCES test/DistributedGridMap.C
               COMPILE_FLAGS "-DASSERT_DEATH_NOT_RETRIEVED"
-              LIBRARIES Utilities_Petsc ${PETSC_LIBRARIES} DistributedDataAccess DataAccess
+              LIBRARIES Utilities_Petsc ${PETSC_LIBRARIES} ${LIB_NAME} DataAccess
               LINK_FLAGS "${PETSC_LINK_FLAGS}"
               MPI_SIZE 2
               MPIRUN_PRMS ${MACHINE_FILE}
+              FOLDER "${BASE_FOLDER}/${LIB_NAME}"
    )
 
    # MPI death tests need special care, separate binary is required
    add_gtest( NAME DistributedGridMap_MPInp2::HangingCommunication
               SOURCES test/DistributedGridMap.C
               COMPILE_FLAGS "-DASSERT_THROW_ON_RESTORE"
-              LIBRARIES Utilities_Petsc ${PETSC_LIBRARIES} DistributedDataAccess DataAccess
+              LIBRARIES Utilities_Petsc ${PETSC_LIBRARIES} ${LIB_NAME} DataAccess
               LINK_FLAGS "${PETSC_LINK_FLAGS}"
               MPI_SIZE 2
               MPIRUN_PRMS ${MACHINE_FILE}
+              FOLDER "${BASE_FOLDER}/${LIB_NAME}"
    )
 endif(BM_PARALLEL)
 

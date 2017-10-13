@@ -1,3 +1,13 @@
+// 
+// Copyright (C) 2015-2017 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef DERIVED_PROPERTIES__SURFACE_PROPERTY_H
 #define DERIVED_PROPERTIES__SURFACE_PROPERTY_H
 
@@ -75,7 +85,7 @@ namespace DerivedProperties {
       /// \brief Return true if the property is primary.
       virtual bool isPrimary () const = 0;
 
-      /// \ brief Get the gridMap
+      /// \brief Get the gridMap
       virtual const DataAccess::Interface::GridMap* getGridMap() const = 0;
 
    private :

@@ -10,45 +10,47 @@
 #                                                                       #
 #########################################################################
 
-add_executable(cauldron2eclipse
-	src/cauldron2eclipse.C
+set( APP_NAME "cauldron2eclipse" )
+add_executable(${APP_NAME}
+   src/cauldron2eclipse.C
 )
+set_target_properties( ${APP_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${APP_NAME}" )
 
 include_directories( SYSTEM
-	${HDF5_INCLUDE_DIRS}
+   ${HDF5_INCLUDE_DIRS}
 )
 
 bm_include_libraries(
-	DataModel
-	DataAccess
-	SerialDataAccess
-	Interpolation
-	LinearAlgebra
-	GeoPhysics
-	DerivedProperties
-	DataAccess
-	TableIO
-	CBMGenerics
-	EosPack
-	utilities
+   DataModel
+   DataAccess
+   SerialDataAccess
+   Interpolation
+   LinearAlgebra
+   GeoPhysics
+   DerivedProperties
+   DataAccess
+   TableIO
+   CBMGenerics
+   EosPack
+   utilities
 )
 
-target_link_libraries(cauldron2eclipse
-	DerivedProperties
-	DataMining
-	GeoPhysics
-	DataAccess
-	SerialDataAccess
-	Interpolation
-	LinearAlgebra
-	TableIO
-	EosPack
-	utilities
-	${HDF5_LIBRARIES}
+target_link_libraries(${APP_NAME}
+   DerivedProperties
+   DataMining
+   GeoPhysics
+   DataAccess
+   SerialDataAccess
+   Interpolation
+   LinearAlgebra
+   TableIO
+   EosPack
+   utilities
+   ${HDF5_LIBRARIES}
 )
 
-install(TARGETS cauldron2eclipse
-	RUNTIME DESTINATION bin
+install(TARGETS ${APP_NAME}
+   RUNTIME DESTINATION bin
 )
 
 # Local Variables:

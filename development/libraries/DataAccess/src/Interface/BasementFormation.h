@@ -8,8 +8,8 @@
 // Do not distribute without written permission from Shell.
 //
 
-#ifndef _INTERFACE_BASEMENT_FORMATION_H_
-#define _INTERFACE_BASEMENT_FORMATION_H_
+#ifndef INTERFACE_BASEMENT_FORMATION_H
+#define INTERFACE_BASEMENT_FORMATION_H
 
 
 
@@ -27,9 +27,15 @@ namespace DataAccess
       class BasementFormation : virtual public Formation
       {
       public:
-         /// constructor
+
+         /// \brief The "fake" deposition sequence of the Crust and the Mantle
+         /// \details This has no geological meaning since these "formations" are the base of the sediment deposition
+         enum DepositionSequence {
+            CRUST_DEPOSITION  = -1,
+            MANTLE_DEPOSITION = -2
+         };
+
          BasementFormation (ProjectHandle * projectHandle, database::Record* record, const std::string& formationName, const std::string& lithologyName );
-         /// destructor
          ~BasementFormation (void);
 
          /// Return the Surface at the top of this BasementFormation
@@ -41,27 +47,27 @@ namespace DataAccess
          const LithoType * getLithoType1 (void) const;
 
          /// Return the percentage map of the first lithotype
-         const GridMap * getLithoType1PercentageMap (void) const;
+         const GridMap * getLithoType1PercentageMap(void) const;
 
          /// Return the second lithotype of this BasementFormation.
          ///
          /// The default here is to return null, since in the basement there is only a single lithotype required.
-         const LithoType * getLithoType2 (void) const;
+         const LithoType * getLithoType2(void) const;
 
          /// Return the percentage map of the second lithotype.
          ///
          /// The default here is to return null, since in the basement there is only a single lithotype required.
-         const GridMap * getLithoType2PercentageMap (void) const;
+         const GridMap * getLithoType2PercentageMap(void) const;
 
          /// Return the third lithotype of this BasementFormation.
          ///
          /// The default here is to return null, since in the basement there is only a single lithotype required.
-         const LithoType * getLithoType3 (void) const;
+         const LithoType * getLithoType3(void) const;
 
          /// Return the percentage map of the third lithotype.
          ///
          /// The default here is to return null, since in the basement there is only a single lithotype required.
-         const GridMap * getLithoType3PercentageMap (void) const;
+         const GridMap * getLithoType3PercentageMap(void) const;
 
          /// return the list of reservoirs in this formation.
          ///
@@ -81,7 +87,7 @@ namespace DataAccess
          /// return the list of fault collections specified for this formation.
          ///
          /// The default here is to return null, since in the basement there are no faults.
-	 FaultCollectionList * getFaultCollections (void) const;
+         FaultCollectionList * getFaultCollections (void) const;
 
          /// tell whether this BasementFormation is a mobile layer.
          ///
@@ -136,14 +142,14 @@ namespace DataAccess
          /// Load thickness map associated with this formation.
          ///
          /// Internal function, returns null since there is no map to load?
-         GridMap * loadThicknessMap (void) const;
+         GridMap * loadThicknessMap(void) const;
 
          /// Compute the thickness map in case it could not be loaded.
          ///
          /// Internal function.
-         GridMap * computeThicknessMap (void) const;
+         GridMap * computeThicknessMap(void) const;
 
-      protected :
+      protected : 
 
          /// \brief The element refinement for basement layers.
          static const int DefaultBasementElementRefinement = 1;
@@ -157,4 +163,4 @@ namespace DataAccess
       };
    }
 }
-#endif // _INTERFACE_BASEMENT_FORMATION_H_
+#endif // INTERFACE_BASEMENT_FORMATION_H

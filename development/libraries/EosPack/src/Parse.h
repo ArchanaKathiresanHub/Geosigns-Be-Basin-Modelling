@@ -1,3 +1,13 @@
+// 
+// Copyright (C) 2015-2017 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef PARSE_H
 #define PARSE_H
 
@@ -12,8 +22,7 @@
 ///provides functionality for parsing a Table
 namespace fileIO
 {
-   void parseLine(const std::string &theString, const std::string &theDelimiter, std::vector<std::string> &theTokens);
-   
+  
    /// A Table is represented by its name, the column-names and the entries (cells)
    /** These data can be accessed by getTableName(), getColNames(), getEntry(). 
      
@@ -49,20 +58,7 @@ namespace fileIO
    };
 
    std::ostream& operator<<(std::ostream& os, Table& table);
-	
-/*
-class ParseException : public std::exception
-{
-	private:
-		std::string m_what;
 
-	public:
-		ParseException(std::string inWhat)	{   m_what = std::string( std::exception.what() ) + endl + inWhat ; }
-	   virtual const char* what()				{   return  m_what.c_str(); }
-
-	   virtual ~ParseException(){} 
-	   };
-*/
 }
 #endif
 

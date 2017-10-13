@@ -1,5 +1,15 @@
+// 
+// Copyright (C) 2015-2017 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #include "DomainPropertyCollection.h"
-#include "DomainPropertyFactory.h"
+#include "DataMiningObjectFactory.h"
 
 #include <iostream>
 
@@ -8,14 +18,14 @@ namespace DataAccess { namespace Mining
 
    DomainPropertyCollection::DomainPropertyCollection ( Interface::ProjectHandle* handle ) :
       m_projectHandle ( handle ),
-      m_snapshot ( 0 )
+      m_snapshot ( nullptr )
    {
-      m_propertyFactory = dynamic_cast<Mining::DomainPropertyFactory*>( m_projectHandle->getFactory ());
+      m_propertyFactory = dynamic_cast<Mining::ObjectFactory*>( m_projectHandle->getFactory ());
    }
 
    DomainPropertyCollection::~DomainPropertyCollection()
    {
-      m_snapshot = 0;
+      m_snapshot = nullptr;
       clear ();
    }
 
@@ -38,24 +48,24 @@ namespace DataAccess { namespace Mining
       }
 
       m_domainProperty.clear();
-      m_snapshot = 0;
+      m_snapshot = nullptr;
    }
 
    DomainProperty * DomainPropertyCollection::getDomainProperty( const std::string &                        propertyName,
                                                                  DerivedProperties::DerivedPropertyManager& propertyManager ) const
    {
       const Interface::Property * property = m_projectHandle->findProperty( propertyName );
-      assert ( property != 0 );
+      assert ( property != nullptr );
       return getDomainProperty ( property, propertyManager );
    }
 
    DomainProperty * DomainPropertyCollection::getDomainProperty( const Interface::Property *                property,
                                                                  DerivedProperties::DerivedPropertyManager& propertyManager ) const
    {
-      assert ( property != 0 );
+      assert ( property != nullptr );
 
       PropertyToDomainProperty::iterator propIter = m_domainProperty.find( property );
-      DomainProperty                   * result   = 0;
+      DomainProperty                   * result   = nullptr;
 
       if ( propIter != m_domainProperty.end() )
       {

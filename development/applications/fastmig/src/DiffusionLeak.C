@@ -15,8 +15,10 @@
 
 #include <vector>
 
+#ifndef _USE_MATH_DEFINES
 #define _USE_MATH_DEFINES
-#include <math.h>
+#endif
+#include <cmath>
 
 #include <algorithm>
 #include <limits>

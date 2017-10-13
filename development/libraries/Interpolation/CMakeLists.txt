@@ -15,10 +15,12 @@ source_group(include FILES ${all_headers})
 FILE( GLOB all_srcs src/*.C)
 source_group(source FILES ${all_srcs})
 
-add_library(Interpolation
+set( LIB_NAME "Interpolation" )
+add_library(${LIB_NAME}
    ${all_srcs}
    ${all_headers}
 )
+set_target_properties( ${LIB_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${LIB_NAME}" )
 
 bm_include_libraries(
    utilities
@@ -27,43 +29,49 @@ bm_include_libraries(
 
 include_directories( src )
 
-target_link_libraries(Interpolation
+target_link_libraries(${LIB_NAME}
    utilities
    LinearAlgebra
 )
 
-install(TARGETS Interpolation
+install(TARGETS ${LIB_NAME}
    RUNTIME DESTINATION bin
    LIBRARY DESTINATION lib
    ARCHIVE DESTINATION lib
 )
 
-add_gtest( NAME Interpolation::Point
+add_gtest( NAME ${LIB_NAME}::Point
            SOURCES test/Point.C
-           LIBRARIES Interpolation
+           LIBRARIES ${LIB_NAME}
+           FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME Interpolation::GeometryVector
+add_gtest( NAME ${LIB_NAME}::GeometryVector
            SOURCES test/GeometryVector.C
-           LIBRARIES Interpolation
+           LIBRARIES ${LIB_NAME}
+           FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME Interpolation::GenericTwoDArray
+add_gtest( NAME ${LIB_NAME}::GenericTwoDArray
            SOURCES test/GenericTwoDArray.C
-           LIBRARIES Interpolation
+           LIBRARIES ${LIB_NAME}
+           FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME Interpolation::RBF
+add_gtest( NAME ${LIB_NAME}::RBF
            SOURCES test/RBF.C
-           LIBRARIES Interpolation
+           LIBRARIES ${LIB_NAME}
+           FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME Interpolation::RBFInterpolant
+add_gtest( NAME ${LIB_NAME}::RBFInterpolant
            SOURCES test/RBFInterpolant.C
-           LIBRARIES Interpolation
+           LIBRARIES ${LIB_NAME}
+           FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
-add_gtest( NAME Interpolation::RBFGeneralOperations
+add_gtest( NAME ${LIB_NAME}::RBFGeneralOperations
            SOURCES test/RBFGeneralOperations.C
-           LIBRARIES Interpolation
+           LIBRARIES ${LIB_NAME}
+           FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )

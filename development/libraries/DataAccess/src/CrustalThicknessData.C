@@ -1,25 +1,38 @@
-#include <assert.h>
-#include <iostream>
-#include <sstream>
-using namespace std;
+//
+// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 
-#include "database.h"
+#include "Interface/CrustalThicknessData.h"
+
+// TableIO library
 #include "cauldronschemafuncs.h"
+#include "database.h"
 
-using namespace database;
+// utilities library
+#include "LogHandler.h"
 
+// DataAccess library
+#include "Interface/Formation.h"
+#include "Interface/Snapshot.h"
+#include "Interface/Surface.h"
+
+// DataAccess library
 #include "Interface/GridMap.h"
 #include "Interface/ProjectHandle.h"
-#include "Interface/CrustalThicknessData.h"
-#include "Interface/ObjectFactory.h"
 
+using namespace database;
 using namespace DataAccess;
 using namespace Interface;
 
-
-const string CrustalThicknessData::s_MapAttributeNames[] =
+const std::vector<std::string> CrustalThicknessData::s_MapAttributeNames =
 {
-   "T0Ini", "TRIni", "HCuIni", "HLMuIni", "HBu", "DeltaSL"
+   "HCuIni", "HLMuIni"
 };
 
 CrustalThicknessData::CrustalThicknessData (ProjectHandle * projectHandle, Record * record) : DAObject (projectHandle, record)
@@ -27,101 +40,52 @@ CrustalThicknessData::CrustalThicknessData (ProjectHandle * projectHandle, Recor
 }
 
 
-CrustalThicknessData::~CrustalThicknessData (void)
+CrustalThicknessData::~CrustalThicknessData ()
 {
 }
 
-const double & CrustalThicknessData::getT0Ini(void) const
+int CrustalThicknessData::getFilterHalfWidth() const
 {
-   return database::getT0Ini (m_record);
+   return database::getFilterHalfWidth (m_record);
 }
 
-const double & CrustalThicknessData::getTRIni(void) const
+double CrustalThicknessData::getUpperLowerContinentalCrustRatio() const
 {
-   return database::getTRIni (m_record);
+   return database::getUpperLowerContinentalCrustRatio( m_record );
 }
 
-const double & CrustalThicknessData::getHCuIni(void) const
+double CrustalThicknessData::getUpperLowerOceanicCrustRatio() const
 {
-   return database::getHCuIni (m_record);
+   return database::getUpperLowerOceanicCrustRatio( m_record );
 }
 
-const double & CrustalThicknessData::getHLMuIni(void) const
+const std::string& CrustalThicknessData::getSurfaceName() const
 {
-   return database::getHLMuIni (m_record);
+   return database::getSurfaceName( m_record );
 }
 
-const double & CrustalThicknessData::getHBu(void) const
-{
-   return database::getHBu (m_record);
+GridMap const * CrustalThicknessData::getMap( const DataAccess::Interface::CTCMapAttributeId attributeId ) const{
+   return DAObject::getMap<const DataAccess::Interface::CTCMapAttributeId>( attributeId , s_MapAttributeNames );
 }
 
-const double & CrustalThicknessData::getDeltaSL(void) const
-{
-   return database::getDeltaSL (m_record);
-}
+std::vector<double> CrustalThicknessData::getSnapshots() const {
+   std::vector<double> snapshots;
+   LogHandler( LogHandler::DEBUG_SEVERITY ) << "Loading snpashots from stratigraphy:";
+   FormationList* formations = getProjectHandle()->getFormations();
+   FormationList::const_iterator formationIter;
 
-const string & CrustalThicknessData::getSurfaceName(void) const
-{
-   return database::getSurfaceName (m_record);
-}
+   snapshots.push_back( 0.0 ); // add present day
+   LogHandler( LogHandler::DEBUG_SEVERITY ) << "   #time 0.0Ma loaded";
 
-/// Return the (GridMap) value of one of this SourceRock's attributes
-const Interface::GridMap * CrustalThicknessData::getMap (Interface::CTCMapAttributeId attributeId) const
-{
-   unsigned int attributeIndex = (unsigned int) attributeId;
-   GridMap * gridMap;
+   for (formationIter = formations->begin(); formationIter != formations->end(); ++formationIter) {
+      const Interface::Formation * formation = (*formationIter);
 
-   if ((gridMap = (GridMap *) getChild (attributeIndex)) == 0)
-   {
-      gridMap = loadMap (attributeId);
-   }
-   return gridMap;
-}
- 
-GridMap * CrustalThicknessData::loadMap (Interface::CTCMapAttributeId attributeId) const
-{
-   unsigned int attributeIndex = (unsigned int) attributeId;
-
-   string attributeGridName = s_MapAttributeNames[attributeIndex] + "Grid";
-   const string & valueGridMapId = m_record->getValue<std::string>(attributeGridName);
-
-   GridMap * gridMap = 0;
-   if (valueGridMapId.length () != 0)
-   {
-      gridMap = m_projectHandle->loadInputMap ("CTCIoTbl", valueGridMapId);
-   }
-   else
-   {
-      double value;
-      if ((value = m_record->getValue<double>(s_MapAttributeNames[attributeIndex])) != RecordValueUndefined)
-      {
-         //const Grid *grid = m_projectHandle->getInputGrid ();
-	 const Grid * grid = m_projectHandle->getActivityOutputGrid();
-	 if (!grid) grid = (const Grid *) m_projectHandle->getInputGrid ();
-         gridMap = m_projectHandle->getFactory ()->produceGridMap (this, attributeIndex, grid, value);
-
-         assert (gridMap == getChild (attributeIndex));
+      if (formation != nullptr) {
+         const Surface * botSurface = formation->getBottomSurface();
+         snapshots.push_back( botSurface->getSnapshot()->getTime() );
+         LogHandler( LogHandler::DEBUG_SEVERITY ) << "   #time " << botSurface->getSnapshot()->getTime() << "Ma loaded";
       }
    }
-   return gridMap;
-}
-
-void CrustalThicknessData::printOn (ostream & ostr) const
-{
-   string str;
-   asString (str);
-   ostr << str;
-}
-
-void CrustalThicknessData::asString (string & str) const
-{
-   ostringstream buf;
-
-   buf << "Crustul Thickness Data:";
-   buf << " t0 = " << getT0Ini();
-   buf << ", tr = " << getTRIni ();
-   buf << endl;
-   
-   str = buf.str ();
+   delete formations;
+   return snapshots;
 }

@@ -32,33 +32,39 @@ set(all_sources
 )
 
 include_directories( 
-	 ${PROJECT_SOURCE_DIR}/libraries/EosPack/src
-	 ${PROJECT_SOURCE_DIR}/libraries/CBMGenerics/src )
+    ${PROJECT_SOURCE_DIR}/libraries/EosPack/src
+    ${PROJECT_SOURCE_DIR}/libraries/CBMGenerics/src )
 
 
 source_group(include FILES ${all_headers})
 source_group(source  FILES ${all_sources})
 
-add_library(LookupTables
-	${all_sources}
-	${all_headers}
+set( LIB_NAME "LookupTables" )
+add_library(${LIB_NAME}
+   ${all_sources}
+   ${all_headers}
 )
+set_target_properties( ${LIB_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${LIB_NAME}" )
 
 add_gtest( NAME TSRlookupTest:GetValue
            SOURCES test/lookup.C
-           LIBRARIES LookupTables
+           LIBRARIES ${LIB_NAME}
+           FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 add_gtest( NAME TSRlookupTest:GetTableName
            SOURCES test/lookup.C
-           LIBRARIES LookupTables
+           LIBRARIES ${LIB_NAME}
+           FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME TSRlookupTest:TablesCheck
            SOURCES test/lookup.C
-           LIBRARIES LookupTables
+           LIBRARIES ${LIB_NAME}
+           FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )
 
 add_gtest( NAME TSRlookupTest:GetValueForSalinity
            SOURCES test/lookup.C
-           LIBRARIES LookupTables
+           LIBRARIES ${LIB_NAME}
+           FOLDER "${BASE_FOLDER}/${LIB_NAME}"
 )

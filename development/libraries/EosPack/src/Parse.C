@@ -1,6 +1,18 @@
+//
+// Copyright (C) 2015-2017 Shell International Exploration & Production.
+// All rights reserved.
+//
+// Developed under license for Shell by PDS BV.
+//
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 #include "Parse.h"
 
 #include <list>
+
+//utilities
+#include "StringHandler.h"
 
 const std::string fileIO::Table::TABLE_NAME_PREFIX("Table:");
 const std::string fileIO::Table::TABLE_END        ("EndOfTable");
@@ -16,7 +28,7 @@ void fileIO::Table::readFile(std::ifstream& inFile)
 {
    std::string line;
    std::vector<std::string> theTokens;
-   std::string delim=",";
+   const char delim = ',';
 
    //temporary list to store arbitrary number of table-lines
    std::list< std::vector<std::string> > table; 
@@ -34,8 +46,8 @@ void fileIO::Table::readFile(std::ifstream& inFile)
    }
 
    //filter first column of first line: table-name
-   parseLine(line, delim, theTokens);
-	
+   StringHandler::parseLine( line, delim, theTokens );
+
    std::vector<std::string> vec(1);
    vec[0] = theTokens[0];
    table.push_back(vec);
@@ -53,7 +65,7 @@ void fileIO::Table::readFile(std::ifstream& inFile)
          return;
       }
       
-      fileIO::parseLine(line, delim, theTokens);
+      StringHandler::parseLine( line, delim, theTokens );
 
       table.push_back(theTokens);
 
@@ -126,31 +138,3 @@ std::ostream& fileIO::operator<<(std::ostream& os, fileIO::Table& table)
    }
    return os;
 }
-
-void fileIO::parseLine(const std::string& theString, const std::string& theDelimiter, std::vector<std::string>& theTokens)
-{
-   std::string::size_type startPos  = 0;
-   std::string::size_type endPos    = 0;
-   std::string::size_type increment = 0;
-
-   std::string Token;
-
-   if (theString.empty() || theDelimiter.empty())
-   {
-      return;
-   }
-
-   while (endPos != std::string::npos)
-   {
-      endPos = theString.find_first_of(theDelimiter, startPos);
-      increment=endPos-startPos;
-      
-      Token=theString.substr(startPos,increment);
-      if (Token.size() != 0)
-      {
-         theTokens.push_back(Token);
-      }
-      startPos+=increment+1;
-   }
-}
-

@@ -16,10 +16,12 @@ source_group(include FILES ${all_headers})
 FILE( GLOB all_srcs src/*.C)
 source_group(source FILES ${all_srcs})
 
-add_library(genex6 
+set( LIB_NAME "genex6" )
+add_library(${LIB_NAME} 
    ${all_srcs}
    ${all_headers}
 )
+set_target_properties( ${LIB_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${LIB_NAME}" )
 
 bm_include_libraries(
    CBMGenerics 
@@ -28,14 +30,14 @@ bm_include_libraries(
    LinearAlgebra
 )
 
-target_link_libraries(genex6
+target_link_libraries(${LIB_NAME}
    CBMGenerics
    utilities
    EosPack
    LinearAlgebra
 )
 
-install(TARGETS genex6
+install(TARGETS ${LIB_NAME}
    RUNTIME DESTINATION bin
    LIBRARY DESTINATION lib
    ARCHIVE DESTINATION lib

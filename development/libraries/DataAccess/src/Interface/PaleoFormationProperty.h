@@ -1,3 +1,13 @@
+// 
+// Copyright (C) 2015-2017 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
+
 #ifndef _INTERFACE_PALEOFORMATIONPROPERTY_H_
 #define _INTERFACE_PALEOFORMATIONPROPERTY_H_
 
@@ -17,8 +27,8 @@ namespace DataAccess
 
          PaleoFormationProperty (ProjectHandle * projectHandle, database::Record * record, const Formation* formation );
 
-         PaleoFormationProperty ( ProjectHandle * projectHandle,
-                                  const Formation* formation,
+         PaleoFormationProperty ( ProjectHandle *               projectHandle,
+                                  const Formation*              formation,
                                   const PaleoFormationProperty* startProperty,
                                   const PaleoFormationProperty* endProperty,
                                   const Snapshot*               interpolationTime );
@@ -35,9 +45,6 @@ namespace DataAccess
 
          /// Return the string representation of the PaleoFormationProperty object.
          void asString (string &) const;
-
-         //void setFormation ( const Formation* formation );
-
 
       protected:
 

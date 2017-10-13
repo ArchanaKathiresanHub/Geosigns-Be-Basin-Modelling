@@ -253,24 +253,6 @@ bool SerialGridMap::restoreData (bool , bool ) const
    return true;
 }
 
-#if 0
-// Added by V.R. Ambati (13/07/2011):
-// getVec(...) is defined only for Distrubuted version and therefore, serial version
-// simply throws an error
-Vec & GridMap::getVec (void)
-{
-   throw "Vec & GridMap::getVec (void) is not defined for serial version.";
-}
-
-// Added by V.R. Ambati (13/07/2011):
-// getDA(...) is defined only for Distrubuted version and therefore, serial version
-// simply throws an error
-DA & GridMap::getDA (void) const
-{
-   throw "DA & GridMap::getDA (void) const is not defined for serial version.";
-}
-#endif
-
 double SerialGridMap::getUndefinedValue (void) const
 {
    return m_undefinedValue;
@@ -413,6 +395,14 @@ bool SerialGridMap::setValue (unsigned int i, unsigned int j, unsigned int k, do
    {
       return false;
    }
+}
+
+void SerialGridMap::setValues( const double value ){
+   if (m_values != nullptr){
+      Array < double >::delete3d( m_values );
+      m_values = nullptr;
+   }
+   m_singleValue = value;
 }
 
 double SerialGridMap::getAverageValue (void) const
@@ -630,30 +620,28 @@ bool SerialGridMap::saveHDF5 (const string & fileName) const
 
 void SerialGridMap::printOn (ostream & ostr) const
 {
-   unsigned int depth = getDepth ();
-   unsigned int numI = getGrid ()->numI ();
-   unsigned int numJ = getGrid ()->numJ ();
+unsigned int depth = getDepth ();
+unsigned int numI = getGrid ()->numI ();
+unsigned int numJ = getGrid ()->numJ ();
 
-   ostr << "GridMap: ";
-   ostr << "depth = " << depth;
-   ostr << ", numI = " << numI;
-   ostr << ", numJ = " << numJ;
-   ostr << ", undefinedValue = " << getUndefinedValue ();
-   ostr << endl;
+ostr << "GridMap: ";
+ostr << "depth = " << depth;
+ostr << ", numI = " << numI;
+ostr << ", numJ = " << numJ;
+ostr << ", undefinedValue = " << getUndefinedValue ();
+ostr << endl;
 
    for (unsigned int k = 0; k < depth; ++k)
    {
       for (unsigned int i = 0; i < numI; ++i)
       {
-         for (unsigned int j = 0; j < numJ; ++j)
-         {
-            if (j != 0)
-               ostr << ", ";
-            double value = getValue (i, j, k);
-        
-            ostr << value;
-         }
-         ostr << endl;
+      for (unsigned int j = 0; j < numJ; ++j)
+      {
+         if (j != 0) ostr << ", ";
+         double value = getValue (i, j, k);
+         ostr << value;
+      }
+      ostr << endl;
       }
       ostr << endl;
    }

@@ -1,6 +1,6 @@
 #########################################################################
 #                                                                       #
-# Copyright (C) 2012-2013 Shell International Exploration & Production. #
+# Copyright (C) 2012-2017 Shell International Exploration & Production. #
 # All rights reserved.                                                  #
 #                                                                       #
 # Developed under license for Shell by PDS BV.                          #
@@ -11,57 +11,230 @@
 #########################################################################
 
 if (NOT BM_PARALLEL)
-	return()
+   return()
 endif()
 
-FILE( GLOB all_headers src/*.h )
-source_group(include FILES ${all_headers})
+################################################################
+######################### SET TARGETS ##########################
+################################################################
 
-FILE( GLOB all_srcs src/*.C)
-source_group(source FILES ${all_srcs})
+#
+# 1. This list contains all header files
+#
+set( all_headers
+   src/AbstractInterfaceOutput.h
+   src/ConfigFileParameterCtc.h
+   src/DensityCalculator.h
+   src/InterfaceInput.h
+   src/InterfaceOutput.h
+   src/LinearFunction.h
+   src/MapSmoother.h
+   src/McKenzieCrustCalculator.h
+   src/PaleowaterdepthCalculator.h
+   src/PaleowaterdepthResidualCalculator.h
+   src/PropertyValue.h
+   src/RiftingEvent.h
+   src/TotalTectonicSubsidenceCalculator.h
+)
 
-add_library(CrustalThickness 
+#
+# 2. This list contains all implementation files except main.C
+#
+set( all_srcs
+   src/ConfigFileParameterCtc.C
+   src/DensityCalculator.C
+   src/InterfaceInput.C
+   src/InterfaceOutput.C
+   src/LinearFunction.C
+   src/MapSmoother.C
+   src/McKenzieCrustCalculator.C
+   src/PaleowaterdepthCalculator.C
+   src/PaleowaterdepthResidualCalculator.C
+   src/PropertyValue.C
+   src/RiftingEvent.C
+   src/TotalTectonicSubsidenceCalculator.C
+)
+
+#
+# 3. CrustalThickness library
+#       Used by fastctc application
+#
+set( LIB_NAME "CrustalThickness" )
+add_library(${LIB_NAME}
    ${all_srcs}
    ${all_headers}
 )
+set_target_properties( ${LIB_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${LIB_NAME}" )
+
+################################################################
+################### SET DEPENDENCIES/LINKS #####################
+################################################################
 
 bm_include_libraries(
-	DataModel
-	DataAccess
-	DerivedProperties
-	GeoPhysics
-	EosPack	
-	CBMGenerics
-	FileSystem
-	utilities
-	Interpolation
-	LinearAlgebra
-	Utilities_Petsc
-	TableIO
-	Serial_Hdf5
+   DataModel
+   DataAccess
+   DataMining
+   GeoPhysics
+   DerivedProperties
+   EosPack
+   CBMGenerics
+   FileSystem
+   utilities
+   Interpolation
+   LinearAlgebra
+   Utilities_Petsc
+   TableIO
+   Serial_Hdf5
 )
 
 include_directories( SYSTEM
-	${HDF5_INCLUDE_DIRS}
+   ${HDF5_INCLUDE_DIRS}
 )
 
-target_link_libraries(CrustalThickness
-	DataAccess
-	DerivedProperties	
-	EosPack	
-	CBMGenerics
-	FileSystem
-	utilities
-	TableIO
-	Serial_Hdf5
-	${HDF5_LIBRARIES}
-) 
-
-install(TARGETS CrustalThickness
-	RUNTIME DESTINATION bin
-	LIBRARY DESTINATION lib
-	ARCHIVE DESTINATION lib
+target_link_libraries(${LIB_NAME}
+   DataModel
+   DataAccess
+   DataMining
+   DerivedProperties
+   EosPack
+   CBMGenerics
+   FileSystem
+   utilities
+   TableIO
+   Utilities_Petsc
+   Serial_Hdf5
+   ${HDF5_LIBRARIES}
+   ${PETSC_LIBRARIES}
 )
+
+install(TARGETS ${LIB_NAME}
+   RUNTIME DESTINATION bin
+   LIBRARY DESTINATION lib
+   ARCHIVE DESTINATION lib
+)
+
+################################################################
+######################## UNIT TESTS ############################
+################################################################
+# Most of the linked libraries in the unit tests are only required
+# because of the cross dependencies between our libraries
+
+#
+# 1. Set mock files
+#
+set ( io_ctcMockFiles
+   test/MockConfigFileParameterCtc.h
+   test/MockInterfaceInput.h
+   test/MockInterfaceOutput.h
+   test/MockInterfaceOutput.C
+   test/MockValidator.h
+   test/MockValidator.C
+)
+
+set ( io_dataAccessMockFiles
+   ../DataAccess/test/MockCrustalThicknessRiftingHistoryData.h
+   ../DataAccess/test/MockCrustalThicknessData.h
+)
+
+set ( io_derivedPropertiesMockFiles
+   ../DerivedProperties/test/MockDerivedSurfaceProperty.h
+   ../DerivedProperties/test/MockDerivedSurfaceProperty.C
+)
+
+set ( tester_interface
+   test/InterfaceInputTester.h
+   test/InterfaceInputTester.C
+)
+
+set ( tester_McKenzie
+   test/McKenzieTester.h
+   test/McKenzieTester.C
+)
+
+#
+# 2. Inputs testing
+#
+add_gtest( NAME "${LIB_NAME}::ConfigFileCtc"
+           SOURCES test/ConfigFileCtc.C 
+           LIBRARIES ${LIB_NAME} DataMining DataAccess SerialDataAccess DataModel
+           ENV_VARS CTCDIR=${PROJECT_SOURCE_DIR}/geocase/misc
+           FOLDER "${BASE_FOLDER}/${LIB_NAME}"
+         )
+
+add_gtest( NAME "${LIB_NAME}::InterfaceInput"
+           SOURCES test/InterfaceInput.C ${io_ctcMockFiles} ${io_dataAccessMockFiles} ${tester_interface} ../utilities/test/GoogleTestMacros.h
+           LIBRARIES ${LIB_NAME} DataMining DataAccess SerialDataAccess DataModel
+           ENV_VARS CTCDIR=${PROJECT_SOURCE_DIR}/geocase/misc
+           FOLDER "${BASE_FOLDER}/${LIB_NAME}"
+         )
+
+#
+# 3. Calculator testing
+#
+add_gtest( NAME "${LIB_NAME}::Density"
+           SOURCES test/Density.C ${io_ctcMockFiles}  ${io_derivedPropertiesMockFiles}
+           LIBRARIES ${LIB_NAME} SerialDataAccess DataMining DataAccess SerialDataAccess DataModel
+           FOLDER "${BASE_FOLDER}/${LIB_NAME}"
+         )
+
+add_gtest( NAME "${LIB_NAME}::TotalTectonicSubsidence"
+           SOURCES test/TotalTectonicSubsidence.C ${io_ctcMockFiles}  ${io_derivedPropertiesMockFiles}
+           LIBRARIES ${LIB_NAME} DataMining DataAccess SerialDataAccess DataModel
+           FOLDER "${BASE_FOLDER}/${LIB_NAME}"
+         )
+
+add_gtest( NAME "${LIB_NAME}::Paleowaterdepth"
+           SOURCES test/Paleowaterdepth.C ${io_ctcMockFiles}  ${io_derivedPropertiesMockFiles}
+           LIBRARIES ${LIB_NAME} DataMining DataAccess SerialDataAccess DataModel
+           FOLDER "${BASE_FOLDER}/${LIB_NAME}"
+         )
+
+add_gtest( NAME "${LIB_NAME}::PaleowaterdepthResidual"
+           SOURCES test/PaleowaterdepthResidual.C ${io_ctcMockFiles}
+           LIBRARIES ${LIB_NAME} DataMining DataAccess SerialDataAccess DataModel
+           FOLDER "${BASE_FOLDER}/${LIB_NAME}"
+         )
+
+add_gtest( NAME "${LIB_NAME}::LinearFunction"
+           SOURCES test/LinearFunction.C 
+           LIBRARIES ${LIB_NAME} DataMining DataAccess SerialDataAccess
+           FOLDER "${BASE_FOLDER}/${LIB_NAME}"
+         )
+
+add_gtest( NAME "${LIB_NAME}::McKenzieEquations"
+           SOURCES test/McKenzieEquations.C ${tester_McKenzie} ${io_ctcMockFiles}  ${io_derivedPropertiesMockFiles}
+           LIBRARIES ${LIB_NAME} DataMining DataAccess SerialDataAccess DataModel
+           FOLDER "${BASE_FOLDER}/${LIB_NAME}"
+         )
+
+add_gtest( NAME "${LIB_NAME}::McKenzieCompute"
+           SOURCES test/McKenzieCompute.C  ${tester_McKenzie} ${io_ctcMockFiles}  ${io_derivedPropertiesMockFiles}
+           LIBRARIES ${LIB_NAME} DataMining DataAccess SerialDataAccess DataModel
+           FOLDER "${BASE_FOLDER}/${LIB_NAME}"
+         )
+
+#
+# 4. Others testing
+#
+add_gtest( NAME "${LIB_NAME}::MapSmoother"
+           SOURCES test/MapSmoother.C
+           LIBRARIES ${LIB_NAME} DataMining DataAccess SerialDataAccess
+           FOLDER "${BASE_FOLDER}/${LIB_NAME}"
+         )
+
+
+add_gtest( NAME "${LIB_NAME}::RiftingEvent"
+           SOURCES test/RiftingEvent.C ${io_ctcMockFiles}
+           LIBRARIES ${LIB_NAME} DataMining DataAccess SerialDataAccess
+           FOLDER "${BASE_FOLDER}/${LIB_NAME}"
+         )
+
+
+################################################################
+########################### DOXYGEN ############################
+################################################################
+
+generate_dox(CrustalThickness.cfg)
 
 # Local Variables:
 # mode: cmake

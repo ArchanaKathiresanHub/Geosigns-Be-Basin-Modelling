@@ -9,8 +9,10 @@
 //
 #include "GeoPhysicsCrustFormation.h"
 
+// std library
 #include <cmath>
 
+// DataAccess library
 #include "Interface/Interface.h"
 #include "Interface/GridMap.h"
 #include "Interface/PaleoFormationProperty.h"
@@ -18,14 +20,16 @@
 #include "Interface/Snapshot.h"
 #include "Interface/ObjectFactory.h"
 #include "Interface/BasementFormation.h"
+using namespace DataAccess;
 
+// Geophysics library
 #include "GeoPhysicsProjectHandle.h"
 #include "CompoundLithology.h"
 #include "LithologyManager.h"
 
+// utilities library
 #include "NumericFunctions.h"
 
-using namespace DataAccess;
 
 GeoPhysics::GeoPhysicsCrustFormation::GeoPhysicsCrustFormation ( DataAccess::Interface::ProjectHandle* projectHandle,
                                                                  database::Record*                          record ) :
@@ -38,10 +42,13 @@ GeoPhysics::GeoPhysicsCrustFormation::GeoPhysicsCrustFormation ( DataAccess::Int
    m_crustMaximumThickness = 0;
 }
 
+//------------------------------------------------------------//
+
 GeoPhysics::GeoPhysicsCrustFormation::~GeoPhysicsCrustFormation () {
    delete m_crustMaximumThickness;
 }
 
+//------------------------------------------------------------//
 
 bool GeoPhysics::GeoPhysicsCrustFormation::setLithologiesFromStratTable () {
 
@@ -76,6 +83,8 @@ bool GeoPhysics::GeoPhysicsCrustFormation::setLithologiesFromStratTable () {
 
    return createdLithologies;
 }
+
+//------------------------------------------------------------//
 
 void GeoPhysics::GeoPhysicsCrustFormation::determineMinMaxThickness () {
 
@@ -170,10 +179,13 @@ void GeoPhysics::GeoPhysicsCrustFormation::determineMinMaxThickness () {
 
 }
 
+//------------------------------------------------------------//
+
 double GeoPhysics::GeoPhysicsCrustFormation::getCrustMaximumThicknessHistory ( const double age ) const {
    return m_crustThickessHistory.F ( age );
 }
 
+//------------------------------------------------------------//
 
 bool GeoPhysics::GeoPhysicsCrustFormation::determineCrustThinningRatio () {
 
@@ -266,7 +278,7 @@ double GeoPhysics::GeoPhysicsCrustFormation::getCrustMaximumThickness ( const un
 //------------------------------------------------------------//
 
 unsigned int GeoPhysics::GeoPhysicsCrustFormation::setMaximumNumberOfElements ( const bool readSizeFromVolumeData ) {
-
+   (void) readSizeFromVolumeData;
    double layerMaximumThickness = getMaximumThickness ();
 
    m_maximumNumberOfElements = (unsigned int)( m_zRefinementFactor * std::ceil ( layerMaximumThickness / m_projectHandle->getRunParameters ()->getBrickHeightCrust ()));
@@ -317,4 +329,3 @@ void GeoPhysics::GeoPhysicsCrustFormation::restoreAllThicknessMaps () {
 
 }
 
-//------------------------------------------------------------//

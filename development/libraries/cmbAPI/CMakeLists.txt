@@ -16,13 +16,15 @@ source_group(include FILES ${all_headers})
 FILE( GLOB all_srcs src/*.cpp)
 source_group(source FILES ${all_srcs})
 
-add_library(cmbapi
-	${all_srcs}
-	${all_headers}
+set( LIB_NAME "cmbapi" )
+add_library(${LIB_NAME}
+   ${all_srcs}
+   ${all_headers}
 )
+set_target_properties( ${LIB_NAME} PROPERTIES FOLDER "${BASE_FOLDER}/${LIB_NAME}" )
 
 if (UNIX)
-add_dependencies(cmbapi NNlib)
+add_dependencies(${LIB_NAME} NNlib)
 endif (UNIX)
 
 bm_include_libraries(
@@ -47,7 +49,7 @@ include_directories( SYSTEM
    ${NNLIB_INCLUDE_DIR}
 )
 
-target_link_libraries(cmbapi
+target_link_libraries(${LIB_NAME}
    CBMGenerics
    utilities
    TableIO
@@ -64,7 +66,7 @@ target_link_libraries(cmbapi
 )
 
 generate_dox( src/API.cfg )
-	
+   
 #######################################
 ### Unit Tests
 #######################################
@@ -88,5 +90,5 @@ configure_file( test/NNbt NNbt COPYONLY )
 
 add_gtest( NAME mbapiModelTest
    SOURCES test/mbapiModelTest.cpp
-   LIBRARIES cmbapi TableIO DataAccess SerialDataAccess
-)
+   LIBRARIES ${LIB_NAME} TableIO DataAccess SerialDataAccess
+   FOLDER "${BASE_FOLDER}/${LIB_NAME}" )

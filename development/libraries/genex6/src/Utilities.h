@@ -1,3 +1,12 @@
+// 
+// Copyright (C) 2015-2017 Shell International Exploration & Production.
+// All rights reserved.
+// 
+// Developed under license for Shell by PDS BV.
+// 
+// Confidential and proprietary source code of Shell.
+// Do not distribute without written permission from Shell.
+//
 
 #ifndef UTILITIES_H
 #define UTILITIES_H
@@ -9,7 +18,6 @@
 
 namespace Genex6
 {
-  void ParseLine(const std::string &theString, const std::string &theDelimiter, std::vector<std::string> &theTokens);
   void TransformStringToUpper(std::string &theString);
   
   bool fabsEqualDouble(const double val1, const double val2, const double EPS = 1E-05);

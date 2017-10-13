@@ -8,41 +8,48 @@
 // Do not distribute without written permission from Shell.
 //
 
+#include "InterfaceOutput.h"
+
+// std library
 #include <stdarg.h>
 
+// CrustalThickness library
+#include "InterfaceInput.h"
+
+// DataAccess library
 #include "Interface/ProjectHandle.h"
 #include "Interface/CrustFormation.h"
+#include "Interface/MapWriter.h"
+#include "Interface/ProjectHandle.h"
 #include "Interface/PropertyValue.h"
 #include "Interface/Snapshot.h"
 #include "Interface/Surface.h"
 
-#include "InterfaceOutput.h"
-#include "InterfaceInput.h"
+// GeoPhysics library
+#include "GeoPhysicsProjectHandle.h"
 
+// CrustalThickness library
+#include "InterfaceInput.h" 
+#include "PropertyValue.h"
+
+// utilitites
+#include "LogHandler.h"
 #include "ConstantsNames.h"
 
+using namespace DataAccess;
+using namespace Interface;
 using namespace CrustalThicknessInterface;
 
 //------------------------------------------------------------//
 InterfaceOutput::InterfaceOutput() {
-
    clean();
 }
+
 //------------------------------------------------------------//
 InterfaceOutput::~InterfaceOutput() {
-
-   for( int i = 0; i < numberOfOutputMaps; ++ i ) {
-      if( m_outputMaps[i] != 0 ) {
-
-         // Where properties maps are deleted???
-
-         // m_outputMaps[i]->release();
-         //delete m_outputMaps[i];
-      }
-   }
-
   clean();
 }
+
 //------------------------------------------------------------//
 void InterfaceOutput::clean() {
 
@@ -62,6 +69,7 @@ void InterfaceOutput::retrieveData() {
       }
    }
 }
+
 //------------------------------------------------------------//
 void InterfaceOutput::restoreData() {
 
@@ -71,13 +79,13 @@ void InterfaceOutput::restoreData() {
       }
    }
 }
+
 //------------------------------------------------------------//
 bool InterfaceOutput::saveOutputMaps( Interface::ProjectHandle * projectHandle, const Snapshot * theSnapshot ) {
 
-   // cout << "My rank is " << CrustalThicknessInterface::GetRank() << endl;
-   // char ageString[64];
-   // sprintf(ageString, "_%lf", 0);
+   LogHandler( LogHandler::DEBUG_SEVERITY ) << "saveOutputMaps: My rank is " << projectHandle->getRank();
 
+   
    const Interface::Formation * formationCrust = dynamic_cast<const Interface::Formation *>(projectHandle->getCrustFormation ());
    const Interface::Surface   * topOfCrust = formationCrust->getTopSurface();
    const string topCrustSurfaceName = topOfCrust->getName();
@@ -91,7 +99,6 @@ bool InterfaceOutput::saveOutputMaps( Interface::ProjectHandle * projectHandle, 
 
    for( int i = 0; i < numberOfOutputMaps; ++ i ) {
       if( m_outputMapsMask[i] != 0 && m_outputMaps[i] != 0) {
-         //        string outputFileName = projectHandle->getProjectName() + "_" + outputMapsNames[i] + string(ageString) + extensionString;
          string outputFileName =  dirToOutput + projectHandle->getProjectName() + "_" + outputMapsNames[i] + extensionString;
 
          // Put 0 as a DataSetName to make comparison with regression tests results easier. Also 0 should be there if we want to re-use the map in fastcauldron
@@ -107,9 +114,7 @@ bool InterfaceOutput::saveOutputMaps( Interface::ProjectHandle * projectHandle, 
          mapWriter->writeMapToHDF (m_outputMaps[i], time, time, dataSetName, topCrustSurfaceName);
          mapWriter->close();
 
-         if( projectHandle->getRank() == 0 ) {
-            cout << "Map " << outputMapsNames[i] << " is saved into " << outputFileName <<  endl;
-         }
+         LogHandler( LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP ) << "Map " << outputMapsNames[i] << " saved into " << outputFileName << ".";
       }
    }
    delete mapWriter;
@@ -119,10 +124,8 @@ bool InterfaceOutput::saveOutputMaps( Interface::ProjectHandle * projectHandle, 
 //------------------------------------------------------------//
 bool InterfaceOutput::saveXYZOutputMaps( Interface::ProjectHandle * projectHandle ) {
 
-   // cout << "My rank is " << CrustalThicknessInterface::GetRank() << endl;
-   // char ageString[64];
-   // sprintf(ageString, "_%lf", 0);
-
+   LogHandler( LogHandler::DEBUG_SEVERITY ) << "saveXYZOutputMaps: My rank is " << projectHandle->getRank();
+   
    const string extensionString = ".XYZ";
    ofstream outputFileCrust;
 
@@ -135,12 +138,11 @@ bool InterfaceOutput::saveXYZOutputMaps( Interface::ProjectHandle * projectHandl
 
    for( k = 0; k < numberOfOutputMaps; ++ k ) {
       if( m_outputMapsMask[k] != 0 && m_outputMaps[k] != 0 ) {
-         //        string outputFileName = projectHandle->getProjectName() + "_" + outputMapsNames[i] + string(ageString) + extensionString;
          string outputFileName = projectHandle->getProjectName() + "_" + outputMapsNames[k] + extensionString;
 
          outputFileCrust.open (outputFileName.c_str ());
          if (outputFileCrust.fail ()) {
-            cout << "Could not open XYZ output file for map " << outputMapsNames[k] << endl;
+            LogHandler( LogHandler::ERROR_SEVERITY ) << "Could not open XYZ output file for map " << outputMapsNames[k];
             continue;
          }
          m_outputMaps[k]->retrieveData();
@@ -154,19 +156,17 @@ bool InterfaceOutput::saveXYZOutputMaps( Interface::ProjectHandle * projectHandl
          }
          m_outputMaps[k]->restoreData();
          outputFileCrust.close();
-         cout << "Map " << outputMapsNames[k] << " is saved into " << outputFileName <<  endl;
+         LogHandler( LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP ) << "Map " << outputMapsNames[k] << " saved into " << outputFileName << ".";
       }
    }
    return true;
 }
+
 //------------------------------------------------------------//
 bool InterfaceOutput::saveExcelSurfaceOutputMaps( Interface::ProjectHandle * projectHandle ) {
 
-   // cout << "My rank is " << CrustalThicknessInterface::GetRank() << endl;
-
-   // char ageString[64];
-   // sprintf(ageString, "_%lf", 0);
-
+   LogHandler( LogHandler::DEBUG_SEVERITY ) << "saveExcelSurfaceOutputMaps: My rank is " << projectHandle->getRank();
+   
    const string extensionString = ".SUR";
    ofstream outputFileCrust;
 
@@ -179,12 +179,11 @@ bool InterfaceOutput::saveExcelSurfaceOutputMaps( Interface::ProjectHandle * pro
 
    for( k = 0; k < numberOfOutputMaps; ++ k ) {
       if( m_outputMapsMask[k] != 0 && m_outputMaps[k] != 0 ) {
-         //        string outputFileName = projectHandle->getProjectName() + "_" + outputMapsNames[i] + string(ageString) + extensionString;
          string outputFileName = projectHandle->getProjectName() + "_" + outputMapsNames[k] + extensionString;
 
          outputFileCrust.open (outputFileName.c_str ());
          if (outputFileCrust.fail ()) {
-            cout << "Could not open XYZ output file for map " << outputMapsNames[k] << endl;
+            LogHandler( LogHandler::ERROR_SEVERITY ) << "Could not open XYZ output file for map " << outputMapsNames[k];
             continue;
          }
          m_outputMaps[k]->retrieveData();
@@ -206,13 +205,14 @@ bool InterfaceOutput::saveExcelSurfaceOutputMaps( Interface::ProjectHandle * pro
          }
          m_outputMaps[k]->restoreData();
          outputFileCrust.close();
-         cout << "Map " << outputMapsNames[k] << " is saved into " << outputFileName <<  endl;
+         LogHandler( LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_SUBSTEP ) << "Map " << outputMapsNames[k] << " saved into " << outputFileName;
       }
    }
    return true;
 }
+
 //------------------------------------------------------------//
-void InterfaceOutput::setMapsToOutput(CrustalThicknessInterface::outputMaps mapIndex, ... ) {
+void InterfaceOutput::setMapsToOutput(const CrustalThicknessInterface::outputMaps mapIndex, ... ) {
 
    va_list vlist;
    va_start( vlist, mapIndex );
@@ -224,55 +224,129 @@ void InterfaceOutput::setMapsToOutput(CrustalThicknessInterface::outputMaps mapI
    }
    va_end( vlist );
 }
-//------------------------------------------------------------//
-void InterfaceOutput::setAllMapsToOutput( bool flag ) {
 
+//------------------------------------------------------------//
+void InterfaceOutput::updatePossibleOutputsAtSnapshot( const outputMaps id,
+                                                       const GeoPhysics::ProjectHandle * pHandle,
+                                                       std::shared_ptr< const InterfaceInput > interfaceInput,
+                                                       const Snapshot * theSnapshot,
+                                                       const bool debug ) {
+   
+   bool toBeOutput = true;
+   // The McKenzie general properties are only ouput when we have an SDH at the end of a rifting event
+   if (  id == RDAadjustedMap
+      or id == thicknessCrustMap
+      or id == thicknessBasaltMap
+      or id == thicknessCrustMeltOnset
+      or id == topBasaltMap
+      or id == mohoMap
+      or id == ECTMap ){
+      if (not interfaceInput->getRiftingCalculationMask( theSnapshot->getTime() )){
+         toBeOutput = false;
+      }
+   }
+
+   // The TTS and Incremental TS properties are only ouput when we have an SDH
+   else if ( id == WLSMap
+          or id == WLSadjustedMap
+          or id == incTectonicSubsidence) {
+      if (not pHandle->hasSurfaceDepthHistory( theSnapshot->getTime() )) {
+         toBeOutput = false;
+      }
+   }
+
+   // The PWD is not output at 0.0Ma (it is equal to the water depth of the input stratigraphy)
+   else if (id == isostaticBathymetry) {
+      if (theSnapshot->getTime() == 0.0) {
+         toBeOutput = false;
+      }
+   }
+
+   // The PWDR is only output when we have an SDH and never output at 0.0Ma (since we do not have a PWD at 0.0Ma)
+   else if (id == PaleowaterdepthResidual) {
+      if (not pHandle->hasSurfaceDepthHistory( theSnapshot->getTime() ) or theSnapshot->getTime() == 0.0) {
+         toBeOutput = false;
+      }
+   }
+
+   // The debug outputs
+   // The McKenzie debug properties are only ouput when we have an SDH at the end of a rifting event and in debug mode
+   else if ( id == estimatedCrustDensityMap
+      or id == basaltDensityMap
+      or id == PTaMap
+      or id == TFOnsetMap
+      or id == TFOnsetMigMap
+      or id == TFOnsetLinMap
+      or id == WLSExhumeMap
+      or id == WLSCritMap
+      or id == WLSOnsetMap
+      or id == WLSExhumeSerpMap
+      or id == slopePreMelt
+      or id == slopePostMelt
+      or id == interceptPostMelt
+      or id == TFMap
+      or id == UpperContinentalCrustThickness
+      or id == LowerContinentalCrustThickness
+      or id == UpperOceanicCrustThickness
+      or id == LowerOceanicCrustThickness) {
+      if (not debug or not interfaceInput->getRiftingCalculationMask( theSnapshot->getTime() )) {
+         toBeOutput = false;
+      }
+   }
+   // The response factor is only output in debug mode exept for present day
+   else if (id == ResponseFactor) {
+      if (not debug or theSnapshot->getTime() == 0.0){
+         toBeOutput = false;
+      }
+   }
+   
+   m_outputMapsMask[id] = toBeOutput;
+}
+
+//------------------------------------------------------------//
+void InterfaceOutput::setAllMapsToOutput( const bool flag ) {
+ 
    for( int i = 0; i < numberOfOutputMaps; ++ i ) {
       m_outputMapsMask[i] = flag;
    }
 
 }
-//------------------------------------------------------------//
-bool InterfaceOutput::allocateOutputMaps(Interface::ProjectHandle * projectHandle) {
-
-  const Interface::Grid * grid = projectHandle->getActivityOutputGrid ();
-  bool status = true;
-
-  for( int i = 0; i < numberOfOutputMaps; ++ i ) {
-     if( m_outputMapsMask[i] ) {
-        m_outputMaps[i] = projectHandle->getFactory()->produceGridMap(0, 0, grid, Interface::DefaultUndefinedMapValue, 1);
-        if( m_outputMaps[i] == 0 ) {
-           status = false;
-           break;
-        }
-     }
-  }
-  return status;
-}
 
 //------------------------------------------------------------//
-bool InterfaceOutput::createSnapShotOutputMaps(ProjectHandle * pHandle, const Snapshot * theSnapshot) {
-
-
-   bool status = true;
-   for(int i = 0; i < numberOfOutputMaps; ++ i ) {
+void InterfaceOutput::createSnapShotOutputMaps( GeoPhysics::ProjectHandle * pHandle,
+                                                std::shared_ptr< const InterfaceInput > interfaceInput,
+                                                const Snapshot * theSnapshot,
+                                                const Interface::Surface *theSurface,
+                                                const bool debug ) {
+   
+   LogHandler( LogHandler::DEBUG_SEVERITY ) << "Create snaphot output maps @ snapshot " << theSnapshot->asString();
+   for( int i = 0; i < numberOfOutputMaps; ++ i ) {
+      outputMaps id = (outputMaps)i;
+      updatePossibleOutputsAtSnapshot( id, pHandle, interfaceInput, theSnapshot, debug );
       if( m_outputMapsMask[i] ) {
-         m_outputMaps[i] = createSnapshotResultPropertyValueMap(pHandle, outputMapsNames[i], theSnapshot);
-         if( m_outputMaps[i] == 0 ) {
-            status = false;
-            break;
+         if( id != isostaticBathymetry && id != incTectonicSubsidence ) {
+            LogHandler( LogHandler::DEBUG_SEVERITY ) << "   #for map " << outputMapsNames[i];
+            m_outputMaps[i] = createSnapshotResultPropertyValueMap(pHandle, outputMapsNames[i], theSnapshot);
+         }
+         else {
+            LogHandler( LogHandler::DEBUG_SEVERITY ) << "   #for map " << outputMapsNames[i];
+            m_outputMaps[i] = createSnapshotResultPropertyValueMap(pHandle, outputMapsNames[i], theSnapshot, theSurface );
+         }
+         if( m_outputMaps[i] == nullptr ) {
+            throw std::runtime_error( "Cannot allocate output map " + outputMapsNames[i] );
          }
       }
    }
-   return status;
 }
+
 //------------------------------------------------------------//
-GridMap * InterfaceOutput::createSnapshotResultPropertyValueMap (ProjectHandle * pHandle, const std::string& propertyName, const Snapshot* theSnapshot) {
+GridMap * InterfaceOutput::createSnapshotResultPropertyValueMap (ProjectHandle * pHandle, const std::string& propertyName, 
+                                                                 const Snapshot* theSnapshot, const Interface::Surface *theSurface ) {
 
    const Interface::Formation * formationCrust = dynamic_cast<const Interface::Formation *>(pHandle->getCrustFormation ());
-   const Interface::Surface   * topOfCrust = formationCrust->getTopSurface();
+   const Interface::Surface   * topSurface = ( theSurface != 0 ? theSurface : formationCrust->getTopSurface() );
 
-   PropertyValue *thePropertyValue = pHandle->createMapPropertyValue (propertyName, theSnapshot, 0, 0, topOfCrust);
+   PropertyValue *thePropertyValue = pHandle->createMapPropertyValue (propertyName, theSnapshot, 0, 0, topSurface);
    GridMap *theMap = 0;
 
    if(thePropertyValue) {
@@ -281,34 +355,59 @@ GridMap * InterfaceOutput::createSnapshotResultPropertyValueMap (ProjectHandle *
 
    return theMap;
 }
+
 //------------------------------------------------------------//
-void InterfaceOutput::allocateOutputMap( ProjectHandle * pHandle, outputMaps aMapIndex )
-{
-   m_outputMapsMask[aMapIndex] = true;
-   m_outputMaps[aMapIndex] = pHandle->getFactory ()->produceGridMap (0, 0, pHandle->getActivityOutputGrid (), DefaultUndefinedMapValue, 1);;
+void InterfaceOutput::disableDebugOutput( ProjectHandle * pHandle, const Interface::Surface* theSurface, const Snapshot* theSnapshot ) const {
+   disableOutput( pHandle, theSurface, theSnapshot, "SedimentBackstrip"                     );
+   disableOutput( pHandle, theSurface, theSnapshot, "IncrementalTectonicSubsidenceAdjusted" );
+   disableOutput( pHandle, theSurface, theSnapshot, "TF"                                    );
 }
 
 //------------------------------------------------------------//
-void InterfaceOutput::deleteOutputMap( outputMaps aMapIndex )
-{
-   if( m_outputMaps[aMapIndex] != 0 ) {
-      delete m_outputMaps[aMapIndex];
-   }
-}
-
-
-//------------------------------------------------------------//
-namespace CrustalThicknessInterface {
-
-outputMaps getPropertyId(const string & propertyName) {
-
-   for( int i = 0; i < numberOfOutputMaps; ++ i ) {
-      if( propertyName == outputMapsNames[i] ) {
-         return ( outputMaps )i;
+void InterfaceOutput::disableOutput( ProjectHandle * pHandle, const Interface::Surface* theSurface, const Snapshot* theSnapshot, const std::string& name ) const {
+   const Interface::Property * property = pHandle->findProperty( name );
+   Interface::PropertyValueList* propVals;
+   Interface::PropertyValueList::const_iterator propValIter;
+   propVals = pHandle->getPropertyUnrecordedValues( Interface::SURFACE, property, theSnapshot, 0, 0, theSurface, Interface::MAP );
+   if (propVals->size() != 0){
+      Ctc::PropertyValue *thePropertyValue = const_cast<Ctc::PropertyValue*>(dynamic_cast<const Ctc::PropertyValue*>((*propVals)[0]));
+      if (thePropertyValue != nullptr){
+         thePropertyValue->allowOutput( false );
+      }
+      else{
+         LogHandler( LogHandler::ERROR_SEVERITY ) << "Cannot disable output '" << name << "' at snapshot " << theSnapshot->getTime();
       }
    }
-
-   return numberOfOutputMaps;
+   delete propVals;
 }
 
+//------------------------------------------------------------//
+void InterfaceOutput::saveOutput( Interface::ProjectHandle * pHandle, bool isDebug, int outputOptions, const Snapshot * theSnapshot ) {
+
+   LogHandler( LogHandler::INFO_SEVERITY, LogHandler::COMPUTATION_STEP ) << "save maps to local disk";
+   if( isDebug ) {
+      if( outputOptions & XYZ ) {
+         if( pHandle->getSize() > 1 ) {
+            LogHandler( LogHandler::ERROR_SEVERITY ) << "Can not save maps in XYZ format in parallel. Run with nprocs = 1 to save as XYZ.";
+         } else {
+            saveXYZOutputMaps( pHandle );
+         }
+      }
+      if( outputOptions & SUR ) {
+         if( pHandle->getSize() > 1 ) {
+            LogHandler( LogHandler::ERROR_SEVERITY ) << "Can not save maps in SUR format in parallel. Run with nprocs = 1 to save as SUR.";
+         }
+         else {
+            saveExcelSurfaceOutputMaps( pHandle );
+         }
+      }
+      if( outputOptions & HDF ) {
+         saveOutputMaps( pHandle, theSnapshot );
+      }
+   } else if( outputOptions & XYZ ) {
+      saveXYZOutputMaps( pHandle );
+   } else  if( outputOptions & HDF ) {
+      saveOutputMaps( pHandle, theSnapshot );
+   }
+   
 }
