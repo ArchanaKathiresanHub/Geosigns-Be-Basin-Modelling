@@ -68,163 +68,174 @@ CauldronIO::ExportToXML::ExportToXML(const ibs::FilePath& absPath, const ibs::Fi
 
 void ExportToXML::addProject(pugi::xml_node pt, std::shared_ptr<Project>& project, const std::shared_ptr<Project>& projectExisting)
 {
-	m_project = project;
-	
-    // If there is an existing project, it is checked if data to be stored isn't already stored in the existing project
-    // if true, when such data is encountered, we add references to the existing project and not duplicating the data
-    m_projectExisting = projectExisting;
+   addProjectDescription(pt, project, projectExisting);
+   addProjectData(pt, project, true);
+}
 
-	// Add general project description
-	pt.append_child("name").text() = project->getName().c_str();
-	pt.append_child("description").text() = project->getDescription().c_str();
-	pt.append_child("modelingmode").text() = (int)project->getModelingMode();
-	pt.append_child("team").text() = project->getTeam().c_str();
-	pt.append_child("programversion").text() = project->getProgramVersion().c_str();
-	pt.append_child("outputpath").text() = m_relPath.cpath();
+void ExportToXML::addProjectDescription(pugi::xml_node pt, std::shared_ptr<Project>& project, const std::shared_ptr<Project>& projectExisting)
+{
+   m_project = project;
+   
+   // If there is an existing project, it is checked if data to be stored isn't already stored in the existing project
+   // if true, when such data is encountered, we add references to the existing project and not duplicating the data
+   m_projectExisting = projectExisting;
+   
+   // Add general project description
+   pt.append_child("name").text() = project->getName().c_str();
+   pt.append_child("description").text() = project->getDescription().c_str();
+   pt.append_child("modelingmode").text() = (int)project->getModelingMode();
+   pt.append_child("team").text() = project->getTeam().c_str();
+   pt.append_child("programversion").text() = project->getProgramVersion().c_str();
+   pt.append_child("outputpath").text() = m_relPath.cpath();
+   
+   pugi::xml_node ptxml = pt.append_child("xml-version");
+   ptxml.append_attribute("major") = xml_version_major;
+   ptxml.append_attribute("minor") = xml_version_minor;
 
-	pugi::xml_node ptxml = pt.append_child("xml-version");
-	ptxml.append_attribute("major") = xml_version_major;
-	ptxml.append_attribute("minor") = xml_version_minor;
+   // Append is true if we're exporting new (native) data to an existing vizIO project - 
+   // this is detected by inspecting the offered project and checking if the implementation is native, and not coming from project3D
+   // Note - this mode is unused afaik, and probably untested. The preferred way would be to have an existing project instead
+   m_append = detectAppend(project);
+}
 
-	// Append is true if we're exporting new (native) data to an existing vizIO project - 
-    // this is detected by inspecting the offered project and checking if the implementation is native, and not coming from project3D
-    // Note - this mode is unused afaik, and probably untested. The preferred way would be to have an existing project instead
-    m_append = detectAppend(project);
-
-	// Write all properties
-	pugi::xml_node propertyNode = pt.append_child("properties");
-	BOOST_FOREACH(const std::shared_ptr<const Property>& property, project->getProperties())
-	{
-		addProperty(propertyNode, property);
-	}
-
-	// Write all reservoirs
-	if (project->getReservoirs().size() > 0)
-	{
-		pugi::xml_node reservoirNodes = pt.append_child("reservoirs");
-		BOOST_FOREACH(const std::shared_ptr<const Reservoir>& reservoir, project->getReservoirs())
-		{
-			pugi::xml_node reservoirNode = reservoirNodes.append_child("reservoir");
-			reservoirNode.append_attribute("name") = reservoir->getName().c_str();
-			reservoirNode.append_attribute("formation") = reservoir->getFormation()->getName().c_str();
-		}
-	}
-
-	// If there is an existing project, find references to replace data 
-	if (m_projectExisting)
-	{
-           VisualizationUtils::replaceStratigraphyTable(m_project, m_projectExisting);
-	}
-	// Write all snapshots
-	const SnapShotList snapShotList = project->getSnapShots();
-	pugi::xml_node snapShotNodes = pt.append_child("snapshots");
-
-	for (auto& snapShot : snapShotList)
-	{
-		pugi::xml_node node = snapShotNodes.append_child("snapshot");
-		addSnapShot(snapShot, node);
-	}
-
-	// Write all geometries
-	if (project->getGeometries().size() > 0)
-	{
-		pugi::xml_node geometryNode = pt.append_child("geometries");
-		for (auto& geometry : project->getGeometries())
-		{
-			addGeometryInfo2D(geometryNode, geometry);
-		}
-	}
-
-	// Write stratigraphy table & formations
-	///////////////////////////////////////////////
-	{
-		// Create datastore	for input surfaces
-		ibs::FilePath inputSurfaceStorePath(m_fullPath);
-		inputSurfaceStorePath << "Input_surfaces.cldrn";
-        DataStoreSave inputSurfaceDataStore(inputSurfaceStorePath.path(), m_append);
-
-		// Collect all data
-		std::vector<VisualizationIOData*> allSurfaceData;
-		for (const StratigraphyTableEntry& entry : project->getStratigraphyTable())
-		{
-			if (entry.getSurface())
-			{
-				for (const PropertySurfaceData& propertySurfaceData : entry.getSurface()->getPropertySurfaceDataList())
-				{
-					VisualizationIOData* surfaceData = propertySurfaceData.second.get();
-					if (!surfaceData->isRetrieved())
-						allSurfaceData.push_back(surfaceData);
-				}
-			}
-		}
-		for (auto& formation : project->getFormations())
-		{
-            for (auto& propSurfData : formation->getPropertySurfaceDataList())
+void ExportToXML::addProjectData(pugi::xml_node pt, std::shared_ptr<Project>& project, const bool addSnapshots)
+{
+   // Write all properties
+   pugi::xml_node propertyNode = pt.append_child("properties");
+   BOOST_FOREACH(const std::shared_ptr<const Property>& property, project->getProperties())
+   {
+      addProperty(propertyNode, property);
+   }
+   
+   // Write all reservoirs
+   if (project->getReservoirs().size() > 0)
+   {
+      pugi::xml_node reservoirNodes = pt.append_child("reservoirs");
+      BOOST_FOREACH(const std::shared_ptr<const Reservoir>& reservoir, project->getReservoirs())
+      {
+         pugi::xml_node reservoirNode = reservoirNodes.append_child("reservoir");
+         reservoirNode.append_attribute("name") = reservoir->getName().c_str();
+         reservoirNode.append_attribute("formation") = reservoir->getFormation()->getName().c_str();
+      }
+   }
+   
+   // If there is an existing project, find references to replace data 
+   if (m_projectExisting)
+   {
+      VisualizationUtils::replaceStratigraphyTable(m_project, m_projectExisting);
+   }
+    
+   if(addSnapshots) {
+      // Write all snapshots
+      const SnapShotList snapShotList = project->getSnapShots();
+      pugi::xml_node snapShotNodes = pt.append_child("snapshots");
+      
+      for (auto& snapShot : snapShotList)
+      {
+         pugi::xml_node node = snapShotNodes.append_child("snapshot");
+         addSnapShot(snapShot, node);
+      }
+   }
+  // Write all geometries
+   if (project->getGeometries().size() > 0)
+   {
+      pugi::xml_node geometryNode = pt.append_child("geometries");
+      for (auto& geometry : project->getGeometries())
+      {
+         addGeometryInfo2D(geometryNode, geometry);
+      }
+   }
+   
+   // Write stratigraphy table & formations
+   ///////////////////////////////////////////////
+   {
+      // Create datastore	for input surfaces
+      ibs::FilePath inputSurfaceStorePath(m_fullPath);
+      inputSurfaceStorePath << "Input_surfaces.cldrn";
+      DataStoreSave inputSurfaceDataStore(inputSurfaceStorePath.path(), m_append);
+      
+      // Collect all data
+      std::vector<VisualizationIOData*> allSurfaceData;
+      for (const StratigraphyTableEntry& entry : project->getStratigraphyTable())
+      {
+         if (entry.getSurface())
+         {
+            for (const PropertySurfaceData& propertySurfaceData : entry.getSurface()->getPropertySurfaceDataList())
             {
-                VisualizationIOData* surfaceData = propSurfData.second.get();
-                if (!surfaceData->isRetrieved())
-                    allSurfaceData.push_back(surfaceData);
+               VisualizationIOData* surfaceData = propertySurfaceData.second.get();
+               if (!surfaceData->isRetrieved())
+                  allSurfaceData.push_back(surfaceData);
             }
-		}
-
-		// Retrieve it
-		CauldronIO::VisualizationUtils::retrieveAllData(allSurfaceData, m_numThreads);
-
-		// Add the entries
-		pugi::xml_node stratTableNode = pt.append_child("stratigraphytable");
-		for (const StratigraphyTableEntry& entry : project->getStratigraphyTable())
-		{
-			addStratTableNode(stratTableNode, entry, inputSurfaceDataStore);
-		}
-
-		// Add formations
-		pugi::xml_node formationNode = pt.append_child("formations");
-		for (auto& formation :project->getFormations())
-		{
-			addFormation(inputSurfaceDataStore, formationNode, formation);
-		}
-
-		// Compress the data
-		std::vector<std::shared_ptr<DataToCompress> > allData;
-		for (int i = 0; i < inputSurfaceDataStore.getDataToCompressList().size(); i++)
-			allData.push_back(inputSurfaceDataStore.getDataToCompressList().at(i));
-
-		boost::lockfree::queue<int> queue(allData.size());
-		boost::thread_group threads;
-
-		// Add to queue
-		for (int i = 0; i < allData.size(); i++)
-			queue.push(i);
-
-    	// Compress it in separate threads
-		for (int i = 0; i < m_numThreads; ++i)
-			threads.add_thread(new boost::thread(CauldronIO::ExportToXML::compressDataQueue, allData, &queue));
-		threads.join_all();
-
-		// Write to disk
-		inputSurfaceDataStore.flush();
-	}
-
-    // Write migrationIO table
-    addMigrationEventList(pt);
-
-    // Write TrapperIO table
-    addTrapperList(pt);
-
-    // Write TrapIO table
-    addTrapList(pt);
-
-    // Add Genex history files references
-    addGenexHistory(pt);
-
-    // Add Burial history files references
-    addBurialHistory(pt);
-
-    // Add MassBalance file reference
-    addMassBalance(pt);
-
-    // Add 1D data
-    add1Ddata(pt);
+         }
+      }
+      for (auto& formation : project->getFormations())
+      {
+         for (auto& propSurfData : formation->getPropertySurfaceDataList())
+         {
+            VisualizationIOData* surfaceData = propSurfData.second.get();
+            if (!surfaceData->isRetrieved())
+               allSurfaceData.push_back(surfaceData);
+         }
+      }
+      
+      // Retrieve it
+      CauldronIO::VisualizationUtils::retrieveAllData(allSurfaceData, m_numThreads);
+      
+      // Add the entries
+      pugi::xml_node stratTableNode = pt.append_child("stratigraphytable");
+      for (const StratigraphyTableEntry& entry : project->getStratigraphyTable())
+      {
+         addStratTableNode(stratTableNode, entry, inputSurfaceDataStore);
+      }
+      
+      // Add formations
+      pugi::xml_node formationNode = pt.append_child("formations");
+      for (auto& formation :project->getFormations())
+      {
+         addFormation(inputSurfaceDataStore, formationNode, formation);
+      }
+      
+      // Compress the data
+      std::vector<std::shared_ptr<DataToCompress> > allData;
+      for (int i = 0; i < inputSurfaceDataStore.getDataToCompressList().size(); i++)
+         allData.push_back(inputSurfaceDataStore.getDataToCompressList().at(i));
+      
+      boost::lockfree::queue<int> queue(allData.size());
+      boost::thread_group threads;
+      
+      // Add to queue
+      for (int i = 0; i < allData.size(); i++)
+         queue.push(i);
+      
+      // Compress it in separate threads
+      for (int i = 0; i < m_numThreads; ++i)
+         threads.add_thread(new boost::thread(CauldronIO::ExportToXML::compressDataQueue, allData, &queue));
+      threads.join_all();
+      
+      // Write to disk
+      inputSurfaceDataStore.flush();
+   }
+   
+   // Write migrationIO table
+   addMigrationEventList(pt);
+   
+   // Write TrapperIO table
+   addTrapperList(pt);
+   
+   // Write TrapIO table
+   addTrapList(pt);
+   
+   // Add Genex history files references
+   addGenexHistory(pt);
+   
+   // Add Burial history files references
+   addBurialHistory(pt);
+   
+   // Add MassBalance file reference
+   addMassBalance(pt);
+   
+   // Add 1D data
+   add1Ddata(pt);
 }
 
 void CauldronIO::ExportToXML::addProperty(pugi::xml_node node, const std::shared_ptr<const Property>& property) const

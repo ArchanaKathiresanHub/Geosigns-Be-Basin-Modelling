@@ -87,7 +87,11 @@ private:
    std::shared_ptr<CauldronIO::Project> m_vizProject;
    GeoPhysics::ProjectHandle* m_projectHandle;
    DerivedPropertyManager * m_propertyManager;
-   
+   CauldronIO::ExportToXML * m_export;
+   pugi::xml_document m_doc;
+   pugi::xml_node m_pt;
+   pugi::xml_node m_snapShotNodes;
+
    bool m_convert;
    bool m_vizFormat;
    bool m_vizFormatHDF;

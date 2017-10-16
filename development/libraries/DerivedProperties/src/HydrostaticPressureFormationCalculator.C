@@ -148,14 +148,14 @@ void DerivedProperties::HydrostaticPressureFormationCalculator::copyHydrostaticP
                                                                                                               DerivedFormationPropertyPtr&  hydrostaticPressure ) const {
 
    const FormationPropertyPtr hydrostaticPressureAbove = propertyManager.getFormationProperty ( hydrostaticPressureProperty, snapshot, formationAbove );
-   double undefinedValue = hydrostaticPressureAbove->getUndefinedValue ();
+   double undefinedValue = hydrostaticPressure->getUndefinedValue ();
    unsigned int topNodeIndex = hydrostaticPressure->lastK ();
 
-   for ( unsigned int i = hydrostaticPressureAbove->firstI ( true ); i <= hydrostaticPressureAbove->lastI ( true ); ++i ) {
+   for ( unsigned int i = hydrostaticPressure->firstI ( true ); i <= hydrostaticPressure->lastI ( true ); ++i ) {
 
-      for ( unsigned int j = hydrostaticPressureAbove->firstJ ( true ); j <= hydrostaticPressureAbove->lastJ ( true ); ++j ) {
+      for ( unsigned int j = hydrostaticPressure->firstJ ( true ); j <= hydrostaticPressure->lastJ ( true ); ++j ) {
 
-         if ( m_projectHandle->getNodeIsValid ( i, j )) {
+         if ( m_projectHandle->getNodeIsValid ( i, j ) and hydrostaticPressureAbove != 0 ) {
             hydrostaticPressure->set ( i, j, topNodeIndex, hydrostaticPressureAbove->getA ( i, j, 0 ));
          } else {
             hydrostaticPressure->set ( i, j, topNodeIndex, undefinedValue );

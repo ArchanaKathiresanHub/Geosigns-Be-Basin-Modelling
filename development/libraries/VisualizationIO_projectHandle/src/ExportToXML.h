@@ -36,6 +36,12 @@ namespace CauldronIO
         static bool exportToXML(std::shared_ptr<Project>& project, const std::shared_ptr<Project>& projectExisting,
 			const std::string& absPath, size_t numThreads = 1, bool center = false);
        
+        ExportToXML(const ibs::FilePath& absPath, const ibs::FilePath& relPath, size_t numThreads, bool center);
+
+        void addProjectDescription(pugi::xml_node pt, std::shared_ptr<Project>& project, const std::shared_ptr<Project>& projectExisting);
+        void addProjectData(pugi::xml_node pt, std::shared_ptr<Project>& project, const bool addSnapshots = true);
+        void addSnapShot(const std::shared_ptr<SnapShot>& snapShot, pugi::xml_node node);
+  
     private:
 
         /// ImportExport supports the use case that there is an existing xml-project, to which data can be appended. In this case,
@@ -46,7 +52,6 @@ namespace CauldronIO
         // Method to compress blocks of data on a thread
         static void compressDataQueue(std::vector< std::shared_ptr < DataToCompress > > allData, boost::lockfree::queue<int>* queue);
 
-       ExportToXML(const ibs::FilePath& absPath, const ibs::FilePath& relPath, size_t numThreads, bool center);
        void addProject(pugi::xml_node pt, std::shared_ptr<Project>& project, const std::shared_ptr<Project>& projectExisting);
        void addProperty(pugi::xml_node node, const std::shared_ptr<const Property>& property) const;
        void addFormation(DataStoreSave& dataStore, pugi::xml_node node, const std::shared_ptr<Formation>& formation) const;
@@ -55,7 +60,6 @@ namespace CauldronIO
        void addVolume(DataStoreSave& dataStore, const std::shared_ptr<Volume>& volume, pugi::xml_node volNode);
        void addReferenceData(pugi::xml_node &node, const DataStoreParams* params, bool dataIJK, bool dataKIJ) const;
        void addGeometryInfo2D(pugi::xml_node node, const std::shared_ptr<const Geometry2D>& geometry) const;
-       void addSnapShot(const std::shared_ptr<SnapShot>& snapShot, pugi::xml_node node);
        void addStratTableNode(pugi::xml_node& stratTableNode, const StratigraphyTableEntry& entry, DataStoreSave& dataStoreSave);
        void addMigrationEventList(pugi::xml_node pt);
        void addTrapperList(pugi::xml_node pt);

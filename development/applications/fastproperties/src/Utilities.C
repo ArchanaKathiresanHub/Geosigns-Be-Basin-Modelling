@@ -8,6 +8,7 @@
 // Do not distribute without written permission from Shell.
 //
 #include <boost/foreach.hpp>
+#include <petsc.h>
 #include "Utilities.h"
 #include "VisualizationAPI.h"
 #include "DataStore.h"
@@ -123,6 +124,7 @@ bool DerivedProperties::createVizSnapshotResultPropertyValueContinuous (  std::s
    bool debug = false;
 
    const Interface::Formation* daFormation = dynamic_cast<const Interface::Formation *>(formation);
+   const string propName = propertyValue->getName();
    //find info and geometry for the formation
    std::shared_ptr<CauldronIO::FormationInfo> info;
    size_t maxK = 0;
@@ -139,12 +141,11 @@ bool DerivedProperties::createVizSnapshotResultPropertyValueContinuous (  std::s
    }
    size_t depthK = 1 + maxK - minK;
    if( not info ) {
-      cout << "Cont: Not found formation " << daFormation->getName() << endl;
-      //error;
+      PetscPrintf(PETSC_COMM_WORLD, "Continuous property %s: %s formation not found\n", propName.c_str(), (daFormation->getName()).c_str());
+      return false;
    } 
    
    const Interface::Property*  daProperty  = dynamic_cast<const Interface::Property *>(propertyValue->getProperty());
-   const string propName = propertyValue->getName();
    string propertyMapName = ( daProperty != 0 ? daProperty->getCauldronName() : propName );
    string propertyUserName = ( daProperty != 0 ? daProperty->getUserName() : propName );
    const string unit = ( daProperty != 0 ? daProperty->getUnit() : "" );
@@ -262,7 +263,7 @@ bool DerivedProperties::createVizSnapshotResultPropertyValueContinuous (  std::s
       }
    }
    if( not internalData ) {
-      //error;
+      return false;
    }
    propertyValue->retrieveData();
 
@@ -303,11 +304,6 @@ bool  DerivedProperties::createVizSnapshotResultPropertyValueDiscontinuous (  st
    const Interface::Formation* daFormation = dynamic_cast<const Interface::Formation *>(formation);
    const Interface::Property*  daProperty  = dynamic_cast<const Interface::Property *>(propertyValue->getProperty());
    const string propName = propertyValue->getName();
-   string propertyMapName = ( daProperty != 0 ? daProperty->getCauldronName() : propName );
-   string propertyUserName = ( daProperty != 0 ? daProperty->getUserName() : propName );
-   const string unit = ( daProperty != 0 ? daProperty->getUnit() : "" );
-   if( propertyMapName == "HorizontalPermeability" ) propertyMapName = "PermeabilityHVec2";
- 
    if( debug ) {
       cout << snapshot->getTime() << " Disc: Start adding " <<  propName << " for " <<  daFormation->getName() << endl;
    }
@@ -323,10 +319,14 @@ bool  DerivedProperties::createVizSnapshotResultPropertyValueDiscontinuous (  st
       }
    }
    if( not info ) {
-      cout << "Discont: Not found formation " << daFormation->getName() << endl;
-      //error;
+      PetscPrintf(PETSC_COMM_WORLD, "Discontinuous property %s: %s formation not found\n", propName.c_str(), (daFormation->getName()).c_str());
+      return false;
    } 
-   
+   string propertyMapName = ( daProperty != 0 ? daProperty->getCauldronName() : propName );
+   string propertyUserName = ( daProperty != 0 ? daProperty->getUserName() : propName );
+   const string unit = ( daProperty != 0 ? daProperty->getUnit() : "" );
+   if( propertyMapName == "HorizontalPermeability" ) propertyMapName = "PermeabilityHVec2";
+    
    std::shared_ptr< CauldronIO::Formation> vizFormation = vizProject->findFormation( daFormation->getName() );
    if( not vizFormation ) {
       vizFormation.reset(new CauldronIO::Formation(static_cast<int>(info->kStart), static_cast<int>(info->kEnd), daFormation->getName()));
@@ -381,7 +381,7 @@ bool  DerivedProperties::createVizSnapshotResultPropertyValueDiscontinuous (  st
    float * internalData = const_cast<float *>(volDataNew->getVolumeValues_IJK());
       
    if( not internalData ) {
-      //error;
+      return false;
    }
 
    int firstK = static_cast<int>(geometry->getFirstK());
@@ -399,9 +399,9 @@ bool  DerivedProperties::createVizSnapshotResultPropertyValueDiscontinuous (  st
    propertyValue->restoreData ();
 
    int rank;
-   MPI_Comm_rank ( MPI_COMM_WORLD, &rank );
+   MPI_Comm_rank ( PETSC_COMM_WORLD, &rank );
 
-   MPI_Reduce( (void *)internalData, (void *)data, dataSize, MPI_FLOAT, MPI_SUM, 0,  MPI_COMM_WORLD );
+   MPI_Reduce( (void *)internalData, (void *)data, dataSize, MPI_FLOAT, MPI_SUM, 0,  PETSC_COMM_WORLD );
 
    if( rank == 0 ) {
       std::memcpy( internalData, data, dataSize * sizeof(float));
@@ -579,9 +579,9 @@ bool DerivedProperties::createVizSnapshotResultPropertyValueMap (  std::shared_p
    propertyValue->restoreData ();
 
    int rank;
-   MPI_Comm_rank ( MPI_COMM_WORLD, &rank );
+   MPI_Comm_rank ( PETSC_COMM_WORLD, &rank );
 
-   MPI_Reduce( (void *)internalData, (void *)data, dataSize, MPI_FLOAT, MPI_SUM, 0,  MPI_COMM_WORLD );
+   MPI_Reduce( (void *)internalData, (void *)data, dataSize, MPI_FLOAT, MPI_SUM, 0,  PETSC_COMM_WORLD );
    if( rank == 0 ) {
       std::memcpy( internalData, data, dataSize * sizeof(float));
    }
@@ -744,7 +744,7 @@ void DerivedProperties::collectVolumeData( const std::shared_ptr<SnapShot>& snap
       PropertyVolumeDataList& propVolList = volume->getPropertyVolumeDataList();
       if( propVolList.size() > 0 ) {
          int rank;
-         MPI_Comm_rank ( MPI_COMM_WORLD, &rank );
+         MPI_Comm_rank ( PETSC_COMM_WORLD, &rank );
          
  
          BOOST_FOREACH(PropertyVolumeData& propVolume, propVolList) {
@@ -759,7 +759,7 @@ void DerivedProperties::collectVolumeData( const std::shared_ptr<SnapShot>& snap
                
                float * internalData = const_cast<float *>(valueMap->getVolumeValues_IJK());
                
-               MPI_Reduce( (void *)internalData, (void *)data, dataSize, MPI_FLOAT, MPI_SUM, 0,  MPI_COMM_WORLD );
+               MPI_Reduce( (void *)internalData, (void *)data, dataSize, MPI_FLOAT, MPI_SUM, 0,  PETSC_COMM_WORLD );
                
                if( rank == 0 ) {
                   std::memcpy( internalData, data, dataSize * sizeof(float));

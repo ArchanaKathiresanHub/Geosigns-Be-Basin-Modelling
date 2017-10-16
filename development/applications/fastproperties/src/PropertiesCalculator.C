@@ -24,6 +24,7 @@
 #include "Utilities.h"
 #include "ImportFromXML.h"
 #include "ExportToHDF.h"
+#include "FolderPath.h"
 
 // utilities library
 #include "LogHandler.h"
@@ -71,15 +72,18 @@ PropertiesCalculator::PropertiesCalculator( int aRank ) {
 
    m_projectHandle   = 0;
    m_propertyManager = 0;
-
+   m_export          = 0;
 }
 
 //------------------------------------------------------------//
 
 PropertiesCalculator::~PropertiesCalculator() {
 
-   if(  m_propertyManager != 0 ) delete m_propertyManager;
+   if( m_propertyManager != 0 ) delete m_propertyManager;
    m_propertyManager = 0;
+
+   if( m_export != 0 ) delete m_export;
+   m_export = 0;
 }
 
 //------------------------------------------------------------//
@@ -268,6 +272,35 @@ void PropertiesCalculator::createXML() {
       }
 #endif
       m_vizProject = createStructureFromProjectHandle(false);
+
+      if( m_rank == 0 ) {
+         boost::filesystem::path pathToxml(m_projectHandle->getProjectPath());
+         pathToxml /= m_projectHandle->getProjectName();
+         string absPath = pathToxml.string() + ".xml";
+
+         // Create empty property tree object
+         ibs::FilePath outputPath(absPath);
+         ibs::FilePath folderPath = outputPath.filePath();
+         std::string filename = outputPath.fileName();
+         std::string filenameNoExtension = outputPath.fileNameNoExtension();
+         filenameNoExtension += "_vizIO_output";
+         folderPath << filenameNoExtension;
+         
+         // Create output directory if not existing
+         if (!folderPath.exists())
+         {
+            FolderPath(folderPath.path()).create();
+         }
+         
+
+         m_pt = m_doc.append_child("project");
+         m_export = new CauldronIO::ExportToXML(outputPath.filePath(), filenameNoExtension, 1, false);
+         
+         // Create xml property tree and write datastores
+         std::shared_ptr<CauldronIO::Project> projectExisting;
+         m_export->addProjectDescription(m_pt,  m_vizProject, projectExisting);
+         m_snapShotNodes = m_pt.append_child("snapshots");
+      }
    }
    if( false and m_rank == 0 ) {
       const shared_ptr<CauldronIO::SnapShot> vizSnapshot = getSnapShot( m_vizProject, 0 );
@@ -286,7 +319,8 @@ void PropertiesCalculator::calculateProperties( FormationSurfaceVector& formatio
        createXML();
     }
 
-   Interface::SnapshotList::reverse_iterator snapshotIter;
+
+   Interface::SnapshotList::iterator snapshotIter;
 
    Interface::PropertyList::iterator propertyIter;
    FormationSurfaceVector::iterator formationIter;
@@ -302,7 +336,7 @@ void PropertiesCalculator::calculateProperties( FormationSurfaceVector& formatio
    struct stat fileStatus;
    int fileError;
 
-   for ( snapshotIter = snapshots.rbegin(); snapshotIter != snapshots.rend(); ++snapshotIter )
+   for ( snapshotIter = snapshots.begin(); snapshotIter != snapshots.end(); ++snapshotIter )
    {
       const Interface::Snapshot * snapshot = *snapshotIter;
 
@@ -383,6 +417,12 @@ void PropertiesCalculator::calculateProperties( FormationSurfaceVector& formatio
          displayProgress( snapshot->getFileName (), m_startTime, "Saving is finished for " );
       } else {
          collectVolumeData(  DerivedProperties::getSnapShot( m_vizProject, snapshot->getTime() ), m_data );
+          if( m_rank == 0 ) {
+             std::shared_ptr<CauldronIO::SnapShot> snap = DerivedProperties::getSnapShot( m_vizProject, snapshot->getTime() );
+             pugi::xml_node node = m_snapShotNodes.append_child("snapshot");
+             m_export->addSnapShot(snap, node);
+             snap->release();
+         }
          if( m_rank != 0 ) {
             DerivedProperties::getSnapShot( m_vizProject, snapshot->getTime() )->release();
          }
@@ -409,8 +449,14 @@ void PropertiesCalculator::calculateProperties( FormationSurfaceVector& formatio
       string fileNameXml = pathToxml.string() + ".xml";
 
       displayProgress( fileNameXml, m_startTime, "Writing to visualization format " );
-      // write new xml with primary and derived properties. Save derived properties, create references to primary properties
-      CauldronIO::ExportToXML::exportToXML( m_vizProject, projectExisting, fileNameXml, 1 );
+
+      m_export->addProjectData(m_pt,  m_vizProject, false);
+
+      ibs::FilePath outputPath(fileNameXml);
+      ibs::FilePath xmlFileName(outputPath.filePath());
+      xmlFileName << outputPath.fileNameNoExtension() + ".xml";
+         
+      m_doc.save_file(xmlFileName.cpath());
 
       displayProgress( "", m_startTime, "Writing to visualization format done " );
   }
