@@ -101,7 +101,6 @@ bool MapSmoother::initialize( GridMap * mapToSmooth ){
    //Set smoothing boundaries
    m_xLastSmoothedNode = (m_lastI - m_xSmoothingRadius > 0 ? m_lastI - m_xSmoothingRadius : 0);
    m_yLastSmoothedNode = (m_lastJ - m_ySmoothingRadius > 0 ? m_lastJ - m_ySmoothingRadius : 0);
-
    return true;
 }
 
@@ -175,24 +174,23 @@ void MapSmoother::computeSmoothedValues( GridMap * mapToSmooth ){
          }
       }
       if (!undefValue) {
-         m_sumMap   [i][m_firstJ] = val;
-         m_numberMap[i][m_firstJ] = num;
+         m_sumMap   [i - m_firstI][0] = val;
+         m_numberMap[i - m_firstI][0] = num;
       }
       else {
-         m_sumMap   [i][m_firstJ] = Interface::DefaultUndefinedMapValue;
-         m_numberMap[i][m_firstJ] = Interface::DefaultUndefinedMapValueInteger;
+         m_sumMap   [i - m_firstI][0] = Interface::DefaultUndefinedMapValue;
+         m_numberMap[i - m_firstI][0] = Interface::DefaultUndefinedMapValueInteger;
       }
-
       for (unsigned int j = m_firstJ, jj = 0; j <= m_lastJ; ++j, ++jj) {
          val = 0;
          num = 0;
          undefValue = true;
          if (j < m_lastJ) {
             // moving the window from left to right, update the sums 
-            if (m_sumMap[i][j] != Interface::DefaultUndefinedMapValue) {
-               // collect the sum for sum[j+1] (next in the row) 
-               val = m_sumMap   [i][j];
-               num = m_numberMap[i][j];
+            if (m_sumMap[i - m_firstI][j - m_firstJ] != Interface::DefaultUndefinedMapValue) {
+               // collect the sum for sum[j+1] (next in the row)
+               val = m_sumMap   [i - m_firstI][j - m_firstJ];
+               num = m_numberMap[i - m_firstI][j - m_firstJ];
                undefValue = false;
             }
             if (j < m_yLastSmoothedNode && m_yLastSmoothedNode != 0) {
@@ -212,12 +210,12 @@ void MapSmoother::computeSmoothedValues( GridMap * mapToSmooth ){
                }
             }
             if (!undefValue) {
-               m_sumMap   [i][j + 1] = val;
-               m_numberMap[i][j + 1] = num;
+               m_sumMap   [i - m_firstI][j - m_firstJ + 1] = val;
+               m_numberMap[i - m_firstI][j - m_firstJ + 1] = num;
             }
             else {
-               m_sumMap   [i][j + 1] = Interface::DefaultUndefinedMapValue;
-               m_numberMap[i][j + 1] = Interface::DefaultUndefinedMapValueInteger;
+               m_sumMap   [i - m_firstI][j - m_firstJ + 1] = Interface::DefaultUndefinedMapValue;
+               m_numberMap[i - m_firstI][j - m_firstJ + 1] = Interface::DefaultUndefinedMapValueInteger;
             }
          }
          if (i < m_lastI) {
@@ -273,8 +271,8 @@ void MapSmoother::setSmoothedValues( GridMap * mapToSmooth ){
    for (unsigned int i = m_firstI + footPrintI; i <= m_lastI - footPrintI; ++i) {
 
       for (unsigned int j = m_firstJ + footPrintJ; j <= m_lastJ - footPrintJ; ++j) {
-         double val = m_sumMap   [i][j];
-         int    num = m_numberMap[i][j];
+         double val = m_sumMap   [i - m_firstI][j - m_firstJ];
+         int    num = m_numberMap[i - m_firstI][j - m_firstJ];
 
          if (val != Interface::DefaultUndefinedMapValue && mapToSmooth->getValue( i, j ) != Interface::DefaultUndefinedMapValue) {
             if (num == Interface::DefaultUndefinedMapValueInteger) {
