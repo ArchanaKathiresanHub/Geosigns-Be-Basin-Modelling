@@ -216,12 +216,30 @@ add_gtest( NAME "${LIB_NAME}::McKenzieCompute"
 #
 # 4. Others testing
 #
-add_gtest( NAME "${LIB_NAME}::MapSmoother"
-           SOURCES test/MapSmoother.C
+
+add_gtest( NAME "${LIB_NAME}::MapSmootherSerial"
+           SOURCES test/MapSmootherSerial.C
            LIBRARIES ${LIB_NAME} DataMining DataAccess SerialDataAccess
            FOLDER "${BASE_FOLDER}/${LIB_NAME}"
          )
 
+if (UNIX)
+   # In LSF environment (on LSF cluster node, when build is running as a LSF job) mpirun is trying to use job settings
+   # to run mpi unit tests. Sometime it fails because build job requested just 1 cpu. To prevent this we can specify
+   # machines file with localhost list only
+   configure_file(test/machines machines COPYONLY )
+   set( MACHINE_FILE -machinefile machines)
+endif (UNIX)
+
+add_gtest( NAME "${LIB_NAME}::MapSmootherDistributed"
+           SOURCES test/MapSmootherDistributed.C
+           LIBRARIES ${LIB_NAME} ${PETSC_LIBRARIES} Utilities_Petsc DataMining DataAccess DistributedDataAccess
+           INCLUDE_DIRS ${PETSC_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/../DistributedDataAccess/src ${CMAKE_CURRENT_SOURCE_DIR}/../DataAccess/src
+           LINK_FLAGS "${PETSC_LINK_FLAGS}"
+           MPI_SIZE 2
+           MPIRUN_PRMS ${MACHINE_FILE}
+           FOLDER "${BASE_FOLDER}/${LIB_NAME}"
+         )
 
 add_gtest( NAME "${LIB_NAME}::RiftingEvent"
            SOURCES test/RiftingEvent.C ${io_ctcMockFiles}
