@@ -1,5 +1,5 @@
 //                                                                      
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2017 Shell International Exploration & Production.
 // All rights reserved.
 // 
 // Developed under license for Shell by PDS BV.
@@ -16,6 +16,7 @@ using namespace std;
 
 #include "database.h"
 #include "cauldronschemafuncs.h"
+#include "LogHandler.h"
 
 using namespace database;
 
@@ -45,10 +46,21 @@ LithoType::LithoType (ProjectHandle * projectHandle, Record * record) : DAObject
 
    if ( porosityModelStr == "Exponential" ) {
       m_porosityModel = EXPONENTIAL_POROSITY;
+      if (getSurfacePorosity() == 0 && getExponentialCompactionCoefficient() != 0)
+      {
+          LogHandler(LogHandler::WARNING_SEVERITY) << "Lithotype " << getName() <<
+              " has a null surface porosity and a non-null compaction coefficient.";
+      }
    } else if ( porosityModelStr == "Soil_Mechanics" ) {
       m_porosityModel = SOIL_MECHANICS_POROSITY;
-   } else if ( porosityModelStr == "Double_Exponential") {
-     m_porosityModel = DOUBLE_EXPONENTIAL_POROSITY;
+   }
+   else if (porosityModelStr == "Double_Exponential") {
+       m_porosityModel = DOUBLE_EXPONENTIAL_POROSITY;
+       if (getSurfacePorosity() == 0 && (getExponentialCompactionCoefficientA() != 0 || getExponentialCompactionCoefficientB() != 0))
+       {
+           LogHandler(LogHandler::WARNING_SEVERITY) << "Lithotype " << getName() <<
+               " has a null surface porosity and at least one non-null compaction coefficient.";
+       }
    } else {
       std::cout << " Error in porosity model " << porosityModelStr << ". Using Exponential porosity model as the default value." << endl;
       // Error
