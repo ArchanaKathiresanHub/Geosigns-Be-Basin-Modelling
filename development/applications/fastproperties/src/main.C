@@ -103,9 +103,21 @@ int main( int argc, char ** argv )
 
       return 0;
    };
+
    if( propCalculator->hdfonly() ) {
       
       propCalculator->writeToHDF();
+      propCalculator->finalise ( false );
+      delete propCalculator;
+ 
+      PetscFinalize ();
+
+      return 0;
+   };
+
+   if( propCalculator->listXml() ) {
+      
+      propCalculator->listXmlProperties();
       propCalculator->finalise ( false );
       delete propCalculator;
  

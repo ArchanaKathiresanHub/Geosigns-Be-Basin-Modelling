@@ -20,44 +20,7 @@ namespace DerivedProperties {
    std::shared_ptr< CauldronIO::Surface > getSurface( std::shared_ptr< CauldronIO::SnapShot>& snapshot, const std::string &name );
    std::shared_ptr< CauldronIO::Surface > getSurface( std::shared_ptr< CauldronIO::SnapShot>& snapshot, std::shared_ptr< CauldronIO::Formation>& formation );
    void listProperties( const std::shared_ptr<SnapShot>& snapShot, std::shared_ptr<Project> &project);
-   
-   bool createVizSnapshotResultPropertyValueMap (  std::shared_ptr<CauldronIO::Project> vizProject,
-                                                   GeoPhysics::ProjectHandle* projectHandle, 
-                                                   OutputPropertyValuePtr propertyValue, 
-                                                   const Snapshot* snapshot, const Interface::Formation * formation,
-                                                   const Interface::Surface * surface,
-                                                   vector<float>& inData );
-   
-   bool createVizSnapshotResultPropertyValueContinuous (  std::shared_ptr<CauldronIO::Project> vizProject,
-                                                          GeoPhysics::ProjectHandle* projectHandle, 
-                                                          OutputPropertyValuePtr propertyValue, 
-                                                          const Snapshot* snapshot, const Interface::Formation * formation,
-                                                          std::shared_ptr<CauldronIO::FormationInfoList> &formInfoList,
-                                                          vector<float>& inData);
-   
-   bool  createVizSnapshotResultPropertyValueDiscontinuous (  std::shared_ptr<CauldronIO::Project> vizProject,
-                                                              GeoPhysics::ProjectHandle* projectHandle, 
-                                                              OutputPropertyValuePtr propertyValue, 
-                                                              const Snapshot* snapshot, const Interface::Formation * formation,
-                                                              std::shared_ptr<CauldronIO::FormationInfoList> &formInfoList,
-                                                              vector<float>& inData);
-   
-   void  createVizSnapshotFormationData( std::shared_ptr<CauldronIO::Project> vizProject,
-                                         GeoPhysics::ProjectHandle* projectHandle, 
-                                         const Snapshot * snapshot, const FormationSurface & formationItem, 
-                                         DataAccess::Interface::PropertyList & properties,
-                                         SnapshotFormationSurfaceOutputPropertyValueMap & allOutputPropertyValues,
-                                         std::shared_ptr<CauldronIO::FormationInfoList> &formInfoList,
-                                         vector<float>& inData );
-   
-   bool createVizSnapshotResultPropertyValue (  std::shared_ptr<CauldronIO::Project> vizProject,
-                                                GeoPhysics::ProjectHandle* projectHandle, 
-                                                OutputPropertyValuePtr propertyValue, 
-                                                const Snapshot* snapshot, const Interface::Formation * formation,
-                                                const Interface::Surface * surface,
-                                                std::shared_ptr<CauldronIO::FormationInfoList> &formInfoList,
-                                                vector<float>& inData);
-   
+     
    std::shared_ptr<CauldronIO::FormationInfoList>  getDepthFormations(GeoPhysics::ProjectHandle* projectHandle, const Snapshot* snapShot);
    void updateConstantValue( std::shared_ptr< CauldronIO::SnapShot>& snapshot );
    void updateVolumeDataConstantValue( shared_ptr<CauldronIO::VolumeData>& volDataNew );

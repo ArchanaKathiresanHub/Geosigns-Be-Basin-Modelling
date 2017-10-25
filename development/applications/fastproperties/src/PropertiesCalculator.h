@@ -83,6 +83,8 @@ public :
    int m_rank;
 
 private:
+   PetscLogDouble m_startTime;
+
    std::shared_ptr<ProjectHandle> m_sharedProjectHandle;
    std::shared_ptr<CauldronIO::Project> m_vizProject;
    GeoPhysics::ProjectHandle* m_projectHandle;
@@ -96,7 +98,9 @@ private:
    bool m_vizFormat;
    bool m_vizFormatHDF;
    bool m_vizFormatHDFonly;
+   bool m_vizListXml;
    bool m_primaryPod;
+   bool m_minorPrimary;
    bool m_extract2D;         ///< true if 2D primary/derived properties to be calculated and saved
    bool m_no3Dproperties;    ///< true if no 3d properties are defined to be calculated
 
@@ -120,16 +124,46 @@ private:
    string m_activityName;   ///< The name of the current activity producing output values
    string m_simulationMode; ///< The name of the last simulation fastcauldron mode
    bool   m_decompactionMode;
-   int    m_snapshotsType; ///< The type of snapshots to calculate derived properties at
+   int    m_snapshotsType;  ///< The type of snapshots to calculate derived properties at
 
-   std::vector<float> m_data;
-   std::shared_ptr<CauldronIO::FormationInfoList> m_formInfoList;
-   PetscLogDouble m_startTime;
+   std::vector<float> m_data; ///< Buffer to convert a property to visualization format
+   std::shared_ptr<CauldronIO::FormationInfoList> m_formInfoList; ///< List of formations grid info
 
-   std::shared_ptr<CauldronIO::Project> createStructureFromProjectHandle( bool verbose );
+   /// \brief Check if the property the formation/surface is allowed to be output
    bool allowOutput ( const string & propertyName, const Interface::Formation * formation, const Interface::Surface * surface ) const;
+   /// \brief Check if the property the formation/surface is selected to be output in the project file
    PropertyOutputOption checkTimeFilter3D ( const string & name ) const;
+
+   /// \brief Create visualization format project: import projectHandle and create xml file
    void createXML();
+   /// \brief Import projectHandle into visualization format
+   std::shared_ptr<CauldronIO::Project> createStructureFromProjectHandle( bool verbose );
+   
+   /// \brief Finish export to visualization format: add project related information to xml file and save it on disk
+   void saveXML();
+
+   /// \brief Create a property map in visualization format
+   bool createVizSnapshotResultPropertyValueMap ( OutputPropertyValuePtr propertyValue, 
+                                                  const Snapshot* snapshot, const Interface::Formation * formation,
+                                                  const Interface::Surface * surface );
+   
+   /// \brief Create a continuous property in visualization format
+   bool createVizSnapshotResultPropertyValueContinuous ( OutputPropertyValuePtr propertyValue, 
+                                                         const Snapshot* snapshot, const Interface::Formation * formation );
+   
+   /// \brief Create a discontinuous property in visualization format
+   bool  createVizSnapshotResultPropertyValueDiscontinuous ( OutputPropertyValuePtr propertyValue, 
+                                                             const Snapshot* snapshot, const Interface::Formation * formation );
+   
+   /// \brief Create list of properties for a formation/surface pair at a snapshot age in visualization format
+   void  createVizSnapshotFormationData( const Snapshot * snapshot, const FormationSurface & formationItem, 
+                                         DataAccess::Interface::PropertyList & properties,
+                                         SnapshotFormationSurfaceOutputPropertyValueMap & allOutputPropertyValues );
+   
+   /// \brief Create a property for a formation/surface pair at a snapshot age in visualization format
+   bool createVizSnapshotResultPropertyValue ( OutputPropertyValuePtr propertyValue, 
+                                               const Snapshot* snapshot, const Interface::Formation * formation,
+                                               const Interface::Surface * surface );
 public:
 
    GeoPhysics::ProjectHandle* getProjectHandle() const;
@@ -163,11 +197,14 @@ public:
    
    void convertToVisualizationIO();
    void updateVizSnapshotsConstantValue();
+
    bool convert() const;
    bool hdfonly() const;
    bool vizFormat() const;
+   bool listXml() const;
 
    void writeToHDF();
+   void listXmlProperties();
    bool parseCommandLine ( int argc, char ** argv );
    void showUsage( const char* command, const char* message = 0 );
 

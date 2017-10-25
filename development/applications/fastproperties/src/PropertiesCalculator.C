@@ -58,12 +58,14 @@ PropertiesCalculator::PropertiesCalculator( int aRank ) {
    m_vizFormat        = false;
    m_vizFormatHDF     = false;
    m_vizFormatHDFonly = false;
+   m_vizListXml       = false;
    m_primaryPod       = false;
    m_extract2D        = false;
    m_no3Dproperties   = false;
+   m_minorPrimary     = false;
    m_projectProperties = false;
 
-   m_snapshotsType = MAJOR | MINOR;
+   m_snapshotsType = MAJOR;
 
    m_projectFileName = "";
    m_simulationMode  = "";
@@ -149,7 +151,11 @@ bool PropertiesCalculator::CreateFrom ( DataAccess::Interface::ObjectFactory* fa
       m_projectHandle = ( GeoPhysics::ProjectHandle* )( OpenCauldronProject( m_projectFileName, "r", factory ) );
 
       if(  m_projectHandle != 0 ) {
-         m_propertyManager = new DerivedPropertyManager ( m_projectHandle, false, m_debug );
+         if(m_vizFormat) {
+            m_propertyManager = new DerivedPropertyManager ( m_projectHandle, true, m_debug );
+         } else {
+            m_propertyManager = new DerivedPropertyManager ( m_projectHandle, false, m_debug );
+          }
       }
    }
    if(  m_projectHandle == 0 ||  m_propertyManager == 0 ) {
@@ -186,6 +192,8 @@ bool PropertiesCalculator::startActivity() {
       m_simulationMode == "CoupledHighResDecompaction" or
       m_simulationMode == "CoupledPressureAndTemperature" or
       m_simulationMode == "CoupledDarcy";
+
+   coupledCalculation = coupledCalculation and m_projectHandle->getModellingMode() == Interface::MODE3D;
 
    if( started ) {
       m_projectHandle->initialise ( coupledCalculation );
@@ -307,6 +315,39 @@ void PropertiesCalculator::createXML() {
       DerivedProperties::listProperties(vizSnapshot, m_vizProject);
    }
 }
+
+//------------------------------------------------------------//
+void PropertiesCalculator::saveXML() {
+
+   if( m_vizFormat and m_rank == 0) {
+      //      updateVizSnapshotsConstantValue();
+      std::shared_ptr<CauldronIO::Project> projectExisting;
+#if 0
+      // Works if the xml file with the primary properties converted  exists.
+      // the derived properties will be saved in a different folder and a new xml will be created.
+      ibs::FilePath vizFileName( m_fileNameXml );
+      if( vizFileName.exists() ) {
+         projectExisting = CauldronIO::ImportFromXML::importFromXML(m_fileNameXml);;
+      }
+#endif
+      boost::filesystem::path pathToxml(m_projectHandle->getProjectPath());
+      pathToxml /= m_projectHandle->getProjectName();
+      string fileNameXml = pathToxml.string() + ".xml";
+
+      displayProgress( fileNameXml, m_startTime, "Writing to visualization format " );
+
+      m_export->addProjectData(m_pt,  m_vizProject, false);
+
+      ibs::FilePath outputPath(fileNameXml);
+      ibs::FilePath xmlFileName(outputPath.filePath());
+      xmlFileName << outputPath.fileNameNoExtension() + ".xml";
+         
+      m_doc.save_file(xmlFileName.cpath());
+
+      displayProgress( "", m_startTime, "Writing to visualization format done " );
+   }
+}
+
 //------------------------------------------------------------//
 void PropertiesCalculator::calculateProperties( FormationSurfaceVector& formationItems, Interface::PropertyList properties, Interface::SnapshotList & snapshots )  {
 
@@ -372,10 +413,10 @@ void PropertiesCalculator::calculateProperties( FormationSurfaceVector& formatio
          for ( propertyIter = properties.begin(); propertyIter != properties.end(); ++propertyIter )
          {
             const Interface::Property * property = *propertyIter;
-            if( m_no3Dproperties and surface == 0 and property->getPropertyAttribute() != DataModel::FORMATION_2D_PROPERTY ) {
+            if( not m_vizFormat and ( m_no3Dproperties and surface == 0 and property->getPropertyAttribute() != DataModel::FORMATION_2D_PROPERTY )) {
                continue;
             }
-            if( not m_extract2D and surface != 0 and property->getName() != "Reflectivity" ) {
+            if( not m_vizFormat and ( not m_extract2D and surface != 0 and property->getName() != "Reflectivity" )) {
                continue;
             }
 
@@ -402,7 +443,7 @@ void PropertiesCalculator::calculateProperties( FormationSurfaceVector& formatio
          if( not m_vizFormat ) { 
             DerivedProperties::outputSnapshotFormationData( m_projectHandle, snapshot, * formationIter, properties, allOutputPropertyValues );
          } else {
-            DerivedProperties::createVizSnapshotFormationData( m_vizProject, m_projectHandle, snapshot, * formationIter, properties, allOutputPropertyValues, m_formInfoList, m_data );
+            createVizSnapshotFormationData( snapshot, * formationIter, properties, allOutputPropertyValues );
          }
       }
 
@@ -419,6 +460,7 @@ void PropertiesCalculator::calculateProperties( FormationSurfaceVector& formatio
          collectVolumeData(  DerivedProperties::getSnapShot( m_vizProject, snapshot->getTime() ), m_data );
           if( m_rank == 0 ) {
              std::shared_ptr<CauldronIO::SnapShot> snap = DerivedProperties::getSnapShot( m_vizProject, snapshot->getTime() );
+             DerivedProperties::updateConstantValue(snap);
              pugi::xml_node node = m_snapShotNodes.append_child("snapshot");
              m_export->addSnapShot(snap, node);
              snap->release();
@@ -433,33 +475,9 @@ void PropertiesCalculator::calculateProperties( FormationSurfaceVector& formatio
       m_projectHandle->deletePropertiesValuesMaps ( snapshot );
    }
 
-   if( m_vizFormat and m_rank == 0) {
-      updateVizSnapshotsConstantValue();
-      std::shared_ptr<CauldronIO::Project> projectExisting;
-#if 0
-      // Works if the xml file with the primary properties converted  exists.
-      // the derived properties will be saved in a different folder and a new xml will be created.
-      ibs::FilePath vizFileName( m_fileNameXml );
-      if( vizFileName.exists() ) {
-         projectExisting = CauldronIO::ImportFromXML::importFromXML(m_fileNameXml);;
-      }
-#endif
-      boost::filesystem::path pathToxml(m_projectHandle->getProjectPath());
-      pathToxml /= m_projectHandle->getProjectName();
-      string fileNameXml = pathToxml.string() + ".xml";
-
-      displayProgress( fileNameXml, m_startTime, "Writing to visualization format " );
-
-      m_export->addProjectData(m_pt,  m_vizProject, false);
-
-      ibs::FilePath outputPath(fileNameXml);
-      ibs::FilePath xmlFileName(outputPath.filePath());
-      xmlFileName << outputPath.fileNameNoExtension() + ".xml";
-         
-      m_doc.save_file(xmlFileName.cpath());
-
-      displayProgress( "", m_startTime, "Writing to visualization format done " );
-  }
+   if( m_vizFormat ) {
+      saveXML();
+   }
 
    if( m_vizFormatHDF and m_rank == 0 ) {
        writeToHDF( );
@@ -469,6 +487,23 @@ void PropertiesCalculator::calculateProperties( FormationSurfaceVector& formatio
    PetscTime( &End_Time );
    
    displayTime( End_Time - m_startTime, "Total derived properties saving: ");
+}
+
+//------------------------------------------------------------//
+void PropertiesCalculator::listXmlProperties() {
+   boost::filesystem::path pathToxml(m_projectHandle->getProjectPath());
+   pathToxml /= m_projectHandle->getProjectName();
+   string fileNameXml = pathToxml.string() + ".xml";
+   std::shared_ptr< CauldronIO::Project> vizProject(CauldronIO::ImportFromXML::importFromXML(fileNameXml));
+  
+   cout << "List of properties in " << fileNameXml << " : " << endl;
+
+
+   SnapShotList snapShotList = vizProject->getSnapShots();
+   for (auto& snapShot : snapShotList) {
+      cout << "Snapshot " << snapShot->getAge() << endl;
+      DerivedProperties::listProperties(snapShot, vizProject);
+   }    
 }
 
 //------------------------------------------------------------//
@@ -1119,6 +1154,553 @@ bool PropertiesCalculator::copyFiles( ) {
    return status;
 }
 //------------------------------------------------------------//
+bool PropertiesCalculator::createVizSnapshotResultPropertyValue ( OutputPropertyValuePtr propertyValue, 
+                                                                  const Snapshot* snapshot, const Interface::Formation * formation,
+                                                                  const Interface::Surface * surface ) {
+   
+   if( not propertyValue->hasMap () ) {
+      return true;
+   }
+
+   unsigned int p_depth = propertyValue->getDepth();
+   
+   if( p_depth > 1 and surface == 0 ) {
+
+      //if( not propertyValue->isPrimary() ) { // uncomment to convert only derived properties
+      if( true ) {
+         if(  propertyValue->getProperty ()->getPropertyAttribute () == DataModel::CONTINUOUS_3D_PROPERTY ) {
+            createVizSnapshotResultPropertyValueContinuous ( propertyValue, snapshot, formation );
+         } else if( propertyValue->getProperty ()->getPropertyAttribute () == DataModel::DISCONTINUOUS_3D_PROPERTY ) {
+            createVizSnapshotResultPropertyValueDiscontinuous ( propertyValue, snapshot, formation );
+         } else {
+            return false;
+         }
+      } else {
+         //  the property is already in the output file
+      }
+      
+   //} else if(not propertyValue->isPrimary() and not ( surface == 0 and propertyValue->isPrimary() )) { // uncomment to convert only derived properties
+   } else {
+      return createVizSnapshotResultPropertyValueMap ( propertyValue, snapshot, formation, surface );
+   }
+
+   return true;
+
+}
+//------------------------------------------------------------//
+
+void PropertiesCalculator::createVizSnapshotFormationData( const Snapshot * snapshot, const FormationSurface & formationItem, 
+                                                           DataAccess::Interface::PropertyList & properties,
+                                                           SnapshotFormationSurfaceOutputPropertyValueMap & allOutputPropertyValues ) {
+   
+   Interface::PropertyList::iterator propertyIter;
+
+   const Interface::Formation * formation = formationItem.first;
+   const Interface::Surface * surface = formationItem.second;
+
+
+   for ( propertyIter = properties.begin(); propertyIter != properties.end(); ++propertyIter ) {
+      const Interface::Property * property = *propertyIter;
+      
+      OutputPropertyValuePtr propertyValue = allOutputPropertyValues[ snapshot ][ formationItem ][ property ];
+
+      if ( propertyValue != 0 )  {
+         if( not m_minorPrimary or (snapshot->getType() == DataAccess::MAJOR or (snapshot->getType() == DataAccess::MINOR and property->isPrimary())) ) {
+            printDebugMsg ( " Output property avaiable for" , property, formation, surface,  snapshot );
+ 
+            createVizSnapshotResultPropertyValue ( propertyValue, snapshot, formation, surface );
+         }
+      }
+      else
+      {
+         printDebugMsg ( " No property avaiable for" , property, formation, surface, snapshot );
+      }
+   }
+}
+//------------------------------------------------------------//
+
+bool PropertiesCalculator::createVizSnapshotResultPropertyValueContinuous ( OutputPropertyValuePtr propertyValue, 
+                                                                          const Snapshot* snapshot, const Interface::Formation * formation ) {
+   
+   bool debug = false;
+
+   const Interface::Formation* daFormation = dynamic_cast<const Interface::Formation *>(formation);
+   const string propName = propertyValue->getName();
+   //find info and geometry for the formation
+   std::shared_ptr<CauldronIO::FormationInfo> info;
+   size_t maxK = 0;
+   size_t minK = std::numeric_limits<size_t>::max();
+   
+   for (size_t i = 0; i < m_formInfoList->size(); ++i)  {
+      std::shared_ptr<CauldronIO::FormationInfo>& depthInfo = m_formInfoList->at(i);
+
+      maxK = max(maxK, depthInfo->kEnd);
+      minK = min(minK, depthInfo->kStart);
+      if( depthInfo->formation == formation ) {
+         info = m_formInfoList->at(i);
+      }
+   }
+   size_t depthK = 1 + maxK - minK;
+   if( not info ) {
+      PetscPrintf(PETSC_COMM_WORLD, "Continuous property %s: %s formation not found\n", propName.c_str(), (daFormation->getName()).c_str());
+      return false;
+   } 
+   
+   const Interface::Property*  daProperty  = dynamic_cast<const Interface::Property *>(propertyValue->getProperty());
+   string propertyMapName = ( daProperty != 0 ? daProperty->getCauldronName() : propName );
+   string propertyUserName = ( daProperty != 0 ? daProperty->getUserName() : propName );
+   const string unit = ( daProperty != 0 ? daProperty->getUnit() : "" );
+   
+   if( debug ) {
+      cout << snapshot->getTime() << "Cont: Start adding " <<  propName << " for " <<  daFormation->getName() << endl;
+   }
+   shared_ptr<CauldronIO::SnapShot> vizSnapshot = getSnapShot( m_vizProject, snapshot->getTime() );
+    
+   // find or create property
+   shared_ptr<const CauldronIO::Property> vizProperty;
+   for(auto& property : m_vizProject->getProperties()) {
+      if (property->getName() == propName ) {
+         vizProperty = property;
+         break;
+      }
+   }
+   if( not vizProperty ) {
+      vizProperty.reset( new CauldronIO::Property(propName, propertyUserName, propertyMapName, unit, CauldronIO::FormationProperty, CauldronIO::Continuous3DProperty));
+      m_vizProject->addProperty(vizProperty);
+      if( debug ) {
+         cout << "Cont: Adding vizproperty " << propName << endl;
+      }
+   }
+   if( snapshot->getTime() == 0 ) {
+      std::shared_ptr<CauldronIO::Formation> vizFormation = m_vizProject->findFormation(daFormation->getName());
+      if( not vizFormation ) {
+         vizFormation.reset(new CauldronIO::Formation(static_cast<int>(info->kStart + 1), propertyValue->getDepth(), daFormation->getName()));
+         m_vizProject->addFormation( vizFormation );         
+         if( debug ) {
+            cout << "Add formation cont" << daFormation->getName() << " kstart " << info->kStart + 1 << " kend " << propertyValue->getDepth() << endl;
+         }
+     }
+      if( not vizFormation->isDepthRangeDefined() ) {
+         vizFormation->updateK_range(static_cast<int>(info->kStart), static_cast<int>(info->kEnd));
+         if( debug ) {
+            cout << "update krange cont " <<  daFormation->getName()<< " " << info->kStart << " " << info->kEnd << endl;
+         }
+      }
+   } 
+   
+   
+   // find or create snapshot volume and geometry
+   std::shared_ptr<CauldronIO::Volume> snapshotVolume = vizSnapshot->getVolume();
+   std::shared_ptr< CauldronIO::Geometry3D> geometry;
+   
+   shared_ptr<CauldronIO::VolumeData> volDataNew;
+   bool propertyVolumeExisting = false;
+   
+   const DataAccess::Interface::Grid* grid = m_projectHandle->getActivityOutputGrid ();
+   if( not snapshotVolume ) {
+      // create volume and geometry
+      snapshotVolume.reset(new CauldronIO::Volume(CauldronIO::None));
+      vizSnapshot->setVolume(snapshotVolume);
+      geometry.reset(new CauldronIO::Geometry3D(grid->numIGlobal(), grid->numJGlobal(), depthK, minK,
+                                                grid->deltaIGlobal(), grid->deltaJGlobal(), grid->minIGlobal(), grid->minJGlobal()));
+      m_vizProject->addGeometry(geometry);
+      if( debug ) {
+         cout << "Adding Geomerty and volume " << " depth = " << depthK << " mink= " << minK << endl;
+      }
+   } else {
+      // find volume the property
+      for (size_t i = 0; i <  snapshotVolume->getPropertyVolumeDataList().size(); ++i ) {
+         CauldronIO::PropertyVolumeData& pdata =  snapshotVolume->getPropertyVolumeDataList().at(i); 
+         if( pdata.first->getName() == propName ) {
+            volDataNew = pdata.second;
+            if( volDataNew ) {
+               propertyVolumeExisting = true;
+            }
+            break;
+         }
+      }
+      if( propertyVolumeExisting ) {
+         // get geomerty for the existing property volume
+         geometry = volDataNew->getGeometry();
+      } else {
+         // get geometry for the first property (assume the same geometry for derived properties)
+         if( snapshotVolume->getPropertyVolumeDataList().size() > 0 ) {
+            geometry = snapshotVolume->getPropertyVolumeDataList().at(0).second->getGeometry();
+         } else {
+            geometry.reset(new CauldronIO::Geometry3D(grid->numIGlobal(), grid->numJGlobal(), depthK, minK,
+                                                      grid->deltaIGlobal(), grid->deltaJGlobal(), grid->minIGlobal(), grid->minJGlobal()));
+            m_vizProject->addGeometry(geometry);
+         }
+      }
+   }
+   if( debug ) {
+      cout << info->numI << " " << info->numJ << " " << info->kEnd  << " " << info->kStart << " " <<  
+         info->deltaI << " " <<  info->deltaJ << " " <<  info->minI << " " <<  info->minJ << endl;
+      cout << daFormation->getName() << " snapshot " << snapshot->getTime() << " geometry3d size = " << geometry->getSize() << " numk = " << geometry->getNumK() << endl;
+   }
+
+   float * internalData = 0;
+
+   int firstK = static_cast<int>(info->kStart);
+   int lastK  = static_cast<int>(info->kEnd);
+
+   if( not propertyVolumeExisting ) {
+      volDataNew.reset(new CauldronIO::VolumeDataNative(geometry, CauldronIO::DefaultUndefinedValue));
+      
+      unsigned int dataSize = geometry->getNumI() * geometry->getNumJ() * geometry->getNumK();
+      if( dataSize > m_data.size() ) {
+         m_data.resize( dataSize );
+      }
+      float *data = &m_data[0];
+      memset( data, 0, sizeof(float) * dataSize );
+      
+      volDataNew->setData_IJK(data);
+      internalData = const_cast<float *>(volDataNew->getVolumeValues_IJK());
+      
+   } else {
+      internalData = const_cast<float *>(volDataNew->getVolumeValues_IJK());
+      if(debug) {
+         cout << "Adding to existing voldata" << snapshot->getTime() << " " << propName << " " << daFormation->getName() << " kstart= " << info->kStart << " kend= " << info->kEnd << endl;
+      }
+   }
+   if( not internalData ) {
+      return false;
+   }
+   propertyValue->retrieveData();
+
+   for ( int j = grid->firstJ (); j <= grid->lastJ (); ++j ) {
+      for ( int i = grid->firstI(); i <= grid->lastI (); ++i ) {
+         unsigned int pk = 0;
+         for ( int k = lastK; k >= firstK; --k, ++ pk) {
+            internalData[volDataNew->computeIndex_IJK(i, j, k)] = static_cast<float>(propertyValue->getValue( i, j, pk ));
+         }
+      }
+   }
+   propertyValue->restoreData ();
+
+   if( not propertyVolumeExisting ) {
+      CauldronIO::PropertyVolumeData propVolDataNew(vizProperty, volDataNew);
+      snapshotVolume->addPropertyVolumeData(propVolDataNew);
+      
+      if( debug ) {
+         cout << "Adding new voldata to " << snapshot->getTime() << " " << propName << " " << daFormation->getName() << " kstart= " << info->kStart << " kend= " << info->kEnd << endl;
+         cout << "kstart= " << info->kStart << " kend= " << info->kEnd <<  endl;
+      }
+   } 
+
+   
+   return true;
+}
+//------------------------------------------------------------//
+
+bool PropertiesCalculator::createVizSnapshotResultPropertyValueDiscontinuous ( OutputPropertyValuePtr propertyValue, 
+                                                                               const Snapshot* snapshot, const Interface::Formation * formation ) {
+      
+   bool debug = false;
+
+   const Interface::Formation* daFormation = dynamic_cast<const Interface::Formation *>(formation);
+   const Interface::Property*  daProperty  = dynamic_cast<const Interface::Property *>(propertyValue->getProperty());
+   const string propName = propertyValue->getName();
+   if( debug ) {
+      cout << snapshot->getTime() << " Disc: Start adding " <<  propName << " for " <<  daFormation->getName() << endl;
+   }
+   shared_ptr<CauldronIO::SnapShot> vizSnapshot = getSnapShot( m_vizProject, snapshot->getTime() );
+   
+   std::shared_ptr<CauldronIO::FormationInfo> info;
+
+   for (size_t i = 0; i < m_formInfoList->size(); ++i)  {
+      std::shared_ptr<CauldronIO::FormationInfo>& depthInfo = m_formInfoList->at(i);
+
+      if( depthInfo->formation == formation ) {
+         info = m_formInfoList->at(i);
+      }
+   }
+   if( not info ) {
+      PetscPrintf(PETSC_COMM_WORLD, "Discontinuous property %s: %s formation not found\n", propName.c_str(), (daFormation->getName()).c_str());
+      return false;
+   } 
+   string propertyMapName = ( daProperty != 0 ? daProperty->getCauldronName() : propName );
+   string propertyUserName = ( daProperty != 0 ? daProperty->getUserName() : propName );
+   const string unit = ( daProperty != 0 ? daProperty->getUnit() : "" );
+   if( propertyMapName == "HorizontalPermeability" ) propertyMapName = "PermeabilityHVec2";
+    
+   std::shared_ptr< CauldronIO::Formation> vizFormation = m_vizProject->findFormation( daFormation->getName() );
+   if( not vizFormation ) {
+      vizFormation.reset(new CauldronIO::Formation(static_cast<int>(info->kStart), static_cast<int>(info->kEnd), daFormation->getName()));
+      m_vizProject->addFormation( vizFormation );    
+      if( debug ) { 
+         cout << "Add formation " << daFormation->getName() << " kstart " << info->kStart << " kend " << info->kEnd << " depth " << propertyValue->getDepth() << endl;
+      }
+      if( not vizFormation->isDepthRangeDefined() ) {
+         vizFormation->updateK_range(static_cast<int>(info->kStart), static_cast<int>(info->kEnd));
+         if( debug ) {
+            cout << "update krange " <<  daFormation->getName()<< " " << info->kStart << " " << info->kEnd << endl;
+         }
+      }
+     
+   }
+
+   //create geometry
+   const DataAccess::Interface::Grid* grid = m_projectHandle->getActivityOutputGrid ();
+   const std::shared_ptr<CauldronIO::Geometry3D> geometry(new CauldronIO::Geometry3D(grid->numIGlobal(), grid->numJGlobal(), propertyValue->getDepth(), info->kStart,
+                                                                                     grid->deltaIGlobal(), grid->deltaJGlobal(), grid->minIGlobal(), grid->minJGlobal()));
+   m_vizProject->addGeometry(geometry);
+
+   // find or create property
+   shared_ptr<const CauldronIO::Property> vizProperty;
+   for(auto& property : m_vizProject->getProperties()) {
+      if (property->getName() == propName ) {
+         vizProperty = property;
+         break;
+      }
+   }
+   if( not vizProperty ) {
+      vizProperty.reset( new CauldronIO::Property(propName, propertyUserName, propertyMapName, unit, CauldronIO::FormationProperty, CauldronIO::Discontinuous3DProperty));
+      m_vizProject->addProperty(vizProperty);
+      if( debug ) {
+         cout << "Discont: Adding vizproperty " << propName << endl;
+      }
+   }
+   
+   // create volume data
+   shared_ptr<CauldronIO::VolumeData> volDataNew(new CauldronIO::VolumeDataNative(geometry));
+   
+   unsigned int dataSize = geometry->getNumI() * geometry->getNumJ() * geometry->getNumK();
+   if( m_data.size() < dataSize ) {
+      m_data.resize( dataSize );
+   }
+   float * data = &m_data[0];
+   memset( data, 0, sizeof(float) * dataSize );
+
+   propertyValue->retrieveData();
+
+   volDataNew->setData_IJK(data);
+   float * internalData = const_cast<float *>(volDataNew->getVolumeValues_IJK());
+      
+   if( not internalData ) {
+      return false;
+   }
+
+   int firstK = static_cast<int>(geometry->getFirstK());
+   int lastK  = static_cast<int>(geometry->getFirstK() + geometry->getNumK() - 1);
+
+   for ( int i = grid->firstI(); i <= grid->lastI (); ++i ) {
+      for ( int j = grid->firstJ (); j <= grid->lastJ (); ++j ) {
+         unsigned int pk = 0;
+         for ( int k = lastK; k >= firstK; --k, ++ pk ) {
+            internalData[volDataNew->computeIndex_IJK(i, j, k)] = static_cast<float>(propertyValue->getValue( i, j, pk ));
+         }
+      }
+   }
+
+   propertyValue->restoreData ();
+
+   int rank;
+   MPI_Comm_rank ( PETSC_COMM_WORLD, &rank );
+
+   MPI_Reduce( (void *)internalData, (void *)data, dataSize, MPI_FLOAT, MPI_SUM, 0,  PETSC_COMM_WORLD );
+
+   if( rank == 0 ) {
+      std::memcpy( internalData, data, dataSize * sizeof(float));
+   }
+
+   DerivedProperties::updateVolumeDataConstantValue( volDataNew );
+   
+   CauldronIO::PropertyVolumeData propVolDataNew(vizProperty, volDataNew);
+   CauldronIO::SubsurfaceKind formationKind = (daFormation->kind() == Interface::BASEMENT_FORMATION ? CauldronIO::Basement : CauldronIO::Sediment);
+   
+   CauldronIO::FormationVolumeList& formVolList = const_cast<CauldronIO::FormationVolumeList&>(vizSnapshot->getFormationVolumeList());
+   shared_ptr<CauldronIO::Volume> vol;
+   
+   bool existingVolume = false;
+   if( formVolList.size() > 0 ) {
+      for(auto& volume : formVolList) {
+         
+         if (volume.first != 0 and volume.first->getName() == daFormation->getName()) {
+            vol = volume.second;
+            existingVolume = true;
+         }
+      }
+   }
+   if( not vol ) {
+      vol = shared_ptr<CauldronIO::Volume>(new CauldronIO::Volume(formationKind));
+   }
+   vol->addPropertyVolumeData(propVolDataNew);
+   
+   if( not existingVolume ) {
+      CauldronIO::FormationVolume formVol = CauldronIO::FormationVolume(vizFormation, vol);
+      vizSnapshot->addFormationVolume(formVol);         
+   }
+   return true;
+}
+
+//------------------------------------------------------------//
+bool PropertiesCalculator::createVizSnapshotResultPropertyValueMap ( OutputPropertyValuePtr propertyValue, 
+                                                                     const Snapshot* snapshot, const Interface::Formation * formation,
+                                                                     const Interface::Surface * surface ) {
+   
+   bool debug = false;
+
+   const Interface::Surface*   daSurface   = dynamic_cast<const Interface::Surface *>(surface);
+   const Interface::Formation* daFormation = dynamic_cast<const Interface::Formation *>(formation);
+   const Interface::Property*  daProperty  = dynamic_cast<const Interface::Property *>(propertyValue->getProperty());
+   const string propName = propertyValue->getName();
+   string propertyMapName = ( daProperty != 0 ? daProperty->getCauldronName() : propName );
+   string propertyUserName = ( daProperty != 0 ? daProperty->getUserName() : propName );
+   
+   const string surfaceName = ( daSurface != 0 ? daSurface->getName() : "" );
+   const string unit = ( daProperty != 0 ? daProperty->getUnit() : "" );
+   if( propertyMapName == "HorizontalPermeability" ) propertyMapName = "PermeabilityHVec2";
+   if( propertyValue->getName() == "Reflectivity" )   propertyMapName = "Reflectivity";
+   
+   if( debug ) {
+      cout << snapshot->getTime() << " Start adding "<<  propName << " " << (daSurface ? daSurface->getName() : daFormation->getName()) << " " <<  propertyMapName << endl;
+   }
+
+   // Create geometry
+   const DataAccess::Interface::Grid* grid = m_projectHandle->getActivityOutputGrid ();
+   std::shared_ptr<const CauldronIO::Geometry2D> geometry(new CauldronIO::Geometry2D(grid->numIGlobal(), grid->numJGlobal(), grid->deltaIGlobal(), 
+                                                                                     grid->deltaJGlobal(), grid->minIGlobal(), grid->minJGlobal()));
+  m_vizProject->addGeometry(geometry);
+   
+   // find/create a property
+   shared_ptr<const CauldronIO::Property> vizProperty;
+   for(auto& property : m_vizProject->getProperties()) {
+      if ( property->getName() == propName ) {
+         vizProperty = property;
+         break;
+      }
+   }
+   if( not vizProperty ) {
+      if( daSurface != 0 ) {
+         vizProperty.reset( new CauldronIO::Property(propName, propertyUserName, propertyMapName, unit, CauldronIO::FormationProperty, CauldronIO::Surface2DProperty));
+      } else {
+         vizProperty.reset( new CauldronIO::Property(propName, propertyUserName, propertyMapName, unit, CauldronIO::FormationProperty, CauldronIO::Formation2DProperty));
+      }
+      m_vizProject->addProperty(vizProperty);
+      if( debug ) {
+         cout << "Adding map property " << propName << endl;
+      }
+   }
+   
+   // find/create snapshot
+
+   shared_ptr<CauldronIO::SnapShot> vizSnapshot = getSnapShot( m_vizProject, snapshot->getTime() );
+   if( not vizSnapshot ) {
+      //create snapshot
+      CauldronIO::SnapShotKind kind = DerivedProperties::getSnapShotKind( snapshot );
+      
+      vizSnapshot.reset(new CauldronIO::SnapShot(snapshot->getTime(), kind, snapshot->getType() == MINOR));
+      m_vizProject->addSnapShot(vizSnapshot);
+   } 
+    // find/create snapshot surface
+   std::shared_ptr<CauldronIO::Surface> vizSurface;
+   CauldronIO::SubsurfaceKind kind = CauldronIO::None;
+   
+   std::shared_ptr< CauldronIO::Formation> vizFormation = m_vizProject->findFormation( daFormation->getName() );
+   
+   if( daSurface != 0 ) {
+      vizSurface = getSurface( vizSnapshot, surfaceName );
+      if( not vizSurface ) {
+         if( daSurface->kind() == BASEMENT_SURFACE ) kind = CauldronIO::Basement;
+         else kind = CauldronIO::Sediment;
+         vizSurface.reset(new CauldronIO::Surface(surfaceName,  kind ));
+         // assign formations
+         if( daSurface->getTopFormation() != 0 ) {
+            std::shared_ptr<CauldronIO::Formation> topFormation = m_vizProject->findFormation( daSurface->getTopFormation()->getName());
+            vizSurface->setFormation( topFormation, true);
+          }
+         if( daSurface->getBottomFormation() != 0 ) {
+            std::shared_ptr<CauldronIO::Formation> bottomFormation = m_vizProject->findFormation( daSurface->getBottomFormation()->getName());
+            vizSurface->setFormation( bottomFormation, false );
+         }
+         
+         vizSnapshot->addSurface( vizSurface );
+         if( debug ) {
+            cout << "Adding surface " << surfaceName << endl;
+         }
+     } else {
+         if( debug ) {
+            cout << "Found surface " << surfaceName << endl;
+         }
+      }
+   } else {
+      // find/create surface for formation map
+      vizSurface = getSurface( vizSnapshot, vizFormation );
+      if( not vizSurface ) {
+         vizSurface.reset(new CauldronIO::Surface(surfaceName,  kind ));
+         
+         vizSurface->setFormation(vizFormation, true);
+         vizSurface->setFormation(vizFormation, false);
+         vizSnapshot->addSurface( vizSurface );
+         if( debug ) {
+            cout << "Adding surface " << surfaceName << " for formation " << daFormation->getName() << endl;
+         }
+      } else {
+         if( debug ) {
+            cout << "Found surface " << surfaceName << " as formation " << daFormation->getName() << endl;
+         }
+      }
+   }
+
+   // copy property data
+   unsigned int p_depth = propertyValue->getDepth();
+   unsigned int kIndex = 0;
+   if( daSurface != 0 and daSurface == daFormation->getTopSurface ()) {
+      kIndex = p_depth - 1;
+   }
+   
+   assert( p_depth == 1 );
+
+   unsigned int dataSize = geometry->getNumI() * geometry->getNumJ();
+   if( m_data.size() < dataSize ) {
+      m_data.resize( dataSize );
+   }
+   float * data = &m_data[0]; 
+   memset( data, 0, sizeof(float) * dataSize );
+
+   // assign surface map
+   std::shared_ptr< CauldronIO::SurfaceData> valueMap(new CauldronIO::MapNative(geometry));
+   valueMap->setData_IJ( data ); 
+
+   float * internalData = const_cast<float *>(valueMap->getSurfaceValues());
+   propertyValue->retrieveData();
+   for ( int i = grid->firstI(); i <= grid->lastI (); ++i ) {
+      for ( int j = grid->firstJ (); j <= grid->lastJ (); ++j ) {
+         internalData[valueMap->getMapIndex(i, j)] = static_cast<float>(propertyValue->getValue( i, j, kIndex ));
+      }
+   }
+   propertyValue->restoreData ();
+
+   int rank;
+   MPI_Comm_rank ( PETSC_COMM_WORLD, &rank );
+
+   MPI_Reduce( (void *)internalData, (void *)data, dataSize, MPI_FLOAT, MPI_SUM, 0,  PETSC_COMM_WORLD );
+   if( rank == 0 ) {
+      std::memcpy( internalData, data, dataSize * sizeof(float));
+   }
+
+   CauldronIO::PropertySurfaceData propSurface = CauldronIO::PropertySurfaceData(vizProperty, valueMap);
+
+   if( daSurface == 0 or propertyValue->getProperty ()->getPropertyAttribute () == DataModel::DISCONTINUOUS_3D_PROPERTY ) {
+      valueMap->setFormation(vizFormation);
+   }
+
+   vizSurface->addPropertySurfaceData( propSurface );
+
+   if( debug ) {
+      if( propertyValue->getProperty ()->getPropertyAttribute () != DataModel::DISCONTINUOUS_3D_PROPERTY ) {
+         cout << snapshot->getTime() << ": Added " << propName << " " << (surface ? daSurface->getName() : daFormation->getName()) << 
+            " count= " << vizSurface->getPropertySurfaceDataList().size() << endl;
+      } else {
+         cout << snapshot->getTime() << ": Added " << propName << " " << daSurface->getName() << " and " <<  daFormation->getName() << 
+            " count= " << vizSurface->getPropertySurfaceDataList().size() << endl;
+      }
+   }
+   
+   return true;
+}
+//------------------------------------------------------------//
 
 bool PropertiesCalculator::parseCommandLine( int argc, char ** argv ) {
 
@@ -1174,9 +1756,17 @@ bool PropertiesCalculator::parseCommandLine( int argc, char ** argv ) {
       {
          m_basement = false;
       }
+      else if ( strncmp( argv[ arg ], "-minor", Max( 3, (int)strlen( argv[ arg ] ) ) ) == 0 )
+      {
+         m_snapshotsType = MAJOR | MINOR;
+      }
+      else if ( strncmp( argv[ arg ], "-pminor", Max( 3, (int)strlen( argv[ arg ] ) ) ) == 0 )
+      {
+         m_snapshotsType = MAJOR | MINOR;
+         m_minorPrimary = true;
+      }
       else if ( strncmp( argv[ arg ], "-major", Max( 3, (int)strlen( argv[ arg ] ) ) ) == 0 )
       {
-         m_snapshotsType = MAJOR;
       }
       else if ( strncmp( argv[ arg ], "-all-2D-properties", Max( 7, (int)strlen( argv[ arg ] ) ) ) == 0 )
       {
@@ -1260,6 +1850,10 @@ bool PropertiesCalculator::parseCommandLine( int argc, char ** argv ) {
       {
          m_vizFormatHDFonly = true;
       }
+      else if ( strncmp( argv[ arg ], "-listXml", Max( 6, (int)strlen( argv[ arg ] )) ) == 0 )
+      {
+         m_vizListXml = true;
+      }
       else if ( strncmp( argv[ arg ], "-ddd", Max( 3, (int)strlen( argv[ arg ] )) ) == 0 )
       {
 
@@ -1307,7 +1901,7 @@ bool PropertiesCalculator::parseCommandLine( int argc, char ** argv ) {
       m_basement = true;
    }
 
-   if( m_convert or m_vizFormatHDFonly ) {
+   if( m_convert or m_vizFormatHDFonly or m_vizListXml ) {
       int numberOfRanks;
       
       MPI_Comm_size ( PETSC_COMM_WORLD, &numberOfRanks );
@@ -1328,6 +1922,12 @@ void PropertiesCalculator::startTimer() {
 bool PropertiesCalculator::hdfonly() const {
    return m_vizFormatHDFonly;
 }
+//------------------------------------------------------------//
+
+bool PropertiesCalculator::listXml() const {
+   return m_vizListXml;
+}
+
 //------------------------------------------------------------//
 
 bool PropertiesCalculator::convert() const {
@@ -1370,7 +1970,8 @@ void PropertiesCalculator::showUsage( const char* command, const char* message )
            << "\t[-list-properties]                         print a list of available properties and exit" << endl
            << "\t[-list-snapshots]                          print a list of available snapshots and exit" << endl
            << "\t[-list-stratigraphy]                       print a list of available surfaces and formations and exit" << endl << endl
-           << "\t[-major]                                   only major snapshots" << endl << endl
+           << "\t[-minor]                                   output major and minor snapshots" << endl << endl
+           << "\t[-pminor]                                  output major and primary properties at minor snapshots" << endl << endl
            << "\t[-viz]                                     calculate the properties and convert to visialization format." << endl << endl
            << "\t[-help]                                    print this message and exit" << endl << endl
            << "Options for shared cluster storage:" << endl << endl
