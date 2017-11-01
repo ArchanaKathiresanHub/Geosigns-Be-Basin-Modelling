@@ -432,16 +432,6 @@
 [End]
 ;
 ;
-; BasaltThicknessIoTbl
-;
-[BasaltThicknessIoTbl]
-;v100
-         BasaltThickness      BasaltThicknessGrid  CrustThicknessMeltOnset CrustThicknessMeltOnsetGrid
-                     (m)                       ()                      (m)                       ()
-                    5000                       ""                    11000                       ""
-[End]
-;
-;
 ; SourceRockLithoIoTbl
 ;
 [SourceRockLithoIoTbl]

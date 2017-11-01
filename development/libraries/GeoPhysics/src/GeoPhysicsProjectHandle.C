@@ -496,10 +496,6 @@ void GeoPhysics::ProjectHandle::addCrustUndefinedAreas ( const Interface::CrustF
       }
 
       if( m_isALCMode ) {
-         // legacy ALC
-         addUndefinedAreas ( dynamic_cast<const Interface::GridMap*>(crust->getBasaltThicknessMap ()));
-         addUndefinedAreas ( dynamic_cast<const Interface::GridMap*>(crust->getCrustThicknessMeltOnsetMap ()));
-         // v2017.05 ALC
          auto oceaData = m_tableOceanicCrustThicknessHistory.data();
          std::for_each( oceaData.begin(), oceaData.end(), [&]( std::shared_ptr<const OceanicCrustThicknessHistoryData> oceanicCrust)
          {
@@ -888,19 +884,14 @@ bool GeoPhysics::ProjectHandle::initialise ( const bool readSizeFromVolumeData,
 void GeoPhysics::ProjectHandle::checkAlcCrustHistoryInput() {
    Interface::PaleoFormationPropertyList* crustThicknesses = getCrustFormation()->getPaleoThicknessHistory();
    GeoPhysics::GeoPhysicsCrustFormation*  crust = dynamic_cast<GeoPhysics::GeoPhysicsCrustFormation*>(m_crustFormation);
-   const Interface::GridMap* presentDayBasaltThickness = crust->getBasaltThicknessMap();
-   const Interface::GridMap* crustMeltOnsetMap         = crust->getCrustThicknessMeltOnsetMap();
-   // If the legacy alc is used do not check anything
-   if (presentDayBasaltThickness == nullptr and crustMeltOnsetMap == nullptr) {
-      for (auto continentalCrustReverseIter = crustThicknesses->rbegin(); continentalCrustReverseIter != crustThicknesses->rend(); ++continentalCrustReverseIter) {
-         const PaleoFormationProperty* contCrustThicknessInstance = *continentalCrustReverseIter;
-         const GridMap* contCrustThicknessMap = contCrustThicknessInstance->getMap( CrustThinningHistoryInstanceThicknessMap );
-         const double age = contCrustThicknessInstance->getSnapshot()->getTime();
-         auto oceanicCrustThicknessIt = std::find_if( m_tableOceanicCrustThicknessHistory.data().begin(), m_tableOceanicCrustThicknessHistory.data().end(),
-            [&age]( std::shared_ptr<const OceanicCrustThicknessHistoryData> obj ) { return obj->getAge() == age; } );
-         if (oceanicCrustThicknessIt == m_tableOceanicCrustThicknessHistory.data().end()) {
-            throw std::invalid_argument( "There is no oceanic crustal thickness corresponding to the contiental crustal thickness defined at " + std::to_string( age ) + "Ma" );
-         }
+   for (auto continentalCrustReverseIter = crustThicknesses->rbegin(); continentalCrustReverseIter != crustThicknesses->rend(); ++continentalCrustReverseIter) {
+      const PaleoFormationProperty* contCrustThicknessInstance = *continentalCrustReverseIter;
+      const GridMap* contCrustThicknessMap = contCrustThicknessInstance->getMap( CrustThinningHistoryInstanceThicknessMap );
+      const double age = contCrustThicknessInstance->getSnapshot()->getTime();
+      auto oceanicCrustThicknessIt = std::find_if( m_tableOceanicCrustThicknessHistory.data().begin(), m_tableOceanicCrustThicknessHistory.data().end(),
+         [&age]( std::shared_ptr<const OceanicCrustThicknessHistoryData> obj ) { return obj->getAge() == age; } );
+      if (oceanicCrustThicknessIt == m_tableOceanicCrustThicknessHistory.data().end()) {
+         throw std::invalid_argument( "There is no oceanic crustal thickness corresponding to the contiental crustal thickness defined at " + std::to_string( age ) + "Ma" );
       }
    }
 }
@@ -1102,8 +1093,6 @@ bool GeoPhysics::ProjectHandle::createBasaltThicknessAndECT () {
 
    Interface::PaleoFormationPropertyList* crustThicknesses = getCrustFormation()->getPaleoThicknessHistory();
    GeoPhysics::GeoPhysicsCrustFormation*  crust = dynamic_cast<GeoPhysics::GeoPhysicsCrustFormation*>(m_crustFormation);
-   const Interface::GridMap* presentDayBasaltThickness = crust->getBasaltThicknessMap();
-   const Interface::GridMap* crustMeltOnsetMap         = crust->getCrustThicknessMeltOnsetMap();
    const double initialLithosphericMantleThickness = getMantleFormation()->getInitialLithosphericMantleThickness();
    const double initialCrustalThickness            = crust->getInitialCrustalThickness();
    Validator validator( *this );
@@ -1111,23 +1100,17 @@ bool GeoPhysics::ProjectHandle::createBasaltThicknessAndECT () {
    EffectiveCrustalThicknessCalculator ectCalculator( crustThicknesses,
                                                       m_tableOceanicCrustThicknessHistory,
                                                       m_contCrustThicknessHistory,
-                                                      presentDayBasaltThickness,
-                                                      crustMeltOnsetMap,
                                                       initialLithosphericMantleThickness,
                                                       initialCrustalThickness,
                                                       validator );
    try{
-   ectCalculator.compute( m_crustThicknessHistory,
-                          m_basaltThicknessHistory,
-                          m_endOfRiftEvent );
-   status = true;
+      ectCalculator.compute( m_crustThicknessHistory,
+                             m_basaltThicknessHistory,
+                             m_endOfRiftEvent );
+      status = true;
    }
    catch ( std::invalid_argument& ex ) {
       LogHandler( LogHandler::ERROR_SEVERITY ) << "One of the Advanced Lithosphere Calculator (ALC) input is invalid (see details bellow)";
-      LogHandler( LogHandler::ERROR_SEVERITY ) << ex.what();
-   }
-   catch( std::runtime_error& ex ) {
-      LogHandler( LogHandler::ERROR_SEVERITY ) << "The Advanced Lithosphere Calculator (ALC) could not compute the Effective Crustal Thickness (see details bellow)";
       LogHandler( LogHandler::ERROR_SEVERITY ) << ex.what();
    }
    catch (...) {

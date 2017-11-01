@@ -44,13 +44,6 @@ namespace DataAccess
          /// \details This function is only used if the thermal model is Advanced Lithosphere Calculator or Basic Crust Thinning
          const GridMap * getCrustHeatProductionMap () const;
 
-         /// \return The user-supplied crustal thickness at melt onset map
-         /// \details This function is only used if the thermal model is Advanced Lithosphere Calculator
-         const GridMap * getCrustThicknessMeltOnsetMap() const;
-
-         /// \return The user-supplied basalt thickness map
-         /// \details This function is only used if the thermal model is Advanced Lithosphere Calculator
-         const GridMap * getBasaltThicknessMap() const;
          /// @}
 
          /// \return The crust paleothickness history stored by the project handle
@@ -91,12 +84,6 @@ namespace DataAccess
          /// \brief Load the Crust Heat Production user defined map from the [BasementIoTbl]
          /// \details If the Crust Heat Production is defined as a scalar, creates a constant map from it
          GridMap * loadCrustHeatProductionMap() const;
-         /// \brief Load the Crust Thickness At Melt Onset user defined map from the [BasementIoTbl]
-         /// \details If the Crust Thickness At Melt Onset is defined as a scalar, creates a constant map from it
-         GridMap * loadCrustThicknessMeltOnsetMap() const;
-         /// \brief Load the Basalt Thickness user defined map from the [BasementIoTbl]
-         /// \details If the Basalt Thickness is defined as a scalar, creates a constant map from it
-         GridMap * loadBasaltThicknessMap() const;
          /// @}
 
       };

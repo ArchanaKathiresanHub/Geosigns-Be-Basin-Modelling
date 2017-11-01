@@ -886,28 +886,6 @@ START-properties
     Type                : string
     Default             : "Standard Conductivity Mantle"
 
-    Identification      : BasaltThickness
-    Description         : present-day basalt thickness
-    Unit of measurement : m
-    Type                : float
-    Default             : 0
-
-    Identification      : BasaltThicknessGrid
-    Description         : MapName of the Basalt Thickness
-    Unit of measurement :
-    Type                : string
-
-    Identification      : CrustThicknessMeltOnset
-    Description         : crust thickness at melt onset
-    Unit of measurement : m
-    Type                : float
-    Default             : 0
-
-    Identification      : CrustThicknessMeltOnsetGrid
-    Description         : MapName of the Crust Thickness at melt onset
-    Unit of measurement :
-    Type                : string
-
     Identification      : SurfaceNormal
     Description         : Normal of a point on a surface
     Unit of measurement :
@@ -4926,16 +4904,6 @@ START-property-tables
     Column         : ThicknessGrid
     Header         : Oceanic Crust Thickness Data
 
-    Identification : BasaltThicknessIoTbl
-    Description    : table with Basalt thickness data for IO and UI
-    Version        : 100
-    Column         : BasaltThickness
-    Column         : BasaltThicknessGrid
-    Column         : CrustThicknessMeltOnset
-    Column         : CrustThicknessMeltOnsetGrid
-    #limited to 1 layer only:
-    Header         : Basalt Thickness Data
-
  # Source Rock data IO:
 
     Identification : SourceRockLithoIoTbl
@@ -5909,7 +5877,6 @@ START-application-class-properties
     Property : CrustIoTbl
     Property : ContCrustalThicknessIoTbl
     Property : OceaCrustalThicknessIoTbl
-    Property : BasaltThicknessIoTbl
     Property : BasementIoTbl
     Property : DisplayContourIoTbl
     Property : SurfaceTempIoTbl

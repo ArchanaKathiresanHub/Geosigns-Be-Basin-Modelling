@@ -37,13 +37,6 @@ namespace GeoPhysics
       public:
          typedef Local2DArray <CBMGenerics::Polyfunction> PolyFunction2DArray;
 
-         /// @brief The verion of the algorithm used
-         /// @details Defined according to inputs
-         enum VersionALC {
-            LEGACY,  ///< Computes the Basalt Thicknesses from the crust thickness at melt onset, and then ses them to compute the ECT
-            V2017_05 ///< Gets the Basalt Thicknesses as input and computes directly the ECT
-         };
-
          /// @details If the present day basaltThickness and crust thickness at melt onset are not null pointers, then the version is set to legacy
          ///    Else, the version is set to v2017.05 and the oceanic crust thickness history must have the same size as the continental crust thickness history and not empty
          /// @param[in] oceanicCrustThicknessHistory Used only in v2017.05 version
@@ -54,8 +47,6 @@ namespace GeoPhysics
          EffectiveCrustalThicknessCalculator( const PaleoFormationPropertyList*        continentalCrustThicknessHistory,
                                               const TableOceanicCrustThicknessHistory& oceanicCrustThicknessHistory,
                                               const PolyFunction2DArray&               continentalCrustThicknessPolyfunction,
-                                              const GridMap*                           presentDayBasaltThickness,
-                                              const GridMap*                           crustThicknessMeltOnset,
                                               const double                             initialLithosphericMantleThickness,
                                               const double                             initialCrustThickness,
                                               const AbstractValidator&                 validator
@@ -91,16 +82,6 @@ namespace GeoPhysics
             Node(const unsigned int i, const unsigned int j) : i(i), j(j) {};
          };
 
-         /// @brief Calculates the basalt thickness from the crust thickness at melt onset
-         /// @details To be used in legacy version only
-         Output calculateBasaltThicknessFromMeltOnset( const double crustThicknessAtMeltOnset,
-                                                       const double continentalCrustThickness,
-                                                       const double presentDayContinentalCrustThickness,
-                                                       const double previousContinentalCrustThickness,
-                                                       const double presentDayBasaltThickness,
-                                                       const double previousBasaltThickness,
-                                                       const double age) const noexcept;
-
          /// @brief Calculates the effective crustal thickness
          /// @details To be used in both legacy and v2017.05 version
          /// @param[in] coeff The multiplicative coefficient which is the ration of the inital crust thickness by the total initial crust and lithospheric mantle thickness
@@ -134,18 +115,14 @@ namespace GeoPhysics
                                    const double       value) const;
 
          const PaleoFormationPropertyList*       m_continentalCrustThicknessHistory;
-         const TableOceanicCrustThicknessHistory m_oceanicCrustThicknessHistory;       ///< Only used in v2017.05 version
+         const TableOceanicCrustThicknessHistory m_oceanicCrustThicknessHistory;
          const PolyFunction2DArray&              m_contCrustThicknessPolyfunction;     ///< The continental crust thickness polyfunction (used to access present day values)
-         const GridMap*                          m_presentDayBasaltThickness;          ///< Only used in legacy version
-         const GridMap*                          m_crustThicknessMeltOnset;            ///< Only used in legacy version
          const double                            m_initialLithosphericMantleThickness;
          const double                            m_initialCrustThickness;
          const AbstractValidator&                m_validator;                          ///< The validator to check if a node (i,j) is valid or not
 
          static const double s_minimumEffectiveCrustalThickness; ///< The minimum allowed Effective Crustal Thickness [m]
          static const bool   s_gosthNodes;                       ///< Defines if the input maps should output the gosth nodes
-
-         VersionALC m_version; /// The algorithm version, which corresponds to the ALC version
    };
 }
 

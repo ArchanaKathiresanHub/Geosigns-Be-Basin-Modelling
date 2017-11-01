@@ -33,7 +33,6 @@ set(allheaders
    ${CMAKE_CURRENT_BINARY_DIR}/TableCrustIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableContCrustalThicknessIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableOceaCrustalThicknessIoTbl.h
-   ${CMAKE_CURRENT_BINARY_DIR}/TableBasaltThicknessIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableBasementIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableDisplayContourIoTbl.h
    ${CMAKE_CURRENT_BINARY_DIR}/TableSurfaceTempIoTbl.h
@@ -109,7 +108,6 @@ set(allsources
    ${CMAKE_CURRENT_BINARY_DIR}/TableCrustIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableContCrustalThicknessIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableOceaCrustalThicknessIoTbl.cpp
-   ${CMAKE_CURRENT_BINARY_DIR}/TableBasaltThicknessIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableBasementIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableDisplayContourIoTbl.cpp
    ${CMAKE_CURRENT_BINARY_DIR}/TableSurfaceTempIoTbl.cpp

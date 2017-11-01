@@ -209,8 +209,6 @@ void Anonymizer::write()
    update( "AllochthonLithoInterpIoTbl" , "LayerName"                  , m_layerNames );
    update( "CrustIoTbl"                 , "ThicknessGrid"              , m_gridMap    );
    update( "ContCrustalThicknessIoTbl"  , "ThicknessGrid"              , m_gridMap    );
-   update( "BasaltThicknessIoTbl"       , "BasaltThicknessGrid"        , m_gridMap    );
-   update( "BasaltThicknessIoTbl"       , "CrustThicknessMeltOnsetGrid", m_gridMap    );
    writeLithotypeIoTbl();
    update( "LitThCondIoTbl" , "Lithotype", m_lithoTypes );
    update( "LitHeatCapIoTbl", "Lithotype", m_lithoTypes );
