@@ -2144,13 +2144,19 @@ void FastcauldronSimulator::readCommandLineParametersEarlyStage( const int argc,
 
    if( getModellingMode () != Interface::MODE1D ) {
 
-      PetscBool onlyPrimaryFloat  = PETSC_FALSE;
+      PetscBool onlyPrimaryFloat  = PETSC_TRUE;
       PetscBool onlyPrimaryDouble = PETSC_FALSE;
+      PetscBool allProperties     = PETSC_FALSE;
 
-      // output the primary properties in float precision
-      PetscOptionsHasName( PETSC_NULL, "-primary", &onlyPrimaryFloat );
       // output the primary properties in double precision
       PetscOptionsHasName( PETSC_NULL, "-primaryDouble", &onlyPrimaryDouble );
+      
+      // output all properties
+      PetscOptionsHasName( PETSC_NULL, "-allproperties", &allProperties );
+
+      if (onlyPrimaryDouble or allProperties) {
+         onlyPrimaryFloat  = PETSC_FALSE;
+      }
 
       if( onlyPrimaryDouble and not onlyPrimaryFloat ) {
          setPrimaryDouble( true );

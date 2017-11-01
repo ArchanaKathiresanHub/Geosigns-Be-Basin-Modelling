@@ -26,7 +26,6 @@
 #define EXPECT_EXCEPTION_EQ(statement, expectedException)                               \
 {                                                                                       \
                                                                                         \
-   EXPECT_THROW( statement, decltype(expectedException) );                              \
    try{                                                                                 \
       statement;                                                                        \
       FAIL() << "Expected '" + std::string(expectedException.what()) + "' exception";   \
@@ -38,6 +37,6 @@
       FAIL() << "Expected '" + std::string( expectedException.what() ) + "' exception"; \
    }                                                                                    \
                                                                                         \
-}                                                                                       \
+}
 
 #endif //UTILITIES_GOOGLETESTMACROS_H

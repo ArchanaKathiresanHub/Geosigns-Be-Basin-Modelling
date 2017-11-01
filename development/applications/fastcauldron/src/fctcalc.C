@@ -34,9 +34,9 @@ FCTCalc::FCTCalc( AppCtx* Application_Context )
    // Clear the formation property list until the formation properties (e.g. Thickness) are computed in FCTCalc
    m_mapOutputProperties.clear ();
 
-  PetscBool onlyPrimaryProperties = PETSC_FALSE;
+  PetscBool allProperties = PETSC_FALSE;
 
-  PetscOptionsHasName ( PETSC_NULL, "-primary", &onlyPrimaryProperties );
+  PetscOptionsHasName ( PETSC_NULL, "-allproperties", &allProperties );
 
 #if LITHOLOGYID
   // Remove from list until the lithology id has been fixed.
@@ -47,12 +47,12 @@ FCTCalc::FCTCalc( AppCtx* Application_Context )
    m_volumeOutputProperties.push_back ( VES );
    m_volumeOutputProperties.push_back ( MAXVES );
 
-   if(( onlyPrimaryProperties && FastcauldronSimulator::getInstance ().getCalculationMode () == HYDROSTATIC_DECOMPACTION_MODE )) {
+   if(( !allProperties && FastcauldronSimulator::getInstance ().getCalculationMode () == HYDROSTATIC_DECOMPACTION_MODE )) {
 
       FastcauldronSimulator::getInstance ().setOutputPropertyOption ( DEPTH, Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
    }
 
-   if( not ( onlyPrimaryProperties && FastcauldronSimulator::getInstance ().getCalculationMode () == HYDROSTATIC_DECOMPACTION_MODE )) {
+   if( not ( !allProperties && FastcauldronSimulator::getInstance ().getCalculationMode () == HYDROSTATIC_DECOMPACTION_MODE )) {
       m_volumeOutputProperties.push_back ( LITHOSTATICPRESSURE );
       m_volumeOutputProperties.push_back ( POROSITYVEC );
    }

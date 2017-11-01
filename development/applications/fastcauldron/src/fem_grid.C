@@ -629,7 +629,7 @@ Basin_Modelling::FEM_Grid::FEM_Grid ( AppCtx* Application_Context )
   }
   
   if (Application_Context->primaryOutput() and FastcauldronSimulator::getInstance().getCalculationMode() != OVERPRESSURE_MODE) {
-     basinModel->timefilter.setFilter("Depth", "SedimentPlusBasement");
+     basinModel->timefilter.setFilter("Depth", "SedimentsPlusBasement");
      FastcauldronSimulator::getInstance().setOutputPropertyOption( DEPTH, Interface::SEDIMENTS_AND_BASEMENT_OUTPUT );
      
      basinModel->timefilter.setFilter("Temperature", "SedimentsPlusBasement");

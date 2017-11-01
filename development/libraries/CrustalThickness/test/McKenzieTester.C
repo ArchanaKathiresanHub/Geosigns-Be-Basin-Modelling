@@ -47,6 +47,7 @@ McKenzieTester::McKenzieTester() :
    //   - previous oceanic crust thickness crust is 200m
    m_previousOceanicCrustThickness     = new DataAccess::Interface::SerialGridMap( 0, 0, this->m_grid, 200,   1 );
 
+   initTestData();
 }
 
 McKenzieTester::~McKenzieTester()
@@ -57,6 +58,7 @@ McKenzieTester::~McKenzieTester()
    delete m_HCuMap;
    delete m_HBuMap;
    delete m_HLMuMap;
+   delete m_previousRiftITS;
    delete m_previousContinentalCrustThickness;
    delete m_previousOceanicCrustThickness;
 }

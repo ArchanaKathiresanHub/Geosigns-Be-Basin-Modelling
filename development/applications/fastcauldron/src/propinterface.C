@@ -600,8 +600,8 @@ void AppCtx::printHelp () const {
   helpBuffer << "           -onefileperprocess <dir>    Use dir to store imtermediate output files. Default is $TMPDIR." << endl;
   helpBuffer << "           -noofpp                     Do not use one-file-perprocess I/O." << endl;
   helpBuffer << "           -primaryPod <dir>           Use dir to store imtermediate output files. Dir should be a shared dir on the cluster (or local)" << endl;
-  helpBuffer << "           -primary                    Output only primary properties in float precision." << endl;
   helpBuffer << "           -primaryDouble              Output only primary properties in double precision." << endl;
+  helpBuffer << "           -allproperties              Output all properties (selected in FilterTimeIoTbl) and not just primary." << endl;
 
   helpBuffer << endl;
 

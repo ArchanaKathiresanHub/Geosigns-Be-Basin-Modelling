@@ -32,7 +32,7 @@ class MockInterfaceOutput : public AbstractInterfaceOutput {
                            unsigned int lastJ );
       ~MockInterfaceOutput() {};
 
-      double getMapValue ( CrustalThicknessInterface::outputMaps mapIndex, unsigned int i, unsigned int j ) const { return m_outputMaps[mapIndex][i - m_firstI][j - m_firstJ]; };
+      double getMapValue ( CrustalThicknessInterface::outputMaps mapIndex, const unsigned int i, const unsigned int j ) const { return m_outputMaps[mapIndex][i - m_firstI][j - m_firstJ]; };
       
       /// @brief Set m_outputMaps[i,j] to value
       void setMapValue ( const CrustalThicknessInterface::outputMaps mapIndex,
