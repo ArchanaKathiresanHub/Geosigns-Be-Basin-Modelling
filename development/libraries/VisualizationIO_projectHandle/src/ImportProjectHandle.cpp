@@ -68,7 +68,7 @@ std::shared_ptr<CauldronIO::Project> ImportProjectHandle::createFromProjectHandl
 
     // Create the project
     std::shared_ptr<CauldronIO::Project> project(new CauldronIO::Project(
-        projectData->getProjectName(), projectData->getDescription(), projectData->getProjectTeam(),
+        projectData->getProjectName(), projectData->getDescription(),
         projectData->getProgramVersion(), mode, xml_version_major, xml_version_minor));
 
     // Import all snapshots

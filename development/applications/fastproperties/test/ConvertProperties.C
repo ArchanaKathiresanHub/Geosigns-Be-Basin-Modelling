@@ -87,7 +87,7 @@ TestUnit::TestUnit() {
 
    inData.resize(dataSize);
 
-   vizProject = std::shared_ptr<CauldronIO::Project>(new CauldronIO::Project("testProject", "testDescription", "team", "1.0", CauldronIO::MODE3D, 1, 0));
+   vizProject = std::shared_ptr<CauldronIO::Project>(new CauldronIO::Project("testProject", "testDescription", "1.0", CauldronIO::MODE3D, 1, 0));
    snapshot = std::shared_ptr<CauldronIO::SnapShot>(new CauldronIO::SnapShot(10.11, CauldronIO::SYSTEM, false));
    geometry = std::shared_ptr< CauldronIO::Geometry3D>(new CauldronIO::Geometry3D(numIGlobal, numJGlobal, numK - minK, minK, 500, 500, minIGlobal, minJGlobal));
    std::shared_ptr<CauldronIO::Formation> formation1(new CauldronIO::Formation(minK, 3, "Formation1"));

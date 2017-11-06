@@ -73,7 +73,6 @@ std::shared_ptr<Project> CauldronIO::ImportFromXML::getProject(const pugi::xml_d
 
     std::string projectName = pt.child_value("name");
     std::string projectDescript = pt.child_value("description");
-    std::string projectTeam = pt.child_value("team");
     std::string projectVersion = pt.child_value("programversion");
     std::string outputPath = pt.child_value("outputpath");
     
@@ -112,7 +111,7 @@ std::shared_ptr<Project> CauldronIO::ImportFromXML::getProject(const pugi::xml_d
     }
 
     // Create the project
-    m_project.reset(new Project(projectName, projectDescript, projectTeam, projectVersion, mode, dataXmlVersionMajor, dataXmlVersionMinor));
+    m_project.reset(new Project(projectName, projectDescript, projectVersion, mode, dataXmlVersionMajor, dataXmlVersionMinor));
 
     // Read all properties
     pugi::xml_node propertiesNode = pt.child("properties");

@@ -27,13 +27,10 @@ namespace DataAccess
          /// Return description of project.
          virtual const std::string& getDescription () const;
 
-         /// Return the name of the project team.
-         virtual const std::string& getProjectTeam () const;
-
          /// Return the cauldron version that created the project.
          virtual const std::string& getProgramVersion () const;
 
-
+ 
          /// Return x-origin of the map.
          virtual double getXOrigin () const;
 

@@ -26,7 +26,7 @@ TEST( Utilities, CellCenterData )
 	ModellingMode mode = MODE1D;
 	int xmlVersionMjr = 2;
 	int xmlVersionMnr = 1;
-	std::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, xmlVersionMjr, xmlVersionMnr));
+	std::shared_ptr<Project> project(new Project(projectName, description, version, mode, xmlVersionMjr, xmlVersionMnr));
 
 	// create a snapshot
 	double age = 10.11;

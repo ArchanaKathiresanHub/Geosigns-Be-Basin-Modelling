@@ -1008,8 +1008,8 @@ std::shared_ptr<CauldronIO::Project> PropertiesCalculator::createStructureFromPr
    
    // Create the project
    std::shared_ptr<CauldronIO::Project> project(new CauldronIO::Project(projectData->getProjectName(), projectData->getDescription(),
-                                                                        projectData->getProjectTeam(), projectData->getProgramVersion(), 
-                                                                        mode, xml_version_major, xml_version_minor));
+                                                                        projectData->getProgramVersion(), mode,
+                                                                        xml_version_major, xml_version_minor));
    // Import all snapshots
    ImportProjectHandle import(verbose, project, m_sharedProjectHandle);
 
