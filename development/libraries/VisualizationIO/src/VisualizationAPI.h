@@ -110,12 +110,11 @@ namespace CauldronIO
         /// \brief Create an empty project
         /// \param [in] name Name of the project
         /// \param [in] description Description of the project
-        /// \param [in] team Team working on the project
         /// \param [in] version Cauldron simulator version
         /// \param [in] mode Modeling mode
         /// \param [in] xmlVersionMajor 
         /// \param [in] xmlVersionMinor
-        explicit Project(const std::string& name, const std::string& description, const std::string& team, const std::string& version,
+        explicit Project(const std::string& name, const std::string& description, const std::string& version,
             ModellingMode mode, int xmlVersionMajor, int xmlVersionMinor);
 
         /// \brief Destructor
@@ -142,8 +141,6 @@ namespace CauldronIO
         const std::string& getName() const;
         /// \returns Description of the project
         const std::string& getDescription() const;
-        /// \returns Team working on this project (?)
-        const std::string& getTeam() const;
         /// \returns Obsolete
         const std::string& getProgramVersion() const;
         /// \returns Modeling mode for this run
@@ -291,7 +288,7 @@ namespace CauldronIO
         
    private:
         SnapShotList m_snapShotList;
-        std::string m_name, m_description, m_team, m_version;
+        std::string m_name, m_description, m_version;
         ModellingMode m_mode;
         PropertyList m_propertyList;
         FormationList m_formationList;

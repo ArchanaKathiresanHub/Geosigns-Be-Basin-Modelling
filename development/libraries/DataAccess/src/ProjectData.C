@@ -33,10 +33,6 @@ const std::string& ProjectData::getDescription () const {
    return database::getDescription ( m_record );
 }
 
-const std::string& ProjectData::getProjectTeam () const {
-   return database::getProjectTeam ( m_record );
-}
-
 const std::string& ProjectData::getProgramVersion () const {
    return database::getProgramVersion ( m_record );
 }

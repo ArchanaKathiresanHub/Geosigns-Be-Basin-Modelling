@@ -27,11 +27,10 @@ using namespace std;
 /// Project Implementation
 //////////////////////////////////////////////////////////////////////////
 
-CauldronIO::Project::Project(const string& name, const string& description, const string& team, const string& version, ModellingMode mode, int xmlVersionMajor, int xmlVersionMinor)
+CauldronIO::Project::Project(const string& name, const string& description, const string& version, ModellingMode mode, int xmlVersionMajor, int xmlVersionMinor)
 {
     m_name = name;
     m_description = description;
-    m_team = team;
     m_version = version;
     m_mode = mode;
     m_xmlVersionMajor = xmlVersionMajor;
@@ -65,11 +64,6 @@ const string& CauldronIO::Project::getDescription() const
     return m_description;
 }
 
-const string& CauldronIO::Project::getTeam() const
-{
-    return m_team;
-}
-
 const string& CauldronIO::Project::getProgramVersion() const
 {
     return m_version;
@@ -85,7 +79,6 @@ bool CauldronIO::Project::operator==(const Project& other) const
     return
         m_mode == other.m_mode &&
         m_version == other.m_version &&
-        m_team == other.m_team &&
         m_description == other.m_description &&
         m_name == other.m_name;
 }

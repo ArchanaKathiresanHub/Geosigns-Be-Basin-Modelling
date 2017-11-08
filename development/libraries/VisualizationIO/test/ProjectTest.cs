@@ -78,15 +78,13 @@ namespace Shell.BasinModeling.CauldronIO.Test
         {
             const string name = "Project";
             const string description = "desc";
-            const string team = "team";
             const string version = "vers";
             ModellingMode mode = ModellingMode.MODE1D;
             int xmlVersionMjr = 2;
             int xmlVersionMnr = 1;
-            Project project = new Project(name, description, team, version, mode, xmlVersionMjr, xmlVersionMnr);
+            Project project = new Project(name, description, version, mode, xmlVersionMjr, xmlVersionMnr);
             StringAssert.Equals(project.getName(), name);
             StringAssert.Equals(project.getDescription(), description);
-            StringAssert.Equals(project.getTeam(), team);
             StringAssert.Equals(project.getProgramVersion(), version);
             Assert.AreEqual(project.getModelingMode(), mode);
             Assert.AreEqual(project.getXmlVersionMajor(), xmlVersionMjr);
@@ -98,11 +96,10 @@ namespace Shell.BasinModeling.CauldronIO.Test
         {
             const string name = "Project";
             const string description = "desc";
-            const string team = "team";
             const string version = "vers";
             ModellingMode mode = ModellingMode.MODE1D;
 
-            Project project = new Project(name, description, team, version, mode, 2, 1);
+            Project project = new Project(name, description, version, mode, 2, 1);
             SnapShot snap = new SnapShot(2.5, SnapShotKind.SYSTEM, true);
             SnapShotList snapShotList = project.getSnapShots();
             Assert.AreEqual(snapShotList.Count, 0);
@@ -115,11 +112,10 @@ namespace Shell.BasinModeling.CauldronIO.Test
         {
             const string name = "Project";
             const string description = "desc";
-            const string team = "team";
             const string version = "vers";
             ModellingMode mode = ModellingMode.MODE1D;
 
-            Project project = new Project(name, description, team, version, mode, 2, 1);
+            Project project = new Project(name, description, version, mode, 2, 1);
             const string propName = "Depth";
             const string cauldronName = "cDepth";
             const string userName = "uDepth";
@@ -138,11 +134,10 @@ namespace Shell.BasinModeling.CauldronIO.Test
         {
             const string name = "Project";
             const string description = "desc";
-            const string team = "team";
             const string version = "vers";
             ModellingMode mode = ModellingMode.MODE1D;
 
-            Project project = new Project(name, description, team, version, mode, 2, 1);
+            Project project = new Project(name, description, version, mode, 2, 1);
             int kStart = 1;
             int kEnd = 2;
             const string formationName = "formation";
@@ -158,11 +153,10 @@ namespace Shell.BasinModeling.CauldronIO.Test
         {
             const string name = "Project";
             const string description = "desc";
-            const string team = "team";
             const string version = "vers";
             ModellingMode mode = ModellingMode.MODE1D;
 
-            Project project = new Project(name, description, team, version, mode, 2, 1);
+            Project project = new Project(name, description, version, mode, 2, 1);
             int kStart = 1;
             int kEnd = 2;
             const string formationName = "formation";
@@ -180,11 +174,10 @@ namespace Shell.BasinModeling.CauldronIO.Test
         {
             const string name = "Project";
             const string description = "desc";
-            const string team = "team";
             const string version = "vers";
             ModellingMode mode = ModellingMode.MODE1D;
 
-            Project project = new Project(name, description, team, version, mode, 2, 1);
+            Project project = new Project(name, description, version, mode, 2, 1);
             const string propName = "Depth";
             const string cauldronName = "cDepth";
             const string userName = "uDepth";
@@ -208,11 +201,10 @@ namespace Shell.BasinModeling.CauldronIO.Test
         {
             const string name = "Project";
             const string description = "desc";
-            const string team = "team";
             const string version = "vers";
             ModellingMode mode = ModellingMode.MODE1D;
 
-            Project project = new Project(name, description, team, version, mode, 2, 1);
+            Project project = new Project(name, description, version, mode, 2, 1);
             int kStart = 1;
             int kEnd = 2;
             const string formationName = "formation";
@@ -231,11 +223,10 @@ namespace Shell.BasinModeling.CauldronIO.Test
         {
             const string name = "Project";
             const string description = "desc";
-            const string team = "team";
             const string version = "vers";
             ModellingMode mode = ModellingMode.MODE1D;
 
-            Project project = new Project(name, description, team, version, mode, 2, 1);
+            Project project = new Project(name, description, version, mode, 2, 1);
             int kStart = 1;
             int kEnd = 2;
             const string formationName = "formation";
@@ -257,12 +248,11 @@ namespace Shell.BasinModeling.CauldronIO.Test
         {
             const string name = "Project";
             const string description = "desc";
-            const string team = "team";
             const string version = "vers";
             ModellingMode mode = ModellingMode.MODE1D;
             int xmlVersionMjr = 2;
             int xmlVersionMnr = 1;
-            Project project = new Project(name, description, team, version, mode, xmlVersionMjr, xmlVersionMnr);
+            Project project = new Project(name, description, version, mode, xmlVersionMjr, xmlVersionMnr);
 
             const string historyFileName = "HistoryFile.dat";
             project.addGenexHistoryRecord(historyFileName);
@@ -821,13 +811,12 @@ namespace Shell.BasinModeling.CauldronIO.Test
         {
             const string name = "Project";
             const string description = "desc"; 
-            const string team = "team";
             const string version = "vers";
 
             ModellingMode mode = ModellingMode.MODE3D;
             int xmlVersionMjr = 2;
             int xmlVersionMnr = 1;
-            Project project = new Project(name, description, team, version, mode, xmlVersionMjr, xmlVersionMnr);
+            Project project = new Project(name, description, version, mode, xmlVersionMjr, xmlVersionMnr);
             SnapShot snap = new SnapShot(2.5, SnapShotKind.SYSTEM, true);
             project.addSnapShot(snap);
 

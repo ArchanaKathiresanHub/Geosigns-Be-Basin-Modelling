@@ -218,18 +218,8 @@ START-properties
     Unit of measurement :
     Type                : string
 
-    Identification      : ProjectTeam
-    Description         : People involved in the Project
-    Unit of measurement :
-    Type                : string
-
     Identification      : ProjectStartDate
     Description         : date of start of project
-    Unit of measurement :
-    Type                : string
-
-    Identification      : ProjectEndDate
-    Description         : date of end of project
     Unit of measurement :
     Type                : string
 
@@ -4665,9 +4655,7 @@ START-property-tables
     Version        : 100
     Column         : ProjectName
     Column         : Description
-    Column         : ProjectTeam
     Column         : ProjectStartDate
-    Column         : ProjectEndDate
     Column         : ProgramVersion
     Column         : ModellingMode
     Column         : XCoord

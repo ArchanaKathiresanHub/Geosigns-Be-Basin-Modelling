@@ -10,9 +10,7 @@ namespace Bpa2.Basin.Project3d.Test
             id = ph.m_ProjectIoTbl.addRecord(new TableProjectIoTbl.Record());
             ph.m_ProjectIoTbl.setProjectName(id, "Acquifer");
             ph.m_ProjectIoTbl.setDescription(id, "Exercise");
-            ph.m_ProjectIoTbl.setProjectTeam(id, "EPT-AE-PSA");
             ph.m_ProjectIoTbl.setProjectStartDate(id, "");
-            ph.m_ProjectIoTbl.setProjectEndDate(id, "");
             ph.m_ProjectIoTbl.setProgramVersion(id, "v2011.07");
             ph.m_ProjectIoTbl.setModellingMode(id, "3d");
             ph.m_ProjectIoTbl.setXCoord(id, 0);

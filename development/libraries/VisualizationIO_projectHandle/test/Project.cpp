@@ -26,19 +26,17 @@ using namespace std;
 TEST(Project, Create)
 {
 	const string projectName("project");
-	const string teamName("team");
 	const string description("descript");
 	const string version("version");
 	ModellingMode mode = MODE1D;
 	int xmlVersionMjr = 2;
 	int xmlVersionMnr = 1;
 
-	std::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, xmlVersionMjr, xmlVersionMnr));
+	std::shared_ptr<Project> project(new Project(projectName, description, version, mode, xmlVersionMjr, xmlVersionMnr));
 
 	EXPECT_STREQ(project->getName().c_str(), projectName.c_str());
 	EXPECT_STREQ(project->getDescription().c_str(), description.c_str());
 	EXPECT_STREQ(project->getProgramVersion().c_str(), version.c_str());
-	EXPECT_STREQ(project->getTeam().c_str(), teamName.c_str());
 	EXPECT_EQ(project->getModelingMode(), mode);
 	EXPECT_EQ(project->getXmlVersionMajor(), xmlVersionMjr);
 	EXPECT_EQ(project->getXmlVersionMinor(), xmlVersionMnr);
@@ -78,12 +76,11 @@ TEST(SnapShot, Create_HandleNegativeAge)
 TEST(Project, AddSnapShot)
 {
 	const string projectName("project");
-	const string teamName("team");
 	const string description("descript");
 	const string version("version");
 	ModellingMode mode = MODE1D;
 
-	std::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2,1));
+	std::shared_ptr<Project> project(new Project(projectName, description, version, mode, 2,1));
 	std::shared_ptr<SnapShot> snapShot(new SnapShot(0, SYSTEM, false));
 
 	const SnapShotList& snapShotList = project->getSnapShots();
@@ -95,12 +92,11 @@ TEST(Project, AddSnapShot)
 TEST(Project, AddSnapShot_HandleEmptySnapShot)
 {
 	const string projectName("project");
-	const string teamName("team");
 	const string description("descript");
 	const string version("version");
 	ModellingMode mode = MODE1D;
 	
-	std::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2, 1));
+	std::shared_ptr<Project> project(new Project(projectName, description, version, mode, 2, 1));
 	std::shared_ptr<SnapShot> snapShot;
 
 	const SnapShotList& snapShotList = project->getSnapShots();
@@ -123,12 +119,11 @@ TEST(Project, AddSnapShot_HandleEmptySnapShot)
 TEST(Project, AddSnapShot_HandleDuplicateSnapShot)
 {
 	const string projectName("project");
-	const string teamName("team");
 	const string description("descript");
 	const string version("version");
 	ModellingMode mode = MODE1D;
 	
-	std::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2, 1));
+	std::shared_ptr<Project> project(new Project(projectName, description, version, mode, 2, 1));
 	std::shared_ptr<SnapShot> snapShot(new SnapShot(0, SYSTEM, false));
 	project->addSnapShot(snapShot);
 	const SnapShotList& snapShotList = project->getSnapShots();
@@ -151,7 +146,6 @@ TEST(Project, AddSnapShot_HandleDuplicateSnapShot)
 TEST(Project, AddProperty)
 {
 	const string projectName("project");
-	const string teamName("team");
 	const string description("descript");
 	const string version("version");
 	ModellingMode mode = MODE1D;
@@ -164,7 +158,7 @@ TEST(Project, AddProperty)
 	PropertyAttribute attrib = Continuous3DProperty;
 
 	std::shared_ptr<const Property> prop(new Property(name, userName, cauldronName, unit, type, attrib));
-	std::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2, 1));
+	std::shared_ptr<Project> project(new Project(projectName, description, version, mode, 2, 1));
 	const PropertyList& propertyList = project->getProperties();
 	EXPECT_EQ(propertyList.size(), 0);
 	project->addProperty(prop);
@@ -174,7 +168,6 @@ TEST(Project, AddProperty)
 TEST(Project, AddProperty_HandleDuplicateProperty)
 {
 	const string projectName("project");
-	const string teamName("team");
 	const string description("descript");
 	const string version("version");
 	ModellingMode mode = MODE1D;
@@ -187,7 +180,7 @@ TEST(Project, AddProperty_HandleDuplicateProperty)
 	PropertyAttribute attrib = Continuous3DProperty;
 
 	std::shared_ptr<const Property> prop(new Property(name, userName, cauldronName, unit, type, attrib));
-	std::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2, 1));
+	std::shared_ptr<Project> project(new Project(projectName, description, version, mode, 2, 1));
 	const PropertyList& propertyList = project->getProperties();
 
 	project->addProperty(prop);
@@ -199,7 +192,6 @@ TEST(Project, AddProperty_HandleDuplicateProperty)
 TEST(Project, FindProperty)
 {
 	const string projectName("project");
-	const string teamName("team");
 	const string description("descript");
 	const string version("version");
 	ModellingMode mode = MODE1D;
@@ -212,7 +204,7 @@ TEST(Project, FindProperty)
 	PropertyAttribute attrib = Continuous3DProperty;
 
 	std::shared_ptr<const Property> prop(new Property(name, userName, cauldronName, unit, type, attrib));
-	std::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2, 1));
+	std::shared_ptr<Project> project(new Project(projectName, description, version, mode, 2, 1));
 	const PropertyList& propertyList = project->getProperties();
 
 	project->addProperty(prop);
@@ -223,7 +215,6 @@ TEST(Project, FindProperty)
 TEST(Project, AddFormation)
 {
 	const string projectName("project");
-	const string teamName("team");
 	const string description("descript");
 	const string version("version");
 	ModellingMode mode = MODE1D;
@@ -233,7 +224,7 @@ TEST(Project, AddFormation)
 	const string formationName("formation");
 
 	std::shared_ptr<Formation> formation(new Formation(kStart, kEnd, formationName));
-	std::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2, 1));
+	std::shared_ptr<Project> project(new Project(projectName, description, version, mode, 2, 1));
 	const FormationList& formationList = project->getFormations();
 	EXPECT_EQ(formationList.size(), 0);
 	project->addFormation(formation);
@@ -243,7 +234,6 @@ TEST(Project, AddFormation)
 TEST(Project, AddFormation_HandleEmptyFormation)
 {
 	const string projectName("project");
-	const string teamName("team");
 	const string description("descript");
 	const string version("version");
 	ModellingMode mode = MODE1D;
@@ -253,7 +243,7 @@ TEST(Project, AddFormation_HandleEmptyFormation)
 	const string formationName("formation");
 
 	std::shared_ptr<Formation> formation;
-	std::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2, 1));
+	std::shared_ptr<Project> project(new Project(projectName, description, version, mode, 2, 1));
 	const FormationList& formationList = project->getFormations();
 
 	try{
@@ -274,7 +264,6 @@ TEST(Project, AddFormation_HandleEmptyFormation)
 TEST(Project, AddFormation_HandleDuplicateFormation)
 {
 	const string projectName("project");
-	const string teamName("team");
 	const string description("descript");
 	const string version("version");
 	ModellingMode mode = MODE1D;
@@ -284,7 +273,7 @@ TEST(Project, AddFormation_HandleDuplicateFormation)
 	const string formationName("formation");
 
 	std::shared_ptr<Formation> formation(new Formation(kStart, kEnd, formationName));
-	std::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2, 1));
+	std::shared_ptr<Project> project(new Project(projectName, description, version, mode, 2, 1));
 	const FormationList& formationList = project->getFormations();
 	project->addFormation(formation);
 
@@ -306,7 +295,6 @@ TEST(Project, AddFormation_HandleDuplicateFormation)
 TEST(Project, FindFormation)
 {
 	const string projectName("project");
-	const string teamName("team");
 	const string description("descript");
 	const string version("version");
 	ModellingMode mode = MODE1D;
@@ -316,7 +304,7 @@ TEST(Project, FindFormation)
 	const string formationName("formation");
 
 	std::shared_ptr<Formation> formation(new Formation(kStart, kEnd, formationName));
-	std::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2, 1));
+	std::shared_ptr<Project> project(new Project(projectName, description, version, mode, 2, 1));
 	project->addFormation(formation);
 
 	std::shared_ptr<const Formation> newFormation = project->findFormation(formationName);
@@ -326,7 +314,6 @@ TEST(Project, FindFormation)
 TEST(Project, AddReservoir)
 {
 	const string projectName("project");
-	const string teamName("team");
 	const string description("descript");
 	const string version("version");
 	ModellingMode mode = MODE1D;
@@ -338,7 +325,7 @@ TEST(Project, AddReservoir)
 
 	std::shared_ptr<Formation> formation(new Formation(kStart, kEnd, formationName));
 	std::shared_ptr<const Reservoir> reservoir(new Reservoir(reservoirName, formation));
-	std::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2, 1));
+	std::shared_ptr<Project> project(new Project(projectName, description, version, mode, 2, 1));
 	const ReservoirList& reservoirList = project->getReservoirs();
 	EXPECT_EQ(reservoirList.size(), 0);
 	project->addReservoir(reservoir);
@@ -348,7 +335,6 @@ TEST(Project, AddReservoir)
 TEST(Project, AddReservoir_HandleEmptyReservoir)
 {
 	const string projectName("project");
-	const string teamName("team");
 	const string description("descript");
 	const string version("version");
 	ModellingMode mode = MODE1D;
@@ -356,7 +342,7 @@ TEST(Project, AddReservoir_HandleEmptyReservoir)
 	const string reservoirName("reservoir");
 	std::shared_ptr<const Formation> formation;
 	std::shared_ptr<const Reservoir> reservoir;
-	std::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2, 1));
+	std::shared_ptr<Project> project(new Project(projectName, description, version, mode, 2, 1));
 	const ReservoirList& reservoirList = project->getReservoirs();
 
 	try{
@@ -377,7 +363,6 @@ TEST(Project, AddReservoir_HandleEmptyReservoir)
 TEST(Project, AddReservoir_HandleDuplicateReservoir)
 {
 	const string projectName("project");
-	const string teamName("team");
 	const string description("descript");
 	const string version("version");
 	ModellingMode mode = MODE1D;
@@ -389,7 +374,7 @@ TEST(Project, AddReservoir_HandleDuplicateReservoir)
 
 	std::shared_ptr<const Formation> formation(new Formation(kStart, kEnd, formationName));
 	std::shared_ptr<const Reservoir> reservoir(new Reservoir(reservoirName, formation));
-	std::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2, 1));
+	std::shared_ptr<Project> project(new Project(projectName, description, version, mode, 2, 1));
 	const ReservoirList& reservoirList = project->getReservoirs();
 	project->addReservoir(reservoir);
 
@@ -411,7 +396,6 @@ TEST(Project, AddReservoir_HandleDuplicateReservoir)
 TEST(Project, FindReservoir)
 {
 	const string projectName("project");
-	const string teamName("team");
 	const string description("descript");
 	const string version("version");
 	ModellingMode mode = MODE1D;
@@ -423,7 +407,7 @@ TEST(Project, FindReservoir)
 
 	std::shared_ptr<const Formation> formation(new Formation(kStart, kEnd, formationName));
 	std::shared_ptr<const Reservoir> reservoir(new Reservoir(reservoirName, formation));
-	std::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2, 1));
+	std::shared_ptr<Project> project(new Project(projectName, description, version, mode, 2, 1));
 	project->addReservoir(reservoir);
 
 	std::shared_ptr<const Reservoir> newReservoir = project->findReservoir(reservoirName);
@@ -1051,11 +1035,10 @@ TEST(Formation, Properties)
 TEST(MigrationEvent, Properties)
 {
     const string projectName("project");
-    const string teamName("team");
     const string description("descript");
     const string version("version");
     ModellingMode mode = MODE1D;
-    std::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2, 1));
+    std::shared_ptr<Project> project(new Project(projectName, description, version, mode, 2, 1));
     std::shared_ptr<CauldronIO::MigrationEvent> event(new CauldronIO::MigrationEvent());
 
     const string process("Expulsion");
@@ -1228,11 +1211,10 @@ TEST(TrapList, Create)
 TEST(FileReferences, Create)
 {
     const string projectName("project");
-    const string teamName("team");
     const string description("descript");
     const string version("version");
     ModellingMode mode = MODE3D;
-    std::shared_ptr<Project> project(new Project(projectName, description, teamName, version, mode, 2, 1));
+    std::shared_ptr<Project> project(new Project(projectName, description, version, mode, 2, 1));
 
     // test for genex history records
     EXPECT_EQ( 0, (project->getGenexHistoryList()).size() );

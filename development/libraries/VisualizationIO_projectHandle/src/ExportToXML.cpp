@@ -84,7 +84,6 @@ void ExportToXML::addProjectDescription(pugi::xml_node pt, std::shared_ptr<Proje
    pt.append_child("name").text() = project->getName().c_str();
    pt.append_child("description").text() = project->getDescription().c_str();
    pt.append_child("modelingmode").text() = (int)project->getModelingMode();
-   pt.append_child("team").text() = project->getTeam().c_str();
    pt.append_child("programversion").text() = project->getProgramVersion().c_str();
    pt.append_child("outputpath").text() = m_relPath.cpath();
    
