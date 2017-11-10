@@ -126,9 +126,9 @@ tar xzf $tar || { echo "tar : error : Could not uncompress tarfile"; exit 1 ; }
 
 [[ -r /glb/data/hpcrnd/easybuild/public/etc/profile.d/shell-envmodules.sh ]] && . /glb/data/hpcrnd/easybuild/public/etc/profile.d/shell-envmodules.sh
 module purge
-module load intel/2017.02
-module load impi/2017.2.174-iccifort-2017.2.174-GCC-4.9.3-2.25
-module load imkl/2017.2.174-iimpi-2017.02-GCC-4.9.3-2.25
+module load intel/2017.05
+module load impi/2017.4.239-iccifort-2017.5.239-GCC-4.9.3-2.25
+module load imkl/2017.4.239-iimpi-2017.05-GCC-4.9.3-2.25
 module load CMake/3.8.2
 
 echo "Configuring the package"

@@ -30,10 +30,10 @@ set(CBM_HOME "/glb/data/cauldron" CACHE PATH "The path the shared drive of the d
 set(BM_EXTERNAL_COMPONENTS_DIR "${CBM_HOME}/hpc-library" CACHE PATH "The path to the directory of prebuilt libraries")
 set(BM_SSSDEV_INSTALL_DIR "${CBM_HOME}/ibs" CACHE PATH "sssdev installation path")
 
-set(INTEL_CXX_VERSION "2017.02" CACHE STRING "The version number of intel compiler. Used in module load command")
-set(INTEL_CXX_ROOT "/glb/data/opt/intel/compilers_and_libraries/linux" CACHE PATH "Path to Intel's compiler collection")
-set(INTEL_MPI_ROOT "/glb/data/opt/intel/compilers_and_libraries/linux/mpi" CACHE PATH "Path to Intel MPI library" )
-set(INTEL_MKL_ROOT "/glb/data/opt/intel/compilers_and_libraries/linux/mkl" CACHE PATH "Path to Intel MKL" )
+set(INTEL_CXX_VERSION "2017.05" CACHE STRING "The version number of intel compiler. Used in module load command")
+set(INTEL_CXX_ROOT "/glb/data/opt/intel-2017/compilers_and_libraries_2017.5.239/linux" CACHE PATH "Path to Intel's compiler collection")
+set(INTEL_MPI_ROOT "/glb/data/opt/intel-2017/compilers_and_libraries_2017.5.239/linux/mpi" CACHE PATH "Path to Intel MPI library" )
+set(INTEL_MKL_ROOT "/glb/data/opt/intel-2017/compilers_and_libraries_2017.5.239/linux/mkl" CACHE PATH "Path to Intel MKL" )
 
 option(BM_USE_INTEL_COMPILER "Whether to use the Intel compiler" ON)
 option(BM_USE_INTEL_MPI "Whether to use the Intel MPI" ON)
