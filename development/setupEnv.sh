@@ -9,11 +9,10 @@ export LD_PRELOAD="/glb/data/hpcrnd/easybuild/PRODUCTION/software/rhel/6/GCCcore
 loadedMdl=$(module list 2>&1 | grep ${intelCmplModuleName})
 if [ "x${loadedMdl}" == "x" ]; then
    availMdl=$(module av 2>&1 | grep ${intelCmplModuleName})
-   module purge
    if [ "x${availMdl}" == "x" ]; then
       [[ -r /glb/data/hpcrnd/easybuild/public/etc/profile.d/shell-envmodules.sh ]] && . /glb/data/hpcrnd/easybuild/public/etc/profile.d/shell-envmodules.sh
    fi
-   
+   module purge
    module load ${intelCmplModuleName}
 fi
 loadedMdl=$(module list 2>&1 | grep ${intelCmplModuleName})
