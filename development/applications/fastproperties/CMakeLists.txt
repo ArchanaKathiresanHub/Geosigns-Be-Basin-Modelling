@@ -43,6 +43,7 @@ application_env_var( TARGET ${APP_NAME} VARS
      "GENEX6DIR"   "$MISCDIR/genex60"
      "OTGCDIR"     "$MISCDIR/OTGC"
      "EOSPACKDIR"  "$MISCDIR/eospack"
+     "CTCDIR"      "$MISCDIR"
 )
 
 bm_include_libraries(
