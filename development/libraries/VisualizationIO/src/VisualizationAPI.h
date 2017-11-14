@@ -616,11 +616,11 @@ namespace CauldronIO
         /// \returns Returns true if this formation has a lithotype3 percentagemap
         bool hasLithoType3PercentageMap() const;
 
-        void setTopSurface(std::shared_ptr<CauldronIO::Surface>& surface);
-        const std::shared_ptr<CauldronIO::Surface>& getTopSurface();
+        void setTopSurface(Surface* surface);
+        const Surface* getTopSurface();
 
-        void setBottomSurface(std::shared_ptr<CauldronIO::Surface>& surface);
-        const std::shared_ptr<CauldronIO::Surface>& getBottomSurface();
+        void setBottomSurface(Surface* surface);
+        const Surface* getBottomSurface();
 
         /// \brief Release the formation's data
         void release();
@@ -638,7 +638,9 @@ namespace CauldronIO
         int m_depoSequence, m_elementRefinement;
         int m_thicknessMap_index, m_mixingHI_index, m_lithPerc1_index, m_lithPerc2_index, m_lithPerc3_index;
         PropertySurfaceDataList m_propSurfaceList;
-        std::shared_ptr<CauldronIO::Surface> m_topSurface, m_bottomSurface;
+        
+        Surface* m_topSurface;
+        Surface* m_bottomSurface;
     };
 
     /// \class Surface
@@ -672,11 +674,11 @@ namespace CauldronIO
         /// \brief Associate a formation with this map
         /// \param [in] formation the formation to be associated with this map. Optional.
         /// \param [in] isTop
-        void setFormation(std::shared_ptr<Formation>& formation, bool isTop);
+        void setFormation(Formation* formation, bool isTop);
         /// \returns the associated top formation for this map. Can be null
-        const std::shared_ptr<Formation>& getTopFormation() const;
+        const Formation* getTopFormation() const;
         /// \returns the associated bottom formation for this map. Can be null
-        const std::shared_ptr<Formation>& getBottomFormation() const;
+        const Formation* getBottomFormation() const;
         /// \brief Retrieve actual data into memory
         void retrieve();
         /// \brief Release memory; does not destroy the object; it can be retrieved again
@@ -695,8 +697,8 @@ namespace CauldronIO
 
     private:
         SubsurfaceKind m_subSurfaceKind;
-        std::shared_ptr<Formation> m_Topformation;
-        std::shared_ptr<Formation> m_Bottomformation;
+        Formation* m_topFormation;
+        Formation* m_bottomFormation;
         std::string m_name;
         std::string m_reservoirName;
         PropertySurfaceDataList m_propSurfaceList;
@@ -1429,11 +1431,6 @@ namespace CauldronIO
            int getPersistentID() const;
            /// \returns the trapper ID
            int getID() const;
-           /// \brief Assign a downstream trapper for this trapper
-           /// \returns the downstream trapper (if any)
-           std::shared_ptr<const Trapper> getDownStreamTrapper() const;
-           /// \param [in] trapper the downstreamtrapper for this trapper
-           void setDownStreamTrapper(std::shared_ptr<const Trapper> trapper);
            /// \param [in] persistentID the downstreamtrapper persistent ID for this trapper; temporary state - do not use
            void setDownStreamTrapperID(int persistentID);
            /// \returns the downstream trapper ID; temporary state - do not use
@@ -1725,7 +1722,16 @@ namespace CauldronIO
            
            char m_reservoir[maxStringLength];
            
-           std::shared_ptr<const Trapper> m_downstreamTrapper;
+           // Padding to compensate for the removal of a std::shared_ptr to the
+           // downstream trapper. This is necessary because reading and writing
+           // of this class is done by a memcpy of sizeof(Trapper) bytes, and 
+           // changing the layout / size of this class means that the version
+           // number of the xml needs to be increased, which in turn means that
+           // all data needs to be re-converted again, which is a problem for a 
+           // whole bunch of reasons.
+           // If there ever comes a time when it is possible to update the version
+           // number of the project file, this padding should be removed.
+           char m_padding[16];
 	};
 
    /// \class IsoEntry

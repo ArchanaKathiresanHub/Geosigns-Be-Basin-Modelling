@@ -162,7 +162,7 @@ std::shared_ptr< CauldronIO::Surface > DerivedProperties::getSurface( std::share
 {
 
    for(auto& surface : snapshot->getSurfaceList() )
-      if (surface->getBottomFormation() == formation && surface->getTopFormation() == formation) return surface;
+      if (surface->getBottomFormation() == formation.get() && surface->getTopFormation() == formation.get()) return surface;
 
    return std::shared_ptr< CauldronIO::Surface >();
 }

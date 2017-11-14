@@ -188,12 +188,12 @@ std::shared_ptr<Project> CauldronIO::ImportFromXML::getProject(const pugi::xml_d
             std::shared_ptr<CauldronIO::Surface> topSurface = m_project->getStratigraphyTable().at(index - 1).getSurface();
             std::shared_ptr<CauldronIO::Formation> formation = entry.getFormation();
 
-            formation->setTopSurface(topSurface);
+            formation->setTopSurface(topSurface.get());
 
             if (index + 1 < m_project->getStratigraphyTable().size())
             {
                 std::shared_ptr<CauldronIO::Surface> bottomSurface = m_project->getStratigraphyTable().at(index + 1).getSurface();
-                formation->setBottomSurface(bottomSurface);
+                formation->setBottomSurface(bottomSurface.get());
             }
         }
     }
@@ -205,10 +205,14 @@ std::shared_ptr<Project> CauldronIO::ImportFromXML::getProject(const pugi::xml_d
        size_t nrEvents = (size_t)migrationEventsNode.attribute("number").as_int();
        size_t record_size = migrationEventsNode.attribute("record_size").as_int();
        size_t totalSize = nrEvents * record_size;
+
+       if (record_size != sizeof(MigrationEvent))
+          throw CauldronIOException("Invalid record size for MigrationEvent");
        
        // Uncompress the data
        pugi::xml_node datastoreNode = migrationEventsNode.child("datastore");
-       DataStoreLoad datastore(DataStoreLoad::getDatastoreParams(datastoreNode, fullOutputPath));
+       DataStoreParams *params = DataStoreLoad::getDatastoreParams(datastoreNode, fullOutputPath);
+       DataStoreLoad datastore(params);
        char* data = (char*)datastore.getData(totalSize);
        
        // Reconstruct migrationEvents
@@ -224,7 +228,8 @@ std::shared_ptr<Project> CauldronIO::ImportFromXML::getProject(const pugi::xml_d
           m_project->addMigrationEvent(event);
        }
        
-       delete data;
+       delete params;
+       delete[] data;
     }
     
     // Parse trapper table
@@ -234,10 +239,14 @@ std::shared_ptr<Project> CauldronIO::ImportFromXML::getProject(const pugi::xml_d
        size_t nrEvents = (size_t)trapperNode.attribute("number").as_int();
        size_t record_size = trapperNode.attribute("record_size").as_int();
        size_t totalSize = nrEvents * record_size;
+
+       if (record_size != sizeof(Trapper))
+          throw CauldronIOException("Invalid record size for Trapper");
        
        // Uncompress the data
        pugi::xml_node datastoreNode = trapperNode.child("datastore");
-       DataStoreLoad datastore(DataStoreLoad::getDatastoreParams(datastoreNode, fullOutputPath));
+       DataStoreParams *params = DataStoreLoad::getDatastoreParams(datastoreNode, fullOutputPath);
+       DataStoreLoad datastore(params);
        char* data = (char*)datastore.getData(totalSize);
        
        // Reconstruct trapper
@@ -253,8 +262,10 @@ std::shared_ptr<Project> CauldronIO::ImportFromXML::getProject(const pugi::xml_d
           m_project->addTrapper(event);
        }
        
-       delete data;
+       delete params;
+       delete[] data;
     }
+
     // Parse trap table
     pugi::xml_node trapNode = pt.child("trap");
     if (trapNode)
@@ -262,10 +273,14 @@ std::shared_ptr<Project> CauldronIO::ImportFromXML::getProject(const pugi::xml_d
        size_t nrEvents = (size_t)trapNode.attribute("number").as_int();
        size_t record_size = trapNode.attribute("record_size").as_int();
        size_t totalSize = nrEvents * record_size;
+
+       if (record_size != sizeof(Trap))
+          throw CauldronIOException("Invalid record size for Trap");
        
        // Uncompress the data
        pugi::xml_node datastoreNode = trapNode.child("datastore");
-       DataStoreLoad datastore(DataStoreLoad::getDatastoreParams(datastoreNode, fullOutputPath));
+       DataStoreParams *params = DataStoreLoad::getDatastoreParams(datastoreNode, fullOutputPath);
+       DataStoreLoad datastore(params);
        char* data = (char*)datastore.getData(totalSize);
        
        // Reconstruct trap
@@ -281,8 +296,10 @@ std::shared_ptr<Project> CauldronIO::ImportFromXML::getProject(const pugi::xml_d
           m_project->addTrap(event);
        }
        
-       delete data;
+       delete params;
+       delete[] data;
     }
+
     // Parse genex history files references
     pugi::xml_node genexHistoryNode = pt.child("genexHistoryFiles");
     if (genexHistoryNode)
@@ -322,7 +339,6 @@ std::shared_ptr<Project> CauldronIO::ImportFromXML::getProject(const pugi::xml_d
     pugi::xml_node displayContourNode = pt.child("displayContour");
     if (displayContourNode)
     {
-       
        for (pugi::xml_node oneRecord = displayContourNode.child("record"); oneRecord; oneRecord = oneRecord.next_sibling("record"))
        {
           std::shared_ptr<DisplayContour> entry(new DisplayContour);
@@ -335,9 +351,9 @@ std::shared_ptr<Project> CauldronIO::ImportFromXML::getProject(const pugi::xml_d
           entry->setContourValue(value);
           
           m_project->addDisplayContour(entry);
-             
        }
     }
+
     // Parse TemperatureIso table
     pugi::xml_node temperatureIsoNode = pt.child("temperatureIso");
     if (temperatureIsoNode)
@@ -358,14 +374,13 @@ std::shared_ptr<Project> CauldronIO::ImportFromXML::getProject(const pugi::xml_d
           entry->setSum(sum);
           
           m_project->addTemperatureIsoEntry(entry);
-          
        }
     }
+
     // Parse VRIso table
     pugi::xml_node vrIsoNode = pt.child("vrIso");
     if (vrIsoNode)
     {
-       
        for (pugi::xml_node oneRecord = vrIsoNode.child("record"); oneRecord; oneRecord = oneRecord.next_sibling("record"))
        {
           std::shared_ptr<IsoEntry> entry(new IsoEntry);
@@ -541,10 +556,14 @@ std::shared_ptr<Project> CauldronIO::ImportFromXML::getProject(const pugi::xml_d
        size_t nrEvents = (size_t)timeIo1DNode.attribute("number").as_int();
        size_t record_size = timeIo1DNode.attribute("record_size").as_int();
        size_t totalSize = nrEvents * record_size;
+
+       if (record_size != sizeof(TimeIo1D))
+          throw CauldronIOException("Invalid record size for TimeIo1D");
        
        // Uncompress the data
        pugi::xml_node datastoreNode = timeIo1DNode.child("datastore");
-       DataStoreLoad datastore(DataStoreLoad::getDatastoreParams(datastoreNode, fullOutputPath));
+       DataStoreParams *params = DataStoreLoad::getDatastoreParams(datastoreNode, fullOutputPath);
+       DataStoreLoad datastore(params);
        char* data = (char*)datastore.getData(totalSize);
        
        // Reconstruct the record
@@ -559,7 +578,8 @@ std::shared_ptr<Project> CauldronIO::ImportFromXML::getProject(const pugi::xml_d
           m_project->add1DTimeIo(event);
        }
        
-       delete data;
+       delete params;
+       delete[] data;
     }
 
     // Read all snapshots
@@ -625,11 +645,6 @@ std::shared_ptr<Project> CauldronIO::ImportFromXML::getProject(const pugi::xml_d
         pugi::xml_node hasTrappers = snapShotNode.child("trappers");
         if (hasTrappers)
         {
-            int maxPersistentTrapperID = hasTrappers.child("maxPersistentTrapperID").text().as_int();
-            assert(maxPersistentTrapperID > -1);
-                
-            std::vector<std::shared_ptr<Trapper>* > persistentIDs(maxPersistentTrapperID + 1);
-
             for (pugi::xml_node trapperNode = hasTrappers.child("trapper"); trapperNode; trapperNode = trapperNode.next_sibling("trapper"))
             {
                 int ID = trapperNode.attribute("id").as_int();
@@ -657,22 +672,6 @@ std::shared_ptr<Project> CauldronIO::ImportFromXML::getProject(const pugi::xml_d
                 trapperIO->setGOC(goc);
 
                 snapShot->addTrapper(trapperIO);
-
-                assert(persistentID <= maxPersistentTrapperID);
-                persistentIDs[persistentID] = &trapperIO;
-            }
-
-            // Assign downstream trappers
-            const TrapperList& trappers = snapShot->getTrapperList();
-            BOOST_FOREACH(const std::shared_ptr<const Trapper>& trapper, trappers)
-            {
-                int downstreamTrapperID = trapper->getDownStreamTrapperID();
-                if (downstreamTrapperID > -1)
-                {
-                    std::shared_ptr<Trapper> downstreamTrapper = *persistentIDs[downstreamTrapperID];
-                    std::shared_ptr<Trapper> thisTrapper = *persistentIDs[trapper->getPersistentID()];
-                    thisTrapper->setDownStreamTrapper(downstreamTrapper);
-                }
             }
         }
 
@@ -852,8 +851,8 @@ std::shared_ptr<CauldronIO::Surface> ImportFromXML::getSurface(pugi::xml_node su
 
     // Construct the surface
     std::shared_ptr<Surface> surface(new Surface(surfaceName, surfaceKind));
-    if (topFormationIO) surface->setFormation(topFormationIO, true);
-    if (bottomFormationIO) surface->setFormation(bottomFormationIO, false);
+    if (topFormationIO) surface->setFormation(topFormationIO.get(), true);
+    if (bottomFormationIO) surface->setFormation(bottomFormationIO.get(), false);
 
     // Find age, if present
     pugi::xml_attribute ageAttrib = surfaceNode.attribute("age");

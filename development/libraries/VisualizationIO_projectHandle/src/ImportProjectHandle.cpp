@@ -55,7 +55,6 @@ using namespace DataModel;
 
 std::shared_ptr<CauldronIO::Project> ImportProjectHandle::createFromProjectHandle(std::shared_ptr<ProjectHandle> projectHandle, bool verbose)
 {
-
     // Get modeling mode
     ModellingMode modeIn = projectHandle->getModellingMode();
     CauldronIO::ModellingMode mode = modeIn == MODE1D ? CauldronIO::MODE1D : CauldronIO::MODE3D;
@@ -397,15 +396,15 @@ vector<std::shared_ptr<CauldronIO::Surface> > ImportProjectHandle::createSurface
                 std::shared_ptr<CauldronIO::Formation> bottomFormation = findOrCreateFormation(surface->getBottomFormation(), depthFormations);
                 assert(topFormation == formationIO || bottomFormation == formationIO || !formationIO);
 
-                surfaceIO->setFormation(topFormation, true);
-                surfaceIO->setFormation(bottomFormation, false);
+                surfaceIO->setFormation(topFormation.get(), true);
+                surfaceIO->setFormation(bottomFormation.get(), false);
             }
             else
             {
                 // Assign same formation to bottom/surface formation
                 assert(formationIO);
-                surfaceIO->setFormation(formationIO, true);
-                surfaceIO->setFormation(formationIO, false);
+                surfaceIO->setFormation(formationIO.get(), true);
+                surfaceIO->setFormation(formationIO.get(), false);
             }
         }
 
@@ -440,7 +439,7 @@ std::shared_ptr<CauldronIO::Surface> ImportProjectHandle::findSurface(vector< st
 {
     BOOST_FOREACH(std::shared_ptr<CauldronIO::Surface>& surface, surfaces)
     {
-        if (surface->getBottomFormation() == formation && surface->getTopFormation() == formation) return surface;
+       if (surface->getBottomFormation() == formation.get() && surface->getTopFormation() == formation.get()) return surface;
     }
 
     return std::shared_ptr< CauldronIO::Surface >();
@@ -982,14 +981,14 @@ void ImportProjectHandle::checkInputValues()
       std::shared_ptr<CauldronIO::Surface> topSurface = m_project->getStratigraphyTable().at(index - 1).getSurface();
       std::shared_ptr<CauldronIO::Formation> formation = m_project->getStratigraphyTable().at(index).getFormation();
 
-      formation->setTopSurface(topSurface);
-      topSurface->setFormation(formation, false);
+      formation->setTopSurface(topSurface.get());
+      topSurface->setFormation(formation.get(), false);
 
       if (index + 1 < m_project->getStratigraphyTable().size())
       {
          std::shared_ptr<CauldronIO::Surface> bottomSurface = m_project->getStratigraphyTable().at(index + 1).getSurface();
-         formation->setBottomSurface(bottomSurface);
-         bottomSurface->setFormation(formation, true);
+         formation->setBottomSurface(bottomSurface.get());
+         bottomSurface->setFormation(formation.get(), true);
       }
    }
 

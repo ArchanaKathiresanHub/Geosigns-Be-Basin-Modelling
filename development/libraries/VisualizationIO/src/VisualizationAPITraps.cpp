@@ -55,16 +55,6 @@ int CauldronIO::Trapper::getPersistentID() const
    return m_persistentID;
 }
 
-std::shared_ptr<const Trapper> CauldronIO::Trapper::getDownStreamTrapper() const
-{
-   return m_downstreamTrapper;
-}
-
-void CauldronIO::Trapper::setDownStreamTrapper(std::shared_ptr<const Trapper> trapper)
-{
-   m_downstreamTrapper = trapper;
-}
-
 void CauldronIO::Trapper::setDownStreamTrapperID(int persistentID)
 {
    m_downstreamTrapperID = persistentID;

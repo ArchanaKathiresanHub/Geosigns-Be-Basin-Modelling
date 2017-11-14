@@ -116,33 +116,6 @@ TEST(Project, AddSnapShot_HandleEmptySnapShot)
 	}
 }
 
-TEST(Project, AddSnapShot_HandleDuplicateSnapShot)
-{
-	const string projectName("project");
-	const string description("descript");
-	const string version("version");
-	ModellingMode mode = MODE1D;
-	
-	std::shared_ptr<Project> project(new Project(projectName, description, version, mode, 2, 1));
-	std::shared_ptr<SnapShot> snapShot(new SnapShot(0, SYSTEM, false));
-	project->addSnapShot(snapShot);
-	const SnapShotList& snapShotList = project->getSnapShots();
-
-	try{
-		project->addSnapShot(snapShot);
-		FAIL();
-	}
-	catch (CauldronIOException const & err)
-	{
-		EXPECT_STREQ(err.what(), "Cannot add snapshot twice");
-		EXPECT_EQ(snapShotList.size(), 1);
-	}
-	catch (...)
-	{
-		FAIL() << "Expected: Cannot add snapshot twice";
-	}
-}
-
 TEST(Project, AddProperty)
 {
 	const string projectName("project");
@@ -161,30 +134,6 @@ TEST(Project, AddProperty)
 	std::shared_ptr<Project> project(new Project(projectName, description, version, mode, 2, 1));
 	const PropertyList& propertyList = project->getProperties();
 	EXPECT_EQ(propertyList.size(), 0);
-	project->addProperty(prop);
-	EXPECT_EQ(propertyList.size(), 1);
-}
-
-TEST(Project, AddProperty_HandleDuplicateProperty)
-{
-	const string projectName("project");
-	const string description("descript");
-	const string version("version");
-	ModellingMode mode = MODE1D;
-	
-	const string name = "Depth";
-	const string cauldronName = "cDepth";
-	const string userName = "uDepth";
-	const string unit = "unit";
-	PropertyType type = FormationProperty;
-	PropertyAttribute attrib = Continuous3DProperty;
-
-	std::shared_ptr<const Property> prop(new Property(name, userName, cauldronName, unit, type, attrib));
-	std::shared_ptr<Project> project(new Project(projectName, description, version, mode, 2, 1));
-	const PropertyList& propertyList = project->getProperties();
-
-	project->addProperty(prop);
-	EXPECT_EQ(propertyList.size(), 1);
 	project->addProperty(prop);
 	EXPECT_EQ(propertyList.size(), 1);
 }
@@ -261,37 +210,6 @@ TEST(Project, AddFormation_HandleEmptyFormation)
 	}
 }
 
-TEST(Project, AddFormation_HandleDuplicateFormation)
-{
-	const string projectName("project");
-	const string description("descript");
-	const string version("version");
-	ModellingMode mode = MODE1D;
-	
-	int kStart = 1;
-	int kEnd = 2;
-	const string formationName("formation");
-
-	std::shared_ptr<Formation> formation(new Formation(kStart, kEnd, formationName));
-	std::shared_ptr<Project> project(new Project(projectName, description, version, mode, 2, 1));
-	const FormationList& formationList = project->getFormations();
-	project->addFormation(formation);
-
-	try{
-		project->addFormation(formation);
-		FAIL();
-	}
-	catch (CauldronIOException const & err)
-	{
-		EXPECT_STREQ(err.what(), "Cannot add formation twice");
-		EXPECT_EQ(formationList.size(), 1);
-	}
-	catch (...)
-	{
-		FAIL() << "Expected: Cannot add formation twice";
-	}
-}
-
 TEST(Project, FindFormation)
 {
 	const string projectName("project");
@@ -357,39 +275,6 @@ TEST(Project, AddReservoir_HandleEmptyReservoir)
 	catch (...)
 	{
 		FAIL() << "Expected: Cannot add empty reservoir";
-	}
-}
-
-TEST(Project, AddReservoir_HandleDuplicateReservoir)
-{
-	const string projectName("project");
-	const string description("descript");
-	const string version("version");
-	ModellingMode mode = MODE1D;
-	
-	int kStart = 1;
-	int kEnd = 2;
-	const string formationName("formation");
-	const string reservoirName("reservoir");
-
-	std::shared_ptr<const Formation> formation(new Formation(kStart, kEnd, formationName));
-	std::shared_ptr<const Reservoir> reservoir(new Reservoir(reservoirName, formation));
-	std::shared_ptr<Project> project(new Project(projectName, description, version, mode, 2, 1));
-	const ReservoirList& reservoirList = project->getReservoirs();
-	project->addReservoir(reservoir);
-
-	try{
-		project->addReservoir(reservoir);
-		FAIL();
-	}
-	catch (CauldronIOException const & err)
-	{
-		EXPECT_STREQ(err.what(), "Cannot add reservoir twice");
-		EXPECT_EQ(reservoirList.size(), 1);
-	}
-	catch (...)
-	{
-		FAIL() << "Expected: Cannot add reservoir twice";
 	}
 }
 
@@ -599,73 +484,6 @@ TEST(SnapShot, AddSurface_HandleEmptySurface)
 
 }
 
-TEST(SnapShot, AddSurface_HandleDuplicateSurface)
-{
-	std::shared_ptr<SnapShot> snapShot(new SnapShot(0, SYSTEM, false));
-
-	const SurfaceList& surfaceList = snapShot->getSurfaceList();
-	EXPECT_EQ(surfaceList.size(), 0);
-
-	// create a surface to add to the snapshot
-	const string propName = "Depth";
-	const string unit = "m";
-	std::shared_ptr<const Property> prop(new Property(propName, propName, propName, unit, FormationProperty, Continuous3DProperty));
-	const string surfaceName = "waterbottom";
-	std::shared_ptr<const Geometry2D> geometry(new Geometry2D(2, 2, 100, 100, 0, 0));
-	std::shared_ptr<SurfaceData> valueMap(new MapNative(geometry));
-	std::shared_ptr<Surface> surface(new Surface(surfaceName, Sediment));
-	PropertySurfaceData propSurface = PropertySurfaceData(prop, valueMap);
-	surface->addPropertySurfaceData(propSurface);
-	snapShot->addSurface(surface);
-
-	try{
-		snapShot->addSurface(surface);
-		FAIL();
-	}
-	catch (CauldronIOException const & err)
-	{
-		EXPECT_STREQ(err.what(), "Cannot add surface twice");
-		EXPECT_EQ(surfaceList.size(), 1);
-
-	}
-	catch (...)
-	{
-		FAIL() << "Expected: Cannot add surface twice";
-
-	}
-
-}
-
-TEST(SnapShot, AddFormationVolume_HandleDuplicateVolume)
-{
-	std::shared_ptr<SnapShot> snapShot(new SnapShot(0, SYSTEM, false));
-	const FormationVolumeList& formVolumes = snapShot->getFormationVolumeList();
-	std::shared_ptr<const Geometry3D> geometry3D(new Geometry3D(2, 2, 2, 0, 100, 100, 0, 0));
-	int kStart = 1;
-	int kEnd = 2;
-	const string formationName("formation");
-	std::shared_ptr<Formation> formation(new Formation(kStart, kEnd, formationName));
-	std::shared_ptr<Volume> volume(new Volume(Sediment));
-	FormationVolume formationVolume = FormationVolume(formation, volume);
-	snapShot->addFormationVolume(formationVolume);
-
-	try{
-		snapShot->addFormationVolume(formationVolume);
-		FAIL();
-	}
-	catch (CauldronIOException const & err)
-	{
-		EXPECT_STREQ(err.what(), "Cannot add volume twice");
-		EXPECT_EQ(formVolumes.size(), 1);
-
-	}
-	catch (...)
-	{
-		FAIL() << "Expected: Cannot add volume twice";
-	}
-
-}
-
 TEST(SnapShot, AddTrapper_HandleEmptyTrapper)
 {
 	std::shared_ptr<SnapShot> snapShot(new SnapShot(0, SYSTEM, false));
@@ -688,31 +506,6 @@ TEST(SnapShot, AddTrapper_HandleEmptyTrapper)
 	catch (...)
 	{
 		FAIL() << "Expected: Cannot add empty trapper";
-	}
-}
-
-TEST(SnapShot, AddTrapper_HandleDuplicateTrapper)
-{
-	std::shared_ptr<SnapShot> snapShot(new SnapShot(0, SYSTEM, false));
-	const TrapperList& trapperList = snapShot->getTrapperList();
-
-	int ID = 1234;
-	int persistentID = 2345;
-	std::shared_ptr<Trapper> trapper(new Trapper(ID, persistentID));
-	snapShot->addTrapper(trapper);
-
-	try{
-		snapShot->addTrapper(trapper);
-		FAIL();
-	}
-	catch (CauldronIOException const & err)
-	{
-		EXPECT_STREQ(err.what(), "Cannot add trapper twice");
-		EXPECT_EQ(trapperList.size(), 1);
-	}
-	catch (...)
-	{
-		FAIL() << "Expected: Cannot add trapper twice";
 	}
 }
 
@@ -776,35 +569,8 @@ TEST(Surface, SetFormation)
 	int kEnd = 2;
 	const string formationName("formation");
 	std::shared_ptr<Formation> formation(new Formation(kStart, kEnd, formationName));
-	surface->setFormation(formation, true);
+	surface->setFormation(formation.get(), true);
 	EXPECT_STREQ(surface->getTopFormation()->getName().c_str(), formationName.c_str());
-
-}
-
-TEST(Surface, AddPropertySurfaceData_HandleDuplicateData)
-{
-	const string propName = "Depth";
-	const string unit = "m";
-	std::shared_ptr<const Property> prop(new Property(propName, propName, propName, unit, FormationProperty, Continuous3DProperty));
-	const string surfaceName = "waterbottom";
-	std::shared_ptr<const Geometry2D> geometry(new Geometry2D(2, 2, 100, 100, 0, 0));
-	std::shared_ptr<SurfaceData> valueMap(new MapNative(geometry));
-	std::shared_ptr<Surface> surface(new Surface(surfaceName, Sediment));
-	PropertySurfaceData propSurface = PropertySurfaceData(prop, valueMap);
-	surface->addPropertySurfaceData(propSurface);
-	try{
-		surface->addPropertySurfaceData(propSurface);
-		FAIL();
-	}
-	catch (CauldronIOException const & err)
-	{
-		EXPECT_STREQ(err.what(), "Cannot add property-surfaceData twice");
-	}
-	catch (...)
-	{
-		FAIL() << "Expected: Cannot add property-surfaceData twice";
-	}
-
 }
 
 TEST(Geometry2D, Create)
@@ -1024,11 +790,11 @@ TEST(Formation, Properties)
 	std::shared_ptr<Surface> surfaceTop(new Surface("topSurface", Sediment));
 	std::shared_ptr<Surface> surfaceBottom(new Surface("bottomSurface", Sediment));
 
-	formation.setTopSurface(surfaceTop);
-	formation.setBottomSurface(surfaceBottom);
+	formation.setTopSurface(surfaceTop.get());
+	formation.setBottomSurface(surfaceBottom.get());
 
-	EXPECT_TRUE(surfaceBottom == formation.getBottomSurface());
-	EXPECT_TRUE(surfaceTop == formation.getTopSurface());
+	EXPECT_TRUE(surfaceBottom.get() == formation.getBottomSurface());
+	EXPECT_TRUE(surfaceTop.get() == formation.getTopSurface());
 
 }
 
