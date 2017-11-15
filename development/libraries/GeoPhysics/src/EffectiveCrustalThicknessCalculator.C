@@ -124,6 +124,9 @@ void EffectiveCrustalThicknessCalculator::compute( PolyFunction2DArray& effectiv
                basaltThicknessValue = oceanicCrustThicknessIt->get()->getMap()->getValue( i, j );
                checkThicknessValue( "Oceanic crustal thickness", i, j, age, basaltThicknessValue );
 
+               // Compute effective crustal thickness
+               effectiveCrustalThicknessValue = calculateEffectiveCrustalThickness(continentalCrustThicknessValue, basaltThicknessValue, coeff);
+
                // Compute end of rift age
                EffectiveCrustalThicknessCalculator::Node node(i,j);
                updateEndOfRift( continentalCrustThicknessValue,
