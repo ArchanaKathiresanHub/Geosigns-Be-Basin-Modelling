@@ -1608,11 +1608,11 @@ bool PropertiesCalculator::createVizSnapshotResultPropertyValueMap ( OutputPrope
          // assign formations
          if( daSurface->getTopFormation() != 0 ) {
             std::shared_ptr<CauldronIO::Formation> topFormation = m_vizProject->findFormation( daSurface->getTopFormation()->getName());
-            vizSurface->setFormation( topFormation, true);
+            vizSurface->setFormation( topFormation.get(), true);
           }
          if( daSurface->getBottomFormation() != 0 ) {
             std::shared_ptr<CauldronIO::Formation> bottomFormation = m_vizProject->findFormation( daSurface->getBottomFormation()->getName());
-            vizSurface->setFormation( bottomFormation, false );
+            vizSurface->setFormation( bottomFormation.get(), false );
          }
          
          vizSnapshot->addSurface( vizSurface );
@@ -1630,8 +1630,8 @@ bool PropertiesCalculator::createVizSnapshotResultPropertyValueMap ( OutputPrope
       if( not vizSurface ) {
          vizSurface.reset(new CauldronIO::Surface(surfaceName,  kind ));
          
-         vizSurface->setFormation(vizFormation, true);
-         vizSurface->setFormation(vizFormation, false);
+         vizSurface->setFormation(vizFormation.get(), true);
+         vizSurface->setFormation(vizFormation.get(), false);
          vizSnapshot->addSurface( vizSurface );
          if( debug ) {
             cout << "Adding surface " << surfaceName << " for formation " << daFormation->getName() << endl;

@@ -61,7 +61,12 @@ CauldronIO::DataStoreLoad::DataStoreLoad(DataStoreParams* params)
     m_params = static_cast<DataStoreParams*>(params);
     
     if (!m_params->fileName.exists())
-        throw CauldronIOException("Cannot retrieve file for reading");
+    {
+      std::string msg = "Could not open file ";
+      msg += m_params->fileName.path();
+
+      throw CauldronIOException(msg);
+    }
 
     m_file_in.open(m_params->fileName.cpath(), std::fstream::in | std::fstream::binary);
     m_data_uncompressed = nullptr;

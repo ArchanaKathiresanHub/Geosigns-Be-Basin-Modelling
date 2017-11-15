@@ -505,36 +505,6 @@ namespace Shell.BasinModeling.CauldronIO.Test
                 trapper.getSpillPointPosition(out checkX, out checkY);
                 Assert.AreEqual(checkX, posX);
                 Assert.AreEqual(checkY, posY);
-
-            }
-
-            [TestMethod]
-            public void TrapperSetDownStreamTrapper()
-            {
-
-                int ID = 1234;
-                int persistentID = 2345;
-                Trapper trapper = new Trapper(ID, persistentID);
-                int downID = 3456;
-                int downPersistentID = 4567;
-                Trapper downstreamTrapper = new Trapper(downID, downPersistentID);
-                trapper.setDownStreamTrapper(downstreamTrapper);
-                Assert.AreEqual(trapper.getDownStreamTrapper().getID(), downID);
-                Assert.AreEqual(trapper.getDownStreamTrapper().getPersistentID(), downPersistentID);
-            }
-
-            [TestMethod]
-            public void TrapperSetDownStreamTrapperID()
-            {
-                int ID = 1234;
-                int persistentID = 2345;
-                Trapper trapper = new Trapper(ID, persistentID);
-                int downID = 3456;
-                int downPersistentID = 4567;
-                Trapper downstreamTrapper = new Trapper(downID, downPersistentID);
-                trapper.setDownStreamTrapper(downstreamTrapper);
-                trapper.setDownStreamTrapperID(persistentID);
-                Assert.AreEqual(trapper.getDownStreamTrapperID(), persistentID);
             }
 
             [TestMethod]
@@ -991,6 +961,3 @@ namespace Shell.BasinModeling.CauldronIO.Test
 
       }
 }
-
-
-

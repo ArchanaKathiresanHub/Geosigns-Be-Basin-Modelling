@@ -46,10 +46,6 @@ CauldronIO::Project::~Project()
 void CauldronIO::Project::addSnapShot(std::shared_ptr<SnapShot>& newSnapShot) throw (CauldronIOException)
 {
     if (!newSnapShot) throw CauldronIOException("Cannot add empty snapshot");
-    
-    // Check if snapshot exists
-    BOOST_FOREACH(std::shared_ptr<SnapShot>& snapShot, m_snapShotList)
-        if (snapShot == newSnapShot) throw CauldronIOException("Cannot add snapshot twice");
 
     m_snapShotList.push_back(newSnapShot);
 }
@@ -182,9 +178,6 @@ void CauldronIO::Project::addTrapper(std::shared_ptr<Trapper>& newTrapper) throw
 {
 	if (!newTrapper) throw CauldronIOException("Cannot add empty trapper");
 
-	BOOST_FOREACH(std::shared_ptr<Trapper>& trapper, m_trapperList)
-		if (trapper == newTrapper) throw CauldronIOException("Cannot add trapper twice");
-
 	m_trapperList.push_back(newTrapper);
 }
 
@@ -199,10 +192,7 @@ void CauldronIO::Project::addTrap(std::shared_ptr<Trap>&  newTrap) throw (Cauldr
 {
    if (!newTrap) throw CauldronIOException("Cannot add empty trap");
 
-   BOOST_FOREACH(std::shared_ptr<Trap>& trap, m_trapList)
-		if (trap == newTrap) throw CauldronIOException("Cannot add trap twice");
-
-    m_trapList.push_back(newTrap);
+   m_trapList.push_back(newTrap);
 }
 
 std::shared_ptr<const Trapper>  CauldronIO::Project::findTrapper(int trapId, float snapsotAge) const
@@ -277,10 +267,6 @@ void CauldronIO::Project::addFormation(std::shared_ptr<Formation>& newFormation)
 {
     if (!newFormation) throw CauldronIOException("Cannot add empty formation");
 
-    // Check if formation exists
-    BOOST_FOREACH(std::shared_ptr<Formation>& formation, m_formationList)
-        if (*formation == *newFormation) throw CauldronIOException("Cannot add formation twice");
-
     m_formationList.push_back(newFormation);
 }
 
@@ -288,10 +274,6 @@ void CauldronIO::Project::addFormation(std::shared_ptr<Formation>& newFormation)
 void CauldronIO::Project::addReservoir(std::shared_ptr<const Reservoir>& newReservoir) throw (CauldronIOException)
 {
     if (!newReservoir) throw CauldronIOException("Cannot add empty reservoir");
-
-    // Check if reservoir exists
-    BOOST_FOREACH(const std::shared_ptr<const Reservoir>& reservoir, m_reservoirList)
-        if (*reservoir == *newReservoir) throw CauldronIOException("Cannot add reservoir twice");
 
     m_reservoirList.push_back(newReservoir);
 }
@@ -546,19 +528,11 @@ void CauldronIO::SnapShot::addSurface(std::shared_ptr<Surface>& newSurface) thro
 {
     if (!newSurface) throw CauldronIOException("Cannot add empty surface");
 
-    // Check if surface exists
-    BOOST_FOREACH(std::shared_ptr<Surface>& surface, m_surfaceList)
-        if (surface == newSurface) throw CauldronIOException("Cannot add surface twice");
-
     m_surfaceList.push_back(newSurface);
 }
 
 void CauldronIO::SnapShot::addFormationVolume(FormationVolume& formVolume) throw (CauldronIOException)
 {
-    // Check if volume exists
-    BOOST_FOREACH(FormationVolume& volume, m_formationVolumeList)
-        if (volume == formVolume) throw CauldronIOException("Cannot add volume twice");
-
     m_formationVolumeList.push_back(formVolume);
 }
 
@@ -566,9 +540,6 @@ void CauldronIO::SnapShot::addFormationVolume(FormationVolume& formVolume) throw
 void CauldronIO::SnapShot::addTrapper(std::shared_ptr<Trapper>& newTrapper) throw (CauldronIOException)
 {
     if (!newTrapper) throw CauldronIOException("Cannot add empty trapper");
-
-    BOOST_FOREACH(std::shared_ptr<Trapper>& trapper, m_trapperList)
-        if (trapper == newTrapper) throw CauldronIOException("Cannot add trapper twice");
 
     m_trapperList.push_back(newTrapper);
 }
@@ -1025,6 +996,9 @@ bool CauldronIO::Property::operator==(const Property& other) const
 //////////////////////////////////////////////////////////////////////////
 
 CauldronIO::Formation::Formation(int kStart, int kEnd, const string& name) throw (CauldronIOException)
+   : m_topSurface(nullptr)
+   , m_bottomSurface(nullptr)
+     
 {
     if (name.empty()) throw CauldronIOException("Formation name cannot be empty");
     
@@ -1430,22 +1404,22 @@ bool CauldronIO::Formation::hasLithoType3PercentageMap() const
     return m_lithPerc3_index != -1;
 }
 
-void CauldronIO::Formation::setTopSurface(std::shared_ptr<CauldronIO::Surface>& surface)
+void CauldronIO::Formation::setTopSurface(Surface *surface)
 {
     m_topSurface = surface;
 }
 
-const std::shared_ptr<CauldronIO::Surface>& CauldronIO::Formation::getTopSurface()
+const Surface* CauldronIO::Formation::getTopSurface()
 {
     return m_topSurface;
 }
 
-void CauldronIO::Formation::setBottomSurface(std::shared_ptr<CauldronIO::Surface>& surface)
+void CauldronIO::Formation::setBottomSurface(Surface *surface)
 {
     m_bottomSurface = surface;
 }
 
-const std::shared_ptr<CauldronIO::Surface>& CauldronIO::Formation::getBottomSurface()
+const Surface* CauldronIO::Formation::getBottomSurface()
 {
     return m_bottomSurface;
 }
@@ -1485,6 +1459,8 @@ bool CauldronIO::Formation::operator==(const Formation& other) const
 //////////////////////////////////////////////////////////////////////////
 
 CauldronIO::Surface::Surface(const std::string& name, SubsurfaceKind kind)
+  : m_topFormation(nullptr)
+  , m_bottomFormation(nullptr)
 {
     m_name = name;
     m_subSurfaceKind = kind;
@@ -1516,10 +1492,7 @@ void CauldronIO::Surface::replaceAt(size_t index, PropertySurfaceData& data) thr
 
 void CauldronIO::Surface::addPropertySurfaceData(PropertySurfaceData& newData) throw (CauldronIOException)
 {
-    BOOST_FOREACH(PropertySurfaceData& data, m_propSurfaceList)
-        if (data == newData) throw CauldronIOException("Cannot add property-surfaceData twice");
-
-    m_propSurfaceList.push_back(newData);
+   m_propSurfaceList.push_back(newData);
 }
 
 bool CauldronIO::Surface::hasDepthSurface() const
@@ -1548,22 +1521,22 @@ CauldronIO::SubsurfaceKind CauldronIO::Surface::getSubSurfaceKind() const
     return m_subSurfaceKind;
 }
 
-void CauldronIO::Surface::setFormation(std::shared_ptr<Formation>& formation, bool isTopFormation)
+void CauldronIO::Surface::setFormation(Formation* formation, bool isTopFormation)
 {
     if (isTopFormation)
-        m_Topformation = formation;
+        m_topFormation = formation;
     else
-        m_Bottomformation = formation;
+        m_bottomFormation = formation;
 }
 
-const std::shared_ptr<Formation>& CauldronIO::Surface::getTopFormation() const
+const Formation* CauldronIO::Surface::getTopFormation() const
 {
-    return m_Topformation;
+    return m_topFormation;
 }
 
-const std::shared_ptr<Formation>& CauldronIO::Surface::getBottomFormation() const
+const Formation* CauldronIO::Surface::getBottomFormation() const
 {
-    return m_Bottomformation;
+    return m_bottomFormation;
 }
 
 void CauldronIO::Surface::retrieve()
@@ -1613,10 +1586,10 @@ bool CauldronIO::Surface::operator==(const Surface& other) const
     if (this->getName() != other.getName()) return false;
     if (this->getSubSurfaceKind() != other.getSubSurfaceKind()) return false;
 
-    auto& bottomFormation1 = this->getBottomFormation();
-    auto& bottomFormation2 = other.getBottomFormation();
-    auto& topFormation1 = this->getTopFormation();
-    auto& topFormation2 = other.getTopFormation();
+    auto bottomFormation1 = this->getBottomFormation();
+    auto bottomFormation2 = other.getBottomFormation();
+    auto topFormation1 = this->getTopFormation();
+    auto topFormation2 = other.getTopFormation();
 
     if (bottomFormation1 && !bottomFormation2) return false;
     if (topFormation1 && !topFormation2) return false;
@@ -2088,10 +2061,7 @@ void CauldronIO::Volume::removeVolumeData(PropertyVolumeData& data) throw (Cauld
 
 void CauldronIO::Volume::addPropertyVolumeData(PropertyVolumeData& newData) throw (CauldronIOException)
 {
-    BOOST_FOREACH(PropertyVolumeData& data, m_propVolumeList)
-        if (data == newData) throw CauldronIOException("Cannot add property-volumeData twice");
-
-    m_propVolumeList.push_back(newData);
+   m_propVolumeList.push_back(newData);
 }
 
 
