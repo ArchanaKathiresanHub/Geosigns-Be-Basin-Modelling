@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2015-2016 Shell International Exploration & Production.
+// Copyright (C) 2015-2017 Shell International Exploration & Production.
 // All rights reserved.
 //
 // Developed under license for Shell by PDS BV.
@@ -30,19 +30,12 @@ using namespace DataAccess::Interface;
 namespace GeoPhysics
 {
    /// @class EffectiveCrustalThicknessCalculator Computes the Effective Crustal Thickness (ECT) and its associated properties (Basalt Thicknesses and End Of Rift)
-   /// @details The class owns two version of the same algorithm:
-   ///    * Legacy version computes the Basalt Thicknesses from the crust thickness at melt onset, and then ses them to compute the ECT.
-   ///    * v2017.05 version gets the Basalt Thicknesses as input and computes directly the ECT
    class EffectiveCrustalThicknessCalculator{
       public:
          typedef Local2DArray <CBMGenerics::Polyfunction> PolyFunction2DArray;
 
-         /// @details If the present day basaltThickness and crust thickness at melt onset are not null pointers, then the version is set to legacy
-         ///    Else, the version is set to v2017.05 and the oceanic crust thickness history must have the same size as the continental crust thickness history and not empty
-         /// @param[in] oceanicCrustThicknessHistory Used only in v2017.05 version
+         /// @param[in] oceanicCrustThicknessHistory
          /// @param[in] continentalCrustThicknessPolyfunction Used to retrieve the present day crustal thickness
-         /// @param[in] presentDayBasaltThickness Used only in legacy version
-         /// @param[in] crustThicknessMeltOnset Used only in legacy version
          /// @throw std::invalid_argument When one of the input is missing or invalid
          EffectiveCrustalThicknessCalculator( const PaleoFormationPropertyList*        continentalCrustThicknessHistory,
                                               const TableOceanicCrustThicknessHistory& oceanicCrustThicknessHistory,
@@ -53,14 +46,12 @@ namespace GeoPhysics
          );
 
          /// @brief Computes the Effective Crustal Thickness History, Oceanic Crust Thickness History and End Of Rifting Event History
-         /// @details If the version used is v2017.05 then the Oceanic Crust Thickness History output is a copy from the Oceanic Crust Thickness History input
          /// @param[out] effectiveCrustThicknessHistory The Effective Crustal Thickness (ECT) history which represents the thickness of the crust formation
          /// @param[out] oceanicCrustThicknessHistory The Oceanic Crustal Thickness history (also called basalt crustal thicknes history) which represents the thickness of the basalt lithology
          ///    which will be lithoswitched in the mantle/crust formations
          /// @param[out] endOfRiftEvent The end age of the rifting event, used to determine when the boundary conditions are changing in the temperature solver
          /// @throw std::invalid_argument if the input thicknesses are negative
-         /// @throw std::runtime_error if the algorithm version is unknown
-         /// @throw std::runtime_error if the algorithm version is v2017.05 and the oceanic crustal thickness history doesn't correspond (in ages) with the continental crustal thickness history
+         /// @throw std::runtime_error if the oceanic crustal thickness history doesn't correspond (in ages) with the continental crustal thickness history
          void compute( PolyFunction2DArray&   effectiveCrustThicknessHistory,
                        PolyFunction2DArray&   oceanicCrustThicknessHistory,
                        Local2DArray <double>& endOfRiftEvent );
@@ -83,7 +74,6 @@ namespace GeoPhysics
          };
 
          /// @brief Calculates the effective crustal thickness
-         /// @details To be used in both legacy and v2017.05 version
          /// @param[in] coeff The multiplicative coefficient which is the ration of the inital crust thickness by the total initial crust and lithospheric mantle thickness
          double calculateEffectiveCrustalThickness( const double continentalCrustThickness,
                                                     const double basaltThickness,
@@ -100,10 +90,8 @@ namespace GeoPhysics
                                Local2DArray <double>& endOfRiftEvent) const noexcept;
 
          /// @brief Retrieve all input maps accoring to the algorithm version
-         /// @throw std::runtime_error if the algorithm version is unknown
          void retrieveData();
          /// @breif Retrieve all output maps accoring to the algorithm version
-         /// @throw std::runtime_error if the algorithm version is unknown
          void restoreData();
 
          /// @brief Check that the given value is positive and throw a detailed exception if not
