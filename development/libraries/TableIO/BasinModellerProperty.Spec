@@ -1920,11 +1920,13 @@ START-properties
     Description         : Active vitrinite reflectance model
     Type                : string
     Unit of measurement :
+    Default             : "Burnham & Sweeney"
 
     Identification      : VelAlgorithm
     Description         : Active seismic velocity model
     Type                : string
     Unit of measurement :
+    Default             : "Kennan's Velocity-Porosity"
 
     Identification      : Optimisation_Level
     Description         : Level of optimisation in run
