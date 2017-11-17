@@ -81,7 +81,7 @@ void EffectiveCrustalThicknessCalculator::compute( PolyFunction2DArray& effectiv
    // Outputs
    double effectiveCrustalThicknessValue, basaltThicknessValue;
    // Temporary data
-   double previousContinentalCrustThicknessValue = 0, previousBasaltThicknessValue = 0, agePrev = 0;
+   double previousContinentalCrustThicknessValue = 0, agePrev = 0;
    const GridMap* prevContCrustThicknessMap = nullptr;
 
    ///2. Retreive data
@@ -123,6 +123,8 @@ void EffectiveCrustalThicknessCalculator::compute( PolyFunction2DArray& effectiv
                checkThicknessValue( "Continental crustal thickness", i, j, age, continentalCrustThicknessValue );
                basaltThicknessValue = oceanicCrustThicknessIt->get()->getMap()->getValue( i, j );
                checkThicknessValue( "Oceanic crustal thickness", i, j, age, basaltThicknessValue );
+               //the previous continental crust thickness value was already checked for in the previous iteration       
+               previousContinentalCrustThicknessValue = prevContCrustThicknessMap->getValue( i, j );
 
                // Compute effective crustal thickness
                effectiveCrustalThicknessValue = calculateEffectiveCrustalThickness(continentalCrustThicknessValue, basaltThicknessValue, coeff);
