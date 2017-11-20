@@ -1757,7 +1757,7 @@ bool ProjectHandle::loadLithoTypes( void )
       Record * lithoTypeRecord = *tblIter;
          m_lithoTypes.push_back( getFactory()->produceLithoType( this, lithoTypeRecord ) );
 
-      if ( getLithotype( lithoTypeRecord ) == DataAccess::Interface::CrustLithologyName) {
+      if ( getLithotype( lithoTypeRecord ) == m_crustLithoName) {
          crustLithoType = lithoTypeRecord;
       }
    }
@@ -2131,6 +2131,8 @@ bool ProjectHandle::loadBottomBoundaryConditions( void )
       m_crustPropertyModel  = database::getCrustPropertyModel ( projectIoRecord );
       m_mantlePropertyModel = database::getMantlePropertyModel( projectIoRecord );
    }
+   m_crustLithoName = database::getCrustLithoName ( projectIoRecord );
+   m_mantleLithoName = database::getMantleLithoName ( projectIoRecord );
    return true;
 }
 
@@ -2144,6 +2146,14 @@ const string & ProjectHandle::getCrustPropertyModel() const {
 
 const string & ProjectHandle::getMantlePropertyModel() const {
    return m_mantlePropertyModel;
+}
+
+const string & ProjectHandle::getCrustLithoName() const {
+   return m_crustLithoName;
+}
+
+const string & ProjectHandle::getMantleLithoName() const {
+   return m_mantleLithoName;
 }
 
 double ProjectHandle::getBottomMantleTemperature() const {

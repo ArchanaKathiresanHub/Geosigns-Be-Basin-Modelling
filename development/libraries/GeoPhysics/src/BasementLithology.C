@@ -99,9 +99,9 @@ void BasementLithology::setBasementLithoProperties( ConfigFileParameterAlc & aBP
 
 void  BasementLithology::setLithoType() {
 
-   if ( m_lithoname == DataAccess::Interface::CrustLithologyName) {
+   if ( m_lithoname == m_projectHandle->getCrustLithoName()) {
       m_lithotype = CRUST;
-   } else if( m_lithoname == DataAccess::Interface::MantleLithologyName) {
+   } else if( m_lithoname == m_projectHandle->getMantleLithoName()) {
       m_lithotype = MANTLE;
    } else if( m_lithoname == DataAccess::Interface::ALCBasalt ) {
       m_lithotype = BASALT;

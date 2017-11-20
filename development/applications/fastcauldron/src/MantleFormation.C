@@ -30,7 +30,7 @@ MantleFormation::MantleFormation ( Interface::ProjectHandle * projectHandle,
    DataAccess::Interface::Formation ( projectHandle, record ),
    GeoPhysics::Formation ( projectHandle, record ),
    LayerProps ( projectHandle, record ),
-   DataAccess::Interface::BasementFormation ( projectHandle, record, Interface::MantleFormationName, Interface::MantleLithologyName ),
+   DataAccess::Interface::BasementFormation ( projectHandle, record, Interface::MantleFormationName, projectHandle->getMantleLithoName() ),
    DataAccess::Interface::MantleFormation ( projectHandle, record ),
    GeoPhysics::GeoPhysicsMantleFormation ( projectHandle, record ) {
 

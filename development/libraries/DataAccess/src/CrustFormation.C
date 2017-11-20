@@ -39,7 +39,7 @@ using namespace Interface;
 
 //------------------------------------------------------------//
 
-CrustFormation::CrustFormation (ProjectHandle * projectHandle, database::Record* record ) : Formation ( projectHandle, record ), BasementFormation ( projectHandle, record, CrustFormationName, CrustLithologyName ) {
+CrustFormation::CrustFormation (ProjectHandle * projectHandle, database::Record* record ) : Formation ( projectHandle, record ), BasementFormation ( projectHandle, record, CrustFormationName, projectHandle->getCrustLithoName() ) {
 
    // This pointer does NOT need to be deallocated, since the map it will point to will be deallocated
    // elsewhere.

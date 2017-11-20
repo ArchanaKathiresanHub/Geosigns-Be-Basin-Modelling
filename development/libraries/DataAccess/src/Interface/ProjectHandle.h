@@ -518,6 +518,8 @@ namespace DataAccess
 
          virtual const string & getCrustPropertyModel() const;
          virtual const string & getMantlePropertyModel() const;
+         virtual const string & getCrustLithoName() const;
+         virtual const string & getMantleLithoName() const;
          virtual double getBottomMantleTemperature() const;
 
          virtual ModellingMode getModellingMode() const;
@@ -683,6 +685,8 @@ namespace DataAccess
          BottomBoundaryConditions m_bottomBoundaryConditions;
          string m_crustPropertyModel;
          string m_mantlePropertyModel;
+         string m_crustLithoName;
+         string m_mantleLithoName;
 
          /// The surfaces of the basement formations.
          /// The crust- and mantle-surfaces do not have to be deallocated directly. Since they are added

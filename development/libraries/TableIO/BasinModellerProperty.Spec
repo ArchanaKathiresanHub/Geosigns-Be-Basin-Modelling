@@ -875,6 +875,18 @@ START-properties
     Unit of measurement :
     Type                : string
     Default             : "Standard Conductivity Mantle"
+    
+    Identification      : CrustLithoName
+    Description         : Crust lithotype name
+    Unit of measurement :
+    Type                : string
+    Default             : "Crust"
+
+    Identification      : MantleLithoName
+    Description         : Mantle lithotype name
+    Unit of measurement :
+    Type                : string
+    Default             : "Litho. Mantle"
 
     Identification      : SurfaceNormal
     Description         : Normal of a point on a surface
@@ -5024,6 +5036,8 @@ START-property-tables
     Column         : InitialLithosphericMantleThickness
     Column         : CrustPropertyModel
     Column         : MantlePropertyModel
+    Column         : CrustLithoName
+    Column         : MantleLithoName
     Header         : Basement
 
 

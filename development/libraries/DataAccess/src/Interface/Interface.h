@@ -724,17 +724,9 @@ namespace DataAccess
       /// The name of the crust formation.
       static const std::string CrustFormationName = "Crust";
 
-      /// \var CrustLithologyName
-      /// The name of the lithology used in the crust formation.
-      static const std::string CrustLithologyName = "Crust";
-
       /// \var MantleFormationName
       /// The name of the mantle formation.
       static const std::string MantleFormationName = "Mantle";
-
-      /// \var MantleLithologyName
-      /// The name of the lithology used in the mantle formation.
-      static const std::string MantleLithologyName = "Litho. Mantle";
 
       /// \var NullString
       static const std::string NullString = "";

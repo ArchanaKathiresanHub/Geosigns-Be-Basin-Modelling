@@ -550,9 +550,9 @@
 ;
 [BasementIoTbl]
 ;v100
-     BottomBoundaryModel           TopAsthenoTemp         TopCrustHeatProd     TopCrustHeatProdGrid     CrustHeatPDecayConst     LithoMantleThickness     InitialLthMntThickns      FixedCrustThickness InitialLithosphericMantleThickness CrustPropertyModel  MantlePropertyModel
-                      ()                      (C)                  (uW/m3)                  (uW/m3)                      (m)                      (m)                      (m)                      (m)                      (m)                       ()                       ()
-"Advanced Lithosphere Calculator"            1333                        2                       ""                    10000                    90000                    90000                    30000                   115000 "Standard Conductivity Crust" "Standard Conductivity Mantle"
+     BottomBoundaryModel           TopAsthenoTemp         TopCrustHeatProd     TopCrustHeatProdGrid     CrustHeatPDecayConst     LithoMantleThickness     InitialLthMntThickns      FixedCrustThickness InitialLithosphericMantleThickness CrustPropertyModel  MantlePropertyModel           CrustLithoName          MantleLithoName
+                      ()                      (C)                  (uW/m3)                  (uW/m3)                      (m)                      (m)                      (m)                      (m)                      (m)                       ()                       ()                       ()                       ()
+"Advanced Lithosphere Calculator"            1333                        2                       ""                    10000                    90000                    90000                    30000                   115000 "Standard Conductivity Crust" "Standard Conductivity Mantle"       "Crust"          "Litho. Mantle"
 [End]
 ;
 ;

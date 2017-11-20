@@ -711,7 +711,7 @@ bool  GeoPhysics::CompoundLithology::reCalcProperties(){
    const string lithoname = m_lithoComponents[0]->getName();
    m_isBasementLithology = false;
 
-   if ((m_lithoComponents.size() == 1) && (lithoname == DataAccess::Interface::CrustLithologyName || lithoname == DataAccess::Interface::MantleLithologyName || lithoname == DataAccess::Interface::ALCBasalt)) {
+   if ((m_lithoComponents.size() == 1) && (lithoname == m_projectHandle->getCrustLithoName() || lithoname == m_projectHandle->getMantleLithoName() || lithoname == DataAccess::Interface::ALCBasalt)) {
       m_isBasementLithology = true;
    }
 

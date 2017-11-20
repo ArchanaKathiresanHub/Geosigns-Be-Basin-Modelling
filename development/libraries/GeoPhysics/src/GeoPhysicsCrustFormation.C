@@ -35,7 +35,7 @@ GeoPhysics::GeoPhysicsCrustFormation::GeoPhysicsCrustFormation ( DataAccess::Int
                                                                  database::Record*                          record ) :
    DataAccess::Interface::Formation ( projectHandle, record ),
    GeoPhysics::Formation ( projectHandle, record ),
-   DataAccess::Interface::BasementFormation ( projectHandle, record, Interface::CrustFormationName, Interface::CrustLithologyName ),
+   DataAccess::Interface::BasementFormation ( projectHandle, record, Interface::CrustFormationName, m_projectHandle->getCrustLithoName() ),
    DataAccess::Interface::CrustFormation ( projectHandle, record ) 
 {
    m_crustThinningRatio = Interface::DefaultUndefinedScalarValue;

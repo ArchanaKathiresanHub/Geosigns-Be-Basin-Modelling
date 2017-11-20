@@ -390,7 +390,7 @@ void GeoPhysics::ProjectHandle::addSimpleLithologiesToLithologyManager () {
    for ( lithoIter = m_lithoTypes.begin (); lithoIter != m_lithoTypes.end (); ++lithoIter ) {
 
       Interface::LithoType* lithoType = *lithoIter;
-      if( m_isALCMode && ( lithoType->getName() == DataAccess::Interface::CrustLithologyName || lithoType->getName() == DataAccess::Interface::MantleLithologyName || lithoType->getName() == DataAccess::Interface::ALCBasalt )) {
+      if( m_isALCMode && ( lithoType->getName() == getCrustLithoName() || lithoType->getName() == getMantleLithoName() || lithoType->getName() == DataAccess::Interface::ALCBasalt )) {
          BasementLithology * litho = dynamic_cast<BasementLithology*>( lithoType );
          assert( litho );
          litho->setBasementLithoProperties( * m_basementLithoProps );
@@ -424,10 +424,6 @@ void GeoPhysics::ProjectHandle::correctSimpleFluidDensities () {
 }
 
 //------------------------------------------------------------//
-
-// const GeoPhysics::CompoundLithology* GeoPhysics::ProjectHandle::getCompoundLithology ( const CompoundLithologyComposition& composition ) {
-//    return m_lithologyManager->getCompoundLithology ( composition );
-// }
 
 GeoPhysics::LithologyManager& GeoPhysics::ProjectHandle::getLithologyManager () const {
    return *m_lithologyManager;

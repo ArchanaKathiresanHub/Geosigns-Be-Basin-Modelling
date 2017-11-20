@@ -34,7 +34,7 @@ using namespace database;
 using namespace DataAccess;
 using namespace Interface;
 
-MantleFormation::MantleFormation (ProjectHandle * projectHandle, database::Record* record) : Formation ( projectHandle, record ), Interface::BasementFormation ( projectHandle, record, MantleFormationName, MantleLithologyName ) {
+MantleFormation::MantleFormation (ProjectHandle * projectHandle, database::Record* record) : Formation ( projectHandle, record ), Interface::BasementFormation ( projectHandle, record, MantleFormationName, projectHandle->getMantleLithoName() ) {
 }
 
 

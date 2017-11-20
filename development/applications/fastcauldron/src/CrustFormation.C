@@ -36,7 +36,7 @@ CrustFormation::CrustFormation ( Interface::ProjectHandle * projectHandle, datab
    DataAccess::Interface::Formation ( projectHandle, record ),
    GeoPhysics::Formation ( projectHandle, record ),
    LayerProps ( projectHandle, record ), 
-   DataAccess::Interface::BasementFormation ( projectHandle, record, Interface::CrustFormationName, Interface::CrustLithologyName ),
+   DataAccess::Interface::BasementFormation ( projectHandle, record, Interface::CrustFormationName, projectHandle->getCrustLithoName() ),
    DataAccess::Interface::CrustFormation ( projectHandle, record ),
    GeoPhysics::GeoPhysicsCrustFormation ( projectHandle, record ) {
 
