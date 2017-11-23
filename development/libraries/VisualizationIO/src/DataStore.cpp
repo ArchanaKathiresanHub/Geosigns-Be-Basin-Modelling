@@ -60,15 +60,15 @@ CauldronIO::DataStoreLoad::DataStoreLoad(DataStoreParams* params)
 {
     m_params = static_cast<DataStoreParams*>(params);
     
-    if (!m_params->fileName.exists())
+    if (!exists(m_params->fileName))
     {
       std::string msg = "Could not open file ";
-      msg += m_params->fileName.path();
+      msg += m_params->fileName.string();
 
       throw CauldronIOException(msg);
     }
 
-    m_file_in.open(m_params->fileName.cpath(), std::fstream::in | std::fstream::binary);
+    m_file_in.open(m_params->fileName.c_str(), std::fstream::in | std::fstream::binary);
     m_data_uncompressed = nullptr;
 }
 
@@ -190,12 +190,12 @@ CauldronIO::DataStoreParams* CauldronIO::DataStoreLoad::getDatastoreParams(pugi:
     pugi::xml_attribute partialPath = datastoreNode.attribute("partialpath");
     if (!partialPath || partialPath.as_bool())
     {
-        paramsNative->fileName = path;
-        paramsNative->fileName << datastoreNode.attribute("file").value();
+      paramsNative->fileName = path.path();
+      paramsNative->fileName /= datastoreNode.attribute("file").value();
     }
     else
     {
-        paramsNative->fileName = ibs::FilePath(datastoreNode.attribute("file").value());
+        paramsNative->fileName = datastoreNode.attribute("file").value();
     }
 
     std::string compression = datastoreNode.attribute("compression").value();
@@ -343,7 +343,7 @@ void CauldronIO::DataStoreSave::addSurface(const std::shared_ptr<SurfaceData>& s
     {
        // This surface already has been written: skip it
        const DataStoreParams* const params = mapNative->getDataStoreParams();
-       assert(m_fileName == params->fileName.path());
+       assert(m_fileName == params->fileName.string());
  
        subNode.append_attribute("offset") = (unsigned int)m_offset;
        subNode.append_attribute("size") = (unsigned int)params->size;
@@ -402,7 +402,7 @@ void CauldronIO::DataStoreSave::writeVolumePart(pugi::xml_node volNode, bool com
     {
         // This volume already has been written: skip it
         const DataStoreParams* const params = nativeVolume->getDataStoreParamsIJK();
-        assert(m_fileName == params->fileName.path());
+        assert(m_fileName == params->fileName.string());
         
         subNode.append_attribute("offset") = (unsigned int)m_offset;
         subNode.append_attribute("size") = (unsigned int)params->size;

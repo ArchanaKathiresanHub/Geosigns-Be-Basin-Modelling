@@ -155,15 +155,15 @@ namespace CauldronIO
         bool operator==(const Project& other) const;
 
         /// \returns the property (if existing) for the given name
-        std::shared_ptr<const Property> findProperty(std::string propertyName) const;
+        std::shared_ptr<const Property> findProperty(const std::string &propertyName) const;
         /// \returns a list of all formations
         const FormationList& getFormations() const;
         /// \returns the formation (if existing) for the given name
-        std::shared_ptr<Formation> findFormation(std::string formationName) const;
+        std::shared_ptr<Formation> findFormation(const std::string &formationName) const;
         /// \returns a list of reservoirs
         const ReservoirList& getReservoirs() const;
         /// \returns the reservoir (if existing) for the given name [we assume there are no reservoirs with identical names and different otherwise]
-        std::shared_ptr<const Reservoir> findReservoir(std::string reservoirName) const;
+        std::shared_ptr<const Reservoir> findReservoir(const std::string &reservoirName) const;
         /// \returns the xml version number
         int getXmlVersionMajor() const;
         /// \returns the xml version number
@@ -805,6 +805,15 @@ namespace CauldronIO
         float* m_data;
     };
 
+    /// \class ArrayView
+    /// \brief Provides a view into an array
+    template<class T>
+    struct ArrayView
+    {
+      T *data;
+      size_t size;
+    };
+
     /// \class VisualizationIOData
     /// \brief interface class for surface and volume data
     class VisualizationIOData
@@ -813,6 +822,8 @@ namespace CauldronIO
         /// \brief Retrieve the data: throws on failure. Note: The VisualizationIO_projectHandle implementation requires that HDF data is read before retrieve is called.
         /// \brief See CauldronIO::VisualizationUtils::retrieveAllData.The VisualizationIO_native implementation can handle this itself.
         virtual void retrieve() = 0;
+        /// \brief Retrieve the data directly into the provided buffer. This method is provided to eliminate unnecessary data copies
+        virtual void retrieve(const ArrayView<float> &buffer) const = 0;
         /// \brief Release memory; does not destroy the object; it can be retrieved again
         virtual void release() = 0;
         /// \brief Prefetch any data: load from disk, do not decompress yet (for this call retrieve)
@@ -843,6 +854,8 @@ namespace CauldronIO
         //////////////////////////////////////////////////////////////////////////
         /// \brief Retrieve the data
         virtual void retrieve() = 0;
+        /// \brief Retrieve the data directly into the provided buffer. This method is provided to eliminate unnecessary data copies
+        virtual void retrieve(const ArrayView<float> &buffer) const = 0;
         /// \brief Release memory; does not destroy the object; it can be retrieved again
         virtual void release();
         /// \returns true if data is available
@@ -1069,6 +1082,8 @@ namespace CauldronIO
         //////////////////////////////////////////////////////////////////////////
         /// \brief Retrieve the data, returns true on success
         virtual void retrieve() = 0;
+        /// \brief Retrieve the data directly into the provided buffer. This method is provided to eliminate unnecessary data copies
+        virtual void retrieve(const ArrayView<float> &buffer) const = 0;
         /// \brief Release memory; does not destroy the object; it can be retrieved again
         virtual void release();
         /// \returns true if data is available

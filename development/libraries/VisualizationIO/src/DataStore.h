@@ -36,7 +36,7 @@ namespace CauldronIO
     {
         DataStoreParams() : fileName("") { ; }
         
-        ibs::FilePath fileName;
+        boost::filesystem::path fileName;
         size_t offset;       // offset within the file
         size_t size;         // size of data chunk
         bool compressed;     // true if compressed

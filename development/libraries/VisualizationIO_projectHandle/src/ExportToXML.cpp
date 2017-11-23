@@ -480,7 +480,7 @@ void CauldronIO::ExportToXML::addVolume(DataStoreSave& dataStore, const std::sha
 void CauldronIO::ExportToXML::addReferenceData(pugi::xml_node &node, const DataStoreParams* params, bool dataIJK, bool dataKIJ) const
 {
 	pugi::xml_node subNode = node.append_child("datastore");
-	subNode.append_attribute("file") = params->fileName.path().c_str();
+	subNode.append_attribute("file") = params->fileName.c_str();
 
 	if (params->compressed)
 		subNode.append_attribute("compression") = params->compressed_lz4 ? "lz4" : "gzip";

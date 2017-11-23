@@ -43,6 +43,11 @@ void CauldronIO::MapProjectHandle::retrieve()
         retrieveFromHDF();
 }
 
+void CauldronIO::MapProjectHandle::retrieve(const ArrayView<float> &buffer) const
+{
+  throw CauldronIOException("Not implemented");
+}
+
 void CauldronIO::MapProjectHandle::release()
 {
     if (!isRetrieved()) return;
@@ -204,6 +209,11 @@ void CauldronIO::VolumeProjectHandle::retrieve()
             // Read from prefetched HDF
             retrieveSingleFromHDF();
     }
+}
+
+void CauldronIO::VolumeProjectHandle::retrieve(const ArrayView<float> &buffer) const
+{
+  throw CauldronIOException("Not implemented");
 }
 
 void CauldronIO::VolumeProjectHandle::release()

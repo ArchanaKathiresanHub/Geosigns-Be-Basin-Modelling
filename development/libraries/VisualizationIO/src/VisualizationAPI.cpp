@@ -96,7 +96,7 @@ const GeometryList& CauldronIO::Project::getGeometries() const
     return m_geometries;
 }
 
-std::shared_ptr<const Property> CauldronIO::Project::findProperty(std::string propertyName) const
+std::shared_ptr<const Property> CauldronIO::Project::findProperty(const std::string &propertyName) const
 {
     BOOST_FOREACH(const std::shared_ptr<const Property>& property, m_propertyList)
     {
@@ -111,7 +111,7 @@ const FormationList& CauldronIO::Project::getFormations() const
     return m_formationList;
 }
 
-std::shared_ptr<Formation> CauldronIO::Project::findFormation(std::string formationName) const
+std::shared_ptr<Formation> CauldronIO::Project::findFormation(const std::string &formationName) const
 {
     BOOST_FOREACH(const std::shared_ptr<Formation>& formation, m_formationList)
     {
@@ -242,7 +242,7 @@ const ReservoirList& CauldronIO::Project::getReservoirs() const
     return m_reservoirList;
 }
 
-std::shared_ptr<const Reservoir> CauldronIO::Project::findReservoir(std::string reservoirName) const
+std::shared_ptr<const Reservoir> CauldronIO::Project::findReservoir(const std::string &reservoirName) const
 {
     BOOST_FOREACH(const std::shared_ptr<const Reservoir>& reservoir, m_reservoirList)
     {
@@ -479,7 +479,7 @@ float CauldronIO::Project::getPropertyAtLocation(double snapshotTime, const std:
                float trapId = DefaultUndefinedValue;
                trapId = snapshot->getPropertyAtLocation(formations, xCoord, yCoord, zCoord, property, reservoirName, surfaceName, fname);
                if(trapId != DefaultUndefinedValue) {
-                  std::shared_ptr<const Trapper> trapFound = findTrapper(trapId, static_cast<float>(snapshotTime));
+                  std::shared_ptr<const Trapper> trapFound = findTrapper(static_cast<int>(trapId), static_cast<float>(snapshotTime));
                   if( trapFound != 0 ) {
                      value = trapFound->getValue(propertyName);
                   }

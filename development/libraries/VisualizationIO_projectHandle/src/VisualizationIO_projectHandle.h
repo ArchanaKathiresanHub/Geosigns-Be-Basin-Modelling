@@ -43,6 +43,8 @@ namespace CauldronIO
         virtual void prefetch();
         /// \brief Override the retrieve method to load data from datastore
         virtual void retrieve();
+        /// \brief Retrieve the data directly into the provided buffer
+        virtual void retrieve(const ArrayView<float> &buffer) const override;
         /// \brief Release memory; does not destroy the object; it can be retrieved again
         virtual void release();
         /// \returns a list of HDFinfo holding the data; can be null
@@ -75,6 +77,8 @@ namespace CauldronIO
         virtual void prefetch();
         /// \brief Override the retrieve method to load data from datastore
         virtual void retrieve();
+        /// \brief Retrieve the data directly into the provided buffer
+        virtual void retrieve(const ArrayView<float> &buffer) const override;
         /// \brief Release memory; does not destroy the object; it can be retrieved again
         virtual void release();
         /// \returns a list of HDFinfo holding the data; can be null

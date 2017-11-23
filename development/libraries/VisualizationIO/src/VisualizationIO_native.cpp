@@ -11,7 +11,76 @@
 #include "VisualizationIO_native.h"
 #include "DataStore.h"
 
+#include "lz4.h"
+
+#include <boost/iostreams/filtering_streambuf.hpp>
+#include <boost/iostreams/filter/gzip.hpp>
+#include <boost/iostreams/copy.hpp>
+
+#include <memory>
+
 using namespace CauldronIO;
+
+namespace
+{
+  /// Standalone function to load (and optionally decompress) the data specified by a DataStoreParams
+  /// structure. The data is loaded directly into the memory pointed to by the buffer, which is a
+  /// wrapper that allows users to load data into any type that can be described by an ArrayView.
+  /// This function is placed here in an anonymous namespace so that it can be used from both the
+  /// MapNative::retrieve(const ArrayView<float>&) and VolumeDataNative::retrieve(const ArrayView<float>&) 
+  /// implementations.
+  void retrieve(const DataStoreParams &params, const ArrayView<float> &buffer)
+  {
+    // open the file and seek to the specified position
+    std::ifstream file;
+    file.open(params.fileName.string(), std::ios::binary);
+    if (!file)
+      throw CauldronIOException(std::string("Could not open file " + params.fileName.string()));
+    file.seekg(params.offset);
+
+    size_t uncompressedSize = buffer.size * sizeof(float);
+
+    if (params.compressed)
+    {
+      // allocate a buffer to load the compressed data into
+      std::unique_ptr<char[]> compressedData(new char[params.size]);
+
+      // setup source and destination pointers
+      char *src = compressedData.get();
+      char *dst = reinterpret_cast<char*>(buffer.data);
+
+      // read compressed data from file
+      file.read(src, params.size);
+      if ((size_t)file.gcount() != params.size)
+        throw CauldronIOException("Unable to read requested number of bytes");
+
+      // decompress into buffer
+      if (params.compressed_lz4)
+      {
+        size_t decompressedSize = (size_t)LZ4_decompress_safe(src, dst, (int)params.size, (int)uncompressedSize);
+        if (decompressedSize != uncompressedSize)
+          throw CauldronIOException(std::string("Error during lz4 decompression"));
+      }
+      else // using gzip compression
+      {
+        boost::iostreams::filtering_streambuf<boost::iostreams::input> in;
+        in.push(boost::iostreams::gzip_decompressor());
+        in.push(boost::iostreams::array_source(src, params.size));
+        boost::iostreams::copy(in, boost::iostreams::array_sink(dst, uncompressedSize));
+      }
+    }
+    else // uncompressed data
+    {
+      // load the file contents directly into the buffer
+      if (uncompressedSize != params.size)
+        throw CauldronIOException("Buffer size mismatch");
+
+      file.read(reinterpret_cast<char*>(buffer.data), uncompressedSize);
+      if ((size_t)file.gcount() != uncompressedSize)
+        throw CauldronIOException("Unable to read requested number of bytes");
+    }
+  }
+}
 
 CauldronIO::MapNative::MapNative(const std::shared_ptr<const Geometry2D>& geometry, float minValue, float maxValue)
     : SurfaceData(geometry, minValue, maxValue)
@@ -53,6 +122,20 @@ void CauldronIO::MapNative::retrieve()
 
     setData_IJ(data);
     delete[] data;
+}
+
+void CauldronIO::MapNative::retrieve(const ArrayView<float> &buffer) const
+{
+  if (isConstant())
+  {
+    float value = getConstantValue();
+    for (size_t i = 0; i < buffer.size; ++i)
+      buffer.data[i] = value;
+  }
+  else
+  {
+    ::retrieve(*m_params, buffer);
+  }
 }
 
 void CauldronIO::MapNative::setDataStore(DataStoreParams* params)
@@ -108,6 +191,23 @@ void CauldronIO::VolumeDataNative::prefetch()
         m_dataStoreKIJ = new DataStoreLoad(m_paramsKIJ);
         m_dataStoreKIJ->prefetch();
     }
+}
+
+void CauldronIO::VolumeDataNative::retrieve(const ArrayView<float> &buffer) const
+{
+  if (isConstant())
+  {
+    float value = getConstantValue();
+    for (size_t i = 0; i < buffer.size; ++i)
+      buffer.data[i] = value;
+  }
+  else
+  {
+    if (!m_dataIJK)
+      throw CauldronIOException("Can only handle IJK data layout");
+
+    ::retrieve(*m_paramsIJK, buffer);
+  }
 }
 
 void CauldronIO::VolumeDataNative::retrieve()
