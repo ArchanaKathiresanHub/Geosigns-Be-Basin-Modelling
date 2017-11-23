@@ -28,6 +28,9 @@
 
 // utilities library
 #include "LogHandler.h"
+#include "StatisticsHandler.h"
+
+using namespace Utilities::CheckMemory;
 
 static bool splitString( char * string, char separator, char * & firstPart, char * & secondPart );
 static bool parseStrings( StringVector & strings, char * stringsString );
@@ -413,16 +416,16 @@ void PropertiesCalculator::calculateProperties( FormationSurfaceVector& formatio
          for ( propertyIter = properties.begin(); propertyIter != properties.end(); ++propertyIter )
          {
             const Interface::Property * property = *propertyIter;
-            if( not m_vizFormat and ( m_no3Dproperties and surface == 0 and property->getPropertyAttribute() != DataModel::FORMATION_2D_PROPERTY )) {
+            if( m_no3Dproperties and surface == 0 and property->getPropertyAttribute() != DataModel::FORMATION_2D_PROPERTY ) {
                continue;
             }
-            if( not m_vizFormat and ( not m_extract2D and surface != 0 and property->getName() != "Reflectivity" )) {
+            if( not m_extract2D and surface != 0 and property->getName() != "Reflectivity" ) {
                continue;
             }
 
             if ( not m_projectProperties or ( m_projectProperties and allowOutput( property->getCauldronName(), formation, surface ))) {
                OutputPropertyValuePtr outputProperty = DerivedProperties::allocateOutputProperty ( * m_propertyManager, property, snapshot, * formationIter );
-
+               
                if ( outputProperty != 0 ) {
                   if( m_debug && m_rank == 0 ) {
                      LogHandler( LogHandler::INFO_SEVERITY) << "Snapshot: " << snapshot->getTime() <<
@@ -430,7 +433,7 @@ void PropertiesCalculator::calculateProperties( FormationSurfaceVector& formatio
                         ( surface != 0 ? surface->getName() : "" );
                   }
                   allOutputPropertyValues [ snapshot ][ * formationIter ][ property ] = outputProperty;
-              }
+               }
                else{
                   if( m_debug && m_rank == 0 ) {
                      LogHandler( LogHandler::INFO_SEVERITY ) << "Could not calculate derived property " << property->getName()
@@ -440,6 +443,7 @@ void PropertiesCalculator::calculateProperties( FormationSurfaceVector& formatio
                }
             }
          }
+
          if( not m_vizFormat ) { 
             DerivedProperties::outputSnapshotFormationData( m_projectHandle, snapshot, * formationIter, properties, allOutputPropertyValues );
          } else {
@@ -458,21 +462,22 @@ void PropertiesCalculator::calculateProperties( FormationSurfaceVector& formatio
          displayProgress( snapshot->getFileName (), m_startTime, "Saving is finished for " );
       } else {
          collectVolumeData(  DerivedProperties::getSnapShot( m_vizProject, snapshot->getTime() ), m_data );
-          if( m_rank == 0 ) {
-             std::shared_ptr<CauldronIO::SnapShot> snap = DerivedProperties::getSnapShot( m_vizProject, snapshot->getTime() );
-             DerivedProperties::updateConstantValue(snap);
-             pugi::xml_node node = m_snapShotNodes.append_child("snapshot");
-             m_export->addSnapShot(snap, node);
-             snap->release();
+        
+         if( m_rank == 0 ) {
+            std::shared_ptr<CauldronIO::SnapShot> snap = DerivedProperties::getSnapShot( m_vizProject, snapshot->getTime() );
+            DerivedProperties::updateConstantValue(snap);
+            pugi::xml_node node = m_snapShotNodes.append_child("snapshot");
+            m_export->addSnapShot(snap, node);
          }
-         if( m_rank != 0 ) {
-            DerivedProperties::getSnapShot( m_vizProject, snapshot->getTime() )->release();
-         }
+         DerivedProperties::getSnapShot( m_vizProject, snapshot->getTime() )->release();
       }
-      //     m_projectHandle->deleteRecordLessMapPropertyValues();
-      //     m_projectHandle->deleteRecordLessVolumePropertyValues();
-
+      // m_projectHandle->deleteRecordLessMapPropertyValues();
+      // m_projectHandle->deleteRecordLessVolumePropertyValues();
+      
       m_projectHandle->deletePropertiesValuesMaps ( snapshot );
+      
+ 
+      StatisticsHandler::update ();
    }
 
    if( m_vizFormat ) {

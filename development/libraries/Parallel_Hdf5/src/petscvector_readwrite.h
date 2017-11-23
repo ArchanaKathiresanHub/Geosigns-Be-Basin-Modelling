@@ -112,8 +112,10 @@ public:
                                 DMDALocalInfo &info, PetscDimensions *petscD)
    {
       // create global vector
-      petscD->createGlobalVector (globalDa, globalVector);
-
+      // globalVector should be already allocated
+      if( globalVector == PETSC_NULL ) {
+         petscD->createGlobalVector (globalDa, globalVector);
+      }
       // create local vector
       *localVec = petscD->createLocalVector (globalDa, globalVector);
     

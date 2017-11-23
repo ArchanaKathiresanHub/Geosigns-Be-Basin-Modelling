@@ -11,11 +11,11 @@ DerivedProperties::PrimaryFormationMapProperty::PrimaryFormationMapProperty ( co
    FormationMapProperty ( propertyValue->getProperty (), 
                           propertyValue->getSnapshot (),
                           propertyValue->getFormation (),
-                          propertyValue->getGridMap ()->getGrid ()),
+                          propertyValue->getGridMap ()->getGrid () ),
    m_propertyValue ( propertyValue ),
    m_gridMap ( propertyValue->getGridMap ())
 {
-   m_gridMap->retrieveData ( true );
+   m_gridMap->retrieveData (true);
 }
 
 DerivedProperties::PrimaryFormationMapProperty::~PrimaryFormationMapProperty() {

@@ -19,6 +19,7 @@
 #include "Interface/Surface.h"
 #include "Interface/Property.h"
 #include "Interface/PropertyValue.h"
+#include "Interface/CrustFormation.h"
 
 #include <boost/foreach.hpp>
 #include <boost/thread.hpp>
@@ -338,6 +339,7 @@ void CauldronIO::ExportToHDF::writeContVolToHDF( const std::shared_ptr<SnapShot>
 
    const FormationList& formations = m_project->getFormations();
    
+   // Create a list of formations, check if basement should be included
    FormationList snapshotFormations;
    BOOST_FOREACH(const std::shared_ptr<Formation>& formation, formations)
    {
@@ -353,7 +355,8 @@ void CauldronIO::ExportToHDF::writeContVolToHDF( const std::shared_ptr<SnapShot>
       const DataAccess::Interface::Formation * pformation = m_projectHandle->findFormation( formation->getName());
       if (pformation->getTopSurface() and pformation->getTopSurface()->getSnapshot()) {
          if( pformation->getTopSurface()->getSnapshot()->getTime() >= snapshotAge ) {
-            if( pformation->getName() == "Crust" and not m_basement ) {
+            
+            if(( pformation->kind() == DataAccess::Interface::BASEMENT_FORMATION and pformation->getName() == "Crust" ) and not m_basement ) {
                continue;
             }
             snapshotFormations.push_back(formation);
@@ -397,16 +400,19 @@ void CauldronIO::ExportToHDF::writeContVolToHDF( const std::shared_ptr<SnapShot>
 #ifdef DEBUG
          std::cout << snapShot->getAge() << " " << name << " " <<  propVolList.size() << std::endl;
 #endif
-         
+         // Find formation's part of the property volume and save as HDF
          BOOST_FOREACH(PropertyVolumeData& propVolume, propVolList) {
             std::shared_ptr< CauldronIO::VolumeData> valueMap = propVolume.second;
             std::string pname = propVolume.first->getName();
 
+            // Pressure and Ves are not calculated for the basement
             if( (pname == "Pressure" or pname == "Ves")  and  (name == "Crust" or name == "Mantle" )) {
                continue;
             }
+
+            // Find out if the property was calculated for the basement
             const DataAccess::Interface::Property * property = m_projectHandle->findProperty(pname);
-            const DataAccess::Interface::Formation * crustForm =  m_projectHandle->findFormation("Crust");
+            const DataAccess::Interface::Formation * crustForm = dynamic_cast<const DataAccess::Interface::Formation *>( m_projectHandle->getCrustFormation() );
             DataAccess::Interface::PropertyValueList * projectProps = m_projectHandle->getPropertyValues( DataAccess::Interface::FORMATION, property,
                                                                                                           m_projectHandle->findSnapshot(snapshotAge), 0, 
                                                                                                           crustForm, 0, DataAccess::Interface::VOLUME );
@@ -448,7 +454,6 @@ void CauldronIO::ExportToHDF::writeContVolToHDF( const std::shared_ptr<SnapShot>
                "," << dims[2] << " (" << k_range_end << ", " <<  k_range_start << ")" << " geometry numK = " <<  geometry->getNumK() << " firstK = " << firstK << " lastK " << lastK << std::endl;
 #endif           
             float * values = new float[dims[0] * dims[1] * dims[2]];
-            memset( values, 1, sizeof(float) * dims[0] * dims[1] * dims[2]);
             unsigned int kk = 0;
 
             for (unsigned int i = 0; i < dims[0]; ++ i ) {

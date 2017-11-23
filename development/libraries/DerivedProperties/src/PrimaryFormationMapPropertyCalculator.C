@@ -44,7 +44,7 @@ void DerivedProperties::PrimaryFormationMapPropertyCalculator::calculate ( Abstr
    for ( size_t i = 0; i < m_formationPropertyValues.size (); ++i ) {
       const DataAccess::Interface::PropertyValue* propVal = m_formationPropertyValues [ i ];
 
-      if ( propVal->getProperty () == m_property and propVal->getFormation () == formation and propVal->getSnapshot () == snapshot ) {
+      if ( propVal->getProperty () == m_property and propVal->getFormation () == formation and propVal->getSnapshot () == snapshot and propVal->getGridMap() != nullptr ) {
          // Add the property and exit the loop, since there is only a single
          // property associated with the primary formation property calculator.
          derivedProperties.push_back ( FormationMapPropertyPtr ( new PrimaryFormationMapProperty ( propVal )));

@@ -522,10 +522,10 @@ void GeoPhysics::ProjectHandle::addUndefinedAreas ( const DataAccess::Interface:
 void GeoPhysics::ProjectHandle::addMantleUndefinedAreas ( const Interface::MantleFormation* mantle ) {
 
    if ( mantle != 0 ) {
-      if( mantle->getPaleoThicknessHistory () != 0 ) {
+      Interface::PaleoFormationPropertyList* thicknesses = mantle->getPaleoThicknessHistory ();
+      if( thicknesses != 0 ) {
          Interface::PaleoFormationPropertyList::const_iterator thicknessIter;
-         Interface::PaleoFormationPropertyList* thicknesses = mantle->getPaleoThicknessHistory ();
-
+         
          for ( thicknessIter = thicknesses->begin (); thicknessIter != thicknesses->end (); ++thicknessIter ) {
             addUndefinedAreas ( dynamic_cast<const Interface::GridMap*>((*thicknessIter)->getMap ( Interface::MantleThicknessHistoryInstanceThicknessMap )));
          }

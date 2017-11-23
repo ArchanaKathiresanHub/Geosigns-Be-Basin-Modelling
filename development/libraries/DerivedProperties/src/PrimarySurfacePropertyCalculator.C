@@ -43,7 +43,7 @@ void DerivedProperties::PrimarySurfacePropertyCalculator::calculate ( AbstractPr
    for ( size_t i = 0; i < m_surfacePropertyValues.size (); ++i ) {
       const DataAccess::Interface::PropertyValue* propVal = m_surfacePropertyValues [ i ];
 
-      if ( propVal->getProperty () == m_property and propVal->getSurface () == surface and propVal->getSnapshot () == snapshot ) {
+      if ( propVal->getProperty () == m_property and propVal->getSurface () == surface and propVal->getSnapshot () == snapshot and propVal->getGridMap() != nullptr ) {
          // Add the property and exit the loop, since there is only a single
          // property associated with the primary surface property calculator.
          derivedProperties.push_back ( SurfacePropertyPtr ( new PrimarySurfaceProperty ( propVal )));

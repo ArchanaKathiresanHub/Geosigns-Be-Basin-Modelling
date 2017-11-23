@@ -57,7 +57,6 @@ std::shared_ptr<CauldronIO::FormationInfoList> DerivedProperties::getDepthFormat
         depthFormations->push_back(info);
 
         map->restoreData();
-        map->release();
     }
 
     // Capture global k-range

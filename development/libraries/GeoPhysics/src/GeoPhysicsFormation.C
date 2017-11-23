@@ -464,7 +464,7 @@ void GeoPhysics::Formation::setFaultLithologies ( bool& layerHasFaults,
          }
 
       }
-
+      delete faults;
    }
 
    delete faultCollections;

@@ -19,7 +19,7 @@ Parent::~Parent (void)
 {
    if (m_children)
    {
-      for (unsigned int index = 0; index < (* m_children).size (); ++index)
+      for (unsigned int index = 0; index < (* m_children).capacity (); ++index)
       {
          if ((* m_children)[index]) delete (* m_children)[index];
       }

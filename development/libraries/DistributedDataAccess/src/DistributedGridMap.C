@@ -43,6 +43,7 @@ DistributedGridMap::DistributedGridMap( const Grid * grid,
       m_averageValue (m_undefinedValue),
       m_depth (depth),
       m_retrieved (false),
+      m_vecGlobal(PETSC_NULL),
       m_vecLocal(nullptr)
 {
    initialize ();
@@ -63,6 +64,7 @@ DistributedGridMap::DistributedGridMap( const Parent * owner,
       m_depth (depth),
       m_grid (grid),
       m_retrieved (false),
+      m_vecGlobal(PETSC_NULL),
       m_vecLocal(nullptr)
 {
    initialize ();
@@ -82,6 +84,7 @@ DistributedGridMap::DistributedGridMap( const Parent * owner,
       m_averageValue (m_undefinedValue),
       m_depth (depth),
       m_retrieved (false),
+      m_vecGlobal(PETSC_NULL),
       m_vecLocal(nullptr)
 {
    initialize ();
@@ -118,6 +121,7 @@ DistributedGridMap::DistributedGridMap( const Parent * owner,
       m_averageValue (m_undefinedValue),
       m_depth (operand1->getDepth ()),
       m_retrieved (false),
+      m_vecGlobal(PETSC_NULL),
       m_vecLocal(nullptr)
 {
    initialize ();
@@ -199,6 +203,7 @@ DistributedGridMap::DistributedGridMap( const Parent * owner,
    m_averageValue (m_undefinedValue),
    m_depth (operand1->getDepth ()),
    m_retrieved (false),
+   m_vecGlobal(PETSC_NULL),
    m_vecLocal(nullptr)
 {
    initialize ();
@@ -279,6 +284,7 @@ DistributedGridMap::DistributedGridMap( const Parent * owner,
       m_averageValue (m_undefinedValue),
       m_depth (operand->getDepth ()),
       m_retrieved (false),
+      m_vecGlobal(PETSC_NULL),
       m_vecLocal(nullptr)
 {
    initialize ();
@@ -340,6 +346,7 @@ DistributedGridMap::DistributedGridMap( const Parent * owner,
       m_averageValue (m_undefinedValue),
       m_depth (operand->getDepth ()),
       m_retrieved (false),
+      m_vecGlobal(PETSC_NULL),
       m_vecLocal(nullptr)
 {
    initialize ();

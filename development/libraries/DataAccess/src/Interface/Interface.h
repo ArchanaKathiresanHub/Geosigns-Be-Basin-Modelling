@@ -301,7 +301,7 @@ namespace DataAccess
       /// Attributes for which a (GridMap) value can be requested via getMap ().
       enum BottomBoundaryConditionsCrustHeatProductionAttributeId {
          // This value must be distinct from all other values used in Formations.
-         CrustHeatProductionMap = 4
+         CrustHeatProductionMap = 6
       };
 
       /// Attributes for which a (GridMap) value can be requested via getMap ().

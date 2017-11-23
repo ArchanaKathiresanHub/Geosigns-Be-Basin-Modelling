@@ -10,18 +10,16 @@ DerivedProperties::PrimaryFormationProperty::PrimaryFormationProperty ( const Da
    FormationProperty ( propertyValue->getProperty (), 
                        propertyValue->getSnapshot (),
                        propertyValue->getFormation (),
-                       ( propertyValue->getGridMap () != 0 ? propertyValue->getGridMap ()->getGrid () : 0 ),
-                       ( propertyValue->getGridMap () != 0 ? propertyValue->getGridMap ()->lastK () + 1 : 0 )),
+                       propertyValue->getGridMap ()->getGrid(),
+                       propertyValue->getGridMap ()->lastK () + 1 ),
    m_propertyValue ( propertyValue ),
    m_gridMap ( propertyValue->getGridMap () )
 {
    m_depth = 0;
    m_storedInAscending = true;
-   if( m_gridMap ) {
-      m_gridMap->retrieveData ( true );
-      m_depth = m_gridMap->getDepth();
-      m_storedInAscending = m_gridMap->isAscendingOrder();
-   }
+   m_gridMap->retrieveData ( true );
+   m_depth = m_gridMap->getDepth();
+   m_storedInAscending = m_gridMap->isAscendingOrder();
 }
 
 DerivedProperties::PrimaryFormationProperty::~PrimaryFormationProperty() {

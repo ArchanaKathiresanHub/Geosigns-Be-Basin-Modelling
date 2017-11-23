@@ -15,8 +15,11 @@ using namespace std;
 // Utility library
 #include "FormattingException.h"
 #include "LogHandler.h"
+#include "StatisticsHandler.h" 
 
 #include "PropertiesCalculator.h"
+
+using namespace Utilities::CheckMemory;
 
 void displayTime ( const double timeToDisplay, const char * msgToDisplay );
 
@@ -73,6 +76,8 @@ int main( int argc, char ** argv )
    ///2. Parse command line and create calculator
    PetscLogDouble sim_Start_Time;
    PetscTime( &sim_Start_Time );
+
+   StatisticsHandler::initialise();
 
    GeoPhysics::ObjectFactory* factory = new GeoPhysics::ObjectFactory;
    PropertiesCalculator * propCalculator = new PropertiesCalculator( rank );
@@ -184,6 +189,17 @@ int main( int argc, char ** argv )
    ////////////////////////////////////////////
    ///5. Save results
 
+   std::string statistics = StatisticsHandler::print(rank);
+   
+   PetscPrintf(PETSC_COMM_WORLD, "<statistics>\n");
+   PetscSynchronizedFlush(PETSC_COMM_WORLD, PETSC_STDOUT);
+   
+   PetscSynchronizedPrintf(PETSC_COMM_WORLD, statistics.c_str());
+   PetscSynchronizedFlush(PETSC_COMM_WORLD, PETSC_STDOUT);
+   
+   PetscPrintf(PETSC_COMM_WORLD, "</statistics>\n");
+   PetscSynchronizedFlush(PETSC_COMM_WORLD, PETSC_STDOUT);
+   
    bool status = propCalculator->finalise ( true );
 
    delete factory;

@@ -333,7 +333,7 @@ ProjectHandle::ProjectHandle(database::ProjectFileHandlerPtr pfh, const string &
    loadSGDensitySample();
 
    //@TODO_Check
-   loadPermafrostData();
+   //  loadPermafrostData();
 }
 
 int ProjectHandle::getRank() const {
@@ -427,6 +427,7 @@ ProjectHandle::~ProjectHandle( void )
    deleteDiffusionLeakageParameters();
 
    deleteHeatFlowHistory();
+   deleteMantleThicknessHistory();
    deleteCrustThinningHistory();
    deleteRunParameters();
    deleteProjectData();
@@ -3757,13 +3758,16 @@ void ProjectHandle::deletePropertyValues( int selectionFlags,
 }
 unsigned int ProjectHandle::deletePropertiesValuesMaps( const Snapshot * snapshot )
 {
-   MutablePropertyValueList::iterator propertyValueIter;
    unsigned int nrDeleted = 0;
-   propertyValueIter = m_propertyValues.begin();
-   while ( propertyValueIter != m_propertyValues.end() )
+   MutablePropertyValueList::const_iterator propertyValueIter;
+   
+   for ( propertyValueIter = m_propertyValues.begin();
+         propertyValueIter != m_propertyValues.end();
+         ++propertyValueIter )
    {
       PropertyValue * propertyValue = *propertyValueIter;
-      if( propertyValue->getSnapshot() == snapshot ) {
+      
+      if ( propertyValue->getSnapshot() == snapshot ) {
 
          GridMap * localGridMap = propertyValue->hasGridMap();
          if ( localGridMap )
@@ -3771,12 +3775,6 @@ unsigned int ProjectHandle::deletePropertiesValuesMaps( const Snapshot * snapsho
             delete localGridMap;
             ++nrDeleted;
          }
-         propertyValueIter = m_propertyValues.erase( propertyValueIter );
-
-      }
-      else
-      {
-         ++propertyValueIter;
       }
    }
    return nrDeleted;

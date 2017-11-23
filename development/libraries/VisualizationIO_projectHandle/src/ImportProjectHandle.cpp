@@ -999,14 +999,10 @@ void ImportProjectHandle::addStratTableSurface(const DataAccess::Interface::Surf
 {
    // Set the geometry
    const Grid* grid = (Grid *)m_projectHandle->getInputGrid();
-   const Interface::GridMap* gridmap = m_projectHandle->getFactory()->produceGridMap(surface, 0, grid, 0);
-    gridmap->retrieveData();
        
    std::shared_ptr<const CauldronIO::Geometry2D> geometry(new CauldronIO::Geometry2D(grid->numIGlobal(), grid->numJGlobal(),
       grid->deltaIGlobal(), grid->deltaJGlobal(), grid->minIGlobal(), grid->minJGlobal()));
 
-    gridmap->restoreData();
-    gridmap->release();
 
    // Add the geometry to the project
    m_project->addGeometry(geometry);
@@ -1116,7 +1112,6 @@ void ImportProjectHandle::addStratTableFormation(const Interface::Formation* for
 
    // Create a geometry
    const Grid* grid = (Grid *)m_projectHandle->getInputGrid();
-   const Interface::GridMap* gridmap = m_projectHandle->getFactory()->produceGridMap(formation, 0, grid, 0);
    std::shared_ptr<const CauldronIO::Geometry2D> geometry(new CauldronIO::Geometry2D(grid->numIGlobal(), grid->numJGlobal(),
       grid->deltaIGlobal(), grid->deltaJGlobal(), grid->minIGlobal(), grid->minJGlobal()));
 
@@ -1455,6 +1450,7 @@ void ImportProjectHandle::addGenexHistory()  {
          historyRecordsDefined.push_back( (* historyIter)->getFileName () );
       }
    }
+   delete historyList;
 
    ibs::FilePath folderPath ( m_projectHandle->getFullOutputDir () );
    

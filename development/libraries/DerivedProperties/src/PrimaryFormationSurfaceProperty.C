@@ -12,13 +12,11 @@ DerivedProperties::PrimaryFormationSurfaceProperty::PrimaryFormationSurfacePrope
                               propertyValue->getSnapshot (),
                               propertyValue->getFormation (),
                               propertyValue->getSurface (),
-                              ( propertyValue->getGridMap () != 0 ? propertyValue->getGridMap ()->getGrid () : 0 )),
+                              propertyValue->getGridMap ()->getGrid () ),
    m_propertyValue ( propertyValue ),
    m_gridMap ( propertyValue->getGridMap ())
 {
-   if( m_gridMap != 0 ) {
-      m_gridMap->retrieveData ( true );
-   }
+   m_gridMap->retrieveData ( true );
 }
 
 DerivedProperties::PrimaryFormationSurfaceProperty::~PrimaryFormationSurfaceProperty() {

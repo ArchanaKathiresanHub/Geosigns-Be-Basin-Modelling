@@ -216,14 +216,14 @@ OutputPropertyValuePtr  DerivedProperties::allocateOutputProperty ( DerivedPrope
           propertyManager.formationPropertyIsComputable ( property, snapshot, formation )) {
          
          printDebugMsg( "Allocating Formation", property, formation, 0, snapshot );
-         outputProperty = OutputPropertyValuePtr ( new FormationOutputPropertyValue ( propertyManager, property, snapshot, formation ));
+         outputProperty.reset( new FormationOutputPropertyValue ( propertyManager, property, snapshot, formation ));
       }     
       // check if the formation-map property is computable
       else if ( property->getPropertyAttribute () == DataModel::FORMATION_2D_PROPERTY and 
                 propertyManager.formationMapPropertyIsComputable ( property, snapshot, formation )) {
 
          printDebugMsg( "Allocating FM", property, formation, 0, snapshot );
-         outputProperty = OutputPropertyValuePtr ( new FormationMapOutputPropertyValue ( propertyManager, property, snapshot, formation ));
+         outputProperty.reset ( new FormationMapOutputPropertyValue ( propertyManager, property, snapshot, formation ));
       }
    }
    
@@ -247,7 +247,7 @@ OutputPropertyValuePtr  DerivedProperties::allocateOutputProperty ( DerivedPrope
          if ( topSurface != 0 ) {
 
             printDebugMsg( "Allocating Surface", property, 0, topSurface, snapshot );
-            outputProperty = OutputPropertyValuePtr ( new SurfaceOutputPropertyValue ( propertyManager, property, snapshot, topSurface ));
+            outputProperty.reset ( new SurfaceOutputPropertyValue ( propertyManager, property, snapshot, topSurface ));
          } else if ( bottomSurface != 0 ) {
             bool allowOutput = false;
 
@@ -269,11 +269,11 @@ OutputPropertyValuePtr  DerivedProperties::allocateOutputProperty ( DerivedPrope
          if ( topSurface != 0 ) {
 
             printDebugMsg( "Allocating FS", property, 0, topSurface, snapshot );
-            outputProperty = OutputPropertyValuePtr ( new FormationSurfaceOutputPropertyValue ( propertyManager, property, snapshot, formation, topSurface ));
-         } else if ( bottomSurface != 0 ) {
+            outputProperty.reset ( new FormationSurfaceOutputPropertyValue ( propertyManager, property, snapshot, formation, topSurface ));
+        } else if ( bottomSurface != 0 ) {
 
             printDebugMsg( "Allocating FS", property, 0, bottomSurface, snapshot );
-            outputProperty = OutputPropertyValuePtr ( new FormationSurfaceOutputPropertyValue ( propertyManager, property, snapshot, formation, bottomSurface ));
+            outputProperty.reset ( new FormationSurfaceOutputPropertyValue ( propertyManager, property, snapshot, formation, bottomSurface ));
          }
 
       }
