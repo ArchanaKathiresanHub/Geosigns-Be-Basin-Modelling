@@ -56,10 +56,23 @@ fi
 
 module purge
 module load intel/${INTEL_CXX_VERSION}
+")
 
+if( NOT CMAKE_BUILD_TYPE STREQUAL "Release" )
+    file( APPEND ${scriptName}
+"# Special module to debug with intel compiler 2017 in Shell
+if [ -e /glb/data/hpcrnd/easybuild/public/etc/profile.d/shell-envmodules.sh ]; then
+   module load GDB/7.8.2-GCC-4.9.2
+fi
+")
+endif()
+
+    file( APPEND ${scriptName}
+"
 # Running application forwarding all the script inputs
 $DIR/${targetName}.exe \"$@\"
 ")
+
     # Applying permission to run script
     add_custom_command(TARGET ${targetName} POST_BUILD COMMAND chmod 755 ${scriptName} )
     # Applying permission to environment variables (if it exists, otherwise errors will be ignored)
