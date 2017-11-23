@@ -96,7 +96,7 @@ namespace CauldronIO
 		/// \brief Override the retrieve method to load data from datastore
 		virtual void retrieve() {};
 		/// \brief Retrieve the data directly into the provided buffer
-		virtual void retrieve(const ArrayView<float> &buffer) const override {}
+		virtual void retrieve(const ArrayView<float> & /*buffer*/) const override {}
 		/// \returns a list of HDFinfo holding the data; can be null
 		virtual const std::vector < std::shared_ptr<HDFinfo> >& getHDFinfo() { return m_info; }
 		/// \returns true if all data needed is now ready (prefetch done)
@@ -128,7 +128,7 @@ namespace CauldronIO
 		/// \brief Override the retrieve method to load data from datastore
 		virtual void retrieve() {};
 		/// \brief Retrieve the data directly into the provided buffer
-		virtual void retrieve(const ArrayView<float> &buffer) const override {}
+		virtual void retrieve(const ArrayView<float> &/*buffer*/) const override {}
 		/// \returns a list of HDFinfo holding the data; can be null
 		virtual const std::vector < std::shared_ptr<HDFinfo> >& getHDFinfo() { return m_info; }
 		/// \brief Set all variables needed to retrieve the data
