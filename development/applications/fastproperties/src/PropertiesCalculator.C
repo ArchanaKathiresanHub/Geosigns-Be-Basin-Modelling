@@ -1279,12 +1279,12 @@ bool PropertiesCalculator::createVizSnapshotResultPropertyValueContinuous ( Outp
    if( snapshot->getTime() == 0 ) {
       std::shared_ptr<CauldronIO::Formation> vizFormation = m_vizProject->findFormation(daFormation->getName());
       if( not vizFormation ) {
-         vizFormation.reset(new CauldronIO::Formation(static_cast<int>(info->kStart + 1), propertyValue->getDepth(), daFormation->getName()));
+         vizFormation.reset(new CauldronIO::Formation(static_cast<int>(info->kStart), static_cast<int>(info->kEnd), daFormation->getName()));
          m_vizProject->addFormation( vizFormation );         
          if( debug ) {
-            cout << "Add formation cont" << daFormation->getName() << " kstart " << info->kStart + 1 << " kend " << propertyValue->getDepth() << endl;
+            cout << "Add formation cont " << daFormation->getName() << " kstart " << info->kStart << " kend " << info->kEnd << endl;
          }
-     }
+      }
       if( not vizFormation->isDepthRangeDefined() ) {
          vizFormation->updateK_range(static_cast<int>(info->kStart), static_cast<int>(info->kEnd));
          if( debug ) {
